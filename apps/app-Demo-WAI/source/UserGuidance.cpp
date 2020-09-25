@@ -5,16 +5,16 @@
 #define LOG_UG_DEBUG(...) Utils::log("ErlebARApp-UserGuidance", __VA_ARGS__);
 
 UserGuidance::UserGuidance(UserGuidanceScene* userGuidanceScene,
-                           AreaTrackingGui* gui,
-                           SENSGps* gps,
+                           AreaTrackingGui*   gui,
+                           SENSGps*           gps,
                            SENSOrientation*
-                           orientation,
+                                               orientation,
                            ErlebAR::Resources& resources)
- : _userGuidanceScene(userGuidanceScene),
-   _gui(gui),
-   _gps(gps),
-   _orientation(orientation),
-   _resources(resources)
+  : _userGuidanceScene(userGuidanceScene),
+    _gui(gui),
+    _gps(gps),
+    _orientation(orientation),
+    _resources(resources)
 {
     reset();
 }
@@ -22,31 +22,31 @@ UserGuidance::UserGuidance(UserGuidanceScene* userGuidanceScene,
 //reset user guidance to state idle
 void UserGuidance::reset()
 {
-    _state = State::IDLE;
-    _oldState = State::IDLE;
-    _selectedArea = ErlebAR::AreaId::NONE;
-    _dataIsLoading = false;
+    _state              = State::IDLE;
+    _oldState           = State::IDLE;
+    _selectedArea       = ErlebAR::AreaId::NONE;
+    _dataIsLoading      = false;
     _highDistanceToArea = false;
-    _wrongOrientation = false;
-    _isTracking = false;
+    _wrongOrientation   = false;
+    _isTracking         = false;
     update();
 }
 
 void UserGuidance::areaSelected(ErlebAR::AreaId areaId, SLVec3d areaLocation, float areaOrientation)
 {
-    _selectedArea = areaId;
-    _areaLocation = areaLocation;
+    _selectedArea    = areaId;
+    _areaLocation    = areaLocation;
     _areaOrientation = areaOrientation;
-    
+
     estimateEcefToEnuRotation();
     _ecefAREA.lla2ecef(areaLocation);
-    
+
     update();
 }
 
 void UserGuidance::dataIsLoading(bool isLoading)
 {
-    if(isLoading != _dataIsLoading)
+    if (isLoading != _dataIsLoading)
     {
         _dataIsLoading = isLoading;
         update();
@@ -55,7 +55,7 @@ void UserGuidance::dataIsLoading(bool isLoading)
 
 void UserGuidance::updateTrackingState(bool isTracking)
 {
-    if(isTracking != _isTracking)
+    if (isTracking != _isTracking)
     {
         _isTracking = isTracking;
         update();
@@ -65,34 +65,34 @@ void UserGuidance::updateTrackingState(bool isTracking)
 void UserGuidance::updateSensorEstimations()
 {
     //update distance to area and set _highDistanceToArea
-    if(_gps && _gps->permissionGranted() && _gps->isRunning())
+    if (_gps && _gps->permissionGranted() && _gps->isRunning())
     {
         SENSGps::Location loc = _gps->getLocation();
         //ATTENTION: we are using the same altitude as for the area, because gps altitude is not exact
         _ecefDEVICE.lla2ecef({loc.latitudeDEG, loc.longitudeDEG, _areaLocation.z});
         _currentDistanceToAreaM = (float)_ecefDEVICE.distance(_ecefAREA);
-        _highDistanceToArea = (_currentDistanceToAreaM > DIST_TO_AREA_THRES_M);
+        _highDistanceToArea     = (_currentDistanceToAreaM > DIST_TO_AREA_THRES_M);
         LOG_UG_DEBUG("Distance to Area: %f", _currentDistanceToAreaM);
         //todo: this change needs some filtering! We dont want state jittering at the border of thresholds
     }
 
     //update orientation
-    if(_orientation && _orientation->isRunning())
+    if (_orientation && _orientation->isRunning())
     {
         SENSOrientation::Quat o = _orientation->getOrientation();
         SLQuat4f              quat(o.quatX, o.quatY, o.quatZ, o.quatW);
         float                 rollRAD, pitchRAD, yawRAD;
         quat.toEulerAnglesXYZ(rollRAD, pitchRAD, yawRAD);
         _currentOrientationDeg = yawRAD * RAD2DEG;
-        float orientationDiff = std::abs(_currentOrientationDeg - _areaOrientation);
+        float orientationDiff  = std::abs(_currentOrientationDeg - _areaOrientation);
         LOG_UG_DEBUG("Orientation Area: %f current: %f diff: %f", _areaOrientation, _currentOrientationDeg, orientationDiff);
         //todo: this change needs some filtering! We dont want state jittering at the border of thresholds
         _wrongOrientation = (orientationDiff > ORIENT_DIFF_TO_AREA_THRES_DEG);
     }
-   
+
     //always call update to update arrow orientation
     update();
-    
+
     //update arrow orientation
 }
 
@@ -101,12 +101,12 @@ void UserGuidance::update()
     //store old state
     _oldState = _state;
     //check for transitions to a new state and process the change
-    while( stateTransition())
+    while (stateTransition())
     {
         LOG_UG_DEBUG("state transition from %s to %s", mapStateToString(_oldState), mapStateToString(_state));
     }
-    
-    if(_state != _oldState)
+
+    if (_state != _oldState)
     {
         //process state exit from old state
         processStateExit();
@@ -122,98 +122,98 @@ void UserGuidance::update()
 bool UserGuidance::stateTransition()
 {
     bool transition = false;
-    
+
     switch (_state)
     {
         case State::IDLE: {
-            if(_selectedArea != ErlebAR::AreaId::NONE)
+            if (_selectedArea != ErlebAR::AreaId::NONE)
             {
-                _state = State::DATA_LOADING;
+                _state     = State::DATA_LOADING;
                 transition = true;
             }
             break;
         }
         case State::DATA_LOADING: {
-            if(_gps && _gps->permissionGranted() && _highDistanceToArea)
+            if (_gps && _gps->permissionGranted() && _highDistanceToArea)
             {
-                _state = State::DIR_ARROW;
+                _state     = State::DIR_ARROW;
                 transition = true;
             }
-            else if(!_dataIsLoading)
+            else if (!_dataIsLoading)
             {
-                _state = State::RELOCALIZING;
+                _state     = State::RELOCALIZING;
                 transition = true;
             }
 
             break;
         }
         case State::DIR_ARROW: {
-            if(!_highDistanceToArea)
+            if (!_highDistanceToArea)
             {
-                if(_dataIsLoading)
+                if (_dataIsLoading)
                 {
-                    _state = State::DATA_LOADING;
+                    _state     = State::DATA_LOADING;
                     transition = true;
                 }
                 else
                 {
-                    _state = State::RELOCALIZING;
+                    _state     = State::RELOCALIZING;
                     transition = true;
                 }
             }
             break;
         }
         case State::RELOCALIZING: {
-            if(_isTracking)
+            if (_isTracking)
             {
-                _state = State::TRACKING;
+                _state     = State::TRACKING;
                 transition = true;
             }
-            else if(_gps && _gps->permissionGranted() && _highDistanceToArea)
+            else if (_gps && _gps->permissionGranted() && _highDistanceToArea)
             {
-                _state = State::DIR_ARROW;
+                _state     = State::DIR_ARROW;
                 transition = true;
             }
-            else if(_dataIsLoading)
+            else if (_dataIsLoading)
             {
-                _state = State::DATA_LOADING;
+                _state     = State::DATA_LOADING;
                 transition = true;
             }
-            else if(_orientation && _wrongOrientation)
+            else if (_orientation && _wrongOrientation)
             {
-                _state = State::RELOCALIZING_WRONG_ORIENTATION;
+                _state     = State::RELOCALIZING_WRONG_ORIENTATION;
                 transition = true;
             }
             break;
         }
         case State::RELOCALIZING_WRONG_ORIENTATION: {
-            if(_isTracking)
+            if (_isTracking)
             {
-                _state = State::TRACKING;
+                _state     = State::TRACKING;
                 transition = true;
             }
-            else if(_dataIsLoading)
+            else if (_dataIsLoading)
             {
-                _state = State::DATA_LOADING;
+                _state     = State::DATA_LOADING;
                 transition = true;
             }
-            else if(_orientation && !_wrongOrientation)
+            else if (_orientation && !_wrongOrientation)
             {
-                _state = State::RELOCALIZING;
+                _state     = State::RELOCALIZING;
                 transition = true;
             }
             break;
         }
         case State::TRACKING: {
-            if(!_isTracking)
+            if (!_isTracking)
             {
-                _state = State::RELOCALIZING;
+                _state     = State::RELOCALIZING;
                 transition = true;
             }
             break;
         }
     }
-    
+
     return transition;
 }
 
@@ -296,7 +296,7 @@ void UserGuidance::processState()
         case State::DIR_ARROW: {
             //update orientation calculation of direction arrow and update scene
             estimateArrowOrientation();
-            
+
             //update info bar with information about distance to target
             char buff[255];
             snprintf(buff, sizeof(buff), _resources.strings().ugInfoDirArrow(), _currentDistanceToAreaM);
@@ -319,16 +319,18 @@ void UserGuidance::processState()
 
 void UserGuidance::estimateArrowOrientation()
 {
+    if (_orientation == nullptr || _gps == nullptr)
+        return;
     //The camera is rotated with respect to the world using the sensor orientation.
     //The direction arrows direction is estimated wrt. the camera as it is a child of the camera
-    
+
     //ESIMATE CAMERA ROTAION WRT. WORLD
     //camera rotation with respect to (w.r.t.) sensor
     SLMat3f sRc;
     sRc.rotation(-90, 0, 0, 1);
 
     //sensor rotation w.r.t. east-north-down
-    SLMat3f enuRs;
+    SLMat3f               enuRs;
     SENSOrientation::Quat ori      = _orientation->getOrientation();
     SLMat3f               rotation = SLQuat4f(ori.quatX, ori.quatY, ori.quatZ, ori.quatW).toMat3();
     enuRs.setMatrix(rotation);
@@ -368,7 +370,7 @@ void UserGuidance::estimateArrowOrientation()
     //ROTATION OF ARROW WRT. CAMERA
     SLMat3f cRw = wRc.transposed();
     SLMat3f cRp = cRw * wRenu * enuRp;
-    
+
     //set arrow rotation
     _userGuidanceScene->updateArrowRot(cRp);
 }
@@ -379,7 +381,7 @@ void UserGuidance::estimateEcefToEnuRotation()
     //calculation of ecef to world (scene) rotation matrix
     //definition of rotation matrix for ECEF to world frame rotation:
     //world frame (scene) w.r.t. ENU frame
-    double phiRad = _areaLocation.x * Utils::DEG2RAD;  //   phi == latitude
+    double phiRad = _areaLocation.x * Utils::DEG2RAD; //   phi == latitude
     double lamRad = _areaLocation.y * Utils::DEG2RAD; //lambda == longitude
     double sinPhi = sin(phiRad);
     double cosPhi = cos(phiRad);
@@ -387,14 +389,14 @@ void UserGuidance::estimateEcefToEnuRotation()
     double cosLam = cos(lamRad);
 
     _enuRecef = SLMat3d(-sinLam,
-                     cosLam,
-                     0,
-                     -cosLam * sinPhi,
-                     -sinLam * sinPhi,
-                     cosPhi,
-                     cosLam * cosPhi,
-                     sinLam * cosPhi,
-                     sinPhi);
+                        cosLam,
+                        0,
+                        -cosLam * sinPhi,
+                        -sinLam * sinPhi,
+                        cosPhi,
+                        cosLam * cosPhi,
+                        sinLam * cosPhi,
+                        sinPhi);
 }
 
 /*

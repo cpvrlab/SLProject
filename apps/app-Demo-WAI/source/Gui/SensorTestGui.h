@@ -21,9 +21,7 @@ public:
     SensorTestGui(const ImGuiEngine&  imGuiEngine,
                   sm::EventHandler&   eventHandler,
                   ErlebAR::Resources& resources,
-                  int                 dotsPerInch,
-                  int                 screenWidthPix,
-                  int                 screenHeightPix,
+                  const DeviceData&   deviceData,
                   SENSGps*            gps,
                   SENSOrientation*    orientation);
     ~SensorTestGui();
@@ -31,6 +29,7 @@ public:
     void build(SLScene* s, SLSceneView* sv) override;
     void onResize(SLint scrW, SLint scrH, SLfloat scr2fbX, SLfloat scr2fbY) override;
     void onShow(); //call when gui becomes visible
+    void onHide();
 
 private:
     void resize(int scrW, int scrH);
@@ -53,8 +52,9 @@ private:
     bool        _hasException = false;
     std::string _exceptionText;
 
-    SENSGps*         _gps         = nullptr;
-    SENSOrientation* _orientation = nullptr;
+    SENSGps*                                 _gps         = nullptr;
+    SENSOrientation*                         _orientation = nullptr;
+    std::unique_ptr<SENSOrientationRecorder> _orientationRecorder;
 };
 
 #endif //SENSOR_TEST_GUI_H

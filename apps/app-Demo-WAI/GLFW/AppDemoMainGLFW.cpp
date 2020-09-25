@@ -531,8 +531,11 @@ int main(int argc, char* argv[])
 
     try
     {
-        std::unique_ptr<SENSWebCamera> webCamera = std::make_unique<SENSWebCamera>();
-        std::unique_ptr<SENSDummyGps>  gps       = std::make_unique<SENSDummyGps>();
+        std::unique_ptr<SENSWebCamera>        webCamera   = std::make_unique<SENSWebCamera>();
+        std::unique_ptr<SENSDummyGps>         gps         = std::make_unique<SENSDummyGps>();
+        std::unique_ptr<SENSDummyOrientation> orientation = std::make_unique<SENSDummyOrientation>();
+        //orientation->setupDummyOrientations();
+        orientation->readFromFile(Utils::unifySlashes(Utils::getAppsWritableDir()) + "20200924-174138_SENSOrientationRecorder.txt");
 
         //define some dummy positions (bern)
         //SENSGps::Location church1 = {46.94783, 7.44064, 542.0, 1.0f};
@@ -573,7 +576,7 @@ int main(int argc, char* argv[])
                  Utils::getAppsWritableDir(),
                  webCamera.get(),
                  gps.get(),
-                 nullptr);
+                 orientation.get());
         app.setCloseAppCallback(closeAppCallback);
 
         glfwSetWindowTitle(window, "ErlebAR");

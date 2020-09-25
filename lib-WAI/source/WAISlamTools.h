@@ -174,7 +174,7 @@ protected:
     virtual ~WAISlamTools() {}
     WAISlamTools(){};
 
-    static void countReprojectionOutliers(WAIFrame& frame, unsigned int &m, unsigned int &n, unsigned int &outliers);
+    static void countReprojectionOutliers(WAIFrame& frame, unsigned int& m, unsigned int& n, unsigned int& outliers);
 
     cv::Mat         _distortion;
     cv::Mat         _cameraIntrinsic;
@@ -184,12 +184,12 @@ protected:
 
     std::unique_ptr<WAIMap> _globalMap;
     LocalMap                _localMap;
-    WAIOrbVocabulary*       _voc;
+    WAIOrbVocabulary*       _voc = nullptr;
     cv::Mat                 _velocity;
-    bool                    _initialized;
+    bool                    _initialized = false;
 
-    LocalMapping*             _localMapping;
-    LoopClosing*              _loopClosing;
+    LocalMapping*             _localMapping             = nullptr;
+    LoopClosing*              _loopClosing              = nullptr;
     std::thread*              _processNewKeyFrameThread = nullptr;
     std::vector<std::thread*> _mappingThreads;
     std::thread*              _loopClosingThread = nullptr;

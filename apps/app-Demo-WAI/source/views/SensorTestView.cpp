@@ -12,9 +12,7 @@ SensorTestView::SensorTestView(sm::EventHandler&   eventHandler,
     _gui(imGuiEngine,
          eventHandler,
          resources,
-         deviceData.dpi(),
-         deviceData.scrWidth(),
-         deviceData.scrHeight(),
+         deviceData,
          sensGps,
          sensOrientation),
     _gps(sensGps),
@@ -32,6 +30,7 @@ bool SensorTestView::update()
 
 void SensorTestView::onHide()
 {
+    _gui.onHide();
     //stop all sensors
     if (_gps)
         _gps->stop();

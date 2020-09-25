@@ -24,7 +24,7 @@ class MapCreator
     typedef std::string Area;
     typedef struct VideoAndCalib
     {
-        std::string videoFile;
+        std::string   videoFile;
         CVCalibration calibration = {CVCameraType::VIDEOFILE, ""};
     } VideoAndCalib;
     typedef std::vector<VideoAndCalib> Videos;
@@ -46,7 +46,8 @@ public:
                std::string   outputDir,
                bool          serialMapping,
                float         thinCullingValue,
-               bool          ensureKFIntegration);
+               bool          ensureKFIntegration,
+               bool          saveBinary);
     ~MapCreator();
     //! execute map creation
     void execute();
@@ -109,6 +110,7 @@ private:
 
     bool  _serialMapping    = false;
     float _thinCullingValue = 0.995f;
+    bool  _saveBinary       = false;
     /*
     std::unique_ptr<KPextractor> _kpIniExtractor    = nullptr;
     std::unique_ptr<KPextractor> _kpExtractor       = nullptr;

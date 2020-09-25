@@ -10,9 +10,7 @@ using namespace ErlebAR;
 SensorTestGui::SensorTestGui(const ImGuiEngine&  imGuiEngine,
                              sm::EventHandler&   eventHandler,
                              ErlebAR::Resources& resources,
-                             int                 dotsPerInch,
-                             int                 screenWidthPix,
-                             int                 screenHeightPix,
+                             const DeviceData&   deviceData,
                              SENSGps*            gps,
                              SENSOrientation*    orientation)
   : ImGuiWrapper(imGuiEngine.context(), imGuiEngine.renderer()),
@@ -21,7 +19,9 @@ SensorTestGui::SensorTestGui(const ImGuiEngine&  imGuiEngine,
     _gps(gps),
     _orientation(orientation)
 {
-    resize(screenWidthPix, screenHeightPix);
+    resize(deviceData.scrWidth(), deviceData.scrHeight());
+
+    _orientationRecorder = std::make_unique<SENSOrientationRecorder>(orientation, deviceData.writableDir());
 }
 
 SensorTestGui::~SensorTestGui()
@@ -33,6 +33,10 @@ void SensorTestGui::onShow()
     _panScroll.enable();
     _hasException = false;
     _exceptionText.clear();
+}
+
+void SensorTestGui::onHide()
+{
 }
 
 void SensorTestGui::onResize(SLint scrW, SLint scrH, SLfloat scr2fbX, SLfloat scr2fbY)
@@ -103,6 +107,7 @@ void SensorTestGui::build(SLScene* s, SLSceneView* sv)
         else
         {
             updateGpsSensor();
+            ImGui::Separator();
             updateOrientationSensor();
         }
 
@@ -120,6 +125,7 @@ void SensorTestGui::build(SLScene* s, SLSceneView* sv)
 
 void SensorTestGui::updateGpsSensor()
 {
+    ImGui::TextUnformatted("GPS");
     float w    = ImGui::GetContentRegionAvailWidth();
     float btnW = w * 0.5f - ImGui::GetStyle().ItemSpacing.x;
     if (ImGui::Button("Start##startGpsSensor", ImVec2(btnW, 0)))
@@ -154,7 +160,7 @@ void SensorTestGui::updateGpsSensor()
             SENSGps::Location loc = _gps->getLocation();
             ImGui::Text("Lat: %fdeg Lon: %fdeg Alt: %fm Acc: %fm", loc.latitudeDEG, loc.longitudeDEG, loc.altitudeM, loc.accuracyM);
         }
-        else if(!_gps->permissionGranted())
+        else if (!_gps->permissionGranted())
             ImGui::Text("Sensor permission not granted");
         else
             ImGui::Text("Sensor not started");
@@ -165,6 +171,8 @@ void SensorTestGui::updateGpsSensor()
 
 void SensorTestGui::updateOrientationSensor()
 {
+
+    ImGui::TextUnformatted("Orientation");
     float w    = ImGui::GetContentRegionAvailWidth();
     float btnW = w * 0.5f - ImGui::GetStyle().ItemSpacing.x;
     if (ImGui::Button("Start##startOrientSensor", ImVec2(btnW, 0)))
@@ -189,6 +197,20 @@ void SensorTestGui::updateOrientationSensor()
             _exceptionText = e.what();
             _hasException  = true;
         }
+    }
+
+    if (ImGui::Button("Start recording##startRecord", ImVec2(btnW, 0)))
+    {
+        if (_orientationRecorder)
+            _orientationRecorder->start(100ms);
+    }
+
+    ImGui::SameLine();
+
+    if (ImGui::Button("Stop recording##stopRecord", ImVec2(btnW, 0)))
+    {
+        if (_orientationRecorder)
+            _orientationRecorder->stop();
     }
 
     if (_orientation)

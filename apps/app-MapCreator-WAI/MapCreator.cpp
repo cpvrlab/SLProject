@@ -15,10 +15,12 @@ MapCreator::MapCreator(std::string   erlebARDir,
                        std::string   outputDir,
                        bool          serialMapping,
                        float         thinCullingValue,
-                       bool          ensureKFIntegration)
+                       bool          ensureKFIntegration,
+                       bool          saveBinary)
   : _erlebARDir(Utils::unifySlashes(erlebARDir)),
     _serialMapping(serialMapping),
-    _thinCullingValue(thinCullingValue)
+    _thinCullingValue(thinCullingValue),
+    _saveBinary(saveBinary)
 {
     _calibrationsDir = Utils::unifySlashes(calibrationsDir);
     if (outputDir.empty())
@@ -222,12 +224,25 @@ bool MapCreator::createMarkerMap(AreaConfig&        areaConfig,
     WAIMap*        map           = new WAIMap(kfDB);
     cv::Mat        nodeTransform = cv::Mat::eye(4, 4, CV_32F);
 
-    bool mapLoadingSuccess = WAIMapStorage::loadMap(map,
-                                                    nodeTransform,
-                                                    _voc,
-                                                    mapDir + "/" + mapFile,
-                                                    false,
-                                                    modeParams.fixOldKfs);
+    bool mapLoadingSuccess = false;
+    if (Utils::containsString(mapFile, "waimap"))
+    {
+        mapLoadingSuccess = WAIMapStorage::loadMapBinary(map,
+                                                         nodeTransform,
+                                                         _voc,
+                                                         mapDir + "/" + mapFile,
+                                                         false,
+                                                         modeParams.fixOldKfs);
+    }
+    else
+    {
+        mapLoadingSuccess = WAIMapStorage::loadMap(map,
+                                                   nodeTransform,
+                                                   _voc,
+                                                   mapDir + "/" + mapFile,
+                                                   false,
+                                                   modeParams.fixOldKfs);
+    }
 
     if (!mapLoadingSuccess)
     {
@@ -257,11 +272,13 @@ void MapCreator::createNewWaiMap(const Location& location, const Area& area, Are
     //the lastly saved map file (only valid if initialized is true)
     FeatureExtractorFactory factory;
     //std::unique_ptr<KPextractor> kpExtractor = factory.make(extractorType, {markerImgGray.cols, markerImgGray.rows});
-    std::string              mapFile     = constructSlamMapFileName(location,
+    std::string mapFile = constructSlamMapFileName(location,
                                                    area,
                                                    factory.getExtractorIdToNames()[extractorType],
                                                    nLevels,
-                                                   Utils::getDateTime2String());
+                                                   Utils::getDateTime2String(),
+                                                   _saveBinary);
+
     std::string              mapDir      = _outputDir + area + "/";
     bool                     initialized = false;
     std::string              currentMapFileName;
@@ -408,12 +425,26 @@ bool MapCreator::createNewDenseWaiMap(Videos&                   videos,
         {
             WAIKeyFrameDB* kfdb    = new WAIKeyFrameDB(_voc);
             map                    = std::make_unique<WAIMap>(kfdb);
-            bool mapLoadingSuccess = WAIMapStorage::loadMap(map.get(),
-                                                            nodeTransform,
-                                                            _voc,
-                                                            lastMapFileName,
-                                                            false,
-                                                            modeParams.fixOldKfs);
+            bool mapLoadingSuccess = false;
+            if (Utils::containsString(lastMapFileName, "waimap"))
+            {
+                mapLoadingSuccess = WAIMapStorage::loadMapBinary(map.get(),
+                                                                 nodeTransform,
+                                                                 _voc,
+                                                                 lastMapFileName,
+                                                                 false,
+                                                                 modeParams.fixOldKfs);
+            }
+            else
+            {
+                mapLoadingSuccess = WAIMapStorage::loadMap(map.get(),
+                                                           nodeTransform,
+                                                           _voc,
+                                                           lastMapFileName,
+                                                           false,
+                                                           modeParams.fixOldKfs);
+            }
+
             if (!mapLoadingSuccess)
             {
                 std::cout << ("MapCreator::createNewDenseWaiMap: Could not load map from file " + lastMapFileName) << std::endl;
@@ -581,12 +612,26 @@ void MapCreator::thinOutNewWaiMap(const std::string&              mapDir,
     FeatureExtractorFactory      factory;
     std::unique_ptr<KPextractor> kpExtractor = factory.make(extractorType, calib.imageSize(), nLevels);
 
-    bool mapLoadingSuccess = WAIMapStorage::loadMap(map.get(),
-                                                    nodeTransform,
-                                                    _voc,
-                                                    inputMapFile,
-                                                    false,
-                                                    modeParams.fixOldKfs);
+    bool mapLoadingSuccess = false;
+    if (Utils::containsString(inputMapFile, "waimap"))
+    {
+        mapLoadingSuccess = WAIMapStorage::loadMapBinary(map.get(),
+                                                         nodeTransform,
+                                                         _voc,
+                                                         inputMapFile,
+                                                         false,
+                                                         modeParams.fixOldKfs);
+    }
+    else
+    {
+        mapLoadingSuccess = WAIMapStorage::loadMap(map.get(),
+                                                   nodeTransform,
+                                                   _voc,
+                                                   inputMapFile,
+                                                   false,
+                                                   modeParams.fixOldKfs);
+    }
+
     if (!mapLoadingSuccess)
     {
         std::cout << ("MapCreator::thinOutNewWaiMap: Could not load map from file " + inputMapFile) << std::endl;
@@ -602,9 +647,19 @@ void MapCreator::thinOutNewWaiMap(const std::string&              mapDir,
     //save map again (we use the map file name without index because this is the final map)
     //saveMap(waiMode.get(), mapDir, outputMapFile, &mapNode);
 
-    if (!WAIMapStorage::saveMapRaw(map.get(), &mapNode, mapDir + outputMapFile))
+    if (_saveBinary)
     {
-        throw std::runtime_error("MapCreator::saveMap: Could not save map file: " + mapDir + outputMapFile);
+        if (!WAIMapStorage::saveMapBinary(map.get(), &mapNode, mapDir + outputMapFile))
+        {
+            throw std::runtime_error("MapCreator::saveMap: Could not save map file: " + mapDir + outputMapFile);
+        }
+    }
+    else
+    {
+        if (!WAIMapStorage::saveMapRaw(map.get(), &mapNode, mapDir + outputMapFile))
+        {
+            throw std::runtime_error("MapCreator::saveMap: Could not save map file: " + mapDir + outputMapFile);
+        }
     }
 
     WAIMapStorage::saveKeyFrameVideoMatching(keyFrameVideoMatching, allVideos, mapDir, outputKFMatchingFile);
@@ -727,12 +782,25 @@ void MapCreator::saveMap(WAIMapSlam*        waiMode,
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
 
-    if (!WAIMapStorage::saveMapRaw(waiMode->getMap(),
-                                   mapNode,
-                                   mapDir + currentMapFileName,
-                                   imgDir))
+    if (_saveBinary)
     {
-        throw std::runtime_error("MapCreator::saveMap: Could not save map file: " + mapDir + currentMapFileName);
+        if (!WAIMapStorage::saveMapBinary(waiMode->getMap(),
+                                          mapNode,
+                                          mapDir + currentMapFileName,
+                                          imgDir))
+        {
+            throw std::runtime_error("MapCreator::saveMap: Could not save map file: " + mapDir + currentMapFileName);
+        }
+    }
+    else
+    {
+        if (!WAIMapStorage::saveMapRaw(waiMode->getMap(),
+                                       mapNode,
+                                       mapDir + currentMapFileName,
+                                       imgDir))
+        {
+            throw std::runtime_error("MapCreator::saveMap: Could not save map file: " + mapDir + currentMapFileName);
+        }
     }
 
     waiMode->resume();
