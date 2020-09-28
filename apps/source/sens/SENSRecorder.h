@@ -55,7 +55,7 @@ public:
     void store()
     {
         //open file
-        std::string fileName = _outputDir + Utils::getDateTime2String() + "_" + _name + ".txt";
+        std::string fileName = _outputDir + _name + ".txt";
         ofstream    file;
         file.open(fileName);
         if (file.is_open())
@@ -105,8 +105,8 @@ private:
     std::atomic_bool _stop{false};
     std::thread      _thread;
 
-    std::string                       _name;
-    std::string                       _outputDir;
+    std::string                        _name;
+    std::string                        _outputDir;
     std::function<void(T&, ofstream&)> _writeDataToFile;
 };
 
@@ -120,44 +120,56 @@ class SENSRecorder : public SENSGpsListener
 public:
     SENSRecorder(const std::string& outputDir)
     {
+        if (Utils::dirExists(outputDir))
+        {
 
-        auto gpsWriteDataFct = [](GpsInfo& data, ofstream& file) {
-            
-            using namespace std::chrono;
+            std::string recordDir = Utils::unifySlashes(outputDir) + Utils::getDateTime2String() + "_SENSRecorder/";
+            Utils::makeDir(recordDir);
+            if (Utils::dirExists(recordDir))
+            {
+                auto gpsWriteDataFct = [](GpsInfo& data, ofstream& file) {
+                    using namespace std::chrono;
 
-            file << time_point_cast<microseconds>(data.second).time_since_epoch().count() << " "
-                 << data.first.latitudeDEG << " "
-                 << data.first.longitudeDEG << " "
-                 << data.first.altitudeM << " "
-                 << data.first.accuracyM << "\n";
-        };
-        auto orientationWriteDataFct = [](OrientationInfo& data, ofstream& file) {
-            
-            using namespace std::chrono;
-            long timePtUs = time_point_cast<microseconds>(data.second).time_since_epoch().count();
+                    file << time_point_cast<microseconds>(data.second).time_since_epoch().count() << " "
+                         << data.first.latitudeDEG << " "
+                         << data.first.longitudeDEG << " "
+                         << data.first.altitudeM << " "
+                         << data.first.accuracyM << "\n";
+                };
+                auto orientationWriteDataFct = [](OrientationInfo& data, ofstream& file) {
+                    using namespace std::chrono;
+                    long timePtUs = time_point_cast<microseconds>(data.second).time_since_epoch().count();
 
-            //reading (https://stackoverflow.com/questions/31255486/c-how-do-i-convert-a-stdchronotime-point-to-long-and-back)
-            //long readTimePt;
-            //microseconds readTimePtUs(readTimePt);
-            //time_point<high_resolution_clock> dt(readTimePt);
+                    //reading (https://stackoverflow.com/questions/31255486/c-how-do-i-convert-a-stdchronotime-point-to-long-and-back)
+                    //long readTimePt;
+                    //microseconds readTimePtUs(readTimePt);
+                    //time_point<high_resolution_clock> dt(readTimePt);
 
-            file << timePtUs << " "
-            << data.first.quatX << " "
-            << data.first.quatY << " "
-            << data.first.quatZ << " "
-            << data.first.quatW << "\n";
-        };
-        
-        _gpsDataHandler = new SENSRecorderDataHandler<GpsInfo>("gps", outputDir, gpsWriteDataFct);
-        _orientationDataHandler = new SENSRecorderDataHandler<OrientationInfo>("orientation", outputDir, orientationWriteDataFct);
-        //_cameraDataHandler = SENSRecorderDataHandler<FrameInfo>("camera");
+                    file << timePtUs << " "
+                         << data.first.quatX << " "
+                         << data.first.quatY << " "
+                         << data.first.quatZ << " "
+                         << data.first.quatW << "\n";
+                };
+
+                _gpsDataHandler         = new SENSRecorderDataHandler<GpsInfo>("gps", recordDir, gpsWriteDataFct);
+                _orientationDataHandler = new SENSRecorderDataHandler<OrientationInfo>("orientation", recordDir, orientationWriteDataFct);
+                //_cameraDataHandler = SENSRecorderDataHandler<FrameInfo>("camera");
+            }
+            else
+                Utils::log("SENS", "SENSRecorder: Could not create output directory: %s", outputDir.c_str());
+        }
+        else
+            Utils::log("SENS", "SENSRecorder: Directory does not exist: %s", outputDir.c_str());
     }
     ~SENSRecorder()
     {
         stop();
 
-        delete _gpsDataHandler;
-        delete _orientationDataHandler;
+        if (_gpsDataHandler)
+            delete _gpsDataHandler;
+        if (_orientationDataHandler)
+            delete _orientationDataHandler;
         //delete _cameraDataHandler;
     }
 
@@ -233,21 +245,23 @@ public:
 
     void start()
     {
-        if(_running)
+        if (_running)
             return;
-        
+
         _running = true;
 
         if (_gps)
         {
             _gps->registerListener(this);
-            _gpsDataHandler->start();
+            if (_gpsDataHandler)
+                _gpsDataHandler->start();
         }
 
         if (_orientation)
         {
             _orientation->registerListener(this);
-            _orientationDataHandler->start();
+            if (_orientationDataHandler)
+                _orientationDataHandler->start();
         }
     }
 
@@ -255,13 +269,15 @@ public:
     {
         if (_gps)
         {
-            _gpsDataHandler->stop();
+            if (_gpsDataHandler)
+                _gpsDataHandler->stop();
             _gps->unregisterListener(this);
         }
 
         if (_orientation)
         {
-            _orientationDataHandler->stop();
+            if (_orientationDataHandler)
+                _orientationDataHandler->stop();
             _orientation->unregisterListener(this);
         }
 
@@ -272,13 +288,15 @@ private:
     void onGps(const SENSGps::Location& loc) override
     {
         auto newData = std::make_pair(loc, HighResClock::now());
-        _gpsDataHandler->add(std::move(newData));
+        if (_gpsDataHandler)
+            _gpsDataHandler->add(std::move(newData));
     }
 
     void onOrientation(const SENSOrientation::Quat& ori) override
     {
         auto newData = std::make_pair(ori, HighResClock::now());
-        _orientationDataHandler->add(std::move(newData));
+        if (_orientationDataHandler)
+            _orientationDataHandler->add(std::move(newData));
     }
 
     /*
