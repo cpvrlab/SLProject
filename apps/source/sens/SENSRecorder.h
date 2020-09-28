@@ -122,7 +122,10 @@ public:
     {
 
         auto gpsWriteDataFct = [](GpsInfo& data, ofstream& file) {
-            file << data.second.time_since_epoch().count() << " "
+            
+            using namespace std::chrono;
+
+            file << time_point_cast<microseconds>(data.second).time_since_epoch().count() << " "
                  << data.first.latitudeDEG << " "
                  << data.first.longitudeDEG << " "
                  << data.first.altitudeM << " "

@@ -210,7 +210,7 @@ void SettingsGui::build(SLScene* s, SLSceneView* sv)
 
             ImGui::PopStyleColor();
             ImGui::PopFont();
-            ImGui::Separator();
+            ImGui::Separator();           
         }
 
         ImGui::EndChild();

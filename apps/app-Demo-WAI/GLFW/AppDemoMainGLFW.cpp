@@ -18,6 +18,7 @@
 #include <sens/SENSGps.h>
 #include <DeviceData.h>
 #include <GLFW/glfw3.h>
+#include <sens/SENSSimulator.h>
 
 static ErlebARApp app;
 
@@ -531,11 +532,18 @@ int main(int argc, char* argv[])
 
     try
     {
-        std::unique_ptr<SENSWebCamera>        webCamera   = std::make_unique<SENSWebCamera>();
-        std::unique_ptr<SENSDummyGps>         gps         = std::make_unique<SENSDummyGps>();
-        std::unique_ptr<SENSDummyOrientation> orientation = std::make_unique<SENSDummyOrientation>();
+        std::unique_ptr<SENSWebCamera> webCamera = std::make_unique<SENSWebCamera>();
+        //std::unique_ptr<SENSDummyGps>         gps         = std::make_unique<SENSDummyGps>();
+        //std::unique_ptr<SENSDummyOrientation> orientation = std::make_unique<SENSDummyOrientation>();
+
+        std::string    simDir;
+        std::unique_ptr<SENSSimulator> sensSim = std::make_unique<SENSSimulator>(simDir);
+
+        SENSSimulatedGps*         gps         = sensSim->getGpsSensorPtr();
+        SENSSimulatedOrientation* orientation = sensSim->getOrientationSensorPtr();
+
         //orientation->setupDummyOrientations();
-        orientation->readFromFile(Utils::unifySlashes(Utils::getAppsWritableDir()) + "20200924-174138_SENSOrientationRecorder.txt");
+        //orientation->readFromFile(Utils::unifySlashes(Utils::getAppsWritableDir()) + "20200924-174138_SENSOrientationRecorder.txt");
 
         //define some dummy positions (bern)
         //SENSGps::Location church1 = {46.94783, 7.44064, 542.0, 1.0f};
@@ -544,8 +552,8 @@ int main(int argc, char* argv[])
         //SENSGps::Location br = {46.94701, 7.44290, 542.0, 1.0f};
 
         //biel
-        SENSGps::Location poi1 = {47.14246, 7.24311, 542.0, 10.0f};
-        gps->addDummyPos(poi1);
+        //SENSGps::Location poi1 = {47.14246, 7.24311, 542.0, 10.0f};
+        //gps->addDummyPos(poi1);
 
         //SENSGps::Location tl = {47.14290, 7.24225, 506.3, 10.0f};
         //SENSGps::Location br = {47.14060, 7.24693, 434.3, 1.0f};
@@ -575,8 +583,8 @@ int main(int argc, char* argv[])
                  std::string(SL_PROJECT_ROOT) + "/data/",
                  Utils::getAppsWritableDir(),
                  webCamera.get(),
-                 gps.get(),
-                 orientation.get());
+                 gps,
+                 orientation);
         app.setCloseAppCallback(closeAppCallback);
 
         glfwSetWindowTitle(window, "ErlebAR");
