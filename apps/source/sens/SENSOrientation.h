@@ -7,6 +7,8 @@
 #include <thread>
 #include <Utils.h>
 
+class SENSOrientationListener;
+
 class SENSOrientation
 {
 public:
@@ -27,6 +29,9 @@ public:
 
     bool isRunning() { return _running; }
 
+    void registerListener(SENSOrientationListener* listener);
+    void unregisterListener(SENSOrientationListener* listener);
+    
 protected:
     void setOrientation(Quat orientation);
 
@@ -36,6 +41,16 @@ private:
     std::mutex _orientationMutex;
 
     Quat _orientation;
+    
+    std::vector<SENSOrientationListener*> _listeners;
+    std::mutex _listenerMutex;
+};
+
+class SENSOrientationListener
+{
+public:
+    virtual ~SENSOrientationListener() {}
+    virtual void onOrientation(const SENSOrientation::Quat& ori) = 0;
 };
 
 //Dummy orientation implementation with a sensor simulation backend

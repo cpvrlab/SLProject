@@ -45,6 +45,6 @@ struct SENSFrame
     //! new intrinsics matrix (valid if intrinsicsChanged is true and can then be used to define a new calibration)
     cv::Mat intrinsics;
 };
-typedef std::unique_ptr<SENSFrame> SENSFramePtr;
+typedef std::shared_ptr<SENSFrame> SENSFramePtr;
 
 #endif //SENS_FRAME_H

@@ -18,6 +18,8 @@ set(erlebar_headers
 	${SL_PROJECT_ROOT}/apps/source/sens/SENSCalibrationEstimator.h
 	${SL_PROJECT_ROOT}/apps/source/sens/SENSGps.h
 	${SL_PROJECT_ROOT}/apps/source/sens/SENSOrientation.h
+	${SL_PROJECT_ROOT}/apps/source/sens/SENSRecorder.h
+	${SL_PROJECT_ROOT}/apps/source/sens/SENSSimulator.h
 	${SL_PROJECT_ROOT}/apps/source/sm/Event.h
 	${SL_PROJECT_ROOT}/apps/source/sm/EventData.h
 	${SL_PROJECT_ROOT}/apps/source/sm/EventHandler.h

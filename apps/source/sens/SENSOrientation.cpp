@@ -9,8 +9,35 @@ SENSOrientation::Quat SENSOrientation::getOrientation()
 
 void SENSOrientation::setOrientation(SENSOrientation::Quat orientation)
 {
-    const std::lock_guard<std::mutex> lock(_orientationMutex);
-    _orientation = orientation;
+    {
+        const std::lock_guard<std::mutex> lock(_orientationMutex);
+        _orientation = orientation;
+    }
+    
+    {
+        std::lock_guard<std::mutex> lock(_listenerMutex);
+        for(SENSOrientationListener* l : _listeners)
+            l->onOrientation(orientation);
+    }
+}
+
+void SENSOrientation::registerListener(SENSOrientationListener* listener)
+{
+    std::lock_guard<std::mutex> lock(_listenerMutex);
+    if(std::find(_listeners.begin(), _listeners.end(), listener) == _listeners.end())
+        _listeners.push_back(listener);
+}
+void SENSOrientation::unregisterListener(SENSOrientationListener* listener)
+{
+    std::lock_guard<std::mutex> lock(_listenerMutex);
+    for(auto it = _listeners.begin(); it != _listeners.end(); ++it)
+    {
+        if(*it == listener)
+        {
+            _listeners.erase(it);
+            break;
+        }
+    }
 }
 
 /**********************************************************************/

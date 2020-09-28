@@ -9,6 +9,7 @@
 #include <Resources.h>
 #include <sens/SENSGps.h>
 #include <sens/SENSOrientation.h>
+#include <sens/SENSRecorder.h>
 
 class SLScene;
 class SLSceneView;
@@ -54,7 +55,8 @@ private:
 
     SENSGps*                                 _gps         = nullptr;
     SENSOrientation*                         _orientation = nullptr;
-    std::unique_ptr<SENSOrientationRecorder> _orientationRecorder;
+    //std::unique_ptr<SENSOrientationRecorder> _orientationRecorder;
+    std::unique_ptr<SENSRecorder> _sensorRecorder;
 };
 
 #endif //SENSOR_TEST_GUI_H

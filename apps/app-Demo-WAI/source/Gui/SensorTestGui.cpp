@@ -21,7 +21,10 @@ SensorTestGui::SensorTestGui(const ImGuiEngine&  imGuiEngine,
 {
     resize(deviceData.scrWidth(), deviceData.scrHeight());
 
-    _orientationRecorder = std::make_unique<SENSOrientationRecorder>(orientation, deviceData.writableDir());
+    //_orientationRecorder = std::make_unique<SENSOrientationRecorder>(orientation, deviceData.writableDir());
+    _sensorRecorder = std::make_unique<SENSRecorder>(deviceData.writableDir());
+    _sensorRecorder->activateOrientation(orientation);
+    _sensorRecorder->activateGps(gps);
 }
 
 SensorTestGui::~SensorTestGui()
@@ -201,16 +204,21 @@ void SensorTestGui::updateOrientationSensor()
 
     if (ImGui::Button("Start recording##startRecord", ImVec2(btnW, 0)))
     {
-        if (_orientationRecorder)
-            _orientationRecorder->start(100ms);
+        //if (_orientationRecorder)
+        //    _orientationRecorder->start(100ms);
+        if(_sensorRecorder)
+            _sensorRecorder->start();
     }
 
     ImGui::SameLine();
 
     if (ImGui::Button("Stop recording##stopRecord", ImVec2(btnW, 0)))
     {
-        if (_orientationRecorder)
-            _orientationRecorder->stop();
+        //if (_orientationRecorder)
+        //_orientationRecorder->stop();
+        
+        if(_sensorRecorder)
+            _sensorRecorder->stop();
     }
 
     if (_orientation)

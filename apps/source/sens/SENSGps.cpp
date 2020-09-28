@@ -9,8 +9,36 @@ SENSGps::Location SENSGps::getLocation()
 
 void SENSGps::setLocation(SENSGps::Location location)
 {
-    const std::lock_guard<std::mutex> lock(_llaMutex);
-    _location = location;
+    {
+        const std::lock_guard<std::mutex> lock(_llaMutex);
+        _location = location;
+    }
+    
+    {
+        std::lock_guard<std::mutex> lock(_listenerMutex);
+        for(SENSGpsListener* l : _listeners)
+            l->onGps(location);
+    }
+}
+
+void SENSGps::registerListener(SENSGpsListener* listener)
+{
+    std::lock_guard<std::mutex> lock(_listenerMutex);
+    if(std::find(_listeners.begin(), _listeners.end(), listener) == _listeners.end())
+        _listeners.push_back(listener);
+}
+
+void SENSGps::unregisterListener(SENSGpsListener* listener)
+{
+    std::lock_guard<std::mutex> lock(_listenerMutex);
+    for(auto it = _listeners.begin(); it != _listeners.end(); ++it)
+    {
+        if(*it == listener)
+        {
+            _listeners.erase(it);
+            break;
+        }
+    }
 }
 
 /**********************************************************************/
