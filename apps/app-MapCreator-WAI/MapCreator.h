@@ -41,6 +41,7 @@ public:
                std::string   calibrationsDir,
                std::string   configFile,
                std::string   vocFile,
+               int           vocLevels,
                ExtractorType extractorType,
                int           nLevels,
                std::string   outputDir,

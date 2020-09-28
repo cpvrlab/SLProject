@@ -11,6 +11,7 @@ struct Config
     std::string   calibrationsDir;
     std::string   configFile;
     std::string   vocFile;
+    int           vocLayer;
     std::string   outputDir;
     ExtractorType extractorType;
     int           nLevels;
@@ -34,7 +35,7 @@ void printHelp()
     ss << "  -configFile            Path and name to MapCreatorConfig.json" << std::endl;
     ss << "  -vocFile               Path and name to Vocabulary file (Optional. If not specified, <AppsWritableDir>/voc/voc_fbow.bin is used)" << std::endl;
     ss << "  -outputDir             Directory where to output generated data (maps, log). (Optional. If not specified, <erlebARDir>/MapCreator/ is used for output, also log output)" << std::endl;
-    ss << "  -level                Number of pyramid levels" << std::endl;
+    ss << "  -level                 Number of pyramid levels" << std::endl;
     ss << "  -serial                Serial mapping (1 or 0)" << std::endl;
     ss << "  -thinCullVal           Thin out culling value (e.g. 0.95)" << std::endl;
     ss << "  -ensureKFIntegration   Ensure new keyframe have mappoints in common with previously loaded map" << std::endl;
@@ -44,7 +45,7 @@ void printHelp()
 
 void readArgs(int argc, char* argv[], Config& config)
 {
-    config.extractorType       = ExtractorType_FAST_BRIEF_1000;
+    config.extractorType       = ExtractorType_FAST_ORBS_2000;
     config.erlebARDir          = Utils::getAppsWritableDir() + "erleb-AR/";
     config.calibrationsDir     = Utils::getAppsWritableDir() + "erleb-AR/calibrations/";
     config.nLevels             = -1;
@@ -52,6 +53,7 @@ void readArgs(int argc, char* argv[], Config& config)
     config.serialMapping       = false;
     config.ensureKFIntegration = false;
     config.minCommonWordFactor = 0.8;
+    config.vocLayer            = 2;
 
 #if USE_FBOW
     config.vocFile = Utils::getAppsWritableDir() + "voc/voc_fbow.bin";
@@ -100,8 +102,13 @@ void readArgs(int argc, char* argv[], Config& config)
         }
         else if (!strcmp(argv[i], "-ensureKFIntegration"))
         {
-            int val              = std::stoi(argv[++i]);
+            int val                    = std::stoi(argv[++i]);
             config.ensureKFIntegration = val == 1 ? true : false;
+        }
+        else if (!strcmp(argv[i], "-vocLayer"))
+        {
+            int val         = std::stoi(argv[++i]);
+            config.vocLayer = val == 1 ? true : false;
         }
         else if (!strcmp(argv[i], "-feature"))
         {
@@ -225,6 +232,7 @@ int main(int argc, char* argv[])
                               config.calibrationsDir,
                               config.configFile,
                               config.vocFile,
+                              config.vocLayer,
                               config.extractorType,
                               config.nLevels,
                               config.outputDir,

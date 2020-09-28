@@ -107,6 +107,7 @@ public:
     //map name in erlebAR directory
     std::string slamMapFileName;
     std::string relocAlignImage;
+    std::string vocFileName;
     //WaiSlam extractor types
     ExtractorType initializationExtractorType = ExtractorType::ExtractorType_FAST_ORBS_2000;
     ExtractorType relocalizationExtractorType = ExtractorType::ExtractorType_FAST_ORBS_1000;

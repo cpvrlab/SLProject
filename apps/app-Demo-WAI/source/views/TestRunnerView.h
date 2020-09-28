@@ -23,6 +23,7 @@ class TestRunnerView : protected SLSceneView
         std::string extractorType;
         int         nLevels;
         std::string voc;
+        int         vocLayer;
     };
 
 public:
@@ -88,7 +89,7 @@ private:
     WAIMap*                      _map         = nullptr;
     int                          _currentFrameIndex;
     CVCalibration                _calibration = {CVCameraType::VIDEOFILE, ""};
-    WAIOrbVocabulary             _voc;
+    WAIOrbVocabulary*            _voc         = nullptr;
     bool                         _videoWasDownloaded;
     float                        _summedTime;
     const DeviceData&            _deviceData;

@@ -1,8 +1,8 @@
 /**
  * File: VocGenerator.cpp
- * Date: September 2019
+ * Date: September 2020
  * Author: Luc Girod
- * Description: DBoW2 voc generator
+ * Description: WAISlam voc generator
  */
 
 #include <iostream>
@@ -91,7 +91,7 @@ void buildVoc(vector<cv::Mat>& features)
 {
     WAIOrbVocabulary voc;
 
-    voc.create(features);
+    voc.create(features, 10, 5);
     cout << "Saving vocabulary..." << endl;
     voc.save("voc.bin");
     cout << "Done" << endl;

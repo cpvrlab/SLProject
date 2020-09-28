@@ -52,10 +52,10 @@ struct WAIFeatVector
 class WAI_API WAIOrbVocabulary
 {
 public:
-    WAIOrbVocabulary();
+    WAIOrbVocabulary(int layer = 2);
     ~WAIOrbVocabulary();
     void loadFromFile(std::string strVocFile);
-    void create(std::vector<cv::Mat> features);
+    void create(std::vector<cv::Mat> &features, int k, int l);
 
 #if USE_FBOW
     fbow::Vocabulary* _vocabulary = nullptr;
@@ -66,6 +66,9 @@ public:
     double score(WAIBowVector& bow1, WAIBowVector& bow2);
     size_t size();
     void   save(std::string path);
+
+private:
+    int _layer;
 };
 
 #endif // !WAI_ORBVOCABULARY_H

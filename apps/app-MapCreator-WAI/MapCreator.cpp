@@ -10,6 +10,7 @@ MapCreator::MapCreator(std::string   erlebARDir,
                        std::string   calibrationsDir,
                        std::string   configFile,
                        std::string   vocFile,
+                       int           vocLevels,
                        ExtractorType extractorType,
                        int           nLevels,
                        std::string   outputDir,
@@ -35,7 +36,7 @@ MapCreator::MapCreator(std::string   erlebARDir,
     if (!Utils::dirExists(_outputDir))
         Utils::makeDir(_outputDir);
 
-    _voc = new WAIOrbVocabulary();
+    _voc = new WAIOrbVocabulary(vocLevels);
     try
     {
         _voc->loadFromFile(vocFile);

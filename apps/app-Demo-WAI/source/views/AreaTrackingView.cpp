@@ -282,7 +282,11 @@ void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaI
         _imgBuffer.init(1, area.cameraFrameTargetSize);
 
 #ifdef LOAD_ASYNC
-    std::string fileName = _vocabularyDir + _vocabularyFileName;
+    std::string fileName;
+    if (area.vocFileName.empty())
+        fileName = _vocabularyDir + _vocabularyFileName;
+    else
+        fileName = _erlebARDir + area.vocFileName;
 
     //delete managed object
     if (_asyncLoader)

@@ -24,7 +24,8 @@ TestRunnerView::TestRunnerView(sm::EventHandler&   eventHandler,
     _ftpDir("erleb-AR/"),
     _videoWasDownloaded(false),
     _summedTime(0.0f),
-    _deviceData(deviceData)
+    _deviceData(deviceData),
+    _voc(nullptr)
 {
     init("TestRunnerView", deviceData.scrWidth(), deviceData.scrHeight(), nullptr, nullptr, &_gui, deviceData.writableDir());
 
@@ -80,7 +81,7 @@ bool TestRunnerView::update()
                                              _extractor.get(),
                                              intrinsic,
                                              distortion,
-                                             &_voc,
+                                             _voc,
                                              false);
 
             switch (_testMode)
@@ -382,19 +383,24 @@ bool TestRunnerView::update()
 
                     WAIFrame::mbInitialComputations = true;
 
-                    _voc.loadFromFile(_deviceData.vocabularyDir() + testInstance.voc);
-                    WAIKeyFrameDB* keyFrameDB = new WAIKeyFrameDB(&_voc);
+                    if (_voc)
+                        delete _voc;
+
+                    _voc = new WAIOrbVocabulary(testInstance.vocLayer);
+                    _voc->loadFromFile(_deviceData.vocabularyDir() + testInstance.voc);
 
                     if (_map)
                         delete _map;
 
+                    WAIKeyFrameDB* keyFrameDB = new WAIKeyFrameDB(_voc);
                     _map = new WAIMap(keyFrameDB);
+
                     cv::Mat mapNodeOm;
                     if (Utils::containsString(mapFile, ".waimap"))
                     {
                         WAIMapStorage::loadMapBinary(_map,
                                                      mapNodeOm,
-                                                     &_voc,
+                                                     _voc,
                                                      mapFile,
                                                      false,
                                                      true);
@@ -403,7 +409,7 @@ bool TestRunnerView::update()
                     {
                         WAIMapStorage::loadMap(_map,
                                                mapNodeOm,
-                                               &_voc,
+                                               _voc,
                                                mapFile,
                                                false,
                                                true);
@@ -427,8 +433,8 @@ bool TestRunnerView::update()
                         _localMap.mapPoints.clear();
                         _localMap.refKF = nullptr;
 
-                        _localMapping = new ORB_SLAM2::LocalMapping(_map, &_voc, 0.95f);
-                        _loopClosing  = new ORB_SLAM2::LoopClosing(_map, &_voc, false, false);
+                        _localMapping = new ORB_SLAM2::LocalMapping(_map, _voc, 0.95f);
+                        _loopClosing  = new ORB_SLAM2::LoopClosing(_map, _voc, false, false);
 
                         _localMapping->SetLoopCloser(_loopClosing);
                         _loopClosing->SetLocalMapper(_localMapping);
@@ -521,6 +527,7 @@ bool TestRunnerView::loadSites(const std::string&         erlebARDir,
                     TestInstance testInstance;
                     testInstance.location = location;
                     testInstance.area     = area;
+                    testInstance.vocLayer = 2;
                     if (mapInfo.size() < 2)
                     {
                         testInstance.map = map;
@@ -534,9 +541,11 @@ bool TestRunnerView::loadSites(const std::string&         erlebARDir,
                     {
                         testInstance.map = mapInfo[0];
                         testInstance.voc = Utils::trimString(mapInfo[1]);
+                        if (mapInfo.size() > 2)
+                            testInstance.vocLayer = atoi(mapInfo[2].c_str());
                     }
 
-                    testInstance.video    = video;
+                    testInstance.video = video;
 
                     SlamVideoInfos slamVideoInfos;
                     if (!extractSlamVideoInfosFromFileName(video, &slamVideoInfos))
