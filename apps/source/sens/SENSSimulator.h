@@ -11,82 +11,205 @@
 
 class SENSSimulator;
 
+template<typename T>
 class SENSSimulated
 {
     friend SENSSimulator;
-
+  
 public:
     ~SENSSimulated() {}
 
 protected:
-    SENSSimulated(std::function<bool(void)> startSimCB,
-                  std::function<void(void)> stopSimCB)
+    using StartSimCB = std::function<SENSTimePt(void)>;
+    
+    SENSSimulated(StartSimCB                              startSimCB,
+                  std::vector<std::pair<SENSTimePt, T>>&& data)
       : _startSimCB(startSimCB),
-        _stopSimCB(stopSimCB)
+        _data(data)
     {
     }
 
-protected:
-    std::function<bool(void)> _startSimCB;
-    std::function<void(void)> _stopSimCB;
+    void startSim(const SENSTimePt& startTimePt)
+    {
+        stopSim();
+
+        _thread = std::thread(&SENSSimulated::feedSensor, this, startTimePt, _commonSimStartTimePt);
+    }
+
+    void stopSim()
+    {
+        std::unique_lock<std::mutex> lock(_mutex);
+        _stop = true;
+        lock.unlock();
+        _condVar.notify_one();
+
+        if (_thread.joinable())
+            _thread.join();
+
+        lock.lock();
+        _stop = false;
+    }
+
+    virtual void feedSensorData(const int counter) = 0;
+
+    void feedSensor(const SENSTimePt startTimePt, const SENSTimePt simStartTimePt)
+    {
+        int counter = 0;
+
+        //bring counter close to startTimePt (maybe we skip some values to synchronize simulated sensors)
+        while (counter < _data.size() && _data[counter].first < simStartTimePt)
+        {
+            counter++;
+        }
+        //end of simulation
+        if (counter >= _data.size())
+            return;
+
+        while (true)
+        {
+            //estimate current sim time
+            auto       passedSimTime = std::chrono::duration_cast<SENSMicroseconds>((SENSTimePt)SENSClock::now() - startTimePt);
+            SENSTimePt simTime       = simStartTimePt + passedSimTime;
+
+            //process late values
+            while (counter < _data.size() && _data[counter].first < simTime)
+            {
+                feedSensorData(counter);
+                //_gps->setLocation(_data[counter].second);
+                //setting the location maybe took some time, so we update simulation time
+                passedSimTime = std::chrono::duration_cast<SENSMicroseconds>((SENSTimePt)SENSClock::now() - startTimePt);
+                simTime       = simStartTimePt + passedSimTime;
+                counter++;
+            }
+
+            //end of simulation
+            if (counter >= _data.size())
+                break;
+
+            //locationsCounter should now point to a value in the simulation future so lets wait
+            const SENSTimePt& valueTime = _data[counter].first;
+            //simTime has to be smaller than valueTime
+            SENSMicroseconds waitTimeMs = std::chrono::duration_cast<SENSMicroseconds>(valueTime - simTime);
+
+            std::unique_lock<std::mutex> lock(_mutex);
+            _condVar.wait_for(lock, waitTimeMs, [&] { return _stop == true; });
+
+            if (_stop)
+                break;
+        }
+    }
+
+    const SENSTimePt& firstTimePt()
+    {
+        assert(_data.size());
+        return _data.front().first;
+    }
+    
+    void setCommonSimStartTimePt(const SENSTimePt& commonSimStartTimePt)
+    {
+        _commonSimStartTimePt = commonSimStartTimePt;
+    }
+
+    std::vector<std::pair<SENSTimePt, T>> _data;
+
+    std::thread             _thread;
+    std::condition_variable _condVar;
+    std::mutex              _mutex;
+    bool                    _stop = false;
+
+    StartSimCB _startSimCB;
+    SENSTimePt _commonSimStartTimePt;
 };
 
-//sensor simulators
+//sensor simulator implementation
 class SENSSimulatedGps : public SENSGps
-  , public SENSSimulated
+  , public SENSSimulated<SENSGps::Location>
 {
     friend class SENSSimulator;
 
+public:
+    ~SENSSimulatedGps()
+    {
+        stop();
+    }
+    bool start() override
+    {
+        if (!_running)
+        {
+            const SENSTimePt& startTimePt = _startSimCB();
+            startSim(startTimePt);
+            _running = true;
+        }
+
+        return _running;
+    }
+
+    void stop() override
+    {
+        if(_running)
+        {
+            stopSim();
+            _running = false;
+        }
+    }
+
 private:
-    SENSSimulatedGps(std::function<bool(void)> startSimCB,
-                     std::function<void(void)> stopSimCB)
-      : SENSSimulated(startSimCB, stopSimCB)
+    //only SENSSimulator can instantiate
+    SENSSimulatedGps(StartSimCB                                              startSimCB,
+                     std::vector<std::pair<SENSTimePt, SENSGps::Location>>&& data)
+      : SENSSimulated(startSimCB, std::move(data))
     {
         _permissionGranted = true;
     }
 
-    bool start() override
+    void feedSensorData(const int counter) override
     {
-        if( _startSimCB())
-        {
-            _running = true;
-        }
-        return _running;
-    }
-
-    void stop() override
-    {
-        //stop simulator (stops, if no other activated sensor is running)
-        _stopSimCB();
-        _running = false;
+        setLocation(_data[counter].second);
     }
 };
 
 class SENSSimulatedOrientation : public SENSOrientation
-  , public SENSSimulated
+  , public SENSSimulated<SENSOrientation::Quat>
 {
     friend class SENSSimulator;
 
-private:
-    SENSSimulatedOrientation(std::function<bool(void)> startSimCB,
-                             std::function<void(void)> stopSimCB)
-      : SENSSimulated(startSimCB, stopSimCB)
+public:
+    ~SENSSimulatedOrientation()
     {
+        stop();
     }
-
+    
     bool start() override
     {
-        if( _startSimCB())
+        if (!_running)
         {
+            const SENSTimePt& startTimePt = _startSimCB();
+            startSim(startTimePt);
             _running = true;
         }
+
         return _running;
     }
 
     void stop() override
     {
-        _stopSimCB();
-        _running = false;
+        if(_running)
+        {
+            stopSim();
+            _running = false;
+        }
+    }
+
+private:
+    SENSSimulatedOrientation(StartSimCB                                                  startSimCB,
+                             std::vector<std::pair<SENSTimePt, SENSOrientation::Quat>>&& data)
+      : SENSSimulated(startSimCB, std::move(data))
+    {
+    }
+
+    void feedSensorData(const int counter) override
+    {
+        setOrientation(_data[counter].second);
     }
 };
 
@@ -102,23 +225,21 @@ class SENSSimulator
 public:
     SENSSimulator(const std::string& simDirName)
     {
-        //check directory content and enable simulated sensors depending on this
-        bool gpsAvailable         = false;
-        bool orientationAvailable = false;
-
-        std::string dirName = Utils::unifySlashes(simDirName);
-        std::string gpsFileName;
-        std::string orientationFileName;
-
         try
         {
+            //check directory content and enable simulated sensors depending on this
+            std::string dirName = Utils::unifySlashes(simDirName);
+
             if (Utils::dirExists(dirName))
             {
-                gpsFileName  = dirName + "gps.txt";
-                gpsAvailable = loadGpsData(dirName, gpsFileName);
+                std::string gpsFileName = dirName + "gps.txt";
+                loadGpsData(dirName, gpsFileName);
 
-                orientationFileName  = dirName + "orientation.txt";
-                orientationAvailable = loadOrientationData(dirName, orientationFileName);
+                std::string orientationFileName = dirName + "orientation.txt";
+                loadOrientationData(dirName, orientationFileName);
+
+                //estimate common start point in record age
+                estimateSimStartPoint();
             }
             else
                 Utils::log("SENS", "SENSSimulator: Directory does not exist: %s", simDirName.c_str());
@@ -127,83 +248,78 @@ public:
         {
             Utils::log("SENS", "SENSSimulator: Exception while parsing sensor files");
         }
-
-        if (gpsAvailable)
-        {
-            //make_unique has problems with fiendship and private constructor so we use unique_ptr
-            _gps = std::unique_ptr<SENSSimulatedGps>(
-              new SENSSimulatedGps(std::bind(&SENSSimulator::start, this),
-                                   std::bind(&SENSSimulator::stop, this)));
-        }
-
-        if (orientationAvailable)
-        {
-            //make_unique has problems with fiendship and private constructor so we use unique_ptr
-            _orientation = std::unique_ptr<SENSSimulatedOrientation>(
-              new SENSSimulatedOrientation(std::bind(&SENSSimulator::start, this),
-                                           std::bind(&SENSSimulator::stop, this)));
-        }
-    }
-
-    ~SENSSimulator()
-    {
-        stop();
     }
 
     SENSSimulatedGps*         getGpsSensorPtr() { return _gps.get(); }
     SENSSimulatedOrientation* getOrientationSensorPtr() { return _orientation.get(); }
 
     //start sensor simulators
-    bool start()
+    SENSTimePt start()
     {
-        //join running threads
-        stop();
+        if (!_running)
+        {
+            _startTimePoint = SENSClock::now();
+            _running        = true;
+        }
 
-        //estimate simulation start time
-        auto startTimePoint = SENSClock::now();
+        return _startTimePoint;
+    }
+    
+    void reset()
+    {
+        if(_gps)
+            _gps->stop();
         
-        _simStartTimePt = _locations[0].first;
+        if(_orientation)
+            _orientation->stop();
+        
+        _running = false;
+    }
 
-        //start sensor threads for available sensors
+private:
+    void estimateSimStartPoint()
+    {
+        //search for earliest time point
+        bool initialized = false;
+
         if (_gps)
         {
-            _gpsThread = std::thread(&SENSSimulator::feedGps, this, startTimePoint, _simStartTimePt);
+            const SENSTimePt& tp = _gps->firstTimePt();
+            if (!initialized)
+            {
+                initialized     = true;
+                _simStartTimePt = tp;
+            }
+            else if (tp < _simStartTimePt)
+                _simStartTimePt = tp;
         }
 
         if (_orientation)
         {
-            _orientThread = std::thread(&SENSSimulator::feedOrientation, this, startTimePoint, _simStartTimePt);
+            const SENSTimePt& tp = _orientation->firstTimePt();
+            if (!initialized)
+            {
+                initialized     = true;
+                _simStartTimePt = tp;
+            }
+            else if (tp < _simStartTimePt)
+                _simStartTimePt = tp;
         }
-
-        return true;
+        
+        if(_gps)
+            _gps->setCommonSimStartTimePt(_simStartTimePt);
+        if(_orientation)
+            _orientation->setCommonSimStartTimePt(_simStartTimePt);
     }
 
-    //stop sensor simulators
-    void stop()
+    void loadGpsData(const std::string& dirName, const std::string& gpsFileName)
     {
-        _stop = true;
-
-        _orientCondVar.notify_one();
-        _gpsCondVar.notify_one();
-
-        if (_orientThread.joinable())
-            _orientThread.join();
-
-        if (_gpsThread.joinable())
-            _gpsThread.join();
-
-        _stop = false;
-    }
-
-private:
-    bool loadGpsData(const std::string& dirName, const std::string& gpsFileName)
-    {
-        bool gpsAvailable = false;
         //check if directory contains gps.txt
         if (Utils::fileExists(gpsFileName))
         {
-            std::string line;
-            ifstream    file(gpsFileName);
+            std::vector<std::pair<SENSTimePt, SENSGps::Location>> data;
+            std::string                                           line;
+            ifstream                                              file(gpsFileName);
             if (file.is_open())
             {
                 while (std::getline(file, line))
@@ -223,28 +339,32 @@ private:
 
                         SENSMicroseconds readTimePtUs(readTimePt);
                         SENSTimePt       tPt(readTimePtUs);
-                        _locations.push_back(std::make_pair(tPt, loc));
+                        data.push_back(std::make_pair(tPt, loc));
                     }
                 }
                 file.close();
 
-                gpsAvailable = true;
+                if (data.size())
+                {
+                    //make_unique has problems with fiendship and private constructor so we use unique_ptr
+                    _gps = std::unique_ptr<SENSSimulatedGps>(
+                      new SENSSimulatedGps(std::bind(&SENSSimulator::start, this),
+                                           std::move(data)));
+                }
             }
             else
                 Utils::log("SENS", "SENSSimulator: Unable to open file: %s", gpsFileName.c_str());
         }
-
-        return gpsAvailable;
     }
 
-    bool loadOrientationData(const std::string& dirName, const std::string& orientationFileName)
+    void loadOrientationData(const std::string& dirName, const std::string& orientationFileName)
     {
-        bool orientationAvailable = false;
         //check if directory contains orientation.txt
         if (Utils::fileExists(orientationFileName))
         {
-            std::string line;
-            ifstream    file(orientationFileName);
+            std::vector<std::pair<SENSTimePt, SENSOrientation::Quat>> data;
+            std::string                                               line;
+            ifstream                                                  file(orientationFileName);
             if (file.is_open())
             {
                 while (std::getline(file, line))
@@ -264,91 +384,33 @@ private:
 
                         SENSMicroseconds readTimePtUs(readTimePt);
                         SENSTimePt       tPt(readTimePtUs);
-                        _orientations.push_back(std::make_pair(tPt, quat));
+                        data.push_back(std::make_pair(tPt, quat));
                     }
                 }
                 file.close();
 
-                orientationAvailable = true;
+                if (data.size())
+                {
+                    //make_unique has problems with fiendship and private constructor so we use unique_ptr
+                    _orientation = std::unique_ptr<SENSSimulatedOrientation>(
+                      new SENSSimulatedOrientation(std::bind(&SENSSimulator::start, this),
+                                                   std::move(data)));
+                }
             }
             else
                 Utils::log("SENS", "SENSSimulator: Unable to open file: %s", orientationFileName.c_str());
         }
-
-        return orientationAvailable;
-    }
-
-    void feedGps(const SENSTimePt startTimePt, const SENSTimePt simStartTimePt)
-    {
-        _locationsCounter = 0;
-
-        //bring counter close to startTimePt (maybe we skip some values to synchronize simulated sensors)
-        while (_locationsCounter < _locations.size() && _locations[_locationsCounter].first < simStartTimePt)
-        {
-            _locationsCounter++;
-        }
-        //end of simulation
-        if (_locationsCounter >= _locations.size())
-            return;
-
-        while (true)
-        {
-            //estimate current sim time
-            auto       passedSimTime = std::chrono::duration_cast<SENSMicroseconds>((SENSTimePt)SENSClock::now() - startTimePt);
-            SENSTimePt simTime       = simStartTimePt + passedSimTime;
-
-            //process late values
-            while (_locationsCounter < _locations.size() && _locations[_locationsCounter].first < simTime)
-            {
-                _gps->setLocation(_locations[_locationsCounter].second);
-                //setting the location maybe took some time, so we update simulation time
-                passedSimTime = std::chrono::duration_cast<SENSMicroseconds>((SENSTimePt)SENSClock::now() - startTimePt);
-                simTime       = simStartTimePt + passedSimTime;
-                _locationsCounter++;
-            }
-
-            //end of simulation
-            if (_locationsCounter >= _locations.size())
-                break;
-
-            //locationsCounter should now point to a value in the simulation future so lets wait
-            const SENSTimePt& valueTime = _locations[_locationsCounter].first;
-            //simTime has to be smaller than valueTime
-            SENSMicroseconds waitTimeMs = std::chrono::duration_cast<SENSMicroseconds>(valueTime - simTime);
-
-            std::unique_lock<std::mutex> lock(_gpsMutex);
-            _gpsCondVar.wait_for(lock, waitTimeMs, [&] { return _stop == true; });
-
-            if (_stop)
-                break;
-        }
-    }
-
-    void feedOrientation(const SENSTimePt startTimePt, const SENSTimePt simStartTimePt)
-    {
     }
 
     std::unique_ptr<SENSSimulatedGps>         _gps;
     std::unique_ptr<SENSSimulatedOrientation> _orientation;
 
-    int                                                       _orientationsCounter = 0;
-    std::vector<std::pair<SENSTimePt, SENSOrientation::Quat>> _orientations;
-
-    int                                                   _locationsCounter = 0;
-    std::vector<std::pair<SENSTimePt, SENSGps::Location>> _locations;
-
-    std::thread             _orientThread;
-    std::condition_variable _orientCondVar;
-    std::mutex              _orientMutex;
-
-    std::thread             _gpsThread;
-    std::condition_variable _gpsCondVar;
-    std::mutex              _gpsMutex;
-
-    std::atomic_bool _stop{false};
-
-    //start time point of simulati
+    //real start time point (when SENSSimulation::start was called)
+    SENSTimePt _startTimePoint;
+    //start time point of simulation
     SENSTimePt _simStartTimePt;
+
+    std::atomic_bool _running{false};
 };
 
 #endif

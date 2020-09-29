@@ -33,11 +33,15 @@ public:
 
     void stop()
     {
+        std::unique_lock<std::mutex> lock(_mutex);
         _stop = true;
+        lock.unlock();
         _condVar.notify_one();
 
         if (_thread.joinable())
             _thread.join();
+
+        lock.lock();
         _stop = false;
     }
 
@@ -97,9 +101,8 @@ private:
     std::deque<T>           _queue;
     std::mutex              _mutex;
     std::condition_variable _condVar;
-
-    std::atomic_bool _stop{false};
-    std::thread      _thread;
+    std::thread             _thread;
+    bool                    _stop = false;
 
     std::string                        _name;
     std::string                        _outputDir;
