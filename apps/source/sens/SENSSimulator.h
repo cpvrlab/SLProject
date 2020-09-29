@@ -56,11 +56,12 @@ protected:
     {
         int counter = 0;
 
+        auto       passedSimTime = std::chrono::duration_cast<SENSMicroseconds>((SENSTimePt)SENSClock::now() - startTimePt);
+        SENSTimePt simTime       = simStartTimePt + passedSimTime;
         //bring counter close to startTimePt (maybe we skip some values to synchronize simulated sensors)
-        while (counter < _data.size() && _data[counter].first < simStartTimePt)
-        {
+        while (counter < _data.size() && _data[counter].first < simTime)
             counter++;
-        }
+
         //end of simulation
         if (counter >= _data.size())
             return;
@@ -74,8 +75,9 @@ protected:
             //process late values
             while (counter < _data.size() && _data[counter].first < simTime)
             {
+                SENS_DEBUG("feed sensor with latency: %d us", std::chrono::duration_cast<SENSMicroseconds>(_data[counter].first - simTime).count());
                 feedSensorData(counter);
-                //_gps->setLocation(_data[counter].second);
+
                 //setting the location maybe took some time, so we update simulation time
                 passedSimTime = std::chrono::duration_cast<SENSMicroseconds>((SENSTimePt)SENSClock::now() - startTimePt);
                 simTime       = simStartTimePt + passedSimTime;
@@ -88,11 +90,15 @@ protected:
 
             //locationsCounter should now point to a value in the simulation future so lets wait
             const SENSTimePt& valueTime = _data[counter].first;
-            //simTime has to be smaller than valueTime
-            SENSMicroseconds waitTimeMs = std::chrono::duration_cast<SENSMicroseconds>(valueTime - simTime);
-
+            
+            //simTime should now be smaller than valueTime because valueTime is in the simulation future
+            SENSMicroseconds waitTimeUs = std::chrono::duration_cast<SENSMicroseconds>(valueTime - simTime);
+            //We reduce the wait time because thread sleep is not very exact (best is not to wait at all)
+            SENSMicroseconds reducedWaitTimeUs((long)(0.1 * (double)waitTimeUs.count()));
+            
             std::unique_lock<std::mutex> lock(_mutex);
-            _condVar.wait_for(lock, waitTimeMs, [&] { return _stop == true; });
+            _condVar.wait_for(lock, reducedWaitTimeUs, [&] { return _stop == true; });
+            //SENS_DEBUG("wait time %d us", reducedWaitTimeUs.count());
 
             if (_stop)
                 break;
