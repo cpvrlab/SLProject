@@ -5,7 +5,6 @@
 #include <thread>
 #include <atomic>
 #include <deque>
-#include <chrono>
 #include <utility>
 #include <mutex>
 #include <fstream>
@@ -14,9 +13,6 @@
 #include <sens/SENSOrientation.h>
 #include <sens/SENSCamera.h>
 #include <Utils.h>
-
-typedef std::chrono::high_resolution_clock             HighResClock;
-typedef std::chrono::high_resolution_clock::time_point HighResTimePoint;
 
 template<typename T>
 class SENSRecorderDataHandler
@@ -113,9 +109,9 @@ private:
 class SENSRecorder : public SENSGpsListener
   , public SENSOrientationListener //, public SENSCameraListener
 {
-    using GpsInfo         = std::pair<SENSGps::Location, HighResTimePoint>;
-    using OrientationInfo = std::pair<SENSOrientation::Quat, HighResTimePoint>;
-    using FrameInfo       = std::pair<SENSFramePtr, HighResTimePoint>;
+    using GpsInfo         = std::pair<SENSGps::Location, SENSTimePt>;
+    using OrientationInfo = std::pair<SENSOrientation::Quat, SENSTimePt>;
+    using FrameInfo       = std::pair<SENSFramePtr, SENSTimePt>;
 
 public:
     SENSRecorder(const std::string& outputDir)
@@ -285,16 +281,16 @@ public:
     }
 
 private:
-    void onGps(const SENSGps::Location& loc) override
+    void onGps(const SENSTimePt& timePt, const SENSGps::Location& loc) override
     {
-        auto newData = std::make_pair(loc, HighResClock::now());
+        auto newData = std::make_pair(loc, timePt);
         if (_gpsDataHandler)
             _gpsDataHandler->add(std::move(newData));
     }
 
-    void onOrientation(const SENSOrientation::Quat& ori) override
+    void onOrientation(const SENSTimePt& timePt, const SENSOrientation::Quat& ori) override
     {
-        auto newData = std::make_pair(ori, HighResClock::now());
+        auto newData = std::make_pair(ori, timePt);
         if (_orientationDataHandler)
             _orientationDataHandler->add(std::move(newData));
     }

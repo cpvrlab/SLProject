@@ -6,6 +6,8 @@
 #include <atomic>
 #include <vector>
 
+#include "SENS.h"
+
 class SENSGpsListener;
 
 class SENSGps
@@ -29,29 +31,30 @@ public:
     bool isRunning() { return _running; }
 
     bool permissionGranted() const { return _permissionGranted; }
-    
+
     void registerListener(SENSGpsListener* listener);
     void unregisterListener(SENSGpsListener* listener);
-    
+
 protected:
     void setLocation(SENSGps::Location location);
 
-    bool _running = false;
+    bool _running           = false;
     bool _permissionGranted = false;
+
 private:
+    SENSTimePt _timePt;
+    Location   _location;
     std::mutex _llaMutex;
 
-    Location _location;
-    
     std::vector<SENSGpsListener*> _listeners;
-    std::mutex _listenerMutex;
+    std::mutex                    _listenerMutex;
 };
 
 class SENSGpsListener
 {
 public:
     virtual ~SENSGpsListener() {}
-    virtual void onGps(const SENSGps::Location& loc) = 0;
+    virtual void onGps(const SENSTimePt& timePt, const SENSGps::Location& loc) = 0;
 };
 
 class SENSDummyGps : public SENSGps

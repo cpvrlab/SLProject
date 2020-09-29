@@ -9,15 +9,19 @@ SENSOrientation::Quat SENSOrientation::getOrientation()
 
 void SENSOrientation::setOrientation(SENSOrientation::Quat orientation)
 {
+    //estimate time before running into lock
+    SENSTimePt timePt = SENSClock::now();
+    
     {
         const std::lock_guard<std::mutex> lock(_orientationMutex);
         _orientation = orientation;
+        _timePt = timePt;
     }
     
     {
         std::lock_guard<std::mutex> lock(_listenerMutex);
         for(SENSOrientationListener* l : _listeners)
-            l->onOrientation(orientation);
+            l->onOrientation(timePt, orientation);
     }
 }
 

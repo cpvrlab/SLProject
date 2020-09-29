@@ -9,9 +9,6 @@
 #include <sens/SENSGps.h>
 #include <sens/SENSOrientation.h>
 
-typedef std::chrono::high_resolution_clock             HighResClock;
-typedef std::chrono::high_resolution_clock::time_point HighResTimePoint;
-
 class SENSSimulator;
 
 class SENSSimulated
@@ -45,17 +42,23 @@ private:
                      std::function<void(void)> stopSimCB)
       : SENSSimulated(startSimCB, stopSimCB)
     {
+        _permissionGranted = true;
     }
 
     bool start() override
     {
-        return _startSimCB();
+        if( _startSimCB())
+        {
+            _running = true;
+        }
+        return _running;
     }
 
     void stop() override
     {
         //stop simulator (stops, if no other activated sensor is running)
         _stopSimCB();
+        _running = false;
     }
 };
 
@@ -73,12 +76,17 @@ private:
 
     bool start() override
     {
-        return _startSimCB();
+        if( _startSimCB())
+        {
+            _running = true;
+        }
+        return _running;
     }
 
     void stop() override
     {
         _stopSimCB();
+        _running = false;
     }
 };
 
@@ -137,6 +145,11 @@ public:
         }
     }
 
+    ~SENSSimulator()
+    {
+        stop();
+    }
+
     SENSSimulatedGps*         getGpsSensorPtr() { return _gps.get(); }
     SENSSimulatedOrientation* getOrientationSensorPtr() { return _orientation.get(); }
 
@@ -146,7 +159,21 @@ public:
         //join running threads
         stop();
 
-        //start available sensors from file
+        //estimate simulation start time
+        auto startTimePoint = SENSClock::now();
+        
+        _simStartTimePt = _locations[0].first;
+
+        //start sensor threads for available sensors
+        if (_gps)
+        {
+            _gpsThread = std::thread(&SENSSimulator::feedGps, this, startTimePoint, _simStartTimePt);
+        }
+
+        if (_orientation)
+        {
+            _orientThread = std::thread(&SENSSimulator::feedOrientation, this, startTimePoint, _simStartTimePt);
+        }
 
         return true;
     }
@@ -154,6 +181,18 @@ public:
     //stop sensor simulators
     void stop()
     {
+        _stop = true;
+
+        _orientCondVar.notify_one();
+        _gpsCondVar.notify_one();
+
+        if (_orientThread.joinable())
+            _orientThread.join();
+
+        if (_gpsThread.joinable())
+            _gpsThread.join();
+
+        _stop = false;
     }
 
 private:
@@ -182,10 +221,9 @@ private:
                         loc.altitudeM    = std::stof(values[3]);
                         loc.accuracyM    = std::stof(values[4]);
 
-                        using namespace std::chrono;
-                        microseconds                      readTimePtUs(readTimePt);
-                        time_point<high_resolution_clock> dt(readTimePtUs);
-                        _locations.push_back(std::make_pair(loc, dt));
+                        SENSMicroseconds readTimePtUs(readTimePt);
+                        SENSTimePt       tPt(readTimePtUs);
+                        _locations.push_back(std::make_pair(tPt, loc));
                     }
                 }
                 file.close();
@@ -224,10 +262,9 @@ private:
                         quat.quatZ = std::stof(values[3]);
                         quat.quatW = std::stof(values[4]);
 
-                        using namespace std::chrono;
-                        microseconds                      readTimePtUs(readTimePt);
-                        time_point<high_resolution_clock> dt(readTimePtUs);
-                        _orientations.push_back(std::make_pair(quat, dt));
+                        SENSMicroseconds readTimePtUs(readTimePt);
+                        SENSTimePt       tPt(readTimePtUs);
+                        _orientations.push_back(std::make_pair(tPt, quat));
                     }
                 }
                 file.close();
@@ -241,14 +278,77 @@ private:
         return orientationAvailable;
     }
 
+    void feedGps(const SENSTimePt startTimePt, const SENSTimePt simStartTimePt)
+    {
+        _locationsCounter = 0;
+
+        //bring counter close to startTimePt (maybe we skip some values to synchronize simulated sensors)
+        while (_locationsCounter < _locations.size() && _locations[_locationsCounter].first < simStartTimePt)
+        {
+            _locationsCounter++;
+        }
+        //end of simulation
+        if (_locationsCounter >= _locations.size())
+            return;
+
+        while (true)
+        {
+            //estimate current sim time
+            auto       passedSimTime = std::chrono::duration_cast<SENSMicroseconds>((SENSTimePt)SENSClock::now() - startTimePt);
+            SENSTimePt simTime       = simStartTimePt + passedSimTime;
+
+            //process late values
+            while (_locationsCounter < _locations.size() && _locations[_locationsCounter].first < simTime)
+            {
+                _gps->setLocation(_locations[_locationsCounter].second);
+                //setting the location maybe took some time, so we update simulation time
+                passedSimTime = std::chrono::duration_cast<SENSMicroseconds>((SENSTimePt)SENSClock::now() - startTimePt);
+                simTime       = simStartTimePt + passedSimTime;
+                _locationsCounter++;
+            }
+
+            //end of simulation
+            if (_locationsCounter >= _locations.size())
+                break;
+
+            //locationsCounter should now point to a value in the simulation future so lets wait
+            const SENSTimePt& valueTime = _locations[_locationsCounter].first;
+            //simTime has to be smaller than valueTime
+            SENSMicroseconds waitTimeMs = std::chrono::duration_cast<SENSMicroseconds>(valueTime - simTime);
+
+            std::unique_lock<std::mutex> lock(_gpsMutex);
+            _gpsCondVar.wait_for(lock, waitTimeMs, [&] { return _stop == true; });
+
+            if (_stop)
+                break;
+        }
+    }
+
+    void feedOrientation(const SENSTimePt startTimePt, const SENSTimePt simStartTimePt)
+    {
+    }
+
     std::unique_ptr<SENSSimulatedGps>         _gps;
     std::unique_ptr<SENSSimulatedOrientation> _orientation;
 
-    int                                                             _orientationsCounter = 0;
-    std::vector<std::pair<SENSOrientation::Quat, HighResTimePoint>> _orientations;
+    int                                                       _orientationsCounter = 0;
+    std::vector<std::pair<SENSTimePt, SENSOrientation::Quat>> _orientations;
 
-    int                                                         _locationsCounter = 0;
-    std::vector<std::pair<SENSGps::Location, HighResTimePoint>> _locations;
+    int                                                   _locationsCounter = 0;
+    std::vector<std::pair<SENSTimePt, SENSGps::Location>> _locations;
+
+    std::thread             _orientThread;
+    std::condition_variable _orientCondVar;
+    std::mutex              _orientMutex;
+
+    std::thread             _gpsThread;
+    std::condition_variable _gpsCondVar;
+    std::mutex              _gpsMutex;
+
+    std::atomic_bool _stop{false};
+
+    //start time point of simulati
+    SENSTimePt _simStartTimePt;
 };
 
 #endif

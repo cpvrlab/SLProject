@@ -9,15 +9,19 @@ SENSGps::Location SENSGps::getLocation()
 
 void SENSGps::setLocation(SENSGps::Location location)
 {
+    //estimate time before running into lock
+    SENSTimePt timePt = SENSClock::now();
+    
     {
         const std::lock_guard<std::mutex> lock(_llaMutex);
         _location = location;
+        _timePt = timePt;
     }
     
     {
         std::lock_guard<std::mutex> lock(_listenerMutex);
         for(SENSGpsListener* l : _listeners)
-            l->onGps(location);
+            l->onGps(timePt, location);
     }
 }
 
