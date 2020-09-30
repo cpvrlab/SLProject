@@ -23,8 +23,9 @@ SensorTestGui::SensorTestGui(const ImGuiEngine&  imGuiEngine,
 
     //_orientationRecorder = std::make_unique<SENSOrientationRecorder>(orientation, deviceData.writableDir());
     _sensorRecorder = std::make_unique<SENSRecorder>(deviceData.writableDir());
-    _sensorRecorder->activateOrientation(orientation);
-    _sensorRecorder->activateGps(gps);
+    //_sensorRecorder->activateOrientation(orientation);
+    //_sensorRecorder->activateGps(gps);
+    //_sensorRecorder->activateCamera(camera);
 }
 
 SensorTestGui::~SensorTestGui()
@@ -97,6 +98,7 @@ void SensorTestGui::build(SLScene* s, SLSceneView* sv)
         ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.f);
         ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, (_headerBarH - _resources.fonts().headerBar->FontSize) * 0.5f));
         ImGui::PushStyleVar(ImGuiStyleVar_ScrollbarSize, _headerBarH);
+        ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(_headerBarH * 0.1, _headerBarH * 0.1));
 
         ImGui::Begin("Settings##SensorTestGui", nullptr, windowFlags);
         float w = ImGui::GetContentRegionAvailWidth();
@@ -112,12 +114,14 @@ void SensorTestGui::build(SLScene* s, SLSceneView* sv)
             updateGpsSensor();
             ImGui::Separator();
             updateOrientationSensor();
+            ImGui::Separator();
+            updateSensorRecording();
         }
 
         ImGui::End();
 
         ImGui::PopFont();
-        ImGui::PopStyleVar(3);
+        ImGui::PopStyleVar(4);
     }
 
     //ImGui::ShowMetricsWindow();
@@ -202,25 +206,6 @@ void SensorTestGui::updateOrientationSensor()
         }
     }
 
-    if (ImGui::Button("Start recording##startRecord", ImVec2(btnW, 0)))
-    {
-        //if (_orientationRecorder)
-        //    _orientationRecorder->start(100ms);
-        if(_sensorRecorder)
-            _sensorRecorder->start();
-    }
-
-    ImGui::SameLine();
-
-    if (ImGui::Button("Stop recording##stopRecord", ImVec2(btnW, 0)))
-    {
-        //if (_orientationRecorder)
-        //_orientationRecorder->stop();
-        
-        if(_sensorRecorder)
-            _sensorRecorder->stop();
-    }
-
     if (_orientation)
     {
         if (_orientation->isRunning())
@@ -258,4 +243,76 @@ void SensorTestGui::updateOrientationSensor()
     }
     else
         ImGui::Text("Sensor not available");
+}
+
+void SensorTestGui::updateSensorRecording()
+{
+    ImGui::TextUnformatted("Sensor Recording");
+    float w    = ImGui::GetContentRegionAvailWidth();
+    float btnW = w * 0.5f - ImGui::GetStyle().ItemSpacing.x;
+
+    if (ImGui::Checkbox("gps", &_recordGps))
+    {
+        if (_recordGps)
+        {
+            if (!_sensorRecorder->activateGps(_gps))
+                _recordGps = !_recordGps;
+        }
+        else
+        {
+            if (!_sensorRecorder->deactivateGps())
+                _recordGps = !_recordGps;
+        }
+    }
+    ImGui::SameLine();
+    if (ImGui::Checkbox("orientation", &_recordOrientation))
+    {
+        if (_recordOrientation)
+        {
+            if (!_sensorRecorder->activateOrientation(_orientation))
+                _recordOrientation = !_recordOrientation;
+        }
+        else
+        {
+            if (!_sensorRecorder->deactivateOrientation())
+                _recordOrientation = !_recordOrientation;
+        }
+    }
+    ImGui::SameLine();
+    if (ImGui::Checkbox("camera", &_recordCamera))
+    {
+        if (_recordCamera)
+        {
+            if (!_sensorRecorder->activateCamera(_camera))
+                _recordCamera = !_recordCamera;
+        }
+        else
+        {
+            if (!_sensorRecorder->deactivateOrientation())
+                _recordCamera = !_recordCamera;
+        }
+    }
+
+    if (ImGui::Button((recordButtonText + "##Record").c_str(), ImVec2(btnW, 0)))
+    {
+        if (_sensorRecorder->isRunning())
+        {
+            _sensorRecorder->stop();
+            recordButtonText = "Start recording";
+        }
+        else
+        {
+            if(_sensorRecorder->start())
+                recordButtonText = "Stop recording";
+        }
+    }
+
+    /*
+    ImGui::SameLine();
+
+    if (ImGui::Button("Stop recording##stopRecord", ImVec2(btnW, 0)))
+    {
+        _sensorRecorder->stop();
+    }
+     */
 }

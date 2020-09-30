@@ -541,36 +541,7 @@ SENSFramePtr SENSNdkCamera::processNewYuvImg(cv::Mat yuvImg)
     cv::cvtColor(yuvImg, rgbImg, cv::COLOR_YUV2BGR_NV21, 3);
 
     SENSFramePtr sensFrame = postProcessNewFrame(rgbImg, cv::Mat(), false);
-    /*
-    cv::Size inputSize = rgbImg.size();
 
-    // Crop Video image to required aspect ratio
-    int cropW = 0, cropH = 0;
-    SENS::cropImage(rgbImg, _targetWdivH, cropW, cropH);
-
-    // Mirroring (is done for most selfie cameras)
-    SENS::mirrorImage(rgbImg, _config.mirrorH, _config.mirrorV);
-
-    /////////////////////////
-    // Create grayscale //
-    /////////////////////////
-
-    // Creating a grayscale version from an YUV input source is stupid.
-    // We just could take the Y channel.
-    cv::Mat grayImg;
-    if (_config.convertToGray)
-    {
-        cv::cvtColor(rgbImg, grayImg, cv::COLOR_BGR2GRAY);
-
-        // Reset calibrated image size
-        //if (frame.size() != activeCamera->calibration.imageSize()) {
-        //    activeCamera->calibration.adaptForNewResolution(lastFrame.size());
-        //}
-    }
-
-    SENSFramePtr sensFrame = std::make_shared<SENSFrame>(rgbImg, grayImg, inputSize.width, inputSize.height, cropW, cropH, _config.mirrorH, _config.mirrorV);
-    return std::move(sensFrame);
-     */
     return sensFrame;
 }
 

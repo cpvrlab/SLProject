@@ -273,3 +273,23 @@ void SENSCameraBase::setCalibration(SENSCalibration calibration, bool buildUndis
         _calibration->adaptForNewResolution({_config.targetWidth, _config.targetHeight}, buildUndistortionMaps);
      */
 }
+
+void SENSCameraBase::registerListener(SENSCameraListener* listener)
+{
+    std::lock_guard<std::mutex> lock(_listenerMutex);
+    if (std::find(_listeners.begin(), _listeners.end(), listener) == _listeners.end())
+        _listeners.push_back(listener);
+}
+
+void SENSCameraBase::unregisterListener(SENSCameraListener* listener)
+{
+    std::lock_guard<std::mutex> lock(_listenerMutex);
+    for (auto it = _listeners.begin(); it != _listeners.end(); ++it)
+    {
+        if (*it == listener)
+        {
+            _listeners.erase(it);
+            break;
+        }
+    }
+}

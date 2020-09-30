@@ -9,24 +9,27 @@
 #include <mutex>
 #include <fstream>
 
+#include <opencv2/opencv.hpp>
+
 #include <sens/SENSGps.h>
 #include <sens/SENSOrientation.h>
 #include <sens/SENSCamera.h>
 #include <Utils.h>
 
+using GpsInfo         = std::pair<SENSGps::Location, SENSTimePt>;
+using OrientationInfo = std::pair<SENSOrientation::Quat, SENSTimePt>;
+using FrameInfo       = std::pair<SENSFramePtr, SENSTimePt>;
+
 template<typename T>
 class SENSRecorderDataHandler
 {
 public:
-    SENSRecorderDataHandler(const std::string& name, const std::string& outputDir, std::function<void(T&, ofstream&)> writeDataToFile)
-      : _name(name),
-        _outputDir(outputDir),
-        _writeDataToFile(writeDataToFile)
+    SENSRecorderDataHandler(const std::string& name)
+      : _name(name)
     {
-        assert(_writeDataToFile);
     }
 
-    ~SENSRecorderDataHandler()
+    virtual ~SENSRecorderDataHandler()
     {
         stop();
     }
@@ -45,10 +48,11 @@ public:
         _stop = false;
     }
 
-    void start()
+    void start(const std::string& outputDir)
     {
         stop();
         //start writer thread
+        _outputDir = outputDir;
         _thread = std::thread(&SENSRecorderDataHandler::store, this);
     }
 
@@ -80,7 +84,7 @@ public:
                 //write data
                 while (localQueue.size())
                 {
-                    _writeDataToFile(localQueue.front(), file);
+                    writeLineToFile(file, localQueue.front());
                     localQueue.pop_front();
                 }
             }
@@ -96,6 +100,9 @@ public:
         lock.unlock();
         _condVar.notify_one();
     }
+    
+    virtual void writeHeaderToFile(ofstream& file) {}
+    virtual void writeLineToFile(ofstream& file, const T& data) = 0;
 
 private:
     std::deque<T>           _queue;
@@ -104,13 +111,83 @@ private:
     std::thread             _thread;
     bool                    _stop = false;
 
-    std::string                        _name;
-    std::string                        _outputDir;
-    std::function<void(T&, ofstream&)> _writeDataToFile;
+    std::string _name;
+    std::string _outputDir;
+    //std::function<void(T&, ofstream&)> _writeDataToFile;
+};
+
+class SENSGpsRecorderDataHandler : public SENSRecorderDataHandler<GpsInfo>
+{
+public:
+    SENSGpsRecorderDataHandler()
+      : SENSRecorderDataHandler("gps")
+    {
+    }
+
+    void writeLineToFile(ofstream& file, const GpsInfo& data) override
+    {
+        file << std::chrono::time_point_cast<SENSMicroseconds>(data.second).time_since_epoch().count() << " "
+             << data.first.latitudeDEG << " "
+             << data.first.longitudeDEG << " "
+             << data.first.altitudeM << " "
+             << data.first.accuracyM << "\n";
+    }
+
+private:
+};
+
+class SENSOrientationRecorderDataHandler : public SENSRecorderDataHandler<OrientationInfo>
+{
+public:
+    SENSOrientationRecorderDataHandler()
+      : SENSRecorderDataHandler("orientation")
+    {
+    }
+
+    void writeLineToFile(ofstream& file, const OrientationInfo& data) override
+    {
+        //reading (https://stackoverflow.com/questions/31255486/c-how-do-i-convert-a-stdchronotime-point-to-long-and-back)
+        //long readTimePt;
+        //microseconds readTimePtUs(readTimePt);
+        //time_point<high_resolution_clock> dt(readTimePt);
+
+        file << std::chrono::time_point_cast<SENSMicroseconds>(data.second).time_since_epoch().count() << " "
+             << data.first.quatX << " "
+             << data.first.quatY << " "
+             << data.first.quatZ << " "
+             << data.first.quatW << "\n";
+    }
+
+private:
+};
+
+class SENSCameraRecorderDataHandler : public SENSRecorderDataHandler<FrameInfo>
+{
+public:
+    SENSCameraRecorderDataHandler()
+      : SENSRecorderDataHandler("camera")
+    {
+    }
+
+    void writeLineToFile(ofstream& file, const FrameInfo& data) override
+    {
+        //write time and frame index
+        file << std::chrono::time_point_cast<SENSMicroseconds>(data.second).time_since_epoch().count() << " "
+             << _frameIndex << "\n";
+        _frameIndex++;
+
+        //store frame to video capture
+        _videoWriter.write(data.first->imgRGB);
+    }
+
+private:
+    cv::VideoWriter _videoWriter;
+    int             _frameIndex = 0;
 };
 
 class SENSRecorder : public SENSGpsListener
-  , public SENSOrientationListener //, public SENSCameraListener
+  , public SENSOrientationListener
+  , public SENSCameraListener
 {
     using GpsInfo         = std::pair<SENSGps::Location, SENSTimePt>;
     using OrientationInfo = std::pair<SENSOrientation::Quat, SENSTimePt>;
@@ -118,45 +195,13 @@ class SENSRecorder : public SENSGpsListener
 
 public:
     SENSRecorder(const std::string& outputDir)
+     : _outputDir(outputDir)
     {
         if (Utils::dirExists(outputDir))
         {
-
-            std::string recordDir = Utils::unifySlashes(outputDir) + Utils::getDateTime2String() + "_SENSRecorder/";
-            Utils::makeDir(recordDir);
-            if (Utils::dirExists(recordDir))
-            {
-                auto gpsWriteDataFct = [](GpsInfo& data, ofstream& file) {
-                    using namespace std::chrono;
-
-                    file << time_point_cast<microseconds>(data.second).time_since_epoch().count() << " "
-                         << data.first.latitudeDEG << " "
-                         << data.first.longitudeDEG << " "
-                         << data.first.altitudeM << " "
-                         << data.first.accuracyM << "\n";
-                };
-                auto orientationWriteDataFct = [](OrientationInfo& data, ofstream& file) {
-                    using namespace std::chrono;
-                    long timePtUs = time_point_cast<microseconds>(data.second).time_since_epoch().count();
-
-                    //reading (https://stackoverflow.com/questions/31255486/c-how-do-i-convert-a-stdchronotime-point-to-long-and-back)
-                    //long readTimePt;
-                    //microseconds readTimePtUs(readTimePt);
-                    //time_point<high_resolution_clock> dt(readTimePt);
-
-                    file << timePtUs << " "
-                         << data.first.quatX << " "
-                         << data.first.quatY << " "
-                         << data.first.quatZ << " "
-                         << data.first.quatW << "\n";
-                };
-
-                _gpsDataHandler         = new SENSRecorderDataHandler<GpsInfo>("gps", recordDir, gpsWriteDataFct);
-                _orientationDataHandler = new SENSRecorderDataHandler<OrientationInfo>("orientation", recordDir, orientationWriteDataFct);
-                //_cameraDataHandler = SENSRecorderDataHandler<FrameInfo>("camera");
-            }
-            else
-                Utils::log("SENS", "SENSRecorder: Could not create output directory: %s", outputDir.c_str());
+            _gpsDataHandler         = new SENSGpsRecorderDataHandler();
+            _orientationDataHandler = new SENSOrientationRecorderDataHandler();
+            _cameraDataHandler      = new SENSCameraRecorderDataHandler();
         }
         else
             Utils::log("SENS", "SENSRecorder: Directory does not exist: %s", outputDir.c_str());
@@ -169,99 +214,114 @@ public:
             delete _gpsDataHandler;
         if (_orientationDataHandler)
             delete _orientationDataHandler;
-        //delete _cameraDataHandler;
+        if (_cameraDataHandler)
+            delete _cameraDataHandler;
     }
 
     //try to activate sensors before starting them, otherwise listener registration may become a threading problem
-    void activateGps(SENSGps* sensor)
+    bool activateGps(SENSGps* sensor)
     {
-        if (_running)
-            return;
-
-        if (sensor)
+        if (!_running && sensor)
         {
             deactivateGps();
             _gps = sensor;
+            return true;
         }
+        else
+            return false;
     }
-    void deactivateGps()
+    bool deactivateGps()
     {
-        if (_running)
-            return;
-
-        if (_gps)
+        if (!_running && _gps)
+        {
+            return true;
             _gps = nullptr;
+        }
+        else
+            return false;
     }
     //try to activate sensors before starting them, otherwise listener registration may become a threading problem
-    void activateOrientation(SENSOrientation* sensor)
+    bool activateOrientation(SENSOrientation* sensor)
     {
-        if (_running)
-            return;
-
-        if (sensor)
+        if (!_running && sensor)
         {
             deactivateOrientation();
             _orientation = sensor;
+            return true;
         }
+        else
+            return false;
     }
 
-    void deactivateOrientation()
+    bool deactivateOrientation()
     {
-        if (_running)
-            return;
-
-        if (_orientation)
+        if (!_running && _orientation)
+        {
             _orientation = nullptr;
+            return true;
+        }
+        else
+            return true;
     }
 
-    /*
     //try to activate sensors before starting them, otherwise listener registration may become a threading problem
-    void activateCamera(SENSCamera* sensor)
+    bool activateCamera(SENSCamera* sensor)
     {
-        if(_running)
-            return;
-        
-        if(sensor)
+        if (!_running && sensor)
         {
             deactivateCamera();
             _camera = sensor;
-            _camera->registerListener(this);
+            return true;
         }
+        else
+            return false;
     }
-    
-    void deactivateCamera()
-    {
-        if(_running)
-            return;
-        
-        if(_camera)
-        {
-            _camera->unregisterListener(this);
-            _camera = nullptr;
-        }
-    }
-     */
 
-    void start()
+    bool deactivateCamera()
+    {
+        if (!_running && _camera)
+        {
+            _camera = nullptr;
+            return true;
+        }
+        else
+            return true;
+    }
+
+    bool start()
     {
         if (_running)
-            return;
+            return false;
+        
+        std::string recordDir = Utils::unifySlashes(_outputDir) + Utils::getDateTime2String() + "_SENSRecorder/";
+        if(!Utils::makeDir(recordDir))
+        {
+            Utils::log("SENS", "SENSRecorder start: could not create record directory: %s", recordDir.c_str());
+            return false;
+        }
 
-        _running = true;
-
-        if (_gps)
+        if (_gps && _gpsDataHandler)
         {
             _gps->registerListener(this);
-            if (_gpsDataHandler)
-                _gpsDataHandler->start();
+            _gpsDataHandler->start(recordDir);
+            _running = true;
         }
 
-        if (_orientation)
+        if (_orientation && _orientationDataHandler)
         {
             _orientation->registerListener(this);
-            if (_orientationDataHandler)
-                _orientationDataHandler->start();
+            _orientationDataHandler->start(recordDir);
+            _running = true;
         }
+
+        if (_camera && _cameraDataHandler)
+        {
+            _camera->registerListener(this);
+            _cameraDataHandler->start(recordDir);
+            _running = true;
+        }
+
+        return _running;
     }
 
     void stop()
@@ -283,6 +343,8 @@ public:
         _running = false;
     }
 
+    bool isRunning() { return _running; }
+
 private:
     void onGps(const SENSTimePt& timePt, const SENSGps::Location& loc) override
     {
@@ -298,19 +360,17 @@ private:
             _orientationDataHandler->add(std::move(newData));
     }
 
-    /*
-    void onFrame(SENSFramePtr frame) override
+    void onFrame(const SENSTimePt& timePt, const SENSFramePtr& frame) override
     {
-        auto newData = std::make_pair(frame, getTime()));
-        _cameraDataHandler.add(newData);
+        auto newData = std::make_pair(frame, timePt);
+        _cameraDataHandler->add(std::move(newData));
     }
-     */
 
     std::string _outputDir;
 
-    SENSRecorderDataHandler<GpsInfo>*         _gpsDataHandler         = nullptr;
-    SENSRecorderDataHandler<OrientationInfo>* _orientationDataHandler = nullptr;
-    SENSRecorderDataHandler<FrameInfo>*       _cameraDataHandler      = nullptr;
+    SENSGpsRecorderDataHandler*         _gpsDataHandler         = nullptr;
+    SENSOrientationRecorderDataHandler* _orientationDataHandler = nullptr;
+    SENSCameraRecorderDataHandler*      _cameraDataHandler      = nullptr;
 
     SENSGps*         _gps         = nullptr;
     SENSOrientation* _orientation = nullptr;

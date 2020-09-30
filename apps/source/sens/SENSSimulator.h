@@ -15,22 +15,30 @@ template<typename T>
 class SENSSimulated
 {
     friend SENSSimulator;
-  
+
 public:
-    ~SENSSimulated() {}
+    virtual ~SENSSimulated() {}
+
+    bool isThreadRunning() const { return _threadIsRunning; }
 
 protected:
-    using StartSimCB = std::function<SENSTimePt(void)>;
-    
+    using StartSimCB         = std::function<SENSTimePt(void)>;
+    using SensorSimStoppedCB = std::function<void(void)>;
+
     SENSSimulated(StartSimCB                              startSimCB,
+                  SensorSimStoppedCB                      sensorSimStoppedCB,
                   std::vector<std::pair<SENSTimePt, T>>&& data)
       : _startSimCB(startSimCB),
+        _sensorSimStoppedCB(sensorSimStoppedCB),
         _data(data)
     {
     }
 
-    void startSim(const SENSTimePt& startTimePt)
+    virtual void feedSensorData(const int counter) = 0;
+
+    void startSim()
     {
+        const SENSTimePt& startTimePt = _startSimCB();
         stopSim();
 
         _thread = std::thread(&SENSSimulated::feedSensor, this, startTimePt, _commonSimStartTimePt);
@@ -50,11 +58,22 @@ protected:
         _stop = false;
     }
 
-    virtual void feedSensorData(const int counter) = 0;
+    const SENSTimePt& firstTimePt()
+    {
+        assert(_data.size());
+        return _data.front().first;
+    }
 
+    void setCommonSimStartTimePt(const SENSTimePt& commonSimStartTimePt)
+    {
+        _commonSimStartTimePt = commonSimStartTimePt;
+    }
+
+private: //methods
     void feedSensor(const SENSTimePt startTimePt, const SENSTimePt simStartTimePt)
     {
-        int counter = 0;
+        _threadIsRunning = true;
+        int counter      = 0;
 
         auto       passedSimTime = std::chrono::duration_cast<SENSMicroseconds>((SENSTimePt)SENSClock::now() - startTimePt);
         SENSTimePt simTime       = simStartTimePt + passedSimTime;
@@ -90,12 +109,12 @@ protected:
 
             //locationsCounter should now point to a value in the simulation future so lets wait
             const SENSTimePt& valueTime = _data[counter].first;
-            
+
             //simTime should now be smaller than valueTime because valueTime is in the simulation future
             SENSMicroseconds waitTimeUs = std::chrono::duration_cast<SENSMicroseconds>(valueTime - simTime);
             //We reduce the wait time because thread sleep is not very exact (best is not to wait at all)
             SENSMicroseconds reducedWaitTimeUs((long)(0.1 * (double)waitTimeUs.count()));
-            
+
             std::unique_lock<std::mutex> lock(_mutex);
             _condVar.wait_for(lock, reducedWaitTimeUs, [&] { return _stop == true; });
             //SENS_DEBUG("wait time %d us", reducedWaitTimeUs.count());
@@ -103,28 +122,26 @@ protected:
             if (_stop)
                 break;
         }
+
+        _threadIsRunning = false;
     }
 
-    const SENSTimePt& firstTimePt()
-    {
-        assert(_data.size());
-        return _data.front().first;
-    }
-    
-    void setCommonSimStartTimePt(const SENSTimePt& commonSimStartTimePt)
-    {
-        _commonSimStartTimePt = commonSimStartTimePt;
-    }
-
+protected:
     std::vector<std::pair<SENSTimePt, T>> _data;
+    //inform simulator that sensor was stopped
+    SensorSimStoppedCB _sensorSimStoppedCB;
 
+private:
     std::thread             _thread;
     std::condition_variable _condVar;
     std::mutex              _mutex;
     bool                    _stop = false;
 
     StartSimCB _startSimCB;
+
     SENSTimePt _commonSimStartTimePt;
+
+    bool _threadIsRunning = false;
 };
 
 //sensor simulator implementation
@@ -138,12 +155,12 @@ public:
     {
         stop();
     }
+
     bool start() override
     {
         if (!_running)
         {
-            const SENSTimePt& startTimePt = _startSimCB();
-            startSim(startTimePt);
+            startSim();
             _running = true;
         }
 
@@ -152,18 +169,20 @@ public:
 
     void stop() override
     {
-        if(_running)
+        if (_running)
         {
             stopSim();
             _running = false;
+            _sensorSimStoppedCB();
         }
     }
 
 private:
     //only SENSSimulator can instantiate
     SENSSimulatedGps(StartSimCB                                              startSimCB,
+                     SensorSimStoppedCB                                      sensorSimStoppedCB,
                      std::vector<std::pair<SENSTimePt, SENSGps::Location>>&& data)
-      : SENSSimulated(startSimCB, std::move(data))
+      : SENSSimulated(startSimCB, sensorSimStoppedCB, std::move(data))
     {
         _permissionGranted = true;
     }
@@ -184,13 +203,12 @@ public:
     {
         stop();
     }
-    
+
     bool start() override
     {
         if (!_running)
         {
-            const SENSTimePt& startTimePt = _startSimCB();
-            startSim(startTimePt);
+            startSim();
             _running = true;
         }
 
@@ -199,17 +217,19 @@ public:
 
     void stop() override
     {
-        if(_running)
+        if (_running)
         {
             stopSim();
             _running = false;
+            _sensorSimStoppedCB();
         }
     }
 
 private:
     SENSSimulatedOrientation(StartSimCB                                                  startSimCB,
+                             SensorSimStoppedCB                                          sensorSimStoppedCB,
                              std::vector<std::pair<SENSTimePt, SENSOrientation::Quat>>&& data)
-      : SENSSimulated(startSimCB, std::move(data))
+      : SENSSimulated(startSimCB, sensorSimStoppedCB, std::move(data))
     {
     }
 
@@ -259,8 +279,8 @@ public:
     SENSSimulatedGps*         getGpsSensorPtr() { return _gps.get(); }
     SENSSimulatedOrientation* getOrientationSensorPtr() { return _orientation.get(); }
 
-    //start sensor simulators
-    SENSTimePt start()
+private:
+    SENSTimePt onStart()
     {
         if (!_running)
         {
@@ -270,19 +290,17 @@ public:
 
         return _startTimePoint;
     }
-    
-    void reset()
+
+    void onSensorSimStopped()
     {
-        if(_gps)
-            _gps->stop();
-        
-        if(_orientation)
-            _orientation->stop();
-        
-        _running = false;
+        //if no sensor is running anymore, we stop the simulation
+        if (!_orientation->isThreadRunning() &&
+            !_gps->isThreadRunning())
+        {
+            _running = false;
+        }
     }
 
-private:
     void estimateSimStartPoint()
     {
         //search for earliest time point
@@ -311,10 +329,10 @@ private:
             else if (tp < _simStartTimePt)
                 _simStartTimePt = tp;
         }
-        
-        if(_gps)
+
+        if (_gps)
             _gps->setCommonSimStartTimePt(_simStartTimePt);
-        if(_orientation)
+        if (_orientation)
             _orientation->setCommonSimStartTimePt(_simStartTimePt);
     }
 
@@ -354,7 +372,8 @@ private:
                 {
                     //make_unique has problems with fiendship and private constructor so we use unique_ptr
                     _gps = std::unique_ptr<SENSSimulatedGps>(
-                      new SENSSimulatedGps(std::bind(&SENSSimulator::start, this),
+                      new SENSSimulatedGps(std::bind(&SENSSimulator::onStart, this),
+                                           std::bind(&SENSSimulator::onSensorSimStopped, this),
                                            std::move(data)));
                 }
             }
@@ -399,7 +418,8 @@ private:
                 {
                     //make_unique has problems with fiendship and private constructor so we use unique_ptr
                     _orientation = std::unique_ptr<SENSSimulatedOrientation>(
-                      new SENSSimulatedOrientation(std::bind(&SENSSimulator::start, this),
+                      new SENSSimulatedOrientation(std::bind(&SENSSimulator::onStart, this),
+                                                   std::bind(&SENSSimulator::onSensorSimStopped, this),
                                                    std::move(data)));
                 }
             }

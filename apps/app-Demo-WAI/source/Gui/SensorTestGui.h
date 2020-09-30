@@ -10,6 +10,7 @@
 #include <sens/SENSGps.h>
 #include <sens/SENSOrientation.h>
 #include <sens/SENSRecorder.h>
+#include <sens/SENSCamera.h>
 
 class SLScene;
 class SLSceneView;
@@ -36,6 +37,7 @@ private:
     void resize(int scrW, int scrH);
     void updateGpsSensor();
     void updateOrientationSensor();
+    void updateSensorRecording();
 
     float _screenW;
     float _screenH;
@@ -53,10 +55,17 @@ private:
     bool        _hasException = false;
     std::string _exceptionText;
 
-    SENSGps*                                 _gps         = nullptr;
-    SENSOrientation*                         _orientation = nullptr;
+    SENSGps*         _gps         = nullptr;
+    SENSOrientation* _orientation = nullptr;
+    SENSCamera*      _camera      = nullptr;
     //std::unique_ptr<SENSOrientationRecorder> _orientationRecorder;
     std::unique_ptr<SENSRecorder> _sensorRecorder;
+
+    bool _recordGps         = false;
+    bool _recordOrientation = false;
+    bool _recordCamera      = false;
+    
+    std::string recordButtonText = "Start recording";
 };
 
 #endif //SENSOR_TEST_GUI_H

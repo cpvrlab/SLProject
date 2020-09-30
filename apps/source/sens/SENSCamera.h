@@ -135,7 +135,6 @@ struct SENSCameraConfig
     {
     }
     SENSCameraConfig() = default;
-    
 
     //SENSCameraConfig& operator=(const SENSCameraConfig& other) = default; // Copy assignment operator
     //SENSCameraConfig& operator=(SENSCameraConfig&&) = default;            // Move assignment operator
@@ -172,6 +171,13 @@ public:
     const SENSCameraDeviceProperties* camPropsForDeviceId(const std::string& deviceId) const;
     //returned pointer is null if nothing was found
     std::pair<const SENSCameraDeviceProperties* const, const SENSCameraStreamConfig* const> findBestMatchingConfig(SENSCameraFacing facing, const float horizFov, const int width, const int height) const;
+};
+
+class SENSCameraListener
+{
+public:
+    virtual ~SENSCameraListener() {}
+    virtual void onFrame(const SENSTimePt& timePt, const SENSFramePtr& frame) = 0;
 };
 
 //! Pure abstract camera class
@@ -226,6 +232,9 @@ public:
     //! Set calibration and adapt it to current image size. Camera has to be started, before this function is called.
     virtual void setCalibration(SENSCalibration calibration, bool buildUndistortionMaps) = 0;
 
+    virtual void registerListener(SENSCameraListener* listener) = 0;
+    virtual void unregisterListener(SENSCameraListener* listener) = 0;
+    
     virtual bool started() const = 0;
 
     virtual bool permissionGranted() const = 0;
@@ -250,6 +259,9 @@ public:
 
     void setCalibration(SENSCalibration calibration, bool buildUndistortionMaps) override;
 
+    void registerListener(SENSCameraListener* listener) override;
+    void unregisterListener(SENSCameraListener* listener) override;
+
 protected:
     void         initCalibration(float fovDegFallbackGuess);
     SENSFramePtr postProcessNewFrame(cv::Mat& rgbImg, cv::Mat intrinsics, bool intrinsicsChanged);
@@ -262,6 +274,9 @@ protected:
     std::atomic<bool> _permissionGranted{false};
     //! The calibration is used for computer vision applications. This calibration is adjusted to fit to the original sized image (see SENSFrame::imgRGB and SENSCameraConfig::targetWidth, targetHeight)
     std::unique_ptr<SENSCalibration> _calibration;
+
+    std::vector<SENSCameraListener*> _listeners;
+    std::mutex                       _listenerMutex;
 };
 
 /*!
