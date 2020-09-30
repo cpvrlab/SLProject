@@ -111,6 +111,7 @@ const Location defineLocationAvenches()
         area.vocFileName     = "locations/avenches/amphitheater/amphitheater_voc.bin";
         area.slamMapFileName = "locations/avenches/amphitheaterEntrance/maps/realease-map_20201001-010003_Avenches_amphitheaterEntrance_FAST-ORBS-2000_2.waimap";
         area.relocAlignImage = "locations/avenches/amphitheaterEntrance/amphitheaterEntrance-reloc-align-img.jpg";
+        area.vocLayer        = 4;
         loc.areas[area.id]   = area;
     }
     {
@@ -123,6 +124,7 @@ const Location defineLocationAvenches()
         area.vocFileName     = "locations/avenches/amphitheater/amphitheater_voc.bin";
         area.slamMapFileName = "locations/avenches/amphitheater/maps/release-map_20200930-160451_avenches_amphitheater_FAST-ORBS-2000_2.waimap";
         area.relocAlignImage = "locations/avenches/amphitheater/amphitheater-reloc-align-img.jpg";
+        area.vocLayer        = 4;
         loc.areas[area.id]   = area;
     }
     {
@@ -133,6 +135,7 @@ const Location defineLocationAvenches()
         area.yPosPix         = 450;
         area.viewAngleDeg    = -140;
         area.slamMapFileName = "locations/avenches/cigonier-marker/maps/DEVELOPMENT-map_20200529-162110_avenches_cigonier-marker_FAST_ORBS_2000.json";
+        area.vocLayer        = 4;
         loc.areas[area.id]   = area;
     }
     {
@@ -145,6 +148,7 @@ const Location defineLocationAvenches()
         area.vocFileName     = "locations/avenches/theater/theater_voc.bin";
         area.slamMapFileName = "locations/avenches/theater/maps/release-map_20200930-154707_avenches_theater_FAST-ORBS-2000_2.waimap";
         area.relocAlignImage = "locations/avenches/theater/theater-reloc-align-img.jpg";
+        area.vocLayer        = 4;
         loc.areas[area.id]   = area;
     }
 

@@ -286,13 +286,15 @@ void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaI
     if (area.vocFileName.empty())
         fileName = _vocabularyDir + _vocabularyFileName;
     else
+    {
         fileName = _erlebARDir + area.vocFileName;
+    }
 
     //delete managed object
     if (_asyncLoader)
         delete _asyncLoader;
 
-    _asyncLoader = new MapLoader(_voc, fileName, _erlebARDir, area.slamMapFileName);
+    _asyncLoader = new MapLoader(_voc, area.vocLayer, fileName, _erlebARDir, area.slamMapFileName);
     _asyncLoader->start();
     _gui.showLoading();
 #else

@@ -365,6 +365,20 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
             }
             ImGui::EndCombo();
         }
+        if (ImGui::BeginCombo("Vocabulary layer", std::to_string(_p.vocabularyLayer).c_str()))
+        {
+            for (int i = 1; i < 5; i++)
+            {
+                if (ImGui::Selectable(std::to_string(i).c_str(), _p.vocabularyLayer == i))
+                {
+                    if (_p.vocabularyLayer == i)
+                        ImGui::SetItemDefaultFocus();
+                    _p.vocabularyLayer = i;
+                }
+            }
+
+            ImGui::EndCombo();
+        }
         if (ImGui::BeginCombo("Extractor", _extractorIdToNames.at(_p.extractorIds.trackingExtractorId).c_str()))
         {
             for (int i = 0; i < _extractorIdToNames.size(); i++)
@@ -491,7 +505,8 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
                 event->params.extractorIds.relocalizationExtractorId = _p.extractorIds.relocalizationExtractorId;
                 event->params.extractorIds.markerExtractorId         = _p.extractorIds.markerExtractorId;
 
-                event->params.nLevels = _p.nLevels;
+                event->params.nLevels         = _p.nLevels;
+                event->params.vocabularyLayer = _p.vocabularyLayer;
 
                 //event->params = _p;
                 _eventQueue->push(event);

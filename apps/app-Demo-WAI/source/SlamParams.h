@@ -32,6 +32,8 @@ struct SlamParams
                     fs["calibrationFile"] >> calibrationFile;
                 if (!fs["vocabularyFile"].empty())
                     fs["vocabularyFile"] >> vocabularyFile;
+                if (!fs["vocabularyLayer"].empty())
+                    fs["vocabularyLayer"] >> vocabularyLayer;
                 if (!fs["markerFile"].empty())
                     fs["markerFile"] >> markerFile;
                 if (!fs["location"].empty())
@@ -123,6 +125,7 @@ struct SlamParams
         fs << "mapFile" << mapFile;
         fs << "calibrationFile" << calibrationFile;
         fs << "vocabularyFile" << vocabularyFile;
+        fs << "vocabularyLayer" << vocabularyLayer;
         fs << "markerFile" << markerFile;
         fs << "location" << location;
         fs << "area" << area;
@@ -156,6 +159,7 @@ struct SlamParams
     WAISlam::Params params;
     ExtractorIds    extractorIds;
     int             nLevels = 2;
+    int             vocabularyLayer = 4;
 };
 
 #endif //SLAMPARAMS_H

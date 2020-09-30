@@ -764,6 +764,7 @@ void TestView::startOrbSlam(SlamParams slamParams)
     try
     {
         _voc->loadFromFile(slamParams.vocabularyFile);
+        _voc->setLayer(slamParams.vocabularyLayer);
     }
     catch (std::exception& e)
     {

@@ -66,6 +66,7 @@ public:
     double score(WAIBowVector& bow1, WAIBowVector& bow2);
     size_t size();
     void   save(std::string path);
+    void   setLayer(int layer) { _layer = layer; }
 
 private:
     int _layer;

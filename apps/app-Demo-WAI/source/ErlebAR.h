@@ -108,6 +108,7 @@ public:
     std::string slamMapFileName;
     std::string relocAlignImage;
     std::string vocFileName;
+    int         vocLayer;
     //WaiSlam extractor types
     ExtractorType initializationExtractorType = ExtractorType::ExtractorType_FAST_ORBS_2000;
     ExtractorType relocalizationExtractorType = ExtractorType::ExtractorType_FAST_ORBS_1000;
