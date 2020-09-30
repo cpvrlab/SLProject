@@ -122,13 +122,13 @@ void AppWAIScene::rebuild(std::string location, std::string area)
     if (location == "avenches" || location == "Avenches")
     {
         std::string modelPath;
-        if (area == "amphitheaterEntrance" || area == "amphitheater")
+        if (area == "Amphitheater-Entrance" || area == "Amphitheater")
         {
             std::string      modelPath = _dataDir + "erleb-AR/models/avenches/Aventicum-Amphitheater1.gltf";
             SLAssimpImporter importer;
             loadMesh(modelPath);
         }
-        else if (area == "cigonier-marker")
+        else if (area == "Cigonier-marker")
         {
             std::string      modelPath = _dataDir + "erleb-AR/models/avenches/Aventicum-Cigognier1.gltf";
             SLAssimpImporter importer;
@@ -140,7 +140,7 @@ void AppWAIScene::rebuild(std::string location, std::string area)
 
             loadMesh(modelPath);
         }
-        else if (area == "theater-marker" || area == "theater")
+        else if (area == "Theater-marker" || area == "Theater")
         {
             std::string      modelPath = _dataDir + "erleb-AR/models/avenches/Aventicum-Theater1.gltf";
             SLAssimpImporter importer;
