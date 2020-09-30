@@ -39,9 +39,7 @@ const char* mapAreaIdToName(AreaId id)
         case AreaId::AVENCHES_AMPHITHEATER_ENTRANCE:
             return "Amphitheater-Entrance";
         case AreaId::AVENCHES_CIGOGNIER:
-            return "cigognier";
-        case AreaId::AVENCHES_TEMPLE:
-            return "Temple";
+            return "Cigognier";
         case AreaId::AVENCHES_THEATER:
             return "Theater";
             //christoffel
@@ -102,15 +100,16 @@ const Location defineLocationAvenches()
     loc.id                   = LocationId::AVENCHES;
     loc.name                 = mapLocationIdToName(loc.id);
     loc.areaMapImageFileName = "locations/avenches/locationMapImgAvenches.jpg";
-    loc.dspPixWidth          = 2000;
+    loc.dspPixWidth          = 2046;
     {
         Area area;
         area.id              = AreaId::AVENCHES_AMPHITHEATER_ENTRANCE;
         area.name            = mapAreaIdToName(area.id);
-        area.xPosPix         = 820;
-        area.yPosPix         = 660;
+        area.xPosPix         = 520;
+        area.yPosPix         = 530;
         area.viewAngleDeg    = 170;
-        area.slamMapFileName = "locations/avenches/amphitheaterEntrance/maps/stable-map_20200901-155552_avenches_amphitheaterEntrance_FAST-ORBS-3000_2.waimap";
+        area.vocFileName     = "locations/avenches/amphitheater/amphitheater_voc.bin";
+        area.slamMapFileName = "locations/avenches/amphitheaterEntrance/maps/realease-map_20201001-010003_Avenches_amphitheaterEntrance_FAST-ORBS-2000_2.waimap";
         area.relocAlignImage = "locations/avenches/amphitheaterEntrance/amphitheaterEntrance-reloc-align-img.jpg";
         loc.areas[area.id]   = area;
     }
@@ -118,10 +117,11 @@ const Location defineLocationAvenches()
         Area area;
         area.id              = AreaId::AVENCHES_AMPHITHEATER;
         area.name            = mapAreaIdToName(area.id);
-        area.xPosPix         = 472;
-        area.yPosPix         = 736;
+        area.xPosPix         = 290;
+        area.yPosPix         = 580;
         area.viewAngleDeg    = -18;
-        area.slamMapFileName = "locations/avenches/amphitheater/maps/stable-map_20200831-142136_avenches_amphitheater_FAST-ORBS-3000_2.waimap";
+        area.vocFileName     = "locations/avenches/amphitheater/amphitheater_voc.bin";
+        area.slamMapFileName = "locations/avenches/amphitheater/maps/release-map_20200930-160451_avenches_amphitheater_FAST-ORBS-2000_2.waimap";
         area.relocAlignImage = "locations/avenches/amphitheater/amphitheater-reloc-align-img.jpg";
         loc.areas[area.id]   = area;
     }
@@ -129,8 +129,8 @@ const Location defineLocationAvenches()
         Area area;
         area.id              = AreaId::AVENCHES_CIGOGNIER;
         area.name            = mapAreaIdToName(area.id);
-        area.xPosPix         = 1760;
-        area.yPosPix         = 554;
+        area.xPosPix         = 1250;
+        area.yPosPix         = 450;
         area.viewAngleDeg    = -140;
         area.slamMapFileName = "locations/avenches/cigonier-marker/maps/DEVELOPMENT-map_20200529-162110_avenches_cigonier-marker_FAST_ORBS_2000.json";
         loc.areas[area.id]   = area;
@@ -139,10 +139,11 @@ const Location defineLocationAvenches()
         Area area;
         area.id              = AreaId::AVENCHES_THEATER;
         area.name            = mapAreaIdToName(area.id);
-        area.xPosPix         = 2463;
-        area.yPosPix         = 1132;
+        area.xPosPix         = 1800;
+        area.yPosPix         = 850;
         area.viewAngleDeg    = 50;
-        area.slamMapFileName = "locations/avenches/theater/maps/stable-map_20200831-142406_avenches_theater_FAST-ORBS-3000_2.waimap";
+        area.vocFileName     = "locations/avenches/theater/theater_voc.bin";
+        area.slamMapFileName = "locations/avenches/theater/maps/release-map_20200930-154707_avenches_theater_FAST-ORBS-2000_2.waimap";
         area.relocAlignImage = "locations/avenches/theater/theater-reloc-align-img.jpg";
         loc.areas[area.id]   = area;
     }
@@ -232,7 +233,7 @@ const Location defineLocationBiel()
         area.xPosPix                 = 322;
         area.yPosPix                 = 238;
         area.viewAngleDeg            = 20.f;
-        area.slamMapFileName         = "locations/biel/office/maps/DEVELOPMENT-map_20200902-175109_biel_office_FAST-ORBS-2000_2.json.gz";
+        area.slamMapFileName         = "locations/biel/office/maps/DEVELOPMENT-map_20200909-152037_biel_office_FAST-ORBS-2000_2.waimap";
         area.relocAlignImage         = "locations/biel/office/office-reloc-align-img.jpg";
         area.cameraFrameTargetSize   = {640, 360};
         area.cameraFrameCropToScreen = false;
