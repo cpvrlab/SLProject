@@ -18,7 +18,7 @@
 
 using GpsInfo         = std::pair<SENSGps::Location, SENSTimePt>;
 using OrientationInfo = std::pair<SENSOrientation::Quat, SENSTimePt>;
-using FrameInfo       = std::pair<SENSFramePtr, SENSTimePt>;
+using FrameInfo       = std::pair<cv::Mat, SENSTimePt>;
 
 template<typename T>
 class SENSRecorderDataHandler
@@ -45,6 +45,7 @@ public:
             _thread.join();
 
         lock.lock();
+        _queue.clear();
         _stop = false;
     }
 
@@ -53,17 +54,19 @@ public:
         stop();
         //start writer thread
         _outputDir = outputDir;
-        _thread = std::thread(&SENSRecorderDataHandler::store, this);
+        _thread    = std::thread(&SENSRecorderDataHandler::store, this);
     }
 
     void store()
     {
+        writeOnThreadStart();
         //open file
         std::string fileName = _outputDir + _name + ".txt";
         ofstream    file;
         file.open(fileName);
         if (file.is_open())
         {
+            writeHeaderToFile(file);
             while (true)
             {
                 std::unique_lock<std::mutex> lock(_mutex);
@@ -89,6 +92,7 @@ public:
                 }
             }
         }
+        writeOnThreadFinish();
         //close file
         file.close();
     }
@@ -100,9 +104,14 @@ public:
         lock.unlock();
         _condVar.notify_one();
     }
-    
+
+    virtual void writeOnThreadStart() {}
     virtual void writeHeaderToFile(ofstream& file) {}
     virtual void writeLineToFile(ofstream& file, const T& data) = 0;
+    virtual void writeOnThreadFinish() {}
+
+protected:
+    std::string _outputDir;
 
 private:
     std::deque<T>           _queue;
@@ -112,7 +121,6 @@ private:
     bool                    _stop = false;
 
     std::string _name;
-    std::string _outputDir;
     //std::function<void(T&, ofstream&)> _writeDataToFile;
 };
 
@@ -169,6 +177,16 @@ public:
     {
     }
 
+    void writeOnThreadStart() override
+    {
+        std::lock_guard<std::mutex> lock(_calibrationMutex);
+        if (_calibration)
+        {
+            _calibration->save(_outputDir, "calibration.json");
+            _calibrationChanged = false;
+        }
+    }
+
     void writeLineToFile(ofstream& file, const FrameInfo& data) override
     {
         //write time and frame index
@@ -176,13 +194,54 @@ public:
              << _frameIndex << "\n";
         _frameIndex++;
 
+        if (!_videoWriter.isOpened())
+            _videoWriter.open(_outputDir + "video.mp4", cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 30, data.first.size(), true);
+
         //store frame to video capture
-        _videoWriter.write(data.first->imgRGB);
+        _videoWriter.write(data.first);
+
+        if (_calibrationChanged)
+        {
+            std::lock_guard<std::mutex> lock(_calibrationMutex);
+            _calibration->save(_outputDir, "calibration.json");
+            _calibrationChanged = false;
+        }
+    }
+    
+    void writeOnThreadFinish() override
+    {
+        if(_videoWriter.isOpened())
+            _videoWriter.release();
+    }
+
+    void setCalibration(const SENSCalibration& calibration)
+    {
+        std::lock_guard<std::mutex> lock(_calibrationMutex);
+        _calibration        = std::make_unique<SENSCalibration>(calibration.cameraMat(),
+                                                         calibration.distortion(),
+                                                         calibration.imageSize(),
+                                                         calibration.boardSize(),
+                                                         calibration.boardSquareMM(),
+                                                         calibration.reprojectionError(),
+                                                         calibration.numCapturedImgs(),
+                                                         calibration.calibrationTime(),
+                                                         -1,
+                                                         calibration.isMirroredH(),
+                                                         calibration.isMirroredV(),
+                                                         calibration.camType(),
+                                                         calibration.computerInfos(),
+                                                         calibration.calibrationFlags(),
+                                                         calibration.undistortMapsValid());
+        _calibrationChanged = true;
     }
 
 private:
     cv::VideoWriter _videoWriter;
     int             _frameIndex = 0;
+
+    std::unique_ptr<SENSCalibration> _calibration;
+    std::mutex                       _calibrationMutex;
+    bool                             _calibrationChanged = false;
 };
 
 class SENSRecorder : public SENSGpsListener
@@ -195,7 +254,7 @@ class SENSRecorder : public SENSGpsListener
 
 public:
     SENSRecorder(const std::string& outputDir)
-     : _outputDir(outputDir)
+      : _outputDir(outputDir)
     {
         if (Utils::dirExists(outputDir))
         {
@@ -234,8 +293,8 @@ public:
     {
         if (!_running && _gps)
         {
-            return true;
             _gps = nullptr;
+            return true;
         }
         else
             return false;
@@ -292,9 +351,9 @@ public:
     {
         if (_running)
             return false;
-        
+
         std::string recordDir = Utils::unifySlashes(_outputDir) + Utils::getDateTime2String() + "_SENSRecorder/";
-        if(!Utils::makeDir(recordDir))
+        if (!Utils::makeDir(recordDir))
         {
             Utils::log("SENS", "SENSRecorder start: could not create record directory: %s", recordDir.c_str());
             return false;
@@ -328,16 +387,23 @@ public:
     {
         if (_gps)
         {
+            _gps->unregisterListener(this);
             if (_gpsDataHandler)
                 _gpsDataHandler->stop();
-            _gps->unregisterListener(this);
         }
 
         if (_orientation)
         {
+            _orientation->unregisterListener(this);
             if (_orientationDataHandler)
                 _orientationDataHandler->stop();
-            _orientation->unregisterListener(this);
+        }
+
+        if (_camera)
+        {
+            _camera->unregisterListener(this);
+            if (_cameraDataHandler)
+                _cameraDataHandler->stop();
         }
 
         _running = false;
@@ -360,10 +426,16 @@ private:
             _orientationDataHandler->add(std::move(newData));
     }
 
-    void onFrame(const SENSTimePt& timePt, const SENSFramePtr& frame) override
+    void onFrame(const SENSTimePt& timePt, cv::Mat frame) override
     {
         auto newData = std::make_pair(frame, timePt);
-        _cameraDataHandler->add(std::move(newData));
+        if (_cameraDataHandler)
+            _cameraDataHandler->add(std::move(newData));
+    }
+
+    void onCalibrationChanged(const SENSCalibration& calibration) override
+    {
+        _cameraDataHandler->setCalibration(calibration);
     }
 
     std::string _outputDir;

@@ -173,6 +173,7 @@ public:
         {
             stopSim();
             _running = false;
+            //callback here and not in base class because stopSim is also called in startSim
             _sensorSimStoppedCB();
         }
     }
@@ -221,6 +222,7 @@ public:
         {
             stopSim();
             _running = false;
+            //callback here and not in base class because stopSim is also called in startSim
             _sensorSimStoppedCB();
         }
     }
@@ -239,10 +241,112 @@ private:
     }
 };
 
-class SENSSimulatedCamera //: public SENSCamera
+class SENSSimulatedCamera : public SENSCameraBase
+  , public SENSSimulated<int>
 {
+    friend class SENSSimulator;
+
 public:
+    ~SENSSimulatedCamera()
+    {
+        stop();
+    }
+
+    const SENSCameraConfig& start(std::string                   deviceId,
+                                  const SENSCameraStreamConfig& streamConfig,
+                                  cv::Size                      imgRGBSize           = cv::Size(),
+                                  bool                          mirrorV              = false,
+                                  bool                          mirrorH              = false,
+                                  bool                          convToGrayToImgManip = false,
+                                  int                           imgManipWidth        = -1,
+                                  bool                          provideIntrinsics    = true,
+                                  float                         fovDegFallbackGuess  = 65.f) override
+    {
+        if (_started)
+        {
+            Utils::warnMsg("SENSWebCamera", "Call to start was ignored. Camera is currently running!", __LINE__, __FILE__);
+            return _config;
+        }
+
+        cv::Size targetSize;
+        if (imgRGBSize.width > 0 && imgRGBSize.height > 0)
+        {
+            targetSize.width  = imgRGBSize.width;
+            targetSize.height = imgRGBSize.height;
+        }
+        else
+        {
+            targetSize.width  = streamConfig.widthPix;
+            targetSize.height = streamConfig.heightPix;
+        }
+
+        cv::Size imgManipSize(imgManipWidth,
+                              (int)((float)imgManipWidth * (float)targetSize.height / (float)targetSize.width));
+
+        //retrieve all camera characteristics
+        if (_captureProperties.size() == 0)
+            captureProperties();
+
+        //start the sensor simulation
+        startSim();
+
+        return _config;
+    }
+
+    void stop() override
+    {
+        if (_started)
+        {
+            stopSim();
+            _started = false;
+            //callback here and not in base class because stopSim is also called in startSim
+            _sensorSimStoppedCB();
+        }
+    }
+
+    SENSFramePtr latestFrame() override
+    {
+        SENSFramePtr newFrame;
+
+        {
+            //lock and assign
+        }
+
+        return newFrame;
+    }
+
+    const SENSCaptureProperties& captureProperties() override
+    {
+        if (!_captureProperties.size())
+        {
+            SENSCameraDeviceProperties characteristics("0", SENSCameraFacing::UNKNOWN);
+            //find out capture size
+            //cv::VideoCapture cap;
+            //cap.open(_output)
+            //characteristics.add(newSize.width, newSize.height, -1.f);
+            _captureProperties.push_back(characteristics);
+        }
+
+        return _captureProperties;
+    }
+
 private:
+    SENSSimulatedCamera(StartSimCB                                startSimCB,
+                        SensorSimStoppedCB                        sensorSimStoppedCB,
+                        std::vector<std::pair<SENSTimePt, int>>&& data,
+                        std::string                               videoFileName)
+      : SENSSimulated(startSimCB, sensorSimStoppedCB, std::move(data)),
+        _videoFileName(videoFileName)
+    {
+        _permissionGranted = true;
+    }
+
+    void feedSensorData(const int counter) override
+    {
+        //do the post processing and assign new SENSFramePtr
+    }
+
+    std::string _videoFileName;
 };
 
 //Backend simulator for sensor data recorded with SENSRecorder
@@ -258,11 +362,9 @@ public:
 
             if (Utils::dirExists(dirName))
             {
-                std::string gpsFileName = dirName + "gps.txt";
-                loadGpsData(dirName, gpsFileName);
-
-                std::string orientationFileName = dirName + "orientation.txt";
-                loadOrientationData(dirName, orientationFileName);
+                loadGpsData(dirName);
+                loadOrientationData(dirName);
+                loadCameraData(dirName);
 
                 //estimate common start point in record age
                 estimateSimStartPoint();
@@ -278,6 +380,7 @@ public:
 
     SENSSimulatedGps*         getGpsSensorPtr() { return _gps.get(); }
     SENSSimulatedOrientation* getOrientationSensorPtr() { return _orientation.get(); }
+    SENSSimulatedCamera*      getCameraSensorPtr() { return _camera.get(); }
 
 private:
     SENSTimePt onStart()
@@ -295,7 +398,8 @@ private:
     {
         //if no sensor is running anymore, we stop the simulation
         if (!_orientation->isThreadRunning() &&
-            !_gps->isThreadRunning())
+            !_gps->isThreadRunning() &&
+            !_camera->isThreadRunning())
         {
             _running = false;
         }
@@ -330,14 +434,29 @@ private:
                 _simStartTimePt = tp;
         }
 
+        if (_camera)
+        {
+            const SENSTimePt& tp = _camera->firstTimePt();
+            if (!initialized)
+            {
+                initialized     = true;
+                _simStartTimePt = tp;
+            }
+            else if (tp < _simStartTimePt)
+                _simStartTimePt = tp;
+        }
+
         if (_gps)
             _gps->setCommonSimStartTimePt(_simStartTimePt);
         if (_orientation)
             _orientation->setCommonSimStartTimePt(_simStartTimePt);
+        if (_camera)
+            _camera->setCommonSimStartTimePt(_simStartTimePt);
     }
 
-    void loadGpsData(const std::string& dirName, const std::string& gpsFileName)
+    void loadGpsData(const std::string& dirName)
     {
+        std::string gpsFileName = dirName + "gps.txt";
         //check if directory contains gps.txt
         if (Utils::fileExists(gpsFileName))
         {
@@ -382,8 +501,9 @@ private:
         }
     }
 
-    void loadOrientationData(const std::string& dirName, const std::string& orientationFileName)
+    void loadOrientationData(const std::string& dirName)
     {
+        std::string orientationFileName = dirName + "orientation.txt";
         //check if directory contains orientation.txt
         if (Utils::fileExists(orientationFileName))
         {
@@ -428,8 +548,56 @@ private:
         }
     }
 
+    void loadCameraData(const std::string& dirName)
+    {
+        std::string textFileName  = dirName + "camera.txt";
+        std::string videoFileName = dirName + "video.mp4";
+
+        //check if directory contains gps.txt
+        if (Utils::fileExists(textFileName) && Utils::fileExists(videoFileName))
+        {
+            std::vector<std::pair<SENSTimePt, int>> data;
+            std::string                             line;
+            ifstream                                file(textFileName);
+            if (file.is_open())
+            {
+                while (std::getline(file, line))
+                {
+                    //cout << line << '\n';
+                    long                     readTimePt;
+                    int                      frameIndex;
+                    std::vector<std::string> values;
+                    Utils::splitString(line, ' ', values);
+                    if (values.size() == 5)
+                    {
+                        readTimePt = std::stof(values[0]);
+                        frameIndex = std::stof(values[1]);
+
+                        SENSMicroseconds readTimePtUs(readTimePt);
+                        SENSTimePt       tPt(readTimePtUs);
+                        data.push_back(std::make_pair(tPt, frameIndex));
+                    }
+                }
+                file.close();
+
+                if (data.size())
+                {
+                    //make_unique has problems with fiendship and private constructor so we use unique_ptr
+                    _camera = std::unique_ptr<SENSSimulatedCamera>(
+                      new SENSSimulatedCamera(std::bind(&SENSSimulator::onStart, this),
+                                              std::bind(&SENSSimulator::onSensorSimStopped, this),
+                                              std::move(data),
+                                              videoFileName));
+                }
+            }
+            else
+                Utils::log("SENS", "SENSSimulator: Unable to open file: %s or ", textFileName.c_str(), videoFileName.c_str());
+        }
+    }
+
     std::unique_ptr<SENSSimulatedGps>         _gps;
     std::unique_ptr<SENSSimulatedOrientation> _orientation;
+    std::unique_ptr<SENSSimulatedCamera>      _camera;
 
     //real start time point (when SENSSimulation::start was called)
     SENSTimePt _startTimePoint;

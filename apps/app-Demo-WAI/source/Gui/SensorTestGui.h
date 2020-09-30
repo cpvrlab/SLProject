@@ -25,7 +25,8 @@ public:
                   ErlebAR::Resources& resources,
                   const DeviceData&   deviceData,
                   SENSGps*            gps,
-                  SENSOrientation*    orientation);
+                  SENSOrientation*    orientation,
+                  SENSCamera*         camera);
     ~SensorTestGui();
 
     void build(SLScene* s, SLSceneView* sv) override;
@@ -37,6 +38,7 @@ private:
     void resize(int scrW, int scrH);
     void updateGpsSensor();
     void updateOrientationSensor();
+    void updateCameraSensor();
     void updateSensorRecording();
 
     float _screenW;
@@ -64,6 +66,15 @@ private:
     bool _recordGps         = false;
     bool _recordOrientation = false;
     bool _recordCamera      = false;
+    
+    //camera stuff:
+    SENSCaptureProperties _camCharacs;
+    std::map<std::string, std::vector<std::string>> _sizesStrings;
+    //selection values
+    const SENSCameraDeviceProperties* _currCamProps{nullptr};
+    int                               _currSizeIndex{0};
+    const std::string*                _currSizeStr{nullptr};
+
     
     std::string recordButtonText = "Start recording";
 };

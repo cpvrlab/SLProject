@@ -177,7 +177,8 @@ class SENSCameraListener
 {
 public:
     virtual ~SENSCameraListener() {}
-    virtual void onFrame(const SENSTimePt& timePt, const SENSFramePtr& frame) = 0;
+    virtual void onFrame(const SENSTimePt& timePt, cv::Mat frame)         = 0;
+    virtual void onCalibrationChanged(const SENSCalibration& calibration) = 0;
 };
 
 //! Pure abstract camera class
@@ -232,9 +233,9 @@ public:
     //! Set calibration and adapt it to current image size. Camera has to be started, before this function is called.
     virtual void setCalibration(SENSCalibration calibration, bool buildUndistortionMaps) = 0;
 
-    virtual void registerListener(SENSCameraListener* listener) = 0;
+    virtual void registerListener(SENSCameraListener* listener)   = 0;
     virtual void unregisterListener(SENSCameraListener* listener) = 0;
-    
+
     virtual bool started() const = 0;
 
     virtual bool permissionGranted() const = 0;

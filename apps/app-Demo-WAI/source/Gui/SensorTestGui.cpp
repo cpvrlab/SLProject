@@ -12,12 +12,14 @@ SensorTestGui::SensorTestGui(const ImGuiEngine&  imGuiEngine,
                              ErlebAR::Resources& resources,
                              const DeviceData&   deviceData,
                              SENSGps*            gps,
-                             SENSOrientation*    orientation)
+                             SENSOrientation*    orientation,
+                             SENSCamera*         camera)
   : ImGuiWrapper(imGuiEngine.context(), imGuiEngine.renderer()),
     sm::EventSender(eventHandler),
     _resources(resources),
     _gps(gps),
-    _orientation(orientation)
+    _orientation(orientation),
+    _camera(camera)
 {
     resize(deviceData.scrWidth(), deviceData.scrHeight());
 
@@ -26,6 +28,32 @@ SensorTestGui::SensorTestGui(const ImGuiEngine&  imGuiEngine,
     //_sensorRecorder->activateOrientation(orientation);
     //_sensorRecorder->activateGps(gps);
     //_sensorRecorder->activateCamera(camera);
+    
+    //init camera stuff:
+    //keep a local copy of all available
+    if (_camera)
+        _camCharacs = _camera->captureProperties();
+
+    //prepare sizes for visualization
+    for (const SENSCameraDeviceProperties& c : _camCharacs)
+    {
+        auto                     sizes = c.streamConfigs();
+        std::vector<std::string> sizeStrings;
+        for (auto itSize : sizes)
+        {
+            std::stringstream ss;
+            ss << itSize.widthPix << ", " << itSize.heightPix;
+            sizeStrings.push_back(ss.str());
+        }
+        _sizesStrings[c.deviceId()] = sizeStrings;
+    }
+
+    _currSizeIndex = 0;
+    if (_camCharacs.size())
+    {
+        _currCamProps = &_camCharacs.front();
+        _currSizeStr  = &_sizesStrings[_currCamProps->deviceId()].front();
+    }
 }
 
 SensorTestGui::~SensorTestGui()
@@ -114,6 +142,8 @@ void SensorTestGui::build(SLScene* s, SLSceneView* sv)
             updateGpsSensor();
             ImGui::Separator();
             updateOrientationSensor();
+            ImGui::Separator();
+            updateCameraSensor();
             ImGui::Separator();
             updateSensorRecording();
         }
@@ -245,6 +275,132 @@ void SensorTestGui::updateOrientationSensor()
         ImGui::Text("Sensor not available");
 }
 
+void SensorTestGui::updateCameraSensor()
+{
+    float w = ImGui::GetContentRegionAvailWidth();
+    float btnW = w * 0.5f - ImGui::GetStyle().ItemSpacing.x;
+    
+    if (_hasException)
+    {
+        ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 0, 0, 255));
+        ImGui::TextWrapped(_exceptionText.c_str());
+        ImGui::PopStyleColor();
+    }
+    else if (_camCharacs.size() == 0)
+    {
+        ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 0, 0, 255));
+        ImGui::TextWrapped("Camera has no characteristics!");
+        ImGui::PopStyleColor();
+    }
+    else
+    {
+        if (ImGui::BeginCombo("Cameras##CameraTestGui", _currCamProps->deviceId().c_str()))
+        {
+            for (int n = 0; n < _camCharacs.size(); n++)
+            {
+                const SENSCameraDeviceProperties* charac = &_camCharacs[n];
+                ImGui::PushID(charac->deviceId().c_str());
+                if (ImGui::Selectable(charac->deviceId().c_str(), charac == _currCamProps))
+                {
+                    _currCamProps = charac;
+                    //reset selected size after camera selection changed
+                    _currSizeIndex = 0;
+                    _currSizeStr   = &_sizesStrings[_currCamProps->deviceId()].front();
+                }
+                ImGui::PopID();
+            }
+            ImGui::EndCombo();
+        }
+
+        const std::vector<std::string>& sizes = _sizesStrings[_currCamProps->deviceId()];
+        if (ImGui::BeginCombo("Sizes##CameraTestGui", _currSizeStr->c_str()))
+        {
+            for (int n = 0; n < sizes.size(); n++)
+            {
+                const std::string* sizeStr      = &sizes[n];
+                bool               itemSelected = (sizeStr == _currSizeStr);
+                ImGui::PushID(sizeStr->c_str());
+                if (ImGui::Selectable(sizeStr->c_str(), itemSelected))
+                {
+                    _currSizeIndex = n;
+                    _currSizeStr   = sizeStr;
+                }
+                ImGui::PopID();
+            }
+            ImGui::EndCombo();
+        }
+
+        //visualize current camera characteristics
+        SENSCameraStreamConfig currStreamConfig = _currCamProps->streamConfigs()[_currSizeIndex];
+        if (currStreamConfig.focalLengthPix > 0)
+        {
+            ImGui::Text(getPrintableFacing(_currCamProps->facing()).c_str());
+            float horizFov = SENS::calcFOVDegFromFocalLengthPix(currStreamConfig.focalLengthPix, currStreamConfig.widthPix);
+            float vertFov  = SENS::calcFOVDegFromFocalLengthPix(currStreamConfig.focalLengthPix, currStreamConfig.heightPix);
+            ImGui::Text("FOV degree: vert: %f, horiz: %f", vertFov, horizFov);
+        }
+        else
+        {
+            ImGui::Text("Camera characteristics not provided by this device!");
+        }
+
+        if (ImGui::Button("Start##startCamera", ImVec2(btnW, 0)))
+        {
+            if (_currSizeIndex >= 0 && _currSizeIndex < _currCamProps->streamConfigs().size())
+            {
+                const SENSCameraStreamConfig& config = _currCamProps->streamConfigs()[_currSizeIndex];
+
+                Utils::log("CameraTestGui", "Start: selected size %d, %d", config.widthPix, config.heightPix);
+
+                try
+                {
+                    if (_camera)
+                    {
+                        if (_camera->started())
+                            _camera->stop();
+                        _camera->start(_currCamProps->deviceId(),
+                                       config);
+                    }
+                }
+                catch (SENSException& e)
+                {
+                    _exceptionText = e.what();
+                    _hasException  = true;
+                }
+            }
+            else
+            {
+                Utils::log("CameraTestGui", "Start: invalid index %d", _currSizeIndex);
+            }
+        }
+
+        ImGui::SameLine();
+        
+        if (ImGui::Button("Stop##stopCamera", ImVec2(btnW, 0)))
+        {
+            try
+            {
+                if (_camera)
+                    _camera->stop();
+            }
+            catch (SENSException& e)
+            {
+                _exceptionText = e.what();
+                _hasException  = true;
+            }
+        }
+
+        if (_camera && _camera->started())
+        {
+            ImGui::Text("Current frame size: w: %d, h: %d", _camera->config().targetWidth, _camera->config().targetHeight);
+        }
+        else
+        {
+            ImGui::Text("Camera not started");
+        }
+    }
+}
+
 void SensorTestGui::updateSensorRecording()
 {
     ImGui::TextUnformatted("Sensor Recording");
@@ -302,17 +458,8 @@ void SensorTestGui::updateSensorRecording()
         }
         else
         {
-            if(_sensorRecorder->start())
+            if (_sensorRecorder->start())
                 recordButtonText = "Stop recording";
         }
     }
-
-    /*
-    ImGui::SameLine();
-
-    if (ImGui::Button("Stop recording##stopRecord", ImVec2(btnW, 0)))
-    {
-        _sensorRecorder->stop();
-    }
-     */
 }

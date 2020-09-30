@@ -250,12 +250,13 @@ void SENSCameraBase::initCalibration(float fovDegFallbackGuess)
     //now we adapt the calibration to the target size
     if (_config.targetWidth != _config.streamConfig.widthPix || _config.targetHeight != _config.streamConfig.heightPix)
         _calibration->adaptForNewResolution({_config.targetWidth, _config.targetHeight}, false);
-    /*
-    if ((_config.manipWidth > 0 && _config.manipHeight > 0) || _config.manipWidth != _config.streamConfig->widthPix || _config.manipHeight != _config.streamConfig->heightPix)
-        _calibration->adaptForNewResolution({_config.manipWidth, _config.manipHeight}, false);
-    else if (_config.targetWidth != _config.streamConfig->widthPix || _config.targetHeight != _config.streamConfig->heightPix)
-        _calibration->adaptForNewResolution({_config.targetWidth, _config.targetHeight}, false);
-     */
+    
+    //inform listeners about calibration
+    {
+        std::lock_guard<std::mutex> lock(_listenerMutex);
+        for(SENSCameraListener* l : _listeners)
+            l->onCalibrationChanged(*_calibration);
+    }
 }
 
 void SENSCameraBase::setCalibration(SENSCalibration calibration, bool buildUndistortionMaps)
@@ -272,6 +273,12 @@ void SENSCameraBase::setCalibration(SENSCalibration calibration, bool buildUndis
     else if (_config.targetWidth != _config.streamConfig->widthPix || _config.targetHeight != _config.streamConfig->heightPix)
         _calibration->adaptForNewResolution({_config.targetWidth, _config.targetHeight}, buildUndistortionMaps);
      */
+    
+    {
+        std::lock_guard<std::mutex> lock(_listenerMutex);
+        for(SENSCameraListener* l : _listeners)
+            l->onCalibrationChanged(*_calibration);
+    }
 }
 
 void SENSCameraBase::registerListener(SENSCameraListener* listener)

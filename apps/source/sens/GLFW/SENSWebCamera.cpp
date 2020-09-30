@@ -75,12 +75,20 @@ const SENSCameraConfig& SENSWebCamera::start(std::string                   devic
                                convToGrayToImgManip);
 
     initCalibration(fovDegFallbackGuess);
+    
+    //start thread
+    _cameraThread = std::thread(&SENSWebCamera::grab, this);
 
     return _config;
 }
 
 void SENSWebCamera::stop()
 {
+    _stop = true;
+    if(_cameraThread.joinable())
+        _cameraThread.join();
+    _stop = false;
+    
     if (_videoCapture.isOpened())
     {
         _videoCapture.release();
@@ -90,6 +98,30 @@ void SENSWebCamera::stop()
     else
     {
         LOG_WEBCAM_INFO("stop: ignored because camera is not open!");
+    }
+}
+
+void SENSWebCamera::grab()
+{
+    while(!_stop)
+    {
+        cv::Mat rgbImg;
+        if (_videoCapture.read(rgbImg))
+        {
+            //todo: move to base class
+            {
+                SENSTimePt timePt = SENSClock::now();
+                std::lock_guard<std::mutex> lock(_listenerMutex);
+                for(SENSCameraListener* l : _listeners)
+                    l->onFrame(timePt, rgbImg.clone());
+            }
+            
+            SENSFramePtr sensFrame = postProcessNewFrame(rgbImg, cv::Mat(), false);
+            {
+                std::lock_guard<std::mutex> lock(_frameMutex);
+                _sensFrame = sensFrame;
+            }
+        }
     }
 }
 
@@ -106,10 +138,25 @@ SENSFramePtr SENSWebCamera::latestFrame()
     if (!_videoCapture.isOpened())
         throw SENSException(SENSType::CAM, "Capture device is not open although camera is started!", __LINE__, __FILE__);
 
+    /*
     cv::Mat rgbImg;
     if (_videoCapture.read(rgbImg))
     {
+        //todo: move to base class
+        {
+            SENSTimePt timePt = SENSClock::now();
+            std::lock_guard<std::mutex> lock(_listenerMutex);
+            for(SENSCameraListener* l : _listeners)
+                l->onFrame(timePt, rgbImg.clone());
+        }
+        
         sensFrame = postProcessNewFrame(rgbImg, cv::Mat(), false);
+    }
+     */
+    
+    {
+        std::lock_guard<std::mutex> lock(_frameMutex);
+        sensFrame = _sensFrame;
     }
     return sensFrame;
 }

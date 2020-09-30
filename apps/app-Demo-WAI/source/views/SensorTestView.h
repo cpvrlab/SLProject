@@ -18,6 +18,7 @@ public:
                    ErlebAR::Resources& resources,
                    SENSGps*            sensGps,
                    SENSOrientation*    sensOrientation,
+                   SENSCamera*         sensCamera,
                    const DeviceData&   deviceData);
     bool update();
 

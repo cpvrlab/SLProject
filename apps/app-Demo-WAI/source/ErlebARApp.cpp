@@ -581,6 +581,7 @@ void ErlebARApp::SENSOR_TEST(const sm::NoEventData* data, const bool stateEntry,
                                                  *_resources,
                                                  _gps,
                                                  _orientation,
+                                                 _camera,
                                                  *_dd);
         }
 

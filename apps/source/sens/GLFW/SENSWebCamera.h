@@ -1,6 +1,10 @@
 #ifndef SENS_WEBCAMERA_H
 #define SENS_WEBCAMERA_H
 
+#include <thread>
+#include <atomic>
+#include <mutex>
+
 #include <opencv2/opencv.hpp>
 #include <sens/SENSCamera.h>
 
@@ -27,8 +31,16 @@ public:
     const SENSCaptureProperties& captureProperties() override;
     SENSFramePtr                 latestFrame() override;
 
+    void grab();
+    
 private:
     cv::VideoCapture _videoCapture;
+    
+    std::atomic_bool _stop{false};
+    std::thread _cameraThread;
+    //current frame
+    SENSFramePtr _sensFrame;
+    std::mutex _frameMutex;
 };
 
 #endif //SENS_WEBCAMERA_H
