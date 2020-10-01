@@ -283,12 +283,34 @@ public:
         cv::Size imgManipSize(imgManipWidth,
                               (int)((float)imgManipWidth * (float)targetSize.height / (float)targetSize.width));
 
+        if (!_cap.isOpened())
+        {
+            if (!_cap.open(_videoFileName))
+                throw SENSException(SENSType::CAM, "Could not open camera simulator for filename: " + _videoFileName, __LINE__, __FILE__);
+        }
+
         //retrieve all camera characteristics
         if (_captureProperties.size() == 0)
             captureProperties();
 
+        //init config here
+        _config = SENSCameraConfig(deviceId,
+                                   streamConfig,
+                                   SENSCameraFocusMode::UNKNOWN,
+                                   targetSize.width,
+                                   targetSize.height,
+                                   imgManipSize.width,
+                                   imgManipSize.height,
+                                   mirrorH,
+                                   mirrorV,
+                                   convToGrayToImgManip);
+
+        initCalibration(fovDegFallbackGuess);
+
         //start the sensor simulation
         startSim();
+
+        _started = true;
 
         return _config;
     }
@@ -309,7 +331,8 @@ public:
         SENSFramePtr newFrame;
 
         {
-            //lock and assign
+            std::lock_guard<std::mutex> lock(_frameMutex);
+            newFrame = _frame;
         }
 
         return newFrame;
@@ -321,10 +344,19 @@ public:
         {
             SENSCameraDeviceProperties characteristics("0", SENSCameraFacing::UNKNOWN);
             //find out capture size
-            //cv::VideoCapture cap;
-            //cap.open(_output)
-            //characteristics.add(newSize.width, newSize.height, -1.f);
-            _captureProperties.push_back(characteristics);
+            if (!_cap.isOpened())
+            {
+                if (!_cap.open(_videoFileName))
+                    throw SENSException(SENSType::CAM, "Could not open camera simulator for filename: " + _videoFileName, __LINE__, __FILE__);
+            }
+
+            cv::Mat frame;
+            _cap.read(frame);
+            if (!frame.empty())
+            {
+                characteristics.add(frame.size().width, frame.size().height, -1.f);
+                _captureProperties.push_back(characteristics);
+            }
         }
 
         return _captureProperties;
@@ -344,9 +376,24 @@ private:
     void feedSensorData(const int counter) override
     {
         //do the post processing and assign new SENSFramePtr
+        int frameIndex = _data[counter].second;
+        _cap.set(cv::CAP_PROP_POS_FRAMES, frameIndex);
+        cv::Mat frame;
+        _cap.read(frame);
+
+        SENSFramePtr newFrame = postProcessNewFrame(frame, cv::Mat(), false);
+
+        {
+            std::lock_guard<std::mutex> lock(_frameMutex);
+            _frame = newFrame;
+        }
     }
 
-    std::string _videoFileName;
+    std::string      _videoFileName;
+    cv::VideoCapture _cap;
+
+    SENSFramePtr _frame;
+    std::mutex   _frameMutex;
 };
 
 //Backend simulator for sensor data recorded with SENSRecorder
@@ -397,9 +444,9 @@ private:
     void onSensorSimStopped()
     {
         //if no sensor is running anymore, we stop the simulation
-        if (!_orientation->isThreadRunning() &&
-            !_gps->isThreadRunning() &&
-            !_camera->isThreadRunning())
+        if (!((_orientation && _orientation->isThreadRunning()) ||
+              (_gps && _gps->isThreadRunning()) ||
+              (_camera && _camera->isThreadRunning())))
         {
             _running = false;
         }
@@ -568,7 +615,7 @@ private:
                     int                      frameIndex;
                     std::vector<std::string> values;
                     Utils::splitString(line, ' ', values);
-                    if (values.size() == 5)
+                    if (values.size() == 2)
                     {
                         readTimePt = std::stof(values[0]);
                         frameIndex = std::stof(values[1]);

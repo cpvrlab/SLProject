@@ -533,23 +533,26 @@ int main(int argc, char* argv[])
     bool simulateSensors = true;
     try
     {
-        std::unique_ptr<SENSWebCamera>        webCamera = std::make_unique<SENSWebCamera>();
+        std::unique_ptr<SENSWebCamera>        webCamera;
         std::unique_ptr<SENSDummyGps>         dummyGps;
         std::unique_ptr<SENSDummyOrientation> dummyOrientation;
         std::unique_ptr<SENSSimulator>        sensSim;
 
         SENSOrientation* orientation = nullptr;
         SENSGps*         gps         = nullptr;
-
+        SENSCamera*      camera      = nullptr;
         if (simulateSensors)
         {
-            std::string simDir = Utils::getAppsWritableDir() + "20200928-220745_SENSRecorder";
+            std::string simDir = Utils::getAppsWritableDir() + "20200930-192853_SENSRecorder";
             sensSim            = std::make_unique<SENSSimulator>(simDir);
             gps                = sensSim->getGpsSensorPtr();
             orientation        = sensSim->getOrientationSensorPtr();
+            camera             = sensSim->getCameraSensorPtr();
         }
         else
         {
+            webCamera = std::make_unique<SENSWebCamera>();
+            
             dummyGps             = std::make_unique<SENSDummyGps>();
             SENSGps::Location tl = {47.14290, 7.24225, 506.3, 10.0f};
             SENSGps::Location br = {47.14060, 7.24693, 434.3, 1.0f};
@@ -578,6 +581,7 @@ int main(int argc, char* argv[])
 
             gps         = dummyGps.get();
             orientation = dummyOrientation.get();
+            camera      = webCamera.get();
         }
 
         //define some dummy positions (bern)
@@ -595,7 +599,7 @@ int main(int argc, char* argv[])
                  dpi,
                  std::string(SL_PROJECT_ROOT) + "/data/",
                  Utils::getAppsWritableDir(),
-                 webCamera.get(),
+                 camera,
                  gps,
                  orientation);
         app.setCloseAppCallback(closeAppCallback);

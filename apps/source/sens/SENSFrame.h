@@ -42,7 +42,7 @@ struct SENSFrame
     const bool mirroredV;
     //! scale from imgManip to imgRGB
     const float scaleToManip;
-    //! new intrinsics matrix (valid if intrinsicsChanged is true and can then be used to define a new calibration)
+    //! new intrinsics matrix (if valid it can be used to define a new calibration)
     cv::Mat intrinsics;
 };
 typedef std::shared_ptr<SENSFrame> SENSFramePtr;

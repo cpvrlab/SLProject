@@ -179,6 +179,7 @@ public:
 
     void writeOnThreadStart() override
     {
+        _frameIndex = 0;
         std::lock_guard<std::mutex> lock(_calibrationMutex);
         if (_calibration)
         {

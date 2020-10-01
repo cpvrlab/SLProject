@@ -28,7 +28,7 @@ SensorTestGui::SensorTestGui(const ImGuiEngine&  imGuiEngine,
     //_sensorRecorder->activateOrientation(orientation);
     //_sensorRecorder->activateGps(gps);
     //_sensorRecorder->activateCamera(camera);
-    
+
     //init camera stuff:
     //keep a local copy of all available
     if (_camera)
@@ -277,9 +277,9 @@ void SensorTestGui::updateOrientationSensor()
 
 void SensorTestGui::updateCameraSensor()
 {
-    float w = ImGui::GetContentRegionAvailWidth();
+    float w    = ImGui::GetContentRegionAvailWidth();
     float btnW = w * 0.5f - ImGui::GetStyle().ItemSpacing.x;
-    
+
     if (_hasException)
     {
         ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 0, 0, 255));
@@ -375,7 +375,7 @@ void SensorTestGui::updateCameraSensor()
         }
 
         ImGui::SameLine();
-        
+
         if (ImGui::Button("Stop##stopCamera", ImVec2(btnW, 0)))
         {
             try
@@ -393,6 +393,41 @@ void SensorTestGui::updateCameraSensor()
         if (_camera && _camera->started())
         {
             ImGui::Text("Current frame size: w: %d, h: %d", _camera->config().targetWidth, _camera->config().targetHeight);
+
+            SENSFramePtr frame = _camera->latestFrame();
+            if (frame)
+            {
+                if (frame->imgRGB.size() != _videoTextureSize)
+                {
+                    ErlebAR::deleteTexture(_videoTextureId);
+                    glGenTextures(1, &_videoTextureId);
+                    _videoTextureSize = frame->imgRGB.size();
+                }
+
+                glBindTexture(GL_TEXTURE_2D, _videoTextureId);
+
+                // Setup filtering parameters for display
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+                // Upload pixels into texture
+                glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+
+                glTexImage2D(GL_TEXTURE_2D,
+                             0,
+                             GL_RGB,
+                             (GLsizei)_videoTextureSize.width,
+                             (GLsizei)_videoTextureSize.height,
+                             0,
+                             GL_BGR,
+                             GL_UNSIGNED_BYTE,
+                             (GLvoid*)frame->imgRGB.data);
+
+                ImVec2 uv0(0.0f, 0.0f);
+                ImVec2 uv1(1.f, 1.f);
+                //ImVec4 col(1.f, 1.f, 1.f, 1.f);
+                ImGui::Image((void*)(intptr_t)_videoTextureId, ImVec2(640, 480)/*, uv0, uv1, col*/);
+            }
         }
         else
         {

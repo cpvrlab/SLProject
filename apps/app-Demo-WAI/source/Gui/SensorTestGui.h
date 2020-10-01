@@ -66,17 +66,19 @@ private:
     bool _recordGps         = false;
     bool _recordOrientation = false;
     bool _recordCamera      = false;
-    
+
     //camera stuff:
-    SENSCaptureProperties _camCharacs;
+    SENSCaptureProperties                           _camCharacs;
     std::map<std::string, std::vector<std::string>> _sizesStrings;
     //selection values
     const SENSCameraDeviceProperties* _currCamProps{nullptr};
     int                               _currSizeIndex{0};
     const std::string*                _currSizeStr{nullptr};
 
-    
     std::string recordButtonText = "Start recording";
+
+    GLuint _videoTextureId = 0;
+    cv::Size _videoTextureSize;
 };
 
 #endif //SENSOR_TEST_GUI_H
