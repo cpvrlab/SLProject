@@ -537,10 +537,11 @@ void SENSNdkCamera::stop()
 SENSFramePtr SENSNdkCamera::processNewYuvImg(cv::Mat yuvImg)
 {
     //concert yuv to rgb
-    cv::Mat rgbImg;
-    cv::cvtColor(yuvImg, rgbImg, cv::COLOR_YUV2BGR_NV21, 3);
+    cv::Mat bgrImg;
+    //We previously copied the planes to be aligned like this: YYYYVU which is NV21
+    cv::cvtColor(yuvImg, bgrImg, cv::COLOR_YUV2BGR_NV21, 3);
 
-    SENSFramePtr sensFrame = postProcessNewFrame(rgbImg, cv::Mat(), false);
+    SENSFramePtr sensFrame = postProcessNewFrame(bgrImg, cv::Mat(), false);
 
     return sensFrame;
 }

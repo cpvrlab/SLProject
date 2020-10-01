@@ -19,7 +19,7 @@ SENSiOSCamera::~SENSiOSCamera()
 
 const SENSCameraConfig& SENSiOSCamera::start(std::string                   deviceId,
                                              const SENSCameraStreamConfig& streamConfig,
-                                             cv::Size                      imgRGBSize,
+                                             cv::Size                      imgBGRSize,
                                              bool                          mirrorV,
                                              bool                          mirrorH,
                                              bool                          convToGrayToImgManip,
@@ -35,10 +35,10 @@ const SENSCameraConfig& SENSiOSCamera::start(std::string                   devic
 
     cv::Size targetSize;
 
-    if (imgRGBSize.width > 0 && imgRGBSize.height > 0)
+    if (imgBGRSize.width > 0 && imgBGRSize.height > 0)
     {
-        targetSize.width  = imgRGBSize.width;
-        targetSize.height = imgRGBSize.height;
+        targetSize.width  = imgBGRSize.width;
+        targetSize.height = imgBGRSize.height;
     }
     else
     {
@@ -141,9 +141,9 @@ SENSFramePtr SENSiOSCamera::latestFrame()
 void SENSiOSCamera::processNewFrame(unsigned char* data, int imgWidth, int imgHeight, matrix_float3x3* camMat3x3)
 {
     //Utils::log("SENSiOSCamera", "processNewFrame: w %d w %d", imgWidth, imgHeight);
-    cv::Mat rgba(imgHeight, imgWidth, CV_8UC4, (void*)data);
-    cv::Mat rgbImg;
-    cvtColor(rgba, rgbImg, cv::COLOR_RGBA2RGB, 3);
+    cv::Mat bgra(imgHeight, imgWidth, CV_8UC4, (void*)data);
+    cv::Mat bgrImg;
+    cvtColor(bgra, bgrImg, cv::COLOR_BGRA2BGR, 3);
 
     cv::Mat intrinsics;
     bool    intrinsicsChanged = false;
@@ -160,7 +160,7 @@ void SENSiOSCamera::processNewFrame(unsigned char* data, int imgWidth, int imgHe
         }
     }
 
-    SENSFramePtr sensFrame = postProcessNewFrame(rgbImg, intrinsics, intrinsicsChanged);
+    SENSFramePtr sensFrame = postProcessNewFrame(bgrImg, intrinsics, intrinsicsChanged);
 
     {
         std::lock_guard<std::mutex> lock(_processedFrameMutex);

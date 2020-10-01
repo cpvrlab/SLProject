@@ -12,7 +12,7 @@
 
 const SENSCameraConfig& SENSWebCamera::start(std::string                   deviceId,
                                              const SENSCameraStreamConfig& streamConfig,
-                                             cv::Size                      imgRGBSize,
+                                             cv::Size                      imgBGRSize,
                                              bool                          mirrorV,
                                              bool                          mirrorH,
                                              bool                          convToGrayToImgManip,
@@ -27,10 +27,10 @@ const SENSCameraConfig& SENSWebCamera::start(std::string                   devic
     }
 
     cv::Size targetSize;
-    if (imgRGBSize.width > 0 && imgRGBSize.height > 0)
+    if (imgBGRSize.width > 0 && imgBGRSize.height > 0)
     {
-        targetSize.width  = imgRGBSize.width;
-        targetSize.height = imgRGBSize.height;
+        targetSize.width  = imgBGRSize.width;
+        targetSize.height = imgBGRSize.height;
     }
     else
     {
@@ -105,18 +105,18 @@ void SENSWebCamera::grab()
 {
     while(!_stop)
     {
-        cv::Mat rgbImg;
-        if (_videoCapture.read(rgbImg))
+        cv::Mat bgrImg;
+        if (_videoCapture.read(bgrImg))
         {
             //todo: move to base class
             {
                 SENSTimePt timePt = SENSClock::now();
                 std::lock_guard<std::mutex> lock(_listenerMutex);
                 for(SENSCameraListener* l : _listeners)
-                    l->onFrame(timePt, rgbImg.clone());
+                    l->onFrame(timePt, bgrImg.clone());
             }
             
-            SENSFramePtr sensFrame = postProcessNewFrame(rgbImg, cv::Mat(), false);
+            SENSFramePtr sensFrame = postProcessNewFrame(bgrImg, cv::Mat(), false);
             {
                 std::lock_guard<std::mutex> lock(_frameMutex);
                 _sensFrame = sensFrame;
@@ -139,18 +139,18 @@ SENSFramePtr SENSWebCamera::latestFrame()
         throw SENSException(SENSType::CAM, "Capture device is not open although camera is started!", __LINE__, __FILE__);
 
     /*
-    cv::Mat rgbImg;
-    if (_videoCapture.read(rgbImg))
+    cv::Mat bgrImg;
+    if (_videoCapture.read(bgrImg))
     {
         //todo: move to base class
         {
             SENSTimePt timePt = SENSClock::now();
             std::lock_guard<std::mutex> lock(_listenerMutex);
             for(SENSCameraListener* l : _listeners)
-                l->onFrame(timePt, rgbImg.clone());
+                l->onFrame(timePt, bgrImg.clone());
         }
         
-        sensFrame = postProcessNewFrame(rgbImg, cv::Mat(), false);
+        sensFrame = postProcessNewFrame(bgrImg, cv::Mat(), false);
     }
      */
     

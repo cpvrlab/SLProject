@@ -53,23 +53,23 @@ int SENSCameraDeviceProperties::findBestMatchingConfig(cv::Size requiredSize) co
     return matchingSizes.front().second;
 }
 
-SENSFramePtr SENSCameraBase::postProcessNewFrame(cv::Mat& rgbImg, cv::Mat intrinsics, bool intrinsicsChanged)
+SENSFramePtr SENSCameraBase::postProcessNewFrame(cv::Mat& bgrImg, cv::Mat intrinsics, bool intrinsicsChanged)
 {
     //todo: accessing config readonly should be no problem  here, as the config only changes when camera is stopped
-    cv::Size inputSize = rgbImg.size();
+    cv::Size inputSize = bgrImg.size();
 
     // Crop Video image to required aspect ratio
     int cropW = 0, cropH = 0;
-    SENS::cropImage(rgbImg, (float)_config.targetWidth / (float)_config.targetHeight, cropW, cropH);
+    SENS::cropImage(bgrImg, (float)_config.targetWidth / (float)_config.targetHeight, cropW, cropH);
 
     // Mirroring
-    SENS::mirrorImage(rgbImg, _config.mirrorH, _config.mirrorV);
+    SENS::mirrorImage(bgrImg, _config.mirrorH, _config.mirrorV);
 
     cv::Mat manipImg;
     float   scale = 1.0f;
     if (_config.manipWidth > 0 && _config.manipHeight > 0)
     {
-        manipImg  = rgbImg;
+        manipImg  = bgrImg;
         int cropW = 0, cropH = 0;
         SENS::cropImage(manipImg, (float)_config.manipWidth / (float)_config.manipHeight, cropW, cropH);
         scale = (float)_config.manipWidth / (float)manipImg.size().width;
@@ -77,7 +77,7 @@ SENSFramePtr SENSCameraBase::postProcessNewFrame(cv::Mat& rgbImg, cv::Mat intrin
     }
     else if (_config.convertManipToGray)
     {
-        manipImg = rgbImg;
+        manipImg = bgrImg;
     }
 
     // Create grayscale
@@ -86,7 +86,7 @@ SENSFramePtr SENSCameraBase::postProcessNewFrame(cv::Mat& rgbImg, cv::Mat intrin
         cv::cvtColor(manipImg, manipImg, cv::COLOR_BGR2GRAY);
     }
 
-    SENSFramePtr sensFrame = std::make_unique<SENSFrame>(rgbImg,
+    SENSFramePtr sensFrame = std::make_unique<SENSFrame>(bgrImg,
                                                          manipImg,
                                                          inputSize.width,
                                                          inputSize.height,

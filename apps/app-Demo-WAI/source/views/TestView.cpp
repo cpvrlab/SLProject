@@ -85,7 +85,7 @@ bool TestView::update()
     if (frame)
     {
         if (_videoWriter && _videoWriter->isOpened())
-            _videoWriter->write(frame->imgRGB);
+            _videoWriter->write(frame->imgBGR);
 
         if (_mode)
         {
@@ -905,7 +905,7 @@ void TestView::updateVideoTracking()
         if (frame)
         {
             if (_videoWriter && _videoWriter->isOpened())
-                _videoWriter->write(frame->imgRGB);
+                _videoWriter->write(frame->imgBGR);
             if (_mode)
                 _mode->update(frame->imgManip);
         }
@@ -919,7 +919,7 @@ void TestView::updateVideoTracking()
         if (frame)
         {
             if (_videoWriter && _videoWriter->isOpened())
-                _videoWriter->write(frame->imgRGB);
+                _videoWriter->write(frame->imgBGR);
             if (_mode)
                 _mode->update(frame->imgManip);
         }
@@ -974,12 +974,12 @@ void TestView::updateTrackingVisualization(const bool iKnowWhereIAm)
 void TestView::updateTrackingVisualization(const bool iKnowWhereIAm, SENSFrame& frame)
 {
     //undistort image and copy image to video texture
-    _mode->drawInfo(frame.imgRGB, frame.scaleToManip, true, _gui.uiPrefs->showKeyPoints, _gui.uiPrefs->showKeyPointsMatched);
+    _mode->drawInfo(frame.imgBGR, frame.scaleToManip, true, _gui.uiPrefs->showKeyPoints, _gui.uiPrefs->showKeyPointsMatched);
 
     if (_calibration->state() == SENSCalibration::State::calibrated && _showUndistorted)
-        _calibration->remap(frame.imgRGB, _imgBuffer.inputSlot());
+        _calibration->remap(frame.imgBGR, _imgBuffer.inputSlot());
     else
-        _imgBuffer.inputSlot() = frame.imgRGB;
+        _imgBuffer.inputSlot() = frame.imgBGR;
 
     _scene.camera->updateVideoImage(_imgBuffer.outputSlot());
     _imgBuffer.incrementSlot();

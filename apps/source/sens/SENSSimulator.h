@@ -254,7 +254,7 @@ public:
 
     const SENSCameraConfig& start(std::string                   deviceId,
                                   const SENSCameraStreamConfig& streamConfig,
-                                  cv::Size                      imgRGBSize           = cv::Size(),
+                                  cv::Size                      imgBGRSize           = cv::Size(),
                                   bool                          mirrorV              = false,
                                   bool                          mirrorH              = false,
                                   bool                          convToGrayToImgManip = false,
@@ -269,10 +269,10 @@ public:
         }
 
         cv::Size targetSize;
-        if (imgRGBSize.width > 0 && imgRGBSize.height > 0)
+        if (imgBGRSize.width > 0 && imgBGRSize.height > 0)
         {
-            targetSize.width  = imgRGBSize.width;
-            targetSize.height = imgRGBSize.height;
+            targetSize.width  = imgBGRSize.width;
+            targetSize.height = imgBGRSize.height;
         }
         else
         {

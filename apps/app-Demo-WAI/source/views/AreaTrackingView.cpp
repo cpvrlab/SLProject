@@ -477,9 +477,9 @@ bool AreaTrackingView::startCamera(const cv::Size& cameraFrameTargetSize)
 void AreaTrackingView::updateVideoImage(SENSFrame& frame, VideoBackgroundCamera* videoBackground)
 {
     if (_camera->calibration()->state() == SENSCalibration::State::calibrated)
-        _camera->calibration()->remap(frame.imgRGB, _imgBuffer.inputSlot());
+        _camera->calibration()->remap(frame.imgBGR, _imgBuffer.inputSlot());
     else
-        _imgBuffer.inputSlot() = frame.imgRGB;
+        _imgBuffer.inputSlot() = frame.imgBGR;
 
     //add bars to image instead of viewport adjustment (we update the mat in the buffer)
     //todo: the matrices in the buffer have different sizes.. problem? no! no!
@@ -496,7 +496,7 @@ void AreaTrackingView::updateTrackingVisualization(const bool iKnowWhereIAm, SEN
     //todo: add or remove crop in case of wide screens
     //undistort image and copy image to video texture
     if (_resources.developerMode)
-        _waiSlam->drawInfo(frame.imgRGB, frame.scaleToManip, true, false, true);
+        _waiSlam->drawInfo(frame.imgBGR, frame.scaleToManip, true, false, true);
 
     //update map point visualization
     if (_resources.developerMode)

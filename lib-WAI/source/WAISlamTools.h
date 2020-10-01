@@ -46,7 +46,7 @@ class WAISlamTools
 public:
     static void drawKeyPointInfo(WAIFrame& frame, cv::Mat& image, float scale);
     static void drawKeyPointMatches(WAIFrame& frame, cv::Mat& image, float scale);
-    static void drawInitInfo(InitializerData& iniData, WAIFrame& frame, cv::Mat& imageRGB, float scale);
+    static void drawInitInfo(InitializerData& iniData, WAIFrame& frame, cv::Mat& imageBGR, float scale);
 
     static bool initialize(InitializerData&  iniData,
                            WAIFrame&         frame,

@@ -18,7 +18,7 @@ public:
 
     const SENSCameraConfig& start(std::string                   deviceId,
                                   const SENSCameraStreamConfig& streamConfig,
-                                  cv::Size                      imgRGBSize           = cv::Size(),
+                                  cv::Size                      imgBGRSize           = cv::Size(),
                                   bool                          mirrorV              = false,
                                   bool                          mirrorH              = false,
                                   bool                          convToGrayToImgManip = false,

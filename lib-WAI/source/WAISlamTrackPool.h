@@ -45,7 +45,7 @@ public:
     void changeIntrinsic(cv::Mat intrinsic, cv::Mat distortion);
     cv::Mat getPose();
     
-    void drawInfo(cv::Mat& imageRGB,
+    void drawInfo(cv::Mat& imageBGR,
                   float    scale,
                   bool     showInitLine,
                   bool     showKeyPoints,

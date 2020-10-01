@@ -235,7 +235,7 @@
             // Do we care about missing frames?
             [_videoOutput setAlwaysDiscardsLateVideoFrames:YES];
 
-            // We want the frames in some RGB format
+            // We want the frames in some BGR format
             NSNumber* framePixelFormat = [NSNumber numberWithInt:kCVPixelFormatType_32BGRA];
             _videoOutput.videoSettings = [NSDictionary dictionaryWithObject:framePixelFormat
                                                                      forKey:(id)kCVPixelBufferPixelFormatTypeKey];

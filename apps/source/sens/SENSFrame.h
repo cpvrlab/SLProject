@@ -6,7 +6,7 @@
 //Camera frame obeject
 struct SENSFrame
 {
-    SENSFrame(cv::Mat imgRGB,
+    SENSFrame(cv::Mat imgBGR,
               cv::Mat imgManip,
               int     captureWidth,
               int     captureHeight,
@@ -16,7 +16,7 @@ struct SENSFrame
               bool    mirroredV,
               float   scaleToManip,
               cv::Mat intrinsics)
-      : imgRGB(imgRGB),
+      : imgBGR(imgBGR),
         imgManip(imgManip),
         captureWidth(captureWidth),
         captureHeight(captureHeight),
@@ -30,7 +30,7 @@ struct SENSFrame
     }
 
     //! cropped input image
-    cv::Mat imgRGB;
+    cv::Mat imgBGR;
     //! scaled and maybe gray manipulated image
     cv::Mat imgManip;
 
@@ -40,7 +40,7 @@ struct SENSFrame
     const int  cropH;
     const bool mirroredH;
     const bool mirroredV;
-    //! scale from imgManip to imgRGB
+    //! scale from imgManip to imgBGR
     const float scaleToManip;
     //! new intrinsics matrix (if valid it can be used to define a new calibration)
     cv::Mat intrinsics;

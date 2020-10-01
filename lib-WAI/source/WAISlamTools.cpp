@@ -49,7 +49,7 @@ void WAISlamTools::drawKeyPointMatches(WAIFrame& frame, cv::Mat& image, float sc
     }
 }
 
-void WAISlamTools::drawInitInfo(InitializerData& iniData, WAIFrame& newFrame, cv::Mat& imageRGB, float scale)
+void WAISlamTools::drawInitInfo(InitializerData& iniData, WAIFrame& newFrame, cv::Mat& imageBGR, float scale)
 {
     //half rectangle width and rectangle width (values are estimated on 640x480)
     int rhw = (scale * 3);
@@ -58,7 +58,7 @@ void WAISlamTools::drawInitInfo(InitializerData& iniData, WAIFrame& newFrame, cv
     for (unsigned int i = 0; i < iniData.initialFrame.mvKeys.size(); i++)
     {
         auto pt = scale * iniData.initialFrame.mvKeys[i].pt;
-        cv::rectangle(imageRGB,
+        cv::rectangle(imageBGR,
                       cv::Rect((int)(pt.x - rhw), (int)(pt.y - rhw), rw, rw),
                       cv::Scalar(0, 0, 255));
     }
@@ -67,7 +67,7 @@ void WAISlamTools::drawInitInfo(InitializerData& iniData, WAIFrame& newFrame, cv
     {
         if (iniData.iniMatches[i] >= 0)
         {
-            cv::line(imageRGB,
+            cv::line(imageBGR,
                      scale * iniData.initialFrame.mvKeys[i].pt,
                      scale * newFrame.mvKeys[iniData.iniMatches[i]].pt,
                      cv::Scalar(0, 255, 0));

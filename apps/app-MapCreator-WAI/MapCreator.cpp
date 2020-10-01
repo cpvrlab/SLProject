@@ -562,7 +562,7 @@ bool MapCreator::createNewDenseWaiMap(Videos&                   videos,
                 WAI_DEBUG("Relocalized once for video %s at index %i", videos[videoIdx].videoFile.c_str(), finalFrameIndex);
             }
 
-            decorateDebug(waiMode.get(), frame->imgRGB, currentFrameIndex, videoLength, waiMode->getNumKeyFrames());
+            decorateDebug(waiMode.get(), frame->imgBGR, currentFrameIndex, videoLength, waiMode->getNumKeyFrames());
         }
 
         //save map if it was initialized
