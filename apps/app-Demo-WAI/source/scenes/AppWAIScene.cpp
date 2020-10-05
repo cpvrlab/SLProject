@@ -433,10 +433,11 @@ void AppWAIScene::removeMatchedMapPoints()
     removeMesh(mapMatchedPC, mappointsMatchedMesh);
 }
 
-void AppWAIScene::renderKeyframes(const std::vector<WAIKeyFrame*>& keyframes)
+void AppWAIScene::renderKeyframes(const std::vector<WAIKeyFrame*>& keyframes, const std::vector<WAIKeyFrame*>& candidates)
 {
     keyFrameNode->deleteChildren();
     // TODO(jan): delete keyframe textures
+
     for (WAIKeyFrame* kf : keyframes)
     {
         if (kf->isBad())
@@ -453,6 +454,13 @@ void AppWAIScene::renderKeyframes(const std::vector<WAIKeyFrame*>& keyframes)
         _kfTextures.push_back(texture);
         cam->background().texture(texture);
 #endif
+        }
+
+        cam->setDrawColor();
+        for (WAIKeyFrame * ckf : candidates)
+        {
+            if (kf->mnId == ckf->mnId)
+                cam->setDrawColor(SLCol4f::BLUE);
         }
 
         cv::Mat Twc = kf->getObjectMatrix();
@@ -485,7 +493,7 @@ void AppWAIScene::renderKeyframes(const std::vector<WAIKeyFrame*>& keyframes)
         cam->fov(fovDeg);
         cam->focalDist(0.11f);
         cam->clipNear(0.1f);
-        cam->clipFar(1000.0f);
+        cam->clipFar(1.0f);
 
         keyFrameNode->addChild(cam);
     }

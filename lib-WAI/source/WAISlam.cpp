@@ -5,7 +5,7 @@
 #define MIN_FRAMES 0
 #define MAX_FRAMES 30
 //#define MULTI_MAPPING_THREADS 1
-//#define MULTI_THREAD_FRAME_PROCESSING 1
+#define MULTI_THREAD_FRAME_PROCESSING 1
 
 #define LOG_WAISLAM_WARN(...) Utils::log("WAISlam", __VA_ARGS__);
 #define LOG_WAISLAM_INFO(...) Utils::log("WAISlam", __VA_ARGS__);
@@ -303,7 +303,7 @@ void WAISlam::updatePose(WAIFrame& frame)
         break;
         case WAI::TrackingState_TrackingStart: {
             _relocFrameCounter++;
-            if (_relocFrameCounter > 0)
+            if (_relocFrameCounter > 30)
                 _state = WAI::TrackingState_TrackingOK;
         }
         case WAI::TrackingState_TrackingOK: {
@@ -382,6 +382,7 @@ void WAISlam::updatePoseKFIntegration(WAIFrame& frame)
         break;
     }
 
+    std::unique_lock<std::mutex> lock(_lastFrameMutex);
     _lastFrame = WAIFrame(frame);
 }
 
@@ -393,6 +394,7 @@ WAIFrame WAISlam::getLastFrame()
 
 WAIFrame* WAISlam::getLastFramePtr()
 {
+    std::unique_lock<std::mutex> lock(_lastFrameMutex);
     return &_lastFrame;
 }
 

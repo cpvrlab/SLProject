@@ -207,6 +207,7 @@ void TestView::handleEvents()
                 WAIEventVideoControl* videoControlEvent = (WAIEventVideoControl*)event;
                 _pauseVideo                             = videoControlEvent->pauseVideo;
                 _videoCursorMoveIndex                   = videoControlEvent->videoCursorMoveIndex;
+                updateTrackingVisualization(false);
 
                 delete videoControlEvent;
             }
@@ -954,13 +955,27 @@ void TestView::updateTrackingVisualization(const bool iKnowWhereIAm)
 
     //update visualization of matched map points (when WAI pose is valid)
     if (_gui.uiPrefs->showMatchesPC && iKnowWhereIAm)
-        _scene.renderMatchedMapPoints(_mode->getMatchedMapPoints(_mode->getLastFramePtr()));
+    {
+        WAIFrame frame = _mode->getLastFrame();
+        _scene.renderMatchedMapPoints(_mode->getMatchedMapPoints(&frame));
+    }
     else
         _scene.removeMatchedMapPoints();
 
     //update keyframe visualization
     if (_gui.uiPrefs->showKeyFrames)
-        _scene.renderKeyframes(_mode->getKeyFrames());
+    {
+        vector<WAIKeyFrame*> vpCandidateKFs;
+        if (_pauseVideo)
+        {
+            WAIFrame frame = _mode->getLastFrame();
+            frame.mnId = 1;
+            WAIKeyFrameDB* kfdb = _mode->getMap()->GetKeyFrameDB();
+            vpCandidateKFs = kfdb->DetectRelocalizationCandidates(&frame, 0.8, false);
+            std::cout << "vpCandidates size " << vpCandidateKFs.size() << std::endl;
+        }
+        _scene.renderKeyframes(_mode->getKeyFrames(), vpCandidateKFs);
+    }
     else
         _scene.removeKeyframes();
 
