@@ -122,13 +122,13 @@ string getDirName(const string& pathFilename);
 string getFileExt(const string& filename);
 
 //! Returns a vector directory names with path in dir
-vector<string> getDirNamesInDir(const string& dirName);
+vector<string> getDirNamesInDir(const string& dirName, bool fullPath = true);
 
 //! Returns a vector of sorted names (files and directories) with path in dir
-vector<string> getAllNamesInDir(const string& dirName);
+vector<string> getAllNamesInDir(const string& dirName, bool fullPath = true);
 
 //! Returns a vector of sorted filesnames in dirName
-vector<string> getFileNamesInDir(const string& dirName);
+vector<string> getFileNamesInDir(const string& dirName, bool fullPath = true);
 
 //! Returns true if a directory exists.
 bool dirExists(const string& path);

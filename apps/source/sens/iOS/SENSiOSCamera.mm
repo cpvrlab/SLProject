@@ -159,6 +159,14 @@ void SENSiOSCamera::processNewFrame(unsigned char* data, int imgWidth, int imgHe
             intrinsics.at<double>(2, i) = (double)col[2];
         }
     }
+    
+    //todo: move to base class
+    {
+        SENSTimePt timePt = SENSClock::now();
+        std::lock_guard<std::mutex> lock(_listenerMutex);
+        for(SENSCameraListener* l : _listeners)
+            l->onFrame(timePt, bgrImg.clone());
+    }
 
     SENSFramePtr sensFrame = postProcessNewFrame(bgrImg, intrinsics, intrinsicsChanged);
 

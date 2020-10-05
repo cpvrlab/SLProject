@@ -54,10 +54,13 @@ SENSDummyGps::~SENSDummyGps()
 
 bool SENSDummyGps::start()
 {
+    if(_running)
+        return false;
+    
     Utils::log("SENSDummyGps", "start");
     startSimulation();
     _running = true;
-    return _running;
+    return true;
 }
 
 void SENSDummyGps::stop()

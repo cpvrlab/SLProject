@@ -53,10 +53,13 @@ SENSDummyOrientation::~SENSDummyOrientation()
 
 bool SENSDummyOrientation::start()
 {
+    if(_running)
+        return false;
+    
     Utils::log("SENSDummyOrientation", "start");
     startSimulation();
     _running = true;
-    return _running;
+    return true;
 }
 
 void SENSDummyOrientation::stop()

@@ -65,7 +65,7 @@ bool Utils_iOS::fileExists(string& pathfilename)
     return false;
 }
 //-----------------------------------------------------------------------------
-vector<string> Utils_iOS::getAllNamesInDir(const string& dirName)
+vector<string> Utils_iOS::getAllNamesInDir(const string& dirName, bool fullPath)
 {
     vector<string> folderContent;
 
@@ -92,7 +92,10 @@ vector<string> Utils_iOS::getAllNamesInDir(const string& dirName)
 
             for (NSString* entity in contents)
             {
-                folderContent.emplace_back(path + [entity UTF8String]);
+                if(fullPath)
+                    folderContent.emplace_back(path + [entity UTF8String]);
+                else
+                    folderContent.emplace_back([entity UTF8String]);
             }
         }
     }

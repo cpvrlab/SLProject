@@ -11,15 +11,30 @@
 
 class SENSSimulator;
 
+//we need a common base class to be able to put it in a vector
+class SENSSimulatedBase
+{
+    friend SENSSimulator;
+
+public:
+    virtual ~SENSSimulatedBase() {}
+
+protected:
+    virtual bool isThreadRunning() const = 0;
+
+    virtual void              feedSensorData(const int counter) = 0;
+    virtual const SENSTimePt& firstTimePt()                     = 0;
+
+    virtual void setCommonSimStartTimePt(const SENSTimePt& commonSimStartTimePt) = 0;
+};
+
 template<typename T>
-class SENSSimulated
+class SENSSimulated : public SENSSimulatedBase
 {
     friend SENSSimulator;
 
 public:
     virtual ~SENSSimulated() {}
-
-    bool isThreadRunning() const { return _threadIsRunning; }
 
 protected:
     using StartSimCB         = std::function<SENSTimePt(void)>;
@@ -33,8 +48,6 @@ protected:
         _data(data)
     {
     }
-
-    virtual void feedSensorData(const int counter) = 0;
 
     void startSim()
     {
@@ -58,16 +71,18 @@ protected:
         _stop = false;
     }
 
-    const SENSTimePt& firstTimePt()
+    void setCommonSimStartTimePt(const SENSTimePt& commonSimStartTimePt) override
+    {
+        _commonSimStartTimePt = commonSimStartTimePt;
+    }
+
+    const SENSTimePt& firstTimePt() override
     {
         assert(_data.size());
         return _data.front().first;
     }
-
-    void setCommonSimStartTimePt(const SENSTimePt& commonSimStartTimePt)
-    {
-        _commonSimStartTimePt = commonSimStartTimePt;
-    }
+    
+    bool isThreadRunning() const override { return _threadIsRunning; }
 
 private: //methods
     void feedSensor(const SENSTimePt startTimePt, const SENSTimePt simStartTimePt)
@@ -83,7 +98,11 @@ private: //methods
 
         //end of simulation
         if (counter >= _data.size())
+        {
+            _threadIsRunning = false;
+            _sensorSimStoppedCB();
             return;
+        }
 
         while (true)
         {
@@ -124,20 +143,20 @@ private: //methods
         }
 
         _threadIsRunning = false;
+        _sensorSimStoppedCB();
     }
 
 protected:
     std::vector<std::pair<SENSTimePt, T>> _data;
+
     //inform simulator that sensor was stopped
     SensorSimStoppedCB _sensorSimStoppedCB;
+    StartSimCB         _startSimCB;
 
-private:
     std::thread             _thread;
     std::condition_variable _condVar;
     std::mutex              _mutex;
     bool                    _stop = false;
-
-    StartSimCB _startSimCB;
 
     SENSTimePt _commonSimStartTimePt;
 
@@ -173,8 +192,6 @@ public:
         {
             stopSim();
             _running = false;
-            //callback here and not in base class because stopSim is also called in startSim
-            _sensorSimStoppedCB();
         }
     }
 
@@ -222,8 +239,6 @@ public:
         {
             stopSim();
             _running = false;
-            //callback here and not in base class because stopSim is also called in startSim
-            _sensorSimStoppedCB();
         }
     }
 
@@ -321,8 +336,6 @@ public:
         {
             stopSim();
             _started = false;
-            //callback here and not in base class because stopSim is also called in startSim
-            _sensorSimStoppedCB();
         }
     }
 
@@ -400,6 +413,14 @@ private:
 class SENSSimulator
 {
 public:
+    ~SENSSimulator()
+    {
+        for (int i = 0; i < _activeSensors.size(); ++i)
+        {
+            //_activeSensors[i]->stop();
+        }
+    }
+
     SENSSimulator(const std::string& simDirName)
     {
         try
@@ -425,9 +446,25 @@ public:
         }
     }
 
-    SENSSimulatedGps*         getGpsSensorPtr() { return _gps.get(); }
-    SENSSimulatedOrientation* getOrientationSensorPtr() { return _orientation.get(); }
-    SENSSimulatedCamera*      getCameraSensorPtr() { return _camera.get(); }
+    template<typename T>
+    T* getActiveSensor()
+    {
+        for (int i = 0; i < _activeSensors.size(); ++i)
+        {
+            SENSSimulatedBase* base    = _activeSensors[i].get();
+            T*                 derived = dynamic_cast<T*>(base);
+            if (derived)
+                return derived;
+        }
+
+        return nullptr;
+    }
+
+    SENSSimulatedGps*         getGpsSensorPtr() { return getActiveSensor<SENSSimulatedGps>(); }
+    SENSSimulatedOrientation* getOrientationSensorPtr() { return getActiveSensor<SENSSimulatedOrientation>(); }
+    SENSSimulatedCamera*      getCameraSensorPtr() { return getActiveSensor<SENSSimulatedCamera>(); }
+
+    bool isRunning() const { return _running; }
 
 private:
     SENSTimePt onStart()
@@ -444,12 +481,18 @@ private:
     void onSensorSimStopped()
     {
         //if no sensor is running anymore, we stop the simulation
-        if (!((_orientation && _orientation->isThreadRunning()) ||
-              (_gps && _gps->isThreadRunning()) ||
-              (_camera && _camera->isThreadRunning())))
+        bool aSensorIsRunning = false;
+        for (int i = 0; i < _activeSensors.size(); ++i)
         {
-            _running = false;
+            if (_activeSensors[i]->isThreadRunning())
+            {
+                aSensorIsRunning = true;
+                break;
+            }
         }
+
+        if (!aSensorIsRunning)
+            _running = false;
     }
 
     void estimateSimStartPoint()
@@ -457,9 +500,9 @@ private:
         //search for earliest time point
         bool initialized = false;
 
-        if (_gps)
+        for (int i = 0; i < _activeSensors.size(); ++i)
         {
-            const SENSTimePt& tp = _gps->firstTimePt();
+            const SENSTimePt& tp = _activeSensors[i]->firstTimePt();
             if (!initialized)
             {
                 initialized     = true;
@@ -469,36 +512,8 @@ private:
                 _simStartTimePt = tp;
         }
 
-        if (_orientation)
-        {
-            const SENSTimePt& tp = _orientation->firstTimePt();
-            if (!initialized)
-            {
-                initialized     = true;
-                _simStartTimePt = tp;
-            }
-            else if (tp < _simStartTimePt)
-                _simStartTimePt = tp;
-        }
-
-        if (_camera)
-        {
-            const SENSTimePt& tp = _camera->firstTimePt();
-            if (!initialized)
-            {
-                initialized     = true;
-                _simStartTimePt = tp;
-            }
-            else if (tp < _simStartTimePt)
-                _simStartTimePt = tp;
-        }
-
-        if (_gps)
-            _gps->setCommonSimStartTimePt(_simStartTimePt);
-        if (_orientation)
-            _orientation->setCommonSimStartTimePt(_simStartTimePt);
-        if (_camera)
-            _camera->setCommonSimStartTimePt(_simStartTimePt);
+        for (int i = 0; i < _activeSensors.size(); ++i)
+            _activeSensors[i]->setCommonSimStartTimePt(_simStartTimePt);
     }
 
     void loadGpsData(const std::string& dirName)
@@ -537,10 +552,10 @@ private:
                 if (data.size())
                 {
                     //make_unique has problems with fiendship and private constructor so we use unique_ptr
-                    _gps = std::unique_ptr<SENSSimulatedGps>(
+                    _activeSensors.push_back(std::unique_ptr<SENSSimulatedGps>(
                       new SENSSimulatedGps(std::bind(&SENSSimulator::onStart, this),
                                            std::bind(&SENSSimulator::onSensorSimStopped, this),
-                                           std::move(data)));
+                                           std::move(data))));
                 }
             }
             else
@@ -584,10 +599,10 @@ private:
                 if (data.size())
                 {
                     //make_unique has problems with fiendship and private constructor so we use unique_ptr
-                    _orientation = std::unique_ptr<SENSSimulatedOrientation>(
+                    _activeSensors.push_back(std::unique_ptr<SENSSimulatedOrientation>(
                       new SENSSimulatedOrientation(std::bind(&SENSSimulator::onStart, this),
                                                    std::bind(&SENSSimulator::onSensorSimStopped, this),
-                                                   std::move(data)));
+                                                   std::move(data))));
                 }
             }
             else
@@ -598,7 +613,7 @@ private:
     void loadCameraData(const std::string& dirName)
     {
         std::string textFileName  = dirName + "camera.txt";
-        std::string videoFileName = dirName + "video.mp4";
+        std::string videoFileName = dirName + "video.avi";
 
         //check if directory contains gps.txt
         if (Utils::fileExists(textFileName) && Utils::fileExists(videoFileName))
@@ -630,11 +645,11 @@ private:
                 if (data.size())
                 {
                     //make_unique has problems with fiendship and private constructor so we use unique_ptr
-                    _camera = std::unique_ptr<SENSSimulatedCamera>(
+                    _activeSensors.push_back(std::unique_ptr<SENSSimulatedCamera>(
                       new SENSSimulatedCamera(std::bind(&SENSSimulator::onStart, this),
                                               std::bind(&SENSSimulator::onSensorSimStopped, this),
                                               std::move(data),
-                                              videoFileName));
+                                              videoFileName)));
                 }
             }
             else
@@ -642,9 +657,7 @@ private:
         }
     }
 
-    std::unique_ptr<SENSSimulatedGps>         _gps;
-    std::unique_ptr<SENSSimulatedOrientation> _orientation;
-    std::unique_ptr<SENSSimulatedCamera>      _camera;
+    std::vector<std::unique_ptr<SENSSimulatedBase>> _activeSensors;
 
     //real start time point (when SENSSimulation::start was called)
     SENSTimePt _startTimePoint;

@@ -530,7 +530,7 @@ int main(int argc, char* argv[])
 {
     GLFWInit();
 
-    bool simulateSensors = true;
+    bool simulateSensors = false;
     try
     {
         std::unique_ptr<SENSWebCamera>        webCamera;

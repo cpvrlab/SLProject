@@ -8,6 +8,8 @@
 #include <utility>
 #include <mutex>
 #include <fstream>
+//for video writer on android
+#include <stdio.h>
 
 #include <opencv2/opencv.hpp>
 
@@ -59,6 +61,7 @@ public:
 
     void store()
     {
+        SENS_DEBUG("SENSRecorderDataHandler: starting store");
         writeOnThreadStart();
         //open file
         std::string fileName = _outputDir + _name + ".txt";
@@ -195,9 +198,17 @@ public:
              << _frameIndex << "\n";
         _frameIndex++;
 
-        if (!_videoWriter.isOpened())
-            _videoWriter.open(_outputDir + "video.mp4", cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 30, data.first.size(), true);
 
+        if (!_videoWriter.isOpened()) {
+
+            std::string filename = _outputDir + "video.avi";
+            _videoWriter.open(filename, cv::VideoWriter::fourcc('M', 'J', 'P', 'G'),
+                              30, data.first.size(), true);
+            SENS_DEBUG("Opening video for writing: %s", filename.c_str());
+        }
+        if (!_videoWriter.isOpened())
+            SENS_DEBUG("ERROR: video writer not opened");
+        
         //store frame to video capture
         _videoWriter.write(data.first);
 
@@ -410,8 +421,9 @@ public:
         _running = false;
     }
 
-    bool isRunning() { return _running; }
-
+    bool isRunning() const { return _running; }
+    const std::string& outputDir() const { return _outputDir; }
+    
 private:
     void onGps(const SENSTimePt& timePt, const SENSGps::Location& loc) override
     {
