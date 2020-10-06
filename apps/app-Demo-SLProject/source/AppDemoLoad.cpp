@@ -3000,10 +3000,10 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         videoTexture = new SLGLTexture(s, SLApplication::texturePath + "LiveVideoError.png", GL_LINEAR, GL_LINEAR);
 
         // Define shader that shows on all pixels the video background
-        SLGLProgram* spVideoBackground = new SLGLGenericProgram(s,
+        SLGLProgram* spVideoBackground  = new SLGLGenericProgram(s,
                                                                 SLApplication::shaderPath + "PerVrtTextureBackground.vert",
                                                                 SLApplication::shaderPath + "PerVrtTextureBackground.frag");
-        SLMaterial* matVideoBackground = new SLMaterial(s,
+        SLMaterial*  matVideoBackground = new SLMaterial(s,
                                                         "matVideoBackground",
                                                         videoTexture,
                                                         nullptr,
@@ -3226,10 +3226,10 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         CVCapture::instance()->videoType(VT_MAIN);
 
         // Define shader that shows on all pixels the video background
-        SLGLProgram* spVideoBackground = new SLGLGenericProgram(s,
+        SLGLProgram* spVideoBackground  = new SLGLGenericProgram(s,
                                                                 SLApplication::shaderPath + "PerVrtTextureBackground.vert",
                                                                 SLApplication::shaderPath + "PerVrtTextureBackground.frag");
-        SLMaterial* matVideoBackground = new SLMaterial(s,
+        SLMaterial*  matVideoBackground = new SLMaterial(s,
                                                         "matVideoBackground",
                                                         videoTexture,
                                                         nullptr,
@@ -3259,7 +3259,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         // Rotate to the true geographic rotation
         amphiTheatre->rotate(13.7f, 0, 1, 0, TS_parent);
 
-        // Let the video shine through the grass plane
+        // Let the video shine through some objects
         amphiTheatre->findChild<SLNode>("Tht-Aussen-Untergrund")->setMeshMat(matVideoBackground, true);
         amphiTheatre->findChild<SLNode>("Tht-Eingang-Ost-Boden")->setMeshMat(matVideoBackground, true);
         amphiTheatre->findChild<SLNode>("Tht-Arenaboden")->setMeshMat(matVideoBackground, true);
@@ -3323,6 +3323,18 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->background().texture(videoTexture);
         CVCapture::instance()->videoType(VT_MAIN);
 
+        // Define shader that shows on all pixels the video background
+        SLGLProgram* spVideoBackground  = new SLGLGenericProgram(s,
+                                                                SLApplication::shaderPath + "PerVrtTextureBackground.vert",
+                                                                SLApplication::shaderPath + "PerVrtTextureBackground.frag");
+        SLMaterial*  matVideoBackground = new SLMaterial(s,
+                                                        "matVideoBackground",
+                                                        videoTexture,
+                                                        nullptr,
+                                                        nullptr,
+                                                        nullptr,
+                                                        spVideoBackground);
+
         // Create directional light for the sun light
         SLLightDirect* light = new SLLightDirect(s, s, 5.0f);
         light->powers(1.0f, 1.0f, 1.0f);
@@ -3341,6 +3353,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                                           true,    // only meshes
                                           nullptr, // no replacement material
                                           0.4f);   // 40% ambient reflection
+
+        cigognier->findChild<SLNode>("Tmp-Parois-Sud")->drawBits()->set(SL_DB_HIDDEN, true);
 
         // Rotate to the true geographic rotation
         cigognier->rotate(13.7f, 0, 1, 0, TS_parent);
@@ -3404,10 +3418,10 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         CVCapture::instance()->videoType(VT_MAIN);
 
         // Define shader that shows on all pixels the video background
-        SLGLProgram* spVideoBackground = new SLGLGenericProgram(s,
+        SLGLProgram* spVideoBackground  = new SLGLGenericProgram(s,
                                                                 SLApplication::shaderPath + "PerVrtTextureBackground.vert",
                                                                 SLApplication::shaderPath + "PerVrtTextureBackground.frag");
-        SLMaterial* matVideoBackground = new SLMaterial(s,
+        SLMaterial*  matVideoBackground = new SLMaterial(s,
                                                         "matVideoBackground",
                                                         videoTexture,
                                                         nullptr,
@@ -3437,8 +3451,11 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         // Rotate to the true geographic rotation
         theatre->rotate(-36.7f, 0, 1, 0, TS_parent);
 
-        // Let the video shine through the grass plane
+        theatre->findChild<SLNode>("Tht-Buehnenhaus")->drawBits()->set(SL_DB_HIDDEN, true);
+
+        // Let the video shine through some objects
         theatre->findChild<SLNode>("Tht-Rasen")->setMeshMat(matVideoBackground, true);
+        theatre->findChild<SLNode>("Tht-Boden")->setMeshMat(matVideoBackground, true);
 
         // Add axis object a world origin
         SLNode* axis = new SLNode(new SLCoordAxis(s), "Axis Node");
@@ -3455,8 +3472,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         //initialize sensor stuff
         //https://map.geo.admin.ch/?lang=de&topic=ech&bgLayer=ch.swisstopo.swissimage&layers=ch.swisstopo.zeitreihen,ch.bfs.gebaeude_wohnungs_register,ch.bav.haltestellen-oev,ch.swisstopo.swisstlm3d-wanderwege&layers_opacity=1,1,1,0.8&layers_visibility=false,false,false,false&layers_timestamp=18641231,,,&E=2570281&N=1192204&zoom=13&crosshair=marker
         SLApplication::devLoc.useOriginAltitude(false);
-        SLApplication::devLoc.originLLA(46.88029, 7.04876, 454.9f); // Zentrum Orchestra
-        SLApplication::devLoc.defaultLLA(46.88044, 7.04846, 455.3f + 1.7);  // Vor dem Bühnenhaus
+        SLApplication::devLoc.originLLA(46.88029, 7.04876, 454.9f);        // Zentrum Orchestra
+        SLApplication::devLoc.defaultLLA(46.88044, 7.04846, 455.3f + 1.7); // Vor dem Bühnenhaus
         SLApplication::devLoc.locMaxDistanceM(1000.0f);                    // Max. Distanz. zum Nullpunkt
         SLApplication::devLoc.improveOrigin(false);                        // Keine autom. Verbesserung vom Origin
         SLApplication::devLoc.hasOrigin(true);
