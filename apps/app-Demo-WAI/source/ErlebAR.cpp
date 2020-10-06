@@ -100,7 +100,7 @@ const Location defineLocationAvenches()
     loc.id                   = LocationId::AVENCHES;
     loc.name                 = mapLocationIdToName(loc.id);
     loc.areaMapImageFileName = "locations/avenches/locationMapImgAvenches.jpg";
-    loc.dspPixWidth          = 2046;
+    loc.dspPixWidth          = 1500;
     {
         Area area;
         area.id              = AreaId::AVENCHES_AMPHITHEATER_ENTRANCE;
@@ -108,10 +108,9 @@ const Location defineLocationAvenches()
         area.xPosPix         = 520;
         area.yPosPix         = 530;
         area.viewAngleDeg    = 170;
-        area.vocFileName     = "locations/avenches/amphitheater/amphitheater_voc.bin";
-        area.slamMapFileName = "locations/avenches/amphitheaterEntrance/maps/realease-map_20201001-010003_Avenches_amphitheaterEntrance_FAST-ORBS-2000_2.waimap";
+        area.slamMapFileName = "locations/avenches/amphitheaterEntrance/maps/map_20201006-134438_Avenches_Amphitheater-Entrance_FAST-ORBS-1000_2.waimap";
         area.relocAlignImage = "locations/avenches/amphitheaterEntrance/amphitheaterEntrance-reloc-align-img.jpg";
-        area.vocLayer        = 4;
+        area.vocLayer        = 2;
         loc.areas[area.id]   = area;
     }
     {
@@ -121,10 +120,9 @@ const Location defineLocationAvenches()
         area.xPosPix         = 290;
         area.yPosPix         = 580;
         area.viewAngleDeg    = -18;
-        area.vocFileName     = "locations/avenches/amphitheater/amphitheater_voc.bin";
-        area.slamMapFileName = "locations/avenches/amphitheater/maps/release-map_20200930-160451_avenches_amphitheater_FAST-ORBS-2000_2.waimap";
+        area.slamMapFileName = "locations/avenches/amphitheater/maps/map_20201006-104306_Avenches_Amphitheater_FAST-ORBS-1000_2.waimap";
         area.relocAlignImage = "locations/avenches/amphitheater/amphitheater-reloc-align-img.jpg";
-        area.vocLayer        = 4;
+        area.vocLayer        = 2;
         loc.areas[area.id]   = area;
     }
     {
@@ -135,7 +133,7 @@ const Location defineLocationAvenches()
         area.yPosPix         = 450;
         area.viewAngleDeg    = -140;
         area.slamMapFileName = "locations/avenches/cigonier-marker/maps/DEVELOPMENT-map_20200529-162110_avenches_cigonier-marker_FAST_ORBS_2000.json";
-        area.vocLayer        = 4;
+        area.vocLayer        = 2;
         loc.areas[area.id]   = area;
     }
     {
@@ -148,7 +146,7 @@ const Location defineLocationAvenches()
         area.vocFileName     = "locations/avenches/theater/theater_voc.bin";
         area.slamMapFileName = "locations/avenches/theater/maps/release-map_20200930-154707_avenches_theater_FAST-ORBS-2000_2.waimap";
         area.relocAlignImage = "locations/avenches/theater/theater-reloc-align-img.jpg";
-        area.vocLayer        = 4;
+        area.vocLayer        = 2;
         loc.areas[area.id]   = area;
     }
 

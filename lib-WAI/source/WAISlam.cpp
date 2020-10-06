@@ -329,7 +329,7 @@ void WAISlam::updatePose(WAIFrame& frame)
         break;
         case WAI::TrackingState_TrackingLost: {
             int inliers;
-            if (relocalization(frame, _globalMap.get(), _localMap, _params.minCommonWordFactor, inliers))
+            if (relocalization(frame, _globalMap.get(), _localMap, _params.minCommonWordFactor, inliers, _params.minAccScoreFilter))
             {
                 _relocFrameCounter = 0;
                 _lastRelocFrameId  = frame.mnId;
@@ -371,7 +371,7 @@ void WAISlam::updatePoseKFIntegration(WAIFrame& frame)
         break;
         case WAI::TrackingState_TrackingLost: {
             int inliers;
-            if (relocalization(frame, _globalMap.get(), _localMap, _params.minCommonWordFactor, inliers))
+            if (relocalization(frame, _globalMap.get(), _localMap, _params.minCommonWordFactor, inliers, _params.minAccScoreFilter))
             {
                 _lastRelocFrameId    = frame.mnId;
                 _velocity            = cv::Mat();

@@ -99,6 +99,16 @@ void Vocabulary::transform(const cv::Mat& features, int level, fBow& result, fBo
     }
     else
         throw std::runtime_error("Vocabulary::transform invalid feature type. Should be CV_8UC1 or CV_32FC1");
+
+    //normalize
+    double norm = 0;
+    for (auto e : result) norm += e.second * e.second;
+
+    if (norm > 0.0)
+    {
+        double inv_norm = 1. / sqrt(norm);
+        for (auto& e : result) e.second *= (float)inv_norm;
+    }
 }
 
 fBow Vocabulary::transform(const cv::Mat& features)
@@ -231,8 +241,8 @@ double fBow::score(const fBow& v1, const fBow& v2)
 
         if (v1_it->first == v2_it->first)
         {
-       //     score += vi * wi;
-            score += fabs(vi - wi) - fabs(vi) - fabs(wi);
+            score += vi * wi;
+        //    score += fabs(vi - wi) - fabs(vi) - fabs(wi);
 
             // move v1 and v2 forward
             ++v1_it;
@@ -258,7 +268,7 @@ double fBow::score(const fBow& v1, const fBow& v2)
     //		for all i | v_i != 0 and w_i != 0 )
     // (Nister, 2006)
 
-    score = -score/2.0;
+    //score = -score/2.0;
     /*
     //Work only with normalized values
     if (score >= 1) // rounding errors

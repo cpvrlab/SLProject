@@ -107,8 +107,7 @@ void readArgs(int argc, char* argv[], Config& config)
         }
         else if (!strcmp(argv[i], "-vocLayer"))
         {
-            int val         = std::stoi(argv[++i]);
-            config.vocLayer = val == 1 ? true : false;
+            config.vocLayer = std::stoi(argv[++i]);
         }
         else if (!strcmp(argv[i], "-feature"))
         {

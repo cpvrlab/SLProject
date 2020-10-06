@@ -465,6 +465,7 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
             ImGui::EndCombo();
         }
 
+        ImGui::Checkbox("accMinScoreFilter", &_p.params.minAccScoreFilter);
         ImGui::Checkbox("store/load keyframes image", &_p.params.retainImg);
         ImGui::Checkbox("track optical flow", &_p.params.trackOptFlow);
         ImGui::Checkbox("tracking only", &_p.params.onlyTracking);

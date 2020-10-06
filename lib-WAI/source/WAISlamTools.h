@@ -77,7 +77,8 @@ public:
                                WAIMap*   waiMap,
                                LocalMap& localMap,
                                float     minCommonWordFactor,
-                               int&      inliers);
+                               int&      inliers,
+                               bool      minAccScoreFilter = false);
 
     static bool tracking(WAIMap*   map,
                          LocalMap& localMap,

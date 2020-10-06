@@ -477,7 +477,7 @@ UserGuidance::UserGuidance(AreaTrackingGui * gui)
         if (lookingToward)
             terminate = true;
 
-        float alpha = 0.8 - tTerminate * 0.8;
+        float alpha = 0.4 - tTerminate * 0.4;
         if (alpha >= 0)
         {
             gui->showText("Align the camera view to this image");

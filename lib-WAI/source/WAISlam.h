@@ -49,6 +49,9 @@ public:
         //Min common words as a factor of max common words within candidates
         // for relocalization and loop closing
         float minCommonWordFactor = 0.8f;
+
+        //Min acc score filter in detectRelocalizationCandidates
+        bool minAccScoreFilter = false;
     };
 
     WAISlam(const cv::Mat&          intrinsic,

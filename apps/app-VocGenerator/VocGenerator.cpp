@@ -11,6 +11,7 @@
 #include <WAIOrbVocabulary.h>
 #include <KPextractor.h>
 #include <ORBextractor.h>
+#include <BRIEFextractor.h>
 // OpenCV
 #include <opencv2/core.hpp>
 #include <opencv2/highgui.hpp>
@@ -53,6 +54,7 @@ int loadFeatures(std::string videoname, vector<cv::Mat>& features)
     }
 
     ORB_SLAM2::ORBextractor ext = ORB_SLAM2::ORBextractor(2000, 1.2, nLevels, 20, 7);
+    //ORB_SLAM2::BRIEFextractor ext = ORB_SLAM2::BRIEFextractor(2000, 1.2, nLevels, 20, 7);
     cv::Mat frame;
     cv::Mat grayframe;
 
@@ -91,7 +93,7 @@ void buildVoc(vector<cv::Mat>& features)
 {
     WAIOrbVocabulary voc;
 
-    voc.create(features, 10, 5);
+    voc.create(features, 10, 4);
     cout << "Saving vocabulary..." << endl;
     voc.save("voc.bin");
     cout << "Done" << endl;

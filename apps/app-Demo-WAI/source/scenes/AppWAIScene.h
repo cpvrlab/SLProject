@@ -90,6 +90,7 @@ private:
     SLMaterial* covisibilityGraphMat = nullptr;
     SLMaterial* spanningTreeMat      = nullptr;
     SLMaterial* loopEdgesMat         = nullptr;
+    SLMaterial* matVideoBackground   = nullptr;
 
     SLPoints*   mappointsMesh             = nullptr;
     SLPoints*   mappointsMatchedMesh      = nullptr;

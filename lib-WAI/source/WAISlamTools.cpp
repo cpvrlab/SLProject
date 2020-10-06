@@ -714,7 +714,8 @@ bool WAISlamTools::relocalization(WAIFrame& currentFrame,
                                   WAIMap*   waiMap,
                                   LocalMap& localMap,
                                   float     minCommonWordFactor,
-                                  int&      inliers)
+                                  int&      inliers,
+                                  bool      minAccScoreFilter)
 {
     AVERAGE_TIMING_START("relocalization");
     // Compute Bag of Words Vector
@@ -722,7 +723,7 @@ bool WAISlamTools::relocalization(WAIFrame& currentFrame,
     // Relocalization is performed when tracking is lost
     // Track Lost: Query WAIKeyFrame Database for keyframe candidates for relocalisation
     vector<WAIKeyFrame*> vpCandidateKFs;
-    vpCandidateKFs = waiMap->GetKeyFrameDB()->DetectRelocalizationCandidates(&currentFrame, minCommonWordFactor, true); //put boolean to argument
+    vpCandidateKFs = waiMap->GetKeyFrameDB()->DetectRelocalizationCandidates(&currentFrame, minCommonWordFactor, minAccScoreFilter); //put boolean to argument
 
     if (vpCandidateKFs.empty())
     {
