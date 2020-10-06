@@ -3014,8 +3014,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0, 2, 0);
         cam1->lookAt(-10, 2, 0);
-        cam1->clipNear(0.1f);
-        cam1->clipFar(500.0f);
+        cam1->clipNear(2);
+        cam1->clipFar(200);
         cam1->setInitialState();
         cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
         cam1->background().texture(videoTexture);
@@ -3128,8 +3128,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0, 50, -150);
         cam1->lookAt(0, 0, 0);
-        cam1->clipNear(0.1f);
-        cam1->clipFar(1000.0f);
+        cam1->clipNear(2);
+        cam1->clipFar(200);
         cam1->focalDist(150);
         cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
 
@@ -3138,6 +3138,17 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->background().texture(videoTexture);
         CVCapture::instance()->videoType(VT_MAIN);
 
+        // Define shader that shows on all pixels the video background
+        SLGLProgram* spVideoBackground  = new SLGLGenericProgram(s,
+                                                                 SLApplication::shaderPath + "PerVrtTextureBackground.vert",
+                                                                 SLApplication::shaderPath + "PerVrtTextureBackground.frag");
+        SLMaterial*  matVideoBackground = new SLMaterial(s,
+                                                         "matVideoBackground",
+                                                         videoTexture,
+                                                         nullptr,
+                                                         nullptr,
+                                                         nullptr,
+                                                         spVideoBackground);
         // Create directional light for the sun light
         SLLightDirect* light = new SLLightDirect(s, s, 5.0f);
         light->powers(1.0f, 1.0f, 1.0f);
@@ -3159,6 +3170,10 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Rotate to the true geographic rotation
         TheaterAndTempel->rotate(16.7f, 0, 1, 0, TS_parent);
+
+        // Let the video shine through on some objects
+        TheaterAndTempel->findChild<SLNode>("Tmp-Boden")->setMeshMat(matVideoBackground, true);
+        TheaterAndTempel->findChild<SLNode>("Tht-Boden")->setMeshMat(matVideoBackground, true);
 
         // Add axis object a world origin
         SLNode* axis = new SLNode(new SLCoordAxis(s), "Axis Node");
@@ -3214,8 +3229,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0, 50, -150);
         cam1->lookAt(0, 0, 0);
-        cam1->clipNear(0.1f);
-        cam1->clipFar(1000.0f);
+        cam1->clipNear(1);
+        cam1->clipFar(200);
         cam1->focalDist(150);
         cam1->setInitialState();
         cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
@@ -3313,10 +3328,11 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0, 50, -150);
         cam1->lookAt(0, 0, 0);
-        cam1->clipNear(0.1f);
-        cam1->clipFar(1000.0f);
+        cam1->clipNear(2);
+        cam1->clipFar(200);
         cam1->focalDist(150);
         cam1->setInitialState();
+        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
 
         // Create video texture and turn on live video
         videoTexture = new SLGLTexture(s, SLApplication::texturePath + "LiveVideoError.png", GL_LINEAR, GL_LINEAR);
@@ -3357,7 +3373,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cigognier->findChild<SLNode>("Tmp-Parois-Sud")->drawBits()->set(SL_DB_HIDDEN, true);
 
         // Rotate to the true geographic rotation
-        cigognier->rotate(13.7f, 0, 1, 0, TS_parent);
+        cigognier->rotate(-37.0f, 0, 1, 0, TS_parent);
 
         // Add axis object a world origin
         SLNode* axis = new SLNode(new SLCoordAxis(s), "Axis Node");
@@ -3373,8 +3389,10 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         //initialize sensor stuff
         SLApplication::devLoc.useOriginAltitude(false);
-        SLApplication::devLoc.originLLA(46.881013677, 7.042621953, 442.0);        // Vorplatz Cigognier
-        SLApplication::devLoc.defaultLLA(46.881210148, 7.043767122, 442.0 + 1.7); // Ecke Vorplatz Ost
+        //https://map.geo.admin.ch/?lang=de&topic=ech&bgLayer=ch.swisstopo.swissimage&layers=ch.swisstopo.zeitreihen,ch.bfs.gebaeude_wohnungs_register,ch.bav.haltestellen-oev,ch.swisstopo.swisstlm3d-wanderwege&layers_opacity=1,1,1,0.8&layers_visibility=false,false,false,false&layers_timestamp=18641231,,,&E=2570106&N=1192334&zoom=13&crosshair=marker
+        SLApplication::devLoc.originLLA(46.88145, 7.04645, 450.9); // Ecke Vorplatz Ost
+        //https://map.geo.admin.ch/?lang=de&topic=ech&bgLayer=ch.swisstopo.swissimage&layers=ch.swisstopo.zeitreihen,ch.bfs.gebaeude_wohnungs_register,ch.bav.haltestellen-oev,ch.swisstopo.swisstlm3d-wanderwege&layers_opacity=1,1,1,0.8&layers_visibility=false,false,false,false&layers_timestamp=18641231,,,&E=2570135&N=1192315&zoom=13&crosshair=marker
+        SLApplication::devLoc.defaultLLA(46.88128, 7.04683, 451.5 + 1.7); // Ecke Vorplatz Ost
         SLApplication::devLoc.locMaxDistanceM(1000.0f);                           // Max. Distanz. zum Nullpunkt
         SLApplication::devLoc.improveOrigin(false);                               // Keine autom. Verbesserung vom Origin
         SLApplication::devLoc.hasOrigin(true);
@@ -3407,10 +3425,11 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0, 50, -150);
         cam1->lookAt(0, 0, 0);
-        cam1->clipNear(0.1f);
-        cam1->clipFar(1000.0f);
+        cam1->clipNear(2);
+        cam1->clipFar(200);
         cam1->focalDist(150);
         cam1->setInitialState();
+        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
 
         // Create video texture and turn on live video
         videoTexture = new SLGLTexture(s, SLApplication::texturePath + "LiveVideoError.png", GL_LINEAR, GL_LINEAR);
