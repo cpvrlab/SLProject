@@ -706,16 +706,16 @@ void SENSNdkCamera::imageCallback(AImageReader* reader)
         //inform listeners
         {
             std::unique_lock<std::mutex> lock(_listenerMutex);
-            if(_listeners.size())
-            {
-                lock.unlock();
+            //if(_listeners.size())
+            //{
+              //  lock.unlock();
                 SENSTimePt timePt = SENSClock::now();
                 cv::Mat bgrImg;
                 cv::cvtColor(yuv, bgrImg, cv::COLOR_YUV2BGR_NV21, 3);
-                lock.lock();
+                //lock.lock();
                 for (SENSCameraListener *l : _listeners)
                     l->onFrame(timePt, bgrImg);
-            }
+            //}
         }
 
         //move yuv image to worker thread input

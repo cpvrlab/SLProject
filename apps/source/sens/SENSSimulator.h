@@ -22,8 +22,10 @@ public:
 protected:
     virtual bool isThreadRunning() const = 0;
 
-    virtual void              feedSensorData(const int counter) = 0;
-    virtual const SENSTimePt& firstTimePt()                     = 0;
+    virtual void feedSensorData(const int counter) = 0;
+    //prepare things that may take some time (e.g. for video reading we can already read the frame and do decoding and maybe it also blocks for some reasons..)
+    virtual void              prepareSensorData(const int counter){};
+    virtual const SENSTimePt& firstTimePt() = 0;
 
     virtual void setCommonSimStartTimePt(const SENSTimePt& commonSimStartTimePt) = 0;
 };
@@ -81,7 +83,7 @@ protected:
         assert(_data.size());
         return _data.front().first;
     }
-    
+
     bool isThreadRunning() const override { return _threadIsRunning; }
 
 private: //methods
@@ -89,6 +91,9 @@ private: //methods
     {
         _threadIsRunning = true;
         int counter      = 0;
+        
+        for(int i = 0; i < _data.size(); ++i)
+            SENS_DEBUG("data %d: %d", i, std::chrono::time_point_cast<SENSMicroseconds>(_data[i].first).time_since_epoch().count());
 
         auto       passedSimTime = std::chrono::duration_cast<SENSMicroseconds>((SENSTimePt)SENSClock::now() - startTimePt);
         SENSTimePt simTime       = simStartTimePt + passedSimTime;
@@ -111,21 +116,31 @@ private: //methods
             SENSTimePt simTime       = simStartTimePt + passedSimTime;
 
             //process late values
+            int i = 0;
             while (counter < _data.size() && _data[counter].first < simTime)
             {
-                SENS_DEBUG("feed sensor with latency: %d us", std::chrono::duration_cast<SENSMicroseconds>(_data[counter].first - simTime).count());
+                SENS_DEBUG("feed sensor index %d with latency: %d us, SimT: %d, ValueT: %d", counter, std::chrono::duration_cast<SENSMicroseconds>(_data[counter].first - simTime).count(), std::chrono::time_point_cast<SENSMicroseconds>(simTime).time_since_epoch().count(), std::chrono::time_point_cast<SENSMicroseconds>(_data[counter].first).time_since_epoch().count());
                 feedSensorData(counter);
 
                 //setting the location maybe took some time, so we update simulation time
                 passedSimTime = std::chrono::duration_cast<SENSMicroseconds>((SENSTimePt)SENSClock::now() - startTimePt);
                 simTime       = simStartTimePt + passedSimTime;
                 counter++;
+                i++;
             }
+            if (i > 0)
+                SENS_DEBUG("grabbed %d frames", i);
 
             //end of simulation
             if (counter >= _data.size())
                 break;
 
+            //prepare things that may take some time (e.g. for video reading we can already read the frame and do decoding and maybe it also blocks for some reasons..)
+            prepareSensorData(counter);
+
+            passedSimTime = std::chrono::duration_cast<SENSMicroseconds>((SENSTimePt)SENSClock::now() - startTimePt);
+            simTime       = simStartTimePt + passedSimTime;
+            
             //locationsCounter should now point to a value in the simulation future so lets wait
             const SENSTimePt& valueTime = _data[counter].first;
 
@@ -134,9 +149,11 @@ private: //methods
             //We reduce the wait time because thread sleep is not very exact (best is not to wait at all)
             SENSMicroseconds reducedWaitTimeUs((long)(0.1 * (double)waitTimeUs.count()));
 
+            HighResTimer t;
             std::unique_lock<std::mutex> lock(_mutex);
             _condVar.wait_for(lock, reducedWaitTimeUs, [&] { return _stop == true; });
             //SENS_DEBUG("wait time %d us", reducedWaitTimeUs.count());
+            //SENS_DEBUG("woke after %d us", t.elapsedTimeInMicroSec());
 
             if (_stop)
                 break;
@@ -302,6 +319,10 @@ public:
         {
             if (!_cap.open(_videoFileName))
                 throw SENSException(SENSType::CAM, "Could not open camera simulator for filename: " + _videoFileName, __LINE__, __FILE__);
+            else
+            {
+                //_cap.set(cv::CAP_PROP_FPS, 1);
+            }
         }
 
         //retrieve all camera characteristics
@@ -341,14 +362,19 @@ public:
 
     SENSFramePtr latestFrame() override
     {
-        SENSFramePtr newFrame;
+        cv::Mat newFrame;
 
         {
             std::lock_guard<std::mutex> lock(_frameMutex);
             newFrame = _frame;
+            //_frame.release();
         }
 
-        return newFrame;
+        SENSFramePtr processedFrame;
+        if (!newFrame.empty())
+            processedFrame = postProcessNewFrame(newFrame, cv::Mat(), false);
+
+        return processedFrame;
     }
 
     const SENSCaptureProperties& captureProperties() override
@@ -361,6 +387,10 @@ public:
             {
                 if (!_cap.open(_videoFileName))
                     throw SENSException(SENSType::CAM, "Could not open camera simulator for filename: " + _videoFileName, __LINE__, __FILE__);
+                else
+                {
+                    //_cap.set(cv::CAP_PROP_FPS, 1);
+                }
             }
 
             cv::Mat frame;
@@ -388,25 +418,43 @@ private:
 
     void feedSensorData(const int counter) override
     {
-        //do the post processing and assign new SENSFramePtr
-        int frameIndex = _data[counter].second;
-        _cap.set(cv::CAP_PROP_POS_FRAMES, frameIndex);
-        cv::Mat frame;
-        _cap.read(frame);
-
-        SENSFramePtr newFrame = postProcessNewFrame(frame, cv::Mat(), false);
+        if(_data[counter].second != _preparedFrameIndex)
+        {
+            prepareSensorData(counter);
+        }
 
         {
             std::lock_guard<std::mutex> lock(_frameMutex);
-            _frame = newFrame;
+            _frame = _preparedFrame;
+        }
+    }
+
+    void prepareSensorData(const int counter) override
+    {
+        int frameIndex = _data[counter].second;
+        if(frameIndex == _preparedFrameIndex)
+            return;
+        
+        _cap.set(cv::CAP_PROP_POS_FRAMES, frameIndex);
+
+        cv::Mat      frame;
+        HighResTimer t;
+        _cap.read(frame);
+        SENS_DEBUG("read time index %d: %d", frameIndex, t.elapsedTimeInMicroSec());
+        {
+            _preparedFrameIndex = frameIndex;
+            std::lock_guard<std::mutex> lock(_frameMutex);
+            _preparedFrame = frame;
         }
     }
 
     std::string      _videoFileName;
     cv::VideoCapture _cap;
 
-    SENSFramePtr _frame;
-    std::mutex   _frameMutex;
+    cv::Mat    _preparedFrame;
+    int        _preparedFrameIndex = -1;
+    cv::Mat    _frame;
+    std::mutex _frameMutex;
 };
 
 //Backend simulator for sensor data recorded with SENSRecorder
@@ -536,7 +584,7 @@ private:
                     Utils::splitString(line, ' ', values);
                     if (values.size() == 5)
                     {
-                        readTimePt       = std::stof(values[0]);
+                        readTimePt       = std::stol(values[0]);
                         loc.latitudeDEG  = std::stof(values[1]);
                         loc.longitudeDEG = std::stof(values[2]);
                         loc.altitudeM    = std::stof(values[3]);
@@ -583,7 +631,7 @@ private:
                     Utils::splitString(line, ' ', values);
                     if (values.size() == 5)
                     {
-                        readTimePt = std::stof(values[0]);
+                        readTimePt = std::stol(values[0]);
                         quat.quatX = std::stof(values[1]);
                         quat.quatY = std::stof(values[2]);
                         quat.quatZ = std::stof(values[3]);
@@ -632,8 +680,8 @@ private:
                     Utils::splitString(line, ' ', values);
                     if (values.size() == 2)
                     {
-                        readTimePt = std::stof(values[0]);
-                        frameIndex = std::stof(values[1]);
+                        readTimePt = std::stol(values[0]);
+                        frameIndex = std::stoi(values[1]);
 
                         SENSMicroseconds readTimePtUs(readTimePt);
                         SENSTimePt       tPt(readTimePtUs);

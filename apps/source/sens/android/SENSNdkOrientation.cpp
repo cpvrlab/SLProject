@@ -73,13 +73,13 @@ void SENSNdkOrientation::stop()
 
 void SENSNdkOrientation::updateOrientation(const SENSOrientation::Quat& orientation)
 {
-    Utils::log("SENSNdkOrientation", "updateLocation");
+    //Utils::log("SENSNdkOrientation", "updateOrientation");
     setOrientation(orientation);
 }
 
 extern "C" JNIEXPORT void JNICALL
 Java_ch_cpvr_wai_SENSOrientation_onOrientationQuat(JNIEnv* env, jclass obj, jfloat quatX, jfloat quatY, jfloat quatZ, jfloat quatW)
 {
-    Utils::log("SENSNdkOrientation", "onLocationLLA");
+    //Utils::log("SENSNdkOrientation", "onOrientationQuat");
     GetOrientationPtr()->updateOrientation({quatX, quatY, quatZ, quatW});
 }
