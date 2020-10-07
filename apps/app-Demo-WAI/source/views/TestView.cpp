@@ -881,7 +881,7 @@ void TestView::transformMapNode(SLTransformSpace tSpace,
 
 void TestView::downloadCalibrationFilesTo(std::string dir)
 {
-    const std::string ftpHost = "pallas.bfh.ch:21";
+    const std::string ftpHost = "pallas.ti.bfh.ch:21";
     const std::string ftpUser = "upload";
     const std::string ftpPwd  = "FaAdbD3F2a";
     const std::string ftpDir  = "erleb-AR-data/test/erleb-AR/calibrations/";

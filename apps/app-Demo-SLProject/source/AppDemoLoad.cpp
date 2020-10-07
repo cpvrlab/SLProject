@@ -3024,12 +3024,13 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         CVCapture::instance()->videoType(VT_MAIN);
 
         // Create directional light for the sun light
-        SLLightDirect* light = new SLLightDirect(s, s, 5.0f);
-        light->powers(1.0f, 1.0f, 1.0f);
-        light->attenuation(1, 0, 0);
+        SLLightDirect* light1 = new SLLightDirect(s, s, 5.0f);
+        light1->powers(1.0f, 1.0f, 1.0f);
+        light1->attenuation(1, 0, 0);
+        light1->zenithPowerScaleEnabled(true);
 
         // Let the sun be rotated by time and location
-        SLApplication::devLoc.sunLightNode(light);
+        SLApplication::devLoc.sunLightNode(light1);
 
         SLAssimpImporter importer;
         SLNode*          bern = importer.load(s->animManager(),
@@ -3086,7 +3087,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLNode*     box2m  = new SLNode(new SLBox(s, 0, 0, 0, 2, 2, 2, "Box2m", yellow));
 
         SLNode* scene = new SLNode("Scene");
-        scene->addChild(light);
+        scene->addChild(light1);
         scene->addChild(axis);
         scene->addChild(box2m);
         scene->addChild(bern);
@@ -3150,14 +3151,15 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                                                          nullptr,
                                                          spVideoBackground);
         // Create directional light for the sun light
-        SLLightDirect* light = new SLLightDirect(s, s, 5.0f);
-        light->powers(1.0f, 1.0f, 1.0f);
-        light->attenuation(1, 0, 0);
-        light->translation(0, 10, 0);
-        light->lookAt(10, 0, 10);
+        SLLightDirect* light1 = new SLLightDirect(s, s, 5.0f);
+        light1->powers(1.0f, 1.0f, 1.0f);
+        light1->attenuation(1, 0, 0);
+        light1->translation(0, 10, 0);
+        light1->lookAt(10, 0, 10);
+        light1->zenithPowerScaleEnabled(true);
 
         // Let the sun be rotated by time and location
-        SLApplication::devLoc.sunLightNode(light);
+        SLApplication::devLoc.sunLightNode(light1);
 
         SLAssimpImporter importer;
         SLNode*          TheaterAndTempel = importer.load(s->animManager(),
@@ -3184,7 +3186,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         // Set some ambient light
         TheaterAndTempel->updateMeshMat([](SLMaterial* m) { m->ambient(SLCol4f(.25f, .23f, .15f)); }, true);
         SLNode* scene = new SLNode("Scene");
-        scene->addChild(light);
+        scene->addChild(light1);
         scene->addChild(axis);
         scene->addChild(TheaterAndTempel);
         scene->addChild(cam1);
@@ -3258,6 +3260,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         light1->attenuation(1, 0, 0);
         light1->translation(0, 10, 0);
         light1->lookAt(10, 0, 10);
+        light1->zenithPowerScaleEnabled(true);
 
         // Let the sun be rotated by time and location
         SLApplication::devLoc.sunLightNode(light1);
@@ -3352,14 +3355,15 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                                                         spVideoBackground);
 
         // Create directional light for the sun light
-        SLLightDirect* light = new SLLightDirect(s, s, 5.0f);
-        light->powers(1.0f, 1.0f, 1.0f);
-        light->attenuation(1, 0, 0);
-        light->translation(0, 10, 0);
-        light->lookAt(10, 0, 10);
+        SLLightDirect* light1 = new SLLightDirect(s, s, 5.0f);
+        light1->powers(1.0f, 1.0f, 1.0f);
+        light1->attenuation(1, 0, 0);
+        light1->translation(0, 10, 0);
+        light1->lookAt(10, 0, 10);
+        light1->zenithPowerScaleEnabled(true);
 
         // Let the sun be rotated by time and location
-        SLApplication::devLoc.sunLightNode(light);
+        SLApplication::devLoc.sunLightNode(light1);
 
         SLAssimpImporter importer;
         SLNode*          cigognier = importer.load(s->animManager(),
@@ -3382,7 +3386,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         axis->rotate(-90, 1, 0, 0);
 
         SLNode* scene = new SLNode("Scene");
-        scene->addChild(light);
+        scene->addChild(light1);
         scene->addChild(axis);
         scene->addChild(cigognier);
         scene->addChild(cam1);
@@ -3449,14 +3453,15 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                                                         spVideoBackground);
 
         // Create directional light for the sun light
-        SLLightDirect* light = new SLLightDirect(s, s, 5.0f);
-        light->powers(1.0f, 1.0f, 1.0f);
-        light->attenuation(1, 0, 0);
-        light->translation(0, 10, 0);
-        light->lookAt(10, 0, 10);
+        SLLightDirect* light1 = new SLLightDirect(s, s, 5.0f);
+        light1->powers(1.0f, 1.0f, 1.0f);
+        light1->attenuation(1, 0, 0);
+        light1->translation(0, 10, 0);
+        light1->lookAt(10, 0, 10);
+        light1->zenithPowerScaleEnabled(true);
 
         // Let the sun be rotated by time and location
-        SLApplication::devLoc.sunLightNode(light);
+        SLApplication::devLoc.sunLightNode(light1);
 
         SLAssimpImporter importer;
         SLNode*          theatre = importer.load(s->animManager(),
@@ -3483,7 +3488,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         axis->rotate(-90, 1, 0, 0);
 
         SLNode* scene = new SLNode("Scene");
-        scene->addChild(light);
+        scene->addChild(light1);
         scene->addChild(axis);
         scene->addChild(theatre);
         scene->addChild(cam1);

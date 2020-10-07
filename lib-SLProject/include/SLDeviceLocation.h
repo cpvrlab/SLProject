@@ -89,8 +89,8 @@ public:
     SLbool  useOriginAltitude() const { return _useOriginAltitude; }
     SLMat3d wRecef() const { return _wRecef; }
     SLfloat improveTime() { return std::max(_improveTimeSEC - _improveTimer.elapsedTimeInSec(), 0.0f); }
-    SLfloat originSolarZenit() const { return _originSolarZenit; }
-    SLfloat originSolarAzimut() const { return _originSolarAzimut; }
+    SLfloat originSolarZenit() const { return _originSolarZenith; }
+    SLfloat originSolarAzimut() const { return _originSolarAzimuth; }
     SLfloat altDemM() const { return _altDemM; }
     SLfloat altGpsM() const { return _altGpsM; }
 
@@ -108,8 +108,8 @@ private:
     SLVec3d        _originECEF;         //!< Global origin location of scene in ECEF (cartesian)
     SLVec3d        _originENU;          //!< Origin location in ENU frame
     SLfloat        _originAccuracyM;    //!< Accuracy radius of origin point
-    SLfloat        _originSolarZenit;   //!< Zenit angle of the sun in deg. (from up dir.) at origin at local time
-    SLfloat        _originSolarAzimut;  //!< Azimut angle of the sun in deg. (eastward from north) at origin at local time
+    SLfloat        _originSolarZenith;   //!< Zenit angle of the sun in deg. (from up dir.) at origin at local time
+    SLfloat        _originSolarAzimuth;  //!< Azimut angle of the sun in deg. (eastward from north) at origin at local time
     SLbool         _hasOrigin;          //!< Flag if this scene has a global reference location
     SLbool         _useOriginAltitude;  //!< Flag if global reference altitude should be used
     SLfloat        _altDemM;            //!< Altitude in m from Digital Elevation Model

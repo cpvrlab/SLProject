@@ -1219,10 +1219,10 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                         else
                         {
                             auto downloadJob = []() {
-                              SLApplication::jobProgressMsg("Downloading large dragon file from pallas.bfh.ch");
+                              SLApplication::jobProgressMsg("Downloading large dragon file from pallas.ti.bfh.ch");
                               SLApplication::jobProgressMax(100);
                               ftplib ftp;
-                              if (ftp.Connect("pallas.bfh.ch:21"))
+                              if (ftp.Connect("pallas.ti.bfh.ch:21"))
                               {
                                   if (ftp.Login("upload", "FaAdbD3F2a"))
                                   {

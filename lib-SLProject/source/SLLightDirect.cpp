@@ -29,6 +29,8 @@ SLLightDirect::SLLightDirect(SLAssetManager* assetMgr,
     _arrowRadius  = arrowLength * 0.1f;
     _arrowLength  = arrowLength;
     _castsShadows = false;
+    _zenithPowerScaleMin = 0.0f;
+    _zenithPowerScaleEnabled = false;
 
     if (hasMesh)
     {
@@ -64,6 +66,9 @@ SLLightDirect::SLLightDirect(SLAssetManager* assetMgr,
 {
     _arrowRadius = arrowLength * 0.1f;
     _arrowLength = arrowLength;
+    _zenithPowerScaleMin = 0.0f;
+    _zenithPowerScaleEnabled = false;
+
     translate(posx, posy, posz, TS_object);
 
     if (hasMesh)
@@ -225,5 +230,23 @@ void SLLightDirect::renderShadowMap(SLSceneView* sv, SLNode* root)
     if (_shadowMap == nullptr)
         _shadowMap = new SLShadowMap(P_monoOrthographic, this);
     _shadowMap->render(sv, root);
+}
+//-----------------------------------------------------------------------------
+//! Returns the cosine of the angle between the light direction and up vector
+/*! If the angle is 0 it return 1 and _zenithPowerScaleMin at 90 degrees or more.
+ This can be used to the downscale the directional light to simulate the reduced
+ power of the sun.
+ @return Cosine of the angle between the light direction and up vector
+ */
+SLfloat SLLightDirect::zenithPowerScale()
+{
+    SLfloat zenithScale = 1.0f;
+    if (_zenithPowerScaleEnabled)
+    {
+        SLVec3f toSunDirWS = -forwardOS();
+        zenithScale        = std::max(toSunDirWS.dot(SLVec3f::AXISY),
+                               _zenithPowerScaleMin);
+    }
+    return zenithScale;
 }
 //-----------------------------------------------------------------------------

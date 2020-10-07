@@ -74,23 +74,35 @@ public:
                          SLNode*        root3D) override;
     void    renderShadowMap(SLSceneView* sv, SLNode* root) override;
 
+    // Setters
+    void zenithPowerScaleEnabled(SLbool enabled) { _zenithPowerScaleEnabled = enabled; }
+    void zenithPowerScaleMin(SLfloat minScale) { _zenithPowerScaleMin = minScale; }
+
     // Getters
     SLfloat radius() const { return _arrowRadius; }
     SLfloat dirLength() const { return _arrowLength; }
+    SLbool  zenithPowerScaleEnabled() { return _zenithPowerScaleEnabled; }
+    SLfloat zenithPowerScale();
 
     // For directional lights the position vector is interpreted as a
-    // direction with the homogeneous component equls zero:
+    // direction with the homogeneous component equals zero:
     SLVec4f positionWS() const override
     {
         SLVec4f pos(updateAndGetWM().translation());
         pos.w = 0.0f;
         return pos;
     }
+
     SLVec3f spotDirWS() override { return forwardOS(); }
+    SLCol4f ambient() override { return _ambientColor * _ambientPower; }
+    SLCol4f diffuse() override { return _diffuseColor * _diffusePower * zenithPowerScale(); }
+    SLCol4f specular() override { return _specularColor * _specularPower * zenithPowerScale(); }
 
 private:
-    SLfloat _arrowRadius; //!< The sphere lights radius
-    SLfloat _arrowLength; //!< Length of direction line
+    SLfloat _arrowRadius;             //!< The sphere lights radius
+    SLfloat _arrowLength;             //!< Length of direction line
+    SLbool  _zenithPowerScaleEnabled; //!< Flag for sun power scaling
+    SLfloat _zenithPowerScaleMin;     //!< Min. zenith power scale factor for sun
 };
 //-----------------------------------------------------------------------------
 #endif

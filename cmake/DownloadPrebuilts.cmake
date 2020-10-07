@@ -3,7 +3,7 @@
 #
 
 #
-# Download and install prebuilt libraries from pallas.bfh.ch
+# Download and install prebuilt libraries from pallas.ti.bfh.ch
 #
 
 set(OpenCV_VERSION)
@@ -61,7 +61,7 @@ set(glfw_LINK_DIR)
 set(glfw_LINK_LIBS)
 
 set(PREBUILT_PATH "${SL_PROJECT_ROOT}/externals/prebuilt")
-set(PREBUILT_URL "http://pallas.bfh.ch/libs/SLProject/_lib/prebuilt")
+set(PREBUILT_URL "http://pallas.ti.bfh.ch/libs/SLProject/_lib/prebuilt")
 
 #=======================================================================================================================
 if("${SYSTEM_NAME_UPPER}" STREQUAL "LINUX")

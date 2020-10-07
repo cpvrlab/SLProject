@@ -482,7 +482,7 @@ void CVCalibration::adaptForNewResolution(const CVSize& newSize, bool calcUndist
         buildUndistortionMaps();
 }
 //-----------------------------------------------------------------------------
-//! Calculate a camera matrix that we use for the scene graph and for the reprojection of the undistored image
+//! Calculate a camera matrix that we use for the scene graph and for the reprojection of the undistorted image
 void CVCalibration::calculateUndistortedCameraMat()
 {
     if (_cameraMat.rows != 3 || _cameraMat.cols != 3)

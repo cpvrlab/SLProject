@@ -30,8 +30,8 @@ void SLDeviceLocation::init()
     _originECEF.set(0, 0, 0);
     _originENU.set(0, 0, 0);
     _originAccuracyM   = FLT_MAX;
-    _originSolarZenit  = 45.0f;
-    _originSolarAzimut = 0.0f;
+    _originSolarZenith = 45.0f;
+    _originSolarAzimuth = 0.0f;
     _wRecef.identity();
     _hasOrigin         = false;
     _useOriginAltitude = true;
@@ -185,8 +185,7 @@ void SLDeviceLocation::isUsed(SLbool use)
 //! Calculates the solar angles at origin at local time
 /*! Calculates the zenit and azimut angle in deg. of the sun at the origin at
 the local time using the Solar Position Algorithm from:
-http://rredc.nrel.gov/solar/codesandalgorithms/spa that is part of the
-lib-SLExternal.
+https://midcdmz.nrel.gov/spa/ that is part of the lib-SLExternal.
 */
 SLbool SLDeviceLocation::calculateSolarAngles(SLdouble latDEG,
                                               SLdouble lonDEG,
@@ -252,16 +251,16 @@ SLbool SLDeviceLocation::calculateSolarAngles(SLdouble latDEG,
 
     if (result == 0) //check for SPA errors
     {
-        _originSolarZenit  = (SLfloat)spa.zenith;
-        _originSolarAzimut = (SLfloat)spa.azimuth;
+        _originSolarZenith = (SLfloat)spa.zenith;
+        _originSolarAzimuth = (SLfloat)spa.azimuth;
 
         SLfloat minSR = (SLfloat)(60.0 * (spa.sunrise - (int)(spa.sunrise)));
         SLfloat secSR = (SLfloat)(60.0 * (minSR - floor(minSR)));
         SLfloat minSS = (SLfloat)(60.0 * (spa.sunset - (int)(spa.sunset)));
         SLfloat secSS = (SLfloat)(60.0 * (minSS - floor(minSS)));
 
-        SL_LOG("Zenith          : %.6f degrees", _originSolarZenit);
-        SL_LOG("Azimuth         : %.6f degrees", _originSolarAzimut);
+        SL_LOG("Zenith          : %.6f degrees", _originSolarZenith);
+        SL_LOG("Azimuth         : %.6f degrees", _originSolarAzimuth);
         SL_LOG("Sunrise         : %02d:%02d:%02d Local Time", (int)(spa.sunrise), (int)minSR, (int)secSR);
         SL_LOG("Sunset          : %02d:%02d:%02d Local Time", (int)(spa.sunset), (int)minSS, (int)secSS);
     }
@@ -270,11 +269,11 @@ SLbool SLDeviceLocation::calculateSolarAngles(SLdouble latDEG,
 
     if (_sunLightNode)
     {
-        // The azimut is from north eastwards
-        _sunLightNode->rotation(180.0f - _originSolarAzimut, SLVec3f::AXISY);
+        // The azimuth is from north eastwards
+        _sunLightNode->rotation(180.0f - _originSolarAzimuth, SLVec3f::AXISY);
 
         // The zenith angle is from up downwards
-        _sunLightNode->rotate(90.0f - _originSolarZenit, -SLVec3f::AXISX);
+        _sunLightNode->rotate(90.0f - _originSolarZenith, -SLVec3f::AXISX);
     }
 
     return (result == 0);
