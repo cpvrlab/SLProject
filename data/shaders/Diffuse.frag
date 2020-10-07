@@ -7,6 +7,8 @@
 //             WITHOUT ANY WARRANTIES WHETHER EXPRESSED OR IMPLIED.
 //#############################################################################
 
+precision highp float;
+
 //-----------------------------------------------------------------------------
 in       vec4   diffuseColor;   // interpolated color calculated in the vertex shader
 

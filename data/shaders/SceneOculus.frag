@@ -8,6 +8,8 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
+precision highp float;
+
 //-----------------------------------------------------------------------------
 in    	vec2 		v_texCoord;
 in    	vec4 		v_color;

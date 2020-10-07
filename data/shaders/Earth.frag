@@ -8,6 +8,8 @@
 //             WITHOUT ANY WARRANTIES WHETHER EXPRESSED OR IMPLIED.
 //#############################################################################
 
+precision highp float;
+
 //-----------------------------------------------------------------------------
 in       vec3      L_TS;        // Vector to the light in tangent space
 in       vec3      E_TS;        // Vector to the eye in tangent space

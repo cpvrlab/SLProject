@@ -6,10 +6,9 @@
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
- 
-#ifdef GL_ES
-precision mediump float;
-#endif
+
+precision highp float;
+
 //-----------------------------------------------------------------------------
 in      vec4     v_color;           // interpolated color calculated in the vertex shader
 
