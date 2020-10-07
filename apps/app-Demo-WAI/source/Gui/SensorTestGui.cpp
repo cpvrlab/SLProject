@@ -572,7 +572,11 @@ void SensorTestGui::updateSensorSimulation()
                     _cameraSim       = _sensorSimulator->getCameraSensorPtr();
 
                     if (_gpsSim && _simulateGps)
+                    {
+                        if(_gps && _gps->isRunning())
+                            _gps->stop();
                         _gps = _gpsSim;
+                    }
                     else
                     {
                         _simulateGps = false;
@@ -580,7 +584,11 @@ void SensorTestGui::updateSensorSimulation()
                     }
 
                     if (_orientationSim && _simulateOrientation)
+                    {
+                        if(_orientation && _orientation->isRunning())
+                            _orientation->stop();
                         _orientation = _orientationSim;
+                    }
                     else
                     {
                         _simulateOrientation = false;
@@ -589,6 +597,8 @@ void SensorTestGui::updateSensorSimulation()
 
                     if (_cameraSim && _simulateCamera)
                     {
+                        if(_camera && _camera->started())
+                            _camera->stop();
                         _camera = _cameraSim;
                         updateCameraParameter();
                     }

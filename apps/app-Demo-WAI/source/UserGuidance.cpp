@@ -2,7 +2,8 @@
 
 #define LOG_UG_WARN(...) Utils::log("ErlebARApp-UserGuidance", __VA_ARGS__);
 #define LOG_UG_INFO(...) Utils::log("ErlebARApp-UserGuidance", __VA_ARGS__);
-#define LOG_UG_DEBUG(...) Utils::log("ErlebARApp-UserGuidance", __VA_ARGS__);
+//#define LOG_UG_DEBUG(...) Utils::log("ErlebARApp-UserGuidance", __VA_ARGS__);
+#define LOG_UG_DEBUG
 
 UserGuidance::UserGuidance(UserGuidanceScene* userGuidanceScene,
                            AreaTrackingGui*   gui,

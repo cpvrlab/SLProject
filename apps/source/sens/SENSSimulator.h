@@ -91,9 +91,6 @@ private: //methods
     {
         _threadIsRunning = true;
         int counter      = 0;
-        
-        for(int i = 0; i < _data.size(); ++i)
-            SENS_DEBUG("data %d: %d", i, std::chrono::time_point_cast<SENSMicroseconds>(_data[i].first).time_since_epoch().count());
 
         auto       passedSimTime = std::chrono::duration_cast<SENSMicroseconds>((SENSTimePt)SENSClock::now() - startTimePt);
         SENSTimePt simTime       = simStartTimePt + passedSimTime;
@@ -116,20 +113,21 @@ private: //methods
             SENSTimePt simTime       = simStartTimePt + passedSimTime;
 
             //process late values
-            int i = 0;
+            //int i = 0;
             while (counter < _data.size() && _data[counter].first < simTime)
             {
-                SENS_DEBUG("feed sensor index %d with latency: %d us, SimT: %d, ValueT: %d", counter, std::chrono::duration_cast<SENSMicroseconds>(_data[counter].first - simTime).count(), std::chrono::time_point_cast<SENSMicroseconds>(simTime).time_since_epoch().count(), std::chrono::time_point_cast<SENSMicroseconds>(_data[counter].first).time_since_epoch().count());
+                //SENS_DEBUG("feed sensor index %d with latency: %d us, SimT: %d, ValueT: %d", counter, std::chrono::duration_cast<SENSMicroseconds>(_data[counter].first - simTime).count(), std::chrono::time_point_cast<SENSMicroseconds>(simTime).time_since_epoch().count(), std::chrono::time_point_cast<SENSMicroseconds>(_data[counter].first).time_since_epoch().count());
+                SENS_DEBUG("feed sensor index %d with latency: %d us", counter, std::chrono::duration_cast<SENSMicroseconds>(_data[counter].first - simTime).count());
                 feedSensorData(counter);
 
                 //setting the location maybe took some time, so we update simulation time
                 passedSimTime = std::chrono::duration_cast<SENSMicroseconds>((SENSTimePt)SENSClock::now() - startTimePt);
                 simTime       = simStartTimePt + passedSimTime;
                 counter++;
-                i++;
+                //i++;
             }
-            if (i > 0)
-                SENS_DEBUG("grabbed %d frames", i);
+            //if (i > 0)
+            //    SENS_DEBUG("grabbed %d frames", i);
 
             //end of simulation
             if (counter >= _data.size())

@@ -602,6 +602,7 @@ SENSFramePtr SENSNdkCamera::latestFrame()
             std::unique_lock<std::mutex> lock(_threadOutputMutex);
             if (_processedFrame)
             {
+
                 //move: its faster because shared_ptr has atomic reference counting and we are the only ones using the object
                 sensFrame = std::move(_processedFrame);
                 //static int getFrameN = 0;
@@ -706,16 +707,18 @@ void SENSNdkCamera::imageCallback(AImageReader* reader)
         //inform listeners
         {
             std::unique_lock<std::mutex> lock(_listenerMutex);
-            //if(_listeners.size())
-            //{
-              //  lock.unlock();
+            if(_listeners.size())
+            {
+                lock.unlock();
                 SENSTimePt timePt = SENSClock::now();
                 cv::Mat bgrImg;
                 cv::cvtColor(yuv, bgrImg, cv::COLOR_YUV2BGR_NV21, 3);
-                //lock.lock();
+                lock.lock();
+                //if the video writer is slower than the video feed, we have to react, otherwise there
+                //will be a buffer overflow
                 for (SENSCameraListener *l : _listeners)
                     l->onFrame(timePt, bgrImg);
-            //}
+            }
         }
 
         //move yuv image to worker thread input

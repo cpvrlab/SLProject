@@ -77,6 +77,8 @@ public:
                 _condVar.wait(lock, [&] { return (_stop == true || _queue.size() != 0); });
                 if (_stop)
                     break;
+                
+                SENS_DEBUG("SENSRecorderDataHandler: queue size: %d", _queue.size());
 
                 std::deque<T> localQueue;
                 while (_queue.size())
@@ -88,10 +90,17 @@ public:
                 lock.unlock();
 
                 //write data
-                while (localQueue.size())
+                if (localQueue.size())
                 {
                     writeLineToFile(file, localQueue.front());
                     localQueue.pop_front();
+                }
+                
+                if(localQueue.size())
+                {
+                    //if buffer is running full, warn and scip values
+                    SENS_WARN("SENSRecorderDataHandler store: data writing is too slow!");
+                    localQueue.clear();
                 }
             }
         }
@@ -204,6 +213,8 @@ public:
             std::string filename = _outputDir + "video.avi";
             _videoWriter.open(filename, cv::VideoWriter::fourcc('M', 'J', 'P', 'G'),
                               30, data.first.size(), true);
+            //_videoWriter.open(filename, cv::VideoWriter::fourcc('M', 'P', '4', 'V'),
+            //                  30, data.first.size(), true);
             SENS_DEBUG("Opening video for writing: %s", filename.c_str());
         }
         if (!_videoWriter.isOpened())
@@ -211,7 +222,6 @@ public:
         
         //store frame to video capture
         _videoWriter.write(data.first);
-
         if (_calibrationChanged)
         {
             std::lock_guard<std::mutex> lock(_calibrationMutex);

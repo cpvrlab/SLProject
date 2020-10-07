@@ -61,7 +61,7 @@ set(glfw_LINK_DIR)
 set(glfw_LINK_LIBS)
 
 set(PREBUILT_PATH "${SL_PROJECT_ROOT}/externals/prebuilt")
-set(PREBUILT_URL "http://pallas.bfh.ch/libs/SLProject/_lib/prebuilt")
+set(PREBUILT_URL "http://pallas.ti.bfh.ch/libs/SLProject/_lib/prebuilt")
 
 #=======================================================================================================================
 if("${SYSTEM_NAME_UPPER}" STREQUAL "LINUX")
@@ -376,6 +376,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #------------------------------
 
     # Now download for MacOS
     set(OpenCV_VERSION "4.1.1")
+	# set(OpenCV_VERSION "3.4.1")
     set(OpenCV_PREBUILT_DIR "mac64_opencv_${OpenCV_VERSION}")
     set(OpenCV_DIR "${PREBUILT_PATH}/${OpenCV_PREBUILT_DIR}")
     set(OpenCV_INCLUDE_DIR "${OpenCV_DIR}/include")
@@ -779,6 +780,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID") #-----------------------------
     ######################
 
     set(OpenCV_VERSION "4.1.1")
+    #set(OpenCV_VERSION "3.4.1")
     set(OpenCV_PREBUILT_DIR "andV8_opencv_${OpenCV_VERSION}")
     set(OpenCV_DIR "${PREBUILT_PATH}/${OpenCV_PREBUILT_DIR}")
     set(OpenCV_LINK_DIR "${OpenCV_DIR}/${CMAKE_BUILD_TYPE}/${ANDROID_ABI}")   #don't forget to add the this link dir down at the bottom
