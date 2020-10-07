@@ -7,6 +7,7 @@
 
 #include <Utils.h>
 #include <sens/SENSSimulated.h>
+#include <sens/SENSSimClock.h>
 
 /*!SENSSimulator
  This class is owner of SENSSimulated sensor instances. It loads special sensor data from
@@ -27,11 +28,11 @@ public:
     ~SENSSimulator();
 
     //!get sensor pointer of simulated gps sensor and use it like a normal sensor (valid if not null)
-    SENSSimulatedGps*         getGpsSensorPtr() { return getActiveSensor<SENSSimulatedGps>(); }
+    SENSSimulatedGps* getGpsSensorPtr() { return getActiveSensor<SENSSimulatedGps>(); }
     //!get sensor pointer of simulated orientation sensor and use it like a normal sensor (valid if not null)
     SENSSimulatedOrientation* getOrientationSensorPtr() { return getActiveSensor<SENSSimulatedOrientation>(); }
     //!get sensor pointer of simulated camera sensor and use it like a normal sensor (valid if not null)
-    SENSSimulatedCamera*      getCameraSensorPtr() { return getActiveSensor<SENSSimulatedCamera>(); }
+    SENSSimulatedCamera* getCameraSensorPtr() { return getActiveSensor<SENSSimulatedCamera>(); }
     //!indicates if simulator is currently running
     bool isRunning() const { return _running; }
 
@@ -50,26 +51,21 @@ private:
         return nullptr;
     }
     //!callback called from SENSSimulated when the simulated sensor was started
-    SENSTimePt onStart();
+    void onStart();
     //!callback called from SENSSimulated when the simulated sensor was stopped
-    void       onSensorSimStopped();
-    //!estimation of commen simulator time start point
-    void       estimateSimStartPoint();
+    void onSensorSimStopped();
 
     //!load data from file and instantiate sensor if valid
-    void loadGpsData(const std::string& dirName);
+    void loadGpsData(const std::string& dirName, std::vector<std::pair<SENSTimePt, SENSGps::Location>>& data);
     //!load data from file and instantiate sensor if valid
-    void loadOrientationData(const std::string& dirName);
+    void loadOrientationData(const std::string& dirName, std::vector<std::pair<SENSTimePt, SENSOrientation::Quat>>& data);
     //!load data from file and instantiate sensor if valid
-    void loadCameraData(const std::string& dirName);
+    void loadCameraData(const std::string& dirName, std::vector<std::pair<SENSTimePt, int>>& data, std::string& videoFileName);
 
     //!list of currently activated sensors. Which sensors are activated depends on the content of simulation directory
     std::vector<std::unique_ptr<SENSSimulatedBase>> _activeSensors;
 
-    //!real start time point in the present (when SENSSimulation::start was called)
-    SENSTimePt _startTimePoint;
-    //!start time point of simulation in the past
-    SENSTimePt _simStartTimePt;
+    std::unique_ptr<SENSSimClock> _clock;
     //!flags if simulator is currently running
     std::atomic_bool _running{false};
 };

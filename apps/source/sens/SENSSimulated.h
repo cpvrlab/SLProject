@@ -6,6 +6,7 @@
 #include <chrono>
 
 #include <Utils.h>
+#include <sens/SENSSimClock.h>
 #include <sens/SENSCamera.h>
 #include <sens/SENSGps.h>
 #include <sens/SENSOrientation.h>
@@ -24,9 +25,9 @@ public:
     virtual bool isThreadRunning() const = 0;
 
     //!get the first time point in simulation sensor data
-    virtual const SENSTimePt& firstTimePt() = 0;
+    //virtual const SENSTimePt& firstTimePt() = 0;
     //!called by SENSSimulator to set the common simulation start time
-    virtual void setCommonSimStartTimePt(const SENSTimePt& commonSimStartTimePt) = 0;
+    //virtual void setCommonSimStartTimePt(const SENSTimePt& commonSimStartTimePt) = 0;
 };
 
 //-----------------------------------------------------------------------------
@@ -43,24 +44,25 @@ public:
     virtual ~SENSSimulated() {}
 
 protected:
-    using StartSimCB         = std::function<SENSTimePt(void)>;
+    using StartSimCB         = std::function<void(void)>;
     using SensorSimStoppedCB = std::function<void(void)>;
 
     //!Transfer callbacks to SENSSimulator during construction. The SENSSimulator is informed by
     //!these if the SENSSimulated state changes (start, stop). We use callbacks to avoid circular dependencies.
     SENSSimulated(StartSimCB                              startSimCB,
                   SensorSimStoppedCB                      sensorSimStoppedCB,
-                  std::vector<std::pair<SENSTimePt, T>>&& data);
-    
+                  std::vector<std::pair<SENSTimePt, T>>&& data,
+                  const SENSSimClock&                     clock);
+
     //!start the sensor simulation thread
     void startSim();
     //!stop the sensor simulation thread
     void stopSim();
 
     //!called by SENSSimulator to set the common simulation start time
-    void setCommonSimStartTimePt(const SENSTimePt& commonSimStartTimePt) override;
+    //void setCommonSimStartTimePt(const SENSTimePt& commonSimStartTimePt) override;
     //!get the first time point in simulation sensor data
-    const SENSTimePt& firstTimePt() override;
+    //const SENSTimePt& firstTimePt() override;
     bool              isThreadRunning() const override { return _threadIsRunning; }
 
     //!feed new sensor data to sensor
@@ -71,7 +73,7 @@ protected:
 
 private:
     //!thread run routine to feed sensor with data.
-    void feedSensor(const SENSTimePt startTimePt, const SENSTimePt simStartTimePt);
+    void feedSensor(/*const SENSTimePt startTimePt, const SENSTimePt simStartTimePt*/);
 
 protected:
     std::vector<std::pair<SENSTimePt, T>> _data;
@@ -88,6 +90,8 @@ protected:
     SENSTimePt _commonSimStartTimePt;
 
     bool _threadIsRunning = false;
+
+    const SENSSimClock& _clock;
 };
 
 //-----------------------------------------------------------------------------
@@ -110,7 +114,8 @@ private:
     //only SENSSimulator can instantiate
     SENSSimulatedGps(StartSimCB                                              startSimCB,
                      SensorSimStoppedCB                                      sensorSimStoppedCB,
-                     std::vector<std::pair<SENSTimePt, SENSGps::Location>>&& data);
+                     std::vector<std::pair<SENSTimePt, SENSGps::Location>>&& data,
+                     const SENSSimClock&                                     clock);
 
     void feedSensorData(const int counter) override;
 };
@@ -134,7 +139,8 @@ public:
 private:
     SENSSimulatedOrientation(StartSimCB                                                  startSimCB,
                              SensorSimStoppedCB                                          sensorSimStoppedCB,
-                             std::vector<std::pair<SENSTimePt, SENSOrientation::Quat>>&& data);
+                             std::vector<std::pair<SENSTimePt, SENSOrientation::Quat>>&& data,
+                             const SENSSimClock&                                         clock);
 
     void feedSensorData(const int counter) override;
 };
@@ -171,7 +177,8 @@ private:
     SENSSimulatedCamera(StartSimCB                                startSimCB,
                         SensorSimStoppedCB                        sensorSimStoppedCB,
                         std::vector<std::pair<SENSTimePt, int>>&& data,
-                        std::string                               videoFileName);
+                        std::string                               videoFileName,
+                        const SENSSimClock&                       clock);
 
     void feedSensorData(const int counter) override;
     void prepareSensorData(const int counter) override;

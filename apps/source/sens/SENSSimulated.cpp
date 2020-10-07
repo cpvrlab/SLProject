@@ -4,20 +4,24 @@
 template<typename T>
 SENSSimulated<T>::SENSSimulated(StartSimCB                              startSimCB,
                                 SensorSimStoppedCB                      sensorSimStoppedCB,
-                                std::vector<std::pair<SENSTimePt, T>>&& data)
+                                std::vector<std::pair<SENSTimePt, T>>&& data,
+                                const SENSSimClock&                     clock)
   : _startSimCB(startSimCB),
     _sensorSimStoppedCB(sensorSimStoppedCB),
-    _data(data)
+    _data(data),
+    _clock(clock)
 {
 }
 
 template<typename T>
 void SENSSimulated<T>::startSim()
 {
-    const SENSTimePt& startTimePt = _startSimCB();
+    //inform SENSSimulator about start
+    _startSimCB();
+    //stop the local simulation thread if running
     stopSim();
-
-    _thread = std::thread(&SENSSimulated::feedSensor, this, startTimePt, _commonSimStartTimePt);
+    //start the simulation thread
+    _thread = std::thread(&SENSSimulated::feedSensor, this /*, startTimePt, _commonSimStartTimePt*/);
 }
 
 template<typename T>
@@ -36,26 +40,15 @@ void SENSSimulated<T>::stopSim()
 }
 
 template<typename T>
-void SENSSimulated<T>::setCommonSimStartTimePt(const SENSTimePt& commonSimStartTimePt)
-{
-    _commonSimStartTimePt = commonSimStartTimePt;
-}
-
-template<typename T>
-const SENSTimePt& SENSSimulated<T>::firstTimePt()
-{
-    assert(_data.size());
-    return _data.front().first;
-}
-
-template<typename T>
-void SENSSimulated<T>::feedSensor(const SENSTimePt startTimePt, const SENSTimePt simStartTimePt)
+void SENSSimulated<T>::feedSensor(/*const SENSTimePt startTimePt, const SENSTimePt simStartTimePt*/)
 {
     _threadIsRunning = true;
     int counter      = 0;
 
-    auto       passedSimTime = std::chrono::duration_cast<SENSMicroseconds>((SENSTimePt)SENSClock::now() - startTimePt);
-    SENSTimePt simTime       = simStartTimePt + passedSimTime;
+    //auto       passedSimTime = std::chrono::duration_cast<SENSMicroseconds>((SENSTimePt)SENSClock::now() - startTimePt);
+    //SENSTimePt simTime       = simStartTimePt + passedSimTime;
+    SENSTimePt simTime = _clock.now();
+    
     //bring counter close to startTimePt (maybe we skip some values to synchronize simulated sensors)
     while (counter < _data.size() && _data[counter].first < simTime)
         counter++;
@@ -71,8 +64,9 @@ void SENSSimulated<T>::feedSensor(const SENSTimePt startTimePt, const SENSTimePt
     while (true)
     {
         //estimate current sim time
-        auto       passedSimTime = std::chrono::duration_cast<SENSMicroseconds>((SENSTimePt)SENSClock::now() - startTimePt);
-        SENSTimePt simTime       = simStartTimePt + passedSimTime;
+        //auto       passedSimTime = std::chrono::duration_cast<SENSMicroseconds>((SENSTimePt)SENSClock::now() - startTimePt);
+        //SENSTimePt simTime       = simStartTimePt + passedSimTime;
+        SENSTimePt simTime = _clock.now();
 
         //process late values
         //int i = 0;
@@ -83,8 +77,9 @@ void SENSSimulated<T>::feedSensor(const SENSTimePt startTimePt, const SENSTimePt
             feedSensorData(counter);
 
             //setting the location maybe took some time, so we update simulation time
-            passedSimTime = std::chrono::duration_cast<SENSMicroseconds>((SENSTimePt)SENSClock::now() - startTimePt);
-            simTime       = simStartTimePt + passedSimTime;
+            //passedSimTime = std::chrono::duration_cast<SENSMicroseconds>((SENSTimePt)SENSClock::now() - startTimePt);
+            //simTime       = simStartTimePt + passedSimTime;
+            simTime = _clock.now();
             counter++;
             //i++;
         }
@@ -98,9 +93,10 @@ void SENSSimulated<T>::feedSensor(const SENSTimePt startTimePt, const SENSTimePt
         //prepare things that may take some time (e.g. for video reading we can already read the frame and do decoding and maybe it also blocks for some reasons..)
         prepareSensorData(counter);
 
-        passedSimTime = std::chrono::duration_cast<SENSMicroseconds>((SENSTimePt)SENSClock::now() - startTimePt);
-        simTime       = simStartTimePt + passedSimTime;
-
+        //passedSimTime = std::chrono::duration_cast<SENSMicroseconds>((SENSTimePt)SENSClock::now() - startTimePt);
+        //simTime       = simStartTimePt + passedSimTime;
+        simTime = _clock.now();
+        
         //locationsCounter should now point to a value in the simulation future so lets wait
         const SENSTimePt& valueTime = _data[counter].first;
 
@@ -158,8 +154,9 @@ void SENSSimulatedGps::stop()
 //only SENSSimulator can instantiate
 SENSSimulatedGps::SENSSimulatedGps(StartSimCB                                              startSimCB,
                                    SensorSimStoppedCB                                      sensorSimStoppedCB,
-                                   std::vector<std::pair<SENSTimePt, SENSGps::Location>>&& data)
-  : SENSSimulated(startSimCB, sensorSimStoppedCB, std::move(data))
+                                   std::vector<std::pair<SENSTimePt, SENSGps::Location>>&& data,
+                                   const SENSSimClock&                                     clock)
+  : SENSSimulated(startSimCB, sensorSimStoppedCB, std::move(data), clock)
 {
     _permissionGranted = true;
 }
@@ -197,8 +194,9 @@ void SENSSimulatedOrientation::stop()
 
 SENSSimulatedOrientation::SENSSimulatedOrientation(StartSimCB                                                  startSimCB,
                                                    SensorSimStoppedCB                                          sensorSimStoppedCB,
-                                                   std::vector<std::pair<SENSTimePt, SENSOrientation::Quat>>&& data)
-  : SENSSimulated(startSimCB, sensorSimStoppedCB, std::move(data))
+                                                   std::vector<std::pair<SENSTimePt, SENSOrientation::Quat>>&& data,
+                                                   const SENSSimClock&                                         clock)
+  : SENSSimulated(startSimCB, sensorSimStoppedCB, std::move(data), clock)
 {
 }
 
@@ -337,8 +335,9 @@ const SENSCaptureProperties& SENSSimulatedCamera::captureProperties()
 SENSSimulatedCamera::SENSSimulatedCamera(StartSimCB                                startSimCB,
                                          SensorSimStoppedCB                        sensorSimStoppedCB,
                                          std::vector<std::pair<SENSTimePt, int>>&& data,
-                                         std::string                               videoFileName)
-  : SENSSimulated(startSimCB, sensorSimStoppedCB, std::move(data)),
+                                         std::string                               videoFileName,
+                                         const SENSSimClock&                       clock)
+  : SENSSimulated(startSimCB, sensorSimStoppedCB, std::move(data), clock),
     _videoFileName(videoFileName)
 {
     _permissionGranted = true;

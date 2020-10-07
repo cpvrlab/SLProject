@@ -8,6 +8,17 @@ SENSSimulator::~SENSSimulator()
     }
 }
 
+void findSimStartTimePt(SENSTimePt& simStartTimePt, bool& initialized, SENSTimePt tp)
+{
+    if (!initialized)
+    {
+        initialized    = true;
+        simStartTimePt = tp;
+    }
+    else if (tp < simStartTimePt)
+        simStartTimePt = tp;
+}
+
 SENSSimulator::SENSSimulator(const std::string& simDirName)
 {
     try
@@ -17,12 +28,63 @@ SENSSimulator::SENSSimulator(const std::string& simDirName)
 
         if (Utils::dirExists(dirName))
         {
-            loadGpsData(dirName);
-            loadOrientationData(dirName);
-            loadCameraData(dirName);
+            std::vector<std::pair<SENSTimePt, SENSGps::Location>> gpsData;
+            loadGpsData(dirName, gpsData);
+            std::vector<std::pair<SENSTimePt, SENSOrientation::Quat>> orientationData;
+            loadOrientationData(dirName, orientationData);
+            std::vector<std::pair<SENSTimePt, int>> cameraData;
+            std::string                             videoFileName;
+            loadCameraData(dirName, cameraData, videoFileName);
 
-            //estimate common start point in record age
-            estimateSimStartPoint();
+            //search for common sim time start point
+            //start time point of simulation in the past
+            SENSTimePt simStartTimePt;
+
+            bool initialized = false;
+
+            if (gpsData.size())
+                findSimStartTimePt(simStartTimePt, initialized, gpsData.front().first);
+            if (orientationData.size())
+                findSimStartTimePt(simStartTimePt, initialized, orientationData.front().first);
+            if (cameraData.size())
+                findSimStartTimePt(simStartTimePt, initialized, cameraData.front().first);
+
+            if (initialized)
+            {
+                //instantiate simulator clock
+                _clock = std::make_unique<SENSSimClock>(SENSClock::now(), simStartTimePt);
+
+                if (gpsData.size())
+                {
+                    //make_unique has problems with fiendship and private constructor so we use unique_ptr
+                    _activeSensors.push_back(std::unique_ptr<SENSSimulatedGps>(
+                      new SENSSimulatedGps(std::bind(&SENSSimulator::onStart, this),
+                                           std::bind(&SENSSimulator::onSensorSimStopped, this),
+                                           std::move(gpsData),
+                                           *_clock)));
+                }
+
+                if (orientationData.size())
+                {
+                    //make_unique has problems with fiendship and private constructor so we use unique_ptr
+                    _activeSensors.push_back(std::unique_ptr<SENSSimulatedOrientation>(
+                      new SENSSimulatedOrientation(std::bind(&SENSSimulator::onStart, this),
+                                                   std::bind(&SENSSimulator::onSensorSimStopped, this),
+                                                   std::move(orientationData),
+                                                   *_clock)));
+                }
+
+                if (cameraData.size())
+                {
+                    //make_unique has problems with fiendship and private constructor so we use unique_ptr
+                    _activeSensors.push_back(std::unique_ptr<SENSSimulatedCamera>(
+                      new SENSSimulatedCamera(std::bind(&SENSSimulator::onStart, this),
+                                              std::bind(&SENSSimulator::onSensorSimStopped, this),
+                                              std::move(cameraData),
+                                              videoFileName,
+                                              *_clock)));
+                }
+            }
         }
         else
             Utils::log("SENS", "SENSSimulator: Directory does not exist: %s", simDirName.c_str());
@@ -33,15 +95,14 @@ SENSSimulator::SENSSimulator(const std::string& simDirName)
     }
 }
 
-SENSTimePt SENSSimulator::onStart()
+void SENSSimulator::onStart()
 {
     if (!_running)
     {
-        _startTimePoint = SENSClock::now();
-        _running        = true;
+        if(_clock)
+            _clock->reset();
+        _running       = true;
     }
-
-    return _startTimePoint;
 }
 
 void SENSSimulator::onSensorSimStopped()
@@ -61,36 +122,14 @@ void SENSSimulator::onSensorSimStopped()
         _running = false;
 }
 
-void SENSSimulator::estimateSimStartPoint()
-{
-    //search for earliest time point
-    bool initialized = false;
-
-    for (int i = 0; i < _activeSensors.size(); ++i)
-    {
-        const SENSTimePt& tp = _activeSensors[i]->firstTimePt();
-        if (!initialized)
-        {
-            initialized     = true;
-            _simStartTimePt = tp;
-        }
-        else if (tp < _simStartTimePt)
-            _simStartTimePt = tp;
-    }
-
-    for (int i = 0; i < _activeSensors.size(); ++i)
-        _activeSensors[i]->setCommonSimStartTimePt(_simStartTimePt);
-}
-
-void SENSSimulator::loadGpsData(const std::string& dirName)
+void SENSSimulator::loadGpsData(const std::string& dirName, std::vector<std::pair<SENSTimePt, SENSGps::Location>>& data)
 {
     std::string gpsFileName = dirName + "gps.txt";
     //check if directory contains gps.txt
     if (Utils::fileExists(gpsFileName))
     {
-        std::vector<std::pair<SENSTimePt, SENSGps::Location>> data;
-        std::string                                           line;
-        ifstream                                              file(gpsFileName);
+        std::string line;
+        ifstream    file(gpsFileName);
         if (file.is_open())
         {
             while (std::getline(file, line))
@@ -114,30 +153,20 @@ void SENSSimulator::loadGpsData(const std::string& dirName)
                 }
             }
             file.close();
-
-            if (data.size())
-            {
-                //make_unique has problems with fiendship and private constructor so we use unique_ptr
-                _activeSensors.push_back(std::unique_ptr<SENSSimulatedGps>(
-                  new SENSSimulatedGps(std::bind(&SENSSimulator::onStart, this),
-                                       std::bind(&SENSSimulator::onSensorSimStopped, this),
-                                       std::move(data))));
-            }
         }
         else
             Utils::log("SENS", "SENSSimulator: Unable to open file: %s", gpsFileName.c_str());
     }
 }
 
-void SENSSimulator::loadOrientationData(const std::string& dirName)
+void SENSSimulator::loadOrientationData(const std::string& dirName, std::vector<std::pair<SENSTimePt, SENSOrientation::Quat>>& data)
 {
     std::string orientationFileName = dirName + "orientation.txt";
     //check if directory contains orientation.txt
     if (Utils::fileExists(orientationFileName))
     {
-        std::vector<std::pair<SENSTimePt, SENSOrientation::Quat>> data;
-        std::string                                               line;
-        ifstream                                                  file(orientationFileName);
+        std::string line;
+        ifstream    file(orientationFileName);
         if (file.is_open())
         {
             while (std::getline(file, line))
@@ -161,32 +190,22 @@ void SENSSimulator::loadOrientationData(const std::string& dirName)
                 }
             }
             file.close();
-
-            if (data.size())
-            {
-                //make_unique has problems with fiendship and private constructor so we use unique_ptr
-                _activeSensors.push_back(std::unique_ptr<SENSSimulatedOrientation>(
-                  new SENSSimulatedOrientation(std::bind(&SENSSimulator::onStart, this),
-                                               std::bind(&SENSSimulator::onSensorSimStopped, this),
-                                               std::move(data))));
-            }
         }
         else
             Utils::log("SENS", "SENSSimulator: Unable to open file: %s", orientationFileName.c_str());
     }
 }
 
-void SENSSimulator::loadCameraData(const std::string& dirName)
+void SENSSimulator::loadCameraData(const std::string& dirName, std::vector<std::pair<SENSTimePt, int>>& data, std::string& videoFileName)
 {
-    std::string textFileName  = dirName + "camera.txt";
-    std::string videoFileName = dirName + "video.avi";
+    std::string textFileName = dirName + "camera.txt";
+    videoFileName            = dirName + "video.avi";
 
     //check if directory contains gps.txt
     if (Utils::fileExists(textFileName) && Utils::fileExists(videoFileName))
     {
-        std::vector<std::pair<SENSTimePt, int>> data;
-        std::string                             line;
-        ifstream                                file(textFileName);
+        std::string line;
+        ifstream    file(textFileName);
         if (file.is_open())
         {
             while (std::getline(file, line))
@@ -207,16 +226,6 @@ void SENSSimulator::loadCameraData(const std::string& dirName)
                 }
             }
             file.close();
-
-            if (data.size())
-            {
-                //make_unique has problems with fiendship and private constructor so we use unique_ptr
-                _activeSensors.push_back(std::unique_ptr<SENSSimulatedCamera>(
-                  new SENSSimulatedCamera(std::bind(&SENSSimulator::onStart, this),
-                                          std::bind(&SENSSimulator::onSensorSimStopped, this),
-                                          std::move(data),
-                                          videoFileName)));
-            }
         }
         else
             Utils::log("SENS", "SENSSimulator: Unable to open file: %s or ", textFileName.c_str(), videoFileName.c_str());

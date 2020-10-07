@@ -22,6 +22,7 @@ set(erlebar_headers
 	${SL_PROJECT_ROOT}/apps/source/sens/SENSRecorderDataHandler.h
 	${SL_PROJECT_ROOT}/apps/source/sens/SENSSimulator.h
 	${SL_PROJECT_ROOT}/apps/source/sens/SENSSimulated.h
+	${SL_PROJECT_ROOT}/apps/source/sens/SENSSimClock.h
 	${SL_PROJECT_ROOT}/apps/source/sm/Event.h
 	${SL_PROJECT_ROOT}/apps/source/sm/EventData.h
 	${SL_PROJECT_ROOT}/apps/source/sm/EventHandler.h
