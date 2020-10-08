@@ -29,9 +29,11 @@ void SLDeviceLocation::init()
     _originLLA.set(0, 0, 0);
     _originECEF.set(0, 0, 0);
     _originENU.set(0, 0, 0);
-    _originAccuracyM   = FLT_MAX;
-    _originSolarZenith = 45.0f;
+    _originAccuracyM    = FLT_MAX;
+    _originSolarZenith  = 45.0f;
     _originSolarAzimuth = 0.0f;
+    _originSolarSunrise = 0.0f;
+    _originSolarSunset = 0.0f;
     _wRecef.identity();
     _hasOrigin         = false;
     _useOriginAltitude = true;
@@ -149,7 +151,7 @@ void SLDeviceLocation::originLLA(SLdouble latDEG,
     //Indicate that origin is set. Otherwise it would be reset on each update
     _hasOrigin = true;
 
-    calculateSolarAngles(latDEG, lonDEG, altM);
+    calculateSolarAngles(_originLLA,std::time(nullptr));
 }
 //-----------------------------------------------------------------------------
 //! Sets the default location in latitude, longitude and altitude.
@@ -183,22 +185,20 @@ void SLDeviceLocation::isUsed(SLbool use)
 }
 //-----------------------------------------------------------------------------
 //! Calculates the solar angles at origin at local time
-/*! Calculates the zenit and azimut angle in deg. of the sun at the origin at
+/*! Calculates the zenith and azimuth angle in deg. of the sun at the origin at
 the local time using the Solar Position Algorithm from:
 https://midcdmz.nrel.gov/spa/ that is part of the lib-SLExternal.
 */
-SLbool SLDeviceLocation::calculateSolarAngles(SLdouble latDEG,
-                                              SLdouble lonDEG,
-                                              SLdouble altM)
+SLbool SLDeviceLocation::calculateSolarAngles(SLVec3d locationLLA,
+                                              std::time_t time)
 {
     // leave default angles if origin has not been set
     if (!_hasOrigin) return false;
 
-    std::time_t t = std::time(nullptr);
-    tm          ut{}, lt{};
-
-    memcpy(&ut, std::gmtime(&t), sizeof(tm));
-    memcpy(&lt, std::localtime(&t), sizeof(tm));
+    // transform time
+    tm ut{}, lt{};
+    memcpy(&ut, std::gmtime(&time), sizeof(tm));
+    memcpy(&lt, std::localtime(&time), sizeof(tm));
 
     ut.tm_year += 1900;
     lt.tm_year += 1900;
@@ -234,11 +234,11 @@ SLbool SLDeviceLocation::calculateSolarAngles(SLdouble latDEG,
     spa.timezone  = lt.tm_hour - ut.tm_hour;
     spa.delta_ut1 = 0;
     spa.delta_t   = 0;
-    spa.longitude = lonDEG;
-    spa.latitude  = latDEG;
-    spa.elevation = altM;
+    spa.longitude = locationLLA.lon;
+    spa.latitude  = locationLLA.lat;
+    spa.elevation = locationLLA.alt;
     // http://systemdesign.ch/wiki/Barometrische_Hoehenformel
-    spa.pressure      = 1013.25 * pow((1.0 - 0.0065 * altM / 288.15), 5.255);
+    spa.pressure      = 1013.25 * pow((1.0 - 0.0065 * locationLLA.alt / 288.15), 5.255);
     spa.temperature   = 15.0;
     spa.slope         = 0;
     spa.azm_rotation  = 0;
@@ -251,18 +251,22 @@ SLbool SLDeviceLocation::calculateSolarAngles(SLdouble latDEG,
 
     if (result == 0) //check for SPA errors
     {
-        _originSolarZenith = (SLfloat)spa.zenith;
+        _originSolarZenith  = (SLfloat)spa.zenith;
         _originSolarAzimuth = (SLfloat)spa.azimuth;
+        _originSolarSunrise = (SLfloat)spa.sunrise;
+        _originSolarSunset = (SLfloat)spa.sunset;
 
-        SLfloat minSR = (SLfloat)(60.0 * (spa.sunrise - (int)(spa.sunrise)));
-        SLfloat secSR = (SLfloat)(60.0 * (minSR - floor(minSR)));
-        SLfloat minSS = (SLfloat)(60.0 * (spa.sunset - (int)(spa.sunset)));
-        SLfloat secSS = (SLfloat)(60.0 * (minSS - floor(minSS)));
+        SLfloat SRh = _originSolarSunrise;
+        SLfloat SRm = (SLfloat)(60.0f * (SRh - (int)(SRh)));
+        SLfloat SRs = (SLfloat)(60.0 * (SRm - floor(SRm)));
+        SLfloat SSh = _originSolarSunset;
+        SLfloat SSm = (SLfloat)(60.0f * (SSh - (int)(SSh)));
+        SLfloat SSs = (SLfloat)(60.0f * (SSm - floor(SSm)));
 
         SL_LOG("Zenith          : %.6f degrees", _originSolarZenith);
         SL_LOG("Azimuth         : %.6f degrees", _originSolarAzimuth);
-        SL_LOG("Sunrise         : %02d:%02d:%02d Local Time", (int)(spa.sunrise), (int)minSR, (int)secSR);
-        SL_LOG("Sunset          : %02d:%02d:%02d Local Time", (int)(spa.sunset), (int)minSS, (int)secSS);
+        SL_LOG("Sunrise         : %02d:%02d:%02d Local Time", (int)(SRh), (int)SRm, (int)SRs);
+        SL_LOG("Sunset          : %02d:%02d:%02d Local Time", (int)(SSh), (int)SSm, (int)SSs);
     }
     else
         SL_LOG("SPA Error Code: %d", result);

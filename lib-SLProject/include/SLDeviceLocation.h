@@ -55,9 +55,8 @@ public:
                        SLdouble altM,
                        SLfloat  AccuracyM);
 
-    SLbool calculateSolarAngles(SLdouble latDEG,
-                                SLdouble lonDEG,
-                                SLdouble altM);
+    SLbool calculateSolarAngles(SLVec3d locationLLA,
+                                std::time_t time);
     // Setters
     void isUsed(SLbool isUsed);
     void useOriginAltitude(SLbool useGLA) { _useOriginAltitude = useGLA; }
@@ -91,6 +90,8 @@ public:
     SLfloat improveTime() { return std::max(_improveTimeSEC - _improveTimer.elapsedTimeInSec(), 0.0f); }
     SLfloat originSolarZenit() const { return _originSolarZenith; }
     SLfloat originSolarAzimut() const { return _originSolarAzimuth; }
+    SLfloat originSolarSunrise() const { return _originSolarSunrise; }
+    SLfloat originSolarSunset() const { return _originSolarSunset; }
     SLfloat altDemM() const { return _altDemM; }
     SLfloat altGpsM() const { return _altGpsM; }
 
@@ -108,8 +109,10 @@ private:
     SLVec3d        _originECEF;         //!< Global origin location of scene in ECEF (cartesian)
     SLVec3d        _originENU;          //!< Origin location in ENU frame
     SLfloat        _originAccuracyM;    //!< Accuracy radius of origin point
-    SLfloat        _originSolarZenith;   //!< Zenit angle of the sun in deg. (from up dir.) at origin at local time
-    SLfloat        _originSolarAzimuth;  //!< Azimut angle of the sun in deg. (eastward from north) at origin at local time
+    SLfloat        _originSolarZenith;  //!< Zenith angle of the sun in deg. (from up dir.) at origin at local time
+    SLfloat        _originSolarAzimuth; //!< Azimuth angle of the sun in deg. (eastward from north) at origin at local time
+    SLfloat        _originSolarSunrise; //!< Sunrise local time at origin
+    SLfloat        _originSolarSunset;  //!< Sunset local time at origin
     SLbool         _hasOrigin;          //!< Flag if this scene has a global reference location
     SLbool         _useOriginAltitude;  //!< Flag if global reference altitude should be used
     SLfloat        _altDemM;            //!< Altitude in m from Digital Elevation Model
