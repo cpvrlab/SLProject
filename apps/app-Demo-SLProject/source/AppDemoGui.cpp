@@ -99,26 +99,27 @@ void centerNextWindow(SLSceneView* sv,
 }
 //-----------------------------------------------------------------------------
 // Init global static variables
-SLstring AppDemoGui::configTime          = "-";
-SLbool   AppDemoGui::showProgress        = false;
-SLbool   AppDemoGui::showDockSpace       = true;
-SLbool   AppDemoGui::showAbout           = false;
-SLbool   AppDemoGui::showHelp            = false;
-SLbool   AppDemoGui::showHelpCalibration = false;
-SLbool   AppDemoGui::showCredits         = false;
-SLbool   AppDemoGui::showStatsTiming     = false;
-SLbool   AppDemoGui::showStatsScene      = false;
-SLbool   AppDemoGui::showStatsVideo      = false;
-SLbool   AppDemoGui::showStatsWAI        = false;
-SLbool   AppDemoGui::showImGuiMetrics    = false;
-SLbool   AppDemoGui::showInfosScene      = false;
-SLbool   AppDemoGui::showInfosSensors    = false;
-SLbool   AppDemoGui::showInfosDevice     = false;
-SLbool   AppDemoGui::showSceneGraph      = false;
-SLbool   AppDemoGui::showProperties      = false;
-SLbool   AppDemoGui::showChristoffel     = false;
-SLbool   AppDemoGui::showUIPrefs         = false;
-SLbool   AppDemoGui::showTransform       = false;
+SLstring    AppDemoGui::configTime          = "-";
+SLbool      AppDemoGui::showProgress        = false;
+SLbool      AppDemoGui::showDockSpace       = true;
+SLbool      AppDemoGui::showAbout           = false;
+SLbool      AppDemoGui::showHelp            = false;
+SLbool      AppDemoGui::showHelpCalibration = false;
+SLbool      AppDemoGui::showCredits         = false;
+SLbool      AppDemoGui::showStatsTiming     = false;
+SLbool      AppDemoGui::showStatsScene      = false;
+SLbool      AppDemoGui::showStatsVideo      = false;
+SLbool      AppDemoGui::showStatsWAI        = false;
+SLbool      AppDemoGui::showImGuiMetrics    = false;
+SLbool      AppDemoGui::showInfosScene      = false;
+SLbool      AppDemoGui::showInfosSensors    = false;
+SLbool      AppDemoGui::showInfosDevice     = false;
+SLbool      AppDemoGui::showSceneGraph      = false;
+SLbool      AppDemoGui::showProperties      = false;
+SLbool      AppDemoGui::showChristoffel     = false;
+SLbool      AppDemoGui::showUIPrefs         = false;
+SLbool      AppDemoGui::showTransform       = false;
+std::time_t AppDemoGui::adjustedTime        = 0;
 
 // Scene node for Christoffel objects
 static SLNode* bern          = nullptr;
@@ -1219,53 +1220,53 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                         else
                         {
                             auto downloadJob = []() {
-                              SLApplication::jobProgressMsg("Downloading large dragon file from pallas.ti.bfh.ch");
-                              SLApplication::jobProgressMax(100);
-                              ftplib ftp;
-                              if (ftp.Connect("pallas.ti.bfh.ch:21"))
-                              {
-                                  if (ftp.Login("upload", "FaAdbD3F2a"))
-                                  {
-                                      ftp.SetCallbackXferFunction(ftpCallbackXfer);
-                                      ftp.SetCallbackBytes(1024000);
-                                      if (ftp.Chdir("SLProject/models/PLY"))
-                                      {
-                                          int remoteSize = 0;
-                                          ftp.Size("xyzrgb_dragon.ply",
-                                                   &remoteSize,
-                                                   ftplib::transfermode::image);
-                                          ftpXferSizeMax  = remoteSize;
-                                          SLstring plyDir = SLApplication::modelPath + "PLY";
-                                          if (!Utils::dirExists(plyDir))
-                                              Utils::makeDir(plyDir);
-                                          if (Utils::dirExists(plyDir))
-                                          {
-                                              SLstring outFile = SLApplication::modelPath + "PLY/xyzrgb_dragon.ply";
-                                              if (!ftp.Get(outFile.c_str(),
-                                                           "xyzrgb_dragon.ply",
-                                                           ftplib::transfermode::image))
-                                                  SL_LOG("*** ERROR: ftp.Get failed. ***");
-                                          }
-                                          else
-                                              SL_LOG("*** ERROR: Utils::makeDir %s failed. ***", plyDir.c_str());
-                                      }
-                                      else
-                                          SL_LOG("*** ERROR: ftp.Chdir failed. ***");
-                                  }
-                                  else
-                                      SL_LOG("*** ERROR: ftp.Login failed. ***");
-                              }
-                              else
-                                  SL_LOG("*** ERROR: ftp.Connect failed. ***");
+                                SLApplication::jobProgressMsg("Downloading large dragon file from pallas.ti.bfh.ch");
+                                SLApplication::jobProgressMax(100);
+                                ftplib ftp;
+                                if (ftp.Connect("pallas.ti.bfh.ch:21"))
+                                {
+                                    if (ftp.Login("upload", "FaAdbD3F2a"))
+                                    {
+                                        ftp.SetCallbackXferFunction(ftpCallbackXfer);
+                                        ftp.SetCallbackBytes(1024000);
+                                        if (ftp.Chdir("SLProject/models/PLY"))
+                                        {
+                                            int remoteSize = 0;
+                                            ftp.Size("xyzrgb_dragon.ply",
+                                                     &remoteSize,
+                                                     ftplib::transfermode::image);
+                                            ftpXferSizeMax  = remoteSize;
+                                            SLstring plyDir = SLApplication::modelPath + "PLY";
+                                            if (!Utils::dirExists(plyDir))
+                                                Utils::makeDir(plyDir);
+                                            if (Utils::dirExists(plyDir))
+                                            {
+                                                SLstring outFile = SLApplication::modelPath + "PLY/xyzrgb_dragon.ply";
+                                                if (!ftp.Get(outFile.c_str(),
+                                                             "xyzrgb_dragon.ply",
+                                                             ftplib::transfermode::image))
+                                                    SL_LOG("*** ERROR: ftp.Get failed. ***");
+                                            }
+                                            else
+                                                SL_LOG("*** ERROR: Utils::makeDir %s failed. ***", plyDir.c_str());
+                                        }
+                                        else
+                                            SL_LOG("*** ERROR: ftp.Chdir failed. ***");
+                                    }
+                                    else
+                                        SL_LOG("*** ERROR: ftp.Login failed. ***");
+                                }
+                                else
+                                    SL_LOG("*** ERROR: ftp.Connect failed. ***");
 
-                              ftp.Quit();
-                              SLApplication::jobIsRunning = false;
+                                ftp.Quit();
+                                SLApplication::jobIsRunning = false;
                             };
 
                             auto jobToFollow1 = [](SLScene* s, SLSceneView* sv) {
-                              SLstring largeFile = SLApplication::modelPath + "PLY/xyzrgb_dragon.ply";
-                              if (Utils::fileExists(largeFile))
-                                  s->onLoad(s, sv, SID_LargeModel);
+                                SLstring largeFile = SLApplication::modelPath + "PLY/xyzrgb_dragon.ply";
+                                if (Utils::fileExists(largeFile))
+                                    s->onLoad(s, sv, SID_LargeModel);
                             };
 
                             function<void(void)> jobNoArgs = bind(jobToFollow1, s, sv);
@@ -1747,6 +1748,97 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
             ImGui::Separator();
 
             ImGui::MenuItem("UI Preferences", nullptr, &showUIPrefs);
+
+            if (SLApplication::devLoc.originLLA() != SLVec3d::ZERO)
+            {
+                ImGui::Separator();
+
+                if (ImGui::BeginMenu("Local Date/Time"))
+                {
+                    tm lt{};
+                    if (adjustedTime)
+                        memcpy(&lt, std::localtime(&adjustedTime), sizeof(tm));
+                    else
+                    {
+                        std::time_t now = std::time(nullptr);
+                        memcpy(&lt, std::localtime(&now), sizeof(tm));
+                    }
+
+                    SLint month = lt.tm_mon + 1;
+                    if (ImGui::SliderInt("Month", &month, 1, 12))
+                    {
+                        lt.tm_mon    = month - 1;
+                        adjustedTime = mktime(&lt);
+                        SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLLA(), adjustedTime);
+                    }
+                    if (ImGui::SliderInt("Day", &lt.tm_mday, 1, 31))
+                    {
+                        adjustedTime = mktime(&lt);
+                        SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLLA(), adjustedTime);
+                    }
+                    if (ImGui::SliderInt("Hour", &lt.tm_hour, 0, 23))
+                    {
+                        adjustedTime = mktime(&lt);
+                        SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLLA(), adjustedTime);
+                    }
+                    if (ImGui::SliderInt("Minute", &lt.tm_min, 0, 59))
+                    {
+                        adjustedTime = mktime(&lt);
+                        SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLLA(), adjustedTime);
+                    }
+                    if (ImGui::SliderInt("Second", &lt.tm_sec, 0, 59))
+                    {
+                        adjustedTime = mktime(&lt);
+                        SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLLA(), adjustedTime);
+                    }
+
+                    SLchar strLT[100];
+                    sprintf(strLT, "Set to now (%02d.%02d.%02d %02d:%02d:%02d)",
+                           lt.tm_mday,
+                           lt.tm_mon,
+                           lt.tm_year+1900,
+                           lt.tm_hour,
+                           lt.tm_min,
+                           lt.tm_sec);
+                    if (ImGui::MenuItem(strLT))
+                    {
+                        adjustedTime = 0;
+                        std::time_t now = std::time(nullptr);
+                        memcpy(&lt, std::localtime(&now), sizeof(tm));
+                        SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLLA(), now);
+                    }
+
+                    SLfloat SRh = SLApplication::devLoc.originSolarSunrise();
+                    SLfloat SRm = (SLfloat)(60.0f * (SRh - (int)(SRh)));
+                    SLfloat SRs = (SLfloat)(60.0f * (SRm - floor(SRm)));
+                    SLchar SRstr[100];
+                    sprintf(SRstr,"Set sunrise time (%02d:%02d:%02d)", (int)(SRh), (int)SRm, (int)SRs);
+                    if (ImGui::MenuItem(SRstr))
+                    {
+                        lt.tm_hour = (int)SRh;
+                        lt.tm_min = (int)SRm;
+                        lt.tm_sec = (int)SRs;
+                        adjustedTime = mktime(&lt);
+                        SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLLA(), adjustedTime);
+                    }
+
+                    SLfloat SSh = SLApplication::devLoc.originSolarSunset();
+                    SLfloat SSm = (SLfloat)(60.0f * (SSh - (int)(SSh)));
+                    SLfloat SSs = (SLfloat)(60.0f * (SSm - floor(SSm)));
+                    SLchar SSstr[100];
+                    sprintf(SSstr,"Set sunset time (%02d:%02d:%02d)", (int)(SSh), (int)SSm, (int)SSs);
+                    if (ImGui::MenuItem(SSstr))
+                    {
+                        lt.tm_hour = (int)SSh;
+                        lt.tm_min = (int)SSm;
+                        lt.tm_sec = (int)SSs;
+                        adjustedTime = mktime(&lt);
+                        SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLLA(), adjustedTime);
+                    }
+
+                    ImGui::EndMenu();
+                }
+            }
 
             ImGui::EndMenu();
         }
@@ -2513,7 +2605,7 @@ void AppDemoGui::addSceneGraphNode(SLScene* s, SLNode* node)
     PROFILE_FUNCTION();
 
     SLbool isSelectedNode = s->singleNodeSelected() == node;
-    SLbool isLeafNode = node->children().empty() && !node->mesh();
+    SLbool isLeafNode     = node->children().empty() && !node->mesh();
 
     ImGuiTreeNodeFlags nodeFlags = 0;
     if (isLeafNode)

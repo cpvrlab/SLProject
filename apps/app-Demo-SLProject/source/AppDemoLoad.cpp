@@ -3014,8 +3014,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0, 2, 0);
         cam1->lookAt(-10, 2, 0);
-        cam1->clipNear(2);
-        cam1->clipFar(200);
+        cam1->clipNear(1);
+        cam1->clipFar(300);
         cam1->setInitialState();
         cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
         cam1->background().texture(videoTexture);
@@ -3129,8 +3129,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0, 50, -150);
         cam1->lookAt(0, 0, 0);
-        cam1->clipNear(2);
-        cam1->clipFar(200);
+        cam1->clipNear(1);
+        cam1->clipFar(300);
         cam1->focalDist(150);
         cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
 
@@ -3232,7 +3232,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->translation(0, 50, -150);
         cam1->lookAt(0, 0, 0);
         cam1->clipNear(1);
-        cam1->clipFar(200);
+        cam1->clipFar(300);
         cam1->focalDist(150);
         cam1->setInitialState();
         cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
@@ -3331,8 +3331,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0, 50, -150);
         cam1->lookAt(0, 0, 0);
-        cam1->clipNear(2);
-        cam1->clipFar(200);
+        cam1->clipNear(1);
+        cam1->clipFar(300);
         cam1->focalDist(150);
         cam1->setInitialState();
         cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
@@ -3429,8 +3429,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0, 50, -150);
         cam1->lookAt(0, 0, 0);
-        cam1->clipNear(2);
-        cam1->clipFar(200);
+        cam1->clipNear(1);
+        cam1->clipFar(300);
         cam1->focalDist(150);
         cam1->setInitialState();
         cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
