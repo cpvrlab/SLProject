@@ -134,15 +134,13 @@ void WAIOrbVocabulary::create(std::vector<cv::Mat> &features, int k, int l)
     vc.create(*_vocabulary, features, "slamvoc", p);
     cout << "... done!" << endl;
 #else
-    const int           k      = 10;
-    const int           L      = 2;
-    const WeightingType weight = TF_IDF;
-    const ScoringType   score  = L1_NORM;
+    const DBoW2::WeightingType weight = DBoW2::TF_IDF;
+    const DBoW2::ScoringType   score  = DBoW2::L1_NORM;
 
     std::vector<std::vector<cv::Mat>> feats;
     feats.resize(features.size());
 
-    cout << "Creating a " << p.k << "^" << p.L << " vocabulary..." << endl;
+    cout << "Creating a " << k << "^" << l << " vocabulary..." << endl;
     for (int i = 0; i < features.size(); i++)
     {
         feats[i].resize(features[i].rows);
@@ -150,7 +148,7 @@ void WAIOrbVocabulary::create(std::vector<cv::Mat> &features, int k, int l)
             feats[i].push_back(features[i].row(j));
     }
 
-    _vocabulary = new voc(k, L, weight, score);
+    _vocabulary = new ORB_SLAM2::ORBVocabulary(k, l, weight, score);
     _vocabulary->create(feats);
 
     cout << "... done!" << endl;
