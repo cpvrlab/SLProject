@@ -665,8 +665,6 @@ void SensorTestGui::updateSensorSimulation()
         ImGui::Text("Sim time: %.0fms", (double)simNow.time_since_epoch().count() / 1000.0 );
         auto passedSimTime = _sensorSimulator->passedTime();
         ImGui::Text("Passed time: %.0fms", (double)passedSimTime.count() / 1000.0 );
-        //total time
-        //todo:
 
         //pause
         static std::string pauseBtnText = "Resume";
@@ -682,11 +680,6 @@ void SensorTestGui::updateSensorSimulation()
                 _sensorSimulator->pause();
                 pauseBtnText = "Resume";
             }
-        }
-        
-        if (ImGui::Button("Reset##ResetSim", ImVec2(btnW, 0)))
-        {
-            _sensorSimulator->reset();
         }
     }
 }

@@ -121,8 +121,26 @@ void SimHelperGui::render(SENSSimHelper* simHelper)
         }
         else
         {
+            //current simulation time
+            auto simNow = simHelper->simTime();
+            ImGui::Text("Sim time: %.0fms", (double)simNow.time_since_epoch().count() / 1000.0 );
+            auto passedSimTime = simHelper->passedSimTime();
+            ImGui::Text("Passed time: %.0fms", (double)passedSimTime.count() / 1000.0 );
+            
             if (ImGui::Button("Stop simulation##SimBtn", ImVec2(btnW, 0)))
                 simHelper->stopSim();
+            
+            //pause
+            if (simHelper->isPausedSim())
+            {
+                if (ImGui::Button("Resume##PauseSim", ImVec2(btnW, 0)))
+                    simHelper->resumeSim();
+            }
+            else
+            {
+                if (ImGui::Button("Pause##PauseSim", ImVec2(btnW, 0)))
+                    simHelper->pauseSim();
+            }
         }
     }
 

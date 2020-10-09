@@ -24,11 +24,13 @@ void SENSSimulator::resume()
         _clock->resume();
 }
 
+/*
 void SENSSimulator::reset()
 {
     if (_clock)
         _clock->reset();
 }
+ */
 
 SENSMicroseconds SENSSimulator::passedTime()
 {

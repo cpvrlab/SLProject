@@ -42,7 +42,7 @@ public:
     //!resume simulation time
     void resume();
     //!reset simulation time
-    void reset();
+    //void reset();
     //!get current simulation time
     SENSTimePt now();
     //!get passed simulation time

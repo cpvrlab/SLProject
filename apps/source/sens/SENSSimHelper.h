@@ -32,7 +32,12 @@ public:
 
     void stopSim();
     void startSim();
-
+    bool isPausedSim();
+    void pauseSim();
+    void resumeSim();
+    SENSTimePt simTime();
+    SENSMicroseconds passedSimTime();
+    
     SENSGps*           gps() const { return _gpsRef; }
     SENSOrientation*   orientation() const { return _orientationRef; }
     SENSCamera*        camera() const { return _cameraRef; }
@@ -48,7 +53,7 @@ public:
 
 private:
     SENSRecorder* recorder();
-    
+
     std::unique_ptr<SENSSimulator> _simulator;
     std::unique_ptr<SENSRecorder>  _recorder;
 

@@ -226,3 +226,39 @@ void SENSSimHelper::startSim()
         }
     }
 }
+
+bool SENSSimHelper::isPausedSim()
+{
+    if(_simulator && _simulator->isPaused())
+        return true;
+    else
+        return false;
+}
+
+void SENSSimHelper::pauseSim()
+{
+    if(_simulator)
+        _simulator->pause();
+}
+
+void SENSSimHelper::resumeSim()
+{
+    if(_simulator)
+        _simulator->resume();
+}
+
+SENSTimePt SENSSimHelper::simTime()
+{
+    if (_simulator)
+        return _simulator->now();
+    else
+        return SENSClock::now();
+}
+SENSMicroseconds SENSSimHelper::passedSimTime()
+{
+    if (_simulator)
+        return _simulator->passedTime();
+    else
+        return SENSMicroseconds(0);
+}
+
