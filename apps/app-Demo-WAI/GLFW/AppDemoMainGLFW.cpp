@@ -550,16 +550,31 @@ public:
     }
 };
 
-TestA testA;
-TestB testB;
+TestBase* testA = nullptr;
+TestBase* testB = nullptr;
 
 void bendAround(TestBase*& testPtr)
 {
     TestBase* local = testPtr;
-    testPtr->me();
-    testPtr = &testB;
-    testPtr->me();
+    if(testPtr)
+        testPtr->me();
+    testPtr = testB;
+    if(testPtr)
+        testPtr->me();
     local->me();
+    testPtr = local;
+}
+
+void bendAroundPtr(TestBase** testPtr)
+{
+    TestBase* local = *testPtr;
+    if(*testPtr)
+        (*testPtr)->me();
+    testPtr = &testB;
+    if(*testPtr)
+        (*testPtr)->me();
+    local->me();
+    testPtr = &local;
 }
 
 std::shared_ptr<TestA> testAShrd;
@@ -590,16 +605,17 @@ int main(int argc, char* argv[])
     testPtr2->me();
      */
 
-    /*
-    TestBase* testPtr = &testA;
+    testA = new TestA;
+    TestBase* testPtr = testA;
     testPtr->me();
-    TestBase** testBase = &testPtr;
-    (*testBase)->me();
+    //TestBase** testBase = &testPtr;
+    //(*testBase)->me();
     bendAround(testPtr);
-    (*testBase)->me();
+    //(*testBase)->me();
     testPtr->me();
-*/
     
+    bendAroundPtr(&testPtr);
+
     GLFWInit();
 
     bool simulateSensors = false;

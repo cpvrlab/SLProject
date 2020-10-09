@@ -60,19 +60,17 @@ private:
 class SimHelperGui
 {
 public:
-    SimHelperGui(SENSSimHelper* simHelper, ImFont* fontText, ImFont* fontHeading, const char* title, float screenH)
-      : _simHelper(simHelper),
-        _fontText(fontText),
+    SimHelperGui(ImFont* fontText, ImFont* fontHeading, const char* title, float screenH)
+      : _fontText(fontText),
         _fontHeading(fontHeading),
         _title("Simulation##" + std::string(title)),
         _screenH(screenH)
     {
     }
 
-    void render();
+    void render(SENSSimHelper* simHelper);
 
 private:
-    SENSSimHelper* _simHelper   = nullptr;
     ImFont*        _fontText    = nullptr;
     ImFont*        _fontHeading = nullptr;
     std::string    _title;

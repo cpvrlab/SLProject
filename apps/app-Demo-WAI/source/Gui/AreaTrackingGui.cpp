@@ -271,11 +271,11 @@ void AreaTrackingGui::build(SLScene* s, SLSceneView* sv)
     //debug: draw log window
     _resources.logWinDraw();
 
-    if (_resources.developerMode && _resources.simulatorMode && _getSimHelper && _getSimHelper())
+    if (_resources.developerMode && _resources.simulatorMode && _getSimHelper )
     {
         if (!_simHelperGui)
-            _simHelperGui = std::make_unique<SimHelperGui>(_getSimHelper(), _resources.fonts().tiny, _resources.fonts().standard, "AreaTrackingGui", _screenH);
-        _simHelperGui->render();
+            _simHelperGui = std::make_unique<SimHelperGui>(_resources.fonts().tiny, _resources.fonts().standard, "AreaTrackingGui", _screenH);
+        _simHelperGui->render(_getSimHelper());
     }
 }
 
@@ -312,14 +312,11 @@ void AreaTrackingGui::initArea(ErlebAR::Area area)
     }
 }
 
-void SimHelperGui::render()
+void SimHelperGui::render(SENSSimHelper* simHelper)
 {
-    if (!_simHelper)
+    if (!simHelper)
         return;
     
-    _simHelper->camera();
-    return;
-
     float framePadding = 0.02f * _screenH;
     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(framePadding, framePadding));
     ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.f);
@@ -341,64 +338,64 @@ void SimHelperGui::render()
     //float btnW = w * 0.5f - ImGui::GetStyle().ItemSpacing.x;
     float btnW = w;
     //recording
-    SENSRecorder* rec = _simHelper->recorder();
+    SENSRecorder* rec = simHelper->recorder();
     {
         ImGui::Text("Sensor Recording");
 
-        if (_simHelper->gps()) //if there is a valid sensor we can record
+        if (simHelper->gps()) //if there is a valid sensor we can record
         {
-            if (ImGui::Checkbox("gps##record", &_simHelper->recordGps))
+            if (ImGui::Checkbox("gps##record", &simHelper->recordGps))
             {
-                _simHelper->toggleGpsRecording();
+                simHelper->toggleGpsRecording();
             }
         }
         ImGui::SameLine();
 
-        if (_simHelper->orientation()) //if there is a valid sensor we can record
+        if (simHelper->orientation()) //if there is a valid sensor we can record
         {
-            if (ImGui::Checkbox("orientation##record", &_simHelper->recordOrientation))
+            if (ImGui::Checkbox("orientation##record", &simHelper->recordOrientation))
             {
-                _simHelper->toggleOrientationRecording();
+                simHelper->toggleOrientationRecording();
             }
         }
         ImGui::SameLine();
 
-        if (_simHelper->camera()) //if there is a valid sensor we can record
+        if (simHelper->camera()) //if there is a valid sensor we can record
         {
-            if (ImGui::Checkbox("camera##record", &_simHelper->recordCamera))
+            if (ImGui::Checkbox("camera##record", &simHelper->recordCamera))
             {
-                _simHelper->toggleCameraRecording();
+                simHelper->toggleCameraRecording();
             }
         }
 
         static std::string recordButtonText = "Start recording";
         if (ImGui::Button((recordButtonText + "##RecordBtn").c_str(), ImVec2(btnW, 0)))
         {
-            if (_simHelper->recorderIsRunning())
+            if (simHelper->recorderIsRunning())
             {
-                _simHelper->stopRecording();
+                simHelper->stopRecording();
                 recordButtonText = "Start recording";
             }
             else
             {
-                if (_simHelper->startRecording())
+                if (simHelper->startRecording())
                     recordButtonText = "Stop recording";
             }
         }
     }
 
     //simulation (only show if recorder is not running because we cannot make changes while recording)
-    if (!_simHelper->recorderIsRunning())
+    if (!simHelper->recorderIsRunning())
     {
         ImGui::Separator();
         ImGui::Text("Sensor simulation");
         
-        if (!_simHelper->simIsRunning())
+        if (!simHelper->simIsRunning())
         {
             //first select a directory which contains the recorder output
             if (ImGui::BeginCombo("Sim data", _selectedSimData.c_str()))
             {
-                std::vector<std::string> simDataStrings = Utils::getDirNamesInDir(_simHelper->simDataDir(), false);
+                std::vector<std::string> simDataStrings = Utils::getDirNamesInDir(simHelper->simDataDir(), false);
                 for (int n = 0; n < simDataStrings.size(); n++)
                 {
                     bool isSelected = (_selectedSimData == simDataStrings[n]); // You can store your selection however you want, outside or inside your objects
@@ -406,7 +403,7 @@ void SimHelperGui::render()
                     {
                         _selectedSimData = simDataStrings[n];
                         //instantiate simulator with selected data. After that we know, if we can simulate a sensor
-                        _simHelper->initSimulator(_selectedSimData);
+                        simHelper->initSimulator(_selectedSimData);
                     }
                     if (isSelected)
                         ImGui::SetItemDefaultFocus(); // Set the initial focus when opening the combo (scrolling + for keyboard navigation support in the upcoming navigation branch)
@@ -415,35 +412,35 @@ void SimHelperGui::render()
             }
 
             //add checkboxes for simulated sensors if successfully loaded from sim directory
-            if (_simHelper->canSimGps())
+            if (simHelper->canSimGps())
             {
-                ImGui::Checkbox("gps##sim", &_simHelper->simulateGps);
+                ImGui::Checkbox("gps##sim", &simHelper->simulateGps);
                 ImGui::SameLine();
             }
 
-            if (_simHelper->canSimOrientation())
+            if (simHelper->canSimOrientation())
             {
-                ImGui::Checkbox("orientation##sim", &_simHelper->simulateOrientation);
+                ImGui::Checkbox("orientation##sim", &simHelper->simulateOrientation);
                 ImGui::SameLine();
             }
 
-            if (_simHelper->canSimCamera())
+            if (simHelper->canSimCamera())
             {
-                ImGui::Checkbox("camera##sim", &_simHelper->simulateCamera);
+                ImGui::Checkbox("camera##sim", &simHelper->simulateCamera);
             }
         }
 
         static std::string simButtonText = "Start simulation";
         if (ImGui::Button((simButtonText + "##SimBtn").c_str(), ImVec2(btnW, 0)))
         {
-            if (_simHelper->simIsRunning())
+            if (simHelper->simIsRunning())
             {
-                _simHelper->stopSim();
+                simHelper->stopSim();
                 simButtonText = "Start simulation";
             }
             else
             {
-                _simHelper->startSim();
+                simHelper->startSim();
                 simButtonText = "Stop simulation";
             }
         }

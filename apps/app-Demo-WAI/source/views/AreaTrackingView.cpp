@@ -51,9 +51,6 @@ AreaTrackingView::~AreaTrackingView()
 
     if (_asyncLoader)
         delete _asyncLoader;
-
-    if (_simHelper)
-        delete _simHelper;
 }
 
 void AreaTrackingView::onCameraParamsChanged()

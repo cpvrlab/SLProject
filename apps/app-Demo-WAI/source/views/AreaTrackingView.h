@@ -54,21 +54,12 @@ public:
         if (_resources.developerMode && _resources.simulatorMode)
         {
             if(_simHelper)
-                delete _simHelper;
-            _simHelper = new SENSSimHelper(_gps,
-                                            _orientation,
-                                            _camera,
-                                            _deviceData.writableDir() + "SENSSimData",
-                                           std::bind(&AreaTrackingView::onCameraParamsChanged, this));
-            /*
-            if(_simHelper)
                 _simHelper.reset();
             _simHelper = std::make_unique<SENSSimHelper>(_gps,
                                                          _orientation,
                                                          _camera,
                                                          _deviceData.writableDir() + "SENSSimData",
                                                          std::bind(&AreaTrackingView::onCameraParamsChanged, this));
-             */
         }
     }
 
@@ -85,11 +76,7 @@ public:
             _camera->stop();
 
         if (_simHelper)
-        {
-            delete _simHelper;
-            _simHelper = nullptr;
-        }
-            //_simHelper.reset();
+            _simHelper.reset();
     }
 
     void initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaId);
@@ -102,7 +89,7 @@ public:
                                               WAIOrbVocabulary*  voc,
                                               cv::Mat&           mapNodeOm);
 
-    SENSSimHelper* getSimHelper() { /*return _simHelper.get();*/ return _simHelper; }
+    SENSSimHelper* getSimHelper() { return _simHelper.get(); }
 
 private:
     virtual SLbool onMouseDown(SLMouseButton button, SLint scrX, SLint scrY, SLKey mod);
@@ -155,8 +142,7 @@ private:
     ErlebAR::LocationId _locId  = ErlebAR::LocationId::NONE;
     ErlebAR::AreaId     _areaId = ErlebAR::AreaId::NONE;
 
-    //std::unique_ptr<SENSSimHelper> _simHelper;
-    SENSSimHelper* _simHelper = nullptr;
+    std::unique_ptr<SENSSimHelper> _simHelper;
 };
 
 //! Async loader for vocabulary and maps
