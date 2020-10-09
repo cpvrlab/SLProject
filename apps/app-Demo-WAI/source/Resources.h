@@ -271,8 +271,10 @@ public:
     const Style&   style() { return _style; }
     const Fonts&   fonts() { return _fonts; }
 
+    //developper helper flags
     bool developerMode = true;
-
+    bool simulatorMode = false;
+    
     Textures textures;
 
     const std::map<ErlebAR::LocationId, ErlebAR::Location>& locations() { return _locations; }

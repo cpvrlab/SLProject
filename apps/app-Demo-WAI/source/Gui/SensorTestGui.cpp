@@ -32,7 +32,6 @@ SensorTestGui::SensorTestGui(const ImGuiEngine&  imGuiEngine,
 
     resize(deviceData.scrWidth(), deviceData.scrHeight());
 
-    //_orientationRecorder = std::make_unique<SENSOrientationRecorder>(orientation, deviceData.writableDir());
     _sensorRecorder = std::make_unique<SENSRecorder>(_simDataDir);
 }
 
@@ -573,7 +572,7 @@ void SensorTestGui::updateSensorSimulation()
 
                     if (_gpsSim && _simulateGps)
                     {
-                        if(_gps && _gps->isRunning())
+                        if (_gps && _gps->isRunning())
                             _gps->stop();
                         _gps = _gpsSim;
                     }
@@ -585,7 +584,7 @@ void SensorTestGui::updateSensorSimulation()
 
                     if (_orientationSim && _simulateOrientation)
                     {
-                        if(_orientation && _orientation->isRunning())
+                        if (_orientation && _orientation->isRunning())
                             _orientation->stop();
                         _orientation = _orientationSim;
                     }
@@ -597,7 +596,7 @@ void SensorTestGui::updateSensorSimulation()
 
                     if (_cameraSim && _simulateCamera)
                     {
-                        if(_camera && _camera->started())
+                        if (_camera && _camera->started())
                             _camera->stop();
                         _camera = _cameraSim;
                         updateCameraParameter();
@@ -657,5 +656,37 @@ void SensorTestGui::updateSensorSimulation()
             }
         }
         ImGui::NewLine();
+    }
+    
+    if (_sensorSimulator)
+    {
+        //current simulation time
+        auto simNow = _sensorSimulator->now();
+        ImGui::Text("Sim time: %.0fms", (double)simNow.time_since_epoch().count() / 1000.0 );
+        auto passedSimTime = _sensorSimulator->passedTime();
+        ImGui::Text("Passed time: %.0fms", (double)passedSimTime.count() / 1000.0 );
+        //total time
+        //todo:
+
+        //pause
+        static std::string pauseBtnText = "Resume";
+        if (ImGui::Button((pauseBtnText + "##PauseSim").c_str(), ImVec2(btnW, 0)))
+        {
+            if (_sensorSimulator->isPaused())
+            {
+                _sensorSimulator->resume();
+                pauseBtnText = "Pause";
+            }
+            else
+            {
+                _sensorSimulator->pause();
+                pauseBtnText = "Resume";
+            }
+        }
+        
+        if (ImGui::Button("Reset##ResetSim", ImVec2(btnW, 0)))
+        {
+            _sensorSimulator->reset();
+        }
     }
 }

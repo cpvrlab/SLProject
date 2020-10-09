@@ -523,14 +523,86 @@ void closeAppCallback()
     appShouldClose = true;
 }
 //-----------------------------------------------------------------------------
+//test
+
+class TestBase
+{
+public:
+    virtual ~TestBase() { }
+    virtual void me() = 0;
+};
+
+class TestA : public TestBase
+{
+public:
+    void me() override
+    {
+        std::cout << "TestA" << std::endl;
+    }
+};
+
+class TestB : public TestBase
+{
+public:
+    void me() override
+    {
+        std::cout << "TestB" << std::endl;
+    }
+};
+
+TestA testA;
+TestB testB;
+
+void bendAround(TestBase*& testPtr)
+{
+    TestBase* local = testPtr;
+    testPtr->me();
+    testPtr = &testB;
+    testPtr->me();
+    local->me();
+}
+
+std::shared_ptr<TestA> testAShrd;
+std::shared_ptr<TestB> testBShrd;
+
+void bendAround(std::shared_ptr<TestBase>& testPtr)
+{
+    testPtr->me();
+    testPtr = testBShrd;
+    testPtr->me();
+}
+
+//-----------------------------------------------------------------------------
 /*!
 The C main procedure running the GLFW GUI application.
 */
 int main(int argc, char* argv[])
 {
+    /*
+    testAShrd = std::make_shared<TestA>();
+    testBShrd = std::make_shared<TestB>();
+    
+    std::shared_ptr<TestBase> testPtr = testAShrd;
+    std::shared_ptr<TestBase> testPtr2 = testPtr;
+    testPtr->me();
+    bendAround(testPtr);
+    testPtr->me();
+    testPtr2->me();
+     */
+
+    /*
+    TestBase* testPtr = &testA;
+    testPtr->me();
+    TestBase** testBase = &testPtr;
+    (*testBase)->me();
+    bendAround(testPtr);
+    (*testBase)->me();
+    testPtr->me();
+*/
+    
     GLFWInit();
 
-    bool simulateSensors = true;
+    bool simulateSensors = false;
     try
     {
         std::unique_ptr<SENSWebCamera>        webCamera;
@@ -579,8 +651,8 @@ int main(int argc, char* argv[])
             dummyOrientation = std::make_unique<SENSDummyOrientation>();
             dummyOrientation->readFromFile(Utils::unifySlashes(Utils::getAppsWritableDir()) + "20200924-174138_SENSOrientationRecorder.txt");
 
-            gps         = dummyGps.get();
-            orientation = dummyOrientation.get();
+            //gps         = dummyGps.get();
+            //orientation = dummyOrientation.get();
             camera      = webCamera.get();
         }
 

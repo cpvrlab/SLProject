@@ -2,10 +2,48 @@
 
 SENSSimulator::~SENSSimulator()
 {
-    for (int i = 0; i < _activeSensors.size(); ++i)
-    {
-        //_activeSensors[i]->stop();
-    }
+}
+
+void SENSSimulator::pause()
+{
+    if (_clock)
+        _clock->pause();
+}
+
+bool SENSSimulator::isPaused()
+{
+    if (_clock)
+        return _clock->isPaused();
+    else
+        return false;
+}
+
+void SENSSimulator::resume()
+{
+    if (_clock)
+        _clock->resume();
+}
+
+void SENSSimulator::reset()
+{
+    if (_clock)
+        _clock->reset();
+}
+
+SENSMicroseconds SENSSimulator::passedTime()
+{
+    SENSMicroseconds passedTime;
+    if (_clock)
+        passedTime = _clock->passedTime();
+    return passedTime;
+}
+
+SENSTimePt SENSSimulator::now()
+{
+    SENSTimePt simNow;
+    if (_clock)
+        simNow = _clock->now();
+    return simNow;
 }
 
 void findSimStartTimePt(SENSTimePt& simStartTimePt, bool& initialized, SENSTimePt tp)
@@ -99,9 +137,9 @@ void SENSSimulator::onStart()
 {
     if (!_running)
     {
-        if(_clock)
+        if (_clock)
             _clock->reset();
-        _running       = true;
+        _running = true;
     }
 }
 

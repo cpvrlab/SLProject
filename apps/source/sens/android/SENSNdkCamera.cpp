@@ -323,8 +323,11 @@ const SENSCameraConfig& SENSNdkCamera::start(std::string                   devic
         targetSize.height = streamConfig.heightPix;
     }
 
-    cv::Size imgManipSize(imgManipWidth,
-                          (int)((float)imgManipWidth * (float)targetSize.height / (float)targetSize.width));
+    cv::Size imgManipSize;
+    if (_config.manipWidth > 0 && _config.manipHeight > 0)
+        imgManipSize = {imgManipWidth, (int)((float)imgManipWidth * (float)targetSize.height / (float)targetSize.width)};
+    else
+        imgManipSize = targetSize;
 
     //retrieve all camera characteristics
     if (_captureProperties.size() == 0)

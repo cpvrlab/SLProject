@@ -3,22 +3,25 @@
 #include <GuiUtils.h>
 #include <ErlebAREvents.h>
 #include <Utils.h>
+#include <sens/SENSSimHelper.h>
 
 using namespace ErlebAR;
 
-AreaTrackingGui::AreaTrackingGui(const ImGuiEngine&         imGuiEngine,
-                                 sm::EventHandler&          eventHandler,
-                                 ErlebAR::Resources&        resources,
-                                 int                        dotsPerInch,
-                                 int                        screenWidthPix,
-                                 int                        screenHeightPix,
-                                 std::function<void(float)> transparencyChangedCB,
-                                 std::string                erlebARDir)
+AreaTrackingGui::AreaTrackingGui(const ImGuiEngine&                  imGuiEngine,
+                                 sm::EventHandler&                   eventHandler,
+                                 ErlebAR::Resources&                 resources,
+                                 int                                 dotsPerInch,
+                                 int                                 screenWidthPix,
+                                 int                                 screenHeightPix,
+                                 std::function<void(float)>          transparencyChangedCB,
+                                 std::string                         erlebARDir,
+                                 std::function<SENSSimHelper*(void)> getSimHelperCB)
   : ImGuiWrapper(imGuiEngine.context(), imGuiEngine.renderer()),
     sm::EventSender(eventHandler),
     _resources(resources),
     _transparencyChangedCB(transparencyChangedCB),
-    _erlebARDir(erlebARDir)
+    _erlebARDir(erlebARDir),
+    _getSimHelper(getSimHelperCB)
 {
     resize(screenWidthPix, screenHeightPix);
 }
@@ -176,29 +179,29 @@ void AreaTrackingGui::build(SLScene* s, SLSceneView* sv)
         if (!_infoText.empty())
         {
             ImGuiWindowFlags infoBarWinFlags = ImGuiWindowFlags_NoTitleBar |
-                                           ImGuiWindowFlags_NoMove |
-                                           ImGuiWindowFlags_AlwaysAutoResize |
-                                           ImGuiWindowFlags_NoScrollbar;
-            
+                                               ImGuiWindowFlags_NoMove |
+                                               ImGuiWindowFlags_AlwaysAutoResize |
+                                               ImGuiWindowFlags_NoScrollbar;
+
             ImGui::PushFont(_resources.fonts().heading);
-            
-            float winPadding = _resources.style().windowPaddingContent * _screenH;
-            float wrapW = _screenW - (2.f * winPadding);
-            ImVec2 textSize = ImGui::CalcTextSize(_infoText.c_str(), nullptr, false, wrapW);
-            float infoBarH = textSize.y + 2.f * winPadding;
-            
+
+            float  winPadding = _resources.style().windowPaddingContent * _screenH;
+            float  wrapW      = _screenW - (2.f * winPadding);
+            ImVec2 textSize   = ImGui::CalcTextSize(_infoText.c_str(), nullptr, false, wrapW);
+            float  infoBarH   = textSize.y + 2.f * winPadding;
+
             ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(winPadding * 0.8f, winPadding));
             ImGui::PushStyleColor(ImGuiCol_WindowBg, _resources.style().headerBarBackgroundTranspColor);
 
             ImGui::SetNextWindowPos(ImVec2(0, _screenH - infoBarH), ImGuiCond_Always);
             ImGui::SetNextWindowSize(ImVec2(_screenW, infoBarH), ImGuiCond_Always);
-            
+
             ImGui::Begin("AreaTrackingGui_userGuidanceText", nullptr, infoBarWinFlags);
             ImGui::PushTextWrapPos(wrapW);
             ImGui::TextUnformatted(_infoText.c_str());
             ImGui::PopTextWrapPos();
             ImGui::End();
-            
+
             ImGui::PopStyleVar(1);
             ImGui::PopStyleColor(1);
             ImGui::PopFont();
@@ -267,6 +270,13 @@ void AreaTrackingGui::build(SLScene* s, SLSceneView* sv)
 
     //debug: draw log window
     _resources.logWinDraw();
+
+    if (_resources.developerMode && _resources.simulatorMode && _getSimHelper && _getSimHelper())
+    {
+        if (!_simHelperGui)
+            _simHelperGui = std::make_unique<SimHelperGui>(_getSimHelper(), _resources.fonts().tiny, _resources.fonts().standard, "AreaTrackingGui", _screenH);
+        _simHelperGui->render();
+    }
 }
 
 void AreaTrackingGui::showInfoText(const std::string& str)
@@ -300,4 +310,148 @@ void AreaTrackingGui::initArea(ErlebAR::Area area)
                                                  w,
                                                  h);
     }
+}
+
+void SimHelperGui::render()
+{
+    if (!_simHelper)
+        return;
+    
+    _simHelper->camera();
+    return;
+
+    float framePadding = 0.02f * _screenH;
+    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(framePadding, framePadding));
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.f);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(framePadding, framePadding));
+    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(framePadding, framePadding));
+    ImGui::PushStyleVar(ImGuiStyleVar_ScrollbarSize, 2.f * framePadding + _fontHeading->FontSize);
+
+    ImGui::PushFont(_fontHeading);
+
+    ImGui::Begin(_title.c_str());
+
+    //pop heading font
+    ImGui::PopFont();
+    ImGui::PushFont(_fontText);
+
+    ImGui::BeginChild("##scrollingRenderSimInfos", ImVec2(0, 0), false, ImGuiWindowFlags_HorizontalScrollbar);
+
+    float w    = ImGui::GetContentRegionAvailWidth();
+    //float btnW = w * 0.5f - ImGui::GetStyle().ItemSpacing.x;
+    float btnW = w;
+    //recording
+    SENSRecorder* rec = _simHelper->recorder();
+    {
+        ImGui::Text("Sensor Recording");
+
+        if (_simHelper->gps()) //if there is a valid sensor we can record
+        {
+            if (ImGui::Checkbox("gps##record", &_simHelper->recordGps))
+            {
+                _simHelper->toggleGpsRecording();
+            }
+        }
+        ImGui::SameLine();
+
+        if (_simHelper->orientation()) //if there is a valid sensor we can record
+        {
+            if (ImGui::Checkbox("orientation##record", &_simHelper->recordOrientation))
+            {
+                _simHelper->toggleOrientationRecording();
+            }
+        }
+        ImGui::SameLine();
+
+        if (_simHelper->camera()) //if there is a valid sensor we can record
+        {
+            if (ImGui::Checkbox("camera##record", &_simHelper->recordCamera))
+            {
+                _simHelper->toggleCameraRecording();
+            }
+        }
+
+        static std::string recordButtonText = "Start recording";
+        if (ImGui::Button((recordButtonText + "##RecordBtn").c_str(), ImVec2(btnW, 0)))
+        {
+            if (_simHelper->recorderIsRunning())
+            {
+                _simHelper->stopRecording();
+                recordButtonText = "Start recording";
+            }
+            else
+            {
+                if (_simHelper->startRecording())
+                    recordButtonText = "Stop recording";
+            }
+        }
+    }
+
+    //simulation (only show if recorder is not running because we cannot make changes while recording)
+    if (!_simHelper->recorderIsRunning())
+    {
+        ImGui::Separator();
+        ImGui::Text("Sensor simulation");
+        
+        if (!_simHelper->simIsRunning())
+        {
+            //first select a directory which contains the recorder output
+            if (ImGui::BeginCombo("Sim data", _selectedSimData.c_str()))
+            {
+                std::vector<std::string> simDataStrings = Utils::getDirNamesInDir(_simHelper->simDataDir(), false);
+                for (int n = 0; n < simDataStrings.size(); n++)
+                {
+                    bool isSelected = (_selectedSimData == simDataStrings[n]); // You can store your selection however you want, outside or inside your objects
+                    if (ImGui::Selectable(simDataStrings[n].c_str(), isSelected))
+                    {
+                        _selectedSimData = simDataStrings[n];
+                        //instantiate simulator with selected data. After that we know, if we can simulate a sensor
+                        _simHelper->initSimulator(_selectedSimData);
+                    }
+                    if (isSelected)
+                        ImGui::SetItemDefaultFocus(); // Set the initial focus when opening the combo (scrolling + for keyboard navigation support in the upcoming navigation branch)
+                }
+                ImGui::EndCombo();
+            }
+
+            //add checkboxes for simulated sensors if successfully loaded from sim directory
+            if (_simHelper->canSimGps())
+            {
+                ImGui::Checkbox("gps##sim", &_simHelper->simulateGps);
+                ImGui::SameLine();
+            }
+
+            if (_simHelper->canSimOrientation())
+            {
+                ImGui::Checkbox("orientation##sim", &_simHelper->simulateOrientation);
+                ImGui::SameLine();
+            }
+
+            if (_simHelper->canSimCamera())
+            {
+                ImGui::Checkbox("camera##sim", &_simHelper->simulateCamera);
+            }
+        }
+
+        static std::string simButtonText = "Start simulation";
+        if (ImGui::Button((simButtonText + "##SimBtn").c_str(), ImVec2(btnW, 0)))
+        {
+            if (_simHelper->simIsRunning())
+            {
+                _simHelper->stopSim();
+                simButtonText = "Start simulation";
+            }
+            else
+            {
+                _simHelper->startSim();
+                simButtonText = "Stop simulation";
+            }
+        }
+    }
+    
+    ImGui::EndChild();
+    ImGui::End();
+
+    ImGui::PopStyleVar(5);
+    ImGui::PopFont();
 }

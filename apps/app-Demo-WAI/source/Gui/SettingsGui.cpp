@@ -166,51 +166,74 @@ void SettingsGui::build(SLScene* s, SLSceneView* sv)
         //developer mode
         if (_resources.developerMode)
         {
-            ImGui::PushFont(_resources.fonts().heading);
-            ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textHeadingColor);
-            ImGui::Text(_resources.strings().develMode());
-            ImGui::PopStyleColor();
-            ImGui::PopFont();
-
-            ImGui::PushFont(_resources.fonts().standard);
-            ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textStandardColor);
-
-            if (ImGui::Checkbox("Enabled##DevelMode", &_resources.developerMode))
             {
-                if (!_resources.developerMode)
+                ImGui::PushFont(_resources.fonts().heading);
+                ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textHeadingColor);
+                ImGui::Text(_resources.strings().develMode());
+                ImGui::PopStyleColor();
+                ImGui::PopFont();
+
+                ImGui::PushFont(_resources.fonts().standard);
+                ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textStandardColor);
+
+                if (ImGui::Checkbox("Enabled##DevelMode", &_resources.developerMode))
                 {
-                    _hiddenNumClicks = 0;
+                    if (!_resources.developerMode)
+                    {
+                        _hiddenNumClicks = 0;
+                    }
                 }
+
+                ImGui::PopStyleColor();
+                ImGui::PopFont();
+                ImGui::Separator();
             }
 
-            ImGui::PopStyleColor();
-            ImGui::PopFont();
-            ImGui::Separator();
-
-            ImGui::PushFont(_resources.fonts().heading);
-            ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textHeadingColor);
-            ImGui::Text("Show log window");
-            ImGui::PopStyleColor();
-            ImGui::PopFont();
-
-            ImGui::PushFont(_resources.fonts().standard);
-            ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textStandardColor);
-
-            if (ImGui::Checkbox("Enabled##LogWin", &_resources.logWinEnabled))
             {
-                if (_resources.logWinEnabled)
-                {
-                    _resources.logWinInit();
-                }
-                else
-                {
-                    _resources.logWinUnInit();
-                }
-            }
+                ImGui::PushFont(_resources.fonts().heading);
+                ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textHeadingColor);
+                ImGui::Text("Show log window");
+                ImGui::PopStyleColor();
+                ImGui::PopFont();
 
-            ImGui::PopStyleColor();
-            ImGui::PopFont();
-            ImGui::Separator();           
+                ImGui::PushFont(_resources.fonts().standard);
+                ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textStandardColor);
+
+                if (ImGui::Checkbox("Enabled##LogWin", &_resources.logWinEnabled))
+                {
+                    if (_resources.logWinEnabled)
+                    {
+                        _resources.logWinInit();
+                    }
+                    else
+                    {
+                        _resources.logWinUnInit();
+                    }
+                }
+
+                ImGui::PopStyleColor();
+                ImGui::PopFont();
+                ImGui::Separator();
+            }
+            
+            {
+                ImGui::PushFont(_resources.fonts().heading);
+                ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textHeadingColor);
+                ImGui::Text("Simulator Mode");
+                ImGui::PopStyleColor();
+                ImGui::PopFont();
+
+                ImGui::PushFont(_resources.fonts().standard);
+                ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textStandardColor);
+
+                if (ImGui::Checkbox("Enabled##SimMode", &_resources.simulatorMode))
+                {
+                }
+
+                ImGui::PopStyleColor();
+                ImGui::PopFont();
+                ImGui::Separator();
+            }
         }
 
         ImGui::EndChild();

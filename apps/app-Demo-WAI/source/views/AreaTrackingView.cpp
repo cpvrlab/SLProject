@@ -21,15 +21,15 @@ AreaTrackingView::AreaTrackingView(sm::EventHandler&   eventHandler,
          deviceData.scrWidth(),
          deviceData.scrHeight(),
          std::bind(&AppWAIScene::adjustAugmentationTransparency, &_scene, std::placeholders::_1),
-         deviceData.erlebARDir()),
+         deviceData.erlebARDir(),
+         std::bind(&AreaTrackingView::getSimHelper, this)),
     _scene("AreaTrackingScene", deviceData.dataDir(), deviceData.erlebARDir()),
     _userGuidanceScene(deviceData.dataDir()),
     _camera(camera),
     _gps(gps),
     _orientation(orientation),
-    _vocabularyDir(deviceData.vocabularyDir()),
-    _erlebARDir(deviceData.erlebARDir()),
     _resources(resources),
+    _deviceData(deviceData),
     _userGuidance(&_userGuidanceScene, &_gui, gps, orientation, resources)
 {
     scene(&_userGuidanceScene);
@@ -51,6 +51,100 @@ AreaTrackingView::~AreaTrackingView()
 
     if (_asyncLoader)
         delete _asyncLoader;
+
+    if (_simHelper)
+        delete _simHelper;
+}
+
+void AreaTrackingView::onCameraParamsChanged()
+{
+    if(!_waiSlam)
+    {
+        ErlebAR::Location& location = _locations[_locId];
+        ErlebAR::Area&     area     = location.areas[_areaId];
+        //load model into scene graph
+        _scene.rebuild(location.name, area.name);
+
+        updateSceneCameraFov();
+
+        //initialize extractors
+        _initializationExtractor = _featureExtractorFactory.make(area.initializationExtractorType, area.cameraFrameTargetSize, area.nExtractorLevels);
+        _trackingExtractor       = _featureExtractorFactory.make(area.trackingExtractorType, area.cameraFrameTargetSize, area.nExtractorLevels);
+        _relocalizationExtractor = _featureExtractorFactory.make(area.relocalizationExtractorType, area.cameraFrameTargetSize, area.nExtractorLevels);
+
+        if (_trackingExtractor->doubleBufferedOutput())
+            _imgBuffer.init(2, area.cameraFrameTargetSize);
+        else
+            _imgBuffer.init(1, area.cameraFrameTargetSize);
+
+    #ifdef LOAD_ASYNC
+        std::string fileName = _deviceData.vocabularyDir() + _vocabularyFileName;
+
+        //delete managed object
+        if (_asyncLoader)
+            delete _asyncLoader;
+
+        _asyncLoader = new MapLoader(_voc, fileName, _deviceData.erlebARDir(), area.slamMapFileName);
+        _asyncLoader->start();
+        _userGuidance.dataIsLoading(true);
+
+    #else
+        //load vocabulary
+        std::string fileName = _vocabularyDir + _vocabularyFileName;
+        if (Utils::fileExists(fileName))
+        {
+            Utils::log("AreaTrackingView", "loading voc file from: %s", fileName.c_str());
+            _voc = new WAIOrbVocabulary();
+            _voc->loadFromFile(fileName);
+        }
+
+        //try to load map
+        HighResTimer            t;
+        cv::Mat                 mapNodeOm;
+        std::unique_ptr<WAIMap> waiMap = tryLoadMap(_erlebARDir, area.slamMapFileName, _voc, mapNodeOm);
+        Utils::log("LoadingTime", "map loading time: %f ms", t.elapsedTimeInMilliSec());
+
+        if (!mapNodeOm.empty())
+        {
+            SLMat4f slOm = WAIMapStorage::convertToSLMat(mapNodeOm);
+            //std::cout << "slOm: " << slOm.toString() << std::endl;
+            _scene.mapNode->om(slOm);
+        }
+
+        cv::Mat scaledCamMat = SENS::adaptCameraMat(_camera->calibration()->cameraMat(),
+                                                    _camera->config().manipWidth,
+                                                    _camera->config().targetWidth);
+
+        WAISlam::Params params;
+        params.cullRedundantPerc   = 0.95f;
+        params.ensureKFIntegration = false;
+        params.fixOldKfs           = true;
+        params.onlyTracking        = false;
+        params.retainImg           = false;
+        params.serial              = false;
+        params.trackOptFlow        = false;
+
+        _waiSlam = std::make_unique<WAISlam>(
+          scaledCamMat,
+          _camera->calibration()->distortion(),
+          _voc,
+          _initializationExtractor.get(),
+          _relocalizationExtractor.get(),
+          _trackingExtractor.get(),
+          std::move(waiMap),
+          params);
+    #endif
+    }
+    else
+    {
+        auto    calib        = _camera->calibration();
+        cv::Mat scaledCamMat = SENS::adaptCameraMat(_camera->calibration()->cameraMat(),
+                                                    _camera->config().manipWidth,
+                                                    _camera->config().targetWidth);
+
+        _waiSlam->changeIntrinsic(scaledCamMat, calib->distortion());
+        updateSceneCameraFov();
+    }
 }
 
 bool AreaTrackingView::update()
@@ -63,7 +157,7 @@ bool AreaTrackingView::update()
             frame = _camera->latestFrame();
 
         bool isTracking = false;
-        
+
         if (frame && _waiSlam)
         {
             //the intrinsics may change dynamically on focus changes (e.g. on iOS)
@@ -87,10 +181,10 @@ bool AreaTrackingView::update()
         {
             initSlam();
         }
-        
+
         //switch between userguidance scene and tracking scene depending on tracking state
         VideoBackgroundCamera* currentCamera;
-        if(isTracking)
+        if (isTracking)
         {
             this->scene(&_scene);
             this->camera(_scene.camera);
@@ -102,14 +196,14 @@ bool AreaTrackingView::update()
             this->camera(_userGuidanceScene.camera);
             currentCamera = _userGuidanceScene.camera;
         }
-        
+
         //update visualization
         if (frame)
         {
             //decorate video image and update scene
-            if(_waiSlam)
+            if (_waiSlam)
                 updateTrackingVisualization(isTracking, *frame.get());
-            
+
             //set video image camera background
             updateVideoImage(*frame.get(), currentCamera);
         }
@@ -125,7 +219,7 @@ bool AreaTrackingView::update()
     {
         _gui.showErrorMsg("AreaTrackingView update: unknown exception catched!");
     }
-    
+
     //render call
     return onPaint();
 }
@@ -321,13 +415,13 @@ void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaI
         _imgBuffer.init(1, area.cameraFrameTargetSize);
 
 #ifdef LOAD_ASYNC
-    std::string fileName = _vocabularyDir + _vocabularyFileName;
+    std::string fileName = _deviceData.vocabularyDir() + _vocabularyFileName;
 
     //delete managed object
     if (_asyncLoader)
         delete _asyncLoader;
 
-    _asyncLoader = new MapLoader(_voc, fileName, _erlebARDir, area.slamMapFileName);
+    _asyncLoader = new MapLoader(_voc, fileName, _deviceData.erlebARDir(), area.slamMapFileName);
     _asyncLoader->start();
     _userGuidance.dataIsLoading(true);
 
@@ -487,7 +581,7 @@ void AreaTrackingView::updateVideoImage(SENSFrame& frame, VideoBackgroundCamera*
 
     //update the current scene
     videoBackground->updateVideoImage(_imgBuffer.outputSlot());
-    
+
     _imgBuffer.incrementSlot();
 }
 

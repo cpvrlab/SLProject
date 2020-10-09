@@ -49,7 +49,8 @@ protected:
 
     //!Transfer callbacks to SENSSimulator during construction. The SENSSimulator is informed by
     //!these if the SENSSimulated state changes (start, stop). We use callbacks to avoid circular dependencies.
-    SENSSimulated(StartSimCB                              startSimCB,
+    SENSSimulated(const std::string                       name,
+                  StartSimCB                              startSimCB,
                   SensorSimStoppedCB                      sensorSimStoppedCB,
                   std::vector<std::pair<SENSTimePt, T>>&& data,
                   const SENSSimClock&                     clock);
@@ -59,11 +60,7 @@ protected:
     //!stop the sensor simulation thread
     void stopSim();
 
-    //!called by SENSSimulator to set the common simulation start time
-    //void setCommonSimStartTimePt(const SENSTimePt& commonSimStartTimePt) override;
-    //!get the first time point in simulation sensor data
-    //const SENSTimePt& firstTimePt() override;
-    bool              isThreadRunning() const override { return _threadIsRunning; }
+    bool isThreadRunning() const override { return _threadIsRunning; }
 
     //!feed new sensor data to sensor
     virtual void feedSensorData(const int counter) = 0;
@@ -73,7 +70,7 @@ protected:
 
 private:
     //!thread run routine to feed sensor with data.
-    void feedSensor(/*const SENSTimePt startTimePt, const SENSTimePt simStartTimePt*/);
+    void feedSensor();
 
 protected:
     std::vector<std::pair<SENSTimePt, T>> _data;
@@ -92,6 +89,8 @@ protected:
     bool _threadIsRunning = false;
 
     const SENSSimClock& _clock;
+
+    std::string _name;
 };
 
 //-----------------------------------------------------------------------------

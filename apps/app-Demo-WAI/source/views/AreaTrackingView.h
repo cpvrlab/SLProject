@@ -23,10 +23,10 @@
 #include <SLLightSpot.h>
 #include <SLArrow.h>
 #include <SLCoordAxis.h>
+#include <sens/SENSSimHelper.h>
 
 class SENSCamera;
 class MapLoader;
-
 
 class AreaTrackingView : public SLSceneView
 {
@@ -46,21 +46,50 @@ public:
     void onShow()
     {
         _gui.onShow();
-        if(_gps)
+        if (_gps)
             _gps->start();
-        if(_orientation)
+        if (_orientation)
             _orientation->start();
+
+        if (_resources.developerMode && _resources.simulatorMode)
+        {
+            if(_simHelper)
+                delete _simHelper;
+            _simHelper = new SENSSimHelper(_gps,
+                                            _orientation,
+                                            _camera,
+                                            _deviceData.writableDir() + "SENSSimData",
+                                           std::bind(&AreaTrackingView::onCameraParamsChanged, this));
+            /*
+            if(_simHelper)
+                _simHelper.reset();
+            _simHelper = std::make_unique<SENSSimHelper>(_gps,
+                                                         _orientation,
+                                                         _camera,
+                                                         _deviceData.writableDir() + "SENSSimData",
+                                                         std::bind(&AreaTrackingView::onCameraParamsChanged, this));
+             */
+        }
     }
 
     void onHide()
     {
         //reset user guidance and run it once
         _userGuidance.reset();
-        
-        if(_gps)
+
+        if (_gps)
             _gps->stop();
-        if(_orientation)
+        if (_orientation)
             _orientation->stop();
+        if (_camera)
+            _camera->stop();
+
+        if (_simHelper)
+        {
+            delete _simHelper;
+            _simHelper = nullptr;
+        }
+            //_simHelper.reset();
     }
 
     void initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaId);
@@ -73,6 +102,8 @@ public:
                                               WAIOrbVocabulary*  voc,
                                               cv::Mat&           mapNodeOm);
 
+    SENSSimHelper* getSimHelper() { /*return _simHelper.get();*/ return _simHelper; }
+
 private:
     virtual SLbool onMouseDown(SLMouseButton button, SLint scrX, SLint scrY, SLKey mod);
     virtual SLbool onMouseMove(SLint x, SLint y);
@@ -82,6 +113,7 @@ private:
     void updateTrackingVisualization(const bool iKnowWhereIAm, SENSFrame& frame);
     void initSlam();
     bool startCamera(const cv::Size& cameraFrameTargetSize);
+    void onCameraParamsChanged();
 
     AreaTrackingGui   _gui;
     AppWAIScene       _scene;
@@ -109,20 +141,22 @@ private:
 
     std::string _vocabularyFileName = "ORBvoc.bin";
 #endif
-    std::string _vocabularyDir;
-    std::string _erlebARDir;
     std::string _mapFileName;
 
     //size with which camera was started last time (needed for a resume call)
-    cv::Size _cameraFrameResumeSize;
+    cv::Size     _cameraFrameResumeSize;
     UserGuidance _userGuidance;
 
     MapLoader* _asyncLoader = nullptr;
 
     ErlebAR::Resources& _resources;
+    const DeviceData&   _deviceData;
 
     ErlebAR::LocationId _locId  = ErlebAR::LocationId::NONE;
     ErlebAR::AreaId     _areaId = ErlebAR::AreaId::NONE;
+
+    //std::unique_ptr<SENSSimHelper> _simHelper;
+    SENSSimHelper* _simHelper = nullptr;
 };
 
 //! Async loader for vocabulary and maps

@@ -38,8 +38,11 @@ const SENSCameraConfig& SENSWebCamera::start(std::string                   devic
         targetSize.height = streamConfig.heightPix;
     }
 
-    cv::Size imgManipSize(imgManipWidth,
-                          (int)((float)imgManipWidth * (float)targetSize.height / (float)targetSize.width));
+    cv::Size imgManipSize;
+    if (_config.manipWidth > 0 && _config.manipHeight > 0)
+        imgManipSize = {imgManipWidth, (int)((float)imgManipWidth * (float)targetSize.height / (float)targetSize.width)};
+    else
+        imgManipSize = targetSize;
 
     //retrieve all camera characteristics
     if (_captureProperties.size() == 0)
@@ -109,11 +112,20 @@ void SENSWebCamera::grab()
         if (_videoCapture.read(bgrImg))
         {
             //todo: move to base class
+            //inform listeners
             {
-                SENSTimePt timePt = SENSClock::now();
-                std::lock_guard<std::mutex> lock(_listenerMutex);
-                for(SENSCameraListener* l : _listeners)
-                    l->onFrame(timePt, bgrImg.clone());
+                std::unique_lock<std::mutex> lock(_listenerMutex);
+                if(_listeners.size())
+                {
+                    lock.unlock();
+                    SENSTimePt timePt = SENSClock::now();
+                    cv::Mat bgrImg;
+                    lock.lock();
+                    //if the video writer is slower than the video feed, we have to react, otherwise there
+                    //will be a buffer overflow
+                    for (SENSCameraListener *l : _listeners)
+                        l->onFrame(timePt, bgrImg.clone());
+                }
             }
             
             SENSFramePtr sensFrame = postProcessNewFrame(bgrImg, cv::Mat(), false);

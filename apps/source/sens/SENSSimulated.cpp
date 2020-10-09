@@ -2,11 +2,13 @@
 
 //-----------------------------------------------------------------------------
 template<typename T>
-SENSSimulated<T>::SENSSimulated(StartSimCB                              startSimCB,
+SENSSimulated<T>::SENSSimulated(const std::string                       name,
+                                StartSimCB                              startSimCB,
                                 SensorSimStoppedCB                      sensorSimStoppedCB,
                                 std::vector<std::pair<SENSTimePt, T>>&& data,
                                 const SENSSimClock&                     clock)
-  : _startSimCB(startSimCB),
+  : _name(name),
+    _startSimCB(startSimCB),
     _sensorSimStoppedCB(sensorSimStoppedCB),
     _data(data),
     _clock(clock)
@@ -48,7 +50,7 @@ void SENSSimulated<T>::feedSensor(/*const SENSTimePt startTimePt, const SENSTime
     //auto       passedSimTime = std::chrono::duration_cast<SENSMicroseconds>((SENSTimePt)SENSClock::now() - startTimePt);
     //SENSTimePt simTime       = simStartTimePt + passedSimTime;
     SENSTimePt simTime = _clock.now();
-    
+
     //bring counter close to startTimePt (maybe we skip some values to synchronize simulated sensors)
     while (counter < _data.size() && _data[counter].first < simTime)
         counter++;
@@ -64,8 +66,6 @@ void SENSSimulated<T>::feedSensor(/*const SENSTimePt startTimePt, const SENSTime
     while (true)
     {
         //estimate current sim time
-        //auto       passedSimTime = std::chrono::duration_cast<SENSMicroseconds>((SENSTimePt)SENSClock::now() - startTimePt);
-        //SENSTimePt simTime       = simStartTimePt + passedSimTime;
         SENSTimePt simTime = _clock.now();
 
         //process late values
@@ -73,12 +73,10 @@ void SENSSimulated<T>::feedSensor(/*const SENSTimePt startTimePt, const SENSTime
         while (counter < _data.size() && _data[counter].first < simTime)
         {
             //SENS_DEBUG("feed sensor index %d with latency: %d us, SimT: %d, ValueT: %d", counter, std::chrono::duration_cast<SENSMicroseconds>(_data[counter].first - simTime).count(), std::chrono::time_point_cast<SENSMicroseconds>(simTime).time_since_epoch().count(), std::chrono::time_point_cast<SENSMicroseconds>(_data[counter].first).time_since_epoch().count());
-            SENS_DEBUG("feed sensor index %d with latency: %d us", counter, std::chrono::duration_cast<SENSMicroseconds>(_data[counter].first - simTime).count());
+            //SENS_DEBUG("feed %s sensor index %d with latency: %d us", _name.c_str(), counter, std::chrono::duration_cast<SENSMicroseconds>(_data[counter].first - simTime).count());
             feedSensorData(counter);
 
             //setting the location maybe took some time, so we update simulation time
-            //passedSimTime = std::chrono::duration_cast<SENSMicroseconds>((SENSTimePt)SENSClock::now() - startTimePt);
-            //simTime       = simStartTimePt + passedSimTime;
             simTime = _clock.now();
             counter++;
             //i++;
@@ -96,7 +94,7 @@ void SENSSimulated<T>::feedSensor(/*const SENSTimePt startTimePt, const SENSTime
         //passedSimTime = std::chrono::duration_cast<SENSMicroseconds>((SENSTimePt)SENSClock::now() - startTimePt);
         //simTime       = simStartTimePt + passedSimTime;
         simTime = _clock.now();
-        
+
         //locationsCounter should now point to a value in the simulation future so lets wait
         const SENSTimePt& valueTime = _data[counter].first;
 
@@ -156,7 +154,7 @@ SENSSimulatedGps::SENSSimulatedGps(StartSimCB                                   
                                    SensorSimStoppedCB                                      sensorSimStoppedCB,
                                    std::vector<std::pair<SENSTimePt, SENSGps::Location>>&& data,
                                    const SENSSimClock&                                     clock)
-  : SENSSimulated(startSimCB, sensorSimStoppedCB, std::move(data), clock)
+  : SENSSimulated("gps", startSimCB, sensorSimStoppedCB, std::move(data), clock)
 {
     _permissionGranted = true;
 }
@@ -196,7 +194,7 @@ SENSSimulatedOrientation::SENSSimulatedOrientation(StartSimCB                   
                                                    SensorSimStoppedCB                                          sensorSimStoppedCB,
                                                    std::vector<std::pair<SENSTimePt, SENSOrientation::Quat>>&& data,
                                                    const SENSSimClock&                                         clock)
-  : SENSSimulated(startSimCB, sensorSimStoppedCB, std::move(data), clock)
+  : SENSSimulated("orientation", startSimCB, sensorSimStoppedCB, std::move(data), clock)
 {
 }
 
@@ -239,8 +237,11 @@ const SENSCameraConfig& SENSSimulatedCamera::start(std::string                  
         targetSize.height = streamConfig.heightPix;
     }
 
-    cv::Size imgManipSize(imgManipWidth,
-                          (int)((float)imgManipWidth * (float)targetSize.height / (float)targetSize.width));
+    cv::Size imgManipSize;
+    if (imgManipWidth > 0)
+        imgManipSize = {imgManipWidth, (int)((float)imgManipWidth * (float)targetSize.height / (float)targetSize.width)};
+    else
+        imgManipSize = targetSize;
 
     if (!_cap.isOpened())
     {
@@ -337,7 +338,7 @@ SENSSimulatedCamera::SENSSimulatedCamera(StartSimCB                             
                                          std::vector<std::pair<SENSTimePt, int>>&& data,
                                          std::string                               videoFileName,
                                          const SENSSimClock&                       clock)
-  : SENSSimulated(startSimCB, sensorSimStoppedCB, std::move(data), clock),
+  : SENSSimulated("camera", startSimCB, sensorSimStoppedCB, std::move(data), clock),
     _videoFileName(videoFileName)
 {
     _permissionGranted = true;
@@ -345,9 +346,21 @@ SENSSimulatedCamera::SENSSimulatedCamera(StartSimCB                             
 
 void SENSSimulatedCamera::feedSensorData(const int counter)
 {
+    //prepare if not yet prepared (e.g. when while loop writes multiple lines)
     if (_data[counter].second != _preparedFrameIndex)
     {
         prepareSensorData(counter);
+    }
+    
+    //todo: move to base class
+    {
+        std::lock_guard<std::mutex> lock(_listenerMutex);
+        if(_listeners.size())
+        {
+            SENSTimePt timePt = SENSClock::now();
+            for(SENSCameraListener* l : _listeners)
+                l->onFrame(timePt, _preparedFrame.clone());
+        }
     }
 
     {

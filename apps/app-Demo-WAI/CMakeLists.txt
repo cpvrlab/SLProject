@@ -23,6 +23,7 @@ set(erlebar_headers
 	${SL_PROJECT_ROOT}/apps/source/sens/SENSSimulator.h
 	${SL_PROJECT_ROOT}/apps/source/sens/SENSSimulated.h
 	${SL_PROJECT_ROOT}/apps/source/sens/SENSSimClock.h
+	${SL_PROJECT_ROOT}/apps/source/sens/SENSSimHelper.h
 	${SL_PROJECT_ROOT}/apps/source/sm/Event.h
 	${SL_PROJECT_ROOT}/apps/source/sm/EventData.h
 	${SL_PROJECT_ROOT}/apps/source/sm/EventHandler.h
@@ -116,6 +117,7 @@ set(erlebar_sources
 	${SL_PROJECT_ROOT}/apps/source/sens/SENSRecorderDataHandler.cpp
 	${SL_PROJECT_ROOT}/apps/source/sens/SENSSimulator.cpp
 	${SL_PROJECT_ROOT}/apps/source/sens/SENSSimulated.cpp
+	${SL_PROJECT_ROOT}/apps/source/sens/SENSSimHelper.cpp
 	${SL_PROJECT_ROOT}/apps/source/sm/StateMachine.cpp
 	
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/AppDemoWaiGui.cpp

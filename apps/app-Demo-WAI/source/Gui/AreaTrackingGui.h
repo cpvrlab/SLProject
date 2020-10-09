@@ -10,6 +10,7 @@
 
 class SLScene;
 class SLSceneView;
+class SENSSimHelper;
 struct ImFont;
 
 class OpacityController
@@ -56,18 +57,43 @@ private:
     bool _manualSwitchOff = false;
 };
 
+class SimHelperGui
+{
+public:
+    SimHelperGui(SENSSimHelper* simHelper, ImFont* fontText, ImFont* fontHeading, const char* title, float screenH)
+      : _simHelper(simHelper),
+        _fontText(fontText),
+        _fontHeading(fontHeading),
+        _title("Simulation##" + std::string(title)),
+        _screenH(screenH)
+    {
+    }
+
+    void render();
+
+private:
+    SENSSimHelper* _simHelper   = nullptr;
+    ImFont*        _fontText    = nullptr;
+    ImFont*        _fontHeading = nullptr;
+    std::string    _title;
+    float          _screenH = 0.f;
+
+    std::string _selectedSimData;
+};
+
 class AreaTrackingGui : public ImGuiWrapper
   , private sm::EventSender
 {
 public:
-    AreaTrackingGui(const ImGuiEngine&         imGuiEngine,
-                    sm::EventHandler&          eventHandler,
-                    ErlebAR::Resources&        resources,
-                    int                        dotsPerInch,
-                    int                        screenWidthPix,
-                    int                        screenHeightPix,
-                    std::function<void(float)> transparencyChangedCB,
-                    std::string                erlebARDir);
+    AreaTrackingGui(const ImGuiEngine&                  imGuiEngine,
+                    sm::EventHandler&                   eventHandler,
+                    ErlebAR::Resources&                 resources,
+                    int                                 dotsPerInch,
+                    int                                 screenWidthPix,
+                    int                                 screenHeightPix,
+                    std::function<void(float)>          transparencyChangedCB,
+                    std::string                         erlebARDir,
+                    std::function<SENSSimHelper*(void)> getSimHelperCB);
     ~AreaTrackingGui();
 
     void build(SLScene* s, SLSceneView* sv) override;
@@ -83,12 +109,13 @@ public:
 
     void showErrorMsg(const std::string& msg) { _errorMsg = msg; }
 
-    void mouseDown(bool doNotDispatch);
-    void mouseMove(bool doNotDispatch);
+    void  mouseDown(bool doNotDispatch);
+    void  mouseMove(bool doNotDispatch);
     float opacity() const { return _opacityController.opacity(); }
-    
+
 private:
     void resize(int scrW, int scrH);
+    void renderSimInfos(SENSSimHelper* simHelper, ImFont* fontText, ImFont* fontHeading, const char* title);
 
     float _screenW;
     float _screenH;
@@ -100,11 +127,11 @@ private:
     float _textWrapW;
     //float _windowPaddingContent;
     //float _itemSpacingContent;
-    std::string                _erlebARDir;
-    float                      _sliderValue = 0.f;
-    ErlebAR::Area              _area;
-    std::function<void(float)> _transparencyChangedCB;
-
+    std::string                         _erlebARDir;
+    float                               _sliderValue = 0.f;
+    ErlebAR::Area                       _area;
+    std::function<void(float)>          _transparencyChangedCB;
+    std::function<SENSSimHelper*(void)> _getSimHelper;
     //indicates that area information is loading
     bool        _isLoading = false;
     std::string _errorMsg;
@@ -116,7 +143,9 @@ private:
     std::string _infoText;
     GLuint      _areaAlignTexture         = 0;
     float       _areaAlighTextureBlending = 1.0f;
-    bool        _showAlignImage = false;
+    bool        _showAlignImage           = false;
+
+    std::unique_ptr<SimHelperGui> _simHelperGui;
 };
 
 #endif //AREA_TRACKING_GUI_H
