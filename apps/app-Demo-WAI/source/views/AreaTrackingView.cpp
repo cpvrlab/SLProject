@@ -30,7 +30,7 @@ AreaTrackingView::AreaTrackingView(sm::EventHandler&   eventHandler,
     _orientation(orientation),
     _resources(resources),
     _deviceData(deviceData),
-    _userGuidance(&_userGuidanceScene, &_gui, gps, orientation, resources)
+    _userGuidance(&_userGuidanceScene, &_gui, _gps, _orientation, resources)
 {
     scene(&_userGuidanceScene);
     init("AreaTrackingView", deviceData.scrWidth(), deviceData.scrHeight(), nullptr, nullptr, &_gui, deviceData.writableDir());

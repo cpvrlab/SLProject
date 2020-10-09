@@ -70,6 +70,10 @@ public:
 
     void render(SENSSimHelper* simHelper);
 
+    void reset()
+    {
+        _selectedSimData.clear();
+    }
 private:
     ImFont*        _fontText    = nullptr;
     ImFont*        _fontHeading = nullptr;

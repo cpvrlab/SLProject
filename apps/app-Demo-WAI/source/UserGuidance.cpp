@@ -5,11 +5,10 @@
 //#define LOG_UG_DEBUG(...) Utils::log("ErlebARApp-UserGuidance", __VA_ARGS__);
 #define LOG_UG_DEBUG
 
-UserGuidance::UserGuidance(UserGuidanceScene* userGuidanceScene,
-                           AreaTrackingGui*   gui,
-                           SENSGps*           gps,
-                           SENSOrientation*
-                                               orientation,
+UserGuidance::UserGuidance(UserGuidanceScene*  userGuidanceScene,
+                           AreaTrackingGui*    gui,
+                           SENSGps*&           gps,
+                           SENSOrientation*&   orientation,
                            ErlebAR::Resources& resources)
   : _userGuidanceScene(userGuidanceScene),
     _gui(gui),

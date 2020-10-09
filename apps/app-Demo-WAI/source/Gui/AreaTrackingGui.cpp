@@ -34,6 +34,8 @@ void AreaTrackingGui::onShow()
 {
     _panScroll.enable();
     _opacityController.reset();
+    if(_simHelperGui)
+        _simHelperGui->reset();
 }
 
 void AreaTrackingGui::onResize(SLint scrW, SLint scrH, SLfloat scr2fbX, SLfloat scr2fbY)
@@ -271,7 +273,7 @@ void AreaTrackingGui::build(SLScene* s, SLSceneView* sv)
     //debug: draw log window
     _resources.logWinDraw();
 
-    if (_resources.developerMode && _resources.simulatorMode && _getSimHelper )
+    if (_resources.developerMode && _resources.simulatorMode && _getSimHelper)
     {
         if (!_simHelperGui)
             _simHelperGui = std::make_unique<SimHelperGui>(_resources.fonts().tiny, _resources.fonts().standard, "AreaTrackingGui", _screenH);
@@ -315,8 +317,11 @@ void AreaTrackingGui::initArea(ErlebAR::Area area)
 void SimHelperGui::render(SENSSimHelper* simHelper)
 {
     if (!simHelper)
+    {
+        reset();
         return;
-    
+    }
+
     float framePadding = 0.02f * _screenH;
     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(framePadding, framePadding));
     ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.f);
@@ -334,7 +339,7 @@ void SimHelperGui::render(SENSSimHelper* simHelper)
 
     ImGui::BeginChild("##scrollingRenderSimInfos", ImVec2(0, 0), false, ImGuiWindowFlags_HorizontalScrollbar);
 
-    float w    = ImGui::GetContentRegionAvailWidth();
+    float w = ImGui::GetContentRegionAvailWidth();
     //float btnW = w * 0.5f - ImGui::GetStyle().ItemSpacing.x;
     float btnW = w;
     //recording
@@ -368,19 +373,15 @@ void SimHelperGui::render(SENSSimHelper* simHelper)
             }
         }
 
-        static std::string recordButtonText = "Start recording";
-        if (ImGui::Button((recordButtonText + "##RecordBtn").c_str(), ImVec2(btnW, 0)))
+        if (simHelper->recorderIsRunning())
         {
-            if (simHelper->recorderIsRunning())
-            {
+            if (ImGui::Button("Stop recording##RecordBtn", ImVec2(btnW, 0)))
                 simHelper->stopRecording();
-                recordButtonText = "Start recording";
-            }
-            else
-            {
-                if (simHelper->startRecording())
-                    recordButtonText = "Stop recording";
-            }
+        }
+        else
+        {
+            if (ImGui::Button("Start recording##RecordBtn", ImVec2(btnW, 0)))
+                simHelper->startRecording();
         }
     }
 
@@ -389,7 +390,7 @@ void SimHelperGui::render(SENSSimHelper* simHelper)
     {
         ImGui::Separator();
         ImGui::Text("Sensor simulation");
-        
+
         if (!simHelper->simIsRunning())
         {
             //first select a directory which contains the recorder output
@@ -428,24 +429,17 @@ void SimHelperGui::render(SENSSimHelper* simHelper)
             {
                 ImGui::Checkbox("camera##sim", &simHelper->simulateCamera);
             }
-        }
 
-        static std::string simButtonText = "Start simulation";
-        if (ImGui::Button((simButtonText + "##SimBtn").c_str(), ImVec2(btnW, 0)))
-        {
-            if (simHelper->simIsRunning())
-            {
-                simHelper->stopSim();
-                simButtonText = "Start simulation";
-            }
-            else
-            {
+            if (ImGui::Button("Start simulation##SimBtn", ImVec2(btnW, 0)))
                 simHelper->startSim();
-                simButtonText = "Stop simulation";
-            }
+        }
+        else
+        {
+            if (ImGui::Button("Stop simulation##SimBtn", ImVec2(btnW, 0)))
+                simHelper->stopSim();
         }
     }
-    
+
     ImGui::EndChild();
     ImGui::End();
 

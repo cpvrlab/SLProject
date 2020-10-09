@@ -523,99 +523,11 @@ void closeAppCallback()
     appShouldClose = true;
 }
 //-----------------------------------------------------------------------------
-//test
-
-class TestBase
-{
-public:
-    virtual ~TestBase() { }
-    virtual void me() = 0;
-};
-
-class TestA : public TestBase
-{
-public:
-    void me() override
-    {
-        std::cout << "TestA" << std::endl;
-    }
-};
-
-class TestB : public TestBase
-{
-public:
-    void me() override
-    {
-        std::cout << "TestB" << std::endl;
-    }
-};
-
-TestBase* testA = nullptr;
-TestBase* testB = nullptr;
-
-void bendAround(TestBase*& testPtr)
-{
-    TestBase* local = testPtr;
-    if(testPtr)
-        testPtr->me();
-    testPtr = testB;
-    if(testPtr)
-        testPtr->me();
-    local->me();
-    testPtr = local;
-}
-
-void bendAroundPtr(TestBase** testPtr)
-{
-    TestBase* local = *testPtr;
-    if(*testPtr)
-        (*testPtr)->me();
-    testPtr = &testB;
-    if(*testPtr)
-        (*testPtr)->me();
-    local->me();
-    testPtr = &local;
-}
-
-std::shared_ptr<TestA> testAShrd;
-std::shared_ptr<TestB> testBShrd;
-
-void bendAround(std::shared_ptr<TestBase>& testPtr)
-{
-    testPtr->me();
-    testPtr = testBShrd;
-    testPtr->me();
-}
-
-//-----------------------------------------------------------------------------
 /*!
 The C main procedure running the GLFW GUI application.
 */
 int main(int argc, char* argv[])
 {
-    /*
-    testAShrd = std::make_shared<TestA>();
-    testBShrd = std::make_shared<TestB>();
-    
-    std::shared_ptr<TestBase> testPtr = testAShrd;
-    std::shared_ptr<TestBase> testPtr2 = testPtr;
-    testPtr->me();
-    bendAround(testPtr);
-    testPtr->me();
-    testPtr2->me();
-     */
-
-    testA = new TestA;
-    TestBase* testPtr = testA;
-    testPtr->me();
-    //TestBase** testBase = &testPtr;
-    //(*testBase)->me();
-    bendAround(testPtr);
-    //(*testBase)->me();
-    testPtr->me();
-    
-    bendAroundPtr(&testPtr);
-
     GLFWInit();
 
     bool simulateSensors = false;

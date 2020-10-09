@@ -45,8 +45,8 @@ class UserGuidance
 public:
     UserGuidance(UserGuidanceScene*  userGuidanceScene,
                  AreaTrackingGui*    gui,
-                 SENSGps*            gps,
-                 SENSOrientation*    orientation,
+                 SENSGps*&           gps,
+                 SENSOrientation*&   orientation,
                  ErlebAR::Resources& resources);
 
     //reset user guidance to state idle
@@ -76,8 +76,8 @@ private:
     void estimateEcefToEnuRotation();
     void estimateArrowOrientation();
     
-    SENSGps* _gps = nullptr;
-    SENSOrientation* _orientation = nullptr;
+    SENSGps*& _gps;
+    SENSOrientation*& _orientation;
     //interface to update orientation of direction arrow
     UserGuidanceScene* _userGuidanceScene = nullptr;
     AreaTrackingGui* _gui = nullptr;
