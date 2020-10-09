@@ -12,228 +12,26 @@ public:
                   SENSOrientation*&         orientation,
                   SENSCamera*&              camera,
                   const std::string&        simDataDir,
-                  std::function<void(void)> cameraParametersChangedCB)
-      : _gpsIn(gps),
-        _orientationIn(orientation),
-        _cameraIn(camera),
-        _gpsRef(gps),
-        _orientationRef(orientation),
-        _cameraRef(camera),
-        _simDataDir(Utils::unifySlashes(simDataDir)),
-        _cameraParametersChangedCB(cameraParametersChangedCB)
-    {
-    }
+                  std::function<void(void)> cameraParametersChangedCB);
+    ~SENSSimHelper();
 
-    ~SENSSimHelper()
-    {
-        resetRecorder();
+    bool startRecording();
+    void stopRecording();
+    void toggleGpsRecording();
+    void toggleOrientationRecording();
+    void toggleCameraRecording();
+    bool recorderIsRunning();
+    void resetRecorder();
 
-        //restore input sensors and state
-        if (_gpsRef != _gpsIn)
-        {
-            if (_gpsRef && _gpsRef->isRunning())
-                _gpsRef->stop();
-            _gpsRef = _gpsIn;
-        }
+    bool canSimGps();
+    bool canSimOrientation();
+    bool canSimCamera();
 
-        if (_orientationRef != _orientationIn)
-        {
-            if (_orientationRef && _orientationRef->isRunning())
-                _orientationRef->stop();
-            _orientationRef = _orientationIn;
-        }
+    void initSimulator(const std::string& simDataSet);
+    bool simIsRunning();
 
-        if (_cameraRef != _cameraIn)
-        {
-            if (_cameraRef && _cameraRef->started())
-                _cameraRef->stop();
-            _cameraRef = _cameraIn;
-        }
-    }
-
-    bool startRecording()
-    {
-        if (!_recorder)
-            return false;
-
-        //sensors should have been activated before
-        return _recorder->start();
-    }
-
-    void stopRecording()
-    {
-        if (_recorder)
-            _recorder->stop();
-    }
-
-    void toggleGpsRecording()
-    {
-        if (recordGps)
-        {
-            if (!recorder()->activateGps(_gpsRef))
-                recordGps = !recordGps;
-        }
-        else
-        {
-            if (!recorder()->deactivateGps())
-                recordGps = !recordGps;
-        }
-    }
-
-    void toggleOrientationRecording()
-    {
-        if (recordOrientation)
-        {
-            if (!recorder()->activateOrientation(_orientationRef))
-                recordOrientation = !recordOrientation;
-        }
-        else
-        {
-            if (!recorder()->deactivateOrientation())
-                recordOrientation = !recordOrientation;
-        }
-    }
-
-    void toggleCameraRecording()
-    {
-        if (recordCamera)
-        {
-            if (!recorder()->activateCamera(_cameraRef))
-                recordCamera = !recordCamera;
-        }
-        else
-        {
-            if (!recorder()->deactivateOrientation())
-                recordCamera = !recordCamera;
-        }
-    }
-
-    SENSRecorder* recorder()
-    {
-        if (!_recorder)
-            _recorder = std::make_unique<SENSRecorder>(_simDataDir);
-        return _recorder.get();
-    }
-
-    bool recorderIsRunning()
-    {
-        if(_recorder)
-            return _recorder->isRunning();
-        else
-            return false;
-    }
-    
-    void resetRecorder()
-    {
-        if (_recorder)
-            _recorder.reset();
-
-        recordGps         = false;
-        recordOrientation = false;
-        recordCamera      = false;
-    }
-
-    bool canSimGps()
-    {
-        if (_simulator && _simulator->getGpsSensorPtr())
-            return true;
-        else
-            return false;
-    }
-
-    bool canSimOrientation()
-    {
-        if (_simulator && _simulator->getOrientationSensorPtr())
-            return true;
-        else
-            return false;
-    }
-
-    bool canSimCamera()
-    {
-        if (_simulator && _simulator->getCameraSensorPtr())
-            return true;
-        else
-            return false;
-    }
-
-    void initSimulator(const std::string& simDataSet)
-    {
-        resetRecorder();
-        //stop running simulations
-        if (canSimGps() && simulateGps)
-            _simulator->getGpsSensorPtr()->stop();
-        if (canSimOrientation() && simulateOrientation)
-            _simulator->getOrientationSensorPtr()->stop();
-        if (canSimCamera() && simulateCamera)
-            _simulator->getCameraSensorPtr()->stop();
-
-        if (_simulator)
-            _simulator.reset();
-
-        _simulator = std::make_unique<SENSSimulator>(_simDataDir + simDataSet);
-    }
-
-    bool simIsRunning()
-    {
-        if (_simulator && _simulator->isRunning())
-            return true;
-        else
-            return false;
-    }
-
-    void stopSim()
-    {
-        //stop running sensors
-        if (_gpsRef && _gpsRef->isRunning())
-            _gpsRef->stop();
-
-        if (_orientationRef && _orientationRef->isRunning())
-            _orientationRef->stop();
-
-        if (_cameraRef && _cameraRef->started())
-            _cameraRef->stop();
-    }
-
-    void startSim()
-    {
-        //stop running sensors
-        stopSim();
-
-        //start possible simulated sensors
-        if (canSimGps() && simulateGps)
-        {
-            _gpsRef = _simulator->getGpsSensorPtr();
-            _gpsRef->start();
-        }
-
-        if (canSimOrientation() && simulateOrientation)
-        {
-            _orientationRef = _simulator->getOrientationSensorPtr();
-            _orientationRef->start();
-        }
-
-        if (canSimCamera() && simulateCamera)
-        {
-            _cameraRef = _simulator->getCameraSensorPtr();
-            //there is only one prop:
-            const SENSCaptureProperties& capProps = _cameraRef->captureProperties();
-            if (capProps.size())
-            {
-                const SENSCameraDeviceProperties* currCamProps = &capProps.front();
-                auto                              sc           = currCamProps->streamConfigs().front();
-                //first start the camera, the intrinsic is valid afterwards
-                _cameraRef->start(currCamProps->deviceId(),
-                                  sc,
-                                  {sc.widthPix, sc.heightPix},
-                                  false,
-                                  false,
-                                  true);
-                if (_cameraParametersChangedCB)
-                    _cameraParametersChangedCB();
-            }
-        }
-    }
+    void stopSim();
+    void startSim();
 
     SENSGps*           gps() const { return _gpsRef; }
     SENSOrientation*   orientation() const { return _orientationRef; }
@@ -249,6 +47,8 @@ public:
     bool simulateCamera      = false;
 
 private:
+    SENSRecorder* recorder();
+    
     std::unique_ptr<SENSSimulator> _simulator;
     std::unique_ptr<SENSRecorder>  _recorder;
 
