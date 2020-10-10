@@ -37,7 +37,7 @@
 #include <SLSkybox.h>
 #include <SLSphere.h>
 #include <SLText.h>
-#include <SLTransferFunction.h>
+#include <SLColorLUT.h>
 #include <SLProjectScene.h>
 #include <SLGLProgramManager.h>
 #include <Instrumentor.h>
@@ -2023,13 +2023,15 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                                               "mri_head_front_to_back");
 
         // Create transfer LUT 1D texture
-        SLVTransferAlpha    tfAlphas = {SLTransferAlpha(0.00f, 0.00f),
-                                     SLTransferAlpha(0.01f, 0.75f),
-                                     SLTransferAlpha(1.00f, 1.00f)};
-        SLTransferFunction* tf       = new SLTransferFunction(s, tfAlphas, CLUT_BCGYR);
+        SLVAlphaLUTPoint tfAlphas = {SLAlphaLUTPoint(0.00f, 0.00f),
+                                     SLAlphaLUTPoint(0.01f, 0.75f),
+                                     SLAlphaLUTPoint(1.00f, 1.00f)};
+        SLColorLUT* tf       = new SLColorLUT(s, tfAlphas, CLUT_BCGYR);
 
         // Load shader and uniforms for volume size
-        SLGLProgram*   sp   = new SLGLGenericProgram(s, SLApplication::shaderPath + "VolumeRenderingRayCast.vert", SLApplication::shaderPath + "VolumeRenderingRayCast.frag");
+        SLGLProgram*   sp   = new SLGLGenericProgram(s,
+                                                 SLApplication::shaderPath + "VolumeRenderingRayCast.vert",
+                                                 SLApplication::shaderPath + "VolumeRenderingRayCast.frag");
         SLGLUniform1f* volX = new SLGLUniform1f(UT_const, "u_volumeX", (SLfloat)texMRI->images()[0]->width());
         SLGLUniform1f* volY = new SLGLUniform1f(UT_const, "u_volumeY", (SLfloat)texMRI->images()[0]->height());
         SLGLUniform1f* volZ = new SLGLUniform1f(UT_const, "u_volumeZ", (SLfloat)mriImages.size());
@@ -2097,10 +2099,10 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         }
 
         // Create transfer LUT 1D texture
-        SLVTransferAlpha    tfAlphas = {SLTransferAlpha(0.00f, 0.00f),
-                                     SLTransferAlpha(0.01f, 0.75f),
-                                     SLTransferAlpha(1.00f, 1.00f)};
-        SLTransferFunction* tf       = new SLTransferFunction(s, tfAlphas, CLUT_BCGYR);
+        SLVAlphaLUTPoint tfAlphas = {SLAlphaLUTPoint(0.00f, 0.00f),
+                                     SLAlphaLUTPoint(0.01f, 0.75f),
+                                     SLAlphaLUTPoint(1.00f, 1.00f)};
+        SLColorLUT* tf       = new SLColorLUT(s, tfAlphas, CLUT_BCGYR);
 
         // Load shader and uniforms for volume size
         SLGLProgram*   sp   = new SLGLGenericProgram(s, SLApplication::shaderPath + "VolumeRenderingRayCast.vert", SLApplication::shaderPath + "VolumeRenderingRayCastLighted.frag");
@@ -3027,7 +3029,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLLightDirect* light1 = new SLLightDirect(s, s, 5.0f);
         light1->powers(1.0f, 1.0f, 1.0f);
         light1->attenuation(1, 0, 0);
-        light1->zenithPowerScaleEnabled(true);
+        light1->isSunLight(true);
 
         // Let the sun be rotated by time and location
         SLApplication::devLoc.sunLightNode(light1);
@@ -3141,22 +3143,22 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Define shader that shows on all pixels the video background
         SLGLProgram* spVideoBackground  = new SLGLGenericProgram(s,
-                                                                 SLApplication::shaderPath + "PerVrtTextureBackground.vert",
-                                                                 SLApplication::shaderPath + "PerVrtTextureBackground.frag");
+                                                                SLApplication::shaderPath + "PerVrtTextureBackground.vert",
+                                                                SLApplication::shaderPath + "PerVrtTextureBackground.frag");
         SLMaterial*  matVideoBackground = new SLMaterial(s,
-                                                         "matVideoBackground",
-                                                         videoTexture,
-                                                         nullptr,
-                                                         nullptr,
-                                                         nullptr,
-                                                         spVideoBackground);
+                                                        "matVideoBackground",
+                                                        videoTexture,
+                                                        nullptr,
+                                                        nullptr,
+                                                        nullptr,
+                                                        spVideoBackground);
         // Create directional light for the sun light
         SLLightDirect* light1 = new SLLightDirect(s, s, 5.0f);
         light1->powers(1.0f, 1.0f, 1.0f);
         light1->attenuation(1, 0, 0);
         light1->translation(0, 10, 0);
         light1->lookAt(10, 0, 10);
-        light1->zenithPowerScaleEnabled(true);
+        light1->isSunLight(true);
 
         // Let the sun be rotated by time and location
         SLApplication::devLoc.sunLightNode(light1);
@@ -3260,7 +3262,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         light1->attenuation(1, 0, 0);
         light1->translation(0, 10, 0);
         light1->lookAt(10, 0, 10);
-        light1->zenithPowerScaleEnabled(true);
+        light1->isSunLight(true);
 
         // Let the sun be rotated by time and location
         SLApplication::devLoc.sunLightNode(light1);
@@ -3360,7 +3362,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         light1->attenuation(1, 0, 0);
         light1->translation(0, 10, 0);
         light1->lookAt(10, 0, 10);
-        light1->zenithPowerScaleEnabled(true);
+        light1->isSunLight(true);
 
         // Let the sun be rotated by time and location
         SLApplication::devLoc.sunLightNode(light1);
@@ -3397,8 +3399,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLApplication::devLoc.originLLA(46.88145, 7.04645, 450.9); // Ecke Vorplatz Ost
         //https://map.geo.admin.ch/?lang=de&topic=ech&bgLayer=ch.swisstopo.swissimage&layers=ch.swisstopo.zeitreihen,ch.bfs.gebaeude_wohnungs_register,ch.bav.haltestellen-oev,ch.swisstopo.swisstlm3d-wanderwege&layers_opacity=1,1,1,0.8&layers_visibility=false,false,false,false&layers_timestamp=18641231,,,&E=2570135&N=1192315&zoom=13&crosshair=marker
         SLApplication::devLoc.defaultLLA(46.88128, 7.04683, 451.5 + 1.7); // Ecke Vorplatz Ost
-        SLApplication::devLoc.locMaxDistanceM(1000.0f);                           // Max. Distanz. zum Nullpunkt
-        SLApplication::devLoc.improveOrigin(false);                               // Keine autom. Verbesserung vom Origin
+        SLApplication::devLoc.locMaxDistanceM(1000.0f);                   // Max. Distanz. zum Nullpunkt
+        SLApplication::devLoc.improveOrigin(false);                       // Keine autom. Verbesserung vom Origin
         SLApplication::devLoc.hasOrigin(true);
         SLApplication::devRot.zeroYawAtStart(false);
 
@@ -3458,7 +3460,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         light1->attenuation(1, 0, 0);
         light1->translation(0, 10, 0);
         light1->lookAt(10, 0, 10);
-        light1->zenithPowerScaleEnabled(true);
+        light1->isSunLight(true);
 
         // Let the sun be rotated by time and location
         SLApplication::devLoc.sunLightNode(light1);

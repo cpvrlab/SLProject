@@ -14,6 +14,7 @@
 #include <SLLight.h>
 #include <SLNode.h>
 #include <SLSamples2D.h>
+#include <SLColorLUT.h>
 
 class SLRay;
 class SLScene;
@@ -25,7 +26,7 @@ class SLSceneView;
 SLLightDirect is a node and a light that can have a sphere mesh with a line for
 its direction representation.
 For directional lights the position vector is in infinite distance
-We use its homogeneos component w as zero as the directional light flag.
+We use its homogeneous component w as zero as the directional light flag.
 The spot direction is used in the shaders for the light direction.
 If a light node is added to the scene it stays fix in the scene.\n
 If a light node is added to the camera it moves with the camera.\n
@@ -73,16 +74,17 @@ public:
                          SLfloat        lightDist,
                          SLNode*        root3D) override;
     void    renderShadowMap(SLSceneView* sv, SLNode* root) override;
+    SLCol4f calculateSunLight(SLfloat standardPower);
 
     // Setters
-    void zenithPowerScaleEnabled(SLbool enabled) { _zenithPowerScaleEnabled = enabled; }
-    void zenithPowerScaleMin(SLfloat minScale) { _zenithPowerScaleMin = minScale; }
+    void isSunLight(SLbool enabled) { _isSunLight = enabled; }
+    void sunLightPowerMin(SLfloat minPower) { _sunLightPowerMin = minPower; }
 
     // Getters
-    SLfloat radius() const { return _arrowRadius; }
-    SLfloat dirLength() const { return _arrowLength; }
-    SLbool  zenithPowerScaleEnabled() { return _zenithPowerScaleEnabled; }
-    SLfloat zenithPowerScale();
+    SLfloat     radius() const { return _arrowRadius; }
+    SLfloat     dirLength() const { return _arrowLength; }
+    SLbool      isSunLight() { return _isSunLight; }
+    SLColorLUT* sunLightColorLUT() { return &_sunLightColorLUT; }
 
     // For directional lights the position vector is interpreted as a
     // direction with the homogeneous component equals zero:
@@ -92,17 +94,17 @@ public:
         pos.w = 0.0f;
         return pos;
     }
-
     SLVec3f spotDirWS() override { return forwardOS(); }
-    SLCol4f ambient() override { return _ambientColor * _ambientPower; }
-    SLCol4f diffuse() override { return _diffuseColor * _diffusePower * zenithPowerScale(); }
-    SLCol4f specular() override { return _specularColor * _specularPower * zenithPowerScale(); }
+    SLCol4f ambient() override;
+    SLCol4f diffuse() override;
+    SLCol4f specular() override;
 
 private:
-    SLfloat _arrowRadius;             //!< The sphere lights radius
-    SLfloat _arrowLength;             //!< Length of direction line
-    SLbool  _zenithPowerScaleEnabled; //!< Flag for sun power scaling
-    SLfloat _zenithPowerScaleMin;     //!< Min. zenith power scale factor for sun
+    SLfloat    _arrowRadius;      //!< The sphere lights radius
+    SLfloat    _arrowLength;      //!< Length of direction line
+    SLbool     _isSunLight;       //!< Flag for sun power scaling
+    SLfloat    _sunLightPowerMin; //!< Min. zenith power scale factor for sun
+    SLColorLUT _sunLightColorLUT; //!< Sun light color LUT
 };
 //-----------------------------------------------------------------------------
 #endif
