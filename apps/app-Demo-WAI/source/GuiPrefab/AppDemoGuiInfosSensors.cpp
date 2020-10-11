@@ -25,9 +25,9 @@ void AppDemoGuiInfosSensors::buildInfos(SLScene* s, SLSceneView* sv)
     //sprintf(m + strlen(m), "Start Yaw           : %1.0f\n", SLApplication::devRot.startYawRAD() * Utils::RAD2DEG);
     //sprintf(m + strlen(m), "---------------------\n");
     //sprintf(m + strlen(m), "Uses Location       : %s\n", SLApplication::devLoc.isUsed() ? "yes" : "no");
-    //sprintf(m + strlen(m), "Latitude (deg)      : %11.6f\n", SLApplication::devLoc.locLLA().x);
-    //sprintf(m + strlen(m), "Longitude (deg)     : %11.6f\n", SLApplication::devLoc.locLLA().y);
-    //sprintf(m + strlen(m), "Altitude (m)        : %11.6f\n", SLApplication::devLoc.locLLA().z);
+    //sprintf(m + strlen(m), "Latitude (deg)      : %11.6f\n", SLApplication::devLoc.locLatLonAlt().x);
+    //sprintf(m + strlen(m), "Longitude (deg)     : %11.6f\n", SLApplication::devLoc.locLatLonAlt().y);
+    //sprintf(m + strlen(m), "Altitude (m)        : %11.6f\n", SLApplication::devLoc.locLatLonAlt().z);
     //sprintf(m + strlen(m), "Accuracy Radius (m) : %6.1f\n", SLApplication::devLoc.locAccuracyM());
     //sprintf(m + strlen(m), "Dist. to Origin (m) : %6.1f\n", offsetToOrigin.length());
     //sprintf(m + strlen(m), "Max. Dist. (m)      : %6.1f\n", SLApplication::devLoc.locMaxDistanceM());

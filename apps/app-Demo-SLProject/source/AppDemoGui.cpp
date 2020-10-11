@@ -952,29 +952,28 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
             SLchar m[1024];             // message character array
             m[0]                   = 0; // set zero length
             SLVec3d offsetToOrigin = SLApplication::devLoc.originENU() - SLApplication::devLoc.locENU();
-            sprintf(m + strlen(m), "Uses Rotation       : %s\n", SLApplication::devRot.isUsed() ? "yes" : "no");
+            sprintf(m + strlen(m), "Uses IMU Orientation: %s\n", SLApplication::devRot.isUsed() ? "yes" : "no");
             sprintf(m + strlen(m), "Orientation Pitch   : %1.0f\n", SLApplication::devRot.pitchRAD() * Utils::RAD2DEG);
             sprintf(m + strlen(m), "Orientation Yaw     : %1.0f\n", SLApplication::devRot.yawRAD() * Utils::RAD2DEG);
             sprintf(m + strlen(m), "Orientation Roll    : %1.0f\n", SLApplication::devRot.rollRAD() * Utils::RAD2DEG);
             sprintf(m + strlen(m), "Zero Yaw at Start   : %s\n", SLApplication::devRot.zeroYawAtStart() ? "yes" : "no");
             sprintf(m + strlen(m), "Start Yaw           : %1.0f\n", SLApplication::devRot.startYawRAD() * Utils::RAD2DEG);
             sprintf(m + strlen(m), "---------------------\n");
-            sprintf(m + strlen(m), "Uses Location       : %s\n", SLApplication::devLoc.isUsed() ? "yes" : "no");
-            sprintf(m + strlen(m), "Latitude (deg)      : %11.6f\n", SLApplication::devLoc.locLLA().x);
-            sprintf(m + strlen(m), "Longitude (deg)     : %11.6f\n", SLApplication::devLoc.locLLA().y);
-            sprintf(m + strlen(m), "Altitude (m)        : %11.6f\n", SLApplication::devLoc.locLLA().z);
+            sprintf(m + strlen(m), "Uses GPS Location   : %s\n", SLApplication::devLoc.isUsed() ? "yes" : "no");
+            sprintf(m + strlen(m), "Latitude (deg)      : %11.6f\n", SLApplication::devLoc.locLatLonAlt().lat);
+            sprintf(m + strlen(m), "Longitude (deg)     : %11.6f\n", SLApplication::devLoc.locLatLonAlt().lon);
+            sprintf(m + strlen(m), "Altitude (m)        : %11.6f\n", SLApplication::devLoc.locLatLonAlt().alt);
             sprintf(m + strlen(m), "Altitude GPS (m)    : %11.6f\n", SLApplication::devLoc.altGpsM());
-            sprintf(m + strlen(m), "Altitude DEM (m)    : %11.6f\n", SLApplication::devLoc.altGpsM());
+            sprintf(m + strlen(m), "Altitude DEM (m)    : %11.6f\n", SLApplication::devLoc.altDemM());
             sprintf(m + strlen(m), "Accuracy Radius (m) : %6.1f\n", SLApplication::devLoc.locAccuracyM());
             sprintf(m + strlen(m), "Dist. to Origin (m) : %6.1f\n", offsetToOrigin.length());
-            sprintf(m + strlen(m), "Max. Dist. (m)      : %6.1f\n", SLApplication::devLoc.locMaxDistanceM());
             sprintf(m + strlen(m), "Origin improve time : %6.1f sec.\n", SLApplication::devLoc.improveTime());
-            sprintf(m + strlen(m), "Sun Zenit (deg)     : %6.1f sec.\n", SLApplication::devLoc.originSolarZenit());
-            sprintf(m + strlen(m), "Sun Azimut (deg)    : %6.1f sec.\n", SLApplication::devLoc.originSolarAzimut());
+            sprintf(m + strlen(m), "Sun Zenith (deg)    : %6.1f sec.\n", SLApplication::devLoc.originSolarZenit());
+            sprintf(m + strlen(m), "Sun Azimuth (deg)   : %6.1f sec.\n", SLApplication::devLoc.originSolarAzimut());
 
             // Switch to fixed font
             ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
-            ImGui::Begin("Sensor Informations", &showInfosSensors, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize);
+            ImGui::Begin("Sensor Information", &showInfosSensors, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize);
             ImGui::TextUnformatted(m);
             ImGui::End();
             ImGui::PopFont();
@@ -1749,7 +1748,7 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
 
             ImGui::MenuItem("UI Preferences", nullptr, &showUIPrefs);
 
-            if (SLApplication::devLoc.originLLA() != SLVec3d::ZERO)
+            if (SLApplication::devLoc.originLatLonAlt() != SLVec3d::ZERO)
             {
                 ImGui::Separator();
 
@@ -1769,27 +1768,27 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                     {
                         lt.tm_mon    = month - 1;
                         adjustedTime = mktime(&lt);
-                        SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLLA(), adjustedTime);
+                        SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLatLonAlt(), adjustedTime);
                     }
                     if (ImGui::SliderInt("Day", &lt.tm_mday, 1, 31))
                     {
                         adjustedTime = mktime(&lt);
-                        SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLLA(), adjustedTime);
+                        SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLatLonAlt(), adjustedTime);
                     }
                     if (ImGui::SliderInt("Hour", &lt.tm_hour, 0, 23))
                     {
                         adjustedTime = mktime(&lt);
-                        SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLLA(), adjustedTime);
+                        SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLatLonAlt(), adjustedTime);
                     }
                     if (ImGui::SliderInt("Minute", &lt.tm_min, 0, 59))
                     {
                         adjustedTime = mktime(&lt);
-                        SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLLA(), adjustedTime);
+                        SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLatLonAlt(), adjustedTime);
                     }
                     if (ImGui::SliderInt("Second", &lt.tm_sec, 0, 59))
                     {
                         adjustedTime = mktime(&lt);
-                        SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLLA(), adjustedTime);
+                        SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLatLonAlt(), adjustedTime);
                     }
 
                     SLchar strLT[100];
@@ -1799,7 +1798,7 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                         adjustedTime    = 0;
                         std::time_t now = std::time(nullptr);
                         memcpy(&lt, std::localtime(&now), sizeof(tm));
-                        SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLLA(), now);
+                        SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLatLonAlt(), now);
                     }
 
                     SLfloat SRh = SLApplication::devLoc.originSolarSunrise();
@@ -1813,7 +1812,7 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                         lt.tm_min    = (int)SRm;
                         lt.tm_sec    = (int)SRs;
                         adjustedTime = mktime(&lt);
-                        SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLLA(), adjustedTime);
+                        SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLatLonAlt(), adjustedTime);
                     }
 
                     SLfloat SSh = SLApplication::devLoc.originSolarSunset();
@@ -1827,7 +1826,7 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                         lt.tm_min    = (int)SSm;
                         lt.tm_sec    = (int)SSs;
                         adjustedTime = mktime(&lt);
-                        SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLLA(), adjustedTime);
+                        SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLatLonAlt(), adjustedTime);
                     }
 
                     ImGui::EndMenu();

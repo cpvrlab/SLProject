@@ -189,8 +189,6 @@ class SLVec3
                                                          y= pow(y,oneOverGamma);
                                                          z= pow(z,oneOverGamma);}
 
-
-
             //! Prints the vector to std out
             void    print       (const SLchar* str=nullptr){if (str) SL_LOG("%s",str);
                                                          SL_LOG("% 3.2f, % 3.2f, % 3.2f",x, y, z);}
@@ -234,13 +232,13 @@ class SLVec3
                 }
             }
 
-            //! Earth Centered Earth Fixed (ecef) to Latitude Longitude Altitude (lla) using the WGS84 model
+            //! Earth Centered Earth Fixed (ecef) to Latitude Longitude Altitude (LatLonAlt) using the WGS84 model
             /*!
             Longitude and latitude are in decimal degrees and altitude in meters.
             The Cartesian ecef coordinates are in meters.
             See for more details: https://microem.ru/files/2012/08/GPS.G1-X-00006.pdf
             */
-            void ecef2lla(const SLVec3 &ecef)
+            void ecef2LatLonAlt(const SLVec3 &ecef)
             {
                 double a    = EARTH_RADIUS_A;
                 double b    = EARTH_RADIUS_B;
@@ -250,36 +248,36 @@ class SLVec3
                 double p   = sqrt(ecef.x * ecef.x + ecef.y*ecef.y);
                 double th  = atan2(a*ecef.z, b*p);
 
-                double lon = atan2(ecef.y, ecef.x);
-                double lat = atan2((ecef.z + epsq*b*pow(sin(th),3.0)), (p - esq*a*pow(cos(th),3.0)) );
-                double N   = a/(sqrt(1-esq*pow(sin(lat),2)));
-                double alt = p/cos(lat) - N;
+                double longitude = atan2(ecef.y, ecef.x);
+                double latitude = atan2((ecef.z + epsq*b*pow(sin(th),3.0)), (p - esq*a*pow(cos(th),3.0)) );
+                double N   = a/(sqrt(1-esq*pow(sin(latitude),2)));
+                double altitude = p/cos(latitude) - N;
 
-                x = lat * Utils::RAD2DEG;
-                y = fmod(lon,Utils::TWOPI) * Utils::RAD2DEG;
-                z = alt * Utils::RAD2DEG;
+                lat = latitude * Utils::RAD2DEG;
+                lon = fmod(longitude,Utils::TWOPI) * Utils::RAD2DEG;
+                alt = altitude * Utils::RAD2DEG;
             }
 
-            //! Latitude Longitude Altitude (lla) to Earth Centered Earth Fixed (ecef) using the WGS84 model
+            //! Latitude Longitude Altitude (LatLonAlt) to Earth Centered Earth Fixed (ecef) using the WGS84 model
             /*!
-            Longitude and latitude are in decimal degrees and altitude in meters.
+            Latitude and longitude are in decimal degrees and altitude in meters.
             The Cartesian ecef coordinates are in meters.
             See for more details: https://microem.ru/files/2012/08/GPS.G1-X-00006.pdf
             */
-            void lla2ecef(const SLVec3 &LongDegLatDegAltM)
+            void latlonAlt2ecef(const SLVec3 &latDegLonDegAltM)
             {
-                double lat = LongDegLatDegAltM.x * Utils::DEG2RAD;
-                double lon = LongDegLatDegAltM.y * Utils::DEG2RAD;
-                double alt = LongDegLatDegAltM.z;
+                double latitude = latDegLonDegAltM.lat * Utils::DEG2RAD;
+                double longitude = latDegLonDegAltM.lon * Utils::DEG2RAD;
+                double altitude = latDegLonDegAltM.alt;
                 double a   = EARTH_RADIUS_A;
                 double esq = EARTH_ECCENTRICTIY_SQR;
-                double cosLat = cos(lat);
+                double cosLat = cos(latitude);
 
-                double N = a / sqrt(1 - esq * pow(sin(lat),2));
+                double N = a / sqrt(1 - esq * pow(sin(latitude),2));
 
-                x = (N+alt) * cosLat * cos(lon);
-                y = (N+alt) * cosLat * sin(lon);
-                z = ((1-esq) * N + alt) * sin(lat);
+                x = (N+altitude) * cosLat * cos(longitude);
+                y = (N+altitude) * cosLat * sin(longitude);
+                z = ((1-esq) * N + altitude) * sin(latitude);
             }
 
     static SLVec3 ZERO;
@@ -315,16 +313,15 @@ template<class T> SLVec3<T> SLVec3<T>::AXISX  = SLVec3<T>(1.0f, 0.0f, 0.0f);
 template<class T> SLVec3<T> SLVec3<T>::AXISY  = SLVec3<T>(0.0f, 1.0f, 0.0f);
 template<class T> SLVec3<T> SLVec3<T>::AXISZ  = SLVec3<T>(0.0f, 0.0f, 1.0f);
 //-----------------------------------------------------------------------------
-typedef SLVec3<SLfloat>       SLVec3f;
-typedef SLVec3<SLfloat>       SLCol3f;
-typedef SLVec3<SLint>         SLVec3i; 
-typedef SLVec3<SLuint>        SLVec3ui; 
-typedef SLVec3<SLshort>       SLVec3s; 
+typedef SLVec3<SLfloat>  SLVec3f;
+typedef SLVec3<SLfloat>  SLCol3f;
+typedef SLVec3<SLint>    SLVec3i;
+typedef SLVec3<SLuint>   SLVec3ui;
+typedef SLVec3<SLshort>  SLVec3s;
+typedef SLVec3<double>   SLVec3d;
 
 typedef vector<SLVec3f>  SLVVec3f;
 typedef vector<SLCol3f>  SLVCol3f;
-
-typedef SLVec3<double>        SLVec3d;
 typedef vector<SLVec3d>  SLVVec3d;
 //-----------------------------------------------------------------------------
 #endif
