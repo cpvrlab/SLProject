@@ -29,7 +29,6 @@ public:
     void stop() override;
 
     const SENSCaptureProperties& captureProperties() override;
-    SENSFramePtr                 latestFrame() override;
 
     void grab();
     
@@ -38,9 +37,6 @@ private:
     
     std::atomic_bool _stop{false};
     std::thread _cameraThread;
-    //current frame
-    SENSFramePtr _sensFrame;
-    std::mutex _frameMutex;
 };
 
 #endif //SENS_WEBCAMERA_H

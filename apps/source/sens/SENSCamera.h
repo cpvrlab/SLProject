@@ -263,7 +263,10 @@ public:
     void registerListener(SENSCameraListener* listener) override;
     void unregisterListener(SENSCameraListener* listener) override;
 
+    SENSFramePtr latestFrame() override;
+
 protected:
+    void         updateFrame(cv::Mat bgrImg, cv::Mat intrinsics, bool intrinsicsChanged);
     void         initCalibration(float fovDegFallbackGuess);
     SENSFramePtr postProcessNewFrame(cv::Mat& bgrImg, cv::Mat intrinsics, bool intrinsicsChanged);
 
@@ -278,6 +281,10 @@ protected:
 
     std::vector<SENSCameraListener*> _listeners;
     std::mutex                       _listenerMutex;
+
+    //current frame
+    SENSFramePtr _sensFrame;
+    std::mutex   _frameMutex;
 };
 
 /*!

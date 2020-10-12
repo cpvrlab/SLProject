@@ -38,7 +38,6 @@ public:
     void stop() override;
 
     const SENSCaptureProperties& captureProperties() override;
-    SENSFramePtr                 latestFrame() override;
 
     //callbacks
     void onDeviceDisconnected(ACameraDevice* dev);
@@ -81,8 +80,7 @@ private:
     // stop it as soon as it becomes unavailable)
     std::map<std::string, bool> _cameraAvailability;
     std::mutex                  _cameraAvailabilityMutex;
-    //async camera start
-    //std::unique_ptr<std::thread> _openCameraThread;
+
     std::condition_variable _openCameraCV;
 
     //wait in start() until camera is opened
@@ -92,25 +90,16 @@ private:
     std::condition_variable      _waitCondition;
     cv::Mat                      _yuvImgToProcess;
     std::mutex                   _threadInputMutex;
-    SENSFramePtr                 _processedFrame;
-    std::mutex                   _threadOutputMutex;
     std::unique_ptr<std::thread> _thread;
     std::atomic<bool>            _stopThread;
 
-    std::runtime_error _threadException;
-    bool               _threadHasException = false;
-
     //camera state
-    //State             _state = State::CLOSED;
     cv::Size          _captureSize;
     std::atomic<bool> _captureSessionActive{false};
 
     bool                    _cameraIsOpening = false;
     std::mutex              _cameraDeviceOpeningMutex;
     std::condition_variable _cameraDeviceOpeningCV;
-    //camera_status_t         _cameraDeviceOpenResult = ACAMERA_OK;
-
-    const bool _adjustAsynchronously = true;
 };
 
 #endif //SENS_NDKCAMERA_H

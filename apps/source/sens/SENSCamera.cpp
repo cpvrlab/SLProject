@@ -234,6 +234,26 @@ std::pair<const SENSCameraDeviceProperties* const, const SENSCameraStreamConfig*
     }
 }
 
+void SENSCameraBase::updateFrame(cv::Mat bgrImg, cv::Mat intrinsics, bool intrinsicsChanged)
+{
+    //inform listeners
+    {
+        std::lock_guard<std::mutex> lock(_listenerMutex);
+        if(_listeners.size())
+        {
+            SENSTimePt timePt = SENSClock::now();
+            for (SENSCameraListener *l : _listeners)
+                l->onFrame(timePt, bgrImg.clone());
+        }
+    }
+    
+    SENSFramePtr sensFrame = postProcessNewFrame(bgrImg, intrinsics, intrinsicsChanged);
+    {
+        std::lock_guard<std::mutex> lock(_frameMutex);
+        _sensFrame = sensFrame;
+    }
+}
+
 void SENSCameraBase::initCalibration(float fovDegFallbackGuess)
 {
     //We make a calibration with full resolution and adjust it to the manipulated image size later if neccessary:
@@ -299,4 +319,36 @@ void SENSCameraBase::unregisterListener(SENSCameraListener* listener)
             break;
         }
     }
+}
+
+SENSFramePtr SENSCameraBase::latestFrame()
+{
+    SENSFramePtr latestFrame;
+
+    if (!_started)
+    {
+        SENS_WARN("SENSCameraBase latestFrame: Camera is not started!");
+        return latestFrame;
+    }
+
+    {
+        std::lock_guard<std::mutex> lock(_frameMutex);
+        latestFrame = _sensFrame;
+    }
+
+    if (latestFrame && !latestFrame->intrinsics.empty())
+    {
+        //todo: mutex for calibration?
+        _calibration = std::make_unique<SENSCalibration>(latestFrame->intrinsics,
+                                                         cv::Size(_config.streamConfig.widthPix, _config.streamConfig.heightPix),
+                                                         _calibration->isMirroredH(),
+                                                         _calibration->isMirroredV(),
+                                                         _calibration->camType(),
+                                                         _calibration->computerInfos());
+        //adjust calibration
+        if (_config.targetWidth != _config.streamConfig.widthPix || _config.targetHeight != _config.streamConfig.heightPix)
+            _calibration->adaptForNewResolution({_config.targetWidth, _config.targetHeight}, false);
+    }
+
+    return latestFrame;
 }

@@ -111,66 +111,9 @@ void SENSWebCamera::grab()
         cv::Mat bgrImg;
         if (_videoCapture.read(bgrImg))
         {
-            //todo: move to base class
-            //inform listeners
-            {
-                std::unique_lock<std::mutex> lock(_listenerMutex);
-                if(_listeners.size())
-                {
-                    lock.unlock();
-                    SENSTimePt timePt = SENSClock::now();
-                    cv::Mat bgrImg;
-                    lock.lock();
-                    //if the video writer is slower than the video feed, we have to react, otherwise there
-                    //will be a buffer overflow
-                    for (SENSCameraListener *l : _listeners)
-                        l->onFrame(timePt, bgrImg.clone());
-                }
-            }
-            
-            SENSFramePtr sensFrame = postProcessNewFrame(bgrImg, cv::Mat(), false);
-            {
-                std::lock_guard<std::mutex> lock(_frameMutex);
-                _sensFrame = sensFrame;
-            }
+            updateFrame(bgrImg, cv::Mat(), false);
         }
     }
-}
-
-SENSFramePtr SENSWebCamera::latestFrame()
-{
-    SENSFramePtr sensFrame;
-
-    if (!_started)
-    {
-        LOG_WEBCAM_WARN("getLatestFrame: Camera is not started!");
-        return sensFrame;
-    }
-
-    if (!_videoCapture.isOpened())
-        throw SENSException(SENSType::CAM, "Capture device is not open although camera is started!", __LINE__, __FILE__);
-
-    /*
-    cv::Mat bgrImg;
-    if (_videoCapture.read(bgrImg))
-    {
-        //todo: move to base class
-        {
-            SENSTimePt timePt = SENSClock::now();
-            std::lock_guard<std::mutex> lock(_listenerMutex);
-            for(SENSCameraListener* l : _listeners)
-                l->onFrame(timePt, bgrImg.clone());
-        }
-        
-        sensFrame = postProcessNewFrame(bgrImg, cv::Mat(), false);
-    }
-     */
-    
-    {
-        std::lock_guard<std::mutex> lock(_frameMutex);
-        sensFrame = _sensFrame;
-    }
-    return sensFrame;
 }
 
 const SENSCaptureProperties& SENSWebCamera::captureProperties()

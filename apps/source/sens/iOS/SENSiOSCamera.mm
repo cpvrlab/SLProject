@@ -117,30 +117,6 @@ const SENSCaptureProperties& SENSiOSCamera::captureProperties()
     return _captureProperties;
 }
 
-SENSFramePtr SENSiOSCamera::latestFrame()
-{
-    SENSFramePtr newFrame;
-    {
-        std::lock_guard<std::mutex> lock(_processedFrameMutex);
-        newFrame = std::move(_processedFrame);
-    }
-
-    if (newFrame && !newFrame->intrinsics.empty())
-    {
-        _calibration = std::make_unique<SENSCalibration>(newFrame->intrinsics,
-                                                         cv::Size(_config.streamConfig.widthPix, _config.streamConfig.heightPix),
-                                                         _calibration->isMirroredH(),
-                                                         _calibration->isMirroredV(),
-                                                         _calibration->camType(),
-                                                         _calibration->computerInfos());
-        //adjust calibration
-        if (_config.targetWidth != _config.streamConfig.widthPix || _config.targetHeight != _config.streamConfig.heightPix)
-            _calibration->adaptForNewResolution({_config.targetWidth, _config.targetHeight}, false);
-    }
-
-    return newFrame;
-}
-
 void SENSiOSCamera::processNewFrame(unsigned char* data, int imgWidth, int imgHeight, matrix_float3x3* camMat3x3)
 {
     //Utils::log("SENSiOSCamera", "processNewFrame: w %d w %d", imgWidth, imgHeight);
@@ -163,20 +139,7 @@ void SENSiOSCamera::processNewFrame(unsigned char* data, int imgWidth, int imgHe
         }
     }
     
-    //todo: move to base class
-    {
-        SENSTimePt timePt = SENSClock::now();
-        std::lock_guard<std::mutex> lock(_listenerMutex);
-        for(SENSCameraListener* l : _listeners)
-            l->onFrame(timePt, bgrImg.clone());
-    }
-
-    SENSFramePtr sensFrame = postProcessNewFrame(bgrImg, intrinsics, intrinsicsChanged);
-
-    {
-        std::lock_guard<std::mutex> lock(_processedFrameMutex);
-        _processedFrame = std::move(sensFrame);
-    }
+    updateFrame(bgrImg, intrinsics, intrinsicsChanged);
 }
 
 void SENSiOSCamera::updatePermission(bool granted)

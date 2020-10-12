@@ -63,8 +63,7 @@ void onSessionActive(void* ctx, ACameraCaptureSession* ses)
 }
 
 SENSNdkCamera::SENSNdkCamera()
-  : _threadException("SENSNdkCamera: empty default exception"),
-    _cameraDeviceOpened(false)
+  : _cameraDeviceOpened(false)
 {
     LOG_NDKCAM_INFO("Camera instantiated");
 }
@@ -272,8 +271,8 @@ void SENSNdkCamera::openCamera()
                 throw SENSException(SENSType::CAM, "Could not create image reader!", __LINE__, __FILE__);
 
             //make the adjustments in an asynchronous thread
-            if (_adjustAsynchronously)
-            {
+            //if (_adjustAsynchronously)
+            //{
                 //register onImageAvailable listener
                 AImageReader_ImageListener listener{
                   .context          = this,
@@ -284,7 +283,7 @@ void SENSNdkCamera::openCamera()
                 //start the thread
                 _stopThread = false;
                 _thread     = std::make_unique<std::thread>(&SENSNdkCamera::run, this);
-            }
+            //}
 
             createCaptureSession();
         }
@@ -594,50 +593,6 @@ cv::Mat SENSNdkCamera::convertToYuv(AImage* image)
         return yuv;
 }
 
-SENSFramePtr SENSNdkCamera::latestFrame()
-{
-    SENSFramePtr sensFrame;
-
-    if (_started)
-    {
-        if (_adjustAsynchronously)
-        {
-            std::unique_lock<std::mutex> lock(_threadOutputMutex);
-            if (_processedFrame)
-            {
-
-                //move: its faster because shared_ptr has atomic reference counting and we are the only ones using the object
-                sensFrame = std::move(_processedFrame);
-                //static int getFrameN = 0;
-                //LOG_NDKCAM_INFO("getLatestFrame: getFrameN %d", getFrameN++);
-            }
-            if (_threadHasException)
-            {
-                throw _threadException;
-            }
-        }
-        else
-        {
-            AImage*        image;
-            media_status_t status = AImageReader_acquireLatestImage(_imageReader, &image);
-            if (status ==
-                AMEDIA_OK) //status may be unequal to media_ok if there is no new frame available, what is ok if we are very fast
-            {
-                //static int getFrameN = 0;
-                //LOG_NDKCAM_INFO("getLatestFrame: getFrameN %d", getFrameN++);
-
-                cv::Mat yuv = convertToYuv(image);
-                //now that the data is copied we have to delete the image
-                AImage_delete(image);
-
-                //make cropping, scaling and mirroring
-                sensFrame = processNewYuvImg(yuv);
-            }
-        }
-    }
-    return std::move(sensFrame);
-}
-
 void SENSNdkCamera::run()
 {
     try
@@ -663,32 +618,22 @@ void SENSNdkCamera::run()
                     yuv = _yuvImgToProcess;
             }
 
-            //static int imageConsumed = 0;
-            //LOG_NDKCAM_INFO("run: imageConsumed %d", imageConsumed++)
 
-            //make yuv to rgb conversion, cropping, scaling, mirroring, gray conversion
-            SENSFramePtr sensFrame = processNewYuvImg(yuv);
-
-            //move processing result to worker thread output
-            {
-                std::unique_lock<std::mutex> lock(_threadOutputMutex);
-                _processedFrame = std::move(sensFrame);
-            }
+            //concert yuv to bgr
+            cv::Mat bgrImg;
+            //We previously copied the planes to be aligned like this: YYYYVU which is NV21
+            cv::cvtColor(yuv, bgrImg, cv::COLOR_YUV2BGR_NV21, 3);
+            //update frame in base class
+            updateFrame(bgrImg, cv::Mat(), false);
         }
     }
     catch (std::exception& e)
     {
         LOG_NDKCAM_INFO("run: exception");
-        std::unique_lock<std::mutex> lock(_threadOutputMutex);
-        _threadException    = std::runtime_error(e.what());
-        _threadHasException = true;
     }
     catch (...)
     {
         LOG_NDKCAM_INFO("run: exception");
-        std::unique_lock<std::mutex> lock(_threadOutputMutex);
-        _threadException    = SENSException(SENSType::CAM, "Exception in worker thread!", __LINE__, __FILE__);
-        _threadHasException = true;
     }
 
     if (_stopThread)
@@ -707,27 +652,8 @@ void SENSNdkCamera::imageCallback(AImageReader* reader)
 
         AImage_delete(image);
 
-        //inform listeners
-        {
-            std::unique_lock<std::mutex> lock(_listenerMutex);
-            if(_listeners.size())
-            {
-                lock.unlock();
-                SENSTimePt timePt = SENSClock::now();
-                cv::Mat bgrImg;
-                cv::cvtColor(yuv, bgrImg, cv::COLOR_YUV2BGR_NV21, 3);
-                lock.lock();
-                //if the video writer is slower than the video feed, we have to react, otherwise there
-                //will be a buffer overflow
-                for (SENSCameraListener *l : _listeners)
-                    l->onFrame(timePt, bgrImg);
-            }
-        }
-
         //move yuv image to worker thread input
         {
-            // static int newImage = 0;
-            //LOG_NDKCAM_INFO("imageCallback: new image %d", newImage++);
             std::lock_guard<std::mutex> lock(_threadInputMutex);
             _yuvImgToProcess = yuv;
         }
