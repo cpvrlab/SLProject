@@ -70,6 +70,25 @@ public:
                     const std::string& calibFileName,
                     bool               calcUndistortionMaps);
 
+    void cloneTo(SENSCalibration& calibration) const
+    {
+        return SENSCalibration(_cameraMat.clone(),
+                               _distortion.clone(),
+                               _imageSize,
+                               _boardSize,
+                               _boardSquareMM,
+                               _reprojectionError,
+                               _numCaptured,
+                               _calibrationTime,
+                               -1,
+                               _isMirroredH,
+                               _isMirroredV,
+                               _camType,
+                               _computerInfos,
+                               calibrationFlags(),
+                               undistortMapsValid()); //todo: clone undistortion maps
+    }
+
     bool save(const std::string& calibDir,
               const std::string& calibFileName);
 
@@ -171,11 +190,11 @@ private:
     float       _cameraFovVDeg = 0.0f;                //!< Vertical field of view in degrees
     float       _cameraFovHDeg = 0.0f;                //!< Horizontal field of view in degrees
     std::string _calibFileName;                       //!< name for calibration file
-    int         _calibFlags  = 0;                     //!< OpenCV calibration flags
+    int         _calibFlags = 0;                      //!< OpenCV calibration flags
     //todo: not necessary if calibrated before mirroring postprocessing
-    bool        _isMirroredH = false;                 //!< Flag if image must be horizontally mirrored
+    bool _isMirroredH = false; //!< Flag if image must be horizontally mirrored
     //todo: not necessary if calibrated before mirroring postprocessing
-    bool        _isMirroredV = false;                 //!< Flag if image must be vertically mirrored
+    bool _isMirroredV = false; //!< Flag if image must be vertically mirrored
 
     //todo: maybe we dont need this here..
     int      _numCaptured = 0;           //!< NO. of images captured

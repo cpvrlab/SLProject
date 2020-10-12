@@ -428,9 +428,12 @@ public:
         {
             //process
             frame = processNewFrame(frameBase->imgBGR, frameBase->intrinsics, !frameBase->intrinsics.empty());
+            //update _calibrationTargetSize if necessary
+            if(!frame->intrinsics.empty())
+            {
+                
+            }
         }
-
-        //update calibration if necessary
 
         return frame;
     }
@@ -473,7 +476,8 @@ public:
         //set calibration in SENSCamera
         _camera->setCalibration(calibration, buildUndistortionMaps);
         //set calibration in SENSCvCamera
-        
+        _camera->calibration()->cloneTo(_calibrationTargetSize);
+        _calibrationTargetSize->adaptForNewResolution({_config.targetWidth, _config.targetHeight}, <#bool calcUndistortionMaps#>)
     }
 
 private:
