@@ -13,6 +13,9 @@
 #include <sens/SENSCamera.h>
 #include <sens/SENSSimulator.h>
 
+#include <sens/SENSSimHelper.h>
+#include <Gui/SimHelperGui.h>
+
 class SLScene;
 class SLSceneView;
 struct ImFont;
@@ -38,11 +41,9 @@ public:
 private:
     void resize(int scrW, int scrH);
 
-    void updateSensorSimulation();
     void updateGpsSensor();
     void updateOrientationSensor();
     void updateCameraSensor();
-    void updateSensorRecording();
 
     void updateCameraParameter();
     
@@ -62,31 +63,14 @@ private:
     bool        _hasException = false;
     std::string _exceptionText;
 
-    //physical sensors
-    SENSGps*         _gpsPhys         = nullptr;
-    SENSOrientation* _orientationPhys = nullptr;
-    SENSCamera*      _cameraPhys      = nullptr;
-    //simulated sensors
-    SENSGps*         _gpsSim         = nullptr;
-    SENSOrientation* _orientationSim = nullptr;
-    SENSCamera*      _cameraSim      = nullptr;
     //active sensors
     SENSGps*         _gps         = nullptr;
     SENSOrientation* _orientation = nullptr;
     SENSCamera*      _camera      = nullptr;
 
-    //std::unique_ptr<SENSOrientationRecorder> _orientationRecorder;
-    std::unique_ptr<SENSRecorder>  _sensorRecorder;
-    std::unique_ptr<SENSSimulator> _sensorSimulator;
-
-    bool _recordGps         = false;
-    bool _recordOrientation = false;
-    bool _recordCamera      = false;
-    //flags indicating if sensors should be simulated
-    bool _simulateGps         = false;
-    bool _simulateOrientation = false;
-    bool _simulateCamera      = false;
-
+    std::unique_ptr<SENSSimHelper> _simHelper;
+    std::unique_ptr<SimHelperGui> _simHelperGui;
+    
     //camera stuff:
     SENSCaptureProperties                           _camCharacs;
     std::map<std::string, std::vector<std::string>> _sizesStrings;

@@ -17,22 +17,17 @@ SensorTestGui::SensorTestGui(const ImGuiEngine&  imGuiEngine,
   : ImGuiWrapper(imGuiEngine.context(), imGuiEngine.renderer()),
     sm::EventSender(eventHandler),
     _resources(resources),
-    _gpsPhys(gps),
-    _orientationPhys(orientation),
-    _cameraPhys(camera),
-    _simDataDir(deviceData.writableDir() + "SENSSimData/")
+    _simDataDir(deviceData.writableDir() + "SENSSimData/"),
+    _gps(gps),
+    _orientation(orientation),
+    _camera(camera)
 {
-    _gps         = _gpsPhys;
-    _orientation = _orientationPhys;
-    _camera      = _cameraPhys;
     updateCameraParameter();
 
     if (!Utils::dirExists(_simDataDir))
         Utils::makeDir(_simDataDir);
 
     resize(deviceData.scrWidth(), deviceData.scrHeight());
-
-    _sensorRecorder = std::make_unique<SENSRecorder>(_simDataDir);
 }
 
 SensorTestGui::~SensorTestGui()
@@ -75,10 +70,24 @@ void SensorTestGui::onShow()
     _panScroll.enable();
     _hasException = false;
     _exceptionText.clear();
+    
+    if(_resources.developerMode && _resources.simulatorMode)
+    {
+        _simHelper = std::make_unique<SENSSimHelper>(_gps,
+                                                     _orientation,
+                                                     _camera,
+                                                     _simDataDir,
+                                                     std::bind(&SensorTestGui::updateCameraParameter, this));
+        _simHelperGui = std::make_unique<SimHelperGui>(_resources.fonts().tiny, _resources.fonts().standard, "SensorTestGui", _screenH);
+    }
 }
 
 void SensorTestGui::onHide()
 {
+    if(_simHelper)
+        _simHelper.reset();
+    if(_simHelperGui)
+        _simHelperGui.reset();
 }
 
 void SensorTestGui::onResize(SLint scrW, SLint scrH, SLfloat scr2fbX, SLfloat scr2fbY)
@@ -150,15 +159,11 @@ void SensorTestGui::build(SLScene* s, SLSceneView* sv)
         }
         else
         {
-            updateSensorSimulation();
-            ImGui::Separator();
             updateGpsSensor();
             ImGui::Separator();
             updateOrientationSensor();
             ImGui::Separator();
             updateCameraSensor();
-            ImGui::Separator();
-            updateSensorRecording();
         }
 
         ImGui::End();
@@ -171,14 +176,14 @@ void SensorTestGui::build(SLScene* s, SLSceneView* sv)
 
     //debug: draw log window
     _resources.logWinDraw();
+    
+    if(_simHelperGui)
+        _simHelperGui->render(_simHelper.get());
 }
 
 void SensorTestGui::updateGpsSensor()
 {
-    if (_simulateGps)
-        ImGui::TextUnformatted("GPS (simulated)");
-    else
-        ImGui::TextUnformatted("GPS");
+    ImGui::TextUnformatted("GPS");
 
     if (_gps)
     {
@@ -225,10 +230,7 @@ void SensorTestGui::updateGpsSensor()
 
 void SensorTestGui::updateOrientationSensor()
 {
-    if (_simulateOrientation)
-        ImGui::TextUnformatted("Orientation (simulated)");
-    else
-        ImGui::TextUnformatted("Orientation");
+    ImGui::TextUnformatted("Orientation");
 
     if (_orientation)
     {
@@ -297,10 +299,7 @@ void SensorTestGui::updateOrientationSensor()
 
 void SensorTestGui::updateCameraSensor()
 {
-    if (_simulateCamera)
-        ImGui::TextUnformatted("Camera (simulated)");
-    else
-        ImGui::TextUnformatted("Camera");
+    ImGui::TextUnformatted("Camera");
 
     if (_camera)
     {
@@ -458,227 +457,6 @@ void SensorTestGui::updateCameraSensor()
             else
             {
                 ImGui::Text("Camera not started");
-            }
-        }
-    }
-}
-
-void SensorTestGui::updateSensorRecording()
-{
-    ImGui::Text("Sensor Recording (Output dir is %s)", _sensorRecorder->outputDir().c_str());
-    ImGui::NewLine();
-    float w    = ImGui::GetContentRegionAvailWidth();
-    float btnW = w * 0.5f - ImGui::GetStyle().ItemSpacing.x;
-
-    if (_gps)
-    {
-        if (ImGui::Checkbox("gps##record", &_recordGps))
-        {
-            if (_recordGps)
-            {
-                if (!_sensorRecorder->activateGps(_gps))
-                    _recordGps = !_recordGps;
-            }
-            else
-            {
-                if (!_sensorRecorder->deactivateGps())
-                    _recordGps = !_recordGps;
-            }
-        }
-    }
-    ImGui::SameLine();
-
-    if (_orientation)
-    {
-        if (ImGui::Checkbox("orientation##record", &_recordOrientation))
-        {
-            if (_recordOrientation)
-            {
-                if (!_sensorRecorder->activateOrientation(_orientation))
-                    _recordOrientation = !_recordOrientation;
-            }
-            else
-            {
-                if (!_sensorRecorder->deactivateOrientation())
-                    _recordOrientation = !_recordOrientation;
-            }
-        }
-    }
-    ImGui::SameLine();
-
-    if (_camera)
-    {
-        if (ImGui::Checkbox("camera##record", &_recordCamera))
-        {
-            if (_recordCamera)
-            {
-                if (!_sensorRecorder->activateCamera(_camera))
-                    _recordCamera = !_recordCamera;
-            }
-            else
-            {
-                if (!_sensorRecorder->deactivateOrientation())
-                    _recordCamera = !_recordCamera;
-            }
-        }
-    }
-
-    if (ImGui::Button((recordButtonText + "##Record").c_str(), ImVec2(btnW, 0)))
-    {
-        if (_sensorRecorder->isRunning())
-        {
-            _sensorRecorder->stop();
-            recordButtonText = "Start recording";
-        }
-        else
-        {
-            if (_sensorRecorder->start())
-                recordButtonText = "Stop recording";
-        }
-    }
-}
-
-void SensorTestGui::updateSensorSimulation()
-{
-    ImGui::TextUnformatted("Sensor Simulation");
-    float w    = ImGui::GetContentRegionAvailWidth();
-    float btnW = w * 0.5f - ImGui::GetStyle().ItemSpacing.x;
-
-    //if no simulation is currently running
-    if (_sensorSimulator && _sensorSimulator->isRunning())
-    {
-        ImGui::TextUnformatted("Simulator is running (stop all simulated sensors to stop)");
-    }
-    else
-    {
-        static std::string _selectedSimData;
-        //first select a directory which contains the recorder output
-        if (ImGui::BeginCombo("Sim data", _selectedSimData.c_str()))
-        {
-            std::vector<std::string> simDataStrings = Utils::getDirNamesInDir(_simDataDir, false);
-            for (int n = 0; n < simDataStrings.size(); n++)
-            {
-                bool isSelected = (_selectedSimData == simDataStrings[n]); // You can store your selection however you want, outside or inside your objects
-                if (ImGui::Selectable(simDataStrings[n].c_str(), isSelected))
-                {
-                    _selectedSimData = simDataStrings[n];
-
-                    //instantiate simulator
-                    _sensorSimulator.reset();
-                    _sensorSimulator = std::make_unique<SENSSimulator>(_simDataDir + _selectedSimData);
-                    _gpsSim          = _sensorSimulator->getGpsSensorPtr();
-                    _orientationSim  = _sensorSimulator->getOrientationSensorPtr();
-                    _cameraSim       = _sensorSimulator->getCameraSensorPtr();
-
-                    if (_gpsSim && _simulateGps)
-                    {
-                        if (_gps && _gps->isRunning())
-                            _gps->stop();
-                        _gps = _gpsSim;
-                    }
-                    else
-                    {
-                        _simulateGps = false;
-                        _gps         = _gpsPhys;
-                    }
-
-                    if (_orientationSim && _simulateOrientation)
-                    {
-                        if (_orientation && _orientation->isRunning())
-                            _orientation->stop();
-                        _orientation = _orientationSim;
-                    }
-                    else
-                    {
-                        _simulateOrientation = false;
-                        _orientation         = _orientationPhys;
-                    }
-
-                    if (_cameraSim && _simulateCamera)
-                    {
-                        if (_camera && _camera->started())
-                            _camera->stop();
-                        _camera = _cameraSim;
-                        updateCameraParameter();
-                    }
-                    else
-                    {
-                        _simulateCamera = false;
-                        _camera         = _cameraPhys;
-                        updateCameraParameter();
-                    }
-                }
-                if (isSelected)
-                    ImGui::SetItemDefaultFocus(); // Set the initial focus when opening the combo (scrolling + for keyboard navigation support in the upcoming navigation branch)
-            }
-            ImGui::EndCombo();
-            ImGui::NewLine();
-        }
-
-        //add checkboxes for simulated sensors if successfully loaded from sim directory
-        if (_gpsSim)
-        {
-            if (ImGui::Checkbox("gps##sim", &_simulateGps))
-            {
-                if (_simulateGps)
-                    _gps = _gpsSim;
-                else
-                    _gps = _gpsPhys;
-            }
-            ImGui::SameLine();
-        }
-
-        if (_orientationSim)
-        {
-            if (ImGui::Checkbox("orientation##sim", &_simulateOrientation))
-            {
-                if (_simulateOrientation)
-                    _orientation = _orientationSim;
-                else
-                    _orientation = _orientationPhys;
-            }
-            ImGui::SameLine();
-        }
-        if (_cameraSim)
-        {
-            if (ImGui::Checkbox("camera##sim", &_simulateCamera))
-            {
-                if (_simulateCamera)
-                {
-                    _camera = _cameraSim;
-                    updateCameraParameter();
-                }
-                else
-                {
-                    _camera = _cameraPhys;
-                    updateCameraParameter();
-                }
-            }
-        }
-        ImGui::NewLine();
-    }
-    
-    if (_sensorSimulator)
-    {
-        //current simulation time
-        auto simNow = _sensorSimulator->now();
-        ImGui::Text("Sim time: %.0fms", (double)simNow.time_since_epoch().count() / 1000.0 );
-        auto passedSimTime = _sensorSimulator->passedTime();
-        ImGui::Text("Passed time: %.0fms", (double)passedSimTime.count() / 1000.0 );
-
-        //pause
-        static std::string pauseBtnText = "Resume";
-        if (ImGui::Button((pauseBtnText + "##PauseSim").c_str(), ImVec2(btnW, 0)))
-        {
-            if (_sensorSimulator->isPaused())
-            {
-                _sensorSimulator->resume();
-                pauseBtnText = "Pause";
-            }
-            else
-            {
-                _sensorSimulator->pause();
-                pauseBtnText = "Resume";
             }
         }
     }
