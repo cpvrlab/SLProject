@@ -25,7 +25,6 @@ AreaTrackingView::AreaTrackingView(sm::EventHandler&   eventHandler,
          std::bind(&AreaTrackingView::getSimHelper, this)),
     _scene("AreaTrackingScene", deviceData.dataDir(), deviceData.erlebARDir()),
     _userGuidanceScene(deviceData.dataDir()),
-    _camera(camera),
     _gps(gps),
     _orientation(orientation),
     _resources(resources),
@@ -34,6 +33,9 @@ AreaTrackingView::AreaTrackingView(sm::EventHandler&   eventHandler,
 {
     scene(&_userGuidanceScene);
     init("AreaTrackingView", deviceData.scrWidth(), deviceData.scrHeight(), nullptr, nullptr, &_gui, deviceData.writableDir());
+
+    _camera = std::make_unique<SENSCvCamera>(camera);
+    _camera->configure(640, 480, 640, 460, false, false, true);
     //todo: ->moved to constructor of AreaTrackingScene: can this lead to any problems?
     //_scene.init();
     //_scene.build();
@@ -55,7 +57,7 @@ AreaTrackingView::~AreaTrackingView()
 
 void AreaTrackingView::onCameraParamsChanged()
 {
-    if(!_waiSlam)
+    if (!_waiSlam)
     {
         ErlebAR::Location& location = _locations[_locId];
         ErlebAR::Area&     area     = location.areas[_areaId];
@@ -74,7 +76,7 @@ void AreaTrackingView::onCameraParamsChanged()
         else
             _imgBuffer.init(1, area.cameraFrameTargetSize);
 
-    #ifdef LOAD_ASYNC
+#ifdef LOAD_ASYNC
         std::string fileName = _deviceData.vocabularyDir() + _vocabularyFileName;
 
         //delete managed object
@@ -85,7 +87,7 @@ void AreaTrackingView::onCameraParamsChanged()
         _asyncLoader->start();
         _userGuidance.dataIsLoading(true);
 
-    #else
+#else
         //load vocabulary
         std::string fileName = _vocabularyDir + _vocabularyFileName;
         if (Utils::fileExists(fileName))
@@ -130,7 +132,7 @@ void AreaTrackingView::onCameraParamsChanged()
           _trackingExtractor.get(),
           std::move(waiMap),
           params);
-    #endif
+#endif
     }
     else
     {
@@ -160,11 +162,11 @@ bool AreaTrackingView::update()
             //the intrinsics may change dynamically on focus changes (e.g. on iOS)
             if (!frame->intrinsics.empty())
             {
-                auto    calib        = _camera->calibration();
-                cv::Mat scaledCamMat = SENS::adaptCameraMat(_camera->calibration()->cameraMat(),
-                                                            _camera->config().manipWidth,
-                                                            _camera->config().targetWidth);
-                _waiSlam->changeIntrinsic(scaledCamMat, calib->distortion());
+                //auto    calib        = _camera->calibration();
+                //cv::Mat scaledCamMat = SENS::adaptCameraMat(_camera->calibration()->cameraMat(),
+                //                                            _camera->config().manipWidth,
+                //                                            _camera->config().targetWidth);
+                _waiSlam->changeIntrinsic(_camera->scaledCameraMat(), _camera->calibration()->distortion());
                 updateSceneCameraFov();
             }
             _waiSlam->update(frame->imgManip);
@@ -276,9 +278,9 @@ void AreaTrackingView::initSlam()
         _scene.mapNode->om(slOm);
     }
 
-    cv::Mat scaledCamMat = SENS::adaptCameraMat(_camera->calibration()->cameraMat(),
-                                                _camera->config().manipWidth,
-                                                _camera->config().targetWidth);
+    //cv::Mat scaledCamMat = SENS::adaptCameraMat(_camera->calibration()->cameraMat(),
+    //                                            _camera->config().manipWidth,
+    //                                            _camera->config().targetWidth);
 
     WAISlamTrackPool::Params params;
     params.cullRedundantPerc   = 0.95f;
@@ -290,7 +292,7 @@ void AreaTrackingView::initSlam()
     params.trackOptFlow        = false;
 
     _waiSlam = std::make_unique<WAISlamTrackPool>(
-      scaledCamMat,
+      _camera->scaledCameraMat(),
       _camera->calibration()->distortion(),
       _voc,
       _initializationExtractor.get(),
@@ -433,8 +435,8 @@ void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaI
     }
 
     //try to load map
-    HighResTimer            t;
-    cv::Mat                 mapNodeOm;
+    HighResTimer t;
+    cv::Mat mapNodeOm;
     std::unique_ptr<WAIMap> waiMap = tryLoadMap(_erlebARDir, area.slamMapFileName, _voc, mapNodeOm);
     Utils::log("LoadingTime", "map loading time: %f ms", t.elapsedTimeInMilliSec());
 
@@ -450,13 +452,13 @@ void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaI
                                                 _camera->config().targetWidth);
 
     WAISlam::Params params;
-    params.cullRedundantPerc   = 0.95f;
+    params.cullRedundantPerc = 0.95f;
     params.ensureKFIntegration = false;
-    params.fixOldKfs           = true;
-    params.onlyTracking        = false;
-    params.retainImg           = false;
-    params.serial              = false;
-    params.trackOptFlow        = false;
+    params.fixOldKfs = true;
+    params.onlyTracking = false;
+    params.retainImg = false;
+    params.serial = false;
+    params.trackOptFlow = false;
 
     _waiSlam = std::make_unique<WAISlam>(
       scaledCamMat,
@@ -490,73 +492,7 @@ bool AreaTrackingView::startCamera(const cv::Size& cameraFrameTargetSize)
         //we have to store this for a resume call..
         _cameraFrameResumeSize = cameraFrameTargetSize;
 
-        int trackingImgW = 640;
-        //float targetWdivH   = 4.f / 3.f;
-        float targetWdivH   = (float)cameraFrameTargetSize.width / (float)cameraFrameTargetSize.height;
-        int   aproxVisuImgW = 1000;
-        int   aproxVisuImgH = (int)((float)aproxVisuImgW / targetWdivH);
-
-        auto capProps   = _camera->captureProperties();
-        auto bestConfig = capProps.findBestMatchingConfig(SENSCameraFacing::BACK, 65.f, aproxVisuImgW, aproxVisuImgH);
-
-        if (bestConfig.first && bestConfig.second)
-        {
-            const SENSCameraDeviceProperties* const devProps     = bestConfig.first;
-            const SENSCameraStreamConfig*           streamConfig = bestConfig.second;
-            Utils::log("AreaTrackingView", "starting camera with stream config: w:%d h:%d", streamConfig->widthPix, streamConfig->heightPix);
-
-            int cropW, cropH, w, h;
-            SENS::calcCrop(cv::Size(streamConfig->widthPix, streamConfig->heightPix), targetWdivH, cropW, cropH, w, h);
-
-            try
-            {
-                _camera->start(devProps->deviceId(),
-                               *streamConfig,
-                               cv::Size(w, h),
-                               false,
-                               false,
-                               true,
-                               trackingImgW,
-                               true,
-                               65.f);
-            }
-            catch (...)
-            {
-                _gui.showErrorMsg(_resources.strings().cameraStartError());
-            }
-        }
-        else //try with unknown config (for desktop usage, there may be no high resolution available)
-        {
-            aproxVisuImgW    = 640;
-            aproxVisuImgH    = (int)((float)aproxVisuImgW / targetWdivH);
-            auto bestConfig2 = capProps.findBestMatchingConfig(SENSCameraFacing::UNKNOWN, 52.5f, aproxVisuImgW, aproxVisuImgH);
-            if (bestConfig2.first && bestConfig2.second)
-            {
-                const SENSCameraDeviceProperties* const devProps     = bestConfig2.first;
-                const SENSCameraStreamConfig*           streamConfig = bestConfig2.second;
-                Utils::log("AreaTrackingView", "starting camera with stream config: w:%d h:%d", streamConfig->widthPix, streamConfig->heightPix);
-
-                int cropW, cropH, w, h;
-                SENS::calcCrop(cv::Size(streamConfig->widthPix, streamConfig->heightPix), targetWdivH, cropW, cropH, w, h);
-                try
-                {
-                    _camera->start(devProps->deviceId(),
-                                   *streamConfig,
-                                   cv::Size(w, h),
-                                   false,
-                                   false,
-                                   true,
-                                   trackingImgW,
-                                   true,
-                                   52.5f);
-                }
-                catch (...)
-                {
-                    _gui.showErrorMsg(_resources.strings().cameraStartError());
-                }
-            }
-        }
-
+        _camera->start(cameraFrameTargetSize);
         return _camera->started();
     }
     else

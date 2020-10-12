@@ -19,11 +19,6 @@ SENSiOSCamera::~SENSiOSCamera()
 
 const SENSCameraConfig& SENSiOSCamera::start(std::string                   deviceId,
                                              const SENSCameraStreamConfig& streamConfig,
-                                             cv::Size                      imgBGRSize,
-                                             bool                          mirrorV,
-                                             bool                          mirrorH,
-                                             bool                          convToGrayToImgManip,
-                                             int                           imgManipWidth,
                                              bool                          provideIntrinsics,
                                              float                         fovDegFallbackGuess)
 {
@@ -33,6 +28,7 @@ const SENSCameraConfig& SENSiOSCamera::start(std::string                   devic
         return _config;
     }
 
+    /*
     cv::Size targetSize;
 
     if (imgBGRSize.width > 0 && imgBGRSize.height > 0)
@@ -52,6 +48,7 @@ const SENSCameraConfig& SENSiOSCamera::start(std::string                   devic
     else
         imgManipSize = targetSize;
 
+     */
     //retrieve all camera characteristics
     if (_captureProperties.size() == 0)
         _captureProperties = [_cameraDelegate retrieveCaptureProperties];
@@ -78,16 +75,11 @@ const SENSCameraConfig& SENSiOSCamera::start(std::string                   devic
         //init config here
         _config = SENSCameraConfig(deviceId,
                                    streamConfig,
-                                   SENSCameraFocusMode::UNKNOWN,
-                                   targetSize.width,
-                                   targetSize.height,
-                                   imgManipSize.width,
-                                   imgManipSize.height,
-                                   mirrorH,
-                                   mirrorV,
-                                   convToGrayToImgManip);
+                                   SENSCameraFocusMode::UNKNOWN);
+        
         //initialize guessed camera calibration
-        initCalibration(fovDegFallbackGuess);
+        if(provideIntrinsics)
+            initCalibration(fovDegFallbackGuess);
         _started = true;
     }
     else

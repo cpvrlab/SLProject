@@ -63,6 +63,8 @@ struct SENSCameraStreamConfig
     //bool intrinsicsProvided = false;
     //float minFrameRate = 0.f;
     //float maxFrameRate = 0.f;
+    
+    //todo: facing
 };
 
 class SENSCameraDeviceProperties
@@ -114,33 +116,13 @@ struct SENSCameraConfig
     //this constructor forces the user to always define a complete parameter set. In this way no parameter is forgotten..
     SENSCameraConfig(std::string                   deviceId,
                      const SENSCameraStreamConfig& streamConfig,
-                     SENSCameraFocusMode           focusMode          = SENSCameraFocusMode::CONTINIOUS_AUTO_FOCUS,
-                     int                           targetWidth        = 0,
-                     int                           targetHeight       = 0,
-                     int                           manipWidth         = 0,
-                     int                           manipHeight        = 0,
-                     bool                          mirrorH            = false,
-                     bool                          mirrorV            = false,
-                     bool                          convertManipToGray = false)
+                     SENSCameraFocusMode           focusMode = SENSCameraFocusMode::CONTINIOUS_AUTO_FOCUS)
       : deviceId(deviceId),
         streamConfig(streamConfig),
-        focusMode(focusMode),
-        targetWidth(targetWidth),
-        targetHeight(targetHeight),
-        manipWidth(manipWidth),
-        manipHeight(manipHeight),
-        mirrorH(mirrorH),
-        mirrorV(mirrorV),
-        convertManipToGray(convertManipToGray)
+        focusMode(focusMode)
     {
     }
     SENSCameraConfig() = default;
-
-    //SENSCameraConfig& operator=(const SENSCameraConfig& other) = default; // Copy assignment operator
-    //SENSCameraConfig& operator=(SENSCameraConfig&&) = default;            // Move assignment operator
-    //SENSCameraConfig(const SENSCameraConfig&) = default; // Copy constructor
-    //SENSCameraConfig(SENSCameraConfig&&)      = default; // Move constructor
-    //virtual ~SENSCameraConfig() {}                       // Destructor
 
     std::string deviceId;
     //! currently selected stream config index (use it to look up original capture size)
@@ -148,20 +130,6 @@ struct SENSCameraConfig
     SENSCameraStreamConfig streamConfig;
     //! autofocus mode
     SENSCameraFocusMode focusMode;
-    //! largest target image width (only BGR)
-    int targetWidth;
-    //! largest target image width (only BGR)
-    int targetHeight;
-    //! width of smaller image version (e.g. for tracking)
-    int manipWidth;
-    //! height of smaller image version (e.g. for tracking)
-    int manipHeight;
-    //! mirror image horizontally after capturing
-    bool mirrorH;
-    //! mirror image vertically after capturing
-    bool mirrorV;
-    //! provide gray version of small image
-    bool convertManipToGray;
 };
 
 class SENSCaptureProperties : public std::vector<SENSCameraDeviceProperties>
@@ -210,18 +178,21 @@ public:
     */
     virtual const SENSCameraConfig& start(std::string                   deviceId,
                                           const SENSCameraStreamConfig& streamConfig,
+                                          bool                          provideIntrinsics   = true,
+                                          float                         fovDegFallbackGuess = 65.f
+                                          /*,
                                           cv::Size                      imgBGRSize           = cv::Size(),
                                           bool                          mirrorV              = false,
                                           bool                          mirrorH              = false,
                                           bool                          convToGrayToImgManip = false,
                                           int                           imgManipWidth        = -1,
-                                          bool                          provideIntrinsics    = true,
-                                          float                         fovDegFallbackGuess  = 65.f) = 0;
+*/
+                                          ) = 0;
 
     //! Stop a started camera device
     virtual void stop() = 0;
     //! Get the latest captured frame. If no frame was captured the frame will be empty (null).
-    virtual SENSFramePtr latestFrame() = 0;
+    virtual SENSFrameBasePtr latestFrame() = 0;
     //! Get SENSCaptureProperties which contains necessary information about all available camera devices and their capabilities
     virtual const SENSCaptureProperties& captureProperties() = 0;
     //! defines what the currently selected camera is cabable to do (including all available camera devices)
@@ -240,6 +211,14 @@ public:
 
     virtual bool permissionGranted() const = 0;
     virtual void setPermissionGranted()    = 0;
+};
+
+enum class SENSCameraCalibMode
+{
+    GUESSED,              //pure guess, e.g. fallback guess 65. degree fov
+    FOCAL_LENGTH,         //estimated with image dimensions and focal length at infinity focus from api
+    PER_FRAME_INTRINSICS, //a new calibration per frame is estimated, when the camera api provides new intrinsics on focus change
+    CALIBRATED            //constant calibration is
 };
 
 //! Implementation of common functionality and members
@@ -263,18 +242,19 @@ public:
     void registerListener(SENSCameraListener* listener) override;
     void unregisterListener(SENSCameraListener* listener) override;
 
-    SENSFramePtr latestFrame() override;
+    SENSFrameBasePtr latestFrame() override;
 
 protected:
-    void         updateFrame(cv::Mat bgrImg, cv::Mat intrinsics, bool intrinsicsChanged);
-    void         initCalibration(float fovDegFallbackGuess);
-    SENSFramePtr postProcessNewFrame(cv::Mat& bgrImg, cv::Mat intrinsics, bool intrinsicsChanged);
+    void updateFrame(cv::Mat bgrImg, cv::Mat intrinsics, bool intrinsicsChanged);
+    void initCalibration(float fovDegFallbackGuess);
 
     SENSCaptureProperties _captureProperties;
 
     //! flags if camera was started
     std::atomic<bool> _started{false};
-    SENSCameraConfig  _config;
+
+    SENSCameraConfig _config;
+
     std::atomic<bool> _permissionGranted{false};
     //! The calibration is used for computer vision applications. This calibration is adjusted to fit to the original sized image (see SENSFrame::imgBGR and SENSCameraConfig::targetWidth, targetHeight)
     std::unique_ptr<SENSCalibration> _calibration;
@@ -283,99 +263,227 @@ protected:
     std::mutex                       _listenerMutex;
 
     //current frame
-    SENSFramePtr _sensFrame;
-    std::mutex   _frameMutex;
+    SENSFrameBasePtr _frame;
+    bool             _intrinsicsChanged = false;
+    cv::Mat          _intrinsics;
+    std::mutex       _frameMutex;
 };
 
-/*!
-The SENSCameraBase implementations may only be called from a single thread. Start and Stop will block and on the
-other hand if called from different threads, calling e.g. stop while starting will lead to 
-problems. 
-The SENSCameraAsync adds an additional state machine layer that handles events and makes sure
-that the possible states are corretly handled.
-By using an additional layer, we can separate the already complex camera implementations from
-the additonally complex statemachine.
-The SENSCameraAsync wraps a unique pointer of SENSCameraBase. In this way we may use the same implementation
-for all SENSCameraBase types.
-*/
-/*
-class SENSCameraAsync : public SENSCamera
+//---------------------------------------------------------------------------
+//SENSCameraConfig
+//define a config to start a capture session on a camera device
+struct SENSCvCameraConfig
+{
+    //this constructor forces the user to always define a complete parameter set. In this way no parameter is forgotten..
+    SENSCvCameraConfig(int  targetWidth,
+                       int  targetHeight,
+                       int  manipWidth,
+                       int  manipHeight,
+                       bool mirrorH,
+                       bool mirrorV,
+                       bool convertManipToGray)
+      : targetWidth(targetWidth),
+        targetHeight(targetHeight),
+        manipWidth(manipWidth),
+        manipHeight(manipHeight),
+        mirrorH(mirrorH),
+        mirrorV(mirrorV),
+        convertManipToGray(convertManipToGray)
+    {
+    }
+    SENSCvCameraConfig() {}
+
+    //! largest target image width (only BGR)
+    int targetWidth = 640;
+    //! largest target image width (only BGR)
+    int targetHeight = 480;
+    //! width of smaller image version (e.g. for tracking)
+    int manipWidth = 640;
+    //! height of smaller image version (e.g. for tracking)
+    int manipHeight = 480;
+    //! mirror image horizontally after capturing
+    bool mirrorH = false;
+    //! mirror image vertically after capturing
+    bool mirrorV = false;
+    //! provide gray version of small image
+    bool convertManipToGray = false;
+};
+
+class SENSCvCamera
 {
 public:
-    //The SENSCameraAsync takes ownership of the camera, thats why one has to provide a unique pointer
-    explicit SENSCameraAsync(std::unique_ptr<SENSCameraBase> camera)
+    SENSCvCamera(SENSCamera* camera)
+      : _camera(camera)
     {
-        _camera = std::move(camera);
-        if (!_camera)
-            throw SENSException(SENSType::CAM, "SENSCameraAsync: initialized with invalid SENSCameraBase object!", __LINE__, __FILE__);
     }
 
-    void start(const SENSCameraConfig config) override
+    //init config
+    void configure(int  targetWidth,
+                   int  targetHeight,
+                   int  manipWidth,
+                   int  manipHeight,
+                   bool mirrorH,
+                   bool mirrorV,
+                   bool convertManipToGray)
     {
-        _camera->start(config);
-    }
-    void start(std::string id, int width, int height) override
-    {
-    }
-    void stop() override
-    {
-        _camera->stop();
+        _config = SENSCvCameraConfig(targetWidth,
+                                     targetHeight,
+                                     manipWidth,
+                                     manipHeight,
+                                     mirrorH,
+                                     mirrorV,
+                                     convertManipToGray);
     }
 
+    const SENSCvCameraConfig& config()
+    {
+        return _config;
+    }
 
-    SENSFramePtr getLatestFrame() override
+    bool start(const cv::Size& cameraFrameTargetSize)
+    {
+        if(!_camera)
+            return false;
+        
+        int trackingImgW = 640;
+        //float targetWdivH   = 4.f / 3.f;
+        float targetWdivH   = (float)cameraFrameTargetSize.width / (float)cameraFrameTargetSize.height;
+        int   aproxVisuImgW = 1000;
+        int   aproxVisuImgH = (int)((float)aproxVisuImgW / targetWdivH);
+
+        auto capProps   = _camera->captureProperties();
+        auto bestConfig = capProps.findBestMatchingConfig(SENSCameraFacing::BACK, 65.f, aproxVisuImgW, aproxVisuImgH);
+
+        if (bestConfig.first && bestConfig.second)
+        {
+            const SENSCameraDeviceProperties* const devProps     = bestConfig.first;
+            const SENSCameraStreamConfig*           streamConfig = bestConfig.second;
+            Utils::log("AreaTrackingView", "starting camera with stream config: w:%d h:%d", streamConfig->widthPix, streamConfig->heightPix);
+
+            int cropW, cropH, w, h;
+            SENS::calcCrop(cv::Size(streamConfig->widthPix, streamConfig->heightPix), targetWdivH, cropW, cropH, w, h);
+
+            try
+            {
+                _camera->start(devProps->deviceId(),
+                               *streamConfig,
+                               true,
+                               65.f);
+            }
+            catch (...)
+            {
+                //_gui.showErrorMsg(_resources.strings().cameraStartError());
+            }
+        }
+        else //try with unknown config (for desktop usage, there may be no high resolution available)
+        {
+            aproxVisuImgW    = 640;
+            aproxVisuImgH    = (int)((float)aproxVisuImgW / targetWdivH);
+            auto bestConfig2 = capProps.findBestMatchingConfig(SENSCameraFacing::UNKNOWN, 52.5f, aproxVisuImgW, aproxVisuImgH);
+            if (bestConfig2.first && bestConfig2.second)
+            {
+                const SENSCameraDeviceProperties* const devProps     = bestConfig2.first;
+                const SENSCameraStreamConfig*           streamConfig = bestConfig2.second;
+                Utils::log("AreaTrackingView", "starting camera with stream config: w:%d h:%d", streamConfig->widthPix, streamConfig->heightPix);
+
+                int cropW, cropH, w, h;
+                SENS::calcCrop(cv::Size(streamConfig->widthPix, streamConfig->heightPix), targetWdivH, cropW, cropH, w, h);
+                try
+                {
+                    _camera->start(devProps->deviceId(),
+                                   *streamConfig,
+                                   true,
+                                   52.5f);
+                }
+                catch (...)
+                {
+                    //_gui.showErrorMsg(_resources.strings().cameraStartError());
+                }
+            }
+        }
+
+        return true;
+    }
+
+    bool started()
+    {
+        if (_camera)
+            return _camera->started();
+        else
+            return false;
+    }
+
+    void stop()
+    {
+        if (_camera)
+            _camera->stop();
+    }
+
+    SENSFramePtr latestFrame()
     {
         SENSFramePtr frame;
 
-        if (_camera)
+        SENSFrameBasePtr frameBase = _camera->latestFrame();
+        if (frameBase)
         {
-            frame = _camera->getLatestFrame();
+            //process
+            frame = processNewFrame(frameBase->imgBGR, frameBase->intrinsics, !frameBase->intrinsics.empty());
         }
-        else
-        {
-            //warn
-        }
+
+        //update calibration if necessary
+
         return frame;
     }
 
-    const SENSCameraConfig& config() const override
+    //get camera pointer reference
+    SENSCamera*& cameraRef() { return _camera; }
+    
+    const SENSCalibration* const calibration() const
     {
-        return _camera->config();
+        return _calibrationTargetSize.get();
     }
     
-    const SENSCameraStreamConfig& currSteamConfig() const override
+    cv::Mat scaledCameraMat()
     {
-        return _camera->currSteamConfig();
+        return SENS::adaptCameraMat(_calibrationTargetSize->cameraMat(),
+                                                    _config.manipWidth,
+                                                    _config.targetWidth);
     }
     
-    const SENSCameraProperties& currCameraProperties() const override
+    //guess a calibration from what we know and update all derived calibration
+    //(fallback is used if camera api defines no fov value)
+    void guessAndSetCalibration(float fallbackHorizFov)
     {
-        return _camera->currCameraProperties();
+        assert(_camera);
         
+        auto  streamConfig = _camera->config().streamConfig;
+        float horizFovDeg  = 65.f;
+        if (streamConfig.focalLengthPix > 0)
+            horizFovDeg = SENS::calcFOVDegFromFocalLengthPix(streamConfig.focalLengthPix, streamConfig.widthPix);
+
+        //_calibration = CVCalibration(_videoFrameSize, horizFOVDev, false, false, CVCameraType::BACKFACING, Utils::ComputerInfos::get());
+        SENSCalibration calib(cv::Size(streamConfig.widthPix, streamConfig.heightPix), horizFovDeg, false, false, SENSCameraType::BACKFACING, Utils::ComputerInfos::get());
+        setCalibration(calib, false);
     }
     
-
-    bool started() const override
+    void setCalibration(SENSCalibration calibration, bool buildUndistortionMaps)
     {
-        return _camera->started();
-    }
-
-    bool permissionGranted() const override
-    {
-        return _camera->permissionGranted();
-    }
-    void setPermissionGranted() override
-    {
-        _camera->setPermissionGranted();
+        assert(_camera);
+        
+        //set calibration in SENSCamera
+        _camera->setCalibration(calibration, buildUndistortionMaps);
+        //set calibration in SENSCvCamera
+        
     }
 
 private:
-    //wrapped SENSCameraBase instance
-    std::unique_ptr<SENSCameraBase> _camera;
+    SENSFramePtr processNewFrame(cv::Mat& bgrImg, cv::Mat intrinsics, bool intrinsicsChanged);
 
-    //processing thread
-    std::thread _thread;
+    SENSCamera*        _camera;
+    SENSCvCameraConfig _config;
+    
+    //calibration that fits to (targetWidth,targetHeight)
+    std::unique_ptr<SENSCalibration> _calibrationTargetSize;
 };
- */
 
 #endif //SENS_CAMERA_H

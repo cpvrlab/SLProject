@@ -211,11 +211,13 @@ SENSSimulatedCamera::~SENSSimulatedCamera()
 
 const SENSCameraConfig& SENSSimulatedCamera::start(std::string                   deviceId,
                                                    const SENSCameraStreamConfig& streamConfig,
+/*
                                                    cv::Size                      imgBGRSize,
                                                    bool                          mirrorV,
                                                    bool                          mirrorH,
                                                    bool                          convToGrayToImgManip,
                                                    int                           imgManipWidth,
+ */
                                                    bool                          provideIntrinsics,
                                                    float                         fovDegFallbackGuess)
 {
@@ -225,6 +227,7 @@ const SENSCameraConfig& SENSSimulatedCamera::start(std::string                  
         return _config;
     }
 
+    /*
     cv::Size targetSize;
     if (imgBGRSize.width > 0 && imgBGRSize.height > 0)
     {
@@ -242,7 +245,7 @@ const SENSCameraConfig& SENSSimulatedCamera::start(std::string                  
         imgManipSize = {imgManipWidth, (int)((float)imgManipWidth * (float)targetSize.height / (float)targetSize.width)};
     else
         imgManipSize = targetSize;
-
+*/
     if (!_cap.isOpened())
     {
         if (!_cap.open(_videoFileName))
@@ -260,14 +263,17 @@ const SENSCameraConfig& SENSSimulatedCamera::start(std::string                  
     //init config here
     _config = SENSCameraConfig(deviceId,
                                streamConfig,
-                               SENSCameraFocusMode::UNKNOWN,
+                               SENSCameraFocusMode::UNKNOWN
+                               /*,
                                targetSize.width,
                                targetSize.height,
                                imgManipSize.width,
                                imgManipSize.height,
                                mirrorH,
                                mirrorV,
-                               convToGrayToImgManip);
+                               convToGrayToImgManip
+                                */
+                                );
 
     initCalibration(fovDegFallbackGuess);
 
@@ -288,6 +294,7 @@ void SENSSimulatedCamera::stop()
     }
 }
 
+/*
 SENSFramePtr SENSSimulatedCamera::latestFrame()
 {
     cv::Mat newFrame;
@@ -304,6 +311,7 @@ SENSFramePtr SENSSimulatedCamera::latestFrame()
 
     return processedFrame;
 }
+ */
 
 const SENSCaptureProperties& SENSSimulatedCamera::captureProperties()
 {

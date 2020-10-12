@@ -53,53 +53,6 @@ int SENSCameraDeviceProperties::findBestMatchingConfig(cv::Size requiredSize) co
     return matchingSizes.front().second;
 }
 
-SENSFramePtr SENSCameraBase::postProcessNewFrame(cv::Mat& bgrImg, cv::Mat intrinsics, bool intrinsicsChanged)
-{
-    //todo: accessing config readonly should be no problem  here, as the config only changes when camera is stopped
-    cv::Size inputSize = bgrImg.size();
-
-    // Crop Video image to required aspect ratio
-    int cropW = 0, cropH = 0;
-    SENS::cropImage(bgrImg, (float)_config.targetWidth / (float)_config.targetHeight, cropW, cropH);
-
-    // Mirroring
-    SENS::mirrorImage(bgrImg, _config.mirrorH, _config.mirrorV);
-
-    cv::Mat manipImg;
-    float   scale = 1.0f;
-    if (_config.manipWidth > 0 && _config.manipHeight > 0)
-    {
-        manipImg  = bgrImg;
-        int cropW = 0, cropH = 0;
-        SENS::cropImage(manipImg, (float)_config.manipWidth / (float)_config.manipHeight, cropW, cropH);
-        scale = (float)_config.manipWidth / (float)manipImg.size().width;
-        cv::resize(manipImg, manipImg, cv::Size(), scale, scale);
-    }
-    else if (_config.convertManipToGray)
-    {
-        manipImg = bgrImg;
-    }
-
-    // Create grayscale
-    if (_config.convertManipToGray)
-    {
-        cv::cvtColor(manipImg, manipImg, cv::COLOR_BGR2GRAY);
-    }
-
-    SENSFramePtr sensFrame = std::make_unique<SENSFrame>(bgrImg,
-                                                         manipImg,
-                                                         inputSize.width,
-                                                         inputSize.height,
-                                                         cropW,
-                                                         cropH,
-                                                         _config.mirrorH,
-                                                         _config.mirrorV,
-                                                         1 / scale,
-                                                         intrinsics);
-
-    return sensFrame;
-}
-
 bool SENSCaptureProperties::containsDeviceId(const std::string& deviceId) const
 {
     return std::find_if(begin(), end(), [&](const SENSCameraDeviceProperties& comp) { return comp.deviceId() == deviceId; }) != end();
@@ -247,10 +200,15 @@ void SENSCameraBase::updateFrame(cv::Mat bgrImg, cv::Mat intrinsics, bool intrin
         }
     }
     
-    SENSFramePtr sensFrame = postProcessNewFrame(bgrImg, intrinsics, intrinsicsChanged);
+    //SENSFramePtr sensFrame;
+    //SENSFramePtr sensFrame = postProcessNewFrame(bgrImg, intrinsics, intrinsicsChanged);
     {
         std::lock_guard<std::mutex> lock(_frameMutex);
-        _sensFrame = sensFrame;
+        if(intrinsicsChanged)
+        {
+            _intrinsicsChanged = true;
+            _intrinsics = intrinsics;
+        }
     }
 }
 
@@ -265,11 +223,11 @@ void SENSCameraBase::initCalibration(float fovDegFallbackGuess)
                                                      horizFOVDev,
                                                      false,
                                                      false,
-                                                     SENSCameraType::BACKFACING,
+                                                     SENSCameraType::BACKFACING, //todo
                                                      Utils::ComputerInfos().get());
     //now we adapt the calibration to the target size
-    if (_config.targetWidth != _config.streamConfig.widthPix || _config.targetHeight != _config.streamConfig.heightPix)
-        _calibration->adaptForNewResolution({_config.targetWidth, _config.targetHeight}, false);
+    //if (_config.targetWidth != _config.streamConfig.widthPix || _config.targetHeight != _config.streamConfig.heightPix)
+    //    _calibration->adaptForNewResolution({_config.targetWidth, _config.targetHeight}, false);
     
     //inform listeners about calibration
     {
@@ -286,13 +244,12 @@ void SENSCameraBase::setCalibration(SENSCalibration calibration, bool buildUndis
 
     _calibration = std::make_unique<SENSCalibration>(calibration);
     //now we adapt the calibration to the target size
-    _calibration->adaptForNewResolution({_config.targetWidth, _config.targetHeight}, buildUndistortionMaps);
-    /*
-    if ((_config.manipWidth > 0 && _config.manipHeight > 0) || _config.manipWidth != _config.streamConfig->widthPix || _config.manipHeight != _config.streamConfig->heightPix)
-        _calibration->adaptForNewResolution({_config.manipWidth, _config.manipHeight}, buildUndistortionMaps);
-    else if (_config.targetWidth != _config.streamConfig->widthPix || _config.targetHeight != _config.streamConfig->heightPix)
-        _calibration->adaptForNewResolution({_config.targetWidth, _config.targetHeight}, buildUndistortionMaps);
-     */
+    //_calibration->adaptForNewResolution({_config.targetWidth, _config.targetHeight}, buildUndistortionMaps);
+
+    //if ((_config.manipWidth > 0 && _config.manipHeight > 0) || _config.manipWidth != _config.streamConfig->widthPix || _config.manipHeight != _config.streamConfig->heightPix)
+    //    _calibration->adaptForNewResolution({_config.manipWidth, _config.manipHeight}, buildUndistortionMaps);
+    //else if (_config.targetWidth != _config.streamConfig->widthPix || _config.targetHeight != _config.streamConfig->heightPix)
+    //    _calibration->adaptForNewResolution({_config.targetWidth, _config.targetHeight}, buildUndistortionMaps);
     
     {
         std::lock_guard<std::mutex> lock(_listenerMutex);
@@ -321,9 +278,9 @@ void SENSCameraBase::unregisterListener(SENSCameraListener* listener)
     }
 }
 
-SENSFramePtr SENSCameraBase::latestFrame()
+SENSFrameBasePtr SENSCameraBase::latestFrame()
 {
-    SENSFramePtr latestFrame;
+    SENSFrameBasePtr latestFrame;
 
     if (!_started)
     {
@@ -333,7 +290,7 @@ SENSFramePtr SENSCameraBase::latestFrame()
 
     {
         std::lock_guard<std::mutex> lock(_frameMutex);
-        latestFrame = _sensFrame;
+        latestFrame = _frame;
     }
 
     if (latestFrame && !latestFrame->intrinsics.empty())
@@ -346,9 +303,57 @@ SENSFramePtr SENSCameraBase::latestFrame()
                                                          _calibration->camType(),
                                                          _calibration->computerInfos());
         //adjust calibration
-        if (_config.targetWidth != _config.streamConfig.widthPix || _config.targetHeight != _config.streamConfig.heightPix)
-            _calibration->adaptForNewResolution({_config.targetWidth, _config.targetHeight}, false);
+        //todo:
+        //if (_config.targetWidth != _config.streamConfig.widthPix || _config.targetHeight != _config.streamConfig.heightPix)
+        //    _calibration->adaptForNewResolution({_config.targetWidth, _config.targetHeight}, false);
     }
 
     return latestFrame;
+}
+
+SENSFramePtr SENSCvCamera::processNewFrame(cv::Mat& bgrImg, cv::Mat intrinsics, bool intrinsicsChanged)
+{
+    //todo: accessing config readonly should be no problem  here, as the config only changes when camera is stopped
+    cv::Size inputSize = bgrImg.size();
+
+    // Crop Video image to required aspect ratio
+    int cropW = 0, cropH = 0;
+    SENS::cropImage(bgrImg, (float)_config.targetWidth / (float)_config.targetHeight, cropW, cropH);
+
+    // Mirroring
+    SENS::mirrorImage(bgrImg, _config.mirrorH, _config.mirrorV);
+
+    cv::Mat manipImg;
+    float   scale = 1.0f;
+    if (_config.manipWidth > 0 && _config.manipHeight > 0)
+    {
+        manipImg  = bgrImg;
+        int cropW = 0, cropH = 0;
+        SENS::cropImage(manipImg, (float)_config.manipWidth / (float)_config.manipHeight, cropW, cropH);
+        scale = (float)_config.manipWidth / (float)manipImg.size().width;
+        cv::resize(manipImg, manipImg, cv::Size(), scale, scale);
+    }
+    else if (_config.convertManipToGray)
+    {
+        manipImg = bgrImg;
+    }
+
+    // Create grayscale
+    if (_config.convertManipToGray)
+    {
+        cv::cvtColor(manipImg, manipImg, cv::COLOR_BGR2GRAY);
+    }
+
+    SENSFramePtr sensFrame = std::make_unique<SENSFrame>(bgrImg,
+                                                         manipImg,
+                                                         inputSize.width,
+                                                         inputSize.height,
+                                                         cropW,
+                                                         cropH,
+                                                         _config.mirrorH,
+                                                         _config.mirrorV,
+                                                         1 / scale,
+                                                         intrinsics);
+    
+    return sensFrame;
 }

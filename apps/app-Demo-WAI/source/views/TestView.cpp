@@ -30,11 +30,10 @@ TestView::TestView(sm::EventHandler&   eventHandler,
       _featureExtractorFactory.getExtractorIdToNames(),
       _eventQueue,
       [&]() { return _mode; },                            //getter callback for current mode
-      [&]() { return _camera; },                          //getter callback for current camera
+      [&]() { return _camera.get(); },                    //getter callback for current camera
       [&]() { return _camera ? _calibration : nullptr; }, //getter callback for current calibration
       [&]() { return _videoFileStream.get(); }),          //getter callback for current calibration
     _scene("TestScene", deviceData.dataDir(), deviceData.erlebARDir()),
-    _camera(camera),
     _configDir(deviceData.writableDir()),
     _vocabularyDir(deviceData.vocabularyDir()),
     _calibDir(deviceData.erlebARCalibTestDir()),
@@ -50,6 +49,9 @@ TestView::TestView(sm::EventHandler&   eventHandler,
 
     setupDefaultErlebARDirTo(deviceData.erlebARTestDir());
     //tryLoadLastSlam();
+
+    if (camera)
+        _camera = std::make_unique<SENSCvCamera>(camera);
 }
 
 TestView::~TestView()
@@ -174,6 +176,7 @@ void TestView::handleEvents()
                 }
                 else if (autoCalEvent->useGuessCalibration)
                 {
+                    /*
                     auto  streamConfig = _camera->config().streamConfig;
                     float horizFovDeg  = 65.f;
                     if (streamConfig.focalLengthPix > 0)
@@ -181,13 +184,14 @@ void TestView::handleEvents()
 
                     //_calibration = CVCalibration(_videoFrameSize, horizFOVDev, false, false, CVCameraType::BACKFACING, Utils::ComputerInfos::get());
                     SENSCalibration calib(cv::Size(streamConfig.widthPix, streamConfig.heightPix), horizFovDeg, false, false, SENSCameraType::BACKFACING, Utils::ComputerInfos::get());
-                    _camera->setCalibration(calib, false);
+                    */
+                    _camera->guessAndSetCalibration(65.f);
                     _calibration = _camera->calibration();
                     _scene.camera->updateCameraIntrinsics(_calibration->cameraFovVDeg());
-                    cv::Mat scaledCamMat = SENS::adaptCameraMat(_calibration->cameraMat(),
-                                                                _camera->config().manipWidth,
-                                                                _camera->config().targetWidth);
-                    _mode->changeIntrinsic(scaledCamMat, _calibration->distortion());
+                    //cv::Mat scaledCamMat = SENS::adaptCameraMat(_calibration->cameraMat(),
+                    //                                            _camera->config().manipWidth,
+                    //                                            _camera->config().targetWidth);
+                    _mode->changeIntrinsic(_camera->scaledCameraMat(), _calibration->distortion());
                 }
                 else if (autoCalEvent->restoreOriginalCalibration)
                 {
@@ -566,52 +570,7 @@ bool TestView::startCamera()
     if (_camera->started())
         _camera->stop();
 
-    auto capProps     = _camera->captureProperties();
-    int  trackingImgW = 640;
-
-    float targetWdivH   = 4.f / 3.f;
-    int   aproxVisuImgW = 640;
-    int   aproxVisuImgH = (int)((float)aproxVisuImgW / targetWdivH);
-
-    auto bestConfig = capProps.findBestMatchingConfig(SENSCameraFacing::BACK, 65.f, aproxVisuImgW, aproxVisuImgH);
-
-    if (bestConfig.first && bestConfig.second)
-    {
-        const SENSCameraDeviceProperties* const devProps     = bestConfig.first;
-        const SENSCameraStreamConfig*           streamConfig = bestConfig.second;
-        //calculate size of tracking image
-        float imgWdivH = (float)streamConfig->widthPix / (float)streamConfig->heightPix;
-        _camera->start(devProps->deviceId(),
-                       *streamConfig,
-                       cv::Size(),
-                       false,
-                       false,
-                       true,
-                       trackingImgW,
-                       true,
-                       65.f);
-    }
-    else //try with unknown config (for desktop)
-    {
-        aproxVisuImgW    = 640;
-        auto bestConfig2 = capProps.findBestMatchingConfig(SENSCameraFacing::UNKNOWN, 65.f, 640, 480);
-        if (bestConfig2.first && bestConfig2.second)
-        {
-            const SENSCameraDeviceProperties* const devProps     = bestConfig2.first;
-            const SENSCameraStreamConfig*           streamConfig = bestConfig2.second;
-            //calculate size of tracking image
-            float imgWdivH = (float)streamConfig->widthPix / (float)streamConfig->heightPix;
-            _camera->start(devProps->deviceId(),
-                           *streamConfig,
-                           cv::Size(),
-                           false,
-                           false,
-                           true,
-                           trackingImgW,
-                           true,
-                           65.f);
-        }
-    }
+    _camera->start({640, 480});
 
     return _camera->started();
 }

@@ -57,7 +57,7 @@ public:
                 _simHelper.reset();
             _simHelper = std::make_unique<SENSSimHelper>(_gps,
                                                          _orientation,
-                                                         _camera,
+                                                         _camera->cameraRef(),
                                                          _deviceData.writableDir() + "SENSSimData",
                                                          std::bind(&AreaTrackingView::onCameraParamsChanged, this));
         }
@@ -108,7 +108,7 @@ private:
 
     std::map<ErlebAR::LocationId, ErlebAR::Location> _locations;
 
-    SENSCamera*      _camera      = nullptr;
+    std::unique_ptr<SENSCvCamera> _camera;
     SENSGps*         _gps         = nullptr;
     SENSOrientation* _orientation = nullptr;
 

@@ -172,9 +172,12 @@ private:
     float       _cameraFovHDeg = 0.0f;                //!< Horizontal field of view in degrees
     std::string _calibFileName;                       //!< name for calibration file
     int         _calibFlags  = 0;                     //!< OpenCV calibration flags
+    //todo: not necessary if calibrated before mirroring postprocessing
     bool        _isMirroredH = false;                 //!< Flag if image must be horizontally mirrored
+    //todo: not necessary if calibrated before mirroring postprocessing
     bool        _isMirroredV = false;                 //!< Flag if image must be vertically mirrored
 
+    //todo: maybe we dont need this here..
     int      _numCaptured = 0;           //!< NO. of images captured
     cv::Size _boardSize;                 //!< NO. of inner chessboard corners.
     float    _boardSquareMM     = 20.f;  //!< Size of chessboard square in mm

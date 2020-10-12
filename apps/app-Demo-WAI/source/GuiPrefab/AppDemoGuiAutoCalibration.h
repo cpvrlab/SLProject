@@ -14,7 +14,7 @@ public:
     AppDemoGuiAutoCalibration(string                                      name,
                               bool*                                       activator,
                               std::queue<WAIEvent*>*                      eventQueue,
-                              std::function<SENSCamera*(void)>            getCameraCB,
+                              std::function<SENSCvCamera*(void)>          getCameraCB,
                               std::function<const SENSCalibration*(void)> getCalibrationCB,
                               ImFont*                                     font);
 
@@ -23,7 +23,7 @@ public:
 private:
     bool                                        _tryAutoCalibrate;
     std::queue<WAIEvent*>*                      _eventQueue;
-    std::function<SENSCamera*(void)>            _getCamera;
+    std::function<SENSCvCamera*(void)>          _getCamera;
     std::function<const SENSCalibration*(void)> _getCalibration;
 };
 

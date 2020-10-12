@@ -16,11 +16,11 @@
 
 //-----------------------------------------------------------------------------
 
-AppDemoGuiVideoStorage::AppDemoGuiVideoStorage(const std::string&               name,
-                                               bool*                            activator,
-                                               std::queue<WAIEvent*>*           eventQueue,
-                                               ImFont*                          font,
-                                               std::function<SENSCamera*(void)> getCameraCB)
+AppDemoGuiVideoStorage::AppDemoGuiVideoStorage(const std::string&                 name,
+                                               bool*                              activator,
+                                               std::queue<WAIEvent*>*             eventQueue,
+                                               ImFont*                            font,
+                                               std::function<SENSCvCamera*(void)> getCameraCB)
   : AppDemoGuiInfosDialog(name, activator, font),
     _eventQueue(eventQueue),
     _getCamera(getCameraCB)
@@ -38,7 +38,7 @@ void AppDemoGuiVideoStorage::buildInfos(SLScene* s, SLSceneView* sv)
 
         if (!_recording)
         {
-            SENSCamera* cam = _getCamera();
+            SENSCvCamera* cam = _getCamera();
             if (cam)
             {
                 cv::Size    size(cam->config().targetWidth, cam->config().targetHeight);

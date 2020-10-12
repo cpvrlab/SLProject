@@ -8,7 +8,7 @@
 AppDemoGuiAutoCalibration::AppDemoGuiAutoCalibration(string                                      name,
                                                      bool*                                       activator,
                                                      std::queue<WAIEvent*>*                      eventQueue,
-                                                     std::function<SENSCamera*(void)>            getCameraCB,
+                                                     std::function<SENSCvCamera*(void)>          getCameraCB,
                                                      std::function<const SENSCalibration*(void)> getCalibrationCB,
                                                      ImFont*                                     font)
   : AppDemoGuiInfosDialog(name, activator, font)
@@ -23,7 +23,7 @@ void AppDemoGuiAutoCalibration::buildInfos(SLScene* s, SLSceneView* sv)
 {
     SLchar m[2550];      // message character array
     m[0]            = 0; //
-    SENSCamera* cam = _getCamera();
+    SENSCvCamera* cam = _getCamera();
     // clang-format off
     if (cam)
         sprintf(m + strlen(m), "Capture size: %d x %d\n", cam->config().targetWidth, cam->config().targetHeight);

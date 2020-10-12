@@ -414,9 +414,9 @@ void SensorTestGui::updateCameraSensor()
 
             if (_camera->started())
             {
-                ImGui::Text("Current frame size: w: %d, h: %d", _camera->config().targetWidth, _camera->config().targetHeight);
+                ImGui::Text("Current frame size: w: %d, h: %d", _camera->config().streamConfig.widthPix, _camera->config().streamConfig.heightPix);
 
-                SENSFramePtr frame = _camera->latestFrame();
+                SENSFrameBasePtr frame = _camera->latestFrame();
                 if (frame)
                 {
                     if (frame->imgBGR.size() != _videoTextureSize)
