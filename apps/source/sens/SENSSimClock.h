@@ -2,6 +2,7 @@
 #define SENS_SIMCLOCK_H
 
 #include <mutex>
+#include <atomic>
 #include <sens/SENS.h>
 
 /*! SENSSimClock
@@ -35,7 +36,7 @@ public:
     void resume()
     {
         std::lock_guard<std::mutex> lock(_pauseMutex);
-        _pause       = false;
+        _pause     = false;
         _pauseTime = _pauseTime + std::chrono::duration_cast<SENSMicroseconds>((SENSTimePt)SENSClock::now() - _pauseTimePt);
     }
 
@@ -45,10 +46,10 @@ public:
     {
         pause();
         _startTimePt = SENSClock::now();
-        _pauseTime = SENSMicroseconds(0);
+        _pauseTime   = SENSMicroseconds(0);
         resume();
     }
-    
+
     //!get passed simulation time
     SENSMicroseconds passedTime() const
     {

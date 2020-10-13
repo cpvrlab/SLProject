@@ -589,10 +589,10 @@ vector<string> getDirNamesInDir(const string& dirName, bool fullPath)
             auto filename = entry.path().filename();
             if (fs::is_directory(entry.status()))
             {
-                if(fullPath)
+                if (fullPath)
                     filePathNames.push_back(dirName + "/" + filename.u8string());
                 else
-                    filePathNames.push_back(filename.u8string());)
+                    filePathNames.push_back(filename.u8string());
             }
         }
     }
@@ -617,7 +617,7 @@ vector<string> getDirNamesInDir(const string& dirName, bool fullPath)
                 stat((dirName + name).c_str(), &path_stat);
                 if (!S_ISREG(path_stat.st_mode))
                 {
-                    if(fullPath)
+                    if (fullPath)
                         filePathNames.push_back(dirName + "/" + name);
                     else
                         filePathNames.push_back(name);
@@ -642,7 +642,7 @@ vector<string> getAllNamesInDir(const string& dirName, bool fullPath)
         for (const auto& entry : fs::directory_iterator(dirName))
         {
             auto filename = entry.path().filename();
-            if(fullPath)
+            if (fullPath)
                 filePathNames.push_back(dirName + "/" + filename.u8string());
             else
                 filePathNames.push_back(filename.u8string());
@@ -665,7 +665,7 @@ vector<string> getAllNamesInDir(const string& dirName, bool fullPath)
             string name(dirContent->d_name);
             if (name != "." && name != "..")
             {
-                if(fullPath)
+                if (fullPath)
                     filePathNames.push_back(dirName + "/" + name);
                 else
                     filePathNames.push_back(name);
@@ -692,7 +692,7 @@ vector<string> getFileNamesInDir(const string& dirName, bool fullPath)
             auto filename = entry.path().filename();
             if (fs::is_regular_file(entry.status()))
             {
-                if(fullPath)
+                if (fullPath)
                     filePathNames.push_back(dirName + "/" + filename.u8string());
                 else
                     filePathNames.push_back(filename.u8string());
@@ -720,7 +720,7 @@ vector<string> getFileNamesInDir(const string& dirName, bool fullPath)
                 stat((dirName + name).c_str(), &path_stat);
                 if (S_ISREG(path_stat.st_mode))
                 {
-                    if(fullPath)
+                    if (fullPath)
                         filePathNames.push_back(dirName + name);
                     else
                         filePathNames.push_back(name);
