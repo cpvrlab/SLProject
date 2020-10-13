@@ -26,25 +26,32 @@ public:
         // A keyframe is considered redundant if _cullRedundantPerc of the MapPoints it sees, are seen
         // in at least other 3 keyframes (in the same or finer scale)
         float cullRedundantPerc = 0.95f; //originally it was 0.9
+
+        //Min common words as a factor of max common words within candidates
+        // for relocalization and loop closing
+        float minCommonWordFactor = 0.8f;
+
+        //Min acc score filter in detectRelocalizationCandidates
+        bool minAccScoreFilter = false;
     };
 
     WAISlamTrackPool(const cv::Mat&          intrinsic,
-            const cv::Mat&          distortion,
-            WAIOrbVocabulary*       voc,
-            KPextractor*            iniExtractor,
-            KPextractor*            relocExtractor,
-            KPextractor*            extractor,
-            std::unique_ptr<WAIMap> globalMap,
-            Params         params);
+                     const cv::Mat&          distortion,
+                     WAIOrbVocabulary*       voc,
+                     KPextractor*            iniExtractor,
+                     KPextractor*            relocExtractor,
+                     KPextractor*            extractor,
+                     std::unique_ptr<WAIMap> globalMap,
+                     Params                  params);
 
     virtual ~WAISlamTrackPool();
 
     bool update(cv::Mat& imageGray);
-    
+
     virtual WAI::TrackingState getTrackingState() { return _state; }
-    void changeIntrinsic(cv::Mat intrinsic, cv::Mat distortion);
-    cv::Mat getPose();
-    
+    void                       changeIntrinsic(cv::Mat intrinsic, cv::Mat distortion);
+    cv::Mat                    getPose();
+
     void drawInfo(cv::Mat& imageBGR,
                   float    scale,
                   bool     showInitLine,
@@ -62,19 +69,19 @@ public:
 private:
     void createFrame(WAIFrame& frame, cv::Mat& imageGray);
     void updatePose(WAIFrame& frame);
-    
+
     Params _params;
-  
-    unsigned int         _relocFrameCounter   = 0;
-    unsigned long        _lastRelocFrameId    = 0;
-    unsigned long        _lastKeyFrameFrameId = 0;
-    KPextractor*         _extractor           = nullptr;
-    KPextractor*         _relocExtractor      = nullptr;
-    KPextractor*         _iniExtractor        = nullptr;
-    int                  _infoMatchedInliners = 0;
-    
+
+    unsigned int  _relocFrameCounter   = 0;
+    unsigned long _lastRelocFrameId    = 0;
+    unsigned long _lastKeyFrameFrameId = 0;
+    KPextractor*  _extractor           = nullptr;
+    KPextractor*  _relocExtractor      = nullptr;
+    KPextractor*  _iniExtractor        = nullptr;
+    int           _infoMatchedInliners = 0;
+
     WAI::TrackingState _state;
-    
+
     std::mutex _cameraExtrinsicMutex;
 };
 

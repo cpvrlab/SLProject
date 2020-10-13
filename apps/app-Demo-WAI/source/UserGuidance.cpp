@@ -39,7 +39,7 @@ void UserGuidance::areaSelected(ErlebAR::AreaId areaId, SLVec3d areaLocation, fl
     _areaOrientation = areaOrientation;
 
     estimateEcefToEnuRotation();
-    _ecefAREA.lla2ecef(areaLocation);
+    _ecefAREA.latlonAlt2ecef(areaLocation);
 
     update();
 }
@@ -69,7 +69,7 @@ void UserGuidance::updateSensorEstimations()
     {
         SENSGps::Location loc = _gps->getLocation();
         //ATTENTION: we are using the same altitude as for the area, because gps altitude is not exact
-        _ecefDEVICE.lla2ecef({loc.latitudeDEG, loc.longitudeDEG, _areaLocation.z});
+        _ecefDEVICE.latlonAlt2ecef({loc.latitudeDEG, loc.longitudeDEG, _areaLocation.z});
         _currentDistanceToAreaM = (float)_ecefDEVICE.distance(_ecefAREA);
         _highDistanceToArea     = (_currentDistanceToAreaM > DIST_TO_AREA_THRES_M);
         LOG_UG_DEBUG("Distance to Area: %f", _currentDistanceToAreaM);

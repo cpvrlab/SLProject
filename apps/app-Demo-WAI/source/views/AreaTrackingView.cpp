@@ -55,7 +55,7 @@ AreaTrackingView::~AreaTrackingView()
 
 void AreaTrackingView::onCameraParamsChanged()
 {
-    if(!_waiSlam)
+    if (!_waiSlam)
     {
         ErlebAR::Location& location = _locations[_locId];
         ErlebAR::Area&     area     = location.areas[_areaId];
@@ -74,18 +74,18 @@ void AreaTrackingView::onCameraParamsChanged()
         else
             _imgBuffer.init(1, area.cameraFrameTargetSize);
 
-    #ifdef LOAD_ASYNC
+#ifdef LOAD_ASYNC
         std::string fileName = _deviceData.vocabularyDir() + _vocabularyFileName;
 
         //delete managed object
         if (_asyncLoader)
             delete _asyncLoader;
 
-        _asyncLoader = new MapLoader(_voc, fileName, _deviceData.erlebARDir(), area.slamMapFileName);
+        _asyncLoader = new MapLoader(_voc, area.vocLayer, fileName, _deviceData.erlebARDir(), area.slamMapFileName);
         _asyncLoader->start();
         _userGuidance.dataIsLoading(true);
 
-    #else
+#else
         //load vocabulary
         std::string fileName = _vocabularyDir + _vocabularyFileName;
         if (Utils::fileExists(fileName))
@@ -130,7 +130,7 @@ void AreaTrackingView::onCameraParamsChanged()
           _trackingExtractor.get(),
           std::move(waiMap),
           params);
-    #endif
+#endif
     }
     else
     {
@@ -414,17 +414,17 @@ void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaI
 #ifdef LOAD_ASYNC
     std::string fileName;
     if (area.vocFileName.empty())
-        fileName = _vocabularyDir + _vocabularyFileName;
+        fileName = _deviceData.vocabularyDir() + _vocabularyFileName;
     else
     {
-        fileName = _erlebARDir + area.vocFileName;
+        fileName = _deviceData.erlebARDir() + area.vocFileName;
     }
 
     //delete managed object
     if (_asyncLoader)
         delete _asyncLoader;
 
-    _asyncLoader = new MapLoader(_voc, area.vocLayer, fileName, _erlebARDir, area.slamMapFileName);
+    _asyncLoader = new MapLoader(_voc, area.vocLayer, fileName, _deviceData.erlebARDir(), area.slamMapFileName);
     _asyncLoader->start();
     _userGuidance.dataIsLoading(true);
 
@@ -439,8 +439,8 @@ void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaI
     }
 
     //try to load map
-    HighResTimer            t;
-    cv::Mat                 mapNodeOm;
+    HighResTimer t;
+    cv::Mat mapNodeOm;
     std::unique_ptr<WAIMap> waiMap = tryLoadMap(_erlebARDir, area.slamMapFileName, _voc, mapNodeOm);
     Utils::log("LoadingTime", "map loading time: %f ms", t.elapsedTimeInMilliSec());
 
@@ -456,13 +456,13 @@ void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaI
                                                 _camera->config().targetWidth);
 
     WAISlam::Params params;
-    params.cullRedundantPerc   = 0.95f;
+    params.cullRedundantPerc = 0.95f;
     params.ensureKFIntegration = false;
-    params.fixOldKfs           = true;
-    params.onlyTracking        = false;
-    params.retainImg           = false;
-    params.serial              = false;
-    params.trackOptFlow        = false;
+    params.fixOldKfs = true;
+    params.onlyTracking = false;
+    params.retainImg = false;
+    params.serial = false;
+    params.trackOptFlow = false;
 
     _waiSlam = std::make_unique<WAISlam>(
       scaledCamMat,
