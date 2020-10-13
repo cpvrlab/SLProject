@@ -10,6 +10,8 @@
 
 #version 430 core
 
+precision highp float;
+
 //-----------------------------------------------------------------------------
 layout(location = 0) in vec4 a_position;
 

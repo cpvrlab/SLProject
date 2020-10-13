@@ -59,13 +59,15 @@ set(DEFAULT_COMPILE_OPTIONS)
 # MSVC compiler options
 if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "MSVC")
     set(DEFAULT_COMPILE_OPTIONS ${DEFAULT_COMPILE_OPTIONS}
-        /MP           # -> build with multiple processes
-        /W3           # -> warning level 3
-        /wd4251       # -> disable warning: 'identifier': class 'type' needs to have dll-interface to be used by clients of class 'type2'
-        /wd4592       # -> disable warning: 'identifier': symbol will be dynamically initialized (implementation limitation)
-        /wd4804       # -> disable warning: unsichere Verwendung des Typs "bool" in einer Operation	C:\Users\hsm4\Documents\GitHub\SLProject	C:\Users\hsm4\Documents\GitHub\SLProject\lib-SLProject\include\SLMaterial.h	88
-
-        /bigobj
+        	/MP         # -> build with multiple processes
+        	/W3         # -> warning level 3
+        	/wd4251     # -> disable warning: 'identifier': class 'type' needs to have dll-interface to be used by clients of class 'type2'
+        	/wd4592     # -> disable warning: 'identifier': symbol will be dynamically initialized (implementation limitation)
+        	/wd4804     # -> disable warning: unsichere Verwendung des Typs "bool" in einer Operation	C:\Users\hsm4\Documents\GitHub\SLProject	C:\Users\hsm4\Documents\GitHub\SLProject\lib-SLProject\include\SLMaterial.h	88
+        	/wd26495	# -> disable warning: C26495 MEMBER_UNINIT
+			/wd26812	# -> disable warning: C26812: ' enum class ' vor ' ENUM ' bevorzugen (Enum. 3)
+			/wd26451    # -> disable warning: C26451: Aritmetic overflow
+			/bigobj
 
         $<$<CONFIG:Release>:
         /Gw           # -> whole program global optimization

@@ -32,8 +32,9 @@ class SLAssetManager;
 //-----------------------------------------------------------------------------
 //!An SLMesh object is a triangulated mesh that is drawn with one draw call.
 /*!
-The SLMesh class represents a single GL_TRIANGLES or GL_LINES mesh object. The
-mesh object is drawn with one draw call using the vertex indices in I16 or I32.
+The SLMesh class represents a single mesh object. The mesh object is drawn
+with one draw call using the vertex indices in I16 or I32. A mesh can be drawn
+with triangles, lines or points.
 The vertex attributes are stored in vectors with equal number of elements:
 \n P (vertex position, mandatory)
 \n N (vertex normals)
@@ -62,7 +63,7 @@ smooth but also 4 sharp edges. The smooth red normal as the top vertex got
 averaged because its position is only once in the vector P. On the other hand
 are the vertices of the hard edges in the front of the sphere doubled.
 \n
-\image HTML sharpAndSmoothEdges.png
+@image HTML sharpAndSmoothEdges.png
 \n
 \n The following the example creates the box with 24 vertices:
 \n The vertex positions and normals in P and N:
@@ -105,7 +106,7 @@ are the vertices of the hard edges in the front of the sphere doubled.
 \n          16,17,18, 16,18,19,
 \n          20,21,22, 20,22,23}
 \n
-\image HTML boxVertices.png
+@image HTML boxVertices.png
 \n
 All vertex attributes are added to the vertex array object _vao (SLVertexArray).<br>
 All arrays remain in the main memory for ray tracing.
@@ -147,7 +148,8 @@ public:
     virtual void calcNormals();
     void         calcCenterRad(SLVec3f& center, SLfloat& radius);
     SLbool       hitTriangleOS(SLRay* ray, SLNode* node, SLuint iT);
-    void         generateVAO();
+    void         generateVAO(SLGLVertexArray& vao);
+    void         computeHardEdgesIndices(float angleRAD, float epsilon);
     void         transformSkin(const std::function<void(SLMesh*)>& cbInformNodes);
     void         deselectPartialSelection();
 
@@ -169,6 +171,11 @@ public:
     SLuint            numI() const { return (SLuint)(!I16.empty() ? I16.size() : I32.size()); }
     SLGLVertexArray&  vao() { return _vao; }
     SLbool            isSelected() const { return _isSelected; }
+    SLfloat           edgeAngleDEG() const { return _edgeAngleDEG; }
+    SLfloat           edgeWidth() const { return _edgeWidth; }
+    SLCol4f           edgeColor() const { return _edgeColor; }
+    SLVec3f           finalP(SLuint i) { return _finalP->operator[](i); }
+    SLVec3f           finalN(SLuint i) { return _finalN->operator[](i); }
 
     // Setters
     void mat(SLMaterial* m) { _mat = m; }
@@ -176,46 +183,52 @@ public:
     void primitive(SLGLPrimitiveType pt) { _primitive = pt; }
     void skeleton(SLSkeleton* skel) { _skeleton = skel; }
     void isSelected(bool isSelected) { _isSelected = isSelected; }
+    void edgeWidth(SLfloat ew) { _edgeWidth = ew; }
+    void edgeAngleDEG(SLfloat ea) { _edgeAngleDEG = ea; }
+    void edgeColor(SLCol4f ec) { _edgeColor = ec; }
+    void vertexPosEpsilon(SLfloat eps) { _vertexPosEpsilon = eps; }
 
-    // getter for position and normal data for rendering
-    SLVec3f finalP(SLuint i) { return _finalP->operator[](i); }
-    SLVec3f finalN(SLuint i) { return _finalN->operator[](i); }
+    // vertex attributes
+    SLVVec3f  P;        //!< Vector for vertex positions                   layout (location = 0)
+    SLVVec3f  N;        //!< Vector for vertex normals (opt.)              layout (location = 1)
+    SLVVec2f  Tc;       //!< Vector of vertex tex. coords. (opt.)          layout (location = 2)
+    SLVCol4f  C;        //!< Vector of vertex colors (opt.)                layout (location = 3)
+    SLVVec4f  T;        //!< Vector of vertex tangents (opt.)              layout (location = 4)
+    SLVVuchar Ji;       //!< 2D Vector of per vertex joint ids (opt.)      layout (location = 5) (never used so far)
+    SLVVfloat Jw;       //!< 2D Vector of per vertex joint weights (opt.)  layout (location = 6) (never used so far)
+    SLVVec3f  skinnedP; //!< temp. vector for CPU skinned vertex positions
+    SLVVec3f  skinnedN; //!< temp. vector for CPU skinned vertex normals
 
-    // temporary software skinning buffers
-    SLVVec3f skinnedP; //!< Vector for CPU skinned vertex positions
-    SLVVec3f skinnedN; //!< Vector for CPU skinned vertex normals
-
-    SLVVec3f  P;  //!< Vector for vertex positions                   layout (location = 0)
-    SLVVec3f  N;  //!< Vector for vertex normals (opt.)              layout (location = 1)
-    SLVVec2f  Tc; //!< Vector of vertex tex. coords. (opt.)          layout (location = 2)
-    SLVCol4f  C;  //!< Vector of vertex colors (opt.)                layout (location = 3)
-    SLVVec4f  T;  //!< Vector of vertex tangents (opt.)              layout (location = 4)
-    SLVVuchar Ji; //!< 2D Vector of per vertex joint ids (opt.)      layout (location = 5) (never used)
-    SLVVfloat Jw; //!< 2D Vector of per vertex joint weights (opt.)  layout (location = 6) (never used)
-
+    // vertex indices
     SLVushort I16;  //!< Vector of vertex indices 16 bit
     SLVuint   I32;  //!< Vector of vertex indices 32 bit
     SLVuint   IS32; //!< Vector of rectangle selected vertex indices 32 bit
+    SLVushort IE16; //!< Vector of hard edges vertex indices 16 bit (see computeHardEdgesIndices)
+    SLVuint   IE32; //!< Vector of hard edges vertex indices 32 bit (see computeHardEdgesIndices)
 
     SLVec3f minP; //!< min. vertex in OS
     SLVec3f maxP; //!< max. vertex in OS
 
 private:
     void calcTangents();
+    void drawSelectedVertices();
     void handleRectangleSelection(SLSceneView* sv,
                                   SLGLState*   stateGL,
                                   SLNode*      node);
-    void drawSelectedVertices();
 
 protected:
-    SLGLPrimitiveType  _primitive;  //!< Primitive type (default triangles)
-    SLMaterial*        _mat;        //!< Pointer to the inside material
-    SLMaterial*        _matOut;     //!< Pointer to the outside material
-    SLGLVertexArray    _vao;        //!< OpenGL Vertex Array Object for drawing
-    SLGLVertexArrayExt _vaoN;       //!< OpenGL VAO for optional normal drawing
-    SLGLVertexArrayExt _vaoT;       //!< OpenGL VAO for optional tangent drawing
-    SLGLVertexArrayExt _vaoS;       //!< OpenGL VAO for optional selection drawing
-    SLbool             _isSelected; //!< flag if mesh is partially of fully selected
+    SLGLPrimitiveType  _primitive;        //!< Primitive type (default triangles)
+    SLMaterial*        _mat;              //!< Pointer to the inside material
+    SLMaterial*        _matOut;           //!< Pointer to the outside material
+    SLGLVertexArray    _vao;              //!< Main OpenGL Vertex Array Object for drawing
+    SLGLVertexArrayExt _vaoN;             //!< OpenGL VAO for optional normal drawing
+    SLGLVertexArrayExt _vaoT;             //!< OpenGL VAO for optional tangent drawing
+    SLGLVertexArrayExt _vaoS;             //!< OpenGL VAO for optional selection drawing
+    SLbool             _isSelected;       //!< flag if mesh is partially of fully selected
+    SLfloat            _edgeAngleDEG;     //!< edge crease angle in degrees between face normals (30 deg. default)
+    SLfloat            _edgeWidth;        //!< line width for hard edge drawing
+    SLCol4f            _edgeColor;        //!< color for hard edge drawing
+    SLfloat            _vertexPosEpsilon; //!< vertex position epsilon used in computeHardEdgesIndices
 
 #ifdef SL_HAS_OPTIX
     SLCudaBuffer<SLVec3f>  _vertexBuffer;
@@ -229,13 +242,10 @@ protected:
     SLbool         _isVolume;             //!< Flag for RT if mesh is a closed volume
     SLAccelStruct* _accelStruct;          //!< KD-tree or uniform grid
     SLbool         _accelStructOutOfDate; //!< flag id accel.struct needs update
-
-    SLSkeleton* _skeleton;      //!< the skeleton this mesh is bound to
-    SLVMat4f    _jointMatrices; //!< joint matrix vector for this mesh
-    SLVVec3f*   _finalP;        //!< Pointer to final vertex position vector
-    SLVVec3f*   _finalN;        //!< pointer to final vertex normal vector
-
-    //void notifyParentNodesAABBUpdate(std::function<void(void)> cbInformNodes) const;
+    SLSkeleton*    _skeleton;             //!< the skeleton this mesh is bound to
+    SLVMat4f       _jointMatrices;        //!< joint matrix vector for this mesh
+    SLVVec3f*      _finalP;               //!< Pointer to final vertex position vector
+    SLVVec3f*      _finalN;               //!< pointer to final vertex normal vector
 };
 //-----------------------------------------------------------------------------
 typedef vector<SLMesh*> SLVMesh;

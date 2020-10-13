@@ -9,6 +9,8 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
+precision highp float;
+
 //-----------------------------------------------------------------------------
 // SLGLShader::preprocessPragmas replaces #Lights by SLVLights.size()
 #pragma define NUM_LIGHTS #Lights
@@ -21,13 +23,13 @@ uniform mat4   u_mvpMatrix;         // = projection * modelView
 uniform mat4   u_invMvMatrix;       // inverse modelview
 uniform mat3   u_nMatrix;           // normal matrix=transpose(inverse(mv))
 
-uniform vec4   u_lightPosVS[NUM_LIGHTS];     // position of light in view space
-uniform vec4   u_lightSpec[NUM_LIGHTS];  // specular light intensity (Is)
+uniform vec4   u_lightPosVS[NUM_LIGHTS];    // position of light in view space
+uniform vec4   u_lightSpec[NUM_LIGHTS];     // specular light intensity (Is)
 
-uniform vec4   u_matAmbi;        // ambient color reflection coefficient (ka)
-uniform vec4   u_matDiff;        // diffuse color reflection coefficient (kd)
-uniform vec4   u_matSpec;       // specular color reflection coefficient (ks)
-uniform float  u_matShin;      // shininess exponent
+uniform vec4   u_matAmbi;           // ambient color reflection coefficient (ka)
+uniform vec4   u_matDiff;           // diffuse color reflection coefficient (kd)
+uniform vec4   u_matSpec;           // specular color reflection coefficient (ks)
+uniform float  u_matShin;           // shininess exponent
 
 uniform float  u_t;                 // time
 uniform float  u_h;                 // height of the wave in y direction

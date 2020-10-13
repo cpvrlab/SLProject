@@ -193,7 +193,7 @@ void SLBackground::render(SLint widthPX, SLint heightPX)
 
             // Indexes for a triangle strip
             SLVushort I = {0, 1, 2, 3};
-            _vao.setIndices(&I);
+            _vao.setIndices(&I, nullptr);
 
             if (_texture)
             { // Float array of texture coordinates

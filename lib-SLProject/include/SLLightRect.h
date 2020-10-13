@@ -53,7 +53,7 @@ public:
     void    drawRec(SLSceneView* sv) override;
     bool    hitRec(SLRay* ray) override;
     void    statsRec(SLNodeStats& stats) override;
-    void    drawMeshes(SLSceneView* sv) override;
+    void    drawMesh(SLSceneView* sv) override;
     SLfloat shadowTest(SLRay*         ray,
                        const SLVec3f& L,
                        SLfloat        lightDist,
@@ -81,6 +81,11 @@ public:
     // Getters
     SLfloat width() const { return _width; }
     SLfloat height() const { return _height; }
+
+    // Overrides
+    SLCol4f ambient() override { return _ambientColor * _ambientPower; }
+    SLCol4f diffuse() override { return _diffuseColor * _diffusePower; }
+    SLCol4f specular() override { return _specularColor * _specularPower; }
     SLVec4f positionWS() const override { return updateAndGetWM().translation(); }
     SLVec3f spotDirWS() override
     {

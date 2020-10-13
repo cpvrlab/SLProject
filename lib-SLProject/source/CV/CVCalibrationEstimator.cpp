@@ -12,7 +12,6 @@
 #include <CVCalibration.h>
 #include <Utils.h>
 
-using namespace cv;
 using namespace std;
 
 //-----------------------------------------------------------------------------
@@ -120,7 +119,7 @@ bool CVCalibrationEstimator::extractAsync()
     try
     {
         CVVPoint2f preciseCorners2D;
-        int        flags          = CALIB_CB_ADAPTIVE_THRESH | CALIB_CB_NORMALIZE_IMAGE;
+        int        flags          = cv::CALIB_CB_ADAPTIVE_THRESH | cv::CALIB_CB_NORMALIZE_IMAGE;
         bool       foundPrecisely = cv::findChessboardCorners(_currentImgToExtract,
                                                         _boardSize,
                                                         preciseCorners2D,
@@ -132,7 +131,7 @@ bool CVCalibrationEstimator::extractAsync()
                              preciseCorners2D,
                              CVSize(11, 11),
                              CVSize(-1, -1),
-                             TermCriteria(TermCriteria::EPS + TermCriteria::COUNT,
+                             cv::TermCriteria(cv::TermCriteria::EPS + cv::TermCriteria::COUNT,
                                           30,
                                           0.0001));
 
@@ -240,7 +239,7 @@ bool CVCalibrationEstimator::calcCalibration(CVSize&            imageSize,
     cameraMatrix = CVMat::eye(3, 3, CV_64F);
 
     // We need to set eleme at 0,0 to 1 if we want a fix aspect ratio
-    if (flag & CALIB_FIX_ASPECT_RATIO)
+    if (flag & cv::CALIB_FIX_ASPECT_RATIO)
         cameraMatrix.at<double>(0, 0) = 1.0;
 
     // init the distortion coeffitients to zero
@@ -321,7 +320,7 @@ double CVCalibrationEstimator::calcReprojectionErrors(const CVVVPoint3f& objectP
                           distCoeffs,
                           imagePoints2);
 
-        err = norm(imagePoints[i], imagePoints2, NORM_L2);
+        err = norm(imagePoints[i], imagePoints2, cv::NORM_L2);
 
         size_t n         = objectPoints[i].size();
         perViewErrors[i] = (float)std::sqrt(err * err / n);
@@ -335,10 +334,10 @@ double CVCalibrationEstimator::calcReprojectionErrors(const CVVVPoint3f& objectP
 //! Loads the chessboard calibration pattern parameters
 bool CVCalibrationEstimator::loadCalibParams()
 {
-    FileStorage fs;
+    cv::FileStorage fs;
     string      fullCalibIniFile = Utils::findFile(_calibParamsFileName,
                                                    {_calibDataPath, _exePath});
-    fs.open(fullCalibIniFile, FileStorage::READ);
+    fs.open(fullCalibIniFile, cv::FileStorage::READ);
     if (!fs.isOpened())
     {
         Utils::log("SLProject", "Could not open the calibration parameter file: %s", fullCalibIniFile.c_str());

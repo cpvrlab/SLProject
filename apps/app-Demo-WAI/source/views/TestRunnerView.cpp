@@ -18,22 +18,16 @@ TestRunnerView::TestRunnerView(sm::EventHandler&   eventHandler,
     _calibDir(deviceData.erlebARCalibTestDir()),
     _localMapping(nullptr),
     _loopClosing(nullptr),
-    _ftpHost("pallas.bfh.ch:21"),
+    _ftpHost("pallas.ti.bfh.ch:21"),
     _ftpUser("upload"),
     _ftpPwd("FaAdbD3F2a"),
     _ftpDir("erleb-AR/"),
     _videoWasDownloaded(false),
-    _summedTime(0.0f)
+    _summedTime(0.0f),
+    _deviceData(deviceData),
+    _voc(nullptr)
 {
     init("TestRunnerView", deviceData.scrWidth(), deviceData.scrHeight(), nullptr, nullptr, &_gui, deviceData.writableDir());
-
-#if USE_FBOW
-    std::string vocabularyFile = "voc_fbow.bin";
-#else
-    std::string vocabularyFile = "ORBvoc.bin";
-#endif
-
-    _voc.loadFromFile(deviceData.vocabularyDir() + vocabularyFile);
 
     std::string configPath = "TestRunner/config/";
     std::string configDir  = _erlebARDir + configPath;
@@ -87,7 +81,7 @@ bool TestRunnerView::update()
                                              _extractor.get(),
                                              intrinsic,
                                              distortion,
-                                             &_voc,
+                                             _voc,
                                              false);
 
             switch (_testMode)
@@ -98,7 +92,7 @@ bool TestRunnerView::update()
                     localMap.keyFrames.clear();
                     localMap.mapPoints.clear();
                     localMap.refKF = nullptr;
-                    if (WAISlam::relocalization(currentFrame, _map, localMap, inliers))
+                    if (WAISlam::relocalization(currentFrame, _map, localMap, 0.8, inliers))
                     {
                         _relocalizationFrameCount++;
                     }
@@ -127,7 +121,7 @@ bool TestRunnerView::update()
                     else
                     {
                         int inliers;
-                        if (WAISlam::relocalization(currentFrame, _map, _localMap, inliers))
+                        if (WAISlam::relocalization(currentFrame, _map, _localMap, 0.8, inliers))
                         {
                             _isTracking     = true;
                             _relocalizeOnce = true;
@@ -389,18 +383,24 @@ bool TestRunnerView::update()
 
                     WAIFrame::mbInitialComputations = true;
 
-                    WAIKeyFrameDB* keyFrameDB = new WAIKeyFrameDB(&_voc);
+                    if (_voc)
+                        delete _voc;
+
+                    _voc = new WAIOrbVocabulary(testInstance.vocLayer);
+                    _voc->loadFromFile(_deviceData.vocabularyDir() + testInstance.voc);
 
                     if (_map)
                         delete _map;
 
+                    WAIKeyFrameDB* keyFrameDB = new WAIKeyFrameDB(_voc);
                     _map = new WAIMap(keyFrameDB);
+
                     cv::Mat mapNodeOm;
                     if (Utils::containsString(mapFile, ".waimap"))
                     {
                         WAIMapStorage::loadMapBinary(_map,
                                                      mapNodeOm,
-                                                     &_voc,
+                                                     _voc,
                                                      mapFile,
                                                      false,
                                                      true);
@@ -409,7 +409,7 @@ bool TestRunnerView::update()
                     {
                         WAIMapStorage::loadMap(_map,
                                                mapNodeOm,
-                                               &_voc,
+                                               _voc,
                                                mapFile,
                                                false,
                                                true);
@@ -433,8 +433,8 @@ bool TestRunnerView::update()
                         _localMap.mapPoints.clear();
                         _localMap.refKF = nullptr;
 
-                        _localMapping = new ORB_SLAM2::LocalMapping(_map, &_voc, 0.95f);
-                        _loopClosing  = new ORB_SLAM2::LoopClosing(_map, &_voc, false, false);
+                        _localMapping = new ORB_SLAM2::LocalMapping(_map, _voc, 0.95f);
+                        _loopClosing  = new ORB_SLAM2::LoopClosing(_map, _voc, false, false);
 
                         _localMapping->SetLoopCloser(_loopClosing);
                         _loopClosing->SetLocalMapper(_localMapping);
@@ -522,11 +522,30 @@ bool TestRunnerView::loadSites(const std::string&         erlebARDir,
                     std::string map      = *itMaps;
                     std::string video    = *itVideos;
 
+                    std::vector<std::string> mapInfo;
+                    Utils::splitString(map, ',', mapInfo);
                     TestInstance testInstance;
                     testInstance.location = location;
                     testInstance.area     = area;
-                    testInstance.map      = map;
-                    testInstance.video    = video;
+                    testInstance.vocLayer = 2;
+                    if (mapInfo.size() < 2)
+                    {
+                        testInstance.map = map;
+#if USE_FBOW
+                        testInstance.voc = "voc_fbow.bin";
+#else
+                        testInstance.voc = "ORBvoc.bin";
+#endif
+                    }
+                    else
+                    {
+                        testInstance.map = mapInfo[0];
+                        testInstance.voc = Utils::trimString(mapInfo[1]);
+                        if (mapInfo.size() > 2)
+                            testInstance.vocLayer = atoi(mapInfo[2].c_str());
+                    }
+
+                    testInstance.video = video;
 
                     SlamVideoInfos slamVideoInfos;
                     if (!extractSlamVideoInfosFromFileName(video, &slamVideoInfos))

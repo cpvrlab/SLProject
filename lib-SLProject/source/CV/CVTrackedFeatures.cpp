@@ -26,8 +26,6 @@ for a good top down information.
 #    include <direct.h>
 #endif
 
-using namespace cv;
-
 //-----------------------------------------------------------------------------
 // Globals for benchmarking
 int    frames_with_pose          = 0;
@@ -46,7 +44,7 @@ CVTrackedFeatures::CVTrackedFeatures(string markerFilename)
     // To match the binary features, we are matching each descriptor in reference with each
     // descriptor in the current frame. The smaller the hamming distance the better the match
     // Hamming distance <-> XOR sum
-    _matcher = BFMatcher::create(BFMatcher::BRUTEFORCE_HAMMING, false);
+    _matcher = cv::BFMatcher::create(cv::BFMatcher::BRUTEFORCE_HAMMING, false);
 
     // Initialize some member variables on startup to prevent uncontrolled behaviour
     _currentFrame.foundPose         = false;
@@ -151,9 +149,9 @@ void CVTrackedFeatures::initFeaturesOnMarker()
         refImageKeypoint /= pixelPerMM;
 
         // Here we can use Z=0 because the tracker is planar
-        _marker.keypoints3D.push_back(Point3f(refImageKeypoint.x,
-                                              refImageKeypoint.y,
-                                              0.0f));
+        _marker.keypoints3D.push_back(cv::Point3f(refImageKeypoint.x,
+                                                  refImageKeypoint.y,
+                                                  0.0f));
     }
 
 // Draw points and indices which should be reprojected later.
@@ -206,9 +204,7 @@ void CVTrackedFeatures::type(CVDetectDescribeType ddType)
 @param imageGray Current grayscale frame
 @param image Current RGB frame
 @param calib Calibration information
-@param drawDetection Flag if the detected features should be drawn
-@param sv The current scene view
-@return So far allways false
+@return So far always false
 */
 bool CVTrackedFeatures::track(CVMat          imageGray,
                               CVMat          image,
@@ -305,7 +301,7 @@ void CVTrackedFeatures::drawDebugInformation(bool drawDetection)
             circle(_currentFrame.image,
                    inlierPoint,
                    3,
-                   Scalar(0, 0, 255));
+                   cv::Scalar(0, 0, 255));
     }
 
 #if DRAW_REPROJECTION_POINTS
@@ -507,8 +503,8 @@ CVVDMatch CVTrackedFeatures::getFeatureMatches()
     CVVDMatch goodMatches;
     for (auto& match : matches)
     {
-        const DMatch& match1 = match[0];
-        const DMatch& match2 = match[1];
+        const cv::DMatch& match1 = match[0];
+        const cv::DMatch& match2 = match[1];
         if (match2.distance == 0.0f ||
             (match1.distance / match2.distance) < minRatio)
             goodMatches.push_back(match1);
@@ -602,7 +598,7 @@ bool CVTrackedFeatures::calculatePose()
                                         reprojection_error,
                                         confidence,
                                         inliersMask,
-                                        SOLVEPNP_EPNP);
+                                        cv::SOLVEPNP_EPNP);
 
     // Get matches with help of inlier indices
     for (size_t idx : inliersMask)
@@ -634,7 +630,7 @@ bool CVTrackedFeatures::calculatePose()
                                  _currentFrame.rvec,
                                  _currentFrame.tvec,
                                  true,
-                                 SOLVEPNP_ITERATIVE);
+                                 cv::SOLVEPNP_ITERATIVE);
 
 #if DO_FEATURE_BENCHMARKING
         sum_matches += _currentFrame.matches.size();
@@ -813,8 +809,8 @@ void CVTrackedFeatures::optimizeMatches()
 #endif
 
     // Optimize POSE
-    vector<Point3f> modelPoints = vector<Point3f>(_currentFrame.inlierMatches.size());
-    vector<Point2f> framePoints = vector<Point2f>(_currentFrame.inlierMatches.size());
+    vector<cv::Point3f> modelPoints = vector<cv::Point3f>(_currentFrame.inlierMatches.size());
+    vector<cv::Point2f> framePoints = vector<cv::Point2f>(_currentFrame.inlierMatches.size());
     for (size_t i = 0; i < _currentFrame.inlierMatches.size(); i++)
     {
         modelPoints[i] = _marker.keypoints3D[(uint)_currentFrame.inlierMatches[i].trainIdx];

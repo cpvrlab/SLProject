@@ -25,14 +25,13 @@ for a good top down information.
 /*! The Constructor loads the training files for the face and the facial
 landmarks. It also defines an averaged set of facial landmark points in 3D
 used for pose estimation.
-\param node Node to track and move (usually the camera for AR)
-\param smoothlength length of averaging filter
-\param faceClassifierFilename Name of the cascaded face training file
-\param faceMarkModelFilename Name of the facial landmark training file
+@param faceClassifierFilename Name of the cascaded face training file
+@param faceMarkModelFilename Name of the facial landmark training file
+@param smoothLength Length of averaging filter
 */
 CVTrackedFaces::CVTrackedFaces(string faceClassifierFilename,
                                string faceMarkModelFilename,
-                               int    smoothLenght)
+                               int    smoothLength)
 {
     // Load Haar cascade training file for the face detection
     if (!Utils::fileExists(faceClassifierFilename))
@@ -53,16 +52,16 @@ CVTrackedFaces::CVTrackedFaces(string faceClassifierFilename,
     _facemark->loadModel(faceMarkModelFilename);
 
     // Init averaged 2D facial landmark points
-    _smoothLenght = smoothLenght;
-    _avgPosePoints2D.emplace_back(AvgCVVec2f(smoothLenght, CVVec2f(0, 0))); // Nose tip
-    _avgPosePoints2D.emplace_back(AvgCVVec2f(smoothLenght, CVVec2f(0, 0))); // Nose hole left
-    _avgPosePoints2D.emplace_back(AvgCVVec2f(smoothLenght, CVVec2f(0, 0))); // Nose hole right
-    _avgPosePoints2D.emplace_back(AvgCVVec2f(smoothLenght, CVVec2f(0, 0))); // Left eye left corner
-    _avgPosePoints2D.emplace_back(AvgCVVec2f(smoothLenght, CVVec2f(0, 0))); // Left eye right corner
-    _avgPosePoints2D.emplace_back(AvgCVVec2f(smoothLenght, CVVec2f(0, 0))); // Right eye left corner
-    _avgPosePoints2D.emplace_back(AvgCVVec2f(smoothLenght, CVVec2f(0, 0))); // Right eye right corner
-    _avgPosePoints2D.emplace_back(AvgCVVec2f(smoothLenght, CVVec2f(0, 0))); // Left mouth corner
-    _avgPosePoints2D.emplace_back(AvgCVVec2f(smoothLenght, CVVec2f(0, 0))); // Right mouth corner
+    _smoothLength = smoothLength;
+    _avgPosePoints2D.emplace_back(AvgCVVec2f(smoothLength, CVVec2f(0, 0))); // Nose tip
+    _avgPosePoints2D.emplace_back(AvgCVVec2f(smoothLength, CVVec2f(0, 0))); // Nose hole left
+    _avgPosePoints2D.emplace_back(AvgCVVec2f(smoothLength, CVVec2f(0, 0))); // Nose hole right
+    _avgPosePoints2D.emplace_back(AvgCVVec2f(smoothLength, CVVec2f(0, 0))); // Left eye left corner
+    _avgPosePoints2D.emplace_back(AvgCVVec2f(smoothLength, CVVec2f(0, 0))); // Left eye right corner
+    _avgPosePoints2D.emplace_back(AvgCVVec2f(smoothLength, CVVec2f(0, 0))); // Right eye left corner
+    _avgPosePoints2D.emplace_back(AvgCVVec2f(smoothLength, CVVec2f(0, 0))); // Right eye right corner
+    _avgPosePoints2D.emplace_back(AvgCVVec2f(smoothLength, CVVec2f(0, 0))); // Left mouth corner
+    _avgPosePoints2D.emplace_back(AvgCVVec2f(smoothLength, CVVec2f(0, 0))); // Right mouth corner
 
     _cvPosePoints2D.resize(_avgPosePoints2D.size(), CVPoint2f(0, 0));
 
@@ -93,11 +92,9 @@ https://www.learnopencv.com/facemark-facial-landmark-detection-using-opencv
 The pose estimation is done using cv::solvePnP with 9 facial landmarks in 3D 
 and their corresponding 2D points detected by the cv::facemark detector. For
 smoothing out the jittering we average the last few detections.
-\param imageGray Image for processing
-\param imageRgb Image for visualizations
-\param calib Pointer to a valid camera calibration 
-\param drawDetection Flag for drawing the detected obbjects
-\param sv Pointer to the sceneview
+@param imageGray Image for processing
+@param imageRgb Image for visualizations
+@param calib Pointer to a valid camera calibration
 */
 bool CVTrackedFaces::track(CVMat          imageGray,
                            CVMat          imageRgb,
@@ -216,7 +213,12 @@ bool CVTrackedFaces::track(CVMat          imageGray,
     return false;
 }
 //-----------------------------------------------------------------------------
-// Returns the Delaunay triangulation on the points within the image
+/*!
+ Returns the Delaunay triangulation on the points within the image
+ @param imageRgb OpenCV RGB image
+ @param points 2D points as OpenCV vector of points 2D
+ @param drawDetection Flag if detection should be drawn
+ */
 void CVTrackedFaces::delaunayTriangulate(CVMat             imageRgb,
                                          const CVVPoint2f& points,
                                          bool              drawDetection)

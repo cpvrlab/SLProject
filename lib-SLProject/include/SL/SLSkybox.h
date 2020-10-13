@@ -21,7 +21,7 @@ class SLAssetManager;
 //! Skybox node class with a SLBox mesh
 /*! The skybox instance is a node with a SLBox mesh with inwards pointing
 normals. It gets drawn in SLSceneView::draw3DGL with frozen depth buffer and a
-special cubemap shader. The box is allways with the active camera in its
+special cubemap shader. The box is always with the active camera in its
 center. It has to be created in SLScene::onLoad and assigned to the skybox
 pointer of SLSceneView. See the Skybox shader example.
 */

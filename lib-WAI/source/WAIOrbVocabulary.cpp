@@ -12,13 +12,14 @@
 #include <WAIOrbVocabulary.h>
 #include <Utils.h>
 
-WAIOrbVocabulary::WAIOrbVocabulary()
+WAIOrbVocabulary::WAIOrbVocabulary(int layer)
 {
 #if USE_FBOW
     _vocabulary = new fbow::Vocabulary();
 #else
     _vocabulary = new ORB_SLAM2::ORBVocabulary();
 #endif
+    _layer = layer;
 }
 
 WAIOrbVocabulary::~WAIOrbVocabulary()
@@ -91,10 +92,10 @@ void WAIOrbVocabulary::transform(const cv::Mat& descriptors, WAIBowVector& bow, 
         return;
 
 #if USE_FBOW
-    _vocabulary->transform(descriptors, 2, bow.data, feat.data);
+    _vocabulary->transform(descriptors, _layer, bow.data, feat.data);
 #else
     vector<cv::Mat> vCurrentDesc = ORB_SLAM2::Converter::toDescriptorVector(descriptors);
-    _vocabulary->transform(vCurrentDesc, bow.data, feat.data, _vocabulary->getDepthLevels() - 2);
+    _vocabulary->transform(vCurrentDesc, bow.data, feat.data, _vocabulary->getDepthLevels() - _layer);
 #endif
 }
 
@@ -113,5 +114,52 @@ size_t WAIOrbVocabulary::size()
     return _vocabulary->size() * _vocabulary->getK();
 #else
     return _vocabulary->size();
+#endif
+}
+
+void WAIOrbVocabulary::create(std::vector<cv::Mat> &features, int k, int l)
+{
+#if USE_FBOW
+    fbow::VocabularyCreator vc;
+    fbow::VocabularyCreator::Params p;
+    p.k        = k;
+    p.L        = l;
+    p.nthreads = 100;
+    p.maxIters = 11;
+    p.verbose  = true;
+
+    cout << "Creating a " << p.k << "^" << p.L << " vocabulary..." << endl;
+    _vocabulary = new fbow::Vocabulary();
+
+    vc.create(*_vocabulary, features, "slamvoc", p);
+    cout << "... done!" << endl;
+#else
+    const DBoW2::WeightingType weight = DBoW2::TF_IDF;
+    const DBoW2::ScoringType   score  = DBoW2::L1_NORM;
+
+    std::vector<std::vector<cv::Mat>> feats;
+    feats.resize(features.size());
+
+    cout << "Creating a " << k << "^" << l << " vocabulary..." << endl;
+    for (int i = 0; i < features.size(); i++)
+    {
+        feats[i].resize(features[i].rows);
+        for (int j = 0; j < features[i].rows; j++)
+            feats[i].push_back(features[i].row(j));
+    }
+
+    _vocabulary = new ORB_SLAM2::ORBVocabulary(k, l, weight, score);
+    _vocabulary->create(feats);
+
+    cout << "... done!" << endl;
+#endif
+}
+
+void WAIOrbVocabulary::save(std::string path)
+{
+#if USE_FBOW
+    _vocabulary->saveToFile(path);
+#else
+    _vocabulary->saveToBinaryFile(path);
 #endif
 }

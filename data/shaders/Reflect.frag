@@ -8,9 +8,7 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#ifdef GL_ES
-precision mediump float;
-#endif
+precision highp float;
 
 //-----------------------------------------------------------------------------
 in      vec3        v_R_OS;         // Reflected ray in object space

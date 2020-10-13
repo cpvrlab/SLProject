@@ -34,8 +34,8 @@ see the comments in CVTrackedFaces::track method.
 class CVTrackedFaces : public CVTracked
 {
 public:
-    explicit CVTrackedFaces(string faceClassifierFilename, /*"haarcascade_frontalface_alt2.xml"*/
-                            string faceMarkModelFilename,  /*"lbfmodel.yaml"*/
+    explicit CVTrackedFaces(string faceClassifierFilename, // haarcascade_frontalface_alt2.xml
+                            string faceMarkModelFilename,  // lbfmodel.yaml
                             int    smoothLength = 5);
     ~CVTrackedFaces();
 
@@ -54,7 +54,7 @@ private:
     CVRect               _boundingRect;    //!< Bounding rectangle around landmarks
     CVVPoint2f           _cvPosePoints2D;  //!< vector of OpenCV point2D
     CVVPoint3f           _cvPosePoints3D;  //!< vector of OpenCV point2D
-    int                  _smoothLenght;    //!< Smoothing filter lenght
+    int                  _smoothLength;    //!< Smoothing filter lenght
 };
 //-----------------------------------------------------------------------------
 #endif // CVTrackedFaces_H

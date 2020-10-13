@@ -92,14 +92,14 @@ enum SLSceneID
     SID_Minimal,
     SID_Figure,
     SID_MeshLoad,
-    SID_LargeModel,
     SID_Revolver,
     SID_TextureFilter,
     SID_TextureBlend,
     SID_FrustumCull,
-    SID_MassiveData,
     SID_2Dand3DText,
     SID_PointClouds,
+    SID_LargeModel,
+    SID_MassiveScene,
 
     SID_ShaderPerVertexBlinn,
     SID_ShaderPerPixelBlinn,
@@ -126,11 +126,6 @@ enum SLSceneID
 
     SID_VideoTextureLive,
     SID_VideoTextureFile,
-    SID_VideoChristoffel,
-    SID_VideoAugustaRaurica,
-    SID_VideoAventicumAmphi,
-    SID_VideoAventicumCigognier,
-    SID_VideoAventicumTheatre,
     SID_VideoCalibrateMain,
     SID_VideoCalibrateScnd,
     SID_VideoTrackChessMain,
@@ -145,6 +140,12 @@ enum SLSceneID
 #ifdef SL_BUILD_WAI
     SID_VideoTrackWAI,
 #endif
+
+    SID_ErlebARChristoffel,
+    SID_ErlebARAugustaRaurica,
+    SID_ErlebARAventicumAmphi,
+    SID_ErlebARAventicumCigognier,
+    SID_ErlebARAventicumTheatre,
 
     SID_RTMuttenzerBox,
     SID_RTSpheres,
@@ -291,12 +292,13 @@ enum SLShaderType
 //! Type definition for GLSL uniform1f variables that change per frame.
 enum SLUniformType
 {
-    UT_const,  //!< constant value
-    UT_incDec, //!< never ending loop from min to max and max to min
-    UT_incInc, //!< never ending loop from min to max
-    UT_inc,    //!< never ending increment
-    UT_random, //!< random values between min and max
-    UT_seconds //!< seconds since the process has started
+    UT_const,   //!< constant value
+    UT_incDec,  //!< never ending loop from min to max and max to min
+    UT_incInc,  //!< never ending loop from min to max
+    UT_inc,     //!< never ending increment
+    UT_random,  //!< random values between min and max
+    UT_seconds, //!< seconds since the process has started
+    UT_lambda   //!< lambda getter function
 };
 //-----------------------------------------------------------------------------
 // @todo build a dedicated log class that defines this verbosity levels

@@ -27,10 +27,11 @@ class WAIMapSlam : public WAISlamTools
 public:
     struct Params
     {
-        bool  serial            = false;
-        bool  retainImg         = false;
-        bool  fixOldKfs         = false;
-        float cullRedundantPerc = 0.99f;
+        bool  serial              = false;
+        bool  retainImg           = false;
+        bool  fixOldKfs           = false;
+        float cullRedundantPerc   = 0.99f;
+        float minCommonWordFactor = 0.8f;
     };
 
     WAIMapSlam(const cv::Mat&          intrinsic,
@@ -51,7 +52,7 @@ public:
     virtual void updatePose2(WAIFrame& frame);
     virtual bool update(cv::Mat& imageGray);
     virtual bool update2(cv::Mat& imageGray);
-    virtual void resume(){};
+    virtual void resume(){_localMapping->RequestContinue();};
 
     virtual bool isTracking();
     virtual bool hasStateIdle() { return _state == WAI::TrackingState_Idle; };

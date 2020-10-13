@@ -33,12 +33,14 @@ namespace ORB_SLAM2
 
 LoopClosing::LoopClosing(WAIMap*           pMap,
                          WAIOrbVocabulary* pVoc,
+                         const float       minCommonWordFactor,
                          const bool        bFixScale,
                          const bool        manualLoopClose)
   : mbResetRequested(false),
     mbFinishRequested(false),
     mbFinished(true),
     mpMap(pMap),
+    mMinCommonWordFactor(minCommonWordFactor),
     mpVocabulary(pVoc),
     mpMatchedKF(NULL),
     mLastLoopKFid(0),
@@ -211,7 +213,7 @@ bool LoopClosing::DetectLoop()
 
     // Query the database imposing the minimum score
     int                  loopCandidateDetectionError = WAIKeyFrameDB::LOOP_DETECTION_ERROR_NONE;
-    vector<WAIKeyFrame*> vpCandidateKFs              = mpMap->GetKeyFrameDB()->DetectLoopCandidates(mpCurrentKF, minScore, &loopCandidateDetectionError);
+    vector<WAIKeyFrame*> vpCandidateKFs              = mpMap->GetKeyFrameDB()->DetectLoopCandidates(mpCurrentKF, mMinCommonWordFactor, minScore, &loopCandidateDetectionError);
     {
         std::lock_guard<std::mutex> lock(mMutexNumCandidates);
         _numOfCandidates = (int)vpCandidateKFs.size();
@@ -502,7 +504,7 @@ bool LoopClosing::ComputeSim3()
 void LoopClosing::doCorrectLoop()
 {
     // Ensure current keyframe is updated
-    mpCurrentKF->UpdateConnections();
+    mpCurrentKF->FindAndUpdateConnections();
 
     // Retrive keyframes connected to the current keyframe and compute corrected Sim3 pose by propagation
     mvpCurrentConnectedKFs = mpCurrentKF->GetVectorCovisibleKeyFrames();
@@ -584,7 +586,7 @@ void LoopClosing::doCorrectLoop()
             pKFi->SetPose(correctedTiw);
 
             // Make sure connections are updated
-            pKFi->UpdateConnections();
+            pKFi->FindAndUpdateConnections();
         }
 
         // Start Loop Fusion
@@ -624,7 +626,7 @@ void LoopClosing::doCorrectLoop()
         vector<WAIKeyFrame*> vpPreviousNeighbors = pKFi->GetVectorCovisibleKeyFrames();
 
         // Update connections. Detect new links.
-        pKFi->UpdateConnections();
+        pKFi->FindAndUpdateConnections();
         LoopConnections[pKFi] = pKFi->GetConnectedKeyFrames();
         for (vector<WAIKeyFrame*>::iterator vit_prev = vpPreviousNeighbors.begin(), vend_prev = vpPreviousNeighbors.end(); vit_prev != vend_prev; vit_prev++)
         {

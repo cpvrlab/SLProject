@@ -19,6 +19,60 @@
 class SENSCamera;
 class MapLoader;
 
+struct UserGuidanceInfo
+{
+    UserGuidanceInfo() { _started = false; }
+    void terminate() { _terminate = true; }
+
+    bool update(float timeNow, AreaTrackingGui* gui)
+    {
+        if (!_started)
+        {
+            _timeStart = timeNow;
+            _started = true;
+            _terminate = false;
+        }
+        if (!_terminate) { _timeTerminate = timeNow; }
+        if (!updateFct(timeNow - _timeStart, timeNow - _timeTerminate, gui, _terminate))
+        {
+            _started = false;
+            return false;
+        }
+        return true;
+    }
+
+    bool _started;
+    bool _terminate;
+    float _timeStart;
+    float _timeTerminate;
+    std::function<bool(float, float, AreaTrackingGui*, bool&)> updateFct;
+};
+
+class UserGuidance
+{
+    public:
+    UserGuidance(AreaTrackingGui * gui);
+    void update(WAI::TrackingState state);
+
+    private:
+
+    void flush();
+
+    AreaTrackingGui *_gui;
+    WAI::TrackingState _lastWAIState;
+    HighResTimer _timer;
+
+    UserGuidanceInfo _alignImgInfo;
+    UserGuidanceInfo _moveLeftRight;
+    UserGuidanceInfo _trackingMarker;
+    UserGuidanceInfo _trackingStarted;
+
+    std::queue<UserGuidanceInfo*> _queuedInfos;
+
+    bool _marker;
+    bool _trackedOnce;
+};
+
 class AreaTrackingView : public SLSceneView
 {
 public:
@@ -83,6 +137,7 @@ private:
 
     //size with which camera was started last time (needed for a resume call)
     cv::Size _cameraFrameResumeSize;
+    UserGuidance _userGuidance;
 
     MapLoader* _asyncLoader = nullptr;
     
@@ -94,10 +149,12 @@ class MapLoader : public AsyncWorker
 {
 public:
     MapLoader(WAIOrbVocabulary*& voc,
+              int vocLayer,
               const std::string& vocFileName,
               const std::string& mapFileDir,
               const std::string& mapFileName)
       : _voc(voc),
+        _vocLayer(vocLayer),
         _vocFileName(vocFileName),
         _mapFileDir(mapFileDir),
         _mapFileName(mapFileName)
@@ -110,7 +167,7 @@ public:
         if (!_voc && Utils::fileExists(_vocFileName))
         {
             Utils::log("MapLoader", "loading voc file from: %s", _vocFileName.c_str());
-            _voc = new WAIOrbVocabulary();
+            _voc = new WAIOrbVocabulary(_vocLayer);
             _voc->loadFromFile(_vocFileName);
         }
 
@@ -131,6 +188,7 @@ public:
 private:
     WAIOrbVocabulary*& _voc;
     std::string        _vocFileName;
+    int                _vocLayer;
     std::string        _mapFileDir;
     std::string        _mapFileName;
 

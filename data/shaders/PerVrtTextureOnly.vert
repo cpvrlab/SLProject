@@ -8,6 +8,8 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
+precision highp float;
+
 //-----------------------------------------------------------------------------
 layout (location = 0) in vec4  a_position;     // Vertex position attribute
 layout (location = 2) in vec2  a_texCoord;     // Vertex texture attribute
@@ -26,7 +28,7 @@ void main()
     // Set the texture coord. output for interpolated tex. coords.
     v_texCoord = a_texCoord.xy;
    
-    // Set the transformes vertex position   
+    // Set the transformes vertex position
     gl_Position = u_mvpMatrix * a_position;
 }
 //-----------------------------------------------------------------------------

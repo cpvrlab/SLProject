@@ -41,6 +41,7 @@ SLCamera::SLCamera(const SLstring& name)
     _fogEnd(6.0f),
     _fogColor(SLCol4f::GRAY),
     _fogColorIsBack(true),
+    _fbRect(0, 0, 640, 480),
     _background(SLGLProgramManager::get(SP_TextureOnly),
                 SLGLProgramManager::get(SP_colorAttribute))
 {
@@ -146,7 +147,7 @@ SLbool SLCamera::camUpdate(SLfloat elapsedTimeMS)
 Only draws the frustum lines without lighting when the camera is not the
 active one. This means that it can be seen from the active view point.
 */
-void SLCamera::drawMeshes(SLSceneView* sv)
+void SLCamera::drawMesh(SLSceneView* sv)
 {
     if (sv->camera() != this)
     {
@@ -417,39 +418,43 @@ void SLCamera::setViewport(SLSceneView* sv, const SLEyeType eye)
     // Set viewport //
     //////////////////
 
-    SLint x  = (SLint)(vpRect.x * sv->scr2fbX());
-    SLint y  = (SLint)(vpRect.y * sv->scr2fbY());
-    SLint w  = (SLint)(vpRect.width * sv->scr2fbX());
-    SLint h  = (SLint)(vpRect.height * sv->scr2fbY());
-    SLint w2 = w >> 1;  // w/2
-    SLint h2 = h >> 1;  // h/2
-    SLint h4 = h2 >> 1; //h2/2
+    // calculate frame buffer size
+    // This can be different from the logical viewport size on high DPI displays
+    SLint fbX  = (SLint)(vpRect.x * sv->scr2fbX());
+    SLint fbY  = (SLint)(vpRect.y * sv->scr2fbY());
+    SLint fbW  = (SLint)(vpRect.width * sv->scr2fbX());
+    SLint fbH  = (SLint)(vpRect.height * sv->scr2fbY());
+    SLint fbW2 = fbW >> 1;  // fbW/2
+    SLint fbH2 = fbH >> 1;  // fbH/2
+    SLint fbH4 = fbH2 >> 1; // fbH2/2
 
     if (_projection == P_stereoSideBySideD)
     {
-        SLint fbW2 = sv->oculusFB()->halfWidth();
-        SLint fbH  = sv->oculusFB()->height();
+        SLint fbOcW2 = sv->oculusFB()->halfWidth();
+        SLint fbOcH  = sv->oculusFB()->height();
+        if (eye == ET_left)
+            stateGL->viewport(0, 0, fbOcW2, fbOcH);
+        else
+            stateGL->viewport(fbOcW2, 0, fbOcW2, fbOcH);
+    }
+    else if (_projection == P_stereoSideBySide)
+    {
         if (eye == ET_left)
             stateGL->viewport(0, 0, fbW2, fbH);
         else
             stateGL->viewport(fbW2, 0, fbW2, fbH);
     }
-    else if (_projection == P_stereoSideBySide)
-    {
-        if (eye == ET_left)
-            stateGL->viewport(0, 0, w2, h);
-        else
-            stateGL->viewport(w2, 0, w2, h);
-    }
     else if (_projection == P_stereoSideBySideP)
     {
         if (eye == ET_left)
-            stateGL->viewport(0, h4, w2, h2);
+            stateGL->viewport(0, fbH4, fbW2, fbH2);
         else
-            stateGL->viewport(w2, h4, w2, h2);
+            stateGL->viewport(fbW2, fbH4, fbW2, fbH2);
     }
     else
-        stateGL->viewport(x, y, w, h);
+        stateGL->viewport(fbX, fbY, fbW, fbH);
+
+    _fbRect.set(fbX, fbY, fbW, fbH);
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -1011,7 +1016,7 @@ SLbool SLCamera::onMouseMove(const SLMouseButton button,
 
             _oldTouchPos1.set((SLfloat)x, (SLfloat)y);
         }
-    } //===================================================================
+    } //=======================================================================
     return true;
 }
 //-----------------------------------------------------------------------------
@@ -1519,5 +1524,7 @@ void SLCamera::passToUniforms(SLGLProgram* program)
     loc = program->uniform1f("u_camFogStart", _fogStart);
     loc = program->uniform1f("u_camFogEnd", _fogEnd);
     loc = program->uniform4fv("u_camFogColor", 1, (SLfloat*)&_fogColor);
+    loc = program->uniform1i("u_camFbWidth", _fbRect.width);
+    loc = program->uniform1i("u_camFbHeight", _fbRect.height);
 }
 //-----------------------------------------------------------------------------

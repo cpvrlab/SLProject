@@ -6,7 +6,7 @@
 #include <SLLightSpot.h>
 #include <AppDemoGuiInfosDialog.h>
 #include <AppDemoGuiProperties.h>
-#include <SLTransferFunction.h>
+#include <SLColorLUT.h>
 #include <SLGLShader.h>
 #include <Utils.h>
 //-----------------------------------------------------------------------------
@@ -33,8 +33,7 @@ void AppDemoGuiProperties::buildInfos(SLScene* s, SLSceneView* sv)
             if (singleNode)
             {
                 SLuint c = (SLuint)singleNode->children().size();
-                SLuint m = (SLuint)singleNode->meshes().size();
-
+                SLuint m = singleNode->mesh() ? 1 : 0;
                 ImGui::Text("Node Name       : %s", singleNode->name().c_str());
                 ImGui::Text("No. of children : %u", c);
                 ImGui::Text("No. of meshes   : %u", m);
@@ -48,6 +47,14 @@ void AppDemoGuiProperties::buildInfos(SLScene* s, SLSceneView* sv)
                     db = singleNode->drawBit(SL_DB_MESHWIRED);
                     if (ImGui::Checkbox("Show wireframe", &db))
                         singleNode->drawBits()->set(SL_DB_MESHWIRED, db);
+
+                    db = singleNode->drawBit(SL_DB_WITHEDGES);
+                    if (ImGui::Checkbox("Show with hard edges", &db))
+                        singleNode->drawBits()->set(SL_DB_ONLYEDGES, db);
+
+                    db = singleNode->drawBit(SL_DB_ONLYEDGES);
+                    if (ImGui::Checkbox("Show only hard edges", &db))
+                        singleNode->drawBits()->set(SL_DB_WITHEDGES, db);
 
                     db = singleNode->drawBit(SL_DB_NORMALS);
                     if (ImGui::Checkbox("Show normals", &db))
@@ -69,23 +76,19 @@ void AppDemoGuiProperties::buildInfos(SLScene* s, SLSceneView* sv)
                     if (ImGui::Checkbox("Show back faces", &db))
                         singleNode->drawBits()->set(SL_DB_CULLOFF, db);
 
-                    db = singleNode->drawBit(SL_DB_TEXOFF);
-                    if (ImGui::Checkbox("No textures", &db))
-                        singleNode->drawBits()->set(SL_DB_TEXOFF, db);
-
                     ImGui::TreePop();
                 }
 
                 if (ImGui::TreeNode("Local Transform"))
                 {
                     SLMat4f om(singleNode->om());
-                    SLVec3f t, r, s;
-                    om.decompose(t, r, s);
-                    r *= Utils::RAD2DEG;
+                    SLVec3f trn, rot, scl;
+                    om.decompose(trn, rot, scl);
+                    rot *= Utils::RAD2DEG;
 
-                    ImGui::Text("Translation  : %s", t.toString().c_str());
-                    ImGui::Text("Rotation     : %s", r.toString().c_str());
-                    ImGui::Text("Scaling      : %s", s.toString().c_str());
+                    ImGui::Text("Translation  : %s", trn.toString().c_str());
+                    ImGui::Text("Rotation     : %s", rot.toString().c_str());
+                    ImGui::Text("Scaling      : %s", scl.toString().c_str());
                     ImGui::TreePop();
                 }
 
@@ -309,9 +312,9 @@ void AppDemoGuiProperties::buildInfos(SLScene* s, SLSceneView* sv)
                                 }
                                 else
                                 {
-                                    if (typeid(*t) == typeid(SLTransferFunction))
+                                    if (typeid(*t) == typeid(SLColorLUT))
                                     {
-                                        SLTransferFunction* tf = (SLTransferFunction*)m->textures()[i];
+                                        SLColorLUT* tf = (SLColorLUT*)m->textures()[i];
                                         if (ImGui::TreeNode("Color Points in Transfer Function"))
                                         {
                                             for (SLuint c = 0; c < tf->colors().size(); ++c)
@@ -439,22 +442,20 @@ void AppDemoGuiProperties::buildInfos(SLScene* s, SLSceneView* sv)
 
         for (auto* selectedNode : s->selectedNodes())
         {
-            if (selectedNode->meshes().size() > 0)
+            if (selectedNode->mesh())
             {
                 ImGui::Text("Node: %s", selectedNode->name().c_str());
-                for (auto selectedMesh : selectedNode->meshes())
+                SLMesh* selectedMesh = selectedNode->mesh();
+                if ((SLuint)selectedMesh->IS32.size() > 0)
                 {
-                    if ((SLuint)selectedMesh->IS32.size() > 0)
+                    ImGui::Text("   Mesh: %s {%u v.}",
+                                selectedMesh->name().c_str(),
+                                (SLuint)selectedMesh->IS32.size());
+                    ImGui::SameLine();
+                    SLstring delBtn = "DEL##" + selectedMesh->name();
+                    if (ImGui::Button(delBtn.c_str()))
                     {
-                        ImGui::Text("   Mesh: %s {%u v.}",
-                                    selectedMesh->name().c_str(),
-                                    (SLuint)selectedMesh->IS32.size());
-                        ImGui::SameLine();
-                        SLstring delBtn = "DEL##" + selectedMesh->name();
-                        if (ImGui::Button(delBtn.c_str()))
-                        {
-                            selectedMesh->deleteSelected(selectedNode);
-                        }
+                        selectedMesh->deleteSelected(selectedNode);
                     }
                 }
             }

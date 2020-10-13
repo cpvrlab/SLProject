@@ -8,9 +8,8 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#ifdef GL_ES
-precision mediump float;
-#endif
+precision highp float;
+
 //-----------------------------------------------------------------------------
 in      vec3    v_P_VS;             // Interpol. point of illum. in view space (VS)
 in      vec4    v_color;            // interpolated color from vertex shader

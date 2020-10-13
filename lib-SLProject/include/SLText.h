@@ -37,13 +37,12 @@ public:
 
     ~SLText() { ; }
 
-    void         drawRec(SLSceneView* sv);
-    void         statsRec(SLNodeStats& stats);
-    SLAABBox&    updateAABBRec();
-    SLbool       hitRec(SLRay* ray) { return false; }
-    virtual void drawMeshes(SLSceneView* sv);
-
-    void preShade(SLRay* ray) { ; }
+    void      drawText(SLSceneView* sv);
+    void      statsRec(SLNodeStats& stats) override;
+    SLAABBox& updateAABBRec() override;
+    SLbool    hitRec(SLRay* ray) override { return false; }
+    void      drawMesh(SLSceneView* sv) override { drawText(sv); };
+    void      preShade(SLRay* ray) { ; }
 
     // Getters
     SLstring text() { return _text; }

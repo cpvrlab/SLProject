@@ -11,12 +11,14 @@ struct Config
     std::string   calibrationsDir;
     std::string   configFile;
     std::string   vocFile;
+    int           vocLayer;
     std::string   outputDir;
     ExtractorType extractorType;
     int           nLevels;
     bool          serialMapping;
     float         thinCullingValue;
     bool          ensureKFIntegration;
+    float         minCommonWordFactor;
 };
 
 void printHelp()
@@ -33,7 +35,7 @@ void printHelp()
     ss << "  -configFile            Path and name to MapCreatorConfig.json" << std::endl;
     ss << "  -vocFile               Path and name to Vocabulary file (Optional. If not specified, <AppsWritableDir>/voc/voc_fbow.bin is used)" << std::endl;
     ss << "  -outputDir             Directory where to output generated data (maps, log). (Optional. If not specified, <erlebARDir>/MapCreator/ is used for output, also log output)" << std::endl;
-    ss << "  -level                Number of pyramid levels" << std::endl;
+    ss << "  -level                 Number of pyramid levels" << std::endl;
     ss << "  -serial                Serial mapping (1 or 0)" << std::endl;
     ss << "  -thinCullVal           Thin out culling value (e.g. 0.95)" << std::endl;
     ss << "  -ensureKFIntegration   Ensure new keyframe have mappoints in common with previously loaded map" << std::endl;
@@ -43,13 +45,15 @@ void printHelp()
 
 void readArgs(int argc, char* argv[], Config& config)
 {
-    config.extractorType       = ExtractorType_FAST_BRIEF_1000;
+    config.extractorType       = ExtractorType_FAST_ORBS_2000;
     config.erlebARDir          = Utils::getAppsWritableDir() + "erleb-AR/";
     config.calibrationsDir     = Utils::getAppsWritableDir() + "erleb-AR/calibrations/";
     config.nLevels             = -1;
     config.thinCullingValue    = 0.995f;
     config.serialMapping       = false;
     config.ensureKFIntegration = false;
+    config.minCommonWordFactor = 0.8;
+    config.vocLayer            = 2;
 
 #if USE_FBOW
     config.vocFile = Utils::getAppsWritableDir() + "voc/voc_fbow.bin";
@@ -77,7 +81,7 @@ void readArgs(int argc, char* argv[], Config& config)
         }
         else if (!strcmp(argv[i], "-outputDir"))
         {
-            config.outputDir = argv[++i]; //Not used
+            config.outputDir = argv[++i];
         }
         else if (!strcmp(argv[i], "-level"))
         {
@@ -92,9 +96,18 @@ void readArgs(int argc, char* argv[], Config& config)
         {
             config.thinCullingValue = std::stof(argv[++i]);
         }
+        else if (!strcmp(argv[i], "-minCommonWordFactor"))
+        {
+            config.minCommonWordFactor = std::stof(argv[++i]);
+        }
         else if (!strcmp(argv[i], "-ensureKFIntegration"))
         {
-            config.ensureKFIntegration = true;
+            int val                    = std::stoi(argv[++i]);
+            config.ensureKFIntegration = val == 1 ? true : false;
+        }
+        else if (!strcmp(argv[i], "-vocLayer"))
+        {
+            config.vocLayer = std::stoi(argv[++i]);
         }
         else if (!strcmp(argv[i], "-feature"))
         {
@@ -132,6 +145,7 @@ void readArgs(int argc, char* argv[], Config& config)
         exit(1);
     }
 }
+
 
 static GLFWwindow* window;          //!< The global glfw window handle
 static SLint       svIndex;         //!< SceneView index
@@ -217,12 +231,14 @@ int main(int argc, char* argv[])
                               config.calibrationsDir,
                               config.configFile,
                               config.vocFile,
+                              config.vocLayer,
                               config.extractorType,
                               config.nLevels,
                               config.outputDir,
                               config.serialMapping,
                               config.thinCullingValue,
-                              config.ensureKFIntegration);
+                              config.ensureKFIntegration,
+                              config.minCommonWordFactor);
         //todo: call different executes e.g. executeFullProcessing(), executeThinOut()
         //input and output directories have to be defined together with json file which is always scanned during construction
         mapCreator.execute();

@@ -32,12 +32,6 @@ void AppWAIScene::loadMesh(std::string path)
     for (auto child : augmentationRoot->children())
     {
         child->drawBits()->set(SL_DB_NOTSELECTABLE, true);
-        for (auto mesh : child->meshes())
-        {
-            mesh->mat()->ambient(SLCol4f(0.5f, 0.5f, 0.5f));
-            mesh->mat()->diffuse(SLCol4f(0.5f, 0.5f, 0.5f));
-            mesh->mat()->specular(SLCol4f(0.5f, 0.5f, 0.5f));
-        }
     }
 
     SLNode* n = augmentationRoot->findChild<SLNode>("TexturedMesh", true);
@@ -48,18 +42,9 @@ void AppWAIScene::loadMesh(std::string path)
     }
 
     augmentationRoot->drawBits()->set(SL_DB_NOTSELECTABLE, true);
-
-    // Create directional light for the sun light
-    SLLightDirect* light = new SLLightDirect(&assets, this, 1.0f);
-    light->ambientColor(SLCol4f(0.3f, 0.3f, 0.3f));
-    light->diffuseColor(SLCol4f(1.0f, 0.7f, 1.0f));
-    light->specularColor(SLCol4f(1, 1, 1));
-    light->attenuation(1, 0, 0);
-    light->translation(0, 10, 0);
-    light->lookAt(10, 0, 10);
+;
 
     _root3D->addChild(augmentationRoot);
-    _root3D->addChild(light);
 }
 
 void AppWAIScene::hideNode(SLNode* node)
@@ -103,6 +88,16 @@ void AppWAIScene::rebuild(std::string location, std::string area)
     blueMat->program(new SLGLGenericProgram(&assets, _dataDir + "shaders/ColorUniformPoint.vert", _dataDir + "shaders/Color.frag"));
     blueMat->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 4.0f));
 
+/*
+    SLMaterial* matVideoBackground = new SLMaterial(&assets,
+                                                    "matVideoBackground",
+                                                    videoTexture,
+                                                    nullptr,
+                                                    nullptr,
+                                                    nullptr,
+                                                    spVideoBackground);
+                                                    */
+
     covisibilityGraphMat = new SLMaterial(&assets, "covisibilityGraphMat", SLCol4f::YELLOW);
     covisibilityGraphMat->program(new SLGLGenericProgram(&assets, _dataDir + "shaders/ColorUniform.vert", _dataDir + "shaders/Color.frag"));
     spanningTreeMat = new SLMaterial(&assets, "spanningTreeMat", SLCol4f::GREEN);
@@ -114,52 +109,56 @@ void AppWAIScene::rebuild(std::string location, std::string area)
     cameraNode->background().texture(_videoImage, false);
 
     // Create directional light for the sun light
-    SLLightDirect* light = new SLLightDirect(&assets, this, 5.0f);
-    light->ambientColor(SLCol4f(1, 1, 1));
-    light->diffuseColor(SLCol4f(1, 1, 1));
-    light->specularColor(SLCol4f(1, 1, 1));
-    light->attenuation(1, 0, 0);
-    light->translation(0, 1, 0);
-    light->lookAt(1, 0, 1);
-    light->setDrawBitsRec(SL_DB_HIDDEN, false);
-    _root3D->addChild(light);
+    SLLightDirect* light1 = new SLLightDirect(&assets, this, 5.0f);
+    light1->powers(1.0f, 1.0f, 1.0f);
+    light1->attenuation(1, 0, 0);
+    light1->translation(0, 10, 0);
+    light1->lookAt(10, 0, 10);
+    _root3D->addChild(light1);
+    // Let the sun be rotated by time and location
+    //SLApplication::devLoc.sunLightNode(light1);
 
     HighResTimer t;
-    if (location == "avenches")
+    if (location == "avenches" || location == "Avenches")
     {
         std::string modelPath;
-        if (area == "amphitheaterEntrance" || area == "amphitheater")
+        if (area == "Amphitheater-Entrance" || area == "Amphitheater")
         {
-            std::string      modelPath = _dataDir + "models/GLTF/Avenches/Aventicum-Amphitheater1.gltf";
+            std::string      modelPath = _dataDir + "erleb-AR/models/avenches/Aventicum-Amphitheater1.gltf";
+            SLAssimpImporter importer;
+            loadMesh(modelPath);
+            augmentationRoot->rotate(13.7f, 0, 1, 0, TS_parent);
+
+            // Let the video shine through some objects
+            /*
+            augmentationRoot->findChild<SLNode>("Tht-Aussen-Untergrund")->setMeshMat(matVideoBackground, true);
+            augmentationRoot->findChild<SLNode>("Tht-Eingang-Ost-Boden")->setMeshMat(matVideoBackground, true);
+            augmentationRoot->findChild<SLNode>("Tht-Arenaboden")->setMeshMat(matVideoBackground, true);
+            augmentationRoot->findChild<SLNode>("Tht-Aussen-Terrain")->setMeshMat(matVideoBackground, true);
+            */
+            augmentationRoot->findChild<SLNode>("Tht-Aussen-Untergrund")->setDrawBitsRec(SL_DB_HIDDEN, true);
+            augmentationRoot->findChild<SLNode>("Tht-Eingang-Ost-Boden")->setDrawBitsRec(SL_DB_HIDDEN, true);
+            augmentationRoot->findChild<SLNode>("Tht-Arenaboden")->setDrawBitsRec(SL_DB_HIDDEN, true);
+            augmentationRoot->findChild<SLNode>("Tht-Aussen-Terrain")->setDrawBitsRec(SL_DB_HIDDEN, true);
+            // Rotate to the true geographic rotation
+            augmentationRoot->rotate(13.7f, 0, 1, 0, TS_parent);
+        }
+        else if (area == "Cigonier-marker")
+        {
+            std::string      modelPath = _dataDir + "erleb-AR/models/avenches/Aventicum-Cigognier1.gltf";
             SLAssimpImporter importer;
 
             if (!Utils::fileExists(modelPath))
             {
-                modelPath = _dataDir + "models/Avenches/Aventicum-Amphitheater1.gltf";
+                modelPath = _dataDir + "erleb-AR/models/avenches/Aventicum-Cigognier1.gltf";
             }
+
             loadMesh(modelPath);
         }
-        else if (area == "cigonier-marker")
+        else if (area == "Theater-marker" || area == "Theater")
         {
-            std::string      modelPath = _dataDir + "models/GLTF/Avenches/Aventicum-Cigognier1.gltf";
+            std::string      modelPath = _dataDir + "erleb-AR/models/avenches/Aventicum-Theater1.gltf";
             SLAssimpImporter importer;
-
-            if (!Utils::fileExists(modelPath))
-            {
-                modelPath = _dataDir + "models/Avenches/Aventicum-Cigognier1.gltf";
-            }
-
-            loadMesh(modelPath);
-        }
-        else if (area == "theater-marker" || area == "theater")
-        {
-            std::string      modelPath = _dataDir + "models/GLTF/Avenches/Aventicum-Theater1.gltf";
-            SLAssimpImporter importer;
-
-            if (!Utils::fileExists(modelPath))
-            {
-                modelPath = _dataDir + "models/Avenches/Aventicum-Theater1.gltf";
-            }
 
             loadMesh(modelPath);
         }
@@ -346,12 +345,9 @@ void AppWAIScene::adjustAugmentationTransparency(float kt)
     {
         for (SLNode* child : augmentationRoot->children())
         {
-            for (SLMesh* mesh : child->meshes())
-            {
-                mesh->mat()->kt(kt);
-                mesh->mat()->ambient(SLCol4f(0.3f, 0.3f, 0.3f));
-                mesh->init(child);
-            }
+            child->mesh()->mat()->kt(kt);
+            child->mesh()->mat()->ambient(SLCol4f(0.3f, 0.3f, 0.3f));
+            child->mesh()->init(child);
         }
     }
 }
@@ -452,10 +448,11 @@ void AppWAIScene::removeMatchedMapPoints()
     removeMesh(mapMatchedPC, mappointsMatchedMesh);
 }
 
-void AppWAIScene::renderKeyframes(const std::vector<WAIKeyFrame*>& keyframes)
+void AppWAIScene::renderKeyframes(const std::vector<WAIKeyFrame*>& keyframes, const std::vector<WAIKeyFrame*>& candidates)
 {
     keyFrameNode->deleteChildren();
     // TODO(jan): delete keyframe textures
+
     for (WAIKeyFrame* kf : keyframes)
     {
         if (kf->isBad())
@@ -472,6 +469,13 @@ void AppWAIScene::renderKeyframes(const std::vector<WAIKeyFrame*>& keyframes)
         _kfTextures.push_back(texture);
         cam->background().texture(texture);
 #endif
+        }
+
+        cam->setDrawColor();
+        for (WAIKeyFrame * ckf : candidates)
+        {
+            if (kf->mnId == ckf->mnId)
+                cam->setDrawColor(SLCol4f::BLUE);
         }
 
         cv::Mat Twc = kf->getObjectMatrix();
@@ -504,7 +508,7 @@ void AppWAIScene::renderKeyframes(const std::vector<WAIKeyFrame*>& keyframes)
         cam->fov(fovDeg);
         cam->focalDist(0.11f);
         cam->clipNear(0.1f);
-        cam->clipFar(1000.0f);
+        cam->clipFar(1.0f);
 
         keyFrameNode->addChild(cam);
     }

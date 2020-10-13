@@ -19,22 +19,23 @@
 SLfloat SLMaterial::PERFECT = 1000.0f;
 //-----------------------------------------------------------------------------
 /*!
- * Default constructor for materials without textures.
- * Materials can be used by multiple meshes (SLMesh). Materials can belong
- * therefore to the global assets such as meshes, materials, textures and
- * shader programs.
- * @param am Pointer to a global asset manager. If passed the asset
- * manager is the owner of the instance and will do the deallocation. If a
- * nullptr is passed the creator is responsible for the deallocation.
- * @param name Name of the material
- * @param amdi Ambient and diffuse color
- * @param spec Specular color
- * @param shininess Shininess exponent (the higher the sharper the gloss)
- * @param kr Reflection coefficient used for ray tracing. (0.0-1.0)
- * @param kt Tranparency coeffitient used for ray tracing. (0.0-1.0)
- * @param kn Refraction index used for ray tracing (1.0-2.5)
- * @param program Pointer to the shader program for the material
- */
+ Default constructor for materials without textures.
+ Materials can be used by multiple meshes (SLMesh). Materials can belong
+ therefore to the global assets such as meshes, materials, textures and
+ shader programs.
+ @param am Pointer to a global asset manager. If passed the asset
+ manager is the owner of the instance and will do the deallocation. If a
+ nullptr is passed the creator is responsible for the deallocation.
+ @param name Name of the material
+ @param amdi Ambient and diffuse color
+ @param spec Specular color
+ @param shininess Shininess exponent (the higher the sharper the gloss)
+ @param kr Reflection coefficient used for ray tracing. (0.0-1.0)
+ @param kt Tranparency coeffitient used for ray tracing. (0.0-1.0)
+ @param kn Refraction index used for ray tracing (1.0-2.5)
+ @param program Pointer to the shader program for the material
+ @param compileErrorTexFilePath Path to an error texture
+*/
 SLMaterial::SLMaterial(SLAssetManager* am,
                        const SLchar*   name,
                        const SLCol4f&  amdi,
@@ -71,23 +72,24 @@ SLMaterial::SLMaterial(SLAssetManager* am,
 }
 //-----------------------------------------------------------------------------
 /*!
- * Constructor for textured materials.
- * Materials can be used by multiple meshes (SLMesh). Materials can belong
- * therefore to the global assets such as meshes, materials, textures and
- * shader programs.
- * @param am Pointer to a global asset manager. If passed the asset
- * manager is the owner of the instance and will do the deallocation. If a
- * nullptr is passed the creator is responsible for the deallocation.
- * @param name Name of the material
- * @param texture1 Texture 1 image filename. If only a filename is
- * passed it will be search on the SLGLTexture::defaultPath.
- * @param texture2 Texture 2 image filename. If only a filename is
- * passed it will be search on the SLGLTexture::defaultPath.
- * @param texture3 Texture 3 image filename. If only a filename is
- * passed it will be search on the SLGLTexture::defaultPath.
- * @param texture4 Texture 4 image filename. If only a filename is
- * passed it will be search on the SLGLTexture::defaultPath.
- * @param shaderProg Pointer to the shader program for the material
+ Constructor for textured materials.
+ Materials can be used by multiple meshes (SLMesh). Materials can belong
+ therefore to the global assets such as meshes, materials, textures and
+ shader programs.
+ @param am Pointer to a global asset manager. If passed the asset
+ manager is the owner of the instance and will do the deallocation. If a
+ nullptr is passed the creator is responsible for the deallocation.
+ @param name Name of the material
+ @param texture1 Texture 1 image filename. If only a filename is
+ passed it will be search on the SLGLTexture::defaultPath.
+ @param texture2 Texture 2 image filename. If only a filename is
+ passed it will be search on the SLGLTexture::defaultPath.
+ @param texture3 Texture 3 image filename. If only a filename is
+ passed it will be search on the SLGLTexture::defaultPath.
+ @param texture4 Texture 4 image filename. If only a filename is
+ passed it will be search on the SLGLTexture::defaultPath.
+ @param shaderProg Pointer to the shader program for the material
+ @param compileErrorTexFilePath Path to an error texture
  */
 SLMaterial::SLMaterial(SLAssetManager* am,
                        const SLchar*   name,
@@ -125,15 +127,16 @@ SLMaterial::SLMaterial(SLAssetManager* am,
 }
 //-----------------------------------------------------------------------------
 /*!
- * Constructor for materials used within the cone tracer (SLGLConetracer).
- * Materials can be used by multiple meshes (SLMesh). Materials can belong
- * therefore to the global assets such as meshes, materials, textures and
- * shader programs.
- * @param am Pointer to a global asset manager. If passed the asset
- * manager is the owner of the instance and will do the deallocation. If a
- * nullptr is passed the creator is responsible for the deallocation.
- * @param name Name of the material
- * @param shaderProg Pointer to the shader program for the material.
+ Constructor for materials used within the cone tracer (SLGLConetracer).
+ Materials can be used by multiple meshes (SLMesh). Materials can belong
+ therefore to the global assets such as meshes, materials, textures and
+ shader programs.
+ @param am Pointer to a global asset manager. If passed the asset
+ manager is the owner of the instance and will do the deallocation. If a
+ nullptr is passed the creator is responsible for the deallocation.
+ @param name Name of the material
+ @param shaderProg Pointer to the shader program for the material.
+ @param compileErrorTexFilePath Path to an error texture
  */
 SLMaterial::SLMaterial(SLAssetManager* am,
                        const SLchar*   name,
@@ -154,19 +157,20 @@ SLMaterial::SLMaterial(SLAssetManager* am,
 }
 //-----------------------------------------------------------------------------
 /*!
- * Constructor for Cook-Torrance shaded materials with roughness and metalness.
- * Materials can be used by multiple meshes (SLMesh). Materials can belong
- * therefore to the global assets such as meshes, materials, textures and
- * shader programs.
- * @param am Pointer to a global asset manager. If passed the asset
- * manager is the owner of the instance and will do the deallocation. If a
- * nullptr is passed the creator is responsible for the deallocation.
- * @param perPixCookTorranceProgram Pointer to the shader program for
- * Cook-Torrance shading
- * @param name Name of the material
- * @param diffuse Diffuse reflection color
- * @param roughness Roughness (0.0-1.0)
- * @param metalness Metalness (0.0-1.0)
+ Constructor for Cook-Torrance shaded materials with roughness and metalness.
+ Materials can be used by multiple meshes (SLMesh). Materials can belong
+ therefore to the global assets such as meshes, materials, textures and
+ shader programs.
+ @param am Pointer to a global asset manager. If passed the asset
+ manager is the owner of the instance and will do the deallocation. If a
+ nullptr is passed the creator is responsible for the deallocation.
+ @param perPixCookTorranceProgram Pointer to the shader program for
+ Cook-Torrance shading
+ @param name Name of the material
+ @param diffuse Diffuse reflection color
+ @param roughness Roughness (0.0-1.0)
+ @param metalness Metalness (0.0-1.0)
+ @param compileErrorTexFilePath Path to an error texture
  */
 SLMaterial::SLMaterial(SLAssetManager* am,
                        SLGLProgram*    perPixCookTorranceProgram,
@@ -197,16 +201,17 @@ SLMaterial::SLMaterial(SLAssetManager* am,
 }
 //-----------------------------------------------------------------------------
 /*!
- * Constructor for uniform color material without lighting
- * Materials can be used by multiple meshes (SLMesh). Materials can belong
- * therefore to the global assets such as meshes, materials, textures and
- * shader programs.
- * @param am Pointer to a global asset manager. If passed the asset
- * manager is the owner of the instance and will do the deallocation. If a
- * nullptr is passed the creator is responsible for the deallocation.
- * @param colorUniformProgram Pointer to shader program for uniform coloring.
- * @param uniformColor Color to apply
- * @param name Name of the material.
+ Constructor for uniform color material without lighting
+ Materials can be used by multiple meshes (SLMesh). Materials can belong
+ therefore to the global assets such as meshes, materials, textures and
+ shader programs.
+ @param am Pointer to a global asset manager. If passed the asset
+ manager is the owner of the instance and will do the deallocation. If a
+ nullptr is passed the creator is responsible for the deallocation.
+ @param colorUniformProgram Pointer to shader program for uniform coloring.
+ @param uniformColor Color to apply
+ @param name Name of the material
+ @param compileErrorTexFilePath Path to an error texture
  */
 SLMaterial::SLMaterial(SLAssetManager* am,
                        SLGLProgram*    colorUniformProgram,
@@ -236,10 +241,10 @@ SLMaterial::SLMaterial(SLAssetManager* am,
 }
 //-----------------------------------------------------------------------------
 /*!
- * The destructor should be called by the owner of the material. If an asset
- * manager was passed in the constructor it will do it after scene destruction.
- * The textures (SLGLTexture) and the shader program (SLGLProgram) that the
- * material uses will not be deallocated.
+ The destructor should be called by the owner of the material. If an asset
+ manager was passed in the constructor it will do it after scene destruction.
+ The textures (SLGLTexture) and the shader program (SLGLProgram) that the
+ material uses will not be deallocated.
 */
 SLMaterial::~SLMaterial()
 {
@@ -255,8 +260,8 @@ SLMaterial::~SLMaterial()
 }
 //-----------------------------------------------------------------------------
 /*!
-SLMaterial::activate applies the material parameter to the global render state
-and activates the attached shader
+ SLMaterial::activate applies the material parameter to the global render state
+ and activates the attached shader
 */
 void SLMaterial::activate(SLDrawBits drawBits, SLCamera* cam, SLVLight* lights)
 {
@@ -278,7 +283,12 @@ void SLMaterial::activate(SLDrawBits drawBits, SLCamera* cam, SLVLight* lights)
     if (!_program)
     {
         if (!_textures.empty())
-            program(SLGLGenericProgramDefaultTex::instance());
+        {
+            if (_textures.size() > 1 && _textures[1]->texType() == TT_normal)
+                program(SLGLGenericProgramDefaultTexNormal::instance());
+            else
+                program(SLGLGenericProgramDefaultTex::instance());
+        }
         else
             program(SLGLGenericProgramDefault::instance());
     }
@@ -292,11 +302,8 @@ void SLMaterial::activate(SLDrawBits drawBits, SLCamera* cam, SLVLight* lights)
         _textures.push_back(_errorTexture);
     }
 
-    // Determine use of shaders & textures
-    SLbool useTexture = !drawBits.get(SL_DB_TEXOFF);
-
     // Enable or disable texturing
-    if (useTexture && !_textures.empty())
+    if (!_textures.empty())
     {
         for (SLulong i = 0; i < _textures.size(); ++i)
             _textures[i]->bindActive((SLint)i);
@@ -306,6 +313,7 @@ void SLMaterial::activate(SLDrawBits drawBits, SLCamera* cam, SLVLight* lights)
     program()->beginUse(cam, this, lights);
 }
 //-----------------------------------------------------------------------------
+//! Passes all material parameters as uniforms to the passed shader program
 void SLMaterial::passToUniforms(SLGLProgram* program)
 {
     assert(program && "SLMaterial::passToUniforms: No shader program set!");

@@ -47,8 +47,8 @@ LocalMapping::LocalMapping(WAIMap*           pMap,
     mbFinished(false),
     mbAcceptKeyFrames(true),
     mbAbortBA(false),
-    mPauseRequested(false),
-    mPaused(false),
+    mbPauseRequested(false),
+    mbPaused(false),
     _cullRedundantPerc(cullRedundantPerc)
 {
 }
@@ -60,8 +60,6 @@ void LocalMapping::SetLoopCloser(LoopClosing* pLoopCloser)
 
 void LocalMapping::Run()
 {
-    mbFinished = false;
-    mPaused    = false;
     while (1)
     {
         // Tracking will see that Local Mapping is busy
@@ -89,7 +87,7 @@ void LocalMapping::Run()
 
             mbAbortBA = false;
 
-            if (!CheckNewKeyFrames() && !CheckFinish())
+            if (!CheckNewKeyFrames() && !CheckFinish() && !CheckPause())
             {
                 // Local BA
                 if (mpMap->KeyFramesInMap() > 2)
@@ -99,7 +97,8 @@ void LocalMapping::Run()
 
             mpLoopCloser->InsertKeyFrame(frame);
         }
-        else if (CheckPause())
+
+        if (CheckPause())
         {
             Pause();
             while (isPaused() && !CheckFinish())
@@ -122,7 +121,7 @@ void LocalMapping::Run()
 void LocalMapping::Run2()
 {
     mbFinished     = false;
-    mPaused        = false;
+    mbPaused       = false;
     bool lba       = true;
     bool neighbors = true;
     while (1)
@@ -142,7 +141,7 @@ void LocalMapping::Run2()
 
             if (KeyFramesToProcess() > 8)
             {
-                lba = false;
+                lba       = false;
                 neighbors = false;
                 SetAcceptKeyFrames(false);
             }
@@ -174,6 +173,13 @@ void LocalMapping::Run2()
             }
 
             mpLoopCloser->InsertKeyFrame(frame);
+
+            if (CheckPause())
+            {
+                Pause();
+                while (isPaused() && !CheckFinish())
+                    std::this_thread::sleep_for(3ms);
+            }
         }
 
         if (CheckPause())
@@ -280,7 +286,7 @@ void LocalMapping::ProcessNewKeyFrame(WAIKeyFrame* kf)
         }
     }
     // Update links in the Covisibility Graph
-    kf->UpdateConnections();
+    kf->FindAndUpdateConnections();
 
     // Insert Keyframe in Map
     mpMap->AddKeyFrame(kf);
@@ -656,7 +662,7 @@ void LocalMapping::SearchInNeighbors(LocalMap& lmap)
     }
 
     // Update connections in covisibility graph
-    lmap.refKF->UpdateConnections();
+    lmap.refKF->FindAndUpdateConnections();
 }
 
 void LocalMapping::SearchInNeighbors(WAIKeyFrame* frame)
@@ -738,7 +744,7 @@ void LocalMapping::SearchInNeighbors(WAIKeyFrame* frame)
     }
 
     // Update connections in covisibility graph
-    frame->UpdateConnections();
+    frame->FindAndUpdateConnections();
 }
 
 cv::Mat LocalMapping::ComputeF12(WAIKeyFrame*& pKF1, WAIKeyFrame*& pKF2)
@@ -762,6 +768,7 @@ cv::Mat LocalMapping::ComputeF12(WAIKeyFrame*& pKF1, WAIKeyFrame*& pKF2)
 void LocalMapping::Release()
 {
     unique_lock<mutex> lock(mMutexFinish);
+    unique_lock<mutex> lock2(mMutexNewKFs);
     if (mbFinished)
         return;
     for (list<WAIKeyFrame*>::iterator lit = mlNewKeyFrames.begin(), lend = mlNewKeyFrames.end(); lit != lend; lit++)
@@ -849,7 +856,6 @@ void LocalMapping::KeyFrameCulling(WAIKeyFrame* frame)
                 }
             }
         }
-
         if (nRedundantObservations > _cullRedundantPerc * nMPs)
         {
             pKF->SetBadFlag();
@@ -964,7 +970,10 @@ void LocalMapping::Reset()
     unique_lock<mutex> lock2(mMutexNewKFs);
     mlNewKeyFrames.clear();
     mlpRecentAddedMapPoints.clear();
-    mbResetRequested = false;
+    mbResetRequested  = false;
+    mbFinishRequested = false;
+    mbPauseRequested  = false;
+    mbPaused          = false;
 }
 
 //Finish
@@ -991,42 +1000,45 @@ void LocalMapping::Finish()
 {
     unique_lock<mutex> lock(mMutexFinish);
     SetAcceptKeyFrames(false);
+    mlNewKeyFrames.clear();
+    mlpRecentAddedMapPoints.clear();
     mbFinishRequested = false;
-    mbFinished = true;
+    mbFinished        = true;
 }
 
 //Pause
 void LocalMapping::RequestPause()
 {
     unique_lock<mutex> lock(mMutexPause);
-    mPauseRequested = true;
-    mbAbortBA       = true;
+    mbPauseRequested = true;
+    unique_lock<mutex> lock2(mMutexNewKFs);
+    mbAbortBA = true;
 }
 
 bool LocalMapping::isPaused()
 {
     unique_lock<mutex> lock(mMutexPause);
-    return mPaused;
+    return mbPaused;
 }
 
 bool LocalMapping::CheckPause()
 {
     unique_lock<mutex> lock(mMutexPause);
-    return mPauseRequested;
+    return mbPauseRequested;
 }
 
 void LocalMapping::Pause()
 {
     unique_lock<mutex> lock(mMutexPause);
-    mPauseRequested = false;
-    mPaused = true;
+    mbPauseRequested = false;
+    mbPaused         = true;
 }
 
 void LocalMapping::RequestContinue()
 {
     unique_lock<mutex> lock(mMutexPause);
-    mPaused   = false;
+    mbPaused         = false;
+    mbPauseRequested = false;
 }
-
 
 } //namespace ORB_SLAM

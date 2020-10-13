@@ -56,14 +56,14 @@ int main(int argc, char* argv[])
     cout << "httpGet bytes read  : "
          << Utils::httpGet("http://cpvrlab.github.io/SLProject_doc/images/app-Demo-Skybox.png", awd)
          << endl;
-    cout << endl << "HTTP GET test on pallas.bfh.ch:21" << endl;
+    cout << endl << "HTTP GET test on pallas.ti.bfh.ch:21" << endl;
     cout << "httpGet bytes read  : "
-         << Utils::httpGet("http://pallas.bfh.ch/test/Christoffel.zip", awd)
+         << Utils::httpGet("http://pallas.ti.bfh.ch/test/Christoffel.zip", awd)
          << endl;
 
-    cout << endl << "FTP test on pallas.bfh.ch:21" << endl;
+    cout << endl << "FTP test on pallas.ti.bfh.ch:21" << endl;
     ftplib ftp;
-    if (ftp.Connect("pallas.bfh.ch:21") &&
+    if (ftp.Connect("pallas.ti.fh.ch:21") &&
         ftp.Login("upload", "FaAdbD3F2a"))
     {
         ftp.SetCallbackXferFunction(ftpCallbackXfer);

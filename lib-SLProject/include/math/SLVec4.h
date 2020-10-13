@@ -35,7 +35,7 @@ class SLVec4
             struct {T comp[4];};
         };
 
-                    SLVec4      (void)                  {}
+                    SLVec4      (void)                  {x=0;y=0;z=0;w=0;}
                     SLVec4      (const T X,
                                  const T Y,
                                  const T Z=0,
@@ -196,7 +196,7 @@ class SLVec4
                 T a = Utils::clamp(hsva.w, 0.0f, 1.0f);
 
                 T c = v * s;
-                T x = c * (1.0f - (T)fabs((T)fmod(h*3.0f / M_PI, 2.0f) - 1.0f));
+                T x = c * (1.0f - (T)fabs((T)fmod(h*3.0f / Utils::PI, 2.0f) - 1.0f));
                 T m = v - c;
 
                 switch (SLint(floor(h*3.0f * Utils::ONEOVERPI)))

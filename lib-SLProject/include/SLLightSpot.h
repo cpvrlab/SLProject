@@ -58,7 +58,7 @@ public:
     void    init(SLScene* s);
     bool    hitRec(SLRay* ray) override;
     void    statsRec(SLNodeStats& stats) override;
-    void    drawMeshes(SLSceneView* sv) override;
+    void    drawMesh(SLSceneView* sv) override;
     SLfloat shadowTest(SLRay*         ray,
                        const SLVec3f& L,
                        SLfloat        lightDist,
@@ -73,10 +73,15 @@ public:
     void samples(SLuint x, SLuint y) { _samples.samples(x, y, false); }
 
     // Getters
-    SLfloat      radius() const { return _radius; }
-    SLuint       samples() { return _samples.samples(); }
-    SLVec4f      positionWS() const override { return translationWS(); }
-    SLVec3f      spotDirWS() override { return forwardWS(); }
+    SLfloat radius() const { return _radius; }
+    SLuint  samples() { return _samples.samples(); }
+
+    // Overrides
+    SLCol4f ambient() override { return _ambientColor * _ambientPower; }
+    SLCol4f diffuse() override { return _diffuseColor * _diffusePower; }
+    SLCol4f specular() override { return _specularColor * _specularPower; }
+    SLVec4f positionWS() const override { return translationWS(); }
+    SLVec3f spotDirWS() override { return forwardWS(); }
 
 #ifdef SL_HAS_OPTIX
     ortLight optixLight(bool doDistributed)
@@ -111,8 +116,8 @@ public:
 #endif
 
 private:
-    SLfloat      _radius;    //!< The sphere lights radius
-    SLSamples2D  _samples;   //!< 2D samplepoints for soft shadows
+    SLfloat     _radius;  //!< The sphere lights radius
+    SLSamples2D _samples; //!< 2D samplepoints for soft shadows
 };
 //-----------------------------------------------------------------------------
 #endif

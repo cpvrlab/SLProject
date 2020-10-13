@@ -16,12 +16,13 @@
 
 //-----------------------------------------------------------------------------
 /*!
- * Constructor for a transform node.
- * Because a transform node will be added and removed on the fly to the
- * scenegraph it well be the owner of its meshes (SLMesh), materials (SLMaterial)
- * and shader programs (SLGLProgram). It has to delete them in the destructor.
- * @param sv Pointer to the SLSceneView
- * @param targetNode Pointer to the node that should be transformed.
+ Constructor for a transform node.
+ Because a transform node will be added and removed on the fly to the
+ scenegraph it well be the owner of its meshes (SLMesh), materials (SLMaterial)
+ and shader programs (SLGLProgram). It has to delete them in the destructor.
+ @param sv Pointer to the SLSceneView
+ @param targetNode Pointer to the node that should be transformed.
+ @param shaderDir Path to the shader files
  */
 SLTransformNode::SLTransformNode(SLSceneView* sv,
                                  SLNode*      targetNode,

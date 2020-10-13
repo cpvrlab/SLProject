@@ -618,20 +618,20 @@ A faster integer version with bit shifting is:\n
 4) Many of the image processing tasks are faster done on grayscale images.
 We therefore create a copy of the y-channel into CVCapture::lastFrameGray.
 \n
-\param srcW        Source image width in pixel
-\param srcH        Source image height in pixel
-\param y           Pointer to first byte of the top left pixel of the y-plane
-\param yBytes      Size in bytes of the y-plane (must be srcW x srcH)
-\param yColOffset  Offset in bytes to the next pixel in the y-plane
-\param yRowOffset  Offset in bytes to the next line in the y-plane
-\param u           Pointer to first byte of the top left pixel of the u-plane
-\param uBytes      Size in bytes of the u-plane
-\param uColOffset  Offset in bytes to the next pixel in the u-plane
-\param uRowOffset  Offset in bytes to the next line in the u-plane
-\param v           Pointer to first byte of the top left pixel of the v-plane
-\param vBytes      Size in bytes of the v-plane
-\param vColOffset  Offset in bytes to the next pixel in the v-plane
-\param vRowOffset  Offset in bytes to the next line in the v-plane
+@param srcW        Source image width in pixel
+@param srcH        Source image height in pixel
+@param y           Pointer to first byte of the top left pixel of the y-plane
+@param yBytes      Size in bytes of the y-plane (must be srcW x srcH)
+@param yColOffset  Offset in bytes to the next pixel in the y-plane
+@param yRowOffset  Offset in bytes to the next line in the y-plane
+@param u           Pointer to first byte of the top left pixel of the u-plane
+@param uBytes      Size in bytes of the u-plane
+@param uColOffset  Offset in bytes to the next pixel in the u-plane
+@param uRowOffset  Offset in bytes to the next line in the u-plane
+@param v           Pointer to first byte of the top left pixel of the v-plane
+@param vBytes      Size in bytes of the v-plane
+@param vColOffset  Offset in bytes to the next pixel in the v-plane
+@param vRowOffset  Offset in bytes to the next line in the v-plane
 */
 void CVCapture::copyYUVPlanes(float  scrWdivH,
                               int    srcW,
@@ -844,6 +844,7 @@ void CVCapture::loadCalibrations(const string& computerInfo,
     string fullPathAndFilename = Utils::unifySlashes(configPath) + mainCalibFilename;
     if (!Utils::fileExists(fullPathAndFilename))
     {
+        /*
         //todo: move this download call out of cvcaputure (during refactoring of this class)
         string errorMsg;
         if (!FtpUtils::downloadFileLatestVersion(SLApplication::calibFilePath,
@@ -856,6 +857,7 @@ void CVCapture::loadCalibrations(const string& computerInfo,
         {
             Utils::log("SLProject", errorMsg.c_str());
         }
+         */
     }
     if (!mainCam.calibration.load(configPath, mainCalibFilename, true))
     {
@@ -865,6 +867,7 @@ void CVCapture::loadCalibrations(const string& computerInfo,
     activeCamera       = &mainCam;
     hasSecondaryCamera = false;
 #else
+    /*
     //todo: move this download call out of cvcaputure (during refactoring of this class)
     string errorMsg;
     if (!FtpUtils::downloadFile(SLApplication::calibFilePath,
@@ -888,6 +891,7 @@ void CVCapture::loadCalibrations(const string& computerInfo,
     {
         Utils::log("SLProject", errorMsg.c_str());
     }
+    */
     mainCam.calibration.load(configPath, mainCalibFilename, true);
     scndCam.calibration.load(configPath, scndCalibFilename, true);
     activeCamera       = &mainCam;

@@ -45,6 +45,13 @@ public:
         // A keyframe is considered redundant if _cullRedundantPerc of the MapPoints it sees, are seen
         // in at least other 3 keyframes (in the same or finer scale)
         float cullRedundantPerc = 0.95f; //originally it was 0.9
+
+        //Min common words as a factor of max common words within candidates
+        // for relocalization and loop closing
+        float minCommonWordFactor = 0.8f;
+
+        //Min acc score filter in detectRelocalizationCandidates
+        bool minAccScoreFilter = false;
     };
 
     WAISlam(const cv::Mat&          intrinsic,

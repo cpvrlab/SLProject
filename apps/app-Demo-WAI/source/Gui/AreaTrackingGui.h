@@ -66,7 +66,8 @@ public:
                     int                        dotsPerInch,
                     int                        screenWidthPix,
                     int                        screenHeightPix,
-                    std::function<void(float)> transparencyChangedCB);
+                    std::function<void(float)> transparencyChangedCB,
+                    std::string                erlebARDir);
     ~AreaTrackingGui();
 
     void build(SLScene* s, SLSceneView* sv) override;
@@ -75,6 +76,8 @@ public:
 
     void initArea(ErlebAR::Area area);
 
+    void showText(std::string str);
+    void showImageAlignTexture(float alpha);
     void showLoading() { _isLoading = true; }
     void hideLoading() { _isLoading = false; }
 
@@ -97,7 +100,7 @@ private:
     float _textWrapW;
     //float _windowPaddingContent;
     //float _itemSpacingContent;
-
+    std::string                _erlebARDir;
     float                      _sliderValue = 0.f;
     ErlebAR::Area              _area;
     std::function<void(float)> _transparencyChangedCB;
@@ -109,6 +112,11 @@ private:
     OpacityController _opacityController;
 
     ErlebAR::Resources& _resources;
+
+    std::string _displayText;
+    GLuint      _areaAlignTexture         = 0;
+    float       _areaAlighTextureBlending = 1.0f;
+    bool        _showAlignImage;
 };
 
 #endif //AREA_TRACKING_GUI_H

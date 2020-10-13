@@ -41,12 +41,14 @@ public:
                std::string   calibrationsDir,
                std::string   configFile,
                std::string   vocFile,
+               int           vocLevels,
                ExtractorType extractorType,
                int           nLevels,
                std::string   outputDir,
                bool          serialMapping,
                float         thinCullingValue,
-               bool          ensureKFIntegration);
+               bool          ensureKFIntegration,
+               float         minCommonWordFactor);
     ~MapCreator();
     //! execute map creation
     void execute();
@@ -107,8 +109,9 @@ private:
     ExtractorType _extractorType = ExtractorType_FAST_ORBS_2000;
     int           _nLevels       = 2;
 
-    bool  _serialMapping    = false;
-    float _thinCullingValue = 0.995f;
+    bool  _serialMapping       = false;
+    float _thinCullingValue    = 0.995f;
+    float _minCommonWordFactor = 0.8;
     /*
     std::unique_ptr<KPextractor> _kpIniExtractor    = nullptr;
     std::unique_ptr<KPextractor> _kpExtractor       = nullptr;

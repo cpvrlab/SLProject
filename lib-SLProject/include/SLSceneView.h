@@ -26,6 +26,7 @@
 #include <SLOptixPathtracer.h>
 #include <SLRect.h>
 #include <SLUiInterface.h>
+#include <unordered_set>
 
 //-----------------------------------------------------------------------------
 class SLCamera;
@@ -166,7 +167,6 @@ public:
 
     // Getters
     SLScene*        s() { return _s; }
-    SLAssetManager* assetManager() { return (SLAssetManager*)_s; }
     SLCamera*       camera() { return _camera; }
     SLCamera*       sceneViewCamera() { return &_sceneViewCamera; }
     SLSkybox*       skybox() { return _skybox; }
@@ -178,7 +178,6 @@ public:
     SLfloat         scr2fbX() const { return _scr2fbX; }
     SLfloat         scr2fbY() const { return _scr2fbY; }
     SLint           dpi() const { return _dpi; }
-    SLfloat         dpmm() const { return (float)_dpi / 25.4f; }
     SLRecti         viewportRect() const { return _viewportRect; }
     SLVec2i         viewportRatio() const { return _viewportRatio; }
     SLfloat         viewportWdivH() const { return (float)_viewportRect.width / (float)_viewportRect.height; }
@@ -191,10 +190,11 @@ public:
     SLbool          doMultiSampling() const { return _doMultiSampling; }
     SLbool          doDepthTest() const { return _doDepthTest; }
     SLbool          doWaitOnIdle() const { return _doWaitOnIdle; }
-    SLVNode*        nodesVisible() { return &_nodesVisible; }
-    SLVNode*        nodesVisible2D() { return &_nodesVisible2D; }
-    SLVNode*        nodesBlended() { return &_nodesBlended; }
-    SLVNode*        nodesOverdrawn() { return &_nodesOverdrawn; }
+    SLVNode&        nodesOpaque3D() { return _nodesOpaque3D; }
+    SLVNode&        nodesBlended3D() { return _nodesBlended3D; }
+    SLVNode&        nodesOpaque2D() { return _nodesOpaque2D; }
+    SLVNode&        nodesBlended2D() { return _nodesBlended2D; }
+    SLVNode&        nodesOverdrawn() { return _nodesOverdrawn; }
     SLRaytracer*    raytracer() { return &_raytracer; }
     SLPathtracer*   pathtracer() { return &_pathtracer; }
     SLGLConetracer* conetracer() { return _conetracer.get(); }
@@ -208,6 +208,9 @@ public:
     AvgFloat&       draw3DTimesMS() { return _draw3DTimesMS; }
     SLNodeStats&    stats2D() { return _stats2D; }
     SLNodeStats&    stats3D() { return _stats3D; }
+
+    unordered_set<SLMaterial*>& visibleMaterials2D() { return _visibleMaterials2D; }
+    unordered_set<SLMaterial*>& visibleMaterials3D() { return _visibleMaterials3D; }
 
 #ifdef SL_HAS_OPTIX
     SLOptixRaytracer* optixRaytracer()
@@ -271,9 +274,15 @@ protected:
 
     SLGLOculusFB _oculusFB; //!< Oculus framebuffer
 
-    SLVNode _nodesVisible;   //!< Vector of all visible 3D nodes
-    SLVNode _nodesVisible2D; //!< Vector of all visible 2D nodes drawn in ortho projection
-    SLVNode _nodesBlended;   //!< Vector of visible and blended nodes
+
+    unordered_set<SLMaterial*> _visibleMaterials3D; //!< visible materials 3D per frame
+
+    unordered_set<SLMaterial*> _visibleMaterials2D; //!< visible materials 2D per frame
+
+    SLVNode _nodesOpaque2D;  //!< Vector of visible opaque nodes rendered in 2D
+    SLVNode _nodesBlended2D; //!< Vector of visible blended nodes rendered in 2D
+    SLVNode _nodesOpaque3D;  //!< Vector of visible opaque nodes rendered in 3D
+    SLVNode _nodesBlended3D; //!< Vector of visible blended nodes rendered in 3D
     SLVNode _nodesOverdrawn; //!< Vector of helper nodes drawn over all others
 
     SLRaytracer                     _raytracer;  //!< Whitted style raytracer

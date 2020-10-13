@@ -321,35 +321,24 @@ void SLGLConetracer::renderNode(SLNode* node, SLGLProgram* program)
     glUniformMatrix4fv(locm, 1, GL_FALSE, (SLfloat*)&node->updateAndGetWM());
 
     // draw meshes of the node
-    for (auto* mesh : node->meshes())
+    if (node->mesh())
     {
+        SLMesh* mesh = node->mesh();
         SLMaterial* mat = mesh->mat();
         mat->passToUniforms(program);
 
-        /*
-        if (!mat->textures().empty())
-        {
-            SLGLTexture* tex = mat->textures()[0];
-            glActiveTexture(GL_TEXTURE0);
-            glBindTexture(tex->target(), (SLuint)tex->texID());
-            GLint locT = glGetUniformLocation(progID, "u_matTexture0");
-            glUniform1i(locT, 0);
-        }
-        */
-
         // generate a VAO if it does not exist yet
         if (!mesh->vao().vaoID())
-                mesh->generateVAO();
+            mesh->generateVAO(mesh->vao());
 
         // bind the buffer
         glBindVertexArray(mesh->vao().vaoID());
 
         glDrawElements(GL_TRIANGLES,
-                       mesh->vao().numIndices(),
+                       mesh->vao().numIndicesElements(),
                        GL_UNSIGNED_SHORT,
                        nullptr);
     }
-
 	// recursively draw the child nodes
     for (auto* child : node->children())
         renderNode(child, program);
