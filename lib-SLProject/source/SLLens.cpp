@@ -17,7 +17,7 @@ using namespace std;
 /*!
 SLLens::SLLens ctor for lens revolution object around the y-axis. <br>
 Create the lens with the eye prescription card.
-\image html EyePrescriptionCard.png
+@image html EyePrescriptionCard.png
 The first values in the prescription card is called Sphere. It is also the
 diopter of the front side of the lens. <br>
 The second value from the prescription card is called Cylinder. The sum from 
@@ -25,16 +25,17 @@ the spere and the cylinder is the diopter of the back side of the lens. <br>
 The diopter is the inverse of the focal distance (f) of the lens. <br>
 To correct myopic, negative diopters are used. <br>
 To correct presbyopic, positive diopters are used.<br>
-\image html Lens.png
+@image html Lens.png
 
-\param sphere SLfloat taken from the eyeglass passport.
-\param cylinder SLfloat taken from the eyeglass passport.
-\param diameter SLfloat The diameter (h) of the lens
-\param thickness SLfloat The space between the primary planes of lens sides (d)
-\param stacks SLint
-\param slices SLint
-\param name SLstring of the SLRevolver Mesh
-\param mat SLMaterial* The Material of the lens
+@param assetMgr Pointer to the asset manager
+@param sphere SLfloat taken from the eyeglass passport.
+@param cylinder SLfloat taken from the eyeglass passport.
+@param diameter SLfloat The diameter (h) of the lens
+@param thickness SLfloat The space between the primary planes of lens sides (d)
+@param stacks SLint
+@param slices SLint
+@param name SLstring of the SLRevolver Mesh
+@param mat SLMaterial* The Material of the lens
 
 The diopter of the front side is equal to the sphere. <br>
 The diopter of the backside is the sum of the spehere and the cylinder. <br>
@@ -66,16 +67,17 @@ SLLens::SLLens ctor for lens revolution object around the y-axis. <br>
 Create the lens with radius.<br>
 To correct presbyopic (far-sightedness) a converging lens is needed.
 To correct myopic (short-sightedness) a diverging lens is needed.
-\image html Lens.png
+@image html Lens.png
 
-\param radiusBot SLfloat The radius of the front side of the lens
-\param radiusTop SLfloat The radius of the back side of the lens
-\param diameter SLfloat The diameter (h) of the lens
-\param thickness SLfloat The space between the primary planes of lens sides (d)
-\param stacks SLint
-\param slices SLint
-\param name SLstring of the SLRevolver Mesh
-\param mat SLMaterial* The Material of the lens
+@param assetMgr Pointer to the asset manager
+@param radiusBot SLfloat The radius of the front side of the lens
+@param radiusTop SLfloat The radius of the back side of the lens
+@param diameter SLfloat The diameter (h) of the lens
+@param thickness SLfloat The space between the primary planes of lens sides (d)
+@param stacks SLint
+@param slices SLint
+@param name SLstring of the SLRevolver Mesh
+@param mat SLMaterial* The Material of the lens
 
 Positive radius creates a convex lens side. <br>
 Negative radius creates a concave lens side. <br>
@@ -101,14 +103,14 @@ SLLens::SLLens(SLAssetManager* assetMgr,
 }
 //-----------------------------------------------------------------------------
 /*! 
-\brief Initialize the lens
-\param diopterBot SLfloat The diopter of the bot (front) part of the lens
-\param diopterTop SLfloat The diopter of the top (back) part of the lens
-\param diameter SLfloat The diameter of the lens
-\param thickness SLfloat d The space between the primary planes of lens sides
-\param stacks SLint
-\param slices SLint
-\param mat SLMaterial* The Material of the lens
+@brief Initialize the lens
+@param diopterBot SLfloat The diopter of the bot (front) part of the lens
+@param diopterTop SLfloat The diopter of the top (back) part of the lens
+@param diameter SLfloat The diameter of the lens
+@param thickness SLfloat d The space between the primary planes of lens sides
+@param stacks SLint
+@param slices SLint
+@param mat SLMaterial* The Material of the lens
 */
 void SLLens::initLens(SLfloat     diopterBot,
                       SLfloat     diopterTop,
@@ -146,10 +148,10 @@ void SLLens::initLens(SLfloat     diopterBot,
 }
 //-----------------------------------------------------------------------------
 /*! 
-\brief Generate the lens with given front and back radius
-\param radiusBot radius of the lens front side
-\param radiusTop radius of the lens back side
-\param mat the material pointer that is passed to SLRevolver
+@brief Generate the lens with given front and back radius
+@param radiusBot radius of the lens front side
+@param radiusTop radius of the lens back side
+@param mat the material pointer that is passed to SLRevolver
 */
 void SLLens::generateLens(SLfloat     radiusBot,
                           SLfloat     radiusTop,
@@ -172,9 +174,9 @@ void SLLens::generateLens(SLfloat     radiusBot,
 }
 //-----------------------------------------------------------------------------
 /*! 
-\brief Generate the bottom (front) part of the lens
-\param radius of the lens
-\return x the x coordinate of the last point of the bulge
+@brief Generate the bottom (front) part of the lens
+@param radius of the lens
+@return x the x coordinate of the last point of the bulge
 */
 SLfloat SLLens::generateLensBot(SLfloat radius)
 {
@@ -264,9 +266,9 @@ SLfloat SLLens::generateLensBot(SLfloat radius)
 }
 //-----------------------------------------------------------------------------
 /*! 
-\brief Generate the top (back) part of the lens
-\param radius of the lens
-\return x the x coordinate of the last point of the bulge
+@brief Generate the top (back) part of the lens
+@param radius of the lens
+@return x the x coordinate of the last point of the bulge
 */
 SLfloat SLLens::generateLensTop(SLfloat radius)
 {
@@ -363,12 +365,12 @@ SLfloat SLLens::generateLensTop(SLfloat radius)
 }
 //-----------------------------------------------------------------------------
 /*! 
-\brief Calculate the sagitta (s) for a given radius (r) and diameter (l+l) 
-l: half of the lens diameter
-\param radius r of the lens
-\return sagitta s of the lens
-\image html Sagitta.png
-http://en.wikipedia.org/wiki/Sagitta_%28geometry%29
+ @brief Calculate the sagitta (s) for a given radius (r) and diameter (l+l)
+ where l is half of the lens diameter
+ See also: http://en.wikipedia.org/wiki/Sagitta_%28geometry%29
+ @param radius r of the lens
+ @return sagitta s of the lens
+ @image html sagitta.png
 */
 SLfloat SLLens::calcSagitta(SLfloat radius)
 {

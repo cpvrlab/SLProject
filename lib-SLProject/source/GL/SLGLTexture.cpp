@@ -444,14 +444,14 @@ void SLGLTexture::load(const SLVCol4f& colors)
 //-----------------------------------------------------------------------------
 //! Copies the image data from a video camera into the current video image
 /*!
-\brief SLGLTexture::copyVideoImage
-\param camWidth Width in pixels of the camera image
-\param camHeight Height in pixels of the camera image
-\param srcFormat Pixel format according to the OpenGL pixel formats
-\param data Pointer to the first byte of the first pixel
-\param isContinuous Flag if the next line comes after the last byte of the prev. line
-\param isTopLeft Flag if the data pointer points to the top left pixel
-\return Returns true if the texture was rebuilt
+@brief SLGLTexture::copyVideoImage
+@param camWidth Width in pixels of the camera image
+@param camHeight Height in pixels of the camera image
+@param srcFormat Pixel format according to the OpenGL pixel formats
+@param data Pointer to the first byte of the first pixel
+@param isContinuous Flag if the next line comes after the last byte of the prev. line
+@param isTopLeft Flag if the data pointer points to the top left pixel
+@return Returns true if the texture was rebuilt
 It is important that passed pixel format is either PF_LUMINANCE, RGB or RGBA.
 otherwise an expensive conversion must be done.
 */
@@ -1150,7 +1150,8 @@ SLstring SLGLTexture::typeName()
 //-----------------------------------------------------------------------------
 /*! SLGLTexture::calc3DGradients calculates the normals based on the 3D
 gradient of all images and stores them in the RGB components.
-\param sampleRadius Distance from center to calculate the gradient
+@param sampleRadius Distance from center to calculate the gradient
+@param onUpdateProgress Callback function for progress display
 */
 void SLGLTexture::calc3DGradients(SLint sampleRadius, function<void(int)> onUpdateProgress)
 {
@@ -1212,7 +1213,8 @@ void SLGLTexture::calc3DGradients(SLint sampleRadius, function<void(int)> onUpda
 //-----------------------------------------------------------------------------
 /*! SLGLTexture::smooth3DGradients smooths the 3D gradients in the RGB channels
 of all images.
-\param smoothRadius Soothing radius
+@param smoothRadius Soothing radius
+@param onUpdateProgress Callback function for progress display
 */
 void SLGLTexture::smooth3DGradients(SLint smoothRadius, function<void(int)> onUpdateProgress)
 {

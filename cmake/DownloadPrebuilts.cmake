@@ -3,7 +3,7 @@
 #
 
 #
-# Download and install prebuilt libraries from pallas.bfh.ch
+# Download and install prebuilt libraries from pallas.ti.bfh.ch
 #
 
 set(OpenCV_VERSION)

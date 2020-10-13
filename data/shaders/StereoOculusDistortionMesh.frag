@@ -8,9 +8,8 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#ifdef GL_ES
 precision highp float;
-#endif
+
 //-----------------------------------------------------------------------------
 in      vec2        v_texCoordR;
 in      vec2        v_texCoordG;

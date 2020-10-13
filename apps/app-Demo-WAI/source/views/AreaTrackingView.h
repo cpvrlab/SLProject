@@ -150,10 +150,12 @@ class MapLoader : public AsyncWorker
 {
 public:
     MapLoader(WAIOrbVocabulary*& voc,
+              int vocLayer,
               const std::string& vocFileName,
               const std::string& mapFileDir,
               const std::string& mapFileName)
       : _voc(voc),
+        _vocLayer(vocLayer),
         _vocFileName(vocFileName),
         _mapFileDir(mapFileDir),
         _mapFileName(mapFileName)
@@ -166,7 +168,7 @@ public:
         if (!_voc && Utils::fileExists(_vocFileName))
         {
             Utils::log("MapLoader", "loading voc file from: %s", _vocFileName.c_str());
-            _voc = new WAIOrbVocabulary();
+            _voc = new WAIOrbVocabulary(_vocLayer);
             _voc->loadFromFile(_vocFileName);
         }
 
@@ -187,6 +189,7 @@ public:
 private:
     WAIOrbVocabulary*& _voc;
     std::string        _vocFileName;
+    int                _vocLayer;
     std::string        _mapFileDir;
     std::string        _mapFileName;
 

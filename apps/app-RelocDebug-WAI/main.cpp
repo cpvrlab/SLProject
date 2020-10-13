@@ -235,8 +235,6 @@ int main(int argc, char* argv[])
 
     int frameCounter = 0;
 
-    DUtils::Random::SeedRand(42);
-
     while (1)
     {
         SENSFramePtr sensFrame = vStream.grabNextFrame();
@@ -264,7 +262,11 @@ int main(int argc, char* argv[])
         InfoDebug info1;
         InfoDebug info2;
 
+
+        DUtils::Random::SeedRand(42);
         bool b1 = relocalization(frame, kfdb1, voc, localMap1, inliers1, &info1);
+
+        DUtils::Random::SeedRand(42);
         bool b2 = relocalization(frame, kfdb2, voc, localMap2, inliers2, &info2);
 
         //if (b1 != b2 || inliers1 != inliers2)

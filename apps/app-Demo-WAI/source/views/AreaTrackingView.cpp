@@ -412,13 +412,19 @@ void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaI
         _imgBuffer.init(1, area.cameraFrameTargetSize);
 
 #ifdef LOAD_ASYNC
-    std::string fileName = _deviceData.vocabularyDir() + _vocabularyFileName;
+    std::string fileName;
+    if (area.vocFileName.empty())
+        fileName = _vocabularyDir + _vocabularyFileName;
+    else
+    {
+        fileName = _erlebARDir + area.vocFileName;
+    }
 
     //delete managed object
     if (_asyncLoader)
         delete _asyncLoader;
 
-    _asyncLoader = new MapLoader(_voc, fileName, _deviceData.erlebARDir(), area.slamMapFileName);
+    _asyncLoader = new MapLoader(_voc, area.vocLayer, fileName, _erlebARDir, area.slamMapFileName);
     _asyncLoader->start();
     _userGuidance.dataIsLoading(true);
 

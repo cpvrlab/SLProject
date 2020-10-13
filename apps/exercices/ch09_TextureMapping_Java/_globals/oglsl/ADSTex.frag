@@ -9,7 +9,7 @@
 //#############################################################################
 
 #ifdef GL_FRAGMENT_PRECISION_HIGH
-precision mediump float;
+precision highp float;
 #endif
 
 in      vec4      v_color;      // interpolated color from the vertex shader

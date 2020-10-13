@@ -116,7 +116,7 @@ SLbool SLGLShader::createAndCompileSimple()
 //-----------------------------------------------------------------------------
 //! SLGLShader::createAndCompile creates & compiles the OpenGL shader object
 /*!
-\return true if compilation was successful
+@return true if compilation was successful
 */
 SLbool SLGLShader::createAndCompile(SLVLight* lights)
 {
@@ -240,7 +240,7 @@ SLstring SLGLShader::typeName()
     }
 }
 // ----------------------------------------------------------------------------
-//! Replaces our own #pragma directives in GLSL code
+//! Replaces our own pragma directives in GLSL code
 SLstring SLGLShader::preprocessPragmas(SLstring inCode, SLVLight* lights)
 {
     // Check first if #pragma exists at all

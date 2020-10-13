@@ -32,7 +32,7 @@ class SLVec2
                struct {T comp[2];};
             };
 
-            SLVec2      ()                      {}
+            SLVec2      ()                      {x=0;y=0;}
             SLVec2      (const T X, 
                          const T Y)             {x=X;y=Y;}
             SLVec2      (const T v[2])          {x=v[0]; y=v[1];}

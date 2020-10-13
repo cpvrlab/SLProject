@@ -70,7 +70,7 @@ void CVImageGeoTiff::loadGeoTiff(const string& appTag,
     vector<double> lowerRight;
 
     // Reading values from json
-    try 
+    try
     {
         jsonFile >> jsonData;
         description  = jsonData["description"].get<string>();
@@ -109,29 +109,38 @@ void CVImageGeoTiff::loadGeoTiff(const string& appTag,
     _cvMat  = imgGeoTiff.clone();
     _format = cv2glPixelFormat(imgGeoTiff.type());
 
-    _upperleftLLA[0]  = upperLeft[1];           // We store first latitude in degrees! (N)
-    _upperleftLLA[1]  = upperLeft[0];           // and then longitude in degrees (W)
-    _upperleftLLA[2]  = _cvMat.at<float>(0, 0); // and then altitude in m from the image
-    _lowerRightLLA[0] = lowerRight[1];          // we store first latitude in degrees! (S)
-    _lowerRightLLA[1] = lowerRight[0];          // and then longitude in degrees (E)
-    _lowerRightLLA[2] = _cvMat.at<float>(_cvMat.rows - 1, _cvMat.cols - 1);
+    _upperleftLatLonAlt[0]  = upperLeft[1];           // We store first latitude in degrees! (N)
+    _upperleftLatLonAlt[1]  = upperLeft[0];           // and then longitude in degrees (W)
+    _upperleftLatLonAlt[2]  = _cvMat.at<float>(0, 0); // and then altitude in m from the image
+    _lowerRightLatLonAlt[0] = lowerRight[1];          // we store first latitude in degrees! (S)
+    _lowerRightLatLonAlt[1] = lowerRight[0];          // and then longitude in degrees (E)
+    _lowerRightLatLonAlt[2] = _cvMat.at<float>(_cvMat.rows - 1, _cvMat.cols - 1);
 }
 //-----------------------------------------------------------------------------
-//! Returns the height in m at the given position in WGS84 latitude-longitude
-double CVImageGeoTiff::getHeightAtLatLon(double lat, double lon)
+//! Returns the altitude in m at the given position in WGS84 latitude-longitude
+float CVImageGeoTiff::getAltitudeAtLatLon(double latDEG, double lonDEG)
 {
-    double dLat      = _upperleftLLA[0] - _lowerRightLLA[0];
-    double dLon      = _lowerRightLLA[1] - _upperleftLLA[1];
-    double latPerPix = dLat / (double)_cvMat.rows;
-    double lonPerPix = dLon / (double)_cvMat.cols;
+    double dLatDEG   = _upperleftLatLonAlt[0] - _lowerRightLatLonAlt[0];
+    double dLonDEG   = _lowerRightLatLonAlt[1] - _upperleftLatLonAlt[1];
+    double latPerPix = dLatDEG / (double)_cvMat.rows;
+    double lonPerPix = dLonDEG / (double)_cvMat.cols;
 
-    double offsetLat = lat - _lowerRightLLA[0];
-    double offsetLon = lon - _upperleftLLA[1];
+    double offsetLat = latDEG - _lowerRightLatLonAlt[0];
+    double offsetLon = lonDEG - _upperleftLatLonAlt[1];
 
-    int pixPosLat = (int)lround(offsetLat / latPerPix); // pixels from bottom
-    int pixPosLon = (int)lround(offsetLon / lonPerPix); // pixels from
+    double pixPosLat = offsetLat / latPerPix; // pixels from bottom
+    double pixPosLon = offsetLon / lonPerPix; // pixels from left
 
     // pixels are top-left coordinates in OpenCV
-    return _cvMat.at<float>(_cvMat.rows - pixPosLat, pixPosLon);
+    pixPosLat = _cvMat.rows - pixPosLat;
+
+    // get subpixel accurate interpolated height value
+    cv::Point2f pt(pixPosLon, pixPosLat);
+    cv::Mat     patch;
+    cv::getRectSubPix(_cvMat, cv::Size(1, 1), pt, patch);
+
+    float heightMatPix    = _cvMat.at<float>((int)pixPosLat, (int)pixPosLon);
+    float heightMatSubPix = patch.at<float>(0, 0);
+    return heightMatSubPix;
 }
 //-----------------------------------------------------------------------------

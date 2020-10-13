@@ -269,10 +269,10 @@ added to the according vectors of SLScene for later deallocation. If an
 override material is provided it will be assigned to all meshes and all
 materials within the file are ignored.
 */
-SLNode* SLAssimpImporter::load(SLAnimManager&  aniMan,
-                               SLAssetManager* assetMgr,
-                               SLstring        pathAndFile, //!< File with path or on default path
-                               SLstring        texturePath,
+SLNode* SLAssimpImporter::load(SLAnimManager&  aniMan,         //!< Reference to the animation manager
+                               SLAssetManager* assetMgr,       //!< Pointer to the asset manager
+                               SLstring        pathAndFile,    //!< File with path or on default path
+                               SLstring        texturePath,    //!< Path to the texture images
                                SLbool          loadMeshesOnly, //!< Only load nodes with meshes
                                SLMaterial*     overrideMat,    //!< Override material
                                float           ambientFactor,  //!< if ambientFactor > 0 ambient = diffuse * AmbientFactor

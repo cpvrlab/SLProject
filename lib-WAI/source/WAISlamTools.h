@@ -76,7 +76,9 @@ public:
     static bool relocalization(WAIFrame& currentFrame,
                                WAIMap*   waiMap,
                                LocalMap& localMap,
-                               int&      inliers);
+                               float     minCommonWordFactor,
+                               int&      inliers,
+                               bool      minAccScoreFilter = false);
 
     static bool tracking(WAIMap*   map,
                          LocalMap& localMap,
@@ -168,6 +170,11 @@ public:
                                          WAIMap*           map,
                                          const cv::Mat&    markerCameraIntrinsic,
                                          WAIOrbVocabulary* voc);
+
+    static bool detectCycle(WAIKeyFrame * kf, std::set<WAIKeyFrame*> &visitedNode);
+
+    static bool checkKFConnectionsTree(WAIMap * map);
+
 
 protected:
     //virtal destructor is mandatory

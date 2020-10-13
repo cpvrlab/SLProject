@@ -182,7 +182,7 @@ void SLGLImGui::createOpenGLObjects()
     vertex_shader +=
       "\n"
       "#ifdef GL_ES\n"
-      "precision mediump float;\n"
+      "precision highp float;\n"
       "#endif\n"
       "\n"
       "uniform mat4 ProjMtx;\n"
@@ -203,7 +203,7 @@ void SLGLImGui::createOpenGLObjects()
     fragment_shader +=
       "\n"
       "#ifdef GL_ES\n"
-      "precision mediump float;\n"
+      "precision highp float;\n"
       "#endif\n"
       "\n"
       "uniform sampler2D Texture;\n"

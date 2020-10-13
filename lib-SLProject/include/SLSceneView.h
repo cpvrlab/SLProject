@@ -178,7 +178,6 @@ public:
     SLfloat         scr2fbX() const { return _scr2fbX; }
     SLfloat         scr2fbY() const { return _scr2fbY; }
     SLint           dpi() const { return _dpi; }
-    SLfloat         dpmm() const { return (float)_dpi / 25.4f; }
     SLRecti         viewportRect() const { return _viewportRect; }
     SLVec2i         viewportRatio() const { return _viewportRatio; }
     SLfloat         viewportWdivH() const { return (float)_viewportRect.width / (float)_viewportRect.height; }

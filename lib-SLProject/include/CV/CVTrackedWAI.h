@@ -14,6 +14,7 @@
 #include <CVTracked.h>
 #include <WAIOrbVocabulary.h>
 #include <WAISlam.h>
+
 //-----------------------------------------------------------------------------
 //! Tracker that uses the ORB-Slam based WAI library (Where Am I)
 /*

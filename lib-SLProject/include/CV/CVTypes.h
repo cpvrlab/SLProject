@@ -13,6 +13,7 @@
 
 #include <opencv2/calib3d.hpp>
 
+//-----------------------------------------------------------------------------
 class CVCalibrationEstimatorParams
 {
 public:
@@ -57,12 +58,12 @@ public:
     EstimatorMode mode                   = EstimatorMode::ExtractAndCalculate;
     bool          useReleaseObjectMethod = false;
 };
-
+//-----------------------------------------------------------------------------
 enum class CVCameraType
 {
     FRONTFACING,
     BACKFACING,
     VIDEOFILE
 };
-
+//-----------------------------------------------------------------------------
 #endif // CVCALIBRATIONESTIMATORPARAMS_H

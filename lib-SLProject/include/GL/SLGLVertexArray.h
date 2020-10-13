@@ -35,6 +35,7 @@
  The VAO has no or one active index buffer. For drawArrayAs no indices are needed.
  For drawElementsAs the index buffer is used. For triangle meshes also hard edges
  are generated. Their indices are stored behind the indices of the triangles.
+ See SLMesh::computeHardEdgesIndices for more infos on hard edges.
 */
 class SLGLVertexArray
 {
@@ -96,7 +97,7 @@ public:
                    BT_ubyte,
                    (void*)&indicesElements->operator[](0),
                    indicesEdges ? (SLuint)indicesEdges->size() : 0,
-                   indicesEdges ? &indicesEdges->operator[](0) : nullptr);
+                   indicesEdges && indicesEdges->size() ? (void*)&indicesEdges->operator[](0) : nullptr);
     };
 
     //! Adds the index array for indexed element drawing with a vector of ushort
@@ -105,9 +106,9 @@ public:
     {
         setIndices((SLuint)indicesElements->size(),
                    BT_ushort,
-                   &indicesElements->operator[](0),
+                   (void*)&indicesElements->operator[](0),
                    indicesEdges ? (SLuint)indicesEdges->size() : 0,
-                   indicesEdges ? &indicesEdges->operator[](0) : nullptr);
+                   indicesEdges && indicesEdges->size() ? (void*)&indicesEdges->operator[](0) : nullptr);
     };
 
     //! Adds the index array for indexed element drawing with a vector of uint
@@ -116,9 +117,9 @@ public:
     {
         setIndices((SLuint)indicesElements->size(),
                    BT_uint,
-                   &indicesElements->operator[](0),
+                   (void*)&indicesElements->operator[](0),
                    indicesEdges ? (SLuint)indicesEdges->size() : 0,
-                   indicesEdges ? &indicesEdges->operator[](0) : nullptr);
+                   indicesEdges && indicesEdges->size() ? (void*)&indicesEdges->operator[](0) : nullptr);
     }
 
     //! Updates a specific vertex attribute in the VBO

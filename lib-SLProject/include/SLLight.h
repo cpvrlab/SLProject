@@ -47,29 +47,6 @@ struct lightDataStd140
     SLint   usesCubemap;    // 41
     SLMat4f space[6];       // 42-133 (92=4x4x6)
 };
-
-/*
-SLint            lightIsOn[SL_MAX_LIGHTS];           //!< flag if light is on
-SLVec4f          lightPosWS[SL_MAX_LIGHTS];          //!< position of light in world space
-SLVec4f          lightPosVS[SL_MAX_LIGHTS];          //!< position of light in view space
-SLVec4f          lightAmbient[SL_MAX_LIGHTS];        //!< ambient light intensity (Ia)
-SLVec4f          lightDiffuse[SL_MAX_LIGHTS];        //!< diffuse light intensity (Id)
-SLVec4f          lightSpecular[SL_MAX_LIGHTS];       //!< specular light intensity (Is)
-SLVec3f          lightSpotDirWS[SL_MAX_LIGHTS];      //!< spot direction in world space
-SLVec3f          lightSpotDirVS[SL_MAX_LIGHTS];      //!< spot direction in view space
-SLfloat          lightSpotCutoff[SL_MAX_LIGHTS];     //!< spot cutoff angle 1-180 degrees
-SLfloat          lightSpotCosCut[SL_MAX_LIGHTS];     //!< cosine of spot cutoff angle
-SLfloat          lightSpotExp[SL_MAX_LIGHTS];        //!< spot exponent
-SLVec3f          lightAtt[SL_MAX_LIGHTS];            //!< att. factor (const,linear,quadratic)
-SLint            lightDoAtt[SL_MAX_LIGHTS];          //!< flag if att. must be calculated
-SLint            lightCreatesShadows[SL_MAX_LIGHTS]; //!< flag if light creates shadows
-SLint            lightDoesPCF[SL_MAX_LIGHTS];        //!< flag if percentage-closer filtering is enabled
-SLuint           lightPCFLevel[SL_MAX_LIGHTS];       //!< radius of area to sample
-SLint            lightUsesCubemap[SL_MAX_LIGHTS];    //!< flag if light has a cube shadow map
-SLMat4f          lightSpace[SL_MAX_LIGHTS * 6];      //!< projection matrix of the light
-SLGLDepthBuffer* lightShadowMap[SL_MAX_LIGHTS];      //!< pointers to depth-buffers for shadow mapping
-*/
-
 //-----------------------------------------------------------------------------
 //! Abstract Light class for OpenGL light sources.
 /*! The abstract SLLight class encapsulates an invisible light source according
@@ -148,13 +125,10 @@ public:
     // Getters
     SLint        id() const { return _id; }
     SLbool       isOn() const { return _isOn; }
-    SLCol4f      ambient() { return _ambientColor * _ambientPower; } //!< return ambientColor * ambientPower
     SLCol4f      ambientColor() { return _ambientColor; }
     SLfloat      ambientPower() const { return _ambientPower; }
-    SLCol4f      diffuse() { return _diffuseColor * _diffusePower; } //!< return diffuseColor * diffusePower
     SLCol4f      diffuseColor() { return _diffuseColor; }
     SLfloat      diffusePower() const { return _diffusePower; }
-    SLCol4f      specular() { return _specularColor * _specularPower; } //!< return _specularColor * _specularPower
     SLCol4f      specularColor() { return _specularColor; }
     SLfloat      specularPower() const { return _specularPower; }
     SLfloat      spotCutOffDEG() const { return _spotCutOffDEG; }
@@ -190,10 +164,12 @@ public:
     }
 #endif
 
-    // some virtuals needed for ray tracing
-
-    virtual SLVec4f positionWS() const           = 0;
-    virtual SLVec3f spotDirWS()                  = 0;
+    // Virtual functions to be implemented by the inherited
+    virtual SLCol4f ambient()          = 0; //!< Return normally _ambientColor * _ambientPower
+    virtual SLCol4f diffuse()          = 0; //!< Returns normally _diffuseColor * _diffusePower
+    virtual SLCol4f specular()         = 0; //!< Returns normally _specularColor * _specularPower
+    virtual SLVec4f positionWS() const = 0;
+    virtual SLVec3f spotDirWS()        = 0;
     virtual SLfloat shadowTest(SLRay*         ray,
                                const SLVec3f& L,
                                SLfloat        lightDist,
@@ -208,7 +184,7 @@ public:
 
     // statics valid for overall lighting
     static SLCol4f globalAmbient; //!< static global ambient light intensity
-    static SLfloat oneOverGamma() {return 1.0f / gamma;}
+    static SLfloat oneOverGamma() { return 1.0f / gamma; }
     static SLfloat gamma; //!< final output gamma value
 
 protected:

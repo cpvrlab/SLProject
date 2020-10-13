@@ -47,7 +47,7 @@ class LoopClosing
     typedef map<WAIKeyFrame*, g2o::Sim3, std::less<WAIKeyFrame*>, Eigen::aligned_allocator<std::pair<WAIKeyFrame* const, g2o::Sim3>>> KeyFrameAndPose;
 
     public:
-    LoopClosing(WAIMap* pMap, WAIOrbVocabulary* pVoc, const bool bFixScale, const bool manualLoopClose = false);
+    LoopClosing(WAIMap* pMap, WAIOrbVocabulary* pVoc, const float minCommonWordFactor, const bool bFixScale, const bool manualLoopClose = false);
 
     void SetLocalMapper(LocalMapping* pLocalMapper);
     void SetVocabulary(WAIOrbVocabulary* voc);
@@ -146,6 +146,7 @@ class LoopClosing
     float mnCovisibilityConsistencyTh;
 
     // Loop detector variables
+    float                        mMinCommonWordFactor;
     WAIKeyFrame*                 mpCurrentKF;
     WAIKeyFrame*                 mpMatchedKF;
     std::vector<ConsistentGroup> mvConsistentGroups;

@@ -23,7 +23,6 @@ for a good top down information.
 
 #include <utility>
 
-using namespace cv;
 using namespace std;
 
 //-----------------------------------------------------------------------------
@@ -31,7 +30,7 @@ using namespace std;
 // Version 6, Date: 6.JUL.2019: Added device parameter from Android
 const int CVCalibration::_CALIBFILEVERSION = 6;
 //-----------------------------------------------------------------------------
-CVCalibration::CVCalibration(CVCameraType type, string computerInfos)
+CVCalibration::CVCalibration(CVCameraType type, std::string computerInfos)
   : _state(CS_uncalibrated),
     _cameraFovHDeg(0.0f),
     _cameraFovVDeg(0.0f),
@@ -50,21 +49,21 @@ CVCalibration::CVCalibration(CVCameraType type, string computerInfos)
 }
 //-----------------------------------------------------------------------------
 //creates a fully defined calibration
-CVCalibration::CVCalibration(const cv::Mat& cameraMat,
-                             const cv::Mat& distortion,
-                             cv::Size       imageSize,
-                             cv::Size       boardSize,
-                             float          boardSquareMM,
-                             float          reprojectionError,
-                             int            numCaptured,
-                             const string&  calibrationTime,
-                             int            camSizeIndex,
-                             bool           mirroredH,
-                             bool           mirroredV,
-                             CVCameraType   camType,
-                             string         computerInfos,
-                             int            calibFlags,
-                             bool           calcUndistortionMaps)
+CVCalibration::CVCalibration(const cv::Mat&     cameraMat,
+                             const cv::Mat&     distortion,
+                             cv::Size           imageSize,
+                             cv::Size           boardSize,
+                             float              boardSquareMM,
+                             float              reprojectionError,
+                             int                numCaptured,
+                             const std::string& calibrationTime,
+                             int                camSizeIndex,
+                             bool               mirroredH,
+                             bool               mirroredV,
+                             CVCameraType       camType,
+                             std::string        computerInfos,
+                             int                calibFlags,
+                             bool               calcUndistortionMaps)
   : _cameraMat(cameraMat.clone()),
     _distortion(distortion.clone()),
     _imageSize(std::move(imageSize)),
@@ -147,7 +146,7 @@ bool CVCalibration::load(const string& calibDir,
     string fullPathAndFilename = Utils::unifySlashes(calibDir) + calibFileName;
 
     // try to open the local calibration file
-    FileStorage fs(fullPathAndFilename, FileStorage::READ);
+    cv::FileStorage fs(fullPathAndFilename, cv::FileStorage::READ);
     if (!fs.isOpened())
     {
         Utils::log("SLProject", "Calibration     : %s", calibFileName.c_str());
@@ -231,7 +230,7 @@ bool CVCalibration::save(const string& calibDir,
 {
     string fullPathAndFilename = Utils::unifySlashes(calibDir) + calibFileName;
 
-    cv::FileStorage fs(fullPathAndFilename, FileStorage::WRITE);
+    cv::FileStorage fs(fullPathAndFilename, cv::FileStorage::WRITE);
 
     if (!fs.isOpened())
     {
@@ -242,13 +241,13 @@ bool CVCalibration::save(const string& calibDir,
     char buf[1024];
     sprintf(buf,
             "flags:%s%s%s%s%s%s%s",
-            _calibFlags & CALIB_USE_INTRINSIC_GUESS ? " +use_intrinsic_guess" : "",
-            _calibFlags & CALIB_FIX_ASPECT_RATIO ? " +fix_aspectRatio" : "",
-            _calibFlags & CALIB_FIX_PRINCIPAL_POINT ? " +fix_principal_point" : "",
-            _calibFlags & CALIB_ZERO_TANGENT_DIST ? " +zero_tangent_dist" : "",
-            _calibFlags & CALIB_RATIONAL_MODEL ? " +rational_model" : "",
-            _calibFlags & CALIB_THIN_PRISM_MODEL ? " +thin_prism_model" : "",
-            _calibFlags & CALIB_TILTED_MODEL ? " +tilted_model" : "");
+            _calibFlags & cv::CALIB_USE_INTRINSIC_GUESS ? " +use_intrinsic_guess" : "",
+            _calibFlags & cv::CALIB_FIX_ASPECT_RATIO ? " +fix_aspectRatio" : "",
+            _calibFlags & cv::CALIB_FIX_PRINCIPAL_POINT ? " +fix_principal_point" : "",
+            _calibFlags & cv::CALIB_ZERO_TANGENT_DIST ? " +zero_tangent_dist" : "",
+            _calibFlags & cv::CALIB_RATIONAL_MODEL ? " +rational_model" : "",
+            _calibFlags & cv::CALIB_THIN_PRISM_MODEL ? " +thin_prism_model" : "",
+            _calibFlags & cv::CALIB_TILTED_MODEL ? " +tilted_model" : "");
     fs.writeComment(buf, 0);
 
     fs << "CALIBFILEVERSION" << _CALIBFILEVERSION;
@@ -262,12 +261,12 @@ bool CVCalibration::save(const string& calibDir,
     fs << "calibFlags" << _calibFlags;
     fs << "isMirroredH" << _isMirroredH;
     fs << "isMirroredV" << _isMirroredV;
-    fs << "calibFixAspectRatio" << (_calibFlags & CALIB_FIX_ASPECT_RATIO);
-    fs << "calibFixPrincipalPoint" << (_calibFlags & CALIB_FIX_PRINCIPAL_POINT);
-    fs << "calibZeroTangentDist" << (_calibFlags & CALIB_ZERO_TANGENT_DIST);
-    fs << "calibRationalModel" << (_calibFlags & CALIB_RATIONAL_MODEL);
-    fs << "calibTiltedModel" << (_calibFlags & CALIB_TILTED_MODEL);
-    fs << "calibThinPrismModel" << (_calibFlags & CALIB_THIN_PRISM_MODEL);
+    fs << "calibFixAspectRatio" << (_calibFlags & cv::CALIB_FIX_ASPECT_RATIO);
+    fs << "calibFixPrincipalPoint" << (_calibFlags & cv::CALIB_FIX_PRINCIPAL_POINT);
+    fs << "calibZeroTangentDist" << (_calibFlags & cv::CALIB_ZERO_TANGENT_DIST);
+    fs << "calibRationalModel" << (_calibFlags & cv::CALIB_RATIONAL_MODEL);
+    fs << "calibTiltedModel" << (_calibFlags & cv::CALIB_TILTED_MODEL);
+    fs << "calibThinPrismModel" << (_calibFlags & cv::CALIB_THIN_PRISM_MODEL);
     fs << "cameraMat" << _cameraMat;
     fs << "distortion" << _distortion;
     fs << "reprojectionError" << _reprojectionError;
@@ -391,7 +390,9 @@ other parameters are set as if the lens would be perfect: No lens distortion
 and the view axis goes through the center of the image.
 If the focal length and sensor size is provided by the device we deduce the
 the fov from it.
- @param fovH average horizontal view angle in degrees
+ @param imageWidthPX Height of image in pixels
+ @param imageHeightPX Width of image in pixels
+ @param fovH Average horizontal view angle in degrees
 */
 void CVCalibration::createFromGuessedFOV(int   imageWidthPX,
                                          int   imageHeightPX,
@@ -415,8 +416,8 @@ void CVCalibration::createFromGuessedFOV(int   imageWidthPX,
 
     _imageSize.width  = imageWidthPX;
     _imageSize.height = imageHeightPX;
-    _cameraMat        = (Mat_<double>(3, 3) << fx, 0, cx, 0, fy, cy, 0, 0, 1);
-    _distortion       = (Mat_<double>(5, 1) << 0, 0, 0, 0, 0); // No distortion
+    _cameraMat        = (cv::Mat_<double>(3, 3) << fx, 0, cx, 0, fy, cy, 0, 0, 1);
+    _distortion       = (cv::Mat_<double>(5, 1) << 0, 0, 0, 0, 0); // No distortion
     _cameraFovHDeg    = fovH;
     _cameraFovVDeg    = fovV;
     _calibrationTime  = Utils::getDateTime2String();
@@ -465,7 +466,7 @@ void CVCalibration::adaptForNewResolution(const CVSize& newSize, bool calcUndist
     }
 
     //std::cout << "adaptForNewResolution: _cameraMat before: " << _cameraMat << std::endl;
-    _cameraMat = (Mat_<double>(3, 3) << fx, 0, cx, 0, fy, cy, 0, 0, 1);
+    _cameraMat = (cv::Mat_<double>(3, 3) << fx, 0, cx, 0, fy, cy, 0, 0, 1);
     //std::cout << "adaptForNewResolution: _cameraMat after: " << _cameraMat << std::endl;
     //_distortion remains unchanged
     _calibrationTime = Utils::getDateTime2String();
@@ -481,7 +482,7 @@ void CVCalibration::adaptForNewResolution(const CVSize& newSize, bool calcUndist
         buildUndistortionMaps();
 }
 //-----------------------------------------------------------------------------
-//! Calculate a camera matrix that we use for the scene graph and for the reprojection of the undistored image
+//! Calculate a camera matrix that we use for the scene graph and for the reprojection of the undistorted image
 void CVCalibration::calculateUndistortedCameraMat()
 {
     if (_cameraMat.rows != 3 || _cameraMat.cols != 3)

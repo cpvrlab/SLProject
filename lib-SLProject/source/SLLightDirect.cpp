@@ -24,12 +24,13 @@ SLLightDirect::SLLightDirect(SLAssetManager* assetMgr,
                              SLScene*        s,
                              SLfloat         arrowLength,
                              SLbool          hasMesh)
-  : SLNode("LightDirect Node")
+  : SLNode("LightDirect Node"),
+    _arrowRadius(arrowLength * 0.1f),
+    _arrowLength(arrowLength),
+    _isSunLight(false),
+    _sunLightPowerMin(0),
+    _sunLightColorLUT(nullptr, CLUT_DAYLIGHT)
 {
-    _arrowRadius  = arrowLength * 0.1f;
-    _arrowLength  = arrowLength;
-    _castsShadows = false;
-
     if (hasMesh)
     {
         SLMaterial* mat = new SLMaterial(assetMgr,
@@ -60,10 +61,13 @@ SLLightDirect::SLLightDirect(SLAssetManager* assetMgr,
                              SLfloat         specPower,
                              SLbool          hasMesh)
   : SLNode("Directional Light"),
-    SLLight(ambiPower, diffPower, specPower)
+    SLLight(ambiPower, diffPower, specPower),
+    _arrowRadius(arrowLength * 0.1f),
+    _arrowLength(arrowLength),
+    _isSunLight(false),
+    _sunLightPowerMin(0),
+    _sunLightColorLUT(nullptr, CLUT_DAYLIGHT)
 {
-    _arrowRadius = arrowLength * 0.1f;
-    _arrowLength = arrowLength;
     translate(posx, posy, posz, TS_object);
 
     if (hasMesh)
@@ -87,6 +91,9 @@ SLLightDirect::SLLightDirect(SLAssetManager* assetMgr,
 SLLightDirect::~SLLightDirect()
 {
     delete _shadowMap;
+
+    // Clear the color LUT that is also an OpenGL texture
+    _sunLightColorLUT.clearData();
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -225,5 +232,57 @@ void SLLightDirect::renderShadowMap(SLSceneView* sv, SLNode* root)
     if (_shadowMap == nullptr)
         _shadowMap = new SLShadowMap(P_monoOrthographic, this);
     _shadowMap->render(sv, root);
+}
+//-----------------------------------------------------------------------------
+//! Calculates the sun light color depending on the zenith angle
+/*! If the angle is 0 it return 1 and _sunLightPowerMin at 90 degrees or more.
+ This can be used to the downscale the directional light to simulate the reduced
+ power of the sun. The color is take from a color ramp that is white at 0 degree
+ zenith angle.
+ */
+SLCol4f SLLightDirect::calculateSunLight(SLfloat standardPower)
+{
+    SLVec3f toSunDirWS = -forwardOS();
+
+    // The sun power is equal to the cosine of the sun zenith angle
+    SLfloat cosZenithAngle = std::max(toSunDirWS.dot(SLVec3f::AXISY),
+                                _sunLightPowerMin);
+
+    // The color is take from a color ramp that is white at 0 degree zenith
+    SLCol4f sunColor   = _sunLightColorLUT.getTexelf(cosZenithAngle, 0);
+
+    return sunColor * standardPower * cosZenithAngle;
+}
+//-----------------------------------------------------------------------------
+//! Returns the product of the ambient light color and the ambient light power
+SLCol4f SLLightDirect::ambient()
+{
+    return _ambientColor * _ambientPower;
+}
+//-----------------------------------------------------------------------------
+//! Returns the product of the diffuse light color and the diffuse light power
+/*! If the directional light is the sun the color and the power is depending
+ from the zenith angle of the sun. At noon it is high and bright and at sunrise
+ and sunset it is low and reddish.
+ */
+SLCol4f SLLightDirect::diffuse()
+{
+    if (_isSunLight)
+        return calculateSunLight(_diffusePower);
+    else
+        return _diffuseColor * _diffusePower;
+}
+//-----------------------------------------------------------------------------
+//! Returns the product of the specular light color and the specular light power
+/*! If the directional light is the sun the color and the power is depending
+ from the zenith angle of the sun. At noon it is high and bright and at sunrise
+ and sunset it is low and reddish.
+ */
+SLCol4f SLLightDirect::specular()
+{
+    if (_isSunLight)
+        return calculateSunLight(_specularPower);
+    else
+        return _specularColor * _specularPower;
 }
 //-----------------------------------------------------------------------------

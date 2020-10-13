@@ -28,7 +28,7 @@ public:
     void removeLocalMapPoints();
     void removeMatchedMapPoints();
 
-    void renderKeyframes(const std::vector<WAIKeyFrame*>& keyframes);
+    void renderKeyframes(const std::vector<WAIKeyFrame*>& keyframes, const std::vector<WAIKeyFrame*>& candidates);
     void removeKeyframes();
     void renderGraphs(const std::vector<WAIKeyFrame*>& kfs,
                       const int&                       minNumOfCovisibles,
@@ -74,6 +74,7 @@ private:
     SLMaterial* covisibilityGraphMat = nullptr;
     SLMaterial* spanningTreeMat      = nullptr;
     SLMaterial* loopEdgesMat         = nullptr;
+    SLMaterial* matVideoBackground   = nullptr;
 
     SLPoints*   mappointsMesh             = nullptr;
     SLPoints*   mappointsMatchedMesh      = nullptr;

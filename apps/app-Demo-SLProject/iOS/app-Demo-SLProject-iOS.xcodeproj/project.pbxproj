@@ -80,7 +80,7 @@
 		414D37F71EE6A7DC009DB259 /* rusty-metal_2048N.png in Resources */ = {isa = PBXBuildFile; fileRef = 414D37F31EE6A7DC009DB259 /* rusty-metal_2048N.png */; };
 		414D37F81EE6A7DC009DB259 /* rusty-metal_2048R.png in Resources */ = {isa = PBXBuildFile; fileRef = 414D37F41EE6A7DC009DB259 /* rusty-metal_2048R.png */; };
 		414DC77D1501076F00B959B9 /* SLAABBox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 414DC77C1501076F00B959B9 /* SLAABBox.cpp */; };
-		414FE8F11F1506BC00F2FD4D /* SLTransferFunction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 414FE8F01F1506BC00F2FD4D /* SLTransferFunction.cpp */; };
+		414FE8F11F1506BC00F2FD4D /* SLColorLUT.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 414FE8F01F1506BC00F2FD4D /* SLColorLUT.cpp */; };
 		4155FAF11C3EC3C30094BF61 /* SLGLVertexArray.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4155FAF01C3EC3C30094BF61 /* SLGLVertexArray.cpp */; };
 		4156500C148AA62400A3CAA6 /* ViewController_iPad.xib in Resources */ = {isa = PBXBuildFile; fileRef = 41565008148AA62400A3CAA6 /* ViewController_iPad.xib */; };
 		4156500D148AA62400A3CAA6 /* ViewController_iPhone.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4156500A148AA62400A3CAA6 /* ViewController_iPhone.xib */; };
@@ -648,8 +648,8 @@
 		414D37F31EE6A7DC009DB259 /* rusty-metal_2048N.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "rusty-metal_2048N.png"; path = "../../../data/images/textures/rusty-metal_2048N.png"; sourceTree = "<group>"; };
 		414D37F41EE6A7DC009DB259 /* rusty-metal_2048R.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "rusty-metal_2048R.png"; path = "../../../data/images/textures/rusty-metal_2048R.png"; sourceTree = "<group>"; };
 		414DC77C1501076F00B959B9 /* SLAABBox.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLAABBox.cpp; path = "../../../lib-SLProject/source/SLAABBox.cpp"; sourceTree = SOURCE_ROOT; };
-		414FE8F01F1506BC00F2FD4D /* SLTransferFunction.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLTransferFunction.cpp; path = "../../../lib-SLProject/source/SLTransferFunction.cpp"; sourceTree = SOURCE_ROOT; };
-		414FE8F31F1506CF00F2FD4D /* SLTransferFunction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLTransferFunction.h; path = "../../../lib-SLProject/include/SLTransferFunction.h"; sourceTree = SOURCE_ROOT; };
+		414FE8F01F1506BC00F2FD4D /* SLColorLUT.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLColorLUT.cpp; path = "../../../lib-SLProject/source/SLColorLUT.cpp"; sourceTree = SOURCE_ROOT; };
+		414FE8F31F1506CF00F2FD4D /* SLColorLUT.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLColorLUT.h; path = "../../../lib-SLProject/include/SLColorLUT.h"; sourceTree = SOURCE_ROOT; };
 		4155FAEF1C3EC36E0094BF61 /* SLGLVertexArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SLGLVertexArray.h; path = "../../../lib-SLProject/include/GL/SLGLVertexArray.h"; sourceTree = SOURCE_ROOT; };
 		4155FAF01C3EC3C30094BF61 /* SLGLVertexArray.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SLGLVertexArray.cpp; path = "../../../lib-SLProject/source/GL/SLGLVertexArray.cpp"; sourceTree = SOURCE_ROOT; };
 		41565011148AA64F00A3CAA6 /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = SOURCE_ROOT; };
@@ -1401,8 +1401,8 @@
 				41C5EEE0175B1A340005A588 /* SLParallel.h */,
 				41627E9A15CA8CE70023B936 /* SLTexFont.cpp */,
 				41627E9B15CA8CE70023B936 /* SLTexFont.h */,
-				414FE8F01F1506BC00F2FD4D /* SLTransferFunction.cpp */,
-				414FE8F31F1506CF00F2FD4D /* SLTransferFunction.h */,
+				414FE8F01F1506BC00F2FD4D /* SLColorLUT.cpp */,
+				414FE8F31F1506CF00F2FD4D /* SLColorLUT.h */,
 				41627E9F15CA8CE70023B936 /* SLVector.h */,
 				41627EA015CA8CE70023B936 /* stdafx.cpp */,
 			);
@@ -2839,7 +2839,7 @@
 				41A355071A7E63E100791841 /* SLSkeleton.cpp in Sources */,
 				414333861DE03F0C0027E1C3 /* SLLightSpot.cpp in Sources */,
 				416A86A9241B9044009D63B0 /* LocalMapping.cpp in Sources */,
-				414FE8F11F1506BC00F2FD4D /* SLTransferFunction.cpp in Sources */,
+				414FE8F11F1506BC00F2FD4D /* SLColorLUT.cpp in Sources */,
 				416A8689241B8FC5009D63B0 /* ScoringObject.cpp in Sources */,
 				41C7A68B241A3D200017EE82 /* WAIOrbVocabulary.cpp in Sources */,
 				41627EA615CA8CE70023B936 /* SLTexFont.cpp in Sources */,

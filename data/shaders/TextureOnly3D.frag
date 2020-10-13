@@ -8,10 +8,7 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#ifdef GL_ES
-precision mediump float;
-precision mediump sampler3D;
-#endif
+precision highp float;
 
 //-----------------------------------------------------------------------------
 in      vec4      v_texCoord3D;     // Interpol. 3D texture coordinate
