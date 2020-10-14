@@ -19,7 +19,11 @@ SENSSimHelper::SENSSimHelper(SENSGps*&                 gps,
 SENSSimHelper::~SENSSimHelper()
 {
     resetRecorder();
+    restoreInputSensors();
+}
 
+void SENSSimHelper::restoreInputSensors()
+{
     //restore input sensors and state
     if (_gpsRef != _gpsIn)
     {
@@ -58,7 +62,7 @@ void SENSSimHelper::stopRecording()
         _recorder->stop();
 }
 
-void SENSSimHelper::toggleGpsRecording()
+void SENSSimHelper::updateGpsRecording()
 {
     if (recordGps)
     {
@@ -72,7 +76,7 @@ void SENSSimHelper::toggleGpsRecording()
     }
 }
 
-void SENSSimHelper::toggleOrientationRecording()
+void SENSSimHelper::updateOrientationRecording()
 {
     if (recordOrientation)
     {
@@ -86,7 +90,7 @@ void SENSSimHelper::toggleOrientationRecording()
     }
 }
 
-void SENSSimHelper::toggleCameraRecording()
+void SENSSimHelper::updateCameraRecording()
 {
     if (recordCamera)
     {
@@ -125,6 +129,26 @@ void SENSSimHelper::resetRecorder()
     recordCamera      = false;
 }
 
+bool SENSSimHelper::getRecorderErrors(std::vector<std::string>& errorMsgs)
+{
+    if (_recorder)
+    {
+        std::string gpsError;
+        if (_recorder->getGpsHandlerError(gpsError))
+            errorMsgs.emplace_back(gpsError);
+        std::string orientationError;
+        if (_recorder->getOrientationHandlerError(orientationError))
+            errorMsgs.emplace_back(orientationError);
+        std::string cameraError;
+        if (_recorder->geCameraHandlerError(cameraError))
+            errorMsgs.emplace_back(cameraError);
+
+        return errorMsgs.size() != 0;
+    }
+    else
+        return false;
+}
+
 bool SENSSimHelper::canSimGps()
 {
     if (_simulator && _simulator->getGpsSensorPtr())
@@ -160,6 +184,11 @@ void SENSSimHelper::initSimulator(const std::string& simDataSet)
     if (canSimCamera() && simulateCamera)
         _simulator->getCameraSensorPtr()->stop();
 
+    simulateGps         = false;
+    simulateOrientation = false;
+    simulateCamera      = false;
+    restoreInputSensors();
+
     if (_simulator)
         _simulator.reset();
 
@@ -172,6 +201,39 @@ bool SENSSimHelper::simIsRunning()
         return true;
     else
         return false;
+}
+
+void SENSSimHelper::updateGpsSim()
+{
+    if (_gpsRef && _gpsRef->isRunning())
+        _gpsRef->stop();
+
+    if (canSimGps() && simulateGps)
+        _gpsRef = _simulator->getGpsSensorPtr();
+    else
+        _gpsRef = _gpsIn;
+}
+
+void SENSSimHelper::updateOrientationSim()
+{
+    if (_orientationRef && _orientationRef->isRunning())
+        _orientationRef->stop();
+
+    if (canSimOrientation() && simulateOrientation)
+        _orientationRef = _simulator->getOrientationSensorPtr();
+    else
+        _orientationRef = _orientationIn;
+}
+
+void SENSSimHelper::updateCameraSim()
+{
+    if (_cameraRef && _cameraRef->started())
+        _cameraRef->stop();
+
+    if (canSimCamera() && simulateCamera)
+        _cameraRef = _simulator->getCameraSensorPtr();
+    else
+        _cameraRef = _cameraIn;
 }
 
 void SENSSimHelper::stopSim()
@@ -229,7 +291,7 @@ void SENSSimHelper::startSim()
 
 bool SENSSimHelper::isPausedSim()
 {
-    if(_simulator && _simulator->isPaused())
+    if (_simulator && _simulator->isPaused())
         return true;
     else
         return false;
@@ -237,13 +299,13 @@ bool SENSSimHelper::isPausedSim()
 
 void SENSSimHelper::pauseSim()
 {
-    if(_simulator)
+    if (_simulator)
         _simulator->pause();
 }
 
 void SENSSimHelper::resumeSim()
 {
-    if(_simulator)
+    if (_simulator)
         _simulator->resume();
 }
 
@@ -261,4 +323,3 @@ SENSMicroseconds SENSSimHelper::passedSimTime()
     else
         return SENSMicroseconds(0);
 }
-

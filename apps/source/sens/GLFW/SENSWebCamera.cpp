@@ -78,7 +78,7 @@ const SENSCameraConfig& SENSWebCamera::start(std::string                   devic
                                convToGrayToImgManip);
 
     initCalibration(fovDegFallbackGuess);
-    
+
     //start thread
     _cameraThread = std::thread(&SENSWebCamera::grab, this);
 
@@ -88,10 +88,10 @@ const SENSCameraConfig& SENSWebCamera::start(std::string                   devic
 void SENSWebCamera::stop()
 {
     _stop = true;
-    if(_cameraThread.joinable())
+    if (_cameraThread.joinable())
         _cameraThread.join();
     _stop = false;
-    
+
     if (_videoCapture.isOpened())
     {
         _videoCapture.release();
@@ -106,7 +106,7 @@ void SENSWebCamera::stop()
 
 void SENSWebCamera::grab()
 {
-    while(!_stop)
+    while (!_stop)
     {
         cv::Mat bgrImg;
         if (_videoCapture.read(bgrImg))

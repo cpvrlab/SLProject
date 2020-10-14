@@ -243,6 +243,7 @@ void SENSNdkCamera::openCamera()
             _imageReader = nullptr;
         }
 
+        /*
         if (_thread)
         {
             LOG_NDKCAM_DEBUG("openCamera: Terminate the thread...");
@@ -256,6 +257,7 @@ void SENSNdkCamera::openCamera()
             _thread.release();
             _stopThread = false;
         }
+         */
     }
 
     if (_cameraDeviceOpened)
@@ -281,8 +283,8 @@ void SENSNdkCamera::openCamera()
                 AImageReader_setImageListener(_imageReader, &listener);
 
                 //start the thread
-                _stopThread = false;
-                _thread     = std::make_unique<std::thread>(&SENSNdkCamera::run, this);
+                //_stopThread = false;
+                //_thread     = std::make_unique<std::thread>(&SENSNdkCamera::run, this);
             //}
 
             createCaptureSession();
@@ -517,6 +519,7 @@ void SENSNdkCamera::stop()
             _imageReader = nullptr;
         }
 
+        /*
         if (_thread)
         {
             LOG_NDKCAM_DEBUG("stop: terminate the thread...");
@@ -531,11 +534,13 @@ void SENSNdkCamera::stop()
             _stopThread = false;
         }
         _started = false;
+         */
     }
 }
 
 //-----------------------------------------------------------------------------
 //! Does all adjustments needed
+/*
 SENSFramePtr SENSNdkCamera::processNewYuvImg(cv::Mat yuvImg)
 {
     //concert yuv to rgb
@@ -547,6 +552,7 @@ SENSFramePtr SENSNdkCamera::processNewYuvImg(cv::Mat yuvImg)
 
     return sensFrame;
 }
+ */
 
 cv::Mat SENSNdkCamera::convertToYuv(AImage* image)
 {
@@ -593,6 +599,7 @@ cv::Mat SENSNdkCamera::convertToYuv(AImage* image)
         return yuv;
 }
 
+/*
 void SENSNdkCamera::run()
 {
     try
@@ -622,9 +629,9 @@ void SENSNdkCamera::run()
             //concert yuv to bgr
             cv::Mat bgrImg;
             //We previously copied the planes to be aligned like this: YYYYVU which is NV21
-            cv::cvtColor(yuv, bgrImg, cv::COLOR_YUV2BGR_NV21, 3);
+            //cv::cvtColor(yuv, bgrImg, cv::COLOR_YUV2BGR_NV21, 3);
             //update frame in base class
-            updateFrame(bgrImg, cv::Mat(), false);
+            updateFrame(yuv, cv::Mat(), false);
         }
     }
     catch (std::exception& e)
@@ -641,6 +648,7 @@ void SENSNdkCamera::run()
         LOG_NDKCAM_INFO("run: stopped thread");
     }
 }
+ */
 
 void SENSNdkCamera::imageCallback(AImageReader* reader)
 {
@@ -652,12 +660,20 @@ void SENSNdkCamera::imageCallback(AImageReader* reader)
 
         AImage_delete(image);
 
+        cv::Mat bgr;
+        HighResTimer t;
+        cv::cvtColor(yuv, bgr, cv::COLOR_YUV2BGR_NV21, 3);
+        SENS_DEBUG("SENSNdkCamera: time for yuv conversion: %f ms", t.elapsedTimeInMilliSec());
+
+        updateFrame(bgr, cv::Mat(), false);
+        /*
         //move yuv image to worker thread input
         {
             std::lock_guard<std::mutex> lock(_threadInputMutex);
             _yuvImgToProcess = yuv;
         }
         _waitCondition.notify_one();
+         */
     }
 }
 

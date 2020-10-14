@@ -37,7 +37,7 @@ void SimHelperGui::render(SENSSimHelper* simHelper)
         {
             if (ImGui::Checkbox("gps##record", &simHelper->recordGps))
             {
-                simHelper->toggleGpsRecording();
+                simHelper->updateGpsRecording();
             }
         }
         ImGui::SameLine();
@@ -46,7 +46,7 @@ void SimHelperGui::render(SENSSimHelper* simHelper)
         {
             if (ImGui::Checkbox("orientation##record", &simHelper->recordOrientation))
             {
-                simHelper->toggleOrientationRecording();
+                simHelper->updateOrientationRecording();
             }
         }
         ImGui::SameLine();
@@ -55,7 +55,7 @@ void SimHelperGui::render(SENSSimHelper* simHelper)
         {
             if (ImGui::Checkbox("camera##record", &simHelper->recordCamera))
             {
-                simHelper->toggleCameraRecording();
+                simHelper->updateCameraRecording();
             }
         }
 
@@ -68,6 +68,15 @@ void SimHelperGui::render(SENSSimHelper* simHelper)
         {
             if (ImGui::Button("Start recording##RecordBtn", ImVec2(btnW, 0)))
                 simHelper->startRecording();
+        }
+
+        std::vector<std::string> errorMsgs;
+        if (simHelper->getRecorderErrors(errorMsgs))
+        {
+            for (const std::string& msg : errorMsgs)
+            {
+                ImGui::TextUnformatted(msg.c_str());
+            }
         }
     }
 
@@ -101,19 +110,22 @@ void SimHelperGui::render(SENSSimHelper* simHelper)
             //add checkboxes for simulated sensors if successfully loaded from sim directory
             if (simHelper->canSimGps())
             {
-                ImGui::Checkbox("gps##sim", &simHelper->simulateGps);
+                if (ImGui::Checkbox("gps##sim", &simHelper->simulateGps))
+                    simHelper->updateGpsSim();
                 ImGui::SameLine();
             }
 
             if (simHelper->canSimOrientation())
             {
-                ImGui::Checkbox("orientation##sim", &simHelper->simulateOrientation);
+                if (ImGui::Checkbox("orientation##sim", &simHelper->simulateOrientation))
+                    simHelper->updateOrientationSim();
                 ImGui::SameLine();
             }
 
             if (simHelper->canSimCamera())
             {
-                ImGui::Checkbox("camera##sim", &simHelper->simulateCamera);
+                if (ImGui::Checkbox("camera##sim", &simHelper->simulateCamera))
+                    simHelper->updateCameraSim();
             }
 
             if (ImGui::Button("Start simulation##SimBtn", ImVec2(btnW, 0)))
@@ -123,13 +135,13 @@ void SimHelperGui::render(SENSSimHelper* simHelper)
         {
             //current simulation time
             auto simNow = simHelper->simTime();
-            ImGui::Text("Sim time: %.0fms", (double)simNow.time_since_epoch().count() / 1000.0 );
+            ImGui::Text("Sim time: %.0fms", (double)simNow.time_since_epoch().count() / 1000.0);
             auto passedSimTime = simHelper->passedSimTime();
-            ImGui::Text("Passed time: %.0fms", (double)passedSimTime.count() / 1000.0 );
-            
+            ImGui::Text("Passed time: %.0fms", (double)passedSimTime.count() / 1000.0);
+
             if (ImGui::Button("Stop simulation##SimBtn", ImVec2(btnW, 0)))
                 simHelper->stopSim();
-            
+
             //pause
             if (simHelper->isPausedSim())
             {

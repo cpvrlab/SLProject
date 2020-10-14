@@ -54,7 +54,7 @@ private:
     ACameraManager_AvailabilityCallbacks _cameraManagerAvailabilityCallbacks;
 
     static cv::Mat convertToYuv(AImage* image);
-    SENSFramePtr   processNewYuvImg(cv::Mat yuvImg);
+    //SENSFramePtr   processNewYuvImg(cv::Mat yuvImg);
     //run routine for asynchronous adjustment
     void run();
 
@@ -89,9 +89,9 @@ private:
     //async image processing
     std::condition_variable      _waitCondition;
     cv::Mat                      _yuvImgToProcess;
-    std::mutex                   _threadInputMutex;
-    std::unique_ptr<std::thread> _thread;
-    std::atomic<bool>            _stopThread;
+    //std::mutex                   _threadInputMutex;
+    //std::unique_ptr<std::thread> _thread;
+    //std::atomic<bool>            _stopThread;
 
     //camera state
     cv::Size          _captureSize;

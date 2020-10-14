@@ -158,6 +158,30 @@ void SENSRecorder::stop()
     _running = false;
 }
 
+bool SENSRecorder::getGpsHandlerError(std::string& errorMsg)
+{
+    if (_gpsDataHandler && _gpsDataHandler->getErrorMsg(errorMsg))
+        return true;
+    else
+        return false;
+}
+
+bool SENSRecorder::getOrientationHandlerError(std::string& errorMsg)
+{
+    if (_orientationDataHandler && _orientationDataHandler->getErrorMsg(errorMsg))
+        return true;
+    else
+        return false;
+}
+
+bool SENSRecorder::geCameraHandlerError(std::string& errorMsg)
+{
+    if (_cameraDataHandler && _cameraDataHandler->getErrorMsg(errorMsg))
+        return true;
+    else
+        return false;
+}
+
 void SENSRecorder::onGps(const SENSTimePt& timePt, const SENSGps::Location& loc)
 {
     auto newData = std::make_pair(loc, timePt);

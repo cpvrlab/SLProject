@@ -70,10 +70,10 @@ void SensorTestGui::onShow()
     _panScroll.enable();
     _hasException = false;
     _exceptionText.clear();
-    
-    if(_resources.developerMode && _resources.simulatorMode)
+
+    if (_resources.developerMode && _resources.simulatorMode)
     {
-        _simHelper = std::make_unique<SENSSimHelper>(_gps,
+        _simHelper    = std::make_unique<SENSSimHelper>(_gps,
                                                      _orientation,
                                                      _camera,
                                                      _simDataDir,
@@ -84,9 +84,9 @@ void SensorTestGui::onShow()
 
 void SensorTestGui::onHide()
 {
-    if(_simHelper)
+    if (_simHelper)
         _simHelper.reset();
-    if(_simHelperGui)
+    if (_simHelperGui)
         _simHelperGui.reset();
 }
 
@@ -119,7 +119,7 @@ void SensorTestGui::build(SLScene* s, SLSceneView* sv)
     ErlebAR::renderHeaderBar("SensorTestGui",
                              _screenW,
                              _headerBarH,
-                             _resources.style().headerBarBackgroundTranspColor,
+                             _resources.style().headerBarBackgroundColor,
                              _resources.style().headerBarTextColor,
                              _resources.style().headerBarBackButtonTranspColor,
                              _resources.style().headerBarBackButtonPressedTranspColor,
@@ -176,8 +176,8 @@ void SensorTestGui::build(SLScene* s, SLSceneView* sv)
 
     //debug: draw log window
     _resources.logWinDraw();
-    
-    if(_simHelperGui)
+
+    if (_simHelperGui)
         _simHelperGui->render(_simHelper.get());
 }
 

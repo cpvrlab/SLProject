@@ -36,9 +36,13 @@ public:
     //!Stops a running recording session.
     void stop();
 
-    bool isRunning() const { return _running; }
+    bool getGpsHandlerError(std::string& errorMsg);
+    bool getOrientationHandlerError(std::string& errorMsg);
+    bool geCameraHandlerError(std::string& errorMsg);
+
+    bool               isRunning() const { return _running; }
     const std::string& outputDir() const { return _outputDir; }
-    
+
 private:
     //!gps listener callback
     void onGps(const SENSTimePt& timePt, const SENSGps::Location& loc) override;

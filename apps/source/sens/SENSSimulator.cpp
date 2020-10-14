@@ -181,8 +181,7 @@ void SENSSimulator::loadGpsData(const std::string& dirName, std::vector<std::pai
                 Utils::splitString(line, ' ', values);
                 if (values.size() == 5)
                 {
-                    readTimePt = std::stoll(values[0]);
-                    readTimePt *= 10;
+                    readTimePt       = std::stoll(values[0]);
                     loc.latitudeDEG  = std::stof(values[1]);
                     loc.longitudeDEG = std::stof(values[2]);
                     loc.altitudeM    = std::stof(values[3]);
@@ -220,7 +219,6 @@ void SENSSimulator::loadOrientationData(const std::string& dirName, std::vector<
                 if (values.size() == 5)
                 {
                     readTimePt = std::stoll(values[0]);
-                    readTimePt *= 10;
                     quat.quatX = std::stof(values[1]);
                     quat.quatY = std::stof(values[2]);
                     quat.quatZ = std::stof(values[3]);
@@ -260,7 +258,6 @@ void SENSSimulator::loadCameraData(const std::string& dirName, std::vector<std::
                 if (values.size() == 2)
                 {
                     readTimePt = std::stoll(values[0]);
-                    readTimePt *= 10;
                     frameIndex = std::stoi(values[1]);
 
                     SENSMicroseconds readTimePtUs(readTimePt);

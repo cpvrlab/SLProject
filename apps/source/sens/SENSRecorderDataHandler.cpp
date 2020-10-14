@@ -1,28 +1,29 @@
 #include "SENSRecorderDataHandler.h"
-
+#include <HighResTimer.h>
 //-----------------------------------------------------------------------------
-template <typename T>
+template<typename T>
 SENSRecorderDataHandler<T>::SENSRecorderDataHandler(const std::string& name)
   : _name(name)
 {
 }
 
-template <typename T>
+template<typename T>
 SENSRecorderDataHandler<T>::~SENSRecorderDataHandler()
 {
     stop();
 }
 
-template <typename T>
+template<typename T>
 void SENSRecorderDataHandler<T>::start(const std::string& outputDir)
 {
     stop();
     //start writer thread
+    _errorMsg.clear();
     _outputDir = outputDir;
     _thread    = std::thread(&SENSRecorderDataHandler::store, this);
 }
 
-template <typename T>
+template<typename T>
 void SENSRecorderDataHandler<T>::stop()
 {
     std::unique_lock<std::mutex> lock(_mutex);
@@ -38,7 +39,7 @@ void SENSRecorderDataHandler<T>::stop()
     _stop = false;
 }
 
-template <typename T>
+template<typename T>
 void SENSRecorderDataHandler<T>::store()
 {
     SENS_DEBUG("SENSRecorderDataHandler: starting store");
@@ -57,7 +58,7 @@ void SENSRecorderDataHandler<T>::store()
             _condVar.wait(lock, [&] { return (_stop == true || _queue.size() != 0); });
             if (_stop)
                 break;
-            
+
             SENS_DEBUG("SENSRecorderDataHandler: queue size: %d", _queue.size());
 
             std::deque<T> localQueue;
@@ -75,11 +76,17 @@ void SENSRecorderDataHandler<T>::store()
                 writeLineToFile(file, localQueue.front());
                 localQueue.pop_front();
             }
-            
-            if(localQueue.size())
+
+            if (localQueue.size())
             {
-                //if buffer is running full, warn and scip values
-                SENS_WARN("SENSRecorderDataHandler store: data writing is too slow!");
+                std::stringstream ss;
+                ss << "Data writing is to slow. Skipping " << localQueue.size() << " values from queue!";
+                SENS_WARN("SENSRecorderDataHandler store: %s", ss.str().c_str());
+                //if buffer is running full, warn and skip values
+                {
+                    std::lock_guard<std::mutex> lock(_msgMutex);
+                    _errorMsg = ss.str();
+                }
                 localQueue.clear();
             }
         }
@@ -89,13 +96,26 @@ void SENSRecorderDataHandler<T>::store()
     file.close();
 }
 
-template <typename T>
+template<typename T>
 void SENSRecorderDataHandler<T>::add(T&& item)
 {
     std::unique_lock<std::mutex> lock(_mutex);
     _queue.push_back(std::move(item));
     lock.unlock();
     _condVar.notify_one();
+}
+
+template<typename T>
+bool SENSRecorderDataHandler<T>::getErrorMsg(std::string& msg)
+{
+    std::lock_guard<std::mutex> lock(_msgMutex);
+    if (_errorMsg.empty())
+        return false;
+    else
+    {
+        msg = _errorMsg;
+        return true;
+    }
 }
 
 //explicit instantiation
@@ -157,26 +177,39 @@ void SENSCameraRecorderDataHandler::writeOnThreadStart()
 
 void SENSCameraRecorderDataHandler::writeLineToFile(ofstream& file, const FrameInfo& data)
 {
+    static HighResTimer t;
+    SENS_DEBUG("SENSCameraRecorderDataHandler: ellapsed time %f us", t.elapsedTimeInMicroSec());
+    static long long lastTimePt = std::chrono::time_point_cast<SENSMicroseconds>(SENSClock::now()).time_since_epoch().count();
+    long long   timePt  = std::chrono::time_point_cast<SENSMicroseconds>(data.second).time_since_epoch().count();
+    long long diff = lastTimePt - timePt;
+    SENS_DEBUG("SENSCameraRecorderDataHandler: diff %lld", diff);
+
+    lastTimePt = timePt;
+    std::string timeStr = std::to_string(timePt);
     //write time and frame index
-    file << std::chrono::time_point_cast<SENSMicroseconds>(data.second).time_since_epoch().count() << " "
+    file << timePt << " "
          << _frameIndex << "\n";
+    SENS_DEBUG("SENSCameraRecorderDataHandler: time point for frame %d is %s", _frameIndex, timeStr.c_str());
+
     _frameIndex++;
 
-
-    if (!_videoWriter.isOpened()) {
+    if (!_videoWriter.isOpened())
+    {
 
         std::string filename = _outputDir + "video.avi";
-        _videoWriter.open(filename, cv::VideoWriter::fourcc('M', 'J', 'P', 'G'),
-                          30, data.first.size(), true);
+        _videoWriter.open(filename, cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 30, data.first.size(), true);
         //_videoWriter.open(filename, cv::VideoWriter::fourcc('M', 'P', '4', 'V'),
         //                  30, data.first.size(), true);
         SENS_DEBUG("Opening video for writing: %s", filename.c_str());
     }
     if (!_videoWriter.isOpened())
         SENS_DEBUG("ERROR: video writer not opened");
-    
+
     //store frame to video capture
+    //HighResTimer t;
     _videoWriter.write(data.first);
+    //SENS_DEBUG("SENSCameraRecorderDataHandler: writing time %fms", t.elapsedTimeInMilliSec());
+
     if (_calibrationChanged)
     {
         std::lock_guard<std::mutex> lock(_calibrationMutex);
@@ -187,7 +220,7 @@ void SENSCameraRecorderDataHandler::writeLineToFile(ofstream& file, const FrameI
 
 void SENSCameraRecorderDataHandler::writeOnThreadFinish()
 {
-    if(_videoWriter.isOpened())
+    if (_videoWriter.isOpened())
         _videoWriter.release();
 }
 
