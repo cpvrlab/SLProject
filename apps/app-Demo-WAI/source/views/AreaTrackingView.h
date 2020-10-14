@@ -10,7 +10,7 @@
 #include <scenes/AppWAIScene.h>
 #include <FeatureExtractorFactory.h>
 #include <ImageBuffer.h>
-#include <WAISlamTrackPool.h>
+#include <WAISlam.h>
 #include <sens/SENSCalibration.h>
 #include <WAIOrbVocabulary.h>
 #include <sens/SENSFrame.h>
@@ -53,7 +53,7 @@ public:
 
         if (_resources.developerMode && _resources.simulatorMode)
         {
-            if(_simHelper)
+            if (_simHelper)
                 _simHelper.reset();
             _simHelper = std::make_unique<SENSSimHelper>(_gps,
                                                          _orientation,
@@ -120,7 +120,7 @@ private:
     WAIOrbVocabulary*            _voc = nullptr;
 
     //wai slam depends on _orbVocabulary and has to be uninitializd first
-    std::unique_ptr<WAISlamTrackPool> _waiSlam;
+    std::unique_ptr<WAISlam> _waiSlam;
 
 #if USE_FBOW
     std::string _vocabularyFileName = "voc_fbow.bin";
@@ -150,7 +150,7 @@ class MapLoader : public AsyncWorker
 {
 public:
     MapLoader(WAIOrbVocabulary*& voc,
-              int vocLayer,
+              int                vocLayer,
               const std::string& vocFileName,
               const std::string& mapFileDir,
               const std::string& mapFileName)

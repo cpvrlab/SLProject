@@ -280,7 +280,7 @@ void AreaTrackingView::initSlam()
                                                 _camera->config().manipWidth,
                                                 _camera->config().targetWidth);
 
-    WAISlamTrackPool::Params params;
+    WAISlam::Params params;
     params.cullRedundantPerc   = 0.95f;
     params.ensureKFIntegration = false;
     params.fixOldKfs           = true;
@@ -289,7 +289,7 @@ void AreaTrackingView::initSlam()
     params.serial              = false;
     params.trackOptFlow        = false;
 
-    _waiSlam = std::make_unique<WAISlamTrackPool>(
+    _waiSlam = std::make_unique<WAISlam>(
       scaledCamMat,
       _camera->calibration()->distortion(),
       _voc,
@@ -601,7 +601,10 @@ void AreaTrackingView::updateTrackingVisualization(const bool iKnowWhereIAm, SEN
 
     //update visualization of matched map points (when WAI pose is valid)
     if (iKnowWhereIAm && (_gui.opacity() > 0.0001f))
-        _scene.renderMatchedMapPoints(_waiSlam->getMatchedMapPoints(), _gui.opacity());
+    {
+        auto lastFrame = _waiSlam->getLastFrame();
+        _scene.renderMatchedMapPoints(_waiSlam->getMatchedMapPoints(&lastFrame), _gui.opacity());
+    }
     else
         _scene.removeMatchedMapPoints();
 }

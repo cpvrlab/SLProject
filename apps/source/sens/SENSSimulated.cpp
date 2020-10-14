@@ -69,20 +69,20 @@ void SENSSimulated<T>::feedSensor(/*const SENSTimePt startTimePt, const SENSTime
         SENSTimePt simTime = _clock.now();
 
         //process late values
-        //int i = 0;
+        int i = 0;
         while (counter < _data.size() && _data[counter].first < simTime)
         {
             //SENS_DEBUG("feed sensor index %d with latency: %d us, SimT: %d, ValueT: %d", counter, std::chrono::duration_cast<SENSMicroseconds>(_data[counter].first - simTime).count(), std::chrono::time_point_cast<SENSMicroseconds>(simTime).time_since_epoch().count(), std::chrono::time_point_cast<SENSMicroseconds>(_data[counter].first).time_since_epoch().count());
-            //SENS_DEBUG("feed %s sensor index %d with latency: %d us", _name.c_str(), counter, std::chrono::duration_cast<SENSMicroseconds>(_data[counter].first - simTime).count());
+            SENS_DEBUG("feed %s sensor index %d with latency: %d us", _name.c_str(), counter, std::chrono::duration_cast<SENSMicroseconds>(_data[counter].first - simTime).count());
             feedSensorData(counter);
 
             //setting the location maybe took some time, so we update simulation time
             simTime = _clock.now();
             counter++;
-            //i++;
+            i++;
         }
-        //if (i > 0)
-        //    SENS_DEBUG("grabbed %d frames", i);
+        if (i > 0)
+            SENS_DEBUG("grabbed %d frames", i);
 
         //end of simulation
         if (counter >= _data.size())
@@ -101,7 +101,7 @@ void SENSSimulated<T>::feedSensor(/*const SENSTimePt startTimePt, const SENSTime
         //simTime should now be smaller than valueTime because valueTime is in the simulation future
         SENSMicroseconds waitTimeUs = std::chrono::duration_cast<SENSMicroseconds>(valueTime - simTime);
         //We reduce the wait time because thread sleep is not very exact (best is not to wait at all)
-        SENSMicroseconds reducedWaitTimeUs((long)(0.1 * (double)waitTimeUs.count()));
+        SENSMicroseconds reducedWaitTimeUs((long)(0.001 * (double)waitTimeUs.count()));
 
         //HighResTimer t;
         std::unique_lock<std::mutex> lock(_mutex);
@@ -351,14 +351,14 @@ void SENSSimulatedCamera::feedSensorData(const int counter)
     {
         prepareSensorData(counter);
     }
-    
+
     //todo: move to base class
     {
         std::lock_guard<std::mutex> lock(_listenerMutex);
-        if(_listeners.size())
+        if (_listeners.size())
         {
             SENSTimePt timePt = SENSClock::now();
-            for(SENSCameraListener* l : _listeners)
+            for (SENSCameraListener* l : _listeners)
                 l->onFrame(timePt, _preparedFrame.clone());
         }
     }
