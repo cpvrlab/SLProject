@@ -140,7 +140,7 @@ bool SENSSimHelper::getRecorderErrors(std::vector<std::string>& errorMsgs)
         if (_recorder->getOrientationHandlerError(orientationError))
             errorMsgs.emplace_back(orientationError);
         std::string cameraError;
-        if (_recorder->geCameraHandlerError(cameraError))
+        if (_recorder->getCameraHandlerError(cameraError))
             errorMsgs.emplace_back(cameraError);
 
         return errorMsgs.size() != 0;
@@ -188,6 +188,8 @@ void SENSSimHelper::initSimulator(const std::string& simDataSet)
     simulateOrientation = false;
     simulateCamera      = false;
     restoreInputSensors();
+    if (_cameraParametersChangedCB)
+        _cameraParametersChangedCB();
 
     if (_simulator)
         _simulator.reset();
@@ -234,6 +236,17 @@ void SENSSimHelper::updateCameraSim()
         _cameraRef = _simulator->getCameraSensorPtr();
     else
         _cameraRef = _cameraIn;
+
+    if (_cameraParametersChangedCB)
+        _cameraParametersChangedCB();
+}
+
+bool SENSSimHelper::getSimulatorErrors(std::vector<std::string>& errorMsgs)
+{
+    if (_simulator)
+        return _simulator->getSimulatorErrors(errorMsgs);
+    else
+        return false;
 }
 
 void SENSSimHelper::stopSim()

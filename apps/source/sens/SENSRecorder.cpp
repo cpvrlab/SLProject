@@ -174,7 +174,7 @@ bool SENSRecorder::getOrientationHandlerError(std::string& errorMsg)
         return false;
 }
 
-bool SENSRecorder::geCameraHandlerError(std::string& errorMsg)
+bool SENSRecorder::getCameraHandlerError(std::string& errorMsg)
 {
     if (_cameraDataHandler && _cameraDataHandler->getErrorMsg(errorMsg))
         return true;

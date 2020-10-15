@@ -24,6 +24,7 @@ public:
     //!indicates if simulation thread is running
     virtual bool isThreadRunning() const = 0;
 
+    virtual bool getErrorMsg(std::string& msg) = 0;
     //!get the first time point in simulation sensor data
     //virtual const SENSTimePt& firstTimePt() = 0;
     //!called by SENSSimulator to set the common simulation start time
@@ -60,6 +61,9 @@ protected:
     //!stop the sensor simulation thread
     void stopSim();
 
+    //!get error msg (valid if function returns true)
+    bool getErrorMsg(std::string& msg) override;
+
     bool isThreadRunning() const override { return _threadIsRunning; }
 
     //!feed new sensor data to sensor
@@ -67,6 +71,8 @@ protected:
     //!prepare things that may take some time for the next writing of sensor data
     //!(e.g. for video reading we can already read the frame and do decoding and maybe it also blocks for some reasons..)
     virtual void prepareSensorData(const int counter){};
+    //!special treatment when there is latency (e.g. when feeding camera frames from cv::videocapture updating the frame pos may take ages)
+    virtual void onLatencyProblem(int& counter) {}
 
 private:
     //!thread run routine to feed sensor with data.
@@ -91,6 +97,9 @@ protected:
     const SENSSimClock& _clock;
 
     std::string _name;
+
+    std::mutex  _msgMutex;
+    std::string _errorMsg;
 };
 
 //-----------------------------------------------------------------------------
@@ -181,6 +190,8 @@ private:
 
     void feedSensorData(const int counter) override;
     void prepareSensorData(const int counter) override;
+    //!when feeding camera frames from cv::videocapture updating the frame pos may take ages. So we skip one more frame and update the next frame counter
+    void onLatencyProblem(int& counter) override;
 
     std::string      _videoFileName;
     cv::VideoCapture _cap;

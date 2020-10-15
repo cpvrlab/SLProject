@@ -33,6 +33,7 @@ public:
     void updateGpsSim();
     void updateOrientationSim();
     void updateCameraSim();
+    bool getSimulatorErrors(std::vector<std::string>& errorMsgs);
 
     void             stopSim();
     void             startSim();

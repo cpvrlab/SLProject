@@ -4,6 +4,19 @@ SENSSimulator::~SENSSimulator()
 {
 }
 
+bool SENSSimulator::getSimulatorErrors(std::vector<std::string>& errorMsgs)
+{
+    for (int i = 0; i < _activeSensors.size(); ++i)
+    {
+        SENSSimulatedBase* sensor = _activeSensors[i].get();
+        std::string        msg;
+        if (sensor->getErrorMsg(msg))
+            errorMsgs.emplace_back(msg);
+    }
+
+    return errorMsgs.size() != 0;
+}
+
 void SENSSimulator::pause()
 {
     if (_clock)
@@ -23,14 +36,6 @@ void SENSSimulator::resume()
     if (_clock)
         _clock->resume();
 }
-
-/*
-void SENSSimulator::reset()
-{
-    if (_clock)
-        _clock->reset();
-}
- */
 
 SENSMicroseconds SENSSimulator::passedTime()
 {

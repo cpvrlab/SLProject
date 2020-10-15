@@ -80,7 +80,7 @@ void SENSRecorderDataHandler<T>::store()
             if (localQueue.size())
             {
                 std::stringstream ss;
-                ss << "Data writing is to slow. Skipping " << localQueue.size() << " values from queue!";
+                ss << "Data writing is too slow. Skipping " << localQueue.size() << " values from queue!";
                 SENS_WARN("SENSRecorderDataHandler store: %s", ss.str().c_str());
                 //if buffer is running full, warn and skip values
                 {
@@ -180,11 +180,11 @@ void SENSCameraRecorderDataHandler::writeLineToFile(ofstream& file, const FrameI
     static HighResTimer t;
     SENS_DEBUG("SENSCameraRecorderDataHandler: ellapsed time %f us", t.elapsedTimeInMicroSec());
     static long long lastTimePt = std::chrono::time_point_cast<SENSMicroseconds>(SENSClock::now()).time_since_epoch().count();
-    long long   timePt  = std::chrono::time_point_cast<SENSMicroseconds>(data.second).time_since_epoch().count();
-    long long diff = lastTimePt - timePt;
+    long long        timePt     = std::chrono::time_point_cast<SENSMicroseconds>(data.second).time_since_epoch().count();
+    long long        diff       = lastTimePt - timePt;
     SENS_DEBUG("SENSCameraRecorderDataHandler: diff %lld", diff);
 
-    lastTimePt = timePt;
+    lastTimePt          = timePt;
     std::string timeStr = std::to_string(timePt);
     //write time and frame index
     file << timePt << " "

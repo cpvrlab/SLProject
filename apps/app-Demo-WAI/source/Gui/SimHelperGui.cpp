@@ -153,6 +153,15 @@ void SimHelperGui::render(SENSSimHelper* simHelper)
                 if (ImGui::Button("Pause##PauseSim", ImVec2(btnW, 0)))
                     simHelper->pauseSim();
             }
+
+            std::vector<std::string> errorMsgs;
+            if (simHelper->getSimulatorErrors(errorMsgs))
+            {
+                for (const std::string& msg : errorMsgs)
+                {
+                    ImGui::TextUnformatted(msg.c_str());
+                }
+            }
         }
     }
 

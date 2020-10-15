@@ -38,7 +38,7 @@ public:
 
     bool getGpsHandlerError(std::string& errorMsg);
     bool getOrientationHandlerError(std::string& errorMsg);
-    bool geCameraHandlerError(std::string& errorMsg);
+    bool getCameraHandlerError(std::string& errorMsg);
 
     bool               isRunning() const { return _running; }
     const std::string& outputDir() const { return _outputDir; }
