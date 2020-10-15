@@ -41,6 +41,8 @@
 #include <android/SENSNdkCamera.h>
 #include <CV/CVImage.h>
 #include <HighResTimer.h>
+#include <sens/android/SENSNdkGps.h>
+#include <sens/android/SENSNdkOrientation.h>
 
 #define ENGINE_DEBUG(...) Utils::log("Engine", __VA_ARGS__)
 #define ENGINE_INFO(...) Utils::log("Engine", __VA_ARGS__)
@@ -54,6 +56,10 @@
 //#define ENGINE_DEBUG(...) // nothing
 //#define ENGINE_INFO(...)  // nothing
 //#define ENGINE_WARN(...)  // nothing
+
+// global JNI interface variables
+jclass gGpsClass;
+jclass gOrientationClass;
 
 class Engine
 {
@@ -74,7 +80,7 @@ public:
 
     bool isReady();
 
-    void onPermissionGranted(jboolean granted);
+    void onPermissionGranted(jboolean cameraGranted, jboolean gpsGranted);
 
     bool closeAppRequested() const;
     void closeAppRequested(bool state);
@@ -86,7 +92,7 @@ private:
     bool resumeDisplay();
     void terminateDisplay();
 
-    void startCamera();
+    void initSensors();
 
     void checkAndRequestAndroidPermissions();
 
@@ -120,7 +126,10 @@ private:
     //SENSCameraAsync* _camera        = nullptr;
     SENSCamera* _camera        = nullptr;
     bool        _cameraGranted = false;
+    bool        _gpsGranted    = false;
 
+    SENSNdkGps*         _gps         = nullptr;
+    SENSNdkOrientation* _orientation = nullptr;
     /*
     SensorsHandler* sensorsHandler;
     */
@@ -152,7 +161,7 @@ void Engine::onInit()
 {
     ENGINE_DEBUG("onInit");
 
-    startCamera();
+    initSensors();
 
     if (!_earAppIsInitialized)
     {
@@ -177,7 +186,7 @@ void Engine::onInit()
 
         //todo revert
         _earApp.setCloseAppCallback(std::bind(&Engine::closeAppCallback, this));
-        _earApp.init(_width, _height, _dpi, internalPath + "/data/", externalPath, _camera);
+        _earApp.init(_width, _height, _dpi, internalPath + "/data/", externalPath, _camera, _gps, _orientation);
         _earAppIsInitialized = true;
     }
     else
@@ -192,7 +201,7 @@ void Engine::onInit()
 
             std::string internalPath = getInternalDir();
             std::string externalPath = getExternalDir();
-            _earApp.init(_width, _height, _dpi, internalPath + "/data/", externalPath, _camera);
+            _earApp.init(_width, _height, _dpi, internalPath + "/data/", externalPath, _camera, _gps, _orientation);
         }
         else
         {
@@ -475,7 +484,7 @@ void Engine::terminateDisplay()
     _surface = EGL_NO_SURFACE;
 }
 
-void Engine::startCamera()
+void Engine::initSensors()
 {
     try
     {
@@ -485,13 +494,23 @@ void Engine::startCamera()
             //_camera                                  = new SENSCameraAsync(std::move(ndkCamera));
             _camera = new SENSNdkCamera();
         }
+
+        if (!_gps)
+        {
+            _gps = new SENSNdkGps(_app->activity->vm, &_app->activity->clazz, &gGpsClass);
+        }
+
+        if (!_orientation)
+        {
+            _orientation = new SENSNdkOrientation(_app->activity->vm, &_app->activity->clazz, &gOrientationClass);
+        }
     }
     catch (std::exception& e)
     {
         Utils::log("SENSNdkCamera", e.what());
     }
 
-    if (!_cameraGranted)
+    if (!_cameraGranted || !_gpsGranted)
     {
         checkAndRequestAndroidPermissions();
     }
@@ -514,24 +533,42 @@ void Engine::checkAndRequestAndroidPermissions()
     activity->vm->DetachCurrentThread();
 }
 
-void Engine::onPermissionGranted(jboolean granted)
+void Engine::onPermissionGranted(jboolean cameraGranted, jboolean gpsGranted)
 {
-    _cameraGranted = (granted != JNI_FALSE);
+    //we have to use this expression, directly assigning jboolean will just crash
+    _cameraGranted = (cameraGranted != JNI_FALSE);
+    _gpsGranted    = (gpsGranted != JNI_FALSE);
 
-    if (_cameraGranted)
-    {
+    if (cameraGranted != JNI_FALSE)
         _camera->setPermissionGranted();
-        //startCamera();
+
+    _gps->init(_gpsGranted);
+}
+
+extern "C" JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved)
+{
+    JNIEnv* env;
+    if (vm->GetEnv((void**)&env, JNI_VERSION_1_6) != JNI_OK)
+    {
+        return JNI_ERR; // JNI version not supported.
     }
+
+    jclass cGps  = env->FindClass("ch/cpvr/wai/SENSGps");
+    gGpsClass = reinterpret_cast<jclass>(env->NewGlobalRef(cGps));
+
+    jclass cOrient  = env->FindClass("ch/cpvr/wai/SENSOrientation");
+    gOrientationClass = reinterpret_cast<jclass>(env->NewGlobalRef(cOrient));
+    return JNI_VERSION_1_6;
 }
 
 extern "C" JNIEXPORT void JNICALL
-Java_ch_cpvr_wai_WAIActivity_notifyCameraPermission(
+Java_ch_cpvr_wai_WAIActivity_notifyPermission(
   JNIEnv*  env,
   jclass   type,
-  jboolean permission)
+  jboolean cameraGranted,
+  jboolean gpsGranted)
 {
-    std::thread permissionHandler(&Engine::onPermissionGranted, GetEngine(), permission);
+    std::thread permissionHandler(&Engine::onPermissionGranted, GetEngine(), cameraGranted, gpsGranted);
     permissionHandler.detach();
 }
 
@@ -1007,6 +1044,15 @@ void android_main(struct android_app* app)
                 Utils::log("android_main", "closeActivity");
                 engine.closeAppRequested(false);
                 ANativeActivity_finish(app->activity);
+
+                //todo: destroy camera?
+                /*
+                if(_camera)
+                {
+                    delete _camera;
+                    _camera = nullptr;
+                }
+                 */
             }
 
             if (engine.isReady())

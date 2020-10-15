@@ -7,6 +7,8 @@
 #include <SLInputManager.h>
 #include <ErlebAR.h>
 #include <sens/SENSCamera.h>
+#include <sens/SENSGps.h>
+#include <sens/SENSOrientation.h>
 #include <Resources.h>
 #include <ErlebAREvents.h>
 
@@ -23,6 +25,7 @@ class LocationMapView;
 class AreaInfoView;
 class AreaTrackingView;
 class CameraTestView;
+class SensorTestView;
 class ImGuiEngine;
 
 class ErlebARApp : public sm::StateMachine
@@ -39,7 +42,9 @@ public:
               int                dpi,
               const std::string& dataDir,
               const std::string& writableDir,
-              SENSCamera*        camera);
+              SENSCamera*        camera,
+              SENSGps*           gps,
+              SENSOrientation*   orientation);
     //go back (e.g. from android back-button)
     void goBack();
     //call to completely uninitialize app
@@ -74,23 +79,26 @@ private:
     void ABOUT(const sm::NoEventData* data, const bool stateEntry, const bool stateExit);
     void SETTINGS(const sm::NoEventData* data, const bool stateEntry, const bool stateExit);
     void CAMERA_TEST(const sm::NoEventData* data, const bool stateEntry, const bool stateExit);
+    void SENSOR_TEST(const sm::NoEventData* data, const bool stateEntry, const bool stateExit);
 
     SLInputManager              _inputManager;
     std::unique_ptr<DeviceData> _dd;
-    SENSCamera*                 _camera = nullptr;
-
-    SelectionView*    _selectionView    = nullptr;
-    TestView*         _testView         = nullptr;
-    TestRunnerView*   _testRunnerView   = nullptr;
-    StartUpView*      _startUpView      = nullptr;
-    WelcomeView*      _welcomeView      = nullptr;
-    AboutView*        _aboutView        = nullptr;
-    SettingsView*     _settingsView     = nullptr;
-    TutorialView*     _tutorialView     = nullptr;
-    LocationMapView*  _locationMapView  = nullptr;
-    AreaInfoView*     _areaInfoView     = nullptr;
-    AreaTrackingView* _areaTrackingView = nullptr;
-    CameraTestView*   _cameraTestView   = nullptr;
+    SENSCamera*                 _camera           = nullptr;
+    SENSGps*                    _gps              = nullptr;
+    SENSOrientation*            _orientation      = nullptr;
+    SelectionView*              _selectionView    = nullptr;
+    TestView*                   _testView         = nullptr;
+    TestRunnerView*             _testRunnerView   = nullptr;
+    StartUpView*                _startUpView      = nullptr;
+    WelcomeView*                _welcomeView      = nullptr;
+    AboutView*                  _aboutView        = nullptr;
+    SettingsView*               _settingsView     = nullptr;
+    TutorialView*               _tutorialView     = nullptr;
+    LocationMapView*            _locationMapView  = nullptr;
+    AreaInfoView*               _areaInfoView     = nullptr;
+    AreaTrackingView*           _areaTrackingView = nullptr;
+    CameraTestView*             _cameraTestView   = nullptr;
+    SensorTestView*             _sensorTestView   = nullptr;
 
     CloseAppCallback _closeCB = nullptr;
 

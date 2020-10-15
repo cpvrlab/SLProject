@@ -663,7 +663,7 @@ void WAIKeyFrame::SetBadFlag()
             WAIKeyFrame* pC;
             WAIKeyFrame* pP;
 
-            for (set<WAIKeyFrame*>::iterator sit = mspChildrens.begin(), send = mspChildrens.end(); sit != send; sit++)
+            for (set<WAIKeyFrame*>::iterator sit = mspChildrens.begin(), send = mspChildrens.end(); sit != send;)
             {
                 WAIKeyFrame* pKF = *sit;
                 if (pKF->isBad())
@@ -693,6 +693,8 @@ void WAIKeyFrame::SetBadFlag()
                         }
                     }
                 }
+                
+                sit++;
             }
 
             if (bContinue)

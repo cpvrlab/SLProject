@@ -61,6 +61,7 @@ public:
     void           preShade(SLRay* ray) { (void)ray; }
     void           calcMinMax(SLVec3f& minV, SLVec3f& maxV) const;
     void           buildAABB(SLAABBox& aabb, const SLMat4f& wmNode);
+    SLVec2i        frustumSizeAtDistance(SLfloat distance);
 
     // Event handlers for camera animation
     SLbool onMouseDown(SLMouseButton button, SLint x, SLint y, SLKey mod) override;

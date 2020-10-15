@@ -192,15 +192,25 @@ void SelectionGui::build(SLScene* s, SLSceneView* sv)
         {
             sendEvent(new StartTestRunnerEvent("SelectionGui"));
         }
-
+        
         if (ImGui::Button("Camera Test", develButtonSize))
         {
             sendEvent(new StartCameraTestEvent("SelectionGui"));
         }
 
+        if (ImGui::Button("Sensor Test", develButtonSize))
+        {
+            sendEvent(new StartSensorTestEvent("SelectionGui"));
+        }
+
         if (ImGui::Button("Biel", develButtonSize))
         {
             sendEvent(new StartErlebarEvent("SelectionGui", LocationId::BIEL));
+        }
+        
+        if (ImGui::Button("Evilard", develButtonSize))
+        {
+            sendEvent(new StartErlebarEvent("SelectionGui", LocationId::EVILARD));
         }
 
         ImGui::End();

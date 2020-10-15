@@ -122,20 +122,20 @@ string getDirName(const string& pathFilename);
 string getFileExt(const string& filename);
 
 //! Returns a vector directory names with path in dir
-vector<string> getDirNamesInDir(const string& dirName);
+vector<string> getDirNamesInDir(const string& dirName, bool fullPath = true);
 
 //! Returns a vector of sorted names (files and directories) with path in dir
-vector<string> getAllNamesInDir(const string& dirName);
+vector<string> getAllNamesInDir(const string& dirName, bool fullPath = true);
 
 //! Returns a vector of sorted filesnames in dirName
-vector<string> getFileNamesInDir(const string& dirName);
+vector<string> getFileNamesInDir(const string& dirName, bool fullPath = true);
 
 //! Returns true if a directory exists.
 bool dirExists(const string& path);
 
 //! Returns the file size in bytes
 unsigned int getFileSize(const string& filename);
-unsigned int getFileSize(std::ifstream &fs);
+unsigned int getFileSize(std::ifstream& fs);
 
 //! Creates a directory with given path
 bool makeDir(const string& path);
@@ -153,7 +153,7 @@ void removeFile(const string& path);
 bool fileExists(const string& pathfilename);
 
 //! Returns the writable configuration directory
-string getAppsWritableDir();
+string getAppsWritableDir(string appName = "SLProject");
 
 //! Returns the working directory
 string getCurrentWorkingDir();
@@ -162,10 +162,10 @@ string getCurrentWorkingDir();
 bool deleteFile(string& pathfilename);
 
 //! process all files and folders recursively naturally sorted
-void loopFileSystemRec(const string& path,
+void loopFileSystemRec(const string&                                                          path,
                        std::function<void(std::string path, std::string baseName, int depth)> processFile,
                        std::function<void(std::string path, std::string baseName, int depth)> processDir,
-                       const int depth = 0);
+                       const int                                                              depth = 0);
 
 //! Dumps all folders and files recursovely
 void dumpFileSystemRec(const char* logtag, const string& folderpath);

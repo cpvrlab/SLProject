@@ -40,7 +40,7 @@ namespace fs = std::experimental::filesystem;
 #    endif
 #    include <dirent.h>
 #    include <sys/stat.h> //dirent
-#    include <unistd.h>   //getcwd
+#    include <unistd.h> //getcwd
 #elif defined(ANDROID) || defined(ANDROID_NDK)
 #    include <android/log.h>
 #    include <dirent.h>
@@ -577,7 +577,7 @@ string getFileExt(const string& filename)
 }
 //-----------------------------------------------------------------------------
 //! Returns a vector of unsorted directory names with path in dir
-vector<string> getDirNamesInDir(const string& dirName)
+vector<string> getDirNamesInDir(const string& dirName, bool fullPath)
 {
     vector<string> filePathNames;
 
@@ -588,7 +588,12 @@ vector<string> getDirNamesInDir(const string& dirName)
         {
             auto filename = entry.path().filename();
             if (fs::is_directory(entry.status()))
-                filePathNames.push_back(dirName + "/" + filename.u8string());
+            {
+                if (fullPath)
+                    filePathNames.push_back(dirName + "/" + filename.u8string());
+                else
+                    filePathNames.push_back(filename.u8string());
+            }
         }
     }
 #else
@@ -610,8 +615,13 @@ vector<string> getDirNamesInDir(const string& dirName)
                 {
                 };
                 stat((dirName + name).c_str(), &path_stat);
-                if (S_ISDIR(path_stat.st_mode))
-                    filePathNames.push_back(dirName + name);
+                if (!S_ISREG(path_stat.st_mode))
+                {
+                    if (fullPath)
+                        filePathNames.push_back(dirName + "/" + name);
+                    else
+                        filePathNames.push_back(name);
+                }
             }
         }
         closedir(dir);
@@ -622,7 +632,7 @@ vector<string> getDirNamesInDir(const string& dirName)
 }
 //-----------------------------------------------------------------------------
 //! Returns a vector of unsorted names (files and directories) with path in dir
-vector<string> getAllNamesInDir(const string& dirName)
+vector<string> getAllNamesInDir(const string& dirName, bool fullPath)
 {
     vector<string> filePathNames;
 
@@ -632,12 +642,15 @@ vector<string> getAllNamesInDir(const string& dirName)
         for (const auto& entry : fs::directory_iterator(dirName))
         {
             auto filename = entry.path().filename();
-            filePathNames.push_back(dirName + "/" + filename.u8string());
+            if (fullPath)
+                filePathNames.push_back(dirName + "/" + filename.u8string());
+            else
+                filePathNames.push_back(filename.u8string());
         }
     }
 #else
 #    if TARGET_OS_IOS
-    return Utils_iOS::getAllNamesInDir(dirName);
+    return Utils_iOS::getAllNamesInDir(dirName, fullPath);
 #    else
     DIR* dir = opendir(dirName.c_str());
 
@@ -651,7 +664,12 @@ vector<string> getAllNamesInDir(const string& dirName)
             i++;
             string name(dirContent->d_name);
             if (name != "." && name != "..")
-                filePathNames.push_back(dirName + name);
+            {
+                if (fullPath)
+                    filePathNames.push_back(dirName + "/" + name);
+                else
+                    filePathNames.push_back(name);
+            }
         }
         closedir(dir);
     }
@@ -662,7 +680,7 @@ vector<string> getAllNamesInDir(const string& dirName)
 }
 //-----------------------------------------------------------------------------
 //! Returns a vector of unsorted filesnames with path in dir
-vector<string> getFileNamesInDir(const string& dirName)
+vector<string> getFileNamesInDir(const string& dirName, bool fullPath)
 {
     vector<string> filePathNames;
 
@@ -673,7 +691,12 @@ vector<string> getFileNamesInDir(const string& dirName)
         {
             auto filename = entry.path().filename();
             if (fs::is_regular_file(entry.status()))
-                filePathNames.push_back(dirName + "/" + filename.u8string());
+            {
+                if (fullPath)
+                    filePathNames.push_back(dirName + "/" + filename.u8string());
+                else
+                    filePathNames.push_back(filename.u8string());
+            }
         }
     }
 #else
@@ -696,7 +719,12 @@ vector<string> getFileNamesInDir(const string& dirName)
                 };
                 stat((dirName + name).c_str(), &path_stat);
                 if (S_ISREG(path_stat.st_mode))
-                    filePathNames.push_back(dirName + name);
+                {
+                    if (fullPath)
+                        filePathNames.push_back(dirName + name);
+                    else
+                        filePathNames.push_back(name);
+                }
             }
         }
         closedir(dir);
@@ -852,11 +880,11 @@ unsigned int getFileSize(std::ifstream& fs)
 
 //-----------------------------------------------------------------------------
 //! Returns the writable configuration directory with trailing forward slash
-string getAppsWritableDir()
+string getAppsWritableDir(string appName)
 {
 #if defined(_WIN32)
     string appData   = getenv("APPDATA");
-    string configDir = appData + "/SLProject";
+    string configDir = appData + "/" + appName;
     replaceString(configDir, "\\", "/");
     if (!dirExists(configDir))
         makeDir(configDir.c_str());
@@ -864,7 +892,7 @@ string getAppsWritableDir()
 #elif defined(__APPLE__)
     string home      = getenv("HOME");
     string appData   = home + "/Library/Application Support";
-    string configDir = appData + "/SLProject";
+    string configDir = appData + "/" + appName;
     if (!dirExists(configDir))
         mkdir(configDir.c_str(), S_IRWXU);
     return configDir + "/";
@@ -873,7 +901,7 @@ string getAppsWritableDir()
 #elif defined(linux) || defined(__linux) || defined(__linux__)
     // @todo Where is the app data path on Linux?
     string home      = getenv("HOME");
-    string configDir = home + "/.SLProject";
+    string configDir = home + "/." + appName;
     if (!dirExists(configDir))
         mkdir(configDir.c_str(), S_IRWXU | S_IRWXG | S_IRWXO);
     return configDir + "/";

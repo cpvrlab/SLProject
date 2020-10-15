@@ -14,64 +14,19 @@
 #include <sens/SENSCalibration.h>
 #include <WAIOrbVocabulary.h>
 #include <sens/SENSFrame.h>
+#include <sens/SENSGps.h>
+#include <sens/SENSOrientation.h>
 #include <AsyncWorker.h>
+#include <scenes/UserGuidanceScene.h>
+#include <UserGuidance.h>
+
+#include <SLLightSpot.h>
+#include <SLArrow.h>
+#include <SLCoordAxis.h>
+#include <sens/SENSSimHelper.h>
 
 class SENSCamera;
 class MapLoader;
-
-struct UserGuidanceInfo
-{
-    UserGuidanceInfo() { _started = false; }
-    void terminate() { _terminate = true; }
-
-    bool update(float timeNow, AreaTrackingGui* gui)
-    {
-        if (!_started)
-        {
-            _timeStart = timeNow;
-            _started = true;
-            _terminate = false;
-        }
-        if (!_terminate) { _timeTerminate = timeNow; }
-        if (!updateFct(timeNow - _timeStart, timeNow - _timeTerminate, gui, _terminate))
-        {
-            _started = false;
-            return false;
-        }
-        return true;
-    }
-
-    bool _started;
-    bool _terminate;
-    float _timeStart;
-    float _timeTerminate;
-    std::function<bool(float, float, AreaTrackingGui*, bool&)> updateFct;
-};
-
-class UserGuidance
-{
-    public:
-    UserGuidance(AreaTrackingGui * gui);
-    void update(WAI::TrackingState state);
-
-    private:
-
-    void flush();
-
-    AreaTrackingGui *_gui;
-    WAI::TrackingState _lastWAIState;
-    HighResTimer _timer;
-
-    UserGuidanceInfo _alignImgInfo;
-    UserGuidanceInfo _moveLeftRight;
-    UserGuidanceInfo _trackingMarker;
-    UserGuidanceInfo _trackingStarted;
-
-    std::queue<UserGuidanceInfo*> _queuedInfos;
-
-    bool _marker;
-    bool _trackedOnce;
-};
 
 class AreaTrackingView : public SLSceneView
 {
@@ -81,12 +36,48 @@ public:
                      const ImGuiEngine&  imGuiEngine,
                      ErlebAR::Resources& resources,
                      SENSCamera*         camera,
+                     SENSGps*            gps,
+                     SENSOrientation*    orientation,
                      const DeviceData&   deviceData);
     ~AreaTrackingView();
 
     bool update();
     //call when view becomes visible
-    void show() { _gui.onShow(); }
+    void onShow()
+    {
+        _gui.onShow();
+        if (_gps)
+            _gps->start();
+        if (_orientation)
+            _orientation->start();
+
+        if (_resources.developerMode && _resources.simulatorMode)
+        {
+            if (_simHelper)
+                _simHelper.reset();
+            _simHelper = std::make_unique<SENSSimHelper>(_gps,
+                                                         _orientation,
+                                                         _camera,
+                                                         _deviceData.writableDir() + "SENSSimData",
+                                                         std::bind(&AreaTrackingView::onCameraParamsChanged, this));
+        }
+    }
+
+    void onHide()
+    {
+        //reset user guidance and run it once
+        _userGuidance.reset();
+
+        if (_gps)
+            _gps->stop();
+        if (_orientation)
+            _orientation->stop();
+        if (_camera)
+            _camera->stop();
+
+        if (_simHelper)
+            _simHelper.reset();
+    }
 
     void initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaId);
 
@@ -98,22 +89,28 @@ public:
                                               WAIOrbVocabulary*  voc,
                                               cv::Mat&           mapNodeOm);
 
+    SENSSimHelper* getSimHelper() { return _simHelper.get(); }
+
 private:
     virtual SLbool onMouseDown(SLMouseButton button, SLint scrX, SLint scrY, SLKey mod);
     virtual SLbool onMouseMove(SLint x, SLint y);
 
     void updateSceneCameraFov();
-    void updateVideoImage(SENSFrame& frame);
+    void updateVideoImage(SENSFrame& frame, VideoBackgroundCamera* videoBackground);
     void updateTrackingVisualization(const bool iKnowWhereIAm, SENSFrame& frame);
-
+    void initSlam();
     bool startCamera(const cv::Size& cameraFrameTargetSize);
+    void onCameraParamsChanged();
 
-    AreaTrackingGui _gui;
-    AppWAIScene     _scene;
+    AreaTrackingGui   _gui;
+    AppWAIScene       _scene;
+    UserGuidanceScene _userGuidanceScene;
 
     std::map<ErlebAR::LocationId, ErlebAR::Location> _locations;
 
-    SENSCamera* _camera = nullptr;
+    SENSCamera*      _camera      = nullptr;
+    SENSGps*         _gps         = nullptr;
+    SENSOrientation* _orientation = nullptr;
 
     FeatureExtractorFactory      _featureExtractorFactory;
     std::unique_ptr<KPextractor> _trackingExtractor;
@@ -131,17 +128,21 @@ private:
 
     std::string _vocabularyFileName = "ORBvoc.bin";
 #endif
-    std::string _vocabularyDir;
-    std::string _erlebARDir;
     std::string _mapFileName;
 
     //size with which camera was started last time (needed for a resume call)
-    cv::Size _cameraFrameResumeSize;
+    cv::Size     _cameraFrameResumeSize;
     UserGuidance _userGuidance;
 
     MapLoader* _asyncLoader = nullptr;
-    
+
     ErlebAR::Resources& _resources;
+    const DeviceData&   _deviceData;
+
+    ErlebAR::LocationId _locId  = ErlebAR::LocationId::NONE;
+    ErlebAR::AreaId     _areaId = ErlebAR::AreaId::NONE;
+
+    std::unique_ptr<SENSSimHelper> _simHelper;
 };
 
 //! Async loader for vocabulary and maps
@@ -149,7 +150,7 @@ class MapLoader : public AsyncWorker
 {
 public:
     MapLoader(WAIOrbVocabulary*& voc,
-              int vocLayer,
+              int                vocLayer,
               const std::string& vocFileName,
               const std::string& mapFileDir,
               const std::string& mapFileName)

@@ -215,37 +215,6 @@ void ImGuiRendererOpenGL::deleteOpenGLObjects()
     }
 }
 //-----------------------------------------------------------------------------
-void ImGuiEngine::init(const std::string& configPath)
-{
-    ImGuiIO& io    = _context->IO;
-    _iniFilename   = configPath + "imgui.ini";
-    io.IniFilename = _iniFilename.c_str();
-
-    io.KeyMap[ImGuiKey_Tab]        = K_tab;
-    io.KeyMap[ImGuiKey_LeftArrow]  = K_left;
-    io.KeyMap[ImGuiKey_RightArrow] = K_right;
-    io.KeyMap[ImGuiKey_UpArrow]    = K_up;
-    io.KeyMap[ImGuiKey_DownArrow]  = K_down;
-    io.KeyMap[ImGuiKey_PageUp]     = K_pageUp;
-    io.KeyMap[ImGuiKey_PageDown]   = K_pageUp;
-    io.KeyMap[ImGuiKey_Home]       = K_home;
-    io.KeyMap[ImGuiKey_End]        = K_end;
-    io.KeyMap[ImGuiKey_Delete]     = K_delete;
-    io.KeyMap[ImGuiKey_Backspace]  = K_backspace;
-    io.KeyMap[ImGuiKey_Enter]      = K_enter;
-    io.KeyMap[ImGuiKey_Escape]     = K_esc;
-    io.KeyMap[ImGuiKey_A]          = 'A';
-    io.KeyMap[ImGuiKey_C]          = 'C';
-    io.KeyMap[ImGuiKey_V]          = 'V';
-    io.KeyMap[ImGuiKey_X]          = 'X';
-    io.KeyMap[ImGuiKey_Y]          = 'Y';
-    io.KeyMap[ImGuiKey_Z]          = 'Z';
-
-    // The screen size is set again in onResize
-    io.DisplaySize             = ImVec2(0, 0);
-    io.DisplayFramebufferScale = ImVec2(1, 1);
-}
-//-----------------------------------------------------------------------------
 void ImGuiRendererOpenGL::render(const SLRecti& viewportRect)
 {
     ImGui::SetCurrentContext(_context);
@@ -427,6 +396,37 @@ void ImGuiRendererOpenGL::render(const SLRecti& viewportRect)
               (GLsizei)last_scissor_box[3]);
 
     ImGui::SetCurrentContext(nullptr);
+}
+//-----------------------------------------------------------------------------
+void ImGuiEngine::init(const std::string& configPath)
+{
+    ImGuiIO& io    = _context->IO;
+    _iniFilename   = configPath + "imgui.ini";
+    io.IniFilename = _iniFilename.c_str();
+
+    io.KeyMap[ImGuiKey_Tab]        = K_tab;
+    io.KeyMap[ImGuiKey_LeftArrow]  = K_left;
+    io.KeyMap[ImGuiKey_RightArrow] = K_right;
+    io.KeyMap[ImGuiKey_UpArrow]    = K_up;
+    io.KeyMap[ImGuiKey_DownArrow]  = K_down;
+    io.KeyMap[ImGuiKey_PageUp]     = K_pageUp;
+    io.KeyMap[ImGuiKey_PageDown]   = K_pageUp;
+    io.KeyMap[ImGuiKey_Home]       = K_home;
+    io.KeyMap[ImGuiKey_End]        = K_end;
+    io.KeyMap[ImGuiKey_Delete]     = K_delete;
+    io.KeyMap[ImGuiKey_Backspace]  = K_backspace;
+    io.KeyMap[ImGuiKey_Enter]      = K_enter;
+    io.KeyMap[ImGuiKey_Escape]     = K_esc;
+    io.KeyMap[ImGuiKey_A]          = 'A';
+    io.KeyMap[ImGuiKey_C]          = 'C';
+    io.KeyMap[ImGuiKey_V]          = 'V';
+    io.KeyMap[ImGuiKey_X]          = 'X';
+    io.KeyMap[ImGuiKey_Y]          = 'Y';
+    io.KeyMap[ImGuiKey_Z]          = 'Z';
+
+    // The screen size is set again in onResize
+    io.DisplaySize             = ImVec2(0, 0);
+    io.DisplayFramebufferScale = ImVec2(1, 1);
 }
 //-----------------------------------------------------------------------------
 

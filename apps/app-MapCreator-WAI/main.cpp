@@ -19,6 +19,7 @@ struct Config
     float         thinCullingValue;
     bool          ensureKFIntegration;
     float         minCommonWordFactor;
+    bool          saveBinary;
 };
 
 void printHelp()
@@ -36,9 +37,10 @@ void printHelp()
     ss << "  -vocFile               Path and name to Vocabulary file (Optional. If not specified, <AppsWritableDir>/voc/voc_fbow.bin is used)" << std::endl;
     ss << "  -outputDir             Directory where to output generated data (maps, log). (Optional. If not specified, <erlebARDir>/MapCreator/ is used for output, also log output)" << std::endl;
     ss << "  -level                 Number of pyramid levels" << std::endl;
-    ss << "  -serial                Serial mapping (1 or 0)" << std::endl;
+    ss << "  -serial                Enables serial mapping" << std::endl;
     ss << "  -thinCullVal           Thin out culling value (e.g. 0.95)" << std::endl;
     ss << "  -ensureKFIntegration   Ensure new keyframe have mappoints in common with previously loaded map" << std::endl;
+    ss << "  -saveBinary            Save generated maps as binary" << std::endl;
 
     std::cout << ss.str() << std::endl;
 }
@@ -52,6 +54,7 @@ void readArgs(int argc, char* argv[], Config& config)
     config.thinCullingValue    = 0.995f;
     config.serialMapping       = false;
     config.ensureKFIntegration = false;
+    config.saveBinary          = false;
     config.minCommonWordFactor = 0.8;
     config.vocLayer            = 2;
 
@@ -89,8 +92,7 @@ void readArgs(int argc, char* argv[], Config& config)
         }
         else if (!strcmp(argv[i], "-serial"))
         {
-            int val              = std::stoi(argv[++i]);
-            config.serialMapping = val == 1 ? true : false;
+            config.serialMapping = true;
         }
         else if (!strcmp(argv[i], "-thinCullVal"))
         {
@@ -108,6 +110,10 @@ void readArgs(int argc, char* argv[], Config& config)
         else if (!strcmp(argv[i], "-vocLayer"))
         {
             config.vocLayer = std::stoi(argv[++i]);
+        }
+        else if (!strcmp(argv[i], "-saveBinary"))
+        {
+            config.saveBinary = true;
         }
         else if (!strcmp(argv[i], "-feature"))
         {
@@ -238,7 +244,8 @@ int main(int argc, char* argv[])
                               config.serialMapping,
                               config.thinCullingValue,
                               config.ensureKFIntegration,
-                              config.minCommonWordFactor);
+                              config.minCommonWordFactor,
+                              config.saveBinary);
         //todo: call different executes e.g. executeFullProcessing(), executeThinOut()
         //input and output directories have to be defined together with json file which is always scanned during construction
         mapCreator.execute();

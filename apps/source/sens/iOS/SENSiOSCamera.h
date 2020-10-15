@@ -1,3 +1,6 @@
+#ifndef SENS_IOSCAMERA_H
+#define SENS_IOSCAMERA_H
+
 #include <SENSCamera.h>
 #import "SENSiOSCameraDelegate.h"
 #import <simd/matrix_types.h>
@@ -22,13 +25,12 @@ public:
 
     void                         stop() override;
     const SENSCaptureProperties& captureProperties() override;
-    SENSFramePtr                 latestFrame() override;
 
 private:
     void processNewFrame(unsigned char* data, int imgWidth, int imgHeight, matrix_float3x3* camMat3x3);
-
+    void updatePermission(bool granted);
+    
     SENSiOSCameraDelegate* _cameraDelegate;
-
-    std::mutex   _processedFrameMutex;
-    SENSFramePtr _processedFrame;
 };
+
+#endif

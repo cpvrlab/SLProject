@@ -87,6 +87,8 @@ public:
                          (unsigned int)StateId::SELECTION);
         enableTransition((unsigned int)StateId::AREA_INFO,
                          (unsigned int)StateId::LOCATION_MAP);
+        enableTransition((unsigned int)StateId::SENSOR_TEST,
+                         (unsigned int)StateId::SELECTION);
     }
 };
 
@@ -212,6 +214,17 @@ public:
     {
         enableTransition((unsigned int)StateId::SELECTION,
                          (unsigned int)StateId::CAMERA_TEST);
+    }
+};
+
+class StartSensorTestEvent : public sm::Event
+{
+public:
+    StartSensorTestEvent(std::string senderInfo)
+      : sm::Event("StartSensorTestEvent", senderInfo)
+    {
+        enableTransition((unsigned int)StateId::SELECTION,
+                         (unsigned int)StateId::SENSOR_TEST);
     }
 };
 

@@ -251,8 +251,6 @@ The full call stack for rendering one frame is:\n
 class ImGuiWrapper : public SLUiInterface
 {
 public:
-    //If ImFontAtlas is transferred, fonts my be shared over multiple ImGuiWrapper instances (or any other imgui context user)
-    //else one can transfer a nullptr to signal imgui to instantiate their own ImFontAtlas.
     ImGuiWrapper(ImGuiContext* context, ImGuiRenderer* renderer);
     ~ImGuiWrapper() override;
     void init(const std::string& configPath) override;

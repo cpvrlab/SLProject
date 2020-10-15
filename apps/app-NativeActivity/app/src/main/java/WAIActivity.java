@@ -66,7 +66,7 @@ public class WAIActivity extends NativeActivity
                     PERMISSION_REQUEST_CODE_CAMERA);
             return;
         }
-        notifyCameraPermission(true);
+        notifyPermission(true);
     }
 
     @Override
@@ -84,12 +84,12 @@ public class WAIActivity extends NativeActivity
         }
 
         if(grantResults.length == 2) {
-            notifyCameraPermission(grantResults[0] == PackageManager.PERMISSION_GRANTED &&
+            notifyPermission(grantResults[0] == PackageManager.PERMISSION_GRANTED &&
                     grantResults[1] == PackageManager.PERMISSION_GRANTED);
         }
     }
 
-    native static void notifyCameraPermission(boolean granted);
+    native static void notifyPermission(boolean granted);
 
     static {
         System.loadLibrary("native-lib");

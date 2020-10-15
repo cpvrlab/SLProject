@@ -2,28 +2,28 @@
 #include <imgui_internal.h>
 #include <GuiUtils.h>
 #include <ErlebAREvents.h>
+#include <Utils.h>
+#include <sens/SENSSimHelper.h>
 
 using namespace ErlebAR;
 
-AreaTrackingGui::AreaTrackingGui(const ImGuiEngine&         imGuiEngine,
-                                 sm::EventHandler&          eventHandler,
-                                 ErlebAR::Resources&        resources,
-                                 int                        dotsPerInch,
-                                 int                        screenWidthPix,
-                                 int                        screenHeightPix,
-                                 std::function<void(float)> transparencyChangedCB,
-                                 std::string                erlebARDir)
+AreaTrackingGui::AreaTrackingGui(const ImGuiEngine&                  imGuiEngine,
+                                 sm::EventHandler&                   eventHandler,
+                                 ErlebAR::Resources&                 resources,
+                                 int                                 dotsPerInch,
+                                 int                                 screenWidthPix,
+                                 int                                 screenHeightPix,
+                                 std::function<void(float)>          transparencyChangedCB,
+                                 std::string                         erlebARDir,
+                                 std::function<SENSSimHelper*(void)> getSimHelperCB)
   : ImGuiWrapper(imGuiEngine.context(), imGuiEngine.renderer()),
     sm::EventSender(eventHandler),
     _resources(resources),
     _transparencyChangedCB(transparencyChangedCB),
-    _erlebARDir(erlebARDir)
+    _erlebARDir(erlebARDir),
+    _getSimHelper(getSimHelperCB)
 {
     resize(screenWidthPix, screenHeightPix);
-
-
-
-
 }
 
 AreaTrackingGui::~AreaTrackingGui()
@@ -34,6 +34,8 @@ void AreaTrackingGui::onShow()
 {
     _panScroll.enable();
     _opacityController.reset();
+    if(_simHelperGui)
+        _simHelperGui->reset();
 }
 
 void AreaTrackingGui::onResize(SLint scrW, SLint scrH, SLfloat scr2fbX, SLfloat scr2fbY)
@@ -150,6 +152,7 @@ void AreaTrackingGui::build(SLScene* s, SLSceneView* sv)
             ImGui::End();
         }
 
+        //loading indicator
         if (_isLoading)
         {
             const float spinnerRadius = _headerBarH;
@@ -174,37 +177,52 @@ void AreaTrackingGui::build(SLScene* s, SLSceneView* sv)
             ImGui::EndChild();
             ImGui::End();
         }
-        else
+
+        if (!_infoText.empty())
         {
-            if (_displayText != "")
-            {
-                ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
-                {
-                    ImGui::SetNextWindowPos(ImVec2(0.1 * _screenW, 0.1 * _screenH), ImGuiCond_Always);
-                    ImGui::SetNextWindowSize(ImVec2(0.8 * _screenW, 0.8 * _screenH), ImGuiCond_Always);
-                    ImGui::Begin("AreaTrackingGui_UserGuidanceText", nullptr, windowFlags | ImGuiWindowFlags_NoBringToFrontOnFocus);
-                    ImGui::Text("%s", _displayText.c_str());
-                    ImGui::End();
-                }
-                ImGui::PopStyleVar(1);
-            }
+            ImGuiWindowFlags infoBarWinFlags = ImGuiWindowFlags_NoTitleBar |
+                                               ImGuiWindowFlags_NoMove |
+                                               ImGuiWindowFlags_AlwaysAutoResize |
+                                               ImGuiWindowFlags_NoScrollbar;
 
-            if (_showAlignImage)
-            {
-                ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
-                {
-                    ImGui::SetNextWindowPos(ImVec2(0.1 * _screenW, 0.1 * _screenH), ImGuiCond_Always);
-                    ImGui::SetNextWindowSize(ImVec2(0.8 * _screenW, 0.8 * _screenH), ImGuiCond_Always);
-                    ImGui::Begin("AreaTrackingGui_areaAlignTexture", nullptr, windowFlags | ImGuiWindowFlags_NoBringToFrontOnFocus);
+            ImGui::PushFont(_resources.fonts().heading);
 
-                    ImVec2 uv0(0.0f, 0.0f);
-                    ImVec2 uv1(1.f, 1.f);
-                    ImVec4 col(1.f, 1.f, 1.f, _areaAlighTextureBlending);
-                    ImGui::Image((void*)(intptr_t)_areaAlignTexture, ImVec2(0.8 * _screenW, 0.8 * _screenH), uv0, uv1, col);
-                    ImGui::End();
-                }
-                ImGui::PopStyleVar(1);
+            float  winPadding = _resources.style().windowPaddingContent * _screenH;
+            float  wrapW      = _screenW - (2.f * winPadding);
+            ImVec2 textSize   = ImGui::CalcTextSize(_infoText.c_str(), nullptr, false, wrapW);
+            float  infoBarH   = textSize.y + 2.f * winPadding;
+
+            ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(winPadding * 0.8f, winPadding));
+            ImGui::PushStyleColor(ImGuiCol_WindowBg, _resources.style().headerBarBackgroundTranspColor);
+
+            ImGui::SetNextWindowPos(ImVec2(0, _screenH - infoBarH), ImGuiCond_Always);
+            ImGui::SetNextWindowSize(ImVec2(_screenW, infoBarH), ImGuiCond_Always);
+
+            ImGui::Begin("AreaTrackingGui_userGuidanceText", nullptr, infoBarWinFlags);
+            ImGui::PushTextWrapPos(wrapW);
+            ImGui::TextUnformatted(_infoText.c_str());
+            ImGui::PopTextWrapPos();
+            ImGui::End();
+
+            ImGui::PopStyleVar(1);
+            ImGui::PopStyleColor(1);
+            ImGui::PopFont();
+        }
+
+        if (_showAlignImage && _areaAlignTexture != 0)
+        {
+            ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
+            {
+                ImGui::SetNextWindowPos(ImVec2(0.1 * _screenW, 0.1 * _screenH), ImGuiCond_Always);
+                ImGui::SetNextWindowSize(ImVec2(0.8 * _screenW, 0.8 * _screenH), ImGuiCond_Always);
+                ImGui::Begin("AreaTrackingGui_areaAlignTexture", nullptr, windowFlags | ImGuiWindowFlags_NoBringToFrontOnFocus);
+                ImVec2 uv0(0.0f, 0.0f);
+                ImVec2 uv1(1.f, 1.f);
+                ImVec4 col(1.f, 1.f, 1.f, _areaAlighTextureBlending);
+                ImGui::Image((void*)(intptr_t)_areaAlignTexture, ImVec2(0.8 * _screenW, 0.8 * _screenH), uv0, uv1, col);
+                ImGui::End();
             }
+            ImGui::PopStyleVar(1);
         }
 
         ImGui::PopStyleColor(6);
@@ -254,11 +272,18 @@ void AreaTrackingGui::build(SLScene* s, SLSceneView* sv)
 
     //debug: draw log window
     _resources.logWinDraw();
+
+    if (_resources.developerMode && _resources.simulatorMode && _getSimHelper)
+    {
+        if (!_simHelperGui)
+            _simHelperGui = std::make_unique<SimHelperGui>(_resources.fonts().tiny, _resources.fonts().standard, "AreaTrackingGui", _screenH);
+        _simHelperGui->render(_getSimHelper());
+    }
 }
 
-void AreaTrackingGui::showText(std::string str)
+void AreaTrackingGui::showInfoText(const std::string& str)
 {
-    _displayText = str;
+    _infoText = str;
 }
 
 void AreaTrackingGui::showImageAlignTexture(float alpha)
@@ -278,10 +303,13 @@ void AreaTrackingGui::initArea(ErlebAR::Area area)
     int w, h;
 
     ErlebAR::deleteTexture(_areaAlignTexture);
-    _areaAlignTexture = ErlebAR::loadTexture(_erlebARDir + area.relocAlignImage,
-                                             false,
-                                             true,
-                                             _screenW / _screenH,
-                                             w,
-                                             h);
+    if (Utils::fileExists(_erlebARDir + area.relocAlignImage))
+    {
+        _areaAlignTexture = ErlebAR::loadTexture(_erlebARDir + area.relocAlignImage,
+                                                 false,
+                                                 true,
+                                                 _screenW / _screenH,
+                                                 w,
+                                                 h);
+    }
 }

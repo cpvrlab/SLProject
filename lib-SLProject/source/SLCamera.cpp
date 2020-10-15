@@ -364,6 +364,18 @@ void SLCamera::buildAABB(SLAABBox& aabb, const SLMat4f& wmNode)
     // Apply world matrix
     aabb.fromOStoWS(minP, maxP, wmNode);
 }
+
+//-----------------------------------------------------------------------------
+//! Calculate and return frustum size at distance to camera center
+SLVec2i SLCamera::frustumSizeAtDistance(SLfloat distance)
+{
+    SLVec2i frustumSize;
+    
+    frustumSize.y = (int) 2.f * distance * std::tanf(_fov * 0.5f * RAD2DEG);
+    frustumSize.x = frustumSize.y * _viewportRatio; //w / h
+    
+    return frustumSize;
+}
 //-----------------------------------------------------------------------------
 //! Returns the projection type as string
 SLstring SLCamera::projectionToStr(SLProjection p)

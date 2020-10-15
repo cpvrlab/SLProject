@@ -20,7 +20,7 @@ public:
                    const DeviceData&   deviceData);
     bool update();
     //call when view becomes visible
-    void show() { _gui.onShow(); }
+    void onShow() { _gui.onShow(); }
 
     void startCamera();
     void stopCamera();

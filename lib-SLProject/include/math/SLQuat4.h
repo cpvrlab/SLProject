@@ -391,15 +391,15 @@ void SLQuat4<T>::toEulerAnglesZYX(T& rollRAD, T& pitchRAD, T& yawRAD) const
     rollRAD = atan2(sinr, cosr);
 
     // pitch (y-axis rotation)
-    double sinp = +2.0 * (_w *_y - _z*_x);
+    double sinp = +2.0 * (_w *_y - _z *_x);
     if (fabs(sinp) >= 1)
-        pitchRAD = copysign(M_PI / 2, sinp); // use 90 degrees if out of range
+        pitchRAD = copysign(PI / 2, sinp); // use 90 degrees if out of range
     else
         pitchRAD = asin(sinp);
 
     // yaw (z-axis rotation)
     double siny = +2.0 * (_w * _z + _x * _y);
-    double cosy = +1.0 - 2.0 * (_y*_y + _z*_z);
+    double cosy = +1.0 - 2.0 * (_y *_y + _z *_z);
     yawRAD = atan2(siny, cosy);
 }
 //-----------------------------------------------------------------------------
@@ -419,7 +419,7 @@ void SLQuat4<T>::toEulerAnglesXYZ(T& rollRAD, T& pitchRAD, T& yawRAD) const
     // roll (x-axis rotation)
     double sinr = (T)2 * (_y * _z + _w * _x);
     if (fabs(sinr) >= 1)
-        rollRAD = (T)copysign(M_PI / 2, sinr); // use 90 degrees if out of range
+        rollRAD = (T)copysign(PI / 2, sinr); // use 90 degrees if out of range
     else
         rollRAD = (T)asin(sinr);
 }

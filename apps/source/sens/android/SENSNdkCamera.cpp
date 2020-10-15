@@ -63,8 +63,7 @@ void onSessionActive(void* ctx, ACameraCaptureSession* ses)
 }
 
 SENSNdkCamera::SENSNdkCamera()
-  : _threadException("SENSNdkCamera: empty default exception"),
-    _cameraDeviceOpened(false)
+  : _cameraDeviceOpened(false)
 {
     LOG_NDKCAM_INFO("Camera instantiated");
 }
@@ -243,20 +242,6 @@ void SENSNdkCamera::openCamera()
             AImageReader_delete(_imageReader);
             _imageReader = nullptr;
         }
-
-        if (_thread)
-        {
-            LOG_NDKCAM_DEBUG("openCamera: Terminate the thread...");
-            _stopThread = true;
-            _waitCondition.notify_one();
-            if (_thread->joinable())
-            {
-                _thread->join();
-                LOG_NDKCAM_DEBUG("openCamera: Thread joined");
-            }
-            _thread.release();
-            _stopThread = false;
-        }
     }
 
     if (_cameraDeviceOpened)
@@ -271,20 +256,12 @@ void SENSNdkCamera::openCamera()
             if (AImageReader_new(streamConfig.widthPix, streamConfig.heightPix, AIMAGE_FORMAT_YUV_420_888, 2, &_imageReader) != AMEDIA_OK)
                 throw SENSException(SENSType::CAM, "Could not create image reader!", __LINE__, __FILE__);
 
-            //make the adjustments in an asynchronous thread
-            if (_adjustAsynchronously)
-            {
-                //register onImageAvailable listener
-                AImageReader_ImageListener listener{
-                  .context          = this,
-                  .onImageAvailable = onImageCallback,
-                };
-                AImageReader_setImageListener(_imageReader, &listener);
-
-                //start the thread
-                _stopThread = false;
-                _thread     = std::make_unique<std::thread>(&SENSNdkCamera::run, this);
-            }
+            //register onImageAvailable listener
+            AImageReader_ImageListener listener{
+              .context          = this,
+              .onImageAvailable = onImageCallback,
+            };
+            AImageReader_setImageListener(_imageReader, &listener);
 
             createCaptureSession();
         }
@@ -323,8 +300,11 @@ const SENSCameraConfig& SENSNdkCamera::start(std::string                   devic
         targetSize.height = streamConfig.heightPix;
     }
 
-    cv::Size imgManipSize(imgManipWidth,
-                          (int)((float)imgManipWidth * (float)targetSize.height / (float)targetSize.width));
+    cv::Size imgManipSize;
+    if (_config.manipWidth > 0 && _config.manipHeight > 0)
+        imgManipSize = {imgManipWidth, (int)((float)imgManipWidth * (float)targetSize.height / (float)targetSize.width)};
+    else
+        imgManipSize = targetSize;
 
     //retrieve all camera characteristics
     if (_captureProperties.size() == 0)
@@ -423,30 +403,10 @@ void SENSNdkCamera::createCaptureSession()
     ACameraCaptureSession_setRepeatingRequest(_captureSession, nullptr, 1, &_captureRequest, nullptr);
 }
 
-/*
-//todo: add callback for image available and/or completely started
-void SENSNdkCamera::start(std::string id, int width, int height)
-{
-    SENSCameraConfig config;
-    config.deviceId     = id;
-    config.targetWidth  = width;
-    config.targetHeight = height;
-    start(config);
-}
- */
-
 void SENSNdkCamera::stop()
 {
     if (_started)
     {
-        /*
-        if (_openCameraThread)
-        {
-            _openCameraThread->detach();
-            _openCameraThread.release();
-        }
-         */
-
         if (_captureSession)
         {
             LOG_NDKCAM_DEBUG("stop: stopping repeating request...");
@@ -514,64 +474,7 @@ void SENSNdkCamera::stop()
             AImageReader_delete(_imageReader);
             _imageReader = nullptr;
         }
-
-        if (_thread)
-        {
-            LOG_NDKCAM_DEBUG("stop: terminate the thread...");
-            _stopThread = true;
-            _waitCondition.notify_one();
-            if (_thread->joinable())
-            {
-                _thread->join();
-                LOG_NDKCAM_DEBUG("stop: thread joined");
-            }
-            _thread.release();
-            _stopThread = false;
-        }
-        _started = false;
     }
-}
-
-//-----------------------------------------------------------------------------
-//! Does all adjustments needed
-SENSFramePtr SENSNdkCamera::processNewYuvImg(cv::Mat yuvImg)
-{
-    //concert yuv to rgb
-    cv::Mat rgbImg;
-    cv::cvtColor(yuvImg, rgbImg, cv::COLOR_YUV2BGR_NV21, 3);
-
-    SENSFramePtr sensFrame = postProcessNewFrame(rgbImg, cv::Mat(), false);
-    /*
-    cv::Size inputSize = rgbImg.size();
-
-    // Crop Video image to required aspect ratio
-    int cropW = 0, cropH = 0;
-    SENS::cropImage(rgbImg, _targetWdivH, cropW, cropH);
-
-    // Mirroring (is done for most selfie cameras)
-    SENS::mirrorImage(rgbImg, _config.mirrorH, _config.mirrorV);
-
-    /////////////////////////
-    // Create grayscale //
-    /////////////////////////
-
-    // Creating a grayscale version from an YUV input source is stupid.
-    // We just could take the Y channel.
-    cv::Mat grayImg;
-    if (_config.convertToGray)
-    {
-        cv::cvtColor(rgbImg, grayImg, cv::COLOR_BGR2GRAY);
-
-        // Reset calibrated image size
-        //if (frame.size() != activeCamera->calibration.imageSize()) {
-        //    activeCamera->calibration.adaptForNewResolution(lastFrame.size());
-        //}
-    }
-
-    SENSFramePtr sensFrame = std::make_shared<SENSFrame>(rgbImg, grayImg, inputSize.width, inputSize.height, cropW, cropH, _config.mirrorH, _config.mirrorV);
-    return std::move(sensFrame);
-     */
-    return sensFrame;
 }
 
 cv::Mat SENSNdkCamera::convertToYuv(AImage* image)
@@ -619,108 +522,6 @@ cv::Mat SENSNdkCamera::convertToYuv(AImage* image)
         return yuv;
 }
 
-SENSFramePtr SENSNdkCamera::latestFrame()
-{
-    SENSFramePtr sensFrame;
-
-    if (_started)
-    {
-        if (_adjustAsynchronously)
-        {
-            std::unique_lock<std::mutex> lock(_threadOutputMutex);
-            if (_processedFrame)
-            {
-                //move: its faster because shared_ptr has atomic reference counting and we are the only ones using the object
-                sensFrame = std::move(_processedFrame);
-                //static int getFrameN = 0;
-                //LOG_NDKCAM_INFO("getLatestFrame: getFrameN %d", getFrameN++);
-            }
-            if (_threadHasException)
-            {
-                throw _threadException;
-            }
-        }
-        else
-        {
-            AImage*        image;
-            media_status_t status = AImageReader_acquireLatestImage(_imageReader, &image);
-            if (status ==
-                AMEDIA_OK) //status may be unequal to media_ok if there is no new frame available, what is ok if we are very fast
-            {
-                //static int getFrameN = 0;
-                //LOG_NDKCAM_INFO("getLatestFrame: getFrameN %d", getFrameN++);
-
-                cv::Mat yuv = convertToYuv(image);
-                //now that the data is copied we have to delete the image
-                AImage_delete(image);
-
-                //make cropping, scaling and mirroring
-                sensFrame = processNewYuvImg(yuv);
-            }
-        }
-    }
-    return std::move(sensFrame);
-}
-
-void SENSNdkCamera::run()
-{
-    try
-    {
-        LOG_NDKCAM_INFO("run: thread started");
-        while (!_stopThread)
-        {
-            cv::Mat yuv;
-            {
-                std::unique_lock<std::mutex> lock(_threadInputMutex);
-                //wait until _yuvImgToProcess is valid or stop thread is required
-                auto condition = [&] {
-                    return (!_yuvImgToProcess.empty() || _stopThread);
-                };
-                _waitCondition.wait(lock, condition);
-
-                if (_stopThread)
-                {
-                    return;
-                }
-
-                if (!_yuvImgToProcess.empty())
-                    yuv = _yuvImgToProcess;
-            }
-
-            //static int imageConsumed = 0;
-            //LOG_NDKCAM_INFO("run: imageConsumed %d", imageConsumed++)
-
-            //make yuv to rgb conversion, cropping, scaling, mirroring, gray conversion
-            SENSFramePtr sensFrame = processNewYuvImg(yuv);
-
-            //move processing result to worker thread output
-            {
-                std::unique_lock<std::mutex> lock(_threadOutputMutex);
-                _processedFrame = std::move(sensFrame);
-            }
-        }
-    }
-    catch (std::exception& e)
-    {
-        LOG_NDKCAM_INFO("run: exception");
-        std::unique_lock<std::mutex> lock(_threadOutputMutex);
-        _threadException    = std::runtime_error(e.what());
-        _threadHasException = true;
-    }
-    catch (...)
-    {
-        LOG_NDKCAM_INFO("run: exception");
-        std::unique_lock<std::mutex> lock(_threadOutputMutex);
-        _threadException    = SENSException(SENSType::CAM, "Exception in worker thread!", __LINE__, __FILE__);
-        _threadHasException = true;
-    }
-
-    if (_stopThread)
-    {
-        LOG_NDKCAM_INFO("run: stopped thread");
-    }
-}
-
 void SENSNdkCamera::imageCallback(AImageReader* reader)
 {
     AImage*        image  = nullptr;
@@ -731,14 +532,12 @@ void SENSNdkCamera::imageCallback(AImageReader* reader)
 
         AImage_delete(image);
 
-        //move yuv image to worker thread input
-        {
-            // static int newImage = 0;
-            //LOG_NDKCAM_INFO("imageCallback: new image %d", newImage++);
-            std::lock_guard<std::mutex> lock(_threadInputMutex);
-            _yuvImgToProcess = yuv;
-        }
-        _waitCondition.notify_one();
+        cv::Mat      bgr;
+        HighResTimer t;
+        cv::cvtColor(yuv, bgr, cv::COLOR_YUV2BGR_NV21, 3);
+        SENS_DEBUG("SENSNdkCamera: time for yuv conversion: %f ms", t.elapsedTimeInMilliSec());
+
+        updateFrame(bgr, cv::Mat(), false);
     }
 }
 
@@ -977,7 +776,7 @@ const SENSCaptureProperties& SENSNdkCamera::captureProperties()
                                 {
                                     //we assume the image is cropped at one side only. we compare the sensor aspect ratio
                                     //with the image aspect ratio and use the uncropped length to estimate a focal length in pixel that fits to this stream configuration size
-                                    if((float)physicalSensorSizeMM.width / (float)physicalSensorSizeMM.height > (float)width / (float)height)
+                                    if ((float)physicalSensorSizeMM.width / (float)physicalSensorSizeMM.height > (float)width / (float)height)
                                         focalLengthPix = focalLengthsMM.front() / physicalSensorSizeMM.height * (float)height;
                                     else
                                         focalLengthPix = focalLengthsMM.front() / physicalSensorSizeMM.width * (float)width;

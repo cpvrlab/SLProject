@@ -38,13 +38,14 @@ const SLVec4f GrayDark = {60.f / 255.f, 60.f / 255.f, 60.f / 255.f, 1.f};
 
 //secondary colors
 //green:
-const SLVec4f GreenDark = {85.f / 255.f, 100.f / 255.f, 85.f / 255.f, 1.f};
-const SLVec4f GreenMean = {105.f / 255.f, 150.f / 255.f, 115.f / 255.f, 1.f};
+const SLVec4f GreenDark  = {85.f / 255.f, 100.f / 255.f, 85.f / 255.f, 1.f};
+const SLVec4f GreenMean  = {105.f / 255.f, 150.f / 255.f, 115.f / 255.f, 1.f};
 const SLVec4f GreenLight = {140.f / 255.f, 175.f / 255.f, 130.f / 255.f, 1.f};
 //blue:
-const SLVec4f BlueDark = {80.f / 255.f, 110.f / 255.f, 150.f / 255.f, 1.f};
-const SLVec4f BlueMean = {105.f / 255.f, 155.f / 255.f, 190.f / 255.f, 1.f};
-const SLVec4f BlueLight = {135.f / 255.f, 185.f / 255.f, 200.f / 255.f, 1.f};
+const SLVec4f BlueDark   = {80.f / 255.f, 110.f / 255.f, 150.f / 255.f, 1.f};
+const SLVec4f BlueMean   = {105.f / 255.f, 155.f / 255.f, 190.f / 255.f, 1.f};
+const SLVec4f BlueLight  = {135.f / 255.f, 185.f / 255.f, 200.f / 255.f, 1.f};
+const SLVec4f BlueImgui1 = {0.24f, 0.52f, 0.88f, 1.00f};
 //violett
 //ocker
 
@@ -55,11 +56,12 @@ namespace ErlebAR
 //erlebar location
 enum class LocationId
 {
-    NONE,
+    NONE = 0,
     AUGST,
     AVENCHES,
     BIEL,
-    BERN
+    BERN,
+    EVILARD
 };
 
 const char* mapLocationIdToName(LocationId id);
@@ -86,7 +88,10 @@ enum class AreaId
     BIEL_JACOB_ROSINUS,
     BIEL_LEUBRINGENBAHN,
     BIEL_RING,
-    BIEL_OFFICE
+    BIEL_OFFICE,
+    //EVILARD
+    EVILARD_ROC2,
+    EVILARD_FIREFIGHTERS
 };
 
 const char* mapAreaIdToName(AreaId id);
@@ -98,15 +103,13 @@ public:
 
     AreaId      id = AreaId::NONE;
     std::string name;
-    //x position in pixel (only valid for current map image)
-    int xPosPix = 0;
-    //y position in pixel (only valid for current map image)
-    int yPosPix = 0;
+    //lat lon altitude position in WGS84
+    SLVec3d llaPos;
     //view angle in degree
     float viewAngleDeg = 0.f;
     //map name in erlebAR directory
     std::string slamMapFileName;
-    std::string relocAlignImage;
+    std::string relocAlignImage = "dummy.jpg";
     std::string vocFileName;
     int         vocLayer;
     //WaiSlam extractor types
@@ -128,6 +131,11 @@ public:
     std::string name;
     //name of area map image in erlebAR directory
     std::string areaMapImageFileName;
+    //top left image corner in WGS84 (lla)
+    SLVec3d mapTLLla = {0, 0, 0};
+    //bottom right image corner in WGS84 (lla)
+    SLVec3d mapBRLla = {0, 0, 0};
+
     //map image display pixel width
     int                    dspPixWidth;
     std::map<AreaId, Area> areas;
@@ -137,8 +145,9 @@ public:
 //get definition of current locations and areas
 const Location defineLocationAugst();
 const Location defineLocationAvenches();
-const Location defineLocationChristoffel();
+const Location defineLocationBern();
 const Location defineLocationBiel();
+const Location defineLocationEvilard();
 
 const std::map<LocationId, Location> defineLocations();
 
@@ -166,7 +175,8 @@ enum class StateId
     TUTORIAL,
     ABOUT,
     SETTINGS,
-    CAMERA_TEST
+    CAMERA_TEST,
+    SENSOR_TEST
 };
 
 #endif //ERLEBAR_H
