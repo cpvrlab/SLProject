@@ -180,7 +180,6 @@ public:
 
     void stop() override;
 
-    //SENSFramePtr                 latestFrame() override;
     const SENSCaptureProperties& captureProperties() override;
 
 private:

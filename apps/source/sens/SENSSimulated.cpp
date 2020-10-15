@@ -320,25 +320,6 @@ void SENSSimulatedCamera::stop()
     }
 }
 
-/*
-SENSFramePtr SENSSimulatedCamera::latestFrame()
-{
-    cv::Mat newFrame;
-
-    {
-        std::lock_guard<std::mutex> lock(_frameMutex);
-        newFrame = _frame;
-        //_frame.release();
-    }
-
-    SENSFramePtr processedFrame;
-    if (!newFrame.empty())
-        processedFrame = postProcessNewFrame(newFrame, cv::Mat(), false);
-
-    return processedFrame;
-}
- */
-
 const SENSCaptureProperties& SENSSimulatedCamera::captureProperties()
 {
     if (!_captureProperties.size())
