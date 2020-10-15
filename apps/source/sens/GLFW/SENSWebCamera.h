@@ -18,25 +18,20 @@ public:
 
     const SENSCameraConfig& start(std::string                   deviceId,
                                   const SENSCameraStreamConfig& streamConfig,
-                                  cv::Size                      imgBGRSize           = cv::Size(),
-                                  bool                          mirrorV              = false,
-                                  bool                          mirrorH              = false,
-                                  bool                          convToGrayToImgManip = false,
-                                  int                           imgManipWidth        = -1,
-                                  bool                          provideIntrinsics    = true,
-                                  float                         fovDegFallbackGuess  = 65.f) override;
+                                  bool                          provideIntrinsics   = true,
+                                  float                         fovDegFallbackGuess = 65.f) override;
 
     void stop() override;
 
     const SENSCaptureProperties& captureProperties() override;
 
     void grab();
-    
+
 private:
     cv::VideoCapture _videoCapture;
-    
+
     std::atomic_bool _stop{false};
-    std::thread _cameraThread;
+    std::thread      _cameraThread;
 };
 
 #endif //SENS_WEBCAMERA_H

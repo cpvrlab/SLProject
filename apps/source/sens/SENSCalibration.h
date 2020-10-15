@@ -70,6 +70,65 @@ public:
                     const std::string& calibFileName,
                     bool               calcUndistortionMaps);
 
+    //destructor
+    ~SENSCalibration()
+    {
+    }
+    //copy constructor
+    SENSCalibration(const SENSCalibration& other)
+      : _cameraMat(other._cameraMat.clone()),
+        _distortion(other._distortion.clone()),
+        _cameraMatOrig(other._cameraMatOrig.clone()),
+        _imageSizeOrig(other._imageSizeOrig),
+        _state(other._state),
+        _cameraFovVDeg(other._cameraFovVDeg),
+        _cameraFovHDeg(other._cameraFovHDeg),
+        _calibFileName(other._calibFileName),
+        _calibFlags(other._calibFlags),
+        _isMirroredH(other._isMirroredH),
+        _isMirroredV(other._isMirroredV),
+        _numCaptured(other._numCaptured),
+        _boardSize(other._boardSize),
+        _boardSquareMM(other._boardSquareMM),
+        _reprojectionError(other._reprojectionError),
+        _imageSize(other._imageSize),
+        _camSizeIndex(other._camSizeIndex),
+        _undistortMapX(other._undistortMapX.clone()),
+        _undistortMapY(other._undistortMapY.clone()),
+        _cameraMatUndistorted(other._cameraMatUndistorted.clone()),
+        _calibrationTime(other._calibrationTime),
+        _computerInfos(other._computerInfos),
+        _camType(other._camType)
+    {
+    }
+    //copy assignment operator implicitly defined
+    SENSCalibration& operator=(const SENSCalibration& other)
+    {
+        _cameraMat            = other._cameraMat.clone();
+        _distortion           = other._distortion.clone();
+        _cameraMatOrig        = other._cameraMatOrig.clone();
+        _imageSizeOrig        = other._imageSizeOrig;
+        _state                = other._state;
+        _cameraFovVDeg        = other._cameraFovVDeg;
+        _cameraFovHDeg        = other._cameraFovHDeg;
+        _calibFileName        = other._calibFileName;
+        _calibFlags           = other._calibFlags;
+        _isMirroredH          = other._isMirroredH;
+        _isMirroredV          = other._isMirroredV;
+        _numCaptured          = other._numCaptured;
+        _boardSize            = other._boardSize;
+        _boardSquareMM        = other._boardSquareMM;
+        _reprojectionError    = other._reprojectionError;
+        _imageSize            = other._imageSize;
+        _camSizeIndex         = other._camSizeIndex;
+        _undistortMapX        = other._undistortMapX.clone();
+        _undistortMapY        = other._undistortMapY.clone();
+        _cameraMatUndistorted = other._cameraMatUndistorted.clone();
+        _calibrationTime      = other._calibrationTime;
+        _computerInfos        = other._computerInfos;
+        _camType              = other._camType;
+    }
+
     bool save(const std::string& calibDir,
               const std::string& calibFileName);
 
@@ -171,11 +230,11 @@ private:
     float       _cameraFovVDeg = 0.0f;                //!< Vertical field of view in degrees
     float       _cameraFovHDeg = 0.0f;                //!< Horizontal field of view in degrees
     std::string _calibFileName;                       //!< name for calibration file
-    int         _calibFlags  = 0;                     //!< OpenCV calibration flags
+    int         _calibFlags = 0;                      //!< OpenCV calibration flags
     //todo: not necessary if calibrated before mirroring postprocessing
-    bool        _isMirroredH = false;                 //!< Flag if image must be horizontally mirrored
+    bool _isMirroredH = false; //!< Flag if image must be horizontally mirrored
     //todo: not necessary if calibrated before mirroring postprocessing
-    bool        _isMirroredV = false;                 //!< Flag if image must be vertically mirrored
+    bool _isMirroredV = false; //!< Flag if image must be vertically mirrored
 
     //todo: maybe we dont need this here..
     int      _numCaptured = 0;           //!< NO. of images captured
@@ -205,6 +264,7 @@ private:
 
     static const int _CALIBFILEVERSION; //!< Global const file format version
 };
+
 //-----------------------------------------------------------------------------
 
 #endif // SENSCALIBRATION_H

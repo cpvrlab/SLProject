@@ -237,15 +237,15 @@ SENSSimulatedCamera::~SENSSimulatedCamera()
 
 const SENSCameraConfig& SENSSimulatedCamera::start(std::string                   deviceId,
                                                    const SENSCameraStreamConfig& streamConfig,
-/*
+                                                   /*
                                                    cv::Size                      imgBGRSize,
                                                    bool                          mirrorV,
                                                    bool                          mirrorH,
                                                    bool                          convToGrayToImgManip,
                                                    int                           imgManipWidth,
  */
-                                                   bool                          provideIntrinsics,
-                                                   float                         fovDegFallbackGuess)
+                                                   bool  provideIntrinsics,
+                                                   float fovDegFallbackGuess)
 {
     if (_started)
     {
@@ -299,7 +299,7 @@ const SENSCameraConfig& SENSSimulatedCamera::start(std::string                  
                                mirrorV,
                                convToGrayToImgManip
                                 */
-                                );
+    );
 
     initCalibration(fovDegFallbackGuess);
 
@@ -384,21 +384,7 @@ void SENSSimulatedCamera::feedSensorData(const int counter)
         prepareSensorData(counter);
     }
 
-    //todo: move to base class
-    {
-        std::lock_guard<std::mutex> lock(_listenerMutex);
-        if (_listeners.size())
-        {
-            SENSTimePt timePt = SENSClock::now();
-            for (SENSCameraListener* l : _listeners)
-                l->onFrame(timePt, _preparedFrame.clone());
-        }
-    }
-
-    {
-        std::lock_guard<std::mutex> lock(_frameMutex);
-        _frame = _preparedFrame;
-    }
+    updateFrame(_preparedFrame, cv::Mat(), false);
 
     SENS_DEBUG("feedSensorData %lld us", t.elapsedTimeInMicroSec());
 }

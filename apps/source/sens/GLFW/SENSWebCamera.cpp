@@ -12,11 +12,6 @@
 
 const SENSCameraConfig& SENSWebCamera::start(std::string                   deviceId,
                                              const SENSCameraStreamConfig& streamConfig,
-                                             cv::Size                      imgBGRSize,
-                                             bool                          mirrorV,
-                                             bool                          mirrorH,
-                                             bool                          convToGrayToImgManip,
-                                             int                           imgManipWidth,
                                              bool                          provideIntrinsics,
                                              float                         fovDegFallbackGuess)
 {
@@ -26,6 +21,7 @@ const SENSCameraConfig& SENSWebCamera::start(std::string                   devic
         return _config;
     }
 
+    /*
     cv::Size targetSize;
     if (imgBGRSize.width > 0 && imgBGRSize.height > 0)
     {
@@ -44,6 +40,8 @@ const SENSCameraConfig& SENSWebCamera::start(std::string                   devic
     else
         imgManipSize = targetSize;
 
+        */
+
     //retrieve all camera characteristics
     if (_captureProperties.size() == 0)
         captureProperties();
@@ -60,22 +58,15 @@ const SENSCameraConfig& SENSWebCamera::start(std::string                   devic
     if (!_videoCapture.isOpened())
         throw SENSException(SENSType::CAM, "Could not open camera with id: " + deviceId, __LINE__, __FILE__);
 
-    _videoCapture.set(cv::CAP_PROP_FRAME_WIDTH, targetSize.width);
-    _videoCapture.set(cv::CAP_PROP_FRAME_HEIGHT, targetSize.height);
+    _videoCapture.set(cv::CAP_PROP_FRAME_WIDTH, streamConfig.widthPix);
+    _videoCapture.set(cv::CAP_PROP_FRAME_HEIGHT, streamConfig.heightPix);
     _started           = true;
     _permissionGranted = true;
 
     //init config here
     _config = SENSCameraConfig(deviceId,
                                streamConfig,
-                               SENSCameraFocusMode::UNKNOWN,
-                               targetSize.width,
-                               targetSize.height,
-                               imgManipSize.width,
-                               imgManipSize.height,
-                               mirrorH,
-                               mirrorV,
-                               convToGrayToImgManip);
+                               SENSCameraFocusMode::UNKNOWN);
 
     initCalibration(fovDegFallbackGuess);
 

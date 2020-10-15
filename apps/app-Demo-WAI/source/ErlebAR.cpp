@@ -83,8 +83,8 @@ const Location defineLocationAugst()
 
     {
         Area area;
-        area.id              = AreaId::AUGST_TEMPLE_HILL_MARKER;
-        area.name            = mapAreaIdToName(area.id);
+        area.id   = AreaId::AUGST_TEMPLE_HILL_MARKER;
+        area.name = mapAreaIdToName(area.id);
         //todo: define lla on https://map.geo.admin.ch/
         area.llaPos          = {0, 0, 0};
         area.viewAngleDeg    = 120;
@@ -93,8 +93,8 @@ const Location defineLocationAugst()
     }
     {
         Area area;
-        area.id              = AreaId::AUGST_TEMPLE_HILL_THEATER_BOTTOM;
-        area.name            = mapAreaIdToName(area.id);
+        area.id   = AreaId::AUGST_TEMPLE_HILL_THEATER_BOTTOM;
+        area.name = mapAreaIdToName(area.id);
         //todo: define lla on https://map.geo.admin.ch/
         area.llaPos          = {0, 0, 0};
         area.viewAngleDeg    = -18;
@@ -115,8 +115,8 @@ const Location defineLocationAvenches()
 
     {
         Area area;
-        area.id              = AreaId::AVENCHES_AMPHITHEATER_ENTRANCE;
-        area.name            = mapAreaIdToName(area.id);
+        area.id   = AreaId::AVENCHES_AMPHITHEATER_ENTRANCE;
+        area.name = mapAreaIdToName(area.id);
         //todo: define lla on https://map.geo.admin.ch/
         area.llaPos          = {0, 0, 0};
         area.viewAngleDeg    = 170;
@@ -127,8 +127,8 @@ const Location defineLocationAvenches()
     }
     {
         Area area;
-        area.id              = AreaId::AVENCHES_AMPHITHEATER;
-        area.name            = mapAreaIdToName(area.id);
+        area.id   = AreaId::AVENCHES_AMPHITHEATER;
+        area.name = mapAreaIdToName(area.id);
         //todo: define lla on https://map.geo.admin.ch/
         area.llaPos          = {0, 0, 0};
         area.viewAngleDeg    = -18;
@@ -139,8 +139,8 @@ const Location defineLocationAvenches()
     }
     {
         Area area;
-        area.id              = AreaId::AVENCHES_CIGOGNIER;
-        area.name            = mapAreaIdToName(area.id);
+        area.id   = AreaId::AVENCHES_CIGOGNIER;
+        area.name = mapAreaIdToName(area.id);
         //todo: define lla on https://map.geo.admin.ch/
         area.llaPos          = {0, 0, 0};
         area.viewAngleDeg    = -140;
@@ -150,8 +150,8 @@ const Location defineLocationAvenches()
     }
     {
         Area area;
-        area.id              = AreaId::AVENCHES_THEATER;
-        area.name            = mapAreaIdToName(area.id);
+        area.id   = AreaId::AVENCHES_THEATER;
+        area.name = mapAreaIdToName(area.id);
         //todo: define lla on https://map.geo.admin.ch/
         area.llaPos          = {0, 0, 0};
         area.viewAngleDeg    = 50;
@@ -197,17 +197,17 @@ const Location defineLocationBiel()
     loc.dspPixWidth          = 800;
     {
         Area area;
-        area.id            = AreaId::BIEL_GERECHTIGKEITSBRUNNEN;
-        area.name          = mapAreaIdToName(area.id);
+        area.id   = AreaId::BIEL_GERECHTIGKEITSBRUNNEN;
+        area.name = mapAreaIdToName(area.id);
         //todo: define lla on https://map.geo.admin.ch/
-        area.llaPos          = {0, 0, 0};
+        area.llaPos        = {47.14248, 7.24310, 485};
         area.viewAngleDeg  = 10.f;
         loc.areas[area.id] = area;
     }
     {
         Area area;
-        area.id            = AreaId::BIEL_JACOB_ROSINUS;
-        area.name          = mapAreaIdToName(area.id);
+        area.id   = AreaId::BIEL_JACOB_ROSINUS;
+        area.name = mapAreaIdToName(area.id);
         //todo: define lla on https://map.geo.admin.ch/
         area.llaPos        = {0, 0, 0};
         area.viewAngleDeg  = 25.f;
@@ -215,8 +215,8 @@ const Location defineLocationBiel()
     }
     {
         Area area;
-        area.id            = AreaId::BIEL_LEUBRINGENBAHN;
-        area.name          = mapAreaIdToName(area.id);
+        area.id   = AreaId::BIEL_LEUBRINGENBAHN;
+        area.name = mapAreaIdToName(area.id);
         //todo: define lla on https://map.geo.admin.ch/
         area.llaPos        = {0, 0, 0};
         area.viewAngleDeg  = 60.f;
@@ -224,8 +224,8 @@ const Location defineLocationBiel()
     }
     {
         Area area;
-        area.id           = AreaId::BIEL_RING;
-        area.name         = mapAreaIdToName(area.id);
+        area.id   = AreaId::BIEL_RING;
+        area.name = mapAreaIdToName(area.id);
         //todo: define lla on https://map.geo.admin.ch/
         area.llaPos       = {0, 0, 0};
         area.viewAngleDeg = 110.f;
@@ -236,8 +236,8 @@ const Location defineLocationBiel()
     }
     {
         Area area;
-        area.id            = AreaId::BIEL_SOUTHWALL;
-        area.name          = mapAreaIdToName(area.id);
+        area.id   = AreaId::BIEL_SOUTHWALL;
+        area.name = mapAreaIdToName(area.id);
         //todo: define lla on https://map.geo.admin.ch/
         area.llaPos        = {0, 0, 0};
         area.viewAngleDeg  = 270.f;
@@ -245,8 +245,8 @@ const Location defineLocationBiel()
     }
     {
         Area area;
-        area.id                      = AreaId::BIEL_OFFICE;
-        area.name                    = mapAreaIdToName(area.id);
+        area.id   = AreaId::BIEL_OFFICE;
+        area.name = mapAreaIdToName(area.id);
         //todo: define lla on https://map.geo.admin.ch/
         area.llaPos                  = {0, 0, 0};
         area.viewAngleDeg            = 20.f;
@@ -270,8 +270,8 @@ const Location defineLocationEvilard()
     loc.dspPixWidth          = 2000;
     {
         Area area;
-        area.id                      = AreaId::EVILARD_ROC2;
-        area.name                    = mapAreaIdToName(area.id);
+        area.id   = AreaId::EVILARD_ROC2;
+        area.name = mapAreaIdToName(area.id);
         //todo: define lla on https://map.geo.admin.ch/
         area.llaPos                  = {47.14888, 7.23343, 727.3};
         area.viewAngleDeg            = 90.f;
@@ -283,10 +283,10 @@ const Location defineLocationEvilard()
     }
     {
         Area area;
-        area.id                      = AreaId::EVILARD_FIREFIGHTERS;
-        area.name                    = mapAreaIdToName(area.id);
+        area.id   = AreaId::EVILARD_FIREFIGHTERS;
+        area.name = mapAreaIdToName(area.id);
         //todo: define lla on https://map.geo.admin.ch/
-        area.llaPos                  = {47.14867, 7.23291, 725.9 };
+        area.llaPos                  = {47.14867, 7.23291, 725.9};
         area.viewAngleDeg            = -150.f;
         area.slamMapFileName         = "locations/evilard/firefighters/maps/DEVELOPMENT-map_20200918-100317_evilard_firefighters_FAST-ORBS-2000_2.waimap";
         area.relocAlignImage         = "locations/evilard/firefighters/relocAlignImg.jpg";

@@ -200,14 +200,13 @@ void SENSCameraBase::updateFrame(cv::Mat bgrImg, cv::Mat intrinsics, bool intrin
         }
     }
 
-    //SENSFramePtr sensFrame;
-    //SENSFramePtr sensFrame = postProcessNewFrame(bgrImg, intrinsics, intrinsicsChanged);
     {
         std::lock_guard<std::mutex> lock(_frameMutex);
-        if(intrinsicsChanged)
+        _frame = std::make_shared<SENSFrameBase>(bgrImg, intrinsics);
+        if (intrinsicsChanged)
         {
             _intrinsicsChanged = true;
-            _intrinsics = intrinsics;
+            _intrinsics        = intrinsics;
         }
     }
 }
@@ -354,6 +353,6 @@ SENSFramePtr SENSCvCamera::processNewFrame(cv::Mat& bgrImg, cv::Mat intrinsics, 
                                                          _config.mirrorV,
                                                          1 / scale,
                                                          intrinsics);
-    
+
     return sensFrame;
 }

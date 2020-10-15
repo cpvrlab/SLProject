@@ -63,7 +63,7 @@ struct SENSCameraStreamConfig
     //bool intrinsicsProvided = false;
     //float minFrameRate = 0.f;
     //float maxFrameRate = 0.f;
-    
+
     //todo: facing
 };
 
@@ -342,9 +342,9 @@ public:
 
     bool start(const cv::Size& cameraFrameTargetSize)
     {
-        if(!_camera)
+        if (!_camera)
             return false;
-        
+
         int trackingImgW = 640;
         //float targetWdivH   = 4.f / 3.f;
         float targetWdivH   = (float)cameraFrameTargetSize.width / (float)cameraFrameTargetSize.height;
@@ -369,6 +369,7 @@ public:
                                *streamConfig,
                                true,
                                65.f);
+                updateCalibration();
             }
             catch (...)
             {
@@ -394,6 +395,7 @@ public:
                                    *streamConfig,
                                    true,
                                    52.5f);
+                    updateCalibration();
                 }
                 catch (...)
                 {
@@ -437,25 +439,25 @@ public:
 
     //get camera pointer reference
     SENSCamera*& cameraRef() { return _camera; }
-    
+
     const SENSCalibration* const calibration() const
     {
         return _calibrationTargetSize.get();
     }
-    
+
     cv::Mat scaledCameraMat()
     {
         return SENS::adaptCameraMat(_calibrationTargetSize->cameraMat(),
-                                                    _config.manipWidth,
-                                                    _config.targetWidth);
+                                    _config.manipWidth,
+                                    _config.targetWidth);
     }
-    
+
     //guess a calibration from what we know and update all derived calibration
     //(fallback is used if camera api defines no fov value)
     void guessAndSetCalibration(float fallbackHorizFov)
     {
         assert(_camera);
-        
+
         auto  streamConfig = _camera->config().streamConfig;
         float horizFovDeg  = 65.f;
         if (streamConfig.focalLengthPix > 0)
@@ -465,23 +467,29 @@ public:
         SENSCalibration calib(cv::Size(streamConfig.widthPix, streamConfig.heightPix), horizFovDeg, false, false, SENSCameraType::BACKFACING, Utils::ComputerInfos::get());
         setCalibration(calib, false);
     }
-    
+
     void setCalibration(SENSCalibration calibration, bool buildUndistortionMaps)
     {
         assert(_camera);
-        
+
         //set calibration in SENSCamera
         _camera->setCalibration(calibration, buildUndistortionMaps);
         //set calibration in SENSCvCamera
-        
+        updateCalibration();
     }
 
 private:
+    void updateCalibration()
+    {
+        _calibrationTargetSize = std::make_unique<SENSCalibration>(*_camera->calibration());
+        _calibrationTargetSize->adaptForNewResolution(cv::Size(), _camera->calibration()->undistortMapsValid());
+    }
+
     SENSFramePtr processNewFrame(cv::Mat& bgrImg, cv::Mat intrinsics, bool intrinsicsChanged);
 
     SENSCamera*        _camera;
     SENSCvCameraConfig _config;
-    
+
     //calibration that fits to (targetWidth,targetHeight)
     std::unique_ptr<SENSCalibration> _calibrationTargetSize;
 };
