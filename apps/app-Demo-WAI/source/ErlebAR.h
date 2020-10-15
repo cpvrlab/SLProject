@@ -56,11 +56,12 @@ namespace ErlebAR
 //erlebar location
 enum class LocationId
 {
-    NONE,
+    NONE = 0,
     AUGST,
     AVENCHES,
     BIEL,
-    BERN
+    BERN,
+    EVILARD
 };
 
 const char* mapLocationIdToName(LocationId id);
@@ -87,7 +88,10 @@ enum class AreaId
     BIEL_JACOB_ROSINUS,
     BIEL_LEUBRINGENBAHN,
     BIEL_RING,
-    BIEL_OFFICE
+    BIEL_OFFICE,
+    //EVILARD
+    EVILARD_ROC2,
+    EVILARD_FIREFIGHTERS
 };
 
 const char* mapAreaIdToName(AreaId id);
@@ -99,15 +103,13 @@ public:
 
     AreaId      id = AreaId::NONE;
     std::string name;
-    //x position in pixel (only valid for current map image)
-    int xPosPix = 0;
-    //y position in pixel (only valid for current map image)
-    int yPosPix = 0;
+    //lat lon altitude position in WGS84
+    SLVec3d llaPos;
     //view angle in degree
     float viewAngleDeg = 0.f;
     //map name in erlebAR directory
     std::string slamMapFileName;
-    std::string relocAlignImage;
+    std::string relocAlignImage = "dummy.jpg";
     std::string vocFileName;
     int         vocLayer;
     //WaiSlam extractor types
@@ -129,6 +131,11 @@ public:
     std::string name;
     //name of area map image in erlebAR directory
     std::string areaMapImageFileName;
+    //top left image corner in WGS84 (lla)
+    SLVec3d mapTLLla = {0, 0, 0};
+    //bottom right image corner in WGS84 (lla)
+    SLVec3d mapBRLla = {0, 0, 0};
+
     //map image display pixel width
     int                    dspPixWidth;
     std::map<AreaId, Area> areas;
@@ -138,8 +145,9 @@ public:
 //get definition of current locations and areas
 const Location defineLocationAugst();
 const Location defineLocationAvenches();
-const Location defineLocationChristoffel();
+const Location defineLocationBern();
 const Location defineLocationBiel();
+const Location defineLocationEvilard();
 
 const std::map<LocationId, Location> defineLocations();
 

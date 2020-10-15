@@ -17,6 +17,13 @@ set(erlebar_headers
 	${SL_PROJECT_ROOT}/apps/source/sens/SENSCalibration.h
 	${SL_PROJECT_ROOT}/apps/source/sens/SENSCalibrationEstimator.h
 	${SL_PROJECT_ROOT}/apps/source/sens/SENSGps.h
+	${SL_PROJECT_ROOT}/apps/source/sens/SENSOrientation.h
+	${SL_PROJECT_ROOT}/apps/source/sens/SENSRecorder.h
+	${SL_PROJECT_ROOT}/apps/source/sens/SENSRecorderDataHandler.h
+	${SL_PROJECT_ROOT}/apps/source/sens/SENSSimulator.h
+	${SL_PROJECT_ROOT}/apps/source/sens/SENSSimulated.h
+	${SL_PROJECT_ROOT}/apps/source/sens/SENSSimClock.h
+	${SL_PROJECT_ROOT}/apps/source/sens/SENSSimHelper.h
 	${SL_PROJECT_ROOT}/apps/source/sm/Event.h
 	${SL_PROJECT_ROOT}/apps/source/sm/EventData.h
 	${SL_PROJECT_ROOT}/apps/source/sm/EventHandler.h
@@ -37,6 +44,7 @@ set(erlebar_headers
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/LocationMapGui.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/CameraTestGui.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/SensorTestGui.h
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/SimHelperGui.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiAutoCalibration.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiError.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiInfosFrameworks.h
@@ -71,6 +79,9 @@ set(erlebar_headers
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiUtils.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/ErlebAREvents.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/ImageBuffer.h
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GPSMapper2D.h
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/UserGuidance.h
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/VideoBackgroundCamera.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/View.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/SelectionView.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/TestView.h
@@ -87,6 +98,7 @@ set(erlebar_headers
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/SensorTestView.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/scenes/CameraOnlyScene.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/scenes/AppWAIScene.h
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/scenes/UserGuidanceScene.h
 	)
 	
 set(erlebar_sources
@@ -101,6 +113,12 @@ set(erlebar_sources
 	${SL_PROJECT_ROOT}/apps/source/sens/SENSCalibration.cpp
 	${SL_PROJECT_ROOT}/apps/source/sens/SENSCalibrationEstimator.cpp
 	${SL_PROJECT_ROOT}/apps/source/sens/SENSGps.cpp
+	${SL_PROJECT_ROOT}/apps/source/sens/SENSOrientation.cpp
+	${SL_PROJECT_ROOT}/apps/source/sens/SENSRecorder.cpp
+	${SL_PROJECT_ROOT}/apps/source/sens/SENSRecorderDataHandler.cpp
+	${SL_PROJECT_ROOT}/apps/source/sens/SENSSimulator.cpp
+	${SL_PROJECT_ROOT}/apps/source/sens/SENSSimulated.cpp
+	${SL_PROJECT_ROOT}/apps/source/sens/SENSSimHelper.cpp
 	${SL_PROJECT_ROOT}/apps/source/sm/StateMachine.cpp
 	
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/AppDemoWaiGui.cpp
@@ -117,6 +135,7 @@ set(erlebar_sources
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/LocationMapGui.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/CameraTestGui.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/SensorTestGui.cpp
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/SimHelperGui.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiAutoCalibration.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiError.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiInfosFrameworks.cpp
@@ -145,6 +164,8 @@ set(erlebar_sources
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/MapPointEdition.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/ErlebARApp.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/WAIAutoCalibration.cpp
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GPSMapper2D.cpp
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/UserGuidance.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/View.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/SelectionView.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/TestView.cpp
@@ -161,6 +182,7 @@ set(erlebar_sources
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/SensorTestView.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/scenes/CameraOnlyScene.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/scenes/AppWAIScene.cpp
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/scenes/UserGuidanceScene.cpp
 	)
 	
 set(erlebar_include_directories

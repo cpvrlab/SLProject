@@ -57,11 +57,13 @@ void ErlebARApp::init(int                scrWidth,
                       const std::string& dataDir,
                       const std::string& writableDir,
                       SENSCamera*        camera,
-                      SENSGps*           gps)
+                      SENSGps*           gps,
+                      SENSOrientation*   orientation)
 {
     //store camera so we can stop on terminate
-    _camera = camera;
-    _gps    = gps;
+    _camera      = camera;
+    _gps         = gps;
+    _orientation = orientation;
     addEvent(new InitEvent("ErlebARApp::init()", scrWidth, scrHeight, dpi, dataDir, writableDir));
 }
 
@@ -126,6 +128,8 @@ std::string ErlebARApp::getPrintableState(unsigned int state)
             return "SETTINGS";
         case StateId::CAMERA_TEST:
             return "CAMERA_TEST";
+        case StateId::SENSOR_TEST:
+            return "SENSOR_TEST";
         default: {
             std::stringstream ss;
             ss << "Undefined state or missing string in ErlebARApp::getPrintableState for id: " << state << "!";
@@ -249,7 +253,9 @@ void ErlebARApp::WELCOME(const sm::NoEventData* data, const bool stateEntry, con
                                                    _inputManager,
                                                    *_imGuiEngine,
                                                    *_resources,
-                                                   *_dd);
+                                                   *_dd,
+                                                   _gps,
+                                                   _orientation);
         }
 
         if (!_areaInfoView)
@@ -268,6 +274,8 @@ void ErlebARApp::WELCOME(const sm::NoEventData* data, const bool stateEntry, con
                                                      *_imGuiEngine,
                                                      *_resources,
                                                      _camera,
+                                                     _gps,
+                                                     _orientation,
                                                      *_dd);
         }
     }
@@ -432,12 +440,18 @@ void ErlebARApp::TEST_RUNNER(const sm::NoEventData* data, const bool stateEntry,
 void ErlebARApp::LOCATION_MAP(const ErlebarEventData* data, const bool stateEntry, const bool stateExit)
 {
     if (stateExit)
+    {
+        _locationMapView->onHide();
         return;
+    }
 
     if (stateEntry)
     {
         if (data)
+        {
             _locationMapView->initLocation(data->location);
+        }
+        _locationMapView->onShow();
     }
 
     _locationMapView->update();
@@ -470,11 +484,14 @@ void ErlebARApp::AREA_INFO(const AreaEventData* data, const bool stateEntry, con
 void ErlebARApp::AREA_TRACKING(const AreaEventData* data, const bool stateEntry, const bool stateExit)
 {
     if (stateExit)
+    {
+        _areaTrackingView->onHide();
         return;
+    }
 
     if (stateEntry)
     {
-        _areaTrackingView->show();
+        _areaTrackingView->onShow();
     }
 
     _areaTrackingView->update();
@@ -565,6 +582,8 @@ void ErlebARApp::SENSOR_TEST(const sm::NoEventData* data, const bool stateEntry,
                                                  *_imGuiEngine,
                                                  *_resources,
                                                  _gps,
+                                                 _orientation,
+                                                 _camera,
                                                  *_dd);
         }
 

@@ -7,6 +7,7 @@
 #include <SensorTestGui.h>
 #include <ErlebAR.h>
 #include <sens/SENSGps.h>
+#include <sens/SENSOrientation.h>
 
 class SensorTestView : public SLSceneView
 {
@@ -16,6 +17,8 @@ public:
                    const ImGuiEngine&  imGuiEngine,
                    ErlebAR::Resources& resources,
                    SENSGps*            sensGps,
+                   SENSOrientation*    sensOrientation,
+                   SENSCamera*         sensCamera,
                    const DeviceData&   deviceData);
     bool update();
 
@@ -25,7 +28,8 @@ public:
 
 private:
     SensorTestGui     _gui;
-    SENSGps*          _gps = nullptr;
+    SENSGps*          _gps         = nullptr;
+    SENSOrientation*  _orientation = nullptr;
     const DeviceData& _deviceData;
 };
 

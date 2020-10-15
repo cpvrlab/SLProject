@@ -66,8 +66,8 @@ void AppWAIScene::rebuild(std::string location, std::string area)
     name("Track Keyframe based Features");
     info("Example for loading an existing pose graph with map points.");
 
-    _root3D           = new SLNode("scene");
-    cameraNode        = new SLCamera("Camera 1");
+    _root3D    = new SLNode("scene");
+
     mapNode           = new SLNode("map");
     mapPC             = new SLNode("MapPC");
     mapMatchedPC      = new SLNode("MapMatchedPC");
@@ -105,9 +105,6 @@ void AppWAIScene::rebuild(std::string location, std::string area)
     loopEdgesMat = new SLMaterial(&assets, "loopEdgesMat", SLCol4f::RED);
     loopEdgesMat->program(new SLGLGenericProgram(&assets, _dataDir + "shaders/ColorUniform.vert", _dataDir + "shaders/Color.frag"));
 
-    _videoImage = new SLGLTexture(&assets, _dataDir + "images/textures/LiveVideoError.png", GL_LINEAR, GL_LINEAR);
-    cameraNode->background().texture(_videoImage, false);
-
     // Create directional light for the sun light
     SLLightDirect* light1 = new SLLightDirect(&assets, this, 5.0f);
     light1->powers(1.0f, 1.0f, 1.0f);
@@ -117,6 +114,14 @@ void AppWAIScene::rebuild(std::string location, std::string area)
     _root3D->addChild(light1);
     // Let the sun be rotated by time and location
     //SLApplication::devLoc.sunLightNode(light1);
+
+    camera = new VideoBackgroundCamera("AppWAIScene Camera", _dataDir + "images/textures/LiveVideoError.png");
+    camera->translation(0, 0, 0.f);
+    camera->lookAt(0, 0, 1);
+    //for tracking we have to use the field of view from calibration
+    camera->clipNear(0.1f);
+    camera->clipFar(1000.0f); // Increase to infinity?
+    camera->setInitialState();
 
     HighResTimer t;
     if (location == "avenches" || location == "Avenches")
@@ -230,6 +235,7 @@ void AppWAIScene::rebuild(std::string location, std::string area)
     }
     else if (location == "Biel" || location == "biel")
     {
+        /*
         std::string modelPath = _dataDir + "erleb-AR/models/bern/Bern-Bahnhofsplatz.fbx";
         Utils::log("AppWAIScene", "loading model from path: %s", modelPath.c_str());
         SLAssimpImporter importer;
@@ -257,9 +263,10 @@ void AppWAIScene::rebuild(std::string location, std::string area)
 
         _root3D->addChild(augmentationRoot);
 
+         */
         //adjust camera frustum
-        cameraNode->clipNear(1.0f);
-        cameraNode->clipFar(10.0f);
+        camera->clipNear(1.0f);
+        camera->clipFar(10.0f);
     }
 
 #if 0 // office table boxes scene
@@ -314,15 +321,6 @@ void AppWAIScene::rebuild(std::string location, std::string area)
 #endif
     Utils::log("LoadingTime", "model loading time: %f ms", t.elapsedTimeInMilliSec());
 
-    //boxNode->addChild(axisNode);
-
-    cameraNode->translation(0, 0, 0.1f);
-    cameraNode->lookAt(0, 0, 0);
-    //for tracking we have to use the field of view from calibration
-    cameraNode->clipNear(0.001f);
-    cameraNode->clipFar(1000000.0f); // Increase to infinity?
-    cameraNode->setInitialState();
-
     mapNode->addChild(mapPC);
     mapNode->addChild(mapMatchedPC);
     mapNode->addChild(mapLocalPC);
@@ -331,7 +329,7 @@ void AppWAIScene::rebuild(std::string location, std::string area)
     mapNode->addChild(covisibilityGraph);
     mapNode->addChild(spanningTree);
     mapNode->addChild(loopEdges);
-    mapNode->addChild(cameraNode);
+    mapNode->addChild(camera);
 
     mapNode->rotate(180, 1, 0, 0);
 
@@ -390,17 +388,7 @@ void AppWAIScene::updateCameraPose(const cv::Mat& pose)
                  -PoseInv.at<float>(3, 2),
                  PoseInv.at<float>(3, 3));
 
-    cameraNode->om(om);
-}
-
-void AppWAIScene::updateVideoImage(const cv::Mat& image)
-{
-    _videoImage->copyVideoImage(image.cols,
-                                image.rows,
-                                CVImage::cv2glPixelFormat(image.type()),
-                                image.data,
-                                image.isContinuous(),
-                                true);
+    camera->om(om);
 }
 
 void AppWAIScene::renderMapPoints(const std::vector<WAIMapPoint*>& pts)

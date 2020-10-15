@@ -104,7 +104,9 @@ bool downloadFileLatestVersion(const string& fileDir,
 {
     bool   success = true;
     ftplib ftp;
-
+    //enable active mode
+    ftp.SetConnmode(ftplib::connmode::port);
+    
     if (ftp.Connect(ftpHost.c_str()))
     {
         if (ftp.Login(ftpUser.c_str(), ftpPwd.c_str()))

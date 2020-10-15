@@ -18,6 +18,7 @@
 #include <sens/SENSGps.h>
 #include <DeviceData.h>
 #include <GLFW/glfw3.h>
+#include <sens/SENSSimulator.h>
 
 static ErlebARApp app;
 
@@ -25,8 +26,8 @@ static ErlebARApp app;
 // GLobal application variables
 static GLFWwindow* window;                                         //!< The global glfw window handle
 static SLint       svIndex;                                        //!< SceneView index
-static SLint       scrWidth  = 640;                                //!< Window width at start up
-static SLint       scrHeight = 480;                                //!< Window height at start up
+static SLint       scrWidth  = 1920;                               //!< Window width at start up
+static SLint       scrHeight = 1080;                               //!< Window height at start up
 static SLfloat     scrWdivH  = (float)scrWidth / (float)scrHeight; //!< aspect ratio screen width divided by height
 static SLint       startX;                                         //!< start position x in pixels
 static SLint       startY;                                         //!< start position y in pixels
@@ -42,6 +43,22 @@ static SLbool      fullscreen        = false;                      //!< flag if 
 static int         dpi;
 static bool        appShouldClose = false;
 static int         longTouchMS    = 500;
+
+//-----------------------------------------------------------------------------
+int getDpi()
+{
+    const float  inchPerMM = 0.0393701;
+    float        scaleX = 0, scaleY = 0;
+    GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+    glfwGetMonitorContentScale(monitor, &scaleX, &scaleY);
+    int widthMM, heightMM;
+    glfwGetMonitorPhysicalSize(monitor, &widthMM, &heightMM);
+    const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+
+    float widthDpi = (float)mode->width / (float)widthMM / inchPerMM * scaleY;
+
+    return (int)widthDpi;
+}
 //-----------------------------------------------------------------------------
 /*!
 onClose event handler for deallocation of the scene & sceneview. onClose is
@@ -483,7 +500,8 @@ void GLFWInit()
     GET_GL_ERROR;
 
     // Set your own physical screen dpi
-    dpi = 96;
+    dpi = getDpi();
+
     std::cout << "------------------------------------------------------------------" << endl;
     std::cout << "GUI             : GLFW (Version: " << GLFW_VERSION_MAJOR << "." << GLFW_VERSION_MINOR << "." << GLFW_VERSION_REVISION << ")" << endl;
     std::cout << "DPI             : " << dpi << endl;
@@ -512,18 +530,66 @@ int main(int argc, char* argv[])
 {
     GLFWInit();
 
+    bool simulateSensors = false;
+    bool useDummyGps     = false;
     try
     {
-        std::unique_ptr<SENSWebCamera> webCamera = std::make_unique<SENSWebCamera>();
-        std::unique_ptr<SENSDummyGps>  gps       = std::make_unique<SENSDummyGps>(47.142472, 7.243057, 300);
+        std::unique_ptr<SENSSimulator> sensSim;
+        std::unique_ptr<SENSWebCamera> webCamera;
+        std::unique_ptr<SENSDummyGps>  dummyGps;
+
+        SENSOrientation* orientation = nullptr;
+        SENSGps*         gps         = nullptr;
+        SENSCamera*      camera      = nullptr;
+        if (simulateSensors)
+        {
+            std::string simDir = Utils::getAppsWritableDir() + "SENSSimData/20201005-174027_SENSRecorder";
+            sensSim            = std::make_unique<SENSSimulator>(simDir);
+            gps                = sensSim->getGpsSensorPtr();
+            orientation        = sensSim->getOrientationSensorPtr();
+            camera             = sensSim->getCameraSensorPtr();
+        }
+        else
+        {
+            webCamera = std::make_unique<SENSWebCamera>();
+            camera    = webCamera.get();
+
+            if (useDummyGps)
+            {
+                dummyGps             = std::make_unique<SENSDummyGps>();
+                SENSGps::Location tl = {47.14290, 7.24225, 506.3, 10.0f};
+                SENSGps::Location br = {47.14060, 7.24693, 434.3, 1.0f};
+
+                //interpolate n values
+                int    n    = 10;
+                double latD = (br.latitudeDEG - tl.latitudeDEG) / n;
+                double lonD = (br.longitudeDEG - tl.longitudeDEG) / n;
+                double altD = (br.altitudeM - tl.altitudeM) / n;
+                double accD = (br.accuracyM - tl.accuracyM) / n;
+
+                dummyGps->addDummyPos(tl);
+                for (int i = 1; i < n; ++i)
+                {
+                    SENSGps::Location loc;
+                    loc.latitudeDEG  = tl.latitudeDEG + i * latD;
+                    loc.longitudeDEG = tl.longitudeDEG + i * lonD;
+                    loc.altitudeM    = tl.altitudeM + i * altD;
+                    loc.accuracyM    = tl.accuracyM + i * accD;
+                    dummyGps->addDummyPos(loc);
+                }
+                dummyGps->addDummyPos(br);
+                gps = dummyGps.get();
+            }
+        }
 
         app.init(scrWidth,
                  scrHeight,
                  dpi,
                  std::string(SL_PROJECT_ROOT) + "/data/",
                  Utils::getAppsWritableDir(),
-                 webCamera.get(),
-                 gps.get());
+                 camera,
+                 gps,
+                 orientation);
         app.setCloseAppCallback(closeAppCallback);
 
         glfwSetWindowTitle(window, "ErlebAR");

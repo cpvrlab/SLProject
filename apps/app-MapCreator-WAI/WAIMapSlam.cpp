@@ -252,7 +252,7 @@ bool WAIMapSlam::update2(cv::Mat& imageGray)
     return isTracking();
 }
 
-void WAIMapSlam::drawInfo(cv::Mat& imageRGB,
+void WAIMapSlam::drawInfo(cv::Mat& imageBGR,
                        float    scale,
                        bool     showInitLine,
                        bool     showKeyPoints,
@@ -263,19 +263,19 @@ void WAIMapSlam::drawInfo(cv::Mat& imageRGB,
     if (_state == WAI::TrackingState_Initializing)
     {
         if (showInitLine)
-            drawInitInfo(_iniData, _lastFrame, imageRGB, scale);
+            drawInitInfo(_iniData, _lastFrame, imageBGR, scale);
     }
     else if (_state == WAI::TrackingState_TrackingOK)
     {
         if (showKeyPoints)
-            drawKeyPointInfo(_lastFrame, imageRGB, scale);
+            drawKeyPointInfo(_lastFrame, imageBGR, scale);
         if (showKeyPointsMatched)
-            drawKeyPointMatches(_lastFrame, imageRGB, scale);
+            drawKeyPointMatches(_lastFrame, imageBGR, scale);
     }
     else if (_state == WAI::TrackingState_TrackingLost)
     {
         if (showKeyPoints)
-            drawKeyPointInfo(_lastFrame, imageRGB, scale);
+            drawKeyPointInfo(_lastFrame, imageBGR, scale);
     }
 }
 

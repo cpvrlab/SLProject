@@ -16,12 +16,10 @@ public class SENSGps {
     LocationManager _locationManager;
     SENSLocationListener _locationListener;
     boolean _isRunning = false;
-    //long _gpsClassPtr;
 
     //set java activity context
     public void init(Context context) {
         _context = context;
-        //_gpsClassPtr = gpsClassPtr;
     }
 
     @SuppressWarnings("ResourceType")
@@ -40,10 +38,10 @@ public class SENSGps {
             _locationManager = (LocationManager) _context.getSystemService(Context.LOCATION_SERVICE);
         }
         if (_locationListener == null) {
-            _locationListener = new SENSLocationListener(_context);
+            _locationListener = new SENSLocationListener();
         }
 
-        if (_locationManager != null && _locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
+        if (_locationManager != null && _locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             Log.i("SENSGps", "Requesting GPS location updates");
 
             _isRunning = true;
@@ -70,7 +68,13 @@ public class SENSGps {
 
         if (_locationListener != null) {
             Log.d("SENSGps", "Removing locationManager updates");
-            _locationManager.removeUpdates(_locationListener);
+
+            Activity activity = (Activity)_context;
+            activity.runOnUiThread(new Runnable() {
+                public void run() {
+                    _locationManager.removeUpdates(_locationListener);
+                }
+            });
         }
         _isRunning = false;
     }
@@ -81,18 +85,6 @@ public class SENSGps {
 class SENSLocationListener implements LocationListener {
 
     private static final String TAG = "SENSGps";
-    protected String latestHdop;
-    protected String latestPdop;
-    protected String latestVdop;
-    protected String geoIdHeight;
-    protected String ageOfDgpsData;
-    protected String dgpsId;
-    protected int satellitesUsedInFix;
-    Context _context;
-
-    public SENSLocationListener(Context context) {
-        _context = context;
-    }
 
     @Override
     public void onLocationChanged(Location loc) {

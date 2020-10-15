@@ -176,6 +176,13 @@ GLuint loadTexture(std::string fileName, bool flipX, bool flipY, float targetWdi
     return id;
 }
 
+GLuint generateTexture(int& textureW, int& textureH)
+{
+    GLuint id = 0;
+    
+    return id;
+}
+
 GLuint loadTexture(std::string fileName, bool flipX, bool flipY, float targetWdivH, int& textureW, int& textureH)
 {
     GLuint id = 0;

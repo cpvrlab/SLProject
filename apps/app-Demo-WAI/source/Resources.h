@@ -116,8 +116,8 @@ public:
     float areaPoseButtonCircleRadius = 0.2f;
 
     //other:
-    // percental standard text height relative to screen height
-    float textStandardH = 0.05f;
+    // text height in mm
+    float textStandardHMM = 3.8f;
     // percental heading text height relative to screen height
     float  textHeadingH      = 0.07f;
     ImVec4 textStandardColor = {BFHColors::GrayDark.r,
@@ -156,7 +156,7 @@ public:
     Fonts();
     ~Fonts();
 
-    void load(std::string fontDir, const Style& style, int screenH);
+    void load(std::string fontDir, const Style& style, int screenH, int dpi);
 
     ImFont* headerBar{nullptr};  //font in header bars
     ImFont* standard{nullptr};   //e.g. about, widgets text
@@ -200,53 +200,57 @@ public:
     const char* language() const { return _language.c_str(); }
     const char* develMode() const { return _develMode.c_str(); }
 
+    const char* cameraStartError() const { return _cameraStartError.c_str(); }
+
+    //info text
+    //bern:
+    const char* bernInfoHeading1() const { return _bernInfoHeading1.c_str(); }
+    const char* bernInfoText1() const { return _bernInfoText1.c_str(); }
+    const char* bernInfoHeading2() const { return _bernInfoHeading2.c_str(); }
+    const char* bernInfoText2() const { return _bernInfoText2.c_str(); }
+
+    //tracking view user guidance
+    const char* ugInfoReloc() const { return _ugInfoReloc.c_str(); }
+    const char* ugInfoRelocWrongOrient() const { return _ugInfoRelocWrongOrient.c_str(); }
+    const char* ugInfoDirArrow() const { return _ugInfoDirArrow.c_str(); }
+    
     void load(std::string fileName);
 
 protected:
     //static void loadString(const cv::FileStorage& fs, const std::string& name, std::string& target);
 
-    std::string _id;
+    std::string _id = "English";
 
     //selection
     std::string _augst    = "Augst";
     std::string _avenches = "Avenches";
     std::string _bern     = "Bern";
     std::string _biel     = "Biel";
-    std::string _settings;
-    std::string _about;
-    std::string _tutorial;
+    std::string _settings = "Settings";
+    std::string _about    = "About";
+    std::string _tutorial = "Tutorial";
     //about
-    std::string _general;
-    std::string _generalContent;
-    std::string _developers;
-    std::string _developerNames;
+    std::string _general        = "General";
+    std::string _generalContent = "Lorem ipsum dolor sit amet";
+    std::string _developers     = "Developers";
+    std::string _developerNames = "Jan Dellsperger\nLuc Girod\nMichael G�ttlicher";
     //settings
-    std::string _language;
-    std::string _develMode;
-};
+    std::string _language  = "Language";
+    std::string _develMode = "Developer mode";
+    //errors
+    std::string _cameraStartError = "Could not start camera!";
 
-class StringsEnglish : public Strings
-{
-public:
-    StringsEnglish();
-};
+    //info text
+    //bern:
+    std::string _bernInfoHeading1 = "bern heading 1";
+    std::string _bernInfoText1    = "bern info 1";
+    std::string _bernInfoHeading2 = "bern heading 2";
+    std::string _bernInfoText2    = "bern info 2";
 
-class StringsGerman : public Strings
-{
-public:
-    StringsGerman();
-};
-
-class StringsFrench : public Strings
-{
-public:
-    StringsFrench();
-};
-
-class StringsItalian : public Strings
-{
-public:
-    StringsItalian();
+    //tracking view user guidance
+    std::string _ugInfoReloc            = "Trying to relocalize, please move slowly";
+    std::string _ugInfoRelocWrongOrient = "You are looking in the wrong direction";
+    std::string _ugInfoDirArrow         = "The area is located %.0fm in the direction of the arrow";
 };
 
 //-----------------------------------------------------------------------------
@@ -263,17 +267,14 @@ public:
     void setLanguageFrench();
     void setLanguageItalien();
 
-    const Strings& strings() { return *_currStrings; }
+    const Strings& strings() const { return *_currStrings; }
     const Style&   style() { return _style; }
     const Fonts&   fonts() { return _fonts; }
 
+    //developper helper flags
     bool developerMode = true;
-
-    StringsEnglish stringsEnglish;
-    StringsGerman  stringsGerman;
-    StringsFrench  stringsFrench;
-    StringsItalian stringsItalian;
-
+    bool simulatorMode = false;
+    
     Textures textures;
 
     const std::map<ErlebAR::LocationId, ErlebAR::Location>& locations() { return _locations; }
@@ -283,7 +284,17 @@ public:
     void logWinUnInit();
     void logWinDraw();
 
+    const char* stringsEnglishId() const { return stringsEnglish.id(); }
+    const char* stringsGermanId() const { return stringsGerman.id(); }
+    const char* stringsFrenchId() const { return stringsFrench.id(); }
+    const char* stringsItalianId() const { return stringsItalian.id(); }
+
 private:
+    Strings stringsEnglish;
+    Strings stringsGerman;
+    Strings stringsFrench;
+    Strings stringsItalian;
+
     void load(std::string resourceFileName);
     void save();
 

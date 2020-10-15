@@ -21,7 +21,7 @@ public:
     static bool fileExists(std::string& pathfilename);
 
     //! Returns all files and folders in a directory as a vector
-    static std::vector<std::string> getAllNamesInDir(const std::string& dirName);
+    static std::vector<std::string> getAllNamesInDir(const std::string& dirName, bool fullPath = true);
 
     //! Returns the writable configuration directory
     static std::string getAppsWritableDir();

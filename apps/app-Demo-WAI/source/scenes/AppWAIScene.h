@@ -9,36 +9,20 @@
 
 #include <CVCalibration.h>
 #include <WAIMapPoint.h>
+#include <VideoBackgroundCamera.h>
 
 class AppWAIScene : public SLScene
 {
 public:
     AppWAIScene(SLstring name, std::string dataDir, std::string erlebARDir);
 
-    void updateCameraIntrinsics(float cameraFovVDeg)
-    {
-        cameraNode->fov(cameraFovVDeg);
-        // Set camera intrinsics for scene camera frustum. (used in projection->intrinsics mode)
-        //std::cout << "cameraMatUndistorted: " << cameraMatUndistorted << std::endl;
-        /*
-        cameraNode->intrinsics((float)cameraMatUndistorted.at<double>(0, 0),
-                               (float)cameraMatUndistorted.at<double>(1, 1),
-                               (float)cameraMatUndistorted.at<double>(0, 2),
-                               (float)cameraMatUndistorted.at<double>(1, 2));
-        */
-        //enable projection -> intrinsics mode
-        //cameraNode->projection(P_monoIntrinsic);
-        cameraNode->projection(P_monoPerspective);
-    }
-
     void resetMapNode();
     void updateCameraPose(const cv::Mat& pose);
-    void updateVideoImage(const cv::Mat& image);
 
     void renderMapPoints(const std::vector<WAIMapPoint*>& pts);
     void renderMarkerCornerMapPoints(const std::vector<WAIMapPoint*>& pts);
     void renderLocalMapPoints(const std::vector<WAIMapPoint*>& pts);
-    void renderMatchedMapPoints(const std::vector<WAIMapPoint*>& pts, float opacity=1.0f);
+    void renderMatchedMapPoints(const std::vector<WAIMapPoint*>& pts, float opacity = 1.0f);
     void removeMapPoints();
     void removeMarkerCornerMapPoints();
     void removeLocalMapPoints();
@@ -61,8 +45,8 @@ public:
 
     SLAssetManager assets;
     SLNode*        mapNode    = nullptr;
-    SLCamera*      cameraNode = nullptr;
 
+    VideoBackgroundCamera* camera = nullptr;
 private:
     void renderMapPoints(std::string                      name,
                          const std::vector<WAIMapPoint*>& pts,
@@ -99,8 +83,6 @@ private:
     SLPolyline* covisibilityGraphMesh     = nullptr;
     SLPolyline* spanningTreeMesh          = nullptr;
     SLPolyline* loopEdgesMesh             = nullptr;
-
-    SLGLTexture* _videoImage = nullptr;
 
     //path to data directory
     std::string _dataDir;

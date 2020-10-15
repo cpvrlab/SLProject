@@ -7,6 +7,9 @@
 #include <sm/EventSender.h>
 #include <ErlebAR.h>
 #include <Resources.h>
+#include <GPSMapper2D.h>
+#include <sens/SENSGps.h>
+#include <sens/SENSOrientation.h>
 
 class SLScene;
 class SLSceneView;
@@ -22,12 +25,15 @@ public:
                    int                 dotsPerInch,
                    int                 screenWidthPix,
                    int                 screenHeightPix,
-                   std::string         erlebARDir);
+                   std::string         erlebARDir,
+                   SENSGps*            gps,
+                   SENSOrientation*    orientation);
     ~LocationMapGui();
 
     void build(SLScene* s, SLSceneView* sv) override;
     void onResize(SLint scrW, SLint scrH, SLfloat scr2fbX, SLfloat scr2fbY) override;
     void onShow(); //call when gui becomes visible
+    void onHide();
 
     void initLocation(ErlebAR::LocationId locId);
 
@@ -68,6 +74,13 @@ private:
     float             _fracH;
     float             _dspPixWidth;
     float             _dspPixHeight;
+    
+    //area map positions in pixel
+    std::map<ErlebAR::AreaId, SLVec2i> _areaMapPosPix;
+    
+    SENSGps*                     _gps         = nullptr;
+    SENSOrientation*             _orientation = nullptr;
+    std::unique_ptr<GPSMapper2D> _gpsMapper;
 };
 
 #endif //LOCATON_MAP_GUI_H

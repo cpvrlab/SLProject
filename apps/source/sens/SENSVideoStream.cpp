@@ -46,19 +46,19 @@ SENSFramePtr SENSVideoStream::grabNextFrame()
     }
 
     SENSFramePtr sensFrame;
-    cv::Mat      rgbImg;
+    cv::Mat      bgrImg;
     cv::Mat      grayImg;
 
-    if (_cap.read(rgbImg))
+    if (_cap.read(bgrImg))
     {
-        SENS::mirrorImage(rgbImg, _mirrorH, _mirrorV);
-        cv::cvtColor(rgbImg, grayImg, cv::COLOR_BGR2GRAY);
+        SENS::mirrorImage(bgrImg, _mirrorH, _mirrorV);
+        cv::cvtColor(bgrImg, grayImg, cv::COLOR_BGR2GRAY);
 
         sensFrame = std::make_unique<SENSFrame>(
-          rgbImg,
+          bgrImg,
           grayImg,
-          rgbImg.size().width,
-          rgbImg.size().height,
+          bgrImg.size().width,
+          bgrImg.size().height,
           0,
           0,
           _mirrorH,
@@ -82,7 +82,7 @@ SENSFramePtr SENSVideoStream::grabNextResampledFrame()
     }
 
     SENSFramePtr sensFrame;
-    cv::Mat      rgbImg;
+    cv::Mat      bgrImg;
     cv::Mat      grayImg;
 
     float frameDuration = 1.0f / _targetFps;
@@ -106,16 +106,16 @@ SENSFramePtr SENSVideoStream::grabNextResampledFrame()
 
     moveCapturePosition(skippedFrame);
 
-    if (_cap.read(rgbImg))
+    if (_cap.read(bgrImg))
     {
-        SENS::mirrorImage(rgbImg, _mirrorH, _mirrorV);
-        cv::cvtColor(rgbImg, grayImg, cv::COLOR_BGR2GRAY);
+        SENS::mirrorImage(bgrImg, _mirrorH, _mirrorV);
+        cv::cvtColor(bgrImg, grayImg, cv::COLOR_BGR2GRAY);
 
         sensFrame = std::make_unique<SENSFrame>(
-          rgbImg,
+          bgrImg,
           grayImg,
-          rgbImg.size().width,
-          rgbImg.size().height,
+          bgrImg.size().width,
+          bgrImg.size().height,
           0,
           0,
           _mirrorH,

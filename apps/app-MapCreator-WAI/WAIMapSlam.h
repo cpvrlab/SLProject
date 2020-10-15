@@ -92,7 +92,7 @@ public:
 
     virtual WAI::TrackingState getTrackingState() { return _state; }
 
-    virtual void drawInfo(cv::Mat& imageRGB,
+    virtual void drawInfo(cv::Mat& imageBGR,
                           float    scale,
                           bool     showInitLine,
                           bool     showKeyPoints,

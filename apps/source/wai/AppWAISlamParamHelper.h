@@ -134,10 +134,14 @@ static std::string constructSlamMapFileName(std::string location,
                                             std::string area,
                                             std::string extractorType,
                                             int         nLevels,
-                                            std::string dateTime = "")
+                                            std::string dateTime  = "",
+                                            bool        binaryMap = false)
 {
-    std::string result = constructSlamMapIdentifierString(location, area, extractorType, nLevels, dateTime) + ".json.gz";
-
+    std::string result = constructSlamMapIdentifierString(location, area, extractorType, nLevels, dateTime);
+    if (binaryMap)
+        result += ".waimap";
+    else
+        result += ".json.gz";
     return result;
 }
 

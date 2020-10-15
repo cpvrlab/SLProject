@@ -99,15 +99,16 @@ public:
     float          cameraFovVDeg() const { return _cameraFovVDeg; }
     float          cameraFovHDeg() const { return _cameraFovHDeg; }
 
-    int  calibrationFlags() { return _calibFlags; }
+    int  calibrationFlags() const { return _calibFlags; }
     bool calibFixPrincipalPoint() { return _calibFlags & cv::CALIB_FIX_PRINCIPAL_POINT; }
     bool calibFixAspectRatio() { return _calibFlags & cv::CALIB_FIX_ASPECT_RATIO; }
     bool calibZeroTangentDist() { return _calibFlags & cv::CALIB_ZERO_TANGENT_DIST; }
     bool calibRationalModel() { return _calibFlags & cv::CALIB_RATIONAL_MODEL; }
     bool calibTiltedModel() { return _calibFlags & cv::CALIB_TILTED_MODEL; }
     bool calibThinPrismModel() { return _calibFlags & cv::CALIB_THIN_PRISM_MODEL; }
-    bool isMirroredH() { return _isMirroredH; }
-    bool isMirroredV() { return _isMirroredV; }
+    bool isMirroredH() const { return _isMirroredH; }
+    bool isMirroredV() const { return _isMirroredV; }
+    bool undistortMapsValid() const { return (!_undistortMapX.empty() && !_undistortMapY.empty()); }
 
     float fx() const { return _cameraMat.cols == 3 && _cameraMat.rows == 3 ? (float)_cameraMat.at<double>(0, 0) : 0.0f; }
     float fy() const { return _cameraMat.cols == 3 && _cameraMat.rows == 3 ? (float)_cameraMat.at<double>(1, 1) : 0.0f; }

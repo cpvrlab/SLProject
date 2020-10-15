@@ -7,7 +7,8 @@
 SENSiOSCamera::SENSiOSCamera()
 {
     _cameraDelegate = [[SENSiOSCameraDelegate alloc] init];
-    [_cameraDelegate setCallback:std::bind(&SENSiOSCamera::processNewFrame, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)];
+    [_cameraDelegate setPermissionCB:std::bind(&SENSiOSCamera::updatePermission, this, std::placeholders::_1)];
+    [_cameraDelegate setUpdateCB:std::bind(&SENSiOSCamera::processNewFrame, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)];
     //todo: fixme
     _permissionGranted = true;
 }
@@ -18,7 +19,7 @@ SENSiOSCamera::~SENSiOSCamera()
 
 const SENSCameraConfig& SENSiOSCamera::start(std::string                   deviceId,
                                              const SENSCameraStreamConfig& streamConfig,
-                                             cv::Size                      imgRGBSize,
+                                             cv::Size                      imgBGRSize,
                                              bool                          mirrorV,
                                              bool                          mirrorH,
                                              bool                          convToGrayToImgManip,
@@ -34,10 +35,10 @@ const SENSCameraConfig& SENSiOSCamera::start(std::string                   devic
 
     cv::Size targetSize;
 
-    if (imgRGBSize.width > 0 && imgRGBSize.height > 0)
+    if (imgBGRSize.width > 0 && imgBGRSize.height > 0)
     {
-        targetSize.width  = imgRGBSize.width;
-        targetSize.height = imgRGBSize.height;
+        targetSize.width  = imgBGRSize.width;
+        targetSize.height = imgBGRSize.height;
     }
     else
     {
@@ -45,8 +46,11 @@ const SENSCameraConfig& SENSiOSCamera::start(std::string                   devic
         targetSize.height = streamConfig.heightPix;
     }
 
-    cv::Size imgManipSize(imgManipWidth,
-                          (int)((float)imgManipWidth * (float)targetSize.height / (float)targetSize.width));
+    cv::Size imgManipSize;
+    if (_config.manipWidth > 0 && _config.manipHeight > 0)
+        imgManipSize = {imgManipWidth, (int)((float)imgManipWidth * (float)targetSize.height / (float)targetSize.width)};
+    else
+        imgManipSize = targetSize;
 
     //retrieve all camera characteristics
     if (_captureProperties.size() == 0)
@@ -113,36 +117,12 @@ const SENSCaptureProperties& SENSiOSCamera::captureProperties()
     return _captureProperties;
 }
 
-SENSFramePtr SENSiOSCamera::latestFrame()
-{
-    SENSFramePtr newFrame;
-    {
-        std::lock_guard<std::mutex> lock(_processedFrameMutex);
-        newFrame = std::move(_processedFrame);
-    }
-
-    if (newFrame && !newFrame->intrinsics.empty())
-    {
-        _calibration = std::make_unique<SENSCalibration>(newFrame->intrinsics,
-                                                         cv::Size(_config.streamConfig.widthPix, _config.streamConfig.heightPix),
-                                                         _calibration->isMirroredH(),
-                                                         _calibration->isMirroredV(),
-                                                         _calibration->camType(),
-                                                         _calibration->computerInfos());
-        //adjust calibration
-        if (_config.targetWidth != _config.streamConfig.widthPix || _config.targetHeight != _config.streamConfig.heightPix)
-            _calibration->adaptForNewResolution({_config.targetWidth, _config.targetHeight}, false);
-    }
-
-    return newFrame;
-}
-
 void SENSiOSCamera::processNewFrame(unsigned char* data, int imgWidth, int imgHeight, matrix_float3x3* camMat3x3)
 {
     //Utils::log("SENSiOSCamera", "processNewFrame: w %d w %d", imgWidth, imgHeight);
-    cv::Mat rgba(imgHeight, imgWidth, CV_8UC4, (void*)data);
-    cv::Mat rgbImg;
-    cvtColor(rgba, rgbImg, cv::COLOR_RGBA2RGB, 3);
+    cv::Mat bgra(imgHeight, imgWidth, CV_8UC4, (void*)data);
+    cv::Mat bgrImg;
+    cvtColor(bgra, bgrImg, cv::COLOR_BGRA2BGR, 3);
 
     cv::Mat intrinsics;
     bool    intrinsicsChanged = false;
@@ -158,11 +138,11 @@ void SENSiOSCamera::processNewFrame(unsigned char* data, int imgWidth, int imgHe
             intrinsics.at<double>(2, i) = (double)col[2];
         }
     }
+    
+    updateFrame(bgrImg, intrinsics, intrinsicsChanged);
+}
 
-    SENSFramePtr sensFrame = postProcessNewFrame(rgbImg, intrinsics, intrinsicsChanged);
-
-    {
-        std::lock_guard<std::mutex> lock(_processedFrameMutex);
-        _processedFrame = std::move(sensFrame);
-    }
+void SENSiOSCamera::updatePermission(bool granted)
+{
+    _permissionGranted = granted;
 }

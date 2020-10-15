@@ -1,3 +1,6 @@
+#ifndef SENS_IOSCAMERA_DELEGATE_H
+#define SENS_IOSCAMERA_DELEGATE_H
+
 #import <Foundation/Foundation.h>
 #import <AVFoundation/AVCaptureOutput.h> // Allows us to use AVCaptureVideoDataOutputSampleBufferDelegate
 #import <simd/matrix_types.h>
@@ -17,6 +20,9 @@
 
 - (SENSCaptureProperties)retrieveCaptureProperties;
 
-@property (nonatomic, assign) std::function<void(unsigned char*, int, int, matrix_float3x3*)> callback;
+@property (nonatomic, assign) std::function<void(unsigned char*, int, int, matrix_float3x3*)> updateCB;
+@property (nonatomic, assign) std::function<void(bool)> permissionCB;
 
 @end
+
+#endif

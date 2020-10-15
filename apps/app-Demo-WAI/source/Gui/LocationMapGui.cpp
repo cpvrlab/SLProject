@@ -2,6 +2,7 @@
 #include <imgui_internal.h>
 #include <GuiUtils.h>
 #include <ErlebAREvents.h>
+#include <SLQuat4.h>
 
 using namespace ErlebAR;
 
@@ -11,11 +12,15 @@ LocationMapGui::LocationMapGui(const ImGuiEngine&  imGuiEngine,
                                int                 dotsPerInch,
                                int                 screenWidthPix,
                                int                 screenHeightPix,
-                               std::string         erlebARDir)
+                               std::string         erlebARDir,
+                               SENSGps*            gps,
+                               SENSOrientation*    orientation)
   : ImGuiWrapper(imGuiEngine.context(), imGuiEngine.renderer()),
     sm::EventSender(eventHandler),
     _resources(resources),
-    _erlebARDir(erlebARDir)
+    _erlebARDir(erlebARDir),
+    _gps(gps),
+    _orientation(orientation)
 {
     resize(screenWidthPix, screenHeightPix);
 }
@@ -27,6 +32,18 @@ LocationMapGui::~LocationMapGui()
 void LocationMapGui::onShow()
 {
     _panScroll.enable();
+    if (_gps)
+        _gps->start();
+    if (_orientation)
+        _orientation->start();
+}
+
+void LocationMapGui::onHide()
+{
+    if (_gps)
+        _gps->stop();
+    if (_orientation)
+        _orientation->stop();
 }
 
 void LocationMapGui::onResize(SLint scrW, SLint scrH, SLfloat scr2fbX, SLfloat scr2fbY)
@@ -153,9 +170,14 @@ void LocationMapGui::build(SLScene* s, SLSceneView* sv)
         {
             const Area& area = it.second;
 
-            //[0, 1] on the texture
-            float x = (float)area.xPosPix / (float)_locTextureW - _x;
-            float y = (float)area.yPosPix / (float)_locTextureH - _y;
+            float x = 0, y = 0;
+            auto areaMapPosPixIt = _areaMapPosPix.find(area.id);
+            if(areaMapPosPixIt != _areaMapPosPix.end())
+            {
+                //[0, 1] on the texture
+                x = (float)areaMapPosPixIt->second.x / (float)_locTextureW - _x;
+                y = (float)areaMapPosPixIt->second.y / (float)_locTextureH - _y;
+            }
 
             //[0, texSize] to screen coordinate
             ImGui::SetCursorPosX(x * (float)_locTextureW * (float)_screenW / (float)(_dspPixWidth));
@@ -172,6 +194,61 @@ void LocationMapGui::build(SLScene* s, SLSceneView* sv)
                                          _resources.style().areaPoseButtonShapeColorPressed))
             {
                 sendEvent(new AreaSelectedEvent("LocationMapGui", _loc.id, it.first));
+            }
+
+            //draw gps position
+            if (_gps)
+            {
+                ImVec2 posPanCorr;
+
+                SENSGps::Location loc    = _gps->getLocation();
+                SLVec2i           mapPos = _gpsMapper->mapLLALocation({loc.latitudeDEG, loc.longitudeDEG, loc.altitudeM});
+                //accuracy in meter to pixel
+                int radius = _gpsMapper->toMapScale(loc.accuracyM);
+
+                //[0, 1] on the texture
+                float x = (float)mapPos.x / (float)_locTextureW - _x;
+                float y = (float)mapPos.y / (float)_locTextureH - _y;
+
+                //[0, texSize] to screen coordinate
+
+                posPanCorr.x = x * (float)_locTextureW * (float)_screenW / (float)(_dspPixWidth);
+                posPanCorr.y = y * (float)_locTextureH * (float)_screenH / (float)(_dspPixHeight);
+
+                ImVec4 circleGpsCol = {BFHColors::BlueImgui1.r,
+                                       BFHColors::BlueImgui1.g,
+                                       BFHColors::BlueImgui1.b,
+                                       0.05f};
+                ImVec4 orientCol    = {BFHColors::BlueImgui1.r,
+                                    BFHColors::BlueImgui1.g,
+                                    BFHColors::BlueImgui1.b,
+                                    1.0f};
+                ImGui::GetWindowDrawList()->AddCircleFilled(posPanCorr, (float)radius, ImGui::GetColorU32(circleGpsCol), 20);
+                if (_orientation && _orientation->isRunning())
+                {
+                    SENSOrientation::Quat o = _orientation->getOrientation();
+                    SLQuat4f              quat(o.quatX, o.quatY, o.quatZ, o.quatW);
+                    float                 rollRAD, pitchRAD, yawRAD;
+                    quat.toEulerAnglesXYZ(rollRAD, pitchRAD, yawRAD);
+                    float angle = -yawRAD * RAD2DEG;
+
+                    ImGui::SetCursorPosX(posPanCorr.x);
+                    ImGui::SetCursorPosY(posPanCorr.y - _headerBarH);
+
+                    //Utils::log("LocationMapGui", "orientation: %f deg", angle);
+                    ErlebAR::poseShapeButton("GpsIcon",
+                                             ImVec2(buttonSize, buttonSize),
+                                             circleRadius,
+                                             triangleLength,
+                                             triangleWidth,
+                                             angle,
+                                             orientCol,
+                                             orientCol);
+                }
+                else
+                {
+                    ImGui::GetWindowDrawList()->AddCircleFilled(posPanCorr, (float)circleRadius, ImGui::GetColorU32(orientCol), 20);
+                }
             }
 
             //ImGui::PopID();
@@ -223,6 +300,14 @@ void LocationMapGui::initLocation(ErlebAR::LocationId locId)
 
         _fracW = _dspPixWidth / (float)_locTextureW; //Should never be bigger than 1
         _fracH = _dspPixHeight / (float)_locTextureH;
+
+        //instantiate location map for wgs84 to image coordinate system transformation
+        _gpsMapper = std::make_unique<GPSMapper2D>(_loc.mapTLLla, _loc.mapBRLla, _locTextureW, _locTextureH);
+        //estimate pixel positions for all areas
+        for (const auto& area : _loc.areas)
+        {
+            _areaMapPosPix[area.first] = _gpsMapper->mapLLALocation(area.second.llaPos);
+        }
     }
     else
         Utils::exitMsg("LocationMapGui", "No location defined for location id!", __LINE__, __FILE__);

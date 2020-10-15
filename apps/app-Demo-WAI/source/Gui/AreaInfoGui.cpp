@@ -39,8 +39,7 @@ void AreaInfoGui::resize(int scrW, int scrH)
     _screenH = (float)scrH;
 
     _headerBarH              = _resources.style().headerBarPercH * _screenH;
-    _buttonBoardH            = _headerBarH;
-    _contentH                = _screenH - _headerBarH - _buttonBoardH;
+    _contentH                = _screenH - _headerBarH;
     _contentStartY           = _headerBarH;
     _spacingBackButtonToText = _resources.style().headerBarSpacingBB2Text * _headerBarH;
     _buttonRounding          = _resources.style().buttonRounding * _screenH;
@@ -51,6 +50,7 @@ void AreaInfoGui::resize(int scrW, int scrH)
 
 void AreaInfoGui::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaId)
 {
+    _locationId           = locId;
     const auto& locations = _resources.locations();
     auto        locIt     = locations.find(locId);
     if (locIt != locations.end())
@@ -88,102 +88,117 @@ void AreaInfoGui::build(SLScene* s, SLSceneView* sv)
                              _area.name.c_str(),
                              [&]() { sendEvent(new GoBackEvent("AreaInfoGui")); });
 
-    //content
+    ImGuiWindowFlags flags = ImGuiWindowFlags_NoTitleBar |
+                             ImGuiWindowFlags_NoScrollbar |
+                             ImGuiWindowFlags_NoMove |
+                             ImGuiWindowFlags_NoResize |
+                             ImGuiWindowFlags_NoBringToFrontOnFocus |
+                             ImGuiWindowFlags_NoScrollbar;
+
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.f);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.f);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(_windowPaddingContent, _windowPaddingContent));
+    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(_itemSpacingContent, _itemSpacingContent));
+    ImGui::PushStyleColor(ImGuiCol_WindowBg, _resources.style().backgroundColorPrimary);
+
+    ImGui::SetNextWindowPos(ImVec2(0, _headerBarH), ImGuiCond_Once);
+    ImGui::SetNextWindowSize(ImVec2(_textWrapW, _contentH), ImGuiCond_Once);
+
+    ImGui::Begin("AreaInfoGui_content", nullptr, flags);
+    ImGui::BeginChild("AreaInfoGui_content_child", ImVec2(0, 0), false, flags);
+    ImVec2 canvas_size = ImGui::GetContentRegionAvail();
+    ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + canvas_size.x);
+    if (_locationId == ErlebAR::LocationId::AUGST)
+        renderInfoAugst();
+    else if (_locationId == ErlebAR::LocationId::AVENCHES)
+        renderInfoAvenches();
+    else if (_locationId == ErlebAR::LocationId::BERN)
+        renderInfoBern();
+    else
     {
-        ImGui::SetNextWindowPos(ImVec2(0, _contentStartY), ImGuiCond_Always);
-        ImGui::SetNextWindowSize(ImVec2(_screenW, _contentH), ImGuiCond_Always);
-        ImGuiWindowFlags childWindowFlags = ImGuiWindowFlags_NoTitleBar |
-                                            ImGuiWindowFlags_NoMove |
-                                            ImGuiWindowFlags_AlwaysAutoResize |
-                                            ImGuiWindowFlags_NoBringToFrontOnFocus |
-                                            ImGuiWindowFlags_NoScrollbar;
-        ImGuiWindowFlags windowFlags = childWindowFlags |
-                                       ImGuiWindowFlags_NoScrollWithMouse;
-
-        ImGui::PushStyleColor(ImGuiCol_WindowBg, _resources.style().backgroundColorPrimary);
-        ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, _buttonRounding);
-        ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 0.f);
-        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0.f, 0.f));
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.f);
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.f);
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(_windowPaddingContent, _windowPaddingContent));
-        ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(_windowPaddingContent, _windowPaddingContent));
-
-        ImGui::Begin("AreaInfoGui_content", nullptr, windowFlags);
-        ImGui::BeginChild("AreaInfoGui_content_child", ImVec2(_screenW, _contentH), false, childWindowFlags);
-
-        //general
-        ImGui::PushFont(_resources.fonts().heading);
-        ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textHeadingColor);
-        ImGui::Text(_resources.strings().general());
-        ImGui::PopStyleColor();
-        ImGui::PopFont();
-
-        ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + _textWrapW);
         ImGui::PushFont(_resources.fonts().standard);
         ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textStandardColor);
-        ImGui::Text(_resources.strings().generalContent(), _textWrapW);
+        ImGui::Text("No info available", _textWrapW);
 
         ImGui::PopStyleColor();
         ImGui::PopFont();
-        ImGui::PopTextWrapPos();
-
-        ImGui::Separator();
-
-        //developers
-        ImGui::PushFont(_resources.fonts().heading);
-        ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textHeadingColor);
-        ImGui::Text(_resources.strings().developers());
-        ImGui::PopStyleColor();
-        ImGui::PopFont();
-
-        ImGui::PushFont(_resources.fonts().standard);
-        ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textStandardColor);
-        ImGui::Text(_resources.strings().developerNames(), _textWrapW);
-        ImGui::PopStyleColor();
-        ImGui::PopFont();
-
-        ImGui::Separator();
-
-        //credits
-        //..
-
-        ImGui::EndChild();
-        ImGui::End();
-
-        ImGuiWindowFlags windowFlags2 =
-          ImGuiWindowFlags_NoTitleBar |
-          ImGuiWindowFlags_NoMove |
-          ImGuiWindowFlags_AlwaysAutoResize |
-          ImGuiWindowFlags_NoScrollWithMouse |
-          ImGuiWindowFlags_NoScrollbar;
-
-        ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textHeadingColor);
-        ImGui::PushStyleColor(ImGuiCol_Button, _resources.style().headerBarBackButtonColor);
-        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, _resources.style().headerBarBackButtonColor);
-        ImGui::PushStyleColor(ImGuiCol_ButtonActive, _resources.style().headerBarBackButtonPressedColor);
-        ImGui::PushFont(_resources.fonts().heading);
-
-        ImGui::SetNextWindowPos(ImVec2(0, _headerBarH + _contentH), ImGuiCond_Always);
-        ImGui::SetNextWindowSize(ImVec2(_screenW, _buttonBoardH), ImGuiCond_Always);
-        ImGui::Begin("AreaInfoGui_startButton", nullptr, windowFlags2);
-        float buttonW = _buttonBoardH * 0.8f;
-        ImGui::SetCursorPosX(_textWrapW - buttonW);
-        ImGui::SetCursorPosY(_buttonBoardH * 0.1f);
-        if (ImGui::Button("Start##AreaInfoGuiStartButton", ImVec2(_buttonBoardH * 2.f, buttonW)))
-        {
-            sendEvent(new DoneEvent("AreaInfoGui"));
-        }
-        ImGui::End();
-        ImGui::PopStyleColor(4);
-        ImGui::PopFont();
-
-        ImGui::PopStyleColor(1);
-        ImGui::PopStyleVar(7);
     }
 
-    //ImGui::ShowMetricsWindow();
+    ImGui::PopTextWrapPos();
+    ImGui::EndChild();
+    ImGui::End();
+
+    //button window
+    ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textHeadingColor);
+    ImGui::PushStyleColor(ImGuiCol_Button, _resources.style().headerBarBackButtonColor);
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, _resources.style().headerBarBackButtonColor);
+    ImGui::PushStyleColor(ImGuiCol_ButtonActive, _resources.style().headerBarBackButtonPressedColor);
+    ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, _buttonRounding);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
+    ImGui::PushFont(_resources.fonts().heading);
+
+    float buttonWinW    = _screenW - _textWrapW;
+    float buttonW       = 0.8 * buttonWinW;
+    float buttonH       = _headerBarH * 0.8f;
+    float buttonPadding = 0.5f * (buttonWinW - buttonW);
+    ImGui::SetNextWindowPos(ImVec2(_textWrapW, _headerBarH), ImGuiCond_Once);
+    ImGui::SetNextWindowSize(ImVec2(buttonWinW, _contentH), ImGuiCond_Once);
+    ImGui::Begin("AreaInfoGui_startButton", nullptr, flags);
+
+    ImGui::SetCursorPosX(buttonPadding);
+    ImGui::SetCursorPosY(_contentH - buttonH - buttonPadding);
+    if (ImGui::Button("Start##AreaInfoGuiStartButton", ImVec2(buttonW, buttonH)))
+    {
+        sendEvent(new DoneEvent("AreaInfoGui"));
+    }
+
+    ImGui::End();
+
+    //button window styles
+    ImGui::PopStyleColor(4);
+    ImGui::PopStyleVar(2);
+    ImGui::PopFont();
+
+    //common styles
+    ImGui::PopStyleVar(4);
+    ImGui::PopStyleColor();
 
     //debug: draw log window
+    //ImGui::ShowMetricsWindow();
     _resources.logWinDraw();
+}
+
+void AreaInfoGui::renderInfoAugst()
+{
+}
+
+void AreaInfoGui::renderInfoAvenches()
+{
+}
+
+void AreaInfoGui::renderInfoBern()
+{
+    renderInfoHeading(_resources.strings().bernInfoHeading1());
+    renderInfoText(_resources.strings().bernInfoText1());
+    renderInfoHeading(_resources.strings().bernInfoHeading2());
+    renderInfoText(_resources.strings().bernInfoText2());
+}
+
+void AreaInfoGui::renderInfoHeading(const char* text)
+{
+    ImGui::PushFont(_resources.fonts().heading);
+    ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textHeadingColor);
+    ImGui::Text(text);
+    ImGui::PopStyleColor();
+    ImGui::PopFont();
+}
+
+void AreaInfoGui::renderInfoText(const char* text)
+{
+    ImGui::PushFont(_resources.fonts().standard);
+    ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textStandardColor);
+    ImGui::Text(text);
+
+    ImGui::PopStyleColor();
+    ImGui::PopFont();
 }

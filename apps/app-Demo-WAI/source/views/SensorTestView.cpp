@@ -6,16 +6,19 @@ SensorTestView::SensorTestView(sm::EventHandler&   eventHandler,
                                const ImGuiEngine&  imGuiEngine,
                                ErlebAR::Resources& resources,
                                SENSGps*            sensGps,
+                               SENSOrientation*    sensOrientation,
+                               SENSCamera*         sensCamera,
                                const DeviceData&   deviceData)
   : SLSceneView(nullptr, deviceData.dpi(), inputManager),
     _gui(imGuiEngine,
          eventHandler,
          resources,
-         deviceData.dpi(),
-         deviceData.scrWidth(),
-         deviceData.scrHeight(),
-         sensGps),
+         deviceData,
+         sensGps,
+         sensOrientation,
+         sensCamera),
     _gps(sensGps),
+    _orientation(sensOrientation),
     _deviceData(deviceData)
 {
     init("CameraTestView", deviceData.scrWidth(), deviceData.scrHeight(), nullptr, nullptr, &_gui, deviceData.writableDir());
@@ -29,7 +32,10 @@ bool SensorTestView::update()
 
 void SensorTestView::onHide()
 {
+    _gui.onHide();
     //stop all sensors
     if (_gps)
         _gps->stop();
+    if (_orientation)
+        _orientation->stop();
 }

@@ -6,7 +6,8 @@
 static SENSNdkGps* gGpsPtr = nullptr;
 SENSNdkGps*        GetGpsPtr()
 {
-    Utils::log("SENSNdkGps", "Global gps pointer has not been initialized");
+	if(gGpsPtr==nullptr)
+		Utils::log("SENSNdkGps", "Global gps pointer has not been initialized");
     return gGpsPtr;
 }
 
@@ -56,11 +57,16 @@ bool SENSNdkGps::start()
 
     _vm->DetachCurrentThread();
 
+    _running = true;
     return true;
 }
 
 void SENSNdkGps::stop()
 {
+    if(!_running)
+        return;
+    _running = false;
+
     //stop locations manager
     JNIEnv* env;
     _vm->GetEnv((void**)&env, JNI_VERSION_1_6);
@@ -81,7 +87,7 @@ void SENSNdkGps::updateLocation(double latitudeDEG,
                                 float  accuracyM)
 {
     Utils::log("SENSGps", "updateLocation");
-    setLocation(latitudeDEG, longitudeDEG, altitudeM, accuracyM);
+    setLocation({latitudeDEG, longitudeDEG, altitudeM, accuracyM});
 }
 
 extern "C" JNIEXPORT void JNICALL

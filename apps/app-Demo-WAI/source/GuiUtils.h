@@ -33,6 +33,7 @@ void renderHeaderBar(std::string               id,
 GLuint loadTexture(std::string fileName, bool flipX, bool flipY, float targetWdivH, int& cropW, int& cropH, int& textureW, int& textureH);
 GLuint loadTexture(std::string fileName, bool flipX, bool flipY, float targetWdivH, int& textureW, int& textureH);
 GLuint loadTexture(std::string fileName, bool flipX, bool flipY, float targetWdivH);
+GLuint generateTexture(int& textureW, int& textureH);
 
 void deleteTexture(GLuint& id);
 bool poseShapeButton(const char*   label,
