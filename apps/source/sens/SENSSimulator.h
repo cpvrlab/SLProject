@@ -36,14 +36,14 @@ public:
     //!indicates if simulator is currently running
     bool isRunning() const { return _running; }
 
+    bool getSimulatorErrors(std::vector<std::string>& errorMsgs);
+
     //!pause simulation time
     void pause();
     bool isPaused();
     //!resume simulation time
     void resume();
     //!reset simulation time
-    //void reset();
-    //!get current simulation time
     SENSTimePt now();
     //!get passed simulation time
     SENSMicroseconds passedTime();

@@ -14,6 +14,7 @@
 #include <CVTypes.h>
 #include <CVCalibration.h>
 
+//-----------------------------------------------------------------------------
 class CVCamera
 {
 public:
@@ -43,5 +44,5 @@ private:
 
     int _camSizeIndex = -1;
 };
-
+//-----------------------------------------------------------------------------
 #endif // CVCAMERA_H

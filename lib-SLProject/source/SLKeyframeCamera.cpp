@@ -16,6 +16,7 @@
 SLKeyframeCamera::SLKeyframeCamera(SLstring name)
   : SLCamera(name)
 {
+    setDrawColor();
 }
 //-----------------------------------------------------------------------------
 //! SLKeyframeCamera::drawMeshes draws the cameras frustum lines
@@ -23,7 +24,7 @@ SLKeyframeCamera::SLKeyframeCamera(SLstring name)
 Only draws the frustum lines without lighting when the camera is not the
 active one. This means that it can be seen from the active view point.
 */
-void SLKeyframeCamera::drawMeshes(SLSceneView* sv)
+void SLKeyframeCamera::drawMesh(SLSceneView* sv)
 {
     if (sv->camera() != this)
     {
@@ -107,11 +108,19 @@ void SLKeyframeCamera::drawMeshes(SLSceneView* sv)
             _vao.generateVertexPos(&P);
         }
 
-        SLCol4f color = sv->s()->singleNodeSelected() == this ? SLCol4f::YELLOW : SLCol4f::WHITE * 0.7f;
+        SLCol4f color = sv->s()->singleNodeSelected() == this ? SLCol4f::YELLOW : _color;
         _vao.drawArrayAsColored(PT_lines, color);
 
         if (renderBackground())
             _background.renderInScene(nearLT, nearLB, nearRT, nearRB);
     }
 }
+
 //-----------------------------------------------------------------------------
+
+//! SLKeyframeCamera::setDrawColor specify which color should be use.
+
+void SLKeyframeCamera::setDrawColor(SLCol4f color)
+{
+    _color = color;
+}

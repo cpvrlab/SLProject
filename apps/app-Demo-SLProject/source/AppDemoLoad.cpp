@@ -8,8 +8,6 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include <stdafx.h> // Must be the 1st include followed by  an empty line
-
 #include <GlobalTimer.h>
 
 #include <CVCapture.h>
@@ -39,7 +37,7 @@
 #include <SLSkybox.h>
 #include <SLSphere.h>
 #include <SLText.h>
-#include <SLTransferFunction.h>
+#include <SLColorLUT.h>
 #include <SLProjectScene.h>
 #include <SLGLProgramManager.h>
 #include <Instrumentor.h>
@@ -48,7 +46,6 @@
 #ifdef SL_BUILD_WAI
 #    include <CVTrackedWAI.h>
 #endif
-
 //-----------------------------------------------------------------------------
 // Global pointers declared in AppDemoVideo
 extern SLGLTexture* videoTexture;
@@ -57,23 +54,149 @@ extern SLNode*      trackedNode;
 //-----------------------------------------------------------------------------
 //! Global pointer to 3D MRI texture for volume rendering for threaded loading
 SLGLTexture* gTexMRI3D = nullptr;
-//-----------------------------------------------------------------------------
-// Forward declarations for helper functions used only in this file
+//! Creates a recursive sphere group used for the ray tracing scenes
 SLNode* SphereGroup(SLProjectScene* s,
-                    SLint,
-                    SLfloat,
-                    SLfloat,
-                    SLfloat,
-                    SLfloat,
-                    SLuint,
-                    SLMaterial*,
-                    SLMaterial*);
-//-----------------------------------------------------------------------------
-SLNode* BuildFigureGroup(SLProjectScene* s,
-                         SLMaterial*     mat,
-                         SLbool          withAnimation = false);
-//-----------------------------------------------------------------------------
+                    SLint           depth, // depth of recursion
+                    SLfloat         x,
+                    SLfloat         y,
+                    SLfloat         z,          // position of group
+                    SLfloat         scale,      // scale factor
+                    SLuint          resolution, // resolution of spheres
+                    SLMaterial*     matGlass,   // material for center sphere
+                    SLMaterial*     matRed)         // material for orbiting spheres
+{
+    PROFILE_FUNCTION();
 
+    SLstring name = matGlass->kt() > 0 ? "GlassSphere" : "RedSphere";
+    if (depth == 0)
+    {
+        SLSphere* sphere  = new SLSphere(s, 0.5f * scale, resolution, resolution, name, matRed);
+        SLNode*   sphNode = new SLNode(sphere, "Sphere");
+        sphNode->translate(x, y, z, TS_object);
+        return sphNode;
+    }
+    else
+    {
+        depth--;
+        SLNode* sGroup = new SLNode("SphereGroup");
+        sGroup->translate(x, y, z, TS_object);
+        SLuint newRes = (SLuint)std::max((SLint)resolution - 4, 8);
+        sGroup->addChild(new SLNode(new SLSphere(s, 0.5f * scale, resolution, resolution, name, matGlass)));
+        sGroup->addChild(SphereGroup(s, depth, 0.643951f * scale, 0, 0.172546f * scale, scale / 3, newRes, matRed, matRed));
+        sGroup->addChild(SphereGroup(s, depth, 0.172546f * scale, 0, 0.643951f * scale, scale / 3, newRes, matRed, matRed));
+        sGroup->addChild(SphereGroup(s, depth, -0.471405f * scale, 0, 0.471405f * scale, scale / 3, newRes, matRed, matRed));
+        sGroup->addChild(SphereGroup(s, depth, -0.643951f * scale, 0, -0.172546f * scale, scale / 3, newRes, matRed, matRed));
+        sGroup->addChild(SphereGroup(s, depth, -0.172546f * scale, 0, -0.643951f * scale, scale / 3, newRes, matRed, matRed));
+        sGroup->addChild(SphereGroup(s, depth, 0.471405f * scale, 0, -0.471405f * scale, scale / 3, newRes, matRed, matRed));
+        sGroup->addChild(SphereGroup(s, depth, 0.272166f * scale, 0.544331f * scale, 0.272166f * scale, scale / 3, newRes, matRed, matRed));
+        sGroup->addChild(SphereGroup(s, depth, -0.371785f * scale, 0.544331f * scale, 0.099619f * scale, scale / 3, newRes, matRed, matRed));
+        sGroup->addChild(SphereGroup(s, depth, 0.099619f * scale, 0.544331f * scale, -0.371785f * scale, scale / 3, newRes, matRed, matRed));
+        return sGroup;
+    }
+}
+//-----------------------------------------------------------------------------
+//! Build a hierarchical figurine with arms and legs
+SLNode* BuildFigureGroup(SLProjectScene* s, SLMaterial* mat, SLbool withAnimation)
+{
+    SLNode* cyl;
+    SLuint  res = 16;
+
+    // Feet
+    SLNode* feet = new SLNode("feet group (T13,R6)");
+    feet->addMesh(new SLSphere(s, 0.2f, 16, 16, "ankle", mat));
+    SLNode* feetbox = new SLNode(new SLBox(s, -0.2f, -0.1f, 0.0f, 0.2f, 0.1f, 0.8f, "foot", mat), "feet (T14)");
+    feetbox->translate(0.0f, -0.25f, -0.15f, TS_object);
+    feet->addChild(feetbox);
+    feet->translate(0.0f, 0.0f, 1.6f, TS_object);
+    feet->rotate(-90.0f, 1.0f, 0.0f, 0.0f);
+
+    // Assemble low leg
+    SLNode* leglow = new SLNode("low leg group (T11, R5)");
+    leglow->addMesh(new SLSphere(s, 0.3f, res, res, "knee", mat));
+    cyl = new SLNode(new SLCylinder(s, 0.2f, 1.4f, 1, res, false, false, "shin", mat), "shin (T12)");
+    cyl->translate(0.0f, 0.0f, 0.2f, TS_object);
+    leglow->addChild(cyl);
+    leglow->addChild(feet);
+    leglow->translate(0.0f, 0.0f, 1.27f, TS_object);
+    leglow->rotate(0, 1.0f, 0.0f, 0.0f);
+
+    // Assemble leg
+    SLNode* leg = new SLNode("leg group ()");
+    leg->addMesh(new SLSphere(s, 0.4f, res, res, "hip joint", mat));
+    cyl = new SLNode(new SLCylinder(s, 0.3f, 1.0f, 1, res, false, false, "thigh", mat), "thigh (T10)");
+    cyl->translate(0.0f, 0.0f, 0.27f, TS_object);
+    leg->addChild(cyl);
+    leg->addChild(leglow);
+
+    // Assemble left & right leg
+    SLNode* legLeft = new SLNode("left leg group (T8)");
+    legLeft->translate(-0.4f, 0.0f, 2.2f, TS_object);
+    legLeft->addChild(leg);
+    SLNode* legRight = new SLNode("right leg group (T9)");
+    legRight->translate(0.4f, 0.0f, 2.2f, TS_object);
+    legRight->addChild(leg->copyRec());
+
+    // Assemble low arm
+    SLNode* armlow = new SLNode("low arm group (T6,R4)");
+    armlow->addMesh(new SLSphere(s, 0.2f, 16, 16, "elbow", mat));
+    cyl = new SLNode(new SLCylinder(s, 0.15f, 1.0f, 1, res, true, false, "low arm", mat), "T7");
+    cyl->translate(0.0f, 0.0f, 0.14f, TS_object);
+    armlow->addChild(cyl);
+    armlow->translate(0.0f, 0.0f, 1.2f, TS_object);
+    armlow->rotate(45, -1.0f, 0.0f, 0.0f);
+
+    // Assemble arm
+    SLNode* arm = new SLNode("arm group ()");
+    arm->addMesh(new SLSphere(s, 0.3f, 16, 16, "shoulder", mat));
+    cyl = new SLNode(new SLCylinder(s, 0.2f, 1.0f, 1, res, false, false, "upper arm", mat), "upper arm (T5)");
+    cyl->translate(0.0f, 0.0f, 0.2f, TS_object);
+    arm->addChild(cyl);
+    arm->addChild(armlow);
+
+    // Assemble left & right arm
+    SLNode* armLeft = new SLNode("left arm group (T3,R2)");
+    armLeft->translate(-1.1f, 0.0f, 0.3f, TS_object);
+    armLeft->rotate(10, -1, 0, 0);
+    armLeft->addChild(arm);
+    SLNode* armRight = new SLNode("right arm group (T4,R3)");
+    armRight->translate(1.1f, 0.0f, 0.3f, TS_object);
+    armRight->rotate(-60, -1, 0, 0);
+    armRight->addChild(arm->copyRec());
+
+    // Assemble head & neck
+    SLNode* head = new SLNode(new SLSphere(s, 0.5f, res, res, "head", mat), "head (T1)");
+    head->translate(0.0f, 0.0f, -0.7f, TS_object);
+    SLNode* neck = new SLNode(new SLCylinder(s, 0.25f, 0.3f, 1, res, false, false, "neck", mat), "neck (T2)");
+    neck->translate(0.0f, 0.0f, -0.3f, TS_object);
+
+    // Assemble figure Left
+    SLNode* figure = new SLNode("figure group (R1)");
+    figure->addChild(new SLNode(new SLBox(s, -0.8f, -0.4f, 0.0f, 0.8f, 0.4f, 2.0f, "chest", mat), "chest"));
+    figure->addChild(head);
+    figure->addChild(neck);
+    figure->addChild(armLeft);
+    figure->addChild(armRight);
+    figure->addChild(legLeft);
+    figure->addChild(legRight);
+    figure->rotate(90, 1, 0, 0);
+
+    // Add animations for left leg
+    if (withAnimation)
+    {
+        legLeft = figure->findChild<SLNode>("left leg group (T8)");
+        legLeft->rotate(30, -1, 0, 0);
+        SLAnimation* anim = s->animManager().createNodeAnimation("figure animation", 2.0f, true, EC_inOutQuint, AL_pingPongLoop);
+        anim->createSimpleRotationNodeTrack(legLeft, 60, SLVec3f(1, 0, 0));
+
+        SLNode* legLowLeft = legLeft->findChild<SLNode>("low leg group (T11, R5)");
+        anim->createSimpleRotationNodeTrack(legLowLeft, 40, SLVec3f(1, 0, 0));
+
+        SLNode* feetLeft = legLeft->findChild<SLNode>("feet group (T13,R6)");
+        anim->createSimpleRotationNodeTrack(feetLeft, 40, SLVec3f(1, 0, 0));
+    }
+
+    return figure;
+}
 //-----------------------------------------------------------------------------
 //! appDemoLoadScene builds a scene from source code.
 /*! appDemoLoadScene builds a scene from source code. Such a function must be
@@ -317,7 +440,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         light1->powers(0.2f, 0.9f, 0.9f);
         light1->attenuation(1, 0, 0);
 
-        SLNode* figure = BuildFigureGroup(s, m1);
+        SLNode* figure = BuildFigureGroup(s, m1, false);
 
         SLNode* scene = new SLNode("scene node");
         scene->addChild(light1);
@@ -621,14 +744,14 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
             SLAssimpImporter importer;
             SLNode*          dragonModel = importer.load(s->animManager(),
-                                                s,
-                                                largeFile,
-                                                SLApplication::texturePath,
-                                                true,
-                                                diffuseMat,
-                                                0.2f,
-                                                SLProcess_Triangulate |
-                                                  SLProcess_JoinIdenticalVertices);
+                                                         s,
+                                                         largeFile,
+                                                         SLApplication::texturePath,
+                                                         true,
+                                                         diffuseMat,
+                                                         0.2f,
+                                                         SLProcess_Triangulate |
+                                                         SLProcess_JoinIdenticalVertices);
 
             SLNode* scene = new SLNode("Scene");
             scene->addChild(light1);
@@ -935,8 +1058,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         for (int i = 0; i < NUM_MAT; ++i)
         {
             SLGLProgram* sp      = new SLGLGenericProgram(s,
-                                                     SLApplication::shaderPath + "PerPixBlinnTex.vert",
-                                                     SLApplication::shaderPath + "PerPixBlinnTex.frag");
+                                                          SLApplication::shaderPath + "PerPixBlinnTex.vert",
+                                                          SLApplication::shaderPath + "PerPixBlinnTex.frag");
             SLGLTexture* texC    = new SLGLTexture(s, SLApplication::texturePath + "earth2048_C.jpg"); // color map
             SLstring     matName = "mat-" + std::to_string(i);
             mat[i]               = new SLMaterial(s, matName.c_str(), texC, nullptr, nullptr, nullptr, sp);
@@ -956,7 +1079,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                 {
                     // Choose a random material index
                     SLuint   res      = 36;
-                    SLint    iMat     = Utils::random(0, NUM_MAT - 1);
+                    SLint    iMat     = (SLint)Utils::random(0, NUM_MAT - 1);
                     SLstring nodeName = "earth-" + std::to_string(n);
 
                     // Create a new sphere and node and translate it
@@ -1120,8 +1243,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
             SLGLTexture*   texN   = new SLGLTexture(s, SLApplication::texturePath + "earth2048_N.jpg"); // normal map
             SLGLTexture*   texH   = new SLGLTexture(s, SLApplication::texturePath + "earth2048_H.jpg"); // height map
             SLGLProgram*   pR     = new SLGLGenericProgram(s,
-                                                     SLApplication::shaderPath + "PerPixBlinnNrm.vert",
-                                                     SLApplication::shaderPath + "PerPixBlinnNrmParallax.frag");
+                                                           SLApplication::shaderPath + "PerPixBlinnNrm.vert",
+                                                           SLApplication::shaderPath + "PerPixBlinnNrmParallax.frag");
             SLGLUniform1f* scale  = new SLGLUniform1f(UT_const, "u_scale", 0.02f, 0.002f, 0, 1);
             SLGLUniform1f* offset = new SLGLUniform1f(UT_const, "u_offset", -0.02f, 0.002f, -1, 1);
             pR->addUniform1f(scale);
@@ -1582,13 +1705,13 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Create textures and materials
         SLSkybox*    skybox    = new SLSkybox(s,
-                                        SLApplication::shaderPath,
-                                        SLApplication::texturePath + "Desert+X1024_C.jpg",
-                                        SLApplication::texturePath + "Desert-X1024_C.jpg",
-                                        SLApplication::texturePath + "Desert+Y1024_C.jpg",
-                                        SLApplication::texturePath + "Desert-Y1024_C.jpg",
-                                        SLApplication::texturePath + "Desert+Z1024_C.jpg",
-                                        SLApplication::texturePath + "Desert-Z1024_C.jpg");
+                                              SLApplication::shaderPath,
+                                              SLApplication::texturePath + "Desert+X1024_C.jpg",
+                                              SLApplication::texturePath + "Desert-X1024_C.jpg",
+                                              SLApplication::texturePath + "Desert+Y1024_C.jpg",
+                                              SLApplication::texturePath + "Desert-Y1024_C.jpg",
+                                              SLApplication::texturePath + "Desert+Z1024_C.jpg",
+                                              SLApplication::texturePath + "Desert-Z1024_C.jpg");
         SLGLTexture* skyboxTex = skybox->mesh()->mat()->textures()[0];
 
         // Material for mirror
@@ -1741,11 +1864,11 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         SLAssimpImporter importer;
         SLNode*          teapot = importer.load(s->animManager(),
-                                       s,
-                                       SLApplication::modelPath + "FBX/Teapot/Teapot.fbx",
-                                       SLApplication::texturePath,
-                                       true,
-                                       teapotMat);
+                                                s,
+                                                SLApplication::modelPath + "FBX/Teapot/Teapot.fbx",
+                                                SLApplication::texturePath,
+                                                true,
+                                                teapotMat);
 
         teapot->scale(0.5);
         teapot->translate(-0.6f, -0.2f, -0.4f, TS_world);
@@ -1764,10 +1887,10 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // animate teapot
         SLAnimation*     light2Anim = s->animManager().createNodeAnimation("sphere_anim",
-                                                                       5.0f,
-                                                                       true,
-                                                                       EC_linear,
-                                                                       AL_loop);
+                                                                           5.0f,
+                                                                           true,
+                                                                           EC_linear,
+                                                                           AL_loop);
         SLNodeAnimTrack* track      = light2Anim->createNodeAnimationTrack();
         track->animatedNode(sphere);
         SLTransformKeyframe* k1 = track->createNodeKeyframe(0.0f);
@@ -2155,13 +2278,15 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                                               "mri_head_front_to_back");
 
         // Create transfer LUT 1D texture
-        SLVTransferAlpha    tfAlphas = {SLTransferAlpha(0.00f, 0.00f),
-                                     SLTransferAlpha(0.01f, 0.75f),
-                                     SLTransferAlpha(1.00f, 1.00f)};
-        SLTransferFunction* tf       = new SLTransferFunction(s, tfAlphas, CLUT_BCGYR);
+        SLVAlphaLUTPoint tfAlphas = {SLAlphaLUTPoint(0.00f, 0.00f),
+                                     SLAlphaLUTPoint(0.01f, 0.75f),
+                                     SLAlphaLUTPoint(1.00f, 1.00f)};
+        SLColorLUT* tf       = new SLColorLUT(s, tfAlphas, CLUT_BCGYR);
 
         // Load shader and uniforms for volume size
-        SLGLProgram*   sp   = new SLGLGenericProgram(s, SLApplication::shaderPath + "VolumeRenderingRayCast.vert", SLApplication::shaderPath + "VolumeRenderingRayCast.frag");
+        SLGLProgram*   sp   = new SLGLGenericProgram(s,
+                                                     SLApplication::shaderPath + "VolumeRenderingRayCast.vert",
+                                                     SLApplication::shaderPath + "VolumeRenderingRayCast.frag");
         SLGLUniform1f* volX = new SLGLUniform1f(UT_const, "u_volumeX", (SLfloat)texMRI->images()[0]->width());
         SLGLUniform1f* volY = new SLGLUniform1f(UT_const, "u_volumeY", (SLfloat)texMRI->images()[0]->height());
         SLGLUniform1f* volZ = new SLGLUniform1f(UT_const, "u_volumeZ", (SLfloat)mriImages.size());
@@ -2229,10 +2354,10 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         }
 
         // Create transfer LUT 1D texture
-        SLVTransferAlpha    tfAlphas = {SLTransferAlpha(0.00f, 0.00f),
-                                     SLTransferAlpha(0.01f, 0.75f),
-                                     SLTransferAlpha(1.00f, 1.00f)};
-        SLTransferFunction* tf       = new SLTransferFunction(s, tfAlphas, CLUT_BCGYR);
+        SLVAlphaLUTPoint tfAlphas = {SLAlphaLUTPoint(0.00f, 0.00f),
+                                     SLAlphaLUTPoint(0.01f, 0.75f),
+                                     SLAlphaLUTPoint(1.00f, 1.00f)};
+        SLColorLUT* tf       = new SLColorLUT(s, tfAlphas, CLUT_BCGYR);
 
         // Load shader and uniforms for volume size
         SLGLProgram*   sp   = new SLGLGenericProgram(s, SLApplication::shaderPath + "VolumeRenderingRayCast.vert", SLApplication::shaderPath + "VolumeRenderingRayCastLighted.frag");
@@ -2311,13 +2436,13 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Sintel character
         SLNode* char2 = importer.load(s->animManager(), s, SLApplication::modelPath + "DAE/Sintel/SintelLowResOwnRig.dae", SLApplication::texturePath
-                                      //,true
-                                      //,SLProcess_JoinIdenticalVertices
-                                      //|SLProcess_RemoveRedundantMaterials
-                                      //|SLProcess_SortByPType
-                                      //|SLProcess_FindDegenerates
-                                      //|SLProcess_FindInvalidData
-                                      //|SLProcess_SplitLargeMeshes
+          //,true
+          //,SLProcess_JoinIdenticalVertices
+          //|SLProcess_RemoveRedundantMaterials
+          //|SLProcess_SortByPType
+          //|SLProcess_FindDegenerates
+          //|SLProcess_FindInvalidData
+          //|SLProcess_SplitLargeMeshes
         );
         char2->translate(1, 0, 0);
         SLAnimPlayback* char2Anim = s->animManager().lastAnimPlayback();
@@ -2979,8 +3104,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Add a face tracker that moves the camera node
         tracker     = new CVTrackedFaces(Utils::findFile("haarcascade_frontalface_alt2.xml", {SLApplication::calibIniPath, SLApplication::exePath}),
-                                     Utils::findFile("lbfmodel.yaml", {SLApplication::calibIniPath, SLApplication::exePath}),
-                                     3);
+                                         Utils::findFile("lbfmodel.yaml", {SLApplication::calibIniPath, SLApplication::exePath}),
+                                         3);
         trackedNode = cam1;
         tracker->drawDetection(true);
 
@@ -3132,22 +3257,22 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         videoTexture = new SLGLTexture(s, SLApplication::texturePath + "LiveVideoError.png", GL_LINEAR, GL_LINEAR);
 
         // Define shader that shows on all pixels the video background
-        SLGLProgram* spVideoBackground = new SLGLGenericProgram(s,
-                                                                SLApplication::shaderPath + "PerVrtTextureBackground.vert",
-                                                                SLApplication::shaderPath + "PerVrtTextureBackground.frag");
-        SLMaterial* matVideoBackground = new SLMaterial(s,
-                                                        "matVideoBackground",
-                                                        videoTexture,
-                                                        nullptr,
-                                                        nullptr,
-                                                        nullptr,
-                                                        spVideoBackground);
+        SLGLProgram* spVideoBackground  = new SLGLGenericProgram(s,
+                                                                 SLApplication::shaderPath + "PerVrtTextureBackground.vert",
+                                                                 SLApplication::shaderPath + "PerVrtTextureBackground.frag");
+        SLMaterial*  matVideoBackground = new SLMaterial(s,
+                                                         "matVideoBackground",
+                                                         videoTexture,
+                                                         nullptr,
+                                                         nullptr,
+                                                         nullptr,
+                                                         spVideoBackground);
 
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0, 2, 0);
         cam1->lookAt(-10, 2, 0);
-        cam1->clipNear(0.1f);
-        cam1->clipFar(500.0f);
+        cam1->clipNear(1);
+        cam1->clipFar(300);
         cam1->setInitialState();
         cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
         cam1->background().texture(videoTexture);
@@ -3156,26 +3281,27 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         CVCapture::instance()->videoType(VT_MAIN);
 
         // Create directional light for the sun light
-        SLLightDirect* light = new SLLightDirect(s, s, 5.0f);
-        light->powers(1.0f, 1.0f, 1.0f);
-        light->attenuation(1, 0, 0);
+        SLLightDirect* light1 = new SLLightDirect(s, s, 5.0f);
+        light1->powers(1.0f, 1.0f, 1.0f);
+        light1->attenuation(1, 0, 0);
+        light1->isSunLight(true);
 
         // Let the sun be rotated by time and location
-        SLApplication::devLoc.sunLightNode(light);
+        SLApplication::devLoc.sunLightNode(light1);
 
         SLAssimpImporter importer;
         SLNode*          bern = importer.load(s->animManager(),
-                                     s,
-                                     SLApplication::dataPath + "erleb-AR/models/bern/Bern-Bahnhofsplatz.fbx",
-                                     SLApplication::texturePath);
+                                              s,
+                                              SLApplication::dataPath + "erleb-AR/models/bern/Bern-Bahnhofsplatz.fbx",
+                                              SLApplication::texturePath);
 
         // Make city transparent
         SLNode* UmgD = bern->findChild<SLNode>("Umgebung-Daecher");
         if (!UmgD) SL_EXIT_MSG("Node: Umgebung-Daecher not found!");
 
         auto updateKtAmbiFnc = [](SLMaterial* m) {
-            m->kt(0.5f);
-            m->ambient(SLCol4f(.3f, .3f, .3f));
+          m->kt(0.5f);
+          m->ambient(SLCol4f(.3f, .3f, .3f));
         };
 
         UmgD->updateMeshMat(updateKtAmbiFnc, true);
@@ -3218,15 +3344,15 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLNode*     box2m  = new SLNode(new SLBox(s, 0, 0, 0, 2, 2, 2, "Box2m", yellow));
 
         SLNode* scene = new SLNode("Scene");
-        scene->addChild(light);
+        scene->addChild(light1);
         scene->addChild(axis);
         scene->addChild(box2m);
         scene->addChild(bern);
         scene->addChild(cam1);
 
         //initialize sensor stuff
-        SLApplication::devLoc.originLLA(46.947629, 7.440754, 442.0);        // Loeb Ecken
-        SLApplication::devLoc.defaultLLA(46.948551, 7.440093, 442.0 + 1.7); // Bahnhof Ausgang in Augenhöhe
+        SLApplication::devLoc.originLatLonAlt(46.947629, 7.440754, 442.0);        // Loeb Ecken
+        SLApplication::devLoc.defaultLatLonAlt(46.948551, 7.440093, 442.0 + 1.7); // Bahnhof Ausgang in Augenhöhe
         SLApplication::devLoc.locMaxDistanceM(1000.0f);                     // Max. Distanz. zum Loeb Ecken
         SLApplication::devLoc.improveOrigin(false);                         // Keine autom. Verbesserung vom Origin
         SLApplication::devLoc.useOriginAltitude(true);
@@ -3260,8 +3386,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0, 50, -150);
         cam1->lookAt(0, 0, 0);
-        cam1->clipNear(0.1f);
-        cam1->clipFar(1000.0f);
+        cam1->clipNear(1);
+        cam1->clipFar(300);
         cam1->focalDist(150);
         cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
 
@@ -3270,27 +3396,43 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->background().texture(videoTexture);
         CVCapture::instance()->videoType(VT_MAIN);
 
+        // Define shader that shows on all pixels the video background
+        SLGLProgram* spVideoBackground  = new SLGLGenericProgram(s,
+                                                                 SLApplication::shaderPath + "PerVrtTextureBackground.vert",
+                                                                 SLApplication::shaderPath + "PerVrtTextureBackground.frag");
+        SLMaterial*  matVideoBackground = new SLMaterial(s,
+                                                         "matVideoBackground",
+                                                         videoTexture,
+                                                         nullptr,
+                                                         nullptr,
+                                                         nullptr,
+                                                         spVideoBackground);
         // Create directional light for the sun light
-        SLLightDirect* light = new SLLightDirect(s, s, 5.0f);
-        light->powers(1.0f, 1.0f, 1.0f);
-        light->attenuation(1, 0, 0);
-        light->translation(0, 10, 0);
-        light->lookAt(10, 0, 10);
+        SLLightDirect* light1 = new SLLightDirect(s, s, 5.0f);
+        light1->powers(1.0f, 1.0f, 1.0f);
+        light1->attenuation(1, 0, 0);
+        light1->translation(0, 10, 0);
+        light1->lookAt(10, 0, 10);
+        light1->isSunLight(true);
 
         // Let the sun be rotated by time and location
-        SLApplication::devLoc.sunLightNode(light);
+        SLApplication::devLoc.sunLightNode(light1);
 
         SLAssimpImporter importer;
         SLNode*          TheaterAndTempel = importer.load(s->animManager(),
-                                                 s,
-                                                 SLApplication::dataPath + "erleb-AR/models/augst/Tempel-Theater-02.gltf",
-                                                 SLApplication::texturePath,
-                                                 true,    // only meshes
-                                                 nullptr, // no replacement material
-                                                 0.4f);   // 40% ambient reflection
+                                                          s,
+                                                          SLApplication::dataPath + "erleb-AR/models/augst/Tempel-Theater-02.gltf",
+                                                          SLApplication::texturePath,
+                                                          true,    // only meshes
+                                                          nullptr, // no replacement material
+                                                          0.4f);   // 40% ambient reflection
 
         // Rotate to the true geographic rotation
         TheaterAndTempel->rotate(16.7f, 0, 1, 0, TS_parent);
+
+        // Let the video shine through on some objects
+        TheaterAndTempel->findChild<SLNode>("Tmp-Boden")->setMeshMat(matVideoBackground, true);
+        TheaterAndTempel->findChild<SLNode>("Tht-Boden")->setMeshMat(matVideoBackground, true);
 
         // Add axis object a world origin
         SLNode* axis = new SLNode(new SLCoordAxis(s), "Axis Node");
@@ -3301,21 +3443,21 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         // Set some ambient light
         TheaterAndTempel->updateMeshMat([](SLMaterial* m) { m->ambient(SLCol4f(.25f, .23f, .15f)); }, true);
         SLNode* scene = new SLNode("Scene");
-        scene->addChild(light);
+        scene->addChild(light1);
         scene->addChild(axis);
         scene->addChild(TheaterAndTempel);
         scene->addChild(cam1);
 
         //initialize sensor stuff
         SLApplication::devLoc.useOriginAltitude(false);             // Use
-        SLApplication::devLoc.originLLA(47.53319, 7.72207, 0);      // At the center of the theater
-        SLApplication::devLoc.defaultLLA(47.5329758, 7.7210428, 0); // At the entrance of the tempel
+        SLApplication::devLoc.originLatLonAlt(47.53319, 7.72207, 0);      // At the center of the theater
+        SLApplication::devLoc.defaultLatLonAlt(47.5329758, 7.7210428, 0); // At the entrance of the tempel
         SLApplication::devLoc.locMaxDistanceM(1000.0f);             // Max. allowed distance to origin
         SLApplication::devLoc.improveOrigin(false);                 // No autom. origin improvement
         SLApplication::devLoc.hasOrigin(true);
         SLApplication::devRot.zeroYawAtStart(false); // Use the real yaw from the IMU
 
-        // This loads the DEM file and overwrites the altitude of originLLA and defaultLLA
+        // This loads the DEM file and overwrites the altitude of originLatLonAlt and defaultLatLonAlt
         SLstring tif = SLApplication::dataPath + "erleb-AR/models/augst/DTM-Theater-Tempel-WGS84.tif";
         SLApplication::devLoc.loadGeoTiff(tif, SLApplication::appTag);
 
@@ -3346,8 +3488,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0, 50, -150);
         cam1->lookAt(0, 0, 0);
-        cam1->clipNear(0.1f);
-        cam1->clipFar(1000.0f);
+        cam1->clipNear(1);
+        cam1->clipFar(300);
         cam1->focalDist(150);
         cam1->setInitialState();
         cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
@@ -3357,27 +3499,46 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->background().texture(videoTexture);
         CVCapture::instance()->videoType(VT_MAIN);
 
+        // Define shader that shows on all pixels the video background
+        SLGLProgram* spVideoBackground  = new SLGLGenericProgram(s,
+                                                                 SLApplication::shaderPath + "PerVrtTextureBackground.vert",
+                                                                 SLApplication::shaderPath + "PerVrtTextureBackground.frag");
+        SLMaterial*  matVideoBackground = new SLMaterial(s,
+                                                         "matVideoBackground",
+                                                         videoTexture,
+                                                         nullptr,
+                                                         nullptr,
+                                                         nullptr,
+                                                         spVideoBackground);
+
         // Create directional light for the sun light
         SLLightDirect* light1 = new SLLightDirect(s, s, 5.0f);
         light1->powers(1.0f, 1.0f, 1.0f);
         light1->attenuation(1, 0, 0);
         light1->translation(0, 10, 0);
         light1->lookAt(10, 0, 10);
+        light1->isSunLight(true);
 
         // Let the sun be rotated by time and location
         SLApplication::devLoc.sunLightNode(light1);
 
         SLAssimpImporter importer;
         SLNode*          amphiTheatre = importer.load(s->animManager(),
-                                             s,
-                                             SLApplication::dataPath + "erleb-AR/models/avenches/Aventicum-Amphitheater1.gltf",
-                                             SLApplication::texturePath,
-                                             true,    // only meshes
-                                             nullptr, // no replacement material
-                                             0.4f);   // 40% ambient reflection
+                                                      s,
+                                                      SLApplication::dataPath + "erleb-AR/models/avenches/Aventicum-Amphitheater1.gltf",
+                                                      SLApplication::texturePath,
+                                                      true,    // only meshes
+                                                      nullptr, // no replacement material
+                                                      0.4f);   // 40% ambient reflection
 
         // Rotate to the true geographic rotation
         amphiTheatre->rotate(13.7f, 0, 1, 0, TS_parent);
+
+        // Let the video shine through some objects
+        amphiTheatre->findChild<SLNode>("Tht-Aussen-Untergrund")->setMeshMat(matVideoBackground, true);
+        amphiTheatre->findChild<SLNode>("Tht-Eingang-Ost-Boden")->setMeshMat(matVideoBackground, true);
+        amphiTheatre->findChild<SLNode>("Tht-Arenaboden")->setMeshMat(matVideoBackground, true);
+        amphiTheatre->findChild<SLNode>("Tht-Aussen-Terrain")->setMeshMat(matVideoBackground, true);
 
         // Add axis object a world origin
         SLNode* axis = new SLNode(new SLCoordAxis(s), "Axis Node");
@@ -3393,12 +3554,16 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         //initialize sensor stuff
         SLApplication::devLoc.useOriginAltitude(false);
-        SLApplication::devLoc.originLLA(46.881013677, 7.042621953, 442.0);        // Zentrum Amphitheater
-        SLApplication::devLoc.defaultLLA(46.881210148, 7.043767122, 442.0 + 1.7); // Ecke Vorplatz Ost
+        SLApplication::devLoc.originLatLonAlt(46.881013677, 7.042621953, 442.0);        // Zentrum Amphitheater
+        SLApplication::devLoc.defaultLatLonAlt(46.881210148, 7.043767122, 442.0 + 1.7); // Ecke Vorplatz Ost
         SLApplication::devLoc.locMaxDistanceM(1000.0f);                           // Max. Distanz. zum Nullpunkt
         SLApplication::devLoc.improveOrigin(false);                               // Keine autom. Verbesserung vom Origin
         SLApplication::devLoc.hasOrigin(true);
         SLApplication::devRot.zeroYawAtStart(false);
+
+        // This loads the DEM file and overwrites the altitude of originLatLonAlt and defaultLatLonAlt
+        SLstring tif = SLApplication::dataPath + "erleb-AR/models/avenches/DTM-Aventicum-WGS84.tif";
+        SLApplication::devLoc.loadGeoTiff(tif, SLApplication::appTag);
 
 #if defined(SL_OS_MACIOS) || defined(SL_OS_ANDROID)
         SLApplication::devLoc.isUsed(true);
@@ -3427,37 +3592,53 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0, 50, -150);
         cam1->lookAt(0, 0, 0);
-        cam1->clipNear(0.1f);
-        cam1->clipFar(1000.0f);
+        cam1->clipNear(1);
+        cam1->clipFar(300);
         cam1->focalDist(150);
         cam1->setInitialState();
+        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
 
         // Create video texture and turn on live video
         videoTexture = new SLGLTexture(s, SLApplication::texturePath + "LiveVideoError.png", GL_LINEAR, GL_LINEAR);
         cam1->background().texture(videoTexture);
         CVCapture::instance()->videoType(VT_MAIN);
 
+        // Define shader that shows on all pixels the video background
+        SLGLProgram* spVideoBackground  = new SLGLGenericProgram(s,
+                                                                 SLApplication::shaderPath + "PerVrtTextureBackground.vert",
+                                                                 SLApplication::shaderPath + "PerVrtTextureBackground.frag");
+        SLMaterial*  matVideoBackground = new SLMaterial(s,
+                                                         "matVideoBackground",
+                                                         videoTexture,
+                                                         nullptr,
+                                                         nullptr,
+                                                         nullptr,
+                                                         spVideoBackground);
+
         // Create directional light for the sun light
-        SLLightDirect* light = new SLLightDirect(s, s, 5.0f);
-        light->powers(1.0f, 1.0f, 1.0f);
-        light->attenuation(1, 0, 0);
-        light->translation(0, 10, 0);
-        light->lookAt(10, 0, 10);
+        SLLightDirect* light1 = new SLLightDirect(s, s, 5.0f);
+        light1->powers(1.0f, 1.0f, 1.0f);
+        light1->attenuation(1, 0, 0);
+        light1->translation(0, 10, 0);
+        light1->lookAt(10, 0, 10);
+        light1->isSunLight(true);
 
         // Let the sun be rotated by time and location
-        SLApplication::devLoc.sunLightNode(light);
+        SLApplication::devLoc.sunLightNode(light1);
 
         SLAssimpImporter importer;
         SLNode*          cigognier = importer.load(s->animManager(),
-                                          s,
-                                          SLApplication::dataPath + "erleb-AR/models/avenches/Aventicum-Cigognier1.gltf",
-                                          SLApplication::texturePath,
-                                          true,    // only meshes
-                                          nullptr, // no replacement material
-                                          0.4f);   // 40% ambient reflection
+                                                   s,
+                                                   SLApplication::dataPath + "erleb-AR/models/avenches/Aventicum-Cigognier1.gltf",
+                                                   SLApplication::texturePath,
+                                                   true,    // only meshes
+                                                   nullptr, // no replacement material
+                                                   0.4f);   // 40% ambient reflection
+
+        cigognier->findChild<SLNode>("Tmp-Parois-Sud")->drawBits()->set(SL_DB_HIDDEN, true);
 
         // Rotate to the true geographic rotation
-        cigognier->rotate(13.7f, 0, 1, 0, TS_parent);
+        cigognier->rotate(-37.0f, 0, 1, 0, TS_parent);
 
         // Add axis object a world origin
         SLNode* axis = new SLNode(new SLCoordAxis(s), "Axis Node");
@@ -3466,19 +3647,25 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         axis->rotate(-90, 1, 0, 0);
 
         SLNode* scene = new SLNode("Scene");
-        scene->addChild(light);
+        scene->addChild(light1);
         scene->addChild(axis);
         scene->addChild(cigognier);
         scene->addChild(cam1);
 
         //initialize sensor stuff
         SLApplication::devLoc.useOriginAltitude(false);
-        SLApplication::devLoc.originLLA(46.881013677, 7.042621953, 442.0);        // Vorplatz Cigognier
-        SLApplication::devLoc.defaultLLA(46.881210148, 7.043767122, 442.0 + 1.7); // Ecke Vorplatz Ost
-        SLApplication::devLoc.locMaxDistanceM(1000.0f);                           // Max. Distanz. zum Nullpunkt
-        SLApplication::devLoc.improveOrigin(false);                               // Keine autom. Verbesserung vom Origin
+        //https://map.geo.admin.ch/?lang=de&topic=ech&bgLayer=ch.swisstopo.swissimage&layers=ch.swisstopo.zeitreihen,ch.bfs.gebaeude_wohnungs_register,ch.bav.haltestellen-oev,ch.swisstopo.swisstlm3d-wanderwege&layers_opacity=1,1,1,0.8&layers_visibility=false,false,false,false&layers_timestamp=18641231,,,&E=2570106&N=1192334&zoom=13&crosshair=marker
+        SLApplication::devLoc.originLatLonAlt(46.88145, 7.04645, 450.9); // In the center of the place before the Cigognier temple
+        //https://map.geo.admin.ch/?lang=de&topic=ech&bgLayer=ch.swisstopo.swissimage&layers=ch.swisstopo.zeitreihen,ch.bfs.gebaeude_wohnungs_register,ch.bav.haltestellen-oev,ch.swisstopo.swisstlm3d-wanderwege&layers_opacity=1,1,1,0.8&layers_visibility=false,false,false,false&layers_timestamp=18641231,,,&E=2570135&N=1192315&zoom=13&crosshair=marker
+        SLApplication::devLoc.defaultLatLonAlt(46.88124, 7.04686, 451.5 + 1.7); // Before the entry if the Cigognier sanctuary
+        SLApplication::devLoc.locMaxDistanceM(1000.0f);                   // Max. allowed distance from origin
+        SLApplication::devLoc.improveOrigin(false);                       // No auto improvement from
         SLApplication::devLoc.hasOrigin(true);
         SLApplication::devRot.zeroYawAtStart(false);
+
+        // This loads the DEM file and overwrites the altitude of originLatLonAlt and defaultLatLonAlt
+        SLstring tif = SLApplication::dataPath + "erleb-AR/models/avenches/DTM-Aventicum-WGS84.tif";
+        SLApplication::devLoc.loadGeoTiff(tif, SLApplication::appTag);
 
 #if defined(SL_OS_MACIOS) || defined(SL_OS_ANDROID)
         SLApplication::devLoc.isUsed(true);
@@ -3507,10 +3694,11 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0, 50, -150);
         cam1->lookAt(0, 0, 0);
-        cam1->clipNear(0.1f);
-        cam1->clipFar(1000.0f);
+        cam1->clipNear(1);
+        cam1->clipFar(300);
         cam1->focalDist(150);
         cam1->setInitialState();
+        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
 
         // Create video texture and turn on live video
         videoTexture = new SLGLTexture(s, SLApplication::texturePath + "LiveVideoError.png", GL_LINEAR, GL_LINEAR);
@@ -3518,41 +3706,45 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         CVCapture::instance()->videoType(VT_MAIN);
 
         // Define shader that shows on all pixels the video background
-        SLGLProgram* spVideoBackground = new SLGLGenericProgram(s,
-                                                                SLApplication::shaderPath + "PerVrtTextureBackground.vert",
-                                                                SLApplication::shaderPath + "PerVrtTextureBackground.frag");
-        SLMaterial* matVideoBackground = new SLMaterial(s,
-                                                        "matVideoBackground",
-                                                        videoTexture,
-                                                        nullptr,
-                                                        nullptr,
-                                                        nullptr,
-                                                        spVideoBackground);
+        SLGLProgram* spVideoBackground  = new SLGLGenericProgram(s,
+                                                                 SLApplication::shaderPath + "PerVrtTextureBackground.vert",
+                                                                 SLApplication::shaderPath + "PerVrtTextureBackground.frag");
+        SLMaterial*  matVideoBackground = new SLMaterial(s,
+                                                         "matVideoBackground",
+                                                         videoTexture,
+                                                         nullptr,
+                                                         nullptr,
+                                                         nullptr,
+                                                         spVideoBackground);
 
         // Create directional light for the sun light
-        SLLightDirect* light = new SLLightDirect(s, s, 5.0f);
-        light->powers(1.0f, 1.0f, 1.0f);
-        light->attenuation(1, 0, 0);
-        light->translation(0, 10, 0);
-        light->lookAt(10, 0, 10);
+        SLLightDirect* light1 = new SLLightDirect(s, s, 5.0f);
+        light1->powers(1.0f, 1.0f, 1.0f);
+        light1->attenuation(1, 0, 0);
+        light1->translation(0, 10, 0);
+        light1->lookAt(10, 0, 10);
+        light1->isSunLight(true);
 
         // Let the sun be rotated by time and location
-        SLApplication::devLoc.sunLightNode(light);
+        SLApplication::devLoc.sunLightNode(light1);
 
         SLAssimpImporter importer;
         SLNode*          theatre = importer.load(s->animManager(),
-                                        s,
-                                        SLApplication::dataPath + "erleb-AR/models/avenches/Aventicum-Theater1.gltf",
-                                        SLApplication::texturePath,
-                                        true,    // only meshes
-                                        nullptr, // no replacement material
-                                        0.4f);   // 40% ambient reflection
+                                                 s,
+                                                 SLApplication::dataPath + "erleb-AR/models/avenches/Aventicum-Theater1.gltf",
+                                                 SLApplication::texturePath,
+                                                 true,    // only meshes
+                                                 nullptr, // no replacement material
+                                                 0.4f);   // 40% ambient reflection
 
         // Rotate to the true geographic rotation
         theatre->rotate(-36.7f, 0, 1, 0, TS_parent);
 
-        // Let the video shine through the grass plane
+        theatre->findChild<SLNode>("Tht-Buehnenhaus")->drawBits()->set(SL_DB_HIDDEN, true);
+
+        // Let the video shine through some objects
         theatre->findChild<SLNode>("Tht-Rasen")->setMeshMat(matVideoBackground, true);
+        theatre->findChild<SLNode>("Tht-Boden")->setMeshMat(matVideoBackground, true);
 
         // Add axis object a world origin
         SLNode* axis = new SLNode(new SLCoordAxis(s), "Axis Node");
@@ -3561,7 +3753,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         axis->rotate(-90, 1, 0, 0);
 
         SLNode* scene = new SLNode("Scene");
-        scene->addChild(light);
+        scene->addChild(light1);
         scene->addChild(axis);
         scene->addChild(theatre);
         scene->addChild(cam1);
@@ -3569,12 +3761,16 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         //initialize sensor stuff
         //https://map.geo.admin.ch/?lang=de&topic=ech&bgLayer=ch.swisstopo.swissimage&layers=ch.swisstopo.zeitreihen,ch.bfs.gebaeude_wohnungs_register,ch.bav.haltestellen-oev,ch.swisstopo.swisstlm3d-wanderwege&layers_opacity=1,1,1,0.8&layers_visibility=false,false,false,false&layers_timestamp=18641231,,,&E=2570281&N=1192204&zoom=13&crosshair=marker
         SLApplication::devLoc.useOriginAltitude(false);
-        SLApplication::devLoc.originLLA(46.88029, 7.04876, 454.9f); // Zentrum Orchestra
-        SLApplication::devLoc.defaultLLA(46.88044, 7.04846, 455.3f + 1.7);  // Vor dem Bühnenhaus
+        SLApplication::devLoc.originLatLonAlt(46.88029, 7.04876, 454.9f);        // Zentrum Orchestra
+        SLApplication::devLoc.defaultLatLonAlt(46.88044, 7.04846, 455.3f + 1.7); // Vor dem Bühnenhaus
         SLApplication::devLoc.locMaxDistanceM(1000.0f);                    // Max. Distanz. zum Nullpunkt
         SLApplication::devLoc.improveOrigin(false);                        // Keine autom. Verbesserung vom Origin
         SLApplication::devLoc.hasOrigin(true);
         SLApplication::devRot.zeroYawAtStart(false);
+
+        // This loads the DEM file and overwrites the altitude of originLatLonAlt and defaultLatLonAlt
+        SLstring tif = SLApplication::dataPath + "erleb-AR/models/avenches/DTM-Aventicum-WGS84.tif";
+        SLApplication::devLoc.loadGeoTiff(tif, SLApplication::appTag);
 
 #if defined(SL_OS_MACIOS) || defined(SL_OS_ANDROID)
         SLApplication::devLoc.isUsed(true);
@@ -4046,149 +4242,5 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         else
             CVCapture::instance()->start(sv->viewportWdivH());
     }
-}
-//-----------------------------------------------------------------------------
-//! Creates a recursive sphere group used for the ray tracing scenes
-SLNode* SphereGroup(SLProjectScene* s,
-                    SLint           depth, // depth of recursion
-                    SLfloat         x,
-                    SLfloat         y,
-                    SLfloat         z,          // position of group
-                    SLfloat         scale,      // scale factor
-                    SLuint          resolution, // resolution of spheres
-                    SLMaterial*     matGlass,   // material for center sphere
-                    SLMaterial*     matRed)         // material for orbiting spheres
-{
-    PROFILE_FUNCTION();
-
-    SLstring name = matGlass->kt() > 0 ? "GlassSphere" : "RedSphere";
-    if (depth == 0)
-    {
-        SLSphere* sphere  = new SLSphere(s, 0.5f * scale, resolution, resolution, name, matRed);
-        SLNode*   sphNode = new SLNode(sphere, "Sphere");
-        sphNode->translate(x, y, z, TS_object);
-        return sphNode;
-    }
-    else
-    {
-        depth--;
-        SLNode* sGroup = new SLNode("SphereGroup");
-        sGroup->translate(x, y, z, TS_object);
-        SLuint newRes = (SLuint)std::max((SLint)resolution - 4, 8);
-        sGroup->addChild(new SLNode(new SLSphere(s, 0.5f * scale, resolution, resolution, name, matGlass)));
-        sGroup->addChild(SphereGroup(s, depth, 0.643951f * scale, 0, 0.172546f * scale, scale / 3, newRes, matRed, matRed));
-        sGroup->addChild(SphereGroup(s, depth, 0.172546f * scale, 0, 0.643951f * scale, scale / 3, newRes, matRed, matRed));
-        sGroup->addChild(SphereGroup(s, depth, -0.471405f * scale, 0, 0.471405f * scale, scale / 3, newRes, matRed, matRed));
-        sGroup->addChild(SphereGroup(s, depth, -0.643951f * scale, 0, -0.172546f * scale, scale / 3, newRes, matRed, matRed));
-        sGroup->addChild(SphereGroup(s, depth, -0.172546f * scale, 0, -0.643951f * scale, scale / 3, newRes, matRed, matRed));
-        sGroup->addChild(SphereGroup(s, depth, 0.471405f * scale, 0, -0.471405f * scale, scale / 3, newRes, matRed, matRed));
-        sGroup->addChild(SphereGroup(s, depth, 0.272166f * scale, 0.544331f * scale, 0.272166f * scale, scale / 3, newRes, matRed, matRed));
-        sGroup->addChild(SphereGroup(s, depth, -0.371785f * scale, 0.544331f * scale, 0.099619f * scale, scale / 3, newRes, matRed, matRed));
-        sGroup->addChild(SphereGroup(s, depth, 0.099619f * scale, 0.544331f * scale, -0.371785f * scale, scale / 3, newRes, matRed, matRed));
-        return sGroup;
-    }
-}
-//-----------------------------------------------------------------------------
-//! Build a hierarchical figurine with arms and legs
-SLNode* BuildFigureGroup(SLProjectScene* s, SLMaterial* mat, SLbool withAnimation)
-{
-    SLNode* cyl;
-    SLuint  res = 16;
-
-    // Feet
-    SLNode* feet = new SLNode("feet group (T13,R6)");
-    feet->addMesh(new SLSphere(s, 0.2f, 16, 16, "ankle", mat));
-    SLNode* feetbox = new SLNode(new SLBox(s, -0.2f, -0.1f, 0.0f, 0.2f, 0.1f, 0.8f, "foot", mat), "feet (T14)");
-    feetbox->translate(0.0f, -0.25f, -0.15f, TS_object);
-    feet->addChild(feetbox);
-    feet->translate(0.0f, 0.0f, 1.6f, TS_object);
-    feet->rotate(-90.0f, 1.0f, 0.0f, 0.0f);
-
-    // Assemble low leg
-    SLNode* leglow = new SLNode("low leg group (T11, R5)");
-    leglow->addMesh(new SLSphere(s, 0.3f, res, res, "knee", mat));
-    cyl = new SLNode(new SLCylinder(s, 0.2f, 1.4f, 1, res, false, false, "shin", mat), "shin (T12)");
-    cyl->translate(0.0f, 0.0f, 0.2f, TS_object);
-    leglow->addChild(cyl);
-    leglow->addChild(feet);
-    leglow->translate(0.0f, 0.0f, 1.27f, TS_object);
-    leglow->rotate(0, 1.0f, 0.0f, 0.0f);
-
-    // Assemble leg
-    SLNode* leg = new SLNode("leg group ()");
-    leg->addMesh(new SLSphere(s, 0.4f, res, res, "hip joint", mat));
-    cyl = new SLNode(new SLCylinder(s, 0.3f, 1.0f, 1, res, false, false, "thigh", mat), "thigh (T10)");
-    cyl->translate(0.0f, 0.0f, 0.27f, TS_object);
-    leg->addChild(cyl);
-    leg->addChild(leglow);
-
-    // Assemble left & right leg
-    SLNode* legLeft = new SLNode("left leg group (T8)");
-    legLeft->translate(-0.4f, 0.0f, 2.2f, TS_object);
-    legLeft->addChild(leg);
-    SLNode* legRight = new SLNode("right leg group (T9)");
-    legRight->translate(0.4f, 0.0f, 2.2f, TS_object);
-    legRight->addChild(leg->copyRec());
-
-    // Assemble low arm
-    SLNode* armlow = new SLNode("low arm group (T6,R4)");
-    armlow->addMesh(new SLSphere(s, 0.2f, 16, 16, "elbow", mat));
-    cyl = new SLNode(new SLCylinder(s, 0.15f, 1.0f, 1, res, true, false, "low arm", mat), "T7");
-    cyl->translate(0.0f, 0.0f, 0.14f, TS_object);
-    armlow->addChild(cyl);
-    armlow->translate(0.0f, 0.0f, 1.2f, TS_object);
-    armlow->rotate(45, -1.0f, 0.0f, 0.0f);
-
-    // Assemble arm
-    SLNode* arm = new SLNode("arm group ()");
-    arm->addMesh(new SLSphere(s, 0.3f, 16, 16, "shoulder", mat));
-    cyl = new SLNode(new SLCylinder(s, 0.2f, 1.0f, 1, res, false, false, "upper arm", mat), "upper arm (T5)");
-    cyl->translate(0.0f, 0.0f, 0.2f, TS_object);
-    arm->addChild(cyl);
-    arm->addChild(armlow);
-
-    // Assemble left & right arm
-    SLNode* armLeft = new SLNode("left arm group (T3,R2)");
-    armLeft->translate(-1.1f, 0.0f, 0.3f, TS_object);
-    armLeft->rotate(10, -1, 0, 0);
-    armLeft->addChild(arm);
-    SLNode* armRight = new SLNode("right arm group (T4,R3)");
-    armRight->translate(1.1f, 0.0f, 0.3f, TS_object);
-    armRight->rotate(-60, -1, 0, 0);
-    armRight->addChild(arm->copyRec());
-
-    // Assemble head & neck
-    SLNode* head = new SLNode(new SLSphere(s, 0.5f, res, res, "head", mat), "head (T1)");
-    head->translate(0.0f, 0.0f, -0.7f, TS_object);
-    SLNode* neck = new SLNode(new SLCylinder(s, 0.25f, 0.3f, 1, res, false, false, "neck", mat), "neck (T2)");
-    neck->translate(0.0f, 0.0f, -0.3f, TS_object);
-
-    // Assemble figure Left
-    SLNode* figure = new SLNode("figure group (R1)");
-    figure->addChild(new SLNode(new SLBox(s, -0.8f, -0.4f, 0.0f, 0.8f, 0.4f, 2.0f, "chest", mat), "chest"));
-    figure->addChild(head);
-    figure->addChild(neck);
-    figure->addChild(armLeft);
-    figure->addChild(armRight);
-    figure->addChild(legLeft);
-    figure->addChild(legRight);
-    figure->rotate(90, 1, 0, 0);
-
-    // Add animations for left leg
-    if (withAnimation)
-    {
-        legLeft = figure->findChild<SLNode>("left leg group (T8)");
-        legLeft->rotate(30, -1, 0, 0);
-        SLAnimation* anim = s->animManager().createNodeAnimation("figure animation", 2.0f, true, EC_inOutQuint, AL_pingPongLoop);
-        anim->createSimpleRotationNodeTrack(legLeft, 60, SLVec3f(1, 0, 0));
-
-        SLNode* legLowLeft = legLeft->findChild<SLNode>("low leg group (T11, R5)");
-        anim->createSimpleRotationNodeTrack(legLowLeft, 40, SLVec3f(1, 0, 0));
-
-        SLNode* feetLeft = legLeft->findChild<SLNode>("feet group (T13,R6)");
-        anim->createSimpleRotationNodeTrack(feetLeft, 40, SLVec3f(1, 0, 0));
-    }
-
-    return figure;
 }
 //-----------------------------------------------------------------------------

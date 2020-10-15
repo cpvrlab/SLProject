@@ -83,7 +83,7 @@ void AreaTrackingView::onCameraParamsChanged()
         if (_asyncLoader)
             delete _asyncLoader;
 
-        _asyncLoader = new MapLoader(_voc, fileName, _deviceData.erlebARDir(), area.slamMapFileName);
+        _asyncLoader = new MapLoader(_voc, area.vocLayer, fileName, _deviceData.erlebARDir(), area.slamMapFileName);
         _asyncLoader->start();
         _userGuidance.dataIsLoading(true);
 
@@ -282,7 +282,7 @@ void AreaTrackingView::initSlam()
     //                                            _camera->config().manipWidth,
     //                                            _camera->config().targetWidth);
 
-    WAISlamTrackPool::Params params;
+    WAISlam::Params params;
     params.cullRedundantPerc   = 0.95f;
     params.ensureKFIntegration = false;
     params.fixOldKfs           = true;
@@ -291,7 +291,7 @@ void AreaTrackingView::initSlam()
     params.serial              = false;
     params.trackOptFlow        = false;
 
-    _waiSlam = std::make_unique<WAISlamTrackPool>(
+    _waiSlam = std::make_unique<WAISlam>(
       _camera->scaledCameraMat(),
       _camera->calibration()->distortion(),
       _voc,
@@ -414,13 +414,19 @@ void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaI
         _imgBuffer.init(1, area.cameraFrameTargetSize);
 
 #ifdef LOAD_ASYNC
-    std::string fileName = _deviceData.vocabularyDir() + _vocabularyFileName;
+    std::string fileName;
+    if (area.vocFileName.empty())
+        fileName = _deviceData.vocabularyDir() + _vocabularyFileName;
+    else
+    {
+        fileName = _deviceData.erlebARDir() + area.vocFileName;
+    }
 
     //delete managed object
     if (_asyncLoader)
         delete _asyncLoader;
 
-    _asyncLoader = new MapLoader(_voc, fileName, _deviceData.erlebARDir(), area.slamMapFileName);
+    _asyncLoader = new MapLoader(_voc, area.vocLayer, fileName, _deviceData.erlebARDir(), area.slamMapFileName);
     _asyncLoader->start();
     _userGuidance.dataIsLoading(true);
 
@@ -531,7 +537,10 @@ void AreaTrackingView::updateTrackingVisualization(const bool iKnowWhereIAm, SEN
 
     //update visualization of matched map points (when WAI pose is valid)
     if (iKnowWhereIAm && (_gui.opacity() > 0.0001f))
-        _scene.renderMatchedMapPoints(_waiSlam->getMatchedMapPoints(), _gui.opacity());
+    {
+        auto lastFrame = _waiSlam->getLastFrame();
+        _scene.renderMatchedMapPoints(_waiSlam->getMatchedMapPoints(&lastFrame), _gui.opacity());
+    }
     else
         _scene.removeMatchedMapPoints();
 }

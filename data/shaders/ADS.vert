@@ -8,6 +8,8 @@
 //             WITHOUT ANY WARRANTIES WHETHER EXPRESSED OR IMPLIED.
 //#############################################################################
 
+precision highp float;
+
 //-----------------------------------------------------------------------------
 in          vec4     a_position;       // Vertex position attribute
 in          vec3     a_normal;         // Vertex normal attribute

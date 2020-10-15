@@ -255,7 +255,7 @@ inline float random(float min, float max)
 inline float random(int min, int max)
 {
     int range = max - min;
-    return min + rand() % range;
+    return (float)(min + rand() % range);
 }
 //-----------------------------------------------------------------------------
 //! Greatest common divisor of two integer numbers (ggT = grösster gemeinsame Teiler)

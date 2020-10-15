@@ -19,19 +19,21 @@ void SLDeviceLocation::init()
 {
     _isUsed             = false;
     _isFirstSensorValue = false;
-    _locLLA.set(0, 0, 0);
+    _locLatLonAlt.set(0, 0, 0);
     _locECEF.set(0, 0, 0);
     _locENU.set(0, 0, 0);
     _locAccuracyM    = 0.0f;
     _locMaxDistanceM = 1000.0f;
-    _defaultLLA.set(0, 0, 0);
+    _defaultLatLonAlt.set(0, 0, 0);
     _defaultENU.set(0, 0, 0);
-    _originLLA.set(0, 0, 0);
+    _originLatLonAlt.set(0, 0, 0);
     _originECEF.set(0, 0, 0);
     _originENU.set(0, 0, 0);
-    _originAccuracyM   = FLT_MAX;
-    _originSolarZenit  = 45.0f;
-    _originSolarAzimut = 0.0f;
+    _originAccuracyM    = FLT_MAX;
+    _originSolarZenith  = 45.0f;
+    _originSolarAzimuth = 0.0f;
+    _originSolarSunrise = 0.0f;
+    _originSolarSunset  = 0.0f;
     _wRecef.identity();
     _hasOrigin         = false;
     _useOriginAltitude = true;
@@ -61,18 +63,18 @@ a probability of 68% (2 sigma). The altitude in m is the most inaccurate
 information. The option _useOriginAltitude allows to overwrite the current
 altitude with the origins altitude.
 */
-void SLDeviceLocation::onLocationLLA(SLdouble gpsLatDEG,
-                                     SLdouble gpsLonDEG,
-                                     SLdouble gpsAltM,
-                                     SLfloat  accuracyM)
+void SLDeviceLocation::onLocationLatLonAlt(SLdouble latDEG,
+                                           SLdouble lonDEG,
+                                           SLdouble altM,
+                                           SLfloat  AccuracyM)
 {
     // Set altitude to use
-    _altGpsM       = (float)gpsAltM;
-    float altToUse = (float)gpsAltM;
-    if (geoTiffIsValid())
+    _altGpsM       = (float)altM;
+    float altToUse = (float)altM;
+
+    if (geoTiffIsAvailableAndValid())
     {
-        _altDemM = (float)_demGeoTiff.getHeightAtLatLon(gpsLatDEG, gpsLonDEG) +
-                   _eyesHeightM;
+        _altDemM = _demGeoTiff.getAltitudeAtLatLon(latDEG, lonDEG);
         altToUse = _altDemM;
     }
 
@@ -87,21 +89,21 @@ void SLDeviceLocation::onLocationLLA(SLdouble gpsLatDEG,
         }
 
         // Only improve if accuracy is higher and the improve time has not elapsed
-        if (accuracyM < _originAccuracyM ||
+        if (AccuracyM < _originAccuracyM ||
             _improveTimer.elapsedTimeInSec() < _improveTimeSEC)
         {
-            _originAccuracyM = accuracyM;
-            originLLA(gpsLatDEG, gpsLonDEG, altToUse);
-            defaultLLA(gpsLatDEG, gpsLonDEG, altToUse);
+            _originAccuracyM = AccuracyM;
+            originLatLonAlt(latDEG, lonDEG, altToUse);
+            defaultLatLonAlt(latDEG, lonDEG, altToUse);
         }
     }
 
-    _locLLA.set(gpsLatDEG, gpsLonDEG, _useOriginAltitude ? _originLLA.alt : altToUse);
+    _locLatLonAlt.set(latDEG, lonDEG, _useOriginAltitude ? _originLatLonAlt.alt : altToUse);
 
-    _locAccuracyM = accuracyM;
+    _locAccuracyM = AccuracyM;
 
     // Convert to cartesian ECEF coordinates
-    _locECEF.lla2ecef(_locLLA);
+    _locECEF.latlonAlt2ecef(_locLatLonAlt);
 
     // Transform to local east-north-up frame
     _locENU = _wRecef * _locECEF;
@@ -109,20 +111,20 @@ void SLDeviceLocation::onLocationLLA(SLdouble gpsLatDEG,
 //-----------------------------------------------------------------------------
 //! Set global origin in latitude, longitude and altitude.
 /*! The calculated values can be used for global camera positioning via GPS
-sensor.
+sensor. The origin is the zero point of the model.
 */
-void SLDeviceLocation::originLLA(SLdouble latDEG,
-                                 SLdouble lonDEG,
-                                 SLdouble altM)
+void SLDeviceLocation::originLatLonAlt(SLdouble latDEG,
+                                       SLdouble lonDEG,
+                                       SLdouble altM)
 {
-    _originLLA = SLVec3d(latDEG, lonDEG, altM);
-    _originECEF.lla2ecef(_originLLA);
+    _originLatLonAlt = SLVec3d(latDEG, lonDEG, altM);
+    _originECEF.latlonAlt2ecef(_originLatLonAlt);
 
-    //calculation of ecef to world (scene) rotation matrix
+    //calculation of ECEF to world (scene) rotation matrix
     //definition of rotation matrix for ECEF to world frame rotation:
     //world frame (scene) w.r.t. ENU frame
-    double phiRad = latDEG * Utils::DEG2RAD; //   phi == latitude
-    double lamRad = lonDEG * Utils::DEG2RAD; //lambda == longitude
+    double phiRad = latDEG * Utils::DEG2RAD; // phi == latitude
+    double lamRad = lonDEG * Utils::DEG2RAD; // lambda == longitude
     double sinPhi = sin(phiRad);
     double cosPhi = cos(phiRad);
     double sinLam = sin(lamRad);
@@ -149,25 +151,26 @@ void SLDeviceLocation::originLLA(SLdouble latDEG,
     //Indicate that origin is set. Otherwise it would be reset on each update
     _hasOrigin = true;
 
-    calculateSolarAngles(latDEG, lonDEG, altM);
+    calculateSolarAngles(_originLatLonAlt, std::time(nullptr));
 }
 //-----------------------------------------------------------------------------
 //! Sets the default location in latitude, longitude and altitude.
 /*! It must be called after setting the origin. If no origin is set with it
-will be automatically set in onLocationLLA. The default location is used by
+will be automatically set in onLocationLatLonAlt. The default location is used by
 the camera in SLCamera::setView if the current distance between _locENU and
 _originENU is greater than _locMaxDistanceM. Witch means that you are in real
 not near the location.
 */
-void SLDeviceLocation::defaultLLA(SLdouble latDEG,
-                                  SLdouble lonDEG,
-                                  SLdouble altM)
+void SLDeviceLocation::defaultLatLonAlt(SLdouble latDEG,
+                                        SLdouble lonDEG,
+                                        SLdouble altM)
 {
-    _defaultLLA.set(latDEG, lonDEG, _useOriginAltitude ? _originLLA.alt : altM);
+    _defaultLatLonAlt.set(latDEG, lonDEG, _useOriginAltitude ? _originLatLonAlt.alt : altM);
+    _locLatLonAlt = _defaultLatLonAlt;
 
     // Convert to cartesian ECEF coordinates
     SLVec3d defaultECEF;
-    defaultECEF.lla2ecef(_defaultLLA);
+    defaultECEF.latlonAlt2ecef(_defaultLatLonAlt);
 
     // Transform to local east-north-up frame
     _defaultENU = _wRecef * defaultECEF;
@@ -183,23 +186,20 @@ void SLDeviceLocation::isUsed(SLbool use)
 }
 //-----------------------------------------------------------------------------
 //! Calculates the solar angles at origin at local time
-/*! Calculates the zenit and azimut angle in deg. of the sun at the origin at
+/*! Calculates the zenith and azimuth angle in deg. of the sun at the origin at
 the local time using the Solar Position Algorithm from:
-http://rredc.nrel.gov/solar/codesandalgorithms/spa that is part of the
-lib-SLExternal.
+https://midcdmz.nrel.gov/spa/ that is part of the lib-SLExternal.
 */
-SLbool SLDeviceLocation::calculateSolarAngles(SLdouble latDEG,
-                                              SLdouble lonDEG,
-                                              SLdouble altM)
+SLbool SLDeviceLocation::calculateSolarAngles(SLVec3d     locationLatLonAlt,
+                                              std::time_t time)
 {
     // leave default angles if origin has not been set
     if (!_hasOrigin) return false;
 
-    std::time_t t = std::time(nullptr);
-    tm          ut{}, lt{};
-
-    memcpy(&ut, std::gmtime(&t), sizeof(tm));
-    memcpy(&lt, std::localtime(&t), sizeof(tm));
+    // transform time
+    tm ut{}, lt{};
+    memcpy(&ut, std::gmtime(&time), sizeof(tm));
+    memcpy(&lt, std::localtime(&time), sizeof(tm));
 
     ut.tm_year += 1900;
     lt.tm_year += 1900;
@@ -235,11 +235,11 @@ SLbool SLDeviceLocation::calculateSolarAngles(SLdouble latDEG,
     spa.timezone  = lt.tm_hour - ut.tm_hour;
     spa.delta_ut1 = 0;
     spa.delta_t   = 0;
-    spa.longitude = lonDEG;
-    spa.latitude  = latDEG;
-    spa.elevation = altM;
+    spa.longitude = locationLatLonAlt.lon;
+    spa.latitude  = locationLatLonAlt.lat;
+    spa.elevation = locationLatLonAlt.alt;
     // http://systemdesign.ch/wiki/Barometrische_Hoehenformel
-    spa.pressure      = 1013.25 * pow((1.0 - 0.0065 * altM / 288.15), 5.255);
+    spa.pressure      = 1013.25 * pow((1.0 - 0.0065 * locationLatLonAlt.alt / 288.15), 5.255);
     spa.temperature   = 15.0;
     spa.slope         = 0;
     spa.azm_rotation  = 0;
@@ -252,29 +252,33 @@ SLbool SLDeviceLocation::calculateSolarAngles(SLdouble latDEG,
 
     if (result == 0) //check for SPA errors
     {
-        _originSolarZenit  = (SLfloat)spa.zenith;
-        _originSolarAzimut = (SLfloat)spa.azimuth;
+        _originSolarZenith  = (SLfloat)spa.zenith;
+        _originSolarAzimuth = (SLfloat)spa.azimuth;
+        _originSolarSunrise = (SLfloat)spa.sunrise;
+        _originSolarSunset  = (SLfloat)spa.sunset;
 
-        SLfloat minSR = (SLfloat)(60.0 * (spa.sunrise - (int)(spa.sunrise)));
-        SLfloat secSR = (SLfloat)(60.0 * (minSR - floor(minSR)));
-        SLfloat minSS = (SLfloat)(60.0 * (spa.sunset - (int)(spa.sunset)));
-        SLfloat secSS = (SLfloat)(60.0 * (minSS - floor(minSS)));
+        SLfloat SRh = _originSolarSunrise;
+        SLfloat SRm = (SLfloat)(60.0f * (SRh - (int)(SRh)));
+        SLfloat SRs = (SLfloat)(60.0 * (SRm - floor(SRm)));
+        SLfloat SSh = _originSolarSunset;
+        SLfloat SSm = (SLfloat)(60.0f * (SSh - (int)(SSh)));
+        SLfloat SSs = (SLfloat)(60.0f * (SSm - floor(SSm)));
 
-        SL_LOG("Zenith          : %.6f degrees", _originSolarZenit);
-        SL_LOG("Azimuth         : %.6f degrees", _originSolarAzimut);
-        SL_LOG("Sunrise         : %02d:%02d:%02d Local Time", (int)(spa.sunrise), (int)minSR, (int)secSR);
-        SL_LOG("Sunset          : %02d:%02d:%02d Local Time", (int)(spa.sunset), (int)minSS, (int)secSS);
+        SL_LOG("Zenith          : %.6f degrees", _originSolarZenith);
+        SL_LOG("Azimuth         : %.6f degrees", _originSolarAzimuth);
+        SL_LOG("Sunrise         : %02d:%02d:%02d Local Time", (int)(SRh), (int)SRm, (int)SRs);
+        SL_LOG("Sunset          : %02d:%02d:%02d Local Time", (int)(SSh), (int)SSm, (int)SSs);
     }
     else
         SL_LOG("SPA Error Code: %d", result);
 
     if (_sunLightNode)
     {
-        // The azimut is from north eastwards
-        _sunLightNode->rotation(180.0f - _originSolarAzimut, SLVec3f::AXISY);
+        // The azimuth is from north eastwards
+        _sunLightNode->rotation(180.0f - _originSolarAzimuth, SLVec3f::AXISY);
 
         // The zenith angle is from up downwards
-        _sunLightNode->rotate(90.0f - _originSolarZenit, -SLVec3f::AXISX);
+        _sunLightNode->rotate(90.0f - _originSolarZenith, -SLVec3f::AXISX);
     }
 
     return (result == 0);
@@ -284,28 +288,31 @@ SLbool SLDeviceLocation::calculateSolarAngles(SLdouble latDEG,
 /* Loads a GeoTiff DEM (Digital Elevation Model) Image that must be in WGS84
  * coordinates. For more info see CVImageGeoTiff.
  * If the 32-bit image file and its JSON info file gets successfully loaded,
- * we can set the altitudes from the _originLLA and _defaultLLA by the DEM.
+ * we can set the altitudes from the _originLatLonAlt and _defaultLatLonAlt by the DEM.
  */
 void SLDeviceLocation::loadGeoTiff(const SLstring& geoTiffFile, const SLstring& appTag)
 {
-    assert(!_defaultLLA.isZero() &&
-           !_originLLA.isZero() &&
-           "Set first defaultLLA and originLLA before you add a GeoTiff.");
+    assert(!_defaultLatLonAlt.isZero() &&
+           !_originLatLonAlt.isZero() &&
+           "Set first defaultLatLonAlt and originLatLonAlt before you add a GeoTiff.");
 
     _demGeoTiff.loadGeoTiff(appTag, geoTiffFile);
 
     // Check that default and origin location is withing the GeoTiff extends
-    if (geoTiffIsValid())
+    if (geoTiffIsAvailableAndValid())
     {
         // Overwrite the altitudes
-        originLLA(_originLLA.lat,
-                  _originLLA.lon,
-                  _demGeoTiff.getHeightAtLatLon(_originLLA.lat, _originLLA.lon));
+        originLatLonAlt(_originLatLonAlt.lat,
+                        _originLatLonAlt.lon,
+                        _demGeoTiff.getAltitudeAtLatLon(_originLatLonAlt.lat,
+                                                        _originLatLonAlt.lon));
 
-        defaultLLA(_defaultLLA.lat,
-                   _defaultLLA.lon,
-                   _demGeoTiff.getHeightAtLatLon(_defaultLLA.lat, _defaultLLA.lon) +
-                     _eyesHeightM);
+        _altDemM = _demGeoTiff.getAltitudeAtLatLon(_defaultLatLonAlt.lat,
+                                                   _defaultLatLonAlt.lon) +
+                   _eyesHeightM;
+        defaultLatLonAlt(_defaultLatLonAlt.lat,
+                         _defaultLatLonAlt.lon,
+                         _altDemM);
     }
     else
     {
@@ -319,16 +326,16 @@ void SLDeviceLocation::loadGeoTiff(const SLstring& geoTiffFile, const SLstring& 
 /* Returns true if a geoTiff files is loaded and the origin and default
  * positions are within the extends of the image.
 */
-bool SLDeviceLocation::geoTiffIsValid()
+bool SLDeviceLocation::geoTiffIsAvailableAndValid()
 {
     return (!_demGeoTiff.cvMat().empty() &&
-            _originLLA.lat < _demGeoTiff.upperLeftLLA()[0] &&
-            _originLLA.lat > _demGeoTiff.lowerRightLLA()[0] &&
-            _originLLA.lon > _demGeoTiff.upperLeftLLA()[1] &&
-            _originLLA.lon < _demGeoTiff.lowerRightLLA()[1] &&
-            _defaultLLA.lat < _demGeoTiff.upperLeftLLA()[0] &&
-            _defaultLLA.lat > _demGeoTiff.lowerRightLLA()[0] &&
-            _defaultLLA.lon > _demGeoTiff.upperLeftLLA()[1] &&
-            _defaultLLA.lon < _demGeoTiff.lowerRightLLA()[1]);
+            _originLatLonAlt.lat < _demGeoTiff.upperLeftLatLonAlt()[0] &&
+            _originLatLonAlt.lat > _demGeoTiff.lowerRightLatLonAlt()[0] &&
+            _originLatLonAlt.lon > _demGeoTiff.upperLeftLatLonAlt()[1] &&
+            _originLatLonAlt.lon < _demGeoTiff.lowerRightLatLonAlt()[1] &&
+            _defaultLatLonAlt.lat < _demGeoTiff.upperLeftLatLonAlt()[0] &&
+            _defaultLatLonAlt.lat > _demGeoTiff.lowerRightLatLonAlt()[0] &&
+            _defaultLatLonAlt.lon > _demGeoTiff.upperLeftLatLonAlt()[1] &&
+            _defaultLatLonAlt.lon < _demGeoTiff.lowerRightLatLonAlt()[1]);
 }
 //------------------------------------------------------------------------------

@@ -103,6 +103,7 @@ file(GLOB headers
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLBox.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLCamera.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLCircle.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLColorLUT.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLCone.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLCompactGrid.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLCoordAxis.h
@@ -155,7 +156,6 @@ file(GLOB headers
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLSphere.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLSpheric.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLText.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLTransferFunction.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLTransformNode.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLTriangle.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/TriangleBoxIntersect.h
@@ -207,6 +207,7 @@ set(sources
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLBox.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLCamera.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLCircle.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/SLColorLUT.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLCone.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLCompactGrid.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLCoordAxis.cpp
@@ -248,7 +249,6 @@ set(sources
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SLSkybox.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLSpheric.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLText.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/SLTransferFunction.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLTransformNode.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLTriangle.cpp
         )

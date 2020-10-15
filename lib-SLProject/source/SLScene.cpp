@@ -124,7 +124,7 @@ void SLScene::unInit()
 \n 2) Update all animations
 \n 3) Update AABBs
 \n
-\return true if really something got updated
+@return true if really something got updated
 */
 bool SLScene::onUpdate(bool renderTypeIsRT,
                        bool voxelsAreShown)

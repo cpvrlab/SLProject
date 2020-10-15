@@ -17,6 +17,7 @@
 
 #if USE_FBOW
 #    include <fbow.h>
+#    include <vocabulary_creator.h>
 #else
 #    include <OrbSlam/ORBVocabulary.h>
 #endif
@@ -51,19 +52,24 @@ struct WAIFeatVector
 class WAI_API WAIOrbVocabulary
 {
 public:
-    WAIOrbVocabulary();
+    WAIOrbVocabulary(int layer = 2);
     ~WAIOrbVocabulary();
     void loadFromFile(std::string strVocFile);
+    void create(std::vector<cv::Mat> &features, int k, int l);
 
 #if USE_FBOW
     fbow::Vocabulary* _vocabulary = nullptr;
 #else
     ORB_SLAM2::ORBVocabulary* _vocabulary = nullptr;
 #endif
-
     void   transform(const cv::Mat& descriptors, WAIBowVector& bow, WAIFeatVector& feat);
     double score(WAIBowVector& bow1, WAIBowVector& bow2);
     size_t size();
+    void   save(std::string path);
+    void   setLayer(int layer) { _layer = layer; }
+
+private:
+    int _layer;
 };
 
 #endif // !WAI_ORBVOCABULARY_H

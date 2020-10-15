@@ -14,7 +14,7 @@ SLVec2i GPSMapper2D::mapLLALocation(const SLVec3d& llaLoc)
 {
     //transform to ecef frame
     SLVec3d ecefP;
-    ecefP.lla2ecef(llaLoc);
+    ecefP.latlonAlt2ecef(llaLoc);
 
     //rotate to map frame
     SLVec3d mapP = _mapRecef * ecefP;
@@ -48,7 +48,7 @@ void GPSMapper2D::init()
 void GPSMapper2D::calcMapOrigin()
 {
     //calculate map origin in ecef frame
-    _ecefO.lla2ecef(_tlLLA);
+    _ecefO.latlonAlt2ecef(_tlLLA);
 
     //find ecef to map rotation matrix:
     //1. calculate rotation of ecef frame wrt. enu frame
@@ -84,7 +84,7 @@ void GPSMapper2D::calcScale()
 {
     //bottom right corner in ecef
     SLVec3d ecefBR;
-    ecefBR.lla2ecef(_brLLA);
+    ecefBR.latlonAlt2ecef(_brLLA);
     //rotate br ecef to global map frame
     SLVec3d mapBR = _mapRecef * ecefBR;
 

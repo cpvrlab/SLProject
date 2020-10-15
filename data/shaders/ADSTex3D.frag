@@ -8,9 +8,7 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#ifdef GL_FRAGMENT_PRECISION_HIGH
-precision mediump float;
-#endif
+precision highp float;
 
 //-----------------------------------------------------------------------------
 in      vec4      v_color;      // interpolated color from the vertex shader

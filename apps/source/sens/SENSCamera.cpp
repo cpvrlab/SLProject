@@ -192,14 +192,14 @@ void SENSCameraBase::updateFrame(cv::Mat bgrImg, cv::Mat intrinsics, bool intrin
     //inform listeners
     {
         std::lock_guard<std::mutex> lock(_listenerMutex);
-        if(_listeners.size())
+        if (_listeners.size())
         {
             SENSTimePt timePt = SENSClock::now();
-            for (SENSCameraListener *l : _listeners)
+            for (SENSCameraListener* l : _listeners)
                 l->onFrame(timePt, bgrImg.clone());
         }
     }
-    
+
     //SENSFramePtr sensFrame;
     //SENSFramePtr sensFrame = postProcessNewFrame(bgrImg, intrinsics, intrinsicsChanged);
     {
@@ -228,11 +228,11 @@ void SENSCameraBase::initCalibration(float fovDegFallbackGuess)
     //now we adapt the calibration to the target size
     //if (_config.targetWidth != _config.streamConfig.widthPix || _config.targetHeight != _config.streamConfig.heightPix)
     //    _calibration->adaptForNewResolution({_config.targetWidth, _config.targetHeight}, false);
-    
+
     //inform listeners about calibration
     {
         std::lock_guard<std::mutex> lock(_listenerMutex);
-        for(SENSCameraListener* l : _listeners)
+        for (SENSCameraListener* l : _listeners)
             l->onCalibrationChanged(*_calibration);
     }
 }
@@ -250,10 +250,10 @@ void SENSCameraBase::setCalibration(SENSCalibration calibration, bool buildUndis
     //    _calibration->adaptForNewResolution({_config.manipWidth, _config.manipHeight}, buildUndistortionMaps);
     //else if (_config.targetWidth != _config.streamConfig->widthPix || _config.targetHeight != _config.streamConfig->heightPix)
     //    _calibration->adaptForNewResolution({_config.targetWidth, _config.targetHeight}, buildUndistortionMaps);
-    
+
     {
         std::lock_guard<std::mutex> lock(_listenerMutex);
-        for(SENSCameraListener* l : _listeners)
+        for (SENSCameraListener* l : _listeners)
             l->onCalibrationChanged(*_calibration);
     }
 }

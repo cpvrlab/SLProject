@@ -8,9 +8,8 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#ifdef GL_ES
-precision mediump float;
-#endif
+precision highp float;
+
 //-----------------------------------------------------------------------------
 uniform int         u_camFbWidth;       // framebuffer width
 uniform int         u_camFbHeight;      // framebuffer height

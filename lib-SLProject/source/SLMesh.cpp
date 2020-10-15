@@ -8,7 +8,6 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include <stdafx.h> // Must be the 1st include followed by  an empty line
 #include <SLCompactGrid.h>
 #include <SLNode.h>
 #include <SLRay.h>
@@ -49,6 +48,8 @@ SLMesh::SLMesh(SLAssetManager* assetMgr, const SLstring& name) : SLObject(name)
     _accelStructOutOfDate = true;
     _isSelected           = false;
     _edgeAngleDEG         = 30.0f;
+    _edgeWidth            = 2.0f;
+    _edgeColor            = SLCol4f::WHITE;
     _vertexPosEpsilon     = 0.001f;
 
     // Add this mesh to the global resource vector for deallocation
@@ -347,7 +348,7 @@ Optionally you can draw the normals and/or the uniform grid voxels.
 3b) Pass the modelview and modelview-projection matrix to the shader.<br>
 3c) If needed build and pass the inverse modelview and the normal matrix.<br>
 3d) If the mesh has a skeleton and HW skinning is applied pass the joint matrices.<br>
-4) Finally do the draw call<br>
+4) Finally do the draw call by calling SLGLVertexArray::drawElementsAs<br>
 5) Draw optional normals & tangents<br>
 6) Draw optional acceleration structure<br>
 7) Draw selected mesh with points<br>
@@ -456,7 +457,7 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
     ///////////////////////////////
 
     if (sv->drawBit(SL_DB_ONLYEDGES) && (!IE32.empty() || !IE16.empty()))
-        _vao.drawEdges(SLCol4f::WHITE, 3.0f);
+        _vao.drawEdges(_edgeColor, _edgeWidth);
     else
     {
         if (_primitive == PT_points)
@@ -468,7 +469,7 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
             if (sv->drawBit(SL_DB_WITHEDGES) && (!IE32.empty() || !IE16.empty()))
             {
                 stateGL->polygonOffset(true, 1.0f, 1.0f);
-                _vao.drawEdges(SLCol4f::WHITE, 3.0f);
+                _vao.drawEdges(_edgeColor, _edgeWidth);
                 stateGL->polygonOffset(false);
             }
         }
@@ -709,10 +710,7 @@ void SLMesh::generateVAO(SLGLVertexArray& vao)
         {
             IE16.clear();
             IE32.clear();
-
-            // compute hard edges with libigl
             computeHardEdgesIndices(_edgeAngleDEG, _vertexPosEpsilon);
-
             if (!I16.empty()) vao.setIndices(&I16, &IE16);
             if (!I32.empty()) vao.setIndices(&I32, &IE32);
         }
@@ -730,25 +728,32 @@ void SLMesh::generateVAO(SLGLVertexArray& vao)
 }
 //-----------------------------------------------------------------------------
 //! computes the hard edges and stores the vertex indexes separately
+/*! Hard edges are edges between faces where there normals have an angle
+ greater than angleDEG (by default 30°). If a mesh has only smooth edges such
+ as a sphere there will be no hard edges. The indices of those hard edges are
+ stored in the vector IE16 or IE32. For rendering these indices are appended
+ behind the indices for the triangle drawing. This is because the index the
+ same vertices of the same VAO. See SLMesh::generateVAO for the details.
+ */
 void SLMesh::computeHardEdgesIndices(float angleDEG,
                                      float epsilon)
 {
-    //Dihedral angle considered to sharp
+    // dihedral angle considered to sharp
     float angleRAD = angleDEG * Utils::DEG2RAD;
 
     if (_primitive != PT_triangles)
         return;
 
-    Eigen::MatrixXd V;
-    Eigen::MatrixXi F;
-    Eigen::MatrixXd newV;  // new vertices after duplicate removal
-    Eigen::MatrixXi newF;  // new faces after duplicate removal
+    Eigen::MatrixXf V;     // Input vertices for igl
+    Eigen::MatrixXi F;     // Input faces (=triangle) indices for igl
+    Eigen::MatrixXf newV;  // new vertices after duplicate removal
+    Eigen::MatrixXi newF;  // new face indices after duplicate removal
     Eigen::MatrixXi edges; // all edges
     Eigen::MatrixXi edgeMap;
     Eigen::MatrixXi uniqueEdges;
-    Eigen::MatrixXd faceN;
-    Eigen::VectorXi SVI; // new to old index mapping
-    Eigen::VectorXi SVJ; // old to new index mapping
+    Eigen::MatrixXf faceN; // face normals
+    Eigen::VectorXi SVI;   // new to old index mapping
+    Eigen::VectorXi SVJ;   // old to new index mapping
 
     std::vector<std::vector<int>> uE2E;
 
@@ -770,7 +775,7 @@ void SLMesh::computeHardEdgesIndices(float angleDEG,
             F.row(j) << I32[i], I32[i + 1], I32[i + 2];
     }
 
-    //Extract sharp edges
+    // extract sharp edges
     igl::remove_duplicate_vertices(V, F, epsilon, newV, SVI, SVJ, newF);
     igl::per_face_normals(newV, newF, faceN);
     igl::unique_edge_map(newF, edges, uniqueEdges, edgeMap, uE2E);
@@ -778,23 +783,26 @@ void SLMesh::computeHardEdgesIndices(float angleDEG,
     for (int u = 0; u < uE2E.size(); u++)
     {
         bool sharp = false;
-        if (uE2E[u].size() == 1) // Edges at the border (with only one triangle)
+        if (uE2E[u].size() == 1) // edges at the border (with only one triangle)
             sharp = true;
 
+        // if more than one edge is passing here, compute dihedral angles
         for (int i = 0; i < uE2E[u].size(); i++)
         {
             for (int j = i + 1; j < uE2E[u].size(); j++)
             {
-                const int                   ei  = uE2E[u][i];
-                const int                   fi  = ei % newF.rows();
-                const int                   ej  = uE2E[u][j];
-                const int                   fj  = ej % newF.rows();
-                Eigen::Matrix<double, 1, 3> ni  = faceN.row(fi);
-                Eigen::Matrix<double, 1, 3> nj  = faceN.row(fj);
-                Eigen::Matrix<double, 1, 3> ev  = (newV.row(edges(ei, 1)) - newV.row(edges(ei, 0))).normalized();
-                float                       dij = M_PI - atan2((ni.cross(nj)).dot(ev), ni.dot(nj));
-                if (std::abs(dij - M_PI) > angleRAD)
-                    sharp = true;
+                // E[faceId + |F| * c] opposite of vertex F[faceId][c]
+                // ei = fi + |F| * c -> ei % |F| = fi % |F| = fi; fi is the face adjacent to ei
+                // ej = fj + |F| * c -> ej % |F| = fj % |F| = fj; fj is the face adjacent to ej
+                const int                  ei  = uE2E[u][i]; // edge i
+                const int                  fi  = ei % newF.rows();
+                const int                  ej  = uE2E[u][j]; // edge j
+                const int                  fj  = ej % newF.rows();
+                Eigen::Matrix<float, 1, 3> ni  = faceN.row(fi);
+                Eigen::Matrix<float, 1, 3> nj  = faceN.row(fj);
+                Eigen::Matrix<float, 1, 3> ev  = (newV.row(edges(ei, 1)) - newV.row(edges(ei, 0))).normalized();
+                float                      dij = Utils::PI - atan2((ni.cross(nj)).dot(ev), ni.dot(nj));
+                sharp                          = std::abs(dij - Utils::PI) > angleRAD;
             }
         }
 
@@ -813,6 +821,7 @@ void SLMesh::computeHardEdgesIndices(float angleDEG,
         }
     }
 }
+//-----------------------------------------------------------------------------
 /*!
 SLMesh::hit does the ray-mesh intersection test. If no acceleration
 structure is defined all triangles are tested in a brute force manner.

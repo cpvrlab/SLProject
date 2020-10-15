@@ -10,6 +10,8 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
+precision highp float;
+
 //-----------------------------------------------------------------------------
 layout (location = 0) in vec4  a_position; // Vertex position attribute
 layout (location = 1) in vec3  a_normal;   // Vertex normal attribute

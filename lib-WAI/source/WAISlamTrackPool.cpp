@@ -1,13 +1,13 @@
 #include "WAISlamTrackPool.h"
 
-WAISlamTrackPool::WAISlamTrackPool(const cv::Mat&          intrinsic,
-                                     const cv::Mat&           distortion,
-                                     WAIOrbVocabulary*        voc,
-                                     KPextractor*             iniExtractor,
-                                     KPextractor*             relocExtractor,
-                                     KPextractor*             extractor,
-                                     std::unique_ptr<WAIMap>  globalMap,
-                                     WAISlamTrackPool::Params params)
+WAISlamTrackPool::WAISlamTrackPool(const cv::Mat&           intrinsic,
+                                   const cv::Mat&           distortion,
+                                   WAIOrbVocabulary*        voc,
+                                   KPextractor*             iniExtractor,
+                                   KPextractor*             relocExtractor,
+                                   KPextractor*             extractor,
+                                   std::unique_ptr<WAIMap>  globalMap,
+                                   WAISlamTrackPool::Params params)
 {
     _iniData.initializer = nullptr;
     _params              = params;
@@ -142,7 +142,7 @@ void WAISlamTrackPool::updatePose(WAIFrame& frame)
             }
         }
         break;
-            
+
         case WAI::TrackingState_TrackingStart: {
             _relocFrameCounter++;
             if (_relocFrameCounter > 0)
@@ -171,7 +171,7 @@ void WAISlamTrackPool::updatePose(WAIFrame& frame)
         break;
         case WAI::TrackingState_TrackingLost: {
             int inliers;
-            if (relocalization(frame, _globalMap.get(), _localMap, inliers))
+            if (relocalization(frame, _globalMap.get(), _localMap, _params.minCommonWordFactor, inliers, _params.minAccScoreFilter))
             {
                 _relocFrameCounter = 0;
                 _lastRelocFrameId  = frame.mnId;
@@ -198,10 +198,10 @@ cv::Mat WAISlamTrackPool::getPose()
 }
 
 void WAISlamTrackPool::drawInfo(cv::Mat& imageBGR,
-                               float    scale,
-                               bool     showInitLine,
-                               bool     showKeyPoints,
-                               bool     showKeyPointsMatched)
+                                float    scale,
+                                bool     showInitLine,
+                                bool     showKeyPoints,
+                                bool     showKeyPointsMatched)
 {
     if (_state == WAI::TrackingState_Initializing)
     {

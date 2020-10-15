@@ -1,4 +1,5 @@
 #include "SENSSimulated.h"
+#include "HighResTimer.h"
 
 //-----------------------------------------------------------------------------
 template<typename T>
@@ -22,6 +23,7 @@ void SENSSimulated<T>::startSim()
     _startSimCB();
     //stop the local simulation thread if running
     stopSim();
+    _errorMsg.clear();
     //start the simulation thread
     _thread = std::thread(&SENSSimulated::feedSensor, this /*, startTimePt, _commonSimStartTimePt*/);
 }
@@ -42,22 +44,33 @@ void SENSSimulated<T>::stopSim()
 }
 
 template<typename T>
+bool SENSSimulated<T>::getErrorMsg(std::string& msg)
+{
+    std::lock_guard<std::mutex> lock(_msgMutex);
+    if (_errorMsg.empty())
+        return false;
+    else
+    {
+        msg = _errorMsg;
+        return true;
+    }
+}
+
+template<typename T>
 void SENSSimulated<T>::feedSensor(/*const SENSTimePt startTimePt, const SENSTimePt simStartTimePt*/)
 {
     _threadIsRunning = true;
-    int counter      = 0;
+    //index of current data set to feed
+    int counter = 0;
 
-    //auto       passedSimTime = std::chrono::duration_cast<SENSMicroseconds>((SENSTimePt)SENSClock::now() - startTimePt);
-    //SENSTimePt simTime       = simStartTimePt + passedSimTime;
     SENSTimePt simTime = _clock.now();
-
     //bring counter close to startTimePt (maybe we skip some values to synchronize simulated sensors)
     while (counter < _data.size() && _data[counter].first < simTime)
         counter++;
 
-    //end of simulation
     if (counter >= _data.size())
     {
+        //end of simulation
         _threadIsRunning = false;
         _sensorSimStoppedCB();
         return;
@@ -68,21 +81,38 @@ void SENSSimulated<T>::feedSensor(/*const SENSTimePt startTimePt, const SENSTime
         //estimate current sim time
         SENSTimePt simTime = _clock.now();
 
-        //process late values
-        //int i = 0;
-        while (counter < _data.size() && _data[counter].first < simTime)
+        //feed latest data
+        int oldCounter = counter;
+        if (counter < _data.size() && _data[counter].first <= simTime)
         {
             //SENS_DEBUG("feed sensor index %d with latency: %d us, SimT: %d, ValueT: %d", counter, std::chrono::duration_cast<SENSMicroseconds>(_data[counter].first - simTime).count(), std::chrono::time_point_cast<SENSMicroseconds>(simTime).time_since_epoch().count(), std::chrono::time_point_cast<SENSMicroseconds>(_data[counter].first).time_since_epoch().count());
-            //SENS_DEBUG("feed %s sensor index %d with latency: %d us", _name.c_str(), counter, std::chrono::duration_cast<SENSMicroseconds>(_data[counter].first - simTime).count());
+            SENS_DEBUG("feed %s sensor index %d with latency: %d us", _name.c_str(), counter, std::chrono::duration_cast<SENSMicroseconds>(_data[counter].first - simTime).count());
             feedSensorData(counter);
+            if (_stop)
+                break;
 
-            //setting the location maybe took some time, so we update simulation time
+            //update the counter
             simTime = _clock.now();
-            counter++;
-            //i++;
+            while (counter < _data.size() && _data[counter].first < simTime)
+                counter++;
         }
-        //if (i > 0)
-        //    SENS_DEBUG("grabbed %d frames", i);
+
+        if (counter - oldCounter > 1)
+        {
+            //for feeding camera frames from cv::videocapture we need a special treatment in this case
+            //(THIS FUNCTION MAY CHANGE THE COUNTER)
+            onLatencyProblem(counter);
+            //report an error
+            int numberOfSkippedData = counter - oldCounter;
+
+            std::stringstream ss;
+            ss << "Data feeding is too slow. Skipped " << numberOfSkippedData << " data sets!";
+            SENS_WARN("SENSSimulated feedSensor: %s", ss.str().c_str());
+            {
+                std::lock_guard<std::mutex> lock(_msgMutex);
+                _errorMsg = ss.str();
+            }
+        }
 
         //end of simulation
         if (counter >= _data.size())
@@ -91,24 +121,20 @@ void SENSSimulated<T>::feedSensor(/*const SENSTimePt startTimePt, const SENSTime
         //prepare things that may take some time (e.g. for video reading we can already read the frame and do decoding and maybe it also blocks for some reasons..)
         prepareSensorData(counter);
 
-        //passedSimTime = std::chrono::duration_cast<SENSMicroseconds>((SENSTimePt)SENSClock::now() - startTimePt);
-        //simTime       = simStartTimePt + passedSimTime;
+        //WAITING DOES NOT WORK VERY EXACTLY ON WINDOWS (it does wake too late)
+#ifdef WAIT
         simTime = _clock.now();
-
-        //locationsCounter should now point to a value in the simulation future so lets wait
-        const SENSTimePt& valueTime = _data[counter].first;
-
         //simTime should now be smaller than valueTime because valueTime is in the simulation future
-        SENSMicroseconds waitTimeUs = std::chrono::duration_cast<SENSMicroseconds>(valueTime - simTime);
+        SENSMicroseconds waitTimeUs = std::chrono::duration_cast<SENSMicroseconds>(_data[counter].first - simTime);
         //We reduce the wait time because thread sleep is not very exact (best is not to wait at all)
-        SENSMicroseconds reducedWaitTimeUs((long)(0.1 * (double)waitTimeUs.count()));
+        SENSMicroseconds reducedWaitTimeUs((long)(0.01 * (double)waitTimeUs.count()));
 
         //HighResTimer t;
         std::unique_lock<std::mutex> lock(_mutex);
         _condVar.wait_for(lock, reducedWaitTimeUs, [&] { return _stop == true; });
-        //SENS_DEBUG("wait time %d us", reducedWaitTimeUs.count());
+        //SENS_DEBUG("wait time %d us", waitTimeUs.count());
         //SENS_DEBUG("woke after %d us", t.elapsedTimeInMicroSec());
-
+#endif
         if (_stop)
             break;
     }
@@ -323,10 +349,6 @@ const SENSCaptureProperties& SENSSimulatedCamera::captureProperties()
         {
             if (!_cap.open(_videoFileName))
                 throw SENSException(SENSType::CAM, "Could not open camera simulator for filename: " + _videoFileName, __LINE__, __FILE__);
-            else
-            {
-                //_cap.set(cv::CAP_PROP_FPS, 1);
-            }
         }
 
         cv::Mat frame;
@@ -354,19 +376,21 @@ SENSSimulatedCamera::SENSSimulatedCamera(StartSimCB                             
 
 void SENSSimulatedCamera::feedSensorData(const int counter)
 {
+    HighResTimer t;
     //prepare if not yet prepared (e.g. when while loop writes multiple lines)
     if (_data[counter].second != _preparedFrameIndex)
     {
+        SENS_DEBUG("preparing in feedSensorData");
         prepareSensorData(counter);
     }
-    
+
     //todo: move to base class
     {
         std::lock_guard<std::mutex> lock(_listenerMutex);
-        if(_listeners.size())
+        if (_listeners.size())
         {
             SENSTimePt timePt = SENSClock::now();
-            for(SENSCameraListener* l : _listeners)
+            for (SENSCameraListener* l : _listeners)
                 l->onFrame(timePt, _preparedFrame.clone());
         }
     }
@@ -375,6 +399,8 @@ void SENSSimulatedCamera::feedSensorData(const int counter)
         std::lock_guard<std::mutex> lock(_frameMutex);
         _frame = _preparedFrame;
     }
+
+    SENS_DEBUG("feedSensorData %lld us", t.elapsedTimeInMicroSec());
 }
 
 void SENSSimulatedCamera::prepareSensorData(const int counter)
@@ -383,15 +409,60 @@ void SENSSimulatedCamera::prepareSensorData(const int counter)
     if (frameIndex == _preparedFrameIndex)
         return;
 
-    _cap.set(cv::CAP_PROP_POS_FRAMES, frameIndex);
+    HighResTimer t;
+
+    int nextFramePos = _cap.get(cv::CAP_PROP_POS_FRAMES);
+    if (nextFramePos != frameIndex)
+    {
+        SENS_DEBUG("updating frame pos");
+        _cap.set(cv::CAP_PROP_POS_FRAMES, frameIndex);
+    }
 
     cv::Mat frame;
-    //HighResTimer t;
+
     _cap.read(frame);
-    //SENS_DEBUG("read time index %d: %d", frameIndex, t.elapsedTimeInMicroSec());
+
     {
         _preparedFrameIndex = frameIndex;
         std::lock_guard<std::mutex> lock(_frameMutex);
         _preparedFrame = frame;
+    }
+
+    SENS_DEBUG("prepared index %d: %lld", frameIndex, t.elapsedTimeInMicroSec());
+}
+
+void SENSSimulatedCamera::onLatencyProblem(int& counter)
+{
+    //Setting the next frame position may take a lot of time.
+    //Thats why we need this special treatment for camera feed.
+
+    //update the frame pos with current counter and measure needed time
+    SENSTimePt t0 = SENSClock::now();
+    prepareSensorData(counter);
+    SENSTimePt       t1         = SENSClock::now();
+    SENSMicroseconds neededTime = std::chrono::duration_cast<SENSMicroseconds>(t1 - t0);
+
+    //SENS_DEBUG("update CAP_PROP_POS_FRAMES %d: %lld", counter, t.elapsedTimeInMicroSec());
+    counter++;
+    SENSTimePt now = _clock.now();
+    while (counter < _data.size() - 1 && _data[counter].first < now)
+    {
+        //when we enter this loop the frame the neededTime for pos update took longer than the availableTime between too values.
+        //we measure how much longer and update the counter accordingly
+        SENSMicroseconds availableTime = std::chrono::duration_cast<SENSMicroseconds>(_data[counter + 1].first - _data[counter].first);
+        auto             factor        = neededTime.count() / availableTime.count();
+        factor++;
+        SENS_DEBUG("factor %lld neededTime %lld available time %lld", factor, neededTime.count(), availableTime.count());
+        counter += factor;
+
+        if (counter < _data.size())
+        {
+            t0 = SENSClock::now();
+            prepareSensorData(counter);
+            t1         = SENSClock::now();
+            neededTime = std::chrono::duration_cast<SENSMicroseconds>(t1 - t0);
+        }
+
+        now = _clock.now();
     }
 }

@@ -7,63 +7,68 @@ function(copy_resources_slprojectdemo TARGET_DIR)
 	
 	# Definition
 	file(GLOB_RECURSE 
-		TEXTURES
-		RELATIVE
-		${SL_PROJECT_DATA_ROOT}
-	    ${SL_PROJECT_ROOT}/data/images/textures/brick0512_C.png
-	    ${SL_PROJECT_ROOT}/data/images/textures/brick*.jpg
-	    ${SL_PROJECT_ROOT}/data/images/textures/CompileError.png
-	    ${SL_PROJECT_ROOT}/data/images/textures/Checkerboard0512_C.png
-	    ${SL_PROJECT_ROOT}/data/images/textures/Chess0256_C.bmp
-	    ${SL_PROJECT_ROOT}/data/images/textures/cursor.png
-	    ${SL_PROJECT_ROOT}/data/images/textures/Desert*_C.jpg
-	    ${SL_PROJECT_ROOT}/data/images/textures/earth*.jpg
-	    ${SL_PROJECT_ROOT}/data/images/textures/features_stones.png
-	    ${SL_PROJECT_ROOT}/data/images/textures/grass0512_C.jpg
-	    ${SL_PROJECT_ROOT}/data/images/textures/gray_0256_C.jpg
-	    ${SL_PROJECT_ROOT}/data/images/textures/i*_0000b.png
-	    ${SL_PROJECT_ROOT}/data/images/textures/LiveVideoError.png
-	    ${SL_PROJECT_ROOT}/data/images/textures/LogoCPVR_256L.png
-	    ${SL_PROJECT_ROOT}/data/images/textures/MuttenzerBox*.png
-	    ${SL_PROJECT_ROOT}/data/images/textures/Pool*.png
-	    ${SL_PROJECT_ROOT}/data/images/textures/rusty-metal_2048*.jpg
-	    ${SL_PROJECT_ROOT}/data/images/textures/Testmap_0512_C.png
-	    ${SL_PROJECT_ROOT}/data/images/textures/tile1_0256_C.jpg
-	    ${SL_PROJECT_ROOT}/data/images/textures/tree1_1024_C.png
-	    ${SL_PROJECT_ROOT}/data/images/textures/Vision*.png
-	    ${SL_PROJECT_ROOT}/data/images/textures/wood*.jpg
-	    ${SL_PROJECT_ROOT}/data/images/textures/Wave_radial10_256C.jpg
+			TEXTURES
+			RELATIVE
+			${SL_PROJECT_DATA_ROOT}
+			${SL_PROJECT_ROOT}/data/images/textures/brick0512_C.png
+			${SL_PROJECT_ROOT}/data/images/textures/brick*.jpg
+			${SL_PROJECT_ROOT}/data/images/textures/CompileError.png
+			${SL_PROJECT_ROOT}/data/images/textures/Checkerboard0512_C.png
+			${SL_PROJECT_ROOT}/data/images/textures/Chess0256_C.bmp
+			${SL_PROJECT_ROOT}/data/images/textures/cursor.png
+			${SL_PROJECT_ROOT}/data/images/textures/Desert*_C.jpg
+			${SL_PROJECT_ROOT}/data/images/textures/earth*.jpg
+			${SL_PROJECT_ROOT}/data/images/textures/features_stones.png
+			${SL_PROJECT_ROOT}/data/images/textures/grass0512_C.jpg
+			${SL_PROJECT_ROOT}/data/images/textures/gray_0256_C.jpg
+			${SL_PROJECT_ROOT}/data/images/textures/i*_0000b.png
+			${SL_PROJECT_ROOT}/data/images/textures/LiveVideoError.png
+			${SL_PROJECT_ROOT}/data/images/textures/LogoCPVR_256L.png
+			${SL_PROJECT_ROOT}/data/images/textures/MuttenzerBox*.png
+			${SL_PROJECT_ROOT}/data/images/textures/Pool*.png
+			${SL_PROJECT_ROOT}/data/images/textures/rusty-metal_2048*.jpg
+			${SL_PROJECT_ROOT}/data/images/textures/Testmap_0512_C.png
+			${SL_PROJECT_ROOT}/data/images/textures/TexNotFound.png
+			${SL_PROJECT_ROOT}/data/images/textures/tile1_0256_C.jpg
+			${SL_PROJECT_ROOT}/data/images/textures/tree1_1024_C.png
+			${SL_PROJECT_ROOT}/data/images/textures/Vision*.png
+			${SL_PROJECT_ROOT}/data/images/textures/wood*.jpg
+			${SL_PROJECT_ROOT}/data/images/textures/Wave_radial10_256C.jpg
 	    )
 
 	file(GLOB_RECURSE 
-		VIDEOS
-		RELATIVE
-		${SL_PROJECT_DATA_ROOT}
-	    ${SL_PROJECT_ROOT}/data/videos/street3.mp4
+			VIDEOS
+			RELATIVE
+			${SL_PROJECT_DATA_ROOT}
+			${SL_PROJECT_ROOT}/data/videos/street3.mp4
 	    )
 
 	file(GLOB_RECURSE 
-		FONTS
-		RELATIVE
-		${SL_PROJECT_DATA_ROOT}
-	    ${SL_PROJECT_ROOT}/data/images/fonts/*.png
-	    ${SL_PROJECT_ROOT}/data/images/fonts/*.ttf
+			FONTS
+			RELATIVE
+			${SL_PROJECT_DATA_ROOT}
+			${SL_PROJECT_ROOT}/data/images/fonts/*.png
+			${SL_PROJECT_ROOT}/data/images/fonts/*.ttf
 	    )
 
 	file(GLOB_RECURSE 
-		MODELS
-		RELATIVE
-		${SL_PROJECT_DATA_ROOT}
-	    "${SL_PROJECT_ROOT}/data/models/3DS/*"
-	    "${SL_PROJECT_ROOT}/data/models/DAE/*"
-	    "${SL_PROJECT_ROOT}/data/models/FBX/*"		
-	    #${SL_PROJECT_ROOT}/data/models/GLTF/* # exclude these models from releas apk
-	    #${SL_PROJECT_ROOT}/data/models/PLY/* # exclude these models from releas apk
+			MODELS
+			RELATIVE
+			${SL_PROJECT_DATA_ROOT}
+			"${SL_PROJECT_ROOT}/data/models/3DS/*"
+			"${SL_PROJECT_ROOT}/data/models/DAE/*"
+			"${SL_PROJECT_ROOT}/data/models/FBX/*"
 	    )
-		
+
+	file(GLOB_RECURSE
+			ERLEB-AR
+			RELATIVE
+			${SL_PROJECT_DATA_ROOT}
+			"${SL_PROJECT_ROOT}/data/erleb-AR/models/*"
+			)
 	file(GLOB_RECURSE 
-		SHADERS
-		RELATIVE
+			SHADERS
+			RELATIVE
 			${SL_PROJECT_DATA_ROOT}
 	    	${SL_PROJECT_ROOT}/data/shaders/*.vert
 	    	${SL_PROJECT_ROOT}/data/shaders/*.frag
@@ -71,32 +76,33 @@ function(copy_resources_slprojectdemo TARGET_DIR)
 	    )
 
 	file(GLOB_RECURSE 
-		CALIBRATIONS
-		RELATIVE
-		${SL_PROJECT_DATA_ROOT}
-	    ${SL_PROJECT_ROOT}/data/calibrations/calib_in_params.yml
-	    #${SL_PROJECT_ROOT}/data/calibrations/ORBvoc.bin
-	    ${SL_PROJECT_ROOT}/data/calibrations/voc_fbow.bin
-	    ${SL_PROJECT_ROOT}/data/calibrations/lbfmodel.yaml
-	    ${SL_PROJECT_ROOT}/data/calibrations/aruco_detector_params.yml
+			CALIBRATIONS
+			RELATIVE
+			${SL_PROJECT_DATA_ROOT}
+			${SL_PROJECT_ROOT}/data/calibrations/calib_in_params.yml
+			#${SL_PROJECT_ROOT}/data/calibrations/ORBvoc.bin
+			${SL_PROJECT_ROOT}/data/calibrations/voc_fbow.bin
+			${SL_PROJECT_ROOT}/data/calibrations/lbfmodel.yaml
+			${SL_PROJECT_ROOT}/data/calibrations/aruco_detector_params.yml
 	    )
 
 	file(GLOB_RECURSE 
-		CONFIG
-		RELATIVE
-		${SL_PROJECT_DATA_ROOT}
-		${SL_PROJECT_ROOT}/data/config/dummyFile.txt
+			CONFIG
+			RELATIVE
+			${SL_PROJECT_DATA_ROOT}
+			${SL_PROJECT_ROOT}/data/config/dummyFile.txt
 	    )
 	
 	# Distribution
 	set(RESOURCES
-		${TEXTURES}
-		${VIDEOS}
-		${FONTS}
-		${MODELS}
-		${SHADERS}
-		${CALIBRATIONS}
-		${CONFIG}
+			${TEXTURES}
+			${VIDEOS}
+			${ERLEB-AR}
+			${FONTS}
+			${MODELS}
+			${SHADERS}
+			${CALIBRATIONS}
+			${CONFIG}
 		)
 		
 	foreach(FILE_TO_COPY ${RESOURCES})

@@ -10,11 +10,10 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#ifdef GL_FRAGMENT_PRECISION_HIGH
 precision highp float;
 precision highp sampler2D;
 precision highp sampler3D;
-#endif
+
 //-----------------------------------------------------------------------------
 in      vec3       v_raySource;     // The source coordinate of the view ray (model coordinat
 

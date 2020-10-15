@@ -20,15 +20,15 @@ Different constructors allow to either create the lens from the values
 written in the eyeglass prescription card or from the radius of the lens.<br>
 <br>
 <b>Lens types:</b>
-\image html LensTypes.png
+@image html LensTypes.png
 <b>Myopia</b> ( http://en.wikipedia.org/wiki/Myopia )<br>
 The eye is too long for its optical power.<br>
 To correct myopic (short-sightedness) a diverging lens is needed.
-\image html Myopia.png
+@image html Myopia.png
 <b>Hypermetropia</b> ( http://en.wikipedia.org/wiki/Hyperopia )<br>
 The eye is too short for its optical power.<br>
 To correct presbyopic (far-sightedness) a converging lens is needed.
-\image html Hypermetropia.png
+@image html Hypermetropia.png
 */
 class SLLens : public SLRevolver
 {

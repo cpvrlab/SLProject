@@ -20,7 +20,6 @@ for a good top down information.
 #include <CVTrackedChessboard.h>
 #include <Utils.h>
 
-using namespace cv;
 //-----------------------------------------------------------------------------
 CVTrackedChessboard::CVTrackedChessboard(std::string calibIniPath)
   : _calibParamsFileName("calib_in_params.yml"),
@@ -42,10 +41,10 @@ CVTrackedChessboard::CVTrackedChessboard(std::string calibIniPath)
 //-----------------------------------------------------------------------------
 bool CVTrackedChessboard::loadCalibParams()
 {
-    FileStorage fs;
+    cv::FileStorage fs;
     string      fullCalibIniFile = _calibIniPath + _calibParamsFileName;
 
-    fs.open(fullCalibIniFile, FileStorage::READ);
+    fs.open(fullCalibIniFile, cv::FileStorage::READ);
     if (!fs.isOpened())
     {
         Utils::log("SLProject", "Could not open the calibration parameter file: %s", fullCalibIniFile.c_str());
@@ -94,7 +93,7 @@ bool CVTrackedChessboard::track(CVMat          imageGray,
     float startMS = _timer.elapsedTimeInMilliSec();
 
     //detect chessboard corners
-    int flags = CALIB_CB_FAST_CHECK;
+    int flags = cv::CALIB_CB_FAST_CHECK;
 
     CVVPoint2f corners2D;
 

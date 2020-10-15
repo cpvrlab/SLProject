@@ -40,6 +40,8 @@ public:
     void stop();
     //!add new value to store queue
     void add(T&& item);
+    //!get error msg (valid if function returns true)
+    bool getErrorMsg(std::string& msg);
 
 protected:
     //!called in thread store routine when thread starts
@@ -69,6 +71,9 @@ private:
     bool _stop = false;
     //name of this handler (e.g. gps)
     std::string _name;
+
+    std::mutex  _msgMutex;
+    std::string _errorMsg;
 };
 
 //-----------------------------------------------------------------------------

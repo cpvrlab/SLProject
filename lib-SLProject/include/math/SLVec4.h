@@ -35,7 +35,7 @@ class SLVec4
             struct {T comp[4];};
         };
 
-                    SLVec4      (void)                  {}
+                    SLVec4      (void)                  {x=0;y=0;z=0;w=0;}
                     SLVec4      (const T X,
                                  const T Y,
                                  const T Z=0,

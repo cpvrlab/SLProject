@@ -9,8 +9,6 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include <stdafx.h> // Must be the 1st include followed by  an empty line
-
 #include <AppDemoGui.h>
 #include <SLAnimPlayback.h>
 #include <SLApplication.h>
@@ -21,7 +19,6 @@
 #include <SLGLProgramManager.h>
 #include <SLGLShader.h>
 #include <SLGLTexture.h>
-#include <SLImporter.h>
 #include <SLInterface.h>
 #include <SLLightDirect.h>
 #include <SLLightRect.h>
@@ -32,7 +29,7 @@
 #include <SLNode.h>
 #include <SLScene.h>
 #include <SLSceneView.h>
-#include <SLTransferFunction.h>
+#include <SLColorLUT.h>
 #include <SLGLImGui.h>
 #include <SLProjectScene.h>
 #include <AverageTiming.h>
@@ -102,26 +99,27 @@ void centerNextWindow(SLSceneView* sv,
 }
 //-----------------------------------------------------------------------------
 // Init global static variables
-SLstring AppDemoGui::configTime          = "-";
-SLbool   AppDemoGui::showProgress        = false;
-SLbool   AppDemoGui::showDockSpace       = true;
-SLbool   AppDemoGui::showAbout           = false;
-SLbool   AppDemoGui::showHelp            = false;
-SLbool   AppDemoGui::showHelpCalibration = false;
-SLbool   AppDemoGui::showCredits         = false;
-SLbool   AppDemoGui::showStatsTiming     = false;
-SLbool   AppDemoGui::showStatsScene      = false;
-SLbool   AppDemoGui::showStatsVideo      = false;
-SLbool   AppDemoGui::showStatsWAI        = false;
-SLbool   AppDemoGui::showImGuiMetrics    = false;
-SLbool   AppDemoGui::showInfosScene      = false;
-SLbool   AppDemoGui::showInfosSensors    = false;
-SLbool   AppDemoGui::showInfosDevice     = false;
-SLbool   AppDemoGui::showSceneGraph      = false;
-SLbool   AppDemoGui::showProperties      = false;
-SLbool   AppDemoGui::showChristoffel     = false;
-SLbool   AppDemoGui::showUIPrefs         = false;
-SLbool   AppDemoGui::showTransform       = false;
+SLstring    AppDemoGui::configTime          = "-";
+SLbool      AppDemoGui::showProgress        = false;
+SLbool      AppDemoGui::showDockSpace       = true;
+SLbool      AppDemoGui::showAbout           = false;
+SLbool      AppDemoGui::showHelp            = false;
+SLbool      AppDemoGui::showHelpCalibration = false;
+SLbool      AppDemoGui::showCredits         = false;
+SLbool      AppDemoGui::showStatsTiming     = false;
+SLbool      AppDemoGui::showStatsScene      = false;
+SLbool      AppDemoGui::showStatsVideo      = false;
+SLbool      AppDemoGui::showStatsWAI        = false;
+SLbool      AppDemoGui::showImGuiMetrics    = false;
+SLbool      AppDemoGui::showInfosScene      = false;
+SLbool      AppDemoGui::showInfosSensors    = false;
+SLbool      AppDemoGui::showInfosDevice     = false;
+SLbool      AppDemoGui::showSceneGraph      = false;
+SLbool      AppDemoGui::showProperties      = false;
+SLbool      AppDemoGui::showChristoffel     = false;
+SLbool      AppDemoGui::showUIPrefs         = false;
+SLbool      AppDemoGui::showTransform       = false;
+std::time_t AppDemoGui::adjustedTime        = 0;
 
 // Scene node for Christoffel objects
 static SLNode* bern          = nullptr;
@@ -954,29 +952,28 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
             SLchar m[1024];             // message character array
             m[0]                   = 0; // set zero length
             SLVec3d offsetToOrigin = SLApplication::devLoc.originENU() - SLApplication::devLoc.locENU();
-            sprintf(m + strlen(m), "Uses Rotation       : %s\n", SLApplication::devRot.isUsed() ? "yes" : "no");
+            sprintf(m + strlen(m), "Uses IMU Orientation: %s\n", SLApplication::devRot.isUsed() ? "yes" : "no");
             sprintf(m + strlen(m), "Orientation Pitch   : %1.0f\n", SLApplication::devRot.pitchRAD() * Utils::RAD2DEG);
             sprintf(m + strlen(m), "Orientation Yaw     : %1.0f\n", SLApplication::devRot.yawRAD() * Utils::RAD2DEG);
             sprintf(m + strlen(m), "Orientation Roll    : %1.0f\n", SLApplication::devRot.rollRAD() * Utils::RAD2DEG);
             sprintf(m + strlen(m), "Zero Yaw at Start   : %s\n", SLApplication::devRot.zeroYawAtStart() ? "yes" : "no");
             sprintf(m + strlen(m), "Start Yaw           : %1.0f\n", SLApplication::devRot.startYawRAD() * Utils::RAD2DEG);
             sprintf(m + strlen(m), "---------------------\n");
-            sprintf(m + strlen(m), "Uses Location       : %s\n", SLApplication::devLoc.isUsed() ? "yes" : "no");
-            sprintf(m + strlen(m), "Latitude (deg)      : %11.6f\n", SLApplication::devLoc.locLLA().x);
-            sprintf(m + strlen(m), "Longitude (deg)     : %11.6f\n", SLApplication::devLoc.locLLA().y);
-            sprintf(m + strlen(m), "Altitude (m)        : %11.6f\n", SLApplication::devLoc.locLLA().z);
+            sprintf(m + strlen(m), "Uses GPS Location   : %s\n", SLApplication::devLoc.isUsed() ? "yes" : "no");
+            sprintf(m + strlen(m), "Latitude (deg)      : %11.6f\n", SLApplication::devLoc.locLatLonAlt().lat);
+            sprintf(m + strlen(m), "Longitude (deg)     : %11.6f\n", SLApplication::devLoc.locLatLonAlt().lon);
+            sprintf(m + strlen(m), "Altitude (m)        : %11.6f\n", SLApplication::devLoc.locLatLonAlt().alt);
             sprintf(m + strlen(m), "Altitude GPS (m)    : %11.6f\n", SLApplication::devLoc.altGpsM());
-            sprintf(m + strlen(m), "Altitude DEM (m)    : %11.6f\n", SLApplication::devLoc.altGpsM());
+            sprintf(m + strlen(m), "Altitude DEM (m)    : %11.6f\n", SLApplication::devLoc.altDemM());
             sprintf(m + strlen(m), "Accuracy Radius (m) : %6.1f\n", SLApplication::devLoc.locAccuracyM());
             sprintf(m + strlen(m), "Dist. to Origin (m) : %6.1f\n", offsetToOrigin.length());
-            sprintf(m + strlen(m), "Max. Dist. (m)      : %6.1f\n", SLApplication::devLoc.locMaxDistanceM());
             sprintf(m + strlen(m), "Origin improve time : %6.1f sec.\n", SLApplication::devLoc.improveTime());
-            sprintf(m + strlen(m), "Sun Zenit (deg)     : %6.1f sec.\n", SLApplication::devLoc.originSolarZenit());
-            sprintf(m + strlen(m), "Sun Azimut (deg)    : %6.1f sec.\n", SLApplication::devLoc.originSolarAzimut());
+            sprintf(m + strlen(m), "Sun Zenith (deg)    : %6.1f sec.\n", SLApplication::devLoc.originSolarZenit());
+            sprintf(m + strlen(m), "Sun Azimuth (deg)   : %6.1f sec.\n", SLApplication::devLoc.originSolarAzimut());
 
             // Switch to fixed font
             ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
-            ImGui::Begin("Sensor Informations", &showInfosSensors, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize);
+            ImGui::Begin("Sensor Information", &showInfosSensors, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize);
             ImGui::TextUnformatted(m);
             ImGui::End();
             ImGui::PopFont();
@@ -1200,6 +1197,20 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                         s->onLoad(s, sv, SID_Minimal);
                     if (ImGui::MenuItem("Figure Scene", nullptr, sid == SID_Figure))
                         s->onLoad(s, sv, SID_Figure);
+                    if (ImGui::MenuItem("Mesh Loader", nullptr, sid == SID_MeshLoad))
+                        s->onLoad(s, sv, SID_MeshLoad);
+                    if (ImGui::MenuItem("Revolver Meshes", nullptr, sid == SID_Revolver))
+                        s->onLoad(s, sv, SID_Revolver);
+                    if (ImGui::MenuItem("Texture Blending", nullptr, sid == SID_TextureBlend))
+                        s->onLoad(s, sv, SID_TextureBlend);
+                    if (ImGui::MenuItem("Texture Filters", nullptr, sid == SID_TextureFilter))
+                        s->onLoad(s, sv, SID_TextureFilter);
+                    if (ImGui::MenuItem("Frustum Culling", nullptr, sid == SID_FrustumCull))
+                        s->onLoad(s, sv, SID_FrustumCull);
+                    if (ImGui::MenuItem("2D and 3D Text", nullptr, sid == SID_2Dand3DText))
+                        s->onLoad(s, sv, SID_2Dand3DText);
+                    if (ImGui::MenuItem("Point Clouds", nullptr, sid == SID_PointClouds))
+                        s->onLoad(s, sv, SID_PointClouds);
                     if (ImGui::MenuItem("Large Model", nullptr, sid == SID_LargeModel))
                     {
                         SLstring largeFile = SLApplication::modelPath + "PLY/xyzrgb_dragon.ply";
@@ -1208,10 +1219,10 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                         else
                         {
                             auto downloadJob = []() {
-                                SLApplication::jobProgressMsg("Downloading large dragon file from pallas.bfh.ch");
+                                SLApplication::jobProgressMsg("Downloading large dragon file from pallas.ti.bfh.ch");
                                 SLApplication::jobProgressMax(100);
                                 ftplib ftp;
-                                if (ftp.Connect("pallas.bfh.ch:21"))
+                                if (ftp.Connect("pallas.ti.bfh.ch:21"))
                                 {
                                     if (ftp.Login("upload", "FaAdbD3F2a"))
                                     {
@@ -1263,22 +1274,8 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                             SLApplication::jobsToFollowInMain.push_back(jobNoArgs);
                         }
                     }
-                    if (ImGui::MenuItem("Mesh Loader", nullptr, sid == SID_MeshLoad))
-                        s->onLoad(s, sv, SID_MeshLoad);
-                    if (ImGui::MenuItem("Revolver Meshes", nullptr, sid == SID_Revolver))
-                        s->onLoad(s, sv, SID_Revolver);
-                    if (ImGui::MenuItem("Texture Blending", nullptr, sid == SID_TextureBlend))
-                        s->onLoad(s, sv, SID_TextureBlend);
-                    if (ImGui::MenuItem("Texture Filters", nullptr, sid == SID_TextureFilter))
-                        s->onLoad(s, sv, SID_TextureFilter);
-                    if (ImGui::MenuItem("Frustum Culling", nullptr, sid == SID_FrustumCull))
-                        s->onLoad(s, sv, SID_FrustumCull);
                     if (ImGui::MenuItem("Massive Scene", nullptr, sid == SID_MassiveScene))
                         s->onLoad(s, sv, SID_MassiveScene);
-                    if (ImGui::MenuItem("2D and 3D Text", nullptr, sid == SID_2Dand3DText))
-                        s->onLoad(s, sv, SID_2Dand3DText);
-                    if (ImGui::MenuItem("Point Clouds", nullptr, sid == SID_PointClouds))
-                        s->onLoad(s, sv, SID_PointClouds);
 
                     ImGui::EndMenu();
                 }
@@ -1750,6 +1747,91 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
             ImGui::Separator();
 
             ImGui::MenuItem("UI Preferences", nullptr, &showUIPrefs);
+
+            if (SLApplication::devLoc.originLatLonAlt() != SLVec3d::ZERO)
+            {
+                ImGui::Separator();
+
+                if (ImGui::BeginMenu("Local Date/Time"))
+                {
+                    tm lt{};
+                    if (adjustedTime)
+                        memcpy(&lt, std::localtime(&adjustedTime), sizeof(tm));
+                    else
+                    {
+                        std::time_t now = std::time(nullptr);
+                        memcpy(&lt, std::localtime(&now), sizeof(tm));
+                    }
+
+                    SLint month = lt.tm_mon + 1;
+                    if (ImGui::SliderInt("Month", &month, 1, 12))
+                    {
+                        lt.tm_mon    = month - 1;
+                        adjustedTime = mktime(&lt);
+                        SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLatLonAlt(), adjustedTime);
+                    }
+                    if (ImGui::SliderInt("Day", &lt.tm_mday, 1, 31))
+                    {
+                        adjustedTime = mktime(&lt);
+                        SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLatLonAlt(), adjustedTime);
+                    }
+                    if (ImGui::SliderInt("Hour", &lt.tm_hour, 0, 23))
+                    {
+                        adjustedTime = mktime(&lt);
+                        SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLatLonAlt(), adjustedTime);
+                    }
+                    if (ImGui::SliderInt("Minute", &lt.tm_min, 0, 59))
+                    {
+                        adjustedTime = mktime(&lt);
+                        SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLatLonAlt(), adjustedTime);
+                    }
+                    if (ImGui::SliderInt("Second", &lt.tm_sec, 0, 59))
+                    {
+                        adjustedTime = mktime(&lt);
+                        SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLatLonAlt(), adjustedTime);
+                    }
+
+                    SLchar strLT[100];
+                    sprintf(strLT, "Set to now (%02d.%02d.%02d %02d:%02d:%02d)", lt.tm_mday, lt.tm_mon, lt.tm_year + 1900, lt.tm_hour, lt.tm_min, lt.tm_sec);
+                    if (ImGui::MenuItem(strLT))
+                    {
+                        adjustedTime    = 0;
+                        std::time_t now = std::time(nullptr);
+                        memcpy(&lt, std::localtime(&now), sizeof(tm));
+                        SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLatLonAlt(), now);
+                    }
+
+                    SLfloat SRh = SLApplication::devLoc.originSolarSunrise();
+                    SLfloat SRm = (SLfloat)(60.0f * (SRh - (int)(SRh)));
+                    SLfloat SRs = (SLfloat)(60.0f * (SRm - floor(SRm)));
+                    SLchar  SRstr[100];
+                    sprintf(SRstr, "Set sunrise time (%02d:%02d:%02d)", (int)(SRh), (int)SRm, (int)SRs);
+                    if (ImGui::MenuItem(SRstr))
+                    {
+                        lt.tm_hour   = (int)SRh;
+                        lt.tm_min    = (int)SRm;
+                        lt.tm_sec    = (int)SRs;
+                        adjustedTime = mktime(&lt);
+                        SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLatLonAlt(), adjustedTime);
+                    }
+
+                    SLfloat SSh = SLApplication::devLoc.originSolarSunset();
+                    SLfloat SSm = (SLfloat)(60.0f * (SSh - (int)(SSh)));
+                    SLfloat SSs = (SLfloat)(60.0f * (SSm - floor(SSm)));
+                    SLchar  SSstr[100];
+                    sprintf(SSstr, "Set sunset time (%02d:%02d:%02d)", (int)(SSh), (int)SSm, (int)SSs);
+                    if (ImGui::MenuItem(SSstr))
+                    {
+                        lt.tm_hour   = (int)SSh;
+                        lt.tm_min    = (int)SSm;
+                        lt.tm_sec    = (int)SSs;
+                        adjustedTime = mktime(&lt);
+                        SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLatLonAlt(), adjustedTime);
+                    }
+
+                    ImGui::EndMenu();
+                }
+            }
 
             ImGui::EndMenu();
         }
@@ -2516,7 +2598,7 @@ void AppDemoGui::addSceneGraphNode(SLScene* s, SLNode* node)
     PROFILE_FUNCTION();
 
     SLbool isSelectedNode = s->singleNodeSelected() == node;
-    SLbool isLeafNode = node->children().empty() && !node->mesh();
+    SLbool isLeafNode     = node->children().empty() && !node->mesh();
 
     ImGuiTreeNodeFlags nodeFlags = 0;
     if (isLeafNode)
@@ -2808,6 +2890,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                     {
                         SLLight* light = nullptr;
                         SLstring typeName;
+                        SLbool   isSun = false;
                         if (typeid(*singleNode) == typeid(SLLightSpot))
                         {
                             light    = (SLLight*)(SLLightSpot*)singleNode;
@@ -2822,6 +2905,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                         {
                             light    = (SLLight*)(SLLightDirect*)singleNode;
                             typeName = "Light (directional):";
+                            isSun    = ((SLLightDirect*)singleNode)->isSunLight();
                         }
 
                         if (light && ImGui::TreeNode(typeName.c_str()))
@@ -2830,17 +2914,21 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                             if (ImGui::Checkbox("Is on", &on))
                                 light->isOn(on);
 
-                            SLCol4f ac = light->ambientColor();
-                            if (ImGui::ColorEdit3("Ambient color", (float*)&ac))
+                            ImGuiColorEditFlags cef = ImGuiColorEditFlags_NoInputs;
+                            SLCol4f             ac  = light->ambientColor();
+                            if (ImGui::ColorEdit3("Ambient color", (float*)&ac, cef))
                                 light->ambientColor(ac);
 
-                            SLCol4f dc = light->diffuseColor();
-                            if (ImGui::ColorEdit3("Diffuse color", (float*)&dc))
-                                light->diffuseColor(dc);
+                            if (!isSun)
+                            {
+                                SLCol4f dc = light->diffuseColor();
+                                if (ImGui::ColorEdit3("Diffuse color", (float*)&dc, cef))
+                                    light->diffuseColor(dc);
 
-                            SLCol4f sc = light->specularColor();
-                            if (ImGui::ColorEdit3("Specular color", (float*)&sc))
-                                light->specularColor(sc);
+                                SLCol4f sc = light->specularColor();
+                                if (ImGui::ColorEdit3("Specular color", (float*)&sc, cef))
+                                    light->specularColor(sc);
+                            }
 
                             float ap = light->ambientPower();
                             if (ImGui::SliderFloat("Ambient power", &ap, 0.0f, 10.0f))
@@ -2874,6 +2962,33 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                             if (ImGui::SliderFloat("Quadradic attenutation", &kq, 0.0f, 1.0f))
                                 light->kq(kq);
 
+                            if (typeid(*singleNode) == typeid(SLLightDirect))
+                            {
+                                SLLightDirect* dirLight = (SLLightDirect*)singleNode;
+                                if (ImGui::Checkbox("Is sun light", &isSun))
+                                    dirLight->isSunLight(isSun);
+
+                                if (isSun)
+                                {
+                                    SLColorLUT* lut = dirLight->sunLightColorLUT();
+                                    if (ImGui::TreeNode("Sun Color LUT"))
+                                    {
+                                        showLUTColors(lut);
+                                        ImGui::TreePop();
+                                    }
+
+                                    lut->bindActive(); // This texture is not an scenegraph texture
+                                    SLfloat texW = ImGui::GetWindowWidth() - 4 * ImGui::GetTreeNodeToLabelSpacing() - 10;
+                                    void*   tid  = (ImTextureID)lut->texID();
+                                    ImGui::Image(tid,
+                                                 ImVec2(texW, texW * 0.15f),
+                                                 ImVec2(0, 1),
+                                                 ImVec2(1, 0),
+                                                 ImVec4(1, 1, 1, 1),
+                                                 ImVec4(1, 1, 1, 1));
+                                }
+                            }
+
                             ImGui::TreePop();
                         }
                     }
@@ -2895,10 +3010,12 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                 {
                     SLuint      v = (SLuint)singleFullMesh->P.size();
                     SLuint      t = (SLuint)(!singleFullMesh->I16.empty() ? singleFullMesh->I16.size() / 3 : singleFullMesh->I32.size() / 3);
+                    SLuint      e = (SLuint)(!singleFullMesh->IE16.empty() ? singleFullMesh->IE16.size() / 2 : singleFullMesh->IE32.size() / 2);
                     SLMaterial* m = singleFullMesh->mat();
-                    ImGui::Text("Mesh Name       : %s", singleFullMesh->name().c_str());
-                    ImGui::Text("No. of Vertices : %u", v);
-                    ImGui::Text("No. of Triangles: %u", t);
+                    ImGui::Text("Mesh Name        : %s", singleFullMesh->name().c_str());
+                    ImGui::Text("No. of Vertices  : %u", v);
+                    ImGui::Text("No. of Triangles : %u", t);
+                    ImGui::Text("No. of hard edges: %u", e);
 
                     if (m && ImGui::TreeNode("Material"))
                     {
@@ -2906,20 +3023,21 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
 
                         if (ImGui::TreeNode("Reflection colors"))
                         {
-                            SLCol4f ac = m->ambient();
-                            if (ImGui::ColorEdit3("Ambient color", (float*)&ac))
+                            ImGuiColorEditFlags cef = ImGuiColorEditFlags_NoInputs;
+                            SLCol4f             ac  = m->ambient();
+                            if (ImGui::ColorEdit3("Ambient color", (float*)&ac, cef))
                                 m->ambient(ac);
 
                             SLCol4f dc = m->diffuse();
-                            if (ImGui::ColorEdit3("Diffuse color", (float*)&dc))
+                            if (ImGui::ColorEdit3("Diffuse color", (float*)&dc, cef))
                                 m->diffuse(dc);
 
                             SLCol4f sc = m->specular();
-                            if (ImGui::ColorEdit3("Specular color", (float*)&sc))
+                            if (ImGui::ColorEdit3("Specular color", (float*)&sc, cef))
                                 m->specular(sc);
 
                             SLCol4f ec = m->emissive();
-                            if (ImGui::ColorEdit3("Emissive color", (float*)&ec))
+                            if (ImGui::ColorEdit3("Emissive color", (float*)&ec, cef))
                                 m->emissive(ec);
 
                             ImGui::TreePop();
@@ -2994,67 +3112,39 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                     }
                                     else
                                     {
-                                        if (typeid(*tex) == typeid(SLTransferFunction))
+                                        if (typeid(*tex) == typeid(SLColorLUT))
                                         {
-                                            SLTransferFunction* tf = (SLTransferFunction*)i;
+                                            SLColorLUT* lut = (SLColorLUT*)i;
                                             if (ImGui::TreeNode("Color Points in Transfer Function"))
                                             {
-                                                for (SLulong c = 0; c < tf->colors().size(); ++c)
-                                                {
-                                                    SLCol3f color = tf->colors()[c].color;
-                                                    SLchar  label[20];
-                                                    sprintf(label, "Color %lu", c);
-                                                    if (ImGui::ColorEdit3(label, (float*)&color))
-                                                    {
-                                                        tf->colors()[c].color = color;
-                                                        tf->generateTexture();
-                                                    }
-                                                    ImGui::SameLine();
-                                                    ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.5f);
-                                                    sprintf(label, "Pos. %lu", c);
-                                                    SLfloat pos = tf->colors()[c].pos;
-                                                    if (c > 0 && c < tf->colors().size() - 1)
-                                                    {
-                                                        SLfloat min = tf->colors()[c - 1].pos + 2.0f / (SLfloat)tf->length();
-                                                        SLfloat max = tf->colors()[c + 1].pos - 2.0f / (SLfloat)tf->length();
-                                                        if (ImGui::SliderFloat(label, &pos, min, max, "%3.2f"))
-                                                        {
-                                                            tf->colors()[c].pos = pos;
-                                                            tf->generateTexture();
-                                                        }
-                                                    }
-                                                    else
-                                                        ImGui::Text("%3.2f Pos. %lu", pos, c);
-                                                    ImGui::PopItemWidth();
-                                                }
-
+                                                showLUTColors(lut);
                                                 ImGui::TreePop();
                                             }
 
                                             if (ImGui::TreeNode("Alpha Points in Transfer Function"))
                                             {
-                                                for (SLulong a = 0; a < tf->alphas().size(); ++a)
+                                                for (SLulong a = 0; a < lut->alphas().size(); ++a)
                                                 {
                                                     ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.25f);
-                                                    SLfloat alpha = tf->alphas()[a].alpha;
+                                                    SLfloat alpha = lut->alphas()[a].alpha;
                                                     SLchar  label[20];
                                                     sprintf(label, "Alpha %lu", a);
                                                     if (ImGui::SliderFloat(label, &alpha, 0.0f, 1.0f, "%3.2f"))
                                                     {
-                                                        tf->alphas()[a].alpha = alpha;
-                                                        tf->generateTexture();
+                                                        lut->alphas()[a].alpha = alpha;
+                                                        lut->generateTexture();
                                                     }
                                                     ImGui::SameLine();
                                                     sprintf(label, "Pos. %lu", a);
-                                                    SLfloat pos = tf->alphas()[a].pos;
-                                                    if (a > 0 && a < tf->alphas().size() - 1)
+                                                    SLfloat pos = lut->alphas()[a].pos;
+                                                    if (a > 0 && a < lut->alphas().size() - 1)
                                                     {
-                                                        SLfloat min = tf->alphas()[a - 1].pos + 2.0f / (SLfloat)tf->length();
-                                                        SLfloat max = tf->alphas()[a + 1].pos - 2.0f / (SLfloat)tf->length();
+                                                        SLfloat min = lut->alphas()[a - 1].pos + 2.0f / (SLfloat)lut->length();
+                                                        SLfloat max = lut->alphas()[a + 1].pos - 2.0f / (SLfloat)lut->length();
                                                         if (ImGui::SliderFloat(label, &pos, min, max, "%3.2f"))
                                                         {
-                                                            tf->alphas()[a].pos = pos;
-                                                            tf->generateTexture();
+                                                            lut->alphas()[a].pos = pos;
+                                                            lut->generateTexture();
                                                         }
                                                     }
                                                     else
@@ -3066,10 +3156,22 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                                 ImGui::TreePop();
                                             }
 
-                                            ImGui::Image(tid, ImVec2(texW, texW * 0.25f), ImVec2(0, 1), ImVec2(1, 0), ImVec4(1, 1, 1, 1), ImVec4(1, 1, 1, 1));
+                                            ImGui::Image(tid,
+                                                         ImVec2(texW, texW * 0.15f),
+                                                         ImVec2(0, 1),
+                                                         ImVec2(1, 0),
+                                                         ImVec4(1, 1, 1, 1),
+                                                         ImVec4(1, 1, 1, 1));
 
-                                            SLVfloat allAlpha = tf->allAlphas();
-                                            ImGui::PlotLines("", allAlpha.data(), (SLint)allAlpha.size(), 0, nullptr, 0.0f, 1.0f, ImVec2(texW, texW * 0.25f));
+                                            SLVfloat allAlpha = lut->allAlphas();
+                                            ImGui::PlotLines("",
+                                                             allAlpha.data(),
+                                                             (SLint)allAlpha.size(),
+                                                             0,
+                                                             nullptr,
+                                                             0.0f,
+                                                             1.0f,
+                                                             ImVec2(texW, texW * 0.25f));
                                         }
                                         else
                                         {
@@ -3174,6 +3276,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
             ImGui::End();
         }
     }
+
     ImGui::PopFont();
 }
 //-----------------------------------------------------------------------------
@@ -3368,5 +3471,39 @@ void AppDemoGui::removeTransformNode(SLProjectScene* s)
         s->root3D()->deleteChild(tN);
     }
     transformNode = nullptr;
+}
+//-----------------------------------------------------------------------------
+//! Displays a editable color lookup table wit ImGui widgets
+void AppDemoGui::showLUTColors(SLColorLUT* lut)
+{
+    ImGuiColorEditFlags cef = ImGuiColorEditFlags_NoInputs;
+    for (SLulong c = 0; c < lut->colors().size(); ++c)
+    {
+        SLCol3f color = lut->colors()[c].color;
+        SLchar  label[20];
+        sprintf(label, "Color %lu", c);
+        if (ImGui::ColorEdit3(label, (float*)&color, cef))
+        {
+            lut->colors()[c].color = color;
+            lut->generateTexture();
+        }
+        ImGui::SameLine();
+        ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.5f);
+        sprintf(label, "Pos. %lu", c);
+        SLfloat pos = lut->colors()[c].pos;
+        if (c > 0 && c < lut->colors().size() - 1)
+        {
+            SLfloat min = lut->colors()[c - 1].pos + 2.0f / (SLfloat)lut->length();
+            SLfloat max = lut->colors()[c + 1].pos - 2.0f / (SLfloat)lut->length();
+            if (ImGui::SliderFloat(label, &pos, min, max, "%3.2f"))
+            {
+                lut->colors()[c].pos = pos;
+                lut->generateTexture();
+            }
+        }
+        else
+            ImGui::Text("%3.2f Pos. %lu", pos, c);
+        ImGui::PopItemWidth();
+    }
 }
 //-----------------------------------------------------------------------------

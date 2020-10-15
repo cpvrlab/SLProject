@@ -4,6 +4,19 @@ SENSSimulator::~SENSSimulator()
 {
 }
 
+bool SENSSimulator::getSimulatorErrors(std::vector<std::string>& errorMsgs)
+{
+    for (int i = 0; i < _activeSensors.size(); ++i)
+    {
+        SENSSimulatedBase* sensor = _activeSensors[i].get();
+        std::string        msg;
+        if (sensor->getErrorMsg(msg))
+            errorMsgs.emplace_back(msg);
+    }
+
+    return errorMsgs.size() != 0;
+}
+
 void SENSSimulator::pause()
 {
     if (_clock)
@@ -23,14 +36,6 @@ void SENSSimulator::resume()
     if (_clock)
         _clock->resume();
 }
-
-/*
-void SENSSimulator::reset()
-{
-    if (_clock)
-        _clock->reset();
-}
- */
 
 SENSMicroseconds SENSSimulator::passedTime()
 {
@@ -175,13 +180,13 @@ void SENSSimulator::loadGpsData(const std::string& dirName, std::vector<std::pai
             while (std::getline(file, line))
             {
                 //cout << line << '\n';
-                long                     readTimePt;
+                long long                readTimePt;
                 SENSGps::Location        loc;
                 std::vector<std::string> values;
                 Utils::splitString(line, ' ', values);
                 if (values.size() == 5)
                 {
-                    readTimePt       = std::stol(values[0]);
+                    readTimePt       = std::stoll(values[0]);
                     loc.latitudeDEG  = std::stof(values[1]);
                     loc.longitudeDEG = std::stof(values[2]);
                     loc.altitudeM    = std::stof(values[3]);
@@ -212,13 +217,13 @@ void SENSSimulator::loadOrientationData(const std::string& dirName, std::vector<
             while (std::getline(file, line))
             {
                 //cout << line << '\n';
-                long                     readTimePt;
+                long long                readTimePt;
                 SENSOrientation::Quat    quat;
                 std::vector<std::string> values;
                 Utils::splitString(line, ' ', values);
                 if (values.size() == 5)
                 {
-                    readTimePt = std::stol(values[0]);
+                    readTimePt = std::stoll(values[0]);
                     quat.quatX = std::stof(values[1]);
                     quat.quatY = std::stof(values[2]);
                     quat.quatZ = std::stof(values[3]);
@@ -251,13 +256,13 @@ void SENSSimulator::loadCameraData(const std::string& dirName, std::vector<std::
             while (std::getline(file, line))
             {
                 //cout << line << '\n';
-                long                     readTimePt;
+                long long                readTimePt;
                 int                      frameIndex;
                 std::vector<std::string> values;
                 Utils::splitString(line, ' ', values);
                 if (values.size() == 2)
                 {
-                    readTimePt = std::stol(values[0]);
+                    readTimePt = std::stoll(values[0]);
                     frameIndex = std::stoi(values[1]);
 
                     SENSMicroseconds readTimePtUs(readTimePt);

@@ -41,9 +41,7 @@ const char* mapAreaIdToName(AreaId id)
         case AreaId::AVENCHES_AMPHITHEATER_ENTRANCE:
             return "Amphitheater-Entrance";
         case AreaId::AVENCHES_CIGOGNIER:
-            return "cigognier";
-        case AreaId::AVENCHES_TEMPLE:
-            return "Temple";
+            return "Cigognier";
         case AreaId::AVENCHES_THEATER:
             return "Theater";
             //christoffel
@@ -111,10 +109,10 @@ const Location defineLocationAvenches()
     loc.id                   = LocationId::AVENCHES;
     loc.name                 = mapLocationIdToName(loc.id);
     loc.areaMapImageFileName = "locations/avenches/locationMapImgAvenches.jpg";
+    loc.dspPixWidth          = 1500;
     loc.mapTLLla             = {46.88264, 7.04148, 455.0};
     loc.mapBRLla             = {46.87954, 7.04983, 455.0};
 
-    loc.dspPixWidth = 2000;
     {
         Area area;
         area.id              = AreaId::AVENCHES_AMPHITHEATER_ENTRANCE;
@@ -122,8 +120,9 @@ const Location defineLocationAvenches()
         //todo: define lla on https://map.geo.admin.ch/
         area.llaPos          = {0, 0, 0};
         area.viewAngleDeg    = 170;
-        area.slamMapFileName = "locations/avenches/amphitheaterEntrance/maps/stable-map_20200901-155552_avenches_amphitheaterEntrance_FAST-ORBS-3000_2.waimap";
+        area.slamMapFileName = "locations/avenches/amphitheaterEntrance/maps/map_20201006-134438_Avenches_Amphitheater-Entrance_FAST-ORBS-1000_2.waimap";
         area.relocAlignImage = "locations/avenches/amphitheaterEntrance/amphitheaterEntrance-reloc-align-img.jpg";
+        area.vocLayer        = 2;
         loc.areas[area.id]   = area;
     }
     {
@@ -133,8 +132,9 @@ const Location defineLocationAvenches()
         //todo: define lla on https://map.geo.admin.ch/
         area.llaPos          = {0, 0, 0};
         area.viewAngleDeg    = -18;
-        area.slamMapFileName = "locations/avenches/amphitheater/maps/stable-map_20200831-142136_avenches_amphitheater_FAST-ORBS-3000_2.waimap";
+        area.slamMapFileName = "locations/avenches/amphitheater/maps/map_20201006-104306_Avenches_Amphitheater_FAST-ORBS-1000_2.waimap";
         area.relocAlignImage = "locations/avenches/amphitheater/amphitheater-reloc-align-img.jpg";
+        area.vocLayer        = 2;
         loc.areas[area.id]   = area;
     }
     {
@@ -145,6 +145,7 @@ const Location defineLocationAvenches()
         area.llaPos          = {0, 0, 0};
         area.viewAngleDeg    = -140;
         area.slamMapFileName = "locations/avenches/cigonier-marker/maps/DEVELOPMENT-map_20200529-162110_avenches_cigonier-marker_FAST_ORBS_2000.json";
+        area.vocLayer        = 2;
         loc.areas[area.id]   = area;
     }
     {
@@ -154,8 +155,10 @@ const Location defineLocationAvenches()
         //todo: define lla on https://map.geo.admin.ch/
         area.llaPos          = {0, 0, 0};
         area.viewAngleDeg    = 50;
-        area.slamMapFileName = "locations/avenches/theater/maps/stable-map_20200831-142406_avenches_theater_FAST-ORBS-3000_2.waimap";
+        area.vocFileName     = "locations/avenches/theater/theater_voc.bin";
+        area.slamMapFileName = "locations/avenches/theater/maps/release-map_20200930-154707_avenches_theater_FAST-ORBS-2000_2.waimap";
         area.relocAlignImage = "locations/avenches/theater/theater-reloc-align-img.jpg";
+        area.vocLayer        = 2;
         loc.areas[area.id]   = area;
     }
 
@@ -247,7 +250,7 @@ const Location defineLocationBiel()
         //todo: define lla on https://map.geo.admin.ch/
         area.llaPos                  = {0, 0, 0};
         area.viewAngleDeg            = 20.f;
-        area.slamMapFileName         = "locations/biel/office/maps/DEVELOPMENT-map_20200902-175109_biel_office_FAST-ORBS-2000_2.json.gz";
+        area.slamMapFileName         = "locations/biel/office/maps/DEVELOPMENT-map_20200909-152037_biel_office_FAST-ORBS-2000_2.waimap";
         area.relocAlignImage         = "locations/biel/office/office-reloc-align-img.jpg";
         area.cameraFrameTargetSize   = {640, 360};
         area.cameraFrameCropToScreen = false;

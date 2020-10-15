@@ -11,12 +11,14 @@ struct Config
     std::string   calibrationsDir;
     std::string   configFile;
     std::string   vocFile;
+    int           vocLayer;
     std::string   outputDir;
     ExtractorType extractorType;
     int           nLevels;
     bool          serialMapping;
     float         thinCullingValue;
     bool          ensureKFIntegration;
+    float         minCommonWordFactor;
     bool          saveBinary;
 };
 
@@ -45,7 +47,7 @@ void printHelp()
 
 void readArgs(int argc, char* argv[], Config& config)
 {
-    config.extractorType       = ExtractorType_FAST_BRIEF_1000;
+    config.extractorType       = ExtractorType_FAST_ORBS_2000;
     config.erlebARDir          = Utils::getAppsWritableDir() + "erleb-AR/";
     config.calibrationsDir     = Utils::getAppsWritableDir() + "erleb-AR/calibrations/";
     config.nLevels             = -1;
@@ -53,6 +55,8 @@ void readArgs(int argc, char* argv[], Config& config)
     config.serialMapping       = false;
     config.ensureKFIntegration = false;
     config.saveBinary          = false;
+    config.minCommonWordFactor = 0.8;
+    config.vocLayer            = 2;
 
 #if USE_FBOW
     config.vocFile = Utils::getAppsWritableDir() + "voc/voc_fbow.bin";
@@ -80,7 +84,7 @@ void readArgs(int argc, char* argv[], Config& config)
         }
         else if (!strcmp(argv[i], "-outputDir"))
         {
-            config.outputDir = argv[++i]; //Not used
+            config.outputDir = argv[++i];
         }
         else if (!strcmp(argv[i], "-level"))
         {
@@ -94,9 +98,18 @@ void readArgs(int argc, char* argv[], Config& config)
         {
             config.thinCullingValue = std::stof(argv[++i]);
         }
+        else if (!strcmp(argv[i], "-minCommonWordFactor"))
+        {
+            config.minCommonWordFactor = std::stof(argv[++i]);
+        }
         else if (!strcmp(argv[i], "-ensureKFIntegration"))
         {
-            config.ensureKFIntegration = true;
+            int val                    = std::stoi(argv[++i]);
+            config.ensureKFIntegration = val == 1 ? true : false;
+        }
+        else if (!strcmp(argv[i], "-vocLayer"))
+        {
+            config.vocLayer = std::stoi(argv[++i]);
         }
         else if (!strcmp(argv[i], "-saveBinary"))
         {
@@ -138,6 +151,7 @@ void readArgs(int argc, char* argv[], Config& config)
         exit(1);
     }
 }
+
 
 static GLFWwindow* window;          //!< The global glfw window handle
 static SLint       svIndex;         //!< SceneView index
@@ -223,12 +237,14 @@ int main(int argc, char* argv[])
                               config.calibrationsDir,
                               config.configFile,
                               config.vocFile,
+                              config.vocLayer,
                               config.extractorType,
                               config.nLevels,
                               config.outputDir,
                               config.serialMapping,
                               config.thinCullingValue,
                               config.ensureKFIntegration,
+                              config.minCommonWordFactor,
                               config.saveBinary);
         //todo: call different executes e.g. executeFullProcessing(), executeThinOut()
         //input and output directories have to be defined together with json file which is always scanned during construction
