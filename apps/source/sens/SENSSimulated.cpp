@@ -121,9 +121,9 @@ void SENSSimulated<T>::feedSensor(/*const SENSTimePt startTimePt, const SENSTime
         //prepare things that may take some time (e.g. for video reading we can already read the frame and do decoding and maybe it also blocks for some reasons..)
         prepareSensorData(counter);
 
-        //time until next feed
+        //WAITING DOES NOT WORK VERY EXACTLY ON WINDOWS (it does wake too late)
+#ifdef WAIT
         simTime = _clock.now();
-
         //simTime should now be smaller than valueTime because valueTime is in the simulation future
         SENSMicroseconds waitTimeUs = std::chrono::duration_cast<SENSMicroseconds>(_data[counter].first - simTime);
         //We reduce the wait time because thread sleep is not very exact (best is not to wait at all)
@@ -134,7 +134,7 @@ void SENSSimulated<T>::feedSensor(/*const SENSTimePt startTimePt, const SENSTime
         _condVar.wait_for(lock, reducedWaitTimeUs, [&] { return _stop == true; });
         //SENS_DEBUG("wait time %d us", waitTimeUs.count());
         //SENS_DEBUG("woke after %d us", t.elapsedTimeInMicroSec());
-
+#endif
         if (_stop)
             break;
     }
