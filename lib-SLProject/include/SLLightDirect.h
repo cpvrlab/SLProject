@@ -69,11 +69,14 @@ public:
                        const SLVec3f& L,
                        SLfloat        lightDist,
                        SLNode*        root3D) override;
+    void    createShadowMap(float   clipNear = 0.1f,
+                            float   clipFar  = 20.0f,
+                            SLVec2f size     = SLVec2f(8, 8),
+                            SLVec2i texSize  = SLVec2i(1024, 1024)) override;
     SLfloat shadowTestMC(SLRay*         ray,
                          const SLVec3f& L,
                          SLfloat        lightDist,
                          SLNode*        root3D) override;
-    void    renderShadowMap(SLSceneView* sv, SLNode* root) override;
     SLCol4f calculateSunLight(SLfloat standardPower);
 
     // Setters

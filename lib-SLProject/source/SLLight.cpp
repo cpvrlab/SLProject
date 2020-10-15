@@ -30,8 +30,8 @@ SLLight::SLLight(SLfloat ambiPower,
     _spotExponent     = 1.0f;
     _createsShadows   = false;
     _shadowMap        = nullptr;
-    _doesPCF          = false;
-    _pcfLevel         = 1;
+    _doSmoothShadows   = false;
+    _smoothShadowLevel = 1;
 
     // Set parameters of inherited SLMaterial
     _ambientColor.set(1, 1, 1);
@@ -85,5 +85,13 @@ void SLLight::createsShadows(SLbool createsShadows)
         delete _shadowMap;
         _shadowMap = nullptr;
     }
+}
+//-----------------------------------------------------------------------------
+//! SLLight::renderShadowMap renders the shadow map of the light
+void SLLight::renderShadowMap(SLSceneView* sv, SLNode* root)
+{
+    assert(_shadowMap && "No shadow map was created!");
+
+    _shadowMap->render(sv, root);
 }
 //-----------------------------------------------------------------------------

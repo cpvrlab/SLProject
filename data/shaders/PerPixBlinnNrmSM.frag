@@ -1,11 +1,8 @@
 //#############################################################################
-//  File:      PerPixBlinnShadowMapping.frag
-//  Purpose:   GLSL per pixel lighting without texturing (and Shadow mapping)
-//             Parts of this shader are based on the tutorial on
-//             https://learnopengl.com/Advanced-Lighting/Shadows/Shadow-Mapping
-//             by Joey de Vries.
+//  File:      PerPixBlinnNrmSM.frag
+//  Purpose:   GLSL normal map bump mapping w. shadow mapping
 //  Author:    Marcus Hudritsch
-//  Date:      July 2014
+//  Date:      October 2020
 //  Copyright: Marcus Hudritsch
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
@@ -17,36 +14,40 @@ precision highp float;
 // SLGLShader::preprocessPragmas replaces #Lights by SLVLights.size()
 #pragma define NUM_LIGHTS #Lights
 //-----------------------------------------------------------------------------
-in       vec3        v_P_VS;                   // Interpol. point of illum. in view space (VS)
-in       vec3        v_P_WS;                   // Interpol. point of illum. in world space (WS)
-in       vec3        v_N_VS;                   // Interpol. normal at v_P_VS in view space
-in       vec2        v_texCoord;               // interpol. texture coordinate
+in      vec3        v_P_VS;     // Interpol. point of illum. in view space (VS)
+in      vec3        v_P_WS;     // Interpol. point of illum. in world space (WS)
+in      vec2        v_texCoord; // Texture coordiante varying
+in      vec3        v_eyeDirTS;                 // Vector to the eye in tangent space
+in      vec3        v_lightDirTS[NUM_LIGHTS];   // Vector to light 0 in tangent space
+in      vec3        v_spotDirTS[NUM_LIGHTS];    // Spot direction in tangent space
 
-uniform bool        u_lightIsOn[NUM_LIGHTS];            // flag if light is on
-uniform vec4        u_lightPosWS[NUM_LIGHTS];           // position of light in world space
-uniform vec4        u_lightPosVS[NUM_LIGHTS];           // position of light in view space
-uniform vec4        u_lightAmbi[NUM_LIGHTS];            // ambient light intensity (Ia)
-uniform vec4        u_lightDiff[NUM_LIGHTS];            // diffuse light intensity (Id)
-uniform vec4        u_lightSpec[NUM_LIGHTS];            // specular light intensity (Is)
-uniform vec3        u_lightSpotDir[NUM_LIGHTS];         // spot direction in view space
-uniform float       u_lightSpotDeg[NUM_LIGHTS];         // spot cutoff angle 1-180 degrees
-uniform float       u_lightSpotCos[NUM_LIGHTS];         // cosine of spot cutoff angle
-uniform float       u_lightSpotExp[NUM_LIGHTS];         // spot exponent
-uniform vec3        u_lightAtt[NUM_LIGHTS];             // attenuation (const,linear,quadr.)
-uniform bool        u_lightDoAtt[NUM_LIGHTS];           // flag if att. must be calc.
-uniform mat4        u_lightSpace[NUM_LIGHTS * 6];       // projection matrices for lights
-uniform bool        u_lightCreatesShadows[NUM_LIGHTS];  // flag if light creates shadows
-uniform bool        u_lightDoesPCF[NUM_LIGHTS];         // flag if percentage-closer filtering is enabled
-uniform int         u_lightPCFLevel[NUM_LIGHTS];        // radius of area to sample for PCF
-uniform bool        u_lightUsesCubemap[NUM_LIGHTS];     // flag if light has a cube shadow map
+uniform bool        u_lightIsOn[NUM_LIGHTS];                // flag if light is on
+uniform vec4        u_lightPosVS[NUM_LIGHTS];               // position of light in view space
+uniform vec4        u_lightPosWS[NUM_LIGHTS];               // position of light in world space
+uniform vec4        u_lightAmbi[NUM_LIGHTS];                // ambient light intensity (Ia)
+uniform vec4        u_lightDiff[NUM_LIGHTS];                // diffuse light intensity (Id)
+uniform vec4        u_lightSpec[NUM_LIGHTS];                // specular light intensity (Is)
+uniform vec3        u_lightSpotDir[NUM_LIGHTS];             // spot direction in view space
+uniform float       u_lightSpotDeg[NUM_LIGHTS];             // spot cutoff angle 1-180 degrees
+uniform float       u_lightSpotCos[NUM_LIGHTS];             // cosine of spot cutoff angle
+uniform float       u_lightSpotExp[NUM_LIGHTS];             // spot exponent
+uniform vec3        u_lightAtt[NUM_LIGHTS];                 // attenuation (const,linear,quadr.)
+uniform bool        u_lightDoAtt[NUM_LIGHTS];               // flag if att. must be calc.
+uniform vec4        u_globalAmbi;                           // Global ambient scene color
+uniform float       u_oneOverGamma;                         // 1.0f / Gamma correction value
+uniform mat4        u_lightSpace[NUM_LIGHTS * 6];           // projection matrices for lights
+uniform bool        u_lightCreatesShadows[NUM_LIGHTS];      // flag if light creates shadows
+uniform bool        u_lightDoSmoothShadows[NUM_LIGHTS];     // flag if percentage-closer filtering is enabled
+uniform int         u_lightSmoothShadowLevel[NUM_LIGHTS];   // radius of area to sample for PCF
+uniform bool        u_lightUsesCubemap[NUM_LIGHTS];         // flag if light has a cube shadow map
 
-uniform vec4        u_globalAmbi;       // Global ambient scene color
-uniform float       u_oneOverGamma;     // 1.0f / Gamma correction
 uniform vec4        u_matAmbi;          // ambient color reflection coefficient (ka)
 uniform vec4        u_matDiff;          // diffuse color reflection coefficient (kd)
 uniform vec4        u_matSpec;          // specular color reflection coefficient (ks)
 uniform vec4        u_matEmis;          // emissive color for self-shining materials
 uniform float       u_matShin;          // shininess exponent
+uniform sampler2D   u_matTexture0;      // Color map
+uniform sampler2D   u_matTexture1;      // Normal map
 uniform bool        u_matGetsShadows;   // flag if material receives shadows
 uniform float       u_matShadowBias;    // Bias to use to prevent shadow
 
@@ -64,19 +65,11 @@ uniform sampler2D   u_shadowMap_0;      // shadow map for light 0
 uniform sampler2D   u_shadowMap_1;      // shadow map for light 1
 uniform sampler2D   u_shadowMap_2;      // shadow map for light 2
 uniform sampler2D   u_shadowMap_3;      // shadow map for light 3
-uniform sampler2D   u_shadowMap_4;      // shadow map for light 4
-uniform sampler2D   u_shadowMap_5;      // shadow map for light 5
-uniform sampler2D   u_shadowMap_6;      // shadow map for light 6
-uniform sampler2D   u_shadowMap_7;      // shadow map for light 7
 
 uniform samplerCube u_shadowMapCube_0;  // cubemap for light 0
 uniform samplerCube u_shadowMapCube_1;  // cubemap for light 1
 uniform samplerCube u_shadowMapCube_2;  // cubemap for light 2
 uniform samplerCube u_shadowMapCube_3;  // cubemap for light 3
-uniform samplerCube u_shadowMapCube_4;  // cubemap for light 4
-uniform samplerCube u_shadowMapCube_5;  // cubemap for light 5
-uniform samplerCube u_shadowMapCube_6;  // cubemap for light 6
-uniform samplerCube u_shadowMapCube_7;  // cubemap for light 7
 
 out     vec4        o_fragColor;        // output fragment color
 //-----------------------------------------------------------------------------
@@ -89,11 +82,11 @@ int vectorToFace(vec3 vec) // Vector to process
 {
     vec3 absVec = abs(vec);
     if (absVec.x > absVec.y && absVec.x > absVec.z)
-        return vec.x > 0.0 ? 0 : 1;
+    return vec.x > 0.0 ? 0 : 1;
     else if (absVec.y > absVec.x && absVec.y > absVec.z)
-        return vec.y > 0.0 ? 2 : 3;
+    return vec.y > 0.0 ? 2 : 3;
     else
-        return vec.z > 0.0 ? 4 : 5;
+    return vec.z > 0.0 ? 4 : 5;
 }
 //-----------------------------------------------------------------------------
 float shadowTest(in int i) // Light number
@@ -105,9 +98,9 @@ float shadowTest(in int i) // Light number
         vec3 lightToFragment = v_P_WS - u_lightPosWS[i].xyz;
 
         if (u_lightUsesCubemap[i])
-            lightSpace = u_lightSpace[i * 6 + vectorToFace(lightToFragment)];
+        lightSpace = u_lightSpace[i * 6 + vectorToFace(lightToFragment)];
         else
-            lightSpace = u_lightSpace[i * 6];
+        lightSpace = u_lightSpace[i * 6];
 
         vec4 lightSpacePosition = lightSpace * vec4(v_P_WS, 1.0);
 
@@ -124,18 +117,14 @@ float shadowTest(in int i) // Light number
         float closestDepth;
 
         // Use percentage-closer filtering (PCF) for softer shadows (if enabled)
-        if (!u_lightUsesCubemap[i] && u_lightDoesPCF[i])
+        if (!u_lightUsesCubemap[i] && u_lightDoSmoothShadows[i])
         {
             vec2 texelSize;
             if (i == 0) texelSize = 1.0 / vec2(textureSize(u_shadowMap_0, 0));
             if (i == 1) texelSize = 1.0 / vec2(textureSize(u_shadowMap_1, 0));
             if (i == 2) texelSize = 1.0 / vec2(textureSize(u_shadowMap_2, 0));
             if (i == 3) texelSize = 1.0 / vec2(textureSize(u_shadowMap_3, 0));
-            if (i == 4) texelSize = 1.0 / vec2(textureSize(u_shadowMap_4, 0));
-            if (i == 5) texelSize = 1.0 / vec2(textureSize(u_shadowMap_5, 0));
-            if (i == 6) texelSize = 1.0 / vec2(textureSize(u_shadowMap_6, 0));
-            if (i == 7) texelSize = 1.0 / vec2(textureSize(u_shadowMap_7, 0));
-            int level = u_lightPCFLevel[i];
+            int level = u_lightSmoothShadowLevel[i];
 
             for (int x = -level; x <= level; ++x)
             {
@@ -145,10 +134,6 @@ float shadowTest(in int i) // Light number
                     if (i == 1) closestDepth = texture(u_shadowMap_1, projCoords.xy + vec2(x, y) * texelSize).r;
                     if (i == 2) closestDepth = texture(u_shadowMap_2, projCoords.xy + vec2(x, y) * texelSize).r;
                     if (i == 3) closestDepth = texture(u_shadowMap_3, projCoords.xy + vec2(x, y) * texelSize).r;
-                    if (i == 4) closestDepth = texture(u_shadowMap_4, projCoords.xy + vec2(x, y) * texelSize).r;
-                    if (i == 5) closestDepth = texture(u_shadowMap_5, projCoords.xy + vec2(x, y) * texelSize).r;
-                    if (i == 6) closestDepth = texture(u_shadowMap_6, projCoords.xy + vec2(x, y) * texelSize).r;
-                    if (i == 7) closestDepth = texture(u_shadowMap_7, projCoords.xy + vec2(x, y) * texelSize).r;
                     shadow += currentDepth - u_matShadowBias > closestDepth ? 1.0 : 0.0;
                 }
             }
@@ -162,10 +147,6 @@ float shadowTest(in int i) // Light number
                 if (i == 1) closestDepth = texture(u_shadowMapCube_1, lightToFragment).r;
                 if (i == 2) closestDepth = texture(u_shadowMapCube_2, lightToFragment).r;
                 if (i == 3) closestDepth = texture(u_shadowMapCube_3, lightToFragment).r;
-                if (i == 4) closestDepth = texture(u_shadowMapCube_4, lightToFragment).r;
-                if (i == 5) closestDepth = texture(u_shadowMapCube_5, lightToFragment).r;
-                if (i == 6) closestDepth = texture(u_shadowMapCube_6, lightToFragment).r;
-                if (i == 7) closestDepth = texture(u_shadowMapCube_7, lightToFragment).r;
             }
             else
             {
@@ -173,15 +154,11 @@ float shadowTest(in int i) // Light number
                 if (i == 1) closestDepth = texture(u_shadowMap_1, projCoords.xy).r;
                 if (i == 2) closestDepth = texture(u_shadowMap_2, projCoords.xy).r;
                 if (i == 3) closestDepth = texture(u_shadowMap_3, projCoords.xy).r;
-                if (i == 4) closestDepth = texture(u_shadowMap_4, projCoords.xy).r;
-                if (i == 5) closestDepth = texture(u_shadowMap_5, projCoords.xy).r;
-                if (i == 6) closestDepth = texture(u_shadowMap_6, projCoords.xy).r;
-                if (i == 7) closestDepth = texture(u_shadowMap_7, projCoords.xy).r;
             }
 
             // The fragment is in shadow if the light doesn't "see" it
             if (currentDepth > closestDepth + u_matShadowBias)
-                shadow = 1.0;
+            shadow = 1.0;
         }
 
         return shadow;
@@ -196,8 +173,11 @@ void main()
     vec4 Id = vec4(0.0); // Accumulated diffuse light intensity at v_P_VS
     vec4 Is = vec4(0.0); // Accumulated specular light intensity at v_P_VS
 
-    vec3 N = normalize(v_N_VS);  // A input normal has not anymore unit length
-    vec3 E = normalize(-v_P_VS); // Vector from p to the eye
+    // Get normal from normal map, move from [0,1] to [-1, 1] range & normalize
+    vec3 N = normalize(texture(u_matTexture1, v_texCoord).rgb * 2.0 - 1.0);
+    vec3 E = normalize(v_eyeDirTS);   // normalized eye direction
+
+    //vec3 N = normalize(v_N_VS);  // A input normal has not anymore unit length
 
     for (int i = 0; i < NUM_LIGHTS; ++i)
     {
@@ -209,34 +189,37 @@ void main()
             if (u_lightPosVS[i].w == 0.0)
             {
                 // We use the spot light direction as the light direction vector
-                vec3 S = normalize(-u_lightSpotDir[i].xyz);
+                vec3 S = normalize(-v_spotDirTS[i]);
                 directLightBlinnPhong(i, N, E, S, shadow, Ia, Id, Is);
             }
             else
             {
-                vec3 S = u_lightSpotDir[i]; // normalized spot direction in VS
-                vec3 L = u_lightPosVS[i].xyz - v_P_VS; // Vector from v_P to light in VS
+                vec3 S = normalize(v_spotDirTS[i]); // normalized spot direction in TS
+                vec3 L = v_lightDirTS[i]; // Vector from v_P to light in TS
                 pointLightBlinnPhong(i, N, E, S, L, shadow, Ia, Id, Is);
             }
         }
     }
 
     // Sum up all the reflected color components
-    o_fragColor =  u_globalAmbi +
-                    u_matEmis +
-                    Ia * u_matAmbi +
-                    Id * u_matDiff +
-                    Is * u_matSpec;
+    o_fragColor =  u_matEmis +
+                   u_globalAmbi +
+                   Ia * u_matAmbi +
+                   Id * u_matDiff;
 
-    // For correct alpha blending overwrite alpha component
-    o_fragColor.a = u_matDiff.a;
+    // Componentwise multiply w. texture color
+    o_fragColor *= texture(u_matTexture0, v_texCoord);
+
+    // add finally the specular RGB-part
+    vec4 specColor = Is * u_matSpec;
+    o_fragColor.rgb += specColor.rgb;
+
+    // Apply gamma correction
+    o_fragColor.rgb = pow(o_fragColor.rgb, vec3(u_oneOverGamma));
 
     // Apply fog by blending over distance
     if (u_camFogIsOn)
         o_fragColor = fogBlend(v_P_VS, o_fragColor);
-
-    // Apply gamma correction
-    o_fragColor.rgb = pow(o_fragColor.rgb, vec3(u_oneOverGamma));
 
     // Apply stereo eye separation
     if (u_camProjection > 1)

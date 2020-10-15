@@ -21,7 +21,12 @@
 #include <Instrumentor.h>
 
 //-----------------------------------------------------------------------------
-SLShadowMap::SLShadowMap(SLProjection projection, SLLight* light)
+SLShadowMap::SLShadowMap(SLProjection projection,
+                         SLLight*     light,
+                         float        clipNear,
+                         float        clipFar,
+                         SLVec2f      size,
+                         SLVec2i      texSize)
 {
     PROFILE_FUNCTION();
 
@@ -30,13 +35,13 @@ SLShadowMap::SLShadowMap(SLProjection projection, SLLight* light)
     _useCubemap  = false;
     _depthBuffer = nullptr;
     _frustumVAO  = nullptr;
-    _rayCount.set(16, 16);
-    _mat      = nullptr;
-    _clipNear = 0.1f;
-    _clipFar  = 20.0f;
-    _size.set(8.0f, 8.0f);
-    _halfSize = _size / 2;
-    _textureSize.set(1024, 1024);
+    _rayCount    = SLVec2i(0,0);
+    _mat         = nullptr;
+    _clipNear    = clipNear;
+    _clipFar     = clipFar;
+    _size        = size;
+    _halfSize    = _size / 2;
+    _textureSize = texSize;
 }
 //-----------------------------------------------------------------------------
 SLShadowMap::~SLShadowMap()

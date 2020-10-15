@@ -2773,7 +2773,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                     if (ImGui::SliderFloat("Near clipping plane", &clipNear, 0.01f, clipFar))
                                         shadowMap->clipNear(clipNear);
 
-                                    if (ImGui::SliderFloat("Far clipping plane", &clipFar, clipNear, 50.0f))
+                                    if (ImGui::SliderFloat("Far clipping plane", &clipFar, clipNear, 200.0f))
                                         shadowMap->clipFar(clipFar);
 
                                     SLVec2i texSize = shadowMap->textureSize();
@@ -2790,13 +2790,13 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
 
                                     if (!shadowMap->useCubemap())
                                     {
-                                        SLbool doesPCF = light->doesPCF();
-                                        if (ImGui::Checkbox("Percentage-closer filtering enabled", &doesPCF))
-                                            light->doesPCF(doesPCF);
+                                        SLbool doesSmoothShadows = light->doSmoothShadows();
+                                        if (ImGui::Checkbox("Smooth shadows enabled", &doesSmoothShadows))
+                                            light->doSmoothShadows(doesSmoothShadows);
 
-                                        SLuint pcfLevel = light->pcfLevel();
-                                        if (ImGui::SliderInt("PCF-Level", (SLint*)&pcfLevel, 1, 3))
-                                            light->pcfLevel(pcfLevel);
+                                        SLuint pcfLevel = light->smoothShadowLevel();
+                                        if (ImGui::SliderInt("Smoothing level", (SLint*)&pcfLevel, 1, 3))
+                                            light->smoothShadowLevel(pcfLevel);
                                     }
 
 #ifndef SL_GLES

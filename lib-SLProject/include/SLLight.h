@@ -119,8 +119,8 @@ public:
     }
     void createsShadows(SLbool createsShadows);
     void shadowMap(SLShadowMap* shadowMap) { _shadowMap = shadowMap; }
-    void doesPCF(SLbool doesPCF) { _doesPCF = doesPCF; }
-    void pcfLevel(SLuint pcfLevel) { _pcfLevel = pcfLevel; }
+    void doSmoothShadows(SLbool doSS) { _doSmoothShadows = doSS; }
+    void smoothShadowLevel(SLuint ssLevel) { _smoothShadowLevel = ssLevel; }
 
     // Getters
     SLint        id() const { return _id; }
@@ -141,8 +141,8 @@ public:
     SLfloat      attenuation(SLfloat dist) const { return 1.0f / (_kc + _kl * dist + _kq * dist * dist); }
     SLbool       createsShadows() const { return _createsShadows; }
     SLShadowMap* shadowMap() { return _shadowMap; }
-    SLbool       doesPCF() const { return _doesPCF; }
-    SLuint       pcfLevel() const { return _pcfLevel; }
+    SLbool       doSmoothShadows() const { return _doSmoothShadows; }
+    SLuint       smoothShadowLevel() const { return _smoothShadowLevel; }
 
 #ifdef SL_HAS_OPTIX
     virtual ortLight optixLight(bool)
@@ -165,22 +165,25 @@ public:
 #endif
 
     // Virtual functions to be implemented by the inherited
-    virtual SLCol4f ambient()          = 0; //!< Return normally _ambientColor * _ambientPower
-    virtual SLCol4f diffuse()          = 0; //!< Returns normally _diffuseColor * _diffusePower
-    virtual SLCol4f specular()         = 0; //!< Returns normally _specularColor * _specularPower
-    virtual SLVec4f positionWS() const = 0;
-    virtual SLVec3f spotDirWS()        = 0;
+    virtual SLCol4f ambient()                                              = 0; //!< Return normally _ambientColor * _ambientPower
+    virtual SLCol4f diffuse()                                              = 0; //!< Returns normally _diffuseColor * _diffusePower
+    virtual SLCol4f specular()                                             = 0; //!< Returns normally _specularColor * _specularPower
+    virtual SLVec4f positionWS() const                                     = 0;
+    virtual SLVec3f spotDirWS()                                            = 0;
+    virtual void    createShadowMap(float   clipNear = 0.1f,
+                                    float   clipFar  = 20.0f,
+                                    SLVec2f size     = SLVec2f(8, 8),
+                                    SLVec2i texSize  = SLVec2i(1024, 1024)) = 0;
     virtual SLfloat shadowTest(SLRay*         ray,
                                const SLVec3f& L,
                                SLfloat        lightDist,
-                               SLNode*        root3D)   = 0;
+                               SLNode*        root3D)                             = 0;
     virtual SLfloat shadowTestMC(SLRay*         ray,
                                  const SLVec3f& L,
                                  SLfloat        lightDist,
-                                 SLNode*        root3D) = 0;
+                                 SLNode*        root3D)                           = 0;
 
-    // create the depth buffer(s) for shadow mapping
-    virtual void renderShadowMap(SLSceneView* sv, SLNode* root) = 0;
+    void renderShadowMap(SLSceneView* sv, SLNode* root);
 
     // statics valid for overall lighting
     static SLCol4f globalAmbient; //!< static global ambient light intensity
@@ -188,25 +191,25 @@ public:
     static SLfloat gamma; //!< final output gamma value
 
 protected:
-    SLint        _id;               //!< OpenGL light number (0-7)
-    SLbool       _isOn;             //!< Flag if light is on or off
-    SLCol4f      _ambientColor;     //!< Ambient light color (RGB 0-1)
-    SLfloat      _ambientPower;     //!< Ambient light power (0-N)
-    SLCol4f      _diffuseColor;     //!< Diffuse light color (RGB 0-1)
-    SLfloat      _diffusePower;     //!< Diffuse light power (0-N)
-    SLCol4f      _specularColor;    //!< Specular light color (RGB 0-1)
-    SLfloat      _specularPower;    //!< Specular light power (0-N)
-    SLfloat      _spotCutOffDEG;    //!< Half the spot cone angle
-    SLfloat      _spotCosCutOffRAD; //!< cosine of spotCutoff angle
-    SLfloat      _spotExponent;     //!< Spot attenuation from center to edge of cone
-    SLfloat      _kc;               //!< Constant light attenuation
-    SLfloat      _kl;               //!< Linear light attenuation
-    SLfloat      _kq;               //!< Quadratic light attenuation
-    SLbool       _isAttenuated;     //!< fast attenuation flag for ray tracing
-    SLbool       _createsShadows;   //!< flag if light creates shadows or not
-    SLShadowMap* _shadowMap;        //!< Used for shadow mapping
-    SLbool       _doesPCF;          //!< flag if percentage-closer filtering is enabled
-    SLuint       _pcfLevel;         //!< Radius to sample pixels in (1 = 3 * 3; 2 = 5 * 5; ...)
+    SLint        _id;                //!< OpenGL light number (0-7)
+    SLbool       _isOn;              //!< Flag if light is on or off
+    SLCol4f      _ambientColor;      //!< Ambient light color (RGB 0-1)
+    SLfloat      _ambientPower;      //!< Ambient light power (0-N)
+    SLCol4f      _diffuseColor;      //!< Diffuse light color (RGB 0-1)
+    SLfloat      _diffusePower;      //!< Diffuse light power (0-N)
+    SLCol4f      _specularColor;     //!< Specular light color (RGB 0-1)
+    SLfloat      _specularPower;     //!< Specular light power (0-N)
+    SLfloat      _spotCutOffDEG;     //!< Half the spot cone angle
+    SLfloat      _spotCosCutOffRAD;  //!< cosine of spotCutoff angle
+    SLfloat      _spotExponent;      //!< Spot attenuation from center to edge of cone
+    SLfloat      _kc;                //!< Constant light attenuation
+    SLfloat      _kl;                //!< Linear light attenuation
+    SLfloat      _kq;                //!< Quadratic light attenuation
+    SLbool       _isAttenuated;      //!< fast attenuation flag for ray tracing
+    SLbool       _createsShadows;    //!< flag if light creates shadows or not
+    SLShadowMap* _shadowMap;         //!< Used for shadow mapping
+    SLbool       _doSmoothShadows;   //!< flag if percentage-closer filtering for smooth shadows is enabled
+    SLuint       _smoothShadowLevel; //!< Radius to smoothing (1 = 3 * 3; 2 = 5 * 5; ...)
 };
 //-----------------------------------------------------------------------------
 //! STL vector of light pointers
