@@ -151,7 +151,6 @@ public:
         _kn = kn;
     }
     void receivesShadows(SLbool receivesShadows) { _getsShadows = receivesShadows; }
-    void shadowBias(SLfloat shadowBias) { _shadowBias = shadowBias; }
     void program(SLGLProgram* sp) { _program = sp; }
 
     // Getters
@@ -168,7 +167,6 @@ public:
     SLfloat       kt() const { return _kt; }
     SLfloat       kn() const { return _kn; }
     SLbool        getsShadows() const { return _getsShadows; }
-    SLfloat       shadowBias() const { return _shadowBias; }
     SLVGLTexture& textures() { return _textures; }
     SLGLProgram*  program() { return _program; }
     SLVNode&      nodesVisible2D() { return _nodesVisible2D; }
@@ -192,7 +190,6 @@ protected:
     SLfloat      _kt{};         //!< transmission coefficient 0.0 - 1.0
     SLfloat      _kn{};         //!< refraction index
     SLbool       _getsShadows;  //!< true if shadows are visible on this material
-    SLfloat      _shadowBias;   //!< bias to use to prevent shadow acne
     SLVGLTexture _textures;     //!< vector of texture pointers
     SLGLProgram* _program{};    //!< pointer to a GLSL shader program
 

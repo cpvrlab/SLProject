@@ -225,7 +225,7 @@ void SLShadowMap::drawNodesIntoDepthBuffer(SLNode*      node,
 {
     if (node->drawBit(SL_DB_HIDDEN))
         return;
-    
+
     SLGLState* stateGL       = SLGLState::instance();
     stateGL->modelViewMatrix = v * node->updateAndGetWM();
 

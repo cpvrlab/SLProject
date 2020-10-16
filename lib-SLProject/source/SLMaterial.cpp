@@ -55,7 +55,6 @@ SLMaterial::SLMaterial(SLAssetManager* am,
     _metalness    = 0.0f;
     _translucency = 0.0f;
     _getsShadows  = true;
-    _shadowBias   = 0.005f;
     _program      = program;
 
     _kr = kr;
@@ -109,7 +108,6 @@ SLMaterial::SLMaterial(SLAssetManager* am,
     _metalness    = 0.0f;
     _translucency = 0.0f;
     _getsShadows  = true;
-    _shadowBias   = 0.0005f;
     _program      = shaderProg;
     _kr           = 0.0f;
     _kt           = 0.0f;
@@ -149,7 +147,6 @@ SLMaterial::SLMaterial(SLAssetManager* am,
     _metalness    = 0.0f;
     _translucency = 0.0f;
     _getsShadows  = true;
-    _shadowBias   = 0.0005f;
 
     // Add pointer to the global resource vectors for deallocation
     if (am)
@@ -189,7 +186,6 @@ SLMaterial::SLMaterial(SLAssetManager* am,
     _metalness    = metalness;
     _translucency = 0.0f;
     _getsShadows  = true;
-    _shadowBias   = 0.0005f;
     _kr           = 0.0f;
     _kt           = 0.0f;
     _kn           = 1.0f;
@@ -233,7 +229,6 @@ SLMaterial::SLMaterial(SLAssetManager* am,
     _kt           = 0.0f;
     _kn           = 1.0f;
     _getsShadows  = true;
-    _shadowBias   = 0.0005f;
 
     // Add pointer to the global resource vectors for deallocation
     if (am)
@@ -329,7 +324,6 @@ void SLMaterial::passToUniforms(SLGLProgram* program)
     program->uniform1f("u_matKt", _kt);
     program->uniform1f("u_matKn", _kn);
     program->uniform1i("u_matGetsShadows", _getsShadows);
-    program->uniform1f("u_matShadowBias", _shadowBias);
     program->uniform1i("u_matHasTexture", !_textures.empty() ? 1 : 0);
 
     // pass textures

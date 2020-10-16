@@ -1754,6 +1754,7 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
 
                 if (ImGui::BeginMenu("Local Date/Time"))
                 {
+                    ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.5f);
                     tm lt{};
                     if (adjustedTime)
                         memcpy(&lt, std::localtime(&adjustedTime), sizeof(tm));
@@ -1780,20 +1781,15 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                         adjustedTime = mktime(&lt);
                         SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLatLonAlt(), adjustedTime);
                     }
-                    if (ImGui::SliderInt("Minute", &lt.tm_min, 0, 59))
-                    {
-                        adjustedTime = mktime(&lt);
-                        SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLatLonAlt(), adjustedTime);
-                    }
-                    if (ImGui::SliderInt("Second", &lt.tm_sec, 0, 59))
+                    if (ImGui::SliderInt("Min.", &lt.tm_min, 0, 59))
                     {
                         adjustedTime = mktime(&lt);
                         SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLatLonAlt(), adjustedTime);
                     }
 
-                    SLchar strLT[100];
-                    sprintf(strLT, "Set to now (%02d.%02d.%02d %02d:%02d:%02d)", lt.tm_mday, lt.tm_mon, lt.tm_year + 1900, lt.tm_hour, lt.tm_min, lt.tm_sec);
-                    if (ImGui::MenuItem(strLT))
+                    SLchar strTime[100];
+                    sprintf(strTime, "Set now (%02d.%02d.%02d %02d:%02d)", lt.tm_mday, lt.tm_mon, lt.tm_year + 1900, lt.tm_hour, lt.tm_min);
+                    if (ImGui::MenuItem(strTime))
                     {
                         adjustedTime    = 0;
                         std::time_t now = std::time(nullptr);
@@ -1803,34 +1799,54 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
 
                     SLfloat SRh = SLApplication::devLoc.originSolarSunrise();
                     SLfloat SRm = (SLfloat)(60.0f * (SRh - (int)(SRh)));
-                    SLfloat SRs = (SLfloat)(60.0f * (SRm - floor(SRm)));
-                    SLchar  SRstr[100];
-                    sprintf(SRstr, "Set sunrise time (%02d:%02d:%02d)", (int)(SRh), (int)SRm, (int)SRs);
-                    if (ImGui::MenuItem(SRstr))
+                    sprintf(strTime, "Set sunrise time (%02d:%02d)", (int)(SRh), (int)SRm);
+                    if (ImGui::MenuItem(strTime))
                     {
                         lt.tm_hour   = (int)SRh;
                         lt.tm_min    = (int)SRm;
-                        lt.tm_sec    = (int)SRs;
                         adjustedTime = mktime(&lt);
                         SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLatLonAlt(), adjustedTime);
                     }
 
                     SLfloat SSh = SLApplication::devLoc.originSolarSunset();
                     SLfloat SSm = (SLfloat)(60.0f * (SSh - (int)(SSh)));
-                    SLfloat SSs = (SLfloat)(60.0f * (SSm - floor(SSm)));
-                    SLchar  SSstr[100];
-                    sprintf(SSstr, "Set sunset time (%02d:%02d:%02d)", (int)(SSh), (int)SSm, (int)SSs);
-                    if (ImGui::MenuItem(SSstr))
+                    sprintf(strTime, "Set sunset time (%02d:%02d)", (int)(SSh), (int)SSm);
+                    if (ImGui::MenuItem(strTime))
                     {
                         lt.tm_hour   = (int)SSh;
                         lt.tm_min    = (int)SSm;
-                        lt.tm_sec    = (int)SSs;
                         adjustedTime = mktime(&lt);
                         SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLatLonAlt(), adjustedTime);
                     }
 
+                    sprintf(strTime, "Set highest noon (21.06.%02d 12:00)", lt.tm_year);
+                    if (ImGui::MenuItem(strTime))
+                    {
+                        lt.tm_mon    = 6;
+                        lt.tm_mday   = 21;
+                        lt.tm_hour   = 12;
+                        lt.tm_min    = 0;
+                        lt.tm_sec    = 0;
+                        adjustedTime = mktime(&lt);
+                        SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLatLonAlt(), adjustedTime);
+                    }
+
+                    sprintf(strTime, "Set lowest noon (21.12.%02d 12:00)", lt.tm_year);
+                    if (ImGui::MenuItem(strTime))
+                    {
+                        lt.tm_mon    = 12;
+                        lt.tm_mday   = 21;
+                        lt.tm_hour   = 12;
+                        lt.tm_min    = 0;
+                        lt.tm_sec    = 0;
+                        adjustedTime = mktime(&lt);
+                        SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLatLonAlt(), adjustedTime);
+                    }
+
+                    ImGui::PopItemWidth();
                     ImGui::EndMenu();
                 }
+
             }
 
             ImGui::EndMenu();
@@ -2781,6 +2797,10 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                         shadowMap->textureSize(SLVec2i((int)Utils::closestPowerOf2((unsigned)texSize.x),
                                                                        (int)Utils::closestPowerOf2((unsigned)texSize.y)));
 
+                                    SLfloat shadowBias = light->shadowBias();
+                                    if (ImGui::SliderFloat("Shadow bias", &shadowBias, 0.0f, 0.01f, "%.03f"))
+                                        light->shadowBias(shadowBias);
+
                                     if (typeid(*singleNode) == typeid(SLLightDirect))
                                     {
                                         SLVec2f size = shadowMap->size();
@@ -2890,7 +2910,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                     {
                         SLLight* light = nullptr;
                         SLstring typeName;
-                        SLbool   isSun = false;
+                        SLbool   doSunPowerAdaptation = false;
                         if (typeid(*singleNode) == typeid(SLLightSpot))
                         {
                             light    = (SLLight*)(SLLightSpot*)singleNode;
@@ -2905,7 +2925,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                         {
                             light    = (SLLight*)(SLLightDirect*)singleNode;
                             typeName = "Light (directional):";
-                            isSun    = ((SLLightDirect*)singleNode)->isSunLight();
+                            doSunPowerAdaptation    = ((SLLightDirect*)singleNode)->doSunPowerAdaptation();
                         }
 
                         if (light && ImGui::TreeNode(typeName.c_str()))
@@ -2919,7 +2939,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                             if (ImGui::ColorEdit3("Ambient color", (float*)&ac, cef))
                                 light->ambientColor(ac);
 
-                            if (!isSun)
+                            if (!doSunPowerAdaptation)
                             {
                                 SLCol4f dc = light->diffuseColor();
                                 if (ImGui::ColorEdit3("Diffuse color", (float*)&dc, cef))
@@ -2951,24 +2971,24 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                 light->spotExponent(spotExp);
 
                             float kc = light->kc();
-                            if (ImGui::SliderFloat("Constant attenutation", &kc, 0.0f, 1.0f))
+                            if (ImGui::SliderFloat("Constant attenuation", &kc, 0.0f, 1.0f))
                                 light->kc(kc);
 
                             float kl = light->kl();
-                            if (ImGui::SliderFloat("Linear attenutation", &kl, 0.0f, 1.0f))
+                            if (ImGui::SliderFloat("Linear attenuation", &kl, 0.0f, 1.0f))
                                 light->kl(kl);
 
                             float kq = light->kq();
-                            if (ImGui::SliderFloat("Quadradic attenutation", &kq, 0.0f, 1.0f))
+                            if (ImGui::SliderFloat("Quadratic attenuation", &kq, 0.0f, 1.0f))
                                 light->kq(kq);
 
                             if (typeid(*singleNode) == typeid(SLLightDirect))
                             {
                                 SLLightDirect* dirLight = (SLLightDirect*)singleNode;
-                                if (ImGui::Checkbox("Is sun light", &isSun))
-                                    dirLight->isSunLight(isSun);
+                                if (ImGui::Checkbox("Do Sun Power Adaptation", &doSunPowerAdaptation))
+                                    dirLight->doSunPowerAdaptation(doSunPowerAdaptation);
 
-                                if (isSun)
+                                if (doSunPowerAdaptation)
                                 {
                                     SLColorLUT* lut = dirLight->sunLightColorLUT();
                                     if (ImGui::TreeNode("Sun Color LUT"))
@@ -3074,10 +3094,6 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                             SLbool receivesShadows = m->getsShadows();
                             if (ImGui::Checkbox("Receives shadows", &receivesShadows))
                                 m->receivesShadows(receivesShadows);
-
-                            SLfloat shadowBias = m->shadowBias();
-                            if (ImGui::SliderFloat("Shadow bias", &shadowBias, 0.0f, 0.01f, "%.04f"))
-                                m->shadowBias(shadowBias);
 
                             ImGui::PopItemWidth();
                             ImGui::TreePop();

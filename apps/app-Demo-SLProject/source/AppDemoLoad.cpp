@@ -3284,7 +3284,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLLightDirect* sunLight = new SLLightDirect(s, s, 5.0f);
         sunLight->powers(1.0f, 1.0f, 1.0f);
         sunLight->attenuation(1, 0, 0);
-        sunLight->isSunLight(true);
+        sunLight->doSunPowerAdaptation(true);
         sunLight->createsShadows(true);
         sunLight->createShadowMap(-100, 150, SLVec2f(150,150));
         sunLight->doSmoothShadows(true);
@@ -3424,7 +3424,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sunLight->attenuation(1, 0, 0);
         sunLight->translation(0, 10, 0);
         sunLight->lookAt(10, 0, 10);
-        sunLight->isSunLight(true);
+        sunLight->doSunPowerAdaptation(true);
         sunLight->createsShadows(true);
         sunLight->createShadowMap(-100, 250, SLVec2f(250,150));
         sunLight->doSmoothShadows(true);
@@ -3539,7 +3539,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sunLight->attenuation(1, 0, 0);
         sunLight->translation(0, 10, 0);
         sunLight->lookAt(10, 0, 10);
-        sunLight->isSunLight(true);
+        sunLight->doSunPowerAdaptation(true);
         sunLight->createsShadows(true);
         sunLight->createShadowMap(-100, 150, SLVec2f(150,150));
         sunLight->doSmoothShadows(true);
@@ -3654,7 +3654,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sunLight->attenuation(1, 0, 0);
         sunLight->translation(0, 10, 0);
         sunLight->lookAt(10, 0, 10);
-        sunLight->isSunLight(true);
+        sunLight->doSunPowerAdaptation(true);
         sunLight->createsShadows(true);
         sunLight->createShadowMap(-100, 150, SLVec2f(150,150));
         sunLight->doSmoothShadows(true);
@@ -3766,7 +3766,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sunLight->attenuation(1, 0, 0);
         sunLight->translation(0, 10, 0);
         sunLight->lookAt(10, 0, 10);
-        sunLight->isSunLight(true);
+        sunLight->doSunPowerAdaptation(true);
         sunLight->createsShadows(true);
         sunLight->createShadowMap(-100, 150, SLVec2f(150,150));
         sunLight->doSmoothShadows(true);

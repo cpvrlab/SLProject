@@ -27,7 +27,7 @@ SLLightDirect::SLLightDirect(SLAssetManager* assetMgr,
   : SLNode("LightDirect Node"),
     _arrowRadius(arrowLength * 0.1f),
     _arrowLength(arrowLength),
-    _isSunLight(false),
+    _doSunPowerAdaptation(false),
     _sunLightPowerMin(0),
     _sunLightColorLUT(nullptr, CLUT_DAYLIGHT)
 {
@@ -64,7 +64,7 @@ SLLightDirect::SLLightDirect(SLAssetManager* assetMgr,
     SLLight(ambiPower, diffPower, specPower),
     _arrowRadius(arrowLength * 0.1f),
     _arrowLength(arrowLength),
-    _isSunLight(false),
+    _doSunPowerAdaptation(false),
     _sunLightPowerMin(0),
     _sunLightColorLUT(nullptr, CLUT_DAYLIGHT)
 {
@@ -274,7 +274,7 @@ SLCol4f SLLightDirect::ambient()
  */
 SLCol4f SLLightDirect::diffuse()
 {
-    if (_isSunLight)
+    if (_doSunPowerAdaptation)
         return calculateSunLight(_diffusePower);
     else
         return _diffuseColor * _diffusePower;
@@ -287,7 +287,7 @@ SLCol4f SLLightDirect::diffuse()
  */
 SLCol4f SLLightDirect::specular()
 {
-    if (_isSunLight)
+    if (_doSunPowerAdaptation)
         return calculateSunLight(_specularPower);
     else
         return _specularColor * _specularPower;

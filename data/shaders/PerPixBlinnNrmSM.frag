@@ -39,6 +39,7 @@ uniform mat4        u_lightSpace[NUM_LIGHTS * 6];           // projection matric
 uniform bool        u_lightCreatesShadows[NUM_LIGHTS];      // flag if light creates shadows
 uniform bool        u_lightDoSmoothShadows[NUM_LIGHTS];     // flag if percentage-closer filtering is enabled
 uniform int         u_lightSmoothShadowLevel[NUM_LIGHTS];   // radius of area to sample for PCF
+uniform float       u_lightShadowBias[NUM_LIGHTS];          // shadow bias value
 uniform bool        u_lightUsesCubemap[NUM_LIGHTS];         // flag if light has a cube shadow map
 
 uniform vec4        u_matAmbi;          // ambient color reflection coefficient (ka)
@@ -49,7 +50,6 @@ uniform float       u_matShin;          // shininess exponent
 uniform sampler2D   u_matTexture0;      // Color map
 uniform sampler2D   u_matTexture1;      // Normal map
 uniform bool        u_matGetsShadows;   // flag if material receives shadows
-uniform float       u_matShadowBias;    // Bias to use to prevent shadow
 
 uniform int         u_camProjection;    // type of stereo
 uniform int         u_camStereoEye;     // -1=left, 0=center, 1=right
@@ -89,7 +89,7 @@ int vectorToFace(vec3 vec) // Vector to process
     return vec.z > 0.0 ? 4 : 5;
 }
 //-----------------------------------------------------------------------------
-float shadowTest(in int i) // Light number
+float shadowTest(in int i, in vec3 N, in vec3 lightDir) // Light number
 {
     if (u_lightCreatesShadows[i])
     {
@@ -134,7 +134,7 @@ float shadowTest(in int i) // Light number
                     if (i == 1) closestDepth = texture(u_shadowMap_1, projCoords.xy + vec2(x, y) * texelSize).r;
                     if (i == 2) closestDepth = texture(u_shadowMap_2, projCoords.xy + vec2(x, y) * texelSize).r;
                     if (i == 3) closestDepth = texture(u_shadowMap_3, projCoords.xy + vec2(x, y) * texelSize).r;
-                    shadow += currentDepth - u_matShadowBias > closestDepth ? 1.0 : 0.0;
+                    shadow += currentDepth - u_lightShadowBias[i] > closestDepth ? 1.0 : 0.0;
                 }
             }
             shadow /= pow(1.0 + 2.0 * float(level), 2.0);
@@ -157,7 +157,7 @@ float shadowTest(in int i) // Light number
             }
 
             // The fragment is in shadow if the light doesn't "see" it
-            if (currentDepth > closestDepth + u_matShadowBias)
+            if (currentDepth > closestDepth + u_lightShadowBias[i])
             shadow = 1.0;
         }
 
@@ -183,19 +183,24 @@ void main()
     {
         if (u_lightIsOn[i])
         {
-            // Test if the current fragment is in shadow
-            float shadow = u_matGetsShadows ? shadowTest(i) : 0.0;
-
             if (u_lightPosVS[i].w == 0.0)
             {
                 // We use the spot light direction as the light direction vector
                 vec3 S = normalize(-v_spotDirTS[i]);
+
+                // Test if the current fragment is in shadow
+                float shadow = u_matGetsShadows ? shadowTest(i, N, S) : 0.0;
+
                 directLightBlinnPhong(i, N, E, S, shadow, Ia, Id, Is);
             }
             else
             {
                 vec3 S = normalize(v_spotDirTS[i]); // normalized spot direction in TS
                 vec3 L = v_lightDirTS[i]; // Vector from v_P to light in TS
+
+                // Test if the current fragment is in shadow
+                float shadow = u_matGetsShadows ? shadowTest(i, N, L) : 0.0;
+
                 pointLightBlinnPhong(i, N, E, S, L, shadow, Ia, Id, Is);
             }
         }

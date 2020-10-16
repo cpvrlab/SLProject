@@ -38,6 +38,7 @@ uniform mat4        u_lightSpace[NUM_LIGHTS * 6];           // projection matric
 uniform bool        u_lightCreatesShadows[NUM_LIGHTS];      // flag if light creates shadows
 uniform bool        u_lightDoSmoothShadows[NUM_LIGHTS];     // flag if percentage-closer filtering is enabled
 uniform int         u_lightSmoothShadowLevel[NUM_LIGHTS];   // radius of area to sample for PCF
+uniform float       u_lightShadowBias[NUM_LIGHTS];          // shadow bias value
 uniform bool        u_lightUsesCubemap[NUM_LIGHTS];         // flag if light has a cube shadow map
 
 uniform vec4        u_globalAmbi;       // Global ambient scene color
@@ -48,7 +49,6 @@ uniform vec4        u_matSpec;          // specular color reflection coefficient
 uniform vec4        u_matEmis;          // emissive color for self-shining materials
 uniform float       u_matShin;          // shininess exponent
 uniform bool        u_matGetsShadows;   // flag if material receives shadows
-uniform float       u_matShadowBias;    // Bias to use to prevent shadow
 
 uniform int         u_camProjection;    // type of stereo
 uniform int         u_camStereoEye;     // -1=left, 0=center, 1=right
@@ -149,7 +149,7 @@ float shadowTest(in int i) // Light number
                     if (i == 5) closestDepth = texture(u_shadowMap_5, projCoords.xy + vec2(x, y) * texelSize).r;
                     if (i == 6) closestDepth = texture(u_shadowMap_6, projCoords.xy + vec2(x, y) * texelSize).r;
                     if (i == 7) closestDepth = texture(u_shadowMap_7, projCoords.xy + vec2(x, y) * texelSize).r;
-                    shadow += currentDepth - u_matShadowBias > closestDepth ? 1.0 : 0.0;
+                    shadow += currentDepth - u_lightShadowBias[i] > closestDepth ? 1.0 : 0.0;
                 }
             }
             shadow /= pow(1.0 + 2.0 * float(level), 2.0);
@@ -180,7 +180,7 @@ float shadowTest(in int i) // Light number
             }
 
             // The fragment is in shadow if the light doesn't "see" it
-            if (currentDepth > closestDepth + u_matShadowBias)
+            if (currentDepth > closestDepth + u_lightShadowBias[i])
             shadow = 1.0;
         }
 

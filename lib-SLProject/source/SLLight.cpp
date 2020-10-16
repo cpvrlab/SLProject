@@ -15,7 +15,7 @@
 
 //-----------------------------------------------------------------------------
 SLCol4f SLLight::globalAmbient = SLCol4f(0.1f, 0.1f, 0.1f, 1.0f);
-SLfloat SLLight::gamma = 1.0f;
+SLfloat SLLight::gamma         = 1.0f;
 //-----------------------------------------------------------------------------
 SLLight::SLLight(SLfloat ambiPower,
                  SLfloat diffPower,
@@ -23,15 +23,16 @@ SLLight::SLLight(SLfloat ambiPower,
                  SLint   id)
 {
     // Set parameter of SLLight
-    _id               = id;
-    _isOn             = true;
-    _spotCutOffDEG    = 180.0f;
-    _spotCosCutOffRAD = cos(Utils::DEG2RAD * _spotCutOffDEG);
-    _spotExponent     = 1.0f;
-    _createsShadows   = false;
-    _shadowMap        = nullptr;
+    _id                = id;
+    _isOn              = true;
+    _spotCutOffDEG     = 180.0f;
+    _spotCosCutOffRAD  = cos(Utils::DEG2RAD * _spotCutOffDEG);
+    _spotExponent      = 1.0f;
+    _createsShadows    = false;
+    _shadowMap         = nullptr;
     _doSmoothShadows   = false;
     _smoothShadowLevel = 1;
+    _shadowBias        = 0.005f;
 
     // Set parameters of inherited SLMaterial
     _ambientColor.set(1, 1, 1);
