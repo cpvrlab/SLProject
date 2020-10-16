@@ -2797,9 +2797,12 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                         shadowMap->textureSize(SLVec2i((int)Utils::closestPowerOf2((unsigned)texSize.x),
                                                                        (int)Utils::closestPowerOf2((unsigned)texSize.y)));
 
-                                    SLfloat shadowBias = light->shadowBias();
-                                    if (ImGui::SliderFloat("Shadow bias", &shadowBias, 0.0f, 0.01f, "%.03f"))
-                                        light->shadowBias(shadowBias);
+                                    SLfloat shadowMinBias = light->shadowMinBias();
+                                    SLfloat shadowMaxBias = light->shadowMaxBias();
+                                    if (ImGui::SliderFloat("Min. shadow bias", &shadowMinBias, 0.0f, shadowMaxBias, "%.03f"))
+                                        light->shadowMinBias(shadowMinBias);
+                                    if (ImGui::SliderFloat("Max. shadow bias", &shadowMaxBias, shadowMinBias, 0.02f, "%.03f"))
+                                        light->shadowMaxBias(shadowMaxBias);
 
                                     if (typeid(*singleNode) == typeid(SLLightDirect))
                                     {

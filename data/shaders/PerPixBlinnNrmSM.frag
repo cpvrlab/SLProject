@@ -39,7 +39,8 @@ uniform mat4        u_lightSpace[NUM_LIGHTS * 6];           // projection matric
 uniform bool        u_lightCreatesShadows[NUM_LIGHTS];      // flag if light creates shadows
 uniform bool        u_lightDoSmoothShadows[NUM_LIGHTS];     // flag if percentage-closer filtering is enabled
 uniform int         u_lightSmoothShadowLevel[NUM_LIGHTS];   // radius of area to sample for PCF
-uniform float       u_lightShadowBias[NUM_LIGHTS];          // shadow bias value
+uniform float       u_lightShadowMinBias[NUM_LIGHTS];       // min. shadow bias value at 0° to N
+uniform float       u_lightShadowMaxBias[NUM_LIGHTS];       // min. shadow bias value at 90° to N
 uniform bool        u_lightUsesCubemap[NUM_LIGHTS];         // flag if light has a cube shadow map
 
 uniform vec4        u_matAmbi;          // ambient color reflection coefficient (ka)
@@ -89,7 +90,7 @@ int vectorToFace(vec3 vec) // Vector to process
     return vec.z > 0.0 ? 4 : 5;
 }
 //-----------------------------------------------------------------------------
-float shadowTest(in int i, in vec3 N, in vec3 lightDir) // Light number
+float shadowTest(in int i, in vec3 N, in vec3 lightDir)
 {
     if (u_lightCreatesShadows[i])
     {
@@ -116,6 +117,9 @@ float shadowTest(in int i, in vec3 N, in vec3 lightDir) // Light number
         float shadow = 0.0;
         float closestDepth;
 
+        // calculate bias between min. and max. bias depending on the angle between N and lightDir
+        float bias = max(u_lightShadowMaxBias[i] * (1.0 - dot(N, lightDir)), u_lightShadowMinBias[i]);
+
         // Use percentage-closer filtering (PCF) for softer shadows (if enabled)
         if (!u_lightUsesCubemap[i] && u_lightDoSmoothShadows[i])
         {
@@ -134,7 +138,7 @@ float shadowTest(in int i, in vec3 N, in vec3 lightDir) // Light number
                     if (i == 1) closestDepth = texture(u_shadowMap_1, projCoords.xy + vec2(x, y) * texelSize).r;
                     if (i == 2) closestDepth = texture(u_shadowMap_2, projCoords.xy + vec2(x, y) * texelSize).r;
                     if (i == 3) closestDepth = texture(u_shadowMap_3, projCoords.xy + vec2(x, y) * texelSize).r;
-                    shadow += currentDepth - u_lightShadowBias[i] > closestDepth ? 1.0 : 0.0;
+                    shadow += currentDepth - bias > closestDepth ? 1.0 : 0.0;
                 }
             }
             shadow /= pow(1.0 + 2.0 * float(level), 2.0);
@@ -157,7 +161,7 @@ float shadowTest(in int i, in vec3 N, in vec3 lightDir) // Light number
             }
 
             // The fragment is in shadow if the light doesn't "see" it
-            if (currentDepth > closestDepth + u_lightShadowBias[i])
+            if (currentDepth > closestDepth + bias)
             shadow = 1.0;
         }
 
@@ -176,8 +180,6 @@ void main()
     // Get normal from normal map, move from [0,1] to [-1, 1] range & normalize
     vec3 N = normalize(texture(u_matTexture1, v_texCoord).rgb * 2.0 - 1.0);
     vec3 E = normalize(v_eyeDirTS);   // normalized eye direction
-
-    //vec3 N = normalize(v_N_VS);  // A input normal has not anymore unit length
 
     for (int i = 0; i < NUM_LIGHTS; ++i)
     {

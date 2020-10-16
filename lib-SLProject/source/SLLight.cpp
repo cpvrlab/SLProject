@@ -32,7 +32,8 @@ SLLight::SLLight(SLfloat ambiPower,
     _shadowMap         = nullptr;
     _doSmoothShadows   = false;
     _smoothShadowLevel = 1;
-    _shadowBias        = 0.005f;
+    _shadowMinBias     = 0.001f;
+    _shadowMaxBias     = 0.008f;
 
     // Set parameters of inherited SLMaterial
     _ambientColor.set(1, 1, 1);

@@ -121,7 +121,8 @@ public:
     void shadowMap(SLShadowMap* shadowMap) { _shadowMap = shadowMap; }
     void doSmoothShadows(SLbool doSS) { _doSmoothShadows = doSS; }
     void smoothShadowLevel(SLuint ssLevel) { _smoothShadowLevel = ssLevel; }
-    void shadowBias(SLfloat minBias) { _shadowBias = minBias; }
+    void shadowMinBias(SLfloat minBias) { _shadowMinBias = minBias; }
+    void shadowMaxBias(SLfloat maxBias) { _shadowMaxBias = maxBias; }
 
     // Getters
     SLint        id() const { return _id; }
@@ -144,7 +145,8 @@ public:
     SLShadowMap* shadowMap() { return _shadowMap; }
     SLbool       doSmoothShadows() const { return _doSmoothShadows; }
     SLuint       smoothShadowLevel() const { return _smoothShadowLevel; }
-    SLfloat      shadowBias() const { return _shadowBias; }
+    SLfloat      shadowMinBias() const { return _shadowMinBias; }
+    SLfloat      shadowMaxBias() const { return _shadowMaxBias; }
 
 #ifdef SL_HAS_OPTIX
     virtual ortLight optixLight(bool)
@@ -212,7 +214,8 @@ protected:
     SLShadowMap* _shadowMap;         //!< Used for shadow mapping
     SLbool       _doSmoothShadows;   //!< flag if percentage-closer filtering for smooth shadows is enabled
     SLuint       _smoothShadowLevel; //!< Radius to smoothing (1 = 3 * 3; 2 = 5 * 5; ...)
-    SLfloat      _shadowBias;        //!< Bias to use to prevent shadow acne
+    SLfloat      _shadowMinBias;     //!< Min. bias at 0 deg. to use to prevent shadow acne
+    SLfloat      _shadowMaxBias;     //!< Max. bias at 90 deg. to use to prevent shadow acne
 };
 //-----------------------------------------------------------------------------
 //! STL vector of light pointers
