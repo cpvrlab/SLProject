@@ -136,6 +136,7 @@ class SENSCaptureProperties : public std::vector<SENSCameraDeviceProperties>
 {
 public:
     bool                              containsDeviceId(const std::string& deviceId) const;
+    bool                              supportsCameraFacing(const SENSCameraFacing& facing) const;
     const SENSCameraDeviceProperties* camPropsForDeviceId(const std::string& deviceId) const;
     //returned pointer is null if nothing was found
     std::pair<const SENSCameraDeviceProperties* const, const SENSCameraStreamConfig* const> findBestMatchingConfig(SENSCameraFacing facing, const float horizFov, const int width, const int height) const;
@@ -275,14 +276,18 @@ protected:
 struct SENSCvCameraConfig
 {
     //this constructor forces the user to always define a complete parameter set. In this way no parameter is forgotten..
-    SENSCvCameraConfig(int  targetWidth,
-                       int  targetHeight,
-                       int  manipWidth,
-                       int  manipHeight,
-                       bool mirrorH,
-                       bool mirrorV,
-                       bool convertManipToGray)
-      : targetWidth(targetWidth),
+    SENSCvCameraConfig(const SENSCameraDeviceProperties* deviceProps,
+                       const SENSCameraStreamConfig*     streamConfig,
+                       int                               targetWidth,
+                       int                               targetHeight,
+                       int                               manipWidth,
+                       int                               manipHeight,
+                       bool                              mirrorH,
+                       bool                              mirrorV,
+                       bool                              convertManipToGray)
+      : deviceProps(deviceProps),
+        streamConfig(streamConfig),
+        targetWidth(targetWidth),
         targetHeight(targetHeight),
         manipWidth(manipWidth),
         manipHeight(manipHeight),
@@ -291,118 +296,154 @@ struct SENSCvCameraConfig
         convertManipToGray(convertManipToGray)
     {
     }
-    SENSCvCameraConfig() {}
 
+    const SENSCameraDeviceProperties* deviceProps;
+    const SENSCameraStreamConfig*     streamConfig;
     //! largest target image width (only BGR)
-    int targetWidth = 640;
+    const int targetWidth;
     //! largest target image width (only BGR)
-    int targetHeight = 480;
+    const int targetHeight;
     //! width of smaller image version (e.g. for tracking)
-    int manipWidth = 640;
+    const int manipWidth;
     //! height of smaller image version (e.g. for tracking)
-    int manipHeight = 480;
+    const int manipHeight;
     //! mirror image horizontally after capturing
-    bool mirrorH = false;
+    const bool mirrorH;
     //! mirror image vertically after capturing
-    bool mirrorV = false;
+    const bool mirrorV;
     //! provide gray version of small image
-    bool convertManipToGray = false;
+    const bool convertManipToGray;
 };
 
+/*!
+ Camera wrapper for computer vision applications that adds convenience functions and that makes post processing steps.
+ */
 class SENSCvCamera
 {
 public:
+    //!error code definition, will be returned by configure in case of failure. See method advice() for explanation.
+    enum ConfigReturnCode
+    {
+        SUCCESS = 0,
+        WARN_TARGET_SIZE_NOT_FOUND,
+        ERROR_CAMERA_INVALID,
+        ERROR_CAMERA_IS_RUNNING,
+        ERROR_FACING_NOT_AVAILABLE,
+        ERROR_UNKNOWN
+    };
+
+    //! returns advice to an error code
+    static std::string advice(const ConfigReturnCode returnCode)
+    {
+        switch (returnCode)
+        {
+            case SUCCESS: return "Camera was configured successfully";
+            case WARN_TARGET_SIZE_NOT_FOUND: return "Only a smaller resolution was found (you can still start the camera)";
+            case ERROR_CAMERA_INVALID: return "Camera is null";
+            case ERROR_CAMERA_IS_RUNNING: return "Camera is running, you have to stop it first";
+            case ERROR_FACING_NOT_AVAILABLE: return "Camera facing is not available as configured";
+            case ERROR_UNKNOWN: return "Unknown error";
+            default: return "Unknown return code";
+        }
+    }
+
     SENSCvCamera(SENSCamera* camera)
       : _camera(camera)
     {
+        assert(camera);
+        //retrieve capture properties
+        _camera->captureProperties();
     }
 
-    //init config
-    void configure(int  targetWidth,
-                   int  targetHeight,
-                   int  manipWidth,
-                   int  manipHeight,
-                   bool mirrorH,
-                   bool mirrorV,
-                   bool convertManipToGray)
+    bool supportsFacing(SENSCameraFacing facing)
     {
-        _config = SENSCvCameraConfig(targetWidth,
-                                     targetHeight,
-                                     manipWidth,
-                                     manipHeight,
-                                     mirrorH,
-                                     mirrorV,
-                                     convertManipToGray);
+        const SENSCaptureProperties& props = _camera->captureProperties();
+        return props.supportsCameraFacing(facing);
     }
-
-    const SENSCvCameraConfig& config()
+  
+    /*!
+     configure camera: the function checks with the wrapped camera if it could successfully configure the camera.
+     If not, it will return false. This may have dirrerent reasons:
+     - the wrapped camera is not valid
+     - it has to extrapolate the maximum found stream config size to get targetWidth, targetHeight.
+     Transfer -1 for manipWidth and manipHeight to disable generation of manipulated image
+     */
+    ConfigReturnCode configure(SENSCameraFacing facing,
+                               int              targetWidth,
+                               int              targetHeight,
+                               int              manipWidth,
+                               int              manipHeight,
+                               bool             mirrorH,
+                               bool             mirrorV,
+                               bool             convertManipToGray)
     {
-        return _config;
+        //this can happen, because it is possible to retrieve a camera pointer reference for camera simulation
+        if (!_camera)
+            return ERROR_CAMERA_INVALID;
+
+        if (_camera->started())
+            return ERROR_CAMERA_IS_RUNNING;
+
+        const SENSCaptureProperties& props = _camera->captureProperties();
+        //check if facing is available
+        if (!props.supportsCameraFacing(facing))
+            return ERROR_FACING_NOT_AVAILABLE;
+
+        ConfigReturnCode returnCode = SUCCESS;
+
+        //search for best matching stream config
+        int trackingImgW = 640;
+        //float targetWdivH   = 4.f / 3.f;
+        float targetWdivH   = (float)targetWidth / (float)targetHeight;
+        int   aproxVisuImgW = 1000;
+
+        std::pair<const SENSCameraDeviceProperties*, const SENSCameraStreamConfig*> bestConfig =
+          props.findBestMatchingConfig(facing, 65.f, aproxVisuImgW, (int)((float)aproxVisuImgW / targetWdivH));
+
+        //warn if extrapolation needed (image will not be extrapolated)
+        if (!bestConfig.first && !bestConfig.second)
+        {
+            aproxVisuImgW = 640;
+            bestConfig    = props.findBestMatchingConfig(facing, 65.f, aproxVisuImgW, (int)((float)aproxVisuImgW / targetWdivH));
+            if (!bestConfig.first && !bestConfig.second)
+                return ERROR_UNKNOWN;
+            else
+                returnCode = WARN_TARGET_SIZE_NOT_FOUND;
+        }
+
+        _config = std::make_unique<SENSCvCameraConfig>(bestConfig.first,
+                                                       bestConfig.second,
+                                                       targetWidth,
+                                                       targetHeight,
+                                                       manipWidth,
+                                                       manipHeight,
+                                                       mirrorH,
+                                                       mirrorV,
+                                                       convertManipToGray);
+        
+        //todo: guess calibrations
+        //problem: werden auch in start für camera berechnet
+        //-> keine kalibrierung in der basisklasse
+        return returnCode;
     }
 
-    bool start(const cv::Size& cameraFrameTargetSize)
+    const SENSCvCameraConfig* config()
+    {
+        return _config.get();
+    }
+
+    bool start()
     {
         if (!_camera)
             return false;
 
-        int trackingImgW = 640;
-        //float targetWdivH   = 4.f / 3.f;
-        float targetWdivH   = (float)cameraFrameTargetSize.width / (float)cameraFrameTargetSize.height;
-        int   aproxVisuImgW = 1000;
-        int   aproxVisuImgH = (int)((float)aproxVisuImgW / targetWdivH);
-
-        auto capProps   = _camera->captureProperties();
-        auto bestConfig = capProps.findBestMatchingConfig(SENSCameraFacing::BACK, 65.f, aproxVisuImgW, aproxVisuImgH);
-
-        if (bestConfig.first && bestConfig.second)
-        {
-            const SENSCameraDeviceProperties* const devProps     = bestConfig.first;
-            const SENSCameraStreamConfig*           streamConfig = bestConfig.second;
-            Utils::log("AreaTrackingView", "starting camera with stream config: w:%d h:%d", streamConfig->widthPix, streamConfig->heightPix);
-
-            int cropW, cropH, w, h;
-            SENS::calcCrop(cv::Size(streamConfig->widthPix, streamConfig->heightPix), targetWdivH, cropW, cropH, w, h);
-
-            try
-            {
-                _camera->start(devProps->deviceId(),
-                               *streamConfig,
-                               true,
-                               65.f);
-                updateCalibration();
-            }
-            catch (...)
-            {
-                //_gui.showErrorMsg(_resources.strings().cameraStartError());
-            }
-        }
-        else //try with unknown config (for desktop usage, there may be no high resolution available)
-        {
-            aproxVisuImgW    = 640;
-            aproxVisuImgH    = (int)((float)aproxVisuImgW / targetWdivH);
-            auto bestConfig2 = capProps.findBestMatchingConfig(SENSCameraFacing::UNKNOWN, 52.5f, aproxVisuImgW, aproxVisuImgH);
-            if (bestConfig2.first && bestConfig2.second)
-            {
-                const SENSCameraDeviceProperties* const devProps     = bestConfig2.first;
-                const SENSCameraStreamConfig*           streamConfig = bestConfig2.second;
-                Utils::log("AreaTrackingView", "starting camera with stream config: w:%d h:%d", streamConfig->widthPix, streamConfig->heightPix);
-
-                int cropW, cropH, w, h;
-                SENS::calcCrop(cv::Size(streamConfig->widthPix, streamConfig->heightPix), targetWdivH, cropW, cropH, w, h);
-                try
-                {
-                    _camera->start(devProps->deviceId(),
-                                   *streamConfig,
-                                   true,
-                                   52.5f);
-                    updateCalibration();
-                }
-                catch (...)
-                {
-                    //_gui.showErrorMsg(_resources.strings().cameraStartError());
-                }
-            }
-        }
+        if (!_config)
+            return false;
+        
+         _camera->start(_config->deviceProps->deviceId(),
+                        *_config->streamConfig,
+                        true,
+                        65.0);
 
         return true;
     }
@@ -447,9 +488,12 @@ public:
 
     cv::Mat scaledCameraMat()
     {
-        return SENS::adaptCameraMat(_calibrationTargetSize->cameraMat(),
-                                    _config.manipWidth,
-                                    _config.targetWidth);
+        if (!_config)
+            return cv::Mat();
+        else
+            return SENS::adaptCameraMat(_calibrationTargetSize->cameraMat(),
+                                        _config->manipWidth,
+                                        _config->targetWidth);
     }
 
     //guess a calibration from what we know and update all derived calibration
@@ -477,6 +521,11 @@ public:
         //set calibration in SENSCvCamera
         updateCalibration();
     }
+    
+    bool isConfigured()
+    {
+        return _config != nullptr;
+    }
 
 private:
     void updateCalibration()
@@ -487,8 +536,8 @@ private:
 
     SENSFramePtr processNewFrame(cv::Mat& bgrImg, cv::Mat intrinsics, bool intrinsicsChanged);
 
-    SENSCamera*        _camera;
-    SENSCvCameraConfig _config;
+    SENSCamera*                         _camera;
+    std::unique_ptr<SENSCvCameraConfig> _config;
 
     //calibration that fits to (targetWidth,targetHeight)
     std::unique_ptr<SENSCalibration> _calibrationTargetSize;

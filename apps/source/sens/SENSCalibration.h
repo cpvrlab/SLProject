@@ -74,6 +74,7 @@ public:
     ~SENSCalibration()
     {
     }
+       
     //copy constructor
     SENSCalibration(const SENSCalibration& other)
       : _cameraMat(other._cameraMat.clone()),
@@ -127,6 +128,8 @@ public:
         _calibrationTime      = other._calibrationTime;
         _computerInfos        = other._computerInfos;
         _camType              = other._camType;
+        
+        return *this;
     }
 
     bool save(const std::string& calibDir,
@@ -213,6 +216,8 @@ public:
     void calculateUndistortedCameraMat();
 
 private:
+
+    
     bool load(const std::string& calibDir,
               const std::string& calibFileName,
               bool               calcUndistortionMaps);

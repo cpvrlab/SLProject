@@ -39,9 +39,9 @@ void AppDemoGuiVideoStorage::buildInfos(SLScene* s, SLSceneView* sv)
         if (!_recording)
         {
             SENSCvCamera* cam = _getCamera();
-            if (cam)
+            if (cam && cam->isConfigured())
             {
-                cv::Size    size(cam->config().targetWidth, cam->config().targetHeight);
+                cv::Size    size(cam->config()->targetWidth, cam->config()->targetHeight);
                 std::string filename = Utils::getDateTime2String() + "_" +
                                        Utils::ComputerInfos::get() + "_" +
                                        std::to_string(size.width) + "x" + std::to_string(size.height) + ".avi";

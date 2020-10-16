@@ -35,7 +35,6 @@ AreaTrackingView::AreaTrackingView(sm::EventHandler&   eventHandler,
     init("AreaTrackingView", deviceData.scrWidth(), deviceData.scrHeight(), nullptr, nullptr, &_gui, deviceData.writableDir());
 
     _camera = std::make_unique<SENSCvCamera>(camera);
-    _camera->configure(640, 480, 640, 460, false, false, true);
     //todo: ->moved to constructor of AreaTrackingScene: can this lead to any problems?
     //_scene.init();
     //_scene.build();
@@ -137,9 +136,7 @@ void AreaTrackingView::onCameraParamsChanged()
     else
     {
         auto    calib        = _camera->calibration();
-        cv::Mat scaledCamMat = SENS::adaptCameraMat(_camera->calibration()->cameraMat(),
-                                                    _camera->config().manipWidth,
-                                                    _camera->config().targetWidth);
+        cv::Mat scaledCamMat = _camera->scaledCameraMat();
 
         _waiSlam->changeIntrinsic(scaledCamMat, calib->distortion());
         updateSceneCameraFov();
@@ -480,7 +477,8 @@ void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaI
 
 void AreaTrackingView::resume()
 {
-    startCamera(_cameraFrameResumeSize);
+    if(_camera)
+        _camera->start();
 }
 
 void AreaTrackingView::hold()
@@ -488,17 +486,18 @@ void AreaTrackingView::hold()
     _camera->stop();
 }
 
-bool AreaTrackingView::startCamera(const cv::Size& cameraFrameTargetSize)
+bool AreaTrackingView::startCamera(const cv::Size& trackImgSize)
 {
     if (_camera)
     {
         if (_camera->started())
             _camera->stop();
 
-        //we have to store this for a resume call..
-        _cameraFrameResumeSize = cameraFrameTargetSize;
-
-        _camera->start(cameraFrameTargetSize);
+        if(_camera->supportsFacing(SENSCameraFacing::BACK)) //we are on android or ios. we can also expect high resolution support.
+           _camera->configure(SENSCameraFacing::BACK, 640, 480, trackImgSize.width, trackImgSize.height, false, false, true);
+        else
+           _camera->configure(SENSCameraFacing::UNKNOWN, 640, 480, trackImgSize.width, trackImgSize.height, false, false, true);
+        _camera->start();
         return _camera->started();
     }
     else

@@ -112,8 +112,8 @@ bool TestView::update()
                 _calibration = _camera->calibration();
                 _scene.camera->updateCameraIntrinsics(_calibration->cameraFovVDeg());
                 cv::Mat scaledCamMat = SENS::adaptCameraMat(_calibration->cameraMat(),
-                                                            _camera->config().manipWidth,
-                                                            _camera->config().targetWidth);
+                                                            _camera->config()->manipWidth,
+                                                            _camera->config()->targetWidth);
                 _mode->changeIntrinsic(scaledCamMat, _calibration->distortion());
                 _fillAutoCalibration = false;
             }
@@ -199,8 +199,8 @@ void TestView::handleEvents()
                     _calibration = _camera->calibration();
                     _scene.camera->updateCameraIntrinsics(_calibration->cameraFovVDeg());
                     cv::Mat scaledCamMat = SENS::adaptCameraMat(_calibration->cameraMat(),
-                                                                _camera->config().manipWidth,
-                                                                _camera->config().targetWidth);
+                                                                _camera->config()->manipWidth,
+                                                                _camera->config()->targetWidth);
                     _mode->changeIntrinsic(scaledCamMat, _calibration->distortion());
                 }
                 delete autoCalEvent;
@@ -529,7 +529,7 @@ void TestView::saveVideo(std::string filename)
     if (_videoFileStream)
         ret = _videoWriter->open(path, cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 30, _videoFileStream->getFrameSize(), true);
     else if (_camera)
-        ret = _videoWriter->open(path, cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 30, cv::Size(_camera->config().targetWidth, _camera->config().targetHeight), true);
+        ret = _videoWriter->open(path, cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 30, cv::Size(_camera->config()->targetWidth, _camera->config()->targetHeight), true);
     else
         Utils::log("WAI WARN", "WAIApp::saveVideo: No active video stream or camera available!");
 }
@@ -571,7 +571,11 @@ bool TestView::startCamera()
     if (_camera->started())
         _camera->stop();
 
-    _camera->start({640, 480});
+    if(_camera->supportsFacing(SENSCameraFacing::BACK)) //we are on android or ios. we can also expect high resolution support.
+       _camera->configure(SENSCameraFacing::BACK, 640, 480, 640, 480, false, false, true);
+    else
+       _camera->configure(SENSCameraFacing::UNKNOWN, 640, 480, 640, 480, false, false, true);
+    _camera->start();
 
     return _camera->started();
 }
@@ -677,7 +681,7 @@ void TestView::startOrbSlam(SlamParams slamParams)
     {
         if (!startCamera())
             return;
-        _videoFrameSize = cv::Size2i(_camera->config().targetWidth, _camera->config().targetHeight);
+        _videoFrameSize = cv::Size2i(_camera->config()->targetWidth, _camera->config()->targetHeight);
     }
 
     // 2. Load Calibration
@@ -798,8 +802,8 @@ void TestView::startOrbSlam(SlamParams slamParams)
     else
     {
         scaledCamMat = SENS::adaptCameraMat(_calibration->cameraMat(),
-                                            _camera->config().manipWidth,
-                                            _camera->config().targetWidth);
+                                            _camera->config()->manipWidth,
+                                            _camera->config()->targetWidth);
     }
     _mode = new WAISlam(scaledCamMat,
                         _calibration->distortion(),

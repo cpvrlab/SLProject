@@ -25,12 +25,13 @@ void AppDemoGuiStatsVideo::buildInfos(SLScene* s, SLSceneView* sv)
     // clang-format off
     if (cam)
     {
-        sprintf(m + strlen(m), "Capture size: %d x %d\n", cam->config().targetWidth, cam->config().targetHeight);
+        if(cam->isConfigured())
+            sprintf(m + strlen(m), "Capture size: %d x %d\n", cam->config()->targetWidth, cam->config()->targetHeight);
+        else
+            sprintf(m + strlen(m), "Camera not configured\n");
     }
     else
-    {
         sprintf(m + strlen(m), "Camera invalid\n");
-    }
 
     const SENSCalibration* calib = _getCalibration();
     if (calib)

@@ -21,12 +21,17 @@ AppDemoGuiAutoCalibration::AppDemoGuiAutoCalibration(string                     
 //-----------------------------------------------------------------------------
 void AppDemoGuiAutoCalibration::buildInfos(SLScene* s, SLSceneView* sv)
 {
-    SLchar m[2550];      // message character array
-    m[0]            = 0; //
+    SLchar m[2550];        // message character array
+    m[0]              = 0; //
     SENSCvCamera* cam = _getCamera();
     // clang-format off
     if (cam)
-        sprintf(m + strlen(m), "Capture size: %d x %d\n", cam->config().targetWidth, cam->config().targetHeight);
+    {
+        if(cam->isConfigured())
+            sprintf(m + strlen(m), "Capture size: %d x %d\n", cam->config()->targetWidth, cam->config()->targetHeight);
+        else
+            sprintf(m + strlen(m), "Camera not configured\n");
+    }
     else
         sprintf(m + strlen(m), "Camera invalid\n");
  

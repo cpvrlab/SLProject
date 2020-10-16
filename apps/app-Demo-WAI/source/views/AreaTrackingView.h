@@ -99,7 +99,7 @@ private:
     void updateVideoImage(SENSFrame& frame, VideoBackgroundCamera* videoBackground);
     void updateTrackingVisualization(const bool iKnowWhereIAm, SENSFrame& frame);
     void initSlam();
-    bool startCamera(const cv::Size& cameraFrameTargetSize);
+    bool startCamera(const cv::Size& trackImgSize);
     void onCameraParamsChanged();
 
     AreaTrackingGui   _gui;
@@ -131,7 +131,6 @@ private:
     std::string _mapFileName;
 
     //size with which camera was started last time (needed for a resume call)
-    cv::Size     _cameraFrameResumeSize;
     UserGuidance _userGuidance;
 
     MapLoader* _asyncLoader = nullptr;
