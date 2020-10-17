@@ -398,27 +398,28 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
                 SLfloat draw2DTimePC     = Utils::clamp(draw2DTime / ft * 100.0f, 0.0f, 100.0f);
                 SLfloat cullTimePC       = Utils::clamp(cullTime / ft * 100.0f, 0.0f, 100.0f);
 
-                sprintf(m + strlen(m), "Renderer     : OpenGL\n");
-                sprintf(m + strlen(m), "Window size  : %d x %d\n", sv->viewportW(), sv->viewportH());
-                sprintf(m + strlen(m), "Frambuffer   : %d x %d\n", (int)(sv->viewportW() * sv->scr2fbY()), (int)(sv->viewportH() * sv->scr2fbX()));
-                sprintf(m + strlen(m), "Drawcalls    : %d\n", SLGLVertexArray::totalDrawCalls);
-                sprintf(m + strlen(m), "FPS          :%5.1f\n", s->fps());
-                sprintf(m + strlen(m), "Frame time   :%5.1f ms (100%%)\n", ft);
-                sprintf(m + strlen(m), " Capture     :%5.1f ms (%3d%%)\n", captureTime, (SLint)captureTimePC);
-                sprintf(m + strlen(m), " Update      :%5.1f ms (%3d%%)\n", updateTime, (SLint)updateTimePC);
-                sprintf(m + strlen(m), "  Anim.      :%5.1f ms (%3d%%)\n", updateAnimTime, (SLint)updateAnimTimePC);
-                sprintf(m + strlen(m), "  AABB       :%5.1f ms (%3d%%)\n", updateAABBTime, (SLint)updateAABBTimePC);
-                sprintf(m + strlen(m), "  Tracking   :%5.1f ms (%3d%%)\n", trackingTime, (SLint)trackingTimePC);
-                sprintf(m + strlen(m), "   Detect    :%5.1f ms (%3d%%)\n", detectTime, (SLint)detectTimePC);
-                sprintf(m + strlen(m), "    Det1     :%5.1f ms\n", detect1Time);
-                sprintf(m + strlen(m), "    Det2     :%5.1f ms\n", detect2Time);
-                sprintf(m + strlen(m), "   Match     :%5.1f ms (%3d%%)\n", matchTime, (SLint)matchTimePC);
-                sprintf(m + strlen(m), "   OptFlow   :%5.1f ms (%3d%%)\n", optFlowTime, (SLint)optFlowTimePC);
-                sprintf(m + strlen(m), "   Pose      :%5.1f ms (%3d%%)\n", poseTime, (SLint)poseTimePC);
-                sprintf(m + strlen(m), " Shadows Maps:%5.1f ms (%3d%%)\n", shadowMapTime, (SLint)shadowMapTimePC);
-                sprintf(m + strlen(m), " Culling     :%5.1f ms (%3d%%)\n", cullTime, (SLint)cullTimePC);
-                sprintf(m + strlen(m), " Drawing 3D  :%5.1f ms (%3d%%)\n", draw3DTime, (SLint)draw3DTimePC);
-                sprintf(m + strlen(m), " Drawing 2D  :%5.1f ms (%3d%%)\n", draw2DTime, (SLint)draw2DTimePC);
+                sprintf(m + strlen(m), "Renderer   : OpenGL\n");
+                sprintf(m + strlen(m), "Load time  : %5.1f ms\n", s->loadTimeMS());
+                sprintf(m + strlen(m), "Window size: %d x %d\n", sv->viewportW(), sv->viewportH());
+                sprintf(m + strlen(m), "Frambuffer : %d x %d\n", (int)(sv->viewportW() * sv->scr2fbY()), (int)(sv->viewportH() * sv->scr2fbX()));
+                sprintf(m + strlen(m), "Drawcalls  : %d\n", SLGLVertexArray::totalDrawCalls);
+                sprintf(m + strlen(m), "FPS        : %5.1f\n", s->fps());
+                sprintf(m + strlen(m), "Frame time : %5.1f ms (100%%)\n", ft);
+                sprintf(m + strlen(m), " Capture   : %5.1f ms (%3d%%)\n", captureTime, (SLint)captureTimePC);
+                sprintf(m + strlen(m), " Update    : %5.1f ms (%3d%%)\n", updateTime, (SLint)updateTimePC);
+                sprintf(m + strlen(m), "  Anim.    : %5.1f ms (%3d%%)\n", updateAnimTime, (SLint)updateAnimTimePC);
+                sprintf(m + strlen(m), "  AABB     : %5.1f ms (%3d%%)\n", updateAABBTime, (SLint)updateAABBTimePC);
+                sprintf(m + strlen(m), "  Tracking : %5.1f ms (%3d%%)\n", trackingTime, (SLint)trackingTimePC);
+                sprintf(m + strlen(m), "   Detect  : %5.1f ms (%3d%%)\n", detectTime, (SLint)detectTimePC);
+                sprintf(m + strlen(m), "    Det1   : %5.1f ms\n", detect1Time);
+                sprintf(m + strlen(m), "    Det2   : %5.1f ms\n", detect2Time);
+                sprintf(m + strlen(m), "   Match   : %5.1f ms (%3d%%)\n", matchTime, (SLint)matchTimePC);
+                sprintf(m + strlen(m), "   OptFlow : %5.1f ms (%3d%%)\n", optFlowTime, (SLint)optFlowTimePC);
+                sprintf(m + strlen(m), "   Pose    : %5.1f ms (%3d%%)\n", poseTime, (SLint)poseTimePC);
+                sprintf(m + strlen(m), " Shadows   : %5.1f ms (%3d%%)\n", shadowMapTime, (SLint)shadowMapTimePC);
+                sprintf(m + strlen(m), " Culling   : %5.1f ms (%3d%%)\n", cullTime, (SLint)cullTimePC);
+                sprintf(m + strlen(m), " Drawing 3D: %5.1f ms (%3d%%)\n", draw3DTime, (SLint)draw3DTimePC);
+                sprintf(m + strlen(m), " Drawing 2D: %5.1f ms (%3d%%)\n", draw2DTime, (SLint)draw2DTimePC);
             }
             else if (rType == RT_rt)
             {
@@ -952,24 +953,24 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
             SLchar m[1024];             // message character array
             m[0]                   = 0; // set zero length
             SLVec3d offsetToOrigin = SLApplication::devLoc.originENU() - SLApplication::devLoc.locENU();
-            sprintf(m + strlen(m), "Uses IMU Orientation: %s\n", SLApplication::devRot.isUsed() ? "yes" : "no");
-            sprintf(m + strlen(m), "Orientation Pitch   : %1.0f\n", SLApplication::devRot.pitchRAD() * Utils::RAD2DEG);
-            sprintf(m + strlen(m), "Orientation Yaw     : %1.0f\n", SLApplication::devRot.yawRAD() * Utils::RAD2DEG);
-            sprintf(m + strlen(m), "Orientation Roll    : %1.0f\n", SLApplication::devRot.rollRAD() * Utils::RAD2DEG);
-            sprintf(m + strlen(m), "Zero Yaw at Start   : %s\n", SLApplication::devRot.zeroYawAtStart() ? "yes" : "no");
-            sprintf(m + strlen(m), "Start Yaw           : %1.0f\n", SLApplication::devRot.startYawRAD() * Utils::RAD2DEG);
-            sprintf(m + strlen(m), "---------------------\n");
-            sprintf(m + strlen(m), "Uses GPS Location   : %s\n", SLApplication::devLoc.isUsed() ? "yes" : "no");
-            sprintf(m + strlen(m), "Latitude (deg)      : %11.6f\n", SLApplication::devLoc.locLatLonAlt().lat);
-            sprintf(m + strlen(m), "Longitude (deg)     : %11.6f\n", SLApplication::devLoc.locLatLonAlt().lon);
-            sprintf(m + strlen(m), "Altitude (m)        : %11.6f\n", SLApplication::devLoc.locLatLonAlt().alt);
-            sprintf(m + strlen(m), "Altitude GPS (m)    : %11.6f\n", SLApplication::devLoc.altGpsM());
-            sprintf(m + strlen(m), "Altitude DEM (m)    : %11.6f\n", SLApplication::devLoc.altDemM());
-            sprintf(m + strlen(m), "Accuracy Radius (m) : %6.1f\n", SLApplication::devLoc.locAccuracyM());
-            sprintf(m + strlen(m), "Dist. to Origin (m) : %6.1f\n", offsetToOrigin.length());
-            sprintf(m + strlen(m), "Origin improve time : %6.1f sec.\n", SLApplication::devLoc.improveTime());
-            sprintf(m + strlen(m), "Sun Zenith (deg)    : %6.1f sec.\n", SLApplication::devLoc.originSolarZenit());
-            sprintf(m + strlen(m), "Sun Azimuth (deg)   : %6.1f sec.\n", SLApplication::devLoc.originSolarAzimut());
+            sprintf(m + strlen(m), "Uses IMU Senor   : %s\n", SLApplication::devRot.isUsed() ? "yes" : "no");
+            sprintf(m + strlen(m), "Pitch (deg)      : %1.0f\n", SLApplication::devRot.pitchRAD() * Utils::RAD2DEG);
+            sprintf(m + strlen(m), "Yaw (deg)        : %1.0f\n", SLApplication::devRot.yawRAD() * Utils::RAD2DEG);
+            sprintf(m + strlen(m), "Roll (deg)       : %1.0f\n", SLApplication::devRot.rollRAD() * Utils::RAD2DEG);
+            sprintf(m + strlen(m), "Zero Yaw at Start: %s\n", SLApplication::devRot.zeroYawAtStart() ? "yes" : "no");
+            sprintf(m + strlen(m), "Start Yaw (deg)  : %1.0f\n", SLApplication::devRot.startYawRAD() * Utils::RAD2DEG);
+            sprintf(m + strlen(m), "------------------\n");
+            sprintf(m + strlen(m), "Uses GPS Sensor  : %s\n", SLApplication::devLoc.isUsed() ? "yes" : "no");
+            sprintf(m + strlen(m), "Latitude (deg)   : %10.6f\n", SLApplication::devLoc.locLatLonAlt().lat);
+            sprintf(m + strlen(m), "Longitude (deg)  : %10.6f\n", SLApplication::devLoc.locLatLonAlt().lon);
+            sprintf(m + strlen(m), "Altitude (m)     : %10.6f\n", SLApplication::devLoc.locLatLonAlt().alt);
+            sprintf(m + strlen(m), "Altitude GPS (m) : %10.6f\n", SLApplication::devLoc.altGpsM());
+            sprintf(m + strlen(m), "Altitude DEM (m) : %10.6f\n", SLApplication::devLoc.altDemM());
+            sprintf(m + strlen(m), "Accuracy Rad.(m) : %6.1f\n", SLApplication::devLoc.locAccuracyM());
+            sprintf(m + strlen(m), "Dist. Origin (m) : %6.1f\n", offsetToOrigin.length());
+            sprintf(m + strlen(m), "Origin improve(s): %6.1f sec.\n", SLApplication::devLoc.improveTime());
+            sprintf(m + strlen(m), "Sun Zenith (deg) : %6.1f sec.\n", SLApplication::devLoc.originSolarZenit());
+            sprintf(m + strlen(m), "Sun Azimuth (deg): %6.1f sec.\n", SLApplication::devLoc.originSolarAzimut());
 
             // Switch to fixed font
             ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);

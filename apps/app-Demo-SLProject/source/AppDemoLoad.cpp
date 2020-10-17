@@ -211,6 +211,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 {
     PROFILE_FUNCTION();
 
+    SLfloat startLoadMS = GlobalTimer::timeMS();
+
     // Reset non CVTracked and CVCapture infos
     CVTracked::resetTimes();                   // delete all tracker times
     CVCapture::instance()->videoType(VT_NONE); // turn off any video
@@ -254,7 +256,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Create a scene group node
         SLNode* scene = new SLNode("scene node");
-        
+
         // Create a light source node
         SLLightSpot* light1 = new SLLightSpot(s, s, 0.3f);
         light1->translation(0, 0, 5);
@@ -262,7 +264,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         light1->name("light node");
         light1->drawBits()->set(SL_DB_HIDDEN, true);
         scene->addChild(light1);
-        
+
         SLCamera* cameraNode = new SLCamera();
         cameraNode->fov(45.f);
         cameraNode->clipNear(1.f);
@@ -271,17 +273,15 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cameraNode->translation(0, 0, 1.f);
         cameraNode->lookAt(0, 0, -1);
         cameraNode->setInitialState();
-        
+
         scene->addChild(cameraNode);
         sv->camera(cameraNode);
-        
-        
+
         SLMaterial* blueMat = new SLMaterial(s, "m2", SLCol4f::BLUE * 0.3f, SLCol4f::BLUE, 128, 0.5f, 0.0f, 1.0f);
         //define arrow size in the middle of camera frustum
-        float   distance            = (cameraNode->clipFar() - cameraNode->clipNear()) * 0.5f;
-        SLVec2i frustumSize         = cameraNode->frustumSizeAtDistance(distance);
+        float   distance    = (cameraNode->clipFar() - cameraNode->clipNear()) * 0.5f;
+        SLVec2i frustumSize = cameraNode->frustumSizeAtDistance(distance);
 
-        
         //coordinate axis
         //SLNode* axisNode = new SLNode(new SLCoordAxis(s), "AxisNode");
         //setup final direction arrow
@@ -289,51 +289,49 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         //directionArrow->addChild(axisNode);
         //directionArrow->addChild(arrowNode);
         directionArrow->translate(0, 0, -distance);
-        
+
         cameraNode->addChild(directionArrow);
-        
+
         SLVec3f p1(-1.45, 1.1, 2.1);
         SLVec3f p2(1.54, -1.345345, 2.7);
         SLNode* sphere1 = new SLNode(new SLSphere(s, 0.1));
         sphere1->translate(p1);
         scene->addChild(sphere1);
-        
+
         SLNode* sphere2 = new SLNode(new SLSphere(s, 0.1));
         sphere2->translate(p2);
         scene->addChild(sphere2);
-    
+
         SLVec3f dirX = p2 - p1;
-        SLVec3f X = dirX.normalized();
+        SLVec3f X    = dirX.normalized();
         SLVec3f Y;
         Y.cross(X, {0, 0, 1});
         Y.normalize();
         SLVec3f Z;
         Z.cross(X, Y);
         Z.normalize();
-        SLMat3f R(X.x, Y.x, Z.x,
-                  X.y, Y.y, Z.y,
-                  X.z, Y.z, Z.z);
-        
+        SLMat3f R(X.x, Y.x, Z.x, X.y, Y.y, Z.y, X.z, Y.z, Z.z);
+
         //SLVec3f t(0, 0, 2);
         SLVec3f t = p1 + X * dirX.length() * 0.5;
         SLMat4f T;
         T.setRotation(R);
         T.setTranslation(t);
-        
+
         SLNode* test = new SLNode(/*new SLSphere(s, 0.2f)*/);
         test->om(T);
         scene->addChild(test);
-        
+
         SLfloat length              = (float)3 / 10.f;
         SLfloat arrowCylinderRadius = length * 1.5f / 5.f;
-        SLfloat headLength = length * 2.f / 5.f;
-        SLfloat headWidth  = length * 3.f / 5.f;
-        SLuint  slices     = 20;
-        SLNode* arrowNode  = new SLNode(new SLArrow(s, arrowCylinderRadius, length, headLength, headWidth, slices, "ArrowMesh", blueMat), "ArrowNode");
+        SLfloat headLength          = length * 2.f / 5.f;
+        SLfloat headWidth           = length * 3.f / 5.f;
+        SLuint  slices              = 20;
+        SLNode* arrowNode           = new SLNode(new SLArrow(s, arrowCylinderRadius, length, headLength, headWidth, slices, "ArrowMesh", blueMat), "ArrowNode");
         arrowNode->rotate(-90, {0, 1, 0});
         //arrowNode->translate(0, 0, -length * 0.5f);
         test->addChild(arrowNode);
-        
+
         /*
         SLNode* test = new SLNode(new SLSphere(s, 0.2f));
         SLVec3f X(0, 0, -1);
@@ -354,7 +352,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         
         scene->addChild(test);
          */
-        
+
         /*
         SLVec3d ecefAD = ecefAREA - ecefDEVICE;
         //rotation to enu
@@ -374,10 +372,9 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                       X.z, Y.z, Z.z);
         // clang-format on
         */
-        
-        
+
         s->root3D(scene);
-        
+
         /*
         // Create textures and materials
         SLGLTexture* texC = new SLGLTexture(s, SLApplication::texturePath + "earth1024_C.jpg");
@@ -398,10 +395,9 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLNode* rectNode = new SLNode(rectMesh, "rectangle node");
         scene->addChild(rectNode);
          */
-        
+
         // Set background color and the root scene node
         //sv->sceneViewCamera()->background().colors(SLCol4f(0.7f, 0.7f, 0.7f), SLCol4f(0.2f, 0.2f, 0.2f));
-
 
         // pass the scene group as root node
         //s->root3D(scene);
@@ -1984,7 +1980,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         light->attenuation(1, 0, 0);
         light->createsShadows(true);
         light->createShadowMap();
-        light->shadowMap()->rayCount(SLVec2i(16,16));
+        light->shadowMap()->rayCount(SLVec2i(16, 16));
         light->castsShadows(false);
         scene->addChild(light);
 
@@ -2055,7 +2051,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
             node->lookAt(x, 0, 0);
             light->createsShadows(true);
             light->createShadowMap();
-            light->shadowMap()->rayCount(SLVec2i(16,16));
+            light->shadowMap()->rayCount(SLVec2i(16, 16));
             scene->addChild(node);
         }
 
@@ -2135,7 +2131,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
             light->attenuation(0, 0, 1);
             light->createsShadows(true);
             light->createShadowMap();
-            light->shadowMap()->rayCount(SLVec2i(16,16));
+            light->shadowMap()->rayCount(SLVec2i(16, 16));
             scene->addChild(light);
         }
 
@@ -2191,7 +2187,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
             light->translate(i - 1.0f, i - 1.0f, i - 1.0f);
             light->createsShadows(true);
             light->createShadowMap();
-            light->shadowMap()->rayCount(SLVec2i(16,16));
+            light->shadowMap()->rayCount(SLVec2i(16, 16));
             scene->addChild(light);
             anim->createEllipticNodeTrack(light, 0.2f, A_x, 0.2f, A_z);
         }
@@ -3286,7 +3282,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sunLight->attenuation(1, 0, 0);
         sunLight->doSunPowerAdaptation(true);
         sunLight->createsShadows(true);
-        sunLight->createShadowMap(-100, 150, SLVec2f(150,150));
+        sunLight->createShadowMap(-100, 150, SLVec2f(150, 150), SLVec2i(2048,2048));
         sunLight->doSmoothShadows(true);
         sunLight->castsShadows(false);
 
@@ -3303,7 +3299,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLGLProgram* progPerPixNrmSM = new SLGLGenericProgram(s,
                                                               SLApplication::shaderPath + "PerPixBlinnNrmSM.vert",
                                                               SLApplication::shaderPath + "PerPixBlinnNrmSM.frag");
-        auto updateMat = [=](SLMaterial* mat) {mat->program(progPerPixNrmSM);};
+        auto         updateMat       = [=](SLMaterial* mat) { mat->program(progPerPixNrmSM); };
         bern->updateMeshMat(updateMat, true);
 
         // Make city transparent
@@ -3426,7 +3422,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sunLight->lookAt(10, 0, 10);
         sunLight->doSunPowerAdaptation(true);
         sunLight->createsShadows(true);
-        sunLight->createShadowMap(-100, 250, SLVec2f(250,150));
+        sunLight->createShadowMap(-100, 250, SLVec2f(250, 150), SLVec2i(2048,2048));
         sunLight->doSmoothShadows(true);
         sunLight->castsShadows(false);
 
@@ -3449,7 +3445,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLGLProgram* progPerPixNrmSM = new SLGLGenericProgram(s,
                                                               SLApplication::shaderPath + "PerPixBlinnNrmSM.vert",
                                                               SLApplication::shaderPath + "PerPixBlinnNrmSM.frag");
-        auto updateMat = [=](SLMaterial* mat) {mat->program(progPerPixNrmSM);};
+        auto         updateMat       = [=](SLMaterial* mat) { mat->program(progPerPixNrmSM); };
         TheaterAndTempel->updateMeshMat(updateMat, true);
 
         // Let the video shine through on some objects
@@ -3541,7 +3537,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sunLight->lookAt(10, 0, 10);
         sunLight->doSunPowerAdaptation(true);
         sunLight->createsShadows(true);
-        sunLight->createShadowMap(-100, 150, SLVec2f(150,150));
+        sunLight->createShadowMap(-100, 150, SLVec2f(150, 150), SLVec2i(2048,2048));
         sunLight->doSmoothShadows(true);
         sunLight->castsShadows(false);
 
@@ -3564,7 +3560,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLGLProgram* progPerPixNrmSM = new SLGLGenericProgram(s,
                                                               SLApplication::shaderPath + "PerPixBlinnNrmSM.vert",
                                                               SLApplication::shaderPath + "PerPixBlinnNrmSM.frag");
-        auto updateMat = [=](SLMaterial* mat) {mat->program(progPerPixNrmSM);};
+        auto         updateMat       = [=](SLMaterial* mat) { mat->program(progPerPixNrmSM); };
         amphiTheatre->updateMeshMat(updateMat, true);
 
         // Let the video shine through some objects
@@ -3619,8 +3615,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
     }
     else if (SLApplication::sceneID == SID_ErlebARAventicumCigognier) //.................................
     {
-        s->name("Aventicum Cigonier AR");
-        s->info("Augmented Reality for Aventicum Cigonier Temple");
+        s->name("Aventicum Cigognier AR");
+        s->info("Augmented Reality for Aventicum Cigognier Temple");
 
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0, 50, -150);
@@ -3656,7 +3652,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sunLight->lookAt(10, 0, 10);
         sunLight->doSunPowerAdaptation(true);
         sunLight->createsShadows(true);
-        sunLight->createShadowMap(-100, 150, SLVec2f(150,150));
+        sunLight->createShadowMap(-100, 150, SLVec2f(150, 150), SLVec2i(2048,2048));
         sunLight->doSmoothShadows(true);
         sunLight->castsShadows(false);
 
@@ -3666,7 +3662,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLAssimpImporter importer;
         SLNode*          cigognier = importer.load(s->animManager(),
                                           s,
-                                          SLApplication::dataPath + "erleb-AR/models/avenches/Aventicum-Cigognier1.gltf",
+                                          SLApplication::dataPath + "erleb-AR/models/avenches/Aventicum-Cigognier2.gltf",
                                           SLApplication::texturePath,
                                           true,    // only meshes
                                           nullptr, // no replacement material
@@ -3681,7 +3677,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLGLProgram* progPerPixNrmSM = new SLGLGenericProgram(s,
                                                               SLApplication::shaderPath + "PerPixBlinnNrmSM.vert",
                                                               SLApplication::shaderPath + "PerPixBlinnNrmSM.frag");
-        auto updateMat = [=](SLMaterial* mat) {mat->program(progPerPixNrmSM);};
+        auto         updateMat       = [=](SLMaterial* mat) { mat->program(progPerPixNrmSM); };
         cigognier->updateMeshMat(updateMat, true);
 
         // Add axis object a world origin
@@ -3768,7 +3764,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sunLight->lookAt(10, 0, 10);
         sunLight->doSunPowerAdaptation(true);
         sunLight->createsShadows(true);
-        sunLight->createShadowMap(-100, 150, SLVec2f(150,150));
+        sunLight->createShadowMap(-100, 150, SLVec2f(150, 150), SLVec2i(2048,2048));
         sunLight->doSmoothShadows(true);
         sunLight->castsShadows(false);
 
@@ -3788,7 +3784,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLGLProgram* progPerPixNrmSM = new SLGLGenericProgram(s,
                                                               SLApplication::shaderPath + "PerPixBlinnNrmSM.vert",
                                                               SLApplication::shaderPath + "PerPixBlinnNrmSM.frag");
-        auto updateMat = [=](SLMaterial* mat) {mat->program(progPerPixNrmSM);};
+        auto         updateMat       = [=](SLMaterial* mat) { mat->program(progPerPixNrmSM); };
         theatre->updateMeshMat(updateMat, true);
 
         // Rotate to the true geographic rotation
@@ -4296,5 +4292,6 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         else
             CVCapture::instance()->start(sv->viewportWdivH());
     }
+    s->loadTimeMS(GlobalTimer::timeMS() - startLoadMS);
 }
 //-----------------------------------------------------------------------------
