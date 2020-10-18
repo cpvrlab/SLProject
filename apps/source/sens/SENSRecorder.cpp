@@ -203,7 +203,8 @@ void SENSRecorder::onFrame(const SENSTimePt& timePt, cv::Mat frame)
         _cameraDataHandler->add(std::move(newData));
 }
 
-void SENSRecorder::onCalibrationChanged(const SENSCalibration& calibration)
+void SENSRecorder::onCameraConfigChanged(const SENSCameraConfig& config)
 {
-    _cameraDataHandler->setCalibration(calibration);
+    if (_cameraDataHandler)
+        _cameraDataHandler->updateConfig(config);
 }

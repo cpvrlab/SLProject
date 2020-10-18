@@ -219,34 +219,18 @@ void SENSCameraBase::updateFrame(cv::Mat bgrImg, cv::Mat intrinsics, bool intrin
     }
 }
 
-/*
-void SENSCameraBase::setCalibration(SENSCalibration calibration, bool buildUndistortionMaps)
-{
-    if (!_started)
-        throw SENSException(SENSType::CAM, "setCalibration not possible if camera is not started!", __LINE__, __FILE__);
-
-    _calibration = std::make_unique<SENSCalibration>(calibration);
-    //now we adapt the calibration to the target size
-    //_calibration->adaptForNewResolution({_config.targetWidth, _config.targetHeight}, buildUndistortionMaps);
-
-    //if ((_config.manipWidth > 0 && _config.manipHeight > 0) || _config.manipWidth != _config.streamConfig->widthPix || _config.manipHeight != _config.streamConfig->heightPix)
-    //    _calibration->adaptForNewResolution({_config.manipWidth, _config.manipHeight}, buildUndistortionMaps);
-    //else if (_config.targetWidth != _config.streamConfig->widthPix || _config.targetHeight != _config.streamConfig->heightPix)
-    //    _calibration->adaptForNewResolution({_config.targetWidth, _config.targetHeight}, buildUndistortionMaps);
-
-    {
-        std::lock_guard<std::mutex> lock(_listenerMutex);
-        for (SENSCameraListener* l : _listeners)
-            l->onCalibrationChanged(*_calibration);
-    }
-}
- */
-
 void SENSCameraBase::registerListener(SENSCameraListener* listener)
 {
     std::lock_guard<std::mutex> lock(_listenerMutex);
     if (std::find(_listeners.begin(), _listeners.end(), listener) == _listeners.end())
         _listeners.push_back(listener);
+
+    if (_started)
+    {
+        //inform listeners about camera infos
+        for (SENSCameraListener* l : _listeners)
+            l->onCameraConfigChanged(_config);
+    }
 }
 
 void SENSCameraBase::unregisterListener(SENSCameraListener* listener)
@@ -278,4 +262,14 @@ SENSFrameBasePtr SENSCameraBase::latestFrame()
     }
 
     return latestFrame;
+}
+
+void SENSCameraBase::processStart()
+{
+    {
+        std::lock_guard<std::mutex> lock(_listenerMutex);
+        //inform listeners about camera infos
+        for (SENSCameraListener* l : _listeners)
+            l->onCameraConfigChanged(_config);
+    }
 }

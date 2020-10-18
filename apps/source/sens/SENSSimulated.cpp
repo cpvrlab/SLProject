@@ -255,11 +255,14 @@ const SENSCameraConfig& SENSSimulatedCamera::start(std::string                  
     if (_captureProperties.size() == 0)
         captureProperties();
 
+    //todo: config has to fit to loaded config!!!
     //init config here
     _config = SENSCameraConfig(deviceId,
                                streamConfig,
-                               SENSCameraFocusMode::UNKNOWN);
-
+                               SENSCameraFocusMode::UNKNOWN,
+                               SENSCameraType::UNKNOWN);
+    processStart();
+    
     //start the sensor simulation
     startSim();
 

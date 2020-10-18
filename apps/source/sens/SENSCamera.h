@@ -64,8 +64,6 @@ struct SENSCameraStreamConfig
     //bool intrinsicsProvided = false;
     //float minFrameRate = 0.f;
     //float maxFrameRate = 0.f;
-
-    //todo: facing
 };
 
 class SENSCameraDeviceProperties
@@ -117,6 +115,7 @@ struct SENSCameraConfig
     //this constructor forces the user to always define a complete parameter set. In this way no parameter is forgotten..
     SENSCameraConfig(std::string                   deviceId,
                      const SENSCameraStreamConfig& streamConfig,
+                     SENSCameraFacing              facing,
                      SENSCameraFocusMode           focusMode = SENSCameraFocusMode::CONTINIOUS_AUTO_FOCUS)
       : deviceId(deviceId),
         streamConfig(streamConfig),
@@ -131,6 +130,8 @@ struct SENSCameraConfig
     SENSCameraStreamConfig streamConfig;
     //! autofocus mode
     SENSCameraFocusMode focusMode;
+    //! camera facing
+    SENSCameraFacing facing;
 };
 
 class SENSCaptureProperties : public std::vector<SENSCameraDeviceProperties>
@@ -147,8 +148,8 @@ class SENSCameraListener
 {
 public:
     virtual ~SENSCameraListener() {}
-    virtual void onFrame(const SENSTimePt& timePt, cv::Mat frame)         = 0;
-    virtual void onCalibrationChanged(const SENSCalibration& calibration) = 0;
+    virtual void onFrame(const SENSTimePt& timePt, cv::Mat frame)      = 0;
+    virtual void onCameraConfigChanged(const SENSCameraConfig& config) = 0;
 };
 
 //! Pure abstract camera class
@@ -180,16 +181,7 @@ public:
     */
     virtual const SENSCameraConfig& start(std::string                   deviceId,
                                           const SENSCameraStreamConfig& streamConfig,
-                                          bool                          provideIntrinsics = true
-                                          //float                         fovDegFallbackGuess = 65.f
-                                          /*,
-                                          cv::Size                      imgBGRSize           = cv::Size(),
-                                          bool                          mirrorV              = false,
-                                          bool                          mirrorH              = false,
-                                          bool                          convToGrayToImgManip = false,
-                                          int                           imgManipWidth        = -1,
-*/
-                                          ) = 0;
+                                          bool                          provideIntrinsics = true) = 0;
 
     //! Stop a started camera device
     virtual void stop() = 0;
@@ -235,6 +227,8 @@ public:
 
 protected:
     void updateFrame(cv::Mat bgrImg, cv::Mat intrinsics, bool intrinsicsChanged);
+    //call from start function to do startup preprocessing
+    void processStart();
 
     SENSCaptureProperties _captureProperties;
 
@@ -254,7 +248,5 @@ protected:
     cv::Mat          _intrinsics;
     std::mutex       _frameMutex;
 };
-
-
 
 #endif //SENS_CAMERA_H

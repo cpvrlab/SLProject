@@ -108,15 +108,10 @@ public:
     void writeLineToFile(ofstream& file, const FrameInfo& data) override;
     void writeOnThreadFinish() override;
 
-    void setCalibration(const SENSCalibration& calibration);
-
+    void updateConfig(const SENSCameraConfig& config);
 private:
     cv::VideoWriter _videoWriter;
     int             _frameIndex = 0;
-
-    std::unique_ptr<SENSCalibration> _calibration;
-    std::mutex                       _calibrationMutex;
-    bool                             _calibrationChanged = false;
 };
 
 #endif

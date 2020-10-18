@@ -44,7 +44,10 @@ const SENSCameraConfig& SENSWebCamera::start(std::string                   devic
     //init config here
     _config = SENSCameraConfig(deviceId,
                                streamConfig,
+                               SENSCameraFacing::UNKNOWN,
                                SENSCameraFocusMode::UNKNOWN);
+    
+    processStart();
 
     //start thread
     _cameraThread = std::thread(&SENSWebCamera::grab, this);

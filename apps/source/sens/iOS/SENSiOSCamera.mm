@@ -54,6 +54,7 @@ const SENSCameraConfig& SENSiOSCamera::start(std::string                   devic
         _config = SENSCameraConfig(deviceId,
                                    streamConfig,
                                    SENSCameraFocusMode::UNKNOWN);
+        processStart();
         
         _started = true;
     }

@@ -167,35 +167,18 @@ SENSCameraRecorderDataHandler::SENSCameraRecorderDataHandler()
 void SENSCameraRecorderDataHandler::writeOnThreadStart()
 {
     _frameIndex = 0;
-    std::lock_guard<std::mutex> lock(_calibrationMutex);
-    if (_calibration)
-    {
-        _calibration->save(_outputDir, "calibration.json");
-        _calibrationChanged = false;
-    }
 }
 
 void SENSCameraRecorderDataHandler::writeLineToFile(ofstream& file, const FrameInfo& data)
 {
-    static HighResTimer t;
-    SENS_DEBUG("SENSCameraRecorderDataHandler: ellapsed time %f us", t.elapsedTimeInMicroSec());
-    static long long lastTimePt = std::chrono::time_point_cast<SENSMicroseconds>(SENSClock::now()).time_since_epoch().count();
-    long long        timePt     = std::chrono::time_point_cast<SENSMicroseconds>(data.second).time_since_epoch().count();
-    long long        diff       = lastTimePt - timePt;
-    SENS_DEBUG("SENSCameraRecorderDataHandler: diff %lld", diff);
-
-    lastTimePt          = timePt;
-    std::string timeStr = std::to_string(timePt);
+    long long timePt = std::chrono::time_point_cast<SENSMicroseconds>(data.second).time_since_epoch().count();
     //write time and frame index
-    file << timePt << " "
-         << _frameIndex << "\n";
-    SENS_DEBUG("SENSCameraRecorderDataHandler: time point for frame %d is %s", _frameIndex, timeStr.c_str());
-
+    file << timePt << " " << _frameIndex << "\n";
+    //SENS_DEBUG("SENSCameraRecorderDataHandler: time point for frame %d is %s", _frameIndex, timeStr.c_str());
     _frameIndex++;
 
     if (!_videoWriter.isOpened())
     {
-
         std::string filename = _outputDir + "video.avi";
         _videoWriter.open(filename, cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 30, data.first.size(), true);
         //_videoWriter.open(filename, cv::VideoWriter::fourcc('M', 'P', '4', 'V'),
@@ -209,13 +192,6 @@ void SENSCameraRecorderDataHandler::writeLineToFile(ofstream& file, const FrameI
     //HighResTimer t;
     _videoWriter.write(data.first);
     //SENS_DEBUG("SENSCameraRecorderDataHandler: writing time %fms", t.elapsedTimeInMilliSec());
-
-    if (_calibrationChanged)
-    {
-        std::lock_guard<std::mutex> lock(_calibrationMutex);
-        _calibration->save(_outputDir, "calibration.json");
-        _calibrationChanged = false;
-    }
 }
 
 void SENSCameraRecorderDataHandler::writeOnThreadFinish()
@@ -224,23 +200,24 @@ void SENSCameraRecorderDataHandler::writeOnThreadFinish()
         _videoWriter.release();
 }
 
-void SENSCameraRecorderDataHandler::setCalibration(const SENSCalibration& calibration)
+void SENSCameraRecorderDataHandler::updateConfig(const SENSCameraConfig& config)
 {
-    std::lock_guard<std::mutex> lock(_calibrationMutex);
-    _calibration        = std::make_unique<SENSCalibration>(calibration.cameraMat(),
-                                                     calibration.distortion(),
-                                                     calibration.imageSize(),
-                                                     calibration.boardSize(),
-                                                     calibration.boardSquareMM(),
-                                                     calibration.reprojectionError(),
-                                                     calibration.numCapturedImgs(),
-                                                     calibration.calibrationTime(),
-                                                     -1,
-                                                     calibration.isMirroredH(),
-                                                     calibration.isMirroredV(),
-                                                     calibration.camType(),
-                                                     calibration.computerInfos(),
-                                                     calibration.calibrationFlags(),
-                                                     calibration.undistortMapsValid());
-    _calibrationChanged = true;
+    //write config to file in directory
+    std::string fileName = _outputDir + "cameraConfig.txt";
+    if (Utils::fileExists(fileName))
+        Utils::removeFile(fileName);
+
+    ofstream file;
+    file.open(fileName);
+    if (file.is_open())
+    {
+        file << config.deviceId << "\n";
+        file << config.streamConfig.widthPix << "\n";
+        file << config.streamConfig.heightPix << "\n";
+        file << config.streamConfig.focalLengthPix << "\n";
+        file << (int)config.focusMode << "\n";
+        file << (int)config.facing << "\n";
+        
+        file.close();
+    }
 }

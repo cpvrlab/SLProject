@@ -50,9 +50,8 @@ private:
     void onOrientation(const SENSTimePt& timePt, const SENSOrientation::Quat& ori) override;
     //!camera listener callback
     void onFrame(const SENSTimePt& timePt, cv::Mat frame) override;
-    //!camera listener callback
-    void onCalibrationChanged(const SENSCalibration& calibration) override;
-
+    void onCameraConfigChanged(const SENSCameraConfig& config) override;
+    
     std::string _outputDir;
 
     SENSGpsRecorderDataHandler*         _gpsDataHandler         = nullptr;

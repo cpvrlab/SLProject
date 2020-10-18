@@ -27,13 +27,7 @@ public:
 
     const SENSCameraConfig& start(std::string                   deviceId,
                                   const SENSCameraStreamConfig& streamConfig,
-                                  cv::Size                      imgRGBSize           = cv::Size(),
-                                  bool                          mirrorV              = false,
-                                  bool                          mirrorH              = false,
-                                  bool                          convToGrayToImgManip = false,
-                                  int                           imgManipWidth        = -1,
-                                  bool                          provideIntrinsics    = true,
-                                  float                         fovDegFallbackGuess  = 65.f) override;
+                                  bool                          provideIntrinsics    = true) override;
 
     void stop() override;
 
