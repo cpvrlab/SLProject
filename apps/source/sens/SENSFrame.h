@@ -23,20 +23,12 @@ struct SENSFrame
 {
     SENSFrame(cv::Mat imgBGR,
               cv::Mat imgManip,
-              int     captureWidth,
-              int     captureHeight,
-              int     cropW,
-              int     cropH,
               bool    mirroredH,
               bool    mirroredV,
               float   scaleToManip,
               cv::Mat intrinsics)
       : imgBGR(imgBGR),
         imgManip(imgManip),
-        captureWidth(captureWidth),
-        captureHeight(captureHeight),
-        cropW(cropW),
-        cropH(cropH),
         mirroredH(mirroredH),
         mirroredV(mirroredV),
         scaleToManip(scaleToManip),
@@ -44,14 +36,15 @@ struct SENSFrame
     {
     }
 
+    //! original image (maybe cropped and scaled)
     cv::Mat imgBGR;
     //! scaled and maybe gray manipulated image
     cv::Mat imgManip;
 
-    const int  captureWidth;
-    const int  captureHeight;
-    const int  cropW;
-    const int  cropH;
+    //const int  captureWidth;
+    //const int  captureHeight;
+    //const int  cropW;
+    //const int  cropH;
     const bool mirroredH;
     const bool mirroredV;
     //! scale between imgManip and imgBGR

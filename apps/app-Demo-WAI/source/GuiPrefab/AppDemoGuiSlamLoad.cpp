@@ -331,6 +331,7 @@ void AppDemoGuiSlamLoad::buildInfos(SLScene* s, SLSceneView* sv)
                                   availableCalibrations,
                                   _calibExtensions,
                                   true);
+            availableCalibrations.push_back("GUESS_CALIBRATION");
 
             for (int n = 0; n < availableCalibrations.size(); n++)
             {

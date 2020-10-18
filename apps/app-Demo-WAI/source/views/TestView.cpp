@@ -571,10 +571,11 @@ bool TestView::startCamera()
     if (_camera->started())
         _camera->stop();
 
-    if(_camera->supportsFacing(SENSCameraFacing::BACK)) //we are on android or ios. we can also expect high resolution support.
-       _camera->configure(SENSCameraFacing::BACK, 640, 480, 640, 480, false, false, true);
+    //ATTENTION: TestView does not support different resolutions for visualization and tracking
+    if (_camera->supportsFacing(SENSCameraFacing::BACK)) //we are on android or ios. we can also expect high resolution support.
+        _camera->configure(SENSCameraFacing::BACK, 640, 480, 640, 480, false, false, true);
     else
-       _camera->configure(SENSCameraFacing::UNKNOWN, 640, 480, 640, 480, false, false, true);
+        _camera->configure(SENSCameraFacing::UNKNOWN, 640, 480, 640, 480, false, false, true);
     _camera->start();
 
     return _camera->started();
@@ -593,6 +594,7 @@ void TestView::startOrbSlam(SlamParams slamParams)
 
     bool useVideoFile             = !slamParams.videoFile.empty();
     bool detectCalibAutomatically = slamParams.calibrationFile.empty();
+    bool guessCalibration         = (Utils::getFileName(slamParams.calibrationFile) == "GUESS_CALIBRATION");
     bool useMapFile               = !slamParams.mapFile.empty();
 
     // reset stuff
@@ -647,7 +649,7 @@ void TestView::startOrbSlam(SlamParams slamParams)
         calibrationFileName = Utils::getFileName(slamParams.calibrationFile);
     }
 
-    if (!Utils::fileExists(slamParams.calibrationFile))
+    if (!guessCalibration && !Utils::fileExists(slamParams.calibrationFile))
     {
         _gui.showErrorMsg("Calibration file " + slamParams.calibrationFile + " does not exist.");
         return;
@@ -686,15 +688,18 @@ void TestView::startOrbSlam(SlamParams slamParams)
 
     // 2. Load Calibration
     //build undistortion maps after loading because it may take a lot of time for calibrations from large images on android
-    try
+    if (!guessCalibration)
     {
-        _calibrationLoaded = std::make_unique<SENSCalibration>(_calibDir, Utils::getFileName(slamParams.calibrationFile), false);
-    }
-    catch (SENSException& e)
-    {
-        _gui.showErrorMsg("Error when loading calibration from file: " +
-                          slamParams.calibrationFile);
-        return;
+        try
+        {
+            _calibrationLoaded = std::make_unique<SENSCalibration>(_calibDir, Utils::getFileName(slamParams.calibrationFile), false);
+        }
+        catch (SENSException& e)
+        {
+            _gui.showErrorMsg("Error when loading calibration from file: " +
+                              slamParams.calibrationFile);
+            return;
+        }
     }
 
     //This really does not look nice.. That I do it like this is because the iOS camera provides camera intrinsics directly for every frame
@@ -702,14 +707,30 @@ void TestView::startOrbSlam(SlamParams slamParams)
     //Maybe we find something better..?
     if (useVideoFile)
     {
-        _videoFileStream->setCalibration(*_calibrationLoaded, true);
-        _calibration = _videoFileStream->calibration();
+        if (guessCalibration)
+        {
+            _videoFileStream->guessAndSetCalibration(65.f);
+            _calibration = _videoFileStream->calibration();
+        }
+        else
+        {
+            _videoFileStream->setCalibration(*_calibrationLoaded, true);
+            _calibration = _videoFileStream->calibration();
+        }
     }
     else
     {
-        //set and adapt calibration to camera image resolution
-        _camera->setCalibration(*_calibrationLoaded, true);
-        _calibration = _camera->calibration();
+        if (guessCalibration)
+        {
+            _camera->guessAndSetCalibration(65.f);
+            _calibration = _camera->calibration();
+        }
+        else
+        {
+            //set and adapt calibration to camera image resolution
+            _camera->setCalibration(*_calibrationLoaded, true);
+            _calibration = _camera->calibration();
+        }
     }
 
     // 3. Adjust FOV of camera node according to new calibration (fov is used in projection->prespective _mode)
@@ -931,10 +952,10 @@ void TestView::updateTrackingVisualization(const bool iKnowWhereIAm)
         vector<WAIKeyFrame*> vpCandidateKFs;
         if (_pauseVideo)
         {
-            WAIFrame frame = _mode->getLastFrame();
-            frame.mnId = 1;
+            WAIFrame frame      = _mode->getLastFrame();
+            frame.mnId          = 1;
             WAIKeyFrameDB* kfdb = _mode->getMap()->GetKeyFrameDB();
-            vpCandidateKFs = kfdb->DetectRelocalizationCandidates(&frame, 0.8, false);
+            vpCandidateKFs      = kfdb->DetectRelocalizationCandidates(&frame, 0.8, false);
             std::cout << "vpCandidates size " << vpCandidateKFs.size() << std::endl;
         }
         _scene.renderKeyframes(_mode->getKeyFrames(), vpCandidateKFs);

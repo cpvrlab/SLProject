@@ -29,7 +29,7 @@ public:
     }
 
     void setCalibration(SENSCalibration calibration, bool buildUndistortionMaps);
-
+    void guessAndSetCalibration(float fovGuess);
 private:
     void moveCapturePosition(int n);
 

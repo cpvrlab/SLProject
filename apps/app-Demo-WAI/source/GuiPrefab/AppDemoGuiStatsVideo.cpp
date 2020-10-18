@@ -1,6 +1,6 @@
 #include <AppDemoGuiStatsVideo.h>
 
-#include <sens/SENSCamera.h>
+#include <sens/SENSCvCamera.h>
 #include <sens/SENSCalibration.h>
 
 //-----------------------------------------------------------------------------

@@ -4,6 +4,7 @@
 #include <WAIEvent.h>
 #include <AppDemoGuiAutoCalibration.h>
 #include <SLGLImGui.h>
+
 //-----------------------------------------------------------------------------
 AppDemoGuiAutoCalibration::AppDemoGuiAutoCalibration(string                                      name,
                                                      bool*                                       activator,

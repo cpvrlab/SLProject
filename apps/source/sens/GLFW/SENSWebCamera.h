@@ -18,8 +18,7 @@ public:
 
     const SENSCameraConfig& start(std::string                   deviceId,
                                   const SENSCameraStreamConfig& streamConfig,
-                                  bool                          provideIntrinsics   = true,
-                                  float                         fovDegFallbackGuess = 65.f) override;
+                                  bool                          provideIntrinsics   = true) override;
 
     void stop() override;
 

@@ -494,7 +494,7 @@ bool AreaTrackingView::startCamera(const cv::Size& trackImgSize)
             _camera->stop();
 
         if(_camera->supportsFacing(SENSCameraFacing::BACK)) //we are on android or ios. we can also expect high resolution support.
-           _camera->configure(SENSCameraFacing::BACK, 640, 480, trackImgSize.width, trackImgSize.height, false, false, true);
+           _camera->configure(SENSCameraFacing::BACK, 1920, 1440, trackImgSize.width, trackImgSize.height, false, false, true);
         else
            _camera->configure(SENSCameraFacing::UNKNOWN, 640, 480, trackImgSize.width, trackImgSize.height, false, false, true);
         _camera->start();

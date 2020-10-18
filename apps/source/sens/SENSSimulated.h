@@ -25,10 +25,6 @@ public:
     virtual bool isThreadRunning() const = 0;
 
     virtual bool getErrorMsg(std::string& msg) = 0;
-    //!get the first time point in simulation sensor data
-    //virtual const SENSTimePt& firstTimePt() = 0;
-    //!called by SENSSimulator to set the common simulation start time
-    //virtual void setCommonSimStartTimePt(const SENSTimePt& commonSimStartTimePt) = 0;
 };
 
 //-----------------------------------------------------------------------------
@@ -168,15 +164,7 @@ public:
 
     const SENSCameraConfig& start(std::string                   deviceId,
                                   const SENSCameraStreamConfig& streamConfig,
-                                  /*
-                                  cv::Size                      imgBGRSize           = cv::Size(),
-                                  bool                          mirrorV              = false,
-                                  bool                          mirrorH              = false,
-                                  bool                          convToGrayToImgManip = false,
-                                  int                           imgManipWidth        = -1,
-                                  */
-                                  bool                          provideIntrinsics    = true,
-                                  float                         fovDegFallbackGuess  = 65.f) override;
+                                  bool                          provideIntrinsics   = true) override;
 
     void stop() override;
 

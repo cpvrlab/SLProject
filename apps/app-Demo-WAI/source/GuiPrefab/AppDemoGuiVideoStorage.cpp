@@ -12,7 +12,7 @@
 #include <stdio.h>
 #include <Utils.h>
 #include <WAIEvent.h>
-#include <sens/SENSCamera.h>
+#include <sens/SENSCvCamera.h>
 
 //-----------------------------------------------------------------------------
 

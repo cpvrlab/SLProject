@@ -19,8 +19,7 @@ SENSiOSCamera::~SENSiOSCamera()
 
 const SENSCameraConfig& SENSiOSCamera::start(std::string                   deviceId,
                                              const SENSCameraStreamConfig& streamConfig,
-                                             bool                          provideIntrinsics,
-                                             float                         fovDegFallbackGuess)
+                                             bool                          provideIntrinsics)
 {
     if (_started)
     {
@@ -28,27 +27,6 @@ const SENSCameraConfig& SENSiOSCamera::start(std::string                   devic
         return _config;
     }
 
-    /*
-    cv::Size targetSize;
-
-    if (imgBGRSize.width > 0 && imgBGRSize.height > 0)
-    {
-        targetSize.width  = imgBGRSize.width;
-        targetSize.height = imgBGRSize.height;
-    }
-    else
-    {
-        targetSize.width  = streamConfig.widthPix;
-        targetSize.height = streamConfig.heightPix;
-    }
-
-    cv::Size imgManipSize;
-    if (_config.manipWidth > 0 && _config.manipHeight > 0)
-        imgManipSize = {imgManipWidth, (int)((float)imgManipWidth * (float)targetSize.height / (float)targetSize.width)};
-    else
-        imgManipSize = targetSize;
-
-     */
     //retrieve all camera characteristics
     if (_captureProperties.size() == 0)
         _captureProperties = [_cameraDelegate retrieveCaptureProperties];
@@ -77,9 +55,6 @@ const SENSCameraConfig& SENSiOSCamera::start(std::string                   devic
                                    streamConfig,
                                    SENSCameraFocusMode::UNKNOWN);
         
-        //initialize guessed camera calibration
-        if(provideIntrinsics)
-            initCalibration(fovDegFallbackGuess);
         _started = true;
     }
     else

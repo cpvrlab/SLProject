@@ -12,6 +12,8 @@ namespace SENS
 //returns true if crop was calculated
 bool calcCrop(cv::Size inputSize, float targetWdivH, int& cropW, int& cropH, int& width, int& height);
 void cropImage(cv::Mat& img, float targetWdivH, int& cropW, int& cropH);
+void cropImageTo(const cv::Mat& img, cv::Mat& outImg, float targetWdivH, int& cropW, int& cropH);
+
 void mirrorImage(cv::Mat& img, bool mirrorH, bool mirrorV);
 void extendWithBars(cv::Mat& img, float targetWdivH);
 

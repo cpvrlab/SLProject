@@ -15,7 +15,7 @@
 #include <WAIAutoCalibration.h>
 #include <MapPointEdition.h>
 #include <SENSCalibration.h>
-#include <sens/SENSCamera.h>
+#include <sens/SENSCvCamera.h>
 
 class WAISlam;
 struct WAIEvent;

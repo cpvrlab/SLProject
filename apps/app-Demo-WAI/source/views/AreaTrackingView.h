@@ -16,6 +16,7 @@
 #include <sens/SENSFrame.h>
 #include <sens/SENSGps.h>
 #include <sens/SENSOrientation.h>
+#include <sens/SENSCvCamera.h>
 #include <AsyncWorker.h>
 #include <scenes/UserGuidanceScene.h>
 #include <UserGuidance.h>

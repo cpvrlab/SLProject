@@ -292,8 +292,7 @@ void SENSSimHelper::startSim()
             //first start the camera, the intrinsic is valid afterwards
             _cameraRef->start(currCamProps->deviceId(),
                               streamConfig,
-                              true,
-                              65.f);
+                              true);
             if (_cameraParametersChangedCB)
                 _cameraParametersChangedCB();
         }

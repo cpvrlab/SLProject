@@ -36,6 +36,8 @@ bool uploadFileLatestVersion(const string& fileDir,
 
     bool   success = true;
     ftplib ftp;
+    //enable active mode
+    ftp.SetConnmode(ftplib::connmode::port);
 
     if (ftp.Connect(ftpHost.c_str()))
     {
@@ -106,7 +108,7 @@ bool downloadFileLatestVersion(const string& fileDir,
     ftplib ftp;
     //enable active mode
     ftp.SetConnmode(ftplib::connmode::port);
-    
+
     if (ftp.Connect(ftpHost.c_str()))
     {
         if (ftp.Login(ftpUser.c_str(), ftpPwd.c_str()))
@@ -177,6 +179,8 @@ bool uploadFile(const string& fileDir,
 
     bool   success = true;
     ftplib ftp;
+    //enable active mode
+    ftp.SetConnmode(ftplib::connmode::port);
 
     if (ftp.Connect(ftpHost.c_str()))
     {
@@ -226,6 +230,8 @@ bool downloadFile(const string& fileDir,
 {
     bool   success = true;
     ftplib ftp;
+    //enable active mode
+    ftp.SetConnmode(ftplib::connmode::port);
 
     if (ftp.Connect(ftpHost.c_str()))
     {
@@ -288,6 +294,8 @@ bool downloadAllFilesFromDir(const string& fileDir,
 {
     bool   success = true;
     ftplib ftp;
+    //enable active mode
+    ftp.SetConnmode(ftplib::connmode::port);
 
     if (ftp.Connect(ftpHost.c_str()))
     {
@@ -370,16 +378,16 @@ bool getAllFileNamesWithTag(ftplib&         ftp,
                 vector<string> splits;
                 Utils::splitString(fileInfoLine, ' ', splits);
                 //we have to remove the first 8 strings with first 8 "holes" of unknown length from info line
-                int numOfFoundNonEmpty = 0;
-                bool found = false;
-                
+                int  numOfFoundNonEmpty = 0;
+                bool found              = false;
+
                 int pos = 0;
-                while(pos < splits.size())
+                while (pos < splits.size())
                 {
-                    if(!splits[pos].empty())
+                    if (!splits[pos].empty())
                         numOfFoundNonEmpty++;
-                    
-                    if(numOfFoundNonEmpty == 8)
+
+                    if (numOfFoundNonEmpty == 8)
                     {
                         found = true;
                         break;
@@ -388,20 +396,20 @@ bool getAllFileNamesWithTag(ftplib&         ftp,
                 }
                 //remove next string that we assume to be empty (before interesting part)
                 pos++;
-                
+
                 //we need minumum 9 splits (compare content of ftpDirResult.txt). The splits after the 8th we combine to one string again
-                if(found && pos < splits.size())
+                if (found && pos < splits.size())
                 {
                     std::string name;
                     std::string space(" ");
-                    for(int i = pos; i < splits.size(); ++i)
+                    for (int i = pos; i < splits.size(); ++i)
                     {
                         name.append(splits[i]);
-                        if(i != splits.size()-1)
+                        if (i != splits.size() - 1)
                             name.append(space);
                     }
-                    
-                    if(name.size())
+
+                    if (name.size())
                         retrievedFileNames.push_back(name);
                 }
                 else

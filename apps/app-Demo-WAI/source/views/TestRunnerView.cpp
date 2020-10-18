@@ -450,7 +450,8 @@ bool TestRunnerView::update()
 
                     SENSFramePtr sensFrame = _vStream->grabNextFrame();
 
-                    _extractor = _featureExtractorFactory.make(testInstance.extractorType, {sensFrame->captureWidth, sensFrame->captureHeight}, testInstance.nLevels);
+                    cv::Size imgSize = sensFrame->imgManip.size();
+                    _extractor = _featureExtractorFactory.make(testInstance.extractorType, {imgSize.width, imgSize.height}, testInstance.nLevels);
                     if (!_extractor)
                     {
                         Utils::log("WAI", "TestRunner::loadSites: Could not create feature extractor with type: %s", testInstance.extractorType.c_str());

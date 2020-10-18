@@ -25,7 +25,7 @@ void SENSSimulated<T>::startSim()
     stopSim();
     _errorMsg.clear();
     //start the simulation thread
-    _thread = std::thread(&SENSSimulated::feedSensor, this /*, startTimePt, _commonSimStartTimePt*/);
+    _thread = std::thread(&SENSSimulated::feedSensor, this);
 }
 
 template<typename T>
@@ -57,7 +57,7 @@ bool SENSSimulated<T>::getErrorMsg(std::string& msg)
 }
 
 template<typename T>
-void SENSSimulated<T>::feedSensor(/*const SENSTimePt startTimePt, const SENSTimePt simStartTimePt*/)
+void SENSSimulated<T>::feedSensor()
 {
     _threadIsRunning = true;
     //index of current data set to feed
@@ -237,15 +237,7 @@ SENSSimulatedCamera::~SENSSimulatedCamera()
 
 const SENSCameraConfig& SENSSimulatedCamera::start(std::string                   deviceId,
                                                    const SENSCameraStreamConfig& streamConfig,
-                                                   /*
-                                                   cv::Size                      imgBGRSize,
-                                                   bool                          mirrorV,
-                                                   bool                          mirrorH,
-                                                   bool                          convToGrayToImgManip,
-                                                   int                           imgManipWidth,
- */
-                                                   bool  provideIntrinsics,
-                                                   float fovDegFallbackGuess)
+                                                   bool                          provideIntrinsics)
 {
     if (_started)
     {
@@ -253,33 +245,10 @@ const SENSCameraConfig& SENSSimulatedCamera::start(std::string                  
         return _config;
     }
 
-    /*
-    cv::Size targetSize;
-    if (imgBGRSize.width > 0 && imgBGRSize.height > 0)
-    {
-        targetSize.width  = imgBGRSize.width;
-        targetSize.height = imgBGRSize.height;
-    }
-    else
-    {
-        targetSize.width  = streamConfig.widthPix;
-        targetSize.height = streamConfig.heightPix;
-    }
-
-    cv::Size imgManipSize;
-    if (imgManipWidth > 0)
-        imgManipSize = {imgManipWidth, (int)((float)imgManipWidth * (float)targetSize.height / (float)targetSize.width)};
-    else
-        imgManipSize = targetSize;
-*/
     if (!_cap.isOpened())
     {
         if (!_cap.open(_videoFileName))
             throw SENSException(SENSType::CAM, "Could not open camera simulator for filename: " + _videoFileName, __LINE__, __FILE__);
-        else
-        {
-            //_cap.set(cv::CAP_PROP_FPS, 1);
-        }
     }
 
     //retrieve all camera characteristics
@@ -289,19 +258,7 @@ const SENSCameraConfig& SENSSimulatedCamera::start(std::string                  
     //init config here
     _config = SENSCameraConfig(deviceId,
                                streamConfig,
-                               SENSCameraFocusMode::UNKNOWN
-                               /*,
-                               targetSize.width,
-                               targetSize.height,
-                               imgManipSize.width,
-                               imgManipSize.height,
-                               mirrorH,
-                               mirrorV,
-                               convToGrayToImgManip
-                                */
-    );
-
-    initCalibration(fovDegFallbackGuess);
+                               SENSCameraFocusMode::UNKNOWN);
 
     //start the sensor simulation
     startSim();
