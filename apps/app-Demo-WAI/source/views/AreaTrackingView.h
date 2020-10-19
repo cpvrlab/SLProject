@@ -99,7 +99,7 @@ private:
     void updateSceneCameraFov();
     void updateVideoImage(SENSFrame& frame, VideoBackgroundCamera* videoBackground);
     void updateTrackingVisualization(const bool iKnowWhereIAm, SENSFrame& frame);
-    void initSlam();
+    void initSlam(const cv::Mat& mapNodeOm, std::unique_ptr<WAIMap> waiMap);
     bool startCamera(const cv::Size& trackImgSize);
     void onCameraParamsChanged();
 

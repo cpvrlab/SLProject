@@ -54,93 +54,24 @@ AreaTrackingView::~AreaTrackingView()
         delete _asyncLoader;
 }
 
+SLbool AreaTrackingView::onMouseDown(SLMouseButton button, SLint scrX, SLint scrY, SLKey mod)
+{
+    SLbool ret = SLSceneView::onMouseDown(button, scrX, scrY, mod);
+    _gui.mouseDown(_gui.doNotDispatchMouse());
+    return ret;
+}
+
+SLbool AreaTrackingView::onMouseMove(SLint x, SLint y)
+{
+    SLbool ret = SLSceneView::onMouseMove(x, y);
+    _gui.mouseMove(_gui.doNotDispatchMouse());
+    return ret;
+}
+
 void AreaTrackingView::onCameraParamsChanged()
 {
-    if (!_waiSlam)
-    {
-        ErlebAR::Location& location = _locations[_locId];
-        ErlebAR::Area&     area     = location.areas[_areaId];
-        //load model into scene graph
-        _scene.rebuild(location.name, area.name);
-
-        updateSceneCameraFov();
-
-        //initialize extractors
-        _initializationExtractor = _featureExtractorFactory.make(area.initializationExtractorType, area.cameraFrameTargetSize, area.nExtractorLevels);
-        _trackingExtractor       = _featureExtractorFactory.make(area.trackingExtractorType, area.cameraFrameTargetSize, area.nExtractorLevels);
-        _relocalizationExtractor = _featureExtractorFactory.make(area.relocalizationExtractorType, area.cameraFrameTargetSize, area.nExtractorLevels);
-
-        if (_trackingExtractor->doubleBufferedOutput())
-            _imgBuffer.init(2, area.cameraFrameTargetSize);
-        else
-            _imgBuffer.init(1, area.cameraFrameTargetSize);
-
-#ifdef LOAD_ASYNC
-        std::string fileName = _deviceData.vocabularyDir() + _vocabularyFileName;
-
-        //delete managed object
-        if (_asyncLoader)
-            delete _asyncLoader;
-
-        _asyncLoader = new MapLoader(_voc, area.vocLayer, fileName, _deviceData.erlebARDir(), area.slamMapFileName);
-        _asyncLoader->start();
-        _userGuidance.dataIsLoading(true);
-
-#else
-        //load vocabulary
-        std::string fileName = _vocabularyDir + _vocabularyFileName;
-        if (Utils::fileExists(fileName))
-        {
-            Utils::log("AreaTrackingView", "loading voc file from: %s", fileName.c_str());
-            _voc = new WAIOrbVocabulary();
-            _voc->loadFromFile(fileName);
-        }
-
-        //try to load map
-        HighResTimer            t;
-        cv::Mat                 mapNodeOm;
-        std::unique_ptr<WAIMap> waiMap = tryLoadMap(_erlebARDir, area.slamMapFileName, _voc, mapNodeOm);
-        Utils::log("LoadingTime", "map loading time: %f ms", t.elapsedTimeInMilliSec());
-
-        if (!mapNodeOm.empty())
-        {
-            SLMat4f slOm = WAIMapStorage::convertToSLMat(mapNodeOm);
-            //std::cout << "slOm: " << slOm.toString() << std::endl;
-            _scene.mapNode->om(slOm);
-        }
-
-        cv::Mat scaledCamMat = SENS::adaptCameraMat(_camera->calibration()->cameraMat(),
-                                                    _camera->config().manipWidth,
-                                                    _camera->config().targetWidth);
-
-        WAISlam::Params params;
-        params.cullRedundantPerc   = 0.95f;
-        params.ensureKFIntegration = false;
-        params.fixOldKfs           = true;
-        params.onlyTracking        = false;
-        params.retainImg           = false;
-        params.serial              = false;
-        params.trackOptFlow        = false;
-
-        _waiSlam = std::make_unique<WAISlam>(
-          scaledCamMat,
-          _camera->calibration()->distortion(),
-          _voc,
-          _initializationExtractor.get(),
-          _relocalizationExtractor.get(),
-          _trackingExtractor.get(),
-          std::move(waiMap),
-          params);
-#endif
-    }
-    else
-    {
-        auto    calib        = _camera->calibration();
-        cv::Mat scaledCamMat = _camera->scaledCameraMat();
-
-        _waiSlam->changeIntrinsic(scaledCamMat, calib->distortion());
-        updateSceneCameraFov();
-    }
+    _waiSlam->changeIntrinsic(_camera->scaledCameraMat(), _camera->calibration()->distortion());
+    updateSceneCameraFov();
 }
 
 bool AreaTrackingView::update()
@@ -159,10 +90,6 @@ bool AreaTrackingView::update()
             //the intrinsics may change dynamically on focus changes (e.g. on iOS)
             if (!frame->intrinsics.empty())
             {
-                //auto    calib        = _camera->calibration();
-                //cv::Mat scaledCamMat = SENS::adaptCameraMat(_camera->calibration()->cameraMat(),
-                //                                            _camera->config().manipWidth,
-                //                                            _camera->config().targetWidth);
                 _waiSlam->changeIntrinsic(_camera->scaledCameraMat(), _camera->calibration()->distortion());
                 updateSceneCameraFov();
             }
@@ -175,7 +102,13 @@ bool AreaTrackingView::update()
         }
         else if (_asyncLoader && _asyncLoader->isReady())
         {
-            initSlam();
+            Utils::log("AreaTrackingView", "worker done");
+            cv::Mat mapNodeOm = _asyncLoader->mapNodeOm();
+            initSlam(mapNodeOm, _asyncLoader->moveWaiMap());
+
+            delete _asyncLoader;
+            _asyncLoader = nullptr;
+            _userGuidance.dataIsLoading(false);
         }
 
         //switch between userguidance scene and tracking scene depending on tracking state
@@ -220,64 +153,14 @@ bool AreaTrackingView::update()
     return onPaint();
 }
 
-SLbool AreaTrackingView::onMouseDown(SLMouseButton button, SLint scrX, SLint scrY, SLKey mod)
+void AreaTrackingView::initSlam(const cv::Mat& mapNodeOm, std::unique_ptr<WAIMap> waiMap)
 {
-    SLbool ret = SLSceneView::onMouseDown(button, scrX, scrY, mod);
-    _gui.mouseDown(_gui.doNotDispatchMouse());
-    return ret;
-}
-
-SLbool AreaTrackingView::onMouseMove(SLint x, SLint y)
-{
-    SLbool ret = SLSceneView::onMouseMove(x, y);
-    _gui.mouseMove(_gui.doNotDispatchMouse());
-    return ret;
-}
-
-void AreaTrackingView::updateSceneCameraFov()
-{
-    //if the camera image height is smaller than the sceneview height,
-    //we have to calculate the corresponding vertical field of view for the scene camera
-    float imgWdivH = _camera->calibration()->imageAspectRatio();
-    if (std::abs(this->scrWdivH() - imgWdivH) > 0.00001)
-    {
-        if (this->scrWdivH() > imgWdivH)
-        {
-            //bars left and right: directly use camera vertial field of view as scene vertical field of view
-            _scene.camera->updateCameraIntrinsics(_camera->calibration()->cameraFovVDeg());
-            _userGuidanceScene.camera->updateCameraIntrinsics(_camera->calibration()->cameraFovVDeg());
-        }
-        else
-        {
-            //bars top and bottom: estimate vertical fov from cameras horizontal field of view and screen aspect ratio
-            float fovV = SENS::calcFovDegFromOtherFovDeg(_camera->calibration()->cameraFovHDeg(), this->scrW(), this->scrH());
-            _scene.camera->updateCameraIntrinsics(fovV);
-            _userGuidanceScene.camera->updateCameraIntrinsics(fovV);
-        }
-    }
-    else
-    {
-        //no bars because same aspect ration: directly use camera vertial field of view as scene vertical field of view
-        _scene.camera->updateCameraIntrinsics(_camera->calibration()->cameraFovVDeg());
-        _userGuidanceScene.camera->updateCameraIntrinsics(_camera->calibration()->cameraFovVDeg());
-    }
-}
-
-void AreaTrackingView::initSlam()
-{
-    Utils::log("AreaTrackingView", "worker done");
-
-    cv::Mat mapNodeOm = _asyncLoader->mapNodeOm();
     if (!mapNodeOm.empty())
     {
         SLMat4f slOm = WAIMapStorage::convertToSLMat(mapNodeOm);
         //std::cout << "slOm: " << slOm.toString() << std::endl;
         _scene.mapNode->om(slOm);
     }
-
-    //cv::Mat scaledCamMat = SENS::adaptCameraMat(_camera->calibration()->cameraMat(),
-    //                                            _camera->config().manipWidth,
-    //                                            _camera->config().targetWidth);
 
     WAISlam::Params params;
     params.cullRedundantPerc   = 0.95f;
@@ -295,12 +178,8 @@ void AreaTrackingView::initSlam()
       _initializationExtractor.get(),
       _relocalizationExtractor.get(),
       _trackingExtractor.get(),
-      _asyncLoader->moveWaiMap(),
+      std::move(waiMap),
       params);
-
-    delete _asyncLoader;
-    _asyncLoader = nullptr;
-    _userGuidance.dataIsLoading(false);
 }
 
 std::unique_ptr<WAIMap> AreaTrackingView::tryLoadMap(const std::string& erlebARDir,
@@ -376,9 +255,6 @@ void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaI
     _locId  = locId;
     _areaId = areaId;
 
-    //todo:
-    //init camera with resolution in screen aspect ratio
-
     //stop possible wai slam instances
     if (_waiSlam)
         _waiSlam.reset();
@@ -390,10 +266,7 @@ void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaI
 
     //start camera
     if (!startCamera(area.cameraFrameTargetSize))
-    {
         Utils::log("AreaTrackingView", "Could not start camera!");
-        return;
-    }
 
     //load model into scene graph
     _scene.rebuild(location.name, area.name);
@@ -410,74 +283,69 @@ void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaI
     else
         _imgBuffer.init(1, area.cameraFrameTargetSize);
 
-#ifdef LOAD_ASYNC
-    std::string fileName;
+    std::string vocFileName;
     if (area.vocFileName.empty())
-        fileName = _deviceData.vocabularyDir() + _vocabularyFileName;
+        vocFileName = _deviceData.vocabularyDir() + _vocabularyFileName;
     else
-    {
-        fileName = _deviceData.erlebARDir() + area.vocFileName;
-    }
+        vocFileName = _deviceData.erlebARDir() + area.vocFileName;
 
+#ifdef LOAD_ASYNC
     //delete managed object
     if (_asyncLoader)
         delete _asyncLoader;
 
-    _asyncLoader = new MapLoader(_voc, area.vocLayer, fileName, _deviceData.erlebARDir(), area.slamMapFileName);
+    _asyncLoader = new MapLoader(_voc, area.vocLayer, vocFileName, _deviceData.erlebARDir(), area.slamMapFileName);
     _asyncLoader->start();
     _userGuidance.dataIsLoading(true);
 
 #else
-    //load vocabulary
-    std::string fileName = _vocabularyDir + _vocabularyFileName;
-    if (Utils::fileExists(fileName))
+    if (Utils::fileExists(vocFileName))
     {
-        Utils::log("AreaTrackingView", "loading voc file from: %s", fileName.c_str());
+        Utils::log("AreaTrackingView", "loading voc file from: %s", vocFileName.c_str());
         _voc = new WAIOrbVocabulary();
-        _voc->loadFromFile(fileName);
+        _voc->loadFromFile(vocFileName);
     }
 
     //try to load map
-    HighResTimer t;
-    cv::Mat mapNodeOm;
-    std::unique_ptr<WAIMap> waiMap = tryLoadMap(_erlebARDir, area.slamMapFileName, _voc, mapNodeOm);
-    Utils::log("LoadingTime", "map loading time: %f ms", t.elapsedTimeInMilliSec());
-
-    if (!mapNodeOm.empty())
-    {
-        SLMat4f slOm = WAIMapStorage::convertToSLMat(mapNodeOm);
-        //std::cout << "slOm: " << slOm.toString() << std::endl;
-        _scene.mapNode->om(slOm);
-    }
-
-    cv::Mat scaledCamMat = SENS::adaptCameraMat(_camera->calibration()->cameraMat(),
-                                                _camera->config().manipWidth,
-                                                _camera->config().targetWidth);
-
-    WAISlam::Params params;
-    params.cullRedundantPerc = 0.95f;
-    params.ensureKFIntegration = false;
-    params.fixOldKfs = true;
-    params.onlyTracking = false;
-    params.retainImg = false;
-    params.serial = false;
-    params.trackOptFlow = false;
-
-    _waiSlam = std::make_unique<WAISlam>(
-      scaledCamMat,
-      _camera->calibration()->distortion(),
-      _voc,
-      _initializationExtractor.get(),
-      _relocalizationExtractor.get(),
-      _trackingExtractor.get(),
-      std::move(waiMap),
-      params);
+    cv::Mat                 mapNodeOm;
+    std::unique_ptr<WAIMap> waiMap = tryLoadMap(_deviceData.erlebARDir(), area.slamMapFileName, _voc, mapNodeOm);
+    //init slam
+    initSlam(mapNodeOm, std::move(waiMap));
 #endif
+}
+
+void AreaTrackingView::updateSceneCameraFov()
+{
+    //if the camera image height is smaller than the sceneview height,
+    //we have to calculate the corresponding vertical field of view for the scene camera
+    float imgWdivH = _camera->calibration()->imageAspectRatio();
+    if (std::abs(this->scrWdivH() - imgWdivH) > 0.00001)
+    {
+        if (this->scrWdivH() > imgWdivH)
+        {
+            //bars left and right: directly use camera vertial field of view as scene vertical field of view
+            _scene.camera->updateCameraIntrinsics(_camera->calibration()->cameraFovVDeg());
+            _userGuidanceScene.camera->updateCameraIntrinsics(_camera->calibration()->cameraFovVDeg());
+        }
+        else
+        {
+            //bars top and bottom: estimate vertical fov from cameras horizontal field of view and screen aspect ratio
+            float fovV = SENS::calcFovDegFromOtherFovDeg(_camera->calibration()->cameraFovHDeg(), this->scrW(), this->scrH());
+            _scene.camera->updateCameraIntrinsics(fovV);
+            _userGuidanceScene.camera->updateCameraIntrinsics(fovV);
+        }
+    }
+    else
+    {
+        //no bars because same aspect ration: directly use camera vertial field of view as scene vertical field of view
+        _scene.camera->updateCameraIntrinsics(_camera->calibration()->cameraFovVDeg());
+        _userGuidanceScene.camera->updateCameraIntrinsics(_camera->calibration()->cameraFovVDeg());
+    }
 }
 
 void AreaTrackingView::resume()
 {
-    if(_camera)
+    if (_camera)
         _camera->start();
 }
 
@@ -493,10 +361,10 @@ bool AreaTrackingView::startCamera(const cv::Size& trackImgSize)
         if (_camera->started())
             _camera->stop();
 
-        if(_camera->supportsFacing(SENSCameraFacing::BACK)) //we are on android or ios. we can also expect high resolution support.
-           _camera->configure(SENSCameraFacing::BACK, 1920, 1440, trackImgSize.width, trackImgSize.height, false, false, true);
+        if (_camera->supportsFacing(SENSCameraFacing::BACK)) //we are on android or ios. we can also expect high resolution support.
+            _camera->configure(SENSCameraFacing::BACK, 1920, 1440, trackImgSize.width, trackImgSize.height, false, false, true);
         else
-           _camera->configure(SENSCameraFacing::UNKNOWN, 640, 480, trackImgSize.width, trackImgSize.height, false, false, true);
+            _camera->configure(SENSCameraFacing::UNKNOWN, 640, 480, trackImgSize.width, trackImgSize.height, false, false, true);
         _camera->start();
         return _camera->started();
     }
