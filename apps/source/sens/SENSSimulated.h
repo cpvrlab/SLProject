@@ -4,6 +4,7 @@
 #include <functional>
 #include <memory>
 #include <chrono>
+#include <condition_variable>
 
 #include <Utils.h>
 #include <sens/SENSSimClock.h>

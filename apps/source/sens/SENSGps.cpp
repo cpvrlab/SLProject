@@ -1,5 +1,6 @@
 #include "SENSGps.h"
 #include <Utils.h>
+#include <algorithm>
 
 SENSGps::Location SENSGps::getLocation()
 {
