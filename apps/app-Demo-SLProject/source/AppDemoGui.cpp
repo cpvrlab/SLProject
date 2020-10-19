@@ -398,27 +398,28 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
                 SLfloat draw2DTimePC     = Utils::clamp(draw2DTime / ft * 100.0f, 0.0f, 100.0f);
                 SLfloat cullTimePC       = Utils::clamp(cullTime / ft * 100.0f, 0.0f, 100.0f);
 
-                sprintf(m + strlen(m), "Renderer     : OpenGL\n");
-                sprintf(m + strlen(m), "Window size  : %d x %d\n", sv->viewportW(), sv->viewportH());
-                sprintf(m + strlen(m), "Frambuffer   : %d x %d\n", (int)(sv->viewportW() * sv->scr2fbY()), (int)(sv->viewportH() * sv->scr2fbX()));
-                sprintf(m + strlen(m), "Drawcalls    : %d\n", SLGLVertexArray::totalDrawCalls);
-                sprintf(m + strlen(m), "FPS          :%5.1f\n", s->fps());
-                sprintf(m + strlen(m), "Frame time   :%5.1f ms (100%%)\n", ft);
-                sprintf(m + strlen(m), " Capture     :%5.1f ms (%3d%%)\n", captureTime, (SLint)captureTimePC);
-                sprintf(m + strlen(m), " Update      :%5.1f ms (%3d%%)\n", updateTime, (SLint)updateTimePC);
-                sprintf(m + strlen(m), "  Anim.      :%5.1f ms (%3d%%)\n", updateAnimTime, (SLint)updateAnimTimePC);
-                sprintf(m + strlen(m), "  AABB       :%5.1f ms (%3d%%)\n", updateAABBTime, (SLint)updateAABBTimePC);
-                sprintf(m + strlen(m), "  Tracking   :%5.1f ms (%3d%%)\n", trackingTime, (SLint)trackingTimePC);
-                sprintf(m + strlen(m), "   Detect    :%5.1f ms (%3d%%)\n", detectTime, (SLint)detectTimePC);
-                sprintf(m + strlen(m), "    Det1     :%5.1f ms\n", detect1Time);
-                sprintf(m + strlen(m), "    Det2     :%5.1f ms\n", detect2Time);
-                sprintf(m + strlen(m), "   Match     :%5.1f ms (%3d%%)\n", matchTime, (SLint)matchTimePC);
-                sprintf(m + strlen(m), "   OptFlow   :%5.1f ms (%3d%%)\n", optFlowTime, (SLint)optFlowTimePC);
-                sprintf(m + strlen(m), "   Pose      :%5.1f ms (%3d%%)\n", poseTime, (SLint)poseTimePC);
-                sprintf(m + strlen(m), " Shadows Maps:%5.1f ms (%3d%%)\n", shadowMapTime, (SLint)shadowMapTimePC);
-                sprintf(m + strlen(m), " Culling     :%5.1f ms (%3d%%)\n", cullTime, (SLint)cullTimePC);
-                sprintf(m + strlen(m), " Drawing 3D  :%5.1f ms (%3d%%)\n", draw3DTime, (SLint)draw3DTimePC);
-                sprintf(m + strlen(m), " Drawing 2D  :%5.1f ms (%3d%%)\n", draw2DTime, (SLint)draw2DTimePC);
+                sprintf(m + strlen(m), "Renderer   : OpenGL\n");
+                sprintf(m + strlen(m), "Load time  : %5.1f ms\n", s->loadTimeMS());
+                sprintf(m + strlen(m), "Window size: %d x %d\n", sv->viewportW(), sv->viewportH());
+                sprintf(m + strlen(m), "Frambuffer : %d x %d\n", (int)(sv->viewportW() * sv->scr2fbY()), (int)(sv->viewportH() * sv->scr2fbX()));
+                sprintf(m + strlen(m), "Drawcalls  : %d\n", SLGLVertexArray::totalDrawCalls);
+                sprintf(m + strlen(m), "FPS        : %5.1f\n", s->fps());
+                sprintf(m + strlen(m), "Frame time : %5.1f ms (100%%)\n", ft);
+                sprintf(m + strlen(m), " Capture   : %5.1f ms (%3d%%)\n", captureTime, (SLint)captureTimePC);
+                sprintf(m + strlen(m), " Update    : %5.1f ms (%3d%%)\n", updateTime, (SLint)updateTimePC);
+                sprintf(m + strlen(m), "  Anim.    : %5.1f ms (%3d%%)\n", updateAnimTime, (SLint)updateAnimTimePC);
+                sprintf(m + strlen(m), "  AABB     : %5.1f ms (%3d%%)\n", updateAABBTime, (SLint)updateAABBTimePC);
+                sprintf(m + strlen(m), "  Tracking : %5.1f ms (%3d%%)\n", trackingTime, (SLint)trackingTimePC);
+                sprintf(m + strlen(m), "   Detect  : %5.1f ms (%3d%%)\n", detectTime, (SLint)detectTimePC);
+                sprintf(m + strlen(m), "    Det1   : %5.1f ms\n", detect1Time);
+                sprintf(m + strlen(m), "    Det2   : %5.1f ms\n", detect2Time);
+                sprintf(m + strlen(m), "   Match   : %5.1f ms (%3d%%)\n", matchTime, (SLint)matchTimePC);
+                sprintf(m + strlen(m), "   OptFlow : %5.1f ms (%3d%%)\n", optFlowTime, (SLint)optFlowTimePC);
+                sprintf(m + strlen(m), "   Pose    : %5.1f ms (%3d%%)\n", poseTime, (SLint)poseTimePC);
+                sprintf(m + strlen(m), " Shadows   : %5.1f ms (%3d%%)\n", shadowMapTime, (SLint)shadowMapTimePC);
+                sprintf(m + strlen(m), " Culling   : %5.1f ms (%3d%%)\n", cullTime, (SLint)cullTimePC);
+                sprintf(m + strlen(m), " Drawing 3D: %5.1f ms (%3d%%)\n", draw3DTime, (SLint)draw3DTimePC);
+                sprintf(m + strlen(m), " Drawing 2D: %5.1f ms (%3d%%)\n", draw2DTime, (SLint)draw2DTimePC);
             }
             else if (rType == RT_rt)
             {
@@ -952,24 +953,24 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
             SLchar m[1024];             // message character array
             m[0]                   = 0; // set zero length
             SLVec3d offsetToOrigin = SLApplication::devLoc.originENU() - SLApplication::devLoc.locENU();
-            sprintf(m + strlen(m), "Uses IMU Orientation: %s\n", SLApplication::devRot.isUsed() ? "yes" : "no");
-            sprintf(m + strlen(m), "Orientation Pitch   : %1.0f\n", SLApplication::devRot.pitchRAD() * Utils::RAD2DEG);
-            sprintf(m + strlen(m), "Orientation Yaw     : %1.0f\n", SLApplication::devRot.yawRAD() * Utils::RAD2DEG);
-            sprintf(m + strlen(m), "Orientation Roll    : %1.0f\n", SLApplication::devRot.rollRAD() * Utils::RAD2DEG);
-            sprintf(m + strlen(m), "Zero Yaw at Start   : %s\n", SLApplication::devRot.zeroYawAtStart() ? "yes" : "no");
-            sprintf(m + strlen(m), "Start Yaw           : %1.0f\n", SLApplication::devRot.startYawRAD() * Utils::RAD2DEG);
-            sprintf(m + strlen(m), "---------------------\n");
-            sprintf(m + strlen(m), "Uses GPS Location   : %s\n", SLApplication::devLoc.isUsed() ? "yes" : "no");
-            sprintf(m + strlen(m), "Latitude (deg)      : %11.6f\n", SLApplication::devLoc.locLatLonAlt().lat);
-            sprintf(m + strlen(m), "Longitude (deg)     : %11.6f\n", SLApplication::devLoc.locLatLonAlt().lon);
-            sprintf(m + strlen(m), "Altitude (m)        : %11.6f\n", SLApplication::devLoc.locLatLonAlt().alt);
-            sprintf(m + strlen(m), "Altitude GPS (m)    : %11.6f\n", SLApplication::devLoc.altGpsM());
-            sprintf(m + strlen(m), "Altitude DEM (m)    : %11.6f\n", SLApplication::devLoc.altDemM());
-            sprintf(m + strlen(m), "Accuracy Radius (m) : %6.1f\n", SLApplication::devLoc.locAccuracyM());
-            sprintf(m + strlen(m), "Dist. to Origin (m) : %6.1f\n", offsetToOrigin.length());
-            sprintf(m + strlen(m), "Origin improve time : %6.1f sec.\n", SLApplication::devLoc.improveTime());
-            sprintf(m + strlen(m), "Sun Zenith (deg)    : %6.1f sec.\n", SLApplication::devLoc.originSolarZenit());
-            sprintf(m + strlen(m), "Sun Azimuth (deg)   : %6.1f sec.\n", SLApplication::devLoc.originSolarAzimut());
+            sprintf(m + strlen(m), "Uses IMU Senor   : %s\n", SLApplication::devRot.isUsed() ? "yes" : "no");
+            sprintf(m + strlen(m), "Pitch (deg)      : %1.0f\n", SLApplication::devRot.pitchRAD() * Utils::RAD2DEG);
+            sprintf(m + strlen(m), "Yaw (deg)        : %1.0f\n", SLApplication::devRot.yawRAD() * Utils::RAD2DEG);
+            sprintf(m + strlen(m), "Roll (deg)       : %1.0f\n", SLApplication::devRot.rollRAD() * Utils::RAD2DEG);
+            sprintf(m + strlen(m), "Zero Yaw at Start: %s\n", SLApplication::devRot.zeroYawAtStart() ? "yes" : "no");
+            sprintf(m + strlen(m), "Start Yaw (deg)  : %1.0f\n", SLApplication::devRot.startYawRAD() * Utils::RAD2DEG);
+            sprintf(m + strlen(m), "------------------\n");
+            sprintf(m + strlen(m), "Uses GPS Sensor  : %s\n", SLApplication::devLoc.isUsed() ? "yes" : "no");
+            sprintf(m + strlen(m), "Latitude (deg)   : %10.6f\n", SLApplication::devLoc.locLatLonAlt().lat);
+            sprintf(m + strlen(m), "Longitude (deg)  : %10.6f\n", SLApplication::devLoc.locLatLonAlt().lon);
+            sprintf(m + strlen(m), "Altitude (m)     : %10.6f\n", SLApplication::devLoc.locLatLonAlt().alt);
+            sprintf(m + strlen(m), "Altitude GPS (m) : %10.6f\n", SLApplication::devLoc.altGpsM());
+            sprintf(m + strlen(m), "Altitude DEM (m) : %10.6f\n", SLApplication::devLoc.altDemM());
+            sprintf(m + strlen(m), "Accuracy Rad.(m) : %6.1f\n", SLApplication::devLoc.locAccuracyM());
+            sprintf(m + strlen(m), "Dist. Origin (m) : %6.1f\n", offsetToOrigin.length());
+            sprintf(m + strlen(m), "Origin improve(s): %6.1f sec.\n", SLApplication::devLoc.improveTime());
+            sprintf(m + strlen(m), "Sun Zenith (deg) : %6.1f sec.\n", SLApplication::devLoc.originSolarZenit());
+            sprintf(m + strlen(m), "Sun Azimuth (deg): %6.1f sec.\n", SLApplication::devLoc.originSolarAzimut());
 
             // Switch to fixed font
             ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
@@ -1754,6 +1755,7 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
 
                 if (ImGui::BeginMenu("Local Date/Time"))
                 {
+                    ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.5f);
                     tm lt{};
                     if (adjustedTime)
                         memcpy(&lt, std::localtime(&adjustedTime), sizeof(tm));
@@ -1780,20 +1782,15 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                         adjustedTime = mktime(&lt);
                         SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLatLonAlt(), adjustedTime);
                     }
-                    if (ImGui::SliderInt("Minute", &lt.tm_min, 0, 59))
-                    {
-                        adjustedTime = mktime(&lt);
-                        SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLatLonAlt(), adjustedTime);
-                    }
-                    if (ImGui::SliderInt("Second", &lt.tm_sec, 0, 59))
+                    if (ImGui::SliderInt("Min.", &lt.tm_min, 0, 59))
                     {
                         adjustedTime = mktime(&lt);
                         SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLatLonAlt(), adjustedTime);
                     }
 
-                    SLchar strLT[100];
-                    sprintf(strLT, "Set to now (%02d.%02d.%02d %02d:%02d:%02d)", lt.tm_mday, lt.tm_mon, lt.tm_year + 1900, lt.tm_hour, lt.tm_min, lt.tm_sec);
-                    if (ImGui::MenuItem(strLT))
+                    SLchar strTime[100];
+                    sprintf(strTime, "Set now (%02d.%02d.%02d %02d:%02d)", lt.tm_mday, lt.tm_mon, lt.tm_year + 1900, lt.tm_hour, lt.tm_min);
+                    if (ImGui::MenuItem(strTime))
                     {
                         adjustedTime    = 0;
                         std::time_t now = std::time(nullptr);
@@ -1803,34 +1800,54 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
 
                     SLfloat SRh = SLApplication::devLoc.originSolarSunrise();
                     SLfloat SRm = (SLfloat)(60.0f * (SRh - (int)(SRh)));
-                    SLfloat SRs = (SLfloat)(60.0f * (SRm - floor(SRm)));
-                    SLchar  SRstr[100];
-                    sprintf(SRstr, "Set sunrise time (%02d:%02d:%02d)", (int)(SRh), (int)SRm, (int)SRs);
-                    if (ImGui::MenuItem(SRstr))
+                    sprintf(strTime, "Set sunrise time (%02d:%02d)", (int)(SRh), (int)SRm);
+                    if (ImGui::MenuItem(strTime))
                     {
                         lt.tm_hour   = (int)SRh;
                         lt.tm_min    = (int)SRm;
-                        lt.tm_sec    = (int)SRs;
                         adjustedTime = mktime(&lt);
                         SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLatLonAlt(), adjustedTime);
                     }
 
                     SLfloat SSh = SLApplication::devLoc.originSolarSunset();
                     SLfloat SSm = (SLfloat)(60.0f * (SSh - (int)(SSh)));
-                    SLfloat SSs = (SLfloat)(60.0f * (SSm - floor(SSm)));
-                    SLchar  SSstr[100];
-                    sprintf(SSstr, "Set sunset time (%02d:%02d:%02d)", (int)(SSh), (int)SSm, (int)SSs);
-                    if (ImGui::MenuItem(SSstr))
+                    sprintf(strTime, "Set sunset time (%02d:%02d)", (int)(SSh), (int)SSm);
+                    if (ImGui::MenuItem(strTime))
                     {
                         lt.tm_hour   = (int)SSh;
                         lt.tm_min    = (int)SSm;
-                        lt.tm_sec    = (int)SSs;
                         adjustedTime = mktime(&lt);
                         SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLatLonAlt(), adjustedTime);
                     }
 
+                    sprintf(strTime, "Set highest noon (21.06.%02d 12:00)", lt.tm_year);
+                    if (ImGui::MenuItem(strTime))
+                    {
+                        lt.tm_mon    = 6;
+                        lt.tm_mday   = 21;
+                        lt.tm_hour   = 12;
+                        lt.tm_min    = 0;
+                        lt.tm_sec    = 0;
+                        adjustedTime = mktime(&lt);
+                        SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLatLonAlt(), adjustedTime);
+                    }
+
+                    sprintf(strTime, "Set lowest noon (21.12.%02d 12:00)", lt.tm_year);
+                    if (ImGui::MenuItem(strTime))
+                    {
+                        lt.tm_mon    = 12;
+                        lt.tm_mday   = 21;
+                        lt.tm_hour   = 12;
+                        lt.tm_min    = 0;
+                        lt.tm_sec    = 0;
+                        adjustedTime = mktime(&lt);
+                        SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLatLonAlt(), adjustedTime);
+                    }
+
+                    ImGui::PopItemWidth();
                     ImGui::EndMenu();
                 }
+
             }
 
             ImGui::EndMenu();
@@ -2773,13 +2790,20 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                     if (ImGui::SliderFloat("Near clipping plane", &clipNear, 0.01f, clipFar))
                                         shadowMap->clipNear(clipNear);
 
-                                    if (ImGui::SliderFloat("Far clipping plane", &clipFar, clipNear, 50.0f))
+                                    if (ImGui::SliderFloat("Far clipping plane", &clipFar, clipNear, 200.0f))
                                         shadowMap->clipFar(clipFar);
 
                                     SLVec2i texSize = shadowMap->textureSize();
                                     if (ImGui::SliderInt2("Texture resolution", (int*)&texSize, 32, 4096))
                                         shadowMap->textureSize(SLVec2i((int)Utils::closestPowerOf2((unsigned)texSize.x),
                                                                        (int)Utils::closestPowerOf2((unsigned)texSize.y)));
+
+                                    SLfloat shadowMinBias = light->shadowMinBias();
+                                    SLfloat shadowMaxBias = light->shadowMaxBias();
+                                    if (ImGui::SliderFloat("Min. shadow bias", &shadowMinBias, 0.0f, shadowMaxBias, "%.03f"))
+                                        light->shadowMinBias(shadowMinBias);
+                                    if (ImGui::SliderFloat("Max. shadow bias", &shadowMaxBias, shadowMinBias, 0.02f, "%.03f"))
+                                        light->shadowMaxBias(shadowMaxBias);
 
                                     if (typeid(*singleNode) == typeid(SLLightDirect))
                                     {
@@ -2790,13 +2814,13 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
 
                                     if (!shadowMap->useCubemap())
                                     {
-                                        SLbool doesPCF = light->doesPCF();
-                                        if (ImGui::Checkbox("Percentage-closer filtering enabled", &doesPCF))
-                                            light->doesPCF(doesPCF);
+                                        SLbool doesSmoothShadows = light->doSmoothShadows();
+                                        if (ImGui::Checkbox("Smooth shadows enabled", &doesSmoothShadows))
+                                            light->doSmoothShadows(doesSmoothShadows);
 
-                                        SLuint pcfLevel = light->pcfLevel();
-                                        if (ImGui::SliderInt("PCF-Level", (SLint*)&pcfLevel, 1, 3))
-                                            light->pcfLevel(pcfLevel);
+                                        SLuint pcfLevel = light->smoothShadowLevel();
+                                        if (ImGui::SliderInt("Smoothing level", (SLint*)&pcfLevel, 1, 3))
+                                            light->smoothShadowLevel(pcfLevel);
                                     }
 
 #ifndef SL_GLES
@@ -2890,7 +2914,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                     {
                         SLLight* light = nullptr;
                         SLstring typeName;
-                        SLbool   isSun = false;
+                        SLbool   doSunPowerAdaptation = false;
                         if (typeid(*singleNode) == typeid(SLLightSpot))
                         {
                             light    = (SLLight*)(SLLightSpot*)singleNode;
@@ -2905,7 +2929,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                         {
                             light    = (SLLight*)(SLLightDirect*)singleNode;
                             typeName = "Light (directional):";
-                            isSun    = ((SLLightDirect*)singleNode)->isSunLight();
+                            doSunPowerAdaptation    = ((SLLightDirect*)singleNode)->doSunPowerAdaptation();
                         }
 
                         if (light && ImGui::TreeNode(typeName.c_str()))
@@ -2919,7 +2943,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                             if (ImGui::ColorEdit3("Ambient color", (float*)&ac, cef))
                                 light->ambientColor(ac);
 
-                            if (!isSun)
+                            if (!doSunPowerAdaptation)
                             {
                                 SLCol4f dc = light->diffuseColor();
                                 if (ImGui::ColorEdit3("Diffuse color", (float*)&dc, cef))
@@ -2951,24 +2975,24 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                 light->spotExponent(spotExp);
 
                             float kc = light->kc();
-                            if (ImGui::SliderFloat("Constant attenutation", &kc, 0.0f, 1.0f))
+                            if (ImGui::SliderFloat("Constant attenuation", &kc, 0.0f, 1.0f))
                                 light->kc(kc);
 
                             float kl = light->kl();
-                            if (ImGui::SliderFloat("Linear attenutation", &kl, 0.0f, 1.0f))
+                            if (ImGui::SliderFloat("Linear attenuation", &kl, 0.0f, 1.0f))
                                 light->kl(kl);
 
                             float kq = light->kq();
-                            if (ImGui::SliderFloat("Quadradic attenutation", &kq, 0.0f, 1.0f))
+                            if (ImGui::SliderFloat("Quadratic attenuation", &kq, 0.0f, 1.0f))
                                 light->kq(kq);
 
                             if (typeid(*singleNode) == typeid(SLLightDirect))
                             {
                                 SLLightDirect* dirLight = (SLLightDirect*)singleNode;
-                                if (ImGui::Checkbox("Is sun light", &isSun))
-                                    dirLight->isSunLight(isSun);
+                                if (ImGui::Checkbox("Do Sun Power Adaptation", &doSunPowerAdaptation))
+                                    dirLight->doSunPowerAdaptation(doSunPowerAdaptation);
 
-                                if (isSun)
+                                if (doSunPowerAdaptation)
                                 {
                                     SLColorLUT* lut = dirLight->sunLightColorLUT();
                                     if (ImGui::TreeNode("Sun Color LUT"))
@@ -3074,10 +3098,6 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                             SLbool receivesShadows = m->getsShadows();
                             if (ImGui::Checkbox("Receives shadows", &receivesShadows))
                                 m->receivesShadows(receivesShadows);
-
-                            SLfloat shadowBias = m->shadowBias();
-                            if (ImGui::SliderFloat("Shadow bias", &shadowBias, 0.0f, 0.01f, "%.04f"))
-                                m->shadowBias(shadowBias);
 
                             ImGui::PopItemWidth();
                             ImGui::TreePop();

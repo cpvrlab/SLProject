@@ -19,7 +19,7 @@ in      vec2        v_texCoord;                 // Texture coordiante varying
 in      vec3        v_eyeDirTS;                 // Vector to the eye in tangent space
 in      vec3        v_lightDirTS[NUM_LIGHTS];   // Vector to light 0 in tangent space
 in      vec3        v_spotDirTS[NUM_LIGHTS];    // Spot direction in tangent space
-in      float       v_lightDist[NUM_LIGHTS];    // Light distance
+//in      float       v_lightDist[NUM_LIGHTS];    // Light distance
 
 uniform bool        u_lightIsOn[NUM_LIGHTS];    // flag if light is on
 uniform vec4        u_lightPosVS[NUM_LIGHTS];   // position of light in view space
@@ -66,10 +66,9 @@ void main()
     vec4 Id = vec4(0.0); // Accumulated diffuse light intensity at v_P_VS
     vec4 Is = vec4(0.0); // Accumulated specular light intensity at v_P_VS
 
-    vec3 E = normalize(v_eyeDirTS);   // normalized eye direction
-
     // Get normal from normal map, move from [0,1] to [-1, 1] range & normalize
     vec3 N = normalize(texture(u_matTexture1, v_texCoord).rgb * 2.0 - 1.0);
+    vec3 E = normalize(v_eyeDirTS);   // normalized eye direction
 
     for (int i = 0; i < NUM_LIGHTS; ++i)
     {

@@ -69,21 +69,24 @@ public:
                        const SLVec3f& L,
                        SLfloat        lightDist,
                        SLNode*        root3D) override;
+    void    createShadowMap(float   clipNear = 0.1f,
+                            float   clipFar  = 20.0f,
+                            SLVec2f size     = SLVec2f(8, 8),
+                            SLVec2i texSize  = SLVec2i(1024, 1024)) override;
     SLfloat shadowTestMC(SLRay*         ray,
                          const SLVec3f& L,
                          SLfloat        lightDist,
                          SLNode*        root3D) override;
-    void    renderShadowMap(SLSceneView* sv, SLNode* root) override;
     SLCol4f calculateSunLight(SLfloat standardPower);
 
     // Setters
-    void isSunLight(SLbool enabled) { _isSunLight = enabled; }
+    void doSunPowerAdaptation(SLbool enabled) { _doSunPowerAdaptation = enabled; }
     void sunLightPowerMin(SLfloat minPower) { _sunLightPowerMin = minPower; }
 
     // Getters
     SLfloat     radius() const { return _arrowRadius; }
     SLfloat     dirLength() const { return _arrowLength; }
-    SLbool      isSunLight() { return _isSunLight; }
+    SLbool      doSunPowerAdaptation() { return _doSunPowerAdaptation; }
     SLColorLUT* sunLightColorLUT() { return &_sunLightColorLUT; }
 
     // For directional lights the position vector is interpreted as a
@@ -102,7 +105,7 @@ public:
 private:
     SLfloat    _arrowRadius;      //!< The sphere lights radius
     SLfloat    _arrowLength;      //!< Length of direction line
-    SLbool     _isSunLight;       //!< Flag for sun power scaling
+    SLbool     _doSunPowerAdaptation;       //!< Flag for sun power scaling
     SLfloat    _sunLightPowerMin; //!< Min. zenith power scale factor for sun
     SLColorLUT _sunLightColorLUT; //!< Sun light color LUT
 };

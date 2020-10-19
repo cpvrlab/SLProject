@@ -57,6 +57,7 @@ public:
     void root2D(SLNode* root2D) { _root2D = root2D; }
     void stopAnimations(SLbool stop) { _stopAnimations = stop; }
     void info(SLstring i) { _info = std::move(i); }
+    void loadTimeMS(SLfloat loadTimeMS) { _loadTimeMS = loadTimeMS; }
 
     // Getters
     SLAnimManager&   animManager() { return _animManager; }
@@ -66,7 +67,7 @@ public:
     SLfloat          elapsedTimeMS() const { return _frameTimeMS; }
     SLfloat          elapsedTimeSec() const { return _frameTimeMS * 0.001f; }
     SLVEventHandler& eventHandlers() { return _eventHandlers; }
-
+    SLfloat          loadTimeMS() const { return _loadTimeMS; }
     SLVLight& lights() { return _lights; }
     SLfloat   fps() const { return _fps; }
     AvgFloat& frameTimesMS() { return _frameTimesMS; }
@@ -113,6 +114,7 @@ protected:
     SLVNode  _selectedNodes;  //!< Vector of selected nodes. See SLMesh::selectNodeMesh.
     SLVMesh  _selectedMeshes; //!< Vector of selected meshes. See SLMesh::selectNodeMesh.
 
+    SLfloat _loadTimeMS;       //!< time to load scene in ms
     SLfloat _frameTimeMS;      //!< Last frame time in ms
     SLfloat _lastUpdateTimeMS; //!< Last time after update in ms
     SLfloat _fps;              //!< Averaged no. of frames per second

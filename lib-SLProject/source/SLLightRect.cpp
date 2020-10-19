@@ -287,13 +287,20 @@ SLfloat SLLightRect::shadowTestMC(SLRay*         ray,       // ray of hit point
     return (shadowRay.length < spDistWS) ? 0.0f : 1.0f;
 }
 //-----------------------------------------------------------------------------
-/*! SLLightRect::renderShadowMap renders the shadow map of the light
-*/
-void SLLightRect::renderShadowMap(SLSceneView* sv, SLNode* root)
+void SLLightRect::createShadowMap(float   clipNear,
+                                    float   clipFar,
+                                    SLVec2f size,
+                                    SLVec2i texSize)
 {
-    if (_shadowMap == nullptr)
-        _shadowMap = new SLShadowMap(P_monoPerspective, this);
-    _shadowMap->render(sv, root);
+    if (!_shadowMap)
+        delete _shadowMap;
+
+    _shadowMap = new SLShadowMap(P_monoPerspective,
+                                 this,
+                                 clipNear,
+                                 clipFar,
+                                 size,
+                                 texSize);
 }
 //-----------------------------------------------------------------------------
 void SLLightRect::samples(const SLVec2i samples)

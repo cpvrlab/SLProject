@@ -27,7 +27,7 @@ SLLightDirect::SLLightDirect(SLAssetManager* assetMgr,
   : SLNode("LightDirect Node"),
     _arrowRadius(arrowLength * 0.1f),
     _arrowLength(arrowLength),
-    _isSunLight(false),
+    _doSunPowerAdaptation(false),
     _sunLightPowerMin(0),
     _sunLightColorLUT(nullptr, CLUT_DAYLIGHT)
 {
@@ -64,7 +64,7 @@ SLLightDirect::SLLightDirect(SLAssetManager* assetMgr,
     SLLight(ambiPower, diffPower, specPower),
     _arrowRadius(arrowLength * 0.1f),
     _arrowLength(arrowLength),
-    _isSunLight(false),
+    _doSunPowerAdaptation(false),
     _sunLightPowerMin(0),
     _sunLightColorLUT(nullptr, CLUT_DAYLIGHT)
 {
@@ -167,6 +167,22 @@ void SLLightDirect::drawMesh(SLSceneView* sv)
     }
 }
 //-----------------------------------------------------------------------------
+void SLLightDirect::createShadowMap(float   clipNear,
+                                    float   clipFar,
+                                    SLVec2f size,
+                                    SLVec2i texSize)
+{
+    if (!_shadowMap)
+        delete _shadowMap;
+
+    _shadowMap = new SLShadowMap(P_monoOrthographic,
+                                 this,
+                                 clipNear,
+                                 clipFar,
+                                 size,
+                                 texSize);
+}
+//-----------------------------------------------------------------------------
 /*!
 SLLightDirect::shadowTest returns 0.0 if the hit point is completely shaded and
 1.0 if it is 100% lighted. A directional light can not generate soft shadows.
@@ -225,15 +241,6 @@ SLfloat SLLightDirect::shadowTestMC(SLRay*         ray,       // ray of hit poin
         return 1.0f;
 }
 //-----------------------------------------------------------------------------
-/*! SLLightDirect::renderShadowMap renders the shadow map of the light
-*/
-void SLLightDirect::renderShadowMap(SLSceneView* sv, SLNode* root)
-{
-    if (_shadowMap == nullptr)
-        _shadowMap = new SLShadowMap(P_monoOrthographic, this);
-    _shadowMap->render(sv, root);
-}
-//-----------------------------------------------------------------------------
 //! Calculates the sun light color depending on the zenith angle
 /*! If the angle is 0 it return 1 and _sunLightPowerMin at 90 degrees or more.
  This can be used to the downscale the directional light to simulate the reduced
@@ -246,10 +253,10 @@ SLCol4f SLLightDirect::calculateSunLight(SLfloat standardPower)
 
     // The sun power is equal to the cosine of the sun zenith angle
     SLfloat cosZenithAngle = std::max(toSunDirWS.dot(SLVec3f::AXISY),
-                                _sunLightPowerMin);
+                                      _sunLightPowerMin);
 
     // The color is take from a color ramp that is white at 0 degree zenith
-    SLCol4f sunColor   = _sunLightColorLUT.getTexelf(cosZenithAngle, 0);
+    SLCol4f sunColor = _sunLightColorLUT.getTexelf(cosZenithAngle, 0);
 
     return sunColor * standardPower * cosZenithAngle;
 }
@@ -267,7 +274,7 @@ SLCol4f SLLightDirect::ambient()
  */
 SLCol4f SLLightDirect::diffuse()
 {
-    if (_isSunLight)
+    if (_doSunPowerAdaptation)
         return calculateSunLight(_diffusePower);
     else
         return _diffuseColor * _diffusePower;
@@ -280,7 +287,7 @@ SLCol4f SLLightDirect::diffuse()
  */
 SLCol4f SLLightDirect::specular()
 {
-    if (_isSunLight)
+    if (_doSunPowerAdaptation)
         return calculateSunLight(_specularPower);
     else
         return _specularColor * _specularPower;

@@ -10,6 +10,7 @@
 #include <fstream>
 //for video writer on android
 #include <stdio.h>
+#include <condition_variable>
 
 #include <opencv2/opencv.hpp>
 

@@ -3,10 +3,10 @@
 #include <SENSUtils.h>
 #include <Utils.h>
 
-//#define LOG_WEBCAM_WARN(...) Utils::log("SENSWebCamera", __VA_ARGS__);
+#define LOG_WEBCAM_WARN(...) Utils::log("SENSWebCamera", __VA_ARGS__);
 //#define LOG_WEBCAM_INFO(...) Utils::log("SENSWebCamera", __VA_ARGS__);
 //#define LOG_WEBCAM_DEBUG(...) Utils::log("SENSWebCamera", __VA_ARGS__);
-#define LOG_WEBCAM_WARN
+//#define LOG_WEBCAM_WARN
 #define LOG_WEBCAM_INFO
 #define LOG_WEBCAM_DEBUG
 
@@ -46,7 +46,7 @@ const SENSCameraConfig& SENSWebCamera::start(std::string                   devic
                                streamConfig,
                                SENSCameraFacing::UNKNOWN,
                                SENSCameraFocusMode::UNKNOWN);
-    
+
     processStart();
 
     //start thread
@@ -81,7 +81,11 @@ void SENSWebCamera::grab()
         cv::Mat bgrImg;
         if (_videoCapture.read(bgrImg))
         {
-            updateFrame(bgrImg, cv::Mat(), false);
+            if (bgrImg.cols == _config.streamConfig.widthPix &&
+                bgrImg.rows == _config.streamConfig.heightPix)
+                updateFrame(bgrImg, cv::Mat(), false);
+            else
+                LOG_WEBCAM_WARN("video capture delivers wrong resolution!");
         }
     }
 }

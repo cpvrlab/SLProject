@@ -294,25 +294,27 @@ void SLGLProgram::passLightsToUniforms(SLVLight* lights) const
         viewRotMat.translation(0, 0, 0); // delete translation part, only rotation needed
 
         // lighting parameter arrays
-        SLint            lightIsOn[SL_MAX_LIGHTS];           //!< flag if light is on
-        SLVec4f          lightPosWS[SL_MAX_LIGHTS];          //!< position of light in world space
-        SLVec4f          lightPosVS[SL_MAX_LIGHTS];          //!< position of light in view space
-        SLVec4f          lightAmbient[SL_MAX_LIGHTS];        //!< ambient light intensity (Ia)
-        SLVec4f          lightDiffuse[SL_MAX_LIGHTS];        //!< diffuse light intensity (Id)
-        SLVec4f          lightSpecular[SL_MAX_LIGHTS];       //!< specular light intensity (Is)
-        SLVec3f          lightSpotDirWS[SL_MAX_LIGHTS];      //!< spot direction in world space
-        SLVec3f          lightSpotDirVS[SL_MAX_LIGHTS];      //!< spot direction in view space
-        SLfloat          lightSpotCutoff[SL_MAX_LIGHTS];     //!< spot cutoff angle 1-180 degrees
-        SLfloat          lightSpotCosCut[SL_MAX_LIGHTS];     //!< cosine of spot cutoff angle
-        SLfloat          lightSpotExp[SL_MAX_LIGHTS];        //!< spot exponent
-        SLVec3f          lightAtt[SL_MAX_LIGHTS];            //!< att. factor (const,linear,quadratic)
-        SLint            lightDoAtt[SL_MAX_LIGHTS];          //!< flag if att. must be calculated
-        SLint            lightCreatesShadows[SL_MAX_LIGHTS]; //!< flag if light creates shadows
-        SLint            lightDoesPCF[SL_MAX_LIGHTS];        //!< flag if percentage-closer filtering is enabled
-        SLuint           lightPCFLevel[SL_MAX_LIGHTS];       //!< radius of area to sample
-        SLint            lightUsesCubemap[SL_MAX_LIGHTS];    //!< flag if light has a cube shadow map
-        SLMat4f          lightSpace[SL_MAX_LIGHTS * 6];      //!< projection matrix of the light
-        SLGLDepthBuffer* lightShadowMap[SL_MAX_LIGHTS];      //!< pointers to depth-buffers for shadow mapping
+        SLint            lightIsOn[SL_MAX_LIGHTS];              //!< flag if light is on
+        SLVec4f          lightPosWS[SL_MAX_LIGHTS];             //!< position of light in world space
+        SLVec4f          lightPosVS[SL_MAX_LIGHTS];             //!< position of light in view space
+        SLVec4f          lightAmbient[SL_MAX_LIGHTS];           //!< ambient light intensity (Ia)
+        SLVec4f          lightDiffuse[SL_MAX_LIGHTS];           //!< diffuse light intensity (Id)
+        SLVec4f          lightSpecular[SL_MAX_LIGHTS];          //!< specular light intensity (Is)
+        SLVec3f          lightSpotDirWS[SL_MAX_LIGHTS];         //!< spot direction in world space
+        SLVec3f          lightSpotDirVS[SL_MAX_LIGHTS];         //!< spot direction in view space
+        SLfloat          lightSpotCutoff[SL_MAX_LIGHTS];        //!< spot cutoff angle 1-180 degrees
+        SLfloat          lightSpotCosCut[SL_MAX_LIGHTS];        //!< cosine of spot cutoff angle
+        SLfloat          lightSpotExp[SL_MAX_LIGHTS];           //!< spot exponent
+        SLVec3f          lightAtt[SL_MAX_LIGHTS];               //!< att. factor (const,linear,quadratic)
+        SLint            lightDoAtt[SL_MAX_LIGHTS];             //!< flag if att. must be calculated
+        SLint            lightCreatesShadows[SL_MAX_LIGHTS];    //!< flag if light creates shadows
+        SLint            lightDoSmoothShadows[SL_MAX_LIGHTS];   //!< flag if percentage-closer filtering is enabled
+        SLuint           lightSmoothShadowLevel[SL_MAX_LIGHTS]; //!< radius of area to sample
+        SLfloat          lightShadowMinBias[SL_MAX_LIGHTS];     //!< shadow mapping min. bias at 0 deg.
+        SLfloat          lightShadowMaxBias[SL_MAX_LIGHTS];     //!< shadow mapping max. bias at 90 deg.
+        SLint            lightUsesCubemap[SL_MAX_LIGHTS];       //!< flag if light has a cube shadow map
+        SLMat4f          lightSpace[SL_MAX_LIGHTS * 6];         //!< projection matrix of the light
+        SLGLDepthBuffer* lightShadowMap[SL_MAX_LIGHTS];         //!< pointers to depth-buffers for shadow mapping
 
         // Init to defaults
         for (SLint i = 0; i < SL_MAX_LIGHTS; ++i)
@@ -332,11 +334,13 @@ void SLGLProgram::passLightsToUniforms(SLVLight* lights) const
             lightDoAtt[i] = 0;
             for (SLint ii = 0; ii < 6; ++ii)
                 lightSpace[i * 6 + ii] = SLMat4f();
-            lightCreatesShadows[i] = 0;
-            lightDoesPCF[i]        = 0;
-            lightPCFLevel[i]       = 1;
-            lightUsesCubemap[i]    = 0;
-            lightShadowMap[i]      = nullptr;
+            lightCreatesShadows[i]    = 0;
+            lightDoSmoothShadows[i]   = 0;
+            lightSmoothShadowLevel[i] = 1;
+            lightShadowMinBias[i]     = 0.001f;
+            lightShadowMaxBias[i]     = 0.008f;
+            lightUsesCubemap[i]       = 0;
+            lightShadowMap[i]         = nullptr;
         }
 
         // Fill up light property vectors
@@ -345,7 +349,7 @@ void SLGLProgram::passLightsToUniforms(SLVLight* lights) const
             SLLight*     light     = lights->at(i);
             SLShadowMap* shadowMap = light->shadowMap();
 
-            lightIsOn[i] = light->isOn();
+            lightIsOn[i]  = light->isOn();
             SLVec4f posWS = light->positionWS();
             lightPosWS[i].set(posWS);
             SLVec4f posVS = stateGL->viewMatrix * lightPosWS[i];
@@ -357,16 +361,18 @@ void SLGLProgram::passLightsToUniforms(SLVLight* lights) const
             lightSpotDirWS[i].set(dirWS);
             SLVec3f dirVS = viewRotMat.multVec(lightSpotDirWS[i]);
             lightSpotDirVS[i].set(dirVS);
-            lightSpotCutoff[i]     = light->spotCutOffDEG();
-            lightSpotCosCut[i]     = light->spotCosCut();
-            lightSpotExp[i]        = light->spotExponent();
-            lightAtt[i]            = SLVec3f(light->kc(), light->kl(), light->kq());
-            lightDoAtt[i]          = light->isAttenuated();
-            lightCreatesShadows[i] = light->createsShadows();
-            lightDoesPCF[i]        = light->doesPCF();
-            lightPCFLevel[i]       = light->pcfLevel();
-            lightUsesCubemap[i]    = shadowMap && shadowMap->useCubemap() ? 1 : 0;
-            lightShadowMap[i]      = shadowMap && shadowMap->depthBuffer() ? shadowMap->depthBuffer() : nullptr;
+            lightSpotCutoff[i]        = light->spotCutOffDEG();
+            lightSpotCosCut[i]        = light->spotCosCut();
+            lightSpotExp[i]           = light->spotExponent();
+            lightAtt[i]               = SLVec3f(light->kc(), light->kl(), light->kq());
+            lightDoAtt[i]             = light->isAttenuated();
+            lightCreatesShadows[i]    = light->createsShadows();
+            lightDoSmoothShadows[i]   = light->doSmoothShadows();
+            lightSmoothShadowLevel[i] = light->smoothShadowLevel();
+            lightShadowMinBias[i]     = light->shadowMinBias();
+            lightShadowMaxBias[i]     = light->shadowMaxBias();
+            lightUsesCubemap[i]       = shadowMap && shadowMap->useCubemap() ? 1 : 0;
+            lightShadowMap[i]         = shadowMap && shadowMap->depthBuffer() ? shadowMap->depthBuffer() : nullptr;
             if (lightShadowMap[i])
                 for (SLint ls = 0; ls < 6; ++ls)
                     lightSpace[i * 6 + ls] = shadowMap->mvp()[ls];
@@ -386,11 +392,13 @@ void SLGLProgram::passLightsToUniforms(SLVLight* lights) const
         uniform1fv("u_lightSpotExp", nL, (SLfloat*)&lightSpotExp);
         uniform3fv("u_lightAtt", nL, (SLfloat*)&lightAtt);
         uniform1iv("u_lightDoAtt", nL, (SLint*)&lightDoAtt);
-        uniform1iv("u_lightDoesPCF", nL, (SLint*)&lightDoesPCF);
-        uniform1iv("u_lightPCFLevel", nL, (SLint*)&lightPCFLevel);
+        uniform1iv("u_lightDoSmoothShadows", nL, (SLint*)&lightDoSmoothShadows);
+        uniform1iv("u_lightSmoothShadowLevel", nL, (SLint*)&lightSmoothShadowLevel);
         uniform1iv("u_lightUsesCubemap", nL, (SLint*)&lightUsesCubemap);
         uniformMatrix4fv("u_lightSpace", nL * 6, (SLfloat*)&lightSpace);
         uniform1iv("u_lightCreatesShadows", nL, (SLint*)&lightCreatesShadows);
+        uniform1fv("u_lightShadowMinBias", nL, (SLfloat*)&lightShadowMinBias);
+        uniform1fv("u_lightShadowMaxBias", nL, (SLfloat*)&lightShadowMaxBias);
 
         for (int i = 0; i < SL_MAX_LIGHTS; ++i)
         {

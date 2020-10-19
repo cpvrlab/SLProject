@@ -1,5 +1,8 @@
-#include "SENSOrientation.h"
+#include <SENSOrientation.h>
 #include <Utils.h>
+#include <iterator>
+#include <algorithm>
+#include <fstream>
 
 SENSOrientation::Quat SENSOrientation::getOrientation()
 {

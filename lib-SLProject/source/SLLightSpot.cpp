@@ -182,6 +182,22 @@ void SLLightSpot::drawMesh(SLSceneView* sv)
     }
 }
 //-----------------------------------------------------------------------------
+void SLLightSpot::createShadowMap(float   clipNear,
+                                  float   clipFar,
+                                  SLVec2f size,
+                                  SLVec2i texSize)
+{
+    if (!_shadowMap)
+        delete _shadowMap;
+
+    _shadowMap = new SLShadowMap(P_monoPerspective,
+                                 this,
+                                 clipNear,
+                                 clipFar,
+                                 size,
+                                 texSize);
+}
+//-----------------------------------------------------------------------------
 /*!
 SLLightSpot::shadowTest returns 0.0 if the hit point is completely shaded and
 1.0 if it is 100% lighted. A return value in between is calculate by the ratio
@@ -366,15 +382,5 @@ SLfloat SLLightSpot::shadowTestMC(SLRay*         ray,       // ray of hit point
         }
         return 0.0f;
     }
-}
-//-----------------------------------------------------------------------------
-/*! SLLightSpot::renderShadowMap renders the shadow map of the light
-*/
-void SLLightSpot::renderShadowMap(SLSceneView* sv, SLNode* root)
-{
-    if (_shadowMap == nullptr)
-        _shadowMap = new SLShadowMap(
-          P_monoPerspective, this);
-    _shadowMap->render(sv, root);
 }
 //-----------------------------------------------------------------------------

@@ -36,7 +36,12 @@ lights.
 class SLShadowMap
 {
 public:
-    SLShadowMap(SLProjection projection, SLLight* light);
+    SLShadowMap(SLProjection projection,
+                SLLight*     light,
+                float        clipNear = 0.1f,
+                float        clipFar  = 20.0f,
+                SLVec2f      size     = SLVec2f(8, 8),
+                SLVec2i      texSize  = SLVec2i(1024, 1024));
     ~SLShadowMap();
 
     // Setters

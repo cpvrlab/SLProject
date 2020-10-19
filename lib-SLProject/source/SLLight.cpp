@@ -15,7 +15,7 @@
 
 //-----------------------------------------------------------------------------
 SLCol4f SLLight::globalAmbient = SLCol4f(0.1f, 0.1f, 0.1f, 1.0f);
-SLfloat SLLight::gamma = 1.0f;
+SLfloat SLLight::gamma         = 1.0f;
 //-----------------------------------------------------------------------------
 SLLight::SLLight(SLfloat ambiPower,
                  SLfloat diffPower,
@@ -23,15 +23,17 @@ SLLight::SLLight(SLfloat ambiPower,
                  SLint   id)
 {
     // Set parameter of SLLight
-    _id               = id;
-    _isOn             = true;
-    _spotCutOffDEG    = 180.0f;
-    _spotCosCutOffRAD = cos(Utils::DEG2RAD * _spotCutOffDEG);
-    _spotExponent     = 1.0f;
-    _createsShadows   = false;
-    _shadowMap        = nullptr;
-    _doesPCF          = false;
-    _pcfLevel         = 1;
+    _id                = id;
+    _isOn              = true;
+    _spotCutOffDEG     = 180.0f;
+    _spotCosCutOffRAD  = cos(Utils::DEG2RAD * _spotCutOffDEG);
+    _spotExponent      = 1.0f;
+    _createsShadows    = false;
+    _shadowMap         = nullptr;
+    _doSmoothShadows   = false;
+    _smoothShadowLevel = 1;
+    _shadowMinBias     = 0.001f;
+    _shadowMaxBias     = 0.008f;
 
     // Set parameters of inherited SLMaterial
     _ambientColor.set(1, 1, 1);
@@ -85,5 +87,13 @@ void SLLight::createsShadows(SLbool createsShadows)
         delete _shadowMap;
         _shadowMap = nullptr;
     }
+}
+//-----------------------------------------------------------------------------
+//! SLLight::renderShadowMap renders the shadow map of the light
+void SLLight::renderShadowMap(SLSceneView* sv, SLNode* root)
+{
+    assert(_shadowMap && "No shadow map was created!");
+
+    _shadowMap->render(sv, root);
 }
 //-----------------------------------------------------------------------------
