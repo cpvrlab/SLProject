@@ -130,15 +130,6 @@ bool SENSCvCamera::supportsFacing(SENSCameraFacing facing)
     return props.supportsCameraFacing(facing);
 }
 
-//todo:
-//configure to reach maximum field of view
-/*
- we are interestest in maxmimum vertical field of view for a perspective camera (that can be calibrated with pinhole camera model).
- This is interesting for tracking and ar visualization on a small display.
- we can still crop the image to the screen if we like
-ConfigReturnCode configureForMaxFoc();
- */
-
 /*!
  configure camera: the function checks with the wrapped camera if it could successfully configure the camera.
  If not, it will return false. This may have dirrerent reasons:
@@ -146,8 +137,6 @@ ConfigReturnCode configureForMaxFoc();
  - it has to extrapolate the maximum found stream config size to get targetWidth, targetHeight.
  Transfer -1 for manipWidth and manipHeight to disable generation of manipulated image
  */
-//current limitation: aspect ratios are the same for target and manip img:
-//targetW / targetH defines aspect ratio.
 SENSCvCamera::ConfigReturnCode SENSCvCamera::configure(SENSCameraFacing facing,
                                                        int              targetWidth,
                                                        int              targetHeight,

@@ -164,7 +164,7 @@ public:
 
     const SENSCameraConfig& start(std::string                   deviceId,
                                   const SENSCameraStreamConfig& streamConfig,
-                                  bool                          provideIntrinsics   = true) override;
+                                  bool                          provideIntrinsics = true) override;
 
     void stop() override;
 
@@ -175,6 +175,7 @@ private:
                         SensorSimStoppedCB                        sensorSimStoppedCB,
                         std::vector<std::pair<SENSTimePt, int>>&& data,
                         std::string                               videoFileName,
+                        SENSCameraConfig                          cameraConfig,
                         const SENSSimClock&                       clock);
 
     void feedSensorData(const int counter) override;

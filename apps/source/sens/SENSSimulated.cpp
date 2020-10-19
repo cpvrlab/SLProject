@@ -255,14 +255,10 @@ const SENSCameraConfig& SENSSimulatedCamera::start(std::string                  
     if (_captureProperties.size() == 0)
         captureProperties();
 
-    //todo: config has to fit to loaded config!!!
-    //init config here
-    _config = SENSCameraConfig(deviceId,
-                               streamConfig,
-                               SENSCameraFocusMode::UNKNOWN,
-                               SENSCameraType::UNKNOWN);
+    //CONFIG SHOULD HAVE BEEN LOADED FROM FILE
+
     processStart();
-    
+
     //start the sensor simulation
     startSim();
 
@@ -284,21 +280,9 @@ const SENSCaptureProperties& SENSSimulatedCamera::captureProperties()
 {
     if (!_captureProperties.size())
     {
-        SENSCameraDeviceProperties characteristics("0", SENSCameraFacing::UNKNOWN);
-        //find out capture size
-        if (!_cap.isOpened())
-        {
-            if (!_cap.open(_videoFileName))
-                throw SENSException(SENSType::CAM, "Could not open camera simulator for filename: " + _videoFileName, __LINE__, __FILE__);
-        }
-
-        cv::Mat frame;
-        _cap.read(frame);
-        if (!frame.empty())
-        {
-            characteristics.add(frame.size().width, frame.size().height, -1.f);
-            _captureProperties.push_back(characteristics);
-        }
+        SENSCameraDeviceProperties characteristics(_config.deviceId, _config.facing);
+        characteristics.add(_config.streamConfig.widthPix, _config.streamConfig.heightPix, _config.streamConfig.focalLengthPix);
+        _captureProperties.push_back(characteristics);
     }
 
     return _captureProperties;
@@ -308,10 +292,12 @@ SENSSimulatedCamera::SENSSimulatedCamera(StartSimCB                             
                                          SensorSimStoppedCB                        sensorSimStoppedCB,
                                          std::vector<std::pair<SENSTimePt, int>>&& data,
                                          std::string                               videoFileName,
+                                         SENSCameraConfig                          cameraConfig,
                                          const SENSSimClock&                       clock)
   : SENSSimulated("camera", startSimCB, sensorSimStoppedCB, std::move(data), clock),
     _videoFileName(videoFileName)
 {
+    _config = cameraConfig;
     _permissionGranted = true;
 }
 

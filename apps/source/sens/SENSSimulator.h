@@ -72,7 +72,7 @@ private:
     //!load data from file and instantiate sensor if valid
     void loadOrientationData(const std::string& dirName, std::vector<std::pair<SENSTimePt, SENSOrientation::Quat>>& data);
     //!load data from file and instantiate sensor if valid
-    void loadCameraData(const std::string& dirName, std::vector<std::pair<SENSTimePt, int>>& data, std::string& videoFileName);
+    void loadCameraData(const std::string& dirName, std::vector<std::pair<SENSTimePt, int>>& data, std::string& videoFileName, SENSCameraConfig& cameraConfig);
 
     //!list of currently activated sensors. Which sensors are activated depends on the content of simulation directory
     std::vector<std::unique_ptr<SENSSimulatedBase>> _activeSensors;

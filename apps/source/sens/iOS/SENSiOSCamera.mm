@@ -37,12 +37,17 @@ const SENSCameraConfig& SENSiOSCamera::start(std::string                   devic
     if (!_captureProperties.containsDeviceId(deviceId))
         throw SENSException(SENSType::CAM, "DeviceId does not exist!", __LINE__, __FILE__);
 
+    SENSCameraFacing facing = SENSCameraFacing::UNKNOWN;
+    const SENSCameraDeviceProperties* props = _captureProperties.camPropsForDeviceId(deviceId);
+    if(props)
+        facing = props->facing();
+    
     NSString* devId = [NSString stringWithUTF8String:deviceId.c_str()];
 
     BOOL enableVideoStabilization = YES;
     if (provideIntrinsics)
         enableVideoStabilization = NO;
-
+    
     if ([_cameraDelegate startCamera:devId
                            withWidth:streamConfig.widthPix
                            andHeight:streamConfig.heightPix
@@ -50,10 +55,11 @@ const SENSCameraConfig& SENSiOSCamera::start(std::string                   devic
              videoStabilizationState:enableVideoStabilization
                      intrinsicsState:provideIntrinsics])
     {
-        //init config here
+        //init config here before processStart
         _config = SENSCameraConfig(deviceId,
                                    streamConfig,
-                                   SENSCameraFocusMode::UNKNOWN);
+                                   facing,
+                                   SENSCameraFocusMode::CONTINIOUS_AUTO_FOCUS);
         processStart();
         
         _started = true;

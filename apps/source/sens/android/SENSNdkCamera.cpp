@@ -292,9 +292,15 @@ const SENSCameraConfig& SENSNdkCamera::start(std::string                   devic
     if (!_captureProperties.containsDeviceId(deviceId))
         throw SENSException(SENSType::CAM, "DeviceId does not exist!", __LINE__, __FILE__);
 
+    SENSCameraFacing facing = SENSCameraFacing::UNKNOWN;
+    const SENSCameraDeviceProperties* props = _captureProperties.camPropsForDeviceId(deviceId);
+    if(props)
+        facing = props->facing();
+
     //init config here
     _config = SENSCameraConfig(deviceId,
                                streamConfig,
+                               facing,
                                SENSCameraFocusMode::UNKNOWN);
     processStart();
 

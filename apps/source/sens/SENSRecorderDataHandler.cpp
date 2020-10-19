@@ -171,27 +171,34 @@ void SENSCameraRecorderDataHandler::writeOnThreadStart()
 
 void SENSCameraRecorderDataHandler::writeLineToFile(ofstream& file, const FrameInfo& data)
 {
-    long long timePt = std::chrono::time_point_cast<SENSMicroseconds>(data.second).time_since_epoch().count();
-    //write time and frame index
-    file << timePt << " " << _frameIndex << "\n";
-    //SENS_DEBUG("SENSCameraRecorderDataHandler: time point for frame %d is %s", _frameIndex, timeStr.c_str());
-    _frameIndex++;
+    if (data.first.empty())
+    {
+        SENS_WARN("SENSCameraRecorderDataHandler::writeLineToFile: frame is empty");
+        return;
+    }
 
     if (!_videoWriter.isOpened())
     {
         std::string filename = _outputDir + "video.avi";
         _videoWriter.open(filename, cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 30, data.first.size(), true);
-        //_videoWriter.open(filename, cv::VideoWriter::fourcc('M', 'P', '4', 'V'),
-        //                  30, data.first.size(), true);
+        //_videoWriter.open(filename, cv::VideoWriter::fourcc('X', 'V', 'I', 'D'), 30, data.first.size(), true);
         SENS_DEBUG("Opening video for writing: %s", filename.c_str());
     }
-    if (!_videoWriter.isOpened())
-        SENS_DEBUG("ERROR: video writer not opened");
 
-    //store frame to video capture
-    //HighResTimer t;
-    _videoWriter.write(data.first);
-    //SENS_DEBUG("SENSCameraRecorderDataHandler: writing time %fms", t.elapsedTimeInMilliSec());
+    if (!_videoWriter.isOpened())
+    {
+        SENS_WARN("SENSCameraRecorderDataHandler::writeLineToFile: video writer not opened");
+    }
+    else
+    {
+        long long timePt = std::chrono::time_point_cast<SENSMicroseconds>(data.second).time_since_epoch().count();
+        //write time and frame index
+        file << timePt << " " << _frameIndex << "\n";
+        //SENS_DEBUG("SENSCameraRecorderDataHandler: time point for frame %d is %s", _frameIndex, timeStr.c_str());
+        _frameIndex++;
+
+        _videoWriter.write(data.first);
+    }
 }
 
 void SENSCameraRecorderDataHandler::writeOnThreadFinish()
@@ -203,21 +210,19 @@ void SENSCameraRecorderDataHandler::writeOnThreadFinish()
 void SENSCameraRecorderDataHandler::updateConfig(const SENSCameraConfig& config)
 {
     //write config to file in directory
-    std::string fileName = _outputDir + "cameraConfig.txt";
+    std::string fileName = _outputDir + "cameraConfig.json";
     if (Utils::fileExists(fileName))
         Utils::removeFile(fileName);
 
-    ofstream file;
-    file.open(fileName);
-    if (file.is_open())
+    cv::FileStorage fs;
+    fs.open(fileName, cv::FileStorage::WRITE);
+    if (fs.isOpened())
     {
-        file << config.deviceId << "\n";
-        file << config.streamConfig.widthPix << "\n";
-        file << config.streamConfig.heightPix << "\n";
-        file << config.streamConfig.focalLengthPix << "\n";
-        file << (int)config.focusMode << "\n";
-        file << (int)config.facing << "\n";
-        
-        file.close();
+        fs << "deviceId" << config.deviceId;
+        fs << "widthPix" << config.streamConfig.widthPix;
+        fs << "heightPix" << config.streamConfig.heightPix;
+        fs << "focalLengthPix" << config.streamConfig.focalLengthPix;
+        fs << "focusMode" << (int)config.focusMode;
+        fs << "facing" << (int)config.facing;
     }
 }
