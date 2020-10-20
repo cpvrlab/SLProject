@@ -80,6 +80,15 @@ public:
                                int&      inliers,
                                bool      minAccScoreFilter = false);
 
+    static bool relocalizationGPS(WAIFrame& currentFrame,
+                                  WAIMap*   waiMap,
+                                  LocalMap& localMap,
+                                  cv::Mat   locENU,
+                                  cv::Mat   dirENU,
+                                  float     minCommonWordFactor,
+                                  int&      inliers,
+                                  bool      minAccScoreFilter);
+
     static bool tracking(WAIMap*   map,
                          LocalMap& localMap,
                          WAIFrame& frame,
