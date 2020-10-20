@@ -3,46 +3,22 @@
 #include <SENSUtils.h>
 #include <Utils.h>
 
-//#define LOG_WEBCAM_WARN(...) Utils::log("SENSWebCamera", __VA_ARGS__);
+#define LOG_WEBCAM_WARN(...) Utils::log("SENSWebCamera", __VA_ARGS__);
 //#define LOG_WEBCAM_INFO(...) Utils::log("SENSWebCamera", __VA_ARGS__);
 //#define LOG_WEBCAM_DEBUG(...) Utils::log("SENSWebCamera", __VA_ARGS__);
-#define LOG_WEBCAM_WARN
+//#define LOG_WEBCAM_WARN
 #define LOG_WEBCAM_INFO
 #define LOG_WEBCAM_DEBUG
 
 const SENSCameraConfig& SENSWebCamera::start(std::string                   deviceId,
                                              const SENSCameraStreamConfig& streamConfig,
-                                             cv::Size                      imgBGRSize,
-                                             bool                          mirrorV,
-                                             bool                          mirrorH,
-                                             bool                          convToGrayToImgManip,
-                                             int                           imgManipWidth,
-                                             bool                          provideIntrinsics,
-                                             float                         fovDegFallbackGuess)
+                                             bool                          provideIntrinsics)
 {
     if (_started)
     {
         Utils::warnMsg("SENSWebCamera", "Call to start was ignored. Camera is currently running!", __LINE__, __FILE__);
         return _config;
     }
-
-    cv::Size targetSize;
-    if (imgBGRSize.width > 0 && imgBGRSize.height > 0)
-    {
-        targetSize.width  = imgBGRSize.width;
-        targetSize.height = imgBGRSize.height;
-    }
-    else
-    {
-        targetSize.width  = streamConfig.widthPix;
-        targetSize.height = streamConfig.heightPix;
-    }
-
-    cv::Size imgManipSize;
-    if (_config.manipWidth > 0 && _config.manipHeight > 0)
-        imgManipSize = {imgManipWidth, (int)((float)imgManipWidth * (float)targetSize.height / (float)targetSize.width)};
-    else
-        imgManipSize = targetSize;
 
     //retrieve all camera characteristics
     if (_captureProperties.size() == 0)
@@ -60,24 +36,18 @@ const SENSCameraConfig& SENSWebCamera::start(std::string                   devic
     if (!_videoCapture.isOpened())
         throw SENSException(SENSType::CAM, "Could not open camera with id: " + deviceId, __LINE__, __FILE__);
 
-    _videoCapture.set(cv::CAP_PROP_FRAME_WIDTH, targetSize.width);
-    _videoCapture.set(cv::CAP_PROP_FRAME_HEIGHT, targetSize.height);
+    _videoCapture.set(cv::CAP_PROP_FRAME_WIDTH, streamConfig.widthPix);
+    _videoCapture.set(cv::CAP_PROP_FRAME_HEIGHT, streamConfig.heightPix);
     _started           = true;
     _permissionGranted = true;
 
     //init config here
     _config = SENSCameraConfig(deviceId,
                                streamConfig,
-                               SENSCameraFocusMode::UNKNOWN,
-                               targetSize.width,
-                               targetSize.height,
-                               imgManipSize.width,
-                               imgManipSize.height,
-                               mirrorH,
-                               mirrorV,
-                               convToGrayToImgManip);
+                               SENSCameraFacing::UNKNOWN,
+                               SENSCameraFocusMode::UNKNOWN);
 
-    initCalibration(fovDegFallbackGuess);
+    processStart();
 
     //start thread
     _cameraThread = std::thread(&SENSWebCamera::grab, this);
@@ -111,7 +81,11 @@ void SENSWebCamera::grab()
         cv::Mat bgrImg;
         if (_videoCapture.read(bgrImg))
         {
-            updateFrame(bgrImg, cv::Mat(), false);
+            if (bgrImg.cols == _config.streamConfig.widthPix &&
+                bgrImg.rows == _config.streamConfig.heightPix)
+                updateFrame(bgrImg, cv::Mat(), false);
+            else
+                LOG_WEBCAM_WARN("video capture delivers wrong resolution!");
         }
     }
 }

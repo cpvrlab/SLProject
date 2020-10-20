@@ -1,13 +1,13 @@
 #include <AppDemoGuiStatsVideo.h>
 
-#include <sens/SENSCamera.h>
+#include <sens/SENSCvCamera.h>
 #include <sens/SENSCalibration.h>
 
 //-----------------------------------------------------------------------------
 AppDemoGuiStatsVideo::AppDemoGuiStatsVideo(std::string                                 name,
                                            bool*                                       activator,
                                            ImFont*                                     font,
-                                           std::function<SENSCamera*(void)>            getCameraCB,
+                                           std::function<SENSCvCamera*(void)>          getCameraCB,
                                            std::function<const SENSCalibration*(void)> getCalibrationCB)
   : AppDemoGuiInfosDialog(name, activator, font),
     _getCamera(getCameraCB),
@@ -21,16 +21,17 @@ void AppDemoGuiStatsVideo::buildInfos(SLScene* s, SLSceneView* sv)
     SLchar m[2550]; // message character array
     m[0] = 0;       // set zero length
 
-    SENSCamera* cam = _getCamera();
+    SENSCvCamera* cam = _getCamera();
     // clang-format off
     if (cam)
     {
-        sprintf(m + strlen(m), "Capture size: %d x %d\n", cam->config().targetWidth, cam->config().targetHeight);
+        if(cam->isConfigured())
+            sprintf(m + strlen(m), "Capture size: %d x %d\n", cam->config()->targetWidth, cam->config()->targetHeight);
+        else
+            sprintf(m + strlen(m), "Camera not configured\n");
     }
     else
-    {
         sprintf(m + strlen(m), "Camera invalid\n");
-    }
 
     const SENSCalibration* calib = _getCalibration();
     if (calib)

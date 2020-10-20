@@ -16,6 +16,7 @@
 #include <sens/SENSFrame.h>
 #include <sens/SENSGps.h>
 #include <sens/SENSOrientation.h>
+#include <sens/SENSCvCamera.h>
 #include <AsyncWorker.h>
 #include <scenes/UserGuidanceScene.h>
 #include <UserGuidance.h>
@@ -57,7 +58,7 @@ public:
                 _simHelper.reset();
             _simHelper = std::make_unique<SENSSimHelper>(_gps,
                                                          _orientation,
-                                                         _camera,
+                                                         _camera->cameraRef(),
                                                          _deviceData.writableDir() + "SENSSimData",
                                                          std::bind(&AreaTrackingView::onCameraParamsChanged, this));
         }
@@ -98,8 +99,8 @@ private:
     void updateSceneCameraFov();
     void updateVideoImage(SENSFrame& frame, VideoBackgroundCamera* videoBackground);
     void updateTrackingVisualization(const bool iKnowWhereIAm, SENSFrame& frame);
-    void initSlam();
-    bool startCamera(const cv::Size& cameraFrameTargetSize);
+    void initSlam(const cv::Mat& mapNodeOm, std::unique_ptr<WAIMap> waiMap);
+    bool startCamera(const cv::Size& trackImgSize);
     void onCameraParamsChanged();
 
     AreaTrackingGui   _gui;
@@ -108,7 +109,7 @@ private:
 
     std::map<ErlebAR::LocationId, ErlebAR::Location> _locations;
 
-    SENSCamera*      _camera      = nullptr;
+    std::unique_ptr<SENSCvCamera> _camera;
     SENSGps*         _gps         = nullptr;
     SENSOrientation* _orientation = nullptr;
 
@@ -131,7 +132,6 @@ private:
     std::string _mapFileName;
 
     //size with which camera was started last time (needed for a resume call)
-    cv::Size     _cameraFrameResumeSize;
     UserGuidance _userGuidance;
 
     MapLoader* _asyncLoader = nullptr;

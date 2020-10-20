@@ -3,6 +3,7 @@
 #include "SENSException.h"
 #include <Utils.h>
 #include "SENSUtils.h"
+#include <SENSCamera.h>
 
 SENSVideoStream::SENSVideoStream(const std::string& videoFileName,
                                  bool               videoLoops,
@@ -57,10 +58,6 @@ SENSFramePtr SENSVideoStream::grabNextFrame()
         sensFrame = std::make_unique<SENSFrame>(
           bgrImg,
           grayImg,
-          bgrImg.size().width,
-          bgrImg.size().height,
-          0,
-          0,
           _mirrorH,
           _mirrorV,
           1.0f,
@@ -114,10 +111,6 @@ SENSFramePtr SENSVideoStream::grabNextResampledFrame()
         sensFrame = std::make_unique<SENSFrame>(
           bgrImg,
           grayImg,
-          bgrImg.size().width,
-          bgrImg.size().height,
-          0,
-          0,
           _mirrorH,
           _mirrorV,
           1.0,
@@ -172,4 +165,14 @@ void SENSVideoStream::setCalibration(SENSCalibration calibration, bool buildUndi
     //now we adapt the calibration to the target size
     if (_videoFrameSize.width != calibration.imageSize().width || _videoFrameSize.height != calibration.imageSize().height)
         _calibration->adaptForNewResolution({_videoFrameSize.width, _videoFrameSize.height}, buildUndistortionMaps);
+}
+
+void SENSVideoStream::guessAndSetCalibration(float fovGuess)
+{
+    _calibration = std::make_unique<SENSCalibration>(_videoFrameSize,
+                                                     fovGuess,
+                                                     false,
+                                                     false,
+                                                     SENSCameraType::VIDEOFILE,
+                                                     Utils::ComputerInfos().get());
 }

@@ -10,6 +10,7 @@ set(erlebar_headers
 	${SL_PROJECT_ROOT}/apps/source/wai/FeatureExtractorFactory.h
 	${SL_PROJECT_ROOT}/apps/source/sens/SENS.h
 	${SL_PROJECT_ROOT}/apps/source/sens/SENSCamera.h
+	${SL_PROJECT_ROOT}/apps/source/sens/SENSCvCamera.h
 	${SL_PROJECT_ROOT}/apps/source/sens/SENSFrame.h
 	${SL_PROJECT_ROOT}/apps/source/sens/SENSException.h
 	${SL_PROJECT_ROOT}/apps/source/sens/SENSUtils.h
@@ -108,6 +109,7 @@ set(erlebar_sources
 	${SL_PROJECT_ROOT}/apps/source/wai/ImGuiWrapper.cpp
 	${SL_PROJECT_ROOT}/apps/source/wai/FeatureExtractorFactory.cpp
 	${SL_PROJECT_ROOT}/apps/source/sens/SENSCamera.cpp
+	${SL_PROJECT_ROOT}/apps/source/sens/SENSCvCamera.cpp
 	${SL_PROJECT_ROOT}/apps/source/sens/SENSUtils.cpp
 	${SL_PROJECT_ROOT}/apps/source/sens/SENSVideoStream.cpp
 	${SL_PROJECT_ROOT}/apps/source/sens/SENSCalibration.cpp

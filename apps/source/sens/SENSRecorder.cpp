@@ -110,22 +110,22 @@ bool SENSRecorder::start()
 
     if (_gps && _gpsDataHandler)
     {
-        _gps->registerListener(this);
         _gpsDataHandler->start(recordDir);
+        _gps->registerListener(this);
         _running = true;
     }
 
     if (_orientation && _orientationDataHandler)
     {
-        _orientation->registerListener(this);
         _orientationDataHandler->start(recordDir);
+        _orientation->registerListener(this);
         _running = true;
     }
 
     if (_camera && _cameraDataHandler)
     {
-        _camera->registerListener(this);
         _cameraDataHandler->start(recordDir);
+        _camera->registerListener(this);
         _running = true;
     }
 
@@ -203,7 +203,8 @@ void SENSRecorder::onFrame(const SENSTimePt& timePt, cv::Mat frame)
         _cameraDataHandler->add(std::move(newData));
 }
 
-void SENSRecorder::onCalibrationChanged(const SENSCalibration& calibration)
+void SENSRecorder::onCameraConfigChanged(const SENSCameraConfig& config)
 {
-    _cameraDataHandler->setCalibration(calibration);
+    if (_cameraDataHandler)
+        _cameraDataHandler->updateConfig(config);
 }

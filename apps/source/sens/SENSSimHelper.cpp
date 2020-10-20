@@ -288,13 +288,10 @@ void SENSSimHelper::startSim()
         if (capProps.size())
         {
             const SENSCameraDeviceProperties* currCamProps = &capProps.front();
-            auto                              sc           = currCamProps->streamConfigs().front();
+            auto                              streamConfig = currCamProps->streamConfigs().front();
             //first start the camera, the intrinsic is valid afterwards
             _cameraRef->start(currCamProps->deviceId(),
-                              sc,
-                              {sc.widthPix, sc.heightPix},
-                              false,
-                              false,
+                              streamConfig,
                               true);
             if (_cameraParametersChangedCB)
                 _cameraParametersChangedCB();

@@ -79,7 +79,8 @@ SENSSimulator::SENSSimulator(const std::string& simDirName)
             loadOrientationData(dirName, orientationData);
             std::vector<std::pair<SENSTimePt, int>> cameraData;
             std::string                             videoFileName;
-            loadCameraData(dirName, cameraData, videoFileName);
+            SENSCameraConfig                        cameraConfig;
+            loadCameraData(dirName, cameraData, videoFileName, cameraConfig);
 
             //search for common sim time start point
             //start time point of simulation in the past
@@ -127,6 +128,7 @@ SENSSimulator::SENSSimulator(const std::string& simDirName)
                                               std::bind(&SENSSimulator::onSensorSimStopped, this),
                                               std::move(cameraData),
                                               videoFileName,
+                                              cameraConfig,
                                               *_clock)));
                 }
             }
@@ -241,38 +243,66 @@ void SENSSimulator::loadOrientationData(const std::string& dirName, std::vector<
     }
 }
 
-void SENSSimulator::loadCameraData(const std::string& dirName, std::vector<std::pair<SENSTimePt, int>>& data, std::string& videoFileName)
+void SENSSimulator::loadCameraData(const std::string&                       dirName,
+                                   std::vector<std::pair<SENSTimePt, int>>& data,
+                                   std::string&                             videoFileName,
+                                   SENSCameraConfig&                        cameraConfig)
 {
-    std::string textFileName = dirName + "camera.txt";
-    videoFileName            = dirName + "video.avi";
+    std::string textFileName   = dirName + "camera.txt";
+    videoFileName              = dirName + "video.avi";
+    std::string configFileName = dirName + "cameraConfig.json";
 
     //check if directory contains gps.txt
-    if (Utils::fileExists(textFileName) && Utils::fileExists(videoFileName))
+    if (Utils::fileExists(textFileName) && Utils::fileExists(videoFileName) && Utils::fileExists(configFileName))
     {
-        std::string line;
-        ifstream    file(textFileName);
-        if (file.is_open())
+        //load config file
         {
-            while (std::getline(file, line))
+            cv::FileStorage fs;
+            fs.open(configFileName, cv::FileStorage::READ);
+            if (fs.isOpened())
             {
-                //cout << line << '\n';
-                long long                readTimePt;
-                int                      frameIndex;
-                std::vector<std::string> values;
-                Utils::splitString(line, ' ', values);
-                if (values.size() == 2)
-                {
-                    readTimePt = std::stoll(values[0]);
-                    frameIndex = std::stoi(values[1]);
-
-                    SENSMicroseconds readTimePtUs(readTimePt);
-                    SENSTimePt       tPt(readTimePtUs);
-                    data.push_back(std::make_pair(tPt, frameIndex));
-                }
+                fs["deviceId"] >> cameraConfig.deviceId;
+                fs["widthPix"] >> cameraConfig.streamConfig.widthPix;
+                fs["heightPix"] >> cameraConfig.streamConfig.heightPix;
+                fs["focalLengthPix"] >> cameraConfig.streamConfig.focalLengthPix;
+                int focusMode;
+                fs["focusMode"] >> focusMode;
+                cameraConfig.focusMode = (SENSCameraFocusMode)focusMode;
+                int facing;
+                fs["facing"] >> facing;
+                cameraConfig.facing = (SENSCameraFacing)facing;
             }
-            file.close();
+            else
+                Utils::log("SENS", "SENSSimulator: Unable to open file: %s ", configFileName.c_str());
         }
-        else
-            Utils::log("SENS", "SENSSimulator: Unable to open file: %s or ", textFileName.c_str(), videoFileName.c_str());
+
+        //load frame info
+        {
+            std::string line;
+            ifstream    file(textFileName);
+            if (file.is_open())
+            {
+                while (std::getline(file, line))
+                {
+                    //cout << line << '\n';
+                    long long                readTimePt;
+                    int                      frameIndex;
+                    std::vector<std::string> values;
+                    Utils::splitString(line, ' ', values);
+                    if (values.size() == 2)
+                    {
+                        readTimePt = std::stoll(values[0]);
+                        frameIndex = std::stoi(values[1]);
+
+                        SENSMicroseconds readTimePtUs(readTimePt);
+                        SENSTimePt       tPt(readTimePtUs);
+                        data.push_back(std::make_pair(tPt, frameIndex));
+                    }
+                }
+                file.close();
+            }
+            else
+                Utils::log("SENS", "SENSSimulator: Unable to open file: %s ", textFileName.c_str());
+        }
     }
 }

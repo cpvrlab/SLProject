@@ -32,7 +32,7 @@ class SLSceneView;
 class SLNode;
 class SLGLTexture;
 class AppDemoGuiInfosDialog;
-class SENSCamera;
+class SENSCvCamera;
 class SENSCalibration;
 class SENSVideoStream;
 
@@ -66,7 +66,7 @@ public:
                   const std::vector<std::string>&             extractorIdToNames,
                   std ::queue<WAIEvent*>&                     eventQueue,
                   std::function<WAISlam*(void)>               modeGetterCB,
-                  std::function<SENSCamera*(void)>            getCameraCB,
+                  std::function<SENSCvCamera*(void)>          getCameraCB,
                   std::function<const SENSCalibration*(void)> getCalibrationCB,
                   std::function<SENSVideoStream*(void)>       getVideoFileStreamCB);
     ~AppDemoWaiGui();

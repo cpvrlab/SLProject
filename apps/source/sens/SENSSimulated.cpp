@@ -25,7 +25,7 @@ void SENSSimulated<T>::startSim()
     stopSim();
     _errorMsg.clear();
     //start the simulation thread
-    _thread = std::thread(&SENSSimulated::feedSensor, this /*, startTimePt, _commonSimStartTimePt*/);
+    _thread = std::thread(&SENSSimulated::feedSensor, this);
 }
 
 template<typename T>
@@ -57,7 +57,7 @@ bool SENSSimulated<T>::getErrorMsg(std::string& msg)
 }
 
 template<typename T>
-void SENSSimulated<T>::feedSensor(/*const SENSTimePt startTimePt, const SENSTimePt simStartTimePt*/)
+void SENSSimulated<T>::feedSensor()
 {
     _threadIsRunning = true;
     //index of current data set to feed
@@ -237,13 +237,7 @@ SENSSimulatedCamera::~SENSSimulatedCamera()
 
 const SENSCameraConfig& SENSSimulatedCamera::start(std::string                   deviceId,
                                                    const SENSCameraStreamConfig& streamConfig,
-                                                   cv::Size                      imgBGRSize,
-                                                   bool                          mirrorV,
-                                                   bool                          mirrorH,
-                                                   bool                          convToGrayToImgManip,
-                                                   int                           imgManipWidth,
-                                                   bool                          provideIntrinsics,
-                                                   float                         fovDegFallbackGuess)
+                                                   bool                          provideIntrinsics)
 {
     if (_started)
     {
@@ -251,51 +245,19 @@ const SENSCameraConfig& SENSSimulatedCamera::start(std::string                  
         return _config;
     }
 
-    cv::Size targetSize;
-    if (imgBGRSize.width > 0 && imgBGRSize.height > 0)
-    {
-        targetSize.width  = imgBGRSize.width;
-        targetSize.height = imgBGRSize.height;
-    }
-    else
-    {
-        targetSize.width  = streamConfig.widthPix;
-        targetSize.height = streamConfig.heightPix;
-    }
-
-    cv::Size imgManipSize;
-    if (imgManipWidth > 0)
-        imgManipSize = {imgManipWidth, (int)((float)imgManipWidth * (float)targetSize.height / (float)targetSize.width)};
-    else
-        imgManipSize = targetSize;
-
     if (!_cap.isOpened())
     {
         if (!_cap.open(_videoFileName))
             throw SENSException(SENSType::CAM, "Could not open camera simulator for filename: " + _videoFileName, __LINE__, __FILE__);
-        else
-        {
-            //_cap.set(cv::CAP_PROP_FPS, 1);
-        }
     }
 
     //retrieve all camera characteristics
     if (_captureProperties.size() == 0)
         captureProperties();
 
-    //init config here
-    _config = SENSCameraConfig(deviceId,
-                               streamConfig,
-                               SENSCameraFocusMode::UNKNOWN,
-                               targetSize.width,
-                               targetSize.height,
-                               imgManipSize.width,
-                               imgManipSize.height,
-                               mirrorH,
-                               mirrorV,
-                               convToGrayToImgManip);
+    //CONFIG SHOULD HAVE BEEN LOADED FROM FILE
 
-    initCalibration(fovDegFallbackGuess);
+    processStart();
 
     //start the sensor simulation
     startSim();
@@ -314,42 +276,13 @@ void SENSSimulatedCamera::stop()
     }
 }
 
-SENSFramePtr SENSSimulatedCamera::latestFrame()
-{
-    cv::Mat newFrame;
-
-    {
-        std::lock_guard<std::mutex> lock(_frameMutex);
-        newFrame = _frame;
-        //_frame.release();
-    }
-
-    SENSFramePtr processedFrame;
-    if (!newFrame.empty())
-        processedFrame = postProcessNewFrame(newFrame, cv::Mat(), false);
-
-    return processedFrame;
-}
-
 const SENSCaptureProperties& SENSSimulatedCamera::captureProperties()
 {
     if (!_captureProperties.size())
     {
-        SENSCameraDeviceProperties characteristics("0", SENSCameraFacing::UNKNOWN);
-        //find out capture size
-        if (!_cap.isOpened())
-        {
-            if (!_cap.open(_videoFileName))
-                throw SENSException(SENSType::CAM, "Could not open camera simulator for filename: " + _videoFileName, __LINE__, __FILE__);
-        }
-
-        cv::Mat frame;
-        _cap.read(frame);
-        if (!frame.empty())
-        {
-            characteristics.add(frame.size().width, frame.size().height, -1.f);
-            _captureProperties.push_back(characteristics);
-        }
+        SENSCameraDeviceProperties characteristics(_config.deviceId, _config.facing);
+        characteristics.add(_config.streamConfig.widthPix, _config.streamConfig.heightPix, _config.streamConfig.focalLengthPix);
+        _captureProperties.push_back(characteristics);
     }
 
     return _captureProperties;
@@ -359,10 +292,12 @@ SENSSimulatedCamera::SENSSimulatedCamera(StartSimCB                             
                                          SensorSimStoppedCB                        sensorSimStoppedCB,
                                          std::vector<std::pair<SENSTimePt, int>>&& data,
                                          std::string                               videoFileName,
+                                         SENSCameraConfig                          cameraConfig,
                                          const SENSSimClock&                       clock)
   : SENSSimulated("camera", startSimCB, sensorSimStoppedCB, std::move(data), clock),
     _videoFileName(videoFileName)
 {
+    _config = cameraConfig;
     _permissionGranted = true;
 }
 
@@ -376,21 +311,7 @@ void SENSSimulatedCamera::feedSensorData(const int counter)
         prepareSensorData(counter);
     }
 
-    //todo: move to base class
-    {
-        std::lock_guard<std::mutex> lock(_listenerMutex);
-        if (_listeners.size())
-        {
-            SENSTimePt timePt = SENSClock::now();
-            for (SENSCameraListener* l : _listeners)
-                l->onFrame(timePt, _preparedFrame.clone());
-        }
-    }
-
-    {
-        std::lock_guard<std::mutex> lock(_frameMutex);
-        _frame = _preparedFrame;
-    }
+    updateFrame(_preparedFrame, cv::Mat(), false);
 
     SENS_DEBUG("feedSensorData %lld us", t.elapsedTimeInMicroSec());
 }

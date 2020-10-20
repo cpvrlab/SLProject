@@ -225,7 +225,7 @@ void CameraTestGui::build(SLScene* s, SLSceneView* sv)
 
             if (_camera && _camera->started())
             {
-                ImGui::Text("Current frame size: w: %d, h: %d", _camera->config().targetWidth, _camera->config().targetHeight);
+                ImGui::Text("Current frame size: w: %d, h: %d", _camera->config().streamConfig.widthPix, _camera->config().streamConfig.heightPix);
             }
             else
             {

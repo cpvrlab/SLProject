@@ -30,7 +30,7 @@ bool CameraTestView::update()
 {
     if (_gui.camera() && _gui.camera()->started())
     {
-        SENSFramePtr frame = _gui.camera()->latestFrame();
+        SENSFrameBasePtr frame = _gui.camera()->latestFrame();
 
         if (frame)
         {

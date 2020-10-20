@@ -30,11 +30,10 @@ TestView::TestView(sm::EventHandler&   eventHandler,
       _featureExtractorFactory.getExtractorIdToNames(),
       _eventQueue,
       [&]() { return _mode; },                            //getter callback for current mode
-      [&]() { return _camera; },                          //getter callback for current camera
+      [&]() { return _camera.get(); },                    //getter callback for current camera
       [&]() { return _camera ? _calibration : nullptr; }, //getter callback for current calibration
       [&]() { return _videoFileStream.get(); }),          //getter callback for current calibration
     _scene("TestScene", deviceData.dataDir(), deviceData.erlebARDir()),
-    _camera(camera),
     _configDir(deviceData.writableDir()),
     _vocabularyDir(deviceData.vocabularyDir()),
     _calibDir(deviceData.erlebARCalibTestDir()),
@@ -50,6 +49,9 @@ TestView::TestView(sm::EventHandler&   eventHandler,
 
     setupDefaultErlebARDirTo(deviceData.erlebARTestDir());
     //tryLoadLastSlam();
+
+    if (camera)
+        _camera = std::make_unique<SENSCvCamera>(camera);
 }
 
 TestView::~TestView()
@@ -110,8 +112,8 @@ bool TestView::update()
                 _calibration = _camera->calibration();
                 _scene.camera->updateCameraIntrinsics(_calibration->cameraFovVDeg());
                 cv::Mat scaledCamMat = SENS::adaptCameraMat(_calibration->cameraMat(),
-                                                            _camera->config().manipWidth,
-                                                            _camera->config().targetWidth);
+                                                            _camera->config()->manipWidth,
+                                                            _camera->config()->targetWidth);
                 _mode->changeIntrinsic(scaledCamMat, _calibration->distortion());
                 _fillAutoCalibration = false;
             }
@@ -174,6 +176,7 @@ void TestView::handleEvents()
                 }
                 else if (autoCalEvent->useGuessCalibration)
                 {
+                    /*
                     auto  streamConfig = _camera->config().streamConfig;
                     float horizFovDeg  = 65.f;
                     if (streamConfig.focalLengthPix > 0)
@@ -181,13 +184,14 @@ void TestView::handleEvents()
 
                     //_calibration = CVCalibration(_videoFrameSize, horizFOVDev, false, false, CVCameraType::BACKFACING, Utils::ComputerInfos::get());
                     SENSCalibration calib(cv::Size(streamConfig.widthPix, streamConfig.heightPix), horizFovDeg, false, false, SENSCameraType::BACKFACING, Utils::ComputerInfos::get());
-                    _camera->setCalibration(calib, false);
+                    */
+                    _camera->guessAndSetCalibration(65.f);
                     _calibration = _camera->calibration();
                     _scene.camera->updateCameraIntrinsics(_calibration->cameraFovVDeg());
-                    cv::Mat scaledCamMat = SENS::adaptCameraMat(_calibration->cameraMat(),
-                                                                _camera->config().manipWidth,
-                                                                _camera->config().targetWidth);
-                    _mode->changeIntrinsic(scaledCamMat, _calibration->distortion());
+                    //cv::Mat scaledCamMat = SENS::adaptCameraMat(_calibration->cameraMat(),
+                    //                                            _camera->config().manipWidth,
+                    //                                            _camera->config().targetWidth);
+                    _mode->changeIntrinsic(_camera->scaledCameraMat(), _calibration->distortion());
                 }
                 else if (autoCalEvent->restoreOriginalCalibration)
                 {
@@ -195,8 +199,8 @@ void TestView::handleEvents()
                     _calibration = _camera->calibration();
                     _scene.camera->updateCameraIntrinsics(_calibration->cameraFovVDeg());
                     cv::Mat scaledCamMat = SENS::adaptCameraMat(_calibration->cameraMat(),
-                                                                _camera->config().manipWidth,
-                                                                _camera->config().targetWidth);
+                                                                _camera->config()->manipWidth,
+                                                                _camera->config()->targetWidth);
                     _mode->changeIntrinsic(scaledCamMat, _calibration->distortion());
                 }
                 delete autoCalEvent;
@@ -525,7 +529,7 @@ void TestView::saveVideo(std::string filename)
     if (_videoFileStream)
         ret = _videoWriter->open(path, cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 30, _videoFileStream->getFrameSize(), true);
     else if (_camera)
-        ret = _videoWriter->open(path, cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 30, cv::Size(_camera->config().targetWidth, _camera->config().targetHeight), true);
+        ret = _videoWriter->open(path, cv::VideoWriter::fourcc('M', 'J', 'P', 'G'), 30, cv::Size(_camera->config()->targetWidth, _camera->config()->targetHeight), true);
     else
         Utils::log("WAI WARN", "WAIApp::saveVideo: No active video stream or camera available!");
 }
@@ -567,52 +571,12 @@ bool TestView::startCamera()
     if (_camera->started())
         _camera->stop();
 
-    auto capProps     = _camera->captureProperties();
-    int  trackingImgW = 640;
-
-    float targetWdivH   = 4.f / 3.f;
-    int   aproxVisuImgW = 640;
-    int   aproxVisuImgH = (int)((float)aproxVisuImgW / targetWdivH);
-
-    auto bestConfig = capProps.findBestMatchingConfig(SENSCameraFacing::BACK, 65.f, aproxVisuImgW, aproxVisuImgH);
-
-    if (bestConfig.first && bestConfig.second)
-    {
-        const SENSCameraDeviceProperties* const devProps     = bestConfig.first;
-        const SENSCameraStreamConfig*           streamConfig = bestConfig.second;
-        //calculate size of tracking image
-        float imgWdivH = (float)streamConfig->widthPix / (float)streamConfig->heightPix;
-        _camera->start(devProps->deviceId(),
-                       *streamConfig,
-                       cv::Size(),
-                       false,
-                       false,
-                       true,
-                       trackingImgW,
-                       true,
-                       65.f);
-    }
-    else //try with unknown config (for desktop)
-    {
-        aproxVisuImgW    = 640;
-        auto bestConfig2 = capProps.findBestMatchingConfig(SENSCameraFacing::UNKNOWN, 65.f, 640, 480);
-        if (bestConfig2.first && bestConfig2.second)
-        {
-            const SENSCameraDeviceProperties* const devProps     = bestConfig2.first;
-            const SENSCameraStreamConfig*           streamConfig = bestConfig2.second;
-            //calculate size of tracking image
-            float imgWdivH = (float)streamConfig->widthPix / (float)streamConfig->heightPix;
-            _camera->start(devProps->deviceId(),
-                           *streamConfig,
-                           cv::Size(),
-                           false,
-                           false,
-                           true,
-                           trackingImgW,
-                           true,
-                           65.f);
-        }
-    }
+    //ATTENTION: TestView does not support different resolutions for visualization and tracking
+    if (_camera->supportsFacing(SENSCameraFacing::BACK)) //we are on android or ios. we can also expect high resolution support.
+        _camera->configure(SENSCameraFacing::BACK, 640, 480, 640, 480, false, false, true);
+    else
+        _camera->configure(SENSCameraFacing::UNKNOWN, 640, 480, 640, 480, false, false, true);
+    _camera->start();
 
     return _camera->started();
 }
@@ -630,6 +594,7 @@ void TestView::startOrbSlam(SlamParams slamParams)
 
     bool useVideoFile             = !slamParams.videoFile.empty();
     bool detectCalibAutomatically = slamParams.calibrationFile.empty();
+    bool guessCalibration         = (Utils::getFileName(slamParams.calibrationFile) == "GUESS_CALIBRATION");
     bool useMapFile               = !slamParams.mapFile.empty();
 
     // reset stuff
@@ -684,7 +649,7 @@ void TestView::startOrbSlam(SlamParams slamParams)
         calibrationFileName = Utils::getFileName(slamParams.calibrationFile);
     }
 
-    if (!Utils::fileExists(slamParams.calibrationFile))
+    if (!guessCalibration && !Utils::fileExists(slamParams.calibrationFile))
     {
         _gui.showErrorMsg("Calibration file " + slamParams.calibrationFile + " does not exist.");
         return;
@@ -718,20 +683,23 @@ void TestView::startOrbSlam(SlamParams slamParams)
     {
         if (!startCamera())
             return;
-        _videoFrameSize = cv::Size2i(_camera->config().targetWidth, _camera->config().targetHeight);
+        _videoFrameSize = cv::Size2i(_camera->config()->targetWidth, _camera->config()->targetHeight);
     }
 
     // 2. Load Calibration
     //build undistortion maps after loading because it may take a lot of time for calibrations from large images on android
-    try
+    if (!guessCalibration)
     {
-        _calibrationLoaded = std::make_unique<SENSCalibration>(_calibDir, Utils::getFileName(slamParams.calibrationFile), false);
-    }
-    catch (SENSException& e)
-    {
-        _gui.showErrorMsg("Error when loading calibration from file: " +
-                          slamParams.calibrationFile);
-        return;
+        try
+        {
+            _calibrationLoaded = std::make_unique<SENSCalibration>(_calibDir, Utils::getFileName(slamParams.calibrationFile), false);
+        }
+        catch (SENSException& e)
+        {
+            _gui.showErrorMsg("Error when loading calibration from file: " +
+                              slamParams.calibrationFile);
+            return;
+        }
     }
 
     //This really does not look nice.. That I do it like this is because the iOS camera provides camera intrinsics directly for every frame
@@ -739,14 +707,30 @@ void TestView::startOrbSlam(SlamParams slamParams)
     //Maybe we find something better..?
     if (useVideoFile)
     {
-        _videoFileStream->setCalibration(*_calibrationLoaded, true);
-        _calibration = _videoFileStream->calibration();
+        if (guessCalibration)
+        {
+            _videoFileStream->guessAndSetCalibration(65.f);
+            _calibration = _videoFileStream->calibration();
+        }
+        else
+        {
+            _videoFileStream->setCalibration(*_calibrationLoaded, true);
+            _calibration = _videoFileStream->calibration();
+        }
     }
     else
     {
-        //set and adapt calibration to camera image resolution
-        _camera->setCalibration(*_calibrationLoaded, true);
-        _calibration = _camera->calibration();
+        if (guessCalibration)
+        {
+            _camera->guessAndSetCalibration(65.f);
+            _calibration = _camera->calibration();
+        }
+        else
+        {
+            //set and adapt calibration to camera image resolution
+            _camera->setCalibration(*_calibrationLoaded, true);
+            _calibration = _camera->calibration();
+        }
     }
 
     // 3. Adjust FOV of camera node according to new calibration (fov is used in projection->prespective _mode)
@@ -839,8 +823,8 @@ void TestView::startOrbSlam(SlamParams slamParams)
     else
     {
         scaledCamMat = SENS::adaptCameraMat(_calibration->cameraMat(),
-                                            _camera->config().manipWidth,
-                                            _camera->config().targetWidth);
+                                            _camera->config()->manipWidth,
+                                            _camera->config()->targetWidth);
     }
     _mode = new WAISlam(scaledCamMat,
                         _calibration->distortion(),
@@ -968,10 +952,10 @@ void TestView::updateTrackingVisualization(const bool iKnowWhereIAm)
         vector<WAIKeyFrame*> vpCandidateKFs;
         if (_pauseVideo)
         {
-            WAIFrame frame = _mode->getLastFrame();
-            frame.mnId = 1;
+            WAIFrame frame      = _mode->getLastFrame();
+            frame.mnId          = 1;
             WAIKeyFrameDB* kfdb = _mode->getMap()->GetKeyFrameDB();
-            vpCandidateKFs = kfdb->DetectRelocalizationCandidates(&frame, 0.8, false);
+            vpCandidateKFs      = kfdb->DetectRelocalizationCandidates(&frame, 0.8, false);
             std::cout << "vpCandidates size " << vpCandidateKFs.size() << std::endl;
         }
         _scene.renderKeyframes(_mode->getKeyFrames(), vpCandidateKFs);

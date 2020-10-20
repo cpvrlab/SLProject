@@ -19,38 +19,13 @@ SENSiOSCamera::~SENSiOSCamera()
 
 const SENSCameraConfig& SENSiOSCamera::start(std::string                   deviceId,
                                              const SENSCameraStreamConfig& streamConfig,
-                                             cv::Size                      imgBGRSize,
-                                             bool                          mirrorV,
-                                             bool                          mirrorH,
-                                             bool                          convToGrayToImgManip,
-                                             int                           imgManipWidth,
-                                             bool                          provideIntrinsics,
-                                             float                         fovDegFallbackGuess)
+                                             bool                          provideIntrinsics)
 {
     if (_started)
     {
         Utils::warnMsg("SENSiOSCamera", "Call to start was ignored. Camera is currently running!", __LINE__, __FILE__);
         return _config;
     }
-
-    cv::Size targetSize;
-
-    if (imgBGRSize.width > 0 && imgBGRSize.height > 0)
-    {
-        targetSize.width  = imgBGRSize.width;
-        targetSize.height = imgBGRSize.height;
-    }
-    else
-    {
-        targetSize.width  = streamConfig.widthPix;
-        targetSize.height = streamConfig.heightPix;
-    }
-
-    cv::Size imgManipSize;
-    if (_config.manipWidth > 0 && _config.manipHeight > 0)
-        imgManipSize = {imgManipWidth, (int)((float)imgManipWidth * (float)targetSize.height / (float)targetSize.width)};
-    else
-        imgManipSize = targetSize;
 
     //retrieve all camera characteristics
     if (_captureProperties.size() == 0)
@@ -62,12 +37,17 @@ const SENSCameraConfig& SENSiOSCamera::start(std::string                   devic
     if (!_captureProperties.containsDeviceId(deviceId))
         throw SENSException(SENSType::CAM, "DeviceId does not exist!", __LINE__, __FILE__);
 
+    SENSCameraFacing facing = SENSCameraFacing::UNKNOWN;
+    const SENSCameraDeviceProperties* props = _captureProperties.camPropsForDeviceId(deviceId);
+    if(props)
+        facing = props->facing();
+    
     NSString* devId = [NSString stringWithUTF8String:deviceId.c_str()];
 
     BOOL enableVideoStabilization = YES;
     if (provideIntrinsics)
         enableVideoStabilization = NO;
-
+    
     if ([_cameraDelegate startCamera:devId
                            withWidth:streamConfig.widthPix
                            andHeight:streamConfig.heightPix
@@ -75,19 +55,13 @@ const SENSCameraConfig& SENSiOSCamera::start(std::string                   devic
              videoStabilizationState:enableVideoStabilization
                      intrinsicsState:provideIntrinsics])
     {
-        //init config here
+        //init config here before processStart
         _config = SENSCameraConfig(deviceId,
                                    streamConfig,
-                                   SENSCameraFocusMode::UNKNOWN,
-                                   targetSize.width,
-                                   targetSize.height,
-                                   imgManipSize.width,
-                                   imgManipSize.height,
-                                   mirrorH,
-                                   mirrorV,
-                                   convToGrayToImgManip);
-        //initialize guessed camera calibration
-        initCalibration(fovDegFallbackGuess);
+                                   facing,
+                                   SENSCameraFocusMode::CONTINIOUS_AUTO_FOCUS);
+        processStart();
+        
         _started = true;
     }
     else

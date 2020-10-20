@@ -64,8 +64,20 @@ void cropImage(cv::Mat& img, float targetWdivH, int& cropW, int& cropH)
     int width, height;
     if (calcCrop(img.size(), targetWdivH, cropW, cropH, width, height))
     {
-        img(cv::Rect(cropW, cropH, width, height)).copyTo(img);
-        //imwrite("AfterCropping.bmp", lastFrame);
+        //imwrite("cropImageToImgBefore.bmp", img);
+        img = img(cv::Rect(cropW, cropH, width, height));
+        //imwrite("cropImageToImgAfter.bmp", img);
+    }
+}
+
+void cropImageTo(const cv::Mat& img, cv::Mat& outImg, float targetWdivH, int& cropW, int& cropH)
+{
+    int width, height;
+    if (calcCrop(img.size(), targetWdivH, cropW, cropH, width, height))
+    {
+        img(cv::Rect(cropW, cropH, width, height)).copyTo(outImg);
+        //imwrite("cropImageToImg.bmp", img);
+        //imwrite("cropImageToOutImg.bmp", outImg);
     }
 }
 

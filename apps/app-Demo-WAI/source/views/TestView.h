@@ -15,10 +15,10 @@
 #include <WAIAutoCalibration.h>
 #include <MapPointEdition.h>
 #include <SENSCalibration.h>
+#include <sens/SENSCvCamera.h>
 
 class WAISlam;
 struct WAIEvent;
-class SENSCamera;
 
 class TestView : protected SLSceneView
 {
@@ -63,7 +63,7 @@ protected:
     //video
     std::unique_ptr<SENSCalibration> _calibrationLoaded;
     const SENSCalibration*           _calibration = nullptr;
-    SENSCamera*                      _camera      = nullptr;
+    std::unique_ptr<SENSCvCamera>    _camera;
     cv::VideoWriter*                 _videoWriter = nullptr;
     std::unique_ptr<SENSVideoStream> _videoFileStream;
     bool                             _pauseVideo           = false;

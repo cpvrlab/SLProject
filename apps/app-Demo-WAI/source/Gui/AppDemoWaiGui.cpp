@@ -60,7 +60,7 @@ AppDemoWaiGui::AppDemoWaiGui(const ImGuiEngine&                          imGuiEn
                              const std::vector<std::string>&             extractorIdToNames,
                              std ::queue<WAIEvent*>&                     eventQueue,
                              std::function<WAISlam*(void)>               modeGetterCB,
-                             std::function<SENSCamera*(void)>            getCameraCB,
+                             std::function<SENSCvCamera*(void)>          getCameraCB,
                              std::function<const SENSCalibration*(void)> getCalibrationCB,
                              std::function<SENSVideoStream*(void)>       getVideoFileStreamCB)
   : ImGuiWrapper(imGuiEngine.context(), imGuiEngine.renderer()),
