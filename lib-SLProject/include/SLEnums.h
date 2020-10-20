@@ -141,6 +141,7 @@ enum SLSceneID
     SID_VideoTrackWAI,
 #endif
 
+    SID_ErlebARBielBFH,
     SID_ErlebARChristoffel,
     SID_ErlebARAugustaRaurica,
     SID_ErlebARAventicumAmphi,

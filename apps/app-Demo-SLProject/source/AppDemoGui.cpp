@@ -1367,6 +1367,7 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                 }
 
                 SLstring erlebarPath = SLApplication::dataPath + "erleb-AR/models/";
+                SLstring modelBFH    = erlebarPath + "biel/Biel-BFH-Rolex.gltf";
                 SLstring modelAR1    = erlebarPath + "augst/Tempel-Theater-02.gltf";
                 SLstring modelAV1    = erlebarPath + "avenches/Aventicum-Amphitheater1.gltf";
                 SLstring modelAV2    = erlebarPath + "avenches/Aventicum-Cigognier1.gltf";
@@ -1381,6 +1382,10 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                 {
                     if (ImGui::BeginMenu("Erleb-AR"))
                     {
+                        if (Utils::fileExists(modelBFH))
+                            if (ImGui::MenuItem("Biel-BFH AR (Main)", nullptr, sid == SID_ErlebARBielBFH))
+                                s->onLoad(s, sv, SID_ErlebARBielBFH);
+
                         if (Utils::fileExists(modelBR1))
                             if (ImGui::MenuItem("Christoffel Tower AR (Main)", nullptr, sid == SID_ErlebARChristoffel))
                                 s->onLoad(s, sv, SID_ErlebARChristoffel);

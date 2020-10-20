@@ -24,6 +24,14 @@
  information with OpenCV we have to store them in a separate json file with
  the same name. They are generated with a tool that comes with QGIS as follows:
  gdalinfo -json DTM-Aventicum-WGS84.tif > DTM-Aventicum-WGS84.json
+ If the elevation data is available in ESRI-ASCII format you have to download
+ them first from the BFH server (only within the BFH network possible):
+ smb://bfh.ch/data/LFE/BFH/Geodata/swisstopo/meta
+ P:\LFE\BFH\Geodata\swisstopo\meta
+ The ASCII patches are in DISK3/swissALTI3D
+ with cp SWISSALTI3D_0.5_ESRIASCIIGRID_CHLV95_LN02_2585_1221.zip ~/Downloads
+ The patch number can be found on:
+ https://map.geo.admin.ch/?lang=de&topic=ech&bgLayer=ch.swisstopo.pixelkarte-farbe&layers=ch.swisstopo.images-swissimage-dop10.metadata&E=2752545.83&N=1178500.73&zoom=1
  */
 class CVImageGeoTiff : public CVImage
 {
