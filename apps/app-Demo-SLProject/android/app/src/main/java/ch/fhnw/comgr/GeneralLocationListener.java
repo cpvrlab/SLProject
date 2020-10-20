@@ -68,7 +68,7 @@ class GeneralLocationListener implements LocationListener {
         }
 
         if (status == LocationProvider.AVAILABLE) {
-            //Log.i(TAG, provider + " is available");
+            Log.i(TAG, provider + " is available");
         }
 
         if (status == LocationProvider.TEMPORARILY_UNAVAILABLE) {

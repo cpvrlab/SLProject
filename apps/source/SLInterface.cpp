@@ -508,10 +508,10 @@ degrees and altitude in meters. This location uses the World Geodetic System
 1984 (WGS 84). The accuracy in meters is a radius in which the location is with
 a probability of 68% (2 sigma).
 */
-void slLocationLLA(double latitudeDEG,
-                   double longitudeDEG,
-                   double altitudeM,
-                   float  accuracyM)
+void slLocationLatLonAlt(double latitudeDEG,
+                         double longitudeDEG,
+                         double altitudeM,
+                         float  accuracyM)
 {
     SLApplication::devLoc.onLocationLatLonAlt(latitudeDEG,
                                               longitudeDEG,

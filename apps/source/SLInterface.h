@@ -82,7 +82,7 @@ void slCharInput(int sceneViewIndex, unsigned int character);
 bool   slUsesRotation();
 void   slRotationQUAT(float quatX, float quatY, float quatZ, float quatW);
 bool   slUsesLocation();
-void   slLocationLLA(double latitudeDEG, double longitudeDEG, double altitudeM, float accuracyM);
+void   slLocationLatLonAlt(double latitudeDEG, double longitudeDEG, double altitudeM, float accuracyM);
 string slGetWindowTitle(int sceneViewIndex);
 void   slSetupExternalDir(const SLstring& externalDirPath);
 void   slSetDeviceParameter(const SLstring& parameter, SLstring value);
