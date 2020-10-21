@@ -688,6 +688,7 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
 
         if (_devRot->isUsed())
         {
+            //Camera rotation w.r.t. to sensor
             SLMat3f sRc;
             sRc.rotation(-90, 0, 0, 1);
 
@@ -710,7 +711,7 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
             SLMat3f wRwy;
             wRwy.rotation(-90, 1, 0, 0);
 
-            //combiniation of partial rotations to orientation of camera w.r.t world
+            //combination of partial rotations to orientation of camera w.r.t world
             //SLMat3f wRc = wRwy * wyRenu * enuRs * sRc;
             SLMat3f wRc = wRwy * enuRs * sRc;
             _om.setRotation(wRc);
@@ -893,8 +894,7 @@ SLbool SLCamera::onMouseMove(const SLMouseButton button,
             return true;
         }
 
-        // normal camera animations
-        // new vars needed
+        // Position and directions in view space
         SLVec3f positionVS = this->translationOS();
         SLVec3f forwardVS  = this->forwardOS();
         SLVec3f rightVS    = this->rightOS();
@@ -999,6 +999,9 @@ SLbool SLCamera::onMouseMove(const SLMouseButton button,
             forwardVS.set(rot.multVec(forwardVS));
             lookAt(positionVS + forwardVS, SLVec3f(0, 0, 1));
             needWMUpdate();
+        }
+        else if (_camAnim == CA_deviceRotLocYUp) //..............................
+        {
         }
 
         _oldTouchPos1.set((SLfloat)x, (SLfloat)y);

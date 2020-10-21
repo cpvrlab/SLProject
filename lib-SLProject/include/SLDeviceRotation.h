@@ -30,7 +30,7 @@ be used in the active camera to apply it to the scene camera
 class SLDeviceRotation
 {
 
-    public:
+public:
     SLDeviceRotation() { init(); }
     void init();
     void onRotationQUAT(SLfloat quatX,
@@ -41,28 +41,31 @@ class SLDeviceRotation
     void isUsed(SLbool isUsed);
     void hasStarted(SLbool started) { _isFirstSensorValue = started; }
     void zeroYawAtStart(SLbool zeroYaw) { _zeroYawAtStart = zeroYaw; }
+    void rotationOffset(const SLMat3f& rotOffset) { _rotationOffset = rotOffset; }
 
     // Getters
 
-    SLbool  isUsed() const { return _isUsed; }
-    SLMat3f rotation() const { return _rotation; }
+    SLbool   isUsed() const { return _isUsed; }
+    SLMat3f  rotation() const { return _rotation; }
+    SLMat3f  rotationOffset() const { return _rotationOffset; }
     SLQuat4f quaternion() const { return _quaternion; }
-    SLfloat pitchRAD() const { return _pitchRAD; }
-    SLfloat yawRAD() const { return _yawRAD; }
-    SLfloat rollRAD() const { return _rollRAD; }
-    SLbool  zeroYawAtStart() const { return _zeroYawAtStart; }
-    SLfloat startYawRAD() const { return _startYawRAD; }
+    SLfloat  pitchRAD() const { return _pitchRAD; }
+    SLfloat  yawRAD() const { return _yawRAD; }
+    SLfloat  rollRAD() const { return _rollRAD; }
+    SLbool   zeroYawAtStart() const { return _zeroYawAtStart; }
+    SLfloat  startYawRAD() const { return _startYawRAD; }
 
-    private:
-    SLbool  _isUsed;             //!< Flag if device rotation is used
-    SLbool  _isFirstSensorValue; //!< Flag for the first sensor values
-    SLfloat _rollRAD;            //!< Device roll angle in radians
-    SLfloat _pitchRAD;           //!< Device pitch angle in radians
-    SLfloat _yawRAD;             //!< Device yaw angle in radians
-    SLMat3f _rotation;           //!< Mobile device rotation as matrix
-    SLQuat4f _quaternion;
-    SLbool  _zeroYawAtStart;     //!< Flag if yaw angle should be zeroed at sensor start
-    SLfloat _startYawRAD;        //!< Initial yaw angle after _zeroYawAfterSec in radians
+private:
+    SLbool   _isUsed;             //!< Flag if device rotation is used
+    SLbool   _isFirstSensorValue; //!< Flag for the first sensor values
+    SLfloat  _rollRAD;            //!< Device roll angle in radians
+    SLfloat  _pitchRAD;           //!< Device pitch angle in radians
+    SLfloat  _yawRAD;             //!< Device yaw angle in radians
+    SLMat3f  _rotation;           //!< Mobile device rotation as matrix
+    SLMat3f  _rotationOffset;     //! Offset rotation matrix for slight correction
+    SLQuat4f _quaternion;         //! Quaternion rotation that is set by IMU
+    SLbool   _zeroYawAtStart;     //!< Flag if yaw angle should be zeroed at sensor start
+    SLfloat  _startYawRAD;        //!< Initial yaw angle after _zeroYawAfterSec in radians
 };
 //-----------------------------------------------------------------------------
 #endif
