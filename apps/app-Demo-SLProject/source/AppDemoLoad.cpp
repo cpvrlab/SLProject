@@ -3749,6 +3749,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         // Create video texture and turn on live video
         videoTexture = new SLGLTexture(s, SLApplication::texturePath + "LiveVideoError.png", GL_LINEAR, GL_LINEAR);
         cam1->background().texture(videoTexture);
+
         CVCapture::instance()->videoType(VT_MAIN);
 
         // Define shader that shows on all pixels the video background

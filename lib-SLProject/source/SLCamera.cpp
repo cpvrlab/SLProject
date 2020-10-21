@@ -25,6 +25,9 @@ SLint        SLCamera::currentDevRotation = 0;
 SLCamera::SLCamera(const SLstring& name)
   : SLNode(name),
     _movedLastFrame(false),
+    _startTouchPos1(0,0),
+    _oldTouchPos1(0,0),
+    _oldTouchPos2(0,0),
     _trackballSize(0.8f),
     _moveDir(0, 0, 0),
     _drag(0.05f),
@@ -846,6 +849,7 @@ SLbool SLCamera::onMouseDown(const SLMouseButton button,
     // Init both position in case that the second finger came with delay
     _oldTouchPos1.set((SLfloat)x, (SLfloat)y);
     _oldTouchPos2.set((SLfloat)x, (SLfloat)y);
+    _startTouchPos1.set((SLfloat)x, (SLfloat)y);
 
     if (button == MB_left)
     {
@@ -905,6 +909,9 @@ SLbool SLCamera::onMouseMove(const SLMouseButton button,
         // Determine rot angles around x- & y-axis
         SLfloat dY = (y - _oldTouchPos1.y) * _rotFactor;
         SLfloat dX = (x - _oldTouchPos1.x) * _rotFactor;
+        SLfloat deltaStartX = (x - _startTouchPos1.x) / _fbRect.width;
+        SLfloat deltaStartY = (y - _startTouchPos1.y) / _fbRect.height;
+        SL_LOG("deltaX = %6.4f, deltaY=%6.4f", deltaStartX, deltaStartY);
 
         if (_camAnim == CA_turntableYUp) //......................................
         {

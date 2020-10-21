@@ -212,6 +212,7 @@ protected:
     // animation parameters
     SLbool    _movedLastFrame;    //! did the camera updateRec in the last frame?
     SLCamAnim _camAnim;           //!< Type of camera animation
+    SLVec2f   _startTouchPos1;    //!< Start mouse/touch position at mouse-down
     SLVec2f   _oldTouchPos1;      //!< Old mouse/touch position in pixels
     SLVec2f   _oldTouchPos2;      //!< Old 2nd finger touch position in pixels
     SLVec3f   _trackballStartVec; //!< Trackball vector at mouse down
