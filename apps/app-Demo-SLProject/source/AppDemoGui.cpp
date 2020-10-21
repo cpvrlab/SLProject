@@ -701,9 +701,7 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
             else if (c->isMirroredV())
                 mirrored = "vertically";
 
-            sprintf(m + strlen(m), "Video Type   : %s\n", vt == VT_NONE ? "None" : vt == VT_MAIN ? "Main Camera"
-                                                                                 : vt == VT_FILE ? "File"
-                                                                                                 : "Secondary Camera");
+            sprintf(m + strlen(m), "Video Type   : %s\n", vt == VT_NONE ? "None" : vt == VT_MAIN ? "Main Camera" : vt == VT_FILE ? "File" : "Secondary Camera");
             sprintf(m + strlen(m), "Display size : %d x %d\n", CVCapture::instance()->lastFrame.cols, CVCapture::instance()->lastFrame.rows);
             sprintf(m + strlen(m), "Capture size : %d x %d\n", capSize.width, capSize.height);
             sprintf(m + strlen(m), "Size Index   : %d\n", ac->camSizeIndex());
@@ -1367,9 +1365,10 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                 }
 
                 SLstring erlebarPath = SLApplication::dataPath + "erleb-AR/models/";
+                SLstring modelBFH    = erlebarPath + "biel/Biel-BFH-Rolex.gltf";
                 SLstring modelAR1    = erlebarPath + "augst/Tempel-Theater-02.gltf";
                 SLstring modelAV1    = erlebarPath + "avenches/Aventicum-Amphitheater1.gltf";
-                SLstring modelAV2    = erlebarPath + "avenches/Aventicum-Cigognier1.gltf";
+                SLstring modelAV2    = erlebarPath + "avenches/Aventicum-Cigognier2.gltf";
                 SLstring modelAV3    = erlebarPath + "avenches/Aventicum-Theater1.gltf";
                 SLstring modelBR1    = erlebarPath + "bern/Bern-Bahnhofsplatz.fbx";
 
@@ -1381,6 +1380,10 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                 {
                     if (ImGui::BeginMenu("Erleb-AR"))
                     {
+                        if (Utils::fileExists(modelBFH))
+                            if (ImGui::MenuItem("Biel-BFH AR (Main)", nullptr, sid == SID_ErlebARBielBFH))
+                                s->onLoad(s, sv, SID_ErlebARBielBFH);
+
                         if (Utils::fileExists(modelBR1))
                             if (ImGui::MenuItem("Christoffel Tower AR (Main)", nullptr, sid == SID_ErlebARChristoffel))
                                 s->onLoad(s, sv, SID_ErlebARChristoffel);
@@ -1847,7 +1850,6 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                     ImGui::PopItemWidth();
                     ImGui::EndMenu();
                 }
-
             }
 
             ImGui::EndMenu();
@@ -2927,9 +2929,9 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                         }
                         if (typeid(*singleNode) == typeid(SLLightDirect))
                         {
-                            light    = (SLLight*)(SLLightDirect*)singleNode;
-                            typeName = "Light (directional):";
-                            doSunPowerAdaptation    = ((SLLightDirect*)singleNode)->doSunPowerAdaptation();
+                            light                = (SLLight*)(SLLightDirect*)singleNode;
+                            typeName             = "Light (directional):";
+                            doSunPowerAdaptation = ((SLLightDirect*)singleNode)->doSunPowerAdaptation();
                         }
 
                         if (light && ImGui::TreeNode(typeName.c_str()))

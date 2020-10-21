@@ -16,6 +16,7 @@
 void SLDeviceRotation::init()
 {
     _rotation.identity();
+    _rotationOffset.identity();
     _pitchRAD           = 0.0f;
     _yawRAD             = 0.0f;
     _rollRAD            = 0.0f;

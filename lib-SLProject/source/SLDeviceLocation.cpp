@@ -42,6 +42,7 @@ void SLDeviceLocation::init()
     _sunLightNode      = nullptr;
     _altDemM           = 0.0f;
     _altGpsM           = 0.0f;
+    _cameraHeightM     = 1.6f;
 }
 //-----------------------------------------------------------------------------
 // Setter for hasOrigin flag.
@@ -57,25 +58,29 @@ void SLDeviceLocation::hasOrigin(SLbool hasOrigin)
 //-----------------------------------------------------------------------------
 //! Event handler for mobile device location update.
 /*! Global event handler for device GPS location with longitude and latitude in
-degrees and altitude in meters. This location uses the World Geodetic System
-1984 (WGS84). The accuracy in meters is a radius in which the location is with
-a probability of 68% (2 sigma). The altitude in m is the most inaccurate
-information. The option _useOriginAltitude allows to overwrite the current
-altitude with the origins altitude.
+ degrees and altitude in meters. This location uses the World Geodetic System
+ 1984 (WGS84). The accuracy in meters is a radius in which the location is with
+ a probability of 68% (2 sigma). The altitude in m is the most inaccurate
+ information. The option _useOriginAltitude allows to overwrite the current
+ altitude with the origins altitude. If a geoTiff is available the altitude is
+ is take from it.
+ /param latDEG Latitude (vertical) on WGS84 geoid in degrees
+ /param lonDEG Longitude (horizontal) on WGS84 geoid in degrees
+ /param altM Altitude over WGS84 geoid in meters
+ /param accuracyM Accuracy in meters is a radius
 */
 void SLDeviceLocation::onLocationLatLonAlt(SLdouble latDEG,
                                            SLdouble lonDEG,
                                            SLdouble altM,
-                                           SLfloat  AccuracyM)
+                                           SLfloat  accuracyM)
 {
     // Set altitude to use
     _altGpsM       = (float)altM;
     float altToUse = (float)altM;
-
     if (geoTiffIsAvailableAndValid())
     {
         _altDemM = _demGeoTiff.getAltitudeAtLatLon(latDEG, lonDEG);
-        altToUse = _altDemM;
+        altToUse = _altDemM + _cameraHeightM;
     }
 
     // Init origin if it is not set yet or if the origin should be improved
@@ -89,10 +94,10 @@ void SLDeviceLocation::onLocationLatLonAlt(SLdouble latDEG,
         }
 
         // Only improve if accuracy is higher and the improve time has not elapsed
-        if (AccuracyM < _originAccuracyM ||
+        if (accuracyM < _originAccuracyM ||
             _improveTimer.elapsedTimeInSec() < _improveTimeSEC)
         {
-            _originAccuracyM = AccuracyM;
+            _originAccuracyM = accuracyM;
             originLatLonAlt(latDEG, lonDEG, altToUse);
             defaultLatLonAlt(latDEG, lonDEG, altToUse);
         }
@@ -100,7 +105,7 @@ void SLDeviceLocation::onLocationLatLonAlt(SLdouble latDEG,
 
     _locLatLonAlt.set(latDEG, lonDEG, _useOriginAltitude ? _originLatLonAlt.alt : altToUse);
 
-    _locAccuracyM = AccuracyM;
+    _locAccuracyM = accuracyM;
 
     // Convert to cartesian ECEF coordinates
     _locECEF.latlonAlt2ecef(_locLatLonAlt);
@@ -109,9 +114,13 @@ void SLDeviceLocation::onLocationLatLonAlt(SLdouble latDEG,
     _locENU = _wRecef * _locECEF;
 }
 //-----------------------------------------------------------------------------
-//! Set global origin in latitude, longitude and altitude.
+//! Set global origin in latitude, longitude and altitude at the ground level.
 /*! The calculated values can be used for global camera positioning via GPS
-sensor. The origin is the zero point of the model.
+ sensor. The origin is the zero point of the model. The origin should be defined
+ in the model on the ground.
+ /param latDEG Latitude (vertical) on WGS84 geoid in degrees
+ /param lonDEG Longitude (horizontal) on WGS84 geoid in degrees
+ /param altM Altitude over WGS84 geoid in meters
 */
 void SLDeviceLocation::originLatLonAlt(SLdouble latDEG,
                                        SLdouble lonDEG,
@@ -120,9 +129,9 @@ void SLDeviceLocation::originLatLonAlt(SLdouble latDEG,
     _originLatLonAlt = SLVec3d(latDEG, lonDEG, altM);
     _originECEF.latlonAlt2ecef(_originLatLonAlt);
 
-    //calculation of ECEF to world (scene) rotation matrix
-    //definition of rotation matrix for ECEF to world frame rotation:
-    //world frame (scene) w.r.t. ENU frame
+    // calculation of ECEF to world (scene) rotation matrix
+    // definition of rotation matrix for ECEF to world frame rotation:
+    // world frame (scene) w.r.t. ENU frame
     double phiRad = latDEG * Utils::DEG2RAD; // phi == latitude
     double lamRad = lonDEG * Utils::DEG2RAD; // lambda == longitude
     double sinPhi = sin(phiRad);
@@ -144,11 +153,11 @@ void SLDeviceLocation::originLatLonAlt(SLdouble latDEG,
     SLMat3d wRenu; //same as before
     wRenu.rotation(-90, 1, 0, 0);
 
-    //ECEF w.r.t. world frame (scene)
+    // ECEF w.r.t. world frame (scene)
     _wRecef    = wRenu * enuRecef;
     _originENU = _wRecef * _originECEF;
 
-    //Indicate that origin is set. Otherwise it would be reset on each update
+    // Indicate that origin is set. Otherwise it would be reset on each update
     _hasOrigin = true;
 
     calculateSolarAngles(_originLatLonAlt, std::time(nullptr));
@@ -156,11 +165,14 @@ void SLDeviceLocation::originLatLonAlt(SLdouble latDEG,
 //-----------------------------------------------------------------------------
 //! Sets the default location in latitude, longitude and altitude.
 /*! It must be called after setting the origin. If no origin is set with it
-will be automatically set in onLocationLatLonAlt. The default location is used by
-the camera in SLCamera::setView if the current distance between _locENU and
-_originENU is greater than _locMaxDistanceM. Witch means that you are in real
-not near the location.
-*/
+ will be automatically set in onLocationLatLonAlt. The default location is used by
+ the camera in SLCamera::setView if the current distance between _locENU and
+ _originENU is greater than _locMaxDistanceM. Witch means that you are in real
+ not near the location.
+ /param latDEG Latitude (vertical) on WGS84 geoid in degrees
+ /param lonDEG Longitude (horizontal) on WGS84 geoid in degrees
+ /param altM Altitude over WGS84 geoid in meters
+ */
 void SLDeviceLocation::defaultLatLonAlt(SLdouble latDEG,
                                         SLdouble lonDEG,
                                         SLdouble altM)
@@ -187,8 +199,8 @@ void SLDeviceLocation::isUsed(SLbool use)
 //-----------------------------------------------------------------------------
 //! Calculates the solar angles at origin at local time
 /*! Calculates the zenith and azimuth angle in deg. of the sun at the origin at
-the local time using the Solar Position Algorithm from:
-https://midcdmz.nrel.gov/spa/ that is part of the lib-SLExternal.
+ the local time using the Solar Position Algorithm from:
+ https://midcdmz.nrel.gov/spa/ that is part of the lib-SLExternal.
 */
 SLbool SLDeviceLocation::calculateSolarAngles(SLVec3d     locationLatLonAlt,
                                               std::time_t time)
@@ -286,9 +298,9 @@ SLbool SLDeviceLocation::calculateSolarAngles(SLVec3d     locationLatLonAlt,
 //------------------------------------------------------------------------------
 //! Loads a GeoTiff DEM (Digital Elevation Model) Image
 /* Loads a GeoTiff DEM (Digital Elevation Model) Image that must be in WGS84
- * coordinates. For more info see CVImageGeoTiff.
- * If the 32-bit image file and its JSON info file gets successfully loaded,
- * we can set the altitudes from the _originLatLonAlt and _defaultLatLonAlt by the DEM.
+ coordinates. For more info see CVImageGeoTiff.
+ If the 32-bit image file and its JSON info file gets successfully loaded,
+ we can set the altitudes from the _originLatLonAlt and _defaultLatLonAlt by the DEM.
  */
 void SLDeviceLocation::loadGeoTiff(const SLstring& geoTiffFile, const SLstring& appTag)
 {
@@ -308,11 +320,12 @@ void SLDeviceLocation::loadGeoTiff(const SLstring& geoTiffFile, const SLstring& 
                                                         _originLatLonAlt.lon));
 
         _altDemM = _demGeoTiff.getAltitudeAtLatLon(_defaultLatLonAlt.lat,
-                                                   _defaultLatLonAlt.lon) +
-                   _eyesHeightM;
+                                                   _defaultLatLonAlt.lon);
+
+        // The default position with the additional camera height
         defaultLatLonAlt(_defaultLatLonAlt.lat,
                          _defaultLatLonAlt.lon,
-                         _altDemM);
+                         _altDemM + _cameraHeightM);
     }
     else
     {
@@ -324,7 +337,7 @@ void SLDeviceLocation::loadGeoTiff(const SLstring& geoTiffFile, const SLstring& 
 }
 //------------------------------------------------------------------------------
 /* Returns true if a geoTiff files is loaded and the origin and default
- * positions are within the extends of the image.
+ positions are within the extends of the image.
 */
 bool SLDeviceLocation::geoTiffIsAvailableAndValid()
 {

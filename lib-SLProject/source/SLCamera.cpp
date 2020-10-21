@@ -25,6 +25,9 @@ SLint        SLCamera::currentDevRotation = 0;
 SLCamera::SLCamera(const SLstring& name)
   : SLNode(name),
     _movedLastFrame(false),
+    _startTouchPos1(0,0),
+    _oldTouchPos1(0,0),
+    _oldTouchPos2(0,0),
     _trackballSize(0.8f),
     _moveDir(0, 0, 0),
     _drag(0.05f),
@@ -370,10 +373,10 @@ void SLCamera::buildAABB(SLAABBox& aabb, const SLMat4f& wmNode)
 SLVec2i SLCamera::frustumSizeAtDistance(SLfloat distance)
 {
     SLVec2i frustumSize;
-    
-    frustumSize.y = (int) 2.f * distance * std::tanf(_fov * 0.5f * RAD2DEG);
+
+    frustumSize.y = (int)2.f * distance * std::tan(_fov * 0.5f * RAD2DEG);
     frustumSize.x = frustumSize.y * _viewportRatio; //w / h
-    
+
     return frustumSize;
 }
 //-----------------------------------------------------------------------------
@@ -688,6 +691,7 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
 
         if (_devRot->isUsed())
         {
+            //Camera rotation w.r.t. to sensor
             SLMat3f sRc;
             sRc.rotation(-90, 0, 0, 1);
 
@@ -713,7 +717,7 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
             SLMat3f wRwy;
             wRwy.rotation(-90, 1, 0, 0);
 
-            //combiniation of partial rotations to orientation of camera w.r.t world
+            //combination of partial rotations to orientation of camera w.r.t world
             //SLMat3f wRc = wRwy * wyRenu * enuRs * sRc;
             SLMat3f wRc = wRwy * enuRs * sRc;
             _om.setRotation(wRc);
@@ -852,6 +856,7 @@ SLbool SLCamera::onMouseDown(const SLMouseButton button,
     // Init both position in case that the second finger came with delay
     _oldTouchPos1.set((SLfloat)x, (SLfloat)y);
     _oldTouchPos2.set((SLfloat)x, (SLfloat)y);
+    _startTouchPos1.set((SLfloat)x, (SLfloat)y);
 
     if (button == MB_left)
     {
@@ -900,8 +905,7 @@ SLbool SLCamera::onMouseMove(const SLMouseButton button,
             return true;
         }
 
-        // normal camera animations
-        // new vars needed
+        // Position and directions in view space
         SLVec3f positionVS = this->translationOS();
         SLVec3f forwardVS  = this->forwardOS();
         SLVec3f rightVS    = this->rightOS();
@@ -912,6 +916,9 @@ SLbool SLCamera::onMouseMove(const SLMouseButton button,
         // Determine rot angles around x- & y-axis
         SLfloat dY = (y - _oldTouchPos1.y) * _rotFactor;
         SLfloat dX = (x - _oldTouchPos1.x) * _rotFactor;
+        SLfloat deltaStartX = (x - _startTouchPos1.x) / _fbRect.width;
+        SLfloat deltaStartY = (y - _startTouchPos1.y) / _fbRect.height;
+        SL_LOG("deltaX = %6.4f, deltaY=%6.4f", deltaStartX, deltaStartY);
 
         if (_camAnim == CA_turntableYUp) //......................................
         {
@@ -1006,6 +1013,9 @@ SLbool SLCamera::onMouseMove(const SLMouseButton button,
             forwardVS.set(rot.multVec(forwardVS));
             lookAt(positionVS + forwardVS, SLVec3f(0, 0, 1));
             needWMUpdate();
+        }
+        else if (_camAnim == CA_deviceRotLocYUp) //..............................
+        {
         }
 
         _oldTouchPos1.set((SLfloat)x, (SLfloat)y);
