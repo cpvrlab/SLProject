@@ -10,11 +10,16 @@
 #include <CVCalibration.h>
 #include <WAIMapPoint.h>
 #include <VideoBackgroundCamera.h>
+#include <ErlebAR.h>
 
 class AppWAIScene : public SLScene
 {
 public:
     AppWAIScene(SLstring name, std::string dataDir, std::string erlebARDir);
+
+    void unInit() override;
+    void rebuild(std::string location, std::string area);
+    void initScene(ErlebAR::LocationId locationId, ErlebAR::AreaId areaId);
 
     void resetMapNode();
     void updateCameraPose(const cv::Mat& pose);
@@ -35,18 +40,15 @@ public:
                       const bool                       showCovisibilityGraph,
                       const bool                       showSpanningTree,
                       const bool                       showLoopEdges);
-
     void removeGraphs();
 
-    SLNode* augmentationRoot = nullptr;
-
-    void rebuild(std::string location, std::string area);
     void adjustAugmentationTransparency(float kt);
 
-    SLAssetManager assets;
-    SLNode*        mapNode    = nullptr;
+    SLAssetManager         assets;
+    SLNode*                mapNode  = nullptr;
+    VideoBackgroundCamera* camera   = nullptr;
+    SLLightDirect*         sunLight = nullptr;
 
-    VideoBackgroundCamera* camera = nullptr;
 private:
     void renderMapPoints(std::string                      name,
                          const std::vector<WAIMapPoint*>& pts,
@@ -57,7 +59,15 @@ private:
     void removeMesh(SLNode* node, SLMesh* mesh);
     void hideNode(SLNode* node);
 
-    void loadMesh(std::string path);
+    void initMapVisualization();
+    void initAreaVisualization(ErlebAR::LocationId locationId, ErlebAR::AreaId areaId);
+    void initAreaAugst(ErlebAR::AreaId areaId);
+    void initAreaAvenches(ErlebAR::AreaId areaId);
+    void initAreaBern(ErlebAR::AreaId areaId);
+    void initAreaBiel(ErlebAR::AreaId areaId);
+    void initAreaDefault();
+
+    void loadMesh(std::string path, SLNode*& augmentationRoot);
 
     SLNode* mapPC             = nullptr;
     SLNode* mapMatchedPC      = nullptr;

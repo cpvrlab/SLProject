@@ -25,6 +25,7 @@
 #include <SLArrow.h>
 #include <SLCoordAxis.h>
 #include <sens/SENSSimHelper.h>
+#include <SLDeviceLocation.h>
 
 class SENSCamera;
 class MapLoader;
@@ -99,19 +100,22 @@ private:
     void updateSceneCameraFov();
     void updateVideoImage(SENSFrame& frame, VideoBackgroundCamera* videoBackground);
     void updateTrackingVisualization(const bool iKnowWhereIAm, SENSFrame& frame);
-    void initSlam(const cv::Mat& mapNodeOm, std::unique_ptr<WAIMap> waiMap);
+    void initDeviceLocation(const ErlebAR::Area& area);
+    void initSlam(const ErlebAR::Area& area);
+    void initWaiSlam(const cv::Mat& mapNodeOm, std::unique_ptr<WAIMap> waiMap);
     bool startCamera(const cv::Size& trackImgSize);
     void onCameraParamsChanged();
+    SLMat4f calcCameraPoseGpsOrientationBased();
 
     AreaTrackingGui   _gui;
-    AppWAIScene       _scene;
+    AppWAIScene       _waiScene;
     UserGuidanceScene _userGuidanceScene;
 
     std::map<ErlebAR::LocationId, ErlebAR::Location> _locations;
 
     std::unique_ptr<SENSCvCamera> _camera;
-    SENSGps*         _gps         = nullptr;
-    SENSOrientation* _orientation = nullptr;
+    SENSGps*                      _gps         = nullptr;
+    SENSOrientation*              _orientation = nullptr;
 
     FeatureExtractorFactory      _featureExtractorFactory;
     std::unique_ptr<KPextractor> _trackingExtractor;
@@ -143,6 +147,8 @@ private:
     ErlebAR::AreaId     _areaId = ErlebAR::AreaId::NONE;
 
     std::unique_ptr<SENSSimHelper> _simHelper;
+
+    SLDeviceLocation _devLoc;
 };
 
 //! Async loader for vocabulary and maps

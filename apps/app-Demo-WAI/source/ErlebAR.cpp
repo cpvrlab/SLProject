@@ -88,6 +88,7 @@ const Location defineLocationAugst()
         //todo: define lla on https://map.geo.admin.ch/
         area.llaPos          = {0, 0, 0};
         area.viewAngleDeg    = 120;
+        area.modelOrigin     = {0, 0, 0}; //todo
         area.slamMapFileName = "locations/augst/templeHill-marker/maps/map_20200812-114906_augst_templeHill-marker_FAST-ORBS-3000_2.waimap";
         loc.areas[area.id]   = area;
     }
@@ -98,6 +99,7 @@ const Location defineLocationAugst()
         //todo: define lla on https://map.geo.admin.ch/
         area.llaPos          = {0, 0, 0};
         area.viewAngleDeg    = -18;
+        area.modelOrigin     = {0, 0, 0}; //todo
         area.slamMapFileName = "locations/augst/templeHillTheater/maps/map_20200819-154204_augst_templeHillTheater_FAST-ORBS-3000_2.waimap";
         loc.areas[area.id]   = area;
     }
@@ -120,6 +122,7 @@ const Location defineLocationAvenches()
         //todo: define lla on https://map.geo.admin.ch/
         area.llaPos          = {0, 0, 0};
         area.viewAngleDeg    = 170;
+        area.modelOrigin     = {0, 0, 0}; //todo
         area.slamMapFileName = "locations/avenches/amphitheaterEntrance/maps/map_20201006-134438_Avenches_Amphitheater-Entrance_FAST-ORBS-1000_2.waimap";
         area.relocAlignImage = "locations/avenches/amphitheaterEntrance/amphitheaterEntrance-reloc-align-img.jpg";
         area.vocLayer        = 2;
@@ -132,6 +135,7 @@ const Location defineLocationAvenches()
         //todo: define lla on https://map.geo.admin.ch/
         area.llaPos          = {0, 0, 0};
         area.viewAngleDeg    = -18;
+        area.modelOrigin     = {0, 0, 0}; //todo
         area.slamMapFileName = "locations/avenches/amphitheater/maps/map_20201006-104306_Avenches_Amphitheater_FAST-ORBS-1000_2.waimap";
         area.relocAlignImage = "locations/avenches/amphitheater/amphitheater-reloc-align-img.jpg";
         area.vocLayer        = 2;
@@ -144,6 +148,7 @@ const Location defineLocationAvenches()
         //todo: define lla on https://map.geo.admin.ch/
         area.llaPos          = {0, 0, 0};
         area.viewAngleDeg    = -140;
+        area.modelOrigin     = {0, 0, 0}; //todo
         area.slamMapFileName = "locations/avenches/cigonier-marker/maps/DEVELOPMENT-map_20200529-162110_avenches_cigonier-marker_FAST_ORBS_2000.json";
         area.vocLayer        = 2;
         loc.areas[area.id]   = area;
@@ -155,6 +160,7 @@ const Location defineLocationAvenches()
         //todo: define lla on https://map.geo.admin.ch/
         area.llaPos          = {0, 0, 0};
         area.viewAngleDeg    = 50;
+        area.modelOrigin     = {0, 0, 0}; //todo
         area.vocFileName     = "locations/avenches/theater/theater_voc.bin";
         area.slamMapFileName = "locations/avenches/theater/maps/release-map_20200930-154707_avenches_theater_FAST-ORBS-2000_2.waimap";
         area.relocAlignImage = "locations/avenches/theater/theater-reloc-align-img.jpg";
@@ -175,11 +181,13 @@ const Location defineLocationBern()
     loc.dspPixWidth          = 2080;
     {
         Area area;
-        area.id              = AreaId::BERN_MILCHGAESSLI;
-        area.name            = mapAreaIdToName(area.id);
-        area.llaPos          = {46.94839, 7.43973, 541.1};
-        area.viewAngleDeg    = 60;
-        area.slamMapFileName = "locations/bern/milchgaessli/maps/DEVELOPMENT-map_20200916-154809_bern_milchgaessli_FAST-ORBS-2000_2.waimap";
+        area.id           = AreaId::BERN_MILCHGAESSLI;
+        area.name         = mapAreaIdToName(area.id);
+        area.llaPos       = {46.94839, 7.43973, 541.1};
+        area.viewAngleDeg = 60;
+        area.modelOrigin  = {46.947629, 7.440754, 442.0}; //todo
+        //area.slamMapFileName = "locations/bern/milchgaessli/maps/DEVELOPMENT-map_20200916-154809_bern_milchgaessli_FAST-ORBS-2000_2.waimap";
+        area.slamMapFileName = "locations/bern/milchgaessli/maps/DEVELOPMENT-map_20200702-173422_christoffel_milchgaessli_FAST-ORBS-2000_2.json";
         //area.slamMapFileName = "locations/bern/milchgaessli/maps/orig-DEVELOPMENT-map_20200811-152001_bern_milchgaessli_FAST-ORBS-3000_2.waimap";
         loc.areas[area.id] = area;
     }
@@ -202,6 +210,7 @@ const Location defineLocationBiel()
         //todo: define lla on https://map.geo.admin.ch/
         area.llaPos        = {47.14248, 7.24310, 485};
         area.viewAngleDeg  = 10.f;
+        area.modelOrigin   = {0, 0, 0}; //todo
         loc.areas[area.id] = area;
     }
     {
@@ -211,6 +220,7 @@ const Location defineLocationBiel()
         //todo: define lla on https://map.geo.admin.ch/
         area.llaPos        = {0, 0, 0};
         area.viewAngleDeg  = 25.f;
+        area.modelOrigin   = {0, 0, 0}; //todo
         loc.areas[area.id] = area;
     }
     {
@@ -220,6 +230,7 @@ const Location defineLocationBiel()
         //todo: define lla on https://map.geo.admin.ch/
         area.llaPos        = {0, 0, 0};
         area.viewAngleDeg  = 60.f;
+        area.modelOrigin   = {0, 0, 0}; //todo
         loc.areas[area.id] = area;
     }
     {
@@ -229,6 +240,7 @@ const Location defineLocationBiel()
         //todo: define lla on https://map.geo.admin.ch/
         area.llaPos       = {0, 0, 0};
         area.viewAngleDeg = 110.f;
+        area.modelOrigin  = {0, 0, 0}; //todo
         //area.slamMapFileName       = "locations/biel/ring/maps/DEVELOPMENT-map_20200814-130443_biel_ring_FAST-ORBS-1000_2.json.gz";
         //area.slamMapFileName       = "locations/biel/ring/maps/DEVELOPMENT-map_20200814-130443_biel_ring_FAST-ORBS-1000_2.waimap";
         area.cameraFrameTargetSize = {640, 480};
@@ -241,6 +253,7 @@ const Location defineLocationBiel()
         //todo: define lla on https://map.geo.admin.ch/
         area.llaPos        = {0, 0, 0};
         area.viewAngleDeg  = 270.f;
+        area.modelOrigin   = {0, 0, 0}; //todo
         loc.areas[area.id] = area;
     }
     {
@@ -250,6 +263,7 @@ const Location defineLocationBiel()
         //todo: define lla on https://map.geo.admin.ch/
         area.llaPos                  = {0, 0, 0};
         area.viewAngleDeg            = 20.f;
+        area.modelOrigin             = {0, 0, 0}; //todo
         area.slamMapFileName         = "locations/biel/office/maps/DEVELOPMENT-map_20200909-152037_biel_office_FAST-ORBS-2000_2.waimap";
         area.relocAlignImage         = "locations/biel/office/office-reloc-align-img.jpg";
         area.cameraFrameTargetSize   = {640, 360};
@@ -275,6 +289,7 @@ const Location defineLocationEvilard()
         //todo: define lla on https://map.geo.admin.ch/
         area.llaPos                  = {47.14888, 7.23343, 727.3};
         area.viewAngleDeg            = 90.f;
+        area.modelOrigin             = {0, 0, 0}; //todo
         area.slamMapFileName         = "locations/evilard/roc2/maps/DEVELOPMENT-map_20200918-163220_evilard_roc2_FAST-ORBS-3000_2.waimap";
         area.relocAlignImage         = "locations/evilard/roc2/relocAlignImg.jpg";
         area.cameraFrameTargetSize   = {640, 360};
@@ -288,6 +303,7 @@ const Location defineLocationEvilard()
         //todo: define lla on https://map.geo.admin.ch/
         area.llaPos                  = {47.14867, 7.23291, 725.9};
         area.viewAngleDeg            = -150.f;
+        area.modelOrigin             = {0, 0, 0}; //todo
         area.slamMapFileName         = "locations/evilard/firefighters/maps/DEVELOPMENT-map_20200918-100317_evilard_firefighters_FAST-ORBS-2000_2.waimap";
         area.relocAlignImage         = "locations/evilard/firefighters/relocAlignImg.jpg";
         area.cameraFrameTargetSize   = {640, 360};

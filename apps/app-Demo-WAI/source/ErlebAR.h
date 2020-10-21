@@ -99,13 +99,11 @@ const char* mapAreaIdToName(AreaId id);
 class Area
 {
 public:
-    //Area(AreaId id, int posXPix, int posYPix, float viewAngle);
-
     AreaId      id = AreaId::NONE;
     std::string name;
-    //lat lon altitude position in WGS84
+    //area position in WGS84 coordinates
     SLVec3d llaPos;
-    //view angle in degree
+    //view angle on map image in degree
     float viewAngleDeg = 0.f;
     //map name in erlebAR directory
     std::string slamMapFileName;
@@ -121,6 +119,9 @@ public:
     cv::Size cameraFrameTargetSize = {640, 360};
     //crop the camera image to fit screen aspect ratio
     bool cameraFrameCropToScreen = false;
+    
+    //origin of 3d model
+    SLVec3d modelOrigin;
 };
 
 //location description

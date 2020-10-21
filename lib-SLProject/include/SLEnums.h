@@ -188,7 +188,8 @@ enum SLCamAnim
     CA_walkingYUp,     //!< Walk translation with AWSD and look around rotation around y & right axis.
     CA_walkingZUp,     //!< Walk translation with AWSD and look around rotation around z & right axis.
     CA_deviceRotYUp,   //!< The device rotation controls the camera rotation.
-    CA_deviceRotLocYUp //!< The device rotation controls the camera rotation and the GPS controls the Camera Translati
+    CA_deviceRotLocYUp,//!< The device rotation controls the camera rotation and the GPS controls the Camera Translati
+    CA_off             //!< No camera animation
 };
 //-----------------------------------------------------------------------------
 //! Enumeration for different camera projections

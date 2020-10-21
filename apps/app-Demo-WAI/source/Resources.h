@@ -213,7 +213,7 @@ public:
     const char* ugInfoReloc() const { return _ugInfoReloc.c_str(); }
     const char* ugInfoRelocWrongOrient() const { return _ugInfoRelocWrongOrient.c_str(); }
     const char* ugInfoDirArrow() const { return _ugInfoDirArrow.c_str(); }
-    
+
     void load(std::string fileName);
 
 protected:
@@ -271,24 +271,25 @@ public:
     const Style&   style() { return _style; }
     const Fonts&   fonts() { return _fonts; }
 
-    //developper helper flags
-    bool developerMode = true;
-    bool simulatorMode = false;
-    
     Textures textures;
 
     const std::map<ErlebAR::LocationId, ErlebAR::Location>& locations() { return _locations; }
-
-    bool logWinEnabled = false;
-    void logWinInit();
-    void logWinUnInit();
-    void logWinDraw();
 
     const char* stringsEnglishId() const { return stringsEnglish.id(); }
     const char* stringsGermanId() const { return stringsGerman.id(); }
     const char* stringsFrenchId() const { return stringsFrench.id(); }
     const char* stringsItalianId() const { return stringsItalian.id(); }
+    
+    void logWinInit();
+    void logWinUnInit();
+    void logWinDraw();
 
+    //developper helper flags
+    bool developerMode      = true;
+    bool simulatorMode      = false;
+    bool enableUserGuidance = false;
+    bool logWinEnabled = false;
+    
 private:
     Strings stringsEnglish;
     Strings stringsGerman;
@@ -313,6 +314,32 @@ private:
     int _screenW;
     int _screenH;
 };
+
+/*
+struct ErlebARConfig
+{
+    void logWinInit();
+    void logWinUnInit();
+    void logWinDraw();
+ 
+    void load(std::string resourceFileName);
+    void save();
+
+    Resources resources;
+
+    //developper helper flags
+    bool developerMode      = true;
+    bool simulatorMode      = false;
+    bool enableUserGuidance = false;
+    bool logWinEnabled = false;
+ 
+     //initialized in function load()
+     std::string _fileName;
+     //erlebar locations definition
+     std::map<ErlebAR::LocationId, ErlebAR::Location> _locations;
+};
+ */
+
 };
 
 #endif //RESOURCES_H

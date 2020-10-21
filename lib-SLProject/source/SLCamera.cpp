@@ -695,7 +695,9 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
             SLMat3f enuRs;
             enuRs.setMatrix(_devRot->rotation());
 
+            //todo: why is this not used?
             //east-north-down w.r.t. world-yaw
+            /*
             SLMat3f wyRenu;
             if (_devRot->zeroYawAtStart())
             {
@@ -705,6 +707,7 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
                     rotYawOffsetDEG -= 360;
                 wyRenu.rotation(rotYawOffsetDEG, 0, 0, 1);
             }
+             */
 
             //world-yaw rotation w.r.t. world
             SLMat3f wRwy;
@@ -732,6 +735,10 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
             _om.setTranslation(wtc_f);
             needUpdate();
         }
+    }
+    else if (_camAnim == CA_off)
+    {
+        //nothing
     }
 
     // The view matrix is the camera nodes inverse world matrix

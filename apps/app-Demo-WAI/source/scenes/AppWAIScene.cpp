@@ -8,7 +8,6 @@
 #include <SLVec4.h>
 #include <SLKeyframeCamera.h>
 #include <SLGLProgramManager.h>
-#include <ErlebAR.h>
 
 AppWAIScene::AppWAIScene(SLstring name, std::string dataDir, std::string erlebARDir)
   : SLScene(name, nullptr),
@@ -17,7 +16,42 @@ AppWAIScene::AppWAIScene(SLstring name, std::string dataDir, std::string erlebAR
 {
 }
 
-void AppWAIScene::loadMesh(std::string path)
+void AppWAIScene::unInit()
+{
+    SLScene::unInit();
+    assets.clear();
+
+    mapNode  = nullptr;
+    camera   = nullptr;
+    sunLight = nullptr;
+
+    mapPC             = nullptr;
+    mapMatchedPC      = nullptr;
+    mapLocalPC        = nullptr;
+    mapMarkerCornerPC = nullptr;
+    keyFrameNode      = nullptr;
+    covisibilityGraph = nullptr;
+    spanningTree      = nullptr;
+    loopEdges         = nullptr;
+
+    redMat               = nullptr;
+    greenMat             = nullptr;
+    blueMat              = nullptr;
+    covisibilityGraphMat = nullptr;
+    spanningTreeMat      = nullptr;
+    loopEdgesMat         = nullptr;
+    matVideoBackground   = nullptr;
+
+    mappointsMesh             = nullptr;
+    mappointsMatchedMesh      = nullptr;
+    mappointsLocalMesh        = nullptr;
+    mappointsMarkerCornerMesh = nullptr;
+    covisibilityGraphMesh     = nullptr;
+    spanningTreeMesh          = nullptr;
+    loopEdgesMesh             = nullptr;
+}
+
+void AppWAIScene::loadMesh(std::string path, SLNode*& augmentationRoot)
 {
     SLAssimpImporter importer;
     augmentationRoot = importer.load(_animManager,
@@ -42,7 +76,6 @@ void AppWAIScene::loadMesh(std::string path)
     }
 
     augmentationRoot->drawBits()->set(SL_DB_NOTSELECTABLE, true);
-;
 
     _root3D->addChild(augmentationRoot);
 }
@@ -53,6 +86,193 @@ void AppWAIScene::hideNode(SLNode* node)
     {
         node->drawBits()->set(SL_DB_HIDDEN, true);
     }
+}
+
+void AppWAIScene::initMapVisualization()
+{
+    mapNode           = new SLNode("map");
+    mapPC             = new SLNode("MapPC");
+    mapMatchedPC      = new SLNode("MapMatchedPC");
+    mapLocalPC        = new SLNode("MapLocalPC");
+    mapMarkerCornerPC = new SLNode("MapMarkerCornerPC");
+    keyFrameNode      = new SLNode("KeyFrames");
+    covisibilityGraph = new SLNode("CovisibilityGraph");
+    spanningTree      = new SLNode("SpanningTree");
+    loopEdges         = new SLNode("LoopEdges");
+
+    redMat = new SLMaterial(&assets, SLGLProgramManager::get(SP_colorUniform), SLCol4f::RED, "Red");
+    redMat->program(new SLGLGenericProgram(&assets, _dataDir + "shaders/ColorUniformPoint.vert", _dataDir + "shaders/Color.frag"));
+    redMat->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 3.0f));
+    greenMat = new SLMaterial(&assets, SLGLProgramManager::get(SP_colorUniform), BFHColors::GreenLight, "Green");
+    greenMat->program(new SLGLGenericProgram(&assets, _dataDir + "shaders/ColorUniformPoint.vert", _dataDir + "shaders/Color.frag"));
+    greenMat->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 5.0f));
+    blueMat = new SLMaterial(&assets, SLGLProgramManager::get(SP_colorUniform), BFHColors::BlueImgui1, "Blue");
+    blueMat->program(new SLGLGenericProgram(&assets, _dataDir + "shaders/ColorUniformPoint.vert", _dataDir + "shaders/Color.frag"));
+    blueMat->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 4.0f));
+
+    covisibilityGraphMat = new SLMaterial(&assets, "covisibilityGraphMat", SLCol4f::YELLOW);
+    covisibilityGraphMat->program(new SLGLGenericProgram(&assets, _dataDir + "shaders/ColorUniform.vert", _dataDir + "shaders/Color.frag"));
+    spanningTreeMat = new SLMaterial(&assets, "spanningTreeMat", SLCol4f::GREEN);
+    spanningTreeMat->program(new SLGLGenericProgram(&assets, _dataDir + "shaders/ColorUniform.vert", _dataDir + "shaders/Color.frag"));
+    loopEdgesMat = new SLMaterial(&assets, "loopEdgesMat", SLCol4f::RED);
+    loopEdgesMat->program(new SLGLGenericProgram(&assets, _dataDir + "shaders/ColorUniform.vert", _dataDir + "shaders/Color.frag"));
+
+    mapNode->addChild(mapPC);
+    mapNode->addChild(mapMatchedPC);
+    mapNode->addChild(mapLocalPC);
+    mapNode->addChild(mapMarkerCornerPC);
+    mapNode->addChild(keyFrameNode);
+    mapNode->addChild(covisibilityGraph);
+    mapNode->addChild(spanningTree);
+    mapNode->addChild(loopEdges);
+
+    //todo: remove?
+    mapNode->rotate(180, 1, 0, 0);
+
+    _root3D->addChild(mapNode);
+}
+
+void AppWAIScene::initScene(ErlebAR::LocationId locationId, ErlebAR::AreaId areaId)
+{
+    unInit();
+
+    _root3D = new SLNode("scene");
+
+    //init map visualizaton (common to all areas)
+    initMapVisualization();
+    //init area dependent visualization
+    initAreaVisualization(locationId, areaId);
+}
+
+void AppWAIScene::initAreaAugst(ErlebAR::AreaId areaId)
+{
+}
+
+void AppWAIScene::initAreaAvenches(ErlebAR::AreaId areaId)
+{
+}
+
+void AppWAIScene::initAreaBern(ErlebAR::AreaId areaId)
+{
+    // Create directional light for the sun light
+    sunLight = new SLLightDirect(&assets, this, 5.0f);
+    sunLight->powers(1.0f, 1.0f, 1.0f);
+    sunLight->attenuation(1, 0, 0);
+    sunLight->doSunPowerAdaptation(true);
+    sunLight->createsShadows(true);
+    sunLight->createShadowMap(-100, 150, SLVec2f(150, 150), SLVec2i(2048, 2048));
+    sunLight->doSmoothShadows(true);
+    sunLight->castsShadows(false);
+    _root3D->addChild(sunLight);
+
+    //init camera
+    camera = new VideoBackgroundCamera("AppWAIScene Camera", _dataDir + "images/textures/LiveVideoError.png", _dataDir + "shaders/");
+    camera->translation(0, 2, 0);
+    camera->lookAt(-10, 2, 0);
+    camera->clipNear(1);
+    camera->clipFar(300);
+    camera->camAnim(SLCamAnim::CA_off);
+    camera->setInitialState();
+    _root3D->addChild(camera);
+
+    try
+    {
+        //load model into augmentationRoot and adjust lighting to scene
+        SLAssimpImporter importer;
+        SLNode*          bern = importer.load(_animManager,
+                                     &assets,
+                                     _dataDir + "erleb-AR/models/bern/Bern-Bahnhofsplatz.fbx",
+                                     _dataDir + "images/textures/");
+
+        // Setup shadow mapping material and replace shader from loader
+        SLGLProgram* progPerPixNrmSM = new SLGLGenericProgram(&assets,
+                                                              _dataDir + "shaders/PerPixBlinnNrmSM.vert",
+                                                              _dataDir + "shaders/PerPixBlinnNrmSM.frag");
+        auto         updateMat       = [=](SLMaterial* mat) { mat->program(progPerPixNrmSM); };
+        bern->updateMeshMat(updateMat, true);
+
+        // Make city transparent
+        SLNode* UmgD = bern->findChild<SLNode>("Umgebung-Daecher");
+        if (!UmgD)
+            throw std::runtime_error("Node: Umgebung-Daecher not found!");
+
+        auto updateKtAmbiFnc = [](SLMaterial* m) {
+            m->kt(0.5f);
+            m->ambient(SLCol4f(.3f, .3f, .3f));
+        };
+
+        UmgD->updateMeshMat(updateKtAmbiFnc, true);
+        SLNode* UmgF = bern->findChild<SLNode>("Umgebung-Fassaden");
+        if (!UmgF)
+            throw std::runtime_error("Node: Umgebung-Fassaden not found!");
+        UmgF->updateMeshMat(updateKtAmbiFnc, true);
+
+        // Hide some objects
+        bern->findChild<SLNode>("Umgebung-Daecher")->drawBits()->set(SL_DB_HIDDEN, true);
+        bern->findChild<SLNode>("Umgebung-Fassaden")->drawBits()->set(SL_DB_HIDDEN, true);
+        bern->findChild<SLNode>("Baldachin-Glas")->drawBits()->set(SL_DB_HIDDEN, true);
+        bern->findChild<SLNode>("Baldachin-Stahl")->drawBits()->set(SL_DB_HIDDEN, true);
+        bern->findChild<SLNode>("Mauer-Wand")->drawBits()->set(SL_DB_HIDDEN, true);
+        bern->findChild<SLNode>("Mauer-Turm")->drawBits()->set(SL_DB_HIDDEN, true);
+        bern->findChild<SLNode>("Mauer-Dach")->drawBits()->set(SL_DB_HIDDEN, true);
+        bern->findChild<SLNode>("Mauer-Weg")->drawBits()->set(SL_DB_HIDDEN, true);
+        bern->findChild<SLNode>("Boden")->drawBits()->set(SL_DB_HIDDEN, true);
+        bern->findChild<SLNode>("Graben-Mauern")->drawBits()->set(SL_DB_HIDDEN, true);
+        bern->findChild<SLNode>("Graben-Bruecken")->drawBits()->set(SL_DB_HIDDEN, true);
+        bern->findChild<SLNode>("Graben-Grass")->drawBits()->set(SL_DB_HIDDEN, true);
+        bern->findChild<SLNode>("Graben-Turm-Dach")->drawBits()->set(SL_DB_HIDDEN, true);
+        bern->findChild<SLNode>("Graben-Turm-Fahne")->drawBits()->set(SL_DB_HIDDEN, true);
+        bern->findChild<SLNode>("Graben-Turm-Stein")->drawBits()->set(SL_DB_HIDDEN, true);
+
+        // Set the video background shader on the baldachin and the ground
+        bern->findChild<SLNode>("Baldachin-Stahl")->setMeshMat(matVideoBackground, true);
+        bern->findChild<SLNode>("Baldachin-Glas")->setMeshMat(matVideoBackground, true);
+        bern->findChild<SLNode>("Boden")->setMeshMat(matVideoBackground, true);
+
+        // Set ambient on all child nodes
+        bern->updateMeshMat([](SLMaterial* m) { m->ambient(SLCol4f(.3f, .3f, .3f)); }, true);
+
+        _root3D->addChild(bern);
+    }
+    catch (std::exception& e)
+    {
+        Utils::log("AppWAIScene", e.what());
+    }
+
+    // Add axis object a world origin (Loeb Ecke)
+    SLNode* axis = new SLNode(new SLCoordAxis(&assets), "Axis Node");
+    axis->setDrawBitsRec(SL_DB_MESHWIRED, false);
+    axis->scale(10);
+    axis->rotate(-90, 1, 0, 0);
+    _root3D->addChild(axis);
+}
+
+void AppWAIScene::initAreaBiel(ErlebAR::AreaId areaId)
+{
+}
+
+void AppWAIScene::initAreaDefault()
+{
+}
+
+void AppWAIScene::initAreaVisualization(ErlebAR::LocationId locationId, ErlebAR::AreaId areaId)
+{
+    //search and delete old node
+    if (!_root3D)
+        return;
+
+    if (locationId == ErlebAR::LocationId::AUGST)
+        initAreaBern(areaId);
+    else if (locationId == ErlebAR::LocationId::AVENCHES)
+        initAreaAvenches(areaId);
+    else if (locationId == ErlebAR::LocationId::BERN)
+        initAreaBern(areaId);
+    else if (locationId == ErlebAR::LocationId::BIEL)
+        initAreaBiel(areaId);
+    else if (locationId == ErlebAR::LocationId::EVILARD)
+        initAreaDefault();
+    else
+        initAreaDefault();
 }
 
 void AppWAIScene::rebuild(std::string location, std::string area)
@@ -66,7 +286,7 @@ void AppWAIScene::rebuild(std::string location, std::string area)
     name("Track Keyframe based Features");
     info("Example for loading an existing pose graph with map points.");
 
-    _root3D    = new SLNode("scene");
+    _root3D = new SLNode("scene");
 
     mapNode           = new SLNode("map");
     mapPC             = new SLNode("MapPC");
@@ -88,7 +308,7 @@ void AppWAIScene::rebuild(std::string location, std::string area)
     blueMat->program(new SLGLGenericProgram(&assets, _dataDir + "shaders/ColorUniformPoint.vert", _dataDir + "shaders/Color.frag"));
     blueMat->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 4.0f));
 
-/*
+    /*
     SLMaterial* matVideoBackground = new SLMaterial(&assets,
                                                     "matVideoBackground",
                                                     videoTexture,
@@ -115,7 +335,7 @@ void AppWAIScene::rebuild(std::string location, std::string area)
     // Let the sun be rotated by time and location
     //SLApplication::devLoc.sunLightNode(light1);
 
-    camera = new VideoBackgroundCamera("AppWAIScene Camera", _dataDir + "images/textures/LiveVideoError.png");
+    camera = new VideoBackgroundCamera("AppWAIScene Camera", _dataDir + "images/textures/LiveVideoError.png", _dataDir + "shaders/");
     camera->translation(0, 0, 0.f);
     camera->lookAt(0, 0, 1);
     //for tracking we have to use the field of view from calibration
@@ -124,6 +344,7 @@ void AppWAIScene::rebuild(std::string location, std::string area)
     camera->setInitialState();
 
     HighResTimer t;
+    SLNode*      augmentationRoot = nullptr;
     if (location == "avenches" || location == "Avenches")
     {
         std::string modelPath;
@@ -131,7 +352,7 @@ void AppWAIScene::rebuild(std::string location, std::string area)
         {
             std::string      modelPath = _dataDir + "erleb-AR/models/avenches/Aventicum-Amphitheater1.gltf";
             SLAssimpImporter importer;
-            loadMesh(modelPath);
+            loadMesh(modelPath, augmentationRoot);
             augmentationRoot->rotate(13.7f, 0, 1, 0, TS_parent);
 
             // Let the video shine through some objects
@@ -158,14 +379,14 @@ void AppWAIScene::rebuild(std::string location, std::string area)
                 modelPath = _dataDir + "erleb-AR/models/avenches/Aventicum-Cigognier1.gltf";
             }
 
-            loadMesh(modelPath);
+            loadMesh(modelPath, augmentationRoot);
         }
         else if (area == "Theater-marker" || area == "Theater")
         {
             std::string      modelPath = _dataDir + "erleb-AR/models/avenches/Aventicum-Theater1.gltf";
             SLAssimpImporter importer;
 
-            loadMesh(modelPath);
+            loadMesh(modelPath, augmentationRoot);
         }
     }
     else if (location == "Augst")
@@ -178,7 +399,7 @@ void AppWAIScene::rebuild(std::string location, std::string area)
             modelPath = _dataDir + "models/Tempel-Theater-02.gltf";
         }
 
-        loadMesh(modelPath);
+        loadMesh(modelPath, augmentationRoot);
 
         hideNode(augmentationRoot->findChild<SLNode>("Tmp-Portikus-Sockel", true));
         hideNode(augmentationRoot->findChild<SLNode>("Tmp-Boden", true));
@@ -339,6 +560,7 @@ void AppWAIScene::rebuild(std::string location, std::string area)
 
 void AppWAIScene::adjustAugmentationTransparency(float kt)
 {
+    /*
     if (augmentationRoot)
     {
         for (SLNode* child : augmentationRoot->children())
@@ -348,6 +570,7 @@ void AppWAIScene::adjustAugmentationTransparency(float kt)
             child->mesh()->init(child);
         }
     }
+     */
 }
 
 void AppWAIScene::resetMapNode()
@@ -356,6 +579,13 @@ void AppWAIScene::resetMapNode()
     mapNode->lookAt(0, 0, -1);
 }
 
+/*
+ Pose is the camera extrinsic: the world w.r.t. the camera coordinate system.
+ We invert to get the camera pose (camera w.r.t the world coordinate system).
+ Additionally we change the direction of the axes y and z:
+ Wai coordinate axes are like in an opencv image (x right, y down, z into plane), in SLProject
+ they are aligned like in opengl (x right, y up, z back)
+ */
 void AppWAIScene::updateCameraPose(const cv::Mat& pose)
 {
     // update camera node position
@@ -460,7 +690,7 @@ void AppWAIScene::renderKeyframes(const std::vector<WAIKeyFrame*>& keyframes, co
         }
 
         cam->setDrawColor();
-        for (WAIKeyFrame * ckf : candidates)
+        for (WAIKeyFrame* ckf : candidates)
         {
             if (kf->mnId == ckf->mnId)
                 cam->setDrawColor(SLCol4f::BLUE);

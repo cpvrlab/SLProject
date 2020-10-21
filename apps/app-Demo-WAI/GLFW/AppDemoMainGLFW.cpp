@@ -530,7 +530,7 @@ int main(int argc, char* argv[])
 {
     GLFWInit();
 
-    bool simulateSensors = false;
+    bool simulateSensors = true;
     bool useDummyGps     = false;
     try
     {
@@ -543,7 +543,7 @@ int main(int argc, char* argv[])
         SENSCamera*      camera      = nullptr;
         if (simulateSensors)
         {
-            std::string simDir = Utils::getAppsWritableDir() + "SENSSimData/20201005-174027_SENSRecorder";
+            std::string simDir = Utils::getAppsWritableDir() + "SENSSimData/20201021-123056_SENSRecorder";
             sensSim            = std::make_unique<SENSSimulator>(simDir);
             gps                = sensSim->getGpsSensorPtr();
             orientation        = sensSim->getOrientationSensorPtr();
