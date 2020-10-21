@@ -253,6 +253,37 @@ void AppWAIScene::initAreaBiel(ErlebAR::AreaId areaId)
 
 void AppWAIScene::initAreaDefault()
 {
+    // Create directional light for the sun light
+    sunLight = new SLLightDirect(&assets, this, 5.0f);
+    sunLight->powers(1.0f, 1.0f, 1.0f);
+    sunLight->attenuation(1, 0, 0);
+    sunLight->doSunPowerAdaptation(true);
+    sunLight->createsShadows(true);
+    sunLight->createShadowMap(-100, 150, SLVec2f(150, 150), SLVec2i(2048, 2048));
+    sunLight->doSmoothShadows(true);
+    sunLight->castsShadows(false);
+    _root3D->addChild(sunLight);
+
+    //init camera
+    camera = new VideoBackgroundCamera("AppWAIScene Camera", _dataDir + "images/textures/LiveVideoError.png", _dataDir + "shaders/");
+    camera->translation(0, 2, 0);
+    camera->lookAt(-10, 2, 0);
+    camera->clipNear(1);
+    camera->clipFar(300);
+    camera->camAnim(SLCamAnim::CA_turntableYUp);
+    camera->setInitialState();
+    _root3D->addChild(camera);
+
+    SLMaterial* yellow = new SLMaterial(&assets, "mY", SLCol4f(1, 1, 0, 0.5f));
+    float e = 10.f; //edge length
+    SLBox*  box     = new SLBox(&assets, 0.0f, 0.0f, 0.0f, e, e, e, "Box", yellow);
+    SLNode* boxNode = new SLNode(box, "Box Node");
+    boxNode->setDrawBitsRec(SL_DB_CULLOFF, true);
+    SLNode* axisNode = new SLNode(new SLCoordAxis(&assets), "Axis Node");
+    axisNode->setDrawBitsRec(SL_DB_MESHWIRED, false);
+    axisNode->scale(e);
+    boxNode->addChild(axisNode);
+    _root3D->addChild(boxNode);
 }
 
 void AppWAIScene::initAreaVisualization(ErlebAR::LocationId locationId, ErlebAR::AreaId areaId)

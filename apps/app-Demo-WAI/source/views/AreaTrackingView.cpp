@@ -371,6 +371,7 @@ void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaI
     startCamera(area.cameraFrameTargetSize);
 
     //init 3d visualization
+    this->unInit();
     _waiScene.initScene(locId, areaId);
     updateSceneCameraFov();
     onInitialize(); //init scene view

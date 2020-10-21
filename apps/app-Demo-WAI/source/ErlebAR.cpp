@@ -289,7 +289,7 @@ const Location defineLocationEvilard()
         //todo: define lla on https://map.geo.admin.ch/
         area.llaPos                  = {47.14888, 7.23343, 727.3};
         area.viewAngleDeg            = 90.f;
-        area.modelOrigin             = {0, 0, 0}; //todo
+        area.modelOrigin             = {47.14888, 7.23343, 727.3};
         area.slamMapFileName         = "locations/evilard/roc2/maps/DEVELOPMENT-map_20200918-163220_evilard_roc2_FAST-ORBS-3000_2.waimap";
         area.relocAlignImage         = "locations/evilard/roc2/relocAlignImg.jpg";
         area.cameraFrameTargetSize   = {640, 360};
