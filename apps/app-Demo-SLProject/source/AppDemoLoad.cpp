@@ -3305,13 +3305,12 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         // Make terrain a video shine trough
         bfh->findChild<SLNode>("Terrain")->setMeshMat(matVideoBackground, true);
 
-        /* Make buildings transparent
+        // Make buildings transparent
         SLNode* buildings = bfh->findChild<SLNode>("Buildings");
         SLNode* roofs = bfh->findChild<SLNode>("Roofs");
         auto updateTranspFnc = [](SLMaterial* m) {m->kt(0.5f);};
         buildings->updateMeshMat(updateTranspFnc, true);
         roofs->updateMeshMat(updateTranspFnc, true);
-        */
 
         // Set ambient on all child nodes
         bfh->updateMeshMat([](SLMaterial* m) { m->ambient(SLCol4f(.2f, .2f, .2f)); }, true);
