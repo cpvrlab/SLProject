@@ -84,7 +84,6 @@ endif ()
 if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU" OR "${CMAKE_CXX_COMPILER_ID}" MATCHES "Clang")
     set(DEFAULT_COMPILE_OPTIONS ${DEFAULT_COMPILE_OPTIONS}
 
-            -Wall
             -Werror=return-type
             -Wno-c++98-compat
             -Wno-c++98-compat-pedantic
