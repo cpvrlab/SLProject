@@ -701,9 +701,7 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
             else if (c->isMirroredV())
                 mirrored = "vertically";
 
-            sprintf(m + strlen(m), "Video Type   : %s\n", vt == VT_NONE ? "None" : vt == VT_MAIN ? "Main Camera"
-                                                                                 : vt == VT_FILE ? "File"
-                                                                                                 : "Secondary Camera");
+            sprintf(m + strlen(m), "Video Type   : %s\n", vt == VT_NONE ? "None" : vt == VT_MAIN ? "Main Camera" : vt == VT_FILE ? "File" : "Secondary Camera");
             sprintf(m + strlen(m), "Display size : %d x %d\n", CVCapture::instance()->lastFrame.cols, CVCapture::instance()->lastFrame.rows);
             sprintf(m + strlen(m), "Capture size : %d x %d\n", capSize.width, capSize.height);
             sprintf(m + strlen(m), "Size Index   : %d\n", ac->camSizeIndex());
@@ -1852,7 +1850,6 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                     ImGui::PopItemWidth();
                     ImGui::EndMenu();
                 }
-
             }
 
             ImGui::EndMenu();
@@ -2932,9 +2929,9 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                         }
                         if (typeid(*singleNode) == typeid(SLLightDirect))
                         {
-                            light    = (SLLight*)(SLLightDirect*)singleNode;
-                            typeName = "Light (directional):";
-                            doSunPowerAdaptation    = ((SLLightDirect*)singleNode)->doSunPowerAdaptation();
+                            light                = (SLLight*)(SLLightDirect*)singleNode;
+                            typeName             = "Light (directional):";
+                            doSunPowerAdaptation = ((SLLightDirect*)singleNode)->doSunPowerAdaptation();
                         }
 
                         if (light && ImGui::TreeNode(typeName.c_str()))

@@ -373,10 +373,10 @@ void SLCamera::buildAABB(SLAABBox& aabb, const SLMat4f& wmNode)
 SLVec2i SLCamera::frustumSizeAtDistance(SLfloat distance)
 {
     SLVec2i frustumSize;
-    
-    frustumSize.y = (int) 2.f * distance * std::tanf(_fov * 0.5f * RAD2DEG);
+
+    frustumSize.y = (int)2.f * distance * std::tan(_fov * 0.5f * RAD2DEG);
     frustumSize.x = frustumSize.y * _viewportRatio; //w / h
-    
+
     return frustumSize;
 }
 //-----------------------------------------------------------------------------

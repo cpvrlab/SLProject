@@ -3,7 +3,7 @@
 #include "SENSException.h"
 #include <Utils.h>
 #include "SENSUtils.h"
-#include <SENSCamera.h>
+#include "SENSCamera.h"
 
 SENSVideoStream::SENSVideoStream(const std::string& videoFileName,
                                  bool               videoLoops,

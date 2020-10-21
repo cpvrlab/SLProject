@@ -2,14 +2,14 @@
 #define SENS_CAMERA_H
 
 #include <opencv2/core.hpp>
-#include <SENSFrame.h>
-#include <SENSException.h>
-#include <SENSCalibration.h>
+#include "SENSFrame.h"
+#include "SENSException.h"
+#include "SENSCalibration.h"
 #include <atomic>
 #include <map>
 #include <thread>
 #include <algorithm>
-#include <SENSUtils.h>
+#include "SENSUtils.h"
 #include <HighResTimer.h>
 //---------------------------------------------------------------------------
 //Common defininitions:
