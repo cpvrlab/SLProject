@@ -323,18 +323,21 @@ void SLDeviceLocation::loadGeoTiff(const SLstring& geoTiffFile,
     // Check that default and origin location is withing the GeoTiff extends
     if (geoTiffIsAvailableAndValid())
     {
-        _altDemM = _demGeoTiff.getAltitudeAtLatLon(_defaultLatLonAlt.lat,
-                                                   _defaultLatLonAlt.lon,
-                                                   SLApplication::appTag.c_str());
-        // Overwrite the altitudes
+        // Overwrite the altitudes of origin
+        SLfloat altOriginM = _demGeoTiff.getAltitudeAtLatLon(_originLatLonAlt.lat,
+                                                             _originLatLonAlt.lon,
+                                                             SLApplication::appTag.c_str());
         originLatLonAlt(_originLatLonAlt.lat,
                         _originLatLonAlt.lon,
-                        _altDemM);
+                        altOriginM);
 
-        // The default position with the additional camera height
+        // Overwrite the altitudes of default with the additional camera height
+        SLfloat altDefaultM = _demGeoTiff.getAltitudeAtLatLon(_defaultLatLonAlt.lat,
+                                                              _defaultLatLonAlt.lon,
+                                                              SLApplication::appTag.c_str());
         defaultLatLonAlt(_defaultLatLonAlt.lat,
                          _defaultLatLonAlt.lon,
-                         _altDemM + _cameraHeightM);
+                         altDefaultM + _cameraHeightM);
     }
     else
     {
