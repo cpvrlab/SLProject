@@ -13,6 +13,7 @@ set(headers
     ${CMAKE_CURRENT_SOURCE_DIR}/source/WAIMapPoint.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/WAIMath.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/WAISlamTools.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/F2FTransform.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/WAISlam.h
 	${CMAKE_CURRENT_SOURCE_DIR}/source/WAISlamTrackPool.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/OrbSlam/Converter.h
@@ -42,6 +43,7 @@ set(sources
     ${CMAKE_CURRENT_SOURCE_DIR}/source/WAIMap.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/WAIMapPoint.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/WAISlamTools.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/F2FTransform.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/WAISlam.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/source/WAISlamTrackPool.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/OrbSlam/Converter.cpp
