@@ -43,45 +43,11 @@ public:
                      const DeviceData&   deviceData);
     ~AreaTrackingView();
 
+    void initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaId);
     bool update();
     //call when view becomes visible
-    void onShow()
-    {
-        _gui.onShow();
-        if (_gps)
-            _gps->start();
-        if (_orientation)
-            _orientation->start();
-
-        if (_resources.developerMode && _resources.simulatorMode)
-        {
-            if (_simHelper)
-                _simHelper.reset();
-            _simHelper = std::make_unique<SENSSimHelper>(_gps,
-                                                         _orientation,
-                                                         _camera->cameraRef(),
-                                                         _deviceData.writableDir() + "SENSSimData",
-                                                         std::bind(&AreaTrackingView::onCameraParamsChanged, this));
-        }
-    }
-
-    void onHide()
-    {
-        //reset user guidance and run it once
-        _userGuidance.reset();
-
-        if (_gps)
-            _gps->stop();
-        if (_orientation)
-            _orientation->stop();
-        if (_camera)
-            _camera->stop();
-
-        if (_simHelper)
-            _simHelper.reset();
-    }
-
-    void initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaId);
+    void onShow();
+    void onHide();
 
     void resume();
     void hold();
@@ -100,7 +66,7 @@ private:
     void updateSceneCameraFov();
     void updateVideoImage(SENSFrame& frame, VideoBackgroundCamera* videoBackground);
     void updateTrackingVisualization(const bool iKnowWhereIAm, SENSFrame& frame);
-    void initDeviceLocation(const ErlebAR::Area& area);
+    void initDeviceLocation(const ErlebAR::Location& location, const ErlebAR::Area& area);
     void initSlam(const ErlebAR::Area& area);
     void initWaiSlam(const cv::Mat& mapNodeOm, std::unique_ptr<WAIMap> waiMap);
     bool startCamera(const cv::Size& trackImgSize);
@@ -149,6 +115,8 @@ private:
     std::unique_ptr<SENSSimHelper> _simHelper;
 
     SLDeviceLocation _devLoc;
+    //indicates if intArea finished successfully
+    bool _noInitException = false;
 };
 
 //! Async loader for vocabulary and maps

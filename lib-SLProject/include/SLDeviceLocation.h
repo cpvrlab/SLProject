@@ -72,6 +72,7 @@ public:
     void sunLightNode(SLLightDirect* sln) { _sunLightNode = sln; }
     void loadGeoTiff(const SLstring& geoTiffFile, const SLstring& appTag);
     bool geoTiffIsAvailableAndValid();
+    bool posIsOnGeoTiff(SLdouble latDEG, SLdouble lonDEG);
     void cameraHeightM(float camHeightM) { _cameraHeightM = camHeightM; }
 
     // Getters

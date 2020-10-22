@@ -111,6 +111,7 @@ public:
     string        name() { return _name; }
     CVMat         cvMat() { return _cvMat; }
     uchar*        data() { return _cvMat.data; }
+    bool          empty() { return _cvMat.empty(); }
     uint          width() { return (uint)_cvMat.cols; }
     uint          height() { return (uint)_cvMat.rows; }
     uint          bytesPerPixel() { return _bytesPerPixel; }

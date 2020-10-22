@@ -51,6 +51,178 @@ AreaTrackingView::~AreaTrackingView()
         delete _asyncLoader;
 }
 
+void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaId)
+{
+    try
+    {
+        _noInitException = false;
+        _locId                      = locId;
+        _areaId                     = areaId;
+        ErlebAR::Location& location = _locations[locId];
+        ErlebAR::Area&     area     = location.areas[areaId];
+
+        //stop and reset possible wai slam instances
+        if (_waiSlam)
+            _waiSlam.reset();
+
+        _gui.initArea(area);
+        if (_resources.enableUserGuidance)
+            _userGuidance.areaSelected(area.id, area.llaPos, area.viewAngleDeg);
+
+        //start video camera
+        startCamera(area.cameraFrameTargetSize);
+
+        //init 3d visualization
+        this->unInit();
+        _waiScene.initScene(locId, areaId);
+        updateSceneCameraFov();
+        this->onInitialize(); //init scene view
+
+        initDeviceLocation(location, area);
+        initSlam(area);
+        
+        _noInitException = true;
+    }
+    catch (std::exception& e)
+    {
+        _gui.showErrorMsg(e.what());
+    }
+    catch (...)
+    {
+        _gui.showErrorMsg("AreaTrackingView init: unknown exception catched!");
+    }
+}
+
+bool AreaTrackingView::update()
+{
+    WAI::TrackingState slamState = WAI::TrackingState_None;
+    try
+    {
+        if (_noInitException)
+        {
+            SENSFramePtr frame;
+            if (_camera)
+                frame = _camera->latestFrame();
+
+            bool isTracking = false;
+
+            if (frame && _waiSlam)
+            {
+                //the intrinsics may change dynamically on focus changes (e.g. on iOS)
+                if (!frame->intrinsics.empty())
+                {
+                    _waiSlam->changeIntrinsic(_camera->scaledCameraMat(), _camera->calibration()->distortion());
+                    updateSceneCameraFov();
+                }
+                _waiSlam->update(frame->imgManip);
+                slamState = _waiSlam->getTrackingState();
+
+                isTracking = (_waiSlam->getTrackingState() == WAI::TrackingState_TrackingOK);
+                if (isTracking)
+                    _waiScene.updateCameraPose(_waiSlam->getPose());
+                else if (_orientation)
+                {
+                    SLMat4f camPose = calcCameraPoseGpsOrientationBased();
+                    _waiScene.camera->om(camPose);
+                    //give waiSlam a guess of the current position in the ENU frame
+                    //todo ..
+                }
+            }
+            else if (_asyncLoader && _asyncLoader->isReady())
+            {
+                Utils::log("AreaTrackingView", "worker done");
+                cv::Mat mapNodeOm = _asyncLoader->mapNodeOm();
+                initWaiSlam(mapNodeOm, _asyncLoader->moveWaiMap());
+
+                delete _asyncLoader;
+                _asyncLoader = nullptr;
+                if (_resources.enableUserGuidance)
+                    _userGuidance.dataIsLoading(false);
+            }
+
+            //switch between userguidance scene and tracking scene depending on tracking state
+            VideoBackgroundCamera* currentCamera;
+            if (isTracking || !_resources.enableUserGuidance)
+            {
+                this->scene(&_waiScene);
+                this->camera(_waiScene.camera);
+                currentCamera = _waiScene.camera;
+            }
+            else
+            {
+                this->scene(&_userGuidanceScene);
+                this->camera(_userGuidanceScene.camera);
+                currentCamera = _userGuidanceScene.camera;
+            }
+
+            //update visualization
+            if (frame)
+            {
+                //decorate video image and update scene
+                if (_waiSlam)
+                    updateTrackingVisualization(isTracking, *frame.get());
+
+                //set video image camera background
+                updateVideoImage(*frame.get(), currentCamera);
+            }
+
+            if (_resources.enableUserGuidance)
+            {
+                _userGuidance.updateTrackingState(isTracking);
+                _userGuidance.updateSensorEstimations();
+            }
+        }
+    }
+    catch (std::exception& e)
+    {
+        _gui.showErrorMsg(e.what());
+    }
+    catch (...)
+    {
+        _gui.showErrorMsg("AreaTrackingView update: unknown exception catched!");
+    }
+
+    //render call
+    return onPaint();
+}
+
+//call when view becomes visible
+void AreaTrackingView::onShow()
+{
+    _gui.onShow();
+    if (_gps)
+        _gps->start();
+    if (_orientation)
+        _orientation->start();
+
+    if (_resources.developerMode && _resources.simulatorMode)
+    {
+        if (_simHelper)
+            _simHelper.reset();
+        _simHelper = std::make_unique<SENSSimHelper>(_gps,
+                                                     _orientation,
+                                                     _camera->cameraRef(),
+                                                     _deviceData.writableDir() + "SENSSimData",
+                                                     std::bind(&AreaTrackingView::onCameraParamsChanged, this));
+    }
+}
+
+void AreaTrackingView::onHide()
+{
+    //reset user guidance and run it once
+    _userGuidance.reset();
+
+    if (_gps)
+        _gps->stop();
+    if (_orientation)
+        _orientation->stop();
+    if (_camera)
+        _camera->stop();
+
+    if (_simHelper)
+        _simHelper.reset();
+}
+
 SLbool AreaTrackingView::onMouseDown(SLMouseButton button, SLint scrX, SLint scrY, SLKey mod)
 {
     SLbool ret = SLSceneView::onMouseDown(button, scrX, scrY, mod);
@@ -82,10 +254,10 @@ SLMat4f AreaTrackingView::calcCameraPoseGpsOrientationBased()
         _devLoc.onLocationLatLonAlt(loc.latitudeDEG, loc.longitudeDEG, loc.altitudeM, loc.altitudeM);
     }
 
-    auto sensQuat = _orientation->getOrientation();
+    auto     sensQuat = _orientation->getOrientation();
     SLQuat4f slQuat(sensQuat.quatX, sensQuat.quatY, sensQuat.quatZ, sensQuat.quatW);
-    SLMat3f rotMat = slQuat.toMat3();
-    
+    SLMat3f  rotMat = slQuat.toMat3();
+
     SLMat4f camPose;
     {
         SLMat3f sRc;
@@ -117,99 +289,9 @@ SLMat4f AreaTrackingView::calcCameraPoseGpsOrientationBased()
         // Set the camera position
         SLVec3f wtc_f((SLfloat)wtc.x, (SLfloat)wtc.y, (SLfloat)wtc.z);
         camPose.setTranslation(wtc_f);
-     }
-    
+    }
+
     return camPose;
-}
-
-bool AreaTrackingView::update()
-{
-    WAI::TrackingState slamState = WAI::TrackingState_None;
-    try
-    {
-        SENSFramePtr frame;
-        if (_camera)
-            frame = _camera->latestFrame();
-
-        bool isTracking = false;
-
-        if (frame && _waiSlam)
-        {
-            //the intrinsics may change dynamically on focus changes (e.g. on iOS)
-            if (!frame->intrinsics.empty())
-            {
-                _waiSlam->changeIntrinsic(_camera->scaledCameraMat(), _camera->calibration()->distortion());
-                updateSceneCameraFov();
-            }
-            _waiSlam->update(frame->imgManip);
-            slamState = _waiSlam->getTrackingState();
-
-            isTracking = (_waiSlam->getTrackingState() == WAI::TrackingState_TrackingOK);
-            if (isTracking)
-                _waiScene.updateCameraPose(_waiSlam->getPose());
-            else if(_orientation)
-            {
-                SLMat4f camPose = calcCameraPoseGpsOrientationBased();
-                _waiScene.camera->om(camPose);
-                //give waiSlam a guess of the current position in the ENU frame
-                //todo ..
-            }
-        }
-        else if (_asyncLoader && _asyncLoader->isReady())
-        {
-            Utils::log("AreaTrackingView", "worker done");
-            cv::Mat mapNodeOm = _asyncLoader->mapNodeOm();
-            initWaiSlam(mapNodeOm, _asyncLoader->moveWaiMap());
-
-            delete _asyncLoader;
-            _asyncLoader = nullptr;
-            if (_resources.enableUserGuidance)
-                _userGuidance.dataIsLoading(false);
-        }
-
-        //switch between userguidance scene and tracking scene depending on tracking state
-        VideoBackgroundCamera* currentCamera;
-        if (isTracking || !_resources.enableUserGuidance)
-        {
-            this->scene(&_waiScene);
-            this->camera(_waiScene.camera);
-            currentCamera = _waiScene.camera;
-        }
-        else
-        {
-            this->scene(&_userGuidanceScene);
-            this->camera(_userGuidanceScene.camera);
-            currentCamera = _userGuidanceScene.camera;
-        }
-
-        //update visualization
-        if (frame)
-        {
-            //decorate video image and update scene
-            if (_waiSlam)
-                updateTrackingVisualization(isTracking, *frame.get());
-
-            //set video image camera background
-            updateVideoImage(*frame.get(), currentCamera);
-        }
-
-        if (_resources.enableUserGuidance)
-        {
-            _userGuidance.updateTrackingState(isTracking);
-            _userGuidance.updateSensorEstimations();
-        }
-    }
-    catch (std::exception& e)
-    {
-        _gui.showErrorMsg(e.what());
-    }
-    catch (...)
-    {
-        _gui.showErrorMsg("AreaTrackingView update: unknown exception catched!");
-    }
-
-    //render call
-    return onPaint();
 }
 
 void AreaTrackingView::initSlam(const ErlebAR::Area& area)
@@ -348,35 +430,7 @@ std::unique_ptr<WAIMap> AreaTrackingView::tryLoadMap(const std::string& erlebARD
     return waiMap;
 }
 
-void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaId)
-{
-    _locId                      = locId;
-    _areaId                     = areaId;
-    ErlebAR::Location& location = _locations[locId];
-    ErlebAR::Area&     area     = location.areas[areaId];
-
-    //stop and reset possible wai slam instances
-    if (_waiSlam)
-        _waiSlam.reset();
-
-    _gui.initArea(area);
-    if (_resources.enableUserGuidance)
-        _userGuidance.areaSelected(area.id, area.llaPos, area.viewAngleDeg);
-
-    //start video camera
-    startCamera(area.cameraFrameTargetSize);
-
-    //init 3d visualization
-    this->unInit();
-    _waiScene.initScene(locId, areaId);
-    updateSceneCameraFov();
-    onInitialize(); //init scene view
-
-    initDeviceLocation(area);
-    initSlam(area);
-}
-
-void AreaTrackingView::initDeviceLocation(const ErlebAR::Area& area)
+void AreaTrackingView::initDeviceLocation(const ErlebAR::Location& location, const ErlebAR::Area& area)
 {
     //reset everything to default
     _devLoc.init();
@@ -391,6 +445,21 @@ void AreaTrackingView::initDeviceLocation(const ErlebAR::Area& area)
 
     _devLoc.originLatLonAlt(area.modelOrigin.x, area.modelOrigin.y, area.modelOrigin.z); // Model origin
     _devLoc.defaultLatLonAlt(area.llaPos.x, area.llaPos.y, area.llaPos.z + 1.7);
+    //ATTENTION: call this after originLatLonAlt and defaultLatLonAlt setters. Otherwise alititude will be overwritten!!
+    if (!location.geoTiffFileName.empty())
+    {
+        std::string geoTiffFileName = _deviceData.erlebARDir() + location.geoTiffFileName;
+        if (Utils::fileExists(geoTiffFileName))
+            _devLoc.loadGeoTiff(geoTiffFileName, "ErlebAR");
+        else
+        {
+            std::stringstream ss;
+            ss << "AreaTrackingView::initDeviceLocation: geo tiff file does not exist: " << geoTiffFileName;
+            throw std::runtime_error(ss.str());
+        }
+    }
+    else
+        Utils::log("AreaTrackingView", "WARNING: no geo tiff available");
 }
 
 void AreaTrackingView::updateSceneCameraFov()

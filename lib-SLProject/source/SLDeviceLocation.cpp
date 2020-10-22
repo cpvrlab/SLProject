@@ -77,7 +77,7 @@ void SLDeviceLocation::onLocationLatLonAlt(SLdouble latDEG,
     // Set altitude to use
     _altGpsM       = (float)altM;
     float altToUse = (float)altM;
-    if (geoTiffIsAvailableAndValid())
+    if (geoTiffIsAvailableAndValid() && posIsOnGeoTiff(latDEG, lonDEG))
     {
         _altDemM = _demGeoTiff.getAltitudeAtLatLon(latDEG, lonDEG);
         altToUse = _altDemM + _cameraHeightM;
@@ -352,3 +352,11 @@ bool SLDeviceLocation::geoTiffIsAvailableAndValid()
             _defaultLatLonAlt.lon < _demGeoTiff.lowerRightLatLonAlt()[1]);
 }
 //------------------------------------------------------------------------------
+bool SLDeviceLocation::posIsOnGeoTiff(SLdouble latDEG, SLdouble lonDEG)
+{
+    return (!_demGeoTiff.empty() &&
+            latDEG < _demGeoTiff.upperLeftLatLonAlt()[0] &&
+            latDEG > _demGeoTiff.lowerRightLatLonAlt()[0] &&
+            lonDEG > _demGeoTiff.upperLeftLatLonAlt()[1] &&
+            lonDEG < _demGeoTiff.lowerRightLatLonAlt()[1]);
+}
