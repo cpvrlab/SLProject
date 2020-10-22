@@ -293,13 +293,13 @@ void AppWAIScene::initAreaVisualization(ErlebAR::LocationId locationId, ErlebAR:
         return;
 
     if (locationId == ErlebAR::LocationId::AUGST)
-        initAreaBern(areaId);
+        initAreaDefault();//initAreaAugst(areaId);
     else if (locationId == ErlebAR::LocationId::AVENCHES)
-        initAreaAvenches(areaId);
+        initAreaDefault();//initAreaAvenches(areaId);
     else if (locationId == ErlebAR::LocationId::BERN)
         initAreaBern(areaId);
     else if (locationId == ErlebAR::LocationId::BIEL)
-        initAreaBiel(areaId);
+        initAreaDefault();//initAreaBiel(areaId);
     else if (locationId == ErlebAR::LocationId::EVILARD)
         initAreaDefault();
     else

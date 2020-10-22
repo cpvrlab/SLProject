@@ -224,11 +224,7 @@ void AreaTrackingView::initSlam(const ErlebAR::Area& area)
     else
         _imgBuffer.init(1, area.cameraFrameTargetSize);
 
-    std::string vocFileName;
-    if (area.vocFileName.empty())
-        vocFileName = _deviceData.vocabularyDir() + _vocabularyFileName;
-    else
-        vocFileName = _deviceData.erlebARDir() + area.vocFileName;
+    std::string vocFileName = _deviceData.dataDir() + area.vocFileName;
 
 #ifdef LOAD_ASYNC
     //delete managed object

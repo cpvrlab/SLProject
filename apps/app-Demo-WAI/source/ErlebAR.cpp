@@ -74,241 +74,219 @@ const char* mapAreaIdToName(AreaId id)
 
 const Location defineLocationAugst()
 {
-    Location loc;
-    loc.id                   = LocationId::AUGST;
-    loc.name                 = mapLocationIdToName(loc.id);
-    loc.areaMapImageFileName = "locations/augst/locationMapImgAugst.jpg";
-    loc.mapTLLla             = {47.53443, 7.71890, 282.6};
-    loc.mapBRLla             = {47.53194, 7.72524, 282.6};
+    Location loc(LocationId::AUGST,
+                 "locations/augst/locationMapImgAugst.jpg",
+                 {47.53443, 7.71890, 282.6},
+                 {47.53194, 7.72524, 282.6},
+                 2000,
+                 "models/augst/DTM-Theater-Tempel-WGS84.tif");
 
     {
-        Area area;
-        area.id   = AreaId::AUGST_TEMPLE_HILL_MARKER;
-        area.name = mapAreaIdToName(area.id);
-        //todo: define lla on https://map.geo.admin.ch/
-        area.llaPos          = {0, 0, 0};
-        area.viewAngleDeg    = 120;
-        area.modelOrigin     = {0, 0, 0}; //todo
-        area.slamMapFileName = "locations/augst/templeHill-marker/maps/map_20200812-114906_augst_templeHill-marker_FAST-ORBS-3000_2.waimap";
-        loc.areas[area.id]   = area;
+        Area area(AreaId::AUGST_TEMPLE_HILL_MARKER,                                                                             //id
+                  {47.53315, 7.72089, 282.6},                                                                                                    //llaPos
+                  120,                                                                                                          //map viewing angle
+                  {47.53319, 7.72207, 282.6},                                                                                                    //modelOrigin
+                  "locations/augst/templeHill-marker/maps/map_20200812-114906_augst_templeHill-marker_FAST-ORBS-3000_2.waimap", //slamMapFileName
+                  "dummy.jpg",                                                                                                  //relocAlignImage,
+                  "calibrations/voc_fbow.bin",                                                                                  //vocFileName,
+                  2,                                                                                                            //vocLayer,
+                  {640, 360},                                                                                                   //cameraFrameTargetSize
+                  ExtractorType::ExtractorType_FAST_ORBS_2000,                                                                  //initializationExtractorType
+                  ExtractorType::ExtractorType_FAST_ORBS_1000,                                                                  //relocalizationExtractorType
+                  ExtractorType::ExtractorType_FAST_ORBS_1000,                                                                  //trackingExtractorType
+                  2);                                                                                                           //nExtractorLevels
+        loc.areas[area.id] = area;
     }
     {
-        Area area;
-        area.id   = AreaId::AUGST_TEMPLE_HILL_THEATER_BOTTOM;
-        area.name = mapAreaIdToName(area.id);
-        //todo: define lla on https://map.geo.admin.ch/
-        area.llaPos          = {0, 0, 0};
-        area.viewAngleDeg    = -18;
-        area.modelOrigin     = {0, 0, 0}; //todo
-        area.slamMapFileName = "locations/augst/templeHillTheater/maps/map_20200819-154204_augst_templeHillTheater_FAST-ORBS-3000_2.waimap";
-        loc.areas[area.id]   = area;
+        Area area(AreaId::AUGST_TEMPLE_HILL_THEATER_BOTTOM,                                                                     //id
+                  {47.53303, 7.72130, 282.6},                                                                                                    //llaPos
+                  -18,                                                                                                          //map viewing angle
+                  {47.53319, 7.72207, 282.6},                                                                                                    //modelOrigin
+                  "locations/augst/templeHillTheater/maps/map_20200819-154204_augst_templeHillTheater_FAST-ORBS-3000_2.waimap", //slamMapFileName
+                  "dummy.jpg",                                                                                                  //relocAlignImage,
+                  "calibrations/voc_fbow.bin",                                                                                  //vocFileName,
+                  2,                                                                                                            //vocLayer,
+                  {640, 360},                                                                                                   //cameraFrameTargetSize
+                  ExtractorType::ExtractorType_FAST_ORBS_2000,                                                                  //initializationExtractorType
+                  ExtractorType::ExtractorType_FAST_ORBS_1000,                                                                  //relocalizationExtractorType
+                  ExtractorType::ExtractorType_FAST_ORBS_1000,                                                                  //trackingExtractorType
+                  2);
+        loc.areas[area.id] = area;
     }
     return loc;
 }
 const Location defineLocationAvenches()
 {
-    Location loc;
-    loc.id                   = LocationId::AVENCHES;
-    loc.name                 = mapLocationIdToName(loc.id);
-    loc.areaMapImageFileName = "locations/avenches/locationMapImgAvenches.jpg";
-    loc.dspPixWidth          = 1500;
-    loc.mapTLLla             = {46.88264, 7.04148, 455.0};
-    loc.mapBRLla             = {46.87954, 7.04983, 455.0};
+    Location loc(LocationId::AVENCHES,
+                 "locations/avenches/locationMapImgAvenches.jpg",
+                 {46.88264, 7.04148, 455.0},
+                 {46.87954, 7.04983, 455.0},
+                 2046,
+                 "models/avenches/DTM-Aventicum-WGS84.tif");
 
     {
-        Area area;
-        area.id   = AreaId::AVENCHES_AMPHITHEATER_ENTRANCE;
-        area.name = mapAreaIdToName(area.id);
-        //todo: define lla on https://map.geo.admin.ch/
-        area.llaPos          = {0, 0, 0};
-        area.viewAngleDeg    = 170;
-        area.modelOrigin     = {0, 0, 0}; //todo
-        area.slamMapFileName = "locations/avenches/amphitheaterEntrance/maps/map_20201006-134438_Avenches_Amphitheater-Entrance_FAST-ORBS-1000_2.waimap";
-        area.relocAlignImage = "locations/avenches/amphitheaterEntrance/amphitheaterEntrance-reloc-align-img.jpg";
-        area.vocLayer        = 2;
-        loc.areas[area.id]   = area;
+        Area area(AreaId::AVENCHES_AMPHITHEATER_ENTRANCE,                                                                                    //id
+                  {46.88120, 7.04368, 461.43},                                                                                                                 //llaPos
+                  170,                                                                                                                       //map viewing angle
+                  {46.88102, 7.04263, 461.43},                                                                                                                 //modelOrigin
+                  "locations/avenches/amphitheaterEntrance/maps/map_20201006-134438_Avenches_Amphitheater-Entrance_FAST-ORBS-1000_2.waimap", //slamMapFileName
+                  "locations/avenches/amphitheaterEntrance/amphitheaterEntrance-reloc-align-img.jpg",                                        //relocAlignImage,
+                  "calibrations/voc_fbow.bin",                                                                                               //vocFileName,
+                  2,                                                                                                                         //vocLayer,
+                  {640, 360},                                                                                                                //cameraFrameTargetSize
+                  ExtractorType::ExtractorType_FAST_ORBS_2000,                                                                               //initializationExtractorType
+                  ExtractorType::ExtractorType_FAST_ORBS_1000,                                                                               //relocalizationExtractorType
+                  ExtractorType::ExtractorType_FAST_ORBS_1000,                                                                               //trackingExtractorType
+                  2);
+        loc.areas[area.id] = area;
     }
     {
-        Area area;
-        area.id   = AreaId::AVENCHES_AMPHITHEATER;
-        area.name = mapAreaIdToName(area.id);
-        //todo: define lla on https://map.geo.admin.ch/
-        area.llaPos          = {0, 0, 0};
-        area.viewAngleDeg    = -18;
-        area.modelOrigin     = {0, 0, 0}; //todo
-        area.slamMapFileName = "locations/avenches/amphitheater/maps/map_20201006-104306_Avenches_Amphitheater_FAST-ORBS-1000_2.waimap";
-        area.relocAlignImage = "locations/avenches/amphitheater/amphitheater-reloc-align-img.jpg";
-        area.vocLayer        = 2;
-        loc.areas[area.id]   = area;
+        Area area(AreaId::AVENCHES_AMPHITHEATER,                                                                            //id
+                  {46.88102, 7.04263, 461.43},                                                                                                //llaPos
+                  -18,                                                                                                      //map viewing angle
+                  {46.88102, 7.04263, 461.43},                                                                                                //modelOrigin
+                  "locations/avenches/amphitheater/maps/map_20201006-104306_Avenches_Amphitheater_FAST-ORBS-1000_2.waimap", //slamMapFileName
+                  "locations/avenches/amphitheater/amphitheater-reloc-align-img.jpg",                                       //relocAlignImage,
+                  "calibrations/voc_fbow.bin",                                                                              //vocFileName,
+                  2,                                                                                                        //vocLayer,
+                  {640, 360},                                                                                               //cameraFrameTargetSize
+                  ExtractorType::ExtractorType_FAST_ORBS_2000,                                                              //initializationExtractorType
+                  ExtractorType::ExtractorType_FAST_ORBS_1000,                                                              //relocalizationExtractorType
+                  ExtractorType::ExtractorType_FAST_ORBS_1000,                                                              //trackingExtractorType
+                  2);
+        loc.areas[area.id] = area;
     }
     {
-        Area area;
-        area.id   = AreaId::AVENCHES_CIGOGNIER;
-        area.name = mapAreaIdToName(area.id);
-        //todo: define lla on https://map.geo.admin.ch/
-        area.llaPos          = {0, 0, 0};
-        area.viewAngleDeg    = -140;
-        area.modelOrigin     = {0, 0, 0}; //todo
-        area.slamMapFileName = "locations/avenches/cigonier-marker/maps/DEVELOPMENT-map_20200529-162110_avenches_cigonier-marker_FAST_ORBS_2000.json";
-        area.vocLayer        = 2;
-        loc.areas[area.id]   = area;
+        Area area(AreaId::AVENCHES_CIGOGNIER,                                                                                             //id
+                  {46.88146, 7.04645, 450.95},                                                                                                              //llaPos
+                  -140,                                                                                                                   //map viewing angle
+                  {46.88146, 7.04645, 450.95},                                                                                                              //modelOrigin
+                  "locations/avenches/cigonier-marker/maps/DEVELOPMENT-map_20200529-162110_avenches_cigonier-marker_FAST_ORBS_2000.json", //slamMapFileName
+                  "dummy.jpg",                                                                                                            //relocAlignImage,
+                  "calibrations/voc_fbow.bin",                                                                                            //vocFileName,
+                  2,                                                                                                                      //vocLayer,
+                  {640, 360},                                                                                                             //cameraFrameTargetSize
+                  ExtractorType::ExtractorType_FAST_ORBS_2000,                                                                            //initializationExtractorType
+                  ExtractorType::ExtractorType_FAST_ORBS_1000,                                                                            //relocalizationExtractorType
+                  ExtractorType::ExtractorType_FAST_ORBS_1000,                                                                            //trackingExtractorType
+                  2);
+        loc.areas[area.id] = area;
     }
     {
-        Area area;
-        area.id   = AreaId::AVENCHES_THEATER;
-        area.name = mapAreaIdToName(area.id);
-        //todo: define lla on https://map.geo.admin.ch/
-        area.llaPos          = {0, 0, 0};
-        area.viewAngleDeg    = 50;
-        area.modelOrigin     = {0, 0, 0}; //todo
-        area.vocFileName     = "locations/avenches/theater/theater_voc.bin";
-        area.slamMapFileName = "locations/avenches/theater/maps/release-map_20200930-154707_avenches_theater_FAST-ORBS-2000_2.waimap";
-        area.relocAlignImage = "locations/avenches/theater/theater-reloc-align-img.jpg";
-        area.vocLayer        = 2;
-        loc.areas[area.id]   = area;
+        Area area(AreaId::AVENCHES_THEATER,                                                                               //id
+                  {46.88029, 7.04880, 454.95},                                                                                              //llaPos
+                  50,                                                                                                     //map viewing angle
+                  {46.88029, 7.04876, 454.95},                                                                                              //modelOrigin
+                  "locations/avenches/theater/maps/release-map_20200930-154707_avenches_theater_FAST-ORBS-2000_2.waimap", //slamMapFileName
+                  "locations/avenches/theater/theater-reloc-align-img.jpg",                                               //relocAlignImage,
+                  "locations/avenches/theater/theater_voc.bin",                                                           //vocFileName,
+                  2,                                                                                                      //vocLayer,
+                  {640, 360},                                                                                             //cameraFrameTargetSize
+                  ExtractorType::ExtractorType_FAST_ORBS_2000,                                                            //initializationExtractorType
+                  ExtractorType::ExtractorType_FAST_ORBS_1000,                                                            //relocalizationExtractorType
+                  ExtractorType::ExtractorType_FAST_ORBS_1000,                                                            //trackingExtractorType
+                  2);
+        loc.areas[area.id] = area;
     }
-
     return loc;
 }
 const Location defineLocationBern()
 {
-    Location loc;
-    loc.id                   = LocationId::BERN;
-    loc.name                 = mapLocationIdToName(loc.id);
-    loc.areaMapImageFileName = "locations/bern/locationMapImgBern.jpg";
-    loc.mapTLLla             = {46.94885, 7.43808, 542.0};
-    loc.mapBRLla             = {46.94701, 7.44290, 542.0};
-    loc.dspPixWidth          = 2080;
+    Location loc(LocationId::BERN,
+                 "locations/bern/locationMapImgBern.jpg",
+                 {46.94885, 7.43808, 542.0},
+                 {46.94701, 7.44290, 542.0},
+                 2080,
+                 "models/bern/DEM-Bern-2600_1199-WGS84.tif");
+
     {
-        Area area;
-        area.id           = AreaId::BERN_MILCHGAESSLI;
-        area.name         = mapAreaIdToName(area.id);
-        area.llaPos       = {46.94839, 7.43973, 541.1};
-        area.viewAngleDeg = 60;
-        area.modelOrigin  = {46.947629, 7.440754, 442.0}; //todo
-        //area.slamMapFileName = "locations/bern/milchgaessli/maps/DEVELOPMENT-map_20200916-154809_bern_milchgaessli_FAST-ORBS-2000_2.waimap";
-        area.slamMapFileName = "locations/bern/milchgaessli/maps/DEVELOPMENT-map_20200702-173422_christoffel_milchgaessli_FAST-ORBS-2000_2.json";
-        //area.slamMapFileName = "locations/bern/milchgaessli/maps/orig-DEVELOPMENT-map_20200811-152001_bern_milchgaessli_FAST-ORBS-3000_2.waimap";
+        Area area(AreaId::AVENCHES_THEATER,                                                                                          //id
+                  {46.94839, 7.43973, 541.1},                                                                                        //llaPos
+                  60,                                                                                                                //map viewing angle
+                  {46.947629, 7.440754, 442.0},                                                                                      //modelOrigin
+                  "locations/bern/milchgaessli/maps/DEVELOPMENT-map_20200702-173422_christoffel_milchgaessli_FAST-ORBS-2000_2.json", //slamMapFileName
+                  "dummy.jpg",                                                                                                       //relocAlignImage,
+                  "calibrations/voc_fbow.bin",                                                                                       //vocFileName,
+                  2,                                                                                                                 //vocLayer,
+                  {640, 360},                                                                                                        //cameraFrameTargetSize
+                  ExtractorType::ExtractorType_FAST_ORBS_2000,                                                                       //initializationExtractorType
+                  ExtractorType::ExtractorType_FAST_ORBS_1000,                                                                       //relocalizationExtractorType
+                  ExtractorType::ExtractorType_FAST_ORBS_1000,                                                                       //trackingExtractorType
+                  2);
         loc.areas[area.id] = area;
     }
+
     return loc;
 }
 
 const Location defineLocationBiel()
 {
-    Location loc;
-    loc.id                   = LocationId::BIEL;
-    loc.name                 = mapLocationIdToName(loc.id);
-    loc.areaMapImageFileName = "locations/biel/locationMapImgBiel.jpg";
-    loc.mapTLLla             = {47.14290, 7.24225, 506.3};
-    loc.mapBRLla             = {47.14060, 7.24693, 434.3};
-    loc.dspPixWidth          = 800;
+    Location loc(LocationId::BIEL,
+                 "locations/biel/locationMapImgBiel.jpg",
+                 {47.14290, 7.24225, 506.3},
+                 {47.14060, 7.24693, 434.3},
+                 1600,
+                 "models/biel/DEM_Biel-BFH_WGS84.tif");
+    
     {
-        Area area;
-        area.id   = AreaId::BIEL_GERECHTIGKEITSBRUNNEN;
-        area.name = mapAreaIdToName(area.id);
-        //todo: define lla on https://map.geo.admin.ch/
-        area.llaPos        = {47.14248, 7.24310, 485};
-        area.viewAngleDeg  = 10.f;
-        area.modelOrigin   = {0, 0, 0}; //todo
+        Area area(AreaId::BIEL_BFH,                            //id
+                  {47.14260, 7.24310, 488.7},                  //llaPos
+                  60,                                          //map viewing angle
+                  {47.14271, 7.24337, 488.2},                  //modelOrigin
+                  "",                                          //slamMapFileName
+                  "dummy.jpg",                                 //relocAlignImage,
+                  "calibrations/voc_fbow.bin",                 //vocFileName,
+                  2,                                           //vocLayer,
+                  {640, 360},                                  //cameraFrameTargetSize
+                  ExtractorType::ExtractorType_FAST_ORBS_2000, //initializationExtractorType
+                  ExtractorType::ExtractorType_FAST_ORBS_1000, //relocalizationExtractorType
+                  ExtractorType::ExtractorType_FAST_ORBS_1000, //trackingExtractorType
+                  2);
         loc.areas[area.id] = area;
-    }
-    {
-        Area area;
-        area.id   = AreaId::BIEL_JACOB_ROSINUS;
-        area.name = mapAreaIdToName(area.id);
-        //todo: define lla on https://map.geo.admin.ch/
-        area.llaPos        = {0, 0, 0};
-        area.viewAngleDeg  = 25.f;
-        area.modelOrigin   = {0, 0, 0}; //todo
-        loc.areas[area.id] = area;
-    }
-    {
-        Area area;
-        area.id   = AreaId::BIEL_LEUBRINGENBAHN;
-        area.name = mapAreaIdToName(area.id);
-        //todo: define lla on https://map.geo.admin.ch/
-        area.llaPos        = {0, 0, 0};
-        area.viewAngleDeg  = 60.f;
-        area.modelOrigin   = {0, 0, 0}; //todo
-        loc.areas[area.id] = area;
-    }
-    {
-        Area area;
-        area.id   = AreaId::BIEL_RING;
-        area.name = mapAreaIdToName(area.id);
-        //todo: define lla on https://map.geo.admin.ch/
-        area.llaPos       = {0, 0, 0};
-        area.viewAngleDeg = 110.f;
-        area.modelOrigin  = {0, 0, 0}; //todo
-        //area.slamMapFileName       = "locations/biel/ring/maps/DEVELOPMENT-map_20200814-130443_biel_ring_FAST-ORBS-1000_2.json.gz";
-        //area.slamMapFileName       = "locations/biel/ring/maps/DEVELOPMENT-map_20200814-130443_biel_ring_FAST-ORBS-1000_2.waimap";
-        area.cameraFrameTargetSize = {640, 480};
-        loc.areas[area.id]         = area;
-    }
-    {
-        Area area;
-        area.id   = AreaId::BIEL_SOUTHWALL;
-        area.name = mapAreaIdToName(area.id);
-        //todo: define lla on https://map.geo.admin.ch/
-        area.llaPos        = {0, 0, 0};
-        area.viewAngleDeg  = 270.f;
-        area.modelOrigin   = {0, 0, 0}; //todo
-        loc.areas[area.id] = area;
-    }
-    {
-        Area area;
-        area.id   = AreaId::BIEL_OFFICE;
-        area.name = mapAreaIdToName(area.id);
-        //todo: define lla on https://map.geo.admin.ch/
-        area.llaPos                  = {0, 0, 0};
-        area.viewAngleDeg            = 20.f;
-        area.modelOrigin             = {0, 0, 0}; //todo
-        area.slamMapFileName         = "locations/biel/office/maps/DEVELOPMENT-map_20200909-152037_biel_office_FAST-ORBS-2000_2.waimap";
-        area.relocAlignImage         = "locations/biel/office/office-reloc-align-img.jpg";
-        area.cameraFrameTargetSize   = {640, 360};
-        area.cameraFrameCropToScreen = false;
-        loc.areas[area.id]           = area;
     }
     return loc;
 }
 
 const Location defineLocationEvilard()
 {
-    Location loc;
-    loc.id                   = LocationId::EVILARD;
-    loc.name                 = mapLocationIdToName(loc.id);
-    loc.areaMapImageFileName = "locations/evilard/locationMapImgEvilard.jpg";
-    loc.mapTLLla             = {47.14954, 7.23246, 741.0};
-    loc.mapBRLla             = {47.14778, 7.23661, 696.0};
-    loc.dspPixWidth          = 2000;
+    Location loc(LocationId::EVILARD,
+                 "locations/evilard/locationMapImgEvilard.jpg",
+                 {47.14954, 7.23246, 741.0},
+                 {47.14778, 7.23661, 696.0},
+                 2000,
+                 "");
+
     {
-        Area area;
-        area.id   = AreaId::EVILARD_ROC2;
-        area.name = mapAreaIdToName(area.id);
-        //todo: define lla on https://map.geo.admin.ch/
-        area.llaPos                  = {47.14888, 7.23343, 727.3};
-        area.viewAngleDeg            = 90.f;
-        area.modelOrigin             = {47.14888, 7.23343, 727.3};
-        area.slamMapFileName         = "locations/evilard/roc2/maps/DEVELOPMENT-map_20200918-163220_evilard_roc2_FAST-ORBS-3000_2.waimap";
-        area.relocAlignImage         = "locations/evilard/roc2/relocAlignImg.jpg";
-        area.cameraFrameTargetSize   = {640, 360};
-        area.cameraFrameCropToScreen = false;
-        loc.areas[area.id]           = area;
+        Area area(AreaId::EVILARD_ROC2,                                                                               //id
+                  {47.14888, 7.23343, 727.3},                                                                         //llaPos
+                  90.f,                                                                                               //map viewing angle
+                  {47.14888, 7.23343, 727.3},                                                                         //modelOrigin
+                  "locations/evilard/roc2/maps/DEVELOPMENT-map_20200918-163220_evilard_roc2_FAST-ORBS-3000_2.waimap", //slamMapFileName
+                  "locations/evilard/roc2/relocAlignImg.jpg",                                                         //relocAlignImage,
+                  "calibrations/voc_fbow.bin",                                                                        //vocFileName,
+                  2,                                                                                                  //vocLayer,
+                  {640, 360},                                                                                         //cameraFrameTargetSize
+                  ExtractorType::ExtractorType_FAST_ORBS_2000,                                                        //initializationExtractorType
+                  ExtractorType::ExtractorType_FAST_ORBS_1000,                                                        //relocalizationExtractorType
+                  ExtractorType::ExtractorType_FAST_ORBS_1000,                                                        //trackingExtractorType
+                  2);
+        loc.areas[area.id] = area;
     }
     {
-        Area area;
-        area.id   = AreaId::EVILARD_FIREFIGHTERS;
-        area.name = mapAreaIdToName(area.id);
-        //todo: define lla on https://map.geo.admin.ch/
-        area.llaPos                  = {47.14867, 7.23291, 725.9};
-        area.viewAngleDeg            = -150.f;
-        area.modelOrigin             = {0, 0, 0}; //todo
-        area.slamMapFileName         = "locations/evilard/firefighters/maps/DEVELOPMENT-map_20200918-100317_evilard_firefighters_FAST-ORBS-2000_2.waimap";
-        area.relocAlignImage         = "locations/evilard/firefighters/relocAlignImg.jpg";
-        area.cameraFrameTargetSize   = {640, 360};
-        area.cameraFrameCropToScreen = false;
-        loc.areas[area.id]           = area;
+        Area area(AreaId::EVILARD_FIREFIGHTERS,                                                                                       //id
+                  {47.14867, 7.23291, 725.9},                                                                                         //llaPos
+                  -150.f,                                                                                                             //map viewing angle
+                  {47.14888, 7.23343, 727.3},                                                                                         //modelOrigin
+                  "locations/evilard/firefighters/maps/DEVELOPMENT-map_20200918-100317_evilard_firefighters_FAST-ORBS-2000_2.waimap", //slamMapFileName
+                  "locations/evilard/firefighters/relocAlignImg.jpg",                                                                 //relocAlignImage,
+                  "calibrations/voc_fbow.bin",                                                                                        //vocFileName,
+                  2,                                                                                                                  //vocLayer,
+                  {640, 360},                                                                                                         //cameraFrameTargetSize
+                  ExtractorType::ExtractorType_FAST_ORBS_2000,                                                                        //initializationExtractorType
+                  ExtractorType::ExtractorType_FAST_ORBS_1000,                                                                        //relocalizationExtractorType
+                  ExtractorType::ExtractorType_FAST_ORBS_1000,                                                                        //trackingExtractorType
+                  2);
+        loc.areas[area.id] = area;
     }
     return loc;
 }

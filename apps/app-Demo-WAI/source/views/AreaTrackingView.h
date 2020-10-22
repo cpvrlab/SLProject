@@ -177,6 +177,8 @@ public:
             _voc = new WAIOrbVocabulary(_vocLayer);
             _voc->loadFromFile(_vocFileName);
         }
+        else
+            Utils::log("MapLoader", "Voc file does not exist: %s", _vocFileName.c_str());
 
         //load map
         _waiMap = AreaTrackingView::tryLoadMap(_mapFileDir, _mapFileName, _voc, _mapNodeOm);
