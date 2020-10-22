@@ -458,7 +458,7 @@ void AreaTrackingView::initDeviceLocation(const ErlebAR::Location& location, con
     {
         std::string geoTiffFileName = _deviceData.erlebARDir() + location.geoTiffFileName;
         if (Utils::fileExists(geoTiffFileName))
-            _devLoc.loadGeoTiff(geoTiffFileName, "ErlebAR");
+            _devLoc.loadGeoTiff(geoTiffFileName);
         else
         {
             std::stringstream ss;

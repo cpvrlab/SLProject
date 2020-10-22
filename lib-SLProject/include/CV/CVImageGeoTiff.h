@@ -39,10 +39,10 @@ public:
     CVImageGeoTiff();
     ~CVImageGeoTiff();
 
-    void    loadGeoTiff(const string& appTag, const string& filename);
+    void    loadGeoTiff(const string& filename);
     CVVec3d upperLeftLatLonAlt() { return _upperleftLatLonAlt; }
     CVVec3d lowerRightLatLonAlt() { return _lowerRightLatLonAlt; }
-    float   getAltitudeAtLatLon(double lat, double lon, const char* logTag);
+    float   getAltitudeAtLatLon(double lat, double lon);
 
 private:
     CVVec3d _upperleftLatLonAlt;  //! Upper-left corner of DEM in WGS84 coords

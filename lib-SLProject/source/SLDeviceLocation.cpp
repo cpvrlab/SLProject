@@ -13,7 +13,6 @@
 #include <SLDeviceLocation.h>
 #include <spa.h>
 #include <SLImporter.h>
-#include <SLApplication.h>
 
 //-----------------------------------------------------------------------------
 void SLDeviceLocation::init()
@@ -81,8 +80,7 @@ void SLDeviceLocation::onLocationLatLonAlt(SLdouble latDEG,
     if (geoTiffIsAvailableAndValid() && posIsOnGeoTiff(latDEG, lonDEG))
     {
         _altDemM = _demGeoTiff.getAltitudeAtLatLon(latDEG,
-                                                   lonDEG,
-                                                   SLApplication::appTag.c_str());
+                                                   lonDEG);
         altToUse = _altDemM + _cameraHeightM;
     }
     else
@@ -311,21 +309,19 @@ SLbool SLDeviceLocation::calculateSolarAngles(SLVec3d     locationLatLonAlt,
  If the 32-bit image file and its JSON info file gets successfully loaded,
  we can set the altitudes from the _originLatLonAlt and _defaultLatLonAlt by the DEM.
  */
-void SLDeviceLocation::loadGeoTiff(const SLstring& geoTiffFile,
-                                   const SLstring& appTag)
+void SLDeviceLocation::loadGeoTiff(const SLstring& geoTiffFile)
 {
     assert(!_defaultLatLonAlt.isZero() &&
            !_originLatLonAlt.isZero() &&
            "Set first defaultLatLonAlt and originLatLonAlt before you add a GeoTiff.");
 
-    _demGeoTiff.loadGeoTiff(appTag, geoTiffFile);
+    _demGeoTiff.loadGeoTiff(geoTiffFile);
 
     // Check that default and origin location is withing the GeoTiff extends
     if (geoTiffIsAvailableAndValid())
     {
         _altDemM = _demGeoTiff.getAltitudeAtLatLon(_defaultLatLonAlt.lat,
-                                                   _defaultLatLonAlt.lon,
-                                                   SLApplication::appTag.c_str());
+                                                   _defaultLatLonAlt.lon);
         // Overwrite the altitudes
         originLatLonAlt(_originLatLonAlt.lat,
                         _originLatLonAlt.lon,
