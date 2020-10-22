@@ -36,6 +36,7 @@ void AreaTrackingGui::onShow()
     _opacityController.reset();
     if(_simHelperGui)
         _simHelperGui->reset();
+    _errorMsg.clear();
 }
 
 void AreaTrackingGui::onResize(SLint scrW, SLint scrH, SLfloat scr2fbX, SLfloat scr2fbY)

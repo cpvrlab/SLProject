@@ -32,9 +32,9 @@ const char* mapAreaIdToName(AreaId id)
             return "Undefined area";
         //augst
         case AreaId::AUGST_TEMPLE_HILL_MARKER:
-            return "templeHill-marker";
+            return "Temple";
         case AreaId::AUGST_TEMPLE_HILL_THEATER_BOTTOM:
-            return "templeHillTheaterBottom";
+            return "Theater";
         //avenches
         case AreaId::AVENCHES_AMPHITHEATER:
             return "Amphitheater";
@@ -50,6 +50,8 @@ const char* mapAreaIdToName(AreaId id)
         case AreaId::BERN_SBB:
             return "Sbb";
         //biel
+        case AreaId::BIEL_BFH:
+            return "BFH";
         case AreaId::BIEL_GERECHTIGKEITSBRUNNEN:
             return "Gerechtigkeitsbrunnen";
         case AreaId::BIEL_JACOB_ROSINUS:

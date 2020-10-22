@@ -63,14 +63,14 @@ private:
     virtual SLbool onMouseDown(SLMouseButton button, SLint scrX, SLint scrY, SLKey mod);
     virtual SLbool onMouseMove(SLint x, SLint y);
 
-    void updateSceneCameraFov();
-    void updateVideoImage(SENSFrame& frame, VideoBackgroundCamera* videoBackground);
-    void updateTrackingVisualization(const bool iKnowWhereIAm, SENSFrame& frame);
-    void initDeviceLocation(const ErlebAR::Location& location, const ErlebAR::Area& area);
-    void initSlam(const ErlebAR::Area& area);
-    void initWaiSlam(const cv::Mat& mapNodeOm, std::unique_ptr<WAIMap> waiMap);
-    bool startCamera(const cv::Size& trackImgSize);
-    void onCameraParamsChanged();
+    void    updateSceneCameraFov();
+    void    updateVideoImage(SENSFrame& frame, VideoBackgroundCamera* videoBackground);
+    void    updateTrackingVisualization(const bool iKnowWhereIAm, SENSFrame& frame);
+    void    initDeviceLocation(const ErlebAR::Location& location, const ErlebAR::Area& area);
+    void    initSlam(const ErlebAR::Area& area);
+    void    initWaiSlam(const cv::Mat& mapNodeOm, std::unique_ptr<WAIMap> waiMap);
+    bool    startCamera(const cv::Size& trackImgSize);
+    void    onCameraParamsChanged();
     SLMat4f calcCameraPoseGpsOrientationBased();
 
     AreaTrackingGui   _gui;
@@ -88,9 +88,9 @@ private:
     std::unique_ptr<KPextractor> _initializationExtractor;
     std::unique_ptr<KPextractor> _relocalizationExtractor;
     ImageBuffer                  _imgBuffer;
-    WAIOrbVocabulary*            _voc = nullptr;
 
-    //wai slam depends on _orbVocabulary and has to be uninitializd first
+    std::unique_ptr<WAIOrbVocabulary> _voc;
+    //wai slam depends on _orbVocabulary and has to be uninitializd first (defined below voc)
     std::unique_ptr<WAISlam> _waiSlam;
 
 #if USE_FBOW
@@ -104,7 +104,7 @@ private:
     //size with which camera was started last time (needed for a resume call)
     UserGuidance _userGuidance;
 
-    MapLoader* _asyncLoader = nullptr;
+    std::unique_ptr<MapLoader> _asyncLoader;
 
     ErlebAR::Resources& _resources;
     const DeviceData&   _deviceData;
@@ -123,13 +123,11 @@ private:
 class MapLoader : public AsyncWorker
 {
 public:
-    MapLoader(WAIOrbVocabulary*& voc,
-              int                vocLayer,
+    MapLoader(int                vocLayer,
               const std::string& vocFileName,
               const std::string& mapFileDir,
               const std::string& mapFileName)
-      : _voc(voc),
-        _vocLayer(vocLayer),
+      : _vocLayer(vocLayer),
         _vocFileName(vocFileName),
         _mapFileDir(mapFileDir),
         _mapFileName(mapFileName)
@@ -139,35 +137,43 @@ public:
     void run() override
     {
         //if vocabulary is empty, load it first
-        if (!_voc && Utils::fileExists(_vocFileName))
+        if (Utils::fileExists(_vocFileName))
         {
             Utils::log("MapLoader", "loading voc file from: %s", _vocFileName.c_str());
-            _voc = new WAIOrbVocabulary(_vocLayer);
+            _voc = std::make_unique<WAIOrbVocabulary>(_vocLayer);
             _voc->loadFromFile(_vocFileName);
+
+            //load map
+            _waiMap = AreaTrackingView::tryLoadMap(_mapFileDir, _mapFileName, _voc.get(), _mapNodeOm);
         }
         else
-            Utils::log("MapLoader", "Voc file does not exist: %s", _vocFileName.c_str());
-
-        //load map
-        _waiMap = AreaTrackingView::tryLoadMap(_mapFileDir, _mapFileName, _voc, _mapNodeOm);
+        {
+            std::stringstream ss;
+            ss << "MapLoader: vocabulary file does not exist: " << _vocFileName;
+            _errorMsg = ss.str();
+            _hasError = true;
+        }
 
         //task is ready
         setReady();
     }
 
-    std::unique_ptr<WAIMap> moveWaiMap()
-    {
-        return std::move(_waiMap);
-    }
+    std::unique_ptr<WAIMap>           moveWaiMap() { return std::move(_waiMap); }
+    std::unique_ptr<WAIOrbVocabulary> voc() { return std::move(_voc); }
+    cv::Mat                           mapNodeOm() { return _mapNodeOm; }
 
-    cv::Mat mapNodeOm() { return _mapNodeOm; }
+    bool               hasError() const { return _hasError; }
+    const std::string& getErrorMsg() const { return _errorMsg; }
 
 private:
-    WAIOrbVocabulary*& _voc;
-    std::string        _vocFileName;
-    int                _vocLayer;
-    std::string        _mapFileDir;
-    std::string        _mapFileName;
+    std::unique_ptr<WAIOrbVocabulary> _voc;
+    std::string                       _vocFileName;
+    int                               _vocLayer;
+    std::string                       _mapFileDir;
+    std::string                       _mapFileName;
+
+    std::string _errorMsg;
+    bool        _hasError = false;
 
     std::unique_ptr<WAIMap> _waiMap;
     cv::Mat                 _mapNodeOm;

@@ -61,12 +61,20 @@ private:
 
     void initMapVisualization();
     void initAreaVisualization(ErlebAR::LocationId locationId, ErlebAR::AreaId areaId);
-    void initAreaAugst(ErlebAR::AreaId areaId);
-    void initAreaAvenches(ErlebAR::AreaId areaId);
-    void initAreaBern(ErlebAR::AreaId areaId);
-    void initAreaBiel(ErlebAR::AreaId areaId);
-    void initAreaDefault();
-
+    void initLocationAugst();
+    void initAreaAvenchesAmphitheater();
+    void initAreaAvenchesCigognier();
+    void initAreaAvenchesTheatre();
+    void initLocationBern();
+    void initLocationBiel();
+    void initLocationDefault();
+    void loadChristoffelBernBahnhofsplatz();
+    void loadBielBFHRolex();
+    void loadAugstTempelTheater();
+    void loadAvenchesAmphitheater();
+    void loadAvenchesCigognier();
+    void loadAvenchesTheatre();
+    
     void loadMesh(std::string path, SLNode*& augmentationRoot);
 
     SLNode* mapPC             = nullptr;
@@ -84,7 +92,6 @@ private:
     SLMaterial* covisibilityGraphMat = nullptr;
     SLMaterial* spanningTreeMat      = nullptr;
     SLMaterial* loopEdgesMat         = nullptr;
-    SLMaterial* matVideoBackground   = nullptr;
 
     SLPoints*   mappointsMesh             = nullptr;
     SLPoints*   mappointsMatchedMesh      = nullptr;

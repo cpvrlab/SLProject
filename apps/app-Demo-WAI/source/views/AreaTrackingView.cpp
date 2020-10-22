@@ -3,7 +3,7 @@
 #include <WAIMapStorage.h>
 #include <sens/SENSUtils.h>
 
-#define LOAD_ASYNC
+//#define LOAD_ASYNC
 
 AreaTrackingView::AreaTrackingView(sm::EventHandler&   eventHandler,
                                    SLInputManager&     inputManager,
@@ -42,13 +42,6 @@ AreaTrackingView::AreaTrackingView(sm::EventHandler&   eventHandler,
 
 AreaTrackingView::~AreaTrackingView()
 {
-    //wai slam depends on _orbVocabulary and has to be uninitializd first
-    _waiSlam.reset();
-    if (_voc)
-        delete _voc;
-
-    if (_asyncLoader)
-        delete _asyncLoader;
 }
 
 void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaId)
@@ -56,6 +49,7 @@ void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaI
     try
     {
         _noInitException = false;
+
         _locId                      = locId;
         _areaId                     = areaId;
         ErlebAR::Location& location = _locations[locId];
@@ -80,7 +74,7 @@ void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaI
 
         initDeviceLocation(location, area);
         initSlam(area);
-        
+
         _noInitException = true;
     }
     catch (std::exception& e)
@@ -98,7 +92,7 @@ bool AreaTrackingView::update()
     WAI::TrackingState slamState = WAI::TrackingState_None;
     try
     {
-        if (_noInitException)
+        if (_noInitException) //if there was not exception during initArea
         {
             SENSFramePtr frame;
             if (_camera)
@@ -108,16 +102,19 @@ bool AreaTrackingView::update()
 
             if (frame && _waiSlam)
             {
-                //the intrinsics may change dynamically on focus changes (e.g. on iOS)
-                if (!frame->intrinsics.empty())
+                if (_waiSlam->isInitialized())
                 {
-                    _waiSlam->changeIntrinsic(_camera->scaledCameraMat(), _camera->calibration()->distortion());
-                    updateSceneCameraFov();
+                    //the intrinsics may change dynamically on focus changes (e.g. on iOS)
+                    if (!frame->intrinsics.empty())
+                    {
+                        _waiSlam->changeIntrinsic(_camera->scaledCameraMat(), _camera->calibration()->distortion());
+                        updateSceneCameraFov();
+                    }
+                    _waiSlam->update(frame->imgManip);
+                    slamState  = _waiSlam->getTrackingState();
+                    isTracking = (_waiSlam->getTrackingState() == WAI::TrackingState_TrackingOK);
                 }
-                _waiSlam->update(frame->imgManip);
-                slamState = _waiSlam->getTrackingState();
-
-                isTracking = (_waiSlam->getTrackingState() == WAI::TrackingState_TrackingOK);
+                
                 if (isTracking)
                     _waiScene.updateCameraPose(_waiSlam->getPose());
                 else if (_orientation)
@@ -130,12 +127,20 @@ bool AreaTrackingView::update()
             }
             else if (_asyncLoader && _asyncLoader->isReady())
             {
-                Utils::log("AreaTrackingView", "worker done");
-                cv::Mat mapNodeOm = _asyncLoader->mapNodeOm();
-                initWaiSlam(mapNodeOm, _asyncLoader->moveWaiMap());
+                if (!_asyncLoader->hasError())
+                {
+                    _voc              = _asyncLoader->voc();
+                    cv::Mat mapNodeOm = _asyncLoader->mapNodeOm();
+                    initWaiSlam(mapNodeOm, _asyncLoader->moveWaiMap());
+                    _asyncLoader.reset();
+                }
+                else
+                {
+                    std::runtime_error exception(_asyncLoader->getErrorMsg());
+                    _asyncLoader.reset();
+                    throw exception;
+                }
 
-                delete _asyncLoader;
-                _asyncLoader = nullptr;
                 if (_resources.enableUserGuidance)
                     _userGuidance.dataIsLoading(false);
             }
@@ -309,11 +314,8 @@ void AreaTrackingView::initSlam(const ErlebAR::Area& area)
     std::string vocFileName = _deviceData.dataDir() + area.vocFileName;
 
 #ifdef LOAD_ASYNC
-    //delete managed object
-    if (_asyncLoader)
-        delete _asyncLoader;
-
-    _asyncLoader = new MapLoader(_voc, area.vocLayer, vocFileName, _deviceData.erlebARDir(), area.slamMapFileName);
+    _asyncLoader.reset();
+    _asyncLoader = std::make_unique<MapLoader>(area.vocLayer, vocFileName, _deviceData.erlebARDir(), area.slamMapFileName);
     _asyncLoader->start();
     if (_resources.enableUserGuidance)
         _userGuidance.dataIsLoading(true);
@@ -322,14 +324,20 @@ void AreaTrackingView::initSlam(const ErlebAR::Area& area)
     if (Utils::fileExists(vocFileName))
     {
         Utils::log("AreaTrackingView", "loading voc file from: %s", vocFileName.c_str());
-        _voc = new WAIOrbVocabulary();
+        _voc = std::make_unique<WAIOrbVocabulary>();
         _voc->loadFromFile(vocFileName);
-    }
 
-    //try to load map
-    cv::Mat                 mapNodeOm;
-    std::unique_ptr<WAIMap> waiMap = tryLoadMap(_deviceData.erlebARDir(), area.slamMapFileName, _voc, mapNodeOm);
-    initWaiSlam(mapNodeOm, std::move(waiMap));
+        //try to load map
+        cv::Mat                 mapNodeOm;
+        std::unique_ptr<WAIMap> waiMap = tryLoadMap(_deviceData.erlebARDir(), area.slamMapFileName, _voc.get(), mapNodeOm);
+        initWaiSlam(mapNodeOm, std::move(waiMap));
+    }
+    else
+    {
+        std::stringstream ss;
+        ss << "AreaTrackingView initArea: vocabulary file does not exist: " << vocFileName;
+        throw std::runtime_error(ss.str());
+    }
 #endif
 }
 
@@ -354,7 +362,7 @@ void AreaTrackingView::initWaiSlam(const cv::Mat& mapNodeOm, std::unique_ptr<WAI
     _waiSlam = std::make_unique<WAISlam>(
       _camera->scaledCameraMat(),
       _camera->calibration()->distortion(),
-      _voc,
+      _voc.get(),
       _initializationExtractor.get(),
       _relocalizationExtractor.get(),
       _trackingExtractor.get(),
@@ -435,16 +443,16 @@ void AreaTrackingView::initDeviceLocation(const ErlebAR::Location& location, con
     //reset everything to default
     _devLoc.init();
 
-    _devLoc.locMaxDistanceM(1000.0f); // Max. Distanz. to Area home
-    _devLoc.improveOrigin(false);     // Keine autom. Verbesserung vom Origin
-    _devLoc.useOriginAltitude(true);
-    _devLoc.hasOrigin(true);
+    _devLoc.locMaxDistanceM(1000.0f);
+    _devLoc.improveOrigin(false);
+    _devLoc.useOriginAltitude(false);
+    _devLoc.cameraHeightM(1.7f);
     // Let the sun be rotated by time and location
     if (_waiScene.sunLight)
         _devLoc.sunLightNode(_waiScene.sunLight);
 
     _devLoc.originLatLonAlt(area.modelOrigin.x, area.modelOrigin.y, area.modelOrigin.z); // Model origin
-    _devLoc.defaultLatLonAlt(area.llaPos.x, area.llaPos.y, area.llaPos.z + 1.7);
+    _devLoc.defaultLatLonAlt(area.llaPos.x, area.llaPos.y, area.llaPos.z + _devLoc.cameraHeightM());
     //ATTENTION: call this after originLatLonAlt and defaultLatLonAlt setters. Otherwise alititude will be overwritten!!
     if (!location.geoTiffFileName.empty())
     {
