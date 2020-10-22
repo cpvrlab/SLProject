@@ -42,7 +42,7 @@ public:
     void    loadGeoTiff(const string& appTag, const string& filename);
     CVVec3d upperLeftLatLonAlt() { return _upperleftLatLonAlt; }
     CVVec3d lowerRightLatLonAlt() { return _lowerRightLatLonAlt; }
-    float   getAltitudeAtLatLon(double lat, double lon);
+    float   getAltitudeAtLatLon(double lat, double lon, const char* logTag);
 
 private:
     CVVec3d _upperleftLatLonAlt;  //! Upper-left corner of DEM in WGS84 coords

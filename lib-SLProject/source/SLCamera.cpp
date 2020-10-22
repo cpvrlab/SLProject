@@ -25,9 +25,9 @@ SLint        SLCamera::currentDevRotation = 0;
 SLCamera::SLCamera(const SLstring& name)
   : SLNode(name),
     _movedLastFrame(false),
-    _startTouchPos1(0,0),
-    _oldTouchPos1(0,0),
-    _oldTouchPos2(0,0),
+    _startTouchPos1(0, 0),
+    _oldTouchPos1(0, 0),
+    _oldTouchPos2(0, 0),
     _trackballSize(0.8f),
     _moveDir(0, 0, 0),
     _drag(0.05f),
@@ -650,7 +650,7 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
         SLMat3f wRwy;
         wRwy.rotation(-90, 1, 0, 0);
 
-        //combiniation of partial rotations to orientation of camera w.r.t world
+        //combination of partial rotations to orientation of camera w.r.t world
         SLMat3f wRc = wRwy * wyRenu * enuRs * sRc;
 
         //camera translations w.r.t world:
@@ -676,7 +676,9 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
         //set camera pose to the object matrix
         om(wTc);
     }
-    else if (_camAnim == CA_deviceRotLocYUp) //location sensor is turned on and the scene has a global reference position
+
+    //location sensor is turned on and the scene has a global reference position
+    else if (_camAnim == CA_deviceRotLocYUp)
     {
         if (!_devRot)
         {
@@ -909,9 +911,6 @@ SLbool SLCamera::onMouseMove(const SLMouseButton button,
         // Determine rot angles around x- & y-axis
         SLfloat dY = (y - _oldTouchPos1.y) * _rotFactor;
         SLfloat dX = (x - _oldTouchPos1.x) * _rotFactor;
-        SLfloat deltaStartX = (x - _startTouchPos1.x) / _fbRect.width;
-        SLfloat deltaStartY = (y - _startTouchPos1.y) / _fbRect.height;
-        SL_LOG("deltaX = %6.4f, deltaY=%6.4f", deltaStartX, deltaStartY);
 
         if (_camAnim == CA_turntableYUp) //......................................
         {
@@ -1009,6 +1008,13 @@ SLbool SLCamera::onMouseMove(const SLMouseButton button,
         }
         else if (_camAnim == CA_deviceRotLocYUp) //..............................
         {
+            // Mouse or touch move in percent
+            SLfloat deltaStartXPC = (x - _startTouchPos1.x) / _fbRect.width;
+            SLfloat deltaStartYPC = (y - _startTouchPos1.y) / _fbRect.height;
+            SL_LOG("deltaX = %6.4f, deltaY=%6.4f", deltaStartXPC, deltaStartYPC);
+
+            //SLMat3f rotOffset(0, _fov, 0);
+            //SLApplication::devRot.rotationOffset(rotOffset);
         }
 
         _oldTouchPos1.set((SLfloat)x, (SLfloat)y);

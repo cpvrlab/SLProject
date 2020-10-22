@@ -16,7 +16,7 @@ using namespace std;
 
 //-----------------------------------------------------------------------------
 //!Averaged template class provides an average value from a fixed size array.
-/*!The SLAverage template class provides an average value continuously averaged 
+/*!The Average template class provides an average value continuously averaged
 from a fixed size vector. The template class can be used for any template type
 T that provides the following operators: =,-,+,T*float
 */
@@ -25,21 +25,21 @@ class Averaged
 {
 public:
     //! Ctor with a default value array size
-    explicit Averaged(int numValues = 60, T zeroValue = 0)
+    explicit Averaged(int numValues = 60, T initValue = 0)
     {
-        init(numValues, zeroValue);
+        init(numValues, initValue);
     }
 
     //! Initializes the average value array to a given value
-    void init(int numValues, T zeroValue)
+    void init(int numValues, T initValue)
     {
+        assert(numValues > 0 && "Num. of values must be greater than zero");
         _values.clear();
-        _values.resize(numValues, zeroValue);
+        _values.resize(numValues, initValue);
         _oneOverNumValues = 1.0f / (float)_values.size();
-        _sum              = zeroValue;
-        _average          = zeroValue;
+        _sum              = initValue * numValues;
+        _average          = initValue;
         _currentValueNo   = 0;
-        _numMeasures      = 0;
     }
 
     //! Sets the current value in the value array and builds the average
@@ -52,29 +52,22 @@ public:
         _sum                     = _sum - _values[_currentValueNo];
         _values[_currentValueNo] = value;
         _sum                     = _sum + _values[_currentValueNo];
-
-        if (_numMeasures < _values.size())
-            _average = _sum / (float)_numMeasures; // average correct when not yet filled up
-        else
-            _average = _sum * _oneOverNumValues; // avoid division
-
+        _average = _sum * _oneOverNumValues; // avoid division
         _currentValueNo++;
-        _numMeasures++;
     }
 
-    //! Gets the avaraged value
+    //! Gets the averaged value
     T average() { return _average; }
 
     //! Get the last entry
     T last() { return _currentValueNo > 0 ? _currentValueNo - 1 : _values.size() - 1; }
 
 private:
-    float        _oneOverNumValues{}; //!< multiplier instead of devider
+    float        _oneOverNumValues{}; //!< multiplier instead of divider
     vector<T>    _values;             //!< value array
     int          _currentValueNo{};   //!< current value index within _values
     T            _sum;                //!< sum of all values
     T            _average;            //!< average value
-    unsigned int _numMeasures{};      //!< num. of total measures
 };
 //-----------------------------------------------------------------------------
 typedef Averaged<float> AvgFloat;

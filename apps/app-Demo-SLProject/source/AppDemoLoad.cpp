@@ -3295,17 +3295,19 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                                               SLApplication::dataPath + "erleb-AR/models/biel/Biel-BFH-Rolex.gltf",
                                               SLApplication::texturePath);
 
-        // Setup shadow mapping material and replace shader from loader
-        SLGLProgram* progPerPixNrmSM = new SLGLGenericProgram(s,
+        /* Setup shadow mapping material and replace shader from loader
+        SLGLProgram* progPerPixSM = new SLGLGenericProgram(s,
                                                               SLApplication::shaderPath + "PerPixBlinnSM.vert",
                                                               SLApplication::shaderPath + "PerPixBlinnSM.frag");
-        auto         updateMat       = [=](SLMaterial* mat) { mat->program(progPerPixNrmSM); };
+        auto         updateMat       = [=](SLMaterial* mat) { mat->program(progPerPixSM); };
         bfh->updateMeshMat(updateMat, true);
+        */
+        bfh->setMeshMat(matVideoBackground, true);
 
         // Make terrain a video shine trough
-        bfh->findChild<SLNode>("Terrain")->setMeshMat(matVideoBackground, true);
+        //bfh->findChild<SLNode>("Terrain")->setMeshMat(matVideoBackground, true);
 
-        // Make buildings transparent
+        /* Make buildings transparent
         SLNode* buildings = bfh->findChild<SLNode>("Buildings");
         SLNode* roofs = bfh->findChild<SLNode>("Roofs");
         auto updateTranspFnc = [](SLMaterial* m) {m->kt(0.5f);};
@@ -3314,10 +3316,10 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Set ambient on all child nodes
         bfh->updateMeshMat([](SLMaterial* m) { m->ambient(SLCol4f(.2f, .2f, .2f)); }, true);
+        */
 
-        // Add axis object a world origin (Loeb Ecke)
+        // Add axis object a world origin
         SLNode* axis = new SLNode(new SLCoordAxis(s), "Axis Node");
-        axis->setDrawBitsRec(SL_DB_MESHWIRED, false);
         axis->scale(2);
         axis->rotate(-90, 1, 0, 0);
 
@@ -3357,6 +3359,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         sv->doWaitOnIdle(false); // for constant video feed
         sv->camera(cam1);
+        sv->drawBits()->on(SL_DB_WITHEDGES);
         s->root3D(scene);
     }
     else if (SLApplication::sceneID == SID_ErlebARChristoffel) //........................................

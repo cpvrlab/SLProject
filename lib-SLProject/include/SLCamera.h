@@ -182,8 +182,8 @@ public:
 protected:
     // projection parameters
     SLProjection _projection;    //!< projection type
-    SLfloat      _fov;           //!< Current field of view (view angle)
-    SLfloat      _fovInit;       //!< Initial field of view (view angle)
+    SLfloat      _fov;           //!< Current vertical field of view (view angle) in degrees
+    SLfloat      _fovInit;       //!< Initial vertical field of view (view angle) in degrees
     SLfloat      _clipNear;      //!< Dist. to the near clipping plane
     SLfloat      _clipFar;       //!< Dist. to the far clipping plane
     SLPlane      _plane[6];      //!< 6 frustum planes (t, b, l, r, n, f)

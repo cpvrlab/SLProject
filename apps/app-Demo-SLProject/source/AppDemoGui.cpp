@@ -701,7 +701,9 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
             else if (c->isMirroredV())
                 mirrored = "vertically";
 
-            sprintf(m + strlen(m), "Video Type   : %s\n", vt == VT_NONE ? "None" : vt == VT_MAIN ? "Main Camera" : vt == VT_FILE ? "File" : "Secondary Camera");
+            sprintf(m + strlen(m), "Video Type   : %s\n", vt == VT_NONE ? "None" : vt == VT_MAIN ? "Main Camera"
+                                                                                 : vt == VT_FILE ? "File"
+                                                                                                 : "Secondary Camera");
             sprintf(m + strlen(m), "Display size : %d x %d\n", CVCapture::instance()->lastFrame.cols, CVCapture::instance()->lastFrame.rows);
             sprintf(m + strlen(m), "Capture size : %d x %d\n", capSize.width, capSize.height);
             sprintf(m + strlen(m), "Size Index   : %d\n", ac->camSizeIndex());
@@ -952,18 +954,20 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
             m[0]                   = 0; // set zero length
             SLVec3d offsetToOrigin = SLApplication::devLoc.originENU() - SLApplication::devLoc.locENU();
             sprintf(m + strlen(m), "Uses IMU Senor   : %s\n", SLApplication::devRot.isUsed() ? "yes" : "no");
-            sprintf(m + strlen(m), "Pitch (deg)      : %1.0f\n", SLApplication::devRot.pitchRAD() * Utils::RAD2DEG);
-            sprintf(m + strlen(m), "Yaw (deg)        : %1.0f\n", SLApplication::devRot.yawRAD() * Utils::RAD2DEG);
-            sprintf(m + strlen(m), "Roll (deg)       : %1.0f\n", SLApplication::devRot.rollRAD() * Utils::RAD2DEG);
-            sprintf(m + strlen(m), "Zero Yaw at Start: %s\n", SLApplication::devRot.zeroYawAtStart() ? "yes" : "no");
-            sprintf(m + strlen(m), "Start Yaw (deg)  : %1.0f\n", SLApplication::devRot.startYawRAD() * Utils::RAD2DEG);
+            sprintf(m + strlen(m), "Pitch (deg)      : %3.1f\n", SLApplication::devRot.pitchDEG());
+            sprintf(m + strlen(m), "Pitch (deg) avg. : %3.1f\n", SLApplication::devRot.pitchAvgDEG());
+            sprintf(m + strlen(m), "Yaw (deg)        : %3.1f\n", SLApplication::devRot.yawDEG());
+            sprintf(m + strlen(m), "Yaw (deg) avg.   : %3.1f\n", SLApplication::devRot.yawAvgDEG());
+            sprintf(m + strlen(m), "Roll (deg)       : %3.1f\n", SLApplication::devRot.rollDEG());
+            sprintf(m + strlen(m), "Roll (deg) avg.  : %3.1f\n", SLApplication::devRot.rollAvgDEG());
             sprintf(m + strlen(m), "------------------\n");
             sprintf(m + strlen(m), "Uses GPS Sensor  : %s\n", SLApplication::devLoc.isUsed() ? "yes" : "no");
-            sprintf(m + strlen(m), "Latitude (deg)   : %10.6f\n", SLApplication::devLoc.locLatLonAlt().lat);
-            sprintf(m + strlen(m), "Longitude (deg)  : %10.6f\n", SLApplication::devLoc.locLatLonAlt().lon);
-            sprintf(m + strlen(m), "Altitude (m)     : %10.6f\n", SLApplication::devLoc.locLatLonAlt().alt);
-            sprintf(m + strlen(m), "Altitude GPS (m) : %10.6f\n", SLApplication::devLoc.altGpsM());
-            sprintf(m + strlen(m), "Altitude DEM (m) : %10.6f\n", SLApplication::devLoc.altDemM());
+            sprintf(m + strlen(m), "Latitude (deg)   : %10.5f\n", SLApplication::devLoc.locLatLonAlt().lat);
+            sprintf(m + strlen(m), "Longitude (deg)  : %10.5f\n", SLApplication::devLoc.locLatLonAlt().lon);
+            sprintf(m + strlen(m), "Alt. used (m)    : %10.2f\n", SLApplication::devLoc.locLatLonAlt().alt);
+            sprintf(m + strlen(m), "Alt. GPS (m)     : %10.2f\n", SLApplication::devLoc.altGpsM());
+            sprintf(m + strlen(m), "Alt. DEM (m)     : %10.2f\n", SLApplication::devLoc.altDemM());
+            sprintf(m + strlen(m), "Alt. origin (m)  : %10.2f\n", SLApplication::devLoc.altDemM());
             sprintf(m + strlen(m), "Accuracy Rad.(m) : %6.1f\n", SLApplication::devLoc.locAccuracyM());
             sprintf(m + strlen(m), "Dist. Origin (m) : %6.1f\n", offsetToOrigin.length());
             sprintf(m + strlen(m), "Origin improve(s): %6.1f sec.\n", SLApplication::devLoc.improveTime());
@@ -1604,6 +1608,10 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
 #if defined(SL_OS_ANDROID) || defined(SL_OS_IOS)
             if (ImGui::BeginMenu("Rotation Sensor"))
             {
+                SLint numAveragedPYR = SLApplication::devRot.numAveragedPYR();
+                if (ImGui::SliderInt("Average length", &numAveragedPYR, 1, 30))
+                    SLApplication::devRot.numAveragedPYR(numAveragedPYR);
+
                 if (ImGui::MenuItem("Use Device Rotation (IMU)", nullptr, SLApplication::devRot.isUsed()))
                     SLApplication::devRot.isUsed(!SLApplication::devRot.isUsed());
 
@@ -1621,8 +1629,9 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                 if (ImGui::MenuItem("Use Device Location (GPS)", nullptr, SLApplication::devLoc.isUsed()))
                     SLApplication::devLoc.isUsed(!SLApplication::devLoc.isUsed());
 
-                if (ImGui::MenuItem("Use Origin Altitude", nullptr, SLApplication::devLoc.useOriginAltitude()))
-                    SLApplication::devLoc.useOriginAltitude(!SLApplication::devLoc.useOriginAltitude());
+                if (!SLApplication::devLoc.geoTiffIsAvailableAndValid())
+                    if (ImGui::MenuItem("Use Origin Altitude", nullptr, SLApplication::devLoc.useOriginAltitude()))
+                        SLApplication::devLoc.useOriginAltitude(!SLApplication::devLoc.useOriginAltitude());
 
                 if (ImGui::MenuItem("Reset Origin to here"))
                     SLApplication::devLoc.hasOrigin(false);
@@ -3005,7 +3014,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
 
                                     lut->bindActive(); // This texture is not an scenegraph texture
                                     SLfloat texW = ImGui::GetWindowWidth() - 4 * ImGui::GetTreeNodeToLabelSpacing() - 10;
-                                    void*   tid  = (ImTextureID)lut->texID();
+                                    void*   tid  = (ImTextureID)(uintptr_t)lut->texID();
                                     ImGui::Image(tid,
                                                  ImVec2(texW, texW * 0.15f),
                                                  ImVec2(0, 1),
