@@ -3,7 +3,7 @@
 #include <WAIMapStorage.h>
 #include <sens/SENSUtils.h>
 
-//#define LOAD_ASYNC
+#define LOAD_ASYNC
 
 AreaTrackingView::AreaTrackingView(sm::EventHandler&   eventHandler,
                                    SLInputManager&     inputManager,
@@ -49,6 +49,7 @@ void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaI
     try
     {
         _noInitException = false;
+        _gui.showErrorMsg("");
 
         _locId                      = locId;
         _areaId                     = areaId;

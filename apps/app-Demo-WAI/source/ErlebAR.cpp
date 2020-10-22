@@ -85,9 +85,9 @@ const Location defineLocationAugst()
 
     {
         Area area(AreaId::AUGST_TEMPLE_HILL_MARKER,                                                                             //id
-                  {47.53315, 7.72089, 282.6},                                                                                                    //llaPos
+                  {47.53315, 7.72089, 293.2},                                                                                   //llaPos
                   120,                                                                                                          //map viewing angle
-                  {47.53319, 7.72207, 282.6},                                                                                                    //modelOrigin
+                  {47.53319, 7.72207, 282.6},                                                                                   //modelOrigin
                   "locations/augst/templeHill-marker/maps/map_20200812-114906_augst_templeHill-marker_FAST-ORBS-3000_2.waimap", //slamMapFileName
                   "dummy.jpg",                                                                                                  //relocAlignImage,
                   "calibrations/voc_fbow.bin",                                                                                  //vocFileName,
@@ -101,9 +101,9 @@ const Location defineLocationAugst()
     }
     {
         Area area(AreaId::AUGST_TEMPLE_HILL_THEATER_BOTTOM,                                                                     //id
-                  {47.53303, 7.72130, 282.6},                                                                                                    //llaPos
+                  {47.53308, 7.72153, 285.6},                                                                                   //llaPos
                   -18,                                                                                                          //map viewing angle
-                  {47.53319, 7.72207, 282.6},                                                                                                    //modelOrigin
+                  {47.53319, 7.72207, 282.6},                                                                                   //modelOrigin
                   "locations/augst/templeHillTheater/maps/map_20200819-154204_augst_templeHillTheater_FAST-ORBS-3000_2.waimap", //slamMapFileName
                   "dummy.jpg",                                                                                                  //relocAlignImage,
                   "calibrations/voc_fbow.bin",                                                                                  //vocFileName,
@@ -128,9 +128,9 @@ const Location defineLocationAvenches()
 
     {
         Area area(AreaId::AVENCHES_AMPHITHEATER_ENTRANCE,                                                                                    //id
-                  {46.88120, 7.04368, 461.43},                                                                                                                 //llaPos
+                  {46.88120, 7.04368, 461.43},                                                                                               //llaPos
                   170,                                                                                                                       //map viewing angle
-                  {46.88102, 7.04263, 461.43},                                                                                                                 //modelOrigin
+                  {46.88102, 7.04263, 461.43},                                                                                               //modelOrigin
                   "locations/avenches/amphitheaterEntrance/maps/map_20201006-134438_Avenches_Amphitheater-Entrance_FAST-ORBS-1000_2.waimap", //slamMapFileName
                   "locations/avenches/amphitheaterEntrance/amphitheaterEntrance-reloc-align-img.jpg",                                        //relocAlignImage,
                   "calibrations/voc_fbow.bin",                                                                                               //vocFileName,
@@ -144,9 +144,9 @@ const Location defineLocationAvenches()
     }
     {
         Area area(AreaId::AVENCHES_AMPHITHEATER,                                                                            //id
-                  {46.88102, 7.04263, 461.43},                                                                                                //llaPos
+                  {46.88102, 7.04263, 461.43},                                                                              //llaPos
                   -18,                                                                                                      //map viewing angle
-                  {46.88102, 7.04263, 461.43},                                                                                                //modelOrigin
+                  {46.88102, 7.04263, 461.43},                                                                              //modelOrigin
                   "locations/avenches/amphitheater/maps/map_20201006-104306_Avenches_Amphitheater_FAST-ORBS-1000_2.waimap", //slamMapFileName
                   "locations/avenches/amphitheater/amphitheater-reloc-align-img.jpg",                                       //relocAlignImage,
                   "calibrations/voc_fbow.bin",                                                                              //vocFileName,
@@ -160,9 +160,9 @@ const Location defineLocationAvenches()
     }
     {
         Area area(AreaId::AVENCHES_CIGOGNIER,                                                                                             //id
-                  {46.88146, 7.04645, 450.95},                                                                                                              //llaPos
+                  {46.88146, 7.04645, 450.95},                                                                                            //llaPos
                   -140,                                                                                                                   //map viewing angle
-                  {46.88146, 7.04645, 450.95},                                                                                                              //modelOrigin
+                  {46.88146, 7.04645, 450.95},                                                                                            //modelOrigin
                   "locations/avenches/cigonier-marker/maps/DEVELOPMENT-map_20200529-162110_avenches_cigonier-marker_FAST_ORBS_2000.json", //slamMapFileName
                   "dummy.jpg",                                                                                                            //relocAlignImage,
                   "calibrations/voc_fbow.bin",                                                                                            //vocFileName,
@@ -176,9 +176,9 @@ const Location defineLocationAvenches()
     }
     {
         Area area(AreaId::AVENCHES_THEATER,                                                                               //id
-                  {46.88029, 7.04880, 454.95},                                                                                              //llaPos
+                  {46.88029, 7.04880, 454.95},                                                                            //llaPos
                   50,                                                                                                     //map viewing angle
-                  {46.88029, 7.04876, 454.95},                                                                                              //modelOrigin
+                  {46.88029, 7.04876, 454.95},                                                                            //modelOrigin
                   "locations/avenches/theater/maps/release-map_20200930-154707_avenches_theater_FAST-ORBS-2000_2.waimap", //slamMapFileName
                   "locations/avenches/theater/theater-reloc-align-img.jpg",                                               //relocAlignImage,
                   "locations/avenches/theater/theater_voc.bin",                                                           //vocFileName,
@@ -202,10 +202,10 @@ const Location defineLocationBern()
                  "models/bern/DEM-Bern-2600_1199-WGS84.tif");
 
     {
-        Area area(AreaId::AVENCHES_THEATER,                                                                                          //id
-                  {46.94839, 7.43973, 541.1},                                                                                        //llaPos
+        Area area(AreaId::BERN_MILCHGAESSLI,                                                                                          //id
+                  {46.94839, 7.43973, 541.2},                                                                                        //llaPos
                   60,                                                                                                                //map viewing angle
-                  {46.947629, 7.440754, 442.0},                                                                                      //modelOrigin
+                  {46.947629, 7.440754, 542.2},                                                                                      //modelOrigin
                   "locations/bern/milchgaessli/maps/DEVELOPMENT-map_20200702-173422_christoffel_milchgaessli_FAST-ORBS-2000_2.json", //slamMapFileName
                   "dummy.jpg",                                                                                                       //relocAlignImage,
                   "calibrations/voc_fbow.bin",                                                                                       //vocFileName,
@@ -229,7 +229,7 @@ const Location defineLocationBiel()
                  {47.14060, 7.24693, 434.3},
                  1600,
                  "models/biel/DEM_Biel-BFH_WGS84.tif");
-    
+
     {
         Area area(AreaId::BIEL_BFH,                            //id
                   {47.14260, 7.24310, 488.7},                  //llaPos
