@@ -118,7 +118,9 @@ void CVImageGeoTiff::loadGeoTiff(const string& appTag,
 }
 //-----------------------------------------------------------------------------
 //! Returns the altitude in m at the given position in WGS84 latitude-longitude
-float CVImageGeoTiff::getAltitudeAtLatLon(double latDEG, double lonDEG)
+float CVImageGeoTiff::getAltitudeAtLatLon(double latDEG,
+                                          double lonDEG,
+                                          const char* logTag)
 {
     double dLatDEG   = _upperleftLatLonAlt[0] - _lowerRightLatLonAlt[0];
     double dLonDEG   = _lowerRightLatLonAlt[1] - _upperleftLatLonAlt[1];
@@ -133,6 +135,17 @@ float CVImageGeoTiff::getAltitudeAtLatLon(double latDEG, double lonDEG)
 
     // pixels are top-left coordinates in OpenCV
     pixPosLat = _cvMat.rows - pixPosLat;
+
+    if (pixPosLat < 0.0 || pixPosLat > _cvMat.rows - 1.0)
+    {
+        Utils::log(logTag, "Invalid pixPosLat %3.2f", pixPosLat);
+        pixPosLat = 0;
+    }
+    if (pixPosLon < 0.0 || pixPosLon > _cvMat.cols - 1.0)
+    {
+        Utils::log(logTag, "Invalid pixPosLon %3.2f", pixPosLon);
+        pixPosLon = 0;
+    }
 
     // get subpixel accurate interpolated height value
     cv::Point2f pt(pixPosLon, pixPosLat);
