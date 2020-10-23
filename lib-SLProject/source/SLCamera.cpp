@@ -1021,22 +1021,20 @@ SLbool SLCamera::onMouseMove(const SLMouseButton button,
             lookAt(positionVS + forwardVS, SLVec3f(0, 0, 1));
             needWMUpdate();
         }
-        else if (_camAnim == CA_deviceRotLocYUp) //..............................
+        else if (_camAnim == CA_deviceRotLocYUp && _devRot != nullptr) //..............................
         {
-            SLDeviceRotation& devRot = SLApplication::devRot;
-
-            if (devRot.offsetMode() == OM_fingerX ||
-                devRot.offsetMode() == OM_fingerXY)
+            if (_devRot->offsetMode() == OM_fingerX ||
+                _devRot->offsetMode() == OM_fingerXY)
             {
                 // Mouse or touch move in percent
                 SLfloat deltaXPC = (x - _oldTouchPos1.x) / _fbRect.width;
                 SLfloat deltaYPC = (y - _oldTouchPos1.y) / _fbRect.height;
-                devRot.yawOffsetRAD(devRot.yawOffsetRAD() + fovH() * deltaXPC * devRot.offsetScale());
-                if (devRot.offsetMode() == OM_fingerXY)
-                    devRot.pitchOffsetRAD(devRot.pitchOffsetRAD() + fovV() * deltaYPC * devRot.offsetScale());
+                _devRot->yawOffsetRAD(_devRot->yawOffsetRAD() + fovH() * deltaXPC * _devRot->offsetScale());
+                if (_devRot->offsetMode() == OM_fingerXY)
+                    _devRot->pitchOffsetRAD(_devRot->pitchOffsetRAD() + fovV() * deltaYPC * _devRot->offsetScale());
             }
-            else if (devRot.offsetMode() == OM_autoX ||
-                     devRot.offsetMode() == OM_autoXY)
+            else if (_devRot->offsetMode() == OM_autoX ||
+                     _devRot->offsetMode() == OM_autoXY)
             {
                 // Todo: auto offset with template matching
             }

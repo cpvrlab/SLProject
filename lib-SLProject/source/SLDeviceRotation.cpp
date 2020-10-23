@@ -51,8 +51,7 @@ void SLDeviceRotation::onRotationQUAT(SLfloat quatX,
     _quaternion = SLQuat4f(quatX, quatY, quatZ, quatW);
     _rotation = _quaternion.toMat3();
     _rotationAvg.set(_rotation);
-    _quaternion.toEulerAnglesXYZ(_rollRAD, _pitchRAD, _yawRAD);
-    _pitchRAD *= -1.0f;
+    _quaternion.toEulerAnglesXYZ(_pitchRAD, _yawRAD, _rollRAD);
 
     //_rotation.print("Rotation:\n");
 

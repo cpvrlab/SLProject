@@ -12,6 +12,7 @@
 #define AVERAGED_H
 
 #include <vector>
+#include <assert.h>
 using namespace std;
 
 //-----------------------------------------------------------------------------
