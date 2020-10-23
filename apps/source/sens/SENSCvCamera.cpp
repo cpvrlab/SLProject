@@ -95,12 +95,12 @@ SENSFramePtr SENSCvCamera::processNewFrame(cv::Mat& bgrImg, cv::Mat intrinsics, 
 void SENSCvCamera::guessAndSetCalibration(float fovDegFallbackGuess)
 {
     //We make a calibration with full resolution and adjust it to the manipulated image size later if neccessary:
-    //For the initial setup we have to use streamconfig values because that is where the fov fits too
+    //For the initial setup we have to use streamconfig values because that is where the fovV fits too
     float horizFOVDev = fovDegFallbackGuess;
     if (_config->streamConfig->focalLengthPix > 0)
         horizFOVDev = SENS::calcFOVDegFromFocalLengthPix(_config->streamConfig->focalLengthPix, _config->streamConfig->widthPix);
 
-    //init calibration with streaconfig image size, because that is where the fov fits too
+    //init calibration with streaconfig image size, because that is where the fovV fits too
     _calibration = std::make_unique<SENSCalibration>(cv::Size(_config->streamConfig->widthPix, _config->streamConfig->heightPix),
                                                      horizFOVDev,
                                                      false,

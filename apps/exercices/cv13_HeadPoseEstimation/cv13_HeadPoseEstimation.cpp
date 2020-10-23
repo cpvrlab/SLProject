@@ -45,7 +45,7 @@ int main()
     model_points.emplace_back(Point3d(150.0f, -150.0f, -125.0f));  // Right mouth corner
 
     // Camera intrinsic matrix
-    double  f             = image.cols;                              // Approximate focal length of fov of 60 deg.
+    double  f             = image.cols;                              // Approximate focal length of fovV of 60 deg.
     Point2d c             = Point2d(image.cols / 2, image.rows / 2); // Approximate optical center = image center
     Mat     camera_matrix = (Mat_<double>(3, 3) << f, 0, c.x, 0, f, c.y, 0, 0, 1);
 

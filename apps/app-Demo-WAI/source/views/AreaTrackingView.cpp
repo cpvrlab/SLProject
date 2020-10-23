@@ -329,7 +329,7 @@ void AreaTrackingView::updateSceneCameraFov()
         }
         else
         {
-            //bars top and bottom: estimate vertical fov from cameras horizontal field of view and screen aspect ratio
+            //bars top and bottom: estimate vertical fovV from cameras horizontal field of view and screen aspect ratio
             float fovV = SENS::calcFovDegFromOtherFovDeg(_camera->calibration()->cameraFovHDeg(), this->scrW(), this->scrH());
             _scene.camera->updateCameraIntrinsics(fovV);
             _userGuidanceScene.camera->updateCameraIntrinsics(fovV);

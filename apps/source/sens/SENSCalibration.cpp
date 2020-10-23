@@ -61,7 +61,7 @@ SENSCalibration::SENSCalibration(const cv::Mat&     cameraMat,
     _state = State::calibrated;
 }
 //-----------------------------------------------------------------------------
-//create a guessed calibration using image size and horizontal fov angle
+//create a guessed calibration using image size and horizontal fovV angle
 SENSCalibration::SENSCalibration(const cv::Size& imageSize,
                                  float           fovH,
                                  bool            mirroredH,
@@ -77,7 +77,7 @@ SENSCalibration::SENSCalibration(const cv::Size& imageSize,
     _cameraMatUndistorted = _cameraMat.clone();
     _cameraMatOrig        = _cameraMat.clone();
     _imageSizeOrig        = _imageSize;
-    Utils::log("SENSCalibration", "Guessing calibration from fov: fovH: %f. fovV: %f", _cameraFovHDeg, _cameraFovVDeg);
+    Utils::log("SENSCalibration", "Guessing calibration from fovV: fovH: %f. fovV: %f", _cameraFovHDeg, _cameraFovVDeg);
 }
 //-----------------------------------------------------------------------------
 //create a guessed calibration using sensor size, camera focal length and captured image size
@@ -105,7 +105,7 @@ SENSCalibration::SENSCalibration(float           sensorWMM,
     {
         //if not between
         createFromGuessedFOV(imageSize.width, imageSize.height, 65.0);
-        Utils::log("SENSCalibration", "Guessing calibration from fov: fovH: %f. fovV: %f", _cameraFovHDeg, _cameraFovVDeg);
+        Utils::log("SENSCalibration", "Guessing calibration from fovV: fovH: %f. fovV: %f", _cameraFovHDeg, _cameraFovVDeg);
     }
     _cameraMatUndistorted = _cameraMat.clone();
     _cameraMatOrig        = _cameraMat.clone();
@@ -400,7 +400,7 @@ can calculate the most important intrinsic parameter the focal length. All
 other parameters are set as if the lens would be perfect: No lens distortion
 and the view axis goes through the center of the image.
 If the focal length and sensor size is provided by the device we deduce the
-the fov from it.
+the fovV from it.
  @param fovH average horizontal view angle in degrees
 */
 void SENSCalibration::createFromGuessedFOV(int   imageWidthPX,

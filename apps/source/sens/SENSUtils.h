@@ -25,7 +25,7 @@ float calcFocalLengthPixFromFOVDeg(const float fovDeg, const int imgLength);
 /*
  @brief calculate an unknown field of view (e.g. vertical) from a known field of view (e.g. horizontal)
  @param otherFovDeg specifies the known field of view in degree
- @param otherLength specifies the length belonging to the known field of view (e.g. width belongs to horizontal fov and height belongs to vertical fov)
+ @param otherLength specifies the length belonging to the known field of view (e.g. width belongs to horizontal fovV and height belongs to vertical fov)
  @param length specifies the relative length (repecting the img aspect ration) in the direction of the unknown field of view
  @returns field of view in degree
 */
@@ -43,7 +43,7 @@ cv::Mat adaptCameraMat(cv::Mat origMat, int newRefLength, int oldRefLength);
  @brief calculate increased fov: e.g. we know the fov of a, image (oldFovDeg) with height heightOld that is vertically centered in a screen with heightNew and want to know the corresponding new field of view
  @param oldFovDeg old field of view in degree
  @param oldImgLength specifies corresponding old img length (e.g. combine vertical fov with height and horizontal fov with width)
- @param newImgLength specifies corresponding new img length (e.g. combine vertical fov with height and horizontal fov with width)
+ @param newImgLength specifies corresponding new img length (e.g. combine vertical fov with height and horizontal fovV with width)
  @returns new field of view in degree
  */
 //todo: does not give correct results, I wonder why...

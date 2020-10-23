@@ -3359,7 +3359,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         sv->doWaitOnIdle(false); // for constant video feed
         sv->camera(cam1);
-        sv->drawBits()->on(SL_DB_WITHEDGES);
+        sv->drawBits()->on(SL_DB_ONLYEDGES);
         s->root3D(scene);
     }
     else if (SLApplication::sceneID == SID_ErlebARChristoffel) //........................................

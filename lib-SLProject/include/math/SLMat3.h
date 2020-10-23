@@ -69,6 +69,8 @@ class SLMat3
         SLMat3<T>&  operator=   (const SLMat3& A);
         SLMat3<T>&  operator*=  (const SLMat3& A);
         SLMat3<T>&  operator=   (const T* a);
+        SLMat3<T>   operator+   (const SLMat3& A) const;
+        SLMat3<T>   operator-   (const SLMat3& A) const;
         SLMat3<T>   operator*   (const SLMat3& A) const;
         SLVec3<T>   operator*   (const SLVec3<T>& v) const;
         SLMat3<T>   operator*   (T a) const;           //!< scalar multiplication
@@ -106,6 +108,9 @@ class SLMat3
         void        fromEulerAnglesXYZ(const T angleXRAD,
                                        const T angleYRAD,
                                        const T angleZRAD);
+         void       fromEulerAnglesZYX(const T angleZ1RAD,
+                                       const T angleY2RAD,
+                                       const T angleX3RAD);
         void        fromEulerAnglesZXZ(const T angleZ1RAD,
                                        const T angleX2RAD,
                                        const T angleZ2RAD);
@@ -182,6 +187,26 @@ template<class T>
 SLMat3<T>& SLMat3<T>::operator =(const T* a) 
 {
     for (int i=0; i<9; ++i) _m[i] = a[i];
+}
+//-----------------------------------------------------------------------------
+// matrix component wise addition
+template<class T>
+SLMat3<T> SLMat3<T>::operator + (const SLMat3& A) const
+{
+    SLMat3<T> sum(_m[0]+A._m[0], _m[3]+A._m[3], _m[6]+A._m[6],
+                  _m[1]+A._m[1], _m[4]+A._m[4], _m[7]+A._m[7],
+                  _m[2]+A._m[2], _m[5]+A._m[5], _m[8]+A._m[8]);
+    return(sum);
+}
+//-----------------------------------------------------------------------------
+// matrix component wise subtraction
+template<class T>
+SLMat3<T> SLMat3<T>::operator - (const SLMat3& A) const
+{
+    SLMat3<T> sub(_m[0]-A._m[0], _m[3]-A._m[3], _m[6]-A._m[6],
+                  _m[1]-A._m[1], _m[4]-A._m[4], _m[7]-A._m[7],
+                  _m[2]-A._m[2], _m[5]-A._m[5], _m[8]-A._m[8]);
+    return(sub);
 }
 //-----------------------------------------------------------------------------
 // matrix multiplication
@@ -604,7 +629,7 @@ void SLMat3<T>::toEulerAnglesZYX(T& zRotRAD, T& yRotRAD, T& xRotRAD)
 //-----------------------------------------------------------------------------
 /*!
 Sets the linear 3x3 sub-matrix as a rotation matrix from the 3 euler angles
-in radians around the z-axis, y-axis & x-axis:=
+in radians around the z-axis, y-axis & x-axis := Rx * Ry * Rz
 See: http://en.wikipedia.org/wiki/Euler_angles
 */
 template<class T>
@@ -619,6 +644,25 @@ void SLMat3<T>::fromEulerAnglesXYZ(const T angleX1RAD,
     _m[0]=(T) (c2*c3);              _m[3]=(T)-(c2*s3);              _m[6] =(T) s2;
     _m[1]=(T) (s1*s2*c3) + (c1*s3); _m[4]=(T)-(s1*s2*s3) + (c1*c3); _m[7] =(T)-(c2*s1);
     _m[2]=(T)-(c1*s2*c3) + (s1*s3); _m[5]=(T) (c1*s2*s3) + (s1*c3); _m[8] =(T) (c1*c2);
+}
+//-----------------------------------------------------------------------------
+/*!
+Sets the linear 3x3 sub-matrix as a rotation matrix from the 3 euler angles
+in radians around the x-axis, y-axis & z-axis := Rz * Ry * Rx
+See: http://en.wikipedia.org/wiki/Euler_angles
+*/
+template<class T>
+void SLMat3<T>::fromEulerAnglesZYX(const T angleZ1RAD,
+                                   const T angleY2RAD,
+                                   const T angleX3RAD)
+{
+    T s1 = sin(angleZ1RAD), c1 = cos(angleZ1RAD);
+    T s2 = sin(angleY2RAD), c2 = cos(angleY2RAD);
+    T s3 = sin(angleX3RAD), c3 = cos(angleX3RAD);
+
+    _m[0]=(T) (c1*c2); _m[3]=(T) (c1*s2*s3) - (c3*s1); _m[6] =(T) (s1*s3) + (c1*c3*s2);
+    _m[1]=(T) (c2*s1); _m[4]=(T) (c1*c3) + (s1*s2*s3); _m[7] =(T) (c3*s1*s2) - (c1*s3);
+    _m[2]=(T)-s2;      _m[5]=(T) (c2*s3);              _m[8] =(T) (c2*c3);
 }
 //-----------------------------------------------------------------------------
 /*!

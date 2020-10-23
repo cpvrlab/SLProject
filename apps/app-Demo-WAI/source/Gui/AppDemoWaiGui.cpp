@@ -237,7 +237,7 @@ void AppDemoWaiGui::buildMenu(SLScene* s, SLSceneView* sv)
                 static SLfloat clipN     = cam->clipNear();
                 static SLfloat clipF     = cam->clipFar();
                 static SLfloat focalDist = cam->focalDist();
-                static SLfloat fov       = cam->fov();
+                static SLfloat fov       = cam->fovV();
 
                 ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.66f);
 

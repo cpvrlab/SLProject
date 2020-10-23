@@ -95,7 +95,7 @@ public:
     }
     void fov(const SLfloat fov)
     {
-        _fov       = fov;
+        _fovV      = fov;
         currentFOV = fov;
     }
     void camAnim(SLCamAnim ca)
@@ -136,7 +136,8 @@ public:
     SLProjection   projection() const { return _projection; }
     SLstring       projectionStr() const { return projectionToStr(_projection); }
     SLfloat        unitScaling() const { return _unitScaling; }
-    SLfloat        fov() const { return _fov; }
+    SLfloat        fovV() const { return _fovV; }                  //!< Vertical field of view
+    SLfloat        fovH() const { return _viewportRatio * _fovV; } //!< Horizontal field of view
     SLfloat        aspect() const { return _viewportRatio; }
     SLfloat        clipNear() const { return _clipNear; }
     SLfloat        clipFar() const { return _clipFar; }
@@ -182,7 +183,7 @@ public:
 protected:
     // projection parameters
     SLProjection _projection;    //!< projection type
-    SLfloat      _fov;           //!< Current vertical field of view (view angle) in degrees
+    SLfloat      _fovV;          //!< Current vertical field of view (view angle) in degrees
     SLfloat      _fovInit;       //!< Initial vertical field of view (view angle) in degrees
     SLfloat      _clipNear;      //!< Dist. to the near clipping plane
     SLfloat      _clipFar;       //!< Dist. to the far clipping plane
@@ -212,7 +213,6 @@ protected:
     // animation parameters
     SLbool    _movedLastFrame;    //! did the camera updateRec in the last frame?
     SLCamAnim _camAnim;           //!< Type of camera animation
-    SLVec2f   _startTouchPos1;    //!< Start mouse/touch position at mouse-down
     SLVec2f   _oldTouchPos1;      //!< Old mouse/touch position in pixels
     SLVec2f   _oldTouchPos2;      //!< Old 2nd finger touch position in pixels
     SLVec3f   _trackballStartVec; //!< Trackball vector at mouse down

@@ -88,7 +88,7 @@ CVCalibration::CVCalibration(const cv::Mat&     cameraMat,
     _state = CS_calibrated;
 }
 //-----------------------------------------------------------------------------
-//create a guessed calibration using image size and horizontal fov angle
+//create a guessed calibration using image size and horizontal fovV angle
 CVCalibration::CVCalibration(const cv::Size& imageSize,
                              float           fovH,
                              bool            mirroredH,
@@ -389,7 +389,7 @@ can calculate the most important intrinsic parameter the focal length. All
 other parameters are set as if the lens would be perfect: No lens distortion
 and the view axis goes through the center of the image.
 If the focal length and sensor size is provided by the device we deduce the
-the fov from it.
+the fovV from it.
  @param imageWidthPX Height of image in pixels
  @param imageHeightPX Width of image in pixels
  @param fovH Average horizontal view angle in degrees
