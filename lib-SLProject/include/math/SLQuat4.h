@@ -404,24 +404,24 @@ void SLQuat4<T>::toEulerAnglesZYX(T& rollRAD, T& pitchRAD, T& yawRAD) const
 }
 //-----------------------------------------------------------------------------
 template <typename T>
-void SLQuat4<T>::toEulerAnglesXYZ(T& rollRAD, T& pitchRAD, T& yawRAD) const
+void SLQuat4<T>::toEulerAnglesXYZ(T& pitchRAD, T& yawRAD, T& rollRAD) const
 {
-    // yaw (z-axis rotation)
-    double siny = (T)2 * ( _x * _y - _w * _z );
-    double cosy = 1 - (T)2 * (_x * _x  + _z * _z );
-    yawRAD = (T)-atan2(siny, cosy );
-
-    // pitch (y-axis rotation)
-    double sinp = -(T)2 * (_x * _z - _w * _y);
-    double cosp = 1 - (T)2 * (_x * _x + _y * _y);
+    // pitch (x-axis rotation)
+    double sinp = -(T)2 * (_z * _y - _w * _x);
+    double cosp = +1.0 - (T)2 * (_x * _x + _y * _y);
     pitchRAD = (T)atan2(sinp, cosp);
 
-    // roll (x-axis rotation)
-    double sinr = (T)2 * (_y * _z + _w * _x);
-    if (fabs(sinr) >= 1)
-        rollRAD = (T)copysign(PI / 2, sinr); // use 90 degrees if out of range
+    // yaw (y-axis rotation)
+    double siny = (T)2 * (_w * _y + _x * _z);
+    if (fabs(siny) >= 1)
+        yawRAD = (T)copysign(PI / 2, siny); // use 90 degrees if out of range
     else
-        rollRAD = (T)asin(sinr);
+        yawRAD = (T)asin(siny);
+
+    // roll (z-axis rotation)
+    double sinr = -(T)2 * (_x * _y - _w * _z);
+    double cosr = +1.0 - (T)2 * (_y *_y + _z *_z);
+    rollRAD = (T)atan2(sinr, cosr);
 }
 //-----------------------------------------------------------------------------
 template<class T>

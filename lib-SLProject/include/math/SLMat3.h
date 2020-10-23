@@ -102,7 +102,7 @@ class SLMat3
         T           det         () const;
 
         void        toAngleAxis       (T& angleDEG, SLVec3<T>& axis) const;
-        void        toEulerAnglesZYX  (T& zRotRAD, T& yRotRAD, T& xRotRAD);
+        void        toEulerAnglesXYZ  (T& xRotRAD, T& yRotRAD, T& zRotRAD);
         void        fromEulerAnglesXYZ(const T angleXRAD,
                                        const T angleYRAD,
                                        const T angleZRAD);
@@ -570,7 +570,7 @@ Source: Essential Mathematics for Games and Interactive Applications
 A Programmer's Guide 2nd edition by James M. Van Verth and Lars M. Bishop
 */
 template<class T>
-void SLMat3<T>::toEulerAnglesZYX(T& zRotRAD, T& yRotRAD, T& xRotRAD)
+void SLMat3<T>::toEulerAnglesXYZ(T& xRotRAD, T& yRotRAD, T& zRotRAD)
 {
     T Cx, Sx;
     T Cy, Sy;
