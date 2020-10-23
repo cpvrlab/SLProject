@@ -25,6 +25,7 @@
 #include <SLArrow.h>
 #include <SLCoordAxis.h>
 #include <sens/SENSSimHelper.h>
+#include <SLDeviceLocation.h>
 
 class SENSCamera;
 class MapLoader;
@@ -42,45 +43,11 @@ public:
                      const DeviceData&   deviceData);
     ~AreaTrackingView();
 
+    void initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaId);
     bool update();
     //call when view becomes visible
-    void onShow()
-    {
-        _gui.onShow();
-        if (_gps)
-            _gps->start();
-        if (_orientation)
-            _orientation->start();
-
-        if (_resources.developerMode && _resources.simulatorMode)
-        {
-            if (_simHelper)
-                _simHelper.reset();
-            _simHelper = std::make_unique<SENSSimHelper>(_gps,
-                                                         _orientation,
-                                                         _camera->cameraRef(),
-                                                         _deviceData.writableDir() + "SENSSimData",
-                                                         std::bind(&AreaTrackingView::onCameraParamsChanged, this));
-        }
-    }
-
-    void onHide()
-    {
-        //reset user guidance and run it once
-        _userGuidance.reset();
-
-        if (_gps)
-            _gps->stop();
-        if (_orientation)
-            _orientation->stop();
-        if (_camera)
-            _camera->stop();
-
-        if (_simHelper)
-            _simHelper.reset();
-    }
-
-    void initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaId);
+    void onShow();
+    void onHide();
 
     void resume();
     void hold();
@@ -96,31 +63,34 @@ private:
     virtual SLbool onMouseDown(SLMouseButton button, SLint scrX, SLint scrY, SLKey mod);
     virtual SLbool onMouseMove(SLint x, SLint y);
 
-    void updateSceneCameraFov();
-    void updateVideoImage(SENSFrame& frame, VideoBackgroundCamera* videoBackground);
-    void updateTrackingVisualization(const bool iKnowWhereIAm, SENSFrame& frame);
-    void initSlam(const cv::Mat& mapNodeOm, std::unique_ptr<WAIMap> waiMap);
-    bool startCamera(const cv::Size& trackImgSize);
-    void onCameraParamsChanged();
+    void    updateSceneCameraFov();
+    void    updateVideoImage(SENSFrame& frame, VideoBackgroundCamera* videoBackground);
+    void    updateTrackingVisualization(const bool iKnowWhereIAm, SENSFrame& frame);
+    void    initDeviceLocation(const ErlebAR::Location& location, const ErlebAR::Area& area);
+    void    initSlam(const ErlebAR::Area& area);
+    void    initWaiSlam(const cv::Mat& mapNodeOm, std::unique_ptr<WAIMap> waiMap);
+    bool    startCamera(const cv::Size& trackImgSize);
+    void    onCameraParamsChanged();
+    SLMat4f calcCameraPoseGpsOrientationBased();
 
     AreaTrackingGui   _gui;
-    AppWAIScene       _scene;
+    AppWAIScene       _waiScene;
     UserGuidanceScene _userGuidanceScene;
 
     std::map<ErlebAR::LocationId, ErlebAR::Location> _locations;
 
     std::unique_ptr<SENSCvCamera> _camera;
-    SENSGps*         _gps         = nullptr;
-    SENSOrientation* _orientation = nullptr;
+    SENSGps*                      _gps         = nullptr;
+    SENSOrientation*              _orientation = nullptr;
 
     FeatureExtractorFactory      _featureExtractorFactory;
     std::unique_ptr<KPextractor> _trackingExtractor;
     std::unique_ptr<KPextractor> _initializationExtractor;
     std::unique_ptr<KPextractor> _relocalizationExtractor;
     ImageBuffer                  _imgBuffer;
-    WAIOrbVocabulary*            _voc = nullptr;
 
-    //wai slam depends on _orbVocabulary and has to be uninitializd first
+    std::unique_ptr<WAIOrbVocabulary> _voc;
+    //wai slam depends on _orbVocabulary and has to be uninitializd first (defined below voc)
     std::unique_ptr<WAISlam> _waiSlam;
 
 #if USE_FBOW
@@ -134,7 +104,7 @@ private:
     //size with which camera was started last time (needed for a resume call)
     UserGuidance _userGuidance;
 
-    MapLoader* _asyncLoader = nullptr;
+    std::unique_ptr<MapLoader> _asyncLoader;
 
     ErlebAR::Resources& _resources;
     const DeviceData&   _deviceData;
@@ -143,19 +113,21 @@ private:
     ErlebAR::AreaId     _areaId = ErlebAR::AreaId::NONE;
 
     std::unique_ptr<SENSSimHelper> _simHelper;
+
+    SLDeviceLocation _devLoc;
+    //indicates if intArea finished successfully
+    bool _noInitException = false;
 };
 
 //! Async loader for vocabulary and maps
 class MapLoader : public AsyncWorker
 {
 public:
-    MapLoader(WAIOrbVocabulary*& voc,
-              int                vocLayer,
+    MapLoader(int                vocLayer,
               const std::string& vocFileName,
               const std::string& mapFileDir,
               const std::string& mapFileName)
-      : _voc(voc),
-        _vocLayer(vocLayer),
+      : _vocLayer(vocLayer),
         _vocFileName(vocFileName),
         _mapFileDir(mapFileDir),
         _mapFileName(mapFileName)
@@ -165,33 +137,43 @@ public:
     void run() override
     {
         //if vocabulary is empty, load it first
-        if (!_voc && Utils::fileExists(_vocFileName))
+        if (Utils::fileExists(_vocFileName))
         {
             Utils::log("MapLoader", "loading voc file from: %s", _vocFileName.c_str());
-            _voc = new WAIOrbVocabulary(_vocLayer);
+            _voc = std::make_unique<WAIOrbVocabulary>(_vocLayer);
             _voc->loadFromFile(_vocFileName);
-        }
 
-        //load map
-        _waiMap = AreaTrackingView::tryLoadMap(_mapFileDir, _mapFileName, _voc, _mapNodeOm);
+            //load map
+            _waiMap = AreaTrackingView::tryLoadMap(_mapFileDir, _mapFileName, _voc.get(), _mapNodeOm);
+        }
+        else
+        {
+            std::stringstream ss;
+            ss << "MapLoader: vocabulary file does not exist: " << _vocFileName;
+            _errorMsg = ss.str();
+            _hasError = true;
+        }
 
         //task is ready
         setReady();
     }
 
-    std::unique_ptr<WAIMap> moveWaiMap()
-    {
-        return std::move(_waiMap);
-    }
+    std::unique_ptr<WAIMap>           moveWaiMap() { return std::move(_waiMap); }
+    std::unique_ptr<WAIOrbVocabulary> voc() { return std::move(_voc); }
+    cv::Mat                           mapNodeOm() { return _mapNodeOm; }
 
-    cv::Mat mapNodeOm() { return _mapNodeOm; }
+    bool               hasError() const { return _hasError; }
+    const std::string& getErrorMsg() const { return _errorMsg; }
 
 private:
-    WAIOrbVocabulary*& _voc;
-    std::string        _vocFileName;
-    int                _vocLayer;
-    std::string        _mapFileDir;
-    std::string        _mapFileName;
+    std::unique_ptr<WAIOrbVocabulary> _voc;
+    std::string                       _vocFileName;
+    int                               _vocLayer;
+    std::string                       _mapFileDir;
+    std::string                       _mapFileName;
+
+    std::string _errorMsg;
+    bool        _hasError = false;
 
     std::unique_ptr<WAIMap> _waiMap;
     cv::Mat                 _mapNodeOm;

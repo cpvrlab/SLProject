@@ -89,6 +89,7 @@ enum class AreaId
     BIEL_LEUBRINGENBAHN,
     BIEL_RING,
     BIEL_OFFICE,
+    BIEL_BFH,
     //EVILARD
     EVILARD_ROC2,
     EVILARD_FIREFIGHTERS
@@ -99,34 +100,84 @@ const char* mapAreaIdToName(AreaId id);
 class Area
 {
 public:
-    //Area(AreaId id, int posXPix, int posYPix, float viewAngle);
+    Area() {}
+    //Use the constructor so we dont miss new parameter
+    Area(AreaId        id,
+         SLVec3d       llaPos,
+         float         viewAngleDeg,
+         SLVec3d       modelOrigin,
+         std::string   slamMapFileName,
+         std::string   relocAlignImage,
+         std::string   vocFileName                 = "calibrations/voc_fbow.bin",
+         int           vocLayer                    = 2,
+         cv::Size      cameraFrameTargetSize       = {640, 360},
+         ExtractorType initializationExtractorType = ExtractorType::ExtractorType_FAST_ORBS_2000,
+         ExtractorType relocalizationExtractorType = ExtractorType::ExtractorType_FAST_ORBS_1000,
+         ExtractorType trackingExtractorType       = ExtractorType::ExtractorType_FAST_ORBS_1000,
+         int           nExtractorLevels            = 2)
+      : id(id),
+        name(mapAreaIdToName(id)),
+        llaPos(llaPos),
+        viewAngleDeg(viewAngleDeg),
+        modelOrigin(modelOrigin),
+        slamMapFileName(slamMapFileName),
+        relocAlignImage(relocAlignImage),
+        vocFileName(vocFileName),
+        vocLayer(vocLayer),
+        cameraFrameTargetSize(cameraFrameTargetSize),
+        initializationExtractorType(initializationExtractorType),
+        relocalizationExtractorType(relocalizationExtractorType),
+        trackingExtractorType(trackingExtractorType),
+        nExtractorLevels(nExtractorLevels)
+    {
+    }
 
     AreaId      id = AreaId::NONE;
     std::string name;
-    //lat lon altitude position in WGS84
+    //area position in WGS84 coordinates
     SLVec3d llaPos;
-    //view angle in degree
-    float viewAngleDeg = 0.f;
+    //view angle on map image in degree
+    float viewAngleDeg;
+    //origin of 3d model in WGS84 coordinates
+    SLVec3d modelOrigin;
     //map name in erlebAR directory
     std::string slamMapFileName;
-    std::string relocAlignImage = "dummy.jpg";
+    //image of point of view that is shown during user guidance
+    std::string relocAlignImage;
+    //vocabulary file name
     std::string vocFileName;
     int         vocLayer;
-    //WaiSlam extractor types
-    ExtractorType initializationExtractorType = ExtractorType::ExtractorType_FAST_ORBS_2000;
-    ExtractorType relocalizationExtractorType = ExtractorType::ExtractorType_FAST_ORBS_1000;
-    ExtractorType trackingExtractorType       = ExtractorType::ExtractorType_FAST_ORBS_1000;
-    int           nExtractorLevels            = 2;
     //camera image size
-    cv::Size cameraFrameTargetSize = {640, 360};
-    //crop the camera image to fit screen aspect ratio
-    bool cameraFrameCropToScreen = false;
+    cv::Size cameraFrameTargetSize;
+    //extractor types
+    ExtractorType initializationExtractorType;
+    ExtractorType relocalizationExtractorType;
+    ExtractorType trackingExtractorType;
+    //number of pyramid levels
+    int nExtractorLevels;
 };
 
 //location description
 class Location
 {
 public:
+    Location() {}
+    Location(LocationId  id,
+             std::string areaMapImageFileName,
+             SLVec3d     mapTLLla,
+             SLVec3d     mapBRLla,
+             int         dspPixWidth,
+             std::string geoTiffFileName)
+      : id(id),
+        name(mapLocationIdToName(id)),
+        areaMapImageFileName(areaMapImageFileName),
+        mapTLLla(mapTLLla),
+        mapBRLla(mapBRLla),
+        dspPixWidth(dspPixWidth),
+        geoTiffFileName(geoTiffFileName)
+    {
+    }
+
     LocationId  id = LocationId::NONE;
     std::string name;
     //name of area map image in erlebAR directory
@@ -135,11 +186,12 @@ public:
     SLVec3d mapTLLla = {0, 0, 0};
     //bottom right image corner in WGS84 (lla)
     SLVec3d mapBRLla = {0, 0, 0};
+    //map image display pixel width to define standard zoom
+    int dspPixWidth;
+    //geo tiff file name
+    std::string geoTiffFileName;
 
-    //map image display pixel width
-    int                    dspPixWidth;
     std::map<AreaId, Area> areas;
-    //location center wgs84 (for gps user positionioning in map)
 };
 
 //get definition of current locations and areas

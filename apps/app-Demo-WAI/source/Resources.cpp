@@ -107,6 +107,8 @@ void Resources::load(std::string resourceFileName)
             fs["developerMode"] >> developerMode;
         if (!fs["simulatorMode"].empty())
             fs["simulatorMode"] >> simulatorMode;
+        if (!fs["enableUserGuidance"].empty())
+            fs["enableUserGuidance"] >> enableUserGuidance;
         if (!fs["logWinEnabled"].empty())
             fs["logWinEnabled"] >> logWinEnabled;
 
@@ -145,6 +147,7 @@ void Resources::save()
     {
         fs << "developerMode" << developerMode;
         fs << "simulatorMode" << simulatorMode;
+        fs << "enableUserGuidance" << enableUserGuidance;
         fs << "logWinEnabled" << logWinEnabled;
         fs << "languageId" << _currStrings->id();
     }

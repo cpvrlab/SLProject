@@ -13,7 +13,6 @@
 #include <SLDeviceLocation.h>
 #include <spa.h>
 #include <SLImporter.h>
-#include <SLApplication.h>
 
 //-----------------------------------------------------------------------------
 void SLDeviceLocation::init()
@@ -78,11 +77,10 @@ void SLDeviceLocation::onLocationLatLonAlt(SLdouble latDEG,
     // Use altitude either from DEM (best), origin (static) or GPS (worst)
     _altGpsM       = (float)altM;
     float altToUse = (float)altM;
-    if (geoTiffIsAvailableAndValid())
+    if (geoTiffIsAvailableAndValid() && posIsOnGeoTiff(latDEG, lonDEG))
     {
         _altDemM = _demGeoTiff.getAltitudeAtLatLon(latDEG,
-                                                   lonDEG,
-                                                   SLApplication::appTag.c_str());
+                                                   lonDEG);
         altToUse = _altDemM + _cameraHeightM;
     }
     else
@@ -311,30 +309,27 @@ SLbool SLDeviceLocation::calculateSolarAngles(SLVec3d     locationLatLonAlt,
  If the 32-bit image file and its JSON info file gets successfully loaded,
  we can set the altitudes from the _originLatLonAlt and _defaultLatLonAlt by the DEM.
  */
-void SLDeviceLocation::loadGeoTiff(const SLstring& geoTiffFile,
-                                   const SLstring& appTag)
+void SLDeviceLocation::loadGeoTiff(const SLstring& geoTiffFile)
 {
     assert(!_defaultLatLonAlt.isZero() &&
            !_originLatLonAlt.isZero() &&
            "Set first defaultLatLonAlt and originLatLonAlt before you add a GeoTiff.");
 
-    _demGeoTiff.loadGeoTiff(appTag, geoTiffFile);
+    _demGeoTiff.loadGeoTiff(geoTiffFile);
 
     // Check that default and origin location is withing the GeoTiff extends
     if (geoTiffIsAvailableAndValid())
     {
         // Overwrite the altitudes of origin
         SLfloat altOriginM = _demGeoTiff.getAltitudeAtLatLon(_originLatLonAlt.lat,
-                                                             _originLatLonAlt.lon,
-                                                             SLApplication::appTag.c_str());
+                                                             _originLatLonAlt.lon);
         originLatLonAlt(_originLatLonAlt.lat,
                         _originLatLonAlt.lon,
                         altOriginM);
 
         // Overwrite the altitudes of default with the additional camera height
         SLfloat altDefaultM = _demGeoTiff.getAltitudeAtLatLon(_defaultLatLonAlt.lat,
-                                                              _defaultLatLonAlt.lon,
-                                                              SLApplication::appTag.c_str());
+                                                              _defaultLatLonAlt.lon);
         defaultLatLonAlt(_defaultLatLonAlt.lat,
                          _defaultLatLonAlt.lon,
                          altDefaultM + _cameraHeightM);
@@ -364,3 +359,11 @@ bool SLDeviceLocation::geoTiffIsAvailableAndValid()
             _defaultLatLonAlt.lon < _demGeoTiff.lowerRightLatLonAlt()[1]);
 }
 //------------------------------------------------------------------------------
+bool SLDeviceLocation::posIsOnGeoTiff(SLdouble latDEG, SLdouble lonDEG)
+{
+    return (!_demGeoTiff.empty() &&
+            latDEG < _demGeoTiff.upperLeftLatLonAlt()[0] &&
+            latDEG > _demGeoTiff.lowerRightLatLonAlt()[0] &&
+            lonDEG > _demGeoTiff.upperLeftLatLonAlt()[1] &&
+            lonDEG < _demGeoTiff.lowerRightLatLonAlt()[1]);
+}

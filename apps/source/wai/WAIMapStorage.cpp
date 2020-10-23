@@ -768,6 +768,7 @@ bool WAIMapStorage::loadMapBinary(WAIMap*           waiMap,
         vLevelSigma2.clear();
         vScaleFactor.resize(nScaleLevels);
         vLevelSigma2.resize(nScaleLevels);
+        //todo:  crashes when vScaleFactor is empty
         vScaleFactor[0] = 1.0f;
         vLevelSigma2[0] = 1.0f;
         for (int j = 1; j < nScaleLevels; j++)

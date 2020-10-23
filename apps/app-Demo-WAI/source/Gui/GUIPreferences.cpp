@@ -12,10 +12,6 @@ GUIPreferences::GUIPreferences(int dotsPerInch)
 
 void GUIPreferences::load(std::string fileName, ImGuiStyle& style)
 {
-    //ImGuiStyle& style = ImGui::GetStyle();
-    //SLstring    fullPathAndFilename = SLApplication::configPath +
-    //                               SLApplication::name + ".yml";
-
     if (!Utils::fileExists(fileName))
     {
         // Scale for proportional and fixed size fonts

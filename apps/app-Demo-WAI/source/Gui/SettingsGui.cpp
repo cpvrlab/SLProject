@@ -226,9 +226,24 @@ void SettingsGui::build(SLScene* s, SLSceneView* sv)
                 ImGui::PushFont(_resources.fonts().standard);
                 ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textStandardColor);
 
-                if (ImGui::Checkbox("Enabled##SimMode", &_resources.simulatorMode))
-                {
-                }
+                ImGui::Checkbox("Enabled##SimMode", &_resources.simulatorMode);
+
+                ImGui::PopStyleColor();
+                ImGui::PopFont();
+                ImGui::Separator();
+            }
+            
+            {
+                ImGui::PushFont(_resources.fonts().heading);
+                ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textHeadingColor);
+                ImGui::Text("User Guidance Mode");
+                ImGui::PopStyleColor();
+                ImGui::PopFont();
+
+                ImGui::PushFont(_resources.fonts().standard);
+                ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textStandardColor);
+
+                ImGui::Checkbox("Enabled##UserGuidance", &_resources.enableUserGuidance);
 
                 ImGui::PopStyleColor();
                 ImGui::PopFont();
