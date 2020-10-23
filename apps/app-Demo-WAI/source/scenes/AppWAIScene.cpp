@@ -955,6 +955,7 @@ void AppWAIScene::loadMesh(std::string path, SLNode*& augmentationRoot)
     _root3D->addChild(augmentationRoot);
 }
 
+/*
 void AppWAIScene::rebuild(std::string location, std::string area)
 {
     Utils::log("AppWAIScene", "rebuild for location %s", location.c_str());
@@ -987,16 +988,6 @@ void AppWAIScene::rebuild(std::string location, std::string area)
     blueMat = new SLMaterial(&assets, SLGLProgramManager::get(SP_colorUniform), BFHColors::BlueImgui1, "Blue");
     blueMat->program(new SLGLGenericProgram(&assets, _dataDir + "shaders/ColorUniformPoint.vert", _dataDir + "shaders/Color.frag"));
     blueMat->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 4.0f));
-
-    /*
-    SLMaterial* matVideoBackground = new SLMaterial(&assets,
-                                                    "matVideoBackground",
-                                                    videoTexture,
-                                                    nullptr,
-                                                    nullptr,
-                                                    nullptr,
-                                                    spVideoBackground);
-                                                    */
 
     covisibilityGraphMat = new SLMaterial(&assets, "covisibilityGraphMat", SLCol4f::YELLOW);
     covisibilityGraphMat->program(new SLGLGenericProgram(&assets, _dataDir + "shaders/ColorUniform.vert", _dataDir + "shaders/Color.frag"));
@@ -1036,12 +1027,10 @@ void AppWAIScene::rebuild(std::string location, std::string area)
             augmentationRoot->rotate(13.7f, 0, 1, 0, TS_parent);
 
             // Let the video shine through some objects
-            /*
-            augmentationRoot->findChild<SLNode>("Tht-Aussen-Untergrund")->setMeshMat(matVideoBackground, true);
-            augmentationRoot->findChild<SLNode>("Tht-Eingang-Ost-Boden")->setMeshMat(matVideoBackground, true);
-            augmentationRoot->findChild<SLNode>("Tht-Arenaboden")->setMeshMat(matVideoBackground, true);
-            augmentationRoot->findChild<SLNode>("Tht-Aussen-Terrain")->setMeshMat(matVideoBackground, true);
-            */
+            //augmentationRoot->findChild<SLNode>("Tht-Aussen-Untergrund")->setMeshMat(matVideoBackground, true);
+            //augmentationRoot->findChild<SLNode>("Tht-Eingang-Ost-Boden")->setMeshMat(matVideoBackground, true);
+            //augmentationRoot->findChild<SLNode>("Tht-Arenaboden")->setMeshMat(matVideoBackground, true);
+            //augmentationRoot->findChild<SLNode>("Tht-Aussen-Terrain")->setMeshMat(matVideoBackground, true);
             augmentationRoot->findChild<SLNode>("Tht-Aussen-Untergrund")->setDrawBitsRec(SL_DB_HIDDEN, true);
             augmentationRoot->findChild<SLNode>("Tht-Eingang-Ost-Boden")->setDrawBitsRec(SL_DB_HIDDEN, true);
             augmentationRoot->findChild<SLNode>("Tht-Arenaboden")->setDrawBitsRec(SL_DB_HIDDEN, true);
@@ -1114,20 +1103,18 @@ void AppWAIScene::rebuild(std::string location, std::string area)
         hideNode(augmentationRoot->findChild<SLNode>("Graben-Turm-Fahne", true));
         hideNode(augmentationRoot->findChild<SLNode>("Graben-Turm-Stein", true));
 
-        /*
-        mauer_wand          = bern->findChild<SLNode>("Mauer-Wand", true);
-        mauer_dach          = bern->findChild<SLNode>("Mauer-Dach", true);
-        mauer_turm          = bern->findChild<SLNode>("Mauer-Turm", true);
-        mauer_weg           = bern->findChild<SLNode>("Mauer-Weg", true);
-        grab_mauern         = bern->findChild<SLNode>("Graben-Mauern", true);
-        grab_brueck         = bern->findChild<SLNode>("Graben-Bruecken", true);
-        grab_grass          = bern->findChild<SLNode>("Graben-Grass", true);
-        grab_t_dach         = bern->findChild<SLNode>("Graben-Turm-Dach", true);
-        grab_t_fahn         = bern->findChild<SLNode>("Graben-Turm-Fahne", true);
-        grab_t_stein        = bern->findChild<SLNode>("Graben-Turm-Stein", true);
-        christ_aussen       = bern->findChild<SLNode>("Christoffel-Aussen", true);
-        christ_innen        = bern->findChild<SLNode>("Christoffel-Innen", true);
-        */
+        //mauer_wand          = bern->findChild<SLNode>("Mauer-Wand", true);
+        //mauer_dach          = bern->findChild<SLNode>("Mauer-Dach", true);
+        //mauer_turm          = bern->findChild<SLNode>("Mauer-Turm", true);
+        //mauer_weg           = bern->findChild<SLNode>("Mauer-Weg", true);
+        //grab_mauern         = bern->findChild<SLNode>("Graben-Mauern", true);
+        //grab_brueck         = bern->findChild<SLNode>("Graben-Bruecken", true);
+        //grab_grass          = bern->findChild<SLNode>("Graben-Grass", true);
+        //grab_t_dach         = bern->findChild<SLNode>("Graben-Turm-Dach", true);
+        //grab_t_fahn         = bern->findChild<SLNode>("Graben-Turm-Fahne", true);
+        //grab_t_stein        = bern->findChild<SLNode>("Graben-Turm-Stein", true);
+        //christ_aussen       = bern->findChild<SLNode>("Christoffel-Aussen", true);
+        //christ_innen        = bern->findChild<SLNode>("Christoffel-Innen", true);
 
         // Create directional light for the sun light
         _root3D->addChild(augmentationRoot);
@@ -1136,35 +1123,6 @@ void AppWAIScene::rebuild(std::string location, std::string area)
     }
     else if (location == "Biel" || location == "biel")
     {
-        /*
-        std::string modelPath = _dataDir + "erleb-AR/models/bern/Bern-Bahnhofsplatz.fbx";
-        Utils::log("AppWAIScene", "loading model from path: %s", modelPath.c_str());
-        SLAssimpImporter importer;
-        augmentationRoot = importer.load(_animManager,
-                                         &assets,
-                                         modelPath,
-                                         _dataDir + "images/textures/");
-
-        //hideNode(augmentationRoot->findChild<SLNode>("Boden", true));
-        //hideNode(augmentationRoot->findChild<SLNode>("Baldachin-Stahl", true));
-        //hideNode(augmentationRoot->findChild<SLNode>("Baldachin-Glas", true));
-        //hideNode(augmentationRoot->findChild<SLNode>("Umgebung-Daecher", true));
-        //hideNode(augmentationRoot->findChild<SLNode>("Umgebung-Fassaden", true));
-
-        hideNode(augmentationRoot->findChild<SLNode>("Mauer-Wand", true));
-        hideNode(augmentationRoot->findChild<SLNode>("Mauer-Dach", true));
-        hideNode(augmentationRoot->findChild<SLNode>("Mauer-Turm", true));
-        hideNode(augmentationRoot->findChild<SLNode>("Mauer-Weg", true));
-        hideNode(augmentationRoot->findChild<SLNode>("Graben-Mauern", true));
-        hideNode(augmentationRoot->findChild<SLNode>("Graben-Bruecken", true));
-        hideNode(augmentationRoot->findChild<SLNode>("Graben-Grass", true));
-        hideNode(augmentationRoot->findChild<SLNode>("Graben-Turm-Dach", true));
-        hideNode(augmentationRoot->findChild<SLNode>("Graben-Turm-Fahne", true));
-        hideNode(augmentationRoot->findChild<SLNode>("Graben-Turm-Stein", true));
-
-        _root3D->addChild(augmentationRoot);
-
-         */
         //adjust camera frustum
         camera->clipNear(1.0f);
         camera->clipFar(10.0f);
@@ -1237,7 +1195,7 @@ void AppWAIScene::rebuild(std::string location, std::string area)
     //setup scene
     _root3D->addChild(mapNode);
 }
-
+*/
 void AppWAIScene::hideNode(SLNode* node)
 {
     if (node)

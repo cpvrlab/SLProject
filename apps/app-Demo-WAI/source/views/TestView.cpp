@@ -334,18 +334,54 @@ void TestView::handleEvents()
     }
 }
 
-//void TestView::postStart()
-//{
-//    doWaitOnIdle(false);
-//    camera(_scene.cameraNode);
-//    onInitialize();
-//    if (_camera && _camera->started())
-//        setViewportFromRatio(SLVec2i(_camera->config().targetWidth, _camera->config().targetHeight), SLViewportAlign::VA_center, true);
-//}
+//ATTENTION: THIS MAPPING IS NOT COMPLETE AND ONLY FULFILLS CURRENT SCENE IMPLEMENTATION
+void mapErlebARStringsToIds(const std::string& location, const std::string& area, ErlebAR::LocationId& locationId, ErlebAR::AreaId& areaId)
+{
+    std::string lcArea     = Utils::toLowerString(area);
+    std::string lcLocation = Utils::toLowerString(location);
+    if (lcLocation == "avenches")
+    {
+        locationId = ErlebAR::LocationId::AVENCHES;
+        if (area == "Amphitheater-Entrance" || area == "Amphitheater")
+        {
+            areaId = ErlebAR::AreaId::AVENCHES_THEATER;
+        }
+        else if (area == "Cigonier-marker")
+        {
+            areaId = ErlebAR::AreaId::AVENCHES_CIGOGNIER;
+        }
+        else if (area == "Theater-marker" || area == "Theater")
+        {
+            areaId = ErlebAR::AreaId::AVENCHES_THEATER;
+        }
+    }
+    else if(lcLocation == "augst")
+    {
+        locationId = ErlebAR::LocationId::AUGST;
+        //there is just one model so we just use a random augst id
+        areaId = ErlebAR::AreaId::AUGST_TEMPLE_HILL_MARKER;
+    }
+    else if(lcLocation == "bern")
+    {
+        locationId = ErlebAR::LocationId::BERN;
+    }
+    else if(lcLocation == "biel")
+    {
+        locationId = ErlebAR::LocationId::BIEL;
+    }
+    else if(lcLocation == "evilard")
+    {
+        locationId = ErlebAR::LocationId::EVILARD;
+    }
+}
 
 void TestView::loadWAISceneView(std::string location, std::string area)
 {
-    _scene.rebuild(location, area);
+    //map strings to ids
+    ErlebAR::LocationId locationId = ErlebAR::LocationId::NONE;
+    ErlebAR::AreaId     areaId     = ErlebAR::AreaId::NONE;
+    mapErlebARStringsToIds(location, area, locationId, areaId);
+    _scene.initScene(locationId, areaId);
 
     doWaitOnIdle(false);
     camera(_scene.camera);

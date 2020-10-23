@@ -18,7 +18,7 @@ public:
     AppWAIScene(SLstring name, std::string dataDir, std::string erlebARDir);
 
     void unInit() override;
-    void rebuild(std::string location, std::string area);
+    //void rebuild(std::string location, std::string area);
     void initScene(ErlebAR::LocationId locationId, ErlebAR::AreaId areaId);
 
     void resetMapNode();
