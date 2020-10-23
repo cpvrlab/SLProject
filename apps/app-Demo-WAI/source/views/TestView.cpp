@@ -38,7 +38,8 @@ TestView::TestView(sm::EventHandler&   eventHandler,
     _vocabularyDir(deviceData.vocabularyDir()),
     _calibDir(deviceData.erlebARCalibTestDir()),
     _videoDir(deviceData.erlebARTestDir() + "videos/"),
-    _dataDir(deviceData.dataDir())
+    _dataDir(deviceData.dataDir()),
+    _deviceData(deviceData)
 {
     scene(&_scene);
     init("TestSceneView", deviceData.scrWidth(), deviceData.scrHeight(), nullptr, nullptr, &_gui, _configDir);
@@ -335,44 +336,75 @@ void TestView::handleEvents()
 }
 
 //ATTENTION: THIS MAPPING IS NOT COMPLETE AND ONLY FULFILLS CURRENT SCENE IMPLEMENTATION
-void mapErlebARStringsToIds(const std::string& location, const std::string& area, ErlebAR::LocationId& locationId, ErlebAR::AreaId& areaId)
+void TestView::mapErlebARDirNamesToIds(const std::string& location, const std::string& area, ErlebAR::LocationId& locationId, ErlebAR::AreaId& areaId)
 {
-    std::string lcArea     = Utils::toLowerString(area);
-    std::string lcLocation = Utils::toLowerString(location);
-    if (lcLocation == "avenches")
+    if (location == "avenches")
     {
         locationId = ErlebAR::LocationId::AVENCHES;
-        if (area == "Amphitheater-Entrance" || area == "Amphitheater")
-        {
+        if (area == "amphitheaterEntrance" || area == "amphitheater")
             areaId = ErlebAR::AreaId::AVENCHES_THEATER;
-        }
-        else if (area == "Cigonier-marker")
-        {
+        else if (area == "cigonier-marker")
             areaId = ErlebAR::AreaId::AVENCHES_CIGOGNIER;
-        }
-        else if (area == "Theater-marker" || area == "Theater")
-        {
+        else if (area == "theater-marker" || area == "theater")
             areaId = ErlebAR::AreaId::AVENCHES_THEATER;
-        }
     }
-    else if(lcLocation == "augst")
+    else if (location == "augst")
     {
         locationId = ErlebAR::LocationId::AUGST;
         //there is just one model so we just use a random augst id
-        areaId = ErlebAR::AreaId::AUGST_TEMPLE_HILL_MARKER;
+        if (area == "templeHill-marker")
+            areaId = ErlebAR::AreaId::AUGST_TEMPLE_HILL_MARKER;
+        else if (area == "templeHillTheaterBottom")
+            areaId = ErlebAR::AreaId::AUGST_TEMPLE_HILL_THEATER_BOTTOM;
     }
-    else if(lcLocation == "bern")
+    else if (location == "bern")
     {
         locationId = ErlebAR::LocationId::BERN;
+        if (area == "milchgaessli")
+            areaId = ErlebAR::AreaId::BERN_MILCHGAESSLI;
+        else if (area == "sbb")
+            areaId = ErlebAR::AreaId::BERN_SBB;
+        else if (area == "bubenbergplatz")
+            areaId = ErlebAR::AreaId::BERN_BUBENBERGPLATZ;
     }
-    else if(lcLocation == "biel")
+    else if (location == "biel")
     {
         locationId = ErlebAR::LocationId::BIEL;
+        if(area == "bfh")
+            areaId = ErlebAR::AreaId::BIEL_BFH;
     }
-    else if(lcLocation == "evilard")
+}
+
+void TestView::initDeviceLocation(const ErlebAR::Location& location, const ErlebAR::Area& area)
+{
+    //reset everything to default
+    _devLoc.init();
+
+    _devLoc.locMaxDistanceM(1000.0f);
+    _devLoc.improveOrigin(false);
+    _devLoc.useOriginAltitude(false);
+    _devLoc.cameraHeightM(1.7f);
+    // Let the sun be rotated by time and location
+    if (_scene.sunLight)
+        _devLoc.sunLightNode(_scene.sunLight);
+
+    _devLoc.originLatLonAlt(area.modelOrigin.x, area.modelOrigin.y, area.modelOrigin.z); // Model origin
+    _devLoc.defaultLatLonAlt(area.llaPos.x, area.llaPos.y, area.llaPos.z + _devLoc.cameraHeightM());
+    //ATTENTION: call this after originLatLonAlt and defaultLatLonAlt setters. Otherwise alititude will be overwritten!!
+    if (!location.geoTiffFileName.empty())
     {
-        locationId = ErlebAR::LocationId::EVILARD;
+        std::string geoTiffFileName = _deviceData.erlebARDir() + location.geoTiffFileName;
+        if (Utils::fileExists(geoTiffFileName))
+            _devLoc.loadGeoTiff(geoTiffFileName);
+        else
+        {
+            std::stringstream ss;
+            ss << "TestView::initDeviceLocation: geo tiff file does not exist: " << geoTiffFileName;
+            throw std::runtime_error(ss.str());
+        }
     }
+    else
+        Utils::log("TestView", "WARNING: no geo tiff available");
 }
 
 void TestView::loadWAISceneView(std::string location, std::string area)
@@ -380,8 +412,9 @@ void TestView::loadWAISceneView(std::string location, std::string area)
     //map strings to ids
     ErlebAR::LocationId locationId = ErlebAR::LocationId::NONE;
     ErlebAR::AreaId     areaId     = ErlebAR::AreaId::NONE;
-    mapErlebARStringsToIds(location, area, locationId, areaId);
+    mapErlebARDirNamesToIds(location, area, locationId, areaId);
     _scene.initScene(locationId, areaId);
+    _scene.camera->camAnim(SLCamAnim::CA_turntableYUp);
 
     doWaitOnIdle(false);
     camera(_scene.camera);

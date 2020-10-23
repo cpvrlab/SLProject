@@ -1463,7 +1463,7 @@ void SLMat4<T>::decompose(SLVec3f &trans, SLVec3f &rotEulerRAD, SLVec3f &scale)
     decompose(trans, rotMat, scale);
 
     SLfloat rotAngleXRAD, rotAngleYRAD, rotAngleZRAD;
-    rotMat.toEulerAnglesZYX(rotAngleZRAD, rotAngleYRAD, rotAngleXRAD);
+    rotMat.toEulerAnglesXYZ(rotAngleXRAD, rotAngleYRAD, rotAngleZRAD);
 
     rotEulerRAD.set(rotAngleXRAD, rotAngleYRAD, rotAngleZRAD);
 }
