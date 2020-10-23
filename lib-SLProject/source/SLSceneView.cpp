@@ -187,7 +187,7 @@ void SLSceneView::initSceneViewCamera(const SLVec3f& dir, SLProjection proj)
 
         SLfloat distX   = 0.0f;
         SLfloat distY   = 0.0f;
-        SLfloat halfTan = tan(Utils::DEG2RAD * _sceneViewCamera.fov() * 0.5f);
+        SLfloat halfTan = tan(Utils::DEG2RAD * _sceneViewCamera.fovV() * 0.5f);
 
         // @todo There is still a bug when OSX doesn't pass correct GLWidget size
         // correctly set the camera distance...
@@ -197,7 +197,7 @@ void SLSceneView::initSceneViewCamera(const SLVec3f& dir, SLProjection proj)
         if (proj == P_monoOrthographic)
         {
             // NOTE, the orthographic camera has the ability to zoom by using the following:
-            // tan(SL_DEG2RAD*_fov*0.5f) * pos.length();
+            // tan(SL_DEG2RAD*_fovV*0.5f) * pos.length();
 
             distX = vsMax.x / (ar * halfTan);
             distY = vsMax.y / halfTan;

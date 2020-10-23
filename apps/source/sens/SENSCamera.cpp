@@ -106,8 +106,8 @@ std::pair<const SENSCameraDeviceProperties* const, const SENSCameraStreamConfig*
         {
             std::stringstream ss;
             ss << "Sort Elem " << idx;
-            ss << " fov: " << horizFov;
-            ss << " fov score: " << fovScore;
+            ss << " fovV: " << horizFov;
+            ss << " fovV score: " << fovScore;
             ss << " crop score: " << cropScore;
             ss << " scale score " << scaleScore;
             ss << " widthCropped: " << widthCropped;
@@ -169,11 +169,11 @@ std::pair<const SENSCameraDeviceProperties* const, const SENSCameraStreamConfig*
 
     if (sortElems.size())
     {
-        //sort by difference to target fov
+        //sort by difference to target fovV
         std::sort(sortElems.begin(), sortElems.end(), [](const SortElem& lhs, const SortElem& rhs) -> bool { return lhs.fovScore < rhs.fovScore; });
         printSortElems(sortElems, "sortElems");
 
-        //extract all in a range of +-3 degree compared to the closest to target fov
+        //extract all in a range of +-3 degree compared to the closest to target fovV
         std::vector<SortElem> closeFovSortElems;
         float                 maxFovDiff = sortElems.front().fovScore + 3;
         for (SortElem elem : sortElems)

@@ -8,28 +8,42 @@
 class VideoBackgroundCamera : public SLCamera
 {
 public:
-    VideoBackgroundCamera(std::string cameraName, std::string defaultBackgroundImage)
-     : SLCamera(cameraName)
+    VideoBackgroundCamera(std::string cameraName, std::string defaultBackgroundImage, std::string shaderPath)
+      : SLCamera(cameraName)
     {
-        _videoImage = new SLGLTexture(nullptr, defaultBackgroundImage, GL_LINEAR, GL_LINEAR);
-        this->background().texture(_videoImage, false);
+        _videoTexture = new SLGLTexture(nullptr, defaultBackgroundImage, GL_LINEAR, GL_LINEAR);
+        _background.texture(_videoTexture, false);
+
+        // Define shader that shows on all pixels the video background
+        _spVideoBackground  = new SLGLGenericProgram(nullptr,
+                                                    shaderPath + "PerVrtTextureBackground.vert",
+                                                    shaderPath + "PerVrtTextureBackground.frag");
+        _matVideoBackground = new SLMaterial(nullptr,
+                                             "matVideoBackground",
+                                             _videoTexture,
+                                             nullptr,
+                                             nullptr,
+                                             nullptr,
+                                             _spVideoBackground);
     }
-    
+
     ~VideoBackgroundCamera()
     {
-        delete _videoImage;
+        delete _videoTexture;
+        delete _spVideoBackground;
+        delete _matVideoBackground;
     }
-    
+
     void updateVideoImage(const cv::Mat& image)
     {
-        _videoImage->copyVideoImage(image.cols,
-                                    image.rows,
-                                    CVImage::cv2glPixelFormat(image.type()),
-                                    image.data,
-                                    image.isContinuous(),
-                                    true);
+        _videoTexture->copyVideoImage(image.cols,
+                                      image.rows,
+                                      CVImage::cv2glPixelFormat(image.type()),
+                                      image.data,
+                                      image.isContinuous(),
+                                      true);
     }
-    
+
     void updateCameraIntrinsics(float cameraFovVDeg)
     {
         this->fov(cameraFovVDeg);
@@ -45,10 +59,13 @@ public:
         //cameraNode->projection(P_monoIntrinsic);
         this->projection(P_monoPerspective);
     }
-    
-protected:
 
-    SLGLTexture* _videoImage = nullptr;
+    SLMaterial* matVideoBackground() { return _matVideoBackground; }
+
+protected:
+    SLGLTexture* _videoTexture       = nullptr;
+    SLGLProgram* _spVideoBackground  = nullptr;
+    SLMaterial*  _matVideoBackground = nullptr;
 };
 
 #endif

@@ -955,11 +955,12 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
             SLVec3d offsetToOrigin = SLApplication::devLoc.originENU() - SLApplication::devLoc.locENU();
             sprintf(m + strlen(m), "Uses IMU Senor   : %s\n", SLApplication::devRot.isUsed() ? "yes" : "no");
             sprintf(m + strlen(m), "Pitch (deg)      : %3.1f\n", SLApplication::devRot.pitchDEG());
-            sprintf(m + strlen(m), "Pitch (deg) avg. : %3.1f\n", SLApplication::devRot.pitchAvgDEG());
-            sprintf(m + strlen(m), "Yaw (deg)        : %3.1f\n", SLApplication::devRot.yawDEG());
-            sprintf(m + strlen(m), "Yaw (deg) avg.   : %3.1f\n", SLApplication::devRot.yawAvgDEG());
-            sprintf(m + strlen(m), "Roll (deg)       : %3.1f\n", SLApplication::devRot.rollDEG());
-            sprintf(m + strlen(m), "Roll (deg) avg.  : %3.1f\n", SLApplication::devRot.rollAvgDEG());
+            sprintf(m + strlen(m), "Yaw   (deg)      : %3.1f\n", SLApplication::devRot.yawDEG());
+            sprintf(m + strlen(m), "Roll  (deg)      : %3.1f\n", SLApplication::devRot.rollDEG());
+            sprintf(m + strlen(m), "No. averaged     : %d\n", SLApplication::devRot.numAveraged());
+            sprintf(m + strlen(m), "Pitch Offset(deg): %3.1f\n", SLApplication::devRot.pitchOffsetDEG());
+            sprintf(m + strlen(m), "Yaw   Offset(deg): %3.1f\n", SLApplication::devRot.yawOffsetDEG());
+            sprintf(m + strlen(m), "Offset mode      : %s\n", SLApplication::devRot.offsetModeStr().c_str());
             sprintf(m + strlen(m), "------------------\n");
             sprintf(m + strlen(m), "Uses GPS Sensor  : %s\n", SLApplication::devLoc.isUsed() ? "yes" : "no");
             sprintf(m + strlen(m), "Latitude (deg)   : %10.5f\n", SLApplication::devLoc.locLatLonAlt().lat);
@@ -1605,21 +1606,45 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
             }
 
             ImGui::Separator();
+
+            // Rotation and Location Sensor
 #if defined(SL_OS_ANDROID) || defined(SL_OS_IOS)
             if (ImGui::BeginMenu("Rotation Sensor"))
             {
-                SLint numAveragedPYR = SLApplication::devRot.numAveragedPYR();
-                if (ImGui::SliderInt("Average length", &numAveragedPYR, 1, 30))
-                    SLApplication::devRot.numAveragedPYR(numAveragedPYR);
+                SLDeviceRotation& devRot = SLApplication::devRot;
 
-                if (ImGui::MenuItem("Use Device Rotation (IMU)", nullptr, SLApplication::devRot.isUsed()))
-                    SLApplication::devRot.isUsed(!SLApplication::devRot.isUsed());
+                if (ImGui::MenuItem("Use Device Rotation (IMU)", nullptr, devRot.isUsed()))
+                    devRot.isUsed(!SLApplication::devRot.isUsed());
 
-                if (ImGui::MenuItem("Zero Yaw at Start", nullptr, SLApplication::devRot.zeroYawAtStart()))
-                    SLApplication::devRot.zeroYawAtStart(!SLApplication::devRot.zeroYawAtStart());
+                if (devRot.isUsed())
+                {
+                    SLint numAveraged = devRot.numAveraged();
+                    if (ImGui::SliderInt("Average length", &numAveraged, 1, 10))
+                        devRot.numAveraged(numAveraged);
 
-                if (ImGui::MenuItem("Reset Zero Yaw"))
-                    SLApplication::devRot.hasStarted(true);
+                    if (ImGui::BeginMenu("Offset Mode"))
+                    {
+                        SLOffsetMode om = devRot.offsetMode();
+                        if (ImGui::MenuItem("None", nullptr, om==OM_none))
+                            devRot.offsetMode(OM_none);
+                        if (ImGui::MenuItem("Finger X", nullptr, om==OM_fingerX))
+                            devRot.offsetMode(OM_fingerX);
+                        if (ImGui::MenuItem("Finger X and Y", nullptr, om==OM_fingerXY))
+                            devRot.offsetMode(OM_fingerXY);
+                        if (ImGui::MenuItem("Auto X", nullptr, om==OM_autoX))
+                            devRot.offsetMode(OM_fingerX);
+                        if (ImGui::MenuItem("Auto X and Y", nullptr, om==OM_autoXY))
+                            devRot.offsetMode(OM_autoXY);
+
+                        ImGui::EndMenu();
+                    }
+
+                    if (ImGui::MenuItem("Zero Yaw at Start", nullptr, devRot.zeroYawAtStart()))
+                        devRot.zeroYawAtStart(!devRot.zeroYawAtStart());
+
+                    if (ImGui::MenuItem("Reset Zero Yaw"))
+                        devRot.hasStarted(true);
+                }
 
                 ImGui::EndMenu();
             }
@@ -2356,7 +2381,7 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                 static SLfloat clipN     = cam->clipNear();
                 static SLfloat clipF     = cam->clipFar();
                 static SLfloat focalDist = cam->focalDist();
-                static SLfloat fov       = cam->fov();
+                static SLfloat fov       = cam->fovV();
 
                 ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.66f);
 
@@ -2875,7 +2900,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                             SLfloat clipN     = cam->clipNear();
                             SLfloat clipF     = cam->clipFar();
                             SLfloat focalDist = cam->focalDist();
-                            SLfloat fov       = cam->fov();
+                            SLfloat fov       = cam->fovV();
 
                             const char* projections[] = {"Mono Perspective",
                                                          "Mono Intrinsic Calibrated",

@@ -54,7 +54,7 @@ UserGuidanceScene::UserGuidanceScene(std::string dataDir)
            
     // Set background color and the root scene node
     //sv->sceneViewCamera()->background().colors(SLCol4f(0.7f, 0.7f, 0.7f), SLCol4f(0.2f, 0.2f, 0.2f));
-    camera = new VideoBackgroundCamera("UserGuidance Camera", _dataDir + "images/textures/LiveVideoError.png");
+    camera = new VideoBackgroundCamera("UserGuidance Camera", _dataDir + "images/textures/LiveVideoError.png", _dataDir + "shaders/");
     camera->translation(0, 0, 0.f);
     camera->lookAt(0, 0, -1);
     //for tracking we have to use the field of view from calibration

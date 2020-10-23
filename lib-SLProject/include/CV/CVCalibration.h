@@ -91,7 +91,7 @@ public:
                   int                calibFlags,
                   bool               calcUndistortionMaps);
 
-    //creates a guessed calibration using image size and fov angle
+    //creates a guessed calibration using image size and fovV angle
     CVCalibration(const cv::Size& imageSize,
                   float           fovH,
                   bool            mirroredH,

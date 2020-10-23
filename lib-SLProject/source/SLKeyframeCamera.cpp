@@ -40,7 +40,7 @@ void SLKeyframeCamera::drawMesh(SLSceneView* sv)
             const SLMat4f& vm = updateAndGetWMI();
             SLVVec3f       P;
             SLVec3f        pos(vm.translation());
-            SLfloat        t = tan(Utils::DEG2RAD * _fov * 0.5f) * pos.length();
+            SLfloat        t = tan(Utils::DEG2RAD * _fovV * 0.5f) * pos.length();
             SLfloat        b = -t;
             SLfloat        l = -sv->scrWdivH() * t;
             SLfloat        r = -l;
@@ -71,7 +71,7 @@ void SLKeyframeCamera::drawMesh(SLSceneView* sv)
         {
             SLVVec3f P;
             SLfloat  aspect = sv->scrWdivH();
-            SLfloat  tanFov = tan(_fov * Utils::DEG2RAD * 0.5f);
+            SLfloat  tanFov = tan(_fovV * Utils::DEG2RAD * 0.5f);
             SLfloat  tN     = tanFov * _clipNear; //top near
             SLfloat  rN     = tN * aspect;        //right near
             SLfloat  lN     = -tN * aspect;       //left near

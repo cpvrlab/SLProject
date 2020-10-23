@@ -116,12 +116,12 @@ public:
     bool                      isConfigured() { return _config != nullptr; }
     const SENSCvCameraConfig* config() { return _config.get(); }
 
-    //! returns  SENSCalibration if it was started (maybe a guessed one from a fov guess). Else returns nullptr. The calibration is used for computer vision applications. So, if a manipulated image is requested (see imgManipSize in SENSCamera::start(...), SENSFrame::imgManip and SENSCameraConfig) this calibration is adjusted to fit to this image, else to the original sized image (see SENSFrame::imgBGR)
+    //! returns  SENSCalibration if it was started (maybe a guessed one from a fovV guess). Else returns nullptr. The calibration is used for computer vision applications. So, if a manipulated image is requested (see imgManipSize in SENSCamera::start(...), SENSFrame::imgManip and SENSCameraConfig) this calibration is adjusted to fit to this image, else to the original sized image (see SENSFrame::imgBGR)
     const SENSCalibration* const calibration() const { return _calibration.get(); }
     const SENSCalibration* const calibrationManip() const { return _calibrationManip.get(); }
 
     //guess a calibration from what we know and update all derived calibration
-    //(fallback is used if camera api defines no fov value)
+    //(fallback is used if camera api defines no fovV value)
     void guessAndSetCalibration(float fovDegFallbackGuess);
 
     cv::Mat scaledCameraMat();
