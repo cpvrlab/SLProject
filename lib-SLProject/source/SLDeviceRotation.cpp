@@ -51,12 +51,9 @@ void SLDeviceRotation::onRotationQUAT(SLfloat quatX,
     _quaternion = SLQuat4f(quatX, quatY, quatZ, quatW);
     _rotation = _quaternion.toMat3();
     _rotationAvg.set(_rotation);
-    _quaternion.toEulerAnglesXYZ(_pitchRAD, _yawRAD, _rollRAD);
-
-    //_rotation.print("Rotation:\n");
+    _quaternion.toEulerAnglesXYZ(_pitchRAD, _rollRAD, _yawRAD);
 
     /*
-     
      Android sensor coordinate system:
      (https://developer.android.com/guide/topics/sensors/sensors_overview)
 

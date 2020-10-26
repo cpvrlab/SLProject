@@ -214,6 +214,7 @@ class SLMat4
 
          // Get euler angles from matrix
          void        toEulerAnglesZYX(T& zRotRAD, T& yRotRAD, T& xRotRAD);
+         void        toEulerAnglesXYZ(T& xRotRAD, T& yRotRAD, T& zRotRAD);
    
          // Misc. methods
          void        identity    ();
@@ -1224,6 +1225,43 @@ void SLMat4<T>::toEulerAnglesZYX(T& zRotRAD, T& yRotRAD, T& xRotRAD)
     T Cy, Sy;
     T Cz, Sz;
 
+    Sy = -_m[2];
+    Cy = (T)sqrt(1.0 - Sy*Sy);
+
+    // normal case
+    if (Utils::abs(Cy) > FLT_EPSILON)
+    {
+        T factor = (T)(1.0 / Cy);
+        Sx = _m[ 6]*factor;
+        Cx = _m[10]*factor;
+        Sz = _m[ 1]*factor;
+        Cz = _m[ 0]*factor;
+    }
+    else // x and z axes aligned
+    {
+        Sz = 0.0;
+        Cz = 1.0;
+        Sx = _m[4];
+        Cx = _m[8];
+    }
+
+    zRotRAD = atan2f(Sz, Cz);
+    yRotRAD = atan2f(Sy, Cy);
+    xRotRAD = atan2f(Sx, Cx);
+}
+/*!
+Gets one set of possible x-y-z euler angles that will generate this matrix
+Assumes that upper 3x3 is a rotation matrix
+Source: Essential Mathematics for Games and Interactive Applications
+A Programmer's Guide 2nd edition by James M. Van Verth and Lars M. Bishop
+*/
+template<class T>
+void SLMat4<T>::toEulerAnglesXYZ(T& xRotRAD, T& yRotRAD, T& zRotRAD)
+{
+    T Cx, Sx;
+    T Cy, Sy;
+    T Cz, Sz;
+
     Sy = _m[8];
     Cy = (T)sqrt(1.0 - Sy*Sy);
     
@@ -1248,6 +1286,7 @@ void SLMat4<T>::toEulerAnglesZYX(T& zRotRAD, T& yRotRAD, T& xRotRAD)
     yRotRAD = atan2f(Sy, Cy);
     xRotRAD = atan2f(Sx, Cx);
 }
+
 //-----------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------
