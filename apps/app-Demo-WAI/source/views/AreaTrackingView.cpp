@@ -117,13 +117,16 @@ bool AreaTrackingView::update()
                 }
                 
                 if (isTracking)
+                {
                     _waiScene.updateCameraPose(_waiSlam->getPose());
+                }
                 else if (_orientation)
                 {
                     SLMat4f camPose = calcCameraPoseGpsOrientationBased();
                     _waiScene.camera->om(camPose);
                     //give waiSlam a guess of the current position in the ENU frame
                     //todo ..
+                    //
                 }
             }
             else if (_asyncLoader && _asyncLoader->isReady())
@@ -255,11 +258,10 @@ SLMat4f AreaTrackingView::calcCameraPoseGpsOrientationBased()
     //(even if there is no gps, devLoc gives us a guess of the current home position)
     if (_gps)
     {
-        //update with current gps sensor position
         auto loc = _gps->getLocation();
-        _devLoc.onLocationLatLonAlt(loc.latitudeDEG, loc.longitudeDEG, loc.altitudeM, loc.altitudeM);
+        //Update deviceLocation: this updates current enu position
+        _devLoc.onLocationLatLonAlt(loc.latitudeDEG, loc.longitudeDEG, loc.altitudeM, loc.accuracyM);
     }
-
     auto     sensQuat = _orientation->getOrientation();
     SLQuat4f slQuat(sensQuat.quatX, sensQuat.quatY, sensQuat.quatZ, sensQuat.quatW);
     SLMat3f  rotMat = slQuat.toMat3();
@@ -269,16 +271,16 @@ SLMat4f AreaTrackingView::calcCameraPoseGpsOrientationBased()
         SLMat3f sRc;
         sRc.rotation(-90, 0, 0, 1);
 
-        //sensor rotation w.r.t. east-north-down
+        //sensor rotation w.r.t. east-north-up
         SLMat3f enuRs;
         enuRs.setMatrix(rotMat);
 
-        //world-yaw rotation w.r.t. world
-        SLMat3f wRwy;
-        wRwy.rotation(-90, 1, 0, 0);
+        //enu rotation w.r.t. world
+        SLMat3f wRenu;
+        wRenu.rotation(-90, 1, 0, 0);
 
         //combiniation of partial rotations to orientation of camera w.r.t world
-        SLMat3f wRc = wRwy * enuRs * sRc;
+        SLMat3f wRc = wRenu * enuRs * sRc;
         camPose.setRotation(wRc);
     }
 

@@ -49,6 +49,8 @@ const char* mapAreaIdToName(AreaId id)
             return "Milchgaessli";
         case AreaId::BERN_SBB:
             return "Sbb";
+        case AreaId::BERN_BUBENBERGPLATZ:
+            return "Bubenbergplatz";
         //biel
         case AreaId::BIEL_BFH:
             return "BFH";

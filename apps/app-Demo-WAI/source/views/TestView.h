@@ -60,6 +60,9 @@ protected:
     void setupDefaultErlebARDirTo(std::string dir);
     void updateSceneCameraFov();
 
+    void mapErlebARDirNamesToIds(const std::string& location, const std::string& area, ErlebAR::LocationId& locationId, ErlebAR::AreaId& areaId);
+    void initDeviceLocation(const ErlebAR::Location& location, const ErlebAR::Area& area);
+    
     //video
     std::unique_ptr<SENSCalibration> _calibrationLoaded;
     const SENSCalibration*           _calibration = nullptr;
@@ -95,6 +98,7 @@ protected:
     std::string _calibDir;
     std::string _videoDir;
     std::string _dataDir;
+    const DeviceData& _deviceData;
 
     bool             _fillAutoCalibration;
     AutoCalibration* _autoCal = nullptr;
@@ -104,6 +108,7 @@ protected:
 
     //gui (declaration down here because it depends on a lot of members in initializer list of constructor)
     AppDemoWaiGui _gui;
+    SLDeviceLocation _devLoc;
 };
 
 #endif //TEST_VIEW_H

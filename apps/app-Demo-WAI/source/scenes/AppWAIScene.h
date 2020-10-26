@@ -18,7 +18,6 @@ public:
     AppWAIScene(SLstring name, std::string dataDir, std::string erlebARDir);
 
     void unInit() override;
-    void rebuild(std::string location, std::string area);
     void initScene(ErlebAR::LocationId locationId, ErlebAR::AreaId areaId);
 
     void resetMapNode();
@@ -57,7 +56,6 @@ private:
                          SLMaterial*&                     material,
                          float                            opacity = 1.f);
     void removeMesh(SLNode* node, SLMesh* mesh);
-    void hideNode(SLNode* node);
 
     void initMapVisualization();
     void initAreaVisualization(ErlebAR::LocationId locationId, ErlebAR::AreaId areaId);
@@ -75,8 +73,6 @@ private:
     void loadAvenchesCigognier();
     void loadAvenchesTheatre();
     
-    void loadMesh(std::string path, SLNode*& augmentationRoot);
-
     SLNode* mapPC             = nullptr;
     SLNode* mapMatchedPC      = nullptr;
     SLNode* mapLocalPC        = nullptr;

@@ -697,7 +697,7 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
             SLMat3f sRc;
             sRc.rotation(-90, 0, 0, 1);
 
-            // Sensor rotation w.r.t. east-north-down (gliding averaged)
+            // Sensor rotation w.r.t. east-north-up (gliding averaged)
             SLMat3f enuRs;
             enuRs.setMatrix(_devRot->rotationAveraged());
 
@@ -711,12 +711,12 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
             }
 
             //todo: why is this not used?
-            //east-north-down w.r.t. world-yaw
+            //east-north-up w.r.t. world-yaw
             /*
             SLMat3f wyRenu;
             if (_devRot->zeroYawAtStart())
             {
-                //east-north-down w.r.t. world-yaw
+                //east-north-up w.r.t. world-yaw
                 SLfloat rotYawOffsetDEG = -1 * _devRot->startYawRAD() * Utils::RAD2DEG + 90;
                 if (rotYawOffsetDEG > 180)
                     rotYawOffsetDEG -= 360;

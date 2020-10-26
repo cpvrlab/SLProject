@@ -54,7 +54,7 @@ class SLQuat4
         void        toAngleAxis     (T& angleDEG, SLVec3<T>& axis) const;
         void        toEulerAnglesXYZ(T& xRotRAD, T& yRotRAD, T& zRotRAD) const;
         void        toEulerAnglesZYX(T& zRotRAD, T& yRotRAD, T& xRotRAD) const;
-      
+
         T           dot             (const SLQuat4<T>& q) const;
         T           length          () const;
         SLQuat4<T>  normalized      () const;
