@@ -33,6 +33,8 @@ AreaTrackingView::AreaTrackingView(sm::EventHandler&   eventHandler,
     _locations(resources.locations())
 {
     scene(&_userGuidanceScene);
+    this->camera(_userGuidanceScene.camera);
+    
     init("AreaTrackingView", deviceData.scrWidth(), deviceData.scrHeight(), nullptr, nullptr, &_gui, deviceData.writableDir());
     onInitialize();
 
@@ -71,6 +73,8 @@ void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaI
         this->unInit();
         _waiScene.initScene(locId, areaId);
         updateSceneCameraFov();
+        this->scene(&_waiScene);
+        this->camera(_waiScene.camera);
         this->onInitialize(); //init scene view
 
         initDeviceLocation(location, area);
@@ -115,7 +119,7 @@ bool AreaTrackingView::update()
                     slamState  = _waiSlam->getTrackingState();
                     isTracking = (_waiSlam->getTrackingState() == WAI::TrackingState_TrackingOK);
                 }
-                
+
                 if (isTracking)
                 {
                     _waiScene.updateCameraPose(_waiSlam->getPose());
@@ -153,14 +157,20 @@ bool AreaTrackingView::update()
             VideoBackgroundCamera* currentCamera;
             if (isTracking || !_resources.enableUserGuidance)
             {
-                this->scene(&_waiScene);
-                this->camera(_waiScene.camera);
+                if (this->s() != &_waiScene)
+                {
+                    this->scene(&_waiScene);
+                    this->camera(_waiScene.camera);
+                }
                 currentCamera = _waiScene.camera;
             }
             else
             {
-                this->scene(&_userGuidanceScene);
-                this->camera(_userGuidanceScene.camera);
+                if (this->s() != &_userGuidanceScene)
+                {
+                    this->scene(&_userGuidanceScene);
+                    this->camera(_userGuidanceScene.camera);
+                }
                 currentCamera = _userGuidanceScene.camera;
             }
 

@@ -171,8 +171,8 @@ void LocationMapGui::build(SLScene* s, SLSceneView* sv)
             const Area& area = it.second;
 
             float x = 0, y = 0;
-            auto areaMapPosPixIt = _areaMapPosPix.find(area.id);
-            if(areaMapPosPixIt != _areaMapPosPix.end())
+            auto  areaMapPosPixIt = _areaMapPosPix.find(area.id);
+            if (areaMapPosPixIt != _areaMapPosPix.end())
             {
                 //[0, 1] on the texture
                 x = (float)areaMapPosPixIt->second.x / (float)_locTextureW - _x;
@@ -229,7 +229,7 @@ void LocationMapGui::build(SLScene* s, SLSceneView* sv)
                     SENSOrientation::Quat o = _orientation->getOrientation();
                     SLQuat4f              quat(o.quatX, o.quatY, o.quatZ, o.quatW);
                     float                 rollRAD, pitchRAD, yawRAD;
-                    quat.toEulerAnglesXYZ(rollRAD, pitchRAD, yawRAD);
+                    quat.toEulerAnglesXYZCorr(rollRAD, pitchRAD, yawRAD);
                     float angle = -yawRAD * RAD2DEG;
 
                     ImGui::SetCursorPosX(posPanCorr.x);
