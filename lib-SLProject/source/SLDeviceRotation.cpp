@@ -55,53 +55,42 @@ void SLDeviceRotation::onRotationQUAT(SLfloat quatX,
 
     //_rotation.print("Rotation:\n");
 
-    /*   Up   North
-         |  /                       Rotation Matrix:
-         | /
-         |/                       iOS           Android
-         +------ East        +- E  N  U -+   +-         -+
-        +-------------+      |  1  0  0  |   |  0 -1  0  |
-       / +-------+   /       |  0  1  0  |   |  1  0  0  |
-      / /       / 0 /        |  0  0  1  |   |  0  0  1  |
-     / +-------+   /         +-         -+   +-         -+
-    +-------------+
+    /*
+     
+     Android sensor coordinate system:
+     (https://developer.android.com/guide/topics/sensors/sensors_overview)
 
-        Up   North
-         |  /                       Rotation Matrix:
+    Up = z   North = y
+         |  /
          | /
-         |/                       iOS           Android
-         +------ East        +-         -+   +-         -+
-         +------------+      |  0  0 -1  |   |  0  0  1  |
-         | +------+   |      |  0  1  0  |   |  0 -1  0  |
-         | |      | 0 |      |  1  0  0  |   |  1  0  0  |
-         | +------+   |      +-         -+   +-         -+
-         +------------+
-
-        Up   North
-         |  /                       Rotation Matrix:
-         | /
-         |/                       iOS           Android
-         +------ East        +-         -+   +-         -+
-        +---------+          |  0  1  0  |   |           |
-       / +-----+ /           | -1  0  0  |   |           |
-      / /     / /            |  0  0  1  |   |           |
-     / /     / /             +-         -+   +-         -+
+         |/
+         +------ East = x
+        +---------+
+       / +-----+ /
+      / /     / /
+     / /     / /
     / +-----+ /
    /    0    /
   +---------+
+     
+     iOS sensor coordinate system:
+     (https://developer.apple.com/documentation/coremotion/getting_processed_device-motion_data/understanding_reference_frames_and_device_attitude)
+     In iOS we configure CMMotionManager with xMagneticNorthZVertical which means its a frame, where x points north, y points west and z points up (NWU).
+     In the iOS code, we add rotation of 90 deg. around z-axis to relate the sensor rotation to an ENU-frame (as in Android).
 
-        Up   North
-         |  /                       Rotation Matrix:
-         | /
-         |/                       iOS           Android
-         +------ East        +-         -+   +-         -+
-         +---------+         |  1  0  0  |   |           |
-         | +-----+ |         |  0  0 -1  |   |           |
-         | |     | |         |  0  1  0  |   |           |
-         | |     | |         +-         -+   +-         -+
-         | +-----+ |
-         |    0    |
+     Up = z   West = y
+          |  /
+          | /
+          |/
+          +------ North = x
          +---------+
+        / +-----+ /
+       / /     / /
+      / /     / /
+     / +-----+ /
+    /    0    /
+   +---------+
+     
      */
 
     if (_zeroYawAtStart)

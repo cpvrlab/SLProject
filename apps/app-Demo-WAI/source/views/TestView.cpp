@@ -370,7 +370,7 @@ void TestView::mapErlebARDirNamesToIds(const std::string& location, const std::s
     else if (location == "biel")
     {
         locationId = ErlebAR::LocationId::BIEL;
-        if(area == "bfh")
+        if (area == "bfh")
             areaId = ErlebAR::AreaId::BIEL_BFH;
     }
 }
@@ -407,18 +407,29 @@ void TestView::initDeviceLocation(const ErlebAR::Location& location, const Erleb
         Utils::log("TestView", "WARNING: no geo tiff available");
 }
 
-void TestView::loadWAISceneView(std::string location, std::string area)
+void TestView::loadWAISceneView(std::string locationStr, std::string areaStr)
 {
     //map strings to ids
     ErlebAR::LocationId locationId = ErlebAR::LocationId::NONE;
     ErlebAR::AreaId     areaId     = ErlebAR::AreaId::NONE;
-    mapErlebARDirNamesToIds(location, area, locationId, areaId);
+    mapErlebARDirNamesToIds(locationStr, areaStr, locationId, areaId);
     _scene.initScene(locationId, areaId);
     _scene.camera->camAnim(SLCamAnim::CA_turntableYUp);
 
     doWaitOnIdle(false);
     camera(_scene.camera);
     onInitialize();
+
+    /*
+    if (locationId != ErlebAR::LocationId::NONE &&
+        areaId != ErlebAR::AreaId::NONE)
+    {
+        std::map<ErlebAR::LocationId, ErlebAR::Location> erlebAR  = ErlebAR::defineLocations();
+        ErlebAR::Location                                location = erlebAR[locationId];
+        ErlebAR::Area&                                   area     = location.areas[areaId];
+        initDeviceLocation(location, area);
+    }
+     */
 }
 
 void TestView::saveMapBinary(std::string location,
