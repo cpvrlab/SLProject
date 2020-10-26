@@ -548,7 +548,7 @@ void TestView::updateSceneCameraFov()
         }
         else
         {
-            //bars top and bottom: estimate vertical fov from cameras horizontal field of view and screen aspect ratio
+            //bars top and bottom: estimate vertical fovV from cameras horizontal field of view and screen aspect ratio
             float fovV = SENS::calcFovDegFromOtherFovDeg(_calibration->cameraFovHDeg(), this->scrW(), this->scrH());
             _scene.camera->updateCameraIntrinsics(fovV);
         }
@@ -733,7 +733,7 @@ void TestView::startOrbSlam(SlamParams slamParams)
         }
     }
 
-    // 3. Adjust FOV of camera node according to new calibration (fov is used in projection->prespective _mode)
+    // 3. Adjust FOV of camera node according to new calibration (fovV is used in projection->prespective _mode)
     _scene.camera->updateCameraIntrinsics(_calibration->cameraFovVDeg());
 
     // 4. Create new mode ORBSlam

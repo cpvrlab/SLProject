@@ -47,7 +47,7 @@ JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onClose(JNIEnv* env, jclass o
 JNIEXPORT bool JNICALL Java_ch_fhnw_comgr_GLES3Lib_usesRotation(JNIEnv* env, jclass obj);
 JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onRotationQUAT(JNIEnv* env, jclass obj, jfloat quatX, jfloat quatY, jfloat quatZ, jfloat quatW);
 JNIEXPORT bool JNICALL Java_ch_fhnw_comgr_GLES3Lib_usesLocation(JNIEnv* env, jclass obj);
-JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onLocationLLA(JNIEnv* env, jclass obj, jdouble latitudeDEG, jdouble longitudeDEG, jdouble altitudeM, jfloat accuracyM);
+JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onLocationLatLonAlt(JNIEnv* env, jclass obj, jdouble latitudeDEG, jdouble longitudeDEG, jdouble altitudeM, jfloat accuracyM);
 JNIEXPORT jint JNICALL Java_ch_fhnw_comgr_GLES3Lib_getVideoType(JNIEnv* env, jclass obj);
 JNIEXPORT jint JNICALL Java_ch_fhnw_comgr_GLES3Lib_getVideoSizeIndex(JNIEnv* env, jclass obj);
 JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_grabVideoFileFrame(JNIEnv* env, jclass obj);
@@ -303,14 +303,14 @@ extern "C" JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_copyVideoYUVPlanes
 }
 //-----------------------------------------------------------------------------
 //! Copies the GPS information to the SLApplicaiton class
-extern "C" JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onLocationLLA(JNIEnv* env,
-                                                                            jclass  obj,
-                                                                            jdouble latitudeDEG,
-                                                                            jdouble longitudeDEG,
-                                                                            jdouble altitudeM,
-                                                                            jfloat  accuracyM)
+extern "C" JNIEXPORT void JNICALL Java_ch_fhnw_comgr_GLES3Lib_onLocationLatLonAlt(JNIEnv* env,
+                                                                                  jclass  obj,
+                                                                                  jdouble latitudeDEG,
+                                                                                  jdouble longitudeDEG,
+                                                                                  jdouble altitudeM,
+                                                                                  jfloat  accuracyM)
 {
-    slLocationLLA(latitudeDEG, longitudeDEG, altitudeM, accuracyM);
+    slLocationLatLonAlt(latitudeDEG, longitudeDEG, altitudeM, accuracyM);
 }
 //-----------------------------------------------------------------------------
 //! Asks the SLApplicaiton class if the GPS sensor data is requested

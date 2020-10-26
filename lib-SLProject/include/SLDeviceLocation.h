@@ -53,7 +53,7 @@ public:
     void onLocationLatLonAlt(SLdouble latDEG,
                              SLdouble lonDEG,
                              SLdouble altM,
-                             SLfloat  AccuracyM);
+                             SLfloat  accuracyM);
 
     SLbool calculateSolarAngles(SLVec3d     locationLatLonAlt,
                                 std::time_t time);
@@ -70,8 +70,10 @@ public:
                           SLdouble altM);
     void locMaxDistanceM(SLfloat maxDist) { _locMaxDistanceM = maxDist; }
     void sunLightNode(SLLightDirect* sln) { _sunLightNode = sln; }
-    void loadGeoTiff(const SLstring& geoTiffFile, const SLstring& appTag);
+    void loadGeoTiff(const SLstring& geoTiffFile);
     bool geoTiffIsAvailableAndValid();
+    bool posIsOnGeoTiff(SLdouble latDEG, SLdouble lonDEG);
+    void cameraHeightM(float camHeightM) { _cameraHeightM = camHeightM; }
 
     // Getters
     SLbool  isUsed() const { return _isUsed; }
@@ -94,6 +96,7 @@ public:
     SLfloat originSolarSunset() const { return _originSolarSunset; }
     SLfloat altDemM() const { return _altDemM; }
     SLfloat altGpsM() const { return _altGpsM; }
+    SLfloat cameraHeightM() const { return _cameraHeightM; };
 
 private:
     SLbool         _isUsed;             //!< Flag if the devices GPS Sensor is used
@@ -117,7 +120,7 @@ private:
     SLbool         _useOriginAltitude;  //!< Flag if global reference altitude should be used
     SLfloat        _altDemM;            //!< Altitude in m from Digital Elevation Model
     SLfloat        _altGpsM;            //!< Altitude in m from GPS
-    const SLfloat  _eyesHeightM = 1.6f; //!< Height from ground to the eyes in m
+    SLfloat        _cameraHeightM;      //!< Height from ground to the mobile camera in m
     SLbool         _improveOrigin;      //!< Flag if origin should be improved over time & accuracy
     SLfloat        _improveTimeSEC;     //!< Max. time in seconds for the origin improvement.
     HighResTimer   _improveTimer;       //!< Timer to measure the improve time.

@@ -954,18 +954,21 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
             m[0]                   = 0; // set zero length
             SLVec3d offsetToOrigin = SLApplication::devLoc.originENU() - SLApplication::devLoc.locENU();
             sprintf(m + strlen(m), "Uses IMU Senor   : %s\n", SLApplication::devRot.isUsed() ? "yes" : "no");
-            sprintf(m + strlen(m), "Pitch (deg)      : %1.0f\n", SLApplication::devRot.pitchRAD() * Utils::RAD2DEG);
-            sprintf(m + strlen(m), "Yaw (deg)        : %1.0f\n", SLApplication::devRot.yawRAD() * Utils::RAD2DEG);
-            sprintf(m + strlen(m), "Roll (deg)       : %1.0f\n", SLApplication::devRot.rollRAD() * Utils::RAD2DEG);
-            sprintf(m + strlen(m), "Zero Yaw at Start: %s\n", SLApplication::devRot.zeroYawAtStart() ? "yes" : "no");
-            sprintf(m + strlen(m), "Start Yaw (deg)  : %1.0f\n", SLApplication::devRot.startYawRAD() * Utils::RAD2DEG);
+            sprintf(m + strlen(m), "Pitch (deg)      : %3.1f\n", SLApplication::devRot.pitchDEG());
+            sprintf(m + strlen(m), "Yaw   (deg)      : %3.1f\n", SLApplication::devRot.yawDEG());
+            sprintf(m + strlen(m), "Roll  (deg)      : %3.1f\n", SLApplication::devRot.rollDEG());
+            sprintf(m + strlen(m), "No. averaged     : %d\n", SLApplication::devRot.numAveraged());
+            sprintf(m + strlen(m), "Pitch Offset(deg): %3.1f\n", SLApplication::devRot.pitchOffsetDEG());
+            sprintf(m + strlen(m), "Yaw   Offset(deg): %3.1f\n", SLApplication::devRot.yawOffsetDEG());
+            sprintf(m + strlen(m), "Offset mode      : %s\n", SLApplication::devRot.offsetModeStr().c_str());
             sprintf(m + strlen(m), "------------------\n");
             sprintf(m + strlen(m), "Uses GPS Sensor  : %s\n", SLApplication::devLoc.isUsed() ? "yes" : "no");
-            sprintf(m + strlen(m), "Latitude (deg)   : %10.6f\n", SLApplication::devLoc.locLatLonAlt().lat);
-            sprintf(m + strlen(m), "Longitude (deg)  : %10.6f\n", SLApplication::devLoc.locLatLonAlt().lon);
-            sprintf(m + strlen(m), "Altitude (m)     : %10.6f\n", SLApplication::devLoc.locLatLonAlt().alt);
-            sprintf(m + strlen(m), "Altitude GPS (m) : %10.6f\n", SLApplication::devLoc.altGpsM());
-            sprintf(m + strlen(m), "Altitude DEM (m) : %10.6f\n", SLApplication::devLoc.altDemM());
+            sprintf(m + strlen(m), "Latitude (deg)   : %10.5f\n", SLApplication::devLoc.locLatLonAlt().lat);
+            sprintf(m + strlen(m), "Longitude (deg)  : %10.5f\n", SLApplication::devLoc.locLatLonAlt().lon);
+            sprintf(m + strlen(m), "Alt. used (m)    : %10.2f\n", SLApplication::devLoc.locLatLonAlt().alt);
+            sprintf(m + strlen(m), "Alt. GPS (m)     : %10.2f\n", SLApplication::devLoc.altGpsM());
+            sprintf(m + strlen(m), "Alt. DEM (m)     : %10.2f\n", SLApplication::devLoc.altDemM());
+            sprintf(m + strlen(m), "Alt. origin (m)  : %10.2f\n", SLApplication::devLoc.altDemM());
             sprintf(m + strlen(m), "Accuracy Rad.(m) : %6.1f\n", SLApplication::devLoc.locAccuracyM());
             sprintf(m + strlen(m), "Dist. Origin (m) : %6.1f\n", offsetToOrigin.length());
             sprintf(m + strlen(m), "Origin improve(s): %6.1f sec.\n", SLApplication::devLoc.improveTime());
@@ -1367,9 +1370,10 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                 }
 
                 SLstring erlebarPath = SLApplication::dataPath + "erleb-AR/models/";
+                SLstring modelBFH    = erlebarPath + "biel/Biel-BFH-Rolex.gltf";
                 SLstring modelAR1    = erlebarPath + "augst/Tempel-Theater-02.gltf";
                 SLstring modelAV1    = erlebarPath + "avenches/Aventicum-Amphitheater1.gltf";
-                SLstring modelAV2    = erlebarPath + "avenches/Aventicum-Cigognier1.gltf";
+                SLstring modelAV2    = erlebarPath + "avenches/Aventicum-Cigognier2.gltf";
                 SLstring modelAV3    = erlebarPath + "avenches/Aventicum-Theater1.gltf";
                 SLstring modelBR1    = erlebarPath + "bern/Bern-Bahnhofsplatz.fbx";
 
@@ -1381,6 +1385,10 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                 {
                     if (ImGui::BeginMenu("Erleb-AR"))
                     {
+                        if (Utils::fileExists(modelBFH))
+                            if (ImGui::MenuItem("Biel-BFH AR (Main)", nullptr, sid == SID_ErlebARBielBFH))
+                                s->onLoad(s, sv, SID_ErlebARBielBFH);
+
                         if (Utils::fileExists(modelBR1))
                             if (ImGui::MenuItem("Christoffel Tower AR (Main)", nullptr, sid == SID_ErlebARChristoffel))
                                 s->onLoad(s, sv, SID_ErlebARChristoffel);
@@ -1598,17 +1606,45 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
             }
 
             ImGui::Separator();
+
+            // Rotation and Location Sensor
 #if defined(SL_OS_ANDROID) || defined(SL_OS_IOS)
             if (ImGui::BeginMenu("Rotation Sensor"))
             {
-                if (ImGui::MenuItem("Use Device Rotation (IMU)", nullptr, SLApplication::devRot.isUsed()))
-                    SLApplication::devRot.isUsed(!SLApplication::devRot.isUsed());
+                SLDeviceRotation& devRot = SLApplication::devRot;
 
-                if (ImGui::MenuItem("Zero Yaw at Start", nullptr, SLApplication::devRot.zeroYawAtStart()))
-                    SLApplication::devRot.zeroYawAtStart(!SLApplication::devRot.zeroYawAtStart());
+                if (ImGui::MenuItem("Use Device Rotation (IMU)", nullptr, devRot.isUsed()))
+                    devRot.isUsed(!SLApplication::devRot.isUsed());
 
-                if (ImGui::MenuItem("Reset Zero Yaw"))
-                    SLApplication::devRot.hasStarted(true);
+                if (devRot.isUsed())
+                {
+                    SLint numAveraged = devRot.numAveraged();
+                    if (ImGui::SliderInt("Average length", &numAveraged, 1, 10))
+                        devRot.numAveraged(numAveraged);
+
+                    if (ImGui::BeginMenu("Offset Mode"))
+                    {
+                        SLOffsetMode om = devRot.offsetMode();
+                        if (ImGui::MenuItem("None", nullptr, om==OM_none))
+                            devRot.offsetMode(OM_none);
+                        if (ImGui::MenuItem("Finger X", nullptr, om==OM_fingerX))
+                            devRot.offsetMode(OM_fingerX);
+                        if (ImGui::MenuItem("Finger X and Y", nullptr, om==OM_fingerXY))
+                            devRot.offsetMode(OM_fingerXY);
+                        if (ImGui::MenuItem("Auto X", nullptr, om==OM_autoX))
+                            devRot.offsetMode(OM_fingerX);
+                        if (ImGui::MenuItem("Auto X and Y", nullptr, om==OM_autoXY))
+                            devRot.offsetMode(OM_autoXY);
+
+                        ImGui::EndMenu();
+                    }
+
+                    if (ImGui::MenuItem("Zero Yaw at Start", nullptr, devRot.zeroYawAtStart()))
+                        devRot.zeroYawAtStart(!devRot.zeroYawAtStart());
+
+                    if (ImGui::MenuItem("Reset Zero Yaw"))
+                        devRot.hasStarted(true);
+                }
 
                 ImGui::EndMenu();
             }
@@ -1618,8 +1654,9 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                 if (ImGui::MenuItem("Use Device Location (GPS)", nullptr, SLApplication::devLoc.isUsed()))
                     SLApplication::devLoc.isUsed(!SLApplication::devLoc.isUsed());
 
-                if (ImGui::MenuItem("Use Origin Altitude", nullptr, SLApplication::devLoc.useOriginAltitude()))
-                    SLApplication::devLoc.useOriginAltitude(!SLApplication::devLoc.useOriginAltitude());
+                if (!SLApplication::devLoc.geoTiffIsAvailableAndValid())
+                    if (ImGui::MenuItem("Use Origin Altitude", nullptr, SLApplication::devLoc.useOriginAltitude()))
+                        SLApplication::devLoc.useOriginAltitude(!SLApplication::devLoc.useOriginAltitude());
 
                 if (ImGui::MenuItem("Reset Origin to here"))
                     SLApplication::devLoc.hasOrigin(false);
@@ -1847,7 +1884,6 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                     ImGui::PopItemWidth();
                     ImGui::EndMenu();
                 }
-
             }
 
             ImGui::EndMenu();
@@ -2345,7 +2381,7 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                 static SLfloat clipN     = cam->clipNear();
                 static SLfloat clipF     = cam->clipFar();
                 static SLfloat focalDist = cam->focalDist();
-                static SLfloat fov       = cam->fov();
+                static SLfloat fov       = cam->fovV();
 
                 ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.66f);
 
@@ -2864,7 +2900,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                             SLfloat clipN     = cam->clipNear();
                             SLfloat clipF     = cam->clipFar();
                             SLfloat focalDist = cam->focalDist();
-                            SLfloat fov       = cam->fov();
+                            SLfloat fov       = cam->fovV();
 
                             const char* projections[] = {"Mono Perspective",
                                                          "Mono Intrinsic Calibrated",
@@ -2927,9 +2963,9 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                         }
                         if (typeid(*singleNode) == typeid(SLLightDirect))
                         {
-                            light    = (SLLight*)(SLLightDirect*)singleNode;
-                            typeName = "Light (directional):";
-                            doSunPowerAdaptation    = ((SLLightDirect*)singleNode)->doSunPowerAdaptation();
+                            light                = (SLLight*)(SLLightDirect*)singleNode;
+                            typeName             = "Light (directional):";
+                            doSunPowerAdaptation = ((SLLightDirect*)singleNode)->doSunPowerAdaptation();
                         }
 
                         if (light && ImGui::TreeNode(typeName.c_str()))
@@ -3003,7 +3039,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
 
                                     lut->bindActive(); // This texture is not an scenegraph texture
                                     SLfloat texW = ImGui::GetWindowWidth() - 4 * ImGui::GetTreeNodeToLabelSpacing() - 10;
-                                    void*   tid  = (ImTextureID)lut->texID();
+                                    void*   tid  = (ImTextureID)(uintptr_t)lut->texID();
                                     ImGui::Image(tid,
                                                  ImVec2(texW, texW * 0.15f),
                                                  ImVec2(0, 1),

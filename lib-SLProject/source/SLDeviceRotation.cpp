@@ -17,26 +17,31 @@ void SLDeviceRotation::init()
 {
     _rotation.identity();
     _pitchRAD           = 0.0f;
+    _pitchOffsetRAD     = 0.0f;
     _yawRAD             = 0.0f;
+    _yawOffsetRAD       = 0.0f;
     _rollRAD            = 0.0f;
+    _rotationAvg.init(3, SLMat3f());
     _zeroYawAtStart     = true;
     _startYawRAD        = 0.0f;
     _isFirstSensorValue = false;
     _isUsed             = false;
+    _offsetMode         = OM_fingerX;
+    _offsetScale        = 0.05f;
 }
 //-----------------------------------------------------------------------------
 /*! onRotationQUAT: Event handler for rotation change of a mobile device from a
-rotation quaternion. This function will only be called in an Android or iOS
-project. See e.g. onSensorChanged in GLES3Activity.java in the Android project.
-This handler is only called if the flag SLScene::_usesRotation is true. If so
-the mobile device turns on it's IMU sensor system. The device rotation is so
-far only used in SLCamera::setViev if the cameras animation is on CA_deciveRotYUp.
-If _zeroYawAfterStart is true the start yaw value is subtracted. This means
-that the magnetic north will be ignored.
-The angles should be:\n
-Roll  from -halfpi (ccw)   to zero (horizontal) to +halfpi (clockwise)\n
-Pitch from -halfpi (down)  to zero (horizontal) to +halfpi (up)\n
-Yaw   from -pi     (south) to zero (north)      to +pi     (south)\n
+ rotation quaternion. This function will only be called in an Android or iOS
+ project. See e.g. onSensorChanged in GLES3Activity.java in the Android project.
+ This handler is only called if the flag SLScene::_usesRotation is true. If so
+ the mobile device turns on it's IMU sensor system. The device rotation is so
+ far only used in SLCamera::setView if the cameras animation is on CA_deciveRotYUp.
+ If _zeroYawAfterStart is true the start yaw value is subtracted. This means
+ that the magnetic north will be ignored.
+ The angles should be:\n
+ Roll  from -halfpi (ccw)   to zero (horizontal) to +halfpi (clockwise)\n
+ Pitch from -halfpi (down)  to zero (horizontal) to +halfpi (up)\n
+ Yaw   from -pi     (south) to zero (north)      to +pi     (south)\n
 */
 void SLDeviceRotation::onRotationQUAT(SLfloat quatX,
                                       SLfloat quatY,
@@ -45,7 +50,8 @@ void SLDeviceRotation::onRotationQUAT(SLfloat quatX,
 {
     _quaternion = SLQuat4f(quatX, quatY, quatZ, quatW);
     _rotation = _quaternion.toMat3();
-    _quaternion.toEulerAnglesXYZ(_rollRAD, _pitchRAD, _yawRAD);
+    _rotationAvg.set(_rotation);
+    _quaternion.toEulerAnglesXYZ(_pitchRAD, _yawRAD, _rollRAD);
 
     //_rotation.print("Rotation:\n");
 

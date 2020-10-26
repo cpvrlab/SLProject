@@ -220,6 +220,7 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
                 return;
 
             /*
+            // Version with Euler angles
             // Get 3x3 rotation matrix from XYZ-rotation vector (see docs)
             float R[] = new float[9];
             SensorManager.getRotationMatrixFromVector(R, event.values);
@@ -307,7 +308,7 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
         }
     }
 
-    /* Get available external directories and inform slproject about them */
+    /* Get available external directories and inform SLProject about them */
     public void setupExternalDirectories() {
 
         String state = Environment.getExternalStorageState();

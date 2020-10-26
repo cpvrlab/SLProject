@@ -11,6 +11,7 @@
 #include <CVImageGeoTiff.h>
 #include <json.hpp>
 #include <Utils.h>
+#include <SL.h>
 
 using json = nlohmann::json;
 
@@ -26,8 +27,7 @@ CVImageGeoTiff::~CVImageGeoTiff()
 }
 //-----------------------------------------------------------------------------
 //! Loads a GEOTiff file into the OpenCV image matrix
-void CVImageGeoTiff::loadGeoTiff(const string& appTag,
-                                 const string& geoTiffFile)
+void CVImageGeoTiff::loadGeoTiff(const string& geoTiffFile)
 {
     string msg;
 
@@ -35,7 +35,7 @@ void CVImageGeoTiff::loadGeoTiff(const string& appTag,
     if (!Utils::fileExists(geoTiffFile))
     {
         msg = "CVImageGeoTiff::loadGeoTiff: File not found: " + geoTiffFile;
-        Utils::exitMsg(appTag.c_str(), msg.c_str(), __LINE__, __FILE__);
+        SL_EXIT_MSG(msg.c_str());
     }
 
     // check if the GEOTiff json file exists
@@ -47,7 +47,7 @@ void CVImageGeoTiff::loadGeoTiff(const string& appTag,
         msg = "CVImageGeoTiff::loadGeoTiff: JSON File not found: " + jsonFileName;
         msg += "\nA GEOTiff file must have a JSON file aside with the same name.";
         msg += "\nYou can generate this JSON file with the tool gdalinfo.";
-        Utils::exitMsg(appTag.c_str(), msg.c_str(), __LINE__, __FILE__);
+        SL_EXIT_MSG(msg.c_str());
     }
 
     // Read the geo tiff image with OpenCV
@@ -55,10 +55,7 @@ void CVImageGeoTiff::loadGeoTiff(const string& appTag,
                                     cv::IMREAD_LOAD_GDAL | cv::IMREAD_ANYDEPTH);
 
     if (imgGeoTiff.type() != CV_32FC1)
-        Utils::exitMsg(appTag.c_str(),
-                       "GEOTiff image must be of 32-bit float type.",
-                       __LINE__,
-                       __FILE__);
+        SL_EXIT_MSG("GEOTiff image must be of 32-bit float type.");
 
     // Read the JSON file
     ifstream       jsonFile(jsonFileName);
@@ -85,7 +82,7 @@ void CVImageGeoTiff::loadGeoTiff(const string& appTag,
         msg = "Error reading JSON-File: " + jsonFileName;
         msg += "\nException: ";
         msg += e.what();
-        Utils::exitMsg(appTag.c_str(), msg.c_str(), __LINE__, __FILE__);
+        SL_EXIT_MSG(msg.c_str());
     }
 
     // Check some correspondences between image file an json file
@@ -96,14 +93,14 @@ void CVImageGeoTiff::loadGeoTiff(const string& appTag,
         msg += "\nGEOTiff image height: " + to_string(imgGeoTiff.rows);
         msg += "\nJSON Size tag[0]    : " + to_string(size[0]);
         msg += "\nJSON Size tag[1]    : " + to_string(size[1]);
-        Utils::exitMsg(appTag.c_str(), msg.c_str(), __LINE__, __FILE__);
+        SL_EXIT_MSG(msg.c_str());
     }
 
     if (!Utils::containsString(geocsc, "WGS 84") &&
         !Utils::containsString(geocsc, "WGS_1984"))
     {
         msg = "GeoTiff file seams not have WGS84 coordinates.";
-        Utils::exitMsg(appTag.c_str(), msg.c_str(), __LINE__, __FILE__);
+        SL_EXIT_MSG( msg.c_str());
     }
 
     _cvMat  = imgGeoTiff.clone();
@@ -118,7 +115,8 @@ void CVImageGeoTiff::loadGeoTiff(const string& appTag,
 }
 //-----------------------------------------------------------------------------
 //! Returns the altitude in m at the given position in WGS84 latitude-longitude
-float CVImageGeoTiff::getAltitudeAtLatLon(double latDEG, double lonDEG)
+float CVImageGeoTiff::getAltitudeAtLatLon(double latDEG,
+                                          double lonDEG)
 {
     double dLatDEG   = _upperleftLatLonAlt[0] - _lowerRightLatLonAlt[0];
     double dLonDEG   = _lowerRightLatLonAlt[1] - _upperleftLatLonAlt[1];
@@ -133,6 +131,17 @@ float CVImageGeoTiff::getAltitudeAtLatLon(double latDEG, double lonDEG)
 
     // pixels are top-left coordinates in OpenCV
     pixPosLat = _cvMat.rows - pixPosLat;
+
+    if (pixPosLat < 0.0 || pixPosLat > _cvMat.rows - 1.0)
+    {
+        SL_LOG("Invalid pixPosLat %3.2f", pixPosLat);
+        pixPosLat = 0;
+    }
+    if (pixPosLon < 0.0 || pixPosLon > _cvMat.cols - 1.0)
+    {
+        SL_LOG("Invalid pixPosLon %3.2f", pixPosLon);
+        pixPosLon = 0;
+    }
 
     // get subpixel accurate interpolated height value
     cv::Point2f pt(pixPosLon, pixPosLat);

@@ -297,7 +297,7 @@ void AreaTrackingGui::showImageAlignTexture(float alpha)
     _areaAlighTextureBlending = alpha;
 }
 
-void AreaTrackingGui::initArea(ErlebAR::Area area)
+void AreaTrackingGui::initArea(const ErlebAR::Area& area)
 {
     _area = area;
     int w, h;

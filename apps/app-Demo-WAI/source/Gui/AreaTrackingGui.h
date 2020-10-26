@@ -77,7 +77,7 @@ public:
     void onResize(SLint scrW, SLint scrH, SLfloat scr2fbX, SLfloat scr2fbY) override;
     void onShow(); //call when gui becomes visible
 
-    void initArea(ErlebAR::Area area);
+    void initArea(const ErlebAR::Area& area);
 
     void showInfoText(const std::string& str);
     void showImageAlignTexture(float alpha);
