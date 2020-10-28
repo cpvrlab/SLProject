@@ -229,7 +229,7 @@ void LocationMapGui::build(SLScene* s, SLSceneView* sv)
                     SENSOrientation::Quat o = _orientation->getOrientation();
                     SLQuat4f              quat(o.quatX, o.quatY, o.quatZ, o.quatW);
                     float                 rollRAD, pitchRAD, yawRAD;
-                    quat.toEulerAnglesZYX(yawRAD, pitchRAD, rollRAD);
+                    quat.toEulerAnglesZXY(yawRAD, pitchRAD, rollRAD);
                     //quat.toEulerAnglesXYZCorr(rollRAD, pitchRAD, yawRAD);
                     float angle = -yawRAD * RAD2DEG;
 
