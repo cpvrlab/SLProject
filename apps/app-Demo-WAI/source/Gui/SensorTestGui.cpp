@@ -266,36 +266,88 @@ void SensorTestGui::updateOrientationSensor()
             SENSOrientation::Quat o = _orientation->getOrientation();
             {
                 SLQuat4f quat(o.quatX, o.quatY, o.quatZ, o.quatW);
-                float    rollRAD, pitchRAD, yawRAD;
-                
-                quat.toEulerAnglesXYZCorr(rollRAD, pitchRAD, yawRAD);
-                ImGui::Text("Euler angles XYZ corrected");
-                ImGui::Text("roll: %3.1fdeg pitch: %3.1fdeg yaw: %3.1fdeg", rollRAD * RAD2DEG, pitchRAD * RAD2DEG, yawRAD * RAD2DEG);
+                float    xRot, yRot, zRot;
 
-                quat.toEulerAnglesXYZOld(rollRAD, pitchRAD, yawRAD);
-                ImGui::Text("Euler angles XYZ old");
-                ImGui::Text("roll: %3.1fdeg pitch: %3.1fdeg yaw: %3.1fdeg", rollRAD * RAD2DEG, pitchRAD * RAD2DEG, yawRAD * RAD2DEG);
+                quat.toEulerAnglesZYX(zRot, yRot, xRot);
+                //quat.toEulerAnglesXYZCorr(rollRAD, pitchRAD, yawRAD);
+                ImGui::Text("Euler angles ZYX");
+                ImGui::Text("xRot: %3.1fdeg yRot: %3.1fdeg zRot: %3.1fdeg", xRot * RAD2DEG, yRot * RAD2DEG, zRot * RAD2DEG);
 
-                quat.toEulerAnglesXYZ(rollRAD, pitchRAD, yawRAD);
+                {
+                    SLMat3f rx(xRot * RAD2DEG, 1, 0, 0);
+                    SLMat3f ry(yRot * RAD2DEG, 0, 1, 0);
+                    SLMat3f rz(zRot * RAD2DEG, 0, 0, 1);
+                    
+                    SLMat3f m1 = rx * ry * rz;
+                    m1.print("zyx_rotationM1");
+                    
+                    SLMat3f m2 = rz * ry * rx;
+                    m2.print("zyx_rotationM2");
+                }
+                quat.toEulerAnglesXYZ(xRot, yRot, zRot);
                 ImGui::Text("Euler angles XYZ");
-                ImGui::Text("roll: %3.1fdeg pitch: %3.1fdeg yaw: %3.1fdeg", rollRAD * RAD2DEG, pitchRAD * RAD2DEG, yawRAD * RAD2DEG);
-            }
-            /*
-            {
-                SLQuat4f quat(o.quatX, o.quatY, o.quatZ, o.quatW);
-                SLMat3f  enuRdev = quat.toMat3();
-                SLMat3f  devRmap;
-                devRmap.rotation(180, 1, 0, 0);
+                ImGui::Text("xRot: %3.1fdeg yRot: %3.1fdeg zRot: %3.1fdeg", xRot * RAD2DEG, yRot * RAD2DEG, zRot * RAD2DEG);
+                
+                {
+                    SLMat3f rx(xRot * RAD2DEG, 1, 0, 0);
+                    SLMat3f ry(yRot * RAD2DEG, 0, 1, 0);
+                    SLMat3f rz(zRot * RAD2DEG, 0, 0, 1);
+                    
+                    SLMat3f m1 = rx * ry * rz;
+                    m1.print("xyz_rotationM1");
+                    
+                    SLMat3f m2 = rz * ry * rx;
+                    m2.print("xyz_rotationM2");
+                }
 
-                SLMat3f enuRmap = enuRdev * devRmap;
+                quat.toEulerAnglesXYZiOS(xRot, yRot, zRot);
+                ImGui::Text("Euler angles XYZ iOS");
+                ImGui::Text("xRot: %3.1fdeg yRot: %3.1fdeg zRot: %3.1fdeg", xRot * RAD2DEG, yRot * RAD2DEG, zRot * RAD2DEG);
 
-                SLQuat4f res(enuRmap);
-                float    rollRAD, pitchRAD, yawRAD;
-                res.toEulerAnglesXYZ(rollRAD, pitchRAD, yawRAD);
-                ImGui::Text("Map angles ZYX");
-                ImGui::Text("roll: %3.1fdeg pitch: %3.1fdeg yaw: %3.1fdeg", rollRAD * RAD2DEG, pitchRAD * RAD2DEG, yawRAD * RAD2DEG);
+                {
+                    SLMat3f rx(xRot * RAD2DEG, 1, 0, 0);
+                    SLMat3f ry(yRot * RAD2DEG, 0, 1, 0);
+                    SLMat3f rz(zRot * RAD2DEG, 0, 0, 1);
+                    
+                    SLMat3f m1 = rz * rx * ry;
+                    m1.print("ios_rotationM1");
+                    
+                    SLMat3f m2 = ry * rx * rz;
+                    m2.print("ios_rotationM2");
+                }
+
+                SLMat3f qR = quat.toMat3();
+                qR.print("rotationQ");
+                //SLMat3f rx(xRot, 0, 0);
+                //SLMat3f ry(0, yRot, 0);
+                //SLMat3f rz(0, 0, zRot);
+                /*
+                SLMat3f rx(xRot * RAD2DEG, 1, 0, 0);
+                SLMat3f ry(yRot * RAD2DEG, 0, 1, 0);
+                SLMat3f rz(zRot * RAD2DEG, 0, 0, 1);
+                
+                SLMat3f m1 = rx * ry * rz;
+                m1.print("rotationM1");
+                
+                SLMat3f m2 = rz * ry * rx;
+                m2.print("rotationM2");
+
+                SLMat3f m3 = rx * rz * ry;
+                m3.print("rotationM3");
+                
+                SLMat3f m4 = ry * rz * rx;
+                m4.print("rotationM4");
+                
+                SLMat3f m5 = ry * rx * rz;
+                m3.print("rotationM5");
+                
+                SLMat3f m6 = rz * rx * ry;
+                m4.print("rotationM6");
+                
+                SLMat3f qR = quat.toMat3();
+                qR.print("rotationQ");
+               */
             }
-             */
         }
         else
             ImGui::Text("Sensor not started");

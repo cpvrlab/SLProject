@@ -92,6 +92,37 @@ void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaI
     }
 }
 
+cv::Mat AreaTrackingView::convertCameraPoseToWaiCamExtrinisc(SLMat4f& wTc)
+{
+    // update camera node position
+    cv::Mat wRc(3, 3, CV_32F);
+    cv::Mat wtc(3, 1, CV_32F);
+    //wTc.print("wtc");
+    
+    //copy from SLMat4 to cv::Mat rotation and translation and invert sign of y- and z-axis
+    // clang-format off
+    wRc.at<float>(0,0) = wTc.m(0); wRc.at<float>(0,1) = -wTc.m(4); wRc.at<float>(0,2) = -wTc.m(8); wtc.at<float>(0) = wTc.m(12);
+    wRc.at<float>(1,0) = wTc.m(1); wRc.at<float>(1,1) = -wTc.m(5); wRc.at<float>(1,2) = -wTc.m(9); wtc.at<float>(1) = wTc.m(13);
+    wRc.at<float>(2,0) = wTc.m(2); wRc.at<float>(2,1) = -wTc.m(6); wRc.at<float>(2,2) = -wTc.m(10); wtc.at<float>(2) = wTc.m(14);
+    // clang-format on
+    //std::cout << "wRc: " << wRc << std::endl;
+    //std::cout << "wtc: " << wtc << std::endl;
+    
+    //inversion of orthogonal rotation matrix
+    cv::Mat cRw = wRc.t();
+    //inversion of vector
+    cv::Mat ctw = -cRw * wtc;
+    //std::cout << "cRw: " << cRw << std::endl;
+    //std::cout << "ctw: " << ctw << std::endl ;
+    
+    //copy to 4x4 matrix
+    cv::Mat cTw = cv::Mat::eye(4, 4, CV_32F);
+    cRw.copyTo(cTw.colRange(0, 3).rowRange(0, 3));
+    ctw.copyTo(cTw.rowRange(0, 3).col(3));
+    //std::cout << "cTw: " << cTw << std::endl;
+    return cTw;
+}
+
 bool AreaTrackingView::update()
 {
     WAI::TrackingState slamState = WAI::TrackingState_None;
@@ -129,8 +160,8 @@ bool AreaTrackingView::update()
                     SLMat4f camPose = calcCameraPoseGpsOrientationBased();
                     _waiScene.camera->om(camPose);
                     //give waiSlam a guess of the current position in the ENU frame
-                    //todo ..
-                    //
+                    cv::Mat camExtrinsic = convertCameraPoseToWaiCamExtrinisc(camPose);
+                    _waiSlam->setCamExrinsicGuess(camExtrinsic);
                 }
             }
             else if (_asyncLoader && _asyncLoader->isReady())
@@ -185,6 +216,7 @@ bool AreaTrackingView::update()
                 updateVideoImage(*frame.get(), currentCamera);
             }
 
+            //update user guidance
             if (_resources.enableUserGuidance)
             {
                 _userGuidance.updateTrackingState(isTracking);

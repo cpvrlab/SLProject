@@ -94,7 +94,7 @@
     if(_updateCB)
         _updateCB(q.x, q.y, q.z, q.w);
     
-    printf("Rotation: roll %f pitch %f yaw %f\n", attitude.roll * SENS_RAD2DEG, attitude.pitch * SENS_RAD2DEG, attitude.yaw * SENS_RAD2DEG);
+    printf("Rotation: xRot %f yRot %f zRot %f\n", attitude.pitch * SENS_RAD2DEG, attitude.roll * SENS_RAD2DEG, attitude.yaw * SENS_RAD2DEG);
     */
     
     //(https://developer.apple.com/documentation/coremotion/getting_processed_device-motion_data/understanding_reference_frames_and_device_attitude)

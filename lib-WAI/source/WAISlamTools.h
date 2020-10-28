@@ -195,6 +195,8 @@ protected:
     cv::Mat         _distortion;
     cv::Mat         _cameraIntrinsic;
     cv::Mat         _cameraExtrinsic;
+    //extrinsic guess (e.g. estimated using gps and device orientation)
+    cv::Mat         _cameraExtrinsicGuess;
     InitializerData _iniData;
     WAIFrame        _lastFrame;
 

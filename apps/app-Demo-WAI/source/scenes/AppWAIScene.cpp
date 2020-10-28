@@ -565,7 +565,7 @@ void AppWAIScene::loadAvenchesTheatre()
     SLNode*          theatre = importer.load(_animManager,
                                     &assets,
                                     _dataDir + "erleb-AR/models/avenches/Aventicum-Theater1.gltf",
-                                             _dataDir + "images/textures/",
+                                    _dataDir + "images/textures/",
                                     true,    // only meshes
                                     nullptr, // no replacement material
                                     0.4f);   // 40% ambient reflection
@@ -609,44 +609,35 @@ void AppWAIScene::resetMapNode()
 }
 
 /*
- Pose is the camera extrinsic: the world w.r.t. the camera coordinate system.
+ cTw is the camera extrinsic: the world w.r.t. the camera coordinate system.
  We invert to get the camera pose (camera w.r.t the world coordinate system).
  Additionally we change the direction of the axes y and z:
  Wai coordinate axes are like in an opencv image (x right, y down, z into plane), in SLProject
  they are aligned like in opengl (x right, y up, z back)
  */
-void AppWAIScene::updateCameraPose(const cv::Mat& pose)
+void AppWAIScene::updateCameraPose(const cv::Mat& cTw)
 {
     // update camera node position
-    cv::Mat Rwc(3, 3, CV_32F);
-    cv::Mat twc(3, 1, CV_32F);
+    cv::Mat wRc(3, 3, CV_32F);
+    cv::Mat wtc(3, 1, CV_32F);
 
-    Rwc = (pose.rowRange(0, 3).colRange(0, 3)).t();
-    twc = -Rwc * pose.rowRange(0, 3).col(3);
+    //inversion of orthogonal rotation matrix
+    wRc = (cTw.rowRange(0, 3).colRange(0, 3)).t();
+    //inversion of vector
+    wtc = -wRc * cTw.rowRange(0, 3).col(3);
 
-    cv::Mat PoseInv = cv::Mat::eye(4, 4, CV_32F);
-
-    Rwc.copyTo(PoseInv.colRange(0, 3).rowRange(0, 3));
-    twc.copyTo(PoseInv.rowRange(0, 3).col(3));
+    cv::Mat wTc = cv::Mat::eye(4, 4, CV_32F);
+    wRc.copyTo(wTc.colRange(0, 3).rowRange(0, 3));
+    wtc.copyTo(wTc.rowRange(0, 3).col(3));
 
     SLMat4f om;
-    om.setMatrix(PoseInv.at<float>(0, 0),
-                 -PoseInv.at<float>(0, 1),
-                 -PoseInv.at<float>(0, 2),
-                 PoseInv.at<float>(0, 3),
-                 PoseInv.at<float>(1, 0),
-                 -PoseInv.at<float>(1, 1),
-                 -PoseInv.at<float>(1, 2),
-                 PoseInv.at<float>(1, 3),
-                 PoseInv.at<float>(2, 0),
-                 -PoseInv.at<float>(2, 1),
-                 -PoseInv.at<float>(2, 2),
-                 PoseInv.at<float>(2, 3),
-                 PoseInv.at<float>(3, 0),
-                 -PoseInv.at<float>(3, 1),
-                 -PoseInv.at<float>(3, 2),
-                 PoseInv.at<float>(3, 3));
-
+    // clang-format off
+    //set and invert y and z axes
+    om.setMatrix(wTc.at<float>(0, 0), -wTc.at<float>(0, 1), -wTc.at<float>(0, 2), wTc.at<float>(0, 3),
+                 wTc.at<float>(1, 0), -wTc.at<float>(1, 1), -wTc.at<float>(1, 2), wTc.at<float>(1, 3),
+                 wTc.at<float>(2, 0), -wTc.at<float>(2, 1), -wTc.at<float>(2, 2), wTc.at<float>(2, 3),
+                 wTc.at<float>(3, 0), -wTc.at<float>(3, 1), -wTc.at<float>(3, 2), wTc.at<float>(3, 3));
+    // clang-format on
     camera->om(om);
 }
 

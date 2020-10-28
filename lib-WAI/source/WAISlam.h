@@ -133,7 +133,10 @@ public:
     virtual int     getKeyPointCount() { return _lastFrame.N; }
     virtual int     getKeyFrameCount() { return (int)_globalMap->KeyFramesInMap(); }
     virtual int     getMapPointCount() { return (int)_globalMap->MapPointsInMap(); }
+    //get camera extrinsic
     virtual cv::Mat getPose();
+    //set camera extrinsic guess
+    virtual void    setCamExrinsicGuess(cv::Mat extrinsicGuess);
     virtual void    setMap(std::unique_ptr<WAIMap> globalMap);
 
     virtual WAI::TrackingState getTrackingState() { return _state; }
@@ -174,6 +177,7 @@ protected:
 
     WAI::TrackingState   _state = WAI::TrackingState_Idle;
     std::mutex           _cameraExtrinsicMutex;
+    std::mutex           _cameraExtrinsicGuessMutex;
     std::mutex           _mutexStates;
     std::mutex           _lastFrameMutex;
 

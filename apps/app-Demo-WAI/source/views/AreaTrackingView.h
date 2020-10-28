@@ -72,7 +72,8 @@ private:
     bool    startCamera(const cv::Size& trackImgSize);
     void    onCameraParamsChanged();
     SLMat4f calcCameraPoseGpsOrientationBased();
-
+    cv::Mat convertCameraPoseToWaiCamExtrinisc(SLMat4f& wTc);
+    
     AreaTrackingGui   _gui;
     AppWAIScene       _waiScene;
     UserGuidanceScene _userGuidanceScene;

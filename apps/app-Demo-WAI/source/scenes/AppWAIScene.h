@@ -21,7 +21,7 @@ public:
     void initScene(ErlebAR::LocationId locationId, ErlebAR::AreaId areaId);
 
     void resetMapNode();
-    void updateCameraPose(const cv::Mat& pose);
+    void updateCameraPose(const cv::Mat& cTw);
 
     void renderMapPoints(const std::vector<WAIMapPoint*>& pts);
     void renderMarkerCornerMapPoints(const std::vector<WAIMapPoint*>& pts);
