@@ -4035,11 +4035,13 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         light1->samples(8, 8);
         light1->attenuation(0, 0, 1);
         light1->createsShadows(true);
+        light1->createShadowMap();
 
         SLLightSpot* light2 = new SLLightSpot(s, s, 2, 2, -2, 0.3f);
         light2->samples(8, 8);
         light2->attenuation(0, 0, 1);
         light2->createsShadows(true);
+        light2->createShadowMap();
 
         SLNode* scene = new SLNode;
         scene->addChild(light1);

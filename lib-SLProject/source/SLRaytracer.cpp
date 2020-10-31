@@ -34,6 +34,7 @@ SLRaytracer::SLRaytracer()
     _aaSamples        = 3;
     _resolutionFactor = 0.5f;
     gamma(1.0f);
+    _raysPerMS.init(10, 0.0f);
 
     // set texture properties
     _min_filter   = GL_NEAREST;
