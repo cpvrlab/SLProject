@@ -14,7 +14,7 @@ precision highp float;
 layout (location = 0) in vec4  a_position; // Vertex position attribute
 layout (location = 1) in vec3  a_normal;   // Vertex normal attribute
 layout (location = 2) in vec2  a_texCoord; // Vertex texture attribute
-layout (location = 3) in vec4  a_color;    // Vertex color attribute
+layout (location = 4) in vec4  a_color;    // Vertex color attribute
 
 uniform mat4 u_model;
 uniform mat4 u_view;

@@ -114,7 +114,8 @@ protected:
                                      float           ambientFactor = 0.0f);
     static SLGLTexture* loadTexture(SLAssetManager* assetMgr,
                                     SLstring&       path,
-                                    SLTextureType   texType);
+                                    SLTextureType   texType,
+                                    SLuint          uvIndex);
     SLMesh*             loadMesh(SLAssetManager* assetMgr, aiMesh* mesh);
     SLNode*             loadNodesRec(SLNode*    curNode,
                                      aiNode*    aiNode,

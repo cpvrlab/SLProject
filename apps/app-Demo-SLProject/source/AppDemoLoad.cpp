@@ -644,7 +644,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                                           SLApplication::texturePath + "tree1_1024_C.png",
                                           GL_LINEAR_MIPMAP_LINEAR,
                                           GL_LINEAR,
-                                          TT_color,
+                                          TT_diffuse,
                                           GL_CLAMP_TO_EDGE,
                                           GL_CLAMP_TO_EDGE);
         SLGLTexture* t2 = new SLGLTexture(s,
@@ -1606,7 +1606,6 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0, 0, 5);
         cam1->setInitialState();
-        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
         scene->addChild(cam1);
 
         // There is no light needed in this scene. All reflections come from cube maps
@@ -1636,6 +1635,47 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         sv->camera(cam1);
         sv->skybox(skybox);
+
+        // pass the scene group as root node
+        s->root3D(scene);
+
+        // Save energy
+        sv->doWaitOnIdle(true);
+    }
+    else if (SLApplication::sceneID == SID_ShaderAOBaked) //.............................................
+    {
+        // Set scene name and info string
+        s->name("Baked Ambient Occlusion");
+        s->info("Test scene for baked ambient occlusion");
+
+        // Create a scene group node
+        SLNode* scene = new SLNode("scene node");
+
+        // Create camera in the center
+        SLCamera* cam1 = new SLCamera("Camera 1");
+        cam1->translation(0, 0.5f, 2);
+        cam1->lookAt(0, 0.5f, 0);
+        cam1->setInitialState();
+        scene->addChild(cam1);
+
+        // Create directional light for the sun light
+        SLLightDirect* light = new SLLightDirect(s, s, 0.5f);
+        light->ambientColor(SLCol4f(0.3f, 0.3f, 0.3f));
+        light->attenuation(1, 0, 0);
+        light->translate(1, 1, -1);
+        light->lookAt(-1, -1, 1);
+        scene->addChild(light);
+
+        // load teapot
+        SLAssimpImporter importer;
+        SLNode*          suzanneInCube = importer.load(s->animManager(),
+                                              s,
+                                              SLApplication::modelPath + "GLTF/AO-Baked-Test/AO-Baked-Test.gltf",
+                                              SLApplication::texturePath,
+                                              true);
+        scene->addChild(suzanneInCube);
+
+        sv->camera(cam1);
 
         // pass the scene group as root node
         s->root3D(scene);
@@ -3131,15 +3171,15 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Define shader that shows on all pixels the video background
         SLGLProgram* spVideoBackground  = new SLGLGenericProgram(s,
-                                                                 SLApplication::shaderPath + "PerVrtTextureBackground.vert",
-                                                                 SLApplication::shaderPath + "PerVrtTextureBackground.frag");
+                                                                SLApplication::shaderPath + "PerVrtTextureBackground.vert",
+                                                                SLApplication::shaderPath + "PerVrtTextureBackground.frag");
         SLMaterial*  matVideoBackground = new SLMaterial(s,
-                                                         "matVideoBackground",
-                                                         videoTexture,
-                                                         nullptr,
-                                                         nullptr,
-                                                         nullptr,
-                                                         spVideoBackground);
+                                                        "matVideoBackground",
+                                                        videoTexture,
+                                                        nullptr,
+                                                        nullptr,
+                                                        nullptr,
+                                                        spVideoBackground);
 
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0, 2, 0);
@@ -3159,7 +3199,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sunLight->attenuation(1, 0, 0);
         sunLight->doSunPowerAdaptation(true);
         sunLight->createsShadows(true);
-        sunLight->createShadowMap(-100, 150, SLVec2f(150, 150), SLVec2i(2048,2048));
+        sunLight->createShadowMap(-100, 150, SLVec2f(150, 150), SLVec2i(2048, 2048));
         sunLight->doSmoothShadows(true);
         sunLight->castsShadows(false);
 
@@ -3168,9 +3208,9 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         SLAssimpImporter importer;
         SLNode*          bfh = importer.load(s->animManager(),
-                                              s,
-                                              SLApplication::dataPath + "erleb-AR/models/biel/Biel-BFH-Rolex.gltf",
-                                              SLApplication::texturePath);
+                                    s,
+                                    SLApplication::dataPath + "erleb-AR/models/biel/Biel-BFH-Rolex.gltf",
+                                    SLApplication::texturePath);
 
         /* Setup shadow mapping material and replace shader from loader
         SLGLProgram* progPerPixSM = new SLGLGenericProgram(s,
@@ -3277,7 +3317,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sunLight->attenuation(1, 0, 0);
         sunLight->doSunPowerAdaptation(true);
         sunLight->createsShadows(true);
-        sunLight->createShadowMap(-100, 150, SLVec2f(150, 150), SLVec2i(2048,2048));
+        sunLight->createShadowMap(-100, 150, SLVec2f(150, 150), SLVec2i(2048, 2048));
         sunLight->doSmoothShadows(true);
         sunLight->castsShadows(false);
 
@@ -3355,8 +3395,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         //initialize sensor stuff
         SLApplication::devLoc.originLatLonAlt(46.94763, 7.44074, 542.2);        // Loeb Ecken
         SLApplication::devLoc.defaultLatLonAlt(46.94841, 7.43970, 541.1 + 1.7); // Bahnhof Ausgang in Augenhöhe
-        SLApplication::devLoc.locMaxDistanceM(1000.0f);                           // Max. Distanz. zum Loeb Ecken
-        SLApplication::devLoc.improveOrigin(false);                               // Keine autom. Verbesserung vom Origin
+        SLApplication::devLoc.locMaxDistanceM(1000.0f);                         // Max. Distanz. zum Loeb Ecken
+        SLApplication::devLoc.improveOrigin(false);                             // Keine autom. Verbesserung vom Origin
         SLApplication::devLoc.useOriginAltitude(true);
         SLApplication::devLoc.hasOrigin(true);
         SLApplication::devRot.zeroYawAtStart(false);
@@ -3421,10 +3461,10 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sunLight->lookAt(10, 0, 10);
         sunLight->doSunPowerAdaptation(true);
         sunLight->createsShadows(true);
-        sunLight->createShadowMap(-100, 250, SLVec2f(250, 150), SLVec2i(2048,2048));
+        sunLight->createShadowMap(-100, 250, SLVec2f(250, 150), SLVec2i(2048, 2048));
         sunLight->doSmoothShadows(true);
         sunLight->castsShadows(false);
-        
+
         // Let the sun be rotated by time and location
         SLApplication::devLoc.sunLightNode(sunLight);
 
@@ -3536,7 +3576,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sunLight->lookAt(10, 0, 10);
         sunLight->doSunPowerAdaptation(true);
         sunLight->createsShadows(true);
-        sunLight->createShadowMap(-100, 150, SLVec2f(150, 150), SLVec2i(2048,2048));
+        sunLight->createShadowMap(-100, 150, SLVec2f(150, 150), SLVec2i(2048, 2048));
         sunLight->doSmoothShadows(true);
         sunLight->castsShadows(false);
 
@@ -3652,7 +3692,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sunLight->lookAt(10, 0, 10);
         sunLight->doSunPowerAdaptation(true);
         sunLight->createsShadows(true);
-        sunLight->createShadowMap(-100, 150, SLVec2f(150, 150), SLVec2i(2048,2048));
+        sunLight->createShadowMap(-100, 150, SLVec2f(150, 150), SLVec2i(2048, 2048));
         sunLight->doSmoothShadows(true);
         sunLight->castsShadows(false);
 
@@ -3764,7 +3804,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sunLight->lookAt(10, 0, 10);
         sunLight->doSunPowerAdaptation(true);
         sunLight->createsShadows(true);
-        sunLight->createShadowMap(-100, 150, SLVec2f(150, 150), SLVec2i(2048,2048));
+        sunLight->createShadowMap(-100, 150, SLVec2f(150, 150), SLVec2i(2048, 2048));
         sunLight->doSmoothShadows(true);
         sunLight->castsShadows(false);
 
@@ -4031,15 +4071,20 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         rect->translate(0, 0, -0.5f);
         rect->castsShadows(false);
 
+
         SLLightSpot* light1 = new SLLightSpot(s, s, 2, 2, 2, 0.3f);
         light1->samples(8, 8);
         light1->attenuation(0, 0, 1);
         light1->createsShadows(true);
+        light1->doSmoothShadows(true);
+        light1->createShadowMap();
 
         SLLightSpot* light2 = new SLLightSpot(s, s, 2, 2, -2, 0.3f);
         light2->samples(8, 8);
         light2->attenuation(0, 0, 1);
         light2->createsShadows(true);
+        light2->doSmoothShadows(true);
+        light2->createShadowMap();
 
         SLNode* scene = new SLNode;
         scene->addChild(light1);

@@ -1302,6 +1302,8 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                         s->onLoad(s, sv, SID_ShaderBumpParallax);
                     if (ImGui::MenuItem("Skybox Shader", nullptr, sid == SID_ShaderSkyBox))
                         s->onLoad(s, sv, SID_ShaderSkyBox);
+                    if (ImGui::MenuItem("Ambient Occlusion Baked", nullptr, sid == SID_ShaderAOBaked))
+                        s->onLoad(s, sv, SID_ShaderAOBaked);
                     if (ImGui::MenuItem("Earth Shader", nullptr, sid == SID_ShaderEarth))
                         s->onLoad(s, sv, SID_ShaderEarth);
                     if (ImGui::MenuItem("Voxel Cone Tracing", nullptr, sid == SID_ShaderVoxelConeDemo))

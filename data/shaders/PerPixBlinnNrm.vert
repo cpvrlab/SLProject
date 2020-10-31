@@ -17,7 +17,7 @@ precision highp float;
 layout (location = 0) in vec4  a_position;   // Vertex position attribute
 layout (location = 1) in vec3  a_normal;     // Vertex normal attribute
 layout (location = 2) in vec2  a_texCoord;   // Vertex texture coordiante attribute
-layout (location = 4) in vec4  a_tangent;    // Vertex tangent attribute
+layout (location = 5) in vec4  a_tangent;    // Vertex tangent attribute
 
 uniform mat4  u_mvMatrix;   // modelview matrix
 uniform mat3  u_nMatrix;    // normal matrix=transpose(inverse(mv))
@@ -32,7 +32,7 @@ out     vec2  v_texCoord;               // Texture coordiante output
 out     vec3  v_eyeDirTS;               // Vector to the eye in tangent space
 out     vec3  v_lightDirTS[NUM_LIGHTS]; // Vector to the light 0 in tangent space
 out     vec3  v_spotDirTS[NUM_LIGHTS];  // Spot direction in tangent space
-//out     float v_lightDist[NUM_LIGHTS];  // Light distance
+out     float v_lightDist[NUM_LIGHTS];  // Light distance
 //-----------------------------------------------------------------------------
 void main()
 {  
@@ -61,7 +61,7 @@ void main()
 
         // Transform vector to the light 0 into tangent space
         vec3 L = u_lightPosVS[i].xyz - v_P_VS;
-        //v_lightDist[i]  = length(L);  // calculate distance to light before normalizing
+        v_lightDist[i]  = length(L);  // calculate distance to light before normalizing
         v_lightDirTS[i] = L;
         v_lightDirTS[i] *= TBN;
     }

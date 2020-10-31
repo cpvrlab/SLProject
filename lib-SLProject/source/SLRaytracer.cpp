@@ -41,6 +41,7 @@ SLRaytracer::SLRaytracer()
     _wrap_s       = GL_CLAMP_TO_EDGE;
     _wrap_t       = GL_CLAMP_TO_EDGE;
     _resizeToPow2 = false;
+    _raysPerMS.init(10, 0.0f);
 }
 //-----------------------------------------------------------------------------
 SLRaytracer::~SLRaytracer()

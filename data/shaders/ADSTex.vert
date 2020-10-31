@@ -19,20 +19,20 @@ uniform     mat4     u_mvMatrix;       // modelView matrix
 uniform     mat4     u_mvpMatrix;      // = projection * modelView
 uniform     mat3     u_nMatrix;        // normal matrix=transpose(inverse(mv))
 
-uniform     vec4     u_globalAmbi;     // global ambient intensity (Iaglobal)
-uniform     vec3     u_lightPosVS;     // light position in view space
-uniform     vec3     u_lightSpotDir; // light direction in view space
+uniform     vec4     u_globalAmbi;  // global ambient intensity (Iaglobal)
+uniform     vec3     u_lightPosVS;  // light position in view space
+uniform     vec3     u_lightSpotDir;// light direction in view space
 uniform     vec4     u_lightAmbi;   // light ambient light intensity (Ia)
 uniform     vec4     u_lightDiff;   // light diffuse light intensity (Id)
-uniform     vec4     u_lightSpec;  // light specular light intensity (Is)
+uniform     vec4     u_lightSpec;   // light specular light intensity (Is)
 uniform     vec4     u_matAmbi;     // material ambient reflection (ka)
 uniform     vec4     u_matDiff;     // material diffuse reflection (kd)
-uniform     vec4     u_matSpec;    // material specular reflection (ks)
-uniform     vec4     u_matEmis;    // material emissiveness (ke)
-uniform     float    u_matShin;   // material shininess exponent
+uniform     vec4     u_matSpec;     // material specular reflection (ks)
+uniform     vec4     u_matEmis;     // material emissiveness (ke)
+uniform     float    u_matShin;     // material shininess exponent
 
-out     vec4     v_color;          // The resulting color per vertex
-out     vec2     v_texCoord;       // texture coordinate at vertex
+out     vec4     v_color;           // The resulting color per vertex
+out     vec2     v_texCoord;        // texture coordinate at vertex
 //-----------------------------------------------------------------------------
 void main()
 {     

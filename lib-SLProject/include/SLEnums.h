@@ -109,6 +109,7 @@ enum SLSceneID
     SID_ShaderBumpNormal,
     SID_ShaderBumpParallax,
     SID_ShaderSkyBox,
+    SID_ShaderAOBaked,
     SID_ShaderEarth,
     SID_ShaderVoxelConeDemo,
     SID_ShadowMappingBasicScene,

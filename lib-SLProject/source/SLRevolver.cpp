@@ -51,7 +51,7 @@ void SLRevolver::buildMesh(SLMaterial* material)
     // Vertices & Texture coords //
     ///////////////////////////////
 
-    // calculate no. of vertices & allocate vectors for P, Tc & N.
+    // calculate no. of vertices & allocate vectors for P, UV1 & N.
     // On one stack it has one vertex more at the end that is identical with the
     // first vertex of the stack. This is for cylindrical texture mapping where
     // we need 2 different texture s-coords (0 & 1) at the same point.
@@ -59,8 +59,8 @@ void SLRevolver::buildMesh(SLMaterial* material)
     P.resize((_slices + 1) * _revPoints.size());
     N.clear();
     N.resize(P.size());
-    Tc.clear();
-    Tc.resize(P.size());
+    UV1.clear();
+    UV1.resize(P.size());
 
     // calculate length of segments for texture coords
     SLfloat  totalLenght = 0;
@@ -100,7 +100,7 @@ void SLRevolver::buildMesh(SLMaterial* material)
             else
                 P[iV] = m.multVec(_revPoints[r]);
 
-            Tc[iV++] = texCoord;
+            UV1[iV++] = texCoord;
             m.rotate(dPhi, _revAxis);
             texCoord.x += deltaS;
         }
