@@ -15,11 +15,11 @@ precision highp float;
 // SLGLShader::preprocessPragmas replaces #Lights by SLVLights.size()
 #pragma define NUM_LIGHTS #Lights
 //-----------------------------------------------------------------------------
-layout (location = 0) in vec4  a_position;     // Vertex position attribute
-layout (location = 1) in vec3  a_normal;       // Vertex normal attribute
-layout (location = 2) in vec2  a_texCoord;     // Vertex texture attribute
-layout (location = 6) in vec4  a_jointIds;     // Vertex joint indices attributes
-layout (location = 7) in vec4  a_jointWeights; // Vertex joint weights attributes
+layout (location = 0) in vec4  a_position;      // Vertex position attribute
+layout (location = 1) in vec3  a_normal;        // Vertex normal attribute
+layout (location = 2) in vec2  a_uv1;           // Vertex texture attribute
+layout (location = 6) in vec4  a_jointIds;      // Vertex joint indices attributes
+layout (location = 7) in vec4  a_jointWeights;  // Vertex joint weights attributes
 
 uniform mat4   u_mvMatrix;          // modelview matrix 
 uniform mat3   u_nMatrix;           // normal matrix=transpose(inverse(mv))
@@ -40,16 +40,16 @@ uniform bool   u_lightDoAtt[NUM_LIGHTS];    // flag if att. must be calc.
 uniform vec4   u_globalAmbi;                // Global ambient scene color
 uniform float  u_oneOverGamma;              // 1.0f / Gamma correction value
 
-uniform vec4   u_matAmbi;           // ambient color reflection coefficient (ka)
-uniform vec4   u_matDiff;           // diffuse color reflection coefficient (kd)
-uniform vec4   u_matSpec;           // specular color reflection coefficient (ks)
-uniform vec4   u_matEmis;           // emissive color for self-shining materials
-uniform float  u_matShin;           // shininess exponent
+uniform vec4   u_matAmbi;       // ambient color reflection coefficient (ka)
+uniform vec4   u_matDiff;       // diffuse color reflection coefficient (kd)
+uniform vec4   u_matSpec;       // specular color reflection coefficient (ks)
+uniform vec4   u_matEmis;       // emissive color for self-shining materials
+uniform float  u_matShin;       // shininess
 
-out     vec3   v_P_VS;              // Point of illumination in view space (VS)
-out     vec4   v_color;             // Ambient & diffuse color at vertex
-out     vec4   v_specColor;         // Specular color at vertex
-out     vec2   v_texCoord;          // texture coordinate at vertex
+out     vec3   v_P_VS;          // Point of illumination in view space (VS)
+out     vec4   v_color;         // Ambient & diffuse color at vertex
+out     vec4   v_specColor;     // Specular color at vertex
+out     vec2   v_uv1;           // texture coordinate at vertex
 //-----------------------------------------------------------------------------
 // SLGLShader::preprocessPragmas replaces the include pragma by the file
 #pragma include "lightingBlinnPhong.glsl"
@@ -102,7 +102,7 @@ void main()
     }
    
     // Set the texture coord. output for interpolated tex. coords.
-    v_texCoord = a_texCoord.xy;
+    v_uv1 = a_uv1.xy;
    
     // Sum up all the reflected color components except the specular
     v_color =  u_matEmis +

@@ -16,9 +16,9 @@ precision highp float;
 // SLGLShader::preprocessPragmas replaces #Lights by SLVLights.size()
 #pragma define NUM_LIGHTS #Lights
 // ----------------------------------------------------------------------------
-in      vec3        v_P_VS;              // Interpol. point of illum. in view space (VS)
-in      vec3        v_N_VS;              // Interpol. normal at v_P_VS in view space
-in      vec2        v_texCoord;          // Interpol. texture coordinate in tex. space
+in      vec3        v_P_VS;             // Interpol. point of illum. in view space (VS)
+in      vec3        v_N_VS;             // Interpol. normal at v_P_VS in view space
+in      vec2        v_uv1;              // Interpol. texture coordinate in tex. space
 
 uniform bool        u_lightIsOn[NUM_LIGHTS];    // flag if light is on
 uniform vec4        u_lightPosVS[NUM_LIGHTS];   // position of light in view space
@@ -51,12 +51,12 @@ const float PI = 3.14159265359;
 // ----------------------------------------------------------------------------
 vec3 getNormalFromMap()
 {
-    vec3 tangentNormal = texture(u_matTexture1, v_texCoord).xyz * 2.0 - 1.0;
+    vec3 tangentNormal = texture(u_matTexture1, v_uv1).xyz * 2.0 - 1.0;
 
     vec3 Q1  = dFdx(v_P_VS);
     vec3 Q2  = dFdy(v_P_VS);
-    vec2 st1 = dFdx(v_texCoord);
-    vec2 st2 = dFdy(v_texCoord);
+    vec2 st1 = dFdx(v_uv1);
+    vec2 st2 = dFdy(v_uv1);
 
     vec3 N  =  normalize(v_N_VS);
     vec3 T  =  normalize(Q1*st2.t - Q2*st1.t);
@@ -77,9 +77,9 @@ void main()
     vec3 Lo = vec3(0.0);            // Get the reflection from all lights into Lo
 
     // Get the material parameters out of the textures
-    vec3  matDiff  = pow(texture(u_matTexture0, v_texCoord).rgb, vec3(2.2));
-    float matMetal = texture(u_matTexture2, v_texCoord).r;
-    float matRough = texture(u_matTexture3, v_texCoord).r;
+    vec3  matDiff  = pow(texture(u_matTexture0, v_uv1).rgb, vec3(2.2));
+    float matMetal = texture(u_matTexture2, v_uv1).r;
+    float matRough = texture(u_matTexture3, v_uv1).r;
 
     for (int i = 0; i < NUM_LIGHTS; ++i)
     {
