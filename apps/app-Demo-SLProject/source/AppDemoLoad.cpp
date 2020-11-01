@@ -1683,8 +1683,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Setup shadow mapping material and replace shader from loader
         SLGLProgram* progPerPixNrmSM = new SLGLGenericProgram(s,
-                                                              SLApplication::shaderPath + "PerPixBlinnNrmSM.vert",
-                                                              SLApplication::shaderPath + "PerPixBlinnNrmSM.frag");
+                                                              SLApplication::shaderPath + "PerPixBlinnNrmSMAO.vert",
+                                                              SLApplication::shaderPath + "PerPixBlinnNrmSMAO.frag");
         auto         updateMat       = [=](SLMaterial* mat) { mat->program(progPerPixNrmSM); };
         suzanneInCube->updateMeshMat(updateMat, true);
 
