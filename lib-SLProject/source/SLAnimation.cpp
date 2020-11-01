@@ -190,7 +190,7 @@ SLNodeAnimTrack* SLAnimation::createSimpleRotationNodeTrack(SLNode*        targe
     target->setInitialState();
     track->animatedNode(target);
     track->createNodeKeyframe(0.0f);                                            // create zero kf
-    track->createNodeKeyframe(lengthSec())->rotation(SLQuat4f(angleDeg, axis)); // create end scale keyframe
+    track->createNodeKeyframe(lengthSec())->rotation(SLQuat4f(angleDeg, axis)); // create end rotation keyframe
     return track;
 }
 

@@ -1642,62 +1642,6 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         // Save energy
         sv->doWaitOnIdle(true);
     }
-    else if (SLApplication::sceneID == SID_ShaderAOBaked) //.............................................
-    {
-        // Set scene name and info string
-        s->name("Baked Ambient Occlusion");
-        s->info("Test scene for baked ambient occlusion");
-
-        // Create a scene group node
-        SLNode* scene = new SLNode("scene node");
-
-        // Create camera in the center
-        SLCamera* cam1 = new SLCamera("Camera 1");
-        cam1->translation(0, 0.5f, 2);
-        cam1->lookAt(0, 0.5f, 0);
-        cam1->setInitialState();
-        cam1->focalDist(2);
-        scene->addChild(cam1);
-
-        // Create directional light for the sun light
-        SLLightDirect* light = new SLLightDirect(s, s, 0.5f);
-        light->ambientColor(SLCol4f(1, 1, 1));
-        light->ambientPower(1.0f);
-        light->attenuation(1, 0, 0);
-        light->translate(1, 1, 1);
-        light->lookAt(-1, -1, -1);
-        light->createsShadows(true);
-        light->createShadowMap(-1, 6);
-        light->doSmoothShadows(true);
-        scene->addChild(light);
-
-        // load teapot
-        SLAssimpImporter importer;
-        SLNode*          suzanneInCube = importer.load(s->animManager(),
-                                              s,
-                                              SLApplication::modelPath + "GLTF/AO-Baked-Test/AO-Baked-Test.gltf",
-                                              SLApplication::texturePath,
-                                              true,    // load meshes only
-                                              nullptr, // override material
-                                              0.5f);   // ambient factor
-
-        // Setup shadow mapping material and replace shader from loader
-        SLGLProgram* progPerPixNrmSM = new SLGLGenericProgram(s,
-                                                              SLApplication::shaderPath + "PerPixBlinnNrmSMAO.vert",
-                                                              SLApplication::shaderPath + "PerPixBlinnNrmSMAO.frag");
-        auto         updateMat       = [=](SLMaterial* mat) { mat->program(progPerPixNrmSM); };
-        suzanneInCube->updateMeshMat(updateMat, true);
-
-        scene->addChild(suzanneInCube);
-
-        sv->camera(cam1);
-
-        // pass the scene group as root node
-        s->root3D(scene);
-
-        // Save energy
-        sv->doWaitOnIdle(true);
-    }
     else if (SLApplication::sceneID == SID_ShaderEarth) //...............................................
     {
         s->name("Earth Shader Test");
@@ -2183,6 +2127,289 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(cam1);
         s->root3D(scene);
     }
+
+    else if (SLApplication::sceneID == SID_SuzannePerPix) //.............................................
+    {
+        // Set scene name and info string
+        s->name("Suzanne with per pixel lighting");
+        s->info("Suzanne with per pixel Blinn-Phong lighting.");
+
+        // Create a scene group node
+        SLNode* scene = new SLNode("scene node");
+
+        // Create camera in the center
+        SLCamera* cam1 = new SLCamera("Camera 1");
+        cam1->translation(0, 0.5f, 2);
+        cam1->lookAt(0, 0.5f, 0);
+        cam1->setInitialState();
+        cam1->focalDist(2);
+        scene->addChild(cam1);
+
+        // Create directional light for the sun light
+        SLLightDirect* light = new SLLightDirect(s, s, 0.1f);
+        light->ambientPower(0.5f);
+        light->diffusePower(0.5f);
+        light->attenuation(1, 0, 0);
+        light->translate(0, 0, 0.5);
+        light->lookAt(1, -1, 0.5);
+        SLAnimation* lightAnim = s->animManager().createNodeAnimation("LightAnim", 4.0f, true, EC_inOutSine, AL_pingPongLoop);
+        lightAnim->createSimpleRotationNodeTrack(light, -180, SLVec3f(0, 1, 0));
+        scene->addChild(light);
+
+        // load teapot
+        SLAssimpImporter importer;
+        SLNode*          suzanneInCube = importer.load(s->animManager(),
+                                              s,
+                                              SLApplication::modelPath + "GLTF/AO-Baked-Test/AO-Baked-Test.gltf",
+                                              SLApplication::texturePath,
+                                              true,    // load meshes only
+                                              nullptr, // override material
+                                              0.5f);   // ambient factor
+
+        // Setup shadow mapping material and replace shader from loader
+        SLGLProgram* progPerPixNrm = new SLGLGenericProgram(s,
+                                                            SLApplication::shaderPath + "PerPixBlinn.vert",
+                                                            SLApplication::shaderPath + "PerPixBlinn.frag");
+        auto         updateMat     = [=](SLMaterial* mat) { mat->program(progPerPixNrm); };
+        suzanneInCube->updateMeshMat(updateMat, true);
+
+        scene->addChild(suzanneInCube);
+
+        sv->camera(cam1);
+
+        // pass the scene group as root node
+        s->root3D(scene);
+
+        // Save energy
+        sv->doWaitOnIdle(true);
+    }
+    else if (SLApplication::sceneID == SID_SuzanneTex) //................................................
+    {
+        // Set scene name and info string
+        s->name("Suzanne with texture map");
+        s->info("Suzanne with diffuse texture.");
+
+        // Create a scene group node
+        SLNode* scene = new SLNode("scene node");
+
+        // Create camera in the center
+        SLCamera* cam1 = new SLCamera("Camera 1");
+        cam1->translation(0, 0.5f, 2);
+        cam1->lookAt(0, 0.5f, 0);
+        cam1->setInitialState();
+        cam1->focalDist(2);
+        scene->addChild(cam1);
+
+        // Create directional light for the sun light
+        SLLightDirect* light = new SLLightDirect(s, s, 0.1f);
+        light->ambientPower(0.8f);
+        light->diffusePower(0.8f);
+        light->attenuation(1, 0, 0);
+        light->translate(0, 0, 0.5);
+        light->lookAt(1, -1, 0.5);
+        SLAnimation* lightAnim = s->animManager().createNodeAnimation("LightAnim", 4.0f, true, EC_inOutSine, AL_pingPongLoop);
+        lightAnim->createSimpleRotationNodeTrack(light, -180, SLVec3f(0, 1, 0));
+        scene->addChild(light);
+
+        // load teapot
+        SLAssimpImporter importer;
+        SLNode*          suzanneInCube = importer.load(s->animManager(),
+                                              s,
+                                              SLApplication::modelPath + "GLTF/AO-Baked-Test/AO-Baked-Test.gltf",
+                                              SLApplication::texturePath,
+                                              true,    // load meshes only
+                                              nullptr, // override material
+                                              0.5f);   // ambient factor
+
+        // Setup shadow mapping material and replace shader from loader
+        SLGLProgram* progPerPixNrm = new SLGLGenericProgram(s,
+                                                            SLApplication::shaderPath + "PerPixBlinnTex.vert",
+                                                            SLApplication::shaderPath + "PerPixBlinnTex.frag");
+        auto         updateMat     = [=](SLMaterial* mat) { mat->program(progPerPixNrm); };
+        suzanneInCube->updateMeshMat(updateMat, true);
+
+        scene->addChild(suzanneInCube);
+
+        sv->camera(cam1);
+
+        // pass the scene group as root node
+        s->root3D(scene);
+
+        // Save energy
+        sv->doWaitOnIdle(true);
+    }
+    else if (SLApplication::sceneID == SID_SuzanneTexNrm) //.............................................
+    {
+        // Set scene name and info string
+        s->name("Suzanne with normal map");
+        s->info("Suzanne with diffuse and normal bump map textures.");
+
+        // Create a scene group node
+        SLNode* scene = new SLNode("scene node");
+
+        // Create camera in the center
+        SLCamera* cam1 = new SLCamera("Camera 1");
+        cam1->translation(0, 0.5f, 2);
+        cam1->lookAt(0, 0.5f, 0);
+        cam1->setInitialState();
+        cam1->focalDist(2);
+        scene->addChild(cam1);
+
+        // Create directional light for the sun light
+        SLLightDirect* light = new SLLightDirect(s, s, 0.1f);
+        light->ambientPower(0.8f);
+        light->diffusePower(0.8f);
+        light->attenuation(1, 0, 0);
+        light->translate(0, 0, 0.5);
+        light->lookAt(1, -1, 0.5);
+        SLAnimation* lightAnim = s->animManager().createNodeAnimation("LightAnim", 4.0f, true, EC_inOutSine, AL_pingPongLoop);
+        lightAnim->createSimpleRotationNodeTrack(light, -180, SLVec3f(0, 1, 0));
+        scene->addChild(light);
+
+        // load teapot
+        SLAssimpImporter importer;
+        SLNode*          suzanneInCube = importer.load(s->animManager(),
+                                              s,
+                                              SLApplication::modelPath + "GLTF/AO-Baked-Test/AO-Baked-Test.gltf",
+                                              SLApplication::texturePath,
+                                              true,    // load meshes only
+                                              nullptr, // override material
+                                              0.5f);   // ambient factor
+
+        // Setup shadow mapping material and replace shader from loader
+        SLGLProgram* progPerPixNrm = new SLGLGenericProgram(s,
+                                                            SLApplication::shaderPath + "PerPixBlinnNrm.vert",
+                                                            SLApplication::shaderPath + "PerPixBlinnNrm.frag");
+        auto         updateMat     = [=](SLMaterial* mat) { mat->program(progPerPixNrm); };
+        suzanneInCube->updateMeshMat(updateMat, true);
+
+        scene->addChild(suzanneInCube);
+
+        sv->camera(cam1);
+
+        // pass the scene group as root node
+        s->root3D(scene);
+
+        // Save energy
+        sv->doWaitOnIdle(true);
+    }
+    else if (SLApplication::sceneID == SID_SuzanneTexNrmSM) //...........................................
+    {
+        // Set scene name and info string
+        s->name("Suzanne with shadow mapping");
+        s->info("Suzanne with diffuse and normal bump map textures and shadow mapping.");
+
+        // Create a scene group node
+        SLNode* scene = new SLNode("scene node");
+
+        // Create camera in the center
+        SLCamera* cam1 = new SLCamera("Camera 1");
+        cam1->translation(0, 0.5f, 2);
+        cam1->lookAt(0, 0.5f, 0);
+        cam1->setInitialState();
+        cam1->focalDist(2);
+        scene->addChild(cam1);
+
+        // Create directional light for the sun light
+        SLLightDirect* light = new SLLightDirect(s, s, 0.1f);
+        light->ambientPower(0.8f);
+        light->diffusePower(0.8f);
+        light->attenuation(1, 0, 0);
+        light->translate(0, 0, 0.5);
+        light->lookAt(1, -1, 0.5);
+        light->createsShadows(true);
+        light->createShadowMap(-3, 6);
+        light->doSmoothShadows(true);
+        SLAnimation* lightAnim = s->animManager().createNodeAnimation("LightAnim", 4.0f, true, EC_inOutSine, AL_pingPongLoop);
+        lightAnim->createSimpleRotationNodeTrack(light, -180, SLVec3f(0, 1, 0));
+        scene->addChild(light);
+
+        // load teapot
+        SLAssimpImporter importer;
+        SLNode*          suzanneInCube = importer.load(s->animManager(),
+                                              s,
+                                              SLApplication::modelPath + "GLTF/AO-Baked-Test/AO-Baked-Test.gltf",
+                                              SLApplication::texturePath,
+                                              true,    // load meshes only
+                                              nullptr, // override material
+                                              0.5f);   // ambient factor
+
+        // Setup shadow mapping material and replace shader from loader
+        SLGLProgram* progPerPixNrm = new SLGLGenericProgram(s,
+                                                            SLApplication::shaderPath + "PerPixBlinnNrmSM.vert",
+                                                            SLApplication::shaderPath + "PerPixBlinnNrmSM.frag");
+        auto         updateMat     = [=](SLMaterial* mat) { mat->program(progPerPixNrm); };
+        suzanneInCube->updateMeshMat(updateMat, true);
+
+        scene->addChild(suzanneInCube);
+
+        sv->camera(cam1);
+
+        // pass the scene group as root node
+        s->root3D(scene);
+
+        // Save energy
+        sv->doWaitOnIdle(true);
+    }
+    else if (SLApplication::sceneID == SID_SuzanneTexNrmSMAO) //.........................................
+    {
+        // Set scene name and info string
+        s->name("Suzanne with baked ambient occlusion");
+        s->info("Suzanne with diffuse and normal bump map textures, shadow mapping and baked ambient occlusion.");
+
+        // Create a scene group node
+        SLNode* scene = new SLNode("scene node");
+
+        // Create camera in the center
+        SLCamera* cam1 = new SLCamera("Camera 1");
+        cam1->translation(0, 0.5f, 2);
+        cam1->lookAt(0, 0.5f, 0);
+        cam1->setInitialState();
+        cam1->focalDist(2);
+        scene->addChild(cam1);
+
+        // Create directional light for the sun light
+        SLLightDirect* light = new SLLightDirect(s, s, 0.1f);
+        light->ambientPower(1.0f);
+        light->diffusePower(0.8f);
+        light->attenuation(1, 0, 0);
+        light->translate(0, 0, 0.5);
+        light->lookAt(1, -1, 0.5);
+        light->createsShadows(true);
+        light->createShadowMap(-3, 6);
+        light->doSmoothShadows(true);
+        SLAnimation* lightAnim = s->animManager().createNodeAnimation("LightAnim", 4.0f, true, EC_inOutSine, AL_pingPongLoop);
+        lightAnim->createSimpleRotationNodeTrack(light, -180, SLVec3f(0, 1, 0));
+        scene->addChild(light);
+
+        // load teapot
+        SLAssimpImporter importer;
+        SLNode*          suzanneInCube = importer.load(s->animManager(),
+                                              s,
+                                              SLApplication::modelPath + "GLTF/AO-Baked-Test/AO-Baked-Test.gltf",
+                                              SLApplication::texturePath,
+                                              true,    // load meshes only
+                                              nullptr, // override material
+                                              0.5f);   // ambient factor
+
+        // Setup shadow mapping material and replace shader from loader
+        SLGLProgram* progPerPixNrmSM = new SLGLGenericProgram(s,
+                                                              SLApplication::shaderPath + "PerPixBlinnNrmSMAO.vert",
+                                                              SLApplication::shaderPath + "PerPixBlinnNrmSMAO.frag");
+        auto         updateMat       = [=](SLMaterial* mat) { mat->program(progPerPixNrmSM); };
+        suzanneInCube->updateMeshMat(updateMat, true);
+
+        scene->addChild(suzanneInCube);
+
+        sv->camera(cam1);
+
+        // pass the scene group as root node
+        s->root3D(scene);
+
+        // Save energy
+        sv->doWaitOnIdle(true);
+    }
+
     else if (SLApplication::sceneID == SID_VolumeRayCast) //.............................................
     {
         s->name("Volume Ray Cast Test");
@@ -2323,6 +2550,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(cam1);
         s->root3D(scene);
     }
+
     else if (SLApplication::sceneID == SID_AnimationSkeletal) //.........................................
     {
         s->name("Skeletal Animation Test");
@@ -2589,7 +2817,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
     else if (SLApplication::sceneID == SID_AnimationArmy) //.............................................
     {
         s->name("Astroboy Army Test");
-        s->info("Mass animation scene of identitcal Astroboy models");
+        s->info("Mass animation scene of identical Astroboy models");
 
         // Create materials
         SLMaterial* m1 = new SLMaterial(s, "m1", SLCol4f::GRAY);
@@ -2654,6 +2882,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(cam1);
         s->root3D(scene);
     }
+
     else if (SLApplication::sceneID == SID_VideoTextureLive ||
              SLApplication::sceneID == SID_VideoTextureFile) //..........................................
     {
