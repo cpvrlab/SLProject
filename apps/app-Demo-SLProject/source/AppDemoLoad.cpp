@@ -2127,7 +2127,6 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(cam1);
         s->root3D(scene);
     }
-
     else if (SLApplication::sceneID == SID_SuzannePerPix) //.............................................
     {
         // Set scene name and info string
@@ -2409,7 +2408,6 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         // Save energy
         sv->doWaitOnIdle(true);
     }
-
     else if (SLApplication::sceneID == SID_VolumeRayCast) //.............................................
     {
         s->name("Volume Ray Cast Test");
@@ -2882,7 +2880,6 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(cam1);
         s->root3D(scene);
     }
-
     else if (SLApplication::sceneID == SID_VideoTextureLive ||
              SLApplication::sceneID == SID_VideoTextureFile) //..........................................
     {
