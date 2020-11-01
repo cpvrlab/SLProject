@@ -79,8 +79,8 @@ void SLRectangle::buildMesh(SLMaterial* material)
     P.resize((_resX + 1) * (_resY + 1));
     N.clear();
     N.resize(P.size());
-    Tc.clear();
-    Tc.resize(P.size());
+    UV1.clear();
+    UV1.resize(P.size());
 
     if (uIntNumV64 < 65535)
     {
@@ -122,7 +122,7 @@ void SLRectangle::buildMesh(SLMaterial* material)
         for (SLuint x = 0; x <= _resX; ++x, ++i)
         {
             P[i]  = curV;
-            Tc[i] = curT;
+            UV1[i] = curT;
             N[i]  = curN;
             curV += dX;
             curT.x += dS;

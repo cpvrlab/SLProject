@@ -116,6 +116,12 @@ enum SLSceneID
     SID_ShadowMappingPointLights,
     SID_ShadowMappingSpotLights,
 
+    SID_SuzannePerPix,
+    SID_SuzanneTex,
+    SID_SuzanneTexNrm,
+    SID_SuzanneTexNrmSM,
+    SID_SuzanneTexNrmSMAO,
+
     SID_VolumeRayCast,
     SID_VolumeRayCastLighted,
 

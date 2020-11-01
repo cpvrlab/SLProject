@@ -46,15 +46,15 @@ class SLGLProgram;
 //! Texture type enumeration & their filename appendix for auto type detection
 enum SLTextureType
 {
-    TT_unknown,   // will be handled as color maps
-    TT_color,     // diffuse color map (aka albedo or just color map)
-    TT_normal,    // normal map for normal bump mapping
-    TT_height,    // height map for height map bump or parallax mapping
-    TT_gloss,     // specular gloss map
-    TT_roughness, // roughness map (PBR Cook-Torrance roughness 0-1)
-    TT_metallic,  // metalness map (PBR Cook-Torrance metallic 0-1)
-    TT_font,      // texture map for fonts
-    TT_ambientOcc // ambient occlusion map
+    TT_unknown,          // will be handled as color maps
+    TT_diffuse,          // diffuse color map (aka albedo or just color map)
+    TT_normal,           // normal map for normal bump mapping
+    TT_height,           // height map for height map bump or parallax mapping
+    TT_specular,         // specular gloss map
+    TT_ambientOcclusion, // ambient occlusion map
+    TT_roughness,        // roughness map (PBR Cook-Torrance roughness 0-1)
+    TT_metallic,         // metalness map (PBR Cook-Torrance metallic 0-1)
+    TT_font,             // texture map for fonts
 };
 //-----------------------------------------------------------------------------
 //! Texture object for OpenGL texturing

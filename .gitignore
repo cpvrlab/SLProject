@@ -1,27 +1,28 @@
 # Ignored files
 
+*.bak
+*.blend1
+*.db
+*.dll
+*.exe
+*.idb
+*.lib
+*.lnk
+*.log
+*.md5
+*.obj
+*.opendb
+*.opensdf
+*.pdb
+*.psess
+*.sdf
+*.so
+*.spv
 *.suo
-*.vsp
+*.tlog
 *.user
 *.user.*
-*.sdf
-*.opensdf
-*.idb
-*.pdb
-*.obj
-*.md5
-*.dll
-*.lib
-*.exe
-*.opendb
-*.psess
-*.db
-*.so
-*.bak
-*.log
-*.tlog
-*.lnk
-*.spv
+*.vsp
 *.xcuserstate
 *~
 

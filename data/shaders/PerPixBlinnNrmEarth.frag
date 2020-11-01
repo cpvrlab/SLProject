@@ -15,7 +15,7 @@ precision highp float;
 #pragma define NUM_LIGHTS #Lights
 //-----------------------------------------------------------------------------
 in      vec3        v_P_VS;                     // Interpol. point of illum. in view space (VS)
-in      vec2        v_texCoord;                 // Texture coordiante varying
+in      vec2        v_uv1;                      // Texture coordiante varying
 in      vec3        v_eyeDirTS;                 // Vector to the eye in tangent space
 in      vec3        v_lightDirTS[NUM_LIGHTS];   // Vector to the light in tangent space
 in      vec3        v_spotDirTS[NUM_LIGHTS];    // Spot direction in tangent space
@@ -80,16 +80,16 @@ void main()
     ////////////////////////////////////////////////////////////
     // Calculate new texture coord. Tc for Parallax mapping
     // The height comes from red channel from the height map
-    float height = texture(u_matTexture2, v_texCoord.st).r;
+    float height = texture(u_matTexture2, v_uv1.st).r;
    
     // Scale the height and add the bias (height offset)
     height = height * u_scale + u_offset;
    
     // Add the texture offset to the texture coord.
-    vec2 Tc = v_texCoord.st + (height * E.st);
+    vec2 Tc = v_uv1.st + (height * E.st);
 
     // set clouds cord
-    vec2 Wtc = v_texCoord.st;
+    vec2 Wtc = v_uv1.st;
     ////////////////////////////////////////////////////////////
    
     // Get normal from normal map, move from [0,1] to [-1, 1] range & normalize
@@ -136,7 +136,7 @@ void main()
     float night2 = nightInv * nightInv;
    
     //Calculate mixed day night texture 
-    float alpha = texture(u_matTexture5, v_texCoord.st)[0];
+    float alpha = texture(u_matTexture5, v_uv1.st)[0];
     vec4 ground = (texture(u_matTexture6, Tc)*night2 +
                    texture(u_matTexture0, Tc)*(1.0-night2))*alpha;
    

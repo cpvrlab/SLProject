@@ -32,7 +32,7 @@ void SLCoordAxis::buildMesh()
     P.clear();
     N.clear();
     C.clear();
-    Tc.clear();
+    UV1.clear();
     I16.clear();
 
     //Set one default material index

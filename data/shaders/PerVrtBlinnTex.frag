@@ -14,7 +14,7 @@ precision highp float;
 in      vec3        v_P_VS;             // Interpol. point of illum. in view space (VS)
 in      vec4        v_color;            // Interpol. ambient & diff. color
 in      vec4        v_specColor;        // Interpol. specular color
-in      vec2        v_texCoord;         // Interpol. texture coordinate
+in      vec2        v_uv1;              // Interpol. texture coordinate
 
 uniform float       u_oneOverGamma;     // 1.0f / Gamma correction value
 uniform sampler2D   u_matTexture0;      // Color map
@@ -41,7 +41,7 @@ void main()
     o_fragColor = v_color;
    
     // componentwise multiply w. texture color
-    o_fragColor *= texture(u_matTexture0, v_texCoord);
+    o_fragColor *= texture(u_matTexture0, v_uv1);
    
     // add finally the specular RGB part but not alpha
     o_fragColor.rgb += v_specColor.rgb;
