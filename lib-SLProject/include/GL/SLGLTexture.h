@@ -215,7 +215,6 @@ protected:
     CVVImage        _images;        //!< vector of CVImage pointers
     SLuint          _texID;         //!< OpenGL texture ID
     SLTextureType   _texType;       //!< [unknown, ColorMap, NormalMap, HeightMap, GlossMap]
-    SLuint          _uvIndex;       //!< Texture coord. index. Some models have multiple tex. coordinates per vertex
     SLint           _min_filter;    //!< Minification filter
     SLint           _mag_filter;    //!< Magnification filter
     SLint           _wrap_s;        //!< Wrapping in s direction

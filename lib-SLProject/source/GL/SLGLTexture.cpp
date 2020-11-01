@@ -40,7 +40,6 @@ SLGLTexture::SLGLTexture()
 {
     _texID        = 0;
     _texType      = TT_unknown;
-    _uvIndex      = 0;
     _min_filter   = GL_NEAREST;
     _mag_filter   = GL_NEAREST;
     _wrap_s       = GL_REPEAT;
@@ -90,7 +89,6 @@ SLGLTexture::SLGLTexture(SLAssetManager* assetMgr,
     _needsUpdate  = false;
     _bytesOnGPU   = 0;
     _texType      = TT_unknown;
-    _uvIndex      = 0;
 
     // Add pointer to the global resource vectors for deallocation
     if (assetMgr)
@@ -143,7 +141,6 @@ SLGLTexture::SLGLTexture(SLAssetManager* assetMgr,
     _needsUpdate  = false;
     _bytesOnGPU   = 0;
     _texType      = type;
-    _uvIndex      = 0;
 
     _images.push_back(image);
     // Add pointer to the global resource vectors for deallocation
@@ -180,7 +177,6 @@ SLGLTexture::SLGLTexture(SLAssetManager* assetMgr,
     assert(!filename.empty());
 
     _texType = type == TT_unknown ? detectType(filename) : type;
-    _uvIndex = 0;
 
     load(filename);
 
@@ -236,7 +232,6 @@ SLGLTexture::SLGLTexture(SLAssetManager*  assetMgr,
     assert(files.size() > 1);
 
     _texType = TT_diffuse;
-    _uvIndex      = 0;
 
     for (const auto& filename : files)
         load(filename, true, loadGrayscaleIntoAlpha);
@@ -287,7 +282,6 @@ SLGLTexture::SLGLTexture(SLAssetManager* assetMgr,
     assert(colors.size() > 1);
 
     _texType = TT_diffuse;
-    _uvIndex      = 0;
 
     load(colors);
 
@@ -346,7 +340,6 @@ SLGLTexture::SLGLTexture(SLAssetManager* assetMgr,
                          SLTextureType   type) : SLObject(filenameXPos)
 {
     _texType = type == TT_unknown ? detectType(filenameXPos) : type;
-    _uvIndex      = 0;
 
     assert(!filenameXPos.empty());
     assert(!filenameXNeg.empty());

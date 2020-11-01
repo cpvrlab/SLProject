@@ -271,8 +271,7 @@ SLNode* SLAssimpImporter::load(SLAnimManager&  aniMan,         //!< Reference to
                                SLbool          loadMeshesOnly, //!< Only load nodes with meshes
                                SLMaterial*     overrideMat,    //!< Override material
                                float           ambientFactor,  //!< if ambientFactor > 0 ambient = diffuse * AmbientFactor
-                               SLuint          flags           //!< Import flags (see postprocess.h)
-)
+                               SLuint          flags)                   //!< Import flags (see postprocess.h)
 {
     // clear the intermediate data
     clear();
@@ -661,26 +660,18 @@ SLMaterial* SLAssimpImporter::loadMaterial(SLAssetManager* s,
     // Create SLMaterial instance. It is also added to the SLScene::_materials vector
     SLMaterial* mat = new SLMaterial(s, name.c_str());
 
-    // set the texture types to import into our material
-    const SLint   textureCount = 6;
-    aiTextureType textureTypes[textureCount];
-    textureTypes[0] = aiTextureType_DIFFUSE;
-    textureTypes[1] = aiTextureType_NORMALS;
-    textureTypes[2] = aiTextureType_SPECULAR;
-    textureTypes[3] = aiTextureType_HEIGHT;
-    textureTypes[4] = aiTextureType_OPACITY; // Texture with alpha channel
-    textureTypes[5] = aiTextureType_AMBIENT_OCCLUSION;
-
     // load all the textures for this material and add it to the material vector
-    for (auto& textureType : textureTypes)
+    for (int tt = aiTextureType_NONE; tt <= aiTextureType_UNKNOWN; ++tt)
     {
-        if (material->GetTextureCount(textureType) > 0)
+        aiTextureType aiTexType = (aiTextureType)tt;
+
+        if (material->GetTextureCount(aiTexType) > 0)
         {
             aiString         aipath;
             aiTextureMapping mappingType;
             SLuint           uvIndex;
 
-            material->GetTexture(textureType,
+            material->GetTexture(aiTexType,
                                  0,
                                  &aipath,
                                  &mappingType,
@@ -689,17 +680,18 @@ SLMaterial* SLAssimpImporter::loadMaterial(SLAssetManager* s,
                                  nullptr,
                                  nullptr);
 
-            SLTextureType texType = TT_unknown;
+            SLTextureType slTexType = TT_unknown;
 
-            switch (textureType)
+            switch (aiTexType)
             {
-                case aiTextureType_DIFFUSE: texType = TT_diffuse; break;
-                case aiTextureType_NORMALS: texType = TT_normal; break;
-                case aiTextureType_SPECULAR: texType = TT_specular; break;
-                case aiTextureType_HEIGHT: texType = TT_height; break;
-                case aiTextureType_OPACITY: texType = TT_diffuse; break;
-                case aiTextureType_AMBIENT_OCCLUSION: texType = TT_ambientOcclusion; break;
-                case aiTextureType_UNKNOWN: texType = TT_unknown; break;
+                case aiTextureType_DIFFUSE: slTexType = TT_diffuse; break;
+                case aiTextureType_NORMALS: slTexType = TT_normal; break;
+                case aiTextureType_SPECULAR: slTexType = TT_specular; break;
+                case aiTextureType_HEIGHT: slTexType = TT_height; break;
+                case aiTextureType_OPACITY: slTexType = TT_diffuse; break;
+                case aiTextureType_LIGHTMAP: slTexType = TT_ambientOcclusion; break; // glTF stores AO maps as light maps
+                case aiTextureType_AMBIENT_OCCLUSION: slTexType = TT_ambientOcclusion; break;
+                case aiTextureType_UNKNOWN: slTexType = TT_unknown; break;
                 default: break;
             }
 
@@ -707,9 +699,11 @@ SLMaterial* SLAssimpImporter::loadMaterial(SLAssetManager* s,
 
             // Only color texture are loaded so far
             // For normal maps we have to adjust first the normal and tangent generation
-            if (texType == TT_diffuse || texType == TT_normal)
+            if (slTexType == TT_diffuse ||
+                slTexType == TT_normal ||
+                slTexType == TT_ambientOcclusion)
             {
-                SLGLTexture* tex = loadTexture(s, texFile, texType, uvIndex);
+                SLGLTexture* tex = loadTexture(s, texFile, slTexType);
                 mat->textures().push_back(tex);
             }
         }
@@ -747,9 +741,6 @@ SLMaterial* SLAssimpImporter::loadMaterial(SLAssetManager* s,
     mat->specular(SLCol4f(specular.r, specular.g, specular.b));
     mat->emissive(SLCol4f(emissive.r, emissive.g, emissive.b));
     mat->shininess(shininess);
-    //mat->kr(reflectivity);
-    //mat->kt(1.0f-opacity);
-    //mat->kn(refracti);
 
     return mat;
 }
@@ -759,8 +750,7 @@ SLAssimpImporter::loadTexture loads the AssImp texture an returns the SLGLTextur
 */
 SLGLTexture* SLAssimpImporter::loadTexture(SLAssetManager* assetMgr,
                                            SLstring&       textureFile,
-                                           SLTextureType   texType,
-                                           SLuint          uvIndex)
+                                           SLTextureType   texType)
 {
     SLVGLTexture& sceneTex = assetMgr->textures();
 
@@ -886,7 +876,7 @@ SLMesh* SLAssimpImporter::loadMesh(SLAssetManager* assetMgr, aiMesh* mesh)
                         mesh->mNormals[i].z);
         if (!m->UV1.empty())
             m->UV1[i].set(mesh->mTextureCoords[0][i].x,
-                         mesh->mTextureCoords[0][i].y);
+                          mesh->mTextureCoords[0][i].y);
         if (!m->UV2.empty())
             m->UV2[i].set(mesh->mTextureCoords[1][i].x,
                           mesh->mTextureCoords[1][i].y);

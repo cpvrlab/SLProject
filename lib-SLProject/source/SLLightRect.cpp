@@ -45,6 +45,7 @@ SLLightRect::SLLightRect(SLAssetManager* assetMgr,
                                          SLCol4f::BLACK,
                                          SLCol4f::BLACK);
         addMesh(new SLPolygon(assetMgr, w, h, "LightRect Mesh", mat));
+        _castsShadows = false;
     }
     init(s);
 }

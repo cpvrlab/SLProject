@@ -56,10 +56,14 @@
                 "index" : 0,
                 "texCoord" : 0
             },
+            "occlusionTexture" : {
+                "index" : 1,
+                "texCoord" : 1
+            },
             "pbrMetallicRoughness" : {
                 "baseColorTexture" : {
-                    "index" : 1,
-                    "texCoord" : 1
+                    "index" : 2,
+                    "texCoord" : 0
                 },
                 "metallicFactor" : 0,
                 "roughnessFactor" : 1
@@ -74,13 +78,17 @@
             ],
             "name" : "Marble-Suzanne",
             "normalTexture" : {
-                "index" : 2,
+                "index" : 3,
                 "texCoord" : 0
+            },
+            "occlusionTexture" : {
+                "index" : 4,
+                "texCoord" : 1
             },
             "pbrMetallicRoughness" : {
                 "baseColorTexture" : {
-                    "index" : 3,
-                    "texCoord" : 1
+                    "index" : 5,
+                    "texCoord" : 0
                 },
                 "metallicFactor" : 0,
                 "roughnessFactor" : 1
@@ -142,7 +150,13 @@
             "source" : 1
         },
         {
+            "source" : 2
+        },
+        {
             "source" : 0
+        },
+        {
+            "source" : 3
         },
         {
             "source" : 2
@@ -158,6 +172,11 @@
             "mimeType" : "image/jpeg",
             "name" : "BoxPlane_AO",
             "uri" : "BoxPlane_AO.jpg"
+        },
+        {
+            "mimeType" : "image/jpeg",
+            "name" : "Marbel_2K_Albedo",
+            "uri" : "Marbel_2K_Albedo.jpg"
         },
         {
             "mimeType" : "image/jpeg",

@@ -1656,14 +1656,19 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->translation(0, 0.5f, 2);
         cam1->lookAt(0, 0.5f, 0);
         cam1->setInitialState();
+        cam1->focalDist(2);
         scene->addChild(cam1);
 
         // Create directional light for the sun light
         SLLightDirect* light = new SLLightDirect(s, s, 0.5f);
-        light->ambientColor(SLCol4f(0.3f, 0.3f, 0.3f));
+        light->ambientColor(SLCol4f(1, 1, 1));
+        light->ambientPower(1.0f);
         light->attenuation(1, 0, 0);
-        light->translate(1, 1, -1);
-        light->lookAt(-1, -1, 1);
+        light->translate(1, 1, 1);
+        light->lookAt(-1, -1, -1);
+        light->createsShadows(true);
+        light->createShadowMap(-1, 6);
+        light->doSmoothShadows(true);
         scene->addChild(light);
 
         // load teapot
@@ -1672,7 +1677,17 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                                               s,
                                               SLApplication::modelPath + "GLTF/AO-Baked-Test/AO-Baked-Test.gltf",
                                               SLApplication::texturePath,
-                                              true);
+                                              true,    // load meshes only
+                                              nullptr, // override material
+                                              0.5f);   // ambient factor
+
+        // Setup shadow mapping material and replace shader from loader
+        SLGLProgram* progPerPixNrmSM = new SLGLGenericProgram(s,
+                                                              SLApplication::shaderPath + "PerPixBlinnNrmSM.vert",
+                                                              SLApplication::shaderPath + "PerPixBlinnNrmSM.frag");
+        auto         updateMat       = [=](SLMaterial* mat) { mat->program(progPerPixNrmSM); };
+        suzanneInCube->updateMeshMat(updateMat, true);
+
         scene->addChild(suzanneInCube);
 
         sv->camera(cam1);
@@ -4070,7 +4085,6 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         rect->rotate(90, -1, 0, 0);
         rect->translate(0, 0, -0.5f);
         rect->castsShadows(false);
-
 
         SLLightSpot* light1 = new SLLightSpot(s, s, 2, 2, 2, 0.3f);
         light1->samples(8, 8);
