@@ -1269,7 +1269,7 @@ SLbool SLMesh::hitTriangleOS(SLRay* ray, SLNode* node, SLuint iT)
         return false;
 
     SLVec3f cornerA, cornerB, cornerC;
-    SLVec3f e1, e2;  // edge 1 and 2
+    SLVec3f e1, e2; // edge 1 and 2
     SLVec3f AO, K, Q;
 
     // get the corner vertices
@@ -1419,7 +1419,7 @@ void SLMesh::preShade(SLRay* ray)
         SLVec2f Tu(UV1[iB] - UV1[iA]);
         SLVec2f Tv(UV1[iC] - UV1[iA]);
         SLVec2f tc(UV1[iA] + ray->hitU * Tu + ray->hitV * Tv);
-        ray->hitColor.set(textures[0]->getTexelf(tc.x, tc.y));
+        ray->hitTexColor.set(textures[0]->getTexelf(tc.x, tc.y));
 
         // bump mapping
         if (textures.size() > 1)
@@ -1433,15 +1433,28 @@ void SLMesh::preShade(SLRay* ray)
 
                 SLVec3f T3(hitT.x, hitT.y, hitT.z);           // tangent with 3 components
                 T3.set(ray->hitNode->updateAndGetWMN() * T3); // transform tangent back to world space
-                SLVec2f d   = textures[1]->dsdt(tc.x, tc.y);  // slope of bumpmap at tc
+                SLVec2f d   = textures[1]->dsdt(tc.x, tc.y);  // slope of bump-map at tc
                 SLVec3f Nrm = ray->hitNormal;                 // unperturbated normal
-                SLVec3f B(Nrm ^ T3);                          // binormal tangent B
+                SLVec3f B(Nrm ^ T3);                          // bi-normal tangent B
                 B *= T[iA].w;                                 // correct handedness
                 SLVec3f D(d.x * T3 + d.y * B);                // perturbation vector D
                 Nrm += D;
                 Nrm.normalize();
                 ray->hitNormal.set(Nrm);
             }
+        }
+
+        // Get ambient occlusion
+        if (!UV2.empty())
+        {
+            SLVec2f Tu2(UV2[iB] - UV2[iA]);
+            SLVec2f Tv2(UV2[iC] - UV2[iA]);
+            SLVec2f tc2(UV2[iA] + ray->hitU * Tu2 + ray->hitV * Tv2);
+
+            if (textures.size() > 1 && textures[1]->texType() == TT_ambientOcclusion)
+                ray->hitAO = textures[1]->getTexelf(tc2.x, tc2.y).r;
+            if (textures.size() > 2 && textures[2]->texType() == TT_ambientOcclusion)
+                ray->hitAO = textures[2]->getTexelf(tc2.x, tc2.y).r;
         }
     }
 
@@ -1451,7 +1464,7 @@ void SLMesh::preShade(SLRay* ray)
         SLCol4f CA = ray->hitMesh->C[iA];
         SLCol4f CB = ray->hitMesh->C[iB];
         SLCol4f CC = ray->hitMesh->C[iC];
-        ray->hitColor.set(CA * (1 - (ray->hitU + ray->hitV)) +
+        ray->hitTexColor.set(CA * (1 - (ray->hitU + ray->hitV)) +
                           CB * ray->hitU +
                           CC * ray->hitV);
     }
