@@ -72,6 +72,7 @@ private:
                                      SLSceneView*    sv,
                                      SLNodeEditMode  editMode);
     static void removeTransformNode(SLProjectScene* s);
+    
 };
 //-----------------------------------------------------------------------------
 #endif

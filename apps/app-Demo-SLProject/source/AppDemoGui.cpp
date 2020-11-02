@@ -958,8 +958,8 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
             sprintf(m + strlen(m), "Yaw   (deg)      : %3.1f\n", SLApplication::devRot.yawDEG());
             sprintf(m + strlen(m), "Roll  (deg)      : %3.1f\n", SLApplication::devRot.rollDEG());
             sprintf(m + strlen(m), "No. averaged     : %d\n", SLApplication::devRot.numAveraged());
-            sprintf(m + strlen(m), "Pitch Offset(deg): %3.1f\n", SLApplication::devRot.pitchOffsetDEG());
-            sprintf(m + strlen(m), "Yaw   Offset(deg): %3.1f\n", SLApplication::devRot.yawOffsetDEG());
+            //sprintf(m + strlen(m), "Pitch Offset(deg): %3.1f\n", SLApplication::devRot.pitchOffsetDEG());
+            //sprintf(m + strlen(m), "Yaw   Offset(deg): %3.1f\n", SLApplication::devRot.yawOffsetDEG());
             sprintf(m + strlen(m), "Offset mode      : %s\n", SLApplication::devRot.offsetModeStr().c_str());
             sprintf(m + strlen(m), "------------------\n");
             sprintf(m + strlen(m), "Uses GPS Sensor  : %s\n", SLApplication::devLoc.isUsed() ? "yes" : "no");
@@ -1608,7 +1608,7 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
             ImGui::Separator();
 
             // Rotation and Location Sensor
-#if defined(SL_OS_ANDROID) || defined(SL_OS_IOS)
+#if defined(SL_OS_ANDROID) || defined(SL_OS_MACIOS)
             if (ImGui::BeginMenu("Rotation Sensor"))
             {
                 SLDeviceRotation& devRot = SLApplication::devRot;
@@ -1627,10 +1627,14 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                         SLOffsetMode om = devRot.offsetMode();
                         if (ImGui::MenuItem("None", nullptr, om==OM_none))
                             devRot.offsetMode(OM_none);
-                        if (ImGui::MenuItem("Finger X", nullptr, om==OM_fingerX))
+                        if (ImGui::MenuItem("Finger rot. X", nullptr, om==OM_fingerX))
                             devRot.offsetMode(OM_fingerX);
-                        if (ImGui::MenuItem("Finger X and Y", nullptr, om==OM_fingerXY))
+                        if (ImGui::MenuItem("Finger rot. X and Y", nullptr, om==OM_fingerXY))
                             devRot.offsetMode(OM_fingerXY);
+                        if (ImGui::MenuItem("Finger trans. Y", nullptr, om==OM_fingerYTrans))
+                            devRot.offsetMode(OM_fingerYTrans);
+                        if (ImGui::MenuItem("Finger rot. X and trans. Y", nullptr, om==OM_fingerXRotYTrans))
+                            devRot.offsetMode(OM_fingerXRotYTrans);
                         if (ImGui::MenuItem("Auto X", nullptr, om==OM_autoX))
                             devRot.offsetMode(OM_fingerX);
                         if (ImGui::MenuItem("Auto X and Y", nullptr, om==OM_autoXY))

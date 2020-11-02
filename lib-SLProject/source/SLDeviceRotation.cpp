@@ -17,9 +17,9 @@ void SLDeviceRotation::init()
 {
     _rotation.identity();
     _pitchRAD           = 0.0f;
-    _pitchOffsetRAD     = 0.0f;
+    //_pitchOffsetRAD     = 0.0f;
     _yawRAD             = 0.0f;
-    _yawOffsetRAD       = 0.0f;
+    //_yawOffsetRAD       = 0.0f;
     _rollRAD            = 0.0f;
     _rotationAvg.init(3, SLMat3f());
     _zeroYawAtStart     = true;
@@ -28,6 +28,8 @@ void SLDeviceRotation::init()
     _isUsed             = false;
     _offsetMode         = OM_fingerX;
     _offsetScale        = 0.05f;
+    
+    _enucorrRenu.identity();
 }
 //-----------------------------------------------------------------------------
 /*! onRotationQUAT: Event handler for rotation change of a mobile device from a
