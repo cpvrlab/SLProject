@@ -120,7 +120,7 @@ public:
 
 private:
     SLfloat     _radius;  //!< The sphere lights radius
-    SLSamples2D _samples; //!< 2D samplepoints for soft shadows
+    SLSamples2D _samples; //!< 2D sample points for soft shadows
 };
 //-----------------------------------------------------------------------------
 #endif

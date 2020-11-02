@@ -10,25 +10,25 @@
 precision highp float;
 
 //-----------------------------------------------------------------------------
-layout (location = 0) in vec4  a_position;     // Vertex position attribute
-layout (location = 1) in vec3  a_normal;       // Vertex normal attribute
-layout (location = 2) in vec2  a_texCoord;     // Vertex texture attribute
+layout (location = 0) in vec4  a_position;  // Vertex position attribute
+layout (location = 1) in vec3  a_normal;    // Vertex normal attribute
+layout (location = 2) in vec2  a_uv1;       // Vertex texture attribute
 
-uniform mat4   u_mvMatrix;          // modelview matrix 
-uniform mat3   u_nMatrix;           // normal matrix=transpose(inverse(mv))
-uniform mat4   u_mvpMatrix;         // = projection * modelView
+uniform mat4   u_mvMatrix;      // modelview matrix
+uniform mat3   u_nMatrix;       // normal matrix=transpose(inverse(mv))
+uniform mat4   u_mvpMatrix;     // = projection * modelView
 
-uniform bool   u_lightIsOn[8];      // flag if light is on
-uniform vec4   u_lightPosVS[8];     // position of light in view space
-uniform vec4   u_lightAmbi[8];   // ambient light intensity (Ia)
-uniform vec4   u_lightDiff[8];   // diffuse light intensity (Id)
-uniform vec4   u_globalAmbi;     // Global ambient scene color
+uniform bool   u_lightIsOn[8];  // flag if light is on
+uniform vec4   u_lightPosVS[8]; // position of light in view space
+uniform vec4   u_lightAmbi[8];  // ambient light intensity (Ia)
+uniform vec4   u_lightDiff[8];  // diffuse light intensity (Id)
+uniform vec4   u_globalAmbi;    // Global ambient scene color
 
-uniform vec4   u_matAmbi;        // ambient color reflection coefficient (ka)
-uniform vec4   u_matDiff;        // diffuse color reflection coefficient (kd)
+uniform vec4   u_matAmbi;       // ambient color reflection coefficient (ka)
+uniform vec4   u_matDiff;       // diffuse color reflection coefficient (kd)
 
-out     vec4   v_color;             // Ambient & diffuse color at vertex
-out     vec2   v_texCoord;          // texture coordinate at vertex
+out     vec4   v_color;         // Ambient & diffuse color at vertex
+out     vec2   v_uv1;           // texture coordinate at vertex
 //-----------------------------------------------------------------------------
 void main()
 {     
@@ -40,7 +40,7 @@ void main()
    float diffFactor = max(dot(N,L), 0.0);
    
    // Set the texture coord. output for interpolated tex. coords.
-   v_texCoord = a_texCoord.xy;
+   v_uv1 = a_uv1.xy;
    
    // Sum up all the reflected color components except the specular
    v_color =  u_globalAmbi +

@@ -20,7 +20,7 @@ precision highp float;
 in      vec3        v_P_VS;     // Interpol. point of illum. in view space (VS)
 in      vec3        v_P_WS;     // Interpol. point of illum. in world space (WS)
 in      vec3        v_N_VS;     // Interpol. normal at v_P_VS in view space
-in      vec2        v_texCoord; // interpol. texture coordinate
+in      vec2        v_uv1;      // Interpol. texture coordinate
 
 uniform bool        u_lightIsOn[NUM_LIGHTS];                // flag if light is on
 uniform vec4        u_lightPosWS[NUM_LIGHTS];               // position of light in world space

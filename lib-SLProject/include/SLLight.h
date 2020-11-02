@@ -119,8 +119,8 @@ public:
     }
     void createsShadows(SLbool createsShadows);
     void shadowMap(SLShadowMap* shadowMap) { _shadowMap = shadowMap; }
-    void doSmoothShadows(SLbool doSS) { _doSmoothShadows = doSS; }
-    void smoothShadowLevel(SLuint ssLevel) { _smoothShadowLevel = ssLevel; }
+    void doSmoothShadows(SLbool doSS) { _doSoftShadows = doSS; }
+    void smoothShadowLevel(SLuint ssLevel) { _softShadowLevel = ssLevel; }
     void shadowMinBias(SLfloat minBias) { _shadowMinBias = minBias; }
     void shadowMaxBias(SLfloat maxBias) { _shadowMaxBias = maxBias; }
 
@@ -143,8 +143,8 @@ public:
     SLfloat      attenuation(SLfloat dist) const { return 1.0f / (_kc + _kl * dist + _kq * dist * dist); }
     SLbool       createsShadows() const { return _createsShadows; }
     SLShadowMap* shadowMap() { return _shadowMap; }
-    SLbool       doSmoothShadows() const { return _doSmoothShadows; }
-    SLuint       smoothShadowLevel() const { return _smoothShadowLevel; }
+    SLbool       doSoftShadows() const { return _doSoftShadows; }
+    SLuint       softShadowLevel() const { return _softShadowLevel; }
     SLfloat      shadowMinBias() const { return _shadowMinBias; }
     SLfloat      shadowMaxBias() const { return _shadowMaxBias; }
 
@@ -195,27 +195,27 @@ public:
     static SLfloat gamma; //!< final output gamma value
 
 protected:
-    SLint        _id;                //!< OpenGL light number (0-7)
-    SLbool       _isOn;              //!< Flag if light is on or off
-    SLCol4f      _ambientColor;      //!< Ambient light color (RGB 0-1)
-    SLfloat      _ambientPower;      //!< Ambient light power (0-N)
-    SLCol4f      _diffuseColor;      //!< Diffuse light color (RGB 0-1)
-    SLfloat      _diffusePower;      //!< Diffuse light power (0-N)
-    SLCol4f      _specularColor;     //!< Specular light color (RGB 0-1)
-    SLfloat      _specularPower;     //!< Specular light power (0-N)
-    SLfloat      _spotCutOffDEG;     //!< Half the spot cone angle
-    SLfloat      _spotCosCutOffRAD;  //!< cosine of spotCutoff angle
-    SLfloat      _spotExponent;      //!< Spot attenuation from center to edge of cone
-    SLfloat      _kc;                //!< Constant light attenuation
-    SLfloat      _kl;                //!< Linear light attenuation
-    SLfloat      _kq;                //!< Quadratic light attenuation
-    SLbool       _isAttenuated;      //!< fast attenuation flag for ray tracing
-    SLbool       _createsShadows;    //!< flag if light creates shadows or not
-    SLShadowMap* _shadowMap;         //!< Used for shadow mapping
-    SLbool       _doSmoothShadows;   //!< flag if percentage-closer filtering for smooth shadows is enabled
-    SLuint       _smoothShadowLevel; //!< Radius to smoothing (1 = 3 * 3; 2 = 5 * 5; ...)
-    SLfloat      _shadowMinBias;     //!< Min. bias at 0 deg. to use to prevent shadow acne
-    SLfloat      _shadowMaxBias;     //!< Max. bias at 90 deg. to use to prevent shadow acne
+    SLint        _id;               //!< OpenGL light number (0-7)
+    SLbool       _isOn;             //!< Flag if light is on or off
+    SLCol4f      _ambientColor;     //!< Ambient light color (RGB 0-1)
+    SLfloat      _ambientPower;     //!< Ambient light power (0-N)
+    SLCol4f      _diffuseColor;     //!< Diffuse light color (RGB 0-1)
+    SLfloat      _diffusePower;     //!< Diffuse light power (0-N)
+    SLCol4f      _specularColor;    //!< Specular light color (RGB 0-1)
+    SLfloat      _specularPower;    //!< Specular light power (0-N)
+    SLfloat      _spotCutOffDEG;    //!< Half the spot cone angle
+    SLfloat      _spotCosCutOffRAD; //!< cosine of spotCutoff angle
+    SLfloat      _spotExponent;     //!< Spot attenuation from center to edge of cone
+    SLfloat      _kc;               //!< Constant light attenuation
+    SLfloat      _kl;               //!< Linear light attenuation
+    SLfloat      _kq;               //!< Quadratic light attenuation
+    SLbool       _isAttenuated;     //!< fast attenuation flag for ray tracing
+    SLbool       _createsShadows;   //!< flag if light creates shadows or not
+    SLShadowMap* _shadowMap;        //!< Used for shadow mapping
+    SLbool       _doSoftShadows;    //!< flag if percentage-closer filtering for smooth shadows is enabled
+    SLuint       _softShadowLevel;  //!< Radius to smoothing (1 = 3 * 3; 2 = 5 * 5; ...)
+    SLfloat      _shadowMinBias;    //!< Min. bias at 0 deg. to use to prevent shadow acne
+    SLfloat      _shadowMaxBias;    //!< Max. bias at 90 deg. to use to prevent shadow acne
 };
 //-----------------------------------------------------------------------------
 //! STL vector of light pointers

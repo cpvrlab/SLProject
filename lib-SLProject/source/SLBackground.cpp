@@ -198,7 +198,7 @@ void SLBackground::render(SLint widthPX, SLint heightPX)
             if (_texture)
             { // Float array of texture coordinates
                 SLVVec2f T = {{0.0f, 1.0f}, {0.0f, 0.0f}, {1.0f, 1.0f}, {1.0f, 0.0f}};
-                _vao.setAttrib(AT_texCoord, AT_texCoord, &T);
+                _vao.setAttrib(AT_uv1, AT_uv1, &T);
                 _vao.generate(4);
             }
             else
@@ -265,7 +265,7 @@ void SLBackground::renderInScene(const SLVec3f& LT,
     if (_texture)
     { // Float array of texture coordinates
         SLVVec2f T = {{0.0f, 1.0f}, {0.0f, 0.0f}, {1.0f, 1.0f}, {1.0f, 0.0f}};
-        _vao.setAttrib(AT_texCoord, AT_texCoord, &T);
+        _vao.setAttrib(AT_uv1, AT_uv1, &T);
         _vao.generate(4);
     }
     else
@@ -470,7 +470,7 @@ void SLBackground::defineWithBars()
           {1.0f, bHO + bHS},       //10
           {1.0f, bHO}};            //11
 
-        _vao.setAttrib(AT_texCoord, AT_texCoord, &T);
+        _vao.setAttrib(AT_uv1, AT_uv1, &T);
         _vao.generate(12);
     }
     else
@@ -522,7 +522,7 @@ void SLBackground::defineWithBars()
           {bO, 1.0f - bHS},       //9
           {bO + bWS, 1.0f},       //10
           {bO, 1.0f}};            //11
-        _vao.setAttrib(AT_texCoord, AT_texCoord, &T);
+        _vao.setAttrib(AT_uv1, AT_uv1, &T);
         _vao.generate(12);
     }
 }

@@ -231,7 +231,7 @@ SLGLTexture::SLGLTexture(SLAssetManager*  assetMgr,
 {
     assert(files.size() > 1);
 
-    _texType = TT_color;
+    _texType = TT_diffuse;
 
     for (const auto& filename : files)
         load(filename, true, loadGrayscaleIntoAlpha);
@@ -281,7 +281,7 @@ SLGLTexture::SLGLTexture(SLAssetManager* assetMgr,
 {
     assert(colors.size() > 1);
 
-    _texType = TT_color;
+    _texType = TT_diffuse;
 
     load(colors);
 
@@ -929,7 +929,7 @@ void SLGLTexture::drawSprite(SLbool doUpdate, SLfloat x, SLfloat y, SLfloat w, S
         SLGLProgram* sp = SLGLProgramManager::get(SP_TextureOnly);
         sp->useProgram();
         _vaoSprite.setAttrib(AT_position, AT_position, &P);
-        _vaoSprite.setAttrib(AT_texCoord, AT_texCoord, &T);
+        _vaoSprite.setAttrib(AT_uv1, AT_uv1, &T);
         _vaoSprite.setIndices(&I, nullptr);
         _vaoSprite.generate(4);
     }
@@ -1022,10 +1022,12 @@ SLTextureType SLGLTexture::detectType(const SLstring& filename)
     // Check first our own texture name encoding
     SLstring name     = Utils::getFileNameWOExt(filename);
     SLstring appendix = name.substr(name.length() - 2, 2);
-    if (appendix == "_C") return TT_color;
+    if (appendix == "_C") return TT_diffuse;
+    if (appendix == "_D") return TT_diffuse;
     if (appendix == "_N") return TT_normal;
     if (appendix == "_H") return TT_height;
-    if (appendix == "_G") return TT_gloss;
+    if (appendix == "_G") return TT_specular;
+    if (appendix == "_S") return TT_specular;
     if (appendix == "_R") return TT_roughness;
     if (appendix == "_M") return TT_metallic;
     if (appendix == "_F") return TT_font;
@@ -1039,7 +1041,7 @@ SLTextureType SLGLTexture::detectType(const SLstring& filename)
         Utils::containsString(name, "DIFFUSE") ||
         Utils::containsString(name, "DIFF") ||
         Utils::containsString(name, "DIF"))
-        return TT_color;
+        return TT_diffuse;
 
     if (Utils::containsString(name, "NRM") ||
         Utils::containsString(name, "NORM") ||
@@ -1056,7 +1058,7 @@ SLTextureType SLGLTexture::detectType(const SLstring& filename)
         Utils::containsString(name, "REFL") ||
         Utils::containsString(name, "SPECULAR") ||
         Utils::containsString(name, "SPEC"))
-        return TT_gloss;
+        return TT_specular;
 
     if (Utils::containsString(name, "ROUGHNESS") ||
         Utils::containsString(name, "RGH") ||
@@ -1073,13 +1075,13 @@ SLTextureType SLGLTexture::detectType(const SLstring& filename)
         Utils::containsString(name, "OCCLUSION") ||
         Utils::containsString(name, "OCCL") ||
         Utils::containsString(name, "OCC"))
-        return TT_ambientOcc;
+        return TT_ambientOcclusion;
 
     // if nothing was detected so far we interpret it as a color texture
     //SLstring msg = Utils::formatString("SLGLTexture::detectType: No type detected in file: %s", filename.c_str());
     //SL_WARN_MSG(msg.c_str());
 
-    return TT_color;
+    return TT_diffuse;
 }
 //-----------------------------------------------------------------------------
 void SLGLTexture::build2DMipmaps(SLint target, SLuint index)
@@ -1136,15 +1138,16 @@ SLstring SLGLTexture::typeName()
 {
     switch (_texType)
     {
-        case TT_unknown: return "Unknown type";
-        case TT_color: return "color map";
-        case TT_normal: return "normal map";
-        case TT_height: return "hight map";
-        case TT_gloss: return "gloss map";
-        case TT_roughness: return "roughness map";
-        case TT_metallic: return "metalness map";
-        case TT_font: return "font map"; ;
-        default: return "Unknown type";
+        case TT_unknown: return "unknown";
+        case TT_diffuse: return "diffuse";
+        case TT_normal: return "normal";
+        case TT_height: return "height";
+        case TT_specular: return "specular";
+        case TT_roughness: return "roughness";
+        case TT_metallic: return "metalness";
+        case TT_ambientOcclusion: return "ambient occlusion";
+        case TT_font: return "font"; ;
+        default: return "unknown";
     }
 }
 //-----------------------------------------------------------------------------

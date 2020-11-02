@@ -1331,6 +1331,22 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                     ImGui::EndMenu();
                 }
 
+                if (ImGui::BeginMenu("Suzanne"))
+                {
+                    if (ImGui::MenuItem("Per Pixel Lighting", nullptr, sid == SID_SuzannePerPix))
+                        s->onLoad(s, sv, SID_SuzannePerPix);
+                    if (ImGui::MenuItem("With Texture Map", nullptr, sid == SID_SuzanneTex))
+                        s->onLoad(s, sv, SID_SuzanneTex);
+                    if (ImGui::MenuItem("With Normal Map", nullptr, sid == SID_SuzanneTexNrm))
+                        s->onLoad(s, sv, SID_SuzanneTexNrm);
+                    if (ImGui::MenuItem("With Shadows", nullptr, sid == SID_SuzanneTexNrmSM))
+                        s->onLoad(s, sv, SID_SuzanneTexNrmSM);
+                    if (ImGui::MenuItem("With Ambient Occlusion", nullptr, sid == SID_SuzanneTexNrmSMAO))
+                        s->onLoad(s, sv, SID_SuzanneTexNrmSMAO);
+                    ImGui::EndMenu();
+                }
+
+
                 if (ImGui::BeginMenu("Animation"))
                 {
                     if (ImGui::MenuItem("Node Animation", nullptr, sid == SID_AnimationNode))
@@ -2867,11 +2883,11 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
 
                                     if (!shadowMap->useCubemap())
                                     {
-                                        SLbool doesSmoothShadows = light->doSmoothShadows();
+                                        SLbool doesSmoothShadows = light->doSoftShadows();
                                         if (ImGui::Checkbox("Smooth shadows enabled", &doesSmoothShadows))
                                             light->doSmoothShadows(doesSmoothShadows);
 
-                                        SLuint pcfLevel = light->smoothShadowLevel();
+                                        SLuint pcfLevel = light->softShadowLevel();
                                         if (ImGui::SliderInt("Smoothing level", (SLint*)&pcfLevel, 1, 3))
                                             light->smoothShadowLevel(pcfLevel);
                                     }

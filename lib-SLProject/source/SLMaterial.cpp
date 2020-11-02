@@ -31,7 +31,7 @@ SLfloat SLMaterial::PERFECT = 1000.0f;
  @param spec Specular color
  @param shininess Shininess exponent (the higher the sharper the gloss)
  @param kr Reflection coefficient used for ray tracing. (0.0-1.0)
- @param kt Tranparency coeffitient used for ray tracing. (0.0-1.0)
+ @param kt Transparency coefficient used for ray tracing. (0.0-1.0)
  @param kn Refraction index used for ray tracing (1.0-2.5)
  @param program Pointer to the shader program for the material
  @param compileErrorTexFilePath Path to an error texture

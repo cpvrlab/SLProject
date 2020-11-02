@@ -120,7 +120,22 @@ void SLSceneView::init(SLstring           name,
 void SLSceneView::unInit()
 {
     _camera = &_sceneViewCamera;
-    _skybox = nullptr;
+    _skybox = nullptr;    // enables and modes
+    _mouseDownL = false;
+    _mouseDownR = false;
+    _mouseDownM = false;
+    _touchDowns = 0;
+
+    _renderType = RT_gl;
+
+    _doDepthTest      = true;
+    _doMultiSampling  = true; // true=OpenGL multisampling is turned on
+    _doFrustumCulling = true; // true=enables view frustum culling
+    _doWaitOnIdle     = true;
+    _drawBits.allOff();
+
+    _stats2D.clear();
+    _stats3D.clear();
 }
 //-----------------------------------------------------------------------------
 /*!

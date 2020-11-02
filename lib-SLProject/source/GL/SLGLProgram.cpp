@@ -367,8 +367,8 @@ void SLGLProgram::passLightsToUniforms(SLVLight* lights) const
             lightAtt[i]               = SLVec3f(light->kc(), light->kl(), light->kq());
             lightDoAtt[i]             = light->isAttenuated();
             lightCreatesShadows[i]    = light->createsShadows();
-            lightDoSmoothShadows[i]   = light->doSmoothShadows();
-            lightSmoothShadowLevel[i] = light->smoothShadowLevel();
+            lightDoSmoothShadows[i]   = light->doSoftShadows();
+            lightSmoothShadowLevel[i] = light->softShadowLevel();
             lightShadowMinBias[i]     = light->shadowMinBias();
             lightShadowMaxBias[i]     = light->shadowMaxBias();
             lightUsesCubemap[i]       = shadowMap && shadowMap->useCubemap() ? 1 : 0;

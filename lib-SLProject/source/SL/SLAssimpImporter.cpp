@@ -8,24 +8,19 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include <stdafx.h> // Must be the 1st include followed by  an empty line
-
 #include <iomanip>
 #include <Utils.h>
 
 #include <SLAnimation.h>
 #include <SLAssimpImporter.h>
-#include <SLGLProgram.h>
 #include <SLGLTexture.h>
 #include <SLMaterial.h>
 #include <SLSkeleton.h>
-#include <SLGLTexture.h>
 #include <SLAssetManager.h>
 #include <SLAnimManager.h>
 
 // assimp is only included in the source file to not expose it to the rest of the framework
 #include <assimp/Importer.hpp>
-#include <assimp/postprocess.h>
 #include <assimp/scene.h>
 
 //-----------------------------------------------------------------------------
@@ -276,8 +271,7 @@ SLNode* SLAssimpImporter::load(SLAnimManager&  aniMan,         //!< Reference to
                                SLbool          loadMeshesOnly, //!< Only load nodes with meshes
                                SLMaterial*     overrideMat,    //!< Override material
                                float           ambientFactor,  //!< if ambientFactor > 0 ambient = diffuse * AmbientFactor
-                               SLuint          flags           //!< Import flags (see postprocess.h)
-)
+                               SLuint          flags)                   //!< Import flags (see postprocess.h)
 {
     // clear the intermediate data
     clear();
@@ -666,40 +660,50 @@ SLMaterial* SLAssimpImporter::loadMaterial(SLAssetManager* s,
     // Create SLMaterial instance. It is also added to the SLScene::_materials vector
     SLMaterial* mat = new SLMaterial(s, name.c_str());
 
-    // set the texture types to import into our material
-    const SLint   textureCount = 5;
-    aiTextureType textureTypes[textureCount];
-    textureTypes[0] = aiTextureType_DIFFUSE;
-    textureTypes[1] = aiTextureType_NORMALS;
-    textureTypes[2] = aiTextureType_SPECULAR;
-    textureTypes[3] = aiTextureType_HEIGHT;
-    textureTypes[4] = aiTextureType_OPACITY; // Texture with alpha channel
-
     // load all the textures for this material and add it to the material vector
-    for (auto& textureType : textureTypes)
+    for (int tt = aiTextureType_NONE; tt <= aiTextureType_UNKNOWN; ++tt)
     {
-        if (material->GetTextureCount(textureType) > 0)
+        aiTextureType aiTexType = (aiTextureType)tt;
+
+        if (material->GetTextureCount(aiTexType) > 0)
         {
-            aiString aipath;
-            material->GetTexture(textureType, 0, &aipath, nullptr, nullptr, nullptr, nullptr, nullptr);
-            SLTextureType texType = textureType == aiTextureType_DIFFUSE
-                                      ? TT_color
-                                    : textureType == aiTextureType_NORMALS
-                                      ? TT_normal
-                                    : textureType == aiTextureType_SPECULAR
-                                      ? TT_gloss
-                                    : textureType == aiTextureType_HEIGHT
-                                      ? TT_height
-                                    : textureType == aiTextureType_OPACITY
-                                      ? TT_color
-                                      : TT_unknown;
-            SLstring      texFile = checkFilePath(modelPath, texturePath, aipath.data);
+            aiString         aipath;
+            aiTextureMapping mappingType;
+            SLuint           uvIndex;
+
+            material->GetTexture(aiTexType,
+                                 0,
+                                 &aipath,
+                                 &mappingType,
+                                 &uvIndex,
+                                 nullptr,
+                                 nullptr,
+                                 nullptr);
+
+            SLTextureType slTexType = TT_unknown;
+
+            switch (aiTexType)
+            {
+                case aiTextureType_DIFFUSE: slTexType = TT_diffuse; break;
+                case aiTextureType_NORMALS: slTexType = TT_normal; break;
+                case aiTextureType_SPECULAR: slTexType = TT_specular; break;
+                case aiTextureType_HEIGHT: slTexType = TT_height; break;
+                case aiTextureType_OPACITY: slTexType = TT_diffuse; break;
+                case aiTextureType_LIGHTMAP: slTexType = TT_ambientOcclusion; break; // glTF stores AO maps as light maps
+                case aiTextureType_AMBIENT_OCCLUSION: slTexType = TT_ambientOcclusion; break;
+                case aiTextureType_UNKNOWN: slTexType = TT_unknown; break;
+                default: break;
+            }
+
+            SLstring texFile = checkFilePath(modelPath, texturePath, aipath.data);
 
             // Only color texture are loaded so far
             // For normal maps we have to adjust first the normal and tangent generation
-            if (texType == TT_color || texType == TT_normal)
+            if (slTexType == TT_diffuse ||
+                slTexType == TT_normal ||
+                slTexType == TT_ambientOcclusion)
             {
-                SLGLTexture* tex = loadTexture(s, texFile, texType);
+                SLGLTexture* tex = loadTexture(s, texFile, slTexType);
                 mat->textures().push_back(tex);
             }
         }
@@ -737,9 +741,6 @@ SLMaterial* SLAssimpImporter::loadMaterial(SLAssetManager* s,
     mat->specular(SLCol4f(specular.r, specular.g, specular.b));
     mat->emissive(SLCol4f(emissive.r, emissive.g, emissive.b));
     mat->shininess(shininess);
-    //mat->kr(reflectivity);
-    //mat->kt(1.0f-opacity);
-    //mat->kn(refracti);
 
     return mat;
 }
@@ -837,22 +838,30 @@ SLMesh* SLAssimpImporter::loadMesh(SLAssetManager* assetMgr, aiMesh* mesh)
     if (numLines) m->primitive(SLGLPrimitiveType::PT_lines);
     if (numPoints) m->primitive(SLGLPrimitiveType::PT_points);
 
-    // create position & normal vector
+    // Create position & normal vector
     m->P.clear();
     m->P.resize(mesh->mNumVertices);
 
-    // create normal vector for triangle primitive types
+    // Create normal vector for triangle primitive types
     if (mesh->HasNormals() && numTriangles)
     {
         m->N.clear();
         m->N.resize(m->P.size());
     }
 
-    // allocate texCoord vector if needed
+    // Allocate 1st texCoord vector if needed
     if (mesh->HasTextureCoords(0) && numTriangles)
     {
-        m->Tc.clear();
-        m->Tc.resize(m->P.size());
+        m->UV1.clear();
+        m->UV1.resize(m->P.size());
+    }
+
+    // Allocate 2nd texCoord vector if needed
+    // Some models use multiple textures with different uv's
+    if (mesh->HasTextureCoords(1) && numTriangles)
+    {
+        m->UV2.clear();
+        m->UV2.resize(m->P.size());
     }
 
     // copy vertex positions & texCoord
@@ -865,9 +874,12 @@ SLMesh* SLAssimpImporter::loadMesh(SLAssetManager* assetMgr, aiMesh* mesh)
             m->N[i].set(mesh->mNormals[i].x,
                         mesh->mNormals[i].y,
                         mesh->mNormals[i].z);
-        if (!m->Tc.empty())
-            m->Tc[i].set(mesh->mTextureCoords[0][i].x,
-                         mesh->mTextureCoords[0][i].y);
+        if (!m->UV1.empty())
+            m->UV1[i].set(mesh->mTextureCoords[0][i].x,
+                          mesh->mTextureCoords[0][i].y);
+        if (!m->UV2.empty())
+            m->UV2[i].set(mesh->mTextureCoords[1][i].x,
+                          mesh->mTextureCoords[1][i].y);
     }
 
     // create primitive index vector
@@ -977,11 +989,11 @@ SLMesh* SLAssimpImporter::loadMesh(SLAssetManager* assetMgr, aiMesh* mesh)
             // @todo On OSX it happens from time to time that slJoint is nullptr
             if (slJoint)
             {
-                for (SLuint j = 0; j < joint->mNumWeights; j++)
+                for (SLuint nW = 0; nW < joint->mNumWeights; nW++)
                 {
                     // add the weight
-                    SLuint  vertId = joint->mWeights[j].mVertexId;
-                    SLfloat weight = joint->mWeights[j].mWeight;
+                    SLuint  vertId = joint->mWeights[nW].mVertexId;
+                    SLfloat weight = joint->mWeights[nW].mWeight;
 
                     m->Ji[vertId].push_back((SLuchar)slJoint->id());
                     m->Jw[vertId].push_back(weight);
