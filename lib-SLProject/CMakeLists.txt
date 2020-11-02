@@ -72,6 +72,7 @@ file(GLOB headers
         ${CMAKE_CURRENT_SOURCE_DIR}/include/GL/SLGLVertexArray.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/GL/SLGLVertexArrayExt.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/GL/SLGLVertexBuffer.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/math/SLAlgo.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/math/SLCurve.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/math/SLCurveBezier.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/math/SLMat3.h
@@ -191,6 +192,7 @@ set(sources
         ${CMAKE_CURRENT_SOURCE_DIR}/source/GL/SLGLVertexArray.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/GL/SLGLVertexArrayExt.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/GL/SLGLVertexBuffer.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/math/SLAlgo.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/math/SLCurveBezier.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/math/SLPlane.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SLAssimpImporter.cpp

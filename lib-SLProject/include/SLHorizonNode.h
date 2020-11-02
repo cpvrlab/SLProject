@@ -11,38 +11,14 @@
 #ifndef SL_HORIZON_NODE_H
 #define SL_HORIZON_NODE_H
 
-#include <SLSceneView.h>
+#include <SLNode.h>
 #include <SLTexFont.h>
 #include <SLDeviceRotation.h>
 #include <SLPolyline.h>
+#include <SLGLGenericProgram.h>
+#include <SLMaterial.h>
 
-bool estimateHorizon(const SLMat3f& enuRs, const SLMat3f& sRc, SLVec3f& horizon)
-{
-    SLMat3f cRenu = (enuRs * sRc).transposed();
-    //estimate horizon in camera frame:
-    //-normal vector of camera x-y-plane in enu frame definition: this is the camera z-axis epressed in enu frame
-    SLVec3f normalCamXYPlane = SLVec3f(0, 0, 1);
-    //-normal vector of enu x-y-plane in camera frame: this is the enu z-axis rotated into camera coord. frame
-    SLVec3f normalEnuXYPlane = cRenu * SLVec3f(0, 0, 1);
-    //-Estimation of intersetion line (horizon):
-    //Then the crossproduct of both vectors defines the direction of the intersection line. In our special case we know that the origin is a point that lies on both planes.
-    //Then origin together with the direction vector define the horizon.
-    horizon.cross(normalCamXYPlane, normalEnuXYPlane);
-
-    //check that vectors are not parallel
-    float l = horizon.length();
-    if(l < 0.01f)
-    {
-        horizon = {1.f, 0.f, 0.f};
-        return false;
-    }
-    else
-    {
-        horizon /= l;
-        return true;
-    }
-}
-
+//-----------------------------------------------------------------------------
 class SLHorizonNode : public SLNode
 {
 public:
@@ -57,8 +33,10 @@ private:
     SLstring          _shaderDir;
 
     SLGLProgram* _prog = nullptr;
-    SLMaterial*  _matR = nullptr;
+    SLMaterial*  _mat = nullptr;
     SLPolyline*  _line = nullptr;
+    SLNode*  _horizonNode = nullptr;
+    SLNode*  _textNode = nullptr;
 
     SLMat3f _sRc;
 };

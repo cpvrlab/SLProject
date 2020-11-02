@@ -53,8 +53,6 @@ public:
     void isUsed(SLbool isUsed);
     void hasStarted(SLbool started) { _isFirstSensorValue = started; }
     void zeroYawAtStart(SLbool zeroYaw) { _zeroYawAtStart = zeroYaw; }
-    //void pitchOffsetRAD(SLfloat pitchRAD) { _pitchOffsetRAD = pitchRAD; }
-    //void yawOffsetRAD(SLfloat yawRAD) { _yawOffsetRAD = yawRAD; }
     void numAveraged(SLint numAvg)
     {
         assert(numAvg > 0 && "Num. of averaged values must be greater than zero");
@@ -63,10 +61,7 @@ public:
     void offsetMode(SLOffsetMode om)
     {
         _offsetMode = om;
-        //_pitchOffsetRAD = 0.0f;
-        //_yawOffsetRAD = 0.0f;
     }
-    void offsetScale(SLfloat os) { _offsetScale = os; }
 
     // Getters
     SLbool       isUsed() const { return _isUsed; }
@@ -75,12 +70,8 @@ public:
     SLQuat4f     quaternion() const { return _quaternion; }
     SLfloat      pitchRAD() const { return _pitchRAD; }
     SLfloat      pitchDEG() const { return _pitchRAD * Utils::RAD2DEG; }
-    //SLfloat      pitchOffsetRAD() const { return _pitchOffsetRAD; };
-    //SLfloat      pitchOffsetDEG() const { return _pitchOffsetRAD * Utils::RAD2DEG; };
     SLfloat      yawRAD() const { return _yawRAD; }
     SLfloat      yawDEG() const { return _yawRAD * Utils::RAD2DEG; }
-    //SLfloat      yawOffsetRAD() const { return _yawOffsetRAD; };
-    //SLfloat      yawOffsetDEG() const { return _yawOffsetRAD * Utils::RAD2DEG; };
     SLfloat      rollRAD() const { return _rollRAD; }
     SLfloat      rollDEG() const { return _rollRAD * Utils::RAD2DEG; }
     SLbool       zeroYawAtStart() const { return _zeroYawAtStart; }
@@ -99,14 +90,7 @@ public:
             default: return "Unknown";
         }
     }
-    SLfloat      offsetScale() { return _offsetScale; }
 
-    const SLMat3f enucorrRenu() const { return _enucorrRenu; }
-    void addRotationToEnucorrRenu(const SLMat3f& rot)
-    {
-        //we have to right multiply new rotation because new rotations are estimated w.r.t. enu coordinate frame
-        _enucorrRenu = _enucorrRenu * rot;
-    }
 private:
     SLbool            _isUsed;             //!< Flag if device rotation is used
     SLbool            _isFirstSensorValue; //!< Flag for the first sensor values
@@ -115,15 +99,10 @@ private:
     SLfloat           _rollRAD;            //!< Device roll angle in radians
     SLMat3f           _rotation;           //!< Mobile device rotation as matrix
     Averaged<SLMat3f> _rotationAvg;        //!< Component wise averaged rotation matrix
-    //SLfloat           _pitchOffsetRAD;     //!< Additional pitch offset angle in radians
-    //SLfloat           _yawOffsetRAD;       //!< Additional yaw offset angle in radians
     SLQuat4f          _quaternion;         //! Quaternion rotation that is set by IMU
     SLbool            _zeroYawAtStart;     //!< Flag if yaw angle should be zeroed at sensor start
     SLfloat           _startYawRAD;        //!< Initial yaw angle after _zeroYawAfterSec in radians
     SLOffsetMode      _offsetMode;         //!< Rotation offset mode
-    SLfloat           _offsetScale;        //!< Rotation offset scale factor
-    
-    SLMat3f _enucorrRenu;
 };
 //-----------------------------------------------------------------------------
 #endif

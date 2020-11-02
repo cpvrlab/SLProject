@@ -3563,7 +3563,7 @@ void AppDemoGui::showHorizon(SLProjectScene* s, SLSceneView* sv)
     {
          horizonNode = new SLHorizonNode(horizonName,
                                         &SLApplication::devRot,
-                                        s->font07,
+                                        s->font16,
                                         SLApplication::shaderPath,
                                         sv->scrW(),
                                         sv->scrH());

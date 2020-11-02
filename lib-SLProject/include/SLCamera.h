@@ -255,8 +255,12 @@ protected:
     SLRectf _selectRect;   //!< Mouse selection rectangle. See SLMesh::handleRectangleSelection
     SLRectf _deselectRect; //!< Mouse deselection rectangle. See SLMesh::handleRectangleSelection
     
+    //!parameter for manual finger rotation and translation
     SLint _xOffsetPix = 0;
     SLint _yOffsetPix = 0;
+    float _distanceToObjectM = 10.0f; //!< distance to object in meter that should be shifted relative to camera
+    float _enucorrTRenu = 0.f;        //!< manual camera shift in y direction
+    SLMat3f _enucorrRenu;
 };
 //-----------------------------------------------------------------------------
 #endif

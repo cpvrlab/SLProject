@@ -9,6 +9,8 @@
 //#############################################################################
 
 #include <SLHorizonNode.h>
+#include <SLText.h>
+#include <SLAlgo.h>
 
 SLHorizonNode::SLHorizonNode(SLstring name, SLDeviceRotation* devRot, SLTexFont* font, SLstring shaderDir, int scrW, int scrH)
   : SLNode(name),
@@ -27,11 +29,20 @@ SLHorizonNode::SLHorizonNode(SLstring name, SLDeviceRotation* devRot, SLTexFont*
     //(this node is owner of instantiated programs, meshes and materials)
     _prog = new SLGLGenericProgram(nullptr, shaderDir + "ColorUniformPoint.vert", shaderDir + "Color.frag");
     _prog->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 1.0f));
-    //_matR = new SLMaterial(nullptr, "Red Opaque", SLCol4f::RED, SLVec4f::WHITE, 100.0f, 0.0f, 0.0f, 0.0f, _prog);
-    _matR = new SLMaterial(nullptr, _prog, SLCol4f::RED, "Red");
+    _mat = new SLMaterial(nullptr, _prog, SLCol4f::WHITE, "White");
     //define mesh points
     int      refLen = std::min(scrW, scrH);
-    SLfloat  cs     = refLen * 0.01f; // center size
+    SLfloat  cs; // center size
+    if(_font)
+    {
+        SLfloat  scale = 1.f;
+        SLstring txt   = "-359.9";
+        SLVec2f  size  = _font->calcTextSize(txt);
+        cs = size.x;
+    }
+    else
+        cs = refLen * 0.01f; // center size
+    
     float    l      = refLen * 0.35;
 
     SLVVec3f points = {{-l, 0, 0},
@@ -43,14 +54,15 @@ SLHorizonNode::SLHorizonNode(SLstring name, SLDeviceRotation* devRot, SLTexFont*
                        {0, cs, 0},
                        {-cs, 0, 0}};
 
-    _line = new SLPolyline(nullptr, points, true, "Horizon line", _matR);
-    this->addMesh(_line);
+    _line = new SLPolyline(nullptr, points, true, "Horizon line", _mat);
+    _horizonNode = new SLNode(_line, "Horizon node");
+    this->addChild(_horizonNode);
 }
 
 SLHorizonNode::~SLHorizonNode()
 {
     delete _prog;
-    delete _matR;
+    delete _mat;
     delete _line;
 }
 
@@ -58,8 +70,25 @@ void SLHorizonNode::doUpdate()
 {
     //get latest orientation and update horizon
     SLVec3f horizon;
-    estimateHorizon(_devRot->rotationAveraged(), _sRc, horizon);
+    SLAlgo::estimateHorizon(_devRot->rotationAveraged(), _sRc, horizon);
     //rotate node to align it to horizon
-    float horizonAngle = std::atan2f(horizon.y, horizon.x);
-    this->rotation(horizonAngle * RAD2DEG, SLVec3f(0, 0, 1), SLTransformSpace::TS_object);
+    float horizonAngle = std::atan2f(horizon.y, horizon.x) * RAD2DEG;
+    _horizonNode->rotation(horizonAngle, SLVec3f(0, 0, 1), SLTransformSpace::TS_object);
+    
+    //update text
+    if(_font)
+    {
+        if(_textNode)
+            this->deleteChild(_textNode);
+        
+        std::stringstream ss;
+        //we invert the sign to express the rotation of the device w.r.t the horizon
+        ss << std::fixed << std::setprecision(1) << -horizonAngle;
+        SLstring txt = ss.str();
+
+        SLVec2f  size  = _font->calcTextSize(txt);
+        _textNode   = new SLText(txt, _font, SLCol4f::WHITE);
+        _textNode->translate(-size.x * 0.5f, -size.y * 0.5f, 0);
+        this->addChild(_textNode);
+    }
 }
