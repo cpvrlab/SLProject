@@ -160,6 +160,8 @@ bool SLScene::onUpdate(bool renderTypeIsRT,
 
     if (_root3D)
         _root3D->updateRec();
+    if (_root2D)
+        _root2D->updateRec();
 
     sceneHasChanged |= !_stopAnimations && _animManager.update(elapsedTimeSec());
 

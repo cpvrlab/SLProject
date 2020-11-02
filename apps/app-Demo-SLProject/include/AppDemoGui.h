@@ -32,6 +32,7 @@ integrated in the SLProject.<br>
 class AppDemoGui
 {
 public:
+    static void clear();
     static void build(SLProjectScene* s, SLSceneView* sv);
     static void buildMenuBar(SLProjectScene* s, SLSceneView* sv);
     static void buildSceneGraph(SLScene* s);
@@ -68,11 +69,14 @@ public:
     static std::time_t adjustedTime;        //!< Adjusted GUI time for sun setting (default 0)
 
 private:
-    static void setTransformEditMode(SLProjectScene* s,
-                                     SLSceneView*    sv,
-                                     SLNodeEditMode  editMode);
-    static void removeTransformNode(SLProjectScene* s);
-    
+    static void   setTransformEditMode(SLProjectScene* s,
+                                       SLSceneView*    sv,
+                                       SLNodeEditMode  editMode);
+    static void   removeTransformNode(SLProjectScene* s);
+    static void   showHorizon(SLProjectScene* s,
+                              SLSceneView*    sv);
+    static void   hideHorizon(SLProjectScene* s);
+    static SLbool _horizonVisuEnabled;
 };
 //-----------------------------------------------------------------------------
 #endif

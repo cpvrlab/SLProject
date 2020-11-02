@@ -43,6 +43,8 @@
 #include <Instrumentor.h>
 #include <SLArrow.h>
 
+#include <AppDemoGui.h>
+
 #ifdef SL_BUILD_WAI
 #    include <CVTrackedWAI.h>
 #endif
@@ -233,7 +235,9 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
     // Initialize all preloaded stuff from SLScene
     s->init();
-
+    // clear gui stuff that depends on scene and sceneview
+    AppDemoGui::clear();
+    
     // Deactivate in general the device sensors
     SLApplication::devRot.isUsed(false);
     SLApplication::devLoc.isUsed(false);

@@ -37,8 +37,7 @@ SLSceneView::SLSceneView(SLScene* s, int dpi, SLInputManager& inputManager)
     _shadowMapTimesMS(60, 0.0f),
     _cullTimesMS(60, 0.0f),
     _draw3DTimesMS(60, 0.0f),
-    _draw2DTimesMS(60, 0.0f),
-    _hasHorizon(false)
+    _draw2DTimesMS(60, 0.0f)
 {
 }
 //-----------------------------------------------------------------------------
@@ -72,7 +71,6 @@ void SLSceneView::init(SLstring           name,
     _scrW       = screenWidth;
     _scrH       = screenHeight;
     _gotPainted = true;
-    _hasHorizon = false;
 
     // Set default viewport ratio to the same as the screen
     setViewportFromRatio(SLVec2i(0, 0), VA_center, false);
@@ -1136,42 +1134,6 @@ void SLSceneView::draw2DGLNodes()
 
         // Finally the nodes meshes
         node->drawMesh(this);
-    }
-
-    //draw horizon if available
-    if (_hasHorizon)
-    {
-        stateGL->pushModelViewMatrix();
-        stateGL->modelViewMatrix.translate(0, 0, depth);
-
-        //calculate angle
-        float horizonAngle = std::atan2f(_horizonVec.y, _horizonVec.x);
-        //define points
-        float    l      = std::min(_scrW, _scrH) * 0.35;
-        SLVVec3f points = {{-l, 0, 0},
-                           {-cs, 0, 0},
-                           {0, -cs, 0},
-                           {cs, 0, 0},
-                           {l, 0, 0},
-                           {cs, 0, 0},
-                           {0, cs, 0},
-                           {-cs, 0, 0}};
-
-        //SLVVec3f points = {{_horizonVec * l},
-        //                    {0,0,0}};
-        SLMat3f  rot(horizonAngle * RAD2DEG, SLVec3f(0, 0, 1));
-        //rotate points
-        for (SLVec3f& pt : points)
-            pt = rot * pt;
-
-        //draw points
-        _vaoHorizon.clearAttribs();
-        _vaoHorizon.generateVertexPos(&points);
-        SLCol4f yelloAlpha(1.0f, 1.0f, 0.0f, 0.5f);
-
-        _vaoHorizon.drawArrayAsColored(PT_lineLoop, yelloAlpha);
-
-        stateGL->popModelViewMatrix();
     }
 
     // Draw rotation helpers during camera animations

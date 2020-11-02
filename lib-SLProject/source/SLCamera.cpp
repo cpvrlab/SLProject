@@ -726,8 +726,6 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
             SLMat3f cRenu    = enuRc.transposed();
             SLVec3f cHorizon = cRenu * enuHorizon;
             cHorizon.normalize();
-            //set horizon in sceneview for visualization
-            sv->setHorizonVec(cHorizon);
 
             //use horizon angle to correct screen (camera plane) finger movement in enu-up - horizon plane
             //angle between x-axis and horizon

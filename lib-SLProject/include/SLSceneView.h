@@ -164,11 +164,6 @@ public:
                            _scr2fbX,
                            _scr2fbY);
     }
-    void setHorizonVec(const SLVec3f& horizon)
-    {
-        _hasHorizon = true;
-        _horizonVec = horizon;
-    }
 
     // Getters
     SLScene* s()
@@ -266,7 +261,6 @@ protected:
 
     SLGLVertexArrayExt _vaoTouch;   //!< Buffer for touch pos. rendering
     SLGLVertexArrayExt _vaoCursor;  //!< Virtual cursor for stereo rendering
-    SLGLVertexArrayExt _vaoHorizon; //!< Horizon line
 
     SLint           _scrW;                //!< Screen width in pixels
     SLint           _scrH;                //!< Screen height in pixels
@@ -312,9 +306,6 @@ protected:
     AvgFloat _cullTimesMS;      //!< Averaged time for culling in ms
     AvgFloat _draw3DTimesMS;    //!< Averaged time for 3D drawing in ms
     AvgFloat _draw2DTimesMS;    //!< Averaged time for 2D drawing in ms
-
-    bool _hasHorizon = false;
-    SLVec3f _horizonVec;
 };
 //-----------------------------------------------------------------------------
 #endif
