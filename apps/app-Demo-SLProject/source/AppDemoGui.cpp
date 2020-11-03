@@ -1333,16 +1333,16 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
 
                 if (ImGui::BeginMenu("Suzanne"))
                 {
-                    if (ImGui::MenuItem("Per Pixel Lighting", nullptr, sid == SID_SuzannePerPix))
-                        s->onLoad(s, sv, SID_SuzannePerPix);
-                    if (ImGui::MenuItem("With Texture Map", nullptr, sid == SID_SuzanneTex))
-                        s->onLoad(s, sv, SID_SuzanneTex);
-                    if (ImGui::MenuItem("With Normal Map", nullptr, sid == SID_SuzanneTexNrm))
-                        s->onLoad(s, sv, SID_SuzanneTexNrm);
-                    if (ImGui::MenuItem("With Shadows", nullptr, sid == SID_SuzanneTexNrmSM))
-                        s->onLoad(s, sv, SID_SuzanneTexNrmSM);
-                    if (ImGui::MenuItem("With Ambient Occlusion", nullptr, sid == SID_SuzanneTexNrmSMAO))
-                        s->onLoad(s, sv, SID_SuzanneTexNrmSMAO);
+                    if (ImGui::MenuItem("with per pixel lighting", nullptr, sid == SID_SuzannePerPixBlinn))
+                        s->onLoad(s, sv, SID_SuzannePerPixBlinn);
+                    if (ImGui::MenuItem("and with texture mapping", nullptr, sid == SID_SuzannePerPixBlinnTex))
+                        s->onLoad(s, sv, SID_SuzannePerPixBlinnTex);
+                    if (ImGui::MenuItem("and with normal mapping", nullptr, sid == SID_SuzannePerPixBlinnTexNrm))
+                        s->onLoad(s, sv, SID_SuzannePerPixBlinnTexNrm);
+                    if (ImGui::MenuItem("and with shadow mapping", nullptr, sid == SID_SuzannePerPixBlinnTexNrmSM))
+                        s->onLoad(s, sv, SID_SuzannePerPixBlinnTexNrmSM);
+                    if (ImGui::MenuItem("and with ambient occlusion mapping", nullptr, sid == SID_SuzannePerPixBlinnTexNrmAOSM))
+                        s->onLoad(s, sv, SID_SuzannePerPixBlinnTexNrmAOSM);
                     ImGui::EndMenu();
                 }
 

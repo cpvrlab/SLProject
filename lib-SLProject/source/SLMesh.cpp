@@ -417,7 +417,7 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
     /////////////////////////////
 
     // 3.a) Apply mesh material if exists & differs from current
-    _mat->activate(*node->drawBits(), sv->camera(), &sv->s()->lights());
+    _mat->activate(sv->camera(), &sv->s()->lights());
 
     // 3.b) Pass the matrices to the shader program
     SLGLProgram* sp = _mat->program();

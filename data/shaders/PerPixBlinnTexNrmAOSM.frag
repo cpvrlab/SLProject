@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      PerPixBlinnTexNrmSMAO.frag
+//  File:      PerPixBlinnTexNrmAOSM.frag
 //  Purpose:   GLSL normal bump mapping w. shadow mapping & ambient occlusion
 //  Author:    Marcus Hudritsch
 //  Date:      October 2020

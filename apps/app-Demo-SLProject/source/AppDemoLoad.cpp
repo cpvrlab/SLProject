@@ -2131,11 +2131,11 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(cam1);
         s->root3D(scene);
     }
-    else if (SLApplication::sceneID == SID_SuzannePerPix) //.............................................
+    else if (SLApplication::sceneID == SID_SuzannePerPixBlinn) //........................................
     {
         // Set scene name and info string
         s->name("Suzanne with per pixel lighting");
-        s->info("Suzanne with per pixel Blinn-Phong lighting.");
+        s->info("Suzanne with per pixel lighting");
 
         // Create a scene group node
         SLNode* scene = new SLNode("scene node");
@@ -2186,11 +2186,11 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         // Save energy
         sv->doWaitOnIdle(true);
     }
-    else if (SLApplication::sceneID == SID_SuzanneTex) //................................................
+    else if (SLApplication::sceneID == SID_SuzannePerPixBlinnTex) //.....................................
     {
         // Set scene name and info string
-        s->name("Suzanne with texture map");
-        s->info("Suzanne with diffuse texture.");
+        s->name("Suzanne with per pixel lighting and diffuse texture mapping");
+        s->info("Suzanne with per pixel lighting and diffuse texture mapping");
 
         // Create a scene group node
         SLNode* scene = new SLNode("scene node");
@@ -2241,11 +2241,11 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         // Save energy
         sv->doWaitOnIdle(true);
     }
-    else if (SLApplication::sceneID == SID_SuzanneTexNrm) //.............................................
+    else if (SLApplication::sceneID == SID_SuzannePerPixBlinnTexNrm) //..................................
     {
         // Set scene name and info string
-        s->name("Suzanne with normal map");
-        s->info("Suzanne with diffuse and normal bump map textures.");
+        s->name("Suzanne with per pixel lighting and diffuse and normal mapping");
+        s->info("Suzanne with per pixel lighting and diffuse and normal mapping");
 
         // Create a scene group node
         SLNode* scene = new SLNode("scene node");
@@ -2296,11 +2296,11 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         // Save energy
         sv->doWaitOnIdle(true);
     }
-    else if (SLApplication::sceneID == SID_SuzanneTexNrmSM) //...........................................
+    else if (SLApplication::sceneID == SID_SuzannePerPixBlinnTexNrmSM) //................................
     {
         // Set scene name and info string
-        s->name("Suzanne with shadow mapping");
-        s->info("Suzanne with diffuse and normal bump map textures and shadow mapping.");
+        s->name("Suzanne with per pixel lighting and diffuse, normal and shadow mapping");
+        s->info("Suzanne with per pixel lighting and diffuse, normal and shadow mapping");
 
         // Create a scene group node
         SLNode* scene = new SLNode("scene node");
@@ -2354,11 +2354,11 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         // Save energy
         sv->doWaitOnIdle(true);
     }
-    else if (SLApplication::sceneID == SID_SuzanneTexNrmSMAO) //.........................................
+    else if (SLApplication::sceneID == SID_SuzannePerPixBlinnTexNrmAOSM) //..............................
     {
         // Set scene name and info string
-        s->name("Suzanne with baked ambient occlusion");
-        s->info("Suzanne with diffuse and normal bump map textures, shadow mapping and baked ambient occlusion.");
+        s->name("Suzanne with per pixel lighting and diffuse, normal, shadow and ambient occlusion mapping");
+        s->info("Suzanne with per pixel lighting and diffuse, normal, shadow and ambient occlusion mapping");
 
         // Create a scene group node
         SLNode* scene = new SLNode("scene node");
@@ -2394,13 +2394,6 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                                               true,    // load meshes only
                                               nullptr, // override material
                                               0.5f);   // ambient factor
-
-        // Setup shadow mapping material and replace shader from loader
-        SLGLProgram* progPerPixNrmSM = new SLGLGenericProgram(s,
-                                                              SLApplication::shaderPath + "PerPixBlinnTexNrmSMAO.vert",
-                                                              SLApplication::shaderPath + "PerPixBlinnTexNrmSMAO.frag");
-        auto         updateMat       = [=](SLMaterial* mat) { mat->program(progPerPixNrmSM); };
-        suzanneInCube->updateMeshMat(updateMat, true);
 
         scene->addChild(suzanneInCube);
 

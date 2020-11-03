@@ -87,7 +87,7 @@ public:
     ~SLMaterial() override;
 
     //! Sets the material states and passes all variables to the shader program
-    void activate(SLDrawBits drawBits, SLCamera* cam, SLVLight* lights);
+    void activate(SLCamera* cam, SLVLight* lights);
 
     //! Passes the material parameters to shader programs uniform variables
     void passToUniforms(SLGLProgram* program);
@@ -206,7 +206,7 @@ typedef vector<SLMaterial*> SLVMaterial;
 //! Global default gray color material for meshes that don't define their own.
 /*!
  * Because the default material depends a default shader program
- * (SLGLGenericProgramDefault or SLGLGenericProgramDefaultTex) that itself
+ * (SLGLDefaultProgPerVrtBlinn or SLGLDefaultProgPerVrtBlinnTex) that itself
  * depends on the scene configuration (e.g. the num. of lights) ist MUST be
  * deleted at scene destruction.
  */
@@ -261,7 +261,7 @@ private:
     SLMaterialDefaultColorAttribute()
       : SLMaterial(nullptr, "ColorAttribute")
     {
-        program(SLGLGenericProgramDefaultColorAttrib::instance());
+        program(SLGLDefaultProgColorAttrib::instance());
     }
 
     static SLMaterialDefaultColorAttribute* _instance;
