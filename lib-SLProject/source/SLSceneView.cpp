@@ -1002,8 +1002,8 @@ void SLSceneView::draw3DGLLinesOverlay(SLVNode& nodes)
             {
                 if (node->mesh() && node->mesh()->mat())
                 {
-                    SLMesh* mesh = node->mesh();
-                    bool hasAlpha = mesh->mat()->hasAlpha();
+                    SLMesh* mesh     = node->mesh();
+                    bool    hasAlpha = mesh->mat()->hasAlpha();
 
                     // For blended nodes we activate OpenGL blending and stop depth buffer updates
                     SLGLState* stateGL = SLGLState::instance();

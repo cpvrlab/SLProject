@@ -399,18 +399,20 @@ void SLMat3<T>::rotation(const T angleDEG,
     {   _m[0]=1; _m[3]=0;  _m[6]=0;   
         _m[1]=0; _m[4]=ca; _m[7]=-sa; 
         _m[2]=0; _m[5]=sa; _m[8]=ca; 
-    } else 
-    if (axisx==0 && axisy==1 && axisz==0)               // about y-axis
+    }
+    else if (axisx==0 && axisy==1 && axisz==0)               // about y-axis
     {   _m[0]=ca;  _m[3]=0; _m[6]=sa; 
         _m[1]=0;   _m[4]=1; _m[7]=0;  
         _m[2]=-sa; _m[5]=0; _m[8]=ca;
-    } else 
-    if (axisx==0 && axisy==0 && axisz==1)               // about z-axis
+    }
+    else if (axisx==0 && axisy==0 && axisz==1)               // about z-axis
     {   _m[0]=ca; _m[3]=-sa; _m[6]=0; 
         _m[1]=sa; _m[4]=ca;  _m[7]=0; 
         _m[2]=0;  _m[5]=0;   _m[8]=1;
-    } else                                             // arbitrary axis
-    {   T l = axisx*axisx + axisy*axisy + axisz*axisz;  // length squared
+    }                                              // arbitrary axis
+    else
+    {
+        T l = axisx*axisx + axisy*axisy + axisz*axisz;  // length squared
         T x, y, z;
         x=axisx, y=axisy, z=axisz;
         if ((l > T(1.0001) || l < T(0.9999)) && l!=0)
