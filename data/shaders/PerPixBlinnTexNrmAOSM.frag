@@ -1,6 +1,7 @@
 //#############################################################################
 //  File:      PerPixBlinnTexNrmAOSM.frag
-//  Purpose:   GLSL normal bump mapping w. shadow mapping & ambient occlusion
+//  Purpose:   GLSL normal bump mapping with ambient occlusion and shadow
+//             mapping for max. 4 lights.
 //  Author:    Marcus Hudritsch
 //  Date:      October 2020
 //  Copyright: Marcus Hudritsch
@@ -92,6 +93,7 @@ int vectorToFace(vec3 vec) // Vector to process
     return vec.z > 0.0 ? 4 : 5;
 }
 //-----------------------------------------------------------------------------
+//! Shadow text function for upto 4 lights
 float shadowTest(in int i, in vec3 N, in vec3 lightDir)
 {
     if (u_lightCreatesShadows[i])

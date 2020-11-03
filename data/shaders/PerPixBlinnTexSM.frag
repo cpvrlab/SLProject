@@ -1,7 +1,7 @@
 //#############################################################################
 //  File:      PerPixBlinnSM.frag
 //  Purpose:   GLSL pixel shader for per pixel Blinn-Phong lighting with 
-//             texture and shadow mapping.
+//             texture and shadow mapping for max. 4 lights.
 //  Author:    Marcus Hudritsch
 //  Date:      July 2014
 //  Copyright: Marcus Hudritsch
@@ -64,19 +64,11 @@ uniform sampler2D   u_shadowMap_0;      // shadow map for light 0
 uniform sampler2D   u_shadowMap_1;      // shadow map for light 1
 uniform sampler2D   u_shadowMap_2;      // shadow map for light 2
 uniform sampler2D   u_shadowMap_3;      // shadow map for light 3
-uniform sampler2D   u_shadowMap_4;      // shadow map for light 4
-uniform sampler2D   u_shadowMap_5;      // shadow map for light 5
-uniform sampler2D   u_shadowMap_6;      // shadow map for light 6
-uniform sampler2D   u_shadowMap_7;      // shadow map for light 7
 
 uniform samplerCube u_shadowMapCube_0;  // cubemap for light 0
 uniform samplerCube u_shadowMapCube_1;  // cubemap for light 1
 uniform samplerCube u_shadowMapCube_2;  // cubemap for light 2
 uniform samplerCube u_shadowMapCube_3;  // cubemap for light 3
-uniform samplerCube u_shadowMapCube_4;  // cubemap for light 4
-uniform samplerCube u_shadowMapCube_5;  // cubemap for light 5
-uniform samplerCube u_shadowMapCube_6;  // cubemap for light 6
-uniform samplerCube u_shadowMapCube_7;  // cubemap for light 7
 
 out     vec4        o_fragColor;        // output fragment color
 //-----------------------------------------------------------------------------
@@ -96,6 +88,7 @@ int vectorToFace(vec3 vec) // Vector to process
     return vec.z > 0.0 ? 4 : 5;
 }
 //-----------------------------------------------------------------------------
+//! Shadow text function for upto 4 lights
 float shadowTest(in int i, in vec3 N, in vec3 lightDir)
 {
     if (u_lightCreatesShadows[i])
@@ -134,10 +127,6 @@ float shadowTest(in int i, in vec3 N, in vec3 lightDir)
             if (i == 1) texelSize = 1.0 / vec2(textureSize(u_shadowMap_1, 0));
             if (i == 2) texelSize = 1.0 / vec2(textureSize(u_shadowMap_2, 0));
             if (i == 3) texelSize = 1.0 / vec2(textureSize(u_shadowMap_3, 0));
-            if (i == 4) texelSize = 1.0 / vec2(textureSize(u_shadowMap_4, 0));
-            if (i == 5) texelSize = 1.0 / vec2(textureSize(u_shadowMap_5, 0));
-            if (i == 6) texelSize = 1.0 / vec2(textureSize(u_shadowMap_6, 0));
-            if (i == 7) texelSize = 1.0 / vec2(textureSize(u_shadowMap_7, 0));
             int level = u_lightSmoothShadowLevel[i];
 
             for (int x = -level; x <= level; ++x)
@@ -148,10 +137,6 @@ float shadowTest(in int i, in vec3 N, in vec3 lightDir)
                     if (i == 1) closestDepth = texture(u_shadowMap_1, projCoords.xy + vec2(x, y) * texelSize).r;
                     if (i == 2) closestDepth = texture(u_shadowMap_2, projCoords.xy + vec2(x, y) * texelSize).r;
                     if (i == 3) closestDepth = texture(u_shadowMap_3, projCoords.xy + vec2(x, y) * texelSize).r;
-                    if (i == 4) closestDepth = texture(u_shadowMap_4, projCoords.xy + vec2(x, y) * texelSize).r;
-                    if (i == 5) closestDepth = texture(u_shadowMap_5, projCoords.xy + vec2(x, y) * texelSize).r;
-                    if (i == 6) closestDepth = texture(u_shadowMap_6, projCoords.xy + vec2(x, y) * texelSize).r;
-                    if (i == 7) closestDepth = texture(u_shadowMap_7, projCoords.xy + vec2(x, y) * texelSize).r;
                     shadow += currentDepth - bias > closestDepth ? 1.0 : 0.0;
                 }
             }
@@ -165,10 +150,6 @@ float shadowTest(in int i, in vec3 N, in vec3 lightDir)
                 if (i == 1) closestDepth = texture(u_shadowMapCube_1, lightToFragment).r;
                 if (i == 2) closestDepth = texture(u_shadowMapCube_2, lightToFragment).r;
                 if (i == 3) closestDepth = texture(u_shadowMapCube_3, lightToFragment).r;
-                if (i == 4) closestDepth = texture(u_shadowMapCube_4, lightToFragment).r;
-                if (i == 5) closestDepth = texture(u_shadowMapCube_5, lightToFragment).r;
-                if (i == 6) closestDepth = texture(u_shadowMapCube_6, lightToFragment).r;
-                if (i == 7) closestDepth = texture(u_shadowMapCube_7, lightToFragment).r;
             }
             else
             {
@@ -176,10 +157,6 @@ float shadowTest(in int i, in vec3 N, in vec3 lightDir)
                 if (i == 1) closestDepth = texture(u_shadowMap_1, projCoords.xy).r;
                 if (i == 2) closestDepth = texture(u_shadowMap_2, projCoords.xy).r;
                 if (i == 3) closestDepth = texture(u_shadowMap_3, projCoords.xy).r;
-                if (i == 4) closestDepth = texture(u_shadowMap_4, projCoords.xy).r;
-                if (i == 5) closestDepth = texture(u_shadowMap_5, projCoords.xy).r;
-                if (i == 6) closestDepth = texture(u_shadowMap_6, projCoords.xy).r;
-                if (i == 7) closestDepth = texture(u_shadowMap_7, projCoords.xy).r;
             }
 
             // The fragment is in shadow if the light doesn't "see" it

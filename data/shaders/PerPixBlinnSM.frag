@@ -1,7 +1,7 @@
 //#############################################################################
 //  File:      PerPixBlinnSM.frag
 //  Purpose:   GLSL pixel shader for per pixel Blinn-Phong lighting with 
-//             shadow mapping.
+//             shadow mapping for max. 8 lights
 //             by Joey de Vries.
 //  Author:    Marcus Hudritsch
 //  Date:      July 2014
@@ -79,7 +79,7 @@ uniform samplerCube u_shadowMapCube_7;  // cubemap for light 7
 
 out     vec4        o_fragColor;        // output fragment color
 //-----------------------------------------------------------------------------
-// SLGLShader::preprocessPragmas replaces the include pragma by the file
+//! SLGLShader::preprocessPragmas replaces the include pragma by the file
 #pragma include "lightingBlinnPhong.glsl"
 #pragma include "fogBlend.glsl"
 #pragma include "doStereoSeparation.glsl"
@@ -95,6 +95,7 @@ int vectorToFace(vec3 vec) // Vector to process
     return vec.z > 0.0 ? 4 : 5;
 }
 //-----------------------------------------------------------------------------
+//! Shadow text function for upto 8 lights
 float shadowTest(in int i, in vec3 N, in vec3 lightDir)
 {
     if (u_lightCreatesShadows[i])
