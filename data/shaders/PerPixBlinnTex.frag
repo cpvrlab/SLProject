@@ -37,7 +37,7 @@ uniform vec4        u_matDiff;          // diffuse color reflection coefficient 
 uniform vec4        u_matSpec;          // specular color reflection coefficient (ks)
 uniform vec4        u_matEmis;          // emissive color for self-shining materials
 uniform float       u_matShin;          // shininess exponent
-uniform sampler2D   u_matTexture0;      // Color texture map
+uniform sampler2D   u_matTexture0;      // diffuse color texture map
 
 uniform int         u_camProjection;    // type of stereo
 uniform int         u_camStereoEye;     // -1=left, 0=center, 1=right

@@ -1,8 +1,7 @@
 //#############################################################################
 //  File:      PerPixBlinnSM.frag
 //  Purpose:   GLSL pixel shader for per pixel Blinn-Phong lighting with 
-//             shadow mapping.
-//             by Joey de Vries.
+//             texture and shadow mapping.
 //  Author:    Marcus Hudritsch
 //  Date:      July 2014
 //  Copyright: Marcus Hudritsch
@@ -19,6 +18,7 @@ precision highp float;
 in      vec3        v_P_VS;     // Interpol. point of illum. in view space (VS)
 in      vec3        v_P_WS;     // Interpol. point of illum. in world space (WS)
 in      vec3        v_N_VS;     // Interpol. normal at v_P_VS in view space
+in      vec2        v_uv1;      // Interpol. texture coordinate
 
 uniform bool        u_lightIsOn[NUM_LIGHTS];                // flag if light is on
 uniform vec4        u_lightPosWS[NUM_LIGHTS];               // position of light in world space
@@ -47,6 +47,7 @@ uniform vec4        u_matDiff;          // diffuse color reflection coefficient 
 uniform vec4        u_matSpec;          // specular color reflection coefficient (ks)
 uniform vec4        u_matEmis;          // emissive color for self-shining materials
 uniform float       u_matShin;          // shininess exponent
+uniform sampler2D   u_matTexture0;      // diffuse color texture map
 uniform bool        u_matGetsShadows;   // flag if material receives shadows
 
 uniform int         u_camProjection;    // type of stereo
@@ -234,6 +235,13 @@ void main()
                     Ia * u_matAmbi +
                     Id * u_matDiff +
                     Is * u_matSpec;
+
+    // Componentwise multiply w. texture color
+    o_fragColor *= texture(u_matTexture0, v_uv1);
+
+    // add finally the specular RGB-part
+    vec4 specColor = Is * u_matSpec;
+    o_fragColor.rgb += specColor.rgb;
 
     // For correct alpha blending overwrite alpha component
     o_fragColor.a = u_matDiff.a;
