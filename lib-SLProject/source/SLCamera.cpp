@@ -373,8 +373,8 @@ SLVec2i SLCamera::frustumSizeAtDistance(SLfloat distance)
 {
     SLVec2i frustumSize;
 
-    frustumSize.y = (int)2.f * distance * std::tan(_fovV * 0.5f * RAD2DEG);
-    frustumSize.x = frustumSize.y * _viewportRatio; //w / h
+    frustumSize.y = (int)(2.f * distance * std::tan(_fovV * 0.5f * RAD2DEG));
+    frustumSize.x = (int)(frustumSize.y * _viewportRatio); //w / h
 
     return frustumSize;
 }

@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      PerPixBlinnNrmSM.vert
+//  File:      PerPixBlinnTexNrmSM.vert
 //  Purpose:   GLSL normal bump mapping w. shadow mapping & ambient occlusion
 //  Author:    Marcus Hudritsch
 //  Date:      October 2020
@@ -16,8 +16,8 @@ precision highp float;
 //-----------------------------------------------------------------------------
 layout (location = 0) in vec4  a_position;  // Vertex position attribute
 layout (location = 1) in vec3  a_normal;    // Vertex normal attribute
-layout (location = 2) in vec2  a_uv1;       // Vertex texture coordiante 1
-layout (location = 3) in vec2  a_uv2;       // Vertex texture coordiante 2
+layout (location = 2) in vec2  a_uv1;       // Vertex tex.coord. 1 for diffuse color
+layout (location = 3) in vec2  a_uv2;       // Vertex tex.coord. 2 for AO
 layout (location = 5) in vec4  a_tangent;   // Vertex tangent attribute
 
 uniform mat4  u_mvMatrix;   // modelview matrix
@@ -40,8 +40,8 @@ out     vec3  v_spotDirTS[NUM_LIGHTS];  // Spot direction in tangent space
 //-----------------------------------------------------------------------------
 void main()
 {
-    v_uv1 = a_uv1;  // pass tex. coord. 1 for interpolation
-    v_uv2 = a_uv2;  // pass tex. coord. 2 for interpolation
+    v_uv1 = a_uv1;  // pass diffuse color tex.coord. 1 for interpolation
+    v_uv2 = a_uv2;  // pass ambient occlusion tex.coord. 2 for interpolation
 
     // Building the matrix Eye Space -> Tangent Space
     // See the math behind at: http://www.terathon.com/code/tangent.html

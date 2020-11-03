@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      PerPixBlinnNrmEarth.frag
+//  File:      PerPixBlinnTexNrmEarth.frag
 //  Purpose:   OGLSL parallax bump mapping
 //  Author:    Markus Knecht (Marcus Hudritsch)
 //  Date:      July 2014

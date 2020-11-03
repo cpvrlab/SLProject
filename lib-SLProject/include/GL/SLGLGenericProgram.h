@@ -174,8 +174,8 @@ public:
 private:
     SLGLGenericProgramDefaultTexNormal()
       : SLGLGenericProgram(nullptr,
-                           SLGLProgramManager::shaderDir + "PerPixBlinnNrm.vert",
-                           SLGLProgramManager::shaderDir + "PerPixBlinnNrm.frag")
+                           SLGLProgramManager::shaderDir + "PerPixBlinnTexNrm.vert",
+                           SLGLProgramManager::shaderDir + "PerPixBlinnTexNrm.frag")
     {
         _name = "DefaultPerPixelProgramTexNormal";
     };

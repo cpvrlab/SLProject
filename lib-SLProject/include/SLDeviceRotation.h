@@ -83,7 +83,7 @@ public:
     SLfloat      rollDEG() const { return _rollRAD * Utils::RAD2DEG; }
     SLbool       zeroYawAtStart() const { return _zeroYawAtStart; }
     SLfloat      startYawRAD() const { return _startYawRAD; }
-    SLint        numAveraged() { return _rotationAvg.size(); }
+    SLint        numAveraged() { return (int)_rotationAvg.size(); }
     SLOffsetMode offsetMode() { return _offsetMode; }
     SLstring     offsetModeStr()
     {

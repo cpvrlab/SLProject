@@ -396,8 +396,8 @@ void AppWAIScene::loadChristoffelBernBahnhofsplatz()
 
     // Setup shadow mapping material and replace shader from loader
     SLGLProgram* progPerPixNrmSM = new SLGLGenericProgram(&assets,
-                                                          _dataDir + "shaders/PerPixBlinnNrmSM.vert",
-                                                          _dataDir + "shaders/PerPixBlinnNrmSM.frag");
+                                                          _dataDir + "shaders/PerPixBlinnTexNrmSM.vert",
+                                                          _dataDir + "shaders/PerPixBlinnTexNrmSM.frag");
     auto         updateMat       = [=](SLMaterial* mat) { mat->program(progPerPixNrmSM); };
     bern->updateMeshMat(updateMat, true);
 
@@ -492,8 +492,8 @@ void AppWAIScene::loadAugstTempelTheater()
 
     // Setup shadow mapping material and replace shader from loader
     SLGLProgram* progPerPixNrmSM = new SLGLGenericProgram(&assets,
-                                                          _dataDir + "shaders/PerPixBlinnNrmSM.vert",
-                                                          _dataDir + "shaders/PerPixBlinnNrmSM.frag");
+                                                          _dataDir + "shaders/PerPixBlinnTexNrmSM.vert",
+                                                          _dataDir + "shaders/PerPixBlinnTexNrmSM.frag");
     auto         updateMat       = [=](SLMaterial* mat) { mat->program(progPerPixNrmSM); };
     theaterAndTempel->updateMeshMat(updateMat, true);
 
@@ -520,8 +520,8 @@ void AppWAIScene::loadAvenchesAmphitheater()
 
     // Setup shadow mapping material and replace shader from loader
     SLGLProgram* progPerPixNrmSM = new SLGLGenericProgram(&assets,
-                                                          _dataDir + "shaders/PerPixBlinnNrmSM.vert",
-                                                          _dataDir + "shaders/PerPixBlinnNrmSM.frag");
+                                                          _dataDir + "shaders/PerPixBlinnTexNrmSM.vert",
+                                                          _dataDir + "shaders/PerPixBlinnTexNrmSM.frag");
     auto         updateMat       = [=](SLMaterial* mat) { mat->program(progPerPixNrmSM); };
     amphiTheatre->updateMeshMat(updateMat, true);
 
@@ -551,8 +551,8 @@ void AppWAIScene::loadAvenchesCigognier()
 
     // Setup shadow mapping material and replace shader from loader
     SLGLProgram* progPerPixNrmSM = new SLGLGenericProgram(&assets,
-                                                          _dataDir + "shaders/PerPixBlinnNrmSM.vert",
-                                                          _dataDir + "shaders/PerPixBlinnNrmSM.frag");
+                                                          _dataDir + "shaders/PerPixBlinnTexNrmSM.vert",
+                                                          _dataDir + "shaders/PerPixBlinnTexNrmSM.frag");
     auto         updateMat       = [=](SLMaterial* mat) { mat->program(progPerPixNrmSM); };
     cigognier->updateMeshMat(updateMat, true);
 
@@ -572,8 +572,8 @@ void AppWAIScene::loadAvenchesTheatre()
 
     // Setup shadow mapping material and replace shader from loader
     SLGLProgram* progPerPixNrmSM = new SLGLGenericProgram(&assets,
-                                                          _dataDir + "shaders/PerPixBlinnNrmSM.vert",
-                                                          _dataDir + "shaders/PerPixBlinnNrmSM.frag");
+                                                          _dataDir + "shaders/PerPixBlinnTexNrmSM.vert",
+                                                          _dataDir + "shaders/PerPixBlinnTexNrmSM.frag");
     auto         updateMat       = [=](SLMaterial* mat) { mat->program(progPerPixNrmSM); };
     theatre->updateMeshMat(updateMat, true);
 

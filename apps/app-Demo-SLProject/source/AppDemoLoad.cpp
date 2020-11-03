@@ -1116,8 +1116,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
             SLGLTexture*   texN   = new SLGLTexture(s, SLApplication::texturePath + "earth2048_N.jpg"); // normal map
             SLGLTexture*   texH   = new SLGLTexture(s, SLApplication::texturePath + "earth2048_H.jpg"); // height map
             SLGLProgram*   pR     = new SLGLGenericProgram(s,
-                                                     SLApplication::shaderPath + "PerPixBlinnNrm.vert",
-                                                     SLApplication::shaderPath + "PerPixBlinnNrmParallax.frag");
+                                                     SLApplication::shaderPath + "PerPixBlinnTexNrm.vert",
+                                                     SLApplication::shaderPath + "PerPixBlinnTexNrmParallax.frag");
             SLGLUniform1f* scale  = new SLGLUniform1f(UT_const, "u_scale", 0.02f, 0.002f, 0, 1);
             SLGLUniform1f* offset = new SLGLUniform1f(UT_const, "u_offset", -0.02f, 0.002f, -1, 1);
             pR->addUniform1f(scale);
@@ -1467,8 +1467,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLGLTexture* texN = new SLGLTexture(s, SLApplication::texturePath + "brickwall0512_N.jpg");
 
         SLGLProgram* sp = new SLGLGenericProgram(s,
-                                                 SLApplication::shaderPath + "PerPixBlinnNrm.vert",
-                                                 SLApplication::shaderPath + "PerPixBlinnNrm.frag");
+                                                 SLApplication::shaderPath + "PerPixBlinnTexNrm.vert",
+                                                 SLApplication::shaderPath + "PerPixBlinnTexNrm.frag");
 
         // Create materials
         SLMaterial* m1 = new SLMaterial(s,
@@ -1521,7 +1521,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SL_LOG("Use O-Key to increment (decrement w. shift) parallax offset.\n");
 
         // Create shader program with 4 uniforms
-        SLGLProgram*   sp     = new SLGLGenericProgram(s, SLApplication::shaderPath + "PerPixBlinnNrm.vert", SLApplication::shaderPath + "PerPixBlinnNrmParallax.frag");
+        SLGLProgram*   sp     = new SLGLGenericProgram(s, SLApplication::shaderPath + "PerPixBlinnTexNrm.vert", SLApplication::shaderPath + "PerPixBlinnTexNrmParallax.frag");
         SLGLUniform1f* scale  = new SLGLUniform1f(UT_const, "u_scale", 0.04f, 0.002f, 0, 1, (SLKey)'X');
         SLGLUniform1f* offset = new SLGLUniform1f(UT_const, "u_offset", -0.03f, 0.002f, -1, 1, (SLKey)'O');
         s->eventHandlers().push_back(scale);
@@ -1651,7 +1651,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SL_LOG("Use (SHIFT) & key O to change offset of the parallax mapping");
 
         // Create shader program with 4 uniforms
-        SLGLProgram*   sp     = new SLGLGenericProgram(s, SLApplication::shaderPath + "PerPixBlinnNrm.vert", SLApplication::shaderPath + "PerPixBlinnNrmEarth.frag");
+        SLGLProgram*   sp     = new SLGLGenericProgram(s, SLApplication::shaderPath + "PerPixBlinnTexNrm.vert", SLApplication::shaderPath + "PerPixBlinnTexNrmEarth.frag");
         SLGLUniform1f* scale  = new SLGLUniform1f(UT_const, "u_scale", 0.02f, 0.002f, 0, 1, (SLKey)'X');
         SLGLUniform1f* offset = new SLGLUniform1f(UT_const, "u_offset", -0.02f, 0.002f, -1, 1, (SLKey)'O');
         s->eventHandlers().push_back(scale);
@@ -2277,8 +2277,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Setup shadow mapping material and replace shader from loader
         SLGLProgram* progPerPixNrm = new SLGLGenericProgram(s,
-                                                            SLApplication::shaderPath + "PerPixBlinnNrm.vert",
-                                                            SLApplication::shaderPath + "PerPixBlinnNrm.frag");
+                                                            SLApplication::shaderPath + "PerPixBlinnTexNrm.vert",
+                                                            SLApplication::shaderPath + "PerPixBlinnTexNrm.frag");
         auto         updateMat     = [=](SLMaterial* mat) { mat->program(progPerPixNrm); };
         suzanneInCube->updateMeshMat(updateMat, true);
 
@@ -2317,7 +2317,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         light->translate(0, 0, 0.5);
         light->lookAt(1, -1, 0.5);
         light->createsShadows(true);
-        light->createShadowMap(-3, 6);
+        light->createShadowMap(-3, 3, SLVec2f(5, 5), SLVec2i(2048, 2048));
         light->doSmoothShadows(true);
         SLAnimation* lightAnim = s->animManager().createNodeAnimation("LightAnim", 4.0f, true, EC_inOutSine, AL_pingPongLoop);
         lightAnim->createSimpleRotationNodeTrack(light, -180, SLVec3f(0, 1, 0));
@@ -2335,8 +2335,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Setup shadow mapping material and replace shader from loader
         SLGLProgram* progPerPixNrm = new SLGLGenericProgram(s,
-                                                            SLApplication::shaderPath + "PerPixBlinnNrmSM.vert",
-                                                            SLApplication::shaderPath + "PerPixBlinnNrmSM.frag");
+                                                            SLApplication::shaderPath + "PerPixBlinnTexNrmSM.vert",
+                                                            SLApplication::shaderPath + "PerPixBlinnTexNrmSM.frag");
         auto         updateMat     = [=](SLMaterial* mat) { mat->program(progPerPixNrm); };
         suzanneInCube->updateMeshMat(updateMat, true);
 
@@ -2375,7 +2375,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         light->translate(0, 0, 0.5);
         light->lookAt(1, -1, 0.5);
         light->createsShadows(true);
-        light->createShadowMap(-3, 6);
+        light->createShadowMap(-3, 3, SLVec2f(5,5),SLVec2i(2048,2048));
         light->doSmoothShadows(true);
         SLAnimation* lightAnim = s->animManager().createNodeAnimation("LightAnim", 4.0f, true, EC_inOutSine, AL_pingPongLoop);
         lightAnim->createSimpleRotationNodeTrack(light, -180, SLVec3f(0, 1, 0));
@@ -2393,8 +2393,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Setup shadow mapping material and replace shader from loader
         SLGLProgram* progPerPixNrmSM = new SLGLGenericProgram(s,
-                                                              SLApplication::shaderPath + "PerPixBlinnNrmSMAO.vert",
-                                                              SLApplication::shaderPath + "PerPixBlinnNrmSMAO.frag");
+                                                              SLApplication::shaderPath + "PerPixBlinnTexNrmSMAO.vert",
+                                                              SLApplication::shaderPath + "PerPixBlinnTexNrmSMAO.frag");
         auto         updateMat       = [=](SLMaterial* mat) { mat->program(progPerPixNrmSM); };
         suzanneInCube->updateMeshMat(updateMat, true);
 
@@ -2548,7 +2548,6 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(cam1);
         s->root3D(scene);
     }
-
     else if (SLApplication::sceneID == SID_AnimationSkeletal) //.........................................
     {
         s->name("Skeletal Animation Test");
@@ -3573,8 +3572,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Setup shadow mapping material and replace shader from loader
         SLGLProgram* progPerPixNrmSM = new SLGLGenericProgram(s,
-                                                              SLApplication::shaderPath + "PerPixBlinnNrmSM.vert",
-                                                              SLApplication::shaderPath + "PerPixBlinnNrmSM.frag");
+                                                              SLApplication::shaderPath + "PerPixBlinnTexNrmSM.vert",
+                                                              SLApplication::shaderPath + "PerPixBlinnTexNrmSM.frag");
         auto         updateMat       = [=](SLMaterial* mat) { mat->program(progPerPixNrmSM); };
         bern->updateMeshMat(updateMat, true);
 
@@ -3723,8 +3722,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Setup shadow mapping material and replace shader from loader
         SLGLProgram* progPerPixNrmSM = new SLGLGenericProgram(s,
-                                                              SLApplication::shaderPath + "PerPixBlinnNrmSM.vert",
-                                                              SLApplication::shaderPath + "PerPixBlinnNrmSM.frag");
+                                                              SLApplication::shaderPath + "PerPixBlinnTexNrmSM.vert",
+                                                              SLApplication::shaderPath + "PerPixBlinnTexNrmSM.frag");
         auto         updateMat       = [=](SLMaterial* mat) { mat->program(progPerPixNrmSM); };
         TheaterAndTempel->updateMeshMat(updateMat, true);
 
@@ -3838,8 +3837,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Setup shadow mapping material and replace shader from loader
         SLGLProgram* progPerPixNrmSM = new SLGLGenericProgram(s,
-                                                              SLApplication::shaderPath + "PerPixBlinnNrmSM.vert",
-                                                              SLApplication::shaderPath + "PerPixBlinnNrmSM.frag");
+                                                              SLApplication::shaderPath + "PerPixBlinnTexNrmSM.vert",
+                                                              SLApplication::shaderPath + "PerPixBlinnTexNrmSM.frag");
         auto         updateMat       = [=](SLMaterial* mat) { mat->program(progPerPixNrmSM); };
         amphiTheatre->updateMeshMat(updateMat, true);
 
@@ -3956,8 +3955,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Setup shadow mapping material and replace shader from loader
         SLGLProgram* progPerPixNrmSM = new SLGLGenericProgram(s,
-                                                              SLApplication::shaderPath + "PerPixBlinnNrmSM.vert",
-                                                              SLApplication::shaderPath + "PerPixBlinnNrmSM.frag");
+                                                              SLApplication::shaderPath + "PerPixBlinnTexNrmSM.vert",
+                                                              SLApplication::shaderPath + "PerPixBlinnTexNrmSM.frag");
         auto         updateMat       = [=](SLMaterial* mat) { mat->program(progPerPixNrmSM); };
         cigognier->updateMeshMat(updateMat, true);
 
@@ -4063,8 +4062,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Setup shadow mapping material and replace shader from loader
         SLGLProgram* progPerPixNrmSM = new SLGLGenericProgram(s,
-                                                              SLApplication::shaderPath + "PerPixBlinnNrmSM.vert",
-                                                              SLApplication::shaderPath + "PerPixBlinnNrmSM.frag");
+                                                              SLApplication::shaderPath + "PerPixBlinnTexNrmSM.vert",
+                                                              SLApplication::shaderPath + "PerPixBlinnTexNrmSM.frag");
         auto         updateMat       = [=](SLMaterial* mat) { mat->program(progPerPixNrmSM); };
         theatre->updateMeshMat(updateMat, true);
 

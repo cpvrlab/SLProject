@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      PerPixBlinnNrmParallax.frag
+//  File:      PerPixBlinnTexNrmParallax.frag
 //  Purpose:   GLSL parallax normal bump mapping
 //  Author:    Marcus Hudritsch
 //  Date:      July 2014

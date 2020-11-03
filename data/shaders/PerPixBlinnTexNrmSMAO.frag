@@ -1,6 +1,6 @@
 //#############################################################################
-//  File:      PerPixBlinnNrmSM.frag
-//  Purpose:   GLSL normal map bump mapping w. shadow mapping
+//  File:      PerPixBlinnTexNrmSMAO.frag
+//  Purpose:   GLSL normal bump mapping w. shadow mapping & ambient occlusion
 //  Author:    Marcus Hudritsch
 //  Date:      October 2020
 //  Copyright: Marcus Hudritsch
@@ -16,7 +16,8 @@ precision highp float;
 //-----------------------------------------------------------------------------
 in      vec3        v_P_VS;     // Interpol. point of illum. in view space (VS)
 in      vec3        v_P_WS;     // Interpol. point of illum. in world space (WS)
-in      vec2        v_uv1;      // Texture coordiante varying
+in      vec2        v_uv1;      // Texture coordiante 1 varying for diffuse color
+in      vec2        v_uv2;      // Texture coordiante 2 varying for AO
 in      vec3        v_eyeDirTS;                 // Vector to the eye in tangent space
 in      vec3        v_lightDirTS[NUM_LIGHTS];   // Vector to light 0 in tangent space
 in      vec3        v_spotDirTS[NUM_LIGHTS];    // Spot direction in tangent space
@@ -48,9 +49,10 @@ uniform vec4        u_matDiff;          // diffuse color reflection coefficient 
 uniform vec4        u_matSpec;          // specular color reflection coefficient (ks)
 uniform vec4        u_matEmis;          // emissive color for self-shining materials
 uniform float       u_matShin;          // shininess exponent
-uniform sampler2D   u_matTexture0;      // Color map
-uniform sampler2D   u_matTexture1;      // Normal map
 uniform bool        u_matGetsShadows;   // flag if material receives shadows
+uniform sampler2D   u_matTexture0;      // diffuse color map
+uniform sampler2D   u_matTexture1;      // normal bump map
+uniform sampler2D   u_matTexture2;      // ambient occlusion map
 
 uniform int         u_camProjection;    // type of stereo
 uniform int         u_camStereoEye;     // -1=left, 0=center, 1=right
@@ -208,10 +210,13 @@ void main()
         }
     }
 
+    // Get ambient occlusion factor
+    float AO = texture(u_matTexture2, v_uv2).r;
+
     // Sum up all the reflected color components
     o_fragColor =  u_matEmis +
                    u_globalAmbi +
-                   Ia * u_matAmbi +
+                   Ia * u_matAmbi * AO +
                    Id * u_matDiff;
 
     // Componentwise multiply w. texture color
@@ -226,10 +231,10 @@ void main()
 
     // Apply fog by blending over distance
     if (u_camFogIsOn)
-        o_fragColor = fogBlend(v_P_VS, o_fragColor);
+    o_fragColor = fogBlend(v_P_VS, o_fragColor);
 
     // Apply stereo eye separation
     if (u_camProjection > 1)
-        doStereoSeparation();
+    doStereoSeparation();
 }
 //-----------------------------------------------------------------------------

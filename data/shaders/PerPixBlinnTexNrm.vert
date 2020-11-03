@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      PerPixBlinnNrm.vert
+//  File:      PerPixBlinnTexNrm.vert
 //  Purpose:   GLSL normal map bump mapping
 //  Author:    Marcus Hudritsch
 //  Date:      July 2014
