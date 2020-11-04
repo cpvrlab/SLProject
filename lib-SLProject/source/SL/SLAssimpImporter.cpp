@@ -849,14 +849,14 @@ SLMesh* SLAssimpImporter::loadMesh(SLAssetManager* assetMgr, aiMesh* mesh)
         m->N.resize(m->P.size());
     }
 
-    // Allocate 1st texCoord vector if needed
+    // Allocate 1st tex. coord. vector if needed
     if (mesh->HasTextureCoords(0) && numTriangles)
     {
         m->UV1.clear();
         m->UV1.resize(m->P.size());
     }
 
-    // Allocate 2nd texCoord vector if needed
+    // Allocate 2nd texture coordinate vector if needed
     // Some models use multiple textures with different uv's
     if (mesh->HasTextureCoords(1) && numTriangles)
     {
@@ -864,7 +864,7 @@ SLMesh* SLAssimpImporter::loadMesh(SLAssetManager* assetMgr, aiMesh* mesh)
         m->UV2.resize(m->P.size());
     }
 
-    // copy vertex positions & texCoord
+    // copy vertex positions & tex. coord.
     for (SLuint i = 0; i < m->P.size(); ++i)
     {
         m->P[i].set(mesh->mVertices[i].x,

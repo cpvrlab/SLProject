@@ -360,7 +360,8 @@ SLMat3<T> SLMat3<T>::inverted()
     T d = det();
 
     if (fabs(d) < FLT_EPSILON) 
-    {   cout << "3x3-Matrix is singular. Inversion impossible." << endl;
+    {
+        SL_LOG("3x3-Matrix is singular. Inversion impossible.");
         exit(0);
     }
 

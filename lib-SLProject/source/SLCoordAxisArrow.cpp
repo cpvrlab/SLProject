@@ -32,7 +32,9 @@ void SLCoordAxisArrow::buildMesh(SLMaterial* material)
     N.clear();
     C.clear();
     UV1.clear();
+    UV2.clear();
     I16.clear();
+    I32.clear();
 
     mat(material);
 

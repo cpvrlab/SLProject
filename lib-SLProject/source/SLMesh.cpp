@@ -242,7 +242,7 @@ void SLMesh::deleteUnused()
             if (ixDel < C.size()) C.erase(C.begin() + ixDel);
             if (ixDel < T.size()) T.erase(T.begin() + ixDel);
             if (ixDel < UV1.size()) UV1.erase(UV1.begin() + ixDel);
-            if (ixDel < UV2.size()) UV2.erase(UV1.begin() + ixDel);
+            if (ixDel < UV2.size()) UV2.erase(UV2.begin() + ixDel);
             if (ixDel < Ji.size()) Ji.erase(Ji.begin() + ixDel);
             if (ixDel < Jw.size()) Jw.erase(Jw.begin() + ixDel);
 
@@ -1568,6 +1568,9 @@ void SLMesh::allocAndUploadData()
 
     if (UV1.data())
         _textureBuffer.alloc_and_upload(UV1);
+
+    if (UV2.data())
+        _textureBuffer.alloc_and_upload(UV2);
 
     if (!I16.empty())
         _indexShortBuffer.alloc_and_upload(I16);

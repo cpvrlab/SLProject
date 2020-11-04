@@ -39,7 +39,8 @@ The vertex attributes are stored in vectors with equal number of elements:
 \n P (vertex position, mandatory)
 \n N (vertex normals)
 \n C (vertex color)
-\n UV1 (vertex texture coordinates) optional
+\n UV1 (1st. vertex texture coordinates) optional
+\n UV2 (2nd. vertex texture coordinates) optional
 \n T (vertex tangents) optional
 \n Ji (vertex joint index) optional 2D vector
 \n Jw (vertex joint weights) optional 2D vector

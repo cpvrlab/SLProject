@@ -31,7 +31,7 @@ SLPolygon::SLPolygon(SLAssetManager* assetMgr,
 {
     assert(corners.size() > 2 && texCoords.size() == corners.size());
     _corners  = corners;
-    _texCoord = texCoords;
+    _uv1      = texCoords;
     buildMesh(mat);
 }
 //-----------------------------------------------------------------------------
@@ -68,7 +68,8 @@ void SLPolygon::buildMesh(SLMaterial* material)
     P.resize(_corners.size());
     N.clear();
     N.resize(P.size());
-    if (_texCoord.size()) UV1.resize(P.size());
+    if (_uv1.size()) UV1.resize(P.size());
+    UV2.clear();
     I16.clear();
     I16.resize((P.size() - 2) * 3);
 
@@ -86,7 +87,7 @@ void SLPolygon::buildMesh(SLMaterial* material)
     {
         P[i] = _corners[i];
         N[i] = n;
-        if (UV1.size()) UV1[i] = _texCoord[i];
+        if (UV1.size()) UV1[i] = _uv1[i];
     }
 
     // Build face vertex indices

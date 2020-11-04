@@ -49,6 +49,7 @@ void SLTriangle::buildMesh(SLMaterial* material)
     N.resize(P.size()); // Vector for vertex normals (opt.)
     UV1.clear();
     UV1.resize(P.size()); // Vector for vertex tex. coords. (opt.)
+    UV2.clear();
     I16.clear();
     I16.resize(3); // Vector for vertex indices 16 bit
 
