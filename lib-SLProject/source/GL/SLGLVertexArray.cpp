@@ -43,7 +43,8 @@ void SLGLVertexArray::deleteGL()
         glDeleteVertexArrays(1, &_vaoID);
     _vaoID = 0;
 
-    if (_VBOf.id()) _VBOf.clear();
+    if (_VBOf.id())
+        _VBOf.clear();
 
     if (_idVBOIndices)
     {

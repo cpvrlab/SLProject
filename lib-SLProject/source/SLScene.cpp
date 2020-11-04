@@ -118,6 +118,8 @@ void SLScene::unInit()
     _selectedNodes.clear();
 
     // Delete the default material and programs that are scene dependent
+    SLMaterialDefaultGray::deleteInstance();
+    SLMaterialDefaultColorAttribute::deleteInstance();
     SLGLDefaultProgColorAttrib::deleteInstance();
     SLGLDefaultProgPerVrtBlinn::deleteInstance();
     SLGLDefaultProgPerVrtBlinnTex::deleteInstance();
