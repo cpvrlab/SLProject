@@ -717,6 +717,8 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     else
     {
         _camera->setProjection(this, ET_center);
+        //todo: ghm1: set view is only called on the active camera. Then the camera animation is not updated
+        //of a camera the is not the current camera!
         _camera->setView(this, ET_center);
     }
 

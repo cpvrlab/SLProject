@@ -384,7 +384,7 @@ void AppWAIScene::initAreaEvilardOffice(SLDeviceRotation* devRot, int svW, int s
     camera->lookAt(1.29f, 1.57f, 0.f);
     camera->clipNear(0.5f);
     camera->clipFar(5.f);
-    camera->camAnim(SLCamAnim::CA_deviceRotYUp);
+    camera->camAnim(SLCamAnim::CA_deviceRotLocYUp);
     camera->devRotLoc(devRot, nullptr);
     camera->setInitialState();
     _root3D->addChild(camera);
@@ -404,7 +404,7 @@ void AppWAIScene::initAreaEvilardOffice(SLDeviceRotation* devRot, int svW, int s
     
     if(devRot)
     {
-        devRot->offsetMode(SLOffsetMode::OM_fingerX);
+        devRot->offsetMode(SLOffsetMode::OM_fingerXRotYTrans);
         //add horizon visualization
         if(!_root2D)
             _root2D = new SLNode("root2D");

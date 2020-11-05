@@ -675,7 +675,6 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
 
     if (_camAnim == CA_deviceRotYUp)
     {
-        /*
         if (!_devRot)
         {
             SL_WARN_MSG("SLCamera: _devRot is invalid");
@@ -730,6 +729,11 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
         //wTc.setRotation(wRc);
         //wTc.setTranslation(wtc);
 
+        //set camera pose to the object matrix
+        //om(wTc);
+        _om.setRotation(wRc);
+        needUpdate();
+        
         /*
         //alternative concatenation of single transformations
         SLMat4f wTc_2;
@@ -740,13 +744,6 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
         enuTs.setRotation(s->deviceRotation());
         wTc_2 *= enuTs;
         wTc_2.rotate(-90, 0, 0, 1);
-        */
-
-        /*
-        //set camera pose to the object matrix
-        //om(wTc);
-        _om.setRotation(wRc);
-        needUpdate();
         */
     }
 
@@ -850,7 +847,6 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
             needUpdate();
         }
 
-
         //The device location sensor (GPS) is turned on and the scene has a global reference position
         if (_devLoc && _devLoc->isUsed() && _devLoc->hasOrigin())
         {
@@ -871,22 +867,24 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
         //Calculate and apply finger y-translation
         if(_devRot->offsetMode() == OM_fingerYTrans || _devRot->offsetMode() == OM_fingerXRotYTrans )
         {
-            _enucorrTRenu += enuOffsetPix.y / f * _distanceToObjectM;
+            //_enucorrTRenu += enuOffsetPix.y / f * _distanceToObjectM;
             // Set the camera position
             const SLVec3f& wtc = _om.translation();
-            SLVec3f wtc_f((SLfloat)wtc.x, (SLfloat)wtc.y + _enucorrTRenu, (SLfloat)wtc.z);
+            SLVec3f wtc_f((SLfloat)wtc.x, (SLfloat)wtc.y + enuOffsetPix.y / f * _distanceToObjectM, (SLfloat)wtc.z);
             _om.setTranslation(wtc_f);
             needUpdate();
         }
         
-        //clear stored finger rotation
-        _xOffsetPix = 0;
-        _yOffsetPix = 0;
+
     }
     else if (_camAnim == CA_off)
     {
         //nothing
     }
+    
+    //clear stored finger rotation
+    _xOffsetPix = 0;
+    _yOffsetPix = 0;
 
     // The view matrix is the camera nodes inverse world matrix
     SLMat4f vm = updateAndGetWMI();
