@@ -43,7 +43,7 @@ enum SLOffsetMode
 class SLDeviceRotation
 {
 public:
-    SLDeviceRotation() { init(); }
+    SLDeviceRotation();
     void init();
     void onRotationQUAT(SLfloat quatX,
                         SLfloat quatY,
@@ -53,15 +53,9 @@ public:
     void isUsed(SLbool isUsed);
     void hasStarted(SLbool started) { _isFirstSensorValue = started; }
     void zeroYawAtStart(SLbool zeroYaw) { _zeroYawAtStart = zeroYaw; }
-    void numAveraged(SLint numAvg)
-    {
-        assert(numAvg > 0 && "Num. of averaged values must be greater than zero");
-        _rotationAvg.init(numAvg, _rotationAvg.average());
-    }
-    void offsetMode(SLOffsetMode om)
-    {
-        _offsetMode = om;
-    }
+    void numAveraged(SLint numAvg);
+    void offsetMode(SLOffsetMode om) { _offsetMode = om; }
+    void updateRPY(SLbool doUpdate) { _updateRPY = doUpdate; }
 
     // Getters
     SLbool       isUsed() const { return _isUsed; }
@@ -78,18 +72,8 @@ public:
     SLfloat      startYawRAD() const { return _startYawRAD; }
     SLint        numAveraged() { return (int)_rotationAvg.size(); }
     SLOffsetMode offsetMode() { return _offsetMode; }
-    SLstring     offsetModeStr()
-    {
-        switch(_offsetMode)
-        {
-            case OM_none: return "None";
-            case OM_fingerX: return "Finger X";
-            case OM_fingerXY: return "Finger X&Y";
-            case OM_autoX: return "Auto X";
-            case OM_autoXY: return "auto X&Y";
-            default: return "Unknown";
-        }
-    }
+    SLstring     offsetModeStr() const;
+    SLbool       updateRPY() const { return _updateRPY; }
 
 private:
     SLbool            _isUsed;             //!< Flag if device rotation is used
@@ -103,6 +87,7 @@ private:
     SLbool            _zeroYawAtStart;     //!< Flag if yaw angle should be zeroed at sensor start
     SLfloat           _startYawRAD;        //!< Initial yaw angle after _zeroYawAfterSec in radians
     SLOffsetMode      _offsetMode;         //!< Rotation offset mode
+    SLbool            _updateRPY;          //!< Calculate roll pitch yaw in onRotationQUAT
 };
 //-----------------------------------------------------------------------------
 #endif

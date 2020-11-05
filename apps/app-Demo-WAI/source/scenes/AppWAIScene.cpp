@@ -8,12 +8,19 @@
 #include <SLVec4.h>
 #include <SLKeyframeCamera.h>
 #include <SLGLProgramManager.h>
+#include <SLHorizonNode.h>
 
 AppWAIScene::AppWAIScene(SLstring name, std::string dataDir, std::string erlebARDir)
   : SLScene(name, nullptr),
     _dataDir(Utils::unifySlashes(dataDir)),
     _erlebARDir(Utils::unifySlashes(erlebARDir))
 {
+}
+
+AppWAIScene::~AppWAIScene()
+{
+    if(_font16)
+        delete _font16;
 }
 
 void AppWAIScene::unInit()
@@ -50,7 +57,7 @@ void AppWAIScene::unInit()
     loopEdgesMesh             = nullptr;
 }
 
-void AppWAIScene::initScene(ErlebAR::LocationId locationId, ErlebAR::AreaId areaId)
+void AppWAIScene::initScene(ErlebAR::LocationId locationId, ErlebAR::AreaId areaId, SLDeviceRotation* devRot, int svW, int svH)
 {
     unInit();
 
@@ -59,7 +66,7 @@ void AppWAIScene::initScene(ErlebAR::LocationId locationId, ErlebAR::AreaId area
     //init map visualizaton (common to all areas)
     initMapVisualization();
     //init area dependent visualization
-    initAreaVisualization(locationId, areaId);
+    initAreaVisualization(locationId, areaId, devRot, svW, svH);
 }
 
 void AppWAIScene::initMapVisualization()
@@ -107,7 +114,7 @@ void AppWAIScene::initMapVisualization()
     _root3D->addChild(mapNode);
 }
 
-void AppWAIScene::initAreaVisualization(ErlebAR::LocationId locationId, ErlebAR::AreaId areaId)
+void AppWAIScene::initAreaVisualization(ErlebAR::LocationId locationId, ErlebAR::AreaId areaId, SLDeviceRotation* devRot, int svW, int svH)
 {
     //search and delete old node
     if (!_root3D)
@@ -132,7 +139,12 @@ void AppWAIScene::initAreaVisualization(ErlebAR::LocationId locationId, ErlebAR:
     else if (locationId == ErlebAR::LocationId::BIEL)
         initLocationBiel();
     else if (locationId == ErlebAR::LocationId::EVILARD)
-        initLocationDefault();
+    {
+        if(areaId == ErlebAR::AreaId::EVILARD_OFFICE)
+            initAreaEvilardOffice(devRot, svW, svH);
+        else
+            initLocationDefault();
+    }
     else
         initLocationDefault();
 }
@@ -350,6 +362,58 @@ void AppWAIScene::initLocationBiel()
     axis->scale(2);
     axis->rotate(-90, 1, 0, 0);
     _root3D->addChild(axis);
+}
+
+void AppWAIScene::initAreaEvilardOffice(SLDeviceRotation* devRot, int svW, int svH)
+{
+    // Create directional light for the sun light
+    sunLight = new SLLightDirect(&assets, this, 5.0f);
+    sunLight->powers(1.0f, 1.0f, 1.0f);
+    sunLight->attenuation(1, 0, 0);
+    sunLight->doSunPowerAdaptation(true);
+    sunLight->createsShadows(true);
+    sunLight->createShadowMap(-100, 150, SLVec2f(150, 150), SLVec2i(2048, 2048));
+    sunLight->doSmoothShadows(true);
+    sunLight->castsShadows(false);
+    sunLight->drawBits()->set(SL_DB_HIDDEN, true);
+    _root3D->addChild(sunLight);
+
+    //init camera
+    camera = new VideoBackgroundCamera("AppWAIScene Camera", _dataDir + "images/textures/LiveVideoError.png", _dataDir + "shaders/");
+    camera->translation(1.29f, 1.57f, 3.85f);
+    camera->lookAt(1.29f, 1.57f, 0.f);
+    camera->clipNear(0.5f);
+    camera->clipFar(5.f);
+    camera->camAnim(SLCamAnim::CA_deviceRotYUp);
+    camera->devRotLoc(devRot, nullptr);
+    camera->setInitialState();
+    _root3D->addChild(camera);
+
+    SLMaterial* yellow  = new SLMaterial(&assets, "mY", SLCol4f(1, 1, 0, 0.5f));
+    SLBox*      piano     = new SLBox(&assets, 0.0f, 0.0f, 0.0f, 1.467f, 0.908f, 0.515f, "Box", yellow);
+    SLNode*     pianoNode = new SLNode(piano, "Piano Node");
+    pianoNode->setDrawBitsRec(SL_DB_CULLOFF, true);
+    pianoNode->translation(0.523f, 0.f, 0.f);
+    
+    SLNode* axisNode = new SLNode(new SLCoordAxis(&assets), "Axis Node");
+    axisNode->setDrawBitsRec(SL_DB_MESHWIRED, false);
+    //axisNode->scale(e);
+    pianoNode->addChild(axisNode);
+
+    _root3D->addChild(pianoNode);
+    
+    if(devRot)
+    {
+        devRot->offsetMode(SLOffsetMode::OM_fingerX);
+        //add horizon visualization
+        if(!_root2D)
+            _root2D = new SLNode("root2D");
+        
+        if(!_font16)
+            _font16 = new SLTexFont(_dataDir + "images/fonts/Font16.png", SLGLProgramManager::get(SP_fontTex));
+        SLHorizonNode* horizonNode = new SLHorizonNode("Horizon", devRot, _font16, _dataDir + "shaders/", svW, svH);
+        _root2D->addChild(horizonNode);
+    }
 }
 
 void AppWAIScene::initLocationDefault()

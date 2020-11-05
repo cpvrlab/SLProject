@@ -71,6 +71,8 @@ const char* mapAreaIdToName(AreaId id)
             return "Roc 2";
         case AreaId::EVILARD_FIREFIGHTERS:
             return "Firefighters";
+        case AreaId::EVILARD_OFFICE:
+            return "Office";
         default:
             return "Missing id to name mapping!";
     }
@@ -286,6 +288,22 @@ const Location defineLocationEvilard()
                   "calibrations/voc_fbow.bin",                                                                                        //vocFileName,
                   2,                                                                                                                  //vocLayer,
                   {640, 360},                                                                                                         //cameraFrameTargetSize
+                  ExtractorType::ExtractorType_FAST_ORBS_2000,                                                                        //initializationExtractorType
+                  ExtractorType::ExtractorType_FAST_ORBS_1000,                                                                        //relocalizationExtractorType
+                  ExtractorType::ExtractorType_FAST_ORBS_1000,                                                                        //trackingExtractorType
+                  2);
+        loc.areas[area.id] = area;
+    }
+    {
+        Area area(AreaId::EVILARD_OFFICE,                                                                                       //id
+                  {47.14886, 7.23322, 726.9},                                                                                         //llaPos
+                  -150.f,                                                                                                             //map viewing angle
+                  {47.14886, 7.23322, 726.9},                                                                                         //modelOrigin
+                  "locations/evilard/office/maps/DEVELOPMENT-map.waimap", //slamMapFileName
+                  "locations/evilard/office/relocAlignImg.jpg",                                                                 //relocAlignImage,
+                  "calibrations/voc_fbow.bin",                                                                                        //vocFileName,
+                  2,                                                                                                                  //vocLayer,
+                  {640, 480},                                                                                                         //cameraFrameTargetSize
                   ExtractorType::ExtractorType_FAST_ORBS_2000,                                                                        //initializationExtractorType
                   ExtractorType::ExtractorType_FAST_ORBS_1000,                                                                        //relocalizationExtractorType
                   ExtractorType::ExtractorType_FAST_ORBS_1000,                                                                        //trackingExtractorType

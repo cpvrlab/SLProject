@@ -26,6 +26,7 @@
 #include <SLCoordAxis.h>
 #include <sens/SENSSimHelper.h>
 #include <SLDeviceLocation.h>
+#include <SLDeviceRotation.h>
 
 class SENSCamera;
 class MapLoader;
@@ -71,7 +72,7 @@ private:
     void    initWaiSlam(const cv::Mat& mapNodeOm, std::unique_ptr<WAIMap> waiMap);
     bool    startCamera(const cv::Size& trackImgSize);
     void    onCameraParamsChanged();
-    SLMat4f calcCameraPoseGpsOrientationBased();
+    SLMat4f calcCameraPoseGpsOrientationBased(const SENSOrientation::Quat& sensQuat);
     cv::Mat convertCameraPoseToWaiCamExtrinisc(SLMat4f& wTc);
     
     AreaTrackingGui   _gui;
@@ -116,6 +117,7 @@ private:
     std::unique_ptr<SENSSimHelper> _simHelper;
 
     SLDeviceLocation _devLoc;
+    SLDeviceRotation _devRot;
     //indicates if intArea finished successfully
     bool _noInitException = false;
 };

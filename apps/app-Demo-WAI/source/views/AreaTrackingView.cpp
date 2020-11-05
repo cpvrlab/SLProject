@@ -40,6 +40,10 @@ AreaTrackingView::AreaTrackingView(sm::EventHandler&   eventHandler,
 
     //init video camera
     _camera = std::make_unique<SENSCvCamera>(camera);
+    
+    _devRot.numAveraged(3);
+    _devRot.updateRPY(true);
+    _devRot.zeroYawAtStart(true);
 }
 
 AreaTrackingView::~AreaTrackingView()
@@ -71,7 +75,7 @@ void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaI
 
         //init 3d visualization
         this->unInit();
-        _waiScene.initScene(locId, areaId);
+        _waiScene.initScene(locId, areaId, &_devRot, _scrW, _scrH);
         updateSceneCameraFov();
         this->scene(&_waiScene);
         this->camera(_waiScene.camera);
@@ -157,11 +161,17 @@ bool AreaTrackingView::update()
                 }
                 else if (_orientation)
                 {
-                    SLMat4f camPose = calcCameraPoseGpsOrientationBased();
-                    _waiScene.camera->om(camPose);
+                    SENSOrientation::Quat sensQuat = _orientation->getOrientation();
+                    //update sldevicerotation with new rotation information
+                    _devRot.onRotationQUAT(sensQuat.quatX, sensQuat.quatY, sensQuat.quatZ, sensQuat.quatW);
+                    
+
+                    //SLMat4f camPose = calcCameraPoseGpsOrientationBased(sensQuat);
+                    //_waiScene.camera->om(camPose);
                     //give waiSlam a guess of the current position in the ENU frame
-                    cv::Mat camExtrinsic = convertCameraPoseToWaiCamExtrinisc(camPose);
-                    _waiSlam->setCamExrinsicGuess(camExtrinsic);
+                    //cv::Mat camExtrinsic = convertCameraPoseToWaiCamExtrinisc(camPose);
+                    //_waiSlam->setCamExrinsicGuess(camExtrinsic);
+
                 }
             }
             else if (_asyncLoader && _asyncLoader->isReady())
@@ -294,7 +304,7 @@ void AreaTrackingView::onCameraParamsChanged()
     updateSceneCameraFov();
 }
 
-SLMat4f AreaTrackingView::calcCameraPoseGpsOrientationBased()
+SLMat4f AreaTrackingView::calcCameraPoseGpsOrientationBased(const SENSOrientation::Quat& sensQuat)
 {
     //use gps and orientation sensor for camera position and orientation
     //(even if there is no gps, devLoc gives us a guess of the current home position)
@@ -304,7 +314,6 @@ SLMat4f AreaTrackingView::calcCameraPoseGpsOrientationBased()
         //Update deviceLocation: this updates current enu position
         _devLoc.onLocationLatLonAlt(loc.latitudeDEG, loc.longitudeDEG, loc.altitudeM, loc.accuracyM);
     }
-    auto     sensQuat = _orientation->getOrientation();
     SLQuat4f slQuat(sensQuat.quatX, sensQuat.quatY, sensQuat.quatZ, sensQuat.quatW);
     SLMat3f  rotMat = slQuat.toMat3();
 

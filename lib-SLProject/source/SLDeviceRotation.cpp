@@ -13,6 +13,11 @@
 #include <SLDeviceRotation.h>
 
 //-----------------------------------------------------------------------------
+SLDeviceRotation::SLDeviceRotation()
+{
+    init();
+}
+//-----------------------------------------------------------------------------
 void SLDeviceRotation::init()
 {
     _rotation.identity();
@@ -25,6 +30,7 @@ void SLDeviceRotation::init()
     _isFirstSensorValue = false;
     _isUsed             = false;
     _offsetMode         = OM_fingerX;
+    _updateRPY          = true;
 }
 //-----------------------------------------------------------------------------
 /*! onRotationQUAT: Event handler for rotation change of a mobile device from a
@@ -48,7 +54,9 @@ void SLDeviceRotation::onRotationQUAT(SLfloat quatX,
     _quaternion = SLQuat4f(quatX, quatY, quatZ, quatW);
     _rotation = _quaternion.toMat3();
     _rotationAvg.set(_rotation);
-    _quaternion.toEulerAnglesXYZ(_pitchRAD, _rollRAD, _yawRAD);
+
+    if(_updateRPY)
+        _quaternion.toEulerAnglesXYZ(_pitchRAD, _rollRAD, _yawRAD);
 
     /*
      Android sensor coordinate system:
@@ -87,14 +95,11 @@ void SLDeviceRotation::onRotationQUAT(SLfloat quatX,
      
      */
 
-    if (_zeroYawAtStart)
+    if (_zeroYawAtStart && _isFirstSensorValue)
     {
-        if (_isFirstSensorValue)
-        {
-            //store initial rotation in yaw for referencing of initial alignment
-            _startYawRAD        = _yawRAD;
-            _isFirstSensorValue = false;
-        }
+        //store initial rotation in yaw for referencing of initial alignment
+        _startYawRAD        = _yawRAD;
+        _isFirstSensorValue = false;
     }
 }
 //-----------------------------------------------------------------------------
@@ -105,5 +110,24 @@ void SLDeviceRotation::isUsed(SLbool use)
         _isFirstSensorValue = true;
 
     _isUsed = use;
+}
+//------------------------------------------------------------------------------
+void SLDeviceRotation::numAveraged(SLint numAvg)
+{
+    assert(numAvg > 0 && "Num. of averaged values must be greater than zero");
+    _rotationAvg.init(numAvg, _rotationAvg.average());
+}
+//------------------------------------------------------------------------------
+SLstring SLDeviceRotation::offsetModeStr() const
+{
+    switch(_offsetMode)
+    {
+        case OM_none: return "None";
+        case OM_fingerX: return "Finger X";
+        case OM_fingerXY: return "Finger X&Y";
+        case OM_autoX: return "Auto X";
+        case OM_autoXY: return "auto X&Y";
+        default: return "Unknown";
+    }
 }
 //------------------------------------------------------------------------------

@@ -93,7 +93,8 @@ enum class AreaId
     BIEL_BFH,
     //EVILARD
     EVILARD_ROC2,
-    EVILARD_FIREFIGHTERS
+    EVILARD_FIREFIGHTERS,
+    EVILARD_OFFICE
 };
 
 const char* mapAreaIdToName(AreaId id);

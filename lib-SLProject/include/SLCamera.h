@@ -25,6 +25,21 @@ class SLSceneView;
 class SLDeviceRotation;
 class SLDeviceLocation;
 
+class SLCameraAnimation
+{
+public:
+    virtual ~SLCameraAnimation() {}
+    
+    virtual void onMouseDown() {}
+private:
+    
+};
+
+class SLCameraAnimationTrackball : public SLCameraAnimation
+{
+    
+};
+
 //-----------------------------------------------------------------------------
 //! Active or visible camera node class
 /*! An instance of this SLNode derived class serves as an active camera with
@@ -175,6 +190,9 @@ public:
     SLstring      toString() const;
     SLRectf&      selectRect() { return _selectRect; }
     SLRectf&      deselectRect() { return _deselectRect; }
+    
+    //update rotation matrix _enucorrRenu
+    void updateEnucorrRenu(SLSceneView* sv, const SLMat3f& enuRc, float& f, SLVec3f& enuOffsetPix);
 
     // Static global default parameters for new cameras
     static SLCamAnim    currentAnimation;
@@ -258,7 +276,7 @@ protected:
     //!parameter for manual finger rotation and translation
     SLint _xOffsetPix = 0;
     SLint _yOffsetPix = 0;
-    float _distanceToObjectM = 10.0f; //!< distance to object in meter that should be shifted relative to camera
+    float _distanceToObjectM = 1.0f; //!< distance to object in meter that should be shifted relative to camera
     float _enucorrTRenu = 0.f;        //!< manual camera shift in y direction
     SLMat3f _enucorrRenu;
 };

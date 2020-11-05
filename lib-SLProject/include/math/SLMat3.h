@@ -97,7 +97,7 @@ class SLMat3
         // Misc. methods
         void        identity    ();
         void        transpose   ();
-        SLMat3<T>   transposed  ();
+        SLMat3<T>   transposed  () const;
         void        invert      ();
         SLMat3<T>   inverted    ();
         T           trace       () const;
@@ -337,7 +337,7 @@ void SLMat3<T>::transpose()
 //-----------------------------------------------------------------------------
 //! Returns the transposed of the matrix and leaves the itself unchanged
 template<class T>
-SLMat3<T> SLMat3<T>::transposed()
+SLMat3<T> SLMat3<T>::transposed() const
 {
     SLMat3<T> t(_m[0],_m[1],_m[2],
                 _m[3],_m[4],_m[5],
