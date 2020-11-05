@@ -30,9 +30,10 @@ class SLEventHandler
     public:
     SLEventHandler()
     {
+        //todo anim
         _rotFactor = 0.5f;
         _dPos      = 0.1f;
-        _dRot      = 15.0f;
+        //_dRot      = 15.0f;
     }
     virtual ~SLEventHandler() { ; }
 
@@ -128,18 +129,19 @@ class SLEventHandler
     }
 
     // Setters
-    void rotFactor(SLfloat rf) { _rotFactor = rf; }
-    void dRot(SLfloat dr) { _dRot = dr; }
-    void dPos(SLfloat dp) { _dPos = dp; }
+    //void rotFactor(SLfloat rf) { _rotFactor = rf; }
+    //void dRot(SLfloat dr) { _dRot = dr; }
+    //void dPos(SLfloat dp) { _dPos = dp; }
 
     // Getters
-    SLfloat rotFactor() { return _rotFactor; }
-    SLfloat dRot() { return _dRot; }
-    SLfloat dPos() { return _dPos; }
+    //SLfloat rotFactor() { return _rotFactor; }
+    //SLfloat dRot() { return _dRot; }
+    //SLfloat dPos() { return _dPos; }
 
     protected:
+    //todo anim
     SLfloat _rotFactor; //!< Mouse rotation sensibility
-    SLfloat _dRot;      //!< Delta angle for keyb. rot.
+    //SLfloat _dRot;      //!< Delta angle for keyb. rot.
     SLfloat _dPos;      //!< Delta dist. for keyb. transl.
 };
 //-----------------------------------------------------------------------------

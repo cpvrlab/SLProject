@@ -25,20 +25,7 @@ class SLSceneView;
 class SLDeviceRotation;
 class SLDeviceLocation;
 
-class SLCameraAnimation
-{
-public:
-    virtual ~SLCameraAnimation() {}
-    
-    virtual void onMouseDown() {}
-private:
-    
-};
-
-class SLCameraAnimationTrackball : public SLCameraAnimation
-{
-    
-};
+class SLCameraAnimation;
 
 //-----------------------------------------------------------------------------
 //! Active or visible camera node class
@@ -68,7 +55,7 @@ class SLCamera : public SLNode
 {
 public:
     explicit SLCamera(const SLstring& name = "Camera");
-    ~SLCamera() override { ; }
+    ~SLCamera() override;
 
     void           statsRec(SLNodeStats& stats) override;
     void           drawMesh(SLSceneView* sv) override;
@@ -108,6 +95,7 @@ public:
         _projection       = p;
         currentProjection = p;
     }
+    //! vertical field of view
     void fov(const SLfloat fov)
     {
         _fovV      = fov;
@@ -156,6 +144,8 @@ public:
     SLfloat        fovV() const { return _fovV; }                  //!< Vertical field of view
     //todo: fovH calculation is wrong
     SLfloat        fovH() const { return _viewportRatio * _fovV; } //!< Horizontal field of view
+    SLint          viewportW() const { return _viewportW; }
+    SLint          viewportH() const { return _viewportH; }
     SLfloat        aspect() const { return _viewportRatio; }
     SLfloat        clipNear() const { return _clipNear; }
     SLfloat        clipFar() const { return _clipFar; }
@@ -231,7 +221,9 @@ protected:
 
     SLGLVertexArrayExt _vao; //!< OpenGL Vertex array for rendering
 
-    // animation parameters
+    // animation parameters (SLCamera is owner and calls delete if valid)
+    SLCameraAnimation* _camAnimation = nullptr;
+    
     SLbool    _movedLastFrame;    //! did the camera updateRec in the last frame?
     SLCamAnim _camAnim;           //!< Type of camera animation
     SLVec2f   _oldTouchPos1;      //!< Old mouse/touch position in pixels
@@ -281,4 +273,427 @@ protected:
     SLMat3f _enucorrRenu;
 };
 //-----------------------------------------------------------------------------
+
+class SLCameraAnimation
+{
+public:
+    SLCameraAnimation(const SLstring& name, const SLstring& description)
+     : _name(name),
+       _description(description)
+    {
+        _rotFactor = 0.5f;
+        _dPos      = 0.1f;
+    }
+    virtual ~SLCameraAnimation() {}
+    
+    virtual void onMouseDown() {}
+    virtual SLbool onMouseUpDispatched() { return false; }
+    virtual void onMouseMove(const SLMouseButton button, const SLKey mod, SLfloat x, SLfloat y, SLfloat xOld, SLfloat yOld) {}
+    virtual void onMouseWheel(const SLint delta, const SLKey mod) {}
+    virtual void onTouch2Move(const SLint x1,
+                              const SLint y1,
+                              const SLint x2,
+                              const SLint y2,
+                              const SLVec2f& oldTouchPos1,
+                              const SLVec2f& oldTouchPos2) {}
+  
+    //setters:
+    //set the camera that will be manipulated (is done by SLCamera when set)
+    void camera(SLCamera* camera) { _camera = camera; }
+    void rotFactor(SLfloat rf) { _rotFactor = rf; }
+    void dPos(SLfloat dp) { _dPos = dp; }
+    
+    //getters:
+    SLstring description() { return _description; }
+    SLstring name() { return _name; }
+    SLfloat rotFactor() { return _rotFactor; }
+    SLfloat dPos() { return _dPos; }
+    
+protected:
+    //! camera node that will be manipulated
+    SLCamera* _camera;
+    
+    SLfloat _rotFactor; //!< Mouse rotation sensibility
+    SLfloat _dPos;      //!< Delta dist. for keyb. transl.
+    //SLfloat _dRot = 15.f;      //!< Delta angle for keyb. rot.
+    
+private:
+    //! animation type name and description
+    SLstring _name;
+    SLstring _description;
+};
+
+class SLCAOff : public SLCameraAnimation
+{
+public:
+    SLCAOff()
+    : SLCameraAnimation("CA_off", "Animation Disabled")
+    {}
+};
+
+class SLCATurntableYUp : public SLCameraAnimation
+{
+public:
+    SLCATurntableYUp()
+    : SLCameraAnimation("CA_turntableYUp", "Turntable Y up")
+    {}
+    
+    void onMouseMove(const SLMouseButton button, const SLKey mod, SLfloat x, SLfloat y, SLfloat xOld, SLfloat yOld) override
+    {
+        assert(_camera);
+        
+        if (button == MB_left) //==================================================
+        {
+            // Position and directions in view space
+            SLVec3f positionVS = _camera->translationOS();
+            SLVec3f forwardVS  = _camera->forwardOS();
+            SLVec3f rightVS    = _camera->rightOS();
+            
+            // The lookAt point
+            SLVec3f lookAtPoint = positionVS + _camera->focalDist() * forwardVS;
+
+            // Determine rot angles around x- & y-axis
+            SLfloat dY = (y - yOld) * _rotFactor;
+            SLfloat dX = (x - xOld) * _rotFactor;
+            
+            SLMat4f rot;
+            rot.translate(lookAtPoint);
+            rot.rotate(-dX, SLVec3f(0, 1, 0));
+            rot.rotate(-dY, rightVS);
+            rot.translate(-lookAtPoint);
+
+            _camera->om(rot * _camera->om());
+        }
+        else if (button == MB_middle) //===========================================
+        {
+            // Calculate the fraction delta of the mouse movement
+            SLVec2f dMouse(x - xOld, yOld - y);
+            dMouse.x /= (SLfloat)_camera->viewportW();
+            dMouse.y /= (SLfloat)_camera->viewportH();
+
+            // scale factor depending on the space size at focal dist
+            SLfloat spaceH = tan(Utils::DEG2RAD * _camera->fovV() / 2) * _camera->focalDist() * 2.0f;
+            SLfloat spaceW = spaceH * _camera->aspect();
+
+            dMouse.x *= spaceW;
+            dMouse.y *= spaceH;
+
+            if (mod == K_ctrl)
+                _camera->translate(SLVec3f(-dMouse.x, 0, dMouse.y), TS_object);
+            else
+                _camera->translate(SLVec3f(-dMouse.x, -dMouse.y, 0), TS_object);
+        }
+    }
+    
+    SLbool onMouseUpDispatched() override
+    {
+        return true;
+    }
+    
+    void onMouseWheel(const SLint delta, const SLKey mod) override
+    {
+        SLfloat sign = (SLfloat)Utils::sign(delta);
+        
+        if (mod == K_none)
+        {
+            const SLfloat& focalDist = _camera->focalDist();
+            SLfloat update = -sign * focalDist * _dPos;
+            _camera->translate(SLVec3f(0, 0, update), TS_object);
+            _camera->focalDist(focalDist + update);
+        }
+        if (mod == K_ctrl)
+        {
+            _camera->stereoEyeSeparation( _camera->stereoEyeSeparation() * (1.0f + sign * 0.1f));
+        }
+        if (mod == K_alt)
+        {
+            _camera->fov(_camera->fovV() + sign * 5.0f);
+            _camera->currentFOV = _camera->fovV();
+        }
+    }
+    
+    void onTouch2Move(const SLint x1,
+                      const SLint y1,
+                      const SLint x2,
+                      const SLint y2,
+                      const SLVec2f& oldTouchPos1,
+                      const SLVec2f& oldTouchPos2) override
+    {
+        SLVec2f now1((SLfloat)x1, (SLfloat)y1);
+        SLVec2f now2((SLfloat)x2, (SLfloat)y2);
+        SLVec2f delta1(now1 - oldTouchPos1);
+        SLVec2f delta2(now2 - oldTouchPos2);
+
+        // Average out the deltas over the last 4 events for correct 1 pixel moves
+        static SLuint  cnt = 0;
+        static SLVec2f d1[4];
+        static SLVec2f d2[4];
+        d1[cnt % 4] = delta1;
+        d2[cnt % 4] = delta2;
+        SLVec2f avgDelta1(d1[0].x + d1[1].x + d1[2].x + d1[3].x,
+                          d1[0].y + d1[1].y + d1[2].y + d1[3].y);
+        SLVec2f avgDelta2(d2[0].x + d2[1].x + d2[2].x + d2[3].x,
+                          d2[0].y + d2[1].y + d2[2].y + d2[3].y);
+        avgDelta1 /= 4.0f;
+        avgDelta2 /= 4.0f;
+        cnt++;
+
+        SLfloat r1, phi1, r2, phi2;
+        avgDelta1.toPolar(r1, phi1);
+        avgDelta2.toPolar(r2, phi2);
+
+        // scale factor depending on the space sice at focal dist
+        SLfloat spaceH = tan(Utils::DEG2RAD * _camera->fovV() / 2) * _camera->focalDist() * 2.0f;
+        SLfloat spaceW = spaceH * _camera->aspect();
+
+        // if fingers move parallel slide camera vertically or horizontally
+        if (Utils::abs(phi1 - phi2) < 0.2f)
+        {
+            // Calculate center between finger points
+            SLVec2f nowCenter((now1 + now2) * 0.5f);
+            SLVec2f oldCenter((oldTouchPos1 + oldTouchPos2) * 0.5f);
+
+            // For first move set oldCenter = nowCenter
+            if (oldCenter == SLVec2f::ZERO) oldCenter = nowCenter;
+
+            SLVec2f delta(nowCenter - oldCenter);
+
+            // scale to 0-1
+            delta.x /= _camera->viewportW();
+            delta.y /= _camera->viewportH();
+
+            // scale to space size
+            delta.x *= spaceW;
+            delta.y *= spaceH;
+
+            // apply delta to x- and y-position
+            _camera->translate(SLVec3f(-delta.x, delta.y, 0), TS_object);
+        }
+        else // Two finger pinch
+        {
+            // Calculate vector between fingers
+            SLVec2f nowDist(now2 - now1);
+            SLVec2f oldDist(oldTouchPos2 - oldTouchPos1);
+
+            // For first move set oldDist = nowDist
+            if (oldDist == SLVec2f::ZERO) oldDist = nowDist;
+
+            SLfloat delta = oldDist.length() - nowDist.length();
+
+            // scale to 0-1
+            delta /= (SLfloat)_camera->viewportH();
+
+            // scale to space height
+            delta *= spaceH * 2;
+
+            // apply delta to the z-position
+            _camera->translate(SLVec3f(0, 0, delta), TS_object);
+            _camera->focalDist(_camera->focalDist() + delta);
+        }
+    }
+};
+
+//the functionality is not as complete as for y-up (no two finger scale)
+class SLCATurntableZUp : public SLCameraAnimation
+{
+public:
+    SLCATurntableZUp()
+    : SLCameraAnimation("CA_turntableZUp", "Turntable Z up")
+    {}
+    
+    void onMouseMove(const SLMouseButton button, const SLKey mod, SLfloat x, SLfloat y, SLfloat xOld, SLfloat yOld) override
+    {
+        assert(_camera);
+        
+        if (button == MB_left) //==================================================
+        {
+            // Position and directions in view space
+            SLVec3f positionVS = _camera->translationOS();
+            SLVec3f forwardVS  = _camera->forwardOS();
+            SLVec3f rightVS    = _camera->rightOS();
+            
+            // The lookAt point
+            SLVec3f lookAtPoint = positionVS + _camera->focalDist() * forwardVS;
+
+            // Determine rot angles around x- & y-axis
+            SLfloat dY = (y - yOld) * _rotFactor;
+            SLfloat dX = (x - xOld) * _rotFactor;
+            
+            SLMat4f rot;
+            rot.translate(lookAtPoint);
+            rot.rotate(dX, SLVec3f(0, 0, 1));
+            rot.rotate(dY, rightVS);
+            rot.translate(-lookAtPoint);
+
+            _camera->om(rot * _camera->om());
+        }
+        else if (button == MB_middle) //===========================================
+        {
+            // Calculate the fraction delta of the mouse movement
+            SLVec2f dMouse(x - xOld, yOld - y);
+            dMouse.x /= (SLfloat)_camera->viewportW();
+            dMouse.y /= (SLfloat)_camera->viewportH();
+
+            // scale factor depending on the space size at focal dist
+            SLfloat spaceH = tan(Utils::DEG2RAD * _camera->fovV() / 2) * _camera->focalDist() * 2.0f;
+            SLfloat spaceW = spaceH * _camera->aspect();
+
+            dMouse.x *= spaceW;
+            dMouse.y *= spaceH;
+
+            if (mod == K_ctrl)
+                _camera->translate(SLVec3f(-dMouse.x, 0, dMouse.y), TS_object);
+            else
+                _camera->translate(SLVec3f(-dMouse.x, -dMouse.y, 0), TS_object);
+        }
+    }
+    
+    SLbool onMouseUpDispatched() override
+    {
+        return true;
+    }
+    
+    void onMouseWheel(const SLint delta, const SLKey mod) override
+    {
+        SLfloat sign = (SLfloat)Utils::sign(delta);
+        
+        if (mod == K_none)
+        {
+            const SLfloat& focalDist = _camera->focalDist();
+            SLfloat update = -sign * focalDist * _dPos;
+            _camera->translate(SLVec3f(0, 0, update), TS_object);
+            _camera->focalDist(focalDist + update);
+        }
+        if (mod == K_ctrl)
+        {
+            _camera->stereoEyeSeparation( _camera->stereoEyeSeparation() * (1.0f + sign * 0.1f));
+        }
+        if (mod == K_alt)
+        {
+            _camera->fov(_camera->fovV() + sign * 5.0f);
+            _camera->currentFOV = _camera->fovV();
+        }
+    }
+    
+    void onTouch2Move(const SLint x1,
+                      const SLint y1,
+                      const SLint x2,
+                      const SLint y2,
+                      const SLVec2f& oldTouchPos1,
+                      const SLVec2f& oldTouchPos2) override
+    {
+        SLVec2f now1((SLfloat)x1, (SLfloat)y1);
+        SLVec2f now2((SLfloat)x2, (SLfloat)y2);
+        SLVec2f delta1(now1 - oldTouchPos1);
+        SLVec2f delta2(now2 - oldTouchPos2);
+
+        // Average out the deltas over the last 4 events for correct 1 pixel moves
+        static SLuint  cnt = 0;
+        static SLVec2f d1[4];
+        static SLVec2f d2[4];
+        d1[cnt % 4] = delta1;
+        d2[cnt % 4] = delta2;
+        SLVec2f avgDelta1(d1[0].x + d1[1].x + d1[2].x + d1[3].x,
+                          d1[0].y + d1[1].y + d1[2].y + d1[3].y);
+        SLVec2f avgDelta2(d2[0].x + d2[1].x + d2[2].x + d2[3].x,
+                          d2[0].y + d2[1].y + d2[2].y + d2[3].y);
+        avgDelta1 /= 4.0f;
+        avgDelta2 /= 4.0f;
+        cnt++;
+
+        SLfloat r1, phi1, r2, phi2;
+        avgDelta1.toPolar(r1, phi1);
+        avgDelta2.toPolar(r2, phi2);
+
+        // scale factor depending on the space sice at focal dist
+        SLfloat spaceH = tan(Utils::DEG2RAD * _camera->fovV() / 2) * _camera->focalDist() * 2.0f;
+        SLfloat spaceW = spaceH * _camera->aspect();
+
+        // if fingers move parallel slide camera vertically or horizontally
+        if (Utils::abs(phi1 - phi2) < 0.2f)
+        {
+            // Calculate center between finger points
+            SLVec2f nowCenter((now1 + now2) * 0.5f);
+            SLVec2f oldCenter((oldTouchPos1 + oldTouchPos2) * 0.5f);
+
+            // For first move set oldCenter = nowCenter
+            if (oldCenter == SLVec2f::ZERO) oldCenter = nowCenter;
+
+            SLVec2f delta(nowCenter - oldCenter);
+
+            // scale to 0-1
+            delta.x /= _camera->viewportW();
+            delta.y /= _camera->viewportH();
+
+            // scale to space size
+            delta.x *= spaceW;
+            delta.y *= spaceH;
+
+            // apply delta to x- and y-position
+            _camera->translate(SLVec3f(-delta.x, delta.y, 0), TS_object);
+        }
+        else // Two finger pinch
+        {
+            // Calculate vector between fingers
+            SLVec2f nowDist(now2 - now1);
+            SLVec2f oldDist(oldTouchPos2 - oldTouchPos1);
+
+            // For first move set oldDist = nowDist
+            if (oldDist == SLVec2f::ZERO) oldDist = nowDist;
+
+            SLfloat delta = oldDist.length() - nowDist.length();
+
+            // scale to 0-1
+            delta /= (SLfloat)_camera->viewportH();
+
+            // scale to space height
+            delta *= spaceH * 2;
+
+            // apply delta to the z-position
+            _camera->translate(SLVec3f(0, 0, delta), TS_object);
+            _camera->focalDist(_camera->focalDist() + delta);
+        }
+    }
+};
+
+class SLCATrackball : public SLCameraAnimation
+{
+public:
+    SLCATrackball()
+    : SLCameraAnimation("CA_trackball", "Trackball")
+    {}
+};
+
+class SLCAWalkingYUp : public SLCameraAnimation
+{
+public:
+    SLCAWalkingYUp()
+    : SLCameraAnimation("CA_walkingYUp", "Walking Y up")
+    {}
+};
+
+class SLCAWalkingZUp : public SLCameraAnimation
+{
+public:
+    SLCAWalkingZUp()
+    : SLCameraAnimation("CA_walkingZUp", "Walking Z up")
+    {}
+};
+
+class SLCADeviceRotYUp : public SLCameraAnimation
+{
+public:
+    SLCADeviceRotYUp()
+    : SLCameraAnimation("CA_deviceRotYUp", "Device Rotated Y up")
+    {}
+};
+
+class SLCADeviceRotLocYUp : public SLCameraAnimation
+{
+public:
+    SLCADeviceRotLocYUp()
+    : SLCameraAnimation("CA_deviceRotLocYUp", "Device Rotated Y up and Gps Positioned")
+    {}
+};
+
 #endif

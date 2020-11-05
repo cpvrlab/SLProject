@@ -665,6 +665,7 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     startMS = GlobalTimer::timeMS();
 
     // Update camera animation separately (smooth transition on key movement)
+    //todo: ghm1: this is a very special treatment for camera animation in a very basic function
     SLbool camUpdated = _camera->camUpdate(elapsedTimeMS);
 
     //////////////////////

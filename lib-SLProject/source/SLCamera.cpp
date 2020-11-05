@@ -55,9 +55,13 @@ SLCamera::SLCamera(const SLstring& name)
     _clipFar       = 300.0f;
     _fovV          = 45.0;
     _projection    = P_monoPerspective;
-    _camAnim       = CA_turntableYUp;
+    _camAnim       = CA_off;
     _castsShadows  = false;
-
+    
+    //_camAnimation = new SLCAOff();//SLCATurntableYUp();
+    _camAnimation = new SLCATurntableZUp();
+    _camAnimation->camera(this);
+    
     // depth of field parameters
     _lensDiameter = 0.3f;
     _lensSamples.samples(1, 1); // e.g. 10,10 > 10x10=100 lenssamples
@@ -67,6 +71,12 @@ SLCamera::SLCamera(const SLstring& name)
     _background.colors(SLCol4f(0.6f, 0.6f, 0.6f), SLCol4f(0.3f, 0.3f, 0.3f));
     
     _enucorrRenu.identity();
+}
+//-----------------------------------------------------------------------------
+SLCamera::~SLCamera()
+{
+    if(_camAnimation)
+        delete _camAnimation;
 }
 //-----------------------------------------------------------------------------
 /*! SLCamera::camUpdate does the smooth transition for the walk animation. It
@@ -874,8 +884,6 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
             _om.setTranslation(wtc_f);
             needUpdate();
         }
-        
-
     }
     else if (_camAnim == CA_off)
     {
@@ -1017,6 +1025,7 @@ SLbool SLCamera::onMouseDown(const SLMouseButton button,
 
         if (_camAnim == CA_trackball)
         {
+            //todo anim
             _trackballStartVec = trackballVec(x, y);
             return true;
         }
@@ -1030,6 +1039,8 @@ SLbool SLCamera::onMouseMove(const SLMouseButton button,
                              const SLint         y,
                              const SLKey         mod)
 {
+
+    /*
     if (button == MB_left) //==================================================
     {
         // Set selection rectangle. See also SLMesh::handleRectangleSelection
@@ -1045,7 +1056,46 @@ SLbool SLCamera::onMouseMove(const SLMouseButton button,
             _deselectRect.setScnd(SLVec2f((SLfloat)x, (SLfloat)y));
             return true;
         }
+     
+         //beachte wenn k_ctrl doer alt vorher return
+         if(_camAnimation)
+             _camAnimation->onMouseMove(button, mod, x, y, _oldTouchPos1.x, _oldTouchPos1.y);
 
+         
+    }
+    else if( button == MB_middle)
+    {
+        if(_camAnimation)
+            _camAnimation->onMouseMove(button, mod, x, y, _oldTouchPos1.x, _oldTouchPos1.y);
+        
+        _oldTouchPos1.set((SLfloat)x, (SLfloat)y);
+    }
+
+    */
+    
+    //beachte wenn k_ctrl doer alt vorher return
+
+
+    
+    
+    if (button == MB_left) //==================================================
+    {
+        // Set selection rectangle. See also SLMesh::handleRectangleSelection
+        if (mod & K_ctrl)
+        {
+            _selectRect.setScnd(SLVec2f((SLfloat)x, (SLfloat)y));
+            return true;
+        }
+
+        // Set deselection rectangle. See also SLMesh::handleRectangleSelection
+        if (mod & K_alt)
+        {
+            _deselectRect.setScnd(SLVec2f((SLfloat)x, (SLfloat)y));
+            return true;
+        }
+        
+        _camAnimation->onMouseMove(button, mod, x, y, _oldTouchPos1.x, _oldTouchPos1.y);
+        
         // Position and directions in view space
         SLVec3f positionVS = this->translationOS();
         SLVec3f forwardVS  = this->forwardOS();
@@ -1174,6 +1224,13 @@ SLbool SLCamera::onMouseMove(const SLMouseButton button,
     }
     else if (button == MB_middle) //===========================================
     {
+        if(dynamic_cast<SLCATurntableYUp*>(_camAnimation) ||
+           dynamic_cast<SLCATurntableZUp*>(_camAnimation) )
+        {
+            _camAnimation->onMouseMove(button, mod, x, y, _oldTouchPos1.x, _oldTouchPos1.y);
+            _oldTouchPos1.set((SLfloat)x, (SLfloat)y);
+        }
+        
         if (_camAnim == CA_turntableYUp ||
             _camAnim == CA_turntableZUp ||
             _camAnim == CA_trackball)
@@ -1195,9 +1252,11 @@ SLbool SLCamera::onMouseMove(const SLMouseButton button,
             else
                 translate(SLVec3f(-dMouse.x, -dMouse.y, 0), TS_object);
 
+            //todo anim : bleibt!!
             _oldTouchPos1.set((SLfloat)x, (SLfloat)y);
         }
     } //=======================================================================
+
     return true;
 }
 //-----------------------------------------------------------------------------
@@ -1222,6 +1281,9 @@ SLbool SLCamera::onMouseUp(const SLMouseButton button,
             return true;
         }
 
+        if(_camAnimation->onMouseUpDispatched())
+            return true;
+        //todo anim
         if (_camAnim == CA_turntableYUp)
             return true;
         else if (_camAnim == CA_walkingYUp)
@@ -1240,8 +1302,10 @@ SLCamera::onMouseWheel event handler moves camera forwards or backwards
 SLbool SLCamera::onMouseWheel(const SLint delta,
                               const SLKey mod)
 {
+    _camAnimation->onMouseWheel(delta, mod);
+    
     SLfloat sign = (SLfloat)Utils::sign(delta);
-
+     
     if (_camAnim == CA_turntableYUp ||
         _camAnim == CA_turntableZUp ||
         _camAnim == CA_trackball) //...........................................
@@ -1283,6 +1347,8 @@ SLbool SLCamera::onTouch2Down(const SLint x1,
     _oldTouchPos2.set((SLfloat)x2, (SLfloat)y2);
     return true;
 }
+
+
 //-----------------------------------------------------------------------------
 /*!
 SLCamera::onTouch2Move gets called whenever two fingers move on a handheld
@@ -1293,6 +1359,8 @@ SLbool SLCamera::onTouch2Move(const SLint x1,
                               const SLint x2,
                               const SLint y2)
 {
+    _camAnimation->onTouch2Move(x1, y1, x2, y2, _oldTouchPos1, _oldTouchPos2);
+    
     SLVec2f now1((SLfloat)x1, (SLfloat)y1);
     SLVec2f now2((SLfloat)x2, (SLfloat)y2);
     SLVec2f delta1(now1 - _oldTouchPos1);

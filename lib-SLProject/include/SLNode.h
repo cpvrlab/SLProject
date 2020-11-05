@@ -261,6 +261,14 @@ public:
         _om = mat;
         needUpdate();
     }
+    /*
+    //set rotation part of object matrix
+    void om(const SLMat3f& mat)
+    {
+        _om.setMatrix(mat);
+        needUpdate();
+    }
+     */
     void         animation(SLAnimation* a) { _animation = a; }
     void         castsShadows(SLbool castsShadows) { _castsShadows = castsShadows; }
     virtual void needUpdate();
