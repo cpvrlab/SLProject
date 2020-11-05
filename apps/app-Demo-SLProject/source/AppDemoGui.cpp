@@ -671,15 +671,47 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
                 ImGui::TreePop();
             }
 
-            if (s->programs().size() && ImGui::TreeNode("Programs (extra)"))
+            if (s->programs().size() && ImGui::TreeNode("Programs (asset manager)"))
             {
                 for (SLuint i = 0; i < s->programs().size(); ++i)
-                    ImGui::Text("[%u] %s", i, s->programs()[i]->name().c_str());
+                {
+                    SLGLProgram* p = s->programs()[i];
+                    ImGui::Text("[%u] %s", i, p->name().c_str());
+                }
+                ImGui::TreePop();
+            }
+
+            if (ImGui::TreeNode("Programs (scene)"))
+            {
+                if (SLGLDefaultProgColorAttrib::isBuilt())
+                    ImGui::Text("%s", SLGLDefaultProgColorAttrib::instance()->name().c_str());
+                if (SLGLDefaultProgPerVrtBlinn::isBuilt())
+                    ImGui::Text("%s", SLGLDefaultProgPerVrtBlinn::instance()->name().c_str());
+                if (SLGLDefaultProgPerVrtBlinnTex::isBuilt())
+                    ImGui::Text("%s", SLGLDefaultProgPerVrtBlinnTex::instance()->name().c_str());
+                if (SLGLDefaultProgPerPixBlinn::isBuilt())
+                    ImGui::Text("%s", SLGLDefaultProgPerPixBlinn::instance()->name().c_str());
+                if (SLGLDefaultProgPerPixBlinnSM::isBuilt())
+                    ImGui::Text("%s", SLGLDefaultProgPerPixBlinnSM::instance()->name().c_str());
+                if (SLGLDefaultProgPerPixBlinnTex::isBuilt())
+                    ImGui::Text("%s", SLGLDefaultProgPerPixBlinnTex::instance()->name().c_str());
+                if (SLGLDefaultProgPerPixBlinnTexAO::isBuilt())
+                    ImGui::Text("%s", SLGLDefaultProgPerPixBlinnTexAO::instance()->name().c_str());
+                if (SLGLDefaultProgPerPixBlinnTexSM::isBuilt())
+                    ImGui::Text("%s", SLGLDefaultProgPerPixBlinnTexSM::instance()->name().c_str());
+                if (SLGLDefaultProgPerPixBlinnTexNrm::isBuilt())
+                    ImGui::Text("%s", SLGLDefaultProgPerPixBlinnTexNrm::instance()->name().c_str());
+                if (SLGLDefaultProgPerPixBlinnTexNrmAO::isBuilt())
+                    ImGui::Text("%s", SLGLDefaultProgPerPixBlinnTexNrmAO::instance()->name().c_str());
+                if (SLGLDefaultProgPerPixBlinnTexNrmSM::isBuilt())
+                    ImGui::Text("%s", SLGLDefaultProgPerPixBlinnTexNrmSM::instance()->name().c_str());
+                if (SLGLDefaultProgPerPixBlinnTexNrmAOSM::isBuilt())
+                    ImGui::Text("%s", SLGLDefaultProgPerPixBlinnTexNrmAOSM::instance()->name().c_str());
 
                 ImGui::TreePop();
             }
 
-            if (ImGui::TreeNode("Programs (standard)"))
+            if (ImGui::TreeNode("Programs (application)"))
             {
                 for (SLuint i = 0; i < SLGLProgramManager::size(); ++i)
                     ImGui::Text("[%u] %s", i, SLGLProgramManager::get((SLStdShaderProg)i)->name().c_str());
@@ -708,7 +740,9 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
             else if (c->isMirroredV())
                 mirrored = "vertically";
 
-            sprintf(m + strlen(m), "Video Type   : %s\n", vt == VT_NONE ? "None" : vt == VT_MAIN ? "Main Camera" : vt == VT_FILE ? "File" : "Secondary Camera");
+            sprintf(m + strlen(m), "Video Type   : %s\n", vt == VT_NONE ? "None" : vt == VT_MAIN ? "Main Camera"
+                                                                                 : vt == VT_FILE ? "File"
+                                                                                                 : "Secondary Camera");
             sprintf(m + strlen(m), "Display size : %d x %d\n", CVCapture::instance()->lastFrame.cols, CVCapture::instance()->lastFrame.rows);
             sprintf(m + strlen(m), "Capture size : %d x %d\n", capSize.width, capSize.height);
             sprintf(m + strlen(m), "Size Index   : %d\n", ac->camSizeIndex());
@@ -1339,6 +1373,8 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                         s->onLoad(s, sv, SID_SuzannePerPixBlinnTex);
                     if (ImGui::MenuItem("and with normal mapping", nullptr, sid == SID_SuzannePerPixBlinnTexNrm))
                         s->onLoad(s, sv, SID_SuzannePerPixBlinnTexNrm);
+                    if (ImGui::MenuItem("and with normal and AO mapping", nullptr, sid == SID_SuzannePerPixBlinnTexNrmAO))
+                        s->onLoad(s, sv, SID_SuzannePerPixBlinnTexNrmAO);
                     if (ImGui::MenuItem("and with shadow mapping", nullptr, sid == SID_SuzannePerPixBlinnTexNrmSM))
                         s->onLoad(s, sv, SID_SuzannePerPixBlinnTexNrmSM);
                     if (ImGui::MenuItem("and with ambient occlusion mapping", nullptr, sid == SID_SuzannePerPixBlinnTexNrmAOSM))
@@ -1673,10 +1709,10 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
 
                     if (ImGui::MenuItem("Reset Zero Yaw"))
                         devRot.hasStarted(true);
-                    
+
                     if (ImGui::MenuItem("Show Horizon", nullptr, _horizonVisuEnabled))
                     {
-                        if(_horizonVisuEnabled)
+                        if (_horizonVisuEnabled)
                             hideHorizon(s);
                         else
                             showHorizon(s, sv);
@@ -3570,18 +3606,18 @@ void AppDemoGui::removeTransformNode(SLProjectScene* s)
 void AppDemoGui::showHorizon(SLProjectScene* s, SLSceneView* sv)
 {
     //todo: why is root2D not always valid?
-    if(!s->root2D())
+    if (!s->root2D())
     {
         SLNode* scene2D = new SLNode("root2D");
         s->root2D(scene2D);
     }
-    
+
     SLstring       horizonName = "Horizon";
     SLHorizonNode* horizonNode = s->root2D()->findChild<SLHorizonNode>(horizonName);
 
     if (!horizonNode)
     {
-         horizonNode = new SLHorizonNode(horizonName,
+        horizonNode = new SLHorizonNode(horizonName,
                                         &SLApplication::devRot,
                                         s->font16,
                                         SLApplication::shaderPath,
@@ -3595,11 +3631,11 @@ void AppDemoGui::showHorizon(SLProjectScene* s, SLSceneView* sv)
 //! Disables calculation and visualization of horizon line
 void AppDemoGui::hideHorizon(SLProjectScene* s)
 {
-    if(s->root2D())
+    if (s->root2D())
     {
         SLstring       horizonName = "Horizon";
         SLHorizonNode* horizonNode = s->root2D()->findChild<SLHorizonNode>(horizonName);
-        if(horizonNode)
+        if (horizonNode)
         {
             s->root2D()->deleteChild(horizonNode);
         }

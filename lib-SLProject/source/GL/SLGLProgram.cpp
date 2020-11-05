@@ -52,6 +52,7 @@ SLGLProgram::SLGLProgram(SLAssetManager* s,
     // optional load vertex and/or fragment shaders
     addShader(new SLGLShader(vertShaderFile, ST_vertex));
     addShader(new SLGLShader(fragShaderFile, ST_fragment));
+
     if (!geomShaderFile.empty())
         addShader(new SLGLShader(geomShaderFile, ST_geometry));
 
@@ -203,7 +204,7 @@ void SLGLProgram::init(SLVLight* lights)
         }
     }
     else
-        SL_EXIT_MSG("No successufully compiled shaders attached!");
+        SL_EXIT_MSG("No successfully compiled shaders attached!");
 
     int linked = 0;
     glLinkProgram(_progID);
@@ -216,7 +217,6 @@ void SLGLProgram::init(SLVLight* lights)
         _isLinked = true;
         for (auto* shader : _shaders)
             _name += shader->name() + ", ";
-        //SL_LOG("Linked: %s", _name.c_str());
     }
     else
     {
@@ -446,7 +446,7 @@ void SLGLProgram::passLightsToUniforms(SLVLight* lights) const
     }
 }
 //-----------------------------------------------------------------------------
-//! SLGLProgram::endUse stops the shaderprogram
+//! SLGLProgram::endUse stops the shader program
 void SLGLProgram::endUse()
 {
     SLGLState* stateGL = SLGLState::instance();

@@ -119,6 +119,7 @@ enum SLSceneID
     SID_SuzannePerPixBlinn,
     SID_SuzannePerPixBlinnTex,
     SID_SuzannePerPixBlinnTexNrm,
+    SID_SuzannePerPixBlinnTexNrmAO,
     SID_SuzannePerPixBlinnTexNrmSM,
     SID_SuzannePerPixBlinnTexNrmAOSM,
 
