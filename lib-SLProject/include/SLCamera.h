@@ -286,7 +286,7 @@ public:
     }
     virtual ~SLCameraAnimation() {}
     
-    virtual void onMouseDown() {}
+    virtual SLbool onMouseDown(const SLint x, const SLint y) { return false; }
     virtual SLbool onMouseUpDispatched() { return false; }
     virtual void onMouseMove(const SLMouseButton button, const SLKey mod, SLfloat x, SLfloat y, SLfloat xOld, SLfloat yOld) {}
     virtual void onMouseWheel(const SLint delta, const SLKey mod) {}
@@ -660,8 +660,152 @@ class SLCATrackball : public SLCameraAnimation
 {
 public:
     SLCATrackball()
-    : SLCameraAnimation("CA_trackball", "Trackball")
+     : SLCameraAnimation("CA_trackball", "Trackball"),
+       _trackballSize(0.8f)
     {}
+    
+    SLbool onMouseDown(const SLint x, const SLint y) override
+    {
+        _trackballStartVec = trackballVec(x, y);
+        return true;
+    }
+    
+    void onMouseMove(const SLMouseButton button, const SLKey mod, SLfloat x, SLfloat y, SLfloat xOld, SLfloat yOld) override
+    {
+        assert(_camera);
+        
+        if (button == MB_left) //==================================================
+        {
+            // Position and directions in view space
+            SLVec3f positionVS = _camera->translationOS();
+            SLVec3f forwardVS  = _camera->forwardOS();
+            SLVec3f rightVS    = _camera->rightOS();
+            
+            // The lookAt point
+            SLVec3f lookAtPoint = positionVS + _camera->focalDist() * forwardVS;
+
+            // Determine rot angles around x- & y-axis
+            SLfloat dY = (y - yOld) * _rotFactor;
+            SLfloat dX = (x - xOld) * _rotFactor;
+            
+            // Reference: https://en.wikibooks.org/wiki/OpenGL_Programming/Modern_OpenGL_Tutorial_Arcball
+            // calculate current mouse vector at currenct mouse position
+            SLVec3f curMouseVec = trackballVec(x, y);
+
+            // calculate angle between the old and the current mouse vector
+            // Take care that the dot product isn't greater than 1.0 otherwise
+            // the acos will return indefined.
+            SLfloat dot   = _trackballStartVec.dot(curMouseVec);
+            SLfloat angle = acos(dot > 1 ? 1 : dot) * Utils::RAD2DEG;
+
+            // calculate rotation axis with the cross product
+            SLVec3f axisVS;
+            axisVS.cross(_trackballStartVec, curMouseVec);
+
+            // To stabilise the axis we average it with the last axis
+            static SLVec3f lastAxisVS = SLVec3f::ZERO;
+            if (lastAxisVS != SLVec3f::ZERO) axisVS = (axisVS + lastAxisVS) / 2.0f;
+
+            // Because we calculate the mouse vectors from integer mouse positions
+            // we can get some numerical instability from the dot product when the
+            // mouse is on the silhouette of the virtual sphere.
+            // We calculate therefore an alternative for the angle from the mouse
+            // motion length.
+            SLVec2f dMouse(xOld - x, yOld - y);
+            SLfloat dMouseLenght = dMouse.length();
+            if (angle > dMouseLenght) angle = dMouseLenght * 0.2f;
+
+            // Transform rotation axis into world space
+            // Remember: The cameras om is the view matrix inversed
+            SLVec3f axisWS = _camera->om().mat3() * axisVS;
+
+            // Create rotation from one rotation around one axis
+            SLMat4f rot;
+            rot.translate(lookAtPoint);          // undo camera translation
+            rot.rotate((SLfloat)-angle, axisWS); // create incremental rotation
+            rot.translate(-lookAtPoint);         // redo camera translation
+            _camera->om(rot * _camera->om());    // accumulate rotation to the existing camera matrix
+
+            // set current to last
+            _trackballStartVec = curMouseVec;
+            lastAxisVS         = axisVS;
+        }
+        else if (button == MB_middle) //===========================================
+        {
+            // Calculate the fraction delta of the mouse movement
+            SLVec2f dMouse(x - xOld, yOld - y);
+            dMouse.x /= (SLfloat)_camera->viewportW();
+            dMouse.y /= (SLfloat)_camera->viewportH();
+
+            // scale factor depending on the space size at focal dist
+            SLfloat spaceH = tan(Utils::DEG2RAD * _camera->fovV() / 2) * _camera->focalDist() * 2.0f;
+            SLfloat spaceW = spaceH * _camera->aspect();
+
+            dMouse.x *= spaceW;
+            dMouse.y *= spaceH;
+
+            if (mod == K_ctrl)
+                _camera->translate(SLVec3f(-dMouse.x, 0, dMouse.y), TS_object);
+            else
+                _camera->translate(SLVec3f(-dMouse.x, -dMouse.y, 0), TS_object);
+        }
+    }
+    
+    void onMouseWheel(const SLint delta, const SLKey mod) override
+    {
+        SLfloat sign = (SLfloat)Utils::sign(delta);
+        
+        if (mod == K_none)
+        {
+            const SLfloat& focalDist = _camera->focalDist();
+            SLfloat update = -sign * focalDist * _dPos;
+            _camera->translate(SLVec3f(0, 0, update), TS_object);
+            _camera->focalDist(focalDist + update);
+        }
+        if (mod == K_ctrl)
+        {
+            _camera->stereoEyeSeparation( _camera->stereoEyeSeparation() * (1.0f + sign * 0.1f));
+        }
+        if (mod == K_alt)
+        {
+            _camera->fov(_camera->fovV() + sign * 5.0f);
+            _camera->currentFOV = _camera->fovV();
+        }
+    }
+    
+private:
+    //-----------------------------------------------------------------------------
+    //! Returns a vector from the window center to a virtual trackball at [x,y].
+    /*! The trackball vector is a vector from the window center to a hemisphere
+    over the window at the specified cursor position. With two trackball vectors
+    you can calculate a single rotation axis with the cross product. This routine
+    is used for the trackball camera animation. */
+    SLVec3f trackballVec(const SLint x, const SLint y) const
+    {
+        //Calculate x & y component to the virtual unit sphere
+        SLfloat r = (SLfloat)(_camera->viewportW() < _camera->viewportH() ?
+                              _camera->viewportW() / 2 :
+                              _camera->viewportH() / 2) * _trackballSize;
+
+        SLVec3f vec((SLfloat)(x - _camera->viewportW() * 0.5f) / r,
+                    -(SLfloat)(y - _camera->viewportH() * 0.5f) / r);
+
+        // d = length of vector x,y
+        SLfloat d = sqrt(vec.x * vec.x + vec.y * vec.y);
+
+        // z component with pytagoras
+        if (d < 1.0f)
+            vec.z = sqrt(1.0f - d * d);
+        else
+        {
+            vec.z = 0.0f;
+            vec.normalize(); // d >= 1, so normalize
+        }
+        return vec;
+    }
+    
+    SLVec3f   _trackballStartVec; //!< Trackball vector at mouse down
+    SLfloat   _trackballSize;     //!< Size of trackball (0.8 = 80% of window size)
 };
 
 class SLCAWalkingYUp : public SLCameraAnimation

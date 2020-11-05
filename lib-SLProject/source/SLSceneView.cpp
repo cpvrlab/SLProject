@@ -665,7 +665,8 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     startMS = GlobalTimer::timeMS();
 
     // Update camera animation separately (smooth transition on key movement)
-    //todo: ghm1: this is a very special treatment for camera animation in a very basic function
+    //todo: ghm1: this is currently only necessary for walking animation (which is somehow always enabled)
+    //A problem is also, that it only updates the current camera. This is maybe not what we want for sensor rotated camera.
     SLbool camUpdated = _camera->camUpdate(elapsedTimeMS);
 
     //////////////////////

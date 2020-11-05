@@ -58,9 +58,10 @@ SLCamera::SLCamera(const SLstring& name)
     _camAnim       = CA_off;
     _castsShadows  = false;
     
-    //_camAnimation = new SLCAOff();//SLCATurntableYUp();
-    _camAnimation = new SLCATurntableZUp();
-    _camAnimation->camera(this);
+    _camAnimation = new SLCAOff();//SLCATurntableYUp();
+    //_camAnimation = new SLCATurntableZUp();
+    //_camAnimation = new SLCATrackball();
+    //_camAnimation->camera(this);
     
     // depth of field parameters
     _lensDiameter = 0.3f;
@@ -1023,6 +1024,10 @@ SLbool SLCamera::onMouseDown(const SLMouseButton button,
             return true;
         }
 
+        //todo anim
+        if (_camAnimation->onMouseDown(x, y))
+            return true;
+        
         if (_camAnim == CA_trackball)
         {
             //todo anim
@@ -1225,6 +1230,7 @@ SLbool SLCamera::onMouseMove(const SLMouseButton button,
     else if (button == MB_middle) //===========================================
     {
         if(dynamic_cast<SLCATurntableYUp*>(_camAnimation) ||
+           dynamic_cast<SLCATrackball*>(_camAnimation) ||
            dynamic_cast<SLCATurntableZUp*>(_camAnimation) )
         {
             _camAnimation->onMouseMove(button, mod, x, y, _oldTouchPos1.x, _oldTouchPos1.y);
@@ -1727,8 +1733,8 @@ SLstring SLCamera::toString() const
 over the window at the specified cursor position. With two trackball vectors
 you can calculate a single rotation axis with the cross product. This routine
 is used for the trackball camera animation.
-*/
-SLVec3f SLCamera::trackballVec(const SLint x, const SLint y) const
+ */
+ SLVec3f SLCamera::trackballVec(const SLint x, const SLint y) const
 {
     //Calculate x & y component to the virtual unit sphere
     SLfloat r = (SLfloat)(_viewportW < _viewportH ? _viewportW / 2 : _viewportH / 2) * _trackballSize;
