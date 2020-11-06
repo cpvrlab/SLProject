@@ -12,6 +12,8 @@
 #define AVERAGED_H
 
 #include <vector>
+#include <assert.h>
+
 using namespace std;
 
 //-----------------------------------------------------------------------------
@@ -52,7 +54,7 @@ public:
         _sum                     = _sum - _values[_currentValueNo];
         _values[_currentValueNo] = value;
         _sum                     = _sum + _values[_currentValueNo];
-        _average = _sum * _oneOverNumValues; // avoid division
+        _average                 = _sum * _oneOverNumValues; // avoid division
         _currentValueNo++;
     }
 
@@ -63,11 +65,11 @@ public:
     T last() { return _currentValueNo > 0 ? _currentValueNo - 1 : _values.size() - 1; }
 
 private:
-    float        _oneOverNumValues{}; //!< multiplier instead of divider
-    vector<T>    _values;             //!< value array
-    int          _currentValueNo{};   //!< current value index within _values
-    T            _sum;                //!< sum of all values
-    T            _average;            //!< average value
+    float     _oneOverNumValues{}; //!< multiplier instead of divider
+    vector<T> _values;             //!< value array
+    int       _currentValueNo{};   //!< current value index within _values
+    T         _sum;                //!< sum of all values
+    T         _average;            //!< average value
 };
 //-----------------------------------------------------------------------------
 typedef Averaged<float> AvgFloat;

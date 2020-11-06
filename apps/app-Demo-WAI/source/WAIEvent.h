@@ -15,6 +15,7 @@ enum WAIEventType
     WAIEventType_MapNodeTransform,
     WAIEventType_DownloadCalibrationFiles,
     WAIEventType_AdjustTransparency,
+    WAIEventType_StartCompassAlignment,
     WAIEventType_EditMap
 };
 
@@ -114,6 +115,14 @@ struct WAIEventEditMap : WAIEvent
     std::vector<bool>  vid;
     std::vector<bool>  nmatches;
     bool               b;
+};
+
+struct WAIEventStartCompassAlignment : WAIEvent
+{
+    WAIEventStartCompassAlignment()
+    {
+        type = WAIEventType_StartCompassAlignment;
+    }
 };
 
 #endif //WAI_EVENT_H

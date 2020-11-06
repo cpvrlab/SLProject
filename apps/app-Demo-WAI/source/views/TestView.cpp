@@ -119,6 +119,13 @@ bool TestView::update()
             }
             updateTrackingVisualization(_mode->isTracking(), *frame.get());
         }
+        else if (_compassAlignment)
+        {
+            cv::Mat resultImage;
+            _compassAlignment->update(frame->imgManip, resultImage);
+
+            updateCompassAlignmentVisualization(*frame.get(), resultImage);
+        }
     }
 
     return onPaint();
@@ -139,6 +146,19 @@ void TestView::tryLoadLastSlam()
     {
         _gui.uiPrefs->showSlamLoad = true;
     }
+}
+
+void TestView::startCompassAlignment()
+{
+    if (_mode)
+    {
+        _mode->requestStateIdle();
+        delete _mode;
+        _mode = nullptr;
+    }
+
+    cv::Mat templateTest = cv::imread(_dataDir + "erleb-AR/templates/template_test.png", cv::IMREAD_GRAYSCALE);
+    _compassAlignment    = new WAICompassAlignment(templateTest);
 }
 
 void TestView::handleEvents()
@@ -263,6 +283,7 @@ void TestView::handleEvents()
                 delete adjustTransparencyEvent;
             }
             break;
+
             case WAIEventType_EditMap: {
                 WAIEventEditMap* editMap = (WAIEventEditMap*)event;
 
@@ -323,6 +344,11 @@ void TestView::handleEvents()
                     _mapEdition->editMode(editMap->editMode);
                 }
                 delete editMap;
+            }
+            break;
+
+            case WAIEventType_StartCompassAlignment: {
+                startCompassAlignment();
             }
             break;
 
@@ -588,6 +614,12 @@ mapFile: path to a map or empty if no map should be used
 */
 void TestView::startOrbSlam(SlamParams slamParams)
 {
+    if (_compassAlignment)
+    {
+        delete _compassAlignment;
+        _compassAlignment = nullptr;
+    }
+
     _gui.clearErrorMsg();
     if (_videoFileStream)
         _videoFileStream.reset();
@@ -922,13 +954,10 @@ void TestView::updateTrackingVisualization(const bool iKnowWhereIAm)
     if (_gui.uiPrefs->showMapPC)
     {
         _scene.renderMapPoints(_mode->getMapPoints());
-        //todo: fix? mode has no member getMarmerCornerMapPoints
-        //_scene.renderMarkerCornerMapPoints(_mode->getMarkerCornerMapPoints());
     }
     else
     {
         _scene.removeMapPoints();
-        //_scene.removeMarkerCornerMapPoints();
     }
 
     //update visualization of local map points (when WAI pose is valid)
@@ -985,6 +1014,28 @@ void TestView::updateTrackingVisualization(const bool iKnowWhereIAm, SENSFrame& 
     _imgBuffer.incrementSlot();
 
     updateTrackingVisualization(iKnowWhereIAm);
+}
+
+void TestView::updateCompassAlignmentVisualization(SENSFrame& frame, cv::Mat& templateMatchingResult)
+{
+    if (!_compassAlignment)
+        return;
+
+    cv::Mat templateMatchingBGR = 127.5 * (templateMatchingResult + 1.0);
+
+    double min, max;
+    cv::minMaxLoc(templateMatchingBGR, &min, &max);
+
+    cv::resize(templateMatchingBGR, templateMatchingBGR, cv::Size(640, 480));
+    templateMatchingBGR.convertTo(templateMatchingBGR, CV_8UC1);
+
+    cv::cvtColor(templateMatchingBGR, templateMatchingBGR, cv::COLOR_GRAY2BGR);
+
+    _imgBuffer.inputSlot() = templateMatchingBGR;
+
+    _scene.camera->updateVideoImage(_imgBuffer.outputSlot());
+    //_scene.camera->updateVideoImage(frame.imgBGR);
+    _imgBuffer.incrementSlot();
 }
 
 void TestView::setupDefaultErlebARDirTo(std::string dir)
