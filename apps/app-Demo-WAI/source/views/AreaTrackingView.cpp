@@ -42,8 +42,8 @@ AreaTrackingView::AreaTrackingView(sm::EventHandler&   eventHandler,
     _camera = std::make_unique<SENSCvCamera>(camera);
     
     _devRot.numAveraged(3);
-    _devRot.updateRPY(true);
-    _devRot.zeroYawAtStart(true);
+    _devRot.updateRPY(false);
+    _devRot.zeroYawAtStart(false);
 }
 
 AreaTrackingView::~AreaTrackingView()

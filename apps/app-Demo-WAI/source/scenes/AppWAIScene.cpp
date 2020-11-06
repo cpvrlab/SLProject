@@ -366,6 +366,13 @@ void AppWAIScene::initLocationBiel()
 
 void AppWAIScene::initAreaEvilardOffice(SLDeviceRotation* devRot, int svW, int svH)
 {
+    SLNode* world = new SLNode("World");
+    _root3D->addChild(world);
+    
+    SLNode* worldAxisNode = new SLNode(new SLCoordAxis(&assets), "World Axis Node");
+    worldAxisNode->setDrawBitsRec(SL_DB_MESHWIRED, false);
+    world->addChild(worldAxisNode);
+       
     // Create directional light for the sun light
     sunLight = new SLLightDirect(&assets, this, 5.0f);
     sunLight->powers(1.0f, 1.0f, 1.0f);
@@ -376,18 +383,19 @@ void AppWAIScene::initAreaEvilardOffice(SLDeviceRotation* devRot, int svW, int s
     sunLight->doSmoothShadows(true);
     sunLight->castsShadows(false);
     sunLight->drawBits()->set(SL_DB_HIDDEN, true);
-    _root3D->addChild(sunLight);
-
+    world->addChild(sunLight);
+  
     //init camera
     camera = new VideoBackgroundCamera("AppWAIScene Camera", _dataDir + "images/textures/LiveVideoError.png", _dataDir + "shaders/");
     camera->translation(1.29f, 1.57f, 3.85f);
     camera->lookAt(1.29f, 1.57f, 0.f);
     camera->clipNear(0.5f);
-    camera->clipFar(5.f);
-    camera->camAnim(SLCamAnim::CA_deviceRotLocYUp);
+    camera->clipFar(10.f);
+    camera->camAnim(SLCamAnim::CA_deviceRotYUp);
+    //camera->camAnim(SLCamAnim::CA_off);
     camera->devRotLoc(devRot, nullptr);
     camera->setInitialState();
-    _root3D->addChild(camera);
+    world->addChild(camera);
 
     SLMaterial* yellow  = new SLMaterial(&assets, "mY", SLCol4f(1, 1, 0, 0.5f));
     SLBox*      piano     = new SLBox(&assets, 0.0f, 0.0f, 0.0f, 1.467f, 0.908f, 0.515f, "Box", yellow);
@@ -397,14 +405,23 @@ void AppWAIScene::initAreaEvilardOffice(SLDeviceRotation* devRot, int svW, int s
     
     SLNode* axisNode = new SLNode(new SLCoordAxis(&assets), "Axis Node");
     axisNode->setDrawBitsRec(SL_DB_MESHWIRED, false);
-    //axisNode->scale(e);
     pianoNode->addChild(axisNode);
 
-    _root3D->addChild(pianoNode);
+    SLNode* room = new SLNode("Room");
+    room->addChild(pianoNode);
+    world->addChild(room);
     
+    //correct room orientation to world (rotation around camera)
+    SLVec3f center = {camera->translationOS().x, 0, camera->translationOS().z};
+    SLMat4f rot;
+    rot.translate(center);
+    rot.rotate(60, SLVec3f(0, 1, 0));
+    rot.translate(-center); //this translation comes first because of left multiplication
+    room->om(rot * room->om());
+
     if(devRot)
     {
-        devRot->offsetMode(SLOffsetMode::OM_fingerXRotYTrans);
+        devRot->offsetMode(SLOffsetMode::OM_fingerX);
         //add horizon visualization
         if(!_root2D)
             _root2D = new SLNode("root2D");
