@@ -107,6 +107,13 @@ AppDemoWaiGui::AppDemoWaiGui(const ImGuiEngine&                          imGuiEn
 
     addInfoDialog(_guiMapEditor);
 
+    _guiCompassAlignment = std::make_shared<AppDemoGuiCompassAlignment>("compass alignment",
+                                                                        &eventQueue,
+                                                                        _resources.fonts().standard,
+                                                                        &uiPrefs->showCompassAlignment,
+                                                                        std::bind(&AppDemoWaiGui::showErrorMsg, this, std::placeholders::_1));
+    addInfoDialog(_guiCompassAlignment);
+
     _errorDial = std::make_shared<AppDemoGuiError>("Error", &uiPrefs->showError, _resources.fonts().standard);
     addInfoDialog(_errorDial);
     addInfoDialog(std::make_shared<AppDemoGuiInfosTracking>("tracking",
@@ -181,6 +188,13 @@ void AppDemoWaiGui::buildMenu(SLScene* s, SLSceneView* sv)
 
     if (ImGui::BeginMainMenuBar())
     {
+        if (ImGui::BeginMenu("Compass Alignment"))
+        {
+            ImGui::MenuItem("Start Compass Alignment", nullptr, &uiPrefs->showCompassAlignment);
+
+            ImGui::EndMenu();
+        }
+
         if (ImGui::BeginMenu("Slam"))
         {
             ImGui::MenuItem("Start", nullptr, &uiPrefs->showSlamLoad);

@@ -23,9 +23,12 @@ public:
     //Auto calibration menu
     bool showAutoCalibration = false;
 
+    //Compass alignment menu
+    bool showCompassAlignment = false;
+
     //map menu
     bool showInfosMapNodeTransform = false;
-    bool showMapPointEditor = false;
+    bool showMapPointEditor        = false;
 
     //infos menu
     bool showInfosScene       = false; //!< Flag if scene info should be shown

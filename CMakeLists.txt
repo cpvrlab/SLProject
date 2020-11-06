@@ -34,12 +34,14 @@ option(SL_BUILD_WAI          "Specifies if the WAI apps and library should be bu
 option(SL_BUILD_APPS         "Specifies if sample apps should be built"              ON)
 option(SL_BUILD_VULKAN_APPS  "Specifies if vulkan apps should be built"              ON)
 option(SL_BUILD_WITH_OPTIX   "Specifies if Optix renderer should be built"          OFF)
+option(LIBIGL_USE_STATIC_LIBRARY "Specifies if LibIGL should be built statically"    ON)
 
 message(STATUS "SL_DOWNLOAD_PREBUILTS: ${SL_DOWNLOAD_PREBUILTS}")
 message(STATUS "SL_BUILD_WAI: ${SL_BUILD_WAI}")
 message(STATUS "SL_BUILD_APPS: ${SL_BUILD_APPS}")
 message(STATUS "SL_BUILD_VULKAN_APPS: ${SL_BUILD_VULKAN_APPS}")
 message(STATUS "SL_BUILD_WITH_OPTIX: ${SL_BUILD_WITH_OPTIX}")
+message(STATUS "LIBIGL_USE_STATIC_LIBRARY: ${LIBIGL_USE_STATIC_LIBRARY}")
 
 include(cmake/SetGitBranchNameAndCommitID.cmake)
 include(cmake/CompileOptions.cmake)

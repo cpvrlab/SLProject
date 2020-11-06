@@ -2272,12 +2272,12 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         // load teapot
         SLAssimpImporter importer;
         SLNode*          suzanneInCube = importer.load(s->animManager(),
-                                              s,
-                                              SLApplication::modelPath + "GLTF/AO-Baked-Test/AO-Baked-Test.gltf",
-                                              SLApplication::texturePath,
-                                              true,    // load meshes only
-                                              nullptr, // override material
-                                              0.5f);   // ambient factor
+                                                       s,
+                                                       SLApplication::modelPath + "GLTF/AO-Baked-Test/AO-Baked-Test.gltf",
+                                                       SLApplication::texturePath,
+                                                       true,    // load meshes only
+                                                       nullptr, // override material
+                                                       0.5f);   // ambient factor
 
         // Setup shadow mapping material and replace shader from loader
         SLGLProgram* progPerPixNrm = new SLGLGenericProgram(s,
@@ -2296,11 +2296,66 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         // Save energy
         sv->doWaitOnIdle(true);
     }
+    else if (SLApplication::sceneID == SID_SuzannePerPixBlinnTexNrmAO) //................................
+    {
+        // Set scene name and info string
+        s->name("Suzanne with per pixel lighting and diffuse, normal and ambient occlusion mapping");
+        s->info("Suzanne with per pixel lighting and diffuse, normal and ambient occlusion mapping");
+
+        // Create a scene group node
+        SLNode* scene = new SLNode("scene node");
+
+        // Create camera in the center
+        SLCamera* cam1 = new SLCamera("Camera 1");
+        cam1->translation(0, 0.5f, 2);
+        cam1->lookAt(0, 0.5f, 0);
+        cam1->setInitialState();
+        cam1->focalDist(2);
+        scene->addChild(cam1);
+
+        // Create directional light for the sun light
+        SLLightDirect* light = new SLLightDirect(s, s, 0.1f);
+        light->ambientPower(0.8f);
+        light->diffusePower(0.8f);
+        light->attenuation(1, 0, 0);
+        light->translate(0, 0, 0.5);
+        light->lookAt(1, -1, 0.5);
+        SLAnimation* lightAnim = s->animManager().createNodeAnimation("LightAnim", 4.0f, true, EC_inOutSine, AL_pingPongLoop);
+        lightAnim->createSimpleRotationNodeTrack(light, -180, SLVec3f(0, 1, 0));
+        scene->addChild(light);
+
+        // load teapot
+        SLAssimpImporter importer;
+        SLNode*          suzanneInCube = importer.load(s->animManager(),
+                                              s,
+                                              SLApplication::modelPath + "GLTF/AO-Baked-Test/AO-Baked-Test.gltf",
+                                              SLApplication::texturePath,
+                                              true,    // load meshes only
+                                              nullptr, // override material
+                                              0.5f);   // ambient factor
+
+        // Setup shadow mapping material and replace shader from loader
+        SLGLProgram* progPerPixNrm = new SLGLGenericProgram(s,
+                                                            SLApplication::shaderPath + "PerPixBlinnTexNrmAO.vert",
+                                                            SLApplication::shaderPath + "PerPixBlinnTexNrmAO.frag");
+        auto         updateMat     = [=](SLMaterial* mat) { mat->program(progPerPixNrm); };
+        suzanneInCube->updateMeshMat(updateMat, true);
+
+        scene->addChild(suzanneInCube);
+
+        sv->camera(cam1);
+
+        // pass the scene group as root node
+        s->root3D(scene);
+
+        // Save energy
+        sv->doWaitOnIdle(true);
+    }
     else if (SLApplication::sceneID == SID_SuzannePerPixBlinnTexNrmSM) //................................
     {
         // Set scene name and info string
-        s->name("Suzanne with per pixel lighting and diffuse, normal and shadow mapping");
-        s->info("Suzanne with per pixel lighting and diffuse, normal and shadow mapping");
+        s->name("Suzanne with per pixel lighting and diffuse, normal and shadow mapping but without ambient occlusion");
+        s->info("Suzanne with per pixel lighting and diffuse, normal and shadow mapping but without ambient occlusion");
 
         // Create a scene group node
         SLNode* scene = new SLNode("scene node");
@@ -3909,18 +3964,6 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         CVCapture::instance()->videoType(VT_MAIN);
 
-        // Define shader that shows on all pixels the video background
-        SLGLProgram* spVideoBackground  = new SLGLGenericProgram(s,
-                                                                SLApplication::shaderPath + "PerVrtTextureBackground.vert",
-                                                                SLApplication::shaderPath + "PerVrtTextureBackground.frag");
-        SLMaterial*  matVideoBackground = new SLMaterial(s,
-                                                        "matVideoBackground",
-                                                        videoTexture,
-                                                        nullptr,
-                                                        nullptr,
-                                                        nullptr,
-                                                        spVideoBackground);
-
         // Create directional light for the sun light
         SLLightDirect* sunLight = new SLLightDirect(s, s, 5.0f);
         sunLight->powers(1.0f, 1.0f, 1.0f);
@@ -4022,18 +4065,6 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         CVCapture::instance()->videoType(VT_MAIN);
 
-        // Define shader that shows on all pixels the video background
-        SLGLProgram* spVideoBackground  = new SLGLGenericProgram(s,
-                                                                SLApplication::shaderPath + "PerVrtTextureBackground.vert",
-                                                                SLApplication::shaderPath + "PerVrtTextureBackground.frag");
-        SLMaterial*  matVideoBackground = new SLMaterial(s,
-                                                        "matVideoBackground",
-                                                        videoTexture,
-                                                        nullptr,
-                                                        nullptr,
-                                                        nullptr,
-                                                        spVideoBackground);
-
         // Create directional light for the sun light
         SLLightDirect* sunLight = new SLLightDirect(s, s, 5.0f);
         sunLight->powers(1.0f, 1.0f, 1.0f);
@@ -4062,14 +4093,6 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Rotate to the true geographic rotation
         cigognier->rotate(-37.0f, 0, 1, 0, TS_parent);
-
-        /* Setup shadow mapping material and replace shader from loader
-        SLGLProgram* progPerPixNrmSM = new SLGLGenericProgram(s,
-                                                              SLApplication::shaderPath + "PerPixBlinnTexNrmSM.vert",
-                                                              SLApplication::shaderPath + "PerPixBlinnTexNrmSM.frag");
-        auto         updateMat       = [=](SLMaterial* mat) { mat->program(progPerPixNrmSM); };
-        cigognier->updateMeshMat(updateMat, true);
-        */
 
         // Add axis object a world origin
         SLNode* axis = new SLNode(new SLCoordAxis(s), "Axis Node");

@@ -170,7 +170,7 @@ void SLApplication::handleParallelJob()
     }
 }
 //-----------------------------------------------------------------------------
-//! Threadsafe setter of the progress message
+//! Thread safe setter of the progress message
 void SLApplication::jobProgressMsg(string msg)
 {
     SLApplication::_jobMutex.lock();

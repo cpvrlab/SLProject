@@ -108,7 +108,7 @@ protected:
     void                loadSkeleton(SLAnimManager& animManager, SLJoint* parent, aiNode* node);
     static SLMaterial*  loadMaterial(SLAssetManager* s,
                                      SLint           index,
-                                     aiMaterial*     material,
+                                     aiMaterial*     aiMat,
                                      const SLstring& modelPath,
                                      const SLstring& texturePath,
                                      float           ambientFactor = 0.0f);

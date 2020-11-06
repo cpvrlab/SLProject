@@ -65,15 +65,13 @@ public:
             _instance = nullptr;
         }
     }
+    static bool isBuilt() { return _instance == nullptr ? false : true; }
 
 private:
     SLGLDefaultProgColorAttrib()
       : SLGLGenericProgram(nullptr,
                            SLGLProgramManager::shaderDir + "ColorAttribute.vert",
-                           SLGLProgramManager::shaderDir + "Color.frag")
-    {
-        _name = "ProgramDefaultColorAttrib";
-    };
+                           SLGLProgramManager::shaderDir + "Color.frag"){};
 
     static SLGLDefaultProgColorAttrib* _instance;
 };
@@ -100,15 +98,13 @@ public:
             _instance = nullptr;
         }
     }
+    static bool isBuilt() { return _instance == nullptr ? false : true; }
 
 private:
     SLGLDefaultProgPerVrtBlinn()
       : SLGLGenericProgram(nullptr,
                            SLGLProgramManager::shaderDir + "PerVrtBlinn.vert",
-                           SLGLProgramManager::shaderDir + "PerVrtBlinn.frag")
-    {
-        _name = "DefaultProgramPerVrt";
-    };
+                           SLGLProgramManager::shaderDir + "PerVrtBlinn.frag"){};
 
     static SLGLDefaultProgPerVrtBlinn* _instance;
 };
@@ -135,15 +131,13 @@ public:
             _instance = nullptr;
         }
     }
+    static bool isBuilt() { return _instance == nullptr ? false : true; }
 
 private:
     SLGLDefaultProgPerVrtBlinnTex()
       : SLGLGenericProgram(nullptr,
                            SLGLProgramManager::shaderDir + "PerVrtBlinnTex.vert",
-                           SLGLProgramManager::shaderDir + "PerVrtBlinnTex.frag")
-    {
-        _name = "DefaultProgramPerVrtTex";
-    };
+                           SLGLProgramManager::shaderDir + "PerVrtBlinnTex.frag"){};
 
     static SLGLDefaultProgPerVrtBlinnTex* _instance;
 };
@@ -170,15 +164,13 @@ public:
             _instance = nullptr;
         }
     }
+    static bool isBuilt() { return _instance == nullptr ? false : true; }
 
 private:
     SLGLDefaultProgPerPixBlinn()
       : SLGLGenericProgram(nullptr,
                            SLGLProgramManager::shaderDir + "PerPixBlinn.vert",
-                           SLGLProgramManager::shaderDir + "PerPixBlinn.frag")
-    {
-        _name = "DefaultPerPixProgram";
-    };
+                           SLGLProgramManager::shaderDir + "PerPixBlinn.frag"){};
 
     static SLGLDefaultProgPerPixBlinn* _instance;
 };
@@ -205,15 +197,13 @@ public:
             _instance = nullptr;
         }
     }
+    static bool isBuilt() { return _instance == nullptr ? false : true; }
 
 private:
     SLGLDefaultProgPerPixBlinnTex()
       : SLGLGenericProgram(nullptr,
                            SLGLProgramManager::shaderDir + "PerPixBlinnTex.vert",
-                           SLGLProgramManager::shaderDir + "PerPixBlinnTex.frag")
-    {
-        _name = "DefaultProgamPerPixelTex";
-    };
+                           SLGLProgramManager::shaderDir + "PerPixBlinnTex.frag"){};
 
     static SLGLDefaultProgPerPixBlinnTex* _instance;
 };
@@ -240,15 +230,13 @@ public:
             _instance = nullptr;
         }
     }
+    static bool isBuilt() { return _instance == nullptr ? false : true; }
 
 private:
     SLGLDefaultProgPerPixBlinnSM()
       : SLGLGenericProgram(nullptr,
                            SLGLProgramManager::shaderDir + "PerPixBlinnSM.vert",
-                           SLGLProgramManager::shaderDir + "PerPixBlinnSM.frag")
-    {
-        _name = "DefaultProgamPerPixelSM";
-    };
+                           SLGLProgramManager::shaderDir + "PerPixBlinnSM.frag"){};
 
     static SLGLDefaultProgPerPixBlinnSM* _instance;
 };
@@ -275,15 +263,13 @@ public:
             _instance = nullptr;
         }
     }
+    static bool isBuilt() { return _instance == nullptr ? false : true; }
 
 private:
     SLGLDefaultProgPerPixBlinnTexSM()
       : SLGLGenericProgram(nullptr,
                            SLGLProgramManager::shaderDir + "PerPixBlinnTexSM.vert",
-                           SLGLProgramManager::shaderDir + "PerPixBlinnTexSM.frag")
-    {
-        _name = "DefaultProgPerPixBlinnTexSM";
-    };
+                           SLGLProgramManager::shaderDir + "PerPixBlinnTexSM.frag"){};
 
     static SLGLDefaultProgPerPixBlinnTexSM* _instance;
 };
@@ -310,15 +296,13 @@ public:
             _instance = nullptr;
         }
     }
+    static bool isBuilt() { return _instance == nullptr ? false : true; }
 
 private:
     SLGLDefaultProgPerPixBlinnTexAO()
       : SLGLGenericProgram(nullptr,
                            SLGLProgramManager::shaderDir + "PerPixBlinnTexAO.vert",
-                           SLGLProgramManager::shaderDir + "PerPixBlinnTexAO.frag")
-    {
-        _name = "DefaultProgamPerPixelTexAO";
-    };
+                           SLGLProgramManager::shaderDir + "PerPixBlinnTexAO.frag"){};
 
     static SLGLDefaultProgPerPixBlinnTexAO* _instance;
 };
@@ -345,15 +329,13 @@ public:
             _instance = nullptr;
         }
     }
+    static bool isBuilt() { return _instance == nullptr ? false : true; }
 
 private:
     SLGLDefaultProgPerPixBlinnTexNrm()
       : SLGLGenericProgram(nullptr,
                            SLGLProgramManager::shaderDir + "PerPixBlinnTexNrm.vert",
-                           SLGLProgramManager::shaderDir + "PerPixBlinnTexNrm.frag")
-    {
-        _name = "DefaultProgramPerPixelTexNrm";
-    };
+                           SLGLProgramManager::shaderDir + "PerPixBlinnTexNrm.frag"){};
 
     static SLGLDefaultProgPerPixBlinnTexNrm* _instance;
 };
@@ -380,15 +362,13 @@ public:
             _instance = nullptr;
         }
     }
+    static bool isBuilt() { return _instance == nullptr ? false : true; }
 
 private:
     SLGLDefaultProgPerPixBlinnTexNrmAO()
       : SLGLGenericProgram(nullptr,
                            SLGLProgramManager::shaderDir + "PerPixBlinnTexNrmAO.vert",
-                           SLGLProgramManager::shaderDir + "PerPixBlinnTexNrmAO.frag")
-    {
-        _name = "DefaultProgPerPixTexNrmAO";
-    };
+                           SLGLProgramManager::shaderDir + "PerPixBlinnTexNrmAO.frag"){};
 
     static SLGLDefaultProgPerPixBlinnTexNrmAO* _instance;
 };
@@ -415,15 +395,13 @@ public:
             _instance = nullptr;
         }
     }
+    static bool isBuilt() { return _instance == nullptr ? false : true; }
 
 private:
     SLGLDefaultProgPerPixBlinnTexNrmSM()
       : SLGLGenericProgram(nullptr,
                            SLGLProgramManager::shaderDir + "PerPixBlinnTexNrmSM.vert",
-                           SLGLProgramManager::shaderDir + "PerPixBlinnTexNrmSM.frag")
-    {
-        _name = "DefaultProgPerPixTexNrmSM";
-    };
+                           SLGLProgramManager::shaderDir + "PerPixBlinnTexNrmSM.frag"){};
 
     static SLGLDefaultProgPerPixBlinnTexNrmSM* _instance;
 };
@@ -450,19 +428,16 @@ public:
             _instance = nullptr;
         }
     }
+    static bool isBuilt() { return _instance == nullptr ? false : true; }
 
 private:
     SLGLDefaultProgPerPixBlinnTexNrmAOSM()
       : SLGLGenericProgram(nullptr,
                            SLGLProgramManager::shaderDir + "PerPixBlinnTexNrmAOSM.vert",
-                           SLGLProgramManager::shaderDir + "PerPixBlinnTexNrmAOSM.frag")
-    {
-        _name = "DefaultProgPerPixTexNrmAOSM";
-    };
+                           SLGLProgramManager::shaderDir + "PerPixBlinnTexNrmAOSM.frag"){};
 
     static SLGLDefaultProgPerPixBlinnTexNrmAOSM* _instance;
 };
 //-----------------------------------------------------------------------------
-
 
 #endif

@@ -703,7 +703,8 @@ void SLMesh::generateVAO(SLGLVertexArray& vao)
     vao.setAttrib(AT_position, AT_position, _finalP);
     if (!N.empty()) vao.setAttrib(AT_normal, AT_normal, _finalN);
     if (!UV1.empty()) vao.setAttrib(AT_uv1, AT_uv1, &UV1);
-    if (!UV2.empty()) vao.setAttrib(AT_uv2, AT_uv2, &UV2);
+    if (!UV2.empty())
+        vao.setAttrib(AT_uv2, AT_uv2, &UV2);
     if (!C.empty()) vao.setAttrib(AT_color, AT_color, &C);
     if (!T.empty()) vao.setAttrib(AT_tangent, AT_tangent, &T);
 
