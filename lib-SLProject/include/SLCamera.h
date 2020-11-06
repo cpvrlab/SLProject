@@ -95,7 +95,7 @@ public:
     }
     void fov(const SLfloat fov)
     {
-        _fov       = fov;
+        _fovV      = fov;
         currentFOV = fov;
     }
     void camAnim(SLCamAnim ca)
@@ -103,6 +103,7 @@ public:
         _camAnim         = ca;
         currentAnimation = ca;
     }
+    /*
     void intrinsics(const SLfloat fx, const SLfloat fy, const SLfloat cx, const SLfloat cy)
     {
         _fx = fx;
@@ -110,6 +111,7 @@ public:
         _cx = cx;
         _cy = cy;
     }
+     */
     void clipNear(const SLfloat cNear) { _clipNear = cNear; }
     void clipFar(const SLfloat cFar) { _clipFar = cFar; }
     void lookFrom(const SLVec3f& fromDir,
@@ -136,7 +138,9 @@ public:
     SLProjection   projection() const { return _projection; }
     SLstring       projectionStr() const { return projectionToStr(_projection); }
     SLfloat        unitScaling() const { return _unitScaling; }
-    SLfloat        fov() const { return _fov; }
+    SLfloat        fovV() const { return _fovV; }                  //!< Vertical field of view
+    //todo: fovH calculation is wrong
+    SLfloat        fovH() const { return _viewportRatio * _fovV; } //!< Horizontal field of view
     SLfloat        aspect() const { return _viewportRatio; }
     SLfloat        clipNear() const { return _clipNear; }
     SLfloat        clipFar() const { return _clipFar; }
@@ -182,7 +186,7 @@ public:
 protected:
     // projection parameters
     SLProjection _projection;    //!< projection type
-    SLfloat      _fov;           //!< Current vertical field of view (view angle) in degrees
+    SLfloat      _fovV;          //!< Current vertical field of view (view angle) in degrees
     SLfloat      _fovInit;       //!< Initial vertical field of view (view angle) in degrees
     SLfloat      _clipNear;      //!< Dist. to the near clipping plane
     SLfloat      _clipFar;       //!< Dist. to the far clipping plane
@@ -212,7 +216,6 @@ protected:
     // animation parameters
     SLbool    _movedLastFrame;    //! did the camera updateRec in the last frame?
     SLCamAnim _camAnim;           //!< Type of camera animation
-    SLVec2f   _startTouchPos1;    //!< Start mouse/touch position at mouse-down
     SLVec2f   _oldTouchPos1;      //!< Old mouse/touch position in pixels
     SLVec2f   _oldTouchPos2;      //!< Old 2nd finger touch position in pixels
     SLVec3f   _trackballStartVec; //!< Trackball vector at mouse down
@@ -251,6 +254,13 @@ protected:
 
     SLRectf _selectRect;   //!< Mouse selection rectangle. See SLMesh::handleRectangleSelection
     SLRectf _deselectRect; //!< Mouse deselection rectangle. See SLMesh::handleRectangleSelection
+    
+    //!parameter for manual finger rotation and translation
+    SLint _xOffsetPix = 0;
+    SLint _yOffsetPix = 0;
+    float _distanceToObjectM = 10.0f; //!< distance to object in meter that should be shifted relative to camera
+    float _enucorrTRenu = 0.f;        //!< manual camera shift in y direction
+    SLMat3f _enucorrRenu;
 };
 //-----------------------------------------------------------------------------
 #endif

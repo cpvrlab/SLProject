@@ -246,7 +246,7 @@ bool LocalMapping::CheckNewKeyFrames()
 int LocalMapping::KeyFramesToProcess()
 {
     unique_lock<mutex> lock(mMutexNewKFs);
-    return (mlNewKeyFrames.size());
+    return (int)(mlNewKeyFrames.size());
 }
 
 WAIKeyFrame* LocalMapping::GetNewKeyFrame()

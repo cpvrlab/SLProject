@@ -33,6 +33,8 @@ AreaTrackingView::AreaTrackingView(sm::EventHandler&   eventHandler,
     _locations(resources.locations())
 {
     scene(&_userGuidanceScene);
+    this->camera(_userGuidanceScene.camera);
+    
     init("AreaTrackingView", deviceData.scrWidth(), deviceData.scrHeight(), nullptr, nullptr, &_gui, deviceData.writableDir());
     onInitialize();
 
@@ -71,6 +73,8 @@ void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaI
         this->unInit();
         _waiScene.initScene(locId, areaId);
         updateSceneCameraFov();
+        this->scene(&_waiScene);
+        this->camera(_waiScene.camera);
         this->onInitialize(); //init scene view
 
         initDeviceLocation(location, area);
@@ -86,6 +90,37 @@ void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaI
     {
         _gui.showErrorMsg("AreaTrackingView init: unknown exception catched!");
     }
+}
+
+cv::Mat AreaTrackingView::convertCameraPoseToWaiCamExtrinisc(SLMat4f& wTc)
+{
+    // update camera node position
+    cv::Mat wRc(3, 3, CV_32F);
+    cv::Mat wtc(3, 1, CV_32F);
+    //wTc.print("wtc");
+    
+    //copy from SLMat4 to cv::Mat rotation and translation and invert sign of y- and z-axis
+    // clang-format off
+    wRc.at<float>(0,0) = wTc.m(0); wRc.at<float>(0,1) = -wTc.m(4); wRc.at<float>(0,2) = -wTc.m(8); wtc.at<float>(0) = wTc.m(12);
+    wRc.at<float>(1,0) = wTc.m(1); wRc.at<float>(1,1) = -wTc.m(5); wRc.at<float>(1,2) = -wTc.m(9); wtc.at<float>(1) = wTc.m(13);
+    wRc.at<float>(2,0) = wTc.m(2); wRc.at<float>(2,1) = -wTc.m(6); wRc.at<float>(2,2) = -wTc.m(10); wtc.at<float>(2) = wTc.m(14);
+    // clang-format on
+    //std::cout << "wRc: " << wRc << std::endl;
+    //std::cout << "wtc: " << wtc << std::endl;
+    
+    //inversion of orthogonal rotation matrix
+    cv::Mat cRw = wRc.t();
+    //inversion of vector
+    cv::Mat ctw = -cRw * wtc;
+    //std::cout << "cRw: " << cRw << std::endl;
+    //std::cout << "ctw: " << ctw << std::endl ;
+    
+    //copy to 4x4 matrix
+    cv::Mat cTw = cv::Mat::eye(4, 4, CV_32F);
+    cRw.copyTo(cTw.colRange(0, 3).rowRange(0, 3));
+    ctw.copyTo(cTw.rowRange(0, 3).col(3));
+    //std::cout << "cTw: " << cTw << std::endl;
+    return cTw;
 }
 
 bool AreaTrackingView::update()
@@ -115,15 +150,18 @@ bool AreaTrackingView::update()
                     slamState  = _waiSlam->getTrackingState();
                     isTracking = (_waiSlam->getTrackingState() == WAI::TrackingState_TrackingOK);
                 }
-                
+
                 if (isTracking)
+                {
                     _waiScene.updateCameraPose(_waiSlam->getPose());
+                }
                 else if (_orientation)
                 {
                     SLMat4f camPose = calcCameraPoseGpsOrientationBased();
                     _waiScene.camera->om(camPose);
                     //give waiSlam a guess of the current position in the ENU frame
-                    //todo ..
+                    cv::Mat camExtrinsic = convertCameraPoseToWaiCamExtrinisc(camPose);
+                    _waiSlam->setCamExrinsicGuess(camExtrinsic);
                 }
             }
             else if (_asyncLoader && _asyncLoader->isReady())
@@ -150,14 +188,20 @@ bool AreaTrackingView::update()
             VideoBackgroundCamera* currentCamera;
             if (isTracking || !_resources.enableUserGuidance)
             {
-                this->scene(&_waiScene);
-                this->camera(_waiScene.camera);
+                if (this->s() != &_waiScene)
+                {
+                    this->scene(&_waiScene);
+                    this->camera(_waiScene.camera);
+                }
                 currentCamera = _waiScene.camera;
             }
             else
             {
-                this->scene(&_userGuidanceScene);
-                this->camera(_userGuidanceScene.camera);
+                if (this->s() != &_userGuidanceScene)
+                {
+                    this->scene(&_userGuidanceScene);
+                    this->camera(_userGuidanceScene.camera);
+                }
                 currentCamera = _userGuidanceScene.camera;
             }
 
@@ -172,6 +216,7 @@ bool AreaTrackingView::update()
                 updateVideoImage(*frame.get(), currentCamera);
             }
 
+            //update user guidance
             if (_resources.enableUserGuidance)
             {
                 _userGuidance.updateTrackingState(isTracking);
@@ -255,11 +300,10 @@ SLMat4f AreaTrackingView::calcCameraPoseGpsOrientationBased()
     //(even if there is no gps, devLoc gives us a guess of the current home position)
     if (_gps)
     {
-        //update with current gps sensor position
         auto loc = _gps->getLocation();
-        _devLoc.onLocationLatLonAlt(loc.latitudeDEG, loc.longitudeDEG, loc.altitudeM, loc.altitudeM);
+        //Update deviceLocation: this updates current enu position
+        _devLoc.onLocationLatLonAlt(loc.latitudeDEG, loc.longitudeDEG, loc.altitudeM, loc.accuracyM);
     }
-
     auto     sensQuat = _orientation->getOrientation();
     SLQuat4f slQuat(sensQuat.quatX, sensQuat.quatY, sensQuat.quatZ, sensQuat.quatW);
     SLMat3f  rotMat = slQuat.toMat3();
@@ -269,16 +313,16 @@ SLMat4f AreaTrackingView::calcCameraPoseGpsOrientationBased()
         SLMat3f sRc;
         sRc.rotation(-90, 0, 0, 1);
 
-        //sensor rotation w.r.t. east-north-down
+        //sensor rotation w.r.t. east-north-up
         SLMat3f enuRs;
         enuRs.setMatrix(rotMat);
 
-        //world-yaw rotation w.r.t. world
-        SLMat3f wRwy;
-        wRwy.rotation(-90, 1, 0, 0);
+        //enu rotation w.r.t. world
+        SLMat3f wRenu;
+        wRenu.rotation(-90, 1, 0, 0);
 
         //combiniation of partial rotations to orientation of camera w.r.t world
-        SLMat3f wRc = wRwy * enuRs * sRc;
+        SLMat3f wRc = wRenu * enuRs * sRc;
         camPose.setRotation(wRc);
     }
 
@@ -486,7 +530,7 @@ void AreaTrackingView::updateSceneCameraFov()
         }
         else
         {
-            //bars top and bottom: estimate vertical fov from cameras horizontal field of view and screen aspect ratio
+            //bars top and bottom: estimate vertical fovV from cameras horizontal field of view and screen aspect ratio
             float fovV = SENS::calcFovDegFromOtherFovDeg(_camera->calibration()->cameraFovHDeg(), this->scrW(), this->scrH());
             _waiScene.camera->updateCameraIntrinsics(fovV);
             _userGuidanceScene.camera->updateCameraIntrinsics(fovV);

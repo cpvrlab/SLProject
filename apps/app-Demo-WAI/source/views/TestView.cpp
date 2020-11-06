@@ -38,7 +38,8 @@ TestView::TestView(sm::EventHandler&   eventHandler,
     _vocabularyDir(deviceData.vocabularyDir()),
     _calibDir(deviceData.erlebARCalibTestDir()),
     _videoDir(deviceData.erlebARTestDir() + "videos/"),
-    _dataDir(deviceData.dataDir())
+    _dataDir(deviceData.dataDir()),
+    _deviceData(deviceData)
 {
     scene(&_scene);
     init("TestSceneView", deviceData.scrWidth(), deviceData.scrHeight(), nullptr, nullptr, &_gui, _configDir);
@@ -360,22 +361,101 @@ void TestView::handleEvents()
     }
 }
 
-//void TestView::postStart()
-//{
-//    doWaitOnIdle(false);
-//    camera(_scene.cameraNode);
-//    onInitialize();
-//    if (_camera && _camera->started())
-//        setViewportFromRatio(SLVec2i(_camera->config().targetWidth, _camera->config().targetHeight), SLViewportAlign::VA_center, true);
-//}
-
-void TestView::loadWAISceneView(std::string location, std::string area)
+//ATTENTION: THIS MAPPING IS NOT COMPLETE AND ONLY FULFILLS CURRENT SCENE IMPLEMENTATION
+void TestView::mapErlebARDirNamesToIds(const std::string& location, const std::string& area, ErlebAR::LocationId& locationId, ErlebAR::AreaId& areaId)
 {
-    _scene.rebuild(location, area);
+    if (location == "avenches")
+    {
+        locationId = ErlebAR::LocationId::AVENCHES;
+        if (area == "amphitheaterEntrance" || area == "amphitheater")
+            areaId = ErlebAR::AreaId::AVENCHES_THEATER;
+        else if (area == "cigonier-marker")
+            areaId = ErlebAR::AreaId::AVENCHES_CIGOGNIER;
+        else if (area == "theater-marker" || area == "theater")
+            areaId = ErlebAR::AreaId::AVENCHES_THEATER;
+    }
+    else if (location == "augst")
+    {
+        locationId = ErlebAR::LocationId::AUGST;
+        //there is just one model so we just use a random augst id
+        if (area == "templeHill-marker")
+            areaId = ErlebAR::AreaId::AUGST_TEMPLE_HILL_MARKER;
+        else if (area == "templeHillTheaterBottom")
+            areaId = ErlebAR::AreaId::AUGST_TEMPLE_HILL_THEATER_BOTTOM;
+    }
+    else if (location == "bern")
+    {
+        locationId = ErlebAR::LocationId::BERN;
+        if (area == "milchgaessli")
+            areaId = ErlebAR::AreaId::BERN_MILCHGAESSLI;
+        else if (area == "sbb")
+            areaId = ErlebAR::AreaId::BERN_SBB;
+        else if (area == "bubenbergplatz")
+            areaId = ErlebAR::AreaId::BERN_BUBENBERGPLATZ;
+    }
+    else if (location == "biel")
+    {
+        locationId = ErlebAR::LocationId::BIEL;
+        if (area == "bfh")
+            areaId = ErlebAR::AreaId::BIEL_BFH;
+    }
+}
+
+void TestView::initDeviceLocation(const ErlebAR::Location& location, const ErlebAR::Area& area)
+{
+    //reset everything to default
+    _devLoc.init();
+
+    _devLoc.locMaxDistanceM(1000.0f);
+    _devLoc.improveOrigin(false);
+    _devLoc.useOriginAltitude(false);
+    _devLoc.cameraHeightM(1.7f);
+    // Let the sun be rotated by time and location
+    if (_scene.sunLight)
+        _devLoc.sunLightNode(_scene.sunLight);
+
+    _devLoc.originLatLonAlt(area.modelOrigin.x, area.modelOrigin.y, area.modelOrigin.z); // Model origin
+    _devLoc.defaultLatLonAlt(area.llaPos.x, area.llaPos.y, area.llaPos.z + _devLoc.cameraHeightM());
+    //ATTENTION: call this after originLatLonAlt and defaultLatLonAlt setters. Otherwise alititude will be overwritten!!
+    if (!location.geoTiffFileName.empty())
+    {
+        std::string geoTiffFileName = _deviceData.erlebARDir() + location.geoTiffFileName;
+        if (Utils::fileExists(geoTiffFileName))
+            _devLoc.loadGeoTiff(geoTiffFileName);
+        else
+        {
+            std::stringstream ss;
+            ss << "TestView::initDeviceLocation: geo tiff file does not exist: " << geoTiffFileName;
+            throw std::runtime_error(ss.str());
+        }
+    }
+    else
+        Utils::log("TestView", "WARNING: no geo tiff available");
+}
+
+void TestView::loadWAISceneView(std::string locationStr, std::string areaStr)
+{
+    //map strings to ids
+    ErlebAR::LocationId locationId = ErlebAR::LocationId::NONE;
+    ErlebAR::AreaId     areaId     = ErlebAR::AreaId::NONE;
+    mapErlebARDirNamesToIds(locationStr, areaStr, locationId, areaId);
+    _scene.initScene(locationId, areaId);
+    _scene.camera->camAnim(SLCamAnim::CA_turntableYUp);
 
     doWaitOnIdle(false);
     camera(_scene.camera);
     onInitialize();
+
+    /*
+    if (locationId != ErlebAR::LocationId::NONE &&
+        areaId != ErlebAR::AreaId::NONE)
+    {
+        std::map<ErlebAR::LocationId, ErlebAR::Location> erlebAR  = ErlebAR::defineLocations();
+        ErlebAR::Location                                location = erlebAR[locationId];
+        ErlebAR::Area&                                   area     = location.areas[areaId];
+        initDeviceLocation(location, area);
+    }
+     */
 }
 
 void TestView::saveMapBinary(std::string location,
@@ -574,7 +654,7 @@ void TestView::updateSceneCameraFov()
         }
         else
         {
-            //bars top and bottom: estimate vertical fov from cameras horizontal field of view and screen aspect ratio
+            //bars top and bottom: estimate vertical fovV from cameras horizontal field of view and screen aspect ratio
             float fovV = SENS::calcFovDegFromOtherFovDeg(_calibration->cameraFovHDeg(), this->scrW(), this->scrH());
             _scene.camera->updateCameraIntrinsics(fovV);
         }
@@ -765,7 +845,7 @@ void TestView::startOrbSlam(SlamParams slamParams)
         }
     }
 
-    // 3. Adjust FOV of camera node according to new calibration (fov is used in projection->prespective _mode)
+    // 3. Adjust FOV of camera node according to new calibration (fovV is used in projection->prespective _mode)
     _scene.camera->updateCameraIntrinsics(_calibration->cameraFovVDeg());
 
     // 4. Create new mode ORBSlam

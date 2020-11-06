@@ -32,7 +32,7 @@ class SLQuat4
            explicit SLQuat4         (const SLMat3<T>& m);
                     SLQuat4         (T angleDEG, const SLVec3<T>& axis);
                     SLQuat4         (const SLVec3<T>& v0, const SLVec3<T>& v1);
-                    SLQuat4         (T pitchRAD, T yawRAD, T rollRAD);
+                    SLQuat4         (const T xRotRAD, const T yRotRAD, const T zRotRAD);
       
         T           x               () const { return _x; }
         T           y               () const { return _y; }
@@ -43,18 +43,19 @@ class SLQuat4
         void        fromMat3        (const SLMat3<T>& m);
         void        fromAngleAxis   (T angleRAD,
                                      T axisX, T axisY, T axisZ);
-        void        fromEulerAngles (T pitchRAD, T yawRAD, T rollRAD);
+        void        fromEulerAngles (const T xRotRAD, const T yRotRAD, const T zRotRAD);
         void        fromVec3        (const SLVec3<T>& v0, const SLVec3<T>& v1);
 
- static SLQuat4<T>  fromLookRotation(const SLVec3<T>& forward, const SLVec3<T>& up);
+        static SLQuat4<T>  fromLookRotation(const SLVec3<T>& forward, const SLVec3<T>& up);
 
         SLMat3<T>   toMat3          () const;
         SLMat4<T>   toMat4          () const;
         SLVec4<T>   toVec4          () const;
         void        toAngleAxis     (T& angleDEG, SLVec3<T>& axis) const;
-        void        toEulerAnglesXYZ(T& rollRAD, T& pitchRAD, T& yawRAD) const;
-        void        toEulerAnglesZYX(T& rollRAD, T& pitchRAD, T& yawRAD) const;
-      
+        void        toEulerAnglesXYZ(T& xRotRAD, T& yRotRAD, T& zRotRAD) const;
+        void        toEulerAnglesZYX(T& zRotRAD, T& yRotRAD, T& xRotRAD) const;
+        void        toEulerAnglesZXY(T& zRotRAD, T& xRotRAD, T& yRotRAD) const;
+
         T           dot             (const SLQuat4<T>& q) const;
         T           length          () const;
         SLQuat4<T>  normalized      () const;
@@ -130,9 +131,9 @@ inline SLQuat4<T>::SLQuat4(const SLVec3<T>& v0, const SLVec3<T>& v1)
                     
 //-----------------------------------------------------------------------------
 template <class T>
-inline SLQuat4<T>::SLQuat4(const T pitchRAD, const T yawRAD, const T rollRAD)
+inline SLQuat4<T>::SLQuat4(const T xRotRAD, const T yRotRAD, const T zRotRAD)
 {
-    fromEulerAngles(pitchRAD, yawRAD, rollRAD);
+    fromEulerAngles(xRotRAD, yRotRAD, zRotRAD);
 }
 
 //-----------------------------------------------------------------------------
@@ -288,22 +289,24 @@ Source: Essential Mathematics for Games and Interactive Applications
 A Programmer's Guide 2nd edition by James M. Van Verth and Lars M. Bishop
 */
 template <class T>
-void SLQuat4<T>::fromEulerAngles(const T pitchRAD, const T yawRAD, const T rollRAD)
+void SLQuat4<T>::fromEulerAngles(const T xRotRAD, const T yRotRAD, const T zRotRAD)
 {
-    // Basically we create 3 Quaternions, one for pitch (x), one for yaw (y), 
-    // one for roll (z) and multiply those together.
+    // Basically we create 3 Quaternions, one for (x), one for (y),
+    // one for (z) and multiply those together.
     // The calculation below does the same, just shorter
  
-    T p = pitchRAD * (T)0.5;
-    T y = yawRAD   * (T)0.5;
-    T r = rollRAD  * (T)0.5;
+    //ghm1: I checked function against https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
+    //and it is the same, only the sign is inverted (but this should be no problem)
+    T x = xRotRAD * (T)0.5;
+    T y = yRotRAD * (T)0.5;
+    T z = zRotRAD * (T)0.5;
  
-    T Sx = (T)sin(p);
-    T Cx = (T)cos(p);
+    T Sx = (T)sin(x);
+    T Cx = (T)cos(x);
     T Sy = (T)sin(y);
     T Cy = (T)cos(y);
-    T Sz = (T)sin(r);
-    T Cz = (T)cos(r);
+    T Sz = (T)sin(z);
+    T Cz = (T)cos(z);
  
     _x = Sx*Cy*Cz + Cx*Sy*Sz;
     _y = Cx*Sy*Cz - Sx*Cy*Sz;
@@ -315,8 +318,8 @@ void SLQuat4<T>::fromEulerAngles(const T pitchRAD, const T yawRAD, const T rollR
 template <class T>
 SLMat3<T> SLQuat4<T>::toMat3() const
 {
-    T  x2 = _x *(T)2;  
-    T  y2 = _y *(T)2;  
+    T  x2 = _x *(T)2;
+    T  y2 = _y *(T)2;
     T  z2 = _z *(T)2;
 
     T wx2 = _w * x2;  T wy2 = _w * y2;  T wz2 = _w * z2;
@@ -326,6 +329,7 @@ SLMat3<T> SLQuat4<T>::toMat3() const
     SLMat3<T> m(1 -(yy2 + zz2),    xy2 - wz2,     xz2 + wy2,
                     xy2 + wz2, 1 -(xx2 + zz2),    yz2 - wx2,
                     xz2 - wy2,     yz2 + wx2, 1 -(xx2 + yy2));
+
     return m;
 }
 
@@ -383,45 +387,57 @@ void SLQuat4<T>::toAngleAxis (T& angleDEG, SLVec3<T>& axis) const
 }
 //-----------------------------------------------------------------------------
 template <typename T>
-void SLQuat4<T>::toEulerAnglesZYX(T& rollRAD, T& pitchRAD, T& yawRAD) const
+void SLQuat4<T>::toEulerAnglesZYX(T& zRotRAD, T& yRotRAD, T& xRotRAD) const
 {
-    // roll (x-axis rotation)
-    double sinr = +2.0 * (_w * _x + _y * _z);
-    double cosr = +1.0 - 2.0 * (_x * _x + _y * _y);
-    rollRAD = atan2(sinr, cosr);
+    double sinz = +2.0 * (_w * _z + _x * _y);
+    double cosz = +1.0 - 2.0 * (_y *_y + _z *_z);
+    zRotRAD = atan2(sinz, cosz);
 
-    // pitch (y-axis rotation)
-    double sinp = +2.0 * (_w *_y - _z *_x);
-    if (fabs(sinp) >= 1)
-        pitchRAD = copysign(PI / 2, sinp); // use 90 degrees if out of range
+    double siny = +2.0 * (_w *_y - _z *_x);
+    if (fabs(siny) >= 1)
+        yRotRAD = copysign(PI / 2, siny); // use 90 degrees if out of range
     else
-        pitchRAD = asin(sinp);
+        yRotRAD = asin(siny);
 
-    // yaw (z-axis rotation)
-    double siny = +2.0 * (_w * _z + _x * _y);
-    double cosy = +1.0 - 2.0 * (_y *_y + _z *_z);
-    yawRAD = atan2(siny, cosy);
+    double sinx = +2.0 * (_w * _x + _y * _z);
+    double cosx = +1.0 - 2.0 * (_x * _x + _y * _y);
+    xRotRAD = atan2(sinx, cosx);
 }
 //-----------------------------------------------------------------------------
 template <typename T>
-void SLQuat4<T>::toEulerAnglesXYZ(T& rollRAD, T& pitchRAD, T& yawRAD) const
+void SLQuat4<T>::toEulerAnglesXYZ(T& xRotRAD, T& yRotRAD, T& zRotRAD) const
 {
-    // yaw (z-axis rotation)
-    double siny = (T)2 * ( _x * _y - _w * _z );
-    double cosy = 1 - (T)2 * (_x * _x  + _z * _z );
-    yawRAD = (T)-atan2(siny, cosy );
+    double sinx = -(T)2 * (_z * _y - _w * _x);
+    double cosx = +1.0 - (T)2 * (_x * _x + _y * _y);
+    xRotRAD = (T)atan2(sinx, cosx);
 
-    // pitch (y-axis rotation)
-    double sinp = -(T)2 * (_x * _z - _w * _y);
-    double cosp = 1 - (T)2 * (_x * _x + _y * _y);
-    pitchRAD = (T)atan2(sinp, cosp);
-
-    // roll (x-axis rotation)
-    double sinr = (T)2 * (_y * _z + _w * _x);
-    if (fabs(sinr) >= 1)
-        rollRAD = (T)copysign(PI / 2, sinr); // use 90 degrees if out of range
+    double siny = (T)2 * (_w * _y + _x * _z);
+    if (fabs(siny) >= 1)
+        yRotRAD = (T)copysign(PI / 2, siny); // use 90 degrees if out of range
     else
-        rollRAD = (T)asin(sinr);
+        yRotRAD = (T)asin(siny);
+
+    double sinz = -(T)2 * (_x * _y - _w * _z);
+    double cosz = +1.0 - (T)2 * (_y *_y + _z *_z);
+    zRotRAD = (T)atan2(sinz, cosz);
+}
+//-----------------------------------------------------------------------------
+template <typename T>
+void SLQuat4<T>::toEulerAnglesZXY(T& zRotRAD, T& xRotRAD, T& yRotRAD) const
+{
+    double sinz = -(T)2 * (_x * _y - _w * _z);
+    double cosz = 1 - (T)2 * (_x * _x  + _z * _z);
+    zRotRAD = (T)atan2(sinz, cosz);
+
+    double sinx = (T)2 * (_y * _z + _w * _x);
+    if (fabs(sinx) >= 1)
+        xRotRAD = (T)copysign(PI / 2, sinx); // use 90 degrees if out of range
+    else
+        xRotRAD = (T)asin(sinx);
+
+    double siny = -(T)2 * (_x * _z - _w * _y);
+    double cosy = 1 - (T)2 * (_x * _x + _y * _y);
+    yRotRAD = (T)atan2(siny, cosy);
 }
 //-----------------------------------------------------------------------------
 template<class T>

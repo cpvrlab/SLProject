@@ -30,8 +30,8 @@ SLRectangle::SLRectangle(SLAssetManager* assetMgr,
     assert(name != "");
     _min = min;
     _max = max;
-    _tmin.set(0, 0);
-    _tmax.set(1, 1);
+    _uv_min.set(0, 0);
+    _uv_max.set(1, 1);
     _resX     = resX;
     _resY     = resY;
     _isVolume = true;
@@ -42,22 +42,22 @@ SLRectangle::SLRectangle(SLAssetManager* assetMgr,
 SLRectangle::SLRectangle(SLAssetManager* assetMgr,
                          const SLVec2f&  min,
                          const SLVec2f&  max,
-                         const SLVec2f&  tmin,
-                         const SLVec2f&  tmax,
+                         const SLVec2f&  uv_min,
+                         const SLVec2f&  uv_max,
                          SLuint          resX,
                          SLuint          resY,
                          SLstring        name,
                          SLMaterial*     mat) : SLMesh(assetMgr, std::move(name))
 {
     assert(min != max);
-    assert(tmin != tmax);
+    assert(uv_min != uv_max);
     assert(resX > 0);
     assert(resY > 0);
     assert(name != "");
     _min      = min;
     _max      = max;
-    _tmin     = tmin;
-    _tmax     = tmax;
+    _uv_min   = uv_min;
+    _uv_max   = uv_max;
     _resX     = resX;
     _resY     = resY;
     _isVolume = true;
@@ -79,8 +79,9 @@ void SLRectangle::buildMesh(SLMaterial* material)
     P.resize((_resX + 1) * (_resY + 1));
     N.clear();
     N.resize(P.size());
-    Tc.clear();
-    Tc.resize(P.size());
+    UV1.clear();
+    UV1.resize(P.size());
+    UV2.clear();
 
     if (uIntNumV64 < 65535)
     {
@@ -104,28 +105,28 @@ void SLRectangle::buildMesh(SLMaterial* material)
     //Set one default material index
     mat(material);
 
-    // define delta vectors dX & dY and deltas for texCoord dS,dT
+    // define delta vectors dX & dY and deltas for tex. coord. dU,dV
     SLVec3f dX = e1 / (SLfloat)_resX;
     SLVec3f dY = e2 / (SLfloat)_resY;
-    SLfloat dS = (_tmax.x - _tmin.x) / (SLfloat)_resX;
-    SLfloat dT = (_tmax.y - _tmin.y) / (SLfloat)_resY;
+    SLfloat dU = (_uv_max.x - _uv_min.x) / (SLfloat)_resX;
+    SLfloat dV = (_uv_max.y - _uv_min.y) / (SLfloat)_resY;
 
     // Build vertex data
     SLuint i = 0;
     for (SLuint y = 0; y <= _resY; ++y)
     {
         SLVec3f curV = _min;
-        SLVec2f curT = _tmin;
+        SLVec2f curT = _uv_min;
         curV += (SLfloat)y * dY;
-        curT.y += (SLfloat)y * dT;
+        curT.y += (SLfloat)y * dV;
 
         for (SLuint x = 0; x <= _resX; ++x, ++i)
         {
-            P[i]  = curV;
-            Tc[i] = curT;
-            N[i]  = curN;
+            P[i]   = curV;
+            UV1[i] = curT;
+            N[i]   = curN;
             curV += dX;
-            curT.x += dS;
+            curT.x += dU;
         }
     }
 

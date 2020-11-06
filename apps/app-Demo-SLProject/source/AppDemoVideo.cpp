@@ -36,7 +36,7 @@ CVTracked* tracker = nullptr;
 SLNode* trackedNode = nullptr;
 
 //-----------------------------------------------------------------------------
-//always update scene camera fov from calibration because the calibration may have
+//always update scene camera fovV from calibration because the calibration may have
 //been adapted in adjustForSL after a change of aspect ratio!
 //Attention: The active scene view camera may be a different one that the tracking camera
 //but we have to update the tracking camera only!
@@ -232,7 +232,7 @@ bool onUpdateVideo()
         else
         {
             ensureValidCalibration(ac, sv);
-            //Attention: Always update scene camera fov from calibration because the calibration may have
+            //Attention: Always update scene camera fovV from calibration because the calibration may have
             //been adapted in adjustForSL after a change of aspect ratio!
             //The active scene view camera may be a different one that the tracking camera
             //but we have to update the tracking camera only!

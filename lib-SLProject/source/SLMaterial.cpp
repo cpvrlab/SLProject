@@ -31,7 +31,7 @@ SLfloat SLMaterial::PERFECT = 1000.0f;
  @param spec Specular color
  @param shininess Shininess exponent (the higher the sharper the gloss)
  @param kr Reflection coefficient used for ray tracing. (0.0-1.0)
- @param kt Tranparency coeffitient used for ray tracing. (0.0-1.0)
+ @param kt Transparency coefficient used for ray tracing. (0.0-1.0)
  @param kn Refraction index used for ray tracing (1.0-2.5)
  @param program Pointer to the shader program for the material
  @param compileErrorTexFilePath Path to an error texture
@@ -256,9 +256,9 @@ SLMaterial::~SLMaterial()
 //-----------------------------------------------------------------------------
 /*!
  SLMaterial::activate applies the material parameter to the global render state
- and activates the attached shader
+ and activates the attached shader.
 */
-void SLMaterial::activate(SLDrawBits drawBits, SLCamera* cam, SLVLight* lights)
+void SLMaterial::activate(SLCamera* cam, SLVLight* lights)
 {
     SLGLState* stateGL = SLGLState::instance();
 
@@ -277,15 +277,32 @@ void SLMaterial::activate(SLDrawBits drawBits, SLCamera* cam, SLVLight* lights)
     // A 3D object can be stored without material or shader program information.
     if (!_program)
     {
+        bool hasNrm = _textures.size() > 1 && _textures[1]->texType() == TT_normal;
+        bool hasAO  = _textures.size() > 2 && _textures[2]->texType() == TT_ambientOcclusion;
+        bool hasSM  = lights->size() > 0 && lights->at(0)->createsShadows();
+
         if (!_textures.empty())
         {
-            if (_textures.size() > 1 && _textures[1]->texType() == TT_normal)
-                program(SLGLGenericProgramDefaultTexNormal::instance());
+            if (hasNrm && hasAO && hasSM)
+                program(SLGLDefaultProgPerPixBlinnTexNrmAOSM::instance());
+            else if (hasNrm && hasAO)
+                program(SLGLDefaultProgPerPixBlinnTexNrmAO::instance());
+            else if (hasNrm && hasSM)
+                program(SLGLDefaultProgPerPixBlinnTexNrmSM::instance());
+            else if (hasNrm)
+                program(SLGLDefaultProgPerPixBlinnTexNrm::instance());
+            else if (hasSM)
+                program(SLGLDefaultProgPerPixBlinnTexSM::instance());
             else
-                program(SLGLGenericProgramDefaultTex::instance());
+                program(SLGLDefaultProgPerVrtBlinnTex::instance());
         }
         else
-            program(SLGLGenericProgramDefault::instance());
+        {
+            if (hasSM)
+                program(SLGLDefaultProgPerPixBlinnSM::instance());
+            else
+                program(SLGLDefaultProgPerVrtBlinn::instance());
+        }
     }
 
     // Check if shader had compile error and the error texture should be shown
@@ -305,7 +322,7 @@ void SLMaterial::activate(SLDrawBits drawBits, SLCamera* cam, SLVLight* lights)
     }
 
     // Activate the shader program now
-    program()->beginUse(cam, this, lights);
+    _program->beginUse(cam, this, lights);
 }
 //-----------------------------------------------------------------------------
 //! Passes all material parameters as uniforms to the passed shader program

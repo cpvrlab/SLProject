@@ -116,6 +116,13 @@ enum SLSceneID
     SID_ShadowMappingPointLights,
     SID_ShadowMappingSpotLights,
 
+    SID_SuzannePerPixBlinn,
+    SID_SuzannePerPixBlinnTex,
+    SID_SuzannePerPixBlinnTexNrm,
+    SID_SuzannePerPixBlinnTexNrmAO,
+    SID_SuzannePerPixBlinnTexNrmSM,
+    SID_SuzannePerPixBlinnTexNrmAOSM,
+
     SID_VolumeRayCast,
     SID_VolumeRayCastLighted,
 
@@ -146,6 +153,7 @@ enum SLSceneID
     SID_ErlebARAugustaRaurica,
     SID_ErlebARAventicumAmphi,
     SID_ErlebARAventicumCigognier,
+    SID_ErlebARAventicumCigognierAO,
     SID_ErlebARAventicumTheatre,
 
     SID_RTMuttenzerBox,

@@ -45,8 +45,8 @@ public:
     void buildMesh(SLMaterial* mat);
 
 protected:
-    SLVVec3f _corners;  //!< corners in ccw order
-    SLVVec2f _texCoord; //!< texture coords for corners
+    SLVVec3f _corners; //!< corners in ccw order
+    SLVVec2f _uv1;     //!< texture coords for corners
 };
 //-----------------------------------------------------------------------------
 #endif

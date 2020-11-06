@@ -47,8 +47,9 @@ void SLTriangle::buildMesh(SLMaterial* material)
     P.resize(3); // Vector for positions
     N.clear();
     N.resize(P.size()); // Vector for vertex normals (opt.)
-    Tc.clear();
-    Tc.resize(P.size()); // Vector for vertex tex. coords. (opt.)
+    UV1.clear();
+    UV1.resize(P.size()); // Vector for vertex tex. coords. (opt.)
+    UV2.clear();
     I16.clear();
     I16.resize(3); // Vector for vertex indices 16 bit
 
@@ -58,9 +59,9 @@ void SLTriangle::buildMesh(SLMaterial* material)
     P[2] = p[2];
 
     // vertex texture coordinates
-    Tc[0] = t[0];
-    Tc[1] = t[1];
-    Tc[2] = t[2];
+    UV1[0] = t[0];
+    UV1[1] = t[1];
+    UV1[2] = t[2];
 
     // indices
     I16[0] = 0;

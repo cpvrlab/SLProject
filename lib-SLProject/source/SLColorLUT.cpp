@@ -23,7 +23,7 @@ SLColorLUT::SLColorLUT(SLAssetManager* assetMgr,
     _mag_filter = GL_LINEAR;
     _wrap_s     = GL_CLAMP_TO_EDGE;
     _wrap_t     = GL_CLAMP_TO_EDGE;
-    _texType    = TT_color;
+    _texType    = TT_diffuse;
     _length     = length;
     _target     = GL_TEXTURE_2D; // OpenGL ES doesn't define 1D textures. We just make a 1 pixel high 2D texture
 
@@ -46,7 +46,7 @@ SLColorLUT::SLColorLUT(SLAssetManager*  assetMgr,
     _mag_filter = GL_LINEAR;
     _wrap_s     = GL_CLAMP_TO_EDGE;
     _wrap_t     = GL_CLAMP_TO_EDGE;
-    _texType    = TT_color;
+    _texType    = TT_diffuse;
     _length     = length;
     _target     = GL_TEXTURE_2D; // OpenGL ES doesn't define 1D textures. We just make a 1 pixel high 2D texture
 
@@ -71,7 +71,7 @@ SLColorLUT::SLColorLUT(SLAssetManager*  assetMgr,
     _mag_filter = GL_LINEAR;
     _wrap_s     = GL_CLAMP_TO_EDGE;
     _wrap_t     = GL_CLAMP_TO_EDGE;
-    _texType    = TT_color;
+    _texType    = TT_diffuse;
     _length     = length;
     _target     = GL_TEXTURE_2D; // OpenGL ES doesn't define 1D textures. We just make a 1 pixel high 2D texture
 

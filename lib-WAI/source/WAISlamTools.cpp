@@ -14,7 +14,7 @@
 void WAISlamTools::drawKeyPointInfo(WAIFrame& frame, cv::Mat& image, float scale)
 {
     //half rectangle width and rectangle width (values are estimated on 640x480)
-    int rhw = (scale * 3);
+    int rhw = (int)(scale * 3.0f);
     int rw  = 2 * rhw + 1;
     //show rectangle for all keypoints in current image
     for (size_t i = 0; i < frame.N; i++)
@@ -31,7 +31,7 @@ void WAISlamTools::drawKeyPointInfo(WAIFrame& frame, cv::Mat& image, float scale
 void WAISlamTools::drawKeyPointMatches(WAIFrame& frame, cv::Mat& image, float scale)
 {
     //half rectangle width and rectangle width (values are estimated on 640x480)
-    int rhw = (scale * 3);
+    int rhw = (int)(scale * 3.0f);
     int rw  = 2 * rhw + 1;
     for (size_t i = 0; i < frame.N; i++)
     {
@@ -52,7 +52,7 @@ void WAISlamTools::drawKeyPointMatches(WAIFrame& frame, cv::Mat& image, float sc
 void WAISlamTools::drawInitInfo(InitializerData& iniData, WAIFrame& newFrame, cv::Mat& imageBGR, float scale)
 {
     //half rectangle width and rectangle width (values are estimated on 640x480)
-    int rhw = (scale * 3);
+    int rhw = (int)(scale * 3.0f);
     int rw  = 2 * rhw + 1;
 
     for (unsigned int i = 0; i < iniData.initialFrame.mvKeys.size(); i++)
@@ -879,6 +879,194 @@ bool WAISlamTools::relocalization(WAIFrame& currentFrame,
     return bMatch;
 }
 
+bool WAISlamTools::relocalizationGPS(WAIFrame& currentFrame,
+                                     WAIMap*   waiMap,
+                                     LocalMap& localMap,
+                                     cv::Mat   locENU,
+                                     cv::Mat   dirENU,
+                                     float     minCommonWordFactor,
+                                     int&      inliers,
+                                     bool      minAccScoreFilter)
+{
+    AVERAGE_TIMING_START("relocalization");
+    currentFrame.ComputeBoW();
+    // Relocalization is performed when tracking is lost
+    vector<WAIKeyFrame*> vpCandidateKFs;
+    vector<WAIKeyFrame*> allKf = waiMap->GetAllKeyFrames();
+
+    float minDist;
+    for (WAIKeyFrame * kf : allKf)
+    {
+        cv::Mat tcw = kf->GetPose();
+        cv::Mat_<double> front(3, 1);
+
+        front(0, 0) = 0;
+        front(1, 0) = 0;
+        front(2, 0) =-1.0;
+
+        front = tcw * front;
+        if (dirENU.dot(front) < 0)
+            continue;
+
+        cv::Mat pose = tcw.col(3).rowRange(0, 2);
+
+        float dist = (float)cv::norm(locENU, pose);
+        if (dist < minDist)
+            minDist = dist;
+
+        if (dist < 3)
+            vpCandidateKFs.push_back(kf);
+    }
+
+    if (vpCandidateKFs.empty())
+    {
+        AVERAGE_TIMING_STOP("relocalization");
+        return false;
+    }
+
+    const int nKFs = (int)vpCandidateKFs.size();
+
+    // We perform first an ORB matching with each candidate
+    // If enough matches are found we setup a PnP solver
+    // Best match < 0.75 * second best match (default is 0.6)
+    ORBmatcher matcher(0.75, true);
+
+    vector<PnPsolver*> vpPnPsolvers;
+    vpPnPsolvers.resize(nKFs);
+
+    vector<vector<WAIMapPoint*>> vvpMapPointMatches;
+    vvpMapPointMatches.resize(nKFs);
+
+    std::vector<bool> outliers;
+
+    vector<bool> vbDiscarded;
+    vbDiscarded.resize(nKFs);
+
+    int nCandidates = 0;
+
+    for (int i = 0; i < nKFs; i++)
+    {
+        WAIKeyFrame* pKF = vpCandidateKFs[i];
+        if (pKF->isBad())
+            vbDiscarded[i] = true;
+        else
+        {
+            int nmatches = matcher.SearchByBoW(pKF, currentFrame, vvpMapPointMatches[i]);
+            if (nmatches < 15)
+            {
+                vbDiscarded[i] = true;
+                continue;
+            }
+            else
+            {
+                PnPsolver* pSolver = new PnPsolver(currentFrame, vvpMapPointMatches[i]);
+                pSolver->SetRansacParameters(0.99, 10, 300, 4, 0.5f, 5.991f);
+                vpPnPsolvers[i] = pSolver;
+                nCandidates++;
+            }
+        }
+    }
+
+    // Alternatively perform some iterations of P4P RANSAC
+    // Until we found a camera pose supported by enough inliers
+    bool       bMatch = false;
+    ORBmatcher matcher2(0.9f, true);
+
+    while (nCandidates > 0 && !bMatch)
+    {
+        for (int i = 0; i < nKFs; i++)
+        {
+            if (vbDiscarded[i])
+                continue;
+
+            // Perform 5 Ransac Iterations
+            vector<bool> vbInliers;
+            int          nInliers;
+            bool         bNoMore;
+
+            PnPsolver* pSolver = vpPnPsolvers[i];
+            cv::Mat    Tcw     = pSolver->iterate(5, bNoMore, vbInliers, nInliers);
+
+            // If Ransac reachs max. iterations discard keyframe
+            if (bNoMore)
+            {
+                vbDiscarded[i] = true;
+                nCandidates--;
+            }
+
+            // If a Camera Pose is computed, optimize
+            if (!Tcw.empty())
+            {
+                Tcw.copyTo(currentFrame.mTcw);
+
+                set<WAIMapPoint*> sFound;
+
+                const int np = (int)vbInliers.size();
+
+                for (int j = 0; j < np; j++)
+                {
+                    if (vbInliers[j])
+                    {
+                        currentFrame.mvpMapPoints[j] = vvpMapPointMatches[i][j];
+                        sFound.insert(vvpMapPointMatches[i][j]);
+                    }
+                    else
+                        currentFrame.mvpMapPoints[j] = NULL;
+                }
+
+                int nGood = Optimizer::PoseOptimization(&currentFrame, outliers);
+
+                if (nGood < 10)
+                {
+                    //std::cout << "Number of nGood:" << nGood << std::endl;
+                    continue;
+                }
+
+                // If few inliers, search by projection in a coarse window and optimize again:
+                //ghm1: mappoints seen in the keyframe which was found as candidate via BoW-search are projected into
+                //the current frame using the position that was calculated using the matches from BoW matcher
+                if (nGood < 50)
+                {
+                    int nadditional = matcher2.SearchByProjection(currentFrame, vpCandidateKFs[i], sFound, 10, 100);
+
+                    if (nadditional + nGood >= 50)
+                    {
+                        nGood = Optimizer::PoseOptimization(&currentFrame, outliers);
+
+                        // If many inliers but still not enough, search by projection again in a narrower window
+                        // the camera has been already optimized with many points
+                        if (nGood > 30 && nGood < 50)
+                        {
+                            sFound.clear();
+                            for (int ip = 0; ip < currentFrame.N; ip++)
+                                if (currentFrame.mvpMapPoints[ip] && !outliers[ip])
+                                    sFound.insert(currentFrame.mvpMapPoints[ip]);
+                            nadditional = matcher2.SearchByProjection(currentFrame, vpCandidateKFs[i], sFound, 3, 64);
+
+                            // Final optimization
+                            if (nGood + nadditional >= 50)
+                            {
+                                nGood = Optimizer::PoseOptimization(&currentFrame);
+                            }
+                        }
+                    }
+                }
+
+                // If the pose is supported by enough inliers stop ransacs and continue
+                if (nGood >= 50)
+                {
+                    bMatch = trackLocalMap(localMap, currentFrame, currentFrame.mnId, inliers);
+                    //std::cout << "Number of nGood:" << nGood << std::endl;
+                    break;
+                }
+            }
+        }
+    }
+
+    AVERAGE_TIMING_STOP("relocalization");
+    return bMatch;
+}
+
 bool WAISlamTools::trackReferenceKeyFrame(LocalMap& map,
                                           WAIFrame& lastFrame,
                                           WAIFrame& frame)
@@ -1090,7 +1278,7 @@ void WAISlamTools::updateLocalMap(WAIFrame& frame,
     }
 
     // Include also some not-already-included keyframes that are neighbors to already-included keyframes
-    for (int i = 0, iend = localMap.keyFrames.size(); i < iend; ++i)
+    for (int i = 0, iend = (int)localMap.keyFrames.size(); i < iend; ++i)
     {
         // Limit the number of keyframes
         if (localMap.keyFrames.size() > 80)

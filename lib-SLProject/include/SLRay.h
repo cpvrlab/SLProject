@@ -106,9 +106,10 @@ public:
     SLint   hitTriangle; //!< Points to the intersected triangle
 
     // Members set before shading
-    SLVec3f hitPoint;  //!< Point of intersection
-    SLVec3f hitNormal; //!< Surface normal at intersection point
-    SLCol4f hitColor;  //!< Color at intersection for texture or color attributes
+    SLVec3f hitPoint;   //!< Point of intersection
+    SLVec3f hitNormal;  //!< Surface normal at intersection point
+    SLCol4f hitTexColor;//!< Color at intersection for texture or color attributes
+    SLfloat hitAO;      //!< Ambient occlusion factor at intersection point
 
     // Helpers for fast AABB intersection
     SLVec3f invDir;    //!< Inverse ray dir for fast AABB hit in WS

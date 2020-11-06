@@ -120,7 +120,22 @@ void SLSceneView::init(SLstring           name,
 void SLSceneView::unInit()
 {
     _camera = &_sceneViewCamera;
-    _skybox = nullptr;
+    _skybox = nullptr;    // enables and modes
+    _mouseDownL = false;
+    _mouseDownR = false;
+    _mouseDownM = false;
+    _touchDowns = 0;
+
+    _renderType = RT_gl;
+
+    _doDepthTest      = true;
+    _doMultiSampling  = true; // true=OpenGL multisampling is turned on
+    _doFrustumCulling = true; // true=enables view frustum culling
+    _doWaitOnIdle     = true;
+    _drawBits.allOff();
+
+    _stats2D.clear();
+    _stats3D.clear();
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -187,7 +202,7 @@ void SLSceneView::initSceneViewCamera(const SLVec3f& dir, SLProjection proj)
 
         SLfloat distX   = 0.0f;
         SLfloat distY   = 0.0f;
-        SLfloat halfTan = tan(Utils::DEG2RAD * _sceneViewCamera.fov() * 0.5f);
+        SLfloat halfTan = tan(Utils::DEG2RAD * _sceneViewCamera.fovV() * 0.5f);
 
         // @todo There is still a bug when OSX doesn't pass correct GLWidget size
         // correctly set the camera distance...
@@ -197,7 +212,7 @@ void SLSceneView::initSceneViewCamera(const SLVec3f& dir, SLProjection proj)
         if (proj == P_monoOrthographic)
         {
             // NOTE, the orthographic camera has the ability to zoom by using the following:
-            // tan(SL_DEG2RAD*_fov*0.5f) * pos.length();
+            // tan(SL_DEG2RAD*_fovV*0.5f) * pos.length();
 
             distX = vsMax.x / (ar * halfTan);
             distY = vsMax.y / halfTan;
@@ -987,8 +1002,8 @@ void SLSceneView::draw3DGLLinesOverlay(SLVNode& nodes)
             {
                 if (node->mesh() && node->mesh()->mat())
                 {
-                    SLMesh* mesh = node->mesh();
-                    bool hasAlpha = mesh->mat()->hasAlpha();
+                    SLMesh* mesh     = node->mesh();
+                    bool    hasAlpha = mesh->mat()->hasAlpha();
 
                     // For blended nodes we activate OpenGL blending and stop depth buffer updates
                     SLGLState* stateGL = SLGLState::instance();

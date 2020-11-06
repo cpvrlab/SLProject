@@ -295,13 +295,15 @@ See also SLSceneView::draw3DGLAll for more details.
 void SLNode::cull3DRec(SLSceneView* sv)
 {
     // Do frustum culling for all shapes except cameras & lights
+    // Todo (ghm1): why can't SLLight inherit SLNode?
     if (sv->doFrustumCulling() &&
-        typeid(*this) != typeid(SLCamera) &&
-        typeid(*this) != typeid(SLKeyframeCamera) &&
+        !dynamic_cast<SLCamera*>(this) && // Ghm1: Checking for typeid fails if someone adds a custom camera that inherits SLCamera
         typeid(*this) != typeid(SLLightRect) &&
         typeid(*this) != typeid(SLLightSpot) &&
         typeid(*this) != typeid(SLLightDirect))
+    {
         sv->camera()->isInFrustum(&_aabb);
+    }
     else
         _aabb.isVisible(true);
 
@@ -323,8 +325,10 @@ void SLNode::cull3DRec(SLSceneView* sv)
                 this->mesh()->mat()->nodesVisible3D().push_back(this);
             }
             // Todo (hsm4): Only a view nodes without meshes get rendered (they need to be redesigned):
-            else if (typeid(*this) == typeid(SLCamera) ||
-                     typeid(*this) == typeid(SLKeyframeCamera))
+            // Ghm1: Checking for typeid fails if someone adds a custom camera that inherits SLCamera
+            //else if (typeid(*this) == typeid(SLCamera) ||
+            //         typeid(*this) == typeid(SLKeyframeCamera))
+            else if(dynamic_cast<SLCamera*>(this))
                 sv->nodesOpaque3D().push_back(this);
             else if (typeid(*this) == typeid(SLText))
                 sv->nodesBlended3D().push_back(this);
@@ -461,8 +465,9 @@ bool SLNode::hitRec(SLRay* ray)
         return false;
 
     // Do not test origin node for shadow rays
-    if (this == ray->srcNode && ray->type == SHADOW)
-        return false;
+    // This restriction is not valid for objects that can shadow itself
+    //if (this == ray->srcNode && ray->type == SHADOW)
+    //    return false;
 
     // Check first AABB for intersection
     if (!_aabb.isHitInWS(ray))

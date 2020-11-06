@@ -16,18 +16,15 @@
 void SLDeviceRotation::init()
 {
     _rotation.identity();
-    _rotationOffset.identity();
     _pitchRAD           = 0.0f;
     _yawRAD             = 0.0f;
     _rollRAD            = 0.0f;
-    _numAveragedPYR     = 10;
-    _pitchAvgRAD.init(_numAveragedPYR, 0.0f);
-    _yawAvgRAD.init(_numAveragedPYR, 0.0f);
-    _rollAvgRAD.init(_numAveragedPYR, 0.0f);
+    _rotationAvg.init(3, SLMat3f());
     _zeroYawAtStart     = true;
     _startYawRAD        = 0.0f;
     _isFirstSensorValue = false;
     _isUsed             = false;
+    _offsetMode         = OM_fingerX;
 }
 //-----------------------------------------------------------------------------
 /*! onRotationQUAT: Event handler for rotation change of a mobile device from a
@@ -50,62 +47,44 @@ void SLDeviceRotation::onRotationQUAT(SLfloat quatX,
 {
     _quaternion = SLQuat4f(quatX, quatY, quatZ, quatW);
     _rotation = _quaternion.toMat3();
-    //_rotation.toEulerAnglesZYX(_rollRAD, _pitchRAD, _yawRAD);
-    _quaternion.toEulerAnglesXYZ(_rollRAD, _pitchRAD, _yawRAD);
-    _pitchRAD *= -1.0f;
-    _pitchAvgRAD.set(_pitchRAD);
-    _yawAvgRAD.set(_yawRAD);
-    _rollAvgRAD.set(_rollRAD);
+    _rotationAvg.set(_rotation);
+    _quaternion.toEulerAnglesXYZ(_pitchRAD, _rollRAD, _yawRAD);
 
-    //_rotation.print("Rotation:\n");
+    /*
+     Android sensor coordinate system:
+     (https://developer.android.com/guide/topics/sensors/sensors_overview)
 
-    /*   Up   North
-         |  /                       Rotation Matrix:
+    Up = z   North = y
+         |  /
          | /
-         |/                       iOS           Android
-         +------ East        +- E  N  U -+   +-         -+
-        +-------------+      |  1  0  0  |   |  0 -1  0  |
-       / +-------+   /       |  0  1  0  |   |  1  0  0  |
-      / /       / 0 /        |  0  0  1  |   |  0  0  1  |
-     / +-------+   /         +-         -+   +-         -+
-    +-------------+
-
-        Up   North
-         |  /                       Rotation Matrix:
-         | /
-         |/                       iOS           Android
-         +------ East        +-         -+   +-         -+
-         +------------+      |  0  0 -1  |   |  0  0  1  |
-         | +------+   |      |  0  1  0  |   |  0 -1  0  |
-         | |      | 0 |      |  1  0  0  |   |  1  0  0  |
-         | +------+   |      +-         -+   +-         -+
-         +------------+
-
-        Up   North
-         |  /                       Rotation Matrix:
-         | /
-         |/                       iOS           Android
-         +------ East        +-         -+   +-         -+
-        +---------+          |  0  1  0  |   |           |
-       / +-----+ /           | -1  0  0  |   |           |
-      / /     / /            |  0  0  1  |   |           |
-     / /     / /             +-         -+   +-         -+
+         |/
+         +------ East = x
+        +---------+
+       / +-----+ /
+      / /     / /
+     / /     / /
     / +-----+ /
    /    0    /
   +---------+
+     
+     iOS sensor coordinate system:
+     (https://developer.apple.com/documentation/coremotion/getting_processed_device-motion_data/understanding_reference_frames_and_device_attitude)
+     In iOS we configure CMMotionManager with xMagneticNorthZVertical which means its a frame, where x points north, y points west and z points up (NWU).
+     In the iOS code, we add rotation of 90 deg. around z-axis to relate the sensor rotation to an ENU-frame (as in Android).
 
-        Up   North
-         |  /                       Rotation Matrix:
-         | /
-         |/                       iOS           Android
-         +------ East        +-         -+   +-         -+
-         +---------+         |  1  0  0  |   |           |
-         | +-----+ |         |  0  0 -1  |   |           |
-         | |     | |         |  0  1  0  |   |           |
-         | |     | |         +-         -+   +-         -+
-         | +-----+ |
-         |    0    |
+     Up = z   West = y
+          |  /
+          | /
+          |/
+          +------ North = x
          +---------+
+        / +-----+ /
+       / /     / /
+      / /     / /
+     / +-----+ /
+    /    0    /
+   +---------+
+     
      */
 
     if (_zeroYawAtStart)

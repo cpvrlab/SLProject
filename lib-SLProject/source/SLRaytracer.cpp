@@ -34,6 +34,7 @@ SLRaytracer::SLRaytracer()
     _aaSamples        = 3;
     _resolutionFactor = 0.5f;
     gamma(1.0f);
+    _raysPerMS.init(10, 0.0f);
 
     // set texture properties
     _min_filter   = GL_NEAREST;
@@ -41,6 +42,7 @@ SLRaytracer::SLRaytracer()
     _wrap_s       = GL_CLAMP_TO_EDGE;
     _wrap_t       = GL_CLAMP_TO_EDGE;
     _resizeToPow2 = false;
+    _raysPerMS.init(10, 0.0f);
 }
 //-----------------------------------------------------------------------------
 SLRaytracer::~SLRaytracer()
@@ -519,10 +521,10 @@ SLCol4f SLRaytracer::shade(SLRay* ray)
             lighted = (LdotN > 0) ? light->shadowTest(ray, L, lightDist, s->root3D()) : 0;
 
             // calculate the ambient part
-            amdi = light->ambient() & mat->ambient();
-            spec.set(0, 0, 0);
+            amdi = light->ambient() & mat->ambient() * ray->hitAO;
 
             // calculate spot effect if light is a spotlight
+            spec.set(0, 0, 0);
             if (lighted > 0.0f && light->spotCutOffDEG() < 180.0f)
             {
                 SLfloat LdS = std::max(-L.dot(light->spotDirWS()), 0.0f);
@@ -561,7 +563,7 @@ SLCol4f SLRaytracer::shade(SLRay* ray)
 
     if (!texture.empty() || !ray->hitMesh->C.empty())
     {
-        localColor &= ray->hitColor; // component wise multiply
+        localColor &= ray->hitTexColor; // component wise multiply
         localColor += localSpec;     // add afterwards the specular component
     }
     else
@@ -822,7 +824,7 @@ void SLRaytracer::prepareImage()
         parallel to the projection plan at zero distance from the eye.
         */
         SLVec3f pos(_cam->updateAndGetVM().translation());
-        SLfloat hh = tan(Utils::DEG2RAD * _cam->fov() * 0.5f) * pos.length();
+        SLfloat hh = tan(Utils::DEG2RAD * _cam->fovV() * 0.5f) * pos.length();
         SLfloat hw = hh * _sv->viewportWdivH();
 
         // calculate the size of a pixel in world coords.
@@ -839,7 +841,7 @@ void SLRaytracer::prepareImage()
         primary ray calculation.
         */
         // calculate half window width & height in world coords
-        SLfloat hh = tan(Utils::DEG2RAD * _cam->fov() * 0.5f) * _cam->focalDist();
+        SLfloat hh = tan(Utils::DEG2RAD * _cam->fovV() * 0.5f) * _cam->focalDist();
         SLfloat hw = hh * _sv->viewportWdivH();
 
         // calculate the size of a pixel in world coords.

@@ -32,8 +32,10 @@ void SLCoordAxis::buildMesh()
     P.clear();
     N.clear();
     C.clear();
-    Tc.clear();
+    UV1.clear();
+    UV2.clear();
     I16.clear();
+    I32.clear();
 
     //Set one default material index
     //In SLMesh::init this will be set automatically to SLMaterial::diffuseAttrib

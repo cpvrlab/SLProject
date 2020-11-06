@@ -482,6 +482,12 @@ cv::Mat WAISlam::getPose()
     return _cameraExtrinsic;
 }
 
+void WAISlam::setCamExrinsicGuess(cv::Mat extrinsicGuess)
+{
+    std::unique_lock<std::mutex> lock(_cameraExtrinsicGuessMutex);
+    _cameraExtrinsicGuess = extrinsicGuess;
+}
+
 void WAISlam::requestStateIdle()
 {
     if (!(_params.onlyTracking || _params.serial))

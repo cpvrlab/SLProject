@@ -69,6 +69,8 @@ class SLMat3
         SLMat3<T>&  operator=   (const SLMat3& A);
         SLMat3<T>&  operator*=  (const SLMat3& A);
         SLMat3<T>&  operator=   (const T* a);
+        SLMat3<T>   operator+   (const SLMat3& A) const;
+        SLMat3<T>   operator-   (const SLMat3& A) const;
         SLMat3<T>   operator*   (const SLMat3& A) const;
         SLVec3<T>   operator*   (const SLVec3<T>& v) const;
         SLMat3<T>   operator*   (T a) const;           //!< scalar multiplication
@@ -102,10 +104,14 @@ class SLMat3
         T           det         () const;
 
         void        toAngleAxis       (T& angleDEG, SLVec3<T>& axis) const;
+        void        toEulerAnglesXYZ  (T& xRotRAD, T& yRotRAD, T& zRotRAD);
         void        toEulerAnglesZYX  (T& zRotRAD, T& yRotRAD, T& xRotRAD);
         void        fromEulerAnglesXYZ(const T angleXRAD,
                                        const T angleYRAD,
                                        const T angleZRAD);
+         void       fromEulerAnglesZYX(const T angleZ1RAD,
+                                       const T angleY2RAD,
+                                       const T angleX3RAD);
         void        fromEulerAnglesZXZ(const T angleZ1RAD,
                                        const T angleX2RAD,
                                        const T angleZ2RAD);
@@ -182,6 +188,26 @@ template<class T>
 SLMat3<T>& SLMat3<T>::operator =(const T* a) 
 {
     for (int i=0; i<9; ++i) _m[i] = a[i];
+}
+//-----------------------------------------------------------------------------
+// matrix component wise addition
+template<class T>
+SLMat3<T> SLMat3<T>::operator + (const SLMat3& A) const
+{
+    SLMat3<T> sum(_m[0]+A._m[0], _m[3]+A._m[3], _m[6]+A._m[6],
+                  _m[1]+A._m[1], _m[4]+A._m[4], _m[7]+A._m[7],
+                  _m[2]+A._m[2], _m[5]+A._m[5], _m[8]+A._m[8]);
+    return(sum);
+}
+//-----------------------------------------------------------------------------
+// matrix component wise subtraction
+template<class T>
+SLMat3<T> SLMat3<T>::operator - (const SLMat3& A) const
+{
+    SLMat3<T> sub(_m[0]-A._m[0], _m[3]-A._m[3], _m[6]-A._m[6],
+                  _m[1]-A._m[1], _m[4]-A._m[4], _m[7]-A._m[7],
+                  _m[2]-A._m[2], _m[5]-A._m[5], _m[8]-A._m[8]);
+    return(sub);
 }
 //-----------------------------------------------------------------------------
 // matrix multiplication
@@ -334,7 +360,8 @@ SLMat3<T> SLMat3<T>::inverted()
     T d = det();
 
     if (fabs(d) < FLT_EPSILON) 
-    {   cout << "3x3-Matrix is singular. Inversion impossible." << endl;
+    {
+        SL_LOG("3x3-Matrix is singular. Inversion impossible.");
         exit(0);
     }
 
@@ -373,18 +400,20 @@ void SLMat3<T>::rotation(const T angleDEG,
     {   _m[0]=1; _m[3]=0;  _m[6]=0;   
         _m[1]=0; _m[4]=ca; _m[7]=-sa; 
         _m[2]=0; _m[5]=sa; _m[8]=ca; 
-    } else 
-    if (axisx==0 && axisy==1 && axisz==0)               // about y-axis
+    }
+    else if (axisx==0 && axisy==1 && axisz==0)               // about y-axis
     {   _m[0]=ca;  _m[3]=0; _m[6]=sa; 
         _m[1]=0;   _m[4]=1; _m[7]=0;  
         _m[2]=-sa; _m[5]=0; _m[8]=ca;
-    } else 
-    if (axisx==0 && axisy==0 && axisz==1)               // about z-axis
+    }
+    else if (axisx==0 && axisy==0 && axisz==1)               // about z-axis
     {   _m[0]=ca; _m[3]=-sa; _m[6]=0; 
         _m[1]=sa; _m[4]=ca;  _m[7]=0; 
         _m[2]=0;  _m[5]=0;   _m[8]=1;
-    } else                                             // arbitrary axis
-    {   T l = axisx*axisx + axisy*axisy + axisz*axisz;  // length squared
+    }                                              // arbitrary axis
+    else
+    {
+        T l = axisx*axisx + axisy*axisy + axisz*axisz;  // length squared
         T x, y, z;
         x=axisx, y=axisy, z=axisz;
         if ((l > T(1.0001) || l < T(0.9999)) && l!=0)
@@ -565,12 +594,12 @@ void SLMat3<T>::toAngleAxis(T& angleDEG, SLVec3<T>& axis) const
 
 //-----------------------------------------------------------------------------
 /*!
-Gets one set of possible z-y-x euler angles that will generate this matrix
+Gets one set of possible x-y-z euler angles that will generate this matrix
 Source: Essential Mathematics for Games and Interactive Applications
 A Programmer's Guide 2nd edition by James M. Van Verth and Lars M. Bishop
 */
 template<class T>
-void SLMat3<T>::toEulerAnglesZYX(T& zRotRAD, T& yRotRAD, T& xRotRAD)
+void SLMat3<T>::toEulerAnglesXYZ(T& xRotRAD, T& yRotRAD, T& zRotRAD)
 {
     T Cx, Sx;
     T Cy, Sy;
@@ -601,10 +630,47 @@ void SLMat3<T>::toEulerAnglesZYX(T& zRotRAD, T& yRotRAD, T& xRotRAD)
     xRotRAD = atan2f(Sx, Cx);
 }
 
+/*!
+Gets one set of possible z-y-x euler angles that will generate this matrix
+Source: Essential Mathematics for Games and Interactive Applications
+A Programmer's Guide 2nd edition by James M. Van Verth and Lars M. Bishop
+*/
+template<class T>
+void SLMat3<T>::toEulerAnglesZYX(T& zRotRAD, T& yRotRAD, T& xRotRAD)
+{
+    T Cx, Sx;
+    T Cy, Sy;
+    T Cz, Sz;
+
+    Sy = -_m[2];
+    Cy = (T)sqrt(1.0 - Sy*Sy);
+
+    // normal case
+    if (Utils::abs(Cy) > FLT_EPSILON)
+    {
+        T factor = (T)1.0 / Cy;
+        Sx = _m[5]*factor;
+        Cx = _m[8]*factor;
+        Sz = _m[1]*factor;
+        Cz = _m[0]*factor;
+    }
+    else // x and z axes aligned
+    {
+        Sz = 0.0f;
+        Cz = 1.0f;
+        Sx = _m[3];
+        Cx = _m[6];
+    }
+
+    zRotRAD = atan2f(Sz, Cz);
+    yRotRAD = atan2f(Sy, Cy);
+    xRotRAD = atan2f(Sx, Cx);
+}
+
 //-----------------------------------------------------------------------------
 /*!
 Sets the linear 3x3 sub-matrix as a rotation matrix from the 3 euler angles
-in radians around the z-axis, y-axis & x-axis:=
+in radians around the z-axis, y-axis & x-axis := Rx * Ry * Rz
 See: http://en.wikipedia.org/wiki/Euler_angles
 */
 template<class T>
@@ -619,6 +685,25 @@ void SLMat3<T>::fromEulerAnglesXYZ(const T angleX1RAD,
     _m[0]=(T) (c2*c3);              _m[3]=(T)-(c2*s3);              _m[6] =(T) s2;
     _m[1]=(T) (s1*s2*c3) + (c1*s3); _m[4]=(T)-(s1*s2*s3) + (c1*c3); _m[7] =(T)-(c2*s1);
     _m[2]=(T)-(c1*s2*c3) + (s1*s3); _m[5]=(T) (c1*s2*s3) + (s1*c3); _m[8] =(T) (c1*c2);
+}
+//-----------------------------------------------------------------------------
+/*!
+Sets the linear 3x3 sub-matrix as a rotation matrix from the 3 euler angles
+in radians around the x-axis, y-axis & z-axis := Rz * Ry * Rx
+See: http://en.wikipedia.org/wiki/Euler_angles
+*/
+template<class T>
+void SLMat3<T>::fromEulerAnglesZYX(const T angleZ1RAD,
+                                   const T angleY2RAD,
+                                   const T angleX3RAD)
+{
+    T s1 = sin(angleZ1RAD), c1 = cos(angleZ1RAD);
+    T s2 = sin(angleY2RAD), c2 = cos(angleY2RAD);
+    T s3 = sin(angleX3RAD), c3 = cos(angleX3RAD);
+
+    _m[0]=(T) (c1*c2); _m[3]=(T) (c1*s2*s3) - (c3*s1); _m[6] =(T) (s1*s3) + (c1*c3*s2);
+    _m[1]=(T) (c2*s1); _m[4]=(T) (c1*c3) + (s1*s2*s3); _m[7] =(T) (c3*s1*s2) - (c1*s3);
+    _m[2]=(T)-s2;      _m[5]=(T) (c2*s3);              _m[8] =(T) (c2*c3);
 }
 //-----------------------------------------------------------------------------
 /*!

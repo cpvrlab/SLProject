@@ -82,7 +82,8 @@ void UserGuidance::updateSensorEstimations()
         SENSOrientation::Quat o = _orientation->getOrientation();
         SLQuat4f              quat(o.quatX, o.quatY, o.quatZ, o.quatW);
         float                 rollRAD, pitchRAD, yawRAD;
-        quat.toEulerAnglesXYZ(rollRAD, pitchRAD, yawRAD);
+        //quat.toEulerAnglesXYZCorr(rollRAD, pitchRAD, yawRAD);
+        quat.toEulerAnglesZXY(yawRAD, pitchRAD, rollRAD);
         _currentOrientationDeg = yawRAD * RAD2DEG;
         float orientationDiff  = std::abs(_currentOrientationDeg - _areaOrientation);
         LOG_UG_DEBUG("Orientation Area: %f current: %f diff: %f", _areaOrientation, _currentOrientationDeg, orientationDiff);

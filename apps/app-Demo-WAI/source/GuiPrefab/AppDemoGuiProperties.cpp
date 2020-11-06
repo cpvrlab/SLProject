@@ -102,7 +102,7 @@ void AppDemoGuiProperties::buildInfos(SLScene* s, SLSceneView* sv)
                         SLfloat clipN     = cam->clipNear();
                         SLfloat clipF     = cam->clipFar();
                         SLfloat focalDist = cam->focalDist();
-                        SLfloat fov       = cam->fov();
+                        SLfloat fov       = cam->fovV();
 
                         const char* projections[] = {"Mono Perspective",
                                                      "Mono Orthographic",
