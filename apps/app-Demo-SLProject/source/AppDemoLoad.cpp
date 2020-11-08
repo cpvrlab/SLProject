@@ -1889,7 +1889,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         // Setup shadow mapping material
         SLGLProgram* progPerPixSM = new SLGLGenericProgram(s,
                                                            SLApplication::shaderPath + "PerPixBlinnSM.vert",
-                                                           SLApplication::shaderPath + "PerPixBlinnSM.frag");
+                                                           SLApplication::shaderPath + "PerPixBlinnSM8CM.frag");
         SLMaterial*  matPerPixSM  = new SLMaterial(s, "m1", SLCol4f::WHITE, SLCol4f::WHITE, 500, 0, 0, 1, progPerPixSM);
 
         // Base root group node for the scene
@@ -1985,7 +1985,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         // Setup shadow mapping material
         SLGLProgram* progPerPixSM = new SLGLGenericProgram(s,
                                                            SLApplication::shaderPath + "PerPixBlinnSM.vert",
-                                                           SLApplication::shaderPath + "PerPixBlinnSM.frag");
+                                                           SLApplication::shaderPath + "PerPixBlinnSM8CM.frag");
         SLMaterial*  matPerPixSM  = new SLMaterial(s, "m1", SLCol4f::WHITE, SLCol4f::WHITE, 500, 0, 0, 1, progPerPixSM);
 
         // Base root group node for the scene
@@ -2040,7 +2040,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         // Setup shadow mapping material
         SLGLProgram* progPerPixSM = new SLGLGenericProgram(s,
                                                            SLApplication::shaderPath + "PerPixBlinnSM.vert",
-                                                           SLApplication::shaderPath + "PerPixBlinnSM.frag");
+                                                           SLApplication::shaderPath + "PerPixBlinnSM8CM.frag");
         SLMaterial*  matPerPixSM  = new SLMaterial(s, "m1", SLCol4f::WHITE, SLCol4f::WHITE, 500, 0, 0, 1, progPerPixSM);
 
         // Base root group node for the scene

@@ -20,7 +20,11 @@ SLGLDepthBuffer::SLGLDepthBuffer(const SLVec2i& dimensions,
                                  SLenum         minFilter,
                                  SLint          wrap,
                                  SLfloat        borderColor[],
-                                 SLenum         target) : _dimensions(dimensions), _target(target)
+                                 SLenum         target,
+                                 SLstring       name)
+  : SLObject(name),
+    _dimensions(dimensions),
+    _target(target)
 {
     PROFILE_FUNCTION();
 
@@ -38,7 +42,7 @@ SLGLDepthBuffer::SLGLDepthBuffer(const SLVec2i& dimensions,
     GET_GL_ERROR;
 
     glGenTextures(1, &_texID);
-    stateGL->activeTexture(GL_TEXTURE0 + (SLuint)_texID);
+    //stateGL->activeTexture(GL_TEXTURE0 + (SLuint)_texID);
     stateGL->bindTexture(target, _texID);
     GET_GL_ERROR;
 
@@ -125,12 +129,20 @@ SLGLDepthBuffer::~SLGLDepthBuffer()
     GET_GL_ERROR;
 }
 //-----------------------------------------------------------------------------
-void SLGLDepthBuffer::activateAsTexture(SLuint loc) const
+//! Sets the active texture unit within the shader and binds the texture
+/*!
+ The uniform location loc must be requested before with glUniformLocation.
+ The texture unit value must correspond to the number that is set with
+ glUniform1i(loc, texUnit).
+ @param loc Uniform location value
+ @param texUnit Texture Unit value
+ */
+void SLGLDepthBuffer::bindActive(SLuint texUnit) const
 {
     SLGLState* stateGL = SLGLState::instance();
-    stateGL->activeTexture(GL_TEXTURE0 + (SLuint)_texID);
+    //SL_LOG("SLGLDepthBf::bindActive: activeTexture: %d, bindTexture: %u, name: %s", texUnit, _texID, _name.c_str());
+    stateGL->activeTexture(GL_TEXTURE0 + texUnit);
     stateGL->bindTexture(_target, _texID);
-    glUniform1i(loc, _texID);
     GET_GL_ERROR;
 }
 //-----------------------------------------------------------------------------

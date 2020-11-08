@@ -134,8 +134,8 @@ public:
     ~SLGLTexture() override;
 
     void clearData();
-    void build(SLint texID = 0);
-    void bindActive(SLint texID = 0);
+    void build(SLint texUnit = 0);
+    void bindActive(SLuint texUnit = 0);
     void fullUpdate();
     void drawSprite(SLbool doUpdate, SLfloat x, SLfloat y, SLfloat w, SLfloat h);
     void cubeUV2XYZ(SLint index, SLfloat u, SLfloat v, SLfloat& x, SLfloat& y, SLfloat& z);

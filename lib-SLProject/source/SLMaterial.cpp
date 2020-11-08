@@ -314,12 +314,7 @@ void SLMaterial::activate(SLCamera* cam, SLVLight* lights)
         _textures.push_back(_errorTexture);
     }
 
-    // Enable or disable texturing
-    if (!_textures.empty())
-    {
-        for (SLulong i = 0; i < _textures.size(); ++i)
-            _textures[i]->bindActive((SLint)i);
-    }
+    //SL_LOG("SLMaterial::activate program: %s", _name.c_str());
 
     // Activate the shader program now
     _program->beginUse(cam, this, lights);
@@ -343,12 +338,13 @@ void SLMaterial::passToUniforms(SLGLProgram* program)
     program->uniform1i("u_matGetsShadows", _getsShadows);
     program->uniform1i("u_matHasTexture", !_textures.empty() ? 1 : 0);
 
-    // pass textures
-    for (SLint i = 0; i < (SLint)_textures.size(); ++i)
+    // pass textures unit id to the sampler uniform
+    for (SLuint texUnit = 0; texUnit < _textures.size(); ++texUnit)
     {
         SLchar name[100];
-        sprintf(name, "u_matTexture%d", i);
-        program->uniform1i(name, i);
+        _textures[texUnit]->bindActive(texUnit);
+        sprintf(name, "u_matTexture%d", texUnit);
+        program->uniform1i(name, texUnit);
     }
 }
 //-----------------------------------------------------------------------------

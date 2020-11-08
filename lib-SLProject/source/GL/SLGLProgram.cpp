@@ -262,7 +262,7 @@ void SLGLProgram::beginUse(SLCamera* cam, SLMaterial* mat, SLVLight* lights)
         stateGL->useProgram(_progID);
 
         if (lights)
-            passLightsToUniforms(lights);
+            passLightsToUniforms(lights, mat->textures().size());
 
         if (mat)
             mat->passToUniforms(this);
@@ -280,7 +280,8 @@ void SLGLProgram::beginUse(SLCamera* cam, SLMaterial* mat, SLVLight* lights)
     }
 }
 //-----------------------------------------------------------------------------
-void SLGLProgram::passLightsToUniforms(SLVLight* lights) const
+void SLGLProgram::passLightsToUniforms(SLVLight* lights,
+                                       SLuint    numTexInMat) const
 {
     SLGLState* stateGL = SLGLState::instance();
 
@@ -315,6 +316,20 @@ void SLGLProgram::passLightsToUniforms(SLVLight* lights) const
         SLint            lightUsesCubemap[SL_MAX_LIGHTS];       //!< flag if light has a cube shadow map
         SLMat4f          lightSpace[SL_MAX_LIGHTS * 6];         //!< projection matrix of the light
         SLGLDepthBuffer* lightShadowMap[SL_MAX_LIGHTS];         //!< pointers to depth-buffers for shadow mapping
+
+        // On MacOS and Android the shader for shadow mapping does not work unless
+        // all the cube-maps are set. So we define 8 dummy shadow maps for the unused
+        // cubemap-SM when the singlemap-SM is used and vice versa.
+        static SLGLDepthBuffer unusedSMBuffers[] = {
+          SLGLDepthBuffer(SLVec2i(1, 1)),
+          SLGLDepthBuffer(SLVec2i(1, 1)),
+          SLGLDepthBuffer(SLVec2i(1, 1)),
+          SLGLDepthBuffer(SLVec2i(1, 1)),
+          SLGLDepthBuffer(SLVec2i(1, 1)),
+          SLGLDepthBuffer(SLVec2i(1, 1)),
+          SLGLDepthBuffer(SLVec2i(1, 1)),
+          SLGLDepthBuffer(SLVec2i(1, 1)),
+        };
 
         // Init to defaults
         for (SLint i = 0; i < SL_MAX_LIGHTS; ++i)
@@ -402,46 +417,43 @@ void SLGLProgram::passLightsToUniforms(SLVLight* lights) const
 
         for (int i = 0; i < SL_MAX_LIGHTS; ++i)
         {
-            if (lightIsOn[i] && lightCreatesShadows[i])
+            if (lightCreatesShadows[i])
             {
-                SLstring uniformName = (lightUsesCubemap[i]
-                                          ? "u_shadowMapCube_"
-                                          : "u_shadowMap_") +
-                                       std::to_string(i);
+                SLint    loc = 0;
+                SLstring uniformSM_Used;
+                SLstring uniformSM_Unused;
+                SLuint   texUnit_Used;
+                SLuint   texUnit_Unused;
 
-                SLint loc = 0;
-                if ((loc = getUniformLocation(uniformName.c_str())) >= 0)
-                    lightShadowMap[i]->activateAsTexture(loc);
-            }
-
-#if defined(SL_OS_MACOS) || defined(SL_OS_ANDROID)
-            // On MacOS and Android the shader for shadow mapping does not work unless
-            // all the cubemaps are set. The following code passes eight textures with
-            // size 1x1 to the shader, so it does not crash. Feel free fix this issue
-            // in a cleaner way.
-
-            if (!lightUsesCubemap[i])
-            {
-                SLint    loc         = 0;
-                SLstring uniformName = "u_shadowMapCube_" + std::to_string(i);
-
-                if ((loc = getUniformLocation(uniformName.c_str())) >= 0)
+                if (lightUsesCubemap[i])
                 {
-                    static SLGLDepthBuffer dummyBuffers[] = {
-                      SLGLDepthBuffer(SLVec2i(1, 1)),
-                      SLGLDepthBuffer(SLVec2i(1, 1)),
-                      SLGLDepthBuffer(SLVec2i(1, 1)),
-                      SLGLDepthBuffer(SLVec2i(1, 1)),
-                      SLGLDepthBuffer(SLVec2i(1, 1)),
-                      SLGLDepthBuffer(SLVec2i(1, 1)),
-                      SLGLDepthBuffer(SLVec2i(1, 1)),
-                      SLGLDepthBuffer(SLVec2i(1, 1)),
-                    };
+                    texUnit_Used     = numTexInMat + SL_MAX_LIGHTS + i;
+                    texUnit_Unused   = numTexInMat + i;
+                    uniformSM_Used   = "u_shadowMapCube_" + std::to_string(SL_MAX_LIGHTS + i);
+                    uniformSM_Unused = "u_shadowMap_" + std::to_string(i);
+                }
+                else
+                {
+                    texUnit_Used     = numTexInMat + i;
+                    texUnit_Unused   = numTexInMat + SL_MAX_LIGHTS + i;
+                    uniformSM_Used   = "u_shadowMap_" + std::to_string(i);
+                    uniformSM_Unused = "u_shadowMapCube_" + std::to_string(SL_MAX_LIGHTS + i);
+                }
 
-                    dummyBuffers[i].activateAsTexture(loc);
+                // Set used SM
+                if ((loc = getUniformLocation(uniformSM_Used.c_str())) >= 0)
+                {
+                    lightShadowMap[i]->bindActive(texUnit_Used);
+                    glUniform1i(loc, texUnit_Used);
+                }
+
+                // Set unused SM
+                if ((loc = getUniformLocation(uniformSM_Unused.c_str())) >= 0)
+                {
+                    unusedSMBuffers[i].bindActive(texUnit_Unused);
+                    glUniform1i(loc, texUnit_Unused);
                 }
             }
-#endif
         }
     }
 }

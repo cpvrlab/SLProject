@@ -119,8 +119,8 @@ void SLSceneView::init(SLstring           name,
 //-----------------------------------------------------------------------------
 void SLSceneView::unInit()
 {
-    _camera = &_sceneViewCamera;
-    _skybox = nullptr;    // enables and modes
+    _camera     = &_sceneViewCamera;
+    _skybox     = nullptr; // enables and modes
     _mouseDownL = false;
     _mouseDownR = false;
     _mouseDownM = false;
@@ -502,6 +502,8 @@ SLbool SLSceneView::onPaint()
 {
     PROFILE_FUNCTION();
 
+    //SL_LOG("onPaint: -----------------------------------------------------");
+
     _shadowMapTimesMS.set(_shadowMapTimeMS);
     _cullTimesMS.set(_cullTimeMS);
     _draw3DTimesMS.set(_draw3DTimeMS);
@@ -520,7 +522,7 @@ SLbool SLSceneView::onPaint()
         // Process queued up system events and poll custom input devices
         viewConsumedEvents = _inputManager.pollAndProcessEvents(this);
 
-        //update current scene
+        // update current scene
         if (_s)
         {
             sceneHasChanged = _s->onUpdate((_renderType == RT_rt),
@@ -651,9 +653,7 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     for (SLLight* light : _s->lights())
     {
         if (light->createsShadows())
-        {
             light->renderShadowMap(this, _s->root3D());
-        }
     }
 
     _shadowMapTimeMS = GlobalTimer::timeMS() - startMS;
