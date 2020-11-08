@@ -700,13 +700,16 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
         // The device rotation sensor (IMU) is turned on and sends rotation angles
         if (_devRot->isUsed())
         {
-            // Camera rotation w.r.t. to sensor
-            //(this is how the camera coordinate system is aligned relative to the sensor coordinate system: we are in the camera coordinate system if we rotate the sensor coordinate system -90 degrees about the z-axis)
+            /* Camera rotation w.r.t. to sensor
+            This is how the camera coordinate system is aligned relative to the sensor coordinate
+            system: we are in the camera coordinate system if we rotate the sensor coordinate
+            system -90 degrees about the z-axis)*/
             SLMat3f sRc;
             sRc.rotation(-90, 0, 0, 1);
 
-            // Sensor rotation w.r.t. east-north-up (gliding averaged)
-            //(this is how the sensor is aligned relative to the east-north-down coordinate system: this rotation is what we get from the device rotation sensor api)
+            /* Sensor rotation w.r.t. east-north-up (gliding averaged)
+            This is how the sensor is aligned relative to the east-north-down coordinate system:
+            this rotation is what we get from the device rotation sensor api.*/
             SLMat3f enuRs;
             enuRs.setMatrix(_devRot->rotationAveraged());
             
@@ -715,33 +718,38 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
             
             //Calculate and apply correction from finger x-y-rotation
             {
-                //1. estimate horizon in enu-frame: intersection between camera x-y-plane defined in enu-frame and enu x-y-plane:
-                //normal vector of camera x-y-plane in enu frame definition: this is the camera z-axis epressed in enu frame
+                /* 1. Estimate horizon in enu-frame: intersection between camera x-y-plane defined
+                in enu-frame and enu x-y-plane: normal vector of camera x-y-plane in enu frame
+                definition: this is the camera z-axis expressed in enu frame */
                 SLVec3f normalCamXYPlane = enuRc * SLVec3f(0, 0, 1);
+
                 //enu x-y-plane definition:  this is just the z-axis
                 SLVec3f normalEnuXYPlane = SLVec3f(0, 0, 1);
-                //Estimation of intersetion line (horizon):
-                //Then the crossproduct of both vectors defines the direction of the intersection line. In our special case we know that the origin is a point the lies on both planes.
-                //Then origin plus direction vector defines the horizon
+
+                /* Estimation of intersection line (horizon):
+                Then the crossproduct of both vectors defines the direction of the intersection
+                line. In our special case we know that the origin is a point the lies on both planes.
+                Then origin plus direction vector defines the horizon */
                 SLVec3f enuHorizon;
                 enuHorizon.cross(normalEnuXYPlane, normalCamXYPlane);
                 enuHorizon.normalize();
 
-                //2. use horizon angle to express screen (camera plane) finger movement in enuUp-horizon plane
-                //express horizon in camera coordinate system
+                /* 2. Use horizon angle to express screen (camera plane) finger movement in
+                enuUp-horizon plane express horizon in camera coordinate system */
                 SLMat3f cRenu    = enuRc.transposed();
                 SLVec3f cHorizon = cRenu * enuHorizon;
                 cHorizon.normalize();
 
                 //angle between x-axis and horizon
                 float horizAngDEG = atan2f((float)cHorizon.y, (float)cHorizon.x) * RAD2DEG;
+
                 //rotate display x- and y-offsets to enuUp - horizon plane
                 SLVec3f cOffsetPix(_xOffsetPix, _yOffsetPix, 0.f);
                 SLMat3f rot(horizAngDEG, 0, 0, 1);
                 enuOffsetPix = rot * cOffsetPix;
 
-                //3. apply rotation angles defined in camera plane onto vertical enu axis and horizon axis
-                //estimate focal length (todo: calculate once when fov is set)
+                /* 3. apply rotation angles defined in camera plane onto vertical enu axis and
+                horizon axis estimate focal length (todo: calculate once when fov is set) */
                 f = sv->scrH() / (2 * tan(0.5f * fovV() * DEG2RAD));
 
                 if (_devRot->offsetMode() == OM_fingerXY)
@@ -750,6 +758,7 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
                     float pitchOffsetRAD = atanf((float)enuOffsetPix.y / f);
                     SLMat3f rotVertical(yawOffsetRAD * RAD2DEG, SLVec3f(0, 0, 1));
                     SLMat3f rotHorizon(pitchOffsetRAD * RAD2DEG, enuHorizon.x, enuHorizon.y, enuHorizon.z);
+
                     //we have to right multiply new rotation because new rotations are estimated w.r.t. enu coordinate frame
                     _enucorrRenu = _enucorrRenu * rotHorizon * rotVertical;
                 }
@@ -757,19 +766,22 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
                 {
                     float yawOffsetRAD   = atanf((float)enuOffsetPix.x / f);
                     SLMat3f rotVertical(yawOffsetRAD * RAD2DEG, SLVec3f(0, 0, 1));
+
                     //we have to right multiply new rotation because new rotations are estimated w.r.t. enu coordinate frame
                     _enucorrRenu = _enucorrRenu * rotVertical;
                 }
             }
 
-            // enu rotation (after correction) w.r.t. world
-            // ("world" is our scene coordinate system! This rotation matrix defines how the scene coordinate system is aligned relative to the enu coordinate system)
+            /* enu rotation (after correction) w.r.t. world
+            "world" is our scene coordinate system! This rotation matrix defines how the scene
+            coordinate system is aligned relative to the enu coordinate system */
             SLMat3f wRenucorr;
             wRenucorr.rotation(-90, 1, 0, 0);
 
-            //camera rotation w.r.t world
-            //("world" is our scene coordinate system! We are searching for the camera pose in the scene (world) coordinate system!)
-            // combination of partial rotations to orientation of camera w.r.t world
+            /* camera rotation w.r.t world
+            "world" is our scene coordinate system! We are searching for the camera pose in the
+            scene (world) coordinate system! Combination of partial rotations to orientation of
+            camera w.r.t world */
             SLMat3f wRc = wRenucorr * _enucorrRenu * enuRc;
             _om.setRotation(wRc);
             needUpdate();
@@ -985,7 +997,7 @@ SLbool SLCamera::onMouseMove(const SLMouseButton button,
         SLfloat dY = (y - _oldTouchPos1.y) * _rotFactor;
         SLfloat dX = (x - _oldTouchPos1.x) * _rotFactor;
 
-        if (_camAnim == CA_turntableYUp) //......................................
+        if (_camAnim == CA_turntableYUp) //....................................
         {
             SLMat4f rot;
             rot.translate(lookAtPoint);
@@ -996,7 +1008,7 @@ SLbool SLCamera::onMouseMove(const SLMouseButton button,
             _om.setMatrix(rot * _om);
             needUpdate();
         }
-        else if (_camAnim == CA_turntableZUp) //.................................
+        else if (_camAnim == CA_turntableZUp) //...............................
         {
             SLMat4f rot;
             rot.translate(lookAtPoint);
@@ -1007,15 +1019,15 @@ SLbool SLCamera::onMouseMove(const SLMouseButton button,
             _om.setMatrix(rot * _om);
             needUpdate();
         }
-        else if (_camAnim == CA_trackball) //....................................
+        else if (_camAnim == CA_trackball) //..................................
         {
             // Reference: https://en.wikibooks.org/wiki/OpenGL_Programming/Modern_OpenGL_Tutorial_Arcball
-            // calculate current mouse vector at currenct mouse position
+            // calculate current mouse vector at current mouse position
             SLVec3f curMouseVec = trackballVec(x, y);
 
             // calculate angle between the old and the current mouse vector
             // Take care that the dot product isn't greater than 1.0 otherwise
-            // the acos will return indefined.
+            // the acos will return undefined.
             SLfloat dot   = _trackballStartVec.dot(curMouseVec);
             SLfloat angle = acos(dot > 1 ? 1 : dot) * Utils::RAD2DEG;
 
@@ -1053,7 +1065,7 @@ SLbool SLCamera::onMouseMove(const SLMouseButton button,
 
             needUpdate();
         }
-        else if (_camAnim == CA_walkingYUp) //...................................
+        else if (_camAnim == CA_walkingYUp) //.................................
         {
             dY *= 0.5f;
             dX *= 0.5f;
@@ -1066,7 +1078,7 @@ SLbool SLCamera::onMouseMove(const SLMouseButton button,
             lookAt(positionVS + forwardVS);
             needUpdate();
         }
-        else if (_camAnim == CA_walkingZUp) //...................................
+        else if (_camAnim == CA_walkingZUp) //.................................
         {
             dY *= 0.5f;
             dX *= 0.5f;
@@ -1079,7 +1091,7 @@ SLbool SLCamera::onMouseMove(const SLMouseButton button,
             lookAt(positionVS + forwardVS, SLVec3f(0, 0, 1));
             needWMUpdate();
         }
-        else if (_camAnim == CA_deviceRotLocYUp && _devRot != nullptr) //..............................
+        else if (_camAnim == CA_deviceRotLocYUp && _devRot != nullptr) //......
         {
             if (_devRot->offsetMode() == OM_fingerX ||
                 _devRot->offsetMode() == OM_fingerXY ||
