@@ -16,6 +16,7 @@
 #include <MapPointEdition.h>
 #include <SENSCalibration.h>
 #include <sens/SENSCvCamera.h>
+#include <WAICompassAlignment.h>
 
 class WAISlam;
 struct WAIEvent;
@@ -48,6 +49,7 @@ protected:
     void saveMapBinary(std::string location, std::string area, std::string marker);
     void saveVideo(std::string filename);
     void startOrbSlam(SlamParams slamParams);
+    void startCompassAlignment();
     void transformMapNode(SLTransformSpace tSpace,
                           SLVec3f          rotation,
                           SLVec3f          translation,
@@ -57,6 +59,7 @@ protected:
     void updateVideoTracking();
     void updateTrackingVisualization(const bool iKnowWhereIAm);
     void updateTrackingVisualization(const bool iKnowWhereIAm, SENSFrame& frame);
+    void updateCompassAlignmentVisualization(SENSFrame& frame, cv::Mat& templateMatchingResult);
     void setupDefaultErlebARDirTo(std::string dir);
     void updateSceneCameraFov();
 
@@ -86,6 +89,9 @@ protected:
     ImageBuffer                  _imgBuffer;
 
     std::queue<WAIEvent*> _eventQueue;
+
+    // compass alignment
+    WAICompassAlignment* _compassAlignment = nullptr;
 
     //scene
     AppWAIScene       _scene;

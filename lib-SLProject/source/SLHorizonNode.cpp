@@ -11,6 +11,7 @@
 #include <SLHorizonNode.h>
 #include <SLText.h>
 #include <SLAlgo.h>
+#include <cmath>
 
 SLHorizonNode::SLHorizonNode(SLstring name, SLDeviceRotation* devRot, SLTexFont* font, SLstring shaderDir, int scrW, int scrH)
   : SLNode(name),
@@ -31,19 +32,19 @@ SLHorizonNode::SLHorizonNode(SLstring name, SLDeviceRotation* devRot, SLTexFont*
     _prog->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 1.0f));
     _mat = new SLMaterial(nullptr, _prog, SLCol4f::WHITE, "White");
     //define mesh points
-    int      refLen = std::min(scrW, scrH);
-    SLfloat  cs; // center size
-    if(_font)
+    int     refLen = std::min(scrW, scrH);
+    SLfloat cs; // center size
+    if (_font)
     {
         SLfloat  scale = 1.f;
         SLstring txt   = "-359.9";
         SLVec2f  size  = _font->calcTextSize(txt);
-        cs = size.x;
+        cs             = size.x;
     }
     else
         cs = refLen * 0.01f; // center size
-    
-    float    l      = refLen * 0.35;
+
+    float l = refLen * 0.35;
 
     SLVVec3f points = {{-l, 0, 0},
                        {-cs, 0, 0},
@@ -54,7 +55,7 @@ SLHorizonNode::SLHorizonNode(SLstring name, SLDeviceRotation* devRot, SLTexFont*
                        {0, cs, 0},
                        {-cs, 0, 0}};
 
-    _line = new SLPolyline(nullptr, points, true, "Horizon line", _mat);
+    _line        = new SLPolyline(nullptr, points, true, "Horizon line", _mat);
     _horizonNode = new SLNode(_line, "Horizon node");
     this->addChild(_horizonNode);
 }
@@ -72,22 +73,22 @@ void SLHorizonNode::doUpdate()
     SLVec3f horizon;
     SLAlgo::estimateHorizon(_devRot->rotationAveraged(), _sRc, horizon);
     //rotate node to align it to horizon
-    float horizonAngle = std::atan2f(horizon.y, horizon.x) * RAD2DEG;
+    float horizonAngle = std::atan2(horizon.y, horizon.x) * RAD2DEG;
     _horizonNode->rotation(horizonAngle, SLVec3f(0, 0, 1), SLTransformSpace::TS_object);
-    
+
     //update text
-    if(_font)
+    if (_font)
     {
-        if(_textNode)
+        if (_textNode)
             this->deleteChild(_textNode);
-        
+
         std::stringstream ss;
         //we invert the sign to express the rotation of the device w.r.t the horizon
         ss << std::fixed << std::setprecision(1) << -horizonAngle;
         SLstring txt = ss.str();
 
-        SLVec2f  size  = _font->calcTextSize(txt);
-        _textNode   = new SLText(txt, _font, SLCol4f::WHITE);
+        SLVec2f size = _font->calcTextSize(txt);
+        _textNode    = new SLText(txt, _font, SLCol4f::WHITE);
         _textNode->translate(-size.x * 0.5f, -size.y * 0.5f, 0);
         this->addChild(_textNode);
     }
