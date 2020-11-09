@@ -4,6 +4,14 @@ apply plugin: 'kotlin-android'
 
 apply plugin: 'kotlin-android-extensions'
 
+/*
+The ARCore aar library contains the native shared libraries. These are
+extracted before building to a temporary directory.
+*/
+def arcore_libpath = "./arcore-native"
+// Create a configuration to mark which aars to extract .so files from
+configurations { natives }
+
 android {
     signingConfigs {
         release {
@@ -65,6 +73,30 @@ android {
             path file('../../../../CMakeLists.txt')
         }
     }
+
+}
+
+// Extracts the shared libraries from aars in the natives configuration.
+// This is done so that NDK builds can access these libraries.
+task extractNativeLibraries() {
+    // Extract every time.
+    outputs.upToDateWhen { false }
+
+    doFirst {
+        configurations.natives.files.each { f ->
+            copy {
+                from zipTree(f)
+                into arcore_libpath
+                include "jni/**/*"
+            }
+        }
+    }
+}
+
+tasks.whenTaskAdded {
+    task-> if (task.name.contains("external") && !task.name.contains("Clean")) {
+        task.dependsOn(extractNativeLibraries)
+    }
 }
 
 dependencies {
@@ -75,4 +107,6 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test:runner:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.1'
+    implementation 'com.google.ar:core:1.20.0'
+    natives 'com.google.ar:core:1.20.0'
 }
