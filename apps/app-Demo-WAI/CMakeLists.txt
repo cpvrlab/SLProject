@@ -18,6 +18,7 @@ set(erlebar_headers
 	${SL_PROJECT_ROOT}/apps/source/sens/SENSCalibration.h
 	${SL_PROJECT_ROOT}/apps/source/sens/SENSCalibrationEstimator.h
 	${SL_PROJECT_ROOT}/apps/source/sens/SENSGps.h
+	${SL_PROJECT_ROOT}/apps/source/sens/SENSARCore.h
 	${SL_PROJECT_ROOT}/apps/source/sens/SENSOrientation.h
 	${SL_PROJECT_ROOT}/apps/source/sens/SENSRecorder.h
 	${SL_PROJECT_ROOT}/apps/source/sens/SENSRecorderDataHandler.h
@@ -115,6 +116,7 @@ set(erlebar_sources
 	${SL_PROJECT_ROOT}/apps/source/sens/SENSCalibration.cpp
 	${SL_PROJECT_ROOT}/apps/source/sens/SENSCalibrationEstimator.cpp
 	${SL_PROJECT_ROOT}/apps/source/sens/SENSGps.cpp
+	${SL_PROJECT_ROOT}/apps/source/sens/SENSARCore.cpp
 	${SL_PROJECT_ROOT}/apps/source/sens/SENSOrientation.cpp
 	${SL_PROJECT_ROOT}/apps/source/sens/SENSRecorder.cpp
 	${SL_PROJECT_ROOT}/apps/source/sens/SENSRecorderDataHandler.cpp

@@ -58,12 +58,14 @@ void ErlebARApp::init(int                scrWidth,
                       const std::string& writableDir,
                       SENSCamera*        camera,
                       SENSGps*           gps,
-                      SENSOrientation*   orientation)
+                      SENSOrientation*   orientation,
+                      SENSARCore*        arcore)
 {
     //store camera so we can stop on terminate
     _camera      = camera;
     _gps         = gps;
     _orientation = orientation;
+    _arcore      = arcore;
     addEvent(new InitEvent("ErlebARApp::init()", scrWidth, scrHeight, dpi, dataDir, writableDir));
 }
 
@@ -276,6 +278,7 @@ void ErlebARApp::WELCOME(const sm::NoEventData* data, const bool stateEntry, con
                                                      _camera,
                                                      _gps,
                                                      _orientation,
+                                                     _arcore,
                                                      *_dd);
         }
     }

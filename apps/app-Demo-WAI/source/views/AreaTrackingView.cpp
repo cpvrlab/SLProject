@@ -12,6 +12,7 @@ AreaTrackingView::AreaTrackingView(sm::EventHandler&   eventHandler,
                                    SENSCamera*         camera,
                                    SENSGps*            gps,
                                    SENSOrientation*    orientation,
+                                   SENSARCore*         arcore,
                                    const DeviceData&   deviceData)
   : SLSceneView(nullptr, deviceData.dpi(), inputManager),
     _gui(imGuiEngine,
@@ -27,6 +28,7 @@ AreaTrackingView::AreaTrackingView(sm::EventHandler&   eventHandler,
     _userGuidanceScene(deviceData.dataDir()),
     _gps(gps),
     _orientation(orientation),
+    _arcore(arcore),
     _resources(resources),
     _deviceData(deviceData),
     _userGuidance(&_userGuidanceScene, &_gui, _gps, _orientation, resources),
@@ -69,6 +71,12 @@ void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaI
         //start video camera
         startCamera(area.cameraFrameTargetSize);
 
+        //init arcore
+        if (!_arcore->init(area.cameraFrameTargetSize.width, area.cameraFrameTargetSize.height, 0, 0, false))
+        {
+            Utils::log("ARCore", "ARCore failed to initialize");
+        }
+
         //init 3d visualization
         this->unInit();
         _waiScene.initScene(locId, areaId);
@@ -79,6 +87,7 @@ void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaI
 
         initDeviceLocation(location, area);
         initSlam(area);
+        _gpsPose = calcCameraPoseGpsOrientationBased();
 
         _noInitException = true;
     }
@@ -123,6 +132,36 @@ cv::Mat AreaTrackingView::convertCameraPoseToWaiCamExtrinisc(SLMat4f& wTc)
     return cTw;
 }
 
+/*
+ cTw is the camera extrinsic: the world w.r.t. the camera coordinate system.
+ We invert to get the camera pose (camera w.r.t the world coordinate system).
+ */
+SLMat4f convertARCoreToSLMat(const cv::Mat& cTw)
+{
+    SLMat4f m;
+    // clang-format off
+
+    // update camera node position
+    cv::Mat wRc(3, 3, CV_32F);
+    cv::Mat wtc(3, 1, CV_32F);
+
+    //inversion of orthogonal rotation matrix
+    wRc = (cTw.rowRange(0, 3).colRange(0, 3)).t();
+    //inversion of vector
+    wtc = -wRc * cTw.rowRange(0, 3).col(3);
+
+    cv::Mat wTc = cv::Mat::eye(4, 4, CV_32F);
+    wRc.copyTo(wTc.colRange(0, 3).rowRange(0, 3));
+    wtc.copyTo(wTc.rowRange(0, 3).col(3));
+
+    m.setMatrix(-wTc.at<float>(0, 1), wTc.at<float>(0, 0), wTc.at<float>(0, 2), wTc.at<float>(0, 3),
+                -wTc.at<float>(1, 1), wTc.at<float>(1, 0), wTc.at<float>(1, 2), wTc.at<float>(1, 3),
+                -wTc.at<float>(2, 1), wTc.at<float>(2, 0), wTc.at<float>(2, 2), wTc.at<float>(2, 3),
+                -wTc.at<float>(3, 1), wTc.at<float>(3, 0), wTc.at<float>(3, 2), wTc.at<float>(3, 3));
+    // clang-format on
+    return m;
+}
+
 bool AreaTrackingView::update()
 {
     WAI::TrackingState slamState = WAI::TrackingState_None;
@@ -130,13 +169,33 @@ bool AreaTrackingView::update()
     {
         if (_noInitException) //if there was not exception during initArea
         {
-            SENSFramePtr frame;
-            if (_camera)
+            SENSFramePtr frame = nullptr;
+            if (!_arcore && _camera)
                 frame = _camera->latestFrame();
 
             bool isTracking = false;
 
-            if (frame && _waiSlam)
+            if (_arcore)
+            {
+                cv::Mat view;
+                cv::Mat proj;
+
+                isTracking = _arcore->update(proj, view);
+                if (isTracking)
+                {
+                    isTracking = true;
+
+                    frame = _arcore->latestFrame();
+                    SLMat4f arPose = convertARCoreToSLMat(view);
+                    _waiScene.camera->om(_gpsPose * arPose);
+                }
+                else if (_orientation)
+                {
+                    _gpsPose = calcCameraPoseGpsOrientationBased();
+                    _waiScene.camera->om(_gpsPose);
+                }
+            }
+            else if (frame && _waiSlam)
             {
                 if (_waiSlam->isInitialized())
                 {
@@ -157,10 +216,10 @@ bool AreaTrackingView::update()
                 }
                 else if (_orientation)
                 {
-                    SLMat4f camPose = calcCameraPoseGpsOrientationBased();
-                    _waiScene.camera->om(camPose);
+                    _gpsPose = calcCameraPoseGpsOrientationBased();
+                    _waiScene.camera->om(_gpsPose);
                     //give waiSlam a guess of the current position in the ENU frame
-                    cv::Mat camExtrinsic = convertCameraPoseToWaiCamExtrinisc(camPose);
+                    cv::Mat camExtrinsic = convertCameraPoseToWaiCamExtrinisc(_gpsPose);
                     _waiSlam->setCamExrinsicGuess(camExtrinsic);
                 }
             }
@@ -206,6 +265,7 @@ bool AreaTrackingView::update()
             }
 
             //update visualization
+
             if (frame)
             {
                 //decorate video image and update scene

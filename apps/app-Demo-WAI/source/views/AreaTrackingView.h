@@ -26,6 +26,7 @@
 #include <SLCoordAxis.h>
 #include <sens/SENSSimHelper.h>
 #include <SLDeviceLocation.h>
+#include <sens/SENSARCore.h>
 
 class SENSCamera;
 class MapLoader;
@@ -40,6 +41,7 @@ public:
                      SENSCamera*         camera,
                      SENSGps*            gps,
                      SENSOrientation*    orientation,
+                     SENSARCore*         arcore,
                      const DeviceData&   deviceData);
     ~AreaTrackingView();
 
@@ -83,12 +85,14 @@ private:
     std::unique_ptr<SENSCvCamera> _camera;
     SENSGps*                      _gps         = nullptr;
     SENSOrientation*              _orientation = nullptr;
+    SENSARCore*                   _arcore      = nullptr;
 
     FeatureExtractorFactory      _featureExtractorFactory;
     std::unique_ptr<KPextractor> _trackingExtractor;
     std::unique_ptr<KPextractor> _initializationExtractor;
     std::unique_ptr<KPextractor> _relocalizationExtractor;
     ImageBuffer                  _imgBuffer;
+    SLMat4f                      _gpsPose;
 
     std::unique_ptr<WAIOrbVocabulary> _voc;
     //wai slam depends on _orbVocabulary and has to be uninitializd first (defined below voc)
