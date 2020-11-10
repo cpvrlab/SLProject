@@ -152,6 +152,7 @@ enum SLSceneID
     SID_ErlebARChristoffel,
     SID_ErlebARAugustaRaurica,
     SID_ErlebARAventicumAmphi,
+    SID_ErlebARAventicumAmphiAO,
     SID_ErlebARAventicumCigognier,
     SID_ErlebARAventicumCigognierAO,
     SID_ErlebARAventicumTheatre,

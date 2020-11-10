@@ -1429,6 +1429,7 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                 SLstring modelBFH    = erlebarPath + "biel/Biel-BFH-Rolex.gltf";
                 SLstring modelAR1    = erlebarPath + "augst/Tempel-Theater-02.gltf";
                 SLstring modelAV1    = erlebarPath + "avenches/Aventicum-Amphitheater1.gltf";
+                SLstring modelAV1_AO = erlebarPath + "avenches/Aventicum-Amphitheater-AO.gltf";
                 SLstring modelAV2    = erlebarPath + "avenches/Aventicum-Cigognier2.gltf";
                 SLstring modelAV2_AO = erlebarPath + "avenches/Aventicum-Cigognier-AO.gltf";
                 SLstring modelAV3    = erlebarPath + "avenches/Aventicum-Theater1.gltf";
@@ -1457,6 +1458,10 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                         if (Utils::fileExists(modelAV1))
                             if (ImGui::MenuItem("Aventicum Amphitheatre AR", nullptr, sid == SID_ErlebARAventicumAmphi))
                                 s->onLoad(s, sv, SID_ErlebARAventicumAmphi);
+
+                        if (Utils::fileExists(modelAV1_AO))
+                            if (ImGui::MenuItem("Aventicum Amphitheatre AR (AO)", nullptr, sid == SID_ErlebARAventicumAmphiAO))
+                                s->onLoad(s, sv, SID_ErlebARAventicumAmphiAO);
 
                         if (Utils::fileExists(modelAV2))
                             if (ImGui::MenuItem("Aventicum Cigognier AR", nullptr, sid == SID_ErlebARAventicumCigognier))

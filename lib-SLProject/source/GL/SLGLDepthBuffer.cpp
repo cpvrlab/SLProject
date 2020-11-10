@@ -42,7 +42,7 @@ SLGLDepthBuffer::SLGLDepthBuffer(const SLVec2i& dimensions,
     GET_GL_ERROR;
 
     glGenTextures(1, &_texID);
-    //stateGL->activeTexture(GL_TEXTURE0 + (SLuint)_texID);
+    stateGL->activeTexture(GL_TEXTURE0 + (SLuint)_texID);
     stateGL->bindTexture(target, _texID);
     GET_GL_ERROR;
 
