@@ -30,12 +30,13 @@ public:
 
     SENSARCore() {}
     virtual ~SENSARCore() {}
-    virtual bool init(int targetWidth, int targetHeight, int manipWidth, int manipHeight, bool convertManipToGray)  = 0;
-    virtual bool resume() = 0;
-    virtual void pause()  = 0;
-    virtual bool update(cv::Mat& intrinsic, cv::Mat& view)  = 0;
-    virtual SENSFramePtr latestFrame() = 0;
-    virtual void setDisplaySize(int w, int h) = 0;
+    virtual bool init(int targetWidth, int targetHeight, int manipWidth, int manipHeight, bool convertManipToGray) { return false; }
+    virtual bool isReady() { return false; }
+    virtual bool resume() { return true; }
+    virtual void pause() {}
+    virtual bool update(cv::Mat& intrinsic, cv::Mat& view) { return false; }
+    virtual SENSFramePtr latestFrame() { return nullptr; }
+    virtual void setDisplaySize(int w, int h) { return; }
 
     virtual void configure(int  targetWidth,
                            int  targetHeight,

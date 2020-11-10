@@ -16,7 +16,7 @@ public:
 	~SENSNdkARCore();
 
     bool init(int targetWidth, int targetHeight, int manipWidth, int manipHeight, bool convertManipToGray);
-
+    bool isReady() { return _arSession != nullptr; }
 	bool resume() override;
 	void pause() override;
     bool update(cv::Mat& intrinsic, cv::Mat& view);

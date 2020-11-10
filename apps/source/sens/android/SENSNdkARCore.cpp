@@ -70,6 +70,8 @@ bool SENSNdkARCore::init(int w, int h, int manipW, int manipH, bool convertManip
 
         if (!arConfig)
         {
+            ArSession_destroy(_arSession);
+            _arSession = nullptr;
             env->DeleteGlobalRef(activityObj);
             _activity->vm->DetachCurrentThread();
             return false;
@@ -85,6 +87,9 @@ bool SENSNdkARCore::init(int w, int h, int manipW, int manipH, bool convertManip
 
         if (ArSession_configure(_arSession, arConfig) != AR_SUCCESS)
         {
+            ArConfig_destroy(arConfig);
+            ArSession_destroy(_arSession);
+            _arSession = nullptr;
             env->DeleteGlobalRef(activityObj);
             _activity->vm->DetachCurrentThread();
             return false;
@@ -100,6 +105,8 @@ bool SENSNdkARCore::init(int w, int h, int manipW, int manipH, bool convertManip
         ArFrame_create(_arSession, &_arFrame);
         if (!_arFrame)
         {
+            ArSession_destroy(_arSession);
+            _arSession = nullptr;
             env->DeleteGlobalRef(activityObj);
             _activity->vm->DetachCurrentThread();
             return false;

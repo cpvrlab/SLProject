@@ -72,10 +72,8 @@ void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaI
         startCamera(area.cameraFrameTargetSize);
 
         //init arcore
-        if (!_arcore->init(area.cameraFrameTargetSize.width, area.cameraFrameTargetSize.height, 0, 0, false))
-        {
-            Utils::log("ARCore", "ARCore failed to initialize");
-        }
+        if (_arcore)
+            _arcore->init(area.cameraFrameTargetSize.width, area.cameraFrameTargetSize.height, 0, 0, false);
 
         //init 3d visualization
         this->unInit();
@@ -87,7 +85,8 @@ void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaI
 
         initDeviceLocation(location, area);
         initSlam(area);
-        _gpsPose = calcCameraPoseGpsOrientationBased();
+        if (_gps)
+            _gpsPose = calcCameraPoseGpsOrientationBased();
 
         _noInitException = true;
     }
@@ -170,12 +169,12 @@ bool AreaTrackingView::update()
         if (_noInitException) //if there was not exception during initArea
         {
             SENSFramePtr frame = nullptr;
-            if (!_arcore && _camera)
+            if (!_arcore->isReady() && _camera)
                 frame = _camera->latestFrame();
 
             bool isTracking = false;
 
-            if (_arcore)
+            if (_arcore->isReady())
             {
                 cv::Mat view;
                 cv::Mat proj;
