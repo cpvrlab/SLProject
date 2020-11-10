@@ -48,6 +48,7 @@ set(erlebar_headers
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/SensorTestGui.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/SimHelperGui.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiAutoCalibration.h
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiCompassAlignment.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiError.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiInfosFrameworks.h
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiMapPointEditor.h
@@ -141,6 +142,7 @@ set(erlebar_sources
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/SensorTestGui.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/SimHelperGui.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiAutoCalibration.cpp
+	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiCompassAlignment.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiError.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiInfosFrameworks.cpp
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab/AppDemoGuiMapPointEditor.cpp

@@ -287,7 +287,7 @@ void SLGLConetracer::renderSceneGraph(SLGLProgram* program)
     uploadRenderSettings(program);
 
     //uploadLights(program);
-    program->passLightsToUniforms(&_sv->s()->lights());
+    program->passLightsToUniforms(&_sv->s()->lights(), 0);
 
     // upload camera position:
     SLVec3f camPosWS = _sv->camera()->translationWS();

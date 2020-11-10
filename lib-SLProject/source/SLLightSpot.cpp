@@ -52,6 +52,7 @@ SLLightSpot::SLLightSpot(SLAssetManager* assetMgr,
                                  16,
                                  "LightSpot Mesh",
                                  mat));
+        _castsShadows = false;
     }
 
     init(s);

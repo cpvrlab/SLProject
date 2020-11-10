@@ -75,12 +75,11 @@ void SLMesh::deleteData()
     N.clear();
     C.clear();
     T.clear();
-    Tc.clear();
-    for (auto i : Ji)
-        i.clear();
+    UV1.clear();
+    UV2.clear();
+    for (auto i : Ji) i.clear();
     Ji.clear();
-    for (auto i : Jw)
-        i.clear();
+    for (auto i : Jw) i.clear();
     Jw.clear();
     I16.clear();
     I32.clear();
@@ -127,7 +126,8 @@ void SLMesh::deleteSelected(SLNode* node)
         if (ixDel < N.size()) N.erase(N.begin() + ixDel);
         if (ixDel < C.size()) C.erase(C.begin() + ixDel);
         if (ixDel < T.size()) T.erase(T.begin() + ixDel);
-        if (ixDel < Tc.size()) Tc.erase(Tc.begin() + ixDel);
+        if (ixDel < UV1.size()) UV1.erase(UV1.begin() + ixDel);
+        if (ixDel < UV2.size()) UV2.erase(UV2.begin() + ixDel);
         if (ixDel < Ji.size()) Ji.erase(Ji.begin() + ixDel);
         if (ixDel < Jw.size()) Jw.erase(Jw.begin() + ixDel);
 
@@ -193,7 +193,7 @@ void SLMesh::deleteSelected(SLNode* node)
     calcNormals();
 
     // build tangents for bump mapping
-    if (mat()->needsTangents() && !Tc.empty() && T.empty())
+    if (mat()->needsTangents() && !UV1.empty() && T.empty())
         calcTangents();
 
     // delete vertex array object so it gets regenerated
@@ -241,7 +241,8 @@ void SLMesh::deleteUnused()
             if (ixDel < N.size()) N.erase(N.begin() + ixDel);
             if (ixDel < C.size()) C.erase(C.begin() + ixDel);
             if (ixDel < T.size()) T.erase(T.begin() + ixDel);
-            if (ixDel < Tc.size()) Tc.erase(Tc.begin() + ixDel);
+            if (ixDel < UV1.size()) UV1.erase(UV1.begin() + ixDel);
+            if (ixDel < UV2.size()) UV2.erase(UV2.begin() + ixDel);
             if (ixDel < Ji.size()) Ji.erase(Ji.begin() + ixDel);
             if (ixDel < Jw.size()) Jw.erase(Jw.begin() + ixDel);
 
@@ -287,7 +288,7 @@ void SLMesh::init(SLNode* node)
     }
 
     // build tangents for bump mapping
-    if (mat()->needsTangents() && !Tc.empty() && T.empty())
+    if (mat()->needsTangents() && !UV1.empty() && T.empty())
         calcTangents();
 
     _isSelected = false;
@@ -327,7 +328,9 @@ void SLMesh::drawIntoDepthBuffer(SLSceneView* sv,
     SLGLProgram* sp    = depthMat->program();
     SLGLState*   state = SLGLState::instance();
     sp->useProgram();
-    sp->uniformMatrix4fv("u_mvpMatrix", 1, (const SLfloat*)state->mvpMatrix());
+    sp->uniformMatrix4fv("u_mvpMatrix",
+                         1,
+                         (const SLfloat*)state->mvpMatrix());
 
     _vao.drawElementsAs(PT_triangles);
 }
@@ -335,7 +338,7 @@ void SLMesh::drawIntoDepthBuffer(SLSceneView* sv,
 /*!
 SLMesh::draw does the OpenGL rendering of the mesh. The GL_TRIANGLES primitives
 are rendered normally with the vertex position vector P, the normal vector N,
-the vector Tc and the index vector I16 or I32. GL_LINES & GL_POINTS don't have
+the vector UV1 and the index vector I16 or I32. GL_LINES & GL_POINTS don't have
 normals and tex.coords. GL_POINTS don't have indexes (I16,I32) and are rendered
 with glDrawArrays instead glDrawElements.
 Optionally you can draw the normals and/or the uniform grid voxels.
@@ -414,7 +417,7 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
     /////////////////////////////
 
     // 3.a) Apply mesh material if exists & differs from current
-    _mat->activate(*node->drawBits(), sv->camera(), &sv->s()->lights());
+    _mat->activate(sv->camera(), &sv->s()->lights());
 
     // 3.b) Pass the matrices to the shader program
     SLGLProgram* sp = _mat->program();
@@ -699,7 +702,9 @@ void SLMesh::generateVAO(SLGLVertexArray& vao)
 {
     vao.setAttrib(AT_position, AT_position, _finalP);
     if (!N.empty()) vao.setAttrib(AT_normal, AT_normal, _finalN);
-    if (!Tc.empty()) vao.setAttrib(AT_texCoord, AT_texCoord, &Tc);
+    if (!UV1.empty()) vao.setAttrib(AT_uv1, AT_uv1, &UV1);
+    if (!UV2.empty())
+        vao.setAttrib(AT_uv2, AT_uv2, &UV2);
     if (!C.empty()) vao.setAttrib(AT_color, AT_color, &C);
     if (!T.empty()) vao.setAttrib(AT_tangent, AT_tangent, &T);
 
@@ -860,7 +865,8 @@ void SLMesh::addStats(SLNodeStats& stats)
     stats.numBytes += sizeof(SLMesh);
     if (!P.empty()) stats.numBytes += SL_sizeOfVector(P);
     if (!N.empty()) stats.numBytes += SL_sizeOfVector(N);
-    if (!Tc.empty()) stats.numBytes += SL_sizeOfVector(Tc);
+    if (!UV1.empty()) stats.numBytes += SL_sizeOfVector(UV1);
+    if (!UV2.empty()) stats.numBytes += SL_sizeOfVector(UV2);
     if (!C.empty()) stats.numBytes += SL_sizeOfVector(C);
     if (!T.empty()) stats.numBytes += SL_sizeOfVector(T);
     if (!Ji.empty()) stats.numBytes += SL_sizeOfVector(Ji);
@@ -1136,7 +1142,7 @@ detail explained in: http://www.terathon.com/code/tangent.html
 */
 void SLMesh::calcTangents()
 {
-    if (!P.empty() && !N.empty() && !Tc.empty() && (!I16.empty() || !I32.empty()))
+    if (!P.empty() && !N.empty() && !UV1.empty() && (!I16.empty() || !I32.empty()))
     {
         // Delete old tangents
         T.clear();
@@ -1183,10 +1189,10 @@ void SLMesh::calcTangents()
             float z1 = P[iVB].z - P[iVA].z;
             float z2 = P[iVC].z - P[iVA].z;
 
-            float s1 = Tc[iVB].x - Tc[iVA].x;
-            float s2 = Tc[iVC].x - Tc[iVA].x;
-            float t1 = Tc[iVB].y - Tc[iVA].y;
-            float t2 = Tc[iVC].y - Tc[iVA].y;
+            float s1 = UV1[iVB].x - UV1[iVA].x;
+            float s2 = UV1[iVC].x - UV1[iVA].x;
+            float t1 = UV1[iVB].y - UV1[iVA].y;
+            float t2 = UV1[iVC].y - UV1[iVA].y;
 
             float   r = 1.0F / (s1 * t2 - s2 * t1);
             SLVec3f sdir((t2 * x1 - t1 * x2) * r,
@@ -1211,7 +1217,7 @@ void SLMesh::calcTangents()
             T[i] = T1[i] - N[i] * N[i].dot(T1[i]);
             T[i].normalize();
 
-            // Calculate temp. bitangent and store its handedness in T.w
+            // Calculate temp. bi-tangent and store its handedness in T.w
             SLVec3f bitangent;
             bitangent.cross(N[i], T1[i]);
             T[i].w = (bitangent.dot(T2[i]) < 0.0f) ? -1.0f : 1.0f;
@@ -1220,7 +1226,7 @@ void SLMesh::calcTangents()
 }
 //-----------------------------------------------------------------------------
 /* Calculate the texture matrix for 3D texture mapping from the AABB so that
-the texture volume surrounds the AABB centrically.
+the texture volume surrounds the AABB centrally.
 */
 void SLMesh::calcTex3DMatrix(SLNode* node)
 {
@@ -1263,27 +1269,27 @@ SLbool SLMesh::hitTriangleOS(SLRay* ray, SLNode* node, SLuint iT)
     if (ray->srcMesh == this && ray->srcTriangle == (SLint)iT)
         return false;
 
-    SLVec3f A, B, C; // corners
-    SLVec3f e1, e2;  // edge 1 and 2
+    SLVec3f cornerA, cornerB, cornerC;
+    SLVec3f e1, e2; // edge 1 and 2
     SLVec3f AO, K, Q;
 
     // get the corner vertices
     if (!I16.empty())
     {
-        A = finalP(I16[iT]);
-        B = finalP(I16[iT + 1]);
-        C = finalP(I16[iT + 2]);
+        cornerA = finalP(I16[iT]);
+        cornerB = finalP(I16[iT + 1]);
+        cornerC = finalP(I16[iT + 2]);
     }
     else
     {
-        A = finalP(I32[iT]);
-        B = finalP(I32[iT + 1]);
-        C = finalP(I32[iT + 2]);
+        cornerA = finalP(I32[iT]);
+        cornerB = finalP(I32[iT + 1]);
+        cornerC = finalP(I32[iT + 2]);
     }
 
     // find vectors for two edges sharing the triangle vertex A
-    e1.sub(B, A);
-    e2.sub(C, A);
+    e1.sub(cornerB, cornerA);
+    e2.sub(cornerC, cornerA);
 
     // begin calculating determinant - also used to calculate U parameter
     K.cross(ray->dirOS, e2);
@@ -1300,8 +1306,8 @@ SLbool SLMesh::hitTriangleOS(SLRay* ray, SLNode* node, SLuint iT)
         // exit if ray is from behind or parallel
         if (det < FLT_EPSILON) return false;
 
-        // calculate distance from A to ray origin
-        AO.sub(ray->originOS, A);
+        // calculate distance from corner A to ray origin
+        AO.sub(ray->originOS, cornerA);
 
         // Calculate barycentric coordinates: u>0 && v>0 && u+v<=1
         u = AO.dot(K);
@@ -1334,8 +1340,8 @@ SLbool SLMesh::hitTriangleOS(SLRay* ray, SLNode* node, SLuint iT)
 
         inv_det = 1.0f / det;
 
-        // calculate distance from A to ray origin
-        AO.sub(ray->originOS, A);
+        // calculate distance from corner A to ray origin
+        AO.sub(ray->originOS, cornerA);
 
         // Calculate barycentric coordinates: u>0 && v>0 && u+v<=1
         u = AO.dot(K) * inv_det;
@@ -1409,12 +1415,12 @@ void SLMesh::preShade(SLRay* ray)
 
     // calculate interpolated texture coordinates
     SLVGLTexture& textures = ray->hitMesh->mat()->textures();
-    if (!textures.empty() && !Tc.empty())
+    if (!textures.empty() && !UV1.empty())
     {
-        SLVec2f Tu(Tc[iB] - Tc[iA]);
-        SLVec2f Tv(Tc[iC] - Tc[iA]);
-        SLVec2f tc(Tc[iA] + ray->hitU * Tu + ray->hitV * Tv);
-        ray->hitColor.set(textures[0]->getTexelf(tc.x, tc.y));
+        SLVec2f Tu(UV1[iB] - UV1[iA]);
+        SLVec2f Tv(UV1[iC] - UV1[iA]);
+        SLVec2f tc(UV1[iA] + ray->hitU * Tu + ray->hitV * Tv);
+        ray->hitTexColor.set(textures[0]->getTexelf(tc.x, tc.y));
 
         // bump mapping
         if (textures.size() > 1)
@@ -1428,15 +1434,28 @@ void SLMesh::preShade(SLRay* ray)
 
                 SLVec3f T3(hitT.x, hitT.y, hitT.z);           // tangent with 3 components
                 T3.set(ray->hitNode->updateAndGetWMN() * T3); // transform tangent back to world space
-                SLVec2f d   = textures[1]->dsdt(tc.x, tc.y);  // slope of bumpmap at tc
+                SLVec2f d   = textures[1]->dsdt(tc.x, tc.y);  // slope of bump-map at tc
                 SLVec3f Nrm = ray->hitNormal;                 // unperturbated normal
-                SLVec3f B(Nrm ^ T3);                          // binormal tangent B
+                SLVec3f B(Nrm ^ T3);                          // bi-normal tangent B
                 B *= T[iA].w;                                 // correct handedness
                 SLVec3f D(d.x * T3 + d.y * B);                // perturbation vector D
                 Nrm += D;
                 Nrm.normalize();
                 ray->hitNormal.set(Nrm);
             }
+        }
+
+        // Get ambient occlusion
+        if (!UV2.empty())
+        {
+            SLVec2f Tu2(UV2[iB] - UV2[iA]);
+            SLVec2f Tv2(UV2[iC] - UV2[iA]);
+            SLVec2f tc2(UV2[iA] + ray->hitU * Tu2 + ray->hitV * Tv2);
+
+            if (textures.size() > 1 && textures[1]->texType() == TT_ambientOcclusion)
+                ray->hitAO = textures[1]->getTexelf(tc2.x, tc2.y).r;
+            if (textures.size() > 2 && textures[2]->texType() == TT_ambientOcclusion)
+                ray->hitAO = textures[2]->getTexelf(tc2.x, tc2.y).r;
         }
     }
 
@@ -1446,7 +1465,7 @@ void SLMesh::preShade(SLRay* ray)
         SLCol4f CA = ray->hitMesh->C[iA];
         SLCol4f CB = ray->hitMesh->C[iB];
         SLCol4f CC = ray->hitMesh->C[iC];
-        ray->hitColor.set(CA * (1 - (ray->hitU + ray->hitV)) +
+        ray->hitTexColor.set(CA * (1 - (ray->hitU + ray->hitV)) +
                           CB * ray->hitU +
                           CC * ray->hitV);
     }
@@ -1548,8 +1567,11 @@ void SLMesh::allocAndUploadData()
 
     _normalBuffer.alloc_and_upload(N);
 
-    if (Tc.data())
-        _textureBuffer.alloc_and_upload(Tc);
+    if (UV1.data())
+        _textureBuffer.alloc_and_upload(UV1);
+
+    if (UV2.data())
+        _textureBuffer.alloc_and_upload(UV2);
 
     if (!I16.empty())
         _indexShortBuffer.alloc_and_upload(I16);

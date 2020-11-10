@@ -45,6 +45,7 @@ SLLightDirect::SLLightDirect(SLAssetManager* assetMgr,
                             16,
                             "LightDirect Mesh",
                             mat));
+        _castsShadows = false;
     }
 
     init(s);

@@ -54,6 +54,9 @@ SLTransformNode::SLTransformNode(SLSceneView* sv,
     SLNode* transAxisZ = new SLNode(_axisB, "z-axis node");
     transAxisX->rotate(-90.0f, SLVec3f(0.0f, 0.0f, 1.0f));
     transAxisZ->rotate(90.0f, SLVec3f(1.0f, 0.0f, 0.0f));
+    transAxisX->castsShadows(false);
+    transAxisY->castsShadows(false);
+    transAxisZ->castsShadows(false);
 
     SLVec3f  startPoint = SLVec3f(0.0f, 0.0f, -1.0f);
     SLVec3f  endPoint   = SLVec3f(0.0f, 0.0f, 1.0f);
@@ -65,33 +68,44 @@ SLTransformNode::SLTransformNode(SLSceneView* sv,
     _transLineX = new SLNode(_lineR);
     _transLineX->rotate(90.0f, SLVec3f(0.0f, 1.0f, 0.0f));
     _transLineX->scale(1000.0f);
+    _transLineX->castsShadows(false);
 
     _lineG      = new SLPolyline(nullptr, points, false, "Translation Line Mesh Y", _matG);
     _transLineY = new SLNode(_lineG);
     _transLineY->rotate(-90.0f, SLVec3f(1.0f, 0.0f, 0.0f));
     _transLineY->scale(1000.0f);
+    _transLineY->castsShadows(false);
 
     _lineB      = new SLPolyline(nullptr, points, false, "Translation Line Mesh Z", _matB);
     _transLineZ = new SLNode(_lineB);
     _transLineZ->scale(1000.0f);
+    _transLineZ->castsShadows(false);
 
     _circY     = new SLCircle(nullptr, "Scale Circle Mesh", _matY);
     _scaleCirc = new SLNode(_circY, "Scale Circle");
+    _scaleCirc->castsShadows(false);
     _diskY     = new SLDisk(nullptr, 1.0f, SLVec3f::AXISZ, 36U, true, "Scale Disk", _matYT);
     _scaleDisk = new SLNode(_diskY, "Scale Disk");
+    _scaleDisk->castsShadows(false);
 
     _circR    = new SLCircle(nullptr, "Rotation Circle Mesh X", _matR);
     _rotCircX = new SLNode(_circR, "Rotation Circle X");
+    _rotCircX->castsShadows(false);
     _diskR    = new SLDisk(nullptr, 1.0f, SLVec3f::AXISZ, 36U, true, "Rotation Disk X", _matRT);
     _rotDiskX = new SLNode(_diskR, "Rotation Disk X");
+    _rotDiskX->castsShadows(false);
     _circG    = new SLCircle(nullptr, "Rotation Circle Mesh Y", _matG);
     _rotCircY = new SLNode(_circG, "Rotation Circle Y");
+    _rotCircY->castsShadows(false);
     _diskG    = new SLDisk(nullptr, 1.0f, SLVec3f::AXISZ, 36U, true, "Rotation Disk Y", _matGT);
     _rotDiskY = new SLNode(_diskG, "Rotation Disk Y");
+    _rotDiskY->castsShadows(false);
     _circB    = new SLCircle(nullptr, "Rotation Circle Mesh Z", _matB);
     _rotCircZ = new SLNode(_circB, "Rotation Circle Z");
+    _rotCircZ->castsShadows(false);
     _diskB    = new SLDisk(nullptr, 1.0f, SLVec3f::AXISZ, 36U, true, "Rotation Disk Z", _matBT);
     _rotDiskZ = new SLNode(_diskB, "Rotation Disk Z");
+    _rotDiskZ->castsShadows(false);
 
     SLNode* rotationGizmosX = new SLNode("Rotation Gizmos X");
     rotationGizmosX->addChild(_rotCircX);

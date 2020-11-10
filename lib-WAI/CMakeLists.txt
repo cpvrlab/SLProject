@@ -5,6 +5,7 @@
 set(target lib-WAI)
 
 set(headers
+	${CMAKE_CURRENT_SOURCE_DIR}/source/WAICompassAlignment.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/WAIHelper.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/WAIFrame.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/WAIKeyFrame.h
@@ -35,6 +36,7 @@ set(headers
     )
 
 set(sources
+	${CMAKE_CURRENT_SOURCE_DIR}/source/WAICompassAlignment.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/WAIHelper.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/WAIOrbVocabulary.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/WAIFrame.cpp

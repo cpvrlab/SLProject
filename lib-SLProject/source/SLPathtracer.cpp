@@ -231,7 +231,7 @@ SLCol4f SLPathtracer::trace(SLRay* ray, SLbool em)
         // Add component wise the texture color
         if (!mat->textures().empty())
         {
-            objectColor &= ray->hitColor;
+            objectColor &= ray->hitTexColor;
         }
 
         if (_calcDirect)

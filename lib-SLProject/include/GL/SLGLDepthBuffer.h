@@ -15,25 +15,26 @@
 #include <SL.h>
 
 //-----------------------------------------------------------------------------
-class SLGLDepthBuffer
+class SLGLDepthBuffer : SLObject
 {
 public:
     SLGLDepthBuffer(const SLVec2i& dimensions,
-                    SLenum  magFilter     = GL_NEAREST,
-                    SLenum  minFilter     = GL_NEAREST,
-                    SLint   wrap          = GL_REPEAT,
-                    SLfloat borderColor[] = nullptr,
-                    SLenum  target        = GL_TEXTURE_2D);
+                    SLenum         magFilter     = GL_NEAREST,
+                    SLenum         minFilter     = GL_NEAREST,
+                    SLint          wrap          = GL_REPEAT,
+                    SLfloat        borderColor[] = nullptr,
+                    SLenum         target        = GL_TEXTURE_2D,
+                    SLstring       name          = "SM-DepthBuffer");
     ~SLGLDepthBuffer();
 
-    SLint    texID() { return _texID; }
-    SLint    target() { return _target; }
-    void     activateAsTexture(SLuint loc) const;
-    void     bind() const;
-    static void     unbind();
-    void     bindFace(SLenum face) const;
-    SLfloat* readPixels() const;
-    SLVec2i  dimensions() { return _dimensions; }
+    SLint       texID() { return _texID; }
+    SLint       target() { return _target; }
+    void        bindActive(SLuint texUnit) const;
+    void        bind() const;
+    static void unbind();
+    void        bindFace(SLenum face) const;
+    SLfloat*    readPixels() const;
+    SLVec2i     dimensions() { return _dimensions; }
 
 private:
     SLVec2i _dimensions; //<! Size of the texture

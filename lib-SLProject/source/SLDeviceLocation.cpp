@@ -311,35 +311,46 @@ SLbool SLDeviceLocation::calculateSolarAngles(SLVec3d     locationLatLonAlt,
  */
 void SLDeviceLocation::loadGeoTiff(const SLstring& geoTiffFile)
 {
-    assert(!_defaultLatLonAlt.isZero() &&
-           !_originLatLonAlt.isZero() &&
-           "Set first defaultLatLonAlt and originLatLonAlt before you add a GeoTiff.");
-
-    _demGeoTiff.loadGeoTiff(geoTiffFile);
-
-    // Check that default and origin location is withing the GeoTiff extends
-    if (geoTiffIsAvailableAndValid())
+    try
     {
-        // Overwrite the altitudes of origin
-        SLfloat altOriginM = _demGeoTiff.getAltitudeAtLatLon(_originLatLonAlt.lat,
-                                                             _originLatLonAlt.lon);
-        originLatLonAlt(_originLatLonAlt.lat,
-                        _originLatLonAlt.lon,
-                        altOriginM);
+        assert(!_defaultLatLonAlt.isZero() &&
+               !_originLatLonAlt.isZero() &&
+               "Set first defaultLatLonAlt and originLatLonAlt before you add a GeoTiff.");
 
-        // Overwrite the altitudes of default with the additional camera height
-        SLfloat altDefaultM = _demGeoTiff.getAltitudeAtLatLon(_defaultLatLonAlt.lat,
-                                                              _defaultLatLonAlt.lon);
-        defaultLatLonAlt(_defaultLatLonAlt.lat,
-                         _defaultLatLonAlt.lon,
-                         altDefaultM + _cameraHeightM);
+        _demGeoTiff.loadGeoTiff(geoTiffFile);
+
+        // Check that default and origin location is withing the GeoTiff extends
+        if (geoTiffIsAvailableAndValid())
+        {
+            // Overwrite the altitudes of origin
+            SLfloat altOriginM = _demGeoTiff.getAltitudeAtLatLon(_originLatLonAlt.lat,
+                                                                 _originLatLonAlt.lon);
+            originLatLonAlt(_originLatLonAlt.lat,
+                            _originLatLonAlt.lon,
+                            altOriginM);
+
+            // Overwrite the altitudes of default with the additional camera height
+            SLfloat altDefaultM = _demGeoTiff.getAltitudeAtLatLon(_defaultLatLonAlt.lat,
+                                                                  _defaultLatLonAlt.lon);
+            defaultLatLonAlt(_defaultLatLonAlt.lat,
+                             _defaultLatLonAlt.lon,
+                             altDefaultM + _cameraHeightM);
+        }
+        else
+        {
+            string msg = "SLDeviceLocation::loadGeoTiff: Either the geotiff file ";
+            msg += "could not be loaded or the origin or default position lies ";
+            msg += "not within the extends of the geotiff file.";
+            throw std::runtime_error(msg.c_str());
+        }
     }
-    else
+    catch (std::exception& e)
     {
-        string msg = "SLDeviceLocation::loadGeoTiff: Either the geotiff file ";
-        msg += "could not be loaded or the origin or default position lies ";
-        msg += "not within the extends of the geotiff file.";
-        SL_EXIT_MSG(msg.c_str());
+        SL_WARN_MSG(e.what());
+    }
+    catch (...)
+    {
+        SL_WARN_MSG("SLDeviceLocation::loadGeoTiff: Unknown exception catched.");
     }
 }
 //------------------------------------------------------------------------------

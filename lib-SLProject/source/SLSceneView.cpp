@@ -119,8 +119,23 @@ void SLSceneView::init(SLstring           name,
 //-----------------------------------------------------------------------------
 void SLSceneView::unInit()
 {
-    _camera = &_sceneViewCamera;
-    _skybox = nullptr;
+    _camera     = &_sceneViewCamera;
+    _skybox     = nullptr; // enables and modes
+    _mouseDownL = false;
+    _mouseDownR = false;
+    _mouseDownM = false;
+    _touchDowns = 0;
+
+    _renderType = RT_gl;
+
+    _doDepthTest      = true;
+    _doMultiSampling  = true; // true=OpenGL multisampling is turned on
+    _doFrustumCulling = true; // true=enables view frustum culling
+    _doWaitOnIdle     = true;
+    _drawBits.allOff();
+
+    _stats2D.clear();
+    _stats3D.clear();
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -487,6 +502,8 @@ SLbool SLSceneView::onPaint()
 {
     PROFILE_FUNCTION();
 
+    //SL_LOG("onPaint: -----------------------------------------------------");
+
     _shadowMapTimesMS.set(_shadowMapTimeMS);
     _cullTimesMS.set(_cullTimeMS);
     _draw3DTimesMS.set(_draw3DTimeMS);
@@ -505,7 +522,7 @@ SLbool SLSceneView::onPaint()
         // Process queued up system events and poll custom input devices
         viewConsumedEvents = _inputManager.pollAndProcessEvents(this);
 
-        //update current scene
+        // update current scene
         if (_s)
         {
             sceneHasChanged = _s->onUpdate((_renderType == RT_rt),
@@ -636,9 +653,7 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     for (SLLight* light : _s->lights())
     {
         if (light->createsShadows())
-        {
             light->renderShadowMap(this, _s->root3D());
-        }
     }
 
     _shadowMapTimeMS = GlobalTimer::timeMS() - startMS;
@@ -987,8 +1002,8 @@ void SLSceneView::draw3DGLLinesOverlay(SLVNode& nodes)
             {
                 if (node->mesh() && node->mesh()->mat())
                 {
-                    SLMesh* mesh = node->mesh();
-                    bool hasAlpha = mesh->mat()->hasAlpha();
+                    SLMesh* mesh     = node->mesh();
+                    bool    hasAlpha = mesh->mat()->hasAlpha();
 
                     // For blended nodes we activate OpenGL blending and stop depth buffer updates
                     SLGLState* stateGL = SLGLState::instance();

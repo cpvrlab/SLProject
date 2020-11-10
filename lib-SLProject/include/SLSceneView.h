@@ -166,7 +166,10 @@ public:
     }
 
     // Getters
-    SLScene*        s() { return _s; }
+    SLScene* s()
+    {
+        return _s;
+    }
     SLCamera*       camera() { return _camera; }
     SLCamera*       sceneViewCamera() { return &_sceneViewCamera; }
     SLSkybox*       skybox() { return _skybox; }
@@ -256,8 +259,8 @@ protected:
     SLint   _touchDowns; //!< finger touch down count
     SLVec2i _touch[3];   //!< up to 3 finger touch coordinates
 
-    SLGLVertexArrayExt _vaoTouch;  //!< Buffer for touch pos. rendering
-    SLGLVertexArrayExt _vaoCursor; //!< Virtual cursor for stereo rendering
+    SLGLVertexArrayExt _vaoTouch;   //!< Buffer for touch pos. rendering
+    SLGLVertexArrayExt _vaoCursor;  //!< Virtual cursor for stereo rendering
 
     SLint           _scrW;                //!< Screen width in pixels
     SLint           _scrH;                //!< Screen height in pixels
@@ -273,7 +276,6 @@ protected:
     SLbool          _viewportSameAsVideo; //!< Adapt viewport aspect to the input video
 
     SLGLOculusFB _oculusFB; //!< Oculus framebuffer
-
 
     unordered_set<SLMaterial*> _visibleMaterials3D; //!< visible materials 3D per frame
 
