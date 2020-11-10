@@ -31,6 +31,36 @@
 class SENSCamera;
 class MapLoader;
 
+
+class WAIImageStabilizedOrientation
+{
+public:
+    bool findCameraOrientationDifference(cv::Mat imageGray,  //for corner extraction
+                                         cv::Mat& imageRgb,
+                                         const SENSCalibration* camCalib,
+                                         float scaleToGray,
+                                         bool decorate); //for debug decoration
+    
+private:
+    bool         _hasLastFrame = false;
+    cv::Mat      _lastImageGray;
+    cv::Mat      _Tcw;
+    float        _xAngRAD = 0.f;
+    float        _yAngRAD = 0.f;
+    float        _zAngRAD = 0.f;
+
+    std::vector<cv::KeyPoint> _lastKeyPts;
+    std::vector<cv::Point2f> _lastPts;
+    std::vector<cv::Point2f> _currPts;
+    std::vector<cv::Point2f> _lastGoodPts;
+    std::vector<cv::Point2f> _currGoodPts;
+    std::vector<uchar>       _inliers;
+    std::vector<float>       _err;
+    
+    int   _fIniThFAST   = 50;
+    int   _fMinThFAST   = 7;
+};
+
 class AreaTrackingView : public SLSceneView
 {
 public:
@@ -73,6 +103,7 @@ private:
     bool    startCamera(const cv::Size& trackImgSize);
     void    onCameraParamsChanged();
     SLMat4f calcCameraPoseGpsOrientationBased(const SENSOrientation::Quat& sensQuat);
+    SLMat4f calcCameraPoseOrientationBased(const SENSOrientation::Quat& sensQuat);
     cv::Mat convertCameraPoseToWaiCamExtrinisc(SLMat4f& wTc);
     
     AreaTrackingGui   _gui;
@@ -120,6 +151,8 @@ private:
     SLDeviceRotation _devRot;
     //indicates if intArea finished successfully
     bool _noInitException = false;
+    
+    WAIImageStabilizedOrientation _oriStabi;
 };
 
 //! Async loader for vocabulary and maps
@@ -181,5 +214,8 @@ private:
     std::unique_ptr<WAIMap> _waiMap;
     cv::Mat                 _mapNodeOm;
 };
+
+
+
 
 #endif //AREA_TRACKING_VIEW_H

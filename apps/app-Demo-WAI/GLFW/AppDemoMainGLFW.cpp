@@ -543,7 +543,9 @@ int main(int argc, char* argv[])
         SENSCamera*      camera      = nullptr;
         if (simulateSensors)
         {
-            std::string simDir = Utils::getAppsWritableDir() + "SENSSimData/20201104-170424_SENSRecorder";
+            std::string simDir = Utils::getAppsWritableDir() + "SENSSimData/20201106-232556_SENSRecorder";
+            //std::string simDir = Utils::getAppsWritableDir() + "SENSSimData/20201106-232621_SENSRecorder";
+            //std::string simDir = Utils::getAppsWritableDir() + "SENSSimData/20201106-232643_SENSRecorder";
             sensSim            = std::make_unique<SENSSimulator>(simDir);
             gps                = sensSim->getGpsSensorPtr();
             orientation        = sensSim->getOrientationSensorPtr();

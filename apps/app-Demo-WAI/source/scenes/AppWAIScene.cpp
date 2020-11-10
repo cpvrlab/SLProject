@@ -391,8 +391,8 @@ void AppWAIScene::initAreaEvilardOffice(SLDeviceRotation* devRot, int svW, int s
     camera->lookAt(1.29f, 1.57f, 0.f);
     camera->clipNear(0.5f);
     camera->clipFar(10.f);
-    camera->camAnim(SLCamAnim::CA_deviceRotYUp);
-    //camera->camAnim(SLCamAnim::CA_off);
+    //camera->camAnim(SLCamAnim::CA_deviceRotYUp);
+    camera->camAnim(SLCamAnim::CA_off);
     camera->devRotLoc(devRot, nullptr);
     camera->setInitialState();
     world->addChild(camera);
