@@ -97,6 +97,10 @@ void GUIPreferences::load(std::string fileName, ImGuiStyle& style)
             if (!fs["showInfosMapNodeTransform"].empty())
                 fs["showInfosMapNodeTransform"] >> showInfosMapNodeTransform;
 
+            //compass alignment menu
+            if (!fs["showCompassAlignment"].empty())
+                fs["showCompassAlignment"] >> showCompassAlignment;
+
             //infos menu
             if (!fs["showInfosScene"].empty())
                 fs["showInfosScene"] >> showInfosScene;
@@ -211,7 +215,8 @@ void GUIPreferences::save(std::string fileName, ImGuiStyle& style)
     //map menu
     fs << "showInfosMapNodeTransform" << showInfosMapNodeTransform;
 
-    //experiments menu
+    //compass alignment menu
+    fs << "showCompassAlignment" << showCompassAlignment;
 
     //infos menu
     fs << "showInfosScene" << showInfosScene;

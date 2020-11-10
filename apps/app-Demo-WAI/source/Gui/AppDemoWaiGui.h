@@ -18,6 +18,7 @@
 #include <AppDemoGuiInfosDialog.h>
 #include <AppDemoGuiSlamLoad.h>
 #include <AppDemoGuiMapPointEditor.h>
+#include <AppDemoGuiCompassAlignment.h>
 
 #include <GUIPreferences.h>
 #include <ImGuiWrapper.h>
@@ -105,9 +106,10 @@ private:
 
     //BackButton _backButton;
 
-    std::shared_ptr<AppDemoGuiError>          _errorDial;
-    std::shared_ptr<AppDemoGuiSlamLoad>       _guiSlamLoad;
-    std::shared_ptr<AppDemoGuiMapPointEditor> _guiMapEditor;
+    std::shared_ptr<AppDemoGuiError>            _errorDial;
+    std::shared_ptr<AppDemoGuiSlamLoad>         _guiSlamLoad;
+    std::shared_ptr<AppDemoGuiMapPointEditor>   _guiMapEditor;
+    std::shared_ptr<AppDemoGuiCompassAlignment> _guiCompassAlignment;
 
     //ImFont* _fontPropDots  = nullptr;
     //ImFont* _fontFixedDots = nullptr;

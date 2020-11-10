@@ -43,7 +43,8 @@ void SLGLVertexArray::deleteGL()
         glDeleteVertexArrays(1, &_vaoID);
     _vaoID = 0;
 
-    if (_VBOf.id()) _VBOf.clear();
+    if (_VBOf.id())
+        _VBOf.clear();
 
     if (_idVBOIndices)
     {
@@ -150,21 +151,21 @@ void SLGLVertexArray::updateAttrib(SLGLAttributeType type,
  <PRE>
  \n Sequential attribute layout:
  \n           |          Positions          |           Normals           |     TexCoords     |
- \n Attribs:  |   Position0  |   Position1  |    Normal0   |    Normal1   |TexCoord0|TexCoord1|
+ \n Attribs:  |   Position0  |   Position1  |    Normal0   |    Normal1   |  UV1_0  |  UV1_1  |
  \n Elements: | PX | PY | PZ | PX | PY | PZ | NX | NY | NZ | NX | NY | NZ | TX | TY | TX | TY |
  \n Bytes:    |#### #### ####|#### #### ####|#### #### ####|#### #### ####|#### ####|#### ####|
  \n           |                             |                             |
  \n           |<------ offset Normals ----->|                             |
- \n           |<-------------------- offset TexCoords ------------------->|
+ \n           |<----------------------- offset UVs ---------------------->|
  \n
  \n Interleaved attribute layout:
  \n           |               Vertex 0                |               Vertex 1                |
- \n Attribs:  |   Position0  |    Normal0   |TexCoord0|   Position1  |    Normal1   |TexCoord1|
+ \n Attribs:  |   Position0  |    Normal0   |  UV1_0  |   Position1  |    Normal1   |  UV1_1  |
  \n Elements: | PX | PY | PZ | NX | NY | NZ | TX | TY | PX | PY | PZ | NX | NY | NZ | TX | TY |
  \n Bytes:    |#### #### ####|#### #### ####|#### ####|#### #### ####|#### #### ####|#### ####|
  \n           |              |              |         |
  \n           |<-offsetN=32->|              |         |
- \n           |<------- offsetTC=32 ------->|         |
+ \n           |<------- offsetUV=32 ------->|         |
  \n           |                                       |
  \n           |<---------- strideBytes=32 ----------->|
  </PRE>

@@ -30,8 +30,8 @@ SLLight::SLLight(SLfloat ambiPower,
     _spotExponent      = 1.0f;
     _createsShadows    = false;
     _shadowMap         = nullptr;
-    _doSmoothShadows   = false;
-    _smoothShadowLevel = 1;
+    _doSoftShadows     = false;
+    _softShadowLevel   = 1;
     _shadowMinBias     = 0.001f;
     _shadowMaxBias     = 0.008f;
 

@@ -75,6 +75,7 @@ void AppWAIScene::initMapVisualization()
     loopEdges         = new SLNode("LoopEdges");
 
     redMat = new SLMaterial(&assets, SLGLProgramManager::get(SP_colorUniform), SLCol4f::RED, "Red");
+    //todo ghm1: the shader program was assigned already!!??
     redMat->program(new SLGLGenericProgram(&assets, _dataDir + "shaders/ColorUniformPoint.vert", _dataDir + "shaders/Color.frag"));
     redMat->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 3.0f));
     greenMat = new SLMaterial(&assets, SLGLProgramManager::get(SP_colorUniform), BFHColors::GreenLight, "Green");
@@ -396,8 +397,8 @@ void AppWAIScene::loadChristoffelBernBahnhofsplatz()
 
     // Setup shadow mapping material and replace shader from loader
     SLGLProgram* progPerPixNrmSM = new SLGLGenericProgram(&assets,
-                                                          _dataDir + "shaders/PerPixBlinnNrmSM.vert",
-                                                          _dataDir + "shaders/PerPixBlinnNrmSM.frag");
+                                                          _dataDir + "shaders/PerPixBlinnTexNrmSM.vert",
+                                                          _dataDir + "shaders/PerPixBlinnTexNrmSM.frag");
     auto         updateMat       = [=](SLMaterial* mat) { mat->program(progPerPixNrmSM); };
     bern->updateMeshMat(updateMat, true);
 
@@ -492,8 +493,8 @@ void AppWAIScene::loadAugstTempelTheater()
 
     // Setup shadow mapping material and replace shader from loader
     SLGLProgram* progPerPixNrmSM = new SLGLGenericProgram(&assets,
-                                                          _dataDir + "shaders/PerPixBlinnNrmSM.vert",
-                                                          _dataDir + "shaders/PerPixBlinnNrmSM.frag");
+                                                          _dataDir + "shaders/PerPixBlinnTexNrmSM.vert",
+                                                          _dataDir + "shaders/PerPixBlinnTexNrmSM.frag");
     auto         updateMat       = [=](SLMaterial* mat) { mat->program(progPerPixNrmSM); };
     theaterAndTempel->updateMeshMat(updateMat, true);
 
@@ -520,8 +521,8 @@ void AppWAIScene::loadAvenchesAmphitheater()
 
     // Setup shadow mapping material and replace shader from loader
     SLGLProgram* progPerPixNrmSM = new SLGLGenericProgram(&assets,
-                                                          _dataDir + "shaders/PerPixBlinnNrmSM.vert",
-                                                          _dataDir + "shaders/PerPixBlinnNrmSM.frag");
+                                                          _dataDir + "shaders/PerPixBlinnTexNrmSM.vert",
+                                                          _dataDir + "shaders/PerPixBlinnTexNrmSM.frag");
     auto         updateMat       = [=](SLMaterial* mat) { mat->program(progPerPixNrmSM); };
     amphiTheatre->updateMeshMat(updateMat, true);
 
@@ -551,8 +552,8 @@ void AppWAIScene::loadAvenchesCigognier()
 
     // Setup shadow mapping material and replace shader from loader
     SLGLProgram* progPerPixNrmSM = new SLGLGenericProgram(&assets,
-                                                          _dataDir + "shaders/PerPixBlinnNrmSM.vert",
-                                                          _dataDir + "shaders/PerPixBlinnNrmSM.frag");
+                                                          _dataDir + "shaders/PerPixBlinnTexNrmSM.vert",
+                                                          _dataDir + "shaders/PerPixBlinnTexNrmSM.frag");
     auto         updateMat       = [=](SLMaterial* mat) { mat->program(progPerPixNrmSM); };
     cigognier->updateMeshMat(updateMat, true);
 
@@ -572,8 +573,8 @@ void AppWAIScene::loadAvenchesTheatre()
 
     // Setup shadow mapping material and replace shader from loader
     SLGLProgram* progPerPixNrmSM = new SLGLGenericProgram(&assets,
-                                                          _dataDir + "shaders/PerPixBlinnNrmSM.vert",
-                                                          _dataDir + "shaders/PerPixBlinnNrmSM.frag");
+                                                          _dataDir + "shaders/PerPixBlinnTexNrmSM.vert",
+                                                          _dataDir + "shaders/PerPixBlinnTexNrmSM.frag");
     auto         updateMat       = [=](SLMaterial* mat) { mat->program(progPerPixNrmSM); };
     theatre->updateMeshMat(updateMat, true);
 

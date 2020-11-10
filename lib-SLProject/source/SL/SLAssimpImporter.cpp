@@ -8,24 +8,19 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include <stdafx.h> // Must be the 1st include followed by  an empty line
-
 #include <iomanip>
 #include <Utils.h>
 
 #include <SLAnimation.h>
 #include <SLAssimpImporter.h>
-#include <SLGLProgram.h>
 #include <SLGLTexture.h>
 #include <SLMaterial.h>
 #include <SLSkeleton.h>
-#include <SLGLTexture.h>
 #include <SLAssetManager.h>
 #include <SLAnimManager.h>
 
 // assimp is only included in the source file to not expose it to the rest of the framework
 #include <assimp/Importer.hpp>
-#include <assimp/postprocess.h>
 #include <assimp/scene.h>
 
 //-----------------------------------------------------------------------------
@@ -276,8 +271,7 @@ SLNode* SLAssimpImporter::load(SLAnimManager&  aniMan,         //!< Reference to
                                SLbool          loadMeshesOnly, //!< Only load nodes with meshes
                                SLMaterial*     overrideMat,    //!< Override material
                                float           ambientFactor,  //!< if ambientFactor > 0 ambient = diffuse * AmbientFactor
-                               SLuint          flags           //!< Import flags (see postprocess.h)
-)
+                               SLuint          flags)                   //!< Import flags (see postprocess.h)
 {
     // clear the intermediate data
     clear();
@@ -646,61 +640,71 @@ void SLAssimpImporter::loadSkeleton(SLAnimManager& animManager, SLJoint* parent,
 }
 //-----------------------------------------------------------------------------
 /*!
-SLAssimpImporter::loadMaterial loads the AssImp material an returns the SLMaterial.
-The materials and textures are added to the SLScene material and texture 
+SLAssimpImporter::loadMaterial loads the AssImp aiMat an returns the SLMaterial.
+The materials and textures are added to the SLScene aiMat and texture
 vectors.
 */
 SLMaterial* SLAssimpImporter::loadMaterial(SLAssetManager* s,
                                            SLint           index,
-                                           aiMaterial*     material,
+                                           aiMaterial*     aiMat,
                                            const SLstring& modelPath,
                                            const SLstring& texturePath,
                                            float           ambientFactor)
 {
     // Get the materials name
     aiString matName;
-    material->Get(AI_MATKEY_NAME, matName);
+    aiMat->Get(AI_MATKEY_NAME, matName);
     SLstring name = matName.data;
     if (name.empty()) name = "Import Material";
 
     // Create SLMaterial instance. It is also added to the SLScene::_materials vector
-    SLMaterial* mat = new SLMaterial(s, name.c_str());
+    SLMaterial* slMat = new SLMaterial(s, name.c_str());
 
-    // set the texture types to import into our material
-    const SLint   textureCount = 5;
-    aiTextureType textureTypes[textureCount];
-    textureTypes[0] = aiTextureType_DIFFUSE;
-    textureTypes[1] = aiTextureType_NORMALS;
-    textureTypes[2] = aiTextureType_SPECULAR;
-    textureTypes[3] = aiTextureType_HEIGHT;
-    textureTypes[4] = aiTextureType_OPACITY; // Texture with alpha channel
-
-    // load all the textures for this material and add it to the material vector
-    for (auto& textureType : textureTypes)
+    // load all the textures for this aiMat and add it to the aiMat vector
+    for (int tt = aiTextureType_NONE; tt <= aiTextureType_UNKNOWN; ++tt)
     {
-        if (material->GetTextureCount(textureType) > 0)
+        aiTextureType aiTexType = (aiTextureType)tt;
+
+        if (aiMat->GetTextureCount(aiTexType) > 0)
         {
-            aiString aipath;
-            material->GetTexture(textureType, 0, &aipath, nullptr, nullptr, nullptr, nullptr, nullptr);
-            SLTextureType texType = textureType == aiTextureType_DIFFUSE
-                                      ? TT_color
-                                    : textureType == aiTextureType_NORMALS
-                                      ? TT_normal
-                                    : textureType == aiTextureType_SPECULAR
-                                      ? TT_gloss
-                                    : textureType == aiTextureType_HEIGHT
-                                      ? TT_height
-                                    : textureType == aiTextureType_OPACITY
-                                      ? TT_color
-                                      : TT_unknown;
-            SLstring      texFile = checkFilePath(modelPath, texturePath, aipath.data);
+            aiString         aiPath;
+            aiTextureMapping mappingType;
+            SLuint           uvIndex;
+
+            aiMat->GetTexture(aiTexType,
+                                 0,
+                                 &aiPath,
+                                 &mappingType,
+                                 &uvIndex,
+                                 nullptr,
+                                 nullptr,
+                                 nullptr);
+
+            SLTextureType slTexType = TT_unknown;
+
+            switch (aiTexType)
+            {
+                case aiTextureType_DIFFUSE: slTexType = TT_diffuse; break;
+                case aiTextureType_NORMALS: slTexType = TT_normal; break;
+                case aiTextureType_SPECULAR: slTexType = TT_specular; break;
+                case aiTextureType_HEIGHT: slTexType = TT_height; break;
+                case aiTextureType_OPACITY: slTexType = TT_diffuse; break;
+                case aiTextureType_LIGHTMAP: slTexType = TT_ambientOcclusion; break; // glTF stores AO maps as light maps
+                case aiTextureType_AMBIENT_OCCLUSION: slTexType = TT_ambientOcclusion; break;
+                case aiTextureType_UNKNOWN: slTexType = TT_unknown; break;
+                default: break;
+            }
+
+            SLstring texFile = checkFilePath(modelPath, texturePath, aiPath.data);
 
             // Only color texture are loaded so far
             // For normal maps we have to adjust first the normal and tangent generation
-            if (texType == TT_color || texType == TT_normal)
+            if (slTexType == TT_diffuse ||
+                slTexType == TT_normal ||
+                slTexType == TT_ambientOcclusion)
             {
-                SLGLTexture* tex = loadTexture(s, texFile, texType);
-                mat->textures().push_back(tex);
+                SLGLTexture* slTex = loadTexture(s, texFile, slTexType);
+                slMat->textures().push_back(slTex);
             }
         }
     }
@@ -708,17 +712,17 @@ SLMaterial* SLAssimpImporter::loadMaterial(SLAssetManager* s,
     // get color data
     aiColor3D ambient, diffuse, specular, emissive;
     SLfloat   shininess, refracti, reflectivity, opacity;
-    material->Get(AI_MATKEY_COLOR_AMBIENT, ambient);
-    material->Get(AI_MATKEY_COLOR_DIFFUSE, diffuse);
-    material->Get(AI_MATKEY_COLOR_SPECULAR, specular);
-    material->Get(AI_MATKEY_COLOR_EMISSIVE, emissive);
-    material->Get(AI_MATKEY_SHININESS, shininess);
-    material->Get(AI_MATKEY_REFRACTI, refracti);
-    material->Get(AI_MATKEY_REFLECTIVITY, reflectivity);
-    material->Get(AI_MATKEY_OPACITY, opacity);
+    aiMat->Get(AI_MATKEY_COLOR_AMBIENT, ambient);
+    aiMat->Get(AI_MATKEY_COLOR_DIFFUSE, diffuse);
+    aiMat->Get(AI_MATKEY_COLOR_SPECULAR, specular);
+    aiMat->Get(AI_MATKEY_COLOR_EMISSIVE, emissive);
+    aiMat->Get(AI_MATKEY_SHININESS, shininess);
+    aiMat->Get(AI_MATKEY_REFRACTI, refracti);
+    aiMat->Get(AI_MATKEY_REFLECTIVITY, reflectivity);
+    aiMat->Get(AI_MATKEY_OPACITY, opacity);
 
     // increase shininess if specular color is not low.
-    // The material will otherwise be to bright
+    // The aiMat will otherwise be to bright
     if (specular.r > 0.5f &&
         specular.g > 0.5f &&
         specular.b > 0.5f &&
@@ -727,21 +731,18 @@ SLMaterial* SLAssimpImporter::loadMaterial(SLAssetManager* s,
 
     // set color data
     if (ambientFactor > 0.0f)
-        mat->ambient(SLCol4f(diffuse.r * ambientFactor,
+        slMat->ambient(SLCol4f(diffuse.r * ambientFactor,
                              diffuse.g * ambientFactor,
                              diffuse.b * ambientFactor));
     else
-        mat->ambient(SLCol4f(ambient.r, ambient.g, ambient.b));
+        slMat->ambient(SLCol4f(ambient.r, ambient.g, ambient.b));
 
-    mat->diffuse(SLCol4f(diffuse.r, diffuse.g, diffuse.b));
-    mat->specular(SLCol4f(specular.r, specular.g, specular.b));
-    mat->emissive(SLCol4f(emissive.r, emissive.g, emissive.b));
-    mat->shininess(shininess);
-    //mat->kr(reflectivity);
-    //mat->kt(1.0f-opacity);
-    //mat->kn(refracti);
+    slMat->diffuse(SLCol4f(diffuse.r, diffuse.g, diffuse.b));
+    slMat->specular(SLCol4f(specular.r, specular.g, specular.b));
+    slMat->emissive(SLCol4f(emissive.r, emissive.g, emissive.b));
+    slMat->shininess(shininess);
 
-    return mat;
+    return slMat;
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -751,11 +752,11 @@ SLGLTexture* SLAssimpImporter::loadTexture(SLAssetManager* assetMgr,
                                            SLstring&       textureFile,
                                            SLTextureType   texType)
 {
-    SLVGLTexture& sceneTex = assetMgr->textures();
+    SLVGLTexture& allLoadedTex = assetMgr->textures();
 
     // return if a texture with the same file already exists
-    for (auto& i : sceneTex)
-        if (i->name() == textureFile)
+    for (auto& i : allLoadedTex)
+        if (i->url() == textureFile)
             return i;
 
     // Create the new texture. It is also push back to SLScene::_textures
@@ -837,25 +838,33 @@ SLMesh* SLAssimpImporter::loadMesh(SLAssetManager* assetMgr, aiMesh* mesh)
     if (numLines) m->primitive(SLGLPrimitiveType::PT_lines);
     if (numPoints) m->primitive(SLGLPrimitiveType::PT_points);
 
-    // create position & normal vector
+    // Create position & normal vector
     m->P.clear();
     m->P.resize(mesh->mNumVertices);
 
-    // create normal vector for triangle primitive types
+    // Create normal vector for triangle primitive types
     if (mesh->HasNormals() && numTriangles)
     {
         m->N.clear();
         m->N.resize(m->P.size());
     }
 
-    // allocate texCoord vector if needed
+    // Allocate 1st tex. coord. vector if needed
     if (mesh->HasTextureCoords(0) && numTriangles)
     {
-        m->Tc.clear();
-        m->Tc.resize(m->P.size());
+        m->UV1.clear();
+        m->UV1.resize(m->P.size());
     }
 
-    // copy vertex positions & texCoord
+    // Allocate 2nd texture coordinate vector if needed
+    // Some models use multiple textures with different uv's
+    if (mesh->HasTextureCoords(1) && numTriangles)
+    {
+        m->UV2.clear();
+        m->UV2.resize(m->P.size());
+    }
+
+    // copy vertex positions & tex. coord.
     for (SLuint i = 0; i < m->P.size(); ++i)
     {
         m->P[i].set(mesh->mVertices[i].x,
@@ -865,9 +874,12 @@ SLMesh* SLAssimpImporter::loadMesh(SLAssetManager* assetMgr, aiMesh* mesh)
             m->N[i].set(mesh->mNormals[i].x,
                         mesh->mNormals[i].y,
                         mesh->mNormals[i].z);
-        if (!m->Tc.empty())
-            m->Tc[i].set(mesh->mTextureCoords[0][i].x,
-                         mesh->mTextureCoords[0][i].y);
+        if (!m->UV1.empty())
+            m->UV1[i].set(mesh->mTextureCoords[0][i].x,
+                          mesh->mTextureCoords[0][i].y);
+        if (!m->UV2.empty())
+            m->UV2[i].set(mesh->mTextureCoords[1][i].x,
+                          mesh->mTextureCoords[1][i].y);
     }
 
     // create primitive index vector
@@ -977,11 +989,11 @@ SLMesh* SLAssimpImporter::loadMesh(SLAssetManager* assetMgr, aiMesh* mesh)
             // @todo On OSX it happens from time to time that slJoint is nullptr
             if (slJoint)
             {
-                for (SLuint j = 0; j < joint->mNumWeights; j++)
+                for (SLuint nW = 0; nW < joint->mNumWeights; nW++)
                 {
                     // add the weight
-                    SLuint  vertId = joint->mWeights[j].mVertexId;
-                    SLfloat weight = joint->mWeights[j].mWeight;
+                    SLuint  vertId = joint->mWeights[nW].mVertexId;
+                    SLfloat weight = joint->mWeights[nW].mWeight;
 
                     m->Ji[vertId].push_back((SLuchar)slJoint->id());
                     m->Jw[vertId].push_back(weight);
@@ -1190,39 +1202,39 @@ SLAnimation* SLAssimpImporter::loadAnimation(SLAnimManager& animManager, aiAnima
         KeyframeMap keyframes;
 
         // add position keys
-        for (SLuint i = 0; i < channel->mNumPositionKeys; i++)
+        for (SLuint iK = 0; iK < channel->mNumPositionKeys; iK++)
         {
-            SLfloat time    = (SLfloat)channel->mPositionKeys[i].mTime;
-            keyframes[time] = SLImportKeyframe(&channel->mPositionKeys[i], nullptr, nullptr);
+            SLfloat time    = (SLfloat)channel->mPositionKeys[iK].mTime;
+            keyframes[time] = SLImportKeyframe(&channel->mPositionKeys[iK], nullptr, nullptr);
         }
 
         // add rotation keys
-        for (SLuint i = 0; i < channel->mNumRotationKeys; i++)
+        for (SLuint iK = 0; iK < channel->mNumRotationKeys; iK++)
         {
-            SLfloat time = (SLfloat)channel->mRotationKeys[i].mTime;
+            SLfloat time = (SLfloat)channel->mRotationKeys[iK].mTime;
 
             if (keyframes.find(time) == keyframes.end())
-                keyframes[time] = SLImportKeyframe(nullptr, &channel->mRotationKeys[i], nullptr);
+                keyframes[time] = SLImportKeyframe(nullptr, &channel->mRotationKeys[iK], nullptr);
             else
             {
                 // @todo this shouldn't abort but just throw an exception
                 assert(keyframes[time].rotation == nullptr && "There were two rotation keys assigned to the same timestamp.");
-                keyframes[time].rotation = &channel->mRotationKeys[i];
+                keyframes[time].rotation = &channel->mRotationKeys[iK];
             }
         }
 
-        // add scaleing keys
-        for (SLuint i = 0; i < channel->mNumScalingKeys; i++)
+        // add scaling keys
+        for (SLuint iK = 0; iK < channel->mNumScalingKeys; iK++)
         {
-            SLfloat time = (SLfloat)channel->mScalingKeys[i].mTime;
+            SLfloat time = (SLfloat)channel->mScalingKeys[iK].mTime;
 
             if (keyframes.find(time) == keyframes.end())
-                keyframes[time] = SLImportKeyframe(nullptr, nullptr, &channel->mScalingKeys[i]);
+                keyframes[time] = SLImportKeyframe(nullptr, nullptr, &channel->mScalingKeys[iK]);
             else
             {
                 // @todo this shouldn't abort but just throw an exception
                 assert(keyframes[time].scaling == nullptr && "There were two scaling keys assigned to the same timestamp.");
-                keyframes[time].scaling = &channel->mScalingKeys[i];
+                keyframes[time].scaling = &channel->mScalingKeys[iK];
             }
         }
 

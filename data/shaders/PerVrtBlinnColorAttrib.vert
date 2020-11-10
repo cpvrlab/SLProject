@@ -17,7 +17,7 @@ precision highp float;
 //-----------------------------------------------------------------------------
 layout (location = 0) in vec4  a_position;     // Vertex position attribute
 layout (location = 1) in vec3  a_normal;       // Vertex normal attribute
-layout (location = 3) in vec4  a_color;        // Vertex color attribute
+layout (location = 4) in vec4  a_color;        // Vertex color attribute
 
 uniform mat4   u_mvMatrix;          // modelview matrix 
 uniform mat3   u_nMatrix;           // normal matrix=transpose(inverse(mv))

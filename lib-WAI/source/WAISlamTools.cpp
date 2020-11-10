@@ -14,7 +14,7 @@
 void WAISlamTools::drawKeyPointInfo(WAIFrame& frame, cv::Mat& image, float scale)
 {
     //half rectangle width and rectangle width (values are estimated on 640x480)
-    int rhw = (scale * 3);
+    int rhw = (int)(scale * 3.0f);
     int rw  = 2 * rhw + 1;
     //show rectangle for all keypoints in current image
     for (size_t i = 0; i < frame.N; i++)
@@ -31,7 +31,7 @@ void WAISlamTools::drawKeyPointInfo(WAIFrame& frame, cv::Mat& image, float scale
 void WAISlamTools::drawKeyPointMatches(WAIFrame& frame, cv::Mat& image, float scale)
 {
     //half rectangle width and rectangle width (values are estimated on 640x480)
-    int rhw = (scale * 3);
+    int rhw = (int)(scale * 3.0f);
     int rw  = 2 * rhw + 1;
     for (size_t i = 0; i < frame.N; i++)
     {
@@ -52,7 +52,7 @@ void WAISlamTools::drawKeyPointMatches(WAIFrame& frame, cv::Mat& image, float sc
 void WAISlamTools::drawInitInfo(InitializerData& iniData, WAIFrame& newFrame, cv::Mat& imageBGR, float scale)
 {
     //half rectangle width and rectangle width (values are estimated on 640x480)
-    int rhw = (scale * 3);
+    int rhw = (int)(scale * 3.0f);
     int rw  = 2 * rhw + 1;
 
     for (unsigned int i = 0; i < iniData.initialFrame.mvKeys.size(); i++)
@@ -910,7 +910,7 @@ bool WAISlamTools::relocalizationGPS(WAIFrame& currentFrame,
 
         cv::Mat pose = tcw.col(3).rowRange(0, 2);
 
-        float dist = cv::norm(locENU, pose);
+        float dist = (float)cv::norm(locENU, pose);
         if (dist < minDist)
             minDist = dist;
 
@@ -1278,7 +1278,7 @@ void WAISlamTools::updateLocalMap(WAIFrame& frame,
     }
 
     // Include also some not-already-included keyframes that are neighbors to already-included keyframes
-    for (int i = 0, iend = localMap.keyFrames.size(); i < iend; ++i)
+    for (int i = 0, iend = (int)localMap.keyFrames.size(); i < iend; ++i)
     {
         // Limit the number of keyframes
         if (localMap.keyFrames.size() > 80)

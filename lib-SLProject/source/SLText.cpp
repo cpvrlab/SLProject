@@ -22,7 +22,7 @@ SLText::SLText(SLstring   text,
                SLCol4f    color,
                SLfloat    maxWidth,
                SLfloat    lineHeightFactor)
-  : SLNode("Text_" + text.substr(text.length()-10, 10))
+  : SLNode("Text")
 {
     assert(font);
     _font  = font;

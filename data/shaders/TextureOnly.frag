@@ -11,16 +11,16 @@
 precision highp float;
 
 //-----------------------------------------------------------------------------
-in      vec2      v_texCoord;       // Interpol. texture coordinate
+in      vec2      v_uv1;            // Interpol. texture coordinate
 
-uniform sampler2D u_matTexture0;       // Color map
+uniform sampler2D u_matTexture0;    // Color map
 uniform float     u_oneOverGamma;   // 1.0f / Gamma correction value
 
-out     vec4      o_fragColor;    // output fragment color
+out     vec4      o_fragColor;      // output fragment color
 //-----------------------------------------------------------------------------
 void main()
 {     
-    o_fragColor = texture(u_matTexture0, v_texCoord);
+    o_fragColor = texture(u_matTexture0, v_uv1);
 
     // Apply gamma correction
     o_fragColor.rgb = pow(o_fragColor.rgb, vec3(u_oneOverGamma));

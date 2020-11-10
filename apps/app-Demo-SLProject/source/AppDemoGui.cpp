@@ -32,6 +32,7 @@
 #include <SLColorLUT.h>
 #include <SLGLImGui.h>
 #include <SLProjectScene.h>
+#include <SLHorizonNode.h>
 #include <AverageTiming.h>
 #include <imgui.h>
 #include <ftplib.h>
@@ -120,6 +121,7 @@ SLbool      AppDemoGui::showChristoffel     = false;
 SLbool      AppDemoGui::showUIPrefs         = false;
 SLbool      AppDemoGui::showTransform       = false;
 std::time_t AppDemoGui::adjustedTime        = 0;
+SLbool      AppDemoGui::_horizonVisuEnabled = false;
 
 // Scene node for Christoffel objects
 static SLNode* bern          = nullptr;
@@ -211,6 +213,11 @@ int ftpCallbackXfer(off64_t xfered, void* arg)
     else
         cout << "Bytes transferred: " << xfered << endl;
     return xfered ? 1 : 0;
+}
+//-----------------------------------------------------------------------------
+void AppDemoGui::clear()
+{
+    _horizonVisuEnabled = false;
 }
 //-----------------------------------------------------------------------------
 //! This is the main building function for the GUI of the Demo apps
@@ -664,15 +671,47 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
                 ImGui::TreePop();
             }
 
-            if (s->programs().size() && ImGui::TreeNode("Programs (extra)"))
+            if (s->programs().size() && ImGui::TreeNode("Programs (asset manager)"))
             {
                 for (SLuint i = 0; i < s->programs().size(); ++i)
-                    ImGui::Text("[%u] %s", i, s->programs()[i]->name().c_str());
+                {
+                    SLGLProgram* p = s->programs()[i];
+                    ImGui::Text("[%u] %s", i, p->name().c_str());
+                }
+                ImGui::TreePop();
+            }
+
+            if (ImGui::TreeNode("Programs (scene)"))
+            {
+                if (SLGLDefaultProgColorAttrib::isBuilt())
+                    ImGui::Text("%s", SLGLDefaultProgColorAttrib::instance()->name().c_str());
+                if (SLGLDefaultProgPerVrtBlinn::isBuilt())
+                    ImGui::Text("%s", SLGLDefaultProgPerVrtBlinn::instance()->name().c_str());
+                if (SLGLDefaultProgPerVrtBlinnTex::isBuilt())
+                    ImGui::Text("%s", SLGLDefaultProgPerVrtBlinnTex::instance()->name().c_str());
+                if (SLGLDefaultProgPerPixBlinn::isBuilt())
+                    ImGui::Text("%s", SLGLDefaultProgPerPixBlinn::instance()->name().c_str());
+                if (SLGLDefaultProgPerPixBlinnSM::isBuilt())
+                    ImGui::Text("%s", SLGLDefaultProgPerPixBlinnSM::instance()->name().c_str());
+                if (SLGLDefaultProgPerPixBlinnTex::isBuilt())
+                    ImGui::Text("%s", SLGLDefaultProgPerPixBlinnTex::instance()->name().c_str());
+                if (SLGLDefaultProgPerPixBlinnTexAO::isBuilt())
+                    ImGui::Text("%s", SLGLDefaultProgPerPixBlinnTexAO::instance()->name().c_str());
+                if (SLGLDefaultProgPerPixBlinnTexSM::isBuilt())
+                    ImGui::Text("%s", SLGLDefaultProgPerPixBlinnTexSM::instance()->name().c_str());
+                if (SLGLDefaultProgPerPixBlinnTexNrm::isBuilt())
+                    ImGui::Text("%s", SLGLDefaultProgPerPixBlinnTexNrm::instance()->name().c_str());
+                if (SLGLDefaultProgPerPixBlinnTexNrmAO::isBuilt())
+                    ImGui::Text("%s", SLGLDefaultProgPerPixBlinnTexNrmAO::instance()->name().c_str());
+                if (SLGLDefaultProgPerPixBlinnTexNrmSM::isBuilt())
+                    ImGui::Text("%s", SLGLDefaultProgPerPixBlinnTexNrmSM::instance()->name().c_str());
+                if (SLGLDefaultProgPerPixBlinnTexNrmAOSM::isBuilt())
+                    ImGui::Text("%s", SLGLDefaultProgPerPixBlinnTexNrmAOSM::instance()->name().c_str());
 
                 ImGui::TreePop();
             }
 
-            if (ImGui::TreeNode("Programs (standard)"))
+            if (ImGui::TreeNode("Programs (application)"))
             {
                 for (SLuint i = 0; i < SLGLProgramManager::size(); ++i)
                     ImGui::Text("[%u] %s", i, SLGLProgramManager::get((SLStdShaderProg)i)->name().c_str());
@@ -958,8 +997,8 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
             sprintf(m + strlen(m), "Yaw   (deg)      : %3.1f\n", SLApplication::devRot.yawDEG());
             sprintf(m + strlen(m), "Roll  (deg)      : %3.1f\n", SLApplication::devRot.rollDEG());
             sprintf(m + strlen(m), "No. averaged     : %d\n", SLApplication::devRot.numAveraged());
-            sprintf(m + strlen(m), "Pitch Offset(deg): %3.1f\n", SLApplication::devRot.pitchOffsetDEG());
-            sprintf(m + strlen(m), "Yaw   Offset(deg): %3.1f\n", SLApplication::devRot.yawOffsetDEG());
+            //sprintf(m + strlen(m), "Pitch Offset(deg): %3.1f\n", SLApplication::devRot.pitchOffsetDEG());
+            //sprintf(m + strlen(m), "Yaw   Offset(deg): %3.1f\n", SLApplication::devRot.yawOffsetDEG());
             sprintf(m + strlen(m), "Offset mode      : %s\n", SLApplication::devRot.offsetModeStr().c_str());
             sprintf(m + strlen(m), "------------------\n");
             sprintf(m + strlen(m), "Uses GPS Sensor  : %s\n", SLApplication::devLoc.isUsed() ? "yes" : "no");
@@ -1326,6 +1365,23 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                     ImGui::EndMenu();
                 }
 
+                if (ImGui::BeginMenu("Suzanne"))
+                {
+                    if (ImGui::MenuItem("with per pixel lighting", nullptr, sid == SID_SuzannePerPixBlinn))
+                        s->onLoad(s, sv, SID_SuzannePerPixBlinn);
+                    if (ImGui::MenuItem("and with texture mapping", nullptr, sid == SID_SuzannePerPixBlinnTex))
+                        s->onLoad(s, sv, SID_SuzannePerPixBlinnTex);
+                    if (ImGui::MenuItem("and with normal mapping", nullptr, sid == SID_SuzannePerPixBlinnTexNrm))
+                        s->onLoad(s, sv, SID_SuzannePerPixBlinnTexNrm);
+                    if (ImGui::MenuItem("and with normal and AO mapping", nullptr, sid == SID_SuzannePerPixBlinnTexNrmAO))
+                        s->onLoad(s, sv, SID_SuzannePerPixBlinnTexNrmAO);
+                    if (ImGui::MenuItem("and with shadow mapping", nullptr, sid == SID_SuzannePerPixBlinnTexNrmSM))
+                        s->onLoad(s, sv, SID_SuzannePerPixBlinnTexNrmSM);
+                    if (ImGui::MenuItem("and with ambient occlusion mapping", nullptr, sid == SID_SuzannePerPixBlinnTexNrmAOSM))
+                        s->onLoad(s, sv, SID_SuzannePerPixBlinnTexNrmAOSM);
+                    ImGui::EndMenu();
+                }
+
                 if (ImGui::BeginMenu("Animation"))
                 {
                     if (ImGui::MenuItem("Node Animation", nullptr, sid == SID_AnimationNode))
@@ -1373,7 +1429,9 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                 SLstring modelBFH    = erlebarPath + "biel/Biel-BFH-Rolex.gltf";
                 SLstring modelAR1    = erlebarPath + "augst/Tempel-Theater-02.gltf";
                 SLstring modelAV1    = erlebarPath + "avenches/Aventicum-Amphitheater1.gltf";
+                SLstring modelAV1_AO = erlebarPath + "avenches/Aventicum-Amphitheater-AO.gltf";
                 SLstring modelAV2    = erlebarPath + "avenches/Aventicum-Cigognier2.gltf";
+                SLstring modelAV2_AO = erlebarPath + "avenches/Aventicum-Cigognier-AO.gltf";
                 SLstring modelAV3    = erlebarPath + "avenches/Aventicum-Theater1.gltf";
                 SLstring modelBR1    = erlebarPath + "bern/Bern-Bahnhofsplatz.fbx";
 
@@ -1386,27 +1444,35 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                     if (ImGui::BeginMenu("Erleb-AR"))
                     {
                         if (Utils::fileExists(modelBFH))
-                            if (ImGui::MenuItem("Biel-BFH AR (Main)", nullptr, sid == SID_ErlebARBielBFH))
+                            if (ImGui::MenuItem("Biel-BFH AR", nullptr, sid == SID_ErlebARBielBFH))
                                 s->onLoad(s, sv, SID_ErlebARBielBFH);
 
                         if (Utils::fileExists(modelBR1))
-                            if (ImGui::MenuItem("Christoffel Tower AR (Main)", nullptr, sid == SID_ErlebARChristoffel))
+                            if (ImGui::MenuItem("Christoffel Tower AR", nullptr, sid == SID_ErlebARChristoffel))
                                 s->onLoad(s, sv, SID_ErlebARChristoffel);
 
                         if (Utils::fileExists(modelAR1))
-                            if (ImGui::MenuItem("Augusta Raurica AR (Main)", nullptr, sid == SID_ErlebARAugustaRaurica))
+                            if (ImGui::MenuItem("Augusta Raurica AR", nullptr, sid == SID_ErlebARAugustaRaurica))
                                 s->onLoad(s, sv, SID_ErlebARAugustaRaurica);
 
                         if (Utils::fileExists(modelAV1))
-                            if (ImGui::MenuItem("Aventicum Amphitheatre AR (Main)", nullptr, sid == SID_ErlebARAventicumAmphi))
+                            if (ImGui::MenuItem("Aventicum Amphitheatre AR", nullptr, sid == SID_ErlebARAventicumAmphi))
                                 s->onLoad(s, sv, SID_ErlebARAventicumAmphi);
 
+                        if (Utils::fileExists(modelAV1_AO))
+                            if (ImGui::MenuItem("Aventicum Amphitheatre AR (AO)", nullptr, sid == SID_ErlebARAventicumAmphiAO))
+                                s->onLoad(s, sv, SID_ErlebARAventicumAmphiAO);
+
                         if (Utils::fileExists(modelAV2))
-                            if (ImGui::MenuItem("Aventicum Cigognier AR (Main)", nullptr, sid == SID_ErlebARAventicumCigognier))
+                            if (ImGui::MenuItem("Aventicum Cigognier AR", nullptr, sid == SID_ErlebARAventicumCigognier))
                                 s->onLoad(s, sv, SID_ErlebARAventicumCigognier);
 
+                        if (Utils::fileExists(modelAV2_AO))
+                            if (ImGui::MenuItem("Aventicum Cigognier AR (AO)", nullptr, sid == SID_ErlebARAventicumCigognierAO))
+                                s->onLoad(s, sv, SID_ErlebARAventicumCigognierAO);
+
                         if (Utils::fileExists(modelAV3))
-                            if (ImGui::MenuItem("Aventicum Theatre AR (Main)", nullptr, sid == SID_ErlebARAventicumTheatre))
+                            if (ImGui::MenuItem("Aventicum Theatre AR", nullptr, sid == SID_ErlebARAventicumTheatre))
                                 s->onLoad(s, sv, SID_ErlebARAventicumTheatre);
 
                         ImGui::EndMenu();
@@ -1608,7 +1674,7 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
             ImGui::Separator();
 
             // Rotation and Location Sensor
-#if defined(SL_OS_ANDROID) || defined(SL_OS_IOS)
+#if defined(SL_OS_ANDROID) || defined(SL_OS_MACIOS)
             if (ImGui::BeginMenu("Rotation Sensor"))
             {
                 SLDeviceRotation& devRot = SLApplication::devRot;
@@ -1625,15 +1691,19 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                     if (ImGui::BeginMenu("Offset Mode"))
                     {
                         SLOffsetMode om = devRot.offsetMode();
-                        if (ImGui::MenuItem("None", nullptr, om==OM_none))
+                        if (ImGui::MenuItem("None", nullptr, om == OM_none))
                             devRot.offsetMode(OM_none);
-                        if (ImGui::MenuItem("Finger X", nullptr, om==OM_fingerX))
+                        if (ImGui::MenuItem("Finger rot. X", nullptr, om == OM_fingerX))
                             devRot.offsetMode(OM_fingerX);
-                        if (ImGui::MenuItem("Finger X and Y", nullptr, om==OM_fingerXY))
+                        if (ImGui::MenuItem("Finger rot. X and Y", nullptr, om == OM_fingerXY))
                             devRot.offsetMode(OM_fingerXY);
-                        if (ImGui::MenuItem("Auto X", nullptr, om==OM_autoX))
+                        if (ImGui::MenuItem("Finger trans. Y", nullptr, om == OM_fingerYTrans))
+                            devRot.offsetMode(OM_fingerYTrans);
+                        if (ImGui::MenuItem("Finger rot. X and trans. Y", nullptr, om == OM_fingerXRotYTrans))
+                            devRot.offsetMode(OM_fingerXRotYTrans);
+                        if (ImGui::MenuItem("Auto X", nullptr, om == OM_autoX))
                             devRot.offsetMode(OM_fingerX);
-                        if (ImGui::MenuItem("Auto X and Y", nullptr, om==OM_autoXY))
+                        if (ImGui::MenuItem("Auto X and Y", nullptr, om == OM_autoXY))
                             devRot.offsetMode(OM_autoXY);
 
                         ImGui::EndMenu();
@@ -1644,6 +1714,14 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
 
                     if (ImGui::MenuItem("Reset Zero Yaw"))
                         devRot.hasStarted(true);
+
+                    if (ImGui::MenuItem("Show Horizon", nullptr, _horizonVisuEnabled))
+                    {
+                        if (_horizonVisuEnabled)
+                            hideHorizon(s);
+                        else
+                            showHorizon(s, sv);
+                    }
                 }
 
                 ImGui::EndMenu();
@@ -2850,11 +2928,11 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
 
                                     if (!shadowMap->useCubemap())
                                     {
-                                        SLbool doesSmoothShadows = light->doSmoothShadows();
+                                        SLbool doesSmoothShadows = light->doSoftShadows();
                                         if (ImGui::Checkbox("Smooth shadows enabled", &doesSmoothShadows))
                                             light->doSmoothShadows(doesSmoothShadows);
 
-                                        SLuint pcfLevel = light->smoothShadowLevel();
+                                        SLuint pcfLevel = light->softShadowLevel();
                                         if (ImGui::SliderInt("Smoothing level", (SLint*)&pcfLevel, 1, 3))
                                             light->smoothShadowLevel(pcfLevel);
                                     }
@@ -3527,6 +3605,47 @@ void AppDemoGui::removeTransformNode(SLProjectScene* s)
         s->root3D()->deleteChild(tN);
     }
     transformNode = nullptr;
+}
+//-----------------------------------------------------------------------------
+//! Enables calculation and visualization of horizon line (using rotation sensors)
+void AppDemoGui::showHorizon(SLProjectScene* s, SLSceneView* sv)
+{
+    //todo: why is root2D not always valid?
+    if (!s->root2D())
+    {
+        SLNode* scene2D = new SLNode("root2D");
+        s->root2D(scene2D);
+    }
+
+    SLstring       horizonName = "Horizon";
+    SLHorizonNode* horizonNode = s->root2D()->findChild<SLHorizonNode>(horizonName);
+
+    if (!horizonNode)
+    {
+        horizonNode = new SLHorizonNode(horizonName,
+                                        &SLApplication::devRot,
+                                        s->font16,
+                                        SLApplication::shaderPath,
+                                        sv->scrW(),
+                                        sv->scrH());
+        s->root2D()->addChild(horizonNode);
+        _horizonVisuEnabled = true;
+    }
+}
+//-----------------------------------------------------------------------------
+//! Disables calculation and visualization of horizon line
+void AppDemoGui::hideHorizon(SLProjectScene* s)
+{
+    if (s->root2D())
+    {
+        SLstring       horizonName = "Horizon";
+        SLHorizonNode* horizonNode = s->root2D()->findChild<SLHorizonNode>(horizonName);
+        if (horizonNode)
+        {
+            s->root2D()->deleteChild(horizonNode);
+        }
+    }
+    _horizonVisuEnabled = false;
 }
 //-----------------------------------------------------------------------------
 //! Displays a editable color lookup table wit ImGui widgets

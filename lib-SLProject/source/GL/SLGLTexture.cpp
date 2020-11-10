@@ -231,7 +231,7 @@ SLGLTexture::SLGLTexture(SLAssetManager*  assetMgr,
 {
     assert(files.size() > 1);
 
-    _texType = TT_color;
+    _texType = TT_diffuse;
 
     for (const auto& filename : files)
         load(filename, true, loadGrayscaleIntoAlpha);
@@ -281,7 +281,7 @@ SLGLTexture::SLGLTexture(SLAssetManager* assetMgr,
 {
     assert(colors.size() > 1);
 
-    _texType = TT_color;
+    _texType = TT_diffuse;
 
     load(colors);
 
@@ -545,11 +545,11 @@ This texture creation must be done only once when a valid OpenGL rendering
 context is present. This function is called the first time within the enable
 method which is called by object that uses the texture.
 */
-void SLGLTexture::build(SLint texID)
+void SLGLTexture::build(SLint texUnit)
 {
     PROFILE_FUNCTION();
 
-    assert(texID >= 0 && texID < 32);
+    assert(texUnit >= 0 && texUnit < 16);
 
     if (_images.empty())
         SL_EXIT_MSG("No images loaded in SLGLTexture::build");
@@ -623,7 +623,7 @@ void SLGLTexture::build(SLint texID)
     glGenTextures(1, &_texID);
 
     SLGLState* stateGL = SLGLState::instance();
-    stateGL->activeTexture(GL_TEXTURE0 + (SLuint)texID);
+    stateGL->activeTexture(GL_TEXTURE0 + (SLuint)texUnit);
 
     // create binding and apply texture properties
     stateGL->bindTexture(_target, _texID);
@@ -763,8 +763,8 @@ void SLGLTexture::build(SLint texID)
 
     // Check if texture name is valid only for debug purpose
     //if (glIsTexture(_texName))
-    //     SL_LOG("SLGLTexture::build: name: %u, unit-id: %u, Filename: %s", _texName, texID, _images[0]->name().c_str());
-    //else SL_LOG("SLGLTexture::build: invalid name: %u, unit-id: %u, Filename: %s", _texName, texID, _images[0]->name().c_str());
+    //     SL_LOG("SLGLTexture::build: name: %u, unit-id: %u, Filename: %s", _texName, texUnit, _images[0]->name().c_str());
+    //else SL_LOG("SLGLTexture::build: invalid name: %u, unit-id: %u, Filename: %s", _texName, texUnit, _images[0]->name().c_str());
 
     GET_GL_ERROR;
 }
@@ -812,28 +812,23 @@ void SLGLTexture::buildCudaTexture()
 /*!
 SLGLTexture::bindActive binds the active texture. This method must be called
 by the object that uses the texture every time BEFORE the its rendering.
-The texID is only used for multi texturing. Before the first time the texture
+The texUnit is only used for multi texturing. Before the first time the texture
 is passed to OpenGL.
 */
-void SLGLTexture::bindActive(SLint texID)
+void SLGLTexture::bindActive(SLuint texUnit)
 {
-    assert(texID >= 0 && texID < 32);
+    assert(texUnit >= 0 && texUnit < 16);
 
     // if texture not exists build it
     if (!_texID)
-        build(texID);
+        build(texUnit);
 
     if (_texID)
     {
         SLGLState* stateGL = SLGLState::instance();
-        stateGL->activeTexture(GL_TEXTURE0 + (SLuint)texID);
+        //SL_LOG("SLGLTexture::bindActive: activeTexture: %d, bindTexture: %u, name: %s", texUnit, _texID, _name.c_str());
+        stateGL->activeTexture(GL_TEXTURE0 + texUnit);
         stateGL->bindTexture(_target, _texID);
-
-        // Check if texture name is valid only for debug purpose
-        //if (!glIsTexture(_texName))
-        //{   SL_LOG("\n\n****** SLGLTexture::bindActive: Invalid texName: %u, texID: %u, File: %s\n",
-        //           _texName, texID, _images[0]->name().c_str());
-        //}
 
         if (_needsUpdate)
         {
@@ -929,7 +924,7 @@ void SLGLTexture::drawSprite(SLbool doUpdate, SLfloat x, SLfloat y, SLfloat w, S
         SLGLProgram* sp = SLGLProgramManager::get(SP_TextureOnly);
         sp->useProgram();
         _vaoSprite.setAttrib(AT_position, AT_position, &P);
-        _vaoSprite.setAttrib(AT_texCoord, AT_texCoord, &T);
+        _vaoSprite.setAttrib(AT_uv1, AT_uv1, &T);
         _vaoSprite.setIndices(&I, nullptr);
         _vaoSprite.generate(4);
     }
@@ -1022,10 +1017,12 @@ SLTextureType SLGLTexture::detectType(const SLstring& filename)
     // Check first our own texture name encoding
     SLstring name     = Utils::getFileNameWOExt(filename);
     SLstring appendix = name.substr(name.length() - 2, 2);
-    if (appendix == "_C") return TT_color;
+    if (appendix == "_C") return TT_diffuse;
+    if (appendix == "_D") return TT_diffuse;
     if (appendix == "_N") return TT_normal;
     if (appendix == "_H") return TT_height;
-    if (appendix == "_G") return TT_gloss;
+    if (appendix == "_G") return TT_specular;
+    if (appendix == "_S") return TT_specular;
     if (appendix == "_R") return TT_roughness;
     if (appendix == "_M") return TT_metallic;
     if (appendix == "_F") return TT_font;
@@ -1039,7 +1036,7 @@ SLTextureType SLGLTexture::detectType(const SLstring& filename)
         Utils::containsString(name, "DIFFUSE") ||
         Utils::containsString(name, "DIFF") ||
         Utils::containsString(name, "DIF"))
-        return TT_color;
+        return TT_diffuse;
 
     if (Utils::containsString(name, "NRM") ||
         Utils::containsString(name, "NORM") ||
@@ -1056,7 +1053,7 @@ SLTextureType SLGLTexture::detectType(const SLstring& filename)
         Utils::containsString(name, "REFL") ||
         Utils::containsString(name, "SPECULAR") ||
         Utils::containsString(name, "SPEC"))
-        return TT_gloss;
+        return TT_specular;
 
     if (Utils::containsString(name, "ROUGHNESS") ||
         Utils::containsString(name, "RGH") ||
@@ -1073,13 +1070,13 @@ SLTextureType SLGLTexture::detectType(const SLstring& filename)
         Utils::containsString(name, "OCCLUSION") ||
         Utils::containsString(name, "OCCL") ||
         Utils::containsString(name, "OCC"))
-        return TT_ambientOcc;
+        return TT_ambientOcclusion;
 
     // if nothing was detected so far we interpret it as a color texture
     //SLstring msg = Utils::formatString("SLGLTexture::detectType: No type detected in file: %s", filename.c_str());
     //SL_WARN_MSG(msg.c_str());
 
-    return TT_color;
+    return TT_diffuse;
 }
 //-----------------------------------------------------------------------------
 void SLGLTexture::build2DMipmaps(SLint target, SLuint index)
@@ -1136,15 +1133,16 @@ SLstring SLGLTexture::typeName()
 {
     switch (_texType)
     {
-        case TT_unknown: return "Unknown type";
-        case TT_color: return "color map";
-        case TT_normal: return "normal map";
-        case TT_height: return "hight map";
-        case TT_gloss: return "gloss map";
-        case TT_roughness: return "roughness map";
-        case TT_metallic: return "metalness map";
-        case TT_font: return "font map"; ;
-        default: return "Unknown type";
+        case TT_unknown: return "unknown";
+        case TT_diffuse: return "diffuse";
+        case TT_normal: return "normal";
+        case TT_height: return "height";
+        case TT_specular: return "specular";
+        case TT_roughness: return "roughness";
+        case TT_metallic: return "metalness";
+        case TT_ambientOcclusion: return "ambient occlusion";
+        case TT_font: return "font"; ;
+        default: return "unknown";
     }
 }
 //-----------------------------------------------------------------------------

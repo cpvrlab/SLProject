@@ -465,8 +465,9 @@ bool SLNode::hitRec(SLRay* ray)
         return false;
 
     // Do not test origin node for shadow rays
-    if (this == ray->srcNode && ray->type == SHADOW)
-        return false;
+    // This restriction is not valid for objects that can shadow itself
+    //if (this == ray->srcNode && ray->type == SHADOW)
+    //    return false;
 
     // Check first AABB for intersection
     if (!_aabb.isHitInWS(ray))

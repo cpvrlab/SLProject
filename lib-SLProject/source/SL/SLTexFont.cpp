@@ -434,7 +434,7 @@ void SLTexFont::buildTextBuffers(SLGLVertexArray& vao,         //!< external ver
     SLGLProgram* sp = _fontTexProgram;
     sp->useProgram();
     vao.setAttrib(AT_position, AT_position, &P);
-    vao.setAttrib(AT_texCoord, AT_texCoord, &T);
+    vao.setAttrib(AT_uv1, AT_uv1, &T);
     vao.setIndices(&I);
     vao.generate((SLuint)numP);
 }

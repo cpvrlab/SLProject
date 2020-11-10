@@ -39,7 +39,8 @@ The vertex attributes are stored in vectors with equal number of elements:
 \n P (vertex position, mandatory)
 \n N (vertex normals)
 \n C (vertex color)
-\n Tc (vertex texture coordinates) optional
+\n UV1 (1st. vertex texture coordinates) optional
+\n UV2 (2nd. vertex texture coordinates) optional
 \n T (vertex tangents) optional
 \n Ji (vertex joint index) optional 2D vector
 \n Jw (vertex joint weights) optional 2D vector
@@ -191,11 +192,12 @@ public:
     // vertex attributes
     SLVVec3f  P;        //!< Vector for vertex positions                   layout (location = 0)
     SLVVec3f  N;        //!< Vector for vertex normals (opt.)              layout (location = 1)
-    SLVVec2f  Tc;       //!< Vector of vertex tex. coords. (opt.)          layout (location = 2)
-    SLVCol4f  C;        //!< Vector of vertex colors (opt.)                layout (location = 3)
-    SLVVec4f  T;        //!< Vector of vertex tangents (opt.)              layout (location = 4)
-    SLVVuchar Ji;       //!< 2D Vector of per vertex joint ids (opt.)      layout (location = 5) (never used so far)
-    SLVVfloat Jw;       //!< 2D Vector of per vertex joint weights (opt.)  layout (location = 6) (never used so far)
+    SLVVec2f  UV1;      //!< Vector for 1st tex. coords. (opt.)            layout (location = 2)
+    SLVVec2f  UV2;      //!< Vector for 2nd tex. coords. (opt.)            layout (location = 3)
+    SLVCol4f  C;        //!< Vector of vertex colors (opt.)                layout (location = 4)
+    SLVVec4f  T;        //!< Vector of vertex tangents (opt.)              layout (location = 5)
+    SLVVuchar Ji;       //!< 2D Vector of per vertex joint ids (opt.)      layout (location = 6)
+    SLVVfloat Jw;       //!< 2D Vector of per vertex joint weights (opt.)  layout (location = 7)
     SLVVec3f  skinnedP; //!< temp. vector for CPU skinned vertex positions
     SLVVec3f  skinnedN; //!< temp. vector for CPU skinned vertex normals
 

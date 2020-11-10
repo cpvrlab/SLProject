@@ -1,8 +1,7 @@
 //#############################################################################
 //  File:      PerPixBlinnSM.frag
-//  Purpose:   GLSL per pixel lighting without texturing (and Shadow mapping)
-//             Parts of this shader are based on the tutorial on
-//             https://learnopengl.com/Advanced-Lighting/Shadows/Shadow-Mapping
+//  Purpose:   GLSL pixel shader for per pixel Blinn-Phong lighting with 
+//             shadow mapping for max. 8 lights without cubemap point lights
 //             by Joey de Vries.
 //  Author:    Marcus Hudritsch
 //  Date:      July 2014
@@ -20,7 +19,6 @@ precision highp float;
 in      vec3        v_P_VS;     // Interpol. point of illum. in view space (VS)
 in      vec3        v_P_WS;     // Interpol. point of illum. in world space (WS)
 in      vec3        v_N_VS;     // Interpol. normal at v_P_VS in view space
-in      vec2        v_texCoord; // interpol. texture coordinate
 
 uniform bool        u_lightIsOn[NUM_LIGHTS];                // flag if light is on
 uniform vec4        u_lightPosWS[NUM_LIGHTS];               // position of light in world space
@@ -40,7 +38,6 @@ uniform bool        u_lightDoSmoothShadows[NUM_LIGHTS];     // flag if percentag
 uniform int         u_lightSmoothShadowLevel[NUM_LIGHTS];   // radius of area to sample for PCF
 uniform float       u_lightShadowMinBias[NUM_LIGHTS];       // min. shadow bias value at 0° to N
 uniform float       u_lightShadowMaxBias[NUM_LIGHTS];       // min. shadow bias value at 90° to N
-uniform bool        u_lightUsesCubemap[NUM_LIGHTS];         // flag if light has a cube shadow map
 
 uniform vec4        u_globalAmbi;       // Global ambient scene color
 uniform float       u_oneOverGamma;     // 1.0f / Gamma correction
@@ -70,33 +67,14 @@ uniform sampler2D   u_shadowMap_5;      // shadow map for light 5
 uniform sampler2D   u_shadowMap_6;      // shadow map for light 6
 uniform sampler2D   u_shadowMap_7;      // shadow map for light 7
 
-uniform samplerCube u_shadowMapCube_0;  // cubemap for light 0
-uniform samplerCube u_shadowMapCube_1;  // cubemap for light 1
-uniform samplerCube u_shadowMapCube_2;  // cubemap for light 2
-uniform samplerCube u_shadowMapCube_3;  // cubemap for light 3
-uniform samplerCube u_shadowMapCube_4;  // cubemap for light 4
-uniform samplerCube u_shadowMapCube_5;  // cubemap for light 5
-uniform samplerCube u_shadowMapCube_6;  // cubemap for light 6
-uniform samplerCube u_shadowMapCube_7;  // cubemap for light 7
-
 out     vec4        o_fragColor;        // output fragment color
 //-----------------------------------------------------------------------------
-// SLGLShader::preprocessPragmas replaces the include pragma by the file
+//! SLGLShader::preprocessPragmas replaces the include pragma by the file
 #pragma include "lightingBlinnPhong.glsl"
 #pragma include "fogBlend.glsl"
 #pragma include "doStereoSeparation.glsl"
 //-----------------------------------------------------------------------------
-int vectorToFace(vec3 vec) // Vector to process
-{
-    vec3 absVec = abs(vec);
-    if (absVec.x > absVec.y && absVec.x > absVec.z)
-    return vec.x > 0.0 ? 0 : 1;
-    else if (absVec.y > absVec.x && absVec.y > absVec.z)
-    return vec.y > 0.0 ? 2 : 3;
-    else
-    return vec.z > 0.0 ? 4 : 5;
-}
-//-----------------------------------------------------------------------------
+//! Shadow text function for upto 8 lights
 float shadowTest(in int i, in vec3 N, in vec3 lightDir)
 {
     if (u_lightCreatesShadows[i])
@@ -104,10 +82,6 @@ float shadowTest(in int i, in vec3 N, in vec3 lightDir)
         // Calculate position in light space
         mat4 lightSpace;
         vec3 lightToFragment = v_P_WS - u_lightPosWS[i].xyz;
-
-        if (u_lightUsesCubemap[i])
-        lightSpace = u_lightSpace[i * 6 + vectorToFace(lightToFragment)];
-        else
         lightSpace = u_lightSpace[i * 6];
 
         vec4 lightSpacePosition = lightSpace * vec4(v_P_WS, 1.0);
@@ -128,7 +102,7 @@ float shadowTest(in int i, in vec3 N, in vec3 lightDir)
         float bias = max(u_lightShadowMaxBias[i] * (1.0 - dot(N, lightDir)), u_lightShadowMinBias[i]);
 
         // Use percentage-closer filtering (PCF) for softer shadows (if enabled)
-        if (!u_lightUsesCubemap[i] && u_lightDoSmoothShadows[i])
+        if (u_lightDoSmoothShadows[i])
         {
             vec2 texelSize;
             if (i == 0) texelSize = 1.0 / vec2(textureSize(u_shadowMap_0, 0));
@@ -160,28 +134,14 @@ float shadowTest(in int i, in vec3 N, in vec3 lightDir)
         }
         else
         {
-            if (u_lightUsesCubemap[i])
-            {
-                if (i == 0) closestDepth = texture(u_shadowMapCube_0, lightToFragment).r;
-                if (i == 1) closestDepth = texture(u_shadowMapCube_1, lightToFragment).r;
-                if (i == 2) closestDepth = texture(u_shadowMapCube_2, lightToFragment).r;
-                if (i == 3) closestDepth = texture(u_shadowMapCube_3, lightToFragment).r;
-                if (i == 4) closestDepth = texture(u_shadowMapCube_4, lightToFragment).r;
-                if (i == 5) closestDepth = texture(u_shadowMapCube_5, lightToFragment).r;
-                if (i == 6) closestDepth = texture(u_shadowMapCube_6, lightToFragment).r;
-                if (i == 7) closestDepth = texture(u_shadowMapCube_7, lightToFragment).r;
-            }
-            else
-            {
-                if (i == 0) closestDepth = texture(u_shadowMap_0, projCoords.xy).r;
-                if (i == 1) closestDepth = texture(u_shadowMap_1, projCoords.xy).r;
-                if (i == 2) closestDepth = texture(u_shadowMap_2, projCoords.xy).r;
-                if (i == 3) closestDepth = texture(u_shadowMap_3, projCoords.xy).r;
-                if (i == 4) closestDepth = texture(u_shadowMap_4, projCoords.xy).r;
-                if (i == 5) closestDepth = texture(u_shadowMap_5, projCoords.xy).r;
-                if (i == 6) closestDepth = texture(u_shadowMap_6, projCoords.xy).r;
-                if (i == 7) closestDepth = texture(u_shadowMap_7, projCoords.xy).r;
-            }
+            if (i == 0) closestDepth = texture(u_shadowMap_0, projCoords.xy).r;
+            if (i == 1) closestDepth = texture(u_shadowMap_1, projCoords.xy).r;
+            if (i == 2) closestDepth = texture(u_shadowMap_2, projCoords.xy).r;
+            if (i == 3) closestDepth = texture(u_shadowMap_3, projCoords.xy).r;
+            if (i == 4) closestDepth = texture(u_shadowMap_4, projCoords.xy).r;
+            if (i == 5) closestDepth = texture(u_shadowMap_5, projCoords.xy).r;
+            if (i == 6) closestDepth = texture(u_shadowMap_6, projCoords.xy).r;
+            if (i == 7) closestDepth = texture(u_shadowMap_7, projCoords.xy).r;
 
             // The fragment is in shadow if the light doesn't "see" it
             if (currentDepth > closestDepth + bias)
