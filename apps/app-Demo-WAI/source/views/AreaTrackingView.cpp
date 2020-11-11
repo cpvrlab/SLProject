@@ -2,6 +2,8 @@
 #include <sens/SENSCamera.h>
 #include <WAIMapStorage.h>
 #include <sens/SENSUtils.h>
+#include <Utils.h>
+#include <GlobalTimer.h>
 
 #define LOAD_ASYNC
 
@@ -73,7 +75,10 @@ void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaI
 
         //init arcore
         if (_arcore)
+        {
             _arcore->init(area.cameraFrameTargetSize.width, area.cameraFrameTargetSize.height, 0, 0, false);
+            _arcore->resume();
+        }
 
         //init 3d visualization
         this->unInit();
@@ -85,8 +90,10 @@ void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaI
 
         initDeviceLocation(location, area);
         initSlam(area);
-        if (_gps)
-            _gpsPose = calcCameraPoseGpsOrientationBased();
+
+        _initTime = GlobalTimer::timeS();
+
+        _hasTransitionMatrix = false;
 
         _noInitException = true;
     }
@@ -161,6 +168,49 @@ SLMat4f convertARCoreToSLMat(const cv::Mat& cTw)
     return m;
 }
 
+bool AreaTrackingView::updateGPSARCore(SENSFramePtr &frame)
+{
+    cv::Mat view;
+    bool isTracking = false;
+
+    SLMat4f gpsPose = calcCameraPoseGpsOrientationBased();
+
+    //Get frame from ArCore or camera depending if we have them.
+    if (_arcore->isRunning())
+    {
+        cv::Mat proj;
+        isTracking = _arcore->update(proj, view);
+        frame = _arcore->latestFrame();
+    }
+    else if (_camera)
+        frame = _camera->latestFrame();
+    else
+        return false;
+
+    if (!_hasTransitionMatrix)
+    {
+        _waiScene.camera->om(gpsPose);
+        //delay arcore transition unil 100 frame and that arcore is tracking at this state
+        if (GlobalTimer::timeS() - _initTime > 10.0 && isTracking)
+        {
+            _transitionMatrix = convertARCoreToSLMat(view);
+            _transitionMatrix.invert();
+            _transitionMatrix    = gpsPose * _transitionMatrix;
+            _hasTransitionMatrix = true;
+        }
+    }
+    else if (_arcore->isRunning())
+    {
+        SLMat4f arPose = convertARCoreToSLMat(view);
+        _waiScene.camera->om(_transitionMatrix * arPose);
+    }
+    else
+        _waiScene.camera->om(gpsPose);
+
+    return true;
+}
+
+
 bool AreaTrackingView::update()
 {
     WAI::TrackingState slamState = WAI::TrackingState_None;
@@ -172,28 +222,9 @@ bool AreaTrackingView::update()
             if (!_arcore->isReady() && _camera)
                 frame = _camera->latestFrame();
 
-            bool isTracking = false;
+            bool isTracking = updateGPSARCore(frame);
 
-            if (_arcore->isReady())
-            {
-                cv::Mat view;
-                cv::Mat proj;
-
-                isTracking = _arcore->update(proj, view);
-                if (isTracking)
-                {
-                    isTracking = true;
-
-                    frame = _arcore->latestFrame();
-                    SLMat4f arPose = convertARCoreToSLMat(view);
-                    _waiScene.camera->om(_gpsPose * arPose);
-                }
-                else if (_orientation)
-                {
-                    _gpsPose = calcCameraPoseGpsOrientationBased();
-                    _waiScene.camera->om(_gpsPose);
-                }
-            }
+            /*
             else if (frame && _waiSlam)
             {
                 if (_waiSlam->isInitialized())
@@ -222,7 +253,9 @@ bool AreaTrackingView::update()
                     _waiSlam->setCamExrinsicGuess(camExtrinsic);
                 }
             }
-            else if (_asyncLoader && _asyncLoader->isReady())
+            */
+
+            if (_asyncLoader && _asyncLoader->isReady())
             {
                 if (!_asyncLoader->hasError())
                 {
@@ -264,12 +297,11 @@ bool AreaTrackingView::update()
             }
 
             //update visualization
-
             if (frame)
             {
                 //decorate video image and update scene
-                if (_waiSlam)
-                    updateTrackingVisualization(isTracking, *frame.get());
+                //if (_waiSlam)
+                //    updateTrackingVisualization(isTracking, *frame.get());
 
                 //set video image camera background
                 updateVideoImage(*frame.get(), currentCamera);

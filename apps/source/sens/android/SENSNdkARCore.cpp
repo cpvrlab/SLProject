@@ -115,8 +115,10 @@ bool SENSNdkARCore::init(int w, int h, int manipW, int manipH, bool convertManip
         env->DeleteGlobalRef(activityObj);
         _activity->vm->DetachCurrentThread();
     }
-    if (ArSession_resume(_arSession) != AR_SUCCESS)
-        return false;
+
+    pause();
+    //if (ArSession_resume(_arSession) != AR_SUCCESS)
+    //    return false;
 
     return true;
 }
@@ -289,12 +291,18 @@ void SENSNdkARCore::setDisplaySize(int w, int h)
 
 bool SENSNdkARCore::resume()
 {
-    const ArStatus status = ArSession_resume(_arSession);
-    return (status == AR_SUCCESS);
+    if (_pause)
+    {
+        const ArStatus status = ArSession_resume(_arSession);
+        if (status == AR_SUCCESS)
+            _pause = false;
+    }
+    return !_pause;
 }
 
 void SENSNdkARCore::pause()
 {
+    _pause = true;
     if (_arSession != nullptr)
         ArSession_pause(_arSession);
 }

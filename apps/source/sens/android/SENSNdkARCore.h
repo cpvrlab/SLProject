@@ -17,6 +17,7 @@ public:
 
     bool init(int targetWidth, int targetHeight, int manipWidth, int manipHeight, bool convertManipToGray);
     bool isReady() { return _arSession != nullptr; }
+    bool isRunning() { return !_pause; }
 	bool resume() override;
 	void pause() override;
     bool update(cv::Mat& intrinsic, cv::Mat& view);
@@ -31,6 +32,7 @@ private:
     ANativeActivity* _activity  = nullptr;
     ArSession*       _arSession = nullptr;
     ArFrame*         _arFrame   = nullptr;
+    bool             _pause     = true;   
     GLuint           _cameraTextureId;
     std::mutex       _frameMutex;
 

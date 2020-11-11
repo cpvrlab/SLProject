@@ -65,6 +65,8 @@ private:
     virtual SLbool onMouseDown(SLMouseButton button, SLint scrX, SLint scrY, SLKey mod);
     virtual SLbool onMouseMove(SLint x, SLint y);
 
+    bool updateGPSARCore(SENSFramePtr& frame);
+
     void    updateSceneCameraFov();
     void    updateVideoImage(SENSFrame& frame, VideoBackgroundCamera* videoBackground);
     void    updateTrackingVisualization(const bool iKnowWhereIAm, SENSFrame& frame);
@@ -92,7 +94,10 @@ private:
     std::unique_ptr<KPextractor> _initializationExtractor;
     std::unique_ptr<KPextractor> _relocalizationExtractor;
     ImageBuffer                  _imgBuffer;
-    SLMat4f                      _gpsPose;
+    SLMat4f                      _transitionMatrix;
+    bool                         _hasTransitionMatrix;
+    float                        _initTime;
+
 
     std::unique_ptr<WAIOrbVocabulary> _voc;
     //wai slam depends on _orbVocabulary and has to be uninitializd first (defined below voc)
