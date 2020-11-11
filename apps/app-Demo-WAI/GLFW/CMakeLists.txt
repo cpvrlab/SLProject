@@ -55,6 +55,7 @@ target_link_libraries(${target}
     ${META_PROJECT_NAME}::lib-fbow
     ${META_PROJECT_NAME}::lib-DBoW2
     lib-SLProject
+    lib-SLMath
     ${glfw_LIBS}
 
     INTERFACE

@@ -35,14 +35,20 @@ class MapLoader;
 class WAIImageStabilizedOrientation
 {
 public:
-    bool findCameraOrientationDifference(cv::Mat imageGray,  //for corner extraction
-                                         cv::Mat& imageRgb,
-                                         const SENSCalibration* camCalib,
-                                         float scaleToGray,
-                                         bool decorate); //for debug decoration
+    bool findCameraOrientationDifferenceF2F(cv::Mat imageGray,  //for corner extraction
+                                            cv::Mat& imageRgb,
+                                            const SENSCalibration* camCalib,
+                                            float scaleToGray,
+                                            bool decorate); //for debug decoration
     
+    bool findCameraOrientationDifferenceF2FHorizon(const SLVec3f& horizon,
+                                                   cv::Mat imageGray,  //for corner extraction
+                                                   cv::Mat& imageRgb,
+                                                   const SENSCalibration* camCalib,
+                                                   float scaleToGray,
+                                                   bool decorate); //for debug decoration
 private:
-    bool         _hasLastFrame = false;
+   
     cv::Mat      _lastImageGray;
     cv::Mat      _Tcw;
     float        _xAngRAD = 0.f;
@@ -57,7 +63,7 @@ private:
     std::vector<uchar>       _inliers;
     std::vector<float>       _err;
     
-    int   _fIniThFAST   = 50;
+    int   _fIniThFAST   = 30;
     int   _fMinThFAST   = 7;
 };
 

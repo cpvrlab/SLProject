@@ -11,7 +11,7 @@
 #ifndef SLCURVE_H
 #define SLCURVE_H
 
-#include <SL.h>
+#include <SLMath.h>
 #include <SLMat4.h>
 #include <SLVec3.h>
 #include <SLVec4.h>

@@ -11,7 +11,7 @@
 #ifndef SLVEC2_H
 #define SLVEC2_H
 
-#include <SL.h>
+#include <SLMath.h>
 #include <Utils.h>
 
 //-----------------------------------------------------------------------------
@@ -123,8 +123,8 @@ class SLVec2
     void    setMax      (const SLVec2& v)       {if (v.x > x) x=v.x;
                                                   if (v.y > y) y=v.y;}
     SLbool  isZero      ()                      {return (x==0 && y==0);}
-    void    print       (const char* str=nullptr) {if (str) SL_LOG("%s",str);
-                                                  SL_LOG("% 3.3f, % 3.3f",x, y);}
+    void    print       (const char* str=nullptr) {if (str) SLMATH_LOG("%s",str);
+        SLMATH_LOG("% 3.3f, % 3.3f",x, y);}
    
     static 
     SLVec2  ZERO;

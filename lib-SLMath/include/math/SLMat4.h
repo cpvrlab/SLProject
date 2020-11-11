@@ -11,7 +11,7 @@
 #ifndef SLMAT4_H
 #define SLMAT4_H
 
-#include <SL.h>
+#include <SLMath.h>
 #include <stack>
 #include <Utils.h>
 #include <SLMat3.h>
@@ -19,7 +19,7 @@
 #include <SLVec4.h>
 #include <assert.h>
 #include <Shoemake/Decompose.h>
-#include <Shoemake/EulerAngles.h>
+//#include <Shoemake/EulerAngles.h>
 
 extern void decomp_affine(HMatrix A, AffineParts* parts);
 

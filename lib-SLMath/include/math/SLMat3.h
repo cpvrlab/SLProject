@@ -12,7 +12,7 @@
 #ifndef SLMAT3_H
 #define SLMAT3_H
 
-#include <SL.h>
+#include <SLMath.h>
 #include <Utils.h>
 #include <SLVec3.h>
 #include <iostream>
@@ -361,7 +361,7 @@ SLMat3<T> SLMat3<T>::inverted()
 
     if (fabs(d) < FLT_EPSILON) 
     {
-        SL_LOG("3x3-Matrix is singular. Inversion impossible.");
+        SLMATH_LOG("3x3-Matrix is singular. Inversion impossible.");
         exit(0);
     }
 
@@ -731,10 +731,10 @@ void SLMat3<T>::fromEulerAnglesZXZ(const T angleZ1RAD,
 template<class T>
 void SLMat3<T>::print(const SLchar* str) const
 {
-    if (str) SL_LOG("%s",str);
-    SL_LOG("% 3.3f % 3.3f % 3.3f", _m[0],_m[3],_m[6]);
-    SL_LOG("% 3.3f % 3.3f % 3.3f", _m[1],_m[4],_m[7]);
-    SL_LOG("% 3.3f % 3.3f % 3.3f", _m[2],_m[5],_m[8]);
+    if (str) SLMATH_LOG("%s",str);
+    SLMATH_LOG("% 3.3f % 3.3f % 3.3f", _m[0],_m[3],_m[6]);
+    SLMATH_LOG("% 3.3f % 3.3f % 3.3f", _m[1],_m[4],_m[7]);
+    SLMATH_LOG("% 3.3f % 3.3f % 3.3f", _m[2],_m[5],_m[8]);
 }
 //-----------------------------------------------------------------------------
 typedef SLMat3<SLfloat>  SLMat3f;

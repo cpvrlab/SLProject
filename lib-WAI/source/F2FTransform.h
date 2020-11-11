@@ -33,6 +33,14 @@ public:
                             float&                    zAngRAD,
                             std::vector<uchar>&       inliers);
 
+    static bool estimateRotXY(const cv::Mat             K,
+                              const std::vector<cv::Point2f>& p1,
+                              const std::vector<cv::Point2f>& p2,
+                              float&                    xAngRAD,
+                              float&                    yAngRAD,
+                              const float               zAngRAD,
+                              std::vector<uchar>&       inliers);
+    
     static void eulerToMat(float xAngRAD, float yAngRAD, float zAngRAD, cv::Mat& Rx, cv::Mat& Ry, cv::Mat& Rz);
 
 private:

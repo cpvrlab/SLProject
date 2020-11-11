@@ -11,7 +11,7 @@
 #ifndef SLVEC3_H
 #define SLVEC3_H
 
-#include <SL.h>
+#include <SLMath.h>
 #include <SLVec2.h>
 #include <Utils.h>
 
@@ -190,8 +190,8 @@ class SLVec3
                                                          z= pow(z,oneOverGamma);}
 
             //! Prints the vector to std out
-            void    print       (const SLchar* str=nullptr){if (str) SL_LOG("%s",str);
-                                                         SL_LOG("% 3.2f, % 3.2f, % 3.2f",x, y, z);}
+            void    print       (const SLchar* str=nullptr){if (str) SLMATH_LOG("%s",str);
+                SLMATH_LOG("% 3.2f, % 3.2f, % 3.2f",x, y, z);}
 
             //! Conversion to string
             SLstring toString   (SLstring delimiter = ", ")

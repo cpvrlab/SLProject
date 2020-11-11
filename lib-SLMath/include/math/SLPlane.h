@@ -12,7 +12,7 @@
 #ifndef SLPLANE_H
 #define SLPLANE_H
 
-#include <SL.h>
+#include <SLMath.h>
 #include <SLVec3.h>
 
 //-----------------------------------------------------------------------------

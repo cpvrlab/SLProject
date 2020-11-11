@@ -9,8 +9,6 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include <stdafx.h> // Must be the 1st include followed by  an empty line
-
 #include <SLPlane.h>
 //-----------------------------------------------------------------------------
 /*!
@@ -73,7 +71,7 @@ SLPlane::print prints the normal and the coefficent d
 */
 void SLPlane::print(const char* name)
 {
-    SL_LOG("Plane(%s: a=%4.3f, b=%4.3f, c=%4.3f)",
+    SLMATH_LOG("Plane(%s: a=%4.3f, b=%4.3f, c=%4.3f)",
            name,
            N.x,
            N.y,

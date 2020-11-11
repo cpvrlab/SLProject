@@ -11,6 +11,11 @@
 
 #ifndef SLALGO_H
 #define SLALGO_H
+
+#include <SLMath.h>
+#include <SLMat3.h>
+#include <SLVec3.h>
+
 //-----------------------------------------------------------------------------
 namespace SLAlgo
 {

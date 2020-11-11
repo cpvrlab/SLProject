@@ -11,7 +11,7 @@
 #ifndef SLQUAT_H
 #define SLQUAT_H
 
-#include <SL.h>
+#include <SLMath.h>
 #include <SLMat4.h>
 #include <SLVec4.h>
 #include <Utils.h>

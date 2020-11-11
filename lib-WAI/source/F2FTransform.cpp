@@ -212,6 +212,68 @@ bool F2FTransform::estimateRot(const cv::Mat             K,
      */
 }
 
+bool F2FTransform::estimateRotXY(const cv::Mat             K,
+                                 const std::vector<cv::Point2f>& p1,
+                                 const std::vector<cv::Point2f>& p2,
+                                 float&                    xAngRAD,
+                                 float&                    yAngRAD,
+                                 const float               zAngRAD,
+                                 std::vector<uchar>&       inliers)
+{
+    if (p1.size() < 10)
+        return false;
+
+    //relate points to optival center
+    //HINT: void at(int row, int column)
+    double cx = K.at<double>(0, 2);
+    double cy = K.at<double>(1, 2);
+    //rotation matrix
+    
+    
+    cv::Point2f c(cx, cy); //optical center
+    std::vector<cv::Point2f> p1C = p1;
+    std::vector<cv::Point2f> p2C = p2;
+    for (int i = 0; i < p1.size(); i++)
+    {
+        p1C[i] -= c;
+        p2C[i] -= c;
+        //rotate points about center
+        
+    }
+    
+    //estimate median shift
+    
+
+    inliers.clear();
+    //estimate homography (gives us frame b w.r.t frame a)
+    cv::Mat aHb = cv::estimateAffinePartial2D(p1C, p2C, inliers);
+    if(aHb.empty())
+        return false;
+    //std::cout << "aHb: " << aHb << std::endl;
+    
+    //express translational part in aHb relative to a coordinate frame b' that was rotated with rotational part
+    //cv::Mat bRa = aHb.rowRange(0, 2).colRange(0, 2).t(); //extract and express rotation from rotated frame
+    //cv::Mat aTR = aHb.col(2);
+    //cv::Mat bTR = bRa * aTR;
+    
+    
+    //rotation about z-axis: It points into the image plane, so we have to invert the sign
+    //zAngRAD = atan2(aHb.at<double>(1, 0), aHb.at<double>(0, 0));
+    //rotation around y-axis about x-offset: it points down in cv image, so we have to invert the sign
+    yAngRAD = atan(aHb.at<double>(0, 2) / K.at<double>(0, 0));
+    //rotation around x-axis about y-offset: it points down in cv image, so we have to invert the sign
+    xAngRAD = atan(aHb.at<double>(1, 2) / K.at<double>(1, 1));
+    
+    //std::cout << "xoff: "<< bTR.at<double>(0) << std::endl;
+    //std::cout << "yoff: "<< bTR.at<double>(1) << std::endl;
+    
+    //std::cout << "zAngDEG: "<< zAngDEG << std::endl;
+    //std::cout << "yAngDEG: "<< yAngDEG << std::endl;
+    //std::cout << "xAngDEG: "<< xAngDEG << std::endl;
+
+    return true;
+}
+
 void F2FTransform::eulerToMat(float xAngRAD, float yAngRAD, float zAngRAD, cv::Mat& Rx, cv::Mat& Ry, cv::Mat& Rz)
 {
     Eigen::Matrix3f mx, my, mz;

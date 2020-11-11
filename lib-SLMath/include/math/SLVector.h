@@ -14,7 +14,7 @@
 #ifndef SLVECTOR_H
 #define SLVECTOR_H
 
-#include <SL.h>
+#include <SLMath.h>
 
 //-----------------------------------------------------------------------------
 #define MAXCAPACITY (SLint)(pow(2.0f, (SLfloat)(sizeof(U) * 8))) - 1
