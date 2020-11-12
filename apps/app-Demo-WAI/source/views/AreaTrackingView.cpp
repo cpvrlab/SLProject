@@ -6,6 +6,8 @@
 #include <GlobalTimer.h>
 
 #define LOAD_ASYNC
+#define TARGET_WIDTH  1920
+#define TARGET_HEIGHT 1440
 
 AreaTrackingView::AreaTrackingView(sm::EventHandler&   eventHandler,
                                    SLInputManager&     inputManager,
@@ -66,19 +68,15 @@ void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaI
         if (_waiSlam)
             _waiSlam.reset();
 
+        if (_arcore)
+            _arcore->reset();
+
         _gui.initArea(area);
         if (_resources.enableUserGuidance)
             _userGuidance.areaSelected(area.id, area.llaPos, area.viewAngleDeg);
 
         //start video camera
         startCamera(area.cameraFrameTargetSize);
-
-        //init arcore
-        if (_arcore)
-        {
-            _arcore->init(area.cameraFrameTargetSize.width, area.cameraFrameTargetSize.height, 0, 0, false);
-            _arcore->resume();
-        }
 
         //init 3d visualization
         this->unInit();
@@ -87,6 +85,17 @@ void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaI
         this->scene(&_waiScene);
         this->camera(_waiScene.camera);
         this->onInitialize(); //init scene view
+
+        //init arcore
+
+        if (_arcore)
+        {
+            _arcore->init(TARGET_WIDTH, TARGET_HEIGHT,
+                          area.cameraFrameTargetSize.width,
+                          area.cameraFrameTargetSize.height, false);
+
+            _arcore->resume();
+        }
 
         initDeviceLocation(location, area);
         initSlam(area);
@@ -190,7 +199,7 @@ bool AreaTrackingView::updateGPSARCore(SENSFramePtr &frame)
     if (!_hasTransitionMatrix)
     {
         _waiScene.camera->om(gpsPose);
-        //delay arcore transition unil 100 frame and that arcore is tracking at this state
+        //delay arcore transition unil 10s and that arcore is tracking at this state
         if (GlobalTimer::timeS() - _initTime > 10.0 && isTracking)
         {
             _transitionMatrix = convertARCoreToSLMat(view);
@@ -206,10 +215,8 @@ bool AreaTrackingView::updateGPSARCore(SENSFramePtr &frame)
     }
     else
         _waiScene.camera->om(gpsPose);
-
     return true;
 }
-
 
 bool AreaTrackingView::update()
 {
@@ -654,9 +661,10 @@ bool AreaTrackingView::startCamera(const cv::Size& trackImgSize)
             _camera->stop();
 
         if (_camera->supportsFacing(SENSCameraFacing::BACK)) //we are on android or ios. we can also expect high resolution support.
-            _camera->configure(SENSCameraFacing::BACK, 1920, 1440, trackImgSize.width, trackImgSize.height, false, false, true);
+            _camera->configure(SENSCameraFacing::BACK, TARGET_WIDTH, TARGET_HEIGHT, trackImgSize.width, trackImgSize.height, false, false, true);
         else
             _camera->configure(SENSCameraFacing::UNKNOWN, 640, 480, trackImgSize.width, trackImgSize.height, false, false, true);
+
         _camera->start();
         return _camera->started();
     }

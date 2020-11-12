@@ -12,10 +12,17 @@ SENSNdkARCore::SENSNdkARCore(ANativeActivity* activity)
 
 SENSNdkARCore::~SENSNdkARCore()
 {
+    reset();
+}
+
+void SENSNdkARCore::reset()
+{
     if (_arSession != nullptr)
     {
+        pause();
         ArSession_destroy(_arSession);
         ArFrame_destroy(_arFrame);
+        _arSession = nullptr;
     }
 }
 
@@ -29,97 +36,94 @@ void SENSNdkARCore::initCameraTexture()
 
 bool SENSNdkARCore::init(int w, int h, int manipW, int manipH, bool convertManipToGray)
 { 
-    if (_arSession == nullptr)
+    if (_arSession != nullptr)
+        reset();
+
+    configure(w, h, manipW, manipH, convertManipToGray);
+    JNIEnv* env;
+    _activity->vm->GetEnv((void**)&env, JNI_VERSION_1_6);
+    _activity->vm->AttachCurrentThread(&env, NULL);
+
+    initCameraTexture();
+
+    jobject         activityObj = env->NewGlobalRef(_activity->clazz);
+    ArInstallStatus install_status;
+
+    if (ArCoreApk_requestInstall(env, activityObj, true, &install_status) != AR_SUCCESS)
     {
-        configure(w, h, manipW, manipH, convertManipToGray);
-        JNIEnv* env;
-        _activity->vm->GetEnv((void**)&env, JNI_VERSION_1_6);
-        _activity->vm->AttachCurrentThread(&env, NULL);
-
-        initCameraTexture();
-
-        jobject         activityObj = env->NewGlobalRef(_activity->clazz);
-        ArInstallStatus install_status;
-
-        if (ArCoreApk_requestInstall(env, activityObj, true, &install_status) != AR_SUCCESS)
-        {
-            env->DeleteGlobalRef(activityObj);
-            _activity->vm->DetachCurrentThread();
-            return false;
-        }
-
-        if (ArSession_create(env, activityObj, &_arSession) != AR_SUCCESS)
-        {
-            env->DeleteGlobalRef(activityObj);
-            _activity->vm->DetachCurrentThread();
-            return false;
-        }
-
-        if (!_arSession)
-        {
-            env->DeleteGlobalRef(activityObj);
-            _activity->vm->DetachCurrentThread();
-            return false;
-        }
-
-        ArSession_setDisplayGeometry(_arSession, 0, _config.targetWidth, _config.targetHeight);
-
-        // ----- config -----
-        ArConfig* arConfig = nullptr;
-        ArConfig_create(_arSession, &arConfig);
-
-        if (!arConfig)
-        {
-            ArSession_destroy(_arSession);
-            _arSession = nullptr;
-            env->DeleteGlobalRef(activityObj);
-            _activity->vm->DetachCurrentThread();
-            return false;
-        }
-
-        // Deph texture has values between 0 millimeters to 8191 millimeters. 8m is not enough in our case
-        // https://developers.google.com/ar/reference/c/group/ar-frame#arframe_acquiredepthimage
-        ArConfig_setDepthMode(_arSession, arConfig, AR_DEPTH_MODE_DISABLED);
-
-        ArConfig_setInstantPlacementMode(_arSession, arConfig, AR_INSTANT_PLACEMENT_MODE_DISABLED);
-
-        ArSession_setCameraTextureName(_arSession, _cameraTextureId);
-
-        if (ArSession_configure(_arSession, arConfig) != AR_SUCCESS)
-        {
-            ArConfig_destroy(arConfig);
-            ArSession_destroy(_arSession);
-            _arSession = nullptr;
-            env->DeleteGlobalRef(activityObj);
-            _activity->vm->DetachCurrentThread();
-            return false;
-        }
-
-        ArConfig_destroy(arConfig);
-
-        // -- arFrame The world state resulting from an update
-        // Create with: ArFrame_create
-        // Allocate with: ArSession_update
-        // Release with: ArFrame_destroy
-
-        ArFrame_create(_arSession, &_arFrame);
-        if (!_arFrame)
-        {
-            ArSession_destroy(_arSession);
-            _arSession = nullptr;
-            env->DeleteGlobalRef(activityObj);
-            _activity->vm->DetachCurrentThread();
-            return false;
-        }
-
         env->DeleteGlobalRef(activityObj);
         _activity->vm->DetachCurrentThread();
+        return false;
     }
 
-    pause();
-    //if (ArSession_resume(_arSession) != AR_SUCCESS)
-    //    return false;
+    if (ArSession_create(env, activityObj, &_arSession) != AR_SUCCESS)
+    {
+        env->DeleteGlobalRef(activityObj);
+        _activity->vm->DetachCurrentThread();
+        return false;
+    }
 
+    if (!_arSession)
+    {
+        env->DeleteGlobalRef(activityObj);
+        _activity->vm->DetachCurrentThread();
+        return false;
+    }
+
+    ArSession_setDisplayGeometry(_arSession, 0, _config.targetWidth, _config.targetHeight);
+
+    // ----- config -----
+    ArConfig* arConfig = nullptr;
+    ArConfig_create(_arSession, &arConfig);
+
+    if (!arConfig)
+    {
+        ArSession_destroy(_arSession);
+        _arSession = nullptr;
+        env->DeleteGlobalRef(activityObj);
+        _activity->vm->DetachCurrentThread();
+        return false;
+    }
+
+    // Deph texture has values between 0 millimeters to 8191 millimeters. 8m is not enough in our case
+    // https://developers.google.com/ar/reference/c/group/ar-frame#arframe_acquiredepthimage
+    ArConfig_setDepthMode(_arSession, arConfig, AR_DEPTH_MODE_DISABLED);
+
+    ArConfig_setInstantPlacementMode(_arSession, arConfig, AR_INSTANT_PLACEMENT_MODE_DISABLED);
+
+    ArSession_setCameraTextureName(_arSession, _cameraTextureId);
+
+    if (ArSession_configure(_arSession, arConfig) != AR_SUCCESS)
+    {
+        ArConfig_destroy(arConfig);
+        ArSession_destroy(_arSession);
+        _arSession = nullptr;
+        env->DeleteGlobalRef(activityObj);
+        _activity->vm->DetachCurrentThread();
+        return false;
+    }
+
+    ArConfig_destroy(arConfig);
+
+    // -- arFrame The world state resulting from an update
+    // Create with: ArFrame_create
+    // Allocate with: ArSession_update
+    // Release with: ArFrame_destroy
+
+    ArFrame_create(_arSession, &_arFrame);
+    if (!_arFrame)
+    {
+        ArSession_destroy(_arSession);
+        _arSession = nullptr;
+        env->DeleteGlobalRef(activityObj);
+        _activity->vm->DetachCurrentThread();
+        return false;
+    }
+
+    env->DeleteGlobalRef(activityObj);
+    _activity->vm->DetachCurrentThread();
+
+    pause();
     return true;
 }
 
@@ -259,7 +263,6 @@ int SENSNdkARCore::getPointCloud(float ** mapPoints, float confidanceValue)
     float * mp;
 
     ArPointCloud_getNumberOfPoints(_arSession, arPointCloud, &n);
-
     ArPointCloud_getData(_arSession, arPointCloud, &mp);
 
     if (pointCloudStatus != AR_SUCCESS)
@@ -279,7 +282,6 @@ int SENSNdkARCore::getPointCloud(float ** mapPoints, float confidanceValue)
     }
 
     ArPointCloud_release(arPointCloud);
-
     return nbPoints;
 }
 

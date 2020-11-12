@@ -34,6 +34,7 @@ public:
     virtual bool isReady() { return false; }
     virtual bool isRunning() { return false; }
     virtual bool resume() { return true; }
+    virtual void reset() {};
     virtual void pause() {}
     virtual bool update(cv::Mat& intrinsic, cv::Mat& view) { return false; }
     virtual SENSFramePtr latestFrame() { return nullptr; }
