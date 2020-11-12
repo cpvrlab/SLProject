@@ -3,6 +3,7 @@
 #include <sens/SENSUtils.h>
 #include <Utils.h>
 
+/*
 //we scale the original image only to meet the width of manipImg. After that the targetImg may be additionally cropped (e.g. to screen width)
 SENSFramePtr SENSCvCamera::postProcess(cv::Mat& bgrImg, cv::Mat intrinsics, bool intrinsicsChanged)
 {
@@ -37,7 +38,8 @@ SENSFramePtr SENSCvCamera::postProcess(cv::Mat& bgrImg, cv::Mat intrinsics, bool
         SENS::cropImage(bgrImg, (float)_config->targetWidth / (float)_config->targetHeight, cropW, cropH);
     }
 
-    SENSFramePtr sensFrame = std::make_unique<SENSFrame>(bgrImg,
+    SENSFramePtr sensFrame = std::make_unique<SENSFrame>(
+                                                         bgrImg,
                                                          manipImg,
                                                          _config->mirrorH,
                                                          _config->mirrorV,
@@ -46,9 +48,10 @@ SENSFramePtr SENSCvCamera::postProcess(cv::Mat& bgrImg, cv::Mat intrinsics, bool
 
     return sensFrame;
 }
+ */
 
 //TODO: we scale the original image only to meet the width of manipImg. After that the targetImg may be additionally cropped (e.g. to screen width)
-SENSFramePtr SENSCvCamera::processNewFrame(cv::Mat& bgrImg, cv::Mat intrinsics, bool intrinsicsChanged)
+SENSFramePtr SENSCvCamera::processNewFrame(const SENSTimePt& timePt, cv::Mat& bgrImg, cv::Mat intrinsics, bool intrinsicsChanged)
 {
     //todo: accessing config readonly should be no problem  here, as the config only changes when camera is stopped
     cv::Size inputSize = bgrImg.size();
@@ -82,7 +85,8 @@ SENSFramePtr SENSCvCamera::processNewFrame(cv::Mat& bgrImg, cv::Mat intrinsics, 
         cv::cvtColor(manipImg, manipImg, cv::COLOR_BGR2GRAY);
     }
 
-    SENSFramePtr sensFrame = std::make_unique<SENSFrame>(bgrImg,
+    SENSFramePtr sensFrame = std::make_unique<SENSFrame>(timePt,
+                                                         bgrImg,
                                                          manipImg,
                                                          _config->mirrorH,
                                                          _config->mirrorV,
@@ -241,7 +245,7 @@ SENSFramePtr SENSCvCamera::latestFrame()
     if (frameBase)
     {
         //process
-        latestFrame = processNewFrame(frameBase->imgBGR, frameBase->intrinsics, !frameBase->intrinsics.empty());
+        latestFrame = processNewFrame(frameBase->timePt, frameBase->imgBGR, frameBase->intrinsics, !frameBase->intrinsics.empty());
     }
 
     //update calibration if necessary

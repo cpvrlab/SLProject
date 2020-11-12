@@ -27,45 +27,10 @@
 #include <sens/SENSSimHelper.h>
 #include <SLDeviceLocation.h>
 #include <SLDeviceRotation.h>
+#include <WAIImageStabilizedOrientation.h>
 
 class SENSCamera;
 class MapLoader;
-
-
-class WAIImageStabilizedOrientation
-{
-public:
-    bool findCameraOrientationDifferenceF2F(cv::Mat imageGray,  //for corner extraction
-                                            cv::Mat& imageRgb,
-                                            const SENSCalibration* camCalib,
-                                            float scaleToGray,
-                                            bool decorate); //for debug decoration
-    
-    bool findCameraOrientationDifferenceF2FHorizon(const SLVec3f& horizon,
-                                                   cv::Mat imageGray,  //for corner extraction
-                                                   cv::Mat& imageRgb,
-                                                   const SENSCalibration* camCalib,
-                                                   float scaleToGray,
-                                                   bool decorate); //for debug decoration
-private:
-   
-    cv::Mat      _lastImageGray;
-    cv::Mat      _Tcw;
-    float        _xAngRAD = 0.f;
-    float        _yAngRAD = 0.f;
-    float        _zAngRAD = 0.f;
-
-    std::vector<cv::KeyPoint> _lastKeyPts;
-    std::vector<cv::Point2f> _lastPts;
-    std::vector<cv::Point2f> _currPts;
-    std::vector<cv::Point2f> _lastGoodPts;
-    std::vector<cv::Point2f> _currGoodPts;
-    std::vector<uchar>       _inliers;
-    std::vector<float>       _err;
-    
-    int   _fIniThFAST   = 30;
-    int   _fMinThFAST   = 7;
-};
 
 class AreaTrackingView : public SLSceneView
 {

@@ -26,14 +26,21 @@ public:
                               std::vector<float>&       err);
 
     static bool estimateRot(const cv::Mat             K,
-                            const std::vector<cv::Point2f>& p1,
-                            const std::vector<cv::Point2f>& p2,
-                            float&                    xAngRAD,
-                            float&                    yAngRAD,
-                            float&                    zAngRAD,
-                            std::vector<uchar>&       inliers);
+                            std::vector<cv::Point2f>& p1,
+                            std::vector<cv::Point2f>& p2,
+                            float&                    yaw,
+                            float&                    pitch,
+                            float&                    roll);
 
-    static bool estimateRotXY(const cv::Mat             K,
+    static bool estimateRotXYZ(const cv::Mat&             K,
+                               const std::vector<cv::Point2f>& p1,
+                               const std::vector<cv::Point2f>& p2,
+                               float&                    xAngRAD,
+                               float&                    yAngRAD,
+                               float&                    zAngRAD,
+                               std::vector<uchar>&       inliers);
+
+    static bool estimateRotXY(const cv::Mat&             K,
                               const std::vector<cv::Point2f>& p1,
                               const std::vector<cv::Point2f>& p2,
                               float&                    xAngRAD,

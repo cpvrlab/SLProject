@@ -56,6 +56,7 @@ SENSFramePtr SENSVideoStream::grabNextFrame()
         cv::cvtColor(bgrImg, grayImg, cv::COLOR_BGR2GRAY);
 
         sensFrame = std::make_unique<SENSFrame>(
+          SENSClock::now(),
           bgrImg,
           grayImg,
           _mirrorH,
@@ -109,6 +110,7 @@ SENSFramePtr SENSVideoStream::grabNextResampledFrame()
         cv::cvtColor(bgrImg, grayImg, cv::COLOR_BGR2GRAY);
 
         sensFrame = std::make_unique<SENSFrame>(
+          SENSClock::now(),
           bgrImg,
           grayImg,
           _mirrorH,

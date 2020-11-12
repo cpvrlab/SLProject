@@ -80,7 +80,7 @@ float F2FTransform::filterPoints(const std::vector<cv::Point2f>& p1,
 
     for (int i = 0; i < p1.size(); i++)
     {
-        if (inliers[i] && err[i] < 5.0)
+        if (inliers[i] && err[i] < 10.0)
         {
             goodP1.push_back(p1[i]);
             goodP2.push_back(p2[i]);
@@ -91,21 +91,66 @@ float F2FTransform::filterPoints(const std::vector<cv::Point2f>& p1,
 }
 
 bool F2FTransform::estimateRot(const cv::Mat             K,
-                               const std::vector<cv::Point2f>& p1,
-                               const std::vector<cv::Point2f>& p2,
-                               float&                    xAngRAD,
-                               float&                    yAngRAD,
-                               float&                    zAngRAD,
-                               std::vector<uchar>&       inliers)
+                               std::vector<cv::Point2f>& p1,
+                               std::vector<cv::Point2f>& p2,
+                               float&                    yaw,
+                               float&                    pitch,
+                               float&                    roll)
 {
-    //todo:
-    //relate points to image center
-    //correct with horizon in extra function
-
     if (p1.size() < 10)
         return false;
 
-    //relate points to optival center
+    cv::Mat H = estimateAffinePartial2D(p1, p2);
+    float zrot = atan2(H.at<double>(1, 0), H.at<double>(0, 0));
+    float dx = 0;//H.at<double>(0, 2);
+    float dy = 0;//H.at<double>(1, 2);
+    //Compute dx dy (estimageAffinePartial doesn't give right result when rotating on z axis)
+    for (int i = 0; i < p1.size(); i++)
+    {
+        dx += p2[i].x - p1[i].x;
+        dy += p2[i].y - p1[i].y;
+    }
+    dx /= (float)p1.size();
+    dy /= (float)p1.size();
+
+    Eigen::Vector3f v1(0, 0, 1.0);
+    Eigen::Vector3f vx(dx, 0, K.at<double>(0, 0));
+    Eigen::Vector3f vy(0, dy, K.at<double>(0, 0));
+    vx.normalize();
+    vy.normalize();
+
+    float xrot = -acos(v1.dot(vx));
+    float yrot = -acos(v1.dot(vy));
+
+    roll = -zrot;
+
+    if (vx.dot(Eigen::Vector3f::UnitX()) > 0)
+        pitch = xrot;
+    else
+        pitch = -xrot;
+
+    if (vy.dot(Eigen::Vector3f::UnitY()) > 0)
+        yaw = yrot;
+    else
+        yaw = -yrot;
+
+
+    return true;
+}
+
+
+bool F2FTransform::estimateRotXYZ(const cv::Mat&            K,
+                                  const std::vector<cv::Point2f>& p1,
+                                  const std::vector<cv::Point2f>& p2,
+                                  float&                    xAngRAD,
+                                  float&                    yAngRAD,
+                                  float&                    zAngRAD,
+                                  std::vector<uchar>&       inliers)
+{
+    if (p1.size() < 10)
+        return false;
+
+    //relate points to optical center
     //HINT: void at(int row, int column)
     double cx = K.at<double>(0, 2);
     double cy = K.at<double>(1, 2);
@@ -117,8 +162,6 @@ bool F2FTransform::estimateRot(const cv::Mat             K,
     {
         p1C[i] -= c;
         p2C[i] -= c;
-        //p1C[i].y = -p1C[i].y;
-        //p2C[i].y = -p2C[i].y;
     }
 
     inliers.clear();
@@ -140,79 +183,11 @@ bool F2FTransform::estimateRot(const cv::Mat             K,
     yAngRAD = atan(bTR.at<double>(0) / K.at<double>(0, 0));
     //rotation around x-axis about y-offset: it points down in cv image, so we have to invert the sign
     xAngRAD = atan(bTR.at<double>(1) / K.at<double>(1, 1));
-    
-    //std::cout << "xoff: "<< bTR.at<double>(0) << std::endl;
-    //std::cout << "yoff: "<< bTR.at<double>(1) << std::endl;
-    
-    //std::cout << "zAngDEG: "<< zAngDEG << std::endl;
-    //std::cout << "yAngDEG: "<< yAngDEG << std::endl;
-    //std::cout << "xAngDEG: "<< xAngDEG << std::endl;
-    
-    //
-    /*
-    //invert homography to get frame a w.r.t. frame b transform
-    cv::Mat bRa = aHb.rowRange(0, 2).colRange(0, 2).t();
-    cv::Mat bTRa = -bRa * aHb.col(2);
-    //std::cout << "bRa: " << bRa << std::endl;
-    //std::cout << "bTRa: " << bTRa << std::endl;
-    cv::Mat bHa(2, 3, CV_64F);
-    bRa.copyTo(bHa.rowRange(0, 2).colRange(0, 2));
-    bTRa.copyTo(bHa.col(2));
-    //std::cout << "bHa: " << bHa << std::endl;
-  
-    //express dx and dy in frame a relative to a coordinate frame that was rotated with zrot
-    cv::Mat aTRb(3, 1, CV_64F);
-    aTRb.at<double>(0) = aHb.at<double>(0, 2);
-    aTRb.at<double>(1) = aHb.at<double>(1, 2);
-    aTRb.at<double>(2) = 1.0;
-    std::cout << "aTRb: " << aTRb << std::endl;
-    cv::Mat bD = -bHa * aTRb;
-    std::cout << "bD: " << bD << std::endl;
-    
-    //rotation about z-axis (which points into the image plane)
-    float zrot = atan2(aHb.at<double>(1, 0), aHb.at<double>(0, 0));
-    //std::cout << " zrot: " << zrot << std::endl;
-*/
-    
+        
     return true;
-    /*
-    float dx = 0;//H.at<double>(0, 2);
-    float dy = 0;//H.at<double>(1, 2);
-    //Compute dx dy (estimageAffinePartial doesn't give right result when rotating on z axis)
-    for (int i = 0; i < p1.size(); i++)
-    {
-        dx += p2[i].x - p1[i].x;
-        dy += p2[i].y - p1[i].y;
-    }
-    dx /= (float)p1.size();
-    dy /= (float)p1.size();
-
-    Eigen::Vector3f v1(0, 0, 1.0);
-    Eigen::Vector3f vx(dx, 0, K.at<double>(0, 0));
-    Eigen::Vector3f vy(0, dy, K.at<double>(0, 0));
-    vx.normalize();
-    vy.normalize();
-
-    float xrot = -acos(v1.dot(vx));
-    float yrot = -acos(v1.dot(vy));
-
-    roll = zrot;
-
-    if (vx.dot(Eigen::Vector3f::UnitX()) > 0)
-        pitch = xrot;
-    else
-        pitch = -xrot;
-
-    if (vy.dot(Eigen::Vector3f::UnitY()) > 0)
-        yaw = yrot;
-    else
-        yaw = -yrot;
-
-    return true;
-     */
 }
 
-bool F2FTransform::estimateRotXY(const cv::Mat             K,
+bool F2FTransform::estimateRotXY(const cv::Mat&             K,
                                  const std::vector<cv::Point2f>& p1,
                                  const std::vector<cv::Point2f>& p2,
                                  float&                    xAngRAD,

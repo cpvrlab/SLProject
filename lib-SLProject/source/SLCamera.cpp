@@ -55,7 +55,7 @@ SLCamera::SLCamera(const SLstring& name)
     _clipFar       = 300.0f;
     _fovV          = 45.0;
     _projection    = P_monoPerspective;
-    _camAnim       = CA_off;
+    _camAnim       = CA_deviceRotYUp;
     _castsShadows  = false;
     
     _camAnimation = new SLCAOff();//SLCATurntableYUp();
