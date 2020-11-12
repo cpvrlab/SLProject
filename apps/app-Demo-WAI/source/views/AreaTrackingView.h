@@ -66,6 +66,7 @@ private:
     virtual SLbool onMouseMove(SLint x, SLint y);
 
     bool updateGPSARCore(SENSFramePtr& frame);
+    bool updateGPSWAISlamARCore(SENSFramePtr &frame);
 
     void    updateSceneCameraFov();
     void    updateVideoImage(SENSFrame& frame, VideoBackgroundCamera* videoBackground);
@@ -96,6 +97,7 @@ private:
     ImageBuffer                  _imgBuffer;
     SLMat4f                      _transitionMatrix;
     bool                         _hasTransitionMatrix;
+    bool                         _hasWaiMap;
     float                        _initTime;
 
 

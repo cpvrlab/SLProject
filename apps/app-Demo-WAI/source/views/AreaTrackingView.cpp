@@ -105,6 +105,9 @@ void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaI
         _hasTransitionMatrix = false;
 
         _noInitException = true;
+
+        //assume we have a slam map
+        _hasWaiMap = true;
     }
     catch (std::exception& e)
     {
@@ -154,7 +157,6 @@ cv::Mat AreaTrackingView::convertCameraPoseToWaiCamExtrinisc(SLMat4f& wTc)
 SLMat4f convertARCoreToSLMat(const cv::Mat& cTw)
 {
     SLMat4f m;
-    // clang-format off
 
     // update camera node position
     cv::Mat wRc(3, 3, CV_32F);
@@ -169,10 +171,38 @@ SLMat4f convertARCoreToSLMat(const cv::Mat& cTw)
     wRc.copyTo(wTc.colRange(0, 3).rowRange(0, 3));
     wtc.copyTo(wTc.rowRange(0, 3).col(3));
 
+    // clang-format off
     m.setMatrix(-wTc.at<float>(0, 1), wTc.at<float>(0, 0), wTc.at<float>(0, 2), wTc.at<float>(0, 3),
                 -wTc.at<float>(1, 1), wTc.at<float>(1, 0), wTc.at<float>(1, 2), wTc.at<float>(1, 3),
                 -wTc.at<float>(2, 1), wTc.at<float>(2, 0), wTc.at<float>(2, 2), wTc.at<float>(2, 3),
                 -wTc.at<float>(3, 1), wTc.at<float>(3, 0), wTc.at<float>(3, 2), wTc.at<float>(3, 3));
+    // clang-format on
+    return m;
+}
+
+SLMat4f convertWAISlamToSLMat(const cv::Mat& cTw)
+{
+    SLMat4f m;
+
+    // update camera node position
+    cv::Mat wRc(3, 3, CV_32F);
+    cv::Mat wtc(3, 1, CV_32F);
+
+    //inversion of orthogonal rotation matrix
+    wRc = (cTw.rowRange(0, 3).colRange(0, 3)).t();
+    //inversion of vector
+    wtc = -wRc * cTw.rowRange(0, 3).col(3);
+
+    cv::Mat wTc = cv::Mat::eye(4, 4, CV_32F);
+    wRc.copyTo(wTc.colRange(0, 3).rowRange(0, 3));
+    wtc.copyTo(wTc.rowRange(0, 3).col(3));
+
+    // clang-format off
+    //set and invert y and z axes
+    m.setMatrix(wTc.at<float>(0, 0), -wTc.at<float>(0, 1), -wTc.at<float>(0, 2), wTc.at<float>(0, 3),
+                wTc.at<float>(1, 0), -wTc.at<float>(1, 1), -wTc.at<float>(1, 2), wTc.at<float>(1, 3),
+                wTc.at<float>(2, 0), -wTc.at<float>(2, 1), -wTc.at<float>(2, 2), wTc.at<float>(2, 3),
+                wTc.at<float>(3, 0), -wTc.at<float>(3, 1), -wTc.at<float>(3, 2), wTc.at<float>(3, 3));
     // clang-format on
     return m;
 }
@@ -196,6 +226,8 @@ bool AreaTrackingView::updateGPSARCore(SENSFramePtr &frame)
     else
         return false;
 
+    _waiScene.camera->om(gpsPose);
+
     if (!_hasTransitionMatrix)
     {
         _waiScene.camera->om(gpsPose);
@@ -208,13 +240,77 @@ bool AreaTrackingView::updateGPSARCore(SENSFramePtr &frame)
             _hasTransitionMatrix = true;
         }
     }
-    else if (_arcore->isRunning())
+    else if (_arcore->isRunning() && isTracking)
     {
         SLMat4f arPose = convertARCoreToSLMat(view);
         _waiScene.camera->om(_transitionMatrix * arPose);
     }
+    return true;
+}
+
+bool AreaTrackingView::updateGPSWAISlamARCore(SENSFramePtr &frame)
+{
+    cv::Mat view;
+    bool isTracking = false;
+
+    SLMat4f gpsPose = calcCameraPoseGpsOrientationBased();
+
+    if (_arcore->isRunning())
+    {
+        cv::Mat proj;
+        isTracking = _arcore->update(proj, view);
+        frame = _arcore->latestFrame();
+    }
+    else if (_camera)
+        frame = _camera->latestFrame();
     else
-        _waiScene.camera->om(gpsPose);
+        return false;
+
+    _waiScene.camera->om(gpsPose);
+
+    // Try to relocalize with WAISlam if there is a map for the area, otherwise fallback to GPS
+    if (!_hasTransitionMatrix)
+    {
+        if (_waiSlam && _hasWaiMap) // TODO: Add timing condition to fallback to GPS if WAISlam too slow
+        {
+            if (_waiSlam->isInitialized())
+            {
+                //the intrinsics may change dynamically on focus changes (e.g. on iOS)
+                if (!frame->intrinsics.empty())
+                {
+                    _waiSlam->changeIntrinsic(_camera->scaledCameraMat(), _camera->calibration()->distortion());
+                    updateSceneCameraFov();
+                }
+
+                _waiSlam->update(frame->imgManip);
+                if (WAI::TrackingState_TrackingOK == _waiSlam->getTrackingState())
+                {
+                    _transitionMatrix = convertARCoreToSLMat(view);
+                    _transitionMatrix.invert();
+                    _transitionMatrix    = convertWAISlamToSLMat(_waiSlam->getPose()) * _transitionMatrix;
+                    _hasTransitionMatrix = true;
+                }
+
+                cv::Mat camExtrinsic = convertCameraPoseToWaiCamExtrinisc(gpsPose);
+                _waiSlam->setCamExrinsicGuess(camExtrinsic);
+            }
+            else
+                _hasWaiMap = false;
+        }
+        else if (GlobalTimer::timeS() - _initTime > 10.0 && isTracking)
+        {
+            _transitionMatrix = convertARCoreToSLMat(view);
+            _transitionMatrix.invert();
+            _transitionMatrix    = gpsPose * _transitionMatrix;
+            _hasTransitionMatrix = true;
+        }
+    }
+    else if (_arcore->isRunning() && isTracking)
+    {
+        SLMat4f arPose = convertARCoreToSLMat(view);
+        _waiScene.camera->om(_transitionMatrix * arPose);
+    }
+    //else {} TODO: if waiSlam was working, try to reloc with waislam after some time
     return true;
 }
 
@@ -226,10 +322,11 @@ bool AreaTrackingView::update()
         if (_noInitException) //if there was not exception during initArea
         {
             SENSFramePtr frame = nullptr;
-            if (!_arcore->isReady() && _camera)
-                frame = _camera->latestFrame();
+            //if (!_arcore->isReady() && _camera)
+            //    frame = _camera->latestFrame();
 
-            bool isTracking = updateGPSARCore(frame);
+            //bool isTracking = updateGPSARCore(frame);
+            bool isTracking = updateGPSWAISlamARCore(frame);
 
             /*
             else if (frame && _waiSlam)
@@ -367,6 +464,8 @@ void AreaTrackingView::onHide()
         _orientation->stop();
     if (_camera)
         _camera->stop();
+    if (_arcore)
+        _arcore->reset();
 
     if (_simHelper)
         _simHelper.reset();
