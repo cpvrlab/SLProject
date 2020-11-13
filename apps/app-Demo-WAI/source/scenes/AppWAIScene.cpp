@@ -57,7 +57,7 @@ void AppWAIScene::unInit()
     loopEdgesMesh             = nullptr;
 }
 
-void AppWAIScene::initScene(ErlebAR::LocationId locationId, ErlebAR::AreaId areaId, SLDeviceRotation* devRot, int svW, int svH)
+void AppWAIScene::initScene(ErlebAR::LocationId locationId, ErlebAR::AreaId areaId, SLDeviceRotation* devRot, SLDeviceLocation* devLoc, int svW, int svH)
 {
     unInit();
 
@@ -66,7 +66,7 @@ void AppWAIScene::initScene(ErlebAR::LocationId locationId, ErlebAR::AreaId area
     //init map visualizaton (common to all areas)
     initMapVisualization();
     //init area dependent visualization
-    initAreaVisualization(locationId, areaId, devRot, svW, svH);
+    initAreaVisualization(locationId, areaId, devRot, devLoc, svW, svH);
 }
 
 void AppWAIScene::initMapVisualization()
@@ -114,7 +114,7 @@ void AppWAIScene::initMapVisualization()
     _root3D->addChild(mapNode);
 }
 
-void AppWAIScene::initAreaVisualization(ErlebAR::LocationId locationId, ErlebAR::AreaId areaId, SLDeviceRotation* devRot, int svW, int svH)
+void AppWAIScene::initAreaVisualization(ErlebAR::LocationId locationId, ErlebAR::AreaId areaId, SLDeviceRotation* devRot, SLDeviceLocation* devLoc, int svW, int svH)
 {
     //search and delete old node
     if (!_root3D)
@@ -137,11 +137,11 @@ void AppWAIScene::initAreaVisualization(ErlebAR::LocationId locationId, ErlebAR:
     else if (locationId == ErlebAR::LocationId::BERN)
         initLocationBern();
     else if (locationId == ErlebAR::LocationId::BIEL)
-        initLocationBiel();
+        initLocationBiel(devRot, devLoc);
     else if (locationId == ErlebAR::LocationId::EVILARD)
     {
         if (areaId == ErlebAR::AreaId::EVILARD_OFFICE)
-            initAreaEvilardOffice(devRot, svW, svH);
+            initAreaEvilardOffice(devRot, devLoc, svW, svH);
         else
             initLocationDefault();
     }
@@ -330,7 +330,7 @@ void AppWAIScene::initLocationBern()
     _root3D->addChild(axis);
 }
 
-void AppWAIScene::initLocationBiel()
+void AppWAIScene::initLocationBiel(SLDeviceRotation* devRot, SLDeviceLocation* devLoc)
 {
     // Create directional light for the sun light
     sunLight = new SLLightDirect(&assets, this, 5.0f);
@@ -349,8 +349,18 @@ void AppWAIScene::initLocationBiel()
     camera->lookAt(-10, 2, 0);
     camera->clipNear(1);
     camera->clipFar(1000);
-    camera->camAnim(SLCamAnim::CA_off);
-    //camera->camAnim(SLCamAnim::CA_deviceRotYUp);
+
+    //camera->camAnim(SLCamAnim::CA_off);
+    camera->camAnim(SLCamAnim::CA_deviceRotLocYUp);
+    camera->devRotLoc(devRot, devLoc);
+    if (devRot)
+    {
+        devRot->offsetMode(SLOffsetMode::OM_fingerX);
+        devRot->isUsed(true);
+    }
+    if (devLoc)
+        devLoc->isUsed(true);
+
     camera->setInitialState();
     _root3D->addChild(camera);
 
@@ -365,7 +375,7 @@ void AppWAIScene::initLocationBiel()
     _root3D->addChild(axis);
 }
 
-void AppWAIScene::initAreaEvilardOffice(SLDeviceRotation* devRot, int svW, int svH)
+void AppWAIScene::initAreaEvilardOffice(SLDeviceRotation* devRot, SLDeviceLocation* devLoc, int svW, int svH)
 {
     SLNode* world = new SLNode("World");
     _root3D->addChild(world);

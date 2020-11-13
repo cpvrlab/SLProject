@@ -206,7 +206,7 @@ const Location defineLocationBern()
                  "models/bern/DEM-Bern-2600_1199-WGS84.tif");
 
     {
-        Area area(AreaId::BERN_MILCHGAESSLI,                                                                                          //id
+        Area area(AreaId::BERN_MILCHGAESSLI,                                                                                         //id
                   {46.94839, 7.43973, 541.2},                                                                                        //llaPos
                   60,                                                                                                                //map viewing angle
                   {46.947629, 7.440754, 542.2},                                                                                      //modelOrigin
@@ -236,9 +236,9 @@ const Location defineLocationBiel()
 
     {
         Area area(AreaId::BIEL_BFH,                            //id
-                  {47.14260, 7.24310, 488.7},                  //llaPos
+                  {47.14263, 7.24314, 488.3},                  //llaPos
                   60,                                          //map viewing angle
-                  {47.14271, 7.24337, 488.2},                  //modelOrigin
+                  {47.14271, 7.24337, 487.0},                  //modelOrigin
                   "",                                          //slamMapFileName
                   "dummy.jpg",                                 //relocAlignImage,
                   "calibrations/voc_fbow.bin",                 //vocFileName,
@@ -295,18 +295,18 @@ const Location defineLocationEvilard()
         loc.areas[area.id] = area;
     }
     {
-        Area area(AreaId::EVILARD_OFFICE,                                                                                       //id
-                  {47.14886, 7.23322, 726.9},                                                                                         //llaPos
-                  -150.f,                                                                                                             //map viewing angle
-                  {47.14886, 7.23322, 726.9},                                                                                         //modelOrigin
+        Area area(AreaId::EVILARD_OFFICE,                                 //id
+                  {47.14886, 7.23322, 726.9},                             //llaPos
+                  -150.f,                                                 //map viewing angle
+                  {47.14886, 7.23322, 726.9},                             //modelOrigin
                   "locations/evilard/office/maps/DEVELOPMENT-map.waimap", //slamMapFileName
-                  "locations/evilard/office/relocAlignImg.jpg",                                                                 //relocAlignImage,
-                  "calibrations/voc_fbow.bin",                                                                                        //vocFileName,
-                  2,                                                                                                                  //vocLayer,
-                  {640, 480},                                                                                                         //cameraFrameTargetSize
-                  ExtractorType::ExtractorType_FAST_ORBS_2000,                                                                        //initializationExtractorType
-                  ExtractorType::ExtractorType_FAST_ORBS_1000,                                                                        //relocalizationExtractorType
-                  ExtractorType::ExtractorType_FAST_ORBS_1000,                                                                        //trackingExtractorType
+                  "locations/evilard/office/relocAlignImg.jpg",           //relocAlignImage,
+                  "calibrations/voc_fbow.bin",                            //vocFileName,
+                  2,                                                      //vocLayer,
+                  {640, 480},                                             //cameraFrameTargetSize
+                  ExtractorType::ExtractorType_FAST_ORBS_2000,            //initializationExtractorType
+                  ExtractorType::ExtractorType_FAST_ORBS_1000,            //relocalizationExtractorType
+                  ExtractorType::ExtractorType_FAST_ORBS_1000,            //trackingExtractorType
                   2);
         loc.areas[area.id] = area;
     }

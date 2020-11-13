@@ -439,7 +439,7 @@ void TestView::loadWAISceneView(std::string locationStr, std::string areaStr)
     ErlebAR::LocationId locationId = ErlebAR::LocationId::NONE;
     ErlebAR::AreaId     areaId     = ErlebAR::AreaId::NONE;
     mapErlebARDirNamesToIds(locationStr, areaStr, locationId, areaId);
-    _scene.initScene(locationId, areaId, nullptr, _scrW, _scrH);
+    _scene.initScene(locationId, areaId, nullptr, nullptr, _scrW, _scrH);
     _scene.camera->camAnim(SLCamAnim::CA_turntableYUp);
 
     doWaitOnIdle(false);

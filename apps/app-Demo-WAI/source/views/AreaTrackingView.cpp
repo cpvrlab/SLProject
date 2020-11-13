@@ -75,15 +75,16 @@ void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaI
         //start video camera
         startCamera(area.cameraFrameTargetSize);
 
+        initDeviceLocation(location, area);
+
         //init 3d visualization
         this->unInit();
-        _waiScene.initScene(locId, areaId, &_devRot, _scrW, _scrH);
+        _waiScene.initScene(locId, areaId, &_devRot, &_devLoc, _scrW, _scrH);
         updateSceneCameraFov();
         this->scene(&_waiScene);
         this->camera(_waiScene.camera);
         this->onInitialize(); //init scene view
 
-        initDeviceLocation(location, area);
         initSlam(area);
 
         _noInitException = true;
@@ -179,7 +180,7 @@ bool AreaTrackingView::update()
                     //update sldevicerotation with new rotation information
                     _devRot.onRotationQUAT(sensQuat.quatX, sensQuat.quatY, sensQuat.quatZ, sensQuat.quatW);
 
-                    SLMat4f camPose = calcCameraPoseOrientationBased(sensQuat);
+                    //SLMat4f camPose = calcCameraPoseOrientationBased(sensQuat);
 
                     //TODO CHECK IF FRAME WAS ALREADY USED
                     /*
@@ -204,7 +205,7 @@ bool AreaTrackingView::update()
                      */
 
                     //SLMat4f camPose = calcCameraPoseGpsOrientationBased(sensQuat);
-                    _waiScene.camera->om(camPose);
+                    //_waiScene.camera->om(camPose);
 
                     //give waiSlam a guess of the current position in the ENU frame
                     //cv::Mat camExtrinsic = convertCameraPoseToWaiCamExtrinisc(camPose);
@@ -345,7 +346,7 @@ SLMat4f AreaTrackingView::calcCameraPoseGpsOrientationBased(const SENSOrientatio
 {
     //use gps and orientation sensor for camera position and orientation
     //(even if there is no gps, devLoc gives us a guess of the current home position)
-    if (_gps)
+    if (false) //if (_gps)
     {
         auto loc = _gps->getLocation();
         //Update deviceLocation: this updates current enu position
@@ -574,7 +575,7 @@ void AreaTrackingView::initDeviceLocation(const ErlebAR::Location& location, con
     _devLoc.originLatLonAlt(area.modelOrigin.x, area.modelOrigin.y, area.modelOrigin.z); // Model origin
     _devLoc.defaultLatLonAlt(area.llaPos.x, area.llaPos.y, area.llaPos.z + _devLoc.cameraHeightM());
     //ATTENTION: call this after originLatLonAlt and defaultLatLonAlt setters. Otherwise alititude will be overwritten!!
-    if (!location.geoTiffFileName.empty())
+    if (false) //if (!location.geoTiffFileName.empty())
     {
         std::string geoTiffFileName = _deviceData.erlebARDir() + location.geoTiffFileName;
         if (Utils::fileExists(geoTiffFileName))
