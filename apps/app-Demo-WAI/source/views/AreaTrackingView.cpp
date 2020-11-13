@@ -248,10 +248,6 @@ bool AreaTrackingView::updateGPSARCore(SENSFramePtr &frame)
         SLMat4f arPose = convertARCoreToSLMat(view);
         _waiScene.camera->om(_transitionMatrix * arPose);
     }
-    else
-    {
-        _hasTransitionMatrix = false;
-    }
 
     return true;
 }
