@@ -183,12 +183,13 @@ bool AreaTrackingView::update()
                     //SLMat4f camPose = calcCameraPoseOrientationBased(sensQuat);
                    
                     //TODO CHECK IF FRAME WAS ALREADY USED
+                    /*
                     _oriStabi.findCameraOrientationDifferenceF2F(frame->imgManip,
                                                                  frame->imgBGR,
                                                                  _camera->calibrationManip()->cameraMat(),
                                                                  frame->scaleToManip,
                                                                  true);
-                    
+                    */
                     SLMat3f sRc;
                     sRc.rotation(-90, 0, 0, 1);
                     SLVec3f horizon;
