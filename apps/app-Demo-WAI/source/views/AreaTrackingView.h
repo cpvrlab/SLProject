@@ -34,15 +34,15 @@ class MapLoader;
 class AreaTrackingView : public SLSceneView
 {
 public:
-    AreaTrackingView(sm::EventHandler&   eventHandler,
-                     SLInputManager&     inputManager,
-                     const ImGuiEngine&  imGuiEngine,
-                     ErlebAR::Resources& resources,
-                     SENSCamera*         camera,
-                     SENSGps*            gps,
-                     SENSOrientation*    orientation,
-                     SENSARCore*         arcore,
-                     const DeviceData&   deviceData);
+    AreaTrackingView(sm::EventHandler&  eventHandler,
+                     SLInputManager&    inputManager,
+                     const ImGuiEngine& imGuiEngine,
+                     ErlebAR::Config&   config,
+                     SENSCamera*        camera,
+                     SENSGps*           gps,
+                     SENSOrientation*   orientation,
+                     SENSARCore*        arcore,
+                     const DeviceData&  deviceData);
     ~AreaTrackingView();
 
     void initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaId);
@@ -66,7 +66,7 @@ private:
     virtual SLbool onMouseMove(SLint x, SLint y);
 
     bool updateGPSARCore(SENSFramePtr& frame);
-    bool updateGPSWAISlamARCore(SENSFramePtr &frame);
+    bool updateGPSWAISlamARCore(SENSFramePtr& frame);
 
     void    updateSceneCameraFov();
     void    updateVideoImage(SENSFrame& frame, VideoBackgroundCamera* videoBackground);
@@ -78,7 +78,7 @@ private:
     void    onCameraParamsChanged();
     SLMat4f calcCameraPoseGpsOrientationBased();
     cv::Mat convertCameraPoseToWaiCamExtrinisc(SLMat4f& wTc);
-    
+
     AreaTrackingGui   _gui;
     AppWAIScene       _waiScene;
     UserGuidanceScene _userGuidanceScene;
@@ -100,7 +100,6 @@ private:
     bool                         _hasWaiMap;
     float                        _initTime;
 
-
     std::unique_ptr<WAIOrbVocabulary> _voc;
     //wai slam depends on _orbVocabulary and has to be uninitializd first (defined below voc)
     std::unique_ptr<WAISlam> _waiSlam;
@@ -118,6 +117,7 @@ private:
 
     std::unique_ptr<MapLoader> _asyncLoader;
 
+    ErlebAR::Config&    _config;
     ErlebAR::Resources& _resources;
     const DeviceData&   _deviceData;
 

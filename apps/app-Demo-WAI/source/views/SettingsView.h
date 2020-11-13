@@ -9,11 +9,11 @@
 class SettingsView : public SLSceneView
 {
 public:
-    SettingsView(sm::EventHandler&   eventHandler,
-                 SLInputManager&     inputManager,
-                 const ImGuiEngine&  imGuiEngine,
-                 ErlebAR::Resources& resources,
-                 const DeviceData&   deviceData);
+    SettingsView(sm::EventHandler&  eventHandler,
+                 SLInputManager&    inputManager,
+                 const ImGuiEngine& imGuiEngine,
+                 ErlebAR::Config&   config,
+                 const DeviceData&  deviceData);
     bool update();
     //call when view becomes visible
     void show() { _gui.onShow(); }

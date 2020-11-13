@@ -6,22 +6,22 @@
 #include <GlobalTimer.h>
 
 #define LOAD_ASYNC
-#define TARGET_WIDTH  1920
+#define TARGET_WIDTH 1920
 #define TARGET_HEIGHT 1440
 
-AreaTrackingView::AreaTrackingView(sm::EventHandler&   eventHandler,
-                                   SLInputManager&     inputManager,
-                                   const ImGuiEngine&  imGuiEngine,
-                                   ErlebAR::Resources& resources,
-                                   SENSCamera*         camera,
-                                   SENSGps*            gps,
-                                   SENSOrientation*    orientation,
-                                   SENSARCore*         arcore,
-                                   const DeviceData&   deviceData)
+AreaTrackingView::AreaTrackingView(sm::EventHandler&  eventHandler,
+                                   SLInputManager&    inputManager,
+                                   const ImGuiEngine& imGuiEngine,
+                                   ErlebAR::Config&   config,
+                                   SENSCamera*        camera,
+                                   SENSGps*           gps,
+                                   SENSOrientation*   orientation,
+                                   SENSARCore*        arcore,
+                                   const DeviceData&  deviceData)
   : SLSceneView(nullptr, deviceData.dpi(), inputManager),
     _gui(imGuiEngine,
          eventHandler,
-         resources,
+         config,
          deviceData.dpi(),
          deviceData.scrWidth(),
          deviceData.scrHeight(),
@@ -33,14 +33,15 @@ AreaTrackingView::AreaTrackingView(sm::EventHandler&   eventHandler,
     _gps(gps),
     _orientation(orientation),
     _arcore(arcore),
-    _resources(resources),
+    _config(config),
+    _resources(config.resources()),
     _deviceData(deviceData),
-    _userGuidance(&_userGuidanceScene, &_gui, _gps, _orientation, resources),
-    _locations(resources.locations())
+    _userGuidance(&_userGuidanceScene, &_gui, _gps, _orientation, config.resources()),
+    _locations(config.locations())
 {
     scene(&_userGuidanceScene);
     this->camera(_userGuidanceScene.camera);
-    
+
     init("AreaTrackingView", deviceData.scrWidth(), deviceData.scrHeight(), nullptr, nullptr, &_gui, deviceData.writableDir());
     onInitialize();
 
@@ -72,7 +73,7 @@ void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaI
             _arcore->reset();
 
         _gui.initArea(area);
-        if (_resources.enableUserGuidance)
+        if (_config.enableUserGuidance)
             _userGuidance.areaSelected(area.id, area.llaPos, area.viewAngleDeg);
 
         //start video camera
@@ -90,9 +91,7 @@ void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaI
 
         if (_arcore)
         {
-            _arcore->init(TARGET_WIDTH, TARGET_HEIGHT,
-                          area.cameraFrameTargetSize.width,
-                          area.cameraFrameTargetSize.height, false);
+            _arcore->init(TARGET_WIDTH, TARGET_HEIGHT, area.cameraFrameTargetSize.width, area.cameraFrameTargetSize.height, false);
 
             _arcore->resume();
         }
@@ -125,7 +124,7 @@ cv::Mat AreaTrackingView::convertCameraPoseToWaiCamExtrinisc(SLMat4f& wTc)
     cv::Mat wRc(3, 3, CV_32F);
     cv::Mat wtc(3, 1, CV_32F);
     //wTc.print("wtc");
-    
+
     //copy from SLMat4 to cv::Mat rotation and translation and invert sign of y- and z-axis
     // clang-format off
     wRc.at<float>(0,0) = wTc.m(0); wRc.at<float>(0,1) = -wTc.m(4); wRc.at<float>(0,2) = -wTc.m(8); wtc.at<float>(0) = wTc.m(12);
@@ -134,14 +133,14 @@ cv::Mat AreaTrackingView::convertCameraPoseToWaiCamExtrinisc(SLMat4f& wTc)
     // clang-format on
     //std::cout << "wRc: " << wRc << std::endl;
     //std::cout << "wtc: " << wtc << std::endl;
-    
+
     //inversion of orthogonal rotation matrix
     cv::Mat cRw = wRc.t();
     //inversion of vector
     cv::Mat ctw = -cRw * wtc;
     //std::cout << "cRw: " << cRw << std::endl;
     //std::cout << "ctw: " << ctw << std::endl ;
-    
+
     //copy to 4x4 matrix
     cv::Mat cTw = cv::Mat::eye(4, 4, CV_32F);
     cRw.copyTo(cTw.colRange(0, 3).rowRange(0, 3));
@@ -207,10 +206,10 @@ SLMat4f convertWAISlamToSLMat(const cv::Mat& cTw)
     return m;
 }
 
-bool AreaTrackingView::updateGPSARCore(SENSFramePtr &frame)
+bool AreaTrackingView::updateGPSARCore(SENSFramePtr& frame)
 {
     cv::Mat view;
-    bool isTracking = false;
+    bool    isTracking = false;
 
     SLMat4f gpsPose = calcCameraPoseGpsOrientationBased();
 
@@ -219,7 +218,7 @@ bool AreaTrackingView::updateGPSARCore(SENSFramePtr &frame)
     {
         cv::Mat proj;
         isTracking = _arcore->update(proj, view);
-        frame = _arcore->latestFrame();
+        frame      = _arcore->latestFrame();
     }
     else if (_camera)
         frame = _camera->latestFrame();
@@ -248,10 +247,10 @@ bool AreaTrackingView::updateGPSARCore(SENSFramePtr &frame)
     return true;
 }
 
-bool AreaTrackingView::updateGPSWAISlamARCore(SENSFramePtr &frame)
+bool AreaTrackingView::updateGPSWAISlamARCore(SENSFramePtr& frame)
 {
     cv::Mat view;
-    bool isTracking = false;
+    bool    isTracking = false;
 
     SLMat4f gpsPose = calcCameraPoseGpsOrientationBased();
 
@@ -259,7 +258,7 @@ bool AreaTrackingView::updateGPSWAISlamARCore(SENSFramePtr &frame)
     {
         cv::Mat proj;
         isTracking = _arcore->update(proj, view);
-        frame = _arcore->latestFrame();
+        frame      = _arcore->latestFrame();
     }
     else if (_camera)
         frame = _camera->latestFrame();
@@ -375,13 +374,13 @@ bool AreaTrackingView::update()
                     throw exception;
                 }
 
-                if (_resources.enableUserGuidance)
+                if (_config.enableUserGuidance)
                     _userGuidance.dataIsLoading(false);
             }
 
             //switch between userguidance scene and tracking scene depending on tracking state
             VideoBackgroundCamera* currentCamera;
-            if (isTracking || !_resources.enableUserGuidance)
+            if (isTracking || !_config.enableUserGuidance)
             {
                 if (this->s() != &_waiScene)
                 {
@@ -412,7 +411,7 @@ bool AreaTrackingView::update()
             }
 
             //update user guidance
-            if (_resources.enableUserGuidance)
+            if (_config.enableUserGuidance)
             {
                 _userGuidance.updateTrackingState(isTracking);
                 _userGuidance.updateSensorEstimations();
@@ -441,7 +440,7 @@ void AreaTrackingView::onShow()
     if (_orientation)
         _orientation->start();
 
-    if (_resources.developerMode && _resources.simulatorMode)
+    if (_config.developerMode && _config.simulatorMode)
     {
         if (_simHelper)
             _simHelper.reset();
@@ -559,7 +558,7 @@ void AreaTrackingView::initSlam(const ErlebAR::Area& area)
     _asyncLoader.reset();
     _asyncLoader = std::make_unique<MapLoader>(area.vocLayer, vocFileName, _deviceData.erlebARDir(), area.slamMapFileName);
     _asyncLoader->start();
-    if (_resources.enableUserGuidance)
+    if (_config.enableUserGuidance)
         _userGuidance.dataIsLoading(true);
 
 #else
@@ -795,11 +794,11 @@ void AreaTrackingView::updateTrackingVisualization(const bool iKnowWhereIAm, SEN
 {
     //todo: add or remove crop in case of wide screens
     //undistort image and copy image to video texture
-    if (_resources.developerMode)
+    if (_config.developerMode)
         _waiSlam->drawInfo(frame.imgBGR, frame.scaleToManip, true, false, true);
 
     //update map point visualization
-    if (_resources.developerMode)
+    if (_config.developerMode)
         _waiScene.renderMapPoints(_waiSlam->getMapPoints());
 
     //update visualization of matched map points (when WAI pose is valid)

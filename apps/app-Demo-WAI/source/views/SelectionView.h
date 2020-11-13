@@ -14,11 +14,11 @@ class SelectionView : public sm::EventSender
   , protected SLSceneView
 {
 public:
-    SelectionView(sm::EventHandler&   eventHandler,
-                  SLInputManager&     inputManager,
-                  const ImGuiEngine&  imGuiEngine,
-                  ErlebAR::Resources& resources,
-                  const DeviceData&   deviceData);
+    SelectionView(sm::EventHandler&  eventHandler,
+                  SLInputManager&    inputManager,
+                  const ImGuiEngine& imGuiEngine,
+                  ErlebAR::Config&   config,
+                  const DeviceData&  deviceData);
     SelectionView() = delete;
     bool update();
 

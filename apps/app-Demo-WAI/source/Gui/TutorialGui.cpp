@@ -1,5 +1,5 @@
 #if defined(__clang__)
-#pragma GCC diagnostic ignored "-Wint-to-void-pointer-cast"
+#    pragma GCC diagnostic ignored "-Wint-to-void-pointer-cast"
 #endif
 
 #include <TutorialGui.h>
@@ -10,17 +10,18 @@
 
 using namespace ErlebAR;
 
-TutorialGui::TutorialGui(const ImGuiEngine&  imGuiEngine,
-                         sm::EventHandler&   eventHandler,
-                         ErlebAR::Resources& resources,
-                         int                 dotsPerInch,
-                         int                 screenWidthPix,
-                         int                 screenHeightPix,
-                         std::string         fontPath,
-                         std::string         texturePath)
+TutorialGui::TutorialGui(const ImGuiEngine& imGuiEngine,
+                         sm::EventHandler&  eventHandler,
+                         ErlebAR::Config&   config,
+                         int                dotsPerInch,
+                         int                screenWidthPix,
+                         int                screenHeightPix,
+                         std::string        fontPath,
+                         std::string        texturePath)
   : ImGuiWrapper(imGuiEngine.context(), imGuiEngine.renderer()),
     sm::EventSender(eventHandler),
-    _resources(resources)
+    _config(config),
+    _resources(config.resources())
 {
     resize(screenWidthPix, screenHeightPix);
 
@@ -157,5 +158,5 @@ void TutorialGui::build(SLScene* s, SLSceneView* sv)
     //ImGui::ShowMetricsWindow();
 
     //debug: draw log window
-    _resources.logWinDraw();
+    _config.logWinDraw();
 }
