@@ -545,11 +545,11 @@ This texture creation must be done only once when a valid OpenGL rendering
 context is present. This function is called the first time within the enable
 method which is called by object that uses the texture.
 */
-void SLGLTexture::build(SLint texID)
+void SLGLTexture::build(SLint texUnit)
 {
     PROFILE_FUNCTION();
 
-    assert(texID >= 0 && texID < 32);
+    assert(texUnit >= 0 && texUnit < 16);
 
     if (_images.empty())
         SL_EXIT_MSG("No images loaded in SLGLTexture::build");
@@ -623,7 +623,7 @@ void SLGLTexture::build(SLint texID)
     glGenTextures(1, &_texID);
 
     SLGLState* stateGL = SLGLState::instance();
-    stateGL->activeTexture(GL_TEXTURE0 + (SLuint)texID);
+    stateGL->activeTexture(GL_TEXTURE0 + (SLuint)texUnit);
 
     // create binding and apply texture properties
     stateGL->bindTexture(_target, _texID);
@@ -763,8 +763,8 @@ void SLGLTexture::build(SLint texID)
 
     // Check if texture name is valid only for debug purpose
     //if (glIsTexture(_texName))
-    //     SL_LOG("SLGLTexture::build: name: %u, unit-id: %u, Filename: %s", _texName, texID, _images[0]->name().c_str());
-    //else SL_LOG("SLGLTexture::build: invalid name: %u, unit-id: %u, Filename: %s", _texName, texID, _images[0]->name().c_str());
+    //     SL_LOG("SLGLTexture::build: name: %u, unit-id: %u, Filename: %s", _texName, texUnit, _images[0]->name().c_str());
+    //else SL_LOG("SLGLTexture::build: invalid name: %u, unit-id: %u, Filename: %s", _texName, texUnit, _images[0]->name().c_str());
 
     GET_GL_ERROR;
 }
@@ -812,28 +812,23 @@ void SLGLTexture::buildCudaTexture()
 /*!
 SLGLTexture::bindActive binds the active texture. This method must be called
 by the object that uses the texture every time BEFORE the its rendering.
-The texID is only used for multi texturing. Before the first time the texture
+The texUnit is only used for multi texturing. Before the first time the texture
 is passed to OpenGL.
 */
-void SLGLTexture::bindActive(SLint texID)
+void SLGLTexture::bindActive(SLuint texUnit)
 {
-    assert(texID >= 0 && texID < 32);
+    assert(texUnit >= 0 && texUnit < 16);
 
     // if texture not exists build it
     if (!_texID)
-        build(texID);
+        build(texUnit);
 
     if (_texID)
     {
         SLGLState* stateGL = SLGLState::instance();
-        stateGL->activeTexture(GL_TEXTURE0 + (SLuint)texID);
+        //SL_LOG("SLGLTexture::bindActive: activeTexture: %d, bindTexture: %u, name: %s", texUnit, _texID, _name.c_str());
+        stateGL->activeTexture(GL_TEXTURE0 + texUnit);
         stateGL->bindTexture(_target, _texID);
-
-        // Check if texture name is valid only for debug purpose
-        //if (!glIsTexture(_texName))
-        //{   SL_LOG("\n\n****** SLGLTexture::bindActive: Invalid texName: %u, texID: %u, File: %s\n",
-        //           _texName, texID, _images[0]->name().c_str());
-        //}
 
         if (_needsUpdate)
         {
@@ -1146,7 +1141,23 @@ SLstring SLGLTexture::typeName()
         case TT_roughness: return "roughness";
         case TT_metallic: return "metalness";
         case TT_ambientOcclusion: return "ambient occlusion";
-        case TT_font: return "font"; ;
+        case TT_font: return "font";
+        default: return "unknown";
+    }
+}
+//-----------------------------------------------------------------------------
+//! Returns OpenGL texture filter as string
+SLstring SLGLTexture::filterString(SLint glFilter)
+{
+    switch (glFilter)
+    {
+        case GL_NEAREST: return "nearest";
+        case GL_LINEAR: return "linear";
+        case GL_NEAREST_MIPMAP_NEAREST: return "nearest mipmap nearest";
+        case GL_LINEAR_MIPMAP_NEAREST: return "linear mipmap linear";
+        case GL_NEAREST_MIPMAP_LINEAR: return "nearest mipmap linear";
+        case GL_LINEAR_MIPMAP_LINEAR: return "linear mipmap linear";
+        case SL_ANISOTROPY_MAX: return "anisotropic max.";
         default: return "unknown";
     }
 }

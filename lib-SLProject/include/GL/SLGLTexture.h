@@ -134,12 +134,13 @@ public:
     ~SLGLTexture() override;
 
     void clearData();
-    void build(SLint texID = 0);
-    void bindActive(SLint texID = 0);
+    void build(SLint texUnit = 0);
+    void bindActive(SLuint texUnit = 0);
     void fullUpdate();
     void drawSprite(SLbool doUpdate, SLfloat x, SLfloat y, SLfloat w, SLfloat h);
     void cubeUV2XYZ(SLint index, SLfloat u, SLfloat v, SLfloat& x, SLfloat& y, SLfloat& z);
     void cubeXYZ2UV(SLfloat x, SLfloat y, SLfloat z, SLint& index, SLfloat& u, SLfloat& v);
+    SLstring filterString(SLint glFilter);
 
     // Setters
     void texType(SLTextureType bt) { _texType = bt; }
@@ -162,11 +163,13 @@ public:
                                  _texType == TT_font)); }
     SLuint        width() { return _images[0]->width(); }
     SLuint        height() { return _images[0]->height(); }
-    SLint         depth() { return (SLint)_images.size(); }
+    SLint         depth() { return (SLint)_images[0]->bytesPerPixel(); }
     SLMat4f       tm() { return _tm; }
     SLbool        autoCalcTM3D() const { return _autoCalcTM3D; }
     SLbool        needsUpdate() { return _needsUpdate; }
     SLstring      typeName();
+    SLstring      minificationFilterName() { return filterString(_min_filter); }
+    SLstring      magnificationFilterName() { return filterString(_mag_filter); }
 
 #ifdef SL_HAS_OPTIX
     void        buildCudaTexture();

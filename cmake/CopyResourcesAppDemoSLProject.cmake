@@ -58,6 +58,7 @@ function(copy_resources_slprojectdemo TARGET_DIR)
 			"${SL_PROJECT_ROOT}/data/models/3DS/*"
 			"${SL_PROJECT_ROOT}/data/models/DAE/*"
 			"${SL_PROJECT_ROOT}/data/models/FBX/*"
+			"${SL_PROJECT_ROOT}/data/models/GLTF/*"
 	    )
 
 	file(GLOB_RECURSE

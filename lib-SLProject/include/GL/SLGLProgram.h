@@ -76,7 +76,8 @@ public:
     void beginUse(SLCamera*   cam,
                   SLMaterial* mat,
                   SLVLight*   lights);
-    void passLightsToUniforms(SLVLight* lights) const;
+    void passLightsToUniforms(SLVLight* lights,
+                              SLuint numTexInMat) const;
     void endUse();
     void useProgram();
 

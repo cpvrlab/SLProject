@@ -1,6 +1,7 @@
 //#############################################################################
 //  File:      PerPixBlinnTexNrmSM.frag
 //  Purpose:   GLSL normal map bump mapping w. shadow mapping for max. 4 lights
+//             without cube map shadow maps
 //  Author:    Marcus Hudritsch
 //  Date:      October 2020
 //  Copyright: Marcus Hudritsch
@@ -41,7 +42,6 @@ uniform bool        u_lightDoSmoothShadows[NUM_LIGHTS];     // flag if percentag
 uniform int         u_lightSmoothShadowLevel[NUM_LIGHTS];   // radius of area to sample for PCF
 uniform float       u_lightShadowMinBias[NUM_LIGHTS];       // min. shadow bias value at 0° to N
 uniform float       u_lightShadowMaxBias[NUM_LIGHTS];       // min. shadow bias value at 90° to N
-uniform bool        u_lightUsesCubemap[NUM_LIGHTS];         // flag if light has a cube shadow map
 
 uniform vec4        u_matAmbi;          // ambient color reflection coefficient (ka)
 uniform vec4        u_matDiff;          // diffuse color reflection coefficient (kd)
@@ -67,28 +67,12 @@ uniform sampler2D   u_shadowMap_1;      // shadow map for light 1
 uniform sampler2D   u_shadowMap_2;      // shadow map for light 2
 uniform sampler2D   u_shadowMap_3;      // shadow map for light 3
 
-uniform samplerCube u_shadowMapCube_0;  // cubemap for light 0
-uniform samplerCube u_shadowMapCube_1;  // cubemap for light 1
-uniform samplerCube u_shadowMapCube_2;  // cubemap for light 2
-uniform samplerCube u_shadowMapCube_3;  // cubemap for light 3
-
 out     vec4        o_fragColor;        // output fragment color
 //-----------------------------------------------------------------------------
 // SLGLShader::preprocessPragmas replaces the include pragma by the file
 #pragma include "lightingBlinnPhong.glsl"
 #pragma include "fogBlend.glsl"
 #pragma include "doStereoSeparation.glsl"
-//-----------------------------------------------------------------------------
-int vectorToFace(vec3 vec) // Vector to process
-{
-    vec3 absVec = abs(vec);
-    if (absVec.x > absVec.y && absVec.x > absVec.z)
-    return vec.x > 0.0 ? 0 : 1;
-    else if (absVec.y > absVec.x && absVec.y > absVec.z)
-    return vec.y > 0.0 ? 2 : 3;
-    else
-    return vec.z > 0.0 ? 4 : 5;
-}
 //-----------------------------------------------------------------------------
 //! Shadow text function for upto 4 lights
 float shadowTest(in int i, in vec3 N, in vec3 lightDir)
@@ -98,10 +82,6 @@ float shadowTest(in int i, in vec3 N, in vec3 lightDir)
         // Calculate position in light space
         mat4 lightSpace;
         vec3 lightToFragment = v_P_WS - u_lightPosWS[i].xyz;
-
-        if (u_lightUsesCubemap[i])
-        lightSpace = u_lightSpace[i * 6 + vectorToFace(lightToFragment)];
-        else
         lightSpace = u_lightSpace[i * 6];
 
         vec4 lightSpacePosition = lightSpace * vec4(v_P_WS, 1.0);
@@ -122,7 +102,7 @@ float shadowTest(in int i, in vec3 N, in vec3 lightDir)
         float bias = max(u_lightShadowMaxBias[i] * (1.0 - dot(N, lightDir)), u_lightShadowMinBias[i]);
 
         // Use percentage-closer filtering (PCF) for softer shadows (if enabled)
-        if (!u_lightUsesCubemap[i] && u_lightDoSmoothShadows[i])
+        if (u_lightDoSmoothShadows[i])
         {
             vec2 texelSize;
             if (i == 0) texelSize = 1.0 / vec2(textureSize(u_shadowMap_0, 0));
@@ -146,20 +126,10 @@ float shadowTest(in int i, in vec3 N, in vec3 lightDir)
         }
         else
         {
-            if (u_lightUsesCubemap[i])
-            {
-                if (i == 0) closestDepth = texture(u_shadowMapCube_0, lightToFragment).r;
-                if (i == 1) closestDepth = texture(u_shadowMapCube_1, lightToFragment).r;
-                if (i == 2) closestDepth = texture(u_shadowMapCube_2, lightToFragment).r;
-                if (i == 3) closestDepth = texture(u_shadowMapCube_3, lightToFragment).r;
-            }
-            else
-            {
-                if (i == 0) closestDepth = texture(u_shadowMap_0, projCoords.xy).r;
-                if (i == 1) closestDepth = texture(u_shadowMap_1, projCoords.xy).r;
-                if (i == 2) closestDepth = texture(u_shadowMap_2, projCoords.xy).r;
-                if (i == 3) closestDepth = texture(u_shadowMap_3, projCoords.xy).r;
-            }
+            if (i == 0) closestDepth = texture(u_shadowMap_0, projCoords.xy).r;
+            if (i == 1) closestDepth = texture(u_shadowMap_1, projCoords.xy).r;
+            if (i == 2) closestDepth = texture(u_shadowMap_2, projCoords.xy).r;
+            if (i == 3) closestDepth = texture(u_shadowMap_3, projCoords.xy).r;
 
             // The fragment is in shadow if the light doesn't "see" it
             if (currentDepth > closestDepth + bias)
