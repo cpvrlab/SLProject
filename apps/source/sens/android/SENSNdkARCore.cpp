@@ -19,11 +19,9 @@ SENSNdkARCore::SENSNdkARCore(ANativeActivity* activity)
     _available = true;
     if (availability == AR_AVAILABILITY_UNSUPPORTED_DEVICE_NOT_CAPABLE)
     {
-        env->DeleteGlobalRef(activityObj);
-        _activity->vm->DetachCurrentThread();
         _available = false;
     }
-    else
+    else if (availability != AR_AVAILABILITY_SUPPORTED_INSTALLED)
     {
         ArInstallStatus install_status;
         ArCoreApk_requestInstall(env, activityObj, true, &install_status);
@@ -72,13 +70,9 @@ bool SENSNdkARCore::init(int w, int h, int manipW, int manipH, bool convertManip
     jobject activityObj = env->NewGlobalRef(_activity->clazz);
 
     ArInstallStatus install_status;
-    if (ArCoreApk_requestInstall(env, activityObj, true, &install_status) != AR_SUCCESS)
-    {
-        env->DeleteGlobalRef(activityObj);
-        _activity->vm->DetachCurrentThread();
-        return false;
-    }
-    if (install_status == AR_INSTALL_STATUS_INSTALL_REQUESTED)
+    ArCoreApk_requestInstall(env, activityObj, false, &install_status);
+
+    if (install_status == AR_AVAILABILITY_SUPPORTED_NOT_INSTALLED)
     {
         env->DeleteGlobalRef(activityObj);
         _activity->vm->DetachCurrentThread();
