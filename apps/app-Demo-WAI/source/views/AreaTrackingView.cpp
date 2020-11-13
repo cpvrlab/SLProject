@@ -36,13 +36,13 @@ AreaTrackingView::AreaTrackingView(sm::EventHandler&   eventHandler,
 {
     scene(&_userGuidanceScene);
     this->camera(_userGuidanceScene.camera);
-    
+
     init("AreaTrackingView", deviceData.scrWidth(), deviceData.scrHeight(), nullptr, nullptr, &_gui, deviceData.writableDir());
     onInitialize();
 
     //init video camera
     _camera = std::make_unique<SENSCvCamera>(camera);
-    
+
     _devRot.numAveraged(1);
     _devRot.updateRPY(false);
     _devRot.zeroYawAtStart(false);
@@ -104,7 +104,7 @@ cv::Mat AreaTrackingView::convertCameraPoseToWaiCamExtrinisc(SLMat4f& wTc)
     cv::Mat wRc(3, 3, CV_32F);
     cv::Mat wtc(3, 1, CV_32F);
     //wTc.print("wtc");
-    
+
     //copy from SLMat4 to cv::Mat rotation and translation and invert sign of y- and z-axis
     // clang-format off
     wRc.at<float>(0,0) = wTc.m(0); wRc.at<float>(0,1) = -wTc.m(4); wRc.at<float>(0,2) = -wTc.m(8); wtc.at<float>(0) = wTc.m(12);
@@ -113,14 +113,14 @@ cv::Mat AreaTrackingView::convertCameraPoseToWaiCamExtrinisc(SLMat4f& wTc)
     // clang-format on
     //std::cout << "wRc: " << wRc << std::endl;
     //std::cout << "wtc: " << wtc << std::endl;
-    
+
     //inversion of orthogonal rotation matrix
     cv::Mat cRw = wRc.t();
     //inversion of vector
     cv::Mat ctw = -cRw * wtc;
     //std::cout << "cRw: " << cRw << std::endl;
     //std::cout << "ctw: " << ctw << std::endl ;
-    
+
     //copy to 4x4 matrix
     cv::Mat cTw = cv::Mat::eye(4, 4, CV_32F);
     cRw.copyTo(cTw.colRange(0, 3).rowRange(0, 3));
@@ -128,7 +128,7 @@ cv::Mat AreaTrackingView::convertCameraPoseToWaiCamExtrinisc(SLMat4f& wTc)
     //std::cout << "cTw: " << cTw << std::endl;
     return cTw;
 }
-    
+
 bool AreaTrackingView::update()
 {
     WAI::TrackingState slamState = WAI::TrackingState_None;
@@ -136,16 +136,16 @@ bool AreaTrackingView::update()
     {
         if (_noInitException) //if there was not exception during initArea
         {
-            static SENSTimePt lastTPt = SENSClock::now();
-            bool frameIsValid = false;
-            SENSFramePtr frame;
+            static SENSTimePt lastTPt      = SENSClock::now();
+            bool              frameIsValid = false;
+            SENSFramePtr      frame;
             if (_camera)
             {
                 frame = _camera->latestFrame();
-                if(frame)
+                if (frame)
                 {
                     //check if frame was already used
-                    if(frame->timePt == lastTPt)
+                    if (frame->timePt == lastTPt)
                         frame = nullptr;
                     else
                         lastTPt = frame->timePt;
@@ -178,10 +178,9 @@ bool AreaTrackingView::update()
                     SENSOrientation::Quat sensQuat = _orientation->getOrientation();
                     //update sldevicerotation with new rotation information
                     _devRot.onRotationQUAT(sensQuat.quatX, sensQuat.quatY, sensQuat.quatZ, sensQuat.quatW);
-                    
-                    
-                    //SLMat4f camPose = calcCameraPoseOrientationBased(sensQuat);
-                   
+
+                    SLMat4f camPose = calcCameraPoseOrientationBased(sensQuat);
+
                     //TODO CHECK IF FRAME WAS ALREADY USED
                     /*
                     _oriStabi.findCameraOrientationDifferenceF2F(frame->imgManip,
@@ -190,12 +189,12 @@ bool AreaTrackingView::update()
                                                                  frame->scaleToManip,
                                                                  true);
                     */
+
+                    /*
                     SLMat3f sRc;
                     sRc.rotation(-90, 0, 0, 1);
                     SLVec3f horizon;
                     SLAlgo::estimateHorizon(_devRot.rotationAveraged(), sRc, horizon);
-
-                    /*
                     _oriStabi.findCameraOrientationDifferenceF2FHorizon(horizon,
                                                                         frame->imgManip,
                                                                         frame->imgBGR,
@@ -203,14 +202,13 @@ bool AreaTrackingView::update()
                                                                         frame->scaleToManip,
                                                                         true);
                      */
-                    
+
                     //SLMat4f camPose = calcCameraPoseGpsOrientationBased(sensQuat);
-                    //_waiScene.camera->om(camPose);
-                    
+                    _waiScene.camera->om(camPose);
+
                     //give waiSlam a guess of the current position in the ENU frame
                     //cv::Mat camExtrinsic = convertCameraPoseToWaiCamExtrinisc(camPose);
                     //_waiSlam->setCamExrinsicGuess(camExtrinsic);
-
                 }
             }
             else if (_asyncLoader && _asyncLoader->isReady())
@@ -418,10 +416,8 @@ SLMat4f AreaTrackingView::calcCameraPoseOrientationBased(const SENSOrientation::
         //camPose.print("camPose");
     }
 
-
     return camPose;
 }
-
 
 void AreaTrackingView::initSlam(const ErlebAR::Area& area)
 {

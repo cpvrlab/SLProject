@@ -19,7 +19,7 @@ AppWAIScene::AppWAIScene(SLstring name, std::string dataDir, std::string erlebAR
 
 AppWAIScene::~AppWAIScene()
 {
-    if(_font16)
+    if (_font16)
         delete _font16;
 }
 
@@ -140,7 +140,7 @@ void AppWAIScene::initAreaVisualization(ErlebAR::LocationId locationId, ErlebAR:
         initLocationBiel();
     else if (locationId == ErlebAR::LocationId::EVILARD)
     {
-        if(areaId == ErlebAR::AreaId::EVILARD_OFFICE)
+        if (areaId == ErlebAR::AreaId::EVILARD_OFFICE)
             initAreaEvilardOffice(devRot, svW, svH);
         else
             initLocationDefault();
@@ -350,6 +350,7 @@ void AppWAIScene::initLocationBiel()
     camera->clipNear(1);
     camera->clipFar(1000);
     camera->camAnim(SLCamAnim::CA_off);
+    //camera->camAnim(SLCamAnim::CA_deviceRotYUp);
     camera->setInitialState();
     _root3D->addChild(camera);
 
@@ -368,11 +369,11 @@ void AppWAIScene::initAreaEvilardOffice(SLDeviceRotation* devRot, int svW, int s
 {
     SLNode* world = new SLNode("World");
     _root3D->addChild(world);
-    
+
     SLNode* worldAxisNode = new SLNode(new SLCoordAxis(&assets), "World Axis Node");
     worldAxisNode->setDrawBitsRec(SL_DB_MESHWIRED, false);
     world->addChild(worldAxisNode);
-       
+
     // Create directional light for the sun light
     sunLight = new SLLightDirect(&assets, this, 5.0f);
     sunLight->powers(1.0f, 1.0f, 1.0f);
@@ -384,25 +385,25 @@ void AppWAIScene::initAreaEvilardOffice(SLDeviceRotation* devRot, int svW, int s
     sunLight->castsShadows(false);
     sunLight->drawBits()->set(SL_DB_HIDDEN, true);
     world->addChild(sunLight);
-  
+
     //init camera
     camera = new VideoBackgroundCamera("AppWAIScene Camera", _dataDir + "images/textures/LiveVideoError.png", _dataDir + "shaders/");
     camera->translation(1.29f, 1.57f, 3.85f);
     camera->lookAt(1.29f, 1.57f, 0.f);
     camera->clipNear(0.5f);
     camera->clipFar(10.f);
-    camera->camAnim(SLCamAnim::CA_deviceRotYUp);
-    //camera->camAnim(SLCamAnim::CA_off);
+    //camera->camAnim(SLCamAnim::CA_deviceRotYUp);
+    camera->camAnim(SLCamAnim::CA_off);
     camera->devRotLoc(devRot, nullptr);
     camera->setInitialState();
     world->addChild(camera);
 
-    SLMaterial* yellow  = new SLMaterial(&assets, "mY", SLCol4f(1, 1, 0, 0.5f));
+    SLMaterial* yellow    = new SLMaterial(&assets, "mY", SLCol4f(1, 1, 0, 0.5f));
     SLBox*      piano     = new SLBox(&assets, 0.0f, 0.0f, 0.0f, 1.467f, 0.908f, 0.515f, "Box", yellow);
     SLNode*     pianoNode = new SLNode(piano, "Piano Node");
     pianoNode->setDrawBitsRec(SL_DB_CULLOFF, true);
     pianoNode->translation(0.523f, 0.f, 0.f);
-    
+
     SLNode* axisNode = new SLNode(new SLCoordAxis(&assets), "Axis Node");
     axisNode->setDrawBitsRec(SL_DB_MESHWIRED, false);
     pianoNode->addChild(axisNode);
@@ -410,7 +411,7 @@ void AppWAIScene::initAreaEvilardOffice(SLDeviceRotation* devRot, int svW, int s
     SLNode* room = new SLNode("Room");
     room->addChild(pianoNode);
     world->addChild(room);
-    
+
     //correct room orientation to world (rotation around camera)
     SLVec3f center = {camera->translationOS().x, 0, camera->translationOS().z};
     SLMat4f rot;
@@ -419,14 +420,14 @@ void AppWAIScene::initAreaEvilardOffice(SLDeviceRotation* devRot, int svW, int s
     rot.translate(-center); //this translation comes first because of left multiplication
     room->om(rot * room->om());
 
-    if(devRot)
+    if (devRot)
     {
         devRot->offsetMode(SLOffsetMode::OM_fingerX);
         //add horizon visualization
-        if(!_root2D)
+        if (!_root2D)
             _root2D = new SLNode("root2D");
-        
-        if(!_font16)
+
+        if (!_font16)
             _font16 = new SLTexFont(_dataDir + "images/fonts/Font16.png", SLGLProgramManager::get(SP_fontTex));
         SLHorizonNode* horizonNode = new SLHorizonNode("Horizon", devRot, _font16, _dataDir + "shaders/", svW, svH);
         _root2D->addChild(horizonNode);
