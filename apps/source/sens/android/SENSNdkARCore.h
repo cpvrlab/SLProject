@@ -36,6 +36,7 @@ private:
     bool             _pause     = true;   
     GLuint           _cameraTextureId;
     std::mutex       _frameMutex;
+    bool             _available;
 
     void initCameraTexture();
     cv::Mat convertToYuv(ArImage* arImage);
