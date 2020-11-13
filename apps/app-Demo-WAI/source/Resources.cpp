@@ -215,28 +215,17 @@ void Config::load(std::string resourceFileName)
         if (!fs["logWinEnabled"].empty())
             fs["logWinEnabled"] >> logWinEnabled;
 
+        if (!fs["useGps"].empty())
+            fs["useGps"] >> useGps;
+        if (!fs["useARCore"].empty())
+            fs["useARCore"] >> useARCore;
+        if (!fs["useWAISlam"].empty())
+            fs["useWAISlam"] >> useWAISlam;
+
         if (!fs["languageId"].empty())
         {
             std::string languageId;
             fs["languageId"] >> languageId;
-            /*
-            if (languageId == stringsGerman.id())
-            {
-                _currStrings = &stringsGerman;
-            }
-            else if (languageId == stringsFrench.id())
-            {
-                _currStrings = &stringsFrench;
-            }
-            else if (languageId == stringsItalian.id())
-            {
-                _currStrings = &stringsItalian;
-            }
-            else
-            {
-                _currStrings = &stringsEnglish;
-            }
-            */
         }
     }
     else
@@ -254,6 +243,11 @@ void Config::save()
         fs << "simulatorMode" << simulatorMode;
         fs << "enableUserGuidance" << enableUserGuidance;
         fs << "logWinEnabled" << logWinEnabled;
+
+        fs << "useGps" << useGps;
+        fs << "useARCore" << useARCore;
+        fs << "enableWAISlam" << useWAISlam;
+
         fs << "languageId" << _resources->strings().id();
     }
     else

@@ -337,9 +337,9 @@ public:
     bool enableUserGuidance = false;
     bool logWinEnabled      = false;
 
-    bool enableGps     = false;
-    bool enableARCore  = false;
-    bool enableWAISlam = false;
+    bool useGps     = false;
+    bool useARCore  = false;
+    bool useWAISlam = false;
 
 private:
     int _screenW;

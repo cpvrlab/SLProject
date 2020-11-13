@@ -201,7 +201,7 @@ void SettingsGui::build(SLScene* s, SLSceneView* sv)
                 ImGui::PushFont(_resources.fonts().standard);
                 ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textStandardColor);
 
-                ImGui::Checkbox("Enabled##GPS", &_config.enableARCore);
+                ImGui::Checkbox("Enabled##GPS", &_config.useGps);
 
                 ImGui::PopStyleColor();
                 ImGui::PopFont();
@@ -219,7 +219,7 @@ void SettingsGui::build(SLScene* s, SLSceneView* sv)
                 ImGui::PushFont(_resources.fonts().standard);
                 ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textStandardColor);
 
-                ImGui::Checkbox("Enabled##WAISlam", &_config.enableARCore);
+                ImGui::Checkbox("Enabled##WAISlam", &_config.useWAISlam);
 
                 ImGui::PopStyleColor();
                 ImGui::PopFont();
@@ -237,7 +237,7 @@ void SettingsGui::build(SLScene* s, SLSceneView* sv)
                 ImGui::PushFont(_resources.fonts().standard);
                 ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textStandardColor);
 
-                ImGui::Checkbox("Enabled##ARCore", &_config.enableARCore);
+                ImGui::Checkbox("Enabled##ARCore", &_config.useARCore);
 
                 ImGui::PopStyleColor();
                 ImGui::PopFont();
