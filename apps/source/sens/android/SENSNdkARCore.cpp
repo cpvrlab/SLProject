@@ -8,6 +8,29 @@
 SENSNdkARCore::SENSNdkARCore(ANativeActivity* activity)
 : _activity(activity)
 {
+    JNIEnv* env;
+    _activity->vm->GetEnv((void**)&env, JNI_VERSION_1_6);
+    _activity->vm->AttachCurrentThread(&env, NULL);
+    jobject activityObj = env->NewGlobalRef(_activity->clazz);
+
+    ArAvailability availability;
+    ArCoreApk_checkAvailability(env, activityObj, &availability);
+
+    _available = true;
+    if (availability == AR_AVAILABILITY_UNSUPPORTED_DEVICE_NOT_CAPABLE)
+    {
+        env->DeleteGlobalRef(activityObj);
+        _activity->vm->DetachCurrentThread();
+        _available = false;
+    }
+    else
+    {
+        ArInstallStatus install_status;
+        ArCoreApk_requestInstall(env, activityObj, true, &install_status);
+    }
+
+    env->DeleteGlobalRef(activityObj);
+    _activity->vm->DetachCurrentThread();
 }
 
 SENSNdkARCore::~SENSNdkARCore()
@@ -23,6 +46,7 @@ void SENSNdkARCore::reset()
         ArSession_destroy(_arSession);
         ArFrame_destroy(_arFrame);
         _arSession = nullptr;
+        glDeleteTextures(1, &_cameraTextureId);
     }
 }
 
@@ -36,6 +60,8 @@ void SENSNdkARCore::initCameraTexture()
 
 bool SENSNdkARCore::init(int w, int h, int manipW, int manipH, bool convertManipToGray)
 { 
+    if (!_available)
+        return false;
     if (_arSession != nullptr)
         reset();
 
@@ -43,13 +69,16 @@ bool SENSNdkARCore::init(int w, int h, int manipW, int manipH, bool convertManip
     JNIEnv* env;
     _activity->vm->GetEnv((void**)&env, JNI_VERSION_1_6);
     _activity->vm->AttachCurrentThread(&env, NULL);
+    jobject activityObj = env->NewGlobalRef(_activity->clazz);
 
-    initCameraTexture();
-
-    jobject         activityObj = env->NewGlobalRef(_activity->clazz);
     ArInstallStatus install_status;
-
     if (ArCoreApk_requestInstall(env, activityObj, true, &install_status) != AR_SUCCESS)
+    {
+        env->DeleteGlobalRef(activityObj);
+        _activity->vm->DetachCurrentThread();
+        return false;
+    }
+    if (install_status == AR_INSTALL_STATUS_INSTALL_REQUESTED)
     {
         env->DeleteGlobalRef(activityObj);
         _activity->vm->DetachCurrentThread();
@@ -91,6 +120,7 @@ bool SENSNdkARCore::init(int w, int h, int manipW, int manipH, bool convertManip
 
     ArConfig_setInstantPlacementMode(_arSession, arConfig, AR_INSTANT_PLACEMENT_MODE_DISABLED);
 
+    initCameraTexture();
     ArSession_setCameraTextureName(_arSession, _cameraTextureId);
 
     if (ArSession_configure(_arSession, arConfig) != AR_SUCCESS)
@@ -293,7 +323,7 @@ void SENSNdkARCore::setDisplaySize(int w, int h)
 
 bool SENSNdkARCore::resume()
 {
-    if (_pause)
+    if (_pause && _arSession != nullptr)
     {
         const ArStatus status = ArSession_resume(_arSession);
         if (status == AR_SUCCESS)
