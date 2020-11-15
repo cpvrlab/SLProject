@@ -33,7 +33,7 @@ public:
 private:
     void resize(int scrW, int scrH);
 
-    void renderInfoAugst();
+    void renderInfoAugst(ErlebAR::AreaId area);
     void renderInfoAvenches();
     void renderInfoBern();
 
