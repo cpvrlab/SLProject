@@ -379,9 +379,9 @@ void TestView::mapErlebARDirNamesToIds(const std::string& location, const std::s
         locationId = ErlebAR::LocationId::AUGST;
         //there is just one model so we just use a random augst id
         if (area == "templeHill-marker")
-            areaId = ErlebAR::AreaId::AUGST_TEMPLE_HILL_MARKER;
+            areaId = ErlebAR::AreaId::AUGST_TEMPLE_HILL;
         else if (area == "templeHillTheaterBottom")
-            areaId = ErlebAR::AreaId::AUGST_TEMPLE_HILL_THEATER_BOTTOM;
+            areaId = ErlebAR::AreaId::AUGST_THEATER_FRONT;
     }
     else if (location == "bern")
     {

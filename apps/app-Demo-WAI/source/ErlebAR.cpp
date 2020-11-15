@@ -31,9 +31,9 @@ const char* mapAreaIdToName(AreaId id)
         case AreaId::NONE:
             return "Undefined area";
         //augst
-        case AreaId::AUGST_TEMPLE_HILL_MARKER:
+        case AreaId::AUGST_TEMPLE_HILL:
             return "Temple";
-        case AreaId::AUGST_TEMPLE_HILL_THEATER_BOTTOM:
+        case AreaId::AUGST_THEATER_FRONT:
             return "Theater";
         //avenches
         case AreaId::AVENCHES_AMPHITHEATER:
@@ -86,7 +86,7 @@ const Location defineLocationAugst()
                  "models/augst/DTM-Theater-Tempel-WGS84.tif");
 
     {
-        Area area(AreaId::AUGST_TEMPLE_HILL_MARKER,                                                                             //id
+        Area area(AreaId::AUGST_TEMPLE_HILL,                                                                                    //id
                   {47.53315, 7.72089, 293.2},                                                                                   //llaPos
                   120,                                                                                                          //map viewing angle
                   {47.53319, 7.72207, 282.6},                                                                                   //modelOrigin
@@ -102,7 +102,7 @@ const Location defineLocationAugst()
         loc.areas[area.id] = area;
     }
     {
-        Area area(AreaId::AUGST_TEMPLE_HILL_THEATER_BOTTOM,                                                                     //id
+        Area area(AreaId::AUGST_THEATER_FRONT,                                                                                  //id
                   {47.53308, 7.72153, 285.6},                                                                                   //llaPos
                   -18,                                                                                                          //map viewing angle
                   {47.53319, 7.72207, 282.6},                                                                                   //modelOrigin
@@ -204,7 +204,7 @@ const Location defineLocationBern()
                  "models/bern/DEM-Bern-2600_1199-WGS84.tif");
 
     {
-        Area area(AreaId::BERN_MILCHGAESSLI,                                                                                          //id
+        Area area(AreaId::BERN_MILCHGAESSLI,                                                                                         //id
                   {46.94839, 7.43973, 541.2},                                                                                        //llaPos
                   60,                                                                                                                //map viewing angle
                   {46.947629, 7.440754, 542.2},                                                                                      //modelOrigin

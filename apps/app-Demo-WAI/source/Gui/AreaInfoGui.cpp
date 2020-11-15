@@ -109,7 +109,9 @@ void AreaInfoGui::build(SLScene* s, SLSceneView* sv)
     ImVec2 canvas_size = ImGui::GetContentRegionAvail();
     ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + canvas_size.x);
     if (_locationId == ErlebAR::LocationId::AUGST)
-        renderInfoAugst();
+    {
+        renderInfoAugst(_area.id);
+    }
     else if (_locationId == ErlebAR::LocationId::AVENCHES)
         renderInfoAvenches();
     else if (_locationId == ErlebAR::LocationId::BERN)
@@ -168,8 +170,23 @@ void AreaInfoGui::build(SLScene* s, SLSceneView* sv)
     _resources.logWinDraw();
 }
 
-void AreaInfoGui::renderInfoAugst()
+void AreaInfoGui::renderInfoAugst(ErlebAR::AreaId area)
 {
+    switch (area)
+    {
+        case ErlebAR::AreaId::AUGST_TEMPLE_HILL: {
+            renderInfoHeading(_resources.strings().augstTempleHillInfoHeading1());
+            renderInfoText(_resources.strings().augstTempleHillInfoText1());
+            renderInfoText(_resources.strings().augstTempleHillInfoText2());
+        }
+        break;
+        case ErlebAR::AreaId::AUGST_THEATER_FRONT: {
+        }
+        break;
+        default: {
+            // TODO(dgj1): throw some kind of exception
+        }
+    }
 }
 
 void AreaInfoGui::renderInfoAvenches()
