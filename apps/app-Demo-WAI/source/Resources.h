@@ -269,7 +269,7 @@ protected:
 class Resources
 {
 public:
-    Resources(const DeviceData& deviceData);
+    Resources(const DeviceData& deviceData, int screenH, std::string languageId);
     ~Resources();
 
     void setLanguageEnglish();
@@ -283,22 +283,22 @@ public:
 
     Textures textures;
 
-    const std::map<ErlebAR::LocationId, ErlebAR::Location>& locations() { return _locations; }
+    //const std::map<ErlebAR::LocationId, ErlebAR::Location>& locations() { return _locations; }
 
     const char* stringsEnglishId() const { return stringsEnglish.id(); }
     const char* stringsGermanId() const { return stringsGerman.id(); }
     const char* stringsFrenchId() const { return stringsFrench.id(); }
     const char* stringsItalianId() const { return stringsItalian.id(); }
 
-    void logWinInit();
-    void logWinUnInit();
-    void logWinDraw();
+    //void logWinInit();
+    //void logWinUnInit();
+    //void logWinDraw();
 
     //developper helper flags
-    bool developerMode      = true;
-    bool simulatorMode      = false;
-    bool enableUserGuidance = false;
-    bool logWinEnabled      = false;
+    //bool developerMode      = true;
+    //bool simulatorMode      = false;
+    //bool enableUserGuidance = false;
+    //bool logWinEnabled      = false;
 
 private:
     Strings stringsEnglish;
@@ -306,8 +306,8 @@ private:
     Strings stringsFrench;
     Strings stringsItalian;
 
-    void load(std::string resourceFileName);
-    void save();
+    //void load(std::string resourceFileName);
+    //void save();
 
     Strings* _currStrings = &stringsEnglish;
 
@@ -315,40 +315,55 @@ private:
     Fonts _fonts;
 
     //initialized in function load()
-    std::string _fileName;
+    //std::string _fileName;
     //erlebar locations definition
-    std::map<ErlebAR::LocationId, ErlebAR::Location> _locations;
+    //std::map<ErlebAR::LocationId, ErlebAR::Location> _locations;
     //writeable directory, e.g. for logfile
     std::string _writableDir;
 
-    int _screenW;
-    int _screenH;
+    //int _screenW;
+    //int _screenH;
 };
 
-/*
-struct ErlebARConfig
+class Config
 {
+public:
+    Config(const DeviceData& deviceData);
+    ~Config();
+
     void logWinInit();
     void logWinUnInit();
     void logWinDraw();
- 
+
     void load(std::string resourceFileName);
     void save();
 
-    Resources resources;
+    Resources&                                              resources() { return *_resources; }
+    const std::map<ErlebAR::LocationId, ErlebAR::Location>& locations() { return _locations; }
 
     //developper helper flags
     bool developerMode      = true;
     bool simulatorMode      = false;
     bool enableUserGuidance = false;
-    bool logWinEnabled = false;
- 
-     //initialized in function load()
-     std::string _fileName;
-     //erlebar locations definition
-     std::map<ErlebAR::LocationId, ErlebAR::Location> _locations;
+    bool logWinEnabled      = false;
+
+    bool useGps     = false;
+    bool useARCore  = false;
+    bool useWAISlam = false;
+
+private:
+    int _screenW;
+    int _screenH;
+
+    Resources* _resources = nullptr;
+
+    //initialized in function load()
+    std::string _fileName;
+    //erlebar locations definition
+    std::map<ErlebAR::LocationId, ErlebAR::Location> _locations;
+
+    std::string _languageId;
 };
- */
 
 };
 

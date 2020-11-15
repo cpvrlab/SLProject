@@ -9,7 +9,7 @@ using namespace ErlebAR;
 
 AreaTrackingGui::AreaTrackingGui(const ImGuiEngine&                  imGuiEngine,
                                  sm::EventHandler&                   eventHandler,
-                                 ErlebAR::Resources&                 resources,
+                                 ErlebAR::Config&                    config,
                                  int                                 dotsPerInch,
                                  int                                 screenWidthPix,
                                  int                                 screenHeightPix,
@@ -18,7 +18,8 @@ AreaTrackingGui::AreaTrackingGui(const ImGuiEngine&                  imGuiEngine
                                  std::function<SENSSimHelper*(void)> getSimHelperCB)
   : ImGuiWrapper(imGuiEngine.context(), imGuiEngine.renderer()),
     sm::EventSender(eventHandler),
-    _resources(resources),
+    _config(config),
+    _resources(config.resources()),
     _transparencyChangedCB(transparencyChangedCB),
     _erlebARDir(erlebARDir),
     _getSimHelper(getSimHelperCB)
@@ -34,7 +35,7 @@ void AreaTrackingGui::onShow()
 {
     _panScroll.enable();
     _opacityController.reset();
-    if(_simHelperGui)
+    if (_simHelperGui)
         _simHelperGui->reset();
 }
 
@@ -271,9 +272,9 @@ void AreaTrackingGui::build(SLScene* s, SLSceneView* sv)
      */
 
     //debug: draw log window
-    _resources.logWinDraw();
+    _config.logWinDraw();
 
-    if (_resources.developerMode && _resources.simulatorMode && _getSimHelper)
+    if (_config.developerMode && _config.simulatorMode && _getSimHelper)
     {
         if (!_simHelperGui)
             _simHelperGui = std::make_unique<SimHelperGui>(_resources.fonts().tiny, _resources.fonts().standard, "AreaTrackingGui", _screenH);

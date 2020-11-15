@@ -19,15 +19,15 @@ class LocationMapGui : public ImGuiWrapper
   , private sm::EventSender
 {
 public:
-    LocationMapGui(const ImGuiEngine&  imGuiEngine,
-                   sm::EventHandler&   eventHandler,
-                   ErlebAR::Resources& resources,
-                   int                 dotsPerInch,
-                   int                 screenWidthPix,
-                   int                 screenHeightPix,
-                   std::string         erlebARDir,
-                   SENSGps*            gps,
-                   SENSOrientation*    orientation);
+    LocationMapGui(const ImGuiEngine& imGuiEngine,
+                   sm::EventHandler&  eventHandler,
+                   ErlebAR::Config&   config,
+                   int                dotsPerInch,
+                   int                screenWidthPix,
+                   int                screenHeightPix,
+                   std::string        erlebARDir,
+                   SENSGps*           gps,
+                   SENSOrientation*   orientation);
     ~LocationMapGui();
 
     void build(SLScene* s, SLSceneView* sv) override;
@@ -55,6 +55,7 @@ private:
     float _windowPaddingContent;
     float _itemSpacingContent;
 
+    ErlebAR::Config&    _config;
     ErlebAR::Resources& _resources;
 
     GLuint _locMapTexId = 0;
@@ -74,10 +75,10 @@ private:
     float             _fracH;
     float             _dspPixWidth;
     float             _dspPixHeight;
-    
+
     //area map positions in pixel
     std::map<ErlebAR::AreaId, SLVec2i> _areaMapPosPix;
-    
+
     SENSGps*                     _gps         = nullptr;
     SENSOrientation*             _orientation = nullptr;
     std::unique_ptr<GPSMapper2D> _gpsMapper;

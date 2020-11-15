@@ -16,12 +16,12 @@ class AboutGui : public ImGuiWrapper
   , private sm::EventSender
 {
 public:
-    AboutGui(const ImGuiEngine&  imGuiEngine,
-             sm::EventHandler&   eventHandler,
-             ErlebAR::Resources& resources,
-             int                 dotsPerInch,
-             int                 screenWidthPix,
-             int                 screenHeightPix);
+    AboutGui(const ImGuiEngine& imGuiEngine,
+             sm::EventHandler&  eventHandler,
+             ErlebAR::Config&   config,
+             int                dotsPerInch,
+             int                screenWidthPix,
+             int                screenHeightPix);
     ~AboutGui() override;
 
     void build(SLScene* s, SLSceneView* sv) override;
@@ -42,6 +42,7 @@ private:
     float _windowPaddingContent;
     float _itemSpacingContent;
 
+    ErlebAR::Config&    _config;
     ErlebAR::Resources& _resources;
 };
 

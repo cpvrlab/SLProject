@@ -105,8 +105,8 @@ private:
 
     CloseAppCallback _closeCB = nullptr;
 
-    ErlebAR::Resources* _resources   = nullptr;
-    ImGuiEngine*        _imGuiEngine = nullptr;
+    ErlebAR::Config* _config      = nullptr;
+    ImGuiEngine*     _imGuiEngine = nullptr;
 };
 
 #endif

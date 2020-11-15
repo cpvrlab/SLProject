@@ -35,6 +35,12 @@ add_library(${target}
         ${headers}
     )
 
+#add_library(arcore SHARED IMPORTED)
+#set_target_properties(arcore PROPERTIES IMPORTED_LOCATION
+#              ${CMAKE_CURRENT_SOURCE_DIR}/arcore-native/jni/${ANDROID_ABI}/libarcore_sdk_c.so
+#              INTERFACE_INCLUDE_DIRECTORIES ${CMAKE_CURRENT_SOURCE_DIR}
+#)
+
 add_library(arcore SHARED IMPORTED)
 set_target_properties(arcore PROPERTIES IMPORTED_LOCATION
               ${CMAKE_CURRENT_SOURCE_DIR}/arcore-native/jni/${ANDROID_ABI}/libarcore_sdk_c.so

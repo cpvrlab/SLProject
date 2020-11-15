@@ -14,17 +14,17 @@
 #define LOG_TESTVIEW_INFO(...) Utils::log("TestView", __VA_ARGS__);
 #define LOG_TESTVIEW_DEBUG(...) Utils::log("TestView", __VA_ARGS__);
 
-TestView::TestView(sm::EventHandler&   eventHandler,
-                   SLInputManager&     inputManager,
-                   const ImGuiEngine&  imGuiEngine,
-                   ErlebAR::Resources& resources,
-                   SENSCamera*         camera,
-                   const DeviceData&   deviceData)
+TestView::TestView(sm::EventHandler&  eventHandler,
+                   SLInputManager&    inputManager,
+                   const ImGuiEngine& imGuiEngine,
+                   ErlebAR::Config&   config,
+                   SENSCamera*        camera,
+                   const DeviceData&  deviceData)
   : SLSceneView(&_scene, deviceData.dpi(), inputManager),
     _gui(
       imGuiEngine,
       eventHandler,
-      resources,
+      config.resources(),
       "TestScene",
       deviceData,
       _featureExtractorFactory.getExtractorIdToNames(),

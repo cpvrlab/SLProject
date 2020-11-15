@@ -1,16 +1,16 @@
 #include <views/CameraTestView.h>
 #include <sens/SENSUtils.h>
 
-CameraTestView::CameraTestView(sm::EventHandler&   eventHandler,
-                               SLInputManager&     inputManager,
-                               const ImGuiEngine&  imGuiEngine,
-                               ErlebAR::Resources& resources,
-                               SENSCamera*         sensCamera,
-                               const DeviceData&   deviceData)
+CameraTestView::CameraTestView(sm::EventHandler&  eventHandler,
+                               SLInputManager&    inputManager,
+                               const ImGuiEngine& imGuiEngine,
+                               ErlebAR::Config&   config,
+                               SENSCamera*        sensCamera,
+                               const DeviceData&  deviceData)
   : SLSceneView(nullptr, deviceData.dpi(), inputManager),
     _gui(imGuiEngine,
          eventHandler,
-         resources,
+         config,
          deviceData.dpi(),
          deviceData.scrWidth(),
          deviceData.scrHeight(),

@@ -5,15 +5,16 @@
 
 using namespace ErlebAR;
 
-AreaInfoGui::AreaInfoGui(const ImGuiEngine&  imGuiEngine,
-                         sm::EventHandler&   eventHandler,
-                         ErlebAR::Resources& resources,
-                         int                 dotsPerInch,
-                         int                 screenWidthPix,
-                         int                 screenHeightPix)
+AreaInfoGui::AreaInfoGui(const ImGuiEngine& imGuiEngine,
+                         sm::EventHandler&  eventHandler,
+                         ErlebAR::Config&   config,
+                         int                dotsPerInch,
+                         int                screenWidthPix,
+                         int                screenHeightPix)
   : ImGuiWrapper(imGuiEngine.context(), imGuiEngine.renderer()),
     sm::EventSender(eventHandler),
-    _resources(resources)
+    _config(config),
+    _resources(config.resources())
 {
     resize(screenWidthPix, screenHeightPix);
 }
@@ -51,7 +52,7 @@ void AreaInfoGui::resize(int scrW, int scrH)
 void AreaInfoGui::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaId)
 {
     _locationId           = locId;
-    const auto& locations = _resources.locations();
+    const auto& locations = _config.locations();
     auto        locIt     = locations.find(locId);
     if (locIt != locations.end())
     {
@@ -167,7 +168,7 @@ void AreaInfoGui::build(SLScene* s, SLSceneView* sv)
 
     //debug: draw log window
     //ImGui::ShowMetricsWindow();
-    _resources.logWinDraw();
+    _config.logWinDraw();
 }
 
 void AreaInfoGui::renderInfoAugst(ErlebAR::AreaId area)

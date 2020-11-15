@@ -12,14 +12,14 @@
 class SensorTestView : public SLSceneView
 {
 public:
-    SensorTestView(sm::EventHandler&   eventHandler,
-                   SLInputManager&     inputManager,
-                   const ImGuiEngine&  imGuiEngine,
-                   ErlebAR::Resources& resources,
-                   SENSGps*            sensGps,
-                   SENSOrientation*    sensOrientation,
-                   SENSCamera*         sensCamera,
-                   const DeviceData&   deviceData);
+    SensorTestView(sm::EventHandler&  eventHandler,
+                   SLInputManager&    inputManager,
+                   const ImGuiEngine& imGuiEngine,
+                   ErlebAR::Config&   config,
+                   SENSGps*           sensGps,
+                   SENSOrientation*   sensOrientation,
+                   SENSCamera*        sensCamera,
+                   const DeviceData&  deviceData);
     bool update();
 
     //call when view becomes visible

@@ -64,7 +64,7 @@ class AreaTrackingGui : public ImGuiWrapper
 public:
     AreaTrackingGui(const ImGuiEngine&                  imGuiEngine,
                     sm::EventHandler&                   eventHandler,
-                    ErlebAR::Resources&                 resources,
+                    ErlebAR::Config&                    config,
                     int                                 dotsPerInch,
                     int                                 screenWidthPix,
                     int                                 screenHeightPix,
@@ -115,6 +115,7 @@ private:
 
     OpacityController _opacityController;
 
+    ErlebAR::Config&    _config;
     ErlebAR::Resources& _resources;
 
     std::string _infoText;

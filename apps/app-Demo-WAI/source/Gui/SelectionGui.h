@@ -17,14 +17,14 @@ class SelectionGui : public ImGuiWrapper
   , private sm::EventSender
 {
 public:
-    SelectionGui(const ImGuiEngine&  imGuiEngine,
-                 sm::EventHandler&   eventHandler,
-                 ErlebAR::Resources& resources,
-                 int                 dotsPerInch,
-                 int                 screenWidthPix,
-                 int                 screenHeightPix,
-                 std::string         fontPath,
-                 std::string         texturePath);
+    SelectionGui(const ImGuiEngine& imGuiEngine,
+                 sm::EventHandler&  eventHandler,
+                 ErlebAR::Config&   config,
+                 int                dotsPerInch,
+                 int                screenWidthPix,
+                 int                screenHeightPix,
+                 std::string        fontPath,
+                 std::string        texturePath);
     ~SelectionGui();
 
     void build(SLScene* s, SLSceneView* sv) override;
@@ -57,6 +57,7 @@ private:
     float _buttonBoardH;
     float _buttonRounding;
 
+    ErlebAR::Config&    _config;
     ErlebAR::Resources& _resources;
 };
 
