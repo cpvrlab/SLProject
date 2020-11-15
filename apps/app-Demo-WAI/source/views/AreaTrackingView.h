@@ -69,6 +69,7 @@ private:
     bool updateGPSWAISlamARCore(SENSFramePtr& frame);
     bool updateGPSWAISlam(SENSFramePtr& frame);
     bool updateGPS(SENSFramePtr& frame);
+    bool updateWAISlamGPS(SENSFramePtr &frame);
 
     void    updateSceneCameraFov();
     void    updateVideoImage(SENSFrame& frame, VideoBackgroundCamera* videoBackground);

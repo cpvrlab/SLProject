@@ -272,7 +272,7 @@ bool AreaTrackingView::updateGPSWAISlamARCore(SENSFramePtr& frame)
     if (!_hasTransitionMatrix)
     {
         _gui.showInfoText("GPS + Sensors positioning");
-        if (frame && _waiSlam && _waiSlam->isInitialized()) // TODO: Add timing condition to fallback to GPS if WAISlam too slow
+        if (frame && _waiSlam && _waiSlam->isInitialized() && isTracking) // TODO: Add timing condition to fallback to GPS if WAISlam too slow
         {
             _gui.showInfoText("Try slam reloc");
             //the intrinsics may change dynamically on focus changes (e.g. on iOS)
@@ -374,6 +374,57 @@ bool AreaTrackingView::updateGPS(SENSFramePtr& frame)
     _waiScene.camera->om(gpsPose);
 
     return false;
+}
+
+// For marker initialization without arcore
+bool AreaTrackingView::updateWAISlamGPS(SENSFramePtr &frame)
+{
+    cv::Mat view;
+    bool isTracking = false;
+
+    SLMat4f gpsPose = calcCameraPoseGpsOrientationBased();
+
+    if (_arcore->isRunning())
+    {
+        cv::Mat proj;
+        isTracking = _arcore->update(proj, view);
+        frame = _arcore->latestFrame();
+    }
+    else if (_camera)
+        frame = _camera->latestFrame();
+    else
+        return false;
+
+    _waiScene.camera->om(gpsPose);
+
+    if (_waiSlam && _waiSlam->isInitialized()) // TODO: Add timing condition to fallback to GPS if WAISlam too slow
+    {
+        _gui.showInfoText("Try slam reloc");
+        //the intrinsics may change dynamically on focus changes (e.g. on iOS)
+        if (!frame->intrinsics.empty())
+        {
+            _waiSlam->changeIntrinsic(_camera->scaledCameraMat(), _camera->calibration()->distortion());
+            updateSceneCameraFov();
+        }
+
+        _waiSlam->update(frame->imgManip);
+        if (WAI::TrackingState_TrackingOK == _waiSlam->getTrackingState())
+        {
+            SLMat4f pose = convertWAISlamToSLMat(_waiSlam->getPose());
+            _transitionMatrix = gpsPose;
+            _transitionMatrix.invert();
+            _transitionMatrix = _transitionMatrix * pose;
+            _gui.showInfoText("WAISlam tracking");
+            _waiScene.camera->om(pose);
+        }
+        else
+        {
+            _waiScene.camera->om(_transitionMatrix * gpsPose);
+            cv::Mat camExtrinsic = convertCameraPoseToWaiCamExtrinisc(gpsPose);
+            _waiSlam->setCamExrinsicGuess(camExtrinsic);
+        }
+    }
+    return true;
 }
 
 bool AreaTrackingView::update()
