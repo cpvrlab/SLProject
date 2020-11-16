@@ -759,11 +759,14 @@ SLGLTexture* SLAssimpImporter::loadTexture(SLAssetManager* assetMgr,
         if (i->url() == textureFile)
             return i;
 
+    SLint minificationFilter  = texType == TT_ambientOcclusion ? GL_LINEAR : SL_ANISOTROPY_MAX;
+    SLint magnificationFilter = texType == TT_ambientOcclusion ? GL_LINEAR : GL_LINEAR_MIPMAP_LINEAR;
+
     // Create the new texture. It is also push back to SLScene::_textures
     SLGLTexture* texture = new SLGLTexture(assetMgr,
                                            textureFile,
-                                           GL_LINEAR_MIPMAP_LINEAR,
-                                           GL_LINEAR,
+                                           minificationFilter,
+                                           magnificationFilter,
                                            texType);
     return texture;
 }

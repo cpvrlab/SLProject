@@ -1141,7 +1141,23 @@ SLstring SLGLTexture::typeName()
         case TT_roughness: return "roughness";
         case TT_metallic: return "metalness";
         case TT_ambientOcclusion: return "ambient occlusion";
-        case TT_font: return "font"; ;
+        case TT_font: return "font";
+        default: return "unknown";
+    }
+}
+//-----------------------------------------------------------------------------
+//! Returns OpenGL texture filter as string
+SLstring SLGLTexture::filterString(SLint glFilter)
+{
+    switch (glFilter)
+    {
+        case GL_NEAREST: return "nearest";
+        case GL_LINEAR: return "linear";
+        case GL_NEAREST_MIPMAP_NEAREST: return "nearest mipmap nearest";
+        case GL_LINEAR_MIPMAP_NEAREST: return "linear mipmap linear";
+        case GL_NEAREST_MIPMAP_LINEAR: return "nearest mipmap linear";
+        case GL_LINEAR_MIPMAP_LINEAR: return "linear mipmap linear";
+        case SL_ANISOTROPY_MAX: return "anisotropic max.";
         default: return "unknown";
     }
 }

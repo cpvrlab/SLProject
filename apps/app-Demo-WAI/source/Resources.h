@@ -209,6 +209,11 @@ public:
     const char* bernInfoHeading2() const { return _bernInfoHeading2.c_str(); }
     const char* bernInfoText2() const { return _bernInfoText2.c_str(); }
 
+    //augst:
+    const char* augstTempleHillInfoHeading1() const { return _augstTempleHillInfoHeading1.c_str(); }
+    const char* augstTempleHillInfoText1() const { return _augstTempleHillInfoText1.c_str(); }
+    const char* augstTempleHillInfoText2() const { return _augstTempleHillInfoText2.c_str(); }
+
     //tracking view user guidance
     const char* ugInfoReloc() const { return _ugInfoReloc.c_str(); }
     const char* ugInfoRelocWrongOrient() const { return _ugInfoRelocWrongOrient.c_str(); }
@@ -247,6 +252,11 @@ protected:
     std::string _bernInfoHeading2 = "bern heading 2";
     std::string _bernInfoText2    = "bern info 2";
 
+    //augst:
+    std::string _augstTempleHillInfoHeading1 = "augst temple hill heading 1";
+    std::string _augstTempleHillInfoText1    = "augst temple hill text 1";
+    std::string _augstTempleHillInfoText2    = "augst temple hill text 2";
+
     //tracking view user guidance
     std::string _ugInfoReloc            = "Trying to relocalize, please move slowly";
     std::string _ugInfoRelocWrongOrient = "You are looking in the wrong direction";
@@ -280,15 +290,15 @@ public:
     const char* stringsFrenchId() const { return stringsFrench.id(); }
     const char* stringsItalianId() const { return stringsItalian.id(); }
 
-    //void logWinInit();
-    //void logWinUnInit();
-    //void logWinDraw();
+    void logWinInit();
+    void logWinUnInit();
+    void logWinDraw();
 
     //developper helper flags
-    //bool developerMode      = true;
-    //bool simulatorMode      = false;
-    //bool enableUserGuidance = false;
-    //bool logWinEnabled      = false;
+    bool developerMode      = true;
+    bool simulatorMode      = false;
+    bool enableUserGuidance = false;
+    bool logWinEnabled      = false;
 
 private:
     Strings stringsEnglish;
