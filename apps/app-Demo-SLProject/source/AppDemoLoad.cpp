@@ -237,7 +237,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
     s->init();
     // clear gui stuff that depends on scene and sceneview
     AppDemoGui::clear();
-    
+
     // Deactivate in general the device sensors
     SLApplication::devRot.isUsed(false);
     SLApplication::devLoc.isUsed(false);
@@ -941,7 +941,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
             SLstring     matName = "mat-" + std::to_string(i);
             mat[i]               = new SLMaterial(s, matName.c_str(), texC, nullptr, nullptr, nullptr, sp);
             SLCol4f color;
-            color.hsva2rgba(SLVec3f(Utils::TWOPI * i / NUM_MAT, 1.0f, 1.0f));
+            color.hsva2rgba(SLVec3f(Utils::TWOPI * (float)i / (float)NUM_MAT, 1.0f, 1.0f));
             mat[i]->diffuse(color);
         }
 
@@ -2004,9 +2004,11 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         {
             SLLightSpot* light = new SLLightSpot(s, s, 0.3f, 45.0f);
             SLCol4f      color;
-            color.hsva2rgba(SLVec3f(Utils::TWOPI * i / SL_MAX_LIGHTS, 1.0f, 1.0f));
+            color.hsva2rgba(SLVec3f(Utils::TWOPI * (float)i / (float)SL_MAX_LIGHTS, 1.0f, 1.0f));
             light->powers(0.0f, 5.0f, 5.0f, color);
-            light->translation(2 * sin((2 * PI / SL_MAX_LIGHTS) * i), 5, 2 * cos((2 * PI / SL_MAX_LIGHTS) * i));
+            light->translation(2 * sin((Utils::TWOPI / (float)SL_MAX_LIGHTS) * (float)i),
+                               5,
+                               2 * cos((Utils::TWOPI / (float)SL_MAX_LIGHTS) * (float)i));
             light->lookAt(0, 0, 0);
             light->attenuation(0, 0, 1);
             light->createsShadows(true);
@@ -2135,7 +2137,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
     {
         // Set scene name and info string
         s->name("Suzanne with per pixel lighting");
-        s->info("Suzanne with per pixel lighting");
+        s->info(s->name());
 
         // Create a scene group node
         SLNode* scene = new SLNode("scene node");
@@ -2186,11 +2188,127 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         // Save energy
         sv->doWaitOnIdle(true);
     }
+    else if (SLApplication::sceneID == SID_SuzannePerPixBlinnSM) //......................................
+    {
+        // Set scene name and info string
+        s->name("Suzanne with per pixel lighting and shadow mapping");
+        s->info(s->name());
+
+        // Create a scene group node
+        SLNode* scene = new SLNode("scene node");
+
+        // Create camera in the center
+        SLCamera* cam1 = new SLCamera("Camera 1");
+        cam1->translation(0, 0.5f, 2);
+        cam1->lookAt(0, 0.5f, 0);
+        cam1->setInitialState();
+        cam1->focalDist(2);
+        scene->addChild(cam1);
+
+        // Create directional light for the sun light
+        SLLightDirect* light = new SLLightDirect(s, s, 0.1f);
+        light->ambientPower(0.5f);
+        light->diffusePower(0.5f);
+        light->attenuation(1, 0, 0);
+        light->translate(0, 0, 0.5);
+        light->lookAt(1, -1, 0.5);
+        light->createsShadows(true);
+        light->createShadowMap(-3, 3, SLVec2f(5, 5), SLVec2i(2048, 2048));
+        light->doSmoothShadows(true);
+        SLAnimation* lightAnim = s->animManager().createNodeAnimation("LightAnim", 4.0f, true, EC_inOutSine, AL_pingPongLoop);
+        lightAnim->createSimpleRotationNodeTrack(light, -180, SLVec3f(0, 1, 0));
+        scene->addChild(light);
+
+        // load teapot
+        SLAssimpImporter importer;
+        SLNode*          suzanneInCube = importer.load(s->animManager(),
+                                              s,
+                                              SLApplication::modelPath + "GLTF/AO-Baked-Test/AO-Baked-Test.gltf",
+                                              SLApplication::texturePath,
+                                              true,    // load meshes only
+                                              nullptr, // override material
+                                              0.5f);   // ambient factor
+
+        // Setup shadow mapping material and replace shader from loader
+        SLGLProgram* progPerPixNrm = new SLGLGenericProgram(s,
+                                                            SLApplication::shaderPath + "PerPixBlinnSM.vert",
+                                                            SLApplication::shaderPath + "PerPixBlinnSM.frag");
+        auto         updateMat     = [=](SLMaterial* mat) { mat->program(progPerPixNrm); };
+        suzanneInCube->updateMeshMat(updateMat, true);
+
+        scene->addChild(suzanneInCube);
+
+        sv->camera(cam1);
+
+        // pass the scene group as root node
+        s->root3D(scene);
+
+        // Save energy
+        sv->doWaitOnIdle(true);
+    }
+    else if (SLApplication::sceneID == SID_SuzannePerPixBlinnSMAO) //....................................
+    {
+        // Set scene name and info string
+        s->name("Suzanne with per pixel lighting, shadow mapping and ambient occlusion");
+        s->info(s->name());
+
+        // Create a scene group node
+        SLNode* scene = new SLNode("scene node");
+
+        // Create camera in the center
+        SLCamera* cam1 = new SLCamera("Camera 1");
+        cam1->translation(0, 0.5f, 2);
+        cam1->lookAt(0, 0.5f, 0);
+        cam1->setInitialState();
+        cam1->focalDist(2);
+        scene->addChild(cam1);
+
+        // Create directional light for the sun light
+        SLLightDirect* light = new SLLightDirect(s, s, 0.1f);
+        light->ambientPower(0.5f);
+        light->diffusePower(0.5f);
+        light->attenuation(1, 0, 0);
+        light->translate(0, 0, 0.5);
+        light->lookAt(1, -1, 0.5);
+        light->createsShadows(true);
+        light->createShadowMap(-3, 3, SLVec2f(5, 5), SLVec2i(2048, 2048));
+        light->doSmoothShadows(true);
+        SLAnimation* lightAnim = s->animManager().createNodeAnimation("LightAnim", 4.0f, true, EC_inOutSine, AL_pingPongLoop);
+        lightAnim->createSimpleRotationNodeTrack(light, -180, SLVec3f(0, 1, 0));
+        scene->addChild(light);
+
+        // load teapot
+        SLAssimpImporter importer;
+        SLNode*          suzanneInCube = importer.load(s->animManager(),
+                                              s,
+                                              SLApplication::modelPath + "GLTF/AO-Baked-Test/AO-Baked-Test.gltf",
+                                              SLApplication::texturePath,
+                                              true,    // load meshes only
+                                              nullptr, // override material
+                                              0.5f);   // ambient factor
+
+        // Setup shadow mapping material and replace shader from loader
+        SLGLProgram* progPerPixNrm = new SLGLGenericProgram(s,
+                                                            SLApplication::shaderPath + "PerPixBlinnSMAO.vert",
+                                                            SLApplication::shaderPath + "PerPixBlinnSMAO.frag");
+        auto         updateMat     = [=](SLMaterial* mat) { mat->program(progPerPixNrm); };
+        suzanneInCube->updateMeshMat(updateMat, true);
+
+        scene->addChild(suzanneInCube);
+
+        sv->camera(cam1);
+
+        // pass the scene group as root node
+        s->root3D(scene);
+
+        // Save energy
+        sv->doWaitOnIdle(true);
+    }
     else if (SLApplication::sceneID == SID_SuzannePerPixBlinnTex) //.....................................
     {
         // Set scene name and info string
-        s->name("Suzanne with per pixel lighting and diffuse texture mapping");
-        s->info("Suzanne with per pixel lighting and diffuse texture mapping");
+        s->name("Suzanne with per pixel lighting and texture mapping");
+        s->info(s->name());
 
         // Create a scene group node
         SLNode* scene = new SLNode("scene node");
@@ -2244,8 +2362,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
     else if (SLApplication::sceneID == SID_SuzannePerPixBlinnTexNrm) //..................................
     {
         // Set scene name and info string
-        s->name("Suzanne with per pixel lighting and diffuse and normal mapping");
-        s->info("Suzanne with per pixel lighting and diffuse and normal mapping");
+        s->name("Suzanne with per pixel lighting and texture and normal mapping");
+        s->info(s->name());
 
         // Create a scene group node
         SLNode* scene = new SLNode("scene node");
@@ -2272,12 +2390,12 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         // load teapot
         SLAssimpImporter importer;
         SLNode*          suzanneInCube = importer.load(s->animManager(),
-                                                       s,
-                                                       SLApplication::modelPath + "GLTF/AO-Baked-Test/AO-Baked-Test.gltf",
-                                                       SLApplication::texturePath,
-                                                       true,    // load meshes only
-                                                       nullptr, // override material
-                                                       0.5f);   // ambient factor
+                                              s,
+                                              SLApplication::modelPath + "GLTF/AO-Baked-Test/AO-Baked-Test.gltf",
+                                              SLApplication::texturePath,
+                                              true,    // load meshes only
+                                              nullptr, // override material
+                                              0.5f);   // ambient factor
 
         // Setup shadow mapping material and replace shader from loader
         SLGLProgram* progPerPixNrm = new SLGLGenericProgram(s,
@@ -2300,7 +2418,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
     {
         // Set scene name and info string
         s->name("Suzanne with per pixel lighting and diffuse, normal and ambient occlusion mapping");
-        s->info("Suzanne with per pixel lighting and diffuse, normal and ambient occlusion mapping");
+        s->info(s->name());
 
         // Create a scene group node
         SLNode* scene = new SLNode("scene node");
@@ -2355,7 +2473,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
     {
         // Set scene name and info string
         s->name("Suzanne with per pixel lighting and diffuse, normal and shadow mapping but without ambient occlusion");
-        s->info("Suzanne with per pixel lighting and diffuse, normal and shadow mapping but without ambient occlusion");
+        s->info(s->name());
 
         // Create a scene group node
         SLNode* scene = new SLNode("scene node");
@@ -2413,7 +2531,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
     {
         // Set scene name and info string
         s->name("Suzanne with per pixel lighting and diffuse, normal, shadow and ambient occlusion mapping");
-        s->info("Suzanne with per pixel lighting and diffuse, normal, shadow and ambient occlusion mapping");
+        s->info(s->name());
 
         // Create a scene group node
         SLNode* scene = new SLNode("scene node");
@@ -2434,7 +2552,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         light->translate(0, 0, 0.5);
         light->lookAt(1, -1, 0.5);
         light->createsShadows(true);
-        light->createShadowMap(-3, 3, SLVec2f(5,5),SLVec2i(2048,2048));
+        light->createShadowMap(-3, 3, SLVec2f(5, 5), SLVec2i(2048, 2048));
         light->doSmoothShadows(true);
         SLAnimation* lightAnim = s->animManager().createNodeAnimation("LightAnim", 4.0f, true, EC_inOutSine, AL_pingPongLoop);
         lightAnim->createSimpleRotationNodeTrack(light, -180, SLVec3f(0, 1, 0));
@@ -2532,7 +2650,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->info("Volume Rendering of an angiographic MRI scan with lighting");
 
         // The MRI Images got loaded in advance
-        if (gTexMRI3D && gTexMRI3D->images().size() > 0)
+        if (gTexMRI3D && !gTexMRI3D->images().empty())
         {
             // Add pointer to the global resource vectors for deallocation
             if (s)
@@ -3595,7 +3713,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->translation(0, 2, 0);
         cam1->lookAt(-10, 2, 0);
         cam1->clipNear(1);
-        cam1->clipFar(300);
+        cam1->clipFar(500);
         cam1->setInitialState();
         cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
         cam1->background().texture(videoTexture);
@@ -3605,7 +3723,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Create directional light for the sun light
         SLLightDirect* sunLight = new SLLightDirect(s, s, 5.0f);
-        sunLight->powers(1.0f, 1.0f, 1.0f);
+        sunLight->powers(1.0f, 1.5f, 1.0f);
         sunLight->attenuation(1, 0, 0);
         sunLight->doSunPowerAdaptation(true);
         sunLight->createsShadows(true);
@@ -3619,15 +3737,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLAssimpImporter importer;
         SLNode*          bern = importer.load(s->animManager(),
                                      s,
-                                     SLApplication::dataPath + "erleb-AR/models/bern/Bern-Bahnhofsplatz.fbx",
+                                     SLApplication::dataPath + "erleb-AR/models/bern/Bern-Bahnhofsplatz2.gltf",
                                      SLApplication::texturePath);
-
-        // Setup shadow mapping material and replace shader from loader
-        SLGLProgram* progPerPixNrmSM = new SLGLGenericProgram(s,
-                                                              SLApplication::shaderPath + "PerPixBlinnTexNrmSM.vert",
-                                                              SLApplication::shaderPath + "PerPixBlinnTexNrmSM.frag");
-        auto         updateMat       = [=](SLMaterial* mat) { mat->program(progPerPixNrmSM); };
-        bern->updateMeshMat(updateMat, true);
 
         // Make city transparent
         SLNode* UmgD = bern->findChild<SLNode>("Umgebung-Daecher");
@@ -3648,17 +3759,6 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         bern->findChild<SLNode>("Umgebung-Fassaden")->drawBits()->set(SL_DB_HIDDEN, true);
         bern->findChild<SLNode>("Baldachin-Glas")->drawBits()->set(SL_DB_HIDDEN, true);
         bern->findChild<SLNode>("Baldachin-Stahl")->drawBits()->set(SL_DB_HIDDEN, true);
-        bern->findChild<SLNode>("Mauer-Wand")->drawBits()->set(SL_DB_HIDDEN, true);
-        bern->findChild<SLNode>("Mauer-Turm")->drawBits()->set(SL_DB_HIDDEN, true);
-        bern->findChild<SLNode>("Mauer-Dach")->drawBits()->set(SL_DB_HIDDEN, true);
-        bern->findChild<SLNode>("Mauer-Weg")->drawBits()->set(SL_DB_HIDDEN, true);
-        bern->findChild<SLNode>("Boden")->drawBits()->set(SL_DB_HIDDEN, true);
-        bern->findChild<SLNode>("Graben-Mauern")->drawBits()->set(SL_DB_HIDDEN, true);
-        bern->findChild<SLNode>("Graben-Bruecken")->drawBits()->set(SL_DB_HIDDEN, true);
-        bern->findChild<SLNode>("Graben-Grass")->drawBits()->set(SL_DB_HIDDEN, true);
-        bern->findChild<SLNode>("Graben-Turm-Dach")->drawBits()->set(SL_DB_HIDDEN, true);
-        bern->findChild<SLNode>("Graben-Turm-Fahne")->drawBits()->set(SL_DB_HIDDEN, true);
-        bern->findChild<SLNode>("Graben-Turm-Stein")->drawBits()->set(SL_DB_HIDDEN, true);
 
         // Set the video background shader on the baldachin and the ground
         bern->findChild<SLNode>("Baldachin-Stahl")->setMeshMat(matVideoBackground, true);
@@ -3747,7 +3847,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                                                         spVideoBackground);
         // Create directional light for the sun light
         SLLightDirect* sunLight = new SLLightDirect(s, s, 5.0f);
-        sunLight->powers(1.0f, 1.0f, 1.0f);
+        sunLight->powers(1.0f, 1.5f, 1.0f);
         sunLight->attenuation(1, 0, 0);
         sunLight->translation(0, 10, 0);
         sunLight->lookAt(10, 0, 10);
@@ -3829,121 +3929,6 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(cam1);
         s->root3D(scene);
     }
-    else if (SLApplication::sceneID == SID_ErlebARAventicumAmphi) //.....................................
-    {
-        s->name("Aventicum Amphitheatre AR");
-        s->info("Augmented Reality for Aventicum Amphitheatre");
-
-        SLCamera* cam1 = new SLCamera("Camera 1");
-        cam1->translation(0, 50, -150);
-        cam1->lookAt(0, 0, 0);
-        cam1->clipNear(1);
-        cam1->clipFar(300);
-        cam1->focalDist(150);
-        cam1->setInitialState();
-        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
-
-        // Create video texture and turn on live video
-        videoTexture = new SLGLTexture(s, SLApplication::texturePath + "LiveVideoError.png", GL_LINEAR, GL_LINEAR);
-        cam1->background().texture(videoTexture);
-        CVCapture::instance()->videoType(VT_MAIN);
-
-        // Define shader that shows on all pixels the video background
-        SLGLProgram* spVideoBackground  = new SLGLGenericProgram(s,
-                                                                SLApplication::shaderPath + "PerVrtTextureBackground.vert",
-                                                                SLApplication::shaderPath + "PerVrtTextureBackground.frag");
-        SLMaterial*  matVideoBackground = new SLMaterial(s,
-                                                        "matVideoBackground",
-                                                        videoTexture,
-                                                        nullptr,
-                                                        nullptr,
-                                                        nullptr,
-                                                        spVideoBackground);
-
-        // Create directional light for the sun light
-        SLLightDirect* sunLight = new SLLightDirect(s, s, 5.0f);
-        sunLight->powers(1.0f, 1.0f, 1.0f);
-        sunLight->attenuation(1, 0, 0);
-        sunLight->translation(0, 10, 0);
-        sunLight->lookAt(10, 0, 10);
-        sunLight->doSunPowerAdaptation(true);
-        sunLight->createsShadows(true);
-        sunLight->createShadowMap(-100, 150, SLVec2f(150, 150), SLVec2i(2048, 2048));
-        sunLight->doSmoothShadows(true);
-        sunLight->castsShadows(false);
-
-        // Let the sun be rotated by time and location
-        SLApplication::devLoc.sunLightNode(sunLight);
-
-        SLAssimpImporter importer;
-        SLNode*          amphiTheatre = importer.load(s->animManager(),
-                                             s,
-                                             SLApplication::dataPath + "erleb-AR/models/avenches/Aventicum-Amphitheater1.gltf",
-                                             SLApplication::texturePath,
-                                             true,    // only meshes
-                                             nullptr, // no replacement material
-                                             0.4f);   // 40% ambient reflection
-
-        // Rotate to the true geographic rotation
-        amphiTheatre->rotate(13.7f, 0, 1, 0, TS_parent);
-
-        // Setup shadow mapping material and replace shader from loader
-        SLGLProgram* progPerPixNrmSM = new SLGLGenericProgram(s,
-                                                              SLApplication::shaderPath + "PerPixBlinnTexNrmSM.vert",
-                                                              SLApplication::shaderPath + "PerPixBlinnTexNrmSM.frag");
-        auto         updateMat       = [=](SLMaterial* mat) { mat->program(progPerPixNrmSM); };
-        amphiTheatre->updateMeshMat(updateMat, true);
-
-        // Let the video shine through some objects
-        amphiTheatre->findChild<SLNode>("Tht-Aussen-Untergrund")->setMeshMat(matVideoBackground, true);
-        amphiTheatre->findChild<SLNode>("Tht-Eingang-Ost-Boden")->setMeshMat(matVideoBackground, true);
-        amphiTheatre->findChild<SLNode>("Tht-Arenaboden")->setMeshMat(matVideoBackground, true);
-        amphiTheatre->findChild<SLNode>("Tht-Aussen-Terrain")->setMeshMat(matVideoBackground, true);
-
-        // Add axis object a world origin
-        SLNode* axis = new SLNode(new SLCoordAxis(s), "Axis Node");
-        axis->setDrawBitsRec(SL_DB_MESHWIRED, false);
-        axis->scale(10);
-        axis->rotate(-90, 1, 0, 0);
-
-        SLNode* scene = new SLNode("Scene");
-        scene->addChild(sunLight);
-        scene->addChild(axis);
-        scene->addChild(amphiTheatre);
-        scene->addChild(cam1);
-
-        //initialize sensor stuff
-        SLApplication::devLoc.useOriginAltitude(false);
-        SLApplication::devLoc.originLatLonAlt(46.881013677, 7.042621953, 442.0);        // Zentrum Amphitheater
-        SLApplication::devLoc.defaultLatLonAlt(46.881210148, 7.043767122, 442.0 + 1.7); // Ecke Vorplatz Ost
-        SLApplication::devLoc.locMaxDistanceM(1000.0f);                                 // Max. Distanz. zum Nullpunkt
-        SLApplication::devLoc.improveOrigin(false);                                     // Keine autom. Verbesserung vom Origin
-        SLApplication::devLoc.hasOrigin(true);
-        SLApplication::devRot.zeroYawAtStart(false);
-
-        // This loads the DEM file and overwrites the altitude of originLatLonAlt and defaultLatLonAlt
-        SLstring tif = SLApplication::dataPath + "erleb-AR/models/avenches/DTM-Aventicum-WGS84.tif";
-        SLApplication::devLoc.loadGeoTiff(tif);
-
-#if defined(SL_OS_MACIOS) || defined(SL_OS_ANDROID)
-        SLApplication::devLoc.isUsed(true);
-        SLApplication::devRot.isUsed(true);
-        cam1->camAnim(SLCamAnim::CA_deviceRotLocYUp);
-#else
-        SLApplication::devLoc.isUsed(false);
-        SLApplication::devRot.isUsed(false);
-        SLVec3d pos_d = SLApplication::devLoc.defaultENU() - SLApplication::devLoc.originENU();
-        SLVec3f pos_f((SLfloat)pos_d.x, (SLfloat)pos_d.y, (SLfloat)pos_d.z);
-        cam1->translation(pos_f);
-        cam1->focalDist(pos_f.length());
-        cam1->lookAt(SLVec3f::ZERO);
-        cam1->camAnim(SLCamAnim::CA_turntableYUp);
-#endif
-
-        sv->doWaitOnIdle(false); // for constant video feed
-        sv->camera(cam1);
-        s->root3D(scene);
-    }
     else if (SLApplication::sceneID == SID_ErlebARAventicumAmphiAO) //...................................
     {
         s->name("Aventicum Amphitheatre AR (AO)");
@@ -3977,7 +3962,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Create directional light for the sun light
         SLLightDirect* sunLight = new SLLightDirect(s, s, 5.0f);
-        sunLight->powers(1.0f, 1.0f, 1.0f);
+        sunLight->powers(1.0f, 1.5f, 1.0f);
         sunLight->attenuation(1, 0, 0);
         sunLight->translation(0, 10, 0);
         sunLight->lookAt(10, 0, 10);
@@ -4001,14 +3986,6 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Rotate to the true geographic rotation
         amphiTheatre->rotate(13.7f, 0, 1, 0, TS_parent);
-
-        /* Setup shadow mapping material and replace shader from loader
-        SLGLProgram* progPerPixNrmSM = new SLGLGenericProgram(s,
-                                                              SLApplication::shaderPath + "PerPixBlinnTexNrmSM.vert",
-                                                              SLApplication::shaderPath + "PerPixBlinnTexNrmSM.frag");
-        auto         updateMat       = [=](SLMaterial* mat) { mat->program(progPerPixNrmSM); };
-        amphiTheatre->updateMeshMat(updateMat, true);
-        */
 
         // Let the video shine through some objects
         amphiTheatre->findChild<SLNode>("Tht-Aussen-Untergrund")->setMeshMat(matVideoBackground, true);
@@ -4082,7 +4059,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Create directional light for the sun light
         SLLightDirect* sunLight = new SLLightDirect(s, s, 5.0f);
-        sunLight->powers(1.0f, 1.0f, 1.0f);
+        sunLight->powers(1.0f, 1.5f, 1.0f);
         sunLight->attenuation(1, 0, 0);
         sunLight->translation(0, 10, 0);
         sunLight->lookAt(10, 0, 10);
@@ -4183,7 +4160,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Create directional light for the sun light
         SLLightDirect* sunLight = new SLLightDirect(s, s, 5.0f);
-        sunLight->powers(1.0f, 1.0f, 1.0f);
+        sunLight->powers(1.0f, 1.5f, 1.0f);
         sunLight->attenuation(1, 0, 0);
         sunLight->translation(0, 10, 0);
         sunLight->lookAt(10, 0, 10);

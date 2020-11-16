@@ -240,6 +240,40 @@ private:
 
     static SLGLDefaultProgPerPixBlinnSM* _instance;
 };
+
+//-----------------------------------------------------------------------------
+// ! Global default shader program with per pixel lighting with shadow mapping and ambient occlusion
+/*!
+ * This default shader program is dependant from the number of lights in a
+ * scene and must therefore be deallocated at scene destruction.
+ */
+class SLGLDefaultProgPerPixBlinnSMAO : public SLGLGenericProgram
+{
+public:
+    static SLGLDefaultProgPerPixBlinnSMAO* instance()
+    {
+        if (!_instance)
+            _instance = new SLGLDefaultProgPerPixBlinnSMAO();
+        return _instance;
+    }
+    static void deleteInstance()
+    {
+        if (_instance)
+        {
+            delete _instance;
+            _instance = nullptr;
+        }
+    }
+    static bool isBuilt() { return _instance == nullptr ? false : true; }
+
+private:
+    SLGLDefaultProgPerPixBlinnSMAO()
+      : SLGLGenericProgram(nullptr,
+                           SLGLProgramManager::shaderDir + "PerPixBlinnSMAO.vert",
+                           SLGLProgramManager::shaderDir + "PerPixBlinnSMAO.frag"){};
+
+    static SLGLDefaultProgPerPixBlinnSMAO* _instance;
+};
 //-----------------------------------------------------------------------------
 // ! Global default shader program with per pixel lighting with texture and shadow mapping
 /*!
