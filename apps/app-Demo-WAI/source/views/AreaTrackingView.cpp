@@ -364,18 +364,6 @@ bool AreaTrackingView::updateGPSWAISlam(SENSFramePtr& frame)
     return isTracking;
 }
 
-bool AreaTrackingView::updateGPS(SENSFramePtr& frame)
-{
-    if (_camera)
-        frame = _camera->latestFrame();
-    //use gps and orientation sensor for camera position and orientation
-    //(even if there is no gps, devLoc gives us a guess of the current home position)
-    SLMat4f gpsPose = calcCameraPoseGpsOrientationBased();
-    _waiScene.camera->om(gpsPose);
-
-    return false;
-}
-
 // For marker initialization without arcore
 bool AreaTrackingView::updateWAISlamGPS(SENSFramePtr &frame)
 {
@@ -399,7 +387,6 @@ bool AreaTrackingView::updateWAISlamGPS(SENSFramePtr &frame)
 
     if (_waiSlam && _waiSlam->isInitialized()) // TODO: Add timing condition to fallback to GPS if WAISlam too slow
     {
-        _gui.showInfoText("Try slam reloc");
         //the intrinsics may change dynamically on focus changes (e.g. on iOS)
         if (!frame->intrinsics.empty())
         {
@@ -414,7 +401,6 @@ bool AreaTrackingView::updateWAISlamGPS(SENSFramePtr &frame)
             _transitionMatrix = gpsPose;
             _transitionMatrix.invert();
             _transitionMatrix = _transitionMatrix * pose;
-            _gui.showInfoText("WAISlam tracking");
             _waiScene.camera->om(pose);
         }
         else
@@ -427,6 +413,18 @@ bool AreaTrackingView::updateWAISlamGPS(SENSFramePtr &frame)
     return true;
 }
 
+bool AreaTrackingView::updateGPS(SENSFramePtr& frame)
+{
+    if (_camera)
+        frame = _camera->latestFrame();
+    //use gps and orientation sensor for camera position and orientation
+    //(even if there is no gps, devLoc gives us a guess of the current home position)
+    SLMat4f gpsPose = calcCameraPoseGpsOrientationBased();
+    _waiScene.camera->om(gpsPose);
+
+    return false;
+}
+
 bool AreaTrackingView::update()
 {
     try
@@ -436,12 +434,12 @@ bool AreaTrackingView::update()
             SENSFramePtr frame = nullptr;
 
             bool isTracking = false;
-            if (_config.useARCore)
-                isTracking = updateGPSARCore(frame);
-            else if (_config.useWAISlam && _config.useARCore)
+            if (_config.useWAISlam && _config.useARCore && _arcore->isAvailable())
                 isTracking = updateGPSWAISlamARCore(frame);
+            else if (_config.useARCore && _arcore->isAvailable())
+                isTracking = updateGPSARCore(frame);
             else if (_config.useWAISlam)
-                isTracking = updateGPSWAISlam(frame);
+                isTracking = updateGPSWAISlam(frame); //isTracking = updateWAISlamGPS(frame);
             else //fall back to orientation sensor and gps if available
                 isTracking = updateGPS(frame);
 
