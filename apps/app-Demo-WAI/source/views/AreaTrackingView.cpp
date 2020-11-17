@@ -8,7 +8,6 @@
 #define LOAD_ASYNC
 //#define TARGET_WIDTH 1920
 //#define TARGET_HEIGHT 1440
-
 #define TARGET_WIDTH 640
 #define TARGET_HEIGHT 360
 
@@ -236,7 +235,6 @@ bool AreaTrackingView::updateGPSARCore(SENSFramePtr& frame)
             _transitionMatrix.invert();
             _transitionMatrix    = gpsPose * _transitionMatrix;
             _hasTransitionMatrix = true;
-            _gui.showInfoText("GPS -> ARCore");
         }
     }
     else if (_arcore->isRunning() && isTracking)
@@ -315,7 +313,6 @@ bool AreaTrackingView::updateGPSWAISlamARCore(SENSFramePtr& frame)
             _transitionMatrix.invert();
             _transitionMatrix    = gpsPose * _transitionMatrix;
             _hasTransitionMatrix = true;
-            _gui.showInfoText("no map : GPS -> ARCore");
         }
         else
         {
@@ -386,6 +383,7 @@ bool AreaTrackingView::updateGPSWAISlam(SENSFramePtr& frame)
     //fallback to gps and orientation sensor
     if (!isTracking && _orientation)
     {
+        _gui.showInfoText("no tracking -> gps");
         //use gps and orientation sensor for camera position and orientation
         //(even if there is no gps, devLoc gives us a guess of the current home position)
         SLMat4f gpsPose = calcCameraPoseGpsOrientationBased();
@@ -424,11 +422,11 @@ bool AreaTrackingView::updateWAISlamGPS(SENSFramePtr& frame)
     if (_waiSlam && _waiSlam->isInitialized()) // TODO: Add timing condition to fallback to GPS if WAISlam too slow
     {
         //the intrinsics may change dynamically on focus changes (e.g. on iOS)
-        //if (!frame->intrinsics.empty())
-        //{
-        //    _waiSlam->changeIntrinsic(_camera->scaledCameraMat(), _camera->calibration()->distortion());
-        //    updateSceneCameraFov();
-        //}
+        if (!frame->intrinsics.empty())
+        {
+            _waiSlam->changeIntrinsic(_camera->scaledCameraMat(), _camera->calibration()->distortion());
+            updateSceneCameraFov();
+        }
 
         _waiSlam->update(frame->imgManip);
         if (WAI::TrackingState_TrackingOK == _waiSlam->getTrackingState())
@@ -448,6 +446,11 @@ bool AreaTrackingView::updateWAISlamGPS(SENSFramePtr& frame)
             _gui.showInfoText("gps + sensors tracking");
         }
     }
+    else
+    {
+        _gui.showInfoText("waislam not initizalied");
+    }
+    
     return true;
 }
 

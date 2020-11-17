@@ -462,7 +462,7 @@ void AppWAIScene::loadBielBFHRolex()
     bfh->updateMeshMat(updateMat, true);
 
     // Make terrain a video shine trough
-    bfh->findChild<SLNode>("Terrain")->setMeshMat(camera->matVideoBackground(), true);
+    //bfh->findChild<SLNode>("Terrain")->setMeshMat(camera->matVideoBackground(), true);
 
     // Make buildings transparent
     SLNode* buildings       = bfh->findChild<SLNode>("Buildings");

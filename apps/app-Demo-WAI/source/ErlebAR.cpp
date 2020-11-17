@@ -133,7 +133,7 @@ const Location defineLocationAvenches()
                   {46.88120, 7.04368, 461.43},                                                                                               //llaPos
                   170,                                                                                                                       //map viewing angle
                   {46.88102, 7.04263, 461.43},                                                                                               //modelOrigin
-                  "locations/avenches/amphitheaterEntrance/maps/map_20201006-134438_Avenches_Amphitheater-Entrance_FAST-ORBS-1000_2.waimap", //slamMapFileName
+                  "locations/avenches/amphitheaterEntrance/maps/stable-map_20200914-185624_avenches_amphitheaterEntrance_FAST-ORBS-2000_2.waimap", //slamMapFileName
                   "locations/avenches/amphitheaterEntrance/amphitheaterEntrance-reloc-align-img.jpg",                                        //relocAlignImage,
                   "calibrations/voc_fbow.bin",                                                                                               //vocFileName,
                   2,                                                                                                                         //vocLayer,
@@ -145,18 +145,18 @@ const Location defineLocationAvenches()
         loc.areas[area.id] = area;
     }
     {
-        Area area(AreaId::AVENCHES_AMPHITHEATER,                                                                            //id
-                  {46.88102, 7.04263, 461.43},                                                                              //llaPos
-                  -18,                                                                                                      //map viewing angle
-                  {46.88102, 7.04263, 461.43},                                                                              //modelOrigin
-                  "locations/avenches/amphitheater/maps/map_20201006-104306_Avenches_Amphitheater_FAST-ORBS-1000_2.waimap", //slamMapFileName
-                  "locations/avenches/amphitheater/amphitheater-reloc-align-img.jpg",                                       //relocAlignImage,
-                  "calibrations/voc_fbow.bin",                                                                              //vocFileName,
-                  2,                                                                                                        //vocLayer,
-                  {640, 360},                                                                                               //cameraFrameTargetSize
-                  ExtractorType::ExtractorType_FAST_ORBS_2000,                                                              //initializationExtractorType
-                  ExtractorType::ExtractorType_FAST_ORBS_1000,                                                              //relocalizationExtractorType
-                  ExtractorType::ExtractorType_FAST_ORBS_1000,                                                              //trackingExtractorType
+        Area area(AreaId::AVENCHES_AMPHITHEATER,                                                                                    //id
+                  {46.88102, 7.04263, 461.43},                                                                                      //llaPos
+                  -18,                                                                                                              //map viewing angle
+                  {46.88102, 7.04263, 461.43},                                                                                      //modelOrigin
+                  "locations/avenches/amphitheater/maps/release-map_20200930-160451_avenches_amphitheater_FAST-ORBS-2000_2.waimap", //slamMapFileName
+                  "locations/avenches/amphitheater/amphitheater-reloc-align-img.jpg",                                               //relocAlignImage,
+                  "calibrations/voc_fbow.bin",                                                                                      //vocFileName,
+                  2,                                                                                                                //vocLayer,
+                  {640, 360},                                                                                                       //cameraFrameTargetSize
+                  ExtractorType::ExtractorType_FAST_ORBS_2000,                                                                      //initializationExtractorType
+                  ExtractorType::ExtractorType_FAST_ORBS_1000,                                                                      //relocalizationExtractorType
+                  ExtractorType::ExtractorType_FAST_ORBS_1000,                                                                      //trackingExtractorType
                   2);
         loc.areas[area.id] = area;
     }
@@ -165,7 +165,7 @@ const Location defineLocationAvenches()
                   {46.88146, 7.04645, 450.95},                                                                                            //llaPos
                   -140,                                                                                                                   //map viewing angle
                   {46.88146, 7.04645, 450.95},                                                                                            //modelOrigin
-                  "locations/avenches/cigonier-marker/maps/DEVELOPMENT-map_20200529-162110_avenches_cigonier-marker_FAST_ORBS_2000.json", //slamMapFileName
+                  "locations/avenches/cigonier-marker/maps/map_20201007-215134_Avenches_Cigonier-marker_FAST-ORBS-2000_2.waimap", //slamMapFileName
                   "dummy.jpg",                                                                                                            //relocAlignImage,
                   "calibrations/voc_fbow.bin",                                                                                            //vocFileName,
                   2,                                                                                                                      //vocLayer,
@@ -237,7 +237,7 @@ const Location defineLocationBiel()
                   {47.14262, 7.24313, 488.3},                  //llaPos
                   60,                                          //map viewing angle
                   {47.14271, 7.24337, 487.0},                  //modelOrigin
-                  "",                                          //slamMapFileName
+                  "locations/biel/office/maps/DEVELOPMENT-map_20201116-165837_biel_office_FAST-ORBS-2000_2.waimap",                                          //slamMapFileName
                   "dummy.jpg",                                 //relocAlignImage,
                   "calibrations/voc_fbow.bin",                 //vocFileName,
                   2,                                           //vocLayer,
