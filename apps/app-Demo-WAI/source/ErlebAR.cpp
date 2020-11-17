@@ -102,7 +102,7 @@ const Location defineLocationAugst()
         loc.areas[area.id] = area;
     }
     {
-        Area area(AreaId::AUGST_TEMPLE_HILL,                                                                                    //id
+        Area area(AreaId::AUGST_THEATER_FRONT,                                                                                  //id
                   {47.53308, 7.72153, 285.6},                                                                                   //llaPos
                   -18,                                                                                                          //map viewing angle
                   {47.53319, 7.72207, 282.6},                                                                                   //modelOrigin
