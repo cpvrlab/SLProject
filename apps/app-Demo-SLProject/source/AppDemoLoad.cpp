@@ -3766,7 +3766,10 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         bern->findChild<SLNode>("Boden")->setMeshMat(matVideoBackground, true);
 
         // Set ambient on all child nodes
-        bern->updateMeshMat([](SLMaterial* m) { m->ambient(SLCol4f(.3f, .3f, .3f)); }, true);
+        bern->updateMeshMat([](SLMaterial* m)
+                            {   if (m->name() != "Kupfer-dunkel")
+                                    m->ambient(SLCol4f(.3f, .3f, .3f));
+                            }, true);
 
         // Add axis object a world origin (Loeb Ecke)
         SLNode* axis = new SLNode(new SLCoordAxis(s), "Axis Node");
@@ -3970,6 +3973,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sunLight->createsShadows(true);
         sunLight->createShadowMap(-100, 150, SLVec2f(150, 150), SLVec2i(2048, 2048));
         sunLight->doSmoothShadows(true);
+        sunLight->shadowMaxBias(0.02f);
         sunLight->castsShadows(false);
 
         // Let the sun be rotated by time and location
