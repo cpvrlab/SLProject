@@ -1374,11 +1374,11 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
 
                 if (ImGui::BeginMenu("Suzanne"))
                 {
-                    if (ImGui::MenuItem("w. pixel lighting (PL)", nullptr, sid == SID_SuzannePerPixBlinn))
+                    if (ImGui::MenuItem("w. per Pixel Lighting (PL)", nullptr, sid == SID_SuzannePerPixBlinn))
                         s->onLoad(s, sv, SID_SuzannePerPixBlinn);
-                    if (ImGui::MenuItem("w. PL and shadow mapping (MP)", nullptr, sid == SID_SuzannePerPixBlinnSM))
+                    if (ImGui::MenuItem("w. PL and Shadow Mapping (SM)", nullptr, sid == SID_SuzannePerPixBlinnSM))
                         s->onLoad(s, sv, SID_SuzannePerPixBlinnSM);
-                    if (ImGui::MenuItem("w. PL, MP and Ambient Occlusion (AO)", nullptr, sid == SID_SuzannePerPixBlinnSMAO))
+                    if (ImGui::MenuItem("w. PL, SM and Ambient Occlusion (AO)", nullptr, sid == SID_SuzannePerPixBlinnSMAO))
                         s->onLoad(s, sv, SID_SuzannePerPixBlinnSMAO);
                     if (ImGui::MenuItem("w. PL and Texture Mapping (TM)", nullptr, sid == SID_SuzannePerPixBlinnTex))
                         s->onLoad(s, sv, SID_SuzannePerPixBlinnTex);
