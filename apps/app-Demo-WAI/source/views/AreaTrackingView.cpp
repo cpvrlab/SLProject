@@ -241,8 +241,10 @@ bool AreaTrackingView::updateGPSARCore(SENSFramePtr& frame)
     else if (_arcore->isRunning() && isTracking)
     {
         _gui.showInfoText("ARCore tracking");
-        SLMat4f arPose = convertARCoreToSLMat(view);
-        _waiScene.camera->om(_transitionMatrix * arPose);
+        SLMat4f arPose  = convertARCoreToSLMat(view);
+        SLMat4f camPose = _transitionMatrix * arPose;
+        applyFingerCorrection(camPose);
+        _waiScene.camera->om(camPose);
     }
 
     return isTracking;
@@ -309,8 +311,10 @@ bool AreaTrackingView::updateGPSWAISlamARCore(SENSFramePtr& frame)
     else if (_arcore->isRunning() && isTracking)
     {
         _gui.showInfoText("ARCore tracking");
-        SLMat4f arPose = convertARCoreToSLMat(view);
-        _waiScene.camera->om(_transitionMatrix * arPose);
+        SLMat4f arPose  = convertARCoreToSLMat(view);
+        SLMat4f camPose = _transitionMatrix * arPose;
+        applyFingerCorrection(camPose);
+        _waiScene.camera->om(camPose);
     }
     else
     {
@@ -354,6 +358,7 @@ bool AreaTrackingView::updateGPSWAISlam(SENSFramePtr& frame)
         //use gps and orientation sensor for camera position and orientation
         //(even if there is no gps, devLoc gives us a guess of the current home position)
         SLMat4f gpsPose = calcCameraPoseGpsOrientationBased();
+        applyFingerCorrection(gpsPose);
         _waiScene.camera->om(gpsPose);
 
         //give waiSlam a guess of the current position in the ENU frame
@@ -365,10 +370,10 @@ bool AreaTrackingView::updateGPSWAISlam(SENSFramePtr& frame)
 }
 
 // For marker initialization without arcore
-bool AreaTrackingView::updateWAISlamGPS(SENSFramePtr &frame)
+bool AreaTrackingView::updateWAISlamGPS(SENSFramePtr& frame)
 {
     cv::Mat view;
-    bool isTracking = false;
+    bool    isTracking = false;
 
     SLMat4f gpsPose = calcCameraPoseGpsOrientationBased();
 
@@ -376,7 +381,7 @@ bool AreaTrackingView::updateWAISlamGPS(SENSFramePtr &frame)
     {
         cv::Mat proj;
         isTracking = _arcore->update(proj, view);
-        frame = _arcore->latestFrame();
+        frame      = _arcore->latestFrame();
     }
     else if (_camera)
         frame = _camera->latestFrame();
@@ -397,7 +402,7 @@ bool AreaTrackingView::updateWAISlamGPS(SENSFramePtr &frame)
         _waiSlam->update(frame->imgManip);
         if (WAI::TrackingState_TrackingOK == _waiSlam->getTrackingState())
         {
-            SLMat4f pose = convertWAISlamToSLMat(_waiSlam->getPose());
+            SLMat4f pose      = convertWAISlamToSLMat(_waiSlam->getPose());
             _transitionMatrix = gpsPose;
             _transitionMatrix.invert();
             _transitionMatrix = _transitionMatrix * pose;
@@ -420,9 +425,24 @@ bool AreaTrackingView::updateGPS(SENSFramePtr& frame)
     //use gps and orientation sensor for camera position and orientation
     //(even if there is no gps, devLoc gives us a guess of the current home position)
     SLMat4f gpsPose = calcCameraPoseGpsOrientationBased();
+    applyFingerCorrection(gpsPose);
+
+    //SLMat4f gpsPoseCorr = _cameraFingerCorr.getCorrectionMat(focalLength) * gpsPose;
     _waiScene.camera->om(gpsPose);
 
     return false;
+}
+
+void AreaTrackingView::applyFingerCorrection(SLMat4f& camPose)
+{
+    float   focalLength = scrH() / (2 * tan(0.5f * this->camera()->fovV() * DEG2RAD));
+    float   rotAngRAD   = _cameraFingerCorr.getRotAngleRAD(focalLength);
+    SLMat4f rot;
+    rot.translate(camPose.translation());
+    rot.rotate(rotAngRAD * Utils::RAD2DEG, SLVec3f(0, 1, 0));
+    rot.translate(-camPose.translation()); //this is multiplied first
+
+    camPose = rot * camPose;
 }
 
 bool AreaTrackingView::update()
@@ -440,7 +460,7 @@ bool AreaTrackingView::update()
                 isTracking = updateGPSARCore(frame);
             else if (_config.useWAISlam)
                 isTracking = updateGPSWAISlam(frame); //isTracking = updateWAISlamGPS(frame);
-            else //fall back to orientation sensor and gps if available
+            else                                      //fall back to orientation sensor and gps if available
                 isTracking = updateGPS(frame);
 
             if (_asyncLoader && _asyncLoader->isReady())
@@ -535,6 +555,8 @@ void AreaTrackingView::onShow()
                                                      _deviceData.writableDir() + "SENSSimData",
                                                      std::bind(&AreaTrackingView::onCameraParamsChanged, this));
     }
+
+    _cameraFingerCorr.clear();
 }
 
 void AreaTrackingView::onHide()
@@ -558,7 +580,26 @@ void AreaTrackingView::onHide()
 SLbool AreaTrackingView::onMouseDown(SLMouseButton button, SLint scrX, SLint scrY, SLKey mod)
 {
     SLbool ret = SLSceneView::onMouseDown(button, scrX, scrY, mod);
-    _gui.mouseDown(_gui.doNotDispatchMouse());
+
+    //Utils::log("AreaTrackingView", "doNotDispatchMouse: %s", _gui.doNotDispatchMouse() ? "true" : "false");
+    _gui.mouseDown(button, _gui.doNotDispatchMouse());
+
+    if (button == MB_left && !_gui.doNotDispatchMouse())
+        _cameraFingerCorr.onMouseDown(scrX, scrY);
+
+    return ret;
+}
+
+SLbool AreaTrackingView::onMouseUp(SLMouseButton button, SLint scrX, SLint scrY, SLKey mod)
+{
+    SLbool ret = SLSceneView::onMouseUp(button, scrX, scrY, mod);
+
+    _gui.mouseUp(button, _gui.doNotDispatchMouse());
+    if (button == MB_left)
+    {
+        _cameraFingerCorr.onMouseUp(scrX, scrY);
+    }
+
     return ret;
 }
 
@@ -566,6 +607,9 @@ SLbool AreaTrackingView::onMouseMove(SLint x, SLint y)
 {
     SLbool ret = SLSceneView::onMouseMove(x, y);
     _gui.mouseMove(_gui.doNotDispatchMouse());
+
+    _cameraFingerCorr.onMouseMove(x, y);
+
     return ret;
 }
 
