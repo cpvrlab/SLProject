@@ -5,7 +5,7 @@
 #include <Utils.h>
 #include <GlobalTimer.h>
 
-//#define LOAD_ASYNC
+#define LOAD_ASYNC
 //#define TARGET_WIDTH 1920
 //#define TARGET_HEIGHT 1440
 
@@ -91,7 +91,6 @@ void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaI
         this->onInitialize(); //init scene view
 
         //init arcore
-
         if (_arcore && _config.useARCore)
         {
             _arcore->init(TARGET_WIDTH, TARGET_HEIGHT, area.cameraFrameTargetSize.width, area.cameraFrameTargetSize.height, true);
@@ -301,8 +300,8 @@ bool AreaTrackingView::updateGPSWAISlamARCore(SENSFramePtr& frame)
             {
                 _transitionMatrix = convertARCoreToSLMat(view);
                 _transitionMatrix.invert();
-                _transitionMatrix = convertWAISlamToSLMat(_waiSlam->getPose()) * _transitionMatrix;
-                //_hasTransitionMatrix = true;
+                _transitionMatrix    = convertWAISlamToSLMat(_waiSlam->getPose()) * _transitionMatrix;
+                _hasTransitionMatrix = true;
                 _gui.showInfoText("WAISlam -> ARCore");
             }
             else
@@ -859,7 +858,7 @@ void AreaTrackingView::initDeviceLocation(const ErlebAR::Location& location, con
     _devLoc.originLatLonAlt(area.modelOrigin.x, area.modelOrigin.y, area.modelOrigin.z); // Model origin
     _devLoc.defaultLatLonAlt(area.llaPos.x, area.llaPos.y, area.llaPos.z + _devLoc.cameraHeightM());
     //ATTENTION: call this after originLatLonAlt and defaultLatLonAlt setters. Otherwise alititude will be overwritten!!
-    if (!location.geoTiffFileName.empty())
+    if (_config.useGps && !location.geoTiffFileName.empty())
     {
         std::string geoTiffFileName = _deviceData.erlebARDir() + location.geoTiffFileName;
         if (Utils::fileExists(geoTiffFileName))
