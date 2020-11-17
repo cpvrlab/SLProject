@@ -234,7 +234,7 @@ const Location defineLocationBiel()
 
     {
         Area area(AreaId::BIEL_BFH,                            //id
-                  {47.14263, 7.24314, 488.3},                  //llaPos
+                  {47.14262, 7.24313, 488.3},                  //llaPos
                   60,                                          //map viewing angle
                   {47.14271, 7.24337, 487.0},                  //modelOrigin
                   "",                                          //slamMapFileName

@@ -532,11 +532,14 @@ void ErlebARApp::ABOUT(const sm::NoEventData* data, const bool stateEntry, const
 void ErlebARApp::SETTINGS(const sm::NoEventData* data, const bool stateEntry, const bool stateExit)
 {
     if (stateExit)
+    {
+        _settingsView->onHide();
         return;
+    }
 
     if (stateEntry)
     {
-        _settingsView->show();
+        _settingsView->onShow();
     }
 
     _settingsView->update();

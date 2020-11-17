@@ -27,9 +27,154 @@
 #include <sens/SENSSimHelper.h>
 #include <SLDeviceLocation.h>
 #include <sens/SENSARCore.h>
+#include <math/SLAlgo.h>
+#include <SLDeviceRotation.h>
 
 class SENSCamera;
 class MapLoader;
+
+class CameraPoseFingerCorrection
+{
+public:
+    CameraPoseFingerCorrection()
+    {
+        clear();
+        //rotation of camera w.r.t sensor
+        _sRc.rotation(-90, 0, 0, 1);
+    }
+
+    void onMouseDown(int x, int y)
+    {
+        _activeMove  = true;
+        _xLastPosPix = x;
+        _yLastPosPix = y;
+    }
+    void onMouseMove(int x, int y)
+    {
+        if (!_activeMove)
+            return;
+
+        _xOffsetPix += (x - _xLastPosPix);
+        _yOffsetPix += (y - _yLastPosPix);
+        _xLastPosPix = x;
+        _yLastPosPix = y;
+    }
+
+    void onMouseUp(int x, int y)
+    {
+        _activeMove = false;
+    }
+
+    /*
+    void onMouseUpHorizon(int x, int y, const SLMat3f& sensorRot)
+    {
+        _xOffsetPix += (x - _xLastPosPix);
+        _yOffsetPix += (y - _yLastPosPix);
+        _xLastPosPix = x;
+        _yLastPosPix = y;
+
+        _activeMove = false;
+
+        //calculate the offset matrix:
+        //use the horizon angle to transform finger movements from screen to world alignment
+        SLVec3f horizon;
+        SLAlgo::estimateHorizon(sensorRot, _sRc, horizon);
+
+        //angle between x-axis and horizon
+        float horizAngDEG = atan2f((float)horizon.y, (float)horizon.x) * RAD2DEG;
+
+        //rotate display x- and y-offsets to enuUp - horizon plane
+        SLVec3f cOffsetPix(_xOffsetPix, _yOffsetPix, 0.f);
+        SLMat3f rot(horizAngDEG, 0, 0, 1);
+        SLVec3f enuOffsetPix = rot * cOffsetPix;
+
+        _wcorrTw.identity();
+
+        //build y rotation matrix
+        SLMat3f rotY(_yRotRAD * Utils::RAD2DEG, 0, 1, 0);
+
+        //clear finger movement
+        _xOffsetPix = 0;
+        _yOffsetPix = 0;
+    }
+    */
+
+    const SLMat4f& getCorrectionMat(float focalLength)
+    {
+        if (_yOffsetPix != 0 || _xOffsetPix != 0)
+        {
+            //calculate the offset matrix:
+            float yRotOffsetRAD = atanf((float)_xOffsetPix / focalLength);
+            _yRotRAD += yRotOffsetRAD;
+
+            //we have to apply the rotation around the camera origin
+            //build y rotation matrix
+            SLMat3f rotY(_yRotRAD * Utils::RAD2DEG, 0, 1, 0);
+
+            _wcorrTw.identity();
+            _wcorrTw.setRotation(rotY);
+            _wcorrTw.print("_wcorrTw");
+
+            //clear finger movement
+            _xOffsetPix = 0;
+            _yOffsetPix = 0;
+        }
+
+        return _wcorrTw;
+    }
+
+    float getRotAngleRAD(float focalLength)
+    {
+        if (_yOffsetPix != 0 || _xOffsetPix != 0)
+        {
+            //calculate the offset matrix:
+            float yRotOffsetRAD = atanf((float)_xOffsetPix / focalLength);
+            _yRotRAD += yRotOffsetRAD;
+
+            //we have to apply the rotation around the camera origin
+            //build y rotation matrix
+            //SLMat3f rotY(_yRotRAD * Utils::RAD2DEG, 0, 1, 0);
+
+            //_wcorrTw.identity();
+            //_wcorrTw.setRotation(rotY);
+            //_wcorrTw.print("_wcorrTw");
+
+            //clear finger movement
+            _xOffsetPix = 0;
+            _yOffsetPix = 0;
+        }
+
+        return _yRotRAD;
+    }
+
+    void clear()
+    {
+        _xOffsetPix  = 0;
+        _yOffsetPix  = 0;
+        _xLastPosPix = 0;
+        _yLastPosPix = 0;
+
+        _yRotRAD    = 0.f;
+        _activeMove = false;
+        _wcorrTw.identity();
+    }
+
+private:
+    //parameter for manual finger rotation and translation
+    int  _xOffsetPix  = 0;
+    int  _yOffsetPix  = 0;
+    int  _xLastPosPix = 0;
+    int  _yLastPosPix = 0;
+    bool _activeMove  = false;
+
+    float _yRotRAD = 0;
+
+    float _distanceToObjectM = 10.0f; //!< distance to object in meter that should be shifted relative to camera
+
+    //camera wrt. sensor rotation
+    SLMat3f _sRc;
+    SLMat4f _wcorrTw;
+};
 
 class AreaTrackingView : public SLSceneView
 {
@@ -63,13 +208,14 @@ public:
 
 private:
     virtual SLbool onMouseDown(SLMouseButton button, SLint scrX, SLint scrY, SLKey mod);
+    virtual SLbool onMouseUp(SLMouseButton button, SLint scrX, SLint scrY, SLKey mod);
     virtual SLbool onMouseMove(SLint x, SLint y);
 
     bool updateGPSARCore(SENSFramePtr& frame);
     bool updateGPSWAISlamARCore(SENSFramePtr& frame);
     bool updateGPSWAISlam(SENSFramePtr& frame);
     bool updateGPS(SENSFramePtr& frame);
-    bool updateWAISlamGPS(SENSFramePtr &frame);
+    bool updateWAISlamGPS(SENSFramePtr& frame);
 
     void    updateSceneCameraFov();
     void    updateVideoImage(SENSFrame& frame, VideoBackgroundCamera* videoBackground);
@@ -81,6 +227,7 @@ private:
     void    onCameraParamsChanged();
     SLMat4f calcCameraPoseGpsOrientationBased();
     cv::Mat convertCameraPoseToWaiCamExtrinisc(SLMat4f& wTc);
+    void    applyFingerCorrection(SLMat4f& camPose);
 
     AreaTrackingGui   _gui;
     AppWAIScene       _waiScene;
@@ -129,8 +276,11 @@ private:
     std::unique_ptr<SENSSimHelper> _simHelper;
 
     SLDeviceLocation _devLoc;
+    SLDeviceRotation _devRot;
     //indicates if intArea finished successfully
     bool _noInitException = false;
+
+    CameraPoseFingerCorrection _cameraFingerCorr;
 };
 
 //! Async loader for vocabulary and maps

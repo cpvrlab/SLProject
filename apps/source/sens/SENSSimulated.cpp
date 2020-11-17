@@ -297,7 +297,7 @@ SENSSimulatedCamera::SENSSimulatedCamera(StartSimCB                             
   : SENSSimulated("camera", startSimCB, sensorSimStoppedCB, std::move(data), clock),
     _videoFileName(videoFileName)
 {
-    _config = cameraConfig;
+    _config            = cameraConfig;
     _permissionGranted = true;
 }
 
@@ -318,6 +318,9 @@ void SENSSimulatedCamera::feedSensorData(const int counter)
 
 void SENSSimulatedCamera::prepareSensorData(const int counter)
 {
+    if (counter >= _data.size())
+        return;
+
     int frameIndex = _data[counter].second;
     if (frameIndex == _preparedFrameIndex)
         return;

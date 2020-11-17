@@ -34,7 +34,7 @@ AreaTrackingGui::~AreaTrackingGui()
 void AreaTrackingGui::onShow()
 {
     _panScroll.enable();
-    _opacityController.reset();
+    _opacityController.resetVisible();
     if (_simHelperGui)
         _simHelperGui->reset();
 }
@@ -58,20 +58,23 @@ void AreaTrackingGui::resize(int scrW, int scrH)
     _textWrapW               = 0.9f * _screenW;
 }
 
-void AreaTrackingGui::mouseDown(bool doNotDispatch)
+void AreaTrackingGui::mouseDown(SLMouseButton button, bool doNotDispatch)
 {
-    if (doNotDispatch)
-        _opacityController.reset();
-    else
-        _opacityController.mouseDown();
+    _opacityController.mouseDown(doNotDispatch);
 }
 
 void AreaTrackingGui::mouseMove(bool doNotDispatch)
 {
     //In this case we reset if event was already dispatched by imgui, e.g.
     //when the user moves the slider, we dont want the ui to hide
-    if (doNotDispatch)
-        _opacityController.reset();
+    _opacityController.mouseMove();
+    Utils::log("AreaTrackingGui", "mouseMove");
+}
+
+void AreaTrackingGui::mouseUp(SLMouseButton button, bool doNotDispatch)
+{
+    if (button == MB_left)
+        _opacityController.mouseUp(doNotDispatch);
 }
 
 void AreaTrackingGui::build(SLScene* s, SLSceneView* sv)
