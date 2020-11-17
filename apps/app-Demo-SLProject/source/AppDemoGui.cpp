@@ -39,7 +39,9 @@
 #include <Instrumentor.h>
 
 #ifdef SL_BUILD_WAI
+
 #    include <Eigen/Dense>
+
 #endif
 
 //-----------------------------------------------------------------------------
@@ -59,6 +61,7 @@ static auto vectorGetter = [](void* vec, int idx, const char** out_text) {
     *out_text = vector.at((SLuint)idx).c_str();
     return true;
 };
+
 //-----------------------------------------------------------------------------
 //! Combobox that allows to pass the items as a string vector
 bool myComboBox(const char* label, int* currIndex, SLVstring& values)
@@ -72,6 +75,7 @@ bool myComboBox(const char* label, int* currIndex, SLVstring& values)
                         (void*)&values,
                         (int)values.size());
 }
+
 //-----------------------------------------------------------------------------
 //! Listbox that allows to pass the items as a string vector
 bool myListBox(const char* label, int* currIndex, SLVstring& values)
@@ -85,6 +89,7 @@ bool myListBox(const char* label, int* currIndex, SLVstring& values)
                           (void*)&values,
                           (int)values.size());
 }
+
 //-----------------------------------------------------------------------------
 //! Centers the next ImGui window in the parent
 void centerNextWindow(SLSceneView* sv,
@@ -98,6 +103,7 @@ void centerNextWindow(SLSceneView* sv,
     ImGui::SetNextWindowSize(ImVec2(width, height), ImGuiCond_Always);
     ImGui::SetNextWindowPos(ImVec2(offsetX, offsetY), ImGuiCond_Always);
 }
+
 //-----------------------------------------------------------------------------
 // Init global static variables
 SLstring    AppDemoGui::configTime          = "-";
@@ -124,24 +130,14 @@ std::time_t AppDemoGui::adjustedTime        = 0;
 SLbool      AppDemoGui::_horizonVisuEnabled = false;
 
 // Scene node for Christoffel objects
-static SLNode* bern          = nullptr;
-static SLNode* umgeb_dach    = nullptr;
-static SLNode* umgeb_fass    = nullptr;
-static SLNode* boden         = nullptr;
-static SLNode* balda_stahl   = nullptr;
-static SLNode* balda_glas    = nullptr;
-static SLNode* mauer_wand    = nullptr;
-static SLNode* mauer_dach    = nullptr;
-static SLNode* mauer_turm    = nullptr;
-static SLNode* mauer_weg     = nullptr;
-static SLNode* grab_mauern   = nullptr;
-static SLNode* grab_brueck   = nullptr;
-static SLNode* grab_grass    = nullptr;
-static SLNode* grab_t_dach   = nullptr;
-static SLNode* grab_t_fahn   = nullptr;
-static SLNode* grab_t_stein  = nullptr;
-static SLNode* christ_aussen = nullptr;
-static SLNode* christ_innen  = nullptr;
+static SLNode* bern        = nullptr;
+static SLNode* umgeb_dach  = nullptr;
+static SLNode* umgeb_fass  = nullptr;
+static SLNode* boden       = nullptr;
+static SLNode* balda_stahl = nullptr;
+static SLNode* balda_glas  = nullptr;
+static SLNode* mauer       = nullptr;
+static SLNode* graben      = nullptr;
 
 // Temp. transform node
 static SLTransformNode* transformNode = nullptr;
@@ -200,6 +196,7 @@ Please close first this info dialog on the top-left.\n\
 
 //-----------------------------------------------------------------------------
 off64_t ftpXferSizeMax = 0;
+
 //-----------------------------------------------------------------------------
 // Callback routine for FTP file transfer to progress the progressbar
 int ftpCallbackXfer(off64_t xfered, void* arg)
@@ -214,6 +211,7 @@ int ftpCallbackXfer(off64_t xfered, void* arg)
         cout << "Bytes transferred: " << xfered << endl;
     return xfered ? 1 : 0;
 }
+
 //-----------------------------------------------------------------------------
 void AppDemoGui::clear()
 {
@@ -857,66 +855,111 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
                 SLfloat                 s1 = 1.01f, s2 = 1.1f, s3 = 1.5f; // Scale factors
 
                 // clang-format off
-                ImGui::Text("Space:"); ImGui::SameLine();
-                if (ImGui::RadioButton("World",  (int*)&tSpace, 0)) tSpace = TS_world; ImGui::SameLine();
-                if (ImGui::RadioButton("Parent", (int*)&tSpace, 1)) tSpace = TS_parent; ImGui::SameLine();
-                if (ImGui::RadioButton("Object", (int*)&tSpace, 2)) tSpace = TS_object;
+                ImGui::Text("Space:");
+                ImGui::SameLine();
+                if (ImGui::RadioButton("World", (int *) &tSpace, 0)) tSpace = TS_world;
+                ImGui::SameLine();
+                if (ImGui::RadioButton("Parent", (int *) &tSpace, 1)) tSpace = TS_parent;
+                ImGui::SameLine();
+                if (ImGui::RadioButton("Object", (int *) &tSpace, 2)) tSpace = TS_object;
                 ImGui::Separator();
 
-                ImGui::Text("Transl. X :"); ImGui::SameLine();
-                if (ImGui::Button("<<<##Tx")) selNode->translate(-t3, 0, 0, tSpace); ImGui::SameLine();
-                if (ImGui::Button("<<##Tx"))  selNode->translate(-t2, 0, 0, tSpace); ImGui::SameLine();
-                if (ImGui::Button("<##Tx"))   selNode->translate(-t1, 0, 0, tSpace); ImGui::SameLine();
-                if (ImGui::Button(">##Tx"))   selNode->translate( t1, 0, 0, tSpace); ImGui::SameLine();
-                if (ImGui::Button(">>##Tx"))  selNode->translate( t2, 0, 0, tSpace); ImGui::SameLine();
-                if (ImGui::Button(">>>##Tx")) selNode->translate( t3, 0, 0, tSpace);
+                ImGui::Text("Transl. X :");
+                ImGui::SameLine();
+                if (ImGui::Button("<<<##Tx")) selNode->translate(-t3, 0, 0, tSpace);
+                ImGui::SameLine();
+                if (ImGui::Button("<<##Tx")) selNode->translate(-t2, 0, 0, tSpace);
+                ImGui::SameLine();
+                if (ImGui::Button("<##Tx")) selNode->translate(-t1, 0, 0, tSpace);
+                ImGui::SameLine();
+                if (ImGui::Button(">##Tx")) selNode->translate(t1, 0, 0, tSpace);
+                ImGui::SameLine();
+                if (ImGui::Button(">>##Tx")) selNode->translate(t2, 0, 0, tSpace);
+                ImGui::SameLine();
+                if (ImGui::Button(">>>##Tx")) selNode->translate(t3, 0, 0, tSpace);
 
-                ImGui::Text("Transl. Y :"); ImGui::SameLine();
-                if (ImGui::Button("<<<##Ty")) selNode->translate(0, -t3, 0, tSpace); ImGui::SameLine();
-                if (ImGui::Button("<<##Ty"))  selNode->translate(0, -t2, 0, tSpace); ImGui::SameLine();
-                if (ImGui::Button("<##Ty"))   selNode->translate(0, -t1, 0, tSpace); ImGui::SameLine();
-                if (ImGui::Button(">##Ty"))   selNode->translate(0,  t1, 0, tSpace); ImGui::SameLine();
-                if (ImGui::Button(">>##Ty"))  selNode->translate(0,  t2, 0, tSpace); ImGui::SameLine();
-                if (ImGui::Button(">>>##Ty")) selNode->translate(0,  t3, 0, tSpace);
+                ImGui::Text("Transl. Y :");
+                ImGui::SameLine();
+                if (ImGui::Button("<<<##Ty")) selNode->translate(0, -t3, 0, tSpace);
+                ImGui::SameLine();
+                if (ImGui::Button("<<##Ty")) selNode->translate(0, -t2, 0, tSpace);
+                ImGui::SameLine();
+                if (ImGui::Button("<##Ty")) selNode->translate(0, -t1, 0, tSpace);
+                ImGui::SameLine();
+                if (ImGui::Button(">##Ty")) selNode->translate(0, t1, 0, tSpace);
+                ImGui::SameLine();
+                if (ImGui::Button(">>##Ty")) selNode->translate(0, t2, 0, tSpace);
+                ImGui::SameLine();
+                if (ImGui::Button(">>>##Ty")) selNode->translate(0, t3, 0, tSpace);
 
-                ImGui::Text("Transl. Z :"); ImGui::SameLine();
-                if (ImGui::Button("<<<##Tz")) selNode->translate(0, 0, -t3, tSpace); ImGui::SameLine();
-                if (ImGui::Button("<<##Tz"))  selNode->translate(0, 0, -t2, tSpace); ImGui::SameLine();
-                if (ImGui::Button("<##Tz"))   selNode->translate(0, 0, -t1, tSpace); ImGui::SameLine();
-                if (ImGui::Button(">##Tz"))   selNode->translate(0, 0,  t1, tSpace); ImGui::SameLine();
-                if (ImGui::Button(">>##Tz"))  selNode->translate(0, 0,  t2, tSpace); ImGui::SameLine();
-                if (ImGui::Button(">>>##Tz")) selNode->translate(0, 0,  t3, tSpace);
+                ImGui::Text("Transl. Z :");
+                ImGui::SameLine();
+                if (ImGui::Button("<<<##Tz")) selNode->translate(0, 0, -t3, tSpace);
+                ImGui::SameLine();
+                if (ImGui::Button("<<##Tz")) selNode->translate(0, 0, -t2, tSpace);
+                ImGui::SameLine();
+                if (ImGui::Button("<##Tz")) selNode->translate(0, 0, -t1, tSpace);
+                ImGui::SameLine();
+                if (ImGui::Button(">##Tz")) selNode->translate(0, 0, t1, tSpace);
+                ImGui::SameLine();
+                if (ImGui::Button(">>##Tz")) selNode->translate(0, 0, t2, tSpace);
+                ImGui::SameLine();
+                if (ImGui::Button(">>>##Tz")) selNode->translate(0, 0, t3, tSpace);
 
-                ImGui::Text("Rotation X:"); ImGui::SameLine();
-                if (ImGui::Button("<<<##Rx")) selNode->rotate( r3, 1, 0, 0, tSpace); ImGui::SameLine();
-                if (ImGui::Button("<<##Rx"))  selNode->rotate( r2, 1, 0, 0, tSpace); ImGui::SameLine();
-                if (ImGui::Button("<##Rx"))   selNode->rotate( r1, 1, 0, 0, tSpace); ImGui::SameLine();
-                if (ImGui::Button(">##Rx"))   selNode->rotate(-r1, 1, 0, 0, tSpace); ImGui::SameLine();
-                if (ImGui::Button(">>##Rx"))  selNode->rotate(-r2, 1, 0, 0, tSpace); ImGui::SameLine();
+                ImGui::Text("Rotation X:");
+                ImGui::SameLine();
+                if (ImGui::Button("<<<##Rx")) selNode->rotate(r3, 1, 0, 0, tSpace);
+                ImGui::SameLine();
+                if (ImGui::Button("<<##Rx")) selNode->rotate(r2, 1, 0, 0, tSpace);
+                ImGui::SameLine();
+                if (ImGui::Button("<##Rx")) selNode->rotate(r1, 1, 0, 0, tSpace);
+                ImGui::SameLine();
+                if (ImGui::Button(">##Rx")) selNode->rotate(-r1, 1, 0, 0, tSpace);
+                ImGui::SameLine();
+                if (ImGui::Button(">>##Rx")) selNode->rotate(-r2, 1, 0, 0, tSpace);
+                ImGui::SameLine();
                 if (ImGui::Button(">>>##Rx")) selNode->rotate(-r3, 1, 0, 0, tSpace);
 
-                ImGui::Text("Rotation Y:"); ImGui::SameLine();
-                if (ImGui::Button("<<<##Ry")) selNode->rotate( r3, 0, 1, 0, tSpace); ImGui::SameLine();
-                if (ImGui::Button("<<##Ry"))  selNode->rotate( r2, 0, 1, 0, tSpace); ImGui::SameLine();
-                if (ImGui::Button("<##Ry"))   selNode->rotate( r1, 0, 1, 0, tSpace); ImGui::SameLine();
-                if (ImGui::Button(">##Ry"))   selNode->rotate(-r1, 0, 1, 0, tSpace); ImGui::SameLine();
-                if (ImGui::Button(">>##Ry"))  selNode->rotate(-r2, 0, 1, 0, tSpace); ImGui::SameLine();
+                ImGui::Text("Rotation Y:");
+                ImGui::SameLine();
+                if (ImGui::Button("<<<##Ry")) selNode->rotate(r3, 0, 1, 0, tSpace);
+                ImGui::SameLine();
+                if (ImGui::Button("<<##Ry")) selNode->rotate(r2, 0, 1, 0, tSpace);
+                ImGui::SameLine();
+                if (ImGui::Button("<##Ry")) selNode->rotate(r1, 0, 1, 0, tSpace);
+                ImGui::SameLine();
+                if (ImGui::Button(">##Ry")) selNode->rotate(-r1, 0, 1, 0, tSpace);
+                ImGui::SameLine();
+                if (ImGui::Button(">>##Ry")) selNode->rotate(-r2, 0, 1, 0, tSpace);
+                ImGui::SameLine();
                 if (ImGui::Button(">>>##Ry")) selNode->rotate(-r3, 0, 1, 0, tSpace);
 
-                ImGui::Text("Rotation Z:"); ImGui::SameLine();
-                if (ImGui::Button("<<<##Rz")) selNode->rotate( r3, 0, 0, 1, tSpace); ImGui::SameLine();
-                if (ImGui::Button("<<##Rz"))  selNode->rotate( r2, 0, 0, 1, tSpace); ImGui::SameLine();
-                if (ImGui::Button("<##Rz"))   selNode->rotate( r1, 0, 0, 1, tSpace); ImGui::SameLine();
-                if (ImGui::Button(">##Rz"))   selNode->rotate(-r1, 0, 0, 1, tSpace); ImGui::SameLine();
-                if (ImGui::Button(">>##Rz"))  selNode->rotate(-r2, 0, 0, 1, tSpace); ImGui::SameLine();
+                ImGui::Text("Rotation Z:");
+                ImGui::SameLine();
+                if (ImGui::Button("<<<##Rz")) selNode->rotate(r3, 0, 0, 1, tSpace);
+                ImGui::SameLine();
+                if (ImGui::Button("<<##Rz")) selNode->rotate(r2, 0, 0, 1, tSpace);
+                ImGui::SameLine();
+                if (ImGui::Button("<##Rz")) selNode->rotate(r1, 0, 0, 1, tSpace);
+                ImGui::SameLine();
+                if (ImGui::Button(">##Rz")) selNode->rotate(-r1, 0, 0, 1, tSpace);
+                ImGui::SameLine();
+                if (ImGui::Button(">>##Rz")) selNode->rotate(-r2, 0, 0, 1, tSpace);
+                ImGui::SameLine();
                 if (ImGui::Button(">>>##Rz")) selNode->rotate(-r3, 0, 0, 1, tSpace);
 
-                ImGui::Text("Scale     :"); ImGui::SameLine();
-                if (ImGui::Button("<<<##S")) selNode->scale( s3); ImGui::SameLine();
-                if (ImGui::Button("<<##S"))  selNode->scale( s2); ImGui::SameLine();
-                if (ImGui::Button("<##S"))   selNode->scale( s1); ImGui::SameLine();
-                if (ImGui::Button(">##S"))   selNode->scale(-s1); ImGui::SameLine();
-                if (ImGui::Button(">>##S"))  selNode->scale(-s2); ImGui::SameLine();
+                ImGui::Text("Scale     :");
+                ImGui::SameLine();
+                if (ImGui::Button("<<<##S")) selNode->scale(s3);
+                ImGui::SameLine();
+                if (ImGui::Button("<<##S")) selNode->scale(s2);
+                ImGui::SameLine();
+                if (ImGui::Button("<##S")) selNode->scale(s1);
+                ImGui::SameLine();
+                if (ImGui::Button(">##S")) selNode->scale(-s1);
+                ImGui::SameLine();
+                if (ImGui::Button(">>##S")) selNode->scale(-s2);
+                ImGui::SameLine();
                 if (ImGui::Button(">>>##S")) selNode->scale(-s3);
                 ImGui::Separator();
                 // clang-format on
@@ -1078,24 +1121,14 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
             // Get scene nodes once
             if (!bern)
             {
-                bern          = s->root3D()->findChild<SLNode>("Bern-Bahnhofsplatz.fbx");
-                boden         = bern->findChild<SLNode>("Boden", true);
-                balda_stahl   = bern->findChild<SLNode>("Baldachin-Stahl", true);
-                balda_glas    = bern->findChild<SLNode>("Baldachin-Glas", true);
-                umgeb_dach    = bern->findChild<SLNode>("Umgebung-Daecher", true);
-                umgeb_fass    = bern->findChild<SLNode>("Umgebung-Fassaden", true);
-                mauer_wand    = bern->findChild<SLNode>("Mauer-Wand", true);
-                mauer_dach    = bern->findChild<SLNode>("Mauer-Dach", true);
-                mauer_turm    = bern->findChild<SLNode>("Mauer-Turm", true);
-                mauer_weg     = bern->findChild<SLNode>("Mauer-Weg", true);
-                grab_mauern   = bern->findChild<SLNode>("Graben-Mauern", true);
-                grab_brueck   = bern->findChild<SLNode>("Graben-Bruecken", true);
-                grab_grass    = bern->findChild<SLNode>("Graben-Grass", true);
-                grab_t_dach   = bern->findChild<SLNode>("Graben-Turm-Dach", true);
-                grab_t_fahn   = bern->findChild<SLNode>("Graben-Turm-Fahne", true);
-                grab_t_stein  = bern->findChild<SLNode>("Graben-Turm-Stein", true);
-                christ_aussen = bern->findChild<SLNode>("Christoffel-Aussen", true);
-                christ_innen  = bern->findChild<SLNode>("Christoffel-Innen", true);
+                bern        = s->root3D()->findChild<SLNode>("Bern-Bahnhofsplatz2.gltf");
+                boden       = bern->findChild<SLNode>("Boden", true);
+                balda_stahl = bern->findChild<SLNode>("Baldachin-Stahl", true);
+                balda_glas  = bern->findChild<SLNode>("Baldachin-Glas", true);
+                umgeb_dach  = bern->findChild<SLNode>("Umgebung-Daecher", true);
+                umgeb_fass  = bern->findChild<SLNode>("Umgebung-Fassaden", true);
+                mauer       = bern->findChild<SLNode>("Mauer", true);
+                graben      = bern->findChild<SLNode>("Graben", true);
             }
 
             ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.66f);
@@ -1120,58 +1153,31 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
                 balda_glas->drawBits()->set(SL_DB_HIDDEN, !baldachin);
             }
 
-            SLbool mauer = !mauer_wand->drawBits()->get(SL_DB_HIDDEN);
-            if (ImGui::Checkbox("Mauer", &mauer))
-            {
-                mauer_wand->drawBits()->set(SL_DB_HIDDEN, !mauer);
-                mauer_dach->drawBits()->set(SL_DB_HIDDEN, !mauer);
-                mauer_turm->drawBits()->set(SL_DB_HIDDEN, !mauer);
-                mauer_weg->drawBits()->set(SL_DB_HIDDEN, !mauer);
-            }
+            SLbool mauerIsOn = !mauer->drawBits()->get(SL_DB_HIDDEN);
+            if (ImGui::Checkbox("Mauer", &mauerIsOn))
+                mauer->drawBits()->set(SL_DB_HIDDEN, !mauerIsOn);
 
-            SLbool graben = !grab_mauern->drawBits()->get(SL_DB_HIDDEN);
-            if (ImGui::Checkbox("Graben", &graben))
-            {
-                grab_mauern->drawBits()->set(SL_DB_HIDDEN, !graben);
-                grab_brueck->drawBits()->set(SL_DB_HIDDEN, !graben);
-                grab_grass->drawBits()->set(SL_DB_HIDDEN, !graben);
-                grab_t_dach->drawBits()->set(SL_DB_HIDDEN, !graben);
-                grab_t_fahn->drawBits()->set(SL_DB_HIDDEN, !graben);
-                grab_t_stein->drawBits()->set(SL_DB_HIDDEN, !graben);
-            }
+            SLbool grabenIsOn = !graben->drawBits()->get(SL_DB_HIDDEN);
+            if (ImGui::Checkbox("Graben", &grabenIsOn))
+                graben->drawBits()->set(SL_DB_HIDDEN, !grabenIsOn);
 
-            static SLfloat christTransp = 0.0f;
-            if (ImGui::SliderFloat("Transparency", &christTransp, 0.0f, 1.0f, "%0.2f"))
-            {
-                christ_aussen->updateMeshMat([](SLMaterial* m) { m->kt(christTransp); }, true);
-
-                // Hide inner parts if transparency is on
-                christ_innen->drawBits()->set(SL_DB_HIDDEN, christTransp > 0.01f);
-            }
             ImGui::PopItemWidth();
             ImGui::End();
         }
         else
         {
-            bern         = nullptr;
-            boden        = nullptr;
-            balda_stahl  = nullptr;
-            balda_glas   = nullptr;
-            umgeb_dach   = nullptr;
-            umgeb_fass   = nullptr;
-            mauer_wand   = nullptr;
-            mauer_dach   = nullptr;
-            mauer_turm   = nullptr;
-            mauer_weg    = nullptr;
-            grab_mauern  = nullptr;
-            grab_brueck  = nullptr;
-            grab_grass   = nullptr;
-            grab_t_dach  = nullptr;
-            grab_t_fahn  = nullptr;
-            grab_t_stein = nullptr;
+            bern        = nullptr;
+            boden       = nullptr;
+            balda_stahl = nullptr;
+            balda_glas  = nullptr;
+            umgeb_dach  = nullptr;
+            umgeb_fass  = nullptr;
+            mauer       = nullptr;
+            graben      = nullptr;
         }
     }
 }
+
 //-----------------------------------------------------------------------------
 CVCalibration guessCalibration(bool         mirroredH,
                                bool         mirroredV,
@@ -1210,6 +1216,7 @@ CVCalibration guessCalibration(bool         mirroredH,
                              Utils::ComputerInfos::get());
     }
 }
+
 //-----------------------------------------------------------------------------
 //! Builds the entire menu bar once per frame
 void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
@@ -1367,17 +1374,21 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
 
                 if (ImGui::BeginMenu("Suzanne"))
                 {
-                    if (ImGui::MenuItem("with per pixel lighting", nullptr, sid == SID_SuzannePerPixBlinn))
+                    if (ImGui::MenuItem("w. pixel lighting (PL)", nullptr, sid == SID_SuzannePerPixBlinn))
                         s->onLoad(s, sv, SID_SuzannePerPixBlinn);
-                    if (ImGui::MenuItem("and with texture mapping", nullptr, sid == SID_SuzannePerPixBlinnTex))
+                    if (ImGui::MenuItem("w. PL and shadow mapping (MP)", nullptr, sid == SID_SuzannePerPixBlinnSM))
+                        s->onLoad(s, sv, SID_SuzannePerPixBlinnSM);
+                    if (ImGui::MenuItem("w. PL, MP and Ambient Occlusion (AO)", nullptr, sid == SID_SuzannePerPixBlinnSMAO))
+                        s->onLoad(s, sv, SID_SuzannePerPixBlinnSMAO);
+                    if (ImGui::MenuItem("w. PL and Texture Mapping (TM)", nullptr, sid == SID_SuzannePerPixBlinnTex))
                         s->onLoad(s, sv, SID_SuzannePerPixBlinnTex);
-                    if (ImGui::MenuItem("and with normal mapping", nullptr, sid == SID_SuzannePerPixBlinnTexNrm))
+                    if (ImGui::MenuItem("w. PL, TM and Normal Mapping (NM)", nullptr, sid == SID_SuzannePerPixBlinnTexNrm))
                         s->onLoad(s, sv, SID_SuzannePerPixBlinnTexNrm);
-                    if (ImGui::MenuItem("and with normal and AO mapping", nullptr, sid == SID_SuzannePerPixBlinnTexNrmAO))
+                    if (ImGui::MenuItem("w. PL, TM, NM, AO", nullptr, sid == SID_SuzannePerPixBlinnTexNrmAO))
                         s->onLoad(s, sv, SID_SuzannePerPixBlinnTexNrmAO);
-                    if (ImGui::MenuItem("and with shadow mapping", nullptr, sid == SID_SuzannePerPixBlinnTexNrmSM))
+                    if (ImGui::MenuItem("w. PL, TM, NM, SM", nullptr, sid == SID_SuzannePerPixBlinnTexNrmSM))
                         s->onLoad(s, sv, SID_SuzannePerPixBlinnTexNrmSM);
-                    if (ImGui::MenuItem("and with ambient occlusion mapping", nullptr, sid == SID_SuzannePerPixBlinnTexNrmAOSM))
+                    if (ImGui::MenuItem("w. PL, TM, NM, SM, AO", nullptr, sid == SID_SuzannePerPixBlinnTexNrmAOSM))
                         s->onLoad(s, sv, SID_SuzannePerPixBlinnTexNrmAOSM);
                     ImGui::EndMenu();
                 }
@@ -1426,6 +1437,7 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                 }
 
                 SLstring erlebarPath = SLApplication::dataPath + "erleb-AR/models/";
+                SLstring modelBR1    = erlebarPath + "bern/Bern-Bahnhofsplatz2.gltf";
                 SLstring modelBFH    = erlebarPath + "biel/Biel-BFH-Rolex.gltf";
                 SLstring modelAR1    = erlebarPath + "augst/Tempel-Theater-02.gltf";
                 SLstring modelAV1    = erlebarPath + "avenches/Aventicum-Amphitheater1.gltf";
@@ -1433,7 +1445,6 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                 SLstring modelAV2    = erlebarPath + "avenches/Aventicum-Cigognier2.gltf";
                 SLstring modelAV2_AO = erlebarPath + "avenches/Aventicum-Cigognier-AO.gltf";
                 SLstring modelAV3    = erlebarPath + "avenches/Aventicum-Theater1.gltf";
-                SLstring modelBR1    = erlebarPath + "bern/Bern-Bahnhofsplatz.fbx";
 
                 if (Utils::fileExists(modelAR1) ||
                     Utils::fileExists(modelAV1) ||
@@ -1443,36 +1454,32 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                 {
                     if (ImGui::BeginMenu("Erleb-AR"))
                     {
-                        if (Utils::fileExists(modelBFH))
-                            if (ImGui::MenuItem("Biel-BFH AR", nullptr, sid == SID_ErlebARBielBFH))
-                                s->onLoad(s, sv, SID_ErlebARBielBFH);
-
                         if (Utils::fileExists(modelBR1))
-                            if (ImGui::MenuItem("Christoffel Tower AR", nullptr, sid == SID_ErlebARChristoffel))
+                            if (ImGui::MenuItem("Bern: Christoffel Tower", nullptr, sid == SID_ErlebARChristoffel))
                                 s->onLoad(s, sv, SID_ErlebARChristoffel);
 
+                        if (Utils::fileExists(modelBFH))
+                            if (ImGui::MenuItem("Biel: BFH", nullptr, sid == SID_ErlebARBielBFH))
+                                s->onLoad(s, sv, SID_ErlebARBielBFH);
+
                         if (Utils::fileExists(modelAR1))
-                            if (ImGui::MenuItem("Augusta Raurica AR", nullptr, sid == SID_ErlebARAugustaRaurica))
+                            if (ImGui::MenuItem("Augusta Raurica", nullptr, sid == SID_ErlebARAugustaRaurica))
                                 s->onLoad(s, sv, SID_ErlebARAugustaRaurica);
 
-                        if (Utils::fileExists(modelAV1))
-                            if (ImGui::MenuItem("Aventicum Amphitheatre AR", nullptr, sid == SID_ErlebARAventicumAmphi))
-                                s->onLoad(s, sv, SID_ErlebARAventicumAmphi);
-
                         if (Utils::fileExists(modelAV1_AO))
-                            if (ImGui::MenuItem("Aventicum Amphitheatre AR (AO)", nullptr, sid == SID_ErlebARAventicumAmphiAO))
+                            if (ImGui::MenuItem("Aventicum: Amphitheatre", nullptr, sid == SID_ErlebARAventicumAmphiAO))
                                 s->onLoad(s, sv, SID_ErlebARAventicumAmphiAO);
 
                         if (Utils::fileExists(modelAV2))
-                            if (ImGui::MenuItem("Aventicum Cigognier AR", nullptr, sid == SID_ErlebARAventicumCigognier))
+                            if (ImGui::MenuItem("Aventicum: Cigognier", nullptr, sid == SID_ErlebARAventicumCigognier))
                                 s->onLoad(s, sv, SID_ErlebARAventicumCigognier);
 
                         if (Utils::fileExists(modelAV2_AO))
-                            if (ImGui::MenuItem("Aventicum Cigognier AR (AO)", nullptr, sid == SID_ErlebARAventicumCigognierAO))
+                            if (ImGui::MenuItem("Aventicum: Cigognier (AO)", nullptr, sid == SID_ErlebARAventicumCigognierAO))
                                 s->onLoad(s, sv, SID_ErlebARAventicumCigognierAO);
 
                         if (Utils::fileExists(modelAV3))
-                            if (ImGui::MenuItem("Aventicum Theatre AR", nullptr, sid == SID_ErlebARAventicumTheatre))
+                            if (ImGui::MenuItem("Aventicum: Theatre", nullptr, sid == SID_ErlebARAventicumTheatre))
                                 s->onLoad(s, sv, SID_ErlebARAventicumTheatre);
 
                         ImGui::EndMenu();
@@ -1493,7 +1500,8 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                             // Load volume data into 3D texture
                             SLVstring mriImages;
                             for (SLint i = 0; i < 207; ++i)
-                                mriImages.push_back(SLApplication::texturePath + Utils::formatString("i%04u_0000b.png", i));
+                                mriImages.push_back(
+                                  SLApplication::texturePath + Utils::formatString("i%04u_0000b.png", i));
 
                             gTexMRI3D                   = new SLGLTexture(nullptr,
                                                         mriImages,
@@ -1509,14 +1517,16 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                         auto calculateGradients = []() {
                             SLApplication::jobProgressMsg("Calculate MRI Volume Gradients");
                             SLApplication::jobProgressMax(100);
-                            gTexMRI3D->calc3DGradients(1, [](int progress) { SLApplication::jobProgressNum(progress); });
+                            gTexMRI3D->calc3DGradients(1,
+                                                       [](int progress) { SLApplication::jobProgressNum(progress); });
                             SLApplication::jobIsRunning = false;
                         };
 
                         auto smoothGradients = []() {
                             SLApplication::jobProgressMsg("Smooth MRI Volume Gradients");
                             SLApplication::jobProgressMax(100);
-                            gTexMRI3D->smooth3DGradients(1, [](int progress) { SLApplication::jobProgressNum(progress); });
+                            gTexMRI3D->smooth3DGradients(1,
+                                                         [](int progress) { SLApplication::jobProgressNum(progress); });
                             SLApplication::jobIsRunning = false;
                         };
 
@@ -1885,22 +1895,26 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                     {
                         lt.tm_mon    = month - 1;
                         adjustedTime = mktime(&lt);
-                        SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLatLonAlt(), adjustedTime);
+                        SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLatLonAlt(),
+                                                                   adjustedTime);
                     }
                     if (ImGui::SliderInt("Day", &lt.tm_mday, 1, 31))
                     {
                         adjustedTime = mktime(&lt);
-                        SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLatLonAlt(), adjustedTime);
+                        SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLatLonAlt(),
+                                                                   adjustedTime);
                     }
                     if (ImGui::SliderInt("Hour", &lt.tm_hour, 0, 23))
                     {
                         adjustedTime = mktime(&lt);
-                        SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLatLonAlt(), adjustedTime);
+                        SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLatLonAlt(),
+                                                                   adjustedTime);
                     }
                     if (ImGui::SliderInt("Min.", &lt.tm_min, 0, 59))
                     {
                         adjustedTime = mktime(&lt);
-                        SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLatLonAlt(), adjustedTime);
+                        SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLatLonAlt(),
+                                                                   adjustedTime);
                     }
 
                     SLchar strTime[100];
@@ -1921,7 +1935,8 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                         lt.tm_hour   = (int)SRh;
                         lt.tm_min    = (int)SRm;
                         adjustedTime = mktime(&lt);
-                        SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLatLonAlt(), adjustedTime);
+                        SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLatLonAlt(),
+                                                                   adjustedTime);
                     }
 
                     SLfloat SSh = SLApplication::devLoc.originSolarSunset();
@@ -1932,7 +1947,8 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                         lt.tm_hour   = (int)SSh;
                         lt.tm_min    = (int)SSm;
                         adjustedTime = mktime(&lt);
-                        SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLatLonAlt(), adjustedTime);
+                        SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLatLonAlt(),
+                                                                   adjustedTime);
                     }
 
                     sprintf(strTime, "Set highest noon (21.06.%02d 12:00)", lt.tm_year);
@@ -1944,7 +1960,8 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                         lt.tm_min    = 0;
                         lt.tm_sec    = 0;
                         adjustedTime = mktime(&lt);
-                        SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLatLonAlt(), adjustedTime);
+                        SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLatLonAlt(),
+                                                                   adjustedTime);
                     }
 
                     sprintf(strTime, "Set lowest noon (21.12.%02d 12:00)", lt.tm_year);
@@ -1956,7 +1973,8 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                         lt.tm_min    = 0;
                         lt.tm_sec    = 0;
                         adjustedTime = mktime(&lt);
-                        SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLatLonAlt(), adjustedTime);
+                        SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLatLonAlt(),
+                                                                   adjustedTime);
                     }
 
                     ImGui::PopItemWidth();
@@ -2704,6 +2722,7 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
         ImGui::EndMainMenuBar();
     }
 }
+
 //-----------------------------------------------------------------------------
 //! Builds the scenegraph dialog once per frame
 void AppDemoGui::buildSceneGraph(SLScene* s)
@@ -2722,6 +2741,7 @@ void AppDemoGui::buildSceneGraph(SLScene* s)
     ImGui::End();
     ImGui::PopFont();
 }
+
 //-----------------------------------------------------------------------------
 //! Builds the node information once per frame
 void AppDemoGui::addSceneGraphNode(SLScene* s, SLNode* node)
@@ -2777,6 +2797,7 @@ void AppDemoGui::addSceneGraphNode(SLScene* s, SLNode* node)
         ImGui::TreePop();
     }
 }
+
 //-----------------------------------------------------------------------------
 //! Builds the properties dialog once per frame
 void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
@@ -2891,7 +2912,8 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
 
                                 if (shadowMap != nullptr)
                                 {
-                                    if (shadowMap->projection() == P_monoPerspective && light->spotCutOffDEG() < 90.0f)
+                                    if (shadowMap->projection() == P_monoPerspective &&
+                                        light->spotCutOffDEG() < 90.0f)
                                     {
                                         SLbool useCubemap = shadowMap->useCubemap();
                                         if (ImGui::Checkbox("Uses Cubemap", &useCubemap))
@@ -2909,8 +2931,9 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
 
                                     SLVec2i texSize = shadowMap->textureSize();
                                     if (ImGui::SliderInt2("Texture resolution", (int*)&texSize, 32, 4096))
-                                        shadowMap->textureSize(SLVec2i((int)Utils::closestPowerOf2((unsigned)texSize.x),
-                                                                       (int)Utils::closestPowerOf2((unsigned)texSize.y)));
+                                        shadowMap->textureSize(
+                                          SLVec2i((int)Utils::closestPowerOf2((unsigned)texSize.x),
+                                                  (int)Utils::closestPowerOf2((unsigned)texSize.y)));
 
                                     SLfloat shadowMinBias = light->shadowMinBias();
                                     SLfloat shadowMaxBias = light->shadowMaxBias();
@@ -2959,7 +2982,8 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                     if (!shadowMap->useCubemap())
                                     {
                                         ImGui::Text("Depth Buffer:");
-                                        ImGui::Image((void*)(intptr_t)shadowMap->depthBuffer()->texID(), ImVec2(200, 200));
+                                        ImGui::Image((void*)(intptr_t)shadowMap->depthBuffer()->texID(),
+                                                     ImVec2(200, 200));
                                     }
                                 }
                             }
@@ -3116,8 +3140,9 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                     }
 
                                     lut->bindActive(); // This texture is not an scenegraph texture
-                                    SLfloat texW = ImGui::GetWindowWidth() - 4 * ImGui::GetTreeNodeToLabelSpacing() - 10;
-                                    void*   tid  = (ImTextureID)(uintptr_t)lut->texID();
+                                    SLfloat texW =
+                                      ImGui::GetWindowWidth() - 4 * ImGui::GetTreeNodeToLabelSpacing() - 10;
+                                    void* tid = (ImTextureID)(uintptr_t)lut->texID();
                                     ImGui::Image(tid,
                                                  ImVec2(texW, texW * 0.15f),
                                                  ImVec2(0, 1),
@@ -3275,8 +3300,10 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                                     SLfloat pos = lut->alphas()[a].pos;
                                                     if (a > 0 && a < lut->alphas().size() - 1)
                                                     {
-                                                        SLfloat min = lut->alphas()[a - 1].pos + 2.0f / (SLfloat)lut->length();
-                                                        SLfloat max = lut->alphas()[a + 1].pos - 2.0f / (SLfloat)lut->length();
+                                                        SLfloat min = lut->alphas()[a - 1].pos +
+                                                                      2.0f / (SLfloat)lut->length();
+                                                        SLfloat max = lut->alphas()[a + 1].pos -
+                                                                      2.0f / (SLfloat)lut->length();
                                                         if (ImGui::SliderFloat(label, &pos, min, max, "%3.2f"))
                                                         {
                                                             lut->alphas()[a].pos = pos;
@@ -3415,6 +3442,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
 
     ImGui::PopFont();
 }
+
 //-----------------------------------------------------------------------------
 //! Loads the UI configuration
 void AppDemoGui::loadConfig(SLint dotsPerInch)
@@ -3464,34 +3492,52 @@ void AppDemoGui::loadConfig(SLint dotsPerInch)
         if (fs.isOpened())
         {
             // clang-format off
-            SLint  i=0;
-            SLbool b=false;
-            fs["configTime"] >>             AppDemoGui::configTime;
-            fs["fontPropDots"] >> i;        SLGLImGui::fontPropDots = (SLfloat)i;
-            fs["fontFixedDots"] >> i;       SLGLImGui::fontFixedDots = (SLfloat)i;
-            fs["ItemSpacingX"] >> i;        style.ItemSpacing.x = (SLfloat)i;
-            fs["ItemSpacingY"] >> i;        style.ItemSpacing.y = (SLfloat)i;
+            SLint i = 0;
+            SLbool b = false;
+            fs["configTime"] >> AppDemoGui::configTime;
+            fs["fontPropDots"] >> i;
+            SLGLImGui::fontPropDots = (SLfloat) i;
+            fs["fontFixedDots"] >> i;
+            SLGLImGui::fontFixedDots = (SLfloat) i;
+            fs["ItemSpacingX"] >> i;
+            style.ItemSpacing.x = (SLfloat) i;
+            fs["ItemSpacingY"] >> i;
+            style.ItemSpacing.y = (SLfloat) i;
             style.WindowPadding.x = style.FramePadding.x = style.ItemInnerSpacing.x = style.ItemSpacing.x;
             style.FramePadding.y = style.ItemInnerSpacing.y = style.ItemSpacing.y;
-            style.WindowPadding.y                           = style.ItemSpacing.y * 3;
+            style.WindowPadding.y = style.ItemSpacing.y * 3;
             fs["ScrollbarSize"] >> i;
-            style.ScrollbarSize = (SLfloat)i;
+            style.ScrollbarSize = (SLfloat) i;
             fs["ScrollbarRounding"] >> i;
-            style.ScrollbarRounding = (SLfloat)i;
-            fs["sceneID"] >> i;             SLApplication::sceneID = (SLSceneID)i;
-            fs["showInfosScene"] >> b;      AppDemoGui::showInfosScene = b;
-            fs["showStatsTiming"] >> b;     AppDemoGui::showStatsTiming = b;
-            fs["showStatsMemory"] >> b;     AppDemoGui::showStatsScene = b;
-            fs["showStatsVideo"] >> b;      AppDemoGui::showStatsVideo = b;
-            fs["showStatsWAI"] >> b;        AppDemoGui::showStatsWAI = b;
-            fs["showInfosFrameworks"] >> b; AppDemoGui::showInfosDevice = b;
-            fs["showInfosSensors"] >> b;    AppDemoGui::showInfosSensors = b;
-            fs["showSceneGraph"] >> b;      AppDemoGui::showSceneGraph = b;
-            fs["showProperties"] >> b;      AppDemoGui::showProperties = b;
-            fs["showChristoffel"] >> b;     AppDemoGui::showChristoffel = b;
-            fs["showTransform"] >> b;       AppDemoGui::showTransform = b;
-            fs["showUIPrefs"] >> b;         AppDemoGui::showUIPrefs = b;
-            fs["showDockSpace"] >> b;       AppDemoGui::showDockSpace = b;
+            style.ScrollbarRounding = (SLfloat) i;
+            fs["sceneID"] >> i;
+            SLApplication::sceneID = (SLSceneID) i;
+            fs["showInfosScene"] >> b;
+            AppDemoGui::showInfosScene = b;
+            fs["showStatsTiming"] >> b;
+            AppDemoGui::showStatsTiming = b;
+            fs["showStatsMemory"] >> b;
+            AppDemoGui::showStatsScene = b;
+            fs["showStatsVideo"] >> b;
+            AppDemoGui::showStatsVideo = b;
+            fs["showStatsWAI"] >> b;
+            AppDemoGui::showStatsWAI = b;
+            fs["showInfosFrameworks"] >> b;
+            AppDemoGui::showInfosDevice = b;
+            fs["showInfosSensors"] >> b;
+            AppDemoGui::showInfosSensors = b;
+            fs["showSceneGraph"] >> b;
+            AppDemoGui::showSceneGraph = b;
+            fs["showProperties"] >> b;
+            AppDemoGui::showProperties = b;
+            fs["showChristoffel"] >> b;
+            AppDemoGui::showChristoffel = b;
+            fs["showTransform"] >> b;
+            AppDemoGui::showTransform = b;
+            fs["showUIPrefs"] >> b;
+            AppDemoGui::showUIPrefs = b;
+            fs["showDockSpace"] >> b;
+            AppDemoGui::showDockSpace = b;
             // clang-format on
 
             fs.release();
@@ -3526,6 +3572,7 @@ void AppDemoGui::loadConfig(SLint dotsPerInch)
         }
     }
 }
+
 //-----------------------------------------------------------------------------
 //! Stores the UI configuration
 void AppDemoGui::saveConfig()
@@ -3576,6 +3623,7 @@ void AppDemoGui::saveConfig()
     fs.release();
     SL_LOG("Config. saved   : %s", fullPathAndFilename.c_str());
 }
+
 //-----------------------------------------------------------------------------
 //! Adds a transform node for the selected node and toggles the edit mode
 void AppDemoGui::setTransformEditMode(SLProjectScene* s,
@@ -3593,6 +3641,7 @@ void AppDemoGui::setTransformEditMode(SLProjectScene* s,
     tN->editMode(editMode);
     transformNode = tN;
 }
+
 //-----------------------------------------------------------------------------
 //! Searches and removes the transform node
 void AppDemoGui::removeTransformNode(SLProjectScene* s)
@@ -3608,6 +3657,7 @@ void AppDemoGui::removeTransformNode(SLProjectScene* s)
     }
     transformNode = nullptr;
 }
+
 //-----------------------------------------------------------------------------
 //! Enables calculation and visualization of horizon line (using rotation sensors)
 void AppDemoGui::showHorizon(SLProjectScene* s, SLSceneView* sv)
@@ -3634,6 +3684,7 @@ void AppDemoGui::showHorizon(SLProjectScene* s, SLSceneView* sv)
         _horizonVisuEnabled = true;
     }
 }
+
 //-----------------------------------------------------------------------------
 //! Disables calculation and visualization of horizon line
 void AppDemoGui::hideHorizon(SLProjectScene* s)
@@ -3649,6 +3700,7 @@ void AppDemoGui::hideHorizon(SLProjectScene* s)
     }
     _horizonVisuEnabled = false;
 }
+
 //-----------------------------------------------------------------------------
 //! Displays a editable color lookup table wit ImGui widgets
 void AppDemoGui::showLUTColors(SLColorLUT* lut)

@@ -207,6 +207,7 @@ void Config::load(std::string resourceFileName)
 {
     _fileName = resourceFileName;
 
+    Utils::log("ErlebAR::Config", "loading config from %s", _fileName.c_str());
     cv::FileStorage fs(resourceFileName, cv::FileStorage::READ);
     if (fs.isOpened())
     {
@@ -234,12 +235,13 @@ void Config::load(std::string resourceFileName)
     }
     else
     {
-        Utils::warnMsg("ErlebAR::Resources", "Could not load resources!", __LINE__, __FILE__);
+        Utils::warnMsg("ErlebAR::Config", "Could not load config!", __LINE__, __FILE__);
     }
 }
 
 void Config::save()
 {
+    Utils::log("ErlebAR::Config", "saving config to %s", _fileName.c_str());
     cv::FileStorage fs(_fileName, cv::FileStorage::WRITE);
     if (fs.isOpened())
     {
@@ -250,13 +252,13 @@ void Config::save()
 
         fs << "useGps" << useGps;
         fs << "useARCore" << useARCore;
-        fs << "enableWAISlam" << useWAISlam;
+        fs << "useWAISlam" << useWAISlam;
 
         fs << "languageId" << _resources->strings().id();
     }
     else
     {
-        Utils::warnMsg("ErlebAR::Resources", "Could not save resources!", __LINE__, __FILE__);
+        Utils::warnMsg("ErlebAR::Config", "Could not save config!", __LINE__, __FILE__);
     }
 }
 

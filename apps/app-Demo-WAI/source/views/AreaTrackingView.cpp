@@ -90,7 +90,7 @@ void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaI
         this->onInitialize(); //init scene view
 
         //init arcore
-        if (_arcore && _config.useARCore)
+        if (_arcore && _config.useARCore && _arcore->isAvailable())
         {
             _arcore->init(TARGET_WIDTH, TARGET_HEIGHT, area.cameraFrameTargetSize.width, area.cameraFrameTargetSize.height, true);
             _arcore->resume();
@@ -102,6 +102,7 @@ void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaI
         _initTime = GlobalTimer::timeS();
 
         _hasTransitionMatrix = false;
+        _transitionMatrix.identity();
 
         _noInitException = true;
     }
@@ -419,7 +420,7 @@ bool AreaTrackingView::updateWAISlamGPS(SENSFramePtr& frame)
 
     _waiScene.camera->om(gpsPose);
 
-    if (_waiSlam && _waiSlam->isInitialized()) // TODO: Add timing condition to fallback to GPS if WAISlam too slow
+    if (frame && _waiSlam && _waiSlam->isInitialized()) // TODO: Add timing condition to fallback to GPS if WAISlam too slow
     {
         //the intrinsics may change dynamically on focus changes (e.g. on iOS)
         if (!frame->intrinsics.empty())
@@ -441,8 +442,8 @@ bool AreaTrackingView::updateWAISlamGPS(SENSFramePtr& frame)
         else
         {
             _waiScene.camera->om(_transitionMatrix * gpsPose);
-            cv::Mat camExtrinsic = convertCameraPoseToWaiCamExtrinisc(gpsPose);
-            _waiSlam->setCamExrinsicGuess(camExtrinsic);
+            //cv::Mat camExtrinsic = convertCameraPoseToWaiCamExtrinisc(gpsPose);
+            //_waiSlam->setCamExrinsicGuess(camExtrinsic);
             _gui.showInfoText("gps + sensors tracking");
         }
     }
@@ -450,7 +451,7 @@ bool AreaTrackingView::updateWAISlamGPS(SENSFramePtr& frame)
     {
         _gui.showInfoText("waislam not initizalied");
     }
-    
+
     return true;
 }
 
@@ -839,6 +840,7 @@ std::unique_ptr<WAIMap> AreaTrackingView::tryLoadMap(const std::string& erlebARD
                                                            false,
                                                            true);
             }
+            Utils::log("AreaTrackingView", "loading map file successful: %s", mapLoadingSuccess ? "true" : "false");
         }
     }
 

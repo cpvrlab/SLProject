@@ -245,9 +245,10 @@ private:
     std::unique_ptr<KPextractor> _initializationExtractor;
     std::unique_ptr<KPextractor> _relocalizationExtractor;
     ImageBuffer                  _imgBuffer;
-    SLMat4f                      _transitionMatrix;
-    bool                         _hasTransitionMatrix;
-    float                        _initTime;
+    // arcore world w.r.t. gpsOrientation world (real world)
+    SLMat4f _transitionMatrix;
+    bool    _hasTransitionMatrix;
+    float   _initTime;
 
     std::unique_ptr<WAIOrbVocabulary> _voc;
     //wai slam depends on _orbVocabulary and has to be uninitializd first (defined below voc)

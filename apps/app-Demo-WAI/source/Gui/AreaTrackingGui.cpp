@@ -183,7 +183,7 @@ void AreaTrackingGui::build(SLScene* s, SLSceneView* sv)
             ImGui::End();
         }
 
-        if (!_infoText.empty())
+        if (!_infoText.empty() && _config.developerMode)
         {
             ImGuiWindowFlags infoBarWinFlags = ImGuiWindowFlags_NoTitleBar |
                                                ImGuiWindowFlags_NoMove |
