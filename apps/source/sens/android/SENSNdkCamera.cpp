@@ -367,14 +367,12 @@ void SENSNdkCamera::createCaptureSession()
         ACaptureRequest_setEntry_u8(_captureRequest, ACAMERA_CONTROL_VIDEO_STABILIZATION_MODE, 1, &mode);
     }
     //optical video stabilization (hardware)
-    /*
     {
         uint8_t mode = ACAMERA_LENS_OPTICAL_STABILIZATION_MODE_OFF;
-        ACaptureRequest_setEntry_u8(_captureRequest, ACAMERA_LENS_OPTICAL_STABILIZATION_MODE, 1,
-                                    &mode);
+        ACaptureRequest_setEntry_u8(_captureRequest, ACAMERA_LENS_OPTICAL_STABILIZATION_MODE, 1, &mode);
 
     }
-    */
+
     //install repeating request
     ACameraCaptureSession_setRepeatingRequest(_captureSession, nullptr, 1, &_captureRequest, nullptr);
 }
