@@ -183,7 +183,7 @@ const Location defineLocationAvenches()
                   {46.88029, 7.04876, 454.95},                                                                            //modelOrigin
                   "locations/avenches/theater/maps/release-map_20200930-154707_avenches_theater_FAST-ORBS-2000_2.waimap", //slamMapFileName
                   "locations/avenches/theater/theater-reloc-align-img.jpg",                                               //relocAlignImage,
-                  "locations/avenches/theater/theater_voc.bin",                                                           //vocFileName,
+                  "calibrations/voc_fbow.bin",                                                                            //vocFileName,
                   2,                                                                                                      //vocLayer,
                   {640, 360},                                                                                             //cameraFrameTargetSize
                   ExtractorType::ExtractorType_FAST_ORBS_2000,                                                            //initializationExtractorType

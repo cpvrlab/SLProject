@@ -48,14 +48,12 @@ public:
             resetVisible();
         else if (isVisible()) //prepare for lights off in mouse up if still visible
         {
-            Utils::log("mouseDown", "isvisible");
             _manualSwitchOff = true;
         }
     }
 
     void mouseUp(bool uiInteraction)
     {
-        Utils::log("mouseUp", "_manualSwitchOff: %s", _manualSwitchOff ? "true" : "false");
         if (_manualSwitchOff)
         {
             _manualSwitchOff = false;
