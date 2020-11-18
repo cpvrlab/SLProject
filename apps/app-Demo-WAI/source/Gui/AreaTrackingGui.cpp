@@ -69,7 +69,6 @@ void AreaTrackingGui::mouseMove(bool doNotDispatch)
     //In this case we reset if event was already dispatched by imgui, e.g.
     //when the user moves the slider, we dont want the ui to hide
     _opacityController.mouseMove();
-    Utils::log("AreaTrackingGui", "mouseMove");
 }
 
 void AreaTrackingGui::mouseUp(SLMouseButton button, bool doNotDispatch)
@@ -183,7 +182,7 @@ void AreaTrackingGui::build(SLScene* s, SLSceneView* sv)
             ImGui::End();
         }
 
-        if (!_infoText.empty())
+        if (!_infoText.empty() && _config.developerMode)
         {
             ImGuiWindowFlags infoBarWinFlags = ImGuiWindowFlags_NoTitleBar |
                                                ImGuiWindowFlags_NoMove |

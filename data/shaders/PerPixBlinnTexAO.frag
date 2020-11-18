@@ -93,7 +93,7 @@ void main()
     // Sum up all the reflected color components
     o_fragColor =  u_globalAmbi +
                    u_matEmis +
-                   Ia * u_matAmbi * AO+
+                   Ia * u_matAmbi * AO +
                    Id * u_matDiff;
 
     // Componentwise multiply w. texture color

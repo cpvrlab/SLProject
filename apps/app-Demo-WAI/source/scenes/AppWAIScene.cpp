@@ -178,7 +178,7 @@ void AppWAIScene::initAreaAvenchesAmphitheater()
 {
     // Create directional light for the sun light
     sunLight = new SLLightDirect(&assets, this, 5.0f);
-    sunLight->powers(1.0f, 1.0f, 1.0f);
+    sunLight->powers(1.0f, 1.5f, 1.0f);
     sunLight->attenuation(1, 0, 0);
     sunLight->translation(0, 10, 0);
     sunLight->lookAt(10, 0, 10);
@@ -186,6 +186,7 @@ void AppWAIScene::initAreaAvenchesAmphitheater()
     sunLight->createsShadows(true);
     sunLight->createShadowMap(-100, 150, SLVec2f(150, 150), SLVec2i(2048, 2048));
     sunLight->doSmoothShadows(true);
+    sunLight->shadowMaxBias(0.02f);
     sunLight->castsShadows(false);
     _root3D->addChild(sunLight);
 
@@ -215,7 +216,7 @@ void AppWAIScene::initAreaAvenchesCigognier()
 {
     // Create directional light for the sun light
     sunLight = new SLLightDirect(&assets, this, 5.0f);
-    sunLight->powers(1.0f, 1.0f, 1.0f);
+    sunLight->powers(1.0f, 1.5f, 1.0f);
     sunLight->attenuation(1, 0, 0);
     sunLight->translation(0, 10, 0);
     sunLight->lookAt(10, 0, 10);
@@ -288,7 +289,7 @@ void AppWAIScene::initLocationBern()
 {
     // Create directional light for the sun light
     sunLight = new SLLightDirect(&assets, this, 5.0f);
-    sunLight->powers(1.0f, 1.0f, 1.0f);
+    sunLight->powers(1.0f, 1.5f, 1.0f);
     sunLight->attenuation(1, 0, 0);
     sunLight->doSunPowerAdaptation(true);
     sunLight->createsShadows(true);
@@ -302,7 +303,7 @@ void AppWAIScene::initLocationBern()
     camera->translation(0, 2, 0);
     camera->lookAt(-10, 2, 0);
     camera->clipNear(1);
-    camera->clipFar(300);
+    camera->clipFar(500);
     camera->camAnim(SLCamAnim::CA_off);
     camera->setInitialState();
     _root3D->addChild(camera);
@@ -392,15 +393,8 @@ void AppWAIScene::loadChristoffelBernBahnhofsplatz()
     SLAssimpImporter importer;
     SLNode*          bern = importer.load(_animManager,
                                  &assets,
-                                 _dataDir + "erleb-AR/models/bern/Bern-Bahnhofsplatz.fbx",
+                                 _dataDir + "erleb-AR/models/bern/Bern-Bahnhofsplatz2.gltf",
                                  _dataDir + "images/textures/");
-
-    // Setup shadow mapping material and replace shader from loader
-    SLGLProgram* progPerPixNrmSM = new SLGLGenericProgram(&assets,
-                                                          _dataDir + "shaders/PerPixBlinnTexNrmSM.vert",
-                                                          _dataDir + "shaders/PerPixBlinnTexNrmSM.frag");
-    auto         updateMat       = [=](SLMaterial* mat) { mat->program(progPerPixNrmSM); };
-    bern->updateMeshMat(updateMat, true);
 
     // Make city transparent
     SLNode* UmgD = bern->findChild<SLNode>("Umgebung-Daecher");
@@ -423,6 +417,7 @@ void AppWAIScene::loadChristoffelBernBahnhofsplatz()
     bern->findChild<SLNode>("Umgebung-Fassaden")->drawBits()->set(SL_DB_HIDDEN, true);
     bern->findChild<SLNode>("Baldachin-Glas")->drawBits()->set(SL_DB_HIDDEN, true);
     bern->findChild<SLNode>("Baldachin-Stahl")->drawBits()->set(SL_DB_HIDDEN, true);
+    /*
     bern->findChild<SLNode>("Mauer-Wand")->drawBits()->set(SL_DB_HIDDEN, true);
     bern->findChild<SLNode>("Mauer-Turm")->drawBits()->set(SL_DB_HIDDEN, true);
     bern->findChild<SLNode>("Mauer-Dach")->drawBits()->set(SL_DB_HIDDEN, true);
@@ -434,6 +429,7 @@ void AppWAIScene::loadChristoffelBernBahnhofsplatz()
     bern->findChild<SLNode>("Graben-Turm-Dach")->drawBits()->set(SL_DB_HIDDEN, true);
     bern->findChild<SLNode>("Graben-Turm-Fahne")->drawBits()->set(SL_DB_HIDDEN, true);
     bern->findChild<SLNode>("Graben-Turm-Stein")->drawBits()->set(SL_DB_HIDDEN, true);
+    */
 
     // Set the video background shader on the baldachin and the ground
     bern->findChild<SLNode>("Baldachin-Stahl")->setMeshMat(camera->matVideoBackground(), true);
@@ -441,7 +437,8 @@ void AppWAIScene::loadChristoffelBernBahnhofsplatz()
     bern->findChild<SLNode>("Boden")->setMeshMat(camera->matVideoBackground(), true);
 
     // Set ambient on all child nodes
-    bern->updateMeshMat([](SLMaterial* m) { m->ambient(SLCol4f(.3f, .3f, .3f)); }, true);
+    bern->updateMeshMat([](SLMaterial* m) {
+        if (m->name() != "Kupfer-dunkel") m->ambient(SLCol4f(.3f, .3f, .3f)); }, true);
 
     _root3D->addChild(bern);
 }
@@ -462,7 +459,7 @@ void AppWAIScene::loadBielBFHRolex()
     bfh->updateMeshMat(updateMat, true);
 
     // Make terrain a video shine trough
-    bfh->findChild<SLNode>("Terrain")->setMeshMat(camera->matVideoBackground(), true);
+    //bfh->findChild<SLNode>("Terrain")->setMeshMat(camera->matVideoBackground(), true);
 
     // Make buildings transparent
     SLNode* buildings       = bfh->findChild<SLNode>("Buildings");
@@ -510,7 +507,7 @@ void AppWAIScene::loadAvenchesAmphitheater()
     SLAssimpImporter importer;
     SLNode*          amphiTheatre = importer.load(_animManager,
                                          &assets,
-                                         _dataDir + "erleb-AR/models/avenches/Aventicum-Amphitheater1.gltf",
+                                         _dataDir + "erleb-AR/models/avenches/Aventicum-Amphitheater-AO.gltf",
                                          _dataDir + "images/textures/",
                                          true,    // only meshes
                                          nullptr, // no replacement material
@@ -518,13 +515,6 @@ void AppWAIScene::loadAvenchesAmphitheater()
 
     // Rotate to the true geographic rotation
     amphiTheatre->rotate(13.7f, 0, 1, 0, TS_parent);
-
-    // Setup shadow mapping material and replace shader from loader
-    SLGLProgram* progPerPixNrmSM = new SLGLGenericProgram(&assets,
-                                                          _dataDir + "shaders/PerPixBlinnTexNrmSM.vert",
-                                                          _dataDir + "shaders/PerPixBlinnTexNrmSM.frag");
-    auto         updateMat       = [=](SLMaterial* mat) { mat->program(progPerPixNrmSM); };
-    amphiTheatre->updateMeshMat(updateMat, true);
 
     // Let the video shine through some objects
     amphiTheatre->findChild<SLNode>("Tht-Aussen-Untergrund")->setMeshMat(camera->matVideoBackground(), true);
@@ -539,7 +529,7 @@ void AppWAIScene::loadAvenchesCigognier()
     SLAssimpImporter importer;
     SLNode*          cigognier = importer.load(_animManager,
                                       &assets,
-                                      _dataDir + "erleb-AR/models/avenches/Aventicum-Cigognier2.gltf",
+                                      _dataDir + "erleb-AR/models/avenches/Aventicum-Cigognier-AO.gltf",
                                       _dataDir + "images/textures/",
                                       true,    // only meshes
                                       nullptr, // no replacement material
@@ -549,13 +539,6 @@ void AppWAIScene::loadAvenchesCigognier()
 
     // Rotate to the true geographic rotation
     cigognier->rotate(-37.0f, 0, 1, 0, TS_parent);
-
-    // Setup shadow mapping material and replace shader from loader
-    SLGLProgram* progPerPixNrmSM = new SLGLGenericProgram(&assets,
-                                                          _dataDir + "shaders/PerPixBlinnTexNrmSM.vert",
-                                                          _dataDir + "shaders/PerPixBlinnTexNrmSM.frag");
-    auto         updateMat       = [=](SLMaterial* mat) { mat->program(progPerPixNrmSM); };
-    cigognier->updateMeshMat(updateMat, true);
 
     _root3D->addChild(cigognier);
 }
@@ -586,6 +569,8 @@ void AppWAIScene::loadAvenchesTheatre()
     // Let the video shine through some objects
     theatre->findChild<SLNode>("Tht-Rasen")->setMeshMat(camera->matVideoBackground(), true);
     theatre->findChild<SLNode>("Tht-Boden")->setMeshMat(camera->matVideoBackground(), true);
+
+    _root3D->addChild(theatre);
 }
 
 void AppWAIScene::adjustAugmentationTransparency(float kt)

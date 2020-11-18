@@ -298,7 +298,9 @@ void SLMaterial::activate(SLCamera* cam, SLVLight* lights)
         }
         else
         {
-            if (hasSM)
+            if (hasSM && hasAO)
+                program(SLGLDefaultProgPerPixBlinnSMAO::instance());
+            else if (hasSM)
                 program(SLGLDefaultProgPerPixBlinnSM::instance());
             else
                 program(SLGLDefaultProgPerVrtBlinn::instance());
