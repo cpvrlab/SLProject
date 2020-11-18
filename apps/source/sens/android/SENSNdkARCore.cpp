@@ -209,7 +209,7 @@ SENSFramePtr SENSNdkARCore::latestFrame()
     }
     SENSFramePtr latestFrame;
     if (frameBase)
-        latestFrame = processNewFrame(frameBase->imgBGR, frameBase->intrinsics);
+        latestFrame = processNewFrame(frameBase->imgBGR, cv::Mat());
     return latestFrame;
 }
 

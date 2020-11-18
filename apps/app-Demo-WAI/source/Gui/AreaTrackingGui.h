@@ -14,6 +14,12 @@ class SLSceneView;
 class SENSSimHelper;
 struct ImFont;
 
+/*! OpacityController to estimate UI opacity depending on user interaction.
+- If the user does nothing, opacity will fade out after some time.
+- If the user tabs the screen in a region where there is no ui element and opacity is non-zero, the opacity is set to zero
+- If the user tabs the screen in a region where there is no ui element and opacity is zero, the opacity is set to visible
+- If the user makes ui interaction (e.g. slider movement) the opacity is reset to visible
+*/
 class OpacityController
 {
 public:
@@ -23,32 +29,56 @@ public:
     {
         float elapsedTimeS = _timer.elapsedTimeInSec();
         //if visible time is over, start dimming
-        if (elapsedTimeS > _visibleTimeS &&
-            _opacity > 0.0001f)
+        if (elapsedTimeS > _visibleTimeS && isVisible())
         {
             _opacity = 1.f - (elapsedTimeS - _visibleTimeS) / _dimTimeS;
         }
     }
 
-    void reset()
+    void resetVisible()
     {
         _timer.start();
         _opacity         = 1.f;
         _manualSwitchOff = false;
     }
 
-    void mouseDown()
+    void mouseDown(bool uiInteraction)
     {
-        if (_timer.elapsedTimeInSec() < _visibleTimeS && !_manualSwitchOff)
+        if (uiInteraction)
+            resetVisible();
+        else if (isVisible()) //prepare for lights off in mouse up if still visible
         {
+            Utils::log("mouseDown", "isvisible");
             _manualSwitchOff = true;
+        }
+    }
+
+    void mouseUp(bool uiInteraction)
+    {
+        Utils::log("mouseUp", "_manualSwitchOff: %s", _manualSwitchOff ? "true" : "false");
+        if (_manualSwitchOff)
+        {
+            _manualSwitchOff = false;
             _opacity         = 0.f;
         }
         else
-            reset();
+            resetVisible();
+    }
+
+    void mouseMove()
+    {
+        //check if there is significant movement
+        _manualSwitchOff = false;
+        resetVisible();
+
+        //todo: (problem: when tabbing on mobile device, there may always be some movement)
     }
 
 private:
+    bool isVisible()
+    {
+        return _opacity > 0.0001f;
+    }
     HighResTimer _timer;
 
     const float _visibleTimeS = 3.f;
@@ -86,8 +116,9 @@ public:
 
     void showErrorMsg(const std::string& msg) { _errorMsg = msg; }
 
-    void  mouseDown(bool doNotDispatch);
+    void  mouseDown(SLMouseButton button, bool doNotDispatch);
     void  mouseMove(bool doNotDispatch);
+    void  mouseUp(SLMouseButton button, bool doNotDispatch);
     float opacity() const { return _opacityController.opacity(); }
 
 private:

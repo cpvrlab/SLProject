@@ -290,15 +290,15 @@ public:
     const char* stringsFrenchId() const { return stringsFrench.id(); }
     const char* stringsItalianId() const { return stringsItalian.id(); }
 
-    //void logWinInit();
-    //void logWinUnInit();
-    //void logWinDraw();
+    void logWinInit();
+    void logWinUnInit();
+    void logWinDraw();
 
     //developper helper flags
-    //bool developerMode      = true;
-    //bool simulatorMode      = false;
-    //bool enableUserGuidance = false;
-    //bool logWinEnabled      = false;
+    bool developerMode      = true;
+    bool simulatorMode      = false;
+    bool enableUserGuidance = false;
+    bool logWinEnabled      = false;
 
 private:
     Strings stringsEnglish;

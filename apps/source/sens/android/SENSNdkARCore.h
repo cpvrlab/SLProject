@@ -16,6 +16,7 @@ public:
 	~SENSNdkARCore();
 
     bool init(int targetWidth, int targetHeight, int manipWidth, int manipHeight, bool convertManipToGray);
+    bool isAvailable() { return _available; };
     bool isReady() { return _arSession != nullptr; }
     bool isRunning() { return !_pause; }
     void reset();

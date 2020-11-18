@@ -233,18 +233,18 @@ const Location defineLocationBiel()
                  "models/biel/DEM_Biel-BFH_WGS84.tif");
 
     {
-        Area area(AreaId::BIEL_BFH,                            //id
-                  {47.14263, 7.24314, 488.3},                  //llaPos
-                  60,                                          //map viewing angle
-                  {47.14271, 7.24337, 487.0},                  //modelOrigin
-                  "",                                          //slamMapFileName
-                  "dummy.jpg",                                 //relocAlignImage,
-                  "calibrations/voc_fbow.bin",                 //vocFileName,
-                  2,                                           //vocLayer,
-                  {640, 360},                                  //cameraFrameTargetSize
-                  ExtractorType::ExtractorType_FAST_ORBS_2000, //initializationExtractorType
-                  ExtractorType::ExtractorType_FAST_ORBS_1000, //relocalizationExtractorType
-                  ExtractorType::ExtractorType_FAST_ORBS_1000, //trackingExtractorType
+        Area area(AreaId::BIEL_BFH,                                                                              //id
+                  {47.14262, 7.24313, 488.3},                                                                    //llaPos
+                  60,                                                                                            //map viewing angle
+                  {47.14271, 7.24337, 487.0},                                                                    //modelOrigin
+                  "locations/biel/bfh/maps/DEVELOPMENT-map_20201116-165837_biel_office_FAST-ORBS-2000_2.waimap", //slamMapFileName
+                  "dummy.jpg",                                                                                   //relocAlignImage,
+                  "calibrations/voc_fbow.bin",                                                                   //vocFileName,
+                  2,                                                                                             //vocLayer,
+                  {640, 360},                                                                                    //cameraFrameTargetSize
+                  ExtractorType::ExtractorType_FAST_ORBS_2000,                                                   //initializationExtractorType
+                  ExtractorType::ExtractorType_FAST_ORBS_1000,                                                   //relocalizationExtractorType
+                  ExtractorType::ExtractorType_FAST_ORBS_1000,                                                   //trackingExtractorType
                   2);
         loc.areas[area.id] = area;
     }

@@ -31,6 +31,7 @@ public:
     SENSARCore() {}
     virtual ~SENSARCore() {}
     virtual bool init(int targetWidth, int targetHeight, int manipWidth, int manipHeight, bool convertManipToGray) { return false; }
+    virtual bool isAvailable() { return false; };
     virtual bool isReady() { return false; }
     virtual bool isRunning() { return false; }
     virtual bool resume() { return true; }
