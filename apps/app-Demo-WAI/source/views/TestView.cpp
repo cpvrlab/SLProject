@@ -374,7 +374,7 @@ void TestView::mapErlebARDirNamesToIds(const std::string& location, const std::s
         else if (area == "theater-marker" || area == "theater")
             areaId = ErlebAR::AreaId::AVENCHES_THEATER;
     }
-    else if (location == "augst")
+    else if (location == "Augst")
     {
         locationId = ErlebAR::LocationId::AUGST;
         //there is just one model so we just use a random augst id
