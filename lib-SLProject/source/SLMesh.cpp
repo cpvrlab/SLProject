@@ -1434,7 +1434,7 @@ void SLMesh::preShade(SLRay* ray)
 
                 SLVec3f T3(hitT.x, hitT.y, hitT.z);           // tangent with 3 components
                 T3.set(ray->hitNode->updateAndGetWMN() * T3); // transform tangent back to world space
-                SLVec2f d   = textures[1]->dsdt(tc.x, tc.y);  // slope of bump-map at tc
+                SLVec2f d   = textures[1]->dudv(tc.x, tc.y);  // slope of bump-map at tc
                 SLVec3f Nrm = ray->hitNormal;                 // unperturbated normal
                 SLVec3f B(Nrm ^ T3);                          // bi-normal tangent B
                 B *= T[iA].w;                                 // correct handedness
