@@ -7,16 +7,17 @@
 
 using namespace ErlebAR;
 
-SensorTestGui::SensorTestGui(const ImGuiEngine&  imGuiEngine,
-                             sm::EventHandler&   eventHandler,
-                             ErlebAR::Resources& resources,
-                             const DeviceData&   deviceData,
-                             SENSGps*            gps,
-                             SENSOrientation*    orientation,
-                             SENSCamera*         camera)
+SensorTestGui::SensorTestGui(const ImGuiEngine& imGuiEngine,
+                             sm::EventHandler&  eventHandler,
+                             ErlebAR::Config&   config,
+                             const DeviceData&  deviceData,
+                             SENSGps*           gps,
+                             SENSOrientation*   orientation,
+                             SENSCamera*        camera)
   : ImGuiWrapper(imGuiEngine.context(), imGuiEngine.renderer()),
     sm::EventSender(eventHandler),
-    _resources(resources),
+    _config(config),
+    _resources(config.resources()),
     _simDataDir(deviceData.writableDir() + "SENSSimData/"),
     _gps(gps),
     _orientation(orientation),
@@ -71,7 +72,7 @@ void SensorTestGui::onShow()
     _hasException = false;
     _exceptionText.clear();
 
-    if (_resources.developerMode && _resources.simulatorMode)
+    if (_config.developerMode && _config.simulatorMode)
     {
         _simHelper    = std::make_unique<SENSSimHelper>(_gps,
                                                      _orientation,
@@ -175,7 +176,7 @@ void SensorTestGui::build(SLScene* s, SLSceneView* sv)
     //ImGui::ShowMetricsWindow();
 
     //debug: draw log window
-    _resources.logWinDraw();
+    _config.logWinDraw();
 
     if (_simHelperGui)
         _simHelperGui->render(_simHelper.get());
@@ -325,7 +326,7 @@ void SensorTestGui::updateOrientationSensor()
 
                 SLMat3f qR = quat.toMat3();
                 qR.print("rotationQ");
-                
+
                 //SLMat3f rx(xRot, 0, 0);
                 //SLMat3f ry(0, yRot, 0);
                 //SLMat3f rz(0, 0, zRot);

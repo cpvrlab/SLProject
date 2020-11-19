@@ -24,12 +24,12 @@ struct WAIEvent;
 class TestView : protected SLSceneView
 {
 public:
-    TestView(sm::EventHandler&   eventHandler,
-             SLInputManager&     inputManager,
-             const ImGuiEngine&  imGuiEngine,
-             ErlebAR::Resources& resources,
-             SENSCamera*         camera,
-             const DeviceData&   deviceData);
+    TestView(sm::EventHandler&  eventHandler,
+             SLInputManager&    inputManager,
+             const ImGuiEngine& imGuiEngine,
+             ErlebAR::Config&   config,
+             SENSCamera*        camera,
+             const DeviceData&  deviceData);
     ~TestView();
 
     bool update();
@@ -65,7 +65,7 @@ protected:
 
     void mapErlebARDirNamesToIds(const std::string& location, const std::string& area, ErlebAR::LocationId& locationId, ErlebAR::AreaId& areaId);
     void initDeviceLocation(const ErlebAR::Location& location, const ErlebAR::Area& area);
-    
+
     //video
     std::unique_ptr<SENSCalibration> _calibrationLoaded;
     const SENSCalibration*           _calibration = nullptr;
@@ -99,11 +99,11 @@ protected:
 
     SLAssetManager _assets;
 
-    std::string _configDir;
-    std::string _vocabularyDir;
-    std::string _calibDir;
-    std::string _videoDir;
-    std::string _dataDir;
+    std::string       _configDir;
+    std::string       _vocabularyDir;
+    std::string       _calibDir;
+    std::string       _videoDir;
+    std::string       _dataDir;
     const DeviceData& _deviceData;
 
     bool             _fillAutoCalibration;
@@ -113,7 +113,7 @@ protected:
     MapEdition*      _mapEdition         = nullptr;
 
     //gui (declaration down here because it depends on a lot of members in initializer list of constructor)
-    AppDemoWaiGui _gui;
+    AppDemoWaiGui    _gui;
     SLDeviceLocation _devLoc;
 };
 

@@ -64,9 +64,9 @@ void Fonts::load(std::string fontDir, const Style& style, int screenH, int dpi)
     }
 }
 
-Resources::Resources(const DeviceData& deviceData)
-  : _screenW(deviceData.scrWidth()),
-    _screenH(deviceData.scrHeight()),
+Resources::Resources(const DeviceData& deviceData, int screenH, std::string languageId)
+  : //_screenW(deviceData.scrWidth()),
+    //_screenH(deviceData.scrHeight()),
     _writableDir(deviceData.writableDir())
 {
     //load strings first (we need the id for string selection)
@@ -75,86 +75,43 @@ Resources::Resources(const DeviceData& deviceData)
     stringsFrench.load(deviceData.stringsDir() + "StringsFrench.json");
     stringsItalian.load(deviceData.stringsDir() + "StringsItalian.json");
     //load Resources
-    load(deviceData.writableDir() + "ErlebARResources.json");
+    //load(deviceData.writableDir() + "ErlebARResources.json");
+
+    if (languageId == stringsGerman.id())
+    {
+        _currStrings = &stringsGerman;
+    }
+    else if (languageId == stringsFrench.id())
+    {
+        _currStrings = &stringsFrench;
+    }
+    else if (languageId == stringsItalian.id())
+    {
+        _currStrings = &stringsItalian;
+    }
+    else
+    {
+        _currStrings = &stringsEnglish;
+    }
+
     //load textures
     textures.load(deviceData.textureDir());
     //load fonts
-    _fonts.load(deviceData.fontDir(), _style, _screenH, deviceData.dpi());
+    _fonts.load(deviceData.fontDir(), _style, screenH, deviceData.dpi());
 
     //definition of erlebar locations and areas
-    _locations = ErlebAR::defineLocations();
+    //_locations = ErlebAR::defineLocations();
 
-    if (logWinEnabled)
-        logWinInit();
+    //if (logWinEnabled)
+    //    logWinInit();
 }
 
 Resources::~Resources()
 {
-    save();
+    //save();
     //delete shared textures
     textures.free();
     //delete fonts
-}
-
-void Resources::load(std::string resourceFileName)
-{
-    _fileName = resourceFileName;
-
-    cv::FileStorage fs(resourceFileName, cv::FileStorage::READ);
-    if (fs.isOpened())
-    {
-        if (!fs["developerMode"].empty())
-            fs["developerMode"] >> developerMode;
-        if (!fs["simulatorMode"].empty())
-            fs["simulatorMode"] >> simulatorMode;
-        if (!fs["enableUserGuidance"].empty())
-            fs["enableUserGuidance"] >> enableUserGuidance;
-        if (!fs["logWinEnabled"].empty())
-            fs["logWinEnabled"] >> logWinEnabled;
-
-        if (!fs["languageId"].empty())
-        {
-            std::string languageId;
-            fs["languageId"] >> languageId;
-            if (languageId == stringsGerman.id())
-            {
-                _currStrings = &stringsGerman;
-            }
-            else if (languageId == stringsFrench.id())
-            {
-                _currStrings = &stringsFrench;
-            }
-            else if (languageId == stringsItalian.id())
-            {
-                _currStrings = &stringsItalian;
-            }
-            else
-            {
-                _currStrings = &stringsEnglish;
-            }
-        }
-    }
-    else
-    {
-        Utils::warnMsg("ErlebAR::Resources", "Could not load resources!", __LINE__, __FILE__);
-    }
-}
-
-void Resources::save()
-{
-    cv::FileStorage fs(_fileName, cv::FileStorage::WRITE);
-    if (fs.isOpened())
-    {
-        fs << "developerMode" << developerMode;
-        fs << "simulatorMode" << simulatorMode;
-        fs << "enableUserGuidance" << enableUserGuidance;
-        fs << "logWinEnabled" << logWinEnabled;
-        fs << "languageId" << _currStrings->id();
-    }
-    else
-    {
-        Utils::warnMsg("ErlebAR::Resources", "Could not save resources!", __LINE__, __FILE__);
-    }
 }
 
 void Resources::setLanguageGerman()
@@ -172,26 +129,6 @@ void Resources::setLanguageFrench()
 void Resources::setLanguageItalien()
 {
     _currStrings = &stringsItalian;
-}
-
-void Resources::logWinInit()
-{
-    Utils::customLog = std::make_unique<LogWindow>(_screenW, _screenH);
-}
-
-void Resources::logWinUnInit()
-{
-    if (Utils::customLog)
-        Utils::customLog.release();
-}
-
-void Resources::logWinDraw()
-{
-    if (Utils::customLog)
-    {
-        LogWindow* log = static_cast<LogWindow*>(Utils::customLog.get());
-        log->draw(fonts().tiny, fonts().standard, "Log");
-    }
 }
 
 void loadString(const cv::FileStorage& fs, const std::string& name, std::string& target)
@@ -230,11 +167,118 @@ void Strings::load(std::string fileName)
             loadString(fs, "bernInfoText1", _bernInfoText1);
             loadString(fs, "bernInfoHeading2", _bernInfoHeading2);
             loadString(fs, "bernInfoText2", _bernInfoText2);
+            //augst:
+            loadString(fs, "augstTempleHillInfoHeading1", _augstTempleHillInfoHeading1);
+            loadString(fs, "augstTempleHillInfoText1", _augstTempleHillInfoText1);
+            loadString(fs, "augstTempleHillInfoText2", _augstTempleHillInfoText2);
         }
     }
     else
     {
         Utils::log("Strings", "Warning: Strings file does not exist: %s", fileName.c_str());
+    }
+}
+
+Config::Config(const DeviceData& deviceData)
+{
+    _screenW = deviceData.scrWidth();
+    _screenH = deviceData.scrHeight();
+
+    load(deviceData.writableDir() + "ErlebARResources.json");
+    //init resources
+    _resources = new Resources(deviceData, deviceData.scrHeight(), _languageId);
+
+    //definition of erlebar locations and areas
+    _locations = ErlebAR::defineLocations();
+
+    if (logWinEnabled)
+        logWinInit();
+}
+
+Config::~Config()
+{
+    save();
+
+    if (_resources)
+        delete _resources;
+}
+
+void Config::load(std::string resourceFileName)
+{
+    _fileName = resourceFileName;
+
+    Utils::log("ErlebAR::Config", "loading config from %s", _fileName.c_str());
+    cv::FileStorage fs(resourceFileName, cv::FileStorage::READ);
+    if (fs.isOpened())
+    {
+        if (!fs["developerMode"].empty())
+            fs["developerMode"] >> developerMode;
+        if (!fs["simulatorMode"].empty())
+            fs["simulatorMode"] >> simulatorMode;
+        if (!fs["enableUserGuidance"].empty())
+            fs["enableUserGuidance"] >> enableUserGuidance;
+        if (!fs["logWinEnabled"].empty())
+            fs["logWinEnabled"] >> logWinEnabled;
+
+        if (!fs["useGps"].empty())
+            fs["useGps"] >> useGps;
+        if (!fs["useARCore"].empty())
+            fs["useARCore"] >> useARCore;
+        if (!fs["useWAISlam"].empty())
+            fs["useWAISlam"] >> useWAISlam;
+
+        if (!fs["languageId"].empty())
+        {
+            std::string languageId;
+            fs["languageId"] >> languageId;
+        }
+    }
+    else
+    {
+        Utils::warnMsg("ErlebAR::Config", "Could not load config!", __LINE__, __FILE__);
+    }
+}
+
+void Config::save()
+{
+    Utils::log("ErlebAR::Config", "saving config to %s", _fileName.c_str());
+    cv::FileStorage fs(_fileName, cv::FileStorage::WRITE);
+    if (fs.isOpened())
+    {
+        fs << "developerMode" << developerMode;
+        fs << "simulatorMode" << simulatorMode;
+        fs << "enableUserGuidance" << enableUserGuidance;
+        fs << "logWinEnabled" << logWinEnabled;
+
+        fs << "useGps" << useGps;
+        fs << "useARCore" << useARCore;
+        fs << "useWAISlam" << useWAISlam;
+
+        fs << "languageId" << _resources->strings().id();
+    }
+    else
+    {
+        Utils::warnMsg("ErlebAR::Config", "Could not save config!", __LINE__, __FILE__);
+    }
+}
+
+void Config::logWinInit()
+{
+    Utils::customLog = std::make_unique<LogWindow>(_screenW, _screenH, _resources->fonts().tiny, _resources->fonts().standard);
+}
+
+void Config::logWinUnInit()
+{
+    if (Utils::customLog)
+        Utils::customLog.release();
+}
+
+void Config::logWinDraw()
+{
+    if (Utils::customLog)
+    {
+        LogWindow* log = static_cast<LogWindow*>(Utils::customLog.get());
+        log->draw("Log");
     }
 }
 

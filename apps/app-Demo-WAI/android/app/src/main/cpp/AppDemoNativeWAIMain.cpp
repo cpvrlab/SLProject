@@ -43,6 +43,7 @@
 #include <HighResTimer.h>
 #include <sens/android/SENSNdkGps.h>
 #include <sens/android/SENSNdkOrientation.h>
+#include <sens/android/SENSNdkARCore.h>
 
 #define ENGINE_DEBUG(...) Utils::log("Engine", __VA_ARGS__)
 #define ENGINE_INFO(...) Utils::log("Engine", __VA_ARGS__)
@@ -130,6 +131,7 @@ private:
 
     SENSNdkGps*         _gps         = nullptr;
     SENSNdkOrientation* _orientation = nullptr;
+    SENSNdkARCore*      _arcore      = nullptr;
     /*
     SensorsHandler* sensorsHandler;
     */
@@ -186,7 +188,7 @@ void Engine::onInit()
 
         //todo revert
         _earApp.setCloseAppCallback(std::bind(&Engine::closeAppCallback, this));
-        _earApp.init(_width, _height, _dpi, internalPath + "/data/", externalPath, _camera, _gps, _orientation);
+        _earApp.init(_width, _height, _dpi, internalPath + "/data/", externalPath, _camera, _gps, _orientation, _arcore);
         _earAppIsInitialized = true;
     }
     else
@@ -201,7 +203,7 @@ void Engine::onInit()
 
             std::string internalPath = getInternalDir();
             std::string externalPath = getExternalDir();
-            _earApp.init(_width, _height, _dpi, internalPath + "/data/", externalPath, _camera, _gps, _orientation);
+            _earApp.init(_width, _height, _dpi, internalPath + "/data/", externalPath, _camera, _gps, _orientation, _arcore);
         }
         else
         {
@@ -504,6 +506,11 @@ void Engine::initSensors()
         {
             _orientation = new SENSNdkOrientation(_app->activity->vm, &_app->activity->clazz, &gOrientationClass);
         }
+
+        if (!_arcore)
+        {
+            _arcore = new SENSNdkARCore(_app->activity);
+        }
     }
     catch (std::exception& e)
     {
@@ -599,7 +606,6 @@ std::string Engine::getInternalDir()
         case JNI_EVERSION:
         {
             //TODO(dgj1): error handling
-            Utils::log("WAInative", "unsupported java version");
             Utils::log("WAInative", "unsupported java version");
             return "";
         }

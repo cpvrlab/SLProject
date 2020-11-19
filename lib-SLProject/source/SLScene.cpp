@@ -25,6 +25,7 @@ SLGLDefaultProgPerVrtBlinn*           SLGLDefaultProgPerVrtBlinn::_instance     
 SLGLDefaultProgPerVrtBlinnTex*        SLGLDefaultProgPerVrtBlinnTex::_instance        = nullptr;
 SLGLDefaultProgPerPixBlinn*           SLGLDefaultProgPerPixBlinn::_instance           = nullptr;
 SLGLDefaultProgPerPixBlinnSM*         SLGLDefaultProgPerPixBlinnSM::_instance         = nullptr;
+SLGLDefaultProgPerPixBlinnSMAO*       SLGLDefaultProgPerPixBlinnSMAO::_instance       = nullptr;
 SLGLDefaultProgPerPixBlinnTex*        SLGLDefaultProgPerPixBlinnTex::_instance        = nullptr;
 SLGLDefaultProgPerPixBlinnTexAO*      SLGLDefaultProgPerPixBlinnTexAO::_instance      = nullptr;
 SLGLDefaultProgPerPixBlinnTexSM*      SLGLDefaultProgPerPixBlinnTexSM::_instance      = nullptr;
@@ -125,6 +126,7 @@ void SLScene::unInit()
     SLGLDefaultProgPerVrtBlinnTex::deleteInstance();
     SLGLDefaultProgPerPixBlinn::deleteInstance();
     SLGLDefaultProgPerPixBlinnSM::deleteInstance();
+    SLGLDefaultProgPerPixBlinnSMAO::deleteInstance();
     SLGLDefaultProgPerPixBlinnTex::deleteInstance();
     SLGLDefaultProgPerPixBlinnTexAO::deleteInstance();
     SLGLDefaultProgPerPixBlinnTexSM::deleteInstance();

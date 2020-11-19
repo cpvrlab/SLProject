@@ -12,12 +12,12 @@
 class CameraTestView : public SLSceneView
 {
 public:
-    CameraTestView(sm::EventHandler&   eventHandler,
-                   SLInputManager&     inputManager,
-                   const ImGuiEngine&  imGuiEngine,
-                   ErlebAR::Resources& resources,
-                   SENSCamera*         sensCamera,
-                   const DeviceData&   deviceData);
+    CameraTestView(sm::EventHandler&  eventHandler,
+                   SLInputManager&    inputManager,
+                   const ImGuiEngine& imGuiEngine,
+                   ErlebAR::Config&   config,
+                   SENSCamera*        sensCamera,
+                   const DeviceData&  deviceData);
     bool update();
     //call when view becomes visible
     void onShow() { _gui.onShow(); }

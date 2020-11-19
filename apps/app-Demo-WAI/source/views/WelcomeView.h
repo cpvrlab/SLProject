@@ -11,11 +11,11 @@ class SLTexFont;
 class WelcomeView : public SLSceneView
 {
 public:
-    WelcomeView(SLInputManager&     inputManager,
-                ErlebAR::Resources& resources,
-                const ImGuiEngine&  imGuiEngine,
-                const DeviceData&   deviceData,
-                std::string         version);
+    WelcomeView(SLInputManager&    inputManager,
+                ErlebAR::Config&   config,
+                const ImGuiEngine& imGuiEngine,
+                const DeviceData&  deviceData,
+                std::string        version);
     bool update();
 
 private:

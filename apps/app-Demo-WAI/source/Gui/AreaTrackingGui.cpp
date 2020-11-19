@@ -9,7 +9,7 @@ using namespace ErlebAR;
 
 AreaTrackingGui::AreaTrackingGui(const ImGuiEngine&                  imGuiEngine,
                                  sm::EventHandler&                   eventHandler,
-                                 ErlebAR::Resources&                 resources,
+                                 ErlebAR::Config&                    config,
                                  int                                 dotsPerInch,
                                  int                                 screenWidthPix,
                                  int                                 screenHeightPix,
@@ -18,7 +18,8 @@ AreaTrackingGui::AreaTrackingGui(const ImGuiEngine&                  imGuiEngine
                                  std::function<SENSSimHelper*(void)> getSimHelperCB)
   : ImGuiWrapper(imGuiEngine.context(), imGuiEngine.renderer()),
     sm::EventSender(eventHandler),
-    _resources(resources),
+    _config(config),
+    _resources(config.resources()),
     _transparencyChangedCB(transparencyChangedCB),
     _erlebARDir(erlebARDir),
     _getSimHelper(getSimHelperCB)
@@ -33,9 +34,10 @@ AreaTrackingGui::~AreaTrackingGui()
 void AreaTrackingGui::onShow()
 {
     _panScroll.enable();
-    _opacityController.reset();
-    if(_simHelperGui)
+    _opacityController.resetVisible();
+    if (_simHelperGui)
         _simHelperGui->reset();
+    _infoText.clear();
 }
 
 void AreaTrackingGui::onResize(SLint scrW, SLint scrH, SLfloat scr2fbX, SLfloat scr2fbY)
@@ -57,20 +59,22 @@ void AreaTrackingGui::resize(int scrW, int scrH)
     _textWrapW               = 0.9f * _screenW;
 }
 
-void AreaTrackingGui::mouseDown(bool doNotDispatch)
+void AreaTrackingGui::mouseDown(SLMouseButton button, bool doNotDispatch)
 {
-    if (doNotDispatch)
-        _opacityController.reset();
-    else
-        _opacityController.mouseDown();
+    _opacityController.mouseDown(doNotDispatch);
 }
 
 void AreaTrackingGui::mouseMove(bool doNotDispatch)
 {
     //In this case we reset if event was already dispatched by imgui, e.g.
     //when the user moves the slider, we dont want the ui to hide
-    if (doNotDispatch)
-        _opacityController.reset();
+    _opacityController.mouseMove();
+}
+
+void AreaTrackingGui::mouseUp(SLMouseButton button, bool doNotDispatch)
+{
+    if (button == MB_left)
+        _opacityController.mouseUp(doNotDispatch);
 }
 
 void AreaTrackingGui::build(SLScene* s, SLSceneView* sv)
@@ -178,7 +182,7 @@ void AreaTrackingGui::build(SLScene* s, SLSceneView* sv)
             ImGui::End();
         }
 
-        if (!_infoText.empty())
+        if (!_infoText.empty() && _config.developerMode)
         {
             ImGuiWindowFlags infoBarWinFlags = ImGuiWindowFlags_NoTitleBar |
                                                ImGuiWindowFlags_NoMove |
@@ -271,9 +275,9 @@ void AreaTrackingGui::build(SLScene* s, SLSceneView* sv)
      */
 
     //debug: draw log window
-    _resources.logWinDraw();
+    _config.logWinDraw();
 
-    if (_resources.developerMode && _resources.simulatorMode && _getSimHelper)
+    if (_config.developerMode && _config.simulatorMode && _getSimHelper)
     {
         if (!_simHelperGui)
             _simHelperGui = std::make_unique<SimHelperGui>(_resources.fonts().tiny, _resources.fonts().standard, "AreaTrackingGui", _screenH);

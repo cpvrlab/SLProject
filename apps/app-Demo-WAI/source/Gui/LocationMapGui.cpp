@@ -6,18 +6,19 @@
 
 using namespace ErlebAR;
 
-LocationMapGui::LocationMapGui(const ImGuiEngine&  imGuiEngine,
-                               sm::EventHandler&   eventHandler,
-                               ErlebAR::Resources& resources,
-                               int                 dotsPerInch,
-                               int                 screenWidthPix,
-                               int                 screenHeightPix,
-                               std::string         erlebARDir,
-                               SENSGps*            gps,
-                               SENSOrientation*    orientation)
+LocationMapGui::LocationMapGui(const ImGuiEngine& imGuiEngine,
+                               sm::EventHandler&  eventHandler,
+                               ErlebAR::Config&   config,
+                               int                dotsPerInch,
+                               int                screenWidthPix,
+                               int                screenHeightPix,
+                               std::string        erlebARDir,
+                               SENSGps*           gps,
+                               SENSOrientation*   orientation)
   : ImGuiWrapper(imGuiEngine.context(), imGuiEngine.renderer()),
     sm::EventSender(eventHandler),
-    _resources(resources),
+    _config(config),
+    _resources(config.resources()),
     _erlebARDir(erlebARDir),
     _gps(gps),
     _orientation(orientation)
@@ -264,12 +265,12 @@ void LocationMapGui::build(SLScene* s, SLSceneView* sv)
     //ImGui::ShowMetricsWindow();
 
     //debug: draw log window
-    _resources.logWinDraw();
+    _config.logWinDraw();
 }
 
 void LocationMapGui::initLocation(ErlebAR::LocationId locId)
 {
-    const auto& locations = _resources.locations();
+    const auto& locations = _config.locations();
     auto        locIt     = locations.find(locId);
     if (locIt != locations.end())
     {

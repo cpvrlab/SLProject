@@ -1,13 +1,13 @@
 #include <views/WelcomeView.h>
 
-WelcomeView::WelcomeView(SLInputManager&     inputManager,
-                         ErlebAR::Resources& resources,
-                         const ImGuiEngine&  imGuiEngine,
-                         const DeviceData&   deviceData,
-                         std::string         version)
+WelcomeView::WelcomeView(SLInputManager&    inputManager,
+                         ErlebAR::Config&   config,
+                         const ImGuiEngine& imGuiEngine,
+                         const DeviceData&  deviceData,
+                         std::string        version)
   : SLSceneView(nullptr, deviceData.dpi(), inputManager),
     _gui(imGuiEngine,
-         resources,
+         config.resources(),
          deviceData.dpi(),
          deviceData.scrWidth(),
          deviceData.scrHeight(),

@@ -14,17 +14,17 @@
 #define LOG_TESTVIEW_INFO(...) Utils::log("TestView", __VA_ARGS__);
 #define LOG_TESTVIEW_DEBUG(...) Utils::log("TestView", __VA_ARGS__);
 
-TestView::TestView(sm::EventHandler&   eventHandler,
-                   SLInputManager&     inputManager,
-                   const ImGuiEngine&  imGuiEngine,
-                   ErlebAR::Resources& resources,
-                   SENSCamera*         camera,
-                   const DeviceData&   deviceData)
+TestView::TestView(sm::EventHandler&  eventHandler,
+                   SLInputManager&    inputManager,
+                   const ImGuiEngine& imGuiEngine,
+                   ErlebAR::Config&   config,
+                   SENSCamera*        camera,
+                   const DeviceData&  deviceData)
   : SLSceneView(&_scene, deviceData.dpi(), inputManager),
     _gui(
       imGuiEngine,
       eventHandler,
-      resources,
+      config.resources(),
       "TestScene",
       deviceData,
       _featureExtractorFactory.getExtractorIdToNames(),
@@ -364,7 +364,8 @@ void TestView::handleEvents()
 //ATTENTION: THIS MAPPING IS NOT COMPLETE AND ONLY FULFILLS CURRENT SCENE IMPLEMENTATION
 void TestView::mapErlebARDirNamesToIds(const std::string& location, const std::string& area, ErlebAR::LocationId& locationId, ErlebAR::AreaId& areaId)
 {
-    if (location == "avenches")
+    std::string lcLocation = Utils::toLowerString(location);
+    if (lcLocation == "avenches")
     {
         locationId = ErlebAR::LocationId::AVENCHES;
         if (area == "amphitheaterEntrance" || area == "amphitheater")
@@ -374,16 +375,16 @@ void TestView::mapErlebARDirNamesToIds(const std::string& location, const std::s
         else if (area == "theater-marker" || area == "theater")
             areaId = ErlebAR::AreaId::AVENCHES_THEATER;
     }
-    else if (location == "augst")
+    else if (lcLocation == "augst")
     {
         locationId = ErlebAR::LocationId::AUGST;
         //there is just one model so we just use a random augst id
         if (area == "templeHill-marker")
-            areaId = ErlebAR::AreaId::AUGST_TEMPLE_HILL_MARKER;
+            areaId = ErlebAR::AreaId::AUGST_TEMPLE_HILL;
         else if (area == "templeHillTheaterBottom")
-            areaId = ErlebAR::AreaId::AUGST_TEMPLE_HILL_THEATER_BOTTOM;
+            areaId = ErlebAR::AreaId::AUGST_THEATER_FRONT;
     }
-    else if (location == "bern")
+    else if (lcLocation == "bern")
     {
         locationId = ErlebAR::LocationId::BERN;
         if (area == "milchgaessli")
@@ -393,7 +394,7 @@ void TestView::mapErlebARDirNamesToIds(const std::string& location, const std::s
         else if (area == "bubenbergplatz")
             areaId = ErlebAR::AreaId::BERN_BUBENBERGPLATZ;
     }
-    else if (location == "biel")
+    else if (lcLocation == "biel")
     {
         locationId = ErlebAR::LocationId::BIEL;
         if (area == "bfh")

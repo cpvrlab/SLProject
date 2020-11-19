@@ -1166,7 +1166,6 @@ SLbool SLCamera::onMouseMove(const SLMouseButton button,
                 _devRot->offsetMode() == OM_fingerYTrans ||
                 _devRot->offsetMode() == OM_fingerXRotYTrans)
             {
-                // Mouse or touch move in percent
                 _yOffsetPix += (y - _oldTouchPos1.y);
                 _xOffsetPix += (x - _oldTouchPos1.x);
             }

@@ -58,12 +58,14 @@ void ErlebARApp::init(int                scrWidth,
                       const std::string& writableDir,
                       SENSCamera*        camera,
                       SENSGps*           gps,
-                      SENSOrientation*   orientation)
+                      SENSOrientation*   orientation,
+                      SENSARCore*        arcore)
 {
     //store camera so we can stop on terminate
     _camera      = camera;
     _gps         = gps;
     _orientation = orientation;
+    _arcore      = arcore;
     addEvent(new InitEvent("ErlebARApp::init()", scrWidth, scrHeight, dpi, dataDir, writableDir));
 }
 
@@ -161,14 +163,14 @@ void ErlebARApp::INIT(const InitEventData* data, const bool stateEntry, const bo
     _dd = std::make_unique<DeviceData>(data->deviceData);
 
     SLGLProgramManager::init(_dd->shaderDir());
-    _resources   = new ErlebAR::Resources(*_dd);
-    _imGuiEngine = new ImGuiEngine(_dd->writableDir(), _resources->fonts().atlas());
+    _config      = new ErlebAR::Config(*_dd);
+    _imGuiEngine = new ImGuiEngine(_dd->writableDir(), _config->resources().fonts().atlas());
 
     BEGIN_PROFILING_SESSION("WAI-Profile", true, _dd->writableDir() + "Profiling-Results.json");
 
     //instantiation of views
     _welcomeView = new WelcomeView(_inputManager,
-                                   *_resources,
+                                   *_config,
                                    *_imGuiEngine,
                                    *_dd,
                                    "0.12");
@@ -191,7 +193,7 @@ void ErlebARApp::WELCOME(const sm::NoEventData* data, const bool stateEntry, con
             _selectionView = new SelectionView(*this,
                                                _inputManager,
                                                *_imGuiEngine,
-                                               *_resources,
+                                               *_config,
                                                *_dd);
         }
 
@@ -200,7 +202,7 @@ void ErlebARApp::WELCOME(const sm::NoEventData* data, const bool stateEntry, con
             _testView = new TestView(*this,
                                      _inputManager,
                                      *_imGuiEngine,
-                                     *_resources,
+                                     *_config,
                                      _camera,
                                      *_dd);
         }
@@ -210,7 +212,7 @@ void ErlebARApp::WELCOME(const sm::NoEventData* data, const bool stateEntry, con
             _testRunnerView = new TestRunnerView(*this,
                                                  _inputManager,
                                                  *_imGuiEngine,
-                                                 *_resources,
+                                                 *_config,
                                                  *_dd);
         }
 
@@ -225,7 +227,7 @@ void ErlebARApp::WELCOME(const sm::NoEventData* data, const bool stateEntry, con
             _aboutView = new AboutView(*this,
                                        _inputManager,
                                        *_imGuiEngine,
-                                       *_resources,
+                                       *_config,
                                        *_dd);
         }
 
@@ -234,7 +236,7 @@ void ErlebARApp::WELCOME(const sm::NoEventData* data, const bool stateEntry, con
             _settingsView = new SettingsView(*this,
                                              _inputManager,
                                              *_imGuiEngine,
-                                             *_resources,
+                                             *_config,
                                              *_dd);
         }
 
@@ -243,7 +245,7 @@ void ErlebARApp::WELCOME(const sm::NoEventData* data, const bool stateEntry, con
             _tutorialView = new TutorialView(*this,
                                              _inputManager,
                                              *_imGuiEngine,
-                                             *_resources,
+                                             *_config,
                                              *_dd);
         }
 
@@ -252,7 +254,7 @@ void ErlebARApp::WELCOME(const sm::NoEventData* data, const bool stateEntry, con
             _locationMapView = new LocationMapView(*this,
                                                    _inputManager,
                                                    *_imGuiEngine,
-                                                   *_resources,
+                                                   *_config,
                                                    *_dd,
                                                    _gps,
                                                    _orientation);
@@ -263,7 +265,7 @@ void ErlebARApp::WELCOME(const sm::NoEventData* data, const bool stateEntry, con
             _areaInfoView = new AreaInfoView(*this,
                                              _inputManager,
                                              *_imGuiEngine,
-                                             *_resources,
+                                             *_config,
                                              *_dd);
         }
 
@@ -272,10 +274,11 @@ void ErlebARApp::WELCOME(const sm::NoEventData* data, const bool stateEntry, con
             _areaTrackingView = new AreaTrackingView(*this,
                                                      _inputManager,
                                                      *_imGuiEngine,
-                                                     *_resources,
+                                                     *_config,
                                                      _camera,
                                                      _gps,
                                                      _orientation,
+                                                     _arcore,
                                                      *_dd);
         }
     }
@@ -371,10 +374,10 @@ void ErlebARApp::DESTROY(const sm::NoEventData* data, const bool stateEntry, con
         _imGuiEngine = nullptr;
     }
 
-    if (_resources)
+    if (_config)
     {
-        delete _resources;
-        _resources = nullptr;
+        delete _config;
+        _config = nullptr;
     }
 
     //ATTENTION: if we dont do this we get problems when opening the app the second time
@@ -529,11 +532,14 @@ void ErlebARApp::ABOUT(const sm::NoEventData* data, const bool stateEntry, const
 void ErlebARApp::SETTINGS(const sm::NoEventData* data, const bool stateEntry, const bool stateExit)
 {
     if (stateExit)
+    {
+        _settingsView->onHide();
         return;
+    }
 
     if (stateEntry)
     {
-        _settingsView->show();
+        _settingsView->onShow();
     }
 
     _settingsView->update();
@@ -554,7 +560,7 @@ void ErlebARApp::CAMERA_TEST(const sm::NoEventData* data, const bool stateEntry,
             _cameraTestView = new CameraTestView(*this,
                                                  _inputManager,
                                                  *_imGuiEngine,
-                                                 *_resources,
+                                                 *_config,
                                                  _camera,
                                                  *_dd);
         }
@@ -580,7 +586,7 @@ void ErlebARApp::SENSOR_TEST(const sm::NoEventData* data, const bool stateEntry,
             _sensorTestView = new SensorTestView(*this,
                                                  _inputManager,
                                                  *_imGuiEngine,
-                                                 *_resources,
+                                                 *_config,
                                                  _gps,
                                                  _orientation,
                                                  _camera,

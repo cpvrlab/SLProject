@@ -125,11 +125,15 @@ SENSCvCamera::SENSCvCamera(SENSCamera* camera)
 {
     assert(camera);
     //retrieve capture properties
-    _camera->captureProperties();
+    if (_camera)
+        _camera->captureProperties();
 }
 
 bool SENSCvCamera::supportsFacing(SENSCameraFacing facing)
 {
+    if (!_camera)
+        return false;
+
     const SENSCaptureProperties& props = _camera->captureProperties();
     return props.supportsCameraFacing(facing);
 }
@@ -202,7 +206,7 @@ SENSCvCamera::ConfigReturnCode SENSCvCamera::configure(SENSCameraFacing facing,
                                                    convertManipToGray);
 
     //guess calibrations if no calibration is set from outside
-    if(!_calibrationOverwrite)
+    if (!_calibrationOverwrite)
         guessAndSetCalibration(65.f);
 
     return returnCode;
@@ -286,11 +290,11 @@ cv::Mat SENSCvCamera::scaledCameraMat()
 void SENSCvCamera::setCalibration(const SENSCalibration& calibration, bool buildUndistortionMaps)
 {
     _calibrationOverwrite = std::make_unique<SENSCalibration>(calibration);
-    
+
     //update first calibration
     _calibration = std::make_unique<SENSCalibration>(*_calibrationOverwrite);
     _calibration->adaptForNewResolution(cv::Size(_config->targetWidth, _config->targetHeight), buildUndistortionMaps);
-    
+
     //update second calibration
     _calibrationManip = std::make_unique<SENSCalibration>(*_calibrationOverwrite);
     _calibrationManip->adaptForNewResolution(cv::Size(_config->manipWidth, _config->manipHeight), buildUndistortionMaps);

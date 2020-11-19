@@ -26,23 +26,128 @@
 #include <SLCoordAxis.h>
 #include <sens/SENSSimHelper.h>
 #include <SLDeviceLocation.h>
+#include <sens/SENSARCore.h>
+#include <math/SLAlgo.h>
 #include <SLDeviceRotation.h>
 #include <WAIImageStabilizedOrientation.h>
+#include <SLDeviceRotation.h>
 
 class SENSCamera;
 class MapLoader;
 
+class CameraPoseFingerCorrection
+{
+public:
+    CameraPoseFingerCorrection()
+    {
+        clear();
+        //rotation of camera w.r.t sensor
+        _sRc.rotation(-90, 0, 0, 1);
+    }
+
+    void onMouseDown(int x, int y)
+    {
+        _activeMove  = true;
+        _xLastPosPix = x;
+        _yLastPosPix = y;
+    }
+    void onMouseMove(int x, int y)
+    {
+        if (!_activeMove)
+            return;
+
+        _xOffsetPix += (x - _xLastPosPix);
+        _yOffsetPix += (y - _yLastPosPix);
+        _xLastPosPix = x;
+        _yLastPosPix = y;
+    }
+
+    void onMouseUp(int x, int y)
+    {
+        _activeMove = false;
+    }
+
+    const SLMat4f& getCorrectionMat(float focalLength)
+    {
+        if (_yOffsetPix != 0 || _xOffsetPix != 0)
+        {
+            //calculate the offset matrix:
+            float yRotOffsetRAD = atanf((float)_xOffsetPix / focalLength);
+            _yRotRAD += yRotOffsetRAD;
+
+            //we have to apply the rotation around the camera origin
+            //build y rotation matrix
+            SLMat3f rotY(_yRotRAD * Utils::RAD2DEG, 0, 1, 0);
+
+            _wcorrTw.identity();
+            _wcorrTw.setRotation(rotY);
+            _wcorrTw.print("_wcorrTw");
+
+            //clear finger movement
+            _xOffsetPix = 0;
+            _yOffsetPix = 0;
+        }
+
+        return _wcorrTw;
+    }
+
+    float getRotAngleRAD(float focalLength)
+    {
+        if (_yOffsetPix != 0 || _xOffsetPix != 0)
+        {
+            //calculate the offset matrix:
+            float yRotOffsetRAD = atanf((float)_xOffsetPix / focalLength);
+            _yRotRAD += yRotOffsetRAD;
+
+            //clear finger movement
+            _xOffsetPix = 0;
+            _yOffsetPix = 0;
+        }
+
+        return _yRotRAD;
+    }
+
+    void clear()
+    {
+        _xOffsetPix  = 0;
+        _yOffsetPix  = 0;
+        _xLastPosPix = 0;
+        _yLastPosPix = 0;
+
+        _yRotRAD    = 0.f;
+        _activeMove = false;
+        _wcorrTw.identity();
+    }
+
+private:
+    //parameter for manual finger rotation and translation
+    int  _xOffsetPix  = 0;
+    int  _yOffsetPix  = 0;
+    int  _xLastPosPix = 0;
+    int  _yLastPosPix = 0;
+    bool _activeMove  = false;
+
+    float _yRotRAD = 0;
+
+    float _distanceToObjectM = 10.0f; //!< distance to object in meter that should be shifted relative to camera
+
+    //camera wrt. sensor rotation
+    SLMat3f _sRc;
+    SLMat4f _wcorrTw;
+};
+
 class AreaTrackingView : public SLSceneView
 {
 public:
-    AreaTrackingView(sm::EventHandler&   eventHandler,
-                     SLInputManager&     inputManager,
-                     const ImGuiEngine&  imGuiEngine,
-                     ErlebAR::Resources& resources,
-                     SENSCamera*         camera,
-                     SENSGps*            gps,
-                     SENSOrientation*    orientation,
-                     const DeviceData&   deviceData);
+    AreaTrackingView(sm::EventHandler&  eventHandler,
+                     SLInputManager&    inputManager,
+                     const ImGuiEngine& imGuiEngine,
+                     ErlebAR::Config&   config,
+                     SENSCamera*        camera,
+                     SENSGps*           gps,
+                     SENSOrientation*   orientation,
+                     SENSARCore*        arcore,
+                     const DeviceData&  deviceData);
     ~AreaTrackingView();
 
     void initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaId);
@@ -63,7 +168,14 @@ public:
 
 private:
     virtual SLbool onMouseDown(SLMouseButton button, SLint scrX, SLint scrY, SLKey mod);
+    virtual SLbool onMouseUp(SLMouseButton button, SLint scrX, SLint scrY, SLKey mod);
     virtual SLbool onMouseMove(SLint x, SLint y);
+
+    bool updateGPSARCore(SENSFramePtr& frame);
+    bool updateGPSWAISlamARCore(SENSFramePtr& frame);
+    bool updateGPSWAISlam(SENSFramePtr& frame);
+    bool updateGPS(SENSFramePtr& frame);
+    bool updateWAISlamGPS(SENSFramePtr& frame);
 
     void    updateSceneCameraFov();
     void    updateVideoImage(SENSFrame& frame, VideoBackgroundCamera* videoBackground);
@@ -73,10 +185,11 @@ private:
     void    initWaiSlam(const cv::Mat& mapNodeOm, std::unique_ptr<WAIMap> waiMap);
     bool    startCamera(const cv::Size& trackImgSize);
     void    onCameraParamsChanged();
-    SLMat4f calcCameraPoseGpsOrientationBased(const SENSOrientation::Quat& sensQuat);
+    SLMat4f calcCameraPoseGpsOrientationBased();
     SLMat4f calcCameraPoseOrientationBased(const SENSOrientation::Quat& sensQuat);
     cv::Mat convertCameraPoseToWaiCamExtrinisc(SLMat4f& wTc);
-    
+    void    applyFingerCorrection(SLMat4f& camPose);
+
     AreaTrackingGui   _gui;
     AppWAIScene       _waiScene;
     UserGuidanceScene _userGuidanceScene;
@@ -86,12 +199,17 @@ private:
     std::unique_ptr<SENSCvCamera> _camera;
     SENSGps*                      _gps         = nullptr;
     SENSOrientation*              _orientation = nullptr;
+    SENSARCore*                   _arcore      = nullptr;
 
     FeatureExtractorFactory      _featureExtractorFactory;
     std::unique_ptr<KPextractor> _trackingExtractor;
     std::unique_ptr<KPextractor> _initializationExtractor;
     std::unique_ptr<KPextractor> _relocalizationExtractor;
     ImageBuffer                  _imgBuffer;
+    // arcore world w.r.t. gpsOrientation world (real world)
+    SLMat4f _transitionMatrix;
+    bool    _hasTransitionMatrix;
+    float   _initTime;
 
     std::unique_ptr<WAIOrbVocabulary> _voc;
     //wai slam depends on _orbVocabulary and has to be uninitializd first (defined below voc)
@@ -110,6 +228,7 @@ private:
 
     std::unique_ptr<MapLoader> _asyncLoader;
 
+    ErlebAR::Config&    _config;
     ErlebAR::Resources& _resources;
     const DeviceData&   _deviceData;
 
@@ -122,7 +241,8 @@ private:
     SLDeviceRotation _devRot;
     //indicates if intArea finished successfully
     bool _noInitException = false;
-    
+
+    CameraPoseFingerCorrection    _cameraFingerCorr;
     WAIImageStabilizedOrientation _oriStabi;
 };
 
@@ -185,8 +305,5 @@ private:
     std::unique_ptr<WAIMap> _waiMap;
     cv::Mat                 _mapNodeOm;
 };
-
-
-
 
 #endif //AREA_TRACKING_VIEW_H

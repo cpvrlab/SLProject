@@ -537,6 +537,8 @@ int main(int argc, char* argv[])
         std::unique_ptr<SENSSimulator> sensSim;
         std::unique_ptr<SENSWebCamera> webCamera;
         std::unique_ptr<SENSDummyGps>  dummyGps;
+        std::unique_ptr<SENSARCore>    arcore;
+        arcore = std::make_unique<SENSARCore>();
 
         SENSOrientation* orientation = nullptr;
         SENSGps*         gps         = nullptr;
@@ -594,7 +596,8 @@ int main(int argc, char* argv[])
                  Utils::getAppsWritableDir(),
                  camera,
                  gps,
-                 orientation);
+                 orientation,
+                 arcore.get());
         app.setCloseAppCallback(closeAppCallback);
 
         glfwSetWindowTitle(window, "ErlebAR");

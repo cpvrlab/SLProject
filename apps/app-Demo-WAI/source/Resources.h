@@ -209,6 +209,11 @@ public:
     const char* bernInfoHeading2() const { return _bernInfoHeading2.c_str(); }
     const char* bernInfoText2() const { return _bernInfoText2.c_str(); }
 
+    //augst:
+    const char* augstTempleHillInfoHeading1() const { return _augstTempleHillInfoHeading1.c_str(); }
+    const char* augstTempleHillInfoText1() const { return _augstTempleHillInfoText1.c_str(); }
+    const char* augstTempleHillInfoText2() const { return _augstTempleHillInfoText2.c_str(); }
+
     //tracking view user guidance
     const char* ugInfoReloc() const { return _ugInfoReloc.c_str(); }
     const char* ugInfoRelocWrongOrient() const { return _ugInfoRelocWrongOrient.c_str(); }
@@ -247,6 +252,11 @@ protected:
     std::string _bernInfoHeading2 = "bern heading 2";
     std::string _bernInfoText2    = "bern info 2";
 
+    //augst:
+    std::string _augstTempleHillInfoHeading1 = "augst temple hill heading 1";
+    std::string _augstTempleHillInfoText1    = "augst temple hill text 1";
+    std::string _augstTempleHillInfoText2    = "augst temple hill text 2";
+
     //tracking view user guidance
     std::string _ugInfoReloc            = "Trying to relocalize, please move slowly";
     std::string _ugInfoRelocWrongOrient = "You are looking in the wrong direction";
@@ -259,7 +269,7 @@ protected:
 class Resources
 {
 public:
-    Resources(const DeviceData& deviceData);
+    Resources(const DeviceData& deviceData, int screenH, std::string languageId);
     ~Resources();
 
     void setLanguageEnglish();
@@ -273,13 +283,13 @@ public:
 
     Textures textures;
 
-    const std::map<ErlebAR::LocationId, ErlebAR::Location>& locations() { return _locations; }
+    //const std::map<ErlebAR::LocationId, ErlebAR::Location>& locations() { return _locations; }
 
     const char* stringsEnglishId() const { return stringsEnglish.id(); }
     const char* stringsGermanId() const { return stringsGerman.id(); }
     const char* stringsFrenchId() const { return stringsFrench.id(); }
     const char* stringsItalianId() const { return stringsItalian.id(); }
-    
+
     void logWinInit();
     void logWinUnInit();
     void logWinDraw();
@@ -288,16 +298,16 @@ public:
     bool developerMode      = true;
     bool simulatorMode      = false;
     bool enableUserGuidance = false;
-    bool logWinEnabled = false;
-    
+    bool logWinEnabled      = false;
+
 private:
     Strings stringsEnglish;
     Strings stringsGerman;
     Strings stringsFrench;
     Strings stringsItalian;
 
-    void load(std::string resourceFileName);
-    void save();
+    //void load(std::string resourceFileName);
+    //void save();
 
     Strings* _currStrings = &stringsEnglish;
 
@@ -305,40 +315,55 @@ private:
     Fonts _fonts;
 
     //initialized in function load()
-    std::string _fileName;
+    //std::string _fileName;
     //erlebar locations definition
-    std::map<ErlebAR::LocationId, ErlebAR::Location> _locations;
+    //std::map<ErlebAR::LocationId, ErlebAR::Location> _locations;
     //writeable directory, e.g. for logfile
     std::string _writableDir;
 
-    int _screenW;
-    int _screenH;
+    //int _screenW;
+    //int _screenH;
 };
 
-/*
-struct ErlebARConfig
+class Config
 {
+public:
+    Config(const DeviceData& deviceData);
+    ~Config();
+
     void logWinInit();
     void logWinUnInit();
     void logWinDraw();
- 
+
     void load(std::string resourceFileName);
     void save();
 
-    Resources resources;
+    Resources&                                              resources() { return *_resources; }
+    const std::map<ErlebAR::LocationId, ErlebAR::Location>& locations() { return _locations; }
 
     //developper helper flags
     bool developerMode      = true;
     bool simulatorMode      = false;
     bool enableUserGuidance = false;
-    bool logWinEnabled = false;
- 
-     //initialized in function load()
-     std::string _fileName;
-     //erlebar locations definition
-     std::map<ErlebAR::LocationId, ErlebAR::Location> _locations;
+    bool logWinEnabled      = false;
+
+    bool useGps     = false;
+    bool useARCore  = false;
+    bool useWAISlam = false;
+
+private:
+    int _screenW;
+    int _screenH;
+
+    Resources* _resources = nullptr;
+
+    //initialized in function load()
+    std::string _fileName;
+    //erlebar locations definition
+    std::map<ErlebAR::LocationId, ErlebAR::Location> _locations;
+
+    std::string _languageId;
 };
- */
 
 };
 
