@@ -424,6 +424,7 @@ bool AreaTrackingView::updateWAISlamGPS(SENSFramePtr& frame)
 
     if (frame && _waiSlam && _waiSlam->isInitialized()) // TODO: Add timing condition to fallback to GPS if WAISlam too slow
     {
+        //Utils::log("AreaTrackingView", "frame res: %d, %d", frame->imgManip.cols, frame->imgManip.rows);
         //the intrinsics may change dynamically on focus changes (e.g. on iOS)
         //if (!frame->intrinsics.empty())
         //{
@@ -464,6 +465,7 @@ bool AreaTrackingView::updateGPS(SENSFramePtr& frame)
 
     //SLMat4f gpsPoseCorr = _cameraFingerCorr.getCorrectionMat(focalLength) * gpsPose;
     _waiScene.camera->om(gpsPose);
+    _gui.showInfoText("GPS + Sensors positioning");
 
     return false;
 }

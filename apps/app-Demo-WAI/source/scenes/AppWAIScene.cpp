@@ -302,7 +302,7 @@ void AppWAIScene::initLocationBern()
     camera = new VideoBackgroundCamera("AppWAIScene Camera", _dataDir + "images/textures/LiveVideoError.png", _dataDir + "shaders/");
     camera->translation(0, 2, 0);
     camera->lookAt(-10, 2, 0);
-    camera->clipNear(1);
+    camera->clipNear(0.1);
     camera->clipFar(500);
     camera->camAnim(SLCamAnim::CA_off);
     camera->setInitialState();
@@ -312,11 +312,13 @@ void AppWAIScene::initLocationBern()
     loadChristoffelBernBahnhofsplatz();
 
     // Add axis object a world origin (Loeb Ecke)
+    /*
     SLNode* axis = new SLNode(new SLCoordAxis(&assets), "Axis Node");
     axis->setDrawBitsRec(SL_DB_MESHWIRED, false);
     axis->scale(10);
     axis->rotate(-90, 1, 0, 0);
     _root3D->addChild(axis);
+    */
 }
 
 void AppWAIScene::initLocationBiel()
@@ -412,11 +414,6 @@ void AppWAIScene::loadChristoffelBernBahnhofsplatz()
         throw std::runtime_error("Node: Umgebung-Fassaden not found!");
     UmgF->updateMeshMat(updateKtAmbiFnc, true);
 
-    // Hide some objects
-    bern->findChild<SLNode>("Umgebung-Daecher")->drawBits()->set(SL_DB_HIDDEN, true);
-    bern->findChild<SLNode>("Umgebung-Fassaden")->drawBits()->set(SL_DB_HIDDEN, true);
-    bern->findChild<SLNode>("Baldachin-Glas")->drawBits()->set(SL_DB_HIDDEN, true);
-    bern->findChild<SLNode>("Baldachin-Stahl")->drawBits()->set(SL_DB_HIDDEN, true);
     /*
     bern->findChild<SLNode>("Mauer-Wand")->drawBits()->set(SL_DB_HIDDEN, true);
     bern->findChild<SLNode>("Mauer-Turm")->drawBits()->set(SL_DB_HIDDEN, true);
@@ -431,10 +428,18 @@ void AppWAIScene::loadChristoffelBernBahnhofsplatz()
     bern->findChild<SLNode>("Graben-Turm-Stein")->drawBits()->set(SL_DB_HIDDEN, true);
     */
 
+    // Hide some objects
+    bern->findChild<SLNode>("Umgebung-Daecher")->drawBits()->set(SL_DB_HIDDEN, true);
+    bern->findChild<SLNode>("Umgebung-Fassaden")->drawBits()->set(SL_DB_HIDDEN, true);
+    bern->findChild<SLNode>("Baldachin-Glas")->drawBits()->set(SL_DB_HIDDEN, true);
+    bern->findChild<SLNode>("Baldachin-Stahl")->drawBits()->set(SL_DB_HIDDEN, true);
+
     // Set the video background shader on the baldachin and the ground
-    bern->findChild<SLNode>("Baldachin-Stahl")->setMeshMat(camera->matVideoBackground(), true);
-    bern->findChild<SLNode>("Baldachin-Glas")->setMeshMat(camera->matVideoBackground(), true);
     bern->findChild<SLNode>("Boden")->setMeshMat(camera->matVideoBackground(), true);
+    //bern->findChild<SLNode>("Umgebung-Daecher")->setMeshMat(camera->matVideoBackground(), true);
+    //bern->findChild<SLNode>("Umgebung-Fassaden")->setMeshMat(camera->matVideoBackground(), true);
+    //bern->findChild<SLNode>("Baldachin-Stahl")->setMeshMat(camera->matVideoBackground(), true);
+    //bern->findChild<SLNode>("Baldachin-Glas")->setMeshMat(camera->matVideoBackground(), true);
 
     // Set ambient on all child nodes
     bern->updateMeshMat([](SLMaterial* m) {

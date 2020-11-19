@@ -22,7 +22,7 @@ void SENSOrientation::setOrientation(SENSOrientation::Quat orientation)
     }
 
     {
-        std::lock_guard<std::mutex> lock(_listenerMutex);
+        std::lock_guard<std::mutex> lock(_listenerMutex); //to secure new listeners from registerListener, should not be a performance issue
         for (SENSOrientationListener* l : _listeners)
             l->onOrientation(timePt, orientation);
     }

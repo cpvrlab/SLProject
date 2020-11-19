@@ -54,6 +54,14 @@ class SENSOrientation
 public:
     struct Quat
     {
+        Quat() = default;
+        Quat(float x, float y, float z, float w)
+          : quatX(x),
+            quatY(y),
+            quatZ(z),
+            quatW(w)
+        {
+        }
         float quatX = 0.f;
         float quatY = 0.f;
         float quatZ = 0.f;
