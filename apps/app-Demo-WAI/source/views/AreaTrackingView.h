@@ -207,6 +207,8 @@ private:
     SLMat4f _transitionMatrix;
     bool    _hasTransitionMatrix;
     float   _initTime;
+    int     _frameCounter;
+    //Averaged<SLMat4f> _avgPose;
 
     std::unique_ptr<WAIOrbVocabulary> _voc;
     //wai slam depends on _orbVocabulary and has to be uninitializd first (defined below voc)
