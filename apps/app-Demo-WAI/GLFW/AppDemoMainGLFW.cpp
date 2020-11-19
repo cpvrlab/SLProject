@@ -530,7 +530,7 @@ int main(int argc, char* argv[])
 {
     GLFWInit();
 
-    bool simulateSensors = true;
+    bool simulateSensors = false;
     bool useDummyGps     = false;
     try
     {
