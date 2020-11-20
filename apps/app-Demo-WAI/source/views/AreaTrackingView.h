@@ -65,40 +65,6 @@ public:
         _activeMove = false;
     }
 
-    /*
-    void onMouseUpHorizon(int x, int y, const SLMat3f& sensorRot)
-    {
-        _xOffsetPix += (x - _xLastPosPix);
-        _yOffsetPix += (y - _yLastPosPix);
-        _xLastPosPix = x;
-        _yLastPosPix = y;
-
-        _activeMove = false;
-
-        //calculate the offset matrix:
-        //use the horizon angle to transform finger movements from screen to world alignment
-        SLVec3f horizon;
-        SLAlgo::estimateHorizon(sensorRot, _sRc, horizon);
-
-        //angle between x-axis and horizon
-        float horizAngDEG = atan2f((float)horizon.y, (float)horizon.x) * RAD2DEG;
-
-        //rotate display x- and y-offsets to enuUp - horizon plane
-        SLVec3f cOffsetPix(_xOffsetPix, _yOffsetPix, 0.f);
-        SLMat3f rot(horizAngDEG, 0, 0, 1);
-        SLVec3f enuOffsetPix = rot * cOffsetPix;
-
-        _wcorrTw.identity();
-
-        //build y rotation matrix
-        SLMat3f rotY(_yRotRAD * Utils::RAD2DEG, 0, 1, 0);
-
-        //clear finger movement
-        _xOffsetPix = 0;
-        _yOffsetPix = 0;
-    }
-    */
-
     const SLMat4f& getCorrectionMat(float focalLength)
     {
         if (_yOffsetPix != 0 || _xOffsetPix != 0)
@@ -130,14 +96,6 @@ public:
             //calculate the offset matrix:
             float yRotOffsetRAD = atanf((float)_xOffsetPix / focalLength);
             _yRotRAD += yRotOffsetRAD;
-
-            //we have to apply the rotation around the camera origin
-            //build y rotation matrix
-            //SLMat3f rotY(_yRotRAD * Utils::RAD2DEG, 0, 1, 0);
-
-            //_wcorrTw.identity();
-            //_wcorrTw.setRotation(rotY);
-            //_wcorrTw.print("_wcorrTw");
 
             //clear finger movement
             _xOffsetPix = 0;
@@ -249,6 +207,8 @@ private:
     SLMat4f _transitionMatrix;
     bool    _hasTransitionMatrix;
     float   _initTime;
+    int     _frameCounter;
+    //Averaged<SLMat4f> _avgPose;
 
     std::unique_ptr<WAIOrbVocabulary> _voc;
     //wai slam depends on _orbVocabulary and has to be uninitializd first (defined below voc)

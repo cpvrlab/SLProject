@@ -36,6 +36,7 @@
 #include <WAIHelper.h>
 #include <WAIKeyFrame.h>
 #include <WAIOrbVocabulary.h>
+#include <opencv2/core.hpp>
 
 #include <mutex>
 
@@ -67,6 +68,8 @@ class WAI_API WAIKeyFrameDB
 
     // Relocalization
     std::vector<WAIKeyFrame*> DetectRelocalizationCandidates(WAIFrame* F, float minCommonWordFactor, bool applyMinAccScoreFilter = false);
+    std::vector<WAIKeyFrame*> DetectRelocalizationCandidates(WAIFrame* F, cv::Mat extrinsicGuess);
+
 
     protected:
     // Associated vocabulary

@@ -29,6 +29,8 @@
 */
 
 #include <WAIKeyFrameDB.h>
+#include <string>
+#include <sstream>
 //-----------------------------------------------------------------------------
 WAIKeyFrameDB::WAIKeyFrameDB(WAIOrbVocabulary* voc) : mpVoc(voc)
 {
@@ -206,6 +208,56 @@ std::vector<WAIKeyFrame*> WAIKeyFrameDB::DetectLoopCandidates(WAIKeyFrame* pKF, 
     return vpLoopCandidates;
 }
 //-----------------------------------------------------------------------------
+
+
+std::vector<WAIKeyFrame*> WAIKeyFrameDB::DetectRelocalizationCandidates(WAIFrame* F, cv::Mat extrinsicGuess)
+{
+    std::list<WAIKeyFrame*> lKFsSharingWords;
+
+    // Search all keyframes that share a word with current frame
+    {
+        std::unique_lock<std::mutex> lock(mMutex);
+
+        for (auto vit = F->mBowVec.getWordScoreMapping().begin(), vend = F->mBowVec.getWordScoreMapping().end(); vit != vend; vit++)
+        {
+            if (vit->first > mvInvertedFile.size())
+            {
+                std::stringstream ss;
+                ss << "WAIKeyFrameDB::DetectRelocalizationCandidates: word index bigger than inverted file. word: " << vit->first << " val: " << vit->second;
+                throw std::runtime_error(ss.str());
+            }
+
+            std::list<WAIKeyFrame*>& lKFs = mvInvertedFile[vit->first];
+
+            for (std::list<WAIKeyFrame*>::iterator lit = lKFs.begin(), lend = lKFs.end(); lit != lend; lit++)
+            {
+                WAIKeyFrame* pKFi = *lit;
+                if (pKFi->isBad())
+                    continue;
+
+                if (pKFi->mnRelocQuery != F->mnId)
+                {
+                    pKFi->mnRelocWords = 0;
+                    pKFi->mRelocScore  = 0.f;
+                    pKFi->mnRelocQuery = F->mnId;
+                    lKFsSharingWords.push_back(pKFi);
+                }
+                pKFi->mnRelocWords++;
+            }
+        }
+    }
+    if (lKFsSharingWords.empty())
+        return std::vector<WAIKeyFrame*>();
+
+    std::vector<WAIKeyFrame*> kfs;
+    for (std::list<WAIKeyFrame*>::iterator lit = lKFsSharingWords.begin(), lend = lKFsSharingWords.end(); lit != lend; lit++)
+    {
+        kfs.push_back(*lit);
+    }
+    return kfs;
+}
+
+
 std::vector<WAIKeyFrame*> WAIKeyFrameDB::DetectRelocalizationCandidates(WAIFrame* F, float minCommonWordFactor, bool applyMinAccScoreFilter)
 {
     std::list<WAIKeyFrame*> lKFsSharingWords;

@@ -100,9 +100,10 @@ void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaI
         initSlam(area);
 
         _initTime = GlobalTimer::timeS();
-
+        _frameCounter = 0;
         _hasTransitionMatrix = false;
         _transitionMatrix.identity();
+        //_avgPose.init(20, SLMat4f());
 
         _noInitException = true;
     }
@@ -230,11 +231,23 @@ bool AreaTrackingView::updateGPSARCore(SENSFramePtr& frame)
         _gui.showInfoText("GPS + Sensors positioning");
         _waiScene.camera->om(gpsPose);
         //delay arcore transition unil 10s and that arcore is tracking at this state
+
+        /*
+        if (GlobalTimer::timeS() - _initTime > 6.0)
+        {
+            _avgPose.set(gpsPose);
+            //_avgPose += gpsPose;
+        }
+        */
+//        else
+//            _avgPose.init(20, SLMat4f());
+
         if (GlobalTimer::timeS() - _initTime > 10.0 && isTracking)
         {
             _transitionMatrix = convertARCoreToSLMat(view);
             _transitionMatrix.invert();
             _transitionMatrix    = gpsPose * _transitionMatrix;
+            //_transitionMatrix    = _avgPose.average() * _transitionMatrix;
             _hasTransitionMatrix = true;
         }
     }
@@ -297,14 +310,19 @@ bool AreaTrackingView::updateGPSWAISlamARCore(SENSFramePtr& frame)
 
             if (WAI::TrackingState_TrackingOK == _waiSlam->getTrackingState())
             {
-                _transitionMatrix = convertARCoreToSLMat(view);
-                _transitionMatrix.invert();
-                _transitionMatrix    = convertWAISlamToSLMat(_waiSlam->getPose()) * _transitionMatrix;
-                _hasTransitionMatrix = true;
-                _gui.showInfoText("WAISlam -> ARCore");
+                _frameCounter++;
+                if (_frameCounter > 20)
+                {
+                    _transitionMatrix = convertARCoreToSLMat(view);
+                    _transitionMatrix.invert();
+                    _transitionMatrix    = convertWAISlamToSLMat(_waiSlam->getPose()) * _transitionMatrix;
+                    _hasTransitionMatrix = true;
+                    _gui.showInfoText("WAISlam -> ARCore");
+                }
             }
             else
             {
+                _frameCounter = 0;
                 _gui.showInfoText("WAISlam is not tracking");
             }
         }
@@ -422,6 +440,7 @@ bool AreaTrackingView::updateWAISlamGPS(SENSFramePtr& frame)
 
     if (frame && _waiSlam && _waiSlam->isInitialized()) // TODO: Add timing condition to fallback to GPS if WAISlam too slow
     {
+        //Utils::log("AreaTrackingView", "frame res: %d, %d", frame->imgManip.cols, frame->imgManip.rows);
         //the intrinsics may change dynamically on focus changes (e.g. on iOS)
         if (!frame->intrinsics.empty())
         {
@@ -442,8 +461,8 @@ bool AreaTrackingView::updateWAISlamGPS(SENSFramePtr& frame)
         else
         {
             _waiScene.camera->om(_transitionMatrix * gpsPose);
-            //cv::Mat camExtrinsic = convertCameraPoseToWaiCamExtrinisc(gpsPose);
-            //_waiSlam->setCamExrinsicGuess(camExtrinsic);
+            cv::Mat camExtrinsic = convertCameraPoseToWaiCamExtrinisc(gpsPose);
+            _waiSlam->setCamExrinsicGuess(camExtrinsic);
             _gui.showInfoText("gps + sensors tracking");
         }
     }
@@ -466,6 +485,7 @@ bool AreaTrackingView::updateGPS(SENSFramePtr& frame)
 
     //SLMat4f gpsPoseCorr = _cameraFingerCorr.getCorrectionMat(focalLength) * gpsPose;
     _waiScene.camera->om(gpsPose);
+    _gui.showInfoText("GPS + Sensors positioning");
 
     return false;
 }

@@ -3755,21 +3755,24 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         UmgF->updateMeshMat(updateKtAmbiFnc, true);
 
         // Hide some objects
-        bern->findChild<SLNode>("Umgebung-Daecher")->drawBits()->set(SL_DB_HIDDEN, true);
-        bern->findChild<SLNode>("Umgebung-Fassaden")->drawBits()->set(SL_DB_HIDDEN, true);
-        bern->findChild<SLNode>("Baldachin-Glas")->drawBits()->set(SL_DB_HIDDEN, true);
-        bern->findChild<SLNode>("Baldachin-Stahl")->drawBits()->set(SL_DB_HIDDEN, true);
+        //bern->findChild<SLNode>("Umgebung-Daecher")->drawBits()->set(SL_DB_HIDDEN, true);
+        //bern->findChild<SLNode>("Umgebung-Fassaden")->drawBits()->set(SL_DB_HIDDEN, true);
+        //bern->findChild<SLNode>("Baldachin-Glas")->drawBits()->set(SL_DB_HIDDEN, true);
+        //bern->findChild<SLNode>("Baldachin-Stahl")->drawBits()->set(SL_DB_HIDDEN, true);
 
         // Set the video background shader on the baldachin and the ground
+        bern->findChild<SLNode>("Umgebung-Daecher")->setMeshMat(matVideoBackground, true);
+        bern->findChild<SLNode>("Umgebung-Fassaden")->setMeshMat(matVideoBackground, true);
         bern->findChild<SLNode>("Baldachin-Stahl")->setMeshMat(matVideoBackground, true);
         bern->findChild<SLNode>("Baldachin-Glas")->setMeshMat(matVideoBackground, true);
         bern->findChild<SLNode>("Boden")->setMeshMat(matVideoBackground, true);
 
         // Set ambient on all child nodes
-        bern->updateMeshMat([](SLMaterial* m)
-                            {   if (m->name() != "Kupfer-dunkel")
-                                    m->ambient(SLCol4f(.3f, .3f, .3f));
-                            }, true);
+        bern->updateMeshMat([](SLMaterial* m) {
+            if (m->name() != "Kupfer-dunkel")
+                m->ambient(SLCol4f(.3f, .3f, .3f));
+        },
+                            true);
 
         // Add axis object a world origin (Loeb Ecke)
         SLNode* axis = new SLNode(new SLCoordAxis(s), "Axis Node");

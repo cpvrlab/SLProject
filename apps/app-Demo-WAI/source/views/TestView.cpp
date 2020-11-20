@@ -364,7 +364,8 @@ void TestView::handleEvents()
 //ATTENTION: THIS MAPPING IS NOT COMPLETE AND ONLY FULFILLS CURRENT SCENE IMPLEMENTATION
 void TestView::mapErlebARDirNamesToIds(const std::string& location, const std::string& area, ErlebAR::LocationId& locationId, ErlebAR::AreaId& areaId)
 {
-    if (location == "avenches")
+    std::string lcLocation = Utils::toLowerString(location);
+    if (lcLocation == "avenches")
     {
         locationId = ErlebAR::LocationId::AVENCHES;
         if (area == "amphitheaterEntrance" || area == "amphitheater")
@@ -374,7 +375,7 @@ void TestView::mapErlebARDirNamesToIds(const std::string& location, const std::s
         else if (area == "theater-marker" || area == "theater")
             areaId = ErlebAR::AreaId::AVENCHES_THEATER;
     }
-    else if (location == "Augst")
+    else if (lcLocation == "augst")
     {
         locationId = ErlebAR::LocationId::AUGST;
         //there is just one model so we just use a random augst id
@@ -383,7 +384,7 @@ void TestView::mapErlebARDirNamesToIds(const std::string& location, const std::s
         else if (area == "templeHillTheaterBottom")
             areaId = ErlebAR::AreaId::AUGST_THEATER_FRONT;
     }
-    else if (location == "bern")
+    else if (lcLocation == "bern")
     {
         locationId = ErlebAR::LocationId::BERN;
         if (area == "milchgaessli")
@@ -393,7 +394,7 @@ void TestView::mapErlebARDirNamesToIds(const std::string& location, const std::s
         else if (area == "bubenbergplatz")
             areaId = ErlebAR::AreaId::BERN_BUBENBERGPLATZ;
     }
-    else if (location == "biel")
+    else if (lcLocation == "biel")
     {
         locationId = ErlebAR::LocationId::BIEL;
         if (area == "bfh")
