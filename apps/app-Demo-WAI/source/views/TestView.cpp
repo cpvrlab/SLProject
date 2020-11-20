@@ -483,7 +483,7 @@ void TestView::saveMapBinary(std::string location,
         _voc->loadFromFile(_currentSlamParams.vocabularyFile);
 
         cv::Mat nodeTransform;
-        if (!WAISlamTools::doMarkerMapPreprocessing(constructSlamMarkerDir(slamRootDir, location, area) + marker,
+        if (!WAISlamTools::doMarkerMapPreprocessing(marker,
                                                     nodeTransform,
                                                     0.75f,
                                                     _mode->getKPextractor(),

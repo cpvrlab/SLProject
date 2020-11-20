@@ -35,6 +35,8 @@ const char* mapAreaIdToName(AreaId id)
             return "Temple";
         case AreaId::AUGST_THEATER_FRONT:
             return "Theater";
+        case AreaId::AUGST_THEATER_RANKS:
+            return "Theater-Ranks";
         //avenches
         case AreaId::AVENCHES_AMPHITHEATER:
             return "Amphitheater";
@@ -90,7 +92,7 @@ const Location defineLocationAugst()
                   {47.53315, 7.72089, 293.2},                                                                                   //llaPos
                   120,                                                                                                          //map viewing angle
                   {47.53319, 7.72207, 282.6},                                                                                   //modelOrigin
-                  "locations/augst/templeHill-marker/maps/map_20200812-114906_augst_templeHill-marker_FAST-ORBS-3000_2.waimap", //slamMapFileName
+                  "locations/augst/templeHill-marker/maps/map_20201119-131033_Augst_templeHill-marker_FAST-ORBS-1000_2.waimap", //slamMapFileName
                   "dummy.jpg",                                                                                                  //relocAlignImage,
                   "calibrations/voc_fbow.bin",                                                                                  //vocFileName,
                   2,                                                                                                            //vocLayer,
@@ -103,8 +105,40 @@ const Location defineLocationAugst()
     }
     {
         Area area(AreaId::AUGST_THEATER_FRONT,                                                                                  //id
-                  {47.53308, 7.72153, 285.6},                                                                                   //llaPos
+                  {47.53309, 7.72159, 285.3},                                                                                   //llaPos
                   -18,                                                                                                          //map viewing angle
+                  {47.53319, 7.72207, 282.6},                                                                                   //modelOrigin
+                  "locations/augst/templeHillTheater/maps/map_20200819-154204_augst_templeHillTheater_FAST-ORBS-3000_2.waimap", //slamMapFileName
+                  "dummy.jpg",                                                                                                  //relocAlignImage,
+                  "calibrations/voc_fbow.bin",                                                                                  //vocFileName,
+                  2,                                                                                                            //vocLayer,
+                  {640, 360},                                                                                                   //cameraFrameTargetSize
+                  ExtractorType::ExtractorType_FAST_ORBS_2000,                                                                  //initializationExtractorType
+                  ExtractorType::ExtractorType_FAST_ORBS_1000,                                                                  //relocalizationExtractorType
+                  ExtractorType::ExtractorType_FAST_ORBS_1000,                                                                  //trackingExtractorType
+                  2);
+        loc.areas[area.id] = area;
+    }
+    {
+        Area area(AreaId::AUGST_THEATER_RANKS,                                                                                  //id
+                  {47.53298, 7.72217, 290.9},                                                                                   //llaPos
+                  200,                                                                                                          //map viewing angle
+                  {47.53319, 7.72207, 282.6},                                                                                   //modelOrigin
+                  "locations/augst/templeHillTheater/maps/map_20200819-154204_augst_templeHillTheater_FAST-ORBS-3000_2.waimap", //slamMapFileName
+                  "dummy.jpg",                                                                                                  //relocAlignImage,
+                  "calibrations/voc_fbow.bin",                                                                                  //vocFileName,
+                  2,                                                                                                            //vocLayer,
+                  {640, 360},                                                                                                   //cameraFrameTargetSize
+                  ExtractorType::ExtractorType_FAST_ORBS_2000,                                                                  //initializationExtractorType
+                  ExtractorType::ExtractorType_FAST_ORBS_1000,                                                                  //relocalizationExtractorType
+                  ExtractorType::ExtractorType_FAST_ORBS_1000,                                                                  //trackingExtractorType
+                  2);
+        loc.areas[area.id] = area;
+    }
+    {
+        Area area(AreaId::AUGST_THEATER_SIDE,                                                                                   //id
+                  {47.53273, 7.72179, 286.4},                                                                                   //llaPos
+                  260,                                                                                                          //map viewing angle
                   {47.53319, 7.72207, 282.6},                                                                                   //modelOrigin
                   "locations/augst/templeHillTheater/maps/map_20200819-154204_augst_templeHillTheater_FAST-ORBS-3000_2.waimap", //slamMapFileName
                   "dummy.jpg",                                                                                                  //relocAlignImage,
@@ -129,18 +163,18 @@ const Location defineLocationAvenches()
                  "models/avenches/DTM-Aventicum-WGS84.tif");
 
     {
-        Area area(AreaId::AVENCHES_AMPHITHEATER_ENTRANCE,                                                                                    //id
-                  {46.88120, 7.04368, 461.43},                                                                                               //llaPos
-                  170,                                                                                                                       //map viewing angle
-                  {46.88102, 7.04263, 461.43},                                                                                               //modelOrigin
+        Area area(AreaId::AVENCHES_AMPHITHEATER_ENTRANCE,                                                                                          //id
+                  {46.88120, 7.04368, 461.43},                                                                                                     //llaPos
+                  170,                                                                                                                             //map viewing angle
+                  {46.88102, 7.04263, 461.43},                                                                                                     //modelOrigin
                   "locations/avenches/amphitheaterEntrance/maps/stable-map_20200914-185624_avenches_amphitheaterEntrance_FAST-ORBS-2000_2.waimap", //slamMapFileName
-                  "locations/avenches/amphitheaterEntrance/amphitheaterEntrance-reloc-align-img.jpg",                                        //relocAlignImage,
-                  "calibrations/voc_fbow.bin",                                                                                               //vocFileName,
-                  2,                                                                                                                         //vocLayer,
-                  {640, 360},                                                                                                                //cameraFrameTargetSize
-                  ExtractorType::ExtractorType_FAST_ORBS_2000,                                                                               //initializationExtractorType
-                  ExtractorType::ExtractorType_FAST_ORBS_1000,                                                                               //relocalizationExtractorType
-                  ExtractorType::ExtractorType_FAST_ORBS_1000,                                                                               //trackingExtractorType
+                  "locations/avenches/amphitheaterEntrance/amphitheaterEntrance-reloc-align-img.jpg",                                              //relocAlignImage,
+                  "calibrations/voc_fbow.bin",                                                                                                     //vocFileName,
+                  2,                                                                                                                               //vocLayer,
+                  {640, 360},                                                                                                                      //cameraFrameTargetSize
+                  ExtractorType::ExtractorType_FAST_ORBS_2000,                                                                                     //initializationExtractorType
+                  ExtractorType::ExtractorType_FAST_ORBS_1000,                                                                                     //relocalizationExtractorType
+                  ExtractorType::ExtractorType_FAST_ORBS_1000,                                                                                     //trackingExtractorType
                   2);
         loc.areas[area.id] = area;
     }
@@ -161,18 +195,18 @@ const Location defineLocationAvenches()
         loc.areas[area.id] = area;
     }
     {
-        Area area(AreaId::AVENCHES_CIGOGNIER,                                                                                             //id
-                  {46.88146, 7.04645, 450.95},                                                                                            //llaPos
-                  -140,                                                                                                                   //map viewing angle
-                  {46.88146, 7.04645, 450.95},                                                                                            //modelOrigin
+        Area area(AreaId::AVENCHES_CIGOGNIER,                                                                                     //id
+                  {46.88146, 7.04645, 450.95},                                                                                    //llaPos
+                  -140,                                                                                                           //map viewing angle
+                  {46.88146, 7.04645, 450.95},                                                                                    //modelOrigin
                   "locations/avenches/cigonier-marker/maps/map_20201007-215134_Avenches_Cigonier-marker_FAST-ORBS-2000_2.waimap", //slamMapFileName
-                  "dummy.jpg",                                                                                                            //relocAlignImage,
-                  "calibrations/voc_fbow.bin",                                                                                            //vocFileName,
-                  2,                                                                                                                      //vocLayer,
-                  {640, 360},                                                                                                             //cameraFrameTargetSize
-                  ExtractorType::ExtractorType_FAST_ORBS_2000,                                                                            //initializationExtractorType
-                  ExtractorType::ExtractorType_FAST_ORBS_1000,                                                                            //relocalizationExtractorType
-                  ExtractorType::ExtractorType_FAST_ORBS_1000,                                                                            //trackingExtractorType
+                  "dummy.jpg",                                                                                                    //relocAlignImage,
+                  "calibrations/voc_fbow.bin",                                                                                    //vocFileName,
+                  2,                                                                                                              //vocLayer,
+                  {640, 360},                                                                                                     //cameraFrameTargetSize
+                  ExtractorType::ExtractorType_FAST_ORBS_2000,                                                                    //initializationExtractorType
+                  ExtractorType::ExtractorType_FAST_ORBS_1000,                                                                    //relocalizationExtractorType
+                  ExtractorType::ExtractorType_FAST_ORBS_1000,                                                                    //trackingExtractorType
                   2);
         loc.areas[area.id] = area;
     }
