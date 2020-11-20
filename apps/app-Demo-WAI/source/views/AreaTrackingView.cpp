@@ -205,6 +205,23 @@ SLMat4f convertWAISlamToSLMat(const cv::Mat& cTw)
     return m;
 }
 
+SLMat4f transformAverage(SLMat4f m1, SLMat4f m2)
+{
+        SLQuat4f q1, q2;
+        q1.fromMat3(m1.mat3());
+        q2.fromMat3(m2.mat3());
+        float x = (q1.x() + q2.x()) * 0.5;
+        float y = (q1.y() + q2.y()) * 0.5;
+        float z = (q1.z() + q2.z()) * 0.5;
+        float w = (q1.w() + q2.w()) * 0.5;
+        q1.set(x, y, z, w);
+        SLVec3f t = 0.5 * (m1.translation() + m2.translation());
+
+        SLMat4f m = q1.toMat4();
+        m.setTranslation(t);
+        return m;
+}
+
 bool AreaTrackingView::updateGPSARCore(SENSFramePtr& frame)
 {
     cv::Mat view;
@@ -232,22 +249,17 @@ bool AreaTrackingView::updateGPSARCore(SENSFramePtr& frame)
         _waiScene.camera->om(gpsPose);
         //delay arcore transition unil 10s and that arcore is tracking at this state
 
-        /*
-        if (GlobalTimer::timeS() - _initTime > 6.0)
+        if (GlobalTimer::timeS() - _initTime > 5.0)
         {
-            _avgPose.set(gpsPose);
-            //_avgPose += gpsPose;
+            _avgPose = transformAverage(_avgPose, gpsPose);
         }
-        */
-//        else
-//            _avgPose.init(20, SLMat4f());
 
         if (GlobalTimer::timeS() - _initTime > 10.0 && isTracking)
         {
             _transitionMatrix = convertARCoreToSLMat(view);
             _transitionMatrix.invert();
-            _transitionMatrix    = gpsPose * _transitionMatrix;
-            //_transitionMatrix    = _avgPose.average() * _transitionMatrix;
+            //_transitionMatrix    = gpsPose * _transitionMatrix;
+            _transitionMatrix    = _avgPose * _transitionMatrix;
             _hasTransitionMatrix = true;
         }
     }

@@ -33,6 +33,58 @@
 class SENSCamera;
 class MapLoader;
 
+/*
+class TransformAverage
+{
+public:
+    TransformAverage()
+    {
+        reset();
+    }
+
+    void reset()
+    {
+        _q = SLQuat4f(0, 0, 0, 0);
+        _t = SLVec3f(0, 0, 0);
+        _counter = 0;
+    }
+
+    void add(SLMat4f m)
+    {
+        SLQuat4f q;
+        q.fromMat3(m.mat3());
+        float x = _q.x() + q.x();
+        float y = _q.y() + q.y();
+        float z = _q.z() + q.z();
+        float w = _q.w() + q.w();
+        _q.set(x, y, z, w);
+        _t += m.translation();
+        _counter++;
+    }
+
+    SLMat4f get()
+    {
+        float divisor = 1.0f / (float)_counter;
+        float x = _q.x() * divisor;
+        float y = _q.y() * divisor;
+        float z = _q.z() * divisor;
+        float w = _q.w() * divisor;
+        _q.set(x, y, z, w);
+        _q.normalize();
+        _t *= divisor;
+
+        SLMat4f m = _q.toMat4();
+        m.setTranslation(_t);
+        return m;
+    }
+
+private:
+    SLQuat4f _q;
+    SLVec3f _t;
+    int _counter;
+};
+*/
+
 class CameraPoseFingerCorrection
 {
 public:
@@ -208,7 +260,8 @@ private:
     bool    _hasTransitionMatrix;
     float   _initTime;
     int     _frameCounter;
-    //Averaged<SLMat4f> _avgPose;
+
+    SLMat4f _avgPose;
 
     std::unique_ptr<WAIOrbVocabulary> _voc;
     //wai slam depends on _orbVocabulary and has to be uninitializd first (defined below voc)
