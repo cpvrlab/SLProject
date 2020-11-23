@@ -167,6 +167,19 @@ void SENSSimulator::onSensorSimStopped()
 
     if (!aSensorIsRunning)
         _running = false;
+
+    //THIS DOES NOT WORK BECAUSE WE WOULD JOIN A THREAD FROM THE CURRENT THREAD
+    //assuming sensor implementations (e.g. SENSGps) are still in running we can restart the backend threads
+    /*
+    if (!_running && _repeat)
+    {
+        _clock.reset();
+        for (int i = 0; i < _activeSensors.size(); ++i)
+        {
+            _activeSensors[i]->startSim();
+        }
+    }
+    */
 }
 
 void SENSSimulator::loadGpsData(const std::string& dirName, std::vector<std::pair<SENSTimePt, SENSGps::Location>>& data)

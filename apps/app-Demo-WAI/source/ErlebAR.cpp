@@ -137,18 +137,18 @@ const Location defineLocationAvenches()
                  "models/avenches/DTM-Aventicum-WGS84.tif");
 
     {
-        Area area(AreaId::AVENCHES_AMPHITHEATER_ENTRANCE,                                                                                    //id
-                  {46.88120, 7.04368, 461.43},                                                                                               //llaPos
-                  170,                                                                                                                       //map viewing angle
-                  {46.88102, 7.04263, 461.43},                                                                                               //modelOrigin
+        Area area(AreaId::AVENCHES_AMPHITHEATER_ENTRANCE,                                                                                          //id
+                  {46.88120, 7.04368, 461.43},                                                                                                     //llaPos
+                  170,                                                                                                                             //map viewing angle
+                  {46.88102, 7.04263, 461.43},                                                                                                     //modelOrigin
                   "locations/avenches/amphitheaterEntrance/maps/stable-map_20200914-185624_avenches_amphitheaterEntrance_FAST-ORBS-2000_2.waimap", //slamMapFileName
-                  "locations/avenches/amphitheaterEntrance/amphitheaterEntrance-reloc-align-img.jpg",                                        //relocAlignImage,
-                  "calibrations/voc_fbow.bin",                                                                                               //vocFileName,
-                  2,                                                                                                                         //vocLayer,
-                  {640, 360},                                                                                                                //cameraFrameTargetSize
-                  ExtractorType::ExtractorType_FAST_ORBS_2000,                                                                               //initializationExtractorType
-                  ExtractorType::ExtractorType_FAST_ORBS_1000,                                                                               //relocalizationExtractorType
-                  ExtractorType::ExtractorType_FAST_ORBS_1000,                                                                               //trackingExtractorType
+                  "locations/avenches/amphitheaterEntrance/amphitheaterEntrance-reloc-align-img.jpg",                                              //relocAlignImage,
+                  "calibrations/voc_fbow.bin",                                                                                                     //vocFileName,
+                  2,                                                                                                                               //vocLayer,
+                  {640, 360},                                                                                                                      //cameraFrameTargetSize
+                  ExtractorType::ExtractorType_FAST_ORBS_2000,                                                                                     //initializationExtractorType
+                  ExtractorType::ExtractorType_FAST_ORBS_1000,                                                                                     //relocalizationExtractorType
+                  ExtractorType::ExtractorType_FAST_ORBS_1000,                                                                                     //trackingExtractorType
                   2);
         loc.areas[area.id] = area;
     }
@@ -169,18 +169,18 @@ const Location defineLocationAvenches()
         loc.areas[area.id] = area;
     }
     {
-        Area area(AreaId::AVENCHES_CIGOGNIER,                                                                                             //id
-                  {46.88146, 7.04645, 450.95},                                                                                            //llaPos
-                  -140,                                                                                                                   //map viewing angle
-                  {46.88146, 7.04645, 450.95},                                                                                            //modelOrigin
+        Area area(AreaId::AVENCHES_CIGOGNIER,                                                                                     //id
+                  {46.88146, 7.04645, 450.95},                                                                                    //llaPos
+                  -140,                                                                                                           //map viewing angle
+                  {46.88146, 7.04645, 450.95},                                                                                    //modelOrigin
                   "locations/avenches/cigonier-marker/maps/map_20201007-215134_Avenches_Cigonier-marker_FAST-ORBS-2000_2.waimap", //slamMapFileName
-                  "dummy.jpg",                                                                                                            //relocAlignImage,
-                  "calibrations/voc_fbow.bin",                                                                                            //vocFileName,
-                  2,                                                                                                                      //vocLayer,
-                  {640, 360},                                                                                                             //cameraFrameTargetSize
-                  ExtractorType::ExtractorType_FAST_ORBS_2000,                                                                            //initializationExtractorType
-                  ExtractorType::ExtractorType_FAST_ORBS_1000,                                                                            //relocalizationExtractorType
-                  ExtractorType::ExtractorType_FAST_ORBS_1000,                                                                            //trackingExtractorType
+                  "dummy.jpg",                                                                                                    //relocAlignImage,
+                  "calibrations/voc_fbow.bin",                                                                                    //vocFileName,
+                  2,                                                                                                              //vocLayer,
+                  {640, 360},                                                                                                     //cameraFrameTargetSize
+                  ExtractorType::ExtractorType_FAST_ORBS_2000,                                                                    //initializationExtractorType
+                  ExtractorType::ExtractorType_FAST_ORBS_1000,                                                                    //relocalizationExtractorType
+                  ExtractorType::ExtractorType_FAST_ORBS_1000,                                                                    //trackingExtractorType
                   2);
         loc.areas[area.id] = area;
     }
@@ -230,9 +230,9 @@ const Location defineLocationBern()
 
     {
         Area area(AreaId::BERN_SPITALGASSE,                    //id
-                  {46.94785, 7.44099, 542.1},                  //llaPos
+                  {46.94783, 7.44089, 542.1},                  //llaPos 46.94785, 7.44099     46.9478469, 7.4409524
                   140,                                         //map viewing angle
-                  {46.947629, 7.440754, 542.2},                //modelOrigin
+                  {46.94762, 7.44074, 542.2},                  //modelOrigin 46.94762, 7.44074       46.947726, 7.4409616
                   "",                                          //slamMapFileName
                   "dummy.jpg",                                 //relocAlignImage,
                   "calibrations/voc_fbow.bin",                 //vocFileName,

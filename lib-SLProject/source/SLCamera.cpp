@@ -55,13 +55,14 @@ SLCamera::SLCamera(const SLstring& name)
     _clipFar       = 300.0f;
     _fovV          = 45.0;
     _projection    = P_monoPerspective;
-    _camAnim       = CA_deviceRotYUp;
+    _camAnim       = CA_off;
     _castsShadows  = false;
 
     _camAnimation = new SLCAOff(); //SLCATurntableYUp();
+    //_camAnimation = new SLCATurntableYUp();
     //_camAnimation = new SLCATurntableZUp();
     //_camAnimation = new SLCATrackball();
-    //_camAnimation->camera(this);
+    _camAnimation->camera(this);
 
     // depth of field parameters
     _lensDiameter = 0.3f;
