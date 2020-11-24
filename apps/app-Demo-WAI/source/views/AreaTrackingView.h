@@ -222,6 +222,7 @@ private:
     virtual SLbool onMouseMove(SLint x, SLint y);
 
     bool updateGPSARCore(SENSFramePtr& frame);
+    bool updateWAISlamGPSARCore(SENSFramePtr& frame);
     bool updateGPSWAISlamARCore(SENSFramePtr& frame);
     bool updateGPSWAISlam(SENSFramePtr& frame);
     bool updateGPS(SENSFramePtr& frame);
