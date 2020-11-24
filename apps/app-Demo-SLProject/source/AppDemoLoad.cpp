@@ -941,7 +941,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
             SLstring     matName = "mat-" + std::to_string(i);
             mat[i]               = new SLMaterial(s, matName.c_str(), texC, nullptr, nullptr, nullptr, sp);
             SLCol4f color;
-            color.hsva2rgba(SLVec3f(Utils::TWOPI * (float)i / (float)NUM_MAT, 1.0f, 1.0f));
+            color.hsva2rgba(SLVec4f(Utils::TWOPI * (float)i / (float)NUM_MAT, 1.0f, 1.0f));
             mat[i]->diffuse(color);
         }
 
@@ -2004,7 +2004,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         {
             SLLightSpot* light = new SLLightSpot(s, s, 0.3f, 45.0f);
             SLCol4f      color;
-            color.hsva2rgba(SLVec3f(Utils::TWOPI * (float)i / (float)SL_MAX_LIGHTS, 1.0f, 1.0f));
+            color.hsva2rgba(SLVec4f(Utils::TWOPI * (float)i / (float)SL_MAX_LIGHTS, 1.0f, 1.0f));
             light->powers(0.0f, 5.0f, 5.0f, color);
             light->translation(2 * sin((Utils::TWOPI / (float)SL_MAX_LIGHTS) * (float)i),
                                5,
@@ -3581,8 +3581,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Define shader that shows on all pixels the video background
         SLGLProgram* spVideoBackground  = new SLGLGenericProgram(s,
-                                                                SLApplication::shaderPath + "PerVrtTextureBackground.vert",
-                                                                SLApplication::shaderPath + "PerVrtTextureBackground.frag");
+                                                                SLApplication::shaderPath + "PerPixTextureBackground.vert",
+                                                                SLApplication::shaderPath + "PerPixTextureBackground.frag");
         SLMaterial*  matVideoBackground = new SLMaterial(s,
                                                         "matVideoBackground",
                                                         videoTexture,
@@ -3697,10 +3697,10 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         // Create video texture on global pointer updated in AppDemoVideo
         videoTexture = new SLGLTexture(s, SLApplication::texturePath + "LiveVideoError.png", GL_LINEAR, GL_LINEAR);
 
-        // Define shader that shows on all pixels the video background
+        // Define shader that shows on all pixels the video background without shadow mapping
         SLGLProgram* spVideoBackground  = new SLGLGenericProgram(s,
-                                                                SLApplication::shaderPath + "PerVrtTextureBackground.vert",
-                                                                SLApplication::shaderPath + "PerVrtTextureBackground.frag");
+                                                                SLApplication::shaderPath + "PerPixTextureBackground.vert",
+                                                                SLApplication::shaderPath + "PerPixTextureBackground.frag");
         SLMaterial*  matVideoBackground = new SLMaterial(s,
                                                         "matVideoBackground",
                                                         videoTexture,
@@ -3708,6 +3708,20 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                                                         nullptr,
                                                         nullptr,
                                                         spVideoBackground);
+
+        // Define shader that shows on all pixels the video background with shadow mapping
+        SLGLProgram* spVideoBackgroundSM  = new SLGLGenericProgram(s,
+                                                                  SLApplication::shaderPath + "PerPixTextureBackgroundSM.vert",
+                                                                  SLApplication::shaderPath + "PerPixTextureBackgroundSM.frag");
+        SLMaterial*  matVideoBackgroundSM = new SLMaterial(s,
+                                                          "matVideoBackground",
+                                                          videoTexture,
+                                                          nullptr,
+                                                          nullptr,
+                                                          nullptr,
+                                                          spVideoBackgroundSM);
+        matVideoBackgroundSM->ambient(SLCol4f(0.3f, 0.3f, 0.3f));
+        matVideoBackgroundSM->getsShadows(true);
 
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0, 2, 0);
@@ -3727,7 +3741,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sunLight->attenuation(1, 0, 0);
         sunLight->doSunPowerAdaptation(true);
         sunLight->createsShadows(true);
-        sunLight->createShadowMap(-100, 150, SLVec2f(150, 150), SLVec2i(2048, 2048));
+        sunLight->createShadowMap(-100, 150, SLVec2f(250, 250), SLVec2i(2048, 2048));
         sunLight->doSmoothShadows(true);
         sunLight->castsShadows(false);
 
@@ -3740,7 +3754,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                                      SLApplication::dataPath + "erleb-AR/models/bern/Bern-Bahnhofsplatz2.gltf",
                                      SLApplication::texturePath);
 
-        // Make city with hard edges
+        // Make city with hard edges and without shadow mapping
         SLNode* UmgD = bern->findChild<SLNode>("Umgebung-Daecher");
         if (!UmgD) SL_EXIT_MSG("Node: Umgebung-Daecher not found!");
         SLNode* UmgF = bern->findChild<SLNode>("Umgebung-Fassaden");
@@ -3751,21 +3765,20 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         UmgF->setDrawBitsRec(SL_DB_WITHEDGES, true);
 
         // Hide some objects
-        //bern->findChild<SLNode>("Umgebung-Daecher")->drawBits()->set(SL_DB_HIDDEN, true);
-        //bern->findChild<SLNode>("Umgebung-Fassaden")->drawBits()->set(SL_DB_HIDDEN, true);
         bern->findChild<SLNode>("Baldachin-Glas")->drawBits()->set(SL_DB_HIDDEN, true);
         bern->findChild<SLNode>("Baldachin-Stahl")->drawBits()->set(SL_DB_HIDDEN, true);
 
-        // Set the video background shader on the baldachin and the ground
-        bern->findChild<SLNode>("Baldachin-Stahl")->setMeshMat(matVideoBackground, true);
-        bern->findChild<SLNode>("Baldachin-Glas")->setMeshMat(matVideoBackground, true);
-        bern->findChild<SLNode>("Boden")->setMeshMat(matVideoBackground, true);
+        // Set the video background shader on the baldachin and the ground with shadow mapping
+        bern->findChild<SLNode>("Baldachin-Stahl")->setMeshMat(matVideoBackgroundSM, true);
+        bern->findChild<SLNode>("Baldachin-Glas")->setMeshMat(matVideoBackgroundSM, true);
+        bern->findChild<SLNode>("Boden")->setMeshMat(matVideoBackgroundSM, true);
 
         // Set ambient on all child nodes
-        bern->updateMeshMat([](SLMaterial* m)
-                            {   if (m->name() != "Kupfer-dunkel")
-                                    m->ambient(SLCol4f(.3f, .3f, .3f));
-                            }, true);
+        bern->updateMeshMat([](SLMaterial* m) {
+            if (m->name() != "Kupfer-dunkel")
+                m->ambient(SLCol4f(.3f, .3f, .3f));
+        },
+                            true);
 
         // Add axis object a world origin (Loeb Ecke)
         SLNode* axis = new SLNode(new SLCoordAxis(s), "Axis Node");
@@ -3835,8 +3848,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Define shader that shows on all pixels the video background
         SLGLProgram* spVideoBackground  = new SLGLGenericProgram(s,
-                                                                SLApplication::shaderPath + "PerVrtTextureBackground.vert",
-                                                                SLApplication::shaderPath + "PerVrtTextureBackground.frag");
+                                                                SLApplication::shaderPath + "PerPixTextureBackground.vert",
+                                                                SLApplication::shaderPath + "PerPixTextureBackground.frag");
         SLMaterial*  matVideoBackground = new SLMaterial(s,
                                                         "matVideoBackground",
                                                         videoTexture,
@@ -3949,8 +3962,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Define shader that shows on all pixels the video background
         SLGLProgram* spVideoBackground  = new SLGLGenericProgram(s,
-                                                                SLApplication::shaderPath + "PerVrtTextureBackground.vert",
-                                                                SLApplication::shaderPath + "PerVrtTextureBackground.frag");
+                                                                SLApplication::shaderPath + "PerPixTextureBackground.vert",
+                                                                SLApplication::shaderPath + "PerPixTextureBackground.frag");
         SLMaterial*  matVideoBackground = new SLMaterial(s,
                                                         "matVideoBackground",
                                                         videoTexture,
@@ -4253,8 +4266,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Define shader that shows on all pixels the video background
         SLGLProgram* spVideoBackground  = new SLGLGenericProgram(s,
-                                                                SLApplication::shaderPath + "PerVrtTextureBackground.vert",
-                                                                SLApplication::shaderPath + "PerVrtTextureBackground.frag");
+                                                                SLApplication::shaderPath + "PerPixTextureBackground.vert",
+                                                                SLApplication::shaderPath + "PerPixTextureBackground.frag");
         SLMaterial*  matVideoBackground = new SLMaterial(s,
                                                         "matVideoBackground",
                                                         videoTexture,

@@ -150,7 +150,7 @@ public:
         assert(kn >= 0.0f);
         _kn = kn;
     }
-    void receivesShadows(SLbool receivesShadows) { _getsShadows = receivesShadows; }
+    void getsShadows(SLbool receivesShadows) { _getsShadows = receivesShadows; }
     void program(SLGLProgram* sp) { _program = sp; }
 
     // Getters

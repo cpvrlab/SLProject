@@ -164,7 +164,7 @@ void SLCurveBezier::draw(const SLMat4f& wm)
 
     // Draw curve as a line strip through interpolated points
     _vao.drawArrayAsColored(PT_lineStrip,
-                            SLCol3f::RED,
+                            SLCol4f::RED,
                             1,
                             0,
                             (SLuint)numCurvePoints);

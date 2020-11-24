@@ -3236,7 +3236,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
 
                             SLbool receivesShadows = m->getsShadows();
                             if (ImGui::Checkbox("Receives shadows", &receivesShadows))
-                                m->receivesShadows(receivesShadows);
+                                m->getsShadows(receivesShadows);
 
                             ImGui::PopItemWidth();
                             ImGui::TreePop();

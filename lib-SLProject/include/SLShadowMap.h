@@ -40,8 +40,8 @@ public:
                 SLLight*     light,
                 float        clipNear = 0.1f,
                 float        clipFar  = 20.0f,
-                SLVec2f      size     = SLVec2f(8, 8),
-                SLVec2i      texSize  = SLVec2i(1024, 1024));
+                const SLVec2f&      size     = SLVec2f(8, 8),
+                const SLVec2i&      texSize  = SLVec2i(1024, 1024));
     ~SLShadowMap();
 
     // Setters
@@ -71,7 +71,7 @@ public:
     void drawFrustum();
     void drawRays();
     void updateMVP();
-    void drawNodesIntoDepthBuffer(SLNode* node, SLSceneView* sv, SLMat4f v);
+    void drawNodesIntoDepthBuffer(SLNode* node, SLSceneView* sv, const SLMat4f& v);
     void render(SLSceneView* sv, SLNode* root);
 
 private:

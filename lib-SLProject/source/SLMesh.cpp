@@ -1526,7 +1526,7 @@ void SLMesh::transformSkin(const std::function<void(SLMesh*)>& cbInformNodes)
         for (SLulong j = 0; j < Ji[i].size(); ++j)
         {
             const SLMat4f& jm      = _jointMatrices[Ji[i][j]];
-            SLVec4f        tempPos = jm * P[i];
+            SLVec4f        tempPos = SLVec4f(jm * P[i]);
             skinnedP[i].x += tempPos.x * Jw[i][j];
             skinnedP[i].y += tempPos.y * Jw[i][j];
             skinnedP[i].z += tempPos.z * Jw[i][j];

@@ -21,12 +21,12 @@
 #include <Instrumentor.h>
 
 //-----------------------------------------------------------------------------
-SLShadowMap::SLShadowMap(SLProjection projection,
-                         SLLight*     light,
-                         float        clipNear,
-                         float        clipFar,
-                         SLVec2f      size,
-                         SLVec2i      texSize)
+SLShadowMap::SLShadowMap(SLProjection   projection,
+                         SLLight*       light,
+                         float          clipNear,
+                         float          clipFar,
+                         const SLVec2f& size,
+                         const SLVec2i& texSize)
 {
     PROFILE_FUNCTION();
 
@@ -35,7 +35,7 @@ SLShadowMap::SLShadowMap(SLProjection projection,
     _useCubemap  = false;
     _depthBuffer = nullptr;
     _frustumVAO  = nullptr;
-    _rayCount    = SLVec2i(0,0);
+    _rayCount    = SLVec2i(0, 0);
     _mat         = nullptr;
     _clipNear    = clipNear;
     _clipFar     = clipFar;
@@ -87,7 +87,7 @@ void SLShadowMap::drawFrustum()
         stateGL->modelViewMatrix = stateGL->viewMatrix * _mvp[i].inverted();
 
         _frustumVAO->drawArrayAsColored(PT_lines,
-                                        SLCol3f(0, 1, 0),
+                                        SLCol4f::GREEN,
                                         1.0f,
                                         0,
                                         (SLuint)P.size());
@@ -141,7 +141,7 @@ void SLShadowMap::drawRays()
 
     _depthBuffer->unbind();
 
-    if (P.size() == 0) return;
+    if (P.empty()) return;
 
     SLGLVertexArrayExt vao;
     vao.generateVertexPos(&P);
@@ -149,7 +149,7 @@ void SLShadowMap::drawRays()
     stateGL->modelViewMatrix = stateGL->viewMatrix * _mvp[0].inverted();
 
     vao.drawArrayAsColored(PT_lines,
-                           SLCol3f(1, 1, 0),
+                           SLCol4f::YELLOW,
                            1.0f,
                            0,
                            (SLuint)P.size());
@@ -219,9 +219,9 @@ void SLShadowMap::updateMVP()
 SLShadowMap::drawNodesIntoDepthBuffer recursively renders all objects which
 cast shadows
 */
-void SLShadowMap::drawNodesIntoDepthBuffer(SLNode*      node,
-                                           SLSceneView* sv,
-                                           SLMat4f      v)
+void SLShadowMap::drawNodesIntoDepthBuffer(SLNode*        node,
+                                           SLSceneView*   sv,
+                                           const SLMat4f& v)
 {
     if (node->drawBit(SL_DB_HIDDEN))
         return;

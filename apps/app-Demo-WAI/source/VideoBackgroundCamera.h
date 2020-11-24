@@ -16,8 +16,8 @@ public:
 
         // Define shader that shows on all pixels the video background
         _spVideoBackground  = new SLGLGenericProgram(nullptr,
-                                                    shaderPath + "PerVrtTextureBackground.vert",
-                                                    shaderPath + "PerVrtTextureBackground.frag");
+                                                    shaderPath + "PerPixTextureBackground.vert",
+                                                    shaderPath + "PerPixTextureBackground.frag");
         _matVideoBackground = new SLMaterial(nullptr,
                                              "matVideoBackground",
                                              _videoTexture,
