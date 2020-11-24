@@ -3740,23 +3740,19 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                                      SLApplication::dataPath + "erleb-AR/models/bern/Bern-Bahnhofsplatz2.gltf",
                                      SLApplication::texturePath);
 
-        // Make city transparent
+        // Make city with hard edges
         SLNode* UmgD = bern->findChild<SLNode>("Umgebung-Daecher");
         if (!UmgD) SL_EXIT_MSG("Node: Umgebung-Daecher not found!");
-
-        auto updateKtAmbiFnc = [](SLMaterial* m) {
-            m->kt(0.5f);
-            m->ambient(SLCol4f(.3f, .3f, .3f));
-        };
-
-        UmgD->updateMeshMat(updateKtAmbiFnc, true);
         SLNode* UmgF = bern->findChild<SLNode>("Umgebung-Fassaden");
         if (!UmgF) SL_EXIT_MSG("Node: Umgebung-Fassaden not found!");
-        UmgF->updateMeshMat(updateKtAmbiFnc, true);
+        UmgD->setMeshMat(matVideoBackground, true);
+        UmgF->setMeshMat(matVideoBackground, true);
+        UmgD->setDrawBitsRec(SL_DB_WITHEDGES, true);
+        UmgF->setDrawBitsRec(SL_DB_WITHEDGES, true);
 
         // Hide some objects
-        bern->findChild<SLNode>("Umgebung-Daecher")->drawBits()->set(SL_DB_HIDDEN, true);
-        bern->findChild<SLNode>("Umgebung-Fassaden")->drawBits()->set(SL_DB_HIDDEN, true);
+        //bern->findChild<SLNode>("Umgebung-Daecher")->drawBits()->set(SL_DB_HIDDEN, true);
+        //bern->findChild<SLNode>("Umgebung-Fassaden")->drawBits()->set(SL_DB_HIDDEN, true);
         bern->findChild<SLNode>("Baldachin-Glas")->drawBits()->set(SL_DB_HIDDEN, true);
         bern->findChild<SLNode>("Baldachin-Stahl")->drawBits()->set(SL_DB_HIDDEN, true);
 

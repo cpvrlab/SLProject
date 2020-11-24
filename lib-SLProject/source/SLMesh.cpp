@@ -459,7 +459,8 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
     // 4): Finally do the draw call
     ///////////////////////////////
 
-    if (sv->drawBit(SL_DB_ONLYEDGES) && (!IE32.empty() || !IE16.empty()))
+    if ((sv->drawBit(SL_DB_ONLYEDGES) || node->drawBit(SL_DB_ONLYEDGES)) &&
+        (!IE32.empty() || !IE16.empty()))
         _vao.drawEdges(_edgeColor, _edgeWidth);
     else
     {
@@ -469,7 +470,8 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
         {
             _vao.drawElementsAs(primitiveType);
 
-            if (sv->drawBit(SL_DB_WITHEDGES) && (!IE32.empty() || !IE16.empty()))
+            if ((sv->drawBit(SL_DB_WITHEDGES) || node->drawBit(SL_DB_WITHEDGES)) &&
+                (!IE32.empty() || !IE16.empty()))
             {
                 stateGL->polygonOffset(true, 1.0f, 1.0f);
                 _vao.drawEdges(_edgeColor, _edgeWidth);
@@ -1466,8 +1468,8 @@ void SLMesh::preShade(SLRay* ray)
         SLCol4f CB = ray->hitMesh->C[iB];
         SLCol4f CC = ray->hitMesh->C[iC];
         ray->hitTexColor.set(CA * (1 - (ray->hitU + ray->hitV)) +
-                          CB * ray->hitU +
-                          CC * ray->hitV);
+                             CB * ray->hitU +
+                             CC * ray->hitV);
     }
 }
 //-----------------------------------------------------------------------------
