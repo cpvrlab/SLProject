@@ -235,6 +235,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
     // Initialize all preloaded stuff from SLScene
     s->init();
+
     // clear gui stuff that depends on scene and sceneview
     AppDemoGui::clear();
 
@@ -3720,7 +3721,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                                                           nullptr,
                                                           nullptr,
                                                           spVideoBackgroundSM);
-        matVideoBackgroundSM->ambient(SLCol4f(0.3f, 0.3f, 0.3f));
+        matVideoBackgroundSM->ambient(SLCol4f(0.6f, 0.6f, 0.6f));
         matVideoBackgroundSM->getsShadows(true);
 
         SLCamera* cam1 = new SLCamera("Camera 1");

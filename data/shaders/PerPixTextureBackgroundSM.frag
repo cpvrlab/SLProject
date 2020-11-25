@@ -75,6 +75,6 @@ void main()
         }
     }
 
-    o_fragColor = texColor * max(1.0 - shadow + u_matAmbi.r, 1.0);
+    o_fragColor = texColor * min(1.0 - shadow + u_matAmbi.r, 1.0);
 }
 //-----------------------------------------------------------------------------
