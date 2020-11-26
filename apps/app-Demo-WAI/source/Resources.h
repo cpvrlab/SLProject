@@ -216,6 +216,18 @@ public:
     const char* augstTheaterInfoHeading1() const { return _augstTheaterInfoHeading1.c_str(); }
     const char* augstTheaterInfoText1() const { return _augstTheaterInfoText1.c_str(); }
     const char* augstTheaterInfoText2() const { return _augstTheaterInfoText2.c_str(); }
+ 
+    //avenches:
+    const char* avenchesAmphitheaterInfoHeading1() const { return _avenchesAmphitheaterInfoHeading1.c_str(); }
+    const char* avenchesAmphitheaterInfoText1() const { return _avenchesAmphitheaterInfoText1.c_str(); }
+    const char* avenchesAmphitheaterInfoText2() const { return _avenchesAmphitheaterInfoText2.c_str(); }
+    const char* avenchesCigognierInfoHeading1() const { return _avenchesCigognierInfoHeading1.c_str(); }
+    const char* avenchesCigognierInfoText1() const { return _avenchesCigognierInfoText1.c_str(); }
+    const char* avenchesCigognierInfoText2() const { return _avenchesCigognierInfoText2.c_str(); }
+    const char* avenchesTheaterInfoHeading1() const { return _avenchesTheaterInfoHeading1.c_str(); }
+    const char* avenchesTheaterInfoText1() const { return _avenchesTheaterInfoText1.c_str(); }
+    const char* avenchesTheaterInfoText2() const { return _avenchesTheaterInfoText2.c_str(); }
+
 
     //tracking view user guidance
     const char* ugInfoReloc() const { return _ugInfoReloc.c_str(); }
@@ -262,6 +274,17 @@ protected:
     std::string _augstTheaterInfoHeading1    = "augst Theater heading 1";
     std::string _augstTheaterInfoText1       = "augst Theater text 1";
     std::string _augstTheaterInfoText2       = "augst Theater text 2";
+
+    //avenches:
+    std::string _avenchesAmphitheaterInfoHeading1 = "avenches amphitheater heading 1";
+    std::string _avenchesAmphitheaterInfoText1    = "avenches amphitheater into text 1";
+    std::string _avenchesAmphitheaterInfoText2    = "avenches amphitheater into text 2";
+    std::string _avenchesCigognierInfoHeading1 = "avenches cigognier heading 1";
+    std::string _avenchesCigognierInfoText1    = "avenches cigognier into text 1";
+    std::string _avenchesCigognierInfoText2    = "avenches cigognier into text 2";
+    std::string _avenchesTheaterInfoHeading1 = "avenches theater heading 1";
+    std::string _avenchesTheaterInfoText1    = "avenches theater text 1";
+    std::string _avenchesTheaterInfoText2    = "avenches theater text 2";
 
     //tracking view user guidance
     std::string _ugInfoReloc            = "Trying to relocalize, please move slowly";
