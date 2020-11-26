@@ -123,7 +123,8 @@ bool TestView::update()
         else if (_compassAlignment)
         {
             cv::Mat resultImage;
-            _compassAlignment->update(frame->imgManip, resultImage);
+            // TODO(dgj1): this will not work anymore
+            //_compassAlignment->update(frame->imgManip, resultImage, _calibration->cameraFovHDeg(), 0.0f, 0.0f, 0.0f);
 
             updateCompassAlignmentVisualization(*frame.get(), resultImage);
         }
@@ -158,8 +159,12 @@ void TestView::startCompassAlignment()
         _mode = nullptr;
     }
 
-    cv::Mat templateTest = cv::imread(_dataDir + "erleb-AR/templates/template_test.png", cv::IMREAD_GRAYSCALE);
-    _compassAlignment    = new WAICompassAlignment(templateTest);
+    cv::Mat templateTest          = cv::imread(_dataDir + "erleb-AR/templates/template_test.png", cv::IMREAD_GRAYSCALE);
+    double  templateTestLatitude  = 46.94790;
+    double  templateTestLongitude = 7.44078;
+    double  templateTestAltitude  = 542.3;
+    _compassAlignment             = new WAICompassAlignment();
+    _compassAlignment->setTemplate(templateTest, templateTestLatitude, templateTestLongitude, templateTestAltitude);
 }
 
 void TestView::handleEvents()

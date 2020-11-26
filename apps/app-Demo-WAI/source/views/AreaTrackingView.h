@@ -30,6 +30,8 @@
 #include <math/SLAlgo.h>
 #include <SLDeviceRotation.h>
 
+#include <WAICompassAlignment.h>
+
 class SENSCamera;
 class MapLoader;
 
@@ -239,6 +241,7 @@ private:
     SLMat4f calcCameraPoseGpsOrientationBased();
     cv::Mat convertCameraPoseToWaiCamExtrinisc(SLMat4f& wTc);
     void    applyFingerCorrection(SLMat4f& camPose);
+    void    applyTemplateCorrection(SLMat4f& camPose, const cv::Mat& frameGray);
 
     AreaTrackingGui   _gui;
     AppWAIScene       _waiScene;
@@ -296,6 +299,7 @@ private:
     bool _noInitException = false;
 
     CameraPoseFingerCorrection _cameraFingerCorr;
+    WAICompassAlignment        _compassAlignment;
 };
 
 //! Async loader for vocabulary and maps

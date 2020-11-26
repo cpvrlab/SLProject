@@ -49,6 +49,13 @@ AreaTrackingView::AreaTrackingView(sm::EventHandler&  eventHandler,
 
     //init video camera
     _camera = std::make_unique<SENSCvCamera>(camera);
+
+    // TODO(dgj1): associate templates with areas
+    cv::Mat templateTest          = cv::imread(deviceData.erlebARDir() + "templates/template_milchgaessli.png", cv::IMREAD_GRAYSCALE);
+    double  templateTestLatitude  = 46.94790;
+    double  templateTestLongitude = 7.44078;
+    double  templateTestAltitude  = 542.3;
+    _compassAlignment.setTemplate(templateTest, templateTestLatitude, templateTestLongitude, templateTestAltitude);
 }
 
 AreaTrackingView::~AreaTrackingView()
@@ -99,8 +106,8 @@ void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaI
         initDeviceLocation(location, area);
         initSlam(area);
 
-        _initTime = GlobalTimer::timeS();
-        _frameCounter = 0;
+        _initTime            = GlobalTimer::timeS();
+        _frameCounter        = 0;
         _hasTransitionMatrix = false;
         _transitionMatrix.identity();
         //_avgPose.init(20, SLMat4f());
@@ -207,19 +214,19 @@ SLMat4f convertWAISlamToSLMat(const cv::Mat& cTw)
 
 SLMat4f transformAverage(SLMat4f m1, SLMat4f m2)
 {
-        SLQuat4f q1, q2;
-        q1.fromMat3(m1.mat3());
-        q2.fromMat3(m2.mat3());
-        float x = (q1.x() + q2.x()) * 0.5;
-        float y = (q1.y() + q2.y()) * 0.5;
-        float z = (q1.z() + q2.z()) * 0.5;
-        float w = (q1.w() + q2.w()) * 0.5;
-        q1.set(x, y, z, w);
-        SLVec3f t = 0.5 * (m1.translation() + m2.translation());
+    SLQuat4f q1, q2;
+    q1.fromMat3(m1.mat3());
+    q2.fromMat3(m2.mat3());
+    float x = (q1.x() + q2.x()) * 0.5;
+    float y = (q1.y() + q2.y()) * 0.5;
+    float z = (q1.z() + q2.z()) * 0.5;
+    float w = (q1.w() + q2.w()) * 0.5;
+    q1.set(x, y, z, w);
+    SLVec3f t = 0.5 * (m1.translation() + m2.translation());
 
-        SLMat4f m = q1.toMat4();
-        m.setTranslation(t);
-        return m;
+    SLMat4f m = q1.toMat4();
+    m.setTranslation(t);
+    return m;
 }
 
 bool AreaTrackingView::updateGPSARCore(SENSFramePtr& frame)
@@ -275,7 +282,6 @@ bool AreaTrackingView::updateGPSARCore(SENSFramePtr& frame)
     return isTracking;
 }
 
-
 //Marker for pose and yaw
 bool AreaTrackingView::updateWAISlamGPSARCore(SENSFramePtr& frame)
 {
@@ -327,28 +333,28 @@ bool AreaTrackingView::updateWAISlamGPSARCore(SENSFramePtr& frame)
                 _frameCounter++;
                 if (_frameCounter > 20)
                 {
-                    SLMat4f m = convertWAISlamToSLMat(_waiSlam->getPose());
-                    SLVec3f t = m.translation();
+                    SLMat4f m         = convertWAISlamToSLMat(_waiSlam->getPose());
+                    SLVec3f t         = m.translation();
                     SLVec3f frontSlam = m.mat3() * SLVec3f(0, 0, -1);
-                    SLVec3f frontGps = gpsPose.mat3() * SLVec3f(0, 0, -1);
+                    SLVec3f frontGps  = gpsPose.mat3() * SLVec3f(0, 0, -1);
 
                     frontSlam.y = 0;
-                    frontGps.y = 0;
+                    frontGps.y  = 0;
 
                     frontSlam.normalize();
                     frontGps.normalize();
 
-                    m = SLMat4f();
+                    m         = SLMat4f();
                     SLVec3f v = frontGps;
                     v.cross(v, frontSlam);
 
                     if (v.y > 0.0)
-                        m.rotation(acos(frontGps.dot(frontSlam)) * 180/M_PI, 0, 1, 0);
+                        m.rotation(acos(frontGps.dot(frontSlam)) * 180 / M_PI, 0, 1, 0);
                     else
-                        m.rotation(-acos(frontGps.dot(frontSlam)) * 180/M_PI, 0, 1, 0);
+                        m.rotation(-acos(frontGps.dot(frontSlam)) * 180 / M_PI, 0, 1, 0);
                     m.setTranslation(t);
 
-                    gpsPose.setTranslation(SLVec3f(0,0,0));
+                    gpsPose.setTranslation(SLVec3f(0, 0, 0));
                     _transitionMatrix = convertARCoreToSLMat(view);
                     _transitionMatrix.invert();
                     _transitionMatrix    = (m * gpsPose) * _transitionMatrix;
@@ -616,6 +622,9 @@ bool AreaTrackingView::updateGPS(SENSFramePtr& frame)
     SLMat4f gpsPose = calcCameraPoseGpsOrientationBased();
     applyFingerCorrection(gpsPose);
 
+    if (frame)
+        applyTemplateCorrection(gpsPose, frame->imgManip);
+
     //SLMat4f gpsPoseCorr = _cameraFingerCorr.getCorrectionMat(focalLength) * gpsPose;
     _waiScene.camera->om(gpsPose);
     _gui.showInfoText("GPS + Sensors positioning");
@@ -630,6 +639,25 @@ void AreaTrackingView::applyFingerCorrection(SLMat4f& camPose)
     SLMat4f rot;
     rot.translate(camPose.translation());
     rot.rotate(rotAngRAD * Utils::RAD2DEG, SLVec3f(0, 1, 0));
+    rot.translate(-camPose.translation()); //this is multiplied first
+
+    camPose = rot * camPose;
+}
+
+void AreaTrackingView::applyTemplateCorrection(SLMat4f&       camPose,
+                                               const cv::Mat& frameGray)
+{
+    SENSGps::Location loc           = _gps->getLocation();
+    SLVec3f           camForward    = camPose.axisZ();
+    cv::Point         vecCurForward = cv::Point(camForward.x, camForward.y);
+
+    cv::Mat resultImage;
+    _compassAlignment.update(frameGray, resultImage, this->camera()->fovH(), loc.latitudeDEG, loc.longitudeDEG, loc.altitudeM, vecCurForward);
+    float rotAngDEG = _compassAlignment.getRotAngleDEG();
+
+    SLMat4f rot;
+    rot.translate(camPose.translation());
+    rot.rotate(rotAngDEG, SLVec3f(0, 1, 0));
     rot.translate(-camPose.translation()); //this is multiplied first
 
     camPose = rot * camPose;
@@ -812,6 +840,9 @@ void AreaTrackingView::onCameraParamsChanged()
 
 SLMat4f AreaTrackingView::calcCameraPoseGpsOrientationBased()
 {
+    if (!_orientation)
+        return SLMat4f();
+
     //use gps and orientation sensor for camera position and orientation
     //(even if there is no gps, devLoc gives us a guess of the current home position)
     if (_gps && _config.useGps)
