@@ -179,11 +179,11 @@ void AreaInfoGui::renderInfoAugst(ErlebAR::AreaId area)
             renderInfoText(_resources.strings().augstTempleHillInfoText2());
         }
         break;
-        case ErlebAR::AreaId::AUGST_THEATER_FRONT: {
-        }
-        break;
+        case ErlebAR::AreaId::AUGST_THEATER_FRONT:
         default: {
-            // TODO(dgj1): throw some kind of exception
+            renderInfoHeading(_resources.strings().augstTheaterInfoHeading1());
+            renderInfoText(_resources.strings().augstTheaterInfoText1());
+            renderInfoText(_resources.strings().augstTheaterInfoText2());
         }
     }
 }

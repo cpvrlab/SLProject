@@ -168,9 +168,12 @@ void Strings::load(std::string fileName)
             loadString(fs, "bernInfoHeading2", _bernInfoHeading2);
             loadString(fs, "bernInfoText2", _bernInfoText2);
             //augst:
-            loadString(fs, "augstTempleHillInfoHeading1", _augstTempleHillInfoHeading1);
-            loadString(fs, "augstTempleHillInfoText1", _augstTempleHillInfoText1);
-            loadString(fs, "augstTempleHillInfoText2", _augstTempleHillInfoText2);
+            loadString(fs, "augstTempleHillHeading1", _augstTempleHillInfoHeading1);
+            loadString(fs, "augstTempleHillText1", _augstTempleHillInfoText1);
+            loadString(fs, "augstTempleHillText2", _augstTempleHillInfoText2);
+            loadString(fs, "augstTheaterFrontHeading1", _augstTheaterInfoHeading1);
+            loadString(fs, "augstTheaterFrontText1", _augstTheaterInfoText1);
+            loadString(fs, "augstTheaterFrontText2", _augstTheaterInfoText2);
         }
     }
     else

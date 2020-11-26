@@ -213,6 +213,9 @@ public:
     const char* augstTempleHillInfoHeading1() const { return _augstTempleHillInfoHeading1.c_str(); }
     const char* augstTempleHillInfoText1() const { return _augstTempleHillInfoText1.c_str(); }
     const char* augstTempleHillInfoText2() const { return _augstTempleHillInfoText2.c_str(); }
+    const char* augstTheaterInfoHeading1() const { return _augstTheaterInfoHeading1.c_str(); }
+    const char* augstTheaterInfoText1() const { return _augstTheaterInfoText1.c_str(); }
+    const char* augstTheaterInfoText2() const { return _augstTheaterInfoText2.c_str(); }
 
     //tracking view user guidance
     const char* ugInfoReloc() const { return _ugInfoReloc.c_str(); }
@@ -256,6 +259,9 @@ protected:
     std::string _augstTempleHillInfoHeading1 = "augst temple hill heading 1";
     std::string _augstTempleHillInfoText1    = "augst temple hill text 1";
     std::string _augstTempleHillInfoText2    = "augst temple hill text 2";
+    std::string _augstTheaterInfoHeading1    = "augst Theater heading 1";
+    std::string _augstTheaterInfoText1       = "augst Theater text 1";
+    std::string _augstTheaterInfoText2       = "augst Theater text 2";
 
     //tracking view user guidance
     std::string _ugInfoReloc            = "Trying to relocalize, please move slowly";

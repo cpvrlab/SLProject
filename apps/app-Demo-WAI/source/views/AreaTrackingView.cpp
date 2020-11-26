@@ -51,11 +51,11 @@ AreaTrackingView::AreaTrackingView(sm::EventHandler&  eventHandler,
     _camera = std::make_unique<SENSCvCamera>(camera);
 
     // TODO(dgj1): associate templates with areas
-    cv::Mat templateTest          = cv::imread(deviceData.erlebARDir() + "templates/template_milchgaessli.png", cv::IMREAD_GRAYSCALE);
+    /*cv::Mat templateTest          = cv::imread(deviceData.erlebARDir() + "templates/template_milchgaessli.png", cv::IMREAD_GRAYSCALE);
     double  templateTestLatitude  = 46.94790;
     double  templateTestLongitude = 7.44078;
     double  templateTestAltitude  = 542.3;
-    _compassAlignment.setTemplate(templateTest, templateTestLatitude, templateTestLongitude, templateTestAltitude);
+    _compassAlignment.setTemplate(templateTest, templateTestLatitude, templateTestLongitude, templateTestAltitude);*/
 }
 
 AreaTrackingView::~AreaTrackingView()
@@ -646,7 +646,7 @@ void AreaTrackingView::applyFingerCorrection(SLMat4f& camPose)
 
 void AreaTrackingView::applyTemplateCorrection(SLMat4f&       camPose,
                                                const cv::Mat& frameGray)
-{
+{ /*
     SENSGps::Location loc           = _gps->getLocation();
     SLVec3f           camForward    = camPose.axisZ();
     cv::Point         vecCurForward = cv::Point(camForward.x, camForward.y);
@@ -660,7 +660,7 @@ void AreaTrackingView::applyTemplateCorrection(SLMat4f&       camPose,
     rot.rotate(rotAngDEG, SLVec3f(0, 1, 0));
     rot.translate(-camPose.translation()); //this is multiplied first
 
-    camPose = rot * camPose;
+    camPose = rot * camPose;*/
 }
 
 bool AreaTrackingView::update()
