@@ -235,7 +235,7 @@ bool MapCreator::createMarkerMap(AreaConfig&        areaConfig,
         mapLoadingSuccess = WAIMapStorage::loadMapBinary(map,
                                                          nodeTransform,
                                                          _voc,
-                                                         mapDir + "/" + mapFile,
+                                                         mapFile,
                                                          false,
                                                          modeParams.fixOldKfs);
     }
@@ -244,14 +244,14 @@ bool MapCreator::createMarkerMap(AreaConfig&        areaConfig,
         mapLoadingSuccess = WAIMapStorage::loadMap(map,
                                                    nodeTransform,
                                                    _voc,
-                                                   mapDir + "/" + mapFile,
+                                                   mapFile,
                                                    false,
                                                    modeParams.fixOldKfs);
     }
 
     if (!mapLoadingSuccess)
     {
-        std::cout << ("MapCreator::createMarkerMap: Could not load map from file " + mapDir + "/" + mapFile) << std::endl;
+        std::cout << ("MapCreator::createMarkerMap: Could not load map from file " + mapFile) << std::endl;
         return false;
     }
 

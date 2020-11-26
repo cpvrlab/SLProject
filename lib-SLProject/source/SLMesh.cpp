@@ -459,7 +459,8 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
     // 4): Finally do the draw call
     ///////////////////////////////
 
-    if (sv->drawBit(SL_DB_ONLYEDGES) && (!IE32.empty() || !IE16.empty()))
+    if ((sv->drawBit(SL_DB_ONLYEDGES) || node->drawBit(SL_DB_ONLYEDGES)) &&
+        (!IE32.empty() || !IE16.empty()))
         _vao.drawEdges(_edgeColor, _edgeWidth);
     else
     {
@@ -469,7 +470,8 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
         {
             _vao.drawElementsAs(primitiveType);
 
-            if (sv->drawBit(SL_DB_WITHEDGES) && (!IE32.empty() || !IE16.empty()))
+            if ((sv->drawBit(SL_DB_WITHEDGES) || node->drawBit(SL_DB_WITHEDGES)) &&
+                (!IE32.empty() || !IE16.empty()))
             {
                 stateGL->polygonOffset(true, 1.0f, 1.0f);
                 _vao.drawEdges(_edgeColor, _edgeWidth);
@@ -1434,7 +1436,7 @@ void SLMesh::preShade(SLRay* ray)
 
                 SLVec3f T3(hitT.x, hitT.y, hitT.z);           // tangent with 3 components
                 T3.set(ray->hitNode->updateAndGetWMN() * T3); // transform tangent back to world space
-                SLVec2f d   = textures[1]->dsdt(tc.x, tc.y);  // slope of bump-map at tc
+                SLVec2f d   = textures[1]->dudv(tc.x, tc.y);  // slope of bump-map at tc
                 SLVec3f Nrm = ray->hitNormal;                 // unperturbated normal
                 SLVec3f B(Nrm ^ T3);                          // bi-normal tangent B
                 B *= T[iA].w;                                 // correct handedness
@@ -1466,8 +1468,8 @@ void SLMesh::preShade(SLRay* ray)
         SLCol4f CB = ray->hitMesh->C[iB];
         SLCol4f CC = ray->hitMesh->C[iC];
         ray->hitTexColor.set(CA * (1 - (ray->hitU + ray->hitV)) +
-                          CB * ray->hitU +
-                          CC * ray->hitV);
+                             CB * ray->hitU +
+                             CC * ray->hitV);
     }
 }
 //-----------------------------------------------------------------------------
@@ -1524,7 +1526,7 @@ void SLMesh::transformSkin(const std::function<void(SLMesh*)>& cbInformNodes)
         for (SLulong j = 0; j < Ji[i].size(); ++j)
         {
             const SLMat4f& jm      = _jointMatrices[Ji[i][j]];
-            SLVec4f        tempPos = jm * P[i];
+            SLVec4f        tempPos = SLVec4f(jm * P[i]);
             skinnedP[i].x += tempPos.x * Jw[i][j];
             skinnedP[i].y += tempPos.y * Jw[i][j];
             skinnedP[i].z += tempPos.z * Jw[i][j];

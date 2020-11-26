@@ -946,28 +946,32 @@ void SLGLTexture::drawSprite(SLbool doUpdate, SLfloat x, SLfloat y, SLfloat w, S
     ////////////////////////////////////////////
 }
 //-----------------------------------------------------------------------------
-//! SLGLTexture::getTexelf returns a pixel color from s & t texture coordinates.
+//! SLGLTexture::getTexelf returns a pixel color from u & v texture coordinates.
 /*! If the OpenGL filtering is set to GL_LINEAR a bilinear interpolated color out
 of four neighboring pixels is return. Otherwise the nearest pixel is returned.
 */
-SLCol4f SLGLTexture::getTexelf(SLfloat s, SLfloat t, SLuint imgIndex)
+SLCol4f SLGLTexture::getTexelf(SLfloat u, SLfloat v, SLuint imgIndex)
 {
     assert(imgIndex < _images.size() && "Image index to big!");
 
     // transform tex coords with the texture matrix
-    s = s * _tm.m(0) + _tm.m(12);
-    t = t * _tm.m(5) + _tm.m(13);
+    u = u * _tm.m(0) + _tm.m(12);
+    v = v * _tm.m(5) + _tm.m(13);
+
+    // Make sure the tex. coords are between 0.0 and 1.0
+    if (u < 0.0f || u > 1.0f) u -= floor(u);
+    if (v < 0.0f || v > 1.0f) v -= floor(v);
 
     // Bilinear interpolation
     if (_min_filter == GL_LINEAR || _mag_filter == GL_LINEAR)
     {
-        CVVec4f c4f = _images[imgIndex]->getPixelf(s, t);
+        CVVec4f c4f = _images[imgIndex]->getPixelf(u, v);
         return SLCol4f(c4f[0], c4f[1], c4f[2], c4f[3]);
     }
     else
     {
-        CVVec4f c4f = _images[imgIndex]->getPixeli((SLint)(s * _images[imgIndex]->width()),
-                                                   (SLint)(t * _images[imgIndex]->height()));
+        CVVec4f c4f = _images[imgIndex]->getPixeli((SLint)(u * _images[imgIndex]->width()),
+                                                   (SLint)(v * _images[imgIndex]->height()));
         return SLCol4f(c4f[0], c4f[1], c4f[2], c4f[3]);
     }
 }
@@ -988,27 +992,27 @@ SLCol4f SLGLTexture::getTexelf(const SLVec3f& cubemapDir)
 }
 //-----------------------------------------------------------------------------
 /*!
-dsdt calculates the partial derivation (gray value slope) at s,t for bump
+dudv calculates the partial derivation (gray value slope) at u,v for bump
 mapping either from a height map or a normal map
 */
-SLVec2f SLGLTexture::dsdt(SLfloat s, SLfloat t)
+SLVec2f SLGLTexture::dudv(SLfloat u, SLfloat v)
 {
-    SLVec2f dsdt(0, 0);
-    SLfloat ds = 1.0f / _images[0]->width();
-    SLfloat dt = 1.0f / _images[0]->height();
+    SLVec2f dudv(0, 0);
+    SLfloat du = 1.0f / _images[0]->width();
+    SLfloat dv = 1.0f / _images[0]->height();
 
     if (_texType == TT_height)
     {
-        dsdt.x = (getTexelf(s + ds, t).x - getTexelf(s - ds, t).x) * -_bumpScale;
-        dsdt.y = (getTexelf(s, t + dt).x - getTexelf(s, t - dt).x) * -_bumpScale;
+        dudv.x = (getTexelf(u + du, v).x - getTexelf(u - du, v).x) * -_bumpScale;
+        dudv.y = (getTexelf(u, v + dv).x - getTexelf(u, v - dv).x) * -_bumpScale;
     }
     else if (_texType == TT_normal)
     {
-        SLVec4f texel = getTexelf(s, t);
-        dsdt.x        = texel.r * 2.0f - 1.0f;
-        dsdt.y        = texel.g * 2.0f - 1.0f;
+        SLVec4f texel = getTexelf(u, v);
+        dudv.x        = texel.r * 2.0f - 1.0f;
+        dudv.y        = texel.g * 2.0f - 1.0f;
     }
-    return dsdt;
+    return dudv;
 }
 //-----------------------------------------------------------------------------
 //! Detects the texture type from the filename appendix (See SLTexType def.)

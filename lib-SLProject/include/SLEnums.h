@@ -117,6 +117,8 @@ enum SLSceneID
     SID_ShadowMappingSpotLights,
 
     SID_SuzannePerPixBlinn,
+    SID_SuzannePerPixBlinnSM,
+    SID_SuzannePerPixBlinnSMAO,
     SID_SuzannePerPixBlinnTex,
     SID_SuzannePerPixBlinnTexNrm,
     SID_SuzannePerPixBlinnTexNrmAO,
@@ -151,7 +153,6 @@ enum SLSceneID
     SID_ErlebARBielBFH,
     SID_ErlebARChristoffel,
     SID_ErlebARAugustaRaurica,
-    SID_ErlebARAventicumAmphi,
     SID_ErlebARAventicumAmphiAO,
     SID_ErlebARAventicumCigognier,
     SID_ErlebARAventicumCigognierAO,

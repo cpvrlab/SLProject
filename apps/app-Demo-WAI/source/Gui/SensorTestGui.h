@@ -24,13 +24,13 @@ class SensorTestGui : public ImGuiWrapper
   , private sm::EventSender
 {
 public:
-    SensorTestGui(const ImGuiEngine&  imGuiEngine,
-                  sm::EventHandler&   eventHandler,
-                  ErlebAR::Resources& resources,
-                  const DeviceData&   deviceData,
-                  SENSGps*            gps,
-                  SENSOrientation*    orientation,
-                  SENSCamera*         camera);
+    SensorTestGui(const ImGuiEngine& imGuiEngine,
+                  sm::EventHandler&  eventHandler,
+                  ErlebAR::Config&   config,
+                  const DeviceData&  deviceData,
+                  SENSGps*           gps,
+                  SENSOrientation*   orientation,
+                  SENSCamera*        camera);
     ~SensorTestGui();
 
     void build(SLScene* s, SLSceneView* sv) override;
@@ -46,7 +46,7 @@ private:
     void updateCameraSensor();
 
     void updateCameraParameter();
-    
+
     float _screenW;
     float _screenH;
     float _headerBarH;
@@ -58,6 +58,7 @@ private:
     float _windowPaddingContent;
     float _itemSpacingContent;
 
+    ErlebAR::Config&    _config;
     ErlebAR::Resources& _resources;
 
     bool        _hasException = false;
@@ -69,8 +70,8 @@ private:
     SENSCamera*      _camera      = nullptr;
 
     std::unique_ptr<SENSSimHelper> _simHelper;
-    std::unique_ptr<SimHelperGui> _simHelperGui;
-    
+    std::unique_ptr<SimHelperGui>  _simHelperGui;
+
     //camera stuff:
     SENSCaptureProperties                           _camCharacs;
     std::map<std::string, std::vector<std::string>> _sizesStrings;

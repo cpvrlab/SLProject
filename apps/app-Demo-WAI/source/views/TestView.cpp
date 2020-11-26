@@ -14,17 +14,17 @@
 #define LOG_TESTVIEW_INFO(...) Utils::log("TestView", __VA_ARGS__);
 #define LOG_TESTVIEW_DEBUG(...) Utils::log("TestView", __VA_ARGS__);
 
-TestView::TestView(sm::EventHandler&   eventHandler,
-                   SLInputManager&     inputManager,
-                   const ImGuiEngine&  imGuiEngine,
-                   ErlebAR::Resources& resources,
-                   SENSCamera*         camera,
-                   const DeviceData&   deviceData)
+TestView::TestView(sm::EventHandler&  eventHandler,
+                   SLInputManager&    inputManager,
+                   const ImGuiEngine& imGuiEngine,
+                   ErlebAR::Config&   config,
+                   SENSCamera*        camera,
+                   const DeviceData&  deviceData)
   : SLSceneView(&_scene, deviceData.dpi(), inputManager),
     _gui(
       imGuiEngine,
       eventHandler,
-      resources,
+      config.resources(),
       "TestScene",
       deviceData,
       _featureExtractorFactory.getExtractorIdToNames(),
@@ -123,7 +123,8 @@ bool TestView::update()
         else if (_compassAlignment)
         {
             cv::Mat resultImage;
-            _compassAlignment->update(frame->imgManip, resultImage);
+            // TODO(dgj1): this will not work anymore
+            //_compassAlignment->update(frame->imgManip, resultImage, _calibration->cameraFovHDeg(), 0.0f, 0.0f, 0.0f);
 
             updateCompassAlignmentVisualization(*frame.get(), resultImage);
         }
@@ -158,8 +159,12 @@ void TestView::startCompassAlignment()
         _mode = nullptr;
     }
 
-    cv::Mat templateTest = cv::imread(_dataDir + "erleb-AR/templates/template_test.png", cv::IMREAD_GRAYSCALE);
-    _compassAlignment    = new WAICompassAlignment(templateTest);
+    cv::Mat templateTest          = cv::imread(_dataDir + "erleb-AR/templates/template_test.png", cv::IMREAD_GRAYSCALE);
+    double  templateTestLatitude  = 46.94790;
+    double  templateTestLongitude = 7.44078;
+    double  templateTestAltitude  = 542.3;
+    _compassAlignment             = new WAICompassAlignment();
+    _compassAlignment->setTemplate(templateTest, templateTestLatitude, templateTestLongitude, templateTestAltitude);
 }
 
 void TestView::handleEvents()
@@ -364,7 +369,8 @@ void TestView::handleEvents()
 //ATTENTION: THIS MAPPING IS NOT COMPLETE AND ONLY FULFILLS CURRENT SCENE IMPLEMENTATION
 void TestView::mapErlebARDirNamesToIds(const std::string& location, const std::string& area, ErlebAR::LocationId& locationId, ErlebAR::AreaId& areaId)
 {
-    if (location == "avenches")
+    std::string lcLocation = Utils::toLowerString(location);
+    if (lcLocation == "avenches")
     {
         locationId = ErlebAR::LocationId::AVENCHES;
         if (area == "amphitheaterEntrance" || area == "amphitheater")
@@ -374,16 +380,16 @@ void TestView::mapErlebARDirNamesToIds(const std::string& location, const std::s
         else if (area == "theater-marker" || area == "theater")
             areaId = ErlebAR::AreaId::AVENCHES_THEATER;
     }
-    else if (location == "augst")
+    else if (lcLocation == "augst")
     {
         locationId = ErlebAR::LocationId::AUGST;
         //there is just one model so we just use a random augst id
         if (area == "templeHill-marker")
-            areaId = ErlebAR::AreaId::AUGST_TEMPLE_HILL_MARKER;
+            areaId = ErlebAR::AreaId::AUGST_TEMPLE_HILL;
         else if (area == "templeHillTheaterBottom")
-            areaId = ErlebAR::AreaId::AUGST_TEMPLE_HILL_THEATER_BOTTOM;
+            areaId = ErlebAR::AreaId::AUGST_THEATER_FRONT;
     }
-    else if (location == "bern")
+    else if (lcLocation == "bern")
     {
         locationId = ErlebAR::LocationId::BERN;
         if (area == "milchgaessli")
@@ -393,7 +399,7 @@ void TestView::mapErlebARDirNamesToIds(const std::string& location, const std::s
         else if (area == "bubenbergplatz")
             areaId = ErlebAR::AreaId::BERN_BUBENBERGPLATZ;
     }
-    else if (location == "biel")
+    else if (lcLocation == "biel")
     {
         locationId = ErlebAR::LocationId::BIEL;
         if (area == "bfh")
@@ -483,7 +489,7 @@ void TestView::saveMapBinary(std::string location,
         _voc->loadFromFile(_currentSlamParams.vocabularyFile);
 
         cv::Mat nodeTransform;
-        if (!WAISlamTools::doMarkerMapPreprocessing(constructSlamMarkerDir(slamRootDir, location, area) + marker,
+        if (!WAISlamTools::doMarkerMapPreprocessing(marker,
                                                     nodeTransform,
                                                     0.75f,
                                                     _mode->getKPextractor(),

@@ -10,11 +10,11 @@
 class TutorialView : public SLSceneView
 {
 public:
-    TutorialView(sm::EventHandler&   eventHandler,
-                 SLInputManager&     inputManager,
-                 const ImGuiEngine&  imGuiEngine,
-                 ErlebAR::Resources& resources,
-                 const DeviceData&   deviceData);
+    TutorialView(sm::EventHandler&  eventHandler,
+                 SLInputManager&    inputManager,
+                 const ImGuiEngine& imGuiEngine,
+                 ErlebAR::Config&   config,
+                 const DeviceData&  deviceData);
     bool update();
     //call when view becomes visible
     void show() { _gui.onShow(); }

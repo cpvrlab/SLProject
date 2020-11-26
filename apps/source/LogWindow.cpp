@@ -1,9 +1,11 @@
 #include "LogWindow.h"
 #include <imgui_internal.h>
 
-LogWindow::LogWindow(int screenWidth, int screenHeight)
+LogWindow::LogWindow(int screenWidth, int screenHeight, ImFont* fontHeading, ImFont* fontText)
   : _screenW(screenWidth),
-    _screenH(screenHeight)
+    _screenH(screenHeight),
+    _fontHeading(fontHeading),
+    _fontText(fontText)
 {
     _autoScroll = true;
     clear();
@@ -21,7 +23,7 @@ void LogWindow::post(const std::string& message)
     addLog(message.c_str());
 }
 
-void LogWindow::draw(ImFont* fontText, ImFont* fontHeading, const char* title, bool* p_open)
+void LogWindow::draw(const char* title, bool* p_open)
 {
 
     float framePadding = 0.02f * _screenH;
@@ -29,9 +31,9 @@ void LogWindow::draw(ImFont* fontText, ImFont* fontHeading, const char* title, b
     ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.f);
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(framePadding, framePadding));
     ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(framePadding, framePadding));
-    ImGui::PushStyleVar(ImGuiStyleVar_ScrollbarSize, 2.f * framePadding + fontHeading->FontSize);
+    ImGui::PushStyleVar(ImGuiStyleVar_ScrollbarSize, 2.f * framePadding + _fontHeading->FontSize);
 
-    ImGui::PushFont(fontHeading);
+    ImGui::PushFont(_fontHeading);
     if (!ImGui::Begin(title, p_open))
     {
         ImGui::End();
@@ -41,7 +43,7 @@ void LogWindow::draw(ImFont* fontText, ImFont* fontHeading, const char* title, b
     }
     //pop heading font
     ImGui::PopFont();
-    ImGui::PushFont(fontText);
+    ImGui::PushFont(_fontText);
 
     // Options menu
     if (ImGui::BeginPopup("Options"))

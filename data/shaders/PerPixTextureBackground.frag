@@ -1,6 +1,6 @@
 //#############################################################################
-//  File:      PerVrtTextureBackground.vert
-//  Purpose:   GLSL vertex program for background texture mapping
+//  File:      PerPixTextureBackground.frag
+//  Purpose:   GLSL fragment shader for background texture mapping
 //  Author:    Marcus Hudritsch
 //  Date:      September 2020
 //  Copyright: Marcus Hudritsch
@@ -11,13 +11,18 @@
 precision highp float;
 
 //-----------------------------------------------------------------------------
-layout (location = 0) in vec4  a_position;     // Vertex position attribute
+uniform int         u_camFbWidth;       // framebuffer width
+uniform int         u_camFbHeight;      // framebuffer height
+uniform sampler2D   u_matTexture0;      // Color map
 
-uniform mat4    u_mvpMatrix;    // = projection * modelView
+in      vec2        v_P_SS;             // vertex position in screen space
+
+out     vec4        o_fragColor;        // output fragment color
 //-----------------------------------------------------------------------------
 void main()
 {
-    // Set the transformes vertex position   
-    gl_Position = u_mvpMatrix * a_position;
+    vec2 texCoord = vec2(gl_FragCoord.x/float(u_camFbWidth),
+                         gl_FragCoord.y/float(u_camFbHeight));
+    o_fragColor = texture(u_matTexture0, texCoord);
 }
 //-----------------------------------------------------------------------------

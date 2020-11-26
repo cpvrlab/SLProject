@@ -12,7 +12,7 @@ void SENSARCore::configure(int  targetWidth,
 {
     _config.targetWidth        = targetWidth;
     _config.targetHeight       = targetHeight;
-    _config.manipWidth         = targetWidth;
+    _config.manipWidth         = manipWidth;
     _config.manipHeight        = manipHeight;
     _config.convertManipToGray = convertManipToGray;
 }

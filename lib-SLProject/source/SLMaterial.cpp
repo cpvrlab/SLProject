@@ -279,7 +279,7 @@ void SLMaterial::activate(SLCamera* cam, SLVLight* lights)
     {
         bool hasNrm = _textures.size() > 1 && _textures[1]->texType() == TT_normal;
         bool hasAO  = _textures.size() > 2 && _textures[2]->texType() == TT_ambientOcclusion;
-        bool hasSM  = lights->size() > 0 && lights->at(0)->createsShadows();
+        bool hasSM  = !lights->empty() && lights->at(0)->createsShadows();
 
         if (!_textures.empty())
         {
@@ -298,7 +298,9 @@ void SLMaterial::activate(SLCamera* cam, SLVLight* lights)
         }
         else
         {
-            if (hasSM)
+            if (hasSM && hasAO)
+                program(SLGLDefaultProgPerPixBlinnSMAO::instance());
+            else if (hasSM)
                 program(SLGLDefaultProgPerPixBlinnSM::instance());
             else
                 program(SLGLDefaultProgPerVrtBlinn::instance());

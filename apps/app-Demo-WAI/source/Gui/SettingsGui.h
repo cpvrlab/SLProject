@@ -15,12 +15,12 @@ class SettingsGui : public ImGuiWrapper
   , private sm::EventSender
 {
 public:
-    SettingsGui(const ImGuiEngine&  imGuiEngine,
-                sm::EventHandler&   eventHandler,
-                ErlebAR::Resources& resources,
-                int                 dotsPerInch,
-                int                 screenWidthPix,
-                int                 screenHeightPix);
+    SettingsGui(const ImGuiEngine& imGuiEngine,
+                sm::EventHandler&  eventHandler,
+                ErlebAR::Config&   config,
+                int                dotsPerInch,
+                int                screenWidthPix,
+                int                screenHeightPix);
     ~SettingsGui();
 
     void build(SLScene* s, SLSceneView* sv) override;
@@ -49,6 +49,7 @@ private:
                                  "Italiano"};
 
     ErlebAR::Resources& _resources;
+    ErlebAR::Config&    _config;
 
     HighResTimer _hiddenTimer;
     int          _hiddenNumClicks    = 0;

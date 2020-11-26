@@ -65,7 +65,7 @@ SLCamera::SLCamera(const SLstring& name)
     _stereoEyeSeparation = _focalDist / 30.0f;
 
     _background.colors(SLCol4f(0.6f, 0.6f, 0.6f), SLCol4f(0.3f, 0.3f, 0.3f));
-    
+
     _enucorrRenu.identity();
 }
 //-----------------------------------------------------------------------------
@@ -685,7 +685,7 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
         float f = 1.f;
         //finger x-y-movement expressed in enu frame
         SLVec3f enuOffsetPix;
-        
+
         if (!_devRot)
         {
             SL_WARN_MSG("SLCamera: _devRot is invalid");
@@ -712,10 +712,10 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
             this rotation is what we get from the device rotation sensor api.*/
             SLMat3f enuRs;
             enuRs.setMatrix(_devRot->rotationAveraged());
-            
+
             //define camera to enu rotation matrix
             SLMat3f enuRc = enuRs * sRc;
-            
+
             //Calculate and apply correction from finger x-y-rotation
             {
                 /* 1. Estimate horizon in enu-frame: intersection between camera x-y-plane defined
@@ -754,17 +754,17 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
 
                 if (_devRot->offsetMode() == OM_fingerXY)
                 {
-                    float yawOffsetRAD   = atanf((float)enuOffsetPix.x / f);
-                    float pitchOffsetRAD = atanf((float)enuOffsetPix.y / f);
+                    float   yawOffsetRAD   = atanf((float)enuOffsetPix.x / f);
+                    float   pitchOffsetRAD = atanf((float)enuOffsetPix.y / f);
                     SLMat3f rotVertical(yawOffsetRAD * RAD2DEG, SLVec3f(0, 0, 1));
                     SLMat3f rotHorizon(pitchOffsetRAD * RAD2DEG, enuHorizon.x, enuHorizon.y, enuHorizon.z);
 
                     //we have to right multiply new rotation because new rotations are estimated w.r.t. enu coordinate frame
                     _enucorrRenu = _enucorrRenu * rotHorizon * rotVertical;
                 }
-                else if(_devRot->offsetMode() == OM_fingerX || _devRot->offsetMode() == OM_fingerXRotYTrans)
+                else if (_devRot->offsetMode() == OM_fingerX || _devRot->offsetMode() == OM_fingerXRotYTrans)
                 {
-                    float yawOffsetRAD   = atanf((float)enuOffsetPix.x / f);
+                    float   yawOffsetRAD = atanf((float)enuOffsetPix.x / f);
                     SLMat3f rotVertical(yawOffsetRAD * RAD2DEG, SLVec3f(0, 0, 1));
 
                     //we have to right multiply new rotation because new rotations are estimated w.r.t. enu coordinate frame
@@ -787,7 +787,6 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
             needUpdate();
         }
 
-
         //The device location sensor (GPS) is turned on and the scene has a global reference position
         if (_devLoc->isUsed() && _devLoc->hasOrigin())
         {
@@ -798,25 +797,24 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
             if (wtc.length() > _devLoc->locMaxDistanceM())
                 wtc = _devLoc->defaultENU() - _devLoc->originENU();
 
-
             // Set the camera position
             SLVec3f wtc_f((SLfloat)wtc.x, (SLfloat)wtc.y, (SLfloat)wtc.z);
             _om.setTranslation(wtc_f);
             needUpdate();
         }
-        
+
         //Calculate and apply finger y-translation
-        if(_devRot->offsetMode() == OM_fingerYTrans || _devRot->offsetMode() == OM_fingerXRotYTrans )
+        if (_devRot->offsetMode() == OM_fingerYTrans || _devRot->offsetMode() == OM_fingerXRotYTrans)
         {
             _enucorrTRenu += enuOffsetPix.y / f * _distanceToObjectM;
-            
+
             // Set the camera position
             const SLVec3f& wtc = _om.translation();
-            SLVec3f wtc_f((SLfloat)wtc.x, (SLfloat)wtc.y + _enucorrTRenu, (SLfloat)wtc.z);
+            SLVec3f        wtc_f((SLfloat)wtc.x, (SLfloat)wtc.y + _enucorrTRenu, (SLfloat)wtc.z);
             _om.setTranslation(wtc_f);
             needUpdate();
         }
-        
+
         //clear stored finger rotation
         _xOffsetPix = 0;
         _yOffsetPix = 0;
@@ -1098,7 +1096,6 @@ SLbool SLCamera::onMouseMove(const SLMouseButton button,
                 _devRot->offsetMode() == OM_fingerYTrans ||
                 _devRot->offsetMode() == OM_fingerXRotYTrans)
             {
-                // Mouse or touch move in percent
                 _yOffsetPix += (y - _oldTouchPos1.y);
                 _xOffsetPix += (x - _oldTouchPos1.x);
             }

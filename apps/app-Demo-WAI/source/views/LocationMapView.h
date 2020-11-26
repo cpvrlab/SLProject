@@ -12,13 +12,13 @@
 class LocationMapView : public SLSceneView
 {
 public:
-    LocationMapView(sm::EventHandler&   eventHandler,
-                    SLInputManager&     inputManager,
-                    const ImGuiEngine&  imGuiEngine,
-                    ErlebAR::Resources& resources,
-                    const DeviceData&   deviceData,
-                    SENSGps*            gps,
-                    SENSOrientation*    orientation);
+    LocationMapView(sm::EventHandler&  eventHandler,
+                    SLInputManager&    inputManager,
+                    const ImGuiEngine& imGuiEngine,
+                    ErlebAR::Config&   config,
+                    const DeviceData&  deviceData,
+                    SENSGps*           gps,
+                    SENSOrientation*   orientation);
     bool update();
     //call when view becomes visible
     void onShow() { _gui.onShow(); }

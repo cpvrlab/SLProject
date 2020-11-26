@@ -1,9 +1,10 @@
 //#############################################################################
-//  File:      PerPixBlinnTexNrmAOSM.frag
-//  Purpose:   GLSL normal bump mapping with ambient occlusion and shadow
-//             mapping for max. 4 lights.
+//  File:      PerPixBlinnSM.frag
+//  Purpose:   GLSL pixel shader for per pixel Blinn-Phong lighting with 
+//             shadow mapping for max. 4 lights and ambient occlusion
+//             by Joey de Vries.
 //  Author:    Marcus Hudritsch
-//  Date:      October 2020
+//  Date:      July 2014
 //  Copyright: Marcus Hudritsch
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
@@ -17,15 +18,12 @@ precision highp float;
 //-----------------------------------------------------------------------------
 in      vec3        v_P_VS;     // Interpol. point of illum. in view space (VS)
 in      vec3        v_P_WS;     // Interpol. point of illum. in world space (WS)
-in      vec2        v_uv1;      // Texture coordiante 1 varying for diffuse color
+in      vec3        v_N_VS;     // Interpol. normal at v_P_VS in view space
 in      vec2        v_uv2;      // Texture coordiante 2 varying for AO
-in      vec3        v_eyeDirTS;                 // Vector to the eye in tangent space
-in      vec3        v_lightDirTS[NUM_LIGHTS];   // Vector to light 0 in tangent space
-in      vec3        v_spotDirTS[NUM_LIGHTS];    // Spot direction in tangent space
 
 uniform bool        u_lightIsOn[NUM_LIGHTS];                // flag if light is on
-uniform vec4        u_lightPosVS[NUM_LIGHTS];               // position of light in view space
 uniform vec4        u_lightPosWS[NUM_LIGHTS];               // position of light in world space
+uniform vec4        u_lightPosVS[NUM_LIGHTS];               // position of light in view space
 uniform vec4        u_lightAmbi[NUM_LIGHTS];                // ambient light intensity (Ia)
 uniform vec4        u_lightDiff[NUM_LIGHTS];                // diffuse light intensity (Id)
 uniform vec4        u_lightSpec[NUM_LIGHTS];                // specular light intensity (Is)
@@ -35,8 +33,6 @@ uniform float       u_lightSpotCos[NUM_LIGHTS];             // cosine of spot cu
 uniform float       u_lightSpotExp[NUM_LIGHTS];             // spot exponent
 uniform vec3        u_lightAtt[NUM_LIGHTS];                 // attenuation (const,linear,quadr.)
 uniform bool        u_lightDoAtt[NUM_LIGHTS];               // flag if att. must be calc.
-uniform vec4        u_globalAmbi;                           // Global ambient scene color
-uniform float       u_oneOverGamma;                         // 1.0f / Gamma correction value
 uniform mat4        u_lightSpace[NUM_LIGHTS * 6];           // projection matrices for lights
 uniform bool        u_lightCreatesShadows[NUM_LIGHTS];      // flag if light creates shadows
 uniform bool        u_lightDoSmoothShadows[NUM_LIGHTS];     // flag if percentage-closer filtering is enabled
@@ -44,14 +40,14 @@ uniform int         u_lightSmoothShadowLevel[NUM_LIGHTS];   // radius of area to
 uniform float       u_lightShadowMinBias[NUM_LIGHTS];       // min. shadow bias value at 0° to N
 uniform float       u_lightShadowMaxBias[NUM_LIGHTS];       // min. shadow bias value at 90° to N
 
+uniform vec4        u_globalAmbi;       // Global ambient scene color
+uniform float       u_oneOverGamma;     // 1.0f / Gamma correction
 uniform vec4        u_matAmbi;          // ambient color reflection coefficient (ka)
 uniform vec4        u_matDiff;          // diffuse color reflection coefficient (kd)
 uniform vec4        u_matSpec;          // specular color reflection coefficient (ks)
 uniform vec4        u_matEmis;          // emissive color for self-shining materials
 uniform float       u_matShin;          // shininess exponent
 uniform bool        u_matGetsShadows;   // flag if material receives shadows
-uniform sampler2D   u_matTexture0;      // diffuse color map
-uniform sampler2D   u_matTexture1;      // normal bump map
 uniform sampler2D   u_matTexture2;      // ambient occlusion map
 
 uniform int         u_camProjection;    // type of stereo
@@ -71,7 +67,7 @@ uniform sampler2D   u_shadowMap_3;      // shadow map for light 3
 
 out     vec4        o_fragColor;        // output fragment color
 //-----------------------------------------------------------------------------
-// SLGLShader::preprocessPragmas replaces the include pragma by the file
+//! SLGLShader::preprocessPragmas replaces the include pragma by the file
 #pragma include "lightingBlinnPhong.glsl"
 #pragma include "fogBlend.glsl"
 #pragma include "doStereoSeparation.glsl"
@@ -83,9 +79,8 @@ void main()
     vec4 Id = vec4(0.0); // Accumulated diffuse light intensity at v_P_VS
     vec4 Is = vec4(0.0); // Accumulated specular light intensity at v_P_VS
 
-    // Get normal from normal map, move from [0,1] to [-1, 1] range & normalize
-    vec3 N = normalize(texture(u_matTexture1, v_uv1).rgb * 2.0 - 1.0);
-    vec3 E = normalize(v_eyeDirTS);   // normalized eye direction
+    vec3 N = normalize(v_N_VS);  // A input normal has not anymore unit length
+    vec3 E = normalize(-v_P_VS); // Vector from p to the eye
 
     for (int i = 0; i < NUM_LIGHTS; ++i)
     {
@@ -94,7 +89,7 @@ void main()
             if (u_lightPosVS[i].w == 0.0)
             {
                 // We use the spot light direction as the light direction vector
-                vec3 S = normalize(-v_spotDirTS[i]);
+                vec3 S = normalize(-u_lightSpotDir[i].xyz);
 
                 // Test if the current fragment is in shadow
                 float shadow = u_matGetsShadows ? shadowTest4Lights(i, N, S) : 0.0;
@@ -103,9 +98,9 @@ void main()
             }
             else
             {
-                vec3 S = normalize(v_spotDirTS[i]); // normalized spot direction in TS
-                vec3 L = v_lightDirTS[i]; // Vector from v_P to light in TS
-
+                vec3 S = u_lightSpotDir[i]; // normalized spot direction in VS
+                vec3 L = u_lightPosVS[i].xyz - v_P_VS; // Vector from v_P to light in VS
+                
                 // Test if the current fragment is in shadow
                 float shadow = u_matGetsShadows ? shadowTest4Lights(i, N, L) : 0.0;
 
@@ -118,27 +113,24 @@ void main()
     float AO = texture(u_matTexture2, v_uv2).r;
 
     // Sum up all the reflected color components
-    o_fragColor =  u_matEmis +
-                   u_globalAmbi +
-                   Ia * u_matAmbi * AO +
-                   Id * u_matDiff;
+    o_fragColor =  u_globalAmbi +
+                    u_matEmis +
+                    Ia * u_matAmbi * AO +
+                    Id * u_matDiff +
+                    Is * u_matSpec;
 
-    // Componentwise multiply w. texture color
-    o_fragColor *= texture(u_matTexture0, v_uv1);
+    // For correct alpha blending overwrite alpha component
+    o_fragColor.a = u_matDiff.a;
 
-    // add finally the specular RGB-part
-    vec4 specColor = Is * u_matSpec;
-    o_fragColor.rgb += specColor.rgb;
+    // Apply fog by blending over distance
+    if (u_camFogIsOn)
+        o_fragColor = fogBlend(v_P_VS, o_fragColor);
 
     // Apply gamma correction
     o_fragColor.rgb = pow(o_fragColor.rgb, vec3(u_oneOverGamma));
 
-    // Apply fog by blending over distance
-    if (u_camFogIsOn)
-    o_fragColor = fogBlend(v_P_VS, o_fragColor);
-
     // Apply stereo eye separation
     if (u_camProjection > 1)
-    doStereoSeparation();
+        doStereoSeparation();
 }
 //-----------------------------------------------------------------------------

@@ -89,7 +89,7 @@ public:
     SLCol4f ambient() override { return _ambientColor * _ambientPower; }
     SLCol4f diffuse() override { return _diffuseColor * _diffusePower; }
     SLCol4f specular() override { return _specularColor * _specularPower; }
-    SLVec4f positionWS() const override { return updateAndGetWM().translation(); }
+    SLVec4f positionWS() const override { return SLVec4f(updateAndGetWM().translation()); }
     SLVec3f spotDirWS() override
     {
         return SLVec3f(_wm.m(8),
