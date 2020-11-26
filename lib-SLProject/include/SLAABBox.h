@@ -69,7 +69,7 @@ public:
                         SLbool         isRoot,
                         const SLMat4f& nodeWM);
     void   mergeWS(SLAABBox& bb);
-    void   drawWS(SLCol4f color);
+    void   drawWS(const SLCol4f& color);
     void   drawAxisWS();
     void   drawBoneWS();
     void   setCenterAndRadius();

@@ -44,15 +44,15 @@ void drawXZGrid(const SLMat4f& mat)
         gridLineNum += gridLineNum % 2 - 1; // make sure grid is odd
         SLint   gridHalf = gridLineNum / 2;
         SLfloat gridSize = 2;
-        SLfloat gridMax  = (SLfloat)gridHalf / (gridLineNum - 1) * gridSize;
+        SLfloat gridMax  = (SLfloat)gridHalf / (float)(gridLineNum - 1) * gridSize;
         SLfloat gridMin  = -gridMax;
 
         // x
-        gridVert.push_back(SLVec3f(gridMin, 0, 0));
-        gridVert.push_back(SLVec3f(gridMax, 0, 0));
+        gridVert.emplace_back(gridMin, 0, 0);
+        gridVert.emplace_back(gridMax, 0, 0);
         // z
-        gridVert.push_back(SLVec3f(0, 0, gridMin));
-        gridVert.push_back(SLVec3f(0, 0, gridMax));
+        gridVert.emplace_back(0, 0, gridMin);
+        gridVert.emplace_back(0, 0, gridMax);
 
         indexX       = 0;
         indexZ       = 2;
@@ -71,11 +71,11 @@ void drawXZGrid(const SLMat4f& mat)
             if (offset != 0)
             {
                 // horizontal lines
-                gridVert.push_back(SLVec3f(gridMin, 0, offset));
-                gridVert.push_back(SLVec3f(gridMax, 0, offset));
+                gridVert.emplace_back(gridMin, 0, offset);
+                gridVert.emplace_back(gridMax, 0, offset);
                 // vertical lines
-                gridVert.push_back(SLVec3f(offset, 0, gridMin));
-                gridVert.push_back(SLVec3f(offset, 0, gridMax));
+                gridVert.emplace_back(offset, 0, gridMin);
+                gridVert.emplace_back(offset, 0, gridMax);
             }
         }
         grid.generateVertexPos(&gridVert);
@@ -86,9 +86,9 @@ void drawXZGrid(const SLMat4f& mat)
     state->pushModelViewMatrix();
     state->modelViewMatrix = mat;
 
-    grid.drawArrayAsColored(PT_lines, SLCol3f::RED, 1.0f, indexX, numXVerts);
-    grid.drawArrayAsColored(PT_lines, SLCol3f::BLUE, 1.0f, indexZ, numZVerts);
-    grid.drawArrayAsColored(PT_lines, SLCol3f(0.45f, 0.45f, 0.45f), 0.8f, indexGrid, numGridVerts);
+    grid.drawArrayAsColored(PT_lines, SLCol4f::RED, 1.0f, indexX, numXVerts);
+    grid.drawArrayAsColored(PT_lines, SLCol4f::BLUE, 1.0f, indexZ, numZVerts);
+    grid.drawArrayAsColored(PT_lines, SLCol4f(0.45f, 0.45f, 0.45f), 0.8f, indexGrid, numGridVerts);
 
     state->popModelViewMatrix();
 }
@@ -122,9 +122,9 @@ AppNodeSceneView::~AppNodeSceneView()
 //-----------------------------------------------------------------------------
 void AppNodeSceneView::postSceneLoad()
 {
-    SLAssetManager* am = dynamic_cast<SLAssetManager*>(_s);
-    SLMaterial* rMat = new SLMaterial(am, "rMat", SLCol4f(1.0f, 0.7f, 0.7f));
-    SLMaterial* gMat = new SLMaterial(am, "gMat", SLCol4f(0.7f, 1.0f, 0.7f));
+    SLAssetManager* am   = dynamic_cast<SLAssetManager*>(_s);
+    SLMaterial*     rMat = new SLMaterial(am, "rMat", SLCol4f(1.0f, 0.7f, 0.7f));
+    SLMaterial*     gMat = new SLMaterial(am, "gMat", SLCol4f(0.7f, 1.0f, 0.7f));
 
     // build parent box
     _moveBox = new SLNode("Parent");
@@ -192,7 +192,7 @@ void AppNodeSceneView::reset()
     _moveBoxChild->resetToInitialState();
 }
 //-----------------------------------------------------------------------------
-void AppNodeSceneView::translateObject(SLVec3f val)
+void AppNodeSceneView::translateObject(SLVec3f val) const
 {
     if (_continuousInput)
         val *= _deltaTime;
@@ -202,7 +202,7 @@ void AppNodeSceneView::translateObject(SLVec3f val)
     _curObject->translate(val, _curSpace);
 }
 //-----------------------------------------------------------------------------
-void AppNodeSceneView::rotateObject(SLVec3f val)
+void AppNodeSceneView::rotateObject(const SLVec3f& val) const
 {
     SLfloat angle = 22.5;
     if (_continuousInput)
@@ -211,7 +211,7 @@ void AppNodeSceneView::rotateObject(SLVec3f val)
     _curObject->rotate(angle, val, _curSpace);
 }
 //-----------------------------------------------------------------------------
-void AppNodeSceneView::rotateObjectAroundPivot(SLVec3f val)
+void AppNodeSceneView::rotateObjectAroundPivot(SLVec3f val) const
 {
     SLfloat angle = 22.5;
     if (_continuousInput)

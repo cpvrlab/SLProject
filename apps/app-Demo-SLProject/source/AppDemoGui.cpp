@@ -1374,11 +1374,11 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
 
                 if (ImGui::BeginMenu("Suzanne"))
                 {
-                    if (ImGui::MenuItem("w. pixel lighting (PL)", nullptr, sid == SID_SuzannePerPixBlinn))
+                    if (ImGui::MenuItem("w. per Pixel Lighting (PL)", nullptr, sid == SID_SuzannePerPixBlinn))
                         s->onLoad(s, sv, SID_SuzannePerPixBlinn);
-                    if (ImGui::MenuItem("w. PL and shadow mapping (MP)", nullptr, sid == SID_SuzannePerPixBlinnSM))
+                    if (ImGui::MenuItem("w. PL and Shadow Mapping (SM)", nullptr, sid == SID_SuzannePerPixBlinnSM))
                         s->onLoad(s, sv, SID_SuzannePerPixBlinnSM);
-                    if (ImGui::MenuItem("w. PL, MP and Ambient Occlusion (AO)", nullptr, sid == SID_SuzannePerPixBlinnSMAO))
+                    if (ImGui::MenuItem("w. PL, SM and Ambient Occlusion (AO)", nullptr, sid == SID_SuzannePerPixBlinnSMAO))
                         s->onLoad(s, sv, SID_SuzannePerPixBlinnSMAO);
                     if (ImGui::MenuItem("w. PL and Texture Mapping (TM)", nullptr, sid == SID_SuzannePerPixBlinnTex))
                         s->onLoad(s, sv, SID_SuzannePerPixBlinnTex);
@@ -2851,11 +2851,11 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
 
                         db = singleNode->drawBit(SL_DB_WITHEDGES);
                         if (ImGui::Checkbox("Show with hard edges", &db))
-                            singleNode->drawBits()->set(SL_DB_ONLYEDGES, db);
+                            singleNode->drawBits()->set(SL_DB_WITHEDGES, db);
 
                         db = singleNode->drawBit(SL_DB_ONLYEDGES);
                         if (ImGui::Checkbox("Show only hard edges", &db))
-                            singleNode->drawBits()->set(SL_DB_WITHEDGES, db);
+                            singleNode->drawBits()->set(SL_DB_ONLYEDGES, db);
 
                         db = singleNode->drawBit(SL_DB_NORMALS);
                         if (ImGui::Checkbox("Show normals", &db))
@@ -3236,7 +3236,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
 
                             SLbool receivesShadows = m->getsShadows();
                             if (ImGui::Checkbox("Receives shadows", &receivesShadows))
-                                m->receivesShadows(receivesShadows);
+                                m->getsShadows(receivesShadows);
 
                             ImGui::PopItemWidth();
                             ImGui::TreePop();

@@ -35,16 +35,17 @@ class SLVec4
             struct {T comp[4];};
         };
 
-                    SLVec4      (void)                  {x=0;y=0;z=0;w=0;}
+                    SLVec4      ()                      {x=0;y=0;z=0;w=0;}
+           explicit SLVec4      (const T V)             {x=V;    y=V;    z=V;    w=1;}
                     SLVec4      (const T X,
                                  const T Y,
                                  const T Z=0,
                                  const T W=1)           {x=X;    y=Y;    z=Z;    w=W;}
-                    SLVec4      (const T v[4])          {x=v[0]; y=v[1]; z=v[2]; w=v[3];}
-                    SLVec4      (const SLVec2<T>& v)    {x=v.x;  y=v.y;  z=0;    w=1;}
-                    SLVec4      (const SLVec3<T>& v)    {x=v.x;  y=v.y;  z=v.z;  w=1;}
+           explicit SLVec4      (const T v[4])          {x=v[0]; y=v[1]; z=v[2]; w=v[3];}
+           explicit SLVec4      (const SLVec2<T>& v)    {x=v.x;  y=v.y;  z=0;    w=1;}
+           explicit SLVec4      (const SLVec3<T>& v)    {x=v.x;  y=v.y;  z=v.z;  w=1;}
                     SLVec4      (const SLVec4<T>& v)    {x=v.x;  y=v.y;  z=v.z;  w=v.w;}
-                    SLVec4      (const SLstring& fourFloatsWithDelimiter) {fromString(fourFloatsWithDelimiter);}
+           explicit SLVec4      (const SLstring& fourFloatsWithDelimiter) {fromString(fourFloatsWithDelimiter);}
 
             void    set         (const T X,
                                  const T Y,
@@ -71,10 +72,10 @@ class SLVec4
     // Operators with temp. allocation
     inline SLVec4   operator +  (const SLVec4& v) const {return SLVec4(x+v.x, y+v.y, z+v.z, w+v.w);}
     inline SLVec4   operator -  (const SLVec4& v) const {return SLVec4(x-v.x, y-v.y, z-v.z, w-v.w);}
-    inline SLVec4   operator -  (void) const            {return SLVec4(-x, -y, -z, -w);}
+    inline SLVec4   operator -  ()                const {return SLVec4(-x, -y, -z, -w);}
     inline T        operator *  (const SLVec4& v) const {return x*v.x+y*v.y+z*v.z+w*v.w;}
-    inline SLVec4   operator *  (const T s) const       {return SLVec4(x*s, y*s, z*s);}
-    inline SLVec4   operator /  (const T s) const       {return SLVec4(x/s, y/s, z/s, w/s);}
+    inline SLVec4   operator *  (const T s)       const {return SLVec4(x*s, y*s, z*s);}
+    inline SLVec4   operator /  (const T s)       const {return SLVec4(x/s, y/s, z/s, w/s);}
     inline SLVec4   operator &  (const SLVec4& v) const {return SLVec4(x*v.x, y*v.y, z*v.z, w*v.w);}
     friend inline 
     SLVec4   operator *  (T s, const SLVec4& v)  {return SLVec4(v.x*s, v.y*s, v.z*s);}
@@ -122,12 +123,12 @@ class SLVec4
                                                          z = (z>max)?max : (z<min)?min : z;
                                                          w = 1;}
     inline T        diff        (const SLVec4& v)       {return Utils::abs(x-v.x) +
-                                                                    Utils::abs(y-v.y) +
-                                                                    Utils::abs(z-v.z) +
-                                                                    Utils::abs(w-v.w);}
+                                                                Utils::abs(y-v.y) +
+                                                                Utils::abs(z-v.z) +
+                                                                Utils::abs(w-v.w);}
     inline T        diffRGB     (const SLVec4& v)       {return Utils::abs(x-v.x) +
-                                                                    Utils::abs(y-v.y) +
-                                                                    Utils::abs(z-v.z);}
+                                                                Utils::abs(y-v.y) +
+                                                                Utils::abs(z-v.z);}
     inline void     mix         (const SLVec4& a,
                                  const SLVec4& b,
                                  const T factor_b)      {T factor_a = 1-factor_b;
@@ -178,7 +179,7 @@ class SLVec4
              }
 
             //! Conversion from string
-            void    fromString  (SLstring fourFloatsWithDelimiter, SLchar delimiter=',')
+            void    fromString  (const SLstring& fourFloatsWithDelimiter, SLchar delimiter=',')
             {   SLVstring components;
                 Utils::splitString(fourFloatsWithDelimiter, delimiter, components);
                 float f[4] = {0.0, 0.0f, 0.0f, 1.0f};

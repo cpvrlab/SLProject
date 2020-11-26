@@ -167,7 +167,7 @@ void createScene(Node& root)
                 SLstring nodeName = "earth-" + std::to_string(n);
 
                 Mesh* mesh = new Sphere("sphere-mesh", 0.3f, res, res);
-                color.hsva2rgba(SLVec3f(Utils::TWOPI * iMat / NUM_MAT, 1.0f, 1.0f));
+                color.hsva2rgba(SLVec4f(Utils::TWOPI * iMat / NUM_MAT, 1.0f, 1.0f));
                 mesh->setColor(color);
                 mesh->mat  = materialList[iMat];
                 Node* node = new Node("sphere-node");

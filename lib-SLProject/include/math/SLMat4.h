@@ -17,11 +17,9 @@
 #include <SLMat3.h>
 #include <SLVec3.h>
 #include <SLVec4.h>
-#include <assert.h>
+#include <cassert>
 #include <Shoemake/Decompose.h>
 #include <Shoemake/EulerAngles.h>
-
-extern void decomp_affine(HMatrix A, AffineParts* parts);
 
 //-----------------------------------------------------------------------------
 //! 4x4 matrix template class
@@ -58,19 +56,19 @@ class SLMat4
                     SLMat4      (const SLMat4& A);      //!< Sets mat by other SLMat4
                     SLMat4      (const SLMat3f& A);     //!< Sets mat by other SLMat3
                     SLMat4      (const T* M);           //!< Sets mat by array
-                    SLMat4      (const T M0, const T M4, const T M8,  const T M12,
-                                 const T M1, const T M5, const T M9,  const T M13,
-                                 const T M2, const T M6, const T M10, const T M14,
-                                 const T M3, const T M7, const T M11, const T M15);
-                    SLMat4      (const T tx,               
-                                 const T ty,
-                                 const T tz);           //!< Sets translate matrix
-                    SLMat4      (const T degAng,           
-                                 const T axis_x,
-                                 const T axis_y,
-                                 const T axis_z);       //!< Sets rotation matrix
-                    SLMat4      (const T scale_xyz);    //!< Sets scaling matrix
-                    SLMat4      (const SLVec3<T>& translationVec); //!< Sets translate matrix
+                    SLMat4      (T M0, T M4, T M8,  T M12,
+                                 T M1, T M5, T M9,  T M13,
+                                 T M2, T M6, T M10, T M14,
+                                 T M3, T M7, T M11, T M15);
+                    SLMat4      (T tx,
+                                 T ty,
+                                 T tz);           //!< Sets translate matrix
+           explicit SLMat4      (T degAng,
+                                 T axis_x,
+                                 T axis_y,
+                                 T axis_z);       //!< Sets rotation matrix
+           explicit SLMat4      (T scale_xyz);    //!< Sets scaling matrix
+           explicit SLMat4      (const SLVec3<T>& translationVec); //!< Sets translate matrix
                     SLMat4      (const SLVec3<T>& fromUnitVec,
                                  const SLVec3<T>& toUnitVec); //!< Sets rotation matrix
                     SLMat4      (const SLVec3<T>& translation,
@@ -107,110 +105,114 @@ class SLMat4
         SLMat4<T>   operator+   (const SLMat4& A) const;   //!< matrix-matrix addition
         SLVec3<T>   operator*   (const SLVec3<T>& v) const;//!< SLVec3 mult w. persp div
         SLVec4<T>   operator*   (const SLVec4<T>& v) const;//!< SLVec4 mult
-        SLMat4<T>   operator*   (const T a) const;         //!< scalar mult
-        SLMat4<T>&  operator*=  (const T a);               //!< scalar mult
-        SLMat4<T>   operator/   (const T a) const;         //!< scalar division
-        SLMat4<T>&  operator/=  (const T a);               //!< scalar division
+        SLMat4<T>   operator*   (T a) const;               //!< scalar mult
+        SLMat4<T>&  operator*=  (T a);                     //!< scalar mult
+        SLMat4<T>   operator/   (T a) const;               //!< scalar division
+        SLMat4<T>&  operator/=  (T a);                     //!< scalar division
         T&          operator    ()(int row, int col)      {return _m[4*col+row];}
   const T&          operator    ()(int row, int col)const {return _m[4*col+row];}
 
         void        multiply    (const SLMat4& A);
-        SLVec3<T>   multVec     (const SLVec3<T> v) const;
-        SLVec4<T>   multVec     (const SLVec4<T> v) const;
+        SLVec3<T>   multVec     (SLVec3<T> v) const;
+        SLVec4<T>   multVec     (SLVec4<T> v) const;
         void        add         (const SLMat4& A);
-        void        translate   (const T tx, const T ty, const T tz=0);
+        void        translate   (T tx, T ty, T tz=0);
         void        translate   (const SLVec2<T>& t);
         void        translate   (const SLVec3<T>& t);
-        void        rotate      (const T degAng, 
-                                const T axisx, const T axisy, const T axisz);
-        void        rotate      (const T degAng, 
+        void        rotate      (T degAng,
+                                 T axisx, T axisy, T axisz);
+        void        rotate      (T degAng,
                                  const SLVec3<T>& axis);
         void        rotate      (const SLVec3<T>& fromUnitVec,
                                  const SLVec3<T>& toUnitVec);
-        void        scale       (const T sxyz);
-        void        scale       (const T sx, const T sy, const T sz);
+        void        scale       (T sxyz);
+        void        scale       (T sx, T sy, T sz);
         void        scale       (const SLVec3<T>& sxyz);
          
-        // Defines a view frustum projection matrix equivalent to glFrustum
-        void        frustum     (const T l, const T r, const T b, const T t, 
-                                 const T n, const T f);
-        // Defines a perspective projection matrix with a field of view angle 
-        void        perspective (const T fov, const T aspect, 
-                                 const T n, const T f);
+        //! Defines a view frustum projection matrix equivalent to glFrustum
+        void        frustum     (T l, T r, T b, T t, T n, T f);
+
+        //! Defines a perspective projection matrix with a field of view angle
+        void        perspective (T fov, T aspect, T n, T f);
+
         //! Defines a projection matrix for a calibrated camera (from intrinsics matrix)
         //! Attention: The principle point has to be centered
-        void        perspectiveCenteredPP(const T w, const T h, const T fx, const T fy,
-                                 const T cx, const T cy, const T n, const T f);
+        void        perspectiveCenteredPP(T w, T h, T fx, T fy, T cx, T cy, T n, T f);
 
-        // Defines a orthographic projection matrix with a field of view angle 
-        void        ortho       (const T l, const T r, const T b, const T t, 
-                                 const T n, const T f);
-        // Defines the viewport matrix
-        void        viewport    (const T x, const T y, const T ww, const T wh, 
-                                 const T n=0.0f, const T f=1.0f);
-        // Defines the a view matrix as the corresponding gluLookAt function
-        void        lookAt      (const T EyeX, const T EyeY, const T EyeZ,
-                                 const T AtX=0,const T AtY=0,const T AtZ=0,
-                                 const T UpX=0,const T UpY=0,const T UpZ=0);
+        //! Defines a orthographic projection matrix with a field of view angle
+        void        ortho       (T l, T r, T b, T t, T n, T f);
+
+        //! Defines the viewport matrix
+        void        viewport    (T x, T y, T ww, T wh, T n=0.0f, T f=1.0f);
+
+        //! Defines the a view matrix as the corresponding gluLookAt function
+        void        lookAt      (T EyeX,  T EyeY,  T EyeZ,
+                                 T AtX=0, T AtY=0, T AtZ=0,
+                                 T UpX=0, T UpY=0, T UpZ=0);
+
+        //! Defines the a view matrix as the corresponding gluLookAt function
         void        lookAt      (const SLVec3<T>& Eye, 
                                  const SLVec3<T>& At=SLVec3<T>::ZERO, 
                                  const SLVec3<T>& Up=SLVec3<T>::ZERO);
-        // Reads out of the matrix the look at parameters
+
+        //! Reads out of the matrix the look at parameters
         void        lookAt      (SLVec3<T>* eye, 
                                  SLVec3<T>* at, 
                                  SLVec3<T>* up, 
                                  SLVec3<T>* right) const;
-        // Defines the a model matrix for light positioning
-        void        lightAt     (const T PosX, const T PosY, const T PosZ,
-                                 const T AtX=0,const T AtY=0,const T AtZ=0,
-                                 const T UpX=0,const T UpY=0,const T UpZ=0);
+
+        //! Defines the a model matrix for light positioning
+        void        lightAt     (T PosX,  T PosY,  T PosZ,
+                                 T AtX=0, T AtY=0, T AtZ=0,
+                                 T UpX=0, T UpY=0, T UpZ=0);
+
+        //! Defines the a model matrix for light positioning
         void        lightAt     (const SLVec3<T>& pos, 
                                  const SLVec3<T>& At=SLVec3<T>::ZERO, 
                                  const SLVec3<T>& Up=SLVec3<T>::ZERO);
-        void        posAtUp     (const T PosX,    const T PosY,    const T PosZ,
-                                 const T dirAtX=0,const T dirAtY=0,const T dirAtZ=0,
-                                 const T dirUpX=0,const T dirUpY=0,const T dirUpZ=0);
+        void        posAtUp     (T PosX,     T PosY,     T PosZ,
+                                 T dirAtX=0, T dirAtY=0, T dirAtZ=0,
+                                 T dirUpX=0, T dirUpY=0, T dirUpZ=0);
         void        posAtUp     (const SLVec3<T>& pos, 
                                  const SLVec3<T>& dirAt=SLVec3<T>::ZERO, 
                                  const SLVec3<T>& dirUp=SLVec3<T>::ZERO);
          
          // Returns the axis and translation vectors
-   const SLVec3<T>   translation () const {return SLVec3<T>(_m[12], _m[13], _m[14]);}
-   const SLVec3<T>   axisX       () const {return SLVec3<T>(_m[ 0], _m[ 1], _m[ 2]);}
-   const SLVec3<T>   axisY       () const {return SLVec3<T>(_m[ 4], _m[ 5], _m[ 6]);}
-   const SLVec3<T>   axisZ       () const {return SLVec3<T>(_m[ 8], _m[ 9], _m[10]);}
+         SLVec3<T>   translation () const {return SLVec3<T>(_m[12], _m[13], _m[14]);}
+         SLVec3<T>   axisX       () const {return SLVec3<T>(_m[ 0], _m[ 1], _m[ 2]);}
+         SLVec3<T>   axisY       () const {return SLVec3<T>(_m[ 4], _m[ 5], _m[ 6]);}
+         SLVec3<T>   axisZ       () const {return SLVec3<T>(_m[ 8], _m[ 9], _m[10]);}
 
-         // Sets the translation with or without overwriting the linear submatrix
-         void        translation (const T tx, const T ty, const T tz, 
-                                  const SLbool keepLinear=true);
+         //! Sets the translation with or without overwriting the linear submatrix
+         void        translation (T tx, T ty, T tz,
+                                  SLbool keepLinear=true);
          void        translation (const SLVec3<T>& t, 
-                                  const SLbool keepLinear=true);
-         // Sets the rotation with or without overwriting the translation
-         void        rotation    (const T degAng,
+                                  SLbool keepLinear=true);
+
+         //! Sets the rotation with or without overwriting the translation
+         void        rotation    (T degAng,
                                   const SLVec3<T>& axis,
-                                  const SLbool keepTranslation=true);
-         void        rotation    (const T degAng,
-                                  const T axisx, const T axisy, const T axisz,
-                                  const SLbool keepTranslation=true);
+                                  SLbool keepTranslation=true);
+         void        rotation    (T degAng,
+                                  T axisx, T axisy, T axisz,
+                                  SLbool keepTranslation=true);
          void        rotation    (const SLVec3<T>& fromUnitVec,
                                   const SLVec3<T>& toUnitVec);
-         // Sets the scaling with or without overwriting the translation
-         void        scaling     (const T sxyz, 
-                                  const bool keepTrans=true);
-         void        scaling     (const SLVec3<T>& sxyz, 
-                                  const bool keepTrans=true);
-         void        scaling     (const T sx, const T sy, const T sz,
-                                  const bool keepTranslation=true);
+
+         //! Sets the scaling with or without overwriting the translation
+         void        scaling     (T sxyz, SLbool keepTrans=true);
+         void        scaling     (const SLVec3<T>& sxyz, SLbool keepTrans=true);
+         void        scaling     (T sx, T sy, T sz, SLbool keepTranslation=true);
          
          // Set matrix from euler angles or get euler angles from matrix
-         void        fromEulerAnglesZXZ(const double angle1RAD,
-                                        const double angle2RAD,
-                                        const double angle3RAD,
-                                        const bool keepTranslation=true);
-         void        fromEulerAnglesXYZ(const double angle1RAD,
-                                        const double angle2RAD,
-                                        const double angle3RAD,
-                                        const bool keepTranslation=true);
+         void        fromEulerAnglesZXZ(double angle1RAD,
+                                        double angle2RAD,
+                                        double angle3RAD,
+                                        bool keepTranslation=true);
+         void        fromEulerAnglesXYZ(double angle1RAD,
+                                        double angle2RAD,
+                                        double angle3RAD,
+                                        bool keepTranslation=true);
 
          // Get euler angles from matrix
          void        toEulerAnglesZYX(T& zRotRAD, T& yRotRAD, T& xRotRAD);
@@ -226,9 +228,9 @@ class SLMat4
          T           trace       () const;
 
          // Composing & decomposing
-         void        compose     (const SLVec3f trans, 
-                                  const SLVec3f rotEulerRAD, 
-                                  const SLVec3f scale);
+         void        compose     (SLVec3f trans,
+                                  SLVec3f rotEulerRAD,
+                                  SLVec3f scale);
          void        decompose   (SLVec3f &trans, 
                                   SLVec4f &rotQuat, 
                                   SLVec3f &scale);
@@ -480,7 +482,7 @@ Scalar multiplication.
 template<class T>
 SLMat4<T>& SLMat4<T>::operator *=(const T a)
 {
-    for (int i=0; i<16; ++i) _m[i] *= a;
+    for (auto & i : _m) i *= a;
     return *this;
 }
 //-----------------------------------------------------------------------------
@@ -505,7 +507,7 @@ template<class T>
 SLMat4<T>& SLMat4<T>::operator /=(const T a)
 {  
     T invA = 1 / a;
-    for (int i=0; i<16; ++i) _m[i] *= invA;
+    for (auto & i : _m) i *= invA;
     return *this;
 }
 //-----------------------------------------------------------------------------

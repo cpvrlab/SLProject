@@ -407,9 +407,9 @@ void SLNode::drawRec(SLSceneView* sv)
         if (showBBOX && !showSELECT)
         {
             if (_mesh)
-                _aabb.drawWS(SLCol3f(1, 0, 0));
+                _aabb.drawWS(SLCol4f::RED);
             else
-                _aabb.drawWS(SLCol3f(1, 0, 1));
+                _aabb.drawWS(SLCol4f::CYAN);
         }
 
         if (showAXIS)
@@ -417,7 +417,7 @@ void SLNode::drawRec(SLSceneView* sv)
 
         // Draw AABB if shapes is selected
         if (showSELECT)
-            _aabb.drawWS(SLCol3f(1, 1, 0));
+            _aabb.drawWS(SLCol4f::YELLOW);
 
         stateGL->popModelViewMatrix();
     }
