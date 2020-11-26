@@ -7,7 +7,7 @@
 #include <Utils.h>
 #include <GlobalTimer.h>
 
-#define LOAD_ASYNC
+//#define LOAD_ASYNC
 //#define TARGET_WIDTH 1920
 //#define TARGET_HEIGHT 1440
 #define TARGET_WIDTH 640
@@ -497,6 +497,18 @@ bool AreaTrackingView::update()
     {
         if (_noInitException) //if there was not exception during initArea
         {
+            SENSFramePtr frame;
+            if (_camera)
+                frame = _camera->latestFrame();
+            
+            if (this->s() != &_waiScene)
+            {
+                this->scene(&_waiScene);
+                this->camera(_waiScene.camera);
+            }
+            VideoBackgroundCamera* currentCamera = _waiScene.camera;
+            
+            /*
             SENSFramePtr frame = nullptr;
 
             bool isTracking = false;
@@ -549,7 +561,8 @@ bool AreaTrackingView::update()
                 }
                 currentCamera = _userGuidanceScene.camera;
             }
-
+             */
+            
             //update visualization
             if (frame)
             {
@@ -561,12 +574,15 @@ bool AreaTrackingView::update()
                 updateVideoImage(*frame.get(), currentCamera);
             }
 
+            /*
             //update user guidance
             if (_config.enableUserGuidance)
             {
                 _userGuidance.updateTrackingState(isTracking);
                 _userGuidance.updateSensorEstimations();
             }
+             */
+
         }
     }
     catch (std::exception& e)

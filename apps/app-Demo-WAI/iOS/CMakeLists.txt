@@ -12,6 +12,7 @@ find_library(UIKIT UIKit required)
 find_library(OPENGLES OpenGLES required)
 find_library(GLKIT GLKit required)
 find_library(CORELOCATION CoreLocation required)
+find_library(ARKIT ARKit required)
 
 set(target ErlebAR)
 set(DEVELOPMENT_TEAM_ID "858Y9EWZ4B")               # <== Set to your team ID from Apple
@@ -51,6 +52,8 @@ set(headers
 	${SL_PROJECT_ROOT}/apps/source/sens/iOS/SENSiOSGpsDelegate.h
 	${SL_PROJECT_ROOT}/apps/source/sens/iOS/SENSiOSOrientation.h
 	${SL_PROJECT_ROOT}/apps/source/sens/iOS/SENSiOSOrientationDelegate.h
+    ${SL_PROJECT_ROOT}/apps/source/sens/iOS/SENSiOSARCore.h
+    ${SL_PROJECT_ROOT}/apps/source/sens/iOS/SENSiOSARCoreDelegate.h
     )
 
 set(sources
@@ -64,6 +67,8 @@ set(sources
 	${SL_PROJECT_ROOT}/apps/source/sens/iOS/SENSiOSGpsDelegate.mm
 	${SL_PROJECT_ROOT}/apps/source/sens/iOS/SENSiOSOrientation.mm
 	${SL_PROJECT_ROOT}/apps/source/sens/iOS/SENSiOSOrientationDelegate.mm
+    ${SL_PROJECT_ROOT}/apps/source/sens/iOS/SENSiOSARCore.mm
+    ${SL_PROJECT_ROOT}/apps/source/sens/iOS/SENSiOSARCoreDelegate.mm
 	)
  
 # Group source files
@@ -173,7 +178,7 @@ target_link_libraries(
 		${OPENGLES}
 		${GLKIT}
 		${CORELOCATION}
-		
+		${ARKIT}
         INTERFACE
     )
 

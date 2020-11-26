@@ -289,7 +289,7 @@ public:
     virtual SLbool onMouseDown(const SLint x, const SLint y) { return false; }
     virtual SLbool onMouseUpDispatched() { return false; }
     virtual void onMouseMove(const SLMouseButton button, const SLKey mod, SLfloat x, SLfloat y, SLfloat xOld, SLfloat yOld) {}
-    virtual void onMouseWheel(const SLint delta, const SLKey mod) {}
+    virtual SLbool onMouseWheel(const SLint delta, const SLKey mod) { return false; }
     virtual void onTouch2Move(const SLint x1,
                               const SLint y1,
                               const SLint x2,
@@ -383,6 +383,7 @@ public:
             else
                 _camera->translate(SLVec3f(-dMouse.x, -dMouse.y, 0), TS_object);
         }
+    
     }
     
     SLbool onMouseUpDispatched() override
@@ -390,7 +391,7 @@ public:
         return true;
     }
     
-    void onMouseWheel(const SLint delta, const SLKey mod) override
+    SLbool onMouseWheel(const SLint delta, const SLKey mod) override
     {
         SLfloat sign = (SLfloat)Utils::sign(delta);
         
@@ -410,6 +411,8 @@ public:
             _camera->fov(_camera->fovV() + sign * 5.0f);
             _camera->currentFOV = _camera->fovV();
         }
+        //todo anim: why always false?
+        return false;
     }
     
     void onTouch2Move(const SLint x1,
@@ -553,7 +556,7 @@ public:
         return true;
     }
     
-    void onMouseWheel(const SLint delta, const SLKey mod) override
+    SLbool onMouseWheel(const SLint delta, const SLKey mod) override
     {
         SLfloat sign = (SLfloat)Utils::sign(delta);
         
@@ -573,6 +576,8 @@ public:
             _camera->fov(_camera->fovV() + sign * 5.0f);
             _camera->currentFOV = _camera->fovV();
         }
+        
+        return false;
     }
     
     void onTouch2Move(const SLint x1,
@@ -751,7 +756,7 @@ public:
         }
     }
     
-    void onMouseWheel(const SLint delta, const SLKey mod) override
+    SLbool onMouseWheel(const SLint delta, const SLKey mod) override
     {
         SLfloat sign = (SLfloat)Utils::sign(delta);
         
@@ -771,6 +776,7 @@ public:
             _camera->fov(_camera->fovV() + sign * 5.0f);
             _camera->currentFOV = _camera->fovV();
         }
+        return false;
     }
     
 private:

@@ -76,7 +76,7 @@ public:
         _facing(facing)
     {
     }
-
+    
     int                                        findBestMatchingConfig(cv::Size requiredSize) const;
     const std::vector<SENSCameraStreamConfig>& streamConfigs() const { return _streamConfigs; }
     const std::string&                         deviceId() const { return _deviceId; }

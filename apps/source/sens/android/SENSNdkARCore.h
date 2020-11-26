@@ -15,17 +15,15 @@ public:
 	SENSNdkARCore(ANativeActivity* activity);
 	~SENSNdkARCore();
 
-    bool init(int targetWidth, int targetHeight, int manipWidth, int manipHeight, bool convertManipToGray);
-    bool isAvailable() { return _available; };
-    bool isReady() { return _arSession != nullptr; }
-    bool isRunning() { return !_pause; }
-    void reset();
-	bool resume() override;
+    bool init(int targetWidth, int targetHeight, int manipWidth, int manipHeight, bool convertManipToGray) override;
+    bool isReady() override { return _arSession != nullptr; }
+    bool resume() override;
+    void reset() override;
 	void pause() override;
-    bool update(cv::Mat& intrinsic, cv::Mat& view);
-    SENSFramePtr latestFrame();
+    bool update(cv::Mat& intrinsic, cv::Mat& view) override;
+    SENSFramePtr latestFrame() override;
+    void setDisplaySize(int w, int h) override;
 
-    void setDisplaySize(int w, int h);
     int getCameraOpenGLTexture();
 	int getPointCloud(float ** mapPoints, float confidanceValue);
 
@@ -34,14 +32,13 @@ private:
     ANativeActivity* _activity  = nullptr;
     ArSession*       _arSession = nullptr;
     ArFrame*         _arFrame   = nullptr;
-    bool             _pause     = true;   
+
     GLuint           _cameraTextureId;
     std::mutex       _frameMutex;
-    bool             _available;
 
     void initCameraTexture();
     cv::Mat convertToYuv(ArImage* arImage);
-    SENSFramePtr processNewFrame(cv::Mat& bgrImg, cv::Mat intrinsics);
+    SENSFramePtr processNewFrame(const SENSTimePt& timePt, cv::Mat& bgrImg, cv::Mat intrinsics);
     void updateFrame(cv::Mat& intrinsic);
 };
 

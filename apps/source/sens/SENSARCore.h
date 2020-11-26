@@ -10,7 +10,9 @@
 #include "SENS.h"
 
 #include <sens/SENSFrame.h>
-class SENSARCore
+#include <sens/SENSCamera.h>
+
+class SENSARCore //: public SENSCameraBase
 {
 public: 
 
@@ -30,28 +32,31 @@ public:
 
     SENSARCore() {}
     virtual ~SENSARCore() {}
-    virtual bool init(int targetWidth, int targetHeight, int manipWidth, int manipHeight, bool convertManipToGray) { return false; }
-    virtual bool isAvailable() { return false; };
-    virtual bool isReady() { return false; }
-    virtual bool isRunning() { return false; }
-    virtual bool resume() { return true; }
-    virtual void reset() {};
-    virtual void pause() {}
+    virtual bool init(int targetWidth, int targetHeight, int manipWidth, int manipHeight, bool convertManipToGray) = 0;
+    virtual bool isReady() = 0;
+    virtual bool resume() = 0;
+    virtual void reset() = 0;
+    virtual void pause() = 0;
     virtual bool update(cv::Mat& intrinsic, cv::Mat& view) { return false; }
-    virtual SENSFramePtr latestFrame() { return nullptr; }
-    virtual void setDisplaySize(int w, int h) { return; }
+    virtual SENSFramePtr latestFrame() = 0;
+    virtual void setDisplaySize(int w, int h) = 0;
 
-    virtual void configure(int  targetWidth,
+    bool isAvailable() { return _available; };
+    bool isRunning() { return !_pause; }
+
+protected:
+    void configure(int  targetWidth,
                            int  targetHeight,
                            int  manipWidth,
                            int  manipHeight,
                            bool convertManipToGray);
-
-protected:
+    
     bool             _running = false;
     SENSFrameBasePtr _frame;
     struct config    _config;
 
+    bool _available = false;
+    bool _pause     = true;
 private:
 };
 

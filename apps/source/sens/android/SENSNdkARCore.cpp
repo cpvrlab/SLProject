@@ -197,7 +197,7 @@ void SENSNdkARCore::updateFrame(cv::Mat& intrinsic)
     cv::cvtColor(yuv, bgr, cv::COLOR_YUV2BGR_NV21, 3);
 
     std::lock_guard<std::mutex> lock(_frameMutex);
-    _frame = std::make_unique<SENSFrameBase>(bgr, intrinsic);
+    _frame = std::make_unique<SENSFrameBase>(SENSClock::now(), bgr, intrinsic);
 }
 
 SENSFramePtr SENSNdkARCore::latestFrame()
@@ -209,11 +209,11 @@ SENSFramePtr SENSNdkARCore::latestFrame()
     }
     SENSFramePtr latestFrame;
     if (frameBase)
-        latestFrame = processNewFrame(frameBase->imgBGR, cv::Mat());
+        latestFrame = processNewFrame(frameBase->timePt, frameBase->imgBGR, cv::Mat());
     return latestFrame;
 }
 
-SENSFramePtr SENSNdkARCore::processNewFrame(cv::Mat& bgrImg, cv::Mat intrinsics)
+SENSFramePtr SENSNdkARCore::processNewFrame(const SENSTimePt& timePt, cv::Mat& bgrImg, cv::Mat intrinsics)
 {
     //todo: accessing config readonly should be no problem  here, as the config only changes when camera is stopped
     cv::Size inputSize = bgrImg.size();
@@ -241,7 +241,8 @@ SENSFramePtr SENSNdkARCore::processNewFrame(cv::Mat& bgrImg, cv::Mat intrinsics)
         cv::cvtColor(manipImg, manipImg, cv::COLOR_BGR2GRAY);
     }
 
-    SENSFramePtr sensFrame = std::make_unique<SENSFrame>(bgrImg,
+    SENSFramePtr sensFrame = std::make_unique<SENSFrame>(timePt,
+                                                         bgrImg,
                                                          manipImg,
                                                          false,
                                                          false,
