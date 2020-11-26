@@ -299,7 +299,7 @@ private:
     bool _noInitException = false;
 
     CameraPoseFingerCorrection _cameraFingerCorr;
-    //WAICompassAlignment        _compassAlignment;
+    WAICompassAlignment        _compassAlignment;
 };
 
 //! Async loader for vocabulary and maps
