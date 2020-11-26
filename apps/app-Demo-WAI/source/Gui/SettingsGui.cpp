@@ -5,15 +5,16 @@
 #include <GuiUtils.h>
 #include <ErlebAREvents.h>
 
-SettingsGui::SettingsGui(const ImGuiEngine&  imGuiEngine,
-                         sm::EventHandler&   eventHandler,
-                         ErlebAR::Resources& resources,
-                         int                 dotsPerInch,
-                         int                 screenWidthPix,
-                         int                 screenHeightPix)
+SettingsGui::SettingsGui(const ImGuiEngine& imGuiEngine,
+                         sm::EventHandler&  eventHandler,
+                         ErlebAR::Config&   config,
+                         int                dotsPerInch,
+                         int                screenWidthPix,
+                         int                screenHeightPix)
   : ImGuiWrapper(imGuiEngine.context(), imGuiEngine.renderer()),
     sm::EventSender(eventHandler),
-    _resources(resources)
+    _resources(config.resources()),
+    _config(config)
 {
     resize(screenWidthPix, screenHeightPix);
 
@@ -103,7 +104,7 @@ void SettingsGui::build(SLScene* s, SLSceneView* sv)
             _hiddenTimer.start();
 
             if (_hiddenNumClicks > _hiddenMinNumClicks)
-                _resources.developerMode = true;
+                _config.developerMode = true;
         }
         ImGui::End();
 
@@ -164,7 +165,7 @@ void SettingsGui::build(SLScene* s, SLSceneView* sv)
         ImGui::Separator();
 
         //developer mode
-        if (_resources.developerMode)
+        if (_config.developerMode)
         {
             {
                 ImGui::PushFont(_resources.fonts().heading);
@@ -176,13 +177,67 @@ void SettingsGui::build(SLScene* s, SLSceneView* sv)
                 ImGui::PushFont(_resources.fonts().standard);
                 ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textStandardColor);
 
-                if (ImGui::Checkbox("Enabled##DevelMode", &_resources.developerMode))
+                if (ImGui::Checkbox("Enabled##DevelMode", &_config.developerMode))
                 {
-                    if (!_resources.developerMode)
+                    if (!_config.developerMode)
                     {
                         _hiddenNumClicks = 0;
                     }
                 }
+
+                ImGui::PopStyleColor();
+                ImGui::PopFont();
+                ImGui::Separator();
+            }
+
+            //enable gps
+            {
+                ImGui::PushFont(_resources.fonts().heading);
+                ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textHeadingColor);
+                ImGui::Text("GPS");
+                ImGui::PopStyleColor();
+                ImGui::PopFont();
+
+                ImGui::PushFont(_resources.fonts().standard);
+                ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textStandardColor);
+
+                ImGui::Checkbox("Enabled##GPS", &_config.useGps);
+
+                ImGui::PopStyleColor();
+                ImGui::PopFont();
+                ImGui::Separator();
+            }
+
+            //enable WAISlam
+            {
+                ImGui::PushFont(_resources.fonts().heading);
+                ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textHeadingColor);
+                ImGui::Text("WAISlam");
+                ImGui::PopStyleColor();
+                ImGui::PopFont();
+
+                ImGui::PushFont(_resources.fonts().standard);
+                ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textStandardColor);
+
+                ImGui::Checkbox("Enabled##WAISlam", &_config.useWAISlam);
+
+                ImGui::PopStyleColor();
+                ImGui::PopFont();
+                ImGui::Separator();
+            }
+
+            //enable ARCore
+            {
+                ImGui::PushFont(_resources.fonts().heading);
+                ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textHeadingColor);
+                ImGui::Text("ARCore");
+                ImGui::PopStyleColor();
+                ImGui::PopFont();
+
+                ImGui::PushFont(_resources.fonts().standard);
+                ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textStandardColor);
+
+                ImGui::Checkbox("Enabled##ARCore", &_config.useARCore);
 
                 ImGui::PopStyleColor();
                 ImGui::PopFont();
@@ -199,15 +254,15 @@ void SettingsGui::build(SLScene* s, SLSceneView* sv)
                 ImGui::PushFont(_resources.fonts().standard);
                 ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textStandardColor);
 
-                if (ImGui::Checkbox("Enabled##LogWin", &_resources.logWinEnabled))
+                if (ImGui::Checkbox("Enabled##LogWin", &_config.logWinEnabled))
                 {
-                    if (_resources.logWinEnabled)
+                    if (_config.logWinEnabled)
                     {
-                        _resources.logWinInit();
+                        _config.logWinInit();
                     }
                     else
                     {
-                        _resources.logWinUnInit();
+                        _config.logWinUnInit();
                     }
                 }
 
@@ -215,7 +270,7 @@ void SettingsGui::build(SLScene* s, SLSceneView* sv)
                 ImGui::PopFont();
                 ImGui::Separator();
             }
-            
+
             {
                 ImGui::PushFont(_resources.fonts().heading);
                 ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textHeadingColor);
@@ -226,13 +281,13 @@ void SettingsGui::build(SLScene* s, SLSceneView* sv)
                 ImGui::PushFont(_resources.fonts().standard);
                 ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textStandardColor);
 
-                ImGui::Checkbox("Enabled##SimMode", &_resources.simulatorMode);
+                ImGui::Checkbox("Enabled##SimMode", &_config.simulatorMode);
 
                 ImGui::PopStyleColor();
                 ImGui::PopFont();
                 ImGui::Separator();
             }
-            
+
             {
                 ImGui::PushFont(_resources.fonts().heading);
                 ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textHeadingColor);
@@ -243,7 +298,7 @@ void SettingsGui::build(SLScene* s, SLSceneView* sv)
                 ImGui::PushFont(_resources.fonts().standard);
                 ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textStandardColor);
 
-                ImGui::Checkbox("Enabled##UserGuidance", &_resources.enableUserGuidance);
+                ImGui::Checkbox("Enabled##UserGuidance", &_config.enableUserGuidance);
 
                 ImGui::PopStyleColor();
                 ImGui::PopFont();
@@ -259,7 +314,7 @@ void SettingsGui::build(SLScene* s, SLSceneView* sv)
     }
 
     //debug: draw log window
-    _resources.logWinDraw();
+    _config.logWinDraw();
 }
 
 void SettingsGui::onShow()

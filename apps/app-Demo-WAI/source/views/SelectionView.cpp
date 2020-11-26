@@ -3,16 +3,16 @@
 #include <SLInputManager.h>
 #include <SelectionGui.h>
 
-SelectionView::SelectionView(sm::EventHandler&   eventHandler,
-                             SLInputManager&     inputManager,
-                             const ImGuiEngine&  imGuiEngine,
-                             ErlebAR::Resources& resources,
-                             const DeviceData&   deviceData)
+SelectionView::SelectionView(sm::EventHandler&  eventHandler,
+                             SLInputManager&    inputManager,
+                             const ImGuiEngine& imGuiEngine,
+                             ErlebAR::Config&   config,
+                             const DeviceData&  deviceData)
   : SLSceneView(nullptr, deviceData.dpi(), inputManager),
     sm::EventSender(eventHandler),
     _gui(imGuiEngine,
          eventHandler,
-         resources,
+         config,
          deviceData.dpi(),
          deviceData.scrWidth(),
          deviceData.scrHeight(),

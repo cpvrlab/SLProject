@@ -10,6 +10,7 @@ set(headers
 		${SL_PROJECT_ROOT}/apps/source/sens/android/SENSNdkCameraUtils.h
 		${SL_PROJECT_ROOT}/apps/source/sens/android/SENSNdkGps.h
 		${SL_PROJECT_ROOT}/apps/source/sens/android/SENSNdkOrientation.h
+		${SL_PROJECT_ROOT}/apps/source/sens/android/SENSNdkARCore.h
     )
 
 set(sources
@@ -18,6 +19,7 @@ set(sources
 		${SL_PROJECT_ROOT}/apps/source/sens/android/SENSNdkCameraUtils.cpp
 		${SL_PROJECT_ROOT}/apps/source/sens/android/SENSNdkGps.cpp
 		${SL_PROJECT_ROOT}/apps/source/sens/android/SENSNdkOrientation.cpp
+		${SL_PROJECT_ROOT}/apps/source/sens/android/SENSNdkARCore.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/src/main/cpp/AppDemoNativeWAIMain.cpp
     )
 
@@ -32,6 +34,18 @@ add_library(${target}
         ${sources}
         ${headers}
     )
+
+#add_library(arcore SHARED IMPORTED)
+#set_target_properties(arcore PROPERTIES IMPORTED_LOCATION
+#              ${CMAKE_CURRENT_SOURCE_DIR}/arcore-native/jni/${ANDROID_ABI}/libarcore_sdk_c.so
+#              INTERFACE_INCLUDE_DIRECTORIES ${CMAKE_CURRENT_SOURCE_DIR}
+#)
+
+add_library(arcore SHARED IMPORTED)
+set_target_properties(arcore PROPERTIES IMPORTED_LOCATION
+              ${CMAKE_CURRENT_SOURCE_DIR}/arcore-native/jni/${ANDROID_ABI}/libarcore_sdk_c.so
+              INTERFACE_INCLUDE_DIRECTORIES ${CMAKE_CURRENT_SOURCE_DIR}
+)
 
 target_include_directories(${target}
     PRIVATE
@@ -54,6 +68,7 @@ target_link_libraries(${target}
         lib-WAI
         lib-DBoW2
         lib-SLProject
+        arcore
 
     PUBLIC
         libc++_shared.so

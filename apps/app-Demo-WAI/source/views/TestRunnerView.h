@@ -34,11 +34,11 @@ public:
         TestMode_Tracking
     };
 
-    TestRunnerView(sm::EventHandler&   eventHandler,
-                   SLInputManager&     inputManager,
-                   const ImGuiEngine&  imGuiEngine,
-                   ErlebAR::Resources& resources,
-                   const DeviceData&   deviceData);
+    TestRunnerView(sm::EventHandler&  eventHandler,
+                   SLInputManager&    inputManager,
+                   const ImGuiEngine& imGuiEngine,
+                   ErlebAR::Config&   config,
+                   const DeviceData&  deviceData);
 
     bool start(TestMode testMode, std::string configFile);
     bool update();

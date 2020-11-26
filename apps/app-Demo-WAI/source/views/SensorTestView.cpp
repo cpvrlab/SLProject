@@ -1,18 +1,18 @@
 #include <views/SensorTestView.h>
 #include <sens/SENSUtils.h>
 
-SensorTestView::SensorTestView(sm::EventHandler&   eventHandler,
-                               SLInputManager&     inputManager,
-                               const ImGuiEngine&  imGuiEngine,
-                               ErlebAR::Resources& resources,
-                               SENSGps*            sensGps,
-                               SENSOrientation*    sensOrientation,
-                               SENSCamera*         sensCamera,
-                               const DeviceData&   deviceData)
+SensorTestView::SensorTestView(sm::EventHandler&  eventHandler,
+                               SLInputManager&    inputManager,
+                               const ImGuiEngine& imGuiEngine,
+                               ErlebAR::Config&   config,
+                               SENSGps*           sensGps,
+                               SENSOrientation*   sensOrientation,
+                               SENSCamera*        sensCamera,
+                               const DeviceData&  deviceData)
   : SLSceneView(nullptr, deviceData.dpi(), inputManager),
     _gui(imGuiEngine,
          eventHandler,
-         resources,
+         config,
          deviceData,
          sensGps,
          sensOrientation,

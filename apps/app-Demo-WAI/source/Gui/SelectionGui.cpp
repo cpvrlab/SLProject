@@ -7,17 +7,18 @@
 
 using namespace ErlebAR;
 
-SelectionGui::SelectionGui(const ImGuiEngine&  imGuiEngine,
-                           sm::EventHandler&   eventHandler,
-                           ErlebAR::Resources& resources,
-                           int                 dotsPerInch,
-                           int                 screenWidthPix,
-                           int                 screenHeightPix,
-                           std::string         fontPath,
-                           std::string         texturePath)
+SelectionGui::SelectionGui(const ImGuiEngine& imGuiEngine,
+                           sm::EventHandler&  eventHandler,
+                           ErlebAR::Config&   config,
+                           int                dotsPerInch,
+                           int                screenWidthPix,
+                           int                screenHeightPix,
+                           std::string        fontPath,
+                           std::string        texturePath)
   : ImGuiWrapper(imGuiEngine.context(), imGuiEngine.renderer()),
     sm::EventSender(eventHandler),
-    _resources(resources)
+    _config(config),
+    _resources(config.resources())
 {
     resize(screenWidthPix, screenHeightPix);
 
@@ -177,7 +178,7 @@ void SelectionGui::build(SLScene* s, SLSceneView* sv)
     }
 
     //developer button board
-    if (_resources.developerMode)
+    if (_config.developerMode)
     {
         ImGui::SetNextWindowPos(ImVec2(0, _buttonBoardPosY), ImGuiCond_Always);
         ImGui::SetNextWindowSize(ImVec2(_screenWPix - _buttonBoardW - 0.1f * _screenWPix, _buttonBoardH), ImGuiCond_Always);
@@ -192,7 +193,7 @@ void SelectionGui::build(SLScene* s, SLSceneView* sv)
         {
             sendEvent(new StartTestRunnerEvent("SelectionGui"));
         }
-        
+
         if (ImGui::Button("Camera Test", develButtonSize))
         {
             sendEvent(new StartCameraTestEvent("SelectionGui"));
@@ -207,7 +208,7 @@ void SelectionGui::build(SLScene* s, SLSceneView* sv)
         {
             sendEvent(new StartErlebarEvent("SelectionGui", LocationId::BIEL));
         }
-        
+
         if (ImGui::Button("Evilard", develButtonSize))
         {
             sendEvent(new StartErlebarEvent("SelectionGui", LocationId::EVILARD));
@@ -218,5 +219,5 @@ void SelectionGui::build(SLScene* s, SLSceneView* sv)
     popStyle();
 
     //debug: draw log window
-    _resources.logWinDraw();
+    _config.logWinDraw();
 }

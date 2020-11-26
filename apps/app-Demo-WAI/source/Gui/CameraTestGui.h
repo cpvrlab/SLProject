@@ -17,13 +17,13 @@ class CameraTestGui : public ImGuiWrapper
   , private sm::EventSender
 {
 public:
-    CameraTestGui(const ImGuiEngine&  imGuiEngine,
-                  sm::EventHandler&   eventHandler,
-                  ErlebAR::Resources& resources,
-                  int                 dotsPerInch,
-                  int                 screenWidthPix,
-                  int                 screenHeightPix,
-                  SENSCamera*         camera);
+    CameraTestGui(const ImGuiEngine& imGuiEngine,
+                  sm::EventHandler&  eventHandler,
+                  ErlebAR::Config&   config,
+                  int                dotsPerInch,
+                  int                screenWidthPix,
+                  int                screenHeightPix,
+                  SENSCamera*        camera);
     ~CameraTestGui();
 
     void build(SLScene* s, SLSceneView* sv) override;
@@ -46,6 +46,7 @@ private:
     float _windowPaddingContent;
     float _itemSpacingContent;
 
+    ErlebAR::Config&    _config;
     ErlebAR::Resources& _resources;
 
     SENSCamera* _camera;

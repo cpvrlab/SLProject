@@ -5,13 +5,13 @@
 #include <Utils.h>
 #include <FtpUtils.h>
 
-TestRunnerView::TestRunnerView(sm::EventHandler&   eventHandler,
-                               SLInputManager&     inputManager,
-                               const ImGuiEngine&  imGuiEngine,
-                               ErlebAR::Resources& resources,
-                               const DeviceData&   deviceData)
+TestRunnerView::TestRunnerView(sm::EventHandler&  eventHandler,
+                               SLInputManager&    inputManager,
+                               const ImGuiEngine& imGuiEngine,
+                               ErlebAR::Config&   config,
+                               const DeviceData&  deviceData)
   : SLSceneView(&_scene, deviceData.dpi(), inputManager),
-    _gui(imGuiEngine, eventHandler, resources, deviceData.dpi(), deviceData.fontDir()),
+    _gui(imGuiEngine, eventHandler, config.resources(), deviceData.dpi(), deviceData.fontDir()),
     _scene("TestRunnerScene", nullptr),
     _testMode(TestMode_None),
     _erlebARDir(deviceData.erlebARTestDir()),
@@ -393,7 +393,7 @@ bool TestRunnerView::update()
                         delete _map;
 
                     WAIKeyFrameDB* keyFrameDB = new WAIKeyFrameDB(_voc);
-                    _map = new WAIMap(keyFrameDB);
+                    _map                      = new WAIMap(keyFrameDB);
 
                     cv::Mat mapNodeOm;
                     if (Utils::containsString(mapFile, ".waimap"))
@@ -451,7 +451,7 @@ bool TestRunnerView::update()
                     SENSFramePtr sensFrame = _vStream->grabNextFrame();
 
                     cv::Size imgSize = sensFrame->imgManip.size();
-                    _extractor = _featureExtractorFactory.make(testInstance.extractorType, {imgSize.width, imgSize.height}, testInstance.nLevels);
+                    _extractor       = _featureExtractorFactory.make(testInstance.extractorType, {imgSize.width, imgSize.height}, testInstance.nLevels);
                     if (!_extractor)
                     {
                         Utils::log("WAI", "TestRunner::loadSites: Could not create feature extractor with type: %s", testInstance.extractorType.c_str());

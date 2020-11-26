@@ -9,6 +9,7 @@
 #include <sens/SENSCamera.h>
 #include <sens/SENSGps.h>
 #include <sens/SENSOrientation.h>
+#include <sens/SENSARCore.h>
 #include <Resources.h>
 #include <ErlebAREvents.h>
 
@@ -44,7 +45,8 @@ public:
               const std::string& writableDir,
               SENSCamera*        camera,
               SENSGps*           gps,
-              SENSOrientation*   orientation);
+              SENSOrientation*   orientation,
+              SENSARCore*        arcore);
     //go back (e.g. from android back-button)
     void goBack();
     //call to completely uninitialize app
@@ -86,6 +88,7 @@ private:
     SENSCamera*                 _camera           = nullptr;
     SENSGps*                    _gps              = nullptr;
     SENSOrientation*            _orientation      = nullptr;
+    SENSARCore*                 _arcore           = nullptr;
     SelectionView*              _selectionView    = nullptr;
     TestView*                   _testView         = nullptr;
     TestRunnerView*             _testRunnerView   = nullptr;
@@ -102,8 +105,8 @@ private:
 
     CloseAppCallback _closeCB = nullptr;
 
-    ErlebAR::Resources* _resources   = nullptr;
-    ImGuiEngine*        _imGuiEngine = nullptr;
+    ErlebAR::Config* _config      = nullptr;
+    ImGuiEngine*     _imGuiEngine = nullptr;
 };
 
 #endif
