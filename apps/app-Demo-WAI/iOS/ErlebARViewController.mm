@@ -142,7 +142,8 @@
                      configPath,
                      _camera,
                      _gps,
-                     _orientation);
+                     _orientation,
+                     nullptr);
 
     printf("viewWillLayoutSubviews: w %f h %f", self.view.bounds.size.width * _screenScale, self.view.bounds.size.height * _screenScale);
 }

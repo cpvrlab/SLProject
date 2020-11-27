@@ -52,4 +52,9 @@ function(add_3rdparty_library name file)
     add_library(${name} SHARED IMPORTED)
     set_target_properties(${name} PROPERTIES IMPORTED_LOCATION ${file})
 endfunction()
+
 #------------------------------------------------------------------------------
+# This little macro lets you set any XCode specific property
+macro (set_xcode_property TARGET XCODE_PROPERTY XCODE_VALUE)
+    set_property (TARGET ${TARGET} PROPERTY XCODE_ATTRIBUTE_${XCODE_PROPERTY} ${XCODE_VALUE})
+endmacro (set_xcode_property)

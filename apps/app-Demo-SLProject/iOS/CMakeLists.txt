@@ -14,10 +14,22 @@ find_library(GLKIT GLKit required)
 find_library(CORELOCATION CoreLocation required)
 
 set(target Demo-SL)
-set(DEVELOPMENT_TEAM_ID "858Y9EWZ4B")               # <== Set to your team ID from Apple
-set(APP_BUNDLE_IDENTIFIER "ch.bfh.ti.cpvrlab.demo-sl") # <== Set to your app's bundle identifier (Attention the erlebar one is with "cpvr")
-set(PROVISIONING_PROFILE "Demo SL Development")
-set(CODE_SIGN_IDENTITY "Apple Development: Michael Göttlicher (KMX9985DR7)")  # <== Set to your preferred code sign identity, to see list: /usr/bin/env xcrun security find-identity -v -p codesigning
+
+#if this variable is not defined, we make automatic signing with "iPhone Developer"
+if(XCODE_CODESIGNIDENTITY)
+	message(STATUS "manual signing")
+	set(APP_BUNDLE_IDENTIFIER "ch.bfh.ti.cpvrlab.demo-sl") # <== Set to your app's bundle identifier (Attention the erlebar one is with "cpvr")
+	
+	set(XCODE_PROVISIONINGPROFILE "Demo SL Development")
+	set(XCODE_DEVELOPMENTTEAM "858Y9EWZ4B")
+else()
+	message(STATUS "automatic signing")
+	set(APP_BUNDLE_IDENTIFIER "com.${target}.identifier") # <== Set to your app's bundle identifier
+
+    set(XCODE_CODESIGNIDENTITY "iPhone Developer")
+	set(XCODE_DEVELOPMENTTEAM ${XCODE_DEVELOPMENTTEAM})
+endif()
+
 
 set(DEPLOYMENT_TARGET 8.0)                                  # <== Set your deployment target version of iOS
 set(DEVICE_FAMILY "1,2")                                      # <== Set to "1" to target iPhone, set to "2" to target iPad, set to "1,2" to target both
@@ -112,9 +124,6 @@ set_target_properties(
         RESOURCE "${RESOURCES}"
         XCODE_ATTRIBUTE_GCC_PRECOMPILE_PREFIX_HEADER "YES"
         XCODE_ATTRIBUTE_IPHONEOS_DEPLOYMENT_TARGET ${DEPLOYMENT_TARGET}
-        XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY ${CODE_SIGN_IDENTITY}
-        XCODE_ATTRIBUTE_DEVELOPMENT_TEAM ${DEVELOPMENT_TEAM_ID}
-	    XCODE_ATTRIBUTE_PROVISIONING_PROFILE_SPECIFIER ${PROVISIONING_PROFILE}
         XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY ${DEVICE_FAMILY}
         MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/plist.in
         XCODE_ATTRIBUTE_CLANG_ENABLE_OBJC_ARC YES
@@ -143,6 +152,12 @@ target_include_directories(
         PUBLIC
         INTERFACE
     )
+	
+if(XCODE_PROVISIONINGPROFILE)
+	set_xcode_property(${target} PROVISIONING_PROFILE_SPECIFIER ${XCODE_PROVISIONINGPROFILE})
+endif()
+set_xcode_property(${target} CODE_SIGN_IDENTITY ${XCODE_CODESIGNIDENTITY})
+set_xcode_property(${target} DEVELOPMENT_TEAM ${XCODE_DEVELOPMENTTEAM})
 
 target_link_libraries(
         ${target}
