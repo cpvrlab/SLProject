@@ -3610,7 +3610,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sunLight->attenuation(1, 0, 0);
         sunLight->doSunPowerAdaptation(true);
         sunLight->createsShadows(true);
-        sunLight->createShadowMap(-100, 150, SLVec2f(150, 150), SLVec2i(2048, 2048));
+        sunLight->createShadowMap(-100, 150, SLVec2f(150, 150), SLVec2i(4096, 4096));
         sunLight->doSmoothShadows(true);
         sunLight->castsShadows(false);
 
@@ -3623,13 +3623,6 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                                     SLApplication::dataPath + "erleb-AR/models/biel/Biel-BFH-Rolex.gltf",
                                     SLApplication::texturePath);
 
-        /* Setup shadow mapping material and replace shader from loader
-        SLGLProgram* progPerPixSM = new SLGLGenericProgram(s,
-                                                              SLApplication::shaderPath + "PerPixBlinnSM.vert",
-                                                              SLApplication::shaderPath + "PerPixBlinnSM.frag");
-        auto         updateMat       = [=](SLMaterial* mat) { mat->program(progPerPixSM); };
-        bfh->updateMeshMat(updateMat, true);
-        */
         bfh->setMeshMat(matVideoBackground, true);
 
         // Make terrain a video shine trough
@@ -3737,18 +3730,18 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         CVCapture::instance()->videoType(VT_MAIN);
 
         // Create directional light for the sun light
-        SLLightDirect* sunLight = new SLLightDirect(s, s, 5.0f);
+        SLLightDirect* sunLight = new SLLightDirect(s, s, 2.0f);
+        sunLight->translate(-44.89f, 18.05f, -26.07f);
         sunLight->powers(1.0f, 1.5f, 1.0f);
         sunLight->attenuation(1, 0, 0);
         sunLight->doSunPowerAdaptation(true);
         sunLight->createsShadows(true);
-        sunLight->createShadowMap(-100, 150, SLVec2f(250, 250), SLVec2i(2048, 2048));
+        sunLight->createShadowMap(-100, 150, SLVec2f(250, 250), SLVec2i(4096, 4096));
         sunLight->doSmoothShadows(true);
         sunLight->castsShadows(false);
+        SLApplication::devLoc.sunLightNode(sunLight); // Let the sun be rotated by time and location
 
-        // Let the sun be rotated by time and location
-        SLApplication::devLoc.sunLightNode(sunLight);
-
+        // Import the main model
         SLAssimpImporter importer;
         SLNode*          bern = importer.load(s->animManager(),
                                      s,
@@ -3757,13 +3750,15 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Make city with hard edges and without shadow mapping
         SLNode* UmgD = bern->findChild<SLNode>("Umgebung-Daecher");
-        if (!UmgD) SL_EXIT_MSG("Node: Umgebung-Daecher not found!");
         SLNode* UmgF = bern->findChild<SLNode>("Umgebung-Fassaden");
+        if (!UmgD) SL_EXIT_MSG("Node: Umgebung-Daecher not found!");
         if (!UmgF) SL_EXIT_MSG("Node: Umgebung-Fassaden not found!");
         UmgD->setMeshMat(matVideoBackground, true);
         UmgF->setMeshMat(matVideoBackground, true);
         UmgD->setDrawBitsRec(SL_DB_WITHEDGES, true);
         UmgF->setDrawBitsRec(SL_DB_WITHEDGES, true);
+        UmgD->castsShadows(false);
+        UmgF->castsShadows(false);
 
         // Hide some objects
         bern->findChild<SLNode>("Baldachin-Glas")->drawBits()->set(SL_DB_HIDDEN, true);
@@ -3784,16 +3779,12 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         // Add axis object a world origin (Loeb Ecke)
         SLNode* axis = new SLNode(new SLCoordAxis(s), "Axis Node");
         axis->setDrawBitsRec(SL_DB_MESHWIRED, false);
-        axis->scale(10);
         axis->rotate(-90, 1, 0, 0);
-
-        SLMaterial* yellow = new SLMaterial(s, "mY", SLCol4f(1, 1, 0, 0.5f));
-        SLNode*     box2m  = new SLNode(new SLBox(s, 0, 0, 0, 2, 2, 2, "Box2m", yellow));
+        axis->castsShadows(false);
 
         SLNode* scene = new SLNode("Scene");
         scene->addChild(sunLight);
         scene->addChild(axis);
-        scene->addChild(box2m);
         scene->addChild(bern);
         scene->addChild(cam1);
 
@@ -3858,20 +3849,32 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                                                         nullptr,
                                                         nullptr,
                                                         spVideoBackground);
+
+        // Define shader that shows on all pixels the video background with shadow mapping
+        SLGLProgram* spVideoBackgroundSM  = new SLGLGenericProgram(s,
+                                                                   SLApplication::shaderPath + "PerPixTextureBackgroundSM.vert",
+                                                                   SLApplication::shaderPath + "PerPixTextureBackgroundSM.frag");
+        SLMaterial*  matVideoBackgroundSM = new SLMaterial(s,
+                                                           "matVideoBackground",
+                                                           videoTexture,
+                                                           nullptr,
+                                                           nullptr,
+                                                           nullptr,
+                                                           spVideoBackgroundSM);
+        matVideoBackgroundSM->ambient(SLCol4f(0.6f, 0.6f, 0.6f));
+        matVideoBackgroundSM->getsShadows(true);
+
         // Create directional light for the sun light
         SLLightDirect* sunLight = new SLLightDirect(s, s, 5.0f);
+        sunLight->translate(-42,10,13);
         sunLight->powers(1.0f, 1.5f, 1.0f);
         sunLight->attenuation(1, 0, 0);
-        sunLight->translation(0, 10, 0);
-        sunLight->lookAt(10, 0, 10);
         sunLight->doSunPowerAdaptation(true);
         sunLight->createsShadows(true);
-        sunLight->createShadowMap(-100, 250, SLVec2f(250, 150), SLVec2i(2048, 2048));
+        sunLight->createShadowMap(-100, 250, SLVec2f(210, 150), SLVec2i(4096, 4096));
         sunLight->doSmoothShadows(true);
         sunLight->castsShadows(false);
-
-        // Let the sun be rotated by time and location
-        SLApplication::devLoc.sunLightNode(sunLight);
+        SLApplication::devLoc.sunLightNode(sunLight); // Let the sun be rotated by time and location
 
         SLAssimpImporter importer;
         SLNode*          TheaterAndTempel = importer.load(s->animManager(),
@@ -3885,22 +3888,15 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         // Rotate to the true geographic rotation
         TheaterAndTempel->rotate(16.7f, 0, 1, 0, TS_parent);
 
-        // Setup shadow mapping material and replace shader from loader
-        SLGLProgram* progPerPixNrmSM = new SLGLGenericProgram(s,
-                                                              SLApplication::shaderPath + "PerPixBlinnTexNrmSM.vert",
-                                                              SLApplication::shaderPath + "PerPixBlinnTexNrmSM.frag");
-        auto         updateMat       = [=](SLMaterial* mat) { mat->program(progPerPixNrmSM); };
-        TheaterAndTempel->updateMeshMat(updateMat, true);
-
         // Let the video shine through on some objects
-        TheaterAndTempel->findChild<SLNode>("Tmp-Boden")->setMeshMat(matVideoBackground, true);
-        TheaterAndTempel->findChild<SLNode>("Tht-Boden")->setMeshMat(matVideoBackground, true);
+        TheaterAndTempel->findChild<SLNode>("Tmp-Boden")->setMeshMat(matVideoBackgroundSM, true);
+        TheaterAndTempel->findChild<SLNode>("Tht-Boden")->setMeshMat(matVideoBackgroundSM, true);
 
         // Add axis object a world origin
         SLNode* axis = new SLNode(new SLCoordAxis(s), "Axis Node");
         axis->setDrawBitsRec(SL_DB_MESHWIRED, false);
-        axis->scale(10);
         axis->rotate(-90, 1, 0, 0);
+        axis->castsShadows(false);
 
         // Set some ambient light
         TheaterAndTempel->updateMeshMat([](SLMaterial* m) { m->ambient(SLCol4f(.25f, .23f, .15f)); }, true);
@@ -3973,6 +3969,20 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                                                         nullptr,
                                                         spVideoBackground);
 
+        // Define shader that shows on all pixels the video background with shadow mapping
+        SLGLProgram* spVideoBackgroundSM  = new SLGLGenericProgram(s,
+                                                                   SLApplication::shaderPath + "PerPixTextureBackgroundSM.vert",
+                                                                   SLApplication::shaderPath + "PerPixTextureBackgroundSM.frag");
+        SLMaterial*  matVideoBackgroundSM = new SLMaterial(s,
+                                                           "matVideoBackground",
+                                                           videoTexture,
+                                                           nullptr,
+                                                           nullptr,
+                                                           nullptr,
+                                                           spVideoBackgroundSM);
+        matVideoBackgroundSM->ambient(SLCol4f(0.6f, 0.6f, 0.6f));
+        matVideoBackgroundSM->getsShadows(true);
+
         // Create directional light for the sun light
         SLLightDirect* sunLight = new SLLightDirect(s, s, 5.0f);
         sunLight->powers(1.0f, 1.5f, 1.0f);
@@ -3981,7 +3991,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sunLight->lookAt(10, 0, 10);
         sunLight->doSunPowerAdaptation(true);
         sunLight->createsShadows(true);
-        sunLight->createShadowMap(-100, 150, SLVec2f(150, 150), SLVec2i(2048, 2048));
+        sunLight->createShadowMap(-100, 150, SLVec2f(140, 100), SLVec2i(4096, 4096));
         sunLight->doSmoothShadows(true);
         sunLight->shadowMaxBias(0.02f);
         sunLight->castsShadows(false);
@@ -4003,15 +4013,15 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Let the video shine through some objects
         amphiTheatre->findChild<SLNode>("Tht-Aussen-Untergrund")->setMeshMat(matVideoBackground, true);
-        amphiTheatre->findChild<SLNode>("Tht-Eingang-Ost-Boden")->setMeshMat(matVideoBackground, true);
-        amphiTheatre->findChild<SLNode>("Tht-Arenaboden")->setMeshMat(matVideoBackground, true);
-        amphiTheatre->findChild<SLNode>("Tht-Aussen-Terrain")->setMeshMat(matVideoBackground, true);
+        amphiTheatre->findChild<SLNode>("Tht-Eingang-Ost-Boden")->setMeshMat(matVideoBackgroundSM, true);
+        amphiTheatre->findChild<SLNode>("Tht-Arenaboden")->setMeshMat(matVideoBackgroundSM, true);
+        amphiTheatre->findChild<SLNode>("Tht-Aussen-Terrain")->setMeshMat(matVideoBackgroundSM, true);
 
         // Add axis object a world origin
         SLNode* axis = new SLNode(new SLCoordAxis(s), "Axis Node");
         axis->setDrawBitsRec(SL_DB_MESHWIRED, false);
-        axis->scale(10);
         axis->rotate(-90, 1, 0, 0);
+        axis->castsShadows(false);
 
         SLNode* scene = new SLNode("Scene");
         scene->addChild(sunLight);
@@ -4111,6 +4121,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLNode* axis = new SLNode(new SLCoordAxis(s), "Axis Node");
         axis->setDrawBitsRec(SL_DB_MESHWIRED, false);
         axis->rotate(-90, 1, 0, 0);
+        axis->castsShadows(false);
 
         SLNode* scene = new SLNode("Scene");
         scene->addChild(sunLight);
@@ -4205,6 +4216,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLNode* axis = new SLNode(new SLCoordAxis(s), "Axis Node");
         axis->setDrawBitsRec(SL_DB_MESHWIRED, false);
         axis->rotate(-90, 1, 0, 0);
+        axis->castsShadows(false);
 
         SLNode* scene = new SLNode("Scene");
         scene->addChild(sunLight);
@@ -4277,6 +4289,20 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                                                         nullptr,
                                                         spVideoBackground);
 
+        // Define shader that shows on all pixels the video background with shadow mapping
+        SLGLProgram* spVideoBackgroundSM  = new SLGLGenericProgram(s,
+                                                                   SLApplication::shaderPath + "PerPixTextureBackgroundSM.vert",
+                                                                   SLApplication::shaderPath + "PerPixTextureBackgroundSM.frag");
+        SLMaterial*  matVideoBackgroundSM = new SLMaterial(s,
+                                                           "matVideoBackground",
+                                                           videoTexture,
+                                                           nullptr,
+                                                           nullptr,
+                                                           nullptr,
+                                                           spVideoBackgroundSM);
+        matVideoBackgroundSM->ambient(SLCol4f(0.6f, 0.6f, 0.6f));
+        matVideoBackgroundSM->getsShadows(true);
+
         // Create directional light for the sun light
         SLLightDirect* sunLight = new SLLightDirect(s, s, 5.0f);
         sunLight->powers(1.0f, 1.0f, 1.0f);
@@ -4285,7 +4311,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sunLight->lookAt(10, 0, 10);
         sunLight->doSunPowerAdaptation(true);
         sunLight->createsShadows(true);
-        sunLight->createShadowMap(-100, 150, SLVec2f(150, 150), SLVec2i(2048, 2048));
+        sunLight->createShadowMap(-100, 150, SLVec2f(150, 150), SLVec2i(4096, 4096));
         sunLight->doSmoothShadows(true);
         sunLight->castsShadows(false);
 
@@ -4320,8 +4346,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         // Add axis object a world origin
         SLNode* axis = new SLNode(new SLCoordAxis(s), "Axis Node");
         axis->setDrawBitsRec(SL_DB_MESHWIRED, false);
-        axis->scale(10);
         axis->rotate(-90, 1, 0, 0);
+        axis->castsShadows(false);
 
         SLNode* scene = new SLNode("Scene");
         scene->addChild(sunLight);

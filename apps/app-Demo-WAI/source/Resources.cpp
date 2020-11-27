@@ -174,6 +174,16 @@ void Strings::load(std::string fileName)
             loadString(fs, "augstTheaterFrontHeading1", _augstTheaterInfoHeading1);
             loadString(fs, "augstTheaterFrontText1", _augstTheaterInfoText1);
             loadString(fs, "augstTheaterFrontText2", _augstTheaterInfoText2);
+            //avenches:
+            loadString(fs, "avenchesAmphitheaterHeading1", _avenchesAmphitheaterInfoHeading1);
+            loadString(fs, "avenchesAmphitheaterText1", _avenchesAmphitheaterInfoText1);
+            loadString(fs, "avenchesAmphitheaterText2", _avenchesAmphitheaterInfoText2);
+            loadString(fs, "avenchesCigognierHeading1", _avenchesCigognierInfoHeading1);
+            loadString(fs, "avenchesCigognierText1", _avenchesCigognierInfoText1);
+            loadString(fs, "avenchesCigognierText2", _avenchesCigognierInfoText2);
+            loadString(fs, "avenchesTheaterHeading1", _avenchesTheaterInfoHeading1);
+            loadString(fs, "avenchesTheaterText1", _avenchesTheaterInfoText1);
+            loadString(fs, "avenchesTheaterText2", _avenchesTheaterInfoText2);
         }
     }
     else
