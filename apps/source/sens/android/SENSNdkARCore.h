@@ -24,6 +24,7 @@ public:
 	void pause() override;
     bool update(cv::Mat& intrinsic, cv::Mat& view);
     SENSFramePtr latestFrame();
+    void lightComponentIntensity(float * components);
 
     void setDisplaySize(int w, int h);
     int getCameraOpenGLTexture();
@@ -36,6 +37,8 @@ private:
     ArFrame*         _arFrame   = nullptr;
     bool             _pause     = true;   
     GLuint           _cameraTextureId;
+	//float          _lightColor[4];
+	float            _envLightI[3];
     std::mutex       _frameMutex;
     bool             _available;
 
