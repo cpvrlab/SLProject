@@ -158,10 +158,10 @@ void AppWAIScene::initLocationAugst()
     sunLight->translation(0, 10, 0);
     sunLight->lookAt(10, 0, 10);
     sunLight->doSunPowerAdaptation(true);
-    sunLight->createsShadows(true);
-    sunLight->createShadowMap(-100, 250, SLVec2f(250, 150), SLVec2i(2048, 2048));
-    sunLight->doSmoothShadows(true);
-    sunLight->castsShadows(false);
+    //sunLight->createsShadows(true);
+    //sunLight->createShadowMap(-100, 250, SLVec2f(250, 150), SLVec2i(2048, 2048));
+    //sunLight->doSmoothShadows(true);
+    //sunLight->castsShadows(false);
     _root3D->addChild(sunLight);
 
     //init camera
@@ -195,11 +195,11 @@ void AppWAIScene::initAreaAvenchesAmphitheater()
     sunLight->translation(0, 10, 0);
     sunLight->lookAt(10, 0, 10);
     sunLight->doSunPowerAdaptation(true);
-    sunLight->createsShadows(true);
-    sunLight->createShadowMap(-100, 150, SLVec2f(150, 150), SLVec2i(2048, 2048));
-    sunLight->doSmoothShadows(true);
-    sunLight->shadowMaxBias(0.02f);
-    sunLight->castsShadows(false);
+    //sunLight->createsShadows(true);
+    //sunLight->createShadowMap(-100, 150, SLVec2f(150, 150), SLVec2i(2048, 2048));
+    //sunLight->doSmoothShadows(true);
+    //sunLight->shadowMaxBias(0.02f);
+    //sunLight->castsShadows(false);
     _root3D->addChild(sunLight);
 
     //init camera
@@ -233,10 +233,10 @@ void AppWAIScene::initAreaAvenchesCigognier()
     sunLight->translation(0, 10, 0);
     sunLight->lookAt(10, 0, 10);
     sunLight->doSunPowerAdaptation(true);
-    sunLight->createsShadows(true);
-    sunLight->createShadowMap(-100, 150, SLVec2f(150, 150), SLVec2i(2048, 2048));
-    sunLight->doSmoothShadows(true);
-    sunLight->castsShadows(false);
+    //sunLight->createsShadows(true);
+    //sunLight->createShadowMap(-100, 150, SLVec2f(150, 150), SLVec2i(2048, 2048));
+    //sunLight->doSmoothShadows(true);
+    //sunLight->castsShadows(false);
     _root3D->addChild(sunLight);
 
     //init camera
@@ -269,10 +269,10 @@ void AppWAIScene::initAreaAvenchesTheatre()
     sunLight->translation(0, 10, 0);
     sunLight->lookAt(10, 0, 10);
     sunLight->doSunPowerAdaptation(true);
-    sunLight->createsShadows(true);
-    sunLight->createShadowMap(-100, 150, SLVec2f(150, 150), SLVec2i(2048, 2048));
-    sunLight->doSmoothShadows(true);
-    sunLight->castsShadows(false);
+    //sunLight->createsShadows(true);
+    //sunLight->createShadowMap(-100, 150, SLVec2f(150, 150), SLVec2i(2048, 2048));
+    //sunLight->doSmoothShadows(true);
+    //sunLight->castsShadows(false);
     _root3D->addChild(sunLight);
 
     //init camera
@@ -304,10 +304,10 @@ void AppWAIScene::initLocationBern()
     sunLight->powers(1.0f, 1.5f, 1.0f);
     sunLight->attenuation(1, 0, 0);
     sunLight->doSunPowerAdaptation(true);
-    sunLight->createsShadows(true);
-    sunLight->createShadowMap(-100, 150, SLVec2f(150, 150), SLVec2i(2048, 2048));
-    sunLight->doSmoothShadows(true);
-    sunLight->castsShadows(false);
+    //sunLight->createsShadows(true);
+    //sunLight->createShadowMap(-100, 150, SLVec2f(150, 150), SLVec2i(2048, 2048));
+    //sunLight->doSmoothShadows(true);
+    //sunLight->castsShadows(false);
     _root3D->addChild(sunLight);
 
     //init camera
@@ -340,10 +340,10 @@ void AppWAIScene::initLocationBiel(SLDeviceRotation* devRot, SLDeviceLocation* d
     sunLight->powers(1.0f, 1.0f, 1.0f);
     sunLight->attenuation(1, 0, 0);
     sunLight->doSunPowerAdaptation(true);
-    sunLight->createsShadows(true);
-    sunLight->createShadowMap(-100, 150, SLVec2f(150, 150), SLVec2i(2048, 2048));
-    sunLight->doSmoothShadows(true);
-    sunLight->castsShadows(false);
+    //sunLight->createsShadows(true);
+    //sunLight->createShadowMap(-100, 150, SLVec2f(150, 150), SLVec2i(2048, 2048));
+    //sunLight->doSmoothShadows(true);
+    //sunLight->castsShadows(false);
     _root3D->addChild(sunLight);
 
     //init camera
@@ -392,10 +392,10 @@ void AppWAIScene::initAreaEvilardOffice(SLDeviceRotation* devRot, SLDeviceLocati
     sunLight->powers(1.0f, 1.0f, 1.0f);
     sunLight->attenuation(1, 0, 0);
     sunLight->doSunPowerAdaptation(true);
-    sunLight->createsShadows(true);
-    sunLight->createShadowMap(-100, 150, SLVec2f(150, 150), SLVec2i(2048, 2048));
-    sunLight->doSmoothShadows(true);
-    sunLight->castsShadows(false);
+    //sunLight->createsShadows(true);
+    //sunLight->createShadowMap(-100, 150, SLVec2f(150, 150), SLVec2i(2048, 2048));
+    //sunLight->doSmoothShadows(true);
+    //sunLight->castsShadows(false);
     sunLight->drawBits()->set(SL_DB_HIDDEN, true);
     world->addChild(sunLight);
 
@@ -454,10 +454,10 @@ void AppWAIScene::initLocationDefault()
     sunLight->powers(1.0f, 1.0f, 1.0f);
     sunLight->attenuation(1, 0, 0);
     sunLight->doSunPowerAdaptation(true);
-    sunLight->createsShadows(true);
-    sunLight->createShadowMap(-100, 150, SLVec2f(150, 150), SLVec2i(2048, 2048));
-    sunLight->doSmoothShadows(true);
-    sunLight->castsShadows(false);
+    //sunLight->createsShadows(true);
+    //sunLight->createShadowMap(-100, 150, SLVec2f(150, 150), SLVec2i(2048, 2048));
+    //sunLight->doSmoothShadows(true);
+    //sunLight->castsShadows(false);
     _root3D->addChild(sunLight);
 
     //init camera

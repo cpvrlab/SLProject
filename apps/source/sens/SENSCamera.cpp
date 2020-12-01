@@ -213,11 +213,11 @@ void SENSCameraBase::updateFrame(cv::Mat bgrImg, cv::Mat intrinsics, bool intrin
     {
         std::lock_guard<std::mutex> lock(_frameMutex);
         _frame = std::make_shared<SENSFrameBase>(timePt, bgrImg, intrinsics);
-        if (intrinsicsChanged)
-        {
-            _intrinsicsChanged = true;
-            _intrinsics        = intrinsics;
-        }
+        //if (intrinsicsChanged)
+        //{
+        //    _intrinsicsChanged = true;
+        //    _intrinsics        = intrinsics;
+        //}
     }
 }
 

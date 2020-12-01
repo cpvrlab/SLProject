@@ -45,6 +45,8 @@ public:
     bool isRunning() { return !_pause; }
 
 protected:
+    SENSFramePtr processNewFrame(const SENSTimePt& timePt, cv::Mat& bgrImg, cv::Mat intrinsics);
+
     void configure(int  targetWidth,
                            int  targetHeight,
                            int  manipWidth,
@@ -52,6 +54,7 @@ protected:
                            bool convertManipToGray);
     
     bool             _running = false;
+    std::mutex       _frameMutex;
     SENSFrameBasePtr _frame;
     struct config    _config;
 

@@ -7,9 +7,9 @@
 #include <Utils.h>
 #include <GlobalTimer.h>
 
-//#define LOAD_ASYNC
+#define LOAD_ASYNC
 //#define TARGET_WIDTH 1920
-//#define TARGET_HEIGHT 1440
+//#define TARGET_HEIGHT 1080
 #define TARGET_WIDTH 640
 #define TARGET_HEIGHT 360
 
@@ -100,7 +100,7 @@ void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaI
         //init arcore
         if (_arcore && _config.useARCore && _arcore->isAvailable())
         {
-            _arcore->init(TARGET_WIDTH, TARGET_HEIGHT, area.cameraFrameTargetSize.width, area.cameraFrameTargetSize.height, true);
+            _arcore->init(TARGET_WIDTH, TARGET_HEIGHT, -1, -1, false);
             _arcore->resume();
         }
 
@@ -219,7 +219,7 @@ bool AreaTrackingView::updateGPSARCore(SENSFramePtr& frame)
     SLMat4f gpsPose = calcCameraPoseGpsOrientationBased();
 
     //Get frame from ArCore or camera depending if we have them.
-    if (_arcore->isRunning())
+    if (true)//_arcore->isRunning())
     {
         cv::Mat proj;
         isTracking = _arcore->update(proj, view);
@@ -495,11 +495,12 @@ bool AreaTrackingView::update()
 {
     try
     {
+        Utils::log("AreaTrackingView", "update");
         if (_noInitException) //if there was not exception during initArea
         {
             SENSFramePtr frame;
-            if (_camera)
-                frame = _camera->latestFrame();
+            if (_arcore)
+                frame = _arcore->latestFrame();
             
             if (this->s() != &_waiScene)
             {
@@ -507,7 +508,8 @@ bool AreaTrackingView::update()
                 this->camera(_waiScene.camera);
             }
             VideoBackgroundCamera* currentCamera = _waiScene.camera;
-            
+
+                
             /*
             SENSFramePtr frame = nullptr;
 
@@ -573,6 +575,7 @@ bool AreaTrackingView::update()
                 //set video image camera background
                 updateVideoImage(*frame.get(), currentCamera);
             }
+
 
             /*
             //update user guidance

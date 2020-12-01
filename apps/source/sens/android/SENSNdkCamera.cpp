@@ -481,7 +481,7 @@ cv::Mat SENSNdkCamera::convertToYuv(AImage* image)
     // This is also described like this in wikipedia in section https://en.wikipedia.org/wiki/YUV#Y%E2%80%B2UV420sp_(NV21)_to_RGB_conversion_(Android)
     // U follows V in the interleaved block (in contradiction to what is shown in the drawing explaining yuv in wikipedia).
     // As both planes have the same length, but one starts one byte lower, we have to copy one
-    //additional byte to get all the data.
+    //additional byte to get all the data (see vLen+1).
     //We do not have to additionally copy the v plane. The u plane contains the interleaved u and v data!
     memcpy(yuv.data + yLen + (rowStrideY - width), vPixel, vLen + 1);
 

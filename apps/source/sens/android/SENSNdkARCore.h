@@ -34,11 +34,9 @@ private:
     ArFrame*         _arFrame   = nullptr;
 
     GLuint           _cameraTextureId;
-    std::mutex       _frameMutex;
 
     void initCameraTexture();
     cv::Mat convertToYuv(ArImage* arImage);
-    SENSFramePtr processNewFrame(const SENSTimePt& timePt, cv::Mat& bgrImg, cv::Mat intrinsics);
     void updateFrame(cv::Mat& intrinsic);
 };
 

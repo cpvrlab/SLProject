@@ -213,45 +213,6 @@ SENSFramePtr SENSNdkARCore::latestFrame()
     return latestFrame;
 }
 
-SENSFramePtr SENSNdkARCore::processNewFrame(const SENSTimePt& timePt, cv::Mat& bgrImg, cv::Mat intrinsics)
-{
-    //todo: accessing config readonly should be no problem  here, as the config only changes when camera is stopped
-    cv::Size inputSize = bgrImg.size();
-
-    // Crop Video image to required aspect ratio
-    int cropW = 0, cropH = 0;
-    SENS::cropImage(bgrImg, (float)_config.targetWidth / (float)_config.targetHeight, cropW, cropH);
-
-    cv::Mat manipImg;
-    float   scale = 1.0f;
-
-    manipImg = bgrImg;
-    //problem: eingangsbild 16:9 -> targetImg 4:3 -> crop left and right -> manipImg 16:9 -> weiterer crop oben und unten -> FALSCH
-    if (_config.manipWidth > 0 && _config.manipHeight > 0)
-    {
-        int cropW = 0, cropH = 0;
-        SENS::cropImage(manipImg, (float)_config.manipWidth / (float)_config.manipHeight, cropW, cropH);
-        scale = (float)_config.manipWidth / (float)manipImg.size().width;
-        cv::resize(manipImg, manipImg, cv::Size(), scale, scale);
-    }
-
-    // Create grayscale
-    if (_config.convertManipToGray)
-    {
-        cv::cvtColor(manipImg, manipImg, cv::COLOR_BGR2GRAY);
-    }
-
-    SENSFramePtr sensFrame = std::make_unique<SENSFrame>(timePt,
-                                                         bgrImg,
-                                                         manipImg,
-                                                         false,
-                                                         false,
-                                                         1 / scale,
-                                                         intrinsics);
-
-    return sensFrame;
-}
-
 cv::Mat SENSNdkARCore::convertToYuv(ArImage* arImage)
 {
     int32_t height, width, rowStrideY;

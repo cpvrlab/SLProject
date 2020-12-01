@@ -13,7 +13,18 @@ struct SENSFrameBase
         timePt(timePt)
     {
     }
-
+    
+    SENSFrameBase(SENSTimePt timePt, cv::Mat imgBGR, cv::Mat intrinsics, cv::Mat camPose)
+      : imgBGR(imgBGR),
+        intrinsics(intrinsics),
+        timePt(timePt),
+        pose(camPose)
+    {
+    }
+    
+    //camera pose
+    cv::Mat pose;
+    
     //! cropped input image
     cv::Mat imgBGR;
     cv::Mat intrinsics;
