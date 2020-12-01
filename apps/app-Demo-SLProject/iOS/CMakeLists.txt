@@ -24,14 +24,14 @@ if(XCODE_CODESIGNIDENTITY)
 	set(XCODE_DEVELOPMENTTEAM "858Y9EWZ4B")
 else()
 	message(STATUS "automatic signing")
-	set(APP_BUNDLE_IDENTIFIER "com.${target}.identifier") # <== Set to your app's bundle identifier
+	set(APP_BUNDLE_IDENTIFIER "com.${target}") # <== Set to your app's bundle identifier
 
     set(XCODE_CODESIGNIDENTITY "iPhone Developer")
 	set(XCODE_DEVELOPMENTTEAM ${XCODE_DEVELOPMENTTEAM})
 endif()
 
 
-set(DEPLOYMENT_TARGET 8.0)                                  # <== Set your deployment target version of iOS
+set(DEPLOYMENT_TARGET 12.0)                                  # <== Set your deployment target version of iOS
 set(DEVICE_FAMILY "1,2")                                      # <== Set to "1" to target iPhone, set to "2" to target iPad, set to "1,2" to target both
 
 #include(BundleUtilities)

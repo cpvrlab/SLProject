@@ -9,7 +9,7 @@ if("${SYSTEM_NAME_UPPER}" MATCHES "ANDROID")
 	
 elseif("${SYSTEM_NAME_UPPER}" MATCHES "IOS")
 	add_subdirectory(app-Demo-SLProject)
-	add_subdirectory(app-Demo-WAI)
+	#add_subdirectory(app-Demo-WAI)
 	
 else()
     add_subdirectory(exercices)
