@@ -1,7 +1,5 @@
 #import "SENSiOSARCoreDelegate.h"
 
-#include <HighResTimer.h>
-
 @interface SENSiOSARCoreDelegate () {
 
 @private
@@ -73,12 +71,64 @@
     }
 }
 
+- (void)latestFrame: (cv::Mat*)pose withImg: (cv::Mat*)imgBGR AndIntrinsic: (cv::Mat*)intrinsic IsTracking: (BOOL*)isTracking
+{
+    //Reference the current ARFrame (I think the referenced "currentFrame" may change during this function call)
+    ARFrame* frame = _arSession.currentFrame;
+    ARCamera* camera = frame.camera;
+    
+    //copy camera pose
+    *pose = cv::Mat_<float>(4, 4);
+    for (int i = 0; i < 4; ++i)
+    {
+        simd_float4 col = camera.transform.columns[i];
+        pose->at<float>(0, i) = (float)col[0];
+        pose->at<float>(1, i) = (float)col[1];
+        pose->at<float>(2, i) = (float)col[2];
+        pose->at<float>(3, i) = (float)col[3];
+    }
+    
+    //copy intrinsic
+    *intrinsic        = cv::Mat_<double>(3, 3);
+    for (int i = 0; i < 3; ++i)
+    {
+        simd_float3 col             = camera.intrinsics.columns[i];
+        intrinsic->at<double>(0, i) = (double)col[0];
+        intrinsic->at<double>(1, i) = (double)col[1];
+        intrinsic->at<double>(2, i) = (double)col[2];
+    }
+    
+    if(frame.camera.trackingState == ARTrackingStateNormal)
+        *isTracking = YES;
+    else
+        *isTracking = NO;
+    
+    //copy the image as in camera
+    CVImageBufferRef pixelBuffer = frame.capturedImage;
+
+    CVReturn ret =  CVPixelBufferLockBaseAddress(pixelBuffer, 0);  
+    OSType pixelFormat = CVPixelBufferGetPixelFormatType(pixelBuffer);
+    //This is NV12, so the order is U/V (NV12: YYYYUV NV21: YYYYVU)
+    if (ret == kCVReturnSuccess && pixelFormat == kCVPixelFormatType_420YpCbCr8BiPlanarFullRange)
+    {
+        size_t imgWidth  = CVPixelBufferGetWidth(pixelBuffer);
+        size_t imgHeight = CVPixelBufferGetHeight(pixelBuffer);
+
+        uint8_t* yPlane = (uint8_t*)CVPixelBufferGetBaseAddressOfPlane(pixelBuffer, 0);
+             
+        cv::Mat yuvImg((int)imgHeight + ((int)imgHeight / 2), (int)imgWidth, CV_8UC1, yPlane);
+        cv::cvtColor(yuvImg, *imgBGR, cv::COLOR_YUV2BGR_NV12, 3);
+    }
+    CVPixelBufferUnlockBaseAddress(pixelBuffer, 0);
+}
+
 #pragma mark - ARSessionDelegate
 
 - (void)session:(ARSession *)session didUpdateFrame:(ARFrame *)frame
 {
     if(false)
     {
+        /*
         //copy the image as in camera
         CVImageBufferRef buffer = frame.capturedImage;
 
@@ -98,7 +148,7 @@
         if (pixelFormat == kCVPixelFormatType_420YpCbCr8BiPlanarFullRange) {
             //We have an ARKIT buffer
             //Get the yPlane (Luma values)
-            HighResTimer t;
+            //HighResTimer t;
             cv::Mat yPlane = cv::Mat(bufferHeight, bufferWidth, CV_8UC1, address);
                 
             //Get cbcrPlane (Chroma values)
@@ -125,8 +175,8 @@
                 
             //ycbcr now contains all three planes. We need to convert it from YCbCr to RGB so OpenCV can work with it
             cv::cvtColor(ycbcr, converted, cv::COLOR_YCrCb2RGB);
-            float elt = t.elapsedTimeInMilliSec();
-            NSLog(@"convertion: %f", elt);
+            //float elt = t.elapsedTimeInMilliSec();
+            //   NSLog(@"convertion: %f", elt);
         }
         else
         {
@@ -142,10 +192,12 @@
         //copy intrinsic
         simd_float3x3 intrinsic = frame.camera.intrinsics;
         
+       
         if(_updateBgrCB)
         {
             _updateBgrCB(&camPose, converted, &intrinsic);
         }
+         */
     }
     else
     {
@@ -179,6 +231,10 @@
             //copy intrinsic
             simd_float3x3 intrinsic = frame.camera.intrinsics;
             
+            BOOL tracking = NO;
+            if(frame.camera.trackingState == ARTrackingStateNormal)
+                tracking = YES;
+            
             //send everything via callback
             if (_updateCB)
             {
@@ -187,7 +243,8 @@
                            uvPlane,
                            imgWidth,
                            imgHeight,
-                           &intrinsic);
+                           &intrinsic,
+                           tracking);
             }
         }
         CVPixelBufferUnlockBaseAddress(pixelBuffer, 0);

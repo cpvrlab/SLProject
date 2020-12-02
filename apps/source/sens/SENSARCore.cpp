@@ -17,7 +17,23 @@ void SENSARCore::configure(int  targetWidth,
     _config.convertManipToGray = convertManipToGray;
 }
 
-SENSFramePtr SENSARCore::processNewFrame(const SENSTimePt& timePt, cv::Mat& bgrImg, cv::Mat intrinsics)
+/*
+SENSFramePtr SENSARCore::latestFrame()
+{
+    SENSFrameBasePtr frameBase;
+    {
+        std::lock_guard<std::mutex> lock(_frameMutex);
+        frameBase = _frame;
+    }
+    
+    SENSFramePtr latestFrame;
+    if (frameBase)
+        latestFrame = processNewFrame(frameBase->timePt, frameBase->imgBGR, frameBase->intrinsics, frameBase->pose, frameBase->tracking);
+    return latestFrame;
+}
+ */
+
+SENSFramePtr SENSARCore::processNewFrame(const SENSTimePt& timePt, cv::Mat& bgrImg, cv::Mat intrinsics, cv::Mat pose, bool isTracking)
 {
     //todo: accessing config readonly should be no problem  here, as the config only changes when camera is stopped
     cv::Size inputSize = bgrImg.size();
@@ -51,7 +67,9 @@ SENSFramePtr SENSARCore::processNewFrame(const SENSTimePt& timePt, cv::Mat& bgrI
                                                          false,
                                                          false,
                                                          1 / scale,
-                                                         intrinsics);
+                                                         intrinsics,
+                                                         pose,
+                                                         isTracking);
 
     return sensFrame;
 }

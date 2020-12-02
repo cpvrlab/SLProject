@@ -168,6 +168,9 @@ bool SENSNdkARCore::update(cv::Mat& intrinsic, cv::Mat& view)
     ArCamera_getViewMatrix(_arSession, arCamera, view.ptr<float>(0));
     ArCamera_getProjectionMatrix(_arSession, arCamera, /*near=*/0.1f, /*far=*/100.f, intrinsic.ptr<float>(0));
 
+    ArPose* pose;
+    ArCamera_getPose(_arSession, arCamera, pose);
+
     view = view.t();
     intrinsic = intrinsic.t();
     updateFrame(intrinsic);
@@ -200,6 +203,7 @@ void SENSNdkARCore::updateFrame(cv::Mat& intrinsic)
     _frame = std::make_unique<SENSFrameBase>(SENSClock::now(), bgr, intrinsic);
 }
 
+/*
 SENSFramePtr SENSNdkARCore::latestFrame()
 {
     SENSFrameBasePtr frameBase;
@@ -212,6 +216,7 @@ SENSFramePtr SENSNdkARCore::latestFrame()
         latestFrame = processNewFrame(frameBase->timePt, frameBase->imgBGR, cv::Mat());
     return latestFrame;
 }
+ */
 
 cv::Mat SENSNdkARCore::convertToYuv(ArImage* arImage)
 {

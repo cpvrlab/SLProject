@@ -10,7 +10,6 @@
 #import "SENSiOSARCoreDelegate.h"
 #import <simd/simd.h>
 
-/*
 class ImageConverter
 {
 public:
@@ -76,7 +75,7 @@ private:
     
     std::function<void(SENSFrameBasePtr)> _setFrameCB;
 };
- */
+
 
 class SENSiOSARCore : public SENSARCore
 {
@@ -92,12 +91,11 @@ public:
     bool resume() override;
     void reset() override;
     void pause() override;
-    bool update(cv::Mat& intrinsic, cv::Mat& view) override;
     SENSFramePtr latestFrame() override;
     void setDisplaySize(int w, int h) override;
 
 private:
-    void onUpdate(simd_float4x4* camPose, uint8_t* yPlane, uint8_t* uvPlane, int imgWidth, int imgHeight, simd_float3x3* camMat3x3);
+    void onUpdate(simd_float4x4* camPose, uint8_t* yPlane, uint8_t* uvPlane, int imgWidth, int imgHeight, simd_float3x3* camMat3x3, bool isTracking);
     void onUpdateBGR(simd_float4x4* camPose, cv::Mat imgBGR, simd_float3x3* camMat3x3);
     void setFrame(SENSFrameBasePtr frame)
     {
@@ -106,6 +104,8 @@ private:
     }
     
     SENSiOSARCoreDelegate* _arcoreDelegate;
+    
+    std::unique_ptr<ImageConverter> _imgConverter;
 };
 
 #endif

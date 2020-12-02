@@ -62,7 +62,9 @@ SENSFramePtr SENSVideoStream::grabNextFrame()
           _mirrorH,
           _mirrorV,
           1.0f,
-          cv::Mat());
+          cv::Mat(),
+          cv::Mat(),
+          false);
     }
 
     return sensFrame;
@@ -116,7 +118,9 @@ SENSFramePtr SENSVideoStream::grabNextResampledFrame()
           _mirrorH,
           _mirrorV,
           1.0,
-          cv::Mat());
+          cv::Mat(),
+          cv::Mat(),
+          false);
     }
 
     return sensFrame;

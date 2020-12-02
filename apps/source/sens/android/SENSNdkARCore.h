@@ -20,8 +20,8 @@ public:
     bool resume() override;
     void reset() override;
 	void pause() override;
-    bool update(cv::Mat& intrinsic, cv::Mat& view) override;
-    SENSFramePtr latestFrame() override;
+    bool update(cv::Mat& intrinsic, cv::Mat& view);
+    //SENSFramePtr latestFrame() override;
     void setDisplaySize(int w, int h) override;
 
     int getCameraOpenGLTexture();

@@ -91,7 +91,9 @@ SENSFramePtr SENSCvCamera::processNewFrame(const SENSTimePt& timePt, cv::Mat& bg
                                                          _config->mirrorH,
                                                          _config->mirrorV,
                                                          1 / scale,
-                                                         intrinsics);
+                                                         intrinsics,
+                                                         cv::Mat(),
+                                                         false);
 
     return sensFrame;
 }

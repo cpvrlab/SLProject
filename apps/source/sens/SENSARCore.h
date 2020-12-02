@@ -37,15 +37,15 @@ public:
     virtual bool resume() = 0;
     virtual void reset() = 0;
     virtual void pause() = 0;
-    virtual bool update(cv::Mat& intrinsic, cv::Mat& view) { return false; }
-    virtual SENSFramePtr latestFrame() = 0;
+    //virtual bool update(cv::Mat& intrinsic, cv::Mat& view) { return false; }
     virtual void setDisplaySize(int w, int h) = 0;
 
+    virtual SENSFramePtr latestFrame() = 0;
     bool isAvailable() { return _available; };
     bool isRunning() { return !_pause; }
 
 protected:
-    SENSFramePtr processNewFrame(const SENSTimePt& timePt, cv::Mat& bgrImg, cv::Mat intrinsics);
+    SENSFramePtr processNewFrame(const SENSTimePt& timePt, cv::Mat& bgrImg, cv::Mat intrinsics, cv::Mat pose, bool isTracking);
 
     void configure(int  targetWidth,
                            int  targetHeight,
