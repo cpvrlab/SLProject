@@ -308,7 +308,7 @@ void WAISlam::updatePose(WAIFrame& frame)
         }
         case WAI::TrackingState_TrackingOK: {
             int inliers;
-            if (tracking(_globalMap.get(), _localMap, frame, _lastFrame, _lastRelocFrameId, _velocity, inliers))
+            if (tracking(_globalMap.get(), _localMap, frame, _lastFrame, (int)_lastRelocFrameId, _velocity, inliers))
             {
                 std::unique_lock<std::mutex> lock(_cameraExtrinsicMutex);
                 motionModel(frame, _lastFrame, _velocity, _cameraExtrinsic);
@@ -350,7 +350,7 @@ void WAISlam::updatePoseKFIntegration(WAIFrame& frame)
     {
         case WAI::TrackingState_TrackingOK: {
             int inliers;
-            if (tracking(_globalMap.get(), _localMap, frame, _lastFrame, _lastRelocFrameId, _velocity, inliers))
+            if (tracking(_globalMap.get(), _localMap, frame, _lastFrame, (int)_lastRelocFrameId, _velocity, inliers))
             {
                 std::unique_lock<std::mutex> lock(_cameraExtrinsicMutex);
                 motionModel(frame, _lastFrame, _velocity, _cameraExtrinsic);

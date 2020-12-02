@@ -11,11 +11,12 @@
 #include <WAIMapPoint.h>
 #include <VideoBackgroundCamera.h>
 #include <ErlebAR.h>
+#include <HttpDownloader.h>
 
 class AppWAIScene : public SLScene
 {
 public:
-    AppWAIScene(SLstring name, std::string dataDir, std::string erlebARDir);
+    AppWAIScene(SLstring name, std::string dataDir, std::string erlebARDir, HttpDownloader* HttpDownloader);
 
     void unInit() override;
     void initScene(ErlebAR::LocationId locationId, ErlebAR::AreaId areaId);
@@ -60,6 +61,7 @@ private:
     void initMapVisualization();
     void initAreaVisualization(ErlebAR::LocationId locationId, ErlebAR::AreaId areaId);
     void initLocationAugst();
+    void initLocationAvenches(ErlebAR::AreaId areaId);
     void initAreaAvenchesAmphitheater();
     void initAreaAvenchesCigognier();
     void initAreaAvenchesTheatre();
@@ -97,6 +99,7 @@ private:
     SLPolyline* spanningTreeMesh          = nullptr;
     SLPolyline* loopEdgesMesh             = nullptr;
 
+    HttpDownloader* _httpDownloader = nullptr;
     //path to data directory
     std::string _dataDir;
     std::string _erlebARDir;

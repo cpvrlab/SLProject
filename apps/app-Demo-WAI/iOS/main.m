@@ -12,8 +12,10 @@
 
 int main(int argc, char* argv[])
 {
+    NSString* appDelegateClassName;
     @autoreleasepool
     {
-        return UIApplicationMain(argc, argv, nil, NSStringFromClass([ErlebARAppDelegate class]));
+        appDelegateClassName = NSStringFromClass([ErlebARAppDelegate class]);
     }
+    return UIApplicationMain(argc, argv, nil, appDelegateClassName);
 }

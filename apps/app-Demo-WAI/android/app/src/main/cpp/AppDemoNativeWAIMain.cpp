@@ -44,6 +44,7 @@
 #include <sens/android/SENSNdkGps.h>
 #include <sens/android/SENSNdkOrientation.h>
 #include <sens/android/SENSNdkARCore.h>
+#include <HttpNdkDownloader.h>
 
 #define ENGINE_DEBUG(...) Utils::log("Engine", __VA_ARGS__)
 #define ENGINE_INFO(...) Utils::log("Engine", __VA_ARGS__)
@@ -61,6 +62,7 @@
 // global JNI interface variables
 jclass gGpsClass;
 jclass gOrientationClass;
+jclass gHTTPClass;
 
 class Engine
 {
@@ -132,6 +134,8 @@ private:
     SENSNdkGps*         _gps         = nullptr;
     SENSNdkOrientation* _orientation = nullptr;
     SENSNdkARCore*      _arcore      = nullptr;
+    HttpDownloader*     _httpDownloader = nullptr;
+
     /*
     SensorsHandler* sensorsHandler;
     */
@@ -164,7 +168,7 @@ void Engine::onInit()
     ENGINE_DEBUG("onInit");
 
     initSensors();
-
+    _httpDownloader = new HttpNdkDownloader(_app->activity->vm, gHTTPClass);
     if (!_earAppIsInitialized)
     {
         ENGINE_DEBUG("earAppp NOT initialized");
@@ -188,8 +192,9 @@ void Engine::onInit()
 
         //todo revert
         _earApp.setCloseAppCallback(std::bind(&Engine::closeAppCallback, this));
-        _earApp.init(_width, _height, _dpi, internalPath + "/data/", externalPath, _camera, _gps, _orientation, _arcore);
+        _earApp.init(_width, _height, _dpi, internalPath + "/data/", externalPath, _camera, _gps, _orientation, _arcore, _httpDownloader);
         _earAppIsInitialized = true;
+
     }
     else
     {
@@ -203,7 +208,7 @@ void Engine::onInit()
 
             std::string internalPath = getInternalDir();
             std::string externalPath = getExternalDir();
-            _earApp.init(_width, _height, _dpi, internalPath + "/data/", externalPath, _camera, _gps, _orientation, _arcore);
+            _earApp.init(_width, _height, _dpi, internalPath + "/data/", externalPath, _camera, _gps, _orientation, _arcore, _httpDownloader);
         }
         else
         {
@@ -565,6 +570,10 @@ extern "C" JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved)
 
     jclass cOrient  = env->FindClass("ch/cpvr/wai/SENSOrientation");
     gOrientationClass = reinterpret_cast<jclass>(env->NewGlobalRef(cOrient));
+
+    jclass cHTTP = env->FindClass("ch/cpvr/wai/HTTP");
+    gHTTPClass = reinterpret_cast<jclass>(env->NewGlobalRef(cHTTP));
+
     return JNI_VERSION_1_6;
 }
 

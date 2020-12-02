@@ -1,4 +1,4 @@
-﻿/**
+/**
 * This file is part of ORB-SLAM2.
 *
 * Copyright (C) 2014-2016 Raúl Mur-Artal <raulmur at unizar dot es> (University of Zaragoza)
@@ -77,7 +77,7 @@ void Optimizer::BundleAdjustment(const vector<WAIKeyFrame*>& vpKFs,
             continue;
         g2o::VertexSE3Expmap* vSE3 = new g2o::VertexSE3Expmap();
         vSE3->setEstimate(Converter::toSE3Quat(pKF->GetPose()));
-        vSE3->setId(pKF->mnId);
+        vSE3->setId((int)pKF->mnId);
         vSE3->setFixed(pKF->mnId == 0);
         optimizer.addVertex(vSE3);
         if (pKF->mnId > maxKFid)
@@ -94,7 +94,7 @@ void Optimizer::BundleAdjustment(const vector<WAIKeyFrame*>& vpKFs,
             continue;
         g2o::VertexSBAPointXYZ* vPoint = new g2o::VertexSBAPointXYZ();
         vPoint->setEstimate(Converter::toVector3d(pMP->GetWorldPos()));
-        const int id = pMP->mnId + maxKFid + 1;
+        const int id = (int)(pMP->mnId + maxKFid + 1);
         vPoint->setId(id);
         vPoint->setMarginalized(true);
         optimizer.addVertex(vPoint);
@@ -119,7 +119,7 @@ void Optimizer::BundleAdjustment(const vector<WAIKeyFrame*>& vpKFs,
             g2o::EdgeSE3ProjectXYZ* e = new g2o::EdgeSE3ProjectXYZ();
 
             e->setVertex(0, dynamic_cast<g2o::OptimizableGraph::Vertex*>(optimizer.vertex(id)));
-            e->setVertex(1, dynamic_cast<g2o::OptimizableGraph::Vertex*>(optimizer.vertex(pKF->mnId)));
+            e->setVertex(1, dynamic_cast<g2o::OptimizableGraph::Vertex*>(optimizer.vertex((int)pKF->mnId)));
             e->setMeasurement(obs);
             const float& invSigma2 = pKF->mvInvLevelSigma2[kpUn.octave];
             e->setInformation(Eigen::Matrix2d::Identity() * invSigma2);
@@ -162,7 +162,7 @@ void Optimizer::BundleAdjustment(const vector<WAIKeyFrame*>& vpKFs,
         WAIKeyFrame* pKF = vpKFs[i];
         if (pKF->isBad())
             continue;
-        g2o::VertexSE3Expmap* vSE3    = static_cast<g2o::VertexSE3Expmap*>(optimizer.vertex(pKF->mnId));
+        g2o::VertexSE3Expmap* vSE3    = static_cast<g2o::VertexSE3Expmap*>(optimizer.vertex((int)pKF->mnId));
         g2o::SE3Quat          SE3quat = vSE3->estimate();
         if (nLoopKF == 0)
         {
@@ -187,7 +187,7 @@ void Optimizer::BundleAdjustment(const vector<WAIKeyFrame*>& vpKFs,
 
         if (pMP->isBad())
             continue;
-        g2o::VertexSBAPointXYZ* vPoint = static_cast<g2o::VertexSBAPointXYZ*>(optimizer.vertex(pMP->mnId + maxKFid + 1));
+        g2o::VertexSBAPointXYZ* vPoint = static_cast<g2o::VertexSBAPointXYZ*>(optimizer.vertex((int)(pMP->mnId + maxKFid + 1)));
 
         if (nLoopKF == 0)
         {
@@ -198,7 +198,7 @@ void Optimizer::BundleAdjustment(const vector<WAIKeyFrame*>& vpKFs,
         {
             pMP->mPosGBA.create(3, 1, CV_32F);
             Converter::toCvMat(vPoint->estimate()).copyTo(pMP->mPosGBA);
-            pMP->mnMarker[BA_GLOBAL_KF] = nLoopKF;
+            pMP->mnMarker[BA_GLOBAL_KF] = (int)nLoopKF;
         }
     }
 }
@@ -744,7 +744,7 @@ void Optimizer::OptimizeEssentialGraph(WAIMap*                                  
     const vector<WAIKeyFrame*> vpKFs = pMap->GetAllKeyFrames();
     const vector<WAIMapPoint*> vpMPs = pMap->GetAllMapPoints();
 
-    const unsigned int nMaxKFid = pMap->GetMaxKFid();
+    const unsigned int nMaxKFid = (unsigned int)pMap->GetMaxKFid();
 
     vector<g2o::Sim3, Eigen::aligned_allocator<g2o::Sim3>> vScw(nMaxKFid + 1);
     vector<g2o::Sim3, Eigen::aligned_allocator<g2o::Sim3>> vCorrectedSwc(nMaxKFid + 1);
@@ -760,7 +760,7 @@ void Optimizer::OptimizeEssentialGraph(WAIMap*                                  
             continue;
         g2o::VertexSim3Expmap* VSim3 = new g2o::VertexSim3Expmap();
 
-        const int nIDi = pKF->mnId;
+        const int nIDi = (int)pKF->mnId;
 
         LoopClosing::KeyFrameAndPose::const_iterator it = CorrectedSim3.find(pKF);
 
@@ -813,8 +813,8 @@ void Optimizer::OptimizeEssentialGraph(WAIMap*                                  
             const g2o::Sim3 Sji = Sjw * Swi;
 
             g2o::EdgeSim3* e = new g2o::EdgeSim3();
-            e->setVertex(1, dynamic_cast<g2o::OptimizableGraph::Vertex*>(optimizer.vertex(nIDj)));
-            e->setVertex(0, dynamic_cast<g2o::OptimizableGraph::Vertex*>(optimizer.vertex(nIDi)));
+            e->setVertex(1, dynamic_cast<g2o::OptimizableGraph::Vertex*>(optimizer.vertex((int)nIDj)));
+            e->setVertex(0, dynamic_cast<g2o::OptimizableGraph::Vertex*>(optimizer.vertex((int)nIDi)));
             e->setMeasurement(Sji);
             e->information() = matLambda;
 
@@ -829,7 +829,7 @@ void Optimizer::OptimizeEssentialGraph(WAIMap*                                  
     {
         WAIKeyFrame* pKF = vpKFs[i];
 
-        const int nIDi = pKF->mnId;
+        const int nIDi = (int)pKF->mnId;
 
         g2o::Sim3 Swi;
 
@@ -845,7 +845,7 @@ void Optimizer::OptimizeEssentialGraph(WAIMap*                                  
         // Spanning tree edge
         if (pParentKF)
         {
-            int nIDj = pParentKF->mnId;
+            int nIDj = (int)pParentKF->mnId;
 
             g2o::Sim3 Sjw;
 
@@ -885,7 +885,7 @@ void Optimizer::OptimizeEssentialGraph(WAIMap*                                  
 
                 g2o::Sim3      Sli = Slw * Swi;
                 g2o::EdgeSim3* el  = new g2o::EdgeSim3();
-                el->setVertex(1, dynamic_cast<g2o::OptimizableGraph::Vertex*>(optimizer.vertex(pLKF->mnId)));
+                el->setVertex(1, dynamic_cast<g2o::OptimizableGraph::Vertex*>(optimizer.vertex((int)pLKF->mnId)));
                 el->setVertex(0, dynamic_cast<g2o::OptimizableGraph::Vertex*>(optimizer.vertex(nIDi)));
                 el->setMeasurement(Sli);
                 el->information() = matLambda;
@@ -917,7 +917,7 @@ void Optimizer::OptimizeEssentialGraph(WAIMap*                                  
                     g2o::Sim3 Sni = Snw * Swi;
 
                     g2o::EdgeSim3* en = new g2o::EdgeSim3();
-                    en->setVertex(1, dynamic_cast<g2o::OptimizableGraph::Vertex*>(optimizer.vertex(pKFn->mnId)));
+                    en->setVertex(1, dynamic_cast<g2o::OptimizableGraph::Vertex*>(optimizer.vertex((int)pKFn->mnId)));
                     en->setVertex(0, dynamic_cast<g2o::OptimizableGraph::Vertex*>(optimizer.vertex(nIDi)));
                     en->setMeasurement(Sni);
                     en->information() = matLambda;
@@ -938,7 +938,7 @@ void Optimizer::OptimizeEssentialGraph(WAIMap*                                  
     {
         WAIKeyFrame* pKFi = vpKFs[i];
 
-        const int nIDi = pKFi->mnId;
+        const int nIDi = (int)pKFi->mnId;
 
         g2o::VertexSim3Expmap* VSim3        = static_cast<g2o::VertexSim3Expmap*>(optimizer.vertex(nIDi));
         g2o::Sim3              CorrectedSiw = VSim3->estimate();
@@ -965,12 +965,12 @@ void Optimizer::OptimizeEssentialGraph(WAIMap*                                  
         int nIDr;
         if (pMP->mnCorrectedByKF == pCurKF->mnId)
         {
-            nIDr = pMP->mnCorrectedReference;
+            nIDr = (int)pMP->mnCorrectedReference;
         }
         else
         {
             WAIKeyFrame* pRefKF = pMP->GetReferenceKeyFrame();
-            nIDr                = pRefKF->mnId;
+            nIDr                = (int)pRefKF->mnId;
         }
 
         g2o::Sim3 Srw          = vScw[nIDr];
@@ -1028,7 +1028,7 @@ void Optimizer::initOptimizerStruct(OptimizerStruct* os, WAIKeyFrame* pKF, Worki
                     if (pMP->mnMarker[BA_LOCAL_KF] != pKF->mnId)
                     {
                         os->lmap.mapPoints.push_back(pMP);
-                        pMP->mnMarker[BA_LOCAL_KF] = pKF->mnId;
+                        pMP->mnMarker[BA_LOCAL_KF] = (int)pKF->mnId;
                     }
                 }
             }
@@ -1061,11 +1061,11 @@ void Optimizer::initOptimizerStruct(OptimizerStruct* os, WAIKeyFrame* pKF, Worki
         WAIKeyFrame*          pKFi = *lit;
         g2o::VertexSE3Expmap* vSE3 = new g2o::VertexSE3Expmap();
         vSE3->setEstimate(Converter::toSE3Quat(pKFi->GetPose()));
-        vSE3->setId(pKFi->mnId);
+        vSE3->setId((int)pKFi->mnId);
         vSE3->setFixed(pKFi->mnId == 0 || pKFi->isFixed());
         os->optimizer.addVertex(vSE3);
         if (pKFi->mnId > (unsigned long)os->maxKFid)
-            os->maxKFid = pKFi->mnId;
+            os->maxKFid = (int)pKFi->mnId;
     }
 
     // Set Fixed WAIKeyFrame vertices
@@ -1074,11 +1074,11 @@ void Optimizer::initOptimizerStruct(OptimizerStruct* os, WAIKeyFrame* pKF, Worki
         WAIKeyFrame*          pKFi = *lit;
         g2o::VertexSE3Expmap* vSE3 = new g2o::VertexSE3Expmap();
         vSE3->setEstimate(Converter::toSE3Quat(pKFi->GetPose()));
-        vSE3->setId(pKFi->mnId);
+        vSE3->setId((int)pKFi->mnId);
         vSE3->setFixed(true);
         os->optimizer.addVertex(vSE3);
         if (pKFi->mnId > (unsigned long)os->maxKFid)
-            os->maxKFid = pKFi->mnId;
+            os->maxKFid = (int)pKFi->mnId;
     }
 
     // Set WAIMapPoint vertices
@@ -1093,7 +1093,7 @@ void Optimizer::initOptimizerStruct(OptimizerStruct* os, WAIKeyFrame* pKF, Worki
         WAIMapPoint*            pMP    = *lit;
         g2o::VertexSBAPointXYZ* vPoint = new g2o::VertexSBAPointXYZ();
         vPoint->setEstimate(Converter::toVector3d(pMP->GetWorldPos()));
-        int id = pMP->mnId + os->maxKFid + 1;
+        int id = (int)(pMP->mnId + os->maxKFid + 1);
         vPoint->setId(id);
         vPoint->setMarginalized(true);
         vPoint->setFixed(pMP->isFixed());
@@ -1116,7 +1116,7 @@ void Optimizer::initOptimizerStruct(OptimizerStruct* os, WAIKeyFrame* pKF, Worki
                 g2o::EdgeSE3ProjectXYZ* e = new g2o::EdgeSE3ProjectXYZ();
 
                 e->setVertex(0, dynamic_cast<g2o::OptimizableGraph::Vertex*>(os->optimizer.vertex(id)));
-                e->setVertex(1, dynamic_cast<g2o::OptimizableGraph::Vertex*>(os->optimizer.vertex(pKFi->mnId)));
+                e->setVertex(1, dynamic_cast<g2o::OptimizableGraph::Vertex*>(os->optimizer.vertex((int)pKFi->mnId)));
                 e->setMeasurement(obs);
                 const float& invSigma2 = pKFi->mvInvLevelSigma2[kpUn.octave];
                 e->setInformation(Eigen::Matrix2d::Identity() * invSigma2);
@@ -1216,7 +1216,7 @@ void Optimizer::applyBundleAdjustment(OptimizerStruct* os, WAIMap* pMap)
     for (auto lit = os->lmap.keyFrames.begin(), lend = os->lmap.keyFrames.end(); lit != lend; lit++)
     {
         WAIKeyFrame*          pKF     = *lit;
-        g2o::VertexSE3Expmap* vSE3    = static_cast<g2o::VertexSE3Expmap*>(os->optimizer.vertex(pKF->mnId));
+        g2o::VertexSE3Expmap* vSE3    = static_cast<g2o::VertexSE3Expmap*>(os->optimizer.vertex((int)pKF->mnId));
         g2o::SE3Quat          SE3quat = vSE3->estimate();
         pKF->SetPose(Converter::toCvMat(SE3quat));
     }
@@ -1225,7 +1225,7 @@ void Optimizer::applyBundleAdjustment(OptimizerStruct* os, WAIMap* pMap)
     for (auto lit = os->lmap.mapPoints.begin(), lend = os->lmap.mapPoints.end(); lit != lend; lit++)
     {
         WAIMapPoint*            pMP    = *lit;
-        g2o::VertexSBAPointXYZ* vPoint = static_cast<g2o::VertexSBAPointXYZ*>(os->optimizer.vertex(pMP->mnId + os->maxKFid + 1));
+        g2o::VertexSBAPointXYZ* vPoint = static_cast<g2o::VertexSBAPointXYZ*>(os->optimizer.vertex((int)(pMP->mnId + os->maxKFid + 1)));
         pMP->SetWorldPos(Converter::toCvMat(vPoint->estimate()));
         pMP->UpdateNormalAndDepth();
     }
@@ -1261,7 +1261,7 @@ void Optimizer::optimizerLocalMap(LocalMap& lmap, WAIKeyFrame* pKF)
                     if (pMP->mnMarker[BA_LOCAL_KF] != pKF->mnId)
                     {
                         lmap.mapPoints.push_back(pMP);
-                        pMP->mnMarker[BA_LOCAL_KF] = pKF->mnId;
+                        pMP->mnMarker[BA_LOCAL_KF] = (int)pKF->mnId;
                     }
                 }
             }
@@ -1314,7 +1314,7 @@ void Optimizer::LocalBundleAdjustment(WAIKeyFrame* pKF,
         WAIKeyFrame*          pKFi = *lit;
         g2o::VertexSE3Expmap* vSE3 = new g2o::VertexSE3Expmap();
         vSE3->setEstimate(Converter::toSE3Quat(pKFi->GetPose()));
-        vSE3->setId(pKFi->mnId);
+        vSE3->setId((int)pKFi->mnId);
         vSE3->setFixed(pKFi->mnId == 0 || pKFi->isFixed());
         optimizer.addVertex(vSE3);
         if (pKFi->mnId > maxKFid)
@@ -1327,7 +1327,7 @@ void Optimizer::LocalBundleAdjustment(WAIKeyFrame* pKF,
         WAIKeyFrame*          pKFi = *lit;
         g2o::VertexSE3Expmap* vSE3 = new g2o::VertexSE3Expmap();
         vSE3->setEstimate(Converter::toSE3Quat(pKFi->GetPose()));
-        vSE3->setId(pKFi->mnId);
+        vSE3->setId((int)pKFi->mnId);
         vSE3->setFixed(true);
         optimizer.addVertex(vSE3);
         if (pKFi->mnId > maxKFid)
@@ -1364,7 +1364,7 @@ void Optimizer::LocalBundleAdjustment(WAIKeyFrame* pKF,
         WAIMapPoint*            pMP    = *lit;
         g2o::VertexSBAPointXYZ* vPoint = new g2o::VertexSBAPointXYZ();
         vPoint->setEstimate(Converter::toVector3d(pMP->GetWorldPos()));
-        int id = pMP->mnId + maxKFid + 1;
+        int id = (int)(pMP->mnId + maxKFid + 1);
         vPoint->setId(id);
         vPoint->setMarginalized(true);
         vPoint->setFixed(pMP->isFixed());
@@ -1387,7 +1387,7 @@ void Optimizer::LocalBundleAdjustment(WAIKeyFrame* pKF,
                 g2o::EdgeSE3ProjectXYZ* e = new g2o::EdgeSE3ProjectXYZ();
 
                 e->setVertex(0, dynamic_cast<g2o::OptimizableGraph::Vertex*>(optimizer.vertex(id)));
-                e->setVertex(1, dynamic_cast<g2o::OptimizableGraph::Vertex*>(optimizer.vertex(pKFi->mnId)));
+                e->setVertex(1, dynamic_cast<g2o::OptimizableGraph::Vertex*>(optimizer.vertex((int)pKFi->mnId)));
                 e->setMeasurement(obs);
                 const float& invSigma2 = pKFi->mvInvLevelSigma2[kpUn.octave];
                 e->setInformation(Eigen::Matrix2d::Identity() * invSigma2);
@@ -1504,7 +1504,7 @@ void Optimizer::LocalBundleAdjustment(WAIKeyFrame* pKF,
     for (auto lit = lmap.keyFrames.begin(), lend = lmap.keyFrames.end(); lit != lend; lit++)
     {
         WAIKeyFrame*          pKF     = *lit;
-        g2o::VertexSE3Expmap* vSE3    = static_cast<g2o::VertexSE3Expmap*>(optimizer.vertex(pKF->mnId));
+        g2o::VertexSE3Expmap* vSE3    = static_cast<g2o::VertexSE3Expmap*>(optimizer.vertex((int)pKF->mnId));
         g2o::SE3Quat          SE3quat = vSE3->estimate();
         //pKF->SetPose(Converter::toCvMat(SE3quat));
         pKF->SetPose(Converter::toCvMat(SE3quat));
@@ -1514,7 +1514,7 @@ void Optimizer::LocalBundleAdjustment(WAIKeyFrame* pKF,
     for (auto lit = lmap.mapPoints.begin(), lend = lmap.mapPoints.end(); lit != lend; lit++)
     {
         WAIMapPoint*            pMP    = *lit;
-        g2o::VertexSBAPointXYZ* vPoint = static_cast<g2o::VertexSBAPointXYZ*>(optimizer.vertex(pMP->mnId + maxKFid + 1));
+        g2o::VertexSBAPointXYZ* vPoint = static_cast<g2o::VertexSBAPointXYZ*>(optimizer.vertex((int)(pMP->mnId + maxKFid + 1)));
         pMP->SetWorldPos(Converter::toCvMat(vPoint->estimate()));
         pMP->UpdateNormalAndDepth();
     }

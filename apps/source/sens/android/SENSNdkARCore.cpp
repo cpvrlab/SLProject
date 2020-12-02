@@ -111,7 +111,7 @@ bool SENSNdkARCore::init(int w, int h, int manipW, int manipH, bool convertManip
     // Deph texture has values between 0 millimeters to 8191 millimeters. 8m is not enough in our case
     // https://developers.google.com/ar/reference/c/group/ar-frame#arframe_acquiredepthimage
     ArConfig_setDepthMode(_arSession, arConfig, AR_DEPTH_MODE_DISABLED);
-
+    ArConfig_setLightEstimationMode(_arSession, arConfig, AR_LIGHT_ESTIMATION_MODE_ENVIRONMENTAL_HDR);
     ArConfig_setInstantPlacementMode(_arSession, arConfig, AR_INSTANT_PLACEMENT_MODE_DISABLED);
 
     initCameraTexture();
@@ -126,6 +126,16 @@ bool SENSNdkARCore::init(int w, int h, int manipW, int manipH, bool convertManip
         _activity->vm->DetachCurrentThread();
         return false;
     }
+
+    /*
+    _lightColor[0] = 1.0f;
+    _lightColor[1] = 1.0f;
+    _lightColor[2] = 1.0f;
+    _lightColor[3] = 1.0f;
+    */
+    _envLightI[0] = 1.0f;
+    _envLightI[1] = 1.0f;
+    _envLightI[2] = 1.0f;
 
     ArConfig_destroy(arConfig);
 
@@ -172,6 +182,28 @@ bool SENSNdkARCore::update(cv::Mat& intrinsic, cv::Mat& view)
     intrinsic = intrinsic.t();
     updateFrame(intrinsic);
 
+    //---- LIGHT ESTIMATE ----//
+    // Get light estimation value.
+    ArLightEstimate*     arLightEstimate;
+    ArLightEstimateState arLightEstimateState;
+    ArLightEstimate_create(_arSession, &arLightEstimate);
+
+    ArFrame_getLightEstimate(_arSession, _arFrame, arLightEstimate);
+    ArLightEstimate_getState(_arSession, arLightEstimate, &arLightEstimateState);
+
+    // Set light intensity to default. Intensity value ranges from 0.0f to 1.0f.
+    // The first three components are color scaling factors.
+    // The last one is the average pixel intensity in gamma space.
+    if (arLightEstimateState == AR_LIGHT_ESTIMATE_STATE_VALID)
+    {
+        //ArLightEstimate_getColorCorrection(_arSession, arLightEstimate, _lightColor);
+        ArLightEstimate_getEnvironmentalHdrMainLightIntensity(_arSession, arLightEstimate, _envLightI);
+    }
+
+    ArLightEstimate_destroy(arLightEstimate);
+    arLightEstimate = nullptr;
+    //---------------------
+
     ArTrackingState camera_tracking_state;
     ArCamera_getTrackingState(_arSession, arCamera, &camera_tracking_state);
 
@@ -211,6 +243,13 @@ SENSFramePtr SENSNdkARCore::latestFrame()
     if (frameBase)
         latestFrame = processNewFrame(frameBase->imgBGR, cv::Mat());
     return latestFrame;
+}
+
+void SENSNdkARCore::lightComponentIntensity(float * component)
+{
+    component[0] = _envLightI[0];
+    component[1] = _envLightI[1];
+    component[2] = _envLightI[2];
 }
 
 SENSFramePtr SENSNdkARCore::processNewFrame(cv::Mat& bgrImg, cv::Mat intrinsics)

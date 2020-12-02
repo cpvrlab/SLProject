@@ -11,6 +11,7 @@ set(headers
 		${SL_PROJECT_ROOT}/apps/source/sens/android/SENSNdkGps.h
 		${SL_PROJECT_ROOT}/apps/source/sens/android/SENSNdkOrientation.h
 		${SL_PROJECT_ROOT}/apps/source/sens/android/SENSNdkARCore.h
+		${CMAKE_CURRENT_SOURCE_DIR}/src/main/cpp/HttpNdkDownloader.h
     )
 
 set(sources
@@ -20,6 +21,7 @@ set(sources
 		${SL_PROJECT_ROOT}/apps/source/sens/android/SENSNdkGps.cpp
 		${SL_PROJECT_ROOT}/apps/source/sens/android/SENSNdkOrientation.cpp
 		${SL_PROJECT_ROOT}/apps/source/sens/android/SENSNdkARCore.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/src/main/cpp/HttpNdkDownloader.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/src/main/cpp/AppDemoNativeWAIMain.cpp
     )
 

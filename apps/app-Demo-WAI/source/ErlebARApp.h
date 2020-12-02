@@ -10,6 +10,7 @@
 #include <sens/SENSGps.h>
 #include <sens/SENSOrientation.h>
 #include <sens/SENSARCore.h>
+#include <HttpDownloader.h>
 #include <Resources.h>
 #include <ErlebAREvents.h>
 
@@ -46,7 +47,8 @@ public:
               SENSCamera*        camera,
               SENSGps*           gps,
               SENSOrientation*   orientation,
-              SENSARCore*        arcore);
+              SENSARCore*        arcore,
+              HttpDownloader*    httpDownloader);
     //go back (e.g. from android back-button)
     void goBack();
     //call to completely uninitialize app
@@ -85,6 +87,7 @@ private:
 
     SLInputManager              _inputManager;
     std::unique_ptr<DeviceData> _dd;
+    HttpDownloader*             _httpDownloader   = nullptr;
     SENSCamera*                 _camera           = nullptr;
     SENSGps*                    _gps              = nullptr;
     SENSOrientation*            _orientation      = nullptr;

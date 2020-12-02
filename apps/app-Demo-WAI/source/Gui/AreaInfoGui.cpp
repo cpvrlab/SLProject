@@ -112,7 +112,7 @@ void AreaInfoGui::build(SLScene* s, SLSceneView* sv)
     if (_locationId == ErlebAR::LocationId::AUGST)
         renderInfoAugst(_area.id);
     else if (_locationId == ErlebAR::LocationId::AVENCHES)
-        renderInfoAvenches();
+        renderInfoAvenches(_area.id);
     else if (_locationId == ErlebAR::LocationId::BERN)
         renderInfoBern();
     else
@@ -188,8 +188,35 @@ void AreaInfoGui::renderInfoAugst(ErlebAR::AreaId area)
     }
 }
 
-void AreaInfoGui::renderInfoAvenches()
+void AreaInfoGui::renderInfoAvenches(ErlebAR::AreaId area)
 {
+    switch (area)
+    {
+        case ErlebAR::AreaId::AVENCHES_AMPHITHEATER:
+        case ErlebAR::AreaId::AVENCHES_AMPHITHEATER_ENTRANCE: {
+            renderInfoHeading(_resources.strings().avenchesAmphitheaterInfoHeading1());
+            renderInfoText(_resources.strings().avenchesAmphitheaterInfoText1());
+            //renderInfoText(_resources.strings().avenchesAmphitheaterInfoText2());
+        }
+        break;
+        case ErlebAR::AreaId::AVENCHES_THEATER: {
+            renderInfoHeading(_resources.strings().avenchesTheaterInfoHeading1());
+            renderInfoText(_resources.strings().avenchesTheaterInfoText1());
+            //renderInfoText(_resources.strings().avenchesTheaterInfoText2());
+        }
+        break;
+        case ErlebAR::AreaId::AVENCHES_CIGOGNIER: {
+            renderInfoHeading(_resources.strings().avenchesCigognierInfoHeading1());
+            renderInfoText(_resources.strings().avenchesCigognierInfoText1());
+            //renderInfoText(_resources.strings().avenchesCigognierInfoText2());
+        }
+        break;
+        default: {
+            renderInfoHeading(_resources.strings().avenchesAmphitheaterInfoHeading1());
+            renderInfoText(_resources.strings().avenchesAmphitheaterInfoText1());
+            //renderInfoText(_resources.strings().avenchesAmphitheaterInfoText2());
+        }
+    }
 }
 
 void AreaInfoGui::renderInfoBern()

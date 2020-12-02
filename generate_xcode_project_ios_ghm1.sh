@@ -1,0 +1,3 @@
+mkdir BUILD_IOS
+cd BUILD_IOS
+cmake .. -GXcode -DCMAKE_SYSTEM_NAME=iOS -DCMAKE_SYSTEM_PROCESSOR=arm -DXCODE_CODESIGNIDENTITY="Apple Development: Michael Göttlicher (KMX9985DR7)"

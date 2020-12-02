@@ -1,8 +1,8 @@
-# 
-# CMake configuration for ErlebAR application for ios
+#
+# CMake configuration for Demo-SL (app-Demo-SLProject) application for ios
 #
 
-#find system frameworks (libraries)	
+#find system frameworks (libraries)
 find_library(AVFOUNDATION AVFoundation required)
 find_library(COREGRAPHICS CoreGraphics required)
 find_library(COREVIDEO CoreVideo required)
@@ -13,24 +13,25 @@ find_library(OPENGLES OpenGLES required)
 find_library(GLKIT GLKit required)
 find_library(CORELOCATION CoreLocation required)
 
-set(target ErlebAR)
+set(target Demo-SL)
 
 #if this variable is not defined, we make automatic signing with "iPhone Developer"
 if(XCODE_CODESIGNIDENTITY)
 	message(STATUS "manual signing")
-	set(APP_BUNDLE_IDENTIFIER "ch.bfh.ti.cpvr.erlebar") # <== Set to your app's bundle identifier (Attention the erlebar one is with "cpvr")
+	set(APP_BUNDLE_IDENTIFIER "ch.bfh.ti.cpvrlab.demo-sl") # <== Set to your app's bundle identifier (Attention the erlebar one is with "cpvr")
 	
-	set(XCODE_PROVISIONINGPROFILE "ErlebAR - Development")
+	set(XCODE_PROVISIONINGPROFILE "Demo SL Development")
 	set(XCODE_DEVELOPMENTTEAM "858Y9EWZ4B")
 else()
 	message(STATUS "automatic signing")
-	set(APP_BUNDLE_IDENTIFIER "com.${target}.identifier") # <== Set to your app's bundle identifier
+	set(APP_BUNDLE_IDENTIFIER "com.${target}") # <== Set to your app's bundle identifier
 
     set(XCODE_CODESIGNIDENTITY "iPhone Developer")
 	set(XCODE_DEVELOPMENTTEAM ${XCODE_DEVELOPMENTTEAM})
 endif()
 
-set(DEPLOYMENT_TARGET 11.0)                                  # <== Set your deployment target version of iOS
+
+set(DEPLOYMENT_TARGET 12.0)                                  # <== Set your deployment target version of iOS
 set(DEVICE_FAMILY "1,2")                                      # <== Set to "1" to target iPhone, set to "2" to target iPad, set to "1,2" to target both
 
 #include(BundleUtilities)
@@ -53,62 +54,54 @@ set(MACOSX_DEPLOYMENT_TARGET ${DEPLOYMENT_TARGET})
 set(compile_definitions SL_STARTSCENE=SID_Minimal)
 
 set(headers
-	${erlebar_headers}
-	${CMAKE_CURRENT_SOURCE_DIR}/ErlebARAppDelegate.h
-	${CMAKE_CURRENT_SOURCE_DIR}/ErlebARViewController.h
-    ${SL_PROJECT_ROOT}/apps/source/sens/iOS/SENSiOSCamera.h
-	${SL_PROJECT_ROOT}/apps/source/sens/iOS/SENSiOSCameraDelegate.h
-	${SL_PROJECT_ROOT}/apps/source/sens/iOS/SENSiOSGps.h
-	${SL_PROJECT_ROOT}/apps/source/sens/iOS/SENSiOSGpsDelegate.h
-	${SL_PROJECT_ROOT}/apps/source/sens/iOS/SENSiOSOrientation.h
-	${SL_PROJECT_ROOT}/apps/source/sens/iOS/SENSiOSOrientationDelegate.h
+    ${SL_PROJECT_ROOT}/apps/app-Demo-SLProject/include/AppDemoGui.h
+    ${SL_PROJECT_ROOT}/apps/app-Demo-SLProject/include/AppDemoSceneView.h
+	${SL_PROJECT_ROOT}/apps/source/CVCapture.h
+	${SL_PROJECT_ROOT}/apps/source/SLApplication.h
+	${SL_PROJECT_ROOT}/apps/source/SLInterface.h
+    ${SL_PROJECT_ROOT}/apps/source/SLProjectScene.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/AppDelegate.h
+	${CMAKE_CURRENT_SOURCE_DIR}/ViewController.h
     )
 
 set(sources
-	${erlebar_sources}
-    ${CMAKE_CURRENT_SOURCE_DIR}/ErlebARAppDelegate.mm
+    ${SL_PROJECT_ROOT}/apps/app-Demo-SLProject/source/AppDemoGui.cpp
+    ${SL_PROJECT_ROOT}/apps/app-Demo-SLProject/source/AppDemoLoad.cpp
+    ${SL_PROJECT_ROOT}/apps/app-Demo-SLProject/source/AppDemoVideo.cpp
+    ${SL_PROJECT_ROOT}/apps/app-Demo-SLProject/source/AppDemoSceneView.cpp
+	${SL_PROJECT_ROOT}/apps/source/CVCapture.cpp
+	${SL_PROJECT_ROOT}/apps/source/SLApplication.cpp
+	${SL_PROJECT_ROOT}/apps/source/SLInterface.cpp
+    ${SL_PROJECT_ROOT}/apps/source/SLProjectScene.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/AppDelegate.mm
 	${CMAKE_CURRENT_SOURCE_DIR}/main.m
-	${CMAKE_CURRENT_SOURCE_DIR}/ErlebARViewController.mm
-    ${SL_PROJECT_ROOT}/apps/source/sens/iOS/SENSiOSCamera.mm
-	${SL_PROJECT_ROOT}/apps/source/sens/iOS/SENSiOSCameraDelegate.mm
-	${SL_PROJECT_ROOT}/apps/source/sens/iOS/SENSiOSGps.mm
-	${SL_PROJECT_ROOT}/apps/source/sens/iOS/SENSiOSGpsDelegate.mm
-	${SL_PROJECT_ROOT}/apps/source/sens/iOS/SENSiOSOrientation.mm
-	${SL_PROJECT_ROOT}/apps/source/sens/iOS/SENSiOSOrientationDelegate.mm
+	${CMAKE_CURRENT_SOURCE_DIR}/ViewController.mm
 	)
- 
-# Group source files
-set(headers_sources ${sources} ${headers})
-source_group_by_path("${CMAKE_CURRENT_SOURCE_DIR}" "\\\\.h$|\\\\.hpp$" "" ${headers_sources})
-#source_group_by_path("${CMAKE_CURRENT_SOURCE_DIR}" "\\\\.h$|\\\\.hpp$" "Header Files" ${headers})
-#source_group_by_path("${CMAKE_CURRENT_SOURCE_DIR}" "\\\\.cpp$|\\\\.c$|\\\\.h$|\\\\.hpp$" "Source Files" ${sources})
 
 #copy defined resources to build directory and add get folder reference using file(GLOB) (this is a secret trick that nobody knows)
-include(CopyResourcesErlebAR)
+include(CopyResourcesAppDemoSLProject)
 set(DATA_DIR "${CMAKE_BINARY_DIR}/data")
-copy_resources_erlebar("${DATA_DIR}")
+copy_resources_slprojectdemo("${DATA_DIR}")
 file(GLOB DATA "${DATA_DIR}")
 
 # define additional Xcode app resources
-set(CONFIG_FILES
+set(XIB_FILES
 	${CMAKE_CURRENT_SOURCE_DIR}/Base.lproj/ViewController_iPad.xib
 	${CMAKE_CURRENT_SOURCE_DIR}/Base.lproj/ViewController_iPhone.xib
-	${CMAKE_CURRENT_SOURCE_DIR}/LaunchScreen.storyboard
 	)
 
 set(ASSET_CATALOG
 	${CMAKE_CURRENT_SOURCE_DIR}/Images/Images.xcassets
-    ${CMAKE_CURRENT_SOURCE_DIR}/Images/LaunchImage.jpg
 	)
 
 # Group data resource files in Xcode Resource directory
-source_group(Resources FILES ${CONFIG_FILES})
+source_group(Resources FILES ${XIB_FILES})
 source_group(Resources FILES ${ASSET_CATALOG})
 source_group(Resources FILES ${DATA})
 
 set(RESOURCES
 	${ASSET_CATALOG}
-	${CONFIG_FILES}
+	${XIB_FILES}
 	${DATA}
 	)
 
@@ -125,7 +118,7 @@ set_target_properties(
         PROPERTIES
         ${DEFAULT_PROJECT_OPTIONS}
         FOLDER "apps"
-		
+
         XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT "dwarf-with-dsym"
         XCODE_ATTRIBUTE_GCC_PREFIX_HEADER "${CMAKE_CURRENT_SOURCE_DIR}/Prefix.pch" #this is a precompiled header!
         RESOURCE "${RESOURCES}"
@@ -139,21 +132,12 @@ set_target_properties(
         XCODE_ATTRIBUTE_ENABLE_TESTABILITY NO
         XCODE_ATTRIBUTE_GCC_SYMBOLS_PRIVATE_EXTERN YES
 		XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_APPICON_NAME "AppIcon" #defines icon name in asset catalog (images.xcassets)
-		# apple requires storyboard launchscreens now so the following will not come into store:
-		#XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME "LaunchImage"  #defines launch screen image name in asset catalog (images.xcassets)
+		XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME "LaunchImage"  #defines launch screen image name in asset catalog (images.xcassets)
     )
-	
-if(XCODE_PROVISIONINGPROFILE)
-	set_xcode_property(${target} PROVISIONING_PROFILE_SPECIFIER ${XCODE_PROVISIONINGPROFILE})
-endif()
-set_xcode_property(${target} CODE_SIGN_IDENTITY ${XCODE_CODESIGNIDENTITY})
-set_xcode_property(${target} DEVELOPMENT_TEAM ${XCODE_DEVELOPMENTTEAM})
-	
-	
+
 target_include_directories(
         ${target}
         PRIVATE
-		${erlebar_include_directories}
         ${SL_PROJECT_ROOT}/apps/app-Demo-SLProject/include/
         ${SL_PROJECT_ROOT}/apps/source
         ${SL_PROJECT_ROOT}/lib-SLProject/include
@@ -168,6 +152,12 @@ target_include_directories(
         PUBLIC
         INTERFACE
     )
+	
+if(XCODE_PROVISIONINGPROFILE)
+	set_xcode_property(${target} PROVISIONING_PROFILE_SPECIFIER ${XCODE_PROVISIONINGPROFILE})
+endif()
+set_xcode_property(${target} CODE_SIGN_IDENTITY ${XCODE_CODESIGNIDENTITY})
+set_xcode_property(${target} DEVELOPMENT_TEAM ${XCODE_DEVELOPMENTTEAM})
 
 target_link_libraries(
         ${target}
@@ -188,7 +178,7 @@ target_link_libraries(
 		${OPENGLES}
 		${GLKIT}
 		${CORELOCATION}
-		
+
         INTERFACE
     )
 
@@ -213,5 +203,5 @@ target_link_libraries(${target}
     ${DEFAULT_LINKER_OPTIONS}
     INTERFACE
     )
-	
-	
+
+

@@ -40,6 +40,7 @@ public:
     virtual bool update(cv::Mat& intrinsic, cv::Mat& view) { return false; }
     virtual SENSFramePtr latestFrame() { return nullptr; }
     virtual void setDisplaySize(int w, int h) { return; }
+    virtual void lightComponentIntensity(float * components) { }
 
     virtual void configure(int  targetWidth,
                            int  targetHeight,

@@ -19,6 +19,7 @@ AreaTrackingView::AreaTrackingView(sm::EventHandler&  eventHandler,
                                    SENSGps*           gps,
                                    SENSOrientation*   orientation,
                                    SENSARCore*        arcore,
+                                   HttpDownloader*    httpDownloader,
                                    const DeviceData&  deviceData)
   : SLSceneView(nullptr, deviceData.dpi(), inputManager),
     _gui(imGuiEngine,
@@ -30,7 +31,7 @@ AreaTrackingView::AreaTrackingView(sm::EventHandler&  eventHandler,
          std::bind(&AppWAIScene::adjustAugmentationTransparency, &_waiScene, std::placeholders::_1),
          deviceData.erlebARDir(),
          std::bind(&AreaTrackingView::getSimHelper, this)),
-    _waiScene("AreaTrackingScene", deviceData.dataDir(), deviceData.erlebARDir()),
+    _waiScene("AreaTrackingScene", deviceData.dataDir(), deviceData.erlebARDir(), _httpDownloader),
     _userGuidanceScene(deviceData.dataDir()),
     _gps(gps),
     _orientation(orientation),
@@ -727,6 +728,12 @@ bool AreaTrackingView::update()
                 isTracking = updateWAISlamGPS(frame); //isTracking = updateGPSWAISlam(frame);
             else                                      //fall back to orientation sensor and gps if available
                 isTracking = updateGPS(frame);
+
+
+            //float lights[3];
+            //_arcore->lightComponentIntensity(lights);
+            //ARCore HDR light estimation not necessarily better in our case wher augmented object are huge
+            //_gui.showInfoText("LIGHT = " + toString(lights[0]) + " " + toString(lights[1]) + " " +  toString(lights[2]));
 
             if (_asyncLoader && _asyncLoader->isReady())
             {
