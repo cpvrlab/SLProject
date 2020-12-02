@@ -3852,21 +3852,21 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Define shader that shows on all pixels the video background with shadow mapping
         SLGLProgram* spVideoBackgroundSM  = new SLGLGenericProgram(s,
-                                                                   SLApplication::shaderPath + "PerPixTextureBackgroundSM.vert",
-                                                                   SLApplication::shaderPath + "PerPixTextureBackgroundSM.frag");
+                                                                  SLApplication::shaderPath + "PerPixTextureBackgroundSM.vert",
+                                                                  SLApplication::shaderPath + "PerPixTextureBackgroundSM.frag");
         SLMaterial*  matVideoBackgroundSM = new SLMaterial(s,
-                                                           "matVideoBackground",
-                                                           videoTexture,
-                                                           nullptr,
-                                                           nullptr,
-                                                           nullptr,
-                                                           spVideoBackgroundSM);
+                                                          "matVideoBackground",
+                                                          videoTexture,
+                                                          nullptr,
+                                                          nullptr,
+                                                          nullptr,
+                                                          spVideoBackgroundSM);
         matVideoBackgroundSM->ambient(SLCol4f(0.6f, 0.6f, 0.6f));
         matVideoBackgroundSM->getsShadows(true);
 
         // Create directional light for the sun light
         SLLightDirect* sunLight = new SLLightDirect(s, s, 5.0f);
-        sunLight->translate(-42,10,13);
+        sunLight->translate(-42, 10, 13);
         sunLight->powers(1.0f, 1.5f, 1.0f);
         sunLight->attenuation(1, 0, 0);
         sunLight->doSunPowerAdaptation(true);
@@ -3971,15 +3971,15 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Define shader that shows on all pixels the video background with shadow mapping
         SLGLProgram* spVideoBackgroundSM  = new SLGLGenericProgram(s,
-                                                                   SLApplication::shaderPath + "PerPixTextureBackgroundSM.vert",
-                                                                   SLApplication::shaderPath + "PerPixTextureBackgroundSM.frag");
+                                                                  SLApplication::shaderPath + "PerPixTextureBackgroundSM.vert",
+                                                                  SLApplication::shaderPath + "PerPixTextureBackgroundSM.frag");
         SLMaterial*  matVideoBackgroundSM = new SLMaterial(s,
-                                                           "matVideoBackground",
-                                                           videoTexture,
-                                                           nullptr,
-                                                           nullptr,
-                                                           nullptr,
-                                                           spVideoBackgroundSM);
+                                                          "matVideoBackground",
+                                                          videoTexture,
+                                                          nullptr,
+                                                          nullptr,
+                                                          nullptr,
+                                                          spVideoBackgroundSM);
         matVideoBackgroundSM->ambient(SLCol4f(0.6f, 0.6f, 0.6f));
         matVideoBackgroundSM->getsShadows(true);
 
@@ -4291,15 +4291,15 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Define shader that shows on all pixels the video background with shadow mapping
         SLGLProgram* spVideoBackgroundSM  = new SLGLGenericProgram(s,
-                                                                   SLApplication::shaderPath + "PerPixTextureBackgroundSM.vert",
-                                                                   SLApplication::shaderPath + "PerPixTextureBackgroundSM.frag");
+                                                                  SLApplication::shaderPath + "PerPixTextureBackgroundSM.vert",
+                                                                  SLApplication::shaderPath + "PerPixTextureBackgroundSM.frag");
         SLMaterial*  matVideoBackgroundSM = new SLMaterial(s,
-                                                           "matVideoBackground",
-                                                           videoTexture,
-                                                           nullptr,
-                                                           nullptr,
-                                                           nullptr,
-                                                           spVideoBackgroundSM);
+                                                          "matVideoBackground",
+                                                          videoTexture,
+                                                          nullptr,
+                                                          nullptr,
+                                                          nullptr,
+                                                          spVideoBackgroundSM);
         matVideoBackgroundSM->ambient(SLCol4f(0.6f, 0.6f, 0.6f));
         matVideoBackgroundSM->getsShadows(true);
 

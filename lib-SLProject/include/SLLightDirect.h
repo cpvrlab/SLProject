@@ -103,11 +103,11 @@ public:
     SLCol4f specular() override;
 
 private:
-    SLfloat    _arrowRadius;      //!< The sphere lights radius
-    SLfloat    _arrowLength;      //!< Length of direction line
-    SLbool     _doSunPowerAdaptation;       //!< Flag for sun power scaling
-    SLfloat    _sunLightPowerMin; //!< Min. zenith power scale factor for sun
-    SLColorLUT _sunLightColorLUT; //!< Sun light color LUT
+    SLfloat    _arrowRadius;          //!< The sphere lights radius
+    SLfloat    _arrowLength;          //!< Length of direction line
+    SLbool     _doSunPowerAdaptation; //!< Flag for sun power scaling
+    SLfloat    _sunLightPowerMin;     //!< Min. zenith power scale factor for sun
+    SLColorLUT _sunLightColorLUT;     //!< Sun light color LUT
 };
 //-----------------------------------------------------------------------------
 #endif
