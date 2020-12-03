@@ -31,7 +31,7 @@ AreaTrackingView::AreaTrackingView(sm::EventHandler&  eventHandler,
          std::bind(&AppWAIScene::adjustAugmentationTransparency, &_waiScene, std::placeholders::_1),
          deviceData.erlebARDir(),
          std::bind(&AreaTrackingView::getSimHelper, this)),
-    _waiScene("AreaTrackingScene", deviceData.dataDir(), deviceData.erlebARDir(), _httpDownloader),
+    _waiScene("AreaTrackingScene", deviceData.dataDir(), deviceData.erlebARDir(), httpDownloader),
     _userGuidanceScene(deviceData.dataDir()),
     _gps(gps),
     _orientation(orientation),
@@ -625,10 +625,12 @@ bool AreaTrackingView::updateGPS(SENSFramePtr& frame)
     SLMat4f gpsPose = calcCameraPoseGpsOrientationBased();
     applyFingerCorrection(gpsPose);
 
+#if 0
     if (frame)
     {
         applyTemplateCorrection(gpsPose, frame->imgManip);
     }
+#endif
 
     //SLMat4f gpsPoseCorr = _cameraFingerCorr.getCorrectionMat(focalLength) * gpsPose;
     _waiScene.camera->om(gpsPose);
@@ -728,7 +730,6 @@ bool AreaTrackingView::update()
                 isTracking = updateWAISlamGPS(frame); //isTracking = updateGPSWAISlam(frame);
             else                                      //fall back to orientation sensor and gps if available
                 isTracking = updateGPS(frame);
-
 
             //float lights[3];
             //_arcore->lightComponentIntensity(lights);
