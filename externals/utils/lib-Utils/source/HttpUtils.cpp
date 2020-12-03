@@ -337,29 +337,53 @@ std::vector<std::string> HttpUtils::GetRequest::getListing()
     return listing;
 }
 
-HttpUtils::HTTPDownload::HTTPDownload(std::string url)
+void HttpUtils::download(std::string url,
+                         std::function<void(std::string, std::vector<char>)> f,
+                         std::function<void(std::string)> subdir)
 {
     GetRequest req = GetRequest(url);
     req.send();
+
+    std::string dir = url;
+    Utils::replaceString(dir, "https://", "/");
+    Utils::replaceString(dir, "http://", "/");
 
     if (req.contentType.find("text/html") != std::string::npos)
     {
         if (url.back() != '/')
             url = url + "/";
 
-       std::vector<std::string> listing = req.getListing();
+        std::vector<std::string> listing = req.getListing();
 
         for (std::string str : listing)
         {   
             if (str.at(0) != '/')
             {
-                HTTPDownload(url + str);
+                subdir(dir);
+                download(url + str, f, subdir);
             }
         }
     }
     else
     {
         std::vector<char> content = req.getContent();
-        std::cout << "save to " << url << std::endl;
+        f(dir, content);
     }
+}
+
+void HttpUtils::download(std::string url, std::string dst)
+{
+    GetRequest req = GetRequest(url);
+    req.send();
+
+    download(url,
+    [dst](std::string file, std::vector<char> data)-> void {
+        ofstream fout(dst + "/" + file, ios::out | ios::binary);
+        fout.write((char*)&data[0], data.size());
+        fout.close();
+    },
+    [dst](std::string dir)-> void {
+        Utils::makeDir(dst + dir);
+    }
+    );
 }

@@ -11,6 +11,7 @@
 
 #include <openssl/ssl.h>
 #include <openssl/err.h>
+#include <functional>
 
 struct Socket
 {
@@ -71,8 +72,10 @@ namespace HttpUtils
         std::vector<std::string> getListing();
     };
     
-    struct HTTPDownload
-    {
-        HTTPDownload(std::string url);
-    };
+    void download(std::string url,
+                  std::function<void(std::string, std::vector<char>)> f,
+                  std::function<void(std::string)> subdir);
+
+    void download(std::string url, std::string dst);
+
 }

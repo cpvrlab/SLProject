@@ -8,6 +8,7 @@
 #include <SLVec4.h>
 #include <SLKeyframeCamera.h>
 #include <SLGLProgramManager.h>
+#include <HttpUtils.h>
 
 AppWAIScene::AppWAIScene(SLstring name, std::string dataDir, std::string erlebARDir, HttpDownloader* httpDownloader)
   : SLScene(name, nullptr),
@@ -130,6 +131,13 @@ void AppWAIScene::initAreaVisualization(ErlebAR::LocationId locationId, ErlebAR:
 
 void AppWAIScene::initLocationAugst()
 {
+    if (!Utils::dirExists(_dataDir + "erleb-AR/models/augst/"))
+    {
+        _httpDownloader->download("http://pallas.ti.bfh.ch/data/ErlebAR/models/augst.zip",
+                                  _dataDir + "erleb-AR/models/augst.zip");
+
+        HttpUtils::download("http://pallas.ti.bfh.ch/data/ErlebAR/models/augst.zip", ".");
+    }
     // Create directional light for the sun light
     sunLight = new SLLightDirect(&assets, this, 5.0f);
     sunLight->powers(1.0f, 1.0f, 1.0f);
@@ -169,7 +177,8 @@ void AppWAIScene::initLocationAvenches(ErlebAR::AreaId areaId)
 {
     if (!Utils::dirExists(_dataDir + "erleb-AR/models/avenches/"))
     {
-        _httpDownloader->download("https://pallas.ti.bfh.ch/models", _dataDir + "erleb-AR/models/avenches.zip");
+        _httpDownloader->download("http://pallas.ti.bfh.ch/data/ErlebAR/models/avenches.zip",
+                                  _dataDir + "erleb-AR/models/avenches.zip");
     }
 
     // Create directional light for the sun light
@@ -230,6 +239,11 @@ void AppWAIScene::initAreaAvenchesTheatre()
 
 void AppWAIScene::initLocationBern()
 {
+    if (!Utils::dirExists(_dataDir + "erleb-AR/models/bern/"))
+    {
+        _httpDownloader->download("http://pallas.ti.bfh.ch/data/ErlebAR/models/bern.zip",
+                                  _dataDir + "erleb-AR/models/bern.zip");
+    }
     // Create directional light for the sun light
     sunLight = new SLLightDirect(&assets, this, 5.0f);
     sunLight->powers(1.0f, 1.5f, 1.0f);
@@ -266,6 +280,11 @@ void AppWAIScene::initLocationBern()
 
 void AppWAIScene::initLocationBiel()
 {
+    if (!Utils::dirExists(_dataDir + "erleb-AR/models/biel/"))
+    {
+        _httpDownloader->download("http://pallas.ti.bfh.ch/data/ErlebAR/models/biel.zip",
+                                  _dataDir + "erleb-AR/models/biel.zip");
+    }
     // Create directional light for the sun light
     sunLight = new SLLightDirect(&assets, this, 5.0f);
     sunLight->powers(1.0f, 1.0f, 1.0f);
