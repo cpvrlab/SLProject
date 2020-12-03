@@ -70,7 +70,7 @@ if("${SYSTEM_NAME_UPPER}" STREQUAL "LINUX")
     # OpenCV for Linux #
     ####################
 
-    set(OpenCV_VERSION "4.1.1")
+    set(OpenCV_VERSION "4.5.0")
     set(OpenCV_DIR "${PREBUILT_PATH}/linux_opencv_${OpenCV_VERSION}")
     set(OpenCV_LINK_DIR "${OpenCV_DIR}/${CMAKE_BUILD_TYPE}")
     set(OpenCV_INCLUDE_DIR "${OpenCV_DIR}/include")
@@ -780,7 +780,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID") #-----------------------------
     # OpenCV for Android #
     ######################
 
-    set(OpenCV_VERSION "4.1.1")
+    set(OpenCV_VERSION "4.5.0")
     #set(OpenCV_VERSION "3.4.1")
     set(OpenCV_PREBUILT_DIR "andV8_opencv_${OpenCV_VERSION}")
     set(OpenCV_DIR "${PREBUILT_PATH}/${OpenCV_PREBUILT_DIR}")
@@ -800,7 +800,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID") #-----------------------------
         ${OpenCV_LINK_LIBS}
         cpufeatures
         IlmImf
-        libjasper
+        #libjasper
         libpng
         libprotobuf
         libtiff
@@ -811,8 +811,10 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID") #-----------------------------
     if ("${OpenCV_VERSION}" MATCHES "^4\.[0-9]+\.[0-9]+$")
         set(OpenCV_LINK_LIBS
             ${OpenCV_LINK_LIBS}
+            ade
             ittnotify
             libjpeg-turbo
+            libopenjp2
             quirc)
     else()
         set(OpenCV_LINK_LIBS
