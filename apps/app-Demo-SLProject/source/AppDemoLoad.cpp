@@ -3395,7 +3395,10 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->info("Face and facial landmark detection.");
 
         // Create video texture on global pointer updated in AppDemoVideo
-        videoTexture = new SLGLTexture(s, SLApplication::texturePath + "LiveVideoError.png", GL_LINEAR, GL_LINEAR);
+        videoTexture = new SLGLTexture(s,
+                                       SLApplication::texturePath + "LiveVideoError.png",
+                                       GL_LINEAR,
+                                       GL_LINEAR);
 
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0, 0, 0.5f);
@@ -3411,7 +3414,10 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Load sunglasses
         SLAssimpImporter importer;
-        SLNode*          glasses = importer.load(s->animManager(), s, SLApplication::modelPath + "FBX/Sunglasses.fbx", SLApplication::texturePath);
+        SLNode*          glasses = importer.load(s->animManager(),
+                                        s,
+                                        SLApplication::modelPath + "FBX/Sunglasses.fbx",
+                                        SLApplication::texturePath);
         glasses->scale(0.01f);
 
         // Add axis arrows at world center

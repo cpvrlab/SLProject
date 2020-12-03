@@ -84,6 +84,7 @@ function(copy_resources_slprojectdemo TARGET_DIR)
 			#${SL_PROJECT_ROOT}/data/calibrations/ORBvoc.bin
 			${SL_PROJECT_ROOT}/data/calibrations/voc_fbow.bin
 			${SL_PROJECT_ROOT}/data/calibrations/lbfmodel.yaml
+			${SL_PROJECT_ROOT}/data/calibrations/haarcascade_frontalface_alt2.xml
 			${SL_PROJECT_ROOT}/data/calibrations/aruco_detector_params.yml
 	    )
 
