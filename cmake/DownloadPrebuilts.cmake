@@ -799,7 +799,6 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID") #-----------------------------
         ${OpenCV_LINK_LIBS}
         cpufeatures
         IlmImf
-        #libjasper
         libpng
         libprotobuf
         libtiff
@@ -810,16 +809,29 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID") #-----------------------------
     if ("${OpenCV_VERSION}" MATCHES "^4\.[0-9]+\.[0-9]+$")
         set(OpenCV_LINK_LIBS
             ${OpenCV_LINK_LIBS}
-            ade
             ittnotify
             libjpeg-turbo
-            libopenjp2
             quirc)
+
+        # new link libraries for opencv 4.5
+        if ("${OpenCV_VERSION}" MATCHES "^4\.[5-9]+\.[0-9]+$")
+            set(OpenCV_LINK_LIBS
+                ${OpenCV_LINK_LIBS}
+                ade
+                libopenjp2)
+        else()
+            set(OpenCV_LINK_LIBS
+                ${OpenCV_LINK_LIBS}
+                libjasper)
+        endif()
     else()
         set(OpenCV_LINK_LIBS
             ${OpenCV_LINK_LIBS}
-            libjpeg)
+            libjpeg
+            libjasper)
     endif()
+
+    message(STATUS "OpenCV_LINK_LIBS: ${OpenCV_LINK_LIBS}")
 
     foreach(lib ${OpenCV_LINK_LIBS})
         add_library(lib_${lib} STATIC IMPORTED)
