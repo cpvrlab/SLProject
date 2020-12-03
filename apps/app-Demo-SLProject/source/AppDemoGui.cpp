@@ -3255,7 +3255,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
 
                             if (ImGui::TreeNode(tex->name().c_str()))
                             {
-                                ImGui::Text("Size   : %d x %d x %d", tex->width(), tex->height(), tex->depth());
+                                ImGui::Text("Size   : %dx%dx%d", tex->width(), tex->height(), tex->bytesPerPixel());
                                 ImGui::Text("Type   : %s", tex->typeName().c_str());
                                 ImGui::Text("Min.Flt: %s", tex->minificationFilterName().c_str());
                                 ImGui::Text("Mag.Flt: %s", tex->magnificationFilterName().c_str());

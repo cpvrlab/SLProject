@@ -375,8 +375,9 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #------------------------------
     ############################
 
     # Now download for MacOS
-    set(OpenCV_VERSION "4.1.1")
-	# set(OpenCV_VERSION "3.4.1")
+    set(OpenCV_VERSION "4.5.0")
+    #set(OpenCV_VERSION "4.1.1")
+	#set(OpenCV_VERSION "3.4.1")
     set(OpenCV_PREBUILT_DIR "mac64_opencv_${OpenCV_VERSION}")
     set(OpenCV_DIR "${PREBUILT_PATH}/${OpenCV_PREBUILT_DIR}")
     set(OpenCV_INCLUDE_DIR "${OpenCV_DIR}/include")
