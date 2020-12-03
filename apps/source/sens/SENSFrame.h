@@ -13,20 +13,7 @@ struct SENSFrameBase
         timePt(timePt)
     {
     }
-    
-    SENSFrameBase(SENSTimePt timePt, cv::Mat imgBGR, cv::Mat intrinsics, cv::Mat camPose, bool tracking)
-      : imgBGR(imgBGR),
-        intrinsics(intrinsics),
-        timePt(timePt),
-        pose(camPose),
-        tracking(tracking)
-    {
-    }
-    
-    //camera pose
-    cv::Mat pose;
-    bool tracking = false;
-    
+
     //! cropped input image
     cv::Mat imgBGR;
     cv::Mat intrinsics;
@@ -44,18 +31,14 @@ struct SENSFrame
               bool              mirroredH,
               bool              mirroredV,
               float             scaleToManip,
-              cv::Mat           intrinsics,
-              cv::Mat           pose,
-              bool              isTracking)
+              cv::Mat           intrinsics)
       : timePt(timePt),
         imgBGR(imgBGR),
         imgManip(imgManip),
         mirroredH(mirroredH),
         mirroredV(mirroredV),
         scaleToManip(scaleToManip),
-        intrinsics(intrinsics),
-        pose(pose),
-        tracking(isTracking)
+        intrinsics(intrinsics)
     {
     }
 
@@ -76,10 +59,6 @@ struct SENSFrame
     const float scaleToManip;
 
     cv::Mat intrinsics;
-    
-    //camera pose
-    cv::Mat pose;
-    bool tracking = false;
 };
 typedef std::shared_ptr<SENSFrame> SENSFramePtr;
 

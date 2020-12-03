@@ -37,15 +37,16 @@ public:
     virtual bool resume() = 0;
     virtual void reset() = 0;
     virtual void pause() = 0;
-    //virtual bool update(cv::Mat& intrinsic, cv::Mat& view) { return false; }
-    virtual void setDisplaySize(int w, int h) = 0;
-
-    virtual SENSFramePtr latestFrame() = 0;
+    //! Returns true if in tracking state. If correctly initialized, it will update the camera frame that may be retrieved with latestFrame()
+    virtual bool update(cv::Mat& view) { return false; }
+    
+    //! Get the latest camera frame. You have to call update() first to get a new frame.
+    SENSFramePtr latestFrame();
     bool isAvailable() { return _available; };
     bool isRunning() { return !_pause; }
 
 protected:
-    SENSFramePtr processNewFrame(const SENSTimePt& timePt, cv::Mat& bgrImg, cv::Mat intrinsics, cv::Mat pose, bool isTracking);
+    SENSFramePtr processNewFrame(const SENSTimePt& timePt, cv::Mat& bgrImg, cv::Mat intrinsics);
 
     void configure(int  targetWidth,
                            int  targetHeight,

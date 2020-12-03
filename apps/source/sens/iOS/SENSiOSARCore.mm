@@ -12,14 +12,14 @@ SENSiOSARCore::SENSiOSARCore()
 
 bool SENSiOSARCore::init(int targetWidth, int targetHeight, int manipWidth, int manipHeight, bool convertManipToGray)
 {
-    if(!_available)
+    if (!_available)
         return false;
-    
+
     configure(targetWidth, targetHeight, manipWidth, manipHeight, convertManipToGray);
-    
+
     bool success = [_arcoreDelegate start];
-    _pause = false;
-    
+    _pause       = false;
+
     return success;
 }
 
@@ -35,7 +35,6 @@ bool SENSiOSARCore::resume()
 
 void SENSiOSARCore::reset()
 {
-    
 }
 
 void SENSiOSARCore::pause()
@@ -44,26 +43,35 @@ void SENSiOSARCore::pause()
     _pause = true;
 }
 
-SENSFramePtr SENSiOSARCore::latestFrame()
+bool SENSiOSARCore::update(cv::Mat& pose)
 {
     //retrieve the latest frame from arkit delegate
-    cv::Mat pose;
     cv::Mat intrinsic;
     cv::Mat imgBGR;
-    bool isTracking;
+    bool    isTracking;
     [_arcoreDelegate latestFrame:&pose withImg:&imgBGR AndIntrinsic:&intrinsic IsTracking:&isTracking];
-    
+
+    if (!imgBGR.empty())
+    {
+        //update the internal frame
+        std::lock_guard<std::mutex> lock(_frameMutex);
+        _frame = std::make_unique<SENSFrameBase>(SENSClock::now(), imgBGR, intrinsic);
+    }
+    return isTracking;
+}
+
+/*
+SENSFramePtr SENSiOSARCore::latestFrame()
+{
+
     SENSFramePtr latestFrame;
     if(!imgBGR.empty())
         latestFrame = processNewFrame(SENSClock::now(), imgBGR, intrinsic, pose, isTracking);
     return latestFrame;
 }
+ */
 
-void SENSiOSARCore::setDisplaySize(int w, int h)
-{
-    
-}
-
+/*
 void SENSiOSARCore::onUpdateBGR(simd_float4x4* camPose, cv::Mat imgBGR, simd_float3x3* camMat3x3)
 {
     cv::Mat intrinsics;
@@ -102,7 +110,9 @@ void SENSiOSARCore::onUpdateBGR(simd_float4x4* camPose, cv::Mat imgBGR, simd_flo
     
     setFrame( std::make_shared<SENSFrameBase>(SENSClock::now(), imgBGR, intrinsics, pose, true));
 }
+ */
 
+/*
 void SENSiOSARCore::onUpdate(simd_float4x4* camPose, uint8_t* yPlane, uint8_t* uvPlane, int imgWidth, int imgHeight, simd_float3x3* camMat3x3, bool isTracking)
 {
     cv::Mat intrinsics;
@@ -168,13 +178,14 @@ void SENSiOSARCore::onUpdate(simd_float4x4* camPose, uint8_t* yPlane, uint8_t* u
     memcpy(yuvImg.data + yLen, uvPlane, uvLen);
     //Utils::log("SENSiOSARCore", "memcpy: %fms", t.elapsedTimeInMilliSec());
     */
+/*
     //t.start();
     cv::Mat bgrImg;
     cv::cvtColor(yuvImg, bgrImg, cv::COLOR_YUV2BGR_NV12, 3);
     //Utils::log("SENSiOSARCore", "convertion: %fms", t.elapsedTimeInMilliSec());
     
-    setFrame( std::make_shared<SENSFrameBase>(SENSClock::now(), bgrImg, intrinsics, pose, isTracking));
+    setFrame( std::make_shared<SENSFrameBase>(SENSClock::now(), bgrImg, intrinsics));
 #endif
-    
 
 }
+ */

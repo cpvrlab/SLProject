@@ -1,15 +1,17 @@
 #ifndef SENS_IOSARCORE_H
 #define SENS_IOSARCORE_H
 
+/*
 #include <mutex>
 #include <thread>
 #include <atomic>
-
+*/
 #include <sens/SENSARCore.h>
 
 #import "SENSiOSARCoreDelegate.h"
 #import <simd/simd.h>
 
+/*
 class ImageConverter
 {
 public:
@@ -75,7 +77,7 @@ private:
     
     std::function<void(SENSFrameBasePtr)> _setFrameCB;
 };
-
+ */
 
 class SENSiOSARCore : public SENSARCore
 {
@@ -83,29 +85,30 @@ public:
     SENSiOSARCore();
     ~SENSiOSARCore()
     {
-
     }
-    
+
     bool init(int targetWidth, int targetHeight, int manipWidth, int manipHeight, bool convertManipToGray) override;
     bool isReady() override;
     bool resume() override;
     void reset() override;
     void pause() override;
-    SENSFramePtr latestFrame() override;
-    void setDisplaySize(int w, int h) override;
+    bool update(cv::Mat& pose) override;
+    //SENSFramePtr latestFrame() override;
 
 private:
-    void onUpdate(simd_float4x4* camPose, uint8_t* yPlane, uint8_t* uvPlane, int imgWidth, int imgHeight, simd_float3x3* camMat3x3, bool isTracking);
-    void onUpdateBGR(simd_float4x4* camPose, cv::Mat imgBGR, simd_float3x3* camMat3x3);
+    //void onUpdate(simd_float4x4* camPose, uint8_t* yPlane, uint8_t* uvPlane, int imgWidth, int imgHeight, simd_float3x3* camMat3x3, bool isTracking);
+    //void onUpdateBGR(simd_float4x4* camPose, cv::Mat imgBGR, simd_float3x3* camMat3x3);
+    /*
     void setFrame(SENSFrameBasePtr frame)
     {
         std::lock_guard<std::mutex> lock(_frameMutex);
         _frame = frame;
     }
-    
+     */
+
     SENSiOSARCoreDelegate* _arcoreDelegate;
-    
-    std::unique_ptr<ImageConverter> _imgConverter;
+
+    //std::unique_ptr<ImageConverter> _imgConverter;
 };
 
 #endif

@@ -93,6 +93,7 @@ bool SENSNdkARCore::init(int w, int h, int manipW, int manipH, bool convertManip
         return false;
     }
 
+    Utils::log("SENSNdkARCore", "set display geometry: %d, %d", _config.targetWidth, _config.targetHeight);
     ArSession_setDisplayGeometry(_arSession, 0, _config.targetWidth, _config.targetHeight);
 
     // ----- config -----
@@ -151,7 +152,7 @@ bool SENSNdkARCore::init(int w, int h, int manipW, int manipH, bool convertManip
     return true;
 }
 
-bool SENSNdkARCore::update(cv::Mat& intrinsic, cv::Mat& view)
+bool SENSNdkARCore::update(cv::Mat& pose)
 {
     if (!_arSession)
         return false;
@@ -162,18 +163,60 @@ bool SENSNdkARCore::update(cv::Mat& intrinsic, cv::Mat& view)
     ArCamera* arCamera;
     ArFrame_acquireCamera(_arSession, _arFrame, &arCamera);
 
-    view = cv::Mat::eye(4, 4, CV_32F);
-    intrinsic = cv::Mat::eye(4, 4, CV_32F);
-
+    cv::Mat view = cv::Mat::eye(4, 4, CV_32F);
     ArCamera_getViewMatrix(_arSession, arCamera, view.ptr<float>(0));
-    ArCamera_getProjectionMatrix(_arSession, arCamera, /*near=*/0.1f, /*far=*/100.f, intrinsic.ptr<float>(0));
 
-    ArPose* pose;
-    ArCamera_getPose(_arSession, arCamera, pose);
+    //ArPose* pose;
+    //ArCamera_getPose(_arSession, arCamera, pose);
 
+    //convertions to sl camera pose:
+    //from row- to column-major
     view = view.t();
-    intrinsic = intrinsic.t();
-    updateFrame(intrinsic);
+    //inversion
+    cv::Mat wRc = (view.rowRange(0, 3).colRange(0, 3)).t();
+    cv::Mat wtc = -wRc * view.rowRange(0, 3).col(3);
+    cv::Mat wTc = cv::Mat::eye(4, 4, CV_32F);
+    wRc.copyTo(wTc.colRange(0, 3).rowRange(0, 3));
+    wtc.copyTo(wTc.rowRange(0, 3).col(3));
+    //axis direction adaption (x = -y, y = x, z = z, t = t)
+    pose = cv::Mat::eye(4, 4, CV_32F);
+    wTc.col(1) *= -1;
+    wTc.col(1).copyTo(pose.col(0));
+    wTc.col(0).copyTo(pose.col(1));
+    wTc.col(2).copyTo(pose.col(2));
+    wTc.col(3).copyTo(pose.col(3));
+
+    cv::Mat intrinsics = cv::Mat::eye(3, 3, CV_32F);
+    int w = 0, h = 0;
+    {
+        ArCameraIntrinsics *arIntrinsics = nullptr;
+        ArCameraIntrinsics_create(_arSession, &arIntrinsics);
+        ArCamera_getImageIntrinsics(_arSession, arCamera, arIntrinsics);
+
+        float fx, fy, cx, cy;
+        ArCameraIntrinsics_getFocalLength(_arSession, arIntrinsics, &fx, &fy);
+        ArCameraIntrinsics_getPrincipalPoint(_arSession, arIntrinsics, &cx, &cy);
+
+        ArCameraIntrinsics_getImageDimensions(_arSession,
+                                              arIntrinsics,
+                                              &w,
+                                              &h);
+        Utils::log("SENSNdkARCore", "img dims: %d, %d", w, h);
+
+        ArCameraIntrinsics_destroy(arIntrinsics);
+
+        intrinsics.at<float>(0, 0) = fx;
+        intrinsics.at<float>(1, 1) = fy;
+        intrinsics.at<float>(0, 2) = cx;
+        intrinsics.at<float>(1, 2) = cy;
+        /*
+        std::stringstream ss;
+        ss << intrinsics;
+        Utils::log("SENSNdkARCore", "intrinsics %s", ss.str().c_str());
+         */
+    }
+
+    updateFrame(intrinsics, w, h);
 
     ArTrackingState camera_tracking_state;
     ArCamera_getTrackingState(_arSession, arCamera, &camera_tracking_state);
@@ -186,7 +229,7 @@ bool SENSNdkARCore::update(cv::Mat& intrinsic, cv::Mat& view)
     return true;
 }
 
-void SENSNdkARCore::updateFrame(cv::Mat& intrinsic)
+void SENSNdkARCore::updateFrame(cv::Mat& intrinsics, int w, int h)
 {
     ArImage * arImage;
     if (ArFrame_acquireCameraImage(_arSession, _arFrame, &arImage) != AR_SUCCESS)
@@ -197,10 +240,19 @@ void SENSNdkARCore::updateFrame(cv::Mat& intrinsic)
 
     ArImage_release(arImage);
 
+    /*
+    SENSCalibration calib(intrinsics,
+        cv::Size(w, h),
+        false,
+        false,
+        SENSCameraType::BACKFACING,
+        Utils::ComputerInfos::get);
+*/
     cv::cvtColor(yuv, bgr, cv::COLOR_YUV2BGR_NV21, 3);
 
+    Utils::log("SENSNdkARCore", "img dims: %d, %d", bgr.cols, bgr.rows);
     std::lock_guard<std::mutex> lock(_frameMutex);
-    _frame = std::make_unique<SENSFrameBase>(SENSClock::now(), bgr, intrinsic);
+    _frame = std::make_unique<SENSFrameBase>(SENSClock::now(), bgr, intrinsics);
 }
 
 /*
@@ -211,9 +263,10 @@ SENSFramePtr SENSNdkARCore::latestFrame()
         std::lock_guard<std::mutex> lock(_frameMutex);
         frameBase = _frame;
     }
+
     SENSFramePtr latestFrame;
-    if (frameBase)
-        latestFrame = processNewFrame(frameBase->timePt, frameBase->imgBGR, cv::Mat());
+    if(frameBase)
+        latestFrame = processNewFrame(frameBase->timePt, frameBase->imgBGR, frameBase->intrinsics);
     return latestFrame;
 }
  */
@@ -276,11 +329,13 @@ int SENSNdkARCore::getPointCloud(float ** mapPoints, float confidanceValue)
     return nbPoints;
 }
 
+/*
 void SENSNdkARCore::setDisplaySize(int w, int h)
 {
     if (_arSession)
         ArSession_setDisplayGeometry(_arSession, 0, w, h);
 }
+ */
 
 bool SENSNdkARCore::resume()
 {

@@ -106,7 +106,7 @@
     //copy the image as in camera
     CVImageBufferRef pixelBuffer = frame.capturedImage;
 
-    CVReturn ret =  CVPixelBufferLockBaseAddress(pixelBuffer, 0);  
+    CVReturn ret =  CVPixelBufferLockBaseAddress(pixelBuffer, 0);
     OSType pixelFormat = CVPixelBufferGetPixelFormatType(pixelBuffer);
     //This is NV12, so the order is U/V (NV12: YYYYUV NV21: YYYYVU)
     if (ret == kCVReturnSuccess && pixelFormat == kCVPixelFormatType_420YpCbCr8BiPlanarFullRange)
@@ -124,11 +124,12 @@
 
 #pragma mark - ARSessionDelegate
 
+/*
 - (void)session:(ARSession *)session didUpdateFrame:(ARFrame *)frame
 {
     if(false)
     {
-        /*
+
         //copy the image as in camera
         CVImageBufferRef buffer = frame.capturedImage;
 
@@ -197,7 +198,7 @@
         {
             _updateBgrCB(&camPose, converted, &intrinsic);
         }
-         */
+
     }
     else
     {
@@ -250,6 +251,7 @@
         CVPixelBufferUnlockBaseAddress(pixelBuffer, 0);
     }
 }
+ */
 
 - (void)session:(ARSession *)session didFailWithError:(NSError *)error
 {

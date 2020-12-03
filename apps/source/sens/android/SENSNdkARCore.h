@@ -20,11 +20,11 @@ public:
     bool resume() override;
     void reset() override;
 	void pause() override;
-    bool update(cv::Mat& intrinsic, cv::Mat& view);
+    bool update(cv::Mat& pose);
     //SENSFramePtr latestFrame() override;
-    void setDisplaySize(int w, int h) override;
+    //void setDisplaySize(int w, int h) override;
 
-    int getCameraOpenGLTexture();
+    //int getCameraOpenGLTexture();
 	int getPointCloud(float ** mapPoints, float confidanceValue);
 
 private:
@@ -37,7 +37,7 @@ private:
 
     void initCameraTexture();
     cv::Mat convertToYuv(ArImage* arImage);
-    void updateFrame(cv::Mat& intrinsic);
+    void updateFrame(cv::Mat& intrinsics, int w, int h);
 };
 
 #endif
