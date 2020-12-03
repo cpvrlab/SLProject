@@ -56,6 +56,7 @@ extern SLNode*      trackedNode;
 //-----------------------------------------------------------------------------
 //! Global pointer to 3D MRI texture for volume rendering for threaded loading
 SLGLTexture* gTexMRI3D = nullptr;
+//-----------------------------------------------------------------------------
 //! Creates a recursive sphere group used for the ray tracing scenes
 SLNode* SphereGroup(SLProjectScene* s,
                     SLint           depth, // depth of recursion

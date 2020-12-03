@@ -1261,7 +1261,7 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                         s->onLoad(s, sv, SID_2Dand3DText);
                     if (ImGui::MenuItem("Point Clouds", nullptr, sid == SID_PointClouds))
                         s->onLoad(s, sv, SID_PointClouds);
-                    if (ImGui::MenuItem("Large Model", nullptr, sid == SID_LargeModel))
+                    if (ImGui::MenuItem("Large Model (via FTP)", nullptr, sid == SID_LargeModel))
                     {
                         SLstring largeFile = SLApplication::modelPath + "PLY/xyzrgb_dragon.ply";
                         if (Utils::fileExists(largeFile))
@@ -1272,13 +1272,14 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                                 SLApplication::jobProgressMsg("Downloading large dragon file from pallas.ti.bfh.ch");
                                 SLApplication::jobProgressMax(100);
                                 ftplib ftp;
+
                                 if (ftp.Connect("pallas.ti.bfh.ch:21"))
                                 {
-                                    if (ftp.Login("upload", "FaAdbD3F2a"))
+                                    if (ftp.Login("guest", "g2Q7Z7OkDP4!"))
                                     {
                                         ftp.SetCallbackXferFunction(ftpCallbackXfer);
                                         ftp.SetCallbackBytes(1024000);
-                                        if (ftp.Chdir("SLProject/models/PLY"))
+                                        if (ftp.Chdir("data/SLProject/models/PLY"))
                                         {
                                             int remoteSize = 0;
                                             ftp.Size("xyzrgb_dragon.ply",
