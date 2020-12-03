@@ -15,34 +15,29 @@
 #include <Instrumentor.h>
 
 //-----------------------------------------------------------------------------
-SLGLDepthBuffer::SLGLDepthBuffer(const SLVec2i& dimensions,
-                                 SLenum         magFilter,
-                                 SLenum         minFilter,
-                                 SLint          wrap,
-                                 SLfloat        borderColor[],
-                                 SLenum         target,
-                                 SLstring       name)
-  : SLObject(name),
-    _dimensions(dimensions),
-    _target(target)
-{
+SLGLDepthBuffer::SLGLDepthBuffer(const SLVec2i &dimensions,
+                                 SLenum magFilter,
+                                 SLenum minFilter,
+                                 SLint wrap,
+                                 SLfloat borderColor[],
+                                 SLenum target,
+                                 SLstring name)
+        : SLObject(name),
+          _dimensions(dimensions),
+          _target(target) {
     PROFILE_FUNCTION();
 
     assert(target == GL_TEXTURE_2D || target == GL_TEXTURE_CUBE_MAP);
-    SLGLState* stateGL = SLGLState::instance();
-
-    SLint previousFrameBuffer;
-    glGetIntegerv(GL_FRAMEBUFFER_BINDING, &previousFrameBuffer);
+    SLGLState *stateGL = SLGLState::instance();
 
     // Init framebuffer.
     glGenFramebuffers(1, &_fboID);
     GET_GL_ERROR;
 
-    glBindFramebuffer(GL_FRAMEBUFFER, _fboID);
-    GET_GL_ERROR;
+    bind();
 
     glGenTextures(1, &_texID);
-    stateGL->activeTexture(GL_TEXTURE0 + (SLuint)_texID);
+    stateGL->activeTexture(GL_TEXTURE0 + (SLuint) _texID);
     stateGL->bindTexture(target, _texID);
     GET_GL_ERROR;
 
@@ -59,8 +54,7 @@ SLGLDepthBuffer::SLGLDepthBuffer(const SLVec2i& dimensions,
 
     GET_GL_ERROR;
 
-    if (target == GL_TEXTURE_2D)
-    {
+    if (target == GL_TEXTURE_2D) {
         glTexImage2D(GL_TEXTURE_2D,
                      0,
                      GL_DEPTH_COMPONENT32F,
@@ -79,11 +73,9 @@ SLGLDepthBuffer::SLGLDepthBuffer(const SLVec2i& dimensions,
                                _texID,
                                0);
         GET_GL_ERROR;
-    }
-    else // target is GL_TEXTURE_CUBE_MAP
+    } else // target is GL_TEXTURE_CUBE_MAP
     {
-        for (SLint i = 0; i < 6; ++i)
-        {
+        for (SLint i = 0; i < 6; ++i) {
             glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
                          0,
                          GL_DEPTH_COMPONENT32F,
@@ -113,15 +105,15 @@ SLGLDepthBuffer::SLGLDepthBuffer(const SLVec2i& dimensions,
     glReadBuffer(GL_NONE);
     GET_GL_ERROR;
 
-    glBindFramebuffer(GL_FRAMEBUFFER, previousFrameBuffer);
-    GET_GL_ERROR;
+    unbind();
 
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
         SL_LOG("FBO failed to initialize correctly.");
+    GET_GL_ERROR;
 }
+
 //-----------------------------------------------------------------------------
-SLGLDepthBuffer::~SLGLDepthBuffer()
-{
+SLGLDepthBuffer::~SLGLDepthBuffer() {
     glDeleteTextures(1, &_texID);
     GET_GL_ERROR;
 
@@ -137,42 +129,51 @@ SLGLDepthBuffer::~SLGLDepthBuffer()
  @param loc Uniform location value
  @param texUnit Texture Unit value
  */
-void SLGLDepthBuffer::bindActive(SLuint texUnit) const
-{
-    SLGLState* stateGL = SLGLState::instance();
+void SLGLDepthBuffer::bindActive(SLuint texUnit) const {
+    SLGLState *stateGL = SLGLState::instance();
     //SL_LOG("SLGLDepthBf::bindActive: activeTexture: %d, bindTexture: %u, name: %s", texUnit, _texID, _name.c_str());
     stateGL->activeTexture(GL_TEXTURE0 + texUnit);
     stateGL->bindTexture(_target, _texID);
-    GET_GL_ERROR;
 }
+
 //-----------------------------------------------------------------------------
-SLfloat* SLGLDepthBuffer::readPixels() const
-{
-    SLfloat* depth = new SLfloat[_dimensions.y * _dimensions.x];
-    glReadPixels(0, 0, _dimensions.x, _dimensions.y, GL_DEPTH_COMPONENT, GL_FLOAT, depth);
+SLfloat *SLGLDepthBuffer::readPixels() const {
+    SLfloat *depth = new SLfloat[_dimensions.y * _dimensions.x];
+    glReadPixels(0,
+                 0, _dimensions.x, _dimensions.y, GL_DEPTH_COMPONENT, GL_FLOAT, depth);
     GET_GL_ERROR;
     return depth;
 }
+
 //-----------------------------------------------------------------------------
-void SLGLDepthBuffer::bind() const
-{
+//! Binds the OpenGL frame buffer object for the depth buffer
+void SLGLDepthBuffer::bind() {
+    // Keep the previous FB ID for later unbinding
+    glGetIntegerv(GL_FRAMEBUFFER_BINDING, &_prevFboID);
     glBindFramebuffer(GL_FRAMEBUFFER, _fboID);
     GET_GL_ERROR;
 }
+
 //-----------------------------------------------------------------------------
-void SLGLDepthBuffer::unbind()
-{
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+//! Ends the usage of the depth buffer frame buffer
+void SLGLDepthBuffer::unbind() {
+    // iOS does not allow binding to 0. That's why we keep the previous FB ID
+    glBindFramebuffer(GL_FRAMEBUFFER, _prevFboID);
     GET_GL_ERROR;
 }
+
 //-----------------------------------------------------------------------------
-void SLGLDepthBuffer::bindFace(SLenum face) const
-{
+//! Binds a specific texture face of a cube map depth buffer
+void SLGLDepthBuffer::bindFace(SLenum face) const {
     assert(_target == GL_TEXTURE_CUBE_MAP);
     assert(face >= GL_TEXTURE_CUBE_MAP_POSITIVE_X &&
            face <= GL_TEXTURE_CUBE_MAP_NEGATIVE_Z);
 
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, face, _texID, 0);
+    glFramebufferTexture2D(GL_FRAMEBUFFER,
+                           GL_DEPTH_ATTACHMENT,
+                           face,
+                           _texID,
+                           0);
     GET_GL_ERROR;
 }
 //-----------------------------------------------------------------------------

@@ -47,6 +47,7 @@ public:
                 SLfloat         width   = 1,
                 SLfloat         height  = 1,
                 SLbool          hasMesh = true);
+
     ~SLLightRect() override;
 
     void    init(SLScene* s);

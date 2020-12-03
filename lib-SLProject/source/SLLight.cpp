@@ -16,6 +16,7 @@
 //-----------------------------------------------------------------------------
 SLCol4f SLLight::globalAmbient = SLCol4f(0.1f, 0.1f, 0.1f, 1.0f);
 SLfloat SLLight::gamma         = 1.0f;
+
 //-----------------------------------------------------------------------------
 SLLight::SLLight(SLfloat ambiPower,
                  SLfloat diffPower,
@@ -23,17 +24,17 @@ SLLight::SLLight(SLfloat ambiPower,
                  SLint   id)
 {
     // Set parameter of SLLight
-    _id                = id;
-    _isOn              = true;
-    _spotCutOffDEG     = 180.0f;
-    _spotCosCutOffRAD  = cos(Utils::DEG2RAD * _spotCutOffDEG);
-    _spotExponent      = 1.0f;
-    _createsShadows    = false;
-    _shadowMap         = nullptr;
-    _doSoftShadows     = false;
-    _softShadowLevel   = 1;
-    _shadowMinBias     = 0.001f;
-    _shadowMaxBias     = 0.008f;
+    _id               = id;
+    _isOn             = true;
+    _spotCutOffDEG    = 180.0f;
+    _spotCosCutOffRAD = cos(Utils::DEG2RAD * _spotCutOffDEG);
+    _spotExponent     = 1.0f;
+    _createsShadows   = false;
+    _shadowMap        = nullptr;
+    _doSoftShadows    = false;
+    _softShadowLevel  = 1;
+    _shadowMinBias    = 0.001f;
+    _shadowMaxBias    = 0.008f;
 
     // Set parameters of inherited SLMaterial
     _ambientColor.set(1, 1, 1);
@@ -54,45 +55,50 @@ SLLight::SLLight(SLfloat ambiPower,
     kl(0.0f);
     kq(0.0f);
 }
+
 //-----------------------------------------------------------------------------
 void SLLight::kc(SLfloat kc)
 {
     _kc           = kc;
     _isAttenuated = !(_kc == 1.0f && _kl == 0.0f && _kq == 0.0f);
 }
+
 //-----------------------------------------------------------------------------
 void SLLight::kl(SLfloat kl)
 {
     _kl           = kl;
     _isAttenuated = !(_kc == 1.0f && _kl == 0.0f && _kq == 0.0f);
 }
+
 //-----------------------------------------------------------------------------
 void SLLight::kq(SLfloat kq)
 {
     _kq           = kq;
     _isAttenuated = !(_kc == 1.0f && _kl == 0.0f && _kq == 0.0f);
 }
+
 //-----------------------------------------------------------------------------
 void SLLight::spotCutOffDEG(const SLfloat cutOffAngleDEG)
 {
     _spotCutOffDEG    = cutOffAngleDEG;
     _spotCosCutOffRAD = cos(Utils::DEG2RAD * _spotCutOffDEG);
 }
+
 //-----------------------------------------------------------------------------
 void SLLight::createsShadows(SLbool createsShadows)
 {
     _createsShadows = createsShadows;
-    if (!createsShadows)
-    {
-        delete _shadowMap;
-        _shadowMap = nullptr;
-    }
 }
+
 //-----------------------------------------------------------------------------
 //! SLLight::renderShadowMap renders the shadow map of the light
 void SLLight::renderShadowMap(SLSceneView* sv, SLNode* root)
 {
-    assert(_shadowMap && "No shadow map was created!");
+    // Check if no shadow map was created at load time
+    if (!_shadowMap)
+    {
+        this->createShadowMap();
+    }
 
     _shadowMap->render(sv, root);
 }

@@ -24,7 +24,7 @@ if(XCODE_CODESIGNIDENTITY)
 	set(XCODE_DEVELOPMENTTEAM "858Y9EWZ4B")
 else()
 	message(STATUS "automatic signing")
-	set(APP_BUNDLE_IDENTIFIER "com.${target}") # <== Set to your app's bundle identifier
+	#set(APP_BUNDLE_IDENTIFIER "com.${target}") # <== Set to your app's bundle identifier
 
     set(XCODE_CODESIGNIDENTITY "iPhone Developer")
 	set(XCODE_DEVELOPMENTTEAM ${XCODE_DEVELOPMENTTEAM})
