@@ -105,24 +105,36 @@ SLNode* RotatingSphereGroup(SLProjectScene* s,
                             SLfloat         z,          // position of group
                             SLfloat         scale,      // scale factor
                             SLuint          resolution, // resolution of spheres
-                            SLVMaterial&    mat)        // reference to material vector
+                            SLVMaterial&    mat)           // reference to material vector
 {
     PROFILE_FUNCTION();
 
-    SLint    iMat     = (SLint)Utils::random(0, mat.size() - 1);
+    // Choose the material index randomly
+    SLint iMat = (SLint)Utils::random(0, mat.size() - 1);
+
+    // Generate unique names for meshes, nodes and animations
+    static int sphereNum = 0;
+    string     meshName  = "Mesh" + std::to_string(sphereNum);
+    string     nodeName  = "Node" + std::to_string(sphereNum);
+    string     animName  = "Anim" + std::to_string(sphereNum);
+    sphereNum++;
+
+    SLAnimation* nodeAnim = s->animManager().createNodeAnimation(animName, 8.0f, true, EC_linear, AL_loop);
 
     if (depth == 0)
     {
-        SLSphere* sphere  = new SLSphere(s, 0.5f * scale, resolution, resolution, "Sphere", mat[iMat]);
-        SLNode*   sphNode = new SLNode(sphere, "Sphere");
+        SLSphere* sphere  = new SLSphere(s, 0.5f * scale, resolution, resolution, meshName, mat[iMat]);
+        SLNode*   sphNode = new SLNode(sphere, nodeName);
         sphNode->translate(x, y, z, TS_object);
+        nodeAnim->createSimpleRotationNodeTrack(sphNode, 180, SLVec3f(0, 1, 0));
         return sphNode;
     }
     else
     {
         depth--;
-        SLNode* sGroup = new SLNode(new SLSphere(s, 0.5f * scale, resolution, resolution, "Sphere", mat[iMat]), "SphereGroupRT");
+        SLNode* sGroup = new SLNode(new SLSphere(s, 0.5f * scale, resolution, resolution, meshName, mat[iMat]), nodeName);
         sGroup->translate(x, y, z, TS_object);
+        nodeAnim->createSimpleRotationNodeTrack(sGroup, 180, SLVec3f(0, 1, 0));
         sGroup->addChild(RotatingSphereGroup(s, depth, 0.643951f * scale, 0, 0.172546f * scale, scale / 3, resolution, mat));
         sGroup->addChild(RotatingSphereGroup(s, depth, 0.172546f * scale, 0, 0.643951f * scale, scale / 3, resolution, mat));
         sGroup->addChild(RotatingSphereGroup(s, depth, -0.471405f * scale, 0, 0.471405f * scale, scale / 3, resolution, mat));
@@ -1042,8 +1054,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         for (int i = 0; i < NUM_MAT; ++i)
         {
             SLGLProgram* sp      = new SLGLGenericProgram(s,
-                                                          SLApplication::shaderPath + "PerPixBlinnTex.vert",
-                                                          SLApplication::shaderPath + "PerPixBlinnTex.frag");
+                                                     SLApplication::shaderPath + "PerPixBlinnTex.vert",
+                                                     SLApplication::shaderPath + "PerPixBlinnTex.frag");
             SLGLTexture* texC    = new SLGLTexture(s, SLApplication::texturePath + "earth2048_C.jpg"); // color map
             SLstring     matName = "mat-" + std::to_string(i);
             mat.push_back(new SLMaterial(s, matName.c_str(), texC, nullptr, nullptr, nullptr, sp));
@@ -1181,6 +1193,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->doWaitOnIdle(false);
         s->root3D(scene);
     }
+
     else if (SLApplication::sceneID == SID_ShaderPerPixelBlinn ||
              SLApplication::sceneID == SID_ShaderPerVertexBlinn) //......................................
     {
@@ -1914,6 +1927,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(cam1);
         s->root3D(scene);
     }
+
     else if (SLApplication::sceneID == SID_ShadowMappingBasicScene) //...................................
     {
         s->name("Shadow Mapping Basic Scene");
@@ -2022,8 +2036,17 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Add teapots which cast shadows
         SLAssimpImporter importer;
-        SLAnimation*     teapotAnim  = s->animManager().createNodeAnimation("teapot_anim", 8.0f, true, EC_linear, AL_loop);
-        SLNode*          teapotModel = importer.load(s->animManager(), s, SLApplication::modelPath + "FBX/Teapot/Teapot.fbx", SLApplication::texturePath, true, matPerPixSM);
+        SLAnimation*     teapotAnim  = s->animManager().createNodeAnimation("teapot_anim",
+                                                                       8.0f,
+                                                                       true,
+                                                                       EC_linear,
+                                                                       AL_loop);
+        SLNode*          teapotModel = importer.load(s->animManager(),
+                                            s,
+                                            SLApplication::modelPath + "FBX/Teapot/Teapot.fbx",
+                                            SLApplication::texturePath,
+                                            true,
+                                            matPerPixSM);
 
         for (SLLight* light : lights)
         {
@@ -2218,6 +2241,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(cam1);
         s->root3D(scene);
     }
+
     else if (SLApplication::sceneID == SID_SuzannePerPixBlinn) //........................................
     {
         // Set scene name and info string
@@ -2663,6 +2687,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         // Save energy
         sv->doWaitOnIdle(true);
     }
+
     else if (SLApplication::sceneID == SID_VolumeRayCast) //.............................................
     {
         s->name("Volume Ray Cast Test");
@@ -2803,6 +2828,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(cam1);
         s->root3D(scene);
     }
+
     else if (SLApplication::sceneID == SID_AnimationSkeletal) //.........................................
     {
         s->name("Skeletal Animation Test");
@@ -3134,6 +3160,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(cam1);
         s->root3D(scene);
     }
+
     else if (SLApplication::sceneID == SID_VideoTextureLive ||
              SLApplication::sceneID == SID_VideoTextureFile) //..........................................
     {
@@ -3662,6 +3689,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         sv->doWaitOnIdle(false); // for constant video feed
     }
+
     else if (SLApplication::sceneID == SID_ErlebARBielBFH) //............................................
     {
         s->name("Biel-BFH AR");
@@ -4478,6 +4506,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(cam1);
         s->root3D(scene);
     }
+
     else if (SLApplication::sceneID == SID_RTMuttenzerBox) //............................................
     {
         s->name("Muttenzer Box");

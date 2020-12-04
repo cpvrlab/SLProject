@@ -100,7 +100,8 @@ SLNodeAnimTrack* SLAnimation::createNodeAnimationTrack()
 
     auto it = _nodeAnimTracks.begin();
     for (; it != _nodeAnimTracks.end() && freeIndex == it->first; ++it, ++freeIndex)
-    {}
+    {
+    }
 
     return createNodeAnimationTrack(freeIndex);
 }
@@ -225,15 +226,13 @@ SLNodeAnimTrack* SLAnimation::createEllipticNodeTrack(SLNode* target,
     /* The ellipse is defined by 5 keyframes: A,B,C,D and again A
 
         c2----B----c1
-
     c3                 c0
-    �                   �
-    �         �         �
+    |                   |
+    |         |         |
     C       --0--       A
-    �         �         �
-    �                   �
-    c4                 c7 
-
+    |         |         |
+    |                   |
+    c4                 c7
         c5----D----c6
     */
 
