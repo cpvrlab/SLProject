@@ -1268,7 +1268,7 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                             s->onLoad(s, sv, SID_LargeModel);
                         else
                         {
-                            auto downloadJob = []() {
+                            auto downloadJobFTP = []() {
                                 SLApplication::jobProgressMsg("Downloading large dragon file from pallas.ti.bfh.ch");
                                 SLApplication::jobProgressMax(100);
                                 ftplib ftp;
@@ -1321,12 +1321,37 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
 
                             function<void(void)> jobNoArgs = bind(jobToFollow1, s, sv);
 
-                            SLApplication::jobsToBeThreaded.emplace_back(downloadJob);
+                            SLApplication::jobsToBeThreaded.emplace_back(downloadJobFTP);
                             SLApplication::jobsToFollowInMain.push_back(jobNoArgs);
                         }
                     }
-                    if (ImGui::MenuItem("Massive Scene", nullptr, sid == SID_MassiveScene))
-                        s->onLoad(s, sv, SID_MassiveScene);
+                    if (ImGui::MenuItem("Large Model (via HTTP)", nullptr, sid == SID_LargeModel))
+                    {
+                        SLstring largeFile = SLApplication::modelPath + "PLY/xyzrgb_dragon.ply";
+                        if (Utils::fileExists(largeFile))
+                            s->onLoad(s, sv, SID_LargeModel);
+                        else
+                        {
+                            auto downloadJobHTTP = []() {
+                                //???
+                            };
+
+                            auto jobToFollow1 = [](SLScene* s, SLSceneView* sv) {
+                              SLstring largeFile = SLApplication::modelPath + "PLY/xyzrgb_dragon.ply";
+                              if (Utils::fileExists(largeFile))
+                                  s->onLoad(s, sv, SID_LargeModel);
+                            };
+
+                            function<void(void)> jobNoArgs = bind(jobToFollow1, s, sv);
+
+                            SLApplication::jobsToBeThreaded.emplace_back(downloadJobHTTP);
+                            SLApplication::jobsToFollowInMain.push_back(jobNoArgs);
+                        }
+                    }
+                    if (ImGui::MenuItem("Massive Scene 1", nullptr, sid == SID_MassiveScene1))
+                        s->onLoad(s, sv, SID_MassiveScene1);
+                    if (ImGui::MenuItem("Massive Scene 2", nullptr, sid == SID_MassiveScene2))
+                        s->onLoad(s, sv, SID_MassiveScene2);
 
                     ImGui::EndMenu();
                 }

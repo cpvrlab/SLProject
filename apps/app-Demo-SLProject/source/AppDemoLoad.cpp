@@ -58,15 +58,15 @@ extern SLNode*      trackedNode;
 SLGLTexture* gTexMRI3D = nullptr;
 //-----------------------------------------------------------------------------
 //! Creates a recursive sphere group used for the ray tracing scenes
-SLNode* SphereGroup(SLProjectScene* s,
-                    SLint           depth, // depth of recursion
-                    SLfloat         x,
-                    SLfloat         y,
-                    SLfloat         z,          // position of group
-                    SLfloat         scale,      // scale factor
-                    SLuint          resolution, // resolution of spheres
-                    SLMaterial*     matGlass,   // material for center sphere
-                    SLMaterial*     matRed)         // material for orbiting spheres
+SLNode* SphereGroupRT(SLProjectScene* s,
+                      SLint           depth, // depth of recursion
+                      SLfloat         x,
+                      SLfloat         y,
+                      SLfloat         z,          // position of group
+                      SLfloat         scale,      // scale factor
+                      SLuint          resolution, // resolution of spheres
+                      SLMaterial*     matGlass,   // material for center sphere
+                      SLMaterial*     matRed)         // material for orbiting spheres
 {
     PROFILE_FUNCTION();
 
@@ -81,19 +81,57 @@ SLNode* SphereGroup(SLProjectScene* s,
     else
     {
         depth--;
-        SLNode* sGroup = new SLNode("SphereGroup");
+        SLNode* sGroup = new SLNode(new SLSphere(s, 0.5f * scale, resolution, resolution, name, matGlass), "SphereGroupRT");
         sGroup->translate(x, y, z, TS_object);
         SLuint newRes = (SLuint)std::max((SLint)resolution - 4, 8);
-        sGroup->addChild(new SLNode(new SLSphere(s, 0.5f * scale, resolution, resolution, name, matGlass)));
-        sGroup->addChild(SphereGroup(s, depth, 0.643951f * scale, 0, 0.172546f * scale, scale / 3, newRes, matRed, matRed));
-        sGroup->addChild(SphereGroup(s, depth, 0.172546f * scale, 0, 0.643951f * scale, scale / 3, newRes, matRed, matRed));
-        sGroup->addChild(SphereGroup(s, depth, -0.471405f * scale, 0, 0.471405f * scale, scale / 3, newRes, matRed, matRed));
-        sGroup->addChild(SphereGroup(s, depth, -0.643951f * scale, 0, -0.172546f * scale, scale / 3, newRes, matRed, matRed));
-        sGroup->addChild(SphereGroup(s, depth, -0.172546f * scale, 0, -0.643951f * scale, scale / 3, newRes, matRed, matRed));
-        sGroup->addChild(SphereGroup(s, depth, 0.471405f * scale, 0, -0.471405f * scale, scale / 3, newRes, matRed, matRed));
-        sGroup->addChild(SphereGroup(s, depth, 0.272166f * scale, 0.544331f * scale, 0.272166f * scale, scale / 3, newRes, matRed, matRed));
-        sGroup->addChild(SphereGroup(s, depth, -0.371785f * scale, 0.544331f * scale, 0.099619f * scale, scale / 3, newRes, matRed, matRed));
-        sGroup->addChild(SphereGroup(s, depth, 0.099619f * scale, 0.544331f * scale, -0.371785f * scale, scale / 3, newRes, matRed, matRed));
+        sGroup->addChild(SphereGroupRT(s, depth, 0.643951f * scale, 0, 0.172546f * scale, scale / 3, newRes, matRed, matRed));
+        sGroup->addChild(SphereGroupRT(s, depth, 0.172546f * scale, 0, 0.643951f * scale, scale / 3, newRes, matRed, matRed));
+        sGroup->addChild(SphereGroupRT(s, depth, -0.471405f * scale, 0, 0.471405f * scale, scale / 3, newRes, matRed, matRed));
+        sGroup->addChild(SphereGroupRT(s, depth, -0.643951f * scale, 0, -0.172546f * scale, scale / 3, newRes, matRed, matRed));
+        sGroup->addChild(SphereGroupRT(s, depth, -0.172546f * scale, 0, -0.643951f * scale, scale / 3, newRes, matRed, matRed));
+        sGroup->addChild(SphereGroupRT(s, depth, 0.471405f * scale, 0, -0.471405f * scale, scale / 3, newRes, matRed, matRed));
+        sGroup->addChild(SphereGroupRT(s, depth, 0.272166f * scale, 0.544331f * scale, 0.272166f * scale, scale / 3, newRes, matRed, matRed));
+        sGroup->addChild(SphereGroupRT(s, depth, -0.371785f * scale, 0.544331f * scale, 0.099619f * scale, scale / 3, newRes, matRed, matRed));
+        sGroup->addChild(SphereGroupRT(s, depth, 0.099619f * scale, 0.544331f * scale, -0.371785f * scale, scale / 3, newRes, matRed, matRed));
+        return sGroup;
+    }
+}
+//-----------------------------------------------------------------------------
+//! Creates a recursive rotating sphere group used for performance test
+SLNode* RotatingSphereGroup(SLProjectScene* s,
+                            SLint           depth, // depth of recursion
+                            SLfloat         x,
+                            SLfloat         y,
+                            SLfloat         z,          // position of group
+                            SLfloat         scale,      // scale factor
+                            SLuint          resolution, // resolution of spheres
+                            SLVMaterial&    mat)        // reference to material vector
+{
+    PROFILE_FUNCTION();
+
+    SLint    iMat     = (SLint)Utils::random(0, mat.size() - 1);
+
+    if (depth == 0)
+    {
+        SLSphere* sphere  = new SLSphere(s, 0.5f * scale, resolution, resolution, "Sphere", mat[iMat]);
+        SLNode*   sphNode = new SLNode(sphere, "Sphere");
+        sphNode->translate(x, y, z, TS_object);
+        return sphNode;
+    }
+    else
+    {
+        depth--;
+        SLNode* sGroup = new SLNode(new SLSphere(s, 0.5f * scale, resolution, resolution, "Sphere", mat[iMat]), "SphereGroupRT");
+        sGroup->translate(x, y, z, TS_object);
+        sGroup->addChild(RotatingSphereGroup(s, depth, 0.643951f * scale, 0, 0.172546f * scale, scale / 3, resolution, mat));
+        sGroup->addChild(RotatingSphereGroup(s, depth, 0.172546f * scale, 0, 0.643951f * scale, scale / 3, resolution, mat));
+        sGroup->addChild(RotatingSphereGroup(s, depth, -0.471405f * scale, 0, 0.471405f * scale, scale / 3, resolution, mat));
+        sGroup->addChild(RotatingSphereGroup(s, depth, -0.643951f * scale, 0, -0.172546f * scale, scale / 3, resolution, mat));
+        sGroup->addChild(RotatingSphereGroup(s, depth, -0.172546f * scale, 0, -0.643951f * scale, scale / 3, resolution, mat));
+        sGroup->addChild(RotatingSphereGroup(s, depth, 0.471405f * scale, 0, -0.471405f * scale, scale / 3, resolution, mat));
+        sGroup->addChild(RotatingSphereGroup(s, depth, 0.272166f * scale, 0.544331f * scale, 0.272166f * scale, scale / 3, resolution, mat));
+        sGroup->addChild(RotatingSphereGroup(s, depth, -0.371785f * scale, 0.544331f * scale, 0.099619f * scale, scale / 3, resolution, mat));
+        sGroup->addChild(RotatingSphereGroup(s, depth, 0.099619f * scale, 0.544331f * scale, -0.371785f * scale, scale / 3, resolution, mat));
         return sGroup;
     }
 }
@@ -909,9 +947,9 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->doWaitOnIdle(false);
         s->root3D(scene);
     }
-    else if (SLApplication::sceneID == SID_MassiveScene) //..............................................
+    else if (SLApplication::sceneID == SID_MassiveScene1) //.............................................
     {
-        s->name("Massive Data Test");
+        s->name("Massive Data Test 1");
         s->info("No data is shared on the GPU. Check Memory consumption.");
 
         SLCamera* cam1 = new SLCamera("Camera 1");
@@ -933,7 +971,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Generate NUM_MAT materials
         const int   NUM_MAT = 20;
-        SLMaterial* mat[NUM_MAT];
+        SLVMaterial mat(NUM_MAT);
         for (int i = 0; i < NUM_MAT; ++i)
         {
             SLGLProgram* sp      = new SLGLGenericProgram(s,
@@ -941,7 +979,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                                                      SLApplication::shaderPath + "PerPixBlinnTex.frag");
             SLGLTexture* texC    = new SLGLTexture(s, SLApplication::texturePath + "earth2048_C.jpg"); // color map
             SLstring     matName = "mat-" + std::to_string(i);
-            mat[i]               = new SLMaterial(s, matName.c_str(), texC, nullptr, nullptr, nullptr, sp);
+            mat.push_back(new SLMaterial(s, matName.c_str(), texC, nullptr, nullptr, nullptr, sp));
             SLCol4f color;
             color.hsva2rgba(SLVec4f(Utils::TWOPI * (float)i / (float)NUM_MAT, 1.0f, 1.0f));
             mat[i]->diffuse(color);
@@ -971,6 +1009,51 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                 }
             }
         }
+
+        sv->camera(cam1);
+        sv->doWaitOnIdle(false);
+        s->root3D(scene);
+    }
+    else if (SLApplication::sceneID == SID_MassiveScene2) //.............................................
+    {
+        s->name("Massive Data Test 2");
+        s->info("No data is shared on the GPU. Check Memory consumption.");
+
+        SLCamera* cam1 = new SLCamera("Camera 1");
+        cam1->clipNear(0.1f);
+        cam1->clipFar(100);
+        cam1->translation(0, .25f, 2);
+        cam1->lookAt(0, .25f, 0);
+        cam1->focalDist(2);
+        cam1->background().colors(SLCol4f(0.1f, 0.1f, 0.1f));
+        cam1->setInitialState();
+
+        SLLightSpot* light1 = new SLLightSpot(s, s, 15, 15, 15, 0.3f);
+        light1->powers(0.2f, 0.8f, 1.0f);
+        light1->attenuation(1, 0, 0);
+
+        SLNode* scene = new SLNode;
+        scene->addChild(cam1);
+        scene->addChild(light1);
+
+        // Generate NUM_MAT materials
+        const int   NUM_MAT = 20;
+        SLVMaterial mat;
+        for (int i = 0; i < NUM_MAT; ++i)
+        {
+            SLGLProgram* sp      = new SLGLGenericProgram(s,
+                                                          SLApplication::shaderPath + "PerPixBlinnTex.vert",
+                                                          SLApplication::shaderPath + "PerPixBlinnTex.frag");
+            SLGLTexture* texC    = new SLGLTexture(s, SLApplication::texturePath + "earth2048_C.jpg"); // color map
+            SLstring     matName = "mat-" + std::to_string(i);
+            mat.push_back(new SLMaterial(s, matName.c_str(), texC, nullptr, nullptr, nullptr, sp));
+            SLCol4f color;
+            color.hsva2rgba(SLVec4f(Utils::TWOPI * (float)i / (float)NUM_MAT, 1.0f, 1.0f));
+            mat[i]->diffuse(color);
+        }
+
+        // create rotating sphere group
+        scene->addChild(RotatingSphereGroup(s, 4, 0, 0, 0, 1, 18, mat));
 
         sv->camera(cam1);
         sv->doWaitOnIdle(false);
@@ -4551,7 +4634,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLNode* scene = new SLNode;
         scene->addChild(light1);
         scene->addChild(light2);
-        scene->addChild(SphereGroup(s, 3, 0, 0, 0, 1, 30, matGla, matRed));
+        scene->addChild(SphereGroupRT(s, 3, 0, 0, 0, 1, 30, matGla, matRed));
         scene->addChild(rect);
         scene->addChild(cam1);
 
@@ -4600,7 +4683,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLNode* scene = new SLNode;
         scene->addChild(light1);
         scene->addChild(light2);
-        scene->addChild(SphereGroup(s, 1, 0, 0, 0, 1, 32, matBlk, matRed));
+        scene->addChild(SphereGroupRT(s, 1, 0, 0, 0, 1, 32, matBlk, matRed));
         scene->addChild(rect);
         scene->addChild(cam1);
 

@@ -99,7 +99,8 @@ enum SLSceneID
     SID_2Dand3DText,
     SID_PointClouds,
     SID_LargeModel,
-    SID_MassiveScene,
+    SID_MassiveScene1,
+    SID_MassiveScene2,
 
     SID_ShaderPerVertexBlinn,
     SID_ShaderPerPixelBlinn,
