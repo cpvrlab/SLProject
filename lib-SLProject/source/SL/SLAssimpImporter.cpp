@@ -19,6 +19,8 @@
 #include <SLAssetManager.h>
 #include <SLAnimManager.h>
 
+#include <Instrumentor.h>
+
 // assimp is only included in the source file to not expose it to the rest of the framework
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
@@ -273,6 +275,8 @@ SLNode* SLAssimpImporter::load(SLAnimManager&  aniMan,         //!< Reference to
                                float           ambientFactor,  //!< if ambientFactor > 0 ambient = diffuse * AmbientFactor
                                SLuint          flags)                   //!< Import flags (see postprocess.h)
 {
+    PROFILE_FUNCTION();
+
     // clear the intermediate data
     clear();
 
@@ -672,13 +676,13 @@ SLMaterial* SLAssimpImporter::loadMaterial(SLAssetManager* s,
             SLuint           uvIndex;
 
             aiMat->GetTexture(aiTexType,
-                                 0,
-                                 &aiPath,
-                                 &mappingType,
-                                 &uvIndex,
-                                 nullptr,
-                                 nullptr,
-                                 nullptr);
+                              0,
+                              &aiPath,
+                              &mappingType,
+                              &uvIndex,
+                              nullptr,
+                              nullptr,
+                              nullptr);
 
             SLTextureType slTexType = TT_unknown;
 
@@ -732,8 +736,8 @@ SLMaterial* SLAssimpImporter::loadMaterial(SLAssetManager* s,
     // set color data
     if (ambientFactor > 0.0f)
         slMat->ambient(SLCol4f(diffuse.r * ambientFactor,
-                             diffuse.g * ambientFactor,
-                             diffuse.b * ambientFactor));
+                               diffuse.g * ambientFactor,
+                               diffuse.b * ambientFactor));
     else
         slMat->ambient(SLCol4f(ambient.r, ambient.g, ambient.b));
 
@@ -759,7 +763,7 @@ SLGLTexture* SLAssimpImporter::loadTexture(SLAssetManager* assetMgr,
         if (i->url() == textureFile)
             return i;
 
-    SLint minificationFilter  = texType == TT_ambientOcclusion ? GL_LINEAR : SL_ANISOTROPY_MAX;
+    SLint minificationFilter = texType == TT_ambientOcclusion ? GL_LINEAR : SL_ANISOTROPY_MAX;
 
     // Create the new texture. It is also push back to SLScene::_textures
     SLGLTexture* texture = new SLGLTexture(assetMgr,
@@ -1098,9 +1102,9 @@ SLAnimation* SLAssimpImporter::loadAnimation(SLAnimManager& animManager, aiAnima
     oss << "unnamed_anim_" << animManager.allAnimNames().size();
     SLstring animName        = oss.str();
     SLfloat  animTicksPerSec = (anim->mTicksPerSecond < 0.0001f)
-                                 ? 30.0f
-                                 : (SLfloat)anim->mTicksPerSecond;
-    SLfloat  animDuration    = (SLfloat)anim->mDuration / animTicksPerSec;
+                                ? 30.0f
+                                : (SLfloat)anim->mTicksPerSecond;
+    SLfloat animDuration = (SLfloat)anim->mDuration / animTicksPerSec;
 
     if (anim->mName.length > 0)
         animName = anim->mName.C_Str();

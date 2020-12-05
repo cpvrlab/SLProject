@@ -832,8 +832,6 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID") #-----------------------------
             libjasper)
     endif()
 
-    message(STATUS "OpenCV_LINK_LIBS: ${OpenCV_LINK_LIBS}")
-
     foreach(lib ${OpenCV_LINK_LIBS})
         add_library(lib_${lib} STATIC IMPORTED)
         set_target_properties(lib_${lib} PROPERTIES IMPORTED_LOCATION ${OpenCV_LINK_DIR}/lib${lib}.a)

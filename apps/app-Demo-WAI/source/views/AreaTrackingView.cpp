@@ -625,12 +625,10 @@ bool AreaTrackingView::updateGPS(SENSFramePtr& frame)
     SLMat4f gpsPose = calcCameraPoseGpsOrientationBased();
     applyFingerCorrection(gpsPose);
 
-#if 0
     if (frame)
     {
         applyTemplateCorrection(gpsPose, frame->imgManip);
     }
-#endif
 
     //SLMat4f gpsPoseCorr = _cameraFingerCorr.getCorrectionMat(focalLength) * gpsPose;
     _waiScene.camera->om(gpsPose);
@@ -655,27 +653,47 @@ void AreaTrackingView::applyTemplateCorrection(SLMat4f&       camPose,
                                                const cv::Mat& frameGray)
 {
     //SENSGps::Location loc           = _gps->getLocation();
-    SLVec3f   loc           = camPose.translation();
-    SLVec3f   camForward    = camPose.axisZ();
-    cv::Point vecCurForward = cv::Point(camForward.x, camForward.y);
+    // world coordinate system has its origin at the center of the model
+    // and its axes are aligned east-up-north
+    SLVec3f wTc_f = camPose.translation();
+    SLVec3d wTc   = SLVec3d(wTc_f.x, wTc_f.y, wTc_f.z);
+    //SLVec3f   camForward    = camPose.axisX();
+    //cv::Point vecCurForward = cv::Point(camForward.x, camForward.y);
 
-    cv::Mat templateTest          = cv::imread(_deviceData.erlebARDir() + "templates/template_milchgaessli.png", cv::IMREAD_GRAYSCALE);
-    double  templateTestLatitude  = 46.94790;
-    double  templateTestLongitude = 7.44078;
-    double  templateTestAltitude  = 542.3;
+    cv::Mat templateTest = cv::imread(_deviceData.erlebARDir() + "templates/template_milchgaessli.png", cv::IMREAD_GRAYSCALE);
+#if 1
+    double templateTestLatitude  = 46.94790;
+    double templateTestLongitude = 7.44078;
+    double templateTestAltitude  = 542.3;
+#else // Test with fixed position to verify code
+    double templateTestLatitude  = 46.94839;
+    double templateTestLongitude = 7.43973;
+    double templateTestAltitude  = 542.8;
+#endif
 
     SLVec3d latDegLonDegAltM = SLVec3d(templateTestLatitude, templateTestLongitude, templateTestAltitude);
     SLVec3d tplLocEcef;
     tplLocEcef.latlonAlt2ecef(latDegLonDegAltM);
     SLVec3d enuTtpl = _devLoc.wRecef() * tplLocEcef;
-    enuTtpl.z       = 0.0f;
-    enuTtpl.normalize();
+    SLVec3d wTtpl   = enuTtpl - _devLoc.originENU(); // tpl location w.r.t. world
+    SLVec3f wTtpl_f = SLVec3f(wTtpl.x, wTtpl.y, wTtpl.z);
+    SLVec3f cTtpl   = camPose.mat3() * (wTtpl_f - wTc_f); // tpl location w.r.t. camera
 
-    //_compassAlignment.setTemplate(templateTest, tplLocEnu.x, tplLocEnu.y, tplLocEnu.z);
+    SLMat3f camMat = SLMat3f(_camera->calibration()->fx(),
+                             0.0f,
+                             _camera->calibration()->cx(),
+                             0.0f,
+                             _camera->calibration()->fy(),
+                             _camera->calibration()->cy(),
+                             0.0f,
+                             0.0f,
+                             1.0f);
+    SLVec3f fTtpl  = camMat * cTtpl;                                // tpl location w.r.t. film
+    SLVec2f pTtpl  = SLVec2f(fTtpl.x / fTtpl.z, fTtpl.y / fTtpl.z); // expected pixel location of projected template
 
-    //cv::Mat resultImage;
-    //_compassAlignment.update(frameGray, resultImage, this->camera()->fovH(), loc.x, loc.y, loc.z, vecCurForward);
-    //float rotAngDEG = _compassAlignment.getRotAngleDEG();
+    std::cout << "pTtpl: " << pTtpl << std::endl;
+
+    float degPerPix = _camera->calibration()->cameraFovHDeg() / _camera->calibration()->imageSize().width;
 
     cv::Mat resultImage;
     cv::matchTemplate(frameGray, templateTest, resultImage, cv::TM_CCOEFF_NORMED);
@@ -686,21 +704,36 @@ void AreaTrackingView::applyTemplateCorrection(SLMat4f&       camPose,
 
     std::cout << "maxLoc: " << maxLoc << std::endl;
 
-    cv::Point imCenter       = cv::Point(frameGray.cols * 0.5f, frameGray.rows * 0.5f);
+    //cv::Point imCenter       = cv::Point(frameGray.cols * 0.5f, frameGray.rows * 0.5f);
     cv::Point tplCenter      = cv::Point(templateTest.cols * 0.5f, templateTest.rows * 0.5f);
     cv::Point tplMatchCenter = maxLoc + tplCenter;
 
+    float rotAngDEG = (pTtpl.x - tplMatchCenter.x) * degPerPix;
+
+#if 0
+    SLVec3d wTcTpl = wTtpl - wTc; // vector from camera to template w.r.t. world
+    wTcTpl.z       = 0.0f;
+    wTcTpl.normalize();
+
+    //_compassAlignment.setTemplate(templateTest, tplLocEnu.x, tplLocEnu.y, tplLocEnu.z);
+
+    //cv::Mat resultImage;
+    //_compassAlignment.update(frameGray, resultImage, this->camera()->fovH(), loc.x, loc.y, loc.z, vecCurForward);
+    //float rotAngDEG = _compassAlignment.getRotAngleDEG();
+
     SLVec4f cTmatchCenter    = SLVec4f(tplMatchCenter.x, tplMatchCenter.y, 1.0f, 1.0f);
     SLVec4f enuTmatchCenterH = camPose * cTmatchCenter;
-    SLVec3f enuTmatchCenter  = SLVec3f(enuTmatchCenterH.x / enuTmatchCenterH.w, enuTmatchCenterH.y / enuTmatchCenterH.w, enuTmatchCenterH.z / enuTmatchCenterH.w);
-    SLVec3f enuTmatch        = enuTmatchCenter - loc;
+    SLVec3d enuTmatchCenter  = SLVec3d(enuTmatchCenterH.x / enuTmatchCenterH.w, enuTmatchCenterH.y / enuTmatchCenterH.w, enuTmatchCenterH.z / enuTmatchCenterH.w);
+    SLVec3d enuTmatch        = enuTmatchCenter - wTc;
     enuTmatch.z              = 0.0f;
     enuTmatch.normalize();
 
-    SLVec3d enuTmatchD = SLVec3d(enuTmatch.x, enuTmatch.y, enuTmatch.z);
+    //SLVec3d enuTmatchD = SLVec3d(enuTmatch.x, enuTmatch.y, enuTmatch.z);
 
-    float rotAngRAD = enuTmatchD.dot(enuTtpl);
+    float rotAngRAD = enuTmatch.dot(wTtpl);
     float rotAngDEG = Utils::RAD2DEG * rotAngRAD;
+
+#endif
 
     std::cout << "rotAngDEG: " << rotAngDEG << std::endl;
 
@@ -917,7 +950,7 @@ SLMat4f AreaTrackingView::calcCameraPoseGpsOrientationBased()
 
         //sensor rotation w.r.t. east-north-up
         SLMat3f enuRs;
-        enuRs.setMatrix(rotMat);
+        //enuRs.setMatrix(rotMat);
 
         //enu rotation w.r.t. world
         SLMat3f wRenu;
