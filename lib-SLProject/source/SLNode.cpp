@@ -516,7 +516,8 @@ bool SLNode::hitRec(SLRay* ray)
 }
 //-----------------------------------------------------------------------------
 /*!
-Copies the nodes meshes and children recursively.
+ Returns a deep copy of the node and its children recursively. The meshes do
+ not get copied.
 */
 SLNode* SLNode::copyRec()
 {

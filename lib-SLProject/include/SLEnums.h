@@ -98,9 +98,6 @@ enum SLSceneID
     SID_FrustumCull,
     SID_2Dand3DText,
     SID_PointClouds,
-    SID_LargeModel,
-    SID_MassiveScene1,
-    SID_MassiveScene2,
 
     SID_ShaderPerVertexBlinn,
     SID_ShaderPerPixelBlinn,
@@ -132,7 +129,7 @@ enum SLSceneID
     SID_AnimationMass,
     SID_AnimationSkeletal,
     SID_AnimationNode,
-    SID_AnimationArmy,
+    SID_AnimationAstroboyArmy,
 
     SID_VideoTextureLive,
     SID_VideoTextureFile,
@@ -165,6 +162,12 @@ enum SLSceneID
     SID_RTDoF,
     SID_RTLens,
     SID_RTTest,
+
+    SID_Benchmark1_LargeModel,
+    SID_Benchmark2_MassiveNodes,
+    SID_Benchmark3_NodeAnimations,
+    SID_Benchmark4_SkinnedAnimations,
+
     SID_Maximal
 };
 //-----------------------------------------------------------------------------

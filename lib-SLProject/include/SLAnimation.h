@@ -54,20 +54,17 @@ public:
     void    drawNodeVisuals(SLSceneView* sv);
 
     // track creators
-    SLNodeAnimTrack* createNodeAnimationTrack();
-    SLNodeAnimTrack* createNodeAnimationTrack(SLuint handle);
-    SLNodeAnimTrack* createSimpleTranslationNodeTrack(SLNode*        target,
-                                                      const SLVec3f& endPos);
-    SLNodeAnimTrack* createSimpleRotationNodeTrack(SLNode*        target,
-                                                   SLfloat        angleDeg,
-                                                   const SLVec3f& axis);
-    SLNodeAnimTrack* createSimpleScalingNodeTrack(SLNode*        target,
-                                                  const SLVec3f& endScale);
-    SLNodeAnimTrack* createEllipticNodeTrack(SLNode* target,
-                                             SLfloat radiusA,
-                                             SLAxis  axisA,
-                                             SLfloat radiusB,
-                                             SLAxis  axisB);
+    SLNodeAnimTrack* createNodeAnimTrack();
+    SLNodeAnimTrack* createNodeAnimTrack(SLuint trackID);
+    SLNodeAnimTrack* createNodeAnimTrackForTranslation(SLNode* target, const SLVec3f& endPos);
+    SLNodeAnimTrack* createNodeAnimTrackForRotation(SLNode* target, SLfloat angleDeg, const SLVec3f& axis);
+    SLNodeAnimTrack* createNodeAnimTrackForRotation360(SLNode* target, const SLVec3f& axis);
+    SLNodeAnimTrack* createNodeAnimTrackForScaling(SLNode* target, const SLVec3f& endScale);
+    SLNodeAnimTrack* createNodeAnimTrackForEllipse(SLNode* target,
+                                                   SLfloat radiusA,
+                                                   SLAxis  axisA,
+                                                   SLfloat radiusB,
+                                                   SLAxis  axisB);
     // Getters
     const SLstring& name() { return _name; }
     SLfloat         lengthSec() const { return _lengthSec; }
