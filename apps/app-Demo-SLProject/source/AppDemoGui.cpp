@@ -1285,9 +1285,10 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                         s->onLoad(s, sv, SID_ShaderSkyBox);
                     if (ImGui::MenuItem("Earth Shader", nullptr, sid == SID_ShaderEarth))
                         s->onLoad(s, sv, SID_ShaderEarth);
+#if defined(GL_VERSION_4_4)
                     if (ImGui::MenuItem("Voxel Cone Tracing", nullptr, sid == SID_ShaderVoxelConeDemo))
                         s->onLoad(s, sv, SID_ShaderVoxelConeDemo);
-
+#endif
                     ImGui::EndMenu();
                 }
 
@@ -1571,6 +1572,7 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                             SLApplication::jobsToFollowInMain.push_back(jobNoArgs);
                         }
                     }
+                    /*
                     if (ImGui::MenuItem("Large Model (via HTTP)", nullptr, sid == SID_Benchmark1_LargeModel))
                     {
                         SLstring largeFile = SLApplication::modelPath + "PLY/xyzrgb_dragon.ply";
@@ -1594,6 +1596,7 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                             SLApplication::jobsToFollowInMain.push_back(jobNoArgs);
                         }
                     }
+                    */
                     if (ImGui::MenuItem("Massive Nodes", nullptr, sid == SID_Benchmark2_MassiveNodes))
                         s->onLoad(s, sv, SID_Benchmark2_MassiveNodes);
                     if (ImGui::MenuItem("Massive Node Animations", nullptr, sid == SID_Benchmark3_NodeAnimations))

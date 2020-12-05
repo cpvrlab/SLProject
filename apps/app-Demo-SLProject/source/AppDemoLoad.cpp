@@ -127,7 +127,7 @@ SLNode* RotatingSphereGroup(SLProjectScene* s,
     assert(resolution > 0 && resolution < 64);
 
     // Choose the material index randomly
-    SLint iMat = (SLint)Utils::random(0, mat.size() - 1);
+    SLint iMat = (SLint)Utils::random(0, (int)mat.size() - 1);
 
     // Generate unique names for meshes, nodes and animations
     static int sphereNum = 0;
@@ -1034,14 +1034,19 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         light1->attenuation(1, 0, 0);
 
         SLMaterial* pcMat1 = new SLMaterial(s, "Red", SLCol4f::RED);
-        pcMat1->program(new SLGLGenericProgram(s, SLApplication::shaderPath + "ColorUniformPoint.vert", SLApplication::shaderPath + "Color.frag"));
-        pcMat1->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 3.0f));
+        pcMat1->program(new SLGLGenericProgram(s,
+                                               SLApplication::shaderPath + "ColorUniformPoint.vert",
+                                               SLApplication::shaderPath + "Color.frag"));
+        pcMat1->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 4.0f));
         SLRnd3fNormal rndN(SLVec3f(0, 0, 0), SLVec3f(5, 2, 1));
         SLNode*       pc1 = new SLNode(new SLPoints(s, 1000, rndN, "PC1", pcMat1));
         pc1->translate(-5, 0, 0);
 
         SLMaterial* pcMat2 = new SLMaterial(s, "Green", SLCol4f::GREEN);
-        pcMat2->program(new SLGLGenericProgram(s, SLApplication::shaderPath + "ColorUniform.vert", SLApplication::shaderPath + "Color.frag"));
+        pcMat2->program(new SLGLGenericProgram(s,
+                                               SLApplication::shaderPath + "ColorUniformPoint.vert",
+                                               SLApplication::shaderPath + "Color.frag"));
+        pcMat2->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 1.0f));
         SLRnd3fUniform rndU(SLVec3f(0, 0, 0), SLVec3f(2, 3, 5));
         SLNode*        pc2 = new SLNode(new SLPoints(s, 1000, rndU, "PC2", pcMat2));
         pc2->translate(5, 0, 0);
@@ -4963,8 +4968,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
     }
     else if (SLApplication::sceneID == SID_Benchmark4_SkinnedAnimations) //...............................
     {
-        SLint size = 20;
-        SLint numAstroboys = size * size;
+        SLint  size         = 20;
+        SLint  numAstroboys = size * size;
         SLchar name[512];
         sprintf(name, "Massive Skinned Animation Benchmark w. %d individual Astroboys", numAstroboys);
         s->name(name);
@@ -5010,18 +5015,18 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // create army with individual astroboys
         SLfloat offset = 1.0f;
-        SLfloat z = (float)(size-1) * offset * 0.5f;
+        SLfloat z      = (float)(size - 1) * offset * 0.5f;
 
         for (SLint iZ = 0; iZ < size; ++iZ)
         {
-            SLfloat x = -(float)(size-1) * offset * 0.5f;
+            SLfloat x = -(float)(size - 1) * offset * 0.5f;
 
             for (SLint iX = 0; iX < size; ++iX)
             {
                 SLNode* astroboy = importer.load(s->animManager(),
-                                               s,
-                                               SLApplication::modelPath + "DAE/AstroBoy/AstroBoy.dae",
-                                               SLApplication::texturePath);
+                                                 s,
+                                                 SLApplication::modelPath + "DAE/AstroBoy/AstroBoy.dae",
+                                                 SLApplication::texturePath);
 
                 s->animManager().lastAnimPlayback()->playForward();
                 s->animManager().lastAnimPlayback()->playbackRate(Utils::random(0.5f, 1.5f));
