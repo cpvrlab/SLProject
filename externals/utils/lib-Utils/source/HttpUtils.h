@@ -66,16 +66,20 @@ namespace HttpUtils
         size_t            contentLength;
         std::vector<char> content;
     
-        GetRequest(std::string url);
+        GetRequest(std::string url, std::string user = "", std::string pwd = "");
+
         int                      send();
         std::vector<char>        getContent();
         std::vector<std::string> getListing();
     };
-    
-    void download(std::string url,
-                  std::function<void(std::string, std::vector<char>)> f,
-                  std::function<void(std::string)> subdir);
 
-    void download(std::string url, std::string dst);
+    void download(std::string                                         url,
+                  std::function<void(std::string, std::vector<char>)> f,
+                  std::function<void(std::string)>                    subdir,
+                  std::string                                         user = "",
+                  std::string                                         pwd  = "",
+                  std::string                                         base = "./");
+
+    void download(std::string url, std::string dst, std::string user = "", std::string pwd = "");
 
 }

@@ -126,7 +126,6 @@ std::vector<char> SecureSocket::recieve()
     do
     {
         len = SSL_read(ssl, buf, BUFFER_SIZE);
-
         if (len < 0)
             return std::vector<char>();
 
@@ -180,11 +179,47 @@ std::string DNSRequest::getHostname()
     return hostname;
 }
 
-HttpUtils::GetRequest::GetRequest(std::string url)
+static std::string base64(const std::string data)
+{
+    static constexpr char sEncodingTable[] = {
+      'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '+', '/'};
+
+    size_t      in_len  = data.size();
+    size_t      out_len = 4 * ((in_len + 2) / 3);
+    std::string ret(out_len, '\0');
+    size_t      i;
+    char*       p = const_cast<char*>(ret.c_str());
+
+    for (i = 0; i < in_len - 2; i += 3)
+    {
+        *p++ = sEncodingTable[(data[i] >> 2) & 0x3F];
+        *p++ = sEncodingTable[((data[i] & 0x3) << 4) | ((int)(data[i + 1] & 0xF0) >> 4)];
+        *p++ = sEncodingTable[((data[i + 1] & 0xF) << 2) | ((int)(data[i + 2] & 0xC0) >> 6)];
+        *p++ = sEncodingTable[data[i + 2] & 0x3F];
+    }
+    if (i < in_len)
+    {
+        *p++ = sEncodingTable[(data[i] >> 2) & 0x3F];
+        if (i == (in_len - 1))
+        {
+            *p++ = sEncodingTable[((data[i] & 0x3) << 4)];
+            *p++ = '=';
+        }
+        else
+        {
+            *p++ = sEncodingTable[((data[i] & 0x3) << 4) | ((int)(data[i + 1] & 0xF0) >> 4)];
+            *p++ = sEncodingTable[((data[i + 1] & 0xF) << 2)];
+        }
+        *p++ = '=';
+    }
+
+    return ret;
+}
+
+static void parseURL(std::string url, std::string &host, std::string &path, bool &useTLS)
 {
     host     = "";
-    addr     = "";
-    isSecure = false;
+    useTLS = false;
 
     std::string dir = "/";
     std::string tmp;
@@ -192,7 +227,7 @@ HttpUtils::GetRequest::GetRequest(std::string url)
 
     if (url.find("https://") != std::string::npos)
     {
-        isSecure = true;
+        useTLS = true;
         offset   = 8;
     }
     else if (url.find("http://") != std::string::npos)
@@ -203,20 +238,30 @@ HttpUtils::GetRequest::GetRequest(std::string url)
     size_t pos = url.find("/", offset);
     if (pos != std::string::npos)
     {
-        dir = url.substr(pos, url.length() - pos);
-        if (dir.back() != '/')
-            dir.push_back('/');
-
-        tmp = url.substr(offset, pos - offset);
+        path = url.substr(pos, url.length() - pos);
+        host = url.substr(offset, pos - offset);
     }
     else
-        tmp = url.substr(offset);
+        host = url.substr(offset);
+}
 
-    DNSRequest dns(tmp);
+HttpUtils::GetRequest::GetRequest(std::string url, std::string user, std::string pwd)
+{
+    std::string path;
+
+    parseURL(url, host, path, isSecure);
+
+    DNSRequest dns(host);
     host = dns.getHostname();
     addr = dns.getAddr();
 
-    request = "GET " + dir + " HTTP/1.1\r\nHost: " + host + "\r\n\r\n";
+    request = "GET " + path + " HTTP/1.1\r\n";
+
+    if (!user.empty())
+    {
+        request = request + "Authorization: Basic " + base64(user + ":" + pwd) + "\r\n";
+    }
+    request = request + "Host: " + host + "\r\n\r\n";
 }
 
 int HttpUtils::GetRequest::send()
@@ -251,16 +296,15 @@ int HttpUtils::GetRequest::send()
     size_t contentPos = h.find("\r\n\r\n");
     if (contentPos == std::string::npos)
     {
-        std::cerr << "Invalid http response\n" << std::endl;
+        std::cout << "Invalid http response\n" << std::endl;
         return -1;
     }
-
     headers = std::string(data.begin(), data.begin() + contentPos);
 
     size_t pos = headers.find("HTTP");
     if (pos != std::string::npos)
     {
-        std::string str = headers.substr(pos, headers.find("\r", pos));
+        std::string str = headers.substr(pos, headers.find("\r", pos) - pos);
         size_t codeIdx;
         for (codeIdx = 0; codeIdx < str.length() && !isdigit(str.at(codeIdx)); codeIdx++);
 
@@ -272,27 +316,26 @@ int HttpUtils::GetRequest::send()
 
         size_t endCodeIdx = str.find(" ", codeIdx);
 
-        statusCode = stoi(str.substr(codeIdx, endCodeIdx));
+        statusCode = stoi(str.substr(codeIdx, endCodeIdx - codeIdx));
         status = str.substr(endCodeIdx);
-        status = Utils::trimLeftString(Utils::trimRightString(status, " "), " ");
+        status = Utils::trimString(status, " ");
     }
 
     pos = headers.find("Content-Length:");
     if (pos != std::string::npos)
     {
-        std::string str = headers.substr(pos + 15, headers.find("\r", pos));
-        contentLength  = stoi(Utils::trimLeftString(Utils::trimRightString(str, " "), " "));
+        std::string str = headers.substr(pos + 16, headers.find("\r", pos+16) - pos - 16);
+        contentLength  = stoi(Utils::trimString(str, " "));
     }
 
     pos = headers.find("Content-Type:");
     if (pos != std::string::npos)
     {
-        std::string str = headers.substr(pos + 13, headers.find("\r", pos));
-        contentType = Utils::trimLeftString(Utils::trimRightString(str, " "), " ");
+        std::string str = headers.substr(pos + 13, headers.find("\r", pos) - pos - 13);
+        contentType = Utils::trimString(str, " ");
     }
-
+ 
     content = std::vector<char>(data.begin() + contentPos + 4, data.end());
-
     return 0;
 }
 
@@ -316,7 +359,7 @@ std::vector<std::string> HttpUtils::GetRequest::getListing()
             break;
 
         std::string token = c.substr(pos+1, end - pos - 2);
-        token = Utils::trimLeftString(Utils::trimRightString(token, " "), " ");
+        token = Utils::trimString(token, " ");
 
         if (std::string(token.begin(), token.begin()+2) == "a ")
         {
@@ -327,7 +370,13 @@ std::vector<std::string> HttpUtils::GetRequest::getListing()
                 size_t hrefend = token.find("\"", href + 1);
                 if (token.find("?") == std::string::npos)
                 {
-                    listing.push_back(token.substr(href+1, hrefend - href -1));
+                    token = token.substr(href+1, hrefend - href -1);
+                    if (token == "../" || token == ".")
+                    {
+                        pos = end;
+                        continue;
+                    }
+                    listing.push_back(token);
                 }
             }
         }
@@ -339,51 +388,55 @@ std::vector<std::string> HttpUtils::GetRequest::getListing()
 
 void HttpUtils::download(std::string url,
                          std::function<void(std::string, std::vector<char>)> f,
-                         std::function<void(std::string)> subdir)
+                         std::function<void(std::string)> subdir,
+                         std::string user,
+                         std::string pwd,
+                         std::string base)
 {
-    GetRequest req = GetRequest(url);
+    HttpUtils::GetRequest req = HttpUtils::GetRequest(url, user, pwd);
     req.send();
-
-    std::string dir = url;
-    Utils::replaceString(dir, "https://", "/");
-    Utils::replaceString(dir, "http://", "/");
 
     if (req.contentType.find("text/html") != std::string::npos)
     {
         if (url.back() != '/')
             url = url + "/";
 
-        std::vector<std::string> listing = req.getListing();
+        subdir(base);
 
+        std::vector<std::string> listing = req.getListing();
         for (std::string str : listing)
         {   
             if (str.at(0) != '/')
             {
-                subdir(dir);
-                download(url + str, f, subdir);
+                download(url + str, f, subdir, user, pwd, Utils::unifySlashes(base + str));
             }
         }
     }
     else
     {
-        std::vector<char> content = req.getContent();
-        f(dir, content);
+        std::string file = url.substr(url.rfind("/")+1);
+        f(base + file, req.getContent());
     }
 }
 
-void HttpUtils::download(std::string url, std::string dst)
+void HttpUtils::download(std::string url, std::string dst, std::string user, std::string pwd)
 {
-    GetRequest req = GetRequest(url);
-    req.send();
+    dst = Utils::unifySlashes(dst);
 
-    download(url,
-    [dst](std::string file, std::vector<char> data)-> void {
-        ofstream fout(dst + "/" + file, ios::out | ios::binary);
-        fout.write((char*)&data[0], data.size());
-        fout.close();
-    },
-    [dst](std::string dir)-> void {
-        Utils::makeDir(dst + dir);
-    }
-    );
+    download(
+      url,
+      [dst](std::string file, std::vector<char> data) -> void {
+
+          std::cout << "write to file " << file << std::endl;
+          //ofstream fout(dst + file, ios::out | ios::binary);
+          //fout.write((char*)&data[0], data.size());
+          //fout.close();
+      },
+      [dst](std::string dir) -> void {
+          std::cout << "make dir  " << dir << std::endl;
+          //Utils::makeDir(dst + dir);
+      },
+      user,
+      pwd
+      );
 }
