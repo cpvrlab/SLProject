@@ -1,7 +1,9 @@
 #!/bin/sh
 : '
-Michael: I only successfully built static libs. With shared libs there are problems with signing but additionally linker errors.
 Pitfalls: 
+	-with this skript one can only build static libraries. With dynamic libraries you will have to built release libs in xcode because of signing. There were additional linker errors when I tried.
+	-you have to turn the flag WITH_TIFF on to get tiff support on ios
+	-you have to turn openexr and itt off otherwith you will get linker errors later (version 4.5.0)
 	-dont comment single lines containing parameters transferred to the cmake command, it will not work.
 '
 # ####################################################
