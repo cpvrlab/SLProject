@@ -163,7 +163,7 @@ public:
                                  _texType == TT_font)); }
     SLuint        width() { return _images[0]->width(); }
     SLuint        height() { return _images[0]->height(); }
-    SLint         depth() { return (SLint)_images[0]->bytesPerPixel(); }
+    SLint         bytesPerPixel() { return (SLint)_images[0]->bytesPerPixel(); }
     SLMat4f       tm() { return _tm; }
     SLbool        autoCalcTM3D() const { return _autoCalcTM3D; }
     SLbool        needsUpdate() { return _needsUpdate; }

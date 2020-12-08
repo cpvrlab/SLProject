@@ -17,9 +17,13 @@
 #include <SLMesh.h>
 #include <SLAssetManager.h>
 #include <Instrumentor.h>
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Weverything"
 #include <igl/remove_duplicate_vertices.h>
 #include <igl/per_face_normals.h>
 #include <igl/unique_edge_map.h>
+#pragma clang diagnostic pop
 
 //-----------------------------------------------------------------------------
 /*!

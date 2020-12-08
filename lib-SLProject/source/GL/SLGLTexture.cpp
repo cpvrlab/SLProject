@@ -639,6 +639,7 @@ void SLGLTexture::build(SLint texUnit)
             cout << "GL_EXT_texture_filter_anisotropic not available.\n";
         }
     }
+    GET_GL_ERROR;
 
     // apply anisotropic or minification filter
     if (_min_filter > GL_LINEAR_MIPMAP_LINEAR)
@@ -653,14 +654,17 @@ void SLGLTexture::build(SLint texUnit)
     }
     else
         glTexParameteri(_target, GL_TEXTURE_MIN_FILTER, _min_filter);
+    GET_GL_ERROR;
 
     // apply magnification filter only GL_NEAREST & GL_LINEAR is allowed
     glTexParameteri(_target, GL_TEXTURE_MAG_FILTER, _mag_filter);
+    GET_GL_ERROR;
 
     // apply texture wrapping modes
     glTexParameteri(_target, GL_TEXTURE_WRAP_S, _wrap_s);
     glTexParameteri(_target, GL_TEXTURE_WRAP_T, _wrap_t);
     glTexParameteri(_target, GL_TEXTURE_WRAP_R, _wrap_t);
+    GET_GL_ERROR;
 
     // Handle special stupid case on iOS
     SLint internalFormat = _images[0]->format();
@@ -699,6 +703,7 @@ void SLGLTexture::build(SLint texUnit)
 
             // Mipmaps use 1/3 more memory on GPU
             _bytesOnGPU = (SLuint)((SLfloat)_bytesOnGPU * 1.333333333f);
+            GET_GL_ERROR;
         }
 
         numBytesInTextures += _bytesOnGPU;
@@ -731,6 +736,7 @@ void SLGLTexture::build(SLint texUnit)
         /////////////////////////////////////////////////////
 
         numBytesInTextures += _bytesOnGPU;
+        GET_GL_ERROR;
     }
     else if (_target == GL_TEXTURE_CUBE_MAP)
     {
@@ -749,6 +755,7 @@ void SLGLTexture::build(SLint texUnit)
             //////////////////////////////////////////////
 
             _bytesOnGPU += _images[0]->bytesPerImage();
+            GET_GL_ERROR;
         }
 
         numBytesInTextures += _bytesOnGPU;

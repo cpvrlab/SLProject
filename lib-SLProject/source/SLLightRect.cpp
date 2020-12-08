@@ -289,9 +289,9 @@ SLfloat SLLightRect::shadowTestMC(SLRay*         ray,       // ray of hit point
 }
 //-----------------------------------------------------------------------------
 void SLLightRect::createShadowMap(float   clipNear,
-                                    float   clipFar,
-                                    SLVec2f size,
-                                    SLVec2i texSize)
+                                  float   clipFar,
+                                  SLVec2f size,
+                                  SLVec2i texSize)
 {
     if (!_shadowMap)
         delete _shadowMap;
