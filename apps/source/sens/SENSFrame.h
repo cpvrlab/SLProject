@@ -17,7 +17,7 @@ struct SENSFrameBase
     //! cropped input image
     cv::Mat imgBGR;
     cv::Mat intrinsics;
-    
+
     const SENSTimePt timePt;
 };
 
@@ -43,7 +43,7 @@ struct SENSFrame
     }
 
     const SENSTimePt timePt;
-    
+
     //! original image (maybe cropped and scaled)
     cv::Mat imgBGR;
     //! scaled and maybe gray manipulated image

@@ -8,10 +8,10 @@
 #include <GlobalTimer.h>
 
 #define LOAD_ASYNC
-//#define TARGET_WIDTH 1920
-//#define TARGET_HEIGHT 1080
-#define TARGET_WIDTH 640
-#define TARGET_HEIGHT 360
+#define TARGET_WIDTH 1920
+#define TARGET_HEIGHT 1080
+//#define TARGET_WIDTH 320
+//#define TARGET_HEIGHT 240
 
 AreaTrackingView::AreaTrackingView(sm::EventHandler&  eventHandler,
                                    SLInputManager&    inputManager,
@@ -278,6 +278,11 @@ bool AreaTrackingView::updateGPSWAISlamARCore(SENSFramePtr& frame)
     {
         isTracking = _arcore->update(arCorePose);
         frame = _arcore->latestFrame();
+        if(!frame->intrinsics.empty())
+        {
+            //update scene camera
+            
+        }
     }
     else if (_camera)
     {

@@ -15,7 +15,7 @@ public:
     //! on ios we can ignore fovDegFallbackGuess as the api provides dynamic camera intrinsics
     const SENSCameraConfig& start(std::string                   deviceId,
                                   const SENSCameraStreamConfig& streamConfig,
-                                  bool                          provideIntrinsics    = true) override;
+                                  bool                          provideIntrinsics = true) override;
 
     void                         stop() override;
     const SENSCaptureProperties& captureProperties() override;
@@ -23,7 +23,7 @@ public:
 private:
     void processNewFrame(unsigned char* data, int imgWidth, int imgHeight, matrix_float3x3* camMat3x3);
     void updatePermission(bool granted);
-    
+
     SENSiOSCameraDelegate* _cameraDelegate;
 };
 

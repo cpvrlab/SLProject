@@ -20,7 +20,7 @@ private:
                         double accuracyM);
     //callback for permission update
     void updatePermission(bool granted);
-    
+
     SENSiOSGpsDelegate* _gpsDelegate;
 };
 

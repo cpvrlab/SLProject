@@ -53,9 +53,9 @@
         CVImageBufferRef pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
 
         CVReturn ret = CVPixelBufferLockBaseAddress(pixelBuffer, 0);
-        if(ret != kCVReturnSuccess)
+        if (ret != kCVReturnSuccess)
             return;
-        
+
         int            imgWidth  = (int)CVPixelBufferGetWidth(pixelBuffer);
         int            imgHeight = (int)CVPixelBufferGetHeight(pixelBuffer);
         unsigned char* data      = (unsigned char*)CVPixelBufferGetBaseAddress(pixelBuffer);

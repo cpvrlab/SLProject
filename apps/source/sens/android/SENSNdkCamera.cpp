@@ -292,9 +292,9 @@ const SENSCameraConfig& SENSNdkCamera::start(std::string                   devic
     if (!_captureProperties.containsDeviceId(deviceId))
         throw SENSException(SENSType::CAM, "DeviceId does not exist!", __LINE__, __FILE__);
 
-    SENSCameraFacing facing = SENSCameraFacing::UNKNOWN;
-    const SENSCameraDeviceProperties* props = _captureProperties.camPropsForDeviceId(deviceId);
-    if(props)
+    SENSCameraFacing                  facing = SENSCameraFacing::UNKNOWN;
+    const SENSCameraDeviceProperties* props  = _captureProperties.camPropsForDeviceId(deviceId);
+    if (props)
         facing = props->facing();
 
     //init config here
@@ -370,7 +370,6 @@ void SENSNdkCamera::createCaptureSession()
     {
         uint8_t mode = ACAMERA_LENS_OPTICAL_STABILIZATION_MODE_OFF;
         ACaptureRequest_setEntry_u8(_captureRequest, ACAMERA_LENS_OPTICAL_STABILIZATION_MODE, 1, &mode);
-
     }
 
     //install repeating request

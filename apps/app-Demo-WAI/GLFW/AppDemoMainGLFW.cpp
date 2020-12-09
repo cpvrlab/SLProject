@@ -554,7 +554,7 @@ int main(int argc, char* argv[])
             //ecke vor christoffel
             //std::string simDir = Utils::getAppsWritableDir() + "SENSSimData/bern/20201118-135820_SENSRecorder";
             //spitalgasse
-            std::string simDir = Utils::getAppsWritableDir() + "SENSSimData/20201118-132416_Bern-Spitalgasse3";
+            std::string simDir = Utils::getAppsWritableDir() + "SENSSimData/20201118-132235_Bern-Spitalgasse1";
 
             sensSim     = std::make_unique<SENSSimulator>(simDir);
             gps         = sensSim->getGpsSensorPtr();

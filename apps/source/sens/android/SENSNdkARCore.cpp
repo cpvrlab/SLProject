@@ -6,7 +6,7 @@
 #include "SENSUtils.h"
 
 SENSNdkARCore::SENSNdkARCore(ANativeActivity* activity)
-: _activity(activity)
+  : _activity(activity)
 {
     JNIEnv* env;
     _activity->vm->GetEnv((void**)&env, JNI_VERSION_1_6);
@@ -57,7 +57,7 @@ void SENSNdkARCore::initCameraTexture()
 }
 
 bool SENSNdkARCore::init(int w, int h, int manipW, int manipH, bool convertManipToGray)
-{ 
+{
     if (!_available)
         return false;
     if (_arSession != nullptr)
@@ -166,9 +166,6 @@ bool SENSNdkARCore::update(cv::Mat& pose)
     cv::Mat view = cv::Mat::eye(4, 4, CV_32F);
     ArCamera_getViewMatrix(_arSession, arCamera, view.ptr<float>(0));
 
-    //ArPose* pose;
-    //ArCamera_getPose(_arSession, arCamera, pose);
-
     //convertions to sl camera pose:
     //from row- to column-major
     view = view.t();
@@ -187,9 +184,9 @@ bool SENSNdkARCore::update(cv::Mat& pose)
     wTc.col(3).copyTo(pose.col(3));
 
     cv::Mat intrinsics = cv::Mat::eye(3, 3, CV_32F);
-    int w = 0, h = 0;
+    int     w = 0, h = 0;
     {
-        ArCameraIntrinsics *arIntrinsics = nullptr;
+        ArCameraIntrinsics* arIntrinsics = nullptr;
         ArCameraIntrinsics_create(_arSession, &arIntrinsics);
         ArCamera_getImageIntrinsics(_arSession, arCamera, arIntrinsics);
 
@@ -231,7 +228,7 @@ bool SENSNdkARCore::update(cv::Mat& pose)
 
 void SENSNdkARCore::updateFrame(cv::Mat& intrinsics, int w, int h)
 {
-    ArImage * arImage;
+    ArImage* arImage;
     if (ArFrame_acquireCameraImage(_arSession, _arFrame, &arImage) != AR_SUCCESS)
         return;
 
@@ -250,7 +247,7 @@ void SENSNdkARCore::updateFrame(cv::Mat& intrinsics, int w, int h)
 */
     cv::cvtColor(yuv, bgr, cv::COLOR_YUV2BGR_NV21, 3);
 
-    Utils::log("SENSNdkARCore", "img dims: %d, %d", bgr.cols, bgr.rows);
+    Utils::log("SENSNdkARCore", "arimg dims: %d, %d", bgr.cols, bgr.rows);
     std::lock_guard<std::mutex> lock(_frameMutex);
     _frame = std::make_unique<SENSFrameBase>(SENSClock::now(), bgr, intrinsics);
 }
@@ -280,7 +277,7 @@ cv::Mat SENSNdkARCore::convertToYuv(ArImage* arImage)
 
     //pointers to yuv data planes and length of yuv data planes in byte
     const uint8_t *yPixel, *vPixel;
-    int32_t  yLen, vLen;
+    int32_t        yLen, vLen;
     ArImage_getPlaneData(_arSession, arImage, (int32_t)0, &yPixel, &yLen);
     ArImage_getPlaneData(_arSession, arImage, (int32_t)2, &vPixel, &vLen);
 
@@ -298,13 +295,13 @@ cv::Mat SENSNdkARCore::convertToYuv(ArImage* arImage)
         return yuv;
 }
 
-int SENSNdkARCore::getPointCloud(float ** mapPoints, float confidanceValue)
+int SENSNdkARCore::getPointCloud(float** mapPoints, float confidanceValue)
 {
     // Update and render point cloud.
-    ArPointCloud* arPointCloud = nullptr;
-    ArStatus pointCloudStatus = ArFrame_acquirePointCloud(_arSession, _arFrame, &arPointCloud);
-    int n;
-    float * mp;
+    ArPointCloud* arPointCloud     = nullptr;
+    ArStatus      pointCloudStatus = ArFrame_acquirePointCloud(_arSession, _arFrame, &arPointCloud);
+    int           n;
+    float*        mp;
 
     ArPointCloud_getNumberOfPoints(_arSession, arPointCloud, &n);
     ArPointCloud_getData(_arSession, arPointCloud, &mp);
@@ -316,11 +313,11 @@ int SENSNdkARCore::getPointCloud(float ** mapPoints, float confidanceValue)
     for (int i = 0; i < n; i++)
     {
         int idx = i * 4;
-        if (mp[idx+3] >= confidanceValue)
+        if (mp[idx + 3] >= confidanceValue)
         {
-            *mapPoints[nbPoints] = mp[idx];
-            *mapPoints[nbPoints + 1] = mp[idx+1];
-            *mapPoints[nbPoints + 2] = mp[idx+2];
+            *mapPoints[nbPoints]     = mp[idx];
+            *mapPoints[nbPoints + 1] = mp[idx + 1];
+            *mapPoints[nbPoints + 2] = mp[idx + 2];
             nbPoints++;
         }
     }

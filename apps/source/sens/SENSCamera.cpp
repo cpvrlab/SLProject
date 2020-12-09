@@ -199,7 +199,7 @@ void SENSCameraBase::updateFrame(cv::Mat bgrImg, cv::Mat intrinsics, bool intrin
 {
     //estimate time before running into lock
     SENSTimePt timePt = SENSClock::now();
-    
+
     //inform listeners
     {
         std::lock_guard<std::mutex> lock(_listenerMutex);

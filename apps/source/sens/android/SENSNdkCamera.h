@@ -27,7 +27,7 @@ public:
 
     const SENSCameraConfig& start(std::string                   deviceId,
                                   const SENSCameraStreamConfig& streamConfig,
-                                  bool                          provideIntrinsics    = true) override;
+                                  bool                          provideIntrinsics = true) override;
 
     void stop() override;
 
@@ -73,7 +73,7 @@ private:
     std::atomic<bool> _cameraDeviceOpened{false}; // free to use ( no other apps are using it)
 
     //camera state
-    cv::Size          _captureSize;
+    cv::Size _captureSize;
 };
 
 #endif //SENS_NDKCAMERA_H

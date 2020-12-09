@@ -76,7 +76,7 @@ public:
         _facing(facing)
     {
     }
-    
+
     int                                        findBestMatchingConfig(cv::Size requiredSize) const;
     const std::vector<SENSCameraStreamConfig>& streamConfigs() const { return _streamConfigs; }
     const std::string&                         deviceId() const { return _deviceId; }
@@ -179,7 +179,7 @@ public:
     virtual void stop() = 0;
     //! Get SENSCaptureProperties which contains necessary information about all available camera devices and their capabilities
     virtual const SENSCaptureProperties& captureProperties() = 0;
-    
+
     //! Get the latest captured frame. If no frame was captured the frame will be empty (null).
     virtual SENSFrameBasePtr latestFrame() = 0;
     //! defines how the camera was configured during start
@@ -200,14 +200,14 @@ class SENSCameraBase : public SENSCamera
 {
 public:
     SENSFrameBasePtr latestFrame() override;
-    
+
     const SENSCameraConfig& config() const override { return _config; };
 
     void registerListener(SENSCameraListener* listener) override;
     void unregisterListener(SENSCameraListener* listener) override;
 
     bool started() const override { return _started; }
-    
+
     bool permissionGranted() const override { return _permissionGranted; }
     void setPermissionGranted() override { _permissionGranted = true; }
 
@@ -232,7 +232,7 @@ protected:
     SENSFrameBasePtr _frame;
     //bool             _intrinsicsChanged = false;
     //cv::Mat          _intrinsics;
-    std::mutex       _frameMutex;
+    std::mutex _frameMutex;
 };
 
 #endif //SENS_CAMERA_H

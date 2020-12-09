@@ -12,16 +12,16 @@ void SENSGps::setLocation(SENSGps::Location location)
 {
     //estimate time before running into lock
     SENSTimePt timePt = SENSClock::now();
-    
+
     {
         const std::lock_guard<std::mutex> lock(_llaMutex);
         _location = location;
-        _timePt = timePt;
+        _timePt   = timePt;
     }
-    
+
     {
         std::lock_guard<std::mutex> lock(_listenerMutex);
-        for(SENSGpsListener* l : _listeners)
+        for (SENSGpsListener* l : _listeners)
             l->onGps(timePt, location);
     }
 }
@@ -29,16 +29,16 @@ void SENSGps::setLocation(SENSGps::Location location)
 void SENSGps::registerListener(SENSGpsListener* listener)
 {
     std::lock_guard<std::mutex> lock(_listenerMutex);
-    if(std::find(_listeners.begin(), _listeners.end(), listener) == _listeners.end())
+    if (std::find(_listeners.begin(), _listeners.end(), listener) == _listeners.end())
         _listeners.push_back(listener);
 }
 
 void SENSGps::unregisterListener(SENSGpsListener* listener)
 {
     std::lock_guard<std::mutex> lock(_listenerMutex);
-    for(auto it = _listeners.begin(); it != _listeners.end(); ++it)
+    for (auto it = _listeners.begin(); it != _listeners.end(); ++it)
     {
-        if(*it == listener)
+        if (*it == listener)
         {
             _listeners.erase(it);
             break;
@@ -55,9 +55,9 @@ SENSDummyGps::~SENSDummyGps()
 
 bool SENSDummyGps::start()
 {
-    if(_running)
+    if (_running)
         return false;
-    
+
     Utils::log("SENSDummyGps", "start");
     startSimulation();
     _running = true;

@@ -7,16 +7,16 @@
 class SENSNdkOrientation : public SENSOrientation
 {
 public:
-	SENSNdkOrientation(JavaVM* vm, jobject* activityContext, jclass* clazz);
+    SENSNdkOrientation(JavaVM* vm, jobject* activityContext, jclass* clazz);
     void init(bool granted);
 
-	bool start() override;
-	void stop() override;
+    bool start() override;
+    void stop() override;
 
-	void updateOrientation(const Quat& orientation);
+    void updateOrientation(const Quat& orientation);
+
 private:
-
-    JavaVM* _vm = nullptr;
+    JavaVM* _vm     = nullptr;
     jobject _object = nullptr;
 };
 

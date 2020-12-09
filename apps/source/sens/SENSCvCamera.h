@@ -130,9 +130,8 @@ public:
     void setCalibration(const SENSCalibration& calibration, bool buildUndistortionMaps);
     //! clear calibration set from outsilde with setCalibration. Only then an automatic guess will be possible.
     void clearCalibration() { _calibrationOverwrite.reset(); }
-    
-private:
 
+private:
     SENSFramePtr processNewFrame(const SENSTimePt& timePt, cv::Mat& bgrImg, cv::Mat intrinsics, bool intrinsicsChanged);
 
     SENSCamera*                         _camera;

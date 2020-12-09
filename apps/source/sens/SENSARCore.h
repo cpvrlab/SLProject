@@ -14,8 +14,7 @@
 
 class SENSARCore //: public SENSCameraBase
 {
-public: 
-
+public:
     struct config
     {
         //! largest target image width (only BGR)
@@ -33,27 +32,27 @@ public:
     SENSARCore() {}
     virtual ~SENSARCore() {}
     virtual bool init(int targetWidth, int targetHeight, int manipWidth, int manipHeight, bool convertManipToGray) = 0;
-    virtual bool isReady() = 0;
-    virtual bool resume() = 0;
-    virtual void reset() = 0;
-    virtual void pause() = 0;
+    virtual bool isReady()                                                                                         = 0;
+    virtual bool resume()                                                                                          = 0;
+    virtual void reset()                                                                                           = 0;
+    virtual void pause()                                                                                           = 0;
     //! Returns true if in tracking state. If correctly initialized, it will update the camera frame that may be retrieved with latestFrame()
     virtual bool update(cv::Mat& view) { return false; }
-    
+
     //! Get the latest camera frame. You have to call update() first to get a new frame.
     SENSFramePtr latestFrame();
-    bool isAvailable() { return _available; };
-    bool isRunning() { return !_pause; }
+    bool         isAvailable() { return _available; };
+    bool         isRunning() { return !_pause; }
 
 protected:
     SENSFramePtr processNewFrame(const SENSTimePt& timePt, cv::Mat& bgrImg, cv::Mat intrinsics);
 
     void configure(int  targetWidth,
-                           int  targetHeight,
-                           int  manipWidth,
-                           int  manipHeight,
-                           bool convertManipToGray);
-    
+                   int  targetHeight,
+                   int  manipWidth,
+                   int  manipHeight,
+                   bool convertManipToGray);
+
     bool             _running = false;
     std::mutex       _frameMutex;
     SENSFrameBasePtr _frame;
@@ -61,6 +60,7 @@ protected:
 
     bool _available = false;
     bool _pause     = true;
+
 private:
 };
 

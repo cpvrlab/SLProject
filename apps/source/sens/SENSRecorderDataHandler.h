@@ -110,6 +110,7 @@ public:
     void writeOnThreadFinish() override;
 
     void updateConfig(const SENSCameraConfig& config);
+
 private:
     cv::VideoWriter _videoWriter;
     int             _frameIndex = 0;

@@ -17,8 +17,8 @@
     self = [super init];
 
     //Initialize members (not necessary with ARC)
-    _locationManager     = nil;
-    _running             = NO;
+    _locationManager = nil;
+    _running         = NO;
     if (self)
     {
         [self setupLocationManager];

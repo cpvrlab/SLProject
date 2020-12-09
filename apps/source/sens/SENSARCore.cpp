@@ -24,7 +24,7 @@ SENSFramePtr SENSARCore::latestFrame()
         std::lock_guard<std::mutex> lock(_frameMutex);
         frameBase = _frame;
     }
-    
+
     SENSFramePtr latestFrame;
     if (frameBase)
         latestFrame = processNewFrame(frameBase->timePt, frameBase->imgBGR, frameBase->intrinsics);

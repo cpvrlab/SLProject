@@ -3,8 +3,8 @@
 @interface SENSiOSARCoreDelegate () {
 
 @private
-    ARSession *_arSession;
-    ARConfiguration *_arConfig;
+    ARSession*       _arSession;
+    ARConfiguration* _arConfig;
 }
 
 @end
@@ -29,15 +29,15 @@
 
 - (void)initARKit
 {
-    if(ARWorldTrackingConfiguration.isSupported)
+    if (ARWorldTrackingConfiguration.isSupported)
     {
         // Create an ARSession
-        _arSession = [ARSession new];
+        _arSession          = [ARSession new];
         _arSession.delegate = self;
-        
+
         _arConfig = [ARWorldTrackingConfiguration new];
-        
-        for(int i=0; i < ARWorldTrackingConfiguration.supportedVideoFormats.count; ++i)
+
+        for (int i = 0; i < ARWorldTrackingConfiguration.supportedVideoFormats.count; ++i)
         {
             CGSize s = ARWorldTrackingConfiguration.supportedVideoFormats[i].imageResolution;
             NSLog(NSStringFromCGSize(s));
@@ -54,7 +54,7 @@
 
 - (BOOL)start
 {
-    if(ARWorldTrackingConfiguration.isSupported)
+    if (ARWorldTrackingConfiguration.isSupported)
     {
         [_arSession runWithConfiguration:_arConfig];
         return YES;
@@ -65,31 +65,31 @@
 
 - (void)stop
 {
-    if(_arSession)
+    if (_arSession)
     {
         [_arSession pause];
     }
 }
 
-- (void)latestFrame: (cv::Mat*)pose withImg: (cv::Mat*)imgBGR AndIntrinsic: (cv::Mat*)intrinsic IsTracking: (BOOL*)isTracking
+- (void)latestFrame:(cv::Mat*)pose withImg:(cv::Mat*)imgBGR AndIntrinsic:(cv::Mat*)intrinsic IsTracking:(BOOL*)isTracking
 {
     //Reference the current ARFrame (I think the referenced "currentFrame" may change during this function call)
-    ARFrame* frame = _arSession.currentFrame;
+    ARFrame*  frame  = _arSession.currentFrame;
     ARCamera* camera = frame.camera;
-    
+
     //copy camera pose
     *pose = cv::Mat_<float>(4, 4);
     for (int i = 0; i < 4; ++i)
     {
-        simd_float4 col = camera.transform.columns[i];
+        simd_float4 col       = camera.transform.columns[i];
         pose->at<float>(0, i) = (float)col[0];
         pose->at<float>(1, i) = (float)col[1];
         pose->at<float>(2, i) = (float)col[2];
         pose->at<float>(3, i) = (float)col[3];
     }
-    
+
     //copy intrinsic
-    *intrinsic        = cv::Mat_<double>(3, 3);
+    *intrinsic = cv::Mat_<double>(3, 3);
     for (int i = 0; i < 3; ++i)
     {
         simd_float3 col             = camera.intrinsics.columns[i];
@@ -97,17 +97,17 @@
         intrinsic->at<double>(1, i) = (double)col[1];
         intrinsic->at<double>(2, i) = (double)col[2];
     }
-    
-    if(frame.camera.trackingState == ARTrackingStateNormal)
+
+    if (frame.camera.trackingState == ARTrackingStateNormal)
         *isTracking = YES;
     else
         *isTracking = NO;
-    
+
     //copy the image as in camera
     CVImageBufferRef pixelBuffer = frame.capturedImage;
 
-    CVReturn ret =  CVPixelBufferLockBaseAddress(pixelBuffer, 0);
-    OSType pixelFormat = CVPixelBufferGetPixelFormatType(pixelBuffer);
+    CVReturn ret         = CVPixelBufferLockBaseAddress(pixelBuffer, 0);
+    OSType   pixelFormat = CVPixelBufferGetPixelFormatType(pixelBuffer);
     //This is NV12, so the order is U/V (NV12: YYYYUV NV21: YYYYVU)
     if (ret == kCVReturnSuccess && pixelFormat == kCVPixelFormatType_420YpCbCr8BiPlanarFullRange)
     {
@@ -115,7 +115,7 @@
         size_t imgHeight = CVPixelBufferGetHeight(pixelBuffer);
 
         uint8_t* yPlane = (uint8_t*)CVPixelBufferGetBaseAddressOfPlane(pixelBuffer, 0);
-             
+
         cv::Mat yuvImg((int)imgHeight + ((int)imgHeight / 2), (int)imgWidth, CV_8UC1, yPlane);
         cv::cvtColor(yuvImg, *imgBGR, cv::COLOR_YUV2BGR_NV12, 3);
     }
@@ -253,21 +253,21 @@
 }
  */
 
-- (void)session:(ARSession *)session didFailWithError:(NSError *)error
+- (void)session:(ARSession*)session didFailWithError:(NSError*)error
 {
     // Present an error message to the user
-    
 }
 
-- (void)session:(ARSession *)session cameraDidChangeTrackingState:(ARCamera *)camera
+- (void)session:(ARSession*)session cameraDidChangeTrackingState:(ARCamera*)camera
 {
-    switch (camera.trackingState) {
+    switch (camera.trackingState)
+    {
         case ARTrackingStateNormal:
             NSLog(@"Tracking is Normal.\n");
             break;
         case ARTrackingStateLimited:
             NSLog(@"Tracking is limited: ");
-            switch(camera.trackingStateReason)
+            switch (camera.trackingStateReason)
             {
                 case ARTrackingStateReasonNone:
                     NSLog(@"Tracking is not limited.\n");
@@ -296,12 +296,12 @@
     }
 }
 
-- (void)sessionWasInterrupted:(ARSession *)session
+- (void)sessionWasInterrupted:(ARSession*)session
 {
     // Inform the user that the session has been interrupted, for example, by presenting an overlay
 }
 
-- (void)sessionInterruptionEnded:(ARSession *)session
+- (void)sessionInterruptionEnded:(ARSession*)session
 {
     // Reset tracking and/or remove existing anchors if consistent tracking is required
 }

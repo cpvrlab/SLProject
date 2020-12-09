@@ -6,8 +6,8 @@
 static SENSNdkOrientation* gOrientationPtr = nullptr;
 SENSNdkOrientation*        GetOrientationPtr()
 {
-	if(gOrientationPtr== nullptr)
-		Utils::log("SENSNdkOrientation", "Global orientation pointer has not been initialized");
+    if (gOrientationPtr == nullptr)
+        Utils::log("SENSNdkOrientation", "Global orientation pointer has not been initialized");
     return gOrientationPtr;
 }
 
@@ -53,7 +53,7 @@ bool SENSNdkOrientation::start()
 
 void SENSNdkOrientation::stop()
 {
-    if(!_running)
+    if (!_running)
         return;
     _running = false;
 
