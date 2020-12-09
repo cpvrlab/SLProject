@@ -92,7 +92,7 @@ set(CONFIG_FILES
 
 set(ASSET_CATALOG
 	${CMAKE_CURRENT_SOURCE_DIR}/Images/Images.xcassets
-    ${CMAKE_CURRENT_SOURCE_DIR}/Images/LaunchImage.jpg
+    ${CMAKE_CURRENT_SOURCE_DIR}/Images/erleb-AR_logo_rounded.png
 	)
 
 # Group data resource files in Xcode Resource directory
@@ -137,7 +137,7 @@ set_target_properties(
         XCODE_ATTRIBUTE_GCC_SYMBOLS_PRIVATE_EXTERN YES
 		XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_APPICON_NAME "AppIcon" #defines icon name in asset catalog (images.xcassets)
 		# apple requires storyboard launchscreens now so the following will not come into store:
-		#XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME "LaunchImage"  #defines launch screen image name in asset catalog (images.xcassets)
+		# XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME "LaunchImage"  #defines launch screen image name in asset catalog (images.xcassets)
     )
 	
 target_include_directories(

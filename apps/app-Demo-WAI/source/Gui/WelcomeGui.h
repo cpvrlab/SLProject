@@ -33,26 +33,13 @@ private:
 
     const std::string _versionStr;
 
-    GLuint       _logoBFHTexId = 0;
-    unsigned int _textureBFHW  = 0;
-    unsigned int _textureBFHH  = 0;
-
-    GLuint       _logoAdminCHTexId = 0;
-    unsigned int _textureAdminCHW  = 0;
-    unsigned int _textureAdminCHH  = 0;
+    GLuint       _launchImgTexId = 0;
+    unsigned int _textureLaunchImgW  = 0;
+    unsigned int _textureLaunchImgH  = 0;
+    const float  _scaleToSmallerLen  = 0.4f;
 
     float _screenWPix;
     float _screenHPix;
-
-    float _textFrameTPix;
-    float _textFrameLRPix;
-
-    float _bfhLogoHPix;
-    float _bfhLogoWPix;
-    float _adminLogoHPix;
-    float _adminLogoWPix;
-    float _logoFrameBPix;
-    float _logoFrameLRPix;
 
     ErlebAR::Resources& _resources;
 };

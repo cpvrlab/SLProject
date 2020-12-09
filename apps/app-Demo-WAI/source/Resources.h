@@ -131,6 +131,11 @@ public:
                                      BFHColors::Gray5Backgr.g,
                                      BFHColors::Gray5Backgr.b,
                                      BFHColors::Gray5Backgr.a};
+    
+    ImVec4 backgroundColorWelcome = {BFHColors::Orange2Text.r,
+                                     BFHColors::Orange2Text.g,
+                                     BFHColors::Orange2Text.b,
+                                     BFHColors::Orange2Text.a};
 
     // percental window padding for content (e.g. about and settings) rel. to screen height
     float windowPaddingContent = 0.03f;
