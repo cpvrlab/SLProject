@@ -29,9 +29,10 @@ set(headers
         ${CMAKE_CURRENT_SOURCE_DIR}/source/HighResTimer.h
         ${CMAKE_CURRENT_SOURCE_DIR}/source/Utils.h
         ${CMAKE_CURRENT_SOURCE_DIR}/source/GlobalTimer.h
-		${CMAKE_CURRENT_SOURCE_DIR}/source/CustomLog.h
+	${CMAKE_CURRENT_SOURCE_DIR}/source/CustomLog.h
         ${CMAKE_CURRENT_SOURCE_DIR}/source/Instrumentor.h
 		${CMAKE_CURRENT_SOURCE_DIR}/source/ZipUtils.h
+		${CMAKE_CURRENT_SOURCE_DIR}/source/HttpUtils.h
         ${UTILS_ROOT}/thirdparty/ftplibpp/ftplib.h
     )
 set(sources
@@ -41,7 +42,8 @@ set(sources
         ${CMAKE_CURRENT_SOURCE_DIR}/source/FtpUtils.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/Utils.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/GlobalTimer.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/source/ZipUtils.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/source/ZipUtils.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/source/HttpUtils.cpp
         ${UTILS_ROOT}/thirdparty/ftplibpp/ftplib.cpp
         ${UTILS_ROOT}/thirdparty/zlib/contrib/minizip/ioapi.c
         ${UTILS_ROOT}/thirdparty/zlib/contrib/minizip/unzip.c
@@ -67,6 +69,15 @@ if("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS")
         ${UTILS_ROOT}/thirdparty/dirent/dirent.h)
     set(sources ${sources}
         ${UTILS_ROOT}/thirdparty/dirent/dirent.c)
+    set(openssl_library ${UTILS_ROOT}/thirdparty/prebuilt/openssl/windows/lib)
+elseif("${SYSTEM_NAME_UPPER}" STREQUAL "LINUX")
+    set(openssl_library ${UTILS_ROOT}/thirdparty/prebuilt/openssl/linux/lib)
+elseif("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID")
+    set(openssl_library ${UTILS_ROOT}/thirdparty/prebuilt/openssl/andV8/lib)
+elseif("${SYSTEM_NAME_UPPER}" STREQUAL "IOS")
+    set(openssl_library ${UTILS_ROOT}/thirdparty/prebuilt/openssl/iOS/lib)
+elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN")
+    set(openssl_library ${UTILS_ROOT}/thirdparty/prebuilt/openssl/mac/lib)
 endif()
 #==============================================================================
 
@@ -77,6 +88,7 @@ source_group_by_path("${CMAKE_CURRENT_SOURCE_DIR}/source" "\\\\.cpp$|\\\\.c$|\\\
 add_library(${target}
     ${headers}
     ${sources}
+    ${openssl_library}
     )
 
 add_library(${META_PROJECT_NAME}::${target} ALIAS ${target})
@@ -97,6 +109,7 @@ target_include_directories(${target}
     ${UTILS_ROOT}/thirdparty/ftplibpp
     ${UTILS_ROOT}/thirdparty/zlib
     ${UTILS_ROOT}/thirdparty/zlib/contrib
+    ${UTILS_ROOT}/thirdparty/prebuilt/openssl/include
     ${CMAKE_CURRENT_BINARY_DIR}/../thirdparty/zlib
     INTERFACE
     )
@@ -129,6 +142,8 @@ target_link_libraries(${target}
     ${PlatformLinkLibs}
     ${DEFAULT_LINKER_OPTIONS}
     zlib
+    ssl
+    crypt
 
     INTERFACE
     )

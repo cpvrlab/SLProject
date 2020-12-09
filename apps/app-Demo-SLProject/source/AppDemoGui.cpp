@@ -1261,71 +1261,6 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                         s->onLoad(s, sv, SID_2Dand3DText);
                     if (ImGui::MenuItem("Point Clouds", nullptr, sid == SID_PointClouds))
                         s->onLoad(s, sv, SID_PointClouds);
-                    if (ImGui::MenuItem("Large Model", nullptr, sid == SID_LargeModel))
-                    {
-                        SLstring largeFile = SLApplication::modelPath + "PLY/xyzrgb_dragon.ply";
-                        if (Utils::fileExists(largeFile))
-                            s->onLoad(s, sv, SID_LargeModel);
-                        else
-                        {
-                            auto downloadJob = []() {
-                                SLApplication::jobProgressMsg("Downloading large dragon file from pallas.ti.bfh.ch");
-                                SLApplication::jobProgressMax(100);
-                                ftplib ftp;
-                                if (ftp.Connect("pallas.ti.bfh.ch:21"))
-                                {
-                                    if (ftp.Login("upload", "FaAdbD3F2a"))
-                                    {
-                                        ftp.SetCallbackXferFunction(ftpCallbackXfer);
-                                        ftp.SetCallbackBytes(1024000);
-                                        if (ftp.Chdir("SLProject/models/PLY"))
-                                        {
-                                            int remoteSize = 0;
-                                            ftp.Size("xyzrgb_dragon.ply",
-                                                     &remoteSize,
-                                                     ftplib::transfermode::image);
-                                            ftpXferSizeMax  = remoteSize;
-                                            SLstring plyDir = SLApplication::modelPath + "PLY";
-                                            if (!Utils::dirExists(plyDir))
-                                                Utils::makeDir(plyDir);
-                                            if (Utils::dirExists(plyDir))
-                                            {
-                                                SLstring outFile = SLApplication::modelPath + "PLY/xyzrgb_dragon.ply";
-                                                if (!ftp.Get(outFile.c_str(),
-                                                             "xyzrgb_dragon.ply",
-                                                             ftplib::transfermode::image))
-                                                    SL_LOG("*** ERROR: ftp.Get failed. ***");
-                                            }
-                                            else
-                                                SL_LOG("*** ERROR: Utils::makeDir %s failed. ***", plyDir.c_str());
-                                        }
-                                        else
-                                            SL_LOG("*** ERROR: ftp.Chdir failed. ***");
-                                    }
-                                    else
-                                        SL_LOG("*** ERROR: ftp.Login failed. ***");
-                                }
-                                else
-                                    SL_LOG("*** ERROR: ftp.Connect failed. ***");
-
-                                ftp.Quit();
-                                SLApplication::jobIsRunning = false;
-                            };
-
-                            auto jobToFollow1 = [](SLScene* s, SLSceneView* sv) {
-                                SLstring largeFile = SLApplication::modelPath + "PLY/xyzrgb_dragon.ply";
-                                if (Utils::fileExists(largeFile))
-                                    s->onLoad(s, sv, SID_LargeModel);
-                            };
-
-                            function<void(void)> jobNoArgs = bind(jobToFollow1, s, sv);
-
-                            SLApplication::jobsToBeThreaded.emplace_back(downloadJob);
-                            SLApplication::jobsToFollowInMain.push_back(jobNoArgs);
-                        }
-                    }
-                    if (ImGui::MenuItem("Massive Scene", nullptr, sid == SID_MassiveScene))
-                        s->onLoad(s, sv, SID_MassiveScene);
 
                     ImGui::EndMenu();
                 }
@@ -1350,9 +1285,10 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                         s->onLoad(s, sv, SID_ShaderSkyBox);
                     if (ImGui::MenuItem("Earth Shader", nullptr, sid == SID_ShaderEarth))
                         s->onLoad(s, sv, SID_ShaderEarth);
+#if defined(GL_VERSION_4_4)
                     if (ImGui::MenuItem("Voxel Cone Tracing", nullptr, sid == SID_ShaderVoxelConeDemo))
                         s->onLoad(s, sv, SID_ShaderVoxelConeDemo);
-
+#endif
                     ImGui::EndMenu();
                 }
 
@@ -1399,10 +1335,10 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                         s->onLoad(s, sv, SID_AnimationNode);
                     if (ImGui::MenuItem("Mass Animation", nullptr, sid == SID_AnimationMass))
                         s->onLoad(s, sv, SID_AnimationMass);
-                    if (ImGui::MenuItem("Astroboy Army", nullptr, sid == SID_AnimationArmy))
-                        s->onLoad(s, sv, SID_AnimationArmy);
                     if (ImGui::MenuItem("Skeletal Animation", nullptr, sid == SID_AnimationSkeletal))
                         s->onLoad(s, sv, SID_AnimationSkeletal);
+                    if (ImGui::MenuItem("AstroBoy Army", nullptr, sid == SID_AnimationAstroboyArmy))
+                        s->onLoad(s, sv, SID_AnimationAstroboyArmy);
 
                     ImGui::EndMenu();
                 }
@@ -1566,6 +1502,107 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                 {
                     if (ImGui::MenuItem("Muttenzer Box", nullptr, sid == SID_RTMuttenzerBox))
                         s->onLoad(s, sv, SID_RTMuttenzerBox);
+
+                    ImGui::EndMenu();
+                }
+
+                if (ImGui::BeginMenu("Benchmarks"))
+                {
+                    if (ImGui::MenuItem("Large Model (via FTP)", nullptr, sid == SID_Benchmark1_LargeModel))
+                    {
+                        SLstring largeFile = SLApplication::modelPath + "PLY/xyzrgb_dragon.ply";
+                        if (Utils::fileExists(largeFile))
+                            s->onLoad(s, sv, SID_Benchmark1_LargeModel);
+                        else
+                        {
+                            auto downloadJobFTP = []() {
+                              SLApplication::jobProgressMsg("Downloading large dragon file from pallas.ti.bfh.ch");
+                              SLApplication::jobProgressMax(100);
+                              ftplib ftp;
+
+                              if (ftp.Connect("pallas.ti.bfh.ch:21"))
+                              {
+                                  if (ftp.Login("guest", "g2Q7Z7OkDP4!"))
+                                  {
+                                      ftp.SetCallbackXferFunction(ftpCallbackXfer);
+                                      ftp.SetCallbackBytes(1024000);
+                                      if (ftp.Chdir("data/SLProject/models/PLY"))
+                                      {
+                                          int remoteSize = 0;
+                                          ftp.Size("xyzrgb_dragon.ply",
+                                                   &remoteSize,
+                                                   ftplib::transfermode::image);
+                                          ftpXferSizeMax  = remoteSize;
+                                          SLstring plyDir = SLApplication::modelPath + "PLY";
+                                          if (!Utils::dirExists(plyDir))
+                                              Utils::makeDir(plyDir);
+                                          if (Utils::dirExists(plyDir))
+                                          {
+                                              SLstring outFile = SLApplication::modelPath + "PLY/xyzrgb_dragon.ply";
+                                              if (!ftp.Get(outFile.c_str(),
+                                                           "xyzrgb_dragon.ply",
+                                                           ftplib::transfermode::image))
+                                                  SL_LOG("*** ERROR: ftp.Get failed. ***");
+                                          }
+                                          else
+                                              SL_LOG("*** ERROR: Utils::makeDir %s failed. ***", plyDir.c_str());
+                                      }
+                                      else
+                                          SL_LOG("*** ERROR: ftp.Chdir failed. ***");
+                                  }
+                                  else
+                                      SL_LOG("*** ERROR: ftp.Login failed. ***");
+                              }
+                              else
+                                  SL_LOG("*** ERROR: ftp.Connect failed. ***");
+
+                              ftp.Quit();
+                              SLApplication::jobIsRunning = false;
+                            };
+
+                            auto jobToFollow1 = [](SLScene* s, SLSceneView* sv) {
+                              SLstring largeFile = SLApplication::modelPath + "PLY/xyzrgb_dragon.ply";
+                              if (Utils::fileExists(largeFile))
+                                  s->onLoad(s, sv, SID_Benchmark1_LargeModel);
+                            };
+
+                            function<void(void)> jobNoArgs = bind(jobToFollow1, s, sv);
+
+                            SLApplication::jobsToBeThreaded.emplace_back(downloadJobFTP);
+                            SLApplication::jobsToFollowInMain.push_back(jobNoArgs);
+                        }
+                    }
+                    /*
+                    if (ImGui::MenuItem("Large Model (via HTTP)", nullptr, sid == SID_Benchmark1_LargeModel))
+                    {
+                        SLstring largeFile = SLApplication::modelPath + "PLY/xyzrgb_dragon.ply";
+                        if (Utils::fileExists(largeFile))
+                            s->onLoad(s, sv, SID_Benchmark1_LargeModel);
+                        else
+                        {
+                            auto downloadJobHTTP = []() {
+                              //???
+                            };
+
+                            auto jobToFollow1 = [](SLScene* s, SLSceneView* sv) {
+                              SLstring largeFile = SLApplication::modelPath + "PLY/xyzrgb_dragon.ply";
+                              if (Utils::fileExists(largeFile))
+                                  s->onLoad(s, sv, SID_Benchmark1_LargeModel);
+                            };
+
+                            function<void(void)> jobNoArgs = bind(jobToFollow1, s, sv);
+
+                            SLApplication::jobsToBeThreaded.emplace_back(downloadJobHTTP);
+                            SLApplication::jobsToFollowInMain.push_back(jobNoArgs);
+                        }
+                    }
+                    */
+                    if (ImGui::MenuItem("Massive Nodes", nullptr, sid == SID_Benchmark2_MassiveNodes))
+                        s->onLoad(s, sv, SID_Benchmark2_MassiveNodes);
+                    if (ImGui::MenuItem("Massive Node Animations", nullptr, sid == SID_Benchmark3_NodeAnimations))
+                        s->onLoad(s, sv, SID_Benchmark3_NodeAnimations);
+                    if (ImGui::MenuItem("Massive Skinned Animations", nullptr, sid == SID_Benchmark4_SkinnedAnimations))
+                        s->onLoad(s, sv, SID_Benchmark4_SkinnedAnimations);
 
                     ImGui::EndMenu();
                 }

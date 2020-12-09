@@ -48,25 +48,24 @@ int Socket::sendData(const char* data, size_t size)
 }
 
 #define BUFFER_SIZE 1000
-
-std::vector<char> Socket::recieve()
+void Socket::receive(std::function<void(char * data, int size)> dataCB, int max)
 {
-    std::vector<char> data;
-    data.reserve(BUFFER_SIZE);
-
-    int  len;
+    int n = 0;
+    int len;
     char buf[BUFFER_SIZE];
     do
     {
+        if (max != 0 && max - n <= BUFFER_SIZE)
+        {
+            len = recv(fd, buf, max - n, 0);
+            dataCB(buf, len);
+            return;
+        }
         len = recv(fd, buf, BUFFER_SIZE, 0);
-        if (len < 0)
-            return std::vector<char>();
-
-        data.insert(data.end(), buf, buf + len);
+        n = n + len;
+        dataCB(buf, len);
     }
     while (len > 0);
-
-    return data;
 }
 
 int SecureSocket::connectTo(std::string ip, int port)
@@ -116,25 +115,24 @@ int SecureSocket::sendData(const char* data, size_t size)
     return 0;
 }
 
-std::vector<char> SecureSocket::recieve()
+void SecureSocket::receive(std::function<void(char * data, int size)> dataCB, int max)
 {
-    std::vector<char> data;
-    data.reserve(BUFFER_SIZE);
-
     int  len;
+    int  n = 0;
     char buf[BUFFER_SIZE];
     do
     {
+        if (max != 0 && max - n <= BUFFER_SIZE)
+        {
+            len = SSL_read(ssl, buf, max - n);
+            dataCB(buf, len);
+            return;
+        }
         len = SSL_read(ssl, buf, BUFFER_SIZE);
-
-        if (len < 0)
-            return std::vector<char>();
-
-        data.insert(data.end(), buf, buf + len);
+        n += len;
+        dataCB(buf, len);
     }
     while (len > 0);
-
-    return data;
 }
 
 DNSRequest::DNSRequest(std::string host)
@@ -180,11 +178,47 @@ std::string DNSRequest::getHostname()
     return hostname;
 }
 
-HttpUtils::GetRequest::GetRequest(std::string url)
+static std::string base64(const std::string data)
+{
+    static constexpr char sEncodingTable[] = {
+      'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '+', '/'};
+
+    size_t      in_len  = data.size();
+    size_t      out_len = 4 * ((in_len + 2) / 3);
+    std::string ret(out_len, '\0');
+    size_t      i;
+    char*       p = const_cast<char*>(ret.c_str());
+
+    for (i = 0; i < in_len - 2; i += 3)
+    {
+        *p++ = sEncodingTable[(data[i] >> 2) & 0x3F];
+        *p++ = sEncodingTable[((data[i] & 0x3) << 4) | ((int)(data[i + 1] & 0xF0) >> 4)];
+        *p++ = sEncodingTable[((data[i + 1] & 0xF) << 2) | ((int)(data[i + 2] & 0xC0) >> 6)];
+        *p++ = sEncodingTable[data[i + 2] & 0x3F];
+    }
+    if (i < in_len)
+    {
+        *p++ = sEncodingTable[(data[i] >> 2) & 0x3F];
+        if (i == (in_len - 1))
+        {
+            *p++ = sEncodingTable[((data[i] & 0x3) << 4)];
+            *p++ = '=';
+        }
+        else
+        {
+            *p++ = sEncodingTable[((data[i] & 0x3) << 4) | ((int)(data[i + 1] & 0xF0) >> 4)];
+            *p++ = sEncodingTable[((data[i + 1] & 0xF) << 2)];
+        }
+        *p++ = '=';
+    }
+
+    return ret;
+}
+
+static void parseURL(std::string url, std::string &host, std::string &path, bool &useTLS)
 {
     host     = "";
-    addr     = "";
-    isSecure = false;
+    useTLS = false;
 
     std::string dir = "/";
     std::string tmp;
@@ -192,7 +226,7 @@ HttpUtils::GetRequest::GetRequest(std::string url)
 
     if (url.find("https://") != std::string::npos)
     {
-        isSecure = true;
+        useTLS = true;
         offset   = 8;
     }
     else if (url.find("http://") != std::string::npos)
@@ -203,64 +237,59 @@ HttpUtils::GetRequest::GetRequest(std::string url)
     size_t pos = url.find("/", offset);
     if (pos != std::string::npos)
     {
-        dir = url.substr(pos, url.length() - pos);
-        if (dir.back() != '/')
-            dir.push_back('/');
-
-        tmp = url.substr(offset, pos - offset);
+        path = url.substr(pos, url.length() - pos);
+        host = url.substr(offset, pos - offset);
     }
     else
-        tmp = url.substr(offset);
+        host = url.substr(offset);
+}
 
-    DNSRequest dns(tmp);
+HttpUtils::GetRequest::GetRequest(std::string url, std::string user, std::string pwd)
+{
+    std::string path;
+    bool        isSecure;
+
+    parseURL(url, host, path, isSecure);
+
+    DNSRequest dns(host);
     host = dns.getHostname();
     addr = dns.getAddr();
 
-    request = "GET " + dir + " HTTP/1.1\r\nHost: " + host + "\r\n\r\n";
-}
+    request = "GET " + path + " HTTP/1.1\r\n";
 
-int HttpUtils::GetRequest::send()
-{
-    std::vector<char> data;
+    if (!user.empty())
+    {
+        request = request + "Authorization: Basic " + base64(user + ":" + pwd) + "\r\n";
+    }
+    request = request + "Host: " + host + "\r\n\r\n";
+
     if (isSecure)
     {
-        SecureSocket s;
-        if (s.connectTo(addr, 443) < 0)
-        {
-            std::cerr << "could not connect\n" << std::endl;
-            return -1;
-        }
-
-        s.sendData(request.c_str(), request.length()+1);
-        data = s.recieve();
+        s = new SecureSocket();
+        port = 443;
     }
     else
     {
-        Socket s;
-        if (s.connectTo(addr, 80) < 0)
-        {
-            std::cerr << "could not connect\n" << std::endl;
-            return -1;
-        }
-
-        s.sendData(request.c_str(), request.length()+1);
-        data = s.recieve();
+        s = new Socket();
+        port = 80;
     }
-    std::string h = std::string(data.begin(), data.begin() + 1000);
+}
 
+int HttpUtils::GetRequest::processHttpHeaders(std::vector<char> &data)
+{
+    std::string h = std::string(data.begin(), data.begin() + (data.size() > 1000 ? 1000 : data.size()));
     size_t contentPos = h.find("\r\n\r\n");
     if (contentPos == std::string::npos)
     {
-        std::cerr << "Invalid http response\n" << std::endl;
+        std::cout << "Invalid http response\n" << std::endl;
         return -1;
     }
-
     headers = std::string(data.begin(), data.begin() + contentPos);
 
     size_t pos = headers.find("HTTP");
     if (pos != std::string::npos)
     {
-        std::string str = headers.substr(pos, headers.find("\r", pos));
+        std::string str = headers.substr(pos, headers.find("\r", pos) - pos);
         size_t codeIdx;
         for (codeIdx = 0; codeIdx < str.length() && !isdigit(str.at(codeIdx)); codeIdx++);
 
@@ -272,37 +301,64 @@ int HttpUtils::GetRequest::send()
 
         size_t endCodeIdx = str.find(" ", codeIdx);
 
-        statusCode = stoi(str.substr(codeIdx, endCodeIdx));
+        statusCode = stoi(str.substr(codeIdx, endCodeIdx - codeIdx));
         status = str.substr(endCodeIdx);
-        status = Utils::trimLeftString(Utils::trimRightString(status, " "), " ");
+        status = Utils::trimString(status, " ");
     }
 
     pos = headers.find("Content-Length:");
     if (pos != std::string::npos)
     {
-        std::string str = headers.substr(pos + 15, headers.find("\r", pos));
-        contentLength  = stoi(Utils::trimLeftString(Utils::trimRightString(str, " "), " "));
+        std::string str = headers.substr(pos + 16, headers.find("\r", pos+16) - pos - 16);
+        contentLength = stoi(Utils::trimString(str, " "));
     }
 
     pos = headers.find("Content-Type:");
     if (pos != std::string::npos)
     {
-        std::string str = headers.substr(pos + 13, headers.find("\r", pos));
-        contentType = Utils::trimLeftString(Utils::trimRightString(str, " "), " ");
+        std::string str = headers.substr(pos + 13, headers.find("\r", pos+13) - pos - 13);
+        contentType = Utils::trimString(str, " ");
+    }
+    return contentPos;
+}
+
+int HttpUtils::GetRequest::send()
+{
+    if (s->connectTo(addr, port) < 0)
+    {
+        std::cerr << "could not connect\n" << std::endl;
+        return -1;
     }
 
-    content = std::vector<char>(data.begin() + contentPos + 4, data.end());
+    s->sendData(request.c_str(), request.length() + 1);
 
+    std::vector<char> * v = &firstBytes;
+    s->receive([v](char* buf, int size) -> void {
+                v->reserve(v->size() + size);
+                copy(&buf[0], &buf[size], back_inserter(*v));
+            },
+            1000);
+
+    contentOffset = processHttpHeaders(firstBytes);
     return 0;
 }
 
-std::vector<char> HttpUtils::GetRequest::getContent()
+void HttpUtils::GetRequest::getContent(std::function<void(char * buf, int size)> contentCB)
 {
-    return content;
+    if (contentOffset < firstBytes.size())
+        contentCB(firstBytes.data() + contentOffset, firstBytes.size() - contentOffset);
+
+    s->receive(contentCB);
 }
 
 std::vector<std::string> HttpUtils::GetRequest::getListing()
 {
+    std::vector<char> content;
+    getContent([&content] (char * buf, int size)-> void { 
+        content.reserve(content.size() + size);
+        copy(&buf[0], &buf[size], back_inserter(content));
+        });
+
     std::string c = std::string(content.data());
     std::vector<string> listing;
 
@@ -316,7 +372,7 @@ std::vector<std::string> HttpUtils::GetRequest::getListing()
             break;
 
         std::string token = c.substr(pos+1, end - pos - 2);
-        token = Utils::trimLeftString(Utils::trimRightString(token, " "), " ");
+        token = Utils::trimString(token, " ");
 
         if (std::string(token.begin(), token.begin()+2) == "a ")
         {
@@ -327,39 +383,93 @@ std::vector<std::string> HttpUtils::GetRequest::getListing()
                 size_t hrefend = token.find("\"", href + 1);
                 if (token.find("?") == std::string::npos)
                 {
-                    listing.push_back(token.substr(href+1, hrefend - href -1));
+                    token = token.substr(href+1, hrefend - href -1);
+                    if (token == "../" || token == ".")
+                    {
+                        pos = end;
+                        continue;
+                    }
+                    listing.push_back(token);
                 }
             }
         }
-        
         pos = end;
     }
     return listing;
 }
 
-HttpUtils::HTTPDownload::HTTPDownload(std::string url)
+void HttpUtils::download(std::string                                                          url,
+                         std::function<void(std::string path, std::string name, size_t size)> processFile,
+                         std::function<void(char* data, int size)>                            writeChunk,
+                         std::function<void(std::string)>                                     processDir,
+                         std::string                                                          user,
+                         std::string                                                          pwd,
+                         std::string                                                          base)
 {
-    GetRequest req = GetRequest(url);
-    req.send();
 
-    if (req.contentType.find("text/html") != std::string::npos)
+    HttpUtils::GetRequest req = HttpUtils::GetRequest(url, user, pwd);
+    req.send();
+    base = Utils::unifySlashes(base);
+
+    if (req.contentType == "text/html")
     {
         if (url.back() != '/')
             url = url + "/";
 
-       std::vector<std::string> listing = req.getListing();
+        processDir(base);
 
+        std::vector<std::string> listing = req.getListing();
         for (std::string str : listing)
         {   
             if (str.at(0) != '/')
-            {
-                HTTPDownload(url + str);
-            }
+                download(url + str, processFile, writeChunk, processDir, user, pwd, base + str);
         }
     }
     else
     {
-        std::vector<char> content = req.getContent();
-        std::cout << "save to " << url << std::endl;
+        std::string file = url.substr(url.rfind("/") + 1);
+
+        int possibleSplit = base.rfind(file);
+        if (possibleSplit != std::string::npos && base.size() - possibleSplit -1 == file.size())
+            base = base.substr(0, possibleSplit);
+
+        base = Utils::unifySlashes(base);
+
+        processFile(base, file, req.contentLength);
+        req.getContent(writeChunk);
     }
+}
+
+void HttpUtils::download(std::string url, std::string dst, std::string user, std::string pwd, std::function<void(size_t curr, size_t filesize)> progress)
+{
+    std::ofstream fs;
+    size_t        totalBytes = 0;
+
+    download(
+      url,
+      [&fs, &totalBytes](std::string path, std::string file, size_t size) -> void {
+          fs.open(path + file, ios::out | ios::binary);
+          totalBytes = size;
+      },
+      [&fs, progress, &totalBytes](char* data, int size) -> void {
+          if (size > 0)
+          {
+              fs.write(data, size);
+              if (progress)
+                  progress(size, totalBytes);
+          }
+          else
+              fs.close();
+      },
+      [](std::string dir) -> void {
+          Utils::makeDir(dir);
+      },
+      user,
+      pwd,
+      dst);
+}
+
+void HttpUtils::download(std::string url, std::string dst, std::function<void(size_t curr, size_t filesize)> progress)
+{
+    download(url, dst, "", "", progress);
 }
