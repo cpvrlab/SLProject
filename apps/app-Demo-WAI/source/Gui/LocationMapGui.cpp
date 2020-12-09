@@ -192,12 +192,13 @@ void LocationMapGui::build(SLScene* s, SLSceneView* sv)
                                          triangleWidth,
                                          area.viewAngleDeg,
                                          _resources.style().areaPoseButtonShapeColor,
-                                         _resources.style().areaPoseButtonShapeColorPressed))
+                                         _resources.style().areaPoseButtonShapeColorPressed,
+                                         true))
             {
                 sendEvent(new AreaSelectedEvent("LocationMapGui", _loc.id, it.first));
             }
 
-            //draw gps position
+            //draw current gps position
             if (_gps)
             {
                 ImVec2 posPanCorr;
@@ -223,7 +224,8 @@ void LocationMapGui::build(SLScene* s, SLSceneView* sv)
                 ImVec4 orientCol    = {BFHColors::BlueImgui1.r,
                                     BFHColors::BlueImgui1.g,
                                     BFHColors::BlueImgui1.b,
-                                    1.0f};
+                                    0.4f};
+                
                 ImGui::GetWindowDrawList()->AddCircleFilled(posPanCorr, (float)radius, ImGui::GetColorU32(circleGpsCol), 20);
                 if (_orientation && _orientation->isRunning())
                 {
@@ -245,7 +247,8 @@ void LocationMapGui::build(SLScene* s, SLSceneView* sv)
                                              triangleWidth,
                                              angle,
                                              orientCol,
-                                             orientCol);
+                                             orientCol,
+                                             false);
                 }
                 else
                 {

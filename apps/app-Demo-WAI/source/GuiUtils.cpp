@@ -319,7 +319,8 @@ bool poseShapeButton(const char*   label,
                      const float   viewTriangleWidth,
                      const float   viewAngleDeg,
                      const ImVec4& colNormal,
-                     const ImVec4& colActive)
+                     const ImVec4& colActive,
+                     const bool    pressable)
 {
     ImGuiButtonFlags flags  = 0;
     ImGuiWindow*     window = ImGui::GetCurrentWindow();
@@ -345,11 +346,14 @@ bool poseShapeButton(const char*   label,
     if (!ImGui::ItemAdd(bb, id))
         return false;
 
-    if (window->DC.ItemFlags & ImGuiItemFlags_ButtonRepeat)
-        flags |= ImGuiButtonFlags_Repeat;
     bool hovered, held;
-    bool pressed = ImGui::ButtonBehavior(bb, id, &hovered, &held, flags);
-
+    bool pressed = false;
+    if(pressable)
+    {
+        if (window->DC.ItemFlags & ImGuiItemFlags_ButtonRepeat)
+            flags |= ImGuiButtonFlags_Repeat;
+        pressed = ImGui::ButtonBehavior(bb, id, &hovered, &held, flags);
+    }
     // Render
     const ImU32 col = ImGui::GetColorU32((held && hovered) ? ImGuiCol_ButtonActive : hovered ? ImGuiCol_ButtonHovered : ImGuiCol_Button);
     ImGui::RenderNavHighlight(bb, id);
@@ -357,7 +361,7 @@ bool poseShapeButton(const char*   label,
     //RenderTextClipped(bb.Min + style.FramePadding, bb.Max - style.FramePadding, label, NULL, &label_size, style.ButtonTextAlign, &bb);
 
     //ImVec2 c(bb.Min.x, 0.5f * (bb.Max.y + bb.Min.y));
-    if (held && hovered)
+    if (pressable && held && hovered)
     {
         //window->DrawList->AddTriangleFilled(c, bb.Max, ImVec2(bb.Max.x, bb.Min.y), ImGui::GetColorU32(colActive));
         window->DrawList->AddTriangleFilled(rotTriPts[0], rotTriPts[1], rotTriPts[2], ImGui::GetColorU32(colActive));
