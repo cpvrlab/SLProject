@@ -11,7 +11,14 @@ then
     openssl_VERSION="$1"
 fi
 
-ARCH=linux
+if [ "$ANDROID_NDK_HOME" == "" ]
+then
+    echo "android ndk home not defined"
+    echo "export ANDROID_NDK_HOME=/path/Android/ndk-bundle/"
+    exit
+fi
+
+ARCH=andV8
 ZIPFILE=${ARCH}_openssl
 
 clear
@@ -33,8 +40,15 @@ else
     exit
 fi
 
+ls
+
 
 export CC=clang
+export TOOLCHAIN=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin
+export API=21
+export PATH=$TOOLCHAIN:$PATH
+architecture=android-arm64
+
 export PREFIX=$(pwd)/../$ZIPFILE
 
 if [ ! -d "$PREFIX" ]
@@ -42,32 +56,22 @@ then
     mkdir $PREFIX
 fi
 
-./config  --prefix=$PREFIX --openssldir=$PREFIX
+./Configure ${architecture} -D__ANDROID_API__=$API --prefix=$PREFIX --openssldir=$PREFIX
+
+if [ $? -ne 0 ]
+then
+    exit
+fi
 
 make
 make install
 
 cd ..
 
-if [ ! -d "../prebuilt/openssl" ]
+if [ -d "../prebuilt/${ARCH}_openssl" ]
 then
-    mkdir ../prebuilt/openssl
+    rm -rf ../prebuilt/${ARCH}_openssl
 fi
 
-if [ -d "../prebuilt/openssl/${ARCH}" ]
-then
-    rm -rf ../prebuilt/openssl/${ARCH}
-fi
-
-if [ -d "../prebuilt/openssl/include" ]
-then
-    rm -rf ../prebuilt/openssl/include
-fi
-
-mv ${ZIPFILE} ../prebuilt/openssl/${ARCH}
-mv ../prebuilt/openssl/${ARCH}/include ../prebuilt/openssl/
-
-rm -rf openssl
-
-
+mv ${ZIPFILE} ../prebuilt/${ARCH}_openssl/
 

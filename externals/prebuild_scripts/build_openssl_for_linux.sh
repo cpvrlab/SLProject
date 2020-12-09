@@ -11,7 +11,7 @@ then
     openssl_VERSION="$1"
 fi
 
-ARCH=andV8
+ARCH=linux
 ZIPFILE=${ARCH}_openssl
 
 clear
@@ -35,11 +35,6 @@ fi
 
 
 export CC=clang
-export TOOLCHAIN=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin
-export API=21
-export PATH=$TOOLCHAIN:$PATH
-architecture=android-arm64
-
 export PREFIX=$(pwd)/../$ZIPFILE
 
 if [ ! -d "$PREFIX" ]
@@ -47,30 +42,26 @@ then
     mkdir $PREFIX
 fi
 
-./Configure ${architecture} -D__ANDROID_API__=$API --prefix=$PREFIX --openssldir=$PREFIX
+./config  --prefix=$PREFIX --openssldir=$PREFIX
+
+if [ $? -ne 0 ]
+then
+    exit
+fi
 
 make
 make install
 
 cd ..
 
-if [ ! -d "../prebuilt/openssl" ]
+if [ -d "../prebuilt/${ZIPFILE}" ]
 then
-    mkdir ../prebuilt/openssl
+    rm -rf ../prebuilt/${ZIPFILE}
 fi
 
-if [ -d "../prebuilt/openssl/${ARCH}" ]
-then
-    rm -rf ../prebuilt/openssl/${ARCH}
-fi
+mv ${ZIPFILE} ../prebuilt/
 
-if [ -d "../prebuilt/openssl/include" ]
-then
-    rm -rf ../prebuilt/openssl/include
-fi
-
-mv ${ZIPFILE} ../prebuilt/openssl/${ARCH}
-mv ../prebuilt/openssl/${ARCH}/include ../prebuilt/openssl/
+rm -rf openssl
 
 
 

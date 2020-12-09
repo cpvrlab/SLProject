@@ -60,6 +60,7 @@ set(glfw_INCLUDE_DIR)
 set(glfw_LINK_DIR)
 set(glfw_LINK_LIBS)
 
+
 set(PREBUILT_PATH "${SL_PROJECT_ROOT}/externals/prebuilt")
 set(PREBUILT_URL "http://pallas.ti.bfh.ch/libs/SLProject/_lib/prebuilt")
 
@@ -101,6 +102,16 @@ if("${SYSTEM_NAME_UPPER}" STREQUAL "LINUX")
     set(assimp_INCLUDE_DIR ${assimp_DIR}/include)
     set(assimp_LINK_DIR ${assimp_DIR}/${CMAKE_BUILD_TYPE})
     set(assimp_LIBS assimp)
+
+    ####################
+    # OpenSSL for Linux #
+    ####################
+
+    set(openssl_VERSION "1.1.1h")
+    set(openssl_DIR ${PREBUILT_PATH}/linux_openssl)
+    set(openssl_INCLUDE_DIR ${openssl_DIR}/include)
+    set(openssl_LINK_DIR ${openssl_DIR}/lib)
+    set(openssl_LIBS openssl)
 
     ####################
     # Vulkan for Linux #
@@ -293,6 +304,16 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #-----------------------------
         file(COPY ${assimp_LIBS_to_copy_release} DESTINATION ${CMAKE_BINARY_DIR}/Release)
         file(COPY ${assimp_LIBS_to_copy_release} DESTINATION ${CMAKE_BINARY_DIR}/RelWithDebInfo)
     endif()
+
+    #######################
+    # OpenSSL for windows #
+    ######################
+
+    set(openssl_VERSION "1.1.1h")
+    set(openssl_DIR ${PREBUILT_PATH}/win64_openssl)
+    set(openssl_INCLUDE_DIR ${openssl_DIR}/include)
+    set(openssl_LINK_DIR ${openssl_DIR}/lib)
+    set(openssl_LIBS openssl)
 
     ######################
     # Vulkan for Windows #
@@ -901,11 +922,23 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID") #-----------------------------
         )
     endforeach(lib)
 
+    ######################
+    # openssl for Android #
+    ######################
+
+    set(openssl_VERSION "1.1.1h")
+    set(openssl_DIR ${PREBUILT_PATH}/andV8_openssl)
+    set(openssl_INCLUDE_DIR ${openssl_DIR}/include)
+    set(openssl_LINK_DIR ${openssl_DIR}/lib)
+    set(openssl_LIBS openssl)
+
+
 endif()
 #==============================================================================
 
 link_directories(${OpenCV_LINK_DIR})
 link_directories(${g2o_LINK_DIR})
 link_directories(${assimp_LINK_DIR})
+link_directories(${openssl_LINK_DIR})
 link_directories(${vk_LINK_DIR})
 link_directories(${glfw_LINK_DIR})
