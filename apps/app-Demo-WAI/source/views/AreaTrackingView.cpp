@@ -652,13 +652,10 @@ void AreaTrackingView::applyFingerCorrection(SLMat4f& camPose)
 void AreaTrackingView::applyTemplateCorrection(SLMat4f&       camPose,
                                                const cv::Mat& frameGray)
 {
-    //SENSGps::Location loc           = _gps->getLocation();
     // world coordinate system has its origin at the center of the model
     // and its axes are aligned east-up-north
     SLVec3f wTc_f = camPose.translation();
     SLVec3d wTc   = SLVec3d(wTc_f.x, wTc_f.y, wTc_f.z);
-    //SLVec3f   camForward    = camPose.axisX();
-    //cv::Point vecCurForward = cv::Point(camForward.x, camForward.y);
 
     cv::Mat templateTest = cv::imread(_deviceData.erlebARDir() + "templates/template_milchgaessli.png", cv::IMREAD_GRAYSCALE);
 #if 1
@@ -709,31 +706,6 @@ void AreaTrackingView::applyTemplateCorrection(SLMat4f&       camPose,
     cv::Point tplMatchCenter = maxLoc + tplCenter;
 
     float rotAngDEG = (pTtpl.x - tplMatchCenter.x) * degPerPix;
-
-#if 0
-    SLVec3d wTcTpl = wTtpl - wTc; // vector from camera to template w.r.t. world
-    wTcTpl.z       = 0.0f;
-    wTcTpl.normalize();
-
-    //_compassAlignment.setTemplate(templateTest, tplLocEnu.x, tplLocEnu.y, tplLocEnu.z);
-
-    //cv::Mat resultImage;
-    //_compassAlignment.update(frameGray, resultImage, this->camera()->fovH(), loc.x, loc.y, loc.z, vecCurForward);
-    //float rotAngDEG = _compassAlignment.getRotAngleDEG();
-
-    SLVec4f cTmatchCenter    = SLVec4f(tplMatchCenter.x, tplMatchCenter.y, 1.0f, 1.0f);
-    SLVec4f enuTmatchCenterH = camPose * cTmatchCenter;
-    SLVec3d enuTmatchCenter  = SLVec3d(enuTmatchCenterH.x / enuTmatchCenterH.w, enuTmatchCenterH.y / enuTmatchCenterH.w, enuTmatchCenterH.z / enuTmatchCenterH.w);
-    SLVec3d enuTmatch        = enuTmatchCenter - wTc;
-    enuTmatch.z              = 0.0f;
-    enuTmatch.normalize();
-
-    //SLVec3d enuTmatchD = SLVec3d(enuTmatch.x, enuTmatch.y, enuTmatch.z);
-
-    float rotAngRAD = enuTmatch.dot(wTtpl);
-    float rotAngDEG = Utils::RAD2DEG * rotAngRAD;
-
-#endif
 
     std::cout << "rotAngDEG: " << rotAngDEG << std::endl;
 
