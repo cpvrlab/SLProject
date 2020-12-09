@@ -110,8 +110,8 @@ if("${SYSTEM_NAME_UPPER}" STREQUAL "LINUX")
     set(openssl_VERSION "1.1.1h")
     set(openssl_DIR ${PREBUILT_PATH}/linux_openssl)
     set(openssl_INCLUDE_DIR ${openssl_DIR}/include)
-    set(openssl_LINK_DIR ${openssl_DIR}/lib)
-    set(openssl_LIBS openssl)
+    set(openssl_LINK_DIR "")
+    set(openssl_LIBS ssl crypto)
 
     ####################
     # Vulkan for Linux #
@@ -310,10 +310,22 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #-----------------------------
     ######################
 
     set(openssl_VERSION "1.1.1h")
+    set(openssl_PREBUILT_DIR "win64_openssl")
     set(openssl_DIR ${PREBUILT_PATH}/win64_openssl)
     set(openssl_INCLUDE_DIR ${openssl_DIR}/include)
-    set(openssl_LINK_DIR ${openssl_DIR}/lib)
-    set(openssl_LIBS openssl)
+    set(openssl_LINK_DIR ${openssl_DIR}/${CMAKE_BUILD_TYPE})
+    set(openssl_LIBS ssl crypto)
+    set(openssl_PREBUILT_ZIP "${openssl_PREBUILT_DIR}.zip")
+
+    if (NOT EXISTS "${openssl_DIR}")
+        file(DOWNLOAD "${PREBUILT_URL}/${openssl_PREBUILT_ZIP}" "${PREBUILT_PATH}/${openssl_PREBUILT_ZIP}")
+        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
+            "${PREBUILT_PATH}/${openssl_PREBUILT_ZIP}"
+            WORKING_DIRECTORY "${PREBUILT_PATH}")
+        file(REMOVE "${PREBUILT_PATH}/${openssl_PREBUILT_ZIP}")
+    endif ()
+    link_directories(${openssl_LINK_DIR})
+
 
     ######################
     # Vulkan for Windows #
@@ -566,6 +578,28 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #------------------------------
 	    endif()
 	endif()
 
+    ##################
+    # Assimp for MacOS #
+    ##################
+
+    set(openssl_VERSION "1.1.1h")
+    set(openssl_PREBUILT_DIR "mac64_openssl")
+    set(openssl_DIR ${PREBUILT_PATH}/mac64_openssl)
+    set(openssl_INCLUDE_DIR ${openssl_DIR}/include)
+    set(openssl_LINK_DIR ${openssl_DIR}/lib)
+    set(openssl_LIBS ssl crypto)
+    set(openssl_PREBUILT_ZIP "${openssl_PREBUILT_DIR}.zip")
+
+    if (NOT EXISTS "${openssl_DIR}")
+        file(DOWNLOAD "${PREBUILT_URL}/${openssl_PREBUILT_ZIP}" "${PREBUILT_PATH}/${openssl_PREBUILT_ZIP}")
+        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
+            "${PREBUILT_PATH}/${openssl_PREBUILT_ZIP}"
+            WORKING_DIRECTORY "${PREBUILT_PATH}")
+        file(REMOVE "${PREBUILT_PATH}/${openssl_PREBUILT_ZIP}")
+    endif ()
+    link_directories(${openssl_LINK_DIR})
+
+
     # Copy plist file with camera access description beside executable
     # This is needed for security purpose since MacOS Mohave
     set(MACOS_PLIST_FILE ${SL_PROJECT_ROOT}/data/config/info.plist)
@@ -794,6 +828,27 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "IOS")
 	        ${assimp_LIBS}
 			${lib})	
 	endforeach()
+
+    ##################
+    # Assimp for iOS #
+    ##################
+
+    set(openssl_VERSION "1.1.1h")
+    set(openssl_PREBUILT_DIR "iosV8_openssl")
+    set(openssl_DIR ${PREBUILT_PATH}/iosV8_openssl)
+    set(openssl_INCLUDE_DIR ${openssl_DIR}/include)
+    set(openssl_LINK_DIR ${openssl_DIR}/lib)
+    set(openssl_LIBS ssl crypto)
+    set(openssl_PREBUILT_ZIP "${openssl_PREBUILT_DIR}.zip")
+
+    if (NOT EXISTS "${openssl_DIR}")
+        file(DOWNLOAD "${PREBUILT_URL}/${openssl_PREBUILT_ZIP}" "${PREBUILT_PATH}/${openssl_PREBUILT_ZIP}")
+        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
+            "${PREBUILT_PATH}/${openssl_PREBUILT_ZIP}"
+            WORKING_DIRECTORY "${PREBUILT_PATH}")
+        file(REMOVE "${PREBUILT_PATH}/${openssl_PREBUILT_ZIP}")
+    endif ()
+    link_directories(${openssl_LINK_DIR})
 	
 elseif("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID") #---------------------------------------------------------------------
 
@@ -912,15 +967,26 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID") #-----------------------------
         )
     endforeach(lib)
 
-    ######################
+    #######################
     # openssl for Android #
-    ######################
+    #######################
 
     set(openssl_VERSION "1.1.1h")
+    set(openssl_PREBUILT_DIR "andV8_openssl")
     set(openssl_DIR ${PREBUILT_PATH}/andV8_openssl)
     set(openssl_INCLUDE_DIR ${openssl_DIR}/include)
     set(openssl_LINK_DIR ${openssl_DIR}/lib)
-    set(openssl_LIBS openssl)
+    set(openssl_LIBS ssl crypto)
+    set(openssl_PREBUILT_ZIP "${openssl_PREBUILT_DIR}.zip")
+    link_directories(${openssl_LINK_DIR})
+
+    if (NOT EXISTS "${openssl_DIR}")
+        file(DOWNLOAD "${PREBUILT_URL}/${openssl_PREBUILT_ZIP}" "${PREBUILT_PATH}/${openssl_PREBUILT_ZIP}")
+        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
+            "${PREBUILT_PATH}/${openssl_PREBUILT_ZIP}"
+            WORKING_DIRECTORY "${PREBUILT_PATH}")
+        file(REMOVE "${PREBUILT_PATH}/${openssl_PREBUILT_ZIP}")
+    endif ()
 
 
 endif()
@@ -929,6 +995,5 @@ endif()
 link_directories(${OpenCV_LINK_DIR})
 link_directories(${g2o_LINK_DIR})
 link_directories(${assimp_LINK_DIR})
-link_directories(${openssl_LINK_DIR})
 link_directories(${vk_LINK_DIR})
 link_directories(${glfw_LINK_DIR})
