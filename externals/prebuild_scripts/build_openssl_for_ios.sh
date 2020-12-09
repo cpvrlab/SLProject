@@ -117,12 +117,12 @@ echo "Building Mac libraries"
 lipo \
 	"$(pwd)/mac_openssl_i386/lib/libcrypto.a" \
 	"$(pwd)/mac_openssl_x86_64/lib/libcrypto.a" \
-	-create -output ../prebuilt/openssl/mac/libcrypto.a
+	-create -output ../prebuilt/mac_openssl/lib/libcrypto.a
 
 lipo \
 	"$(pwd)/mac_openssl_i386/lib/libssl.a" \
 	"$(pwd)/mac_openssl_x86_64/lib/libssl.a" \
-	-create -output ../prebuilt/openssl/mac/libssl.a
+	-create -output ../prebuilt/mac_openssl/lib/libssl.a
 
 buildIOS "armv7"
 buildIOS "arm64"
@@ -135,14 +135,17 @@ lipo \
 	"$(pwd)/ios_openssl-armv64/lib/libcrypto.a" \
 	"$(pwd)/ios_openssl-i386/lib/libcrypto.a" \
 	"$(pwd)/ios_openssl-x86_64/lib/libcrypto.a" \
-	-create -output ../prebuilt/openssl/iOS/libcrypto.a
+	-create -output ../prebuilt/ios_openssl/lib/libcrypto.a
 
 lipo \
 	"$(pwd)/ios_openssl-armv7/lib/libssl.a" \
 	"$(pwd)/ios_openssl-armv64/lib/libssl.a" \
 	"$(pwd)/ios_openssl-i386/lib/libssl.a" \
 	"$(pwd)/ios_openssl-x86_64/lib/libssl.a" \
-	-create -output ../prebuilt/openssl/iOS/libssl.a
+	-create -output ../prebuilt/ios_openssl/lib/libssl.a
+
+cp -a $(pwd)/ios_openssl-armv7/include ../prebuilt/ios_openssl/
+cp -a $(pwd)/mac_openssl-x86_64/include ../prebuilt/mac_openssl/
 
 echo "Cleaning up"
 rm -rf $(pwd)/ios_openssl-*

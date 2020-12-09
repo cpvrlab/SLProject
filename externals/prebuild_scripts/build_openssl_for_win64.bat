@@ -15,13 +15,11 @@ if "%1" == "" (
 set PATH=%PATH%;C:\Program Files (x86)\Git\bin
 set MAX_NUM_CPU_CORES=6
 set SLPROJECT_ROOT=%2
-set PREFIX=%cd%\..\prebuilt\openssl\openssl_win64
+set PREFIX=%cd%\..\prebuilt\win64_openssl
 
 echo Building OpenSSL Version: %OPENSSL_VERSION%
 echo Installation directory: %PREFIX%
 echo Using %MAX_NUM_CPU_CORES% cpu cores for build.
-
-
 
 ::-----------------------------------------------------------------::
 if not exist openssl (
