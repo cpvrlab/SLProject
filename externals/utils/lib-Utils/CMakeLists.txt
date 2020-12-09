@@ -133,7 +133,7 @@ target_link_libraries(${target}
     ${DEFAULT_LINKER_OPTIONS}
     zlib
     ssl
-    crypt
+    crypto
 
     INTERFACE
     )
