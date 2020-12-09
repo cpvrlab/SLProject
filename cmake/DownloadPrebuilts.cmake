@@ -716,6 +716,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #------------------------------
 
     set(openssl_INCLUDE_DIR  ${openssl_DIR}/include)
     set(openssl_LINK_DIR ${openssl_DIR}/release)   #don't forget to add the this link dir down at the bottom
+    link_directories(${openssl_LINK_DIR})
 
     foreach(lib ${openssl_LINK_LIBS})
         add_library(${lib} STATIC IMPORTED)
@@ -891,6 +892,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "IOS") #---------------------------------
 
     set(openssl_INCLUDE_DIR  ${openssl_DIR}/include)
     set(openssl_LINK_DIR ${openssl_DIR}/release)   #don't forget to add the this link dir down at the bottom
+    link_directories(${openssl_LINK_DIR})
 
     foreach(lib ${openssl_LINK_LIBS})
         add_library(${lib} STATIC IMPORTED)
