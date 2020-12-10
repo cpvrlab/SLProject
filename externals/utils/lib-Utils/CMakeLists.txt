@@ -83,6 +83,15 @@ add_library(${target}
 
 add_library(${META_PROJECT_NAME}::${target} ALIAS ${target})
 
+add_library(crypto STATIC IMPORTED)
+add_library(ssl STATIC IMPORTED)
+set_target_properties(crypto PROPERTIES
+    IMPORTED_LOCATION "${openssl_LINK_DIR}/libcrypto.a"
+)
+set_target_properties(ssl PROPERTIES
+    IMPORTED_LOCATION "${openssl_LINK_DIR}/libssl.a"
+)
+
 set_target_properties(${target}
     PROPERTIES
     ${DEFAULT_PROJECT_OPTIONS}

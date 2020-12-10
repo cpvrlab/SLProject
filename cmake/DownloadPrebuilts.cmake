@@ -117,7 +117,7 @@ if("${SYSTEM_NAME_UPPER}" STREQUAL "LINUX")
     set(openssl_VERSION "1.1.1h")
     set(openssl_DIR ${PREBUILT_PATH}/linux_openssl)
     set(openssl_INCLUDE_DIR ${openssl_DIR}/include)
-    set(openssl_LINK_DIR "")
+    set(openssl_LINK_DIR ${openssl_DIR}/lib)
     set(openssl_LIBS ssl crypto)
 
     ####################
@@ -1048,7 +1048,6 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID") #-----------------------------
     set(openssl_LINK_DIR ${openssl_DIR}/lib)
     set(openssl_LIBS ssl crypto)
     set(openssl_PREBUILT_ZIP "${openssl_PREBUILT_DIR}.zip")
-    link_directories(${openssl_LINK_DIR})
 
     if (NOT EXISTS "${openssl_DIR}")
         file(DOWNLOAD "${PREBUILT_URL}/${openssl_PREBUILT_ZIP}" "${PREBUILT_PATH}/${openssl_PREBUILT_ZIP}")
