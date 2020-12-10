@@ -120,6 +120,16 @@ if("${SYSTEM_NAME_UPPER}" STREQUAL "LINUX")
     set(openssl_LINK_DIR ${openssl_DIR}/lib)
     set(openssl_LIBS ssl crypto)
 
+
+    add_library(crypto STATIC IMPORTED)
+    add_library(ssl STATIC IMPORTED)
+    set_target_properties(crypto PROPERTIES
+        IMPORTED_LOCATION "${openssl_LINK_DIR}/libcrypto.a"
+    )
+    set_target_properties(ssl PROPERTIES
+        IMPORTED_LOCATION "${openssl_LINK_DIR}/libssl.a"
+    )
+
     ####################
     # Vulkan for Linux #
     ####################
@@ -333,6 +343,16 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #-----------------------------
     endif ()
     link_directories(${openssl_LINK_DIR})
 
+    add_library(crypto STATIC IMPORTED)
+    add_library(ssl STATIC IMPORTED)
+    set_target_properties(crypto PROPERTIES
+        IMPORTED_IMPLIB "${openssl_LINK_DIR}/libcrypto.lib"
+        IMPORTED_LOCATION "${openssl_LINK_DIR}/libcrypto.dll"
+    )
+    set_target_properties(ssl PROPERTIES
+        IMPORTED_IMPLIB "${openssl_LINK_DIR}/libssl.lib"
+        IMPORTED_LOCATION "${openssl_LINK_DIR}/libssl.dll"
+    )
 
     ######################
     # Vulkan for Windows #
@@ -584,38 +604,6 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #------------------------------
 	        file(COPY ${assimp_LIBS_to_copy_release} DESTINATION ${CMAKE_BINARY_DIR}/RelWithDebInfo)
 	    endif()
 	endif()
-
-    ##################
-    # Assimp for MacOS #
-    ##################
-
-    set(openssl_VERSION "1.1.1h")
-    set(openssl_PREBUILT_DIR "mac64_openssl")
-    set(openssl_DIR ${PREBUILT_PATH}/mac64_openssl)
-    set(openssl_INCLUDE_DIR ${openssl_DIR}/include)
-    set(openssl_LINK_DIR ${openssl_DIR}/lib)
-    set(openssl_LIBS ssl crypto)
-    set(openssl_PREBUILT_ZIP "${openssl_PREBUILT_DIR}.zip")
-
-    if (NOT EXISTS "${openssl_DIR}")
-        file(DOWNLOAD "${PREBUILT_URL}/${openssl_PREBUILT_ZIP}" "${PREBUILT_PATH}/${openssl_PREBUILT_ZIP}")
-        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
-            "${PREBUILT_PATH}/${openssl_PREBUILT_ZIP}"
-            WORKING_DIRECTORY "${PREBUILT_PATH}")
-        file(REMOVE "${PREBUILT_PATH}/${openssl_PREBUILT_ZIP}")
-    endif ()
-    link_directories(${openssl_LINK_DIR})
-
-
-    # Copy plist file with camera access description beside executable
-    # This is needed for security purpose since MacOS Mohave
-    set(MACOS_PLIST_FILE ${SL_PROJECT_ROOT}/data/config/info.plist)
-    if(${CMAKE_GENERATOR} STREQUAL Xcode)
-        file(COPY ${MACOS_PLIST_FILE} DESTINATION ${CMAKE_BINARY_DIR}/Debug)
-        file(COPY ${MACOS_PLIST_FILE} DESTINATION ${CMAKE_BINARY_DIR}/Release)
-    else()
-        file(COPY ${MACOS_PLIST_FILE} DESTINATION ${CMAKE_BINARY_DIR})
-    endif()
 
     ####################
     # Vulkan for MacOS #
@@ -1047,6 +1035,15 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID") #-----------------------------
         file(REMOVE "${PREBUILT_PATH}/${openssl_PREBUILT_ZIP}")
     endif ()
 
+
+    add_library(crypto STATIC IMPORTED)
+    add_library(ssl STATIC IMPORTED)
+    set_target_properties(crypto PROPERTIES
+        IMPORTED_LOCATION "${openssl_LINK_DIR}/libcrypto.a"
+    )
+    set_target_properties(ssl PROPERTIES
+        IMPORTED_LOCATION "${openssl_LINK_DIR}/libssl.a"
+    )
 
 endif()
 #==============================================================================
