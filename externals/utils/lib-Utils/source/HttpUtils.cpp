@@ -649,6 +649,7 @@ void HttpUtils::download(string                                       url,
 {
     std::ofstream fs;
     size_t        totalBytes = 0;
+    size_t        writtenByte = 0;
 
     download(
       url,
@@ -658,15 +659,17 @@ void HttpUtils::download(string                                       url,
           fs.open(path + file, ios::out | ios::binary);
           totalBytes = size;
       },
-      [&fs, progress, &totalBytes](char* data, int size) -> void {
+      [&fs, progress, &writtenByte, &totalBytes](char* data, int size) -> void {
           if (size > 0)
           {
               fs.write(data, size);
               if (progress)
-                  progress(size, totalBytes);
+                  progress(writtenByte += size, totalBytes);
           }
           else
           {
+              if (progress)
+                  progress(totalBytes, totalBytes);
               fs.close();
           }
       },
