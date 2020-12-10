@@ -438,8 +438,10 @@ int HttpUtils::GetRequest::processHttpHeaders(std::vector<char>& data)
                   << std::endl;
         return -1;
     }
+    headers = string(data.begin(), data.begin() + contentPos);
+    contentPos += 4; // to skip "\r\n\r\n" first byte
 
-    headers    = string(data.begin(), data.begin() + contentPos);
+    std::cout << headers << std::endl;
     size_t pos = headers.find("HTTP");
 
     if (pos != string::npos)
@@ -514,7 +516,10 @@ int HttpUtils::GetRequest::send()
 void HttpUtils::GetRequest::getContent(function<void(char* buf, int size)> contentCB)
 {
     if (contentOffset < firstBytes.size())
+    {
+        std::cout << "add data from first bytes" << std::endl;
         contentCB(firstBytes.data() + contentOffset, firstBytes.size() - contentOffset);
+    }
 
     s->receive(contentCB);
 }
@@ -661,7 +666,9 @@ void HttpUtils::download(string                                       url,
                   progress(size, totalBytes);
           }
           else
+          {
               fs.close();
+          }
       },
       [](string dir) -> void {
           Utils::makeDir(dir);
