@@ -1,21 +1,39 @@
+//#############################################################################
+//  File:      HttpUtils.cpp
+//  Author:    Luc Girod
+//  Date:      2020
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
+//             This software is provide under the GNU General Public License
+//             Please visit: http://opensource.org/licenses/GPL-3.0
+//#############################################################################
+
 #include <iostream>
 #include <cstring>
-#include <resolv.h>
-#include <errno.h>
-#include <sstream>
 #include <netdb.h>
 #include <HttpUtils.h>
 #include <Utils.h>
+
 using namespace std;
 
+//-----------------------------------------------------------------------------
+/*!
+ * 
+ */
 void Socket::reset()
 {
     fd    = 0;
     inUse = false;
     memset(&sa, 0, sizeof(sa));
 }
-
-int Socket::connectTo(std::string ip, int port)
+//-----------------------------------------------------------------------------
+/*!
+ * 
+ * @param ip 
+ * @param port 
+ * @return 
+ */
+int Socket::connectTo(string ip,
+                      int    port)
 {
     memset(&sa, 0, sizeof(sa));
     sa.sin_family      = AF_INET;
@@ -26,32 +44,44 @@ int Socket::connectTo(std::string ip, int port)
     fd = socket(AF_INET, SOCK_STREAM, 0);
     if (!fd)
     {
-        std::cerr  << "Error creating socket.\n" << std::endl;
+        std::cerr << "Error creating socket.\n"
+                  << std::endl;
         return -1;
     }
 
     if (connect(fd, (struct sockaddr*)&sa, addrlen))
     {
-        std::cerr  << "Error connecting to server.\n" << std::endl;
+        std::cerr << "Error connecting to server.\n"
+                  << std::endl;
         return -1;
     }
     inUse = true;
     return 0;
 }
-
-int Socket::sendData(const char* data, size_t size)
+//-----------------------------------------------------------------------------
+/*!
+ * 
+ * @param data 
+ * @param size 
+ * @return 
+ */
+int Socket::sendData(const char* data,
+                     size_t      size)
 {
     int len = send(fd, data, size, 0);
     if (len < 0)
         return -1;
     return 0;
 }
-
+//-----------------------------------------------------------------------------
+/*!
+ * 
+ */
 #define BUFFER_SIZE 1000
-void Socket::receive(std::function<void(char * data, int size)> dataCB, int max)
+void Socket::receive(function<void(char* data, int size)> dataCB, int max)
 {
-    int n = 0;
-    int len;
+    int  n = 0;
+    int  len;
     char buf[BUFFER_SIZE];
     do
     {
@@ -62,13 +92,18 @@ void Socket::receive(std::function<void(char * data, int size)> dataCB, int max)
             return;
         }
         len = recv(fd, buf, BUFFER_SIZE, 0);
-        n = n + len;
+        n   = n + len;
         dataCB(buf, len);
-    }
-    while (len > 0);
+    } while (len > 0);
 }
-
-int SecureSocket::connectTo(std::string ip, int port)
+//-----------------------------------------------------------------------------
+/*!
+ * 
+ * @param ip 
+ * @param port 
+ * @return 
+ */
+int SecureSocket::connectTo(string ip, int port)
 {
     Socket::connectTo(ip, port);
     SSL_load_error_strings();
@@ -92,7 +127,13 @@ int SecureSocket::connectTo(std::string ip, int port)
 
     return 0;
 }
-
+//-----------------------------------------------------------------------------
+/*!
+ * 
+ * @param data 
+ * @param size 
+ * @return 
+ */
 int SecureSocket::sendData(const char* data, size_t size)
 {
     int len = SSL_write(ssl, data, size);
@@ -114,8 +155,14 @@ int SecureSocket::sendData(const char* data, size_t size)
     }
     return 0;
 }
-
-void SecureSocket::receive(std::function<void(char * data, int size)> dataCB, int max)
+//-----------------------------------------------------------------------------
+/*!
+ * 
+ * @param dataCB 
+ * @param max 
+ */
+void SecureSocket::receive(function<void(char* data, int size)> dataCB,
+                           int                                  max)
 {
     int  len;
     int  n = 0;
@@ -131,11 +178,14 @@ void SecureSocket::receive(std::function<void(char * data, int size)> dataCB, in
         len = SSL_read(ssl, buf, BUFFER_SIZE);
         n += len;
         dataCB(buf, len);
-    }
-    while (len > 0);
+    } while (len > 0);
 }
-
-DNSRequest::DNSRequest(std::string host)
+//-----------------------------------------------------------------------------
+/*!
+ * 
+ * @param host 
+ */
+DNSRequest::DNSRequest(string host)
 {
     bool hostIsAddr = true;
     for (int c : host)
@@ -153,7 +203,7 @@ DNSRequest::DNSRequest(std::string host)
         struct hostent* h = gethostbyaddr(&sa.sin_addr, sizeof(sa.sin_addr), sa.sin_family);
         if (h != nullptr && h->h_length > 0)
         {
-            hostname = std::string(h->h_name);
+            hostname = string(h->h_name);
         }
         addr = host;
     }
@@ -162,32 +212,107 @@ DNSRequest::DNSRequest(std::string host)
         struct hostent* h = gethostbyname(host.c_str());
         if (h != nullptr && h->h_length > 0)
         {
-            addr = std::string(inet_ntoa( (struct in_addr) *((struct in_addr *) h->h_addr_list[0])));
+            addr = string(inet_ntoa((struct in_addr) * ((struct in_addr*)h->h_addr_list[0])));
         }
         hostname = host;
     }
 }
-
-std::string DNSRequest::getAddr()
+//-----------------------------------------------------------------------------
+/*!
+ * 
+ * @return 
+ */
+string DNSRequest::getAddr()
 {
     return addr;
 }
-
-std::string DNSRequest::getHostname()
+//-----------------------------------------------------------------------------
+/*!
+ * 
+ * @return 
+ */
+string DNSRequest::getHostname()
 {
     return hostname;
 }
-
-static std::string base64(const std::string data)
+//-----------------------------------------------------------------------------
+/*!
+ * 
+ * @param data 
+ * @return 
+ */
+static string base64(const string data)
 {
-    static constexpr char sEncodingTable[] = {
-      'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '+', '/'};
+    static constexpr char sEncodingTable[] = {'A',
+                                              'B',
+                                              'C',
+                                              'D',
+                                              'E',
+                                              'F',
+                                              'G',
+                                              'H',
+                                              'I',
+                                              'J',
+                                              'K',
+                                              'L',
+                                              'M',
+                                              'N',
+                                              'O',
+                                              'P',
+                                              'Q',
+                                              'R',
+                                              'S',
+                                              'T',
+                                              'U',
+                                              'V',
+                                              'W',
+                                              'X',
+                                              'Y',
+                                              'Z',
+                                              'a',
+                                              'b',
+                                              'c',
+                                              'd',
+                                              'e',
+                                              'f',
+                                              'g',
+                                              'h',
+                                              'i',
+                                              'j',
+                                              'k',
+                                              'l',
+                                              'm',
+                                              'n',
+                                              'o',
+                                              'p',
+                                              'q',
+                                              'r',
+                                              's',
+                                              't',
+                                              'u',
+                                              'v',
+                                              'w',
+                                              'x',
+                                              'y',
+                                              'z',
+                                              '0',
+                                              '1',
+                                              '2',
+                                              '3',
+                                              '4',
+                                              '5',
+                                              '6',
+                                              '7',
+                                              '8',
+                                              '9',
+                                              '+',
+                                              '/'};
 
-    size_t      in_len  = data.size();
-    size_t      out_len = 4 * ((in_len + 2) / 3);
-    std::string ret(out_len, '\0');
-    size_t      i;
-    char*       p = const_cast<char*>(ret.c_str());
+    size_t in_len  = data.size();
+    size_t out_len = 4 * ((in_len + 2) / 3);
+    string ret(out_len, '\0');
+    size_t i;
+    char*  p = const_cast<char*>(ret.c_str());
 
     for (i = 0; i < in_len - 2; i += 3)
     {
@@ -215,27 +340,38 @@ static std::string base64(const std::string data)
     return ret;
 }
 
-static void parseURL(std::string url, std::string &host, std::string &path, bool &useTLS)
+//-----------------------------------------------------------------------------
+/*!
+ * 
+ * @param url 
+ * @param host 
+ * @param path 
+ * @param useTLS 
+ */
+static void parseURL(string  url,
+                     string& host,
+                     string& path,
+                     bool&   useTLS)
 {
-    host     = "";
+    host   = "";
     useTLS = false;
 
-    std::string dir = "/";
-    std::string tmp;
-    size_t      offset = 0;
+    string dir = "/";
+    string tmp;
+    size_t offset = 0;
 
-    if (url.find("https://") != std::string::npos)
+    if (url.find("https://") != string::npos)
     {
         useTLS = true;
-        offset   = 8;
+        offset = 8;
     }
-    else if (url.find("http://") != std::string::npos)
+    else if (url.find("http://") != string::npos)
     {
         offset = 7;
     }
 
     size_t pos = url.find("/", offset);
-    if (pos != std::string::npos)
+    if (pos != string::npos)
     {
         path = url.substr(pos, url.length() - pos);
         host = url.substr(offset, pos - offset);
@@ -243,11 +379,19 @@ static void parseURL(std::string url, std::string &host, std::string &path, bool
     else
         host = url.substr(offset);
 }
-
-HttpUtils::GetRequest::GetRequest(std::string url, std::string user, std::string pwd)
+//-----------------------------------------------------------------------------
+/*!
+ * 
+ * @param url 
+ * @param user 
+ * @param pwd 
+ */
+HttpUtils::GetRequest::GetRequest(string url,
+                                  string user,
+                                  string pwd)
 {
-    std::string path;
-    bool        isSecure;
+    string path;
+    bool   isSecure;
 
     parseURL(url, host, path, isSecure);
 
@@ -259,131 +403,159 @@ HttpUtils::GetRequest::GetRequest(std::string url, std::string user, std::string
 
     if (!user.empty())
     {
-        request = request + "Authorization: Basic " + base64(user + ":" + pwd) + "\r\n";
+        request = request +
+                  "Authorization: Basic " +
+                  base64(user + ":" + pwd) + "\r\n";
     }
     request = request + "Host: " + host + "\r\n\r\n";
 
     if (isSecure)
     {
-        s = new SecureSocket();
+        s    = new SecureSocket();
         port = 443;
     }
     else
     {
-        s = new Socket();
+        s    = new Socket();
         port = 80;
     }
 }
-
-int HttpUtils::GetRequest::processHttpHeaders(std::vector<char> &data)
+//-----------------------------------------------------------------------------
+/*!
+ * 
+ * @param data 
+ * @return 
+ */
+int HttpUtils::GetRequest::processHttpHeaders(std::vector<char>& data)
 {
-    std::string h = std::string(data.begin(), data.begin() + (data.size() > 1000 ? 1000 : data.size()));
+    string h          = string(data.begin(),
+                      data.begin() +
+                        (data.size() > 1000 ? 1000 : data.size()));
     size_t contentPos = h.find("\r\n\r\n");
-    if (contentPos == std::string::npos)
+    if (contentPos == string::npos)
     {
-        std::cout << "Invalid http response\n" << std::endl;
+        std::cout << "Invalid http response\n"
+                  << std::endl;
         return -1;
     }
-    headers = std::string(data.begin(), data.begin() + contentPos);
 
+    headers    = string(data.begin(), data.begin() + contentPos);
     size_t pos = headers.find("HTTP");
-    if (pos != std::string::npos)
+
+    if (pos != string::npos)
     {
-        std::string str = headers.substr(pos, headers.find("\r", pos) - pos);
+        string str = headers.substr(pos, headers.find("\r", pos) - pos);
         size_t codeIdx;
-        for (codeIdx = 0; codeIdx < str.length() && !isdigit(str.at(codeIdx)); codeIdx++);
+        for (codeIdx = 0; codeIdx < str.length() && !isdigit(str.at(codeIdx)); codeIdx++)
+            ;
 
         if (codeIdx == str.length())
         {
-            std::cout << "Invalid http response\n" << std::endl;
+            std::cout << "Invalid http response\n"
+                      << std::endl;
             return -1;
         }
 
         size_t endCodeIdx = str.find(" ", codeIdx);
 
         statusCode = stoi(str.substr(codeIdx, endCodeIdx - codeIdx));
-        status = str.substr(endCodeIdx);
-        status = Utils::trimString(status, " ");
+        status     = str.substr(endCodeIdx);
+        status     = Utils::trimString(status, " ");
     }
 
     pos = headers.find("Content-Length:");
-    if (pos != std::string::npos)
+    if (pos != string::npos)
     {
-        std::string str = headers.substr(pos + 16, headers.find("\r", pos+16) - pos - 16);
+        string str    = headers.substr(pos + 16,
+                                    headers.find("\r", pos + 16) - pos - 16);
         contentLength = stoi(Utils::trimString(str, " "));
     }
 
     pos = headers.find("Content-Type:");
-    if (pos != std::string::npos)
+    if (pos != string::npos)
     {
-        std::string str = headers.substr(pos + 13, headers.find("\r", pos+13) - pos - 13);
+        string str  = headers.substr(pos + 13,
+                                    headers.find("\r", pos + 13) - pos - 13);
         contentType = Utils::trimString(str, " ");
     }
     return contentPos;
 }
-
+//-----------------------------------------------------------------------------
+/*!
+ * 
+ * @return 
+ */
 int HttpUtils::GetRequest::send()
 {
     if (s->connectTo(addr, port) < 0)
     {
-        std::cerr << "could not connect\n" << std::endl;
+        std::cerr << "could not connect\n"
+                  << std::endl;
         return -1;
     }
 
     s->sendData(request.c_str(), request.length() + 1);
 
-    std::vector<char> * v = &firstBytes;
+    std::vector<char>* v = &firstBytes;
     s->receive([v](char* buf, int size) -> void {
-                v->reserve(v->size() + size);
-                copy(&buf[0], &buf[size], back_inserter(*v));
-            },
-            1000);
+        v->reserve(v->size() + size);
+        copy(&buf[0], &buf[size], back_inserter(*v));
+    },
+               1000);
 
     contentOffset = processHttpHeaders(firstBytes);
     return 0;
 }
-
-void HttpUtils::GetRequest::getContent(std::function<void(char * buf, int size)> contentCB)
+//-----------------------------------------------------------------------------
+/*!
+ * 
+ * @param contentCB 
+ */
+void HttpUtils::GetRequest::getContent(function<void(char* buf, int size)> contentCB)
 {
     if (contentOffset < firstBytes.size())
         contentCB(firstBytes.data() + contentOffset, firstBytes.size() - contentOffset);
 
     s->receive(contentCB);
 }
-
-std::vector<std::string> HttpUtils::GetRequest::getListing()
+//-----------------------------------------------------------------------------
+/*!
+ * 
+ * @return 
+ */
+std::vector<string> HttpUtils::GetRequest::getListing()
 {
     std::vector<char> content;
-    getContent([&content] (char * buf, int size)-> void { 
+    getContent([&content](char* buf, int size) -> void {
         content.reserve(content.size() + size);
         copy(&buf[0], &buf[size], back_inserter(content));
-        });
+    });
 
-    std::string c = std::string(content.data());
+    string              c = string(content.data());
     std::vector<string> listing;
 
     size_t pos = 0;
     size_t end = 0;
-    while(1)
+    while (1)
     {
         pos = c.find("<", pos);
-        end = c.find(">", pos)+1;
-        if (pos == std::string::npos || end == std::string::npos)
+        end = c.find(">", pos) + 1;
+        if (pos == string::npos || end == string::npos)
             break;
 
-        std::string token = c.substr(pos+1, end - pos - 2);
-        token = Utils::trimString(token, " ");
+        string token = c.substr(pos + 1, end - pos - 2);
+        token        = Utils::trimString(token, " ");
 
-        if (std::string(token.begin(), token.begin()+2) == "a ")
+        if (string(token.begin(), token.begin() + 2) == "a ")
         {
             size_t href = token.find("href");
-            if (href != std::string::npos)
+            if (href != string::npos)
             {
-                href = token.find("\"", href);
+                href           = token.find("\"", href);
                 size_t hrefend = token.find("\"", href + 1);
-                if (token.find("?") == std::string::npos)
+                if (token.find("?") == string::npos)
                 {
-                    token = token.substr(href+1, hrefend - href -1);
+                    token = token.substr(href + 1, hrefend - href - 1);
                     if (token == "../" || token == ".")
                     {
                         pos = end;
@@ -397,14 +569,24 @@ std::vector<std::string> HttpUtils::GetRequest::getListing()
     }
     return listing;
 }
-
-void HttpUtils::download(std::string                                                          url,
-                         std::function<void(std::string path, std::string name, size_t size)> processFile,
-                         std::function<void(char* data, int size)>                            writeChunk,
-                         std::function<void(std::string)>                                     processDir,
-                         std::string                                                          user,
-                         std::string                                                          pwd,
-                         std::string                                                          base)
+//-----------------------------------------------------------------------------
+/*!
+ * 
+ * @param url 
+ * @param processFile 
+ * @param writeChunk 
+ * @param processDir 
+ * @param user 
+ * @param pwd 
+ * @param base 
+ */
+void HttpUtils::download(string                                                url,
+                         function<void(string path, string name, size_t size)> processFile,
+                         function<void(char* data, int size)>                  writeChunk,
+                         function<void(string)>                                processDir,
+                         string                                                user,
+                         string                                                pwd,
+                         string                                                base)
 {
 
     HttpUtils::GetRequest req = HttpUtils::GetRequest(url, user, pwd);
@@ -418,19 +600,25 @@ void HttpUtils::download(std::string                                            
 
         processDir(base);
 
-        std::vector<std::string> listing = req.getListing();
-        for (std::string str : listing)
-        {   
+        std::vector<string> listing = req.getListing();
+        for (string str : listing)
+        {
             if (str.at(0) != '/')
-                download(url + str, processFile, writeChunk, processDir, user, pwd, base + str);
+                download(url + str,
+                         processFile,
+                         writeChunk,
+                         processDir,
+                         user,
+                         pwd,
+                         base + str);
         }
     }
     else
     {
-        std::string file = url.substr(url.rfind("/") + 1);
+        string file = url.substr(url.rfind("/") + 1);
 
         int possibleSplit = base.rfind(file);
-        if (possibleSplit != std::string::npos && base.size() - possibleSplit -1 == file.size())
+        if (possibleSplit != string::npos && base.size() - possibleSplit - 1 == file.size())
             base = base.substr(0, possibleSplit);
 
         base = Utils::unifySlashes(base);
@@ -439,15 +627,29 @@ void HttpUtils::download(std::string                                            
         req.getContent(writeChunk);
     }
 }
-
-void HttpUtils::download(std::string url, std::string dst, std::string user, std::string pwd, std::function<void(size_t curr, size_t filesize)> progress)
+//-----------------------------------------------------------------------------
+/*!
+ * 
+ * @param url 
+ * @param dst 
+ * @param user 
+ * @param pwd 
+ * @param progress 
+ */
+void HttpUtils::download(string                                       url,
+                         string                                       dst,
+                         string                                       user,
+                         string                                       pwd,
+                         function<void(size_t curr, size_t filesize)> progress)
 {
     std::ofstream fs;
     size_t        totalBytes = 0;
 
     download(
       url,
-      [&fs, &totalBytes](std::string path, std::string file, size_t size) -> void {
+      [&fs, &totalBytes](string path,
+                         string file,
+                         size_t size) -> void {
           fs.open(path + file, ios::out | ios::binary);
           totalBytes = size;
       },
@@ -461,15 +663,24 @@ void HttpUtils::download(std::string url, std::string dst, std::string user, std
           else
               fs.close();
       },
-      [](std::string dir) -> void {
+      [](string dir) -> void {
           Utils::makeDir(dir);
       },
       user,
       pwd,
       dst);
 }
-
-void HttpUtils::download(std::string url, std::string dst, std::function<void(size_t curr, size_t filesize)> progress)
+//-----------------------------------------------------------------------------
+/*!
+ * 
+ * @param url 
+ * @param dst 
+ * @param progress 
+ */
+void HttpUtils::download(string                                       url,
+                         string                                       dst,
+                         function<void(size_t curr, size_t filesize)> progress)
 {
     download(url, dst, "", "", progress);
 }
+//-----------------------------------------------------------------------------

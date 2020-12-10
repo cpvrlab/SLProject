@@ -36,6 +36,7 @@
 #include <AverageTiming.h>
 #include <imgui.h>
 #include <ftplib.h>
+#include <HttpUtils.h>
 #include <Instrumentor.h>
 
 #ifdef SL_BUILD_WAI
@@ -1508,62 +1509,61 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
 
                 if (ImGui::BeginMenu("Benchmarks"))
                 {
+                    SLstring largeFile = SLApplication::modelPath + "PLY/xyzrgb_dragon.ply";
                     if (ImGui::MenuItem("Large Model (via FTP)", nullptr, sid == SID_Benchmark1_LargeModel))
                     {
-                        SLstring largeFile = SLApplication::modelPath + "PLY/xyzrgb_dragon.ply";
                         if (Utils::fileExists(largeFile))
                             s->onLoad(s, sv, SID_Benchmark1_LargeModel);
                         else
                         {
                             auto downloadJobFTP = []() {
-                              SLApplication::jobProgressMsg("Downloading large dragon file from pallas.ti.bfh.ch");
-                              SLApplication::jobProgressMax(100);
-                              ftplib ftp;
+                                SLApplication::jobProgressMsg("Downloading large dragon file from pallas.ti.bfh.ch");
+                                SLApplication::jobProgressMax(100);
+                                ftplib ftp;
 
-                              if (ftp.Connect("pallas.ti.bfh.ch:21"))
-                              {
-                                  if (ftp.Login("guest", "g2Q7Z7OkDP4!"))
-                                  {
-                                      ftp.SetCallbackXferFunction(ftpCallbackXfer);
-                                      ftp.SetCallbackBytes(1024000);
-                                      if (ftp.Chdir("data/SLProject/models/PLY"))
-                                      {
-                                          int remoteSize = 0;
-                                          ftp.Size("xyzrgb_dragon.ply",
-                                                   &remoteSize,
-                                                   ftplib::transfermode::image);
-                                          ftpXferSizeMax  = remoteSize;
-                                          SLstring plyDir = SLApplication::modelPath + "PLY";
-                                          if (!Utils::dirExists(plyDir))
-                                              Utils::makeDir(plyDir);
-                                          if (Utils::dirExists(plyDir))
-                                          {
-                                              SLstring outFile = SLApplication::modelPath + "PLY/xyzrgb_dragon.ply";
-                                              if (!ftp.Get(outFile.c_str(),
-                                                           "xyzrgb_dragon.ply",
-                                                           ftplib::transfermode::image))
-                                                  SL_LOG("*** ERROR: ftp.Get failed. ***");
-                                          }
-                                          else
-                                              SL_LOG("*** ERROR: Utils::makeDir %s failed. ***", plyDir.c_str());
-                                      }
-                                      else
-                                          SL_LOG("*** ERROR: ftp.Chdir failed. ***");
-                                  }
-                                  else
-                                      SL_LOG("*** ERROR: ftp.Login failed. ***");
-                              }
-                              else
-                                  SL_LOG("*** ERROR: ftp.Connect failed. ***");
+                                if (ftp.Connect("pallas.ti.bfh.ch:21"))
+                                {
+                                    if (ftp.Login("guest", "g2Q7Z7OkDP4!"))
+                                    {
+                                        ftp.SetCallbackXferFunction(ftpCallbackXfer);
+                                        ftp.SetCallbackBytes(1024000);
+                                        if (ftp.Chdir("data/SLProject/models/PLY"))
+                                        {
+                                            int remoteSize = 0;
+                                            ftp.Size("xyzrgb_dragon.ply",
+                                                     &remoteSize,
+                                                     ftplib::transfermode::image);
+                                            ftpXferSizeMax  = remoteSize;
+                                            SLstring plyDir = SLApplication::modelPath + "PLY";
+                                            if (!Utils::dirExists(plyDir))
+                                                Utils::makeDir(plyDir);
+                                            if (Utils::dirExists(plyDir))
+                                            {
+                                                SLstring outFile = SLApplication::modelPath + "PLY/xyzrgb_dragon.ply";
+                                                if (!ftp.Get(outFile.c_str(),
+                                                             "xyzrgb_dragon.ply",
+                                                             ftplib::transfermode::image))
+                                                    SL_LOG("*** ERROR: ftp.Get failed. ***");
+                                            }
+                                            else
+                                                SL_LOG("*** ERROR: Utils::makeDir %s failed. ***", plyDir.c_str());
+                                        }
+                                        else
+                                            SL_LOG("*** ERROR: ftp.Chdir failed. ***");
+                                    }
+                                    else
+                                        SL_LOG("*** ERROR: ftp.Login failed. ***");
+                                }
+                                else
+                                    SL_LOG("*** ERROR: ftp.Connect failed. ***");
 
-                              ftp.Quit();
-                              SLApplication::jobIsRunning = false;
+                                ftp.Quit();
+                                SLApplication::jobIsRunning = false;
                             };
 
-                            auto jobToFollow1 = [](SLScene* s, SLSceneView* sv) {
-                              SLstring largeFile = SLApplication::modelPath + "PLY/xyzrgb_dragon.ply";
-                              if (Utils::fileExists(largeFile))
-                                  s->onLoad(s, sv, SID_Benchmark1_LargeModel);
+                            auto jobToFollow1 = [&](SLScene* s, SLSceneView* sv) {
+                                if (Utils::fileExists(largeFile))
+                                    s->onLoad(s, sv, SID_Benchmark1_LargeModel);
                             };
 
                             function<void(void)> jobNoArgs = bind(jobToFollow1, s, sv);
@@ -1572,31 +1572,46 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                             SLApplication::jobsToFollowInMain.push_back(jobNoArgs);
                         }
                     }
-                    /*
                     if (ImGui::MenuItem("Large Model (via HTTP)", nullptr, sid == SID_Benchmark1_LargeModel))
                     {
-                        SLstring largeFile = SLApplication::modelPath + "PLY/xyzrgb_dragon.ply";
                         if (Utils::fileExists(largeFile))
                             s->onLoad(s, sv, SID_Benchmark1_LargeModel);
                         else
                         {
-                            auto downloadJobHTTP = []() {
-                              //???
+                            auto progressCallback = [](size_t curr, size_t filesize) {
+                                if (filesize > 0)
+                                {
+                                    int transferredPC = (int)((float)curr / (float)ftpXferSizeMax * 100.0f);
+                                    cout << "Bytes transferred: " << curr << " (" << transferredPC << ")" << endl;
+                                    SLApplication::jobProgressNum(transferredPC);
+                                }
+                                else
+                                    cout << "Bytes transferred: " << curr << endl;
+                                return curr ? 1 : 0;
                             };
 
-                            auto jobToFollow1 = [](SLScene* s, SLSceneView* sv) {
-                              SLstring largeFile = SLApplication::modelPath + "PLY/xyzrgb_dragon.ply";
-                              if (Utils::fileExists(largeFile))
-                                  s->onLoad(s, sv, SID_Benchmark1_LargeModel);
+                            auto downloadJobHTTP = [&]() {
+                                SLstring url    = "https://pallas.ti.bfh.ch/data/SLProject/models/PLY/xyzrgb_dragon.ply";
+                                SLstring plyDir = SLApplication::modelPath + "PLY";
+                                if (!Utils::dirExists(plyDir))
+                                    Utils::makeDir(plyDir);
+                                if (Utils::dirExists(plyDir))
+                                    HttpUtils::download(url, plyDir, progressCallback);
+                                else
+                                    SL_LOG("*** ERROR: Utils::makeDir %s failed. ***", plyDir.c_str());
                             };
 
-                            function<void(void)> jobNoArgs = bind(jobToFollow1, s, sv);
+                            auto jobToFollow1 = [&](SLScene* s, SLSceneView* sv) {
+                                if (Utils::fileExists(largeFile))
+                                    s->onLoad(s, sv, SID_Benchmark1_LargeModel);
+                            };
+
+                            function<void(void)> jobToFollow1NoArgs = bind(jobToFollow1, s, sv);
 
                             SLApplication::jobsToBeThreaded.emplace_back(downloadJobHTTP);
-                            SLApplication::jobsToFollowInMain.push_back(jobNoArgs);
+                            SLApplication::jobsToFollowInMain.push_back(jobToFollow1NoArgs);
                         }
                     }
-                    */
                     if (ImGui::MenuItem("Massive Nodes", nullptr, sid == SID_Benchmark2_MassiveNodes))
                         s->onLoad(s, sv, SID_Benchmark2_MassiveNodes);
                     if (ImGui::MenuItem("Massive Node Animations", nullptr, sid == SID_Benchmark3_NodeAnimations))
