@@ -9,7 +9,6 @@
 #include <WAIAutoCalibration.h>
 #include <sens/SENSUtils.h>
 #include <AverageTiming.h>
-#include <HttpDownloader.h>
 
 #define LOG_TESTVIEW_WARN(...) Utils::log("TestView", __VA_ARGS__);
 #define LOG_TESTVIEW_INFO(...) Utils::log("TestView", __VA_ARGS__);
@@ -20,8 +19,7 @@ TestView::TestView(sm::EventHandler&  eventHandler,
                    const ImGuiEngine& imGuiEngine,
                    ErlebAR::Config&   config,
                    SENSCamera*        camera,
-                   const DeviceData&  deviceData,
-                   HttpDownloader*    httpDownloader)
+                   const DeviceData&  deviceData)
   : SLSceneView(&_scene, deviceData.dpi(), inputManager),
     _gui(
       imGuiEngine,
@@ -35,7 +33,7 @@ TestView::TestView(sm::EventHandler&  eventHandler,
       [&]() { return _camera.get(); },                    //getter callback for current camera
       [&]() { return _camera ? _calibration : nullptr; }, //getter callback for current calibration
       [&]() { return _videoFileStream.get(); }),          //getter callback for current calibration
-    _scene("TestScene", deviceData.dataDir(), deviceData.erlebARDir(), httpDownloader),
+    _scene("TestScene", deviceData.dataDir(), deviceData.erlebARDir()),
     _configDir(deviceData.writableDir()),
     _vocabularyDir(deviceData.vocabularyDir()),
     _calibDir(deviceData.erlebARCalibTestDir()),

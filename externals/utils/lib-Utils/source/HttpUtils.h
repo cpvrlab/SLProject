@@ -98,24 +98,24 @@ struct GetRequest
 };
 //------------------------------------------------------------------------------
 //! ???
-void download(string                                                url,
-              function<void(string path, string file, size_t size)> processFile,
-              function<void(char* data, int size)>                  writeChunk,
-              function<void(string)>                                processDir,
-              string                                                user = "",
-              string                                                pwd  = "",
-              string                                                base = "./");
+int download(string                                               url,
+             function<int(string path, string file, size_t size)> processFile,
+             function<int(char* data, int size)>                  writeChunk,
+             function<int(string)>                                processDir,
+             string                                               user = "",
+             string                                               pwd  = "",
+             string                                               base = "./");
 //------------------------------------------------------------------------------
 //! HTTP download function with login credentials
-void download(string                                       url,
-              string                                       dst,
-              string                                       user,
-              string                                       pwd,
-              function<void(size_t curr, size_t filesize)> progress = nullptr);
+int download(string                                       url,
+             string                                       dst,
+             string                                       user,
+             string                                       pwd,
+             function<void(size_t curr, size_t filesize)> progress = nullptr);
 //------------------------------------------------------------------------------
 //! HTTP download function without login credentials
-void download(string                                       url,
-              string                                       dst,
-              function<void(size_t curr, size_t filesize)> progress = nullptr);
+int download(string                                       url,
+             string                                       dst,
+             function<void(size_t curr, size_t filesize)> progress = nullptr);
 }
 //------------------------------------------------------------------------------

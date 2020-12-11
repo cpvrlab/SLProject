@@ -29,8 +29,7 @@ public:
              const ImGuiEngine& imGuiEngine,
              ErlebAR::Config&   config,
              SENSCamera*        camera,
-             const DeviceData&  deviceData,
-             HttpDownloader*    httpDownloader);
+             const DeviceData&  deviceData);
     ~TestView();
 
     bool update();

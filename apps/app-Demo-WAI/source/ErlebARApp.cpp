@@ -59,15 +59,13 @@ void ErlebARApp::init(int                scrWidth,
                       SENSCamera*        camera,
                       SENSGps*           gps,
                       SENSOrientation*   orientation,
-                      SENSARCore*        arcore,
-                      HttpDownloader*    httpDownloader)
+                      SENSARCore*        arcore)
 {
     //store camera so we can stop on terminate
     _camera         = camera;
     _gps            = gps;
     _orientation    = orientation;
     _arcore         = arcore;
-    _httpDownloader = httpDownloader;
     addEvent(new InitEvent("ErlebARApp::init()", scrWidth, scrHeight, dpi, dataDir, writableDir));
 }
 
@@ -206,8 +204,7 @@ void ErlebARApp::WELCOME(const sm::NoEventData* data, const bool stateEntry, con
                                      *_imGuiEngine,
                                      *_config,
                                      _camera,
-                                     *_dd,
-                                     _httpDownloader);
+                                     *_dd);
         }
 
         if (!_testRunnerView)
@@ -281,8 +278,7 @@ void ErlebARApp::WELCOME(const sm::NoEventData* data, const bool stateEntry, con
                                                      _camera,
                                                      _gps,
                                                      _orientation,
-                                                     _arcore,
-                                                     _httpDownloader,
+                                                     _arcore, 
                                                      *_dd);
         }
     }

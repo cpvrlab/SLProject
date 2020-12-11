@@ -29,7 +29,6 @@
 #include <sens/SENSARCore.h>
 #include <math/SLAlgo.h>
 #include <SLDeviceRotation.h>
-#include <HttpDownloader.h>
 
 #include <WAICompassAlignment.h>
 
@@ -200,7 +199,6 @@ public:
                      SENSGps*           gps,
                      SENSOrientation*   orientation,
                      SENSARCore*        arcore,
-                     HttpDownloader*    httpDownloader,
                      const DeviceData&  deviceData);
     ~AreaTrackingView();
 

@@ -9,12 +9,13 @@
 #include <SLKeyframeCamera.h>
 #include <SLGLProgramManager.h>
 #include <HttpUtils.h>
+#include <ZipUtils.h>
+#define PASSWORD "http_password"
 
-AppWAIScene::AppWAIScene(SLstring name, std::string dataDir, std::string erlebARDir, HttpDownloader* httpDownloader)
+AppWAIScene::AppWAIScene(SLstring name, std::string dataDir, std::string erlebARDir)
   : SLScene(name, nullptr),
     _dataDir(Utils::unifySlashes(dataDir)),
-    _erlebARDir(Utils::unifySlashes(erlebARDir)),
-    _httpDownloader(httpDownloader)
+    _erlebARDir(Utils::unifySlashes(erlebARDir))
 {
 }
 
@@ -133,10 +134,8 @@ void AppWAIScene::initLocationAugst()
 {
     if (!Utils::dirExists(_dataDir + "erleb-AR/models/augst/"))
     {
-        _httpDownloader->download("http://pallas.ti.bfh.ch/data/ErlebAR/models/augst.zip",
-                                  _dataDir + "erleb-AR/models/augst.zip");
-
-        HttpUtils::download("http://pallas.ti.bfh.ch/data/ErlebAR/models/augst.zip", ".");
+        HttpUtils::download("https://pallas.ti.bfh.ch/erlebar/models/augst.zip", _dataDir + "erleb-AR/models/", "erlebar", PASSWORD);
+        ZipUtils::unzip(_dataDir + "erleb-AR/models/augst.zip", _dataDir + "erleb-AR/models/");
     }
     // Create directional light for the sun light
     sunLight = new SLLightDirect(&assets, this, 5.0f);
@@ -177,8 +176,8 @@ void AppWAIScene::initLocationAvenches(ErlebAR::AreaId areaId)
 {
     if (!Utils::dirExists(_dataDir + "erleb-AR/models/avenches/"))
     {
-        _httpDownloader->download("http://pallas.ti.bfh.ch/data/ErlebAR/models/avenches.zip",
-                                  _dataDir + "erleb-AR/models/avenches.zip");
+        HttpUtils::download("https://pallas.ti.bfh.ch/erlebar/models/avenches.zip", _dataDir + "erleb-AR/models/", "erlebar", PASSWORD);
+        ZipUtils::unzip(_dataDir + "erleb-AR/models/avenches.zip", _dataDir + "erleb-AR/models/");
     }
 
     // Create directional light for the sun light
@@ -241,8 +240,8 @@ void AppWAIScene::initLocationBern()
 {
     if (!Utils::dirExists(_dataDir + "erleb-AR/models/bern/"))
     {
-        _httpDownloader->download("http://pallas.ti.bfh.ch/data/ErlebAR/models/bern.zip",
-                                  _dataDir + "erleb-AR/models/bern.zip");
+        HttpUtils::download("https://pallas.ti.bfh.ch/erlebar/models/bern.zip", _dataDir + "erleb-AR/models/", "erlebar", PASSWORD);
+        ZipUtils::unzip(_dataDir + "erleb-AR/models/bern.zip", _dataDir + "erleb-AR/models/");
     }
     // Create directional light for the sun light
     sunLight = new SLLightDirect(&assets, this, 5.0f);
@@ -282,8 +281,8 @@ void AppWAIScene::initLocationBiel()
 {
     if (!Utils::dirExists(_dataDir + "erleb-AR/models/biel/"))
     {
-        _httpDownloader->download("http://pallas.ti.bfh.ch/data/ErlebAR/models/biel.zip",
-                                  _dataDir + "erleb-AR/models/biel.zip");
+        HttpUtils::download("https://pallas.ti.bfh.ch/erlebar/models/biel.zip", _dataDir + "erleb-AR/models/", "erlebar", PASSWORD);
+        ZipUtils::unzip(_dataDir + "erleb-AR/models/biel.zip", _dataDir + "erleb-AR/models/");
     }
     // Create directional light for the sun light
     sunLight = new SLLightDirect(&assets, this, 5.0f);

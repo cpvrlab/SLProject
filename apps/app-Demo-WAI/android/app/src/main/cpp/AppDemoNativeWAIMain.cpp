@@ -134,7 +134,6 @@ private:
     SENSNdkGps*         _gps         = nullptr;
     SENSNdkOrientation* _orientation = nullptr;
     SENSNdkARCore*      _arcore      = nullptr;
-    HttpDownloader*     _httpDownloader = nullptr;
 
     /*
     SensorsHandler* sensorsHandler;
@@ -168,7 +167,6 @@ void Engine::onInit()
     ENGINE_DEBUG("onInit");
 
     initSensors();
-    _httpDownloader = new HttpNdkDownloader(_app->activity->vm, gHTTPClass);
     if (!_earAppIsInitialized)
     {
         ENGINE_DEBUG("earAppp NOT initialized");
@@ -192,7 +190,7 @@ void Engine::onInit()
 
         //todo revert
         _earApp.setCloseAppCallback(std::bind(&Engine::closeAppCallback, this));
-        _earApp.init(_width, _height, _dpi, internalPath + "/data/", externalPath, _camera, _gps, _orientation, _arcore, _httpDownloader);
+        _earApp.init(_width, _height, _dpi, internalPath + "/data/", externalPath, _camera, _gps, _orientation, _arcore);
         _earAppIsInitialized = true;
 
     }
@@ -208,7 +206,7 @@ void Engine::onInit()
 
             std::string internalPath = getInternalDir();
             std::string externalPath = getExternalDir();
-            _earApp.init(_width, _height, _dpi, internalPath + "/data/", externalPath, _camera, _gps, _orientation, _arcore, _httpDownloader);
+            _earApp.init(_width, _height, _dpi, internalPath + "/data/", externalPath, _camera, _gps, _orientation, _arcore);
         }
         else
         {

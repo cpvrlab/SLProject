@@ -96,10 +96,10 @@ static bool zip_add_file(zipFile zfile, std::string filepath, std::string zipPat
     return zip_add_file(zfile, fs, Utils::getFileName(filepath), zipPath);
 }
 //-----------------------------------------------------------------------------
-bool unzip(std::string                                                                               zipfile,
-           std::function<bool(std::string path, std::string filename)>                               processFile,
-           std::function<void(std::string path, std::string filename, const char* data, size_t len)> writeChunk,
-           std::function<void(std::string path, std::string filename)>                               processDir)
+bool unzip(std::string                                                 zipfile,
+           std::function<bool(std::string path, std::string filename)> processFile,
+           std::function<bool(const char* data, size_t len)>           writeChunk,
+           std::function<bool(std::string path)>                       processDir)
 {
     unzFile uzfile;
     bool    ret = true;
@@ -112,8 +112,8 @@ bool unzip(std::string                                                          
 
     do
     {
-        unsigned char   buf[8192];
         unz_file_info64 finfo;
+        unsigned char   buf[8192];
         if (unzGetCurrentFileInfo64(uzfile,
                                     &finfo,
                                     name,
@@ -124,46 +124,54 @@ bool unzip(std::string                                                          
                                     0) != UNZ_OK)
         {
             ret = false;
-            continue;
+            break;
         }
 
         std::string dirname  = Utils::getDirName(Utils::trimRightString(name, "/"));
         std::string filename = Utils::getFileName(Utils::trimRightString(name, "/"));
 
+        processDir(dirname);
+
         if (finfo.uncompressed_size == 0 && strlen(name) > 0 && name[strlen(name) - 1] == '/')
         {
-            processDir(dirname, filename);
-            unzGoToNextFile(uzfile);
+            if (unzGoToNextFile(uzfile) != UNZ_OK)
+                break;
             continue;
         }
 
         if (unzOpenCurrentFile(uzfile) != UNZ_OK)
         {
             ret = false;
-            continue;
+            unzCloseCurrentFile(uzfile);
+            break;
         }
 
         if (processFile(dirname, filename))
         {
             while ((n = unzReadCurrentFile(uzfile, buf, sizeof(buf))) > 0)
             {
-                writeChunk(dirname, filename, (const char*)buf, n);
+                if (!writeChunk((const char*)buf, n))
+                {
+                    unzCloseCurrentFile(uzfile);
+                    ret = false;
+                    break;
+                }
             }
 
-            writeChunk(dirname, filename, nullptr, 0);
+            writeChunk(nullptr, 0);
             if (n < 0)
             {
                 unzCloseCurrentFile(uzfile);
                 ret = false;
-                continue;
+                break;
             }
         }
 
         unzCloseCurrentFile(uzfile);
         if (unzGoToNextFile(uzfile) != UNZ_OK)
-            ret = false;
+            break;
 
-    } while (ret);
+    } while (1);
 
     unzClose(uzfile);
     return ret;
@@ -208,33 +216,41 @@ bool zip(std::string path, std::string zipname)
     return true;
 }
 //-----------------------------------------------------------------------------
-bool unzip(std::string path, std::string dest)
+bool unzip(std::string path, std::string dest, bool override)
 {
     std::ofstream fs;
 
     dest = Utils::unifySlashes(dest);
-
     unzip(
       path,
-      [&fs, dest](std::string path, std::string filename) -> bool {
-          if (!Utils::fileExists(dest + path + filename))
+      [&fs, &override, dest](std::string path, std::string filename) -> bool {
+          if (override || !Utils::fileExists(dest + path + filename))
           {
               fs.open(dest + path + filename, std::ios::binary);
               return true;
           }
           return false;
       },
-      [&fs](std::string path,
-            std::string filename,
-            const char* data,
-            size_t      len) -> void {
+      [&fs](const char* data, size_t len) -> bool {
           if (data != nullptr)
-              fs.write(data, len);
+          {
+              try
+              {
+                  fs.write(data, len);
+              }
+              catch (std::exception& e)
+              {
+                  return false;
+              }
+          }
           else
               fs.close();
+          return true;
       },
-      [dest](std::string path, std::string filename) -> void {
-          Utils::makeDir(dest + path + filename);
+      [dest](std::string path) -> bool {
+          if (!Utils::dirExists(dest + path))
+              return Utils::makeDir(dest + path);
+          return true;
       });
     return true;
 }

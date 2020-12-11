@@ -516,10 +516,7 @@ int HttpUtils::GetRequest::send()
 void HttpUtils::GetRequest::getContent(function<void(char* buf, int size)> contentCB)
 {
     if (contentOffset < firstBytes.size())
-    {
-        std::cout << "add data from first bytes" << std::endl;
         contentCB(firstBytes.data() + contentOffset, firstBytes.size() - contentOffset);
-    }
 
     s->receive(contentCB);
 }
@@ -585,17 +582,17 @@ std::vector<string> HttpUtils::GetRequest::getListing()
  * @param pwd 
  * @param base 
  */
-void HttpUtils::download(string                                                url,
-                         function<void(string path, string name, size_t size)> processFile,
-                         function<void(char* data, int size)>                  writeChunk,
-                         function<void(string)>                                processDir,
-                         string                                                user,
-                         string                                                pwd,
-                         string                                                base)
+int HttpUtils::download(string                                               url,
+                        function<int(string path, string name, size_t size)> processFile,
+                        function<int(char* data, int size)>                  writeChunk,
+                        function<int(string)>                                processDir,
+                        string                                               user,
+                        string                                               pwd,
+                        string                                               base)
 {
-
     HttpUtils::GetRequest req = HttpUtils::GetRequest(url, user, pwd);
-    req.send();
+    if (req.send() < 0)
+        return 0;
     base = Utils::unifySlashes(base);
 
     if (req.contentType == "text/html")
@@ -603,19 +600,20 @@ void HttpUtils::download(string                                                u
         if (url.back() != '/')
             url = url + "/";
 
-        processDir(base);
+        if (!processDir(base))
+            return 0;
 
         std::vector<string> listing = req.getListing();
         for (string str : listing)
         {
             if (str.at(0) != '/')
-                download(url + str,
-                         processFile,
-                         writeChunk,
-                         processDir,
-                         user,
-                         pwd,
-                         base + str);
+                return download(url + str,
+                                processFile,
+                                writeChunk,
+                                processDir,
+                                user,
+                                pwd,
+                                base + str);
         }
     }
     else
@@ -628,9 +626,13 @@ void HttpUtils::download(string                                                u
 
         base = Utils::unifySlashes(base);
 
-        processFile(base, file, req.contentLength);
+        if (!processFile(base, file, req.contentLength))
+            return 0;
+
         req.getContent(writeChunk);
+        return 1;
     }
+    return 0;
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -641,40 +643,74 @@ void HttpUtils::download(string                                                u
  * @param pwd 
  * @param progress 
  */
-void HttpUtils::download(string                                       url,
-                         string                                       dst,
-                         string                                       user,
-                         string                                       pwd,
-                         function<void(size_t curr, size_t filesize)> progress)
+int HttpUtils::download(string                                       url,
+                        string                                       dst,
+                        string                                       user,
+                        string                                       pwd,
+                        function<void(size_t curr, size_t filesize)> progress)
 {
     std::ofstream fs;
     size_t        totalBytes = 0;
     size_t        writtenByte = 0;
 
-    download(
+    bool dstIsDir = true;
+
+    if (!Utils::fileExists(dst))
+    {
+        Utils::makeDirRecurse(dst);
+        dstIsDir = true;
+    }
+
+    std::cout << "download" << std::endl;
+
+    return download(
       url,
-      [&fs, &totalBytes](string path,
-                         string file,
-                         size_t size) -> void {
-          fs.open(path + file, ios::out | ios::binary);
+      [&fs, &totalBytes, &dst, &dstIsDir](string path,
+                                          string file,
+                                          size_t size) -> int {
+          try
+          {
+              if (dstIsDir)
+                  fs.open(path + file, ios::out | ios::binary);
+              else
+                  fs.open(dst, ios::out | ios::binary);
+          }
+          catch (std::exception& e)
+          {
+              std::cerr << e.what() << '\n';
+              return 0;
+          }
           totalBytes = size;
+          return 1;
       },
-      [&fs, progress, &writtenByte, &totalBytes](char* data, int size) -> void {
+      [&fs, progress, &writtenByte, &totalBytes](char* data, int size) -> int {
           if (size > 0)
           {
-              fs.write(data, size);
-              if (progress)
-                  progress(writtenByte += size, totalBytes);
+              try
+              {
+                  fs.write(data, size);
+                  if (progress)
+                      progress(writtenByte += size, totalBytes);
+              }
+              catch (const std::exception& e)
+              {
+                  std::cerr << e.what() << '\n';
+                  return 0;
+              }
+              return 1;
           }
           else
           {
               if (progress)
                   progress(totalBytes, totalBytes);
               fs.close();
+              return 0;
           }
       },
-      [](string dir) -> void {
-          Utils::makeDir(dir);
+      [&dstIsDir](string dir) -> int {
+          if (!dstIsDir)
+              return 0;
+          return Utils::makeDir(dir);
       },
       user,
       pwd,
@@ -687,10 +723,10 @@ void HttpUtils::download(string                                       url,
  * @param dst 
  * @param progress 
  */
-void HttpUtils::download(string                                       url,
-                         string                                       dst,
-                         function<void(size_t curr, size_t filesize)> progress)
+int HttpUtils::download(string                                       url,
+                        string                                       dst,
+                        function<void(size_t curr, size_t filesize)> progress)
 {
-    download(url, dst, "", "", progress);
+    return download(url, dst, "", "", progress);
 }
 //-----------------------------------------------------------------------------

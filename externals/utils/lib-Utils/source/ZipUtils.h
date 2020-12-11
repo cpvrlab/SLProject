@@ -8,11 +8,11 @@ namespace ZipUtils
 {
 bool zip(std::string path, std::string zipname = "");
 
-bool unzip(std::string zipfile,
+bool unzip(std::string                                                 zipfile,
            std::function<bool(std::string path, std::string filename)> processFile,
-           std::function<void(std::string path, std::string filename, const char* data, size_t len)> writeChunk,
-           std::function<void(std::string path, std::string filename)> processDir);
+           std::function<bool(const char* data, size_t len)>           writeChunk,
+           std::function<bool(std::string path)>                       processDir);
 
-bool unzip(std::string path, std::string dest = "");
+bool unzip(std::string path, std::string dest = "", bool override = true);
 }
 #endif
