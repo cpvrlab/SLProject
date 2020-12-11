@@ -330,9 +330,9 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #-----------------------------
     set(openssl_PREBUILT_DIR "win64_openssl")
     set(openssl_DIR ${PREBUILT_PATH}/win64_openssl)
     set(openssl_INCLUDE_DIR ${openssl_DIR}/include)
-    set(openssl_LINK_DIR ${openssl_DIR}/${CMAKE_BUILD_TYPE})
+    set(openssl_LINK_DIR ${openssl_DIR}/lib)
     set(openssl_LIBS ssl crypto)
-    set(openssl_PREBUILT_ZIP "${openssl_PREBUILT_DIR}.zip")
+    set(openssl_PREBUILT_ZIP "${openssl_PREBUILT_DIR}_${openssl_VERSION}.zip")
 
     if (NOT EXISTS "${openssl_DIR}")
         file(DOWNLOAD "${PREBUILT_URL}/${openssl_PREBUILT_ZIP}" "${PREBUILT_PATH}/${openssl_PREBUILT_ZIP}")
@@ -346,12 +346,12 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #-----------------------------
     add_library(crypto STATIC IMPORTED)
     add_library(ssl STATIC IMPORTED)
     set_target_properties(crypto PROPERTIES
-        IMPORTED_IMPLIB "${openssl_LINK_DIR}/libcrypto.lib"
-        IMPORTED_LOCATION "${openssl_LINK_DIR}/libcrypto.dll"
+        IMPORTED_IMPLIB "${openssl_LINK_DIR}/libcrypto_static.lib"
+        IMPORTED_LOCATION "${openssl_LINK_DIR}/libcrypto-3.dll"
     )
     set_target_properties(ssl PROPERTIES
-        IMPORTED_IMPLIB "${openssl_LINK_DIR}/libssl.lib"
-        IMPORTED_LOCATION "${openssl_LINK_DIR}/libssl.dll"
+        IMPORTED_IMPLIB "${openssl_LINK_DIR}/libssl_static.lib"
+        IMPORTED_LOCATION "${openssl_LINK_DIR}/libssl-3.dll"
     )
 
     ######################
@@ -1025,7 +1025,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID") #-----------------------------
     set(openssl_INCLUDE_DIR ${openssl_DIR}/include)
     set(openssl_LINK_DIR ${openssl_DIR}/lib)
     set(openssl_LIBS ssl crypto)
-    set(openssl_PREBUILT_ZIP "${openssl_PREBUILT_DIR}.zip")
+    set(openssl_PREBUILT_ZIP "${openssl_PREBUILT_DIR}_${openssl_VERSION}.zip")
 
     if (NOT EXISTS "${openssl_DIR}")
         file(DOWNLOAD "${PREBUILT_URL}/${openssl_PREBUILT_ZIP}" "${PREBUILT_PATH}/${openssl_PREBUILT_ZIP}")
