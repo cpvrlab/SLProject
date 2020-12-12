@@ -178,7 +178,16 @@ SLNode* BuildFigureGroup(SLProjectScene* s, SLMaterial* mat, SLbool withAnimatio
     // Feet
     SLNode* feet = new SLNode("feet group (T13,R6)");
     feet->addMesh(new SLSphere(s, 0.2f, 16, 16, "ankle", mat));
-    SLNode* feetbox = new SLNode(new SLBox(s, -0.2f, -0.1f, 0.0f, 0.2f, 0.1f, 0.8f, "foot", mat), "feet (T14)");
+    SLNode* feetbox = new SLNode(new SLBox(s,
+                                           -0.2f,
+                                           -0.1f,
+                                           0.0f,
+                                           0.2f,
+                                           0.1f,
+                                           0.8f,
+                                           "foot",
+                                           mat),
+                                 "feet (T14)");
     feetbox->translate(0.0f, -0.25f, -0.15f, TS_object);
     feet->addChild(feetbox);
     feet->translate(0.0f, 0.0f, 1.6f, TS_object);
@@ -187,7 +196,16 @@ SLNode* BuildFigureGroup(SLProjectScene* s, SLMaterial* mat, SLbool withAnimatio
     // Assemble low leg
     SLNode* leglow = new SLNode("low leg group (T11, R5)");
     leglow->addMesh(new SLSphere(s, 0.3f, res, res, "knee", mat));
-    cyl = new SLNode(new SLCylinder(s, 0.2f, 1.4f, 1, res, false, false, "shin", mat), "shin (T12)");
+    cyl = new SLNode(new SLCylinder(s,
+                                    0.2f,
+                                    1.4f,
+                                    1,
+                                    res,
+                                    false,
+                                    false,
+                                    "shin",
+                                    mat),
+                     "shin (T12)");
     cyl->translate(0.0f, 0.0f, 0.2f, TS_object);
     leglow->addChild(cyl);
     leglow->addChild(feet);
@@ -197,7 +215,16 @@ SLNode* BuildFigureGroup(SLProjectScene* s, SLMaterial* mat, SLbool withAnimatio
     // Assemble leg
     SLNode* leg = new SLNode("leg group ()");
     leg->addMesh(new SLSphere(s, 0.4f, res, res, "hip joint", mat));
-    cyl = new SLNode(new SLCylinder(s, 0.3f, 1.0f, 1, res, false, false, "thigh", mat), "thigh (T10)");
+    cyl = new SLNode(new SLCylinder(s,
+                                    0.3f,
+                                    1.0f,
+                                    1,
+                                    res,
+                                    false,
+                                    false,
+                                    "thigh",
+                                    mat),
+                     "thigh (T10)");
     cyl->translate(0.0f, 0.0f, 0.27f, TS_object);
     leg->addChild(cyl);
     leg->addChild(leglow);
