@@ -4840,7 +4840,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
     else if (SLApplication::sceneID == SID_Benchmark1_LargeModel) //.....................................
     {
-        SLstring largeFile = SLApplication::modelPath + "PLY/xyzrgb_dragon.ply";
+        SLstring largeFile = SLApplication::configPath + "xyzrgb_dragon.ply";
 
         if (Utils::fileExists(largeFile))
         {
@@ -4948,7 +4948,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->doWaitOnIdle(false);
         s->root3D(scene);
     }
-    else if (SLApplication::sceneID == SID_Benchmark3_NodeAnimations) //..................................
+    else if (SLApplication::sceneID == SID_Benchmark3_NodeAnimations) //.................................
     {
         s->name("Massive Node Animation Benchmark Scene");
         s->info(s->name());
@@ -4998,7 +4998,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->doWaitOnIdle(false);
         s->root3D(scene);
     }
-    else if (SLApplication::sceneID == SID_Benchmark4_SkinnedAnimations) //...............................
+    else if (SLApplication::sceneID == SID_Benchmark4_SkinnedAnimations) //..............................
     {
         SLint  size         = 20;
         SLint  numAstroboys = size * size;

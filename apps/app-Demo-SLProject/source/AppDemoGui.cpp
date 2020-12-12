@@ -37,6 +37,7 @@
 #include <imgui.h>
 #include <ftplib.h>
 #include <HttpUtils.h>
+#include <ZipUtils.h>
 #include <Instrumentor.h>
 #include <SLAssimpImporter.h>
 #include <SLAssimpProgressHandler.h>
@@ -251,7 +252,9 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
             ImGui::ProgressBar(num / max);
         }
         else
-            ImGui::Text("Progress: %d%%", SLApplication::jobProgressNum());
+        {
+            ImGui::Text("Progress: %c", "|/-\\"[(int)(ImGui::GetTime() / 0.05f) & 3]);
+        }
 
         ImGui::Separator();
         ImGui::Text("Parallel Jobs to follow: %lu",
@@ -1511,13 +1514,13 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                 {
                     if (ImGui::MenuItem("Large Model (via FTP)", nullptr, sid == SID_Benchmark1_LargeModel))
                     {
-                        SLstring largeFile = SLApplication::modelPath + "PLY/xyzrgb_dragon.ply";
+                        SLstring largeFile = SLApplication::configPath + "xyzrgb_dragon.ply";
                         if (Utils::fileExists(largeFile))
                             s->onLoad(s, sv, SID_Benchmark1_LargeModel);
                         else
                         {
                             auto downloadJobFTP = []() {
-                                SLApplication::jobProgressMsg("Downloading large dragon file from pallas.ti.bfh.ch via FTP with guest user:");
+                                SLApplication::jobProgressMsg("Downloading large dragon file via FTP:");
                                 SLApplication::jobProgressMax(100);
                                 ftplib ftp;
                                 ftp.SetConnmode(ftplib::connmode::port); //enable active mode
@@ -1531,23 +1534,21 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                                         if (ftp.Chdir("data/SLProject/models/PLY"))
                                         {
                                             int remoteSize = 0;
-                                            ftp.Size("xyzrgb_dragon.ply",
+                                            ftp.Size("xyzrgb_dragon.ply.zip",
                                                      &remoteSize,
                                                      ftplib::transfermode::image);
                                             ftpXferSizeMax  = remoteSize;
-                                            SLstring plyDir = SLApplication::modelPath + "PLY";
-                                            if (!Utils::dirExists(plyDir))
-                                                Utils::makeDir(plyDir);
-                                            if (Utils::dirExists(plyDir))
+                                            SLstring dstDir = SLApplication::configPath;
+                                            if (Utils::dirExists(dstDir))
                                             {
-                                                SLstring outFile = SLApplication::modelPath + "PLY/xyzrgb_dragon.ply";
+                                                SLstring outFile = SLApplication::configPath + "xyzrgb_dragon.ply.zip";
                                                 if (!ftp.Get(outFile.c_str(),
-                                                             "xyzrgb_dragon.ply",
+                                                             "xyzrgb_dragon.ply.zip",
                                                              ftplib::transfermode::image))
                                                     SL_LOG("*** ERROR: ftp.Get failed. ***");
                                             }
                                             else
-                                                SL_LOG("*** ERROR: Utils::makeDir %s failed. ***", plyDir.c_str());
+                                                SL_LOG("*** ERROR: Destination directory does not exist: %s ***", dstDir.c_str());
                                         }
                                         else
                                             SL_LOG("*** ERROR: ftp.Chdir failed. ***");
@@ -1562,20 +1563,31 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                                 SLApplication::jobIsRunning = false;
                             };
 
-                            auto followUpJob1 = [&](SLScene* s, SLSceneView* sv) {
-                                if (Utils::fileExists(SLApplication::modelPath + "PLY/xyzrgb_dragon.ply"))
+                            auto unzipJob = [s, sv, largeFile]() {
+                                SLApplication::jobProgressMsg("Decompress dragon file:");
+                                SLApplication::jobProgressMax(-1);
+                                string zipFile = largeFile + ".zip";
+                                if (Utils::fileExists(zipFile))
+                                {
+                                    ZipUtils::unzip(zipFile, Utils::getPath(zipFile));
+                                    Utils::deleteFile(zipFile);
+                                }
+                                SLApplication::jobIsRunning = false;
+                            };
+
+                            auto followUpJob1 = [s, sv, largeFile]() {
+                                if (Utils::fileExists(largeFile))
                                     s->onLoad(s, sv, SID_Benchmark1_LargeModel);
                             };
 
-                            function<void(void)> followUpJob1NoArgs = bind(followUpJob1, s, sv);
-
                             SLApplication::jobsToBeThreaded.emplace_back(downloadJobFTP);
-                            SLApplication::jobsToFollowInMain.push_back(followUpJob1NoArgs);
+                            SLApplication::jobsToBeThreaded.emplace_back(unzipJob);
+                            SLApplication::jobsToFollowInMain.push_back(followUpJob1);
                         }
                     }
                     if (ImGui::MenuItem("Large Model (via HTTPS)", nullptr, sid == SID_Benchmark1_LargeModel))
                     {
-                        SLstring largeFile = SLApplication::modelPath + "PLY/xyzrgb_dragon.ply";
+                        SLstring largeFile = SLApplication::configPath + "xyzrgb_dragon.ply";
                         if (Utils::fileExists(largeFile))
                             s->onLoad(s, sv, SID_Benchmark1_LargeModel);
                         else
@@ -1594,23 +1606,31 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
 
                             auto downloadJobHTTP = [&]() {
                                 PROFILE_FUNCTION();
-                                SLApplication::jobProgressMsg("Downloading large dragon file from pallas.ti.bfh.ch via HTTPS with guest user:");
+                                SLApplication::jobProgressMsg("Downloading large dragon file via HTTPS:");
                                 SLApplication::jobProgressMax(100);
-                                SLstring url    = "https://pallas.ti.bfh.ch/data/SLProject/models/PLY/xyzrgb_dragon.ply";
-                                SLstring plyDir = SLApplication::modelPath + "PLY";
-                                if (!Utils::dirExists(plyDir))
-                                    Utils::makeDir(plyDir);
-                                if (Utils::dirExists(plyDir))
-                                    HttpUtils::download(url, plyDir, progressCallback);
+                                SLstring url    = "https://pallas.ti.bfh.ch/data/SLProject/models/PLY/xyzrgb_dragon.ply.zip";
+                                SLstring dstDir = SLApplication::configPath;
+                                if (Utils::dirExists(dstDir))
+                                    HttpUtils::download(url, dstDir, progressCallback);
                                 else
-                                    SL_LOG("*** ERROR: Utils::makeDir %s failed. ***", plyDir.c_str());
+                                    SL_LOG("*** ERROR: Destination directory does not exist: %s ***", dstDir.c_str());
                                 SLApplication::jobIsRunning = false;
                             };
 
-                            SLApplication::jobsToBeThreaded.emplace_back(downloadJobHTTP);
+                            auto unzipJob = [s, sv, largeFile]() {
+                                SLApplication::jobProgressMsg("Decompress dragon file:");
+                                SLApplication::jobProgressMax(-1);
+                                string zipFile = largeFile + ".zip";
+                                if (Utils::fileExists(zipFile))
+                                {
+                                    ZipUtils::unzip(zipFile, Utils::getPath(zipFile));
+                                    Utils::deleteFile(zipFile);
+                                }
+                                SLApplication::jobIsRunning = false;
+                            };
 
                             /*
-                            auto loadModelJob = [](SLScene* s) {
+                            auto loadModelJob = [s]() {
                                 PROFILE_FUNCTION();
                                 SLApplication::jobProgressMsg("Loading Dragon model with assimp:");
                                 SLApplication::jobProgressMax(100);
@@ -1633,16 +1653,16 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                                 }
                                 SLApplication::jobIsRunning = false;
                             };
-                            function<void(void)> loadModelJobNoArgs = bind(loadModelJob, s);
-                            SLApplication::jobsToBeThreaded.emplace_back(loadModelJobNoArgs);
+                            SLApplication::jobsToBeThreaded.emplace_back(loadModelJob);
                             */
-                            auto followUpJob1 = [](SLScene* s, SLSceneView* sv) {
-                                if (Utils::fileExists(SLApplication::modelPath + "PLY/xyzrgb_dragon.ply"))
+                            auto followUpJob1 = [s, sv, largeFile]() {
+                                if (Utils::fileExists(largeFile))
                                     s->onLoad(s, sv, SID_Benchmark1_LargeModel);
                             };
-                            function<void(void)> followUpJob1NoArgs = bind(followUpJob1, s, sv);
 
-                            SLApplication::jobsToFollowInMain.push_back(followUpJob1NoArgs);
+                            SLApplication::jobsToBeThreaded.emplace_back(downloadJobHTTP);
+                            SLApplication::jobsToBeThreaded.emplace_back(unzipJob);
+                            SLApplication::jobsToFollowInMain.push_back(followUpJob1);
                         }
                     }
                     if (ImGui::MenuItem("Massive Nodes", nullptr, sid == SID_Benchmark2_MassiveNodes))
