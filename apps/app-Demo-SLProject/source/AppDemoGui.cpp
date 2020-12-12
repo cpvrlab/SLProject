@@ -38,17 +38,18 @@
 #include <ftplib.h>
 #include <HttpUtils.h>
 #include <Instrumentor.h>
+#include <SLAssimpImporter.h>
+#include <SLAssimpProgressHandler.h>
 
 #ifdef SL_BUILD_WAI
-
 #    include <Eigen/Dense>
-
 #endif
 
 //-----------------------------------------------------------------------------
-extern CVTracked*   tracker;     // Global pointer declared in AppDemoTracking
-extern SLNode*      trackedNode; // Global pointer declared in AppDemoTracking
-extern SLGLTexture* gTexMRI3D;   // Global pointer declared in AppDemoLoad
+extern CVTracked*   tracker;      // Global pointer declared in AppDemoTracking
+extern SLNode*      trackedNode;  // Global pointer declared in AppDemoTracking
+extern SLGLTexture* gTexMRI3D;    // Global pointer declared in AppDemoLoad
+extern SLNode*      gDragonModel; // Global pointer declared in AppDemoLoad
 
 //#define IM_ARRAYSIZE(_ARR) ((int)(sizeof(_ARR) / sizeof(*_ARR)))
 
@@ -205,7 +206,7 @@ int ftpCallbackXfer(off64_t xfered, void* arg)
     if (ftpXferSizeMax)
     {
         int xferedPC = (int)((float)xfered / (float)ftpXferSizeMax * 100.0f);
-        cout << "Bytes transferred: " << xfered << " (" << xferedPC << ")" << endl;
+        //cout << "Bytes transferred: " << xfered << " (" << xferedPC << ")" << endl;
         SLApplication::jobProgressNum(xferedPC);
     }
     else
@@ -1437,8 +1438,7 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                             // Load volume data into 3D texture
                             SLVstring mriImages;
                             for (SLint i = 0; i < 207; ++i)
-                                mriImages.push_back(
-                                  SLApplication::texturePath + Utils::formatString("i%04u_0000b.png", i));
+                                mriImages.push_back(SLApplication::texturePath + Utils::formatString("i%04u_0000b.png", i));
 
                             gTexMRI3D                   = new SLGLTexture(nullptr,
                                                         mriImages,
@@ -1467,10 +1467,10 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                             SLApplication::jobIsRunning = false;
                         };
 
-                        auto jobToFollow1 = [](SLScene* s, SLSceneView* sv) {
+                        auto followUpJob1 = [](SLScene* s, SLSceneView* sv) {
                             s->onLoad(s, sv, SID_VolumeRayCastLighted);
                         };
-                        function<void(void)> onLoadScene = bind(jobToFollow1, s, sv);
+                        function<void(void)> onLoadScene = bind(followUpJob1, s, sv);
 
                         SLApplication::jobsToBeThreaded.emplace_back(loadMRIImages);
                         SLApplication::jobsToBeThreaded.emplace_back(calculateGradients);
@@ -1562,15 +1562,15 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                                 SLApplication::jobIsRunning = false;
                             };
 
-                            auto jobToFollow1 = [&](SLScene* s, SLSceneView* sv) {
+                            auto followUpJob1 = [&](SLScene* s, SLSceneView* sv) {
                                 if (Utils::fileExists(SLApplication::modelPath + "PLY/xyzrgb_dragon.ply"))
                                     s->onLoad(s, sv, SID_Benchmark1_LargeModel);
                             };
 
-                            function<void(void)> jobToFollow1NoArgs = bind(jobToFollow1, s, sv);
+                            function<void(void)> followUpJob1NoArgs = bind(followUpJob1, s, sv);
 
                             SLApplication::jobsToBeThreaded.emplace_back(downloadJobFTP);
-                            SLApplication::jobsToFollowInMain.push_back(jobToFollow1NoArgs);
+                            SLApplication::jobsToFollowInMain.push_back(followUpJob1NoArgs);
                         }
                     }
                     if (ImGui::MenuItem("Large Model (via HTTPS)", nullptr, sid == SID_Benchmark1_LargeModel))
@@ -1593,6 +1593,7 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                             };
 
                             auto downloadJobHTTP = [&]() {
+                                PROFILE_FUNCTION();
                                 SLApplication::jobProgressMsg("Downloading large dragon file from pallas.ti.bfh.ch via HTTPS with guest user:");
                                 SLApplication::jobProgressMax(100);
                                 SLstring url    = "https://pallas.ti.bfh.ch/data/SLProject/models/PLY/xyzrgb_dragon.ply";
@@ -1606,15 +1607,42 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                                 SLApplication::jobIsRunning = false;
                             };
 
-                            auto jobToFollow1 = [&](SLScene* s, SLSceneView* sv) {
+                            SLApplication::jobsToBeThreaded.emplace_back(downloadJobHTTP);
+
+                            /*
+                            auto loadModelJob = [](SLScene* s) {
+                                PROFILE_FUNCTION();
+                                SLApplication::jobProgressMsg("Loading Dragon model with assimp:");
+                                SLApplication::jobProgressMax(100);
+
+                                SLstring largeFile = SLApplication::modelPath + "PLY/xyzrgb_dragon.ply";
+                                if (Utils::fileExists(largeFile))
+                                {
+                                    SLAssimpImporter        importer;
+                                    SLAssimpProgressHandler progressHandler;
+
+                                    SLNode* gDragonModel = importer.load(s->animManager(),
+                                                                         dynamic_cast<SLAssetManager*>(s),
+                                                                         largeFile,
+                                                                         SLApplication::texturePath,
+                                                                         true,
+                                                                         nullptr,
+                                                                         0.2f,
+                                                                         (SLProgressHandler*)&progressHandler,
+                                                                         SLProcess_Triangulate | SLProcess_JoinIdenticalVertices);
+                                }
+                                SLApplication::jobIsRunning = false;
+                            };
+                            function<void(void)> loadModelJobNoArgs = bind(loadModelJob, s);
+                            SLApplication::jobsToBeThreaded.emplace_back(loadModelJobNoArgs);
+                            */
+                            auto followUpJob1 = [](SLScene* s, SLSceneView* sv) {
                                 if (Utils::fileExists(SLApplication::modelPath + "PLY/xyzrgb_dragon.ply"))
                                     s->onLoad(s, sv, SID_Benchmark1_LargeModel);
                             };
+                            function<void(void)> followUpJob1NoArgs = bind(followUpJob1, s, sv);
 
-                            function<void(void)> jobToFollow1NoArgs = bind(jobToFollow1, s, sv);
-
-                            SLApplication::jobsToBeThreaded.emplace_back(downloadJobHTTP);
-                            SLApplication::jobsToFollowInMain.push_back(jobToFollow1NoArgs);
+                            SLApplication::jobsToFollowInMain.push_back(followUpJob1NoArgs);
                         }
                     }
                     if (ImGui::MenuItem("Massive Nodes", nullptr, sid == SID_Benchmark2_MassiveNodes))
@@ -1661,12 +1689,12 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                     SLApplication::jobIsRunning = false;
                 };
 
-                auto jobToFollow1 = []() { SL_LOG("JobToFollow1"); };
+                auto followUpJob1 = []() { SL_LOG("followUpJob1"); };
                 auto jobToFollow2 = []() { SL_LOG("JobToFollow2"); };
 
                 SLApplication::jobsToBeThreaded.emplace_back(job1);
                 SLApplication::jobsToBeThreaded.emplace_back(job2);
-                SLApplication::jobsToFollowInMain.emplace_back(jobToFollow1);
+                SLApplication::jobsToFollowInMain.emplace_back(followUpJob1);
                 SLApplication::jobsToFollowInMain.emplace_back(jobToFollow2);
             }
 

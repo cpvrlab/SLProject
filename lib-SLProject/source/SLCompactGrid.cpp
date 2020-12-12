@@ -13,6 +13,7 @@
 #include <SLNode.h>
 #include <SLRay.h>
 #include <TriangleBoxIntersect.h>
+#include <Instrumentor.h>
 
 //-----------------------------------------------------------------------------
 SLCompactGrid::SLCompactGrid(SLMesh* m) : SLAccelStruct(m)
@@ -121,6 +122,8 @@ their paper "Compact, Fast and Robust Grids for Ray Tracing".
 */
 void SLCompactGrid::build(SLVec3f minV, SLVec3f maxV)
 {
+    PROFILE_FUNCTION();
+
     assert(_m->I16.size() || _m->I32.size());
 
     deleteAll();

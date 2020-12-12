@@ -368,6 +368,8 @@ OpenGL function.
 */
 void SLSceneView::onInitialize()
 {
+    PROFILE_FUNCTION();
+
     postSceneLoad();
 
     SLGLState* stateGL = SLGLState::instance();

@@ -57,6 +57,9 @@ extern SLNode*      trackedNode;
 //! Global pointer to 3D MRI texture for volume rendering for threaded loading
 SLGLTexture* gTexMRI3D = nullptr;
 //-----------------------------------------------------------------------------
+//! Global pointer to dragon model for threaded loading
+SLNode* gDragonModel = nullptr;
+//-----------------------------------------------------------------------------
 //! Creates a recursive sphere group used for the ray tracing scenes
 SLNode* SphereGroupRT(SLProjectScene* s,
                       SLint           depth, // depth of recursion
@@ -2688,7 +2691,9 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLColorLUT*      tf       = new SLColorLUT(s, tfAlphas, CLUT_BCGYR);
 
         // Load shader and uniforms for volume size
-        SLGLProgram*   sp   = new SLGLGenericProgram(s, SLApplication::shaderPath + "VolumeRenderingRayCast.vert", SLApplication::shaderPath + "VolumeRenderingRayCastLighted.frag");
+        SLGLProgram*   sp   = new SLGLGenericProgram(s,
+                                                 SLApplication::shaderPath + "VolumeRenderingRayCast.vert",
+                                                 SLApplication::shaderPath + "VolumeRenderingRayCastLighted.frag");
         SLGLUniform1f* volX = new SLGLUniform1f(UT_const, "u_volumeX", (SLfloat)gTexMRI3D->images()[0]->width());
         SLGLUniform1f* volY = new SLGLUniform1f(UT_const, "u_volumeY", (SLfloat)gTexMRI3D->images()[0]->height());
         SLGLUniform1f* volZ = new SLGLUniform1f(UT_const, "u_volumeZ", (SLfloat)gTexMRI3D->images().size());
@@ -4860,19 +4865,19 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
             light1->attenuation(1, 0, 0);
 
             SLAssimpImporter importer;
-            SLNode*          dragonModel = importer.load(s->animManager(),
-                                                s,
-                                                largeFile,
-                                                SLApplication::texturePath,
-                                                true,
-                                                diffuseMat,
-                                                0.2f,
-                                                SLProcess_Triangulate |
-                                                  SLProcess_JoinIdenticalVertices);
+            gDragonModel = importer.load(s->animManager(),
+                                         s,
+                                         largeFile,
+                                         SLApplication::texturePath,
+                                         true,
+                                         diffuseMat,
+                                         0.2f,
+                                         nullptr,
+                                         SLProcess_Triangulate | SLProcess_JoinIdenticalVertices);
 
             SLNode* scene = new SLNode("Scene");
             scene->addChild(light1);
-            scene->addChild(dragonModel);
+            scene->addChild(gDragonModel);
             scene->addChild(cam1);
 
             sv->camera(cam1);

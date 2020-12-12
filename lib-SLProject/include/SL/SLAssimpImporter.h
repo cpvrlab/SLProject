@@ -23,6 +23,7 @@ struct aiMesh;
 
 class SLAssetManager;
 class SLAnimManager;
+class SLProgressHandler;
 
 //-----------------------------------------------------------------------------
 typedef std::map<int, SLMesh*> SLMeshMap;
@@ -42,14 +43,15 @@ public:
                               SLLogVerbosity logFileVerb    = LV_diagnostic)
       : SLImporter(logFile, logConsoleVerb, logFileVerb) {}
 
-    SLNode* load(SLAnimManager&  aniMan,
-                 SLAssetManager* assetMgr,
-                 SLstring        pathAndFile,
-                 SLstring        texturePath,
-                 SLbool          loadMeshesOnly = true,
-                 SLMaterial*     overrideMat    = nullptr,
-                 float           ambientFactor  = 0.0f,
-                 SLuint          flags =
+    SLNode* load(SLAnimManager&     aniMan,
+                 SLAssetManager*    assetMgr,
+                 SLstring           pathAndFile,
+                 SLstring           texturePath,
+                 SLbool             loadMeshesOnly  = true,
+                 SLMaterial*        overrideMat     = nullptr,
+                 float              ambientFactor   = 0.0f,
+                 SLProgressHandler* progressHandler = nullptr,
+                 SLuint             flags =
                    SLProcess_Triangulate |
                    SLProcess_JoinIdenticalVertices |
                    SLProcess_RemoveRedundantMaterials |
