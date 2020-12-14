@@ -36,18 +36,21 @@
 #include <AverageTiming.h>
 #include <imgui.h>
 #include <ftplib.h>
+#include <HttpUtils.h>
+#include <ZipUtils.h>
 #include <Instrumentor.h>
+#include <SLAssimpImporter.h>
+#include <SLAssimpProgressHandler.h>
 
 #ifdef SL_BUILD_WAI
-
 #    include <Eigen/Dense>
-
 #endif
 
 //-----------------------------------------------------------------------------
-extern CVTracked*   tracker;     // Global pointer declared in AppDemoTracking
-extern SLNode*      trackedNode; // Global pointer declared in AppDemoTracking
-extern SLGLTexture* gTexMRI3D;   // Global pointer declared in AppDemoLoad
+extern CVTracked*   tracker;      // Global pointer declared in AppDemoTracking
+extern SLNode*      trackedNode;  // Global pointer declared in AppDemoTracking
+extern SLGLTexture* gTexMRI3D;    // Global pointer declared in AppDemoLoad
+extern SLNode*      gDragonModel; // Global pointer declared in AppDemoLoad
 
 //#define IM_ARRAYSIZE(_ARR) ((int)(sizeof(_ARR) / sizeof(*_ARR)))
 
@@ -204,7 +207,7 @@ int ftpCallbackXfer(off64_t xfered, void* arg)
     if (ftpXferSizeMax)
     {
         int xferedPC = (int)((float)xfered / (float)ftpXferSizeMax * 100.0f);
-        cout << "Bytes transferred: " << xfered << " (" << xferedPC << ")" << endl;
+        //cout << "Bytes transferred: " << xfered << " (" << xferedPC << ")" << endl;
         SLApplication::jobProgressNum(xferedPC);
     }
     else
@@ -249,7 +252,9 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
             ImGui::ProgressBar(num / max);
         }
         else
-            ImGui::Text("Progress: %d%%", SLApplication::jobProgressNum());
+        {
+            ImGui::Text("Progress: %c", "|/-\\"[(int)(ImGui::GetTime() / 0.05f) & 3]);
+        }
 
         ImGui::Separator();
         ImGui::Text("Parallel Jobs to follow: %lu",
@@ -1261,71 +1266,6 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                         s->onLoad(s, sv, SID_2Dand3DText);
                     if (ImGui::MenuItem("Point Clouds", nullptr, sid == SID_PointClouds))
                         s->onLoad(s, sv, SID_PointClouds);
-                    if (ImGui::MenuItem("Large Model", nullptr, sid == SID_LargeModel))
-                    {
-                        SLstring largeFile = SLApplication::modelPath + "PLY/xyzrgb_dragon.ply";
-                        if (Utils::fileExists(largeFile))
-                            s->onLoad(s, sv, SID_LargeModel);
-                        else
-                        {
-                            auto downloadJob = []() {
-                                SLApplication::jobProgressMsg("Downloading large dragon file from pallas.ti.bfh.ch");
-                                SLApplication::jobProgressMax(100);
-                                ftplib ftp;
-                                if (ftp.Connect("pallas.ti.bfh.ch:21"))
-                                {
-                                    if (ftp.Login("upload", "FaAdbD3F2a"))
-                                    {
-                                        ftp.SetCallbackXferFunction(ftpCallbackXfer);
-                                        ftp.SetCallbackBytes(1024000);
-                                        if (ftp.Chdir("SLProject/models/PLY"))
-                                        {
-                                            int remoteSize = 0;
-                                            ftp.Size("xyzrgb_dragon.ply",
-                                                     &remoteSize,
-                                                     ftplib::transfermode::image);
-                                            ftpXferSizeMax  = remoteSize;
-                                            SLstring plyDir = SLApplication::modelPath + "PLY";
-                                            if (!Utils::dirExists(plyDir))
-                                                Utils::makeDir(plyDir);
-                                            if (Utils::dirExists(plyDir))
-                                            {
-                                                SLstring outFile = SLApplication::modelPath + "PLY/xyzrgb_dragon.ply";
-                                                if (!ftp.Get(outFile.c_str(),
-                                                             "xyzrgb_dragon.ply",
-                                                             ftplib::transfermode::image))
-                                                    SL_LOG("*** ERROR: ftp.Get failed. ***");
-                                            }
-                                            else
-                                                SL_LOG("*** ERROR: Utils::makeDir %s failed. ***", plyDir.c_str());
-                                        }
-                                        else
-                                            SL_LOG("*** ERROR: ftp.Chdir failed. ***");
-                                    }
-                                    else
-                                        SL_LOG("*** ERROR: ftp.Login failed. ***");
-                                }
-                                else
-                                    SL_LOG("*** ERROR: ftp.Connect failed. ***");
-
-                                ftp.Quit();
-                                SLApplication::jobIsRunning = false;
-                            };
-
-                            auto jobToFollow1 = [](SLScene* s, SLSceneView* sv) {
-                                SLstring largeFile = SLApplication::modelPath + "PLY/xyzrgb_dragon.ply";
-                                if (Utils::fileExists(largeFile))
-                                    s->onLoad(s, sv, SID_LargeModel);
-                            };
-
-                            function<void(void)> jobNoArgs = bind(jobToFollow1, s, sv);
-
-                            SLApplication::jobsToBeThreaded.emplace_back(downloadJob);
-                            SLApplication::jobsToFollowInMain.push_back(jobNoArgs);
-                        }
-                    }
-                    if (ImGui::MenuItem("Massive Scene", nullptr, sid == SID_MassiveScene))
-                        s->onLoad(s, sv, SID_MassiveScene);
 
                     ImGui::EndMenu();
                 }
@@ -1350,9 +1290,10 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                         s->onLoad(s, sv, SID_ShaderSkyBox);
                     if (ImGui::MenuItem("Earth Shader", nullptr, sid == SID_ShaderEarth))
                         s->onLoad(s, sv, SID_ShaderEarth);
+#if defined(GL_VERSION_4_4)
                     if (ImGui::MenuItem("Voxel Cone Tracing", nullptr, sid == SID_ShaderVoxelConeDemo))
                         s->onLoad(s, sv, SID_ShaderVoxelConeDemo);
-
+#endif
                     ImGui::EndMenu();
                 }
 
@@ -1374,11 +1315,11 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
 
                 if (ImGui::BeginMenu("Suzanne"))
                 {
-                    if (ImGui::MenuItem("w. pixel lighting (PL)", nullptr, sid == SID_SuzannePerPixBlinn))
+                    if (ImGui::MenuItem("w. per Pixel Lighting (PL)", nullptr, sid == SID_SuzannePerPixBlinn))
                         s->onLoad(s, sv, SID_SuzannePerPixBlinn);
-                    if (ImGui::MenuItem("w. PL and shadow mapping (MP)", nullptr, sid == SID_SuzannePerPixBlinnSM))
+                    if (ImGui::MenuItem("w. PL and Shadow Mapping (SM)", nullptr, sid == SID_SuzannePerPixBlinnSM))
                         s->onLoad(s, sv, SID_SuzannePerPixBlinnSM);
-                    if (ImGui::MenuItem("w. PL, MP and Ambient Occlusion (AO)", nullptr, sid == SID_SuzannePerPixBlinnSMAO))
+                    if (ImGui::MenuItem("w. PL, SM and Ambient Occlusion (AO)", nullptr, sid == SID_SuzannePerPixBlinnSMAO))
                         s->onLoad(s, sv, SID_SuzannePerPixBlinnSMAO);
                     if (ImGui::MenuItem("w. PL and Texture Mapping (TM)", nullptr, sid == SID_SuzannePerPixBlinnTex))
                         s->onLoad(s, sv, SID_SuzannePerPixBlinnTex);
@@ -1399,10 +1340,10 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                         s->onLoad(s, sv, SID_AnimationNode);
                     if (ImGui::MenuItem("Mass Animation", nullptr, sid == SID_AnimationMass))
                         s->onLoad(s, sv, SID_AnimationMass);
-                    if (ImGui::MenuItem("Astroboy Army", nullptr, sid == SID_AnimationArmy))
-                        s->onLoad(s, sv, SID_AnimationArmy);
                     if (ImGui::MenuItem("Skeletal Animation", nullptr, sid == SID_AnimationSkeletal))
                         s->onLoad(s, sv, SID_AnimationSkeletal);
+                    if (ImGui::MenuItem("AstroBoy Army", nullptr, sid == SID_AnimationAstroboyArmy))
+                        s->onLoad(s, sv, SID_AnimationAstroboyArmy);
 
                     ImGui::EndMenu();
                 }
@@ -1500,8 +1441,7 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                             // Load volume data into 3D texture
                             SLVstring mriImages;
                             for (SLint i = 0; i < 207; ++i)
-                                mriImages.push_back(
-                                  SLApplication::texturePath + Utils::formatString("i%04u_0000b.png", i));
+                                mriImages.push_back(SLApplication::texturePath + Utils::formatString("i%04u_0000b.png", i));
 
                             gTexMRI3D                   = new SLGLTexture(nullptr,
                                                         mriImages,
@@ -1530,10 +1470,10 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                             SLApplication::jobIsRunning = false;
                         };
 
-                        auto jobToFollow1 = [](SLScene* s, SLSceneView* sv) {
+                        auto followUpJob1 = [](SLScene* s, SLSceneView* sv) {
                             s->onLoad(s, sv, SID_VolumeRayCastLighted);
                         };
-                        function<void(void)> onLoadScene = bind(jobToFollow1, s, sv);
+                        function<void(void)> onLoadScene = bind(followUpJob1, s, sv);
 
                         SLApplication::jobsToBeThreaded.emplace_back(loadMRIImages);
                         SLApplication::jobsToBeThreaded.emplace_back(calculateGradients);
@@ -1566,6 +1506,171 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                 {
                     if (ImGui::MenuItem("Muttenzer Box", nullptr, sid == SID_RTMuttenzerBox))
                         s->onLoad(s, sv, SID_RTMuttenzerBox);
+
+                    ImGui::EndMenu();
+                }
+
+                if (ImGui::BeginMenu("Benchmarks"))
+                {
+                    if (ImGui::MenuItem("Large Model (via FTP)", nullptr, sid == SID_Benchmark1_LargeModel))
+                    {
+                        SLstring largeFile = SLApplication::configPath + "xyzrgb_dragon.ply";
+                        if (Utils::fileExists(largeFile))
+                            s->onLoad(s, sv, SID_Benchmark1_LargeModel);
+                        else
+                        {
+                            auto downloadJobFTP = []() {
+                                SLApplication::jobProgressMsg("Downloading large dragon file via FTP:");
+                                SLApplication::jobProgressMax(100);
+                                ftplib ftp;
+                                ftp.SetConnmode(ftplib::connmode::port); //enable active mode
+
+                                if (ftp.Connect("pallas.ti.bfh.ch:21"))
+                                {
+                                    if (ftp.Login("guest", "g2Q7Z7OkDP4!"))
+                                    {
+                                        ftp.SetCallbackXferFunction(ftpCallbackXfer);
+                                        ftp.SetCallbackBytes(1024000);
+                                        if (ftp.Chdir("data/SLProject/models/PLY"))
+                                        {
+                                            int remoteSize = 0;
+                                            ftp.Size("xyzrgb_dragon.ply.zip",
+                                                     &remoteSize,
+                                                     ftplib::transfermode::image);
+                                            ftpXferSizeMax  = remoteSize;
+                                            SLstring dstDir = SLApplication::configPath;
+                                            if (Utils::dirExists(dstDir))
+                                            {
+                                                SLstring outFile = SLApplication::configPath + "xyzrgb_dragon.ply.zip";
+                                                if (!ftp.Get(outFile.c_str(),
+                                                             "xyzrgb_dragon.ply.zip",
+                                                             ftplib::transfermode::image))
+                                                    SL_LOG("*** ERROR: ftp.Get failed. ***");
+                                            }
+                                            else
+                                                SL_LOG("*** ERROR: Destination directory does not exist: %s ***", dstDir.c_str());
+                                        }
+                                        else
+                                            SL_LOG("*** ERROR: ftp.Chdir failed. ***");
+                                    }
+                                    else
+                                        SL_LOG("*** ERROR: ftp.Login failed. ***");
+                                }
+                                else
+                                    SL_LOG("*** ERROR: ftp.Connect failed. ***");
+
+                                ftp.Quit();
+                                SLApplication::jobIsRunning = false;
+                            };
+
+                            auto unzipJob = [s, sv, largeFile]() {
+                                SLApplication::jobProgressMsg("Decompress dragon file:");
+                                SLApplication::jobProgressMax(-1);
+                                string zipFile = largeFile + ".zip";
+                                if (Utils::fileExists(zipFile))
+                                {
+                                    ZipUtils::unzip(zipFile, Utils::getPath(zipFile));
+                                    Utils::deleteFile(zipFile);
+                                }
+                                SLApplication::jobIsRunning = false;
+                            };
+
+                            auto followUpJob1 = [s, sv, largeFile]() {
+                                if (Utils::fileExists(largeFile))
+                                    s->onLoad(s, sv, SID_Benchmark1_LargeModel);
+                            };
+
+                            SLApplication::jobsToBeThreaded.emplace_back(downloadJobFTP);
+                            SLApplication::jobsToBeThreaded.emplace_back(unzipJob);
+                            SLApplication::jobsToFollowInMain.push_back(followUpJob1);
+                        }
+                    }
+                    if (ImGui::MenuItem("Large Model (via HTTPS)", nullptr, sid == SID_Benchmark1_LargeModel))
+                    {
+                        SLstring largeFile = SLApplication::configPath + "xyzrgb_dragon.ply";
+                        if (Utils::fileExists(largeFile))
+                            s->onLoad(s, sv, SID_Benchmark1_LargeModel);
+                        else
+                        {
+                            auto progressCallback = [](size_t curr, size_t filesize) {
+                                if (filesize > 0)
+                                {
+                                    int transferredPC = (int)((float)curr / (float)filesize * 100.0f);
+                                    //cout << "Bytes transferred: " << curr << " (" << transferredPC << ")" << endl;
+                                    SLApplication::jobProgressNum(transferredPC);
+                                }
+                                else
+                                    cout << "Bytes transferred: " << curr << endl;
+                                return curr ? 1 : 0;
+                            };
+
+                            auto downloadJobHTTP = [&]() {
+                                PROFILE_FUNCTION();
+                                SLApplication::jobProgressMsg("Downloading large dragon file via HTTPS:");
+                                SLApplication::jobProgressMax(100);
+                                SLstring url    = "https://pallas.ti.bfh.ch/data/SLProject/models/PLY/xyzrgb_dragon.ply.zip";
+                                SLstring dstDir = SLApplication::configPath;
+                                if (Utils::dirExists(dstDir))
+                                    HttpUtils::download(url, dstDir, progressCallback);
+                                else
+                                    SL_LOG("*** ERROR: Destination directory does not exist: %s ***", dstDir.c_str());
+                                SLApplication::jobIsRunning = false;
+                            };
+
+                            auto unzipJob = [s, sv, largeFile]() {
+                                SLApplication::jobProgressMsg("Decompress dragon file:");
+                                SLApplication::jobProgressMax(-1);
+                                string zipFile = largeFile + ".zip";
+                                if (Utils::fileExists(zipFile))
+                                {
+                                    ZipUtils::unzip(zipFile, Utils::getPath(zipFile));
+                                    Utils::deleteFile(zipFile);
+                                }
+                                SLApplication::jobIsRunning = false;
+                            };
+
+                            /*
+                            auto loadModelJob = [s]() {
+                                PROFILE_FUNCTION();
+                                SLApplication::jobProgressMsg("Loading Dragon model with assimp:");
+                                SLApplication::jobProgressMax(100);
+
+                                SLstring largeFile = SLApplication::modelPath + "PLY/xyzrgb_dragon.ply";
+                                if (Utils::fileExists(largeFile))
+                                {
+                                    SLAssimpImporter        importer;
+                                    SLAssimpProgressHandler progressHandler;
+
+                                    SLNode* gDragonModel = importer.load(s->animManager(),
+                                                                         dynamic_cast<SLAssetManager*>(s),
+                                                                         largeFile,
+                                                                         SLApplication::texturePath,
+                                                                         true,
+                                                                         nullptr,
+                                                                         0.2f,
+                                                                         (SLProgressHandler*)&progressHandler,
+                                                                         SLProcess_Triangulate | SLProcess_JoinIdenticalVertices);
+                                }
+                                SLApplication::jobIsRunning = false;
+                            };
+                            SLApplication::jobsToBeThreaded.emplace_back(loadModelJob);
+                            */
+                            auto followUpJob1 = [s, sv, largeFile]() {
+                                if (Utils::fileExists(largeFile))
+                                    s->onLoad(s, sv, SID_Benchmark1_LargeModel);
+                            };
+
+                            SLApplication::jobsToBeThreaded.emplace_back(downloadJobHTTP);
+                            SLApplication::jobsToBeThreaded.emplace_back(unzipJob);
+                            SLApplication::jobsToFollowInMain.push_back(followUpJob1);
+                        }
+                    }
+                    if (ImGui::MenuItem("Massive Nodes", nullptr, sid == SID_Benchmark2_MassiveNodes))
+                        s->onLoad(s, sv, SID_Benchmark2_MassiveNodes);
+                    if (ImGui::MenuItem("Massive Node Animations", nullptr, sid == SID_Benchmark3_NodeAnimations))
+                        s->onLoad(s, sv, SID_Benchmark3_NodeAnimations);
+                    if (ImGui::MenuItem("Massive Skinned Animations", nullptr, sid == SID_Benchmark4_SkinnedAnimations))
+                        s->onLoad(s, sv, SID_Benchmark4_SkinnedAnimations);
 
                     ImGui::EndMenu();
                 }
@@ -1604,12 +1709,12 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                     SLApplication::jobIsRunning = false;
                 };
 
-                auto jobToFollow1 = []() { SL_LOG("JobToFollow1"); };
+                auto followUpJob1 = []() { SL_LOG("followUpJob1"); };
                 auto jobToFollow2 = []() { SL_LOG("JobToFollow2"); };
 
                 SLApplication::jobsToBeThreaded.emplace_back(job1);
                 SLApplication::jobsToBeThreaded.emplace_back(job2);
-                SLApplication::jobsToFollowInMain.emplace_back(jobToFollow1);
+                SLApplication::jobsToFollowInMain.emplace_back(followUpJob1);
                 SLApplication::jobsToFollowInMain.emplace_back(jobToFollow2);
             }
 
@@ -2832,10 +2937,10 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                 {
                     SLuint c = (SLuint)singleNode->children().size();
                     SLuint m = singleNode->mesh() ? 1 : 0;
-                    ImGui::Text("Node Name       : %s", singleNode->name().c_str());
-                    ImGui::Text("No. of children : %u", c);
-                    ImGui::Text("No. of meshes   : %u", m);
-                    if (ImGui::TreeNode("Drawing Flags"))
+                    ImGui::Text("Node name  : %s", singleNode->name().c_str());
+                    ImGui::Text("# children : %u", c);
+                    ImGui::Text("# meshes   : %u", m);
+                    if (ImGui::TreeNode("Drawing flags"))
                     {
                         SLbool db = singleNode->drawBit(SL_DB_HIDDEN);
                         if (ImGui::Checkbox("Hide", &db))
@@ -2851,11 +2956,11 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
 
                         db = singleNode->drawBit(SL_DB_WITHEDGES);
                         if (ImGui::Checkbox("Show with hard edges", &db))
-                            singleNode->drawBits()->set(SL_DB_ONLYEDGES, db);
+                            singleNode->drawBits()->set(SL_DB_WITHEDGES, db);
 
                         db = singleNode->drawBit(SL_DB_ONLYEDGES);
                         if (ImGui::Checkbox("Show only hard edges", &db))
-                            singleNode->drawBits()->set(SL_DB_WITHEDGES, db);
+                            singleNode->drawBits()->set(SL_DB_ONLYEDGES, db);
 
                         db = singleNode->drawBit(SL_DB_NORMALS);
                         if (ImGui::Checkbox("Show normals", &db))
@@ -2880,7 +2985,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                         ImGui::TreePop();
                     }
 
-                    if (ImGui::TreeNode("Local Transform"))
+                    if (ImGui::TreeNode("Local transform"))
                     {
                         SLMat4f om(singleNode->om());
                         SLVec3f trn, rot, scl;
@@ -2894,7 +2999,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                     }
 
                     // Properties related to shadow mapping
-                    if (ImGui::TreeNode("Shadow Mapping"))
+                    if (ImGui::TreeNode("Shadow mapping"))
                     {
                         SLbool castsShadows = singleNode->castsShadows();
                         if (ImGui::Checkbox("Casts shadows", &castsShadows))
@@ -3175,207 +3280,195 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                     SLuint      t = (SLuint)(!singleFullMesh->I16.empty() ? singleFullMesh->I16.size() / 3 : singleFullMesh->I32.size() / 3);
                     SLuint      e = (SLuint)(!singleFullMesh->IE16.empty() ? singleFullMesh->IE16.size() / 2 : singleFullMesh->IE32.size() / 2);
                     SLMaterial* m = singleFullMesh->mat();
-                    ImGui::Text("Mesh Name        : %s", singleFullMesh->name().c_str());
-                    ImGui::Text("No. of Vertices  : %u", v);
-                    ImGui::Text("No. of Triangles : %u", t);
-                    ImGui::Text("No. of hard edges: %u", e);
+                    ImGui::Text("Mesh name    : %s", singleFullMesh->name().c_str());
+                    ImGui::Text("# vertices   : %u", v);
+                    ImGui::Text("# triangles  : %u", t);
+                    ImGui::Text("# hard edges : %u", e);
+                    ImGui::Text("Material Name: %s", m->name().c_str());
 
-                    if (m && ImGui::TreeNode("Material"))
+                    if (ImGui::TreeNode("Reflection colors"))
                     {
-                        ImGui::Text("Material Name: %s", m->name().c_str());
+                        ImGuiColorEditFlags cef = ImGuiColorEditFlags_NoInputs;
+                        SLCol4f             ac  = m->ambient();
+                        if (ImGui::ColorEdit3("Ambient color", (float*)&ac, cef))
+                            m->ambient(ac);
 
-                        if (ImGui::TreeNode("Reflection colors"))
+                        SLCol4f dc = m->diffuse();
+                        if (ImGui::ColorEdit3("Diffuse color", (float*)&dc, cef))
+                            m->diffuse(dc);
+
+                        SLCol4f sc = m->specular();
+                        if (ImGui::ColorEdit3("Specular color", (float*)&sc, cef))
+                            m->specular(sc);
+
+                        SLCol4f ec = m->emissive();
+                        if (ImGui::ColorEdit3("Emissive color", (float*)&ec, cef))
+                            m->emissive(ec);
+
+                        ImGui::TreePop();
+                    }
+
+                    if (ImGui::TreeNode("Other variables"))
+                    {
+                        ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.5f);
+
+                        SLfloat shine = m->shininess();
+                        if (ImGui::SliderFloat("Shininess", &shine, 0.0f, 1000.0f))
+                            m->shininess(shine);
+
+                        SLfloat rough = m->roughness();
+                        if (ImGui::SliderFloat("Roughness", &rough, 0.0f, 1.0f))
+                            m->roughness(rough);
+
+                        SLfloat metal = m->metalness();
+                        if (ImGui::SliderFloat("Metalness", &metal, 0.0f, 1.0f))
+                            m->metalness(metal);
+
+                        SLfloat kr = m->kr();
+                        if (ImGui::SliderFloat("kr", &kr, 0.0f, 1.0f))
+                            m->kr(kr);
+
+                        SLfloat kt = m->kt();
+                        if (ImGui::SliderFloat("kt", &kt, 0.0f, 1.0f))
+                            m->kt(kt);
+
+                        SLfloat kn = m->kn();
+                        if (ImGui::SliderFloat("kn", &kn, 1.0f, 2.5f))
+                            m->kn(kn);
+
+                        SLbool receivesShadows = m->getsShadows();
+                        if (ImGui::Checkbox("Receives shadows", &receivesShadows))
+                            m->getsShadows(receivesShadows);
+
+                        ImGui::PopItemWidth();
+                        ImGui::TreePop();
+                    }
+
+                    if (!m->textures().empty() &&
+                        ImGui::TreeNode("Tex", "Textures (%lu)", m->textures().size()))
+                    {
+                        //SLfloat lineH = ImGui::GetTextLineHeightWithSpacing();
+                        SLfloat texW = ImGui::GetWindowWidth() - 4 * ImGui::GetTreeNodeToLabelSpacing() - 10;
+
+                        for (auto& i : m->textures())
                         {
-                            ImGuiColorEditFlags cef = ImGuiColorEditFlags_NoInputs;
-                            SLCol4f             ac  = m->ambient();
-                            if (ImGui::ColorEdit3("Ambient color", (float*)&ac, cef))
-                                m->ambient(ac);
+                            SLGLTexture* tex    = i;
+                            void*        tid    = (ImTextureID)(intptr_t)tex->texID();
+                            SLfloat      w      = (SLfloat)tex->width();
+                            SLfloat      h      = (SLfloat)tex->height();
+                            SLfloat      h_to_w = h / w;
 
-                            SLCol4f dc = m->diffuse();
-                            if (ImGui::ColorEdit3("Diffuse color", (float*)&dc, cef))
-                                m->diffuse(dc);
-
-                            SLCol4f sc = m->specular();
-                            if (ImGui::ColorEdit3("Specular color", (float*)&sc, cef))
-                                m->specular(sc);
-
-                            SLCol4f ec = m->emissive();
-                            if (ImGui::ColorEdit3("Emissive color", (float*)&ec, cef))
-                                m->emissive(ec);
-
-                            ImGui::TreePop();
-                        }
-
-                        if (ImGui::TreeNode("Other variables"))
-                        {
-                            ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.5f);
-
-                            SLfloat shine = m->shininess();
-                            if (ImGui::SliderFloat("Shininess", &shine, 0.0f, 1000.0f))
-                                m->shininess(shine);
-
-                            SLfloat rough = m->roughness();
-                            if (ImGui::SliderFloat("Roughness", &rough, 0.0f, 1.0f))
-                                m->roughness(rough);
-
-                            SLfloat metal = m->metalness();
-                            if (ImGui::SliderFloat("Metalness", &metal, 0.0f, 1.0f))
-                                m->metalness(metal);
-
-                            SLfloat kr = m->kr();
-                            if (ImGui::SliderFloat("kr", &kr, 0.0f, 1.0f))
-                                m->kr(kr);
-
-                            SLfloat kt = m->kt();
-                            if (ImGui::SliderFloat("kt", &kt, 0.0f, 1.0f))
-                                m->kt(kt);
-
-                            SLfloat kn = m->kn();
-                            if (ImGui::SliderFloat("kn", &kn, 1.0f, 2.5f))
-                                m->kn(kn);
-
-                            SLbool receivesShadows = m->getsShadows();
-                            if (ImGui::Checkbox("Receives shadows", &receivesShadows))
-                                m->receivesShadows(receivesShadows);
-
-                            ImGui::PopItemWidth();
-                            ImGui::TreePop();
-                        }
-
-                        if (!m->textures().empty() && ImGui::TreeNode("Textures"))
-                        {
-                            ImGui::Text("No. of textures: %lu", m->textures().size());
-
-                            //SLfloat lineH = ImGui::GetTextLineHeightWithSpacing();
-                            SLfloat texW = ImGui::GetWindowWidth() - 4 * ImGui::GetTreeNodeToLabelSpacing() - 10;
-
-                            for (auto& i : m->textures())
+                            if (ImGui::TreeNode(tex->name().c_str()))
                             {
-                                SLGLTexture* tex    = i;
-                                void*        tid    = (ImTextureID)(intptr_t)tex->texID();
-                                SLfloat      w      = (SLfloat)tex->width();
-                                SLfloat      h      = (SLfloat)tex->height();
-                                SLfloat      h_to_w = h / w;
+                                ImGui::Text("Size   : %dx%dx%d", tex->width(), tex->height(), tex->bytesPerPixel());
+                                ImGui::Text("Type   : %s", tex->typeName().c_str());
+                                ImGui::Text("Min.Flt: %s", tex->minificationFilterName().c_str());
+                                ImGui::Text("Mag.Flt: %s", tex->magnificationFilterName().c_str());
 
-                                if (ImGui::TreeNode(tex->name().c_str()))
+                                if (tex->target() == GL_TEXTURE_2D)
                                 {
-                                    ImGui::Text("Size      : %d x %d x %d", tex->width(), tex->height(), tex->depth());
-                                    ImGui::Text("Type      : %s", tex->typeName().c_str());
-                                    ImGui::Text("Min.Filter: %s", tex->minificationFilterName().c_str());
-                                    ImGui::Text("Mag.Filter: %s", tex->magnificationFilterName().c_str());
-
-                                    if (tex->depth() > 1)
+                                    if (typeid(*tex) == typeid(SLColorLUT))
                                     {
-                                        if (tex->target() == GL_TEXTURE_CUBE_MAP)
-                                            ImGui::Text("Cube maps can not be displayed.");
-                                        else if (tex->target() == GL_TEXTURE_3D)
-                                            ImGui::Text("3D textures can not be displayed.");
+                                        SLColorLUT* lut = (SLColorLUT*)i;
+                                        if (ImGui::TreeNode("Color Points in Transfer Function"))
+                                        {
+                                            showLUTColors(lut);
+                                            ImGui::TreePop();
+                                        }
+
+                                        if (ImGui::TreeNode("Alpha Points in Transfer Function"))
+                                        {
+                                            for (SLulong a = 0; a < lut->alphas().size(); ++a)
+                                            {
+                                                ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.25f);
+                                                SLfloat alpha = lut->alphas()[a].alpha;
+                                                SLchar  label[20];
+                                                sprintf(label, "Alpha %lu", a);
+                                                if (ImGui::SliderFloat(label, &alpha, 0.0f, 1.0f, "%3.2f"))
+                                                {
+                                                    lut->alphas()[a].alpha = alpha;
+                                                    lut->generateTexture();
+                                                }
+                                                ImGui::SameLine();
+                                                sprintf(label, "Pos. %lu", a);
+                                                SLfloat pos = lut->alphas()[a].pos;
+                                                if (a > 0 && a < lut->alphas().size() - 1)
+                                                {
+                                                    SLfloat min = lut->alphas()[a - 1].pos +
+                                                                  2.0f / (SLfloat)lut->length();
+                                                    SLfloat max = lut->alphas()[a + 1].pos -
+                                                                  2.0f / (SLfloat)lut->length();
+                                                    if (ImGui::SliderFloat(label, &pos, min, max, "%3.2f"))
+                                                    {
+                                                        lut->alphas()[a].pos = pos;
+                                                        lut->generateTexture();
+                                                    }
+                                                }
+                                                else
+                                                    ImGui::Text("%3.2f Pos. %lu", pos, a);
+
+                                                ImGui::PopItemWidth();
+                                            }
+
+                                            ImGui::TreePop();
+                                        }
+
+                                        ImGui::Image(tid,
+                                                     ImVec2(texW, texW * 0.15f),
+                                                     ImVec2(0, 1),
+                                                     ImVec2(1, 0),
+                                                     ImVec4(1, 1, 1, 1),
+                                                     ImVec4(1, 1, 1, 1));
+
+                                        SLVfloat allAlpha = lut->allAlphas();
+                                        ImGui::PlotLines("",
+                                                         allAlpha.data(),
+                                                         (SLint)allAlpha.size(),
+                                                         0,
+                                                         nullptr,
+                                                         0.0f,
+                                                         1.0f,
+                                                         ImVec2(texW, texW * 0.25f));
                                     }
                                     else
                                     {
-                                        if (typeid(*tex) == typeid(SLColorLUT))
-                                        {
-                                            SLColorLUT* lut = (SLColorLUT*)i;
-                                            if (ImGui::TreeNode("Color Points in Transfer Function"))
-                                            {
-                                                showLUTColors(lut);
-                                                ImGui::TreePop();
-                                            }
-
-                                            if (ImGui::TreeNode("Alpha Points in Transfer Function"))
-                                            {
-                                                for (SLulong a = 0; a < lut->alphas().size(); ++a)
-                                                {
-                                                    ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.25f);
-                                                    SLfloat alpha = lut->alphas()[a].alpha;
-                                                    SLchar  label[20];
-                                                    sprintf(label, "Alpha %lu", a);
-                                                    if (ImGui::SliderFloat(label, &alpha, 0.0f, 1.0f, "%3.2f"))
-                                                    {
-                                                        lut->alphas()[a].alpha = alpha;
-                                                        lut->generateTexture();
-                                                    }
-                                                    ImGui::SameLine();
-                                                    sprintf(label, "Pos. %lu", a);
-                                                    SLfloat pos = lut->alphas()[a].pos;
-                                                    if (a > 0 && a < lut->alphas().size() - 1)
-                                                    {
-                                                        SLfloat min = lut->alphas()[a - 1].pos +
-                                                                      2.0f / (SLfloat)lut->length();
-                                                        SLfloat max = lut->alphas()[a + 1].pos -
-                                                                      2.0f / (SLfloat)lut->length();
-                                                        if (ImGui::SliderFloat(label, &pos, min, max, "%3.2f"))
-                                                        {
-                                                            lut->alphas()[a].pos = pos;
-                                                            lut->generateTexture();
-                                                        }
-                                                    }
-                                                    else
-                                                        ImGui::Text("%3.2f Pos. %lu", pos, a);
-
-                                                    ImGui::PopItemWidth();
-                                                }
-
-                                                ImGui::TreePop();
-                                            }
-
-                                            ImGui::Image(tid,
-                                                         ImVec2(texW, texW * 0.15f),
-                                                         ImVec2(0, 1),
-                                                         ImVec2(1, 0),
-                                                         ImVec4(1, 1, 1, 1),
-                                                         ImVec4(1, 1, 1, 1));
-
-                                            SLVfloat allAlpha = lut->allAlphas();
-                                            ImGui::PlotLines("",
-                                                             allAlpha.data(),
-                                                             (SLint)allAlpha.size(),
-                                                             0,
-                                                             nullptr,
-                                                             0.0f,
-                                                             1.0f,
-                                                             ImVec2(texW, texW * 0.25f));
-                                        }
-                                        else
-                                        {
-                                            ImGui::Image(tid,
-                                                         ImVec2(texW, texW * h_to_w),
-                                                         ImVec2(0, 1),
-                                                         ImVec2(1, 0),
-                                                         ImVec4(1, 1, 1, 1),
-                                                         ImVec4(1, 1, 1, 1));
-                                        }
+                                        ImGui::Image(tid,
+                                                     ImVec2(texW, texW * h_to_w),
+                                                     ImVec2(0, 1),
+                                                     ImVec2(1, 0),
+                                                     ImVec4(1, 1, 1, 1),
+                                                     ImVec4(1, 1, 1, 1));
                                     }
-
-                                    ImGui::TreePop();
                                 }
-                            }
-
-                            ImGui::TreePop();
-                        }
-
-                        if (ImGui::TreeNode("GLSL Program"))
-                        {
-                            for (auto* shd : m->program()->shaders())
-                            {
-                                SLfloat lineH = ImGui::GetTextLineHeight();
-
-                                if (ImGui::TreeNode(shd->name().c_str()))
+                                else
                                 {
-                                    SLchar text[1024 * 16];
-                                    strcpy(text, shd->code().c_str());
-                                    ImGui::InputTextMultiline(shd->name().c_str(),
-                                                              text,
-                                                              IM_ARRAYSIZE(text),
-                                                              ImVec2(-1.0f, lineH * 16));
-                                    ImGui::TreePop();
+                                    if (tex->target() == GL_TEXTURE_CUBE_MAP)
+                                        ImGui::Text("Cube maps can not be displayed.");
+                                    else if (tex->target() == GL_TEXTURE_3D)
+                                        ImGui::Text("3D textures can not be displayed.");
                                 }
-                            }
 
-                            ImGui::TreePop();
+                                ImGui::TreePop();
+                            }
                         }
 
                         ImGui::TreePop();
+                    }
+
+                    for (auto* shd : m->program()->shaders())
+                    {
+                        SLfloat lineH = ImGui::GetTextLineHeight();
+
+                        if (ImGui::TreeNode(shd->name().c_str()))
+                        {
+                            SLchar text[1024 * 16];
+                            strcpy(text, shd->code().c_str());
+                            ImGui::InputTextMultiline(shd->name().c_str(),
+                                                      text,
+                                                      IM_ARRAYSIZE(text),
+                                                      ImVec2(-1.0f, lineH * 16));
+                            ImGui::TreePop();
+                        }
                     }
 
                     ImGui::TreePop();

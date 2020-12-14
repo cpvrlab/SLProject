@@ -1,9 +1,8 @@
 //#############################################################################
 //  File:      FtpUtils.h
-//  Author:    Marcus Hudritsch
+//  Author:    Marcus Hudritsch, Michael Göttlicher
 //  Date:      May 2019
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
-//  Copyright: Marcus Hudritsch
 //             This software is provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
@@ -60,7 +59,6 @@ bool downloadAllFilesFromDir(const string& fileDir,
                              const string& searchFileTag,
                              string&       errorMsg);
 
-//! get a list of all filenames with given search file tag in remote directory
 bool getAllFileNamesWithTag(ftplib&         ftp,
                             const string&   localDir,
                             const string&   searchFileTag,

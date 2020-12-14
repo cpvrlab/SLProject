@@ -29,9 +29,10 @@ set(headers
         ${CMAKE_CURRENT_SOURCE_DIR}/source/HighResTimer.h
         ${CMAKE_CURRENT_SOURCE_DIR}/source/Utils.h
         ${CMAKE_CURRENT_SOURCE_DIR}/source/GlobalTimer.h
-		${CMAKE_CURRENT_SOURCE_DIR}/source/CustomLog.h
+	    ${CMAKE_CURRENT_SOURCE_DIR}/source/CustomLog.h
         ${CMAKE_CURRENT_SOURCE_DIR}/source/Instrumentor.h
 		${CMAKE_CURRENT_SOURCE_DIR}/source/ZipUtils.h
+		${CMAKE_CURRENT_SOURCE_DIR}/source/HttpUtils.h
         ${UTILS_ROOT}/thirdparty/ftplibpp/ftplib.h
     )
 set(sources
@@ -41,7 +42,8 @@ set(sources
         ${CMAKE_CURRENT_SOURCE_DIR}/source/FtpUtils.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/Utils.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/GlobalTimer.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/source/ZipUtils.cpp
+	    ${CMAKE_CURRENT_SOURCE_DIR}/source/ZipUtils.cpp
+	    ${CMAKE_CURRENT_SOURCE_DIR}/source/HttpUtils.cpp
         ${UTILS_ROOT}/thirdparty/ftplibpp/ftplib.cpp
         ${UTILS_ROOT}/thirdparty/zlib/contrib/minizip/ioapi.c
         ${UTILS_ROOT}/thirdparty/zlib/contrib/minizip/unzip.c
@@ -98,6 +100,7 @@ target_include_directories(${target}
     ${UTILS_ROOT}/thirdparty/zlib
     ${UTILS_ROOT}/thirdparty/zlib/contrib
     ${CMAKE_CURRENT_BINARY_DIR}/../thirdparty/zlib
+    ${openssl_INCLUDE_DIR}
     INTERFACE
     )
 
@@ -129,6 +132,8 @@ target_link_libraries(${target}
     ${PlatformLinkLibs}
     ${DEFAULT_LINKER_OPTIONS}
     zlib
+    ssl
+    crypto
 
     INTERFACE
     )

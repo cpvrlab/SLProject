@@ -407,9 +407,9 @@ void SLNode::drawRec(SLSceneView* sv)
         if (showBBOX && !showSELECT)
         {
             if (_mesh)
-                _aabb.drawWS(SLCol3f(1, 0, 0));
+                _aabb.drawWS(SLCol4f::RED);
             else
-                _aabb.drawWS(SLCol3f(1, 0, 1));
+                _aabb.drawWS(SLCol4f::CYAN);
         }
 
         if (showAXIS)
@@ -417,7 +417,7 @@ void SLNode::drawRec(SLSceneView* sv)
 
         // Draw AABB if shapes is selected
         if (showSELECT)
-            _aabb.drawWS(SLCol3f(1, 1, 0));
+            _aabb.drawWS(SLCol4f::YELLOW);
 
         stateGL->popModelViewMatrix();
     }
@@ -516,7 +516,8 @@ bool SLNode::hitRec(SLRay* ray)
 }
 //-----------------------------------------------------------------------------
 /*!
-Copies the nodes meshes and children recursively.
+ Returns a deep copy of the node and its children recursively. The meshes do
+ not get copied.
 */
 SLNode* SLNode::copyRec()
 {

@@ -10,9 +10,8 @@
 #include "SENS.h"
 
 #include <sens/SENSFrame.h>
-#include <sens/SENSCamera.h>
 
-class SENSARCore //: public SENSCameraBase
+class SENSARCore
 {
 public:
     struct Config
@@ -38,6 +37,7 @@ public:
     virtual void pause()                                                                                           = 0;
     //! Returns true if in tracking state. If correctly initialized, it will update the camera frame that may be retrieved with latestFrame()
     virtual bool update(cv::Mat& view) { return false; }
+    virtual void lightComponentIntensity(float * components) { }
 
     //! Get the latest camera frame. You have to call update() first to get a new frame.
     SENSFramePtr latestFrame();

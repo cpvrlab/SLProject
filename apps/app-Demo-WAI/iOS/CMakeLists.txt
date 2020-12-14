@@ -15,10 +15,21 @@ find_library(CORELOCATION CoreLocation required)
 find_library(ARKIT ARKit required)
 
 set(target ErlebAR)
-set(DEVELOPMENT_TEAM_ID "858Y9EWZ4B")               # <== Set to your team ID from Apple
-set(APP_BUNDLE_IDENTIFIER "ch.bfh.ti.cpvr.erlebar") # <== Set to your app's bundle identifier (Attention the erlebar one is with "cpvr")
-set(PROVISIONING_PROFILE "ErlebAR - Development")
-set(CODE_SIGN_IDENTITY "Apple Development: Michael Göttlicher (KMX9985DR7)")  # <== Set to your preferred code sign identity, to see list: /usr/bin/env xcrun security find-identity -v -p codesigning
+
+#if this variable is not defined, we make automatic signing with "iPhone Developer"
+if(XCODE_CODESIGNIDENTITY)
+	message(STATUS "manual signing")
+	set(APP_BUNDLE_IDENTIFIER "ch.bfh.ti.cpvr.erlebar") # <== Set to your app's bundle identifier (Attention the erlebar one is with "cpvr")
+	
+	set(XCODE_PROVISIONINGPROFILE "ErlebAR - Development")
+	set(XCODE_DEVELOPMENTTEAM "858Y9EWZ4B")
+else()
+	message(STATUS "automatic signing")
+	set(APP_BUNDLE_IDENTIFIER "com.${target}.identifier") # <== Set to your app's bundle identifier
+
+    set(XCODE_CODESIGNIDENTITY "iPhone Developer")
+	set(XCODE_DEVELOPMENTTEAM ${XCODE_DEVELOPMENTTEAM})
+endif()
 
 # set(DEPLOYMENT_TARGET 11.0)                                  # <== Set your deployment target version of iOS
 set(DEVICE_FAMILY "1,2")                                      # <== Set to "1" to target iPhone, set to "2" to target iPad, set to "1,2" to target both
@@ -125,9 +136,6 @@ set_target_properties(
         RESOURCE "${RESOURCES}"
         XCODE_ATTRIBUTE_GCC_PRECOMPILE_PREFIX_HEADER "YES"
         # XCODE_ATTRIBUTE_IPHONEOS_DEPLOYMENT_TARGET ${DEPLOYMENT_TARGET}
-        XCODE_ATTRIBUTE_CODE_SIGN_IDENTITY ${CODE_SIGN_IDENTITY}
-        XCODE_ATTRIBUTE_DEVELOPMENT_TEAM ${DEVELOPMENT_TEAM_ID}
-	    XCODE_ATTRIBUTE_PROVISIONING_PROFILE_SPECIFIER ${PROVISIONING_PROFILE}
         XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY ${DEVICE_FAMILY}
         MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/plist.in
         XCODE_ATTRIBUTE_CLANG_ENABLE_OBJC_ARC YES
@@ -139,6 +147,13 @@ set_target_properties(
 		# apple requires storyboard launchscreens now so the following will not come into store:
 		# XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME "LaunchImage"  #defines launch screen image name in asset catalog (images.xcassets)
     )
+	
+if(XCODE_PROVISIONINGPROFILE)
+	set_xcode_property(${target} PROVISIONING_PROFILE_SPECIFIER ${XCODE_PROVISIONINGPROFILE})
+endif()
+set_xcode_property(${target} CODE_SIGN_IDENTITY ${XCODE_CODESIGNIDENTITY})
+set_xcode_property(${target} DEVELOPMENT_TEAM ${XCODE_DEVELOPMENTTEAM})
+	
 	
 target_include_directories(
         ${target}

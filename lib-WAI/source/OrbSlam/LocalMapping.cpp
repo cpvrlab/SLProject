@@ -639,7 +639,7 @@ void LocalMapping::SearchInNeighbors(LocalMap& lmap)
                 continue;
             if (pMP->isBad() || pMP->mnMarker[FUSE_CANDIDATE_KF] == lmap.refKF->mnId)
                 continue;
-            pMP->mnMarker[FUSE_CANDIDATE_KF] = lmap.refKF->mnId;
+            pMP->mnMarker[FUSE_CANDIDATE_KF] = (int)lmap.refKF->mnId;
             vpFuseCandidates.push_back(pMP);
         }
     }
@@ -721,7 +721,7 @@ void LocalMapping::SearchInNeighbors(WAIKeyFrame* frame)
                 continue;
             if (pMP->isBad() || pMP->mnMarker[FUSE_CANDIDATE_KF] == frame->mnId)
                 continue;
-            pMP->mnMarker[FUSE_CANDIDATE_KF] = frame->mnId;
+            pMP->mnMarker[FUSE_CANDIDATE_KF] = (int)frame->mnId;
             vpFuseCandidates.push_back(pMP);
         }
     }

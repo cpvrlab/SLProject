@@ -23,6 +23,7 @@ class SLNode;
 class SLMaterial;
 class SLAssetManager;
 class SLAnimManager;
+class SLProgressHandler;
 
 //-----------------------------------------------------------------------------
 //! Copy of the aiPostProcessStep enum for usage in the wrapper load function
@@ -73,14 +74,15 @@ public:
     void logConsoleVerbosity(SLLogVerbosity verb) { _logConsoleVerbosity = verb; }
     void logFileVerbosity(SLLogVerbosity verb) { _logFileVerbosity = verb; }
 
-    virtual SLNode* load(SLAnimManager&  aniMan,
-                         SLAssetManager* assetMgr,
-                         SLstring        pathFilename,
-                         SLstring        texturePath,
-                         SLbool          loadMeshesOnly = true,
-                         SLMaterial*     overrideMat    = nullptr,
-                         float           ambientFactor  = 0.0f,
-                         SLuint          flags =
+    virtual SLNode* load(SLAnimManager&     aniMan,
+                         SLAssetManager*    assetMgr,
+                         SLstring           pathFilename,
+                         SLstring           texturePath,
+                         SLbool             loadMeshesOnly  = true,
+                         SLMaterial*        overrideMat     = nullptr,
+                         float              ambientFactor   = 0.0f,
+                         SLProgressHandler* progressHandler = nullptr,
+                         SLuint             flags =
                            SLProcess_Triangulate |
                            SLProcess_JoinIdenticalVertices |
                            SLProcess_SplitLargeMeshes |

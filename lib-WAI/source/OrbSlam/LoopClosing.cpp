@@ -467,7 +467,7 @@ bool LoopClosing::ComputeSim3()
                 if (!pMP->isBad() && pMP->mnMarker[LOOP_POINT_KF] != mpCurrentKF->mnId)
                 {
                     mvpLoopMapPoints.push_back(pMP);
-                    pMP->mnMarker[LOOP_POINT_KF] = mpCurrentKF->mnId;
+                    pMP->mnMarker[LOOP_POINT_KF] = (int)mpCurrentKF->mnId;
                 }
             }
         }

@@ -13,6 +13,7 @@
 
 #include <SL.h>
 #include <SLTransformNode.h>
+#include <assimp/ProgressHandler.hpp>
 
 class SLScene;
 class SLSceneView;
@@ -26,7 +27,7 @@ class SLProjectScene;
 AppDemoGui::build. This build function is passed in the slCreateSceneView and
 it is called in SLSceneView::onPaint in every frame.<br>
 The entire UI is configured and built on every frame. That is why it is called
-"Im" for immediate. See also the SLGLImGui class to see how it minimaly
+"Im" for immediate. See also the SLGLImGui class to see how it minimal
 integrated in the SLProject.<br>
 */
 class AppDemoGui

@@ -638,7 +638,7 @@ bool WAISlamTools::needNewKeyFrame(WAIMap*             map,
     if (localMapper->isPaused())
         return false;
 
-    const int nKFs = map->KeyFramesInMap();
+    const int nKFs = (int)map->KeyFramesInMap();
 
     // Do not insert keyframes if not enough frames have passed from last relocalisation
     // this condition is only valid after MAX_FRAMES
@@ -679,7 +679,7 @@ bool WAISlamTools::strictNeedNewKeyFrame(WAIMap*             map,
     if (localMapper->isPaused() || !localMapper->AcceptKeyFrames())
         return false;
 
-    const int nKFs = map->KeyFramesInMap();
+    const int nKFs = (int)map->KeyFramesInMap();
 
     // Do not insert keyframes if not enough frames have passed from last relocalisation
     // this condition is only valid after MAX_FRAMES
@@ -867,7 +867,7 @@ bool WAISlamTools::relocalization(WAIFrame& currentFrame,
                 // If the pose is supported by enough inliers stop ransacs and continue
                 if (nGood >= 50)
                 {
-                    bMatch = trackLocalMap(localMap, currentFrame, currentFrame.mnId, inliers);
+                    bMatch = trackLocalMap(localMap, currentFrame, (int)currentFrame.mnId, inliers);
                     //std::cout << "Number of nGood:" << nGood << std::endl;
                     break;
                 }
@@ -1055,7 +1055,7 @@ bool WAISlamTools::relocalizationGPS(WAIFrame& currentFrame,
                 // If the pose is supported by enough inliers stop ransacs and continue
                 if (nGood >= 50)
                 {
-                    bMatch = trackLocalMap(localMap, currentFrame, currentFrame.mnId, inliers);
+                    bMatch = trackLocalMap(localMap, currentFrame, (int)currentFrame.mnId, inliers);
                     //std::cout << "Number of nGood:" << nGood << std::endl;
                     break;
                 }
@@ -1345,7 +1345,7 @@ void WAISlamTools::updateLocalMap(WAIFrame& frame,
             if (!pMP->isBad())
             {
                 localMap.mapPoints.push_back(pMP);
-                pMP->mnMarker[TRACK_REF_FRAME] = frame.mnId;
+                pMP->mnMarker[TRACK_REF_FRAME] = (int)frame.mnId;
             }
         }
     }

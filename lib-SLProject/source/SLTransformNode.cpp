@@ -208,9 +208,9 @@ void SLTransformNode::editMode(SLNodeEditMode editMode)
         {
             _gizmosNode->translation(_targetNode->updateAndGetWM().translation());
 
-            SLVec2f p1 = _sv->camera()->projectWorldToNDC(_gizmosNode->translationWS());
-            SLVec2f p2 = _sv->camera()->projectWorldToNDC(_gizmosNode->translationWS() +
-                                                          _sv->camera()->upWS().normalize());
+            SLVec2f p1 = _sv->camera()->projectWorldToNDC(SLVec4f(_gizmosNode->translationWS()));
+            SLVec2f p2 = _sv->camera()->projectWorldToNDC(SLVec4f(_gizmosNode->translationWS() +
+                                                                           _sv->camera()->upWS().normalize()));
 
             float actualHeight = (p1 - p2).length();
             float targetHeight = 0.2f; // % of screen that gizmos should occupy

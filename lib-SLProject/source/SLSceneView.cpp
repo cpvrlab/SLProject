@@ -368,6 +368,8 @@ OpenGL function.
 */
 void SLSceneView::onInitialize()
 {
+    PROFILE_FUNCTION();
+
     postSceneLoad();
 
     SLGLState* stateGL = SLGLState::instance();
@@ -924,15 +926,15 @@ void SLSceneView::draw3DGLLines(SLVNode& nodes)
                 !node->isSelected())
             {
                 if (node->mesh())
-                    node->aabb()->drawWS(SLCol3f::RED);
+                    node->aabb()->drawWS(SLCol4f::RED);
                 else
-                    node->aabb()->drawWS(SLCol3f::MAGENTA);
+                    node->aabb()->drawWS(SLCol4f::MAGENTA);
             }
 
             // Draw AABB for selected shapes
             if (node->isSelected())
             {
-                node->aabb()->drawWS(SLCol3f::YELLOW);
+                node->aabb()->drawWS(SLCol4f::YELLOW);
             }
         }
     }

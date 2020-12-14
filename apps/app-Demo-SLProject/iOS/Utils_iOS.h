@@ -11,6 +11,7 @@
 #ifndef UTILS_IOS_H
 #define UTILS_IOS_H
 
+#include <string>
 //-----------------------------------------------------------------------------
 //! SLFileSystem provides basic filesystem functions
 class Utils_iOS

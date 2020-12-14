@@ -58,7 +58,9 @@ void SLUniformGrid::deleteAll()
 /*! Builds the uniform grid for ray tracing acceleration
 */
 void SLUniformGrid::build(SLVec3f minV, SLVec3f maxV)
-{  
+{
+    PROFILE_FUNCTION();
+
     _minV = minV;
     _maxV = maxV;
    
@@ -96,28 +98,29 @@ void SLUniformGrid::build(SLVec3f minV, SLVec3f maxV)
     for(SLuint t = 0; t < numTriangles; ++t)
     {  
         // Copy triangle vertices into SLfloat array[3][3]
-        SLuint i = t * 3;
+        SLuint vIx = t * 3;
         if (_m->I16)
-        {   vert[0][0] = _m->finalP()[_m->I16[i  ]].x;
-            vert[0][1] = _m->finalP()[_m->I16[i  ]].y;
-            vert[0][2] = _m->finalP()[_m->I16[i  ]].z;
-            vert[1][0] = _m->finalP()[_m->I16[i+1]].x;
-            vert[1][1] = _m->finalP()[_m->I16[i+1]].y;
-            vert[1][2] = _m->finalP()[_m->I16[i+1]].z;
-            vert[2][0] = _m->finalP()[_m->I16[i+2]].x;
-            vert[2][1] = _m->finalP()[_m->I16[i+2]].y;
-            vert[2][2] = _m->finalP()[_m->I16[i+2]].z;
+        {   vert[0][0] = _m->finalP()[_m->I16[vIx  ]].x;
+            vert[0][1] = _m->finalP()[_m->I16[vIx  ]].y;
+            vert[0][2] = _m->finalP()[_m->I16[vIx  ]].z;
+            vert[1][0] = _m->finalP()[_m->I16[vIx+1]].x;
+            vert[1][1] = _m->finalP()[_m->I16[vIx+1]].y;
+            vert[1][2] = _m->finalP()[_m->I16[vIx+1]].z;
+            vert[2][0] = _m->finalP()[_m->I16[vIx+2]].x;
+            vert[2][1] = _m->finalP()[_m->I16[vIx+2]].y;
+            vert[2][2] = _m->finalP()[_m->I16[vIx+2]].z;
         } else
-        {   vert[0][0] = _m->finalP()[_m->I32[i  ]].x;
-            vert[0][1] = _m->finalP()[_m->I32[i  ]].y;
-            vert[0][2] = _m->finalP()[_m->I32[i  ]].z;
-            vert[1][0] = _m->finalP()[_m->I32[i+1]].x;
-            vert[1][1] = _m->finalP()[_m->I32[i+1]].y;
-            vert[1][2] = _m->finalP()[_m->I32[i+1]].z;
-            vert[2][0] = _m->finalP()[_m->I32[i+2]].x;
-            vert[2][1] = _m->finalP()[_m->I32[i+2]].y;
-            vert[2][2] = _m->finalP()[_m->I32[i+2]].z;
+        {   vert[0][0] = _m->finalP()[_m->I32[vIx  ]].x;
+            vert[0][1] = _m->finalP()[_m->I32[vIx  ]].y;
+            vert[0][2] = _m->finalP()[_m->I32[vIx  ]].z;
+            vert[1][0] = _m->finalP()[_m->I32[vIx+1]].x;
+            vert[1][1] = _m->finalP()[_m->I32[vIx+1]].y;
+            vert[1][2] = _m->finalP()[_m->I32[vIx+1]].z;
+            vert[2][0] = _m->finalP()[_m->I32[vIx+2]].x;
+            vert[2][1] = _m->finalP()[_m->I32[vIx+2]].y;
+            vert[2][2] = _m->finalP()[_m->I32[vIx+2]].z;
         }
+
         // Min. and max. point of triangle
         SLVec3f minT = SLVec3f(std::min(vert[0][0], vert[1][0], vert[2][0]),
                                std::min(vert[0][1], vert[1][1], vert[2][1]),
@@ -130,6 +133,7 @@ void SLUniformGrid::build(SLVec3f minV, SLVec3f maxV)
         SLint minx = (SLint)((minT.x-_minV.x) / _voxelSize.x);
         SLint miny = (SLint)((minT.y-_minV.y) / _voxelSize.y);
         SLint minz = (SLint)((minT.z-_minV.z) / _voxelSize.z);
+
         // max voxel index of triangle
         SLint maxx = (SLint)((maxT.x-_minV.x) / _voxelSize.x);
         SLint maxy = (SLint)((maxT.y-_minV.y) / _voxelSize.y);
@@ -150,7 +154,7 @@ void SLUniformGrid::build(SLVec3f minV, SLVec3f maxV)
                 {  
                     voxelID = x + y*_size.x + z*_size.x*_size.y;
                
-                    //triangle-AABB overlap test by Thomas M�ller
+                    //triangle-AABB overlap test by Thomas Moeller
                     if (triBoxOverlap(curVoxelCenter, boxHalfExt, vert))
                     //trianlgesAABB-AABB overlap test is faster but not as precise
                     //if (triBoxBoxOverlap(curVoxelCenter, boxHalfExt, vert)) 

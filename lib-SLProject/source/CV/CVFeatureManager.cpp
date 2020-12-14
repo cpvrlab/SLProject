@@ -75,12 +75,19 @@ void CVFeatureManager::createDetectorDescriptor(CVDetectDescribeType type)
             _descriptor = _detector;
             break;
         case DDT_SIFT_SIFT:
+#if CV_MAJOR_VERSION == 4 && CV_MINOR_VERSION == 5
             _detector = cv::SIFT::create(300,
                                          2,
                                          0.04,
                                          10,
                                          1.6);
-
+#else
+            _detector = cv::xfeatures2d::SIFT::create(300,
+                                                      2,
+                                                      0.04,
+                                                      10,
+                                                      1.6);
+#endif
             _descriptor = _detector;
             break;
         default:

@@ -150,7 +150,7 @@ public:
         assert(kn >= 0.0f);
         _kn = kn;
     }
-    void receivesShadows(SLbool receivesShadows) { _getsShadows = receivesShadows; }
+    void getsShadows(SLbool receivesShadows) { _getsShadows = receivesShadows; }
     void program(SLGLProgram* sp) { _program = sp; }
 
     // Getters
@@ -182,7 +182,7 @@ protected:
     SLCol4f      _specular;     //!< specular color (RGB reflection coefficients)
     SLCol4f      _transmissive; //!< PM: transmissive color (RGB reflection coefficients)
     SLCol4f      _emissive;     //!< emissive color coefficients
-    SLfloat      _shininess;    //!< shininess exponent in Blinn model
+    SLfloat      _shininess;    //!< shininess exponent in Blinn-Phong model
     SLfloat      _roughness;    //!< roughness property (0-1) in Cook-Torrance model
     SLfloat      _metalness;    //!< metallic property (0-1) in Cook-Torrance model
     SLfloat      _translucency; //!< PM: translucency exponent for light refraction

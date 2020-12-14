@@ -22,6 +22,7 @@ public:
     bool update(cv::Mat& pose);
     //SENSFramePtr latestFrame() override;
     //void setDisplaySize(int w, int h) override;
+    void lightComponentIntensity(float * components);
 
     //int getCameraOpenGLTexture();
     int getPointCloud(float** mapPoints, float confidanceValue);
@@ -32,6 +33,8 @@ private:
     ArFrame*         _arFrame   = nullptr;
 
     GLuint _cameraTextureId;
+	//float          _lightColor[4];
+	float            _envLightI[3];
 
     void    initCameraTexture();
     cv::Mat convertToYuv(ArImage* arImage);

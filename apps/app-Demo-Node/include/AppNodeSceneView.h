@@ -42,9 +42,9 @@ public:
     SLbool onKeyRelease(const SLKey key, const SLKey mod);
 
     void reset();
-    void translateObject(SLVec3f vec);
-    void rotateObject(SLVec3f val);
-    void rotateObjectAroundPivot(SLVec3f val);
+    void translateObject(SLVec3f vec) const;
+    void rotateObject(const SLVec3f& val) const;
+    void rotateObjectAroundPivot(SLVec3f val) const;
     void translatePivot(SLVec3f vec);
 
     SLbool onContinuousKeyPress(SLKey key);

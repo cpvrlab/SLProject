@@ -82,7 +82,7 @@ void SLProjectScene::onLoadAsset(const SLstring& assetFile,
         name(Utils::getFileName(assetFile));
 
     // Try to load assed and add it to the scene root node
-    SLAssimpImporter importer;
+                                  SLAssimpImporter importer;
 
     /////////////////////////////////////////////
     SLNode* loaded = importer.load(_animManager,
@@ -92,6 +92,7 @@ void SLProjectScene::onLoadAsset(const SLstring& assetFile,
                                    true,
                                    nullptr,
                                    0.0f,
+                                   nullptr,
                                    processFlags);
     /////////////////////////////////////////////
 

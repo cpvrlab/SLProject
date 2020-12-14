@@ -155,7 +155,7 @@ public:
     SLuint        texID() const { return _texID; }
     SLTextureType texType() { return _texType; }
     SLfloat       bumpScale() const { return _bumpScale; }
-    SLCol4f       getTexelf(SLfloat s, SLfloat t, SLuint imgIndex = 0);
+    SLCol4f       getTexelf(SLfloat u, SLfloat v, SLuint imgIndex = 0);
     SLCol4f       getTexelf(const SLVec3f& cubemapDir);
     SLbool        hasAlpha() { return (!_images.empty() &&
                                 ((_images[0]->format() == PF_rgba ||
@@ -163,7 +163,7 @@ public:
                                  _texType == TT_font)); }
     SLuint        width() { return _images[0]->width(); }
     SLuint        height() { return _images[0]->height(); }
-    SLint         depth() { return (SLint)_images[0]->bytesPerPixel(); }
+    SLint         bytesPerPixel() { return (SLint)_images[0]->bytesPerPixel(); }
     SLMat4f       tm() { return _tm; }
     SLbool        autoCalcTM3D() const { return _autoCalcTM3D; }
     SLbool        needsUpdate() { return _needsUpdate; }
@@ -202,7 +202,7 @@ public:
     void smooth3DGradients(SLint smoothRadius, function<void(int)> onUpdateProgress);
 
     // Bumpmap methods
-    SLVec2f dsdt(SLfloat s, SLfloat t); //! Returns the derivation as [s,t]
+    SLVec2f dudv(SLfloat u, SLfloat v); //! Returns the derivation as [s,t]
 
     // Statics
     static SLfloat maxAnisotropy;      //!< max. anisotropy available

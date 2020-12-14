@@ -9,6 +9,9 @@
 #include <SLKeyframeCamera.h>
 #include <SLGLProgramManager.h>
 #include <SLHorizonNode.h>
+#include <HttpUtils.h>
+#include <ZipUtils.h>
+#define PASSWORD "http_password"
 
 AppWAIScene::AppWAIScene(SLstring name, std::string dataDir, std::string erlebARDir)
   : SLScene(name, nullptr),
@@ -123,17 +126,7 @@ void AppWAIScene::initAreaVisualization(ErlebAR::LocationId locationId, ErlebAR:
     if (locationId == ErlebAR::LocationId::AUGST)
         initLocationAugst();
     else if (locationId == ErlebAR::LocationId::AVENCHES)
-    {
-        if (areaId == ErlebAR::AreaId::AVENCHES_AMPHITHEATER ||
-            areaId == ErlebAR::AreaId::AVENCHES_AMPHITHEATER_ENTRANCE)
-            initAreaAvenchesAmphitheater();
-        else if (areaId == ErlebAR::AreaId::AVENCHES_CIGOGNIER)
-            initAreaAvenchesCigognier();
-        else if (areaId == ErlebAR::AreaId::AVENCHES_THEATER)
-            initAreaAvenchesTheatre();
-        else
-            initLocationDefault();
-    }
+        initLocationAvenches(areaId);
     else if (locationId == ErlebAR::LocationId::BERN)
         initLocationBern();
     else if (locationId == ErlebAR::LocationId::BIEL)
@@ -151,6 +144,11 @@ void AppWAIScene::initAreaVisualization(ErlebAR::LocationId locationId, ErlebAR:
 
 void AppWAIScene::initLocationAugst()
 {
+    if (!Utils::dirExists(_dataDir + "erleb-AR/models/augst/"))
+    {
+        HttpUtils::download("https://pallas.ti.bfh.ch/erlebar/models/augst.zip", _dataDir + "erleb-AR/models/", "erlebar", PASSWORD);
+        ZipUtils::unzip(_dataDir + "erleb-AR/models/augst.zip", _dataDir + "erleb-AR/models/");
+    }
     // Create directional light for the sun light
     sunLight = new SLLightDirect(&assets, this, 5.0f);
     sunLight->powers(1.0f, 1.0f, 1.0f);
@@ -158,10 +156,10 @@ void AppWAIScene::initLocationAugst()
     sunLight->translation(0, 10, 0);
     sunLight->lookAt(10, 0, 10);
     sunLight->doSunPowerAdaptation(true);
-    //sunLight->createsShadows(true);
-    //sunLight->createShadowMap(-100, 250, SLVec2f(250, 150), SLVec2i(2048, 2048));
-    //sunLight->doSmoothShadows(true);
-    //sunLight->castsShadows(false);
+    sunLight->createsShadows(true);
+    sunLight->createShadowMap(-100, 250, SLVec2f(250, 150), SLVec2i(2048, 2048));
+    sunLight->doSmoothShadows(true);
+    sunLight->castsShadows(false);
     _root3D->addChild(sunLight);
 
     //init camera
@@ -186,8 +184,14 @@ void AppWAIScene::initLocationAugst()
     _root3D->addChild(axis);
 }
 
-void AppWAIScene::initAreaAvenchesAmphitheater()
+void AppWAIScene::initLocationAvenches(ErlebAR::AreaId areaId)
 {
+    if (!Utils::dirExists(_dataDir + "erleb-AR/models/avenches/"))
+    {
+        HttpUtils::download("https://pallas.ti.bfh.ch/erlebar/models/avenches.zip", _dataDir + "erleb-AR/models/", "erlebar", PASSWORD);
+        ZipUtils::unzip(_dataDir + "erleb-AR/models/avenches.zip", _dataDir + "erleb-AR/models/");
+    }
+
     // Create directional light for the sun light
     sunLight = new SLLightDirect(&assets, this, 5.0f);
     sunLight->powers(1.0f, 1.5f, 1.0f);
@@ -195,48 +199,11 @@ void AppWAIScene::initAreaAvenchesAmphitheater()
     sunLight->translation(0, 10, 0);
     sunLight->lookAt(10, 0, 10);
     sunLight->doSunPowerAdaptation(true);
-    //sunLight->createsShadows(true);
-    //sunLight->createShadowMap(-100, 150, SLVec2f(150, 150), SLVec2i(2048, 2048));
-    //sunLight->doSmoothShadows(true);
-    //sunLight->shadowMaxBias(0.02f);
-    //sunLight->castsShadows(false);
-    _root3D->addChild(sunLight);
-
-    //init camera
-    camera = new VideoBackgroundCamera("AppWAIScene Camera", _dataDir + "images/textures/LiveVideoError.png", _dataDir + "shaders/");
-    camera->translation(0, 50, -150);
-    camera->lookAt(0, 0, 0);
-    camera->clipNear(1);
-    camera->clipFar(300);
-    camera->focalDist(150);
-    camera->camAnim(SLCamAnim::CA_off);
-    camera->setInitialState();
-    _root3D->addChild(camera);
-
-    //load 3d model
-    loadAvenchesAmphitheater();
-
-    // Add axis object a world origin
-    SLNode* axis = new SLNode(new SLCoordAxis(&assets), "Axis Node");
-    axis->setDrawBitsRec(SL_DB_MESHWIRED, false);
-    axis->scale(10);
-    axis->rotate(-90, 1, 0, 0);
-    _root3D->addChild(axis);
-}
-
-void AppWAIScene::initAreaAvenchesCigognier()
-{
-    // Create directional light for the sun light
-    sunLight = new SLLightDirect(&assets, this, 5.0f);
-    sunLight->powers(1.0f, 1.5f, 1.0f);
-    sunLight->attenuation(1, 0, 0);
-    sunLight->translation(0, 10, 0);
-    sunLight->lookAt(10, 0, 10);
-    sunLight->doSunPowerAdaptation(true);
-    //sunLight->createsShadows(true);
-    //sunLight->createShadowMap(-100, 150, SLVec2f(150, 150), SLVec2i(2048, 2048));
-    //sunLight->doSmoothShadows(true);
-    //sunLight->castsShadows(false);
+    sunLight->createsShadows(true);
+    sunLight->createShadowMap(-100, 150, SLVec2f(150, 150), SLVec2i(2048, 2048));
+    sunLight->doSmoothShadows(true);
+    sunLight->shadowMaxBias(0.02f);
+    sunLight->castsShadows(false);
     _root3D->addChild(sunLight);
 
     //init camera
@@ -250,64 +217,53 @@ void AppWAIScene::initAreaAvenchesCigognier()
     camera->setInitialState();
     _root3D->addChild(camera);
 
-    //load 3d model
-    loadAvenchesCigognier();
+    if (areaId == ErlebAR::AreaId::AVENCHES_AMPHITHEATER ||
+        areaId == ErlebAR::AreaId::AVENCHES_AMPHITHEATER_ENTRANCE)
+        initAreaAvenchesAmphitheater();
+    else if (areaId == ErlebAR::AreaId::AVENCHES_CIGOGNIER)
+        initAreaAvenchesCigognier();
+    else if (areaId == ErlebAR::AreaId::AVENCHES_THEATER)
+        initAreaAvenchesTheatre();
 
     // Add axis object a world origin
-    SLNode* axis = new SLNode(new SLCoordAxis(&assets), "Axis Node");
-    axis->setDrawBitsRec(SL_DB_MESHWIRED, false);
-    axis->rotate(-90, 1, 0, 0);
-    _root3D->addChild(axis);
+    //SLNode* axis = new SLNode(new SLCoordAxis(&assets), "Axis Node");
+    //axis->setDrawBitsRec(SL_DB_MESHWIRED, false);
+    //axis->scale(10);
+    //axis->rotate(-90, 1, 0, 0);
+    //_root3D->addChild(axis);
+}
+
+void AppWAIScene::initAreaAvenchesAmphitheater()
+{
+    loadAvenchesAmphitheater();
+}
+
+void AppWAIScene::initAreaAvenchesCigognier()
+{
+    loadAvenchesCigognier();
 }
 
 void AppWAIScene::initAreaAvenchesTheatre()
 {
-    // Create directional light for the sun light
-    sunLight = new SLLightDirect(&assets, this, 5.0f);
-    sunLight->powers(1.0f, 1.0f, 1.0f);
-    sunLight->attenuation(1, 0, 0);
-    sunLight->translation(0, 10, 0);
-    sunLight->lookAt(10, 0, 10);
-    sunLight->doSunPowerAdaptation(true);
-    //sunLight->createsShadows(true);
-    //sunLight->createShadowMap(-100, 150, SLVec2f(150, 150), SLVec2i(2048, 2048));
-    //sunLight->doSmoothShadows(true);
-    //sunLight->castsShadows(false);
-    _root3D->addChild(sunLight);
-
-    //init camera
-    camera = new VideoBackgroundCamera("AppWAIScene Camera", _dataDir + "images/textures/LiveVideoError.png", _dataDir + "shaders/");
-    camera->translation(0, 50, -150);
-    camera->lookAt(0, 0, 0);
-    camera->clipNear(1);
-    camera->clipFar(300);
-    camera->focalDist(150);
-    camera->camAnim(SLCamAnim::CA_off);
-    camera->setInitialState();
-    _root3D->addChild(camera);
-
-    //load 3d model
     loadAvenchesTheatre();
-
-    // Add axis object a world origin
-    SLNode* axis = new SLNode(new SLCoordAxis(&assets), "Axis Node");
-    axis->setDrawBitsRec(SL_DB_MESHWIRED, false);
-    axis->scale(10);
-    axis->rotate(-90, 1, 0, 0);
-    _root3D->addChild(axis);
 }
 
 void AppWAIScene::initLocationBern()
 {
+    if (!Utils::dirExists(_dataDir + "erleb-AR/models/bern/"))
+    {
+        HttpUtils::download("https://pallas.ti.bfh.ch/erlebar/models/bern.zip", _dataDir + "erleb-AR/models/", "erlebar", PASSWORD);
+        ZipUtils::unzip(_dataDir + "erleb-AR/models/bern.zip", _dataDir + "erleb-AR/models/");
+    }
     // Create directional light for the sun light
     sunLight = new SLLightDirect(&assets, this, 5.0f);
     sunLight->powers(1.0f, 1.5f, 1.0f);
     sunLight->attenuation(1, 0, 0);
     sunLight->doSunPowerAdaptation(true);
-    //sunLight->createsShadows(true);
-    //sunLight->createShadowMap(-100, 150, SLVec2f(150, 150), SLVec2i(2048, 2048));
-    //sunLight->doSmoothShadows(true);
-    //sunLight->castsShadows(false);
+    sunLight->createsShadows(true);
+    sunLight->createShadowMap(-100, 150, SLVec2f(150, 150), SLVec2i(2048, 2048));
+    sunLight->doSmoothShadows(true);
+    sunLight->castsShadows(false);
     _root3D->addChild(sunLight);
 
     //init camera
@@ -335,15 +291,20 @@ void AppWAIScene::initLocationBern()
 
 void AppWAIScene::initLocationBiel(SLDeviceRotation* devRot, SLDeviceLocation* devLoc)
 {
+    if (!Utils::dirExists(_dataDir + "erleb-AR/models/biel/"))
+    {
+        HttpUtils::download("https://pallas.ti.bfh.ch/erlebar/models/biel.zip", _dataDir + "erleb-AR/models/", "erlebar", PASSWORD);
+        ZipUtils::unzip(_dataDir + "erleb-AR/models/biel.zip", _dataDir + "erleb-AR/models/");
+    }
     // Create directional light for the sun light
     sunLight = new SLLightDirect(&assets, this, 5.0f);
     sunLight->powers(1.0f, 1.0f, 1.0f);
     sunLight->attenuation(1, 0, 0);
     sunLight->doSunPowerAdaptation(true);
-    //sunLight->createsShadows(true);
-    //sunLight->createShadowMap(-100, 150, SLVec2f(150, 150), SLVec2i(2048, 2048));
-    //sunLight->doSmoothShadows(true);
-    //sunLight->castsShadows(false);
+    sunLight->createsShadows(true);
+    sunLight->createShadowMap(-100, 150, SLVec2f(150, 150), SLVec2i(2048, 2048));
+    sunLight->doSmoothShadows(true);
+    sunLight->castsShadows(false);
     _root3D->addChild(sunLight);
 
     //init camera

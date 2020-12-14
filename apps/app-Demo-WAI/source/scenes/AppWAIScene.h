@@ -64,6 +64,7 @@ private:
     void initMapVisualization();
     void initAreaVisualization(ErlebAR::LocationId locationId, ErlebAR::AreaId areaId, SLDeviceRotation* devRot, SLDeviceLocation* devLoc, int svW, int svH);
     void initLocationAugst();
+    void initLocationAvenches(ErlebAR::AreaId areaId);
     void initAreaAvenchesAmphitheater();
     void initAreaAvenchesCigognier();
     void initAreaAvenchesTheatre();

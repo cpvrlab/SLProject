@@ -34,7 +34,7 @@ private:
     void resize(int scrW, int scrH);
 
     void renderInfoAugst(ErlebAR::AreaId area);
-    void renderInfoAvenches();
+    void renderInfoAvenches(ErlebAR::AreaId area);
     void renderInfoBern();
 
     void renderInfoHeading(const char* text);

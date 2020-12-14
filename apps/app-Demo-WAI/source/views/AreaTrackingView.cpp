@@ -55,6 +55,14 @@ AreaTrackingView::AreaTrackingView(sm::EventHandler&  eventHandler,
     _devRot.numAveraged(1);
     _devRot.updateRPY(false);
     _devRot.zeroYawAtStart(false);
+    /*
+    // TODO(dgj1): associate templates with areas
+    cv::Mat templateTest          = cv::imread(deviceData.erlebARDir() + "templates/template_milchgaessli.png", cv::IMREAD_GRAYSCALE);
+    double    templateTestLatitude  = 46.94790;
+    double    templateTestLongitude = 7.44078;
+    double    templateTestAltitude  = 542.3;
+    _compassAlignment.setTemplate(templateTest, templateTestLatitude, templateTestLongitude, templateTestAltitude);
+    */
 }
 
 AreaTrackingView::~AreaTrackingView()
@@ -109,10 +117,11 @@ void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaI
 
         initSlam(area);
 
-        _initTime = GlobalTimer::timeS();
-
+        _initTime            = GlobalTimer::timeS();
+        _frameCounter        = 0;
         _hasTransitionMatrix = false;
         _transitionMatrix.identity();
+        //_avgPose.init(20, SLMat4f());
 
         _noInitException = true;
     }
@@ -225,6 +234,23 @@ SLMat4f convertWAISlamToSLMat(const cv::Mat& cTw)
     return m;
 }
 
+SLMat4f transformAverage(SLMat4f m1, SLMat4f m2)
+{
+    SLQuat4f q1, q2;
+    q1.fromMat3(m1.mat3());
+    q2.fromMat3(m2.mat3());
+    float x = (q1.x() + q2.x()) * 0.5;
+    float y = (q1.y() + q2.y()) * 0.5;
+    float z = (q1.z() + q2.z()) * 0.5;
+    float w = (q1.w() + q2.w()) * 0.5;
+    q1.set(x, y, z, w);
+    SLVec3f t = 0.5 * (m1.translation() + m2.translation());
+
+    SLMat4f m = q1.toMat4();
+    m.setTranslation(t);
+    return m;
+}
+
 bool AreaTrackingView::updateGPSARCore(SENSFramePtr& frame)
 {
     bool    isTracking = false;
@@ -253,12 +279,132 @@ bool AreaTrackingView::updateGPSARCore(SENSFramePtr& frame)
         _gui.showInfoText("GPS + Sensors positioning");
         _waiScene.camera->om(gpsPose);
         //delay arcore transition unil 10s and that arcore is tracking at this state
+
+        if (GlobalTimer::timeS() - _initTime > 5.0)
+        {
+            _avgPose = transformAverage(_avgPose, gpsPose);
+        }
+
         if (GlobalTimer::timeS() - _initTime > 10.0 && isTracking)
         {
             _transitionMatrix = convertARCoreToSLMat(arCorePose);
             _transitionMatrix.invert();
+            //_transitionMatrix    = gpsPose * _transitionMatrix;
+            _transitionMatrix    = _avgPose * _transitionMatrix;
+            _hasTransitionMatrix = true;
+        }
+    }
+    else if (_arcore->isRunning() && isTracking)
+    {
+        _gui.showInfoText("ARCore tracking");
+        SLMat4f arPose  = convertARCoreToSLMat(view);
+        SLMat4f camPose = _transitionMatrix * arPose;
+        applyFingerCorrection(camPose);
+        _waiScene.camera->om(camPose);
+    }
+
+    return isTracking;
+}
+
+//Marker for pose and yaw
+bool AreaTrackingView::updateWAISlamGPSARCore(SENSFramePtr& frame)
+{
+    cv::Mat view;
+    bool    isTracking = false;
+
+    SLMat4f gpsPose = calcCameraPoseGpsOrientationBased();
+
+    if (_arcore->isRunning())
+    {
+        cv::Mat proj;
+        isTracking = _arcore->update(proj, view);
+        frame      = _arcore->latestFrame();
+    }
+    else if (_camera)
+    {
+        _gui.showInfoText("arcore not running");
+        frame = _camera->latestFrame();
+    }
+    else
+    {
+        _gui.showInfoText("arcore not running");
+        return false;
+    }
+
+    _waiScene.camera->om(gpsPose);
+
+    // Try to relocalize with WAISlam if there is a map for the area, otherwise fallback to GPS
+    if (!_hasTransitionMatrix)
+    {
+        //_gui.showInfoText("GPS + Sensors positioning");
+        if (frame && _waiSlam && _waiSlam->isInitialized() && isTracking) // TODO: Add timing condition to fallback to GPS if WAISlam too slow
+        {
+            //the intrinsics may change dynamically on focus changes (e.g. on iOS)
+            //if (!frame->intrinsics.empty())
+            //{
+            //_waiSlam->changeIntrinsic(_camera->scaledCameraMat(), _camera->calibration()->distortion());
+            //updateSceneCameraFov();
+            //}
+
+            //(not used yet, so I commented it for now)
+            //cv::Mat camExtrinsic = convertCameraPoseToWaiCamExtrinisc(gpsPose);
+            //_waiSlam->setCamExrinsicGuess(camExtrinsic);
+
+            _waiSlam->update(frame->imgManip);
+
+            if (WAI::TrackingState_TrackingOK == _waiSlam->getTrackingState())
+            {
+                _frameCounter++;
+                if (_frameCounter > 20)
+                {
+                    SLMat4f m         = convertWAISlamToSLMat(_waiSlam->getPose());
+                    SLVec3f t         = m.translation();
+                    SLVec3f frontSlam = m.mat3() * SLVec3f(0, 0, -1);
+                    SLVec3f frontGps  = gpsPose.mat3() * SLVec3f(0, 0, -1);
+
+                    frontSlam.y = 0;
+                    frontGps.y  = 0;
+
+                    frontSlam.normalize();
+                    frontGps.normalize();
+
+                    m         = SLMat4f();
+                    SLVec3f v = frontGps;
+                    v.cross(v, frontSlam);
+
+                    if (v.y > 0.0)
+                        m.rotation(acos(frontGps.dot(frontSlam)) * 180 / M_PI, 0, 1, 0);
+                    else
+                        m.rotation(-acos(frontGps.dot(frontSlam)) * 180 / M_PI, 0, 1, 0);
+                    m.setTranslation(t);
+
+                    gpsPose.setTranslation(SLVec3f(0, 0, 0));
+                    _transitionMatrix = convertARCoreToSLMat(view);
+                    _transitionMatrix.invert();
+                    _transitionMatrix    = (m * gpsPose) * _transitionMatrix;
+                    _hasTransitionMatrix = true;
+                    _gui.showInfoText("WAISlam -> ARCore");
+                }
+            }
+            else
+            {
+                _frameCounter = 0;
+                _gui.showInfoText("WAISlam is not tracking");
+            }
+        }
+        else if (GlobalTimer::timeS() - _initTime > 10.0 && isTracking)
+        {
+            _transitionMatrix = convertARCoreToSLMat(view);
+            _transitionMatrix.invert();
             _transitionMatrix    = gpsPose * _transitionMatrix;
             _hasTransitionMatrix = true;
+        }
+        else
+        {
+            if (isTracking)
+                _gui.showInfoText("no transition matrix yet, arcore is tracking");
+            else
+                _gui.showInfoText("no transition matrix yet, arcore is not tracking");
         }
     }
     else if (_arcore->isRunning() && isTracking)
@@ -269,7 +415,14 @@ bool AreaTrackingView::updateGPSARCore(SENSFramePtr& frame)
         applyFingerCorrection(camPose);
         _waiScene.camera->om(camPose);
     }
+    else
+    {
+        _gui.showInfoText("GPS + sensors tracking");
+    }
 
+    //SLVec3f d = gpsPose.mat3() * SLVec3f(0, 0, 1);
+    //Utils::log("AAAAAAAAAAA", d.toString().c_str());
+    //else {} TODO: if waiSlam was working, try to reloc with waislam after some time
     return isTracking;
 }
 
@@ -324,14 +477,19 @@ bool AreaTrackingView::updateGPSWAISlamARCore(SENSFramePtr& frame)
 
             if (WAI::TrackingState_TrackingOK == _waiSlam->getTrackingState())
             {
-                _transitionMatrix = convertARCoreToSLMat(arCorePose);
-                _transitionMatrix.invert();
-                _transitionMatrix    = convertWAISlamToSLMat(_waiSlam->getPose()) * _transitionMatrix;
-                _hasTransitionMatrix = true;
-                _gui.showInfoText("WAISlam -> ARCore");
+                _frameCounter++;
+                if (_frameCounter > 20)
+                {
+                    _transitionMatrix = convertARCoreToSLMat(arCorePose);
+                    _transitionMatrix.invert();
+                    _transitionMatrix    = convertWAISlamToSLMat(_waiSlam->getPose()) * _transitionMatrix;
+                    _hasTransitionMatrix = true;
+                    _gui.showInfoText("WAISlam -> ARCore");
+                }
             }
             else
             {
+                _frameCounter = 0;
                 _gui.showInfoText("WAISlam is not tracking");
             }
         }
@@ -488,6 +646,13 @@ bool AreaTrackingView::updateGPS(SENSFramePtr& frame)
     SLMat4f gpsPose = calcCameraPoseGpsOrientationBased();
     applyFingerCorrection(gpsPose);
 
+#if 0
+    if (frame)
+    {
+        applyTemplateCorrection(gpsPose, frame->imgManip);
+    }
+#endif
+
     //SLMat4f gpsPoseCorr = _cameraFingerCorr.getCorrectionMat(focalLength) * gpsPose;
     _waiScene.camera->om(gpsPose);
     _gui.showInfoText("GPS + Sensors positioning");
@@ -507,6 +672,67 @@ void AreaTrackingView::applyFingerCorrection(SLMat4f& camPose)
     camPose = rot * camPose;
 }
 
+void AreaTrackingView::applyTemplateCorrection(SLMat4f&       camPose,
+                                               const cv::Mat& frameGray)
+{
+    //SENSGps::Location loc           = _gps->getLocation();
+    SLVec3f   loc           = camPose.translation();
+    SLVec3f   camForward    = camPose.axisZ();
+    cv::Point vecCurForward = cv::Point(camForward.x, camForward.y);
+
+    cv::Mat templateTest          = cv::imread(_deviceData.erlebARDir() + "templates/template_milchgaessli.png", cv::IMREAD_GRAYSCALE);
+    double  templateTestLatitude  = 46.94790;
+    double  templateTestLongitude = 7.44078;
+    double  templateTestAltitude  = 542.3;
+
+    SLVec3d latDegLonDegAltM = SLVec3d(templateTestLatitude, templateTestLongitude, templateTestAltitude);
+    SLVec3d tplLocEcef;
+    tplLocEcef.latlonAlt2ecef(latDegLonDegAltM);
+    SLVec3d enuTtpl = _devLoc.wRecef() * tplLocEcef;
+    enuTtpl.z       = 0.0f;
+    enuTtpl.normalize();
+
+    //_compassAlignment.setTemplate(templateTest, tplLocEnu.x, tplLocEnu.y, tplLocEnu.z);
+
+    //cv::Mat resultImage;
+    //_compassAlignment.update(frameGray, resultImage, this->camera()->fovH(), loc.x, loc.y, loc.z, vecCurForward);
+    //float rotAngDEG = _compassAlignment.getRotAngleDEG();
+
+    cv::Mat resultImage;
+    cv::matchTemplate(frameGray, templateTest, resultImage, cv::TM_CCOEFF_NORMED);
+
+    double    minVal, maxVal;
+    cv::Point minLoc, maxLoc;
+    cv::minMaxLoc(resultImage, &minVal, &maxVal, &minLoc, &maxLoc);
+
+    std::cout << "maxLoc: " << maxLoc << std::endl;
+
+    cv::Point imCenter       = cv::Point(frameGray.cols * 0.5f, frameGray.rows * 0.5f);
+    cv::Point tplCenter      = cv::Point(templateTest.cols * 0.5f, templateTest.rows * 0.5f);
+    cv::Point tplMatchCenter = maxLoc + tplCenter;
+
+    SLVec4f cTmatchCenter    = SLVec4f(tplMatchCenter.x, tplMatchCenter.y, 1.0f, 1.0f);
+    SLVec4f enuTmatchCenterH = camPose * cTmatchCenter;
+    SLVec3f enuTmatchCenter  = SLVec3f(enuTmatchCenterH.x / enuTmatchCenterH.w, enuTmatchCenterH.y / enuTmatchCenterH.w, enuTmatchCenterH.z / enuTmatchCenterH.w);
+    SLVec3f enuTmatch        = enuTmatchCenter - loc;
+    enuTmatch.z              = 0.0f;
+    enuTmatch.normalize();
+
+    SLVec3d enuTmatchD = SLVec3d(enuTmatch.x, enuTmatch.y, enuTmatch.z);
+
+    float rotAngRAD = enuTmatchD.dot(enuTtpl);
+    float rotAngDEG = Utils::RAD2DEG * rotAngRAD;
+
+    std::cout << "rotAngDEG: " << rotAngDEG << std::endl;
+
+    SLMat4f rot;
+    rot.translate(camPose.translation());
+    rot.rotate(rotAngDEG, SLVec3f(0, 1, 0));
+    rot.translate(-camPose.translation()); //this is multiplied first
+
+    camPose = rot * camPose;
+}
+
 bool AreaTrackingView::update()
 {
     try
@@ -517,13 +743,19 @@ bool AreaTrackingView::update()
 
             bool isTracking = false;
             if (_config.useWAISlam && _config.useARCore && _arcore->isAvailable())
-                isTracking = updateGPSWAISlamARCore(frame);
+                //isTracking = updateGPSWAISlamARCore(frame);
+                isTracking = updateWAISlamGPSARCore(frame);
             else if (_config.useARCore && _arcore->isAvailable())
                 isTracking = updateGPSARCore(frame);
             else if (_config.useWAISlam)
                 isTracking = updateWAISlamGPS(frame); //isTracking = updateGPSWAISlam(frame);
             else                                      //fall back to orientation sensor and gps if available
                 isTracking = updateGPS(frame);
+
+            //float lights[3];
+            //_arcore->lightComponentIntensity(lights);
+            //ARCore HDR light estimation not necessarily better in our case wher augmented object are huge
+            //_gui.showInfoText("LIGHT = " + toString(lights[0]) + " " + toString(lights[1]) + " " +  toString(lights[2]));
 
             if (_asyncLoader && _asyncLoader->isReady())
             {
@@ -689,6 +921,9 @@ void AreaTrackingView::onCameraParamsChanged()
 
 SLMat4f AreaTrackingView::calcCameraPoseGpsOrientationBased()
 {
+    if (!_orientation)
+        return SLMat4f();
+
     //use gps and orientation sensor for camera position and orientation
     //(even if there is no gps, devLoc gives us a guess of the current home position)
     if (_gps && _config.useGps)

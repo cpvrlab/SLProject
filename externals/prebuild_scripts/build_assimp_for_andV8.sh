@@ -43,7 +43,7 @@ cd $BUILD_D
 
 # Run cmake to configure and generate the make files
 cmake \
-    -DCMAKE_TOOLCHAIN_FILE=~/Android/Sdk/ndk/20.0.5594570/build/cmake/android.toolchain.cmake \
+    -DCMAKE_TOOLCHAIN_FILE=~/Android/Sdk/ndk/21.3.6528147/build/cmake/android.toolchain.cmake \
     -DANDROID_ABI=arm64-v8a \
     -DCMAKE_INSTALL_PREFIX=install \
     -DCMAKE_BUILD_TYPE=Debug \
@@ -66,7 +66,7 @@ cd $BUILD_R
 
 # Run cmake to configure and generate the make files
 cmake \
-    -DCMAKE_TOOLCHAIN_FILE=~/Android/Sdk/ndk/20.0.5594570/build/cmake/android.toolchain.cmake \
+    -DCMAKE_TOOLCHAIN_FILE=~/Android/Sdk/ndk/21.3.6528147/build/cmake/android.toolchain.cmake \
     -DANDROID_ABI=arm64-v8a \
     -DCMAKE_INSTALL_PREFIX=install \
     -DCMAKE_BUILD_TYPE=Release \

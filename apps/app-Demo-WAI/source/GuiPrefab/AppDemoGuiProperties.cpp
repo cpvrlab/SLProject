@@ -300,10 +300,10 @@ void AppDemoGuiProperties::buildInfos(SLScene* s, SLSceneView* sv)
 
                             if (ImGui::TreeNode(t->name().c_str()))
                             {
-                                ImGui::Text("Size    : %d x %d x %d", t->width(), t->height(), t->depth());
+                                ImGui::Text("Size    : %d x %d x %d", t->width(), t->height(), t->bytesPerPixel());
                                 ImGui::Text("Type    : %s", t->typeName().c_str());
 
-                                if (t->depth() > 1)
+                                if (t->bytesPerPixel() > 1)
                                 {
                                     if (t->target() == GL_TEXTURE_CUBE_MAP)
                                         ImGui::Text("Cube maps can not be displayed.");

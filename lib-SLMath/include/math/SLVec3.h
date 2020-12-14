@@ -46,13 +46,14 @@ class SLVec3
             };
             
                     SLVec3      ()                      {x=0;y=0;z=0;}
+           explicit SLVec3      (const T V)             {x=V;    y=V;    z=V;}
                     SLVec3      (const T X,
                                  const T Y,
                                  const T Z=0)           {x=X;    y=Y;    z=Z;}
            explicit SLVec3      (const T v[3])          {x=v[0]; y=v[1]; z=v[2];}
            explicit SLVec3      (const SLVec2<T>& v)    {x=v.x;  y=v.y;  z=0;}
                     SLVec3      (const SLVec3<T>& v)    {x = v.x; y = v.y; z = v.z; }
-                    SLVec3      (const SLstring& threeFloatsWithDelimiter) {fromString(threeFloatsWithDelimiter);}
+           explicit SLVec3      (const SLstring& threeFloatsWithDelimiter) {fromString(threeFloatsWithDelimiter);}
 
             void    set         (const T X,
                                  const T Y,
@@ -201,7 +202,7 @@ class SLVec3
             }
 
             //! Conversion from string
-            void fromString (SLstring threeFloatsWithDelimiter, SLchar delimiter = ',')
+            void fromString (const SLstring& threeFloatsWithDelimiter, SLchar delimiter = ',')
             {   SLVstring components;
                 Utils::splitString(threeFloatsWithDelimiter, delimiter, components);
                 float f[3] = {0.0, 0.0f, 0.0f};

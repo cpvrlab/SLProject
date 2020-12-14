@@ -18,6 +18,8 @@
 #include <SLSkeleton.h>
 #include <SLAssetManager.h>
 #include <SLAnimManager.h>
+#include <Instrumentor.h>
+#include <SLAssimpProgressHandler.h>
 
 // assimp is only included in the source file to not expose it to the rest of the framework
 #include <assimp/Importer.hpp>
@@ -264,15 +266,19 @@ added to the according vectors of SLScene for later deallocation. If an
 override material is provided it will be assigned to all meshes and all
 materials within the file are ignored.
 */
-SLNode* SLAssimpImporter::load(SLAnimManager&  aniMan,         //!< Reference to the animation manager
-                               SLAssetManager* assetMgr,       //!< Pointer to the asset manager
-                               SLstring        pathAndFile,    //!< File with path or on default path
-                               SLstring        texturePath,    //!< Path to the texture images
-                               SLbool          loadMeshesOnly, //!< Only load nodes with meshes
-                               SLMaterial*     overrideMat,    //!< Override material
-                               float           ambientFactor,  //!< if ambientFactor > 0 ambient = diffuse * AmbientFactor
-                               SLuint          flags)                   //!< Import flags (see postprocess.h)
+SLNode* SLAssimpImporter::load(SLAnimManager&     aniMan,          //!< Reference to the animation manager
+                               SLAssetManager*    assetMgr,        //!< Pointer to the asset manager
+                               SLstring           pathAndFile,     //!< File with path or on default path
+                               SLstring           texturePath,     //!< Path to the texture images
+                               SLbool             loadMeshesOnly,  //!< Only load nodes with meshes
+                               SLMaterial*        overrideMat,     //!< Override material
+                               float              ambientFactor,   //!< if ambientFactor > 0 ambient = diffuse * AmbientFactor
+                               SLProgressHandler* progressHandler, //!< Pointer to progress handler
+                               SLuint             flags            //!< Import flags (see postprocess.h)
+)
 {
+    PROFILE_FUNCTION();
+
     // clear the intermediate data
     clear();
 
@@ -286,7 +292,15 @@ SLNode* SLAssimpImporter::load(SLAnimManager&  aniMan,         //!< Reference to
 
     // Import file with assimp importer
     Assimp::Importer ai;
-    const aiScene*   scene = ai.ReadFile(pathAndFile.c_str(), (SLuint)flags);
+
+    // Set progress handler
+    if (progressHandler)
+        ai.SetProgressHandler((Assimp::ProgressHandler*)progressHandler);
+
+    /////////////////////////////////////////////////////////////////////////
+    const aiScene* scene = ai.ReadFile(pathAndFile.c_str(), (SLuint)flags);
+    /////////////////////////////////////////////////////////////////////////
+
     if (!scene)
     {
         SLstring msg = "Failed to load file: " + pathAndFile + "\n" + ai.GetErrorString() + "\n";
@@ -382,6 +396,8 @@ SLMat4f SLAssimpImporter::getOffsetMat(const SLstring& name)
 //! Populates nameToNode, nameToBone, jointGroups, skinnedMeshes
 void SLAssimpImporter::performInitialScan(const aiScene* scene)
 {
+    PROFILE_FUNCTION();
+
     // populate the _nameToNode map and print the assimp structure on detailed log verbosity.
     logMessage(LV_detailed, "[Assimp scene]\n");
     logMessage(LV_detailed, "  Cameras: %d\n", scene->mNumCameras);
@@ -586,6 +602,8 @@ void SLAssimpImporter::findSkeletonRoot()
 //! Loads the skeleton
 void SLAssimpImporter::loadSkeleton(SLAnimManager& animManager, SLJoint* parent, aiNode* node)
 {
+    PROFILE_FUNCTION();
+
     if (!node)
         return;
 
@@ -651,6 +669,8 @@ SLMaterial* SLAssimpImporter::loadMaterial(SLAssetManager* s,
                                            const SLstring& texturePath,
                                            float           ambientFactor)
 {
+    PROFILE_FUNCTION();
+
     // Get the materials name
     aiString matName;
     aiMat->Get(AI_MATKEY_NAME, matName);
@@ -672,13 +692,13 @@ SLMaterial* SLAssimpImporter::loadMaterial(SLAssetManager* s,
             SLuint           uvIndex;
 
             aiMat->GetTexture(aiTexType,
-                                 0,
-                                 &aiPath,
-                                 &mappingType,
-                                 &uvIndex,
-                                 nullptr,
-                                 nullptr,
-                                 nullptr);
+                              0,
+                              &aiPath,
+                              &mappingType,
+                              &uvIndex,
+                              nullptr,
+                              nullptr,
+                              nullptr);
 
             SLTextureType slTexType = TT_unknown;
 
@@ -732,8 +752,8 @@ SLMaterial* SLAssimpImporter::loadMaterial(SLAssetManager* s,
     // set color data
     if (ambientFactor > 0.0f)
         slMat->ambient(SLCol4f(diffuse.r * ambientFactor,
-                             diffuse.g * ambientFactor,
-                             diffuse.b * ambientFactor));
+                               diffuse.g * ambientFactor,
+                               diffuse.b * ambientFactor));
     else
         slMat->ambient(SLCol4f(ambient.r, ambient.g, ambient.b));
 
@@ -752,6 +772,8 @@ SLGLTexture* SLAssimpImporter::loadTexture(SLAssetManager* assetMgr,
                                            SLstring&       textureFile,
                                            SLTextureType   texType)
 {
+    PROFILE_FUNCTION();
+
     SLVGLTexture& allLoadedTex = assetMgr->textures();
 
     // return if a texture with the same file already exists
@@ -759,14 +781,13 @@ SLGLTexture* SLAssimpImporter::loadTexture(SLAssetManager* assetMgr,
         if (i->url() == textureFile)
             return i;
 
-    SLint minificationFilter  = texType == TT_ambientOcclusion ? GL_LINEAR : SL_ANISOTROPY_MAX;
-    SLint magnificationFilter = texType == TT_ambientOcclusion ? GL_LINEAR : GL_LINEAR_MIPMAP_LINEAR;
+    SLint minificationFilter = texType == TT_ambientOcclusion ? GL_LINEAR : SL_ANISOTROPY_MAX;
 
     // Create the new texture. It is also push back to SLScene::_textures
     SLGLTexture* texture = new SLGLTexture(assetMgr,
                                            textureFile,
                                            minificationFilter,
-                                           magnificationFilter,
+                                           GL_LINEAR,
                                            texType);
     return texture;
 }
@@ -778,6 +799,8 @@ in SLMesh.
 */
 SLMesh* SLAssimpImporter::loadMesh(SLAssetManager* assetMgr, aiMesh* mesh)
 {
+    PROFILE_FUNCTION();
+
     // Count first the NO. of triangles in the mesh
     SLuint numPoints    = 0;
     SLuint numLines     = 0;
@@ -1030,6 +1053,8 @@ SLNode* SLAssimpImporter::loadNodesRec(SLNode*    curNode,    //!< Pointer to th
                                        SLMeshMap& meshes,     //!< Reference to the meshes vector
                                        SLbool     loadMeshesOnly) //!< Only load nodes with meshes
 {
+    PROFILE_FUNCTION();
+
     // we're at the root
     if (!curNode)
         curNode = new SLNode(node->mName.data);
@@ -1194,7 +1219,7 @@ SLAnimation* SLAssimpImporter::loadAnimation(SLAnimManager& animManager, aiAnima
         logMessage(LV_detailed, "   Num scaling keys: %d\n", channel->mNumScalingKeys);
 
         // joint animation channels should receive the correct node id, normal node animations just get 0
-        SLNodeAnimTrack* track = result->createNodeAnimationTrack(id);
+        SLNodeAnimTrack* track = result->createNodeAnimTrack(id);
 
         // this is a node animation only, so we add a reference to the affected node to the track
         if (affectedNode && !isSkeletonAnim)

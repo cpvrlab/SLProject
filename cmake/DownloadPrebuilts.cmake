@@ -60,6 +60,14 @@ set(glfw_INCLUDE_DIR)
 set(glfw_LINK_DIR)
 set(glfw_LINK_LIBS)
 
+set(openssl_DIR)
+set(openssl_INCLUDE_DIR)
+set(openssl_LINK_DIR)
+set(openssl_LINK_LIBS
+        crypto
+        ssl
+        )
+
 set(PREBUILT_PATH "${SL_PROJECT_ROOT}/externals/prebuilt")
 set(PREBUILT_URL "http://pallas.ti.bfh.ch/libs/SLProject/_lib/prebuilt/")
 
@@ -70,7 +78,7 @@ if("${SYSTEM_NAME_UPPER}" STREQUAL "LINUX")
     # OpenCV for Linux #
     ####################
 
-    set(OpenCV_VERSION "4.1.1")
+    set(OpenCV_VERSION "4.5.0")
     set(OpenCV_DIR "${PREBUILT_PATH}/linux_opencv_${OpenCV_VERSION}")
     set(OpenCV_LINK_DIR "${OpenCV_DIR}/${CMAKE_BUILD_TYPE}")
     set(OpenCV_INCLUDE_DIR "${OpenCV_DIR}/include")
@@ -101,6 +109,26 @@ if("${SYSTEM_NAME_UPPER}" STREQUAL "LINUX")
     set(assimp_INCLUDE_DIR ${assimp_DIR}/include)
     set(assimp_LINK_DIR ${assimp_DIR}/${CMAKE_BUILD_TYPE})
     set(assimp_LIBS assimp)
+
+    #####################
+    # OpenSSL for Linux #
+    #####################
+
+    set(openssl_VERSION "1.1.1h")
+    set(openssl_DIR ${PREBUILT_PATH}/linux_openssl)
+    set(openssl_INCLUDE_DIR ${openssl_DIR}/include)
+    set(openssl_LINK_DIR ${openssl_DIR}/lib)
+    set(openssl_LIBS ssl crypto)
+
+
+    add_library(crypto STATIC IMPORTED)
+    add_library(ssl STATIC IMPORTED)
+    set_target_properties(crypto PROPERTIES
+        IMPORTED_LOCATION "${openssl_LINK_DIR}/libcrypto.a"
+    )
+    set_target_properties(ssl PROPERTIES
+        IMPORTED_LOCATION "${openssl_LINK_DIR}/libssl.a"
+    )
 
     ####################
     # Vulkan for Linux #
@@ -294,6 +322,38 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #-----------------------------
         file(COPY ${assimp_LIBS_to_copy_release} DESTINATION ${CMAKE_BINARY_DIR}/RelWithDebInfo)
     endif()
 
+    #######################
+    # OpenSSL for windows #
+    ######################
+
+    set(openssl_VERSION "1.1.1h")
+    set(openssl_PREBUILT_DIR "win64_openssl")
+    set(openssl_DIR ${PREBUILT_PATH}/win64_openssl)
+    set(openssl_INCLUDE_DIR ${openssl_DIR}/include)
+    set(openssl_LINK_DIR ${openssl_DIR}/lib)
+    set(openssl_LIBS ssl crypto)
+    set(openssl_PREBUILT_ZIP "${openssl_PREBUILT_DIR}_${openssl_VERSION}.zip")
+
+    if (NOT EXISTS "${openssl_DIR}")
+        file(DOWNLOAD "${PREBUILT_URL}/${openssl_PREBUILT_ZIP}" "${PREBUILT_PATH}/${openssl_PREBUILT_ZIP}")
+        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
+            "${PREBUILT_PATH}/${openssl_PREBUILT_ZIP}"
+            WORKING_DIRECTORY "${PREBUILT_PATH}")
+        file(REMOVE "${PREBUILT_PATH}/${openssl_PREBUILT_ZIP}")
+    endif ()
+    link_directories(${openssl_LINK_DIR})
+
+    add_library(crypto STATIC IMPORTED)
+    add_library(ssl STATIC IMPORTED)
+    set_target_properties(crypto PROPERTIES
+        IMPORTED_IMPLIB "${openssl_LINK_DIR}/libcrypto_static.lib"
+        IMPORTED_LOCATION "${openssl_LINK_DIR}/libcrypto-3.dll"
+    )
+    set_target_properties(ssl PROPERTIES
+        IMPORTED_IMPLIB "${openssl_LINK_DIR}/libssl_static.lib"
+        IMPORTED_LOCATION "${openssl_LINK_DIR}/libssl-3.dll"
+    )
+
     ######################
     # Vulkan for Windows #
     ######################
@@ -370,13 +430,14 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #------------------------------
 
 	set(COPY_LIBS_TO_CONFIG_FOLDER TRUE)
 	
-    ############################
+    ####################
     # OpenCV for MacOS #
-    ############################
+    ####################
 
     # Now download for MacOS
-    set(OpenCV_VERSION "4.1.1")
-	# set(OpenCV_VERSION "3.4.1")
+    #set(OpenCV_VERSION "4.1.1")
+	#set(OpenCV_VERSION "3.4.1")
+    set(OpenCV_VERSION "4.5.0")
     set(OpenCV_PREBUILT_DIR "mac64_opencv_${OpenCV_VERSION}")
     set(OpenCV_DIR "${PREBUILT_PATH}/${OpenCV_PREBUILT_DIR}")
     set(OpenCV_INCLUDE_DIR "${OpenCV_DIR}/include")
@@ -459,7 +520,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #------------------------------
         file(REMOVE "${PREBUILT_PATH}/${g2o_PREBUILT_ZIP}")
     endif ()
 
-	message(STATUS "g2o_LINK_DIR: ${g2o_LINK_DIR}")
+	#message(STATUS "g2o_LINK_DIR: ${g2o_LINK_DIR}")
     foreach(lib ${g2o_LINK_LIBS})
         add_library(lib${lib} SHARED IMPORTED)
         set_target_properties(lib${lib} 
@@ -544,16 +605,6 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #------------------------------
 	    endif()
 	endif()
 
-    # Copy plist file with camera access description beside executable
-    # This is needed for security purpose since MacOS Mohave
-    set(MACOS_PLIST_FILE ${SL_PROJECT_ROOT}/data/config/info.plist)
-    if(${CMAKE_GENERATOR} STREQUAL Xcode)
-        file(COPY ${MACOS_PLIST_FILE} DESTINATION ${CMAKE_BINARY_DIR}/Debug)
-        file(COPY ${MACOS_PLIST_FILE} DESTINATION ${CMAKE_BINARY_DIR}/Release)
-    else()
-        file(COPY ${MACOS_PLIST_FILE} DESTINATION ${CMAKE_BINARY_DIR})
-    endif()
-
     ####################
     # Vulkan for MacOS #
     ####################
@@ -633,8 +684,45 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #------------------------------
 	        file(COPY ${glfw_LINK_DIR}/libglfw.3.dylib DESTINATION ${CMAKE_BINARY_DIR}/Release)
 	    endif()
 	endif()
+
+    #####################
+    # openssl for MacOS #
+    #####################
+
+    set(openssl_VERSION "1.1.1g")
+    set(openssl_DIR ${PREBUILT_PATH}/mac64_openssl_${openssl_VERSION})
+    set(openssl_PREBUILT_ZIP "mac64_openssl_${openssl_VERSION}.zip")
+    set(openssl_URL ${PREBUILT_URL}/${openssl_PREBUILT_ZIP})
+
+    if (NOT EXISTS "${openssl_DIR}")
+        file(DOWNLOAD "${openssl_URL}" "${PREBUILT_PATH}/${openssl_PREBUILT_ZIP}")
+        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
+                "${PREBUILT_PATH}/${openssl_PREBUILT_ZIP}"
+                WORKING_DIRECTORY "${PREBUILT_PATH}")
+        file(REMOVE "${PREBUILT_PATH}/${openssl_PREBUILT_ZIP}")
+    endif()
+
+    set(openssl_INCLUDE_DIR  ${openssl_DIR}/include)
+    set(openssl_LINK_DIR ${openssl_DIR}/release)   #don't forget to add the this link dir down at the bottom
+    link_directories(${openssl_LINK_DIR})
+
+    foreach(lib ${openssl_LINK_LIBS})
+        add_library(${lib} STATIC IMPORTED)
+        set_target_properties(${lib}
+                PROPERTIES
+                #we use Release libs for both configurations
+                IMPORTED_LOCATION_DEBUG "${openssl_DIR}/Release/lib${lib}.a"
+                IMPORTED_LOCATION_RELEASE "${openssl_DIR}/Release/lib${lib}.a"
+                INTERFACE_INCLUDE_DIRECTORIES "${openssl_INCLUDE_DIR}"
+                )
+
+        set(openssl_LIBS
+                ${openssl_LIBS}
+                ${lib}
+                )
+    endforeach(lib)
 	
-elseif("${SYSTEM_NAME_UPPER}" STREQUAL "IOS")
+elseif("${SYSTEM_NAME_UPPER}" STREQUAL "IOS") #-------------------------------------------------------------------------
 		
     ##################
     # OpenCV for iOS #
@@ -701,9 +789,9 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "IOS")
 		    ${lib})
     endforeach(lib)
 	
-    #################
+    ###############
     # g2o for iOS #
-    #################
+    ###############
 
     set(g2o_DIR ${PREBUILT_PATH}/iosV8_g2o)
     set(g2o_PREBUILT_ZIP "iosV8_g2o.zip")
@@ -773,6 +861,43 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "IOS")
 	        ${assimp_LIBS}
 			${lib})	
 	endforeach()
+
+    ###################
+    # openssl for iOS #
+    ###################
+
+    set(openssl_VERSION "1.1.1g")
+    set(openssl_DIR ${PREBUILT_PATH}/iosV8_openssl_${openssl_VERSION})
+    set(openssl_PREBUILT_ZIP "iosV8_openssl_${openssl_VERSION}.zip")
+    set(openssl_URL ${PREBUILT_URL}/${openssl_PREBUILT_ZIP})
+
+    if (NOT EXISTS "${openssl_DIR}")
+        file(DOWNLOAD "${openssl_URL}" "${PREBUILT_PATH}/${openssl_PREBUILT_ZIP}")
+        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
+                "${PREBUILT_PATH}/${openssl_PREBUILT_ZIP}"
+                WORKING_DIRECTORY "${PREBUILT_PATH}")
+        file(REMOVE "${PREBUILT_PATH}/${openssl_PREBUILT_ZIP}")
+    endif()
+
+    set(openssl_INCLUDE_DIR  ${openssl_DIR}/include)
+    set(openssl_LINK_DIR ${openssl_DIR}/release)   #don't forget to add the this link dir down at the bottom
+    link_directories(${openssl_LINK_DIR})
+
+    foreach(lib ${openssl_LINK_LIBS})
+        add_library(${lib} STATIC IMPORTED)
+        set_target_properties(${lib}
+                PROPERTIES
+                #we use Release libs for both configurations
+                IMPORTED_LOCATION_DEBUG "${openssl_DIR}/Release/lib${lib}.a"
+                IMPORTED_LOCATION_RELEASE "${openssl_DIR}/Release/lib${lib}.a"
+                INTERFACE_INCLUDE_DIRECTORIES "${openssl_INCLUDE_DIR}"
+                )
+
+        set(openssl_LIBS
+                ${openssl_LIBS}
+                ${lib}
+                )
+    endforeach(lib)
 	
 elseif("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID") #---------------------------------------------------------------------
 
@@ -890,6 +1015,36 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID") #-----------------------------
             lib_${lib}
         )
     endforeach(lib)
+
+    #######################
+    # openssl for Android #
+    #######################
+
+    set(openssl_VERSION "1.1.1h")
+    set(openssl_PREBUILT_DIR "andV8_openssl")
+    set(openssl_DIR ${PREBUILT_PATH}/andV8_openssl)
+    set(openssl_INCLUDE_DIR ${openssl_DIR}/include)
+    set(openssl_LINK_DIR ${openssl_DIR}/lib)
+    set(openssl_LIBS ssl crypto)
+    set(openssl_PREBUILT_ZIP "${openssl_PREBUILT_DIR}_${openssl_VERSION}.zip")
+
+    if (NOT EXISTS "${openssl_DIR}")
+        file(DOWNLOAD "${PREBUILT_URL}/${openssl_PREBUILT_ZIP}" "${PREBUILT_PATH}/${openssl_PREBUILT_ZIP}")
+        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
+            "${PREBUILT_PATH}/${openssl_PREBUILT_ZIP}"
+            WORKING_DIRECTORY "${PREBUILT_PATH}")
+        file(REMOVE "${PREBUILT_PATH}/${openssl_PREBUILT_ZIP}")
+    endif ()
+
+
+    add_library(crypto STATIC IMPORTED)
+    add_library(ssl STATIC IMPORTED)
+    set_target_properties(crypto PROPERTIES
+        IMPORTED_LOCATION "${openssl_LINK_DIR}/libcrypto.a"
+    )
+    set_target_properties(ssl PROPERTIES
+        IMPORTED_LOCATION "${openssl_LINK_DIR}/libssl.a"
+    )
 
 endif()
 #==============================================================================
