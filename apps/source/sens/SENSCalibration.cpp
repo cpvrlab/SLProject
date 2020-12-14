@@ -395,12 +395,14 @@ void SENSCalibration::remap(cv::Mat& inDistorted,
 //-----------------------------------------------------------------------------
 //! Calculates camera intrinsics from a guessed FOV angle
 /*! Most laptop-, webcam- or mobile camera have a horizontal view angle or
-so called field of view (FOV) of around 65 degrees. From this parameter we
-can calculate the most important intrinsic parameter the focal length. All
-other parameters are set as if the lens would be perfect: No lens distortion
-and the view axis goes through the center of the image.
-If the focal length and sensor size is provided by the device we deduce the
-the fovV from it.
+ so called field of view (FOV) of around 65 degrees. From this parameter we
+ can calculate the most important intrinsic parameter the focal length. All
+ other parameters are set as if the lens would be perfect: No lens distortion
+ and the view axis goes through the center of the image.
+ If the focal length and sensor size is provided by the device we deduce the
+ the fovV from it.
+ @param imageWidthPX image width in pixels
+ @param imageHeightPX image height in pixels
  @param fovH average horizontal view angle in degrees
 */
 void SENSCalibration::createFromGuessedFOV(int   imageWidthPX,

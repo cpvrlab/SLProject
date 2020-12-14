@@ -17,15 +17,24 @@ class StateBase
 public:
     virtual ~StateBase() { ; }
 
-    /// Called by the state machine to execute a state action.
-    /// @param[in] sm - A state machine instance.
-    /// @param[in] data - The event data.
+    /*!
+     * Called by the state machine to execute a state action.
+     * @param sm A state machine instance
+     * @param data The event data
+     * @param stateEntry
+     * @param stateExit
+     */
     virtual void invokeStateAction(StateMachine* sm, const EventData* data, const bool stateEntry, const bool stateExit) const {};
 };
 
-//* @brief StateAction takes three template arguments: A state machine class,
-/// a state function event data type (derived from EventData) and a state machine
-/// member function pointer.
+/*!
+ * StateAction takes three template arguments: A state machine class,
+ * a state function event data type (derived from EventData) and a state machine
+ * member function pointer.
+ * @tparam SM
+ * @tparam Data
+ * @tparam Func
+ */
 template<class SM, class Data, void (SM::*Func)(const Data*, const bool, const bool)>
 class StateAction : public StateBase
 {
@@ -52,6 +61,7 @@ class StateMachine : public EventHandler
 public:
     explicit StateMachine(unsigned int initialStateId);
     virtual ~StateMachine();
+
     //!process events and update current state
     bool update();
 

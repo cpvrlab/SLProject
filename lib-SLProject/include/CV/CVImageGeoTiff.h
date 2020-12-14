@@ -27,7 +27,7 @@
  If the elevation data is available in ESRI-ASCII format you have to download
  them first from the BFH server (only within the BFH network possible):
  smb://bfh.ch/data/LFE/BFH/Geodata/swisstopo/meta
- P:\LFE\BFH\Geodata\swisstopo\meta
+ P:/LFE/BFH/Geodata/swisstopo/meta
  The ASCII patches are in DISK3/swissALTI3D
  with cp SWISSALTI3D_0.5_ESRIASCIIGRID_CHLV95_LN02_2585_1221.zip ~/Downloads
  The patch number can be found on:

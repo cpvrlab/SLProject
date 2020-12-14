@@ -618,6 +618,7 @@ A faster integer version with bit shifting is:\n
 4) Many of the image processing tasks are faster done on grayscale images.
 We therefore create a copy of the y-channel into CVCapture::lastFrameGray.
 \n
+@param scrWdivH    aspect ratio width / height
 @param srcW        Source image width in pixel
 @param srcH        Source image height in pixel
 @param y           Pointer to first byte of the top left pixel of the y-plane

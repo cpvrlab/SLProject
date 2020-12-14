@@ -13,6 +13,8 @@
 
 #include <sens/SENSCalibrationEstimatorParams.h>
 
+using namespace std;
+
 class SENSCalibration
 {
 public:
@@ -23,32 +25,32 @@ public:
         guessed,      //!< The camera intrinsics where estimated from FOV
     };
 
-    //creates a fully defined calibration
-    SENSCalibration(const cv::Mat&     cameraMat,
-                    const cv::Mat&     distortion,
-                    cv::Size           imageSize,
-                    cv::Size           boardSize,
-                    float              boardSquareMM,
-                    float              reprojectionError,
-                    int                numCaptured,
-                    const std::string& calibrationTime,
-                    int                camSizeIndex,
-                    bool               mirroredH,
-                    bool               mirroredV,
-                    SENSCameraType     camType,
-                    std::string        computerInfos,
-                    int                calibFlags,
-                    bool               calcUndistortionMaps);
+    //!creates a fully defined calibration
+    SENSCalibration(const cv::Mat& cameraMat,
+                    const cv::Mat& distortion,
+                    cv::Size       imageSize,
+                    cv::Size       boardSize,
+                    float          boardSquareMM,
+                    float          reprojectionError,
+                    int            numCaptured,
+                    const string&  calibrationTime,
+                    int            camSizeIndex,
+                    bool           mirroredH,
+                    bool           mirroredV,
+                    SENSCameraType camType,
+                    string         computerInfos,
+                    int            calibFlags,
+                    bool           calcUndistortionMaps);
 
-    //creates a guessed calibration using image size and fovV angle
+    //!creates a guessed calibration using image size and fovV angle
     SENSCalibration(const cv::Size& imageSize,
                     float           fovH,
                     bool            mirroredH,
                     bool            mirroredV,
                     SENSCameraType  type,
-                    std::string     computerInfos);
+                    string          computerInfos);
 
-    //create a guessed calibration using sensor size, camera focal length and captured image size
+    //!create a guessed calibration using sensor size, camera focal length and captured image size
     SENSCalibration(float           sensorWMM,
                     float           sensorHMM,
                     float           focalLengthMM,
@@ -56,26 +58,26 @@ public:
                     bool            mirroredH,
                     bool            mirroredV,
                     SENSCameraType  camType,
-                    std::string     computerInfos);
+                    string          computerInfos);
 
-    //create a calibration using a known camera matrix (intrinsics) without distortion parameters
-    SENSCalibration(const cv::Mat&     intrinsics,
-                    const cv::Size&    imageSize,
-                    bool               mirroredH,
-                    bool               mirroredV,
-                    SENSCameraType     camType,
-                    const std::string& computerInfos);
+    //!create a calibration using a known camera matrix (intrinsics) without distortion parameters
+    SENSCalibration(const cv::Mat&  intrinsics,
+                    const cv::Size& imageSize,
+                    bool            mirroredH,
+                    bool            mirroredV,
+                    SENSCameraType  camType,
+                    const string&   computerInfos);
+    //! ???
+    SENSCalibration(const string& calibDir,
+                    const string& calibFileName,
+                    bool          calcUndistortionMaps);
 
-    SENSCalibration(const std::string& calibDir,
-                    const std::string& calibFileName,
-                    bool               calcUndistortionMaps);
-
-    //destructor
+    //!destructor
     ~SENSCalibration()
     {
     }
-       
-    //copy constructor
+
+    //! copy constructor
     SENSCalibration(const SENSCalibration& other)
       : _cameraMat(other._cameraMat.clone()),
         _distortion(other._distortion.clone()),
@@ -102,7 +104,7 @@ public:
         _camType(other._camType)
     {
     }
-    //copy assignment operator implicitly defined
+    //! copy assignment operator implicitly defined
     SENSCalibration& operator=(const SENSCalibration& other)
     {
         _cameraMat            = other._cameraMat.clone();
@@ -128,12 +130,12 @@ public:
         _calibrationTime      = other._calibrationTime;
         _computerInfos        = other._computerInfos;
         _camType              = other._camType;
-        
+
         return *this;
     }
 
-    bool save(const std::string& calibDir,
-              const std::string& calibFileName);
+    bool save(const string& calibDir,
+              const string& calibFileName);
 
     void remap(cv::Mat& inDistorted,
                cv::Mat& outUndistorted) const;
@@ -198,10 +200,10 @@ public:
     cv::Size       boardSize() const { return _boardSize; }
     float          boardSquareMM() const { return _boardSquareMM; }
     float          boardSquareM() const { return _boardSquareMM * 0.001f; }
-    std::string    calibrationTime() const { return _calibrationTime; }
-    std::string    calibFileName() const { return _calibFileName; }
-    std::string    computerInfos() const { return _computerInfos; }
-    std::string    stateStr() const
+    string         calibrationTime() const { return _calibrationTime; }
+    string         calibFileName() const { return _calibFileName; }
+    string         computerInfos() const { return _computerInfos; }
+    string         stateStr() const
     {
         switch (_state)
         {
@@ -216,26 +218,26 @@ public:
     void calculateUndistortedCameraMat();
 
 private:
-
-    
-    bool load(const std::string& calibDir,
-              const std::string& calibFileName,
-              bool               calcUndistortionMaps);
+    bool load(const string& calibDir,
+              const string& calibFileName,
+              bool          calcUndistortionMaps);
 
     void createFromGuessedFOV(int imageWidthPX, int imageHeightPX, float fovH);
+
     ///////////////////////////////////////////////////////////////////////////////////
     cv::Mat _cameraMat;  //!< 3x3 Matrix for intrinsic camera matrix
     cv::Mat _distortion; //!< 4x1 Matrix for intrinsic distortion
     ///////////////////////////////////////////////////////////////////////////////////
+
     //original data used for adaption:
     cv::Mat  _cameraMatOrig; //!< 3x3 Matrix for intrinsic camera matrix (original from loading or calibration estimation)
     cv::Size _imageSizeOrig; //!< original image size (original from loading or calibration estimation)
 
-    State       _state         = State::uncalibrated; //!< calibration state enumeration
-    float       _cameraFovVDeg = 0.0f;                //!< Vertical field of view in degrees
-    float       _cameraFovHDeg = 0.0f;                //!< Horizontal field of view in degrees
-    std::string _calibFileName;                       //!< name for calibration file
-    int         _calibFlags = 0;                      //!< OpenCV calibration flags
+    State  _state         = State::uncalibrated; //!< calibration state enumeration
+    float  _cameraFovVDeg = 0.0f;                //!< Vertical field of view in degrees
+    float  _cameraFovHDeg = 0.0f;                //!< Horizontal field of view in degrees
+    string _calibFileName;                       //!< name for calibration file
+    int    _calibFlags = 0;                      //!< OpenCV calibration flags
     //todo: not necessary if calibrated before mirroring postprocessing
     bool _isMirroredH = false; //!< Flag if image must be horizontally mirrored
     //todo: not necessary if calibrated before mirroring postprocessing
@@ -263,8 +265,8 @@ private:
     _cameraMatUndistorted is equal to _cameraMat.
     */
     cv::Mat        _cameraMatUndistorted;
-    std::string    _calibrationTime = "-"; //!< Time stamp string of calibration
-    std::string    _computerInfos;
+    string         _calibrationTime = "-"; //!< Time stamp string of calibration
+    string         _computerInfos;
     SENSCameraType _camType = SENSCameraType::FRONTFACING;
 
     static const int _CALIBFILEVERSION; //!< Global const file format version
