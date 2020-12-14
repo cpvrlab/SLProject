@@ -35,7 +35,7 @@ private:
 
     void    initCameraTexture();
     cv::Mat convertToYuv(ArImage* arImage);
-    void    updateFrame(cv::Mat& intrinsics, int w, int h);
+    void    updateFrame(cv::Mat& intrinsics);
 };
 
 #endif

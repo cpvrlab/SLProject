@@ -134,7 +134,7 @@ if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU" OR "${CMAKE_CXX_COMPILER_ID}" MATCH
 
 	if ("${SYSTEM_NAME_UPPER}" STREQUAL "IOS")
 		#iOS minimum supported version (deployment target version of iOS)
-		set(DEPLOYMENT_TARGET 8.0)
+		set(DEPLOYMENT_TARGET 11.3)
 
 		set(DEFAULT_PROJECT_OPTIONS
 			${DEFAULT_PROJECT_OPTIONS}

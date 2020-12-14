@@ -183,8 +183,7 @@ bool SENSNdkARCore::update(cv::Mat& pose)
     wTc.col(2).copyTo(pose.col(2));
     wTc.col(3).copyTo(pose.col(3));
 
-    cv::Mat intrinsics = cv::Mat::eye(3, 3, CV_32F);
-    int     w = 0, h = 0;
+    cv::Mat intrinsics = cv::Mat::eye(3, 3, CV_64F);
     {
         ArCameraIntrinsics* arIntrinsics = nullptr;
         ArCameraIntrinsics_create(_arSession, &arIntrinsics);
@@ -196,16 +195,15 @@ bool SENSNdkARCore::update(cv::Mat& pose)
 
         ArCameraIntrinsics_getImageDimensions(_arSession,
                                               arIntrinsics,
-                                              &w,
-                                              &h);
-        Utils::log("SENSNdkARCore", "img dims: %d, %d", w, h);
+                                              &_inputFrameW,
+                                              &_inputFrameH);
 
         ArCameraIntrinsics_destroy(arIntrinsics);
 
-        intrinsics.at<float>(0, 0) = fx;
-        intrinsics.at<float>(1, 1) = fy;
-        intrinsics.at<float>(0, 2) = cx;
-        intrinsics.at<float>(1, 2) = cy;
+        intrinsics.at<double>(0, 0) = fx;
+        intrinsics.at<double>(1, 1) = fy;
+        intrinsics.at<double>(0, 2) = cx;
+        intrinsics.at<double>(1, 2) = cy;
         /*
         std::stringstream ss;
         ss << intrinsics;
@@ -213,7 +211,7 @@ bool SENSNdkARCore::update(cv::Mat& pose)
          */
     }
 
-    updateFrame(intrinsics, w, h);
+    updateFrame(intrinsics);
 
     ArTrackingState camera_tracking_state;
     ArCamera_getTrackingState(_arSession, arCamera, &camera_tracking_state);
@@ -226,7 +224,7 @@ bool SENSNdkARCore::update(cv::Mat& pose)
     return true;
 }
 
-void SENSNdkARCore::updateFrame(cv::Mat& intrinsics, int w, int h)
+void SENSNdkARCore::updateFrame(cv::Mat& intrinsics)
 {
     ArImage* arImage;
     if (ArFrame_acquireCameraImage(_arSession, _arFrame, &arImage) != AR_SUCCESS)
@@ -237,36 +235,12 @@ void SENSNdkARCore::updateFrame(cv::Mat& intrinsics, int w, int h)
 
     ArImage_release(arImage);
 
-    /*
-    SENSCalibration calib(intrinsics,
-        cv::Size(w, h),
-        false,
-        false,
-        SENSCameraType::BACKFACING,
-        Utils::ComputerInfos::get);
-*/
     cv::cvtColor(yuv, bgr, cv::COLOR_YUV2BGR_NV21, 3);
 
     Utils::log("SENSNdkARCore", "arimg dims: %d, %d", bgr.cols, bgr.rows);
     std::lock_guard<std::mutex> lock(_frameMutex);
     _frame = std::make_unique<SENSFrameBase>(SENSClock::now(), bgr, intrinsics);
 }
-
-/*
-SENSFramePtr SENSNdkARCore::latestFrame()
-{
-    SENSFrameBasePtr frameBase;
-    {
-        std::lock_guard<std::mutex> lock(_frameMutex);
-        frameBase = _frame;
-    }
-
-    SENSFramePtr latestFrame;
-    if(frameBase)
-        latestFrame = processNewFrame(frameBase->timePt, frameBase->imgBGR, frameBase->intrinsics);
-    return latestFrame;
-}
- */
 
 cv::Mat SENSNdkARCore::convertToYuv(ArImage* arImage)
 {

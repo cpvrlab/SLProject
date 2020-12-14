@@ -115,7 +115,7 @@ public:
          std::string   relocAlignImage,
          std::string   vocFileName                 = "calibrations/voc_fbow.bin",
          int           vocLayer                    = 2,
-         cv::Size      cameraFrameTargetSize       = {640, 360},
+         //cv::Size      cameraFrameTargetSize       = {640, 360},
          ExtractorType initializationExtractorType = ExtractorType::ExtractorType_FAST_ORBS_2000,
          ExtractorType relocalizationExtractorType = ExtractorType::ExtractorType_FAST_ORBS_1000,
          ExtractorType trackingExtractorType       = ExtractorType::ExtractorType_FAST_ORBS_1000,
@@ -129,7 +129,7 @@ public:
         relocAlignImage(relocAlignImage),
         vocFileName(vocFileName),
         vocLayer(vocLayer),
-        cameraFrameTargetSize(cameraFrameTargetSize),
+        //cameraFrameTargetSize(cameraFrameTargetSize),
         initializationExtractorType(initializationExtractorType),
         relocalizationExtractorType(relocalizationExtractorType),
         trackingExtractorType(trackingExtractorType),
@@ -153,7 +153,7 @@ public:
     std::string vocFileName;
     int         vocLayer;
     //camera image size
-    cv::Size cameraFrameTargetSize;
+    //cv::Size cameraFrameTargetSize;
     //extractor types
     ExtractorType initializationExtractorType;
     ExtractorType relocalizationExtractorType;

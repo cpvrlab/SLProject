@@ -15,7 +15,7 @@
 class SENSARCore //: public SENSCameraBase
 {
 public:
-    struct config
+    struct Config
     {
         //! largest target image width (only BGR)
         int targetWidth;
@@ -44,6 +44,9 @@ public:
     bool         isAvailable() { return _available; };
     bool         isRunning() { return !_pause; }
 
+    const SENSCalibration* const calibration() const { return _calibration.get(); }
+    const SENSCalibration* const calibrationManip() const { return _calibrationManip.get(); }
+
 protected:
     SENSFramePtr processNewFrame(const SENSTimePt& timePt, cv::Mat& bgrImg, cv::Mat intrinsics);
 
@@ -56,10 +59,17 @@ protected:
     bool             _running = false;
     std::mutex       _frameMutex;
     SENSFrameBasePtr _frame;
-    struct config    _config;
+    Config           _config;
 
     bool _available = false;
     bool _pause     = true;
+
+    int _inputFrameW = 0;
+    int _inputFrameH = 0;
+    //! The calibration is used for computer vision applications. This calibration is adjusted to fit to the original sized image (see SENSFrame::imgBGR and SENSCameraConfig::targetWidth, targetHeight)
+    std::unique_ptr<SENSCalibration> _calibration;
+    //calibration that fits to (targetWidth,targetHeight)
+    std::unique_ptr<SENSCalibration> _calibrationManip;
 
 private:
 };

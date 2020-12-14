@@ -28,6 +28,30 @@ SENSFramePtr SENSARCore::latestFrame()
     SENSFramePtr latestFrame;
     if (frameBase)
         latestFrame = processNewFrame(frameBase->timePt, frameBase->imgBGR, frameBase->intrinsics);
+
+    if (latestFrame && !latestFrame->intrinsics.empty())
+    {
+        //HighResTimer t;
+        //todo: mutex for calibration?
+        _calibration = std::make_unique<SENSCalibration>(latestFrame->intrinsics,
+                                                         cv::Size(_inputFrameW, _inputFrameH),
+                                                         false,
+                                                         false,
+                                                         SENSCameraType::BACKFACING,
+                                                         "");
+        //now we adapt the calibration to the target size
+        if (_config.targetWidth != _inputFrameW || _config.targetHeight != _inputFrameH)
+            _calibration->adaptForNewResolution({_config.targetWidth, _config.targetHeight}, false);
+
+        //update second calibration
+        if (_config.manipWidth > 0 && _config.manipWidth > 0)
+        {
+            _calibrationManip = std::make_unique<SENSCalibration>(*_calibration);
+            _calibrationManip->adaptForNewResolution(cv::Size(_config.manipWidth, _config.manipHeight), false);
+        }
+        //SENS_DEBUG("calib update duration %f", t.elapsedTimeInMilliSec());
+    }
+
     return latestFrame;
 }
 
@@ -43,10 +67,10 @@ SENSFramePtr SENSARCore::processNewFrame(const SENSTimePt& timePt, cv::Mat& bgrI
     cv::Mat manipImg;
     float   scale = 1.0f;
 
-    manipImg = bgrImg;
     //problem: eingangsbild 16:9 -> targetImg 4:3 -> crop left and right -> manipImg 16:9 -> weiterer crop oben und unten -> FALSCH
     if (_config.manipWidth > 0 && _config.manipHeight > 0)
     {
+        manipImg  = bgrImg;
         int cropW = 0, cropH = 0;
         SENS::cropImage(manipImg, (float)_config.manipWidth / (float)_config.manipHeight, cropW, cropH);
         scale = (float)_config.manipWidth / (float)manipImg.size().width;
