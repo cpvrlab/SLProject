@@ -537,20 +537,29 @@ int main(int argc, char* argv[])
         std::unique_ptr<SENSSimulator> sensSim;
         std::unique_ptr<SENSWebCamera> webCamera;
         std::unique_ptr<SENSDummyGps>  dummyGps;
-        std::unique_ptr<SENSARCore>    arcore;
-
-        arcore = std::make_unique<SENSARCore>();
+        //std::unique_ptr<SENSARCore>    arcore;
+        //arcore = std::make_unique<SENSARCore>();
 
         SENSOrientation* orientation = nullptr;
         SENSGps*         gps         = nullptr;
         SENSCamera*      camera      = nullptr;
         if (simulateSensors)
         {
-            std::string simDir = Utils::getAppsWritableDir() + "SENSSimData/20201118-135651_SENSRecorder";
-            sensSim            = std::make_unique<SENSSimulator>(simDir);
-            gps                = sensSim->getGpsSensorPtr();
-            orientation        = sensSim->getOrientationSensorPtr();
-            camera             = sensSim->getCameraSensorPtr();
+            //std::string simDir = Utils::getAppsWritableDir() + "SENSSimData/20201106-232556_SENSRecorder";
+            //std::string simDir = Utils::getAppsWritableDir() + "SENSSimData/20201106-232621_SENSRecorder";
+            //std::string simDir = Utils::getAppsWritableDir() + "SENSSimData/20201106-232643_SENSRecorder";
+            //std::string simDir = Utils::getAppsWritableDir() + "SENSSimData/20201113-131407_SENSRecorder";
+            //std::string simDir = Utils::getAppsWritableDir() + "SENSSimData/20201113-131543_SENSRecorder";
+
+            //ecke vor christoffel
+            //std::string simDir = Utils::getAppsWritableDir() + "SENSSimData/bern/20201118-135820_SENSRecorder";
+            //spitalgasse
+            std::string simDir = Utils::getAppsWritableDir() + "SENSSimData/20201118-132235_Bern-Spitalgasse1";
+
+            sensSim     = std::make_unique<SENSSimulator>(simDir);
+            gps         = sensSim->getGpsSensorPtr();
+            orientation = sensSim->getOrientationSensorPtr();
+            camera      = sensSim->getCameraSensorPtr();
         }
         else
         {
@@ -593,7 +602,7 @@ int main(int argc, char* argv[])
                  camera,
                  gps,
                  orientation,
-                 arcore.get());
+                 nullptr);
         app.setCloseAppCallback(closeAppCallback);
 
         glfwSetWindowTitle(window, "ErlebAR");

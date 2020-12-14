@@ -69,4 +69,5 @@ if (SL_BUILD_WAI)
 endif()
 
 add_subdirectory(lib-SLProject)
+add_subdirectory(lib-SLMath)
 #add_subdirectory(experimental)

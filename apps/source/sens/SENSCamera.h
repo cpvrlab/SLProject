@@ -177,10 +177,11 @@ public:
 
     //! Stop a started camera device
     virtual void stop() = 0;
-    //! Get the latest captured frame. If no frame was captured the frame will be empty (null).
-    virtual SENSFrameBasePtr latestFrame() = 0;
     //! Get SENSCaptureProperties which contains necessary information about all available camera devices and their capabilities
     virtual const SENSCaptureProperties& captureProperties() = 0;
+
+    //! Get the latest captured frame. If no frame was captured the frame will be empty (null).
+    virtual SENSFrameBasePtr latestFrame() = 0;
     //! defines how the camera was configured during start
     virtual const SENSCameraConfig& config() const = 0;
 
@@ -198,17 +199,17 @@ public:
 class SENSCameraBase : public SENSCamera
 {
 public:
+    SENSFrameBasePtr latestFrame() override;
+
     const SENSCameraConfig& config() const override { return _config; };
+
+    void registerListener(SENSCameraListener* listener) override;
+    void unregisterListener(SENSCameraListener* listener) override;
 
     bool started() const override { return _started; }
 
     bool permissionGranted() const override { return _permissionGranted; }
     void setPermissionGranted() override { _permissionGranted = true; }
-
-    void registerListener(SENSCameraListener* listener) override;
-    void unregisterListener(SENSCameraListener* listener) override;
-
-    SENSFrameBasePtr latestFrame() override;
 
 protected:
     void updateFrame(cv::Mat bgrImg, cv::Mat intrinsics, bool intrinsicsChanged);
@@ -229,9 +230,9 @@ protected:
 
     //current frame
     SENSFrameBasePtr _frame;
-    bool             _intrinsicsChanged = false;
-    cv::Mat          _intrinsics;
-    std::mutex       _frameMutex;
+    //bool             _intrinsicsChanged = false;
+    //cv::Mat          _intrinsics;
+    std::mutex _frameMutex;
 };
 
 #endif //SENS_CAMERA_H

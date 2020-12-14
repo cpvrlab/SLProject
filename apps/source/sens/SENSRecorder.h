@@ -51,7 +51,7 @@ private:
     //!camera listener callback
     void onFrame(const SENSTimePt& timePt, cv::Mat frame) override;
     void onCameraConfigChanged(const SENSCameraConfig& config) override;
-    
+
     std::string _outputDir;
 
     SENSGpsRecorderDataHandler*         _gpsDataHandler         = nullptr;

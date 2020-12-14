@@ -21,7 +21,7 @@
 - (SENSCaptureProperties)retrieveCaptureProperties;
 
 @property (nonatomic, assign) std::function<void(unsigned char*, int, int, matrix_float3x3*)> updateCB;
-@property (nonatomic, assign) std::function<void(bool)> permissionCB;
+@property (nonatomic, assign) std::function<void(bool)>                                       permissionCB;
 
 @end
 

@@ -2,12 +2,14 @@
 #include <sens/SENSCamera.h>
 #include <WAIMapStorage.h>
 #include <sens/SENSUtils.h>
+#include <SLAlgo.h>
+#include <F2FTransform.h>
 #include <Utils.h>
 #include <GlobalTimer.h>
 
 #define LOAD_ASYNC
 //#define TARGET_WIDTH 1920
-//#define TARGET_HEIGHT 1440
+//#define TARGET_HEIGHT 1080
 #define TARGET_WIDTH 640
 #define TARGET_HEIGHT 360
 
@@ -50,6 +52,9 @@ AreaTrackingView::AreaTrackingView(sm::EventHandler&  eventHandler,
     //init video camera
     _camera = std::make_unique<SENSCvCamera>(camera);
 
+    _devRot.numAveraged(1);
+    _devRot.updateRPY(false);
+    _devRot.zeroYawAtStart(false);
     /*
     // TODO(dgj1): associate templates with areas
     cv::Mat templateTest          = cv::imread(deviceData.erlebARDir() + "templates/template_milchgaessli.png", cv::IMREAD_GRAYSCALE);
@@ -88,12 +93,14 @@ void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaI
             _userGuidance.areaSelected(area.id, area.llaPos, area.viewAngleDeg);
 
         //start video camera
-        startCamera(area.cameraFrameTargetSize);
+        startCamera();
+
+        initDeviceLocation(location, area);
 
         //init 3d visualization
         this->unInit();
-        _waiScene.initScene(locId, areaId);
-        updateSceneCameraFov();
+        _waiScene.initScene(locId, areaId, &_devRot, &_devLoc, _scrW, _scrH);
+        updateSceneCameraFov(_camera->calibration());
         this->scene(&_waiScene);
         this->camera(_waiScene.camera);
         this->onInitialize(); //init scene view
@@ -101,11 +108,13 @@ void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaI
         //init arcore
         if (_arcore && _config.useARCore && _arcore->isAvailable())
         {
-            _arcore->init(TARGET_WIDTH, TARGET_HEIGHT, area.cameraFrameTargetSize.width, area.cameraFrameTargetSize.height, true);
+            if(_config.useWAISlam)
+                _arcore->init(TARGET_WIDTH, TARGET_HEIGHT, TARGET_WIDTH, TARGET_HEIGHT, true);
+            else
+                _arcore->init(TARGET_WIDTH, TARGET_HEIGHT, -1, -1, false);
             _arcore->resume();
         }
 
-        initDeviceLocation(location, area);
         initSlam(area);
 
         _initTime            = GlobalTimer::timeS();
@@ -158,11 +167,11 @@ cv::Mat AreaTrackingView::convertCameraPoseToWaiCamExtrinisc(SLMat4f& wTc)
 }
 
 /*
- cTw is the camera extrinsic: the world w.r.t. the camera coordinate system.
- We invert to get the camera pose (camera w.r.t the world coordinate system).
+ wTc is the camera pose (camera w.r.t the world coordinate system).
  */
-SLMat4f convertARCoreToSLMat(const cv::Mat& cTw)
+SLMat4f convertARCoreToSLMat(const cv::Mat& wTc)
 {
+    /*
     SLMat4f m;
 
     // update camera node position
@@ -183,6 +192,17 @@ SLMat4f convertARCoreToSLMat(const cv::Mat& cTw)
                 -wTc.at<float>(1, 1), wTc.at<float>(1, 0), wTc.at<float>(1, 2), wTc.at<float>(1, 3),
                 -wTc.at<float>(2, 1), wTc.at<float>(2, 0), wTc.at<float>(2, 2), wTc.at<float>(2, 3),
                 -wTc.at<float>(3, 1), wTc.at<float>(3, 0), wTc.at<float>(3, 2), wTc.at<float>(3, 3));
+    // clang-format on
+    return m;
+    */
+
+
+    SLMat4f m;
+    // clang-format off
+    m.setMatrix(wTc.at<float>(0, 0), wTc.at<float>(0, 1), wTc.at<float>(0, 2), wTc.at<float>(0, 3),
+                wTc.at<float>(1, 0), wTc.at<float>(1, 1), wTc.at<float>(1, 2), wTc.at<float>(1, 3),
+                wTc.at<float>(2, 0), wTc.at<float>(2, 1), wTc.at<float>(2, 2), wTc.at<float>(2, 3),
+                wTc.at<float>(3, 0), wTc.at<float>(3, 1), wTc.at<float>(3, 2), wTc.at<float>(3, 3));
     // clang-format on
     return m;
 }
@@ -233,17 +253,19 @@ SLMat4f transformAverage(SLMat4f m1, SLMat4f m2)
 
 bool AreaTrackingView::updateGPSARCore(SENSFramePtr& frame)
 {
-    cv::Mat view;
     bool    isTracking = false;
 
     SLMat4f gpsPose = calcCameraPoseGpsOrientationBased();
-
+    cv::Mat arCorePose;
     //Get frame from ArCore or camera depending if we have them.
     if (_arcore->isRunning())
     {
-        cv::Mat proj;
-        isTracking = _arcore->update(proj, view);
-        frame      = _arcore->latestFrame();
+        isTracking = _arcore->update(arCorePose);
+        frame = _arcore->latestFrame();
+        if(frame && !frame->intrinsics.empty())
+        {
+            updateSceneCameraFov(_arcore->calibration());
+        }
     }
     else if (_camera)
         frame = _camera->latestFrame();
@@ -265,7 +287,7 @@ bool AreaTrackingView::updateGPSARCore(SENSFramePtr& frame)
 
         if (GlobalTimer::timeS() - _initTime > 10.0 && isTracking)
         {
-            _transitionMatrix = convertARCoreToSLMat(view);
+            _transitionMatrix = convertARCoreToSLMat(arCorePose);
             _transitionMatrix.invert();
             //_transitionMatrix    = gpsPose * _transitionMatrix;
             _transitionMatrix    = _avgPose * _transitionMatrix;
@@ -275,7 +297,7 @@ bool AreaTrackingView::updateGPSARCore(SENSFramePtr& frame)
     else if (_arcore->isRunning() && isTracking)
     {
         _gui.showInfoText("ARCore tracking");
-        SLMat4f arPose  = convertARCoreToSLMat(view);
+        SLMat4f arPose  = convertARCoreToSLMat(arCorePose);
         SLMat4f camPose = _transitionMatrix * arPose;
         applyFingerCorrection(camPose);
         _waiScene.camera->om(camPose);
@@ -287,16 +309,20 @@ bool AreaTrackingView::updateGPSARCore(SENSFramePtr& frame)
 //Marker for pose and yaw
 bool AreaTrackingView::updateWAISlamGPSARCore(SENSFramePtr& frame)
 {
-    cv::Mat view;
     bool    isTracking = false;
 
     SLMat4f gpsPose = calcCameraPoseGpsOrientationBased();
-
+    cv::Mat arCorePose;
     if (_arcore->isRunning())
     {
-        cv::Mat proj;
-        isTracking = _arcore->update(proj, view);
-        frame      = _arcore->latestFrame();
+        isTracking = _arcore->update(arCorePose);
+        frame = _arcore->latestFrame();
+        if (frame && !frame->intrinsics.empty())
+        {
+            if(_waiSlam)
+                _waiSlam->changeIntrinsic(_arcore->calibrationManip()->cameraMat(), _arcore->calibration()->distortion());
+            updateSceneCameraFov(_arcore->calibration());
+        }
     }
     else if (_camera)
     {
@@ -317,17 +343,6 @@ bool AreaTrackingView::updateWAISlamGPSARCore(SENSFramePtr& frame)
         //_gui.showInfoText("GPS + Sensors positioning");
         if (frame && _waiSlam && _waiSlam->isInitialized() && isTracking) // TODO: Add timing condition to fallback to GPS if WAISlam too slow
         {
-            //the intrinsics may change dynamically on focus changes (e.g. on iOS)
-            //if (!frame->intrinsics.empty())
-            //{
-            //_waiSlam->changeIntrinsic(_camera->scaledCameraMat(), _camera->calibration()->distortion());
-            //updateSceneCameraFov();
-            //}
-
-            //(not used yet, so I commented it for now)
-            //cv::Mat camExtrinsic = convertCameraPoseToWaiCamExtrinisc(gpsPose);
-            //_waiSlam->setCamExrinsicGuess(camExtrinsic);
-
             _waiSlam->update(frame->imgManip);
 
             if (WAI::TrackingState_TrackingOK == _waiSlam->getTrackingState())
@@ -357,7 +372,7 @@ bool AreaTrackingView::updateWAISlamGPSARCore(SENSFramePtr& frame)
                     m.setTranslation(t);
 
                     gpsPose.setTranslation(SLVec3f(0, 0, 0));
-                    _transitionMatrix = convertARCoreToSLMat(view);
+                    _transitionMatrix = convertARCoreToSLMat(arCorePose);
                     _transitionMatrix.invert();
                     _transitionMatrix    = (m * gpsPose) * _transitionMatrix;
                     _hasTransitionMatrix = true;
@@ -372,7 +387,7 @@ bool AreaTrackingView::updateWAISlamGPSARCore(SENSFramePtr& frame)
         }
         else if (GlobalTimer::timeS() - _initTime > 10.0 && isTracking)
         {
-            _transitionMatrix = convertARCoreToSLMat(view);
+            _transitionMatrix = convertARCoreToSLMat(arCorePose);
             _transitionMatrix.invert();
             _transitionMatrix    = gpsPose * _transitionMatrix;
             _hasTransitionMatrix = true;
@@ -388,7 +403,7 @@ bool AreaTrackingView::updateWAISlamGPSARCore(SENSFramePtr& frame)
     else if (_arcore->isRunning() && isTracking)
     {
         _gui.showInfoText("ARCore tracking");
-        SLMat4f arPose  = convertARCoreToSLMat(view);
+        SLMat4f arPose  = convertARCoreToSLMat(arCorePose);
         SLMat4f camPose = _transitionMatrix * arPose;
         applyFingerCorrection(camPose);
         _waiScene.camera->om(camPose);
@@ -406,21 +421,32 @@ bool AreaTrackingView::updateWAISlamGPSARCore(SENSFramePtr& frame)
 
 bool AreaTrackingView::updateGPSWAISlamARCore(SENSFramePtr& frame)
 {
-    cv::Mat view;
     bool    isTracking = false;
 
     SLMat4f gpsPose = calcCameraPoseGpsOrientationBased();
-
+    cv::Mat arCorePose;
     if (_arcore->isRunning())
     {
-        cv::Mat proj;
-        isTracking = _arcore->update(proj, view);
-        frame      = _arcore->latestFrame();
+        isTracking = _arcore->update(arCorePose);
+        frame = _arcore->latestFrame();
+        if (frame && !frame->intrinsics.empty())
+        {
+            if(_waiSlam)
+                _waiSlam->changeIntrinsic(_arcore->calibrationManip()->cameraMat(), _arcore->calibration()->distortion());
+            updateSceneCameraFov(_arcore->calibration());
+        }
     }
     else if (_camera)
     {
         _gui.showInfoText("arcore not running");
         frame = _camera->latestFrame();
+        //the intrinsics may change dynamically on focus changes (e.g. on iOS)
+        if (frame && !frame->intrinsics.empty())
+        {
+            if(_waiSlam)
+                _waiSlam->changeIntrinsic(_camera->scaledCameraMat(), _camera->calibration()->distortion());
+            updateSceneCameraFov(_camera->calibration());
+        }
     }
     else
     {
@@ -436,13 +462,6 @@ bool AreaTrackingView::updateGPSWAISlamARCore(SENSFramePtr& frame)
         //_gui.showInfoText("GPS + Sensors positioning");
         if (frame && _waiSlam && _waiSlam->isInitialized() && isTracking) // TODO: Add timing condition to fallback to GPS if WAISlam too slow
         {
-            //the intrinsics may change dynamically on focus changes (e.g. on iOS)
-            //if (!frame->intrinsics.empty())
-            //{
-            //_waiSlam->changeIntrinsic(_camera->scaledCameraMat(), _camera->calibration()->distortion());
-            //updateSceneCameraFov();
-            //}
-
             //(not used yet, so I commented it for now)
             //cv::Mat camExtrinsic = convertCameraPoseToWaiCamExtrinisc(gpsPose);
             //_waiSlam->setCamExrinsicGuess(camExtrinsic);
@@ -454,7 +473,7 @@ bool AreaTrackingView::updateGPSWAISlamARCore(SENSFramePtr& frame)
                 _frameCounter++;
                 if (_frameCounter > 20)
                 {
-                    _transitionMatrix = convertARCoreToSLMat(view);
+                    _transitionMatrix = convertARCoreToSLMat(arCorePose);
                     _transitionMatrix.invert();
                     _transitionMatrix    = convertWAISlamToSLMat(_waiSlam->getPose()) * _transitionMatrix;
                     _hasTransitionMatrix = true;
@@ -469,7 +488,7 @@ bool AreaTrackingView::updateGPSWAISlamARCore(SENSFramePtr& frame)
         }
         else if (GlobalTimer::timeS() - _initTime > 10.0 && isTracking)
         {
-            _transitionMatrix = convertARCoreToSLMat(view);
+            _transitionMatrix = convertARCoreToSLMat(arCorePose);
             _transitionMatrix.invert();
             _transitionMatrix    = gpsPose * _transitionMatrix;
             _hasTransitionMatrix = true;
@@ -485,7 +504,7 @@ bool AreaTrackingView::updateGPSWAISlamARCore(SENSFramePtr& frame)
     else if (_arcore->isRunning() && isTracking)
     {
         _gui.showInfoText("ARCore tracking");
-        SLMat4f arPose  = convertARCoreToSLMat(view);
+        SLMat4f arPose  = convertARCoreToSLMat(arCorePose);
         SLMat4f camPose = _transitionMatrix * arPose;
         applyFingerCorrection(camPose);
         _waiScene.camera->om(camPose);
@@ -501,13 +520,11 @@ bool AreaTrackingView::updateGPSWAISlamARCore(SENSFramePtr& frame)
 bool AreaTrackingView::updateGPSWAISlam(SENSFramePtr& frame)
 {
     bool isTracking = false;
-
-    cv::Mat view;
+    cv::Mat arCorePose;
     if (_arcore->isRunning())
     {
-        cv::Mat proj;
-        isTracking = _arcore->update(proj, view);
-        frame      = _arcore->latestFrame();
+        isTracking = _arcore->update(arCorePose);
+        frame = _arcore->latestFrame();
     }
     else if (_camera)
         frame = _camera->latestFrame();
@@ -522,7 +539,7 @@ bool AreaTrackingView::updateGPSWAISlam(SENSFramePtr& frame)
             if (!frame->intrinsics.empty())
             {
                 _waiSlam->changeIntrinsic(_camera->scaledCameraMat(), _camera->calibration()->distortion());
-                updateSceneCameraFov();
+                updateSceneCameraFov(_camera->calibration());
             }
             _waiSlam->update(frame->imgManip);
             isTracking = (_waiSlam->getTrackingState() == WAI::TrackingState_TrackingOK);
@@ -561,16 +578,14 @@ bool AreaTrackingView::updateGPSWAISlam(SENSFramePtr& frame)
 // For marker initialization without arcore
 bool AreaTrackingView::updateWAISlamGPS(SENSFramePtr& frame)
 {
-    cv::Mat view;
     bool    isTracking = false;
 
     SLMat4f gpsPose = calcCameraPoseGpsOrientationBased();
-
+    cv::Mat arCorePose;
     if (_arcore->isRunning())
     {
-        cv::Mat proj;
-        isTracking = _arcore->update(proj, view);
-        frame      = _arcore->latestFrame();
+        isTracking = _arcore->update(arCorePose);
+        frame = _arcore->latestFrame();
     }
     else if (_camera)
         frame = _camera->latestFrame();
@@ -586,7 +601,7 @@ bool AreaTrackingView::updateWAISlamGPS(SENSFramePtr& frame)
         if (!frame->intrinsics.empty())
         {
             _waiSlam->changeIntrinsic(_camera->scaledCameraMat(), _camera->calibration()->distortion());
-            updateSceneCameraFov();
+            updateSceneCameraFov(_camera->calibration());
         }
 
         _waiSlam->update(frame->imgManip);
@@ -602,8 +617,8 @@ bool AreaTrackingView::updateWAISlamGPS(SENSFramePtr& frame)
         else
         {
             _waiScene.camera->om(_transitionMatrix * gpsPose);
-            cv::Mat camExtrinsic = convertCameraPoseToWaiCamExtrinisc(gpsPose);
-            _waiSlam->setCamExrinsicGuess(camExtrinsic);
+            //cv::Mat camExtrinsic = convertCameraPoseToWaiCamExtrinisc(gpsPose);
+            //_waiSlam->setCamExrinsicGuess(camExtrinsic);
             _gui.showInfoText("gps + sensors tracking");
         }
     }
@@ -775,7 +790,7 @@ bool AreaTrackingView::update()
                 }
                 currentCamera = _userGuidanceScene.camera;
             }
-
+            
             //update visualization
             if (frame)
             {
@@ -787,12 +802,16 @@ bool AreaTrackingView::update()
                 updateVideoImage(*frame.get(), currentCamera);
             }
 
+
+            /*
             //update user guidance
             if (_config.enableUserGuidance)
             {
                 _userGuidance.updateTrackingState(isTracking);
                 _userGuidance.updateSensorEstimations();
             }
+             */
+
         }
     }
     catch (std::exception& e)
@@ -887,8 +906,10 @@ SLbool AreaTrackingView::onMouseMove(SLint x, SLint y)
 
 void AreaTrackingView::onCameraParamsChanged()
 {
+    //todo: this does not work for arcore yet
+    assert(!(_arcore && _config.useARCore));
     _waiSlam->changeIntrinsic(_camera->scaledCameraMat(), _camera->calibration()->distortion());
-    updateSceneCameraFov();
+    updateSceneCameraFov(_camera->calibration());
 }
 
 SLMat4f AreaTrackingView::calcCameraPoseGpsOrientationBased()
@@ -945,17 +966,46 @@ SLMat4f AreaTrackingView::calcCameraPoseGpsOrientationBased()
     return camPose;
 }
 
+SLMat4f AreaTrackingView::calcCameraPoseOrientationBased(const SENSOrientation::Quat& sensQuat)
+{
+    //use orientation sensor for camera orientation
+    SLQuat4f slQuat(sensQuat.quatX, sensQuat.quatY, sensQuat.quatZ, sensQuat.quatW);
+    SLMat3f  rotMat = slQuat.toMat3();
+
+    SLMat4f camPose;
+    {
+        SLMat3f sRc;
+        sRc.rotation(-90, 0, 0, 1);
+
+        //sensor rotation w.r.t. east-north-up
+        SLMat3f enuRs;
+        enuRs.setMatrix(rotMat);
+
+        //enu rotation w.r.t. world
+        SLMat3f wRenu;
+        wRenu.rotation(-90, 1, 0, 0);
+
+        //combiniation of partial rotations to orientation of camera w.r.t world
+        SLMat3f wRc = wRenu * enuRs * sRc;
+        camPose.setRotation(wRc);
+        camPose.setTranslation(_waiScene.camera->om().translation());
+        //camPose.print("camPose");
+    }
+
+    return camPose;
+}
+
 void AreaTrackingView::initSlam(const ErlebAR::Area& area)
 {
     //initialize extractors
-    _initializationExtractor = _featureExtractorFactory.make(area.initializationExtractorType, area.cameraFrameTargetSize, area.nExtractorLevels);
-    _trackingExtractor       = _featureExtractorFactory.make(area.trackingExtractorType, area.cameraFrameTargetSize, area.nExtractorLevels);
-    _relocalizationExtractor = _featureExtractorFactory.make(area.relocalizationExtractorType, area.cameraFrameTargetSize, area.nExtractorLevels);
+    _initializationExtractor = _featureExtractorFactory.make(area.initializationExtractorType, {TARGET_WIDTH, TARGET_HEIGHT}, area.nExtractorLevels);
+    _trackingExtractor       = _featureExtractorFactory.make(area.trackingExtractorType, {TARGET_WIDTH, TARGET_HEIGHT}, area.nExtractorLevels);
+    _relocalizationExtractor = _featureExtractorFactory.make(area.relocalizationExtractorType, {TARGET_WIDTH, TARGET_HEIGHT}, area.nExtractorLevels);
 
     if (_trackingExtractor->doubleBufferedOutput())
-        _imgBuffer.init(2, area.cameraFrameTargetSize);
+        _imgBuffer.init(2, {TARGET_WIDTH, TARGET_HEIGHT});
     else
-        _imgBuffer.init(1, area.cameraFrameTargetSize);
+        _imgBuffer.init(1, {TARGET_WIDTH, TARGET_HEIGHT});
 
     std::string vocFileName = _deviceData.dataDir() + area.vocFileName;
 
@@ -1117,23 +1167,23 @@ void AreaTrackingView::initDeviceLocation(const ErlebAR::Location& location, con
         Utils::log("AreaTrackingView", "WARNING: no geo tiff available");
 }
 
-void AreaTrackingView::updateSceneCameraFov()
+void AreaTrackingView::updateSceneCameraFov(const SENSCalibration* calibration)
 {
     //if the camera image height is smaller than the sceneview height,
     //we have to calculate the corresponding vertical field of view for the scene camera
-    float imgWdivH = _camera->calibration()->imageAspectRatio();
+    float imgWdivH = calibration->imageAspectRatio();
     if (std::abs(this->scrWdivH() - imgWdivH) > 0.00001)
     {
         if (this->scrWdivH() > imgWdivH)
         {
             //bars left and right: directly use camera vertial field of view as scene vertical field of view
-            _waiScene.camera->updateCameraIntrinsics(_camera->calibration()->cameraFovVDeg());
-            _userGuidanceScene.camera->updateCameraIntrinsics(_camera->calibration()->cameraFovVDeg());
+            _waiScene.camera->updateCameraIntrinsics(calibration->cameraFovVDeg());
+            _userGuidanceScene.camera->updateCameraIntrinsics(calibration->cameraFovVDeg());
         }
         else
         {
             //bars top and bottom: estimate vertical fovV from cameras horizontal field of view and screen aspect ratio
-            float fovV = SENS::calcFovDegFromOtherFovDeg(_camera->calibration()->cameraFovHDeg(), this->scrW(), this->scrH());
+            float fovV = SENS::calcFovDegFromOtherFovDeg(calibration->cameraFovHDeg(), this->scrW(), this->scrH());
             _waiScene.camera->updateCameraIntrinsics(fovV);
             _userGuidanceScene.camera->updateCameraIntrinsics(fovV);
         }
@@ -1141,8 +1191,8 @@ void AreaTrackingView::updateSceneCameraFov()
     else
     {
         //no bars because same aspect ration: directly use camera vertial field of view as scene vertical field of view
-        _waiScene.camera->updateCameraIntrinsics(_camera->calibration()->cameraFovVDeg());
-        _userGuidanceScene.camera->updateCameraIntrinsics(_camera->calibration()->cameraFovVDeg());
+        _waiScene.camera->updateCameraIntrinsics(calibration->cameraFovVDeg());
+        _userGuidanceScene.camera->updateCameraIntrinsics(calibration->cameraFovVDeg());
     }
 }
 
@@ -1157,7 +1207,7 @@ void AreaTrackingView::hold()
     _camera->stop();
 }
 
-bool AreaTrackingView::startCamera(const cv::Size& trackImgSize)
+bool AreaTrackingView::startCamera()
 {
     if (_camera)
     {
@@ -1165,9 +1215,12 @@ bool AreaTrackingView::startCamera(const cv::Size& trackImgSize)
             _camera->stop();
 
         if (_camera->supportsFacing(SENSCameraFacing::BACK)) //we are on android or ios. we can also expect high resolution support.
-            _camera->configure(SENSCameraFacing::BACK, TARGET_WIDTH, TARGET_HEIGHT, trackImgSize.width, trackImgSize.height, false, false, true);
+        {
+            //make sure we dont crop left and right on a 19:9 image to get 4:3 (this would limit our field of view very much)
+            _camera->configure(SENSCameraFacing::BACK, TARGET_WIDTH, TARGET_HEIGHT, TARGET_WIDTH, TARGET_HEIGHT, false, false, true);
+        }
         else
-            _camera->configure(SENSCameraFacing::UNKNOWN, 640, 480, trackImgSize.width, trackImgSize.height, false, false, true);
+            _camera->configure(SENSCameraFacing::UNKNOWN, TARGET_WIDTH, TARGET_HEIGHT, TARGET_WIDTH, TARGET_HEIGHT, false, false, true);
 
         _camera->start();
         return _camera->started();

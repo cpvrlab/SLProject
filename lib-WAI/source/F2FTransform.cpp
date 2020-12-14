@@ -25,30 +25,27 @@
 #include <OrbSlam/ORBmatcher.h>
 #include <Eigen/Geometry>
 #include <thread>
+#include <Utils.h>
 
 void F2FTransform::opticalFlowMatch(const cv::Mat&             f1Gray,
                                     const cv::Mat&             f2Gray,
-                                    std::vector<cv::KeyPoint>& kp1,
-                                    std::vector<cv::Point2f>&  p1,
-                                    std::vector<cv::Point2f>&  p2,
+                                    std::vector<cv::Point2f>&  p1, //last
+                                    std::vector<cv::Point2f>&  p2, //curr
                                     std::vector<uchar>&        inliers,
                                     std::vector<float>&        err)
 {
-    cv::TermCriteria criteria(cv::TermCriteria::COUNT | cv::TermCriteria::EPS, 10, 0.03);
-    if (kp1.size() < 20)
+    if(p1.size() < 10)
         return;
-    p1.clear();
+    
+    cv::TermCriteria criteria(cv::TermCriteria::COUNT | cv::TermCriteria::EPS, 10, 0.03);
+
     p2.clear();
     inliers.clear();
     err.clear();
 
-    p1.reserve(kp1.size());
-    p2.reserve(kp1.size());
-    inliers.reserve(kp1.size());
-    err.reserve(kp1.size());
-
-    for (int i = 0; i < kp1.size(); i++)
-        p1.push_back(kp1[i].pt);
+    p2.reserve(p1.size());
+    inliers.reserve(p1.size());
+    err.reserve(p1.size());
 
     cv::Size winSize(11, 11);
 
@@ -66,8 +63,8 @@ void F2FTransform::opticalFlowMatch(const cv::Mat&             f1Gray,
       0.001);                    // Minimal Eigen threshold
 }
 
-float F2FTransform::filterPoints(std::vector<cv::Point2f>& p1,
-                                 std::vector<cv::Point2f>& p2,
+float F2FTransform::filterPoints(const std::vector<cv::Point2f>& p1,
+                                 const std::vector<cv::Point2f>& p2,
                                  std::vector<cv::Point2f>& goodP1,
                                  std::vector<cv::Point2f>& goodP2,
                                  std::vector<uchar>&       inliers,
@@ -81,14 +78,13 @@ float F2FTransform::filterPoints(std::vector<cv::Point2f>& p1,
     goodP2.reserve(p1.size());
     float avgMotion = 0;
 
-    for (int i = 0, j = 0; i < p1.size(); i++)
+    for (int i = 0; i < p1.size(); i++)
     {
-        if (inliers[i] && err[i] < 5.0)
+        if (inliers[i] && err[i] < 10.0)
         {
             goodP1.push_back(p1[i]);
             goodP2.push_back(p2[i]);
             avgMotion += cv::norm(p1[i] - p2[i]);
-            j++;
         }
     }
     return avgMotion / goodP1.size();
@@ -142,12 +138,123 @@ bool F2FTransform::estimateRot(const cv::Mat             K,
     return true;
 }
 
-void F2FTransform::eulerToMat(float yaw, float pitch, float roll, cv::Mat& Rx, cv::Mat& Ry, cv::Mat& Rz)
+
+bool F2FTransform::estimateRotXYZ(const cv::Mat&            K,
+                                  const std::vector<cv::Point2f>& p1,
+                                  const std::vector<cv::Point2f>& p2,
+                                  float&                    xAngRAD,
+                                  float&                    yAngRAD,
+                                  float&                    zAngRAD,
+                                  std::vector<uchar>&       inliers)
+{
+    if (p1.size() < 10)
+        return false;
+
+    //relate points to optical center
+    //HINT: void at(int row, int column)
+    double cx = K.at<double>(0, 2);
+    double cy = K.at<double>(1, 2);
+    
+    cv::Point2f c(cx, cy); //optical center
+    std::vector<cv::Point2f> p1C = p1;
+    std::vector<cv::Point2f> p2C = p2;
+    for (int i = 0; i < p1.size(); i++)
+    {
+        p1C[i] -= c;
+        p2C[i] -= c;
+    }
+
+    inliers.clear();
+    //estimate homography (gives us frame b w.r.t frame a)
+    cv::Mat aHb = cv::estimateAffinePartial2D(p1C, p2C, inliers);
+    if(aHb.empty())
+        return false;
+    //std::cout << "aHb: " << aHb << std::endl;
+    
+    //express translational part in aHb relative to a coordinate frame b' that was rotated with rotational part
+    cv::Mat bRa = aHb.rowRange(0, 2).colRange(0, 2).t(); //extract and express rotation from rotated frame
+    cv::Mat aTR = aHb.col(2);
+    cv::Mat bTR = bRa * aTR;
+    
+    
+    //rotation about z-axis: It points into the image plane, so we have to invert the sign
+    zAngRAD = atan2(aHb.at<double>(1, 0), aHb.at<double>(0, 0));
+    //rotation around y-axis about x-offset: it points down in cv image, so we have to invert the sign
+    yAngRAD = atan(bTR.at<double>(0) / K.at<double>(0, 0));
+    //rotation around x-axis about y-offset: it points down in cv image, so we have to invert the sign
+    xAngRAD = atan(bTR.at<double>(1) / K.at<double>(1, 1));
+        
+    return true;
+}
+
+bool F2FTransform::estimateRotXY(const cv::Mat&             K,
+                                 const std::vector<cv::Point2f>& p1,
+                                 const std::vector<cv::Point2f>& p2,
+                                 float&                    xAngRAD,
+                                 float&                    yAngRAD,
+                                 const float               zAngRAD,
+                                 std::vector<uchar>&       inliers)
+{
+    if (p1.size() < 10)
+        return false;
+
+    //relate points to optival center
+    //HINT: void at(int row, int column)
+    double cx = K.at<double>(0, 2);
+    double cy = K.at<double>(1, 2);
+    //rotation matrix
+    
+    
+    cv::Point2f c(cx, cy); //optical center
+    std::vector<cv::Point2f> p1C = p1;
+    std::vector<cv::Point2f> p2C = p2;
+    for (int i = 0; i < p1.size(); i++)
+    {
+        p1C[i] -= c;
+        p2C[i] -= c;
+        //rotate points about center
+        
+    }
+    
+    //estimate median shift
+    
+
+    inliers.clear();
+    //estimate homography (gives us frame b w.r.t frame a)
+    cv::Mat aHb = cv::estimateAffinePartial2D(p1C, p2C, inliers);
+    if(aHb.empty())
+        return false;
+    //std::cout << "aHb: " << aHb << std::endl;
+    
+    //express translational part in aHb relative to a coordinate frame b' that was rotated with rotational part
+    //cv::Mat bRa = aHb.rowRange(0, 2).colRange(0, 2).t(); //extract and express rotation from rotated frame
+    //cv::Mat aTR = aHb.col(2);
+    //cv::Mat bTR = bRa * aTR;
+    
+    
+    //rotation about z-axis: It points into the image plane, so we have to invert the sign
+    //zAngRAD = atan2(aHb.at<double>(1, 0), aHb.at<double>(0, 0));
+    //rotation around y-axis about x-offset: it points down in cv image, so we have to invert the sign
+    yAngRAD = atan(aHb.at<double>(0, 2) / K.at<double>(0, 0));
+    //rotation around x-axis about y-offset: it points down in cv image, so we have to invert the sign
+    xAngRAD = atan(aHb.at<double>(1, 2) / K.at<double>(1, 1));
+    
+    //std::cout << "xoff: "<< bTR.at<double>(0) << std::endl;
+    //std::cout << "yoff: "<< bTR.at<double>(1) << std::endl;
+    
+    //std::cout << "zAngDEG: "<< zAngDEG << std::endl;
+    //std::cout << "yAngDEG: "<< yAngDEG << std::endl;
+    //std::cout << "xAngDEG: "<< xAngDEG << std::endl;
+
+    return true;
+}
+
+void F2FTransform::eulerToMat(float xAngRAD, float yAngRAD, float zAngRAD, cv::Mat& Rx, cv::Mat& Ry, cv::Mat& Rz)
 {
     Eigen::Matrix3f mx, my, mz;
-    mx = Eigen::AngleAxisf(yaw, Eigen::Vector3f::UnitX());
-    my = Eigen::AngleAxisf(pitch, Eigen::Vector3f::UnitY());
-    mz = Eigen::AngleAxisf(roll, Eigen::Vector3f::UnitZ());
+    mx = Eigen::AngleAxisf(xAngRAD, Eigen::Vector3f::UnitX());
+    my = Eigen::AngleAxisf(yAngRAD, Eigen::Vector3f::UnitY());
+    mz = Eigen::AngleAxisf(zAngRAD, Eigen::Vector3f::UnitZ());
 
     cv::Mat eRx = eigen2cv(mx);
     cv::Mat eRy = eigen2cv(my);

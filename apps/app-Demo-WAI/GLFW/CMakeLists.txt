@@ -10,7 +10,6 @@ set(compile_definitions
 set(include_path "${CMAKE_CURRENT_SOURCE_DIR}")
 set(source_path "${CMAKE_CURRENT_SOURCE_DIR}")
 
-
 set(headers
     ${erlebar_headers}
     ${SL_PROJECT_ROOT}/apps/source/sens/GLFW/SENSWebCamera.h
@@ -55,6 +54,7 @@ target_link_libraries(${target}
     ${META_PROJECT_NAME}::lib-fbow
     ${META_PROJECT_NAME}::lib-DBoW2
     lib-SLProject
+    lib-SLMath
     ${glfw_LIBS}
 
     INTERFACE

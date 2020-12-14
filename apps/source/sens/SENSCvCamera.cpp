@@ -3,52 +3,8 @@
 #include <sens/SENSUtils.h>
 #include <Utils.h>
 
-//we scale the original image only to meet the width of manipImg. After that the targetImg may be additionally cropped (e.g. to screen width)
-SENSFramePtr SENSCvCamera::postProcess(cv::Mat& bgrImg, cv::Mat intrinsics, bool intrinsicsChanged)
-{
-    cv::Size inputSize = bgrImg.size();
-    // Mirroring (we dont need it at the moment)
-    SENS::mirrorImage(bgrImg, _config->mirrorH, _config->mirrorV);
-
-    //scale original bgrImg to manipulated image. We dont crop the manipulated image
-    cv::Mat manipImg;
-    float   scale = 1.0f;
-    if (_config->manipWidth > 0 && _config->manipHeight > 0)
-    {
-        int cropW = 0, cropH = 0;
-        SENS::cropImageTo(bgrImg, manipImg, (float)_config->manipWidth / (float)_config->manipHeight, cropW, cropH);
-        scale = (float)_config->manipWidth / (float)manipImg.size().width;
-        cv::resize(bgrImg, manipImg, cv::Size(), scale, scale);
-    }
-    else if (_config->convertManipToGray)
-    {
-        manipImg = bgrImg;
-    }
-
-    // Create grayscale
-    if (_config->convertManipToGray)
-        cv::cvtColor(manipImg, manipImg, cv::COLOR_BGR2GRAY);
-
-    // Crop Video image to required aspect ratio
-    if (_config->targetWidth != bgrImg.cols &&
-        _config->targetHeight != bgrImg.rows)
-    {
-        int cropW = 0, cropH = 0;
-        SENS::cropImage(bgrImg, (float)_config->targetWidth / (float)_config->targetHeight, cropW, cropH);
-    }
-
-    SENSFramePtr sensFrame = std::make_unique<SENSFrame>(bgrImg,
-                                                         manipImg,
-                                                         _config->mirrorH,
-                                                         _config->mirrorV,
-                                                         1 / scale,
-                                                         intrinsics);
-
-    return sensFrame;
-}
-
 //TODO: we scale the original image only to meet the width of manipImg. After that the targetImg may be additionally cropped (e.g. to screen width)
-SENSFramePtr SENSCvCamera::processNewFrame(cv::Mat& bgrImg, cv::Mat intrinsics, bool intrinsicsChanged)
+SENSFramePtr SENSCvCamera::processNewFrame(const SENSTimePt& timePt, cv::Mat& bgrImg, cv::Mat intrinsics, bool intrinsicsChanged)
 {
     //todo: accessing config readonly should be no problem  here, as the config only changes when camera is stopped
     cv::Size inputSize = bgrImg.size();
@@ -82,7 +38,8 @@ SENSFramePtr SENSCvCamera::processNewFrame(cv::Mat& bgrImg, cv::Mat intrinsics, 
         cv::cvtColor(manipImg, manipImg, cv::COLOR_BGR2GRAY);
     }
 
-    SENSFramePtr sensFrame = std::make_unique<SENSFrame>(bgrImg,
+    SENSFramePtr sensFrame = std::make_unique<SENSFrame>(timePt,
+                                                         bgrImg,
                                                          manipImg,
                                                          _config->mirrorH,
                                                          _config->mirrorV,
@@ -245,11 +202,12 @@ SENSFramePtr SENSCvCamera::latestFrame()
     if (frameBase)
     {
         //process
-        latestFrame = processNewFrame(frameBase->imgBGR, frameBase->intrinsics, !frameBase->intrinsics.empty());
+        latestFrame = processNewFrame(frameBase->timePt, frameBase->imgBGR, frameBase->intrinsics, !frameBase->intrinsics.empty());
     }
 
     //update calibration if necessary
     //we wont update it, if overwrite calibration is valid (set from outside)
+    //todo: if frame size changed (or config) then we also have to adjust the overwrite calibration?
     if (latestFrame && !_calibrationOverwrite && !latestFrame->intrinsics.empty())
     {
         HighResTimer t;
@@ -282,7 +240,7 @@ cv::Mat SENSCvCamera::scaledCameraMat()
         return _calibrationManip->cameraMat();
 }
 
-//! Set calibration and adapt it to current image size. Camera has to be started, before this function is called.
+//! Set calibration and adapt it to current image size. Camera has to be configured, before this function is called.
 void SENSCvCamera::setCalibration(const SENSCalibration& calibration, bool buildUndistortionMaps)
 {
     _calibrationOverwrite = std::make_unique<SENSCalibration>(calibration);

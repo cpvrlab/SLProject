@@ -8,6 +8,7 @@ set(headers
 	${CMAKE_CURRENT_SOURCE_DIR}/source/WAICompassAlignment.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/WAIHelper.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/WAIFrame.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/WAIImageStabilizedOrientation.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/WAIKeyFrame.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/WAIKeyFrameDB.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/WAIMap.h
@@ -40,6 +41,7 @@ set(sources
     ${CMAKE_CURRENT_SOURCE_DIR}/source/WAIHelper.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/WAIOrbVocabulary.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/WAIFrame.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/WAIImageStabilizedOrientation.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/WAIKeyFrame.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/WAIKeyFrameDB.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/WAIMap.cpp
@@ -134,6 +136,7 @@ target_link_libraries(${target}
     ${META_PROJECT_NAME}::lib-DBoW2
     ${META_PROJECT_NAME}::lib-Utils
     ${META_PROJECT_NAME}::lib-DUtils
+    lib-SLMath
 
     INTERFACE
     )

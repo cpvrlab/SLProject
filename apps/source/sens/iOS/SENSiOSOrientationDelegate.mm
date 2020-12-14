@@ -8,7 +8,7 @@
 
 @private
     CMMotionManager* _motionManager;
-    BOOL               _running;
+    BOOL             _running;
 }
 
 @end
@@ -20,8 +20,8 @@
     //Initialize the parent class(es) up the hierarchy and create self:
     self = [super init];
     //Initialize members (not necessary with ARC)
-    _motionManager     = nil;
-    _running             = NO;
+    _motionManager = nil;
+    _running       = NO;
     if (self)
     {
         _motionManager = [[CMMotionManager alloc] init];
@@ -37,7 +37,7 @@
 
     if (!_running)
     {
-        [self startMotionManager:1.0/20.0];
+        [self startMotionManager:1.0 / 20.0];
         //[_motionManager startDeviceMotionUpdates];
         _running = true;
         printf("Starting Motion Manager\n");
@@ -82,13 +82,13 @@
 //-----------------------------------------------------------------------------
 - (void)onDeviceMotionUpdate:(CMDeviceMotion*)motion
 {
-    CMDeviceMotion *motionData = _motionManager.deviceMotion;
-    CMAttitude *attitude = motionData.attitude;
-    
+    CMDeviceMotion* motionData = _motionManager.deviceMotion;
+    CMAttitude*     attitude   = motionData.attitude;
+
     //Get sensor rotation as quaternion. This quaternion describes a rotation relative to NWU-frame
     //(see: https://developer.apple.com/documentation/coremotion/getting_processed_device_motion_data/understanding_reference_frames_and_device_attitude)
     CMQuaternion q = attitude.quaternion;
-    
+
     /*
     //test w.r.t. to NWU-frame
     if(_updateCB)
@@ -96,7 +96,7 @@
     
     printf("Rotation: xRot %f yRot %f zRot %f\n", attitude.pitch * SENS_RAD2DEG, attitude.roll * SENS_RAD2DEG, attitude.yaw * SENS_RAD2DEG);
     */
-    
+
     //(https://developer.apple.com/documentation/coremotion/getting_processed_device-motion_data/understanding_reference_frames_and_device_attitude)
     //We configure CMMotionManager with xMagneticNorthZVertical which means its a frame, where x points north, y points west and z points up (NWU).
     //We add rotation of 90 deg. around z-axis to relate the sensor rotation to an ENU-frame (as in Android)
@@ -105,13 +105,8 @@
     GLKQuaternion qENU    = GLKQuaternionMultiply(qRot90Z, qNWU);
 
     // Send quaternion
-    if(_updateCB)
+    if (_updateCB)
         _updateCB(qENU.q[0], qENU.q[1], qENU.q[2], qENU.q[3]);
 }
 
 @end
-
-
-
-
-

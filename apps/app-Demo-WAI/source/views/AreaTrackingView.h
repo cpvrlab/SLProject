@@ -29,6 +29,8 @@
 #include <sens/SENSARCore.h>
 #include <math/SLAlgo.h>
 #include <SLDeviceRotation.h>
+#include <WAIImageStabilizedOrientation.h>
+#include <SLDeviceRotation.h>
 
 #include <WAICompassAlignment.h>
 
@@ -230,15 +232,16 @@ private:
     bool updateGPS(SENSFramePtr& frame);
     bool updateWAISlamGPS(SENSFramePtr& frame);
 
-    void    updateSceneCameraFov();
+    void    updateSceneCameraFov(const SENSCalibration* calibration);
     void    updateVideoImage(SENSFrame& frame, VideoBackgroundCamera* videoBackground);
     void    updateTrackingVisualization(const bool iKnowWhereIAm, SENSFrame& frame);
     void    initDeviceLocation(const ErlebAR::Location& location, const ErlebAR::Area& area);
     void    initSlam(const ErlebAR::Area& area);
     void    initWaiSlam(const cv::Mat& mapNodeOm, std::unique_ptr<WAIMap> waiMap);
-    bool    startCamera(const cv::Size& trackImgSize);
+    bool    startCamera();
     void    onCameraParamsChanged();
     SLMat4f calcCameraPoseGpsOrientationBased();
+    SLMat4f calcCameraPoseOrientationBased(const SENSOrientation::Quat& sensQuat);
     cv::Mat convertCameraPoseToWaiCamExtrinisc(SLMat4f& wTc);
     void    applyFingerCorrection(SLMat4f& camPose);
     void    applyTemplateCorrection(SLMat4f& camPose, const cv::Mat& frameGray);
@@ -298,7 +301,7 @@ private:
     //indicates if intArea finished successfully
     bool _noInitException = false;
 
-    CameraPoseFingerCorrection _cameraFingerCorr;
+    CameraPoseFingerCorrection    _cameraFingerCorr;
     //WAICompassAlignment        _compassAlignment;
 };
 

@@ -12,6 +12,7 @@ find_library(UIKIT UIKit required)
 find_library(OPENGLES OpenGLES required)
 find_library(GLKIT GLKit required)
 find_library(CORELOCATION CoreLocation required)
+find_library(ARKIT ARKit required)
 
 set(target ErlebAR)
 
@@ -30,7 +31,7 @@ else()
 	set(XCODE_DEVELOPMENTTEAM ${XCODE_DEVELOPMENTTEAM})
 endif()
 
-set(DEPLOYMENT_TARGET 11.0)                                  # <== Set your deployment target version of iOS
+# set(DEPLOYMENT_TARGET 11.0)                                  # <== Set your deployment target version of iOS
 set(DEVICE_FAMILY "1,2")                                      # <== Set to "1" to target iPhone, set to "2" to target iPad, set to "1,2" to target both
 
 #include(BundleUtilities)
@@ -46,7 +47,7 @@ set(MACOSX_BUNDLE_LONG_VERSION_STRING "1.0")
 set(MACOSX_BUNDLE_SHORT_VERSION_STRING "1.0")
 set(MACOSX_BUNDLE_BUNDLE_VERSION "1.0")
 set(MACOSX_BUNDLE_COPYRIGHT "Copyright Berner Fachhochschule (Marcus Hudritsch)")
-set(MACOSX_DEPLOYMENT_TARGET ${DEPLOYMENT_TARGET})
+# set(MACOSX_DEPLOYMENT_TARGET ${DEPLOYMENT_TARGET})
 
 #set(include_path "${CMAKE_CURRENT_SOURCE_DIR}")
 #set(source_path "${CMAKE_CURRENT_SOURCE_DIR}")
@@ -62,6 +63,8 @@ set(headers
 	${SL_PROJECT_ROOT}/apps/source/sens/iOS/SENSiOSGpsDelegate.h
 	${SL_PROJECT_ROOT}/apps/source/sens/iOS/SENSiOSOrientation.h
 	${SL_PROJECT_ROOT}/apps/source/sens/iOS/SENSiOSOrientationDelegate.h
+    ${SL_PROJECT_ROOT}/apps/source/sens/iOS/SENSiOSARCore.h
+    ${SL_PROJECT_ROOT}/apps/source/sens/iOS/SENSiOSARCoreDelegate.h
     )
 
 set(sources
@@ -75,6 +78,8 @@ set(sources
 	${SL_PROJECT_ROOT}/apps/source/sens/iOS/SENSiOSGpsDelegate.mm
 	${SL_PROJECT_ROOT}/apps/source/sens/iOS/SENSiOSOrientation.mm
 	${SL_PROJECT_ROOT}/apps/source/sens/iOS/SENSiOSOrientationDelegate.mm
+    ${SL_PROJECT_ROOT}/apps/source/sens/iOS/SENSiOSARCore.mm
+    ${SL_PROJECT_ROOT}/apps/source/sens/iOS/SENSiOSARCoreDelegate.mm
 	)
  
 # Group source files
@@ -98,7 +103,7 @@ set(CONFIG_FILES
 
 set(ASSET_CATALOG
 	${CMAKE_CURRENT_SOURCE_DIR}/Images/Images.xcassets
-    ${CMAKE_CURRENT_SOURCE_DIR}/Images/LaunchImage.jpg
+    ${CMAKE_CURRENT_SOURCE_DIR}/Images/erleb-AR_logo_rounded.png
 	)
 
 # Group data resource files in Xcode Resource directory
@@ -130,7 +135,7 @@ set_target_properties(
         XCODE_ATTRIBUTE_GCC_PREFIX_HEADER "${CMAKE_CURRENT_SOURCE_DIR}/Prefix.pch" #this is a precompiled header!
         RESOURCE "${RESOURCES}"
         XCODE_ATTRIBUTE_GCC_PRECOMPILE_PREFIX_HEADER "YES"
-        XCODE_ATTRIBUTE_IPHONEOS_DEPLOYMENT_TARGET ${DEPLOYMENT_TARGET}
+        # XCODE_ATTRIBUTE_IPHONEOS_DEPLOYMENT_TARGET ${DEPLOYMENT_TARGET}
         XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY ${DEVICE_FAMILY}
         MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/plist.in
         XCODE_ATTRIBUTE_CLANG_ENABLE_OBJC_ARC YES
@@ -140,7 +145,7 @@ set_target_properties(
         XCODE_ATTRIBUTE_GCC_SYMBOLS_PRIVATE_EXTERN YES
 		XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_APPICON_NAME "AppIcon" #defines icon name in asset catalog (images.xcassets)
 		# apple requires storyboard launchscreens now so the following will not come into store:
-		#XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME "LaunchImage"  #defines launch screen image name in asset catalog (images.xcassets)
+		# XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME "LaunchImage"  #defines launch screen image name in asset catalog (images.xcassets)
     )
 	
 if(XCODE_PROVISIONINGPROFILE)
@@ -188,7 +193,7 @@ target_link_libraries(
 		${OPENGLES}
 		${GLKIT}
 		${CORELOCATION}
-		
+		${ARKIT}
         INTERFACE
     )
 

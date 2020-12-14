@@ -43,7 +43,8 @@ bool poseShapeButton(const char*   label,
                      const float   viewTriangleWidth,
                      const float   viewAngleDeg,
                      const ImVec4& colNormal,
-                     const ImVec4& colActive);
+                     const ImVec4& colActive,
+                     const bool    pressable);
 
 void waitingSpinner(const char*   label,
                     const ImVec2& pos,

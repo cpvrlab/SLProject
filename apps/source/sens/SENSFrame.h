@@ -2,32 +2,38 @@
 #define SENS_FRAME_H
 
 #include <opencv2/core.hpp>
+#include <sens/SENS.h>
 
 //Camera frame obeject
 struct SENSFrameBase
 {
-    SENSFrameBase(cv::Mat imgBGR, cv::Mat intrinsics)
+    SENSFrameBase(SENSTimePt timePt, cv::Mat imgBGR, cv::Mat intrinsics)
       : imgBGR(imgBGR),
-        intrinsics(intrinsics)
+        intrinsics(intrinsics),
+        timePt(timePt)
     {
     }
 
     //! cropped input image
     cv::Mat imgBGR;
     cv::Mat intrinsics;
+
+    const SENSTimePt timePt;
 };
 
 typedef std::shared_ptr<SENSFrameBase> SENSFrameBasePtr;
 
 struct SENSFrame
 {
-    SENSFrame(cv::Mat imgBGR,
-              cv::Mat imgManip,
-              bool    mirroredH,
-              bool    mirroredV,
-              float   scaleToManip,
-              cv::Mat intrinsics)
-      : imgBGR(imgBGR),
+    SENSFrame(const SENSTimePt& timePt,
+              cv::Mat           imgBGR,
+              cv::Mat           imgManip,
+              bool              mirroredH,
+              bool              mirroredV,
+              float             scaleToManip,
+              cv::Mat           intrinsics)
+      : timePt(timePt),
+        imgBGR(imgBGR),
         imgManip(imgManip),
         mirroredH(mirroredH),
         mirroredV(mirroredV),
@@ -35,6 +41,8 @@ struct SENSFrame
         intrinsics(intrinsics)
     {
     }
+
+    const SENSTimePt timePt;
 
     //! original image (maybe cropped and scaled)
     cv::Mat imgBGR;

@@ -6,8 +6,8 @@
 static SENSNdkGps* gGpsPtr = nullptr;
 SENSNdkGps*        GetGpsPtr()
 {
-	if(gGpsPtr==nullptr)
-		Utils::log("SENSNdkGps", "Global gps pointer has not been initialized");
+    if (gGpsPtr == nullptr)
+        Utils::log("SENSNdkGps", "Global gps pointer has not been initialized");
     return gGpsPtr;
 }
 
@@ -63,7 +63,7 @@ bool SENSNdkGps::start()
 
 void SENSNdkGps::stop()
 {
-    if(!_running)
+    if (!_running)
         return;
     _running = false;
 

@@ -56,7 +56,7 @@ SENSCalibration::SENSCalibration(const cv::Mat&     cameraMat,
 
     calculateUndistortedCameraMat();
     calcCameraFovFromUndistortedCameraMat();
-    if(calcUndistortionMaps)
+    if (calcUndistortionMaps)
         buildUndistortionMaps();
     _state = State::calibrated;
 }

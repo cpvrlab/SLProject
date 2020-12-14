@@ -25,6 +25,8 @@ class SLSceneView;
 class SLDeviceRotation;
 class SLDeviceLocation;
 
+class SLCameraAnimation;
+
 //-----------------------------------------------------------------------------
 //! Active or visible camera node class
 /*! An instance of this SLNode derived class serves as an active camera with
@@ -53,7 +55,7 @@ class SLCamera : public SLNode
 {
 public:
     explicit SLCamera(const SLstring& name = "Camera");
-    ~SLCamera() override { ; }
+    ~SLCamera() override;
 
     void           statsRec(SLNodeStats& stats) override;
     void           drawMesh(SLSceneView* sv) override;
@@ -93,6 +95,7 @@ public:
         _projection       = p;
         currentProjection = p;
     }
+    //! vertical field of view
     void fov(const SLfloat fov)
     {
         _fovV      = fov;
@@ -141,6 +144,8 @@ public:
     SLfloat        fovV() const { return _fovV; }                  //!< Vertical field of view
     //todo: fovH calculation is wrong
     SLfloat        fovH() const { return _viewportRatio * _fovV; } //!< Horizontal field of view
+    SLint          viewportW() const { return _viewportW; }
+    SLint          viewportH() const { return _viewportH; }
     SLfloat        aspect() const { return _viewportRatio; }
     SLfloat        clipNear() const { return _clipNear; }
     SLfloat        clipFar() const { return _clipFar; }
@@ -175,6 +180,9 @@ public:
     SLstring      toString() const;
     SLRectf&      selectRect() { return _selectRect; }
     SLRectf&      deselectRect() { return _deselectRect; }
+    
+    //update rotation matrix _enucorrRenu
+    void updateEnucorrRenu(SLSceneView* sv, const SLMat3f& enuRc, float& f, SLVec3f& enuOffsetPix);
 
     // Static global default parameters for new cameras
     static SLCamAnim    currentAnimation;
@@ -212,8 +220,7 @@ protected:
     SLBackground _background; //!< Colors or texture displayed in the background
 
     SLGLVertexArrayExt _vao; //!< OpenGL Vertex array for rendering
-
-    // animation parameters
+ 
     SLbool    _movedLastFrame;    //! did the camera updateRec in the last frame?
     SLCamAnim _camAnim;           //!< Type of camera animation
     SLVec2f   _oldTouchPos1;      //!< Old mouse/touch position in pixels
@@ -258,7 +265,7 @@ protected:
     //!parameter for manual finger rotation and translation
     SLint _xOffsetPix = 0;
     SLint _yOffsetPix = 0;
-    float _distanceToObjectM = 10.0f; //!< distance to object in meter that should be shifted relative to camera
+    float _distanceToObjectM = 1.0f; //!< distance to object in meter that should be shifted relative to camera
     float _enucorrTRenu = 0.f;        //!< manual camera shift in y direction
     SLMat3f _enucorrRenu;
 };

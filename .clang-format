@@ -56,7 +56,8 @@ Cpp11BracedListStyle: true
 IncludeBlocks: Preserve
 IndentPPDirectives: AfterHash
 IndentWidth: 4
-Language: Cpp
+#Language: Cpp
+#Language: ObjC
 PointerAlignment: Left
 
 #UseTab: ForIndentation

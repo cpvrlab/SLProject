@@ -43,6 +43,7 @@ void Fonts::load(std::string fontDir, const Style& style, int screenH, int dpi)
         //tiny font
         float tinyTextH = 0.035f * (float)screenH;
         tiny            = _atlas->AddFontFromFileTTF(unitRoundedLight.c_str(), tinyTextH);
+        /*
         //big font
         float bigTextHPix      = 0.3f * (float)screenH;
         float scale            = 2.0f;
@@ -50,6 +51,7 @@ void Fonts::load(std::string fontDir, const Style& style, int screenH, int dpi)
         float bigTextH         = 0.035f * (float)screenH;
         big                    = _atlas->AddFontFromFileTTF(unitRounded.c_str(), bigTextHPixAlloc);
         big->Scale             = scale;
+        */
         //selection buttons
         int   nButVert  = 6;
         int   buttonH   = (int)((0.7f * (float)screenH - (nButVert - 1) * 0.02f * (float)screenH) / nButVert);

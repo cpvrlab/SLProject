@@ -18,7 +18,7 @@ public:
 
     const SENSCameraConfig& start(std::string                   deviceId,
                                   const SENSCameraStreamConfig& streamConfig,
-                                  bool                          provideIntrinsics   = true) override;
+                                  bool                          provideIntrinsics = true) override;
 
     void stop() override;
 

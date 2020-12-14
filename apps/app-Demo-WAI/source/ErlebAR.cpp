@@ -81,6 +81,8 @@ const char* mapAreaIdToName(AreaId id)
             return "Roc 2";
         case AreaId::EVILARD_FIREFIGHTERS:
             return "Firefighters";
+        case AreaId::EVILARD_OFFICE:
+            return "Office";
         default:
             return "Missing id to name mapping!";
     }
@@ -104,7 +106,7 @@ const Location defineLocationAugst()
                   "dummy.jpg",                                                                                                  //relocAlignImage,
                   "calibrations/voc_fbow.bin",                                                                                  //vocFileName,
                   2,                                                                                                            //vocLayer,
-                  {640, 360},                                                                                                   //cameraFrameTargetSize
+                  //{640, 360},                                                                                                   //cameraFrameTargetSize
                   ExtractorType::ExtractorType_FAST_ORBS_2000,                                                                  //initializationExtractorType
                   ExtractorType::ExtractorType_FAST_ORBS_1000,                                                                  //relocalizationExtractorType
                   ExtractorType::ExtractorType_FAST_ORBS_1000,                                                                  //trackingExtractorType
@@ -120,7 +122,7 @@ const Location defineLocationAugst()
                   "dummy.jpg",                                 //relocAlignImage,
                   "calibrations/voc_fbow.bin",                 //vocFileName,
                   2,                                           //vocLayer,
-                  {640, 360},                                  //cameraFrameTargetSize
+                  //{640, 360},                                  //cameraFrameTargetSize
                   ExtractorType::ExtractorType_FAST_ORBS_2000, //initializationExtractorType
                   ExtractorType::ExtractorType_FAST_ORBS_1000, //relocalizationExtractorType
                   ExtractorType::ExtractorType_FAST_ORBS_1000, //trackingExtractorType
@@ -136,7 +138,7 @@ const Location defineLocationAugst()
                   "dummy.jpg",                                 //relocAlignImage,
                   "calibrations/voc_fbow.bin",                 //vocFileName,
                   2,                                           //vocLayer,
-                  {640, 360},                                  //cameraFrameTargetSize
+                  //{640, 360},                                  //cameraFrameTargetSize
                   ExtractorType::ExtractorType_FAST_ORBS_2000, //initializationExtractorType
                   ExtractorType::ExtractorType_FAST_ORBS_1000, //relocalizationExtractorType
                   ExtractorType::ExtractorType_FAST_ORBS_1000, //trackingExtractorType
@@ -152,7 +154,7 @@ const Location defineLocationAugst()
                   "dummy.jpg",                                 //relocAlignImage,
                   "calibrations/voc_fbow.bin",                 //vocFileName,
                   2,                                           //vocLayer,
-                  {640, 360},                                  //cameraFrameTargetSize
+                  //{640, 360},                                                                                                   //cameraFrameTargetSize
                   ExtractorType::ExtractorType_FAST_ORBS_2000, //initializationExtractorType
                   ExtractorType::ExtractorType_FAST_ORBS_1000, //relocalizationExtractorType
                   ExtractorType::ExtractorType_FAST_ORBS_1000, //trackingExtractorType
@@ -179,7 +181,7 @@ const Location defineLocationAvenches()
                   "locations/avenches/amphitheaterEntrance/amphitheaterEntrance-reloc-align-img.jpg",                                              //relocAlignImage,
                   "calibrations/voc_fbow.bin",                                                                                                     //vocFileName,
                   2,                                                                                                                               //vocLayer,
-                  {640, 360},                                                                                                                      //cameraFrameTargetSize
+                  //{640, 360},                                                                                                                      //cameraFrameTargetSize
                   ExtractorType::ExtractorType_FAST_ORBS_2000,                                                                                     //initializationExtractorType
                   ExtractorType::ExtractorType_FAST_ORBS_1000,                                                                                     //relocalizationExtractorType
                   ExtractorType::ExtractorType_FAST_ORBS_1000,                                                                                     //trackingExtractorType
@@ -195,7 +197,7 @@ const Location defineLocationAvenches()
                   "locations/avenches/amphitheater/amphitheater-reloc-align-img.jpg",                                               //relocAlignImage,
                   "calibrations/voc_fbow.bin",                                                                                      //vocFileName,
                   2,                                                                                                                //vocLayer,
-                  {640, 360},                                                                                                       //cameraFrameTargetSize
+                  //{640, 360},                                                                                                       //cameraFrameTargetSize
                   ExtractorType::ExtractorType_FAST_ORBS_2000,                                                                      //initializationExtractorType
                   ExtractorType::ExtractorType_FAST_ORBS_1000,                                                                      //relocalizationExtractorType
                   ExtractorType::ExtractorType_FAST_ORBS_1000,                                                                      //trackingExtractorType
@@ -211,7 +213,7 @@ const Location defineLocationAvenches()
                   "dummy.jpg",                                                                                                    //relocAlignImage,
                   "calibrations/voc_fbow.bin",                                                                                    //vocFileName,
                   2,                                                                                                              //vocLayer,
-                  {640, 360},                                                                                                     //cameraFrameTargetSize
+                  //{640, 360},                                                                                                     //cameraFrameTargetSize
                   ExtractorType::ExtractorType_FAST_ORBS_2000,                                                                    //initializationExtractorType
                   ExtractorType::ExtractorType_FAST_ORBS_1000,                                                                    //relocalizationExtractorType
                   ExtractorType::ExtractorType_FAST_ORBS_1000,                                                                    //trackingExtractorType
@@ -227,7 +229,7 @@ const Location defineLocationAvenches()
                   "locations/avenches/theater/theater-reloc-align-img.jpg",                                               //relocAlignImage,
                   "calibrations/voc_fbow.bin",                                                                            //vocFileName,
                   2,                                                                                                      //vocLayer,
-                  {640, 360},                                                                                             //cameraFrameTargetSize
+                  //{640, 360},                                                                                             //cameraFrameTargetSize
                   ExtractorType::ExtractorType_FAST_ORBS_2000,                                                            //initializationExtractorType
                   ExtractorType::ExtractorType_FAST_ORBS_1000,                                                            //relocalizationExtractorType
                   ExtractorType::ExtractorType_FAST_ORBS_1000,                                                            //trackingExtractorType
@@ -254,7 +256,7 @@ const Location defineLocationBern()
                   "dummy.jpg",                                                                                                  //relocAlignImage,
                   "calibrations/voc_fbow.bin",                                                                                  //vocFileName,
                   2,                                                                                                            //vocLayer,
-                  {640, 360},                                                                                                   //cameraFrameTargetSize
+                  //{640, 360},                                                                                                   //cameraFrameTargetSize
                   ExtractorType::ExtractorType_FAST_ORBS_2000,                                                                  //initializationExtractorType
                   ExtractorType::ExtractorType_FAST_ORBS_1000,                                                                  //relocalizationExtractorType
                   ExtractorType::ExtractorType_FAST_ORBS_1000,                                                                  //trackingExtractorType
@@ -264,14 +266,14 @@ const Location defineLocationBern()
 
     {
         Area area(AreaId::BERN_SPITALGASSE,                    //id
-                  {46.94785, 7.44099, 542.1},                  //llaPos
+                  {46.94783, 7.44089, 542.1},                  //llaPos 46.94785, 7.44099     46.9478469, 7.4409524
                   140,                                         //map viewing angle
-                  {46.947629, 7.440754, 542.2},                //modelOrigin
+                  {46.94762, 7.44074, 542.2},                  //modelOrigin 46.94762, 7.44074       46.947726, 7.4409616
                   "",                                          //slamMapFileName
                   "dummy.jpg",                                 //relocAlignImage,
                   "calibrations/voc_fbow.bin",                 //vocFileName,
                   2,                                           //vocLayer,
-                  {640, 360},                                  //cameraFrameTargetSize
+                  //{640, 360},                                  //cameraFrameTargetSize
                   ExtractorType::ExtractorType_FAST_ORBS_2000, //initializationExtractorType
                   ExtractorType::ExtractorType_FAST_ORBS_1000, //relocalizationExtractorType
                   ExtractorType::ExtractorType_FAST_ORBS_1000, //trackingExtractorType
@@ -288,7 +290,7 @@ const Location defineLocationBern()
                   "dummy.jpg",                                 //relocAlignImage,
                   "calibrations/voc_fbow.bin",                 //vocFileName,
                   2,                                           //vocLayer,
-                  {640, 360},                                  //cameraFrameTargetSize
+                  //{640, 360},                                  //cameraFrameTargetSize
                   ExtractorType::ExtractorType_FAST_ORBS_2000, //initializationExtractorType
                   ExtractorType::ExtractorType_FAST_ORBS_1000, //relocalizationExtractorType
                   ExtractorType::ExtractorType_FAST_ORBS_1000, //trackingExtractorType
@@ -305,7 +307,7 @@ const Location defineLocationBern()
                   "dummy.jpg",                                 //relocAlignImage,
                   "calibrations/voc_fbow.bin",                 //vocFileName,
                   2,                                           //vocLayer,
-                  {640, 360},                                  //cameraFrameTargetSize
+                  //{640, 360},                                  //cameraFrameTargetSize
                   ExtractorType::ExtractorType_FAST_ORBS_2000, //initializationExtractorType
                   ExtractorType::ExtractorType_FAST_ORBS_1000, //relocalizationExtractorType
                   ExtractorType::ExtractorType_FAST_ORBS_1000, //trackingExtractorType
@@ -322,7 +324,7 @@ const Location defineLocationBern()
                   "dummy.jpg",                                 //relocAlignImage,
                   "calibrations/voc_fbow.bin",                 //vocFileName,
                   2,                                           //vocLayer,
-                  {640, 360},                                  //cameraFrameTargetSize
+                  //{640, 360},                                  //cameraFrameTargetSize
                   ExtractorType::ExtractorType_FAST_ORBS_2000, //initializationExtractorType
                   ExtractorType::ExtractorType_FAST_ORBS_1000, //relocalizationExtractorType
                   ExtractorType::ExtractorType_FAST_ORBS_1000, //trackingExtractorType
@@ -339,7 +341,7 @@ const Location defineLocationBern()
                   "dummy.jpg",                                 //relocAlignImage,
                   "calibrations/voc_fbow.bin",                 //vocFileName,
                   2,                                           //vocLayer,
-                  {640, 360},                                  //cameraFrameTargetSize
+                  //{640, 360},                                  //cameraFrameTargetSize
                   ExtractorType::ExtractorType_FAST_ORBS_2000, //initializationExtractorType
                   ExtractorType::ExtractorType_FAST_ORBS_1000, //relocalizationExtractorType
                   ExtractorType::ExtractorType_FAST_ORBS_1000, //trackingExtractorType
@@ -368,7 +370,7 @@ const Location defineLocationBiel()
                   "dummy.jpg",                                                                                   //relocAlignImage,
                   "calibrations/voc_fbow.bin",                                                                   //vocFileName,
                   2,                                                                                             //vocLayer,
-                  {640, 360},                                                                                    //cameraFrameTargetSize
+                  //{640, 360},                                                                                    //cameraFrameTargetSize
                   ExtractorType::ExtractorType_FAST_ORBS_2000,                                                   //initializationExtractorType
                   ExtractorType::ExtractorType_FAST_ORBS_1000,                                                   //relocalizationExtractorType
                   ExtractorType::ExtractorType_FAST_ORBS_1000,                                                   //trackingExtractorType
@@ -396,7 +398,7 @@ const Location defineLocationEvilard()
                   "locations/evilard/roc2/relocAlignImg.jpg",                                                         //relocAlignImage,
                   "calibrations/voc_fbow.bin",                                                                        //vocFileName,
                   2,                                                                                                  //vocLayer,
-                  {640, 360},                                                                                         //cameraFrameTargetSize
+                  //{640, 360},                                                                                         //cameraFrameTargetSize
                   ExtractorType::ExtractorType_FAST_ORBS_2000,                                                        //initializationExtractorType
                   ExtractorType::ExtractorType_FAST_ORBS_1000,                                                        //relocalizationExtractorType
                   ExtractorType::ExtractorType_FAST_ORBS_1000,                                                        //trackingExtractorType
@@ -412,10 +414,26 @@ const Location defineLocationEvilard()
                   "locations/evilard/firefighters/relocAlignImg.jpg",                                                                 //relocAlignImage,
                   "calibrations/voc_fbow.bin",                                                                                        //vocFileName,
                   2,                                                                                                                  //vocLayer,
-                  {640, 360},                                                                                                         //cameraFrameTargetSize
+                  //{640, 360},                                                                                                         //cameraFrameTargetSize
                   ExtractorType::ExtractorType_FAST_ORBS_2000,                                                                        //initializationExtractorType
                   ExtractorType::ExtractorType_FAST_ORBS_1000,                                                                        //relocalizationExtractorType
                   ExtractorType::ExtractorType_FAST_ORBS_1000,                                                                        //trackingExtractorType
+                  2);
+        loc.areas[area.id] = area;
+    }
+    {
+        Area area(AreaId::EVILARD_OFFICE,                                 //id
+                  {47.14886, 7.23322, 726.9},                             //llaPos
+                  -150.f,                                                 //map viewing angle
+                  {47.14886, 7.23322, 726.9},                             //modelOrigin
+                  "locations/evilard/office/maps/DEVELOPMENT-map.waimap", //slamMapFileName
+                  "locations/evilard/office/relocAlignImg.jpg",           //relocAlignImage,
+                  "calibrations/voc_fbow.bin",                            //vocFileName,
+                  2,                                                      //vocLayer,
+                  //{640, 480},                                             //cameraFrameTargetSize
+                  ExtractorType::ExtractorType_FAST_ORBS_2000,            //initializationExtractorType
+                  ExtractorType::ExtractorType_FAST_ORBS_1000,            //relocalizationExtractorType
+                  ExtractorType::ExtractorType_FAST_ORBS_1000,            //trackingExtractorType
                   2);
         loc.areas[area.id] = area;
     }

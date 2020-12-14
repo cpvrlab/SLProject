@@ -31,7 +31,7 @@ else()
 endif()
 
 
-set(DEPLOYMENT_TARGET 12.0)                                  # <== Set your deployment target version of iOS
+#set(DEPLOYMENT_TARGET 12.0)                                  # <== Set your deployment target version of iOS
 set(DEVICE_FAMILY "1,2")                                      # <== Set to "1" to target iPhone, set to "2" to target iPad, set to "1,2" to target both
 
 #include(BundleUtilities)
@@ -47,7 +47,7 @@ set(MACOSX_BUNDLE_LONG_VERSION_STRING "1.0")
 set(MACOSX_BUNDLE_SHORT_VERSION_STRING "1.0")
 set(MACOSX_BUNDLE_BUNDLE_VERSION "1.0")
 set(MACOSX_BUNDLE_COPYRIGHT "Copyright Berner Fachhochschule (Marcus Hudritsch)")
-set(MACOSX_DEPLOYMENT_TARGET ${DEPLOYMENT_TARGET})
+# set(MACOSX_DEPLOYMENT_TARGET ${DEPLOYMENT_TARGET})
 
 #set(include_path "${CMAKE_CURRENT_SOURCE_DIR}")
 #set(source_path "${CMAKE_CURRENT_SOURCE_DIR}")
@@ -123,7 +123,7 @@ set_target_properties(
         XCODE_ATTRIBUTE_GCC_PREFIX_HEADER "${CMAKE_CURRENT_SOURCE_DIR}/Prefix.pch" #this is a precompiled header!
         RESOURCE "${RESOURCES}"
         XCODE_ATTRIBUTE_GCC_PRECOMPILE_PREFIX_HEADER "YES"
-        XCODE_ATTRIBUTE_IPHONEOS_DEPLOYMENT_TARGET ${DEPLOYMENT_TARGET}
+        # XCODE_ATTRIBUTE_IPHONEOS_DEPLOYMENT_TARGET ${DEPLOYMENT_TARGET}
         XCODE_ATTRIBUTE_TARGETED_DEVICE_FAMILY ${DEVICE_FAMILY}
         MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/plist.in
         XCODE_ATTRIBUTE_CLANG_ENABLE_OBJC_ARC YES

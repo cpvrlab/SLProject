@@ -50,10 +50,11 @@
     if (captureOutput == _videoOutput)
     {
         // If it's a video frame, copy and process it
-        CVReturn         err;
         CVImageBufferRef pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
 
-        CVPixelBufferLockBaseAddress(pixelBuffer, 0);
+        CVReturn ret = CVPixelBufferLockBaseAddress(pixelBuffer, 0);
+        if (ret != kCVReturnSuccess)
+            return;
 
         int            imgWidth  = (int)CVPixelBufferGetWidth(pixelBuffer);
         int            imgHeight = (int)CVPixelBufferGetHeight(pixelBuffer);

@@ -6,7 +6,7 @@
 #include "SENSUtils.h"
 
 SENSNdkARCore::SENSNdkARCore(ANativeActivity* activity)
-: _activity(activity)
+  : _activity(activity)
 {
     JNIEnv* env;
     _activity->vm->GetEnv((void**)&env, JNI_VERSION_1_6);
@@ -57,7 +57,7 @@ void SENSNdkARCore::initCameraTexture()
 }
 
 bool SENSNdkARCore::init(int w, int h, int manipW, int manipH, bool convertManipToGray)
-{ 
+{
     if (!_available)
         return false;
     if (_arSession != nullptr)
@@ -161,7 +161,7 @@ bool SENSNdkARCore::init(int w, int h, int manipW, int manipH, bool convertManip
     return true;
 }
 
-bool SENSNdkARCore::update(cv::Mat& intrinsic, cv::Mat& view)
+bool SENSNdkARCore::update(cv::Mat& pose)
 {
     if (!_arSession)
         return false;
@@ -172,15 +172,55 @@ bool SENSNdkARCore::update(cv::Mat& intrinsic, cv::Mat& view)
     ArCamera* arCamera;
     ArFrame_acquireCamera(_arSession, _arFrame, &arCamera);
 
-    view = cv::Mat::eye(4, 4, CV_32F);
-    intrinsic = cv::Mat::eye(4, 4, CV_32F);
-
+    cv::Mat view = cv::Mat::eye(4, 4, CV_32F);
     ArCamera_getViewMatrix(_arSession, arCamera, view.ptr<float>(0));
-    ArCamera_getProjectionMatrix(_arSession, arCamera, /*near=*/0.1f, /*far=*/100.f, intrinsic.ptr<float>(0));
 
+    //convertions to sl camera pose:
+    //from row- to column-major
     view = view.t();
-    intrinsic = intrinsic.t();
-    updateFrame(intrinsic);
+    //inversion
+    cv::Mat wRc = (view.rowRange(0, 3).colRange(0, 3)).t();
+    cv::Mat wtc = -wRc * view.rowRange(0, 3).col(3);
+    cv::Mat wTc = cv::Mat::eye(4, 4, CV_32F);
+    wRc.copyTo(wTc.colRange(0, 3).rowRange(0, 3));
+    wtc.copyTo(wTc.rowRange(0, 3).col(3));
+    //axis direction adaption (x = -y, y = x, z = z, t = t)
+    pose = cv::Mat::eye(4, 4, CV_32F);
+    wTc.col(1) *= -1;
+    wTc.col(1).copyTo(pose.col(0));
+    wTc.col(0).copyTo(pose.col(1));
+    wTc.col(2).copyTo(pose.col(2));
+    wTc.col(3).copyTo(pose.col(3));
+
+    cv::Mat intrinsics = cv::Mat::eye(3, 3, CV_64F);
+    {
+        ArCameraIntrinsics* arIntrinsics = nullptr;
+        ArCameraIntrinsics_create(_arSession, &arIntrinsics);
+        ArCamera_getImageIntrinsics(_arSession, arCamera, arIntrinsics);
+
+        float fx, fy, cx, cy;
+        ArCameraIntrinsics_getFocalLength(_arSession, arIntrinsics, &fx, &fy);
+        ArCameraIntrinsics_getPrincipalPoint(_arSession, arIntrinsics, &cx, &cy);
+
+        ArCameraIntrinsics_getImageDimensions(_arSession,
+                                              arIntrinsics,
+                                              &_inputFrameW,
+                                              &_inputFrameH);
+
+        ArCameraIntrinsics_destroy(arIntrinsics);
+
+        intrinsics.at<double>(0, 0) = fx;
+        intrinsics.at<double>(1, 1) = fy;
+        intrinsics.at<double>(0, 2) = cx;
+        intrinsics.at<double>(1, 2) = cy;
+        /*
+        std::stringstream ss;
+        ss << intrinsics;
+        Utils::log("SENSNdkARCore", "intrinsics %s", ss.str().c_str());
+         */
+    }
+
+    updateFrame(intrinsics);
 
     //---- LIGHT ESTIMATE ----//
     // Get light estimation value.
@@ -215,9 +255,9 @@ bool SENSNdkARCore::update(cv::Mat& intrinsic, cv::Mat& view)
     return true;
 }
 
-void SENSNdkARCore::updateFrame(cv::Mat& intrinsic)
+void SENSNdkARCore::updateFrame(cv::Mat& intrinsics)
 {
-    ArImage * arImage;
+    ArImage* arImage;
     if (ArFrame_acquireCameraImage(_arSession, _arFrame, &arImage) != AR_SUCCESS)
         return;
 
@@ -229,21 +269,10 @@ void SENSNdkARCore::updateFrame(cv::Mat& intrinsic)
     cv::cvtColor(yuv, bgr, cv::COLOR_YUV2BGR_NV21, 3);
 
     std::lock_guard<std::mutex> lock(_frameMutex);
-    _frame = std::make_unique<SENSFrameBase>(bgr, intrinsic);
+    _frame = std::make_unique<SENSFrameBase>(SENSClock::now(), bgr, intrinsics);
 }
 
-SENSFramePtr SENSNdkARCore::latestFrame()
-{
-    SENSFrameBasePtr frameBase;
-    {
-        std::lock_guard<std::mutex> lock(_frameMutex);
-        frameBase = _frame;
-    }
-    SENSFramePtr latestFrame;
-    if (frameBase)
-        latestFrame = processNewFrame(frameBase->imgBGR, cv::Mat());
-    return latestFrame;
-}
+
 
 void SENSNdkARCore::lightComponentIntensity(float * component)
 {
@@ -251,45 +280,6 @@ void SENSNdkARCore::lightComponentIntensity(float * component)
     component[1] = _envLightI[1];
     component[2] = _envLightI[2];
 }
-
-SENSFramePtr SENSNdkARCore::processNewFrame(cv::Mat& bgrImg, cv::Mat intrinsics)
-{
-    //todo: accessing config readonly should be no problem  here, as the config only changes when camera is stopped
-    cv::Size inputSize = bgrImg.size();
-
-    // Crop Video image to required aspect ratio
-    int cropW = 0, cropH = 0;
-    SENS::cropImage(bgrImg, (float)_config.targetWidth / (float)_config.targetHeight, cropW, cropH);
-
-    cv::Mat manipImg;
-    float   scale = 1.0f;
-
-    manipImg = bgrImg;
-    //problem: eingangsbild 16:9 -> targetImg 4:3 -> crop left and right -> manipImg 16:9 -> weiterer crop oben und unten -> FALSCH
-    if (_config.manipWidth > 0 && _config.manipHeight > 0)
-    {
-        int cropW = 0, cropH = 0;
-        SENS::cropImage(manipImg, (float)_config.manipWidth / (float)_config.manipHeight, cropW, cropH);
-        scale = (float)_config.manipWidth / (float)manipImg.size().width;
-        cv::resize(manipImg, manipImg, cv::Size(), scale, scale);
-    }
-
-    // Create grayscale
-    if (_config.convertManipToGray)
-    {
-        cv::cvtColor(manipImg, manipImg, cv::COLOR_BGR2GRAY);
-    }
-
-    SENSFramePtr sensFrame = std::make_unique<SENSFrame>(bgrImg,
-                                                         manipImg,
-                                                         false,
-                                                         false,
-                                                         1 / scale,
-                                                         intrinsics);
-
-    return sensFrame;
-}
-
 cv::Mat SENSNdkARCore::convertToYuv(ArImage* arImage)
 {
     int32_t height, width, rowStrideY;
@@ -299,7 +289,7 @@ cv::Mat SENSNdkARCore::convertToYuv(ArImage* arImage)
 
     //pointers to yuv data planes and length of yuv data planes in byte
     const uint8_t *yPixel, *vPixel;
-    int32_t  yLen, vLen;
+    int32_t        yLen, vLen;
     ArImage_getPlaneData(_arSession, arImage, (int32_t)0, &yPixel, &yLen);
     ArImage_getPlaneData(_arSession, arImage, (int32_t)2, &vPixel, &vLen);
 
@@ -317,13 +307,13 @@ cv::Mat SENSNdkARCore::convertToYuv(ArImage* arImage)
         return yuv;
 }
 
-int SENSNdkARCore::getPointCloud(float ** mapPoints, float confidanceValue)
+int SENSNdkARCore::getPointCloud(float** mapPoints, float confidanceValue)
 {
     // Update and render point cloud.
-    ArPointCloud* arPointCloud = nullptr;
-    ArStatus pointCloudStatus = ArFrame_acquirePointCloud(_arSession, _arFrame, &arPointCloud);
-    int n;
-    float * mp;
+    ArPointCloud* arPointCloud     = nullptr;
+    ArStatus      pointCloudStatus = ArFrame_acquirePointCloud(_arSession, _arFrame, &arPointCloud);
+    int           n;
+    float*        mp;
 
     ArPointCloud_getNumberOfPoints(_arSession, arPointCloud, &n);
     ArPointCloud_getData(_arSession, arPointCloud, &mp);
@@ -335,11 +325,11 @@ int SENSNdkARCore::getPointCloud(float ** mapPoints, float confidanceValue)
     for (int i = 0; i < n; i++)
     {
         int idx = i * 4;
-        if (mp[idx+3] >= confidanceValue)
+        if (mp[idx + 3] >= confidanceValue)
         {
-            *mapPoints[nbPoints] = mp[idx];
-            *mapPoints[nbPoints + 1] = mp[idx+1];
-            *mapPoints[nbPoints + 2] = mp[idx+2];
+            *mapPoints[nbPoints]     = mp[idx];
+            *mapPoints[nbPoints + 1] = mp[idx + 1];
+            *mapPoints[nbPoints + 2] = mp[idx + 2];
             nbPoints++;
         }
     }
@@ -348,11 +338,13 @@ int SENSNdkARCore::getPointCloud(float ** mapPoints, float confidanceValue)
     return nbPoints;
 }
 
+/*
 void SENSNdkARCore::setDisplaySize(int w, int h)
 {
     if (_arSession)
         ArSession_setDisplayGeometry(_arSession, 0, w, h);
 }
+ */
 
 bool SENSNdkARCore::resume()
 {

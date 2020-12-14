@@ -12,13 +12,17 @@
 #include <VideoBackgroundCamera.h>
 #include <ErlebAR.h>
 
+class SLDeviceRotation;
+class SLTexFont;
+
 class AppWAIScene : public SLScene
 {
 public:
     AppWAIScene(SLstring name, std::string dataDir, std::string erlebARDir);
+    ~AppWAIScene();
 
     void unInit() override;
-    void initScene(ErlebAR::LocationId locationId, ErlebAR::AreaId areaId);
+    void initScene(ErlebAR::LocationId locationId, ErlebAR::AreaId areaId, SLDeviceRotation* devRot, SLDeviceLocation* devLoc, int svW, int svH);
 
     void resetMapNode();
     void updateCameraPose(const cv::Mat& cTw);
@@ -58,14 +62,15 @@ private:
     void removeMesh(SLNode* node, SLMesh* mesh);
 
     void initMapVisualization();
-    void initAreaVisualization(ErlebAR::LocationId locationId, ErlebAR::AreaId areaId);
+    void initAreaVisualization(ErlebAR::LocationId locationId, ErlebAR::AreaId areaId, SLDeviceRotation* devRot, SLDeviceLocation* devLoc, int svW, int svH);
     void initLocationAugst();
     void initLocationAvenches(ErlebAR::AreaId areaId);
     void initAreaAvenchesAmphitheater();
     void initAreaAvenchesCigognier();
     void initAreaAvenchesTheatre();
+    void initAreaEvilardOffice(SLDeviceRotation* devRot, SLDeviceLocation* devLoc, int svW, int svH);
     void initLocationBern();
-    void initLocationBiel();
+    void initLocationBiel(SLDeviceRotation* devRot, SLDeviceLocation* devLoc);
     void initLocationDefault();
     void loadChristoffelBernBahnhofsplatz();
     void loadBielBFHRolex();
@@ -73,7 +78,7 @@ private:
     void loadAvenchesAmphitheater();
     void loadAvenchesCigognier();
     void loadAvenchesTheatre();
-    
+
     SLNode* mapPC             = nullptr;
     SLNode* mapMatchedPC      = nullptr;
     SLNode* mapLocalPC        = nullptr;
@@ -101,6 +106,8 @@ private:
     //path to data directory
     std::string _dataDir;
     std::string _erlebARDir;
+
+    SLTexFont* _font16 = nullptr;
 };
 
 #endif

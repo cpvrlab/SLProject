@@ -126,15 +126,13 @@ public:
 
     cv::Mat scaledCameraMat();
 
-    //! Set calibration and adapt it to current image size. Camera has to be started, before this function is called.
+    //! Set calibration and adapt it to current image size. Camera has to be configured, before this function is called.
     void setCalibration(const SENSCalibration& calibration, bool buildUndistortionMaps);
     //! clear calibration set from outsilde with setCalibration. Only then an automatic guess will be possible.
     void clearCalibration() { _calibrationOverwrite.reset(); }
 
 private:
-    SENSFramePtr postProcess(cv::Mat& bgrImg, cv::Mat intrinsics, bool intrinsicsChanged);
-
-    SENSFramePtr processNewFrame(cv::Mat& bgrImg, cv::Mat intrinsics, bool intrinsicsChanged);
+    SENSFramePtr processNewFrame(const SENSTimePt& timePt, cv::Mat& bgrImg, cv::Mat intrinsics, bool intrinsicsChanged);
 
     SENSCamera*                         _camera;
     std::unique_ptr<SENSCvCameraConfig> _config;

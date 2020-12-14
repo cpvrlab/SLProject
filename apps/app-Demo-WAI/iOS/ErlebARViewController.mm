@@ -17,7 +17,7 @@
 #import <iOS/SENSiOSCamera.h>
 #import <iOS/SENSiOSGps.h>
 #import <iOS/SENSiOSOrientation.h>
-
+#import <iOS/SENSiOSARCore.h>
 //includes
 #include <mach/mach_time.h>
 #include <Utils.h>
@@ -41,6 +41,7 @@
     SENSiOSCamera* _camera;
     SENSiOSGps* _gps;
     SENSiOSOrientation* _orientation;
+    SENSiOSARCore* _arCore;
 }
 - (float)getSeconds;
 
@@ -68,6 +69,7 @@
         _camera      = nullptr;
         _gps         = nullptr;
         _orientation = nullptr;
+        _arCore      = nullptr;
     }
 
     return self;
@@ -128,6 +130,7 @@
     _camera      = new SENSiOSCamera();
     _gps         = new SENSiOSGps();
     _orientation = new SENSiOSOrientation();
+    _arCore      = new SENSiOSARCore();
 }
 //-----------------------------------------------------------------------------
 - (void)viewWillLayoutSubviews
@@ -143,7 +146,7 @@
                      _camera,
                      _gps,
                      _orientation,
-                     nullptr);
+                     _arCore);
 
     printf("viewWillLayoutSubviews: w %f h %f", self.view.bounds.size.width * _screenScale, self.view.bounds.size.height * _screenScale);
 }

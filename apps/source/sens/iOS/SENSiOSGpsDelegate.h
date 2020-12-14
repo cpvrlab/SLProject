@@ -9,7 +9,7 @@
 - (void)stop;
 
 @property (nonatomic, assign) std::function<void(double, double, double, double)> updateCB;
-@property (nonatomic, assign) std::function<void(bool)> permissionCB;
+@property (nonatomic, assign) std::function<void(bool)>                           permissionCB;
 @end
 
 #endif

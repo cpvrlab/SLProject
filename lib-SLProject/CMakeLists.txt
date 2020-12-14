@@ -72,17 +72,6 @@ file(GLOB headers
         ${CMAKE_CURRENT_SOURCE_DIR}/include/GL/SLGLVertexArray.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/GL/SLGLVertexArrayExt.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/GL/SLGLVertexBuffer.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/math/SLAlgo.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/math/SLCurve.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/math/SLCurveBezier.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/math/SLMat3.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/math/SLMat4.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/math/SLPlane.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/math/SLQuat4.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/math/SLVec2.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/math/SLVec3.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/math/SLVec4.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/math/SLVector.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SL/SL.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SL/SLAssimpImporter.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SL/SLImporter.h
@@ -110,6 +99,7 @@ file(GLOB headers
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLCoordAxis.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLCudaBuffer.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLCoordAxisArrow.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLCurveBezier.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLCylinder.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLDeviceRotation.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/SLDeviceLocation.h
@@ -192,9 +182,6 @@ set(sources
         ${CMAKE_CURRENT_SOURCE_DIR}/source/GL/SLGLVertexArray.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/GL/SLGLVertexArrayExt.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/GL/SLGLVertexBuffer.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/math/SLAlgo.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/math/SLCurveBezier.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/math/SLPlane.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SLAssimpImporter.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SLImporter.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SL/SLInputEventInterface.cpp
@@ -216,6 +203,7 @@ set(sources
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLCoordAxis.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLCoordAxisArrow.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLCylinder.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/SLCurveBezier.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLDeviceRotation.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLDeviceLocation.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/SLDisk.cpp
@@ -430,6 +418,7 @@ target_link_libraries(${target}
         ${META_PROJECT_NAME}::lib-SLExternal
         ${assimp_LIBS}
         lib-Utils
+        lib-SLMath
         ${DEFAULT_LINKER_OPTIONS}
 
         INTERFACE

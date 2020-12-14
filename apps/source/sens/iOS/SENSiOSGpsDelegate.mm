@@ -17,8 +17,8 @@
     self = [super init];
 
     //Initialize members (not necessary with ARC)
-    _locationManager     = nil;
-    _running             = NO;
+    _locationManager = nil;
+    _running         = NO;
     if (self)
     {
         [self setupLocationManager];
@@ -85,7 +85,7 @@
 //-----------------------------------------------------------------------------
 - (void)locationManager:(CLLocationManager*)manager didUpdateToLocation:(CLLocation*)newLocation fromLocation:(CLLocation*)oldLocation
 {
-    printf("horizontalAccuracy: %f\n", newLocation.horizontalAccuracy);
+    //printf("horizontalAccuracy: %f\n", newLocation.horizontalAccuracy);
 
     // negative horizontal accuracy means no location fix
     if (newLocation.horizontalAccuracy > 0.0)

@@ -8,6 +8,7 @@
 #include <SLVec4.h>
 #include <SLKeyframeCamera.h>
 #include <SLGLProgramManager.h>
+#include <SLHorizonNode.h>
 #include <HttpUtils.h>
 #include <ZipUtils.h>
 #define PASSWORD "http_password"
@@ -17,6 +18,12 @@ AppWAIScene::AppWAIScene(SLstring name, std::string dataDir, std::string erlebAR
     _dataDir(Utils::unifySlashes(dataDir)),
     _erlebARDir(Utils::unifySlashes(erlebARDir))
 {
+}
+
+AppWAIScene::~AppWAIScene()
+{
+    if (_font16)
+        delete _font16;
 }
 
 void AppWAIScene::unInit()
@@ -53,7 +60,7 @@ void AppWAIScene::unInit()
     loopEdgesMesh             = nullptr;
 }
 
-void AppWAIScene::initScene(ErlebAR::LocationId locationId, ErlebAR::AreaId areaId)
+void AppWAIScene::initScene(ErlebAR::LocationId locationId, ErlebAR::AreaId areaId, SLDeviceRotation* devRot, SLDeviceLocation* devLoc, int svW, int svH)
 {
     unInit();
 
@@ -62,7 +69,7 @@ void AppWAIScene::initScene(ErlebAR::LocationId locationId, ErlebAR::AreaId area
     //init map visualizaton (common to all areas)
     initMapVisualization();
     //init area dependent visualization
-    initAreaVisualization(locationId, areaId);
+    initAreaVisualization(locationId, areaId, devRot, devLoc, svW, svH);
 }
 
 void AppWAIScene::initMapVisualization()
@@ -110,7 +117,7 @@ void AppWAIScene::initMapVisualization()
     _root3D->addChild(mapNode);
 }
 
-void AppWAIScene::initAreaVisualization(ErlebAR::LocationId locationId, ErlebAR::AreaId areaId)
+void AppWAIScene::initAreaVisualization(ErlebAR::LocationId locationId, ErlebAR::AreaId areaId, SLDeviceRotation* devRot, SLDeviceLocation* devLoc, int svW, int svH)
 {
     //search and delete old node
     if (!_root3D)
@@ -123,9 +130,14 @@ void AppWAIScene::initAreaVisualization(ErlebAR::LocationId locationId, ErlebAR:
     else if (locationId == ErlebAR::LocationId::BERN)
         initLocationBern();
     else if (locationId == ErlebAR::LocationId::BIEL)
-        initLocationBiel();
+        initLocationBiel(devRot, devLoc);
     else if (locationId == ErlebAR::LocationId::EVILARD)
-        initLocationDefault();
+    {
+        if (areaId == ErlebAR::AreaId::EVILARD_OFFICE)
+            initAreaEvilardOffice(devRot, devLoc, svW, svH);
+        else
+            initLocationDefault();
+    }
     else
         initLocationDefault();
 }
@@ -277,7 +289,7 @@ void AppWAIScene::initLocationBern()
     */
 }
 
-void AppWAIScene::initLocationBiel()
+void AppWAIScene::initLocationBiel(SLDeviceRotation* devRot, SLDeviceLocation* devLoc)
 {
     if (!Utils::dirExists(_dataDir + "erleb-AR/models/biel/"))
     {
@@ -301,7 +313,18 @@ void AppWAIScene::initLocationBiel()
     camera->lookAt(-10, 2, 0);
     camera->clipNear(1);
     camera->clipFar(1000);
-    camera->camAnim(SLCamAnim::CA_off);
+
+    //camera->camAnim(SLCamAnim::CA_off);
+    camera->camAnim(SLCamAnim::CA_deviceRotLocYUp);
+    camera->devRotLoc(devRot, devLoc);
+    if (devRot)
+    {
+        devRot->offsetMode(SLOffsetMode::OM_fingerX);
+        devRot->isUsed(true);
+    }
+    if (devLoc)
+        devLoc->isUsed(true);
+
     camera->setInitialState();
     _root3D->addChild(camera);
 
@@ -316,6 +339,75 @@ void AppWAIScene::initLocationBiel()
     _root3D->addChild(axis);
 }
 
+void AppWAIScene::initAreaEvilardOffice(SLDeviceRotation* devRot, SLDeviceLocation* devLoc, int svW, int svH)
+{
+    SLNode* world = new SLNode("World");
+    _root3D->addChild(world);
+
+    SLNode* worldAxisNode = new SLNode(new SLCoordAxis(&assets), "World Axis Node");
+    worldAxisNode->setDrawBitsRec(SL_DB_MESHWIRED, false);
+    world->addChild(worldAxisNode);
+
+    // Create directional light for the sun light
+    sunLight = new SLLightDirect(&assets, this, 5.0f);
+    sunLight->powers(1.0f, 1.0f, 1.0f);
+    sunLight->attenuation(1, 0, 0);
+    sunLight->doSunPowerAdaptation(true);
+    //sunLight->createsShadows(true);
+    //sunLight->createShadowMap(-100, 150, SLVec2f(150, 150), SLVec2i(2048, 2048));
+    //sunLight->doSmoothShadows(true);
+    //sunLight->castsShadows(false);
+    sunLight->drawBits()->set(SL_DB_HIDDEN, true);
+    world->addChild(sunLight);
+
+    //init camera
+    camera = new VideoBackgroundCamera("AppWAIScene Camera", _dataDir + "images/textures/LiveVideoError.png", _dataDir + "shaders/");
+    camera->translation(1.29f, 1.57f, 3.85f);
+    camera->lookAt(1.29f, 1.57f, 0.f);
+    camera->clipNear(0.5f);
+    camera->clipFar(10.f);
+    //camera->camAnim(SLCamAnim::CA_deviceRotYUp);
+    camera->camAnim(SLCamAnim::CA_off);
+    camera->devRotLoc(devRot, nullptr);
+    camera->setInitialState();
+    world->addChild(camera);
+
+    SLMaterial* yellow    = new SLMaterial(&assets, "mY", SLCol4f(1, 1, 0, 0.5f));
+    SLBox*      piano     = new SLBox(&assets, 0.0f, 0.0f, 0.0f, 1.467f, 0.908f, 0.515f, "Box", yellow);
+    SLNode*     pianoNode = new SLNode(piano, "Piano Node");
+    pianoNode->setDrawBitsRec(SL_DB_CULLOFF, true);
+    pianoNode->translation(0.523f, 0.f, 0.f);
+
+    SLNode* axisNode = new SLNode(new SLCoordAxis(&assets), "Axis Node");
+    axisNode->setDrawBitsRec(SL_DB_MESHWIRED, false);
+    pianoNode->addChild(axisNode);
+
+    SLNode* room = new SLNode("Room");
+    room->addChild(pianoNode);
+    world->addChild(room);
+
+    //correct room orientation to world (rotation around camera)
+    SLVec3f center = {camera->translationOS().x, 0, camera->translationOS().z};
+    SLMat4f rot;
+    rot.translate(center);
+    rot.rotate(60, SLVec3f(0, 1, 0));
+    rot.translate(-center); //this translation comes first because of left multiplication
+    room->om(rot * room->om());
+
+    if (devRot)
+    {
+        devRot->offsetMode(SLOffsetMode::OM_fingerX);
+        //add horizon visualization
+        if (!_root2D)
+            _root2D = new SLNode("root2D");
+
+        if (!_font16)
+            _font16 = new SLTexFont(_dataDir + "images/fonts/Font16.png", SLGLProgramManager::get(SP_fontTex));
+        SLHorizonNode* horizonNode = new SLHorizonNode("Horizon", devRot, _font16, _dataDir + "shaders/", svW, svH);
+        _root2D->addChild(horizonNode);
+    }
+}
+
 void AppWAIScene::initLocationDefault()
 {
     // Create directional light for the sun light
@@ -323,10 +415,10 @@ void AppWAIScene::initLocationDefault()
     sunLight->powers(1.0f, 1.0f, 1.0f);
     sunLight->attenuation(1, 0, 0);
     sunLight->doSunPowerAdaptation(true);
-    sunLight->createsShadows(true);
-    sunLight->createShadowMap(-100, 150, SLVec2f(150, 150), SLVec2i(2048, 2048));
-    sunLight->doSmoothShadows(true);
-    sunLight->castsShadows(false);
+    //sunLight->createsShadows(true);
+    //sunLight->createShadowMap(-100, 150, SLVec2f(150, 150), SLVec2i(2048, 2048));
+    //sunLight->doSmoothShadows(true);
+    //sunLight->castsShadows(false);
     _root3D->addChild(sunLight);
 
     //init camera
@@ -390,8 +482,8 @@ void AppWAIScene::loadChristoffelBernBahnhofsplatz()
     */
 
     // Hide some objects
-    bern->findChild<SLNode>("Umgebung-Daecher")->drawBits()->set(SL_DB_HIDDEN, true);
-    bern->findChild<SLNode>("Umgebung-Fassaden")->drawBits()->set(SL_DB_HIDDEN, true);
+    //bern->findChild<SLNode>("Umgebung-Daecher")->drawBits()->set(SL_DB_HIDDEN, true);
+    //bern->findChild<SLNode>("Umgebung-Fassaden")->drawBits()->set(SL_DB_HIDDEN, true);
     bern->findChild<SLNode>("Baldachin-Glas")->drawBits()->set(SL_DB_HIDDEN, true);
     bern->findChild<SLNode>("Baldachin-Stahl")->drawBits()->set(SL_DB_HIDDEN, true);
 
