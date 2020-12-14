@@ -3,6 +3,7 @@
 #include <vector>
 #include <thread>
 #include <SENSARCore.h>
+#include <SENSUtils.h>
 
 void SENSARCore::configure(int  targetWidth,
                            int  targetHeight,

@@ -10,6 +10,7 @@
 #include "SENS.h"
 
 #include <sens/SENSFrame.h>
+#include <sens/SENSCalibration.h>
 
 class SENSARCore
 {

@@ -55,14 +55,8 @@ SLCamera::SLCamera(const SLstring& name)
     _clipFar       = 300.0f;
     _fovV          = 45.0;
     _projection    = P_monoPerspective;
-    _camAnim       = CA_off;
+    _camAnim       = CA_turntableYUp;
     _castsShadows  = false;
-
-    _camAnimation = new SLCAOff(); //SLCATurntableYUp();
-    //_camAnimation = new SLCATurntableYUp();
-    //_camAnimation = new SLCATurntableZUp();
-    //_camAnimation = new SLCATrackball();
-    _camAnimation->camera(this);
 
     // depth of field parameters
     _lensDiameter = 0.3f;
@@ -77,8 +71,6 @@ SLCamera::SLCamera(const SLstring& name)
 //-----------------------------------------------------------------------------
 SLCamera::~SLCamera()
 {
-    if (_camAnimation)
-        delete _camAnimation;
 }
 //-----------------------------------------------------------------------------
 /*! SLCamera::camUpdate does the smooth transition for the walk animation. It
@@ -980,10 +972,6 @@ SLbool SLCamera::onMouseDown(const SLMouseButton button,
             return true;
         }
 
-        //todo anim
-        if (_camAnimation->onMouseDown(x, y))
-            return true;
-
         if (_camAnim == CA_trackball)
         {
             //todo anim
@@ -1000,8 +988,6 @@ SLbool SLCamera::onMouseMove(const SLMouseButton button,
                              const SLint         y,
                              const SLKey         mod)
 {
-
-    /*
     if (button == MB_left) //==================================================
     {
         // Set selection rectangle. See also SLMesh::handleRectangleSelection
@@ -1017,42 +1003,6 @@ SLbool SLCamera::onMouseMove(const SLMouseButton button,
             _deselectRect.setScnd(SLVec2f((SLfloat)x, (SLfloat)y));
             return true;
         }
-     
-         //beachte wenn k_ctrl doer alt vorher return
-         if(_camAnimation)
-             _camAnimation->onMouseMove(button, mod, x, y, _oldTouchPos1.x, _oldTouchPos1.y);
-
-         
-    }
-    else if( button == MB_middle)
-    {
-        if(_camAnimation)
-            _camAnimation->onMouseMove(button, mod, x, y, _oldTouchPos1.x, _oldTouchPos1.y);
-        
-        _oldTouchPos1.set((SLfloat)x, (SLfloat)y);
-    }
-
-    */
-
-    //beachte wenn k_ctrl doer alt vorher return
-
-    if (button == MB_left) //==================================================
-    {
-        // Set selection rectangle. See also SLMesh::handleRectangleSelection
-        if (mod & K_ctrl)
-        {
-            _selectRect.setScnd(SLVec2f((SLfloat)x, (SLfloat)y));
-            return true;
-        }
-
-        // Set deselection rectangle. See also SLMesh::handleRectangleSelection
-        if (mod & K_alt)
-        {
-            _deselectRect.setScnd(SLVec2f((SLfloat)x, (SLfloat)y));
-            return true;
-        }
-
-        _camAnimation->onMouseMove(button, mod, x, y, _oldTouchPos1.x, _oldTouchPos1.y);
 
         // Position and directions in view space
         SLVec3f positionVS = this->translationOS();
@@ -1181,14 +1131,6 @@ SLbool SLCamera::onMouseMove(const SLMouseButton button,
     }
     else if (button == MB_middle) //===========================================
     {
-        if (dynamic_cast<SLCATurntableYUp*>(_camAnimation) ||
-            dynamic_cast<SLCATrackball*>(_camAnimation) ||
-            dynamic_cast<SLCATurntableZUp*>(_camAnimation))
-        {
-            _camAnimation->onMouseMove(button, mod, x, y, _oldTouchPos1.x, _oldTouchPos1.y);
-            _oldTouchPos1.set((SLfloat)x, (SLfloat)y);
-        }
-
         if (_camAnim == CA_turntableYUp ||
             _camAnim == CA_turntableZUp ||
             _camAnim == CA_trackball)
@@ -1239,8 +1181,6 @@ SLbool SLCamera::onMouseUp(const SLMouseButton button,
             return true;
         }
 
-        if (_camAnimation->onMouseUpDispatched())
-            return true;
         //todo anim
         if (_camAnim == CA_turntableYUp)
             return true;
@@ -1260,8 +1200,6 @@ SLCamera::onMouseWheel event handler moves camera forwards or backwards
 SLbool SLCamera::onMouseWheel(const SLint delta,
                               const SLKey mod)
 {
-    _camAnimation->onMouseWheel(delta, mod);
-
     SLfloat sign = (SLfloat)Utils::sign(delta);
 
     if (_camAnim == CA_turntableYUp ||
@@ -1316,8 +1254,6 @@ SLbool SLCamera::onTouch2Move(const SLint x1,
                               const SLint x2,
                               const SLint y2)
 {
-    _camAnimation->onTouch2Move(x1, y1, x2, y2, _oldTouchPos1, _oldTouchPos2);
-
     SLVec2f now1((SLfloat)x1, (SLfloat)y1);
     SLVec2f now2((SLfloat)x2, (SLfloat)y2);
     SLVec2f delta1(now1 - _oldTouchPos1);

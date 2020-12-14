@@ -122,7 +122,7 @@ const Location defineLocationAugst()
                   "dummy.jpg",                                 //relocAlignImage,
                   "calibrations/voc_fbow.bin",                 //vocFileName,
                   2,                                           //vocLayer,
-                  {640, 360},                                  //cameraFrameTargetSize
+                  //{640, 360},                                  //cameraFrameTargetSize
                   ExtractorType::ExtractorType_FAST_ORBS_2000, //initializationExtractorType
                   ExtractorType::ExtractorType_FAST_ORBS_1000, //relocalizationExtractorType
                   ExtractorType::ExtractorType_FAST_ORBS_1000, //trackingExtractorType
@@ -138,7 +138,7 @@ const Location defineLocationAugst()
                   "dummy.jpg",                                 //relocAlignImage,
                   "calibrations/voc_fbow.bin",                 //vocFileName,
                   2,                                           //vocLayer,
-                  {640, 360},                                  //cameraFrameTargetSize
+                  //{640, 360},                                  //cameraFrameTargetSize
                   ExtractorType::ExtractorType_FAST_ORBS_2000, //initializationExtractorType
                   ExtractorType::ExtractorType_FAST_ORBS_1000, //relocalizationExtractorType
                   ExtractorType::ExtractorType_FAST_ORBS_1000, //trackingExtractorType
