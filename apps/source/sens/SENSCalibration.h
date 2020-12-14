@@ -77,11 +77,7 @@ public:
     {
     }
 
-<<<<<<< HEAD
     //! copy constructor
-=======
-    //copy constructor
->>>>>>> template-camera-correction
     SENSCalibration(const SENSCalibration& other)
       : _cameraMat(other._cameraMat.clone()),
         _distortion(other._distortion.clone()),
@@ -222,15 +218,9 @@ public:
     void calculateUndistortedCameraMat();
 
 private:
-<<<<<<< HEAD
     bool load(const string& calibDir,
               const string& calibFileName,
               bool          calcUndistortionMaps);
-=======
-    bool load(const std::string& calibDir,
-              const std::string& calibFileName,
-              bool               calcUndistortionMaps);
->>>>>>> template-camera-correction
 
     void createFromGuessedFOV(int imageWidthPX, int imageHeightPX, float fovH);
 
