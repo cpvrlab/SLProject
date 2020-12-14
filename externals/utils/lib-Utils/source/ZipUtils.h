@@ -15,36 +15,13 @@
 
 namespace ZipUtils
 {
-//-----------------------------------------------------------------------------
-/*!
- *
- * @param path
- * @param zipname
- * @return
- */
 bool zip(string path, string zipname = "");
-//-----------------------------------------------------------------------------
-/*!
- *
- * @param zipfile
- * @param processFile
- * @param writeChunk
- * @param processDir
- * @return
- */
+
 bool unzip(string                                       zipfile,
            function<bool(string path, string filename)> processFile,
            function<bool(const char* data, size_t len)> writeChunk,
            function<bool(string path)>                  processDir);
-//-----------------------------------------------------------------------------
-/*!
- *
- * @param path
- * @param dest
- * @param override
- * @return
- */
+
 bool unzip(string path, string dest = "", bool override = true);
-//-----------------------------------------------------------------------------
 }
 #endif

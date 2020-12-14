@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      ZipUtils.h
+//  File:      ZipUtils.cpp
 //  Author:    Luc Girod
 //  Date:      2020
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
@@ -20,6 +20,12 @@ using namespace std;
 namespace ZipUtils
 {
 //-----------------------------------------------------------------------------
+/*!
+ *
+ * @param zfile
+ * @param dirname
+ * @return
+ */
 static bool zip_add_dir(zipFile zfile, string dirname)
 {
     char*  temp;
@@ -62,6 +68,14 @@ static bool zip_add_dir(zipFile zfile, string dirname)
     return true;
 }
 //-----------------------------------------------------------------------------
+/*!
+ *
+ * @param zfile
+ * @param fs
+ * @param filename
+ * @param zipPath
+ * @return
+ */
 static bool zip_add_file(zipFile        zfile,
                          std::ifstream& fs,
                          string         filename,
@@ -103,6 +117,13 @@ static bool zip_add_file(zipFile        zfile,
     return true;
 }
 //-----------------------------------------------------------------------------
+/*!
+ *
+ * @param zfile
+ * @param filepath
+ * @param zipPath
+ * @return
+ */
 static bool zip_add_file(zipFile zfile,
                          string  filepath,
                          string  zipPath = "")
@@ -119,6 +140,14 @@ static bool zip_add_file(zipFile zfile,
                         zipPath);
 }
 //-----------------------------------------------------------------------------
+/*!
+ *
+ * @param zipfile
+ * @param processFile
+ * @param writeChunk
+ * @param processDir
+ * @return
+ */
 bool unzip(string                                       zipfile,
            function<bool(string path, string filename)> processFile,
            function<bool(const char* data, size_t len)> writeChunk,
@@ -200,6 +229,12 @@ bool unzip(string                                       zipfile,
     return ret;
 }
 //-----------------------------------------------------------------------------
+/*!
+ *
+ * @param path
+ * @param zipname
+ * @return
+ */
 bool zip(string path, string zipname)
 {
     path = Utils::trimRightString(path, "/");
@@ -225,7 +260,10 @@ bool zip(string path, string zipname)
        zipRootPath](string path,
                     string baseName,
                     int    depth) -> void {
-          ret = ret && zip_add_file(zfile, path + baseName, path.erase(0, zipRootPath.size()));
+          ret = ret && zip_add_file(zfile,
+                                    path + baseName,
+                                    path.erase(0,
+                                               zipRootPath.size()));
       },
       [zfile, &ret, zipRootPath](string path,
                                  string baseName,
@@ -246,6 +284,13 @@ bool zip(string path, string zipname)
     return true;
 }
 //-----------------------------------------------------------------------------
+/*!
+ *
+ * @param path
+ * @param dest
+ * @param override
+ * @return
+ */
 bool unzip(string path, string dest, bool override)
 {
     std::ofstream fs;
