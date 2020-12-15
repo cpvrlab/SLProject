@@ -10,8 +10,10 @@
 #include <vector>
 #include <string>
 #ifdef _WINDOWS
-#    include "winsock2.h"
+//#    include "winsock2.h"
 //-lwsock32 -lws2_32
+typedef int socklen_t;
+#include <winsock.h>
 #else
 #    include <sys/socket.h>
 #    include <netinet/in.h>
@@ -32,6 +34,30 @@ struct Socket
     struct sockaddr_in sa;
     socklen_t          addrlen;
     bool               inUse;
+    #ifdef _WINDOWS
+    static WSADATA     wsadata;
+    static bool        initialized;
+    #endif
+
+    static bool SocketEnable()
+    {
+        int ret;
+        #ifdef _WINDOWS
+        if (!initialized)
+        {
+            ret = WSAStartup(MAKEWORD(2, 2), &wsadata);
+            if (ret == 0)
+                initialized = true;
+            else
+                return false;
+        }
+        #endif
+        return true;
+    }
+
+    static void SocketDisable()
+    {
+    }
 
     Socket() { reset(); }
 
