@@ -55,8 +55,9 @@ target_link_libraries(
     ${DEFAULT_LIBRARIES}
     libc++_shared.so
     ${OpenCV_LIBS}
-    ${assimp_LIBS}
+    #${assimp_LIBS}
     ${META_PROJECT_NAME}::lib-SLProject
+    z
     )
 
 #
