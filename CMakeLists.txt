@@ -65,7 +65,7 @@ endif()
 add_subdirectory(externals)
 
 if (SL_BUILD_WAI)
-	add_subdirectory(lib-WAI)
+	add_subdirectory(modules/WAI)
 endif()
 
 add_subdirectory(lib-SLProject)
