@@ -147,8 +147,8 @@ bool CVCalibration::load(const string& calibDir,
     cv::FileStorage fs(fullPathAndFilename, cv::FileStorage::READ);
     if (!fs.isOpened())
     {
-        Utils::log("SLProject", "Calibration     : %s", calibFileName.c_str());
-        Utils::log("SLProject", "Calib. created  : No. Calib. will be estimated");
+        Utils::log("SLProject", "Calibration      : %s", calibFileName.c_str());
+        Utils::log("SLProject", "Calib. created   : No. Calib. will be estimated");
         _numCaptured       = 0;
         _isMirroredH       = false;
         _isMirroredV       = false;

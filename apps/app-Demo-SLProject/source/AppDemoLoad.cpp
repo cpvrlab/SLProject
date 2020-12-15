@@ -144,7 +144,6 @@ SLNode* RotatingSphereGroup(SLProjectScene* s,
                                                                  true,
                                                                  EC_linear,
                                                                  AL_loop);
-
     if (depth == 0)
     {
         SLSphere* sphere  = new SLSphere(s, 5.0f * scale, resolution, resolution, meshName, mat[iMat]);
@@ -156,6 +155,11 @@ SLNode* RotatingSphereGroup(SLProjectScene* s,
     else
     {
         depth--;
+
+        // decrease resolution to reduce memory consumption
+        if (resolution > 8)
+            resolution -= 2;
+
         SLNode* sGroup = new SLNode(new SLSphere(s, 5.0f * scale, resolution, resolution, meshName, mat[iMat]), nodeName);
         sGroup->translate(x, y, z, TS_object);
         nodeAnim->createNodeAnimTrackForRotation360(sGroup, SLVec3f(0, 1, 0));
@@ -4957,6 +4961,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->clipNear(0.1f);
         cam1->clipFar(100);
         cam1->translation(0, 2.5f, 20);
+        cam1->focalDist(20);
         cam1->lookAt(0, 2.5f, 0);
         cam1->background().colors(SLCol4f(0.1f, 0.1f, 0.1f));
         cam1->setInitialState();
@@ -4983,7 +4988,12 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         }
 
         // create rotating sphere group
+#ifdef SL_GLES
+        SLint maxDepth   = 4; // 5 is to memory intensiv for mobiles
+#else
         SLint maxDepth   = 5;
+#endif
+
         SLint resolution = 18;
         scene->addChild(RotatingSphereGroup(s,
                                             maxDepth,
