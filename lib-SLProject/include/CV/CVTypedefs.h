@@ -28,7 +28,7 @@ for a good top down information.
 #include <opencv2/xfeatures2d.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 
-using namespace std;
+using std::vector;
 
 //-----------------------------------------------------------------------------
 typedef cv::Mat               CVMat;

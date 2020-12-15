@@ -82,7 +82,7 @@ void SLHorizonNode::doUpdate()
         if (_textNode)
             this->deleteChild(_textNode);
 
-        std::stringstream ss;
+        stringstream ss;
         //we invert the sign to express the rotation of the device w.r.t the horizon
         ss << std::fixed << std::setprecision(1) << -horizonAngle;
         SLstring txt = ss.str();

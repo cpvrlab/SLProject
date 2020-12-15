@@ -16,9 +16,9 @@
 #include <utility>
 
 std::map<SLStdShaderProg, SLGLGenericProgram*> SLGLProgramManager::_programs;
-std::string                                    SLGLProgramManager::shaderDir;
+string                                    SLGLProgramManager::shaderDir;
 //-----------------------------------------------------------------------------
-void SLGLProgramManager::init(std::string shaderPath)
+void SLGLProgramManager::init(string shaderPath)
 {
     shaderDir = shaderPath;
 }

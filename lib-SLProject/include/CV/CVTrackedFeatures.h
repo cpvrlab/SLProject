@@ -66,7 +66,7 @@ was found, the implementation tries to track them and update the pose respective
 */
 class CVTrackedFeatures : public CVTracked
 {
-    public:
+public:
     explicit CVTrackedFeatures(string markerFilename);
     ~CVTrackedFeatures();
     bool track(CVMat          imageGray,
@@ -80,7 +80,7 @@ class CVTrackedFeatures : public CVTracked
     void forceRelocation(bool fR) { _forceRelocation = fR; }
     void type(CVDetectDescribeType ddType);
 
-    private:
+private:
     void      loadMarker(string markerFilename);
     void      initFeaturesOnMarker();
     void      relocate();
@@ -94,9 +94,9 @@ class CVTrackedFeatures : public CVTracked
     bool      trackWithOptFlow(CVMat rvec, CVMat tvec);
 
     cv::Ptr<cv::DescriptorMatcher> _matcher;    //!< Descriptor matching algorithm
-    CVCalibration*             _calib;      //!< Current calibration in use
-    int                        _frameCount; //!< NO. of frames since process start
-    bool                       _isTracking; //!< True if tracking
+    CVCalibration*                 _calib;      //!< Current calibration in use
+    int                            _frameCount; //!< NO. of frames since process start
+    bool                           _isTracking; //!< True if tracking
 
     //! Data of a 2D marker image
     struct SLFeatureMarker2D

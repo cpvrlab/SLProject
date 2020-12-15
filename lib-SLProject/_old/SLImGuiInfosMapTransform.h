@@ -23,23 +23,22 @@ class SLCVMap;
 class SLImGuiInfosMapTransform : public SLImGuiInfosDialog
 {
 public:
-    SLImGuiInfosMapTransform(std::string name, SLCVMapTracking* tracking);
+    SLImGuiInfosMapTransform(string name, SLCVMapTracking* tracking);
 
     void buildInfos() override;
 
 private:
     void stopTracking();
-    void applyTransformation( float transformationValue,
-        SLCVMap::TransformType type);
+    void applyTransformation(float                  transformationValue,
+                             SLCVMap::TransformType type);
 
     SLCVMapTracking* _tracking = nullptr;
-    SLCVMap* _map = nullptr;
+    SLCVMap*         _map      = nullptr;
 
-    float _transformationRotValue = 10.0f;;
+    float _transformationRotValue = 10.0f;
+    ;
     float _transformationTransValue = 0.1f;
     float _transformationScaleValue = 1.1f;
 };
 
 #endif //SL_IMGUI_INFOSMAPTRANSFORM_H
-
-

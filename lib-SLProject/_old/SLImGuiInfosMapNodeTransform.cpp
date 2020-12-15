@@ -20,7 +20,7 @@
 
 //-----------------------------------------------------------------------------
 SLImGuiInfosMapNodeTransform::SLImGuiInfosMapNodeTransform(
-  std::string      name,
+  string           name,
   SLCVMapNode*     mapNode,
   SLCVMapTracking* tracking)
   : SLImGuiInfosDialog(name),
@@ -75,7 +75,7 @@ void SLImGuiInfosMapNodeTransform::buildInfos()
     if (ImGui::ButtonEx("--", ImVec2(0, 0), ImGuiButtonFlags_Repeat | ImGuiButtonFlags_PressedOnClick))
         _transformationTransValue -= 1.0f;
     ImGui::SameLine();
-    if (ImGui::ButtonEx("++", ImVec2(0,0), ImGuiButtonFlags_Repeat | ImGuiButtonFlags_PressedOnClick))
+    if (ImGui::ButtonEx("++", ImVec2(0, 0), ImGuiButtonFlags_Repeat | ImGuiButtonFlags_PressedOnClick))
         _transformationTransValue += 1.0f;
     ImGui::SameLine();
     ImGui::InputFloat("Transl. Value", &_transformationTransValue, 0.01f, 0.1f, 3);

@@ -17,9 +17,8 @@
 #include <SLCVMapNode.h>
 
 //-----------------------------------------------------------------------------
-SLImGuiInfosTracking::SLImGuiInfosTracking(std::string name, SLTrackingInfosInterface* tracker, 
-    SLCVMapNode* mapNode)
-    : SLImGuiInfosDialog(name),
+SLImGuiInfosTracking::SLImGuiInfosTracking(string name, SLTrackingInfosInterface* tracker, SLCVMapNode* mapNode)
+  : SLImGuiInfosDialog(name),
     _interface(tracker),
     _mapNode(mapNode)
 {
@@ -106,7 +105,7 @@ void SLImGuiInfosTracking::buildInfos()
         ImGui::Checkbox("Show", &b);
         _interface->showKeyFrames(b);
 
-        //if backgound rendering is active kf images will be rendered on 
+        //if backgound rendering is active kf images will be rendered on
         //near clipping plane if kf is not the active camera
         b = _interface->renderKfBackground();
         ImGui::Checkbox("Show Image", &b);
@@ -126,7 +125,7 @@ void SLImGuiInfosTracking::buildInfos()
         b = _interface->showCovisibilityGraph();
         ImGui::Checkbox("Show Covisibility (100 common KPts)", &b);
         _interface->showCovisibilityGraph(b);
-        if(b)
+        if (b)
         {
             //Definition of minimum number of covisible map points
             if (ImGui::InputInt("Min. covis. map pts", &_minNumCovisibleMapPts, 10, 0))

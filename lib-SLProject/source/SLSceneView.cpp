@@ -64,7 +64,7 @@ void SLSceneView::init(SLstring           name,
                        void*              onWndUpdateCallback,
                        void*              onSelectNodeMeshCallback,
                        SLUiInterface*     gui,
-                       const std::string& configPath)
+                       const string& configPath)
 {
     _gui        = gui;
     _name       = std::move(name);

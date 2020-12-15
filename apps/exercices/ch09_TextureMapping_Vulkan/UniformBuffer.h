@@ -2,7 +2,7 @@
 
 #include "Buffer.h"
 #include "UniformBufferObject.h"
-#include <math/SLMat4.h>
+#include <SLMat4.h>
 #include <Camera.h>
 
 class Swapchain;

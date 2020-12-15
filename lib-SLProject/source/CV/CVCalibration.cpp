@@ -23,14 +23,12 @@ for a good top down information.
 
 #include <utility>
 
-using namespace std;
-
 //-----------------------------------------------------------------------------
 //! Increase the _CALIBFILEVERSION each time you change the file format
 // Version 6, Date: 6.JUL.2019: Added device parameter from Android
 const int CVCalibration::_CALIBFILEVERSION = 6;
 //-----------------------------------------------------------------------------
-CVCalibration::CVCalibration(CVCameraType type, std::string computerInfos)
+CVCalibration::CVCalibration(CVCameraType type, string computerInfos)
   : _state(CS_uncalibrated),
     _cameraFovHDeg(0.0f),
     _cameraFovVDeg(0.0f),
@@ -56,12 +54,12 @@ CVCalibration::CVCalibration(const cv::Mat&     cameraMat,
                              float              boardSquareMM,
                              float              reprojectionError,
                              int                numCaptured,
-                             const std::string& calibrationTime,
+                             const string& calibrationTime,
                              int                camSizeIndex,
                              bool               mirroredH,
                              bool               mirroredV,
                              CVCameraType       camType,
-                             std::string        computerInfos,
+                             string        computerInfos,
                              int                calibFlags,
                              bool               calcUndistortionMaps)
   : _cameraMat(cameraMat.clone()),
@@ -195,7 +193,7 @@ bool CVCalibration::load(const string& calibDir,
         fs["computerInfos"] >> _computerInfos;
     else
     {
-        std::vector<string> stringParts;
+        vector<string> stringParts;
         Utils::splitString(Utils::getFileNameWOExt(calibFileName), '_', stringParts);
         if (stringParts.size() >= 3)
             _computerInfos = stringParts[1];

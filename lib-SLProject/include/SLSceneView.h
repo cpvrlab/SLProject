@@ -80,7 +80,7 @@ public:
               void*              onWndUpdateCallback,
               void*              onSelectNodeMeshCallback,
               SLUiInterface*     gui,
-              const std::string& configPath);
+              const string& configPath);
     void unInit();
 
     // Not overridable event handlers

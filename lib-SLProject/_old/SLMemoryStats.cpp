@@ -15,11 +15,13 @@
 //!update statistics by calling callback
 void SLMemoryStats::updateValue()
 {
-    //execute callback to 
-    if (_cb) {
+    //execute callback to
+    if (_cb)
+    {
         (*_cb)();
     }
-    else {
+    else
+    {
         SL_WARN_MSG("SLMemoryStats update called but no callback is installed!\n");
     }
 }
@@ -30,24 +32,23 @@ void SLMemoryStats::setCallback(cbMemoryStats* cb)
     _cb = cb;
 }
 //-----------------------------------------------------------------------------
-void SLMemoryStats::setValues(long freeMemoryRT, long totalMemoryRT, long maxMemoryRT,
-    long availMemoryAM, long totalMemoryAM, long thresholdAM, bool lowMemoryAM)
+void SLMemoryStats::setValues(long freeMemoryRT, long totalMemoryRT, long maxMemoryRT, long availMemoryAM, long totalMemoryAM, long thresholdAM, bool lowMemoryAM)
 {
-    _freeMemoryRT = freeMemoryRT;
+    _freeMemoryRT  = freeMemoryRT;
     _totalMemoryRT = totalMemoryRT;
-    _maxMemoryRT = maxMemoryRT;
+    _maxMemoryRT   = maxMemoryRT;
     _availMemoryAM = availMemoryAM;
     _totalMemoryAM = totalMemoryAM;
-    _thresholdAM = thresholdAM;
-    _lowMemoryAM = lowMemoryAM;
+    _thresholdAM   = thresholdAM;
+    _lowMemoryAM   = lowMemoryAM;
 
     //calculate additional values:
-    _usedMemInMB = (_totalMemoryRT - _freeMemoryRT) / 1048576L;
-    _maxHeapSizeInMB = _maxMemoryRT / 1048576L;
+    _usedMemInMB       = (_totalMemoryRT - _freeMemoryRT) / 1048576L;
+    _maxHeapSizeInMB   = _maxMemoryRT / 1048576L;
     _availHeapSizeInMB = _maxHeapSizeInMB - _usedMemInMB;
 
     _availableMegs = _availMemoryAM / 0x100000L;
-    _percentAvail = _availMemoryAM / (double)_totalMemoryAM * 100.0;
+    _percentAvail  = _availMemoryAM / (double)_totalMemoryAM * 100.0;
 
     //Explanation of the number 0x100000L:
     //1024 bytes == 1 Kibibyte

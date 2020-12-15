@@ -21,7 +21,7 @@ for a good top down information.
 #include <Utils.h>
 
 //-----------------------------------------------------------------------------
-CVTrackedChessboard::CVTrackedChessboard(std::string calibIniPath)
+CVTrackedChessboard::CVTrackedChessboard(string calibIniPath)
   : _calibParamsFileName("calib_in_params.yml"),
     _calibIniPath(calibIniPath)
 {

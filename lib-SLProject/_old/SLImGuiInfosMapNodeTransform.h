@@ -20,15 +20,15 @@ class SLCVMapNode;
 //-----------------------------------------------------------------------------
 class SLImGuiInfosMapNodeTransform : public SLImGuiInfosDialog
 {
-    public:
+public:
     SLImGuiInfosMapNodeTransform(
-      std::string      name,
+      string           name,
       SLCVMapNode*     mapNode,
       SLCVMapTracking* tracking);
 
     void buildInfos() override;
 
-    private:
+private:
     float _transformationRotValue   = 10.0f;
     float _transformationTransValue = 1.0f;
     float _transformationScaleValue = 1.2f;

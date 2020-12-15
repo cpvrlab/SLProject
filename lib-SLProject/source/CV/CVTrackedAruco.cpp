@@ -26,7 +26,7 @@ vector<int>   CVTrackedAruco::arucoIDs;
 CVVMatx44f    CVTrackedAruco::objectViewMats;
 CVArucoParams CVTrackedAruco::params;
 //-----------------------------------------------------------------------------
-CVTrackedAruco::CVTrackedAruco(int arucoID, std::string calibIniPath)
+CVTrackedAruco::CVTrackedAruco(int arucoID, string calibIniPath)
   : _calibIniPath(calibIniPath)
 {
     _arucoID = arucoID;

@@ -44,10 +44,10 @@
 class join_threads
 {
 private:
-   std::vector<std::thread>& threads;
+   vector<std::thread>& threads;
    
 public:
-   explicit join_threads(std::vector<std::thread>& threads_) : threads(threads_)
+   explicit join_threads(vector<std::thread>& threads_) : threads(threads_)
    {}
    ~join_threads()
    {
@@ -79,8 +79,8 @@ void parallel_for_each(Iterator first, Iterator last, Func f)
 
     unsigned long const block_size=length/num_threads;
 
-    std::vector<std::future<void> > futures(num_threads-1);
-    std::vector<std::thread> threads(num_threads-1);
+    vector<std::future<void> > futures(num_threads-1);
+    vector<std::thread> threads(num_threads-1);
     join_threads joiner(threads);
 
     Iterator block_start=first;

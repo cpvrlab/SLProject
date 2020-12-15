@@ -28,7 +28,7 @@ using namespace std::chrono;
         OptixResult res = call;                                                \
         if( res != OPTIX_SUCCESS )                                             \
         {                                                                      \
-            std::stringstream ss;                                              \
+            stringstream ss;                                              \
             ss << "Optix call '" << #call << "' failed: " __FILE__ ":"         \
                << __LINE__ << ")\n";                                           \
             throw SLOptixException( res, ss.str().c_str() );                   \
@@ -40,7 +40,7 @@ using namespace std::chrono;
         OptixResult res = call;                                                \
         if( res != OPTIX_SUCCESS )                                             \
         {                                                                      \
-            std::stringstream ss;                                              \
+            stringstream ss;                                              \
             ss << "Optix call '" << #call << "' failed: " __FILE__ ":"         \
                << __LINE__ << ")\nLog:\n" << log                               \
                << ( sizeof_log > sizeof( log ) ? "<TRUNCATED>" : "" )          \
@@ -59,7 +59,7 @@ using namespace std::chrono;
         {                                                                      \
             const char *errorstr;                                              \
             cuGetErrorString(result, &errorstr);                               \
-            std::stringstream ss;                                              \
+            stringstream ss;                                              \
             ss << "CUDA call (" << #call << " ) failed with error: '"          \
                << errorstr                                                     \
                << "' (" __FILE__ << ":" << __LINE__ << ")\n"                   \
@@ -76,7 +76,7 @@ using namespace std::chrono;
         {                                                                      \
             const char *errorstr;                                              \
             cuGetErrorString(result, &errorstr);                               \
-            std::stringstream ss;                                              \
+            stringstream ss;                                              \
             ss << "CUDA error on synchronize with error '"                     \
                << errorstr                                                     \
                << "' (" __FILE__ << ":" << __LINE__ << ")\n";                  \

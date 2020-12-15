@@ -32,7 +32,8 @@
 #    error "SL has not been ported to this OS"
 #endif
 
-using namespace std;
+using std::string;
+using std::vector;
 
 //-----------------------------------------------------------------------------
 #define GETGLERROR glUtils::getGLError((const char*)__FILE__, __LINE__, false)

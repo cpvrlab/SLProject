@@ -27,9 +27,9 @@ public:
     void buildInfos() override;
 
 private:
-    SLCVMap* _map;
-    SLCVMapNode* _mapNode;
-    SLCVKeyFrameDB* _kfDB;
+    SLCVMap*         _map;
+    SLCVMapNode*     _mapNode;
+    SLCVKeyFrameDB*  _kfDB;
     SLCVMapTracking* _tracking;
 };
 

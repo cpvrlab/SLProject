@@ -20,7 +20,7 @@
 class SLImGuiInfosDialog
 {
 public:
-    SLImGuiInfosDialog(std::string name);
+    SLImGuiInfosDialog(string name);
 
     virtual ~SLImGuiInfosDialog() {}
     virtual void buildInfos() = 0;
@@ -32,9 +32,7 @@ public:
 
 private:
     //! name in imgui menu entry for this infos dialogue
-    std::string _name;
+    string _name;
 };
 //-----------------------------------------------------------------------------
 #endif // !SLIMGUI_INFOSDIALOG_H
-
-

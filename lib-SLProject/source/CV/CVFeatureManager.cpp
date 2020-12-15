@@ -23,8 +23,6 @@ for a good top down information.
 #include <Utils.h>
 #include <algorithm> // std::max
 
-using namespace std;
-
 //-----------------------------------------------------------------------------
 CVFeatureManager::CVFeatureManager()
 {

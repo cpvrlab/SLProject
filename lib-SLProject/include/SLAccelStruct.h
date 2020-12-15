@@ -21,7 +21,7 @@ All structures work on meshes.
 */
 class SLAccelStruct
 {
-    public:
+public:
     SLAccelStruct(SLMesh* m) { _m = m; }
     virtual ~SLAccelStruct() { ; }
 
@@ -31,7 +31,7 @@ class SLAccelStruct
     virtual SLbool intersect(SLRay* ray, SLNode* node) = 0;
     virtual void   disposeBuffers()                    = 0;
 
-    protected:
+protected:
     SLMesh* _m;    //!< Pointer to the mesh
     SLVec3f _minV; //!< min. point of AABB
     SLVec3f _maxV; //!< max. point of AABB

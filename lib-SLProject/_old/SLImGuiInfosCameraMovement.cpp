@@ -16,17 +16,17 @@
 #include <SLImGuiInfosDialog.h>
 #include <SLTrackingInfosInterface.h>
 
-SLImGuiInfosCameraMovement::SLImGuiInfosCameraMovement(std::string name,
+SLImGuiInfosCameraMovement::SLImGuiInfosCameraMovement(string              name,
                                                        SLCVStateEstimator* stateEstimator)
-    : SLImGuiInfosDialog(name),
-      _stateEstimator(stateEstimator)
+  : SLImGuiInfosDialog(name),
+    _stateEstimator(stateEstimator)
 {
 }
 
 void SLImGuiInfosCameraMovement::buildInfos()
 {
     SLMat4f pose = _stateEstimator->getPose();
-    SLVec3f t = pose.translation();
+    SLVec3f t    = pose.translation();
     SLVec3f r;
     pose.toEulerAnglesZYX(r.z, r.y, r.x);
 
@@ -36,7 +36,7 @@ void SLImGuiInfosCameraMovement::buildInfos()
     rX[recordIndex] = r.x;
     rY[recordIndex] = r.y;
     rZ[recordIndex] = r.z;
-    recordIndex = (recordIndex + 1) % MAX_CAM_MOVEMENT_RECORD_COUNT;
+    recordIndex     = (recordIndex + 1) % MAX_CAM_MOVEMENT_RECORD_COUNT;
 
     SLVec3f a = _stateEstimator->acceleration();
 
@@ -44,7 +44,7 @@ void SLImGuiInfosCameraMovement::buildInfos()
     //SLVec3f dR = _stateEstimator->dR();
     float dT = _stateEstimator->dT();
     //SLint64 dTc = _stateEstimator->dTc() / 1000;
-    
+
     ImGui::Text("translation : x - %.2f, y - %.2f, z - %.2f", t.x, t.y, t.z);
     ImGui::Text("acceleration : x - %.10f, y - %.10f, z - %.10f", a.x, a.y, a.z);
     //ImGui::Text("rotation : x - %.2f, y - %.2f, z - %.2f", r.x, r.y, r.z);

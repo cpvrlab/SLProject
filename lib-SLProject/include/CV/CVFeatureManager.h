@@ -35,22 +35,22 @@ enum CVDetectDescribeType
 //! Wrapper class around OpenCV feature detector & describer
 class CVFeatureManager
 {
-    public:
+public:
     CVFeatureManager();
     ~CVFeatureManager();
 
-    void detect(CVInputArray   image,
+    void detect(CVInputArray image,
                 CVVKeyPoint& keypoints,
-                CVInputArray   mask = cv::noArray());
+                CVInputArray mask = cv::noArray());
 
-    void describe(CVInputArray    image,
+    void describe(CVInputArray  image,
                   CVVKeyPoint&  keypoints,
-                  CVOutputArray  descriptors);
+                  CVOutputArray descriptors);
 
-    void detectAndDescribe(CVInputArray    image,
+    void detectAndDescribe(CVInputArray  image,
                            CVVKeyPoint&  keypoints,
-                           CVOutputArray  descriptors,
-                           CVInputArray    mask = cv::noArray());
+                           CVOutputArray descriptors,
+                           CVInputArray  mask = cv::noArray());
 
     void createDetectorDescriptor(CVDetectDescribeType detectDescribeType);
 
@@ -60,7 +60,7 @@ class CVFeatureManager
     // Getter
     CVDetectDescribeType type() { return _type; }
 
-    private:
+private:
     CVDetectDescribeType _type;       //!< Type of detector-descriptor pair
     cv::Ptr<CVFeature2D> _detector;   //!< CV smart pointer to the OpenCV feature detector
     cv::Ptr<CVFeature2D> _descriptor; //!< CV smart pointer to the OpenCV descriptor extractor

@@ -11,25 +11,29 @@
 #ifndef CVCALIBRATIONESTIMATOR_H
 #define CVCALIBRATIONESTIMATOR_H
 
+#include <string>
 #include <future>
 #include <CVCalibration.h>
 #include <CVTypedefs.h>
 #include <CVTypes.h>
 
-using namespace std;
+using std::string;
+using std::vector;
 
 //-----------------------------------------------------------------------------
 //!special exception that informs about errors during calibration process
 class CVCalibrationEstimatorException : public std::runtime_error
 {
 public:
-    CVCalibrationEstimatorException(const std::string& msg, const int line, const std::string& file)
+    CVCalibrationEstimatorException(const string& msg,
+                                    const int     line,
+                                    const string& file)
       : std::runtime_error(toMessage(msg, line, file).c_str())
     {
     }
 
 private:
-    std::string toMessage(const std::string& msg, const int line, const std::string& file)
+    string toMessage(const string& msg, const int line, const string& file)
     {
         std::stringstream ss;
         ss << msg << ": Exception thrown at line " << line << " in " << file << std::endl;
@@ -55,10 +59,10 @@ public:
                            bool                         mirroredH,
                            bool                         mirroredV,
                            CVCameraType                 camType,
-                           std::string                  computerInfos,
-                           std::string                  calibDataPath,
-                           std::string                  imageOutputPath,
-                           std::string                  exePath);
+                           string                       computerInfos,
+                           string                       calibDataPath,
+                           string                       imageOutputPath,
+                           string                       exePath);
     ~CVCalibrationEstimator();
 
     bool calculate();
@@ -136,11 +140,11 @@ private:
     bool                         _mirroredV    = false;
     CVCameraType                 _camType      = CVCameraType::FRONTFACING;
     CVCalibration                _calibration;         //!< estimated calibration
-    std::string                  _calibParamsFileName; //!< name of calibration paramters file
-    std::string                  _computerInfos;
-    std::string                  _calibDataPath;
-    std::string                  _calibImgOutputDir;
-    std::string                  _exePath;
+    string                       _calibParamsFileName; //!< name of calibration paramters file
+    string                       _computerInfos;
+    string                       _calibDataPath;
+    string                       _calibImgOutputDir;
+    string                       _exePath;
 
     //exception handling from async thread
     bool                            _hasAsyncError = false;

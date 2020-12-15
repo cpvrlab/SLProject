@@ -19,7 +19,7 @@ class SLCVTrackedMapping;
 class SLImGuiTrackedMapping : public SLImGuiInfosDialog
 {
 public:
-    SLImGuiTrackedMapping(std::string name, SLCVTrackedMapping* mappingTracker);
+    SLImGuiTrackedMapping(string name, SLCVTrackedMapping* mappingTracker);
 
     void buildInfos() override;
 

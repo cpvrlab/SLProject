@@ -12,7 +12,7 @@
 #include <SLImGuiInfosDialog.h>
 
 //-----------------------------------------------------------------------------
-SLImGuiInfosDialog::SLImGuiInfosDialog(std::string name)
-    : _name(name)
+SLImGuiInfosDialog::SLImGuiInfosDialog(string name)
+  : _name(name)
 {
 }

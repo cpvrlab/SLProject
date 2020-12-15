@@ -16,7 +16,7 @@
 #include <CVRaulMurOrb.h>
 
 using namespace cv;
-using namespace std;
+using std::pair;
 
 const int PATCH_SIZE      = 31;
 const int HALF_PATCH_SIZE = 15;
@@ -545,7 +545,7 @@ CVVKeyPoint CVRaulMurOrb::DistributeOctTree(const CVVKeyPoint& vToDistributeKeys
                     if (!n1.vKeys.empty())
                     {
                         nToExpand++;
-                        vSizeAndPointerToNode.push_back(make_pair(n1.vKeys.size(), &lNodes.front()));
+                        vSizeAndPointerToNode.push_back(std::make_pair(n1.vKeys.size(), &lNodes.front()));
                         lNodes.front().lit = lNodes.begin();
                     }
                 }
@@ -555,7 +555,7 @@ CVVKeyPoint CVRaulMurOrb::DistributeOctTree(const CVVKeyPoint& vToDistributeKeys
                     if (n2.vKeys.size() > 1)
                     {
                         nToExpand++;
-                        vSizeAndPointerToNode.push_back(make_pair(n2.vKeys.size(), &lNodes.front()));
+                        vSizeAndPointerToNode.push_back(std::make_pair(n2.vKeys.size(), &lNodes.front()));
                         lNodes.front().lit = lNodes.begin();
                     }
                 }
@@ -565,7 +565,7 @@ CVVKeyPoint CVRaulMurOrb::DistributeOctTree(const CVVKeyPoint& vToDistributeKeys
                     if (n3.vKeys.size() > 1)
                     {
                         nToExpand++;
-                        vSizeAndPointerToNode.push_back(make_pair(n3.vKeys.size(), &lNodes.front()));
+                        vSizeAndPointerToNode.push_back(std::make_pair(n3.vKeys.size(), &lNodes.front()));
                         lNodes.front().lit = lNodes.begin();
                     }
                 }
@@ -575,7 +575,7 @@ CVVKeyPoint CVRaulMurOrb::DistributeOctTree(const CVVKeyPoint& vToDistributeKeys
                     if (n4.vKeys.size() > 1)
                     {
                         nToExpand++;
-                        vSizeAndPointerToNode.push_back(make_pair(n4.vKeys.size(), &lNodes.front()));
+                        vSizeAndPointerToNode.push_back(std::make_pair(n4.vKeys.size(), &lNodes.front()));
                         lNodes.front().lit = lNodes.begin();
                     }
                 }
@@ -613,7 +613,7 @@ CVVKeyPoint CVRaulMurOrb::DistributeOctTree(const CVVKeyPoint& vToDistributeKeys
                         lNodes.push_front(n1);
                         if (n1.vKeys.size() > 1)
                         {
-                            vSizeAndPointerToNode.push_back(make_pair(n1.vKeys.size(), &lNodes.front()));
+                            vSizeAndPointerToNode.push_back(std::make_pair(n1.vKeys.size(), &lNodes.front()));
                             lNodes.front().lit = lNodes.begin();
                         }
                     }
@@ -622,7 +622,7 @@ CVVKeyPoint CVRaulMurOrb::DistributeOctTree(const CVVKeyPoint& vToDistributeKeys
                         lNodes.push_front(n2);
                         if (n2.vKeys.size() > 1)
                         {
-                            vSizeAndPointerToNode.push_back(make_pair(n2.vKeys.size(), &lNodes.front()));
+                            vSizeAndPointerToNode.push_back(std::make_pair(n2.vKeys.size(), &lNodes.front()));
                             lNodes.front().lit = lNodes.begin();
                         }
                     }
@@ -631,7 +631,7 @@ CVVKeyPoint CVRaulMurOrb::DistributeOctTree(const CVVKeyPoint& vToDistributeKeys
                         lNodes.push_front(n3);
                         if (n3.vKeys.size() > 1)
                         {
-                            vSizeAndPointerToNode.push_back(make_pair(n3.vKeys.size(), &lNodes.front()));
+                            vSizeAndPointerToNode.push_back(std::make_pair(n3.vKeys.size(), &lNodes.front()));
                             lNodes.front().lit = lNodes.begin();
                         }
                     }
@@ -640,7 +640,7 @@ CVVKeyPoint CVRaulMurOrb::DistributeOctTree(const CVVKeyPoint& vToDistributeKeys
                         lNodes.push_front(n4);
                         if (n4.vKeys.size() > 1)
                         {
-                            vSizeAndPointerToNode.push_back(make_pair(n4.vKeys.size(), &lNodes.front()));
+                            vSizeAndPointerToNode.push_back(std::make_pair(n4.vKeys.size(), &lNodes.front()));
                             lNodes.front().lit = lNodes.begin();
                         }
                     }

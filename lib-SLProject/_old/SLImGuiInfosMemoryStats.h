@@ -20,7 +20,7 @@ class SLCVMap;
 class SLImGuiInfosMemoryStats : public SLImGuiInfosDialog
 {
 public:
-    SLImGuiInfosMemoryStats(std::string name, SLCVMap* map);
+    SLImGuiInfosMemoryStats(string name, SLCVMap* map);
 
     void buildInfos() override;
 

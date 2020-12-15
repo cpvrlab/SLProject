@@ -9,7 +9,6 @@
 
 #include <stdafx.h> // Must be the 1st include followed by  an empty line
 
-using namespace std;
 #include <SLLens.h>
 #include <SLMaterial.h>
 

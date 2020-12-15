@@ -19,8 +19,8 @@
 #include <SLCVMap.h>
 
 //-----------------------------------------------------------------------------
-SLImGuiInfosMemoryStats::SLImGuiInfosMemoryStats(std::string name, SLCVMap* map)
-    : SLImGuiInfosDialog(name),
+SLImGuiInfosMemoryStats::SLImGuiInfosMemoryStats(string name, SLCVMap* map)
+  : SLImGuiInfosDialog(name),
     _map(map)
 {
 }
@@ -51,8 +51,8 @@ void SLImGuiInfosMemoryStats::buildInfos()
         ImGui::Text("Memory statistics are invalid!");
     }
 
-
-    if (_map) {
+    if (_map)
+    {
         double size = (double)_map->getSizeOf() / 1048576L;
         ImGui::Text("map size in MB     %f", size);
     }

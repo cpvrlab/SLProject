@@ -18,17 +18,18 @@
 
 //-----------------------------------------------------------------------------
 const char* SLImGuiTrackedMapping::_currItem = NULL;
-int SLImGuiTrackedMapping::_currN = -1;
+int         SLImGuiTrackedMapping::_currN    = -1;
 //-----------------------------------------------------------------------------
 SLImGuiTrackedMapping::SLImGuiTrackedMapping(string name, SLCVTrackedMapping* mappingTracker)
-    : SLImGuiInfosDialog(name),
+  : SLImGuiInfosDialog(name),
     _mappingTracker(mappingTracker)
 {
 }
 //-----------------------------------------------------------------------------
 void SLImGuiTrackedMapping::buildInfos()
 {
-    if (ImGui::Button("Reset", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f))) {
+    if (ImGui::Button("Reset", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f)))
+    {
         //_mappingTracker->Pause();
         _mappingTracker->sm.requestStateIdle();
         while (!_mappingTracker->sm.hasStateIdle())
@@ -39,7 +40,8 @@ void SLImGuiTrackedMapping::buildInfos()
         //_mappingTracker->Resume();
         _mappingTracker->sm.requestResume();
     }
-    if (ImGui::Button("Bundle adjustment", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f))) {
+    if (ImGui::Button("Bundle adjustment", ImVec2(ImGui::GetContentRegionAvailWidth(), 0.0f)))
+    {
         _mappingTracker->globalBundleAdjustment();
     }
 
@@ -91,7 +93,8 @@ void SLImGuiTrackedMapping::buildInfos()
     float bHeigth = 60.0f;
 #endif
 
-    if (ImGui::Button("Attempt loop close", ImVec2(ImGui::GetContentRegionAvailWidth(), bHeigth))) {
+    if (ImGui::Button("Attempt loop close", ImVec2(ImGui::GetContentRegionAvailWidth(), bHeigth)))
+    {
         _mappingTracker->mpLoopCloser->startLoopCloseAttempt();
     }
 }

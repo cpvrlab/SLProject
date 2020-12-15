@@ -16,11 +16,13 @@
 
 #include <CVTypedefs.h>
 
+using std::list;
+
 //-----------------------------------------------------------------------------
 //!Data structure used to subdivide the Image with key points into segments.
 class CVRaulMurExtNode
 {
-    public:
+public:
     CVRaulMurExtNode() : bNoMore(false) {}
 
     void DivideNode(CVRaulMurExtNode& n1,

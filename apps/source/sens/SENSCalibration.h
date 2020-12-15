@@ -13,7 +13,7 @@
 
 #include <sens/SENSCalibrationEstimatorParams.h>
 
-using namespace std;
+using std::string;
 
 class SENSCalibration
 {

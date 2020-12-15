@@ -21,13 +21,13 @@ class SLCVMapNode;
 class SLImGuiInfosTracking : public SLImGuiInfosDialog
 {
 public:
-    SLImGuiInfosTracking(std::string name, SLTrackingInfosInterface* tracker, SLCVMapNode* mapNode );
+    SLImGuiInfosTracking(string name, SLTrackingInfosInterface* tracker, SLCVMapNode* mapNode);
 
     void buildInfos() override;
 
 private:
     SLTrackingInfosInterface* _interface = nullptr;
-    SLCVMapNode* _mapNode = nullptr;
+    SLCVMapNode*              _mapNode   = nullptr;
 
     int _minNumCovisibleMapPts = 0;
 };

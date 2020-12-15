@@ -23,7 +23,8 @@ for a good top down information.
 #include <CVTypedefs.h>
 #include <CVTypes.h>
 
-using namespace std;
+using std::string;
+using std::vector;
 
 //-----------------------------------------------------------------------------
 //! OpenCV Calibration state
@@ -72,24 +73,24 @@ class CVCalibration
 public:
     //default constructor with uncalibrated state (this is not good because
     //it is not a valid state so everybody who uses it has to check the calibration state first)
-    CVCalibration(CVCameraType camType, std::string  computerInfos);
+    CVCalibration(CVCameraType camType, string computerInfos);
 
     //creates a fully defined calibration
-    CVCalibration(const cv::Mat&     cameraMat,
-                  const cv::Mat&     distortion,
-                  cv::Size           imageSize,
-                  cv::Size           boardSize,
-                  float              boardSquareMM,
-                  float              reprojectionError,
-                  int                numCaptured,
-                  const std::string& calibrationTime,
-                  int                camSizeIndex,
-                  bool               mirroredH,
-                  bool               mirroredV,
-                  CVCameraType       camType,
-                  std::string        computerInfos,
-                  int                calibFlags,
-                  bool               calcUndistortionMaps);
+    CVCalibration(const cv::Mat& cameraMat,
+                  const cv::Mat& distortion,
+                  cv::Size       imageSize,
+                  cv::Size       boardSize,
+                  float          boardSquareMM,
+                  float          reprojectionError,
+                  int            numCaptured,
+                  const string&  calibrationTime,
+                  int            camSizeIndex,
+                  bool           mirroredH,
+                  bool           mirroredV,
+                  CVCameraType   camType,
+                  string         computerInfos,
+                  int            calibFlags,
+                  bool           calcUndistortionMaps);
 
     //creates a guessed calibration using image size and fovV angle
     CVCalibration(const cv::Size& imageSize,

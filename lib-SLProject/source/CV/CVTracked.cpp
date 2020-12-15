@@ -19,7 +19,6 @@ for a good top down information.
 
 #include <CVTracked.h>
 
-using namespace std;
 //-----------------------------------------------------------------------------
 // Static declarations
 AvgFloat CVTracked::trackingTimesMS;

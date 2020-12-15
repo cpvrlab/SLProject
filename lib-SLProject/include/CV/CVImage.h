@@ -13,6 +13,8 @@
 
 #include <CVTypedefs.h>
 
+using std::string;
+
 //-----------------------------------------------------------------------------
 //! Pixel format according to OpenGL pixel format defines
 /*!

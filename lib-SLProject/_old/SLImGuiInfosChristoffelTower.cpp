@@ -18,7 +18,7 @@
 #include <SLMaterial.h>
 
 //-----------------------------------------------------------------------------
-SLImGuiInfosChristoffelTower::SLImGuiInfosChristoffelTower(std::string name, SLNode* bern)
+SLImGuiInfosChristoffelTower::SLImGuiInfosChristoffelTower(string name, SLNode* bern)
   : SLImGuiInfosDialog(name),
     _bern(bern)
 {

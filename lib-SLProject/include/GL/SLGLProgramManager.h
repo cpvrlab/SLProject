@@ -41,7 +41,7 @@ class SLGLProgramManager
 {
 public:
     //! Init by providing path to standard shader files
-    static void init(std::string shaderDir);
+    static void init(string shaderDir);
 
     //! Get program reference for given id
     static SLGLGenericProgram* get(SLStdShaderProg id);
@@ -53,7 +53,7 @@ public:
     static size_t size() { return _programs.size(); }
 
     //! Contains the global shader path
-    static std::string shaderDir;
+    static string shaderDir;
 
 private:
     //! Make a program if it is not contained in _programs

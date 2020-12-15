@@ -12,18 +12,16 @@
 #include <CVCalibration.h>
 #include <Utils.h>
 
-using namespace std;
-
 //-----------------------------------------------------------------------------
 CVCalibrationEstimator::CVCalibrationEstimator(CVCalibrationEstimatorParams params,
                                                int                          camSizeIndex,
                                                bool                         mirroredH,
                                                bool                         mirroredV,
                                                CVCameraType                 camType,
-                                               std::string                  computerInfos,
-                                               std::string                  calibDataPath,
-                                               std::string                  imageOutputPath,
-                                               std::string                  exePath)
+                                               string                  computerInfos,
+                                               string                  calibDataPath,
+                                               string                  imageOutputPath,
+                                               string                  exePath)
   : _params(params),
     _camSizeIndex(camSizeIndex),
     _mirroredH(mirroredH),
@@ -47,7 +45,7 @@ CVCalibrationEstimator::CVCalibrationEstimator(CVCalibrationEstimatorParams para
     {
         if (!Utils::dirExists(imageOutputPath))
         {
-            std::stringstream ss;
+            stringstream ss;
             ss << "Image output directory does not exist: " << imageOutputPath;
             throw CVCalibrationEstimatorException(ss.str(),
                                                   __LINE__,
@@ -60,7 +58,7 @@ CVCalibrationEstimator::CVCalibrationEstimator(CVCalibrationEstimatorParams para
             Utils::makeDir(_calibImgOutputDir);
             if (!Utils::dirExists(_calibImgOutputDir))
             {
-                std::stringstream ss;
+                stringstream ss;
                 ss << "Could not create image output directory: " << _calibImgOutputDir;
                 throw CVCalibrationEstimatorException(ss.str(),
                                                       __LINE__,
@@ -355,7 +353,7 @@ bool CVCalibrationEstimator::loadCalibParams()
 //-----------------------------------------------------------------------------
 void CVCalibrationEstimator::saveImage(cv::Mat imageGray)
 {
-    std::stringstream ss;
+    stringstream ss;
     ss << _calibImgOutputDir << "CalibImge_" << Utils::getDateTime2String() << ".jpg";
     cv::imwrite(ss.str(), imageGray);
 }

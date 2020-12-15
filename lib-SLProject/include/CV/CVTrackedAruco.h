@@ -36,7 +36,7 @@ public:
         arucoParams = cv::aruco::DetectorParameters::create();
     }
 
-    bool loadFromFile(std::string calibIniPath)
+    bool loadFromFile(string calibIniPath)
     {
         string        path = calibIniPath + filename;
         CVFileStorage fs(path, cv::FileStorage::READ);
@@ -94,7 +94,7 @@ CVTrackedAruco::drawArucoMarker.
 class CVTrackedAruco : public CVTracked
 {
 public:
-    explicit CVTrackedAruco(int arucoID, std::string calibIniPath);
+    explicit CVTrackedAruco(int arucoID, string calibIniPath);
 
     bool track(CVMat          imageGray,
                CVMat          imageRgb,
@@ -124,7 +124,7 @@ private:
     static CVVMatx44f  objectViewMats; //!< object view matrices for all found markers
 
     int         _arucoID; //!< Aruco Marker ID for this node
-    std::string _calibIniPath;
+    string _calibIniPath;
 };
 //-----------------------------------------------------------------------------
 #endif // CVTrackedAruco_H

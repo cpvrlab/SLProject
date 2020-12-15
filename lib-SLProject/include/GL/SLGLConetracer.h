@@ -100,7 +100,7 @@ private:
     //path to shader files
     SLstring _shaderFilePath;
 
-    std::vector<SLGLProgram*> _programs;
+    vector<SLGLProgram*> _programs;
 
     SLMat4f* _wsToVoxelSpace = new SLMat4f();
 };

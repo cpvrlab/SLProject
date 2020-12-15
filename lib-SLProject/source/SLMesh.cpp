@@ -767,7 +767,7 @@ void SLMesh::computeHardEdgesIndices(float angleDEG,
     Eigen::VectorXi SVI;   // new to old index mapping
     Eigen::VectorXi SVJ;   // old to new index mapping
 
-    std::vector<std::vector<int>> uE2E;
+    vector<vector<int>> uE2E;
 
     // fill input matrices
     V.resize(_finalP->size(), 3);

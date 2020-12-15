@@ -34,8 +34,8 @@ public:
                CVCalibration* calib) final;
 
 private:
-    WAISlam*                 _waiSlamer         = nullptr;
-    ORB_SLAM2::ORBextractor* _trackingExtractor = nullptr;
+    WAISlam*                 _waiSlamer               = nullptr;
+    ORB_SLAM2::ORBextractor* _trackingExtractor       = nullptr;
     ORB_SLAM2::ORBextractor* _initializationExtractor = nullptr;
     WAIOrbVocabulary*        _voc;
 };

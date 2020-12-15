@@ -23,7 +23,7 @@ static bool readSourceFile(string& str, const string& filename)
     if (file.good())
     {
         // Found usable source file
-        std::stringstream source_buffer;
+        stringstream source_buffer;
         source_buffer << file.rdbuf();
         str = source_buffer.str();
         return true;

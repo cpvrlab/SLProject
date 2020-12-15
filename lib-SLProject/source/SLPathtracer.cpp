@@ -7,12 +7,7 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include <stdafx.h> // Must be the 1st include followed by  an empty line
-
 #include <algorithm>
-
-using namespace std::placeholders;
-using namespace std::chrono;
 
 #include <SLCamera.h>
 #include <SLLightRect.h>
@@ -58,7 +53,10 @@ SLbool SLPathtracer::render(SLSceneView* sv)
     double t1 = GlobalTimer::timeS();
 
     // Bind the renderSlices method to a function object
-    auto renderSlicesFunction = bind(&SLPathtracer::renderSlices, this, _1, _2);
+    auto renderSlicesFunction = bind(&SLPathtracer::renderSlices,
+                                     this,
+                                     std::placeholders::_1,
+                                     std::placeholders::_2);
 
     // Do multi-threading only in release config
     SL_LOG("\n\nRendering with %d samples", _aaSamples);

@@ -19,12 +19,12 @@ class SLNode;
 //-----------------------------------------------------------------------------
 class SLImGuiInfosChristoffelTower : public SLImGuiInfosDialog
 {
-    public:
-    SLImGuiInfosChristoffelTower(std::string name, SLNode* bern);
+public:
+    SLImGuiInfosChristoffelTower(string name, SLNode* bern);
 
     void buildInfos() override;
 
-    private:
+private:
     // Scene node for Christoffel objects
     SLNode* _bern         = nullptr;
     SLNode* umgeb_dach    = nullptr;

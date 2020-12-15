@@ -98,9 +98,9 @@ set_target_properties(${target}
 target_include_directories(${target}
         PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}
+        ${SL_PROJECT_ROOT}/lib-SLMath/include/math
         ${SL_PROJECT_ROOT}/lib-SLProject/include
         ${SL_PROJECT_ROOT}/lib-SLProject/include/CV
-        ${SL_PROJECT_ROOT}/lib-SLProject/include/math
         ${SL_PROJECT_ROOT}/lib-SLProject/include/SL
         ${SL_PROJECT_ROOT}/externals/lib-SLExternal
         ${SL_PROJECT_ROOT}/externals/lib-SLExternal/gl3w

@@ -20,7 +20,7 @@
 //! Orb detector and descriptor with distribution
 class CVRaulMurOrb : public CVFeature2D
 {
-    public:
+public:
     enum
     {
         HARRIS_SCORE = 0,
@@ -51,7 +51,7 @@ class CVRaulMurOrb : public CVFeature2D
 
     CVVMat mvImagePyramid;
 
-    protected:
+protected:
     void          ComputePyramid(CVMat image);
     void          ComputeKeyPointsOctTree(CVVVKeyPoint& allKeypoints);
     CVVKeyPoint   DistributeOctTree(const CVVKeyPoint& vToDistributeKeys,
