@@ -1,17 +1,23 @@
 #
-# CMake congifuration for lib-DUtils
+# CMake congifuration for lib-DBoW2
 #
 
-set(target lib-DUtils)
+set(target lib-DBoW2)
 
 file(GLOB headers
-    ${CMAKE_CURRENT_SOURCE_DIR}/Random.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/Timestamp.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/DBoW2/BowVector.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/DBoW2/FClass.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/DBoW2/FeatureVector.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/DBoW2/FORB.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/DBoW2/ScoringObject.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/DBoW2/TemplatedVocabulary.h
     )
 
 file(GLOB sources
-    ${CMAKE_CURRENT_SOURCE_DIR}/Random.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/Timestamp.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/DBoW2/BowVector.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/DBoW2/FeatureVector.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/DBoW2/FORB.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/DBoW2/ScoringObject.cpp
     )
 	
 # Group source files (for visual studio ide)
@@ -41,6 +47,7 @@ target_include_directories(${target}
     PUBLIC
     ${DEFAULT_INCLUDE_DIRECTORIES}
     ${CMAKE_CURRENT_SOURCE_DIR}
+	${CMAKE_CURRENT_SOURCE_DIR}/..
 
     INTERFACE
     )
@@ -68,6 +75,8 @@ target_link_libraries(${target}
 
     PUBLIC
     ${DEFAULT_LINKER_OPTIONS}
+    #${OpenCV_LIBS}
+    ${Lib-DUtils}
 
     INTERFACE
     )

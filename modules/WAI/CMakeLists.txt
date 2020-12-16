@@ -2,6 +2,11 @@
 # CMake congifuration for lib-WAI
 #
 
+# add dependencies
+add_subdirectory(externals/DUtils)
+add_subdirectory(externals/DBoW2)
+add_subdirectory(externals/fbow)
+
 set(target lib-WAI)
 
 set(headers
@@ -96,10 +101,6 @@ target_include_directories(${target}
         ${g2o_INCLUDE_DIR}
         ${SL_PROJECT_ROOT}/externals
         ${SL_PROJECT_ROOT}/externals/eigen
-        ${SL_PROJECT_ROOT}/externals/DBoW2
-        ${SL_PROJECT_ROOT}/externals/DUtils
-        ${SL_PROJECT_ROOT}/externals/fbow
-        ${SL_PROJECT_ROOT}/externals/utils/lib-Utils/source
 
     INTERFACE
     )

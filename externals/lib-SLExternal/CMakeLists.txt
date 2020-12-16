@@ -11,9 +11,6 @@ set(platform_specific_link_libraries)
 set(platform_specific_include_directories)
 
 set(headers
-        ${include_path}/Shoemake/Decompose.h
-        ${include_path}/Shoemake/EulerAngles.h
-        ${include_path}/Shoemake/TypeDefs.h
         ${include_path}/imgui/imconfig.h
         ${include_path}/imgui/imgui_internal.h
         ${include_path}/imgui/imgui.h
@@ -25,8 +22,6 @@ set(headers
         )
 
 set(sources
-        ${include_path}/Shoemake/EulerAngles.cpp
-        ${include_path}/Shoemake/Decompose.cpp
         ${include_path}/imgui/imgui_draw.cpp
         ${include_path}/imgui/imgui.cpp
 		${include_path}/imgui/imgui_user.cpp
