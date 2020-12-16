@@ -65,9 +65,9 @@ endif()
 add_subdirectory(externals)
 
 if (SL_BUILD_WAI)
-	add_subdirectory(modules/WAI)
+	add_subdirectory(modules/wai)
 endif()
 
-add_subdirectory(lib-SLProject)
-add_subdirectory(lib-SLMath)
+add_subdirectory(modules/sl)
+add_subdirectory(modules/math)
 #add_subdirectory(experimental)
