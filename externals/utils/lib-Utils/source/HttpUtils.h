@@ -13,7 +13,7 @@
 //#    include "winsock2.h"
 //-lwsock32 -lws2_32
 typedef int socklen_t;
-#include <winsock.h>
+#    include <winsock.h>
 #else
 #    include <sys/socket.h>
 #    include <netinet/in.h>
@@ -34,15 +34,15 @@ struct Socket
     struct sockaddr_in sa;
     socklen_t          addrlen;
     bool               inUse;
-    #ifdef _WINDOWS
-    static WSADATA     wsadata;
-    static bool        initialized;
-    #endif
+#ifdef _WINDOWS
+    static WSADATA wsadata;
+    static bool    initialized;
+#endif
 
     static bool SocketEnable()
     {
         int ret;
-        #ifdef _WINDOWS
+#ifdef _WINDOWS
         if (!initialized)
         {
             ret = WSAStartup(MAKEWORD(2, 2), &wsadata);
@@ -51,19 +51,19 @@ struct Socket
             else
                 return false;
         }
-        #endif
+#endif
         return true;
     }
 
     static void SocketDisable()
     {
-        #ifdef _WINDOWS
+#ifdef _WINDOWS
         if (initialized)
         {
             initialized = false;
             WSACleanup();
         }
-        #endif
+#endif
     }
 
     Socket() { reset(); }
