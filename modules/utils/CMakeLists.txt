@@ -14,7 +14,7 @@ include(${SL_PROJECT_ROOT}/cmake/CompileOptions.cmake)
 include(${SL_PROJECT_ROOT}/cmake/PlatformLinkLibs.cmake)
 
 if(NOT "${SYSTEM_NAME_UPPER}" STREQUAL "IOS")
-	add_subdirectory(thirdparty/zlib)
+	add_subdirectory(externals/zlib)
 endif()
 
 add_subdirectory(tests)
