@@ -70,4 +70,5 @@ endif()
 
 add_subdirectory(modules/sl)
 add_subdirectory(modules/math)
+add_subdirectory(modules/utils)
 #add_subdirectory(experimental)

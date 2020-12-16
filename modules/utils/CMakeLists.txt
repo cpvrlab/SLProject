@@ -1,4 +1,25 @@
 #
+# CMake configuration of the cpvrlab/utils repository
+#
+
+cmake_minimum_required(VERSION 3.3 FATAL_ERROR)
+
+# The FOLDER properties are needed in Visual Studio and XCode generated projects for nested folders
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER "")
+
+set(UTILS_ROOT "${CMAKE_CURRENT_SOURCE_DIR}")
+
+include(${SL_PROJECT_ROOT}/cmake/CompileOptions.cmake)
+include(${SL_PROJECT_ROOT}/cmake/PlatformLinkLibs.cmake)
+
+if(NOT "${SYSTEM_NAME_UPPER}" STREQUAL "IOS")
+	add_subdirectory(thirdparty/zlib)
+endif()
+
+add_subdirectory(tests)
+
+#
 # CMake configuration for lib-Utils
 #
 
@@ -33,7 +54,7 @@ set(headers
         ${CMAKE_CURRENT_SOURCE_DIR}/source/Instrumentor.h
 		${CMAKE_CURRENT_SOURCE_DIR}/source/ZipUtils.h
 		${CMAKE_CURRENT_SOURCE_DIR}/source/HttpUtils.h
-        ${UTILS_ROOT}/thirdparty/ftplibpp/ftplib.h
+        ${UTILS_ROOT}/externals/ftplibpp/ftplib.h
     )
 set(sources
         ${sources}
@@ -44,10 +65,10 @@ set(sources
         ${CMAKE_CURRENT_SOURCE_DIR}/source/GlobalTimer.cpp
 	    ${CMAKE_CURRENT_SOURCE_DIR}/source/ZipUtils.cpp
 	    ${CMAKE_CURRENT_SOURCE_DIR}/source/HttpUtils.cpp
-        ${UTILS_ROOT}/thirdparty/ftplibpp/ftplib.cpp
-        ${UTILS_ROOT}/thirdparty/zlib/contrib/minizip/ioapi.c
-        ${UTILS_ROOT}/thirdparty/zlib/contrib/minizip/unzip.c
-        ${UTILS_ROOT}/thirdparty/zlib/contrib/minizip/zip.c
+        ${UTILS_ROOT}/externals/ftplibpp/ftplib.cpp
+        ${UTILS_ROOT}/externals/zlib/contrib/minizip/ioapi.c
+        ${UTILS_ROOT}/externals/zlib/contrib/minizip/unzip.c
+        ${UTILS_ROOT}/externals/zlib/contrib/minizip/zip.c
     )
 
 if("${SYSTEM_NAME_UPPER}" STREQUAL "IOS")
@@ -64,11 +85,11 @@ endif()
 #==============================================================================
 if("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS")
     set(platform_specific_include_dirs
-        ${UTILS_ROOT}/thirdparty/dirent)
+        ${UTILS_ROOT}/externals/dirent)
     set(headers ${headers}
-        ${UTILS_ROOT}/thirdparty/dirent/dirent.h)
+        ${UTILS_ROOT}/externals/dirent/dirent.h)
     set(sources ${sources}
-        ${UTILS_ROOT}/thirdparty/dirent/dirent.c)
+        ${UTILS_ROOT}/externals/dirent/dirent.c)
 endif()
 #==============================================================================
 
@@ -95,11 +116,11 @@ target_include_directories(${target}
     PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/source
     ${platform_specific_include_dirs}
-    ${UTILS_ROOT}/thirdparty/asio/include
-    ${UTILS_ROOT}/thirdparty/ftplibpp
-    ${UTILS_ROOT}/thirdparty/zlib
-    ${UTILS_ROOT}/thirdparty/zlib/contrib
-    ${CMAKE_CURRENT_BINARY_DIR}/../thirdparty/zlib
+    ${UTILS_ROOT}/externals/asio/include
+    ${UTILS_ROOT}/externals/ftplibpp
+    ${UTILS_ROOT}/externals/zlib
+    ${UTILS_ROOT}/externals/zlib/contrib
+    ${CMAKE_CURRENT_BINARY_DIR}/../externals/zlib
     ${openssl_INCLUDE_DIR}
     INTERFACE
     )
