@@ -16,11 +16,18 @@ file(GLOB headers
         ${CMAKE_CURRENT_SOURCE_DIR}/include/math/SLVec3.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/math/SLVec4.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/math/SLVector.h
+
+        ${CMAKE_CURRENT_SOURCE_DIR}/externals/Shoemake/Decompose.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/externals/Shoemake/EulerAngles.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/externals/Shoemake/TypeDefs.h
         )
 
 set(sources
         ${CMAKE_CURRENT_SOURCE_DIR}/source/math/SLAlgo.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/math/SLPlane.cpp
+
+        ${CMAKE_CURRENT_SOURCE_DIR}/externals/Shoemake/EulerAngles.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/externals/Shoemake/Decompose.cpp
         )
 
 # Group source files
@@ -49,6 +56,7 @@ target_include_directories(${target}
         ${CMAKE_CURRENT_SOURCE_DIR}/include
         ${CMAKE_CURRENT_SOURCE_DIR}/include/math
         ${SL_PROJECT_ROOT}/externals/eigen
+		${CMAKE_CURRENT_SOURCE_DIR}/externals
         ${DEFAULT_INCLUDE_DIRECTORIES}
 
         INTERFACE
