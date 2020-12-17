@@ -88,8 +88,8 @@ void SLCompactGrid::ifTriangleInVoxelDo(triVoxCallback callback)
     for (SLuint i = 0; i < _numTriangles; ++i)
     {
         auto     index    = [&](SLuint j) { return _m->I16.size()
-                                              ? _m->I16[i * 3 + j]
-                                              : _m->I32[i * 3 + j]; };
+                                                     ? _m->I16[i * 3 + j]
+                                                     : _m->I32[i * 3 + j]; };
         Triangle triangle = {_m->finalP(index(0)),
                              _m->finalP(index(1)),
                              _m->finalP(index(2))};
@@ -296,6 +296,7 @@ SLbool SLCompactGrid::intersect(SLRay* ray, SLNode* node)
             SLuint voxID = indexAtPos(startVox);
 
             // Calculate steps: -1 or 1 on each axis
+            // clang-format off
             SLint stepX = (D.x > 0) ? 1 : (D.x < 0) ? -1 : 0;
             SLint stepY = (D.y > 0) ? 1 : (D.y < 0) ? -1 : 0;
             SLint stepZ = (D.z > 0) ? 1 : (D.z < 0) ? -1 : 0;
@@ -308,18 +309,13 @@ SLbool SLCompactGrid::intersect(SLRay* ray, SLNode* node)
 
             // Calculate max. dist along the ray for each component in tMaxX,Y,Z
             SLfloat tMaxX = FLT_MAX, tMaxY = FLT_MAX, tMaxZ = FLT_MAX;
-            if (stepX == 1)
-                tMaxX = (maxVox.x - O.x) * invD.x;
-            else if (stepX == -1)
-                tMaxX = (minVox.x - O.x) * invD.x;
-            if (stepY == 1)
-                tMaxY = (maxVox.y - O.y) * invD.y;
-            else if (stepY == -1)
-                tMaxY = (minVox.y - O.y) * invD.y;
-            if (stepZ == 1)
-                tMaxZ = (maxVox.z - O.z) * invD.z;
-            else if (stepZ == -1)
-                tMaxZ = (minVox.z - O.z) * invD.z;
+            if (stepX ==  1) tMaxX = (maxVox.x - O.x) * invD.x; else
+            if (stepX == -1) tMaxX = (minVox.x - O.x) * invD.x;
+            if (stepY ==  1) tMaxY = (maxVox.y - O.y) * invD.y; else
+            if (stepY == -1) tMaxY = (minVox.y - O.y) * invD.y;
+            if (stepZ ==  1) tMaxZ = (maxVox.z - O.z) * invD.z; else
+            if (stepZ == -1) tMaxZ = (minVox.z - O.z) * invD.z;
+            // clang-format on
 
             // tMax is max. distance along the ray to stay in the current voxel
             SLfloat tMax = std::min(tMaxX, std::min(tMaxY, tMaxZ));

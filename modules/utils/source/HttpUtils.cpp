@@ -9,9 +9,13 @@
 
 #include <iostream>
 #include <cstring>
-#include <netdb.h>
 #include <HttpUtils.h>
 #include <Utils.h>
+#ifdef _WINDOWS
+
+#else
+#include <netdb.h>
+#endif
 
 using namespace std;
 
@@ -199,8 +203,11 @@ DNSRequest::DNSRequest(string host)
         struct sockaddr_in sa;
         sa.sin_family      = AF_INET;
         sa.sin_addr.s_addr = inet_addr(host.c_str());
-
-        struct hostent* h = gethostbyaddr(&sa.sin_addr, sizeof(sa.sin_addr), sa.sin_family);
+        #ifdef _WINDOWS
+            struct hostent* h = gethostbyaddr(host.c_str(), sizeof(sa.sin_addr), sa.sin_family);
+        #else
+            struct hostent* h = gethostbyaddr(&sa.sin_addr, sizeof(sa.sin_addr), sa.sin_family);
+        #endif
         if (h != nullptr && h->h_length > 0)
         {
             hostname = string(h->h_name);

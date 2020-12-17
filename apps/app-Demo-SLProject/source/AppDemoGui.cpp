@@ -3634,10 +3634,10 @@ void AppDemoGui::loadConfig(SLint dotsPerInch)
             // clang-format on
 
             fs.release();
-            SL_LOG("Config. loaded  : %s", fullPathAndFilename.c_str());
-            SL_LOG("Config. date    : %s", AppDemoGui::configTime.c_str());
-            SL_LOG("fontPropDots    : %f", SLGLImGui::fontPropDots);
-            SL_LOG("fontFixedDots   : %f", SLGLImGui::fontFixedDots);
+            SL_LOG("Config. loaded   : %s", fullPathAndFilename.c_str());
+            SL_LOG("Config. date     : %s", AppDemoGui::configTime.c_str());
+            SL_LOG("fontPropDots     : %f", SLGLImGui::fontPropDots);
+            SL_LOG("fontFixedDots    : %f", SLGLImGui::fontFixedDots);
         }
         else
         {
