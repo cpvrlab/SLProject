@@ -690,26 +690,26 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
                     ImGui::Text("%s", SLGLDefaultProgColorAttrib::instance()->name().c_str());
                 if (SLGLDefaultProgPerVrtBlinn::isBuilt())
                     ImGui::Text("%s", SLGLDefaultProgPerVrtBlinn::instance()->name().c_str());
-                if (SLGLDefaultProgPerVrtBlinnTex::isBuilt())
-                    ImGui::Text("%s", SLGLDefaultProgPerVrtBlinnTex::instance()->name().c_str());
+                if (SLGLDefaultProgPerVrtBlinnTm::isBuilt())
+                    ImGui::Text("%s", SLGLDefaultProgPerVrtBlinnTm::instance()->name().c_str());
                 if (SLGLDefaultProgPerPixBlinn::isBuilt())
                     ImGui::Text("%s", SLGLDefaultProgPerPixBlinn::instance()->name().c_str());
-                if (SLGLDefaultProgPerPixBlinnSM::isBuilt())
-                    ImGui::Text("%s", SLGLDefaultProgPerPixBlinnSM::instance()->name().c_str());
+                if (SLGLDefaultProgPerPixBlinnSm::isBuilt())
+                    ImGui::Text("%s", SLGLDefaultProgPerPixBlinnSm::instance()->name().c_str());
                 if (SLGLDefaultProgPerPixBlinnTex::isBuilt())
                     ImGui::Text("%s", SLGLDefaultProgPerPixBlinnTex::instance()->name().c_str());
                 if (SLGLDefaultProgPerPixBlinnTexAO::isBuilt())
                     ImGui::Text("%s", SLGLDefaultProgPerPixBlinnTexAO::instance()->name().c_str());
-                if (SLGLDefaultProgPerPixBlinnTexSM::isBuilt())
-                    ImGui::Text("%s", SLGLDefaultProgPerPixBlinnTexSM::instance()->name().c_str());
-                if (SLGLDefaultProgPerPixBlinnTexNrm::isBuilt())
-                    ImGui::Text("%s", SLGLDefaultProgPerPixBlinnTexNrm::instance()->name().c_str());
-                if (SLGLDefaultProgPerPixBlinnTexNrmAO::isBuilt())
-                    ImGui::Text("%s", SLGLDefaultProgPerPixBlinnTexNrmAO::instance()->name().c_str());
-                if (SLGLDefaultProgPerPixBlinnTexNrmSM::isBuilt())
-                    ImGui::Text("%s", SLGLDefaultProgPerPixBlinnTexNrmSM::instance()->name().c_str());
-                if (SLGLDefaultProgPerPixBlinnTexNrmAOSM::isBuilt())
-                    ImGui::Text("%s", SLGLDefaultProgPerPixBlinnTexNrmAOSM::instance()->name().c_str());
+                if (SLGLDefaultProgPerPixBlinnTmSm::isBuilt())
+                    ImGui::Text("%s", SLGLDefaultProgPerPixBlinnTmSm::instance()->name().c_str());
+                if (SLGLDefaultProgPerPixBlinnTmNm::isBuilt())
+                    ImGui::Text("%s", SLGLDefaultProgPerPixBlinnTmNm::instance()->name().c_str());
+                if (SLGLDefaultProgPerPixBlinnTmNmAo::isBuilt())
+                    ImGui::Text("%s", SLGLDefaultProgPerPixBlinnTmNmAo::instance()->name().c_str());
+                if (SLGLDefaultProgPerPixBlinnTmNmSm::isBuilt())
+                    ImGui::Text("%s", SLGLDefaultProgPerPixBlinnTmNmSm::instance()->name().c_str());
+                if (SLGLDefaultProgPerPixBlinnTmNmAoSm::isBuilt())
+                    ImGui::Text("%s", SLGLDefaultProgPerPixBlinnTmNmAoSm::instance()->name().c_str());
 
                 ImGui::TreePop();
             }

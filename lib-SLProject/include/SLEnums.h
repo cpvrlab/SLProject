@@ -197,14 +197,14 @@ enum SLTextAlign
 //! Enumeration for available camera animation types
 enum SLCamAnim
 {
-    CA_turntableYUp,   //!< Orbiting around central object w. turnrable rotation around y & right axis.
-    CA_turntableZUp,   //!< Orbiting around central object w. turnrable rotation around z & right axis.
-    CA_trackball,      //!< Orbiting around central object w. one rotation around one axis
-    CA_walkingYUp,     //!< Walk translation with AWSD and look around rotation around y & right axis.
-    CA_walkingZUp,     //!< Walk translation with AWSD and look around rotation around z & right axis.
-    CA_deviceRotYUp,   //!< The device rotation controls the camera rotation.
-    CA_deviceRotLocYUp,//!< The device rotation controls the camera rotation and the GPS controls the Camera Translati
-    CA_off             //!< No camera animation
+    CA_turntableYUp,    //!< Orbiting around central object w. turnrable rotation around y & right axis.
+    CA_turntableZUp,    //!< Orbiting around central object w. turnrable rotation around z & right axis.
+    CA_trackball,       //!< Orbiting around central object w. one rotation around one axis
+    CA_walkingYUp,      //!< Walk translation with AWSD and look around rotation around y & right axis.
+    CA_walkingZUp,      //!< Walk translation with AWSD and look around rotation around z & right axis.
+    CA_deviceRotYUp,    //!< The device rotation controls the camera rotation.
+    CA_deviceRotLocYUp, //!< The device rotation controls the camera rotation and the GPS controls the Camera Translati
+    CA_off              //!< No camera animation
 };
 //-----------------------------------------------------------------------------
 //! Enumeration for different camera projections
@@ -335,11 +335,22 @@ enum SLViewportAlign
     VA_rightOrBottom
 };
 //-----------------------------------------------------------------------------
-enum SLFogeMode
+//! Corresponds to the old fog modes in OpenGL 2.1
+/*! See also: https://www.khronos.org/registry/OpenGL-Refpages/gl2.1/xhtml/glFog.xml
+*/
+enum SLFogMode
 {
     FM_linear = 0,
     FM_exp,
     FM_exp2
+};
+//-----------------------------------------------------------------------------
+//! Light Models for shader generation
+enum SLLightModel
+{
+    LM_BlinnPhong = 0,
+    LM_CookTorrance,
+    LM_Custom
 };
 //-----------------------------------------------------------------------------
 #endif

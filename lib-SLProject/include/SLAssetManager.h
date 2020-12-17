@@ -15,7 +15,7 @@
 #include <SLMaterial.h>
 #include <SLMesh.h>
 #include <vector>
-#include <SLGLGenericProgram.h>
+#include <SLGLProgramGeneric.h>
 
 class SLSceneView;
 class SLCamera;

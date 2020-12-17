@@ -11,7 +11,7 @@
 #ifndef SLGLPROGRAM_MANAGER_H
 #define SLGLPROGRAM_MANAGER_H
 
-class SLGLGenericProgram;
+class SLGLProgramGeneric;
 
 //-----------------------------------------------------------------------------
 //! Enumeration for standard shader programs
@@ -44,7 +44,7 @@ public:
     static void init(string shaderDir);
 
     //! Get program reference for given id
-    static SLGLGenericProgram* get(SLStdShaderProg id);
+    static SLGLProgramGeneric* get(SLStdShaderProg id);
 
     //! Delete all instantiated programs
     static void deletePrograms();
@@ -60,7 +60,7 @@ private:
     static void makeProgram(SLStdShaderProg id);
 
     //! Instantiated programs
-    static std::map<SLStdShaderProg, SLGLGenericProgram*> _programs;
+    static std::map<SLStdShaderProg, SLGLProgramGeneric*> _programs;
 };
 //-----------------------------------------------------------------------------
 

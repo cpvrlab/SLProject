@@ -9,17 +9,12 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include <stdafx.h> // Must be the 1st include followed by  an empty line
-
 #include <SLAssetManager.h>
 #include <SLGLDepthBuffer.h>
 #include <SLGLProgram.h>
 #include <SLGLShader.h>
 #include <SLGLState.h>
 #include <SLScene.h>
-#include <SLAssetManager.h>
-#include <SLGLProgramManager.h>
-#include <SLGLDepthBuffer.h>
 
 //-----------------------------------------------------------------------------
 // Error Strings defined in SLGLShader.h

@@ -22,17 +22,17 @@ SLMaterialDefaultGray*                SLMaterialDefaultGray::_instance          
 SLMaterialDefaultColorAttribute*      SLMaterialDefaultColorAttribute::_instance      = nullptr;
 SLGLDefaultProgColorAttrib*           SLGLDefaultProgColorAttrib::_instance           = nullptr;
 SLGLDefaultProgPerVrtBlinn*           SLGLDefaultProgPerVrtBlinn::_instance           = nullptr;
-SLGLDefaultProgPerVrtBlinnTex*        SLGLDefaultProgPerVrtBlinnTex::_instance        = nullptr;
+SLGLDefaultProgPerVrtBlinnTm*        SLGLDefaultProgPerVrtBlinnTm::_instance        = nullptr;
 SLGLDefaultProgPerPixBlinn*           SLGLDefaultProgPerPixBlinn::_instance           = nullptr;
-SLGLDefaultProgPerPixBlinnSM*         SLGLDefaultProgPerPixBlinnSM::_instance         = nullptr;
-SLGLDefaultProgPerPixBlinnSMAO*       SLGLDefaultProgPerPixBlinnSMAO::_instance       = nullptr;
+SLGLDefaultProgPerPixBlinnSm*         SLGLDefaultProgPerPixBlinnSm::_instance         = nullptr;
+SLGLDefaultProgPerPixBlinnAoSm*       SLGLDefaultProgPerPixBlinnAoSm::_instance       = nullptr;
 SLGLDefaultProgPerPixBlinnTex*        SLGLDefaultProgPerPixBlinnTex::_instance        = nullptr;
 SLGLDefaultProgPerPixBlinnTexAO*      SLGLDefaultProgPerPixBlinnTexAO::_instance      = nullptr;
-SLGLDefaultProgPerPixBlinnTexSM*      SLGLDefaultProgPerPixBlinnTexSM::_instance      = nullptr;
-SLGLDefaultProgPerPixBlinnTexNrm*     SLGLDefaultProgPerPixBlinnTexNrm::_instance     = nullptr;
-SLGLDefaultProgPerPixBlinnTexNrmAO*   SLGLDefaultProgPerPixBlinnTexNrmAO::_instance   = nullptr;
-SLGLDefaultProgPerPixBlinnTexNrmSM*   SLGLDefaultProgPerPixBlinnTexNrmSM::_instance   = nullptr;
-SLGLDefaultProgPerPixBlinnTexNrmAOSM* SLGLDefaultProgPerPixBlinnTexNrmAOSM::_instance = nullptr;
+SLGLDefaultProgPerPixBlinnTmSm*      SLGLDefaultProgPerPixBlinnTmSm::_instance      = nullptr;
+SLGLDefaultProgPerPixBlinnTmNm*     SLGLDefaultProgPerPixBlinnTmNm::_instance     = nullptr;
+SLGLDefaultProgPerPixBlinnTmNmAo*   SLGLDefaultProgPerPixBlinnTmNmAo::_instance   = nullptr;
+SLGLDefaultProgPerPixBlinnTmNmSm*   SLGLDefaultProgPerPixBlinnTmNmSm::_instance   = nullptr;
+SLGLDefaultProgPerPixBlinnTmNmAoSm* SLGLDefaultProgPerPixBlinnTmNmAoSm::_instance = nullptr;
 //-----------------------------------------------------------------------------
 /*! The constructor of the scene.
 There will be only one scene for an application and it gets constructed in
@@ -123,17 +123,17 @@ void SLScene::unInit()
     SLMaterialDefaultColorAttribute::deleteInstance();
     SLGLDefaultProgColorAttrib::deleteInstance();
     SLGLDefaultProgPerVrtBlinn::deleteInstance();
-    SLGLDefaultProgPerVrtBlinnTex::deleteInstance();
+    SLGLDefaultProgPerVrtBlinnTm::deleteInstance();
     SLGLDefaultProgPerPixBlinn::deleteInstance();
-    SLGLDefaultProgPerPixBlinnSM::deleteInstance();
-    SLGLDefaultProgPerPixBlinnSMAO::deleteInstance();
+    SLGLDefaultProgPerPixBlinnSm::deleteInstance();
+    SLGLDefaultProgPerPixBlinnAoSm::deleteInstance();
     SLGLDefaultProgPerPixBlinnTex::deleteInstance();
     SLGLDefaultProgPerPixBlinnTexAO::deleteInstance();
-    SLGLDefaultProgPerPixBlinnTexSM::deleteInstance();
-    SLGLDefaultProgPerPixBlinnTexNrm::deleteInstance();
-    SLGLDefaultProgPerPixBlinnTexNrmAO::deleteInstance();
-    SLGLDefaultProgPerPixBlinnTexNrmSM::deleteInstance();
-    SLGLDefaultProgPerPixBlinnTexNrmAOSM::deleteInstance();
+    SLGLDefaultProgPerPixBlinnTmSm::deleteInstance();
+    SLGLDefaultProgPerPixBlinnTmNm::deleteInstance();
+    SLGLDefaultProgPerPixBlinnTmNmAo::deleteInstance();
+    SLGLDefaultProgPerPixBlinnTmNmSm::deleteInstance();
+    SLGLDefaultProgPerPixBlinnTmNmAoSm::deleteInstance();
 }
 //-----------------------------------------------------------------------------
 //! Updates animations and AABBs

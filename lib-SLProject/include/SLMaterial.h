@@ -8,11 +8,11 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#ifndef SLMAT_H
-#define SLMAT_H
+#ifndef SLMATERIAL_H
+#define SLMATERIAL_H
 
 #include <SLDrawBits.h>
-#include <SLGLGenericProgram.h>
+#include <SLGLProgramGeneric.h>
 #include <SLGLProgram.h>
 #include <SLGLTexture.h>
 
@@ -40,7 +40,7 @@ variables in SLGLProgram::beginUse.
 class SLMaterial : public SLObject
 {
 public:
-    //! Default ctor for materials without textures
+    //! Default ctor for Blinn-Phong light model materials without textures
     explicit SLMaterial(SLAssetManager* am,
                         const SLchar*   name,
                         const SLCol4f&  amdi                    = SLCol4f::WHITE,
@@ -52,7 +52,7 @@ public:
                         SLGLProgram*    program                 = nullptr,
                         const SLstring& compileErrorTexFilePath = "");
 
-    //! Ctor for textured materials
+    //! Ctor for textured Blinn-Phong light model materials
     SLMaterial(SLAssetManager* am,
                const SLchar*   name,
                SLGLTexture*    texture1,
@@ -62,7 +62,7 @@ public:
                SLGLProgram*    program                 = nullptr,
                const SLstring& compileErrorTexFilePath = "");
 
-    //! Ctor for Cook-Torrance shaded materials
+    //! Ctor for Cook-Torrance light model materials
     SLMaterial(SLAssetManager* am,
                SLGLProgram*    perPixCookTorranceProgram,
                const SLchar*   name,
@@ -86,10 +86,7 @@ public:
 
     ~SLMaterial() override;
 
-    //! Sets the material states and passes all variables to the shader program
     void activate(SLCamera* cam, SLVLight* lights);
-
-    //! Passes the material parameters to shader programs uniform variables
     void passToUniforms(SLGLProgram* program);
 
     //! Returns true if there is any transparency in diffuse alpha or textures
@@ -106,8 +103,6 @@ public:
         return !_textures.empty() > 0 &&
                _textures[0]->target() == GL_TEXTURE_3D;
     }
-
-    //! Returns true if a material with textures tangents as additional attributes
     SLbool needsTangents()
     {
         return _textures.size() >= 2 &&
@@ -154,44 +149,48 @@ public:
     void program(SLGLProgram* sp) { _program = sp; }
 
     // Getters
-    SLCol4f       ambient() { return _ambient; }
-    SLCol4f       diffuse() { return _diffuse; }
-    SLCol4f       specular() { return _specular; }
-    SLCol4f       transmissive() { return _transmissive; }
-    SLCol4f       emissive() { return _emissive; }
-    SLfloat       shininess() const { return _shininess; }
-    SLfloat       roughness() const { return _roughness; }
-    SLfloat       metalness() const { return _metalness; }
-    SLfloat       translucency() const { return _translucency; }
-    SLfloat       kr() const { return _kr; }
-    SLfloat       kt() const { return _kt; }
-    SLfloat       kn() const { return _kn; }
-    SLbool        getsShadows() const { return _getsShadows; }
-    SLVGLTexture& textures() { return _textures; }
-    SLGLProgram*  program() { return _program; }
-    SLVNode&      nodesVisible2D() { return _nodesVisible2D; }
-    SLVNode&      nodesVisible3D() { return _nodesVisible3D; }
+    SLAssetManager* assetManager() { return _assetManager; }
+    SLLightModel    lightModel() { return _lightModel; }
+    SLCol4f         ambient() { return _ambient; }
+    SLCol4f         diffuse() { return _diffuse; }
+    SLCol4f         specular() { return _specular; }
+    SLCol4f         transmissive() { return _transmissive; }
+    SLCol4f         emissive() { return _emissive; }
+    SLfloat         shininess() const { return _shininess; }
+    SLfloat         roughness() const { return _roughness; }
+    SLfloat         metalness() const { return _metalness; }
+    SLfloat         translucency() const { return _translucency; }
+    SLfloat         kr() const { return _kr; }
+    SLfloat         kt() const { return _kt; }
+    SLfloat         kn() const { return _kn; }
+    SLbool          getsShadows() const { return _getsShadows; }
+    SLVGLTexture&   textures() { return _textures; }
+    SLGLProgram*    program() { return _program; }
+    SLVNode&        nodesVisible2D() { return _nodesVisible2D; }
+    SLVNode&        nodesVisible3D() { return _nodesVisible3D; }
 
     // Static variables & functions
     static SLfloat K;       //!< PM: Constant of gloss calibration (slope of point light at dist 1)
     static SLfloat PERFECT; //!< PM: shininess/translucency limit
 
 protected:
-    SLCol4f      _ambient;      //!< ambient color (RGB reflection coefficients)
-    SLCol4f      _diffuse;      //!< diffuse color (RGB reflection coefficients)
-    SLCol4f      _specular;     //!< specular color (RGB reflection coefficients)
-    SLCol4f      _transmissive; //!< PM: transmissive color (RGB reflection coefficients)
-    SLCol4f      _emissive;     //!< emissive color coefficients
-    SLfloat      _shininess;    //!< shininess exponent in Blinn-Phong model
-    SLfloat      _roughness;    //!< roughness property (0-1) in Cook-Torrance model
-    SLfloat      _metalness;    //!< metallic property (0-1) in Cook-Torrance model
-    SLfloat      _translucency; //!< PM: translucency exponent for light refraction
-    SLfloat      _kr{};         //!< reflection coefficient 0.0 - 1.0
-    SLfloat      _kt{};         //!< transmission coefficient 0.0 - 1.0
-    SLfloat      _kn{};         //!< refraction index
-    SLbool       _getsShadows;  //!< true if shadows are visible on this material
-    SLVGLTexture _textures;     //!< vector of texture pointers
-    SLGLProgram* _program{};    //!< pointer to a GLSL shader program
+    SLAssetManager* _assetManager; //!< Pointer to the asset manager (the owner) if available
+    SLLightModel    _lightModel;   //!< Enumeration for lighting model (LM_BlinnPhong or LM_CookTorrance)
+    SLCol4f         _ambient;      //!< ambient color (RGB reflection coefficients)
+    SLCol4f         _diffuse;      //!< diffuse color (RGB reflection coefficients)
+    SLCol4f         _specular;     //!< specular color (RGB reflection coefficients)
+    SLCol4f         _transmissive; //!< PM: transmissive color (RGB reflection coefficients)
+    SLCol4f         _emissive;     //!< emissive color coefficients
+    SLfloat         _shininess;    //!< shininess exponent in Blinn-Phong model
+    SLfloat         _roughness;    //!< roughness property (0-1) in Cook-Torrance model
+    SLfloat         _metalness;    //!< metallic property (0-1) in Cook-Torrance model
+    SLfloat         _translucency; //!< PM: translucency exponent for light refraction
+    SLfloat         _kr{};         //!< reflection coefficient 0.0 - 1.0
+    SLfloat         _kt{};         //!< transmission coefficient 0.0 - 1.0
+    SLfloat         _kn{};         //!< refraction index
+    SLbool          _getsShadows;  //!< true if shadows are visible on this material
+    SLVGLTexture    _textures;     //!< vector of texture pointers
+    SLGLProgram*    _program{};    //!< pointer to a GLSL shader program
 
     SLGLTexture* _errorTexture = nullptr; //!< pointer to error texture that is shown if another texture fails
     SLstring     _compileErrorTexFilePath;
@@ -206,7 +205,7 @@ typedef vector<SLMaterial*> SLVMaterial;
 //! Global default gray color material for meshes that don't define their own.
 /*!
  * Because the default material depends a default shader program
- * (SLGLDefaultProgPerVrtBlinn or SLGLDefaultProgPerVrtBlinnTex) that itself
+ * (SLGLDefaultProgPerVrtBlinn or SLGLDefaultProgPerVrtBlinnTm) that itself
  * depends on the scene configuration (e.g. the num. of lights) ist MUST be
  * deleted at scene destruction.
  */

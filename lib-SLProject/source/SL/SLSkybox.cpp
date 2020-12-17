@@ -48,7 +48,7 @@ SLSkybox::SLSkybox(SLAssetManager* assetMgr,
                                            cubeMapZNeg);
     SLMaterial*  matCubeMap = new SLMaterial(assetMgr, "matCubeMap");
     matCubeMap->textures().push_back(cubeMap);
-    SLGLProgram* sp = new SLGLGenericProgram(assetMgr,
+    SLGLProgram* sp = new SLGLProgramGeneric(assetMgr,
                                              shaderFilePath + "SkyBox.vert",
                                              shaderFilePath + "SkyBox.frag");
     matCubeMap->program(sp);

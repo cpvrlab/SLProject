@@ -28,7 +28,7 @@ SLHorizonNode::SLHorizonNode(SLstring name, SLDeviceRotation* devRot, SLTexFont*
 
     //init visualization node and meshes
     //(this node is owner of instantiated programs, meshes and materials)
-    _prog = new SLGLGenericProgram(nullptr, shaderDir + "ColorUniformPoint.vert", shaderDir + "Color.frag");
+    _prog = new SLGLProgramGeneric(nullptr, shaderDir + "ColorUniformPoint.vert", shaderDir + "Color.frag");
     _prog->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 1.0f));
     _mat = new SLMaterial(nullptr, _prog, SLCol4f::WHITE, "White");
     //define mesh points

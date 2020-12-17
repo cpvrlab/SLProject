@@ -43,7 +43,8 @@ SLGLShader::SLGLShader(const SLstring& filename, SLShaderType shaderType)
     _file     = filename;
 
     // Only load file at this moment, don't compile it.
-    load(filename);
+    if (Utils::fileExists(filename))
+        load(filename);
 }
 //-----------------------------------------------------------------------------
 //! SLGLShader::load loads a shader file into string _shaderSource

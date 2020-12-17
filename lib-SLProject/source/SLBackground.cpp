@@ -31,10 +31,10 @@ SLBackground::SLBackground(SLstring shaderDir)
     _resX         = -1;
     _resY         = -1;
 
-    _textureOnlyProgram    = new SLGLGenericProgram(nullptr,
+    _textureOnlyProgram    = new SLGLProgramGeneric(nullptr,
                                                  shaderDir + "TextureOnly.vert",
                                                  shaderDir + "TextureOnly.frag");
-    _colorAttributeProgram = new SLGLGenericProgram(nullptr,
+    _colorAttributeProgram = new SLGLProgramGeneric(nullptr,
                                                     shaderDir + "ColorAttribute.vert",
                                                     shaderDir + "Color.frag");
     _deletePrograms        = true;

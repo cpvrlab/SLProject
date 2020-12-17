@@ -15,7 +15,7 @@
 #include <SLTexFont.h>
 #include <SLDeviceRotation.h>
 #include <SLPolyline.h>
-#include <SLGLGenericProgram.h>
+#include <SLGLProgramGeneric.h>
 #include <SLMaterial.h>
 
 //-----------------------------------------------------------------------------
