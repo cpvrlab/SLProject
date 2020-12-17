@@ -47,6 +47,7 @@ public:
     // Blinn-Phong shader builder functions
     // Tm = Texture Mapping
     // Nm = Normal Mapping
+    // Pm = Parallax Mapping
     // Ao = Ambient Occlusion
     // Sm = Shadow Mapping
     void buildPerPixBlinnTmNmAoSm(SLMaterial* mat, SLCamera* cam, SLVLight* lights);

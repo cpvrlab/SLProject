@@ -42,6 +42,10 @@ public:
     SLuint       shaderID() const { return _shaderID; }
     SLstring     code() { return _code; }
 
+    // Setters
+    void code(SLstring strCode) { _code = strCode; }
+    void file(SLstring strFile) { _file = strFile; }
+
 private:
     SLbool          createAndCompile(SLVLight* lights);
     SLbool          createAndCompileSimple();

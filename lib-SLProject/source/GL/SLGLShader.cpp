@@ -150,8 +150,7 @@ SLbool SLGLShader::createAndCompile(SLVLight* lights)
         _code = preprocessPragmas(_code, lights);
 
         // Concatenate final code string
-        _code = srcVersion +
-                _code;
+        _code = srcVersion + _code;
 
         const char* src = _code.c_str();
         glShaderSource(_shaderID, 1, &src, nullptr);
@@ -171,8 +170,8 @@ SLbool SLGLShader::createAndCompile(SLVLight* lights)
             SL_LOG("*** COMPILER ERROR ***");
             SL_LOG("Source file: %s\n", _file.c_str());
             SL_LOG("%s---", log);
-            SLVstring lines = Utils::getStringLines(_code);
-            SLint lineNum = 1;
+            SLVstring lines   = Utils::getStringLines(_code);
+            SLint     lineNum = 1;
             for (string& line : lines)
                 SL_LOG("%4d: %s", lineNum++, line.c_str());
             return false;
@@ -268,8 +267,8 @@ SLstring SLGLShader::preprocessPragmas(SLstring inCode, SLVLight* lights)
 
             if (pragmaParts[1] == "include") //................................
             {
-                string filename     = Utils::trimString(pragmaParts[2], "\"");
-                string path         = Utils::getPath(_file);
+                string filename = Utils::trimString(pragmaParts[2], "\"");
+                string path     = Utils::getPath(_file);
                 string pathFile = path + filename;
                 if (Utils::fileExists(pathFile))
                 {
@@ -290,7 +289,8 @@ SLstring SLGLShader::preprocessPragmas(SLstring inCode, SLVLight* lights)
                 {
                     outCode += "#define NUM_LIGHTS " +
                                std::to_string(lights->size()) + "\n";
-                } else
+                }
+                else
                     outCode += line + '\n';
             } //...............................................................
             else

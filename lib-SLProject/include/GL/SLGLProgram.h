@@ -137,7 +137,7 @@ public:
                            const SLfloat* value,
                            GLboolean      transpose = false) const;
 
-private:
+protected:
     SLuint       _progID;     //!< OpenGL shader program object ID
     SLbool       _isLinked;   //!< Flag if program is linked
     SLVGLShader  _shaders;    //!< Vector of all shader objects
