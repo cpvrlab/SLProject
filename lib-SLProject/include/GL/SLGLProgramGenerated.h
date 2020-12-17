@@ -44,6 +44,7 @@ public:
                      SLVLight*   lights) override { beginUse(cam, mat, lights); }
     void endShader() override { endUse(); }
 
+private:
     // Blinn-Phong shader builder functions
     // Tm = Texture Mapping
     // Nm = Normal Mapping
@@ -59,6 +60,11 @@ public:
     void buildPerPixBlinnSm(SLMaterial* mat, SLCamera* cam, SLVLight* lights);
     void buildPerPixBlinnTm(SLMaterial* mat, SLCamera* cam, SLVLight* lights);
     void buildPerPixBlinn(SLMaterial* mat, SLCamera* cam, SLVLight* lights);
+
+    // Helpers
+    void   addShadowMapDeclaration(SLVLight* lights, string& fragCode);
+    void   addShadowTestCode(SLVLight* lights, string& fragCode);
+    string shadowMapUniformName(SLVLight* lights, int lightNum);
 };
 //-----------------------------------------------------------------------------
 #endif

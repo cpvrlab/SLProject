@@ -145,57 +145,49 @@ static SLNode* graben      = nullptr;
 // Temp. transform node
 static SLTransformNode* transformNode = nullptr;
 
-SLstring AppDemoGui::infoAbout =
-  "Welcome to the SLProject demo app. It is developed at the \
-Computer Science Department of the Bern University of Applied Sciences. \
-The app shows what you can learn in two semesters about 3D computer graphics \
-in real time rendering and ray tracing. The framework is developed \
-in C++ with OpenGL ES so that it can run also on mobile devices. \
-Ray tracing provides in addition high quality transparencies, reflections and soft shadows. \
-Click to close and use the menu to choose different scenes and view settings. \
-For more information please visit: https://github.com/cpvrlab/SLProject\n\
-";
+SLstring AppDemoGui::infoAbout = R"(
+Welcome to the SLProject demo app. It is developed at the Computer Science Department of the Bern University of Applied Sciences.
+The app shows what you can learn in two semesters about 3D computer graphics in real time rendering and ray tracing. The framework is developed in C++ with OpenGL ES so that it can run also on mobile devices.
+Ray tracing provides in addition high quality transparencies, reflections and soft shadows. Click to close and use the menu to choose different scenes and view settings.
+For more information please visit: https://github.com/cpvrlab/SLProject
+)";
 
-SLstring AppDemoGui::infoCredits =
-  "Contributors since 2005 in alphabetic order: \
-Martin Christen, Jan Dellsperger, Manuel Frischknecht, Luc Girod, \
-Michael Goettlicher, Michael Schertenleib, Stefan Thoeni, Timo Tschanz, Marc Wacker, Pascal Zingg \n\n\
-Credits for external libraries:\n\
-- assimp: assimp.sourceforge.net\n\
-- imgui: github.com/ocornut/imgui\n\
-- gl3w: https://github.com/skaslev/gl3w\n\
-- glfw: glfw.org\n\
-- OpenCV: opencv.org\n\
-- OpenGL: opengl.org\n\
-- spa: Solar Position Algorithm\n\
-- zlib: zlib.net\n\
-";
+SLstring AppDemoGui::infoCredits = R"(
+Contributors since 2005 in alphabetic order:
+Martin Christen, Jan Dellsperger, Manuel Frischknecht, Luc Girod, Michael Goettlicher, Michael Schertenleib, Stefan Thoeni, Timo Tschanz, Marc Wacker, Pascal Zingg
 
-SLstring AppDemoGui::infoHelp =
-  "Help for mouse or finger control:\n\
-- Use left mouse or your finger to rotate the scene\n\
-- Use mouse-wheel or pinch 2 fingers to go forward/backward\n\
-- Use middle-mouse or 2 fingers to move sidewards/up-down\n\
-- Double click or double tap to select object\n\
-- CTRL-mouse to select vertices of objects\n\
-- On desktop see shortcuts behind menu commands\n\
-- Check out the different test scenes under File > Load Test Scene\n\
-";
+Credits for external libraries:
+- assimp: assimp.sourceforge.net
+- imgui: github.com/ocornut/imgui
+- gl3w: https://github.com/skaslev/gl3w
+- glfw: glfw.org
+- OpenCV: opencv.org
+- OpenGL: opengl.org
+- OpenSSL: openssl.org
+- spa: Solar Position Algorithm
+- zlib: zlib.net
+)";
 
-SLstring AppDemoGui::infoCalibrate =
-  "The calibration process requires a chessboard image to be printed \
-and glued on a flat board. You can find the PDF with the chessboard image on: \n\
-https://github.com/cpvrlab/SLProject/tree/master/data/calibrations/ \n\
-For a calibration you have to take 20 images with detected inner \
-chessboard corners. To take an image you have to click with the mouse \
-or tap with finger into the screen. View the chessboard from the side so that \
-the inner corners cover the full image. Hold the camera or board really still \
-before taking the picture.\n \
-You can mirror the video image under Preferences > Video. You can check the \
-distance to the chessboard in the dialog Stats. on Video.\n \
-After calibration the yellow wireframe cube should stick on the chessboard.\n\n\
-Please close first this info dialog on the top-left.\n\
-";
+SLstring AppDemoGui::infoHelp = R"(
+Help for mouse or finger control:
+- Use left mouse or your finger to rotate the scene
+- Use mouse-wheel or pinch 2 fingers to go forward/backward
+- Use middle-mouse or 2 fingers to move sidewards/up-down
+- Double click or double tap to select object
+- CTRL-mouse to select vertices of objects
+- See keyboard shortcuts behind menu commands
+- Check out the different test scenes under File > Load Test Scene
+)";
+
+SLstring AppDemoGui::infoCalibrate = R"(
+The calibration process requires a chessboard image to be printed and glued on a flat board. You can find the PDF with the chessboard image on:
+https://github.com/cpvrlab/SLProject/tree/master/data/calibrations/
+For a calibration you have to take 20 images with detected inner chessboard corners. To take an image you have to click with the mouse
+or tap with finger into the screen. View the chessboard from the side so that the inner corners cover the full image. Hold the camera or board really still
+before taking the picture.
+You can mirror the video image under Preferences > Video. You can check the distance to the chessboard in the dialog Stats. on Video.
+After calibration the yellow wireframe cube should stick on the chessboard. Please close first this info dialog on the top-left.
+)";
 
 //-----------------------------------------------------------------------------
 off64_t ftpXferSizeMax = 0;

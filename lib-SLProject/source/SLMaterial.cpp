@@ -284,8 +284,6 @@ void SLMaterial::activate(SLCamera* cam, SLVLight* lights)
     // A 3D object can be stored without material or shader program information.
     if (!_program)
     {
-        program(new SLGLProgramGenerated(_assetManager, this, cam, lights));
-
         bool hasNm = _textures.size() > 1 && _textures[1]->texType() == TT_normal;
         bool hasAo = _textures.size() > 2 && _textures[2]->texType() == TT_ambientOcclusion;
         bool hasSm = !lights->empty() && lights->at(0)->createsShadows();
@@ -293,7 +291,8 @@ void SLMaterial::activate(SLCamera* cam, SLVLight* lights)
         if (!_textures.empty())
         {
             if (hasNm && hasAo && hasSm)
-                program(SLGLDefaultProgPerPixBlinnTmNmAoSm::instance());
+                program(new SLGLProgramGenerated(_assetManager, this, cam, lights));
+                //program(SLGLDefaultProgPerPixBlinnTmNmAoSm::instance());
             else if (hasNm && hasAo)
                 program(SLGLDefaultProgPerPixBlinnTmNmAo::instance());
             else if (hasNm && hasSm)
