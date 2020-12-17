@@ -120,7 +120,6 @@ target_include_directories(${target}
     ${UTILS_ROOT}/externals/ftplibpp
     ${UTILS_ROOT}/externals/zlib
     ${UTILS_ROOT}/externals/zlib/contrib
-    ${CMAKE_CURRENT_BINARY_DIR}/../externals/zlib
     ${openssl_INCLUDE_DIR}
     INTERFACE
     )
