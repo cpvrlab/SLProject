@@ -62,9 +62,13 @@ private:
     void buildPerPixBlinn(SLMaterial* mat, SLCamera* cam, SLVLight* lights);
 
     // Helpers
-    void   addShadowMapDeclaration(SLVLight* lights, string& fragCode);
-    void   addShadowTestCode(SLVLight* lights, string& fragCode);
-    string shadowMapUniformName(SLVLight* lights, int lightNum);
+    void addShadowMapDeclaration(SLVLight* lights, string& fragCode);
+    void addShadowTestCode(SLVLight* lights, string& fragCode);
+    void addCodeToShader(SLGLShader*   shader,
+                         const string& code,
+                         const string& name);
+    void addShaderHeader(int     numLights,
+                         string& fragCode);
 };
 //-----------------------------------------------------------------------------
 #endif

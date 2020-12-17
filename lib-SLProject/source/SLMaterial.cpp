@@ -294,23 +294,31 @@ void SLMaterial::activate(SLCamera* cam, SLVLight* lights)
                 program(new SLGLProgramGenerated(_assetManager, this, cam, lights));
                 //program(SLGLDefaultProgPerPixBlinnTmNmAoSm::instance());
             else if (hasNm && hasAo)
-                program(SLGLDefaultProgPerPixBlinnTmNmAo::instance());
+                program(new SLGLProgramGenerated(_assetManager, this, cam, lights));
+                //program(SLGLDefaultProgPerPixBlinnTmNmAo::instance());
             else if (hasNm && hasSm)
+                //program(new SLGLProgramGenerated(_assetManager, this, cam, lights));
                 program(SLGLDefaultProgPerPixBlinnTmNmSm::instance());
             else if (hasNm)
+                //program(new SLGLProgramGenerated(_assetManager, this, cam, lights));
                 program(SLGLDefaultProgPerPixBlinnTmNm::instance());
             else if (hasSm)
+                //program(new SLGLProgramGenerated(_assetManager, this, cam, lights));
                 program(SLGLDefaultProgPerPixBlinnTmSm::instance());
             else
+                //program(new SLGLProgramGenerated(_assetManager, this, cam, lights));
                 program(SLGLDefaultProgPerVrtBlinnTm::instance());
         }
         else
         {
             if (hasSm && hasAo)
+                //program(new SLGLProgramGenerated(_assetManager, this, cam, lights));
                 program(SLGLDefaultProgPerPixBlinnAoSm::instance());
             else if (hasSm)
+                //program(new SLGLProgramGenerated(_assetManager, this, cam, lights));
                 program(SLGLDefaultProgPerPixBlinnSm::instance());
             else
+                //program(new SLGLProgramGenerated(_assetManager, this, cam, lights));
                 program(SLGLDefaultProgPerVrtBlinn::instance());
         }
     }

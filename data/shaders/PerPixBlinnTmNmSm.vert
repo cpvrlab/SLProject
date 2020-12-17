@@ -16,7 +16,7 @@ precision highp float;
 //-----------------------------------------------------------------------------
 layout (location = 0) in vec4  a_position;  // Vertex position attribute
 layout (location = 1) in vec3  a_normal;    // Vertex normal attribute
-layout (location = 2) in vec2  a_uv1;       // Vertex texture coordiante attribute
+layout (location = 2) in vec2  a_uv1;       // Vertex texture coordinante attribute
 layout (location = 5) in vec4  a_tangent;   // Vertex tangent attribute
 
 uniform mat4  u_mvMatrix;   // modelview matrix
@@ -31,7 +31,7 @@ uniform float u_lightSpotDeg[NUM_LIGHTS];   // spot cutoff angle 1-180 degrees
 out     vec3  v_P_VS;                   // Point of illumination in view space (VS)
 out     vec3  v_P_WS;                   // Point of illumination in world space (WS)
 out     vec3  v_N_VS;                   // Normal at P_VS in view space
-out     vec2  v_uv1;                    // Texture coordiante output
+out     vec2  v_uv1;                    // Texture coordinante output
 out     vec3  v_eyeDirTS;               // Vector to the eye in tangent space
 out     vec3  v_lightDirTS[NUM_LIGHTS]; // Vector to the light 0 in tangent space
 out     vec3  v_spotDirTS[NUM_LIGHTS];  // Spot direction in tangent space

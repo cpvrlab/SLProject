@@ -58,6 +58,8 @@ uniform float       u_camFogStart;      // fog start distance
 uniform float       u_camFogEnd;        // fog end distance
 uniform vec4        u_camFogColor;      // fog color (usually the background)
 
+out     vec4        o_fragColor;        // output fragment color
+
 uniform sampler2D   u_shadowMap_0;      // shadow map for light 0
 uniform sampler2D   u_shadowMap_1;      // shadow map for light 1
 uniform sampler2D   u_shadowMap_2;      // shadow map for light 2
@@ -66,8 +68,6 @@ uniform sampler2D   u_shadowMap_4;      // shadow map for light 4
 uniform sampler2D   u_shadowMap_5;      // shadow map for light 5
 uniform sampler2D   u_shadowMap_6;      // shadow map for light 6
 uniform sampler2D   u_shadowMap_7;      // shadow map for light 7
-
-out     vec4        o_fragColor;        // output fragment color
 //-----------------------------------------------------------------------------
 //! SLGLShader::preprocessPragmas replaces the include pragma by the file
 #pragma include "lightingBlinnPhong.glsl"
