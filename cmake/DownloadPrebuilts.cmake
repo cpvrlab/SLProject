@@ -346,12 +346,10 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #-----------------------------
     add_library(crypto STATIC IMPORTED)
     add_library(ssl STATIC IMPORTED)
     set_target_properties(crypto PROPERTIES
-        IMPORTED_IMPLIB "${openssl_LINK_DIR}/libcrypto_static.lib"
-        IMPORTED_LOCATION "${openssl_LINK_DIR}/libcrypto-3.dll"
+        IMPORTED_LOCATION "${openssl_LINK_DIR}/libcrypto_static.lib"
     )
     set_target_properties(ssl PROPERTIES
-        IMPORTED_IMPLIB "${openssl_LINK_DIR}/libssl_static.lib"
-        IMPORTED_LOCATION "${openssl_LINK_DIR}/libssl-3.dll"
+        IMPORTED_LOCATION "${openssl_LINK_DIR}/libssl_static.lib"
     )
 
     ######################
