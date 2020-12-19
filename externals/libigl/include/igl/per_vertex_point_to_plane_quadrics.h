@@ -16,7 +16,7 @@ namespace igl
   // Compute quadrics per vertex of a "closed" triangle mesh (V,F). Rather than
   // follow the qslim paper, this implements the lesser-known _follow up_
   // "Simplifying Surfaces with Color and Texture using Quadric Error Metrics".
-  // This allows V to be n-dimensional (where the extra coordiantes store
+  // This allows V to be n-dimensional (where the extra coordinates store
   // texture UVs, color RGBs, etc.
   //
   // Inputs:

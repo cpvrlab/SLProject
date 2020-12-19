@@ -14,10 +14,10 @@ precision highp float;
 // SLGLShader::preprocessPragmas replaces #Lights by SLVLights.size()
 #pragma define NUM_LIGHTS #Lights
 //-----------------------------------------------------------------------------
-in      vec3        v_P_VS;     // Interpol. point of illum. in view space (VS)
+in      vec3        v_P_VS;     // Interpol. point of illumination in view space (VS)
 in      vec3        v_N_VS;     // Interpol. normal at v_P_VS in view space
-in      vec2        v_uv1;      // Texture coordiante 1 varying for diffuse color
-in      vec2        v_uv2;      // Texture coordiante 2 varying for AO
+in      vec2        v_uv1;      // Texture coordinate 1 varying for diffuse color
+in      vec2        v_uv2;      // Texture coordinate 2 varying for AO
 
 uniform bool        u_lightIsOn[NUM_LIGHTS];     // flag if light is on
 uniform vec4        u_lightPosVS[NUM_LIGHTS];    // position of light in view space

@@ -11,7 +11,7 @@
 precision highp float;
 
 //-----------------------------------------------------------------------------
-in      vec3    v_P_VS;             // Interpol. point of illum. in view space (VS)
+in      vec3    v_P_VS;             // Interpol. point of illumination in view space (VS)
 in      vec4    v_color;            // interpolated color from vertex shader
 
 uniform int     u_camProjection;    // type of stereo

@@ -11,7 +11,7 @@
 precision highp float;
 
 //-----------------------------------------------------------------------------
-in      vec3        v_P_VS;             // Interpol. point of illum. in view space (VS)
+in      vec3        v_P_VS;             // Interpol. point of illumination in view space (VS)
 in      vec2        v_uv1;              // Interpol. texture coordinate
 
 uniform sampler2D   u_matTexture0;      // Color map

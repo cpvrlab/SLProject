@@ -58,9 +58,10 @@ class SLGLProgram : public SLObject
 {
 public:
     SLGLProgram(SLAssetManager* s,
-                const SLstring& vertShaderFile,
-                const SLstring& fragShaderFile,
-                const SLstring& geomShaderFile = "");
+                const string& vertShaderFile,
+                const string& fragShaderFile,
+                const string& geomShaderFile = "",
+                const string& programName = "");
 
     ~SLGLProgram() override;
 

@@ -284,41 +284,36 @@ void SLMaterial::activate(SLCamera* cam, SLVLight* lights)
     // A 3D object can be stored without material or shader program information.
     if (!_program)
     {
-        bool hasNm = _textures.size() > 1 && _textures[1]->texType() == TT_normal;
-        bool hasAo = _textures.size() > 2 && _textures[2]->texType() == TT_ambientOcclusion;
-        bool hasSm = !lights->empty() && lights->at(0)->createsShadows();
+        string programName;
+        SLGLProgramGenerated::buildProgramName(this, lights, programName);
+        _program = _assetManager->getProgramByName(programName);
+        if (!_program)
+            _program = new SLGLProgramGenerated(_assetManager, programName, this, lights);
 
-        if (!_textures.empty())
+        if (!_program)
         {
-            if (hasNm && hasAo && hasSm)
-                program(new SLGLProgramGenerated(_assetManager, this, cam, lights));
-                //program(SLGLDefaultProgPerPixBlinnTmNmAoSm::instance());
-            else if (hasNm && hasAo)
-                program(new SLGLProgramGenerated(_assetManager, this, cam, lights));
-                //program(SLGLDefaultProgPerPixBlinnTmNmAo::instance());
-            else if (hasNm && hasSm)
-                //program(new SLGLProgramGenerated(_assetManager, this, cam, lights));
+            bool hasTm = hasTextureType(TT_diffuse);
+            bool hasNm = hasTextureType(TT_normal);
+            bool hasAo = hasTextureType(TT_ambientOcclusion);
+            bool hasSm = SLGLProgramGenerated::lightsDoShadowMapping(lights);
+
+            if (hasTm && hasNm && hasAo && hasSm)
+                program(SLGLDefaultProgPerPixBlinnTmNmAoSm::instance());
+            else if (hasTm && hasNm && hasAo)
+                program(SLGLDefaultProgPerPixBlinnTmNmAo::instance());
+            else if (hasTm && hasNm && hasSm)
                 program(SLGLDefaultProgPerPixBlinnTmNmSm::instance());
-            else if (hasNm)
-                //program(new SLGLProgramGenerated(_assetManager, this, cam, lights));
+            else if (hasTm && hasNm)
                 program(SLGLDefaultProgPerPixBlinnTmNm::instance());
-            else if (hasSm)
-                //program(new SLGLProgramGenerated(_assetManager, this, cam, lights));
+            else if (hasTm && hasSm)
                 program(SLGLDefaultProgPerPixBlinnTmSm::instance());
-            else
-                //program(new SLGLProgramGenerated(_assetManager, this, cam, lights));
+            else if (hasTm)
                 program(SLGLDefaultProgPerVrtBlinnTm::instance());
-        }
-        else
-        {
-            if (hasSm && hasAo)
-                //program(new SLGLProgramGenerated(_assetManager, this, cam, lights));
+            else if (hasSm && hasAo)
                 program(SLGLDefaultProgPerPixBlinnAoSm::instance());
             else if (hasSm)
-                //program(new SLGLProgramGenerated(_assetManager, this, cam, lights));
                 program(SLGLDefaultProgPerPixBlinnSm::instance());
             else
-                //program(new SLGLProgramGenerated(_assetManager, this, cam, lights));
                 program(SLGLDefaultProgPerVrtBlinn::instance());
         }
     }

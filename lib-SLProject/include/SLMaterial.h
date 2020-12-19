@@ -109,6 +109,13 @@ public:
                _textures[0]->target() == GL_TEXTURE_2D &&
                _textures[1]->texType() == TT_normal;
     }
+    SLbool hasTextureType(SLTextureType tt)
+    {
+        for (auto t : textures())
+            if (t->texType() == tt)
+                return true;
+        return false;
+    }
 
     // Setters
     void ambient(const SLCol4f& ambi) { _ambient = ambi; }

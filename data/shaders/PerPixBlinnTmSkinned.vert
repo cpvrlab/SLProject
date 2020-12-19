@@ -14,7 +14,7 @@ precision highp float;
 //-----------------------------------------------------------------------------
 layout (location = 0) in vec4  a_position;      // Vertex position attribute
 layout (location = 1) in vec3  a_normal;        // Vertex normal attribute
-layout (location = 2) in vec2  a_uv1;           // Vertex texture coordiante attribute
+layout (location = 2) in vec2  a_uv1;           // Vertex texture coordinate attribute
 layout (location = 6) in vec4  a_jointIds;      // Vertex joint indices attributes
 layout (location = 7) in vec4  a_jointWeights;  // Vertex joint weights attributes
 
@@ -25,7 +25,7 @@ uniform mat4  u_jointMatrices[100]; // joint matrices for skinning
 
 out     vec3  v_P_VS;       // Point of illumination in view space (VS)
 out     vec3  v_N_VS;       // Normal at P_VS in view space
-out     vec2  v_uv1;        // Texture coordiante output
+out     vec2  v_uv1;        // Texture coordinate output
 //-----------------------------------------------------------------------------
 void main(void)
 {  

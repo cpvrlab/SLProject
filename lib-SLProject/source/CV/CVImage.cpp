@@ -830,7 +830,7 @@ void CVImage::resize(int width, int height)
     _cvMat = dst;
 }
 //-----------------------------------------------------------------------------
-//! Flip X coordiantes used to make JPEGs from top-left to bottom-left images.
+//! Flip X coordinates used to make JPEGs from top-left to bottom-left images.
 void CVImage::flipX()
 {
     if (_cvMat.cols > 0 && _cvMat.rows > 0)
@@ -841,7 +841,7 @@ void CVImage::flipX()
     }
 }
 //-----------------------------------------------------------------------------
-//! Flip Y coordiantes used to make JPEGs from top-left to bottom-left images.
+//! Flip Y coordinates used to make JPEGs from top-left to bottom-left images.
 void CVImage::flipY()
 {
     if (_cvMat.cols > 0 && _cvMat.rows > 0)

@@ -71,6 +71,15 @@ public:
         return false;
     }
 
+    //! Returns the pointer to shader program if found by name
+    SLGLProgram*  getProgramByName (const string& programName)
+    {
+        for (auto sp : _programs)
+            if (sp->name() == programName)
+                return sp;
+        return nullptr;
+    }
+
     SLVMesh&      meshes() { return _meshes; }
     SLVMaterial&  materials() { return _materials; }
     SLVGLTexture& textures() { return _textures; }

@@ -32,8 +32,8 @@ uniform vec4   u_matSpec;           // specular color reflection coefficient (ks
 uniform vec4   u_matEmis;           // emissive color for self-shining materials
 uniform float  u_matShin;           // shininess exponent
 
-out     vec3   v_I_VS;              // Incident ray at point of illum. in VS
-out     vec3   v_N_VS;              // normal ray at point of illum. in viewspace
+out     vec3   v_I_VS;              // Incident ray at point of illumination in VS
+out     vec3   v_N_VS;              // normal ray at point of illumination in viewspace
 out     vec3   v_R_OS;              // Reflected ray in object space
 out     float  v_F_Theta;           // Fresnel reflection coefficient
 out     vec4   v_specColor;         // Specular color at vertex

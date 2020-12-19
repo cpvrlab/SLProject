@@ -22,7 +22,7 @@ uniform mat4  u_mvpMatrix;  // = projection * modelView
 
 out     vec3  v_P_VS;       // Point of illumination in view space (VS)
 out     vec3  v_N_VS;       // Normal at P_VS in view space
-out     vec2  v_uv1;        // Texture coordiante output
+out     vec2  v_uv1;        // Texture coordinate output
 //-----------------------------------------------------------------------------
 void main(void)
 {  

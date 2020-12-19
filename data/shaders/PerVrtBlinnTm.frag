@@ -11,7 +11,7 @@
 precision highp float;
 
 //-----------------------------------------------------------------------------
-in      vec3        v_P_VS;             // Interpol. point of illum. in view space (VS)
+in      vec3        v_P_VS;             // Interpol. point of illumination in view space (VS)
 in      vec4        v_color;            // Interpol. ambient & diff. color
 in      vec4        v_specColor;        // Interpol. specular color
 in      vec2        v_uv1;              // Interpol. texture coordinate

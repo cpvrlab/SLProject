@@ -37,9 +37,10 @@ extern char* aGLSLErrorString[];
  * passed it will be search on the SLGLProgram::defaultPath.
  */
 SLGLProgram::SLGLProgram(SLAssetManager* s,
-                         const SLstring& vertShaderFile,
-                         const SLstring& fragShaderFile,
-                         const SLstring& geomShaderFile) : SLObject("")
+                         const string& vertShaderFile,
+                         const string& fragShaderFile,
+                         const string& geomShaderFile,
+                         const string& programName) : SLObject(programName)
 {
     _isLinked = false;
     _progID   = 0;
@@ -210,8 +211,11 @@ void SLGLProgram::init(SLVLight* lights)
     if (linked)
     {
         _isLinked = true;
-        for (auto* shader : _shaders)
-            _name += shader->name() + ", ";
+
+        // if name is empty concatenate shader names
+        if (_name.empty())
+            for (auto* shader : _shaders)
+                _name += shader->name() + ", ";
     }
     else
     {

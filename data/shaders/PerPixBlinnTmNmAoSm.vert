@@ -32,8 +32,8 @@ uniform float u_lightSpotDeg[NUM_LIGHTS];   // spot cutoff angle 1-180 degrees
 out     vec3  v_P_VS;                   // Point of illumination in view space (VS)
 out     vec3  v_P_WS;                   // Point of illumination in world space (WS)
 out     vec3  v_N_VS;                   // Normal at P_VS in view space
-out     vec2  v_uv1;                    // Texture coordiante 1 output
-out     vec2  v_uv2;                    // Texture coordiante 2 output
+out     vec2  v_uv1;                    // Texture coordinate 1 output
+out     vec2  v_uv2;                    // Texture coordinate 2 output
 out     vec3  v_eyeDirTS;               // Vector to the eye in tangent space
 out     vec3  v_lightDirTS[NUM_LIGHTS]; // Vector to the light 0 in tangent space
 out     vec3  v_spotDirTS[NUM_LIGHTS];  // Spot direction in tangent space

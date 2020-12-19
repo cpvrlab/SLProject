@@ -24,7 +24,7 @@ uniform mat4  u_mMatrix;    // model matrix
 out     vec3  v_P_VS;       // Point of illumination in view space (VS)
 out     vec3  v_P_WS;       // Point of illumination in world space (WS)
 out     vec3  v_N_VS;       // Normal at P_VS in view space
-out     vec2  v_uv2;        // Texture coordiante 1 output for AO
+out     vec2  v_uv2;        // Texture coordinate 1 output for AO
 //-----------------------------------------------------------------------------
 void main(void)
 {
