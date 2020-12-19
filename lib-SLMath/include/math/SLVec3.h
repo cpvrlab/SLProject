@@ -11,6 +11,7 @@
 #ifndef SLVEC3_H
 #define SLVEC3_H
 
+#include <math.h>
 #include <SLMath.h>
 #include <SLVec2.h>
 #include <Utils.h>
