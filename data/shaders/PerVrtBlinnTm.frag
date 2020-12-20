@@ -24,7 +24,7 @@ uniform int         u_camStereoEye;     // -1=left, 0=center, 1=right
 uniform mat3        u_camStereoColors;  // color filter matrix
 uniform bool        u_camFogIsOn;       // flag if fog is on
 uniform int         u_camFogMode;       // 0=LINEAR, 1=EXP, 2=EXP2
-uniform float       u_camFogDensity;    // fog densitiy value
+uniform float       u_camFogDensity;    // fog density value
 uniform float       u_camFogStart;      // fog start distance
 uniform float       u_camFogEnd;        // fog end distance
 uniform vec4        u_camFogColor;      // fog color (usually the background)

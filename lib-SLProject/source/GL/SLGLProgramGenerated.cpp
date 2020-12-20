@@ -523,11 +523,9 @@ void SLGLProgramGenerated::buildProgramCode(SLMaterial* mat,
            _shaders[0]->type() == ST_vertex &&
            _shaders[1]->type() == ST_fragment);
 
-    bool Tm = !mat->textures().empty();
-    bool Nm = mat->textures().size() > 1 &&
-              mat->textures()[1]->texType() == TT_normal;
-    bool Ao = mat->textures().size() > 2 &&
-              mat->textures()[2]->texType() == TT_ambientOcclusion;
+    bool Tm = mat->hasTextureType(TT_diffuse);
+    bool Nm = mat->hasTextureType(TT_normal);
+    bool Ao = mat->hasTextureType(TT_ambientOcclusion);
     bool Sm = lightsDoShadowMapping(lights);
 
     if (mat->lightModel() == LM_BlinnPhong)
@@ -538,16 +536,16 @@ void SLGLProgramGenerated::buildProgramCode(SLMaterial* mat,
             buildPerPixBlinnTmNmAo(lights);
         else if (Tm && Nm && Sm)
             buildPerPixBlinnTmNmSm(lights);
-        //else if (Tm && Ao && Sm)
-        //    buildPerPixBlinnTmAoSm(lights);
+        else if (Tm && Ao && Sm)
+            buildPerPixBlinnTmAoSm(lights);
         else if (Tm && Nm)
             buildPerPixBlinnTmNm(lights);
-        //else if (Tm && Ao)
-        //    buildPerPixBlinnTmAo(lights);
+        else if (Tm && Ao)
+            buildPerPixBlinnTmAo(lights);
         else if (Nm && Sm)
             buildPerPixBlinnNmSm(lights);
-        //else if (Ao && Sm)
-        //    buildPerPixBlinnAoSm(lights);
+        else if (Ao && Sm)
+            buildPerPixBlinnAoSm(lights);
         else if (Tm)
             buildPerPixBlinnTm(lights);
         else if (Nm)
@@ -681,7 +679,7 @@ uniform int         u_camStereoEye;     // -1=left, 0=center, 1=right
 uniform mat3        u_camStereoColors;  // color filter matrix
 uniform bool        u_camFogIsOn;       // flag if fog is on
 uniform int         u_camFogMode;       // 0=LINEAR, 1=EXP, 2=EXP2
-uniform float       u_camFogDensity;    // fog densitiy value
+uniform float       u_camFogDensity;    // fog density value
 uniform float       u_camFogStart;      // fog start distance
 uniform float       u_camFogEnd;        // fog end distance
 uniform vec4        u_camFogColor;      // fog color (usually the background)
@@ -872,7 +870,7 @@ uniform int         u_camStereoEye;     // -1=left, 0=center, 1=right
 uniform mat3        u_camStereoColors;  // color filter matrix
 uniform bool        u_camFogIsOn;       // flag if fog is on
 uniform int         u_camFogMode;       // 0=LINEAR, 1=EXP, 2=EXP2
-uniform float       u_camFogDensity;    // fog densitiy value
+uniform float       u_camFogDensity;    // fog density value
 uniform float       u_camFogStart;      // fog start distance
 uniform float       u_camFogEnd;        // fog end distance
 uniform vec4        u_camFogColor;      // fog color (usually the background)
@@ -1058,7 +1056,7 @@ uniform int         u_camStereoEye;     // -1=left, 0=center, 1=right
 uniform mat3        u_camStereoColors;  // color filter matrix
 uniform bool        u_camFogIsOn;       // flag if fog is on
 uniform int         u_camFogMode;       // 0=LINEAR, 1=EXP, 2=EXP2
-uniform float       u_camFogDensity;    // fog densitiy value
+uniform float       u_camFogDensity;    // fog density value
 uniform float       u_camFogStart;      // fog start distance
 uniform float       u_camFogEnd;        // fog end distance
 uniform vec4        u_camFogColor;      // fog color (usually the background)
@@ -1129,6 +1127,177 @@ void main()
     // Apply fog by blending over distance
     if (u_camFogIsOn)
         o_fragColor = fogBlend(v_P_VS, o_fragColor);
+
+    // Apply stereo eye separation
+    if (u_camProjection > 1)
+        doStereoSeparation();
+}
+)";
+    addCodeToShader(_shaders[1], fragCode, _name + ".frag");
+}
+//-----------------------------------------------------------------------------
+void SLGLProgramGenerated::buildPerPixBlinnTmAoSm(SLVLight* lights)
+{
+    // Assemble vertex shader code
+    string vertCode;
+    addShaderHeader(lights->size(), vertCode);
+    vertCode += R"(
+
+layout (location = 0) in vec4  a_position;  // Vertex position attribute
+layout (location = 1) in vec3  a_normal;    // Vertex normal attribute
+layout (location = 2) in vec2  a_uv1;       // Vertex texture coordinate attribute
+layout (location = 3) in vec2  a_uv2;       // Vertex tex.coord. 2 for AO
+
+uniform mat4  u_mvMatrix;   // modelview matrix
+uniform mat3  u_nMatrix;    // normal matrix=transpose(inverse(mv))
+uniform mat4  u_mvpMatrix;  // = projection * modelView
+uniform mat4  u_mMatrix;    // model matrix
+
+out     vec3  v_P_VS;       // Point of illumination in view space (VS)
+out     vec3  v_P_WS;       // Point of illumination in world space (WS)
+out     vec3  v_N_VS;       // Normal at P_VS in view space
+out     vec2  v_uv1;        // Texture coordinate output
+out     vec2  v_uv2;        // Texture coordinate output for uv2
+
+void main(void)
+{
+    v_uv1 = a_uv1;  // pass tex. coord. for interpolation
+    v_uv2 = a_uv2;  // pass ambient occlusion tex.coord. 2 for interpolation
+
+    v_P_VS = vec3(u_mvMatrix *  a_position); // vertex position in view space
+    v_P_WS = vec3(u_mMatrix * a_position);   // vertex position in world space
+    v_N_VS = vec3(u_nMatrix * a_normal);     // vertex normal in view space
+
+    gl_Position = u_mvpMatrix * a_position;
+}
+)";
+    addCodeToShader(_shaders[0], vertCode, _name + ".vert");
+
+    // Assemble fragment shader code
+    string fragCode;
+    fragCode += "\nprecision highp float;\n";
+    fragCode += "\n#define NUM_LIGHTS " + to_string(lights->size()) + "\n";
+    fragCode += R"(
+
+in      vec3        v_P_VS;     // Interpol. point of illumination in view space (VS)
+in      vec3        v_P_WS;     // Interpol. point of illumination in world space (WS)
+in      vec3        v_N_VS;     // Interpol. normal at v_P_VS in view space
+in      vec2        v_uv1;      // Interpol. texture coordinate
+in      vec2        v_uv2;      // Texture coordinate 2 varying for AO
+
+uniform bool        u_lightIsOn[NUM_LIGHTS];                // flag if light is on
+uniform vec4        u_lightPosWS[NUM_LIGHTS];               // position of light in world space
+uniform vec4        u_lightPosVS[NUM_LIGHTS];               // position of light in view space
+uniform vec4        u_lightAmbi[NUM_LIGHTS];                // ambient light intensity (Ia)
+uniform vec4        u_lightDiff[NUM_LIGHTS];                // diffuse light intensity (Id)
+uniform vec4        u_lightSpec[NUM_LIGHTS];                // specular light intensity (Is)
+uniform vec3        u_lightSpotDir[NUM_LIGHTS];             // spot direction in view space
+uniform float       u_lightSpotDeg[NUM_LIGHTS];             // spot cutoff angle 1-180 degrees
+uniform float       u_lightSpotCos[NUM_LIGHTS];             // cosine of spot cutoff angle
+uniform float       u_lightSpotExp[NUM_LIGHTS];             // spot exponent
+uniform vec3        u_lightAtt[NUM_LIGHTS];                 // attenuation (const,linear,quadr.)
+uniform bool        u_lightDoAtt[NUM_LIGHTS];               // flag if att. must be calc.
+uniform mat4        u_lightSpace[NUM_LIGHTS * 6];           // projection matrices for lights
+uniform bool        u_lightCreatesShadows[NUM_LIGHTS];      // flag if light creates shadows
+uniform bool        u_lightDoSmoothShadows[NUM_LIGHTS];     // flag if percentage-closer filtering is enabled
+uniform int         u_lightSmoothShadowLevel[NUM_LIGHTS];   // radius of area to sample for PCF
+uniform float       u_lightShadowMinBias[NUM_LIGHTS];       // min. shadow bias value at 0° to N
+uniform float       u_lightShadowMaxBias[NUM_LIGHTS];       // min. shadow bias value at 90° to N
+uniform bool        u_lightUsesCubemap[NUM_LIGHTS];         // flag if light has a cube shadow map
+
+uniform vec4        u_globalAmbi;       // Global ambient scene color
+uniform float       u_oneOverGamma;     // 1.0f / Gamma correction
+uniform vec4        u_matAmbi;          // ambient color reflection coefficient (ka)
+uniform vec4        u_matDiff;          // diffuse color reflection coefficient (kd)
+uniform vec4        u_matSpec;          // specular color reflection coefficient (ks)
+uniform vec4        u_matEmis;          // emissive color for self-shining materials
+uniform float       u_matShin;          // shininess exponent
+uniform sampler2D   u_matTexture0;      // diffuse color texture map
+uniform sampler2D   u_matTexture1;      // ambient occlusion map
+uniform bool        u_matGetsShadows;   // flag if material receives shadows
+
+uniform int         u_camProjection;    // type of stereo
+uniform int         u_camStereoEye;     // -1=left, 0=center, 1=right
+uniform mat3        u_camStereoColors;  // color filter matrix
+uniform bool        u_camFogIsOn;       // flag if fog is on
+uniform int         u_camFogMode;       // 0=LINEAR, 1=EXP, 2=EXP2
+uniform float       u_camFogDensity;    // fog density value
+uniform float       u_camFogStart;      // fog start distance
+uniform float       u_camFogEnd;        // fog end distance
+uniform vec4        u_camFogColor;      // fog color (usually the background)
+
+out     vec4        o_fragColor;        // output fragment color
+
+)";
+    addShadowMapDeclaration(lights, fragCode);
+    fragCode += lightingBlinnPhong;
+    fragCode += fogBlend;
+    fragCode += doStereoSeparation;
+    addShadowTestCode(lights, fragCode);
+    fragCode += R"(
+
+void main()
+{
+    vec4 Ia = vec4(0.0); // Accumulated ambient light intensity at v_P_VS
+    vec4 Id = vec4(0.0); // Accumulated diffuse light intensity at v_P_VS
+    vec4 Is = vec4(0.0); // Accumulated specular light intensity at v_P_VS
+
+    vec3 N = normalize(v_N_VS);  // A input normal has not anymore unit length
+    vec3 E = normalize(-v_P_VS); // Vector from p to the eye
+
+    for (int i = 0; i < NUM_LIGHTS; ++i)
+    {
+        if (u_lightIsOn[i])
+        {
+            if (u_lightPosVS[i].w == 0.0)
+            {
+                // We use the spot light direction as the light direction vector
+                vec3 S = normalize(-u_lightSpotDir[i].xyz);
+
+                // Test if the current fragment is in shadow
+                float shadow = u_matGetsShadows ? shadowTest(i, N, S) : 0.0;
+
+                directLightBlinnPhong(i, N, E, S, shadow, Ia, Id, Is);
+            }
+            else
+            {
+                vec3 S = u_lightSpotDir[i]; // normalized spot direction in VS
+                vec3 L = u_lightPosVS[i].xyz - v_P_VS; // Vector from v_P to light in VS
+
+                // Test if the current fragment is in shadow
+                float shadow = u_matGetsShadows ? shadowTest(i, N, L) : 0.0;
+
+                pointLightBlinnPhong(i, N, E, S, L, shadow, Ia, Id, Is);
+            }
+        }
+    }
+
+    // Get ambient occlusion factor
+    float AO = texture(u_matTexture1, v_uv2).r;
+
+    // Sum up all the reflected color components
+    o_fragColor =  u_matEmis +
+                   u_globalAmbi +
+                   Ia * u_matAmbi * AO +
+                   Id * u_matDiff +
+                   Is * u_matSpec;
+
+    // Componentwise multiply w. texture color
+    o_fragColor *= texture(u_matTexture0, v_uv1);
+
+    // add finally the specular RGB-part
+    vec4 specColor = Is * u_matSpec;
+    o_fragColor.rgb += specColor.rgb;
+
+    // For correct alpha blending overwrite alpha component
+    o_fragColor.a = u_matDiff.a;
+
+    // Apply fog by blending over distance
+    if (u_camFogIsOn)
+        o_fragColor = fogBlend(v_P_VS, o_fragColor);
+
+    // Apply gamma correction
+    o_fragColor.rgb = pow(o_fragColor.rgb, vec3(u_oneOverGamma));
 
     // Apply stereo eye separation
     if (u_camProjection > 1)
@@ -1241,7 +1410,7 @@ uniform int         u_camStereoEye;     // -1=left, 0=center, 1=right
 uniform mat3        u_camStereoColors;  // color filter matrix
 uniform bool        u_camFogIsOn;       // flag if fog is on
 uniform int         u_camFogMode;       // 0=LINEAR, 1=EXP, 2=EXP2
-uniform float       u_camFogDensity;    // fog densitiy value
+uniform float       u_camFogDensity;    // fog density value
 uniform float       u_camFogStart;      // fog start distance
 uniform float       u_camFogEnd;        // fog end distance
 uniform vec4        u_camFogColor;      // fog color (usually the background)
@@ -1392,7 +1561,7 @@ uniform int         u_camStereoEye;     // -1=left, 0=center, 1=right
 uniform mat3        u_camStereoColors;  // color filter matrix
 uniform bool        u_camFogIsOn;       // flag if fog is on
 uniform int         u_camFogMode;       // 0=LINEAR, 1=EXP, 2=EXP2
-uniform float       u_camFogDensity;    // fog densitiy value
+uniform float       u_camFogDensity;    // fog density value
 uniform float       u_camFogStart;      // fog start distance
 uniform float       u_camFogEnd;        // fog end distance
 uniform vec4        u_camFogColor;      // fog color (usually the background)
@@ -1449,6 +1618,157 @@ void main()
                     Ia * u_matAmbi +
                     Id * u_matDiff +
                     Is * u_matSpec;
+
+    // Componentwise multiply w. texture color
+    o_fragColor *= texture(u_matTexture0, v_uv1);
+
+    // add finally the specular RGB-part
+    vec4 specColor = Is * u_matSpec;
+    o_fragColor.rgb += specColor.rgb;
+
+    // For correct alpha blending overwrite alpha component
+    o_fragColor.a = u_matDiff.a;
+
+    // Apply fog by blending over distance
+    if (u_camFogIsOn)
+        o_fragColor = fogBlend(v_P_VS, o_fragColor);
+
+    // Apply gamma correction
+    o_fragColor.rgb = pow(o_fragColor.rgb, vec3(u_oneOverGamma));
+
+    // Apply stereo eye separation
+    if (u_camProjection > 1)
+        doStereoSeparation();
+}
+)";
+    addCodeToShader(_shaders[1], fragCode, _name + ".frag");
+}
+//-----------------------------------------------------------------------------
+void SLGLProgramGenerated::buildPerPixBlinnTmAo(SLVLight* lights)
+{
+    // Assemble vertex shader code
+    string vertCode;
+    addShaderHeader(lights->size(), vertCode);
+    vertCode += R"(
+
+layout (location = 0) in vec4  a_position;  // Vertex position attribute
+layout (location = 1) in vec3  a_normal;    // Vertex normal attribute
+layout (location = 2) in vec2  a_uv1;       // Vertex texture coordinate attribute
+layout (location = 3) in vec2  a_uv2;       // Vertex tex.coord. 2 for AO
+
+uniform mat4  u_mvMatrix;   // modelview matrix
+uniform mat3  u_nMatrix;    // normal matrix=transpose(inverse(mv))
+uniform mat4  u_mvpMatrix;  // = projection * modelView
+uniform mat4  u_mMatrix;    // model matrix
+
+out     vec3  v_P_VS;       // Point of illumination in view space (VS)
+out     vec3  v_N_VS;       // Normal at P_VS in view space
+out     vec2  v_uv1;        // Texture coordinate output
+out     vec2  v_uv2;        // Texture coordinate output for uv2
+
+void main(void)
+{
+    v_uv1 = a_uv1;  // pass tex. coord. for interpolation
+    v_uv2 = a_uv2;  // pass ambient occlusion tex.coord. 2 for interpolation
+
+    v_P_VS = vec3(u_mvMatrix *  a_position); // vertex position in view space
+    v_N_VS = vec3(u_nMatrix * a_normal);     // vertex normal in view space
+
+    gl_Position = u_mvpMatrix * a_position;
+}
+)";
+    addCodeToShader(_shaders[0], vertCode, _name + ".vert");
+
+    // Assemble fragment shader code
+    string fragCode;
+    fragCode += "\nprecision highp float;\n";
+    fragCode += "\n#define NUM_LIGHTS " + to_string(lights->size()) + "\n";
+    fragCode += R"(
+
+in      vec3        v_P_VS;     // Interpol. point of illumination in view space (VS)
+in      vec3        v_N_VS;     // Interpol. normal at v_P_VS in view space
+in      vec2        v_uv1;      // Interpol. texture coordinate
+in      vec2        v_uv2;      // Texture coordinate 2 varying for AO
+
+uniform bool        u_lightIsOn[NUM_LIGHTS];                // flag if light is on
+uniform vec4        u_lightPosWS[NUM_LIGHTS];               // position of light in world space
+uniform vec4        u_lightPosVS[NUM_LIGHTS];               // position of light in view space
+uniform vec4        u_lightAmbi[NUM_LIGHTS];                // ambient light intensity (Ia)
+uniform vec4        u_lightDiff[NUM_LIGHTS];                // diffuse light intensity (Id)
+uniform vec4        u_lightSpec[NUM_LIGHTS];                // specular light intensity (Is)
+uniform vec3        u_lightSpotDir[NUM_LIGHTS];             // spot direction in view space
+uniform float       u_lightSpotDeg[NUM_LIGHTS];             // spot cutoff angle 1-180 degrees
+uniform float       u_lightSpotCos[NUM_LIGHTS];             // cosine of spot cutoff angle
+uniform float       u_lightSpotExp[NUM_LIGHTS];             // spot exponent
+uniform vec3        u_lightAtt[NUM_LIGHTS];                 // attenuation (const,linear,quadr.)
+uniform bool        u_lightDoAtt[NUM_LIGHTS];               // flag if att. must be calc.
+
+uniform vec4        u_globalAmbi;       // Global ambient scene color
+uniform float       u_oneOverGamma;     // 1.0f / Gamma correction
+uniform vec4        u_matAmbi;          // ambient color reflection coefficient (ka)
+uniform vec4        u_matDiff;          // diffuse color reflection coefficient (kd)
+uniform vec4        u_matSpec;          // specular color reflection coefficient (ks)
+uniform vec4        u_matEmis;          // emissive color for self-shining materials
+uniform float       u_matShin;          // shininess exponent
+uniform sampler2D   u_matTexture0;      // diffuse color texture map
+uniform sampler2D   u_matTexture1;      // ambient occlusion map
+
+uniform int         u_camProjection;    // type of stereo
+uniform int         u_camStereoEye;     // -1=left, 0=center, 1=right
+uniform mat3        u_camStereoColors;  // color filter matrix
+uniform bool        u_camFogIsOn;       // flag if fog is on
+uniform int         u_camFogMode;       // 0=LINEAR, 1=EXP, 2=EXP2
+uniform float       u_camFogDensity;    // fog density value
+uniform float       u_camFogStart;      // fog start distance
+uniform float       u_camFogEnd;        // fog end distance
+uniform vec4        u_camFogColor;      // fog color (usually the background)
+
+out     vec4        o_fragColor;        // output fragment color
+
+)";
+    fragCode += lightingBlinnPhong;
+    fragCode += fogBlend;
+    addShadowTestCode(lights, fragCode);
+    fragCode += R"(
+
+void main()
+{
+    vec4 Ia = vec4(0.0); // Accumulated ambient light intensity at v_P_VS
+    vec4 Id = vec4(0.0); // Accumulated diffuse light intensity at v_P_VS
+    vec4 Is = vec4(0.0); // Accumulated specular light intensity at v_P_VS
+
+    vec3 N = normalize(v_N_VS);  // A input normal has not anymore unit length
+    vec3 E = normalize(-v_P_VS); // Vector from p to the eye
+
+    for (int i = 0; i < NUM_LIGHTS; ++i)
+    {
+        if (u_lightIsOn[i])
+        {
+            if (u_lightPosVS[i].w == 0.0)
+            {
+                // We use the spot light direction as the light direction vector
+                vec3 S = normalize(-u_lightSpotDir[i].xyz);
+
+                directLightBlinnPhong(i, N, E, S, 0.0, Ia, Id, Is);
+            }
+            else
+            {
+                vec3 S = u_lightSpotDir[i]; // normalized spot direction in VS
+                vec3 L = u_lightPosVS[i].xyz - v_P_VS; // Vector from v_P to light in VS
+
+                pointLightBlinnPhong(i, N, E, S, L, 0.0, Ia, Id, Is);
+            }
+        }
+    }
+
+    // Get ambient occlusion factor
+    float AO = texture(u_matTexture1, v_uv2).r;
+
+    // Sum up all the reflected color components
+    o_fragColor =  u_matEmis +
+                   u_globalAmbi +
+                   Ia * u_matAmbi * AO +
+                   Id * u_matDiff;
 
     // Componentwise multiply w. texture color
     o_fragColor *= texture(u_matTexture0, v_uv1);
@@ -1588,7 +1908,7 @@ uniform int         u_camStereoEye;     // -1=left, 0=center, 1=right
 uniform mat3        u_camStereoColors;  // color filter matrix
 uniform bool        u_camFogIsOn;       // flag if fog is on
 uniform int         u_camFogMode;       // 0=LINEAR, 1=EXP, 2=EXP2
-uniform float       u_camFogDensity;    // fog densitiy value
+uniform float       u_camFogDensity;    // fog density value
 uniform float       u_camFogStart;      // fog start distance
 uniform float       u_camFogEnd;        // fog end distance
 uniform vec4        u_camFogColor;      // fog color (usually the background)
@@ -1923,7 +2243,7 @@ uniform int         u_camStereoEye;     // -1=left, 0=center, 1=right
 uniform mat3        u_camStereoColors;  // color filter matrix
 uniform bool        u_camFogIsOn;       // flag if fog is on
 uniform int         u_camFogMode;       // 0=LINEAR, 1=EXP, 2=EXP2
-uniform float       u_camFogDensity;    // fog densitiy value
+uniform float       u_camFogDensity;    // fog density value
 uniform float       u_camFogStart;      // fog start distance
 uniform float       u_camFogEnd;        // fog end distance
 uniform vec4        u_camFogColor;      // fog color (usually the background)
@@ -2198,7 +2518,7 @@ uniform int         u_camStereoEye;     // -1=left, 0=center, 1=right
 uniform mat3        u_camStereoColors;  // color filter matrix
 uniform bool        u_camFogIsOn;       // flag if fog is on
 uniform int         u_camFogMode;       // 0=LINEAR, 1=EXP, 2=EXP2
-uniform float       u_camFogDensity;    // fog densitiy value
+uniform float       u_camFogDensity;    // fog density value
 uniform float       u_camFogStart;      // fog start distance
 uniform float       u_camFogEnd;        // fog end distance
 uniform vec4        u_camFogColor;      // fog color (usually the background)
@@ -2310,6 +2630,7 @@ void main(void)
 
 in      vec3   v_P_VS;  // Interpol. point of illumination in view space (VS)
 in      vec3   v_N_VS;  // Interpol. normal at v_P_VS in view space
+in      vec2   v_uv1;   // Interpol. texture coordinate
 
 uniform bool   u_lightIsOn[NUM_LIGHTS];     // flag if light is on
 uniform vec4   u_lightPosVS[NUM_LIGHTS];    // position of light in view space
@@ -2325,11 +2646,12 @@ uniform bool   u_lightDoAtt[NUM_LIGHTS];    // flag if att. must be calc.
 uniform vec4   u_globalAmbi;                // Global ambient scene color
 uniform float  u_oneOverGamma;              // 1.0f / Gamma correction value
 
-uniform vec4   u_matAmbi;           // ambient color reflection coefficient (ka)
-uniform vec4   u_matDiff;           // diffuse color reflection coefficient (kd)
-uniform vec4   u_matSpec;           // specular color reflection coefficient (ks)
-uniform vec4   u_matEmis;           // emissive color for self-shining materials
-uniform float  u_matShin;           // shininess exponent
+uniform vec4        u_matAmbi;      // ambient color reflection coefficient (ka)
+uniform vec4        u_matDiff;      // diffuse color reflection coefficient (kd)
+uniform vec4        u_matSpec;      // specular color reflection coefficient (ks)
+uniform vec4        u_matEmis;      // emissive color for self-shining materials
+uniform float       u_matShin;      // shininess exponent
+uniform sampler2D   u_matTexture0;  // diffuse color texture map
 
 uniform int    u_camProjection;     // type of stereo
 uniform int    u_camStereoEye;      // -1=left, 0=center, 1=right
@@ -2381,8 +2703,14 @@ void main()
     o_fragColor =  u_globalAmbi +
                    u_matEmis +
                    Ia * u_matAmbi +
-                   Id * u_matDiff +
-                   Is * u_matSpec;
+                   Id * u_matDiff;
+
+    // Componentwise multiply w. texture color
+    o_fragColor *= texture(u_matTexture0, v_uv1);
+
+    // add finally the specular RGB-part
+    vec4 specColor = Is * u_matSpec;
+    o_fragColor.rgb += specColor.rgb;
 
     // For correct alpha blending overwrite alpha component
     o_fragColor.a = u_matDiff.a;
@@ -2439,7 +2767,6 @@ void main(void)
 
 in      vec3        v_P_VS;     // Interpol. point of illumination in view space (VS)
 in      vec3        v_N_VS;     // Interpol. normal at v_P_VS in view space
-in      vec2        v_uv1;      // Interpol. texture coordinate in tex. space
 
 uniform bool        u_lightIsOn[NUM_LIGHTS];     // flag if light is on
 uniform vec4        u_lightPosVS[NUM_LIGHTS];    // position of light in view space
@@ -2460,14 +2787,13 @@ uniform vec4        u_matDiff;          // diffuse color reflection coefficient 
 uniform vec4        u_matSpec;          // specular color reflection coefficient (ks)
 uniform vec4        u_matEmis;          // emissive color for self-shining materials
 uniform float       u_matShin;          // shininess exponent
-uniform sampler2D   u_matTexture0;      // diffuse color texture map
 
 uniform int         u_camProjection;    // type of stereo
 uniform int         u_camStereoEye;     // -1=left, 0=center, 1=right
 uniform mat3        u_camStereoColors;  // color filter matrix
 uniform bool        u_camFogIsOn;       // flag if fog is on
 uniform int         u_camFogMode;       // 0=LINEAR, 1=EXP, 2=EXP2
-uniform float       u_camFogDensity;    // fog densitiy value
+uniform float       u_camFogDensity;    // fog density value
 uniform float       u_camFogStart;      // fog start distance
 uniform float       u_camFogEnd;        // fog end distance
 uniform vec4        u_camFogColor;      // fog color (usually the background)
@@ -2512,14 +2838,11 @@ void main()
     o_fragColor =  u_globalAmbi +
                     u_matEmis +
                     Ia * u_matAmbi +
-                    Id * u_matDiff;
+                    Id * u_matDiff +
+                    Is * u_matSpec;
 
-    // Componentwise multiply w. texture color
-    o_fragColor *= texture(u_matTexture0, v_uv1);
-
-    // add finally the specular RGB-part
-    vec4 specColor = Is * u_matSpec;
-    o_fragColor.rgb += specColor.rgb;
+    // For correct alpha blending overwrite alpha component
+    o_fragColor.a = u_matDiff.a;
 
     // Apply fog by blending over distance
     if (u_camFogIsOn)
