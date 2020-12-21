@@ -111,10 +111,21 @@ public:
     }
     SLbool hasTextureType(SLTextureType tt)
     {
-        for (auto t : textures())
+        for (auto t : _textures)
             if (t->texType() == tt)
                 return true;
         return false;
+    }
+    void removeTextureType(SLTextureType tt)
+    {
+        for (int i = 0; i < _textures.size(); ++i)
+        {
+            if (_textures[i]->texType() == tt)
+            {
+                _textures.erase(_textures.begin() + i);
+                break;
+            }
+        }
     }
 
     // Setters

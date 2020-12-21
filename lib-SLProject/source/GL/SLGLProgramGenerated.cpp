@@ -17,9 +17,130 @@
 using std::string;
 using std::to_string;
 
-//-----------------------------------------------------------------------------
-string lightingBlinnPhong = R"(
+///////////////////////////////
+// Const. GLSL code snippets //
+///////////////////////////////
 
+//-----------------------------------------------------------------------------
+const string fragInputs_u_lightAll = R"(
+uniform bool        u_lightIsOn[NUM_LIGHTS];                // flag if light is on
+uniform vec4        u_lightPosVS[NUM_LIGHTS];               // position of light in view space
+uniform vec4        u_lightPosWS[NUM_LIGHTS];               // position of light in world space
+uniform vec4        u_lightAmbi[NUM_LIGHTS];                // ambient light intensity (Ia)
+uniform vec4        u_lightDiff[NUM_LIGHTS];                // diffuse light intensity (Id)
+uniform vec4        u_lightSpec[NUM_LIGHTS];                // specular light intensity (Is)
+uniform vec3        u_lightSpotDir[NUM_LIGHTS];             // spot direction in view space
+uniform float       u_lightSpotDeg[NUM_LIGHTS];             // spot cutoff angle 1-180 degrees
+uniform float       u_lightSpotCos[NUM_LIGHTS];             // cosine of spot cutoff angle
+uniform float       u_lightSpotExp[NUM_LIGHTS];             // spot exponent
+uniform vec3        u_lightAtt[NUM_LIGHTS];                 // attenuation (const,linear,quadr.)
+uniform bool        u_lightDoAtt[NUM_LIGHTS];               // flag if att. must be calc.
+uniform vec4        u_globalAmbi;                           // Global ambient scene color
+uniform float       u_oneOverGamma;                         // 1.0f / Gamma correction value
+)";
+//-----------------------------------------------------------------------------
+const string fragInputs_u_lightSm = R"(
+uniform mat4        u_lightSpace[NUM_LIGHTS * 6];           // projection matrices for lights
+uniform bool        u_lightCreatesShadows[NUM_LIGHTS];      // flag if light creates shadows
+uniform bool        u_lightDoSmoothShadows[NUM_LIGHTS];     // flag if percentage-closer filtering is enabled
+uniform int         u_lightSmoothShadowLevel[NUM_LIGHTS];   // radius of area to sample for PCF
+uniform float       u_lightShadowMinBias[NUM_LIGHTS];       // min. shadow bias value at 0° to N
+uniform float       u_lightShadowMaxBias[NUM_LIGHTS];       // min. shadow bias value at 90° to N
+uniform bool        u_lightUsesCubemap[NUM_LIGHTS];         // flag if light has a cube shadow map
+)";
+//-----------------------------------------------------------------------------
+const string fragInputs_u_matAllBlinn = R"(
+uniform vec4        u_matAmbi;          // ambient color reflection coefficient (ka)
+uniform vec4        u_matDiff;          // diffuse color reflection coefficient (kd)
+uniform vec4        u_matSpec;          // specular color reflection coefficient (ks)
+uniform vec4        u_matEmis;          // emissive color for self-shining materials
+uniform float       u_matShin;          // shininess exponent
+)";
+//-----------------------------------------------------------------------------
+const string fragInputs_u_matTm = R"(
+uniform sampler2D   u_matTexture0;      // diffuse color map
+)";
+//-----------------------------------------------------------------------------
+const string fragInputs_u_matAo = R"(
+uniform sampler2D   u_matTexture0;      // ambient occlusion map
+)";
+//-----------------------------------------------------------------------------
+const string fragInputs_u_matSm = R"(
+uniform bool        u_matGetsShadows;   // flag if material receives shadows
+)";
+//-----------------------------------------------------------------------------
+const string fragInputs_u_matTmNm = R"(
+uniform sampler2D   u_matTexture0;      // diffuse color map
+uniform sampler2D   u_matTexture1;      // normal bump map
+)";
+//-----------------------------------------------------------------------------
+const string fragInputs_u_matTmAo = R"(
+uniform sampler2D   u_matTexture0;      // diffuse color map
+uniform sampler2D   u_matTexture1;      // ambient occlusion map
+)";
+//-----------------------------------------------------------------------------
+const string fragInputs_u_matTmSm = R"(
+uniform sampler2D   u_matTexture0;      // diffuse color map
+uniform bool        u_matGetsShadows;   // flag if material receives shadows
+)";
+//-----------------------------------------------------------------------------
+const string fragInputs_u_matNmSm = R"(
+uniform sampler2D   u_matTexture0;      // normal bump map
+uniform bool        u_matGetsShadows;   // flag if material receives shadows
+)";
+//-----------------------------------------------------------------------------
+const string fragInputs_u_matAoSm = R"(
+uniform sampler2D   u_matTexture0;      // ambient occlusion map
+uniform bool        u_matGetsShadows;   // flag if material receives shadows
+)";
+//-----------------------------------------------------------------------------
+const string fragInputs_u_matNmAo = R"(
+uniform sampler2D   u_matTexture0;      // normal bump map
+uniform sampler2D   u_matTexture1;      // ambient occlusion map
+)";
+//-----------------------------------------------------------------------------
+const string fragInputs_u_matTmNmAo = R"(
+uniform sampler2D   u_matTexture0;      // diffuse color map
+uniform sampler2D   u_matTexture1;      // normal bump map
+uniform sampler2D   u_matTexture2;      // ambient occlusion map
+)";
+//-----------------------------------------------------------------------------
+const string fragInputs_u_matTmNmSm = R"(
+uniform sampler2D   u_matTexture0;      // diffuse color map
+uniform sampler2D   u_matTexture1;      // normal bump map
+uniform bool        u_matGetsShadows;   // flag if material receives shadows
+)";
+//-----------------------------------------------------------------------------
+const string fragInputs_u_matTmAoSm = R"(
+uniform sampler2D   u_matTexture0;      // diffuse color map
+uniform sampler2D   u_matTexture1;      // ambient occlusion map
+uniform bool        u_matGetsShadows;   // flag if material receives shadows
+)";
+//-----------------------------------------------------------------------------
+const string fragInputs_u_matTmNmAoSm = R"(
+uniform sampler2D   u_matTexture0;      // diffuse color map
+uniform sampler2D   u_matTexture1;      // normal bump map
+uniform sampler2D   u_matTexture2;      // ambient occlusion map
+uniform bool        u_matGetsShadows;   // flag if material receives shadows
+)";
+//-----------------------------------------------------------------------------
+const string fragInputs_u_cam = R"(
+uniform int         u_camProjection;    // type of stereo
+uniform int         u_camStereoEye;     // -1=left, 0=center, 1=right
+uniform mat3        u_camStereoColors;  // color filter matrix
+uniform bool        u_camFogIsOn;       // flag if fog is on
+uniform int         u_camFogMode;       // 0=LINEAR, 1=EXP, 2=EXP2
+uniform float       u_camFogDensity;    // fog density value
+uniform float       u_camFogStart;      // fog start distance
+uniform float       u_camFogEnd;        // fog end distance
+uniform vec4        u_camFogColor;      // fog color (usually the background)
+)";
+//-----------------------------------------------------------------------------
+const string fragOutputs_o_fragColor = R"(
+out     vec4        o_fragColor;        // output fragment color
+)";
+//-----------------------------------------------------------------------------
+const string fragFunctionLightingBlinnPhong = R"(
 void directLightBlinnPhong(in    int  i,       // Light number between 0 and NUM_LIGHTS
                            in    vec3 N,       // Normalized normal at v_P
                            in    vec3 E,       // Normalized direction at v_P to the eye
@@ -96,8 +217,7 @@ void pointLightBlinnPhong( in    int   i,
 }
 )";
 //-----------------------------------------------------------------------------
-string lightingCookTorrance = R"(
-
+const string fragFunctionLightingCookTorrance = R"(
 vec3 fresnelSchlick(float cosTheta, vec3 F0)
 {
     return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
@@ -227,8 +347,7 @@ void pointLightCookTorrance(in    int   i,        // Light index
 }
 )";
 //-----------------------------------------------------------------------------
-string doStereoSeparation = R"(
-
+const string fragFunctionDoStereoSeparation = R"(
 void doStereoSeparation()
 {
     // See SLProjection in SLEnum.h
@@ -278,8 +397,7 @@ void doStereoSeparation()
 }
 )";
 //-----------------------------------------------------------------------------
-string fogBlend = R"(
-
+const string fragFunctionFogBlend = R"(
 vec4 fogBlend(vec3 P_VS, vec4 inColor)
 {
     float factor = 0.0f;
@@ -304,34 +422,104 @@ vec4 fogBlend(vec3 P_VS, vec4 inColor)
 }
 )";
 //-----------------------------------------------------------------------------
-string mainBegin = R"(
-
+const string fragMainBlinn_0_IntensityDeclaration = R"(
 void main()
 {
     vec4 Ia = vec4(0.0); // Accumulated ambient light intensity at v_P_VS
     vec4 Id = vec4(0.0); // Accumulated diffuse light intensity at v_P_VS
     vec4 Is = vec4(0.0); // Accumulated specular light intensity at v_P_VS
-
-    vec3 N = normalize(v_N_VS);  // A input normal has not anymore unit length
-    vec3 E = normalize(-v_P_VS); // Vector from p to the eye
 )";
 //-----------------------------------------------------------------------------
-string mainNE_fromVert = R"(
-
+const string fragMainBlinn_1_NE_fromVert = R"(
     // Normal and eye from interpolation
     vec3 N = normalize(v_N_VS);  // A input normal has not anymore unit length
     vec3 E = normalize(-v_P_VS); // Vector from p to the eye
 )";
 //-----------------------------------------------------------------------------
-string mainNE_fromNormalMap = R"(
-
+const string fragMainBlinn_1_NE_fromNm0 = R"(
+    // Get normal from normal map, move from [0,1] to [-1, 1] range & normalize
+    vec3 N = normalize(texture(u_matTexture0, v_uv1).rgb * 2.0 - 1.0);
+    vec3 E = normalize(v_eyeDirTS);   // normalized eye direction
+)";
+//-----------------------------------------------------------------------------
+const string fragMainBlinn_1_NE_fromNm1 = R"(
     // Get normal from normal map, move from [0,1] to [-1, 1] range & normalize
     vec3 N = normalize(texture(u_matTexture1, v_uv1).rgb * 2.0 - 1.0);
     vec3 E = normalize(v_eyeDirTS);   // normalized eye direction
 )";
 //-----------------------------------------------------------------------------
-string mainLightLoopWithSm = R"(
+const string fragMainBlinn_2_LightLoop = R"(
+    for (int i = 0; i < NUM_LIGHTS; ++i)
+    {
+        if (u_lightIsOn[i])
+        {
+            if (u_lightPosVS[i].w == 0.0)
+            {
+                // We use the spot light direction as the light direction vector
+                vec3 S = normalize(-u_lightSpotDir[i].xyz);
+                directLightBlinnPhong(i, N, E, S, 0.0, Ia, Id, Is);
+            }
+            else
+            {
+                vec3 S = u_lightSpotDir[i]; // normalized spot direction in VS
+                vec3 L = u_lightPosVS[i].xyz - v_P_VS; // Vector from v_P to light in VS
+                pointLightBlinnPhong(i, N, E, S, L, 0.0, Ia, Id, Is);
+            }
+        }
+    }
+)";
+//-----------------------------------------------------------------------------
+const string fragMainBlinn_2_LightLoopNm = R"(
+    for (int i = 0; i < NUM_LIGHTS; ++i)
+    {
+        if (u_lightIsOn[i])
+        {
+            if (u_lightPosVS[i].w == 0.0)
+            {
+                // We use the spot light direction as the light direction vector
+                vec3 S = normalize(-v_spotDirTS[i]);
+                directLightBlinnPhong(i, N, E, S, 0.0, Ia, Id, Is);
+            }
+            else
+            {
+                vec3 S = normalize(v_spotDirTS[i]); // normalized spot direction in TS
+                vec3 L = v_lightDirTS[i]; // Vector from v_P to light in TS
+                pointLightBlinnPhong(i, N, E, S, L, 0.0, Ia, Id, Is);
+            }
+        }
+    }
+)";
+//-----------------------------------------------------------------------------
+const string fragMainBlinn_2_LightLoopSm = R"(
+    for (int i = 0; i < NUM_LIGHTS; ++i)
+    {
+        if (u_lightIsOn[i])
+        {
+            if (u_lightPosVS[i].w == 0.0)
+            {
+                // We use the spot light direction as the light direction vector
+                vec3 S = normalize(-u_lightSpotDir[i].xyz);
 
+                // Test if the current fragment is in shadow
+                float shadow = u_matGetsShadows ? shadowTest(i, N, S) : 0.0;
+
+                directLightBlinnPhong(i, N, E, S, shadow, Ia, Id, Is);
+            }
+            else
+            {
+                vec3 S = u_lightSpotDir[i]; // normalized spot direction in VS
+                vec3 L = u_lightPosVS[i].xyz - v_P_VS; // Vector from v_P to light in VS
+
+                // Test if the current fragment is in shadow
+                float shadow = u_matGetsShadows ? shadowTest(i, N, L) : 0.0;
+
+                pointLightBlinnPhong(i, N, E, S, L, shadow, Ia, Id, Is);
+            }
+        }
+    }
+)";
+//-----------------------------------------------------------------------------
+const string fragMainBlinn_2_LightLoopNmSm = R"(
     for (int i = 0; i < NUM_LIGHTS; ++i)
     {
         if (u_lightIsOn[i])
@@ -360,40 +548,19 @@ string mainLightLoopWithSm = R"(
     }
 )";
 //-----------------------------------------------------------------------------
-string mainLightLoopWithoutSm = R"(
-
-    for (int i = 0; i < NUM_LIGHTS; ++i)
-    {
-        if (u_lightIsOn[i])
-        {
-            if (u_lightPosVS[i].w == 0.0)
-            {
-                // We use the spot light direction as the light direction vector
-                vec3 S = normalize(-v_spotDirTS[i]);
-                directLightBlinnPhong(i, N, E, S, 0.0, Ia, Id, Is);
-            }
-            else
-            {
-                vec3 S = normalize(v_spotDirTS[i]); // normalized spot direction in TS
-                vec3 L = v_lightDirTS[i]; // Vector from v_P to light in TS
-                pointLightBlinnPhong(i, N, E, S, L, 0.0, Ia, Id, Is);
-            }
-        }
-    }
-)";
-//-----------------------------------------------------------------------------
-string mainFragColor = R"(
-
+const string fragMainBlinn_3_FragColor = R"(
     // Sum up all the reflected color components
     o_fragColor =  u_matEmis +
                    u_globalAmbi +
                    Ia * u_matAmbi +
                    Id * u_matDiff; +
                    Is * u_matSpec;
+
+    // For correct alpha blending overwrite alpha component
+    o_fragColor.a = u_matDiff.a;
 )";
 //-----------------------------------------------------------------------------
-string mainFragColorWithTm = R"(
-
+const string fragMainBlinn_3_FragColorTm = R"(
     // Sum up all the reflected color components
     o_fragColor =  u_matEmis +
                    u_globalAmbi +
@@ -408,10 +575,9 @@ string mainFragColorWithTm = R"(
     o_fragColor.rgb += specColor.rgb;
 )";
 //-----------------------------------------------------------------------------
-string mainFragColorWithAo = R"(
-
+const string fragMainBlinn_3_FragColorAo0 = R"(
     // Get ambient occlusion factor
-    float AO = texture(u_matTexture2, v_uv2).r;
+    float AO = texture(u_matTexture0, v_uv2).r;
 
     // Sum up all the reflected color components
     o_fragColor =  u_matEmis +
@@ -419,10 +585,45 @@ string mainFragColorWithAo = R"(
                    Ia * u_matAmbi * AO +
                    Id * u_matDiff +
                    Is * u_matSpec;
+
+    // For correct alpha blending overwrite alpha component
+    o_fragColor.a = u_matDiff.a;
 )";
 //-----------------------------------------------------------------------------
-string mainFragColorWithAoAndTm = R"(
+const string fragMainBlinn_3_FragColorAo1 = R"(
+    // Get ambient occlusion factor
+    float AO = texture(u_matTexture1, v_uv2).r;
 
+    // Sum up all the reflected color components
+    o_fragColor =  u_matEmis +
+                   u_globalAmbi +
+                   Ia * u_matAmbi * AO +
+                   Id * u_matDiff +
+                   Is * u_matSpec;
+
+    // For correct alpha blending overwrite alpha component
+    o_fragColor.a = u_matDiff.a;
+)";
+//-----------------------------------------------------------------------------
+const string fragMainBlinn_3_FragColorAo1Tm = R"(
+    // Get ambient occlusion factor
+    float AO = texture(u_matTexture1, v_uv2).r;
+
+    // Sum up all the reflected color components
+    o_fragColor =  u_matEmis +
+                   u_globalAmbi +
+                   Ia * u_matAmbi * AO +
+                   Id * u_matDiff;
+
+    // Componentwise multiply w. texture color
+    o_fragColor *= texture(u_matTexture0, v_uv1);
+
+    // add finally the specular RGB-part
+    vec4 specColor = Is * u_matSpec;
+    o_fragColor.rgb += specColor.rgb;
+)";
+//-----------------------------------------------------------------------------
+const string fragMainBlinn_3_FragColorAo2Tm = R"(
     // Get ambient occlusion factor
     float AO = texture(u_matTexture2, v_uv2).r;
 
@@ -440,8 +641,7 @@ string mainFragColorWithAoAndTm = R"(
     o_fragColor.rgb += specColor.rgb;
 )";
 //-----------------------------------------------------------------------------
-string mainEnd = R"(
-
+const string fragMainBlinn_4_End = R"(
     // Apply gamma correction
     o_fragColor.rgb = pow(o_fragColor.rgb, vec3(u_oneOverGamma));
 
@@ -455,6 +655,10 @@ string mainEnd = R"(
 }
 )";
 //-----------------------------------------------------------------------------
+
+
+
+
 //-----------------------------------------------------------------------------
 //! Builds unique program name that identifies shader program
 /*! Returns the a program e.g. as follows:
@@ -538,34 +742,41 @@ void SLGLProgramGenerated::buildProgramCode(SLMaterial* mat,
             buildPerPixBlinnTmNmSm(lights);
         else if (Tm && Ao && Sm)
             buildPerPixBlinnTmAoSm(lights);
-        else if (Tm && Nm)
-            buildPerPixBlinnTmNm(lights);
-        else if (Tm && Ao)
-            buildPerPixBlinnTmAo(lights);
-        else if (Nm && Sm)
-            buildPerPixBlinnNmSm(lights);
         else if (Ao && Sm)
             buildPerPixBlinnAoSm(lights);
-        else if (Tm)
-            buildPerPixBlinnTm(lights);
-        else if (Nm)
-            buildPerPixBlinnNm(lights);
-        else if (Ao)
-            buildPerPixBlinnAo(lights);
+        else if (Nm && Sm)
+            buildPerPixBlinnNmSm(lights);
+        else if (Tm && Sm)
+            buildPerPixBlinnTmSm(lights);
+        else if (Nm && Ao)
+            buildPerPixBlinnNmAo(lights);
+        else if (Tm && Ao)
+            buildPerPixBlinnTmAo(lights);
+        else if (Tm && Nm)
+            buildPerPixBlinnTmNm(lights);
         else if (Sm)
             buildPerPixBlinnSm(lights);
+        else if (Ao)
+            buildPerPixBlinnAo(lights);
+        else if (Nm)
+            buildPerPixBlinnNm(lights);
+        else if (Tm)
+            buildPerPixBlinnTm(lights);
         else
             buildPerPixBlinn(lights);
     }
     else
         SL_EXIT_MSG("Only Blinn-Phong supported yet.");
 }
+
+
+
 //-----------------------------------------------------------------------------
 void SLGLProgramGenerated::buildPerPixBlinnTmNmAoSm(SLVLight* lights)
 {
     // Assemble vertex shader code
     string vertCode;
-    addShaderHeader(lights->size(), vertCode);
+    vertCode += shaderHeader(lights->size());
     vertCode += R"(
 
 layout (location = 0) in vec4  a_position;  // Vertex position attribute
@@ -631,8 +842,34 @@ void main()
 
     // Assemble fragment shader code
     string fragCode;
-    addShaderHeader(lights->size(), fragCode);
+    fragCode += shaderHeader(lights->size());
     fragCode += R"(
+in      vec3        v_P_VS;     // Interpol. point of illumination in view space (VS)
+in      vec3        v_P_WS;     // Interpol. point of illumination in world space (WS)
+in      vec2        v_uv1;      // Texture coordinate 1 varying for diffuse color
+in      vec2        v_uv2;      // Texture coordinate 2 varying for AO
+in      vec3        v_eyeDirTS;                 // Vector to the eye in tangent space
+in      vec3        v_lightDirTS[NUM_LIGHTS];   // Vector to light 0 in tangent space
+in      vec3        v_spotDirTS[NUM_LIGHTS];    // Spot direction in tangent space
+)";
+    fragCode += fragInputs_u_lightAll;
+    fragCode += fragInputs_u_lightSm;
+    fragCode += fragInputs_u_matAllBlinn;
+    fragCode += fragInputs_u_matTmNmAoSm;
+    fragCode += fragInputs_u_shadowMaps(lights);
+    fragCode += fragInputs_u_cam;
+    fragCode += fragOutputs_o_fragColor;
+    fragCode += fragFunctionLightingBlinnPhong;
+    fragCode += fragFunctionFogBlend;
+    fragCode += fragFunctionDoStereoSeparation;
+    fragCode += fragShadowTest(lights);
+    fragCode += fragMainBlinn_0_IntensityDeclaration;
+    fragCode += fragMainBlinn_1_NE_fromNm1;
+    fragCode += fragMainBlinn_2_LightLoopNmSm;
+    fragCode += fragMainBlinn_3_FragColorAo2Tm;
+    fragCode += fragMainBlinn_4_End;
+
+    string oldFragInputs = R"(
 
 in      vec3        v_P_VS;     // Interpol. point of illumination in view space (VS)
 in      vec3        v_P_WS;     // Interpol. point of illumination in world space (WS)
@@ -687,12 +924,7 @@ uniform vec4        u_camFogColor;      // fog color (usually the background)
 out     vec4        o_fragColor;        // output fragment color
 
 )";
-    addShadowMapDeclaration(lights, fragCode);
-    fragCode += lightingBlinnPhong;
-    fragCode += fogBlend;
-    fragCode += doStereoSeparation;
-    addShadowTestCode(lights, fragCode);
-    fragCode += R"(
+    string oldFragCode = R"(
 
 void main()
 {
@@ -759,6 +991,7 @@ void main()
     doStereoSeparation();
 }
 )";
+
     addCodeToShader(_shaders[1], fragCode, _name + ".frag");
 }
 //-----------------------------------------------------------------------------
@@ -766,7 +999,7 @@ void SLGLProgramGenerated::buildPerPixBlinnTmNmAo(SLVLight* lights)
 {
     // Assemble vertex shader code
     string vertCode;
-    addShaderHeader(lights->size(), vertCode);
+    vertCode += shaderHeader(lights->size());
     vertCode += R"(
 
 layout (location = 0) in vec4  a_position;  // Vertex position attribute
@@ -831,8 +1064,30 @@ void main()
 
     // Assemble fragment shader code
     string fragCode;
-    addShaderHeader(lights->size(), fragCode);
+    fragCode += shaderHeader(lights->size());
     fragCode += R"(
+in      vec3        v_P_VS;     // Interpol. point of illumination in view space (VS)
+in      vec2        v_uv1;      // Texture coordinate 1 varying for diffuse color
+in      vec2        v_uv2;      // Texture coordinate 2 varying for AO
+in      vec3        v_eyeDirTS;                 // Vector to the eye in tangent space
+in      vec3        v_lightDirTS[NUM_LIGHTS];   // Vector to light 0 in tangent space
+in      vec3        v_spotDirTS[NUM_LIGHTS];    // Spot direction in tangent space
+)";
+    fragCode += fragInputs_u_lightAll;
+    fragCode += fragInputs_u_matAllBlinn;
+    fragCode += fragInputs_u_matTmNmAo;
+    fragCode += fragInputs_u_cam;
+    fragCode += fragOutputs_o_fragColor;
+    fragCode += fragFunctionLightingBlinnPhong;
+    fragCode += fragFunctionFogBlend;
+    fragCode += fragFunctionDoStereoSeparation;
+    fragCode += fragMainBlinn_0_IntensityDeclaration;
+    fragCode += fragMainBlinn_1_NE_fromNm1;
+    fragCode += fragMainBlinn_2_LightLoopNm;
+    fragCode += fragMainBlinn_3_FragColorAo2Tm;
+    fragCode += fragMainBlinn_4_End;
+
+    string oldFragInputs = R"(
 
 in      vec3        v_P_VS;     // Interpol. point of illumination in view space (VS)
 in      vec2        v_uv1;      // Texture coordinate 1 varying for diffuse color
@@ -878,10 +1133,7 @@ uniform vec4        u_camFogColor;      // fog color (usually the background)
 out     vec4        o_fragColor;        // output fragment color
 
 )";
-    fragCode += lightingBlinnPhong;
-    fragCode += fogBlend;
-    fragCode += doStereoSeparation;
-    fragCode += R"(
+    string oldFragCode = R"(
 
 void main()
 {
@@ -947,7 +1199,7 @@ void SLGLProgramGenerated::buildPerPixBlinnTmNmSm(SLVLight* lights)
 {
     // Assemble vertex shader code
     string vertCode;
-    addShaderHeader(lights->size(), vertCode);
+    vertCode += shaderHeader(lights->size());
     vertCode += R"(
 
 layout (location = 0) in vec4  a_position;  // Vertex position attribute
@@ -1010,8 +1262,33 @@ void main()
 
     // Assemble fragment shader code
     string fragCode;
-    addShaderHeader(lights->size(), fragCode);
+    fragCode += shaderHeader(lights->size());
     fragCode += R"(
+in      vec3        v_P_VS;     // Interpol. point of illumination in view space (VS)
+in      vec3        v_P_WS;     // Interpol. point of illumination in world space (WS)
+in      vec2        v_uv1;      // Texture coordinate varying
+in      vec3        v_eyeDirTS;                 // Vector to the eye in tangent space
+in      vec3        v_lightDirTS[NUM_LIGHTS];   // Vector to light 0 in tangent space
+in      vec3        v_spotDirTS[NUM_LIGHTS];    // Spot direction in tangent space
+)";
+    fragCode += fragInputs_u_lightAll;
+    fragCode += fragInputs_u_lightSm;
+    fragCode += fragInputs_u_matAllBlinn;
+    fragCode += fragInputs_u_matTmNmSm;
+    fragCode += fragInputs_u_shadowMaps(lights);
+    fragCode += fragInputs_u_cam;
+    fragCode += fragOutputs_o_fragColor;
+    fragCode += fragFunctionLightingBlinnPhong;
+    fragCode += fragFunctionFogBlend;
+    fragCode += fragFunctionDoStereoSeparation;
+    fragCode += fragShadowTest(lights);
+    fragCode += fragMainBlinn_0_IntensityDeclaration;
+    fragCode += fragMainBlinn_1_NE_fromNm1;
+    fragCode += fragMainBlinn_2_LightLoopNmSm;
+    fragCode += fragMainBlinn_3_FragColorTm;
+    fragCode += fragMainBlinn_4_End;
+
+    string oldFragInputs = R"(
 
 in      vec3        v_P_VS;     // Interpol. point of illumination in view space (VS)
 in      vec3        v_P_WS;     // Interpol. point of illumination in world space (WS)
@@ -1064,12 +1341,7 @@ uniform vec4        u_camFogColor;      // fog color (usually the background)
 out     vec4        o_fragColor;        // output fragment color
 
 )";
-    addShadowMapDeclaration(lights, fragCode);
-    fragCode += lightingBlinnPhong;
-    fragCode += fogBlend;
-    fragCode += doStereoSeparation;
-    addShadowTestCode(lights, fragCode);
-    fragCode += R"(
+    string oldFragCode = R"(
 
 void main()
 {
@@ -1140,7 +1412,7 @@ void SLGLProgramGenerated::buildPerPixBlinnTmAoSm(SLVLight* lights)
 {
     // Assemble vertex shader code
     string vertCode;
-    addShaderHeader(lights->size(), vertCode);
+    vertCode += shaderHeader(lights->size());
     vertCode += R"(
 
 layout (location = 0) in vec4  a_position;  // Vertex position attribute
@@ -1175,9 +1447,32 @@ void main(void)
 
     // Assemble fragment shader code
     string fragCode;
-    fragCode += "\nprecision highp float;\n";
-    fragCode += "\n#define NUM_LIGHTS " + to_string(lights->size()) + "\n";
+    fragCode += shaderHeader(lights->size());
     fragCode += R"(
+in      vec3        v_P_VS;     // Interpol. point of illumination in view space (VS)
+in      vec3        v_P_WS;     // Interpol. point of illumination in world space (WS)
+in      vec3        v_N_VS;     // Interpol. normal at v_P_VS in view space
+in      vec2        v_uv1;      // Interpol. texture coordinate
+in      vec2        v_uv2;      // Texture coordinate 2 varying for AO
+)";
+    fragCode += fragInputs_u_lightAll;
+    fragCode += fragInputs_u_lightSm;
+    fragCode += fragInputs_u_matAllBlinn;
+    fragCode += fragInputs_u_matTmAoSm;
+    fragCode += fragInputs_u_shadowMaps(lights);
+    fragCode += fragInputs_u_cam;
+    fragCode += fragOutputs_o_fragColor;
+    fragCode += fragFunctionLightingBlinnPhong;
+    fragCode += fragFunctionFogBlend;
+    fragCode += fragFunctionDoStereoSeparation;
+    fragCode += fragShadowTest(lights);
+    fragCode += fragMainBlinn_0_IntensityDeclaration;
+    fragCode += fragMainBlinn_1_NE_fromVert;
+    fragCode += fragMainBlinn_2_LightLoopSm;
+    fragCode += fragMainBlinn_3_FragColorAo1Tm;
+    fragCode += fragMainBlinn_4_End;
+
+    string oldFragInputs = R"(
 
 in      vec3        v_P_VS;     // Interpol. point of illumination in view space (VS)
 in      vec3        v_P_WS;     // Interpol. point of illumination in world space (WS)
@@ -1229,12 +1524,7 @@ uniform vec4        u_camFogColor;      // fog color (usually the background)
 out     vec4        o_fragColor;        // output fragment color
 
 )";
-    addShadowMapDeclaration(lights, fragCode);
-    fragCode += lightingBlinnPhong;
-    fragCode += fogBlend;
-    fragCode += doStereoSeparation;
-    addShadowTestCode(lights, fragCode);
-    fragCode += R"(
+    string oldFragCode = R"(
 
 void main()
 {
@@ -1307,185 +1597,11 @@ void main()
     addCodeToShader(_shaders[1], fragCode, _name + ".frag");
 }
 //-----------------------------------------------------------------------------
-void SLGLProgramGenerated::buildPerPixBlinnTmNm(SLVLight* lights)
-{
-    // Assemble vertex shader code
-    string vertCode;
-    addShaderHeader(lights->size(), vertCode);
-    vertCode += R"(
-
-layout (location = 0) in vec4  a_position;  // Vertex position attribute
-layout (location = 1) in vec3  a_normal;    // Vertex normal attribute
-layout (location = 2) in vec2  a_uv1;       // Vertex texture coordinate attribute
-layout (location = 5) in vec4  a_tangent;   // Vertex tangent attribute
-
-uniform mat4  u_mvMatrix;   // modelview matrix
-uniform mat3  u_nMatrix;    // normal matrix=transpose(inverse(mv))
-uniform mat4  u_mvpMatrix;  // = projection * modelView
-
-uniform vec4  u_lightPosVS[NUM_LIGHTS];     // position of light in view space
-uniform vec3  u_lightSpotDir[NUM_LIGHTS];   // spot direction in view space
-uniform float u_lightSpotDeg[NUM_LIGHTS];   // spot cutoff angle 1-180 degrees
-
-out     vec3  v_P_VS;                   // Point of illumination in view space (VS)
-out     vec2  v_uv1;                    // Texture coordinate output
-out     vec3  v_eyeDirTS;               // Vector to the eye in tangent space
-out     vec3  v_lightDirTS[NUM_LIGHTS]; // Vector to the light 0 in tangent space
-out     vec3  v_spotDirTS[NUM_LIGHTS];  // Spot direction in tangent space
-out     float v_lightDist[NUM_LIGHTS];  // Light distance
-//-----------------------------------------------------------------------------
-void main()
-{
-    // Pass the texture coord. for interpolation
-    v_uv1 = a_uv1;
-
-    // Building the matrix Eye Space -> Tangent Space
-    // See the math behind at: http://www.terathon.com/code/tangent.html
-    vec3 n = normalize(u_nMatrix * a_normal);
-    vec3 t = normalize(u_nMatrix * a_tangent.xyz);
-    vec3 b = cross(n, t) * a_tangent.w; // bitangent w. corrected handedness
-    mat3 TBN = mat3(t,b,n);
-
-    // Transform vertex into view space
-    v_P_VS = vec3(u_mvMatrix *  a_position);
-
-    // Transform vector to the eye into tangent space
-    v_eyeDirTS = -v_P_VS;  // eye vector in view space
-    v_eyeDirTS *= TBN;
-
-    for (int i = 0; i < NUM_LIGHTS; ++i)
-    {
-        // Transform spotdir into tangent space
-        v_spotDirTS[i] = u_lightSpotDir[i];
-        v_spotDirTS[i]  *= TBN;
-
-        // Transform vector to the light 0 into tangent space
-        vec3 L = u_lightPosVS[i].xyz - v_P_VS;
-        v_lightDist[i]  = length(L);  // calculate distance to light before normalizing
-        v_lightDirTS[i] = L;
-        v_lightDirTS[i] *= TBN;
-    }
-
-    // pass the vertex w. the fix-function transform
-    gl_Position = u_mvpMatrix * a_position;
-}
-)";
-    addCodeToShader(_shaders[0], vertCode, _name + ".vert");
-
-    // Assemble fragment shader code
-    string fragCode;
-    addShaderHeader(lights->size(), fragCode);
-    fragCode += R"(
-
-in      vec3        v_P_VS;                     // Interpol. point of illumination in view space (VS)
-in      vec2        v_uv1;                      // Texture coordinate varying
-in      vec3        v_eyeDirTS;                 // Vector to the eye in tangent space
-in      vec3        v_lightDirTS[NUM_LIGHTS];   // Vector to light 0 in tangent space
-in      vec3        v_spotDirTS[NUM_LIGHTS];    // Spot direction in tangent space
-
-uniform bool        u_lightIsOn[NUM_LIGHTS];    // flag if light is on
-uniform vec4        u_lightPosVS[NUM_LIGHTS];   // position of light in view space
-uniform vec4        u_lightAmbi[NUM_LIGHTS];    // ambient light intensity (Ia)
-uniform vec4        u_lightDiff[NUM_LIGHTS];    // diffuse light intensity (Id)
-uniform vec4        u_lightSpec[NUM_LIGHTS];    // specular light intensity (Is)
-uniform vec3        u_lightSpotDir[NUM_LIGHTS]; // spot direction in view space
-uniform float       u_lightSpotDeg[NUM_LIGHTS]; // spot cutoff angle 1-180 degrees
-uniform float       u_lightSpotCos[NUM_LIGHTS]; // cosine of spot cutoff angle
-uniform float       u_lightSpotExp[NUM_LIGHTS]; // spot exponent
-uniform vec3        u_lightAtt[NUM_LIGHTS];     // attenuation (const,linear,quadr.)
-uniform bool        u_lightDoAtt[NUM_LIGHTS];   // flag if att. must be calc.
-uniform vec4        u_globalAmbi;               // Global ambient scene color
-uniform float       u_oneOverGamma;             // 1.0f / Gamma correction value
-
-uniform vec4        u_matAmbi;          // ambient color reflection coefficient (ka)
-uniform vec4        u_matDiff;          // diffuse color reflection coefficient (kd)
-uniform vec4        u_matSpec;          // specular color reflection coefficient (ks)
-uniform vec4        u_matEmis;          // emissive color for self-shining materials
-uniform float       u_matShin;          // shininess exponent
-uniform sampler2D   u_matTexture0;      // Color map
-uniform sampler2D   u_matTexture1;      // Normal map
-
-uniform int         u_camProjection;    // type of stereo
-uniform int         u_camStereoEye;     // -1=left, 0=center, 1=right
-uniform mat3        u_camStereoColors;  // color filter matrix
-uniform bool        u_camFogIsOn;       // flag if fog is on
-uniform int         u_camFogMode;       // 0=LINEAR, 1=EXP, 2=EXP2
-uniform float       u_camFogDensity;    // fog density value
-uniform float       u_camFogStart;      // fog start distance
-uniform float       u_camFogEnd;        // fog end distance
-uniform vec4        u_camFogColor;      // fog color (usually the background)
-
-out     vec4        o_fragColor;        // output fragment color
-
-)";
-    fragCode += lightingBlinnPhong;
-    fragCode += fogBlend;
-    fragCode += doStereoSeparation;
-    fragCode += R"(
-
-void main()
-{
-    vec4 Ia = vec4(0.0); // Accumulated ambient light intensity at v_P_VS
-    vec4 Id = vec4(0.0); // Accumulated diffuse light intensity at v_P_VS
-    vec4 Is = vec4(0.0); // Accumulated specular light intensity at v_P_VS
-
-    // Get normal from normal map, move from [0,1] to [-1, 1] range & normalize
-    vec3 N = normalize(texture(u_matTexture1, v_uv1).rgb * 2.0 - 1.0);
-    vec3 E = normalize(v_eyeDirTS);   // normalized eye direction
-
-    for (int i = 0; i < NUM_LIGHTS; ++i)
-    {
-        if (u_lightIsOn[i])
-        {
-
-            if (u_lightPosVS[i].w == 0.0)
-            {
-                // We use the spot light direction as the light direction vector
-                vec3 S = normalize(-v_spotDirTS[i]);
-                directLightBlinnPhong(i, N, E, S, 0.0, Ia, Id, Is);
-            }
-            else
-            {
-                vec3 S = normalize(v_spotDirTS[i]); // normalized spot direction in TS
-                vec3 L = v_lightDirTS[i]; // Vector from v_P to light in TS
-                pointLightBlinnPhong(i, N, E, S, L, 0.0, Ia, Id, Is);
-            }
-        }
-    }
-
-    // Sum up all the reflected color components
-    o_fragColor =  u_matEmis +
-                   u_globalAmbi +
-                   Ia * u_matAmbi +
-                   Id * u_matDiff;
-
-    // Componentwise multiply w. texture color
-    o_fragColor *= texture(u_matTexture0, v_uv1);
-
-    // add finally the specular RGB-part
-    vec4 specColor = Is * u_matSpec;
-    o_fragColor.rgb += specColor.rgb;
-
-    // Apply gamma correction
-    o_fragColor.rgb = pow(o_fragColor.rgb, vec3(u_oneOverGamma));
-
-    // Apply fog by blending over distance
-    if (u_camFogIsOn)
-        o_fragColor = fogBlend(v_P_VS, o_fragColor);
-
-    // Apply stereo eye separation
-    if (u_camProjection > 1)
-        doStereoSeparation();
-}
-)";
-    addCodeToShader(_shaders[1], fragCode, _name + ".frag");
-}
-//-----------------------------------------------------------------------------
 void SLGLProgramGenerated::buildPerPixBlinnTmSm(SLVLight* lights)
 {
     // Assemble vertex shader code
     string vertCode;
-    addShaderHeader(lights->size(), vertCode);
+    vertCode += shaderHeader(lights->size());
     vertCode += R"(
 
 layout (location = 0) in vec4  a_position;  // Vertex position attribute
@@ -1517,9 +1633,31 @@ void main(void)
 
     // Assemble fragment shader code
     string fragCode;
-    fragCode += "\nprecision highp float;\n";
-    fragCode += "\n#define NUM_LIGHTS " + to_string(lights->size()) + "\n";
+    fragCode += shaderHeader(lights->size());
     fragCode += R"(
+in      vec3        v_P_VS;     // Interpol. point of illumination in view space (VS)
+in      vec3        v_P_WS;     // Interpol. point of illumination in world space (WS)
+in      vec3        v_N_VS;     // Interpol. normal at v_P_VS in view space
+in      vec2        v_uv1;      // Interpol. texture coordinate
+)";
+    fragCode += fragInputs_u_lightAll;
+    fragCode += fragInputs_u_lightSm;
+    fragCode += fragInputs_u_matAllBlinn;
+    fragCode += fragInputs_u_matTmSm;
+    fragCode += fragInputs_u_shadowMaps(lights);
+    fragCode += fragInputs_u_cam;
+    fragCode += fragOutputs_o_fragColor;
+    fragCode += fragFunctionLightingBlinnPhong;
+    fragCode += fragFunctionFogBlend;
+    fragCode += fragFunctionDoStereoSeparation;
+    fragCode += fragShadowTest(lights);
+    fragCode += fragMainBlinn_0_IntensityDeclaration;
+    fragCode += fragMainBlinn_1_NE_fromVert;
+    fragCode += fragMainBlinn_2_LightLoopSm;
+    fragCode += fragMainBlinn_3_FragColorTm;
+    fragCode += fragMainBlinn_4_End;
+
+    string oldFragInputs = R"(
 
 in      vec3        v_P_VS;     // Interpol. point of illumination in view space (VS)
 in      vec3        v_P_WS;     // Interpol. point of illumination in world space (WS)
@@ -1569,12 +1707,7 @@ uniform vec4        u_camFogColor;      // fog color (usually the background)
 out     vec4        o_fragColor;        // output fragment color
 
 )";
-    addShadowMapDeclaration(lights, fragCode);
-    fragCode += lightingBlinnPhong;
-    fragCode += fogBlend;
-    fragCode += doStereoSeparation;
-    addShadowTestCode(lights, fragCode);
-    fragCode += R"(
+    string oldFragCode = R"(
 
 void main()
 {
@@ -1644,162 +1777,11 @@ void main()
     addCodeToShader(_shaders[1], fragCode, _name + ".frag");
 }
 //-----------------------------------------------------------------------------
-void SLGLProgramGenerated::buildPerPixBlinnTmAo(SLVLight* lights)
-{
-    // Assemble vertex shader code
-    string vertCode;
-    addShaderHeader(lights->size(), vertCode);
-    vertCode += R"(
-
-layout (location = 0) in vec4  a_position;  // Vertex position attribute
-layout (location = 1) in vec3  a_normal;    // Vertex normal attribute
-layout (location = 2) in vec2  a_uv1;       // Vertex texture coordinate attribute
-layout (location = 3) in vec2  a_uv2;       // Vertex tex.coord. 2 for AO
-
-uniform mat4  u_mvMatrix;   // modelview matrix
-uniform mat3  u_nMatrix;    // normal matrix=transpose(inverse(mv))
-uniform mat4  u_mvpMatrix;  // = projection * modelView
-uniform mat4  u_mMatrix;    // model matrix
-
-out     vec3  v_P_VS;       // Point of illumination in view space (VS)
-out     vec3  v_N_VS;       // Normal at P_VS in view space
-out     vec2  v_uv1;        // Texture coordinate output
-out     vec2  v_uv2;        // Texture coordinate output for uv2
-
-void main(void)
-{
-    v_uv1 = a_uv1;  // pass tex. coord. for interpolation
-    v_uv2 = a_uv2;  // pass ambient occlusion tex.coord. 2 for interpolation
-
-    v_P_VS = vec3(u_mvMatrix *  a_position); // vertex position in view space
-    v_N_VS = vec3(u_nMatrix * a_normal);     // vertex normal in view space
-
-    gl_Position = u_mvpMatrix * a_position;
-}
-)";
-    addCodeToShader(_shaders[0], vertCode, _name + ".vert");
-
-    // Assemble fragment shader code
-    string fragCode;
-    fragCode += "\nprecision highp float;\n";
-    fragCode += "\n#define NUM_LIGHTS " + to_string(lights->size()) + "\n";
-    fragCode += R"(
-
-in      vec3        v_P_VS;     // Interpol. point of illumination in view space (VS)
-in      vec3        v_N_VS;     // Interpol. normal at v_P_VS in view space
-in      vec2        v_uv1;      // Interpol. texture coordinate
-in      vec2        v_uv2;      // Texture coordinate 2 varying for AO
-
-uniform bool        u_lightIsOn[NUM_LIGHTS];                // flag if light is on
-uniform vec4        u_lightPosWS[NUM_LIGHTS];               // position of light in world space
-uniform vec4        u_lightPosVS[NUM_LIGHTS];               // position of light in view space
-uniform vec4        u_lightAmbi[NUM_LIGHTS];                // ambient light intensity (Ia)
-uniform vec4        u_lightDiff[NUM_LIGHTS];                // diffuse light intensity (Id)
-uniform vec4        u_lightSpec[NUM_LIGHTS];                // specular light intensity (Is)
-uniform vec3        u_lightSpotDir[NUM_LIGHTS];             // spot direction in view space
-uniform float       u_lightSpotDeg[NUM_LIGHTS];             // spot cutoff angle 1-180 degrees
-uniform float       u_lightSpotCos[NUM_LIGHTS];             // cosine of spot cutoff angle
-uniform float       u_lightSpotExp[NUM_LIGHTS];             // spot exponent
-uniform vec3        u_lightAtt[NUM_LIGHTS];                 // attenuation (const,linear,quadr.)
-uniform bool        u_lightDoAtt[NUM_LIGHTS];               // flag if att. must be calc.
-
-uniform vec4        u_globalAmbi;       // Global ambient scene color
-uniform float       u_oneOverGamma;     // 1.0f / Gamma correction
-uniform vec4        u_matAmbi;          // ambient color reflection coefficient (ka)
-uniform vec4        u_matDiff;          // diffuse color reflection coefficient (kd)
-uniform vec4        u_matSpec;          // specular color reflection coefficient (ks)
-uniform vec4        u_matEmis;          // emissive color for self-shining materials
-uniform float       u_matShin;          // shininess exponent
-uniform sampler2D   u_matTexture0;      // diffuse color texture map
-uniform sampler2D   u_matTexture1;      // ambient occlusion map
-
-uniform int         u_camProjection;    // type of stereo
-uniform int         u_camStereoEye;     // -1=left, 0=center, 1=right
-uniform mat3        u_camStereoColors;  // color filter matrix
-uniform bool        u_camFogIsOn;       // flag if fog is on
-uniform int         u_camFogMode;       // 0=LINEAR, 1=EXP, 2=EXP2
-uniform float       u_camFogDensity;    // fog density value
-uniform float       u_camFogStart;      // fog start distance
-uniform float       u_camFogEnd;        // fog end distance
-uniform vec4        u_camFogColor;      // fog color (usually the background)
-
-out     vec4        o_fragColor;        // output fragment color
-
-)";
-    fragCode += lightingBlinnPhong;
-    fragCode += fogBlend;
-    addShadowTestCode(lights, fragCode);
-    fragCode += R"(
-
-void main()
-{
-    vec4 Ia = vec4(0.0); // Accumulated ambient light intensity at v_P_VS
-    vec4 Id = vec4(0.0); // Accumulated diffuse light intensity at v_P_VS
-    vec4 Is = vec4(0.0); // Accumulated specular light intensity at v_P_VS
-
-    vec3 N = normalize(v_N_VS);  // A input normal has not anymore unit length
-    vec3 E = normalize(-v_P_VS); // Vector from p to the eye
-
-    for (int i = 0; i < NUM_LIGHTS; ++i)
-    {
-        if (u_lightIsOn[i])
-        {
-            if (u_lightPosVS[i].w == 0.0)
-            {
-                // We use the spot light direction as the light direction vector
-                vec3 S = normalize(-u_lightSpotDir[i].xyz);
-
-                directLightBlinnPhong(i, N, E, S, 0.0, Ia, Id, Is);
-            }
-            else
-            {
-                vec3 S = u_lightSpotDir[i]; // normalized spot direction in VS
-                vec3 L = u_lightPosVS[i].xyz - v_P_VS; // Vector from v_P to light in VS
-
-                pointLightBlinnPhong(i, N, E, S, L, 0.0, Ia, Id, Is);
-            }
-        }
-    }
-
-    // Get ambient occlusion factor
-    float AO = texture(u_matTexture1, v_uv2).r;
-
-    // Sum up all the reflected color components
-    o_fragColor =  u_matEmis +
-                   u_globalAmbi +
-                   Ia * u_matAmbi * AO +
-                   Id * u_matDiff;
-
-    // Componentwise multiply w. texture color
-    o_fragColor *= texture(u_matTexture0, v_uv1);
-
-    // add finally the specular RGB-part
-    vec4 specColor = Is * u_matSpec;
-    o_fragColor.rgb += specColor.rgb;
-
-    // For correct alpha blending overwrite alpha component
-    o_fragColor.a = u_matDiff.a;
-
-    // Apply fog by blending over distance
-    if (u_camFogIsOn)
-        o_fragColor = fogBlend(v_P_VS, o_fragColor);
-
-    // Apply gamma correction
-    o_fragColor.rgb = pow(o_fragColor.rgb, vec3(u_oneOverGamma));
-
-    // Apply stereo eye separation
-    if (u_camProjection > 1)
-        doStereoSeparation();
-}
-)";
-    addCodeToShader(_shaders[1], fragCode, _name + ".frag");
-}
-//-----------------------------------------------------------------------------
 void SLGLProgramGenerated::buildPerPixBlinnNmSm(SLVLight* lights)
 {
     // Assemble vertex shader code
     string vertCode;
-    addShaderHeader(lights->size(), vertCode);
+    vertCode += shaderHeader(lights->size());
     vertCode += R"(
 
 layout (location = 0) in vec4  a_position;  // Vertex position attribute
@@ -1862,8 +1844,33 @@ void main()
 
     // Assemble fragment shader code
     string fragCode;
-    addShaderHeader(lights->size(), fragCode);
+    fragCode += shaderHeader(lights->size());
     fragCode += R"(
+in      vec3        v_P_VS;     // Interpol. point of illumination in view space (VS)
+in      vec3        v_P_WS;     // Interpol. point of illumination in world space (WS)
+in      vec2        v_uv1;      // Texture coordinate varying
+in      vec3        v_eyeDirTS;                 // Vector to the eye in tangent space
+in      vec3        v_lightDirTS[NUM_LIGHTS];   // Vector to light 0 in tangent space
+in      vec3        v_spotDirTS[NUM_LIGHTS];    // Spot direction in tangent space
+)";
+    fragCode += fragInputs_u_lightAll;
+    fragCode += fragInputs_u_lightSm;
+    fragCode += fragInputs_u_matAllBlinn;
+    fragCode += fragInputs_u_matNmSm;
+    fragCode += fragInputs_u_shadowMaps(lights);
+    fragCode += fragInputs_u_cam;
+    fragCode += fragOutputs_o_fragColor;
+    fragCode += fragFunctionLightingBlinnPhong;
+    fragCode += fragFunctionFogBlend;
+    fragCode += fragFunctionDoStereoSeparation;
+    fragCode += fragShadowTest(lights);
+    fragCode += fragMainBlinn_0_IntensityDeclaration;
+    fragCode += fragMainBlinn_1_NE_fromNm0;
+    fragCode += fragMainBlinn_2_LightLoopNmSm;
+    fragCode += fragMainBlinn_3_FragColor;
+    fragCode += fragMainBlinn_4_End;
+
+    string oldFragInputs = R"(
 
 in      vec3        v_P_VS;     // Interpol. point of illumination in view space (VS)
 in      vec3        v_P_WS;     // Interpol. point of illumination in world space (WS)
@@ -1899,8 +1906,7 @@ uniform vec4        u_matDiff;          // diffuse color reflection coefficient 
 uniform vec4        u_matSpec;          // specular color reflection coefficient (ks)
 uniform vec4        u_matEmis;          // emissive color for self-shining materials
 uniform float       u_matShin;          // shininess exponent
-uniform sampler2D   u_matTexture0;      // Color map
-uniform sampler2D   u_matTexture1;      // Normal map
+uniform sampler2D   u_matTexture0;      // Normal map
 uniform bool        u_matGetsShadows;   // flag if material receives shadows
 
 uniform int         u_camProjection;    // type of stereo
@@ -1916,12 +1922,7 @@ uniform vec4        u_camFogColor;      // fog color (usually the background)
 out     vec4        o_fragColor;        // output fragment color
 
 )";
-    addShadowMapDeclaration(lights, fragCode);
-    fragCode += lightingBlinnPhong;
-    fragCode += fogBlend;
-    fragCode += doStereoSeparation;
-    addShadowTestCode(lights, fragCode);
-    fragCode += R"(
+    string oldFragCode = R"(
 
 void main()
 {
@@ -1930,7 +1931,7 @@ void main()
     vec4 Is = vec4(0.0); // Accumulated specular light intensity at v_P_VS
 
     // Get normal from normal map, move from [0,1] to [-1, 1] range & normalize
-    vec3 N = normalize(texture(u_matTexture1, v_uv1).rgb * 2.0 - 1.0);
+    vec3 N = normalize(texture(u_matTexture0, v_uv1).rgb * 2.0 - 1.0);
     vec3 E = normalize(v_eyeDirTS);   // normalized eye direction
 
     for (int i = 0; i < NUM_LIGHTS; ++i)
@@ -1986,7 +1987,7 @@ void SLGLProgramGenerated::buildPerPixBlinnAoSm(SLVLight* lights)
 {
     // Assemble vertex shader code
     string vertCode;
-    addShaderHeader(lights->size(), vertCode);
+    vertCode += shaderHeader(lights->size());
     vertCode += R"(
 
 layout (location = 0) in vec4  a_position;  // Vertex position attribute
@@ -2018,9 +2019,31 @@ void main(void)
 
     // Assemble fragment shader code
     string fragCode;
-    addShaderHeader(lights->size(), fragCode);
+    fragCode += shaderHeader(lights->size());
     fragCode += R"(
+in      vec3        v_P_VS;     // Interpol. point of illumination in view space (VS)
+in      vec3        v_P_WS;     // Interpol. point of illumination in world space (WS)
+in      vec3        v_N_VS;     // Interpol. normal at v_P_VS in view space
+in      vec2        v_uv2;      // Texture coordinate 2 varying for AO
+)";
+    fragCode += fragInputs_u_lightAll;
+    fragCode += fragInputs_u_lightSm;
+    fragCode += fragInputs_u_matAllBlinn;
+    fragCode += fragInputs_u_matAoSm;
+    fragCode += fragInputs_u_shadowMaps(lights);
+    fragCode += fragInputs_u_cam;
+    fragCode += fragOutputs_o_fragColor;
+    fragCode += fragFunctionLightingBlinnPhong;
+    fragCode += fragFunctionFogBlend;
+    fragCode += fragFunctionDoStereoSeparation;
+    fragCode += fragShadowTest(lights);
+    fragCode += fragMainBlinn_0_IntensityDeclaration;
+    fragCode += fragMainBlinn_1_NE_fromVert;
+    fragCode += fragMainBlinn_2_LightLoopSm;
+    fragCode += fragMainBlinn_3_FragColorAo0;
+    fragCode += fragMainBlinn_4_End;
 
+    string oldFragInputs = R"(
 in      vec3        v_P_VS;     // Interpol. point of illumination in view space (VS)
 in      vec3        v_P_WS;     // Interpol. point of illumination in world space (WS)
 in      vec3        v_N_VS;     // Interpol. normal at v_P_VS in view space
@@ -2053,8 +2076,8 @@ uniform vec4        u_matDiff;          // diffuse color reflection coefficient 
 uniform vec4        u_matSpec;          // specular color reflection coefficient (ks)
 uniform vec4        u_matEmis;          // emissive color for self-shining materials
 uniform float       u_matShin;          // shininess exponent
-uniform bool        u_matGetsShadows;   // flag if material receives shadows
 uniform sampler2D   u_matTexture2;      // ambient occlusion map
+uniform bool        u_matGetsShadows;   // flag if material receives shadows
 
 uniform int         u_camProjection;    // type of stereo
 uniform int         u_camStereoEye;     // -1=left, 0=center, 1=right
@@ -2069,13 +2092,7 @@ uniform vec4        u_camFogColor;      // fog color (usually the background)
 out     vec4        o_fragColor;        // output fragment color
 
 )";
-    addShadowMapDeclaration(lights, fragCode);
-    fragCode += lightingBlinnPhong;
-    fragCode += fogBlend;
-    fragCode += doStereoSeparation;
-    addShadowTestCode(lights, fragCode);
-    fragCode += R"(
-
+    string oldFragCode = R"(
 void main()
 {
     vec4 Ia = vec4(0.0); // Accumulated ambient light intensity at v_P_VS
@@ -2140,11 +2157,885 @@ void main()
     addCodeToShader(_shaders[1], fragCode, _name + ".frag");
 }
 //-----------------------------------------------------------------------------
+void SLGLProgramGenerated::buildPerPixBlinnNmAo(SLVLight* lights)
+{
+    // Assemble vertex shader code
+    string vertCode;
+    vertCode += shaderHeader(lights->size());
+    vertCode += R"(
+
+layout (location = 0) in vec4  a_position;  // Vertex position attribute
+layout (location = 1) in vec3  a_normal;    // Vertex normal attribute
+layout (location = 2) in vec2  a_uv1;       // Vertex tex.coord. 1 for diffuse color
+layout (location = 3) in vec2  a_uv2;       // Vertex tex.coord. 2 for AO
+layout (location = 5) in vec4  a_tangent;   // Vertex tangent attribute
+
+uniform mat4  u_mvMatrix;   // modelview matrix
+uniform mat3  u_nMatrix;    // normal matrix=transpose(inverse(mv))
+uniform mat4  u_mvpMatrix;  // = projection * modelView
+
+uniform vec4  u_lightPosVS[NUM_LIGHTS];     // position of light in view space
+uniform vec3  u_lightSpotDir[NUM_LIGHTS];   // spot direction in view space
+uniform float u_lightSpotDeg[NUM_LIGHTS];   // spot cutoff angle 1-180 degrees
+
+out     vec3  v_P_VS;                   // Point of illumination in view space (VS)
+out     vec2  v_uv1;                    // Texture coordinate output for uv1
+out     vec2  v_uv2;                    // Texture coordinate output for uv2
+out     vec3  v_eyeDirTS;               // Vector to the eye in tangent space
+out     vec3  v_lightDirTS[NUM_LIGHTS]; // Vector to the light 0 in tangent space
+out     vec3  v_spotDirTS[NUM_LIGHTS];  // Spot direction in tangent space
+out     float v_lightDist[NUM_LIGHTS];  // Light distance
+//-----------------------------------------------------------------------------
+void main()
+{
+    v_uv1 = a_uv1;  // pass diffuse color tex.coord. 1 for interpolation
+    v_uv2 = a_uv2;  // pass ambient occlusion tex.coord. 2 for interpolation
+
+    // Building the matrix Eye Space -> Tangent Space
+    // See the math behind at: http://www.terathon.com/code/tangent.html
+    vec3 n = normalize(u_nMatrix * a_normal);
+    vec3 t = normalize(u_nMatrix * a_tangent.xyz);
+    vec3 b = cross(n, t) * a_tangent.w; // bitangent w. corrected handedness
+    mat3 TBN = mat3(t,b,n);
+
+    // Transform vertex into view space
+    v_P_VS = vec3(u_mvMatrix *  a_position);
+
+    // Transform vector to the eye into tangent space
+    v_eyeDirTS = -v_P_VS;  // eye vector in view space
+    v_eyeDirTS *= TBN;
+
+    for (int i = 0; i < NUM_LIGHTS; ++i)
+    {
+        // Transform spotdir into tangent space
+        v_spotDirTS[i] = u_lightSpotDir[i];
+        v_spotDirTS[i]  *= TBN;
+
+        // Transform vector to the light 0 into tangent space
+        vec3 L = u_lightPosVS[i].xyz - v_P_VS;
+        v_lightDist[i]  = length(L);  // calculate distance to light before normalizing
+        v_lightDirTS[i] = L;
+        v_lightDirTS[i] *= TBN;
+    }
+
+    // pass the vertex w. the fix-function transform
+    gl_Position = u_mvpMatrix * a_position;
+}
+)";
+    addCodeToShader(_shaders[0], vertCode, _name + ".vert");
+
+    // Assemble fragment shader code
+    string fragCode;
+    fragCode += shaderHeader(lights->size());
+    fragCode += R"(
+in      vec3        v_P_VS;     // Interpol. point of illumination in view space (VS)
+in      vec2        v_uv1;      // Texture coordinate 1 varying for normal map
+in      vec2        v_uv2;      // Texture coordinate 2 varying for AO
+in      vec3        v_eyeDirTS;                 // Vector to the eye in tangent space
+in      vec3        v_lightDirTS[NUM_LIGHTS];   // Vector to light 0 in tangent space
+in      vec3        v_spotDirTS[NUM_LIGHTS];    // Spot direction in tangent space
+)";
+    fragCode += fragInputs_u_lightAll;
+    fragCode += fragInputs_u_matAllBlinn;
+    fragCode += fragInputs_u_matNmAo;
+    fragCode += fragInputs_u_cam;
+    fragCode += fragOutputs_o_fragColor;
+    fragCode += fragFunctionLightingBlinnPhong;
+    fragCode += fragFunctionFogBlend;
+    fragCode += fragFunctionDoStereoSeparation;
+    fragCode += fragMainBlinn_0_IntensityDeclaration;
+    fragCode += fragMainBlinn_1_NE_fromNm0;
+    fragCode += fragMainBlinn_2_LightLoopNm;
+    fragCode += fragMainBlinn_3_FragColorAo1;
+    fragCode += fragMainBlinn_4_End;
+
+    string oldFragInputs = R"(
+
+in      vec3        v_P_VS;     // Interpol. point of illumination in view space (VS)
+in      vec2        v_uv1;      // Texture coordinate 1 varying for diffuse color
+in      vec2        v_uv2;      // Texture coordinate 2 varying for AO
+in      vec3        v_eyeDirTS;                 // Vector to the eye in tangent space
+in      vec3        v_lightDirTS[NUM_LIGHTS];   // Vector to light 0 in tangent space
+in      vec3        v_spotDirTS[NUM_LIGHTS];    // Spot direction in tangent space
+
+uniform bool        u_lightIsOn[NUM_LIGHTS];    // flag if light is on
+uniform vec4        u_lightPosVS[NUM_LIGHTS];   // position of light in view space
+uniform vec4        u_lightAmbi[NUM_LIGHTS];    // ambient light intensity (Ia)
+uniform vec4        u_lightDiff[NUM_LIGHTS];    // diffuse light intensity (Id)
+uniform vec4        u_lightSpec[NUM_LIGHTS];    // specular light intensity (Is)
+uniform vec3        u_lightSpotDir[NUM_LIGHTS]; // spot direction in view space
+uniform float       u_lightSpotDeg[NUM_LIGHTS]; // spot cutoff angle 1-180 degrees
+uniform float       u_lightSpotCos[NUM_LIGHTS]; // cosine of spot cutoff angle
+uniform float       u_lightSpotExp[NUM_LIGHTS]; // spot exponent
+uniform vec3        u_lightAtt[NUM_LIGHTS];     // attenuation (const,linear,quadr.)
+uniform bool        u_lightDoAtt[NUM_LIGHTS];   // flag if att. must be calc.
+uniform vec4        u_globalAmbi;               // Global ambient scene color
+uniform float       u_oneOverGamma;             // 1.0f / Gamma correction value
+
+uniform vec4        u_matAmbi;          // ambient color reflection coefficient (ka)
+uniform vec4        u_matDiff;          // diffuse color reflection coefficient (kd)
+uniform vec4        u_matSpec;          // specular color reflection coefficient (ks)
+uniform vec4        u_matEmis;          // emissive color for self-shining materials
+uniform float       u_matShin;          // shininess exponent
+
+uniform sampler2D   u_matTexture0;      // diffuse color map
+uniform sampler2D   u_matTexture1;      // normal bump map
+uniform sampler2D   u_matTexture2;      // ambient occlusion map
+
+uniform int         u_camProjection;    // type of stereo
+uniform int         u_camStereoEye;     // -1=left, 0=center, 1=right
+uniform mat3        u_camStereoColors;  // color filter matrix
+uniform bool        u_camFogIsOn;       // flag if fog is on
+uniform int         u_camFogMode;       // 0=LINEAR, 1=EXP, 2=EXP2
+uniform float       u_camFogDensity;    // fog density value
+uniform float       u_camFogStart;      // fog start distance
+uniform float       u_camFogEnd;        // fog end distance
+uniform vec4        u_camFogColor;      // fog color (usually the background)
+
+out     vec4        o_fragColor;        // output fragment color
+
+)";
+    string oldFragCode = R"(
+
+void main()
+{
+    vec4 Ia = vec4(0.0); // Accumulated ambient light intensity at v_P_VS
+    vec4 Id = vec4(0.0); // Accumulated diffuse light intensity at v_P_VS
+    vec4 Is = vec4(0.0); // Accumulated specular light intensity at v_P_VS
+
+    // Get normal from normal map, move from [0,1] to [-1, 1] range & normalize
+    vec3 N = normalize(texture(u_matTexture1, v_uv1).rgb * 2.0 - 1.0);
+    vec3 E = normalize(v_eyeDirTS);   // normalized eye direction
+
+    for (int i = 0; i < NUM_LIGHTS; ++i)
+    {
+        if (u_lightIsOn[i])
+        {
+            if (u_lightPosVS[i].w == 0.0)
+            {
+                // We use the spot light direction as the light direction vector
+                vec3 S = normalize(-v_spotDirTS[i]);
+                directLightBlinnPhong(i, N, E, S, 0.0, Ia, Id, Is);
+            }
+            else
+            {
+                vec3 S = normalize(v_spotDirTS[i]); // normalized spot direction in TS
+                vec3 L = v_lightDirTS[i]; // Vector from v_P to light in TS
+                pointLightBlinnPhong(i, N, E, S, L, 0.0, Ia, Id, Is);
+            }
+        }
+    }
+
+    // Get ambient occlusion factor
+    float AO = texture(u_matTexture2, v_uv2).r;
+
+    // Sum up all the reflected color components
+    o_fragColor =  u_matEmis +
+                   u_globalAmbi +
+                   Ia * u_matAmbi * AO +
+                   Id * u_matDiff;
+
+    // Componentwise multiply w. texture color
+    o_fragColor *= texture(u_matTexture0, v_uv1);
+
+    // add finally the specular RGB-part
+    vec4 specColor = Is * u_matSpec;
+    o_fragColor.rgb += specColor.rgb;
+
+    // Apply gamma correction
+    o_fragColor.rgb = pow(o_fragColor.rgb, vec3(u_oneOverGamma));
+
+    // Apply fog by blending over distance
+    if (u_camFogIsOn)
+        o_fragColor = fogBlend(v_P_VS, o_fragColor);
+
+    // Apply stereo eye separation
+    if (u_camProjection > 1)
+        doStereoSeparation();
+}
+)";
+    addCodeToShader(_shaders[1], fragCode, _name + ".frag");
+}
+//-----------------------------------------------------------------------------
+void SLGLProgramGenerated::buildPerPixBlinnTmAo(SLVLight* lights)
+{
+    // Assemble vertex shader code
+    string vertCode;
+    vertCode += shaderHeader(lights->size());
+    vertCode += R"(
+
+layout (location = 0) in vec4  a_position;  // Vertex position attribute
+layout (location = 1) in vec3  a_normal;    // Vertex normal attribute
+layout (location = 2) in vec2  a_uv1;       // Vertex texture coordinate attribute
+layout (location = 3) in vec2  a_uv2;       // Vertex tex.coord. 2 for AO
+
+uniform mat4  u_mvMatrix;   // modelview matrix
+uniform mat3  u_nMatrix;    // normal matrix=transpose(inverse(mv))
+uniform mat4  u_mvpMatrix;  // = projection * modelView
+uniform mat4  u_mMatrix;    // model matrix
+
+out     vec3  v_P_VS;       // Point of illumination in view space (VS)
+out     vec3  v_N_VS;       // Normal at P_VS in view space
+out     vec2  v_uv1;        // Texture coordinate output
+out     vec2  v_uv2;        // Texture coordinate output for uv2
+
+void main(void)
+{
+    v_uv1 = a_uv1;  // pass tex. coord. for interpolation
+    v_uv2 = a_uv2;  // pass ambient occlusion tex.coord. 2 for interpolation
+
+    v_P_VS = vec3(u_mvMatrix *  a_position); // vertex position in view space
+    v_N_VS = vec3(u_nMatrix * a_normal);     // vertex normal in view space
+
+    gl_Position = u_mvpMatrix * a_position;
+}
+)";
+    addCodeToShader(_shaders[0], vertCode, _name + ".vert");
+
+    // Assemble fragment shader code
+    string fragCode;
+    fragCode += shaderHeader(lights->size());
+    fragCode += R"(
+in      vec3        v_P_VS;     // Interpol. point of illumination in view space (VS)
+in      vec3        v_N_VS;     // Interpol. normal at v_P_VS in view space
+in      vec2        v_uv1;      // Interpol. texture coordinate
+in      vec2        v_uv2;      // Texture coordinate 2 varying for AO
+)";
+    fragCode += fragInputs_u_lightAll;
+    fragCode += fragInputs_u_matAllBlinn;
+    fragCode += fragInputs_u_matTmAo;
+    fragCode += fragInputs_u_cam;
+    fragCode += fragOutputs_o_fragColor;
+    fragCode += fragFunctionLightingBlinnPhong;
+    fragCode += fragFunctionFogBlend;
+    fragCode += fragFunctionDoStereoSeparation;
+    fragCode += fragMainBlinn_0_IntensityDeclaration;
+    fragCode += fragMainBlinn_1_NE_fromVert;
+    fragCode += fragMainBlinn_2_LightLoop;
+    fragCode += fragMainBlinn_3_FragColorAo1Tm;
+    fragCode += fragMainBlinn_4_End;
+
+    string oldFragInputs = R"(
+
+in      vec3        v_P_VS;     // Interpol. point of illumination in view space (VS)
+in      vec3        v_N_VS;     // Interpol. normal at v_P_VS in view space
+in      vec2        v_uv1;      // Interpol. texture coordinate
+in      vec2        v_uv2;      // Texture coordinate 2 varying for AO
+
+uniform bool        u_lightIsOn[NUM_LIGHTS];                // flag if light is on
+uniform vec4        u_lightPosWS[NUM_LIGHTS];               // position of light in world space
+uniform vec4        u_lightPosVS[NUM_LIGHTS];               // position of light in view space
+uniform vec4        u_lightAmbi[NUM_LIGHTS];                // ambient light intensity (Ia)
+uniform vec4        u_lightDiff[NUM_LIGHTS];                // diffuse light intensity (Id)
+uniform vec4        u_lightSpec[NUM_LIGHTS];                // specular light intensity (Is)
+uniform vec3        u_lightSpotDir[NUM_LIGHTS];             // spot direction in view space
+uniform float       u_lightSpotDeg[NUM_LIGHTS];             // spot cutoff angle 1-180 degrees
+uniform float       u_lightSpotCos[NUM_LIGHTS];             // cosine of spot cutoff angle
+uniform float       u_lightSpotExp[NUM_LIGHTS];             // spot exponent
+uniform vec3        u_lightAtt[NUM_LIGHTS];                 // attenuation (const,linear,quadr.)
+uniform bool        u_lightDoAtt[NUM_LIGHTS];               // flag if att. must be calc.
+
+uniform vec4        u_globalAmbi;       // Global ambient scene color
+uniform float       u_oneOverGamma;     // 1.0f / Gamma correction
+uniform vec4        u_matAmbi;          // ambient color reflection coefficient (ka)
+uniform vec4        u_matDiff;          // diffuse color reflection coefficient (kd)
+uniform vec4        u_matSpec;          // specular color reflection coefficient (ks)
+uniform vec4        u_matEmis;          // emissive color for self-shining materials
+uniform float       u_matShin;          // shininess exponent
+uniform sampler2D   u_matTexture0;      // diffuse color texture map
+uniform sampler2D   u_matTexture1;      // ambient occlusion map
+
+uniform int         u_camProjection;    // type of stereo
+uniform int         u_camStereoEye;     // -1=left, 0=center, 1=right
+uniform mat3        u_camStereoColors;  // color filter matrix
+uniform bool        u_camFogIsOn;       // flag if fog is on
+uniform int         u_camFogMode;       // 0=LINEAR, 1=EXP, 2=EXP2
+uniform float       u_camFogDensity;    // fog density value
+uniform float       u_camFogStart;      // fog start distance
+uniform float       u_camFogEnd;        // fog end distance
+uniform vec4        u_camFogColor;      // fog color (usually the background)
+
+out     vec4        o_fragColor;        // output fragment color
+
+)";
+    string oldFragCode = R"(
+
+void main()
+{
+    vec4 Ia = vec4(0.0); // Accumulated ambient light intensity at v_P_VS
+    vec4 Id = vec4(0.0); // Accumulated diffuse light intensity at v_P_VS
+    vec4 Is = vec4(0.0); // Accumulated specular light intensity at v_P_VS
+
+    vec3 N = normalize(v_N_VS);  // A input normal has not anymore unit length
+    vec3 E = normalize(-v_P_VS); // Vector from p to the eye
+
+    for (int i = 0; i < NUM_LIGHTS; ++i)
+    {
+        if (u_lightIsOn[i])
+        {
+            if (u_lightPosVS[i].w == 0.0)
+            {
+                // We use the spot light direction as the light direction vector
+                vec3 S = normalize(-u_lightSpotDir[i].xyz);
+
+                directLightBlinnPhong(i, N, E, S, 0.0, Ia, Id, Is);
+            }
+            else
+            {
+                vec3 S = u_lightSpotDir[i]; // normalized spot direction in VS
+                vec3 L = u_lightPosVS[i].xyz - v_P_VS; // Vector from v_P to light in VS
+
+                pointLightBlinnPhong(i, N, E, S, L, 0.0, Ia, Id, Is);
+            }
+        }
+    }
+
+    // Get ambient occlusion factor
+    float AO = texture(u_matTexture1, v_uv2).r;
+
+    // Sum up all the reflected color components
+    o_fragColor =  u_matEmis +
+                   u_globalAmbi +
+                   Ia * u_matAmbi * AO +
+                   Id * u_matDiff;
+
+    // Componentwise multiply w. texture color
+    o_fragColor *= texture(u_matTexture0, v_uv1);
+
+    // add finally the specular RGB-part
+    vec4 specColor = Is * u_matSpec;
+    o_fragColor.rgb += specColor.rgb;
+
+    // For correct alpha blending overwrite alpha component
+    o_fragColor.a = u_matDiff.a;
+
+    // Apply fog by blending over distance
+    if (u_camFogIsOn)
+        o_fragColor = fogBlend(v_P_VS, o_fragColor);
+
+    // Apply gamma correction
+    o_fragColor.rgb = pow(o_fragColor.rgb, vec3(u_oneOverGamma));
+
+    // Apply stereo eye separation
+    if (u_camProjection > 1)
+        doStereoSeparation();
+}
+)";
+    addCodeToShader(_shaders[1], fragCode, _name + ".frag");
+}
+//-----------------------------------------------------------------------------
+void SLGLProgramGenerated::buildPerPixBlinnTmNm(SLVLight* lights)
+{
+    // Assemble vertex shader code
+    string vertCode;
+    vertCode += shaderHeader(lights->size());
+    vertCode += R"(
+
+layout (location = 0) in vec4  a_position;  // Vertex position attribute
+layout (location = 1) in vec3  a_normal;    // Vertex normal attribute
+layout (location = 2) in vec2  a_uv1;       // Vertex texture coordinate attribute
+layout (location = 5) in vec4  a_tangent;   // Vertex tangent attribute
+
+uniform mat4  u_mvMatrix;   // modelview matrix
+uniform mat3  u_nMatrix;    // normal matrix=transpose(inverse(mv))
+uniform mat4  u_mvpMatrix;  // = projection * modelView
+
+uniform vec4  u_lightPosVS[NUM_LIGHTS];     // position of light in view space
+uniform vec3  u_lightSpotDir[NUM_LIGHTS];   // spot direction in view space
+uniform float u_lightSpotDeg[NUM_LIGHTS];   // spot cutoff angle 1-180 degrees
+
+out     vec3  v_P_VS;                   // Point of illumination in view space (VS)
+out     vec2  v_uv1;                    // Texture coordinate output
+out     vec3  v_eyeDirTS;               // Vector to the eye in tangent space
+out     vec3  v_lightDirTS[NUM_LIGHTS]; // Vector to the light 0 in tangent space
+out     vec3  v_spotDirTS[NUM_LIGHTS];  // Spot direction in tangent space
+out     float v_lightDist[NUM_LIGHTS];  // Light distance
+//-----------------------------------------------------------------------------
+void main()
+{
+    // Pass the texture coord. for interpolation
+    v_uv1 = a_uv1;
+
+    // Building the matrix Eye Space -> Tangent Space
+    // See the math behind at: http://www.terathon.com/code/tangent.html
+    vec3 n = normalize(u_nMatrix * a_normal);
+    vec3 t = normalize(u_nMatrix * a_tangent.xyz);
+    vec3 b = cross(n, t) * a_tangent.w; // bitangent w. corrected handedness
+    mat3 TBN = mat3(t,b,n);
+
+    // Transform vertex into view space
+    v_P_VS = vec3(u_mvMatrix *  a_position);
+
+    // Transform vector to the eye into tangent space
+    v_eyeDirTS = -v_P_VS;  // eye vector in view space
+    v_eyeDirTS *= TBN;
+
+    for (int i = 0; i < NUM_LIGHTS; ++i)
+    {
+        // Transform spotdir into tangent space
+        v_spotDirTS[i] = u_lightSpotDir[i];
+        v_spotDirTS[i]  *= TBN;
+
+        // Transform vector to the light 0 into tangent space
+        vec3 L = u_lightPosVS[i].xyz - v_P_VS;
+        v_lightDist[i]  = length(L);  // calculate distance to light before normalizing
+        v_lightDirTS[i] = L;
+        v_lightDirTS[i] *= TBN;
+    }
+
+    // pass the vertex w. the fix-function transform
+    gl_Position = u_mvpMatrix * a_position;
+}
+)";
+    addCodeToShader(_shaders[0], vertCode, _name + ".vert");
+
+    string oldFragInputs = R"(
+
+in      vec3        v_P_VS;                     // Interpol. point of illumination in view space (VS)
+in      vec2        v_uv1;                      // Texture coordinate varying
+in      vec3        v_eyeDirTS;                 // Vector to the eye in tangent space
+in      vec3        v_lightDirTS[NUM_LIGHTS];   // Vector to light 0 in tangent space
+in      vec3        v_spotDirTS[NUM_LIGHTS];    // Spot direction in tangent space
+
+uniform bool        u_lightIsOn[NUM_LIGHTS];    // flag if light is on
+uniform vec4        u_lightPosVS[NUM_LIGHTS];   // position of light in view space
+uniform vec4        u_lightAmbi[NUM_LIGHTS];    // ambient light intensity (Ia)
+uniform vec4        u_lightDiff[NUM_LIGHTS];    // diffuse light intensity (Id)
+uniform vec4        u_lightSpec[NUM_LIGHTS];    // specular light intensity (Is)
+uniform vec3        u_lightSpotDir[NUM_LIGHTS]; // spot direction in view space
+uniform float       u_lightSpotDeg[NUM_LIGHTS]; // spot cutoff angle 1-180 degrees
+uniform float       u_lightSpotCos[NUM_LIGHTS]; // cosine of spot cutoff angle
+uniform float       u_lightSpotExp[NUM_LIGHTS]; // spot exponent
+uniform vec3        u_lightAtt[NUM_LIGHTS];     // attenuation (const,linear,quadr.)
+uniform bool        u_lightDoAtt[NUM_LIGHTS];   // flag if att. must be calc.
+uniform vec4        u_globalAmbi;               // Global ambient scene color
+uniform float       u_oneOverGamma;             // 1.0f / Gamma correction value
+
+uniform vec4        u_matAmbi;          // ambient color reflection coefficient (ka)
+uniform vec4        u_matDiff;          // diffuse color reflection coefficient (kd)
+uniform vec4        u_matSpec;          // specular color reflection coefficient (ks)
+uniform vec4        u_matEmis;          // emissive color for self-shining materials
+uniform float       u_matShin;          // shininess exponent
+uniform sampler2D   u_matTexture0;      // Color map
+uniform sampler2D   u_matTexture1;      // Normal map
+
+uniform int         u_camProjection;    // type of stereo
+uniform int         u_camStereoEye;     // -1=left, 0=center, 1=right
+uniform mat3        u_camStereoColors;  // color filter matrix
+uniform bool        u_camFogIsOn;       // flag if fog is on
+uniform int         u_camFogMode;       // 0=LINEAR, 1=EXP, 2=EXP2
+uniform float       u_camFogDensity;    // fog density value
+uniform float       u_camFogStart;      // fog start distance
+uniform float       u_camFogEnd;        // fog end distance
+uniform vec4        u_camFogColor;      // fog color (usually the background)
+
+out     vec4        o_fragColor;        // output fragment color
+
+)";
+    string oldFragCode = R"(
+
+void main()
+{
+    vec4 Ia = vec4(0.0); // Accumulated ambient light intensity at v_P_VS
+    vec4 Id = vec4(0.0); // Accumulated diffuse light intensity at v_P_VS
+    vec4 Is = vec4(0.0); // Accumulated specular light intensity at v_P_VS
+
+    // Get normal from normal map, move from [0,1] to [-1, 1] range & normalize
+    vec3 N = normalize(texture(u_matTexture1, v_uv1).rgb * 2.0 - 1.0);
+    vec3 E = normalize(v_eyeDirTS);   // normalized eye direction
+
+    for (int i = 0; i < NUM_LIGHTS; ++i)
+    {
+        if (u_lightIsOn[i])
+        {
+
+            if (u_lightPosVS[i].w == 0.0)
+            {
+                // We use the spot light direction as the light direction vector
+                vec3 S = normalize(-v_spotDirTS[i]);
+                directLightBlinnPhong(i, N, E, S, 0.0, Ia, Id, Is);
+            }
+            else
+            {
+                vec3 S = normalize(v_spotDirTS[i]); // normalized spot direction in TS
+                vec3 L = v_lightDirTS[i]; // Vector from v_P to light in TS
+                pointLightBlinnPhong(i, N, E, S, L, 0.0, Ia, Id, Is);
+            }
+        }
+    }
+
+    // Sum up all the reflected color components
+    o_fragColor =  u_matEmis +
+                   u_globalAmbi +
+                   Ia * u_matAmbi +
+                   Id * u_matDiff;
+
+    // Componentwise multiply w. texture color
+    o_fragColor *= texture(u_matTexture0, v_uv1);
+
+    // add finally the specular RGB-part
+    vec4 specColor = Is * u_matSpec;
+    o_fragColor.rgb += specColor.rgb;
+
+    // Apply gamma correction
+    o_fragColor.rgb = pow(o_fragColor.rgb, vec3(u_oneOverGamma));
+
+    // Apply fog by blending over distance
+    if (u_camFogIsOn)
+        o_fragColor = fogBlend(v_P_VS, o_fragColor);
+
+    // Apply stereo eye separation
+    if (u_camProjection > 1)
+        doStereoSeparation();
+}
+)";
+
+    // Assemble fragment shader code
+    string fragCode;
+    fragCode += shaderHeader(lights->size());
+    fragCode += R"(
+in      vec3        v_P_VS;                     // Interpol. point of illumination in view space (VS)
+in      vec2        v_uv1;                      // Texture coordinate varying
+in      vec3        v_eyeDirTS;                 // Vector to the eye in tangent space
+in      vec3        v_lightDirTS[NUM_LIGHTS];   // Vector to light 0 in tangent space
+in      vec3        v_spotDirTS[NUM_LIGHTS];    // Spot direction in tangent space
+)";
+    fragCode += fragInputs_u_lightAll;
+    fragCode += fragInputs_u_matAllBlinn;
+    fragCode += fragInputs_u_matTmNm;
+    fragCode += fragInputs_u_cam;
+    fragCode += fragOutputs_o_fragColor;
+    fragCode += fragFunctionLightingBlinnPhong;
+    fragCode += fragFunctionFogBlend;
+    fragCode += fragFunctionDoStereoSeparation;
+    fragCode += fragMainBlinn_0_IntensityDeclaration;
+    fragCode += fragMainBlinn_1_NE_fromNm1;
+    fragCode += fragMainBlinn_2_LightLoopNm;
+    fragCode += fragMainBlinn_3_FragColorTm;
+    fragCode += fragMainBlinn_4_End;
+    addCodeToShader(_shaders[1], fragCode, _name + ".frag");
+}
+//-----------------------------------------------------------------------------
+void SLGLProgramGenerated::buildPerPixBlinnSm(SLVLight* lights)
+{
+    // Assemble vertex shader code
+    string vertCode;
+    vertCode += shaderHeader(lights->size());
+    vertCode += R"(
+
+layout (location = 0) in vec4  a_position;  // Vertex position attribute
+layout (location = 1) in vec3  a_normal;    // Vertex normal attribute
+
+uniform mat4  u_mvMatrix;   // modelview matrix
+uniform mat3  u_nMatrix;    // normal matrix=transpose(inverse(mv))
+uniform mat4  u_mvpMatrix;  // = projection * modelView
+uniform mat4  u_mMatrix;    // model matrix
+
+out     vec3  v_P_VS;       // Point of illumination in view space (VS)
+out     vec3  v_P_WS;       // Point of illumination in world space (WS)
+out     vec3  v_N_VS;       // Normal at P_VS in view space
+//-----------------------------------------------------------------------------
+void main(void)
+{
+    v_P_VS = vec3(u_mvMatrix *  a_position); // vertex position in view space
+    v_P_WS = vec3(u_mMatrix * a_position);   // vertex position in world space
+    v_N_VS = vec3(u_nMatrix * a_normal);     // vertex normal in view space
+
+    gl_Position = u_mvpMatrix * a_position;
+}
+)";
+    addCodeToShader(_shaders[0], vertCode, _name + ".vert");
+
+    // Assemble fragment shader code
+    string fragCode;
+    fragCode += shaderHeader(lights->size());
+    fragCode += R"(
+in      vec3        v_P_VS;     // Interpol. point of illumination in view space (VS)
+in      vec3        v_P_WS;     // Interpol. point of illumination in world space (WS)
+in      vec3        v_N_VS;     // Interpol. normal at v_P_VS in view space
+)";
+    fragCode += fragInputs_u_lightAll;
+    fragCode += fragInputs_u_lightSm;
+    fragCode += fragInputs_u_matAllBlinn;
+    fragCode += fragInputs_u_matSm;
+    fragCode += fragInputs_u_shadowMaps(lights);
+    fragCode += fragInputs_u_cam;
+    fragCode += fragOutputs_o_fragColor;
+    fragCode += fragFunctionLightingBlinnPhong;
+    fragCode += fragFunctionFogBlend;
+    fragCode += fragFunctionDoStereoSeparation;
+    fragCode += fragShadowTest(lights);
+    fragCode += fragMainBlinn_0_IntensityDeclaration;
+    fragCode += fragMainBlinn_1_NE_fromVert;
+    fragCode += fragMainBlinn_2_LightLoopSm;
+    fragCode += fragMainBlinn_3_FragColor;
+    fragCode += fragMainBlinn_4_End;
+
+    string oldFragInputs = R"(
+in      vec3        v_P_VS;     // Interpol. point of illumination in view space (VS)
+in      vec3        v_P_WS;     // Interpol. point of illumination in world space (WS)
+in      vec3        v_N_VS;     // Interpol. normal at v_P_VS in view space
+
+uniform bool        u_lightIsOn[NUM_LIGHTS];                // flag if light is on
+uniform vec4        u_lightPosWS[NUM_LIGHTS];               // position of light in world space
+uniform vec4        u_lightPosVS[NUM_LIGHTS];               // position of light in view space
+uniform vec4        u_lightAmbi[NUM_LIGHTS];                // ambient light intensity (Ia)
+uniform vec4        u_lightDiff[NUM_LIGHTS];                // diffuse light intensity (Id)
+uniform vec4        u_lightSpec[NUM_LIGHTS];                // specular light intensity (Is)
+uniform vec3        u_lightSpotDir[NUM_LIGHTS];             // spot direction in view space
+uniform float       u_lightSpotDeg[NUM_LIGHTS];             // spot cutoff angle 1-180 degrees
+uniform float       u_lightSpotCos[NUM_LIGHTS];             // cosine of spot cutoff angle
+uniform float       u_lightSpotExp[NUM_LIGHTS];             // spot exponent
+uniform vec3        u_lightAtt[NUM_LIGHTS];                 // attenuation (const,linear,quadr.)
+uniform bool        u_lightDoAtt[NUM_LIGHTS];               // flag if att. must be calc.
+uniform mat4        u_lightSpace[NUM_LIGHTS * 6];           // projection matrices for lights
+uniform bool        u_lightCreatesShadows[NUM_LIGHTS];      // flag if light creates shadows
+uniform bool        u_lightDoSmoothShadows[NUM_LIGHTS];     // flag if percentage-closer filtering is enabled
+uniform int         u_lightSmoothShadowLevel[NUM_LIGHTS];   // radius of area to sample for PCF
+uniform float       u_lightShadowMinBias[NUM_LIGHTS];       // min. shadow bias value at 0° to N
+uniform float       u_lightShadowMaxBias[NUM_LIGHTS];       // min. shadow bias value at 90° to N
+uniform bool        u_lightUsesCubemap[NUM_LIGHTS];         // flag if light has a cube shadow map
+
+uniform vec4        u_globalAmbi;       // Global ambient scene color
+uniform float       u_oneOverGamma;     // 1.0f / Gamma correction
+uniform vec4        u_matAmbi;          // ambient color reflection coefficient (ka)
+uniform vec4        u_matDiff;          // diffuse color reflection coefficient (kd)
+uniform vec4        u_matSpec;          // specular color reflection coefficient (ks)
+uniform vec4        u_matEmis;          // emissive color for self-shining materials
+uniform float       u_matShin;          // shininess exponent
+uniform bool        u_matGetsShadows;   // flag if material receives shadows
+
+uniform int         u_camProjection;    // type of stereo
+uniform int         u_camStereoEye;     // -1=left, 0=center, 1=right
+uniform mat3        u_camStereoColors;  // color filter matrix
+uniform bool        u_camFogIsOn;       // flag if fog is on
+uniform int         u_camFogMode;       // 0=LINEAR, 1=EXP, 2=EXP2
+uniform float       u_camFogDensity;    // fog density value
+uniform float       u_camFogStart;      // fog start distance
+uniform float       u_camFogEnd;        // fog end distance
+uniform vec4        u_camFogColor;      // fog color (usually the background)
+
+out     vec4        o_fragColor;        // output fragment color
+
+)";
+    string oldFragCode = R"(
+void main()
+{
+    vec4 Ia = vec4(0.0); // Accumulated ambient light intensity at v_P_VS
+    vec4 Id = vec4(0.0); // Accumulated diffuse light intensity at v_P_VS
+    vec4 Is = vec4(0.0); // Accumulated specular light intensity at v_P_VS
+
+    vec3 N = normalize(v_N_VS);  // A input normal has not anymore unit length
+    vec3 E = normalize(-v_P_VS); // Vector from p to the eye
+
+    for (int i = 0; i < NUM_LIGHTS; ++i)
+    {
+        if (u_lightIsOn[i])
+        {
+            if (u_lightPosVS[i].w == 0.0)
+            {
+                // We use the spot light direction as the light direction vector
+                vec3 S = normalize(-u_lightSpotDir[i].xyz);
+
+                // Test if the current fragment is in shadow
+                float shadow = u_matGetsShadows ? shadowTest(i, N, S) : 0.0;
+
+                directLightBlinnPhong(i, N, E, S, shadow, Ia, Id, Is);
+            }
+            else
+            {
+                vec3 S = u_lightSpotDir[i]; // normalized spot direction in VS
+                vec3 L = u_lightPosVS[i].xyz - v_P_VS; // Vector from v_P to light in VS
+
+                // Test if the current fragment is in shadow
+                float shadow = u_matGetsShadows ? shadowTest(i, N, L) : 0.0;
+
+                pointLightBlinnPhong(i, N, E, S, L, shadow, Ia, Id, Is);
+            }
+        }
+    }
+
+    // Sum up all the reflected color components
+    o_fragColor =  u_globalAmbi +
+                    u_matEmis +
+                    Ia * u_matAmbi +
+                    Id * u_matDiff +
+                    Is * u_matSpec;
+
+    // For correct alpha blending overwrite alpha component
+    o_fragColor.a = u_matDiff.a;
+
+    // Apply fog by blending over distance
+    if (u_camFogIsOn)
+        o_fragColor = fogBlend(v_P_VS, o_fragColor);
+
+    // Apply gamma correction
+    o_fragColor.rgb = pow(o_fragColor.rgb, vec3(u_oneOverGamma));
+
+    // Apply stereo eye separation
+    if (u_camProjection > 1)
+        doStereoSeparation();
+}
+)";
+    addCodeToShader(_shaders[1], fragCode, _name + ".frag");
+}
+//-----------------------------------------------------------------------------
+void SLGLProgramGenerated::buildPerPixBlinnAo(SLVLight* lights)
+{
+    // Assemble vertex shader code
+    string vertCode;
+    vertCode += shaderHeader(lights->size());
+    vertCode += R"(
+
+layout (location = 0) in vec4  a_position;  // Vertex position attribute
+layout (location = 1) in vec3  a_normal;    // Vertex normal attribute
+layout (location = 3) in vec2  a_uv2;       // Vertex tex.coord. 2 for AO
+
+uniform mat4  u_mvMatrix;   // modelview matrix
+uniform mat3  u_nMatrix;    // normal matrix=transpose(inverse(mv))
+uniform mat4  u_mvpMatrix;  // = projection * modelView
+uniform mat4  u_mMatrix;    // model matrix
+
+out     vec3  v_P_VS;       // Point of illumination in view space (VS)
+out     vec3  v_N_VS;       // Normal at P_VS in view space
+out     vec2  v_uv2;        // Texture coordinate 1 output for AO
+
+void main(void)
+{
+    v_uv2 = a_uv2;  // pass ambient occlusion tex.coord. 2 for interpolation
+
+    v_P_VS = vec3(u_mvMatrix *  a_position); // vertex position in view space
+    v_N_VS = vec3(u_nMatrix * a_normal);     // vertex normal in view space
+
+    gl_Position = u_mvpMatrix * a_position;
+}
+)";
+    addCodeToShader(_shaders[0], vertCode, _name + ".vert");
+
+    // Assemble fragment shader code
+    string fragCode;
+    fragCode += shaderHeader(lights->size());
+    fragCode += R"(
+in      vec3        v_P_VS;     // Interpol. point of illumination in view space (VS)
+in      vec3        v_N_VS;     // Interpol. normal at v_P_VS in view space
+in      vec2        v_uv2;      // Texture coordinate 2 varying for AO
+)";
+    fragCode += fragInputs_u_lightAll;
+    fragCode += fragInputs_u_matAllBlinn;
+    fragCode += fragInputs_u_matAo;
+    fragCode += fragInputs_u_cam;
+    fragCode += fragOutputs_o_fragColor;
+    fragCode += fragFunctionLightingBlinnPhong;
+    fragCode += fragFunctionFogBlend;
+    fragCode += fragFunctionDoStereoSeparation;
+    fragCode += fragMainBlinn_0_IntensityDeclaration;
+    fragCode += fragMainBlinn_1_NE_fromVert;
+    fragCode += fragMainBlinn_2_LightLoop;
+    fragCode += fragMainBlinn_3_FragColorAo0;
+    fragCode += fragMainBlinn_4_End;
+
+    string oldFragInputs = R"(
+in      vec3        v_P_VS;     // Interpol. point of illumination in view space (VS)
+in      vec3        v_N_VS;     // Interpol. normal at v_P_VS in view space
+in      vec2        v_uv2;      // Texture coordinate 2 varying for AO
+
+uniform bool        u_lightIsOn[NUM_LIGHTS];                // flag if light is on
+uniform vec4        u_lightPosWS[NUM_LIGHTS];               // position of light in world space
+uniform vec4        u_lightPosVS[NUM_LIGHTS];               // position of light in view space
+uniform vec4        u_lightAmbi[NUM_LIGHTS];                // ambient light intensity (Ia)
+uniform vec4        u_lightDiff[NUM_LIGHTS];                // diffuse light intensity (Id)
+uniform vec4        u_lightSpec[NUM_LIGHTS];                // specular light intensity (Is)
+uniform vec3        u_lightSpotDir[NUM_LIGHTS];             // spot direction in view space
+uniform float       u_lightSpotDeg[NUM_LIGHTS];             // spot cutoff angle 1-180 degrees
+uniform float       u_lightSpotCos[NUM_LIGHTS];             // cosine of spot cutoff angle
+uniform float       u_lightSpotExp[NUM_LIGHTS];             // spot exponent
+uniform vec3        u_lightAtt[NUM_LIGHTS];                 // attenuation (const,linear,quadr.)
+uniform bool        u_lightDoAtt[NUM_LIGHTS];               // flag if att. must be calc.
+
+uniform vec4        u_globalAmbi;       // Global ambient scene color
+uniform float       u_oneOverGamma;     // 1.0f / Gamma correction
+uniform vec4        u_matAmbi;          // ambient color reflection coefficient (ka)
+uniform vec4        u_matDiff;          // diffuse color reflection coefficient (kd)
+uniform vec4        u_matSpec;          // specular color reflection coefficient (ks)
+uniform vec4        u_matEmis;          // emissive color for self-shining materials
+uniform float       u_matShin;          // shininess exponent
+uniform sampler2D   u_matTexture2;      // ambient occlusion map
+
+uniform int         u_camProjection;    // type of stereo
+uniform int         u_camStereoEye;     // -1=left, 0=center, 1=right
+uniform mat3        u_camStereoColors;  // color filter matrix
+uniform bool        u_camFogIsOn;       // flag if fog is on
+uniform int         u_camFogMode;       // 0=LINEAR, 1=EXP, 2=EXP2
+uniform float       u_camFogDensity;    // fog density value
+uniform float       u_camFogStart;      // fog start distance
+uniform float       u_camFogEnd;        // fog end distance
+uniform vec4        u_camFogColor;      // fog color (usually the background)
+
+out     vec4        o_fragColor;        // output fragment color
+
+)";
+    string oldFragCode = R"(
+void main()
+{
+    vec4 Ia = vec4(0.0); // Accumulated ambient light intensity at v_P_VS
+    vec4 Id = vec4(0.0); // Accumulated diffuse light intensity at v_P_VS
+    vec4 Is = vec4(0.0); // Accumulated specular light intensity at v_P_VS
+
+    vec3 N = normalize(v_N_VS);  // A input normal has not anymore unit length
+    vec3 E = normalize(-v_P_VS); // Vector from p to the eye
+
+    for (int i = 0; i < NUM_LIGHTS; ++i)
+    {
+        if (u_lightIsOn[i])
+        {
+            if (u_lightPosVS[i].w == 0.0)
+            {
+                // We use the spot light direction as the light direction vector
+                vec3 S = normalize(-u_lightSpotDir[i].xyz);
+                directLightBlinnPhong(i, N, E, S, 0.0, Ia, Id, Is);
+            }
+            else
+            {
+                vec3 S = u_lightSpotDir[i]; // normalized spot direction in VS
+                vec3 L = u_lightPosVS[i].xyz - v_P_VS; // Vector from v_P to light in VS
+                pointLightBlinnPhong(i, N, E, S, L, 0.0, Ia, Id, Is);
+            }
+        }
+    }
+
+    // Get ambient occlusion factor
+    float AO = texture(u_matTexture2, v_uv2).r;
+
+    // Sum up all the reflected color components
+    o_fragColor =  u_globalAmbi +
+                    u_matEmis +
+                    Ia * u_matAmbi * AO +
+                    Id * u_matDiff +
+                    Is * u_matSpec;
+
+    // For correct alpha blending overwrite alpha component
+    o_fragColor.a = u_matDiff.a;
+
+    // Apply fog by blending over distance
+    if (u_camFogIsOn)
+        o_fragColor = fogBlend(v_P_VS, o_fragColor);
+
+    // Apply gamma correction
+    o_fragColor.rgb = pow(o_fragColor.rgb, vec3(u_oneOverGamma));
+
+    // Apply stereo eye separation
+    if (u_camProjection > 1)
+        doStereoSeparation();
+}
+)";
+    addCodeToShader(_shaders[1], fragCode, _name + ".frag");
+}
+//-----------------------------------------------------------------------------
 void SLGLProgramGenerated::buildPerPixBlinnNm(SLVLight* lights)
 {
     // Assemble vertex shader code
     string vertCode;
-    addShaderHeader(lights->size(), vertCode);
+    vertCode += shaderHeader(lights->size());
     vertCode += R"(
 
 layout (location = 0) in vec4  a_position;  // Vertex position attribute
@@ -2207,9 +3098,29 @@ void main()
 
     // Assemble fragment shader code
     string fragCode;
-    addShaderHeader(lights->size(), fragCode);
+    fragCode += shaderHeader(lights->size());
     fragCode += R"(
+in      vec3        v_P_VS;                     // Interpol. point of illumination in view space (VS)
+in      vec2        v_uv1;                      // Texture coordinate varying
+in      vec3        v_eyeDirTS;                 // Vector to the eye in tangent space
+in      vec3        v_lightDirTS[NUM_LIGHTS];   // Vector to light 0 in tangent space
+in      vec3        v_spotDirTS[NUM_LIGHTS];    // Spot direction in tangent space
+)";
+    fragCode += fragInputs_u_lightAll;
+    fragCode += fragInputs_u_matAllBlinn;
+    fragCode += fragInputs_u_matTmNm;
+    fragCode += fragInputs_u_cam;
+    fragCode += fragOutputs_o_fragColor;
+    fragCode += fragFunctionLightingBlinnPhong;
+    fragCode += fragFunctionFogBlend;
+    fragCode += fragFunctionDoStereoSeparation;
+    fragCode += fragMainBlinn_0_IntensityDeclaration;
+    fragCode += fragMainBlinn_1_NE_fromNm1;
+    fragCode += fragMainBlinn_2_LightLoopNm;
+    fragCode += fragMainBlinn_3_FragColor;
+    fragCode += fragMainBlinn_4_End;
 
+    string oldFragInputs = R"(
 in      vec3        v_P_VS;                     // Interpol. point of illumination in view space (VS)
 in      vec2        v_uv1;                      // Texture coordinate varying
 in      vec3        v_eyeDirTS;                 // Vector to the eye in tangent space
@@ -2251,11 +3162,7 @@ uniform vec4        u_camFogColor;      // fog color (usually the background)
 out     vec4        o_fragColor;        // output fragment color
 
 )";
-    fragCode += lightingBlinnPhong;
-    fragCode += fogBlend;
-    fragCode += doStereoSeparation;
-    fragCode += R"(
-
+    string oldFragCode = R"(
 void main()
 {
     vec4 Ia = vec4(0.0); // Accumulated ambient light intensity at v_P_VS
@@ -2308,297 +3215,11 @@ void main()
     addCodeToShader(_shaders[1], fragCode, _name + ".frag");
 }
 //-----------------------------------------------------------------------------
-void SLGLProgramGenerated::buildPerPixBlinnAo(SLVLight* lights)
-{
-    // Assemble vertex shader code
-    string vertCode;
-    addShaderHeader(lights->size(), vertCode);
-    vertCode += R"(
-
-layout (location = 0) in vec4  a_position;  // Vertex position attribute
-layout (location = 1) in vec3  a_normal;    // Vertex normal attribute
-layout (location = 3) in vec2  a_uv2;       // Vertex tex.coord. 2 for AO
-
-uniform mat4  u_mvMatrix;   // modelview matrix
-uniform mat3  u_nMatrix;    // normal matrix=transpose(inverse(mv))
-uniform mat4  u_mvpMatrix;  // = projection * modelView
-uniform mat4  u_mMatrix;    // model matrix
-
-out     vec3  v_P_VS;       // Point of illumination in view space (VS)
-out     vec3  v_N_VS;       // Normal at P_VS in view space
-out     vec2  v_uv2;        // Texture coordinate 1 output for AO
-
-void main(void)
-{
-    v_uv2 = a_uv2;  // pass ambient occlusion tex.coord. 2 for interpolation
-
-    v_P_VS = vec3(u_mvMatrix *  a_position); // vertex position in view space
-    v_N_VS = vec3(u_nMatrix * a_normal);     // vertex normal in view space
-
-    gl_Position = u_mvpMatrix * a_position;
-}
-)";
-    addCodeToShader(_shaders[0], vertCode, _name + ".vert");
-
-    // Assemble fragment shader code
-    string fragCode;
-    addShaderHeader(lights->size(), fragCode);
-    fragCode += R"(
-
-in      vec3        v_P_VS;     // Interpol. point of illumination in view space (VS)
-in      vec3        v_N_VS;     // Interpol. normal at v_P_VS in view space
-in      vec2        v_uv2;      // Texture coordinate 2 varying for AO
-
-uniform bool        u_lightIsOn[NUM_LIGHTS];                // flag if light is on
-uniform vec4        u_lightPosWS[NUM_LIGHTS];               // position of light in world space
-uniform vec4        u_lightPosVS[NUM_LIGHTS];               // position of light in view space
-uniform vec4        u_lightAmbi[NUM_LIGHTS];                // ambient light intensity (Ia)
-uniform vec4        u_lightDiff[NUM_LIGHTS];                // diffuse light intensity (Id)
-uniform vec4        u_lightSpec[NUM_LIGHTS];                // specular light intensity (Is)
-uniform vec3        u_lightSpotDir[NUM_LIGHTS];             // spot direction in view space
-uniform float       u_lightSpotDeg[NUM_LIGHTS];             // spot cutoff angle 1-180 degrees
-uniform float       u_lightSpotCos[NUM_LIGHTS];             // cosine of spot cutoff angle
-uniform float       u_lightSpotExp[NUM_LIGHTS];             // spot exponent
-uniform vec3        u_lightAtt[NUM_LIGHTS];                 // attenuation (const,linear,quadr.)
-uniform bool        u_lightDoAtt[NUM_LIGHTS];               // flag if att. must be calc.
-
-uniform vec4        u_globalAmbi;       // Global ambient scene color
-uniform float       u_oneOverGamma;     // 1.0f / Gamma correction
-uniform vec4        u_matAmbi;          // ambient color reflection coefficient (ka)
-uniform vec4        u_matDiff;          // diffuse color reflection coefficient (kd)
-uniform vec4        u_matSpec;          // specular color reflection coefficient (ks)
-uniform vec4        u_matEmis;          // emissive color for self-shining materials
-uniform float       u_matShin;          // shininess exponent
-uniform sampler2D   u_matTexture2;      // ambient occlusion map
-
-uniform int         u_camProjection;    // type of stereo
-uniform int         u_camStereoEye;     // -1=left, 0=center, 1=right
-uniform mat3        u_camStereoColors;  // color filter matrix
-uniform bool        u_camFogIsOn;       // flag if fog is on
-uniform int         u_camFogMode;       // 0=LINEAR, 1=EXP, 2=EXP2
-uniform float       u_camFogDensity;    // fog density value
-uniform float       u_camFogStart;      // fog start distance
-uniform float       u_camFogEnd;        // fog end distance
-uniform vec4        u_camFogColor;      // fog color (usually the background)
-
-out     vec4        o_fragColor;        // output fragment color
-
-)";
-    fragCode += lightingBlinnPhong;
-    fragCode += fogBlend;
-    fragCode += doStereoSeparation;
-    fragCode += R"(
-
-void main()
-{
-    vec4 Ia = vec4(0.0); // Accumulated ambient light intensity at v_P_VS
-    vec4 Id = vec4(0.0); // Accumulated diffuse light intensity at v_P_VS
-    vec4 Is = vec4(0.0); // Accumulated specular light intensity at v_P_VS
-
-    vec3 N = normalize(v_N_VS);  // A input normal has not anymore unit length
-    vec3 E = normalize(-v_P_VS); // Vector from p to the eye
-
-    for (int i = 0; i < NUM_LIGHTS; ++i)
-    {
-        if (u_lightIsOn[i])
-        {
-            if (u_lightPosVS[i].w == 0.0)
-            {
-                // We use the spot light direction as the light direction vector
-                vec3 S = normalize(-u_lightSpotDir[i].xyz);
-                directLightBlinnPhong(i, N, E, S, 0.0, Ia, Id, Is);
-            }
-            else
-            {
-                vec3 S = u_lightSpotDir[i]; // normalized spot direction in VS
-                vec3 L = u_lightPosVS[i].xyz - v_P_VS; // Vector from v_P to light in VS
-                pointLightBlinnPhong(i, N, E, S, L, 0.0, Ia, Id, Is);
-            }
-        }
-    }
-
-    // Get ambient occlusion factor
-    float AO = texture(u_matTexture2, v_uv2).r;
-
-    // Sum up all the reflected color components
-    o_fragColor =  u_globalAmbi +
-                    u_matEmis +
-                    Ia * u_matAmbi * AO +
-                    Id * u_matDiff +
-                    Is * u_matSpec;
-
-    // For correct alpha blending overwrite alpha component
-    o_fragColor.a = u_matDiff.a;
-
-    // Apply fog by blending over distance
-    if (u_camFogIsOn)
-        o_fragColor = fogBlend(v_P_VS, o_fragColor);
-
-    // Apply gamma correction
-    o_fragColor.rgb = pow(o_fragColor.rgb, vec3(u_oneOverGamma));
-
-    // Apply stereo eye separation
-    if (u_camProjection > 1)
-        doStereoSeparation();
-}
-)";
-    addCodeToShader(_shaders[1], fragCode, _name + ".frag");
-}
-//-----------------------------------------------------------------------------
-void SLGLProgramGenerated::buildPerPixBlinnSm(SLVLight* lights)
-{
-    // Assemble vertex shader code
-    string vertCode;
-    addShaderHeader(lights->size(), vertCode);
-    vertCode += R"(
-
-layout (location = 0) in vec4  a_position;  // Vertex position attribute
-layout (location = 1) in vec3  a_normal;    // Vertex normal attribute
-
-uniform mat4  u_mvMatrix;   // modelview matrix
-uniform mat3  u_nMatrix;    // normal matrix=transpose(inverse(mv))
-uniform mat4  u_mvpMatrix;  // = projection * modelView
-uniform mat4  u_mMatrix;    // model matrix
-
-out     vec3  v_P_VS;       // Point of illumination in view space (VS)
-out     vec3  v_P_WS;       // Point of illumination in world space (WS)
-out     vec3  v_N_VS;       // Normal at P_VS in view space
-//-----------------------------------------------------------------------------
-void main(void)
-{
-    v_P_VS = vec3(u_mvMatrix *  a_position); // vertex position in view space
-    v_P_WS = vec3(u_mMatrix * a_position);   // vertex position in world space
-    v_N_VS = vec3(u_nMatrix * a_normal);     // vertex normal in view space
-
-    gl_Position = u_mvpMatrix * a_position;
-}
-)";
-    addCodeToShader(_shaders[0], vertCode, _name + ".vert");
-
-    // Assemble fragment shader code
-    string fragCode;
-    addShaderHeader(lights->size(), fragCode);
-    fragCode += R"(
-
-in      vec3        v_P_VS;     // Interpol. point of illumination in view space (VS)
-in      vec3        v_P_WS;     // Interpol. point of illumination in world space (WS)
-in      vec3        v_N_VS;     // Interpol. normal at v_P_VS in view space
-
-uniform bool        u_lightIsOn[NUM_LIGHTS];                // flag if light is on
-uniform vec4        u_lightPosWS[NUM_LIGHTS];               // position of light in world space
-uniform vec4        u_lightPosVS[NUM_LIGHTS];               // position of light in view space
-uniform vec4        u_lightAmbi[NUM_LIGHTS];                // ambient light intensity (Ia)
-uniform vec4        u_lightDiff[NUM_LIGHTS];                // diffuse light intensity (Id)
-uniform vec4        u_lightSpec[NUM_LIGHTS];                // specular light intensity (Is)
-uniform vec3        u_lightSpotDir[NUM_LIGHTS];             // spot direction in view space
-uniform float       u_lightSpotDeg[NUM_LIGHTS];             // spot cutoff angle 1-180 degrees
-uniform float       u_lightSpotCos[NUM_LIGHTS];             // cosine of spot cutoff angle
-uniform float       u_lightSpotExp[NUM_LIGHTS];             // spot exponent
-uniform vec3        u_lightAtt[NUM_LIGHTS];                 // attenuation (const,linear,quadr.)
-uniform bool        u_lightDoAtt[NUM_LIGHTS];               // flag if att. must be calc.
-uniform mat4        u_lightSpace[NUM_LIGHTS * 6];           // projection matrices for lights
-uniform bool        u_lightCreatesShadows[NUM_LIGHTS];      // flag if light creates shadows
-uniform bool        u_lightDoSmoothShadows[NUM_LIGHTS];     // flag if percentage-closer filtering is enabled
-uniform int         u_lightSmoothShadowLevel[NUM_LIGHTS];   // radius of area to sample for PCF
-uniform float       u_lightShadowMinBias[NUM_LIGHTS];       // min. shadow bias value at 0° to N
-uniform float       u_lightShadowMaxBias[NUM_LIGHTS];       // min. shadow bias value at 90° to N
-uniform bool        u_lightUsesCubemap[NUM_LIGHTS];         // flag if light has a cube shadow map
-
-uniform vec4        u_globalAmbi;       // Global ambient scene color
-uniform float       u_oneOverGamma;     // 1.0f / Gamma correction
-uniform vec4        u_matAmbi;          // ambient color reflection coefficient (ka)
-uniform vec4        u_matDiff;          // diffuse color reflection coefficient (kd)
-uniform vec4        u_matSpec;          // specular color reflection coefficient (ks)
-uniform vec4        u_matEmis;          // emissive color for self-shining materials
-uniform float       u_matShin;          // shininess exponent
-uniform bool        u_matGetsShadows;   // flag if material receives shadows
-
-uniform int         u_camProjection;    // type of stereo
-uniform int         u_camStereoEye;     // -1=left, 0=center, 1=right
-uniform mat3        u_camStereoColors;  // color filter matrix
-uniform bool        u_camFogIsOn;       // flag if fog is on
-uniform int         u_camFogMode;       // 0=LINEAR, 1=EXP, 2=EXP2
-uniform float       u_camFogDensity;    // fog density value
-uniform float       u_camFogStart;      // fog start distance
-uniform float       u_camFogEnd;        // fog end distance
-uniform vec4        u_camFogColor;      // fog color (usually the background)
-
-out     vec4        o_fragColor;        // output fragment color
-
-)";
-    addShadowMapDeclaration(lights, fragCode);
-    fragCode += lightingBlinnPhong;
-    fragCode += fogBlend;
-    fragCode += doStereoSeparation;
-    addShadowTestCode(lights, fragCode);
-    fragCode += R"(
-
-void main()
-{
-    vec4 Ia = vec4(0.0); // Accumulated ambient light intensity at v_P_VS
-    vec4 Id = vec4(0.0); // Accumulated diffuse light intensity at v_P_VS
-    vec4 Is = vec4(0.0); // Accumulated specular light intensity at v_P_VS
-
-    vec3 N = normalize(v_N_VS);  // A input normal has not anymore unit length
-    vec3 E = normalize(-v_P_VS); // Vector from p to the eye
-
-    for (int i = 0; i < NUM_LIGHTS; ++i)
-    {
-        if (u_lightIsOn[i])
-        {
-            if (u_lightPosVS[i].w == 0.0)
-            {
-                // We use the spot light direction as the light direction vector
-                vec3 S = normalize(-u_lightSpotDir[i].xyz);
-
-                // Test if the current fragment is in shadow
-                float shadow = u_matGetsShadows ? shadowTest(i, N, S) : 0.0;
-
-                directLightBlinnPhong(i, N, E, S, shadow, Ia, Id, Is);
-            }
-            else
-            {
-                vec3 S = u_lightSpotDir[i]; // normalized spot direction in VS
-                vec3 L = u_lightPosVS[i].xyz - v_P_VS; // Vector from v_P to light in VS
-
-                // Test if the current fragment is in shadow
-                float shadow = u_matGetsShadows ? shadowTest(i, N, L) : 0.0;
-
-                pointLightBlinnPhong(i, N, E, S, L, shadow, Ia, Id, Is);
-            }
-        }
-    }
-
-    // Sum up all the reflected color components
-    o_fragColor =  u_globalAmbi +
-                    u_matEmis +
-                    Ia * u_matAmbi +
-                    Id * u_matDiff +
-                    Is * u_matSpec;
-
-    // For correct alpha blending overwrite alpha component
-    o_fragColor.a = u_matDiff.a;
-
-    // Apply fog by blending over distance
-    if (u_camFogIsOn)
-        o_fragColor = fogBlend(v_P_VS, o_fragColor);
-
-    // Apply gamma correction
-    o_fragColor.rgb = pow(o_fragColor.rgb, vec3(u_oneOverGamma));
-
-    // Apply stereo eye separation
-    if (u_camProjection > 1)
-        doStereoSeparation();
-}
-)";
-    addCodeToShader(_shaders[1], fragCode, _name + ".frag");
-}
-//-----------------------------------------------------------------------------
 void SLGLProgramGenerated::buildPerPixBlinnTm(SLVLight* lights)
 {
     // Assemble vertex shader code
     string vertCode;
-    addShaderHeader(lights->size(), vertCode);
+    vertCode += shaderHeader(lights->size());
     vertCode += R"(
 
 layout (location = 0) in vec4  a_position;  // Vertex position attribute
@@ -2625,9 +3246,27 @@ void main(void)
 
     // Assemble fragment shader code
     string fragCode;
-    addShaderHeader(lights->size(), fragCode);
+    fragCode += shaderHeader(lights->size());
     fragCode += R"(
+in      vec3   v_P_VS;  // Interpol. point of illumination in view space (VS)
+in      vec3   v_N_VS;  // Interpol. normal at v_P_VS in view space
+in      vec2   v_uv1;   // Interpol. texture coordinate
+)";
+    fragCode += fragInputs_u_lightAll;
+    fragCode += fragInputs_u_matAllBlinn;
+    fragCode += fragInputs_u_matTm;
+    fragCode += fragInputs_u_cam;
+    fragCode += fragOutputs_o_fragColor;
+    fragCode += fragFunctionLightingBlinnPhong;
+    fragCode += fragFunctionFogBlend;
+    fragCode += fragFunctionDoStereoSeparation;
+    fragCode += fragMainBlinn_0_IntensityDeclaration;
+    fragCode += fragMainBlinn_1_NE_fromVert;
+    fragCode += fragMainBlinn_2_LightLoop;
+    fragCode += fragMainBlinn_3_FragColorTm;
+    fragCode += fragMainBlinn_4_End;
 
+    string oldFragInputs = R"(
 in      vec3   v_P_VS;  // Interpol. point of illumination in view space (VS)
 in      vec3   v_N_VS;  // Interpol. normal at v_P_VS in view space
 in      vec2   v_uv1;   // Interpol. texture coordinate
@@ -2666,10 +3305,7 @@ uniform vec4   u_camFogColor;       // fog color (usually the background)
 out     vec4   o_fragColor;         // output fragment color
 
 )";
-    fragCode += lightingBlinnPhong;
-    fragCode += fogBlend;
-    fragCode += doStereoSeparation;
-    fragCode += R"(
+    string oldFragCode = R"(
 
 void main()
 {
@@ -2738,7 +3374,7 @@ void SLGLProgramGenerated::buildPerPixBlinn(SLVLight* lights)
 
     // Assemble vertex shader code
     string vertCode;
-    addShaderHeader(lights->size(), vertCode);
+    vertCode += shaderHeader(lights->size());
     vertCode += R"(
 
 layout (location = 0) in vec4  a_position; // Vertex position attribute
@@ -2762,9 +3398,25 @@ void main(void)
 
     // Assemble fragment shader code
     string fragCode;
-    addShaderHeader(lights->size(), fragCode);
+    fragCode += shaderHeader(lights->size());
     fragCode += R"(
+in      vec3        v_P_VS;     // Interpol. point of illumination in view space (VS)
+in      vec3        v_N_VS;     // Interpol. normal at v_P_VS in view space
+)";
+    fragCode += fragInputs_u_lightAll;
+    fragCode += fragInputs_u_matAllBlinn;
+    fragCode += fragInputs_u_cam;
+    fragCode += fragOutputs_o_fragColor;
+    fragCode += fragFunctionLightingBlinnPhong;
+    fragCode += fragFunctionFogBlend;
+    fragCode += fragFunctionDoStereoSeparation;
+    fragCode += fragMainBlinn_0_IntensityDeclaration;
+    fragCode += fragMainBlinn_1_NE_fromVert;
+    fragCode += fragMainBlinn_2_LightLoop;
+    fragCode += fragMainBlinn_3_FragColor;
+    fragCode += fragMainBlinn_4_End;
 
+    string oldFragInputs = R"(
 in      vec3        v_P_VS;     // Interpol. point of illumination in view space (VS)
 in      vec3        v_N_VS;     // Interpol. normal at v_P_VS in view space
 
@@ -2801,11 +3453,7 @@ uniform vec4        u_camFogColor;      // fog color (usually the background)
 out     vec4        o_fragColor;        // output fragment color
 
 )";
-    fragCode += lightingBlinnPhong;
-    fragCode += fogBlend;
-    fragCode += doStereoSeparation;
-    fragCode += R"(
-
+    string oldFragCode = R"(
 void main()
 {
     vec4 Ia = vec4(0.0); // Accumulated ambient light intensity at v_P_VS
@@ -2858,6 +3506,8 @@ void main()
 )";
     addCodeToShader(_shaders[1], fragCode, _name + ".frag");
 }
+//-----------------------------------------------------------------------------
+
 
 //-----------------------------------------------------------------------------
 //! Returns true if at least one of the light does shadow mapping
@@ -2872,9 +3522,9 @@ bool SLGLProgramGenerated::lightsDoShadowMapping(SLVLight* lights)
     return false;
 }
 //-----------------------------------------------------------------------------
-void SLGLProgramGenerated::addShadowMapDeclaration(SLVLight* lights,
-                                                   string&   fragCode)
+string SLGLProgramGenerated::fragInputs_u_shadowMaps(SLVLight* lights)
 {
+    string smDecl;
     for (SLuint i = 0; i < lights->size(); ++i)
     {
         SLLight* light = lights->at(i);
@@ -2882,18 +3532,19 @@ void SLGLProgramGenerated::addShadowMapDeclaration(SLVLight* lights,
         {
             SLShadowMap* shadowMap = light->shadowMap();
             if (shadowMap->useCubemap())
-                fragCode += "uniform samplerCube u_shadowMapCube_";
+                smDecl += "uniform samplerCube u_shadowMapCube_";
             else
-                fragCode += "uniform sampler2D   u_shadowMap_";
-            fragCode += to_string(i) + ";\n";
+                smDecl += "uniform sampler2D   u_shadowMap_";
+            smDecl += to_string(i) + ";\n";
         }
     }
+    return smDecl;
 }
 //-----------------------------------------------------------------------------
-void SLGLProgramGenerated::addShadowTestCode(SLVLight* lights,
-                                             string&   fragCode)
+//! Adds the core shadow mapping test routine depending on the lights
+string SLGLProgramGenerated::fragShadowTest(SLVLight* lights)
 {
-    fragCode += R"(
+    string shadowTestCode = R"(
 
 int vectorToFace(vec3 vec) // Vector to process
 {
@@ -2947,12 +3598,12 @@ float shadowTest(in int i, in vec3 N, in vec3 lightDir)
         SLLight*     light     = lights->at(i);
         SLShadowMap* shadowMap = light->shadowMap();
         if (!shadowMap->useCubemap())
-            fragCode += "            if (i == " +
-                        to_string(i) + ") texelSize = 1.0 / vec2(textureSize(u_shadowMap_" +
-                        to_string(i) + ", 0));\n";
+            shadowTestCode += "            if (i == " +
+                              to_string(i) + ") texelSize = 1.0 / vec2(textureSize(u_shadowMap_" +
+                              to_string(i) + ", 0));\n";
     }
 
-    fragCode += R"(
+    shadowTestCode += R"(
             int level = u_lightSmoothShadowLevel[i];
 
             for (int x = -level; x <= level; ++x)
@@ -2966,12 +3617,12 @@ float shadowTest(in int i, in vec3 N, in vec3 lightDir)
         SLLight*     light     = lights->at(i);
         SLShadowMap* shadowMap = light->shadowMap();
         if (!shadowMap->useCubemap())
-            fragCode += "                    if (i == " +
-                        to_string(i) + ") closestDepth = texture(u_shadowMap_" +
-                        to_string(i) + ", projCoords.xy + vec2(x, y) * texelSize).r;\n";
+            shadowTestCode += "                    if (i == " +
+                              to_string(i) + ") closestDepth = texture(u_shadowMap_" +
+                              to_string(i) + ", projCoords.xy + vec2(x, y) * texelSize).r;\n";
     }
 
-    fragCode += R"(
+    shadowTestCode += R"(
                     shadow += currentDepth - bias > closestDepth ? 1.0 : 0.0;
                 }
             }
@@ -2988,12 +3639,12 @@ float shadowTest(in int i, in vec3 N, in vec3 lightDir)
         SLLight*     light     = lights->at(i);
         SLShadowMap* shadowMap = light->shadowMap();
         if (shadowMap->useCubemap())
-            fragCode += "                if (i == " +
-                        to_string(i) + ") closestDepth = texture(u_shadowMapCube_" +
-                        to_string(i) + ", lightToFragment).r;\n";
+            shadowTestCode += "                if (i == " +
+                              to_string(i) + ") closestDepth = texture(u_shadowMapCube_" +
+                              to_string(i) + ", lightToFragment).r;\n";
     }
 
-    fragCode += R"(
+    shadowTestCode += R"(
             }
             else
             {
@@ -3004,12 +3655,12 @@ float shadowTest(in int i, in vec3 N, in vec3 lightDir)
         SLLight*     light     = lights->at(i);
         SLShadowMap* shadowMap = light->shadowMap();
         if (!shadowMap->useCubemap())
-            fragCode += "                if (i == " +
-                        to_string(i) + ") closestDepth = texture(u_shadowMap_" +
-                        to_string(i) + ", projCoords.xy).r;\n";
+            shadowTestCode += "                if (i == " +
+                              to_string(i) + ") closestDepth = texture(u_shadowMap_" +
+                              to_string(i) + ", projCoords.xy).r;\n";
     }
 
-    fragCode += R"(
+    shadowTestCode += R"(
             }
 
             // The fragment is in shadow if the light doesn't "see" it
@@ -3023,6 +3674,8 @@ float shadowTest(in int i, in vec3 N, in vec3 lightDir)
     return 0.0;
 }
 )";
+
+    return shadowTestCode;
 }
 //-----------------------------------------------------------------------------
 //! Add vertex shader code to the SLGLShader instance
@@ -3036,11 +3689,11 @@ void SLGLProgramGenerated::addCodeToShader(SLGLShader*   shader,
 }
 //-----------------------------------------------------------------------------
 //! Adds shader header code
-void SLGLProgramGenerated::addShaderHeader(int     numLights,
-                                           string& fragCode)
+string SLGLProgramGenerated::shaderHeader(int numLights)
 
 {
-    fragCode += "\nprecision highp float;\n";
-    fragCode += "\n#define NUM_LIGHTS " + to_string(numLights) + "\n";
+    string header = "\nprecision highp float;\n";
+    header += "\n#define NUM_LIGHTS " + to_string(numLights) + "\n";
+    return header;
 }
 //-----------------------------------------------------------------------------

@@ -55,9 +55,11 @@ const float PI = 3.14159265359;
 //-----------------------------------------------------------------------------
 void main()
 {
+    vec3 Lo = vec3(0.0);// Get the reflection from all lights into Lo
+
+
     vec3 N = normalize(v_N_VS);// A input normal has not anymore unit length
     vec3 E = normalize(-v_P_VS);// Vector from p to the viewer
-    vec3 Lo = vec3(0.0);// Get the reflection from all lights into Lo
 
     for (int i = 0; i < NUM_LIGHTS; ++i)
     {

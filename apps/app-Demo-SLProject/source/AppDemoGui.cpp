@@ -1309,20 +1309,32 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                 {
                     if (ImGui::MenuItem("w. per Pixel Lighting (PL)", nullptr, sid == SID_SuzannePerPixBlinn))
                         s->onLoad(s, sv, SID_SuzannePerPixBlinn);
-                    if (ImGui::MenuItem("w. PL and Shadow Mapping (SM)", nullptr, sid == SID_SuzannePerPixBlinnSM))
-                        s->onLoad(s, sv, SID_SuzannePerPixBlinnSM);
-                    if (ImGui::MenuItem("w. PL, SM and Ambient Occlusion (AO)", nullptr, sid == SID_SuzannePerPixBlinnSMAO))
-                        s->onLoad(s, sv, SID_SuzannePerPixBlinnSMAO);
-                    if (ImGui::MenuItem("w. PL and Texture Mapping (TM)", nullptr, sid == SID_SuzannePerPixBlinnTex))
-                        s->onLoad(s, sv, SID_SuzannePerPixBlinnTex);
-                    if (ImGui::MenuItem("w. PL, TM and Normal Mapping (NM)", nullptr, sid == SID_SuzannePerPixBlinnTexNrm))
-                        s->onLoad(s, sv, SID_SuzannePerPixBlinnTexNrm);
-                    if (ImGui::MenuItem("w. PL, TM, NM, AO", nullptr, sid == SID_SuzannePerPixBlinnTexNrmAO))
-                        s->onLoad(s, sv, SID_SuzannePerPixBlinnTexNrmAO);
-                    if (ImGui::MenuItem("w. PL, TM, NM, SM", nullptr, sid == SID_SuzannePerPixBlinnTexNrmSM))
-                        s->onLoad(s, sv, SID_SuzannePerPixBlinnTexNrmSM);
-                    if (ImGui::MenuItem("w. PL, TM, NM, SM, AO", nullptr, sid == SID_SuzannePerPixBlinnTexNrmAOSM))
-                        s->onLoad(s, sv, SID_SuzannePerPixBlinnTexNrmAOSM);
+                    if (ImGui::MenuItem("w. PL and Texture Mapping (TM)", nullptr, sid == SID_SuzannePerPixBlinnTm))
+                        s->onLoad(s, sv, SID_SuzannePerPixBlinnTm);
+                    if (ImGui::MenuItem("w. PL and Normal Mapping (NM)", nullptr, sid == SID_SuzannePerPixBlinnNm))
+                        s->onLoad(s, sv, SID_SuzannePerPixBlinnNm);
+                    if (ImGui::MenuItem("w. PL and Ambient Occlusion (AO)", nullptr, sid == SID_SuzannePerPixBlinnAo))
+                        s->onLoad(s, sv, SID_SuzannePerPixBlinnAo);
+                    if (ImGui::MenuItem("w. PL and Shadow Mapping (SM)", nullptr, sid == SID_SuzannePerPixBlinnSm))
+                        s->onLoad(s, sv, SID_SuzannePerPixBlinnSm);
+                    if (ImGui::MenuItem("w. PL, TM, NM", nullptr, sid == SID_SuzannePerPixBlinnTmNm))
+                        s->onLoad(s, sv, SID_SuzannePerPixBlinnTmNm);
+                    if (ImGui::MenuItem("w. PL, TM, AO", nullptr, sid == SID_SuzannePerPixBlinnTmAo))
+                        s->onLoad(s, sv, SID_SuzannePerPixBlinnTmAo);
+                    if (ImGui::MenuItem("w. PL, NM, AO", nullptr, sid == SID_SuzannePerPixBlinnNmAo))
+                        s->onLoad(s, sv, SID_SuzannePerPixBlinnNmAo);
+                    if (ImGui::MenuItem("w. PL, NM, SM", nullptr, sid == SID_SuzannePerPixBlinnNmSm))
+                        s->onLoad(s, sv, SID_SuzannePerPixBlinnNmSm);
+                    if (ImGui::MenuItem("w. PL, TM, SM", nullptr, sid == SID_SuzannePerPixBlinnTmSm))
+                        s->onLoad(s, sv, SID_SuzannePerPixBlinnTmSm);
+                    if (ImGui::MenuItem("w. PL, AO, SM", nullptr, sid == SID_SuzannePerPixBlinnAoSm))
+                        s->onLoad(s, sv, SID_SuzannePerPixBlinnAoSm);
+                    if (ImGui::MenuItem("w. PL, TM, NM, AO", nullptr, sid == SID_SuzannePerPixBlinnTmNmAo))
+                        s->onLoad(s, sv, SID_SuzannePerPixBlinnTmNmAo);
+                    if (ImGui::MenuItem("w. PL, TM, NM, SM", nullptr, sid == SID_SuzannePerPixBlinnTmNmSm))
+                        s->onLoad(s, sv, SID_SuzannePerPixBlinnTmNmSm);
+                    if (ImGui::MenuItem("w. PL, TM, NM, AO, SM", nullptr, sid == SID_SuzannePerPixBlinnTmNmAoSm))
+                        s->onLoad(s, sv, SID_SuzannePerPixBlinnTmNmAoSm);
                     ImGui::EndMenu();
                 }
 

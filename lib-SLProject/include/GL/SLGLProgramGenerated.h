@@ -58,25 +58,25 @@ private:
     void buildPerPixBlinnTmNmAo(SLVLight* lights);
     void buildPerPixBlinnTmNmSm(SLVLight* lights);
     void buildPerPixBlinnTmAoSm(SLVLight* lights);
-    void buildPerPixBlinnTmNm(SLVLight* lights);
-    void buildPerPixBlinnTmAo(SLVLight* lights);
-    void buildPerPixBlinnTmSm(SLVLight* lights);
-    void buildPerPixBlinnNmSm(SLVLight* lights);
     void buildPerPixBlinnAoSm(SLVLight* lights);
-    void buildPerPixBlinnNm(SLVLight* lights);
-    void buildPerPixBlinnAo(SLVLight* lights);
+    void buildPerPixBlinnNmSm(SLVLight* lights);
+    void buildPerPixBlinnTmSm(SLVLight* lights);
+    void buildPerPixBlinnNmAo(SLVLight* lights);
+    void buildPerPixBlinnTmAo(SLVLight* lights);
+    void buildPerPixBlinnTmNm(SLVLight* lights);
     void buildPerPixBlinnSm(SLVLight* lights);
+    void buildPerPixBlinnAo(SLVLight* lights);
+    void buildPerPixBlinnNm(SLVLight* lights);
     void buildPerPixBlinnTm(SLVLight* lights);
     void buildPerPixBlinn(SLVLight* lights);
 
     // Helpers
-    void addShadowMapDeclaration(SLVLight* lights, string& fragCode);
-    void addShadowTestCode(SLVLight* lights, string& fragCode);
-    void addCodeToShader(SLGLShader*   shader,
-                         const string& code,
-                         const string& name);
-    void addShaderHeader(int     numLights,
-                         string& fragCode);
+    string fragInputs_u_shadowMaps(SLVLight* lights);
+    string fragShadowTest(SLVLight* lights);
+    string shaderHeader(int numLights);
+    void   addCodeToShader(SLGLShader*   shader,
+                           const string& code,
+                           const string& name);
 };
 //-----------------------------------------------------------------------------
 #endif
