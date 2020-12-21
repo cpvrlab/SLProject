@@ -145,6 +145,10 @@ SLMaterial::SLMaterial(SLAssetManager* am,
 {
     _assetManager = am;
     _program      = shaderProg;
+    _ambient.set(1, 1, 1);
+    _diffuse.set(1, 1, 1);
+    _specular.set(1, 1, 1);
+    _emissive.set(0, 0, 0, 0);
     _shininess    = 125.0f;
     _roughness    = 0.0f;
     _metalness    = 0.0f;

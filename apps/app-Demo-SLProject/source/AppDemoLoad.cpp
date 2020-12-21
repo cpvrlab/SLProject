@@ -1099,16 +1099,9 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
     else if (sceneID == SID_ShaderPerPixelBlinn ||
              sceneID == SID_ShaderPerVertexBlinn) //...............................................
     {
-        SLMaterial*  mL = nullptr;
-        SLMaterial*  mM = nullptr;
-        SLMaterial*  mR = nullptr;
-        SLGLProgram* pL = new SLGLProgramGeneric(s,
-                                                 SLApplication::shaderPath + "PerPixBlinnTm.vert",
-                                                 SLApplication::shaderPath + "PerPixBlinnTm.frag");
-        SLGLProgram* pM = new SLGLProgramGeneric(s,
-                                                 SLApplication::shaderPath + "PerPixBlinn.vert",
-                                                 SLApplication::shaderPath + "PerPixBlinn.frag");
-
+        SLMaterial*  mL   = nullptr;
+        SLMaterial*  mM   = nullptr;
+        SLMaterial*  mR   = nullptr;
         SLGLTexture* texC = new SLGLTexture(s, SLApplication::texturePath + "earth2048_C.jpg"); // color map
 
         if (sceneID == SID_ShaderPerPixelBlinn)
@@ -1126,8 +1119,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
             SLGLUniform1f* offset = new SLGLUniform1f(UT_const, "u_offset", -0.02f, 0.002f, -1, 1);
             pR->addUniform1f(scale);
             pR->addUniform1f(offset);
-            mL = new SLMaterial(s, "mL", texC, nullptr, nullptr, nullptr, pL);
-            mM = new SLMaterial(s, "mM", nullptr, nullptr, nullptr, nullptr, pM);
+            mL = new SLMaterial(s, "mL", texC);
+            mM = new SLMaterial(s, "mM");
             mR = new SLMaterial(s, "mR", texC, texN, texH, nullptr, pR);
         }
         else
@@ -1136,9 +1129,15 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
             s->info("Per-vertex lighting with Blinn-Phong light model. "
                     "The reflection of 5 light sources is calculated per vertex. "
                     "Some of the lights are attached to the camera, some are in the scene.");
-            mL = new SLMaterial(s, "mL", texC);
-            mM = new SLMaterial(s, "mM");
-            mR = new SLMaterial(s, "mR", texC);
+            SLGLProgram* perVrtTm = new SLGLProgramGeneric(s,
+                                                           SLApplication::shaderPath + "PerVrtBlinnTm.vert",
+                                                           SLApplication::shaderPath + "PerVrtBlinnTm.frag");
+            SLGLProgram* perVrt   = new SLGLProgramGeneric(s,
+                                                         SLApplication::shaderPath + "PerVrtBlinn.vert",
+                                                         SLApplication::shaderPath + "PerVrtBlinn.frag");
+            mL                    = new SLMaterial(s, "mL", texC, nullptr, nullptr, nullptr, perVrtTm);
+            mM                    = new SLMaterial(s, "mM", perVrt);
+            mR                    = new SLMaterial(s, "mR", texC, nullptr, nullptr, nullptr, perVrtTm);
         }
 
         mM->shininess(500);
@@ -1470,18 +1469,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLGLTexture* texC = new SLGLTexture(s, SLApplication::texturePath + "brickwall0512_C.jpg");
         SLGLTexture* texN = new SLGLTexture(s, SLApplication::texturePath + "brickwall0512_N.jpg");
 
-        SLGLProgram* sp = new SLGLProgramGeneric(s,
-                                                 SLApplication::shaderPath + "PerPixBlinnTmNm.vert",
-                                                 SLApplication::shaderPath + "PerPixBlinnTmNm.frag");
-
         // Create materials
-        SLMaterial* m1 = new SLMaterial(s,
-                                        "m1",
-                                        texC,
-                                        texN,
-                                        nullptr,
-                                        nullptr,
-                                        sp);
+        SLMaterial* m1 = new SLMaterial(s, "m1", texC, texN);
 
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(-10, 10, 10);
@@ -1525,7 +1514,9 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SL_LOG("Use O-Key to increment (decrement w. shift) parallax offset.\n");
 
         // Create shader program with 4 uniforms
-        SLGLProgram*   sp     = new SLGLProgramGeneric(s, SLApplication::shaderPath + "PerPixBlinnTmNm.vert", SLApplication::shaderPath + "PerPixBlinnTmPm.frag");
+        SLGLProgram*   sp     = new SLGLProgramGeneric(s,
+                                                 SLApplication::shaderPath + "PerPixBlinnTmNm.vert",
+                                                 SLApplication::shaderPath + "PerPixBlinnTmPm.frag");
         SLGLUniform1f* scale  = new SLGLUniform1f(UT_const, "u_scale", 0.04f, 0.002f, 0, 1, (SLKey)'X');
         SLGLUniform1f* offset = new SLGLUniform1f(UT_const, "u_offset", -0.03f, 0.002f, -1, 1, (SLKey)'O');
         s->eventHandlers().push_back(scale);
@@ -1655,7 +1646,9 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SL_LOG("Use (SHIFT) & key O to change offset of the parallax mapping");
 
         // Create shader program with 4 uniforms
-        SLGLProgram*   sp     = new SLGLProgramGeneric(s, SLApplication::shaderPath + "PerPixBlinnTmNm.vert", SLApplication::shaderPath + "PerPixBlinnTmNmEarth.frag");
+        SLGLProgram*   sp     = new SLGLProgramGeneric(s,
+                                                 SLApplication::shaderPath + "PerPixBlinnTmNm.vert",
+                                                 SLApplication::shaderPath + "PerPixBlinnTmNmEarth.frag");
         SLGLUniform1f* scale  = new SLGLUniform1f(UT_const, "u_scale", 0.02f, 0.002f, 0, 1, (SLKey)'X');
         SLGLUniform1f* offset = new SLGLUniform1f(UT_const, "u_offset", -0.02f, 0.002f, -1, 1, (SLKey)'O');
         s->eventHandlers().push_back(scale);
@@ -1731,12 +1724,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLCol4f blueRGB(0.25f, 0.25f, 0.75f);
         SLCol4f blackRGB(0.00f, 0.00f, 0.00f);
 
-        SLGLProgram* sp = new SLGLProgramGeneric(s,
-                                                 SLApplication::shaderPath + "PerPixBlinn.vert",
-                                                 SLApplication::shaderPath + "PerPixBlinn.frag");
-
-        SLMaterial* cream     = new SLMaterial(s, "cream", grayRGB, SLCol4f::BLACK, 100.f, 0.f, 0.f, 1.f, sp);
-        SLMaterial* teapotMat = new SLMaterial(s, "teapot", grayRGB, SLCol4f::WHITE, 100.f, 0.f, 0.f, 1.f, sp);
+        SLMaterial* cream     = new SLMaterial(s, "cream", grayRGB, SLCol4f::BLACK, 100.f, 0.f, 0.f, 1.f);
+        SLMaterial* teapotMat = new SLMaterial(s, "teapot", grayRGB, SLCol4f::WHITE, 100.f, 0.f, 0.f, 1.f);
 
         SLAssimpImporter importer;
         SLNode*          teapot = importer.load(s->animManager(),
@@ -1750,8 +1739,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         teapot->translate(-0.6f, -0.2f, -0.4f, TS_world);
         scene->addChild(teapot);
 
-        SLMaterial* red    = new SLMaterial(s, "red", redRGB, SLCol4f::BLACK, 100.f, 0.f, 0.f, 1.f, sp);
-        SLMaterial* yellow = new SLMaterial(s, "yellow", yellowRGB, SLCol4f::BLACK, 100.f, 0.f, 0.f, 1.f, sp);
+        SLMaterial* red    = new SLMaterial(s, "red", redRGB, SLCol4f::BLACK, 100.f, 0.f, 0.f, 1.f);
+        SLMaterial* yellow = new SLMaterial(s, "yellow", yellowRGB, SLCol4f::BLACK, 100.f, 0.f, 0.f, 1.f);
         SLMaterial* refl   = new SLMaterial(s, "refl", SLCol4f::BLACK, SLCol4f::WHITE, 1000, 1.0f);
 
         SLNode* sphere = new SLNode(new SLSphere(s, 0.3f, 32, 32, "Sphere1", refl));
@@ -1776,14 +1765,14 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLTransformKeyframe* k3 = track->createNodeKeyframe(5.0f);
         k3->translation(SLVec3f(0.3f, 0.2f, -0.3f));
 
-        SLMaterial* pink = new SLMaterial(s, "cream", SLCol4f(1, 0.35f, 0.65f), SLCol4f::BLACK, 100.f, 0.f, 0.f, 1.f, sp);
+        SLMaterial* pink = new SLMaterial(s, "cream", SLCol4f(1, 0.35f, 0.65f), SLCol4f::BLACK, 100.f, 0.f, 0.f, 1.f);
 
         // create wall polygons
         SLfloat pL = -0.99f, pR = 0.99f; // left/right
         SLfloat pB = -0.99f, pT = 0.99f; // bottom/top
         SLfloat pN = 0.99f, pF = -0.99f; // near/far
 
-        SLMaterial* blue = new SLMaterial(s, "blue", blueRGB, SLCol4f::BLACK, 100.f, 0.f, 0.f, 1.f, sp);
+        SLMaterial* blue = new SLMaterial(s, "blue", blueRGB, SLCol4f::BLACK, 100.f, 0.f, 0.f, 1.f);
 
         // bottom plane
         SLNode* b = new SLNode(new SLRectangle(s, SLVec2f(pL, -pN), SLVec2f(pR, -pF), 6, 6, "bottom", cream));
@@ -1836,10 +1825,10 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->info("Shadow Mapping is a technique to render shadows.");
 
         // Setup shadow mapping material
-        SLGLProgram* progPerPixSM = new SLGLProgramGeneric(s,
-                                                           SLApplication::shaderPath + "PerPixBlinnSm.vert",
-                                                           SLApplication::shaderPath + "PerPixBlinnSm.frag");
-        SLMaterial*  matPerPixSM  = new SLMaterial(s, "m1", SLCol4f::WHITE, SLCol4f::WHITE, 500, 0, 0, 1, progPerPixSM);
+        //SLGLProgram* progPerPixSM = new SLGLProgramGeneric(s,
+        //                                                   SLApplication::shaderPath + "PerPixBlinnSm.vert",
+        //                                                   SLApplication::shaderPath + "PerPixBlinnSm.frag");
+        SLMaterial*  matPerPixSM  = new SLMaterial(s, "m1"); //, SLCol4f::WHITE, SLCol4f::WHITE, 500, 0, 0, 1, progPerPixSM);
 
         // Base root group node for the scene
         SLNode* scene = new SLNode;
@@ -1888,10 +1877,10 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->info("Shadow Mapping is implemented for these light types.");
 
         // Setup shadow mapping material
-        SLGLProgram* progPerPixSM = new SLGLProgramGeneric(s,
-                                                           SLApplication::shaderPath + "PerPixBlinnSm.vert",
-                                                           SLApplication::shaderPath + "PerPixBlinnSm8Cm.frag");
-        SLMaterial*  matPerPixSM  = new SLMaterial(s, "m1", SLCol4f::WHITE, SLCol4f::WHITE, 500, 0, 0, 1, progPerPixSM);
+        //SLGLProgram* progPerPixSM = new SLGLProgramGeneric(s,
+        //                                                   SLApplication::shaderPath + "PerPixBlinnSm.vert",
+        //                                                   SLApplication::shaderPath + "PerPixBlinnSm8Cm.frag");
+        SLMaterial*  matPerPixSM  = new SLMaterial(s, "m1"); //, SLCol4f::WHITE, SLCol4f::WHITE, 500, 0, 0, 1, progPerPixSM);
 
         // Base root group node for the scene
         SLNode* scene = new SLNode;
@@ -1993,10 +1982,10 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->info("8 Spot lights use a perspective projection for their light space.");
 
         // Setup shadow mapping material
-        SLGLProgram* progPerPixSM = new SLGLProgramGeneric(s,
-                                                           SLApplication::shaderPath + "PerPixBlinnSm.vert",
-                                                           SLApplication::shaderPath + "PerPixBlinnSm8Cm.frag");
-        SLMaterial*  matPerPixSM  = new SLMaterial(s, "m1", SLCol4f::WHITE, SLCol4f::WHITE, 500, 0, 0, 1, progPerPixSM);
+        //SLGLProgram* progPerPixSM = new SLGLProgramGeneric(s,
+        //                                                   SLApplication::shaderPath + "PerPixBlinnSm.vert",
+        //                                                   SLApplication::shaderPath + "PerPixBlinnSm8Cm.frag");
+        SLMaterial*  matPerPixSM  = new SLMaterial(s, "m1"); //, SLCol4f::WHITE, SLCol4f::WHITE, 500, 0, 0, 1, progPerPixSM);
 
         // Base root group node for the scene
         SLNode* scene = new SLNode;
@@ -2050,10 +2039,10 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->info("Point lights use cubemaps to store shadow maps.");
 
         // Setup shadow mapping material
-        SLGLProgram* progPerPixSM = new SLGLProgramGeneric(s,
-                                                           SLApplication::shaderPath + "PerPixBlinnSm.vert",
-                                                           SLApplication::shaderPath + "PerPixBlinnSm8Cm.frag");
-        SLMaterial*  matPerPixSM  = new SLMaterial(s, "m1", SLCol4f::WHITE, SLCol4f::WHITE, 500, 0, 0, 1, progPerPixSM);
+        //SLGLProgram* progPerPixSM = new SLGLProgramGeneric(s,
+        //                                                   SLApplication::shaderPath + "PerPixBlinnSm.vert",
+        //                                                   SLApplication::shaderPath + "PerPixBlinnSm8Cm.frag");
+        SLMaterial*  matPerPixSM  = new SLMaterial(s, "m1"); //, SLCol4f::WHITE, SLCol4f::WHITE, 500, 0, 0, 1, progPerPixSM);
 
         // Base root group node for the scene
         SLNode* scene = new SLNode;
@@ -2230,54 +2219,54 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         if (sceneID == SID_SuzannePerPixBlinnNm)
         {
             auto removeNmAo = [=](SLMaterial* mat) {
-              mat->removeTextureType(TT_diffuse);
-              mat->removeTextureType(TT_ambientOcclusion);
+                mat->removeTextureType(TT_diffuse);
+                mat->removeTextureType(TT_ambientOcclusion);
             };
             suzanneInCube->updateMeshMat(removeNmAo, true);
         }
         if (sceneID == SID_SuzannePerPixBlinnAo)
         {
             auto removeNmAo = [=](SLMaterial* mat) {
-              mat->removeTextureType(TT_diffuse);
-              mat->removeTextureType(TT_normal);
+                mat->removeTextureType(TT_diffuse);
+                mat->removeTextureType(TT_normal);
             };
             suzanneInCube->updateMeshMat(removeNmAo, true);
         }
         if (sceneID == SID_SuzannePerPixBlinnTmSm)
         {
             auto removeTmNm = [=](SLMaterial* mat) {
-              mat->removeTextureType(TT_normal);
-              mat->removeTextureType(TT_ambientOcclusion);
+                mat->removeTextureType(TT_normal);
+                mat->removeTextureType(TT_ambientOcclusion);
             };
             suzanneInCube->updateMeshMat(removeTmNm, true);
         }
         if (sceneID == SID_SuzannePerPixBlinnNmSm)
         {
             auto removeTmNm = [=](SLMaterial* mat) {
-              mat->removeTextureType(TT_diffuse);
-              mat->removeTextureType(TT_ambientOcclusion);
+                mat->removeTextureType(TT_diffuse);
+                mat->removeTextureType(TT_ambientOcclusion);
             };
             suzanneInCube->updateMeshMat(removeTmNm, true);
         }
         if (sceneID == SID_SuzannePerPixBlinnAoSm)
         {
             auto removeTmNm = [=](SLMaterial* mat) {
-              mat->removeTextureType(TT_diffuse);
-              mat->removeTextureType(TT_normal);
+                mat->removeTextureType(TT_diffuse);
+                mat->removeTextureType(TT_normal);
             };
             suzanneInCube->updateMeshMat(removeTmNm, true);
         }
         if (sceneID == SID_SuzannePerPixBlinnTmAo)
         {
             auto removeNmAo = [=](SLMaterial* mat) {
-              mat->removeTextureType(TT_normal);
+                mat->removeTextureType(TT_normal);
             };
             suzanneInCube->updateMeshMat(removeNmAo, true);
         }
         if (sceneID == SID_SuzannePerPixBlinnNmAo)
         {
             auto removeNmAo = [=](SLMaterial* mat) {
-              mat->removeTextureType(TT_diffuse);
+                mat->removeTextureType(TT_diffuse);
             };
             suzanneInCube->updateMeshMat(removeNmAo, true);
         }
@@ -3841,13 +3830,6 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         // Rotate to the true geographic rotation
         cigognier->rotate(-37.0f, 0, 1, 0, TS_parent);
 
-        // Setup shadow mapping material and replace shader from loader
-        SLGLProgram* progPerPixNrmSM = new SLGLProgramGeneric(s,
-                                                              SLApplication::shaderPath + "PerPixBlinnTmNmSm.vert",
-                                                              SLApplication::shaderPath + "PerPixBlinnTmNmSm.frag");
-        auto         updateMat       = [=](SLMaterial* mat) { mat->program(progPerPixNrmSM); };
-        cigognier->updateMeshMat(updateMat, true);
-
         // Add axis object a world origin
         SLNode* axis = new SLNode(new SLCoordAxis(s), "Axis Node");
         axis->setDrawBitsRec(SL_DB_MESHWIRED, false);
@@ -4057,13 +4039,6 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                                         true,    // only meshes
                                         nullptr, // no replacement material
                                         0.4f);   // 40% ambient reflection
-
-        // Setup shadow mapping material and replace shader from loader
-        SLGLProgram* progPerPixNrmSM = new SLGLProgramGeneric(s,
-                                                              SLApplication::shaderPath + "PerPixBlinnTmNmSm.vert",
-                                                              SLApplication::shaderPath + "PerPixBlinnTmNmSm.frag");
-        auto         updateMat       = [=](SLMaterial* mat) { mat->program(progPerPixNrmSM); };
-        theatre->updateMeshMat(updateMat, true);
 
         // Rotate to the true geographic rotation
         theatre->rotate(-36.7f, 0, 1, 0, TS_parent);
@@ -4290,12 +4265,9 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // define materials
         SLCol4f      spec(0.8f, 0.8f, 0.8f);
-        SLGLProgram* shadowPrg = new SLGLProgramGeneric(s,
-                                                        SLApplication::shaderPath + "PerPixBlinnSm.vert",
-                                                        SLApplication::shaderPath + "PerPixBlinnSm.frag");
-        SLMaterial*  matBlk    = new SLMaterial(s, "Glass", SLCol4f(0.0f, 0.0f, 0.0f), SLCol4f(0.5f, 0.5f, 0.5f), 100, 0.5f, 0.5f, 1.5f, shadowPrg);
-        SLMaterial*  matRed    = new SLMaterial(s, "Red", SLCol4f(0.5f, 0.0f, 0.0f), SLCol4f(0.5f, 0.5f, 0.5f), 100, 0.5f, 0.0f, 1.0f, shadowPrg);
-        SLMaterial*  matYel    = new SLMaterial(s, "Floor", SLCol4f(0.8f, 0.6f, 0.2f), SLCol4f(0.8f, 0.8f, 0.8f), 100, 0.0f, 0.0f, 1.0f, shadowPrg);
+        SLMaterial*  matBlk    = new SLMaterial(s, "Glass", SLCol4f(0.0f, 0.0f, 0.0f), SLCol4f(0.5f, 0.5f, 0.5f), 100, 0.5f, 0.5f, 1.5f);
+        SLMaterial*  matRed    = new SLMaterial(s, "Red", SLCol4f(0.5f, 0.0f, 0.0f), SLCol4f(0.5f, 0.5f, 0.5f), 100, 0.5f, 0.0f, 1.0f);
+        SLMaterial*  matYel    = new SLMaterial(s, "Floor", SLCol4f(0.8f, 0.6f, 0.2f), SLCol4f(0.8f, 0.8f, 0.8f), 100, 0.0f, 0.0f, 1.0f);
 
         SLCamera* cam1 = new SLCamera;
         cam1->translation(0, 0.1f, 4);
@@ -4336,13 +4308,9 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
     {
         s->name("Ray tracing depth of field");
 
-        SLGLProgram* p1 = new SLGLProgramGeneric(s,
-                                                 SLApplication::shaderPath + "PerPixBlinnTm.vert",
-                                                 SLApplication::shaderPath + "PerPixBlinnTm.frag");
-
         // Create textures and materials
         SLGLTexture* texC = new SLGLTexture(s, SLApplication::texturePath + "Checkerboard0512_C.png", SL_ANISOTROPY_MAX, GL_LINEAR);
-        SLMaterial*  mT   = new SLMaterial(s, "mT", texC, nullptr, nullptr, nullptr, p1);
+        SLMaterial*  mT   = new SLMaterial(s, "mT", texC);
         mT->kr(0.5f);
         SLMaterial* mW = new SLMaterial(s, "mW", SLCol4f::WHITE);
         SLMaterial* mB = new SLMaterial(s, "mB", SLCol4f::GRAY);
