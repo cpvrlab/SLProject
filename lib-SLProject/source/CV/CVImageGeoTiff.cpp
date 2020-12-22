@@ -58,7 +58,7 @@ void CVImageGeoTiff::loadGeoTiff(const string& geoTiffFile)
         throw std::runtime_error("GEOTiff image must be of 32-bit float type.");
 
     // Read the JSON file
-    ifstream       jsonFile(jsonFileName);
+    std::ifstream  jsonFile(jsonFileName);
     json           jsonData;
     string         description;
     string         geocsc;
@@ -100,7 +100,7 @@ void CVImageGeoTiff::loadGeoTiff(const string& geoTiffFile)
         !Utils::containsString(geocsc, "WGS_1984"))
     {
         msg = "GeoTiff file seams not have WGS84 coordinates.";
-        throw std::runtime_error( msg.c_str());
+        throw std::runtime_error(msg.c_str());
     }
 
     _cvMat  = imgGeoTiff.clone();

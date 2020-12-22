@@ -296,8 +296,8 @@ public:
     virtual void      doUpdate() {}
     bool              updateMeshSkins(const std::function<void(SLMesh*)>& cbInformNodes);
     void              updateMeshAccelStructs();
-    void              updateMeshMat(function<void(SLMaterial* m)> setMat,
-                                    bool                          recursive);
+    void              updateMeshMat(std::function<void(SLMaterial* m)> setMat,
+                                    bool                               recursive);
     void              setMeshMat(SLMaterial* mat, bool recursive);
     bool              isSelected() { return _isSelected; }
 

@@ -162,7 +162,7 @@ void ErlebARApp::INIT(const InitEventData* data, const bool stateEntry, const bo
 
     _dd = std::make_unique<DeviceData>(data->deviceData);
 
-    SLGLProgramManager::init(_dd->shaderDir());
+    SLGLProgramManager::init(_dd->shaderDir(), _dd->writableDir());
     _config      = new ErlebAR::Config(*_dd);
     _imGuiEngine = new ImGuiEngine(_dd->writableDir(), _config->resources().fonts().atlas());
 

@@ -79,7 +79,7 @@ protected:
     SLMNodeAnimTrack _nodeAnimTracks; //!< map of all the node tracks in this animation
 };
 //-----------------------------------------------------------------------------
-typedef vector<SLAnimation*>        SLVAnimation;
-typedef map<SLstring, SLAnimation*> SLMAnimation;
+typedef vector<SLAnimation*>             SLVAnimation;
+typedef std::map<SLstring, SLAnimation*> SLMAnimation;
 //-----------------------------------------------------------------------------
 #endif

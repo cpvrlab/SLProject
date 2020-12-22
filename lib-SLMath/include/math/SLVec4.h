@@ -81,8 +81,8 @@ class SLVec4
     SLVec4   operator *  (T s, const SLVec4& v)  {return SLVec4(v.x*s, v.y*s, v.z*s);}
    
     // Stream output operator
-    friend ostream& operator << (ostream& output, 
-                                const SLVec4& v){output<<"["<<v.x<<","<<v.y<<","<<v.z<<","<<v.w<<"]"; return output;}
+    friend std::ostream& operator << (std::ostream& output,
+                                      const SLVec4& v){output<<"["<<v.x<<","<<v.y<<","<<v.z<<","<<v.w<<"]"; return output;}
 
     // Assign operators
     SLVec4&  operator =  (const SLVec2<T>& v)    {x=v.x; y=v.y; z=0; w=1;         return *this;}

@@ -7,8 +7,9 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include <SLApplication.h>
+//#include <SLApplication.h>
 #include <SLAssetManager.h>
+#include <SLGLProgramManager.h>
 #include <SLGLProgramGenerated.h>
 #include <SLGLShader.h>
 #include <SLCamera.h>
@@ -724,19 +725,10 @@ const string fragMainBlinn_4_End = R"(
 
 //-----------------------------------------------------------------------------
 //! Builds unique program name that identifies shader program
-/*! Returns the a program e.g. as follows:
- * genPerPixBlinnTmNmAo-DsPSs
- *          |    | | |  ||||+ light before w. shadows
- *          |    | | |  |||+ Spot light
- *          |    | | |  ||+ Point light
- *          |    | | |  |+ light before w. shadows
- *          |    | | |  + Directional light
- *          |    | | + Ambient Occlusion
- *          |    | + Normal Mapping
- *          |    + Texture Mapping
- *          + Blinn lighting model
- *
- * @param mat Parent material point
+/*! See the class information for more insights of the generated name. This
+ * function is used in advance of the code generation to check if the program
+ * already exists in the asset manager. See SLMaterial::activate.
+ * @param mat Parent material pointer
  * @param lights Pointer of vector of lights
  */
 void SLGLProgramGenerated::buildProgramName(SLMaterial* mat,
@@ -767,9 +759,8 @@ void SLGLProgramGenerated::buildProgramName(SLMaterial* mat,
     programName += "-";
 
     // Add letter per light type
-    for (SLuint i = 0; i < lights->size(); ++i)
+    for (auto light : *lights)
     {
-        SLLight* light = lights->at(i);
         if (light->positionWS().w == 0.0f)
             programName += "D"; // Directional light
         else if (light->spotCutOffDEG() < 180.0f)
@@ -781,6 +772,12 @@ void SLGLProgramGenerated::buildProgramName(SLMaterial* mat,
     }
 }
 //-----------------------------------------------------------------------------
+/*! Builds the GLSL program code for the vertex and fragment shaders. The code
+ * is only assembled but not compiled and linked. This happens within the
+ * before the first draw call from within SLMesh::draw.
+ * @param mat Parent material pointer
+ * @param lights Pointer of vector of lights
+ */
 void SLGLProgramGenerated::buildProgramCode(SLMaterial* mat,
                                             SLVLight*   lights)
 {
@@ -790,9 +787,12 @@ void SLGLProgramGenerated::buildProgramCode(SLMaterial* mat,
            _shaders[0]->type() == ST_vertex &&
            _shaders[1]->type() == ST_fragment);
 
+    // Check what textures the material has
     bool Tm = mat->hasTextureType(TT_diffuse);
     bool Nm = mat->hasTextureType(TT_normal);
     bool Ao = mat->hasTextureType(TT_ambientOcclusion);
+
+    // Check if any of the scene lights does shadow mapping
     bool Sm = lightsDoShadowMapping(lights);
 
     if (mat->lightModel() == LM_BlinnPhong)
@@ -1544,9 +1544,8 @@ in      vec3        v_N_VS;     // Interpol. normal at v_P_VS in view space
 //! Returns true if at least one of the light does shadow mapping
 bool SLGLProgramGenerated::lightsDoShadowMapping(SLVLight* lights)
 {
-    for (SLuint i = 0; i < lights->size(); ++i)
+    for (auto light : *lights)
     {
-        SLLight* light = lights->at(i);
         if (light->createsShadows())
             return true;
     }
@@ -1716,7 +1715,7 @@ void SLGLProgramGenerated::addCodeToShader(SLGLShader*   shader,
 {
     shader->code(SLGLShader::removeComments(code));
     shader->name(name);
-    shader->file(SLApplication::configPath + name);
+    shader->file(SLGLProgramManager::configPath + name);
 }
 //-----------------------------------------------------------------------------
 //! Adds shader header code

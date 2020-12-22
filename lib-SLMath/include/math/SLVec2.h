@@ -75,14 +75,14 @@ class SLVec2
     SLVec2&  operator &= (const SLVec2& v)       {x*=v.x; y*=v.y; return *this;}
    
     // Stream output operator
-    friend ostream& operator << (ostream& output, 
+    friend std::ostream& operator << (std::ostream& output,
                                 const SLVec2& v){output<<"["<<v.x<<","<<v.y<<"]"; return output;}
 
     // Operations without temp. allocation
     void     add         (const SLVec2& a,
-                            const SLVec2& b)     {x=a.x+b.x; y=a.y+b.y;}
+                          const SLVec2& b)     {x=a.x+b.x; y=a.y+b.y;}
     void     sub         (const SLVec2& a,
-                            const SLVec2& b)     {x=a.x-b.x; y=a.y-b.y;}
+                          const SLVec2& b)     {x=a.x-b.x; y=a.y-b.y;}
     void     scale       (const T s)             {x*=s; y*=s;}
     T        dot         (const SLVec2& v)       {return x*v.x+y*v.y;}
     T        length      () const                {return ((T)sqrt(x*x+y*y));}

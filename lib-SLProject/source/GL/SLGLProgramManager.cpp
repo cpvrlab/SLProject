@@ -16,11 +16,18 @@
 #include <utility>
 
 std::map<SLStdShaderProg, SLGLProgramGeneric*> SLGLProgramManager::_programs;
-string                                    SLGLProgramManager::shaderDir;
+
+string SLGLProgramManager::shaderPath;
+string SLGLProgramManager::configPath;
 //-----------------------------------------------------------------------------
-void SLGLProgramManager::init(string shaderPath)
+/*!
+ * @param shdrPath Path to the shader files
+ * @param confPath Path to the writable config directory
+ */
+void SLGLProgramManager::init(string shdrPath, string confPath)
 {
-    shaderDir = shaderPath;
+    shaderPath = std::move(shdrPath);
+    configPath = std::move(confPath);
 }
 //-----------------------------------------------------------------------------
 SLGLProgramGeneric* SLGLProgramManager::get(SLStdShaderProg id)
@@ -43,33 +50,33 @@ void SLGLProgramManager::deletePrograms()
 //-----------------------------------------------------------------------------
 void SLGLProgramManager::makeProgram(SLStdShaderProg id)
 {
-    assert(!shaderDir.empty() && "Error in SLGLProgramManager: Please set call SLGLProgramManager::init and transfer the location of the default shader files!");
+    assert(!shaderPath.empty() && "Error in SLGLProgramManager: Please set call SLGLProgramManager::init and transfer the location of the default shader files!");
 
     switch (id)
     {
         case SP_colorAttribute:
-            _programs.insert({id, new SLGLProgramGeneric(nullptr, shaderDir + "ColorAttribute.vert", shaderDir + "Color.frag")});
+            _programs.insert({id, new SLGLProgramGeneric(nullptr, shaderPath + "ColorAttribute.vert", shaderPath + "Color.frag")});
             break;
         case SP_colorUniform:
-            _programs.insert({id, new SLGLProgramGeneric(nullptr, shaderDir + "ColorUniform.vert", shaderDir + "Color.frag")});
+            _programs.insert({id, new SLGLProgramGeneric(nullptr, shaderPath + "ColorUniform.vert", shaderPath + "Color.frag")});
             break;
         case SP_TextureOnly:
-            _programs.insert({id, new SLGLProgramGeneric(nullptr, shaderDir + "TextureOnly.vert", shaderDir + "TextureOnly.frag")});
+            _programs.insert({id, new SLGLProgramGeneric(nullptr, shaderPath + "TextureOnly.vert", shaderPath + "TextureOnly.frag")});
             break;
         case SP_fontTex:
-            _programs.insert({id, new SLGLProgramGeneric(nullptr, shaderDir + "FontTex.vert", shaderDir + "FontTex.frag")});
+            _programs.insert({id, new SLGLProgramGeneric(nullptr, shaderPath + "FontTex.vert", shaderPath + "FontTex.frag")});
             break;
         case SP_stereoOculus:
-            _programs.insert({id, new SLGLProgramGeneric(nullptr, shaderDir + "StereoOculus.vert", shaderDir + "StereoOculus.frag")});
+            _programs.insert({id, new SLGLProgramGeneric(nullptr, shaderPath + "StereoOculus.vert", shaderPath + "StereoOculus.frag")});
             break;
         case SP_stereoOculusDistortion:
-            _programs.insert({id, new SLGLProgramGeneric(nullptr, shaderDir + "StereoOculusDistortionMesh.vert", shaderDir + "StereoOculusDistortionMesh.frag")});
+            _programs.insert({id, new SLGLProgramGeneric(nullptr, shaderPath + "StereoOculusDistortionMesh.vert", shaderPath + "StereoOculusDistortionMesh.frag")});
             break;
         case SP_errorTex:
-            _programs.insert({id, new SLGLProgramGeneric(nullptr, shaderDir + "ErrorTex.vert", shaderDir + "ErrorTex.frag")});
+            _programs.insert({id, new SLGLProgramGeneric(nullptr, shaderPath + "ErrorTex.vert", shaderPath + "ErrorTex.frag")});
             break;
         case SP_depth:
-            _programs.insert({id, new SLGLProgramGeneric(nullptr, shaderDir + "Depth.vert", shaderDir + "Depth.frag")});
+            _programs.insert({id, new SLGLProgramGeneric(nullptr, shaderPath + "Depth.vert", shaderPath + "Depth.frag")});
             break;
         default:
             SL_EXIT_MSG("SLGLProgramManager: unknown shader id!");

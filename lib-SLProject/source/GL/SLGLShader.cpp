@@ -50,7 +50,7 @@ SLGLShader::SLGLShader(const SLstring& filename, SLShaderType shaderType)
 //! SLGLShader::load loads a shader file into string _shaderSource
 void SLGLShader::load(const SLstring& filename)
 {
-    _code = Utils::loadFileIntoString("SLProject", filename);
+    _code = Utils::readTextFileIntoString("SLProject", filename);
 
     // remove comments because some stupid ARM compiler can't handle GLSL comments
     _code = removeComments(_code);
@@ -176,6 +176,26 @@ SLbool SLGLShader::createAndCompile(SLVLight* lights)
                 SL_LOG("%4d: %s", lineNum++, line.c_str());
             return false;
         }
+
+        // Write generated shader out
+        if (!_file.empty())
+        {
+            if (!Utils::fileExists(_file))
+            {
+                string filename = Utils::getFileName(_file);
+                string path = Utils::getDirName(_file);
+                if (Utils::dirExists(path))
+                {
+                    Utils::writeStringIntoTextFile("SLProject", _code, _file);
+                    SL_LOG("Exported Shader Program: %s", filename.c_str());
+                }
+                else
+                    SL_WARN_MSG("**** No path to write shader ***");
+            }
+        }
+        else
+            SL_WARN_MSG("**** No shader path and filename for shader ***");
+
         return true;
     }
     else
@@ -272,7 +292,7 @@ SLstring SLGLShader::preprocessPragmas(SLstring inCode, SLVLight* lights)
                 string pathFile = path + filename;
                 if (Utils::fileExists(pathFile))
                 {
-                    string includeCode = Utils::loadFileIntoString("SLProject", pathFile);
+                    string includeCode = Utils::readTextFileIntoString("SLProject", pathFile);
                     includeCode        = removeComments(includeCode);
                     outCode += includeCode + '\n';
                 }

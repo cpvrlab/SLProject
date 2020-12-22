@@ -278,7 +278,7 @@ private:
     SLMaterialDefaultColorAttribute()
       : SLMaterial(nullptr, "ColorAttribute")
     {
-        program(SLGLDefaultProgColorAttrib::instance());
+        program(SLGLProgramManager::get(SP_colorAttribute));
     }
 
     static SLMaterialDefaultColorAttribute* _instance;

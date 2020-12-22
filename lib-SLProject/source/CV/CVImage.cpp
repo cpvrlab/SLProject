@@ -314,7 +314,7 @@ bool CVImage::load(int         width,
             }
             else
             {
-                cout << "CVImage::load from memory: Pixel format conversion not allowed" << endl;
+                std::cout << "CVImage::load from memory: Pixel format conversion not allowed" << std::endl;
                 exit(1);
             }
         }
@@ -381,7 +381,7 @@ bool CVImage::load(int         width,
             }
             else
             {
-                cout << "CVImage::load from memory: Pixel format conversion not allowed" << endl;
+                std::cout << "CVImage::load from memory: Pixel format conversion not allowed" << std::endl;
                 exit(1);
             }
         }
@@ -552,7 +552,7 @@ void CVImage::savePNG(const string& filename,
 
         imwrite(filename, outImg, compression_params);
     }
-    catch (runtime_error& ex)
+    catch (std::runtime_error& ex)
     {
         string msg = "CVImage.savePNG: Exception: ";
         msg += ex.what();
@@ -589,7 +589,7 @@ void CVImage::saveJPG(const string& filename,
 
         imwrite(filename, outImg, compression_params);
     }
-    catch (runtime_error& ex)
+    catch (std::runtime_error& ex)
     {
         string msg = "CVImage.saveJPG: Exception: ";
         msg += ex.what();

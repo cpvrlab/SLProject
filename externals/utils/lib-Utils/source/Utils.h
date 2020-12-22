@@ -19,7 +19,11 @@
 #include <CustomLog.h>
 #include <functional>
 
-using namespace std;
+using std::function;
+using std::string;
+using std::stringstream;
+using std::to_string;
+using std::vector;
 
 //class FileLog;
 //-----------------------------------------------------------------------------
@@ -59,7 +63,7 @@ string trimRightString(const string& s, const string& drop);
 //! trims a string at the left end
 string trimLeftString(const string& s, const string& drop);
 
-//! Splits an input string at a delimeter character into a string vector
+//! Splits an input string at a delimiter character into a string vector
 void splitString(const string& s, char delimiter, vector<string>& splits);
 
 //! Replaces in the source string the from string by the to string
@@ -68,8 +72,14 @@ void replaceString(string& source, const string& from, const string& to);
 //! Returns a vector of string one per line of a multiline string
 vector<string> getStringLines(const string& multiLineString);
 
-//! Loads a file into a string and returns it
-string loadFileIntoString(const char* logTag, const string& pathAndFilename);
+//! Reads a text file into a string and returns it
+string readTextFileIntoString(const char*   logTag,
+                              const string& pathAndFilename);
+
+//! Writes a string into a text file
+void writeStringIntoTextFile(const char*   logTag,
+                             const string& stringToWrite,
+                             const string& pathAndFilename);
 
 //! replaces non-filename characters: /\|?%*:"<>'
 string replaceNonFilenameChars(string source, char replaceChar = '-');
@@ -177,11 +187,14 @@ string findFile(const string&         filename,
 ///////////////////////
 // Logging Functions //
 ///////////////////////
+
 //! FileLog Instance for logging to logfile. If it is instantiated the logging methods
 //! will also output into this file. Instantiate it with initFileLog function.
 static std::unique_ptr<FileLog> fileLog;
+
 //! Instantiates FileLog instance
 void initFileLog(const std::string& logDir, bool forceFlush);
+
 //! custom log instance, e.g. log to a ui log window
 extern std::unique_ptr<CustomLog> customLog;
 

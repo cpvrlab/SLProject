@@ -103,7 +103,7 @@ class SLVec3
     inline  SLVec3& operator &= (const SLVec3& v)       {x*=v.x; y*=v.y; z*=v.z; return *this;}
    
     // Stream output operator
-    friend  ostream& operator << (ostream& output,
+    friend  std::ostream& operator << (std::ostream& output,
                                   const SLVec3& v)      {output<<"["<<v.x<<","<<v.y<<","<<v.z<<"]"; return output;}
 
     // Operations without temp. allocation (use these for speed!)

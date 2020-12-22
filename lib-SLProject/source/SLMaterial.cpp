@@ -145,6 +145,7 @@ SLMaterial::SLMaterial(SLAssetManager* am,
 {
     _assetManager = am;
     _program      = shaderProg;
+    _lightModel   = LM_BlinnPhong;
     _ambient.set(1, 1, 1);
     _diffuse.set(1, 1, 1);
     _specular.set(1, 1, 1);
@@ -284,42 +285,18 @@ void SLMaterial::activate(SLCamera* cam, SLVLight* lights)
     // Set this material as the current material
     stateGL->currentMaterial(this);
 
-    // If no shader program is attached add the default shader program
+    // If no shader program is attached add a generated shader program
     // A 3D object can be stored without material or shader program information.
     if (!_program)
     {
+        // Check first the asset manager if the requested program type already exists
         string programName;
         SLGLProgramGenerated::buildProgramName(this, lights, programName);
         _program = _assetManager->getProgramByName(programName);
+
+        // If the program was not found by name generate a new one
         if (!_program)
             _program = new SLGLProgramGenerated(_assetManager, programName, this, lights);
-
-        if (!_program)
-        {
-            bool hasTm = hasTextureType(TT_diffuse);
-            bool hasNm = hasTextureType(TT_normal);
-            bool hasAo = hasTextureType(TT_ambientOcclusion);
-            bool hasSm = SLGLProgramGenerated::lightsDoShadowMapping(lights);
-
-            if (hasTm && hasNm && hasAo && hasSm)
-                program(SLGLDefaultProgPerPixBlinnTmNmAoSm::instance());
-            else if (hasTm && hasNm && hasAo)
-                program(SLGLDefaultProgPerPixBlinnTmNmAo::instance());
-            else if (hasTm && hasNm && hasSm)
-                program(SLGLDefaultProgPerPixBlinnTmNmSm::instance());
-            else if (hasTm && hasNm)
-                program(SLGLDefaultProgPerPixBlinnTmNm::instance());
-            else if (hasTm && hasSm)
-                program(SLGLDefaultProgPerPixBlinnTmSm::instance());
-            else if (hasTm)
-                program(SLGLDefaultProgPerVrtBlinnTm::instance());
-            else if (hasSm && hasAo)
-                program(SLGLDefaultProgPerPixBlinnAoSm::instance());
-            else if (hasSm)
-                program(SLGLDefaultProgPerPixBlinnSm::instance());
-            else
-                program(SLGLDefaultProgPerVrtBlinn::instance());
-        }
     }
 
     // Check if shader had compile error and the error texture should be shown
@@ -330,8 +307,6 @@ void SLMaterial::activate(SLCamera* cam, SLVLight* lights)
             _errorTexture = new SLGLTexture(nullptr, _compileErrorTexFilePath);
         _textures.push_back(_errorTexture);
     }
-
-    //SL_LOG("SLMaterial::activate program: %s", _name.c_str());
 
     // Activate the shader program now
     _program->beginUse(cam, this, lights);
