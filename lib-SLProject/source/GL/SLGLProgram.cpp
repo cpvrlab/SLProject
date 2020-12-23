@@ -37,10 +37,10 @@ extern char* aGLSLErrorString[];
  * passed it will be search on the SLGLProgram::defaultPath.
  */
 SLGLProgram::SLGLProgram(SLAssetManager* s,
-                         const string& vertShaderFile,
-                         const string& fragShaderFile,
-                         const string& geomShaderFile,
-                         const string& programName) : SLObject(programName)
+                         const string&   vertShaderFile,
+                         const string&   fragShaderFile,
+                         const string&   geomShaderFile,
+                         const string&   programName) : SLObject(programName)
 {
     _isLinked = false;
     _progID   = 0;
@@ -316,20 +316,6 @@ void SLGLProgram::passLightsToUniforms(SLVLight* lights,
         SLMat4f          lightSpace[SL_MAX_LIGHTS * 6];         //!< projection matrix of the light
         SLGLDepthBuffer* lightShadowMap[SL_MAX_LIGHTS];         //!< pointers to depth-buffers for shadow mapping
 
-        // On MacOS and Android the shader for shadow mapping does not work unless
-        // all the cube-maps are set. So we define 8 dummy shadow maps for the unused
-        // cubemap-SM when the singlemap-SM is used and vice versa.
-        static SLGLDepthBuffer unusedSMBuffers[] = {
-          SLGLDepthBuffer(SLVec2i(1, 1)),
-          SLGLDepthBuffer(SLVec2i(1, 1)),
-          SLGLDepthBuffer(SLVec2i(1, 1)),
-          SLGLDepthBuffer(SLVec2i(1, 1)),
-          SLGLDepthBuffer(SLVec2i(1, 1)),
-          SLGLDepthBuffer(SLVec2i(1, 1)),
-          SLGLDepthBuffer(SLVec2i(1, 1)),
-          SLGLDepthBuffer(SLVec2i(1, 1)),
-        };
-
         // Init to defaults
         for (SLint i = 0; i < SL_MAX_LIGHTS; ++i)
         {
@@ -419,38 +405,18 @@ void SLGLProgram::passLightsToUniforms(SLVLight* lights,
             if (lightCreatesShadows[i])
             {
                 SLint    loc = 0;
-                SLstring uniformSM_Used;
-                SLstring uniformSM_Unused;
-                SLuint   texUnit_Used;
-                SLuint   texUnit_Unused;
+                SLstring uniformSm;
+                SLuint   texUnit = numTexInMat + i;
 
                 if (lightUsesCubemap[i])
-                {
-                    texUnit_Used     = numTexInMat + SL_MAX_LIGHTS + i;
-                    texUnit_Unused   = numTexInMat + i;
-                    uniformSM_Used   = "u_shadowMapCube_" + std::to_string(SL_MAX_LIGHTS + i);
-                    uniformSM_Unused = "u_shadowMap_" + std::to_string(i);
-                }
+                    uniformSm = "u_shadowMapCube_" + std::to_string(i);
                 else
-                {
-                    texUnit_Used     = numTexInMat + i;
-                    texUnit_Unused   = numTexInMat + SL_MAX_LIGHTS + i;
-                    uniformSM_Used   = "u_shadowMap_" + std::to_string(i);
-                    uniformSM_Unused = "u_shadowMapCube_" + std::to_string(SL_MAX_LIGHTS + i);
-                }
+                    uniformSm = "u_shadowMap_" + std::to_string(i);
 
-                // Set used SM
-                if ((loc = getUniformLocation(uniformSM_Used.c_str())) >= 0)
+                if ((loc = getUniformLocation(uniformSm.c_str())) >= 0)
                 {
-                    lightShadowMap[i]->bindActive(texUnit_Used);
-                    glUniform1i(loc, texUnit_Used);
-                }
-
-                // Set unused SM
-                if ((loc = getUniformLocation(uniformSM_Unused.c_str())) >= 0)
-                {
-                    unusedSMBuffers[i].bindActive(texUnit_Unused);
-                    glUniform1i(loc, texUnit_Unused);
+                    lightShadowMap[i]->bindActive(texUnit);
+                    glUniform1i(loc, texUnit);
                 }
             }
         }

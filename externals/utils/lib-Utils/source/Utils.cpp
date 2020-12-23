@@ -1194,7 +1194,7 @@ unsigned int maxThreads()
 #if defined(DEBUG) || defined(_DEBUG)
     return 1;
 #else
-    return std::max(thread::hardware_concurrency(), 1U);
+    return std::max(std::thread::hardware_concurrency(), 1U);
 #endif
 }
 //-----------------------------------------------------------------------------

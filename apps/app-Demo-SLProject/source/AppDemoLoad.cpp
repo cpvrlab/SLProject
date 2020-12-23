@@ -1828,7 +1828,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         //SLGLProgram* progPerPixSM = new SLGLProgramGeneric(s,
         //                                                   SLApplication::shaderPath + "PerPixBlinnSm.vert",
         //                                                   SLApplication::shaderPath + "PerPixBlinnSm.frag");
-        SLMaterial*  matPerPixSM  = new SLMaterial(s, "m1"); //, SLCol4f::WHITE, SLCol4f::WHITE, 500, 0, 0, 1, progPerPixSM);
+        SLMaterial* matPerPixSM = new SLMaterial(s, "m1"); //, SLCol4f::WHITE, SLCol4f::WHITE, 500, 0, 0, 1, progPerPixSM);
 
         // Base root group node for the scene
         SLNode* scene = new SLNode;
@@ -1876,11 +1876,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->name("Shadow Mapping light types");
         s->info("Shadow Mapping is implemented for these light types.");
 
-        // Setup shadow mapping material
-        //SLGLProgram* progPerPixSM = new SLGLProgramGeneric(s,
-        //                                                   SLApplication::shaderPath + "PerPixBlinnSm.vert",
-        //                                                   SLApplication::shaderPath + "PerPixBlinnSm8Cm.frag");
-        SLMaterial*  matPerPixSM  = new SLMaterial(s, "m1"); //, SLCol4f::WHITE, SLCol4f::WHITE, 500, 0, 0, 1, progPerPixSM);
+        SLMaterial* mat1 = new SLMaterial(s, "mat1");
 
         // Base root group node for the scene
         SLNode* scene = new SLNode;
@@ -1894,7 +1890,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(cam1);
 
         // Create light sources
-        std::vector<SLLight*> lights = {
+        vector<SLLight*> lights = {
           new SLLightDirect(s, s),
           new SLLightRect(s, s),
           new SLLightSpot(s, s, 0.3f, 25.0f),
@@ -1937,7 +1933,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                                             SLApplication::modelPath + "FBX/Teapot/Teapot.fbx",
                                             SLApplication::texturePath,
                                             true,
-                                            matPerPixSM);
+                                            mat1);
 
         for (SLLight* light : lights)
         {
@@ -1969,7 +1965,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         // Add a box which receives shadows
         SLfloat minx    = lights.front()->positionWS().x - 3;
         SLfloat maxx    = lights.back()->positionWS().x + 3;
-        SLNode* boxNode = new SLNode(new SLBox(s, minx, -1, -5, maxx, 0, 5, "Box", matPerPixSM));
+        SLNode* boxNode = new SLNode(new SLBox(s, minx, -1, -5, maxx, 0, 5, "Box", mat1));
         boxNode->castsShadows(false);
         scene->addChild(boxNode);
 
@@ -1985,7 +1981,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         //SLGLProgram* progPerPixSM = new SLGLProgramGeneric(s,
         //                                                   SLApplication::shaderPath + "PerPixBlinnSm.vert",
         //                                                   SLApplication::shaderPath + "PerPixBlinnSm8Cm.frag");
-        SLMaterial*  matPerPixSM  = new SLMaterial(s, "m1"); //, SLCol4f::WHITE, SLCol4f::WHITE, 500, 0, 0, 1, progPerPixSM);
+        SLMaterial* matPerPixSM = new SLMaterial(s, "m1"); //, SLCol4f::WHITE, SLCol4f::WHITE, 500, 0, 0, 1, progPerPixSM);
 
         // Base root group node for the scene
         SLNode* scene = new SLNode;
@@ -2042,7 +2038,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         //SLGLProgram* progPerPixSM = new SLGLProgramGeneric(s,
         //                                                   SLApplication::shaderPath + "PerPixBlinnSm.vert",
         //                                                   SLApplication::shaderPath + "PerPixBlinnSm8Cm.frag");
-        SLMaterial*  matPerPixSM  = new SLMaterial(s, "m1"); //, SLCol4f::WHITE, SLCol4f::WHITE, 500, 0, 0, 1, progPerPixSM);
+        SLMaterial* matPerPixSM = new SLMaterial(s, "m1"); //, SLCol4f::WHITE, SLCol4f::WHITE, 500, 0, 0, 1, progPerPixSM);
 
         // Base root group node for the scene
         SLNode* scene = new SLNode;
@@ -4223,9 +4219,12 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->name("Ray tracing Spheres");
         s->info("Classic ray tracing scene with transparent and reflective spheres. Be patient on mobile devices.");
 
+        SLGLProgram* sp1 = new SLGLProgramGeneric(s,
+                                                  SLApplication::shaderPath + "PerPixBlinn.vert",
+                                                  SLApplication::shaderPath + "PerPixBlinn.frag");
         // define materials
         SLMaterial* matGla = new SLMaterial(s, "Glass", SLCol4f(0.0f, 0.0f, 0.0f), SLCol4f(0.5f, 0.5f, 0.5f), 100, 0.4f, 0.6f, 1.5f);
-        SLMaterial* matRed = new SLMaterial(s, "Red", SLCol4f(0.5f, 0.0f, 0.0f), SLCol4f(0.5f, 0.5f, 0.5f), 100, 0.5f, 0.0f, 1.0f);
+        SLMaterial* matRed = new SLMaterial(s, "Red", SLCol4f(0.5f, 0.0f, 0.0f), SLCol4f(0.5f, 0.5f, 0.5f), 100, 0.5f, 0.0f, 1.0f, sp1);
         SLMaterial* matYel = new SLMaterial(s, "Floor", SLCol4f(0.8f, 0.6f, 0.2f), SLCol4f(0.8f, 0.8f, 0.8f), 100, 0.5f, 0.0f, 1.0f);
 
         SLCamera* cam1 = new SLCamera();
@@ -4264,10 +4263,10 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->info("Ray tracing with soft shadow light sampling. Each light source is sampled 64x per pixel. Be patient on mobile devices.");
 
         // define materials
-        SLCol4f      spec(0.8f, 0.8f, 0.8f);
-        SLMaterial*  matBlk    = new SLMaterial(s, "Glass", SLCol4f(0.0f, 0.0f, 0.0f), SLCol4f(0.5f, 0.5f, 0.5f), 100, 0.5f, 0.5f, 1.5f);
-        SLMaterial*  matRed    = new SLMaterial(s, "Red", SLCol4f(0.5f, 0.0f, 0.0f), SLCol4f(0.5f, 0.5f, 0.5f), 100, 0.5f, 0.0f, 1.0f);
-        SLMaterial*  matYel    = new SLMaterial(s, "Floor", SLCol4f(0.8f, 0.6f, 0.2f), SLCol4f(0.8f, 0.8f, 0.8f), 100, 0.0f, 0.0f, 1.0f);
+        SLCol4f     spec(0.8f, 0.8f, 0.8f);
+        SLMaterial* matBlk = new SLMaterial(s, "Glass", SLCol4f(0.0f, 0.0f, 0.0f), SLCol4f(0.5f, 0.5f, 0.5f), 100, 0.5f, 0.5f, 1.5f);
+        SLMaterial* matRed = new SLMaterial(s, "Red", SLCol4f(0.5f, 0.0f, 0.0f), SLCol4f(0.5f, 0.5f, 0.5f), 100, 0.5f, 0.0f, 1.0f);
+        SLMaterial* matYel = new SLMaterial(s, "Floor", SLCol4f(0.8f, 0.6f, 0.2f), SLCol4f(0.8f, 0.8f, 0.8f), 100, 0.0f, 0.0f, 1.0f);
 
         SLCamera* cam1 = new SLCamera;
         cam1->translation(0, 0.1f, 4);

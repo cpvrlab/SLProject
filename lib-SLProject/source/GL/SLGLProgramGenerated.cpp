@@ -7,7 +7,6 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-//#include <SLApplication.h>
 #include <SLAssetManager.h>
 #include <SLGLProgramManager.h>
 #include <SLGLProgramGenerated.h>
@@ -706,12 +705,12 @@ const string fragMainBlinn_3_FragColorAo2Tm = R"(
 )";
 //-----------------------------------------------------------------------------
 const string fragMainBlinn_4_End = R"(
-    // Apply gamma correction
-    o_fragColor.rgb = pow(o_fragColor.rgb, vec3(u_oneOverGamma));
-
     // Apply fog by blending over distance
     if (u_camFogIsOn)
         o_fragColor = fogBlend(v_P_VS, o_fragColor);
+
+    // Apply gamma correction
+    o_fragColor.rgb = pow(o_fragColor.rgb, vec3(u_oneOverGamma));
 
     // Apply stereo eye separation
     if (u_camProjection > 1)
@@ -1575,7 +1574,6 @@ string SLGLProgramGenerated::fragInputs_u_shadowMaps(SLVLight* lights)
 string SLGLProgramGenerated::fragShadowTest(SLVLight* lights)
 {
     string shadowTestCode = R"(
-
 int vectorToFace(vec3 vec) // Vector to process
 {
     vec3 absVec = abs(vec);

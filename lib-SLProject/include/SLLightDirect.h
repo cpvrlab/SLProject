@@ -33,12 +33,7 @@ If a light node is added to the camera it moves with the camera.\n
 See the scene examples for Per-Vertex-Blinn or Per-Pixel-Blinn lighting where
 all light node types are used. \n
 All light nodes inherited from SLLight work automatically together with the
-following shaders: \n
-  - PerVrtBlinn.vert, PerVrtBlinn.frag \n
-  - PerVrtBlinnTm.vert, PerVrtBlinnTm.frag \n
-  - PerPixBlinn.vert, PerPixBlinn.frag \n
-  - PerPixBlinnTm.vert, PerPixBlinnTm.frag \n
-
+automatically generated shader in SLGLProgramGenerated.
 */
 class SLLightDirect
   : public SLNode
