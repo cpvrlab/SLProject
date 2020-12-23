@@ -278,15 +278,15 @@ bool initCaptureTool()
     return true;
 }
 //-----------------------------------------------------------------------------
-void calibAndSave(bool        fixAspectRatio,
-                  bool        zeroTangentDistortion,
-                  bool        fixPrincipalPoint,
-                  bool        calibRationalModel,
-                  bool        calibTiltedModel,
-                  bool        calibThinPrismModel,
-                  std::string outputDir,
-                  int         i,
-                  ofstream&   file)
+void calibAndSave(bool           fixAspectRatio,
+                  bool           zeroTangentDistortion,
+                  bool           fixPrincipalPoint,
+                  bool           calibRationalModel,
+                  bool           calibTiltedModel,
+                  bool           calibThinPrismModel,
+                  std::string    outputDir,
+                  int            i,
+                  std::ofstream& file)
 {
     CVCalibration calib = calibMgr->calculateCalibration(
       fixAspectRatio, zeroTangentDistortion, fixPrincipalPoint, calibRationalModel, calibTiltedModel, calibThinPrismModel);

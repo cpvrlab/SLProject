@@ -23,10 +23,10 @@ static vector<string> errors; // global vector for errors used in getGLError
 //-----------------------------------------------------------------------------
 void glUtils::printGLInfo()
 {
-    cout << "OpenGL Version  : " << glGetString(GL_VERSION) << endl;
-    cout << "OpenGL GLSL Ver.: " << glGetString(GL_SHADING_LANGUAGE_VERSION) << endl;
-    cout << "OpenGL Renderer : " << glGetString(GL_RENDERER) << endl;
-    cout << "OpenGL Vendor   : " << glGetString(GL_VENDOR) << endl;
+    std::cout << "OpenGL Version  : " << glGetString(GL_VERSION) << std::endl;
+    std::cout << "OpenGL GLSL Ver.: " << glGetString(GL_SHADING_LANGUAGE_VERSION) << std::endl;
+    std::cout << "OpenGL Renderer : " << glGetString(GL_RENDERER) << std::endl;
+    std::cout << "OpenGL Vendor   : " << glGetString(GL_VENDOR) << std::endl;
 
     GETGLERROR;
     /*
@@ -51,7 +51,7 @@ exits with code 1.
 string glUtils::loadShader(const string& filename)
 {
     // Loader file and return it as a string
-    fstream shaderFile(filename.c_str(), ios::in);
+    std::fstream shaderFile(filename.c_str(), std::ios::in);
 
     if (shaderFile.is_open())
     {
@@ -59,7 +59,7 @@ string glUtils::loadShader(const string& filename)
         buffer << shaderFile.rdbuf();
         return buffer.str();
     }
-    cout << "File open failed: " << filename.c_str() << endl;
+    std::cout << "File open failed: " << filename.c_str() << std::endl;
     exit(1);
 }
 //-----------------------------------------------------------------------------
@@ -158,9 +158,9 @@ GLuint glUtils::buildShader(const string& shaderFile,
                            sizeof(log),
                            nullptr,
                            &log[0]);
-        cout << "**** Compile Error ****" << endl;
-        cout << "In File: " << shaderFile.c_str() << endl;
-        cout << log;
+        std::cout << "**** Compile Error ****" << std::endl;
+        std::cout << "In File: " << shaderFile.c_str() << std::endl;
+        std::cout << log;
         exit(1);
     }
 
@@ -189,8 +189,8 @@ GLuint glUtils::buildProgram(GLuint vertShaderID,
     {
         GLchar log[256];
         glGetProgramInfoLog(programHandle, sizeof(log), nullptr, &log[0]);
-        cout << "**** Link Error ****" << endl;
-        cout << log;
+        std::cout << "**** Link Error ****" << std::endl;
+        std::cout << log;
         exit(1);
     }
     return programHandle;
@@ -357,7 +357,7 @@ GLuint glUtils::buildTexture(string textureFile,
     glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxSize);
     if (img.width() > (GLuint)maxSize || img.height() > (GLuint)maxSize)
     {
-        cout << "SLGLTexture::build: Texture height is too big." << endl;
+        std::cout << "SLGLTexture::build: Texture height is too big." << std::endl;
         exit(0);
     }
 
@@ -397,16 +397,16 @@ GLuint glUtils::buildTexture(string textureFile,
 }
 
 //-----------------------------------------------------------------------------
-GLuint glUtils::build3DTexture(const vector<string>&    files,
-                               GLuint&                  x_extend,
-                               GLuint&                  y_extend,
-                               GLuint&                  z_extend,
-                               GLint                    min_filter,
-                               GLint                    mag_filter,
-                               GLint                    wrapR,
-                               GLint                    wrapS,
-                               GLint                    wrapT,
-                               const array<GLfloat, 4>& borderColor)
+GLuint glUtils::build3DTexture(const vector<string>&         files,
+                               GLuint&                       x_extend,
+                               GLuint&                       y_extend,
+                               GLuint&                       z_extend,
+                               GLint                         min_filter,
+                               GLint                         mag_filter,
+                               GLint                         wrapR,
+                               GLint                         wrapS,
+                               GLint                         wrapT,
+                               const std::array<GLfloat, 4>& borderColor)
 {
     // check max. size
     GLint maxSize = 0;
@@ -418,7 +418,7 @@ GLuint glUtils::build3DTexture(const vector<string>&    files,
     CVImage first(files.front());
     if ((GLint)std::min(std::min((SLuint)files.size(), first.height()), first.width()) > maxSize)
     {
-        cout << "glUtils: Texture is too big in at least one dimension." << endl;
+        std::cout << "glUtils: Texture is too big in at least one dimension." << std::endl;
         exit(0);
     }
 

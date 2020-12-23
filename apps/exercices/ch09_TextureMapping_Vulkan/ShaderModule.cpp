@@ -36,10 +36,10 @@ void ShaderModule::createShaderModule(const vector<char>& code)
 //-----------------------------------------------------------------------------
 vector<char> ShaderModule::readFile(const string& filename)
 {
-    ifstream file(filename, ios::ate | ios::binary);
+    std::ifstream file(filename, std::ios::ate | std::ios::binary);
 
     if (!file.is_open())
-        throw runtime_error("failed to open file!");
+        throw std::runtime_error("failed to open file!");
 
     size_t       fileSize = (size_t)file.tellg();
     vector<char> buffer(fileSize);

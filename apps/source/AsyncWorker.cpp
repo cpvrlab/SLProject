@@ -45,6 +45,7 @@ void AsyncWorker::run()
     //do task
     while (true)
     {
+        using namespace std::chrono_literals;
         std::this_thread::sleep_for(100ms);
         Utils::log("AsyncWorker", "run til %d: %i", n, i);
         if (stopRequested())

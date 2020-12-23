@@ -57,8 +57,8 @@ class SLRect
     SLRect&  operator =  (const SLRect& r)       {x=r.x; y=r.y; width=r.width; height=r.height; return *this;}
    
     // Stream output operator
-    friend ostream& operator << (ostream& output, 
-                                const SLRect& r){output<<"["<<r.x<<","<<r.y<<","<<r.width<<","<<r.height<<"]"; return output;}
+    friend std::ostream& operator << (std::ostream& output,
+                                      const SLRect& r){output<<"["<<r.x<<","<<r.y<<","<<r.width<<","<<r.height<<"]"; return output;}
 
     // Misc. setters
     void    tl          (V v)                   {x = v.x; y = v.y;}              //!< top-left corner

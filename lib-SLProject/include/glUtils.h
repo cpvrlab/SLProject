@@ -100,7 +100,7 @@ public:
                                  GLint                    wrapR       = GL_CLAMP_TO_BORDER,
                                  GLint                    wrapS       = GL_CLAMP_TO_BORDER,
                                  GLint                    wrapT       = GL_CLAMP_TO_BORDER,
-                                 const array<GLfloat, 4>& borderColor = {0.0f, 0.0f, 0.0f, 0.0f});
+                                 const std::array<GLfloat, 4>& borderColor = {0.0f, 0.0f, 0.0f, 0.0f});
 
     //! Checks if an OpenGL error occurred
     static void getGLError(const char* file, int line, bool quit);
