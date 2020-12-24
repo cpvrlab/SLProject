@@ -110,7 +110,6 @@ const string vertMainBlinn_EndAll = R"(
 const string fragInputs_u_lightAll = R"(
 uniform bool        u_lightIsOn[NUM_LIGHTS];                // flag if light is on
 uniform vec4        u_lightPosVS[NUM_LIGHTS];               // position of light in view space
-uniform vec4        u_lightPosWS[NUM_LIGHTS];               // position of light in world space
 uniform vec4        u_lightAmbi[NUM_LIGHTS];                // ambient light intensity (Ia)
 uniform vec4        u_lightDiff[NUM_LIGHTS];                // diffuse light intensity (Id)
 uniform vec4        u_lightSpec[NUM_LIGHTS];                // specular light intensity (Is)
@@ -125,6 +124,7 @@ uniform float       u_oneOverGamma;                         // 1.0f / Gamma corr
 )";
 //-----------------------------------------------------------------------------
 const string fragInputs_u_lightSm = R"(
+uniform vec4        u_lightPosWS[NUM_LIGHTS];               // position of light in world space
 uniform mat4        u_lightSpace[NUM_LIGHTS * 6];           // projection matrices for lights
 uniform bool        u_lightCreatesShadows[NUM_LIGHTS];      // flag if light creates shadows
 uniform bool        u_lightDoSmoothShadows[NUM_LIGHTS];     // flag if percentage-closer filtering is enabled
@@ -154,6 +154,11 @@ uniform bool        u_matGetsShadows;   // flag if material receives shadows
 const string fragInputs_u_matTmNm = R"(
 uniform sampler2D   u_matTexture0;      // diffuse color map
 uniform sampler2D   u_matTexture1;      // normal bump map
+)";
+const string fragInputs_u_matTmPm = R"(
+uniform sampler2D   u_matTexture0;      // diffuse color map
+uniform sampler2D   u_matTexture1;      // normal bump map
+uniform sampler2D   u_matTexture2;      // normal bump map
 )";
 const string fragInputs_u_matTmAo = R"(
 uniform sampler2D   u_matTexture0;      // diffuse color map
@@ -503,20 +508,35 @@ void main()
     vec4 Is = vec4(0.0); // Accumulated specular light intensity at v_P_VS
 )";
 //-----------------------------------------------------------------------------
-const string fragMainBlinn_1_NE_fromVert = R"(
-    // Normal and eye from interpolation
+const string fragMainBlinn_1_EN_fromVert = R"(
+    vec3 E = normalize(-v_P_VS); // Interpolated vector from p to the eye
     vec3 N = normalize(v_N_VS);  // A input normal has not anymore unit length
-    vec3 E = normalize(-v_P_VS); // Vector from p to the eye
 )";
-const string fragMainBlinn_1_NE_fromNm0 = R"(
+const string fragMainBlinn_1_EN_fromNm0 = R"(
+    vec3 E = normalize(v_eyeDirTS);   // normalized interpolated eye direction
     // Get normal from normal map, move from [0,1] to [-1, 1] range & normalize
     vec3 N = normalize(texture(u_matTexture0, v_uv1).rgb * 2.0 - 1.0);
-    vec3 E = normalize(v_eyeDirTS);   // normalized eye direction
 )";
-const string fragMainBlinn_1_NE_fromNm1 = R"(
+const string fragMainBlinn_1_EN_fromNm1 = R"(
+    vec3 E = normalize(v_eyeDirTS);   // normalized interpolated eye direction
     // Get normal from normal map, move from [0,1] to [-1, 1] range & normalize
     vec3 N = normalize(texture(u_matTexture1, v_uv1).rgb * 2.0 - 1.0);
-    vec3 E = normalize(v_eyeDirTS);   // normalized eye direction
+)";
+const string fragMainBlinn_1_EN_fromNm1Hm2 = R"(
+    vec3 E = normalize(v_eyeDirTS);   // normalized interpolated eye direction
+
+    // Calculate new texture coord. Tc for Parallax mapping
+    // The height comes from red channel from the height map
+    float height = texture(u_matTexture2, v_uv1.st).r;
+
+    // Scale the height and add the bias (height offset)
+    height = height * u_scale + u_offset;
+
+    // Add the texture offset to the texture coord.
+    vec2 Tc = v_uv1.st + (height * E.st);
+
+    // Get normal from normal map, move from [0,1] to [-1, 1] range & normalize
+    vec3 N = normalize(texture(u_matTexture1, Tc).rgb * 2.0 - 1.0);
 )";
 //-----------------------------------------------------------------------------
 const string fragMainBlinn_2_LightLoop = R"(
@@ -621,7 +641,7 @@ const string fragMainBlinn_3_FragColor = R"(
     o_fragColor =  u_matEmis +
                    u_globalAmbi +
                    Ia * u_matAmbi +
-                   Id * u_matDiff; +
+                   Id * u_matDiff +
                    Is * u_matSpec;
 
     // For correct alpha blending overwrite alpha component
@@ -741,6 +761,7 @@ void SLGLProgramGenerated::buildProgramName(SLMaterial* mat,
 
     bool matHasTm = mat->hasTextureType(TT_diffuse);
     bool matHasNm = mat->hasTextureType(TT_normal);
+    bool matHasHm = mat->hasTextureType(TT_height);
     bool matHasAo = mat->hasTextureType(TT_ambientOcclusion);
 
     if (mat->lightModel() == LM_BlinnPhong)
@@ -751,7 +772,9 @@ void SLGLProgramGenerated::buildProgramName(SLMaterial* mat,
         programName += "Custom";
     if (matHasTm)
         programName += "Tm";
-    if (matHasNm)
+    //if (matHasNm && matHasHm)
+    //    programName += "Pm";
+    if (matHasNm && !matHasHm)
         programName += "Nm";
     if (matHasAo)
         programName += "Ao";
@@ -789,6 +812,7 @@ void SLGLProgramGenerated::buildProgramCode(SLMaterial* mat,
     // Check what textures the material has
     bool Tm = mat->hasTextureType(TT_diffuse);
     bool Nm = mat->hasTextureType(TT_normal);
+    bool Hm = mat->hasTextureType(TT_height);
     bool Ao = mat->hasTextureType(TT_ambientOcclusion);
 
     // Check if any of the scene lights does shadow mapping
@@ -820,6 +844,8 @@ void SLGLProgramGenerated::buildProgramCode(SLMaterial* mat,
             buildPerPixBlinnSm(lights);
         else if (Ao)
             buildPerPixBlinnAo(lights);
+        //else if (Nm && Hm)
+        //    buildPerPixBlinnPm(lights);
         else if (Nm)
             buildPerPixBlinnNm(lights);
         else if (Tm)
@@ -883,7 +909,7 @@ in      vec3        v_spotDirTS[NUM_LIGHTS];    // Spot direction in tangent spa
     fragCode += fragFunctionDoStereoSeparation;
     fragCode += fragShadowTest(lights);
     fragCode += fragMainBlinn_0_IntensityDeclaration;
-    fragCode += fragMainBlinn_1_NE_fromNm1;
+    fragCode += fragMainBlinn_1_EN_fromNm1;
     fragCode += fragMainBlinn_2_LightLoopNmSm;
     fragCode += fragMainBlinn_3_FragColorAo2Tm;
     fragCode += fragMainBlinn_4_End;
@@ -932,7 +958,7 @@ in      vec3        v_spotDirTS[NUM_LIGHTS];    // Spot direction in tangent spa
     fragCode += fragFunctionFogBlend;
     fragCode += fragFunctionDoStereoSeparation;
     fragCode += fragMainBlinn_0_IntensityDeclaration;
-    fragCode += fragMainBlinn_1_NE_fromNm1;
+    fragCode += fragMainBlinn_1_EN_fromNm1;
     fragCode += fragMainBlinn_2_LightLoopNm;
     fragCode += fragMainBlinn_3_FragColorAo2Tm;
     fragCode += fragMainBlinn_4_End;
@@ -984,7 +1010,7 @@ in      vec3        v_spotDirTS[NUM_LIGHTS];    // Spot direction in tangent spa
     fragCode += fragFunctionDoStereoSeparation;
     fragCode += fragShadowTest(lights);
     fragCode += fragMainBlinn_0_IntensityDeclaration;
-    fragCode += fragMainBlinn_1_NE_fromNm1;
+    fragCode += fragMainBlinn_1_EN_fromNm1;
     fragCode += fragMainBlinn_2_LightLoopNmSm;
     fragCode += fragMainBlinn_3_FragColorTm;
     fragCode += fragMainBlinn_4_End;
@@ -1035,7 +1061,7 @@ in      vec2        v_uv2;      // Texture coordinate 2 varying for AO
     fragCode += fragFunctionDoStereoSeparation;
     fragCode += fragShadowTest(lights);
     fragCode += fragMainBlinn_0_IntensityDeclaration;
-    fragCode += fragMainBlinn_1_NE_fromVert;
+    fragCode += fragMainBlinn_1_EN_fromVert;
     fragCode += fragMainBlinn_2_LightLoopSm;
     fragCode += fragMainBlinn_3_FragColorAo1Tm;
     fragCode += fragMainBlinn_4_End;
@@ -1082,7 +1108,7 @@ in      vec2        v_uv1;      // Interpol. texture coordinate
     fragCode += fragFunctionDoStereoSeparation;
     fragCode += fragShadowTest(lights);
     fragCode += fragMainBlinn_0_IntensityDeclaration;
-    fragCode += fragMainBlinn_1_NE_fromVert;
+    fragCode += fragMainBlinn_1_EN_fromVert;
     fragCode += fragMainBlinn_2_LightLoopSm;
     fragCode += fragMainBlinn_3_FragColorTm;
     fragCode += fragMainBlinn_4_End;
@@ -1134,7 +1160,7 @@ in      vec3        v_spotDirTS[NUM_LIGHTS];    // Spot direction in tangent spa
     fragCode += fragFunctionDoStereoSeparation;
     fragCode += fragShadowTest(lights);
     fragCode += fragMainBlinn_0_IntensityDeclaration;
-    fragCode += fragMainBlinn_1_NE_fromNm0;
+    fragCode += fragMainBlinn_1_EN_fromNm0;
     fragCode += fragMainBlinn_2_LightLoopNmSm;
     fragCode += fragMainBlinn_3_FragColor;
     fragCode += fragMainBlinn_4_End;
@@ -1181,7 +1207,7 @@ in      vec2        v_uv2;      // Texture coordinate 2 varying for AO
     fragCode += fragFunctionDoStereoSeparation;
     fragCode += fragShadowTest(lights);
     fragCode += fragMainBlinn_0_IntensityDeclaration;
-    fragCode += fragMainBlinn_1_NE_fromVert;
+    fragCode += fragMainBlinn_1_EN_fromVert;
     fragCode += fragMainBlinn_2_LightLoopSm;
     fragCode += fragMainBlinn_3_FragColorAo0;
     fragCode += fragMainBlinn_4_End;
@@ -1230,7 +1256,7 @@ in      vec3        v_spotDirTS[NUM_LIGHTS];    // Spot direction in tangent spa
     fragCode += fragFunctionFogBlend;
     fragCode += fragFunctionDoStereoSeparation;
     fragCode += fragMainBlinn_0_IntensityDeclaration;
-    fragCode += fragMainBlinn_1_NE_fromNm0;
+    fragCode += fragMainBlinn_1_EN_fromNm0;
     fragCode += fragMainBlinn_2_LightLoopNm;
     fragCode += fragMainBlinn_3_FragColorAo1;
     fragCode += fragMainBlinn_4_End;
@@ -1275,7 +1301,7 @@ in      vec2        v_uv2;      // Texture coordinate 2 varying for AO
     fragCode += fragFunctionFogBlend;
     fragCode += fragFunctionDoStereoSeparation;
     fragCode += fragMainBlinn_0_IntensityDeclaration;
-    fragCode += fragMainBlinn_1_NE_fromVert;
+    fragCode += fragMainBlinn_1_EN_fromVert;
     fragCode += fragMainBlinn_2_LightLoop;
     fragCode += fragMainBlinn_3_FragColorAo1Tm;
     fragCode += fragMainBlinn_4_End;
@@ -1320,7 +1346,7 @@ in      vec3        v_spotDirTS[NUM_LIGHTS];    // Spot direction in tangent spa
     fragCode += fragFunctionFogBlend;
     fragCode += fragFunctionDoStereoSeparation;
     fragCode += fragMainBlinn_0_IntensityDeclaration;
-    fragCode += fragMainBlinn_1_NE_fromNm1;
+    fragCode += fragMainBlinn_1_EN_fromNm1;
     fragCode += fragMainBlinn_2_LightLoopNm;
     fragCode += fragMainBlinn_3_FragColorTm;
     fragCode += fragMainBlinn_4_End;
@@ -1363,7 +1389,7 @@ in      vec3        v_N_VS;     // Interpol. normal at v_P_VS in view space
     fragCode += fragFunctionDoStereoSeparation;
     fragCode += fragShadowTest(lights);
     fragCode += fragMainBlinn_0_IntensityDeclaration;
-    fragCode += fragMainBlinn_1_NE_fromVert;
+    fragCode += fragMainBlinn_1_EN_fromVert;
     fragCode += fragMainBlinn_2_LightLoopSm;
     fragCode += fragMainBlinn_3_FragColor;
     fragCode += fragMainBlinn_4_End;
@@ -1404,7 +1430,7 @@ in      vec2        v_uv2;      // Texture coordinate 2 varying for AO
     fragCode += fragFunctionFogBlend;
     fragCode += fragFunctionDoStereoSeparation;
     fragCode += fragMainBlinn_0_IntensityDeclaration;
-    fragCode += fragMainBlinn_1_NE_fromVert;
+    fragCode += fragMainBlinn_1_EN_fromVert;
     fragCode += fragMainBlinn_2_LightLoop;
     fragCode += fragMainBlinn_3_FragColorAo0;
     fragCode += fragMainBlinn_4_End;
@@ -1449,7 +1475,7 @@ in      vec3        v_spotDirTS[NUM_LIGHTS];    // Spot direction in tangent spa
     fragCode += fragFunctionFogBlend;
     fragCode += fragFunctionDoStereoSeparation;
     fragCode += fragMainBlinn_0_IntensityDeclaration;
-    fragCode += fragMainBlinn_1_NE_fromNm1;
+    fragCode += fragMainBlinn_1_EN_fromNm1;
     fragCode += fragMainBlinn_2_LightLoopNm;
     fragCode += fragMainBlinn_3_FragColor;
     fragCode += fragMainBlinn_4_End;
@@ -1490,7 +1516,7 @@ in      vec2   v_uv1;   // Interpol. texture coordinate
     fragCode += fragFunctionFogBlend;
     fragCode += fragFunctionDoStereoSeparation;
     fragCode += fragMainBlinn_0_IntensityDeclaration;
-    fragCode += fragMainBlinn_1_NE_fromVert;
+    fragCode += fragMainBlinn_1_EN_fromVert;
     fragCode += fragMainBlinn_2_LightLoop;
     fragCode += fragMainBlinn_3_FragColorTm;
     fragCode += fragMainBlinn_4_End;
@@ -1530,7 +1556,7 @@ in      vec3        v_N_VS;     // Interpol. normal at v_P_VS in view space
     fragCode += fragFunctionFogBlend;
     fragCode += fragFunctionDoStereoSeparation;
     fragCode += fragMainBlinn_0_IntensityDeclaration;
-    fragCode += fragMainBlinn_1_NE_fromVert;
+    fragCode += fragMainBlinn_1_EN_fromVert;
     fragCode += fragMainBlinn_2_LightLoop;
     fragCode += fragMainBlinn_3_FragColor;
     fragCode += fragMainBlinn_4_End;

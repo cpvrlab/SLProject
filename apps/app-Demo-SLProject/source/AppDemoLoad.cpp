@@ -4219,12 +4219,9 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->name("Ray tracing Spheres");
         s->info("Classic ray tracing scene with transparent and reflective spheres. Be patient on mobile devices.");
 
-        SLGLProgram* sp1 = new SLGLProgramGeneric(s,
-                                                  SLApplication::shaderPath + "PerPixBlinn.vert",
-                                                  SLApplication::shaderPath + "PerPixBlinn.frag");
         // define materials
         SLMaterial* matGla = new SLMaterial(s, "Glass", SLCol4f(0.0f, 0.0f, 0.0f), SLCol4f(0.5f, 0.5f, 0.5f), 100, 0.4f, 0.6f, 1.5f);
-        SLMaterial* matRed = new SLMaterial(s, "Red", SLCol4f(0.5f, 0.0f, 0.0f), SLCol4f(0.5f, 0.5f, 0.5f), 100, 0.5f, 0.0f, 1.0f, sp1);
+        SLMaterial* matRed = new SLMaterial(s, "Red", SLCol4f(0.5f, 0.0f, 0.0f), SLCol4f(0.5f, 0.5f, 0.5f), 100, 0.5f, 0.0f, 1.0f);
         SLMaterial* matYel = new SLMaterial(s, "Floor", SLCol4f(0.8f, 0.6f, 0.2f), SLCol4f(0.8f, 0.8f, 0.8f), 100, 0.5f, 0.0f, 1.0f);
 
         SLCamera* cam1 = new SLCamera();

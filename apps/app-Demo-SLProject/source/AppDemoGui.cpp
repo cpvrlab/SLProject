@@ -3440,7 +3440,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                             ImGui::InputTextMultiline(shd->name().c_str(),
                                                       text,
                                                       IM_ARRAYSIZE(text),
-                                                      ImVec2(-1.0f, lineH * 16));
+                                                      ImVec2(-1.0f, -1.0f));
                             ImGui::TreePop();
                         }
                     }

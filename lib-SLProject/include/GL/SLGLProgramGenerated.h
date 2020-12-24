@@ -24,10 +24,10 @@ class SLAssetManager;
  vector. The generated program depends on the following parameters:
  - mat->lightModel (Only Blinn-Phong is implemented yet)
  - mat->textures and among them on
-   - Tm = Texture Map (diffuse color map)
-   - Nm = Normal Map
-   - Pm = Parallax Mapping (the height map, not yet implemented)
-   - Ao = Ambient Occlusion Map
+   - Tm = Texture Mapping with diffuse color map)
+   - Nm = Normal Mapping with normal map
+   - Pm = Parallax Mapping with normal map and height map (not yet implemented)
+   - Ao = Ambient Occlusion Mapping with ao map that uses uv2 in SLMesh
  - light->createsShadows
    - Sm = Shadow Map (single or cube shadow map)
 

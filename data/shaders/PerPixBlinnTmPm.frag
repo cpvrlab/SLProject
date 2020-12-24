@@ -19,7 +19,6 @@ in      vec2        v_uv1;                      // Texture coordinate varying
 in      vec3        v_eyeDirTS;                 // Vector to the eye in tangent space
 in      vec3        v_lightDirTS[NUM_LIGHTS];   // Vector to the light in tangent space
 in      vec3        v_spotDirTS[NUM_LIGHTS];    // Spot direction in tangent space
-in      float       v_lightDist[NUM_LIGHTS];    // Light distance
 
 uniform bool        u_lightIsOn[NUM_LIGHTS];     // flag if light is on
 uniform vec4        u_lightPosVS[NUM_LIGHTS];    // position of light in view space
