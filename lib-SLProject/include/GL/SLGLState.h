@@ -43,9 +43,9 @@ static const SLint SL_MAX_LIGHTS = 8; //!< max. number of used lights
 //-----------------------------------------------------------------------------
 
 #if defined(DEBUG) || defined(_DEBUG)
-#define GET_GL_ERROR SLGLState::getGLError((const char*)__FILE__, __LINE__, false)
+#    define GET_GL_ERROR SLGLState::getGLError((const char*)__FILE__, __LINE__, false)
 #else
-#define GET_GL_ERROR
+#    define GET_GL_ERROR
 #endif
 //-----------------------------------------------------------------------------
 //! Singleton class holding all OpenGL states
@@ -105,7 +105,7 @@ public:
     // getters
     inline const SLMat4f* invModelViewMatrix() { return &_invModelViewMatrix; }
     inline const SLMat3f* normalMatrix() { return &_normalMatrix; }
-    const SLMat4f*        mvpMatrix();     //!< builds and returns proj.mat. x mv mat.
+    const SLMat4f*        mvpMatrix(); //!< builds and returns proj.mat. x mv mat.
     inline bool           hasMultiSampling() const { return _multiSampleSamples > 0; }
 
     // misc.
@@ -123,7 +123,9 @@ public:
     void blendFunc(SLenum blendFuncSFactor, SLenum blendFuncDFactor);
     void multiSample(SLbool state);
     void polygonLine(SLbool state);
-    void polygonOffset(SLbool state, SLfloat factor = 1.0f, SLfloat units = 1.0f);
+    void polygonOffsetPoint(SLbool enabled, SLfloat factor = -1.0f, SLfloat units = -1.0f);
+    void polygonOffsetLine(SLbool enabled, SLfloat factor = -1.0f, SLfloat units = -1.0f);
+    void polygonOffsetFill(SLbool enabled, SLfloat factor = -1.0f, SLfloat units = -1.0f);
     void viewport(SLint x, SLint y, SLsizei w, SLsizei h);
     void colorMask(GLboolean r, GLboolean g, GLboolean b, GLboolean a);
     void useProgram(SLuint progID);
@@ -188,20 +190,20 @@ private:
     SLbool   _glIsES3;       //!< Flag if OpenGL ES3
 
     // read/write states
-    SLbool  _blend;                //!< blending default false;
-    SLenum  _blendFuncSfactor;     //!< blend function source factor enum
-    SLenum  _blendFuncDfactor;     //!< blend function destination factor enum
-    SLbool  _depthTest;            //!< GL_DEPTH_TEST state
-    SLbool  _depthMask;            //!< glDepthMask state
-    SLbool  _cullFace;             //!< Face culling state
-    SLbool  _multisample;          //!< Multisampling state
-    SLint   _multiSampleSamples;   //!< NO. of multisampling samples
-    SLbool  _polygonLine;          //!< Line polygon state
-    SLbool  _polygonOffsetEnabled; //!< GL_POLYGON_OFFSET_FILL state
-    SLfloat _polygonOffsetFactor;  //!< GL_POLYGON_OFFSET_FILL factor
-    SLfloat _polygonOffsetUnits;   //!< GL_POLYGON_OFFSET_FILL units
-    SLVec4i _viewport;             //!< viewport size (x,y,w,h)
-    SLCol4f _clearColor;           //!< clear color
+    SLbool  _blend;                     //!< blending default false;
+    SLenum  _blendFuncSfactor;          //!< blend function source factor enum
+    SLenum  _blendFuncDfactor;          //!< blend function destination factor enum
+    SLbool  _depthTest;                 //!< GL_DEPTH_TEST state
+    SLbool  _depthMask;                 //!< glDepthMask state
+    SLbool  _cullFace;                  //!< Face culling state
+    SLbool  _multisample;               //!< Multisampling state
+    SLint   _multiSampleSamples;        //!< NO. of multisampling samples
+    SLbool  _polygonLine;               //!< Line polygon state
+    SLbool  _polygonOffsetPointEnabled; //!< GL_POLYGON_OFFSET_POINT state enabled
+    SLbool  _polygonOffsetLineEnabled;  //!< GL_POLYGON_OFFSET_LINE state enabled
+    SLbool  _polygonOffsetFillEnabled;  //!< GL_POLYGON_OFFSET_FILL state enabled
+    SLVec4i _viewport;                  //!< viewport size (x,y,w,h)
+    SLCol4f _clearColor;                //!< clear color
 
     // states
     SLuint    _programID;     //!< current shader program id

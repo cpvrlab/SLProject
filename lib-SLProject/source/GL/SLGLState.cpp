@@ -71,17 +71,17 @@ void SLGLState::initAll()
     }
 
     //initialize states a unset
-    _blend                = false;
-    _blendFuncSfactor     = GL_SRC_ALPHA;
-    _blendFuncDfactor     = GL_ONE_MINUS_SRC_ALPHA;
-    _cullFace             = false;
-    _depthTest            = false;
-    _depthMask            = false;
-    _multisample          = false;
-    _polygonLine          = false;
-    _polygonOffsetEnabled = false;
-    _polygonOffsetFactor  = -1.0f;
-    _polygonOffsetUnits   = -1.0f;
+    _blend                     = false;
+    _blendFuncSfactor          = GL_SRC_ALPHA;
+    _blendFuncDfactor          = GL_ONE_MINUS_SRC_ALPHA;
+    _cullFace                  = false;
+    _depthTest                 = false;
+    _depthMask                 = false;
+    _multisample               = false;
+    _polygonLine               = false;
+    _polygonOffsetPointEnabled = false;
+    _polygonOffsetLineEnabled  = false;
+    _polygonOffsetFillEnabled  = false;
     _viewport.set(-1, -1, -1, -1);
     _clearColor.set(-1, -1, -1, -1);
 
@@ -190,7 +190,7 @@ const SLMat4f* SLGLState::mvpMatrix()
 //-----------------------------------------------------------------------------
 /*! Transforms the light position into the view space
  */
- /*
+/*
 void SLGLState::calcLightPosVS(SLint nLights)
 {
     assert(nLights >= 0 && nLights <= SL_MAX_LIGHTS);
@@ -201,7 +201,7 @@ void SLGLState::calcLightPosVS(SLint nLights)
 //-----------------------------------------------------------------------------
 /*! Transforms the lights spot direction into the view space
  */
- /*
+/*
 void SLGLState::calcLightDirVS(SLint nLights)
 {
     assert(nLights >= 0 && nLights <= SL_MAX_LIGHTS);
@@ -217,7 +217,7 @@ void SLGLState::calcLightDirVS(SLint nLights)
  ambient light intensity and the materials ambient reflection. This is used to
  give the scene a minimal ambient lighting.
  */
- /*
+/*
 const SLCol4f* SLGLState::globalAmbient()
 {
     if (_currentMaterial)
@@ -367,29 +367,67 @@ void SLGLState::polygonLine(SLbool stateNew)
 #endif
 }
 //-----------------------------------------------------------------------------
-/*! SLGLState::polygonOffset turns on/off polygon offset (for filled polygons)
+/*! SLGLState::polygonOffsetPoint turns on/off polygon offset for points
  and sets the factor and unit for glPolygonOffset but only if the state really
  changes. Polygon offset is used to reduce z-fighting due to parallel planes or
- lines.
+ lines. See: http://www.zeuscmd.com/tutorials/opengl/15-PolygonOffset.php
  */
-void SLGLState::polygonOffset(SLbool stateNew, SLfloat factor, SLfloat units)
+void SLGLState::polygonOffsetPoint(SLbool enabled, SLfloat factor, SLfloat units)
 {
-    if (_polygonOffsetEnabled != stateNew)
+    if (_polygonOffsetPointEnabled != enabled)
     {
-        if (stateNew)
+        if (enabled)
+        {
+            glEnable(GL_POLYGON_OFFSET_POINT);
+            glPolygonOffset(factor, units);
+        }
+        else
+            glDisable(GL_POLYGON_OFFSET_POINT);
+        _polygonOffsetPointEnabled = enabled;
+
+        GET_GL_ERROR;
+    }
+}
+//-----------------------------------------------------------------------------
+/*! SLGLState::polygonOffsetLine turns on/off polygon offset for lines
+ and sets the factor and unit for glPolygonOffset but only if the state really
+ changes. Polygon offset is used to reduce z-fighting due to parallel planes or
+ lines. See: http://www.zeuscmd.com/tutorials/opengl/15-PolygonOffset.php
+ */
+void SLGLState::polygonOffsetLine(SLbool enabled, SLfloat factor, SLfloat units)
+{
+    if (_polygonOffsetLineEnabled != enabled)
+    {
+        if (enabled)
+        {
+            glEnable(GL_POLYGON_OFFSET_LINE);
+            glPolygonOffset(factor, units);
+        }
+        else
+            glDisable(GL_POLYGON_OFFSET_LINE);
+        _polygonOffsetLineEnabled = enabled;
+
+        GET_GL_ERROR;
+    }
+}
+//-----------------------------------------------------------------------------
+/*! SLGLState::polygonOffsetFill turns on/off polygon offset for filled polygons
+ and sets the factor and unit for glPolygonOffset but only if the state really
+ changes. Polygon offset is used to reduce z-fighting due to parallel planes or
+ lines. See: http://www.zeuscmd.com/tutorials/opengl/15-PolygonOffset.php
+ */
+void SLGLState::polygonOffsetFill(SLbool enabled, SLfloat factor, SLfloat units)
+{
+    if (_polygonOffsetFillEnabled != enabled)
+    {
+        if (enabled)
         {
             glEnable(GL_POLYGON_OFFSET_FILL);
-            if (Utils::abs(_polygonOffsetFactor - factor) > 0.0001f ||
-                Utils::abs(_polygonOffsetUnits - units) > 0.0001f)
-            {
-                glPolygonOffset(factor, units);
-                _polygonOffsetFactor = factor;
-                _polygonOffsetUnits  = units;
-            }
+            glPolygonOffset(factor, units);
         }
         else
             glDisable(GL_POLYGON_OFFSET_FILL);
-        _polygonOffsetEnabled = stateNew;
+        _polygonOffsetFillEnabled = enabled;
 
         GET_GL_ERROR;
     }
