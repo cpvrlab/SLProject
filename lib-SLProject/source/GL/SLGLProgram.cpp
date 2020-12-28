@@ -137,8 +137,8 @@ void SLGLProgram::initRaw()
     }
 }
 //-----------------------------------------------------------------------------
-/*! SLGLProgram::init creates the OpenGL shaderprogram object, compiles all
-shader objects and attaches them to the shaderprogram. At the end all shaders
+/*! SLGLProgram::init creates the OpenGL shader program object, compiles all
+shader objects and attaches them to the shader program. At the end all shaders
 are linked. If a shader fails to compile a simple texture only shader is
 compiled that shows an error message in the texture.
 */

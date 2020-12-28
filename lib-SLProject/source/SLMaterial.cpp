@@ -267,8 +267,11 @@ SLMaterial::~SLMaterial()
 }
 //-----------------------------------------------------------------------------
 /*!
- SLMaterial::activate applies the material parameter to the global render state
- and activates the attached shader.
+ SLMaterial::activate activates this material for rendering if it is not yet
+ the active one and set as SLGLState::currentMaterial. If this material has
+ not yet a shader program assigned (SLMaterial::_program) a suitable program
+ will be generated with an instance of SLGLProgramGenerated.
+ At the end the shader program will begin its usage with SLGLProgram::beginUse.
 */
 void SLMaterial::activate(SLCamera* cam, SLVLight* lights)
 {

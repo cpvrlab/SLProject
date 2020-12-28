@@ -22,17 +22,16 @@ class SLAssetManager;
 /*! An instance of this class generates the shader code on the fly at
  construction time based on the information of the passed material and lights
  vector. The generated program depends on the following parameters:
- - mat->lightModel (Only Blinn-Phong is implemented yet)
- - mat->textures and among them on
-   - Tm = Texture Mapping with diffuse color map)
+ - mat->lightModel (only Blinn-Phong is implemented yet)
+ - mat->textures:
+   - Tm = Texture Mapping with diffuse color map
    - Nm = Normal Mapping with normal map
-   - Pm = Parallax Mapping with normal map and height map (not yet implemented)
-   - Ao = Ambient Occlusion Mapping with ao map that uses uv2 in SLMesh
+   - Ao = Ambient Occlusion Mapping with AO map that uses uv2 in SLMesh
  - light->createsShadows
    - Sm = Shadow Map (single or cube shadow map)
 
  The shader program gets a unique name with the following pattern:
-
+<pre>
  genPerPixBlinnTmNmAo-DsPSs
           |    | | |  ||||+ light before w. shadows
           |    | | |  |||+ Spot light
@@ -43,10 +42,18 @@ class SLAssetManager;
           |    | + Normal Mapping
           |    + Texture Mapping
           + Blinn lighting model
-
+</pre>
  The above example is for a material with 3 textures and a scene with 3
  lights where the first directional light and the third spot light generate
  shadows.
+ The shader program is constructed when a material is for the first time
+ activated (SLMaterial::activate) and it's program pointer is null. The old
+ system of custom written GLSL shader program is still valid.
+ At the end of SLMaterial::activate the generated vertex and fragment shader
+ get compiled, linked and activated with the OpenGL functions in SLGLShader
+ and SLGLProgram.
+ After successful compilation the shader get exported into the applications
+ config directory if they not yet exist there.
 */
 class SLGLProgramGenerated : public SLGLProgram
 {
