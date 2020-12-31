@@ -75,9 +75,22 @@ if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "MSVC")
         /GL           # -> whole program optimization: enable link-time code generation (disables Zi)
         /GF           # -> enable string pooling
         >
-
         # No manual c++11 enable for MSVC as all supported MSVC versions for cmake-init have C++11 implicitly enabled (MSVC >=2013)
     )
+
+	set(EXTERNAL_LIB_COMPILE_OPTIONS ${EXTERNAL_LIB_COMPILE_OPTIONS}
+			/MP           # -> build with multiple processes
+			#/W0           # -> warning level 0 all off
+			#/w
+
+			$<$<CONFIG:Release>:
+			/Gw           # -> whole program global optimization
+			/GS-          # -> buffer security check: no
+			/GL           # -> whole program optimization: enable link-time code generation (disables Zi)
+			/GF           # -> enable string pooling
+			>
+			# No manual c++11 enable for MSVC as all supported MSVC versions for cmake-init have C++11 implicitly enabled (MSVC >=2013)
+			)
 endif ()
 
 # GCC and Clang compiler options
@@ -152,27 +165,14 @@ if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU" OR "${CMAKE_CXX_COMPILER_ID}" MATCH
 		)
 		#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${MSVC_COMPILE_FLAGS} -fobjc-arc" )
 	endif()
+
+	# set correct architecture for MacOS (x86_64 or arm64): Needs cmake 3.19.2
+	if("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN")
+		set(CMAKE_OSX_ARCHITECTURES ${CMAKE_SYSTEM_PROCESSOR})
+	endif()
 endif ()
 
 set(EXTERNAL_LIB_COMPILE_OPTIONS)
-
-# MSVC compiler options
-if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "MSVC")
-    set(EXTERNAL_LIB_COMPILE_OPTIONS ${EXTERNAL_LIB_COMPILE_OPTIONS}
-        /MP           # -> build with multiple processes
-        #/W0           # -> warning level 0 all off
-        #/w
-
-        $<$<CONFIG:Release>:
-        /Gw           # -> whole program global optimization
-        /GS-          # -> buffer security check: no
-        /GL           # -> whole program optimization: enable link-time code generation (disables Zi)
-        /GF           # -> enable string pooling
-        >
-
-        # No manual c++11 enable for MSVC as all supported MSVC versions for cmake-init have C++11 implicitly enabled (MSVC >=2013)
-    )
-endif ()
 
 #
 # Linker options

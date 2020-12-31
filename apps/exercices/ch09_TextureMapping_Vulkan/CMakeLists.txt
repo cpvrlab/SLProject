@@ -159,26 +159,16 @@ file(GLOB SHADER_SOURCE_FILES
     )
 
 foreach(SHADER ${SHADER_SOURCE_FILES})
-    
     get_filename_component(FILE_NAME ${SHADER} NAME)
-    
-    set(SPIRV_OUTPUT "${SL_PROJECT_ROOT}/data/shaders/${FILE_NAME}.spv") 
-
-    message(STATUS "------------------------------------")
-    message(STATUS ${SHADER})
+    set(SPIRV_OUTPUT "${SL_PROJECT_ROOT}/data/shaders/${FILE_NAME}.spv")
 
     add_custom_command(
         OUTPUT ${SPIRV_OUTPUT}
         COMMAND ${GLSLC} ${SHADER} -o ${SPIRV_OUTPUT}
-         DEPENDS ${SHADER})
+        DEPENDS ${SHADER})
         
-        message(STATUS ${SPIRV_OUTPUT})
-
-        list(APPEND SPIRV_BINARY_FILES ${SPIRV_OUTPUT})
-
-        message(STATUS "------------------------------")
-        message(STATUS ${SPIRV_BINARY_FILES})
-
+    message(STATUS "Compiled for Vulkan: " ${SPIRV_OUTPUT})
+    list(APPEND SPIRV_BINARY_FILES ${SPIRV_OUTPUT})
 endforeach(SHADER)
 
  add_custom_target(

@@ -1,10 +1,10 @@
 #!/bin/sh
 
 # ####################################################
-# Build script for g2o for mac64
+# Build script for g2o for macArm64
 # ####################################################
 
-ARCH=mac64
+ARCH="macArm64"
 ZIPFILE="$ARCH"_g2o
 ZIPFOLDER=build/$ZIPFILE
 BUILD_D=build/"$ARCH"_debug
@@ -22,7 +22,7 @@ cd $BUILD_D
 
 # Run cmake to configure and generate the make files
 cmake \
-    -DCMAKE_OSX_ARCHITECTURES=x86_64 \
+    -DCMAKE_OSX_ARCHITECTURES=arm64 \
     -DCMAKE_INSTALL_PREFIX=install \
     -DG2O_BUILD_APPS=off \
     -DG2O_BUILD_EXAMPLES=off \

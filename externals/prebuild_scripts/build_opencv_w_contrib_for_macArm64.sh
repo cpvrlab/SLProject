@@ -1,19 +1,19 @@
 #!/bin/sh
 
-# ####################################################
-# Build script for OpenCV with contributions for MacOS
-# ####################################################
+# ##########################################################
+# Build script for OpenCV with contributions for MacArm64
+# ##########################################################
 
 CV_VERSION=$1
-ARCH="mac64"
+ARCH="macArm64"
 ZIPFOLDER=build/"$ARCH"_opencv_"$CV_VERSION"
 BUILD_D=build/"$ARCH"_debug_"$CV_VERSION"
 BUILD_R=build/"$ARCH"_release_"$CV_VERSION"
 
 clear
-echo "============================================================"
+echo "==============================================================="
 echo "Building OpenCV Version: $CV_VERSION for architecture: $ARCH"
-echo "============================================================"
+echo "==============================================================="
 
 # Check tag parameter
 if [ "$1" == "" ]; then
@@ -60,8 +60,8 @@ cd $BUILD_D
 
 # Run cmake to configure and generate for mac64 debug
 cmake \
--DCMAKE_OSX_ARCHITECTURES=x86_64 \
 -DCMAKE_CONFIGURATION_TYPES=Debug \
+-DCMAKE_OSX_ARCHITECTURES=arm64 \
 -DCMAKE_BUILD_TYPE=Debug \
 -DBUILD_WITH_DEBUG_INFO=true \
 -DCMAKE_INSTALL_PREFIX=./install \
@@ -92,6 +92,7 @@ cd $BUILD_R
 # Run cmake to configure and generate the make files
 cmake \
 -DCMAKE_CONFIGURATION_TYPES=Release \
+-DCMAKE_OSX_ARCHITECTURES=arm64 \
 -DCMAKE_BUILD_TYPE=Release \
 -DBUILD_WITH_DEBUG_INFO=false \
 -DCMAKE_INSTALL_PREFIX=./install \
