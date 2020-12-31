@@ -727,6 +727,8 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN" AND
 
     message(STATUS "Configure prebuilts for MacOS-arm64 -----------------------------------")
 
+    set(COPY_LIBS_TO_CONFIG_FOLDER TRUE)
+
     ##########################
     # OpenCV for MacOS-arm64 #
     ##########################
