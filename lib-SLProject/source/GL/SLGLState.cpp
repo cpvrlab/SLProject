@@ -326,18 +326,16 @@ void SLGLState::blendFunc(SLenum newBlendFuncSFactor,
  */
 void SLGLState::multiSample(SLbool stateNew)
 {
-#ifndef APP_USES_GLES
+#ifndef SL_GLES3
     if (_multisample != stateNew)
     {
         if (_multiSampleSamples > 0)
         {
-#    ifndef SL_GLES3
             if (stateNew)
                 glEnable(GL_MULTISAMPLE);
             else
                 glDisable(GL_MULTISAMPLE);
             _multisample = stateNew;
-#    endif
         }
 
         GET_GL_ERROR;
@@ -351,16 +349,14 @@ void SLGLState::multiSample(SLbool stateNew)
  */
 void SLGLState::polygonLine(SLbool stateNew)
 {
-#ifndef APP_USES_GLES
+#ifndef SL_GLES3
     if (_polygonLine != stateNew)
     {
-#    ifndef SL_GLES3
         if (stateNew)
             glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         else
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         _polygonLine = stateNew;
-#    endif
 
         GET_GL_ERROR;
     }
@@ -374,6 +370,7 @@ void SLGLState::polygonLine(SLbool stateNew)
  */
 void SLGLState::polygonOffsetPoint(SLbool enabled, SLfloat factor, SLfloat units)
 {
+#ifndef SL_GLES3
     if (_polygonOffsetPointEnabled != enabled)
     {
         if (enabled)
@@ -387,6 +384,7 @@ void SLGLState::polygonOffsetPoint(SLbool enabled, SLfloat factor, SLfloat units
 
         GET_GL_ERROR;
     }
+#endif
 }
 //-----------------------------------------------------------------------------
 /*! SLGLState::polygonOffsetLine turns on/off polygon offset for lines
@@ -396,6 +394,7 @@ void SLGLState::polygonOffsetPoint(SLbool enabled, SLfloat factor, SLfloat units
  */
 void SLGLState::polygonOffsetLine(SLbool enabled, SLfloat factor, SLfloat units)
 {
+#ifndef SL_GLES3
     if (_polygonOffsetLineEnabled != enabled)
     {
         if (enabled)
@@ -409,6 +408,7 @@ void SLGLState::polygonOffsetLine(SLbool enabled, SLfloat factor, SLfloat units)
 
         GET_GL_ERROR;
     }
+#endif
 }
 //-----------------------------------------------------------------------------
 /*! SLGLState::polygonOffsetFill turns on/off polygon offset for filled polygons

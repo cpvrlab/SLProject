@@ -864,7 +864,7 @@ void SLGLProgramGenerated::buildPerPixBlinnTmNmAoSm(SLVLight* lights)
 {
     // Assemble vertex shader code
     string vertCode;
-    vertCode += shaderHeader(lights->size());
+    vertCode += shaderHeader((int)lights->size());
     vertCode += vertInputs_a_pn;
     vertCode += vertInputs_a_uv1;
     vertCode += vertInputs_a_uv2;
@@ -887,7 +887,7 @@ void SLGLProgramGenerated::buildPerPixBlinnTmNmAoSm(SLVLight* lights)
 
     // Assemble fragment shader code
     string fragCode;
-    fragCode += shaderHeader(lights->size());
+    fragCode += shaderHeader((int)lights->size());
     fragCode += R"(
 in      vec3        v_P_VS;     // Interpol. point of illumination in view space (VS)
 in      vec3        v_P_WS;     // Interpol. point of illumination in world space (WS)
@@ -920,7 +920,7 @@ void SLGLProgramGenerated::buildPerPixBlinnTmNmAo(SLVLight* lights)
 {
     // Assemble vertex shader code
     string vertCode;
-    vertCode += shaderHeader(lights->size());
+    vertCode += shaderHeader((int)lights->size());
     vertCode += vertInputs_a_pn;
     vertCode += vertInputs_a_uv1;
     vertCode += vertInputs_a_uv2;
@@ -940,7 +940,7 @@ void SLGLProgramGenerated::buildPerPixBlinnTmNmAo(SLVLight* lights)
 
     // Assemble fragment shader code
     string fragCode;
-    fragCode += shaderHeader(lights->size());
+    fragCode += shaderHeader((int)lights->size());
     fragCode += R"(
 in      vec3        v_P_VS;     // Interpol. point of illumination in view space (VS)
 in      vec2        v_uv1;      // Texture coordinate 1 varying for diffuse color
@@ -969,7 +969,7 @@ void SLGLProgramGenerated::buildPerPixBlinnTmNmSm(SLVLight* lights)
 {
     // Assemble vertex shader code
     string vertCode;
-    vertCode += shaderHeader(lights->size());
+    vertCode += shaderHeader((int)lights->size());
     vertCode += vertInputs_a_pn;
     vertCode += vertInputs_a_uv1;
     vertCode += vertInputs_a_tangent;
@@ -989,7 +989,7 @@ void SLGLProgramGenerated::buildPerPixBlinnTmNmSm(SLVLight* lights)
 
     // Assemble fragment shader code
     string fragCode;
-    fragCode += shaderHeader(lights->size());
+    fragCode += shaderHeader((int)lights->size());
     fragCode += R"(
 in      vec3        v_P_VS;     // Interpol. point of illumination in view space (VS)
 in      vec3        v_P_WS;     // Interpol. point of illumination in world space (WS)
@@ -1021,7 +1021,7 @@ void SLGLProgramGenerated::buildPerPixBlinnTmAoSm(SLVLight* lights)
 {
     // Assemble vertex shader code
     string vertCode;
-    vertCode += shaderHeader(lights->size());
+    vertCode += shaderHeader((int)lights->size());
     vertCode += vertInputs_a_pn;
     vertCode += vertInputs_a_uv1;
     vertCode += vertInputs_a_uv2;
@@ -1041,7 +1041,7 @@ void SLGLProgramGenerated::buildPerPixBlinnTmAoSm(SLVLight* lights)
 
     // Assemble fragment shader code
     string fragCode;
-    fragCode += shaderHeader(lights->size());
+    fragCode += shaderHeader((int)lights->size());
     fragCode += R"(
 in      vec3        v_P_VS;     // Interpol. point of illumination in view space (VS)
 in      vec3        v_P_WS;     // Interpol. point of illumination in world space (WS)
@@ -1072,7 +1072,7 @@ void SLGLProgramGenerated::buildPerPixBlinnTmSm(SLVLight* lights)
 {
     // Assemble vertex shader code
     string vertCode;
-    vertCode += shaderHeader(lights->size());
+    vertCode += shaderHeader((int)lights->size());
     vertCode += vertInputs_a_pn;
     vertCode += vertInputs_a_uv1;
     vertCode += vertInputs_u_matrices;
@@ -1089,7 +1089,7 @@ void SLGLProgramGenerated::buildPerPixBlinnTmSm(SLVLight* lights)
 
     // Assemble fragment shader code
     string fragCode;
-    fragCode += shaderHeader(lights->size());
+    fragCode += shaderHeader((int)lights->size());
     fragCode += R"(
 in      vec3        v_P_VS;     // Interpol. point of illumination in view space (VS)
 in      vec3        v_P_WS;     // Interpol. point of illumination in world space (WS)
@@ -1119,7 +1119,7 @@ void SLGLProgramGenerated::buildPerPixBlinnNmSm(SLVLight* lights)
 {
     // Assemble vertex shader code
     string vertCode;
-    vertCode += shaderHeader(lights->size());
+    vertCode += shaderHeader((int)lights->size());
     vertCode += vertInputs_a_pn;
     vertCode += vertInputs_a_uv1;
     vertCode += vertInputs_a_tangent;
@@ -1139,7 +1139,7 @@ void SLGLProgramGenerated::buildPerPixBlinnNmSm(SLVLight* lights)
 
     // Assemble fragment shader code
     string fragCode;
-    fragCode += shaderHeader(lights->size());
+    fragCode += shaderHeader((int)lights->size());
     fragCode += R"(
 in      vec3        v_P_VS;     // Interpol. point of illumination in view space (VS)
 in      vec3        v_P_WS;     // Interpol. point of illumination in world space (WS)
@@ -1171,7 +1171,7 @@ void SLGLProgramGenerated::buildPerPixBlinnAoSm(SLVLight* lights)
 {
     // Assemble vertex shader code
     string vertCode;
-    vertCode += shaderHeader(lights->size());
+    vertCode += shaderHeader((int)lights->size());
     vertCode += vertInputs_a_pn;
     vertCode += vertInputs_a_uv2;
     vertCode += vertInputs_u_matrices;
@@ -1188,7 +1188,7 @@ void SLGLProgramGenerated::buildPerPixBlinnAoSm(SLVLight* lights)
 
     // Assemble fragment shader code
     string fragCode;
-    fragCode += shaderHeader(lights->size());
+    fragCode += shaderHeader((int)lights->size());
     fragCode += R"(
 in      vec3        v_P_VS;     // Interpol. point of illumination in view space (VS)
 in      vec3        v_P_WS;     // Interpol. point of illumination in world space (WS)
@@ -1218,7 +1218,7 @@ void SLGLProgramGenerated::buildPerPixBlinnNmAo(SLVLight* lights)
 {
     // Assemble vertex shader code
     string vertCode;
-    vertCode += shaderHeader(lights->size());
+    vertCode += shaderHeader((int)lights->size());
     vertCode += vertInputs_a_pn;
     vertCode += vertInputs_a_uv1;
     vertCode += vertInputs_a_uv2;
@@ -1238,7 +1238,7 @@ void SLGLProgramGenerated::buildPerPixBlinnNmAo(SLVLight* lights)
 
     // Assemble fragment shader code
     string fragCode;
-    fragCode += shaderHeader(lights->size());
+    fragCode += shaderHeader((int)lights->size());
     fragCode += R"(
 in      vec3        v_P_VS;     // Interpol. point of illumination in view space (VS)
 in      vec2        v_uv1;      // Texture coordinate 1 varying for normal map
@@ -1267,7 +1267,7 @@ void SLGLProgramGenerated::buildPerPixBlinnTmAo(SLVLight* lights)
 {
     // Assemble vertex shader code
     string vertCode;
-    vertCode += shaderHeader(lights->size());
+    vertCode += shaderHeader((int)lights->size());
     vertCode += vertInputs_a_pn;
     vertCode += vertInputs_a_uv1;
     vertCode += vertInputs_a_uv2;
@@ -1285,7 +1285,7 @@ void SLGLProgramGenerated::buildPerPixBlinnTmAo(SLVLight* lights)
 
     // Assemble fragment shader code
     string fragCode;
-    fragCode += shaderHeader(lights->size());
+    fragCode += shaderHeader((int)lights->size());
     fragCode += R"(
 in      vec3        v_P_VS;     // Interpol. point of illumination in view space (VS)
 in      vec3        v_N_VS;     // Interpol. normal at v_P_VS in view space
@@ -1312,7 +1312,7 @@ void SLGLProgramGenerated::buildPerPixBlinnTmNm(SLVLight* lights)
 {
     // Assemble vertex shader code
     string vertCode;
-    vertCode += shaderHeader(lights->size());
+    vertCode += shaderHeader((int)lights->size());
     vertCode += vertInputs_a_pn;
     vertCode += vertInputs_a_uv1;
     vertCode += vertInputs_a_tangent;
@@ -1329,7 +1329,7 @@ void SLGLProgramGenerated::buildPerPixBlinnTmNm(SLVLight* lights)
 
     // Assemble fragment shader code
     string fragCode;
-    fragCode += shaderHeader(lights->size());
+    fragCode += shaderHeader((int)lights->size());
     fragCode += R"(
 in      vec3        v_P_VS;                     // Interpol. point of illumination in view space (VS)
 in      vec2        v_uv1;                      // Texture coordinate varying
@@ -1357,7 +1357,7 @@ void SLGLProgramGenerated::buildPerPixBlinnSm(SLVLight* lights)
 {
     // Assemble vertex shader code
     string vertCode;
-    vertCode += shaderHeader(lights->size());
+    vertCode += shaderHeader((int)lights->size());
     vertCode += vertInputs_a_pn;
     vertCode += vertInputs_u_matrices;
     vertCode += vertOutputs_v_P_VS;
@@ -1371,7 +1371,7 @@ void SLGLProgramGenerated::buildPerPixBlinnSm(SLVLight* lights)
 
     // Assemble fragment shader code
     string fragCode;
-    fragCode += shaderHeader(lights->size());
+    fragCode += shaderHeader((int)lights->size());
     fragCode += R"(
 in      vec3        v_P_VS;     // Interpol. point of illumination in view space (VS)
 in      vec3        v_P_WS;     // Interpol. point of illumination in world space (WS)
@@ -1400,7 +1400,7 @@ void SLGLProgramGenerated::buildPerPixBlinnAo(SLVLight* lights)
 {
     // Assemble vertex shader code
     string vertCode;
-    vertCode += shaderHeader(lights->size());
+    vertCode += shaderHeader((int)lights->size());
     vertCode += vertInputs_a_pn;
     vertCode += vertInputs_a_uv2;
     vertCode += vertInputs_u_matrices;
@@ -1415,7 +1415,7 @@ void SLGLProgramGenerated::buildPerPixBlinnAo(SLVLight* lights)
 
     // Assemble fragment shader code
     string fragCode;
-    fragCode += shaderHeader(lights->size());
+    fragCode += shaderHeader((int)lights->size());
     fragCode += R"(
 in      vec3        v_P_VS;     // Interpol. point of illumination in view space (VS)
 in      vec3        v_N_VS;     // Interpol. normal at v_P_VS in view space
@@ -1441,7 +1441,7 @@ void SLGLProgramGenerated::buildPerPixBlinnNm(SLVLight* lights)
 {
     // Assemble vertex shader code
     string vertCode;
-    vertCode += shaderHeader(lights->size());
+    vertCode += shaderHeader((int)lights->size());
     vertCode += vertInputs_a_pn;
     vertCode += vertInputs_a_uv1;
     vertCode += vertInputs_a_tangent;
@@ -1458,7 +1458,7 @@ void SLGLProgramGenerated::buildPerPixBlinnNm(SLVLight* lights)
 
     // Assemble fragment shader code
     string fragCode;
-    fragCode += shaderHeader(lights->size());
+    fragCode += shaderHeader((int)lights->size());
     fragCode += R"(
 in      vec3        v_P_VS;                     // Interpol. point of illumination in view space (VS)
 in      vec2        v_uv1;                      // Texture coordinate varying
@@ -1486,7 +1486,7 @@ void SLGLProgramGenerated::buildPerPixBlinnTm(SLVLight* lights)
 {
     // Assemble vertex shader code
     string vertCode;
-    vertCode += shaderHeader(lights->size());
+    vertCode += shaderHeader((int)lights->size());
     vertCode += vertInputs_a_pn;
     vertCode += vertInputs_a_uv1;
     vertCode += vertInputs_u_matrices;
@@ -1501,7 +1501,7 @@ void SLGLProgramGenerated::buildPerPixBlinnTm(SLVLight* lights)
 
     // Assemble fragment shader code
     string fragCode;
-    fragCode += shaderHeader(lights->size());
+    fragCode += shaderHeader((int)lights->size());
     fragCode += R"(
 in      vec3   v_P_VS;  // Interpol. point of illumination in view space (VS)
 in      vec3   v_N_VS;  // Interpol. normal at v_P_VS in view space
@@ -1531,7 +1531,7 @@ void SLGLProgramGenerated::buildPerPixBlinn(SLVLight* lights)
 
     // Assemble vertex shader code
     string vertCode;
-    vertCode += shaderHeader(lights->size());
+    vertCode += shaderHeader((int)lights->size());
     vertCode += vertInputs_a_pn;
     vertCode += vertInputs_u_matrices;
     vertCode += vertOutputs_v_P_VS;
@@ -1543,7 +1543,7 @@ void SLGLProgramGenerated::buildPerPixBlinn(SLVLight* lights)
 
     // Assemble fragment shader code
     string fragCode;
-    fragCode += shaderHeader(lights->size());
+    fragCode += shaderHeader((int)lights->size());
     fragCode += R"(
 in      vec3        v_P_VS;     // Interpol. point of illumination in view space (VS)
 in      vec3        v_N_VS;     // Interpol. normal at v_P_VS in view space
