@@ -111,6 +111,7 @@ private:
     static void   addCodeToShader(SLGLShader*   shader,
                                   const string& code,
                                   const string& name);
+    static string generatedShaderPath; //! Path to write out generated shaders
 };
 //-----------------------------------------------------------------------------
 #endif

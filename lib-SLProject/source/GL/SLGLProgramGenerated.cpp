@@ -22,6 +22,8 @@ using std::to_string;
 ///////////////////////////////
 
 //-----------------------------------------------------------------------------
+string SLGLProgramGenerated::generatedShaderPath;
+//-----------------------------------------------------------------------------
 const string vertInputs_a_pn = R"(
 layout (location = 0) in vec4  a_position;  // Vertex position attribute
 layout (location = 1) in vec3  a_normal;    // Vertex normal attribute)";
@@ -1739,7 +1741,19 @@ void SLGLProgramGenerated::addCodeToShader(SLGLShader*   shader,
 {
     shader->code(SLGLShader::removeComments(code));
     shader->name(name);
-    shader->file(SLGLProgramManager::configPath + name);
+
+    // Check if generatedShaderPath folder exists
+    generatedShaderPath = SLGLProgramManager::configPath + "generatedShaders/";
+    if (!Utils::dirExists(SLGLProgramManager::configPath))
+        SL_EXIT_MSG("SLGLProgramGenerated::addCodeToShader: SLGLProgramManager::configPath not existing");
+    if (!Utils::dirExists(generatedShaderPath))
+    {
+        bool dirCreated = Utils::makeDir(generatedShaderPath);
+        if (!dirCreated)
+            SL_EXIT_MSG("SLGLProgramGenerated::addCodeToShader: Failed to created SLGLProgramManager::configPath/generatedShaders");
+    }
+
+    shader->file(generatedShaderPath + name);
 }
 //-----------------------------------------------------------------------------
 //! Adds shader header code

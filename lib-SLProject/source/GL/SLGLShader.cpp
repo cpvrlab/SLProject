@@ -34,6 +34,11 @@ SLGLShader::SLGLShader()
 }
 //-----------------------------------------------------------------------------
 //! Ctor with shader filename & shader type
+/*! If the shader filename does not belong to an existing file the shader code
+ * will be generated at a later stage by SLGLProgramGenerated.
+ * @param filename Path and filename of the shader to be loaded or generated.
+ * @param shaderType Shader type: ST_vertex, ST_fragment and ST_geometry.
+ */
 SLGLShader::SLGLShader(const SLstring& filename, SLShaderType shaderType)
   : SLObject(Utils::getFileName(filename), filename)
 {
