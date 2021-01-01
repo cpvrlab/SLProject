@@ -88,10 +88,12 @@ file(GLOB DATA "${DATA_DIR}")
 set(XIB_FILES
 	${CMAKE_CURRENT_SOURCE_DIR}/Base.lproj/ViewController_iPad.xib
 	${CMAKE_CURRENT_SOURCE_DIR}/Base.lproj/ViewController_iPhone.xib
+    ${CMAKE_CURRENT_SOURCE_DIR}/LaunchScreenSLDemo.storyboard
 	)
 
 set(ASSET_CATALOG
 	${CMAKE_CURRENT_SOURCE_DIR}/Images/Images.xcassets
+    ${CMAKE_CURRENT_SOURCE_DIR}/Images/LaunchImage_1024x768.png
 	)
 
 # Group data resource files in Xcode Resource directory
@@ -132,8 +134,15 @@ set_target_properties(
         XCODE_ATTRIBUTE_ENABLE_TESTABILITY NO
         XCODE_ATTRIBUTE_GCC_SYMBOLS_PRIVATE_EXTERN YES
 		XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_APPICON_NAME "AppIcon" #defines icon name in asset catalog (images.xcassets)
-		XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME "LaunchImage"  #defines launch screen image name in asset catalog (images.xcassets)
+		# apple requires storyboard launchscreens now so the following will not come into store:
+		# XCODE_ATTRIBUTE_ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME "LaunchImage"  #defines launch screen image name in asset catalog (images.xcassets)
     )
+
+if(XCODE_PROVISIONINGPROFILE)
+	set_xcode_property(${target} PROVISIONING_PROFILE_SPECIFIER ${XCODE_PROVISIONINGPROFILE})
+endif()
+set_xcode_property(${target} CODE_SIGN_IDENTITY ${XCODE_CODESIGNIDENTITY})
+set_xcode_property(${target} DEVELOPMENT_TEAM ${XCODE_DEVELOPMENTTEAM})
 
 target_include_directories(
         ${target}
@@ -152,12 +161,6 @@ target_include_directories(
         PUBLIC
         INTERFACE
     )
-	
-if(XCODE_PROVISIONINGPROFILE)
-	set_xcode_property(${target} PROVISIONING_PROFILE_SPECIFIER ${XCODE_PROVISIONINGPROFILE})
-endif()
-set_xcode_property(${target} CODE_SIGN_IDENTITY ${XCODE_CODESIGNIDENTITY})
-set_xcode_property(${target} DEVELOPMENT_TEAM ${XCODE_DEVELOPMENTTEAM})
 
 target_link_libraries(
         ${target}
