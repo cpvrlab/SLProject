@@ -17,6 +17,7 @@ class ftplib;
 
 using namespace std;
 
+//! FtpUtils provides networking functionality via the FTP protocol
 namespace FtpUtils
 {
 bool uploadFileLatestVersion(const string& fileDir,
