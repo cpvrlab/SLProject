@@ -13,6 +13,7 @@
 #include <string>
 #include <functional>
 
+//! ZipUtils provides compressing & decompressing files and folders
 namespace ZipUtils
 {
 bool zip(string path, string zipname = "");

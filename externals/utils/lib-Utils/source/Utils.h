@@ -27,13 +27,12 @@ using std::vector;
 
 //class FileLog;
 //-----------------------------------------------------------------------------
-//! Utils provides utility functions
+//! Utils provides utilities for string & file handling, logging and math functions
 /*!
  Function are grouped into sections:
  - String Handling Functions
  - File Handling Functions
  - Logging Functions
- - Network Handling Functions
  - Math Constants and Functions
 */
 namespace Utils
@@ -172,13 +171,14 @@ string getCurrentWorkingDir();
 bool deleteFile(string& pathfilename);
 
 //! process all files and folders recursively naturally sorted
-void loopFileSystemRec(const string&                                                          path,
-                       std::function<void(std::string path, std::string baseName, int depth)> processFile,
-                       std::function<void(std::string path, std::string baseName, int depth)> processDir,
-                       const int                                                              depth = 0);
+void loopFileSystemRec(const string& path,
+                       function<void(string path, string baseName, int depth)> processFile,
+                       function<void(string path, string baseName, int depth)> processDir,
+                       const int depth = 0);
 
 //! Dumps all folders and files recursovely
-void dumpFileSystemRec(const char* logtag, const string& folderpath);
+void dumpFileSystemRec(const char*   logtag,
+                       const string& folderpath);
 
 //! Tries to find a filename on various paths to check
 string findFile(const string&         filename,
@@ -219,13 +219,6 @@ void errorMsg(const char* tag,
 
 //! Returns in release config the max. NO. of threads otherwise 1
 unsigned int maxThreads();
-
-////////////////////////////////
-// Network Handling Functions //
-////////////////////////////////
-
-//! Download a file from an http url into the outFile
-uint64_t httpGet(const string& httpURL, const string& outFolder = "");
 
 //////////////////////////////////
 // Math Constants and Functions //

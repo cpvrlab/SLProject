@@ -847,7 +847,9 @@ void removeFile(const string& path)
 #endif
     }
     else
-        log("Could not remove file : %s\nErrno: %s\n", path.c_str(), "file does not exist");
+        log("Could not remove file : %s\nErrno: %s\n",
+            path.c_str(),
+            "file does not exist");
 }
 //-----------------------------------------------------------------------------
 // Returns true if a file exists.
@@ -880,7 +882,8 @@ unsigned int getFileSize(const string& pathfilename)
     return (unsigned int)st.st_size;
 #endif
 }
-
+//-----------------------------------------------------------------------------
+//! Returns the file size in bytes
 unsigned int getFileSize(std::ifstream& fs)
 {
     fs.seekg(0, std::ios::beg);
@@ -962,10 +965,10 @@ bool deleteFile(string& pathfilename)
 }
 //-----------------------------------------------------------------------------
 // process all files and folders recursively naturally sorted
-void loopFileSystemRec(const string&                                                          path,
-                       std::function<void(std::string path, std::string baseName, int depth)> processFile,
-                       std::function<void(std::string path, std::string baseName, int depth)> processDir,
-                       const int                                                              depth)
+void loopFileSystemRec(const string&                                           path,
+                       function<void(string path, string baseName, int depth)> processFile,
+                       function<void(string path, string baseName, int depth)> processDir,
+                       const int                                               depth)
 {
     // be sure that the folder slashes are correct
     string folder = unifySlashes(path);
@@ -1018,47 +1021,6 @@ void dumpFileSystemRec(const char* logtag, const string& folderPath)
           Utils::log(logtag, "%s", indentFolderName.c_str());
       });
 }
-
-/*
-void dumpFileSystemRec(const char*   logtag,
-                       const string& folderPath,
-                       const int     depth)
-{
-    const char* tab = "    ";
-
-    // be sure that the folder slashes are correct
-    string folder = unifySlashes(folderPath);
-
-    if (dirExists(folder))
-    {
-        string indent;
-        for (int d = 0; d < depth; ++d)
-            indent += tab;
-
-        // log current folder name
-        string folderName       = getFileName(Utils::trimString(folder, "/"));
-        string indentFolderName = indent + "[" + folderName + "]";
-        Utils::log(logtag, "%s", indentFolderName.c_str());
-
-        vector<string> unsortedNames = getAllNamesInDir(folder);
-        sort(unsortedNames.begin(), unsortedNames.end(), Utils::compareNatural);
-
-        for (const auto& fileOrFolder : unsortedNames)
-        {
-            if (dirExists(fileOrFolder))
-                dumpFileSystemRec(logtag, fileOrFolder, depth + 1);
-            else
-            {
-                // log current file name
-                string fileName       = tab + getFileName(fileOrFolder);
-                string indentFileName = indent + fileName;
-                Utils::log(logtag, "%s", indentFileName.c_str());
-            }
-        }
-    }
-}
-*/
-
 //-----------------------------------------------------------------------------
 // findFile return the full path with filename
 /* Unfortunatelly the relative folder structure on different OS are not identical.
@@ -1088,7 +1050,6 @@ void initFileLog(const string& logDir, bool forceFlush)
 {
     fileLog = std::make_unique<FileLog>(logDir, forceFlush);
 }
-
 //-----------------------------------------------------------------------------
 // logs a formatted string platform independently
 void log(const char* tag, const char* format, ...)
@@ -1199,163 +1160,10 @@ unsigned int maxThreads()
 }
 //-----------------------------------------------------------------------------
 
-////////////////////////////////
-// Network Handling Functions //
-////////////////////////////////
-//-----------------------------------------------------------------------------
-/*! Downloads the file at httpURL with the same name in the outFolder. If the
-outFolder is empty it is stored in the current working directory.
-*/
-uint64_t httpGet(const string& httpURL, const string& outFolder)
-{
-    try
-    {
-        // Remove "http://"
-        string url = httpURL;
-        replaceString(url, "http://", "");
+////////////////////
+// Math Utilities //
+////////////////////
 
-        // Get server name and get command
-        string serverName  = url.substr(0, url.find('/'));
-        string getCommand  = url.substr(url.find('/'), url.length());
-        string outFilename = url.substr(url.find_last_of('/') + 1, url.length());
-
-        asio::io_service io_service;
-
-        // Get a list of endpoints corresponding to the server name.
-        tcp::resolver           resolver(io_service);
-        tcp::resolver::query    query(serverName, "http");
-        tcp::resolver::iterator endpoint_iterator = resolver.resolve(query);
-        tcp::resolver::iterator end;
-
-        // Try each endpoint until we successfully establish a connection.
-        tcp::socket      socket(io_service);
-        asio::error_code error = asio::error::host_not_found;
-        while (error && endpoint_iterator != end)
-        {
-            socket.close();
-            socket.connect(*endpoint_iterator++, error);
-        }
-
-        asio::streambuf request;
-        std::ostream    request_stream(&request);
-
-        request_stream << "GET " << getCommand << " HTTP/1.0\r\n";
-        request_stream << "Host: " << serverName << "\r\n";
-        request_stream << "Accept: */*\r\n";
-        request_stream << "Connection: close\r\n\r\n";
-
-        // Send the request.
-        asio::write(socket, request);
-
-        // Read the response status line.
-        asio::streambuf response;
-        asio::read_until(socket, response, "\r\n");
-
-        // Check that response is OK.
-        std::istream response_stream(&response);
-        string       httpVersion;
-        response_stream >> httpVersion;
-        unsigned int statusCode = 0;
-        response_stream >> statusCode;
-        string statusMsg;
-        getline(response_stream, statusMsg);
-        statusMsg = trimString(statusMsg);
-        replaceString(statusMsg, "\r", "");
-        replaceString(statusMsg, "\n", "");
-
-        // Check HTTP response status (400 means bad request)
-        if (statusCode != 200)
-        {
-            log("httpGet",
-                "httpGet: HTTP Response returned status code: %d (%s)\n",
-                statusCode,
-                statusMsg.c_str());
-            return 0;
-        }
-
-        //cout << endl << "Http-Status: " << statusCode << endl;
-
-        // Read the response headers, which are terminated by a blank line.
-        asio::read_until(socket, response, "\r\n\r\n");
-
-        // Process the response headers.
-        string headerLine;
-        while (std::getline(response_stream, headerLine) && headerLine != "\r")
-        {
-            size_t splitPos = headerLine.find_first_of(':');
-            string info     = headerLine.substr(0, splitPos);
-            string value    = headerLine.substr(splitPos + 2);
-            //cout << info << ":" << value << endl;
-        }
-
-        // Build full outFolderFilename
-        string outFolderFilename;
-        string cwd = getCurrentWorkingDir();
-        if (outFolder.empty())
-        {
-            outFolderFilename = cwd + outFilename;
-        }
-        else
-        {
-            if (dirExists(outFolder))
-                outFolderFilename = outFolder + outFilename;
-            else
-            {
-                string msg = "Outfolder not found: " + outFolder;
-                exitMsg("httpGet", msg.c_str(), __LINE__, __FILE__);
-            }
-        }
-
-        std::ofstream outFile(outFolderFilename, std::ofstream::out | std::ofstream::binary);
-
-        if (outFile.is_open())
-        {
-            // Some statistics
-            size_t bytesRead  = 0;
-            size_t totalBytes = 0;
-            size_t numChunks  = 0;
-
-            // Write whatever content we already have to output.
-            if (response.size() > 0)
-            {
-                numChunks++;
-                totalBytes = response.size();
-                outFile << &response;
-            }
-
-            // Read until EOF, writing data to output as we go.
-            do
-            {
-                bytesRead = asio::read(socket,
-                                       response,
-                                       asio::transfer_at_least(1),
-                                       error);
-                if (bytesRead)
-                {
-                    numChunks++;
-                    totalBytes += bytesRead;
-                    outFile << &response;
-                }
-            } while (bytesRead);
-
-            //cout << "TotalBytes read: " << totalBytes << " in " << numChunks << " chunks." << endl;
-            outFile.close();
-            return (uint64_t)totalBytes;
-        }
-        else
-        {
-            log("File cannot be opened for writing in Utils::httpGet: %s\n",
-                outFolderFilename.c_str());
-            exit(1);
-        }
-    }
-    catch (std::exception& e)
-    {
-        log("Exception in Utils::httpGet: %s\n", e.what());
-        exit(1);
-    }
-    return 0;
-}
 //-----------------------------------------------------------------------------
 // Greatest common divisor of two integer numbers (ggT = grösster gemeinsame Teiler)
 int gcd(int a, int b)
@@ -1573,4 +1381,5 @@ std::string ComputerInfos::get()
     std::replace(id.begin(), id.end(), '_', '-');
     return id;
 }
+//-----------------------------------------------------------------------------
 }

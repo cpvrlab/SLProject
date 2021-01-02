@@ -52,15 +52,6 @@ int main(int argc, char* argv[])
         cout << split << "-";
     cout << endl;
 
-    cout << endl << "HTTP GET test on cpvrlab.github.io" << endl;
-    cout << "httpGet bytes read  : "
-         << Utils::httpGet("http://cpvrlab.github.io/SLProject_doc/images/app-Demo-Skybox.png", awd)
-         << endl;
-    cout << endl << "HTTP GET test on pallas.ti.bfh.ch:21" << endl;
-    cout << "httpGet bytes read  : "
-         << Utils::httpGet("http://pallas.ti.bfh.ch/test/Christoffel.zip", awd)
-         << endl;
-
     cout << endl << "FTP test on pallas.ti.bfh.ch:21" << endl;
     ftplib ftp;
     if (ftp.Connect("pallas.ti.fh.ch:21") &&
