@@ -13,8 +13,12 @@
 
 #include <vector>
 #include <assert.h>
-using namespace std;
 
+using std::string;
+using std::vector;
+
+namespace Utils
+{
 //-----------------------------------------------------------------------------
 //!Averaged template class provides an average value from a fixed size array.
 /*!The Average template class provides a simple moving average value
@@ -77,6 +81,7 @@ private:
     T         _average;             //!< average value
 };
 //-----------------------------------------------------------------------------
-typedef Averaged<float> AvgFloat;
+typedef Utils::Averaged<float> AvgFloat;
 //-----------------------------------------------------------------------------
+};
 #endif

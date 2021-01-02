@@ -22,7 +22,9 @@ typedef int socklen_t;
 #include <openssl/err.h>
 #include <functional>
 
-using namespace std;
+using std::string;
+using std::vector;
+using std::function;
 
 //------------------------------------------------------------------------------
 //! ???
@@ -33,8 +35,8 @@ struct Socket
     socklen_t          addrlen;
     bool               inUse;
 #ifdef _WINDOWS
-    static WSADATA     wsadata;
-    static bool        initialized;
+    static WSADATA wsadata;
+    static bool    initialized;
 #endif
 
     static bool SocketEnable()
@@ -96,6 +98,7 @@ struct DNSRequest
     string getHostname();
 };
 //------------------------------------------------------------------------------
+//! HttpUtils provides networking functionality via the HTTP and HTTPS protocols
 namespace HttpUtils
 {
 //! ???

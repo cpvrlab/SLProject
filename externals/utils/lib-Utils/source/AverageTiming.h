@@ -19,6 +19,8 @@
 #include <sstream>
 #include <utility>
 
+namespace Utils
+{
 //!concatenation of average value and timer
 /*!
 Define a hierarchy by posV and posH which is used in ui to arrange the measurements.
@@ -52,7 +54,7 @@ The first found content with posV==0 is used as reference measurement for the pe
 */
 class AverageTiming : public std::map<std::string, AverageTimingBlock*>
 {
-    public:
+public:
     AverageTiming();
     ~AverageTiming();
 
@@ -74,7 +76,7 @@ class AverageTiming : public std::map<std::string, AverageTimingBlock*>
         return timing;
     }
 
-    private:
+private:
     //!do start timer for a new or existing block
     void doStart(const std::string& name);
     //!do stop timer for a running block with name
@@ -92,10 +94,10 @@ class AverageTiming : public std::map<std::string, AverageTimingBlock*>
     int _currentPosH      = 0;
 };
 
-#define AVERAGE_TIMING_START(name) AverageTiming::start(name)
-#define AVERAGE_TIMING_STOP(name) AverageTiming::stop(name)
+#define AVERAGE_TIMING_START(name) Utils::AverageTiming::start(name)
+#define AVERAGE_TIMING_STOP(name) Utils::AverageTiming::stop(name)
 //#define AVERAGE_TIMING_START
 //#define AVERAGE_TIMING_STOP
 //-----------------------------------------------------------------------------
-
+};
 #endif //AVERAGE_TIMING

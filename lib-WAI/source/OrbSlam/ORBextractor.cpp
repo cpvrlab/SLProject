@@ -852,7 +852,7 @@ void ORBextractor::ComputePyramid(cv::Mat image)
         }
     }
 
-    ////save image pyriamid
+    ////save image pyramid
     //for (int level = 0; level < nlevels; ++level) {
     //    string filename = "D:/Development/ORB_SLAM2/debug_ouput/imagePyriamid" + std::to_string(level) + ".jpg";
     //    cv::imwrite(filename, mvImagePyramid[level]);

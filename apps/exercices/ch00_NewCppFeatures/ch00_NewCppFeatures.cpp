@@ -33,7 +33,17 @@
 #include <execution>
 #endif
 
-using namespace std;
+using std::cout;
+using std::endl;
+using std::string;
+using std::vector;
+using std::map;
+using std::function;
+using std::move;
+using std::thread;
+using std::shared_ptr;
+using std::unique_ptr;
+
 using namespace std::chrono;
 using namespace std::placeholders;
 
@@ -438,17 +448,17 @@ void new_basic_types_and_type_traits()
 
     // New type traits for RTTI (there are many more)
     cout << "\nType traits:-------------------------------------------------------\n";
-    cout << "has_virtual_destructor<int>::value:"<< has_virtual_destructor<int>::value << endl;
-    cout << "is_polymorphic<int>::value: "       << is_polymorphic<int>::value << endl;
-    cout << "is_floating_point<int>: "           << is_floating_point<int>::value << endl;
-    cout << "is_polymorphic<A>::value: "         << is_polymorphic<A>::value << endl;
-    cout << "is_polymorphic<C>::value: "         << is_polymorphic<C>::value << endl;
+    cout << "has_virtual_destructor<int>::value:"<< std::has_virtual_destructor<int>::value << endl;
+    cout << "is_polymorphic<int>::value: "       << std::is_polymorphic<int>::value << endl;
+    cout << "is_floating_point<int>: "           << std::is_floating_point<int>::value << endl;
+    cout << "is_polymorphic<A>::value: "         << std::is_polymorphic<A>::value << endl;
+    cout << "is_polymorphic<C>::value: "         << std::is_polymorphic<C>::value << endl;
 
     typedef int mytype[][24][60];
     cout << "typedef int mytype[][24][60]:" << endl;
-    cout << "extent<mytype,0>::value: " << extent<mytype,0>::value << endl;
-    cout << "extent<mytype,1>::value: " << extent<mytype,1>::value << endl;
-    cout << "extent<mytype,2>::value: " << extent<mytype,2>::value << endl;
+    cout << "extent<mytype,0>::value: " << std::extent<mytype,0>::value << endl;
+    cout << "extent<mytype,1>::value: " << std::extent<mytype,1>::value << endl;
+    cout << "extent<mytype,2>::value: " << std::extent<mytype,2>::value << endl;
 }
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -467,11 +477,11 @@ void new_functional()
 
     // New: function object from a C-function using bind
     cout << "\nFunction object on C-functions using bind with placeholders:-------\n";
-    function<float(float, float)> inv_div = bind(divide, _2, _1);
+    function<float(float, float)> inv_div = std::bind(divide, _2, _1);
     cout << "1/6: inv_div(6,1) =" << inv_div(6, 1) << endl;
     cout << "2/6: inv_div(6,2) =" << inv_div(6, 2) << endl;
     cout << "3/6: inv_div(6,3) =" << inv_div(6, 3) << endl;
-    function<float(float)> div_by_6 = bind(divide, _1, 6);
+    function<float(float)> div_by_6 = std::bind(divide, _1, 6);
     cout << "1/6: div_by_6(1) = " << div_by_6(1) << endl;
     cout << "2/6: div_by_6(2) = " << div_by_6(2) << endl;
     cout << "3/6: div_by_6(3) = " << div_by_6(3) << endl;
@@ -479,11 +489,11 @@ void new_functional()
     // New: function object from a member function using bind or mem_fn
     cout << "\nFunction object on member functions:-------------------------------\n";
     Vector3 vecn = normalize({ .5f,.5f,.5f }); // Passing a Vector3 to normalize
-    function<float(Vector3&)> length = mem_fn(&Vector3::length);
+    function<float(Vector3&)> length = std::mem_fn(&Vector3::length);
     cout << "length(vn) = " << length(vecn) << endl;
 
     cout << "\nFunction object on member functions using bind:--------------------\n";
-    function<float(void)> vecLength = bind(&Vector3::length, vecn);
+    function<float(void)> vecLength = std::bind(&Vector3::length, vecn);
     cout << "vecLength() = " << vecLength() << endl;
 }
 ///////////////////////////////////////////////////////////////////////////////
@@ -500,7 +510,7 @@ struct CounterNTS
 // Thread safe counter with mutex
 struct CounterTS1
 {
-    mutex mx;
+    std::mutex mx;
     int value = 0;
     void inc() { mx.lock(); ++value; mx.unlock(); }
     void dec() { mx.lock(); --value; mx.unlock(); }
@@ -509,7 +519,7 @@ struct CounterTS1
 // Thread safe counter with atomic in value
 struct CounterTS2
 {
-    atomic<int> value = 0;
+    std::atomic<int> value = 0;
     void inc() { ++value; }
     void dec() { --value; }
 };
@@ -540,7 +550,7 @@ void call_from_thread2(int tid)
     //myMutex.unlock();
 
     // Only lock & auto unlock at block exit
-    lock_guard<mutex> guard(myMutex);
+    std::lock_guard<std::mutex> guard(myMutex);
     cout << "Launched by thread " << tid << endl;
 }
 
@@ -648,7 +658,7 @@ void new_threading()
     // For simple heavy tasks that don't need any synchronization we can launch an
     // asynchronous function with async and wait for the result with a future variable.
 
-    future<int> futureResult(async([](int m, int n) {return m+n;} , 2, 4));
+    std::future<int> futureResult(std::async([](int m, int n) {return m+n;} , 2, 4));
     cout << "Do something complex here ..." << endl;
     cout << "And get the the future result afterwards: " << futureResult.get() << endl;
  }
@@ -657,15 +667,15 @@ void new_threading()
 ///////////////////////////////////////////////////////////////////////////////
 void new_random_generators()
 {
-    default_random_engine generator;
-    uniform_int_distribution<int> distributionInt(1,6);
+    std::default_random_engine generator;
+    std::uniform_int_distribution<int> distributionInt(1,6);
     auto diceRoll = bind(distributionInt, generator);
     cout << "\nRandom dice rolls:-------------------------------------------------\n";
     for (int i=0; i<20; ++i) cout << distributionInt(generator) << ","; cout << endl;
     for (int i=0; i<20; ++i) cout << diceRoll() << ","; cout << endl;
 
-    mt19937 mersenneTwister;
-    uniform_real_distribution<double> distributionDouble(0,1);
+    std::mt19937 mersenneTwister;
+    std::uniform_real_distribution<double> distributionDouble(0,1);
     auto rnd = bind(distributionDouble, mersenneTwister);
     cout << "\nRandom numbers with mersenne twister:------------------------------\n";
     for (int i=0; i<5; ++i) cout << distributionDouble(mersenneTwister) << ","; cout << endl;
@@ -677,8 +687,8 @@ void new_random_generators()
 void new_smart_pointers()
 {
     high_resolution_clock::time_point t1, t2;
-    default_random_engine generator;
-    uniform_int_distribution<int> distributionInt(1, 6);
+    std::default_random_engine generator;
+    std::uniform_int_distribution<int> distributionInt(1, 6);
     auto diceRoll = bind(distributionInt, generator);
 
     cout << "\nNew: unique pointers:---------------------------------------------\n";
@@ -693,7 +703,7 @@ void new_smart_pointers()
     // New style:
     {
         unique_ptr<A> upA1(new A);
-        unique_ptr<A> upA2 = make_unique<A>(); // C++14
+        unique_ptr<A> upA2 = std::make_unique<A>(); // C++14
 
         upA1->f1();
         upA2->f1();
@@ -733,7 +743,7 @@ void new_smart_pointers()
 
     {
         //shared_ptr<A> pA1(new A());   // count is 1
-        shared_ptr<A> pA1 = make_shared<A>(); // alternative without new C++11 make_shared
+        shared_ptr<A> pA1 = std::make_shared<A>(); // alternative without new C++11 make_shared
         //shared_ptr<A> pA1 = new A(); // Error no assignement of a raw pointer allowed
 
         pA1->f1();
@@ -901,12 +911,12 @@ void new_structured_binding()
 {
     cout << "\nNew C++17: structured binding:-------------------------------------\n";
 
-    set<S> mySet;
+    std::set<S> mySet;
 
     // pre C++17:
     {
         S value{ 42, "Test", 3.14f };
-        set<S>::iterator iter;
+        std::set<S>::iterator iter;
         bool inserted = false;
 
         // unpacks the return val of insert into iter and inserted

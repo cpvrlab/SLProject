@@ -28,6 +28,8 @@ for a good top down information.
 #include <CVCamera.h>
 #include <HighResTimer.h>
 
+using Utils::AvgFloat;
+
 //-----------------------------------------------------------------------------
 //! Video type if multiple exist on mobile devices
 enum CVVideoType

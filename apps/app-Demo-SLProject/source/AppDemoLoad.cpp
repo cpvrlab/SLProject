@@ -2134,7 +2134,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         // Set scene name and info string
         switch (sceneID)
         {
-            case SID_SuzannePerPixBlinn: s->name("Suzanne with per pixel lighting"); break;
+            case SID_SuzannePerPixBlinn: s->name("Suzanne with per pixel lighting and reflection colors"); break;
             case SID_SuzannePerPixBlinnTm: s->name("Suzanne with per pixel lighting and texture mapping"); break;
             case SID_SuzannePerPixBlinnNm: s->name("Suzanne with per pixel lighting and normal mapping"); break;
             case SID_SuzannePerPixBlinnAo: s->name("Suzanne with per pixel lighting and ambient occlusion"); break;
@@ -2197,11 +2197,17 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                                               true,    // load meshes only
                                               nullptr, // override material
                                               0.5f);   // ambient factor
+
+        SLCol4f stoneColor(0.56f, 0.50f, 0.44f);
+
         // Remove unwanted textures
         if (sceneID == SID_SuzannePerPixBlinn ||
             sceneID == SID_SuzannePerPixBlinnSm)
         {
-            auto removeAllTm = [=](SLMaterial* mat) { mat->textures().clear(); };
+            auto removeAllTm = [=](SLMaterial* mat) {
+                mat->textures().clear();
+                mat->ambientDiffuse(stoneColor);
+            };
             suzanneInCube->updateMeshMat(removeAllTm, true);
         }
         if (sceneID == SID_SuzannePerPixBlinnTm)
@@ -2215,6 +2221,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         if (sceneID == SID_SuzannePerPixBlinnNm)
         {
             auto removeNmAo = [=](SLMaterial* mat) {
+                mat->ambientDiffuse(stoneColor);
                 mat->removeTextureType(TT_diffuse);
                 mat->removeTextureType(TT_ambientOcclusion);
             };
@@ -2223,6 +2230,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         if (sceneID == SID_SuzannePerPixBlinnAo)
         {
             auto removeNmAo = [=](SLMaterial* mat) {
+                mat->ambientDiffuse(stoneColor);
                 mat->removeTextureType(TT_diffuse);
                 mat->removeTextureType(TT_normal);
             };
@@ -2239,6 +2247,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         if (sceneID == SID_SuzannePerPixBlinnNmSm)
         {
             auto removeTmNm = [=](SLMaterial* mat) {
+                mat->ambientDiffuse(stoneColor);
                 mat->removeTextureType(TT_diffuse);
                 mat->removeTextureType(TT_ambientOcclusion);
             };
@@ -2247,6 +2256,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         if (sceneID == SID_SuzannePerPixBlinnAoSm)
         {
             auto removeTmNm = [=](SLMaterial* mat) {
+                mat->ambientDiffuse(stoneColor);
                 mat->removeTextureType(TT_diffuse);
                 mat->removeTextureType(TT_normal);
             };
@@ -2262,7 +2272,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         if (sceneID == SID_SuzannePerPixBlinnNmAo)
         {
             auto removeNmAo = [=](SLMaterial* mat) {
-                mat->removeTextureType(TT_diffuse);
+              mat->ambientDiffuse(stoneColor);
+              mat->removeTextureType(TT_diffuse);
             };
             suzanneInCube->updateMeshMat(removeNmAo, true);
         }

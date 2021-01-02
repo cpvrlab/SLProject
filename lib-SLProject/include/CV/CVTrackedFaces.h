@@ -23,7 +23,8 @@ for a good top down information.
 #include <CVTypedefs.h>
 #include <CVTracked.h>
 
-typedef Averaged<CVVec2f> AvgCVVec2f;
+typedef Utils::Averaged<CVVec2f> AvgCVVec2f;
+
 //-----------------------------------------------------------------------------
 //! OpenCV face & facial landmark tracker class derived from CVTracked
 /*! Tracking class for face and facial landmark tracking. The class uses the

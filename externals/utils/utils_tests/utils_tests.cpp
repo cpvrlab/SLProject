@@ -15,7 +15,8 @@
 #include <string>
 #include <vector>
 
-using namespace std;
+using std::cout;
+using std::endl;
 
 //-----------------------------------------------------------------------------
 off64_t ftpXferSizeMax = 0;
