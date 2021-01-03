@@ -154,14 +154,6 @@ enum SLSceneID
     SID_VideoTrackWAI,
 #endif
 
-    SID_ErlebARBielBFH,
-    SID_ErlebARChristoffel,
-    SID_ErlebARAugustaRaurica,
-    SID_ErlebARAventicumAmphiAO,
-    SID_ErlebARAventicumCigognier,
-    SID_ErlebARAventicumCigognierAO,
-    SID_ErlebARAventicumTheatre,
-
     SID_RTMuttenzerBox,
     SID_RTSpheres,
     SID_RTSoftShadows,
@@ -173,6 +165,14 @@ enum SLSceneID
     SID_Benchmark2_MassiveNodes,
     SID_Benchmark3_NodeAnimations,
     SID_Benchmark4_SkinnedAnimations,
+
+    SID_ErlebARBielBFH,
+    SID_ErlebARChristoffel,
+    SID_ErlebARAugustaRaurica,
+    SID_ErlebARAventicumAmphiAO,
+    SID_ErlebARAventicumCigognier,
+    SID_ErlebARAventicumCigognierAO,
+    SID_ErlebARAventicumTheatre,
 
     SID_Maximal
 };

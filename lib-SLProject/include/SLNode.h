@@ -143,6 +143,7 @@ class SLNode
 public:
     explicit SLNode(const SLstring& name = "Node");
     explicit SLNode(SLMesh* mesh, const SLstring& name = "Node");
+    explicit SLNode(SLMesh* mesh, SLVec3f translation, const SLstring& name);
     ~SLNode() override;
 
     // Recursive scene traversal methods (see impl. for details)

@@ -274,6 +274,11 @@ SLNode* BuildFigureGroup(SLProjectScene* s, SLMaterial* mat, SLbool withAnimatio
     // Assemble head & neck
     SLNode* head = new SLNode(new SLSphere(s, 0.5f, res, res, "head", mat), "head (T1)");
     head->translate(0.0f, 0.0f, -0.7f, TS_object);
+    SLSphere* eye  = new SLSphere(s, 0.06f, res, res, "eye", mat);
+    SLNode*   eyeL = new SLNode(eye, SLVec3f(-0.15f, 0.48f, 0), "eyeL");
+    SLNode*   eyeR = new SLNode(eye, SLVec3f(0.15f, 0.48f, 0), "eyeL");
+    head->addChild(eyeL);
+    head->addChild(eyeR);
     SLNode* neck = new SLNode(new SLCylinder(s, 0.25f, 0.3f, 1, res, false, false, "neck", mat), "neck (T2)");
     neck->translate(0.0f, 0.0f, -0.3f, TS_object);
 
@@ -301,6 +306,14 @@ SLNode* BuildFigureGroup(SLProjectScene* s, SLMaterial* mat, SLbool withAnimatio
 
         SLNode* feetLeft = legLeft->findChild<SLNode>("feet group (T13,R6)");
         anim->createNodeAnimTrackForRotation(feetLeft, 40, SLVec3f(1, 0, 0));
+
+        armLeft = figure->findChild<SLNode>("left arm group (T3,R2)");
+        armLeft->rotate(-45, -1, 0, 0);
+        anim->createNodeAnimTrackForRotation(armLeft, -60, SLVec3f(1, 0, 0));
+
+        armRight = figure->findChild<SLNode>("right arm group (T4,R3)");
+        armRight->rotate(45, -1, 0, 0);
+        anim->createNodeAnimTrackForRotation(armRight, 60, SLVec3f(1, 0, 0));
     }
 
     return figure;
@@ -363,7 +376,11 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
     {
         // Set scene name and info string
         s->name("Minimal Scene Test");
-        s->info("Minimal texture mapping example with one light source.");
+        s->info("Minimal scene with a texture mapped rectangle with a point light source.\n"
+                "You can find all other test scenes in the menu File > Load Test Scenes. You can jump to the next scene with the Shift-Alt-CursorRight.\n"
+                "You can open various info windows under the menu Infos. You can drag, dock and stack them on all sides.\n"
+                "You can rotate the scene with click and drag on the left mouse button (LMB).\n"
+                "You can zoom in/out with the mousewheel. You can pan with click and drag on the middle mouse button (MMB).\n");
 
         // Create a scene group node
         SLNode* scene = new SLNode("scene node");
@@ -380,12 +397,19 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(light1);
 
         // Create meshes and nodes
-        SLMesh* rectMesh = new SLRectangle(s, SLVec2f(-5, -5), SLVec2f(5, 5), 25, 25, "rectangle mesh", m1);
+        SLMesh* rectMesh = new SLRectangle(s,
+                                           SLVec2f(-5, -5),
+                                           SLVec2f(5, 5),
+                                           25,
+                                           25,
+                                           "rectangle mesh",
+                                           m1);
         SLNode* rectNode = new SLNode(rectMesh, "rectangle node");
         scene->addChild(rectNode);
 
         // Set background color and the root scene node
-        sv->sceneViewCamera()->background().colors(SLCol4f(0.7f, 0.7f, 0.7f), SLCol4f(0.2f, 0.2f, 0.2f));
+        sv->sceneViewCamera()->background().colors(SLCol4f(0.7f, 0.7f, 0.7f),
+                                                   SLCol4f(0.2f, 0.2f, 0.2f));
 
         // pass the scene group as root node
         s->root3D(scene);
@@ -396,27 +420,28 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
     else if (sceneID == SID_Figure) //.............................................................
     {
         s->name("Hierarchical Figure Test");
-        s->info("Hierarchical scenegraph with multiple subgroups in the figure. The goal is to visualize how you can design a figure with hierarchical transforms containing only rotations and translations. View the bounding boxes with GL > Bounding Boxes. Try also ray tracing.");
+        s->info("Hierarchical scenegraph with multiple subgroups in the figure. "
+                "The goal is design a figure with hierarchical transforms containing only rotations and translations.\n"
+                "View the bounding boxes with key B. View the mesh as wireframe with key M."
+                "View the objects origin and axis with key X. View the voxels with key V.\n"
+                "Try also ray tracing with key R and come back to OpenGL rendering with key ESC.");
 
         // Create textures and materials
         SLMaterial* m1 = new SLMaterial(s, "m1", SLCol4f::BLACK, SLCol4f::WHITE, 128, 0.2f, 0.8f, 1.5f);
         SLMaterial* m2 = new SLMaterial(s, "m2", SLCol4f::WHITE * 0.3f, SLCol4f::WHITE, 128, 0.5f, 0.0f, 1.0f);
 
-        SLuint  res         = 20;
-        SLMesh* rectangle   = new SLRectangle(s, SLVec2f(-5, -5), SLVec2f(5, 5), res, res, "rectangle", m2);
-        SLNode* floorRect   = new SLNode(rectangle);
-        SLNode* ceilingRect = new SLNode(rectangle);
+        SLuint  res       = 20;
+        SLMesh* rectangle = new SLRectangle(s, SLVec2f(-5, -5), SLVec2f(5, 5), res, res, "rectangle", m2);
+        SLNode* floorRect = new SLNode(rectangle);
         floorRect->rotate(90, -1, 0, 0);
         floorRect->translate(0, 0, -5.5f);
-        ceilingRect->rotate(90, 1, 0, 0);
-        ceilingRect->translate(0, 0, -5.5f);
-        ceilingRect->drawBits()->on(SL_DB_NOTSELECTABLE);
 
         SLCamera* cam1 = new SLCamera("Camera 1");
-        cam1->translation(0, 0, 22);
-        cam1->lookAt(0, 0, 0);
-        cam1->focalDist(22);
-        cam1->background().colors(SLCol4f(0.1f, 0.4f, 0.8f));
+        cam1->translation(-7, 2, 7);
+        cam1->lookAt(0, -2, 0);
+        cam1->focalDist(12);
+        cam1->background().colors(SLCol4f(0.7f, 0.6f, 1.0f),
+                                  SLCol4f(0.1f, 0.4f, 0.8f));
         cam1->setInitialState();
         cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
 
@@ -424,13 +449,12 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         light1->powers(0.2f, 0.9f, 0.9f);
         light1->attenuation(1, 0, 0);
 
-        SLNode* figure = BuildFigureGroup(s, m1, false);
+        SLNode* figure = BuildFigureGroup(s, m1, true);
 
         SLNode* scene = new SLNode("scene node");
         scene->addChild(light1);
         scene->addChild(cam1);
         scene->addChild(floorRect);
-        scene->addChild(ceilingRect);
         scene->addChild(figure);
 
         // Set background color, active camera & the root pointer
@@ -440,7 +464,11 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
     else if (sceneID == SID_MeshLoad) //...........................................................
     {
         s->name("Mesh 3D Loader Test");
-        s->info("3D file import test. We use the assimp library to load all 3D file formats including materials, skeletons and animations. ");
+        s->info("We use the assimp library to load 3D file formats including materials, skeletons and animations. "
+                "You can view the skeleton with key K. You can stop all animations with SPACE key.\n"
+                "Switch between perspective and orthographic projection with key 5. "
+                "Switch to front view with key 1, to side view with key 3 and to top view with key 7.\n"
+                "Try the different stereo rendering modes in the menu Camera.");
 
         SLMaterial* matBlu = new SLMaterial(s, "Blue", SLCol4f(0, 0, 0.2f), SLCol4f(1, 1, 1), 100, 0.8f, 0);
         SLMaterial* matRed = new SLMaterial(s, "Red", SLCol4f(0.2f, 0, 0), SLCol4f(1, 1, 1), 100, 0.8f, 0);
@@ -703,7 +731,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
     else if (sceneID == SID_TextureBlend) //.......................................................
     {
         s->name("Texture Blending Test");
-        s->info("Texture map blending with depth sorting. Trees in view frustum are rendered back to front.");
+        s->info("Texture map blending with depth sorting. Transparent tree rectangles in view frustum are rendered back to front. You can turn on/off alpha sorting in the menu Preferences of press key J.");
 
         SLGLTexture* t1 = new SLGLTexture(s,
                                           SLApplication::texturePath + "tree1_1024_C.png",
@@ -827,7 +855,9 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
     else if (sceneID == SID_TextureFilter) //......................................................
     {
         s->name("Texture Filer Test");
-        s->info("Texture filters: Bottom: nearest, left: linear, top: linear mipmap, right: anisotropic");
+        s->info("Texture minification filters: "
+                "Bottom: nearest, left: linear, top: linear mipmap, right: anisotropic. "
+                "The center sphere uses a 3D texture with linear filtering.");
 
         // Create 4 textures with different filter modes
         SLGLTexture* texB = new SLGLTexture(s, SLApplication::texturePath + "brick0512_C.png", GL_NEAREST, GL_NEAREST);
@@ -914,7 +944,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
     else if (sceneID == SID_FrustumCull) //........................................................
     {
         s->name("Frustum Culling Test");
-        s->info("View frustum culling: Only objects in view frustum are rendered. You can turn view culling off in the render flags.");
+        s->info("View frustum culling: Only objects in view are rendered. "
+                "You can turn view frustum culling on/off in the menu Preferences or with the key F.");
 
         // create texture
         SLGLTexture* tex  = new SLGLTexture(s, SLApplication::texturePath + "earth1024_C.jpg");
@@ -1051,7 +1082,9 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
     else if (sceneID == SID_PointClouds) //........................................................
     {
         s->name("Point Clouds Test");
-        s->info("Point Clouds with normal and uniform distribution");
+        s->info("Point Clouds with normal and uniform distribution. "
+                "You can select vertices with rectangle select (CTRL-LMB) "
+                "and deselect selected with ALT-LMB.");
 
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->clipNear(0.1f);
@@ -2161,7 +2194,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->translation(0, 0.5f, 3);
         cam1->lookAt(0, 0.5f, 0);
         cam1->setInitialState();
-        cam1->focalDist(2);
+        cam1->focalDist(3);
         scene->addChild(cam1);
 
         // Create directional light for the sun light
@@ -2272,8 +2305,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         if (sceneID == SID_SuzannePerPixBlinnNmAo)
         {
             auto removeNmAo = [=](SLMaterial* mat) {
-              mat->ambientDiffuse(stoneColor);
-              mat->removeTextureType(TT_diffuse);
+                mat->ambientDiffuse(stoneColor);
+                mat->removeTextureType(TT_diffuse);
             };
             suzanneInCube->updateMeshMat(removeNmAo, true);
         }

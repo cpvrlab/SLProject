@@ -182,7 +182,7 @@ public:
     SLRectf&      deselectRect() { return _deselectRect; }
 
     //update rotation matrix _enucorrRenu
-    void updateEnucorrRenu(SLSceneView* sv, const SLMat3f& enuRc, float& f, SLVec3f& enuOffsetPix);
+    void updateEnuCorrRenu(SLSceneView* sv, const SLMat3f& enuRc, float& f, SLVec3f& enuOffsetPix);
 
     // Static global default parameters for new cameras
     static SLCamAnim    currentAnimation;

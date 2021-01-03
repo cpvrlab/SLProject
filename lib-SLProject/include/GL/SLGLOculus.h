@@ -52,9 +52,9 @@ public:
     SLfloat resolutionScale() { return _resolutionScale; }
     void    renderResolution(SLint width, SLint height);
     void    beginFrame();
-    void    renderDistortion(SLint   width,
-                             SLint   height,
-                             SLuint  tex,
+    void    renderDistortion(SLint          width,
+                             SLint          height,
+                             SLuint         tex,
                              const SLCol4f& background);
     // Setters
     void lowPersistance(SLbool val);

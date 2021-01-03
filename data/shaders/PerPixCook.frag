@@ -30,19 +30,19 @@ uniform float   u_lightSpotCos[NUM_LIGHTS];  // cosine of spot cutoff angle
 uniform float   u_lightSpotExp[NUM_LIGHTS];  // spot exponent
 uniform float   u_oneOverGamma;              // 1.0f / Gamma correction value
 
-uniform vec4    u_matDiff;// diffuse color reflection coefficient (kd)
-uniform float   u_matRough;// Cook-Torrance material roughness 0-1
-uniform float   u_matMetal;// Cook-Torrance material metallic 0-1
+uniform vec4    u_matDiff;  // diffuse color reflection coefficient (kd)
+uniform float   u_matRough; // Cook-Torrance material roughness 0-1
+uniform float   u_matMetal; // Cook-Torrance material metallic 0-1
 
-uniform int     u_camProjection;// type of stereo
-uniform int     u_camStereoEye;// -1=left, 0=center, 1=right
-uniform mat3    u_camStereoColors;// color filter matrix
-uniform bool    u_camFogIsOn;// flag if fog is on
-uniform int     u_camFogMode;// 0=LINEAR, 1=EXP, 2=EXP2
-uniform float   u_camFogDensity;// fog density value
-uniform float   u_camFogStart;// fog start distance
-uniform float   u_camFogEnd;// fog end distance
-uniform vec4    u_camFogColor;// fog color (usually the background)
+uniform int     u_camProjection;    // type of stereo
+uniform int     u_camStereoEye;     // -1=left, 0=center, 1=right
+uniform mat3    u_camStereoColors;  // color filter matrix
+uniform bool    u_camFogIsOn;       // flag if fog is on
+uniform int     u_camFogMode;       // 0=LINEAR, 1=EXP, 2=EXP2
+uniform float   u_camFogDensity;    // fog density value
+uniform float   u_camFogStart;      // fog start distance
+uniform float   u_camFogEnd;        // fog end distance
+uniform vec4    u_camFogColor;      // fog color (usually the background)
 
 out     vec4    o_fragColor;// output fragment color
 //-----------------------------------------------------------------------------
