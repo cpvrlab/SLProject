@@ -8,24 +8,24 @@ set(erlebar_headers
 	${SL_PROJECT_ROOT}/apps/source/wai/AppWAISlamParamHelper.h
 	${SL_PROJECT_ROOT}/apps/source/wai/ImGuiWrapper.h
 	${SL_PROJECT_ROOT}/apps/source/wai/FeatureExtractorFactory.h
-	${SL_PROJECT_ROOT}/apps/source/sens/SENS.h
-	${SL_PROJECT_ROOT}/apps/source/sens/SENSCamera.h
-	${SL_PROJECT_ROOT}/apps/source/sens/SENSCvCamera.h
-	${SL_PROJECT_ROOT}/apps/source/sens/SENSFrame.h
-	${SL_PROJECT_ROOT}/apps/source/sens/SENSException.h
-	${SL_PROJECT_ROOT}/apps/source/sens/SENSUtils.h
-	${SL_PROJECT_ROOT}/apps/source/sens/SENSVideoStream.h
-	${SL_PROJECT_ROOT}/apps/source/sens/SENSCalibration.h
-	${SL_PROJECT_ROOT}/apps/source/sens/SENSCalibrationEstimator.h
-	${SL_PROJECT_ROOT}/apps/source/sens/SENSGps.h
-	${SL_PROJECT_ROOT}/apps/source/sens/SENSARCore.h
-	${SL_PROJECT_ROOT}/apps/source/sens/SENSOrientation.h
-	${SL_PROJECT_ROOT}/apps/source/sens/SENSRecorder.h
-	${SL_PROJECT_ROOT}/apps/source/sens/SENSRecorderDataHandler.h
-	${SL_PROJECT_ROOT}/apps/source/sens/SENSSimulator.h
-	${SL_PROJECT_ROOT}/apps/source/sens/SENSSimulated.h
-	${SL_PROJECT_ROOT}/apps/source/sens/SENSSimClock.h
-	${SL_PROJECT_ROOT}/apps/source/sens/SENSSimHelper.h
+	${SENS_ROOT}/SENS.h
+	${SENS_ROOT}/SENSCamera.h
+	${SENS_ROOT}/SENSCvCamera.h
+	${SENS_ROOT}/SENSFrame.h
+	${SENS_ROOT}/SENSException.h
+	${SENS_ROOT}/SENSUtils.h
+	${SENS_ROOT}/SENSVideoStream.h
+	${SENS_ROOT}/SENSCalibration.h
+	${SENS_ROOT}/SENSCalibrationEstimator.h
+	${SENS_ROOT}/SENSGps.h
+	${SENS_ROOT}/SENSARCore.h
+	${SENS_ROOT}/SENSOrientation.h
+	${SENS_ROOT}/SENSRecorder.h
+	${SENS_ROOT}/SENSRecorderDataHandler.h
+	${SENS_ROOT}/SENSSimulator.h
+	${SENS_ROOT}/SENSSimulated.h
+	${SENS_ROOT}/SENSSimClock.h
+	${SENS_ROOT}/SENSSimHelper.h
 	${SL_PROJECT_ROOT}/apps/source/HttpDownloader.h
 	${SL_PROJECT_ROOT}/apps/source/sm/Event.h
 	${SL_PROJECT_ROOT}/apps/source/sm/EventData.h
@@ -105,26 +105,28 @@ set(erlebar_headers
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/scenes/UserGuidanceScene.h
 	)
 	
+	message(STATUS "erlebar_headers: ${erlebar_headers}")
+	
 set(erlebar_sources
 	${SL_PROJECT_ROOT}/apps/source/AsyncWorker.cpp
 	${SL_PROJECT_ROOT}/apps/source/LogWindow.cpp
 	${SL_PROJECT_ROOT}/apps/source/wai/WAIMapStorage.cpp
 	${SL_PROJECT_ROOT}/apps/source/wai/ImGuiWrapper.cpp
 	${SL_PROJECT_ROOT}/apps/source/wai/FeatureExtractorFactory.cpp
-	${SL_PROJECT_ROOT}/apps/source/sens/SENSCamera.cpp
-	${SL_PROJECT_ROOT}/apps/source/sens/SENSCvCamera.cpp
-	${SL_PROJECT_ROOT}/apps/source/sens/SENSUtils.cpp
-	${SL_PROJECT_ROOT}/apps/source/sens/SENSVideoStream.cpp
-	${SL_PROJECT_ROOT}/apps/source/sens/SENSCalibration.cpp
-	${SL_PROJECT_ROOT}/apps/source/sens/SENSCalibrationEstimator.cpp
-	${SL_PROJECT_ROOT}/apps/source/sens/SENSGps.cpp
-	${SL_PROJECT_ROOT}/apps/source/sens/SENSARCore.cpp
-	${SL_PROJECT_ROOT}/apps/source/sens/SENSOrientation.cpp
-	${SL_PROJECT_ROOT}/apps/source/sens/SENSRecorder.cpp
-	${SL_PROJECT_ROOT}/apps/source/sens/SENSRecorderDataHandler.cpp
-	${SL_PROJECT_ROOT}/apps/source/sens/SENSSimulator.cpp
-	${SL_PROJECT_ROOT}/apps/source/sens/SENSSimulated.cpp
-	${SL_PROJECT_ROOT}/apps/source/sens/SENSSimHelper.cpp
+	${SENS_ROOT}/SENSCamera.cpp
+	${SENS_ROOT}/SENSCvCamera.cpp
+	${SENS_ROOT}/SENSUtils.cpp
+	${SENS_ROOT}/SENSVideoStream.cpp
+	${SENS_ROOT}/SENSCalibration.cpp
+	${SENS_ROOT}/SENSCalibrationEstimator.cpp
+	${SENS_ROOT}/SENSGps.cpp
+	${SENS_ROOT}/SENSARCore.cpp
+	${SENS_ROOT}/SENSOrientation.cpp
+	${SENS_ROOT}/SENSRecorder.cpp
+	${SENS_ROOT}/SENSRecorderDataHandler.cpp
+	${SENS_ROOT}/SENSSimulator.cpp
+	${SENS_ROOT}/SENSSimulated.cpp
+	${SENS_ROOT}/SENSSimHelper.cpp
 	${SL_PROJECT_ROOT}/apps/source/sm/StateMachine.cpp
 	
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/AppDemoWaiGui.cpp
@@ -195,7 +197,8 @@ set(erlebar_sources
 set(erlebar_include_directories
 	${SL_PROJECT_ROOT}/apps/source
 	${SL_PROJECT_ROOT}/apps/source/wai
-	${SL_PROJECT_ROOT}/apps/source/sens
+	${SENS_ROOT}
+	${SENS_ROOT}/..
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab

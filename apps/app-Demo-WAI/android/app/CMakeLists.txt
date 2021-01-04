@@ -6,20 +6,20 @@ set(target native-lib)
 
 set(headers
 		${erlebar_headers}
-		${SL_PROJECT_ROOT}/apps/source/sens/android/SENSNdkCamera.h
-		${SL_PROJECT_ROOT}/apps/source/sens/android/SENSNdkCameraUtils.h
-		${SL_PROJECT_ROOT}/apps/source/sens/android/SENSNdkGps.h
-		${SL_PROJECT_ROOT}/apps/source/sens/android/SENSNdkOrientation.h
-		${SL_PROJECT_ROOT}/apps/source/sens/android/SENSNdkARCore.h
+		${SENS_ROOT}/android/SENSNdkCamera.h
+		${SENS_ROOT}/android/SENSNdkCameraUtils.h
+		${SENS_ROOT}/android/SENSNdkGps.h
+		${SENS_ROOT}/android/SENSNdkOrientation.h
+		${SENS_ROOT}/android/SENSNdkARCore.h
     )
 
 set(sources
 		${erlebar_sources}
-		${SL_PROJECT_ROOT}/apps/source/sens/android/SENSNdkCamera.cpp
-		${SL_PROJECT_ROOT}/apps/source/sens/android/SENSNdkCameraUtils.cpp
-		${SL_PROJECT_ROOT}/apps/source/sens/android/SENSNdkGps.cpp
-		${SL_PROJECT_ROOT}/apps/source/sens/android/SENSNdkOrientation.cpp
-		${SL_PROJECT_ROOT}/apps/source/sens/android/SENSNdkARCore.cpp
+		${SENS_ROOT}/android/SENSNdkCamera.cpp
+		${SENS_ROOT}/android/SENSNdkCameraUtils.cpp
+		${SENS_ROOT}/android/SENSNdkGps.cpp
+		${SENS_ROOT}/android/SENSNdkOrientation.cpp
+		${SENS_ROOT}/android/SENSNdkARCore.cpp
 		${CMAKE_CURRENT_SOURCE_DIR}/src/main/cpp/AppDemoNativeWAIMain.cpp
     )
 

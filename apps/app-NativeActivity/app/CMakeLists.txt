@@ -40,14 +40,14 @@ set(headers
 		#${SL_PROJECT_ROOT}/apps/source/wai/AppWAISlamParamHelper.h
 		#${SL_PROJECT_ROOT}/apps/source/wai/ImGuiWrapper.h
 		#${SL_PROJECT_ROOT}/apps/source/wai/FeatureExtractorFactory.h
-	${SL_PROJECT_ROOT}/apps/source/sens/SENS.h
-	${SL_PROJECT_ROOT}/apps/source/sens/SENSCamera.h
-	${SL_PROJECT_ROOT}/apps/source/sens/SENSFrame.h
-	${SL_PROJECT_ROOT}/apps/source/sens/SENSException.h
-	${SL_PROJECT_ROOT}/apps/source/sens/SENSUtils.h
-	${SL_PROJECT_ROOT}/apps/source/sens/SENSVideoStream.h
-	${SL_PROJECT_ROOT}/apps/source/sens/android/SENSNdkCamera.h
-	${SL_PROJECT_ROOT}/apps/source/sens/android/SENSNdkCameraUtils.h
+	${SENS_ROOT}/SENS.h
+	${SENS_ROOT}/SENSCamera.h
+	${SENS_ROOT}/SENSFrame.h
+	${SENS_ROOT}/SENSException.h
+	${SENS_ROOT}/SENSUtils.h
+	${SENS_ROOT}/SENSVideoStream.h
+	${SENS_ROOT}/android/SENSNdkCamera.h
+	${SENS_ROOT}/android/SENSNdkCameraUtils.h
     )
 
 set(sources
@@ -83,11 +83,11 @@ set(sources
 		#${SL_PROJECT_ROOT}/apps/source/wai/WAIMapStorage.cpp
     #${SL_PROJECT_ROOT}/apps/source/wai/ImGuiWrapper.cpp
     #${SL_PROJECT_ROOT}/apps/source/wai/FeatureExtractorFactory.cpp
-	${SL_PROJECT_ROOT}/apps/source/sens/SENSCamera.cpp
-	${SL_PROJECT_ROOT}/apps/source/sens/SENSUtils.cpp
-	${SL_PROJECT_ROOT}/apps/source/sens/SENSVideoStream.cpp
-	${SL_PROJECT_ROOT}/apps/source/sens/android/SENSNdkCamera.cpp
-	${SL_PROJECT_ROOT}/apps/source/sens/android/SENSNdkCameraUtils.cpp
+	${SENS_ROOT}/SENSCamera.cpp
+	${SENS_ROOT}/SENSUtils.cpp
+	${SENS_ROOT}/SENSVideoStream.cpp
+	${SENS_ROOT}/android/SENSNdkCamera.cpp
+	${SENS_ROOT}/android/SENSNdkCameraUtils.cpp
     )
 
 set(CMAKE_SHARED_LINKER_FLAGS
@@ -107,7 +107,7 @@ target_include_directories(${target}
         ${ANDROID_NDK}/sources/android/native_app_glue/
         ${CMAKE_CURRENT_SOURCE_DIR}/src/main/cpp/
         ${SL_PROJECT_ROOT}/apps/source/wai/
-		${SL_PROJECT_ROOT}/apps/source/sens
+		${SENS_ROOT}
     PUBLIC
         #${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source
         #${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui

@@ -12,9 +12,9 @@ set(headers
     ${SL_PROJECT_ROOT}/apps/source/wai/AppWAISlamParamHelper.h
     ${SL_PROJECT_ROOT}/apps/source/wai/WAIMapStorage.h
     ${SL_PROJECT_ROOT}/apps/source/wai/FeatureExtractorFactory.h
-    ${SL_PROJECT_ROOT}/apps/source/sens/SENSVideoStream.h
-    ${SL_PROJECT_ROOT}/apps/source/sens/SENSCalibration.h
-    ${SL_PROJECT_ROOT}/apps/source/sens/SENSUtils.h
+    ${SENS_ROOT}/SENSVideoStream.h
+    ${SENS_ROOT}/SENSCalibration.h
+    ${SENS_ROOT}/SENSUtils.h
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GLSLHessian.h
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GLSLextractor.h
     ${SL_PROJECT_ROOT}/apps/app-MapCreator-WAI/MapCreator.h
@@ -28,9 +28,9 @@ set(sources
     ${SL_PROJECT_ROOT}/apps/app-MapCreator-WAI/WAIMapSlam.cpp
     ${SL_PROJECT_ROOT}/apps/source/wai/WAIMapStorage.cpp
     ${SL_PROJECT_ROOT}/apps/source/wai/FeatureExtractorFactory.cpp
-    ${SL_PROJECT_ROOT}/apps/source/sens/SENSCalibration.cpp
-    ${SL_PROJECT_ROOT}/apps/source/sens/SENSVideoStream.cpp
-    ${SL_PROJECT_ROOT}/apps/source/sens/SENSUtils.cpp
+    ${SENS_ROOT}/SENSCalibration.cpp
+    ${SENS_ROOT}/SENSVideoStream.cpp
+    ${SENS_ROOT}/SENSUtils.cpp
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GLSLHessian.cpp
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GLSLextractor.cpp
     )

@@ -12,12 +12,12 @@ set(source_path "${CMAKE_CURRENT_SOURCE_DIR}")
 
 set(headers
     ${erlebar_headers}
-    ${SL_PROJECT_ROOT}/apps/source/sens/GLFW/SENSWebCamera.h
+    ${SENS_ROOT}/GLFW/SENSWebCamera.h
     )
 
 set(sources 
     ${erlebar_sources}
-    ${SL_PROJECT_ROOT}/apps/source/sens/GLFW/SENSWebCamera.cpp
+    ${SENS_ROOT}/GLFW/SENSWebCamera.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/AppDemoMainGLFW.cpp
     )
 
