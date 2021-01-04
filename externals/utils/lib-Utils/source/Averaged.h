@@ -11,6 +11,7 @@
 #ifndef AVERAGED_H
 #define AVERAGED_H
 
+#include <string>
 #include <vector>
 #include <assert.h>
 

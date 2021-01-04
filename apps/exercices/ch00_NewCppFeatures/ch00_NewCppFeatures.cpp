@@ -939,7 +939,7 @@ void new_structured_binding()
 
 #ifndef __APPLE__
 #include <filesystem>
-namespace fs = filesystem;
+namespace fs = std::filesystem;
 
 uintmax_t computeFileSize(const fs::path& file)
 {
