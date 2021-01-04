@@ -119,7 +119,7 @@ void AreaInfoGui::build(SLScene* s, SLSceneView* sv)
     {
         ImGui::PushFont(_resources.fonts().standard);
         ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textStandardColor);
-        ImGui::Text("No info available", _textWrapW);
+        ImGui::Text("No info available"); //, _textWrapW); hsm4: avoids warning and doesn't make sense.
 
         ImGui::PopStyleColor();
         ImGui::PopFont();
