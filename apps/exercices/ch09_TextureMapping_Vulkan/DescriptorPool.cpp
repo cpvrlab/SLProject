@@ -3,7 +3,7 @@
 //-----------------------------------------------------------------------------
 DescriptorPool::DescriptorPool(Device& device, Swapchain& swapchain) : _device{device}
 {
-    array<VkDescriptorPoolSize, 2> poolSizes{};
+    std::array<VkDescriptorPoolSize, 2> poolSizes{};
     poolSizes[0].type            = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
     poolSizes[0].descriptorCount = static_cast<uint32_t>(swapchain.images().size());
     poolSizes[1].type            = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;

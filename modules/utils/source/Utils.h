@@ -19,17 +19,20 @@
 #include <CustomLog.h>
 #include <functional>
 
-using namespace std;
+using std::function;
+using std::string;
+using std::stringstream;
+using std::to_string;
+using std::vector;
 
 //class FileLog;
 //-----------------------------------------------------------------------------
-//! Utils provides utility functions
+//! Utils provides utilities for string & file handling, logging and math functions
 /*!
  Function are grouped into sections:
  - String Handling Functions
  - File Handling Functions
  - Logging Functions
- - Network Handling Functions
  - Math Constants and Functions
 */
 namespace Utils
@@ -59,7 +62,7 @@ string trimRightString(const string& s, const string& drop);
 //! trims a string at the left end
 string trimLeftString(const string& s, const string& drop);
 
-//! Splits an input string at a delimeter character into a string vector
+//! Splits an input string at a delimiter character into a string vector
 void splitString(const string& s, char delimiter, vector<string>& splits);
 
 //! Replaces in the source string the from string by the to string
@@ -68,8 +71,14 @@ void replaceString(string& source, const string& from, const string& to);
 //! Returns a vector of string one per line of a multiline string
 vector<string> getStringLines(const string& multiLineString);
 
-//! Loads a file into a string and returns it
-string loadFileIntoString(const char* logTag, const string& pathAndFilename);
+//! Reads a text file into a string and returns it
+string readTextFileIntoString(const char*   logTag,
+                              const string& pathAndFilename);
+
+//! Writes a string into a text file
+void writeStringIntoTextFile(const char*   logTag,
+                             const string& stringToWrite,
+                             const string& pathAndFilename);
 
 //! replaces non-filename characters: /\|?%*:"<>'
 string replaceNonFilenameChars(string source, char replaceChar = '-');
@@ -162,13 +171,14 @@ string getCurrentWorkingDir();
 bool deleteFile(string& pathfilename);
 
 //! process all files and folders recursively naturally sorted
-void loopFileSystemRec(const string&                                                          path,
-                       std::function<void(std::string path, std::string baseName, int depth)> processFile,
-                       std::function<void(std::string path, std::string baseName, int depth)> processDir,
-                       const int                                                              depth = 0);
+void loopFileSystemRec(const string& path,
+                       function<void(string path, string baseName, int depth)> processFile,
+                       function<void(string path, string baseName, int depth)> processDir,
+                       const int depth = 0);
 
 //! Dumps all folders and files recursovely
-void dumpFileSystemRec(const char* logtag, const string& folderpath);
+void dumpFileSystemRec(const char*   logtag,
+                       const string& folderpath);
 
 //! Tries to find a filename on various paths to check
 string findFile(const string&         filename,
@@ -177,11 +187,14 @@ string findFile(const string&         filename,
 ///////////////////////
 // Logging Functions //
 ///////////////////////
+
 //! FileLog Instance for logging to logfile. If it is instantiated the logging methods
 //! will also output into this file. Instantiate it with initFileLog function.
 static std::unique_ptr<FileLog> fileLog;
+
 //! Instantiates FileLog instance
 void initFileLog(const std::string& logDir, bool forceFlush);
+
 //! custom log instance, e.g. log to a ui log window
 extern std::unique_ptr<CustomLog> customLog;
 
@@ -206,13 +219,6 @@ void errorMsg(const char* tag,
 
 //! Returns in release config the max. NO. of threads otherwise 1
 unsigned int maxThreads();
-
-////////////////////////////////
-// Network Handling Functions //
-////////////////////////////////
-
-//! Download a file from an http url into the outFile
-uint64_t httpGet(const string& httpURL, const string& outFolder = "");
 
 //////////////////////////////////
 // Math Constants and Functions //

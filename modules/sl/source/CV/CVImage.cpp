@@ -314,7 +314,7 @@ bool CVImage::load(int         width,
             }
             else
             {
-                cout << "CVImage::load from memory: Pixel format conversion not allowed" << endl;
+                std::cout << "CVImage::load from memory: Pixel format conversion not allowed" << std::endl;
                 exit(1);
             }
         }
@@ -381,7 +381,7 @@ bool CVImage::load(int         width,
             }
             else
             {
-                cout << "CVImage::load from memory: Pixel format conversion not allowed" << endl;
+                std::cout << "CVImage::load from memory: Pixel format conversion not allowed" << std::endl;
                 exit(1);
             }
         }
@@ -552,7 +552,7 @@ void CVImage::savePNG(const string& filename,
 
         imwrite(filename, outImg, compression_params);
     }
-    catch (runtime_error& ex)
+    catch (std::runtime_error& ex)
     {
         string msg = "CVImage.savePNG: Exception: ";
         msg += ex.what();
@@ -589,7 +589,7 @@ void CVImage::saveJPG(const string& filename,
 
         imwrite(filename, outImg, compression_params);
     }
-    catch (runtime_error& ex)
+    catch (std::runtime_error& ex)
     {
         string msg = "CVImage.saveJPG: Exception: ";
         msg += ex.what();
@@ -830,7 +830,7 @@ void CVImage::resize(int width, int height)
     _cvMat = dst;
 }
 //-----------------------------------------------------------------------------
-//! Flip X coordiantes used to make JPEGs from top-left to bottom-left images.
+//! Flip X coordinates used to make JPEGs from top-left to bottom-left images.
 void CVImage::flipX()
 {
     if (_cvMat.cols > 0 && _cvMat.rows > 0)
@@ -841,7 +841,7 @@ void CVImage::flipX()
     }
 }
 //-----------------------------------------------------------------------------
-//! Flip Y coordiantes used to make JPEGs from top-left to bottom-left images.
+//! Flip Y coordinates used to make JPEGs from top-left to bottom-left images.
 void CVImage::flipY()
 {
     if (_cvMat.cols > 0 && _cvMat.rows > 0)

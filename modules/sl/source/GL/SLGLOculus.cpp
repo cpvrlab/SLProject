@@ -55,7 +55,7 @@ void SLGLOculus::dispose()
 */
 void SLGLOculus::init()
 {
-    _stereoOculusDistProgram = new SLGLGenericProgram(nullptr,
+    _stereoOculusDistProgram = new SLGLProgramGeneric(nullptr,
                                                       _shaderFileDir + "StereoOculusDistortionMesh.vert",
                                                       _shaderFileDir + "StereoOculusDistortionMesh.frag");
     _resolutionScale         = 1.25f;

@@ -8,18 +8,16 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include <stdafx.h> // Must be the 1st include followed by  an empty line
-
 #include <SLMaterial.h>
 #include <SLSceneView.h>
-#include <SLGLProgramManager.h>
 #include <SLAssetManager.h>
+#include <SLGLProgramGenerated.h>
 
 //-----------------------------------------------------------------------------
 SLfloat SLMaterial::PERFECT = 1000.0f;
 //-----------------------------------------------------------------------------
 /*!
- Default constructor for materials without textures.
+ Default constructor for Blinn-Phong light model materials without textures.
  Materials can be used by multiple meshes (SLMesh). Materials can belong
  therefore to the global assets such as meshes, materials, textures and
  shader programs.
@@ -47,6 +45,8 @@ SLMaterial::SLMaterial(SLAssetManager* am,
                        SLGLProgram*    program,
                        const SLstring& compileErrorTexFilePath) : SLObject(name)
 {
+    _assetManager = am;
+    _lightModel   = LM_BlinnPhong;
     _ambient = _diffuse = amdi;
     _specular           = spec;
     _emissive.set(0, 0, 0, 0);
@@ -61,7 +61,7 @@ SLMaterial::SLMaterial(SLAssetManager* am,
     _kt = kt;
     _kn = kn;
 
-    // sync the transparency coeffitient with the alpha value or vice versa
+    // sync the transparency coefficient with the alpha value or vice versa
     if (_kt > 0) _diffuse.w = 1.0f - _kt;
     if (_diffuse.w > 1) _kt = 1.0f - _diffuse.w;
 
@@ -71,7 +71,7 @@ SLMaterial::SLMaterial(SLAssetManager* am,
 }
 //-----------------------------------------------------------------------------
 /*!
- Constructor for textured materials.
+ Constructor for textured Blinn-Phong light model materials.
  Materials can be used by multiple meshes (SLMesh). Materials can belong
  therefore to the global assets such as meshes, materials, textures and
  shader programs.
@@ -99,6 +99,8 @@ SLMaterial::SLMaterial(SLAssetManager* am,
                        SLGLProgram*    shaderProg,
                        const SLstring& compileErrorTexFilePath) : SLObject(name)
 {
+    _assetManager = am;
+    _lightModel   = LM_BlinnPhong;
     _ambient.set(1, 1, 1);
     _diffuse.set(1, 1, 1);
     _specular.set(1, 1, 1);
@@ -141,7 +143,13 @@ SLMaterial::SLMaterial(SLAssetManager* am,
                        SLGLProgram*    shaderProg,
                        const SLstring& compileErrorTexFilePath) : SLObject(name)
 {
+    _assetManager = am;
     _program      = shaderProg;
+    _lightModel   = LM_BlinnPhong;
+    _ambient.set(1, 1, 1);
+    _diffuse.set(1, 1, 1);
+    _specular.set(1, 1, 1);
+    _emissive.set(0, 0, 0, 0);
     _shininess    = 125.0f;
     _roughness    = 0.0f;
     _metalness    = 0.0f;
@@ -177,6 +185,8 @@ SLMaterial::SLMaterial(SLAssetManager* am,
                        SLfloat         metalness,
                        const SLstring& compileErrorTexFilePath) : SLObject(name)
 {
+    _assetManager = am;
+    _lightModel   = LM_CookTorrance;
     _ambient.set(0, 0, 0); // not used in Cook-Torrance
     _diffuse = diffuse;
     _specular.set(1, 1, 1);                      // not used in Cook-Torrance
@@ -216,6 +226,8 @@ SLMaterial::SLMaterial(SLAssetManager* am,
                        const SLstring& compileErrorTexFilePath)
   : SLObject(name)
 {
+    _assetManager = am;
+    _lightModel   = LM_Custom;
     _ambient.set(0, 0, 0);
     _diffuse = uniformColor;
     _specular.set(0, 0, 0);
@@ -255,8 +267,11 @@ SLMaterial::~SLMaterial()
 }
 //-----------------------------------------------------------------------------
 /*!
- SLMaterial::activate applies the material parameter to the global render state
- and activates the attached shader.
+ SLMaterial::activate activates this material for rendering if it is not yet
+ the active one and set as SLGLState::currentMaterial. If this material has
+ not yet a shader program assigned (SLMaterial::_program) a suitable program
+ will be generated with an instance of SLGLProgramGenerated.
+ At the end the shader program will begin its usage with SLGLProgram::beginUse.
 */
 void SLMaterial::activate(SLCamera* cam, SLVLight* lights)
 {
@@ -273,38 +288,18 @@ void SLMaterial::activate(SLCamera* cam, SLVLight* lights)
     // Set this material as the current material
     stateGL->currentMaterial(this);
 
-    // If no shader program is attached add the default shader program
+    // If no shader program is attached add a generated shader program
     // A 3D object can be stored without material or shader program information.
     if (!_program)
     {
-        bool hasNrm = _textures.size() > 1 && _textures[1]->texType() == TT_normal;
-        bool hasAO  = _textures.size() > 2 && _textures[2]->texType() == TT_ambientOcclusion;
-        bool hasSM  = !lights->empty() && lights->at(0)->createsShadows();
+        // Check first the asset manager if the requested program type already exists
+        string programName;
+        SLGLProgramGenerated::buildProgramName(this, lights, programName);
+        _program = _assetManager->getProgramByName(programName);
 
-        if (!_textures.empty())
-        {
-            if (hasNrm && hasAO && hasSM)
-                program(SLGLDefaultProgPerPixBlinnTexNrmAOSM::instance());
-            else if (hasNrm && hasAO)
-                program(SLGLDefaultProgPerPixBlinnTexNrmAO::instance());
-            else if (hasNrm && hasSM)
-                program(SLGLDefaultProgPerPixBlinnTexNrmSM::instance());
-            else if (hasNrm)
-                program(SLGLDefaultProgPerPixBlinnTexNrm::instance());
-            else if (hasSM)
-                program(SLGLDefaultProgPerPixBlinnTexSM::instance());
-            else
-                program(SLGLDefaultProgPerVrtBlinnTex::instance());
-        }
-        else
-        {
-            if (hasSM && hasAO)
-                program(SLGLDefaultProgPerPixBlinnSMAO::instance());
-            else if (hasSM)
-                program(SLGLDefaultProgPerPixBlinnSM::instance());
-            else
-                program(SLGLDefaultProgPerVrtBlinn::instance());
-        }
+        // If the program was not found by name generate a new one
+        if (!_program)
+            _program = new SLGLProgramGenerated(_assetManager, programName, this, lights);
     }
 
     // Check if shader had compile error and the error texture should be shown
@@ -315,8 +310,6 @@ void SLMaterial::activate(SLCamera* cam, SLVLight* lights)
             _errorTexture = new SLGLTexture(nullptr, _compileErrorTexFilePath);
         _textures.push_back(_errorTexture);
     }
-
-    //SL_LOG("SLMaterial::activate program: %s", _name.c_str());
 
     // Activate the shader program now
     _program->beginUse(cam, this, lights);

@@ -15,8 +15,6 @@
 #include <functional>
 #include <Utils.h>
 
-using namespace std;
-
 namespace ZipUtils
 {
 //-----------------------------------------------------------------------------

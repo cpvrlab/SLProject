@@ -47,7 +47,7 @@ SLTexFont::SLTexFont(SLstring fontFilename, SLGLProgram* fontTexProgram)
 //-----------------------------------------------------------------------------
 SLTexFont::SLTexFont(SLstring fontFilename, SLstring shaderDir)
 {
-    _fontTexProgram = new SLGLGenericProgram(nullptr, shaderDir + "FontTex.vert", shaderDir + "FontTex.frag");
+    _fontTexProgram = new SLGLProgramGeneric(nullptr, shaderDir + "FontTex.vert", shaderDir + "FontTex.frag");
     _deleteProgram  = true;
 
     // Init texture members

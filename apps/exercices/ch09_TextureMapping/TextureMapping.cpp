@@ -675,7 +675,7 @@ int main(int argc, char* argv[])
     // Init OpenGL access library gl3w
     if (gl3wInit() != 0)
     {
-        cerr << "Failed to initialize OpenGL" << endl;
+        std::cerr << "Failed to initialize OpenGL" << std::endl;
         exit(-1);
     }
 

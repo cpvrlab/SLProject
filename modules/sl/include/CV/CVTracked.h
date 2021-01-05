@@ -27,6 +27,8 @@ for a good top down information.
 #include <opencv2/aruco.hpp>
 #include <opencv2/xfeatures2d.hpp>
 
+using Utils::AvgFloat;
+
 //-----------------------------------------------------------------------------
 //! CVTracked is the pure virtual base class for tracking features in video.
 /*! The static vector trackers can hold multiple of CVTracked that are

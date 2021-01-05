@@ -86,21 +86,21 @@ void AppWAIScene::initMapVisualization()
 
     redMat = new SLMaterial(&assets, SLGLProgramManager::get(SP_colorUniform), SLCol4f::RED, "Red");
     //todo ghm1: the shader program was assigned already!!??
-    redMat->program(new SLGLGenericProgram(&assets, _dataDir + "shaders/ColorUniformPoint.vert", _dataDir + "shaders/Color.frag"));
+    redMat->program(new SLGLProgramGeneric(&assets, _dataDir + "shaders/ColorUniformPoint.vert", _dataDir + "shaders/Color.frag"));
     redMat->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 3.0f));
     greenMat = new SLMaterial(&assets, SLGLProgramManager::get(SP_colorUniform), BFHColors::GreenLight, "Green");
-    greenMat->program(new SLGLGenericProgram(&assets, _dataDir + "shaders/ColorUniformPoint.vert", _dataDir + "shaders/Color.frag"));
+    greenMat->program(new SLGLProgramGeneric(&assets, _dataDir + "shaders/ColorUniformPoint.vert", _dataDir + "shaders/Color.frag"));
     greenMat->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 5.0f));
     blueMat = new SLMaterial(&assets, SLGLProgramManager::get(SP_colorUniform), BFHColors::BlueImgui1, "Blue");
-    blueMat->program(new SLGLGenericProgram(&assets, _dataDir + "shaders/ColorUniformPoint.vert", _dataDir + "shaders/Color.frag"));
+    blueMat->program(new SLGLProgramGeneric(&assets, _dataDir + "shaders/ColorUniformPoint.vert", _dataDir + "shaders/Color.frag"));
     blueMat->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 4.0f));
 
     covisibilityGraphMat = new SLMaterial(&assets, "covisibilityGraphMat", SLCol4f::YELLOW);
-    covisibilityGraphMat->program(new SLGLGenericProgram(&assets, _dataDir + "shaders/ColorUniform.vert", _dataDir + "shaders/Color.frag"));
+    covisibilityGraphMat->program(new SLGLProgramGeneric(&assets, _dataDir + "shaders/ColorUniform.vert", _dataDir + "shaders/Color.frag"));
     spanningTreeMat = new SLMaterial(&assets, "spanningTreeMat", SLCol4f::GREEN);
-    spanningTreeMat->program(new SLGLGenericProgram(&assets, _dataDir + "shaders/ColorUniform.vert", _dataDir + "shaders/Color.frag"));
+    spanningTreeMat->program(new SLGLProgramGeneric(&assets, _dataDir + "shaders/ColorUniform.vert", _dataDir + "shaders/Color.frag"));
     loopEdgesMat = new SLMaterial(&assets, "loopEdgesMat", SLCol4f::RED);
-    loopEdgesMat->program(new SLGLGenericProgram(&assets, _dataDir + "shaders/ColorUniform.vert", _dataDir + "shaders/Color.frag"));
+    loopEdgesMat->program(new SLGLProgramGeneric(&assets, _dataDir + "shaders/ColorUniform.vert", _dataDir + "shaders/Color.frag"));
 
     mapNode->addChild(mapPC);
     mapNode->addChild(mapMatchedPC);
@@ -510,9 +510,9 @@ void AppWAIScene::loadBielBFHRolex()
                                 _dataDir + "images/textures/");
 
     // Setup shadow mapping material and replace shader from loader
-    SLGLProgram* progPerPixNrmSM = new SLGLGenericProgram(&assets,
-                                                          _dataDir + "shaders/PerPixBlinnSM.vert",
-                                                          _dataDir + "shaders/PerPixBlinnSM.frag");
+    SLGLProgram* progPerPixNrmSM = new SLGLProgramGeneric(&assets,
+                                                          _dataDir + "shaders/PerPixBlinnSm.vert",
+                                                          _dataDir + "shaders/PerPixBlinnSm.frag");
     auto         updateMat       = [=](SLMaterial* mat) { mat->program(progPerPixNrmSM); };
     bfh->updateMeshMat(updateMat, true);
 
@@ -547,9 +547,9 @@ void AppWAIScene::loadAugstTempelTheater()
     theaterAndTempel->rotate(16.7f, 0, 1, 0, TS_parent);
 
     // Setup shadow mapping material and replace shader from loader
-    SLGLProgram* progPerPixNrmSM = new SLGLGenericProgram(&assets,
-                                                          _dataDir + "shaders/PerPixBlinnTexNrmSM.vert",
-                                                          _dataDir + "shaders/PerPixBlinnTexNrmSM.frag");
+    SLGLProgram* progPerPixNrmSM = new SLGLProgramGeneric(&assets,
+                                                          _dataDir + "shaders/PerPixBlinnTmNmSm.vert",
+                                                          _dataDir + "shaders/PerPixBlinnTmNmSm.frag");
     auto         updateMat       = [=](SLMaterial* mat) { mat->program(progPerPixNrmSM); };
     theaterAndTempel->updateMeshMat(updateMat, true);
 
@@ -613,9 +613,9 @@ void AppWAIScene::loadAvenchesTheatre()
                                     0.4f);   // 40% ambient reflection
 
     // Setup shadow mapping material and replace shader from loader
-    SLGLProgram* progPerPixNrmSM = new SLGLGenericProgram(&assets,
-                                                          _dataDir + "shaders/PerPixBlinnTexNrmSM.vert",
-                                                          _dataDir + "shaders/PerPixBlinnTexNrmSM.frag");
+    SLGLProgram* progPerPixNrmSM = new SLGLProgramGeneric(&assets,
+                                                          _dataDir + "shaders/PerPixBlinnTmNmSm.vert",
+                                                          _dataDir + "shaders/PerPixBlinnTmNmSm.frag");
     auto         updateMat       = [=](SLMaterial* mat) { mat->program(progPerPixNrmSM); };
     theatre->updateMeshMat(updateMat, true);
 

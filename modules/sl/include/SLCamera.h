@@ -133,7 +133,7 @@ public:
         _devLoc = devLoc;
     }
     void fogIsOn(const bool isOn) { _fogIsOn = isOn; }
-    void fogMode(const int mode) { _fogMode = mode; }
+    void fogMode(const SLFogMode mode) { _fogMode = mode; }
     void fogDensity(const float density) { _fogDensity = density; }
 
     // Getters
@@ -141,16 +141,16 @@ public:
     SLProjection   projection() const { return _projection; }
     SLstring       projectionStr() const { return projectionToStr(_projection); }
     SLfloat        unitScaling() const { return _unitScaling; }
-    SLfloat        fovV() const { return _fovV; }                  //!< Vertical field of view
+    SLfloat        fovV() const { return _fovV; } //!< Vertical field of view
     //todo: fovH calculation is wrong
-    SLfloat        fovH() const { return _viewportRatio * _fovV; } //!< Horizontal field of view
-    SLint          viewportW() const { return _viewportW; }
-    SLint          viewportH() const { return _viewportH; }
-    SLfloat        aspect() const { return _viewportRatio; }
-    SLfloat        clipNear() const { return _clipNear; }
-    SLfloat        clipFar() const { return _clipFar; }
-    SLCamAnim      camAnim() const { return _camAnim; }
-    SLstring       animationStr() const;
+    SLfloat   fovH() const { return _viewportRatio * _fovV; } //!< Horizontal field of view
+    SLint     viewportW() const { return _viewportW; }
+    SLint     viewportH() const { return _viewportH; }
+    SLfloat   aspect() const { return _viewportRatio; }
+    SLfloat   clipNear() const { return _clipNear; }
+    SLfloat   clipFar() const { return _clipFar; }
+    SLCamAnim camAnim() const { return _camAnim; }
+    SLstring  animationStr() const;
 
     SLfloat stereoEyeSeparation() const { return _stereoEyeSeparation; }
     SLint   stereoEye() const { return _stereoEye; }
@@ -164,12 +164,12 @@ public:
     SLVec3f      focalPointWS() const { return translationWS() + _focalDist * forwardWS(); }
     SLVec3f      focalPointOS() const { return translationOS() + _focalDist * forwardOS(); }
 
-    SLbool  fogIsOn() const { return _fogIsOn; }
-    SLint   fogMode() const { return _fogMode; }
-    SLfloat fogDensity() const { return _fogDensity; }
-    SLfloat fogDistStart() const { return _fogStart; }
-    SLfloat fogDistEnd() const { return _fogEnd; }
-    SLCol4f fogColor() const { return _fogColor; }
+    SLbool    fogIsOn() const { return _fogIsOn; }
+    SLFogMode fogMode() const { return _fogMode; }
+    SLfloat   fogDensity() const { return _fogDensity; }
+    SLfloat   fogDistStart() const { return _fogStart; }
+    SLfloat   fogDistEnd() const { return _fogEnd; }
+    SLCol4f   fogColor() const { return _fogColor; }
 
     SLfloat       trackballSize() const { return _trackballSize; }
     SLBackground& background() { return _background; }
@@ -180,9 +180,9 @@ public:
     SLstring      toString() const;
     SLRectf&      selectRect() { return _selectRect; }
     SLRectf&      deselectRect() { return _deselectRect; }
-    
+
     //update rotation matrix _enucorrRenu
-    void updateEnucorrRenu(SLSceneView* sv, const SLMat3f& enuRc, float& f, SLVec3f& enuOffsetPix);
+    void updateEnuCorrRenu(SLSceneView* sv, const SLMat3f& enuRc, float& f, SLVec3f& enuOffsetPix);
 
     // Static global default parameters for new cameras
     static SLCamAnim    currentAnimation;
@@ -220,7 +220,7 @@ protected:
     SLBackground _background; //!< Colors or texture displayed in the background
 
     SLGLVertexArrayExt _vao; //!< OpenGL Vertex array for rendering
- 
+
     SLbool    _movedLastFrame;    //! did the camera updateRec in the last frame?
     SLCamAnim _camAnim;           //!< Type of camera animation
     SLVec2f   _oldTouchPos1;      //!< Old mouse/touch position in pixels
@@ -248,25 +248,25 @@ protected:
     SLMat3f _stereoColorFilter;   //!< color filter matrix for anaglyphling is to adjust movement and stereo rendering correctly
 
     // fog
-    SLbool  _fogIsOn;        //!< Flag if fog blending is enabled
-    SLint   _fogMode;        //!< 0=LINEAR, 1=EXP, 2=EXP2
-    SLfloat _fogDensity;     //!< Fog density for exponential modes
-    SLfloat _fogStart;       //!< Fog start distance for linear mode
-    SLfloat _fogEnd;         //!< Fog end distance for linear mode
-    SLCol4f _fogColor;       //!< fog color blended to the final color
-    SLbool  _fogColorIsBack; //!< fog color blended to the final color
+    SLbool    _fogIsOn;        //!< Flag if fog blending is enabled
+    SLFogMode _fogMode;        //!< 0=LINEAR, 1=EXP, 2=EXP2
+    SLfloat   _fogDensity;     //!< Fog density for exponential modes
+    SLfloat   _fogStart;       //!< Fog start distance for linear mode
+    SLfloat   _fogEnd;         //!< Fog end distance for linear mode
+    SLCol4f   _fogColor;       //!< fog color blended to the final color
+    SLbool    _fogColorIsBack; //!< fog color blended to the final color
 
     SLDeviceRotation* _devRot = nullptr;
     SLDeviceLocation* _devLoc = nullptr;
 
     SLRectf _selectRect;   //!< Mouse selection rectangle. See SLMesh::handleRectangleSelection
     SLRectf _deselectRect; //!< Mouse deselection rectangle. See SLMesh::handleRectangleSelection
-    
+
     //!parameter for manual finger rotation and translation
-    SLint _xOffsetPix = 0;
-    SLint _yOffsetPix = 0;
-    float _distanceToObjectM = 1.0f; //!< distance to object in meter that should be shifted relative to camera
-    float _enucorrTRenu = 0.f;        //!< manual camera shift in y direction
+    SLint   _xOffsetPix        = 0;
+    SLint   _yOffsetPix        = 0;
+    float   _distanceToObjectM = 1.0f; //!< distance to object in meter that should be shifted relative to camera
+    float   _enucorrTRenu      = 0.f;  //!< manual camera shift in y direction
     SLMat3f _enucorrRenu;
 };
 //-----------------------------------------------------------------------------

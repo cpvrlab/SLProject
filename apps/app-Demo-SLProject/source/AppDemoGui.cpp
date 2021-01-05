@@ -145,57 +145,50 @@ static SLNode* graben      = nullptr;
 // Temp. transform node
 static SLTransformNode* transformNode = nullptr;
 
-SLstring AppDemoGui::infoAbout =
-  "Welcome to the SLProject demo app. It is developed at the \
-Computer Science Department of the Bern University of Applied Sciences. \
-The app shows what you can learn in two semesters about 3D computer graphics \
-in real time rendering and ray tracing. The framework is developed \
-in C++ with OpenGL ES so that it can run also on mobile devices. \
-Ray tracing provides in addition high quality transparencies, reflections and soft shadows. \
-Click to close and use the menu to choose different scenes and view settings. \
-For more information please visit: https://github.com/cpvrlab/SLProject\n\
-";
+SLstring AppDemoGui::infoAbout = R"(
+Welcome to the SLProject demo app. It is developed at the Computer Science Department of the Bern University of Applied Sciences.
+The app shows what you can learn in two semesters about 3D computer graphics in real time rendering and ray tracing. The framework is developed in C++ with OpenGL ES so that it can run also on mobile devices.
+Ray tracing provides in addition high quality transparencies, reflections and soft shadows. Click to close and use the menu to choose different scenes and view settings.
+For more information please visit: https://github.com/cpvrlab/SLProject
+)";
 
-SLstring AppDemoGui::infoCredits =
-  "Contributors since 2005 in alphabetic order: \
-Martin Christen, Jan Dellsperger, Manuel Frischknecht, Luc Girod, \
-Michael Goettlicher, Michael Schertenleib, Stefan Thoeni, Timo Tschanz, Marc Wacker, Pascal Zingg \n\n\
-Credits for external libraries:\n\
-- assimp: assimp.sourceforge.net\n\
-- imgui: github.com/ocornut/imgui\n\
-- gl3w: https://github.com/skaslev/gl3w\n\
-- glfw: glfw.org\n\
-- OpenCV: opencv.org\n\
-- OpenGL: opengl.org\n\
-- spa: Solar Position Algorithm\n\
-- zlib: zlib.net\n\
-";
+SLstring AppDemoGui::infoCredits = R"(
+Contributors since 2005 in alphabetic order:
+Martin Christen, Jan Dellsperger, Manuel Frischknecht, Luc Girod, Michael Goettlicher, Michael Schertenleib, Stefan Thoeni, Timo Tschanz, Marc Wacker, Pascal Zingg
 
-SLstring AppDemoGui::infoHelp =
-  "Help for mouse or finger control:\n\
-- Use left mouse or your finger to rotate the scene\n\
-- Use mouse-wheel or pinch 2 fingers to go forward/backward\n\
-- Use middle-mouse or 2 fingers to move sidewards/up-down\n\
-- Double click or double tap to select object\n\
-- CTRL-mouse to select vertices of objects\n\
-- On desktop see shortcuts behind menu commands\n\
-- Check out the different test scenes under File > Load Test Scene\n\
-";
+Credits for external libraries:
+- assimp: assimp.sourceforge.net
+- imgui: github.com/ocornut/imgui
+- gl3w: https://github.com/skaslev/gl3w
+- glfw: glfw.org
+- OpenCV: opencv.org
+- OpenGL: opengl.org
+- OpenSSL: openssl.org
+- spa: Solar Position Algorithm
+- zlib: zlib.net
+)";
 
-SLstring AppDemoGui::infoCalibrate =
-  "The calibration process requires a chessboard image to be printed \
-and glued on a flat board. You can find the PDF with the chessboard image on: \n\
-https://github.com/cpvrlab/SLProject/tree/master/data/calibrations/ \n\
-For a calibration you have to take 20 images with detected inner \
-chessboard corners. To take an image you have to click with the mouse \
-or tap with finger into the screen. View the chessboard from the side so that \
-the inner corners cover the full image. Hold the camera or board really still \
-before taking the picture.\n \
-You can mirror the video image under Preferences > Video. You can check the \
-distance to the chessboard in the dialog Stats. on Video.\n \
-After calibration the yellow wireframe cube should stick on the chessboard.\n\n\
-Please close first this info dialog on the top-left.\n\
-";
+SLstring AppDemoGui::infoHelp = R"(
+Help for mouse or finger control:
+- Use left mouse or your finger to rotate the scene
+- Use mouse-wheel or pinch 2 fingers to go forward/backward
+- Use middle-mouse or 2 fingers to move sidewards/up-down
+- Double click or double tap to select object
+- CTRL-mouse to select vertices of objects
+- See keyboard shortcuts behind menu commands
+- Check out the different test scenes under File > Load Test Scene
+- You can open and dock additional windows from the menu Infos.
+)";
+
+SLstring AppDemoGui::infoCalibrate = R"(
+The calibration process requires a chessboard image to be printed and glued on a flat board. You can find the PDF with the chessboard image on:
+https://github.com/cpvrlab/SLProject/tree/master/data/calibrations/
+For a calibration you have to take 20 images with detected inner chessboard corners. To take an image you have to click with the mouse
+or tap with finger into the screen. View the chessboard from the side so that the inner corners cover the full image. Hold the camera or board really still
+before taking the picture.
+You can mirror the video image under Preferences > Video. You can check the distance to the chessboard in the dialog Stats. on Video.
+After calibration the yellow wireframe cube should stick on the chessboard. Please close first this info dialog on the top-left.
+)";
 
 //-----------------------------------------------------------------------------
 off64_t ftpXferSizeMax = 0;
@@ -231,954 +224,936 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
 {
     PROFILE_FUNCTION();
 
-    ///////////////////////////////////
-    // Show modeless fullscreen dialogs
-    ///////////////////////////////////
-
-    // if parallel jobs are running show only the progress informations
-    if (SLApplication::jobIsRunning)
+    if (sv->camera() && sv->camera()->projection() == P_stereoSideBySideD)
     {
-        centerNextWindow(sv, 0.9f, 0.5f);
-        ImGui::Begin("Parallel Job in Progress",
-                     &showProgress,
-                     ImGuiWindowFlags_NoTitleBar);
-        ImGui::Text("Parallel Job in Progress:");
-        ImGui::Separator();
-        ImGui::Text("%s", SLApplication::jobProgressMsg().c_str());
-        if (SLApplication::jobProgressMax() > 0)
-        {
-            float num = (float)SLApplication::jobProgressNum();
-            float max = (float)SLApplication::jobProgressMax();
-            ImGui::ProgressBar(num / max);
-        }
-        else
-        {
-            ImGui::Text("Progress: %c", "|/-\\"[(int)(ImGui::GetTime() / 0.05f) & 3]);
-        }
-
-        ImGui::Separator();
-        ImGui::Text("Parallel Jobs to follow: %lu",
-                    SLApplication::jobsToBeThreaded.size());
-        ImGui::Text("Sequential Jobs to follow: %lu",
-                    SLApplication::jobsToFollowInMain.size());
-        ImGui::End();
-        return;
+        // So far no UI in distorted stereo projection
     }
     else
     {
-        if (showDockSpace)
+        ///////////////////////////////////
+        // Show modeless fullscreen dialogs
+        ///////////////////////////////////
+
+        // if parallel jobs are running show only the progress informations
+        if (SLApplication::jobIsRunning)
         {
-            static bool               opt_fullscreen_persistant = true;
-            bool                      opt_fullscreen            = opt_fullscreen_persistant;
-            static ImGuiDockNodeFlags dockspace_flags           = ImGuiDockNodeFlags_PassthruCentralNode;
-
-            // We are using the ImGuiWindowFlags_NoDocking flag to make the parent window not dockable into,
-            // because it would be confusing to have two docking targets within each others.
-            ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDocking;
-            if (opt_fullscreen)
-            {
-                ImGuiViewport* viewport = ImGui::GetMainViewport();
-                ImGui::SetNextWindowPos(viewport->GetWorkPos());
-                ImGui::SetNextWindowSize(viewport->GetWorkSize());
-                ImGui::SetNextWindowViewport(viewport->ID);
-                ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
-                ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-                window_flags |= ImGuiWindowFlags_NoTitleBar |
-                                ImGuiWindowFlags_NoCollapse |
-                                ImGuiWindowFlags_NoResize |
-                                ImGuiWindowFlags_NoMove |
-                                ImGuiWindowFlags_NoBringToFrontOnFocus |
-                                ImGuiWindowFlags_NoNavFocus;
-            }
-
-            // When using ImGuiDockNodeFlags_PassthruCentralNode, DockSpace() will render our background
-            // and handle the pass-thru hole, so we ask Begin() to not render a background.
-            if (dockspace_flags & ImGuiDockNodeFlags_PassthruCentralNode)
-                window_flags |= ImGuiWindowFlags_NoBackground;
-
-            // Important: note that we proceed even if Begin() returns false (aka window is collapsed).
-            // This is because we want to keep our DockSpace() active. If a DockSpace() is inactive,
-            // all active windows docked into it will lose their parent and become undocked.
-            // We cannot preserve the docking relationship between an active window and an inactive docking, otherwise
-            // any change of dockspace/settings would lead to windows being stuck in limbo and never being visible.
-            ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-            ImGui::Begin("DockSpace Demo", &showDockSpace, window_flags);
-            ImGui::PopStyleVar();
-
-            if (opt_fullscreen)
-                ImGui::PopStyleVar(2);
-
-            // DockSpace
-            ImGuiIO& io = ImGui::GetIO();
-            if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable)
-            {
-                ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
-                ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
-            }
-
-            ImGui::End();
-        }
-
-        if (showAbout)
-        {
-            centerNextWindow(sv);
-            ImGui::Begin("About SLProject", &showAbout, ImGuiWindowFlags_NoResize);
-            ImGui::Text("Version: %s", SLApplication::version.c_str());
-            ImGui::Text("Configuration: %s", SLApplication::configuration.c_str());
+            centerNextWindow(sv, 0.9f, 0.5f);
+            ImGui::Begin("Parallel Job in Progress",
+                         &showProgress,
+                         ImGuiWindowFlags_NoTitleBar);
+            ImGui::Text("Parallel Job in Progress:");
             ImGui::Separator();
-            ImGui::Text("Git Branch: %s (Commit: %s)", SLApplication::gitBranch.c_str(), SLApplication::gitCommit.c_str());
-            ImGui::Text("Git Date: %s", SLApplication::gitDate.c_str());
-            ImGui::Separator();
-            ImGui::TextWrapped("%s", infoAbout.c_str());
-            ImGui::End();
-            return;
-        }
-
-        if (showHelp)
-        {
-            centerNextWindow(sv);
-            ImGui::Begin("Help on Interaction", &showHelp, ImGuiWindowFlags_NoResize);
-            ImGui::TextWrapped("%s", infoHelp.c_str());
-            ImGui::End();
-            return;
-        }
-
-        if (showHelpCalibration)
-        {
-            centerNextWindow(sv);
-            ImGui::Begin("Help on Camera Calibration", &showHelpCalibration, ImGuiWindowFlags_NoResize);
-            ImGui::TextWrapped("%s", infoCalibrate.c_str());
-            ImGui::End();
-            return;
-        }
-
-        if (showCredits)
-        {
-            centerNextWindow(sv);
-            ImGui::Begin("Credits for all Contributors and external Libraries", &showCredits, ImGuiWindowFlags_NoResize);
-            ImGui::TextWrapped("%s", infoCredits.c_str());
-            ImGui::End();
-            return;
-        }
-
-        //////////////////
-        // Show rest modal
-        //////////////////
-
-        buildMenuBar(s, sv);
-
-        if (showStatsTiming)
-        {
-            SLRenderType rType = sv->renderType();
-            SLfloat      ft    = s->frameTimesMS().average();
-            SLchar       m[2550]; // message character array
-            m[0] = 0;             // set zero length
-
-            if (rType == RT_gl)
+            ImGui::Text("%s", SLApplication::jobProgressMsg().c_str());
+            if (SLApplication::jobProgressMax() > 0)
             {
-                // Get averages from average variables (see Averaged)
-                SLfloat captureTime    = CVCapture::instance()->captureTimesMS().average();
-                SLfloat updateTime     = s->updateTimesMS().average();
-                SLfloat trackingTime   = CVTracked::trackingTimesMS.average();
-                SLfloat detectTime     = CVTracked::detectTimesMS.average();
-                SLfloat detect1Time    = CVTracked::detect1TimesMS.average();
-                SLfloat detect2Time    = CVTracked::detect2TimesMS.average();
-                SLfloat matchTime      = CVTracked::matchTimesMS.average();
-                SLfloat optFlowTime    = CVTracked::optFlowTimesMS.average();
-                SLfloat poseTime       = CVTracked::poseTimesMS.average();
-                SLfloat updateAnimTime = s->updateAnimTimesMS().average();
-                SLfloat updateAABBTime = s->updateAnimTimesMS().average();
-                SLfloat shadowMapTime  = sv->shadowMapTimeMS().average();
-                SLfloat cullTime       = sv->cullTimesMS().average();
-                SLfloat draw3DTime     = sv->draw3DTimesMS().average();
-                SLfloat draw2DTime     = sv->draw2DTimesMS().average();
-
-                // Calculate percentage from frame time
-                SLfloat captureTimePC    = Utils::clamp(captureTime / ft * 100.0f, 0.0f, 100.0f);
-                SLfloat updateTimePC     = Utils::clamp(updateTime / ft * 100.0f, 0.0f, 100.0f);
-                SLfloat trackingTimePC   = Utils::clamp(trackingTime / ft * 100.0f, 0.0f, 100.0f);
-                SLfloat detectTimePC     = Utils::clamp(detectTime / ft * 100.0f, 0.0f, 100.0f);
-                SLfloat matchTimePC      = Utils::clamp(matchTime / ft * 100.0f, 0.0f, 100.0f);
-                SLfloat optFlowTimePC    = Utils::clamp(optFlowTime / ft * 100.0f, 0.0f, 100.0f);
-                SLfloat poseTimePC       = Utils::clamp(poseTime / ft * 100.0f, 0.0f, 100.0f);
-                SLfloat updateAnimTimePC = Utils::clamp(updateAnimTime / ft * 100.0f, 0.0f, 100.0f);
-                SLfloat updateAABBTimePC = Utils::clamp(updateAABBTime / ft * 100.0f, 0.0f, 100.0f);
-                SLfloat shadowMapTimePC  = Utils::clamp(shadowMapTime / ft * 100.0f, 0.0f, 100.0f);
-                SLfloat draw3DTimePC     = Utils::clamp(draw3DTime / ft * 100.0f, 0.0f, 100.0f);
-                SLfloat draw2DTimePC     = Utils::clamp(draw2DTime / ft * 100.0f, 0.0f, 100.0f);
-                SLfloat cullTimePC       = Utils::clamp(cullTime / ft * 100.0f, 0.0f, 100.0f);
-
-                sprintf(m + strlen(m), "Renderer   : OpenGL\n");
-                sprintf(m + strlen(m), "Load time  : %5.1f ms\n", s->loadTimeMS());
-                sprintf(m + strlen(m), "Window size: %d x %d\n", sv->viewportW(), sv->viewportH());
-                sprintf(m + strlen(m), "Frambuffer : %d x %d\n", (int)(sv->viewportW() * sv->scr2fbY()), (int)(sv->viewportH() * sv->scr2fbX()));
-                sprintf(m + strlen(m), "Drawcalls  : %d\n", SLGLVertexArray::totalDrawCalls);
-                sprintf(m + strlen(m), "FPS        : %5.1f\n", s->fps());
-                sprintf(m + strlen(m), "Frame time : %5.1f ms (100%%)\n", ft);
-                sprintf(m + strlen(m), " Capture   : %5.1f ms (%3d%%)\n", captureTime, (SLint)captureTimePC);
-                sprintf(m + strlen(m), " Update    : %5.1f ms (%3d%%)\n", updateTime, (SLint)updateTimePC);
-                sprintf(m + strlen(m), "  Anim.    : %5.1f ms (%3d%%)\n", updateAnimTime, (SLint)updateAnimTimePC);
-                sprintf(m + strlen(m), "  AABB     : %5.1f ms (%3d%%)\n", updateAABBTime, (SLint)updateAABBTimePC);
-                sprintf(m + strlen(m), "  Tracking : %5.1f ms (%3d%%)\n", trackingTime, (SLint)trackingTimePC);
-                sprintf(m + strlen(m), "   Detect  : %5.1f ms (%3d%%)\n", detectTime, (SLint)detectTimePC);
-                sprintf(m + strlen(m), "    Det1   : %5.1f ms\n", detect1Time);
-                sprintf(m + strlen(m), "    Det2   : %5.1f ms\n", detect2Time);
-                sprintf(m + strlen(m), "   Match   : %5.1f ms (%3d%%)\n", matchTime, (SLint)matchTimePC);
-                sprintf(m + strlen(m), "   OptFlow : %5.1f ms (%3d%%)\n", optFlowTime, (SLint)optFlowTimePC);
-                sprintf(m + strlen(m), "   Pose    : %5.1f ms (%3d%%)\n", poseTime, (SLint)poseTimePC);
-                sprintf(m + strlen(m), " Shadows   : %5.1f ms (%3d%%)\n", shadowMapTime, (SLint)shadowMapTimePC);
-                sprintf(m + strlen(m), " Culling   : %5.1f ms (%3d%%)\n", cullTime, (SLint)cullTimePC);
-                sprintf(m + strlen(m), " Drawing 3D: %5.1f ms (%3d%%)\n", draw3DTime, (SLint)draw3DTimePC);
-                sprintf(m + strlen(m), " Drawing 2D: %5.1f ms (%3d%%)\n", draw2DTime, (SLint)draw2DTimePC);
+                float num = (float)SLApplication::jobProgressNum();
+                float max = (float)SLApplication::jobProgressMax();
+                ImGui::ProgressBar(num / max);
             }
-            else if (rType == RT_rt)
-            {
-                SLRaytracer* rt           = sv->raytracer();
-                SLint        rtWidth      = (SLint)(sv->viewportW() * rt->resolutionFactor());
-                SLint        rtHeight     = (SLint)(sv->viewportH() * rt->resolutionFactor());
-                SLuint       rayPrimaries = (SLuint)(rtWidth * rtHeight);
-                SLuint       rayTotal     = SLRay::totalNumRays();
-                SLfloat      renderSec    = rt->renderSec();
-                SLfloat      fps          = renderSec > 0.001f ? 1.0f / rt->renderSec() : 0.0f;
-
-                sprintf(m + strlen(m), "Renderer   :Ray Tracer\n");
-                sprintf(m + strlen(m), "Progress   :%3d%%\n", rt->progressPC());
-                sprintf(m + strlen(m), "Frame size :%d x %d\n", rtWidth, rtHeight);
-                sprintf(m + strlen(m), "FPS        :%0.2f\n", fps);
-                sprintf(m + strlen(m), "Frame Time :%0.3f sec.\n", renderSec);
-                sprintf(m + strlen(m), "Rays per ms:%0.0f\n", rt->raysPerMS());
-                sprintf(m + strlen(m), "AA Pixels  :%d (%d%%)\n", SLRay::subsampledPixels, (int)((float)SLRay::subsampledPixels / (float)rayPrimaries * 100.0f));
-                sprintf(m + strlen(m), "Threads    :%d\n", rt->numThreads());
-                sprintf(m + strlen(m), "---------------------------\n");
-                sprintf(m + strlen(m), "Total rays :%8d (%3d%%)\n", rayTotal, 100);
-                sprintf(m + strlen(m), "  Primary  :%8d (%3d%%)\n", rayPrimaries, (int)((float)rayPrimaries / (float)rayTotal * 100.0f));
-                sprintf(m + strlen(m), "  Reflected:%8d (%3d%%)\n", SLRay::reflectedRays, (int)((float)SLRay::reflectedRays / (float)rayTotal * 100.0f));
-                sprintf(m + strlen(m), "  Refracted:%8d (%3d%%)\n", SLRay::refractedRays, (int)((float)SLRay::refractedRays / (float)rayTotal * 100.0f));
-                sprintf(m + strlen(m), "  TIR      :%8d\n", SLRay::tirRays);
-                sprintf(m + strlen(m), "  Shadow   :%8d (%3d%%)\n", SLRay::shadowRays, (int)((float)SLRay::shadowRays / (float)rayTotal * 100.0f));
-                sprintf(m + strlen(m), "  AA       :%8d (%3d%%)\n", SLRay::subsampledRays, (int)((float)SLRay::subsampledRays / (float)rayTotal * 100.0f));
-                sprintf(m + strlen(m), "---------------------------\n");
-                sprintf(m + strlen(m), "Max. depth :%u\n", SLRay::maxDepthReached);
-                sprintf(m + strlen(m), "Avg. depth :%0.3f\n", SLRay::avgDepth / rayPrimaries);
-            }
-#if defined(SL_BUILD_WITH_OPTIX) && defined(SL_HAS_OPTIX)
-            else if (rType == RT_optix_rt)
-            {
-                SLOptixRaytracer* ort = sv->optixRaytracer();
-                sprintf(m + strlen(m), "Renderer   :OptiX Ray Tracer\n");
-                sprintf(m + strlen(m), "Frame size :%d x %d\n", sv->scrW(), sv->scrH());
-                sprintf(m + strlen(m), "FPS        :%5.1f\n", s->fps());
-                sprintf(m + strlen(m), "Frame Time :%0.3f sec.\n", 1.0f / s->fps());
-            }
-            else if (rType == RT_optix_pt)
-            {
-                SLOptixPathtracer* opt = sv->optixPathtracer();
-                sprintf(m + strlen(m), "Renderer   :OptiX Ray Tracer\n");
-                sprintf(m + strlen(m), "Frame size :%d x %d\n", sv->scrW(), sv->scrH());
-                sprintf(m + strlen(m), "Frame Time :%0.2f sec.\n", opt->renderSec());
-                sprintf(m + strlen(m), "Denoiser Time :%0.0f ms.\n", opt->denoiserMS());
-            }
-#endif
-            else if (rType == RT_pt)
-            {
-                SLPathtracer* pt           = sv->pathtracer();
-                SLint         ptWidth      = (SLint)(sv->viewportW() * pt->resolutionFactor());
-                SLint         ptHeight     = (SLint)(sv->viewportH() * pt->resolutionFactor());
-                SLuint        rayPrimaries = (SLuint)(ptWidth * ptHeight);
-                SLuint        rayTotal     = SLRay::totalNumRays();
-
-                sprintf(m + strlen(m), "Renderer   :Path Tracer\n");
-                sprintf(m + strlen(m), "Progress   :%3d%%\n", pt->progressPC());
-                sprintf(m + strlen(m), "Frame size :%d x %d\n", ptWidth, ptHeight);
-                sprintf(m + strlen(m), "FPS        :%0.2f\n", 1.0f / pt->renderSec());
-                sprintf(m + strlen(m), "Frame Time :%0.2f sec.\n", pt->renderSec());
-                sprintf(m + strlen(m), "Rays per ms:%0.0f\n", pt->raysPerMS());
-                sprintf(m + strlen(m), "Samples/pix:%d\n", pt->aaSamples());
-                sprintf(m + strlen(m), "Threads    :%d\n", pt->numThreads());
-                sprintf(m + strlen(m), "---------------------------\n");
-                sprintf(m + strlen(m), "Total rays :%8d (%3d%%)\n", rayTotal, 100);
-                sprintf(m + strlen(m), "  Reflected:%8d (%3d%%)\n", SLRay::reflectedRays, (int)((float)SLRay::reflectedRays / (float)rayTotal * 100.0f));
-                sprintf(m + strlen(m), "  Refracted:%8d (%3d%%)\n", SLRay::refractedRays, (int)((float)SLRay::refractedRays / (float)rayTotal * 100.0f));
-                sprintf(m + strlen(m), "  TIR      :%8d\n", SLRay::tirRays);
-                sprintf(m + strlen(m), "  Shadow   :%8d (%3d%%)\n", SLRay::shadowRays, (int)((float)SLRay::shadowRays / (float)rayTotal * 100.0f));
-                sprintf(m + strlen(m), "---------------------------\n");
-            }
-            else if (rType == RT_ct)
-            {
-                // Get averages from average variables (see Averaged)
-                SLfloat captureTime    = CVCapture::instance()->captureTimesMS().average();
-                SLfloat updateTime     = s->updateTimesMS().average();
-                SLfloat updateAnimTime = s->updateAnimTimesMS().average();
-                SLfloat updateAABBTime = s->updateAnimTimesMS().average();
-                SLfloat cullTime       = sv->cullTimesMS().average();
-                SLfloat draw3DTime     = sv->draw3DTimesMS().average();
-                SLfloat draw2DTime     = sv->draw2DTimesMS().average();
-
-                // Calculate percentage from frame time
-                SLfloat captureTimePC    = Utils::clamp(captureTime / ft * 100.0f, 0.0f, 100.0f);
-                SLfloat updateTimePC     = Utils::clamp(updateTime / ft * 100.0f, 0.0f, 100.0f);
-                SLfloat updateAnimTimePC = Utils::clamp(updateAnimTime / ft * 100.0f, 0.0f, 100.0f);
-                SLfloat updateAABBTimePC = Utils::clamp(updateAABBTime / ft * 100.0f, 0.0f, 100.0f);
-                SLfloat draw3DTimePC     = Utils::clamp(draw3DTime / ft * 100.0f, 0.0f, 100.0f);
-                SLfloat draw2DTimePC     = Utils::clamp(draw2DTime / ft * 100.0f, 0.0f, 100.0f);
-                SLfloat cullTimePC       = Utils::clamp(cullTime / ft * 100.0f, 0.0f, 100.0f);
-
-                sprintf(m + strlen(m), "Renderer   : Conetracing (OpenGL)\n");
-                sprintf(m + strlen(m), "Frame size : %d x %d\n", sv->viewportW(), sv->viewportH());
-                sprintf(m + strlen(m), "Drawcalls  : %d\n", SLGLVertexArray::totalDrawCalls);
-                sprintf(m + strlen(m), "FPS        :%5.1f\n", s->fps());
-                sprintf(m + strlen(m), "Frame time :%5.1f ms (100%%)\n", ft);
-                sprintf(m + strlen(m), " Capture   :%5.1f ms (%3d%%)\n", captureTime, (SLint)captureTimePC);
-                sprintf(m + strlen(m), " Update    :%5.1f ms (%3d%%)\n", updateTime, (SLint)updateTimePC);
-                sprintf(m + strlen(m), "  Anim.    :%5.1f ms (%3d%%)\n", updateAnimTime, (SLint)updateAnimTimePC);
-                sprintf(m + strlen(m), "  AABB     :%5.1f ms (%3d%%)\n", updateAABBTime, (SLint)updateAABBTimePC);
-                sprintf(m + strlen(m), " Culling   :%5.1f ms (%3d%%)\n", cullTime, (SLint)cullTimePC);
-                sprintf(m + strlen(m), " Drawing 3D:%5.1f ms (%3d%%)\n", draw3DTime, (SLint)draw3DTimePC);
-                sprintf(m + strlen(m), " Drawing 2D:%5.1f ms (%3d%%)\n", draw2DTime, (SLint)draw2DTimePC);
-            }
-
-            ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
-            ImGui::Begin("Timing", &showStatsTiming, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize);
-            ImGui::TextUnformatted(m);
-            ImGui::End();
-            ImGui::PopFont();
-        }
-
-        if (showStatsScene)
-        {
-            SLchar m[2550]; // message character array
-            m[0] = 0;       // set zero length
-
-            SLNodeStats& stats3D           = sv->stats3D();
-            SLfloat      vox               = (SLfloat)stats3D.numVoxels;
-            SLfloat      voxEmpty          = (SLfloat)stats3D.numVoxEmpty;
-            SLfloat      voxelsEmpty       = vox > 0.0f ? voxEmpty / vox * 100.0f : 0.0f;
-            SLfloat      numRTTria         = (SLfloat)stats3D.numTriangles;
-            SLfloat      avgTriPerVox      = vox > 0.0f ? numRTTria / (vox - voxEmpty) : 0.0f;
-            SLint        numOverdrawnNodes = (int)sv->nodesOverdrawn().size();
-            SLint        numVisibleNodes   = stats3D.numNodesOpaque + stats3D.numNodesBlended + numOverdrawnNodes;
-            SLint        numGroupPC        = (SLint)((SLfloat)stats3D.numNodesGroup / (SLfloat)stats3D.numNodes * 100.0f);
-            SLint        numLeafPC         = (SLint)((SLfloat)stats3D.numNodesLeaf / (SLfloat)stats3D.numNodes * 100.0f);
-            SLint        numLightsPC       = (SLint)((SLfloat)stats3D.numLights / (SLfloat)stats3D.numNodes * 100.0f);
-            SLint        numOpaquePC       = (SLint)((SLfloat)stats3D.numNodesOpaque / (SLfloat)stats3D.numNodes * 100.0f);
-            SLint        numBlendedPC      = (SLint)((SLfloat)stats3D.numNodesBlended / (SLfloat)stats3D.numNodes * 100.0f);
-            SLint        numOverdrawnPC    = (SLint)((SLfloat)numOverdrawnNodes / (SLfloat)stats3D.numNodes * 100.0f);
-            SLint        numVisiblePC      = (SLint)((SLfloat)numVisibleNodes / (SLfloat)stats3D.numNodes * 100.0f);
-
-            // Calculate total size of texture bytes on CPU
-            SLfloat cpuMBTexture = 0;
-            for (auto* t : s->textures())
-                for (auto* i : t->images())
-                    cpuMBTexture += i->bytesPerImage();
-            cpuMBTexture = cpuMBTexture / 1E6f;
-
-            SLfloat cpuMBMeshes    = (SLfloat)stats3D.numBytes / 1E6f;
-            SLfloat cpuMBVoxels    = (SLfloat)stats3D.numBytesAccel / 1E6f;
-            SLfloat cpuMBTotal     = cpuMBTexture + cpuMBMeshes + cpuMBVoxels;
-            SLint   cpuMBTexturePC = (SLint)(cpuMBTexture / cpuMBTotal * 100.0f);
-            SLint   cpuMBMeshesPC  = (SLint)(cpuMBMeshes / cpuMBTotal * 100.0f);
-            SLint   cpuMBVoxelsPC  = (SLint)(cpuMBVoxels / cpuMBTotal * 100.0f);
-            SLfloat gpuMBTexture   = (SLfloat)SLGLTexture::numBytesInTextures / 1E6f;
-            SLfloat gpuMBVbo       = (SLfloat)SLGLVertexBuffer::totalBufferSize / 1E6f;
-            SLfloat gpuMBTotal     = gpuMBTexture + gpuMBVbo;
-            SLint   gpuMBTexturePC = (SLint)(gpuMBTexture / gpuMBTotal * 100.0f);
-            SLint   gpuMBVboPC     = (SLint)(gpuMBVbo / gpuMBTotal * 100.0f);
-
-            sprintf(m + strlen(m), "Name: %s\n", s->name().c_str());
-            sprintf(m + strlen(m), "No. of Nodes  :%5d (100%%)\n", stats3D.numNodes);
-            sprintf(m + strlen(m), "- Group Nodes :%5d (%3d%%)\n", stats3D.numNodesGroup, numGroupPC);
-            sprintf(m + strlen(m), "- Leaf  Nodes :%5d (%3d%%)\n", stats3D.numNodesLeaf, numLeafPC);
-            sprintf(m + strlen(m), "- Light Nodes :%5d (%3d%%)\n", stats3D.numLights, numLightsPC);
-            sprintf(m + strlen(m), "- Opaque Nodes:%5d (%3d%%)\n", stats3D.numNodesOpaque, numOpaquePC);
-            sprintf(m + strlen(m), "- Blend Nodes :%5d (%3d%%)\n", stats3D.numNodesBlended, numBlendedPC);
-            sprintf(m + strlen(m), "- Overdrawn N.:%5d (%3d%%)\n", numOverdrawnNodes, numOverdrawnPC);
-            sprintf(m + strlen(m), "- Vis. Nodes  :%5d (%3d%%)\n", numVisibleNodes, numVisiblePC);
-            sprintf(m + strlen(m), "- WM Updates  :%5d\n", SLNode::numWMUpdates);
-            sprintf(m + strlen(m), "No. of Meshes :%5u\n", stats3D.numMeshes);
-            sprintf(m + strlen(m), "No. of Tri.   :%5u\n", stats3D.numTriangles);
-            sprintf(m + strlen(m), "CPU MB Total  :%6.2f (100%%)\n", cpuMBTotal);
-            sprintf(m + strlen(m), "-   MB Tex.   :%6.2f (%3d%%)\n", cpuMBTexture, cpuMBTexturePC);
-            sprintf(m + strlen(m), "-   MB Meshes :%6.2f (%3d%%)\n", cpuMBMeshes, cpuMBMeshesPC);
-            sprintf(m + strlen(m), "-   MB Voxels :%6.2f (%3d%%)\n", cpuMBVoxels, cpuMBVoxelsPC);
-            sprintf(m + strlen(m), "GPU MB Total  :%6.2f (100%%)\n", gpuMBTotal);
-            sprintf(m + strlen(m), "-   MB Tex.   :%6.2f (%3d%%)\n", gpuMBTexture, gpuMBTexturePC);
-            sprintf(m + strlen(m), "-   MB VBO    :%6.2f (%3d%%)\n", gpuMBVbo, gpuMBVboPC);
-            sprintf(m + strlen(m), "No. of Voxels :%d\n", stats3D.numVoxels);
-            sprintf(m + strlen(m), "-empty Voxels :%4.1f%%\n", voxelsEmpty);
-            sprintf(m + strlen(m), "Avg.Tri/Voxel :%4.1f\n", avgTriPerVox);
-            sprintf(m + strlen(m), "Max.Tri/Voxel :%d\n", stats3D.numVoxMaxTria);
-
-            // Switch to fixed font
-            ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
-            ImGui::Begin("Scene Statistics", &showStatsScene, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize);
-            ImGui::TextUnformatted(m);
-
-            ImGui::Separator();
-
-            ImGui::Text("Global Resources:");
-
-            if (s->meshes().size() && ImGui::TreeNode("Meshes"))
-            {
-                for (SLuint i = 0; i < s->meshes().size(); ++i)
-                    ImGui::Text("[%d] %s (%u v.)",
-                                i,
-                                s->meshes()[i]->name().c_str(),
-                                (SLuint)s->meshes()[i]->P.size());
-
-                ImGui::TreePop();
-            }
-
-            if (s->lights().size() && ImGui::TreeNode("Lights"))
-            {
-                for (SLuint i = 0; i < s->lights().size(); ++i)
-                {
-                    SLNode* light = dynamic_cast<SLNode*>(s->lights()[i]);
-                    ImGui::Text("[%u] %s", i, light->name().c_str());
-                }
-
-                ImGui::TreePop();
-            }
-
-            if (sv->visibleMaterials3D().size() && ImGui::TreeNode("Materials"))
-            {
-                for (auto* mat : sv->visibleMaterials3D())
-                {
-                    SLVNode& matNodes = mat->nodesVisible3D();
-                    sprintf(m,
-                            "%s [%u n.]",
-                            mat->name().c_str(),
-                            (SLuint)matNodes.size());
-
-                    if (matNodes.size())
-                    {
-                        if (ImGui::TreeNode(m))
-                        {
-                            for (auto* node : matNodes)
-                                ImGui::Text(node->name().c_str());
-
-                            ImGui::TreePop();
-                        }
-                    }
-                    else
-                        ImGui::Text(m);
-                }
-
-                ImGui::TreePop();
-            }
-
-            if (s->textures().size() && ImGui::TreeNode("Textures"))
-            {
-                for (SLuint i = 0; i < s->textures().size(); ++i)
-                    ImGui::Text("[%u] %s", i, s->textures()[i]->name().c_str());
-
-                ImGui::TreePop();
-            }
-
-            if (s->programs().size() && ImGui::TreeNode("Programs (asset manager)"))
-            {
-                for (SLuint i = 0; i < s->programs().size(); ++i)
-                {
-                    SLGLProgram* p = s->programs()[i];
-                    ImGui::Text("[%u] %s", i, p->name().c_str());
-                }
-                ImGui::TreePop();
-            }
-
-            if (ImGui::TreeNode("Programs (scene)"))
-            {
-                if (SLGLDefaultProgColorAttrib::isBuilt())
-                    ImGui::Text("%s", SLGLDefaultProgColorAttrib::instance()->name().c_str());
-                if (SLGLDefaultProgPerVrtBlinn::isBuilt())
-                    ImGui::Text("%s", SLGLDefaultProgPerVrtBlinn::instance()->name().c_str());
-                if (SLGLDefaultProgPerVrtBlinnTex::isBuilt())
-                    ImGui::Text("%s", SLGLDefaultProgPerVrtBlinnTex::instance()->name().c_str());
-                if (SLGLDefaultProgPerPixBlinn::isBuilt())
-                    ImGui::Text("%s", SLGLDefaultProgPerPixBlinn::instance()->name().c_str());
-                if (SLGLDefaultProgPerPixBlinnSM::isBuilt())
-                    ImGui::Text("%s", SLGLDefaultProgPerPixBlinnSM::instance()->name().c_str());
-                if (SLGLDefaultProgPerPixBlinnTex::isBuilt())
-                    ImGui::Text("%s", SLGLDefaultProgPerPixBlinnTex::instance()->name().c_str());
-                if (SLGLDefaultProgPerPixBlinnTexAO::isBuilt())
-                    ImGui::Text("%s", SLGLDefaultProgPerPixBlinnTexAO::instance()->name().c_str());
-                if (SLGLDefaultProgPerPixBlinnTexSM::isBuilt())
-                    ImGui::Text("%s", SLGLDefaultProgPerPixBlinnTexSM::instance()->name().c_str());
-                if (SLGLDefaultProgPerPixBlinnTexNrm::isBuilt())
-                    ImGui::Text("%s", SLGLDefaultProgPerPixBlinnTexNrm::instance()->name().c_str());
-                if (SLGLDefaultProgPerPixBlinnTexNrmAO::isBuilt())
-                    ImGui::Text("%s", SLGLDefaultProgPerPixBlinnTexNrmAO::instance()->name().c_str());
-                if (SLGLDefaultProgPerPixBlinnTexNrmSM::isBuilt())
-                    ImGui::Text("%s", SLGLDefaultProgPerPixBlinnTexNrmSM::instance()->name().c_str());
-                if (SLGLDefaultProgPerPixBlinnTexNrmAOSM::isBuilt())
-                    ImGui::Text("%s", SLGLDefaultProgPerPixBlinnTexNrmAOSM::instance()->name().c_str());
-
-                ImGui::TreePop();
-            }
-
-            if (ImGui::TreeNode("Programs (application)"))
-            {
-                for (SLuint i = 0; i < SLGLProgramManager::size(); ++i)
-                    ImGui::Text("[%u] %s", i, SLGLProgramManager::get((SLStdShaderProg)i)->name().c_str());
-
-                ImGui::TreePop();
-            }
-
-            ImGui::End();
-            ImGui::PopFont();
-        }
-
-        if (showStatsVideo)
-        {
-            SLchar m[2550]; // message character array
-            m[0] = 0;       // set zero length
-
-            CVCamera*      ac       = CVCapture::instance()->activeCamera;
-            CVCalibration* c        = &CVCapture::instance()->activeCamera->calibration;
-            CVSize         capSize  = CVCapture::instance()->captureSize;
-            CVVideoType    vt       = CVCapture::instance()->videoType();
-            SLstring       mirrored = "None";
-            if (c->isMirroredH() && c->isMirroredV())
-                mirrored = "horizontally & vertically";
-            else if (c->isMirroredH())
-                mirrored = "horizontally";
-            else if (c->isMirroredV())
-                mirrored = "vertically";
-
-            sprintf(m + strlen(m), "Video Type   : %s\n", vt == VT_NONE ? "None" : vt == VT_MAIN ? "Main Camera"
-                                                                                 : vt == VT_FILE ? "File"
-                                                                                                 : "Secondary Camera");
-            sprintf(m + strlen(m), "Display size : %d x %d\n", CVCapture::instance()->lastFrame.cols, CVCapture::instance()->lastFrame.rows);
-            sprintf(m + strlen(m), "Capture size : %d x %d\n", capSize.width, capSize.height);
-            sprintf(m + strlen(m), "Size Index   : %d\n", ac->camSizeIndex());
-            sprintf(m + strlen(m), "Mirrored     : %s\n", mirrored.c_str());
-            sprintf(m + strlen(m), "Chessboard   : %dx%d (%3.1fmm)\n", c->boardSize().width, c->boardSize().height, c->boardSquareMM());
-            sprintf(m + strlen(m), "Undistorted  : %s\n", ac->showUndistorted() ? "Yes" : "No");
-            sprintf(m + strlen(m), "Calibimg size: %d x %d\n", ac->calibration.imageSizeOriginal().width, ac->calibration.imageSizeOriginal().height);
-            sprintf(m + strlen(m), "FOV H/V(deg.): %4.1f/%4.1f\n", c->cameraFovHDeg(), c->cameraFovVDeg());
-            sprintf(m + strlen(m), "fx,fy        : %4.1f,%4.1f\n", c->fx(), c->fy());
-            sprintf(m + strlen(m), "cx,cy        : %4.1f,%4.1f\n", c->cx(), c->cy());
-
-            int         distortionSize = c->distortion().rows;
-            const float f              = 100.f;
-            sprintf(m + strlen(m), "dist.(*10e-2):\n");
-            sprintf(m + strlen(m), "k1,k2        : %4.2f,%4.2f\n", c->k1() * f, c->k2() * f);
-            sprintf(m + strlen(m), "p1,p2        : %4.2f,%4.2f\n", c->p1() * f, c->p2() * f);
-            if (distortionSize >= 8)
-                sprintf(m + strlen(m), "k3,k4,k5,k6  : %4.2f,%4.2f,%4.2f,%4.2f\n", c->k3() * f, c->k4() * f, c->k5() * f, c->k6() * f);
             else
-                sprintf(m + strlen(m), "k3           : %4.2f\n", c->k3() * f);
-
-            if (distortionSize >= 12)
-                sprintf(m + strlen(m), "s1,s2,s3,s4  : %4.2f,%4.2f,%4.2f,%4.2f\n", c->s1() * f, c->s2() * f, c->s3() * f, c->s4() * f);
-            if (distortionSize >= 14)
-                sprintf(m + strlen(m), "tauX,tauY    : %4.2f,%4.2f\n", c->tauX() * f, c->tauY() * f);
-
-            sprintf(m + strlen(m), "Calib. time  : %s\n", c->calibrationTime().c_str());
-            sprintf(m + strlen(m), "Calib. state : %s\n", c->stateStr().c_str());
-            sprintf(m + strlen(m), "Num. caps    : %d\n", c->numCapturedImgs());
-
-            if (vt != VT_NONE && tracker != nullptr && trackedNode != nullptr)
             {
-                sprintf(m + strlen(m), "-------------:\n");
-                if (typeid(*trackedNode) == typeid(SLCamera))
-                {
-                    SLVec3f cameraPos = trackedNode->updateAndGetWM().translation();
-                    sprintf(m + strlen(m), "Dist. to zero: %4.2f\n", cameraPos.length());
-                }
-                else
-                {
-                    SLVec3f cameraPos = ((SLNode*)sv->camera())->updateAndGetWM().translation();
-                    SLVec3f objectPos = trackedNode->updateAndGetWM().translation();
-                    SLVec3f camToObj  = objectPos - cameraPos;
-                    sprintf(m + strlen(m), "Dist. to obj.: %4.2f\n", camToObj.length());
-                }
+                ImGui::Text("Progress: %c", "|/-\\"[(int)(ImGui::GetTime() / 0.05f) & 3]);
             }
 
-            // Switch to fixed font
-            ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
-            ImGui::Begin("Video", &showStatsVideo, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize);
-            ImGui::TextUnformatted(m);
+            ImGui::Separator();
+            ImGui::Text("Parallel Jobs to follow: %lu",
+                        SLApplication::jobsToBeThreaded.size());
+            ImGui::Text("Sequential Jobs to follow: %lu",
+                        SLApplication::jobsToFollowInMain.size());
             ImGui::End();
-            ImGui::PopFont();
+            return;
         }
-#ifdef SL_BUILD_WAI
-        if (showStatsWAI && SLApplication::sceneID == SID_VideoTrackWAI)
+        else
         {
-            ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
-            ImGui::Begin("WAI Statistics", &showStatsWAI, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize);
+            if (showDockSpace)
+            {
+                static bool               opt_fullscreen_persistant = true;
+                bool                      opt_fullscreen            = opt_fullscreen_persistant;
+                static ImGuiDockNodeFlags dockspace_flags           = ImGuiDockNodeFlags_PassthruCentralNode;
 
-            if (!AverageTiming::instance().empty())
+                // We are using the ImGuiWindowFlags_NoDocking flag to make the parent window not dockable into,
+                // because it would be confusing to have two docking targets within each others.
+                ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDocking;
+                if (opt_fullscreen)
+                {
+                    ImGuiViewport* viewport = ImGui::GetMainViewport();
+                    ImGui::SetNextWindowPos(viewport->GetWorkPos());
+                    ImGui::SetNextWindowSize(viewport->GetWorkSize());
+                    ImGui::SetNextWindowViewport(viewport->ID);
+                    ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+                    ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+                    window_flags |= ImGuiWindowFlags_NoTitleBar |
+                                    ImGuiWindowFlags_NoCollapse |
+                                    ImGuiWindowFlags_NoResize |
+                                    ImGuiWindowFlags_NoMove |
+                                    ImGuiWindowFlags_NoBringToFrontOnFocus |
+                                    ImGuiWindowFlags_NoNavFocus;
+                }
+
+                // When using ImGuiDockNodeFlags_PassthruCentralNode, DockSpace() will render our background
+                // and handle the pass-thru hole, so we ask Begin() to not render a background.
+                if (dockspace_flags & ImGuiDockNodeFlags_PassthruCentralNode)
+                    window_flags |= ImGuiWindowFlags_NoBackground;
+
+                // Important: note that we proceed even if Begin() returns false (aka window is collapsed).
+                // This is because we want to keep our DockSpace() active. If a DockSpace() is inactive,
+                // all active windows docked into it will lose their parent and become undocked.
+                // We cannot preserve the docking relationship between an active window and an inactive docking, otherwise
+                // any change of dockspace/settings would lead to windows being stuck in limbo and never being visible.
+                ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+                ImGui::Begin("DockSpace Demo", &showDockSpace, window_flags);
+                ImGui::PopStyleVar();
+
+                if (opt_fullscreen)
+                    ImGui::PopStyleVar(2);
+
+                // DockSpace
+                ImGuiIO& io = ImGui::GetIO();
+                if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable)
+                {
+                    ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
+                    ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
+                }
+
+                ImGui::End();
+            }
+
+            if (showAbout)
+            {
+                centerNextWindow(sv);
+                ImGui::Begin("About SLProject", &showAbout, ImGuiWindowFlags_NoResize);
+                ImGui::Text("Version: %s", SLApplication::version.c_str());
+                ImGui::Text("Configuration: %s", SLApplication::configuration.c_str());
+                ImGui::Separator();
+                ImGui::Text("Git Branch: %s (Commit: %s)", SLApplication::gitBranch.c_str(), SLApplication::gitCommit.c_str());
+                ImGui::Text("Git Date: %s", SLApplication::gitDate.c_str());
+                ImGui::Separator();
+                ImGui::TextWrapped("%s", infoAbout.c_str());
+                ImGui::End();
+                return;
+            }
+
+            if (showHelp)
+            {
+                centerNextWindow(sv);
+                ImGui::Begin("Help on Interaction", &showHelp, ImGuiWindowFlags_NoResize);
+                ImGui::TextWrapped("%s", infoHelp.c_str());
+                ImGui::End();
+                return;
+            }
+
+            if (showHelpCalibration)
+            {
+                centerNextWindow(sv);
+                ImGui::Begin("Help on Camera Calibration", &showHelpCalibration, ImGuiWindowFlags_NoResize);
+                ImGui::TextWrapped("%s", infoCalibrate.c_str());
+                ImGui::End();
+                return;
+            }
+
+            if (showCredits)
+            {
+                centerNextWindow(sv);
+                ImGui::Begin("Credits for all Contributors and external Libraries", &showCredits, ImGuiWindowFlags_NoResize);
+                ImGui::TextWrapped("%s", infoCredits.c_str());
+                ImGui::End();
+                return;
+            }
+
+            //////////////////
+            // Show rest modal
+            //////////////////
+
+            buildMenuBar(s, sv);
+
+            if (showStatsTiming)
+            {
+                SLRenderType rType = sv->renderType();
+                SLfloat      ft    = s->frameTimesMS().average();
+                SLchar       m[2550]; // message character array
+                m[0] = 0;             // set zero length
+
+                if (rType == RT_gl)
+                {
+                    // Get averages from average variables (see Averaged)
+                    SLfloat captureTime    = CVCapture::instance()->captureTimesMS().average();
+                    SLfloat updateTime     = s->updateTimesMS().average();
+                    SLfloat trackingTime   = CVTracked::trackingTimesMS.average();
+                    SLfloat detectTime     = CVTracked::detectTimesMS.average();
+                    SLfloat detect1Time    = CVTracked::detect1TimesMS.average();
+                    SLfloat detect2Time    = CVTracked::detect2TimesMS.average();
+                    SLfloat matchTime      = CVTracked::matchTimesMS.average();
+                    SLfloat optFlowTime    = CVTracked::optFlowTimesMS.average();
+                    SLfloat poseTime       = CVTracked::poseTimesMS.average();
+                    SLfloat updateAnimTime = s->updateAnimTimesMS().average();
+                    SLfloat updateAABBTime = s->updateAnimTimesMS().average();
+                    SLfloat shadowMapTime  = sv->shadowMapTimeMS().average();
+                    SLfloat cullTime       = sv->cullTimesMS().average();
+                    SLfloat draw3DTime     = sv->draw3DTimesMS().average();
+                    SLfloat draw2DTime     = sv->draw2DTimesMS().average();
+
+                    // Calculate percentage from frame time
+                    SLfloat captureTimePC    = Utils::clamp(captureTime / ft * 100.0f, 0.0f, 100.0f);
+                    SLfloat updateTimePC     = Utils::clamp(updateTime / ft * 100.0f, 0.0f, 100.0f);
+                    SLfloat trackingTimePC   = Utils::clamp(trackingTime / ft * 100.0f, 0.0f, 100.0f);
+                    SLfloat detectTimePC     = Utils::clamp(detectTime / ft * 100.0f, 0.0f, 100.0f);
+                    SLfloat matchTimePC      = Utils::clamp(matchTime / ft * 100.0f, 0.0f, 100.0f);
+                    SLfloat optFlowTimePC    = Utils::clamp(optFlowTime / ft * 100.0f, 0.0f, 100.0f);
+                    SLfloat poseTimePC       = Utils::clamp(poseTime / ft * 100.0f, 0.0f, 100.0f);
+                    SLfloat updateAnimTimePC = Utils::clamp(updateAnimTime / ft * 100.0f, 0.0f, 100.0f);
+                    SLfloat updateAABBTimePC = Utils::clamp(updateAABBTime / ft * 100.0f, 0.0f, 100.0f);
+                    SLfloat shadowMapTimePC  = Utils::clamp(shadowMapTime / ft * 100.0f, 0.0f, 100.0f);
+                    SLfloat draw3DTimePC     = Utils::clamp(draw3DTime / ft * 100.0f, 0.0f, 100.0f);
+                    SLfloat draw2DTimePC     = Utils::clamp(draw2DTime / ft * 100.0f, 0.0f, 100.0f);
+                    SLfloat cullTimePC       = Utils::clamp(cullTime / ft * 100.0f, 0.0f, 100.0f);
+
+                    sprintf(m + strlen(m), "Renderer   : OpenGL\n");
+                    sprintf(m + strlen(m), "Load time  : %5.1f ms\n", s->loadTimeMS());
+                    sprintf(m + strlen(m), "Window size: %d x %d\n", sv->viewportW(), sv->viewportH());
+                    sprintf(m + strlen(m), "Frambuffer : %d x %d\n", (int)(sv->viewportW() * sv->scr2fbY()), (int)(sv->viewportH() * sv->scr2fbX()));
+                    sprintf(m + strlen(m), "Drawcalls  : %d\n", SLGLVertexArray::totalDrawCalls);
+                    sprintf(m + strlen(m), "FPS        : %5.1f\n", s->fps());
+                    sprintf(m + strlen(m), "Frame time : %5.1f ms (100%%)\n", ft);
+                    sprintf(m + strlen(m), " Capture   : %5.1f ms (%3d%%)\n", captureTime, (SLint)captureTimePC);
+                    sprintf(m + strlen(m), " Update    : %5.1f ms (%3d%%)\n", updateTime, (SLint)updateTimePC);
+                    sprintf(m + strlen(m), "  Anim.    : %5.1f ms (%3d%%)\n", updateAnimTime, (SLint)updateAnimTimePC);
+                    sprintf(m + strlen(m), "  AABB     : %5.1f ms (%3d%%)\n", updateAABBTime, (SLint)updateAABBTimePC);
+                    sprintf(m + strlen(m), "  Tracking : %5.1f ms (%3d%%)\n", trackingTime, (SLint)trackingTimePC);
+                    sprintf(m + strlen(m), "   Detect  : %5.1f ms (%3d%%)\n", detectTime, (SLint)detectTimePC);
+                    sprintf(m + strlen(m), "    Det1   : %5.1f ms\n", detect1Time);
+                    sprintf(m + strlen(m), "    Det2   : %5.1f ms\n", detect2Time);
+                    sprintf(m + strlen(m), "   Match   : %5.1f ms (%3d%%)\n", matchTime, (SLint)matchTimePC);
+                    sprintf(m + strlen(m), "   OptFlow : %5.1f ms (%3d%%)\n", optFlowTime, (SLint)optFlowTimePC);
+                    sprintf(m + strlen(m), "   Pose    : %5.1f ms (%3d%%)\n", poseTime, (SLint)poseTimePC);
+                    sprintf(m + strlen(m), " Shadows   : %5.1f ms (%3d%%)\n", shadowMapTime, (SLint)shadowMapTimePC);
+                    sprintf(m + strlen(m), " Culling   : %5.1f ms (%3d%%)\n", cullTime, (SLint)cullTimePC);
+                    sprintf(m + strlen(m), " Drawing 3D: %5.1f ms (%3d%%)\n", draw3DTime, (SLint)draw3DTimePC);
+                    sprintf(m + strlen(m), " Drawing 2D: %5.1f ms (%3d%%)\n", draw2DTime, (SLint)draw2DTimePC);
+                }
+                else if (rType == RT_rt)
+                {
+                    SLRaytracer* rt           = sv->raytracer();
+                    SLint        rtWidth      = (SLint)(sv->viewportW() * rt->resolutionFactor());
+                    SLint        rtHeight     = (SLint)(sv->viewportH() * rt->resolutionFactor());
+                    SLuint       rayPrimaries = (SLuint)(rtWidth * rtHeight);
+                    SLuint       rayTotal     = SLRay::totalNumRays();
+                    SLfloat      renderSec    = rt->renderSec();
+                    SLfloat      fps          = renderSec > 0.001f ? 1.0f / rt->renderSec() : 0.0f;
+
+                    sprintf(m + strlen(m), "Renderer   :Ray Tracer\n");
+                    sprintf(m + strlen(m), "Progress   :%3d%%\n", rt->progressPC());
+                    sprintf(m + strlen(m), "Frame size :%d x %d\n", rtWidth, rtHeight);
+                    sprintf(m + strlen(m), "FPS        :%0.2f\n", fps);
+                    sprintf(m + strlen(m), "Frame Time :%0.3f sec.\n", renderSec);
+                    sprintf(m + strlen(m), "Rays per ms:%0.0f\n", rt->raysPerMS());
+                    sprintf(m + strlen(m), "AA Pixels  :%d (%d%%)\n", SLRay::subsampledPixels, (int)((float)SLRay::subsampledPixels / (float)rayPrimaries * 100.0f));
+                    sprintf(m + strlen(m), "Threads    :%d\n", rt->numThreads());
+                    sprintf(m + strlen(m), "---------------------------\n");
+                    sprintf(m + strlen(m), "Total rays :%8d (%3d%%)\n", rayTotal, 100);
+                    sprintf(m + strlen(m), "  Primary  :%8d (%3d%%)\n", rayPrimaries, (int)((float)rayPrimaries / (float)rayTotal * 100.0f));
+                    sprintf(m + strlen(m), "  Reflected:%8d (%3d%%)\n", SLRay::reflectedRays, (int)((float)SLRay::reflectedRays / (float)rayTotal * 100.0f));
+                    sprintf(m + strlen(m), "  Refracted:%8d (%3d%%)\n", SLRay::refractedRays, (int)((float)SLRay::refractedRays / (float)rayTotal * 100.0f));
+                    sprintf(m + strlen(m), "  TIR      :%8d\n", SLRay::tirRays);
+                    sprintf(m + strlen(m), "  Shadow   :%8d (%3d%%)\n", SLRay::shadowRays, (int)((float)SLRay::shadowRays / (float)rayTotal * 100.0f));
+                    sprintf(m + strlen(m), "  AA       :%8d (%3d%%)\n", SLRay::subsampledRays, (int)((float)SLRay::subsampledRays / (float)rayTotal * 100.0f));
+                    sprintf(m + strlen(m), "---------------------------\n");
+                    sprintf(m + strlen(m), "Max. depth :%u\n", SLRay::maxDepthReached);
+                    sprintf(m + strlen(m), "Avg. depth :%0.3f\n", SLRay::avgDepth / rayPrimaries);
+                }
+#if defined(SL_BUILD_WITH_OPTIX) && defined(SL_HAS_OPTIX)
+                else if (rType == RT_optix_rt)
+                {
+                    SLOptixRaytracer* ort = sv->optixRaytracer();
+                    sprintf(m + strlen(m), "Renderer   :OptiX Ray Tracer\n");
+                    sprintf(m + strlen(m), "Frame size :%d x %d\n", sv->scrW(), sv->scrH());
+                    sprintf(m + strlen(m), "FPS        :%5.1f\n", s->fps());
+                    sprintf(m + strlen(m), "Frame Time :%0.3f sec.\n", 1.0f / s->fps());
+                }
+                else if (rType == RT_optix_pt)
+                {
+                    SLOptixPathtracer* opt = sv->optixPathtracer();
+                    sprintf(m + strlen(m), "Renderer   :OptiX Ray Tracer\n");
+                    sprintf(m + strlen(m), "Frame size :%d x %d\n", sv->scrW(), sv->scrH());
+                    sprintf(m + strlen(m), "Frame Time :%0.2f sec.\n", opt->renderSec());
+                    sprintf(m + strlen(m), "Denoiser Time :%0.0f ms.\n", opt->denoiserMS());
+                }
+#endif
+                else if (rType == RT_pt)
+                {
+                    SLPathtracer* pt           = sv->pathtracer();
+                    SLint         ptWidth      = (SLint)(sv->viewportW() * pt->resolutionFactor());
+                    SLint         ptHeight     = (SLint)(sv->viewportH() * pt->resolutionFactor());
+                    SLuint        rayPrimaries = (SLuint)(ptWidth * ptHeight);
+                    SLuint        rayTotal     = SLRay::totalNumRays();
+
+                    sprintf(m + strlen(m), "Renderer   :Path Tracer\n");
+                    sprintf(m + strlen(m), "Progress   :%3d%%\n", pt->progressPC());
+                    sprintf(m + strlen(m), "Frame size :%d x %d\n", ptWidth, ptHeight);
+                    sprintf(m + strlen(m), "FPS        :%0.2f\n", 1.0f / pt->renderSec());
+                    sprintf(m + strlen(m), "Frame Time :%0.2f sec.\n", pt->renderSec());
+                    sprintf(m + strlen(m), "Rays per ms:%0.0f\n", pt->raysPerMS());
+                    sprintf(m + strlen(m), "Samples/pix:%d\n", pt->aaSamples());
+                    sprintf(m + strlen(m), "Threads    :%d\n", pt->numThreads());
+                    sprintf(m + strlen(m), "---------------------------\n");
+                    sprintf(m + strlen(m), "Total rays :%8d (%3d%%)\n", rayTotal, 100);
+                    sprintf(m + strlen(m), "  Reflected:%8d (%3d%%)\n", SLRay::reflectedRays, (int)((float)SLRay::reflectedRays / (float)rayTotal * 100.0f));
+                    sprintf(m + strlen(m), "  Refracted:%8d (%3d%%)\n", SLRay::refractedRays, (int)((float)SLRay::refractedRays / (float)rayTotal * 100.0f));
+                    sprintf(m + strlen(m), "  TIR      :%8d\n", SLRay::tirRays);
+                    sprintf(m + strlen(m), "  Shadow   :%8d (%3d%%)\n", SLRay::shadowRays, (int)((float)SLRay::shadowRays / (float)rayTotal * 100.0f));
+                    sprintf(m + strlen(m), "---------------------------\n");
+                }
+                else if (rType == RT_ct)
+                {
+                    // Get averages from average variables (see Averaged)
+                    SLfloat captureTime    = CVCapture::instance()->captureTimesMS().average();
+                    SLfloat updateTime     = s->updateTimesMS().average();
+                    SLfloat updateAnimTime = s->updateAnimTimesMS().average();
+                    SLfloat updateAABBTime = s->updateAnimTimesMS().average();
+                    SLfloat cullTime       = sv->cullTimesMS().average();
+                    SLfloat draw3DTime     = sv->draw3DTimesMS().average();
+                    SLfloat draw2DTime     = sv->draw2DTimesMS().average();
+
+                    // Calculate percentage from frame time
+                    SLfloat captureTimePC    = Utils::clamp(captureTime / ft * 100.0f, 0.0f, 100.0f);
+                    SLfloat updateTimePC     = Utils::clamp(updateTime / ft * 100.0f, 0.0f, 100.0f);
+                    SLfloat updateAnimTimePC = Utils::clamp(updateAnimTime / ft * 100.0f, 0.0f, 100.0f);
+                    SLfloat updateAABBTimePC = Utils::clamp(updateAABBTime / ft * 100.0f, 0.0f, 100.0f);
+                    SLfloat draw3DTimePC     = Utils::clamp(draw3DTime / ft * 100.0f, 0.0f, 100.0f);
+                    SLfloat draw2DTimePC     = Utils::clamp(draw2DTime / ft * 100.0f, 0.0f, 100.0f);
+                    SLfloat cullTimePC       = Utils::clamp(cullTime / ft * 100.0f, 0.0f, 100.0f);
+
+                    sprintf(m + strlen(m), "Renderer   : Conetracing (OpenGL)\n");
+                    sprintf(m + strlen(m), "Frame size : %d x %d\n", sv->viewportW(), sv->viewportH());
+                    sprintf(m + strlen(m), "Drawcalls  : %d\n", SLGLVertexArray::totalDrawCalls);
+                    sprintf(m + strlen(m), "FPS        :%5.1f\n", s->fps());
+                    sprintf(m + strlen(m), "Frame time :%5.1f ms (100%%)\n", ft);
+                    sprintf(m + strlen(m), " Capture   :%5.1f ms (%3d%%)\n", captureTime, (SLint)captureTimePC);
+                    sprintf(m + strlen(m), " Update    :%5.1f ms (%3d%%)\n", updateTime, (SLint)updateTimePC);
+                    sprintf(m + strlen(m), "  Anim.    :%5.1f ms (%3d%%)\n", updateAnimTime, (SLint)updateAnimTimePC);
+                    sprintf(m + strlen(m), "  AABB     :%5.1f ms (%3d%%)\n", updateAABBTime, (SLint)updateAABBTimePC);
+                    sprintf(m + strlen(m), " Culling   :%5.1f ms (%3d%%)\n", cullTime, (SLint)cullTimePC);
+                    sprintf(m + strlen(m), " Drawing 3D:%5.1f ms (%3d%%)\n", draw3DTime, (SLint)draw3DTimePC);
+                    sprintf(m + strlen(m), " Drawing 2D:%5.1f ms (%3d%%)\n", draw2DTime, (SLint)draw2DTimePC);
+                }
+
+                ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
+                ImGui::Begin("Timing", &showStatsTiming, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize);
+                ImGui::TextUnformatted(m);
+                ImGui::End();
+                ImGui::PopFont();
+            }
+
+            if (showStatsScene)
             {
                 SLchar m[2550]; // message character array
                 m[0] = 0;       // set zero length
 
-                AverageTiming::getTimingMessage(m);
+                SLNodeStats& stats3D           = sv->stats3D();
+                SLfloat      vox               = (SLfloat)stats3D.numVoxels;
+                SLfloat      voxEmpty          = (SLfloat)stats3D.numVoxEmpty;
+                SLfloat      voxelsEmpty       = vox > 0.0f ? voxEmpty / vox * 100.0f : 0.0f;
+                SLfloat      numRTTria         = (SLfloat)stats3D.numTriangles;
+                SLfloat      avgTriPerVox      = vox > 0.0f ? numRTTria / (vox - voxEmpty) : 0.0f;
+                SLint        numOverdrawnNodes = (int)sv->nodesOverdrawn().size();
+                SLint        numVisibleNodes   = stats3D.numNodesOpaque + stats3D.numNodesBlended + numOverdrawnNodes;
+                SLint        numGroupPC        = (SLint)((SLfloat)stats3D.numNodesGroup / (SLfloat)stats3D.numNodes * 100.0f);
+                SLint        numLeafPC         = (SLint)((SLfloat)stats3D.numNodesLeaf / (SLfloat)stats3D.numNodes * 100.0f);
+                SLint        numLightsPC       = (SLint)((SLfloat)stats3D.numLights / (SLfloat)stats3D.numNodes * 100.0f);
+                SLint        numOpaquePC       = (SLint)((SLfloat)stats3D.numNodesOpaque / (SLfloat)stats3D.numNodes * 100.0f);
+                SLint        numBlendedPC      = (SLint)((SLfloat)stats3D.numNodesBlended / (SLfloat)stats3D.numNodes * 100.0f);
+                SLint        numOverdrawnPC    = (SLint)((SLfloat)numOverdrawnNodes / (SLfloat)stats3D.numNodes * 100.0f);
+                SLint        numVisiblePC      = (SLint)((SLfloat)numVisibleNodes / (SLfloat)stats3D.numNodes * 100.0f);
 
-                //define ui elements
+                // Calculate total size of texture bytes on CPU
+                SLfloat cpuMBTexture = 0;
+                for (auto* t : s->textures())
+                    for (auto* i : t->images())
+                        cpuMBTexture += i->bytesPerImage();
+                cpuMBTexture = cpuMBTexture / 1E6f;
+
+                SLfloat cpuMBMeshes    = (SLfloat)stats3D.numBytes / 1E6f;
+                SLfloat cpuMBVoxels    = (SLfloat)stats3D.numBytesAccel / 1E6f;
+                SLfloat cpuMBTotal     = cpuMBTexture + cpuMBMeshes + cpuMBVoxels;
+                SLint   cpuMBTexturePC = (SLint)(cpuMBTexture / cpuMBTotal * 100.0f);
+                SLint   cpuMBMeshesPC  = (SLint)(cpuMBMeshes / cpuMBTotal * 100.0f);
+                SLint   cpuMBVoxelsPC  = (SLint)(cpuMBVoxels / cpuMBTotal * 100.0f);
+                SLfloat gpuMBTexture   = (SLfloat)SLGLTexture::numBytesInTextures / 1E6f;
+                SLfloat gpuMBVbo       = (SLfloat)SLGLVertexBuffer::totalBufferSize / 1E6f;
+                SLfloat gpuMBTotal     = gpuMBTexture + gpuMBVbo;
+                SLint   gpuMBTexturePC = (SLint)(gpuMBTexture / gpuMBTotal * 100.0f);
+                SLint   gpuMBVboPC     = (SLint)(gpuMBVbo / gpuMBTotal * 100.0f);
+
+                sprintf(m + strlen(m), "Name: %s\n", s->name().c_str());
+                sprintf(m + strlen(m), "No. of Nodes  :%5d (100%%)\n", stats3D.numNodes);
+                sprintf(m + strlen(m), "- Group Nodes :%5d (%3d%%)\n", stats3D.numNodesGroup, numGroupPC);
+                sprintf(m + strlen(m), "- Leaf  Nodes :%5d (%3d%%)\n", stats3D.numNodesLeaf, numLeafPC);
+                sprintf(m + strlen(m), "- Light Nodes :%5d (%3d%%)\n", stats3D.numLights, numLightsPC);
+                sprintf(m + strlen(m), "- Opaque Nodes:%5d (%3d%%)\n", stats3D.numNodesOpaque, numOpaquePC);
+                sprintf(m + strlen(m), "- Blend Nodes :%5d (%3d%%)\n", stats3D.numNodesBlended, numBlendedPC);
+                sprintf(m + strlen(m), "- Overdrawn N.:%5d (%3d%%)\n", numOverdrawnNodes, numOverdrawnPC);
+                sprintf(m + strlen(m), "- Vis. Nodes  :%5d (%3d%%)\n", numVisibleNodes, numVisiblePC);
+                sprintf(m + strlen(m), "- WM Updates  :%5d\n", SLNode::numWMUpdates);
+                sprintf(m + strlen(m), "No. of Meshes :%5u\n", stats3D.numMeshes);
+                sprintf(m + strlen(m), "No. of Tri.   :%5u\n", stats3D.numTriangles);
+                sprintf(m + strlen(m), "CPU MB Total  :%6.2f (100%%)\n", cpuMBTotal);
+                sprintf(m + strlen(m), "-   MB Tex.   :%6.2f (%3d%%)\n", cpuMBTexture, cpuMBTexturePC);
+                sprintf(m + strlen(m), "-   MB Meshes :%6.2f (%3d%%)\n", cpuMBMeshes, cpuMBMeshesPC);
+                sprintf(m + strlen(m), "-   MB Voxels :%6.2f (%3d%%)\n", cpuMBVoxels, cpuMBVoxelsPC);
+                sprintf(m + strlen(m), "GPU MB Total  :%6.2f (100%%)\n", gpuMBTotal);
+                sprintf(m + strlen(m), "-   MB Tex.   :%6.2f (%3d%%)\n", gpuMBTexture, gpuMBTexturePC);
+                sprintf(m + strlen(m), "-   MB VBO    :%6.2f (%3d%%)\n", gpuMBVbo, gpuMBVboPC);
+                sprintf(m + strlen(m), "No. of Voxels :%d\n", stats3D.numVoxels);
+                sprintf(m + strlen(m), "-empty Voxels :%4.1f%%\n", voxelsEmpty);
+                sprintf(m + strlen(m), "Avg.Tri/Voxel :%4.1f\n", avgTriPerVox);
+                sprintf(m + strlen(m), "Max.Tri/Voxel :%d\n", stats3D.numVoxMaxTria);
+
+                // Switch to fixed font
+                ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
+                ImGui::Begin("Scene Statistics", &showStatsScene, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize);
                 ImGui::TextUnformatted(m);
+
+                ImGui::Separator();
+
+                ImGui::Text("Global Resources:");
+
+                if (s->meshes().size() && ImGui::TreeNode("Meshes"))
+                {
+                    for (SLuint i = 0; i < s->meshes().size(); ++i)
+                        ImGui::Text("[%d] %s (%u v.)",
+                                    i,
+                                    s->meshes()[i]->name().c_str(),
+                                    (SLuint)s->meshes()[i]->P.size());
+
+                    ImGui::TreePop();
+                }
+
+                if (s->lights().size() && ImGui::TreeNode("Lights"))
+                {
+                    for (SLuint i = 0; i < s->lights().size(); ++i)
+                    {
+                        SLNode* light = dynamic_cast<SLNode*>(s->lights()[i]);
+                        ImGui::Text("[%u] %s", i, light->name().c_str());
+                    }
+
+                    ImGui::TreePop();
+                }
+
+                if (sv->visibleMaterials3D().size() && ImGui::TreeNode("Materials"))
+                {
+                    for (auto* mat : sv->visibleMaterials3D())
+                    {
+                        SLVNode& matNodes = mat->nodesVisible3D();
+                        sprintf(m,
+                                "%s [%u n.]",
+                                mat->name().c_str(),
+                                (SLuint)matNodes.size());
+
+                        if (matNodes.size())
+                        {
+                            if (ImGui::TreeNode(m))
+                            {
+                                for (auto* node : matNodes)
+                                    ImGui::Text(node->name().c_str());
+
+                                ImGui::TreePop();
+                            }
+                        }
+                        else
+                            ImGui::Text(m);
+                    }
+
+                    ImGui::TreePop();
+                }
+
+                if (s->textures().size() && ImGui::TreeNode("Textures"))
+                {
+                    for (SLuint i = 0; i < s->textures().size(); ++i)
+                        ImGui::Text("[%u] %s", i, s->textures()[i]->name().c_str());
+
+                    ImGui::TreePop();
+                }
+
+                if (s->programs().size() && ImGui::TreeNode("Programs (asset manager)"))
+                {
+                    for (SLuint i = 0; i < s->programs().size(); ++i)
+                    {
+                        SLGLProgram* p = s->programs()[i];
+                        ImGui::Text("[%u] %s", i, p->name().c_str());
+                    }
+                    ImGui::TreePop();
+                }
+
+                if (ImGui::TreeNode("Programs (application)"))
+                {
+                    for (SLuint i = 0; i < SLGLProgramManager::size(); ++i)
+                        ImGui::Text("[%u] %s", i, SLGLProgramManager::get((SLStdShaderProg)i)->name().c_str());
+
+                    ImGui::TreePop();
+                }
+
+                ImGui::End();
+                ImGui::PopFont();
             }
 
-            ImGui::End();
-            ImGui::PopFont();
-        }
-#endif
-        if (showImGuiMetrics)
-        {
-            ImGui::ShowMetricsWindow();
-        }
-
-        if (showInfosScene)
-        {
-            // Calculate window position for dynamic status bar at the bottom of the main window
-            ImGuiWindowFlags window_flags = 0;
-            window_flags |= ImGuiWindowFlags_NoTitleBar;
-            window_flags |= ImGuiWindowFlags_NoResize;
-            SLfloat  w    = (SLfloat)sv->viewportW();
-            ImVec2   size = ImGui::CalcTextSize(s->info().c_str(), nullptr, true, w);
-            SLfloat  h    = size.y + SLGLImGui::fontPropDots * 1.2f;
-            SLstring info = "Scene Info: " + s->info();
-
-            ImGui::SetNextWindowPos(ImVec2(0, sv->scrH() - h));
-            ImGui::SetNextWindowSize(ImVec2(w, h));
-            ImGui::Begin("Scene Information", &showInfosScene, window_flags);
-            ImGui::TextWrapped("%s", info.c_str());
-            ImGui::End();
-        }
-
-        if (showTransform)
-        {
-            ImGuiWindowFlags window_flags = 0;
-            window_flags |= ImGuiWindowFlags_AlwaysAutoResize;
-            ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
-            ImGui::Begin("Transform Selected Node", &showTransform, window_flags);
-
-            if (s->singleNodeSelected())
+            if (showStatsVideo)
             {
-                SLNode*                 selNode = s->singleNodeSelected();
-                static SLTransformSpace tSpace  = TS_object;
-                SLfloat                 t1 = 0.1f, t2 = 1.0f, t3 = 10.0f; // Delta translations
-                SLfloat                 r1 = 1.0f, r2 = 5.0f, r3 = 15.0f; // Delta rotations
-                SLfloat                 s1 = 1.01f, s2 = 1.1f, s3 = 1.5f; // Scale factors
+                SLchar m[2550]; // message character array
+                m[0] = 0;       // set zero length
 
-                // clang-format off
-                ImGui::Text("Space:");
-                ImGui::SameLine();
-                if (ImGui::RadioButton("World", (int *) &tSpace, 0)) tSpace = TS_world;
-                ImGui::SameLine();
-                if (ImGui::RadioButton("Parent", (int *) &tSpace, 1)) tSpace = TS_parent;
-                ImGui::SameLine();
-                if (ImGui::RadioButton("Object", (int *) &tSpace, 2)) tSpace = TS_object;
+                CVCamera*      ac       = CVCapture::instance()->activeCamera;
+                CVCalibration* c        = &CVCapture::instance()->activeCamera->calibration;
+                CVSize         capSize  = CVCapture::instance()->captureSize;
+                CVVideoType    vt       = CVCapture::instance()->videoType();
+                SLstring       mirrored = "None";
+                if (c->isMirroredH() && c->isMirroredV())
+                    mirrored = "horizontally & vertically";
+                else if (c->isMirroredH())
+                    mirrored = "horizontally";
+                else if (c->isMirroredV())
+                    mirrored = "vertically";
+
+                sprintf(m + strlen(m), "Video Type   : %s\n", vt == VT_NONE ? "None" : vt == VT_MAIN ? "Main Camera"
+                                                                                     : vt == VT_FILE ? "File"
+                                                                                                     : "Secondary Camera");
+                sprintf(m + strlen(m), "Display size : %d x %d\n", CVCapture::instance()->lastFrame.cols, CVCapture::instance()->lastFrame.rows);
+                sprintf(m + strlen(m), "Capture size : %d x %d\n", capSize.width, capSize.height);
+                sprintf(m + strlen(m), "Size Index   : %d\n", ac->camSizeIndex());
+                sprintf(m + strlen(m), "Mirrored     : %s\n", mirrored.c_str());
+                sprintf(m + strlen(m), "Chessboard   : %dx%d (%3.1fmm)\n", c->boardSize().width, c->boardSize().height, c->boardSquareMM());
+                sprintf(m + strlen(m), "Undistorted  : %s\n", ac->showUndistorted() ? "Yes" : "No");
+                sprintf(m + strlen(m), "Calibimg size: %d x %d\n", ac->calibration.imageSizeOriginal().width, ac->calibration.imageSizeOriginal().height);
+                sprintf(m + strlen(m), "FOV H/V(deg.): %4.1f/%4.1f\n", c->cameraFovHDeg(), c->cameraFovVDeg());
+                sprintf(m + strlen(m), "fx,fy        : %4.1f,%4.1f\n", c->fx(), c->fy());
+                sprintf(m + strlen(m), "cx,cy        : %4.1f,%4.1f\n", c->cx(), c->cy());
+
+                int         distortionSize = c->distortion().rows;
+                const float f              = 100.f;
+                sprintf(m + strlen(m), "dist.(*10e-2):\n");
+                sprintf(m + strlen(m), "k1,k2        : %4.2f,%4.2f\n", c->k1() * f, c->k2() * f);
+                sprintf(m + strlen(m), "p1,p2        : %4.2f,%4.2f\n", c->p1() * f, c->p2() * f);
+                if (distortionSize >= 8)
+                    sprintf(m + strlen(m), "k3,k4,k5,k6  : %4.2f,%4.2f,%4.2f,%4.2f\n", c->k3() * f, c->k4() * f, c->k5() * f, c->k6() * f);
+                else
+                    sprintf(m + strlen(m), "k3           : %4.2f\n", c->k3() * f);
+
+                if (distortionSize >= 12)
+                    sprintf(m + strlen(m), "s1,s2,s3,s4  : %4.2f,%4.2f,%4.2f,%4.2f\n", c->s1() * f, c->s2() * f, c->s3() * f, c->s4() * f);
+                if (distortionSize >= 14)
+                    sprintf(m + strlen(m), "tauX,tauY    : %4.2f,%4.2f\n", c->tauX() * f, c->tauY() * f);
+
+                sprintf(m + strlen(m), "Calib. time  : %s\n", c->calibrationTime().c_str());
+                sprintf(m + strlen(m), "Calib. state : %s\n", c->stateStr().c_str());
+                sprintf(m + strlen(m), "Num. caps    : %d\n", c->numCapturedImgs());
+
+                if (vt != VT_NONE && tracker != nullptr && trackedNode != nullptr)
+                {
+                    sprintf(m + strlen(m), "-------------:\n");
+                    if (typeid(*trackedNode) == typeid(SLCamera))
+                    {
+                        SLVec3f cameraPos = trackedNode->updateAndGetWM().translation();
+                        sprintf(m + strlen(m), "Dist. to zero: %4.2f\n", cameraPos.length());
+                    }
+                    else
+                    {
+                        SLVec3f cameraPos = ((SLNode*)sv->camera())->updateAndGetWM().translation();
+                        SLVec3f objectPos = trackedNode->updateAndGetWM().translation();
+                        SLVec3f camToObj  = objectPos - cameraPos;
+                        sprintf(m + strlen(m), "Dist. to obj.: %4.2f\n", camToObj.length());
+                    }
+                }
+
+                // Switch to fixed font
+                ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
+                ImGui::Begin("Video", &showStatsVideo, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize);
+                ImGui::TextUnformatted(m);
+                ImGui::End();
+                ImGui::PopFont();
+            }
+#ifdef SL_BUILD_WAI
+            if (showStatsWAI && SLApplication::sceneID == SID_VideoTrackWAI)
+            {
+                ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
+                ImGui::Begin("WAI Statistics", &showStatsWAI, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize);
+
+                if (!AverageTiming::instance().empty())
+                {
+                    SLchar m[2550]; // message character array
+                    m[0] = 0;       // set zero length
+
+                    AverageTiming::getTimingMessage(m);
+
+                    //define ui elements
+                    ImGui::TextUnformatted(m);
+                }
+
+                ImGui::End();
+                ImGui::PopFont();
+            }
+#endif
+            if (showImGuiMetrics)
+            {
+                ImGui::ShowMetricsWindow();
+            }
+
+            if (showInfosScene)
+            {
+                // Calculate window position for dynamic status bar at the bottom of the main window
+                ImGuiWindowFlags window_flags = 0;
+                window_flags |= ImGuiWindowFlags_NoTitleBar;
+                window_flags |= ImGuiWindowFlags_NoResize;
+                window_flags |= ImGuiWindowFlags_NoScrollbar;
+                SLfloat  w    = (SLfloat)sv->viewportW();
+                ImVec2   size = ImGui::CalcTextSize(s->info().c_str(),
+                                                  nullptr,
+                                                  true,
+                                                  w);
+                SLfloat  h    = size.y + SLGLImGui::fontPropDots * 2.0f;
+                SLstring info = "Scene Info: " + s->info();
+
+                ImGui::SetNextWindowPos(ImVec2(0, sv->scrH() - h));
+                ImGui::SetNextWindowSize(ImVec2(w, h));
+                ImGui::Begin("Scene Information", &showInfosScene, window_flags);
+                ImGui::SetCursorPosX((w - size.x) * 0.5f);
+                ImGui::TextWrapped("%s", info.c_str());
+                ImGui::End();
+            }
+
+            if (showTransform)
+            {
+                ImGuiWindowFlags window_flags = 0;
+                window_flags |= ImGuiWindowFlags_AlwaysAutoResize;
+                ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
+                ImGui::Begin("Transform Selected Node", &showTransform, window_flags);
+
+                if (s->singleNodeSelected())
+                {
+                    SLNode*                 selNode = s->singleNodeSelected();
+                    static SLTransformSpace tSpace  = TS_object;
+                    SLfloat                 t1 = 0.1f, t2 = 1.0f, t3 = 10.0f; // Delta translations
+                    SLfloat                 r1 = 1.0f, r2 = 5.0f, r3 = 15.0f; // Delta rotations
+                    SLfloat                 s1 = 1.01f, s2 = 1.1f, s3 = 1.5f; // Scale factors
+
+                    // clang-format off
+                    ImGui::Text("Space:");
+                    ImGui::SameLine();
+                    if (ImGui::RadioButton("World", (int *) &tSpace, 0)) tSpace = TS_world;
+                    ImGui::SameLine();
+                    if (ImGui::RadioButton("Parent", (int *) &tSpace, 1)) tSpace = TS_parent;
+                    ImGui::SameLine();
+                    if (ImGui::RadioButton("Object", (int *) &tSpace, 2)) tSpace = TS_object;
+                    ImGui::Separator();
+
+                    ImGui::Text("Transl. X :");
+                    ImGui::SameLine();
+                    if (ImGui::Button("<<<##Tx")) selNode->translate(-t3, 0, 0, tSpace);
+                    ImGui::SameLine();
+                    if (ImGui::Button("<<##Tx")) selNode->translate(-t2, 0, 0, tSpace);
+                    ImGui::SameLine();
+                    if (ImGui::Button("<##Tx")) selNode->translate(-t1, 0, 0, tSpace);
+                    ImGui::SameLine();
+                    if (ImGui::Button(">##Tx")) selNode->translate(t1, 0, 0, tSpace);
+                    ImGui::SameLine();
+                    if (ImGui::Button(">>##Tx")) selNode->translate(t2, 0, 0, tSpace);
+                    ImGui::SameLine();
+                    if (ImGui::Button(">>>##Tx")) selNode->translate(t3, 0, 0, tSpace);
+
+                    ImGui::Text("Transl. Y :");
+                    ImGui::SameLine();
+                    if (ImGui::Button("<<<##Ty")) selNode->translate(0, -t3, 0, tSpace);
+                    ImGui::SameLine();
+                    if (ImGui::Button("<<##Ty")) selNode->translate(0, -t2, 0, tSpace);
+                    ImGui::SameLine();
+                    if (ImGui::Button("<##Ty")) selNode->translate(0, -t1, 0, tSpace);
+                    ImGui::SameLine();
+                    if (ImGui::Button(">##Ty")) selNode->translate(0, t1, 0, tSpace);
+                    ImGui::SameLine();
+                    if (ImGui::Button(">>##Ty")) selNode->translate(0, t2, 0, tSpace);
+                    ImGui::SameLine();
+                    if (ImGui::Button(">>>##Ty")) selNode->translate(0, t3, 0, tSpace);
+
+                    ImGui::Text("Transl. Z :");
+                    ImGui::SameLine();
+                    if (ImGui::Button("<<<##Tz")) selNode->translate(0, 0, -t3, tSpace);
+                    ImGui::SameLine();
+                    if (ImGui::Button("<<##Tz")) selNode->translate(0, 0, -t2, tSpace);
+                    ImGui::SameLine();
+                    if (ImGui::Button("<##Tz")) selNode->translate(0, 0, -t1, tSpace);
+                    ImGui::SameLine();
+                    if (ImGui::Button(">##Tz")) selNode->translate(0, 0, t1, tSpace);
+                    ImGui::SameLine();
+                    if (ImGui::Button(">>##Tz")) selNode->translate(0, 0, t2, tSpace);
+                    ImGui::SameLine();
+                    if (ImGui::Button(">>>##Tz")) selNode->translate(0, 0, t3, tSpace);
+
+                    ImGui::Text("Rotation X:");
+                    ImGui::SameLine();
+                    if (ImGui::Button("<<<##Rx")) selNode->rotate(r3, 1, 0, 0, tSpace);
+                    ImGui::SameLine();
+                    if (ImGui::Button("<<##Rx")) selNode->rotate(r2, 1, 0, 0, tSpace);
+                    ImGui::SameLine();
+                    if (ImGui::Button("<##Rx")) selNode->rotate(r1, 1, 0, 0, tSpace);
+                    ImGui::SameLine();
+                    if (ImGui::Button(">##Rx")) selNode->rotate(-r1, 1, 0, 0, tSpace);
+                    ImGui::SameLine();
+                    if (ImGui::Button(">>##Rx")) selNode->rotate(-r2, 1, 0, 0, tSpace);
+                    ImGui::SameLine();
+                    if (ImGui::Button(">>>##Rx")) selNode->rotate(-r3, 1, 0, 0, tSpace);
+
+                    ImGui::Text("Rotation Y:");
+                    ImGui::SameLine();
+                    if (ImGui::Button("<<<##Ry")) selNode->rotate(r3, 0, 1, 0, tSpace);
+                    ImGui::SameLine();
+                    if (ImGui::Button("<<##Ry")) selNode->rotate(r2, 0, 1, 0, tSpace);
+                    ImGui::SameLine();
+                    if (ImGui::Button("<##Ry")) selNode->rotate(r1, 0, 1, 0, tSpace);
+                    ImGui::SameLine();
+                    if (ImGui::Button(">##Ry")) selNode->rotate(-r1, 0, 1, 0, tSpace);
+                    ImGui::SameLine();
+                    if (ImGui::Button(">>##Ry")) selNode->rotate(-r2, 0, 1, 0, tSpace);
+                    ImGui::SameLine();
+                    if (ImGui::Button(">>>##Ry")) selNode->rotate(-r3, 0, 1, 0, tSpace);
+
+                    ImGui::Text("Rotation Z:");
+                    ImGui::SameLine();
+                    if (ImGui::Button("<<<##Rz")) selNode->rotate(r3, 0, 0, 1, tSpace);
+                    ImGui::SameLine();
+                    if (ImGui::Button("<<##Rz")) selNode->rotate(r2, 0, 0, 1, tSpace);
+                    ImGui::SameLine();
+                    if (ImGui::Button("<##Rz")) selNode->rotate(r1, 0, 0, 1, tSpace);
+                    ImGui::SameLine();
+                    if (ImGui::Button(">##Rz")) selNode->rotate(-r1, 0, 0, 1, tSpace);
+                    ImGui::SameLine();
+                    if (ImGui::Button(">>##Rz")) selNode->rotate(-r2, 0, 0, 1, tSpace);
+                    ImGui::SameLine();
+                    if (ImGui::Button(">>>##Rz")) selNode->rotate(-r3, 0, 0, 1, tSpace);
+
+                    ImGui::Text("Scale     :");
+                    ImGui::SameLine();
+                    if (ImGui::Button("<<<##S")) selNode->scale(s3);
+                    ImGui::SameLine();
+                    if (ImGui::Button("<<##S")) selNode->scale(s2);
+                    ImGui::SameLine();
+                    if (ImGui::Button("<##S")) selNode->scale(s1);
+                    ImGui::SameLine();
+                    if (ImGui::Button(">##S")) selNode->scale(-s1);
+                    ImGui::SameLine();
+                    if (ImGui::Button(">>##S")) selNode->scale(-s2);
+                    ImGui::SameLine();
+                    if (ImGui::Button(">>>##S")) selNode->scale(-s3);
+                    ImGui::Separator();
+                    // clang-format on
+
+                    if (ImGui::Button("Reset"))
+                        selNode->om(selNode->initialOM());
+                }
+                else
+                {
+                    ImGui::Text("No node selected.");
+                    ImGui::Text("Please select a node by double clicking it.");
+
+                    if (transformNode)
+                        removeTransformNode(s);
+                }
+                ImGui::End();
+                ImGui::PopFont();
+            }
+
+            if (showInfosDevice)
+            {
+                SLGLState* stateGL = SLGLState::instance();
+                SLchar     m[2550]; // message character array
+                m[0] = 0;           // set zero length
+
+                sprintf(m + strlen(m), "SLProject Version: %s\n", SLApplication::version.c_str());
+#ifdef _DEBUG
+                sprintf(m + strlen(m), "Build Config.    : Debug\n");
+#else
+                sprintf(m + strlen(m), "Build Config.    : Release\n");
+#endif
+                sprintf(m + strlen(m), "-----------------:\n");
+                sprintf(m + strlen(m), "Computer User    : %s\n", Utils::ComputerInfos::user.c_str());
+                sprintf(m + strlen(m), "Computer Name    : %s\n", Utils::ComputerInfos::name.c_str());
+                sprintf(m + strlen(m), "Computer Brand   : %s\n", Utils::ComputerInfos::brand.c_str());
+                sprintf(m + strlen(m), "Computer Model   : %s\n", Utils::ComputerInfos::model.c_str());
+                sprintf(m + strlen(m), "Computer Arch.   : %s\n", Utils::ComputerInfos::arch.c_str());
+                sprintf(m + strlen(m), "Computer OS      : %s\n", Utils::ComputerInfos::os.c_str());
+                sprintf(m + strlen(m), "Computer OS Ver. : %s\n", Utils::ComputerInfos::osVer.c_str());
+                sprintf(m + strlen(m), "-----------------:\n");
+                sprintf(m + strlen(m), "OpenGL Version   : %s\n", stateGL->glVersionNO().c_str());
+                sprintf(m + strlen(m), "OpenGL Vendor    : %s\n", stateGL->glVendor().c_str());
+                sprintf(m + strlen(m), "OpenGL Renderer  : %s\n", stateGL->glRenderer().c_str());
+                sprintf(m + strlen(m), "OpenGL GLSL Ver. : %s\n", stateGL->glSLVersionNO().c_str());
+                sprintf(m + strlen(m), "-----------------:\n");
+                sprintf(m + strlen(m), "OpenCV Version   : %d.%d.%d\n", CV_MAJOR_VERSION, CV_MINOR_VERSION, CV_VERSION_REVISION);
+                sprintf(m + strlen(m), "OpenCV has OpenCL: %s\n", cv::ocl::haveOpenCL() ? "yes" : "no");
+                sprintf(m + strlen(m), "OpenCV has AVX   : %s\n", cv::checkHardwareSupport(CV_AVX) ? "yes" : "no");
+                sprintf(m + strlen(m), "OpenCV has NEON  : %s\n", cv::checkHardwareSupport(CV_NEON) ? "yes" : "no");
+                sprintf(m + strlen(m), "-----------------:\n");
+
+#ifdef SL_BUILD_WAI
+                sprintf(m + strlen(m), "Eigen Version    : %d.%d.%d\n", EIGEN_WORLD_VERSION, EIGEN_MAJOR_VERSION, EIGEN_MINOR_VERSION);
+#    ifdef EIGEN_VECTORIZE
+                sprintf(m + strlen(m), "Eigen vectorize  : yes\n");
+#    else
+                sprintf(m + strlen(m), "Eigen vectorize  : no\n");
+#    endif
+#endif
+                sprintf(m + strlen(m), "-----------------:\n");
+                sprintf(m + strlen(m), "ImGui Version    : %s\n", ImGui::GetVersion());
+
+                // Switch to fixed font
+                ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
+                ImGui::Begin("Device Informations", &showInfosDevice, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize);
+                ImGui::TextUnformatted(m);
+                ImGui::End();
+                ImGui::PopFont();
+            }
+
+            if (showInfosSensors)
+            {
+                SLchar m[1024];             // message character array
+                m[0]                   = 0; // set zero length
+                SLVec3d offsetToOrigin = SLApplication::devLoc.originENU() - SLApplication::devLoc.locENU();
+                sprintf(m + strlen(m), "Uses IMU Senor   : %s\n", SLApplication::devRot.isUsed() ? "yes" : "no");
+                sprintf(m + strlen(m), "Pitch (deg)      : %3.1f\n", SLApplication::devRot.pitchDEG());
+                sprintf(m + strlen(m), "Yaw   (deg)      : %3.1f\n", SLApplication::devRot.yawDEG());
+                sprintf(m + strlen(m), "Roll  (deg)      : %3.1f\n", SLApplication::devRot.rollDEG());
+                sprintf(m + strlen(m), "No. averaged     : %d\n", SLApplication::devRot.numAveraged());
+                //sprintf(m + strlen(m), "Pitch Offset(deg): %3.1f\n", SLApplication::devRot.pitchOffsetDEG());
+                //sprintf(m + strlen(m), "Yaw   Offset(deg): %3.1f\n", SLApplication::devRot.yawOffsetDEG());
+                sprintf(m + strlen(m), "Offset mode      : %s\n", SLApplication::devRot.offsetModeStr().c_str());
+                sprintf(m + strlen(m), "------------------\n");
+                sprintf(m + strlen(m), "Uses GPS Sensor  : %s\n", SLApplication::devLoc.isUsed() ? "yes" : "no");
+                sprintf(m + strlen(m), "Latitude (deg)   : %10.5f\n", SLApplication::devLoc.locLatLonAlt().lat);
+                sprintf(m + strlen(m), "Longitude (deg)  : %10.5f\n", SLApplication::devLoc.locLatLonAlt().lon);
+                sprintf(m + strlen(m), "Alt. used (m)    : %10.2f\n", SLApplication::devLoc.locLatLonAlt().alt);
+                sprintf(m + strlen(m), "Alt. GPS (m)     : %10.2f\n", SLApplication::devLoc.altGpsM());
+                sprintf(m + strlen(m), "Alt. DEM (m)     : %10.2f\n", SLApplication::devLoc.altDemM());
+                sprintf(m + strlen(m), "Alt. origin (m)  : %10.2f\n", SLApplication::devLoc.altDemM());
+                sprintf(m + strlen(m), "Accuracy Rad.(m) : %6.1f\n", SLApplication::devLoc.locAccuracyM());
+                sprintf(m + strlen(m), "Dist. Origin (m) : %6.1f\n", offsetToOrigin.length());
+                sprintf(m + strlen(m), "Origin improve(s): %6.1f sec.\n", SLApplication::devLoc.improveTime());
+                sprintf(m + strlen(m), "Sun Zenith (deg) : %6.1f sec.\n", SLApplication::devLoc.originSolarZenit());
+                sprintf(m + strlen(m), "Sun Azimuth (deg): %6.1f sec.\n", SLApplication::devLoc.originSolarAzimut());
+
+                // Switch to fixed font
+                ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
+                ImGui::Begin("Sensor Information", &showInfosSensors, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize);
+                ImGui::TextUnformatted(m);
+                ImGui::End();
+                ImGui::PopFont();
+            }
+
+            if (showSceneGraph)
+            {
+                buildSceneGraph(s);
+            }
+
+            if (showProperties)
+            {
+                buildProperties(s, sv);
+            }
+
+            if (showUIPrefs)
+            {
+                ImGuiWindowFlags window_flags = 0;
+                window_flags |= ImGuiWindowFlags_AlwaysAutoResize;
+                ImGui::Begin("User Interface Preferences", &showUIPrefs, window_flags);
+
+                ImGui::SliderFloat("Prop. Font Size", &SLGLImGui::fontPropDots, 16.f, 70.f, "%0.0f");
+                ImGui::SliderFloat("Fixed Font Size", &SLGLImGui::fontFixedDots, 13.f, 50.f, "%0.0f");
+                ImGuiStyle& style = ImGui::GetStyle();
+                if (ImGui::SliderFloat("Item Spacing X", &style.ItemSpacing.x, 0.0f, 20.0f, "%0.0f"))
+                    style.WindowPadding.x = style.FramePadding.x = style.ItemInnerSpacing.x = style.ItemSpacing.x;
+                if (ImGui::SliderFloat("Item Spacing Y", &style.ItemSpacing.y, 0.0f, 20.0f, "%0.0f"))
+                {
+                    style.FramePadding.y = style.ItemInnerSpacing.y = style.ItemSpacing.y;
+                    style.WindowPadding.y                           = style.ItemSpacing.y * 3;
+                }
+
                 ImGui::Separator();
 
-                ImGui::Text("Transl. X :");
-                ImGui::SameLine();
-                if (ImGui::Button("<<<##Tx")) selNode->translate(-t3, 0, 0, tSpace);
-                ImGui::SameLine();
-                if (ImGui::Button("<<##Tx")) selNode->translate(-t2, 0, 0, tSpace);
-                ImGui::SameLine();
-                if (ImGui::Button("<##Tx")) selNode->translate(-t1, 0, 0, tSpace);
-                ImGui::SameLine();
-                if (ImGui::Button(">##Tx")) selNode->translate(t1, 0, 0, tSpace);
-                ImGui::SameLine();
-                if (ImGui::Button(">>##Tx")) selNode->translate(t2, 0, 0, tSpace);
-                ImGui::SameLine();
-                if (ImGui::Button(">>>##Tx")) selNode->translate(t3, 0, 0, tSpace);
-
-                ImGui::Text("Transl. Y :");
-                ImGui::SameLine();
-                if (ImGui::Button("<<<##Ty")) selNode->translate(0, -t3, 0, tSpace);
-                ImGui::SameLine();
-                if (ImGui::Button("<<##Ty")) selNode->translate(0, -t2, 0, tSpace);
-                ImGui::SameLine();
-                if (ImGui::Button("<##Ty")) selNode->translate(0, -t1, 0, tSpace);
-                ImGui::SameLine();
-                if (ImGui::Button(">##Ty")) selNode->translate(0, t1, 0, tSpace);
-                ImGui::SameLine();
-                if (ImGui::Button(">>##Ty")) selNode->translate(0, t2, 0, tSpace);
-                ImGui::SameLine();
-                if (ImGui::Button(">>>##Ty")) selNode->translate(0, t3, 0, tSpace);
-
-                ImGui::Text("Transl. Z :");
-                ImGui::SameLine();
-                if (ImGui::Button("<<<##Tz")) selNode->translate(0, 0, -t3, tSpace);
-                ImGui::SameLine();
-                if (ImGui::Button("<<##Tz")) selNode->translate(0, 0, -t2, tSpace);
-                ImGui::SameLine();
-                if (ImGui::Button("<##Tz")) selNode->translate(0, 0, -t1, tSpace);
-                ImGui::SameLine();
-                if (ImGui::Button(">##Tz")) selNode->translate(0, 0, t1, tSpace);
-                ImGui::SameLine();
-                if (ImGui::Button(">>##Tz")) selNode->translate(0, 0, t2, tSpace);
-                ImGui::SameLine();
-                if (ImGui::Button(">>>##Tz")) selNode->translate(0, 0, t3, tSpace);
-
-                ImGui::Text("Rotation X:");
-                ImGui::SameLine();
-                if (ImGui::Button("<<<##Rx")) selNode->rotate(r3, 1, 0, 0, tSpace);
-                ImGui::SameLine();
-                if (ImGui::Button("<<##Rx")) selNode->rotate(r2, 1, 0, 0, tSpace);
-                ImGui::SameLine();
-                if (ImGui::Button("<##Rx")) selNode->rotate(r1, 1, 0, 0, tSpace);
-                ImGui::SameLine();
-                if (ImGui::Button(">##Rx")) selNode->rotate(-r1, 1, 0, 0, tSpace);
-                ImGui::SameLine();
-                if (ImGui::Button(">>##Rx")) selNode->rotate(-r2, 1, 0, 0, tSpace);
-                ImGui::SameLine();
-                if (ImGui::Button(">>>##Rx")) selNode->rotate(-r3, 1, 0, 0, tSpace);
-
-                ImGui::Text("Rotation Y:");
-                ImGui::SameLine();
-                if (ImGui::Button("<<<##Ry")) selNode->rotate(r3, 0, 1, 0, tSpace);
-                ImGui::SameLine();
-                if (ImGui::Button("<<##Ry")) selNode->rotate(r2, 0, 1, 0, tSpace);
-                ImGui::SameLine();
-                if (ImGui::Button("<##Ry")) selNode->rotate(r1, 0, 1, 0, tSpace);
-                ImGui::SameLine();
-                if (ImGui::Button(">##Ry")) selNode->rotate(-r1, 0, 1, 0, tSpace);
-                ImGui::SameLine();
-                if (ImGui::Button(">>##Ry")) selNode->rotate(-r2, 0, 1, 0, tSpace);
-                ImGui::SameLine();
-                if (ImGui::Button(">>>##Ry")) selNode->rotate(-r3, 0, 1, 0, tSpace);
-
-                ImGui::Text("Rotation Z:");
-                ImGui::SameLine();
-                if (ImGui::Button("<<<##Rz")) selNode->rotate(r3, 0, 0, 1, tSpace);
-                ImGui::SameLine();
-                if (ImGui::Button("<<##Rz")) selNode->rotate(r2, 0, 0, 1, tSpace);
-                ImGui::SameLine();
-                if (ImGui::Button("<##Rz")) selNode->rotate(r1, 0, 0, 1, tSpace);
-                ImGui::SameLine();
-                if (ImGui::Button(">##Rz")) selNode->rotate(-r1, 0, 0, 1, tSpace);
-                ImGui::SameLine();
-                if (ImGui::Button(">>##Rz")) selNode->rotate(-r2, 0, 0, 1, tSpace);
-                ImGui::SameLine();
-                if (ImGui::Button(">>>##Rz")) selNode->rotate(-r3, 0, 0, 1, tSpace);
-
-                ImGui::Text("Scale     :");
-                ImGui::SameLine();
-                if (ImGui::Button("<<<##S")) selNode->scale(s3);
-                ImGui::SameLine();
-                if (ImGui::Button("<<##S")) selNode->scale(s2);
-                ImGui::SameLine();
-                if (ImGui::Button("<##S")) selNode->scale(s1);
-                ImGui::SameLine();
-                if (ImGui::Button(">##S")) selNode->scale(-s1);
-                ImGui::SameLine();
-                if (ImGui::Button(">>##S")) selNode->scale(-s2);
-                ImGui::SameLine();
-                if (ImGui::Button(">>>##S")) selNode->scale(-s3);
+                ImGui::Checkbox("DockSpace enabled", &showDockSpace);
                 ImGui::Separator();
-                // clang-format on
 
-                if (ImGui::Button("Reset"))
-                    selNode->om(selNode->initialOM());
+                SLchar reset[255];
+
+                ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
+                sprintf(reset, "Reset User Interface (DPI: %d)", sv->dpi());
+                if (ImGui::MenuItem(reset))
+                {
+                    SLstring fullPathFilename = SLApplication::configPath + "DemoGui.yml";
+                    Utils::deleteFile(fullPathFilename);
+                    loadConfig(sv->dpi());
+                }
+                ImGui::PopFont();
+
+                ImGui::End();
+            }
+
+            if (showChristoffel && SLApplication::sceneID == SID_ErlebARChristoffel)
+            {
+                ImGui::Begin("Christoffel",
+                             &showChristoffel,
+                             ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize);
+
+                // Get scene nodes once
+                if (!bern)
+                {
+                    bern        = s->root3D()->findChild<SLNode>("Bern-Bahnhofsplatz2.gltf");
+                    boden       = bern->findChild<SLNode>("Boden", true);
+                    balda_stahl = bern->findChild<SLNode>("Baldachin-Stahl", true);
+                    balda_glas  = bern->findChild<SLNode>("Baldachin-Glas", true);
+                    umgeb_dach  = bern->findChild<SLNode>("Umgebung-Daecher", true);
+                    umgeb_fass  = bern->findChild<SLNode>("Umgebung-Fassaden", true);
+                    mauer       = bern->findChild<SLNode>("Mauer", true);
+                    graben      = bern->findChild<SLNode>("Graben", true);
+                }
+
+                ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.66f);
+
+                SLbool umgebung = !umgeb_fass->drawBits()->get(SL_DB_HIDDEN);
+                if (ImGui::Checkbox("Umgebung", &umgebung))
+                {
+                    umgeb_fass->drawBits()->set(SL_DB_HIDDEN, !umgebung);
+                    umgeb_dach->drawBits()->set(SL_DB_HIDDEN, !umgebung);
+                }
+
+                SLbool bodenBool = !boden->drawBits()->get(SL_DB_HIDDEN);
+                if (ImGui::Checkbox("Boden", &bodenBool))
+                {
+                    boden->drawBits()->set(SL_DB_HIDDEN, !bodenBool);
+                }
+
+                SLbool baldachin = !balda_stahl->drawBits()->get(SL_DB_HIDDEN);
+                if (ImGui::Checkbox("Baldachin", &baldachin))
+                {
+                    balda_stahl->drawBits()->set(SL_DB_HIDDEN, !baldachin);
+                    balda_glas->drawBits()->set(SL_DB_HIDDEN, !baldachin);
+                }
+
+                SLbool mauerIsOn = !mauer->drawBits()->get(SL_DB_HIDDEN);
+                if (ImGui::Checkbox("Mauer", &mauerIsOn))
+                    mauer->drawBits()->set(SL_DB_HIDDEN, !mauerIsOn);
+
+                SLbool grabenIsOn = !graben->drawBits()->get(SL_DB_HIDDEN);
+                if (ImGui::Checkbox("Graben", &grabenIsOn))
+                    graben->drawBits()->set(SL_DB_HIDDEN, !grabenIsOn);
+
+                ImGui::PopItemWidth();
+                ImGui::End();
             }
             else
             {
-                ImGui::Text("No node selected.");
-                ImGui::Text("Please select a node by double clicking it.");
-
-                if (transformNode)
-                    removeTransformNode(s);
+                bern        = nullptr;
+                boden       = nullptr;
+                balda_stahl = nullptr;
+                balda_glas  = nullptr;
+                umgeb_dach  = nullptr;
+                umgeb_fass  = nullptr;
+                mauer       = nullptr;
+                graben      = nullptr;
             }
-            ImGui::End();
-            ImGui::PopFont();
-        }
-
-        if (showInfosDevice)
-        {
-            SLGLState* stateGL = SLGLState::instance();
-            SLchar     m[2550]; // message character array
-            m[0] = 0;           // set zero length
-
-            sprintf(m + strlen(m), "SLProject Version: %s\n", SLApplication::version.c_str());
-#ifdef _DEBUG
-            sprintf(m + strlen(m), "Build Config.    : Debug\n");
-#else
-            sprintf(m + strlen(m), "Build Config.    : Release\n");
-#endif
-            sprintf(m + strlen(m), "-----------------:\n");
-            sprintf(m + strlen(m), "Computer User    : %s\n", Utils::ComputerInfos::user.c_str());
-            sprintf(m + strlen(m), "Computer Name    : %s\n", Utils::ComputerInfos::name.c_str());
-            sprintf(m + strlen(m), "Computer Brand   : %s\n", Utils::ComputerInfos::brand.c_str());
-            sprintf(m + strlen(m), "Computer Model   : %s\n", Utils::ComputerInfos::model.c_str());
-            sprintf(m + strlen(m), "Computer Arch.   : %s\n", Utils::ComputerInfos::arch.c_str());
-            sprintf(m + strlen(m), "Computer OS      : %s\n", Utils::ComputerInfos::os.c_str());
-            sprintf(m + strlen(m), "Computer OS Ver. : %s\n", Utils::ComputerInfos::osVer.c_str());
-            sprintf(m + strlen(m), "-----------------:\n");
-            sprintf(m + strlen(m), "OpenGL Version   : %s\n", stateGL->glVersionNO().c_str());
-            sprintf(m + strlen(m), "OpenGL Vendor    : %s\n", stateGL->glVendor().c_str());
-            sprintf(m + strlen(m), "OpenGL Renderer  : %s\n", stateGL->glRenderer().c_str());
-            sprintf(m + strlen(m), "OpenGL GLSL Ver. : %s\n", stateGL->glSLVersionNO().c_str());
-            sprintf(m + strlen(m), "-----------------:\n");
-            sprintf(m + strlen(m), "OpenCV Version   : %d.%d.%d\n", CV_MAJOR_VERSION, CV_MINOR_VERSION, CV_VERSION_REVISION);
-            sprintf(m + strlen(m), "OpenCV has OpenCL: %s\n", cv::ocl::haveOpenCL() ? "yes" : "no");
-            sprintf(m + strlen(m), "OpenCV has AVX   : %s\n", cv::checkHardwareSupport(CV_AVX) ? "yes" : "no");
-            sprintf(m + strlen(m), "OpenCV has NEON  : %s\n", cv::checkHardwareSupport(CV_NEON) ? "yes" : "no");
-            sprintf(m + strlen(m), "-----------------:\n");
-
-#ifdef SL_BUILD_WAI
-            sprintf(m + strlen(m), "Eigen Version    : %d.%d.%d\n", EIGEN_WORLD_VERSION, EIGEN_MAJOR_VERSION, EIGEN_MINOR_VERSION);
-#    ifdef EIGEN_VECTORIZE
-            sprintf(m + strlen(m), "Eigen vectorize  : yes\n");
-#    else
-            sprintf(m + strlen(m), "Eigen vectorize  : no\n");
-#    endif
-#endif
-            sprintf(m + strlen(m), "-----------------:\n");
-            sprintf(m + strlen(m), "ImGui Version    : %s\n", ImGui::GetVersion());
-
-            // Switch to fixed font
-            ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
-            ImGui::Begin("Device Informations", &showInfosDevice, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize);
-            ImGui::TextUnformatted(m);
-            ImGui::End();
-            ImGui::PopFont();
-        }
-
-        if (showInfosSensors)
-        {
-            SLchar m[1024];             // message character array
-            m[0]                   = 0; // set zero length
-            SLVec3d offsetToOrigin = SLApplication::devLoc.originENU() - SLApplication::devLoc.locENU();
-            sprintf(m + strlen(m), "Uses IMU Senor   : %s\n", SLApplication::devRot.isUsed() ? "yes" : "no");
-            sprintf(m + strlen(m), "Pitch (deg)      : %3.1f\n", SLApplication::devRot.pitchDEG());
-            sprintf(m + strlen(m), "Yaw   (deg)      : %3.1f\n", SLApplication::devRot.yawDEG());
-            sprintf(m + strlen(m), "Roll  (deg)      : %3.1f\n", SLApplication::devRot.rollDEG());
-            sprintf(m + strlen(m), "No. averaged     : %d\n", SLApplication::devRot.numAveraged());
-            //sprintf(m + strlen(m), "Pitch Offset(deg): %3.1f\n", SLApplication::devRot.pitchOffsetDEG());
-            //sprintf(m + strlen(m), "Yaw   Offset(deg): %3.1f\n", SLApplication::devRot.yawOffsetDEG());
-            sprintf(m + strlen(m), "Offset mode      : %s\n", SLApplication::devRot.offsetModeStr().c_str());
-            sprintf(m + strlen(m), "------------------\n");
-            sprintf(m + strlen(m), "Uses GPS Sensor  : %s\n", SLApplication::devLoc.isUsed() ? "yes" : "no");
-            sprintf(m + strlen(m), "Latitude (deg)   : %10.5f\n", SLApplication::devLoc.locLatLonAlt().lat);
-            sprintf(m + strlen(m), "Longitude (deg)  : %10.5f\n", SLApplication::devLoc.locLatLonAlt().lon);
-            sprintf(m + strlen(m), "Alt. used (m)    : %10.2f\n", SLApplication::devLoc.locLatLonAlt().alt);
-            sprintf(m + strlen(m), "Alt. GPS (m)     : %10.2f\n", SLApplication::devLoc.altGpsM());
-            sprintf(m + strlen(m), "Alt. DEM (m)     : %10.2f\n", SLApplication::devLoc.altDemM());
-            sprintf(m + strlen(m), "Alt. origin (m)  : %10.2f\n", SLApplication::devLoc.altDemM());
-            sprintf(m + strlen(m), "Accuracy Rad.(m) : %6.1f\n", SLApplication::devLoc.locAccuracyM());
-            sprintf(m + strlen(m), "Dist. Origin (m) : %6.1f\n", offsetToOrigin.length());
-            sprintf(m + strlen(m), "Origin improve(s): %6.1f sec.\n", SLApplication::devLoc.improveTime());
-            sprintf(m + strlen(m), "Sun Zenith (deg) : %6.1f sec.\n", SLApplication::devLoc.originSolarZenit());
-            sprintf(m + strlen(m), "Sun Azimuth (deg): %6.1f sec.\n", SLApplication::devLoc.originSolarAzimut());
-
-            // Switch to fixed font
-            ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
-            ImGui::Begin("Sensor Information", &showInfosSensors, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize);
-            ImGui::TextUnformatted(m);
-            ImGui::End();
-            ImGui::PopFont();
-        }
-
-        if (showSceneGraph)
-        {
-            buildSceneGraph(s);
-        }
-
-        if (showProperties)
-        {
-            buildProperties(s, sv);
-        }
-
-        if (showUIPrefs)
-        {
-            ImGuiWindowFlags window_flags = 0;
-            window_flags |= ImGuiWindowFlags_AlwaysAutoResize;
-            ImGui::Begin("User Interface Preferences", &showUIPrefs, window_flags);
-
-            ImGui::SliderFloat("Prop. Font Size", &SLGLImGui::fontPropDots, 16.f, 70.f, "%0.0f");
-            ImGui::SliderFloat("Fixed Font Size", &SLGLImGui::fontFixedDots, 13.f, 50.f, "%0.0f");
-            ImGuiStyle& style = ImGui::GetStyle();
-            if (ImGui::SliderFloat("Item Spacing X", &style.ItemSpacing.x, 0.0f, 20.0f, "%0.0f"))
-                style.WindowPadding.x = style.FramePadding.x = style.ItemInnerSpacing.x = style.ItemSpacing.x;
-            if (ImGui::SliderFloat("Item Spacing Y", &style.ItemSpacing.y, 0.0f, 20.0f, "%0.0f"))
-            {
-                style.FramePadding.y = style.ItemInnerSpacing.y = style.ItemSpacing.y;
-                style.WindowPadding.y                           = style.ItemSpacing.y * 3;
-            }
-
-            ImGui::Separator();
-
-            ImGui::Checkbox("DockSpace enabled", &showDockSpace);
-            ImGui::Separator();
-
-            SLchar reset[255];
-
-            ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
-            sprintf(reset, "Reset User Interface (DPI: %d)", sv->dpi());
-            if (ImGui::MenuItem(reset))
-            {
-                SLstring fullPathFilename = SLApplication::configPath + "DemoGui.yml";
-                Utils::deleteFile(fullPathFilename);
-                loadConfig(sv->dpi());
-            }
-            ImGui::PopFont();
-
-            ImGui::End();
-        }
-
-        if (showChristoffel && SLApplication::sceneID == SID_ErlebARChristoffel)
-        {
-            ImGui::Begin("Christoffel",
-                         &showChristoffel,
-                         ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize);
-
-            // Get scene nodes once
-            if (!bern)
-            {
-                bern        = s->root3D()->findChild<SLNode>("Bern-Bahnhofsplatz2.gltf");
-                boden       = bern->findChild<SLNode>("Boden", true);
-                balda_stahl = bern->findChild<SLNode>("Baldachin-Stahl", true);
-                balda_glas  = bern->findChild<SLNode>("Baldachin-Glas", true);
-                umgeb_dach  = bern->findChild<SLNode>("Umgebung-Daecher", true);
-                umgeb_fass  = bern->findChild<SLNode>("Umgebung-Fassaden", true);
-                mauer       = bern->findChild<SLNode>("Mauer", true);
-                graben      = bern->findChild<SLNode>("Graben", true);
-            }
-
-            ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.66f);
-
-            SLbool umgebung = !umgeb_fass->drawBits()->get(SL_DB_HIDDEN);
-            if (ImGui::Checkbox("Umgebung", &umgebung))
-            {
-                umgeb_fass->drawBits()->set(SL_DB_HIDDEN, !umgebung);
-                umgeb_dach->drawBits()->set(SL_DB_HIDDEN, !umgebung);
-            }
-
-            SLbool bodenBool = !boden->drawBits()->get(SL_DB_HIDDEN);
-            if (ImGui::Checkbox("Boden", &bodenBool))
-            {
-                boden->drawBits()->set(SL_DB_HIDDEN, !bodenBool);
-            }
-
-            SLbool baldachin = !balda_stahl->drawBits()->get(SL_DB_HIDDEN);
-            if (ImGui::Checkbox("Baldachin", &baldachin))
-            {
-                balda_stahl->drawBits()->set(SL_DB_HIDDEN, !baldachin);
-                balda_glas->drawBits()->set(SL_DB_HIDDEN, !baldachin);
-            }
-
-            SLbool mauerIsOn = !mauer->drawBits()->get(SL_DB_HIDDEN);
-            if (ImGui::Checkbox("Mauer", &mauerIsOn))
-                mauer->drawBits()->set(SL_DB_HIDDEN, !mauerIsOn);
-
-            SLbool grabenIsOn = !graben->drawBits()->get(SL_DB_HIDDEN);
-            if (ImGui::Checkbox("Graben", &grabenIsOn))
-                graben->drawBits()->set(SL_DB_HIDDEN, !grabenIsOn);
-
-            ImGui::PopItemWidth();
-            ImGui::End();
-        }
-        else
-        {
-            bern        = nullptr;
-            boden       = nullptr;
-            balda_stahl = nullptr;
-            balda_glas  = nullptr;
-            umgeb_dach  = nullptr;
-            umgeb_fass  = nullptr;
-            mauer       = nullptr;
-            graben      = nullptr;
         }
     }
 }
@@ -1313,118 +1288,37 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                     ImGui::EndMenu();
                 }
 
-                if (ImGui::BeginMenu("Suzanne"))
+                if (ImGui::BeginMenu("Suzanne Lighting"))
                 {
                     if (ImGui::MenuItem("w. per Pixel Lighting (PL)", nullptr, sid == SID_SuzannePerPixBlinn))
                         s->onLoad(s, sv, SID_SuzannePerPixBlinn);
-                    if (ImGui::MenuItem("w. PL and Shadow Mapping (SM)", nullptr, sid == SID_SuzannePerPixBlinnSM))
-                        s->onLoad(s, sv, SID_SuzannePerPixBlinnSM);
-                    if (ImGui::MenuItem("w. PL, SM and Ambient Occlusion (AO)", nullptr, sid == SID_SuzannePerPixBlinnSMAO))
-                        s->onLoad(s, sv, SID_SuzannePerPixBlinnSMAO);
-                    if (ImGui::MenuItem("w. PL and Texture Mapping (TM)", nullptr, sid == SID_SuzannePerPixBlinnTex))
-                        s->onLoad(s, sv, SID_SuzannePerPixBlinnTex);
-                    if (ImGui::MenuItem("w. PL, TM and Normal Mapping (NM)", nullptr, sid == SID_SuzannePerPixBlinnTexNrm))
-                        s->onLoad(s, sv, SID_SuzannePerPixBlinnTexNrm);
-                    if (ImGui::MenuItem("w. PL, TM, NM, AO", nullptr, sid == SID_SuzannePerPixBlinnTexNrmAO))
-                        s->onLoad(s, sv, SID_SuzannePerPixBlinnTexNrmAO);
-                    if (ImGui::MenuItem("w. PL, TM, NM, SM", nullptr, sid == SID_SuzannePerPixBlinnTexNrmSM))
-                        s->onLoad(s, sv, SID_SuzannePerPixBlinnTexNrmSM);
-                    if (ImGui::MenuItem("w. PL, TM, NM, SM, AO", nullptr, sid == SID_SuzannePerPixBlinnTexNrmAOSM))
-                        s->onLoad(s, sv, SID_SuzannePerPixBlinnTexNrmAOSM);
+                    if (ImGui::MenuItem("w. PL and Texture Mapping (TM)", nullptr, sid == SID_SuzannePerPixBlinnTm))
+                        s->onLoad(s, sv, SID_SuzannePerPixBlinnTm);
+                    if (ImGui::MenuItem("w. PL and Normal Mapping (NM)", nullptr, sid == SID_SuzannePerPixBlinnNm))
+                        s->onLoad(s, sv, SID_SuzannePerPixBlinnNm);
+                    if (ImGui::MenuItem("w. PL and Ambient Occlusion (AO)", nullptr, sid == SID_SuzannePerPixBlinnAo))
+                        s->onLoad(s, sv, SID_SuzannePerPixBlinnAo);
+                    if (ImGui::MenuItem("w. PL and Shadow Mapping (SM)", nullptr, sid == SID_SuzannePerPixBlinnSm))
+                        s->onLoad(s, sv, SID_SuzannePerPixBlinnSm);
+                    if (ImGui::MenuItem("w. PL, TM, NM", nullptr, sid == SID_SuzannePerPixBlinnTmNm))
+                        s->onLoad(s, sv, SID_SuzannePerPixBlinnTmNm);
+                    if (ImGui::MenuItem("w. PL, TM, AO", nullptr, sid == SID_SuzannePerPixBlinnTmAo))
+                        s->onLoad(s, sv, SID_SuzannePerPixBlinnTmAo);
+                    if (ImGui::MenuItem("w. PL, NM, AO", nullptr, sid == SID_SuzannePerPixBlinnNmAo))
+                        s->onLoad(s, sv, SID_SuzannePerPixBlinnNmAo);
+                    if (ImGui::MenuItem("w. PL, NM, SM", nullptr, sid == SID_SuzannePerPixBlinnNmSm))
+                        s->onLoad(s, sv, SID_SuzannePerPixBlinnNmSm);
+                    if (ImGui::MenuItem("w. PL, TM, SM", nullptr, sid == SID_SuzannePerPixBlinnTmSm))
+                        s->onLoad(s, sv, SID_SuzannePerPixBlinnTmSm);
+                    if (ImGui::MenuItem("w. PL, AO, SM", nullptr, sid == SID_SuzannePerPixBlinnAoSm))
+                        s->onLoad(s, sv, SID_SuzannePerPixBlinnAoSm);
+                    if (ImGui::MenuItem("w. PL, TM, NM, AO", nullptr, sid == SID_SuzannePerPixBlinnTmNmAo))
+                        s->onLoad(s, sv, SID_SuzannePerPixBlinnTmNmAo);
+                    if (ImGui::MenuItem("w. PL, TM, NM, SM", nullptr, sid == SID_SuzannePerPixBlinnTmNmSm))
+                        s->onLoad(s, sv, SID_SuzannePerPixBlinnTmNmSm);
+                    if (ImGui::MenuItem("w. PL, TM, NM, AO, SM", nullptr, sid == SID_SuzannePerPixBlinnTmNmAoSm))
+                        s->onLoad(s, sv, SID_SuzannePerPixBlinnTmNmAoSm);
                     ImGui::EndMenu();
-                }
-
-                if (ImGui::BeginMenu("Animation"))
-                {
-                    if (ImGui::MenuItem("Node Animation", nullptr, sid == SID_AnimationNode))
-                        s->onLoad(s, sv, SID_AnimationNode);
-                    if (ImGui::MenuItem("Mass Animation", nullptr, sid == SID_AnimationMass))
-                        s->onLoad(s, sv, SID_AnimationMass);
-                    if (ImGui::MenuItem("Skeletal Animation", nullptr, sid == SID_AnimationSkeletal))
-                        s->onLoad(s, sv, SID_AnimationSkeletal);
-                    if (ImGui::MenuItem("AstroBoy Army", nullptr, sid == SID_AnimationAstroboyArmy))
-                        s->onLoad(s, sv, SID_AnimationAstroboyArmy);
-
-                    ImGui::EndMenu();
-                }
-
-                if (ImGui::BeginMenu("Using Video"))
-                {
-                    if (ImGui::MenuItem("Texture from Video Live", nullptr, sid == SID_VideoTextureLive))
-                        s->onLoad(s, sv, SID_VideoTextureLive);
-                    if (ImGui::MenuItem("Texture from Video File", nullptr, sid == SID_VideoTextureFile))
-                        s->onLoad(s, sv, SID_VideoTextureFile);
-                    if (ImGui::MenuItem("Track ArUco Marker (Main)", nullptr, sid == SID_VideoTrackArucoMain))
-                        s->onLoad(s, sv, SID_VideoTrackArucoMain);
-                    if (ImGui::MenuItem("Track ArUco Marker (Scnd)", nullptr, sid == SID_VideoTrackArucoScnd, capture->hasSecondaryCamera))
-                        s->onLoad(s, sv, SID_VideoTrackArucoScnd);
-                    if (ImGui::MenuItem("Track Chessboard (Main)", nullptr, sid == SID_VideoTrackChessMain))
-                        s->onLoad(s, sv, SID_VideoTrackChessMain);
-                    if (ImGui::MenuItem("Track Chessboard (Scnd)", nullptr, sid == SID_VideoTrackChessScnd, capture->hasSecondaryCamera))
-                        s->onLoad(s, sv, SID_VideoTrackChessScnd);
-                    if (ImGui::MenuItem("Track Features (Main)", nullptr, sid == SID_VideoTrackFeature2DMain))
-                        s->onLoad(s, sv, SID_VideoTrackFeature2DMain);
-                    if (ImGui::MenuItem("Track Face (Main)", nullptr, sid == SID_VideoTrackFaceMain))
-                        s->onLoad(s, sv, SID_VideoTrackFaceMain);
-                    if (ImGui::MenuItem("Track Face (Scnd)", nullptr, sid == SID_VideoTrackFaceScnd, capture->hasSecondaryCamera))
-                        s->onLoad(s, sv, SID_VideoTrackFaceScnd);
-                    if (ImGui::MenuItem("Sensor AR (Main)", nullptr, sid == SID_VideoSensorAR))
-                        s->onLoad(s, sv, SID_VideoSensorAR);
-#ifdef SL_BUILD_WAI
-                    if (ImGui::MenuItem("Track WAI (Main)", nullptr, sid == SID_VideoTrackWAI))
-                        s->onLoad(s, sv, SID_VideoTrackWAI);
-#endif
-                    ImGui::EndMenu();
-                }
-
-                SLstring erlebarPath = SLApplication::dataPath + "erleb-AR/models/";
-                SLstring modelBR1    = erlebarPath + "bern/Bern-Bahnhofsplatz2.gltf";
-                SLstring modelBFH    = erlebarPath + "biel/Biel-BFH-Rolex.gltf";
-                SLstring modelAR1    = erlebarPath + "augst/Tempel-Theater-02.gltf";
-                SLstring modelAV1    = erlebarPath + "avenches/Aventicum-Amphitheater1.gltf";
-                SLstring modelAV1_AO = erlebarPath + "avenches/Aventicum-Amphitheater-AO.gltf";
-                SLstring modelAV2    = erlebarPath + "avenches/Aventicum-Cigognier2.gltf";
-                SLstring modelAV2_AO = erlebarPath + "avenches/Aventicum-Cigognier-AO.gltf";
-                SLstring modelAV3    = erlebarPath + "avenches/Aventicum-Theater1.gltf";
-
-                if (Utils::fileExists(modelAR1) ||
-                    Utils::fileExists(modelAV1) ||
-                    Utils::fileExists(modelAV2) ||
-                    Utils::fileExists(modelAV3) ||
-                    Utils::fileExists(modelBR1))
-                {
-                    if (ImGui::BeginMenu("Erleb-AR"))
-                    {
-                        if (Utils::fileExists(modelBR1))
-                            if (ImGui::MenuItem("Bern: Christoffel Tower", nullptr, sid == SID_ErlebARChristoffel))
-                                s->onLoad(s, sv, SID_ErlebARChristoffel);
-
-                        if (Utils::fileExists(modelBFH))
-                            if (ImGui::MenuItem("Biel: BFH", nullptr, sid == SID_ErlebARBielBFH))
-                                s->onLoad(s, sv, SID_ErlebARBielBFH);
-
-                        if (Utils::fileExists(modelAR1))
-                            if (ImGui::MenuItem("Augusta Raurica", nullptr, sid == SID_ErlebARAugustaRaurica))
-                                s->onLoad(s, sv, SID_ErlebARAugustaRaurica);
-
-                        if (Utils::fileExists(modelAV1_AO))
-                            if (ImGui::MenuItem("Aventicum: Amphitheatre", nullptr, sid == SID_ErlebARAventicumAmphiAO))
-                                s->onLoad(s, sv, SID_ErlebARAventicumAmphiAO);
-
-                        if (Utils::fileExists(modelAV2))
-                            if (ImGui::MenuItem("Aventicum: Cigognier", nullptr, sid == SID_ErlebARAventicumCigognier))
-                                s->onLoad(s, sv, SID_ErlebARAventicumCigognier);
-
-                        if (Utils::fileExists(modelAV2_AO))
-                            if (ImGui::MenuItem("Aventicum: Cigognier (AO)", nullptr, sid == SID_ErlebARAventicumCigognierAO))
-                                s->onLoad(s, sv, SID_ErlebARAventicumCigognierAO);
-
-                        if (Utils::fileExists(modelAV3))
-                            if (ImGui::MenuItem("Aventicum: Theatre", nullptr, sid == SID_ErlebARAventicumTheatre))
-                                s->onLoad(s, sv, SID_ErlebARAventicumTheatre);
-
-                        ImGui::EndMenu();
-                    }
                 }
 
                 if (ImGui::BeginMenu("Volume Rendering"))
@@ -1481,6 +1375,49 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                         SLApplication::jobsToFollowInMain.push_back(onLoadScene);
                     }
 
+                    ImGui::EndMenu();
+                }
+
+                if (ImGui::BeginMenu("Animation"))
+                {
+                    if (ImGui::MenuItem("Node Animation", nullptr, sid == SID_AnimationNode))
+                        s->onLoad(s, sv, SID_AnimationNode);
+                    if (ImGui::MenuItem("Mass Animation", nullptr, sid == SID_AnimationMass))
+                        s->onLoad(s, sv, SID_AnimationMass);
+                    if (ImGui::MenuItem("Skeletal Animation", nullptr, sid == SID_AnimationSkeletal))
+                        s->onLoad(s, sv, SID_AnimationSkeletal);
+                    if (ImGui::MenuItem("AstroBoy Army", nullptr, sid == SID_AnimationAstroboyArmy))
+                        s->onLoad(s, sv, SID_AnimationAstroboyArmy);
+
+                    ImGui::EndMenu();
+                }
+
+                if (ImGui::BeginMenu("Using Video"))
+                {
+                    if (ImGui::MenuItem("Texture from Video Live", nullptr, sid == SID_VideoTextureLive))
+                        s->onLoad(s, sv, SID_VideoTextureLive);
+                    if (ImGui::MenuItem("Texture from Video File", nullptr, sid == SID_VideoTextureFile))
+                        s->onLoad(s, sv, SID_VideoTextureFile);
+                    if (ImGui::MenuItem("Track ArUco Marker (Main)", nullptr, sid == SID_VideoTrackArucoMain))
+                        s->onLoad(s, sv, SID_VideoTrackArucoMain);
+                    if (ImGui::MenuItem("Track ArUco Marker (Scnd)", nullptr, sid == SID_VideoTrackArucoScnd, capture->hasSecondaryCamera))
+                        s->onLoad(s, sv, SID_VideoTrackArucoScnd);
+                    if (ImGui::MenuItem("Track Chessboard (Main)", nullptr, sid == SID_VideoTrackChessMain))
+                        s->onLoad(s, sv, SID_VideoTrackChessMain);
+                    if (ImGui::MenuItem("Track Chessboard (Scnd)", nullptr, sid == SID_VideoTrackChessScnd, capture->hasSecondaryCamera))
+                        s->onLoad(s, sv, SID_VideoTrackChessScnd);
+                    if (ImGui::MenuItem("Track Features (Main)", nullptr, sid == SID_VideoTrackFeature2DMain))
+                        s->onLoad(s, sv, SID_VideoTrackFeature2DMain);
+                    if (ImGui::MenuItem("Track Face (Main)", nullptr, sid == SID_VideoTrackFaceMain))
+                        s->onLoad(s, sv, SID_VideoTrackFaceMain);
+                    if (ImGui::MenuItem("Track Face (Scnd)", nullptr, sid == SID_VideoTrackFaceScnd, capture->hasSecondaryCamera))
+                        s->onLoad(s, sv, SID_VideoTrackFaceScnd);
+                    if (ImGui::MenuItem("Sensor AR (Main)", nullptr, sid == SID_VideoSensorAR))
+                        s->onLoad(s, sv, SID_VideoSensorAR);
+#ifdef SL_BUILD_WAI
+                    if (ImGui::MenuItem("Track WAI (Main)", nullptr, sid == SID_VideoTrackWAI))
+                        s->onLoad(s, sv, SID_VideoTrackWAI);
+#endif
                     ImGui::EndMenu();
                 }
 
@@ -1675,11 +1612,75 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                     ImGui::EndMenu();
                 }
 
+                SLstring erlebarPath = SLApplication::dataPath + "erleb-AR/models/";
+                SLstring modelBR1    = erlebarPath + "bern/Bern-Bahnhofsplatz2.gltf";
+                SLstring modelBFH    = erlebarPath + "biel/Biel-BFH-Rolex.gltf";
+                SLstring modelAR1    = erlebarPath + "augst/Tempel-Theater-02.gltf";
+                SLstring modelAV1    = erlebarPath + "avenches/Aventicum-Amphitheater1.gltf";
+                SLstring modelAV1_AO = erlebarPath + "avenches/Aventicum-Amphitheater-AO.gltf";
+                SLstring modelAV2    = erlebarPath + "avenches/Aventicum-Cigognier2.gltf";
+                SLstring modelAV2_AO = erlebarPath + "avenches/Aventicum-Cigognier-AO.gltf";
+                SLstring modelAV3    = erlebarPath + "avenches/Aventicum-Theater1.gltf";
+
+                if (Utils::fileExists(modelAR1) ||
+                    Utils::fileExists(modelAV1) ||
+                    Utils::fileExists(modelAV2) ||
+                    Utils::fileExists(modelAV3) ||
+                    Utils::fileExists(modelBR1))
+                {
+                    if (ImGui::BeginMenu("Erleb-AR"))
+                    {
+                        if (Utils::fileExists(modelBR1))
+                            if (ImGui::MenuItem("Bern: Christoffel Tower", nullptr, sid == SID_ErlebARChristoffel))
+                                s->onLoad(s, sv, SID_ErlebARChristoffel);
+
+                        if (Utils::fileExists(modelBFH))
+                            if (ImGui::MenuItem("Biel: BFH", nullptr, sid == SID_ErlebARBielBFH))
+                                s->onLoad(s, sv, SID_ErlebARBielBFH);
+
+                        if (Utils::fileExists(modelAR1))
+                            if (ImGui::MenuItem("Augusta Raurica", nullptr, sid == SID_ErlebARAugustaRaurica))
+                                s->onLoad(s, sv, SID_ErlebARAugustaRaurica);
+
+                        if (Utils::fileExists(modelAV1_AO))
+                            if (ImGui::MenuItem("Aventicum: Amphitheatre", nullptr, sid == SID_ErlebARAventicumAmphiAO))
+                                s->onLoad(s, sv, SID_ErlebARAventicumAmphiAO);
+
+                        if (Utils::fileExists(modelAV2))
+                            if (ImGui::MenuItem("Aventicum: Cigognier", nullptr, sid == SID_ErlebARAventicumCigognier))
+                                s->onLoad(s, sv, SID_ErlebARAventicumCigognier);
+
+                        if (Utils::fileExists(modelAV2_AO))
+                            if (ImGui::MenuItem("Aventicum: Cigognier (AO)", nullptr, sid == SID_ErlebARAventicumCigognierAO))
+                                s->onLoad(s, sv, SID_ErlebARAventicumCigognierAO);
+
+                        if (Utils::fileExists(modelAV3))
+                            if (ImGui::MenuItem("Aventicum: Theatre", nullptr, sid == SID_ErlebARAventicumTheatre))
+                                s->onLoad(s, sv, SID_ErlebARAventicumTheatre);
+
+                        ImGui::EndMenu();
+                    }
+                }
+
                 ImGui::EndMenu();
             }
 
-            if (ImGui::MenuItem("Empty Scene", nullptr, sid == SID_Empty))
+            if (ImGui::MenuItem("Empty Scene", "Shift-Alt-0", sid == SID_Empty))
                 s->onLoad(s, sv, SID_Empty);
+
+            if (ImGui::MenuItem("Next Scene",
+                                "Shift-Alt-CursorRight",
+                                nullptr,
+                                SLApplication::sceneID < SID_Maximal - 1))
+                s->onLoad(s, sv, SLApplication::sceneID + 1);
+
+            if (ImGui::MenuItem("Previous Scene",
+                                "Shift-Alt-CursorLeft",
+                                nullptr,
+                                SLApplication::sceneID > SID_Empty))
+                s->onLoad(s, sv, SLApplication::sceneID - 1);
+
+            ImGui::Separator();
 
             if (ImGui::MenuItem("Multi-threaded Jobs"))
             {
@@ -1733,11 +1734,14 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
             if (ImGui::MenuItem("Do Wait on Idle", "I", sv->doWaitOnIdle()))
                 sv->doWaitOnIdle(!sv->doWaitOnIdle());
 
-            if (ImGui::MenuItem("Do Multi Sampling", "M", sv->doMultiSampling()))
+            if (ImGui::MenuItem("Do Multi Sampling", "L", sv->doMultiSampling()))
                 sv->doMultiSampling(!sv->doMultiSampling());
 
             if (ImGui::MenuItem("Do Frustum Culling", "F", sv->doFrustumCulling()))
                 sv->doFrustumCulling(!sv->doFrustumCulling());
+
+            if (ImGui::MenuItem("Do Alpha Sorting", "J", sv->doAlphaSorting()))
+                sv->doAlphaSorting(!sv->doAlphaSorting());
 
             if (ImGui::MenuItem("Do Depth Test", "T", sv->doDepthTest()))
                 sv->doDepthTest(!sv->doDepthTest());
@@ -3286,62 +3290,78 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                     ImGui::Text("# hard edges : %u", e);
                     ImGui::Text("Material Name: %s", m->name().c_str());
 
-                    if (ImGui::TreeNode("Reflection colors"))
+                    if (m->lightModel() == LM_BlinnPhong)
                     {
-                        ImGuiColorEditFlags cef = ImGuiColorEditFlags_NoInputs;
-                        SLCol4f             ac  = m->ambient();
-                        if (ImGui::ColorEdit3("Ambient color", (float*)&ac, cef))
-                            m->ambient(ac);
+                        if (ImGui::TreeNode("Light Model: Blinn-Phong"))
+                        {
+                            ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.5f);
 
-                        SLCol4f dc = m->diffuse();
-                        if (ImGui::ColorEdit3("Diffuse color", (float*)&dc, cef))
-                            m->diffuse(dc);
+                            ImGuiColorEditFlags cef = ImGuiColorEditFlags_NoInputs;
+                            SLCol4f             ac  = m->ambient();
+                            if (ImGui::ColorEdit3("Ambient color", (float*)&ac, cef))
+                                m->ambient(ac);
 
-                        SLCol4f sc = m->specular();
-                        if (ImGui::ColorEdit3("Specular color", (float*)&sc, cef))
-                            m->specular(sc);
+                            SLCol4f dc = m->diffuse();
+                            if (ImGui::ColorEdit3("Diffuse color", (float*)&dc, cef))
+                                m->diffuse(dc);
 
-                        SLCol4f ec = m->emissive();
-                        if (ImGui::ColorEdit3("Emissive color", (float*)&ec, cef))
-                            m->emissive(ec);
+                            SLCol4f sc = m->specular();
+                            if (ImGui::ColorEdit3("Specular color", (float*)&sc, cef))
+                                m->specular(sc);
 
-                        ImGui::TreePop();
+                            SLCol4f ec = m->emissive();
+                            if (ImGui::ColorEdit3("Emissive color", (float*)&ec, cef))
+                                m->emissive(ec);
+
+                            SLfloat shine = m->shininess();
+                            if (ImGui::SliderFloat("Shininess", &shine, 0.0f, 1000.0f))
+                                m->shininess(shine);
+
+                            SLfloat kr = m->kr();
+                            if (ImGui::SliderFloat("kr", &kr, 0.0f, 1.0f))
+                                m->kr(kr);
+
+                            SLfloat kt = m->kt();
+                            if (ImGui::SliderFloat("kt", &kt, 0.0f, 1.0f))
+                                m->kt(kt);
+
+                            SLfloat kn = m->kn();
+                            if (ImGui::SliderFloat("kn", &kn, 1.0f, 2.5f))
+                                m->kn(kn);
+
+                            SLbool receivesShadows = m->getsShadows();
+                            if (ImGui::Checkbox("Receives shadows", &receivesShadows))
+                                m->getsShadows(receivesShadows);
+
+                            ImGui::PopItemWidth();
+                            ImGui::TreePop();
+                        }
                     }
-
-                    if (ImGui::TreeNode("Other variables"))
+                    else if (m->lightModel() == LM_CookTorrance)
                     {
-                        ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.5f);
+                        if (ImGui::TreeNode("Light Model: Cook-Torrance"))
+                        {
+                            ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.5f);
 
-                        SLfloat shine = m->shininess();
-                        if (ImGui::SliderFloat("Shininess", &shine, 0.0f, 1000.0f))
-                            m->shininess(shine);
+                            ImGuiColorEditFlags cef = ImGuiColorEditFlags_NoInputs;
+                            SLCol4f             dc  = m->diffuse();
+                            if (ImGui::ColorEdit3("Diffuse color", (float*)&dc, cef))
+                                m->diffuse(dc);
 
-                        SLfloat rough = m->roughness();
-                        if (ImGui::SliderFloat("Roughness", &rough, 0.0f, 1.0f))
-                            m->roughness(rough);
+                            SLfloat rough = m->roughness();
+                            if (ImGui::SliderFloat("Roughness", &rough, 0.0f, 1.0f))
+                                m->roughness(rough);
 
-                        SLfloat metal = m->metalness();
-                        if (ImGui::SliderFloat("Metalness", &metal, 0.0f, 1.0f))
-                            m->metalness(metal);
+                            SLfloat metal = m->metalness();
+                            if (ImGui::SliderFloat("Metalness", &metal, 0.0f, 1.0f))
+                                m->metalness(metal);
 
-                        SLfloat kr = m->kr();
-                        if (ImGui::SliderFloat("kr", &kr, 0.0f, 1.0f))
-                            m->kr(kr);
-
-                        SLfloat kt = m->kt();
-                        if (ImGui::SliderFloat("kt", &kt, 0.0f, 1.0f))
-                            m->kt(kt);
-
-                        SLfloat kn = m->kn();
-                        if (ImGui::SliderFloat("kn", &kn, 1.0f, 2.5f))
-                            m->kn(kn);
-
-                        SLbool receivesShadows = m->getsShadows();
-                        if (ImGui::Checkbox("Receives shadows", &receivesShadows))
-                            m->getsShadows(receivesShadows);
-
-                        ImGui::PopItemWidth();
-                        ImGui::TreePop();
+                            ImGui::PopItemWidth();
+                            ImGui::TreePop();
+                        }
+                    }
+                    else
+                    {
                     }
 
                     if (!m->textures().empty() &&
@@ -3466,7 +3486,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                             ImGui::InputTextMultiline(shd->name().c_str(),
                                                       text,
                                                       IM_ARRAYSIZE(text),
-                                                      ImVec2(-1.0f, lineH * 16));
+                                                      ImVec2(-1.0f, -1.0f));
                             ImGui::TreePop();
                         }
                     }

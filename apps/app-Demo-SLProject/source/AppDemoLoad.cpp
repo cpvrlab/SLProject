@@ -274,6 +274,11 @@ SLNode* BuildFigureGroup(SLProjectScene* s, SLMaterial* mat, SLbool withAnimatio
     // Assemble head & neck
     SLNode* head = new SLNode(new SLSphere(s, 0.5f, res, res, "head", mat), "head (T1)");
     head->translate(0.0f, 0.0f, -0.7f, TS_object);
+    SLSphere* eye  = new SLSphere(s, 0.06f, res, res, "eye", mat);
+    SLNode*   eyeL = new SLNode(eye, SLVec3f(-0.15f, 0.48f, 0), "eyeL");
+    SLNode*   eyeR = new SLNode(eye, SLVec3f(0.15f, 0.48f, 0), "eyeL");
+    head->addChild(eyeL);
+    head->addChild(eyeR);
     SLNode* neck = new SLNode(new SLCylinder(s, 0.25f, 0.3f, 1, res, false, false, "neck", mat), "neck (T2)");
     neck->translate(0.0f, 0.0f, -0.3f, TS_object);
 
@@ -301,6 +306,14 @@ SLNode* BuildFigureGroup(SLProjectScene* s, SLMaterial* mat, SLbool withAnimatio
 
         SLNode* feetLeft = legLeft->findChild<SLNode>("feet group (T13,R6)");
         anim->createNodeAnimTrackForRotation(feetLeft, 40, SLVec3f(1, 0, 0));
+
+        armLeft = figure->findChild<SLNode>("left arm group (T3,R2)");
+        armLeft->rotate(-45, -1, 0, 0);
+        anim->createNodeAnimTrackForRotation(armLeft, -60, SLVec3f(1, 0, 0));
+
+        armRight = figure->findChild<SLNode>("right arm group (T4,R3)");
+        armRight->rotate(45, -1, 0, 0);
+        anim->createNodeAnimTrackForRotation(armRight, 60, SLVec3f(1, 0, 0));
     }
 
     return figure;
@@ -349,7 +362,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
     SLApplication::devRot.isUsed(false);
     SLApplication::devLoc.isUsed(false);
 
-    if (SLApplication::sceneID == SID_Empty) //..........................................................
+    if (sceneID == SID_Empty) //...................................................................
     {
         s->name("No Scene loaded.");
         s->info("No Scene loaded.");
@@ -359,11 +372,15 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(nullptr);
         sv->doWaitOnIdle(true);
     }
-    else if (SLApplication::sceneID == SID_Minimal) //...................................................
+    else if (sceneID == SID_Minimal) //............................................................
     {
         // Set scene name and info string
         s->name("Minimal Scene Test");
-        s->info("Minimal texture mapping example with one light source.");
+        s->info("Minimal scene with a texture mapped rectangle with a point light source.\n"
+                "You can find all other test scenes in the menu File > Load Test Scenes. You can jump to the next scene with the Shift-Alt-CursorRight.\n"
+                "You can open various info windows under the menu Infos. You can drag, dock and stack them on all sides.\n"
+                "You can rotate the scene with click and drag on the left mouse button (LMB).\n"
+                "You can zoom in/out with the mousewheel. You can pan with click and drag on the middle mouse button (MMB).\n");
 
         // Create a scene group node
         SLNode* scene = new SLNode("scene node");
@@ -380,12 +397,19 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(light1);
 
         // Create meshes and nodes
-        SLMesh* rectMesh = new SLRectangle(s, SLVec2f(-5, -5), SLVec2f(5, 5), 25, 25, "rectangle mesh", m1);
+        SLMesh* rectMesh = new SLRectangle(s,
+                                           SLVec2f(-5, -5),
+                                           SLVec2f(5, 5),
+                                           25,
+                                           25,
+                                           "rectangle mesh",
+                                           m1);
         SLNode* rectNode = new SLNode(rectMesh, "rectangle node");
         scene->addChild(rectNode);
 
         // Set background color and the root scene node
-        sv->sceneViewCamera()->background().colors(SLCol4f(0.7f, 0.7f, 0.7f), SLCol4f(0.2f, 0.2f, 0.2f));
+        sv->sceneViewCamera()->background().colors(SLCol4f(0.7f, 0.7f, 0.7f),
+                                                   SLCol4f(0.2f, 0.2f, 0.2f));
 
         // pass the scene group as root node
         s->root3D(scene);
@@ -393,30 +417,31 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         // Save energy
         sv->doWaitOnIdle(true);
     }
-    else if (SLApplication::sceneID == SID_Figure) //....................................................
+    else if (sceneID == SID_Figure) //.............................................................
     {
         s->name("Hierarchical Figure Test");
-        s->info("Hierarchical scenegraph with multiple subgroups in the figure. The goal is to visualize how you can design a figure with hierarchical transforms containing only rotations and translations. View the bounding boxes with GL > Bounding Boxes. Try also ray tracing.");
+        s->info("Hierarchical scenegraph with multiple subgroups in the figure. "
+                "The goal is design a figure with hierarchical transforms containing only rotations and translations.\n"
+                "View the bounding boxes with key B. View the mesh as wireframe with key M."
+                "View the objects origin and axis with key X. View the voxels with key V.\n"
+                "Try also ray tracing with key R and come back to OpenGL rendering with key ESC.");
 
         // Create textures and materials
         SLMaterial* m1 = new SLMaterial(s, "m1", SLCol4f::BLACK, SLCol4f::WHITE, 128, 0.2f, 0.8f, 1.5f);
         SLMaterial* m2 = new SLMaterial(s, "m2", SLCol4f::WHITE * 0.3f, SLCol4f::WHITE, 128, 0.5f, 0.0f, 1.0f);
 
-        SLuint  res         = 20;
-        SLMesh* rectangle   = new SLRectangle(s, SLVec2f(-5, -5), SLVec2f(5, 5), res, res, "rectangle", m2);
-        SLNode* floorRect   = new SLNode(rectangle);
-        SLNode* ceilingRect = new SLNode(rectangle);
+        SLuint  res       = 20;
+        SLMesh* rectangle = new SLRectangle(s, SLVec2f(-5, -5), SLVec2f(5, 5), res, res, "rectangle", m2);
+        SLNode* floorRect = new SLNode(rectangle);
         floorRect->rotate(90, -1, 0, 0);
         floorRect->translate(0, 0, -5.5f);
-        ceilingRect->rotate(90, 1, 0, 0);
-        ceilingRect->translate(0, 0, -5.5f);
-        ceilingRect->drawBits()->on(SL_DB_NOTSELECTABLE);
 
         SLCamera* cam1 = new SLCamera("Camera 1");
-        cam1->translation(0, 0, 22);
-        cam1->lookAt(0, 0, 0);
-        cam1->focalDist(22);
-        cam1->background().colors(SLCol4f(0.1f, 0.4f, 0.8f));
+        cam1->translation(-7, 2, 7);
+        cam1->lookAt(0, -2, 0);
+        cam1->focalDist(12);
+        cam1->background().colors(SLCol4f(0.7f, 0.6f, 1.0f),
+                                  SLCol4f(0.1f, 0.4f, 0.8f));
         cam1->setInitialState();
         cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
 
@@ -424,23 +449,26 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         light1->powers(0.2f, 0.9f, 0.9f);
         light1->attenuation(1, 0, 0);
 
-        SLNode* figure = BuildFigureGroup(s, m1, false);
+        SLNode* figure = BuildFigureGroup(s, m1, true);
 
         SLNode* scene = new SLNode("scene node");
         scene->addChild(light1);
         scene->addChild(cam1);
         scene->addChild(floorRect);
-        scene->addChild(ceilingRect);
         scene->addChild(figure);
 
         // Set background color, active camera & the root pointer
         sv->camera(cam1);
         s->root3D(scene);
     }
-    else if (SLApplication::sceneID == SID_MeshLoad) //..................................................
+    else if (sceneID == SID_MeshLoad) //...........................................................
     {
         s->name("Mesh 3D Loader Test");
-        s->info("3D file import test. We use the assimp library to load all 3D file formats including materials, skeletons and animations. ");
+        s->info("We use the assimp library to load 3D file formats including materials, skeletons and animations. "
+                "You can view the skeleton with key K. You can stop all animations with SPACE key.\n"
+                "Switch between perspective and orthographic projection with key 5. "
+                "Switch to front view with key 1, to side view with key 3 and to top view with key 7.\n"
+                "Try the different stereo rendering modes in the menu Camera.");
 
         SLMaterial* matBlu = new SLMaterial(s, "Blue", SLCol4f(0, 0, 0.2f), SLCol4f(1, 1, 1), 100, 0.8f, 0);
         SLMaterial* matRed = new SLMaterial(s, "Red", SLCol4f(0.2f, 0, 0), SLCol4f(1, 1, 1), 100, 0.8f, 0);
@@ -538,7 +566,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(cam1);
         s->root3D(scene);
     }
-    else if (SLApplication::sceneID == SID_Revolver) //..................................................
+    else if (sceneID == SID_Revolver) //...........................................................
     {
         s->name("Revolving Mesh Test");
         s->info("Examples of revolving mesh objects constructed by rotating a 2D curve. The glass shader reflects and refracts the environment map. Try ray tracing.");
@@ -572,7 +600,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                                             SLApplication::texturePath + "bricks1_0256_C.jpg");
         SLMaterial*  mat5 = new SLMaterial(s, "glass", SLCol4f::BLACK, SLCol4f::WHITE, 255, 0.1f, 0.9f, 1.5f);
         mat5->textures().push_back(tex5);
-        SLGLProgram* sp1 = new SLGLGenericProgram(s, SLApplication::shaderPath + "RefractReflect.vert", SLApplication::shaderPath + "RefractReflect.frag");
+        SLGLProgram* sp1 = new SLGLProgramGeneric(s, SLApplication::shaderPath + "RefractReflect.vert", SLApplication::shaderPath + "RefractReflect.frag");
         mat5->program(sp1);
 
         // Wine material
@@ -700,10 +728,10 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(cam1);
         s->root3D(scene);
     }
-    else if (SLApplication::sceneID == SID_TextureBlend) //..............................................
+    else if (sceneID == SID_TextureBlend) //.......................................................
     {
         s->name("Texture Blending Test");
-        s->info("Texture map blending with depth sorting. Trees in view frustum are rendered back to front.");
+        s->info("Texture map blending with depth sorting. Transparent tree rectangles in view frustum are rendered back to front. You can turn on/off alpha sorting in the menu Preferences of press key J.");
 
         SLGLTexture* t1 = new SLGLTexture(s,
                                           SLApplication::texturePath + "tree1_1024_C.png",
@@ -720,9 +748,9 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLMaterial* m1 = new SLMaterial(s, "m1", SLCol4f(1, 1, 1), SLCol4f(0, 0, 0), 100);
         SLMaterial* m2 = new SLMaterial(s, "m2", SLCol4f(1, 1, 1), SLCol4f(0, 0, 0), 100);
 
-        SLGLProgram* sp = new SLGLGenericProgram(s,
-                                                 SLApplication::shaderPath + "PerVrtTextureOnly.vert",
-                                                 SLApplication::shaderPath + "PerVrtTextureOnly.frag");
+        SLGLProgram* sp = new SLGLProgramGeneric(s,
+                                                 SLApplication::shaderPath + "PerVrtTm.vert",
+                                                 SLApplication::shaderPath + "PerVrtTm.frag");
         m1->program(sp);
         m1->textures().push_back(t1);
         m2->textures().push_back(t2);
@@ -824,10 +852,12 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(cam1);
         s->root3D(scene);
     }
-    else if (SLApplication::sceneID == SID_TextureFilter) //.............................................
+    else if (sceneID == SID_TextureFilter) //......................................................
     {
         s->name("Texture Filer Test");
-        s->info("Texture filters: Bottom: nearest, left: linear, top: linear mipmap, right: anisotropic");
+        s->info("Texture minification filters: "
+                "Bottom: nearest, left: linear, top: linear mipmap, right: anisotropic. "
+                "The center sphere uses a 3D texture with linear filtering.");
 
         // Create 4 textures with different filter modes
         SLGLTexture* texB = new SLGLTexture(s, SLApplication::texturePath + "brick0512_C.png", GL_NEAREST, GL_NEAREST);
@@ -879,7 +909,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLVstring tex3DFiles;
         for (SLint i = 0; i < 256; ++i) tex3DFiles.push_back(SLApplication::texturePath + "Wave_radial10_256C.jpg");
         SLGLTexture* tex3D = new SLGLTexture(s, tex3DFiles);
-        SLGLProgram* spr3D = new SLGLGenericProgram(s, SLApplication::shaderPath + "TextureOnly3D.vert", SLApplication::shaderPath + "TextureOnly3D.frag");
+        SLGLProgram* spr3D = new SLGLProgramGeneric(s, SLApplication::shaderPath + "TextureOnly3D.vert", SLApplication::shaderPath + "TextureOnly3D.frag");
         SLMaterial*  mat3D = new SLMaterial(s, "mat3D", tex3D, nullptr, nullptr, nullptr, spr3D);
 
         // Create 3D textured pyramid mesh and node
@@ -911,10 +941,11 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(cam1);
         s->root3D(scene);
     }
-    else if (SLApplication::sceneID == SID_FrustumCull) //...............................................
+    else if (sceneID == SID_FrustumCull) //........................................................
     {
         s->name("Frustum Culling Test");
-        s->info("View frustum culling: Only objects in view frustum are rendered. You can turn view culling off in the render flags.");
+        s->info("View frustum culling: Only objects in view are rendered. "
+                "You can turn view frustum culling on/off in the menu Preferences or with the key F.");
 
         // create texture
         SLGLTexture* tex  = new SLGLTexture(s, SLApplication::texturePath + "earth1024_C.jpg");
@@ -968,7 +999,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->doWaitOnIdle(false);
         s->root3D(scene);
     }
-    else if (SLApplication::sceneID == SID_2Dand3DText) //...............................................
+    else if (sceneID == SID_2Dand3DText) //........................................................
     {
         s->name("2D & 3D Text Test");
         s->info("All 3D objects are in the _root3D scene and the center text is in the _root2D scene and rendered in orthographic projection in screen space.");
@@ -1048,10 +1079,12 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->root3D(scene3D);
         s->root2D(scene2D);
     }
-    else if (SLApplication::sceneID == SID_PointClouds) //...............................................
+    else if (sceneID == SID_PointClouds) //........................................................
     {
         s->name("Point Clouds Test");
-        s->info("Point Clouds with normal and uniform distribution");
+        s->info("Point Clouds with normal and uniform distribution. "
+                "You can select vertices with rectangle select (CTRL-LMB) "
+                "and deselect selected with ALT-LMB.");
 
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->clipNear(0.1f);
@@ -1068,7 +1101,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         light1->attenuation(1, 0, 0);
 
         SLMaterial* pcMat1 = new SLMaterial(s, "Red", SLCol4f::RED);
-        pcMat1->program(new SLGLGenericProgram(s,
+        pcMat1->program(new SLGLProgramGeneric(s,
                                                SLApplication::shaderPath + "ColorUniformPoint.vert",
                                                SLApplication::shaderPath + "Color.frag"));
         pcMat1->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 4.0f));
@@ -1077,7 +1110,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         pc1->translate(-5, 0, 0);
 
         SLMaterial* pcMat2 = new SLMaterial(s, "Green", SLCol4f::GREEN);
-        pcMat2->program(new SLGLGenericProgram(s,
+        pcMat2->program(new SLGLProgramGeneric(s,
                                                SLApplication::shaderPath + "ColorUniformPoint.vert",
                                                SLApplication::shaderPath + "Color.frag"));
         pcMat2->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 1.0f));
@@ -1096,22 +1129,15 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->root3D(scene);
     }
 
-    else if (SLApplication::sceneID == SID_ShaderPerPixelBlinn ||
-             SLApplication::sceneID == SID_ShaderPerVertexBlinn) //......................................
+    else if (sceneID == SID_ShaderPerPixelBlinn ||
+             sceneID == SID_ShaderPerVertexBlinn) //...............................................
     {
-        SLMaterial*  mL = nullptr;
-        SLMaterial*  mM = nullptr;
-        SLMaterial*  mR = nullptr;
-        SLGLProgram* pL = new SLGLGenericProgram(s,
-                                                 SLApplication::shaderPath + "PerPixBlinnTex.vert",
-                                                 SLApplication::shaderPath + "PerPixBlinnTex.frag");
-        SLGLProgram* pM = new SLGLGenericProgram(s,
-                                                 SLApplication::shaderPath + "PerPixBlinn.vert",
-                                                 SLApplication::shaderPath + "PerPixBlinn.frag");
-
+        SLMaterial*  mL   = nullptr;
+        SLMaterial*  mM   = nullptr;
+        SLMaterial*  mR   = nullptr;
         SLGLTexture* texC = new SLGLTexture(s, SLApplication::texturePath + "earth2048_C.jpg"); // color map
 
-        if (SLApplication::sceneID == SID_ShaderPerPixelBlinn)
+        if (sceneID == SID_ShaderPerPixelBlinn)
         {
             s->name("Blinn-Phong per pixel lighting");
             s->info("Per-pixel lighting with Blinn-Phong light model. "
@@ -1119,15 +1145,15 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                     "Some of the lights are attached to the camera, some are in the scene.");
             SLGLTexture*   texN   = new SLGLTexture(s, SLApplication::texturePath + "earth2048_N.jpg"); // normal map
             SLGLTexture*   texH   = new SLGLTexture(s, SLApplication::texturePath + "earth2048_H.jpg"); // height map
-            SLGLProgram*   pR     = new SLGLGenericProgram(s,
-                                                     SLApplication::shaderPath + "PerPixBlinnTexNrm.vert",
-                                                     SLApplication::shaderPath + "PerPixBlinnTexNrmParallax.frag");
+            SLGLProgram*   pR     = new SLGLProgramGeneric(s,
+                                                     SLApplication::shaderPath + "PerPixBlinnTmNm.vert",
+                                                     SLApplication::shaderPath + "PerPixBlinnTmPm.frag");
             SLGLUniform1f* scale  = new SLGLUniform1f(UT_const, "u_scale", 0.02f, 0.002f, 0, 1);
             SLGLUniform1f* offset = new SLGLUniform1f(UT_const, "u_offset", -0.02f, 0.002f, -1, 1);
             pR->addUniform1f(scale);
             pR->addUniform1f(offset);
-            mL = new SLMaterial(s, "mL", texC, nullptr, nullptr, nullptr, pL);
-            mM = new SLMaterial(s, "mM", nullptr, nullptr, nullptr, nullptr, pM);
+            mL = new SLMaterial(s, "mL", texC);
+            mM = new SLMaterial(s, "mM");
             mR = new SLMaterial(s, "mR", texC, texN, texH, nullptr, pR);
         }
         else
@@ -1136,9 +1162,15 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
             s->info("Per-vertex lighting with Blinn-Phong light model. "
                     "The reflection of 5 light sources is calculated per vertex. "
                     "Some of the lights are attached to the camera, some are in the scene.");
-            mL = new SLMaterial(s, "mL", texC);
-            mM = new SLMaterial(s, "mM");
-            mR = new SLMaterial(s, "mR", texC);
+            SLGLProgram* perVrtTm = new SLGLProgramGeneric(s,
+                                                           SLApplication::shaderPath + "PerVrtBlinnTm.vert",
+                                                           SLApplication::shaderPath + "PerVrtBlinnTm.frag");
+            SLGLProgram* perVrt   = new SLGLProgramGeneric(s,
+                                                         SLApplication::shaderPath + "PerVrtBlinn.vert",
+                                                         SLApplication::shaderPath + "PerVrtBlinn.frag");
+            mL                    = new SLMaterial(s, "mL", texC, nullptr, nullptr, nullptr, perVrtTm);
+            mM                    = new SLMaterial(s, "mM", perVrt);
+            mR                    = new SLMaterial(s, "mR", texC, nullptr, nullptr, nullptr, perVrtTm);
         }
 
         mM->shininess(500);
@@ -1227,7 +1259,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(cam1);
         s->root3D(scene);
     }
-    else if (SLApplication::sceneID == SID_ShaderCook) //................................................
+    else if (sceneID == SID_ShaderCook) //.........................................................
     {
         s->name("Cook-Torrance Test");
         s->info("Cook-Torrance light model. Left-Right: roughness 0.05-1, Top-Down: metallic: 1-0. The center sphere has roughness and metallic encoded in textures.");
@@ -1253,13 +1285,13 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLfloat     deltaR  = 1.0f / (float)(nrRows - 1);
         SLfloat     deltaM  = 1.0f / (float)(nrCols - 1);
 
-        SLGLProgram* sp = new SLGLGenericProgram(s,
+        SLGLProgram* sp = new SLGLProgramGeneric(s,
                                                  SLApplication::shaderPath + "PerPixCook.vert",
                                                  SLApplication::shaderPath + "PerPixCook.frag");
 
-        SLGLProgram* spTex = new SLGLGenericProgram(s,
-                                                    SLApplication::shaderPath + "PerPixCookTex.vert",
-                                                    SLApplication::shaderPath + "PerPixCookTex.frag");
+        SLGLProgram* spTex = new SLGLProgramGeneric(s,
+                                                    SLApplication::shaderPath + "PerPixCookTm.vert",
+                                                    SLApplication::shaderPath + "PerPixCookTm.frag");
 
         SLMaterial* mat[nrRows * nrCols];
         SLint       i = 0;
@@ -1321,7 +1353,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(cam1);
         s->root3D(scene);
     }
-    else if (SLApplication::sceneID == SID_ShaderPerVertexWave) //.......................................
+    else if (sceneID == SID_ShaderPerVertexWave) //................................................
     {
         s->name("Wave Shader Test");
         s->info("Vertex Shader with wave displacment.");
@@ -1336,7 +1368,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
 
         // Create generic shader program with 4 custom uniforms
-        SLGLProgram*   sp  = new SLGLGenericProgram(s, SLApplication::shaderPath + "Wave.vert", SLApplication::shaderPath + "Wave.frag");
+        SLGLProgram*   sp  = new SLGLProgramGeneric(s, SLApplication::shaderPath + "Wave.vert", SLApplication::shaderPath + "Wave.frag");
         SLGLUniform1f* u_h = new SLGLUniform1f(UT_const, "u_h", 0.1f, 0.05f, 0.0f, 0.5f, (SLKey)'H');
         s->eventHandlers().push_back(u_h);
         sp->addUniform1f(u_h);
@@ -1368,7 +1400,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->root3D(scene);
         sv->doWaitOnIdle(false);
     }
-    else if (SLApplication::sceneID == SID_ShaderWater) //...............................................
+    else if (sceneID == SID_ShaderWater) //........................................................
     {
         s->name("Water Shader Test");
         s->info("Water Shader with reflection & refraction mapping.");
@@ -1393,7 +1425,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLGLTexture* tex2 = new SLGLTexture(s, SLApplication::texturePath + "tile1_0256_C.jpg");
 
         // Create generic shader program with 4 custom uniforms
-        SLGLProgram*   sp  = new SLGLGenericProgram(s, SLApplication::shaderPath + "WaveRefractReflect.vert", SLApplication::shaderPath + "RefractReflect.frag");
+        SLGLProgram*   sp  = new SLGLProgramGeneric(s, SLApplication::shaderPath + "WaveRefractReflect.vert", SLApplication::shaderPath + "RefractReflect.frag");
         SLGLUniform1f* u_h = new SLGLUniform1f(UT_const, "u_h", 0.1f, 0.05f, 0.0f, 0.5f, (SLKey)'H');
         s->eventHandlers().push_back(u_h);
         sp->addUniform1f(u_h);
@@ -1461,7 +1493,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->root3D(scene);
         sv->doWaitOnIdle(false);
     }
-    else if (SLApplication::sceneID == SID_ShaderBumpNormal) //..........................................
+    else if (sceneID == SID_ShaderBumpNormal) //...................................................
     {
         s->name("Normal Map Test");
         s->info("Normal map bump mapping combined with a spot and a directional lighting.");
@@ -1470,18 +1502,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLGLTexture* texC = new SLGLTexture(s, SLApplication::texturePath + "brickwall0512_C.jpg");
         SLGLTexture* texN = new SLGLTexture(s, SLApplication::texturePath + "brickwall0512_N.jpg");
 
-        SLGLProgram* sp = new SLGLGenericProgram(s,
-                                                 SLApplication::shaderPath + "PerPixBlinnTexNrm.vert",
-                                                 SLApplication::shaderPath + "PerPixBlinnTexNrm.frag");
-
         // Create materials
-        SLMaterial* m1 = new SLMaterial(s,
-                                        "m1",
-                                        texC,
-                                        texN,
-                                        nullptr,
-                                        nullptr,
-                                        sp);
+        SLMaterial* m1 = new SLMaterial(s, "m1", texC, texN);
 
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(-10, 10, 10);
@@ -1516,7 +1538,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(cam1);
         s->root3D(scene);
     }
-    else if (SLApplication::sceneID == SID_ShaderBumpParallax) //........................................
+    else if (sceneID == SID_ShaderBumpParallax) //.................................................
     {
         s->name("Parallax Map Test");
         s->info("Normal map parallax mapping with a spot and a directional light");
@@ -1525,7 +1547,9 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SL_LOG("Use O-Key to increment (decrement w. shift) parallax offset.\n");
 
         // Create shader program with 4 uniforms
-        SLGLProgram*   sp     = new SLGLGenericProgram(s, SLApplication::shaderPath + "PerPixBlinnTexNrm.vert", SLApplication::shaderPath + "PerPixBlinnTexNrmParallax.frag");
+        SLGLProgram*   sp     = new SLGLProgramGeneric(s,
+                                                 SLApplication::shaderPath + "PerPixBlinnTmNm.vert",
+                                                 SLApplication::shaderPath + "PerPixBlinnTmPm.frag");
         SLGLUniform1f* scale  = new SLGLUniform1f(UT_const, "u_scale", 0.04f, 0.002f, 0, 1, (SLKey)'X');
         SLGLUniform1f* offset = new SLGLUniform1f(UT_const, "u_offset", -0.03f, 0.002f, -1, 1, (SLKey)'O');
         s->eventHandlers().push_back(scale);
@@ -1574,7 +1598,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(cam1);
         s->root3D(scene);
     }
-    else if (SLApplication::sceneID == SID_ShaderSkyBox) //..............................................
+    else if (sceneID == SID_ShaderSkyBox) //.......................................................
     {
         // Set scene name and info string
         s->name("Sky Box Test");
@@ -1594,14 +1618,14 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         // Material for mirror
         SLMaterial* refl = new SLMaterial(s, "refl", SLCol4f::BLACK, SLCol4f::WHITE, 1000, 1.0f);
         refl->textures().push_back(skyboxTex);
-        refl->program(new SLGLGenericProgram(s, SLApplication::shaderPath + "Reflect.vert", SLApplication::shaderPath + "Reflect.frag"));
+        refl->program(new SLGLProgramGeneric(s, SLApplication::shaderPath + "Reflect.vert", SLApplication::shaderPath + "Reflect.frag"));
 
         // Material for glass
         SLMaterial* refr = new SLMaterial(s, "refr", SLCol4f::BLACK, SLCol4f::BLACK, 100, 0.1f, 0.9f, 1.5f);
         refr->translucency(1000);
         refr->transmissive(SLCol4f::WHITE);
         refr->textures().push_back(skyboxTex);
-        refr->program(new SLGLGenericProgram(s, SLApplication::shaderPath + "RefractReflect.vert", SLApplication::shaderPath + "RefractReflect.frag"));
+        refr->program(new SLGLProgramGeneric(s, SLApplication::shaderPath + "RefractReflect.vert", SLApplication::shaderPath + "RefractReflect.frag"));
 
         // Create a scene group node
         SLNode* scene = new SLNode("scene node");
@@ -1646,7 +1670,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         // Save energy
         sv->doWaitOnIdle(true);
     }
-    else if (SLApplication::sceneID == SID_ShaderEarth) //...............................................
+    else if (sceneID == SID_ShaderEarth) //........................................................
     {
         s->name("Earth Shader Test");
         s->info("Complex earth shader with 7 textures: day color, night color, normal, height & gloss map of earth, color & alphamap of clouds");
@@ -1655,7 +1679,9 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SL_LOG("Use (SHIFT) & key O to change offset of the parallax mapping");
 
         // Create shader program with 4 uniforms
-        SLGLProgram*   sp     = new SLGLGenericProgram(s, SLApplication::shaderPath + "PerPixBlinnTexNrm.vert", SLApplication::shaderPath + "PerPixBlinnTexNrmEarth.frag");
+        SLGLProgram*   sp     = new SLGLProgramGeneric(s,
+                                                 SLApplication::shaderPath + "PerPixBlinnTmNm.vert",
+                                                 SLApplication::shaderPath + "PerPixBlinnTmNmEarth.frag");
         SLGLUniform1f* scale  = new SLGLUniform1f(UT_const, "u_scale", 0.02f, 0.002f, 0, 1, (SLKey)'X');
         SLGLUniform1f* offset = new SLGLUniform1f(UT_const, "u_offset", -0.02f, 0.002f, -1, 1, (SLKey)'O');
         s->eventHandlers().push_back(scale);
@@ -1707,7 +1733,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(cam1);
         s->root3D(scene);
     }
-    else if (SLApplication::sceneID == SID_ShaderVoxelConeDemo) //.......................................
+    else if (sceneID == SID_ShaderVoxelConeDemo) //................................................
     {
         s->name("Voxelization Test");
         s->info("Voxelizing a Scnene and Display result");
@@ -1731,12 +1757,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLCol4f blueRGB(0.25f, 0.25f, 0.75f);
         SLCol4f blackRGB(0.00f, 0.00f, 0.00f);
 
-        SLGLProgram* sp = new SLGLGenericProgram(s,
-                                                 SLApplication::shaderPath + "PerPixBlinn.vert",
-                                                 SLApplication::shaderPath + "PerPixBlinn.frag");
-
-        SLMaterial* cream     = new SLMaterial(s, "cream", grayRGB, SLCol4f::BLACK, 100.f, 0.f, 0.f, 1.f, sp);
-        SLMaterial* teapotMat = new SLMaterial(s, "teapot", grayRGB, SLCol4f::WHITE, 100.f, 0.f, 0.f, 1.f, sp);
+        SLMaterial* cream     = new SLMaterial(s, "cream", grayRGB, SLCol4f::BLACK, 100.f, 0.f, 0.f, 1.f);
+        SLMaterial* teapotMat = new SLMaterial(s, "teapot", grayRGB, SLCol4f::WHITE, 100.f, 0.f, 0.f, 1.f);
 
         SLAssimpImporter importer;
         SLNode*          teapot = importer.load(s->animManager(),
@@ -1750,8 +1772,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         teapot->translate(-0.6f, -0.2f, -0.4f, TS_world);
         scene->addChild(teapot);
 
-        SLMaterial* red    = new SLMaterial(s, "red", redRGB, SLCol4f::BLACK, 100.f, 0.f, 0.f, 1.f, sp);
-        SLMaterial* yellow = new SLMaterial(s, "yellow", yellowRGB, SLCol4f::BLACK, 100.f, 0.f, 0.f, 1.f, sp);
+        SLMaterial* red    = new SLMaterial(s, "red", redRGB, SLCol4f::BLACK, 100.f, 0.f, 0.f, 1.f);
+        SLMaterial* yellow = new SLMaterial(s, "yellow", yellowRGB, SLCol4f::BLACK, 100.f, 0.f, 0.f, 1.f);
         SLMaterial* refl   = new SLMaterial(s, "refl", SLCol4f::BLACK, SLCol4f::WHITE, 1000, 1.0f);
 
         SLNode* sphere = new SLNode(new SLSphere(s, 0.3f, 32, 32, "Sphere1", refl));
@@ -1776,14 +1798,14 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLTransformKeyframe* k3 = track->createNodeKeyframe(5.0f);
         k3->translation(SLVec3f(0.3f, 0.2f, -0.3f));
 
-        SLMaterial* pink = new SLMaterial(s, "cream", SLCol4f(1, 0.35f, 0.65f), SLCol4f::BLACK, 100.f, 0.f, 0.f, 1.f, sp);
+        SLMaterial* pink = new SLMaterial(s, "cream", SLCol4f(1, 0.35f, 0.65f), SLCol4f::BLACK, 100.f, 0.f, 0.f, 1.f);
 
         // create wall polygons
         SLfloat pL = -0.99f, pR = 0.99f; // left/right
         SLfloat pB = -0.99f, pT = 0.99f; // bottom/top
         SLfloat pN = 0.99f, pF = -0.99f; // near/far
 
-        SLMaterial* blue = new SLMaterial(s, "blue", blueRGB, SLCol4f::BLACK, 100.f, 0.f, 0.f, 1.f, sp);
+        SLMaterial* blue = new SLMaterial(s, "blue", blueRGB, SLCol4f::BLACK, 100.f, 0.f, 0.f, 1.f);
 
         // bottom plane
         SLNode* b = new SLNode(new SLRectangle(s, SLVec2f(pL, -pN), SLVec2f(pR, -pF), 6, 6, "bottom", cream));
@@ -1830,16 +1852,16 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->root3D(scene);
     }
 
-    else if (SLApplication::sceneID == SID_ShadowMappingBasicScene) //...................................
+    else if (sceneID == SID_ShadowMappingBasicScene) //............................................
     {
         s->name("Shadow Mapping Basic Scene");
         s->info("Shadow Mapping is a technique to render shadows.");
 
         // Setup shadow mapping material
-        SLGLProgram* progPerPixSM = new SLGLGenericProgram(s,
-                                                           SLApplication::shaderPath + "PerPixBlinnSM.vert",
-                                                           SLApplication::shaderPath + "PerPixBlinnSM.frag");
-        SLMaterial*  matPerPixSM  = new SLMaterial(s, "m1", SLCol4f::WHITE, SLCol4f::WHITE, 500, 0, 0, 1, progPerPixSM);
+        //SLGLProgram* progPerPixSM = new SLGLProgramGeneric(s,
+        //                                                   SLApplication::shaderPath + "PerPixBlinnSm.vert",
+        //                                                   SLApplication::shaderPath + "PerPixBlinnSm.frag");
+        SLMaterial* matPerPixSM = new SLMaterial(s, "m1"); //, SLCol4f::WHITE, SLCol4f::WHITE, 500, 0, 0, 1, progPerPixSM);
 
         // Base root group node for the scene
         SLNode* scene = new SLNode;
@@ -1882,16 +1904,12 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(cam1);
         s->root3D(scene);
     }
-    else if (SLApplication::sceneID == SID_ShadowMappingLightTypes) //...................................
+    else if (sceneID == SID_ShadowMappingLightTypes) //............................................
     {
         s->name("Shadow Mapping light types");
         s->info("Shadow Mapping is implemented for these light types.");
 
-        // Setup shadow mapping material
-        SLGLProgram* progPerPixSM = new SLGLGenericProgram(s,
-                                                           SLApplication::shaderPath + "PerPixBlinnSM.vert",
-                                                           SLApplication::shaderPath + "PerPixBlinnSM8CM.frag");
-        SLMaterial*  matPerPixSM  = new SLMaterial(s, "m1", SLCol4f::WHITE, SLCol4f::WHITE, 500, 0, 0, 1, progPerPixSM);
+        SLMaterial* mat1 = new SLMaterial(s, "mat1");
 
         // Base root group node for the scene
         SLNode* scene = new SLNode;
@@ -1905,7 +1923,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(cam1);
 
         // Create light sources
-        std::vector<SLLight*> lights = {
+        vector<SLLight*> lights = {
           new SLLightDirect(s, s),
           new SLLightRect(s, s),
           new SLLightSpot(s, s, 0.3f, 25.0f),
@@ -1948,7 +1966,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                                             SLApplication::modelPath + "FBX/Teapot/Teapot.fbx",
                                             SLApplication::texturePath,
                                             true,
-                                            matPerPixSM);
+                                            mat1);
 
         for (SLLight* light : lights)
         {
@@ -1980,23 +1998,23 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         // Add a box which receives shadows
         SLfloat minx    = lights.front()->positionWS().x - 3;
         SLfloat maxx    = lights.back()->positionWS().x + 3;
-        SLNode* boxNode = new SLNode(new SLBox(s, minx, -1, -5, maxx, 0, 5, "Box", matPerPixSM));
+        SLNode* boxNode = new SLNode(new SLBox(s, minx, -1, -5, maxx, 0, 5, "Box", mat1));
         boxNode->castsShadows(false);
         scene->addChild(boxNode);
 
         sv->camera(cam1);
         s->root3D(scene);
     }
-    else if (SLApplication::sceneID == SID_ShadowMappingSpotLights) //...................................
+    else if (sceneID == SID_ShadowMappingSpotLights) //............................................
     {
         s->name("Shadow Mapping for Spot lights");
         s->info("8 Spot lights use a perspective projection for their light space.");
 
         // Setup shadow mapping material
-        SLGLProgram* progPerPixSM = new SLGLGenericProgram(s,
-                                                           SLApplication::shaderPath + "PerPixBlinnSM.vert",
-                                                           SLApplication::shaderPath + "PerPixBlinnSM8CM.frag");
-        SLMaterial*  matPerPixSM  = new SLMaterial(s, "m1", SLCol4f::WHITE, SLCol4f::WHITE, 500, 0, 0, 1, progPerPixSM);
+        //SLGLProgram* progPerPixSM = new SLGLProgramGeneric(s,
+        //                                                   SLApplication::shaderPath + "PerPixBlinnSm.vert",
+        //                                                   SLApplication::shaderPath + "PerPixBlinnSm8Cm.frag");
+        SLMaterial* matPerPixSM = new SLMaterial(s, "m1"); //, SLCol4f::WHITE, SLCol4f::WHITE, 500, 0, 0, 1, progPerPixSM);
 
         // Base root group node for the scene
         SLNode* scene = new SLNode;
@@ -2044,16 +2062,16 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(cam1);
         s->root3D(scene);
     }
-    else if (SLApplication::sceneID == SID_ShadowMappingPointLights) //..................................
+    else if (sceneID == SID_ShadowMappingPointLights) //...........................................
     {
         s->name("Shadow Mapping for point lights");
         s->info("Point lights use cubemaps to store shadow maps.");
 
         // Setup shadow mapping material
-        SLGLProgram* progPerPixSM = new SLGLGenericProgram(s,
-                                                           SLApplication::shaderPath + "PerPixBlinnSM.vert",
-                                                           SLApplication::shaderPath + "PerPixBlinnSM8CM.frag");
-        SLMaterial*  matPerPixSM  = new SLMaterial(s, "m1", SLCol4f::WHITE, SLCol4f::WHITE, 500, 0, 0, 1, progPerPixSM);
+        //SLGLProgram* progPerPixSM = new SLGLProgramGeneric(s,
+        //                                                   SLApplication::shaderPath + "PerPixBlinnSm.vert",
+        //                                                   SLApplication::shaderPath + "PerPixBlinnSm8Cm.frag");
+        SLMaterial* matPerPixSM = new SLMaterial(s, "m1"); //, SLCol4f::WHITE, SLCol4f::WHITE, 500, 0, 0, 1, progPerPixSM);
 
         // Base root group node for the scene
         SLNode* scene = new SLNode;
@@ -2143,11 +2161,29 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(cam1);
         s->root3D(scene);
     }
-
-    else if (SLApplication::sceneID == SID_SuzannePerPixBlinn) //........................................
+    else if (sceneID >= SID_SuzannePerPixBlinn &&
+             sceneID <= SID_SuzannePerPixBlinnTmNmAoSm)
     {
         // Set scene name and info string
-        s->name("Suzanne with per pixel lighting");
+        switch (sceneID)
+        {
+            case SID_SuzannePerPixBlinn: s->name("Suzanne with per pixel lighting and reflection colors"); break;
+            case SID_SuzannePerPixBlinnTm: s->name("Suzanne with per pixel lighting and texture mapping"); break;
+            case SID_SuzannePerPixBlinnNm: s->name("Suzanne with per pixel lighting and normal mapping"); break;
+            case SID_SuzannePerPixBlinnAo: s->name("Suzanne with per pixel lighting and ambient occlusion"); break;
+            case SID_SuzannePerPixBlinnSm: s->name("Suzanne with per pixel lighting and shadow mapping"); break;
+            case SID_SuzannePerPixBlinnTmNm: s->name("Suzanne with per pixel lighting, texture and normal mapping"); break;
+            case SID_SuzannePerPixBlinnTmAo: s->name("Suzanne with per pixel lighting, texture mapping and ambient occlusion"); break;
+            case SID_SuzannePerPixBlinnNmAo: s->name("Suzanne with per pixel lighting, normal mapping and ambient occlusion"); break;
+            case SID_SuzannePerPixBlinnTmSm: s->name("Suzanne with per pixel lighting, texture mapping and shadow mapping"); break;
+            case SID_SuzannePerPixBlinnNmSm: s->name("Suzanne with per pixel lighting, normal mapping and shadow mapping"); break;
+            case SID_SuzannePerPixBlinnAoSm: s->name("Suzanne with per pixel lighting, ambient occlusion and shadow mapping"); break;
+            case SID_SuzannePerPixBlinnTmNmAo: s->name("Suzanne with per pixel lighting and diffuse, normal, ambient occlusion and shadow mapping"); break;
+            case SID_SuzannePerPixBlinnTmNmSm: s->name("Suzanne with per pixel lighting and diffuse, normal and shadow mapping "); break;
+            case SID_SuzannePerPixBlinnTmNmAoSm: s->name("Suzanne with per pixel lighting and diffuse, normal, ambient occlusion and shadow mapping"); break;
+            default: SL_EXIT_MSG("Unknown scene id!");
+        }
+
         s->info(s->name());
 
         // Create a scene group node
@@ -2158,19 +2194,32 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->translation(0, 0.5f, 3);
         cam1->lookAt(0, 0.5f, 0);
         cam1->setInitialState();
-        cam1->focalDist(2);
+        cam1->focalDist(3);
         scene->addChild(cam1);
 
         // Create directional light for the sun light
         SLLightDirect* light = new SLLightDirect(s, s, 0.1f);
-        light->ambientPower(0.5f);
-        light->diffusePower(0.5f);
+        light->ambientPower(0.6f);
+        light->diffusePower(0.6f);
         light->attenuation(1, 0, 0);
         light->translate(0, 0, 0.5);
         light->lookAt(1, -1, 0.5);
         SLAnimation* lightAnim = s->animManager().createNodeAnimation("LightAnim", 4.0f, true, EC_inOutSine, AL_pingPongLoop);
         lightAnim->createNodeAnimTrackForRotation(light, -180, SLVec3f(0, 1, 0));
         scene->addChild(light);
+
+        // Add shadow mapping
+        if (sceneID == SID_SuzannePerPixBlinnSm ||
+            sceneID == SID_SuzannePerPixBlinnTmSm ||
+            sceneID == SID_SuzannePerPixBlinnNmSm ||
+            sceneID == SID_SuzannePerPixBlinnAoSm ||
+            sceneID == SID_SuzannePerPixBlinnTmNmSm ||
+            sceneID == SID_SuzannePerPixBlinnTmNmAoSm)
+        {
+            light->createsShadows(true);
+            light->createShadowMap(-3, 3, SLVec2f(5, 5), SLVec2i(2048, 2048));
+            light->doSmoothShadows(true);
+        }
 
         // load teapot
         SLAssimpImporter importer;
@@ -2182,402 +2231,91 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                                               nullptr, // override material
                                               0.5f);   // ambient factor
 
-        // Setup shadow mapping material and replace shader from loader
-        SLGLProgram* progPerPixNrm = new SLGLGenericProgram(s,
-                                                            SLApplication::shaderPath + "PerPixBlinn.vert",
-                                                            SLApplication::shaderPath + "PerPixBlinn.frag");
-        auto         updateMat     = [=](SLMaterial* mat) { mat->program(progPerPixNrm); };
-        suzanneInCube->updateMeshMat(updateMat, true);
+        SLCol4f stoneColor(0.56f, 0.50f, 0.44f);
 
-        scene->addChild(suzanneInCube);
-
-        sv->camera(cam1);
-
-        // pass the scene group as root node
-        s->root3D(scene);
-
-        // Save energy
-        sv->doWaitOnIdle(true);
-    }
-    else if (SLApplication::sceneID == SID_SuzannePerPixBlinnSM) //......................................
-    {
-        // Set scene name and info string
-        s->name("Suzanne with per pixel lighting and shadow mapping");
-        s->info(s->name());
-
-        // Create a scene group node
-        SLNode* scene = new SLNode("scene node");
-
-        // Create camera in the center
-        SLCamera* cam1 = new SLCamera("Camera 1");
-        cam1->translation(0, 0.5f, 3);
-        cam1->lookAt(0, 0.5f, 0);
-        cam1->setInitialState();
-        cam1->focalDist(2);
-        scene->addChild(cam1);
-
-        // Create directional light for the sun light
-        SLLightDirect* light = new SLLightDirect(s, s, 0.1f);
-        light->ambientPower(0.5f);
-        light->diffusePower(0.5f);
-        light->attenuation(1, 0, 0);
-        light->translate(0, 0, 0.5);
-        light->lookAt(1, -1, 0.5);
-        light->createsShadows(true);
-        light->createShadowMap(-3, 3, SLVec2f(5, 5), SLVec2i(2048, 2048));
-        light->doSmoothShadows(true);
-        SLAnimation* lightAnim = s->animManager().createNodeAnimation("LightAnim", 4.0f, true, EC_inOutSine, AL_pingPongLoop);
-        lightAnim->createNodeAnimTrackForRotation(light, -180, SLVec3f(0, 1, 0));
-        scene->addChild(light);
-
-        // load teapot
-        SLAssimpImporter importer;
-        SLNode*          suzanneInCube = importer.load(s->animManager(),
-                                              s,
-                                              SLApplication::modelPath + "GLTF/AO-Baked-Test/AO-Baked-Test.gltf",
-                                              SLApplication::texturePath,
-                                              true,    // load meshes only
-                                              nullptr, // override material
-                                              0.5f);   // ambient factor
-
-        // Setup shadow mapping material and replace shader from loader
-        SLGLProgram* progPerPixNrm = new SLGLGenericProgram(s,
-                                                            SLApplication::shaderPath + "PerPixBlinnSM.vert",
-                                                            SLApplication::shaderPath + "PerPixBlinnSM.frag");
-        auto         updateMat     = [=](SLMaterial* mat) { mat->program(progPerPixNrm); };
-        suzanneInCube->updateMeshMat(updateMat, true);
-
-        scene->addChild(suzanneInCube);
-
-        sv->camera(cam1);
-
-        // pass the scene group as root node
-        s->root3D(scene);
-
-        // Save energy
-        sv->doWaitOnIdle(true);
-    }
-    else if (SLApplication::sceneID == SID_SuzannePerPixBlinnSMAO) //....................................
-    {
-        // Set scene name and info string
-        s->name("Suzanne with per pixel lighting, shadow mapping and ambient occlusion");
-        s->info(s->name());
-
-        // Create a scene group node
-        SLNode* scene = new SLNode("scene node");
-
-        // Create camera in the center
-        SLCamera* cam1 = new SLCamera("Camera 1");
-        cam1->translation(0, 0.5f, 3);
-        cam1->lookAt(0, 0.5f, 0);
-        cam1->setInitialState();
-        cam1->focalDist(2);
-        scene->addChild(cam1);
-
-        // Create directional light for the sun light
-        SLLightDirect* light = new SLLightDirect(s, s, 0.1f);
-        light->ambientPower(0.5f);
-        light->diffusePower(0.5f);
-        light->attenuation(1, 0, 0);
-        light->translate(0, 0, 0.5);
-        light->lookAt(1, -1, 0.5);
-        light->createsShadows(true);
-        light->createShadowMap(-3, 3, SLVec2f(5, 5), SLVec2i(2048, 2048));
-        light->doSmoothShadows(true);
-        SLAnimation* lightAnim = s->animManager().createNodeAnimation("LightAnim", 4.0f, true, EC_inOutSine, AL_pingPongLoop);
-        lightAnim->createNodeAnimTrackForRotation(light, -180, SLVec3f(0, 1, 0));
-        scene->addChild(light);
-
-        // load teapot
-        SLAssimpImporter importer;
-        SLNode*          suzanneInCube = importer.load(s->animManager(),
-                                              s,
-                                              SLApplication::modelPath + "GLTF/AO-Baked-Test/AO-Baked-Test.gltf",
-                                              SLApplication::texturePath,
-                                              true,    // load meshes only
-                                              nullptr, // override material
-                                              0.5f);   // ambient factor
-
-        // Setup shadow mapping material and replace shader from loader
-        SLGLProgram* progPerPixNrm = new SLGLGenericProgram(s,
-                                                            SLApplication::shaderPath + "PerPixBlinnSMAO.vert",
-                                                            SLApplication::shaderPath + "PerPixBlinnSMAO.frag");
-        auto         updateMat     = [=](SLMaterial* mat) { mat->program(progPerPixNrm); };
-        suzanneInCube->updateMeshMat(updateMat, true);
-
-        scene->addChild(suzanneInCube);
-
-        sv->camera(cam1);
-
-        // pass the scene group as root node
-        s->root3D(scene);
-
-        // Save energy
-        sv->doWaitOnIdle(true);
-    }
-    else if (SLApplication::sceneID == SID_SuzannePerPixBlinnTex) //.....................................
-    {
-        // Set scene name and info string
-        s->name("Suzanne with per pixel lighting and texture mapping");
-        s->info(s->name());
-
-        // Create a scene group node
-        SLNode* scene = new SLNode("scene node");
-
-        // Create camera in the center
-        SLCamera* cam1 = new SLCamera("Camera 1");
-        cam1->translation(0, 0.5f, 3);
-        cam1->lookAt(0, 0.5f, 0);
-        cam1->setInitialState();
-        cam1->focalDist(2);
-        scene->addChild(cam1);
-
-        // Create directional light for the sun light
-        SLLightDirect* light = new SLLightDirect(s, s, 0.1f);
-        light->ambientPower(0.8f);
-        light->diffusePower(0.8f);
-        light->attenuation(1, 0, 0);
-        light->translate(0, 0, 0.5);
-        light->lookAt(1, -1, 0.5);
-        SLAnimation* lightAnim = s->animManager().createNodeAnimation("LightAnim", 4.0f, true, EC_inOutSine, AL_pingPongLoop);
-        lightAnim->createNodeAnimTrackForRotation(light, -180, SLVec3f(0, 1, 0));
-        scene->addChild(light);
-
-        // load teapot
-        SLAssimpImporter importer;
-        SLNode*          suzanneInCube = importer.load(s->animManager(),
-                                              s,
-                                              SLApplication::modelPath + "GLTF/AO-Baked-Test/AO-Baked-Test.gltf",
-                                              SLApplication::texturePath,
-                                              true,    // load meshes only
-                                              nullptr, // override material
-                                              0.5f);   // ambient factor
-
-        // Setup shadow mapping material and replace shader from loader
-        SLGLProgram* progPerPixNrm = new SLGLGenericProgram(s,
-                                                            SLApplication::shaderPath + "PerPixBlinnTex.vert",
-                                                            SLApplication::shaderPath + "PerPixBlinnTex.frag");
-        auto         updateMat     = [=](SLMaterial* mat) { mat->program(progPerPixNrm); };
-        suzanneInCube->updateMeshMat(updateMat, true);
-
-        scene->addChild(suzanneInCube);
-
-        sv->camera(cam1);
-
-        // pass the scene group as root node
-        s->root3D(scene);
-
-        // Save energy
-        sv->doWaitOnIdle(true);
-    }
-    else if (SLApplication::sceneID == SID_SuzannePerPixBlinnTexNrm) //..................................
-    {
-        // Set scene name and info string
-        s->name("Suzanne with per pixel lighting and texture and normal mapping");
-        s->info(s->name());
-
-        // Create a scene group node
-        SLNode* scene = new SLNode("scene node");
-
-        // Create camera in the center
-        SLCamera* cam1 = new SLCamera("Camera 1");
-        cam1->translation(0, 0.5f, 3);
-        cam1->lookAt(0, 0.5f, 0);
-        cam1->setInitialState();
-        cam1->focalDist(2);
-        scene->addChild(cam1);
-
-        // Create directional light for the sun light
-        SLLightDirect* light = new SLLightDirect(s, s, 0.1f);
-        light->ambientPower(0.8f);
-        light->diffusePower(0.8f);
-        light->attenuation(1, 0, 0);
-        light->translate(0, 0, 0.5);
-        light->lookAt(1, -1, 0.5);
-        SLAnimation* lightAnim = s->animManager().createNodeAnimation("LightAnim", 4.0f, true, EC_inOutSine, AL_pingPongLoop);
-        lightAnim->createNodeAnimTrackForRotation(light, -180, SLVec3f(0, 1, 0));
-        scene->addChild(light);
-
-        // load teapot
-        SLAssimpImporter importer;
-        SLNode*          suzanneInCube = importer.load(s->animManager(),
-                                              s,
-                                              SLApplication::modelPath + "GLTF/AO-Baked-Test/AO-Baked-Test.gltf",
-                                              SLApplication::texturePath,
-                                              true,    // load meshes only
-                                              nullptr, // override material
-                                              0.5f);   // ambient factor
-
-        // Setup shadow mapping material and replace shader from loader
-        SLGLProgram* progPerPixNrm = new SLGLGenericProgram(s,
-                                                            SLApplication::shaderPath + "PerPixBlinnTexNrm.vert",
-                                                            SLApplication::shaderPath + "PerPixBlinnTexNrm.frag");
-        auto         updateMat     = [=](SLMaterial* mat) { mat->program(progPerPixNrm); };
-        suzanneInCube->updateMeshMat(updateMat, true);
-
-        scene->addChild(suzanneInCube);
-
-        sv->camera(cam1);
-
-        // pass the scene group as root node
-        s->root3D(scene);
-
-        // Save energy
-        sv->doWaitOnIdle(true);
-    }
-    else if (SLApplication::sceneID == SID_SuzannePerPixBlinnTexNrmAO) //................................
-    {
-        // Set scene name and info string
-        s->name("Suzanne with per pixel lighting and diffuse, normal and ambient occlusion mapping");
-        s->info(s->name());
-
-        // Create a scene group node
-        SLNode* scene = new SLNode("scene node");
-
-        // Create camera in the center
-        SLCamera* cam1 = new SLCamera("Camera 1");
-        cam1->translation(0, 0.5f, 3);
-        cam1->lookAt(0, 0.5f, 0);
-        cam1->setInitialState();
-        cam1->focalDist(2);
-        scene->addChild(cam1);
-
-        // Create directional light for the sun light
-        SLLightDirect* light = new SLLightDirect(s, s, 0.1f);
-        light->ambientPower(0.8f);
-        light->diffusePower(0.8f);
-        light->attenuation(1, 0, 0);
-        light->translate(0, 0, 0.5);
-        light->lookAt(1, -1, 0.5);
-        SLAnimation* lightAnim = s->animManager().createNodeAnimation("LightAnim", 4.0f, true, EC_inOutSine, AL_pingPongLoop);
-        lightAnim->createNodeAnimTrackForRotation(light, -180, SLVec3f(0, 1, 0));
-        scene->addChild(light);
-
-        // load teapot
-        SLAssimpImporter importer;
-        SLNode*          suzanneInCube = importer.load(s->animManager(),
-                                              s,
-                                              SLApplication::modelPath + "GLTF/AO-Baked-Test/AO-Baked-Test.gltf",
-                                              SLApplication::texturePath,
-                                              true,    // load meshes only
-                                              nullptr, // override material
-                                              0.5f);   // ambient factor
-
-        // Setup shadow mapping material and replace shader from loader
-        SLGLProgram* progPerPixNrm = new SLGLGenericProgram(s,
-                                                            SLApplication::shaderPath + "PerPixBlinnTexNrmAO.vert",
-                                                            SLApplication::shaderPath + "PerPixBlinnTexNrmAO.frag");
-        auto         updateMat     = [=](SLMaterial* mat) { mat->program(progPerPixNrm); };
-        suzanneInCube->updateMeshMat(updateMat, true);
-
-        scene->addChild(suzanneInCube);
-
-        sv->camera(cam1);
-
-        // pass the scene group as root node
-        s->root3D(scene);
-
-        // Save energy
-        sv->doWaitOnIdle(true);
-    }
-    else if (SLApplication::sceneID == SID_SuzannePerPixBlinnTexNrmSM) //................................
-    {
-        // Set scene name and info string
-        s->name("Suzanne with per pixel lighting and diffuse, normal and shadow mapping but without ambient occlusion");
-        s->info(s->name());
-
-        // Create a scene group node
-        SLNode* scene = new SLNode("scene node");
-
-        // Create camera in the center
-        SLCamera* cam1 = new SLCamera("Camera 1");
-        cam1->translation(0, 0.5f, 3);
-        cam1->lookAt(0, 0.5f, 0);
-        cam1->setInitialState();
-        cam1->focalDist(2);
-        scene->addChild(cam1);
-
-        // Create directional light for the sun light
-        SLLightDirect* light = new SLLightDirect(s, s, 0.1f);
-        light->ambientPower(0.8f);
-        light->diffusePower(0.8f);
-        light->attenuation(1, 0, 0);
-        light->translate(0, 0, 0.5);
-        light->lookAt(1, -1, 0.5);
-        light->createsShadows(true);
-        light->createShadowMap(-3, 3, SLVec2f(5, 5), SLVec2i(2048, 2048));
-        light->doSmoothShadows(true);
-        SLAnimation* lightAnim = s->animManager().createNodeAnimation("LightAnim", 4.0f, true, EC_inOutSine, AL_pingPongLoop);
-        lightAnim->createNodeAnimTrackForRotation(light, -180, SLVec3f(0, 1, 0));
-        scene->addChild(light);
-
-        // load teapot
-        SLAssimpImporter importer;
-        SLNode*          suzanneInCube = importer.load(s->animManager(),
-                                              s,
-                                              SLApplication::modelPath + "GLTF/AO-Baked-Test/AO-Baked-Test.gltf",
-                                              SLApplication::texturePath,
-                                              true,    // load meshes only
-                                              nullptr, // override material
-                                              0.5f);   // ambient factor
-
-        // Setup shadow mapping material and replace shader from loader
-        SLGLProgram* progPerPixNrm = new SLGLGenericProgram(s,
-                                                            SLApplication::shaderPath + "PerPixBlinnTexNrmSM.vert",
-                                                            SLApplication::shaderPath + "PerPixBlinnTexNrmSM.frag");
-        auto         updateMat     = [=](SLMaterial* mat) { mat->program(progPerPixNrm); };
-        suzanneInCube->updateMeshMat(updateMat, true);
-
-        scene->addChild(suzanneInCube);
-
-        sv->camera(cam1);
-
-        // pass the scene group as root node
-        s->root3D(scene);
-
-        // Save energy
-        sv->doWaitOnIdle(true);
-    }
-    else if (SLApplication::sceneID == SID_SuzannePerPixBlinnTexNrmAOSM) //..............................
-    {
-        // Set scene name and info string
-        s->name("Suzanne with per pixel lighting and diffuse, normal, shadow and ambient occlusion mapping");
-        s->info(s->name());
-
-        // Create a scene group node
-        SLNode* scene = new SLNode("scene node");
-
-        // Create camera in the center
-        SLCamera* cam1 = new SLCamera("Camera 1");
-        cam1->translation(0, 0.5f, 3);
-        cam1->lookAt(0, 0.5f, 0);
-        cam1->setInitialState();
-        cam1->focalDist(2);
-        scene->addChild(cam1);
-
-        // Create directional light for the sun light
-        SLLightDirect* light = new SLLightDirect(s, s, 0.1f);
-        light->ambientPower(1.0f);
-        light->diffusePower(0.8f);
-        light->attenuation(1, 0, 0);
-        light->translate(0, 0, 0.5);
-        light->lookAt(1, -1, 0.5);
-        light->createsShadows(true);
-        light->createShadowMap(-3, 3, SLVec2f(5, 5), SLVec2i(2048, 2048));
-        light->doSmoothShadows(true);
-        SLAnimation* lightAnim = s->animManager().createNodeAnimation("LightAnim", 4.0f, true, EC_inOutSine, AL_pingPongLoop);
-        lightAnim->createNodeAnimTrackForRotation(light, -180, SLVec3f(0, 1, 0));
-        scene->addChild(light);
-
-        // load teapot
-        SLAssimpImporter importer;
-        SLNode*          suzanneInCube = importer.load(s->animManager(),
-                                              s,
-                                              SLApplication::modelPath + "GLTF/AO-Baked-Test/AO-Baked-Test.gltf",
-                                              SLApplication::texturePath,
-                                              true,    // load meshes only
-                                              nullptr, // override material
-                                              0.5f);   // ambient factor
+        // Remove unwanted textures
+        if (sceneID == SID_SuzannePerPixBlinn ||
+            sceneID == SID_SuzannePerPixBlinnSm)
+        {
+            auto removeAllTm = [=](SLMaterial* mat) {
+                mat->textures().clear();
+                mat->ambientDiffuse(stoneColor);
+            };
+            suzanneInCube->updateMeshMat(removeAllTm, true);
+        }
+        if (sceneID == SID_SuzannePerPixBlinnTm)
+        {
+            auto removeNmAo = [=](SLMaterial* mat) {
+                mat->removeTextureType(TT_normal);
+                mat->removeTextureType(TT_ambientOcclusion);
+            };
+            suzanneInCube->updateMeshMat(removeNmAo, true);
+        }
+        if (sceneID == SID_SuzannePerPixBlinnNm)
+        {
+            auto removeNmAo = [=](SLMaterial* mat) {
+                mat->ambientDiffuse(stoneColor);
+                mat->removeTextureType(TT_diffuse);
+                mat->removeTextureType(TT_ambientOcclusion);
+            };
+            suzanneInCube->updateMeshMat(removeNmAo, true);
+        }
+        if (sceneID == SID_SuzannePerPixBlinnAo)
+        {
+            auto removeNmAo = [=](SLMaterial* mat) {
+                mat->ambientDiffuse(stoneColor);
+                mat->removeTextureType(TT_diffuse);
+                mat->removeTextureType(TT_normal);
+            };
+            suzanneInCube->updateMeshMat(removeNmAo, true);
+        }
+        if (sceneID == SID_SuzannePerPixBlinnTmSm)
+        {
+            auto removeTmNm = [=](SLMaterial* mat) {
+                mat->removeTextureType(TT_normal);
+                mat->removeTextureType(TT_ambientOcclusion);
+            };
+            suzanneInCube->updateMeshMat(removeTmNm, true);
+        }
+        if (sceneID == SID_SuzannePerPixBlinnNmSm)
+        {
+            auto removeTmNm = [=](SLMaterial* mat) {
+                mat->ambientDiffuse(stoneColor);
+                mat->removeTextureType(TT_diffuse);
+                mat->removeTextureType(TT_ambientOcclusion);
+            };
+            suzanneInCube->updateMeshMat(removeTmNm, true);
+        }
+        if (sceneID == SID_SuzannePerPixBlinnAoSm)
+        {
+            auto removeTmNm = [=](SLMaterial* mat) {
+                mat->ambientDiffuse(stoneColor);
+                mat->removeTextureType(TT_diffuse);
+                mat->removeTextureType(TT_normal);
+            };
+            suzanneInCube->updateMeshMat(removeTmNm, true);
+        }
+        if (sceneID == SID_SuzannePerPixBlinnTmAo)
+        {
+            auto removeNmAo = [=](SLMaterial* mat) {
+                mat->removeTextureType(TT_normal);
+            };
+            suzanneInCube->updateMeshMat(removeNmAo, true);
+        }
+        if (sceneID == SID_SuzannePerPixBlinnNmAo)
+        {
+            auto removeNmAo = [=](SLMaterial* mat) {
+                mat->ambientDiffuse(stoneColor);
+                mat->removeTextureType(TT_diffuse);
+            };
+            suzanneInCube->updateMeshMat(removeNmAo, true);
+        }
+        if (sceneID == SID_SuzannePerPixBlinnTmNm ||
+            sceneID == SID_SuzannePerPixBlinnTmNmSm)
+        {
+            auto removeAo = [=](SLMaterial* mat) { mat->removeTextureType(TT_ambientOcclusion); };
+            suzanneInCube->updateMeshMat(removeAo, true);
+        }
 
         scene->addChild(suzanneInCube);
 
@@ -2590,7 +2328,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->doWaitOnIdle(true);
     }
 
-    else if (SLApplication::sceneID == SID_VolumeRayCast) //.............................................
+    else if (sceneID == SID_VolumeRayCast) //......................................................
     {
         s->name("Volume Ray Cast Test");
         s->info("Volume Rendering of an angiographic MRI scan");
@@ -2619,7 +2357,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLColorLUT*      tf       = new SLColorLUT(s, tfAlphas, CLUT_BCGYR);
 
         // Load shader and uniforms for volume size
-        SLGLProgram*   sp   = new SLGLGenericProgram(s,
+        SLGLProgram*   sp   = new SLGLProgramGeneric(s,
                                                  SLApplication::shaderPath + "VolumeRenderingRayCast.vert",
                                                  SLApplication::shaderPath + "VolumeRenderingRayCast.frag");
         SLGLUniform1f* volX = new SLGLUniform1f(UT_const, "u_volumeX", (SLfloat)texMRI->images()[0]->width());
@@ -2656,7 +2394,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(cam1);
         s->root3D(scene);
     }
-    else if (SLApplication::sceneID == SID_VolumeRayCastLighted) //......................................
+    else if (sceneID == SID_VolumeRayCastLighted) //...............................................
     {
         s->name("Volume Ray Cast Lighted Test");
         s->info("Volume Rendering of an angiographic MRI scan with lighting");
@@ -2695,7 +2433,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLColorLUT*      tf       = new SLColorLUT(s, tfAlphas, CLUT_BCGYR);
 
         // Load shader and uniforms for volume size
-        SLGLProgram*   sp   = new SLGLGenericProgram(s,
+        SLGLProgram*   sp   = new SLGLProgramGeneric(s,
                                                  SLApplication::shaderPath + "VolumeRenderingRayCast.vert",
                                                  SLApplication::shaderPath + "VolumeRenderingRayCastLighted.frag");
         SLGLUniform1f* volX = new SLGLUniform1f(UT_const, "u_volumeX", (SLfloat)gTexMRI3D->images()[0]->width());
@@ -2733,7 +2471,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->root3D(scene);
     }
 
-    else if (SLApplication::sceneID == SID_AnimationSkeletal) //.........................................
+    else if (sceneID == SID_AnimationSkeletal) //..................................................
     {
         s->name("Skeletal Animation Test");
         s->info("Skeletal Animation Test Scene");
@@ -2816,7 +2554,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(cam1);
         s->root3D(scene);
     }
-    else if (SLApplication::sceneID == SID_AnimationNode) //.............................................
+    else if (sceneID == SID_AnimationNode) //......................................................
     {
         s->name("Node Animations Test");
         s->info("Node animations with different easing curves.");
@@ -2922,7 +2660,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(cam1);
         s->root3D(scene);
     }
-    else if (SLApplication::sceneID == SID_AnimationMass) //.............................................
+    else if (sceneID == SID_AnimationMass) //......................................................
     {
         s->name("Mass Animation Test");
         s->info("Performance test for transform updates from many animations.");
@@ -2996,7 +2734,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
             }
         }
     }
-    else if (SLApplication::sceneID == SID_AnimationAstroboyArmy) //.....................................
+    else if (sceneID == SID_AnimationAstroboyArmy) //..............................................
     {
         s->name("Astroboy Army Skinned Animation");
         s->info(s->name());
@@ -3065,11 +2803,11 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->root3D(scene);
     }
 
-    else if (SLApplication::sceneID == SID_VideoTextureLive ||
-             SLApplication::sceneID == SID_VideoTextureFile) //..........................................
+    else if (sceneID == SID_VideoTextureLive ||
+             sceneID == SID_VideoTextureFile) //...................................................
     {
         // Set scene name and info string
-        if (SLApplication::sceneID == SID_VideoTextureLive)
+        if (sceneID == SID_VideoTextureLive)
         {
             s->name("Live Video Texture");
             s->info("Minimal texture mapping example with live video source.");
@@ -3128,10 +2866,10 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(cam1);
         sv->doWaitOnIdle(false);
     }
-    else if (SLApplication::sceneID == SID_VideoTrackChessMain ||
-             SLApplication::sceneID == SID_VideoTrackChessScnd ||
-             SLApplication::sceneID == SID_VideoCalibrateMain ||
-             SLApplication::sceneID == SID_VideoCalibrateScnd) //........................................
+    else if (sceneID == SID_VideoTrackChessMain ||
+             sceneID == SID_VideoTrackChessScnd ||
+             sceneID == SID_VideoCalibrateMain ||
+             sceneID == SID_VideoCalibrateScnd) //.................................................
     {
         /*
         The tracking of markers is done in AppDemoVideo::onUpdateTracking by calling the specific
@@ -3145,10 +2883,10 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         */
 
         // Setup here only the requested scene.
-        if (SLApplication::sceneID == SID_VideoTrackChessMain ||
-            SLApplication::sceneID == SID_VideoTrackChessScnd)
+        if (sceneID == SID_VideoTrackChessMain ||
+            sceneID == SID_VideoTrackChessScnd)
         {
-            if (SLApplication::sceneID == SID_VideoTrackChessMain)
+            if (sceneID == SID_VideoTrackChessMain)
             {
                 CVCapture::instance()->videoType(VT_MAIN);
                 s->name("Track Chessboard (main cam.)");
@@ -3159,7 +2897,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                 s->name("Track Chessboard (scnd cam.");
             }
         }
-        else if (SLApplication::sceneID == SID_VideoCalibrateMain)
+        else if (sceneID == SID_VideoCalibrateMain)
         {
             if (SLApplication::calibrationEstimator)
             {
@@ -3169,7 +2907,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
             CVCapture::instance()->videoType(VT_MAIN);
             s->name("Calibrate Main Cam.");
         }
-        else if (SLApplication::sceneID == SID_VideoCalibrateScnd)
+        else if (sceneID == SID_VideoCalibrateScnd)
         {
             if (SLApplication::calibrationEstimator)
             {
@@ -3214,8 +2952,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(light1);
 
         // Build mesh & node
-        if (SLApplication::sceneID == SID_VideoTrackChessMain ||
-            SLApplication::sceneID == SID_VideoTrackChessScnd)
+        if (sceneID == SID_VideoTrackChessMain ||
+            sceneID == SID_VideoTrackChessScnd)
         {
             SLBox*  box     = new SLBox(s, 0.0f, 0.0f, 0.0f, e3, e3, e3, "Box", yellow);
             SLNode* boxNode = new SLNode(box, "Box Node");
@@ -3239,8 +2977,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(cam1);
         sv->doWaitOnIdle(false);
     }
-    else if (SLApplication::sceneID == SID_VideoTrackArucoMain ||
-             SLApplication::sceneID == SID_VideoTrackArucoScnd) //.......................................
+    else if (sceneID == SID_VideoTrackArucoMain ||
+             sceneID == SID_VideoTrackArucoScnd) //................................................
     {
         /*
         The tracking of markers is done in AppDemoVideo::onUpdateVideo by calling the specific
@@ -3250,7 +2988,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         use case.
         */
 
-        if (SLApplication::sceneID == SID_VideoTrackArucoMain)
+        if (sceneID == SID_VideoTrackArucoMain)
         {
             CVCapture::instance()->videoType(VT_MAIN);
             s->name("Track Aruco (main cam.)");
@@ -3317,7 +3055,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         // Turn on constant redraw
         sv->doWaitOnIdle(false);
     }
-    else if (SLApplication::sceneID == SID_VideoTrackFeature2DMain) //...................................
+    else if (sceneID == SID_VideoTrackFeature2DMain) //............................................
     {
         /*
         The tracking of markers is done in AppDemoVideo::onUpdateVideo by calling the specific
@@ -3386,8 +3124,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->root3D(scene);
         SLApplication::devRot.isUsed(true);
     }
-    else if (SLApplication::sceneID == SID_VideoTrackFaceMain ||
-             SLApplication::sceneID == SID_VideoTrackFaceScnd) //........................................
+    else if (sceneID == SID_VideoTrackFaceMain ||
+             sceneID == SID_VideoTrackFaceScnd) //.................................................
     {
         /*
         The tracking of markers is done in AppDemoVideo::onUpdateVideo by calling the specific
@@ -3397,7 +3135,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         use case.
         */
 
-        if (SLApplication::sceneID == SID_VideoTrackFaceMain)
+        if (sceneID == SID_VideoTrackFaceMain)
         {
             CVCapture::instance()->videoType(VT_MAIN);
             s->name("Track Face (main cam.)");
@@ -3460,7 +3198,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->root3D(scene);
     }
 #ifdef SL_BUILD_WAI
-    else if (SLApplication::sceneID == SID_VideoTrackWAI) //.............................................
+    else if (sceneID == SID_VideoTrackWAI) //......................................................
     {
         CVCapture::instance()->videoType(VT_MAIN);
         s->name("Track WAI (main cam.)");
@@ -3528,7 +3266,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->doWaitOnIdle(false);
     }
 #endif
-    else if (SLApplication::sceneID == SID_VideoSensorAR) //.............................................
+    else if (sceneID == SID_VideoSensorAR) //......................................................
     {
         // Set scene name and info string
         s->name("Video Sensor AR");
@@ -3594,7 +3332,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->doWaitOnIdle(false); // for constant video feed
     }
 
-    else if (SLApplication::sceneID == SID_ErlebARBielBFH) //............................................
+    else if (sceneID == SID_ErlebARBielBFH) //.....................................................
     {
         s->name("Biel-BFH AR");
         s->info("Augmented Reality at Biel-BFH");
@@ -3603,9 +3341,9 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         videoTexture = new SLGLTexture(s, SLApplication::texturePath + "LiveVideoError.png", GL_LINEAR, GL_LINEAR);
 
         // Define shader that shows on all pixels the video background
-        SLGLProgram* spVideoBackground  = new SLGLGenericProgram(s,
-                                                                SLApplication::shaderPath + "PerPixTextureBackground.vert",
-                                                                SLApplication::shaderPath + "PerPixTextureBackground.frag");
+        SLGLProgram* spVideoBackground  = new SLGLProgramGeneric(s,
+                                                                SLApplication::shaderPath + "PerPixTmBackground.vert",
+                                                                SLApplication::shaderPath + "PerPixTmBackground.frag");
         SLMaterial*  matVideoBackground = new SLMaterial(s,
                                                         "matVideoBackground",
                                                         videoTexture,
@@ -3705,7 +3443,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->drawBits()->on(SL_DB_ONLYEDGES);
         s->root3D(scene);
     }
-    else if (SLApplication::sceneID == SID_ErlebARChristoffel) //........................................
+    else if (sceneID == SID_ErlebARChristoffel) //.................................................
     {
         s->name("Christoffel Tower AR");
         s->info("Augmented Reality Christoffel Tower");
@@ -3714,9 +3452,9 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         videoTexture = new SLGLTexture(s, SLApplication::texturePath + "LiveVideoError.png", GL_LINEAR, GL_LINEAR);
 
         // Define shader that shows on all pixels the video background without shadow mapping
-        SLGLProgram* spVideoBackground  = new SLGLGenericProgram(s,
-                                                                SLApplication::shaderPath + "PerPixTextureBackground.vert",
-                                                                SLApplication::shaderPath + "PerPixTextureBackground.frag");
+        SLGLProgram* spVideoBackground  = new SLGLProgramGeneric(s,
+                                                                SLApplication::shaderPath + "PerPixTmBackground.vert",
+                                                                SLApplication::shaderPath + "PerPixTmBackground.frag");
         SLMaterial*  matVideoBackground = new SLMaterial(s,
                                                         "matVideoBackground",
                                                         videoTexture,
@@ -3726,9 +3464,9 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                                                         spVideoBackground);
 
         // Define shader that shows on all pixels the video background with shadow mapping
-        SLGLProgram* spVideoBackgroundSM  = new SLGLGenericProgram(s,
-                                                                  SLApplication::shaderPath + "PerPixTextureBackgroundSM.vert",
-                                                                  SLApplication::shaderPath + "PerPixTextureBackgroundSM.frag");
+        SLGLProgram* spVideoBackgroundSM  = new SLGLProgramGeneric(s,
+                                                                  SLApplication::shaderPath + "PerPixTmBackgroundSm.vert",
+                                                                  SLApplication::shaderPath + "PerPixTmBackgroundSm.frag");
         SLMaterial*  matVideoBackgroundSM = new SLMaterial(s,
                                                           "matVideoBackground",
                                                           videoTexture,
@@ -3842,7 +3580,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(cam1);
         s->root3D(scene);
     }
-    else if (SLApplication::sceneID == SID_ErlebARAugustaRaurica) //.....................................
+    else if (sceneID == SID_ErlebARAugustaRaurica) //..............................................
     {
         s->name("Augusta Raurica AR");
         s->info("Augmented Reality for Augusta Raurica");
@@ -3861,9 +3599,9 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         CVCapture::instance()->videoType(VT_MAIN);
 
         // Define shader that shows on all pixels the video background
-        SLGLProgram* spVideoBackground  = new SLGLGenericProgram(s,
-                                                                SLApplication::shaderPath + "PerPixTextureBackground.vert",
-                                                                SLApplication::shaderPath + "PerPixTextureBackground.frag");
+        SLGLProgram* spVideoBackground  = new SLGLProgramGeneric(s,
+                                                                SLApplication::shaderPath + "PerPixTmBackground.vert",
+                                                                SLApplication::shaderPath + "PerPixTmBackground.frag");
         SLMaterial*  matVideoBackground = new SLMaterial(s,
                                                         "matVideoBackground",
                                                         videoTexture,
@@ -3873,9 +3611,9 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                                                         spVideoBackground);
 
         // Define shader that shows on all pixels the video background with shadow mapping
-        SLGLProgram* spVideoBackgroundSM  = new SLGLGenericProgram(s,
-                                                                  SLApplication::shaderPath + "PerPixTextureBackgroundSM.vert",
-                                                                  SLApplication::shaderPath + "PerPixTextureBackgroundSM.frag");
+        SLGLProgram* spVideoBackgroundSM  = new SLGLProgramGeneric(s,
+                                                                  SLApplication::shaderPath + "PerPixTmBackgroundSm.vert",
+                                                                  SLApplication::shaderPath + "PerPixTmBackgroundSm.frag");
         SLMaterial*  matVideoBackgroundSM = new SLMaterial(s,
                                                           "matVideoBackground",
                                                           videoTexture,
@@ -3960,7 +3698,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(cam1);
         s->root3D(scene);
     }
-    else if (SLApplication::sceneID == SID_ErlebARAventicumAmphiAO) //...................................
+    else if (sceneID == SID_ErlebARAventicumAmphiAO) //............................................
     {
         s->name("Aventicum Amphitheatre AR (AO)");
         s->info("Augmented Reality for Aventicum Amphitheatre (AO)");
@@ -3980,9 +3718,9 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         CVCapture::instance()->videoType(VT_MAIN);
 
         // Define shader that shows on all pixels the video background
-        SLGLProgram* spVideoBackground  = new SLGLGenericProgram(s,
-                                                                SLApplication::shaderPath + "PerPixTextureBackground.vert",
-                                                                SLApplication::shaderPath + "PerPixTextureBackground.frag");
+        SLGLProgram* spVideoBackground  = new SLGLProgramGeneric(s,
+                                                                SLApplication::shaderPath + "PerPixTmBackground.vert",
+                                                                SLApplication::shaderPath + "PerPixTmBackground.frag");
         SLMaterial*  matVideoBackground = new SLMaterial(s,
                                                         "matVideoBackground",
                                                         videoTexture,
@@ -3992,9 +3730,9 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                                                         spVideoBackground);
 
         // Define shader that shows on all pixels the video background with shadow mapping
-        SLGLProgram* spVideoBackgroundSM  = new SLGLGenericProgram(s,
-                                                                  SLApplication::shaderPath + "PerPixTextureBackgroundSM.vert",
-                                                                  SLApplication::shaderPath + "PerPixTextureBackgroundSM.frag");
+        SLGLProgram* spVideoBackgroundSM  = new SLGLProgramGeneric(s,
+                                                                  SLApplication::shaderPath + "PerPixTmBackgroundSm.vert",
+                                                                  SLApplication::shaderPath + "PerPixTmBackgroundSm.frag");
         SLMaterial*  matVideoBackgroundSM = new SLMaterial(s,
                                                           "matVideoBackground",
                                                           videoTexture,
@@ -4083,7 +3821,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(cam1);
         s->root3D(scene);
     }
-    else if (SLApplication::sceneID == SID_ErlebARAventicumCigognier) //.................................
+    else if (sceneID == SID_ErlebARAventicumCigognier) //..........................................
     {
         s->name("Aventicum Cigognier AR");
         s->info("Augmented Reality for Aventicum Cigognier Temple");
@@ -4132,13 +3870,6 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         // Rotate to the true geographic rotation
         cigognier->rotate(-37.0f, 0, 1, 0, TS_parent);
 
-        // Setup shadow mapping material and replace shader from loader
-        SLGLProgram* progPerPixNrmSM = new SLGLGenericProgram(s,
-                                                              SLApplication::shaderPath + "PerPixBlinnTexNrmSM.vert",
-                                                              SLApplication::shaderPath + "PerPixBlinnTexNrmSM.frag");
-        auto         updateMat       = [=](SLMaterial* mat) { mat->program(progPerPixNrmSM); };
-        cigognier->updateMeshMat(updateMat, true);
-
         // Add axis object a world origin
         SLNode* axis = new SLNode(new SLCoordAxis(s), "Axis Node");
         axis->setDrawBitsRec(SL_DB_MESHWIRED, false);
@@ -4185,7 +3916,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(cam1);
         s->root3D(scene);
     }
-    else if (SLApplication::sceneID == SID_ErlebARAventicumCigognierAO) //...............................
+    else if (sceneID == SID_ErlebARAventicumCigognierAO) //........................................
     {
         s->name("Aventicum Cigognier AR (AO)");
         s->info("Augmented Reality for Aventicum Cigognier Temple");
@@ -4280,7 +4011,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(cam1);
         s->root3D(scene);
     }
-    else if (SLApplication::sceneID == SID_ErlebARAventicumTheatre) //...................................
+    else if (sceneID == SID_ErlebARAventicumTheatre) //............................................
     {
         s->name("Aventicum Theatre AR");
         s->info("Augmented Reality for Aventicum Theatre");
@@ -4300,9 +4031,9 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         CVCapture::instance()->videoType(VT_MAIN);
 
         // Define shader that shows on all pixels the video background
-        SLGLProgram* spVideoBackground  = new SLGLGenericProgram(s,
-                                                                SLApplication::shaderPath + "PerPixTextureBackground.vert",
-                                                                SLApplication::shaderPath + "PerPixTextureBackground.frag");
+        SLGLProgram* spVideoBackground  = new SLGLProgramGeneric(s,
+                                                                SLApplication::shaderPath + "PerPixTmBackground.vert",
+                                                                SLApplication::shaderPath + "PerPixTmBackground.frag");
         SLMaterial*  matVideoBackground = new SLMaterial(s,
                                                         "matVideoBackground",
                                                         videoTexture,
@@ -4312,9 +4043,9 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                                                         spVideoBackground);
 
         // Define shader that shows on all pixels the video background with shadow mapping
-        SLGLProgram* spVideoBackgroundSM  = new SLGLGenericProgram(s,
-                                                                  SLApplication::shaderPath + "PerPixTextureBackgroundSM.vert",
-                                                                  SLApplication::shaderPath + "PerPixTextureBackgroundSM.frag");
+        SLGLProgram* spVideoBackgroundSM  = new SLGLProgramGeneric(s,
+                                                                  SLApplication::shaderPath + "PerPixTmBackgroundSm.vert",
+                                                                  SLApplication::shaderPath + "PerPixTmBackgroundSm.frag");
         SLMaterial*  matVideoBackgroundSM = new SLMaterial(s,
                                                           "matVideoBackground",
                                                           videoTexture,
@@ -4348,13 +4079,6 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                                         true,    // only meshes
                                         nullptr, // no replacement material
                                         0.4f);   // 40% ambient reflection
-
-        // Setup shadow mapping material and replace shader from loader
-        SLGLProgram* progPerPixNrmSM = new SLGLGenericProgram(s,
-                                                              SLApplication::shaderPath + "PerPixBlinnTexNrmSM.vert",
-                                                              SLApplication::shaderPath + "PerPixBlinnTexNrmSM.frag");
-        auto         updateMat       = [=](SLMaterial* mat) { mat->program(progPerPixNrmSM); };
-        theatre->updateMeshMat(updateMat, true);
 
         // Rotate to the true geographic rotation
         theatre->rotate(-36.7f, 0, 1, 0, TS_parent);
@@ -4411,14 +4135,14 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->root3D(scene);
     }
 
-    else if (SLApplication::sceneID == SID_RTMuttenzerBox) //............................................
+    else if (sceneID == SID_RTMuttenzerBox) //.....................................................
     {
         s->name("Muttenzer Box");
         s->info("Muttenzer Box with environment mapped reflective sphere and transparenz refractive glass sphere. Try ray tracing for real reflections and soft shadows.");
 
         // Create reflection & glass shaders
-        SLGLProgram* sp1 = new SLGLGenericProgram(s, SLApplication::shaderPath + "Reflect.vert", SLApplication::shaderPath + "Reflect.frag");
-        SLGLProgram* sp2 = new SLGLGenericProgram(s, SLApplication::shaderPath + "RefractReflect.vert", SLApplication::shaderPath + "RefractReflect.frag");
+        SLGLProgram* sp1 = new SLGLProgramGeneric(s, SLApplication::shaderPath + "Reflect.vert", SLApplication::shaderPath + "Reflect.frag");
+        SLGLProgram* sp2 = new SLGLProgramGeneric(s, SLApplication::shaderPath + "RefractReflect.vert", SLApplication::shaderPath + "RefractReflect.frag");
 
         // Create cube mapping texture
         SLGLTexture* tex1 = new SLGLTexture(s,
@@ -4534,7 +4258,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(cam1);
         s->root3D(scene);
     }
-    else if (SLApplication::sceneID == SID_RTSpheres) //.................................................
+    else if (sceneID == SID_RTSpheres) //..........................................................
     {
         s->name("Ray tracing Spheres");
         s->info("Classic ray tracing scene with transparent and reflective spheres. Be patient on mobile devices.");
@@ -4574,19 +4298,16 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->root3D(scene);
         sv->camera(cam1);
     }
-    else if (SLApplication::sceneID == SID_RTSoftShadows) //.............................................
+    else if (sceneID == SID_RTSoftShadows) //......................................................
     {
         s->name("Ray tracing soft shadows");
         s->info("Ray tracing with soft shadow light sampling. Each light source is sampled 64x per pixel. Be patient on mobile devices.");
 
         // define materials
-        SLCol4f      spec(0.8f, 0.8f, 0.8f);
-        SLGLProgram* shadowPrg = new SLGLGenericProgram(s,
-                                                        SLApplication::shaderPath + "PerPixBlinnSM.vert",
-                                                        SLApplication::shaderPath + "PerPixBlinnSM.frag");
-        SLMaterial*  matBlk    = new SLMaterial(s, "Glass", SLCol4f(0.0f, 0.0f, 0.0f), SLCol4f(0.5f, 0.5f, 0.5f), 100, 0.5f, 0.5f, 1.5f, shadowPrg);
-        SLMaterial*  matRed    = new SLMaterial(s, "Red", SLCol4f(0.5f, 0.0f, 0.0f), SLCol4f(0.5f, 0.5f, 0.5f), 100, 0.5f, 0.0f, 1.0f, shadowPrg);
-        SLMaterial*  matYel    = new SLMaterial(s, "Floor", SLCol4f(0.8f, 0.6f, 0.2f), SLCol4f(0.8f, 0.8f, 0.8f), 100, 0.0f, 0.0f, 1.0f, shadowPrg);
+        SLCol4f     spec(0.8f, 0.8f, 0.8f);
+        SLMaterial* matBlk = new SLMaterial(s, "Glass", SLCol4f(0.0f, 0.0f, 0.0f), SLCol4f(0.5f, 0.5f, 0.5f), 100, 0.5f, 0.5f, 1.5f);
+        SLMaterial* matRed = new SLMaterial(s, "Red", SLCol4f(0.5f, 0.0f, 0.0f), SLCol4f(0.5f, 0.5f, 0.5f), 100, 0.5f, 0.0f, 1.0f);
+        SLMaterial* matYel = new SLMaterial(s, "Floor", SLCol4f(0.8f, 0.6f, 0.2f), SLCol4f(0.8f, 0.8f, 0.8f), 100, 0.0f, 0.0f, 1.0f);
 
         SLCamera* cam1 = new SLCamera;
         cam1->translation(0, 0.1f, 4);
@@ -4623,17 +4344,13 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(cam1);
         s->root3D(scene);
     }
-    else if (SLApplication::sceneID == SID_RTDoF) //.....................................................
+    else if (sceneID == SID_RTDoF) //..............................................................
     {
         s->name("Ray tracing depth of field");
 
-        SLGLProgram* p1 = new SLGLGenericProgram(s,
-                                                 SLApplication::shaderPath + "PerPixBlinnTex.vert",
-                                                 SLApplication::shaderPath + "PerPixBlinnTex.frag");
-
         // Create textures and materials
         SLGLTexture* texC = new SLGLTexture(s, SLApplication::texturePath + "Checkerboard0512_C.png", SL_ANISOTROPY_MAX, GL_LINEAR);
-        SLMaterial*  mT   = new SLMaterial(s, "mT", texC, nullptr, nullptr, nullptr, p1);
+        SLMaterial*  mT   = new SLMaterial(s, "mT", texC);
         mT->kr(0.5f);
         SLMaterial* mW = new SLMaterial(s, "mW", SLCol4f::WHITE);
         SLMaterial* mB = new SLMaterial(s, "mB", SLCol4f::GRAY);
@@ -4715,7 +4432,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(cam1);
         s->root3D(scene);
     }
-    else if (SLApplication::sceneID == SID_RTLens) //....................................................
+    else if (sceneID == SID_RTLens) //.............................................................
     {
         s->name("Ray tracing lens test");
         s->info("Ray tracing lens test scene.");
@@ -4800,7 +4517,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(cam1);
         s->root3D(scene);
     }
-    else if (SLApplication::sceneID == SID_RTTest) //....................................................
+    else if (sceneID == SID_RTTest) //.............................................................
     {
         // Set scene name and info string
         s->name("Ray tracing test");
@@ -4842,7 +4559,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(cam1);
     }
 
-    else if (SLApplication::sceneID == SID_Benchmark1_LargeModel) //.....................................
+    else if (sceneID == SID_Benchmark1_LargeModel) //..............................................
     {
         SLstring largeFile = SLApplication::configPath + "xyzrgb_dragon.ply";
 
@@ -4888,7 +4605,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
             s->root3D(scene);
         }
     }
-    else if (SLApplication::sceneID == SID_Benchmark2_MassiveNodes) //...................................
+    else if (sceneID == SID_Benchmark2_MassiveNodes) //............................................
     {
         s->name("Massive Data Benchmark Scene");
         s->info(s->name());
@@ -4952,7 +4669,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->doWaitOnIdle(false);
         s->root3D(scene);
     }
-    else if (SLApplication::sceneID == SID_Benchmark3_NodeAnimations) //.................................
+    else if (sceneID == SID_Benchmark3_NodeAnimations) //..........................................
     {
         s->name("Massive Node Animation Benchmark Scene");
         s->info(s->name());
@@ -4989,9 +4706,9 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // create rotating sphere group
 #ifdef SL_GLES
-        SLint maxDepth   = 4; // 5 is to memory intensiv for mobiles
+        SLint maxDepth = 4; // 5 is to memory intensiv for mobiles
 #else
-        SLint maxDepth   = 5;
+        SLint maxDepth = 5;
 #endif
 
         SLint resolution = 18;
@@ -5008,7 +4725,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->doWaitOnIdle(false);
         s->root3D(scene);
     }
-    else if (SLApplication::sceneID == SID_Benchmark4_SkinnedAnimations) //..............................
+    else if (sceneID == SID_Benchmark4_SkinnedAnimations) //.......................................
     {
         SLint  size         = 20;
         SLint  numAstroboys = size * size;

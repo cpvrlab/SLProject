@@ -68,6 +68,32 @@ SLNode::SLNode(SLMesh* mesh, const SLstring& name) : SLObject(name)
 }
 //-----------------------------------------------------------------------------
 /*!
+Constructor with a mesh pointer, translation vector and name.
+*/
+SLNode::SLNode(SLMesh*         mesh,
+               SLVec3f         translation,
+               const SLstring& name) : SLObject(name)
+{
+    assert(mesh && "No mesh passed");
+
+    _parent = nullptr;
+    _depth  = 1;
+    _om.identity();
+    _om.translate(translation);
+    _wm.identity();
+    _wmI.identity();
+    _wmN.identity();
+    _drawBits.allOff();
+    _animation      = nullptr;
+    _castsShadows   = true;
+    _isWMUpToDate   = false;
+    _isAABBUpToDate = false;
+    _isSelected     = false;
+
+    addMesh(mesh);
+}
+//-----------------------------------------------------------------------------
+/*!
 Destructor deletes all children recursively and the animation.
 The mesh is not deleted. Meshes get deleted at the end by the SLAssetManager
 vector. The entire scenegraph is deleted by deleting the SLScene::_root3D node.
@@ -328,7 +354,7 @@ void SLNode::cull3DRec(SLSceneView* sv)
             // Ghm1: Checking for typeid fails if someone adds a custom camera that inherits SLCamera
             //else if (typeid(*this) == typeid(SLCamera) ||
             //         typeid(*this) == typeid(SLKeyframeCamera))
-            else if(dynamic_cast<SLCamera*>(this))
+            else if (dynamic_cast<SLCamera*>(this))
                 sv->nodesOpaque3D().push_back(this);
             else if (typeid(*this) == typeid(SLText))
                 sv->nodesBlended3D().push_back(this);

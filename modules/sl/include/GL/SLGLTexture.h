@@ -133,13 +133,13 @@ public:
 
     ~SLGLTexture() override;
 
-    void clearData();
-    void build(SLint texUnit = 0);
-    void bindActive(SLuint texUnit = 0);
-    void fullUpdate();
-    void drawSprite(SLbool doUpdate, SLfloat x, SLfloat y, SLfloat w, SLfloat h);
-    void cubeUV2XYZ(SLint index, SLfloat u, SLfloat v, SLfloat& x, SLfloat& y, SLfloat& z);
-    void cubeXYZ2UV(SLfloat x, SLfloat y, SLfloat z, SLint& index, SLfloat& u, SLfloat& v);
+    void     clearData();
+    void     build(SLint texUnit = 0);
+    void     bindActive(SLuint texUnit = 0);
+    void     fullUpdate();
+    void     drawSprite(SLbool doUpdate, SLfloat x, SLfloat y, SLfloat w, SLfloat h);
+    void     cubeUV2XYZ(SLint index, SLfloat u, SLfloat v, SLfloat& x, SLfloat& y, SLfloat& z);
+    void     cubeXYZ2UV(SLfloat x, SLfloat y, SLfloat z, SLint& index, SLfloat& u, SLfloat& v);
     SLstring filterString(SLint glFilter);
 
     // Setters
@@ -215,22 +215,22 @@ protected:
               SLbool          loadGrayscaleIntoAlpha = false);
     void load(const SLVCol4f& colors);
 
-    CVVImage        _images;        //!< vector of CVImage pointers
-    SLuint          _texID;         //!< OpenGL texture ID
-    SLTextureType   _texType;       //!< [unknown, ColorMap, NormalMap, HeightMap, GlossMap]
-    SLint           _min_filter;    //!< Minification filter
-    SLint           _mag_filter;    //!< Magnification filter
-    SLint           _wrap_s;        //!< Wrapping in s direction
-    SLint           _wrap_t;        //!< Wrapping in t direction
-    SLenum          _target;        //!< texture target
-    SLMat4f         _tm;            //!< texture matrix
-    SLuint          _bytesOnGPU;    //!< NO. of bytes on GPU
-    SLbool          _autoCalcTM3D;  //!< flag if texture matrix should be calculated from AABB for 3D mapping
-    SLfloat         _bumpScale;     //!< Bump mapping scale factor
-    SLbool          _resizeToPow2;  //!< Flag if image should be resized to n^2
-    SLGLVertexArray _vaoSprite;     //!< Vertex array object for sprite rendering
-    atomic<bool>    _needsUpdate{}; //!< Flag if image needs an single update
-    mutex           _mutex;         //!< Mutex to protect parallel access (used in ray tracing)
+    CVVImage          _images;        //!< vector of CVImage pointers
+    SLuint            _texID;         //!< OpenGL texture ID
+    SLTextureType     _texType;       //!< [unknown, ColorMap, NormalMap, HeightMap, GlossMap]
+    SLint             _min_filter;    //!< Minification filter
+    SLint             _mag_filter;    //!< Magnification filter
+    SLint             _wrap_s;        //!< Wrapping in s direction
+    SLint             _wrap_t;        //!< Wrapping in t direction
+    SLenum            _target;        //!< texture target
+    SLMat4f           _tm;            //!< texture matrix
+    SLuint            _bytesOnGPU;    //!< NO. of bytes on GPU
+    SLbool            _autoCalcTM3D;  //!< flag if texture matrix should be calculated from AABB for 3D mapping
+    SLfloat           _bumpScale;     //!< Bump mapping scale factor
+    SLbool            _resizeToPow2;  //!< Flag if image should be resized to n^2
+    SLGLVertexArray   _vaoSprite;     //!< Vertex array object for sprite rendering
+    std::atomic<bool> _needsUpdate{}; //!< Flag if image needs an single update
+    std::mutex        _mutex;         //!< Mutex to protect parallel access (used in ray tracing)
 
 #ifdef SL_HAS_OPTIX
     CUgraphicsResource _cudaGraphicsResource; //!< Cuda Graphics object

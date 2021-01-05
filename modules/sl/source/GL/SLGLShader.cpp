@@ -34,6 +34,11 @@ SLGLShader::SLGLShader()
 }
 //-----------------------------------------------------------------------------
 //! Ctor with shader filename & shader type
+/*! If the shader filename does not belong to an existing file the shader code
+ * will be generated at a later stage by SLGLProgramGenerated.
+ * @param filename Path and filename of the shader to be loaded or generated.
+ * @param shaderType Shader type: ST_vertex, ST_fragment and ST_geometry.
+ */
 SLGLShader::SLGLShader(const SLstring& filename, SLShaderType shaderType)
   : SLObject(Utils::getFileName(filename), filename)
 {
@@ -43,13 +48,14 @@ SLGLShader::SLGLShader(const SLstring& filename, SLShaderType shaderType)
     _file     = filename;
 
     // Only load file at this moment, don't compile it.
-    load(filename);
+    if (Utils::fileExists(filename))
+        load(filename);
 }
 //-----------------------------------------------------------------------------
 //! SLGLShader::load loads a shader file into string _shaderSource
 void SLGLShader::load(const SLstring& filename)
 {
-    _code = Utils::loadFileIntoString("SLProject", filename);
+    _code = Utils::readTextFileIntoString("SLProject", filename);
 
     // remove comments because some stupid ARM compiler can't handle GLSL comments
     _code = removeComments(_code);
@@ -149,8 +155,7 @@ SLbool SLGLShader::createAndCompile(SLVLight* lights)
         _code = preprocessPragmas(_code, lights);
 
         // Concatenate final code string
-        _code = srcVersion +
-                _code;
+        _code = srcVersion + _code;
 
         const char* src = _code.c_str();
         glShaderSource(_shaderID, 1, &src, nullptr);
@@ -170,12 +175,32 @@ SLbool SLGLShader::createAndCompile(SLVLight* lights)
             SL_LOG("*** COMPILER ERROR ***");
             SL_LOG("Source file: %s\n", _file.c_str());
             SL_LOG("%s---", log);
-            SLVstring lines = Utils::getStringLines(_code);
-            SLint lineNum = 1;
+            SLVstring lines   = Utils::getStringLines(_code);
+            SLint     lineNum = 1;
             for (string& line : lines)
                 SL_LOG("%4d: %s", lineNum++, line.c_str());
             return false;
         }
+
+        // Write generated shader out
+        if (!_file.empty())
+        {
+            if (!Utils::fileExists(_file))
+            {
+                string filename = Utils::getFileName(_file);
+                string path = Utils::getDirName(_file);
+                if (Utils::dirExists(path))
+                {
+                    Utils::writeStringIntoTextFile("SLProject", _code, _file);
+                    SL_LOG("Exported Shader Program: %s", filename.c_str());
+                }
+                else
+                    SL_WARN_MSG("**** No path to write shader ***");
+            }
+        }
+        else
+            SL_WARN_MSG("**** No shader path and filename for shader ***");
+
         return true;
     }
     else
@@ -267,12 +292,12 @@ SLstring SLGLShader::preprocessPragmas(SLstring inCode, SLVLight* lights)
 
             if (pragmaParts[1] == "include") //................................
             {
-                string filename     = Utils::trimString(pragmaParts[2], "\"");
-                string path         = Utils::getPath(_file);
+                string filename = Utils::trimString(pragmaParts[2], "\"");
+                string path     = Utils::getPath(_file);
                 string pathFile = path + filename;
                 if (Utils::fileExists(pathFile))
                 {
-                    string includeCode = Utils::loadFileIntoString("SLProject", pathFile);
+                    string includeCode = Utils::readTextFileIntoString("SLProject", pathFile);
                     includeCode        = removeComments(includeCode);
                     outCode += includeCode + '\n';
                 }
@@ -289,7 +314,8 @@ SLstring SLGLShader::preprocessPragmas(SLstring inCode, SLVLight* lights)
                 {
                     outCode += "#define NUM_LIGHTS " +
                                std::to_string(lights->size()) + "\n";
-                } else
+                }
+                else
                     outCode += line + '\n';
             } //...............................................................
             else

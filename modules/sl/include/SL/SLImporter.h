@@ -117,7 +117,7 @@ public:
     SLVAnimation& nodeAnimations() { return _nodeAnimations; }
 
 protected:
-    ofstream       _log;                 //!< log stream
+    std::ofstream  _log;                 //!< log stream
     SLstring       _logFile;             //!< name of the log file
     SLLogVerbosity _logConsoleVerbosity; //!< verbosity level of log output to the console
     SLLogVerbosity _logFileVerbosity;    //!< verbosity level of log output to the file

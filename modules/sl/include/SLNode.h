@@ -143,6 +143,7 @@ class SLNode
 public:
     explicit SLNode(const SLstring& name = "Node");
     explicit SLNode(SLMesh* mesh, const SLstring& name = "Node");
+    explicit SLNode(SLMesh* mesh, SLVec3f translation, const SLstring& name);
     ~SLNode() override;
 
     // Recursive scene traversal methods (see impl. for details)
@@ -296,8 +297,8 @@ public:
     virtual void      doUpdate() {}
     bool              updateMeshSkins(const std::function<void(SLMesh*)>& cbInformNodes);
     void              updateMeshAccelStructs();
-    void              updateMeshMat(function<void(SLMaterial* m)> setMat,
-                                    bool                          recursive);
+    void              updateMeshMat(std::function<void(SLMaterial* m)> setMat,
+                                    bool                               recursive);
     void              setMeshMat(SLMaterial* mat, bool recursive);
     bool              isSelected() { return _isSelected; }
 

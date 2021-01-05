@@ -58,9 +58,10 @@ class SLGLProgram : public SLObject
 {
 public:
     SLGLProgram(SLAssetManager* s,
-                const SLstring& vertShaderFile,
-                const SLstring& fragShaderFile,
-                const SLstring& geomShaderFile = "");
+                const string& vertShaderFile,
+                const string& fragShaderFile,
+                const string& geomShaderFile = "",
+                const string& programName = "");
 
     ~SLGLProgram() override;
 
@@ -137,7 +138,7 @@ public:
                            const SLfloat* value,
                            GLboolean      transpose = false) const;
 
-private:
+protected:
     SLuint       _progID;     //!< OpenGL shader program object ID
     SLbool       _isLinked;   //!< Flag if program is linked
     SLVGLShader  _shaders;    //!< Vector of all shader objects

@@ -12,8 +12,8 @@
 precision highp float;
 
 //-----------------------------------------------------------------------------
-in      vec3        v_I_VS;         // Incident ray at point of illum. in viewspace
-in      vec3        v_N_VS;         // normal ray at point of illum. in viewspace
+in      vec3        v_I_VS;         // Incident ray at point of illumination in viewspace
+in      vec3        v_N_VS;         // normal ray at point of illumination in viewspace
 in      vec3        v_R_OS;         // Reflected ray in object space
 in      float       v_F_Theta;      // Fresnel reflection coefficient
 in      vec4        v_specColor;    // Specular color at vertex

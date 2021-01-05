@@ -609,37 +609,45 @@ void SLCamera::setProjection(SLSceneView* sv, const SLEyeType eye)
     }
     GET_GL_ERROR;
 }
-//----------------------------------------------------------------------------
-//Calculate and apply correction from finger x-y-rotation-
-void SLCamera::updateEnucorrRenu(SLSceneView* sv, const SLMat3f& enuRc, float& f, SLVec3f& enuOffsetPix)
+//-----------------------------------------------------------------------------
+//! Calculate and apply correction from finger x-y-rotation
+void SLCamera::updateEnuCorrRenu(SLSceneView*   sv,
+                                 const SLMat3f& enuRc,
+                                 float&         f,
+                                 SLVec3f&       enuOffsetPix)
 {
-    //1. estimate horizon in enu-frame: intersection between camera x-y-plane defined in enu-frame and enu x-y-plane:
-    //normal vector of camera x-y-plane in enu frame definition: this is the camera z-axis epressed in enu frame
+    /* 1. Estimate horizon in enu-frame: intersection between camera x-y-plane
+    defined in enu-frame and enu x-y-plane: normal vector of camera x-y-plane
+    in enu frame definition: this is the camera z-axis expressed in enu frame.*/
     SLVec3f normalCamXYPlane = enuRc * SLVec3f(0, 0, 1);
+
     //enu x-y-plane definition:  this is just the z-axis
     SLVec3f normalEnuXYPlane = SLVec3f(0, 0, 1);
-    //Estimation of intersetion line (horizon):
-    //Then the crossproduct of both vectors defines the direction of the intersection line. In our special case we know that the origin is a point the lies on both planes.
-    //Then origin plus direction vector defines the horizon
+
+    /* 2. Estimation of intersection line (horizon): Then the crossproduct of
+    both vectors defines the direction of the intersection line. In our special
+    case we know that the origin is a point the lies on both planes. Then
+    origin plus direction vector defines the horizon.*/
     SLVec3f enuHorizon;
     enuHorizon.cross(normalEnuXYPlane, normalCamXYPlane);
     enuHorizon.normalize();
 
-    //2. use horizon angle to express screen (camera plane) finger movement in enuUp-horizon plane
-    //express horizon in camera coordinate system
+    /* 3. Use horizon angle to express screen (camera plane) finger movement
+    in enuUp-horizon plane express horizon in camera coordinate system.*/
     SLMat3f cRenu    = enuRc.transposed();
     SLVec3f cHorizon = cRenu * enuHorizon;
     cHorizon.normalize();
 
     //angle between x-axis and horizon
     float horizAngDEG = atan2f((float)cHorizon.y, (float)cHorizon.x) * RAD2DEG;
+
     //rotate display x- and y-offsets to enuUp - horizon plane
     SLVec3f cOffsetPix(_xOffsetPix, _yOffsetPix, 0.f);
     SLMat3f rot(horizAngDEG, 0, 0, 1);
     enuOffsetPix = rot * cOffsetPix;
 
-    //3. apply rotation angles defined in camera plane onto vertical enu axis and horizon axis
-    //estimate focal length (todo: calculate once when fov is set)
+    /* 4. Apply rotation angles defined in camera plane onto vertical enu axis
+    and horizon axis estimate focal length (todo: calculate once when fov is set)*/
     f = sv->scrH() / (2 * tan(0.5f * fovV() * DEG2RAD));
 
     if (_devRot->offsetMode() == OM_fingerXY)
@@ -648,18 +656,27 @@ void SLCamera::updateEnucorrRenu(SLSceneView* sv, const SLMat3f& enuRc, float& f
         {
             float   yawOffsetRAD   = atanf((float)enuOffsetPix.x / f);
             float   pitchOffsetRAD = atanf((float)enuOffsetPix.y / f);
-            SLMat3f rotVertical(yawOffsetRAD * RAD2DEG, SLVec3f(0, 0, 1));
-            SLMat3f rotHorizon(pitchOffsetRAD * RAD2DEG, enuHorizon.x, enuHorizon.y, enuHorizon.z);
-            //we have to right multiply new rotation because new rotations are estimated w.r.t. enu coordinate frame
+            SLMat3f rotVertical(yawOffsetRAD * RAD2DEG,
+                                SLVec3f(0, 0, 1));
+            SLMat3f rotHorizon(pitchOffsetRAD * RAD2DEG,
+                               enuHorizon.x,
+                               enuHorizon.y,
+                               enuHorizon.z);
+
+            // we have to right multiply new rotation because new rotations
+            // are estimated w.r.t. enu coordinate frame
             _enucorrRenu = _enucorrRenu * rotHorizon * rotVertical;
         }
     }
-    else if (_devRot->offsetMode() == OM_fingerX || _devRot->offsetMode() == OM_fingerXRotYTrans)
+    else if (_devRot->offsetMode() == OM_fingerX ||
+             _devRot->offsetMode() == OM_fingerXRotYTrans)
     {
         if (_xOffsetPix != 0)
         {
             float   yawOffsetRAD = atanf((float)enuOffsetPix.x / f);
-            SLMat3f rotVertical(yawOffsetRAD * RAD2DEG, SLVec3f(0, 0, 1));
+            SLMat3f rotVertical(yawOffsetRAD * RAD2DEG,
+                                SLVec3f(0, 0, 1));
+
             //we have to right multiply new rotation because new rotations are estimated w.r.t. enu coordinate frame
             _enucorrRenu = _enucorrRenu * rotVertical;
         }
@@ -687,6 +704,7 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
 
         //camera focal length
         float f = 1.f;
+
         //finger x-y-movement expressed in enu frame
         SLVec3f enuOffsetPix;
 
@@ -704,8 +722,9 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
 
         //define camera to enu rotation matrix
         SLMat3f enuRc = enuRs * sRc;
+
         //Calculate and apply correction from finger x-y-rotation
-        updateEnucorrRenu(sv, enuRc, f, enuOffsetPix);
+        updateEnuCorrRenu(sv, enuRc, f, enuOffsetPix);
 
         SLMat3f wyRenucorr;
         if (_devRot->zeroYawAtStart())
@@ -790,7 +809,7 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
             SLMat3f enuRc = enuRs * sRc;
 
             //Calculate and apply correction from finger x-y-rotation
-            updateEnucorrRenu(sv, enuRc, f, enuOffsetPix);
+            updateEnuCorrRenu(sv, enuRc, f, enuOffsetPix);
 
             /* enu rotation (after correction) w.r.t. world
             "world" is our scene coordinate system! This rotation matrix defines how the scene
@@ -860,7 +879,6 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
         if (_projection == P_stereoSideBySideD)
         {
             // half interpupilar distance
-            //_eyeSeparation = s->oculus()->interpupillaryDistance(); update old rift code
             SLfloat halfIPD = (SLfloat)eye * _stereoEyeSeparation * -0.5f;
 
             SLMat4f trackingPos;

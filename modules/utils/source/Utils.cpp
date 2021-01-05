@@ -8,9 +8,7 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include "Utils.h"
-
-#include <sstream>
+#include <Utils.h>
 #include <cstddef>
 #include <iostream>
 #include <fstream>
@@ -21,7 +19,6 @@
 #include <utility>
 #include <vector>
 #include <algorithm>
-#include <thread>
 #include <asio.hpp>
 #include <asio/ip/tcp.hpp>
 
@@ -55,8 +52,8 @@ namespace fs = std::experimental::filesystem;
 #    include <sys/stat.h>
 #endif
 
-using namespace std;
 using asio::ip::tcp;
+using std::fstream;
 
 namespace Utils
 {
@@ -70,27 +67,27 @@ std::unique_ptr<CustomLog> customLog;
 ///////////////////////////////
 
 //-----------------------------------------------------------------------------
-//! Returns a string from a float with max. one trailing zero
+// Returns a string from a float with max. one trailing zero
 string toString(float f, int roundedDecimals)
 {
     stringstream ss;
-    ss << fixed << setprecision(roundedDecimals) << f;
+    ss << std::fixed << std::setprecision(roundedDecimals) << f;
     string num = ss.str();
     if (num == "-0.0") num = "0.0";
     return num;
 }
 //-----------------------------------------------------------------------------
-//! Returns a string from a double with max. one trailing zero
+// Returns a string from a double with max. one trailing zero
 string toString(double d, int roundedDecimals)
 {
     stringstream ss;
-    ss << fixed << setprecision(roundedDecimals) << d;
+    ss << std::fixed << std::setprecision(roundedDecimals) << d;
     string num = ss.str();
     if (num == "-0.0") num = "0.0";
     return num;
 }
 //-----------------------------------------------------------------------------
-//! Returns a string in lower case
+// Returns a string in lower case
 string toLowerString(string s)
 {
     string cpy(std::move(s));
@@ -98,7 +95,7 @@ string toLowerString(string s)
     return cpy;
 }
 //-----------------------------------------------------------------------------
-//! Returns a string in upper case
+// Returns a string in upper case
 string toUpperString(string s)
 {
     string cpy(std::move(s));
@@ -106,7 +103,7 @@ string toUpperString(string s)
     return cpy;
 }
 //-----------------------------------------------------------------------------
-//! trims a string at both ends
+// trims a string at both ends
 string trimString(const string& s, const string& drop)
 {
     string r = s;
@@ -114,7 +111,7 @@ string trimString(const string& s, const string& drop)
     return r.erase(0, r.find_first_not_of(drop));
 }
 //-----------------------------------------------------------------------------
-//! trims a string at the right end
+// trims a string at the right end
 string trimRightString(const string& s, const string& drop)
 {
     string r = s;
@@ -122,7 +119,7 @@ string trimRightString(const string& s, const string& drop)
     return r;
 }
 //-----------------------------------------------------------------------------
-//! trims a string at the left end
+// trims a string at the left end
 string trimLeftString(const string& s, const string& drop)
 {
     string r = s;
@@ -130,7 +127,7 @@ string trimLeftString(const string& s, const string& drop)
     return r;
 }
 //-----------------------------------------------------------------------------
-//! Splits an input string at a delimeter character into a string vector
+// Splits an input string at a delimeter character into a string vector
 void splitString(const string&   s,
                  char            delimiter,
                  vector<string>& splits)
@@ -148,7 +145,7 @@ void splitString(const string&   s,
     }
 }
 //-----------------------------------------------------------------------------
-//! Replaces in the source string the from string by the to string
+// Replaces in the source string the from string by the to string
 void replaceString(string&       source,
                    const string& from,
                    const string& to)
@@ -173,7 +170,7 @@ void replaceString(string&       source,
     source.swap(newString);
 }
 //-----------------------------------------------------------------------------
-//! Returns a vector of string one per line of a multiline string
+// Returns a vector of string one per line of a multiline string
 vector<string> getStringLines(const string& multiLineString)
 {
     std::stringstream        stream(multiLineString);
@@ -191,14 +188,14 @@ vector<string> getStringLines(const string& multiLineString)
 }
 //-----------------------------------------------------------------------------
 // Loads a file into a string and returns it
-string loadFileIntoString(const char* logTag, const string& pathAndFilename)
+string readTextFileIntoString(const char* logTag, const string& pathAndFilename)
 {
-    fstream shaderFile(pathAndFilename.c_str(), ios::in);
+    fstream shaderFile(pathAndFilename.c_str(), std::ios::in);
 
     if (!shaderFile.is_open())
     {
         log(logTag,
-            "File open failed in SLGLShader::load: %s",
+            "File open failed in readTextFileIntoString: %s",
             pathAndFilename.c_str());
         exit(1);
     }
@@ -208,7 +205,21 @@ string loadFileIntoString(const char* logTag, const string& pathAndFilename)
     return buffer.str();
 }
 //-----------------------------------------------------------------------------
-//! deletes non-filename characters: /\|?%*:"<>'
+// Writes a string into a text file
+void writeStringIntoTextFile(const char*   logTag,
+                             const string& stringToWrite,
+                             const string& pathAndFilename)
+{
+    std::ofstream file(pathAndFilename);
+    file << stringToWrite;
+    if (file.bad())
+        log(logTag,
+            "Writing file failed in writeStringIntoTextFile: %s",
+            pathAndFilename.c_str());
+    file.close();
+}
+//-----------------------------------------------------------------------------
+// deletes non-filename characters: /\|?%*:"<>'
 string replaceNonFilenameChars(string src, const char replaceChar)
 {
     std::replace(src.begin(), src.end(), '/', replaceChar);
@@ -222,7 +233,7 @@ string replaceNonFilenameChars(string src, const char replaceChar)
     return src;
 }
 //-----------------------------------------------------------------------------
-//! Returns local time as string like "Wed Feb 13 15:46:11 2019"
+// Returns local time as string like "Wed Feb 13 15:46:11 2019"
 string getLocalTimeString()
 {
     time_t tm = 0;
@@ -233,7 +244,7 @@ string getLocalTimeString()
     return string(buf);
 }
 //-----------------------------------------------------------------------------
-//! Returns local time as string like "13.02.19-15:46"
+// Returns local time as string like "13.02.19-15:46"
 string getDateTime1String()
 {
     time_t tm = 0;
@@ -252,7 +263,7 @@ string getDateTime1String()
     return string(shortTime);
 }
 //-----------------------------------------------------------------------------
-//! Returns local time as string like "20190213-154611"
+// Returns local time as string like "20190213-154611"
 string getDateTime2String()
 {
     time_t tm = 0;
@@ -272,22 +283,22 @@ string getDateTime2String()
     return string(shortTime);
 }
 //-----------------------------------------------------------------------------
-//! Returns the hostname from boost asio
+// Returns the hostname from boost asio
 string getHostName()
 {
     return asio::ip::host_name();
 }
 //-----------------------------------------------------------------------------
-//! Returns a formatted string as sprintf
+// Returns a formatted string as sprintf
 string formatString(string fmt_str, ...)
 {
     // Reserve two times as much as the length of the fmt_str
     int final_n = 0;
     int n       = ((int)fmt_str.size()) * 2;
 
-    string             str;
-    unique_ptr<char[]> formatted;
-    va_list            ap;
+    string                  str;
+    std::unique_ptr<char[]> formatted;
+    va_list                 ap;
     while (true)
     {
         formatted.reset(new char[n]);
@@ -303,13 +314,13 @@ string formatString(string fmt_str, ...)
     return string(formatted.get());
 }
 //-----------------------------------------------------------------------------
-//! Returns true if container contains the search string
+// Returns true if container contains the search string
 bool containsString(const string& container, const string& search)
 {
     return (container.find(search) != string::npos);
 }
 //-----------------------------------------------------------------------------
-//! Returns inputDir with unified forward slashes
+// Returns inputDir with unified forward slashes
 string unifySlashes(const string& inputDir)
 {
     string copy = inputDir;
@@ -332,7 +343,7 @@ string unifySlashes(const string& inputDir)
     return curr;
 }
 //-----------------------------------------------------------------------------
-//! Returns the path w. '\\' of path-filename string
+// Returns the path w. '\\' of path-filename string
 string getPath(const string& pathFilename)
 {
     size_t i1 = pathFilename.rfind('\\', pathFilename.length());
@@ -351,7 +362,7 @@ string getPath(const string& pathFilename)
     return pathFilename;
 }
 //-----------------------------------------------------------------------------
-//! Returns true if content of file could be put in a vector of strings
+// Returns true if content of file could be put in a vector of strings
 bool getFileContent(const string&   fileName,
                     vector<string>& vecOfStrings)
 {
@@ -380,7 +391,7 @@ bool getFileContent(const string&   fileName,
     return true;
 }
 //-----------------------------------------------------------------------------
-//! Naturally compares two strings (used for filename sorting)
+// Naturally compares two strings (used for filename sorting)
 /*! String comparison as most filesystem do it.
 Source: https://www.o-rho.com/naturalsort
 
@@ -520,7 +531,7 @@ bool compareNatural(const string& a, const string& b)
 /////////////////////////////
 
 //-----------------------------------------------------------------------------
-//! Returns the filename of path-filename string
+// Returns the filename of path-filename string
 string getFileName(const string& pathFilename)
 {
     size_t i1 = pathFilename.rfind('\\', pathFilename.length());
@@ -537,6 +548,8 @@ string getFileName(const string& pathFilename)
     return pathFilename.substr(i + 1, pathFilename.length() - i);
 }
 
+//-----------------------------------------------------------------------------
+// Returns the path of a path-filename combo
 string getDirName(const string& pathFilename)
 {
     size_t i1 = pathFilename.rfind('\\', pathFilename.length());
@@ -554,7 +567,7 @@ string getDirName(const string& pathFilename)
 }
 
 //-----------------------------------------------------------------------------
-//! Returns the filename without extension
+// Returns the filename without extension
 string getFileNameWOExt(const string& pathFilename)
 {
     string filename = getFileName(pathFilename);
@@ -567,7 +580,7 @@ string getFileNameWOExt(const string& pathFilename)
     return (filename);
 }
 //-----------------------------------------------------------------------------
-//! Returns the file extension without dot in lower case
+// Returns the file extension without dot in lower case
 string getFileExt(const string& filename)
 {
     size_t i = filename.rfind('.', filename.length());
@@ -576,7 +589,7 @@ string getFileExt(const string& filename)
     return ("");
 }
 //-----------------------------------------------------------------------------
-//! Returns a vector of unsorted directory names with path in dir
+// Returns a vector of unsorted directory names with path in dir
 vector<string> getDirNamesInDir(const string& dirName, bool fullPath)
 {
     vector<string> filePathNames;
@@ -631,7 +644,7 @@ vector<string> getDirNamesInDir(const string& dirName, bool fullPath)
     return filePathNames;
 }
 //-----------------------------------------------------------------------------
-//! Returns a vector of unsorted names (files and directories) with path in dir
+// Returns a vector of unsorted names (files and directories) with path in dir
 vector<string> getAllNamesInDir(const string& dirName, bool fullPath)
 {
     vector<string> filePathNames;
@@ -679,7 +692,7 @@ vector<string> getAllNamesInDir(const string& dirName, bool fullPath)
     return filePathNames;
 }
 //-----------------------------------------------------------------------------
-//! Returns a vector of unsorted filesnames with path in dir
+// Returns a vector of unsorted filesnames with path in dir
 vector<string> getFileNamesInDir(const string& dirName, bool fullPath)
 {
     vector<string> filePathNames;
@@ -734,7 +747,7 @@ vector<string> getFileNamesInDir(const string& dirName, bool fullPath)
     return filePathNames;
 }
 //-----------------------------------------------------------------------------
-//! Returns true if a directory exists.
+// Returns true if a directory exists.
 bool dirExists(const string& path)
 {
 #if defined(USE_STD_FILESYSTEM)
@@ -752,7 +765,7 @@ bool dirExists(const string& path)
 #endif
 }
 //-----------------------------------------------------------------------------
-//! Creates a directory with given path
+// Creates a directory with given path
 bool makeDir(const string& path)
 {
 #if defined(USE_STD_FILESYSTEM)
@@ -768,7 +781,7 @@ bool makeDir(const string& path)
 #endif
 }
 //-----------------------------------------------------------------------------
-//! Creates a directory with given path recursively
+// Creates a directory with given path recursively
 bool makeDirRecurse(std::string path)
 {
     std::string delimiter = "/";
@@ -796,7 +809,7 @@ bool makeDirRecurse(std::string path)
     return true;
 }
 //-----------------------------------------------------------------------------
-//! Removes a directory with given path
+// Removes a directory with given path
 void removeDir(const string& path)
 {
 
@@ -817,7 +830,7 @@ void removeDir(const string& path)
 #endif
 }
 //-----------------------------------------------------------------------------
-//! Removes a file with given path
+// Removes a file with given path
 void removeFile(const string& path)
 {
     if (fileExists(path))
@@ -834,10 +847,12 @@ void removeFile(const string& path)
 #endif
     }
     else
-        log("Could not remove file : %s\nErrno: %s\n", path.c_str(), "file does not exist");
+        log("Could not remove file : %s\nErrno: %s\n",
+            path.c_str(),
+            "file does not exist");
 }
 //-----------------------------------------------------------------------------
-//! Returns true if a file exists.
+// Returns true if a file exists.
 bool fileExists(const string& pathfilename)
 {
 #if defined(USE_STD_FILESYSTEM)
@@ -850,7 +865,7 @@ bool fileExists(const string& pathfilename)
 #endif
 }
 //-----------------------------------------------------------------------------
-//! Returns the file size in bytes
+// Returns the file size in bytes
 unsigned int getFileSize(const string& pathfilename)
 {
 #if defined(USE_STD_FILESYSTEM)
@@ -867,7 +882,8 @@ unsigned int getFileSize(const string& pathfilename)
     return (unsigned int)st.st_size;
 #endif
 }
-
+//-----------------------------------------------------------------------------
+//! Returns the file size in bytes
 unsigned int getFileSize(std::ifstream& fs)
 {
     fs.seekg(0, std::ios::beg);
@@ -879,7 +895,7 @@ unsigned int getFileSize(std::ifstream& fs)
 }
 
 //-----------------------------------------------------------------------------
-//! Returns the writable configuration directory with trailing forward slash
+// Returns the writable configuration directory with trailing forward slash
 string getAppsWritableDir(string appName)
 {
 #if defined(_WIN32)
@@ -910,7 +926,7 @@ string getAppsWritableDir(string appName)
 #endif
 }
 //-----------------------------------------------------------------------------
-//! Returns the working directory with forward slashes inbetween and at the end
+// Returns the working directory with forward slashes inbetween and at the end
 string getCurrentWorkingDir()
 {
 #if defined(_WIN32)
@@ -940,7 +956,7 @@ string getCurrentWorkingDir()
 #endif
 }
 //-----------------------------------------------------------------------------
-//! Deletes a file on the filesystem
+// Deletes a file on the filesystem
 bool deleteFile(string& pathfilename)
 {
     if (fileExists(pathfilename))
@@ -948,11 +964,11 @@ bool deleteFile(string& pathfilename)
     return false;
 }
 //-----------------------------------------------------------------------------
-//! process all files and folders recursively naturally sorted
-void loopFileSystemRec(const string&                                                          path,
-                       std::function<void(std::string path, std::string baseName, int depth)> processFile,
-                       std::function<void(std::string path, std::string baseName, int depth)> processDir,
-                       const int                                                              depth)
+// process all files and folders recursively naturally sorted
+void loopFileSystemRec(const string&                                           path,
+                       function<void(string path, string baseName, int depth)> processFile,
+                       function<void(string path, string baseName, int depth)> processDir,
+                       const int                                               depth)
 {
     // be sure that the folder slashes are correct
     string folder = unifySlashes(path);
@@ -983,7 +999,7 @@ void loopFileSystemRec(const string&                                            
 }
 
 //-----------------------------------------------------------------------------
-//! Dumps all files and folders on stdout recursively naturally sorted
+// Dumps all files and folders on stdout recursively naturally sorted
 void dumpFileSystemRec(const char* logtag, const string& folderPath)
 {
     const char* tab = "    ";
@@ -1005,49 +1021,8 @@ void dumpFileSystemRec(const char* logtag, const string& folderPath)
           Utils::log(logtag, "%s", indentFolderName.c_str());
       });
 }
-
-/*
-void dumpFileSystemRec(const char*   logtag,
-                       const string& folderPath,
-                       const int     depth)
-{
-    const char* tab = "    ";
-
-    // be sure that the folder slashes are correct
-    string folder = unifySlashes(folderPath);
-
-    if (dirExists(folder))
-    {
-        string indent;
-        for (int d = 0; d < depth; ++d)
-            indent += tab;
-
-        // log current folder name
-        string folderName       = getFileName(Utils::trimString(folder, "/"));
-        string indentFolderName = indent + "[" + folderName + "]";
-        Utils::log(logtag, "%s", indentFolderName.c_str());
-
-        vector<string> unsortedNames = getAllNamesInDir(folder);
-        sort(unsortedNames.begin(), unsortedNames.end(), Utils::compareNatural);
-
-        for (const auto& fileOrFolder : unsortedNames)
-        {
-            if (dirExists(fileOrFolder))
-                dumpFileSystemRec(logtag, fileOrFolder, depth + 1);
-            else
-            {
-                // log current file name
-                string fileName       = tab + getFileName(fileOrFolder);
-                string indentFileName = indent + fileName;
-                Utils::log(logtag, "%s", indentFileName.c_str());
-            }
-        }
-    }
-}
-*/
-
 //-----------------------------------------------------------------------------
-//! findFile return the full path with filename
+// findFile return the full path with filename
 /* Unfortunatelly the relative folder structure on different OS are not identical.
  * This function allows to search on for a file on different paths.
  */
@@ -1075,9 +1050,8 @@ void initFileLog(const string& logDir, bool forceFlush)
 {
     fileLog = std::make_unique<FileLog>(logDir, forceFlush);
 }
-
 //-----------------------------------------------------------------------------
-//! logs a formatted string platform independently
+// logs a formatted string platform independently
 void log(const char* tag, const char* format, ...)
 {
     char log[4096];
@@ -1102,11 +1076,11 @@ void log(const char* tag, const char* format, ...)
 #if defined(ANDROID) || defined(ANDROID_NDK)
     __android_log_print(ANDROID_LOG_INFO, tag, msg);
 #else
-    cout << msg << std::flush;
+    std::cout << msg << std::flush;
 #endif
 }
 //-----------------------------------------------------------------------------
-//! Terminates the application with a message. No leak checking.
+// Terminates the application with a message. No leak checking.
 void exitMsg(const char* tag,
              const char* msg,
              const int   line,
@@ -1131,7 +1105,7 @@ void exitMsg(const char* tag,
     exit(-1);
 }
 //-----------------------------------------------------------------------------
-//! Warn message output
+// Warn message output
 void warnMsg(const char* tag,
              const char* msg,
              const int   line,
@@ -1153,7 +1127,7 @@ void warnMsg(const char* tag,
 #endif
 }
 //-----------------------------------------------------------------------------
-//! Error message output (same as warn but with another tag for android)
+// Error message output (same as warn but with another tag for android)
 void errorMsg(const char* tag,
               const char* msg,
               const int   line,
@@ -1175,176 +1149,23 @@ void errorMsg(const char* tag,
 #endif
 }
 //-----------------------------------------------------------------------------
-//! Returns in release config the max. NO. of threads otherwise 1
+// Returns in release config the max. NO. of threads otherwise 1
 unsigned int maxThreads()
 {
 #if defined(DEBUG) || defined(_DEBUG)
     return 1;
 #else
-    return std::max(thread::hardware_concurrency(), 1U);
+    return std::max(std::thread::hardware_concurrency(), 1U);
 #endif
 }
 //-----------------------------------------------------------------------------
 
-////////////////////////////////
-// Network Handling Functions //
-////////////////////////////////
+////////////////////
+// Math Utilities //
+////////////////////
+
 //-----------------------------------------------------------------------------
-/*! Downloads the file at httpURL with the same name in the outFolder. If the
-outFolder is empty it is stored in the current working directory.
-*/
-uint64_t httpGet(const string& httpURL, const string& outFolder)
-{
-    try
-    {
-        // Remove "http://"
-        string url = httpURL;
-        replaceString(url, "http://", "");
-
-        // Get server name and get command
-        string serverName  = url.substr(0, url.find('/'));
-        string getCommand  = url.substr(url.find('/'), url.length());
-        string outFilename = url.substr(url.find_last_of('/') + 1, url.length());
-
-        asio::io_service io_service;
-
-        // Get a list of endpoints corresponding to the server name.
-        tcp::resolver           resolver(io_service);
-        tcp::resolver::query    query(serverName, "http");
-        tcp::resolver::iterator endpoint_iterator = resolver.resolve(query);
-        tcp::resolver::iterator end;
-
-        // Try each endpoint until we successfully establish a connection.
-        tcp::socket      socket(io_service);
-        asio::error_code error = asio::error::host_not_found;
-        while (error && endpoint_iterator != end)
-        {
-            socket.close();
-            socket.connect(*endpoint_iterator++, error);
-        }
-
-        asio::streambuf request;
-        ostream         request_stream(&request);
-
-        request_stream << "GET " << getCommand << " HTTP/1.0\r\n";
-        request_stream << "Host: " << serverName << "\r\n";
-        request_stream << "Accept: */*\r\n";
-        request_stream << "Connection: close\r\n\r\n";
-
-        // Send the request.
-        asio::write(socket, request);
-
-        // Read the response status line.
-        asio::streambuf response;
-        asio::read_until(socket, response, "\r\n");
-
-        // Check that response is OK.
-        istream response_stream(&response);
-        string  httpVersion;
-        response_stream >> httpVersion;
-        unsigned int statusCode = 0;
-        response_stream >> statusCode;
-        string statusMsg;
-        getline(response_stream, statusMsg);
-        statusMsg = trimString(statusMsg);
-        replaceString(statusMsg, "\r", "");
-        replaceString(statusMsg, "\n", "");
-
-        // Check HTTP response status (400 means bad request)
-        if (statusCode != 200)
-        {
-            log("httpGet",
-                "httpGet: HTTP Response returned status code: %d (%s)\n",
-                statusCode,
-                statusMsg.c_str());
-            return 0;
-        }
-
-        //cout << endl << "Http-Status: " << statusCode << endl;
-
-        // Read the response headers, which are terminated by a blank line.
-        asio::read_until(socket, response, "\r\n\r\n");
-
-        // Process the response headers.
-        string headerLine;
-        while (std::getline(response_stream, headerLine) && headerLine != "\r")
-        {
-            size_t splitPos = headerLine.find_first_of(':');
-            string info     = headerLine.substr(0, splitPos);
-            string value    = headerLine.substr(splitPos + 2);
-            //cout << info << ":" << value << endl;
-        }
-
-        // Build full outFolderFilename
-        string outFolderFilename;
-        string cwd = getCurrentWorkingDir();
-        if (outFolder.empty())
-        {
-            outFolderFilename = cwd + outFilename;
-        }
-        else
-        {
-            if (dirExists(outFolder))
-                outFolderFilename = outFolder + outFilename;
-            else
-            {
-                string msg = "Outfolder not found: " + outFolder;
-                exitMsg("httpGet", msg.c_str(), __LINE__, __FILE__);
-            }
-        }
-
-        ofstream outFile(outFolderFilename, ofstream::out | ofstream::binary);
-
-        if (outFile.is_open())
-        {
-            // Some statistics
-            size_t bytesRead  = 0;
-            size_t totalBytes = 0;
-            size_t numChunks  = 0;
-
-            // Write whatever content we already have to output.
-            if (response.size() > 0)
-            {
-                numChunks++;
-                totalBytes = response.size();
-                outFile << &response;
-            }
-
-            // Read until EOF, writing data to output as we go.
-            do
-            {
-                bytesRead = asio::read(socket,
-                                       response,
-                                       asio::transfer_at_least(1),
-                                       error);
-                if (bytesRead)
-                {
-                    numChunks++;
-                    totalBytes += bytesRead;
-                    outFile << &response;
-                }
-            } while (bytesRead);
-
-            //cout << "TotalBytes read: " << totalBytes << " in " << numChunks << " chunks." << endl;
-            outFile.close();
-            return (uint64_t)totalBytes;
-        }
-        else
-        {
-            log("File cannot be opened for writing in Utils::httpGet: %s\n",
-                outFolderFilename.c_str());
-            exit(1);
-        }
-    }
-    catch (exception& e)
-    {
-        log("Exception in Utils::httpGet: %s\n", e.what());
-        exit(1);
-    }
-    return 0;
-}
-//-----------------------------------------------------------------------------
-//! Greatest common divisor of two integer numbers (ggT = grösster gemeinsame Teiler)
+// Greatest common divisor of two integer numbers (ggT = grösster gemeinsame Teiler)
 int gcd(int a, int b)
 {
     if (b == 0)
@@ -1352,13 +1173,13 @@ int gcd(int a, int b)
     return gcd(b, a % b);
 }
 //-----------------------------------------------------------------------------
-//! Lowest common multiple (kgV = kleinstes gemeinsames Vielfache)
+// Lowest common multiple (kgV = kleinstes gemeinsames Vielfache)
 int lcm(int a, int b)
 {
     return (a * b) / Utils::gcd(a, b);
 }
 //-----------------------------------------------------------------------------
-//! Returns the closest power of 2 to a passed number.
+// Returns the closest power of 2 to a passed number.
 unsigned closestPowerOf2(unsigned num)
 {
     unsigned nextPow2 = 1;
@@ -1374,7 +1195,7 @@ unsigned closestPowerOf2(unsigned num)
         return nextPow2;
 }
 //-----------------------------------------------------------------------------
-//! Returns the next power of 2 to a passed number.
+// Returns the next power of 2 to a passed number.
 unsigned nextPowerOf2(unsigned num)
 {
     unsigned nextPow2 = 1;
@@ -1560,4 +1381,5 @@ std::string ComputerInfos::get()
     std::replace(id.begin(), id.end(), '_', '-');
     return id;
 }
+//-----------------------------------------------------------------------------
 }

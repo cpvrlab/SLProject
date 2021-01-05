@@ -93,7 +93,7 @@ void SLApplication::createAppAndScene(SLstring appName,
            "You can create only one SLApplication");
 
     name = std::move(appName);
-    SLGLProgramManager::init(dataPath + "shaders/");
+    SLGLProgramManager::init(dataPath + "shaders/", configPath);
     scene = new SLProjectScene(name, (cbOnSceneLoad)onSceneLoadCallback);
     scene->initOculus(dataPath + "shaders/");
     GlobalTimer::timerStart();
@@ -170,7 +170,7 @@ void SLApplication::handleParallelJob()
     }
 }
 //-----------------------------------------------------------------------------
-//! Thread safe setter of the progress message
+//! Thread-safe setter of the progress message
 void SLApplication::jobProgressMsg(string msg)
 {
     SLApplication::_jobMutex.lock();
@@ -178,7 +178,7 @@ void SLApplication::jobProgressMsg(string msg)
     SLApplication::_jobMutex.unlock();
 }
 //-----------------------------------------------------------------------------
-//! Threadsafe getter of the progress message
+//! Thread-safe getter of the progress message
 string SLApplication::jobProgressMsg()
 {
     lock_guard<mutex> guard(_jobMutex);

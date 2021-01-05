@@ -36,8 +36,8 @@ public:
     SLbool calcIndirect() const { return _calcIndirect; }
 
 private:
-    SLbool _calcDirect;   //!< flag to calculate direct illum.
-    SLbool _calcIndirect; //!< flag to calculate indirect illum.
+    SLbool _calcDirect;   //!< flag to calculate direct illumination
+    SLbool _calcIndirect; //!< flag to calculate indirect illumination
 };
 //-----------------------------------------------------------------------------
 #endif

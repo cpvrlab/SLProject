@@ -12,7 +12,7 @@ file(GLOB headers
         ${SL_PROJECT_ROOT}/externals/lib-External/imgui/imgui.h
         ${SL_PROJECT_ROOT}/externals/lib-External/imgui/imgui_internal.h
         ${SL_PROJECT_ROOT}/externals/lib-External/imgui/imgui_glfw.h
-        ${SL_PROJECT_ROOT}/externals/lib-External/imgui/examples/imgui_impl_opengl3.h
+        ${SL_PROJECT_ROOT}/externals/lib-External/imgui/backends/imgui_impl_opengl3.h
     )
 
 file(GLOB sources
@@ -20,8 +20,8 @@ file(GLOB sources
         ${SL_PROJECT_ROOT}/externals/lib-SLExternal/imgui/imgui_demo.cpp
         ${SL_PROJECT_ROOT}/externals/lib-SLExternal/imgui/imgui_draw.cpp
         ${SL_PROJECT_ROOT}/externals/lib-SLExternal/imgui/imgui_widgets.cpp
-        ${SL_PROJECT_ROOT}/externals/lib-SLExternal/imgui/examples/imgui_impl_glfw.cpp
-        ${SL_PROJECT_ROOT}/externals/lib-SLExternal/imgui/examples/imgui_impl_opengl3.cpp
+        ${SL_PROJECT_ROOT}/externals/lib-SLExternal/imgui/backends/imgui_impl_glfw.cpp
+        ${SL_PROJECT_ROOT}/externals/lib-SLExternal/imgui/backends/imgui_impl_opengl3.cpp
         ${SL_PROJECT_ROOT}/externals/lib-SLExternal/imgui/examples/example_glfw_opengl3/main.cpp
     )
 
@@ -41,6 +41,7 @@ target_include_directories(${target}
         PRIVATE
         ${SL_PROJECT_ROOT}/externals/lib-SLExternal
         ${SL_PROJECT_ROOT}/externals/lib-SLExternal/imgui
+        ${SL_PROJECT_ROOT}/externals/lib-SLExternal/imgui/backends
         ${SL_PROJECT_ROOT}/externals/lib-SLExternal/imgui/examples
         ${glfw_INCLUDE_DIR}
         PUBLIC

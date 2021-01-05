@@ -13,7 +13,7 @@
 #include <SLGLConetracer.h>
 #include <SLGLConetracerTex3D.h>
 #include <SLGLProgram.h>
-#include <SLGLGenericProgram.h>
+#include <SLGLProgramGeneric.h>
 #include <SLSceneView.h>
 
 //-----------------------------------------------------------------------------
@@ -57,7 +57,7 @@ void SLGLConetracer::init(SLint          scrW,
     GET_GL_ERROR;
 
     // Initialize voxelization:
-    SLGLProgram* voxelizeShader = new SLGLGenericProgram(nullptr,
+    SLGLProgram* voxelizeShader = new SLGLProgramGeneric(nullptr,
                                                          _shaderFilePath + "CTVoxelization.vert",
                                                          _shaderFilePath + "CTVoxelization.frag",
                                                          _shaderFilePath + "CTVoxelization.geom");
@@ -67,7 +67,7 @@ void SLGLConetracer::init(SLint          scrW,
     GET_GL_ERROR;
 
     // initialize voxel visualization:
-    SLGLProgram* worldPosProg = new SLGLGenericProgram(nullptr,
+    SLGLProgram* worldPosProg = new SLGLProgramGeneric(nullptr,
                                                        _shaderFilePath + "CTWorldpos.vert",
                                                        _shaderFilePath + "CTWorldpos.frag");
     worldPosProg->initRaw();
@@ -75,7 +75,7 @@ void SLGLConetracer::init(SLint          scrW,
     _worldMat = new SLMaterial(nullptr, "World-Material", worldPosProg);
 
     // initialize voxel visualization:
-    SLGLProgram* visualizeShader = new SLGLGenericProgram(nullptr,
+    SLGLProgram* visualizeShader = new SLGLProgramGeneric(nullptr,
                                                           _shaderFilePath + "CTVisualize.vert",
                                                           _shaderFilePath + "CTVisualize.frag");
     visualizeShader->initRaw();
@@ -83,7 +83,7 @@ void SLGLConetracer::init(SLint          scrW,
     _visualizeMat = new SLMaterial(nullptr, "World-Material", visualizeShader);
 
     // initialize voxel conetracing material:
-    SLGLProgram* ctShader = new SLGLGenericProgram(nullptr,
+    SLGLProgram* ctShader = new SLGLProgramGeneric(nullptr,
                                                    _shaderFilePath + "CT.vert",
                                                    _shaderFilePath + "CT.frag");
     ctShader->initRaw();

@@ -33,20 +33,24 @@ public:
                SLShaderType    type);
     ~SLGLShader() override;
 
-    void     load(const SLstring& filename);
-    void     loadFromMemory(const SLstring& program);
-    SLstring typeName();
+    void            load(const SLstring& filename);
+    void            loadFromMemory(const SLstring& program);
+    SLstring        typeName();
+    static SLstring removeComments(SLstring src);
 
     // Getters
     SLShaderType type() { return _type; }
     SLuint       shaderID() const { return _shaderID; }
     SLstring     code() { return _code; }
 
+    // Setters
+    void code(SLstring strCode) { _code = strCode; }
+    void file(SLstring strFile) { _file = strFile; }
+
 private:
-    SLbool          createAndCompile(SLVLight* lights);
-    SLbool          createAndCompileSimple();
-    static SLstring removeComments(SLstring src);
-    SLstring        preprocessPragmas(SLstring code, SLVLight* lights);
+    SLbool   createAndCompile(SLVLight* lights);
+    SLbool   createAndCompileSimple();
+    SLstring preprocessPragmas(SLstring code, SLVLight* lights);
 
 protected:
     SLShaderType _type;     //!< Shader type enumeration

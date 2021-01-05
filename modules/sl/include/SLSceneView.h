@@ -151,6 +151,7 @@ public:
     void doMultiSampling(SLbool doMS) { _doMultiSampling = doMS; }
     void doDepthTest(SLbool doDT) { _doDepthTest = doDT; }
     void doFrustumCulling(SLbool doFC) { _doFrustumCulling = doFC; }
+    void doAlphaSorting(SLbool doAS) { _doAlphaSorting = doAS; }
     void renderType(SLRenderType rt) { _renderType = rt; }
     void viewportSameAsVideo(bool sameAsVideo) { _viewportSameAsVideo = sameAsVideo; }
     void scr2fb(float scr2fbX, float scr2fbY)
@@ -190,6 +191,7 @@ public:
     SLbool          viewportSameAsVideo() const { return _viewportSameAsVideo; }
     SLUiInterface*  gui() { return _gui; }
     SLbool          doFrustumCulling() const { return _doFrustumCulling; }
+    SLbool          doAlphaSorting() const { return _doAlphaSorting; }
     SLbool          doMultiSampling() const { return _doMultiSampling; }
     SLbool          doDepthTest() const { return _doDepthTest; }
     SLbool          doWaitOnIdle() const { return _doWaitOnIdle; }
@@ -243,6 +245,7 @@ protected:
     SLbool     _doDepthTest;      //!< Flag if depth test is turned on
     SLbool     _doMultiSampling;  //!< Flag if multisampling is on
     SLbool     _doFrustumCulling; //!< Flag if view frustum culling is on
+    SLbool     _doAlphaSorting;   //!< Flag if alpha sorting in blending is on
     SLbool     _doWaitOnIdle;     //!< Flag for Event waiting
     SLbool     _isFirstFrame;     //!< Flag if it is the first frame rendering
     SLDrawBits _drawBits;         //!< Sceneview level drawing flags

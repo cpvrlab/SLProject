@@ -633,7 +633,7 @@ int main()
     SLPoints* mapPointMesh = nullptr;
 
     SLMaterial* redMat = new SLMaterial(SLCol4f::RED, "Red");
-    redMat->program(new SLGLGenericProgram("ColorUniformPoint.vert", "Color.frag"));
+    redMat->program(new SLGLProgramGeneric("ColorUniformPoint.vert", "Color.frag"));
     redMat->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 3.0f));
 
     SLNode* mapNode = new SLNode("Map");

@@ -12,7 +12,7 @@ Device::Device(Instance&                 instance,
     QueueFamilyIndices indices = findQueueFamilies(physicalDevice);
 
     vector<VkDeviceQueueCreateInfo> queueCreateInfos;
-    set<uint32_t>                   uniqueQueueFamilies = {indices.graphicsFamily, indices.presentFamily};
+    std::set<uint32_t>              uniqueQueueFamilies = {indices.graphicsFamily, indices.presentFamily};
 
     float queuePriority = 1.0f;
     for (uint32_t queueFamily : uniqueQueueFamilies)
@@ -138,7 +138,7 @@ void Device::createSyncObjects(Swapchain& swapchain)
                           &fenceInfo,
                           nullptr,
                           &_inFlightFences[i]) != VK_SUCCESS)
-            cerr << "failed to create synchronization objects for a frame!" << endl;
+            std::cerr << "failed to create synchronization objects for a frame!" << std::endl;
 }
 //-----------------------------------------------------------------------------
 void Device::waitIdle()

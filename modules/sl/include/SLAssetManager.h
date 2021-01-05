@@ -15,7 +15,7 @@
 #include <SLMaterial.h>
 #include <SLMesh.h>
 #include <vector>
-#include <SLGLGenericProgram.h>
+#include <SLGLProgramGeneric.h>
 
 class SLSceneView;
 class SLCamera;
@@ -69,6 +69,15 @@ public:
             }
         }
         return false;
+    }
+
+    //! Returns the pointer to shader program if found by name
+    SLGLProgram*  getProgramByName (const string& programName)
+    {
+        for (auto sp : _programs)
+            if (sp->name() == programName)
+                return sp;
+        return nullptr;
     }
 
     SLVMesh&      meshes() { return _meshes; }

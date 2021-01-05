@@ -13,6 +13,9 @@
 #include <Utils.h>
 #include <algorithm>
 #include <cstring>
+
+namespace Utils
+{
 //-----------------------------------------------------------------------------
 AverageTiming::AverageTiming()
 {
@@ -146,15 +149,15 @@ void AverageTiming::doGetTimingMessage(char* m)
     // calculate longest blockname
     size_t maxLen = 0;
     for (auto* block : blocks)
-        if (block->name.length() > maxLen) 
+        if (block->name.length() > maxLen)
             maxLen = block->name.length();
 
     //insert time measurements
     for (auto* block : blocks)
     {
-        float        val   = block->val.average();
-        float        valPC = Utils::clamp(val / refTime * 100.0f, 0.0f, 100.0f);
-        string       name  = block->name;
+        float  val   = block->val.average();
+        float  valPC = Utils::clamp(val / refTime * 100.0f, 0.0f, 100.0f);
+        string name  = block->name;
 
         name.append(maxLen - name.length(), ' ');
 
@@ -164,4 +167,5 @@ void AverageTiming::doGetTimingMessage(char* m)
         ss << "%s: %4.1f ms (%3d%%)\n";
         sprintf(m + strlen(m), ss.str().c_str(), name.c_str(), val, (int)valPC);
     }
-}//-----------------------------------------------------------------------------
+} //-----------------------------------------------------------------------------
+};

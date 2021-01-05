@@ -18,21 +18,8 @@
 #include <SLGLProgramManager.h>
 
 //-----------------------------------------------------------------------------
-SLMaterialDefaultGray*                SLMaterialDefaultGray::_instance                = nullptr;
-SLMaterialDefaultColorAttribute*      SLMaterialDefaultColorAttribute::_instance      = nullptr;
-SLGLDefaultProgColorAttrib*           SLGLDefaultProgColorAttrib::_instance           = nullptr;
-SLGLDefaultProgPerVrtBlinn*           SLGLDefaultProgPerVrtBlinn::_instance           = nullptr;
-SLGLDefaultProgPerVrtBlinnTex*        SLGLDefaultProgPerVrtBlinnTex::_instance        = nullptr;
-SLGLDefaultProgPerPixBlinn*           SLGLDefaultProgPerPixBlinn::_instance           = nullptr;
-SLGLDefaultProgPerPixBlinnSM*         SLGLDefaultProgPerPixBlinnSM::_instance         = nullptr;
-SLGLDefaultProgPerPixBlinnSMAO*       SLGLDefaultProgPerPixBlinnSMAO::_instance       = nullptr;
-SLGLDefaultProgPerPixBlinnTex*        SLGLDefaultProgPerPixBlinnTex::_instance        = nullptr;
-SLGLDefaultProgPerPixBlinnTexAO*      SLGLDefaultProgPerPixBlinnTexAO::_instance      = nullptr;
-SLGLDefaultProgPerPixBlinnTexSM*      SLGLDefaultProgPerPixBlinnTexSM::_instance      = nullptr;
-SLGLDefaultProgPerPixBlinnTexNrm*     SLGLDefaultProgPerPixBlinnTexNrm::_instance     = nullptr;
-SLGLDefaultProgPerPixBlinnTexNrmAO*   SLGLDefaultProgPerPixBlinnTexNrmAO::_instance   = nullptr;
-SLGLDefaultProgPerPixBlinnTexNrmSM*   SLGLDefaultProgPerPixBlinnTexNrmSM::_instance   = nullptr;
-SLGLDefaultProgPerPixBlinnTexNrmAOSM* SLGLDefaultProgPerPixBlinnTexNrmAOSM::_instance = nullptr;
+SLMaterialDefaultGray*           SLMaterialDefaultGray::_instance           = nullptr;
+SLMaterialDefaultColorAttribute* SLMaterialDefaultColorAttribute::_instance = nullptr;
 //-----------------------------------------------------------------------------
 /*! The constructor of the scene.
 There will be only one scene for an application and it gets constructed in
@@ -48,6 +35,7 @@ As examples you can see it in:
 SLScene::SLScene(const SLstring& name,
                  cbOnSceneLoad   onSceneLoadCallback)
   : SLObject(name),
+    _loadTimeMS(0),
     _frameTimesMS(60, 0.0f),
     _updateTimesMS(60, 0.0f),
     _updateAABBTimesMS(60, 0.0f),
@@ -118,22 +106,9 @@ void SLScene::unInit()
     _selectedMeshes.clear();
     _selectedNodes.clear();
 
-    // Delete the default material and programs that are scene dependent
+    // Delete the default material that are scene dependent
     SLMaterialDefaultGray::deleteInstance();
     SLMaterialDefaultColorAttribute::deleteInstance();
-    SLGLDefaultProgColorAttrib::deleteInstance();
-    SLGLDefaultProgPerVrtBlinn::deleteInstance();
-    SLGLDefaultProgPerVrtBlinnTex::deleteInstance();
-    SLGLDefaultProgPerPixBlinn::deleteInstance();
-    SLGLDefaultProgPerPixBlinnSM::deleteInstance();
-    SLGLDefaultProgPerPixBlinnSMAO::deleteInstance();
-    SLGLDefaultProgPerPixBlinnTex::deleteInstance();
-    SLGLDefaultProgPerPixBlinnTexAO::deleteInstance();
-    SLGLDefaultProgPerPixBlinnTexSM::deleteInstance();
-    SLGLDefaultProgPerPixBlinnTexNrm::deleteInstance();
-    SLGLDefaultProgPerPixBlinnTexNrmAO::deleteInstance();
-    SLGLDefaultProgPerPixBlinnTexNrmSM::deleteInstance();
-    SLGLDefaultProgPerPixBlinnTexNrmAOSM::deleteInstance();
 }
 //-----------------------------------------------------------------------------
 //! Updates animations and AABBs

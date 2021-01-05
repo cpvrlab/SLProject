@@ -128,11 +128,11 @@ void WAIOrbVocabulary::create(std::vector<cv::Mat> &features, int k, int l)
     p.maxIters = 11;
     p.verbose  = true;
 
-    cout << "Creating a " << p.k << "^" << p.L << " vocabulary..." << endl;
+    std::cout << "Creating a " << p.k << "^" << p.L << " vocabulary..." << std::endl;
     _vocabulary = new fbow::Vocabulary();
 
     vc.create(*_vocabulary, features, "slamvoc", p);
-    cout << "... done!" << endl;
+    std::cout << "... done!" << std::endl;
 #else
     const DBoW2::WeightingType weight = DBoW2::TF_IDF;
     const DBoW2::ScoringType   score  = DBoW2::L1_NORM;

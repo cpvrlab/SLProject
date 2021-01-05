@@ -34,9 +34,9 @@ all light node types are used. \n
 All light nodes inherited from SLLight work automatically together with the
 following shaders: \n
   - PerVrtBlinn.vert, PerVrtBlinn.frag \n
-  - PerVrtBlinnTex.vert, PerVrtBlinnTex.frag \n
+  - PerVrtBlinnTm.vert, PerVrtBlinnTm.frag \n
   - PerPixBlinn.vert, PerPixBlinn.frag \n
-  - PerPixBlinnTex.vert, PerPixBlinnTex.frag \n
+  - PerPixBlinnTm.vert, PerPixBlinnTm.frag \n
 */
 class SLLightRect : public SLNode
   , public SLLight

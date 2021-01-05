@@ -61,7 +61,8 @@ file(GLOB headers
         ${CMAKE_CURRENT_SOURCE_DIR}/include/GL/SLGLDepthBuffer.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/GL/SLGLEnums.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/GL/SLGLFbo.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/GL/SLGLGenericProgram.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/GL/SLGLProgramGeneric.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/GL/SLGLProgramGenerated.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/GL/SLGLImGui.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/GL/SLGLOculus.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/GL/SLGLOculusFB.h
@@ -178,6 +179,7 @@ set(sources
         ${CMAKE_CURRENT_SOURCE_DIR}/source/GL/SLGLOculus.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/GL/SLGLOculusFB.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/GL/SLGLProgram.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/GL/SLGLProgramGenerated.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/GL/SLGLProgramManager.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/GL/SLGLShader.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/GL/SLGLState.cpp

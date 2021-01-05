@@ -27,7 +27,7 @@ MapEdition::MapEdition(SLSceneView* sv, SLNode* mappointNode, WAIMap* map, SLstr
 
     setKeyframeMode(false);
 
-    _prog = new SLGLGenericProgram(nullptr, shaderDir + "ColorUniformPoint.vert", shaderDir + "Color.frag");
+    _prog = new SLGLProgramGeneric(nullptr, shaderDir + "ColorUniformPoint.vert", shaderDir + "Color.frag");
     _prog->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 3.0f));
 
     SLMaterial* green = new SLMaterial(nullptr, "Green Opaque", SLCol4f::GREEN, SLVec4f::WHITE, 100.0f, 0.0f, 0.0f, 0.0f, _prog);

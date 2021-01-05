@@ -368,7 +368,6 @@ static void onKeyPress(GLFWwindow* myWindow,
             glfwSetWindowPos(myWindow, 10, 30);
         }
     }
-
     // Toggle fullscreen mode
     else if (key == K_F9 && action == GLFW_PRESS)
     {

@@ -58,13 +58,13 @@ SLSceneView::~SLSceneView()
 @param gui Interface for the external Gui build function
 @param configPath Path to the config file
 */
-void SLSceneView::init(SLstring           name,
-                       SLint              screenWidth,
-                       SLint              screenHeight,
-                       void*              onWndUpdateCallback,
-                       void*              onSelectNodeMeshCallback,
-                       SLUiInterface*     gui,
-                       const string& configPath)
+void SLSceneView::init(SLstring       name,
+                       SLint          screenWidth,
+                       SLint          screenHeight,
+                       void*          onWndUpdateCallback,
+                       void*          onSelectNodeMeshCallback,
+                       SLUiInterface* gui,
+                       const string&  configPath)
 {
     _gui        = gui;
     _name       = std::move(name);
@@ -93,8 +93,9 @@ void SLSceneView::init(SLstring           name,
     _touchDowns = 0;
 
     _doDepthTest      = true;
-    _doMultiSampling  = true; // true=OpenGL multisampling is turned on
-    _doFrustumCulling = true; // true=enables view frustum culling
+    _doMultiSampling  = true;
+    _doFrustumCulling = true;
+    _doAlphaSorting   = true;
     _doWaitOnIdle     = true;
     _drawBits.allOff();
 
@@ -129,8 +130,9 @@ void SLSceneView::unInit()
     _renderType = RT_gl;
 
     _doDepthTest      = true;
-    _doMultiSampling  = true; // true=OpenGL multisampling is turned on
-    _doFrustumCulling = true; // true=enables view frustum culling
+    _doMultiSampling  = true;
+    _doFrustumCulling = true;
+    _doAlphaSorting   = true;
     _doWaitOnIdle     = true;
     _drawBits.allOff();
 
@@ -535,7 +537,7 @@ SLbool SLSceneView::onPaint()
     SLbool camUpdated = false;
 
     // Init and build GUI for all projections except distorted stereo
-    if (_camera && _camera->projection() != P_stereoSideBySideD)
+    //if (_camera && _camera->projection() != P_stereoSideBySideD)
     {
         if (_gui)
             _gui->onInitNewFrame(_s, this);
@@ -566,8 +568,8 @@ SLbool SLSceneView::onPaint()
 
     // Finish Oculus framebuffer
     if (_s && _camera && _camera->projection() == P_stereoSideBySideD)
-        _s->oculus()->renderDistortion(_scrW,
-                                       _scrH,
+        _s->oculus()->renderDistortion(_scrW * _scr2fbX,
+                                       _scrH * _scr2fbY,
                                        _oculusFB.texID(),
                                        _camera->background().colors()[0]);
 
@@ -828,14 +830,14 @@ void SLSceneView::draw3DGLAll()
     {
         if (material->hasAlpha())
         {
-            draw3DGLNodes(material->nodesVisible3D(), true, true);
+            draw3DGLNodes(material->nodesVisible3D(), true, _doAlphaSorting);
             _stats3D.numNodesBlended += (SLuint)material->nodesVisible3D().size();
         }
     }
 
     // d) Draw remaining blended nodes (SLText, needs redesign)
     _stats3D.numNodesBlended += (SLuint)_nodesBlended3D.size();
-    draw3DGLNodes(_nodesBlended3D, true, true);
+    draw3DGLNodes(_nodesBlended3D, true, _doAlphaSorting);
 
     // e) Draw helpers in overlay mode (not depth buffered)
     for (auto material : _visibleMaterials3D)
@@ -1051,7 +1053,7 @@ void SLSceneView::draw2DGL()
     _stats2D.numNodesBlended = 0;
 
     // Set orthographic projection with 0,0,0 in the screen center
-    if (_camera && _camera->projection() != P_stereoSideBySideD)
+    //if (_camera && _camera->projection() != P_stereoSideBySideD)
     {
         if (_s)
         {
@@ -1665,6 +1667,7 @@ SLbool SLSceneView::onKeyPress(SLKey key, SLKey mod)
     if (key=='L') {doMultiSampling(!doMultiSampling()); return true;}
     if (key=='I') {doWaitOnIdle(!doWaitOnIdle()); return true;}
     if (key=='F') {doFrustumCulling(!doFrustumCulling()); return true;}
+    if (key=='J') {doAlphaSorting(!doAlphaSorting()); return true;}
     if (key=='T') {doDepthTest(!doDepthTest()); return true;}
     if (key==K_space) {_s->stopAnimations(!_s->stopAnimations()); return true;}
 
@@ -1694,6 +1697,9 @@ SLbool SLSceneView::onKeyPress(SLKey key, SLKey mod)
 
     if (key==K_esc)
     {
+        if (_camera && _camera->projection() == P_stereoSideBySideD)
+            _camera->projection(P_monoPerspective);
+
         if (!_s->selectedNodes().empty() ||
             !_camera->selectRect().isEmpty() ||
             !_camera->deselectRect().isEmpty())
@@ -1703,11 +1709,11 @@ SLbool SLSceneView::onKeyPress(SLKey key, SLKey mod)
             _camera->deselectRect().setZero();
             return true;
         }
+
         if(_renderType == RT_rt) _stopRT = true;
         if(_renderType == RT_pt) _stopPT = true;
         return true;
     }
-
     // clang-format on
 
     SLbool result = false;
@@ -1795,7 +1801,7 @@ SLstring SLSceneView::windowTitle()
         if (_raytracer.doContinuous())
         {
             sprintf(title,
-                    "%s (fps: %4.1f, Threads: %d)",
+                    "Ray Tracing: %s (fps: %4.1f, Threads: %d)",
                     _s->name().c_str(),
                     _s->fps(),
                     _raytracer.numThreads());
@@ -1803,7 +1809,7 @@ SLstring SLSceneView::windowTitle()
         else
         {
             sprintf(title,
-                    "%s (Threads: %d)",
+                    "Ray Tracing: %s (Threads: %d)",
                     _s->name().c_str(),
                     _raytracer.numThreads());
         }
@@ -1811,7 +1817,7 @@ SLstring SLSceneView::windowTitle()
     else if (_renderType == RT_pt)
     {
         sprintf(title,
-                "%s (Threads: %d)",
+                "Path Tracing: %s (Threads: %d)",
                 _s->name().c_str(),
                 _pathtracer.numThreads());
     }
@@ -1819,9 +1825,9 @@ SLstring SLSceneView::windowTitle()
     {
         string format;
         if (_s->fps() > 5)
-            format = "%s (fps: %4.0f, %u nodes of %u rendered)";
+            format = "OpenGL Renderer: %s (fps: %4.0f, %u nodes of %u rendered)";
         else
-            format = "%s (fps: %4.1f, %u nodes of %u rendered)";
+            format = "OpenGL Renderer: %s (fps: %4.1f, %u nodes of %u rendered)";
 
         sprintf(title,
                 format.c_str(),

@@ -407,7 +407,7 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
 
     // enable polygon offset if voxels are drawn to avoid stitching
     if (sv->drawBit(SL_DB_VOXELS) || node->drawBit(SL_DB_VOXELS))
-        stateGL->polygonOffset(true, 1.0f, 1.0f);
+        stateGL->polygonOffsetLine(true, -1.0f, -1.0f);
 
     ///////////////////////////////////////
     // 2) Generate Vertex Array Object once
@@ -477,9 +477,9 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
             if ((sv->drawBit(SL_DB_WITHEDGES) || node->drawBit(SL_DB_WITHEDGES)) &&
                 (!IE32.empty() || !IE16.empty()))
             {
-                stateGL->polygonOffset(true, 1.0f, 1.0f);
+                stateGL->polygonOffsetLine(true, 1.0f, 1.0f);
                 _vao.drawEdges(_edgeColor, _edgeWidth);
-                stateGL->polygonOffset(false);
+                stateGL->polygonOffsetLine(false);
             }
         }
     }
@@ -540,7 +540,7 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
         if (sv->drawBit(SL_DB_VOXELS) || node->drawBit(SL_DB_VOXELS))
         {
             _accelStruct->draw(sv);
-            stateGL->polygonOffset(false);
+            stateGL->polygonOffsetLine(false);
         }
         else
         { // Delete the visualization VBO if not rendered anymore
@@ -676,9 +676,10 @@ void SLMesh::deselectPartialSelection()
  array IS32. See also SLMesh::handleRectangleSelection.
  */
 void SLMesh::drawSelectedVertices()
+
 {
     SLGLState* stateGL = SLGLState::instance();
-    stateGL->polygonOffset(true, 1.0f, 1.0f);
+    stateGL->polygonOffsetPoint(true);
     stateGL->depthMask(false);
     stateGL->depthTest(false);
 
@@ -698,7 +699,7 @@ void SLMesh::drawSelectedVertices()
     }
 
     stateGL->polygonLine(false);
-    stateGL->polygonOffset(false);
+    stateGL->polygonOffsetPoint(false);
     stateGL->depthMask(true);
     stateGL->depthTest(true);
 }
