@@ -2,6 +2,9 @@
 # CMake configuration for lib-SLProject
 #
 
+add_compile_options("-w")
+add_subdirectory(externals)
+
 set(target lib-SLProject)
 
 set(platform_specific_include_dirs)

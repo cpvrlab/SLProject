@@ -68,8 +68,6 @@ if (SL_BUILD_APPS)
 	add_subdirectory(apps)
 endif()
 
-add_subdirectory(externals)
-
 if (SL_BUILD_WAI)
 	add_subdirectory(modules/wai)
 endif()

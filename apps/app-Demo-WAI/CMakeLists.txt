@@ -105,8 +105,6 @@ set(erlebar_headers
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/scenes/UserGuidanceScene.h
 	)
 	
-	message(STATUS "erlebar_headers: ${erlebar_headers}")
-	
 set(erlebar_sources
 	${SL_PROJECT_ROOT}/apps/source/AsyncWorker.cpp
 	${SL_PROJECT_ROOT}/apps/source/LogWindow.cpp
