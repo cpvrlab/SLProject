@@ -26,8 +26,8 @@
 #include <SLCoordAxis.h>
 #include <sens/SENSSimHelper.h>
 #include <SLDeviceLocation.h>
-#include <sens/SENSARCore.h>
-#include <math/SLAlgo.h>
+#include <SENSARCore.h>
+#include <SLAlgo.h>
 #include <SLDeviceRotation.h>
 #include <WAIImageStabilizedOrientation.h>
 #include <SLDeviceRotation.h>

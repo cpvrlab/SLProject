@@ -40,7 +40,7 @@ set_target_properties(${target}
 
 target_include_directories(${target}
         PRIVATE
-        ${SL_PROJECT_ROOT}/modules/math/include/math
+        ${SL_PROJECT_ROOT}/modules/math/include
         ${SL_PROJECT_ROOT}/modules/math/externals
         ${SL_PROJECT_ROOT}/modules/sl/include
         ${SL_PROJECT_ROOT}/modules/sl/include/CV

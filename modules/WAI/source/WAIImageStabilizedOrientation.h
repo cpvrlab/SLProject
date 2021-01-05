@@ -2,7 +2,7 @@
 #define WAI_IMAGE_STABILIZED_ORIENTATION_H
 
 #include <opencv2/core/core.hpp>
-#include <math/SLVec3.h>
+#include <SLVec3.h>
 
 class WAIImageStabilizedOrientation
 {
@@ -20,7 +20,6 @@ public:
                                                    float scaleToGray,
                                                    bool decorate); //for debug decoration
 private:
-   
     cv::Mat      _lastImageGray;
     cv::Mat      _Tcw;
     float        _xAngRAD = 0.f;
