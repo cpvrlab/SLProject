@@ -3,7 +3,7 @@
 #include <CVCamera.h>
 #include <GLSLextractor.h>
 #include <FeatureExtractorFactory.h>
-#include <sens/SENSVideoStream.h>
+#include <SENSVideoStream.h>
 #include <MapCreator.h>
 
 MapCreator::MapCreator(std::string   erlebARDir,

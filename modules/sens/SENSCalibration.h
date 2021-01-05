@@ -11,7 +11,7 @@
 #ifndef SENSCALIBRATION_H
 #define SENSCALIBRATION_H
 
-#include <sens/SENSCalibrationEstimatorParams.h>
+#include <SENSCalibrationEstimatorParams.h>
 
 using std::string;
 
