@@ -12,9 +12,9 @@ set(headers
     ${SL_PROJECT_ROOT}/apps/source/wai/AppWAISlamParamHelper.h
     ${SL_PROJECT_ROOT}/apps/source/wai/WAIMapStorage.h
     ${SL_PROJECT_ROOT}/apps/source/wai/FeatureExtractorFactory.h
-    ${SL_PROJECT_ROOT}/apps/source/sens/SENSVideoStream.h
-    ${SL_PROJECT_ROOT}/apps/source/sens/SENSCalibration.h
-    ${SL_PROJECT_ROOT}/apps/source/sens/SENSUtils.h
+    ${SENS_ROOT}/SENSVideoStream.h
+    ${SENS_ROOT}/SENSCalibration.h
+    ${SENS_ROOT}/SENSUtils.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GLSLHessian.h
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GLSLextractor.h
     )
@@ -24,9 +24,9 @@ set(sources
     ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/WAIAutoCalibration.cpp
     ${SL_PROJECT_ROOT}/apps/source/wai/WAIMapStorage.cpp
     ${SL_PROJECT_ROOT}/apps/source/wai/FeatureExtractorFactory.cpp
-    ${SL_PROJECT_ROOT}/apps/source/sens/SENSCalibration.cpp
-    ${SL_PROJECT_ROOT}/apps/source/sens/SENSVideoStream.cpp
-    ${SL_PROJECT_ROOT}/apps/source/sens/SENSUtils.cpp
+    ${SENS_ROOT}/SENSCalibration.cpp
+    ${SENS_ROOT}/SENSVideoStream.cpp
+    ${SENS_ROOT}/SENSUtils.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GLSLHessian.cpp
 	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GLSLextractor.cpp
     )
@@ -50,7 +50,7 @@ target_include_directories(${target}
         PRIVATE
         ${SL_PROJECT_ROOT}/apps/source/
         ${SL_PROJECT_ROOT}/apps/source/wai
-	    ${SL_PROJECT_ROOT}/apps/source/sens
+	    ${SENS_ROOT}
         ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/
         ${SL_PROJECT_ROOT}/apps/app-RelocDebug-WAI/
         ${SL_PROJECT_ROOT}/externals/utils/lib-Utils/source

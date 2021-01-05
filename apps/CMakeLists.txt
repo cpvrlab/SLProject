@@ -12,8 +12,10 @@ elseif("${SYSTEM_NAME_UPPER}" MATCHES "IOS")
 	add_subdirectory(app-Demo-WAI)
 	
 else()
-    add_subdirectory(exercices)
-    add_subdirectory(app-Demo-Imgui)
+    if (SL_BUILD_EXERCISES)
+        add_subdirectory(exercices)
+    endif()
+    #add_subdirectory(app-Demo-Imgui)
     add_subdirectory(app-Demo-Node)
     add_subdirectory(app-Demo-SLProject)
 	

@@ -53,18 +53,19 @@ set(MACOSX_BUNDLE_COPYRIGHT "Copyright Berner Fachhochschule (Marcus Hudritsch)"
 #set(source_path "${CMAKE_CURRENT_SOURCE_DIR}")
 set(compile_definitions SL_STARTSCENE=SID_Minimal)
 
+#message(STATUS "SENS_ROOT_IOS ${SENS_ROOT}")
 set(headers
 	${erlebar_headers}
 	${CMAKE_CURRENT_SOURCE_DIR}/ErlebARAppDelegate.h
 	${CMAKE_CURRENT_SOURCE_DIR}/ErlebARViewController.h
-    ${SL_PROJECT_ROOT}/apps/source/sens/iOS/SENSiOSCamera.h
-	${SL_PROJECT_ROOT}/apps/source/sens/iOS/SENSiOSCameraDelegate.h
-	${SL_PROJECT_ROOT}/apps/source/sens/iOS/SENSiOSGps.h
-	${SL_PROJECT_ROOT}/apps/source/sens/iOS/SENSiOSGpsDelegate.h
-	${SL_PROJECT_ROOT}/apps/source/sens/iOS/SENSiOSOrientation.h
-	${SL_PROJECT_ROOT}/apps/source/sens/iOS/SENSiOSOrientationDelegate.h
-    ${SL_PROJECT_ROOT}/apps/source/sens/iOS/SENSiOSARCore.h
-    ${SL_PROJECT_ROOT}/apps/source/sens/iOS/SENSiOSARCoreDelegate.h
+    ${SENS_ROOT}/iOS/SENSiOSCamera.h
+	${SENS_ROOT}/iOS/SENSiOSCameraDelegate.h
+	${SENS_ROOT}/iOS/SENSiOSGps.h
+	${SENS_ROOT}/iOS/SENSiOSGpsDelegate.h
+	${SENS_ROOT}/iOS/SENSiOSOrientation.h
+	${SENS_ROOT}/iOS/SENSiOSOrientationDelegate.h
+    ${SENS_ROOT}/iOS/SENSiOSARCore.h
+    ${SENS_ROOT}/iOS/SENSiOSARCoreDelegate.h
     )
 
 set(sources
@@ -72,14 +73,14 @@ set(sources
     ${CMAKE_CURRENT_SOURCE_DIR}/ErlebARAppDelegate.mm
 	${CMAKE_CURRENT_SOURCE_DIR}/main.m
 	${CMAKE_CURRENT_SOURCE_DIR}/ErlebARViewController.mm
-    ${SL_PROJECT_ROOT}/apps/source/sens/iOS/SENSiOSCamera.mm
-	${SL_PROJECT_ROOT}/apps/source/sens/iOS/SENSiOSCameraDelegate.mm
-	${SL_PROJECT_ROOT}/apps/source/sens/iOS/SENSiOSGps.mm
-	${SL_PROJECT_ROOT}/apps/source/sens/iOS/SENSiOSGpsDelegate.mm
-	${SL_PROJECT_ROOT}/apps/source/sens/iOS/SENSiOSOrientation.mm
-	${SL_PROJECT_ROOT}/apps/source/sens/iOS/SENSiOSOrientationDelegate.mm
-    ${SL_PROJECT_ROOT}/apps/source/sens/iOS/SENSiOSARCore.mm
-    ${SL_PROJECT_ROOT}/apps/source/sens/iOS/SENSiOSARCoreDelegate.mm
+    ${SENS_ROOT}/iOS/SENSiOSCamera.mm
+	${SENS_ROOT}/iOS/SENSiOSCameraDelegate.mm
+	${SENS_ROOT}/iOS/SENSiOSGps.mm
+	${SENS_ROOT}/iOS/SENSiOSGpsDelegate.mm
+	${SENS_ROOT}/iOS/SENSiOSOrientation.mm
+	${SENS_ROOT}/iOS/SENSiOSOrientationDelegate.mm
+    ${SENS_ROOT}/iOS/SENSiOSARCore.mm
+    ${SENS_ROOT}/iOS/SENSiOSARCoreDelegate.mm
 	)
  
 # Group source files

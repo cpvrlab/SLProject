@@ -9,12 +9,12 @@ set(source_path "${CMAKE_CURRENT_SOURCE_DIR}")
 
 set(headers
     ${SL_PROJECT_ROOT}/apps/source/wai/AppWAISlamParamHelper.h
-    ${SL_PROJECT_ROOT}/apps/source/sens/SENSUtils.h
+    ${SENS_ROOT}/SENSUtils.h
     )
 
 set(sources
     ${SL_PROJECT_ROOT}/apps/app-VocGenerator/VocGenerator.cpp
-    ${SL_PROJECT_ROOT}/apps/source/sens/SENSUtils.cpp
+    ${SENS_ROOT}/SENSUtils.cpp
     )
 
 # Group source files
