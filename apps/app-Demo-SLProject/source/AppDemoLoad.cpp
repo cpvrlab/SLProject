@@ -377,7 +377,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         // Set scene name and info string
         s->name("Minimal Scene Test");
         s->info("Minimal scene with a texture mapped rectangle with a point light source.\n"
-                "You can find all other test scenes in the menu File > Load Test Scenes. You can jump to the next scene with the Shift-Alt-CursorRight.\n"
+                "You can find all other test scenes in the menu File > Load Test Scenes."
+                "You can jump to the next scene with the Shift-Alt-CursorRight.\n"
                 "You can open various info windows under the menu Infos. You can drag, dock and stack them on all sides.\n"
                 "You can rotate the scene with click and drag on the left mouse button (LMB).\n"
                 "You can zoom in/out with the mousewheel. You can pan with click and drag on the middle mouse button (MMB).\n");
@@ -569,7 +570,9 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
     else if (sceneID == SID_Revolver) //...........................................................
     {
         s->name("Revolving Mesh Test");
-        s->info("Examples of revolving mesh objects constructed by rotating a 2D curve. The glass shader reflects and refracts the environment map. Try ray tracing.");
+        s->info("Examples of revolving mesh objects constructed by rotating a 2D curve. "
+                "The glass shader reflects and refracts the environment map. "
+                "Try ray tracing with key R and come back with the ESC key.");
 
         // Test map material
         SLGLTexture* tex1 = new SLGLTexture(s, SLApplication::texturePath + "Testmap_0512_C.png");
@@ -731,7 +734,9 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
     else if (sceneID == SID_TextureBlend) //.......................................................
     {
         s->name("Texture Blending Test");
-        s->info("Texture map blending with depth sorting. Transparent tree rectangles in view frustum are rendered back to front. You can turn on/off alpha sorting in the menu Preferences of press key J.");
+        s->info("Texture map blending with depth sorting. Transparent tree rectangles in view "
+                "frustum are rendered back to front. You can turn on/off alpha sorting in the "
+                "menu Preferences of press key J.");
 
         SLGLTexture* t1 = new SLGLTexture(s,
                                           SLApplication::texturePath + "tree1_1024_C.png",
@@ -756,9 +761,9 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         m2->textures().push_back(t2);
 
         SLCamera* cam1 = new SLCamera("Camera 1");
-        cam1->translation(0, 3, 25);
-        cam1->lookAt(0, 0, 10);
-        cam1->focalDist(25);
+        cam1->translation(6.5f, 0.5f, -18);
+        cam1->lookAt(0, 0, 0);
+        cam1->focalDist(18);
         cam1->background().colors(SLCol4f(0.6f, 0.6f, 1));
         cam1->setInitialState();
         cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
@@ -975,7 +980,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(sphere);
 
         // create spheres around the center sphere
-        SLint size = 10;
+        SLint size = 20;
         for (SLint iZ = -size; iZ <= size; ++iZ)
         {
             for (SLint iY = -size; iY <= size; ++iY)
@@ -1002,7 +1007,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
     else if (sceneID == SID_2Dand3DText) //........................................................
     {
         s->name("2D & 3D Text Test");
-        s->info("All 3D objects are in the _root3D scene and the center text is in the _root2D scene and rendered in orthographic projection in screen space.");
+        s->info("All 3D objects are in the _root3D scene and the center text is in the _root2D scene "
+                "and rendered in orthographic projection in screen space.");
 
         SLMaterial* m1 = new SLMaterial(s, "m1", SLCol4f::RED);
 
@@ -1137,12 +1143,29 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLMaterial*  mR   = nullptr;
         SLGLTexture* texC = new SLGLTexture(s, SLApplication::texturePath + "earth2048_C.jpg"); // color map
 
-        if (sceneID == SID_ShaderPerPixelBlinn)
+        if (sceneID == SID_ShaderPerVertexBlinn)
+        {
+            s->name("Blinn-Phong per vertex lighting");
+            s->info("Per-vertex lighting with Blinn-Phong light model. "
+                    "The reflection of 5 light sources is calculated per vertex. "
+                    "The green and the white light are attached to the camera, the others are in the scene. "
+                    "The light calculation per vertex is the fastest but leads to artefacts with spot lights");
+            SLGLProgram* perVrtTm = new SLGLProgramGeneric(s,
+                                                           SLApplication::shaderPath + "PerVrtBlinnTm.vert",
+                                                           SLApplication::shaderPath + "PerVrtBlinnTm.frag");
+            SLGLProgram* perVrt   = new SLGLProgramGeneric(s,
+                                                         SLApplication::shaderPath + "PerVrtBlinn.vert",
+                                                         SLApplication::shaderPath + "PerVrtBlinn.frag");
+            mL                    = new SLMaterial(s, "mL", texC, nullptr, nullptr, nullptr, perVrtTm);
+            mM                    = new SLMaterial(s, "mM", perVrt);
+            mR                    = new SLMaterial(s, "mR", texC, nullptr, nullptr, nullptr, perVrtTm);
+        }
+        else
         {
             s->name("Blinn-Phong per pixel lighting");
             s->info("Per-pixel lighting with Blinn-Phong light model. "
                     "The reflection of 5 light sources is calculated per pixel. "
-                    "Some of the lights are attached to the camera, some are in the scene.");
+                    "The light calculation is done in the fragmentshader.");
             SLGLTexture*   texN   = new SLGLTexture(s, SLApplication::texturePath + "earth2048_N.jpg"); // normal map
             SLGLTexture*   texH   = new SLGLTexture(s, SLApplication::texturePath + "earth2048_H.jpg"); // height map
             SLGLProgram*   pR     = new SLGLProgramGeneric(s,
@@ -1155,22 +1178,6 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
             mL = new SLMaterial(s, "mL", texC);
             mM = new SLMaterial(s, "mM");
             mR = new SLMaterial(s, "mR", texC, texN, texH, nullptr, pR);
-        }
-        else
-        {
-            s->name("Blinn-Phong per vertex lighting");
-            s->info("Per-vertex lighting with Blinn-Phong light model. "
-                    "The reflection of 5 light sources is calculated per vertex. "
-                    "Some of the lights are attached to the camera, some are in the scene.");
-            SLGLProgram* perVrtTm = new SLGLProgramGeneric(s,
-                                                           SLApplication::shaderPath + "PerVrtBlinnTm.vert",
-                                                           SLApplication::shaderPath + "PerVrtBlinnTm.frag");
-            SLGLProgram* perVrt   = new SLGLProgramGeneric(s,
-                                                         SLApplication::shaderPath + "PerVrtBlinn.vert",
-                                                         SLApplication::shaderPath + "PerVrtBlinn.frag");
-            mL                    = new SLMaterial(s, "mL", texC, nullptr, nullptr, nullptr, perVrtTm);
-            mM                    = new SLMaterial(s, "mM", perVrt);
-            mR                    = new SLMaterial(s, "mR", texC, nullptr, nullptr, nullptr, perVrtTm);
         }
 
         mM->shininess(500);

@@ -874,7 +874,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN" AND
         add_library(${lib} SHARED IMPORTED)
         set_target_properties(${lib}
                 PROPERTIES
-                IMPORTED_LOCATION_DEBUG ${assimp_DIR}/Debug/lib${lib}.dylib
+                IMPORTED_LOCATION_DEBUG ${assimp_DIR}/Debug/lib${lib}d.dylib
                 IMPORTED_LOCATION_RELEASE ${assimp_DIR}/Release/lib${lib}.dylib )
 
         set(assimp_LIBS
@@ -885,8 +885,8 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN" AND
     if (COPY_LIBS_TO_CONFIG_FOLDER)
         file(GLOB assimp_LIBS_to_copy_debug
                 ${assimp_LIBS_to_copy_debug}
-                ${assimp_DIR}/Debug/libassimp*.dylib
-                ${assimp_DIR}/Debug/libIrrXML.dylib
+                ${assimp_DIR}/Debug/libassimp*d.dylib
+                ${assimp_DIR}/Debug/libIrrXMLd.dylib
                 )
         file(GLOB assimp_LIBS_to_copy_release
                 ${assimp_LIBS_to_copy_release}
