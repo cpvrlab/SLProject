@@ -5,7 +5,7 @@
 #include <vector>
 
 #include <Object.h>
-#include <CVImage.h>
+#include <cv/CVImage.h>
 
 using namespace std;
 

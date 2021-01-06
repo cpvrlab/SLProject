@@ -63,6 +63,7 @@ target_link_libraries(${target}
         ${PlatformLinkLibs}
         lib-SLExternal
         lib-Utils
+        lib-SLMath
         ${OpenCV_LIBS}
         ${glfw_LIBS}
         PUBLIC
