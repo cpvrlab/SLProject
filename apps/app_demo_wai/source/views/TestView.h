@@ -15,7 +15,7 @@
 #include <WAIAutoCalibration.h>
 #include <MapPointEdition.h>
 #include <SENSCalibration.h>
-#include <sens/SENSCvCamera.h>
+#include <SENSCvCamera.h>
 #include <WAICompassAlignment.h>
 
 class WAISlam;

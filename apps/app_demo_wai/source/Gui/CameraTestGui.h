@@ -7,7 +7,7 @@
 #include <sm/EventSender.h>
 #include <ErlebAR.h>
 #include <Resources.h>
-#include <sens/SENSCamera.h>
+#include <SENSCamera.h>
 
 class SLScene;
 class SLSceneView;

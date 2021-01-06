@@ -7,13 +7,13 @@
 #include <sm/EventSender.h>
 #include <ErlebAR.h>
 #include <Resources.h>
-#include <sens/SENSGps.h>
-#include <sens/SENSOrientation.h>
-#include <sens/SENSRecorder.h>
-#include <sens/SENSCamera.h>
-#include <sens/SENSSimulator.h>
+#include <SENSGps.h>
+#include <SENSOrientation.h>
+#include <SENSRecorder.h>
+#include <SENSCamera.h>
+#include <SENSSimulator.h>
 
-#include <sens/SENSSimHelper.h>
+#include <SENSSimHelper.h>
 #include <Gui/SimHelperGui.h>
 
 class SLScene;

@@ -6,10 +6,10 @@
 #include <SLInputEventInterface.h>
 #include <SLInputManager.h>
 #include <ErlebAR.h>
-#include <sens/SENSCamera.h>
-#include <sens/SENSGps.h>
-#include <sens/SENSOrientation.h>
-#include <sens/SENSARCore.h>
+#include <SENSCamera.h>
+#include <SENSGps.h>
+#include <SENSOrientation.h>
+#include <SENSARCore.h>
 #include <Resources.h>
 #include <ErlebAREvents.h>
 

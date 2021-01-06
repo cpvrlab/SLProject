@@ -14,11 +14,11 @@
 #include <ErlebARApp.h>
 #include <Utils.h>
 #include <HighResTimer.h>
-#include <GLFW/SENSWebCamera.h>
-#include <sens/SENSGps.h>
+#include <glfw/SENSWebCamera.h>
+#include <SENSGps.h>
 #include <DeviceData.h>
 #include <GLFW/glfw3.h>
-#include <sens/SENSSimulator.h>
+#include <SENSSimulator.h>
 
 static ErlebARApp app;
 

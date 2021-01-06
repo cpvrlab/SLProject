@@ -2,7 +2,7 @@
 #include <imgui_internal.h>
 #include <GuiUtils.h>
 #include <ErlebAREvents.h>
-#include <sens/SENSException.h>
+#include <SENSException.h>
 #include <SLQuat4.h>
 
 using namespace ErlebAR;

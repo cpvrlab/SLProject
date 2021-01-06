@@ -1,5 +1,5 @@
 #include "SimHelperGui.h"
-#include <sens/SENSSimHelper.h>
+#include <SENSSimHelper.h>
 
 void SimHelperGui::render(SENSSimHelper* simHelper)
 {

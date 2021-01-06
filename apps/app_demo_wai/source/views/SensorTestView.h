@@ -6,8 +6,8 @@
 #include <SLSceneView.h>
 #include <SensorTestGui.h>
 #include <ErlebAR.h>
-#include <sens/SENSGps.h>
-#include <sens/SENSOrientation.h>
+#include <SENSGps.h>
+#include <SENSOrientation.h>
 
 class SensorTestView : public SLSceneView
 {

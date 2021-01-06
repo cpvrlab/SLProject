@@ -11,12 +11,12 @@
 #include <FeatureExtractorFactory.h>
 #include <ImageBuffer.h>
 #include <WAISlam.h>
-#include <sens/SENSCalibration.h>
+#include <SENSCalibration.h>
 #include <WAIOrbVocabulary.h>
-#include <sens/SENSFrame.h>
-#include <sens/SENSGps.h>
-#include <sens/SENSOrientation.h>
-#include <sens/SENSCvCamera.h>
+#include <SENSFrame.h>
+#include <SENSGps.h>
+#include <SENSOrientation.h>
+#include <SENSCvCamera.h>
 #include <AsyncWorker.h>
 #include <scenes/UserGuidanceScene.h>
 #include <UserGuidance.h>
@@ -24,7 +24,7 @@
 #include <SLLightSpot.h>
 #include <SLArrow.h>
 #include <SLCoordAxis.h>
-#include <sens/SENSSimHelper.h>
+#include <SENSSimHelper.h>
 #include <SLDeviceLocation.h>
 #include <SENSARCore.h>
 #include <SLAlgo.h>

@@ -4,8 +4,8 @@
 #include <scenes/UserGuidanceScene.h>
 #include <ErlebAR.h>
 #include <AreaTrackingGui.h>
-#include <sens/SENSGps.h>
-#include <sens/SENSOrientation.h>
+#include <SENSGps.h>
+#include <SENSOrientation.h>
 #include <Resources.h>
 
 //user guidance for AreaTrackingView

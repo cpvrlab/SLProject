@@ -1,6 +1,6 @@
 #include "SENSCamera.h"
 #include <opencv2/imgproc.hpp>
-#include <sens/SENSUtils.h>
+#include <SENSUtils.h>
 #include <Utils.h>
 
 bool isEqualToOne(float value)

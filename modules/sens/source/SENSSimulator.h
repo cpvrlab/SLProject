@@ -6,8 +6,8 @@
 #include <chrono>
 
 #include <Utils.h>
-#include <sens/SENSSimulated.h>
-#include <sens/SENSSimClock.h>
+#include <SENSSimulated.h>
+#include <SENSSimClock.h>
 
 /*!SENSSimulator
  This class is owner of SENSSimulated sensor instances. It loads special sensor data from

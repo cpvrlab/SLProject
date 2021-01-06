@@ -7,10 +7,10 @@
 #include <condition_variable>
 
 #include <Utils.h>
-#include <sens/SENSSimClock.h>
-#include <sens/SENSCamera.h>
-#include <sens/SENSGps.h>
-#include <sens/SENSOrientation.h>
+#include <SENSSimClock.h>
+#include <SENSCamera.h>
+#include <SENSGps.h>
+#include <SENSOrientation.h>
 
 class SENSSimulator;
 

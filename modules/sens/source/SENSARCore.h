@@ -9,8 +9,8 @@
 #include <opencv2/opencv.hpp>
 #include "SENS.h"
 
-#include <sens/SENSFrame.h>
-#include <sens/SENSCalibration.h>
+#include <SENSFrame.h>
+#include <SENSCalibration.h>
 
 class SENSARCore
 {

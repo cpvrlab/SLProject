@@ -1,7 +1,7 @@
 #include <AppDemoGuiStatsVideo.h>
 
-#include <sens/SENSCvCamera.h>
-#include <sens/SENSCalibration.h>
+#include <SENSCvCamera.h>
+#include <SENSCalibration.h>
 
 //-----------------------------------------------------------------------------
 AppDemoGuiStatsVideo::AppDemoGuiStatsVideo(std::string                                 name,

@@ -1,13 +1,13 @@
 #include <views/TestView.h>
 #include <WAISlam.h>
 #include <WAIEvent.h>
-#include <sens/SENSCamera.h>
+#include <SENSCamera.h>
 #include <WAIMapStorage.h>
 #include <AppWAISlamParamHelper.h>
 #include <FtpUtils.h>
 #include <ZipUtils.h>
 #include <WAIAutoCalibration.h>
-#include <sens/SENSUtils.h>
+#include <SENSUtils.h>
 #include <AverageTiming.h>
 
 #define LOG_TESTVIEW_WARN(...) Utils::log("TestView", __VA_ARGS__);

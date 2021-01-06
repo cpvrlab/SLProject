@@ -4,8 +4,8 @@
 #include <AppDemoGuiInfosDialog.h>
 #include <SLSceneView.h>
 #include <SLScene.h>
-#include <sens/SENSCalibration.h>
-#include <sens/SENSCvCamera.h>
+#include <SENSCalibration.h>
+#include <SENSCvCamera.h>
 
 //-----------------------------------------------------------------------------
 class AppDemoGuiAutoCalibration : public AppDemoGuiInfosDialog

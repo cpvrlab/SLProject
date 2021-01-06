@@ -6,7 +6,7 @@
 #include <mutex>
 
 #include <opencv2/opencv.hpp>
-#include <sens/SENSCamera.h>
+#include <SENSCamera.h>
 
 class SENSWebCamera : public SENSCameraBase
 {

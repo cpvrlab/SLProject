@@ -1,7 +1,7 @@
 #include <views/AreaTrackingView.h>
-#include <sens/SENSCamera.h>
+#include <SENSCamera.h>
 #include <WAIMapStorage.h>
-#include <sens/SENSUtils.h>
+#include <SENSUtils.h>
 #include <SLAlgo.h>
 #include <F2FTransform.h>
 #include <Utils.h>

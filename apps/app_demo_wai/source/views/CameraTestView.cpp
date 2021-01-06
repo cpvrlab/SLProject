@@ -1,5 +1,5 @@
 #include <views/CameraTestView.h>
-#include <sens/SENSUtils.h>
+#include <SENSUtils.h>
 
 CameraTestView::CameraTestView(sm::EventHandler&  eventHandler,
                                SLInputManager&    inputManager,

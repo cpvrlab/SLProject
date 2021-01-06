@@ -1,5 +1,5 @@
 #include <views/SensorTestView.h>
-#include <sens/SENSUtils.h>
+#include <SENSUtils.h>
 
 SensorTestView::SensorTestView(sm::EventHandler&  eventHandler,
                                SLInputManager&    inputManager,

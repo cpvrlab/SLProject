@@ -8,8 +8,8 @@
 #include <ErlebAR.h>
 #include <Resources.h>
 #include <GPSMapper2D.h>
-#include <sens/SENSGps.h>
-#include <sens/SENSOrientation.h>
+#include <SENSGps.h>
+#include <SENSOrientation.h>
 
 class SLScene;
 class SLSceneView;

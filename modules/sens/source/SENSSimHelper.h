@@ -1,8 +1,8 @@
 #ifndef SENS_SIMHELPER_H
 #define SENS_SIMHELPER_H
 
-#include <sens/SENSSimulator.h>
-#include <sens/SENSRecorder.h>
+#include <SENSSimulator.h>
+#include <SENSRecorder.h>
 
 class SENSSimHelper
 {

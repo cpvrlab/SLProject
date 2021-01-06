@@ -1,6 +1,6 @@
 #include "CameraOnlyScene.h"
 
-#include "sens/SENSUtils.h"
+#include "SENSUtils.h"
 
 CameraOnlyScene::CameraOnlyScene(std::string name, std::string dataDir)
   : SLScene(name, nullptr),

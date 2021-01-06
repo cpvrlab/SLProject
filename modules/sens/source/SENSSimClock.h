@@ -3,7 +3,7 @@
 
 #include <mutex>
 #include <atomic>
-#include <sens/SENS.h>
+#include <SENS.h>
 
 /*! SENSSimClock
 Clock used for sensor simulation in SENSSimulator and SENSSimulated

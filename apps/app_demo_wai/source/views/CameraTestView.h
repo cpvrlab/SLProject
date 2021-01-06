@@ -6,7 +6,7 @@
 #include <SLSceneView.h>
 #include <CameraTestGui.h>
 #include <ErlebAR.h>
-#include <sens/SENSCamera.h>
+#include <SENSCamera.h>
 #include <scenes/CameraOnlyScene.h>
 
 class CameraTestView : public SLSceneView

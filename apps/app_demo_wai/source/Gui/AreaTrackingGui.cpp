@@ -3,7 +3,7 @@
 #include <GuiUtils.h>
 #include <ErlebAREvents.h>
 #include <Utils.h>
-#include <sens/SENSSimHelper.h>
+#include <SENSSimHelper.h>
 
 using namespace ErlebAR;
 

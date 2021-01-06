@@ -1,6 +1,6 @@
 #include "SENSCvCamera.h"
 #include <opencv2/imgproc.hpp>
-#include <sens/SENSUtils.h>
+#include <SENSUtils.h>
 #include <Utils.h>
 
 //TODO: we scale the original image only to meet the width of manipImg. After that the targetImg may be additionally cropped (e.g. to screen width)

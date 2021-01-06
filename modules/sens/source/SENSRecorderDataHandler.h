@@ -15,9 +15,9 @@
 #include <opencv2/opencv.hpp>
 
 #include <Utils.h>
-#include <sens/SENSGps.h>
-#include <sens/SENSOrientation.h>
-#include <sens/SENSCamera.h>
+#include <SENSGps.h>
+#include <SENSOrientation.h>
+#include <SENSCamera.h>
 
 using GpsInfo         = std::pair<SENSGps::Location, SENSTimePt>;
 using OrientationInfo = std::pair<SENSOrientation::Quat, SENSTimePt>;

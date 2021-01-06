@@ -4,7 +4,7 @@
 #include <string>
 #include <atomic>
 
-#include <sens/SENSRecorderDataHandler.h>
+#include <SENSRecorderDataHandler.h>
 
 //-----------------------------------------------------------------------------
 /*! SENSRecorder
