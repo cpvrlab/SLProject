@@ -1,7 +1,7 @@
 #ifndef SENS_IOSARCORE_H
 #define SENS_IOSARCORE_H
 
-#include <sens/SENSARCore.h>
+#include <SENSARCore.h>
 
 #import "SENSiOSARCoreDelegate.h"
 #import <simd/simd.h>

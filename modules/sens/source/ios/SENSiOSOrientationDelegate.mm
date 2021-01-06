@@ -2,7 +2,7 @@
 #import <CoreMotion/CoreMotion.h>
 #import <GLKit/GLKit.h>
 
-#include <sens/SENSUtils.h>
+#include <SENSUtils.h>
 
 @interface SENSiOSOrientationDelegate () {
 

@@ -1,7 +1,7 @@
 #import "SENSiOSCamera.h"
 #include <Utils.h>
 #include <functional>
-#include <sens/SENSUtils.h>
+#include <SENSUtils.h>
 #include <memory>
 
 SENSiOSCamera::SENSiOSCamera()

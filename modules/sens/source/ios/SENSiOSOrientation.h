@@ -1,7 +1,7 @@
 #ifndef SENS_IOSORIENTATION_H
 #define SENS_IOSORIENTATION_H
 
-#include <sens/SENSOrientation.h>
+#include <SENSOrientation.h>
 #import "SENSiOSOrientationDelegate.h"
 
 class SENSiOSOrientation : public SENSOrientation

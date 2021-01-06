@@ -1,7 +1,7 @@
 #ifndef SENS_IOSGPS_H
 #define SENS_IOSGPS_H
 
-#include <sens/SENSGps.h>
+#include <SENSGps.h>
 #import "SENSiOSGpsDelegate.h"
 
 class SENSiOSGps : public SENSGps

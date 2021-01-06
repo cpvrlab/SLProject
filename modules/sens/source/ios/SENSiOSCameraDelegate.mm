@@ -6,8 +6,8 @@
 
 #import "SENSiOSCameraDelegate.h"
 
-#include <sens/SENSCamera.h>
-#include <sens/SENSUtils.h>
+#include <SENSCamera.h>
+#include <SENSUtils.h>
 
 @interface SENSiOSCameraDelegate () {
 @private
