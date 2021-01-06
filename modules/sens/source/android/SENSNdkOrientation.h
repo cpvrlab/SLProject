@@ -1,7 +1,7 @@
 #ifndef SENS_NDK_ORIENTATION_H
 #define SENS_NDK_ORIENTATION_H
 
-#include <sens/SENSOrientation.h>
+#include <SENSOrientation.h>
 #include <android_native_app_glue.h>
 
 class SENSNdkOrientation : public SENSOrientation
