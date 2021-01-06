@@ -5,17 +5,17 @@
 set(target lib-SLMath)
 
 file(GLOB headers
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/math/SLAlgo.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/math/SLCurve.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/math/SLMat3.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/math/SLMat4.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/math/SLMath.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/math/SLPlane.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/math/SLQuat4.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/math/SLVec2.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/math/SLVec3.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/math/SLVec4.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/math/SLVector.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLAlgo.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLCurve.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLMat3.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLMat4.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLMath.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLPlane.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLQuat4.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLVec2.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLVec3.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLVec4.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLVector.h
 
         ${CMAKE_CURRENT_SOURCE_DIR}/externals/Shoemake/Decompose.h
         ${CMAKE_CURRENT_SOURCE_DIR}/externals/Shoemake/EulerAngles.h
@@ -23,8 +23,8 @@ file(GLOB headers
         )
 
 set(sources
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/math/SLAlgo.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/math/SLPlane.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/SLAlgo.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/SLPlane.cpp
 
         ${CMAKE_CURRENT_SOURCE_DIR}/externals/Shoemake/EulerAngles.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/externals/Shoemake/Decompose.cpp
@@ -54,7 +54,6 @@ target_include_directories(${target}
         ${SL_PROJECT_ROOT}/externals/libigl/include
         PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/include
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/math
         ${SL_PROJECT_ROOT}/externals/eigen
 		${CMAKE_CURRENT_SOURCE_DIR}/externals
         ${DEFAULT_INCLUDE_DIRECTORIES}

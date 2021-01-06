@@ -8,12 +8,12 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include <sens/SENSCalibration.h>
+#include <SENSCalibration.h>
 #include <Utils.h>
 #include <HighResTimer.h>
 #include <opencv2/imgproc.hpp>
-#include <sens/SENSUtils.h>
-#include <sens/SENSException.h>
+#include <SENSUtils.h>
+#include <SENSException.h>
 //-----------------------------------------------------------------------------
 //! Increase the _CALIBFILEVERSION each time you change the file format
 // Version 6, Date: 6.JUL.2019: Added device parameter from Android

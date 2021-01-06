@@ -2,7 +2,7 @@
 #define SENS_FRAME_H
 
 #include <opencv2/core.hpp>
-#include <sens/SENS.h>
+#include <SENS.h>
 
 //Camera frame obeject
 struct SENSFrameBase

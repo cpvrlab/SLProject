@@ -6,7 +6,7 @@
 #include <opencv2/core/core.hpp>
 #include <thread>
 #include <mutex>
-#include <sens/SENSCalibration.h>
+#include <SENSCalibration.h>
 
 using namespace std;
 

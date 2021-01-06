@@ -52,6 +52,7 @@ set_target_properties(${target}
 
 target_include_directories(${target}
         PRIVATE
+        ${SENS_ROOT}
         ${SL_PROJECT_ROOT}/apps/source/
         ${SL_PROJECT_ROOT}/apps/source/wai
         ${SL_PROJECT_ROOT}/apps/app_demo_wai/source/
