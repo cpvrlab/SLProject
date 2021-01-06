@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      GL/SLGLImGui.cpp
+//  File:      gl/SLGLImGui.cpp
 //  Purpose:   Wrapper Class around the external ImGui GUI-framework
 //             See also: https://github.com/ocornut/imgui
 //  Author:    Marcus Hudritsch

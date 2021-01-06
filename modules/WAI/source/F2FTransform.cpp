@@ -21,8 +21,8 @@
 #include <F2FTransform.h>
 #include <Random.h>
 
-#include <OrbSlam/Optimizer.h>
-#include <OrbSlam/ORBmatcher.h>
+#include <orb_slam/Optimizer.h>
+#include <orb_slam/ORBmatcher.h>
 #include <Eigen/Geometry>
 #include <thread>
 #include <Utils.h>

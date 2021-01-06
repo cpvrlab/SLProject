@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      SL/SLEnums.h
+//  File:      sl/SLEnums.h
 //  Author:    Marcus Hudritsch
 //  Date:      July 2014
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style

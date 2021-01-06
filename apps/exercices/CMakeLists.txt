@@ -1,4 +1,4 @@
-add_subdirectory(ch00_NewCppFeatures)
+add_subdirectory(ch00_new_cpp_features)
 add_subdirectory(ch06_ColorCube)
 add_subdirectory(ch07_DiffuseCube)
 add_subdirectory(ch09_TextureMapping)

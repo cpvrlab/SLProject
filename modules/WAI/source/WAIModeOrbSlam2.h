@@ -9,13 +9,13 @@
 #include <WAIKeyFrameDB.h>
 #include <WAIMap.h>
 
-#include <OrbSlam/SURFextractor.h>
-#include <OrbSlam/LocalMapping.h>
-#include <OrbSlam/LoopClosing.h>
-#include <OrbSlam/Initializer.h>
-#include <OrbSlam/ORBmatcher.h>
-#include <OrbSlam/Optimizer.h>
-#include <OrbSlam/PnPsolver.h>
+#include <orb_slam/SURFextractor.h>
+#include <orb_slam/LocalMapping.h>
+#include <orb_slam/LoopClosing.h>
+#include <orb_slam/Initializer.h>
+#include <orb_slam/ORBmatcher.h>
+#include <orb_slam/Optimizer.h>
+#include <orb_slam/PnPsolver.h>
 
 #define OPTFLOW_GRID_COLS 7
 #define OPTFLOW_GRID_ROWS 4

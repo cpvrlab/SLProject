@@ -39,7 +39,7 @@
 #include <Utils.h>
 #include <WAIAppTest.h>
 #include <android/SENSNdkCamera.h>
-#include <CV/CVImage.h>
+#include <cv/CVImage.h>
 #include <HighResTimer.h>
 
 #define ENGINE_DEBUG(...) Utils::log("Engine", __VA_ARGS__)

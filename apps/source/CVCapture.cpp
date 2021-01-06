@@ -235,8 +235,8 @@ bool CVCapture::grabAndAdjustForSL(float viewportWdivH)
 }
 //-----------------------------------------------------------------------------
 /*! This method is called by iOS and Android projects that capture their video
-cameras on their own. We only adjust the color space. See the app-Demo-SLProject/iOS and
-app-Demo-SLProject/android projects for the usage.
+cameras on their own. We only adjust the color space. See the app_demo_slproject/ios and
+app_demo_slproject/android projects for the usage.
 */
 void CVCapture::loadIntoLastFrame(const float       viewportWdivH,
                                   const int         width,

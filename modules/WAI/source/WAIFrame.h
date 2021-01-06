@@ -34,7 +34,7 @@
 
 #include <opencv2/opencv.hpp>
 #include <WAIOrbVocabulary.h>
-#include <OrbSlam/ORBextractor.h>
+#include <orb_slam/ORBextractor.h>
 #include <vector>
 
 class WAIMapPoint;

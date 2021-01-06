@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      SL/SLImporter.cpp
+//  File:      sl/SLImporter.cpp
 //  Author:    Marcus Hudritsch
 //  Date:      July 2014
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style

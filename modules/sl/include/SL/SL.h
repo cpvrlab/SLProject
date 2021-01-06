@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      SL/SL.h
+//  File:      sl/SL.h
 //  Author:    Marcus Hudritsch
 //  Date:      October 2015
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style

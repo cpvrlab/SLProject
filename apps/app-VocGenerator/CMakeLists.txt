@@ -36,12 +36,12 @@ target_include_directories(${target}
         PRIVATE
         ${SL_PROJECT_ROOT}/apps/source/
         ${SL_PROJECT_ROOT}/apps/source/wai
-        ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/
+        ${SL_PROJECT_ROOT}/apps/app_demo_wai/source/
         ${SL_PROJECT_ROOT}/apps/app-VocGenerator/
         ${SL_PROJECT_ROOT}/externals/utils/lib-Utils/source
-	    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source
-	    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui
-	    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab
+	    ${SL_PROJECT_ROOT}/apps/app_demo_wai/source
+	    ${SL_PROJECT_ROOT}/apps/app_demo_wai/source/Gui
+	    ${SL_PROJECT_ROOT}/apps/app_demo_wai/source/GuiPrefab
         ${SL_PROJECT_ROOT}/externals/lib-SLExternal/gl3w
 		${SL_PROJECT_ROOT}/externals/lib-SLExternal/gl3w/GL
         ${OpenCV_INCLUDE_DIR}

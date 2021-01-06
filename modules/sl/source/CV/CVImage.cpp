@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      CV/CVImage.cpp
+//  File:      cv/CVImage.cpp
 //  Author:    Marcus Hudritsch
 //  Date:      Spring 2017
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style

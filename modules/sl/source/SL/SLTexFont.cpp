@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      SL/SLTexFont.cpp
+//  File:      sl/SLTexFont.cpp
 //  Author:    Marcus Hudritsch, original author is Philippe Decaudin
 //  Date:      July 2014
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style

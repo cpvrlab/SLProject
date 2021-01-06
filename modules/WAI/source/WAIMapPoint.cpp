@@ -11,7 +11,7 @@
 #include <WAIMapPoint.h>
 #include <WAIKeyFrame.h>
 #include <WAIFrame.h>
-#include <OrbSlam/ORBmatcher.h>
+#include <orb_slam/ORBmatcher.h>
 #include <mutex>
 
 long unsigned int WAIMapPoint::nNextId = 0;

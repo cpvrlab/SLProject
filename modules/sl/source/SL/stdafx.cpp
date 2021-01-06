@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      SL/stdafx.cpp
+//  File:      sl/stdafx.cpp
 //  Author:    Marcus Hudritsch
 //  Date:      July 2014
 //  Codestyle: https://code.google.com/p/slproject/wiki/CodingStyleGuidelines

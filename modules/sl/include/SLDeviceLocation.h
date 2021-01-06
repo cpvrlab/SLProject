@@ -21,7 +21,7 @@ class SLNode;
 //-----------------------------------------------------------------------------
 //! Encapsulation of a mobile device location set by the device's GPS sensor
 /*! This class is only used if SLProject runs on a mobile device. Check out the
- app-Demo-SLProject/android and app-Demo-SLProject/iOS how the sensor data is generated
+ app-Demo-SLProject/android and app_demo_slproject/ios how the sensor data is generated
  and passed to this object hold by SLApplication. The class stores the devices location
  that it gets from its GPS (global positioning system) sensor. The device location can
  be used in the active camera to apply it to the scene camera

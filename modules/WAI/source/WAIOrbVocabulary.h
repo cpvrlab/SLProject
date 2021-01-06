@@ -19,7 +19,7 @@
 #    include <fbow.h>
 #    include <vocabulary_creator.h>
 #else
-#    include <OrbSlam/ORBVocabulary.h>
+#    include <orb_slam/ORBVocabulary.h>
 #endif
 
 struct WAIBowVector

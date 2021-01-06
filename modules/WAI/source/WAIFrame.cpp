@@ -29,7 +29,7 @@
 
 #include <WAIFrame.h>
 #include <WAIMapPoint.h>
-#include <OrbSlam/Converter.h>
+#include <orb_slam/Converter.h>
 #include <AverageTiming.h>
 
 using namespace cv;

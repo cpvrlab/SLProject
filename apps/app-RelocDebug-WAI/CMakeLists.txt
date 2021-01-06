@@ -8,27 +8,27 @@ set(include_path "${CMAKE_CURRENT_SOURCE_DIR}")
 set(source_path "${CMAKE_CURRENT_SOURCE_DIR}")
 
 set(headers
-    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/WAIAutoCalibration.h
+    ${SL_PROJECT_ROOT}/apps/app_demo_wai/source/WAIAutoCalibration.h
     ${SL_PROJECT_ROOT}/apps/source/wai/AppWAISlamParamHelper.h
     ${SL_PROJECT_ROOT}/apps/source/wai/WAIMapStorage.h
     ${SL_PROJECT_ROOT}/apps/source/wai/FeatureExtractorFactory.h
     ${SENS_ROOT}/SENSVideoStream.h
     ${SENS_ROOT}/SENSCalibration.h
     ${SENS_ROOT}/SENSUtils.h
-	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GLSLHessian.h
-	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GLSLextractor.h
+	${SL_PROJECT_ROOT}/apps/app_demo_wai/source/GLSLHessian.h
+	${SL_PROJECT_ROOT}/apps/app_demo_wai/source/GLSLextractor.h
     )
 
 set(sources
     ${SL_PROJECT_ROOT}/apps/app-RelocDebug-WAI/main.cpp
-    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/WAIAutoCalibration.cpp
+    ${SL_PROJECT_ROOT}/apps/app_demo_wai/source/WAIAutoCalibration.cpp
     ${SL_PROJECT_ROOT}/apps/source/wai/WAIMapStorage.cpp
     ${SL_PROJECT_ROOT}/apps/source/wai/FeatureExtractorFactory.cpp
     ${SENS_ROOT}/SENSCalibration.cpp
     ${SENS_ROOT}/SENSVideoStream.cpp
     ${SENS_ROOT}/SENSUtils.cpp
-	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GLSLHessian.cpp
-	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GLSLextractor.cpp
+	${SL_PROJECT_ROOT}/apps/app_demo_wai/source/GLSLHessian.cpp
+	${SL_PROJECT_ROOT}/apps/app_demo_wai/source/GLSLextractor.cpp
     )
 
 # Group source files
@@ -51,12 +51,12 @@ target_include_directories(${target}
         ${SL_PROJECT_ROOT}/apps/source/
         ${SL_PROJECT_ROOT}/apps/source/wai
 	    ${SENS_ROOT}
-        ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/
+        ${SL_PROJECT_ROOT}/apps/app_demo_wai/source/
         ${SL_PROJECT_ROOT}/apps/app-RelocDebug-WAI/
         ${SL_PROJECT_ROOT}/externals/utils/lib-Utils/source
-	    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source
-	    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui
-	    ${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/GuiPrefab
+	    ${SL_PROJECT_ROOT}/apps/app_demo_wai/source
+	    ${SL_PROJECT_ROOT}/apps/app_demo_wai/source/Gui
+	    ${SL_PROJECT_ROOT}/apps/app_demo_wai/source/GuiPrefab
         ${SL_PROJECT_ROOT}/externals/lib-SLExternal/gl3w
 		${SL_PROJECT_ROOT}/externals/lib-SLExternal/gl3w/GL
         ${OpenCV_INCLUDE_DIR}

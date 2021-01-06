@@ -29,13 +29,13 @@
 #include <WAIOrbVocabulary.h>
 #include <WAIFrame.h>
 
-#include <OrbSlam/LocalMapping.h>
-#include <OrbSlam/LoopClosing.h>
-#include <OrbSlam/Initializer.h>
-#include <OrbSlam/ORBmatcher.h>
-#include <OrbSlam/Optimizer.h>
-#include <OrbSlam/PnPsolver.h>
-#include <OrbSlam/Optimizer.h>
+#include <orb_slam/LocalMapping.h>
+#include <orb_slam/LoopClosing.h>
+#include <orb_slam/Initializer.h>
+#include <orb_slam/ORBmatcher.h>
+#include <orb_slam/Optimizer.h>
+#include <orb_slam/PnPsolver.h>
+#include <orb_slam/Optimizer.h>
 
 static SLint   scrWidth;                   //!< Window width at start up
 static SLint   scrHeight;                  //!< Window height at start up

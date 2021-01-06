@@ -23,22 +23,22 @@ set(headers
     ${CMAKE_CURRENT_SOURCE_DIR}/source/F2FTransform.h
     ${CMAKE_CURRENT_SOURCE_DIR}/source/WAISlam.h
 	${CMAKE_CURRENT_SOURCE_DIR}/source/WAISlamTrackPool.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/OrbSlam/Converter.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/OrbSlam/Initializer.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/OrbSlam/LocalMap.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/OrbSlam/LocalMapping.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/OrbSlam/LoopClosing.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/OrbSlam/Optimizer.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/OrbSlam/KPextractor.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/OrbSlam/BRIEFPattern.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/OrbSlam/ExtractorNode.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/OrbSlam/ORBextractor.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/OrbSlam/BRIEFextractor.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/OrbSlam/SURFextractor.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/OrbSlam/ORBmatcher.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/OrbSlam/WorkingSet.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/OrbSlam/PnPsolver.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/OrbSlam/Sim3Solver.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/orb_slam/Converter.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/orb_slam/Initializer.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/orb_slam/LocalMap.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/orb_slam/LocalMapping.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/orb_slam/LoopClosing.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/orb_slam/Optimizer.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/orb_slam/KPextractor.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/orb_slam/BRIEFPattern.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/orb_slam/ExtractorNode.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/orb_slam/ORBextractor.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/orb_slam/BRIEFextractor.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/orb_slam/SURFextractor.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/orb_slam/ORBmatcher.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/orb_slam/WorkingSet.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/orb_slam/PnPsolver.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/orb_slam/Sim3Solver.h
     )
 
 set(sources
@@ -55,19 +55,19 @@ set(sources
     ${CMAKE_CURRENT_SOURCE_DIR}/source/F2FTransform.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/source/WAISlam.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/source/WAISlamTrackPool.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/OrbSlam/Converter.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/OrbSlam/Initializer.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/OrbSlam/LocalMapping.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/OrbSlam/LoopClosing.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/OrbSlam/Optimizer.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/OrbSlam/ORBmatcher.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/OrbSlam/ExtractorNode.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/OrbSlam/ORBextractor.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/OrbSlam/BRIEFextractor.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/OrbSlam/WorkingSet.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/OrbSlam/SURFextractor.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/OrbSlam/PnPsolver.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/source/OrbSlam/Sim3Solver.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/orb_slam/Converter.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/orb_slam/Initializer.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/orb_slam/LocalMapping.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/orb_slam/LoopClosing.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/orb_slam/Optimizer.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/orb_slam/ORBmatcher.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/orb_slam/ExtractorNode.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/orb_slam/ORBextractor.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/orb_slam/BRIEFextractor.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/orb_slam/WorkingSet.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/orb_slam/SURFextractor.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/orb_slam/PnPsolver.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/source/orb_slam/Sim3Solver.cpp
     )
 
 # Group source files (for visual studio ide)
@@ -96,7 +96,7 @@ target_include_directories(${target}
     PUBLIC
         ${DEFAULT_INCLUDE_DIRECTORIES}
         ${CMAKE_CURRENT_SOURCE_DIR}/source
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/OrbSlam
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/orb_slam
         ${OpenCV_INCLUDE_DIR}
         ${g2o_INCLUDE_DIR}
         ${SL_PROJECT_ROOT}/externals

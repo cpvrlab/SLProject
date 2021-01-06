@@ -45,8 +45,8 @@ file(GLOB headers
         )
 
 file(GLOB sources
-        ${SL_PROJECT_ROOT}/lib-SLProject/source/SL/SL.cpp
-        ${SL_PROJECT_ROOT}/lib-SLProject/source/CV/CVImage.cpp
+        ${SL_PROJECT_ROOT}/lib-SLProject/source/sl/SL.cpp
+        ${SL_PROJECT_ROOT}/lib-SLProject/source/cv/CVImage.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/Buffer.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/CommandBuffer.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/DescriptorPool.cpp

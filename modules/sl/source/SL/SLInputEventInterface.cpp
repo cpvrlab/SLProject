@@ -1,4 +1,4 @@
-#include <SL/SLInputEventInterface.h>
+#include <sl/SLInputEventInterface.h>
 #include <SLInputManager.h>
 
 //-----------------------------------------------------------------------------

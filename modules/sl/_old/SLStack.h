@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      SL/SLStack.h
+//  File:      sl/SLStack.h
 //  Purpose:   Simple & fast fixed size LIFO stack template
 //  Date:      July 2014
 //  Codestyle: https://code.google.com/p/slproject/wiki/CodingStyleGuidelines

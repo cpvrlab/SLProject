@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      Globals/SL/SLParallel.h
+//  File:      Globals/sl/SLParallel.h
 //  Purpose:   Concurrent C++ Template using C++ 11 Treads
 //  Author:    Marcus Hudritsch / Anthony Wiliams
 //  Source:    Most algorithms are originated from Anthony Wiliams book

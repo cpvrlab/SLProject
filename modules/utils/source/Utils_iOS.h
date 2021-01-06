@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      apps/app-Demo-SLProject/iOS/Utils_iOS
+//  File:      apps/app_demo_slproject/ios/Utils_iOS
 //  Author:    Marcus Hudritsch
 //  Date:      July 2014
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
