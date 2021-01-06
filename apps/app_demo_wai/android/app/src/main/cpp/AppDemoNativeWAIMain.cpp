@@ -41,9 +41,9 @@
 #include <android/SENSNdkCamera.h>
 #include <cv/CVImage.h>
 #include <HighResTimer.h>
-#include <sens/android/SENSNdkGps.h>
-#include <sens/android/SENSNdkOrientation.h>
-#include <sens/android/SENSNdkARCore.h>
+#include <android/SENSNdkGps.h>
+#include <android/SENSNdkOrientation.h>
+#include <android/SENSNdkARCore.h>
 #include <HttpNdkDownloader.h>
 
 #define ENGINE_DEBUG(...) Utils::log("Engine", __VA_ARGS__)

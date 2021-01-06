@@ -6,7 +6,7 @@
 #include <GLES2/gl2ext.h>
 #include <arcore_c_api.h>
 #include <opencv2/opencv.hpp>
-#include <sens/SENSARCore.h>
+#include <SENSARCore.h>
 
 class SENSNdkARCore : public SENSARCore
 {

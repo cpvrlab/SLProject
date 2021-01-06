@@ -1,7 +1,7 @@
 #ifndef SENS_NDK_GPS_H
 #define SENS_NDK_GPS_H
 
-#include <sens/SENSGps.h>
+#include <SENSGps.h>
 #include <android_native_app_glue.h>
 
 class SENSNdkGps : public SENSGps
