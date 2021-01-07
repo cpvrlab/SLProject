@@ -41,7 +41,6 @@
 #include <SLProjectScene.h>
 #include <SLGLProgramManager.h>
 #include <Instrumentor.h>
-#include <SLArrow.h>
 
 #include <AppDemoGui.h>
 
@@ -4568,7 +4567,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
     else if (sceneID == SID_Benchmark1_LargeModel) //..............................................
     {
-        SLstring largeFile = SLApplication::configPath + "xyzrgb_dragon.ply";
+        SLstring largeFile = SLApplication::configPath + "models/xyzrgb_dragon/xyzrgb_dragon.ply";
 
         if (Utils::fileExists(largeFile))
         {

@@ -78,6 +78,13 @@ private:
                               SLSceneView*    sv);
     static void   hideHorizon(SLProjectScene* s);
     static SLbool _horizonVisuEnabled;
+    static void   downloadModelAndLoadScene(SLScene*     s,
+                                            SLSceneView* sv,
+                                            string       downloadFilename,
+                                            string       urlFolder,
+                                            string       dstFolder,
+                                            string       filenameToLoad,
+                                            SLSceneID    sceneIDToLoad);
 };
 //-----------------------------------------------------------------------------
 #endif

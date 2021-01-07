@@ -50,7 +50,7 @@ string getPtxStringFromFile(
         *log = NULL;
 
     string *ptx, sourceFilePath;
-    sourceFilePath = "lib-SLProject/" + getPtxFilename(filename);
+    sourceFilePath = "modules/sl/" + getPtxFilename(filename);
 
     ptx = new string();
 

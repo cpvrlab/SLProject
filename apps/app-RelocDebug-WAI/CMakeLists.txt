@@ -57,8 +57,8 @@ target_include_directories(${target}
 	    ${SL_PROJECT_ROOT}/apps/app_demo_wai/source
 	    ${SL_PROJECT_ROOT}/apps/app_demo_wai/source/Gui
 	    ${SL_PROJECT_ROOT}/apps/app_demo_wai/source/GuiPrefab
-        ${SL_PROJECT_ROOT}/externals/lib-SLExternal/gl3w
-		${SL_PROJECT_ROOT}/externals/lib-SLExternal/gl3w/GL
+        ${SL_PROJECT_ROOT}/modules/sl/externals/gl3w
+		${SL_PROJECT_ROOT}/modules/sl/externals/gl3w/GL
         ${OpenCV_INCLUDE_DIR}
         ${glfw_INCLUDE_DIR}
         PUBLIC

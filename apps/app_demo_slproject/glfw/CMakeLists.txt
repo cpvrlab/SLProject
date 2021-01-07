@@ -51,13 +51,7 @@ target_include_directories(
         PRIVATE
         ${SL_PROJECT_ROOT}/apps/app_demo_slproject/include/
         ${SL_PROJECT_ROOT}/apps/source
-        ${SL_PROJECT_ROOT}/lib-SLProject/include
-        ${SL_PROJECT_ROOT}/externals/lib-SLExternal
-        ${SL_PROJECT_ROOT}/externals/lib-SLExternal/imgui
-        ${SL_PROJECT_ROOT}/externals/lib-SLExternal/spa
-        ${SL_PROJECT_ROOT}/externals/lib-SLExternal/dirent
-        ${SL_PROJECT_ROOT}/externals/lib-SLExternal/gl3w
-		${SL_PROJECT_ROOT}/externals/lib-SLExternal/gl3w/GL
+        ${SL_PROJECT_ROOT}/modules/sl/include
         ${OpenCV_INCLUDE_DIR}
         ${glfw_INCLUDE_DIR}
         PUBLIC
