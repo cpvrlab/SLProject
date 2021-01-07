@@ -9,6 +9,7 @@
 #include <views/WelcomeView.h>
 #include <views/SettingsView.h>
 #include <views/AboutView.h>
+#include <views/DownloadView.h>
 #include <views/TutorialView.h>
 #include <views/AreaTrackingView.h>
 #include <views/LocationMapView.h>
@@ -39,6 +40,7 @@ ErlebARApp::ErlebARApp()
 
     registerState<ErlebARApp, sm::NoEventData, &ErlebARApp::TEST_RUNNER>((unsigned int)StateId::TEST_RUNNER);
 
+    registerState<ErlebARApp, DownloadEventData, &ErlebARApp::DOWNLOAD>((unsigned int)StateId::DOWNLOAD);
     registerState<ErlebARApp, ErlebarEventData, &ErlebARApp::LOCATION_MAP>((unsigned int)StateId::LOCATION_MAP);
     registerState<ErlebARApp, AreaEventData, &ErlebARApp::AREA_INFO>((unsigned int)StateId::AREA_INFO);
     registerState<ErlebARApp, AreaEventData, &ErlebARApp::AREA_TRACKING>((unsigned int)StateId::AREA_TRACKING);
@@ -113,6 +115,8 @@ std::string ErlebARApp::getPrintableState(unsigned int state)
         case StateId::TEST_RUNNER:
             return "TEST_RUNNER";
 
+        case StateId::DOWNLOAD:
+            return "DOWNLOAD";
         case StateId::LOCATION_MAP:
             return "LOCATION_MAP";
         case StateId::AREA_INFO:
@@ -231,6 +235,16 @@ void ErlebARApp::WELCOME(const sm::NoEventData* data, const bool stateEntry, con
                                        *_dd);
         }
 
+        if (!_downloadView)
+        {
+            _downloadView = new DownloadView(*this,
+                                             _inputManager,
+                                             *_imGuiEngine,
+                                             *_config,
+                                             _asyncWorkers,
+                                             *_dd);
+        }
+
         if (!_settingsView)
         {
             _settingsView = new SettingsView(*this,
@@ -323,6 +337,11 @@ void ErlebARApp::DESTROY(const sm::NoEventData* data, const bool stateEntry, con
     {
         delete _aboutView;
         _aboutView = nullptr;
+    }
+    if (_downloadView)
+    {
+        delete _downloadView;
+        _downloadView = nullptr;
     }
     if (_settingsView)
     {
@@ -473,6 +492,7 @@ void ErlebARApp::AREA_INFO(const AreaEventData* data, const bool stateEntry, con
         if (data)
         {
             _areaInfoView->initArea(data->locId, data->areaId);
+            //TODO Area tracking view -> init Area -> init Scene -> Download
             _areaTrackingView->initArea(data->locId, data->areaId);
         }
         else
@@ -527,6 +547,22 @@ void ErlebARApp::ABOUT(const sm::NoEventData* data, const bool stateEntry, const
     }
 
     _aboutView->update();
+}
+
+void ErlebARApp::DOWNLOAD(const DownloadEventData* data, const bool stateEntry, const bool stateExit)
+{
+    if (stateExit)
+        return;
+
+    if (stateEntry)
+    {
+        if (data)
+        {
+            _downloadView->initLocation(data->location);
+        }
+        _downloadView->show();
+    }
+    _downloadView->update();
 }
 
 void ErlebARApp::SETTINGS(const sm::NoEventData* data, const bool stateEntry, const bool stateExit)

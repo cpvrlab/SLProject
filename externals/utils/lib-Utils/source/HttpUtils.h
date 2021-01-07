@@ -152,5 +152,8 @@ int download(string                                       url,
 int download(string                                       url,
              string                                       dst,
              function<void(size_t curr, size_t filesize)> progress = nullptr);
+
+//-- return content Length of the HttpGet request
+int length(string url, string user = "", string pwd = "");
 }
 //------------------------------------------------------------------------------

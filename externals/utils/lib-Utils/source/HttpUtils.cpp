@@ -668,8 +668,6 @@ int HttpUtils::download(string                                       url,
         dstIsDir = true;
     }
 
-    std::cout << "download" << std::endl;
-
     return download(
       url,
       [&fs, &totalBytes, &dst, &dstIsDir](string path,
@@ -737,3 +735,12 @@ int HttpUtils::download(string                                       url,
     return download(url, dst, "", "", progress);
 }
 //-----------------------------------------------------------------------------
+
+int HttpUtils::length(string url, string user, string pwd)
+{
+    HttpUtils::GetRequest req = HttpUtils::GetRequest(url, user, pwd);
+    if (req.send() < 0)
+        return 0;
+
+    return req.contentLength;
+}

@@ -95,7 +95,9 @@ const Location defineLocationAugst()
                  {47.53443, 7.71890, 282.6},
                  {47.53194, 7.72524, 282.6},
                  2000,
-                 "models/augst/DTM-Theater-Tempel-WGS84.tif");
+                 "models/augst/DTM-Theater-Tempel-WGS84.tif",
+                 "https://pallas.ti.bfh.ch/erlebar/models/augst.zip",
+                 "augst");
 
     {
         Area area(AreaId::AUGST_TEMPLE_HILL,                                                                                    //id
@@ -170,7 +172,9 @@ const Location defineLocationAvenches()
                  {46.88264, 7.04148, 455.0},
                  {46.87954, 7.04983, 455.0},
                  2046,
-                 "models/avenches/DTM-Aventicum-WGS84.tif");
+                 "models/avenches/DTM-Aventicum-WGS84.tif",
+                 "https://pallas.ti.bfh.ch/erlebar/models/avenches.zip",
+                 "avenches");
 
     {
         Area area(AreaId::AVENCHES_AMPHITHEATER_ENTRANCE,                                                                                          //id
@@ -245,7 +249,9 @@ const Location defineLocationBern()
                  {46.94885, 7.43808, 542.0},
                  {46.94701, 7.44290, 542.0},
                  2080,
-                 "models/bern/DEM-Bern-2600_1199-WGS84.tif");
+                 "models/bern/DEM-Bern-2600_1199-WGS84.tif",
+                 "https://pallas.ti.bfh.ch/erlebar/models/bern.zip",
+                 "bern");
 
     {
         Area area(AreaId::BERN_MILCHGAESSLI,                                                                                    //id
@@ -359,7 +365,9 @@ const Location defineLocationBiel()
                  {47.14290, 7.24225, 506.3},
                  {47.14060, 7.24693, 434.3},
                  1600,
-                 "models/biel/DEM_Biel-BFH_WGS84.tif");
+                 "models/biel/DEM_Biel-BFH_WGS84.tif",
+                 "https://pallas.ti.bfh.ch/erlebar/models/biel.zip",
+                 "biel");
 
     {
         Area area(AreaId::BIEL_BFH,                                                                              //id
@@ -387,7 +395,9 @@ const Location defineLocationEvilard()
                  {47.14954, 7.23246, 741.0},
                  {47.14778, 7.23661, 696.0},
                  2000,
-                 "");
+                 "",
+                 "",
+                 "evilard");
 
     {
         Area area(AreaId::EVILARD_ROC2,                                                                               //id
