@@ -38,7 +38,7 @@ set(erlebar_headers
 	${SL_PROJECT_ROOT}/apps/app_demo_wai/source/Gui/SelectionGui.h
 	${SL_PROJECT_ROOT}/apps/app_demo_wai/source/Gui/WelcomeGui.h
 	${SL_PROJECT_ROOT}/apps/app_demo_wai/source/Gui/AboutGui.h
-	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/DownloadGui.h
+	${SL_PROJECT_ROOT}/apps/app_demo_wai/source/Gui/DownloadGui.h
 	${SL_PROJECT_ROOT}/apps/app_demo_wai/source/Gui/AreaInfoGui.h
 	${SL_PROJECT_ROOT}/apps/app_demo_wai/source/Gui/SettingsGui.h
 	${SL_PROJECT_ROOT}/apps/app_demo_wai/source/Gui/TestRunnerGui.h
@@ -93,7 +93,7 @@ set(erlebar_headers
 	${SL_PROJECT_ROOT}/apps/app_demo_wai/source/views/StartUpView.h
 	${SL_PROJECT_ROOT}/apps/app_demo_wai/source/views/WelcomeView.h
 	${SL_PROJECT_ROOT}/apps/app_demo_wai/source/views/AboutView.h
-	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/DownloadView.h
+	${SL_PROJECT_ROOT}/apps/app_demo_wai/source/views/DownloadView.h
 	${SL_PROJECT_ROOT}/apps/app_demo_wai/source/views/AreaInfoView.h
 	${SL_PROJECT_ROOT}/apps/app_demo_wai/source/views/SettingsView.h
 	${SL_PROJECT_ROOT}/apps/app_demo_wai/source/views/TutorialView.h
@@ -134,7 +134,7 @@ set(erlebar_sources
 	${SL_PROJECT_ROOT}/apps/app_demo_wai/source/Gui/SelectionGui.cpp
 	${SL_PROJECT_ROOT}/apps/app_demo_wai/source/Gui/WelcomeGui.cpp
 	${SL_PROJECT_ROOT}/apps/app_demo_wai/source/Gui/AboutGui.cpp
-	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/Gui/DownloadGui.cpp
+	${SL_PROJECT_ROOT}/apps/app_demo_wai/source/Gui/DownloadGui.cpp
 	${SL_PROJECT_ROOT}/apps/app_demo_wai/source/Gui/AreaInfoGui.cpp
 	${SL_PROJECT_ROOT}/apps/app_demo_wai/source/Gui/SettingsGui.cpp
 	${SL_PROJECT_ROOT}/apps/app_demo_wai/source/Gui/TestRunnerGui.cpp
@@ -182,7 +182,7 @@ set(erlebar_sources
 	${SL_PROJECT_ROOT}/apps/app_demo_wai/source/views/StartUpView.cpp
 	${SL_PROJECT_ROOT}/apps/app_demo_wai/source/views/WelcomeView.cpp
 	${SL_PROJECT_ROOT}/apps/app_demo_wai/source/views/AboutView.cpp
-	${SL_PROJECT_ROOT}/apps/app-Demo-WAI/source/views/DownloadView.cpp
+	${SL_PROJECT_ROOT}/apps/app_demo_wai/source/views/DownloadView.cpp
 	${SL_PROJECT_ROOT}/apps/app_demo_wai/source/views/AreaInfoView.cpp
 	${SL_PROJECT_ROOT}/apps/app_demo_wai/source/views/SettingsView.cpp
 	${SL_PROJECT_ROOT}/apps/app_demo_wai/source/views/TutorialView.cpp
