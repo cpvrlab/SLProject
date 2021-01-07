@@ -79,9 +79,9 @@ instance of the scene. Gets called by the C-interface function slCreateAppAndSce
 <br>
 <br>
 See examples usages in:
-  - app-Demo-SLProject/GLFW:    AppDemoMainGLFW.cpp   in function main()
-  - app-Demo-SLProject/android: AppDemoAndroidJNI.cpp in Java_ch_fhnw_comgr_GLES3Lib_onInit()
-  - app-Demo-SLProject/iOS:     ViewController.m      in viewDidLoad()
+  - app_demo_slproject/glfw:    AppDemoMainGLFW.cpp   in function main()
+  - app_demo_slproject/android: AppDemoAndroidJNI.cpp in Java_ch_fhnw_comgr_GLES3Lib_onInit()
+  - app_demo_slproject/ios:     ViewController.m      in viewDidLoad()
 <br>
 /param applicationName The apps name
 /param onSceneLoadCallback C Callback function as void* pointer for the scene creation.

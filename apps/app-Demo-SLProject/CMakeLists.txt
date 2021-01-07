@@ -1,8 +1,0 @@
-if("${SYSTEM_NAME_UPPER}" MATCHES "ANDROID")
-    set(IDE_FOLDER "Android")
-    add_subdirectory(android/app)
-elseif("${SYSTEM_NAME_UPPER}" MATCHES "IOS")
-	add_subdirectory(iOS)
-else()
-    add_subdirectory(GLFW)
-endif()

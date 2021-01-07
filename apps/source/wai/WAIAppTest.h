@@ -2,8 +2,8 @@
 #define WAI_APP_TEST_H
 
 #include <string>
-#include <SL/SLInputEventInterface.h>
-#include <GL/SLGLTexture.h>
+#include <sl/SLInputEventInterface.h>
+#include <gl/SLGLTexture.h>
 #include <SLCamera.h>
 
 class SLSceneView;

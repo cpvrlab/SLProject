@@ -56,6 +56,8 @@ moc_*.cpp
 
 !christoffelturm.obj
 
+BUILD*
+_BUILD*
 _build*/
 build*/
 _bin*/
