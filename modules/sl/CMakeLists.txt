@@ -368,11 +368,9 @@ target_include_directories(${target}
         PUBLIC
         ${platform_specific_include_dirs}
         ${CMAKE_CURRENT_SOURCE_DIR}/include
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/CV
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/GL
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/GUI
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/math
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/SL
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/cv
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/gl
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/sl
         ${OpenCV_INCLUDE_DIR}
         ${OptiX_INCLUDE}
         ${CUDA_INCLUDE_DIRS}
