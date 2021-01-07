@@ -235,8 +235,8 @@ bool CVCapture::grabAndAdjustForSL(float viewportWdivH)
 }
 //-----------------------------------------------------------------------------
 /*! This method is called by iOS and Android projects that capture their video
-cameras on their own. We only adjust the color space. See the app-Demo-SLProject/iOS and
-app-Demo-SLProject/android projects for the usage.
+cameras on their own. We only adjust the color space. See the app_demo_slproject/ios and
+app_demo_slproject/android projects for the usage.
 */
 void CVCapture::loadIntoLastFrame(const float       viewportWdivH,
                                   const int         width,
@@ -618,6 +618,7 @@ A faster integer version with bit shifting is:\n
 4) Many of the image processing tasks are faster done on grayscale images.
 We therefore create a copy of the y-channel into CVCapture::lastFrameGray.
 \n
+@param scrWdivH    aspect ratio width / height
 @param srcW        Source image width in pixel
 @param srcH        Source image height in pixel
 @param y           Pointer to first byte of the top left pixel of the y-plane

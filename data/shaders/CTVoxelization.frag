@@ -1,6 +1,6 @@
 //#############################################################################
 //  File:      CTVoxelization.frag
-//  Purpose:   Calculates diffuse illum. & stores it into voxelized 3D texture
+//  Purpose:   Calculates diffuse illumination & stores it into voxelized 3D texture
 //  Author:    Stefan Thoeni
 //  Date:      September 2018
 //  Copyright: Stefan Thoeni

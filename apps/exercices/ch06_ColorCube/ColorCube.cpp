@@ -9,11 +9,8 @@
 //             WITHOUT ANY WARRANTIES WHETHER EXPRESSED OR IMPLIED.
 //#############################################################################
 
-#include <stdafx.h> // Must be the 1st include followed by  an empty line
-
 #include <GL/gl3w.h>    // OpenGL headers
 #include <GLFW/glfw3.h> // GLFW GUI library
-#include <SL.h>         // Basic SL type definitions
 #include <SLMat4.h>     // 4x4 matrix class
 #include <SLVec3.h>     // 3D vector class
 #include <glUtils.h>    // Basics for OpenGL shaders, buffers & textures
@@ -443,7 +440,7 @@ int main(int argc, char* argv[])
     // Init OpenGL access library gl3w
     if (gl3wInit() != 0)
     {
-        cerr << "Failed to initialize OpenGL" << endl;
+        std::cerr << "Failed to initialize OpenGL" << std::endl;
         exit(-1);
     }
 

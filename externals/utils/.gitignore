@@ -1,5 +1,0 @@
-_build*
-build*
-_bin*
-CMakeLists.txt.user*
-.vscode

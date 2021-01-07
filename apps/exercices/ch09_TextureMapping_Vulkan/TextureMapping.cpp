@@ -1,7 +1,7 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GL/gl3w.h>
 #include <GLFW/glfw3.h>
-#include <math/SLVec3.h>
+#include <SLVec3.h>
 #include <Node.h>
 #include <Sphere.h>
 #include <Rectangle.h>

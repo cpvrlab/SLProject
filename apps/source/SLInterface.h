@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      SL/SLInterface.h
+//  File:      sl/SLInterface.h
 //  Purpose:   Declaration of the main Scene Library C-Interface.
 //  Author:    Marcus Hudritsch
 //  Date:      July 2014
@@ -29,9 +29,9 @@ by a native API such as Java Native Interface (JNI).
 See the implementation for more information.<br>
  <br>
  See examples usages in:
- - app-Demo-SLProject/GLFW:    in AppDemoMainGLFW.cpp
+ - app_demo_slproject/glfw:    in AppDemoMainGLFW.cpp
  - app-Demo-SLProject/android: in AppDemoAndroidJNI.cpp
- - app-Demo-SLProject/iOS:     in ViewController.m
+ - app_demo_slproject/ios:     in ViewController.m
  <br>
 */
 //-----------------------------------------------------------------------------

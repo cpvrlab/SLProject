@@ -1,5 +1,11 @@
 #!/bin/sh
-
+: '
+Pitfalls: 
+	-with this skript one can only build static libraries. With dynamic libraries you will have to built release libs in xcode because of signing. There were additional linker errors when I tried.
+	-you have to turn the flag WITH_TIFF on to get tiff support on ios
+	-you have to turn openexr and itt off otherwith you will get linker errors later (version 4.5.0)
+	-dont comment single lines containing parameters transferred to the cmake command, it will not work.
+'
 # ####################################################
 # Build script for OpenCV with contributions for iOS
 # ####################################################
@@ -48,39 +54,46 @@ else
     exit
 fi
 
-# Make build folder for debug version
-echo "============================================================"
 cd opencv
 if [ ! -d "build" ]; then
     mkdir build
 fi
-rm -rf $BUILD_D
-mkdir $BUILD_D
+
+# Make build folder for debug version
+echo "============================================================"
+if [ ! -d $BUILD_D ]; then
+	mkdir $BUILD_D
+fi
 cd $BUILD_D
 
 echo "====================================================== cmake"
 # Run cmake to configure and generate for iosV8 debug
 cmake \
+-GXcode \
 -DCMAKE_CONFIGURATION_TYPES=Debug \
 -DCMAKE_BUILD_TYPE=Debug \
 -DBUILD_WITH_DEBUG_INFO=ON \
 -DCMAKE_INSTALL_PREFIX=./install \
+-DBUILD_SHARED_LIBS=OFF \
 -DBUILD_opencv_python_bindings_generator=OFF \
 -DBUILD_opencv_python2=OFF \
 -DBUILD_opencv_java_bindings_generator=OFF \
 -DBUILD_opencv_world=OFF \
+-DBUILD_opencv_apps=OFF \
 -DBUILD_PERF_TESTS=OFF \
 -DBUILD_TESTS=OFF \
+-DBUILD_ITT=OFF \
+-DWITH_ITT=OFF \
+-DBUILD_OPENEXR=OFF \
+-DWITH_OPENEXR=OFF \
+-DWITH_TIFF=ON \
 -DWITH_MATLAB=OFF \
 -DOPENCV_EXTRA_MODULES_PATH=../../../opencv_contrib/modules \
 -DWITH_CUDA=OFF \
 -DWITH_OPENCL=OFF \
--DWITH_OPENCL_SVM=OFF \
 -DWITH_OPENCLAMDFFT=OFF \
 -DWITH_OPENCLAMDBLAS=OFF \
 -DWITH_VA_INTEL=OFF \
--GXcode \
--DAPPLE_FRAMEWORK=ON \
 -DPLATFORM=OS64 \
 -DCMAKE_TOOLCHAIN_FILE=../../../ios.toolchain.cmake \
 -DENABLE_NEON=ON \
@@ -89,61 +102,60 @@ cmake \
 
 cmake --build . --config Debug --target install
 
-: '
-echo "================================================= xcodebuild"
-xcodebuild \
-IPHONEOS_DEPLOYMENT_TARGET=8.0 \
-ARCHS=arm64 \
--sdk=phoneos \
--configuration=Debug \
--jobs=1 \
--target=ALL_BUILD \
--parallelizeTargets \
-build
-
 cd ../.. # back to opencv
 
 # Make build folder for release version
 echo "============================================================"
-rm -rf $BUILD_R
-mkdir $BUILD_R
+if [ ! -d $BUILD_R ]; then
+	mkdir $BUILD_R	
+fi
 cd $BUILD_R
 
 # Run cmake to configure and generate the make files
 cmake \
+-GXcode \
 -DCMAKE_CONFIGURATION_TYPES=Release \
 -DCMAKE_BUILD_TYPE=Release \
--DBUILD_WITH_DEBUG_INFO=0 \
+-DBUILD_WITH_DEBUG_INFO=OFF \
 -DCMAKE_INSTALL_PREFIX=./install \
--DBUILD_opencv_python_bindings_generator=0 \
--DBUILD_opencv_python2=0 \
--DBUILD_opencv_java_bindings_generator=0 \
--DBUILD_opencv_world=0 \
--DBUILD_PERF_TESTS=0 \
--DBUILD_TESTS=0 \
--DWITH_MATLAB=0 \
+-DBUILD_SHARED_LIBS=OFF \
+-DBUILD_opencv_python_bindings_generator=OFF \
+-DBUILD_opencv_python2=OFF \
+-DBUILD_opencv_java_bindings_generator=OFF \
+-DBUILD_opencv_world=OFF \
+-DBUILD_opencv_apps=OFF \
+-DBUILD_PERF_TESTS=OFF \
+-DBUILD_TESTS=OFF \
+-DBUILD_ITT=OFF \
+-DWITH_ITT=OFF \
+-DBUILD_OPENEXR=OFF \
+-DWITH_OPENEXR=OFF \
+-DWITH_TIFF=ON \
+-DWITH_MATLAB=OFF \
 -DOPENCV_EXTRA_MODULES_PATH=../../../opencv_contrib/modules \
--DWITH_OPENCL=0 \
--DWITH_OPENCLAMDFFT=0 \
--DWITH_OPENCLAMDBLAS=0 \
--DWITH_VA_INTEL=0 \
--GXcode \
+-DWITH_CUDA=OFF \
+-DWITH_OPENCL=OFF \
+-DWITH_OPENCLAMDFFT=OFF \
+-DWITH_OPENCLAMDBLAS=OFF \
+-DWITH_VA_INTEL=OFF \
 -DPLATFORM=OS64 \
 -DCMAKE_TOOLCHAIN_FILE=../../../ios.toolchain.cmake \
--DENABLE_NEON=1 \
--DENABLE_ARC=0 \
+-DENABLE_NEON=ON \
+-DENABLE_ARC=OFF \
 ../..
 
 cmake --build . --config Release --target install
 
 cd ../.. # Back to opencv
 
+echo "============================================================"
 # Create zip folder for debug and release version
 rm -rf $ZIPFOLDER
+rm -rf $ZIPFOLDER.zip
 mkdir $ZIPFOLDER
 cp -R $BUILD_R/install/include $ZIPFOLDER/include
 cp -R $BUILD_R/install/lib     $ZIPFOLDER/release
 cp -R $BUILD_D/install/lib     $ZIPFOLDER/debug
 cp LICENSE $ZIPFOLDER
 cp README.md $ZIPFOLDER
-'
+zip -r $ZIPFOLDER.zip $ZIPFOLDER

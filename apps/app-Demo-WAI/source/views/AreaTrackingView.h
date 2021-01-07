@@ -243,7 +243,7 @@ private:
     SLMat4f calcCameraPoseGpsOrientationBased();
     cv::Mat convertCameraPoseToWaiCamExtrinisc(SLMat4f& wTc);
     void    applyFingerCorrection(SLMat4f& camPose);
-    void    applyTemplateCorrection(SLMat4f& camPose, SENSFramePtr& frame);
+    void    applyTemplateCorrection(SLMat4f& camPose, const cv::Mat& frameGray);
 
     AreaTrackingGui   _gui;
     AppWAIScene       _waiScene;

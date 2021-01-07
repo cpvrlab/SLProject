@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      SL/SLInterface.cpp
+//  File:      sl/SLInterface.cpp
 //  Purpose:   Implementation of the main Scene Library C-Interface.
 //  Author:    Marcus Hudritsch
 //  Date:      July 2014
@@ -51,9 +51,9 @@ present.<br>
 /param onSceneLoadCallback C Callback function as void* pointer for the scene creation.
 <br>
 See examples usages in:
-  - app-Demo-SLProject/GLFW:    AppDemoMainGLFW.cpp in function main()
+  - app_demo_slproject/glfw:    AppDemoMainGLFW.cpp in function main()
   - app-Demo-SLProject/android: native-lib.cpp      in Java_ch_fhnw_comgr_GLES3Lib_onInit()
-  - app-Demo-SLProject/iOS:     ViewController.m    in viewDidLoad()
+  - app_demo_slproject/ios:     ViewController.m    in viewDidLoad()
 */
 void slCreateAppAndScene(SLVstring&      cmdLineArgs,
                          const SLstring& dataPath,
@@ -114,9 +114,9 @@ have to provide a similar function and pass it function pointer to
 slCreateSceneView. You can create multiple sceneview per application.<br>
 <br>
 See examples usages in:
-  - app-Demo-SLProject/GLFW:    AppDemoMainGLFW.cpp   in function main()
+  - app_demo_slproject/glfw:    AppDemoMainGLFW.cpp   in function main()
   - app-Demo-SLProject/android: AppDemoAndroidJNI.cpp in Java_ch_fhnw_comgr_GLES3Lib_onInit()
-  - app-Demo-SLProject/iOS:     ViewController.m      in viewDidLoad()
+  - app_demo_slproject/ios:     ViewController.m      in viewDidLoad()
 */
 SLint slCreateSceneView(SLProjectScene* scene,
                         int             screenWidth,

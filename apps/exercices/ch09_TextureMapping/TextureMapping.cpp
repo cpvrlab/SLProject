@@ -9,13 +9,9 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include <stdafx.h> // Must be the 1st include followed by  an empty line
-
 #include <Utils.h>
 #include <GL/gl3w.h>    // OpenGL headers
 #include <GLFW/glfw3.h> // GLFW GUI library
-#include <SL.h>         // Basic SL type definitions
-#include <CVImage.h>    // Image class for image loading
 #include <SLMat4.h>     // 4x4 matrix class
 #include <SLVec3.h>     // 3D vector class
 #include <glUtils.h>    // Basics for OpenGL shaders, buffers & textures
@@ -330,8 +326,8 @@ void onInit()
     _gLoc              = glGetUniformLocation(_shaderProgID, "u_oneOverGamma");
 
     // Build object
-    buildSphere(1.0f, 30, 30);
-    // buildSquare();
+    //buildSphere(1.0f, 30, 30);
+    buildSquare();
 
     // Set some OpenGL states
     glClearColor(0.0f, 0.0f, 0.0f, 1); // Set the background color
@@ -344,7 +340,7 @@ void onInit()
 onClose is called when the user closes the window and can be used for proper
 deallocation of resources.
 */
-void onClose(GLFWwindow* window)
+void onClose(GLFWwindow* myWindow)
 {
     // Delete shaders & programs on GPU
     glDeleteShader(_shaderVertID);
@@ -480,7 +476,7 @@ bool onPaint()
     static float lastTimeSec = 0;
     float        timeNowSec  = (float)glfwGetTime();
     float        fps         = calcFPS(timeNowSec - lastTimeSec);
-    sprintf(title, "Sphere, %d x %d, fps: %4.0f", _resolution, _resolution, fps);
+    sprintf(title, "Texture Mapping %3.1f", fps);
     glfwSetWindowTitle(window, title);
     lastTimeSec = timeNowSec;
 
@@ -493,7 +489,7 @@ onResize: Event handler called on the resize event of the window. This event
 should called once before the onPaint event. Do everything that is dependent on
 the size and ratio of the window.
 */
-void onResize(GLFWwindow* window, int width, int height)
+void onResize(GLFWwindow* myWindow, int width, int height)
 {
     float w = (float)width;
     float h = (float)height;
@@ -513,7 +509,7 @@ void onResize(GLFWwindow* window, int width, int height)
 /*!
 Mouse button down & release eventhandler starts and end mouse rotation
 */
-void onMouseButton(GLFWwindow* window, int button, int action, int mods)
+void onMouseButton(GLFWwindow* myWindow, int button, int action, int mods)
 {
     SLint x = _mouseX;
     SLint y = _mouseY;
@@ -544,7 +540,7 @@ void onMouseButton(GLFWwindow* window, int button, int action, int mods)
 /*!
 Mouse move eventhandler tracks the mouse delta since touch down (_deltaX/_deltaY)
 */
-void onMouseMove(GLFWwindow* window, double x, double y)
+void onMouseMove(GLFWwindow* myWindow, double x, double y)
 {
     _mouseX = (int)x;
     _mouseY = (int)y;
@@ -560,7 +556,7 @@ void onMouseMove(GLFWwindow* window, double x, double y)
 /*!
 Mouse wheel eventhandler that moves the camera foreward or backwards
 */
-void onMouseWheel(GLFWwindow* window, double xscroll, double yscroll)
+void onMouseWheel(GLFWwindow* myWindow, double xscroll, double yscroll)
 {
     if (_modifiers == NONE)
     {
@@ -572,7 +568,7 @@ void onMouseWheel(GLFWwindow* window, double xscroll, double yscroll)
 /*!
 Key action eventhandler handles key down & release events
 */
-void onKey(GLFWwindow* window, int GLFWKey, int scancode, int action, int mods)
+void onKey(GLFWwindow* myWindow, int GLFWKey, int scancode, int action, int mods)
 {
     if (action == GLFW_PRESS)
     {
@@ -675,7 +671,7 @@ int main(int argc, char* argv[])
     // Init OpenGL access library gl3w
     if (gl3wInit() != 0)
     {
-        cerr << "Failed to initialize OpenGL" << endl;
+        std::cerr << "Failed to initialize OpenGL" << std::endl;
         exit(-1);
     }
 

@@ -7,7 +7,7 @@
 #include <vulkan/vulkan.h>
 #include <string>
 #include <CVImage.h> // Image class for image loading
-#include <math/SLVec3.h>
+#include <SLVec3.h>
 #include <glUtils.h>
 #include <Utils.h>
 

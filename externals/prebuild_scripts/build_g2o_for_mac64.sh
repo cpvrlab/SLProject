@@ -22,6 +22,7 @@ cd $BUILD_D
 
 # Run cmake to configure and generate the make files
 cmake \
+    -DCMAKE_OSX_ARCHITECTURES=x86_64 \
     -DCMAKE_INSTALL_PREFIX=install \
     -DG2O_BUILD_APPS=off \
     -DG2O_BUILD_EXAMPLES=off \

@@ -5,7 +5,7 @@ bugprone-bad-signal-to-kill-thread
 bugprone-branch-clone
 bugprone-copy-constructor-init
 bugprone-dangling-handle
-bugprone-dynamic-static-initializers
+#bugprone-dynamic-static-initializers
 bugprone-fold-init-type
 bugprone-forward-declaration-namespace
 bugprone-forwarding-reference-overload

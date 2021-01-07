@@ -8,8 +8,8 @@ set(include_path "${CMAKE_CURRENT_SOURCE_DIR}")
 set(source_path "${CMAKE_CURRENT_SOURCE_DIR}")
 
 file(GLOB headers
-        ${SL_PROJECT_ROOT}/lib-SLProject/include/CVTypedefs.h
-        ${SL_PROJECT_ROOT}/lib-SLProject/include/CVImage.h
+        ${SL_PROJECT_ROOT}/modules/sl/include/cv/CVTypedefs.h
+        ${SL_PROJECT_ROOT}/modules/sl/include/cv/CVImage.h
         ${CMAKE_CURRENT_SOURCE_DIR}/Camera.h
         ${CMAKE_CURRENT_SOURCE_DIR}/Buffer.h
         ${CMAKE_CURRENT_SOURCE_DIR}/CommandBuffer.h
@@ -45,8 +45,8 @@ file(GLOB headers
         )
 
 file(GLOB sources
-        ${SL_PROJECT_ROOT}/lib-SLProject/source/SL/SL.cpp
-        ${SL_PROJECT_ROOT}/lib-SLProject/source/CV/CVImage.cpp
+        ${SL_PROJECT_ROOT}/modules/sl/source/sl/SL.cpp
+        ${SL_PROJECT_ROOT}/modules/sl/source/cv/CVImage.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/Buffer.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/CommandBuffer.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/DescriptorPool.cpp
@@ -98,14 +98,14 @@ set_target_properties(${target}
 target_include_directories(${target}
         PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}
-        ${SL_PROJECT_ROOT}/lib-SLProject/include
-        ${SL_PROJECT_ROOT}/lib-SLProject/include/CV
-        ${SL_PROJECT_ROOT}/lib-SLProject/include/math
-        ${SL_PROJECT_ROOT}/lib-SLProject/include/SL
-        ${SL_PROJECT_ROOT}/externals/lib-SLExternal
-        ${SL_PROJECT_ROOT}/externals/lib-SLExternal/gl3w
-        ${SL_PROJECT_ROOT}/externals/lib-SLExternal/gl3w/GL
-        ${SL_PROJECT_ROOT}/externals/utils/lib-Utils/source
+        ${SL_PROJECT_ROOT}/modules/math/include
+        ${SL_PROJECT_ROOT}/modules/sl/include
+        ${SL_PROJECT_ROOT}/modules/sl/include/cv
+        ${SL_PROJECT_ROOT}/modules/sl/include/sl
+        ${SL_PROJECT_ROOT}/modules/sl/external
+        ${SL_PROJECT_ROOT}/modules/sl/external/gl3w
+        ${SL_PROJECT_ROOT}/modules/sl/external/gl3w/GL
+        ${SL_PROJECT_ROOT}/modules/utils/source
         ${OpenCV_INCLUDE_DIR}
         ${glfw_INCLUDE_DIR}
         ${vk_INCLUDE_DIR}
@@ -120,6 +120,7 @@ target_link_libraries(${target}
         ${PlatformLinkLibs}
         lib-SLExternal
         lib-Utils
+        lib-SLMath
         ${OpenCV_LIBS}
         ${glfw_LIBS}
         ${vk_LIBS}
@@ -159,26 +160,16 @@ file(GLOB SHADER_SOURCE_FILES
     )
 
 foreach(SHADER ${SHADER_SOURCE_FILES})
-    
     get_filename_component(FILE_NAME ${SHADER} NAME)
-    
-    set(SPIRV_OUTPUT "${SL_PROJECT_ROOT}/data/shaders/${FILE_NAME}.spv") 
-
-    message(STATUS "------------------------------------")
-    message(STATUS ${SHADER})
+    set(SPIRV_OUTPUT "${SL_PROJECT_ROOT}/data/shaders/${FILE_NAME}.spv")
 
     add_custom_command(
         OUTPUT ${SPIRV_OUTPUT}
         COMMAND ${GLSLC} ${SHADER} -o ${SPIRV_OUTPUT}
-         DEPENDS ${SHADER})
+        DEPENDS ${SHADER})
         
-        message(STATUS ${SPIRV_OUTPUT})
-
-        list(APPEND SPIRV_BINARY_FILES ${SPIRV_OUTPUT})
-
-        message(STATUS "------------------------------")
-        message(STATUS ${SPIRV_BINARY_FILES})
-
+    message(STATUS "Compiled for Vulkan: " ${SPIRV_OUTPUT})
+    list(APPEND SPIRV_BINARY_FILES ${SPIRV_OUTPUT})
 endforeach(SHADER)
 
  add_custom_target(

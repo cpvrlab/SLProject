@@ -60,6 +60,7 @@ cd $BUILD_D
 
 # Run cmake to configure and generate for mac64 debug
 cmake \
+-DCMAKE_OSX_ARCHITECTURES=x86_64 \
 -DCMAKE_CONFIGURATION_TYPES=Debug \
 -DCMAKE_BUILD_TYPE=Debug \
 -DBUILD_WITH_DEBUG_INFO=true \

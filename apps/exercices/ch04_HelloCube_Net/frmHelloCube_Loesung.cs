@@ -90,7 +90,7 @@ public partial class frmHelloCube : Form
       // start with identity every frame
       m_modelViewMatrix.Identity();
    
-      // view transform: move the coordiante system away from the camera
+      // view transform: move the coordinate system away from the camera
       m_modelViewMatrix.Translate(0, 0, m_camZ);
    
       // model transform: rotate the coordinate system increasingly
