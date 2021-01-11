@@ -262,6 +262,7 @@ bool zip(string path, string zipname)
                                     path + baseName,
                                     path.erase(0,
                                                zipRootPath.size()));
+
       },
       [zfile, &ret, zipRootPath](string path,
                                  string baseName,

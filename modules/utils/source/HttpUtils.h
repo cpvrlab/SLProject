@@ -21,6 +21,7 @@ typedef int socklen_t;
 #include <openssl/ssl.h>
 #include <openssl/err.h>
 #include <functional>
+#include <atomic>
 
 using std::string;
 using std::vector;
@@ -28,8 +29,9 @@ using std::function;
 
 //------------------------------------------------------------------------------
 //! ???
-struct Socket
+class Socket
 {
+public:
     int                fd;
     struct sockaddr_in sa;
     socklen_t          addrlen;
@@ -72,12 +74,18 @@ struct Socket
     virtual void reset();
     virtual int  connectTo(string ip, int port);
     virtual int  sendData(const char* data, size_t size);
-    virtual void receive(function<void(char* data, int size)> dataCB, int max = 0);
+    virtual void receive(function<int(char* data, int size)> dataCB, int max = 0);
+    virtual void disconnect();
+    void         interrupt() { _interrupt = true; };
+
+protected:
+    std::atomic_bool _interrupt{false};
 };
 //------------------------------------------------------------------------------
 //! ???
-struct SecureSocket : Socket
+class SecureSocket : public Socket
 {
+    public:
     SecureSocket() { Socket::reset(); }
 
     SSL* ssl;
@@ -85,7 +93,8 @@ struct SecureSocket : Socket
 
     virtual int  connectTo(string ip, int port);
     virtual int  sendData(const char* data, size_t size);
-    virtual void receive(function<void(char* data, int size)> dataCB, int max = 0);
+    virtual void receive(function<int(char* data, int size)> dataCB, int max = 0);
+    virtual void disconnect();
 };
 //------------------------------------------------------------------------------
 //! ???
@@ -102,8 +111,9 @@ struct DNSRequest
 namespace HttpUtils
 {
 //! ???
-struct GetRequest
+class GetRequest
 {
+public:
     Socket*      s;
     vector<char> firstBytes;
     int          contentOffset;
@@ -128,8 +138,9 @@ struct GetRequest
 
     int            processHttpHeaders(vector<char>& data);
     int            send();
-    void           getContent(function<void(char* data, int size)> contentCB);
+    void           getContent(function<int(char* data, int size)> contentCB);
     vector<string> getListing();
+
 };
 //------------------------------------------------------------------------------
 //! ???
@@ -142,16 +153,16 @@ int download(string                                               url,
              string                                               base = "./");
 //------------------------------------------------------------------------------
 //! HTTP download function with login credentials
-int download(string                                       url,
-             string                                       dst,
-             string                                       user,
-             string                                       pwd,
-             function<void(size_t curr, size_t filesize)> progress = nullptr);
+int download(string                                      url,
+             string                                      dst,
+             string                                      user,
+             string                                      pwd,
+             function<int(size_t curr, size_t filesize)> progress = nullptr);
 //------------------------------------------------------------------------------
 //! HTTP download function without login credentials
-int download(string                                       url,
-             string                                       dst,
-             function<void(size_t curr, size_t filesize)> progress = nullptr);
+int download(string                                      url,
+             string                                      dst,
+             function<int(size_t curr, size_t filesize)> progress = nullptr);
 
 //-- return content Length of the HttpGet request
 int length(string url, string user = "", string pwd = "");

@@ -50,10 +50,11 @@ private:
     float _windowPaddingContent;
     float _itemSpacingContent;
 
-    float        _progress;
+    bool _download;
 
     ErlebAR::Config&    _config;
     ErlebAR::Resources& _resources;
+
     std::map<std::string, AsyncWorker*>& _asyncWorkers;
 };
 
