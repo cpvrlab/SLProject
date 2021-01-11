@@ -51,12 +51,12 @@ class AsyncDownloader : public AsyncWorker
                             PASSWORD,
                             [this](size_t curr, size_t filesize) -> int
                             {
-                                //std::unique_lock<std::mutex> lock(_mutex);
+                                std::unique_lock<std::mutex> lock(_mutex);
                                 _progress = (float)curr / (float)filesize;
+                                lock.unlock();
                                 return stopRequested();
                             });
 
-        std::cout << "unzip " << _dst + _zipname << std::endl;
         ZipUtils::unzip(_dst + _zipname, _dst);
         setReady();
     }
@@ -215,17 +215,19 @@ void DownloadGui::build(SLScene* s, SLSceneView* sv)
         }
         else
         {
-            if (ImGui::Button("Stop"))
-            {
-                downloader->stop();
-                delete downloader;
-                _asyncWorkers.erase(asyncWorkerIt);
-            }
+            bool stop = ImGui::Button("Stop");
             ImGui::Separator();
 
             ImGui::ProgressBar(downloader->progress());
 
             ImGui::Separator();
+
+            if (stop)
+            {
+                downloader->stop();
+                delete downloader;
+                _asyncWorkers.erase(asyncWorkerIt);
+            }
         }
 
         ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + _textWrapW);
