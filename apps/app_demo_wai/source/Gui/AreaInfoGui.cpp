@@ -75,8 +75,6 @@ void AreaInfoGui::build(SLScene* s, SLSceneView* sv)
     //header bar
     float buttonSize = _resources.style().headerBarButtonH * _headerBarH;
 
-    std::cout << "Area info gui" << std::endl;
-
     ErlebAR::renderHeaderBar("AreaInfoGui",
                              _screenW,
                              _headerBarH,
@@ -155,13 +153,12 @@ void AreaInfoGui::build(SLScene* s, SLSceneView* sv)
     const auto& locations = _config.locations();
     auto        locIt     = locations.find(_locationId);
 
-    if (_hasData)
+    if (ImGui::Button("Start##AreaInfoGuiStartButton", ImVec2(buttonW, buttonH)))
     {
-        sendEvent(new DoneEvent("AreaInfoGui"));
-    }
-    else if (ImGui::Button("Start##AreaInfoGuiStartButton", ImVec2(buttonW, buttonH)))
-    {
-        sendEvent(new StartDownloadEvent("AreaInfoGui", _locationId));
+        if (_hasData)
+            sendEvent(new DoneEvent("AreaInfoGui"));
+        else
+            sendEvent(new StartDownloadEvent("AreaInfoGui", _locationId));
     }
 
     ImGui::End();
