@@ -40,13 +40,15 @@ public:
 class AreaEventData : public sm::EventData
 {
 public:
-    AreaEventData(ErlebAR::LocationId locId, ErlebAR::AreaId areaId)
+    AreaEventData(ErlebAR::LocationId locId, ErlebAR::AreaId areaId, bool hasData)
       : locId(locId),
-        areaId(areaId)
+        areaId(areaId),
+        hasData(hasData)
     {
     }
     const ErlebAR::LocationId locId;
     const ErlebAR::AreaId     areaId;
+    bool                      hasData;
 };
 
 //-----------------------------------------------------------------------------
@@ -171,6 +173,8 @@ public:
     {
         enableTransition((unsigned int)StateId::SELECTION,
                          (unsigned int)StateId::DOWNLOAD);
+        enableTransition((unsigned int)StateId::AREA_INFO,
+                         (unsigned int)StateId::DOWNLOAD);
 
         _eventData = new DownloadEventData(location);
     }
@@ -192,13 +196,13 @@ public:
 class AreaSelectedEvent : public sm::Event
 {
 public:
-    AreaSelectedEvent(std::string senderInfo, ErlebAR::LocationId locId, ErlebAR::AreaId areaId)
+    AreaSelectedEvent(std::string senderInfo, ErlebAR::LocationId locId, ErlebAR::AreaId areaId, bool hasData)
       : sm::Event("AreaSelectedEvent", senderInfo)
     {
         enableTransition((unsigned int)StateId::LOCATION_MAP,
                          (unsigned int)StateId::AREA_INFO);
 
-        _eventData = new AreaEventData(locId, areaId);
+        _eventData = new AreaEventData(locId, areaId, hasData);
     }
 };
 

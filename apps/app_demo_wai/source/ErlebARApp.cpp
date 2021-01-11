@@ -491,9 +491,14 @@ void ErlebARApp::AREA_INFO(const AreaEventData* data, const bool stateEntry, con
         //for this state, that if there is no data sent, we assume that the previous state was HOLD_TRACKING.
         if (data)
         {
-            _areaInfoView->initArea(data->locId, data->areaId);
-            //TODO Area tracking view -> init Area -> init Scene -> Download
-            _areaTrackingView->initArea(data->locId, data->areaId);
+            if (data->hasData)
+            {
+                _areaInfoView->initArea(data->locId, data->areaId, true);
+                //TODO Area tracking view -> init Area -> init Scene -> Download
+                _areaTrackingView->initArea(data->locId, data->areaId);
+            }
+            else
+                _areaInfoView->initArea(data->locId, data->areaId, false);
         }
         else
         {

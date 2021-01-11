@@ -17,7 +17,7 @@ bool AreaInfoView::update()
     return onPaint();
 }
 
-void AreaInfoView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaId)
+void AreaInfoView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaId, bool hasData)
 {
-    _gui.initArea(locId, areaId);
+    _gui.initArea(locId, areaId, hasData);
 }
