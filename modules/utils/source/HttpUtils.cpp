@@ -18,8 +18,6 @@
 #include <unistd.h>
 #endif
 
-using namespace std;
-
 //-----------------------------------------------------------------------------
 /*!
  * 
@@ -88,7 +86,12 @@ int Socket::sendData(const char* data,
  */
 void Socket::disconnect()
 {
+
+#ifdef _WINDOWS
+    closesocket(fd);
+#else
     close(fd);
+#endif
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -729,9 +732,9 @@ int HttpUtils::download(string                                      url,
           try
           {
               if (dstIsDir)
-                  fs.open(path + file, ios::out | ios::binary);
+                  fs.open(path + file, std::ios::out | std::ios::binary);
               else
-                  fs.open(dst, ios::out | ios::binary);
+                  fs.open(dst, std::ios::out | std::ios::binary);
           }
           catch (std::exception& e)
           {
