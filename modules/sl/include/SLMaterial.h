@@ -84,6 +84,30 @@ public:
                SLGLProgram*    program,
                const SLstring& compileErrorTexFilePath = "");
 
+    //! Ctor for PBR shading with IBL without textures
+    SLMaterial(SLAssetManager* am,
+               const SLchar*   name,
+               SLCol4f         diffuse,
+               SLfloat         roughness,
+               SLfloat         metalness,
+               SLGLProgram*    pbrIblShaderProg,
+               SLGLTexture*    irrandianceMap,
+               SLGLTexture*    prefilterIrradianceMap,
+               SLGLTexture*    brdfLUTTexture3);
+
+    //! Ctor for PBR material with IBL with PBR textures
+    SLMaterial(SLAssetManager* am,
+               const SLchar*   name,
+               SLGLProgram*    shaderProg,
+               SLGLTexture*    texture1,
+               SLGLTexture*    texture2,
+               SLGLTexture*    texture3,
+               SLGLTexture*    texture4,
+               SLGLTexture*    texture5,
+               SLGLTexture*    texture6,
+               SLGLTexture*    texture7,
+               SLGLTexture*    texture8);
+
     ~SLMaterial() override;
 
     void activate(SLCamera* cam, SLVLight* lights);

@@ -29,6 +29,11 @@ uniform float       u_lightSpotCos[NUM_LIGHTS]; // cosine of spot cutoff angle
 uniform float       u_lightSpotExp[NUM_LIGHTS]; // spot exponent
 uniform float       u_oneOverGamma;             // 1.0f / Gamma correction value
 
+uniform sampler2D   u_matTexture0;      // Diffuse Color map (albedo)
+uniform sampler2D   u_matTexture1;      // Normal map
+uniform sampler2D   u_matTexture2;      // Metallic map
+uniform sampler2D   u_matTexture3;      // Roughness map
+
 uniform int         u_camProjection;    // type of stereo
 uniform int         u_camStereoEye;     // -1=left, 0=center, 1=right
 uniform mat3        u_camStereoColors;  // color filter matrix
@@ -39,14 +44,9 @@ uniform float       u_camFogStart;      // fog start distance
 uniform float       u_camFogEnd;        // fog end distance
 uniform vec4        u_camFogColor;      // fog color (usually the background)
 
-uniform sampler2D   u_matTexture0;      // Diffuse Color map (albedo)
-uniform sampler2D   u_matTexture1;      // Normal map
-uniform sampler2D   u_matTexture2;      // Metallic map
-uniform sampler2D   u_matTexture3;      // Roughness map
-
 out     vec4        o_fragColor;        // output fragment color
 // ----------------------------------------------------------------------------
-const float AO = 1.0;               // Constant ambient occlusion factor
+const float matAO = 1.0;                // Constant ambient occlusion factor
 const float PI = 3.14159265359;
 // ----------------------------------------------------------------------------
 vec3 getNormalFromMap()
@@ -73,7 +73,7 @@ vec3 getNormalFromMap()
 void main()
 {
     vec3 N = getNormalFromMap();    // Get the distracted normal from map
-    vec3 E = normalize(-v_P_VS);    // Vector from p to the viewer
+    vec3 E = normalize(-v_P_VS);    // Vector from p to the eye (viewer)
     vec3 Lo = vec3(0.0);            // Get the reflection from all lights into Lo
 
     // Get the material parameters out of the textures
@@ -110,7 +110,7 @@ void main()
 
     // ambient lighting (note that the next IBL tutorial will replace
     // this ambient lighting with environment lighting).
-    vec3 ambient = vec3(0.03) * matDiff * AO;
+    vec3 ambient = vec3(0.03) * matDiff * matAO;
     vec3 color = ambient + Lo;
 
     // HDR tonemapping

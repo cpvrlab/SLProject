@@ -55,6 +55,11 @@ enum SLTextureType
     TT_roughness,        // roughness map (PBR Cook-Torrance roughness 0-1)
     TT_metallic,         // metalness map (PBR Cook-Torrance metallic 0-1)
     TT_font,             // texture map for fonts
+    TT_hdr,              // High Dynamic Range images
+    TT_environment,      // environment cubemap generated from HDR Textures
+    TT_irradiance,       // irradiance map generated from HDR Textures
+    TT_prefilter,        // prefilter map
+    TT_lut               // BRDF LUT Texture
 };
 //-----------------------------------------------------------------------------
 //! Texture object for OpenGL texturing

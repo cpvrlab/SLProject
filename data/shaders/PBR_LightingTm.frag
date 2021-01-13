@@ -1,0 +1,145 @@
+//#############################################################################
+//  File:      PBR_LightingTm.frag
+//  Purpose:   GLSL fragment shader for Cook-Torrance physical based rendering
+//             including diffuse irradiance and specular IBL. Based on the
+//             physically based rendering (PBR) tutorial with GLSL by Joey de
+//             Vries on https://learnopengl.com/#!PBR/Theory
+//  Author:    Carlos Arauz, 
+//             adapted from PerPixCookTorrancetex.frag by Marcus Hudritsch
+//  Date:      April 2018
+//  Copyright: Marcus Hudritsch
+//             This software is provide under the GNU General Public License
+//             Please visit: http://opensource.org/licenses/GPL-3.0
+//#############################################################################
+
+precision highp float;
+
+//-----------------------------------------------------------------------------
+// SLGLShader::preprocessPragmas replaces #Lights by SLVLights.size()
+#pragma define NUM_LIGHTS #Lights
+//-----------------------------------------------------------------------------
+in      vec3    v_P_VS; // Interpol. point of illumination in view space (VS)
+in      vec3    v_N_VS; // Interpol. normal at v_P_VS in view space
+in      vec3    v_R_OS; // Interpol. reflected ray in object space
+in      vec2    v_uv1;  // Interpol. texture coordinate in tex. space
+
+uniform bool    u_lightIsOn[NUM_LIGHTS];    // flag if light is on
+uniform vec4    u_lightPosVS[NUM_LIGHTS];   // position of light in view space
+uniform vec4    u_lightAmbi[NUM_LIGHTS];    // ambient light intensity (Ia)
+uniform vec4    u_lightDiff[NUM_LIGHTS];    // diffuse light intensity (Id)
+uniform vec4    u_lightSpec[NUM_LIGHTS];    // specular light intensity (Is)
+uniform vec3    u_lightSpotDir[NUM_LIGHTS]; // spot direction in view space
+uniform float   u_lightSpotDeg[NUM_LIGHTS]; // spot cutoff angle 1-180 degrees
+uniform float   u_lightSpotCos[NUM_LIGHTS]; // cosine of spot cutoff angle
+uniform float   u_lightSpotExp[NUM_LIGHTS]; // spot exponent
+uniform float   u_oneOverGamma;             // 1.0f / Gamma correction value
+uniform float   u_exposure;                 // environment map exposure value
+
+uniform sampler2D   u_matTexture0;  // Diffuse Color map (albedo)
+uniform sampler2D   u_matTexture1;  // Normal map
+uniform sampler2D   u_matTexture2;  // Metallic map
+uniform sampler2D   u_matTexture3;  // Roughness map
+uniform sampler2D   u_matTexture4;  // Ambient Occlusion map
+
+// IBL pre-generated textures
+uniform samplerCube u_matTexture5;  // IBL irradiance convolution map
+uniform samplerCube u_matTexture6;  // IBL prefilter roughness map
+uniform sampler2D   u_matTexture7;  // IBL brdf integration map
+
+const float PI = 3.14159265359;
+//-----------------------------------------------------------------------------
+vec3 getNormalFromMap()
+{
+    vec3 tangentNormal = texture(u_matTexture1, v_uv1).xyz * 2.0 - 1.0;
+
+    vec3 Q1  = dFdx(v_P_VS);
+    vec3 Q2  = dFdy(v_P_VS);
+    vec2 st1 = dFdx(v_uv1);
+    vec2 st2 = dFdy(v_uv1);
+
+    vec3 N  =  normalize(v_N_VS);
+    vec3 T  =  normalize(Q1*st2.t - Q2*st1.t);
+    vec3 B  = -normalize(cross(N, T));
+    mat3 TBN = mat3(T, B, N);
+
+    return normalize(TBN * tangentNormal);
+}
+//-----------------------------------------------------------------------------
+#pragma include "lightingCookTorrance.glsl"
+#pragma include "fogBlend.glsl"
+#pragma include "doStereoSeparation.glsl
+//-----------------------------------------------------------------------------
+void main()
+{
+    vec3 N = getNormalFromMap();    // Get the distracted normal from map
+    vec3 E = normalize(-v_P_VS);    // Vector from p to the eye (viewer)
+    vec3 Lo = vec3(0.0);            // Get the reflection from all lights into Lo
+
+    // Get the material parameters out of the textures
+    vec3  matDiff  = pow(texture(u_matTexture0, v_uv1).rgb, vec3(2.2));
+    float matMetal = texture(u_matTexture2, v_uv1).r;
+    float matRough = texture(u_matTexture3, v_uv1).r;
+    float matAO    = texture(u_texture4, v_uv1).r;
+    
+    for (int i = 0; i < NUM_LIGHTS; ++i)
+    {
+        if (u_lightIsOn[i])
+        {
+            if (u_lightPosVS[i].w == 0.0)
+            {
+                // We use the spot light direction as the light direction vector
+                vec3 S = normalize(-u_lightSpotDir[i].xyz);
+                directLightCookTorrance(i, N, E, S,
+                                        u_lightDiff[i].rgb,
+                                        matDiff.rgb,
+                                        matMetal,
+                                        matRough, Lo);
+            }
+            else
+            {
+                vec3 L = u_lightPosVS[i].xyz - v_P_VS;
+                vec3 S = u_lightSpotDir[i];// normalized spot direction in VS
+                pointLightCookTorrance( i, N, E, L, S,
+                                        u_lightDiff[i].rgb,
+                                        matDiff.rgb,
+                                        matMetal,
+                                        matRough, Lo);
+            }
+        }
+    }
+    
+    // ambient lighting from IBL
+    vec3 F0 = vec3(0.04); // Init Frenel reflection at 90 deg. (0 to N)
+    vec3 F = fresnelSchlickRoughness(max(dot(N, V), 0.0), F0, roughness);
+    
+    vec3 kS = F;
+    vec3 kD = 1.0 - kS;
+    kD *= 1.0 - matMetal;
+    
+    vec3 irradiance = texture(u_matTexture5, N).rgb;
+    vec3 diffuse    = irradiance * matDiff;
+    
+    // sample both the pre-filter map and the BRDF lut and combine them together as per the Split-Sum approximation to get the IBL specular part.
+    const float MAX_REFLECTION_LOD = 4.0;
+    vec3 prefilteredColor = textureLod(u_matTexture6, v_R_OS, matRough * MAX_REFLECTION_LOD).rgb;
+    vec2 brdf = texture(u_matTexture7, vec2(max(dot(N, V), 0.0), matRough)).rg;
+    vec3 specular = prefilteredColor * (F * brdf.x + brdf.y);
+    vec3 ambient = (kD * diffuse + specular) * matAO
+    vec3 color = ambient + Lo;
+    
+    // Exposure tone mapping
+    vec3 mapped = vec3(1.0) - exp(-color * u_exposure);
+    o_fragColor = vec4(mapped, 1.0);
+
+    // Apply fog by blending over distance
+    if (u_camFogIsOn)
+        o_fragColor = fogBlend(v_P_VS, o_fragColor);
+
+    // Apply gamma correction
+    o_fragColor.rgb = pow(o_fragColor.rgb, vec3(u_oneOverGamma));
+
+    // Apply stereo eye separation
+    if (u_camProjection > 1)
+        doStereoSeparation();
+}
+//-----------------------------------------------------------------------------

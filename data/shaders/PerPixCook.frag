@@ -44,7 +44,7 @@ uniform float   u_camFogStart;      // fog start distance
 uniform float   u_camFogEnd;        // fog end distance
 uniform vec4    u_camFogColor;      // fog color (usually the background)
 
-out     vec4    o_fragColor;// output fragment color
+out     vec4    o_fragColor;        // output fragment color
 //-----------------------------------------------------------------------------
 const float AO = 1.0;// Constant ambient occlusion factor
 const float PI = 3.14159265359;
@@ -55,12 +55,10 @@ const float PI = 3.14159265359;
 //-----------------------------------------------------------------------------
 void main()
 {
-    vec3 Lo = vec3(0.0);// Get the reflection from all lights into Lo
-
-
-    vec3 N = normalize(v_N_VS);// A input normal has not anymore unit length
-    vec3 E = normalize(-v_P_VS);// Vector from p to the viewer
-
+    vec3 N = normalize(v_N_VS);     // A input normal has not anymore unit length
+    vec3 E = normalize(-v_P_VS);    // Vector from p to the eye (viewer)
+    vec3 Lo = vec3(0.0);            // Get the reflection from all lights into Lo
+    
     for (int i = 0; i < NUM_LIGHTS; ++i)
     {
         if (u_lightIsOn[i])

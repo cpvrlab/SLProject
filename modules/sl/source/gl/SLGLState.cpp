@@ -77,6 +77,7 @@ void SLGLState::initAll()
     _cullFace                  = false;
     _depthTest                 = false;
     _depthMask                 = false;
+    _depthFunc                 = GL_LESS;
     _multisample               = false;
     _polygonLine               = false;
     _polygonOffsetPointEnabled = false;
@@ -268,6 +269,21 @@ void SLGLState::depthMask(SLbool stateNew)
     {
         glDepthMask(stateNew ? GL_TRUE : GL_FALSE);
         _depthMask = stateNew;
+
+        GET_GL_ERROR;
+    }
+}
+//-----------------------------------------------------------------------------
+/*! SLGLState::depthFunc specifies the depth comparison function. 
+Symbolic constants GL_NEVER, GL_LESS, GL_EQUAL, GL_LEQUAL, GL_GREATER, 
+GL_NOTEQUAL, GL_GEQUAL, and GL_ALWAYS are accepted. The initial value is GL_LESS.
+*/
+void SLGLState::depthFunc(SLenum func)
+{
+    if (_depthFunc != func)
+    {
+        glDepthFunc(func);
+        _depthFunc = func;
 
         GET_GL_ERROR;
     }

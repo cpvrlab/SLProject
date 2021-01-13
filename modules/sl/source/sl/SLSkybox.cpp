@@ -10,13 +10,17 @@
 
 #include <stdafx.h> // Must be the 1st include followed by  an empty line
 
+#include <SLApplication.h>
 #include <SLBox.h>
 #include <SLCamera.h>
+#include <SLGLProgramGeneric.h>
+#include <SLGLFrameBuffer.h>
 #include <SLGLTexture.h>
+#include <SLGLTextureGenerated.h>
 #include <SLMaterial.h>
 #include <SLSceneView.h>
 #include <SLSkybox.h>
-#include <SLScene.h>
+#include <SLProjectScene.h>
 
 //-----------------------------------------------------------------------------
 //! Default constructor
@@ -38,6 +42,13 @@ SLSkybox::SLSkybox(SLAssetManager* assetMgr,
                    SLstring        cubeMapZNeg,
                    SLstring        name) : SLNode(name)
 {
+    assert(assetMgr &&
+           "SLSkybox: asset manager is currently mandatory for sky-boxes! "
+           "Alternatively the live-time of the box has to be managed in the sky-box!");
+
+    // Set HDR flag to false, this is a normal SkyBox
+    _isHDR = false;
+
     // Create texture, material and program
     SLGLTexture* cubeMap    = new SLGLTexture(assetMgr,
                                            cubeMapXPos,
@@ -55,16 +66,100 @@ SLSkybox::SLSkybox(SLAssetManager* assetMgr,
 
     // Create a box with max. point at min. parameter and vice versa.
     // Like this the boxes normals will point to the inside.
-    assert(assetMgr && "SLSkybox: asset manager is currently mandatory for sky-boxes! Alternatively the live-time of the box has to be managed in the sky-box!");
-    this->addMesh(new SLBox(assetMgr,
-                            10,
-                            10,
-                            10,
-                            -10,
-                            -10,
-                            -10,
-                            "box",
-                            matCubeMap));
+    addMesh(new SLBox(assetMgr,
+                      10,
+                      10,
+                      10,
+                      -10,
+                      -10,
+                      -10,
+                      "box",
+                      matCubeMap));
+}
+//-----------------------------------------------------------------------------
+//! Draw the skybox with a cube map with the camera in its center.
+/*! This constructor generates a cube map skybox from a HDR Image and also
+all the textures needed for image based lighting and store them in the textures
+of the material of this sky box.
+*/
+SLSkybox::SLSkybox(SLProjectScene* projectScene,
+                   SLstring        hdrImage,
+                   SLVec2i         resolution,
+                   SLstring        name,
+                   SLGLUniform1f*  exposureUniform) : SLNode(name)
+{
+    // Set HDR flag to true, this is a HDR SkyBox
+    _isHDR = true;
+
+    // Create shader program for the brackground
+    SLGLProgram* backgroundShader = new SLGLProgramGeneric(projectScene,
+                                                           SLApplication::shaderPath + "PBR_SkyboxHDR.vert",
+                                                           SLApplication::shaderPath + "PBR_SkyboxHDR.frag");
+
+    // if an exposure uniform is passed the initilize this exposure with it otherwise it is constan at 1.0
+    SLGLUniform1f* exposure = exposureUniform ? exposureUniform : new SLGLUniform1f(UT_const, "u_exposure", 1.0f);
+    projectScene->eventHandlers().push_back(exposure);
+    backgroundShader->addUniform1f(exposure);
+
+    // Create frame buffer for capturing the scene into a cube map
+    SLGLFrameBuffer* captureBuffer = new SLGLFrameBuffer(true, resolution.x, resolution.y);
+    captureBuffer->generate();
+
+    // Create texture from the HDR Image
+    SLGLTexture* hdrTexture = new SLGLTexture(projectScene,
+                                              hdrImage,
+                                              GL_LINEAR,
+                                              GL_LINEAR,
+                                              TT_hdr,
+                                              GL_CLAMP_TO_EDGE,
+                                              GL_CLAMP_TO_EDGE);
+
+    // Generate cube map using the HDR texture
+    SLGLTexture* envCubemap = new SLGLTextureGenerated(projectScene,
+                                                       hdrTexture,
+                                                       captureBuffer,
+                                                       TT_environment,
+                                                       GL_TEXTURE_CUBE_MAP,
+                                                       GL_LINEAR_MIPMAP_LINEAR);
+
+    // The buffer must be reduced, because we need to lower the resolution for the irradiance and prefilter map
+    captureBuffer->bufferStorage(32, 32);
+    SLGLTexture* irradiancemap  = new SLGLTextureGenerated(projectScene,
+                                                          envCubemap,
+                                                          captureBuffer,
+                                                          TT_irradiance);
+    SLGLTexture* prefilter      = new SLGLTextureGenerated(projectScene,
+                                                      envCubemap,
+                                                      captureBuffer,
+                                                      TT_prefilter);
+    SLGLTexture* brdfLUTTexture = new SLGLTextureGenerated(projectScene,
+                                                           nullptr,
+                                                           captureBuffer,
+                                                           TT_lut,
+                                                           GL_TEXTURE_2D);
+
+    // Create the material of the sky box and store there the other texture to be used for other materials
+    SLMaterial* hdrMaterial = new SLMaterial(projectScene, "matCubeMap");
+    hdrMaterial->textures().push_back(envCubemap);
+    hdrMaterial->textures().push_back(irradiancemap);
+    hdrMaterial->textures().push_back(prefilter);
+    hdrMaterial->textures().push_back(brdfLUTTexture);
+    hdrMaterial->program(backgroundShader);
+
+    // Create the box for the sky box
+    addMesh(new SLBox(projectScene,
+                      10,
+                      10,
+                      10,
+                      -10,
+                      -10,
+                      -10,
+                      "box",
+                      hdrMaterial));
+
+    // We don't need the frame buffer any longer
+    captureBuffer->unbind();
+    delete captureBuffer;
 }
 //-----------------------------------------------------------------------------
 //! Draw the skybox with a cube map with the camera in its center.
@@ -78,16 +173,23 @@ void SLSkybox::drawAroundCamera(SLSceneView* sv)
     stateGL->modelViewMatrix.setMatrix(stateGL->viewMatrix);
 
     // Put skybox at the cameras position
-    this->translation(sv->camera()->translationWS());
+    translation(sv->camera()->translationWS());
 
     // Apply world transform
-    stateGL->modelViewMatrix.multiply(this->updateAndGetWM().m());
+    stateGL->modelViewMatrix.multiply(updateAndGetWM().m());
 
     // Freeze depth buffer
     stateGL->depthMask(false);
 
+    // Change depth buffer comparisons for HDR SkyBoxes
+    if (_isHDR)
+        stateGL->depthFunc(GL_LEQUAL);
+
     // Draw the box
-    this->drawMesh(sv);
+    drawMesh(sv);
+
+    // Change back the depth buffer comparisons
+    stateGL->depthFunc(GL_LESS);
 
     // Unlock depth buffer
     stateGL->depthMask(true);

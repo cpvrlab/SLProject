@@ -130,82 +130,82 @@ SLbool SLGLShader::createAndCompile(SLVLight* lights)
     if (_shaderID)
         glDeleteShader(_shaderID);
 
-    if (!_code.empty())
+    if (_code.empty())
     {
-        switch (_type)
+        SL_WARN_MSG("SLGLShader::createAndCompile: Nothing to compile!");
+        return false;
+    }
+
+    switch (_type)
+    {
+        case ST_vertex:
+            _shaderID = glCreateShader(GL_VERTEX_SHADER);
+            break;
+        case ST_fragment:
+            _shaderID = glCreateShader(GL_FRAGMENT_SHADER);
+            break;
+        default:
+            SL_EXIT_MSG("SLGLShader::load: Unknown shader type.");
+    }
+    GET_GL_ERROR;
+
+    // Build version string as the first statement
+    SLGLState* state      = SLGLState::instance();
+    SLstring   verGLSL    = state->glSLVersionNO();
+    SLstring   srcVersion = "#version " + verGLSL;
+    if (state->glIsES3()) srcVersion += " es";
+    srcVersion += "\n";
+
+    _code = preprocessPragmas(_code, lights);
+
+    // Concatenate final code string
+    _code = srcVersion + _code;
+
+    const char* src = _code.c_str();
+    glShaderSource(_shaderID, 1, &src, nullptr);
+    GET_GL_ERROR;
+
+    glCompileShader(_shaderID);
+    GET_GL_ERROR;
+
+    // Check compiler log
+    SLint compileSuccess = 0;
+    glGetShaderiv(_shaderID, GL_COMPILE_STATUS, &compileSuccess);
+    GET_GL_ERROR;
+    if (compileSuccess == GL_FALSE)
+    {
+        GLchar log[1024];
+        glGetShaderInfoLog(_shaderID, sizeof(log), nullptr, &log[0]);
+        SL_LOG("*** COMPILER ERROR ***");
+        SL_LOG("Source file: %s\n", _file.c_str());
+        SL_LOG("%s---", log);
+        SLVstring lines   = Utils::getStringLines(_code);
+        SLint     lineNum = 1;
+        for (string& line : lines)
+            SL_LOG("%4d: %s", lineNum++, line.c_str());
+        return false;
+    }
+
+    // Write generated shader out
+    if (!_file.empty())
+    {
+        if (!Utils::fileExists(_file))
         {
-            case ST_vertex:
-                _shaderID = glCreateShader(GL_VERTEX_SHADER);
-                break;
-            case ST_fragment:
-                _shaderID = glCreateShader(GL_FRAGMENT_SHADER);
-                break;
-            default:
-                SL_EXIT_MSG("SLGLShader::load: Unknown shader type.");
-        }
-        GET_GL_ERROR;
-
-        // Build version string as the first statement
-        SLGLState* state      = SLGLState::instance();
-        SLstring   verGLSL    = state->glSLVersionNO();
-        SLstring   srcVersion = "#version " + verGLSL;
-        if (state->glIsES3()) srcVersion += " es";
-        srcVersion += "\n";
-
-        _code = preprocessPragmas(_code, lights);
-
-        // Concatenate final code string
-        _code = srcVersion + _code;
-
-        const char* src = _code.c_str();
-        glShaderSource(_shaderID, 1, &src, nullptr);
-        GET_GL_ERROR;
-
-        glCompileShader(_shaderID);
-        GET_GL_ERROR;
-
-        // Check compiler log
-        SLint compileSuccess = 0;
-        glGetShaderiv(_shaderID, GL_COMPILE_STATUS, &compileSuccess);
-        GET_GL_ERROR;
-        if (compileSuccess == GL_FALSE)
-        {
-            GLchar log[1024];
-            glGetShaderInfoLog(_shaderID, sizeof(log), nullptr, &log[0]);
-            SL_LOG("*** COMPILER ERROR ***");
-            SL_LOG("Source file: %s\n", _file.c_str());
-            SL_LOG("%s---", log);
-            SLVstring lines   = Utils::getStringLines(_code);
-            SLint     lineNum = 1;
-            for (string& line : lines)
-                SL_LOG("%4d: %s", lineNum++, line.c_str());
-            return false;
-        }
-
-        // Write generated shader out
-        if (!_file.empty())
-        {
-            if (!Utils::fileExists(_file))
+            string filename = Utils::getFileName(_file);
+            string path     = Utils::getDirName(_file);
+            if (Utils::dirExists(path))
             {
-                string filename = Utils::getFileName(_file);
-                string path = Utils::getDirName(_file);
-                if (Utils::dirExists(path))
-                {
-                    Utils::writeStringIntoTextFile("SLProject", _code, _file);
-                    SL_LOG("Exported Shader Program: %s", filename.c_str());
-                }
-                else
-                    SL_WARN_MSG("**** No path to write shader ***");
+                Utils::writeStringIntoTextFile("SLProject", _code, _file);
+                SL_LOG("Exported Shader Program: %s", filename.c_str());
             }
+            else
+                SL_WARN_MSG("**** No path to write shader ***");
         }
-        else
-            SL_WARN_MSG("**** No shader path and filename for shader ***");
-
-        return true;
     }
     else
-        SL_WARN_MSG("SLGLShader::createAndCompile: Nothing to compile!");
-    return false;
+        SL_WARN_MSG("**** No shader path and filename for shader ***");
+
+    return true;
 }
 //-----------------------------------------------------------------------------
 //! SLGLShader::removeComments for C/C++ comments removal from shader code

@@ -1359,6 +1359,142 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(cam1);
         s->root3D(scene);
     }
+    else if (sceneID == SID_ShaderIBL) //..........................................................
+    {
+        // Set scene name and info string
+        s->name("HDR IBL Shader");
+        s->info("Image-based Lighting from skybox using high dynamic range images. "
+                "Use H-Key to increment (decrement w. shift) exposure of the HDR skybox.\n");
+
+        // Create uniform to control exposure
+        // this is done this way so that the exposure of the whole scene remains consistent
+        // just modify this uniform to affect the others.
+        SLGLUniform1f exposure = SLGLUniform1f(UT_const,
+                                               "u_exposure",
+                                               1.0f,
+                                               0.25f,
+                                               0.01f,
+                                               5.0f,
+                                               (SLKey)'H');
+
+        // Clone uniform for various shaders
+        // do not modify these uniforms otherwise the exposure of the scene will not be changed correctly
+        SLGLUniform1f* exposure_pbr    = new SLGLUniform1f(exposure);
+        SLGLUniform1f* exposure_pbrtex = new SLGLUniform1f(exposure);
+        s->eventHandlers().push_back(exposure_pbr);
+        s->eventHandlers().push_back(exposure_pbrtex);
+
+        // Create HDR CubeMap and get precalculated textures from it
+        SLSkybox*    hdrCubeMap     = new SLSkybox(s,
+                                            SLApplication::texturePath + "env_barce_rooftop.hdr",
+                                            SLVec2i(2048, 2048),
+                                            "HDR Skybox",
+                                            new SLGLUniform1f(exposure));
+        SLGLTexture* irrandianceMap = hdrCubeMap->mesh()->mat()->textures()[1];
+        SLGLTexture* prefilterMap   = hdrCubeMap->mesh()->mat()->textures()[2];
+        SLGLTexture* brdfLUTTexture = hdrCubeMap->mesh()->mat()->textures()[3];
+
+        // Get preloaded shader programs
+        SLGLProgram* pbr    = new SLGLProgramGeneric(s,
+                                                  SLApplication::shaderPath + "PBR_Lighting.vert",
+                                                  SLApplication::shaderPath + "PBR_Lighting.frag");
+        SLGLProgram* pbrTex = new SLGLProgramGeneric(s,
+                                                     SLApplication::shaderPath + "PBR_LightingTm.vert",
+                                                     SLApplication::shaderPath + "PBR_LightingTm.frag");
+
+        // Set the uniforms for controlling the exposure
+        pbr->addUniform1f(exposure_pbr);
+        pbrTex->addUniform1f(exposure_pbrtex);
+
+        // Create a scene group noce
+        SLNode* scene = new SLNode("scene node");
+
+        // Create camera and initialize its parameters
+        SLCamera* cam1 = new SLCamera("Camera 1");
+        cam1->translation(0, 0, 28);
+        cam1->lookAt(0, 0, 0);
+        cam1->background().colors(SLCol4f(0.2f, 0.2f, 0.2f));
+        cam1->focalDist(28);
+        cam1->setInitialState();
+        scene->addChild(cam1);
+
+        // Create spheres and materials with roughness & metallic values between 0 and 1
+        const SLint nrRows  = 7;
+        const SLint nrCols  = 7;
+        SLfloat     spacing = 2.5f;
+        SLfloat     maxX    = (nrCols / 2) * spacing;
+        SLfloat     maxY    = (nrRows / 2) * spacing;
+        SLfloat     deltaR  = 1.0f / (float)(nrRows - 1);
+        SLfloat     deltaM  = 1.0f / (float)(nrCols - 1);
+
+        SLMaterial* mat[nrRows * nrCols];
+        SLint       i = 0;
+        SLfloat     y = -maxY;
+        for (SLint m = 0; m < nrRows; ++m)
+        {
+            SLfloat x = -maxX;
+            for (SLint r = 0; r < nrCols; ++r)
+            {
+                if (m == nrRows / 2 && r == nrCols / 2)
+                {
+                    // The center sphere has roughness and metallic encoded in textures
+                    // and the prefiltered textures for IBL
+                    mat[i] = new SLMaterial(s,
+                                            "IBLMatTex",
+                                            pbrTex,
+                                            new SLGLTexture(s, "gold-scuffed_2048C.png"),
+                                            new SLGLTexture(s, "gold-scuffed_2048N.png"),
+                                            new SLGLTexture(s, "gold-scuffed_2048M.png"),
+                                            new SLGLTexture(s, "gold-scuffed_2048R.png"),
+                                            new SLGLTexture(s, "gold-scuffed_2048A.png"),
+                                            irrandianceMap,
+                                            prefilterMap,
+                                            brdfLUTTexture);
+                }
+                else
+                {
+                    // Cook-Torrance material with IBL but without textures
+                    mat[i] = new SLMaterial(s,
+                                            "IBLMat",
+                                            SLCol4f::WHITE * 0.5f,
+                                            Utils::clamp((float)r * deltaR, 0.05f, 1.0f),
+                                            (float)m * deltaM,
+                                            pbr,
+                                            irrandianceMap,
+                                            prefilterMap,
+                                            brdfLUTTexture);
+                }
+
+                SLNode* node = new SLNode(new SLSpheric(s, 1.0f, 0.0f, 180.0f, 32, 32, "Sphere", mat[i]));
+                node->translate(x, y, 0);
+                scene->addChild(node);
+                x += spacing;
+                i++;
+            }
+            y += spacing;
+        }
+
+        // Add 4 point light
+        SLLightSpot* light1 = new SLLightSpot(s, s, -maxX, maxY, maxY, 0.1f, 180.0f, 0.0f, 300, 300);
+        light1->attenuation(0, 0, 1);
+        SLLightSpot* light2 = new SLLightSpot(s, s, maxX, maxY, maxY, 0.1f, 180.0f, 0.0f, 300, 300);
+        light2->attenuation(0, 0, 1);
+        SLLightSpot* light3 = new SLLightSpot(s, s, -maxX, -maxY, maxY, 0.1f, 180.0f, 0.0f, 300, 300);
+        light3->attenuation(0, 0, 1);
+        SLLightSpot* light4 = new SLLightSpot(s, s, maxX, -maxY, maxY, 0.1f, 180.0f, 0.0f, 300, 300);
+        light4->attenuation(0, 0, 1);
+        scene->addChild(light1);
+        scene->addChild(light2);
+        scene->addChild(light3);
+        scene->addChild(light4);
+
+        sv->camera(cam1);
+        sv->skybox(hdrCubeMap);
+        s->root3D(scene);
+
+        // Save energy
+        sv->doWaitOnIdle(true);
+    }
     else if (sceneID == SID_ShaderPerVertexWave) //................................................
     {
         s->name("Wave Shader Test");
@@ -4714,7 +4850,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 #ifdef SL_GLES
         SLint maxDepth = 4; // 5 is to memory intensiv for mobiles
 #else
-        SLint maxDepth = 5;
+        SLint  maxDepth   = 5;
 #endif
 
         SLint resolution = 18;

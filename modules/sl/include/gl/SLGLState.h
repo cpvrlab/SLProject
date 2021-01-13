@@ -118,6 +118,7 @@ public:
     // state setters
     void depthTest(SLbool state);
     void depthMask(SLbool state);
+    void depthFunc(SLenum func);
     void cullFace(SLbool state);
     void blend(SLbool state);
     void blendFunc(SLenum blendFuncSFactor, SLenum blendFuncDFactor);
@@ -195,6 +196,7 @@ private:
     SLenum  _blendFuncDfactor;          //!< blend function destination factor enum
     SLbool  _depthTest;                 //!< GL_DEPTH_TEST state
     SLbool  _depthMask;                 //!< glDepthMask state
+    SLenum  _depthFunc;                 //!< depth buffer comparison function
     SLbool  _cullFace;                  //!< Face culling state
     SLbool  _multisample;               //!< Multisampling state
     SLint   _multiSampleSamples;        //!< NO. of multisampling samples

@@ -670,13 +670,19 @@ void SLGLTexture::build(SLint texUnit)
     SLint internalFormat = _images[0]->format();
     if (internalFormat == PF_red)
         internalFormat = GL_R8;
+
+    // Handle special case for realtime RT
     if (_images[0]->name() == "Optix Raytracer")
         internalFormat = GL_RGB32F;
+
+    // Handle special case for HDR textures
+    if (_texType == TT_hdr)
+        internalFormat = GL_RGB16F;
 
     // Build textures
     if (_target == GL_TEXTURE_2D)
     {
-        //////////////////////////////////////////
+        //////////////////////////////////////////////////////////////
         glTexImage2D(GL_TEXTURE_2D,
                      0,
                      internalFormat,
@@ -684,9 +690,9 @@ void SLGLTexture::build(SLint texUnit)
                      (SLsizei)_images[0]->height(),
                      0,
                      _images[0]->format(),
-                     GL_UNSIGNED_BYTE,
+                     _texType == TT_hdr ? GL_FLOAT : GL_UNSIGNED_BYTE,
                      (GLvoid*)_images[0]->data());
-        //////////////////////////////////////////
+        /////////////////////////////////////////////////////////////
 
         GET_GL_ERROR;
 
@@ -1027,7 +1033,10 @@ SLTextureType SLGLTexture::detectType(const SLstring& filename)
 {
     // Check first our own texture name encoding
     SLstring name     = Utils::getFileNameWOExt(filename);
+    SLstring ext      = Utils::getFileExt(filename);
     SLstring appendix = name.substr(name.length() - 2, 2);
+
+    if (ext == "hdr") return TT_hdr;
     if (appendix == "_C") return TT_diffuse;
     if (appendix == "_D") return TT_diffuse;
     if (appendix == "_N") return TT_normal;
