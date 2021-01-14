@@ -493,7 +493,6 @@ void ErlebARApp::AREA_INFO(const AreaEventData* data, const bool stateEntry, con
         {
             if (data->hasData)
             {
-                std::cout << "AREA INFO" << std::endl;
                 _areaInfoView->initArea(data->locId, data->areaId, true);
                 //TODO Area tracking view -> init Area -> init Scene -> Download
                 _areaTrackingView->initArea(data->locId, data->areaId);

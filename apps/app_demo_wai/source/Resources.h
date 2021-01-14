@@ -205,6 +205,12 @@ public:
     const char* language() const { return _language.c_str(); }
     const char* develMode() const { return _develMode.c_str(); }
 
+    const char* downloadManager() const { return _download.c_str(); }
+    const char* download1() const { return _downloadInfoSize1.c_str(); }
+    const char* download2() const { return _downloadInfoSize2.c_str(); }
+    const char* downloadButton() const { return _downloadButton.c_str(); }
+    const char* downloadSkipButton() const { return _downloadSkipButton.c_str(); }
+
     const char* cameraStartError() const { return _cameraStartError.c_str(); }
 
     //info text
@@ -253,6 +259,7 @@ protected:
     std::string _biel     = "Biel";
     std::string _settings = "Settings";
     std::string _about    = "About";
+    std::string _download = "Download";
     std::string _tutorial = "Tutorial";
     //about
     std::string _general        = "General";
@@ -264,6 +271,11 @@ protected:
     std::string _develMode = "Developer mode";
     //errors
     std::string _cameraStartError = "Could not start camera!";
+    //download
+    std::string _downloadInfoSize1 = "For this location, you need to download";
+    std::string _downloadInfoSize2 = ".";
+    std::string _downloadSkipButton = "skip";
+    std::string _downloadButton = "Download";
 
     //info text
     //bern:

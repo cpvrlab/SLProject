@@ -163,6 +163,13 @@ void Strings::load(std::string fileName)
             loadString(fs, "develMode", _develMode);
             //errors
             loadString(fs, "cameraStartError", _cameraStartError);
+            //download
+            loadString(fs, "downloadManager", _download);
+            loadString(fs, "downloadInfoSize1", _downloadInfoSize1);
+            loadString(fs, "downloadInfoSize2", _downloadInfoSize2);
+            loadString(fs, "downloadSkipButton", _downloadSkipButton);
+            loadString(fs, "downloadButton", _downloadButton);
+
             //info text
             //bern:
             loadString(fs, "bernInfoHeading1", _bernInfoHeading1);
