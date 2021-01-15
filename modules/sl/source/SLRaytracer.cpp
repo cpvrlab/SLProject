@@ -34,7 +34,7 @@ SLRaytracer::SLRaytracer()
     _aaSamples        = 3;
     _resolutionFactor = 0.5f;
     gamma(1.0f);
-    _raysPerMS.init(10, 0.0f);
+    _raysPerMS.init(60, 0.0f);
 
     // set texture properties
     _min_filter   = GL_NEAREST;
@@ -42,7 +42,6 @@ SLRaytracer::SLRaytracer()
     _wrap_s       = GL_CLAMP_TO_EDGE;
     _wrap_t       = GL_CLAMP_TO_EDGE;
     _resizeToPow2 = false;
-    _raysPerMS.init(10, 0.0f);
 }
 //-----------------------------------------------------------------------------
 SLRaytracer::~SLRaytracer()
