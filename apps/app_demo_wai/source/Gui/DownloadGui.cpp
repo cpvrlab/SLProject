@@ -16,7 +16,8 @@ class AsyncDownloader : public AsyncWorker
     std::string      _zipname;
     std::string      _url;
     std::mutex       _mutex;
-    std::atomic_bool _hasStarted{false};
+    //std::atomic_bool _hasStarted;
+    bool _hasStarted;
 
     AsyncDownloader(std::string url, std::string dst, std::string zipname) : _url(url), _dst(dst), _zipname(zipname)
     {
@@ -33,7 +34,9 @@ class AsyncDownloader : public AsyncWorker
     float progress()
     {
         std::unique_lock<std::mutex> lock(_mutex);
-        return _progress;
+        float p = _progress;
+        lock.unlock();
+        return p;
     }
 
     bool hasStarted()
@@ -41,10 +44,13 @@ class AsyncDownloader : public AsyncWorker
         return _hasStarted;
     }
 
-    void run()
+    void setStarted()
     {
         _hasStarted = true;
+    }
 
+    void run()
+    {
         HttpUtils::download(_url,
                             _dst,
                             "erlebar",
@@ -118,7 +124,7 @@ void DownloadGui::build(SLScene* s, SLSceneView* sv)
     auto        locIt     = locations.find(_locId);
 
     std::map<std::string, AsyncWorker*>::iterator asyncWorkerIt;
-    AsyncDownloader* downloader;
+    AsyncDownloader* downloader = nullptr;
 
     if (locIt != locations.end())
     {
@@ -142,7 +148,7 @@ void DownloadGui::build(SLScene* s, SLSceneView* sv)
         }
         else
         {
-            AsyncDownloader* downloader = new AsyncDownloader(loc.url, _dataDir + "erleb-AR/models/", loc.dirName + ".zip");
+            downloader = new AsyncDownloader(loc.url, _dataDir + "erleb-AR/models/", loc.dirName + ".zip");
             _asyncWorkers.insert(std::pair<std::string, AsyncWorker*>("download " + loc.dirName, downloader));
         }
     }
@@ -208,6 +214,7 @@ void DownloadGui::build(SLScene* s, SLSceneView* sv)
             if (ImGui::Button(_resources.strings().downloadButton()))
             {
                 downloader->start();
+                downloader->setStarted();
             }
             else if (ImGui::Button(_resources.strings().downloadSkipButton()))
             {
@@ -218,9 +225,7 @@ void DownloadGui::build(SLScene* s, SLSceneView* sv)
         {
             bool stop = ImGui::Button("Stop");
             ImGui::Separator();
-
             ImGui::ProgressBar(downloader->progress());
-
             ImGui::Separator();
 
             if (stop)
@@ -231,6 +236,7 @@ void DownloadGui::build(SLScene* s, SLSceneView* sv)
             }
         }
 
+/*
         ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + _textWrapW);
         ImGui::PushFont(_resources.fonts().standard);
         ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textStandardColor);
@@ -240,8 +246,7 @@ void DownloadGui::build(SLScene* s, SLSceneView* sv)
         ImGui::PopStyleColor();
         ImGui::PopFont();
         ImGui::PopTextWrapPos();
-
-
+*/
 
         ImGui::EndChild();
         ImGui::End();
