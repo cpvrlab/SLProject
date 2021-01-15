@@ -645,7 +645,8 @@ bool AreaTrackingView::updateGPS(SENSFramePtr& frame)
         cv::Mat imTest   = cv::imread(_deviceData.erlebARDir() + "templates/test_image_milchgaessli.png");
         cv::Mat manipImg = imTest;
         cv::cvtColor(manipImg, manipImg, cv::COLOR_BGR2GRAY);
-        frame = std::make_unique<SENSFrame>(imTest,
+        frame = std::make_unique<SENSFrame>(frame->timePt,
+                                            imTest,
                                             manipImg,
                                             false,
                                             false,
@@ -681,18 +682,12 @@ void AreaTrackingView::applyTemplateCorrection(SLMat4f&      camPose,
     // world coordinate system has its origin at the center of the model
     // and its axes are aligned east-up-north
     SLVec3f wTc_f = camPose.translation();
-    SLVec3d wTc   = SLVec3d(wTc_f.x, wTc_f.y, wTc_f.z);
+    SLVec3d wTc   = SLVec3d(wTc_f.x, wTc_f.y, wTc_f.z); // camera location w.r.t world
 
-    cv::Mat templateTest = cv::imread(_deviceData.erlebARDir() + "templates/template_milchgaessli.png", cv::IMREAD_GRAYSCALE);
-#if 1
-    double templateTestLatitude  = 46.94790;
-    double templateTestLongitude = 7.44078;
-    double templateTestAltitude  = 542.3;
-#else // Test with fixed position to verify code
-    double templateTestLatitude  = 46.94839;
-    double templateTestLongitude = 7.43973;
-    double templateTestAltitude  = 542.8;
-#endif
+    cv::Mat templateTest          = cv::imread(_deviceData.erlebARDir() + "templates/template_milchgaessli.png", cv::IMREAD_GRAYSCALE);
+    double  templateTestLatitude  = 46.94790;
+    double  templateTestLongitude = 7.44078;
+    double  templateTestAltitude  = 542.3;
 
     SLVec3d latDegLonDegAltM = SLVec3d(templateTestLatitude, templateTestLongitude, templateTestAltitude);
     SLVec3d tplLocEcef;
@@ -700,14 +695,14 @@ void AreaTrackingView::applyTemplateCorrection(SLMat4f&      camPose,
     SLVec3d enuTtpl = _devLoc.wRecef() * tplLocEcef;
     SLVec3d wTtpl   = enuTtpl - _devLoc.originENU(); // tpl location w.r.t. world
     SLVec3f wTtpl_f = SLVec3f(wTtpl.x, wTtpl.y, wTtpl.z);
-    SLVec3f cTtpl   = camPose.mat3().inverted() * (wTtpl_f - wTc_f); // tpl location w.r.t. camera
+    SLVec3f cTtpl   = camPose.mat3() * (wTtpl_f - wTc_f); // tpl location w.r.t. camera
 
-    SLMat3f camMat = SLMat3f(_camera->calibration()->fx(),
+    SLMat3f camMat = SLMat3f(_camera->calibrationManip()->fx(),
                              0.0f,
-                             _camera->calibration()->cx(),
+                             _camera->calibrationManip()->cx(),
                              0.0f,
-                             _camera->calibration()->fy(),
-                             _camera->calibration()->cy(),
+                             _camera->calibrationManip()->fy(),
+                             _camera->calibrationManip()->cy(),
                              0.0f,
                              0.0f,
                              1.0f);
@@ -739,18 +734,41 @@ void AreaTrackingView::applyTemplateCorrection(SLMat4f&      camPose,
 
     //std::cout << "rotAngDEG: " << rotAngDEG << std::endl;
 
-    float focalLength = scrH() / (2 * tan(0.5f * this->camera()->fovV() * DEG2RAD));
+    float focalLength = _camera->calibrationManip()->fx(); //scrH() / (2 * tan(0.5f * _camera->calibrationManip()->cameraFovVDeg() * DEG2RAD));
     //calculate the offset matrix:
     float yRotOffsetRAD = atanf((float)xOffsetPix / focalLength);
 
     std::cout << "rotAngDEG: " << (yRotOffsetRAD * Utils::RAD2DEG) << std::endl;
 
+#if 1
     SLMat4f rot;
     rot.translate(camPose.translation());
     rot.rotate(yRotOffsetRAD * Utils::RAD2DEG, SLVec3f(0, 1, 0));
     rot.translate(-camPose.translation()); //this is multiplied first
 
     camPose = rot * camPose;
+#else
+    SLMat3f rotMat;
+    rotMat.rotation(270.0f + (yRotOffsetRAD * Utils::RAD2DEG), 0, 0, 1);
+    SLMat3f rot2;
+    rot2.rotation(-90, 0, 1, 0);
+    rotMat *= rot2;
+
+    SLMat3f sRc;
+    sRc.rotation(-90, 0, 0, 1);
+
+    //sensor rotation w.r.t. east-north-up
+    SLMat3f enuRs;
+    enuRs.setMatrix(rotMat);
+
+    //enu rotation w.r.t. world
+    SLMat3f wRenu;
+    wRenu.rotation(-90, 1, 0, 0);
+
+    //combiniation of partial rotations to orientation of camera w.r.t world
+    SLMat3f wRc = wRenu * enuRs * sRc;
+    camPose.setRotation(wRc);
+#endif
 }
 
 bool AreaTrackingView::update()
@@ -957,17 +975,17 @@ SLMat4f AreaTrackingView::calcCameraPoseGpsOrientationBased()
     SLMat3f rotMat = slQuat.toMat3();
 #else
     // TODO(dgj1): This is for testing with a static gps location... remove once compass alignment works
-    static float rotOffset = -10.0f;
+    static float rotOffset = 0.0f;
     SLMat3f      rotMat;
-    rotMat.rotation(-33.35 + rotOffset, 0, 0, 1);
+    //rotMat.rotation(34.3f + rotOffset, 0, 0, 1);
     SLMat3f rot2;
     rot2.rotation(-90, 0, 1, 0);
     rotMat *= rot2;
 
     //std::cout << "rotOffset: " << rotOffset << std::endl;
 
-    rotOffset += 1.0f;
-    if (rotOffset > 10.0f) rotOffset = -10.0f;
+    //rotOffset += 1.0f;
+    //if (rotOffset > 10.0f) rotOffset = -10.0f;
 #endif
 
     SLMat4f camPose;
