@@ -10,20 +10,19 @@ using namespace ErlebAR;
 class AsyncDownloader : public AsyncWorker
 {
   public:
-    float            _progress;
-    int              _filesize;
-    std::string      _dst;
-    std::string      _zipname;
-    std::string      _url;
-    std::mutex       _mutex;
-    //std::atomic_bool _hasStarted;
-    bool _hasStarted;
+      float             _progress;
+      int               _filesize;
+      std::string       _dst;
+      std::string       _url;
+      ErlebAR::Location _loc;
+      std::mutex        _mutex;
+      bool              _hasStarted;
 
-    AsyncDownloader(std::string url, std::string dst, std::string zipname) : _url(url), _dst(dst), _zipname(zipname)
-    {
-        _filesize   = HttpUtils::length(url, "erlebar", PASSWORD);
-        _progress   = 0.0f;
-        _hasStarted = false;
+      AsyncDownloader(std::string url, std::string dst, ErlebAR::Location loc) : _url(url), _dst(dst), _loc(loc)
+      {
+          _filesize   = HttpUtils::length(url, "erlebar", PASSWORD);
+          _progress   = 0.0f;
+          _hasStarted = false;
     }
 
     int filesize()
@@ -63,7 +62,9 @@ class AsyncDownloader : public AsyncWorker
                                 return stopRequested();
                             });
 
-        ZipUtils::unzip(_dst + _zipname, _dst);
+        ZipUtils::unzip(_dst + _loc.dirName + ".zip", _dst);
+        std::ofstream outfile (_dst + _loc.dirName + "/unzip_complete.txt");
+        outfile.close();
         setReady();
     }
 };
@@ -129,7 +130,7 @@ void DownloadGui::build(SLScene* s, SLSceneView* sv)
     if (locIt != locations.end())
     {
         ErlebAR::Location loc = locIt->second;
-        if (Utils::dirExists(_dataDir + "erleb-AR/models/" + loc.dirName))
+        if (Utils::fileExists(_dataDir + "erleb-AR/models/" + loc.dirName + "/unzip_complete.txt"))
         {
             sendEvent(new StartErlebarEvent("DownloadGui", _locId));
             return;
@@ -148,7 +149,7 @@ void DownloadGui::build(SLScene* s, SLSceneView* sv)
         }
         else
         {
-            downloader = new AsyncDownloader(loc.url, _dataDir + "erleb-AR/models/", loc.dirName + ".zip");
+            downloader = new AsyncDownloader(loc.url, _dataDir + "erleb-AR/models/", loc);
             _asyncWorkers.insert(std::pair<std::string, AsyncWorker*>("download " + loc.dirName, downloader));
         }
     }
@@ -219,6 +220,7 @@ void DownloadGui::build(SLScene* s, SLSceneView* sv)
             else if (ImGui::Button(_resources.strings().downloadSkipButton()))
             {
                 sendEvent(new StartErlebarEvent("DownloadGui", _locId));
+
             }
         }
         else
