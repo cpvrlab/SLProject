@@ -245,6 +245,11 @@ public:
     const char* ugInfoRelocWrongOrient() const { return _ugInfoRelocWrongOrient.c_str(); }
     const char* ugInfoDirArrow() const { return _ugInfoDirArrow.c_str(); }
 
+    //about view:
+    const char* aboutProject() const { return _aboutProject.c_str(); }
+    const char* aboutCredits() const { return _aboutCredits.c_str(); }
+    const char* aboutBFH() const { return _aboutBFH .c_str(); }
+
     void load(std::string fileName);
 
 protected:
@@ -307,6 +312,11 @@ protected:
     std::string _ugInfoReloc            = "Trying to relocalize, please move slowly";
     std::string _ugInfoRelocWrongOrient = "You are looking in the wrong direction";
     std::string _ugInfoDirArrow         = "The area is located %.0fm in the direction of the arrow";
+
+    //about view:
+    std::string _aboutProject = "AboutProject";
+    std::string _aboutCredits = "Credits";
+    std::string _aboutBFH = "BFH";
 };
 
 //-----------------------------------------------------------------------------

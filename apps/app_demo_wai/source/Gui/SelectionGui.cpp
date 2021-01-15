@@ -90,7 +90,7 @@ void SelectionGui::resize(int scrW, int scrH)
     _buttonBoardPosX        = _screenWPix - _buttonBoardW - frameButtonBoardR;
     _buttonBoardPosY        = _screenHPix - _buttonBoardH - frameButtonBoardB;
 
-    int nButVert = 6; //number of buttons in vertical direction
+    int nButVert = 5; //number of buttons in vertical direction
     int buttonH  = (int)((_buttonBoardH - 2 * _windowPadding - (nButVert - 1) * _buttonSpace) / nButVert);
     _buttonSz    = {-FLT_MIN, (float)buttonH};
 }
@@ -159,10 +159,10 @@ void SelectionGui::build(SLScene* s, SLSceneView* sv)
             sendEvent(new StartDownloadEvent("DownloadGui", LocationId::BERN));
         }
 
-        if (ImGui::Button(_resources.strings().tutorial(), _buttonSz))
-        {
-            sendEvent(new StartTutorialEvent("SelectionGui"));
-        }
+        //if (ImGui::Button(_resources.strings().tutorial(), _buttonSz))
+        //{
+        //    sendEvent(new StartTutorialEvent("SelectionGui"));
+        //}
 
         if (ImGui::Button(_resources.strings().settings(), _buttonSz))
         {
