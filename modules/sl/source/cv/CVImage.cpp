@@ -195,6 +195,7 @@ uint CVImage::bytesPerPixel(CVPixFormat format)
         case PF_bgra:
         case PF_rgba_integer:
         case PF_bgra_integer: return 4;
+        case PF_hdr: return 12;
         default:
             Utils::exitMsg("SLProject", "CVImage::bytesPerPixel: unknown pixel format", __LINE__, __FILE__);
     }
@@ -408,8 +409,8 @@ void CVImage::load(const string& filename,
         Utils::exitMsg("SLProject", msg.c_str(), __LINE__, __FILE__);
     }
 
-    // Convert greater component depth than 8 bit to 8 bit
-    if (_cvMat.depth() > CV_8U)
+    // Convert greater component depth than 8 bit to 8 bit, only if the image is not HDR
+    if (_cvMat.depth() > CV_8U && ext != "hdr")
         _cvMat.convertTo(_cvMat, CV_8U, 1.0 / 256.0);
 
     _format        = cv2glPixelFormat(_cvMat.type());
@@ -423,8 +424,12 @@ void CVImage::load(const string& filename,
     }
     else if (_format == PF_bgra)
     {
-        cv::cvtColor(_cvMat, _cvMat, cv::COLOR_BGRA2RGBA);
+        cv::cvtColor(_cvMat, _cvMat, cv::COLOR_BGR2RGB);
         _format = PF_rgba;
+    }
+    else if (_format == PF_hdr)
+    {
+        cv::cvtColor(_cvMat, _cvMat, cv::COLOR_BGR2RGB);
     }
     else if (_format == PF_red && loadGrayscaleIntoAlpha)
     {
@@ -491,7 +496,7 @@ CVPixFormat CVImage::cv2glPixelFormat(int cvType)
         case CV_32SC4: Utils::exitMsg("SLProject", "OpenCV image format CV_32SC4 not supported", __LINE__, __FILE__); break;
         case CV_32FC1: return PF_r32f;
         case CV_32FC2: Utils::exitMsg("SLProject", "OpenCV image format CV_32FC2 not supported", __LINE__, __FILE__); break;
-        case CV_32FC3: Utils::exitMsg("SLProject", "OpenCV image format CV_32FC3 not supported", __LINE__, __FILE__); break;
+        case CV_32FC3: return PF_hdr;
         case CV_32FC4: Utils::exitMsg("SLProject", "OpenCV image format CV_32FC4 not supported", __LINE__, __FILE__); break;
         default: Utils::exitMsg("SLProject", "OpenCV image format not supported", __LINE__, __FILE__);
     }
@@ -521,6 +526,7 @@ string CVImage::formatString(CVPixFormat format)
         case PF_bgr_integer: return string("BGR_INTEGER");
         case PF_rgba_integer: return string("RGBA_INTEGER");
         case PF_bgra_integer: return string("BGRA_INTEGER");
+        case PF_hdr: return string("SL_HDR");
         default: return string("Unknow pixel format");
     }
 }

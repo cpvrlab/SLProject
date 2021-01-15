@@ -11,16 +11,15 @@
 precision highp float;
 
 //-----------------------------------------------------------------------------
-layout (location = 0) in vec4  a_position;     // Vertex position attribute
+layout (location = 0) in vec4  a_position;  // Vertex position attribute
 
-uniform   mat4  u_mvpMatrix;    // = modelView
+uniform                  mat4  u_mvpMatrix; // Model-View-Projection matrix
 
-out       vec3  v_P_VS;         // sample direction
-
+out                      vec3  v_P_WS;      // texture coordinate at vertex
 //-----------------------------------------------------------------------------
 void main ()
 {
-    v_P_VS = a_position.xyz;
+    v_P_WS = a_position.xyz;
     gl_Position = u_mvpMatrix * a_position;
 }
 //-----------------------------------------------------------------------------

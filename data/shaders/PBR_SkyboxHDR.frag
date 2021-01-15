@@ -8,20 +8,20 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#ifdef GL_ES
-precision mediump float;
-#endif
+precision highp float;
 
+//-----------------------------------------------------------------------------
 uniform   float         u_exposure;     // exposure for tone mapping
 uniform   samplerCube   u_texture0;     // cube map texture
 
-varying   vec3          v_texCoord;     // Interpol. 3D texture coordinate
+in        vec3          v_uv1;          // Interpol. 3D texture coordinate
 
+out       vec4          o_fragColor;    // output fragment color
 //-----------------------------------------------------------------------------
 void main()
 {
     const float gamma = 2.2;
-    vec3 hdrColor = textureCube(u_texture0, v_texCoord).rgb;
+    vec3 hdrColor = texture(u_texture0, v_uv1).rgb;
   
     // Exposure tone mapping
     vec3 mapped = vec3(1.0) - exp(-hdrColor * u_exposure);
@@ -29,6 +29,6 @@ void main()
     // Gamma correction
     mapped = pow(mapped, vec3(1.0 / gamma));
     
-    gl_FragColor = vec4(mapped, 1.0);
+    o_fragColor = vec4(mapped, 1.0);
 }
 //-----------------------------------------------------------------------------

@@ -10,11 +10,16 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-varying vec3 P_VS;
+precision highp float;
 
-uniform   samplerCube   u_texture0;     // environment map
-uniform   float         u_roughness;    // roughnes value
+//-----------------------------------------------------------------------------
+in      vec3        v_P_WS;         // sample direction
 
+uniform samplerCube u_texture0;     // Equirectagular map
+uniform float       u_roughness;    // roughnes value
+
+out     vec4        o_fragColor;    // output fragment color
+// ----------------------------------------------------------------------------
 const float PI = 3.14159265359;
 // ----------------------------------------------------------------------------
 float DistributionGGX(vec3 N, vec3 H, float roughness)
@@ -73,7 +78,7 @@ vec3 ImportanceSampleGGX(vec2 Xi, vec3 N, float roughness)
 // ----------------------------------------------------------------------------
 void main()
 {        
-    vec3 N = normalize(P_VS);
+    vec3 N = normalize(v_P_WS);
     
     // make the simplyfying assumption that V equals R equals the normal 
     vec3 R = N;
@@ -112,6 +117,6 @@ void main()
 
     prefilteredColor = prefilteredColor / totalWeight;
 
-    gl_FragColor = vec4(prefilteredColor, 1.0);
+    o_fragColor = vec4(prefilteredColor, 1.0);
 }
 //-----------------------------------------------------------------------------

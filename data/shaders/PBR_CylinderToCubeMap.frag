@@ -13,9 +13,9 @@
 precision highp float;
 
 //-----------------------------------------------------------------------------
-in      vec3        v_P_VS;         // sample direction
+in      vec3        v_P_WS;         // sample direction in world space
 
-uniform samplerCube u_texture0;  // cube map texture
+uniform sampler2D   u_texture0;     // Equirectagular map
 
 out     vec4        o_fragColor;    // output fragment color
 //-----------------------------------------------------------------------------
@@ -34,7 +34,7 @@ vec2 SampleSphericalMap(vec3 v)
 //-----------------------------------------------------------------------------
 void main()
 {
-    vec2 uv = SampleSphericalMap(normalize(v_P_VS));
+    vec2 uv = SampleSphericalMap(normalize(v_P_WS));
     vec3 color = texture(u_texture0, uv).rgb;
     
     o_fragColor = vec4(color, 1.0);

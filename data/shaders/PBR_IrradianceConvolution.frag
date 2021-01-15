@@ -12,17 +12,17 @@
 precision highp float;
 
 //-----------------------------------------------------------------------------
-in      vec3        v_P_VS;         // sample direction
+in      vec3        v_P_WS;         // sample direction in world space
 
 uniform samplerCube u_matTexture0;  // environment cube map texture
 
-const   float       PI = 3.14159265359;
-
 out     vec4        o_fragColor;    // output fragment color
+//-----------------------------------------------------------------------------
+const   float       PI = 3.14159265359;
 //-----------------------------------------------------------------------------
 void main()
 {        
-    vec3 N = normalize(v_P_VS);       // a varying normal has not anymore a unit length
+    vec3 N = normalize(v_P_WS);     // a varying normal has not anymore a unit length
 
     vec3 irradiance = vec3(0.0);    
     
@@ -39,10 +39,14 @@ void main()
         for(float theta = 0.0; theta < 0.5 * PI; theta += sampleDelta)
         {
             // spherical to cartesian (in tangent space)
-            vec3 tangentSample = vec3(sin(theta) * cos(phi),  sin(theta) * sin(phi), cos(theta));
+            vec3 tangentSample = vec3(sin(theta) * cos(phi),  
+                                      sin(theta) * sin(phi), 
+                                      cos(theta));
 
             // tangent space to world
-            vec3 sampleVec = tangentSample.x * right + tangentSample.y * up + tangentSample.z * N; 
+            vec3 sampleVec = tangentSample.x * right + 
+                             tangentSample.y * up + 
+                             tangentSample.z * N; 
 
             irradiance += texture(u_matTexture0, sampleVec).rgb * cos(theta) * sin(theta);
             nrSamples++;

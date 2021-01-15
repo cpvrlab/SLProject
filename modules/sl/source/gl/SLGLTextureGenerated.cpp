@@ -77,7 +77,8 @@ SLGLTextureGenerated::SLGLTextureGenerated(SLAssetManager*  am,
     mat.lookAt(0, 0, 0,  0, 0,-1,  0,-1, 0); _captureViews.push_back(mat);
     //clang-format on
 
-    if (_sourceTexture != nullptr) _sourceTexture->bindActive();
+    if (_sourceTexture != nullptr) 
+        _sourceTexture->bindActive();
     build();
 
     // Add pointer to the global resource vectors for deallocation
@@ -161,7 +162,6 @@ void SLGLTextureGenerated::build(SLint texID)
                                              GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
                                              this);
                 glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
                 renderCube();
             }
 
