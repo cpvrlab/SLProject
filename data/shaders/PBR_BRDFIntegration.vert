@@ -12,15 +12,14 @@
 precision highp float;
 
 //-----------------------------------------------------------------------------
-layout (location = 0) in vec4  a_position;  // Vertex position attribute
+layout (location = 0) in vec3   a_position; // Vertex position attribute
+layout (location = 2) in vec2   a_uv1;      // Vertex texture coord. attribute
 
-uniform                  mat4  u_mvpMatrix; // Model-View-Projection matrix
-
-out                      vec2  v_P_WS;      // texture coordinate at vertex
+out                      vec2   v_uv1;      // Output for interpolated texture coord.
 //-----------------------------------------------------------------------------
 void main()
 {
-    v_P_WS = a_position.xyz;
-    gl_Position = u_mvpMatrix * a_position;
+    v_uv1  = a_uv1;
+    gl_Position = vec4(a_position, 1.0);
 }
 //-----------------------------------------------------------------------------

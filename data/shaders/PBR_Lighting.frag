@@ -42,20 +42,20 @@ uniform samplerCube u_matTexture0;  // IBL irradiance convolution map
 uniform samplerCube u_matTexture1;  // IBL prefilter roughness map
 uniform sampler2D   u_matTexture2;  // IBL brdf integration map
 
-uniform int     u_camProjection;    // type of stereo
-uniform int     u_camStereoEye;     // -1=left, 0=center, 1=right
-uniform mat3    u_camStereoColors;  // color filter matrix
-uniform bool    u_camFogIsOn;       // flag if fog is on
-uniform int     u_camFogMode;       // 0=LINEAR, 1=EXP, 2=EXP2
-uniform float   u_camFogDensity;    // fog density value
-uniform float   u_camFogStart;      // fog start distance
-uniform float   u_camFogEnd;        // fog end distance
-uniform vec4    u_camFogColor;      // fog color (usually the background)
+uniform int         u_camProjection;    // type of stereo
+uniform int         u_camStereoEye;     // -1=left, 0=center, 1=right
+uniform mat3        u_camStereoColors;  // color filter matrix
+uniform bool        u_camFogIsOn;       // flag if fog is on
+uniform int         u_camFogMode;       // 0=LINEAR, 1=EXP, 2=EXP2
+uniform float       u_camFogDensity;    // fog density value
+uniform float       u_camFogStart;      // fog start distance
+uniform float       u_camFogEnd;        // fog end distance
+uniform vec4        u_camFogColor;      // fog color (usually the background)
 
-out     vec4    o_fragColor;        // output fragment color
+out     vec4        o_fragColor;        // output fragment color
 //-----------------------------------------------------------------------------
-const   float   AO = 1.0;           // Constant ambient occlusion factor
-const   float   PI = 3.14159265359;
+const   float       AO = 1.0;           // Constant ambient occlusion factor
+const   float       PI = 3.14159265359;
 //-----------------------------------------------------------------------------
 #pragma include "lightingCookTorrance.glsl"
 #pragma include "fogBlend.glsl"
@@ -96,7 +96,7 @@ void main()
     
     // ambient lighting from IBL
     vec3 F0 = vec3(0.04);        // Init Frenel reflection at 90 deg. (0 to N)
-    vec3 F = fresnelSchlickRoughness(max(dot(N, V), 0.0), F0, u_matRough);
+    vec3 F = fresnelSchlickRoughness(max(dot(N, E), 0.0), F0, u_matRough);
     
     vec3 kS = F;
     vec3 kD = 1.0 - kS;
@@ -108,7 +108,7 @@ void main()
     // sample both the pre-filter map and the BRDF lut and combine them together as per the Split-Sum approximation to get the IBL specular part.
     const float MAX_REFLECTION_LOD = 4.0;
     vec3 prefilteredColor = textureLod(u_matTexture1, v_R_OS, u_matRough * MAX_REFLECTION_LOD).rgb;
-    vec2 brdf = texture(u_matTexture2, vec2(max(dot(N, V), 0.0), u_matRough)).rg;
+    vec2 brdf = texture(u_matTexture2, vec2(max(dot(N, E), 0.0), u_matRough)).rg;
     vec3 specular = prefilteredColor * (F * brdf.x + brdf.y);
     vec3 ambient = (kD * diffuse + specular) * AO;
     vec3 color = ambient + Lo;

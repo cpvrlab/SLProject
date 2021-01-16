@@ -60,7 +60,7 @@ SLGLTextureGenerated::SLGLTextureGenerated(SLAssetManager*  am,
                                                 SLApplication::shaderPath + "PBR_PrefilterRoughness.frag");
     if (type == TT_lut)
         _shaderProgram = new SLGLProgramGeneric(am,
-                                                SLApplication::shaderPath + "PBR_CubeMap.vert",
+                                                SLApplication::shaderPath + "PBR_BRDFIntegration.vert",
                                                 SLApplication::shaderPath + "PBR_BRDFIntegration.frag");
 
     // perspective projection with field of view of 90 degrees

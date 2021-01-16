@@ -35,18 +35,28 @@ uniform float   u_lightSpotExp[NUM_LIGHTS]; // spot exponent
 uniform float   u_oneOverGamma;             // 1.0f / Gamma correction value
 uniform float   u_exposure;                 // environment map exposure value
 
-uniform sampler2D   u_matTexture0;  // Diffuse Color map (albedo)
-uniform sampler2D   u_matTexture1;  // Normal map
-uniform sampler2D   u_matTexture2;  // Metallic map
-uniform sampler2D   u_matTexture3;  // Roughness map
-uniform sampler2D   u_matTexture4;  // Ambient Occlusion map
+uniform sampler2D   u_matTexture0;      // Diffuse Color map (albedo)
+uniform sampler2D   u_matTexture1;      // Normal map
+uniform sampler2D   u_matTexture2;      // Metallic map
+uniform sampler2D   u_matTexture3;      // Roughness map
+uniform sampler2D   u_matTexture4;      // Ambient Occlusion map
+uniform samplerCube u_matTexture5;      // IBL irradiance convolution map
+uniform samplerCube u_matTexture6;      // IBL prefilter roughness map
+uniform sampler2D   u_matTexture7;      // IBL brdf integration map
 
-// IBL pre-generated textures
-uniform samplerCube u_matTexture5;  // IBL irradiance convolution map
-uniform samplerCube u_matTexture6;  // IBL prefilter roughness map
-uniform sampler2D   u_matTexture7;  // IBL brdf integration map
+uniform int         u_camProjection;    // type of stereo
+uniform int         u_camStereoEye;     // -1=left, 0=center, 1=right
+uniform mat3        u_camStereoColors;  // color filter matrix
+uniform bool        u_camFogIsOn;       // flag if fog is on
+uniform int         u_camFogMode;       // 0=LINEAR, 1=EXP, 2=EXP2
+uniform float       u_camFogDensity;    // fog density value
+uniform float       u_camFogStart;      // fog start distance
+uniform float       u_camFogEnd;        // fog end distance
+uniform vec4        u_camFogColor;      // fog color (usually the background)
 
-const float PI = 3.14159265359;
+out     vec4        o_fragColor;        // output fragment color
+//-----------------------------------------------------------------------------
+const float         PI = 3.14159265359;
 //-----------------------------------------------------------------------------
 vec3 getNormalFromMap()
 {
@@ -79,7 +89,7 @@ void main()
     vec3  matDiff  = pow(texture(u_matTexture0, v_uv1).rgb, vec3(2.2));
     float matMetal = texture(u_matTexture2, v_uv1).r;
     float matRough = texture(u_matTexture3, v_uv1).r;
-    float matAO    = texture(u_texture4, v_uv1).r;
+    float matAO    = texture(u_matTexture4, v_uv1).r;
     
     for (int i = 0; i < NUM_LIGHTS; ++i)
     {
@@ -110,7 +120,7 @@ void main()
     
     // ambient lighting from IBL
     vec3 F0 = vec3(0.04); // Init Frenel reflection at 90 deg. (0 to N)
-    vec3 F = fresnelSchlickRoughness(max(dot(N, V), 0.0), F0, roughness);
+    vec3 F = fresnelSchlickRoughness(max(dot(N, E), 0.0), F0, matRough);
     
     vec3 kS = F;
     vec3 kD = 1.0 - kS;
@@ -122,9 +132,9 @@ void main()
     // sample both the pre-filter map and the BRDF lut and combine them together as per the Split-Sum approximation to get the IBL specular part.
     const float MAX_REFLECTION_LOD = 4.0;
     vec3 prefilteredColor = textureLod(u_matTexture6, v_R_OS, matRough * MAX_REFLECTION_LOD).rgb;
-    vec2 brdf = texture(u_matTexture7, vec2(max(dot(N, V), 0.0), matRough)).rg;
+    vec2 brdf = texture(u_matTexture7, vec2(max(dot(N, E), 0.0), matRough)).rg;
     vec3 specular = prefilteredColor * (F * brdf.x + brdf.y);
-    vec3 ambient = (kD * diffuse + specular) * matAO
+    vec3 ambient = (kD * diffuse + specular) * matAO;
     vec3 color = ambient + Lo;
     
     // Exposure tone mapping

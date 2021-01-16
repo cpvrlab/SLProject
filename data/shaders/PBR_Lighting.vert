@@ -40,7 +40,7 @@ void main()
                     u_invMvMatrix[2].xyz);
    
     // Calculate reflection vector R
-    v_R_OS = iMV * reflect(I_VS, N_VS); // = I - 2.0*dot(N,I)*N;
+    v_R_OS = iMV * reflect(v_N_VS, -v_P_VS); // = I - 2.0*dot(N,I)*N;
 
   
     gl_Position = u_mvpMatrix * a_position;
