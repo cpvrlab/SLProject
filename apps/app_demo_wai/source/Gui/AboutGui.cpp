@@ -98,26 +98,42 @@ void AboutGui::build(SLScene* s, SLSceneView* sv)
         //general
         ImGui::PushFont(_resources.fonts().heading);
         ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textHeadingColor);
-        ImGui::Text(_resources.strings().general());
+        ImGui::Text("Erleb-AR");
         ImGui::PopStyleColor();
         ImGui::PopFont();
 
         ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + _textWrapW);
         ImGui::PushFont(_resources.fonts().standard);
         ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textStandardColor);
-        ImGui::Text(_resources.strings().generalContent(), _textWrapW);
 
         ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
-        static int       lines = 100;
-        ImGuiListClipper clipper(lines);
-        while (clipper.Step())
-            for (int i = clipper.DisplayStart; i < clipper.DisplayEnd; i++)
-                ImGui::Text("%i The quick brown fox jumps over the lazy dog", i);
+        //static int       lines = 10;
+        //ImGuiListClipper clipper(lines);
+        //clipper.Step();
+        ImGui::Text(_resources.strings().aboutProject(), _textWrapW);
         ImGui::PopStyleVar();
 
         ImGui::PopStyleColor();
         ImGui::PopFont();
         ImGui::PopTextWrapPos();
+
+        ImGui::Separator();
+
+        //developers
+        ImGui::PushFont(_resources.fonts().heading);
+        ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textHeadingColor);
+        ImGui::Text("Credits");
+        ImGui::PopStyleColor();
+        ImGui::PopFont();
+
+        ImGui::PushFont(_resources.fonts().standard);
+        ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textStandardColor);
+        ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + _textWrapW);
+        ImGui::Text(_resources.strings().aboutBFH(), _textWrapW);
+        ImGui::Text(_resources.strings().aboutCredits(), _textWrapW);
+        ImGui::PopTextWrapPos();
+        ImGui::PopStyleColor();
+        ImGui::PopFont();
 
         ImGui::Separator();
 

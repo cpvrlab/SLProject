@@ -193,6 +193,11 @@ void Strings::load(std::string fileName)
             loadString(fs, "avenchesTheaterHeading1", _avenchesTheaterInfoHeading1);
             loadString(fs, "avenchesTheaterText1", _avenchesTheaterInfoText1);
             loadString(fs, "avenchesTheaterText2", _avenchesTheaterInfoText2);
+
+            //About:
+            loadString(fs, "aboutProject", _aboutProject);
+            loadString(fs, "aboutCredits", _aboutCredits);
+            loadString(fs, "aboutBFH", _aboutBFH);
         }
     }
     else

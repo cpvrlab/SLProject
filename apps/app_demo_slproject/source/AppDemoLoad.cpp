@@ -4847,11 +4847,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         }
 
         // create rotating sphere group
-#ifdef SL_GLES
-        SLint maxDepth = 4; // 5 is to memory intensiv for mobiles
-#else
-        SLint  maxDepth   = 5;
-#endif
+        SLint maxDepth = 5;
 
         SLint resolution = 18;
         scene->addChild(RotatingSphereGroup(s,
