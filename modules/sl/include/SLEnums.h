@@ -103,7 +103,6 @@ enum SLSceneID
     SID_ShaderPerPixelBlinn,
     SID_ShaderPerVertexWave,
     SID_ShaderCook,
-    SID_ShaderIBL,
     SID_ShaderWater,
     SID_ShaderBumpNormal,
     SID_ShaderBumpParallax,
@@ -175,7 +174,8 @@ enum SLSceneID
     SID_ErlebARAventicumCigognierAO,
     SID_ErlebARAventicumTheatre,
 
-    SID_Maximal
+    SID_Maximal,
+    SID_ShaderIBL = 1000
 };
 //-----------------------------------------------------------------------------
 //! Mouse button codes

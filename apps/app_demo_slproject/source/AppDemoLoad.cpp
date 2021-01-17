@@ -1364,7 +1364,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         // Set scene name and info string
         s->name("HDR IBL Shader");
         s->info("Image-based Lighting from skybox using high dynamic range images. "
-                "Use H-Key to increment (decrement w. shift) exposure of the HDR skybox.\n");
+                "Use F4-Key to increment (decrement w. shift-F4) exposure of the HDR skybox.\n");
 
         // Create uniform to control exposure
         // this is done this way so that the exposure of the whole scene remains consistent
@@ -1375,7 +1375,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                                                0.25f,
                                                0.01f,
                                                5.0f,
-                                               (SLKey)'H');
+                                               SLKey::K_F4);
 
         // Clone uniform for various shaders
         // do not modify these uniforms otherwise the exposure of the scene will not be changed correctly
@@ -1475,13 +1475,14 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         }
 
         // Add 4 point light
-        SLLightSpot* light1 = new SLLightSpot(s, s, -maxX, maxY, maxY, 0.1f, 180.0f, 0.0f, 300, 300);
+        SLLight::gamma      = 2.2f;
+        SLLightSpot* light1 = new SLLightSpot(s, s, -maxX, maxY, maxY, 0.1f, 180, 0, 300, 300);
         light1->attenuation(0, 0, 1);
-        SLLightSpot* light2 = new SLLightSpot(s, s, maxX, maxY, maxY, 0.1f, 180.0f, 0.0f, 300, 300);
+        SLLightSpot* light2 = new SLLightSpot(s, s, maxX, maxY, maxY, 0.1f, 180, 0, 300, 300);
         light2->attenuation(0, 0, 1);
-        SLLightSpot* light3 = new SLLightSpot(s, s, -maxX, -maxY, maxY, 0.1f, 180.0f, 0.0f, 300, 300);
+        SLLightSpot* light3 = new SLLightSpot(s, s, -maxX, -maxY, maxY, 0.1f, 180, 0, 300, 300);
         light3->attenuation(0, 0, 1);
-        SLLightSpot* light4 = new SLLightSpot(s, s, maxX, -maxY, maxY, 0.1f, 180.0f, 0.0f, 300, 300);
+        SLLightSpot* light4 = new SLLightSpot(s, s, maxX, -maxY, maxY, 0.1f, 180, 0, 300, 300);
         light4->attenuation(0, 0, 1);
         scene->addChild(light1);
         scene->addChild(light2);

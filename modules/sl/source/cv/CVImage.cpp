@@ -417,19 +417,17 @@ void CVImage::load(const string& filename,
     _bytesPerPixel = bytesPerPixel(_format);
 
     // OpenCV always loads with BGR(A) but some OpenGL prefer RGB(A)
-    if (_format == PF_bgr)
+    if (_format == PF_bgr || _format == PF_hdr)
     {
+        string typeStr1 = typeString(_cvMat.type());
         cv::cvtColor(_cvMat, _cvMat, cv::COLOR_BGR2RGB);
+        string typeStr2 = typeString(_cvMat.type());
         _format = PF_rgb;
     }
     else if (_format == PF_bgra)
     {
-        cv::cvtColor(_cvMat, _cvMat, cv::COLOR_BGR2RGB);
+        cv::cvtColor(_cvMat, _cvMat, cv::COLOR_BGRA2RGBA);
         _format = PF_rgba;
-    }
-    else if (_format == PF_hdr)
-    {
-        cv::cvtColor(_cvMat, _cvMat, cv::COLOR_BGR2RGB);
     }
     else if (_format == PF_red && loadGrayscaleIntoAlpha)
     {

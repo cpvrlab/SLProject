@@ -31,17 +31,11 @@ void main()
 {
     v_P_VS = vec3(u_mvMatrix * a_position);
     v_N_VS = vec3(u_nMatrix * a_normal);
-
-    // We have to rotate the relfected & refracted ray by the inverse 
-    // modelview matrix back into objekt space. Without that you would see 
-    // always the same reflections no matter from where you look
-    mat3 iMV = mat3(u_invMvMatrix[0].xyz,
-                    u_invMvMatrix[1].xyz,
-                    u_invMvMatrix[2].xyz);
-   
+  
     // Calculate reflection vector R
-    v_R_OS = iMV * reflect(v_N_VS, -v_P_VS); // = I - 2.0*dot(N,I)*N;
-
+    vec3 I = normalize(v_P_VS);
+    vec3 N = normalize(v_N_VS);
+    v_R_OS =  mat3(u_invMvMatrix) * reflect(I, v_N_VS); // = I - 2.0*dot(N,I)*N;
   
     gl_Position = u_mvpMatrix * a_position;
 }

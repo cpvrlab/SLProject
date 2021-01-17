@@ -8,8 +8,6 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include <stdafx.h> // Must be the 1st include followed by  an empty line
-
 #include <SLGLState.h>
 #include <SLGLTexture.h>
 #include <SLScene.h>
@@ -682,6 +680,8 @@ void SLGLTexture::build(SLint texUnit)
     // Build textures
     if (_target == GL_TEXTURE_2D)
     {
+        GLenum format = _images[0]->format();
+
         //////////////////////////////////////////////////////////////
         glTexImage2D(GL_TEXTURE_2D,
                      0,
@@ -689,7 +689,7 @@ void SLGLTexture::build(SLint texUnit)
                      (SLsizei)_images[0]->width(),
                      (SLsizei)_images[0]->height(),
                      0,
-                     _images[0]->format(),
+                     format,
                      _texType == TT_hdr ? GL_FLOAT : GL_UNSIGNED_BYTE,
                      (GLvoid*)_images[0]->data());
         /////////////////////////////////////////////////////////////

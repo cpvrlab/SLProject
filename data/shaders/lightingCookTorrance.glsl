@@ -47,7 +47,7 @@ void directLightCookTorrance(in    int   i,        // Light index
                              in    vec3  N,        // Normalized normal at v_P_VS
                              in    vec3  E,        // Normalized vector from v_P to the eye
                              in    vec3  S,        // Normalized light spot direction
-                             in    vec3  lightDiff,// diffuse light intensity
+                             in    vec3  F0,       // Frenel reflection at 90 deg. (0 to N)
                              in    vec3  matDiff,  // diffuse material reflection
                              in    float matMetal, // diffuse material reflection
                              in    float matRough, // diffuse material reflection
@@ -55,11 +55,7 @@ void directLightCookTorrance(in    int   i,        // Light index
 {
     vec3 H = normalize(E + S);  // Normalized halfvector between eye and light vector
 
-    vec3 radiance = lightDiff;  // Per light radiance without attenuation
-
-    // Init Fresnel reflection at 90 deg. (0 to N)
-    vec3 F0 = vec3(0.04);
-    F0 = mix(F0, matDiff, matMetal);
+    vec3 radiance = u_lightDiff[i].rgb;  // Per light radiance without attenuation
 
     // cook-torrance brdf
     float NDF = distributionGGX(N, H, matRough);
@@ -85,7 +81,7 @@ void pointLightCookTorrance(in    int   i,        // Light index
                             in    vec3  E,        // Normalized vector from v_P to the eye
                             in    vec3  L,        // Vector from v_P to the light
                             in    vec3  S,        // Normalized light spot direction
-                            in    vec3  lightDiff,// diffuse light intensity
+                            in    vec3  F0,       // Frenel reflection at 90 deg. (0 to N)
                             in    vec3  matDiff,  // diffuse material reflection
                             in    float matMetal, // diffuse material reflection
                             in    float matRough, // diffuse material reflection
@@ -95,7 +91,7 @@ void pointLightCookTorrance(in    int   i,        // Light index
     L /= distance;              // normalize light vector
     float att = 1.0 / (distance*distance);  // quadratic light attenuation
 
-    // Calculate spot attenuation
+    /* Calculate spot attenuation
     if (u_lightSpotDeg[i] < 180.0)
     {
         float spotAtt; // Spot attenuation
@@ -104,13 +100,9 @@ void pointLightCookTorrance(in    int   i,        // Light index
         if (spotDot < u_lightSpotCos[i]) spotAtt = 0.0;
         else spotAtt = max(pow(spotDot, u_lightSpotExp[i]), 0.0);
         att *= spotAtt;
-    }
+    } */
 
-    vec3 radiance = lightDiff * att;        // per light radiance
-
-    // Init Fresnel reflection at 90 deg. (0 to N)
-    vec3 F0 = vec3(0.04);
-    F0 = mix(F0, matDiff, matMetal);
+    vec3 radiance = u_lightDiff[i].rgb * att;  // per light radiance
 
     // cook-torrance brdf
     vec3  H   = normalize(E + L);  // Normalized halfvector between eye and light vector

@@ -24,7 +24,6 @@ in      vec3    v_R_OS; // Interpol. reflected ray in object space
 
 uniform bool    u_lightIsOn[NUM_LIGHTS];    // flag if light is on
 uniform vec4    u_lightPosVS[NUM_LIGHTS];   // position of light in view space
-uniform vec4    u_lightAmbi[NUM_LIGHTS];    // ambient light intensity (Ia)
 uniform vec4    u_lightDiff[NUM_LIGHTS];    // diffuse light intensity (Id)
 uniform vec4    u_lightSpec[NUM_LIGHTS];    // specular light intensity (Is)
 uniform vec3    u_lightSpotDir[NUM_LIGHTS]; // spot direction in view space
@@ -65,8 +64,13 @@ void main()
 {
     vec3 N = normalize(v_N_VS);     // A varying normal has not anymore unit length
     vec3 E = normalize(-v_P_VS);    // Vector from p to the eye (viewer)
-    vec3 Lo = vec3(0.0);            // Get the reflection from all lights into Lo
-    
+
+    // Init Frenel reflection at 90 deg. (0 to N)
+    vec3 F0 = vec3(0.04);           
+    F0 = mix(F0, u_matDiff.rgb, u_matMetal);
+
+    // Get the reflection from all lights into Lo
+    vec3 Lo = vec3(0.0);  
     for (int i = 0; i < NUM_LIGHTS; ++i)
     {
         if (u_lightIsOn[i])
@@ -75,27 +79,25 @@ void main()
             {
                 // We use the spot light direction as the light direction vector
                 vec3 S = normalize(-u_lightSpotDir[i].xyz);
-                directLightCookTorrance(i, N, E, S,
-                                        u_lightDiff[i].rgb,
+                directLightCookTorrance(i, N, E, S, F0,
                                         u_matDiff.rgb,
                                         u_matMetal,
-                                        u_matRough, Lo);
+                                        u_matRough, 
+                                        Lo);
             }
             else
             {
                 vec3 L = u_lightPosVS[i].xyz - v_P_VS;
-                vec3 S = u_lightSpotDir[i];// normalized spot direction in VS
-                pointLightCookTorrance( i, N, E, L, S,
-                                        u_lightDiff[i].rgb,
+                vec3 S = u_lightSpotDir[i]; // normalized spot direction in VS
+                pointLightCookTorrance( i, N, E, L, S, F0,
                                         u_matDiff.rgb,
                                         u_matMetal,
-                                        u_matRough, Lo);
+                                        u_matRough, 
+                                        Lo);
             }
         }
     }
     
-    // ambient lighting from IBL
-    vec3 F0 = vec3(0.04);        // Init Frenel reflection at 90 deg. (0 to N)
     vec3 F = fresnelSchlickRoughness(max(dot(N, E), 0.0), F0, u_matRough);
     
     vec3 kS = F;
@@ -111,7 +113,8 @@ void main()
     vec2 brdf = texture(u_matTexture2, vec2(max(dot(N, E), 0.0), u_matRough)).rg;
     vec3 specular = prefilteredColor * (F * brdf.x + brdf.y);
     vec3 ambient = (kD * diffuse + specular) * AO;
-    vec3 color = ambient + Lo;
+    
+    vec3 color = /*ambient +*/ Lo;
     
     // Exposure tone mapping
     vec3 mapped = vec3(1.0) - exp(-color * u_exposure);

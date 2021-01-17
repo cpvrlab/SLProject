@@ -74,13 +74,18 @@ void main()
 {
     vec3 N = getNormalFromMap();    // Get the distracted normal from map
     vec3 E = normalize(-v_P_VS);    // Vector from p to the eye (viewer)
-    vec3 Lo = vec3(0.0);            // Get the reflection from all lights into Lo
 
     // Get the material parameters out of the textures
     vec3  matDiff  = pow(texture(u_matTexture0, v_uv1).rgb, vec3(2.2));
     float matMetal = texture(u_matTexture2, v_uv1).r;
     float matRough = texture(u_matTexture3, v_uv1).r;
 
+    // Init Frenel reflection at 90 deg. (0 to N)
+    vec3 F0 = vec3(0.04);           
+    F0 = mix(F0, matDiff.rgb, matMetal);
+
+    // Get the reflection from all lights into Lo
+    vec3 Lo = vec3(0.0);  
     for (int i = 0; i < NUM_LIGHTS; ++i)
     {
         if (u_lightIsOn[i])
@@ -89,8 +94,7 @@ void main()
             {
                 // We use the spot light direction as the light direction vector
                 vec3 S = normalize(-u_lightSpotDir[i].xyz);
-                directLightCookTorrance(i, N, E, S,
-                                        u_lightDiff[i].rgb,
+                directLightCookTorrance(i, N, E, S, F0,
                                         matDiff.rgb,
                                         matMetal,
                                         matRough, Lo);
@@ -99,8 +103,7 @@ void main()
             {
                 vec3 L = u_lightPosVS[i].xyz - v_P_VS;
                 vec3 S = u_lightSpotDir[i];// normalized spot direction in VS
-                pointLightCookTorrance( i, N, E, L, S,
-                                        u_lightDiff[i].rgb,
+                pointLightCookTorrance( i, N, E, L, S, F0,
                                         matDiff.rgb,
                                         matMetal,
                                         matRough, Lo);
