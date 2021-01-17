@@ -122,7 +122,6 @@ void main()
     
     // ambient lighting from IBL
     vec3 F = fresnelSchlickRoughness(max(dot(N, E), 0.0), F0, matRough);
-    
     vec3 kS = F;
     vec3 kD = 1.0 - kS;
     kD *= 1.0 - matMetal;
@@ -135,8 +134,10 @@ void main()
     vec3 prefilteredColor = textureLod(u_matTexture6, v_R_OS, matRough * MAX_REFLECTION_LOD).rgb;
     vec2 brdf = texture(u_matTexture7, vec2(max(dot(N, E), 0.0), matRough)).rg;
     vec3 specular = prefilteredColor * (F * brdf.x + brdf.y);
+    
     vec3 ambient = (kD * diffuse + specular) * matAO;
-    vec3 color = /*ambient +*/ Lo;
+    
+    vec3 color = ambient + Lo;
     
     // Exposure tone mapping
     vec3 mapped = vec3(1.0) - exp(-color * u_exposure);

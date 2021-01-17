@@ -98,23 +98,23 @@ void main()
         }
     }
     
+    // Build diffuse reflection for environment light map
     vec3 F = fresnelSchlickRoughness(max(dot(N, E), 0.0), F0, u_matRough);
-    
     vec3 kS = F;
     vec3 kD = 1.0 - kS;
     kD *= 1.0 - u_matMetal;
-    
     vec3 irradiance = texture(u_matTexture0, N).rgb;
-    vec3 diffuse    = irradiance * u_matDiff.rgb;
+    vec3 diffuse    = kD * irradiance * u_matDiff.rgb;
     
     // sample both the pre-filter map and the BRDF lut and combine them together as per the Split-Sum approximation to get the IBL specular part.
     const float MAX_REFLECTION_LOD = 4.0;
     vec3 prefilteredColor = textureLod(u_matTexture1, v_R_OS, u_matRough * MAX_REFLECTION_LOD).rgb;
     vec2 brdf = texture(u_matTexture2, vec2(max(dot(N, E), 0.0), u_matRough)).rg;
     vec3 specular = prefilteredColor * (F * brdf.x + brdf.y);
-    vec3 ambient = (kD * diffuse + specular) * AO;
+
+    vec3 ambient = (diffuse + specular) * AO;
     
-    vec3 color = /*ambient +*/ Lo;
+    vec3 color = ambient + Lo;
     
     // Exposure tone mapping
     vec3 mapped = vec3(1.0) - exp(-color * u_exposure);
