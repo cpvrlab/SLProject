@@ -87,7 +87,7 @@ enum SLAxis
 //! SLCommand enumerates all possible menu and keyboard commands
 enum SLSceneID
 {
-    SID_FromFile = -2, // Custom assted loaded over menu
+    SID_FromFile = -2, // Custom asset loaded over menu
     SID_Empty    = 0,  // No data in scene
     SID_Minimal,
     SID_Figure,
@@ -103,6 +103,7 @@ enum SLSceneID
     SID_ShaderPerPixelBlinn,
     SID_ShaderPerVertexWave,
     SID_ShaderCook,
+    SID_ShaderIBL,
     SID_ShaderWater,
     SID_ShaderBumpNormal,
     SID_ShaderBumpParallax,
@@ -174,8 +175,7 @@ enum SLSceneID
     SID_ErlebARAventicumCigognierAO,
     SID_ErlebARAventicumTheatre,
 
-    SID_Maximal,
-    SID_ShaderIBL = 1000
+    SID_Maximal
 };
 //-----------------------------------------------------------------------------
 //! Mouse button codes
@@ -204,13 +204,13 @@ enum SLTextAlign
 //! Enumeration for available camera animation types
 enum SLCamAnim
 {
-    CA_turntableYUp,    //!< Orbiting around central object w. turnrable rotation around y & right axis.
-    CA_turntableZUp,    //!< Orbiting around central object w. turnrable rotation around z & right axis.
+    CA_turntableYUp,    //!< Orbiting around central object w. turntable rotation around y & right axis.
+    CA_turntableZUp,    //!< Orbiting around central object w. turntable rotation around z & right axis.
     CA_trackball,       //!< Orbiting around central object w. one rotation around one axis
     CA_walkingYUp,      //!< Walk translation with AWSD and look around rotation around y & right axis.
     CA_walkingZUp,      //!< Walk translation with AWSD and look around rotation around z & right axis.
     CA_deviceRotYUp,    //!< The device rotation controls the camera rotation.
-    CA_deviceRotLocYUp, //!< The device rotation controls the camera rotation and the GPS controls the Camera Translati
+    CA_deviceRotLocYUp, //!< The device rotation controls the camera rotation and the GPS controls the Camera Translation
     CA_off              //!< No camera animation
 };
 //-----------------------------------------------------------------------------

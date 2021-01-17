@@ -1,6 +1,6 @@
 //#############################################################################
 //  File:      SLSkybox
-//  Author:    Marcus Hudritsch
+//  Authors:    Marcus Hudritsch
 //  Date:      December 2017
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Copyright: Marcus Hudritsch
@@ -8,11 +8,8 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include <stdafx.h> // Must be the 1st include followed by  an empty line
-
 #include <SLApplication.h>
 #include <SLBox.h>
-#include <SLCamera.h>
 #include <SLGLProgramGeneric.h>
 #include <SLGLFrameBuffer.h>
 #include <SLGLTexture.h>
@@ -22,11 +19,6 @@
 #include <SLSkybox.h>
 #include <SLProjectScene.h>
 
-//-----------------------------------------------------------------------------
-//! Default constructor
-SLSkybox::SLSkybox(SLstring shaderFilePath, SLstring name) : SLNode(name)
-{
-}
 //-----------------------------------------------------------------------------
 //! Cubemap Constructor with cubemap images
 /*! All resources allocated are stored in the SLScene vectors for textures,
@@ -91,18 +83,20 @@ SLSkybox::SLSkybox(SLProjectScene* projectScene,
     // Set HDR flag to true, this is a HDR SkyBox
     _isHDR = true;
 
-    // Create shader program for the brackground
+    // Create shader program for the background
     SLGLProgram* backgroundShader = new SLGLProgramGeneric(projectScene,
                                                            SLApplication::shaderPath + "PBR_SkyboxHDR.vert",
                                                            SLApplication::shaderPath + "PBR_SkyboxHDR.frag");
 
-    // if an exposure uniform is passed the initilize this exposure with it otherwise it is constan at 1.0
+    // if an exposure uniform is passed the initialize this exposure with it otherwise it is constant at 1.0
     SLGLUniform1f* exposure = exposureUniform ? exposureUniform : new SLGLUniform1f(UT_const, "u_exposure", 1.0f);
     projectScene->eventHandlers().push_back(exposure);
     backgroundShader->addUniform1f(exposure);
 
     // Create frame buffer for capturing the scene into a cube map
-    SLGLFrameBuffer* captureBuffer = new SLGLFrameBuffer(true, resolution.x, resolution.y);
+    SLGLFrameBuffer* captureBuffer = new SLGLFrameBuffer(true,
+                                                         resolution.x,
+                                                         resolution.y);
     captureBuffer->generate();
 
     // Create texture from the HDR Image

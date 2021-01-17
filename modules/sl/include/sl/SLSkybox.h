@@ -28,9 +28,6 @@ pointer of SLSceneView. See the Skybox shader example.
 class SLSkybox : public SLNode
 {
 public:
-    SLSkybox(SLstring shaderFilePath,
-             SLstring name = "Default Skybox");
-
     SLSkybox(SLAssetManager* assetMgr,
              SLstring        shaderFilePath,
              SLstring        cubeMapXPos,
@@ -54,7 +51,7 @@ public:
     void drawAroundCamera(SLSceneView* sv);
 
 private:
-    SLbool _isHDR; //!< flag for HDR Skyboxes
+    SLbool _isHDR; //!< flag for HDR skyboxes
 };
 //-----------------------------------------------------------------------------
 #endif // #define SLSKYBOX_H
