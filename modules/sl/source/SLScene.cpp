@@ -75,6 +75,8 @@ void SLScene::init()
     // reset all states
     SLGLState::instance()->initAll();
 
+    // reset global light settings
+    SLLight::gamma = 1.0f;
     SLLight::globalAmbient.set(0.15f, 0.15f, 0.15f, 1.0f);
 
     // Reset timing variables

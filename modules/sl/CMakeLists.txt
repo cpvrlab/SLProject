@@ -61,6 +61,7 @@ file(GLOB headers
         ${CMAKE_CURRENT_SOURCE_DIR}/include/gl/SLGLDepthBuffer.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/gl/SLGLEnums.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/gl/SLGLFbo.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/gl/SLGLFrameBuffer.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/gl/SLGLProgramGeneric.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/gl/SLGLProgramGenerated.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/gl/SLGLImGui.h
@@ -72,6 +73,7 @@ file(GLOB headers
         ${CMAKE_CURRENT_SOURCE_DIR}/include/gl/SLGLShader.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/gl/SLGLState.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/gl/SLGLTexture.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/gl/SLGLTextureGenerated.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/gl/SLGLUniform.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/gl/SLGLVertexArray.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/gl/SLGLVertexArrayExt.h
@@ -175,6 +177,7 @@ set(sources
         ${CMAKE_CURRENT_SOURCE_DIR}/source/gl/SLGLConetracerTex3D.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/gl/SLGLDepthBuffer.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/gl/SLGLFbo.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/gl/SLGLFrameBuffer.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/gl/SLGLImGui.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/gl/SLGLOculus.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/gl/SLGLOculusFB.cpp
@@ -184,6 +187,7 @@ set(sources
         ${CMAKE_CURRENT_SOURCE_DIR}/source/gl/SLGLShader.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/gl/SLGLState.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/gl/SLGLTexture.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/gl/SLGLTextureGenerated.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/gl/SLGLVertexArray.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/gl/SLGLVertexArrayExt.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/gl/SLGLVertexBuffer.cpp
@@ -264,6 +268,7 @@ file(GLOB shaders
         ${SL_PROJECT_ROOT}/data/shaders/*.vert
         ${SL_PROJECT_ROOT}/data/shaders/*.frag
         ${SL_PROJECT_ROOT}/data/shaders/*.geom
+        ${SL_PROJECT_ROOT}/data/shaders/*.glsl
         )
 
 # Group source files

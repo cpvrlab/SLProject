@@ -8,8 +8,6 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include <stdafx.h> // Must be the 1st include followed by  an empty line
-
 #include <SLGLState.h>
 #include <SLGLTexture.h>
 #include <SLScene.h>
@@ -670,23 +668,31 @@ void SLGLTexture::build(SLint texUnit)
     SLint internalFormat = _images[0]->format();
     if (internalFormat == PF_red)
         internalFormat = GL_R8;
+
+    // Handle special case for realtime RT
     if (_images[0]->name() == "Optix Raytracer")
         internalFormat = GL_RGB32F;
+
+    // Handle special case for HDR textures
+    if (_texType == TT_hdr)
+        internalFormat = GL_RGB16F;
 
     // Build textures
     if (_target == GL_TEXTURE_2D)
     {
-        //////////////////////////////////////////
+        GLenum format = _images[0]->format();
+
+        //////////////////////////////////////////////////////////////
         glTexImage2D(GL_TEXTURE_2D,
                      0,
                      internalFormat,
                      (SLsizei)_images[0]->width(),
                      (SLsizei)_images[0]->height(),
                      0,
-                     _images[0]->format(),
-                     GL_UNSIGNED_BYTE,
+                     format,
+                     _texType == TT_hdr ? GL_FLOAT : GL_UNSIGNED_BYTE,
                      (GLvoid*)_images[0]->data());
-        //////////////////////////////////////////
+        /////////////////////////////////////////////////////////////
 
         GET_GL_ERROR;
 
@@ -959,28 +965,32 @@ of four neighboring pixels is return. Otherwise the nearest pixel is returned.
 */
 SLCol4f SLGLTexture::getTexelf(SLfloat u, SLfloat v, SLuint imgIndex)
 {
-    assert(imgIndex < _images.size() && "Image index to big!");
-
-    // transform tex coords with the texture matrix
-    u = u * _tm.m(0) + _tm.m(12);
-    v = v * _tm.m(5) + _tm.m(13);
-
-    // Make sure the tex. coords are between 0.0 and 1.0
-    if (u < 0.0f || u > 1.0f) u -= floor(u);
-    if (v < 0.0f || v > 1.0f) v -= floor(v);
-
-    // Bilinear interpolation
-    if (_min_filter == GL_LINEAR || _mag_filter == GL_LINEAR)
+    if (imgIndex < _images.size())
     {
-        CVVec4f c4f = _images[imgIndex]->getPixelf(u, v);
-        return SLCol4f(c4f[0], c4f[1], c4f[2], c4f[3]);
+
+        // transform tex coords with the texture matrix
+        u = u * _tm.m(0) + _tm.m(12);
+        v = v * _tm.m(5) + _tm.m(13);
+
+        // Make sure the tex. coords are between 0.0 and 1.0
+        if (u < 0.0f || u > 1.0f) u -= floor(u);
+        if (v < 0.0f || v > 1.0f) v -= floor(v);
+
+        // Bilinear interpolation
+        if (_min_filter == GL_LINEAR || _mag_filter == GL_LINEAR)
+        {
+            CVVec4f c4f = _images[imgIndex]->getPixelf(u, v);
+            return SLCol4f(c4f[0], c4f[1], c4f[2], c4f[3]);
+        }
+        else
+        {
+            CVVec4f c4f = _images[imgIndex]->getPixeli((SLint)(u * _images[imgIndex]->width()),
+                                                       (SLint)(v * _images[imgIndex]->height()));
+            return SLCol4f(c4f[0], c4f[1], c4f[2], c4f[3]);
+        }
     }
     else
-    {
-        CVVec4f c4f = _images[imgIndex]->getPixeli((SLint)(u * _images[imgIndex]->width()),
-                                                   (SLint)(v * _images[imgIndex]->height()));
-        return SLCol4f(c4f[0], c4f[1], c4f[2], c4f[3]);
-    }
+        return SLCol4f::BLACK;
 }
 //-----------------------------------------------------------------------------
 //! SLGLTexture::getTexelf returns a pixel color at the specified cubemap direction
@@ -1027,7 +1037,10 @@ SLTextureType SLGLTexture::detectType(const SLstring& filename)
 {
     // Check first our own texture name encoding
     SLstring name     = Utils::getFileNameWOExt(filename);
+    SLstring ext      = Utils::getFileExt(filename);
     SLstring appendix = name.substr(name.length() - 2, 2);
+
+    if (ext == "hdr") return TT_hdr;
     if (appendix == "_C") return TT_diffuse;
     if (appendix == "_D") return TT_diffuse;
     if (appendix == "_N") return TT_normal;

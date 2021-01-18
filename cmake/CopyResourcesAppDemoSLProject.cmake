@@ -34,6 +34,8 @@ function(copy_resources_slprojectdemo TARGET_DIR)
 			${SL_PROJECT_ROOT}/data/images/textures/Vision*.png
 			${SL_PROJECT_ROOT}/data/images/textures/wood*.jpg
 			${SL_PROJECT_ROOT}/data/images/textures/Wave_radial10_256C.jpg
+			${SL_PROJECT_ROOT}/data/images/textures/gold-scuffed*.png
+			${SL_PROJECT_ROOT}/data/images/textures/env_barce_rooftop.hdr
 	    )
 
 	file(GLOB_RECURSE 

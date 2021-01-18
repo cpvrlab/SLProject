@@ -27,21 +27,21 @@ public:
                     SLstring       name          = "SM-DepthBuffer");
     ~SLGLDepthBuffer();
 
-    SLint       texID() { return _texID; }
-    SLint       target() { return _target; }
-    void        bindActive(SLuint texUnit) const;
-    void        bind();
-    void        unbind();
-    void        bindFace(SLenum face) const;
-    SLfloat*    readPixels() const;
-    SLVec2i     dimensions() { return _dimensions; }
+    SLint    texID() { return _texID; }
+    SLint    target() { return _target; }
+    void     bindActive(SLuint texUnit) const;
+    void     bind();
+    void     unbind();
+    void     bindFace(SLenum face) const;
+    SLfloat* readPixels() const;
+    SLVec2i  dimensions() { return _dimensions; }
 
 private:
-    SLVec2i _dimensions; //<! Size of the texture
-    SLuint  _fboID;      //<! ID of the FB object
-    SLint   _prevFboID;  //<! ID of the previously bound FB
-    SLuint  _texID;      //<! ID of the texture
-    SLenum  _target;     //<! GL_TEXTURE_2D or GL_TEXTURE_CUBE_MAP
+    SLVec2i _dimensions; //!< Size of the texture
+    SLuint  _fboID;      //!< ID of the FB object
+    SLint   _prevFboID;  //!< ID of the previously bound FB
+    SLuint  _texID;      //!< ID of the texture
+    SLenum  _target;     //!< GL_TEXTURE_2D or GL_TEXTURE_CUBE_MAP
 };
 //-----------------------------------------------------------------------------
 #endif //SLGLDEPTHBUFFER_H

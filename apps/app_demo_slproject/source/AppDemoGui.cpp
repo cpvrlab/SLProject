@@ -1235,6 +1235,8 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                         s->onLoad(s, sv, SID_ShaderPerPixelBlinn);
                     if (ImGui::MenuItem("Per Pixel Cook-Torrance", nullptr, sid == SID_ShaderCook))
                         s->onLoad(s, sv, SID_ShaderCook);
+                    if (ImGui::MenuItem("Image Based Lighting", nullptr, sid == SID_ShaderIBL))
+                        s->onLoad(s, sv, SID_ShaderIBL);
                     if (ImGui::MenuItem("Per Vertex Wave", nullptr, sid == SID_ShaderPerVertexWave))
                         s->onLoad(s, sv, SID_ShaderPerVertexWave);
                     if (ImGui::MenuItem("Water", nullptr, sid == SID_ShaderWater))

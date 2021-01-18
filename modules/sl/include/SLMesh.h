@@ -134,7 +134,9 @@ public:
 
     virtual void init(SLNode* node);
     virtual void draw(SLSceneView* sv, SLNode* node);
-    void         drawIntoDepthBuffer(SLSceneView* sv, SLNode* node, SLMaterial* depthMat);
+    void         drawIntoDepthBuffer(SLSceneView* sv,
+                                     SLNode*      node,
+                                     SLMaterial*  depthMat);
     void         addStats(SLNodeStats& stats);
     virtual void buildAABB(SLAABBox& aabb, const SLMat4f& wmNode);
     void         updateAccelStruct();
