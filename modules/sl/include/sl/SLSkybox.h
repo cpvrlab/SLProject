@@ -29,7 +29,7 @@ class SLSkybox : public SLNode
 {
 public:
     SLSkybox(SLAssetManager* assetMgr,
-             SLstring        shaderFilePath,
+             SLstring        shaderPath,
              SLstring        cubeMapXPos,
              SLstring        cubeMapXNeg,
              SLstring        cubeMapYPos,
@@ -39,6 +39,7 @@ public:
              SLstring        name = "Default Skybox");
 
     SLSkybox(SLProjectScene* projectScene,
+             SLstring        shaderPath,
              SLstring        hdrImage,
              SLVec2i         resolution,
              SLstring        name            = "HDR Skybox",

@@ -1,6 +1,6 @@
 //#############################################################################
 //  File:      SLGLTextureGenerated.cpp
-//  Author:    Carlos Arauz
+//  Author:    Carlos Arauz, Marcus Hudritsch
 //  Date:      April 2018
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
 //  Copyright: Marcus Hudritsch
@@ -8,7 +8,6 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include <SLApplication.h>
 #include <SLAssetManager.h>
 #include <SLScene.h>
 #include <SLGLTextureGenerated.h>
@@ -16,6 +15,7 @@
 //-----------------------------------------------------------------------------
 //! ctor for generated textures from hdr textures
 SLGLTextureGenerated::SLGLTextureGenerated(SLAssetManager*  am,
+                                           SLstring         shaderPath,
                                            SLGLTexture*     texture,
                                            SLGLFrameBuffer* fbo,
                                            SLTextureType    type,
@@ -51,20 +51,20 @@ SLGLTextureGenerated::SLGLTextureGenerated(SLAssetManager*  am,
 
     if (type == TT_environment)
         _shaderProgram = new SLGLProgramGeneric(am,
-                                                SLApplication::shaderPath + "PBR_CubeMap.vert",
-                                                SLApplication::shaderPath + "PBR_CylinderToCubeMap.frag");
+                                                shaderPath + "PBR_CubeMap.vert",
+                                                shaderPath + "PBR_CylinderToCubeMap.frag");
     if (type == TT_irradiance)
         _shaderProgram = new SLGLProgramGeneric(am,
-                                                SLApplication::shaderPath + "PBR_CubeMap.vert",
-                                                SLApplication::shaderPath + "PBR_IrradianceConvolution.frag");
+                                                shaderPath + "PBR_CubeMap.vert",
+                                                shaderPath + "PBR_IrradianceConvolution.frag");
     if (type == TT_prefilter)
         _shaderProgram = new SLGLProgramGeneric(am,
-                                                SLApplication::shaderPath + "PBR_CubeMap.vert",
-                                                SLApplication::shaderPath + "PBR_PrefilterRoughness.frag");
+                                                shaderPath + "PBR_CubeMap.vert",
+                                                shaderPath + "PBR_PrefilterRoughness.frag");
     if (type == TT_lut)
         _shaderProgram = new SLGLProgramGeneric(am,
-                                                SLApplication::shaderPath + "PBR_BRDFIntegration.vert",
-                                                SLApplication::shaderPath + "PBR_BRDFIntegration.frag");
+                                                shaderPath + "PBR_BRDFIntegration.vert",
+                                                shaderPath + "PBR_BRDFIntegration.frag");
 
     // perspective projection with field of view of 90 degrees
     _captureProjection.perspective(90.0f, 1.0f, 0.1f, 10.0f);

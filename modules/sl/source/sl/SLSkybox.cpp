@@ -8,7 +8,6 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include <SLApplication.h>
 #include <SLBox.h>
 #include <SLGLProgramGeneric.h>
 #include <SLGLFrameBuffer.h>
@@ -25,7 +24,7 @@
 materials, programs and meshes and get deleted at scene destruction.
 */
 SLSkybox::SLSkybox(SLAssetManager* assetMgr,
-                   SLstring        shaderFilePath,
+                   SLstring        shaderPath,
                    SLstring        cubeMapXPos,
                    SLstring        cubeMapXNeg,
                    SLstring        cubeMapYPos,
@@ -52,8 +51,8 @@ SLSkybox::SLSkybox(SLAssetManager* assetMgr,
     SLMaterial*  matCubeMap = new SLMaterial(assetMgr, "matCubeMap");
     matCubeMap->textures().push_back(cubeMap);
     SLGLProgram* sp = new SLGLProgramGeneric(assetMgr,
-                                             shaderFilePath + "SkyBox.vert",
-                                             shaderFilePath + "SkyBox.frag");
+                                             shaderPath + "SkyBox.vert",
+                                             shaderPath + "SkyBox.frag");
     matCubeMap->program(sp);
 
     // Create a box with max. point at min. parameter and vice versa.
@@ -75,6 +74,7 @@ all the textures needed for image based lighting and store them in the textures
 of the material of this sky box.
 */
 SLSkybox::SLSkybox(SLProjectScene* projectScene,
+                   SLstring        shaderPath,
                    SLstring        hdrImage,
                    SLVec2i         resolution,
                    SLstring        name,
@@ -85,8 +85,8 @@ SLSkybox::SLSkybox(SLProjectScene* projectScene,
 
     // Create shader program for the background
     SLGLProgram* backgroundShader = new SLGLProgramGeneric(projectScene,
-                                                           SLApplication::shaderPath + "PBR_SkyboxHDR.vert",
-                                                           SLApplication::shaderPath + "PBR_SkyboxHDR.frag");
+                                                           shaderPath + "PBR_SkyboxHDR.vert",
+                                                           shaderPath + "PBR_SkyboxHDR.frag");
 
     // if an exposure uniform is passed the initialize this exposure with it otherwise it is constant at 1.0
     SLGLUniform1f* exposure = exposureUniform ? exposureUniform : new SLGLUniform1f(UT_const, "u_exposure", 1.0f);
@@ -110,6 +110,7 @@ SLSkybox::SLSkybox(SLProjectScene* projectScene,
 
     // Generate cube map using the HDR texture
     SLGLTexture* envCubemap = new SLGLTextureGenerated(projectScene,
+                                                       shaderPath,
                                                        hdrTexture,
                                                        captureBuffer,
                                                        TT_environment,
@@ -119,14 +120,17 @@ SLSkybox::SLSkybox(SLProjectScene* projectScene,
     // The buffer must be reduced, because we need to lower the resolution for the irradiance and prefilter map
     captureBuffer->bufferStorage(32, 32);
     SLGLTexture* irradiancemap  = new SLGLTextureGenerated(projectScene,
+                                                          shaderPath,
                                                           envCubemap,
                                                           captureBuffer,
                                                           TT_irradiance);
     SLGLTexture* prefilter      = new SLGLTextureGenerated(projectScene,
+                                                      shaderPath,
                                                       envCubemap,
                                                       captureBuffer,
                                                       TT_prefilter);
     SLGLTexture* brdfLUTTexture = new SLGLTextureGenerated(projectScene,
+                                                           shaderPath,
                                                            nullptr,
                                                            captureBuffer,
                                                            TT_lut,

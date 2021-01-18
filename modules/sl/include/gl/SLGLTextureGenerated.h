@@ -34,6 +34,7 @@ public:
 
     //! ctor for generated textures
     SLGLTextureGenerated(SLAssetManager*  assetMgr,
+                         SLstring         shaderPath,
                          SLGLTexture*     texture,
                          SLGLFrameBuffer* fbo,
                          SLTextureType    type       = TT_environment,

@@ -1387,6 +1387,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Create HDR CubeMap and get precalculated textures from it
         SLSkybox*    hdrCubeMap     = new SLSkybox(s,
+                                            SLApplication::shaderPath,
                                             SLApplication::texturePath + "env_barce_rooftop.hdr",
                                             SLVec2i(2048, 2048),
                                             "HDR Skybox",
