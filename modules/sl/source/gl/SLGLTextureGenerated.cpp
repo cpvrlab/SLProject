@@ -126,7 +126,7 @@ calculations directly with the shader).
 */
 void SLGLTextureGenerated::build(SLint texID)
 {
-    if (_captureFBO->id() && _captureFBO->rbo())
+    if (_captureFBO->fboId() && _captureFBO->rboId())
     {
         _captureFBO->bind();
         _captureFBO->bindRenderBuffer();

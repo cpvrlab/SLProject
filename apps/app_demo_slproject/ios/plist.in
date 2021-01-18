@@ -60,6 +60,7 @@
   <key>NSCameraUsageDescription</key>
   <string>Used for Augmented Reality rendering</string>
   <key>NSLocationWhenInUseUsageDescription</key>
-  <string>Used to determine the users global position with GPS</string>
+  <string>Used to determine the users global position with GPS</string><key>UILaunchStoryboardName</key>
+  <string>LaunchScreenSLDemo</string>
 </dict>
 </plist>

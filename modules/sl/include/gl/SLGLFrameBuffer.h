@@ -56,8 +56,8 @@ public:
                          SLint        level = 0);
 
     // Getters
-    SLuint  id() { return this->_id; }
-    SLuint  rbo() { return this->_rbo; }
+    SLuint  fboId() { return this->_fboId; }
+    SLuint  rboId() { return this->_rboId; }
     SLsizei rboWidth() { return this->_rboWidth; }
     SLsizei rboHeight() { return this->_rboHeight; }
 
@@ -66,8 +66,9 @@ public:
     static SLuint totalBufferSize;  //! static total size of all buffers in bytes
 
 protected:
-    SLuint  _id;           //!< frame buffer identifier
-    SLuint  _rbo;          //!< render buffer identifier
+    SLuint  _fboId;        //!< frame buffer identifier
+    SLuint  _prevFboId;    //!< previously active frame buffer identifier
+    SLuint  _rboId;        //!< render buffer identifier
     SLuint  _sizeBytes;    //!< size in bytes of this buffer
     SLsizei _rboWidth;     //!< width of the render buffer, default: 512
     SLsizei _rboHeight;    //!< height of the render buffer, default: 512
