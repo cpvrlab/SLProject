@@ -3786,7 +3786,8 @@ void AppDemoGui::downloadModelAndLoadScene(SLScene*     s,
         }
         else
             cout << "Bytes transferred: " << curr << endl;
-        return curr ? 1 : 0;
+
+        return 0; // Return Non-Zero to cancel
     };
 
     auto downloadJobHTTP = [=]() {
