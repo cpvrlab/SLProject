@@ -20,11 +20,11 @@ SLGLFrameBuffer::SLGLFrameBuffer(SLbool  renderBuffer,
                                  SLsizei rboWidth,
                                  SLsizei rboHeight)
 {
-    this->_id           = 0;
-    this->_rbo          = 0;
-    this->_renderBuffer = renderBuffer;
-    this->_rboWidth     = rboWidth;
-    this->_rboHeight    = rboHeight;
+    _id           = 0;
+    _rbo          = 0;
+    _renderBuffer = renderBuffer;
+    _rboWidth     = rboWidth;
+    _rboHeight    = rboHeight;
 }
 //-----------------------------------------------------------------------------
 //! clear delete buffers and respectively adjust the stats variables
@@ -54,24 +54,27 @@ void SLGLFrameBuffer::deleteGL()
 //! generate the frame buffer and the render buffer if wanted
 void SLGLFrameBuffer::generate()
 {
-    if (this->_id == 0)
+    if (_id == 0)
     {
-        glGenFramebuffers(1, &this->_id);
-        glBindFramebuffer(GL_FRAMEBUFFER, this->_id);
+        glGenFramebuffers(1, &_id);
+        bind();
 
-        if (this->_renderBuffer)
+        if (_renderBuffer)
         {
-            glGenRenderbuffers(1, &this->_rbo);
-            glBindRenderbuffer(GL_RENDERBUFFER, this->_rbo);
-            this->bufferStorage(this->_rboWidth, this->_rboHeight);
-            glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, this->_rbo);
+            glGenRenderbuffers(1, &_rbo);
+            glBindRenderbuffer(GL_RENDERBUFFER, _rbo);
+            bufferStorage(_rboWidth, _rboHeight);
+            glFramebufferRenderbuffer(GL_FRAMEBUFFER,
+                                      GL_DEPTH_ATTACHMENT,
+                                      GL_RENDERBUFFER,
+                                      _rbo);
         }
 
         // test if the generated fbo is valid
         if ((glCheckFramebufferStatus(GL_FRAMEBUFFER)) != GL_FRAMEBUFFER_COMPLETE)
             SL_EXIT_MSG("Frame buffer creation failed!");
 
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        unbind();
         GET_GL_ERROR;
 
         totalBufferCount++;
@@ -80,14 +83,14 @@ void SLGLFrameBuffer::generate()
 //-----------------------------------------------------------------------------
 void SLGLFrameBuffer::bind()
 {
-    assert(this->_id && "No framebuffer generated");
-    glBindFramebuffer(GL_FRAMEBUFFER, this->_id);
+    assert(_id && "No framebuffer generated");
+    glBindFramebuffer(GL_FRAMEBUFFER, _id);
 }
 //-----------------------------------------------------------------------------
 void SLGLFrameBuffer::bindRenderBuffer()
 {
-    assert(this->_rbo && "No renderbuffer generated");
-    glBindRenderbuffer(GL_RENDERBUFFER, this->_rbo);
+    assert(_rbo && "No renderbuffer generated");
+    glBindRenderbuffer(GL_RENDERBUFFER, _rbo);
 }
 //-----------------------------------------------------------------------------
 void SLGLFrameBuffer::unbind()
@@ -99,10 +102,10 @@ void SLGLFrameBuffer::unbind()
 void SLGLFrameBuffer::bufferStorage(SLsizei width,
                                     SLsizei height)
 {
-    this->bind();
-    this->bindRenderBuffer();
-    this->_rboWidth  = width;
-    this->_rboHeight = height;
+    bind();
+    bindRenderBuffer();
+    _rboWidth  = width;
+    _rboHeight = height;
     glRenderbufferStorage(GL_RENDERBUFFER,
                           GL_DEPTH_COMPONENT24,
                           width,
@@ -115,11 +118,27 @@ void SLGLFrameBuffer::attachTexture2D(SLenum       attachment,
                                       SLGLTexture* texture,
                                       SLint        level)
 {
-    assert(this->_id && this->_rbo);
+    assert(_id && _rbo);
     glFramebufferTexture2D(GL_FRAMEBUFFER,
                            attachment,
                            target,
                            texture->texID(),
                            level);
 }
+//-----------------------------------------------------------------------------
+/*
+SLfloat* SLGLFrameBuffer::readPixels() const
+{
+    SLfloat* depth = new SLfloat[_dimensions.y * _dimensions.x];
+    glReadPixels(0,
+                 0,
+                 _rboWidth,
+                 _rboHeight,
+                 GL_DEPTH_COMPONENT,
+                 GL_FLOAT,
+                 depth);
+    GET_GL_ERROR;
+    return depth;
+}
+ */
 //-----------------------------------------------------------------------------

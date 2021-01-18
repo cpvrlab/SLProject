@@ -138,8 +138,12 @@ public:
 
     ~SLGLTexture() override;
 
-    void     clearData();
-    void     build(SLint texUnit = 0);
+    virtual void   clearData();
+    virtual void   build(SLint texUnit = 0);
+    virtual SLuint width() { return _images.empty() ? 0 : _images[0]->width(); }
+    virtual SLuint height() { return _images.empty() ? 0 : _images[0]->height(); }
+    virtual SLint  bytesPerPixel() { return (SLint)_images.empty() ? 0 : _images[0]->bytesPerPixel(); }
+
     void     bindActive(SLuint texUnit = 0);
     void     fullUpdate();
     void     drawSprite(SLbool doUpdate, SLfloat x, SLfloat y, SLfloat w, SLfloat h);
@@ -166,9 +170,6 @@ public:
                                 ((_images[0]->format() == PF_rgba ||
                                   _images[0]->format() == PF_bgra) ||
                                  _texType == TT_font)); }
-    SLuint        width() { return _images[0]->width(); }
-    SLuint        height() { return _images[0]->height(); }
-    SLint         bytesPerPixel() { return (SLint)_images[0]->bytesPerPixel(); }
     SLMat4f       tm() { return _tm; }
     SLbool        autoCalcTM3D() const { return _autoCalcTM3D; }
     SLbool        needsUpdate() { return _needsUpdate; }

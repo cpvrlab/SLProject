@@ -192,9 +192,13 @@ void SLSkybox::drawAroundCamera(SLSceneView* sv)
 //! Returns the color in the skybox at the the specified direction dir
 SLCol4f SLSkybox::colorAtDir(const SLVec3f& dir)
 {
-    assert(_mesh);
-    assert(_mesh->mat()->textures().empty());
-    SLGLTexture* tex = _mesh->mat()->textures()[0];
-    return tex->getTexelf(dir);
+    if (_mesh && !_mesh->mat()->textures().empty() &&
+        _mesh->mat()->textures()[0]->images().size() == 6)
+    {
+        SLGLTexture* tex = _mesh->mat()->textures()[0];
+        return tex->getTexelf(dir);
+    }
+    else
+        return SLCol4f::BLACK; // Generated skybox texture do not exist in _image
 }
 //-----------------------------------------------------------------------------

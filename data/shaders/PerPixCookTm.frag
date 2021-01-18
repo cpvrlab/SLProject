@@ -68,7 +68,7 @@ vec3 getNormalFromMap()
 //-----------------------------------------------------------------------------
 #pragma include "lightingCookTorrance.glsl"
 #pragma include "fogBlend.glsl"
-#pragma include "doStereoSeparation.glsl
+#pragma include "doStereoSeparation.glsl"
 //-----------------------------------------------------------------------------
 void main()
 {
@@ -80,7 +80,7 @@ void main()
     float matMetal = texture(u_matTexture2, v_uv1).r;
     float matRough = texture(u_matTexture3, v_uv1).r;
 
-    // Init Frenel reflection at 90 deg. (0 to N)
+    // Init Fresnel reflection at 90 deg. (0 to N)
     vec3 F0 = vec3(0.04);           
     F0 = mix(F0, matDiff.rgb, matMetal);
 

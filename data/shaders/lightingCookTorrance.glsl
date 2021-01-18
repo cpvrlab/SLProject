@@ -47,7 +47,7 @@ void directLightCookTorrance(in    int   i,        // Light index
                              in    vec3  N,        // Normalized normal at v_P_VS
                              in    vec3  E,        // Normalized vector from v_P to the eye
                              in    vec3  S,        // Normalized light spot direction
-                             in    vec3  F0,       // Frenel reflection at 90 deg. (0 to N)
+                             in    vec3  F0,       // Fresnel reflection at 90 deg. (0 to N)
                              in    vec3  matDiff,  // diffuse material reflection
                              in    float matMetal, // diffuse material reflection
                              in    float matRough, // diffuse material reflection
@@ -81,7 +81,7 @@ void pointLightCookTorrance(in    int   i,        // Light index
                             in    vec3  E,        // Normalized vector from v_P to the eye
                             in    vec3  L,        // Vector from v_P to the light
                             in    vec3  S,        // Normalized light spot direction
-                            in    vec3  F0,       // Frenel reflection at 90 deg. (0 to N)
+                            in    vec3  F0,       // Fresnel reflection at 90 deg. (0 to N)
                             in    vec3  matDiff,  // diffuse material reflection
                             in    float matMetal, // diffuse material reflection
                             in    float matRough, // diffuse material reflection
@@ -91,7 +91,7 @@ void pointLightCookTorrance(in    int   i,        // Light index
     L /= distance;              // normalize light vector
     float att = 1.0 / (distance*distance);  // quadratic light attenuation
 
-    /* Calculate spot attenuation
+    // Calculate spot attenuation
     if (u_lightSpotDeg[i] < 180.0)
     {
         float spotAtt; // Spot attenuation
@@ -100,7 +100,7 @@ void pointLightCookTorrance(in    int   i,        // Light index
         if (spotDot < u_lightSpotCos[i]) spotAtt = 0.0;
         else spotAtt = max(pow(spotDot, u_lightSpotExp[i]), 0.0);
         att *= spotAtt;
-    } */
+    }
 
     vec3 radiance = u_lightDiff[i].rgb * att;  // per light radiance
 

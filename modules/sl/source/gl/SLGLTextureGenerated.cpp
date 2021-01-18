@@ -31,20 +31,23 @@ SLGLTextureGenerated::SLGLTextureGenerated(SLAssetManager*  am,
         assert(type > TT_hdr);
     }
 
-    _sourceTexture = texture;
-    _captureFBO    = fbo;
-    _texType       = type;
-    _min_filter    = min_filter;
-    _mag_filter    = mag_filter;
-    _wrap_s        = wrapS;
-    _wrap_t        = wrapT;
-    _target        = target;
-    _texID         = 0;
-    _bumpScale     = 1.0f;
-    _resizeToPow2  = false;
-    _autoCalcTM3D  = false;
-    _needsUpdate   = false;
-    _bytesOnGPU    = 0;
+    _sourceTexture        = texture;
+    _captureFBO           = fbo;
+    _texType              = type;
+    _min_filter           = min_filter;
+    _mag_filter           = mag_filter;
+    _wrap_s               = wrapS;
+    _wrap_t               = wrapT;
+    _target               = target;
+    _texID                = 0;
+    _bumpScale            = 1.0f;
+    _resizeToPow2         = false;
+    _autoCalcTM3D         = false;
+    _needsUpdate          = false;
+    _bytesOnGPU           = 0;
+    _generatedWidth       = 0;
+    _generatedHeight      = 0;
+    _generatedBytesPerPixel = 0;
 
     if (type == TT_environment)
         _shaderProgram = new SLGLProgramGeneric(am,
@@ -69,16 +72,23 @@ SLGLTextureGenerated::SLGLTextureGenerated(SLAssetManager*  am,
     // initialize capture views: 6 views each at all 6 directions of the faces of a cube map
     SLMat4f mat;
     //clang-format off
-    mat.lookAt(0, 0, 0,  1, 0, 0,  0,-1, 0); _captureViews.push_back(mat);
-    mat.lookAt(0, 0, 0, -1, 0, 0,  0,-1, 0); _captureViews.push_back(mat);
-    mat.lookAt(0, 0, 0,  0, 1, 0,  0, 0, 1); _captureViews.push_back(mat);
-    mat.lookAt(0, 0, 0,  0,-1, 0,  0, 0,-1); _captureViews.push_back(mat);
-    mat.lookAt(0, 0, 0,  0, 0, 1,  0,-1, 0); _captureViews.push_back(mat);
-    mat.lookAt(0, 0, 0,  0, 0,-1,  0,-1, 0); _captureViews.push_back(mat);
+    mat.lookAt(0, 0, 0, 1, 0, 0, 0, -1, 0);
+    _captureViews.push_back(mat);
+    mat.lookAt(0, 0, 0, -1, 0, 0, 0, -1, 0);
+    _captureViews.push_back(mat);
+    mat.lookAt(0, 0, 0, 0, 1, 0, 0, 0, 1);
+    _captureViews.push_back(mat);
+    mat.lookAt(0, 0, 0, 0, -1, 0, 0, 0, -1);
+    _captureViews.push_back(mat);
+    mat.lookAt(0, 0, 0, 0, 0, 1, 0, -1, 0);
+    _captureViews.push_back(mat);
+    mat.lookAt(0, 0, 0, 0, 0, -1, 0, -1, 0);
+    _captureViews.push_back(mat);
     //clang-format on
 
-    if (_sourceTexture != nullptr) 
+    if (_sourceTexture != nullptr)
         _sourceTexture->bindActive();
+
     build();
 
     // Add pointer to the global resource vectors for deallocation
@@ -126,6 +136,10 @@ void SLGLTextureGenerated::build(SLint texID)
 
         if (_texType == TT_environment || _texType == TT_irradiance)
         {
+            _generatedWidth       = _captureFBO->rboWidth();
+            _generatedHeight      = _captureFBO->rboHeight();
+            _generatedBytesPerPixel = 3 * 2; // GL_RGB16F
+
             for (SLuint i = 0; i < 6; i++)
             {
                 glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
@@ -179,13 +193,17 @@ void SLGLTextureGenerated::build(SLint texID)
                    "the source texture is not an environment map");
             _captureFBO->unbind();
 
+            _generatedWidth       = 128;
+            _generatedHeight      = 128;
+            _generatedBytesPerPixel = 3 * 2; // GL_RGB16F
+
             for (unsigned int i = 0; i < 6; ++i)
             {
                 glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
                              0,
                              GL_RGB16F,
-                             128,
-                             128,
+                             _generatedWidth,
+                             _generatedHeight,
                              0,
                              GL_RGB,
                              GL_FLOAT,
@@ -209,8 +227,8 @@ void SLGLTextureGenerated::build(SLint texID)
             for (SLuint mip = 0; mip < maxMipLevels; ++mip)
             {
                 // resize framebuffer according to mip-level size
-                SLuint mipWidth  = 128 * pow(0.5, mip);
-                SLuint mipHeight = 128 * pow(0.5, mip);
+                SLuint mipWidth  = _generatedWidth * pow(0.5, mip);
+                SLuint mipHeight = _generatedHeight * pow(0.5, mip);
                 _captureFBO->bufferStorage(mipWidth, mipHeight);
                 glViewport(0, 0, mipWidth, mipHeight);
 
@@ -236,19 +254,28 @@ void SLGLTextureGenerated::build(SLint texID)
         {
             _captureFBO->unbind();
 
-            SLsizei lutWidth  = 512;
-            SLsizei lutHeight = 512;
+            _generatedWidth       = 512;
+            _generatedHeight      = 512;
+            _generatedBytesPerPixel = 2 * 2; // GL_RG16F
 
-            glTexImage2D(_target, 0, GL_RG16F, lutWidth, lutHeight, 0, GL_RG, GL_FLOAT, 0);
+            glTexImage2D(_target,
+                         0,
+                         GL_RG16F,
+                         _generatedWidth,
+                         _generatedHeight,
+                         0,
+                         GL_RG,
+                         GL_FLOAT,
+                         0);
             glTexParameteri(_target, GL_TEXTURE_WRAP_S, _wrap_s);
             glTexParameteri(_target, GL_TEXTURE_WRAP_T, _wrap_t);
             glTexParameteri(_target, GL_TEXTURE_MIN_FILTER, _min_filter);
             glTexParameteri(_target, GL_TEXTURE_MAG_FILTER, _mag_filter);
 
-            _captureFBO->bufferStorage(lutWidth, lutHeight);
+            _captureFBO->bufferStorage(_generatedWidth, _generatedHeight);
             _captureFBO->attachTexture2D(GL_COLOR_ATTACHMENT0, _target, this);
 
-            glViewport(0, 0, lutWidth, lutHeight);
+            glViewport(0, 0, _generatedWidth, _generatedHeight);
             _shaderProgram->useProgram();
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             renderQuad();

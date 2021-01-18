@@ -965,28 +965,32 @@ of four neighboring pixels is return. Otherwise the nearest pixel is returned.
 */
 SLCol4f SLGLTexture::getTexelf(SLfloat u, SLfloat v, SLuint imgIndex)
 {
-    assert(imgIndex < _images.size() && "Image index to big!");
-
-    // transform tex coords with the texture matrix
-    u = u * _tm.m(0) + _tm.m(12);
-    v = v * _tm.m(5) + _tm.m(13);
-
-    // Make sure the tex. coords are between 0.0 and 1.0
-    if (u < 0.0f || u > 1.0f) u -= floor(u);
-    if (v < 0.0f || v > 1.0f) v -= floor(v);
-
-    // Bilinear interpolation
-    if (_min_filter == GL_LINEAR || _mag_filter == GL_LINEAR)
+    if (imgIndex < _images.size())
     {
-        CVVec4f c4f = _images[imgIndex]->getPixelf(u, v);
-        return SLCol4f(c4f[0], c4f[1], c4f[2], c4f[3]);
+
+        // transform tex coords with the texture matrix
+        u = u * _tm.m(0) + _tm.m(12);
+        v = v * _tm.m(5) + _tm.m(13);
+
+        // Make sure the tex. coords are between 0.0 and 1.0
+        if (u < 0.0f || u > 1.0f) u -= floor(u);
+        if (v < 0.0f || v > 1.0f) v -= floor(v);
+
+        // Bilinear interpolation
+        if (_min_filter == GL_LINEAR || _mag_filter == GL_LINEAR)
+        {
+            CVVec4f c4f = _images[imgIndex]->getPixelf(u, v);
+            return SLCol4f(c4f[0], c4f[1], c4f[2], c4f[3]);
+        }
+        else
+        {
+            CVVec4f c4f = _images[imgIndex]->getPixeli((SLint)(u * _images[imgIndex]->width()),
+                                                       (SLint)(v * _images[imgIndex]->height()));
+            return SLCol4f(c4f[0], c4f[1], c4f[2], c4f[3]);
+        }
     }
     else
-    {
-        CVVec4f c4f = _images[imgIndex]->getPixeli((SLint)(u * _images[imgIndex]->width()),
-                                                   (SLint)(v * _images[imgIndex]->height()));
-        return SLCol4f(c4f[0], c4f[1], c4f[2], c4f[3]);
-    }
+        return SLCol4f::BLACK;
 }
 //-----------------------------------------------------------------------------
 //! SLGLTexture::getTexelf returns a pixel color at the specified cubemap direction

@@ -58,14 +58,14 @@ const   float       PI = 3.14159265359;
 //-----------------------------------------------------------------------------
 #pragma include "lightingCookTorrance.glsl"
 #pragma include "fogBlend.glsl"
-#pragma include "doStereoSeparation.glsl
+#pragma include "doStereoSeparation.glsl"
 //-----------------------------------------------------------------------------
 void main()
 {
     vec3 N = normalize(v_N_VS);     // A varying normal has not anymore unit length
     vec3 E = normalize(-v_P_VS);    // Vector from p to the eye (viewer)
 
-    // Init Frenel reflection at 90 deg. (0 to N)
+    // Init Fresnel reflection at 90 deg. (0 to N)
     vec3 F0 = vec3(0.04);           
     F0 = mix(F0, u_matDiff.rgb, u_matMetal);
 

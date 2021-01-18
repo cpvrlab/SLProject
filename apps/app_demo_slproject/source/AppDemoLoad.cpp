@@ -1276,7 +1276,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0, 0, 30);
         cam1->lookAt(0, 0, 0);
-        cam1->background().colors(SLCol4f(0.2f, 0.2f, 0.2f));
+        cam1->background().colors(SLCol4f::BLACK);
         cam1->focalDist(30);
         cam1->setInitialState();
         cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
@@ -1339,6 +1339,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         }
 
         // Add 5 Lights: 2 point lights, 2 directional lights and 1 spot light in the center.
+        SLLight::gamma      = 2.2f;
         SLLightSpot* light1 = new SLLightSpot(s, s, -maxX, maxY, maxY, 0.2f, 180, 0, 1000, 1000);
         light1->attenuation(0, 0, 1);
         SLLightDirect* light2 = new SLLightDirect(s, s, maxX, maxY, maxY, 0.5f, 0, 10, 10);
@@ -1406,7 +1407,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         pbr->addUniform1f(exposure_pbr);
         pbrTex->addUniform1f(exposure_pbrtex);
 
-        // Create a scene group noce
+        // Create a scene group node
         SLNode* scene = new SLNode("scene node");
 
         // Create camera and initialize its parameters
@@ -1499,7 +1500,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
     else if (sceneID == SID_ShaderPerVertexWave) //................................................
     {
         s->name("Wave Shader Test");
-        s->info("Vertex Shader with wave displacment.");
+        s->info("Vertex Shader with wave displacement.");
         SL_LOG("Use H-Key to increment (decrement w. shift) the wave height.\n");
 
         SLCamera* cam1 = new SLCamera("Camera 1");
