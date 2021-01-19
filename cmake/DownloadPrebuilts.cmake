@@ -356,7 +356,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #-----------------------------
     # Vulkan for Windows #
     ######################
 
-    set(vk_VERSION "1.2.131.2")
+    set(vk_VERSION "1.2.162.1")
     set(vk_DIR ${PREBUILT_PATH}/win64_vulkan_${vk_VERSION})
     set(vk_PREBUILT_ZIP "win64_vulkan_${vk_VERSION}.zip")
     set(vk_URL ${PREBUILT_URL}/${vk_PREBUILT_ZIP})
