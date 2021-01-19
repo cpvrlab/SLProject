@@ -31,7 +31,7 @@ SLfloat SLGLTexture::maxAnisotropy = -1.0f;
 SLuint SLGLTexture::numBytesInTextures = 0;
 //-----------------------------------------------------------------------------
 /*! Default ctor for all stack instances such as the video textures in SLScene
-or the textures inherited by SLRaytracer. All other contructors add the this
+or the textures inherited by SLRaytracer. All other constructors add the this
 pointer to the SLScene::_texture vector for global deallocation.
 */
 SLGLTexture::SLGLTexture()
@@ -57,7 +57,7 @@ SLGLTexture::SLGLTexture()
 
 //-----------------------------------------------------------------------------
 /*!
- * Conststructor for empty 2D textures.
+ * Constructor for empty 2D textures.
  * Textures can be used in multiple materials. Textures can belong therefore
  * to the global assets such as meshes (SLMesh), materials (SLMaterial),
  * textures (SLGLTexture) and shader programs (SLGLProgram).
@@ -1166,6 +1166,11 @@ SLstring SLGLTexture::typeName()
         case TT_metallic: return "metalness";
         case TT_ambientOcclusion: return "ambient occlusion";
         case TT_font: return "font";
+        case TT_hdr: return "hdr";
+        case TT_environmentCubemap: return "environment";
+        case TT_irradianceCubemap: return "irradiance";
+        case TT_roughnessCubemap: return "roughness";
+        case TT_brdfLUT: return "brdfLUT";
         default: return "unknown";
     }
 }
@@ -1371,7 +1376,7 @@ void SLGLTexture::cubeUV2XYZ(SLint    index,
     }
 }
 //------------------------------------------------------------------------------
-//! Computes the uv and cubemap image index from a unnormalized vector x,y,z.
+//! Computes the uv and cubemap image index from a unnormalised vector x,y,z.
 /*! See also SLGLTexture::cubeUV2XYZ. Source:\n
 https://en.wikipedia.org/wiki/Cube_mapping
 */

@@ -779,6 +779,8 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
         _camera->setProjection(this, ET_right);
         _camera->setView(this, ET_right);
         stateGL->depthTest(true);
+        if (_skybox)
+            _skybox->drawAroundCamera(this);
         draw3DGLAll();
     }
 

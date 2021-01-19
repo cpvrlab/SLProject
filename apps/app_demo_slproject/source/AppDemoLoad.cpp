@@ -1268,7 +1268,10 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
     else if (sceneID == SID_ShaderCook) //.........................................................
     {
         s->name("Cook-Torrance Test");
-        s->info("Cook-Torrance light model. Left-Right: roughness 0.05-1, Top-Down: metallic: 1-0. The center sphere has roughness and metallic encoded in textures.");
+        s->info("Cook-Torrance light model. Left-Right: roughness 0.05-1, Top-Down: metallic: 1-0. "
+                "The center sphere has roughness and metallic encoded in textures. "
+                "The light model has a more produces a more physically based light reflection "
+                "than the standard Blinn-Phong light model.");
 
         // Base root group node for the scene
         SLNode* scene = new SLNode;
@@ -1365,7 +1368,10 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         // Set scene name and info string
         s->name("HDR IBL Shader");
         s->info("Image-based Lighting from skybox using high dynamic range images. "
-                "Use F4-Key to increment (decrement w. shift-F4) exposure of the HDR skybox.\n");
+                "Use F4-Key to increment (decrement w. shift-F4) exposure of the HDR skybox. "
+                "It uses the Cook-Torrance light model also to calculate the ambient light part "
+                "from the surrounding HDR skybox. This example works only correct if you start "
+                "the application with this scene as the startup scene.");
 
         // Create uniform to control exposure
         // this is done this way so that the exposure of the whole scene remains consistent

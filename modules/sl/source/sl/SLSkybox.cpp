@@ -113,7 +113,7 @@ SLSkybox::SLSkybox(SLProjectScene* projectScene,
                                                        shaderPath,
                                                        hdrTexture,
                                                        captureBuffer,
-                                                       TT_environment,
+                                                       TT_environmentCubemap,
                                                        GL_TEXTURE_CUBE_MAP,
                                                        GL_LINEAR_MIPMAP_LINEAR);
 
@@ -123,17 +123,17 @@ SLSkybox::SLSkybox(SLProjectScene* projectScene,
                                                           shaderPath,
                                                           envCubemap,
                                                           captureBuffer,
-                                                          TT_irradiance);
+                                                          TT_irradianceCubemap);
     SLGLTexture* prefilter      = new SLGLTextureGenerated(projectScene,
                                                       shaderPath,
                                                       envCubemap,
                                                       captureBuffer,
-                                                      TT_prefilter);
+                                                      TT_roughnessCubemap);
     SLGLTexture* brdfLUTTexture = new SLGLTextureGenerated(projectScene,
                                                            shaderPath,
                                                            nullptr,
                                                            captureBuffer,
-                                                           TT_lut,
+                                                           TT_brdfLUT,
                                                            GL_TEXTURE_2D);
 
     // Create the material of the sky box and store there the other texture to be used for other materials

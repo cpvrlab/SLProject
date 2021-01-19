@@ -35,9 +35,9 @@ public:
     //! ctor for generated textures
     SLGLTextureGenerated(SLAssetManager*  assetMgr,
                          SLstring         shaderPath,
-                         SLGLTexture*     texture,
+                         SLGLTexture*     sourceTexture,
                          SLGLFrameBuffer* fbo,
-                         SLTextureType    type       = TT_environment,
+                         SLTextureType    texType    = TT_environmentCubemap,
                          SLenum           target     = GL_TEXTURE_CUBE_MAP,
                          SLint            min_filter = GL_LINEAR,
                          SLint            mag_filter = GL_LINEAR,
