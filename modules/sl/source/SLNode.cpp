@@ -998,7 +998,7 @@ void SLNode::rotateAround(const SLVec3f&   point,
 Adds a scale transform to the current object matrix
 @note this is not a setter but a scale modifier.
 @note this modifier doesn't allow for different transform spaces, so there
-isn't the possiblity for shearing an object currently.
+isn't the possibility for shearing an object currently.
 */
 void SLNode::scale(const SLVec3f& scale)
 {

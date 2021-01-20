@@ -275,7 +275,7 @@ SLNode* BuildFigureGroup(SLProjectScene* s, SLMaterial* mat, SLbool withAnimatio
     head->translate(0.0f, 0.0f, -0.7f, TS_object);
     SLSphere* eye  = new SLSphere(s, 0.06f, res, res, "eye", mat);
     SLNode*   eyeL = new SLNode(eye, SLVec3f(-0.15f, 0.48f, 0), "eyeL");
-    SLNode*   eyeR = new SLNode(eye, SLVec3f(0.15f, 0.48f, 0), "eyeL");
+    SLNode*   eyeR = new SLNode(eye, SLVec3f(0.15f, 0.48f, 0), "eyeR");
     head->addChild(eyeL);
     head->addChild(eyeR);
     SLNode* neck = new SLNode(new SLCylinder(s, 0.25f, 0.3f, 1, res, false, false, "neck", mat), "neck (T2)");
@@ -392,18 +392,11 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         // Create a light source node
         SLLightSpot* light1 = new SLLightSpot(s, s, 0.3f);
         light1->translation(0, 0, 5);
-        light1->lookAt(0, 0, 0);
         light1->name("light node");
         scene->addChild(light1);
 
         // Create meshes and nodes
-        SLMesh* rectMesh = new SLRectangle(s,
-                                           SLVec2f(-5, -5),
-                                           SLVec2f(5, 5),
-                                           25,
-                                           25,
-                                           "rectangle mesh",
-                                           m1);
+        SLMesh* rectMesh = new SLRectangle(s, SLVec2f(-5, -5), SLVec2f(5, 5), 25, 25, "rectangle mesh", m1);
         SLNode* rectNode = new SLNode(rectMesh, "rectangle node");
         scene->addChild(rectNode);
 
@@ -422,9 +415,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->name("Hierarchical Figure Test");
         s->info("Hierarchical scenegraph with multiple subgroups in the figure. "
                 "The goal is design a figure with hierarchical transforms containing only rotations and translations.\n"
-                "View the bounding boxes with key B. View the mesh as wireframe with key M."
-                "View the objects origin and axis with key X. View the voxels with key V.\n"
-                "Try also ray tracing with key R and come back to OpenGL rendering with key ESC.");
+                "You can see the hierarchy better in the Scenegraph window. In there the nodes are white and the meshes yellow. "
+                "You can view the axis aligned bounding boxes with key B and the nodes origin and axis with key X.");
 
         // Create textures and materials
         SLMaterial* m1 = new SLMaterial(s, "m1", SLCol4f::BLACK, SLCol4f::WHITE, 128, 0.2f, 0.8f, 1.5f);
@@ -439,11 +431,10 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(-7, 2, 7);
         cam1->lookAt(0, -2, 0);
-        cam1->focalDist(12);
-        cam1->background().colors(SLCol4f(0.7f, 0.6f, 1.0f),
-                                  SLCol4f(0.1f, 0.4f, 0.8f));
         cam1->setInitialState();
         cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
+        cam1->background().colors(SLCol4f(0.7f, 0.6f, 1.0f),
+                                  SLCol4f(0.1f, 0.4f, 0.8f));
 
         SLLightSpot* light1 = new SLLightSpot(s, s, 5, 0, 5, 0.5f);
         light1->powers(0.2f, 0.9f, 0.9f);
