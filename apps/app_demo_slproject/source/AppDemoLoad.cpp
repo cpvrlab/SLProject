@@ -191,7 +191,7 @@ SLNode* BuildFigureGroup(SLProjectScene* s, SLMaterial* mat, SLbool withAnimatio
                                            0.2f,
                                            0.1f,
                                            0.8f,
-                                           "foot",
+                                           "foot mesh",
                                            mat),
                                  "feet (T14)");
     feetbox->translate(0.0f, -0.25f, -0.15f, TS_object);
@@ -201,7 +201,7 @@ SLNode* BuildFigureGroup(SLProjectScene* s, SLMaterial* mat, SLbool withAnimatio
 
     // Assemble low leg
     SLNode* leglow = new SLNode("low leg group (T11, R5)");
-    leglow->addMesh(new SLSphere(s, 0.3f, res, res, "knee", mat));
+    leglow->addMesh(new SLSphere(s, 0.3f, res, res, "knee mesh", mat));
     cyl = new SLNode(new SLCylinder(s,
                                     0.2f,
                                     1.4f,
@@ -209,7 +209,7 @@ SLNode* BuildFigureGroup(SLProjectScene* s, SLMaterial* mat, SLbool withAnimatio
                                     res,
                                     false,
                                     false,
-                                    "shin",
+                                    "shin mesh",
                                     mat),
                      "shin (T12)");
     cyl->translate(0.0f, 0.0f, 0.2f, TS_object);
@@ -219,8 +219,8 @@ SLNode* BuildFigureGroup(SLProjectScene* s, SLMaterial* mat, SLbool withAnimatio
     leglow->rotate(0, 1.0f, 0.0f, 0.0f);
 
     // Assemble leg
-    SLNode* leg = new SLNode("leg group ()");
-    leg->addMesh(new SLSphere(s, 0.4f, res, res, "hip joint", mat));
+    SLNode* leg = new SLNode("leg group");
+    leg->addMesh(new SLSphere(s, 0.4f, res, res, "hip joint mesh", mat));
     cyl = new SLNode(new SLCylinder(s,
                                     0.3f,
                                     1.0f,
@@ -228,7 +228,7 @@ SLNode* BuildFigureGroup(SLProjectScene* s, SLMaterial* mat, SLbool withAnimatio
                                     res,
                                     false,
                                     false,
-                                    "thigh",
+                                    "thigh mesh",
                                     mat),
                      "thigh (T10)");
     cyl->translate(0.0f, 0.0f, 0.27f, TS_object);
@@ -245,17 +245,17 @@ SLNode* BuildFigureGroup(SLProjectScene* s, SLMaterial* mat, SLbool withAnimatio
 
     // Assemble low arm
     SLNode* armlow = new SLNode("low arm group (T6,R4)");
-    armlow->addMesh(new SLSphere(s, 0.2f, 16, 16, "elbow", mat));
-    cyl = new SLNode(new SLCylinder(s, 0.15f, 1.0f, 1, res, true, false, "low arm", mat), "T7");
+    armlow->addMesh(new SLSphere(s, 0.2f, 16, 16, "elbow mesh", mat));
+    cyl = new SLNode(new SLCylinder(s, 0.15f, 1.0f, 1, res, true, false, "low arm mesh", mat), "low arm (T7)");
     cyl->translate(0.0f, 0.0f, 0.14f, TS_object);
     armlow->addChild(cyl);
     armlow->translate(0.0f, 0.0f, 1.2f, TS_object);
     armlow->rotate(45, -1.0f, 0.0f, 0.0f);
 
     // Assemble arm
-    SLNode* arm = new SLNode("arm group ()");
-    arm->addMesh(new SLSphere(s, 0.3f, 16, 16, "shoulder", mat));
-    cyl = new SLNode(new SLCylinder(s, 0.2f, 1.0f, 1, res, false, false, "upper arm", mat), "upper arm (T5)");
+    SLNode* arm = new SLNode("arm group");
+    arm->addMesh(new SLSphere(s, 0.3f, 16, 16, "shoulder mesh", mat));
+    cyl = new SLNode(new SLCylinder(s, 0.2f, 1.0f, 1, res, false, false, "upper arm mesh", mat), "upper arm (T5)");
     cyl->translate(0.0f, 0.0f, 0.2f, TS_object);
     arm->addChild(cyl);
     arm->addChild(armlow);
@@ -271,19 +271,19 @@ SLNode* BuildFigureGroup(SLProjectScene* s, SLMaterial* mat, SLbool withAnimatio
     armRight->addChild(arm->copyRec());
 
     // Assemble head & neck
-    SLNode* head = new SLNode(new SLSphere(s, 0.5f, res, res, "head", mat), "head (T1)");
+    SLNode* head = new SLNode(new SLSphere(s, 0.5f, res, res, "head mesh", mat), "head (T1)");
     head->translate(0.0f, 0.0f, -0.7f, TS_object);
-    SLSphere* eye  = new SLSphere(s, 0.06f, res, res, "eye", mat);
-    SLNode*   eyeL = new SLNode(eye, SLVec3f(-0.15f, 0.48f, 0), "eyeL");
-    SLNode*   eyeR = new SLNode(eye, SLVec3f(0.15f, 0.48f, 0), "eyeR");
+    SLSphere* eye  = new SLSphere(s, 0.06f, res, res, "eye mesh", mat);
+    SLNode*   eyeL = new SLNode(eye, SLVec3f(-0.15f, 0.48f, 0), "eyeL (T1.1)");
+    SLNode*   eyeR = new SLNode(eye, SLVec3f(0.15f, 0.48f, 0), "eyeR (T1.2)");
     head->addChild(eyeL);
     head->addChild(eyeR);
-    SLNode* neck = new SLNode(new SLCylinder(s, 0.25f, 0.3f, 1, res, false, false, "neck", mat), "neck (T2)");
+    SLNode* neck = new SLNode(new SLCylinder(s, 0.25f, 0.3f, 1, res, false, false, "neck mesh", mat), "neck (T2)");
     neck->translate(0.0f, 0.0f, -0.3f, TS_object);
 
     // Assemble figure Left
     SLNode* figure = new SLNode("figure group (R1)");
-    figure->addChild(new SLNode(new SLBox(s, -0.8f, -0.4f, 0.0f, 0.8f, 0.4f, 2.0f, "chest", mat), "chest"));
+    figure->addChild(new SLNode(new SLBox(s, -0.8f, -0.4f, 0.0f, 0.8f, 0.4f, 2.0f, "chest mesh", mat), "chest"));
     figure->addChild(head);
     figure->addChild(neck);
     figure->addChild(armLeft);
@@ -414,8 +414,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
     {
         s->name("Hierarchical Figure Test");
         s->info("Hierarchical scenegraph with multiple subgroups in the figure. "
-                "The goal is design a figure with hierarchical transforms containing only rotations and translations.\n"
-                "You can see the hierarchy better in the Scenegraph window. In there the nodes are white and the meshes yellow. "
+                "The goal is design a figure with hierarchical transforms containing only rotations and translations. \n"
+                "You can see the hierarchy better in the Scenegraph window. In there the nodes are white and the meshes yellow. \n"
                 "You can view the axis aligned bounding boxes with key B and the nodes origin and axis with key X.");
 
         // Create textures and materials
@@ -431,6 +431,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(-7, 2, 7);
         cam1->lookAt(0, -2, 0);
+        cam1->focalDist(10);
         cam1->setInitialState();
         cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
         cam1->background().colors(SLCol4f(0.7f, 0.6f, 1.0f),
@@ -1536,99 +1537,6 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(light0);
         scene->addChild(wave);
         scene->addChild(new SLNode(new SLSphere(s, 1, 32, 32, "Red Sphere", matRed)));
-        scene->addChild(cam1);
-
-        sv->camera(cam1);
-        s->root3D(scene);
-        sv->doWaitOnIdle(false);
-    }
-    else if (sceneID == SID_ShaderWater) //........................................................
-    {
-        s->name("Water Shader Test");
-        s->info("Water Shader with reflection & refraction mapping.");
-        SL_LOG("Use H-Key to increment (decrement w. shift) the wave height.\n");
-
-        SLCamera* cam1 = new SLCamera("Camera 1");
-        cam1->translation(0, 3, 8);
-        cam1->lookAt(0, 0, 0);
-        cam1->focalDist(cam1->translationOS().length());
-        cam1->background().colors(SLCol4f(0.1f, 0.4f, 0.8f));
-        cam1->setInitialState();
-        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
-
-        // create texture
-        SLGLTexture* tex1 = new SLGLTexture(s,
-                                            SLApplication::texturePath + "Pool+X0512_C.png",
-                                            SLApplication::texturePath + "Pool-X0512_C.png",
-                                            SLApplication::texturePath + "Pool+Y0512_C.png",
-                                            SLApplication::texturePath + "Pool-Y0512_C.png",
-                                            SLApplication::texturePath + "Pool+Z0512_C.png",
-                                            SLApplication::texturePath + "Pool-Z0512_C.png");
-        SLGLTexture* tex2 = new SLGLTexture(s, SLApplication::texturePath + "tile1_0256_C.jpg");
-
-        // Create generic shader program with 4 custom uniforms
-        SLGLProgram*   sp  = new SLGLProgramGeneric(s, SLApplication::shaderPath + "WaveRefractReflect.vert", SLApplication::shaderPath + "RefractReflect.frag");
-        SLGLUniform1f* u_h = new SLGLUniform1f(UT_const, "u_h", 0.1f, 0.05f, 0.0f, 0.5f, (SLKey)'H');
-        s->eventHandlers().push_back(u_h);
-        sp->addUniform1f(u_h);
-        sp->addUniform1f(new SLGLUniform1f(UT_inc, "u_t", 0.0f, 0.06f));
-        sp->addUniform1f(new SLGLUniform1f(UT_const, "u_a", 2.5f));
-        sp->addUniform1f(new SLGLUniform1f(UT_incDec, "u_b", 2.2f, 0.01f, 2.0f, 2.5f));
-
-        // Create materials
-        SLMaterial* matWater = new SLMaterial(s, "matWater", SLCol4f(0.45f, 0.65f, 0.70f), SLCol4f::WHITE, 100, 0.1f, 0.9f, 1.5f);
-        matWater->program(sp);
-        matWater->textures().push_back(tex1);
-        SLMaterial* matRed  = new SLMaterial(s, "matRed", SLCol4f(1.00f, 0.00f, 0.00f));
-        SLMaterial* matTile = new SLMaterial(s, "matTile");
-        matTile->textures().push_back(tex2);
-
-        // water rectangle in the y=0 plane
-        SLNode* rect = new SLNode(new SLRectangle(s,
-                                                  SLVec2f(-Utils::PI, -Utils::PI),
-                                                  SLVec2f(Utils::PI, Utils::PI),
-                                                  40,
-                                                  40,
-                                                  "WaterRect",
-                                                  matWater));
-        rect->rotate(90, -1, 0, 0);
-
-        // Pool rectangles
-        SLuint  res   = 10;
-        SLNode* rectF = new SLNode(new SLRectangle(s, SLVec2f(-Utils::PI, -Utils::PI / 6), SLVec2f(Utils::PI, Utils::PI / 6), SLVec2f(0, 0), SLVec2f(10, 2.5f), res, res, "rectF", matTile));
-        SLNode* rectN = new SLNode(new SLRectangle(s, SLVec2f(-Utils::PI, -Utils::PI / 6), SLVec2f(Utils::PI, Utils::PI / 6), SLVec2f(0, 0), SLVec2f(10, 2.5f), res, res, "rectN", matTile));
-        SLNode* rectL = new SLNode(new SLRectangle(s, SLVec2f(-Utils::PI, -Utils::PI / 6), SLVec2f(Utils::PI, Utils::PI / 6), SLVec2f(0, 0), SLVec2f(10, 2.5f), res, res, "rectL", matTile));
-        SLNode* rectR = new SLNode(new SLRectangle(s, SLVec2f(-Utils::PI, -Utils::PI / 6), SLVec2f(Utils::PI, Utils::PI / 6), SLVec2f(0, 0), SLVec2f(10, 2.5f), res, res, "rectR", matTile));
-        SLNode* rectB = new SLNode(new SLRectangle(s, SLVec2f(-Utils::PI, -Utils::PI), SLVec2f(Utils::PI, Utils::PI), SLVec2f(0, 0), SLVec2f(10, 10), res, res, "rectB", matTile));
-        rectF->translate(0, 0, -Utils::PI, TS_object);
-        rectL->rotate(90, 0, 1, 0);
-        rectL->translate(0, 0, -Utils::PI, TS_object);
-        rectN->rotate(180, 0, 1, 0);
-        rectN->translate(0, 0, -Utils::PI, TS_object);
-        rectR->rotate(270, 0, 1, 0);
-        rectR->translate(0, 0, -Utils::PI, TS_object);
-        rectB->rotate(90, -1, 0, 0);
-        rectB->translate(0, 0, -Utils::PI / 6, TS_object);
-
-        SLLightSpot* light0 = new SLLightSpot(s, s);
-        light0->ambiDiffPowers(0, 1);
-        light0->translate(0, 4, -4, TS_object);
-        light0->attenuation(1, 0, 0);
-
-        SLNode* scene = new SLNode;
-        scene->addChild(light0);
-        scene->addChild(rectF);
-        scene->addChild(rectL);
-        scene->addChild(rectN);
-        scene->addChild(rectR);
-        scene->addChild(rectB);
-        scene->addChild(rect);
-        scene->addChild(new SLNode(new SLSphere(s,
-                                                1,
-                                                32,
-                                                32,
-                                                "Red Sphere",
-                                                matRed)));
         scene->addChild(cam1);
 
         sv->camera(cam1);

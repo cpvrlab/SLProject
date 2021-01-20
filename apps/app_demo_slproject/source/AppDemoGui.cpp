@@ -1239,8 +1239,6 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                         s->onLoad(s, sv, SID_ShaderIBL);
                     if (ImGui::MenuItem("Per Vertex Wave", nullptr, sid == SID_ShaderPerVertexWave))
                         s->onLoad(s, sv, SID_ShaderPerVertexWave);
-                    if (ImGui::MenuItem("Water", nullptr, sid == SID_ShaderWater))
-                        s->onLoad(s, sv, SID_ShaderWater);
                     if (ImGui::MenuItem("Bump Mapping", nullptr, sid == SID_ShaderBumpNormal))
                         s->onLoad(s, sv, SID_ShaderBumpNormal);
                     if (ImGui::MenuItem("Parallax Mapping", nullptr, sid == SID_ShaderBumpParallax))
