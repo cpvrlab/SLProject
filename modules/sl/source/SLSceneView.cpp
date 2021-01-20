@@ -1675,8 +1675,10 @@ SLbool SLSceneView::onKeyPress(SLKey key, SLKey mod)
 
     if (key=='R') {startRaytracing(5);}
     if (key=='P') {startPathtracing(5, 10);}
+#ifdef SL_HAS_OPTIX
     if (key=='R' && mod==K_shift) {startOptixRaytracing(5);}
     if (key=='P' && mod==K_shift) {startOptixPathtracing(5, 100);}
+#endif
 
     if (key=='M') {drawBits()->toggle(SL_DB_MESHWIRED); return true;}
     if (key=='H') {drawBits()->toggle(SL_DB_WITHEDGES); return true;}
@@ -1716,8 +1718,10 @@ SLbool SLSceneView::onKeyPress(SLKey key, SLKey mod)
 
         if(_renderType == RT_rt) _stopRT = true;
         if(_renderType == RT_pt) _stopPT = true;
+#ifdef SL_HAS_OPTIX
         if(_renderType == RT_optix_rt) _stopOptixRT = true;
         if(_renderType == RT_optix_pt) _stopOptixPT = true;
+#endif
         return true;
     }
     // clang-format on
