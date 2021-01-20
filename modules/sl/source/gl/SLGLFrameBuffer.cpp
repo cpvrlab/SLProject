@@ -16,16 +16,15 @@ SLuint SLGLFrameBuffer::totalBufferSize  = 0;
 SLuint SLGLFrameBuffer::totalBufferCount = 0;
 //-----------------------------------------------------------------------------
 //! Constructor
-SLGLFrameBuffer::SLGLFrameBuffer(SLbool  renderBuffer,
-                                 SLsizei rboWidth,
+SLGLFrameBuffer::SLGLFrameBuffer(SLsizei rboWidth,
                                  SLsizei rboHeight)
 {
-    _fboId        = 0;
-    _rboId        = 0;
-    _prevFboId    = 0;
-    _renderBuffer = renderBuffer;
-    _rboWidth     = rboWidth;
-    _rboHeight    = rboHeight;
+    _fboId     = 0;
+    _rboId     = 0;
+    _prevFboId = 0;
+    _rboWidth  = rboWidth;
+    _rboHeight = rboHeight;
+    generate();
 }
 //-----------------------------------------------------------------------------
 //! clear delete buffers and respectively adjust the stats variables
@@ -39,6 +38,8 @@ void SLGLFrameBuffer::clear()
 //! calls the delete functions only if the buffers exist
 void SLGLFrameBuffer::deleteGL()
 {
+    unbind();
+
     if (_fboId)
     {
         glDeleteBuffers(1, &_fboId);
@@ -58,18 +59,12 @@ void SLGLFrameBuffer::generate()
     if (_fboId == 0)
     {
         glGenFramebuffers(1, &_fboId);
-        bind();
-
-        if (_renderBuffer)
-        {
-            glGenRenderbuffers(1, &_rboId);
-            glBindRenderbuffer(GL_RENDERBUFFER, _rboId);
-            bufferStorage(_rboWidth, _rboHeight);
-            glFramebufferRenderbuffer(GL_FRAMEBUFFER,
-                                      GL_DEPTH_ATTACHMENT,
-                                      GL_RENDERBUFFER,
-                                      _rboId);
-        }
+        glGenRenderbuffers(1, &_rboId);
+        bindAndSetBufferStorage(_rboWidth, _rboHeight);
+        glFramebufferRenderbuffer(GL_FRAMEBUFFER,
+                                  GL_DEPTH_ATTACHMENT,
+                                  GL_RENDERBUFFER,
+                                  _rboId);
 
         // test if the generated fbo is valid
         if ((glCheckFramebufferStatus(GL_FRAMEBUFFER)) != GL_FRAMEBUFFER_COMPLETE)
@@ -93,10 +88,7 @@ void SLGLFrameBuffer::bind()
         _prevFboId = prevFboId;
 
     glBindFramebuffer(GL_FRAMEBUFFER, _fboId);
-}
-//-----------------------------------------------------------------------------
-void SLGLFrameBuffer::bindRenderBuffer()
-{
+
     assert(_rboId && "No renderbuffer generated");
     glBindRenderbuffer(GL_RENDERBUFFER, _rboId);
 }
@@ -105,14 +97,16 @@ void SLGLFrameBuffer::unbind()
 {
     // iOS does not allow binding to 0. That's why we keep the previous FB ID
     glBindFramebuffer(GL_FRAMEBUFFER, _prevFboId);
+
+
+    glBindRenderbuffer(GL_RENDERBUFFER, 0);
 }
 //-----------------------------------------------------------------------------
 //! change the render buffer size at will
-void SLGLFrameBuffer::bufferStorage(SLsizei width,
-                                    SLsizei height)
+void SLGLFrameBuffer::bindAndSetBufferStorage(SLsizei width,
+                                              SLsizei height)
 {
     bind();
-    bindRenderBuffer();
     _rboWidth  = width;
     _rboHeight = height;
     glRenderbufferStorage(GL_RENDERBUFFER,
