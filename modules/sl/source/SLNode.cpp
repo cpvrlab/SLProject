@@ -8,6 +8,7 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
+#include <stdio.h>
 #include <SLAnimation.h>
 #include <SLKeyframeCamera.h>
 #include <SLLightDirect.h>
@@ -1199,9 +1200,9 @@ void SLNode::createInstanceAccelerationStructureTree()
         }
     }
 
-    for (auto mesh : meshes())
+    if (mesh())
     {
-        mesh->updateMeshAccelerationStructure();
+        _mesh->updateMeshAccelerationStructure();
         OptixInstance instance;
 
         const SLMat4f& mat4x4        = om();
@@ -1217,10 +1218,11 @@ void SLNode::createInstanceAccelerationStructureTree()
                                mat4x4.m(6),
                                mat4x4.m(10),
                                mat4x4.m(14)};
+
         memcpy(instance.transform, transform, sizeof(float) * 12);
 
         instance.instanceId = instanceIndex++;
-        if (mesh->mat()->emissive().length() > 0)
+        if (_mesh->mat()->emissive().length() > 0)
         {
             instance.visibilityMask = 253;
         }
@@ -1229,8 +1231,8 @@ void SLNode::createInstanceAccelerationStructureTree()
             instance.visibilityMask = 255;
         }
         instance.flags             = OPTIX_INSTANCE_FLAG_NONE;
-        instance.traversableHandle = mesh->optixTraversableHandle();
-        instance.sbtOffset         = mesh->sbtIndex();
+        instance.traversableHandle = _mesh->optixTraversableHandle();
+        instance.sbtOffset         = _mesh->sbtIndex();
 
         instances.push_back(instance);
     }
@@ -1278,9 +1280,9 @@ void SLNode::createOptixInstances(vector<OptixInstance>& instances)
         child->createOptixInstances(instances);
     }
 
-    for (auto mesh : meshes())
+    if (_mesh)
     {
-        mesh->updateMeshAccelerationStructure();
+        _mesh->updateMeshAccelerationStructure();
         OptixInstance instance;
 
         const SLMat4f& mat4x4        = updateAndGetWM();
@@ -1299,12 +1301,12 @@ void SLNode::createOptixInstances(vector<OptixInstance>& instances)
         memcpy(instance.transform, transform, sizeof(float) * 12);
 
         instance.instanceId = instanceIndex++;
-        if (mesh->name().find("LightSpot") != -1 ||
-            mesh->name() == "line")
+        if (_mesh->name().find("LightSpot") != -1 ||
+            _mesh->name() == "line")
         {
             instance.visibilityMask = 252;
         }
-        else if (mesh->name().find("LightRect") != -1)
+        else if (_mesh->name().find("LightRect") != -1)
         {
             instance.visibilityMask = 254;
         }
@@ -1313,8 +1315,8 @@ void SLNode::createOptixInstances(vector<OptixInstance>& instances)
             instance.visibilityMask = 255;
         }
         instance.flags             = OPTIX_INSTANCE_FLAG_NONE;
-        instance.traversableHandle = mesh->optixTraversableHandle();
-        instance.sbtOffset         = mesh->sbtIndex();
+        instance.traversableHandle = _mesh->optixTraversableHandle();
+        instance.sbtOffset         = _mesh->sbtIndex();
 
         instances.push_back(instance);
     }

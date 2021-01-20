@@ -11,6 +11,7 @@
 #    ifndef SLCUDABUFFER_H
 #        define SLCUDABUFFER_H
 #        include <cstdio>
+#        include <cassert>
 #        include <vector>
 #        include <cuda.h>
 #        include <driver_types.h>

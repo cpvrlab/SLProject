@@ -331,6 +331,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 {
     PROFILE_FUNCTION();
 
+    s->assetManager((SLAssetManager*)s);
+
     SLfloat startLoadMS = GlobalTimer::timeMS();
 
     // Reset non CVTracked and CVCapture infos

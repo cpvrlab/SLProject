@@ -74,13 +74,13 @@ public:
     SLSceneView(SLScene* s, int dpi, SLInputManager& inputManager);
     ~SLSceneView() override;
 
-    void init(SLstring           name,
-              SLint              screenWidth,
-              SLint              screenHeight,
-              void*              onWndUpdateCallback,
-              void*              onSelectNodeMeshCallback,
-              SLUiInterface*     gui,
-              const string& configPath);
+    void init(SLstring       name,
+              SLint          screenWidth,
+              SLint          screenHeight,
+              void*          onWndUpdateCallback,
+              void*          onSelectNodeMeshCallback,
+              SLUiInterface* gui,
+              const string&  configPath);
     void unInit();
 
     // Not overridable event handlers
@@ -167,10 +167,7 @@ public:
     }
 
     // Getters
-    SLScene* s()
-    {
-        return _s;
-    }
+    SLScene*        s() { return _s; }
     SLCamera*       camera() { return _camera; }
     SLCamera*       sceneViewCamera() { return &_sceneViewCamera; }
     SLSkybox*       skybox() { return _skybox; }
@@ -262,8 +259,8 @@ protected:
     SLint   _touchDowns; //!< finger touch down count
     SLVec2i _touch[3];   //!< up to 3 finger touch coordinates
 
-    SLGLVertexArrayExt _vaoTouch;   //!< Buffer for touch pos. rendering
-    SLGLVertexArrayExt _vaoCursor;  //!< Virtual cursor for stereo rendering
+    SLGLVertexArrayExt _vaoTouch;  //!< Buffer for touch pos. rendering
+    SLGLVertexArrayExt _vaoCursor; //!< Virtual cursor for stereo rendering
 
     SLint           _scrW;                //!< Screen width in pixels
     SLint           _scrH;                //!< Screen height in pixels
