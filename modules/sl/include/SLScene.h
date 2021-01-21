@@ -58,9 +58,11 @@ public:
     void stopAnimations(SLbool stop) { _stopAnimations = stop; }
     void info(SLstring i) { _info = std::move(i); }
     void loadTimeMS(SLfloat loadTimeMS) { _loadTimeMS = loadTimeMS; }
+    void assetManager(SLAssetManager* am) { _assetManager = am; }
 
     // Getters
     SLAnimManager&   animManager() { return _animManager; }
+    SLAssetManager*  assetManager() { return _assetManager; }
     SLNode*          root3D() { return _root3D; }
     SLNode*          root2D() { return _root2D; }
     SLstring&        info() { return _info; }
@@ -68,24 +70,24 @@ public:
     SLfloat          elapsedTimeSec() const { return _frameTimeMS * 0.001f; }
     SLVEventHandler& eventHandlers() { return _eventHandlers; }
     SLfloat          loadTimeMS() const { return _loadTimeMS; }
-    SLVLight& lights() { return _lights; }
-    SLfloat   fps() const { return _fps; }
-    AvgFloat& frameTimesMS() { return _frameTimesMS; }
-    AvgFloat& updateTimesMS() { return _updateTimesMS; }
-    AvgFloat& updateAnimTimesMS() { return _updateAnimTimesMS; }
-    AvgFloat& updateAABBTimesMS() { return _updateAABBTimesMS; }
+    SLVLight&        lights() { return _lights; }
+    SLfloat          fps() const { return _fps; }
+    AvgFloat&        frameTimesMS() { return _frameTimesMS; }
+    AvgFloat&        updateTimesMS() { return _updateTimesMS; }
+    AvgFloat&        updateAnimTimesMS() { return _updateAnimTimesMS; }
+    AvgFloat&        updateAABBTimesMS() { return _updateAABBTimesMS; }
 
     //! Returns the node if only one is selected. See also SLMesh::selectNodeMesh
-    SLNode*   singleNodeSelected() { return _selectedNodes.size() == 1 ? _selectedNodes[0] : nullptr; }
+    SLNode* singleNodeSelected() { return _selectedNodes.size() == 1 ? _selectedNodes[0] : nullptr; }
 
     //! Returns the node if only one is selected. See also SLMesh::selectNodeMesh
-    SLMesh*   singleMeshFullSelected() { return (_selectedNodes.size() == 1 &&
-                                           _selectedMeshes.size() == 1 &&
-                                           _selectedMeshes[0]->IS32.empty())
-                                            ? _selectedMeshes[0]
-                                            : nullptr; }
-    SLVNode&  selectedNodes() { return _selectedNodes; }
-    SLVMesh&  selectedMeshes() { return _selectedMeshes; }
+    SLMesh*  singleMeshFullSelected() { return (_selectedNodes.size() == 1 &&
+                                               _selectedMeshes.size() == 1 &&
+                                               _selectedMeshes[0]->IS32.empty())
+                                                ? _selectedMeshes[0]
+                                                : nullptr; }
+    SLVNode& selectedNodes() { return _selectedNodes; }
+    SLVMesh& selectedMeshes() { return _selectedMeshes; }
 
     SLbool    stopAnimations() const { return _stopAnimations; }
     SLint     numSceneCameras();
@@ -107,6 +109,7 @@ protected:
     SLVLight        _lights;        //!< Vector of all lights
     SLVEventHandler _eventHandlers; //!< Vector of all event handler
     SLAnimManager   _animManager;   //!< Animation manager instance
+    SLAssetManager* _assetManager;  //!< Pointer to the external assetManager
 
     SLNode*  _root3D;         //!< Root node for 3D scene
     SLNode*  _root2D;         //!< Root node for 2D scene displayed in ortho projection

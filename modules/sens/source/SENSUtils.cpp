@@ -192,21 +192,21 @@ void mirrorImage(cv::Mat& img, bool mirrorH, bool mirrorV)
 float calcFOVDegFromFocalLengthPix(const float focalLengthPix, const int imgLength)
 {
     float fovRad = 2.f * atanf(0.5f * (float)imgLength / focalLengthPix);
-    float fovDeg = fovRad * SENS_RAD2DEG;
+    float fovDeg = fovRad * (float)SENS_RAD2DEG;
     return fovDeg;
 }
 
 float calcFocalLengthPixFromFOVDeg(const float fovDeg, const int imgLength)
 {
-    float fovRad         = fovDeg * SENS_DEG2RAD;
+    float fovRad         = fovDeg * (float)SENS_DEG2RAD;
     float focalLengthPix = 0.5f * imgLength / tanf(0.5f * fovRad);
     return focalLengthPix;
 }
 
 float calcFovDegFromOtherFovDeg(const float otherFovDeg, const int otherLength, const int length)
 {
-    float f = (0.5f * (float)otherLength) / tanf(otherFovDeg * 0.5f * SENS_DEG2RAD);
-    return 2.f * atan(0.5f * (float)length / f) * SENS_RAD2DEG;
+    float f = (0.5f * (float)otherLength) / tanf(otherFovDeg * 0.5f * (float)SENS_DEG2RAD);
+    return 2.f * atan(0.5f * (float)length / f) * (float)SENS_RAD2DEG;
 }
 
 cv::Mat adaptCameraMat(cv::Mat origMat, int newRefLength, int oldRefLength)

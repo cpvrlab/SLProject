@@ -1239,8 +1239,6 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                         s->onLoad(s, sv, SID_ShaderIBL);
                     if (ImGui::MenuItem("Per Vertex Wave", nullptr, sid == SID_ShaderPerVertexWave))
                         s->onLoad(s, sv, SID_ShaderPerVertexWave);
-                    if (ImGui::MenuItem("Water", nullptr, sid == SID_ShaderWater))
-                        s->onLoad(s, sv, SID_ShaderWater);
                     if (ImGui::MenuItem("Bump Mapping", nullptr, sid == SID_ShaderBumpNormal))
                         s->onLoad(s, sv, SID_ShaderBumpNormal);
                     if (ImGui::MenuItem("Parallax Mapping", nullptr, sid == SID_ShaderBumpParallax))
@@ -2108,10 +2106,10 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                 sv->startPathtracing(5, 10);
 
 #ifdef SL_HAS_OPTIX
-            if (ImGui::MenuItem("Ray Tracing with OptiX", nullptr, rType == RT_optix_rt))
+            if (ImGui::MenuItem("Ray Tracing with OptiX", "Shift-R", rType == RT_optix_rt))
                 sv->startOptixRaytracing(5);
 
-            if (ImGui::MenuItem("Path Tracing with OptiX", nullptr, rType == RT_optix_pt))
+            if (ImGui::MenuItem("Path Tracing with OptiX", "Shift-P", rType == RT_optix_pt))
                 sv->startOptixPathtracing(5, 10);
 #else
             ImGui::MenuItem("Ray Tracing with OptiX", nullptr, false, false);

@@ -28,7 +28,7 @@ public:
 
     // setup path tracer
     void setupOptix() override;
-    void setupScene(SLSceneView* sv) override;
+    void setupScene(SLSceneView* sv, SLAssetManager* am) override;
     void updateScene(SLSceneView* sv) override;
 
     // path tracer functions

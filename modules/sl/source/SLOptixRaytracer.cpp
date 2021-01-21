@@ -285,9 +285,8 @@ OptixShaderBindingTable SLOptixRaytracer::createShaderBindingTable(const SLVMesh
     return sbt;
 }
 //-----------------------------------------------------------------------------
-void SLOptixRaytracer::setupScene(SLSceneView* sv)
+void SLOptixRaytracer::setupScene(SLSceneView* sv, SLAssetManager* am)
 {
-    SLAssetManager* am     = sv->assetManager();
     SLVMesh         meshes = am->meshes();
     _sv                    = sv;
 
