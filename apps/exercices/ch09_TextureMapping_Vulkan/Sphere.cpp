@@ -15,8 +15,8 @@ void Sphere::build()
 
     float  theta, dtheta; // angles around x-axis
     float  phi, dphi;     // angles around z-axis
-    SLuint i, j;          // loop counters
-    SLuint iv  = 0;
+    SLint i, j;           // loop counters
+    SLint iv  = 0;
     float  dtx = 1.0f / _slices;
     float  dty = 1.0f / _stacks;
     float  tx  = 0.0f;

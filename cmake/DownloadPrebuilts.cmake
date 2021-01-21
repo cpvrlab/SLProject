@@ -328,7 +328,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #-----------------------------
 
     set(openssl_VERSION "1.1.1h")
     set(openssl_PREBUILT_DIR "win64_openssl")
-    set(openssl_DIR ${PREBUILT_PATH}/win64_openssl)
+    set(openssl_DIR ${PREBUILT_PATH}/win64_openssl_${openssl_VERSION})
     set(openssl_INCLUDE_DIR ${openssl_DIR}/include)
     set(openssl_LINK_DIR ${openssl_DIR}/lib)
     set(openssl_LIBS ssl crypto)
