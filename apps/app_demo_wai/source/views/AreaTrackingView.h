@@ -20,6 +20,7 @@
 #include <AsyncWorker.h>
 #include <scenes/UserGuidanceScene.h>
 #include <UserGuidance.h>
+#include <CompassAlignment.h>
 
 #include <SLLightSpot.h>
 #include <SLArrow.h>
@@ -31,8 +32,6 @@
 #include <SLDeviceRotation.h>
 #include <WAIImageStabilizedOrientation.h>
 #include <SLDeviceRotation.h>
-
-#include <WAICompassAlignment.h>
 
 class SENSCamera;
 class MapLoader;
@@ -302,7 +301,6 @@ private:
     bool _noInitException = false;
 
     CameraPoseFingerCorrection _cameraFingerCorr;
-    //WAICompassAlignment        _compassAlignment;
 };
 
 //! Async loader for vocabulary and maps

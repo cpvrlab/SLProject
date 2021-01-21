@@ -68,6 +68,7 @@ set(erlebar_headers
 	${SL_PROJECT_ROOT}/apps/app_demo_wai/source/GuiPrefab/AppDemoGuiVideoControls.h
 	${SL_PROJECT_ROOT}/apps/app_demo_wai/source/GuiPrefab/AppDemoGuiVideoStorage.h
 	#${SL_PROJECT_ROOT}/apps/app_demo_wai/source/GuiPrefab/AppDemoGuiSlamParam.h
+	${SL_PROJECT_ROOT}/apps/app_demo_wai/source/CompassAlignment.h
 	#${SL_PROJECT_ROOT}/apps/app_demo_wai/source/WAIApp.h
 	${SL_PROJECT_ROOT}/apps/app_demo_wai/source/ErlebARApp.h
 	${SL_PROJECT_ROOT}/apps/app_demo_wai/source/WAIAutoCalibration.h
@@ -164,6 +165,7 @@ set(erlebar_sources
 	${SL_PROJECT_ROOT}/apps/app_demo_wai/source/GuiPrefab/AppDemoGuiVideoControls.cpp
 	${SL_PROJECT_ROOT}/apps/app_demo_wai/source/GuiPrefab/AppDemoGuiVideoStorage.cpp
 	#${SL_PROJECT_ROOT}/apps/app_demo_wai/source/GuiPrefab/AppDemoGuiSlamParam.cpp
+	${SL_PROJECT_ROOT}/apps/app_demo_wai/source/CompassAlignment.cpp
 	${SL_PROJECT_ROOT}/apps/app_demo_wai/source/GLSLHessian.cpp
 	${SL_PROJECT_ROOT}/apps/app_demo_wai/source/GLSLextractor.cpp
 	#${SL_PROJECT_ROOT}/apps/app_demo_wai/source/WAIApp.cpp
