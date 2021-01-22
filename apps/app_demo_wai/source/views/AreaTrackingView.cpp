@@ -245,7 +245,6 @@ SLMat4f transformAverage(SLMat4f m1, SLMat4f m2)
 bool AreaTrackingView::updateGPSARCore(SENSFramePtr& frame)
 {
     bool isTracking = false;
-
     SLMat4f gpsPose = calcCameraPoseGpsOrientationBased();
     cv::Mat arCorePose;
     //Get frame from ArCore or camera depending if we have them.
@@ -267,7 +266,6 @@ bool AreaTrackingView::updateGPSARCore(SENSFramePtr& frame)
 
     if (!_hasTransitionMatrix)
     {
-        _gui.showInfoText("GPS + Sensors positioning");
         _waiScene.camera->om(gpsPose);
         //delay arcore transition unil 10s and that arcore is tracking at this state
 
@@ -287,23 +285,20 @@ bool AreaTrackingView::updateGPSARCore(SENSFramePtr& frame)
     }
     else if (_arcore->isRunning() && isTracking)
     {
-        _gui.showInfoText("ARCore tracking");
         SLMat4f arPose  = convertARCoreToSLMat(arCorePose);
         SLMat4f camPose = _transitionMatrix * arPose;
         applyFingerCorrection(camPose);
         _waiScene.camera->om(camPose);
     }
-
-    return isTracking;
+    return _hasTransitionMatrix;
 }
 
 //Marker for pose and yaw
 bool AreaTrackingView::updateWAISlamGPSARCore(SENSFramePtr& frame)
 {
-    bool isTracking = false;
-
     SLMat4f gpsPose = calcCameraPoseGpsOrientationBased();
     cv::Mat arCorePose;
+    bool isTracking = false;
     if (_arcore->isRunning())
     {
         isTracking = _arcore->update(arCorePose);
@@ -317,13 +312,11 @@ bool AreaTrackingView::updateWAISlamGPSARCore(SENSFramePtr& frame)
     }
     else if (_camera)
     {
-        _gui.showInfoText("arcore not running");
         frame = _camera->latestFrame();
     }
     else
     {
-        _gui.showInfoText("arcore not running");
-        return false;
+        return true;
     }
 
     _waiScene.camera->om(gpsPose);
@@ -367,13 +360,11 @@ bool AreaTrackingView::updateWAISlamGPSARCore(SENSFramePtr& frame)
                     _transitionMatrix.invert();
                     _transitionMatrix    = (m * gpsPose) * _transitionMatrix;
                     _hasTransitionMatrix = true;
-                    _gui.showInfoText("WAISlam -> ARCore");
                 }
             }
             else
             {
                 _frameCounter = 0;
-                _gui.showInfoText("WAISlam is not tracking");
             }
         }
         else if (GlobalTimer::timeS() - _initTime > 10.0 && isTracking)
@@ -383,39 +374,27 @@ bool AreaTrackingView::updateWAISlamGPSARCore(SENSFramePtr& frame)
             _transitionMatrix    = gpsPose * _transitionMatrix;
             _hasTransitionMatrix = true;
         }
-        else
-        {
-            if (isTracking)
-                _gui.showInfoText("no transition matrix yet, arcore is tracking");
-            else
-                _gui.showInfoText("no transition matrix yet, arcore is not tracking");
-        }
     }
     else if (_arcore->isRunning() && isTracking)
     {
-        _gui.showInfoText("ARCore tracking");
         SLMat4f arPose  = convertARCoreToSLMat(arCorePose);
         SLMat4f camPose = _transitionMatrix * arPose;
         applyFingerCorrection(camPose);
         _waiScene.camera->om(camPose);
     }
-    else
-    {
-        _gui.showInfoText("GPS + sensors tracking");
-    }
 
     //SLVec3f d = gpsPose.mat3() * SLVec3f(0, 0, 1);
     //Utils::log("AAAAAAAAAAA", d.toString().c_str());
     //else {} TODO: if waiSlam was working, try to reloc with waislam after some time
-    return isTracking;
+
+    return _hasTransitionMatrix;
 }
 
 bool AreaTrackingView::updateGPSWAISlamARCore(SENSFramePtr& frame)
 {
-    bool isTracking = false;
-
     SLMat4f gpsPose = calcCameraPoseGpsOrientationBased();
     cv::Mat arCorePose;
+    bool isTracking = false;
     if (_arcore->isRunning())
     {
         isTracking = _arcore->update(arCorePose);
@@ -429,7 +408,6 @@ bool AreaTrackingView::updateGPSWAISlamARCore(SENSFramePtr& frame)
     }
     else if (_camera)
     {
-        _gui.showInfoText("arcore not running");
         frame = _camera->latestFrame();
         //the intrinsics may change dynamically on focus changes (e.g. on iOS)
         if (frame && !frame->intrinsics.empty())
@@ -441,7 +419,6 @@ bool AreaTrackingView::updateGPSWAISlamARCore(SENSFramePtr& frame)
     }
     else
     {
-        _gui.showInfoText("arcore not running");
         return false;
     }
 
@@ -468,14 +445,10 @@ bool AreaTrackingView::updateGPSWAISlamARCore(SENSFramePtr& frame)
                     _transitionMatrix.invert();
                     _transitionMatrix    = convertWAISlamToSLMat(_waiSlam->getPose()) * _transitionMatrix;
                     _hasTransitionMatrix = true;
-                    _gui.showInfoText("WAISlam -> ARCore");
                 }
             }
             else
-            {
                 _frameCounter = 0;
-                _gui.showInfoText("WAISlam is not tracking");
-            }
         }
         else if (GlobalTimer::timeS() - _initTime > 10.0 && isTracking)
         {
@@ -484,40 +457,23 @@ bool AreaTrackingView::updateGPSWAISlamARCore(SENSFramePtr& frame)
             _transitionMatrix    = gpsPose * _transitionMatrix;
             _hasTransitionMatrix = true;
         }
-        else
-        {
-            if (isTracking)
-                _gui.showInfoText("no transition matrix yet, arcore is tracking");
-            else
-                _gui.showInfoText("no transition matrix yet, arcore is not tracking");
-        }
     }
     else if (_arcore->isRunning() && isTracking)
     {
-        _gui.showInfoText("ARCore tracking");
         SLMat4f arPose  = convertARCoreToSLMat(arCorePose);
         SLMat4f camPose = _transitionMatrix * arPose;
         applyFingerCorrection(camPose);
         _waiScene.camera->om(camPose);
     }
-    else
-    {
-        _gui.showInfoText("GPS + sensors tracking");
-    }
+    return _hasTransitionMatrix;
     //else {} TODO: if waiSlam was working, try to reloc with waislam after some time
-    return isTracking;
 }
 
+//Only to be used if waislam is enought fast (like arcore)
 bool AreaTrackingView::updateGPSWAISlam(SENSFramePtr& frame)
 {
-    bool    isTracking = false;
-    cv::Mat arCorePose;
-    if (_arcore->isRunning())
-    {
-        isTracking = _arcore->update(arCorePose);
-        frame      = _arcore->latestFrame();
-    }
-    else if (_camera)
+    bool isTracking = false;
+    if (_camera)
         frame = _camera->latestFrame();
     else
         return false;
@@ -536,14 +492,9 @@ bool AreaTrackingView::updateGPSWAISlam(SENSFramePtr& frame)
             isTracking = (_waiSlam->getTrackingState() == WAI::TrackingState_TrackingOK);
             updateTrackingVisualization(isTracking, *frame.get());
         }
-        else
-        {
-            _gui.showInfoText("waislam not initialized");
-        }
 
         if (isTracking)
         {
-            _gui.showInfoText("waislam");
             _waiScene.updateCameraPose(_waiSlam->getPose());
         }
     }
@@ -551,7 +502,6 @@ bool AreaTrackingView::updateGPSWAISlam(SENSFramePtr& frame)
     //fallback to gps and orientation sensor
     if (!isTracking && _orientation)
     {
-        _gui.showInfoText("no tracking -> gps");
         //use gps and orientation sensor for camera position and orientation
         //(even if there is no gps, devLoc gives us a guess of the current home position)
         SLMat4f gpsPose = calcCameraPoseGpsOrientationBased();
@@ -562,23 +512,14 @@ bool AreaTrackingView::updateGPSWAISlam(SENSFramePtr& frame)
         //cv::Mat camExtrinsic = convertCameraPoseToWaiCamExtrinisc(gpsPose);
         //_waiSlam->setCamExrinsicGuess(camExtrinsic);
     }
-
     return isTracking;
 }
 
 // For marker initialization without arcore
 bool AreaTrackingView::updateWAISlamGPS(SENSFramePtr& frame)
 {
-    bool isTracking = false;
-
     SLMat4f gpsPose = calcCameraPoseGpsOrientationBased();
-    cv::Mat arCorePose;
-    if (_arcore->isRunning())
-    {
-        isTracking = _arcore->update(arCorePose);
-        frame      = _arcore->latestFrame();
-    }
-    else if (_camera)
+    if (_camera)
         frame = _camera->latestFrame();
     else
         return false;
@@ -603,22 +544,17 @@ bool AreaTrackingView::updateWAISlamGPS(SENSFramePtr& frame)
             _transitionMatrix.invert();
             _transitionMatrix = pose * _transitionMatrix;
             _waiScene.camera->om(pose);
-            _gui.showInfoText("waislam tracking");
+            _hasTransitionMatrix = true;
         }
         else
         {
             _waiScene.camera->om(_transitionMatrix * gpsPose);
             //cv::Mat camExtrinsic = convertCameraPoseToWaiCamExtrinisc(gpsPose);
             //_waiSlam->setCamExrinsicGuess(camExtrinsic);
-            _gui.showInfoText("gps + sensors tracking");
         }
     }
-    else
-    {
-        _gui.showInfoText("waislam not initizalied");
-    }
 
-    return true;
+    return _hasTransitionMatrix;
 }
 
 bool AreaTrackingView::updateGPS(SENSFramePtr& frame)
@@ -652,9 +588,8 @@ bool AreaTrackingView::updateGPS(SENSFramePtr& frame)
 
     //SLMat4f gpsPoseCorr = _cameraFingerCorr.getCorrectionMat(focalLength) * gpsPose;
     _waiScene.camera->om(gpsPose);
-    _gui.showInfoText("GPS + Sensors positioning");
 
-    return false;
+    return true;
 }
 
 void AreaTrackingView::applyFingerCorrection(SLMat4f& camPose)
@@ -702,17 +637,21 @@ bool AreaTrackingView::update()
         if (_noInitException) //if there was not exception during initArea
         {
             SENSFramePtr frame = nullptr;
-
-            bool isTracking = false;
+            bool hasRelocalized;
             if (_config.useWAISlam && _config.useARCore && _arcore->isAvailable())
-                //isTracking = updateGPSWAISlamARCore(frame);
-                isTracking = updateWAISlamGPSARCore(frame);
+                hasRelocalized = updateWAISlamGPSARCore(frame);
             else if (_config.useARCore && _arcore->isAvailable())
-                isTracking = updateGPSARCore(frame);
+                hasRelocalized = updateGPSARCore(frame);
             else if (_config.useWAISlam)
-                isTracking = updateWAISlamGPS(frame); //isTracking = updateGPSWAISlam(frame);
+                hasRelocalized = updateWAISlamGPS(frame);
             else                                      //fall back to orientation sensor and gps if available
-                isTracking = updateGPS(frame);
+                hasRelocalized = updateGPS(frame);
+
+            //
+                //isTracking = updateGPSWAISlamARCore(frame);
+            //If WAISlam is enought fast for tracking only
+                //isTracking = updateGPSWAISlam(frame);
+
 
             //float lights[3];
             //_arcore->lightComponentIntensity(lights);
@@ -741,7 +680,7 @@ bool AreaTrackingView::update()
 
             //switch between userguidance scene and tracking scene depending on tracking state
             VideoBackgroundCamera* currentCamera;
-            if (isTracking || !_config.enableUserGuidance)
+            if (hasRelocalized || !_config.enableUserGuidance)
             {
                 if (this->s() != &_waiScene)
                 {
@@ -771,14 +710,13 @@ bool AreaTrackingView::update()
                 updateVideoImage(*frame.get(), currentCamera);
             }
 
-            /*
             //update user guidance
             if (_config.enableUserGuidance)
             {
-                _userGuidance.updateTrackingState(isTracking);
+                //Utils::log("AAAAAAAA", "update tracking state   %d", hasRelocalized);
                 _userGuidance.updateSensorEstimations();
+                _userGuidance.updateTrackingState(hasRelocalized);
             }
-             */
         }
     }
     catch (std::exception& e)

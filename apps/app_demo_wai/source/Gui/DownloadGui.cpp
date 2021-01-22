@@ -205,7 +205,7 @@ void DownloadGui::build(SLScene* s, SLSceneView* sv)
         //general
         ImGui::PushFont(_resources.fonts().heading);
         ImGui::PushStyleColor(ImGuiCol_Text, _resources.style().textHeadingColor);
-        std::string str = std::string(_resources.strings().download1()) + std::to_string(downloader->filesize()/1000000) + " Mo" + std::string(_resources.strings().download2());
+        std::string str = std::string(_resources.strings().download1()) + std::to_string(downloader->filesize()/1000000) + " MB" + std::string(_resources.strings().download2());
         ImGui::Text(str.c_str(), _textWrapW);
         ImGui::PopStyleColor();
         ImGui::PopFont();
