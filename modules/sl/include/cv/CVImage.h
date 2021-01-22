@@ -38,6 +38,7 @@ enum CVPixFormat
     PF_rgba            = 0x1908, // ES2 ES3 GL2 GL3 GL4
     PF_bgr             = 0x80E0, //         GL2 GL3 GL4
     PF_bgra            = 0x80E1, //         GL2 GL3 GL4
+    PF_hdr,
     PF_rg_integer      = 0x8228, //     ES3         GL4
     PF_red_integer     = 0x8D94, //     ES3         GL4
     PF_rgb_integer     = 0x8D98, //     ES3         GL4

@@ -195,7 +195,10 @@ void LocationMapGui::build(SLScene* s, SLSceneView* sv)
                                          _resources.style().areaPoseButtonShapeColorPressed,
                                          true))
             {
-                sendEvent(new AreaSelectedEvent("LocationMapGui", _loc.id, it.first));
+                if(Utils::fileExists(_erlebARDir + "models/" + _loc.dirName + "/unzip_complete.txt"))
+                    sendEvent(new AreaSelectedEvent("LocationMapGui", _loc.id, it.first, true));
+                else
+                    sendEvent(new AreaSelectedEvent("LocationMapGui", _loc.id, it.first, false));
             }
 
             //draw current gps position

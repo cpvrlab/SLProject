@@ -20,6 +20,7 @@
 #include <AsyncWorker.h>
 #include <scenes/UserGuidanceScene.h>
 #include <UserGuidance.h>
+#include <CompassAlignment.h>
 
 #include <SLLightSpot.h>
 #include <SLArrow.h>
@@ -31,8 +32,6 @@
 #include <SLDeviceRotation.h>
 #include <WAIImageStabilizedOrientation.h>
 #include <SLDeviceRotation.h>
-
-#include <WAICompassAlignment.h>
 
 class SENSCamera;
 class MapLoader;
@@ -244,7 +243,7 @@ private:
     SLMat4f calcCameraPoseOrientationBased(const SENSOrientation::Quat& sensQuat);
     cv::Mat convertCameraPoseToWaiCamExtrinisc(SLMat4f& wTc);
     void    applyFingerCorrection(SLMat4f& camPose);
-    void    applyTemplateCorrection(SLMat4f& camPose, const cv::Mat& frameGray);
+    void    applyTemplateCorrection(SLMat4f& camPose, SENSFramePtr& frame);
 
     AreaTrackingGui   _gui;
     AppWAIScene       _waiScene;
@@ -301,8 +300,7 @@ private:
     //indicates if intArea finished successfully
     bool _noInitException = false;
 
-    CameraPoseFingerCorrection    _cameraFingerCorr;
-    //WAICompassAlignment        _compassAlignment;
+    CameraPoseFingerCorrection _cameraFingerCorr;
 };
 
 //! Async loader for vocabulary and maps

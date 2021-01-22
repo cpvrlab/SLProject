@@ -55,14 +55,6 @@ AreaTrackingView::AreaTrackingView(sm::EventHandler&  eventHandler,
     _devRot.numAveraged(1);
     _devRot.updateRPY(false);
     _devRot.zeroYawAtStart(false);
-    /*
-    // TODO(dgj1): associate templates with areas
-    cv::Mat templateTest          = cv::imread(deviceData.erlebARDir() + "templates/template_milchgaessli.png", cv::IMREAD_GRAYSCALE);
-    double    templateTestLatitude  = 46.94790;
-    double    templateTestLongitude = 7.44078;
-    double    templateTestAltitude  = 542.3;
-    _compassAlignment.setTemplate(templateTest, templateTestLatitude, templateTestLongitude, templateTestAltitude);
-    */
 }
 
 AreaTrackingView::~AreaTrackingView()
@@ -108,7 +100,7 @@ void AreaTrackingView::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaI
         //init arcore
         if (_arcore && _config.useARCore && _arcore->isAvailable())
         {
-            if(_config.useWAISlam)
+            if (_config.useWAISlam)
                 _arcore->init(TARGET_WIDTH, TARGET_HEIGHT, TARGET_WIDTH, TARGET_HEIGHT, true);
             else
                 _arcore->init(TARGET_WIDTH, TARGET_HEIGHT, -1, -1, false);
@@ -196,7 +188,6 @@ SLMat4f convertARCoreToSLMat(const cv::Mat& wTc)
     return m;
     */
 
-
     SLMat4f m;
     // clang-format off
     m.setMatrix(wTc.at<float>(0, 0), wTc.at<float>(0, 1), wTc.at<float>(0, 2), wTc.at<float>(0, 3),
@@ -253,7 +244,7 @@ SLMat4f transformAverage(SLMat4f m1, SLMat4f m2)
 
 bool AreaTrackingView::updateGPSARCore(SENSFramePtr& frame)
 {
-    bool    isTracking = false;
+    bool isTracking = false;
 
     SLMat4f gpsPose = calcCameraPoseGpsOrientationBased();
     cv::Mat arCorePose;
@@ -261,8 +252,8 @@ bool AreaTrackingView::updateGPSARCore(SENSFramePtr& frame)
     if (_arcore->isRunning())
     {
         isTracking = _arcore->update(arCorePose);
-        frame = _arcore->latestFrame();
-        if(frame && !frame->intrinsics.empty())
+        frame      = _arcore->latestFrame();
+        if (frame && !frame->intrinsics.empty())
         {
             updateSceneCameraFov(_arcore->calibration());
         }
@@ -309,17 +300,17 @@ bool AreaTrackingView::updateGPSARCore(SENSFramePtr& frame)
 //Marker for pose and yaw
 bool AreaTrackingView::updateWAISlamGPSARCore(SENSFramePtr& frame)
 {
-    bool    isTracking = false;
+    bool isTracking = false;
 
     SLMat4f gpsPose = calcCameraPoseGpsOrientationBased();
     cv::Mat arCorePose;
     if (_arcore->isRunning())
     {
         isTracking = _arcore->update(arCorePose);
-        frame = _arcore->latestFrame();
+        frame      = _arcore->latestFrame();
         if (frame && !frame->intrinsics.empty())
         {
-            if(_waiSlam)
+            if (_waiSlam)
                 _waiSlam->changeIntrinsic(_arcore->calibrationManip()->cameraMat(), _arcore->calibration()->distortion());
             updateSceneCameraFov(_arcore->calibration());
         }
@@ -421,17 +412,17 @@ bool AreaTrackingView::updateWAISlamGPSARCore(SENSFramePtr& frame)
 
 bool AreaTrackingView::updateGPSWAISlamARCore(SENSFramePtr& frame)
 {
-    bool    isTracking = false;
+    bool isTracking = false;
 
     SLMat4f gpsPose = calcCameraPoseGpsOrientationBased();
     cv::Mat arCorePose;
     if (_arcore->isRunning())
     {
         isTracking = _arcore->update(arCorePose);
-        frame = _arcore->latestFrame();
+        frame      = _arcore->latestFrame();
         if (frame && !frame->intrinsics.empty())
         {
-            if(_waiSlam)
+            if (_waiSlam)
                 _waiSlam->changeIntrinsic(_arcore->calibrationManip()->cameraMat(), _arcore->calibration()->distortion());
             updateSceneCameraFov(_arcore->calibration());
         }
@@ -443,7 +434,7 @@ bool AreaTrackingView::updateGPSWAISlamARCore(SENSFramePtr& frame)
         //the intrinsics may change dynamically on focus changes (e.g. on iOS)
         if (frame && !frame->intrinsics.empty())
         {
-            if(_waiSlam)
+            if (_waiSlam)
                 _waiSlam->changeIntrinsic(_camera->scaledCameraMat(), _camera->calibration()->distortion());
             updateSceneCameraFov(_camera->calibration());
         }
@@ -519,12 +510,12 @@ bool AreaTrackingView::updateGPSWAISlamARCore(SENSFramePtr& frame)
 
 bool AreaTrackingView::updateGPSWAISlam(SENSFramePtr& frame)
 {
-    bool isTracking = false;
+    bool    isTracking = false;
     cv::Mat arCorePose;
     if (_arcore->isRunning())
     {
         isTracking = _arcore->update(arCorePose);
-        frame = _arcore->latestFrame();
+        frame      = _arcore->latestFrame();
     }
     else if (_camera)
         frame = _camera->latestFrame();
@@ -578,14 +569,14 @@ bool AreaTrackingView::updateGPSWAISlam(SENSFramePtr& frame)
 // For marker initialization without arcore
 bool AreaTrackingView::updateWAISlamGPS(SENSFramePtr& frame)
 {
-    bool    isTracking = false;
+    bool isTracking = false;
 
     SLMat4f gpsPose = calcCameraPoseGpsOrientationBased();
     cv::Mat arCorePose;
     if (_arcore->isRunning())
     {
         isTracking = _arcore->update(arCorePose);
-        frame = _arcore->latestFrame();
+        frame      = _arcore->latestFrame();
     }
     else if (_camera)
         frame = _camera->latestFrame();
@@ -642,7 +633,20 @@ bool AreaTrackingView::updateGPS(SENSFramePtr& frame)
 #if 0
     if (frame)
     {
-        applyTemplateCorrection(gpsPose, frame->imgManip);
+#    if 0
+        cv::Mat imTest   = cv::imread(_deviceData.erlebARDir() + "templates/test_image_milchgaessli_2.png");
+        cv::Mat manipImg = imTest;
+        cv::cvtColor(manipImg, manipImg, cv::COLOR_BGR2GRAY);
+        frame = std::make_unique<SENSFrame>(frame->timePt,
+                                            imTest,
+                                            manipImg,
+                                            false,
+                                            false,
+                                            1,
+                                            frame->intrinsics);
+#    endif
+
+        applyTemplateCorrection(gpsPose, frame);
     }
 #endif
 
@@ -665,65 +669,30 @@ void AreaTrackingView::applyFingerCorrection(SLMat4f& camPose)
     camPose = rot * camPose;
 }
 
-void AreaTrackingView::applyTemplateCorrection(SLMat4f&       camPose,
-                                               const cv::Mat& frameGray)
+void AreaTrackingView::applyTemplateCorrection(SLMat4f&      camPose,
+                                               SENSFramePtr& frame)
 {
-    //SENSGps::Location loc           = _gps->getLocation();
-    SLVec3f   loc           = camPose.translation();
-    SLVec3f   camForward    = camPose.axisZ();
-    cv::Point vecCurForward = cv::Point(camForward.x, camForward.y);
+    CompassAlignment::Template tpl = CompassAlignment::createTemplate(_deviceData.erlebARDir() + "templates/template_milchgaessli.png",
+                                                                      46.94790,
+                                                                      7.44078,
+                                                                      542.3);
 
-    cv::Mat templateTest          = cv::imread(_deviceData.erlebARDir() + "templates/template_milchgaessli.png", cv::IMREAD_GRAYSCALE);
-    double  templateTestLatitude  = 46.94790;
-    double  templateTestLongitude = 7.44078;
-    double  templateTestAltitude  = 542.3;
-
-    SLVec3d latDegLonDegAltM = SLVec3d(templateTestLatitude, templateTestLongitude, templateTestAltitude);
-    SLVec3d tplLocEcef;
-    tplLocEcef.latlonAlt2ecef(latDegLonDegAltM);
-    SLVec3d enuTtpl = _devLoc.wRecef() * tplLocEcef;
-    enuTtpl.z       = 0.0f;
-    enuTtpl.normalize();
-
-    //_compassAlignment.setTemplate(templateTest, tplLocEnu.x, tplLocEnu.y, tplLocEnu.z);
-
-    //cv::Mat resultImage;
-    //_compassAlignment.update(frameGray, resultImage, this->camera()->fovH(), loc.x, loc.y, loc.z, vecCurForward);
-    //float rotAngDEG = _compassAlignment.getRotAngleDEG();
-
-    cv::Mat resultImage;
-    cv::matchTemplate(frameGray, templateTest, resultImage, cv::TM_CCOEFF_NORMED);
-
-    double    minVal, maxVal;
-    cv::Point minLoc, maxLoc;
-    cv::minMaxLoc(resultImage, &minVal, &maxVal, &minLoc, &maxLoc);
-
-    std::cout << "maxLoc: " << maxLoc << std::endl;
-
-    cv::Point imCenter       = cv::Point(frameGray.cols * 0.5f, frameGray.rows * 0.5f);
-    cv::Point tplCenter      = cv::Point(templateTest.cols * 0.5f, templateTest.rows * 0.5f);
-    cv::Point tplMatchCenter = maxLoc + tplCenter;
-
-    SLVec4f cTmatchCenter    = SLVec4f(tplMatchCenter.x, tplMatchCenter.y, 1.0f, 1.0f);
-    SLVec4f enuTmatchCenterH = camPose * cTmatchCenter;
-    SLVec3f enuTmatchCenter  = SLVec3f(enuTmatchCenterH.x / enuTmatchCenterH.w, enuTmatchCenterH.y / enuTmatchCenterH.w, enuTmatchCenterH.z / enuTmatchCenterH.w);
-    SLVec3f enuTmatch        = enuTmatchCenter - loc;
-    enuTmatch.z              = 0.0f;
-    enuTmatch.normalize();
-
-    SLVec3d enuTmatchD = SLVec3d(enuTmatch.x, enuTmatch.y, enuTmatch.z);
-
-    float rotAngRAD = enuTmatchD.dot(enuTtpl);
-    float rotAngDEG = Utils::RAD2DEG * rotAngRAD;
-
-    std::cout << "rotAngDEG: " << rotAngDEG << std::endl;
+    float rotAngRAD = CompassAlignment::calculateRotAngle(_devLoc,
+                                                          *_camera->calibrationManip(),
+                                                          tpl,
+                                                          camPose,
+                                                          frame);
 
     SLMat4f rot;
     rot.translate(camPose.translation());
-    rot.rotate(rotAngDEG, SLVec3f(0, 1, 0));
+    rot.rotate(rotAngRAD * Utils::RAD2DEG, SLVec3f(0, 1, 0));
     rot.translate(-camPose.translation()); //this is multiplied first
 
     camPose = rot * camPose;
+
+    SLVec2f pTtpl = CompassAlignment::calculateExpectedTemplatePixelLocation(_devLoc, *_camera->calibrationManip(), tpl.latDegLonDegAltM, camPose);
+    std::cout << "pTtpl': " << pTtpl << std::endl;
+    std::cout << "--------------------" << std::endl;
 }
 
 bool AreaTrackingView::update()
@@ -790,7 +759,7 @@ bool AreaTrackingView::update()
                 }
                 currentCamera = _userGuidanceScene.camera;
             }
-            
+
             //update visualization
             if (frame)
             {
@@ -802,7 +771,6 @@ bool AreaTrackingView::update()
                 updateVideoImage(*frame.get(), currentCamera);
             }
 
-
             /*
             //update user guidance
             if (_config.enableUserGuidance)
@@ -811,7 +779,6 @@ bool AreaTrackingView::update()
                 _userGuidance.updateSensorEstimations();
             }
              */
-
         }
     }
     catch (std::exception& e)
@@ -928,7 +895,22 @@ SLMat4f AreaTrackingView::calcCameraPoseGpsOrientationBased()
 
     auto     sensQuat = _orientation->getOrientation();
     SLQuat4f slQuat(sensQuat.quatX, sensQuat.quatY, sensQuat.quatZ, sensQuat.quatW);
-    SLMat3f  rotMat = slQuat.toMat3();
+#if 1
+    SLMat3f rotMat = slQuat.toMat3();
+#else
+    // TODO(dgj1): This is for testing with a static gps location... remove once compass alignment works
+    static float rotOffset = 0.0f;
+    SLMat3f      rot1;
+    rot1.rotation(34.3f + 17.6f + rotOffset, 0, 0, 1);
+    SLMat3f rot2;
+    rot2.rotation(-90, 0, 1, 0);
+    SLMat3f rotMat = rot1 * rot2;
+
+    std::cout << "rotOffset: " << rotOffset << std::endl;
+
+    rotOffset += 1.0f;
+    if (rotOffset > 10.0f) rotOffset = -10.0f;
+#endif
 
     SLMat4f camPose;
     {

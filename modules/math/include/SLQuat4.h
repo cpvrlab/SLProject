@@ -391,17 +391,17 @@ void SLQuat4<T>::toEulerAnglesZYX(T& zRotRAD, T& yRotRAD, T& xRotRAD) const
 {
     double sinz = +2.0 * (_w * _z + _x * _y);
     double cosz = +1.0 - 2.0 * (_y *_y + _z *_z);
-    zRotRAD = atan2(sinz, cosz);
+    zRotRAD = (T)atan2(sinz, cosz);
 
     double siny = +2.0 * (_w *_y - _z *_x);
     if (fabs(siny) >= 1)
-        yRotRAD = copysign(PI / 2, siny); // use 90 degrees if out of range
+        yRotRAD = (T)copysign(PI / 2, siny); // use 90 degrees if out of range
     else
-        yRotRAD = asin(siny);
+        yRotRAD = (T)asin(siny);
 
     double sinx = +2.0 * (_w * _x + _y * _z);
     double cosx = +1.0 - 2.0 * (_x * _x + _y * _y);
-    xRotRAD = atan2(sinx, cosx);
+    xRotRAD = (T)atan2(sinx, cosx);
 }
 //-----------------------------------------------------------------------------
 template <typename T>

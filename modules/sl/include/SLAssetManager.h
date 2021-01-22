@@ -72,7 +72,7 @@ public:
     }
 
     //! Returns the pointer to shader program if found by name
-    SLGLProgram*  getProgramByName (const string& programName)
+    SLGLProgram* getProgramByName(const string& programName)
     {
         for (auto sp : _programs)
             if (sp->name() == programName)

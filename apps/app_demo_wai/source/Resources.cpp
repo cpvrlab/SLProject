@@ -163,6 +163,13 @@ void Strings::load(std::string fileName)
             loadString(fs, "develMode", _develMode);
             //errors
             loadString(fs, "cameraStartError", _cameraStartError);
+            //download
+            loadString(fs, "downloadManager", _download);
+            loadString(fs, "downloadInfoSize1", _downloadInfoSize1);
+            loadString(fs, "downloadInfoSize2", _downloadInfoSize2);
+            loadString(fs, "downloadSkipButton", _downloadSkipButton);
+            loadString(fs, "downloadButton", _downloadButton);
+
             //info text
             //bern:
             loadString(fs, "bernInfoHeading1", _bernInfoHeading1);
@@ -186,6 +193,11 @@ void Strings::load(std::string fileName)
             loadString(fs, "avenchesTheaterHeading1", _avenchesTheaterInfoHeading1);
             loadString(fs, "avenchesTheaterText1", _avenchesTheaterInfoText1);
             loadString(fs, "avenchesTheaterText2", _avenchesTheaterInfoText2);
+
+            //About:
+            loadString(fs, "aboutProject", _aboutProject);
+            loadString(fs, "aboutCredits", _aboutCredits);
+            loadString(fs, "aboutBFH", _aboutBFH);
         }
     }
     else

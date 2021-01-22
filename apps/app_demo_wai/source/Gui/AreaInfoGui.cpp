@@ -49,8 +49,9 @@ void AreaInfoGui::resize(int scrW, int scrH)
     _itemSpacingContent      = _resources.style().itemSpacingContent * _screenH;
 }
 
-void AreaInfoGui::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaId)
+void AreaInfoGui::initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaId, bool hasData)
 {
+    _hasData              = hasData;
     _locationId           = locId;
     const auto& locations = _config.locations();
     auto        locIt     = locations.find(locId);
@@ -148,9 +149,16 @@ void AreaInfoGui::build(SLScene* s, SLSceneView* sv)
 
     ImGui::SetCursorPosX(buttonPadding);
     ImGui::SetCursorPosY(_contentH - buttonH - buttonPadding);
+ 
+    const auto& locations = _config.locations();
+    auto        locIt     = locations.find(_locationId);
+
     if (ImGui::Button("Start##AreaInfoGuiStartButton", ImVec2(buttonW, buttonH)))
     {
-        sendEvent(new DoneEvent("AreaInfoGui"));
+        if (_hasData)
+            sendEvent(new DoneEvent("AreaInfoGui"));
+        else
+            sendEvent(new StartDownloadEvent("AreaInfoGui", _locationId));
     }
 
     ImGui::End();

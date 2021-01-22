@@ -19,7 +19,7 @@ public:
     //call when view becomes visible
     void show() { _gui.onShow(); }
 
-    void initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaId);
+    void initArea(ErlebAR::LocationId locId, ErlebAR::AreaId areaId, bool hasData);
 
 private:
     AreaInfoGui _gui;

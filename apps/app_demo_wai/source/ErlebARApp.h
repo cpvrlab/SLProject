@@ -12,6 +12,7 @@
 #include <SENSARCore.h>
 #include <Resources.h>
 #include <ErlebAREvents.h>
+#include <AsyncWorker.h>
 
 class InitEventData;
 class SelectionView;
@@ -21,6 +22,7 @@ class StartUpView;
 class WelcomeView;
 class SettingsView;
 class AboutView;
+class DownloadView;
 class TutorialView;
 class LocationMapView;
 class AreaInfoView;
@@ -79,6 +81,7 @@ private:
 
     void TUTORIAL(const sm::NoEventData* data, const bool stateEntry, const bool stateExit);
     void ABOUT(const sm::NoEventData* data, const bool stateEntry, const bool stateExit);
+    void DOWNLOAD(const DownloadEventData* data, const bool stateEntry, const bool stateExit);
     void SETTINGS(const sm::NoEventData* data, const bool stateEntry, const bool stateExit);
     void CAMERA_TEST(const sm::NoEventData* data, const bool stateEntry, const bool stateExit);
     void SENSOR_TEST(const sm::NoEventData* data, const bool stateEntry, const bool stateExit);
@@ -95,6 +98,7 @@ private:
     StartUpView*                _startUpView      = nullptr;
     WelcomeView*                _welcomeView      = nullptr;
     AboutView*                  _aboutView        = nullptr;
+    DownloadView*               _downloadView     = nullptr;
     SettingsView*               _settingsView     = nullptr;
     TutorialView*               _tutorialView     = nullptr;
     LocationMapView*            _locationMapView  = nullptr;
@@ -102,6 +106,8 @@ private:
     AreaTrackingView*           _areaTrackingView = nullptr;
     CameraTestView*             _cameraTestView   = nullptr;
     SensorTestView*             _sensorTestView   = nullptr;
+
+    std::map<std::string, AsyncWorker*> _asyncWorkers;
 
     CloseAppCallback _closeCB = nullptr;
 

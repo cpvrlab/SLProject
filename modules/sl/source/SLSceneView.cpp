@@ -779,6 +779,8 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
         _camera->setProjection(this, ET_right);
         _camera->setView(this, ET_right);
         stateGL->depthTest(true);
+        if (_skybox)
+            _skybox->drawAroundCamera(this);
         draw3DGLAll();
     }
 
@@ -1673,6 +1675,10 @@ SLbool SLSceneView::onKeyPress(SLKey key, SLKey mod)
 
     if (key=='R') {startRaytracing(5);}
     if (key=='P') {startPathtracing(5, 10);}
+#ifdef SL_HAS_OPTIX
+    if (key=='R' && mod==K_shift) {startOptixRaytracing(5);}
+    if (key=='P' && mod==K_shift) {startOptixPathtracing(5, 100);}
+#endif
 
     if (key=='M') {drawBits()->toggle(SL_DB_MESHWIRED); return true;}
     if (key=='H') {drawBits()->toggle(SL_DB_WITHEDGES); return true;}
@@ -1712,6 +1718,10 @@ SLbool SLSceneView::onKeyPress(SLKey key, SLKey mod)
 
         if(_renderType == RT_rt) _stopRT = true;
         if(_renderType == RT_pt) _stopPT = true;
+#ifdef SL_HAS_OPTIX
+        if(_renderType == RT_optix_rt) _stopOptixRT = true;
+        if(_renderType == RT_optix_pt) _stopOptixPT = true;
+#endif
         return true;
     }
     // clang-format on
@@ -1947,7 +1957,7 @@ void SLSceneView::startOptixRaytracing(SLint maxDepth)
     _renderType  = RT_optix_rt;
     _stopOptixRT = false;
     _optixRaytracer.maxDepth(maxDepth);
-    _optixRaytracer.setupScene(this);
+    _optixRaytracer.setupScene(this, s()->assetManager());
 }
 //-----------------------------------------------------------------------------
 SLbool SLSceneView::draw3DOptixRT()
@@ -1986,7 +1996,7 @@ void SLSceneView::startOptixPathtracing(SLint maxDepth, SLint samples)
     _stopOptixPT = false;
     _optixPathtracer.maxDepth(maxDepth);
     _optixPathtracer.samples(samples);
-    _optixPathtracer.setupScene(this);
+    _optixPathtracer.setupScene(this, s()->assetManager());
 }
 //-----------------------------------------------------------------------------
 SLbool SLSceneView::draw3DOptixPT()

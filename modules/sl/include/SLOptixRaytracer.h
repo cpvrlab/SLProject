@@ -35,7 +35,7 @@ public:
 
     // setup raytracer
     virtual void setupOptix();
-    virtual void setupScene(SLSceneView* sv);
+    virtual void setupScene(SLSceneView* sv, SLAssetManager* am);
     virtual void updateScene(SLSceneView* sv);
 
     void prepareImage() override;

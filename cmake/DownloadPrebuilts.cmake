@@ -324,11 +324,11 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #-----------------------------
 
     #######################
     # OpenSSL for windows #
-    ######################
+    #######################
 
     set(openssl_VERSION "1.1.1h")
     set(openssl_PREBUILT_DIR "win64_openssl")
-    set(openssl_DIR ${PREBUILT_PATH}/win64_openssl)
+    set(openssl_DIR ${PREBUILT_PATH}/win64_openssl_${openssl_VERSION})
     set(openssl_INCLUDE_DIR ${openssl_DIR}/include)
     set(openssl_LINK_DIR ${openssl_DIR}/lib)
     set(openssl_LIBS ssl crypto)
@@ -356,7 +356,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #-----------------------------
     # Vulkan for Windows #
     ######################
 
-    set(vk_VERSION "1.2.131.2")
+    set(vk_VERSION "1.2.162.1")
     set(vk_DIR ${PREBUILT_PATH}/win64_vulkan_${vk_VERSION})
     set(vk_PREBUILT_ZIP "win64_vulkan_${vk_VERSION}.zip")
     set(vk_URL ${PREBUILT_URL}/${vk_PREBUILT_ZIP})
@@ -450,9 +450,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN" AND
     endif()
 
     if (NOT EXISTS "${OpenCV_DIR}")
-        message(STATUS "OpenCV_DIR: ${OpenCV_DIR}")
-        message(STATUS "Download from: ${PREBUILT_URL}/${OpenCV_PREBUILT_ZIP}")
-        message(STATUS "Download to: ${PREBUILT_PATH}/${OpenCV_PREBUILT_ZIP}")
+        message(STATUS "Downloading: ${OpenCV_PREBUILT_ZIP}")
         file(DOWNLOAD "${PREBUILT_URL}/${OpenCV_PREBUILT_ZIP}" "${PREBUILT_PATH}/${OpenCV_PREBUILT_ZIP}")
         execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
             "${PREBUILT_PATH}/${OpenCV_PREBUILT_ZIP}"
@@ -514,6 +512,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN" AND
 	set(g2o_LINK_DIR ${g2o_DIR}) 
 
     if (NOT EXISTS "${g2o_DIR}")
+        message(STATUS "Downloading: ${g2o_PREBUILT_ZIP}")
         file(DOWNLOAD "${PREBUILT_URL}/${g2o_PREBUILT_ZIP}" "${PREBUILT_PATH}/${g2o_PREBUILT_ZIP}")
         execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
             "${PREBUILT_PATH}/${g2o_PREBUILT_ZIP}"
@@ -521,7 +520,6 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN" AND
         file(REMOVE "${PREBUILT_PATH}/${g2o_PREBUILT_ZIP}")
     endif ()
 
-	#message(STATUS "g2o_LINK_DIR: ${g2o_LINK_DIR}")
     foreach(lib ${g2o_LINK_LIBS})
         add_library(lib${lib} SHARED IMPORTED)
         set_target_properties(lib${lib} 
@@ -564,6 +562,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN" AND
     set(assimp_PREBUILT_ZIP "${assimp_PREBUILT_DIR}.zip")
 
     if (NOT EXISTS "${assimp_DIR}")
+        message(STATUS "Downloading: ${assimp_PREBUILT_ZIP}")
         file(DOWNLOAD "${PREBUILT_URL}/${assimp_PREBUILT_ZIP}" "${PREBUILT_PATH}/${assimp_PREBUILT_ZIP}")
         execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
                 "${PREBUILT_PATH}/${assimp_PREBUILT_ZIP}"
@@ -610,13 +609,16 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN" AND
     # Vulkan for MacOS-x86_64 #
     ###########################
 
-    set(vk_VERSION "1.2.135.0")
-	set(vk_VERSIONLIBNAME "1.2.135")
+    #set(vk_VERSION "1.2.135.0")
+    #set(vk_VERSIONLIBNAME "1.2.135")
+    set(vk_VERSION "1.2.162.1")
+    set(vk_VERSIONLIBNAME "1.2.162")
     set(vk_DIR ${PREBUILT_PATH}/mac64_vulkan_${vk_VERSION})
     set(vk_PREBUILT_ZIP "mac64_vulkan_${vk_VERSION}.zip")
     set(vk_URL ${PREBUILT_URL}/${vk_PREBUILT_ZIP})
 
     if (NOT EXISTS "${vk_DIR}")
+        message(STATUS "Downloading: ${vk_PREBUILT_ZIP}")
         file(DOWNLOAD "${vk_URL}" "${PREBUILT_PATH}/${vk_PREBUILT_ZIP}")
         execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
                 "${PREBUILT_PATH}/${vk_PREBUILT_ZIP}"
@@ -665,6 +667,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN" AND
     set(glfw_URL ${PREBUILT_URL}/${glfw_PREBUILT_ZIP})
 
     if (NOT EXISTS "${glfw_DIR}")
+        message(STATUS "Downloading: ${glfw_PREBUILT_ZIP}")
         file(DOWNLOAD "${glfw_URL}" "${PREBUILT_PATH}/${glfw_PREBUILT_ZIP}")
         execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
                 "${PREBUILT_PATH}/${glfw_PREBUILT_ZIP}"
@@ -696,6 +699,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN" AND
     set(openssl_URL ${PREBUILT_URL}/${openssl_PREBUILT_ZIP})
 
     if (NOT EXISTS "${openssl_DIR}")
+        message(STATUS "Downloading: ${openssl_PREBUILT_ZIP}")
         file(DOWNLOAD "${openssl_URL}" "${PREBUILT_PATH}/${openssl_PREBUILT_ZIP}")
         execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
                 "${PREBUILT_PATH}/${openssl_PREBUILT_ZIP}"
@@ -746,9 +750,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN" AND
     endif()
 
     if (NOT EXISTS "${OpenCV_DIR}")
-        message(STATUS "OpenCV_DIR: ${OpenCV_DIR}")
-        message(STATUS "Download from: ${PREBUILT_URL}/${OpenCV_PREBUILT_ZIP}")
-        message(STATUS "Download to: ${PREBUILT_PATH}/${OpenCV_PREBUILT_ZIP}")
+        message(STATUS "Downloading: ${OpenCV_PREBUILT_ZIP}")
         file(DOWNLOAD "${PREBUILT_URL}/${OpenCV_PREBUILT_ZIP}" "${PREBUILT_PATH}/${OpenCV_PREBUILT_ZIP}")
         execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
                 "${PREBUILT_PATH}/${OpenCV_PREBUILT_ZIP}"
@@ -810,6 +812,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN" AND
     set(g2o_LINK_DIR ${g2o_DIR})
 
     if (NOT EXISTS "${g2o_DIR}")
+        message(STATUS "Downloading: ${g2o_PREBUILT_ZIP}")
         file(DOWNLOAD "${PREBUILT_URL}/${g2o_PREBUILT_ZIP}" "${PREBUILT_PATH}/${g2o_PREBUILT_ZIP}")
         execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
                 "${PREBUILT_PATH}/${g2o_PREBUILT_ZIP}"
@@ -817,7 +820,6 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN" AND
         file(REMOVE "${PREBUILT_PATH}/${g2o_PREBUILT_ZIP}")
     endif ()
 
-    #message(STATUS "g2o_LINK_DIR: ${g2o_LINK_DIR}")
     foreach(lib ${g2o_LINK_LIBS})
         add_library(lib${lib} SHARED IMPORTED)
         set_target_properties(lib${lib}
@@ -859,6 +861,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN" AND
     set(assimp_PREBUILT_ZIP "${assimp_PREBUILT_DIR}.zip")
 
     if (NOT EXISTS "${assimp_DIR}")
+        message(STATUS "Downloading: ${assimp_PREBUILT_ZIP}")
         file(DOWNLOAD "${PREBUILT_URL}/${assimp_PREBUILT_ZIP}" "${PREBUILT_PATH}/${assimp_PREBUILT_ZIP}")
         execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
                 "${PREBUILT_PATH}/${assimp_PREBUILT_ZIP}"
@@ -911,6 +914,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN" AND
     set(openssl_URL ${PREBUILT_URL}/${openssl_PREBUILT_ZIP})
 
     if (NOT EXISTS "${openssl_DIR}")
+        message(STATUS "Downloading: ${openssl_PREBUILT_ZIP}")
         file(DOWNLOAD "${openssl_URL}" "${PREBUILT_PATH}/${openssl_PREBUILT_ZIP}")
         execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
                 "${PREBUILT_PATH}/${openssl_PREBUILT_ZIP}"
@@ -948,6 +952,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN" AND
     set(glfw_URL ${PREBUILT_URL}/${glfw_PREBUILT_ZIP})
 
     if (NOT EXISTS "${glfw_DIR}")
+        message(STATUS "Downloading: ${glfw_PREBUILT_ZIP}")
         file(DOWNLOAD "${glfw_URL}" "${PREBUILT_PATH}/${glfw_PREBUILT_ZIP}")
         execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
                 "${PREBUILT_PATH}/${glfw_PREBUILT_ZIP}"
@@ -986,9 +991,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "IOS") #---------------------------------
     set(OpenCV_PREBUILT_ZIP "${OpenCV_PREBUILT_DIR}.zip")
 
     if (NOT EXISTS "${OpenCV_DIR}")
-        message(STATUS "OpenCV_DIR: ${OpenCV_DIR}")
-        message(STATUS "${PREBUILT_URL}/${OpenCV_PREBUILT_ZIP}")
-        message(STATUS "Download to: ${PREBUILT_PATH}/${OpenCV_PREBUILT_ZIP}")
+        message(STATUS "Downloading: ${OpenCV_PREBUILT_ZIP}")
         file(DOWNLOAD "${PREBUILT_URL}/${OpenCV_PREBUILT_ZIP}" "${PREBUILT_PATH}/${OpenCV_PREBUILT_ZIP}")
         execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
             "${PREBUILT_PATH}/${OpenCV_PREBUILT_ZIP}"
@@ -1047,9 +1050,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "IOS") #---------------------------------
     set(g2o_INCLUDE_DIR ${g2o_DIR}/include)
 
     if (NOT EXISTS "${g2o_DIR}")
-        message(STATUS "g2o_DIR: ${g2o_DIR}")
-        message(STATUS "${PREBUILT_URL}/${g2o_PREBUILT_ZIP}")
-        message(STATUS "Download to: ${PREBUILT_PATH}/${g2o_PREBUILT_ZIP}")
+        message(STATUS "Downloading: ${g2o_PREBUILT_ZIP}")
         file(DOWNLOAD "${PREBUILT_URL}/${g2o_PREBUILT_ZIP}" "${PREBUILT_PATH}/${g2o_PREBUILT_ZIP}")
         execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
                 "${PREBUILT_PATH}/${g2o_PREBUILT_ZIP}"
@@ -1085,6 +1086,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "IOS") #---------------------------------
     set(assimp_PREBUILT_ZIP "${assimp_PREBUILT_DIR}.zip")
 
     if (NOT EXISTS "${assimp_DIR}")
+        message(STATUS "Downloading: ${assimp_PREBUILT_ZIP}")
         file(DOWNLOAD "${PREBUILT_URL}/${assimp_PREBUILT_ZIP}" "${PREBUILT_PATH}/${assimp_PREBUILT_ZIP}")
         execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
                 "${PREBUILT_PATH}/${assimp_PREBUILT_ZIP}"
@@ -1120,6 +1122,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "IOS") #---------------------------------
     set(openssl_URL ${PREBUILT_URL}/${openssl_PREBUILT_ZIP})
 
     if (NOT EXISTS "${openssl_DIR}")
+        message(STATUS "Downloading: ${openssl_PREBUILT_ZIP}")
         file(DOWNLOAD "${openssl_URL}" "${PREBUILT_PATH}/${openssl_PREBUILT_ZIP}")
         execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
                 "${PREBUILT_PATH}/${openssl_PREBUILT_ZIP}"
@@ -1173,7 +1176,6 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID") #-----------------------------
         ${OpenCV_LINK_LIBS}
         cpufeatures
         IlmImf
-        #libjasper
         libpng
         libprotobuf
         libtiff
@@ -1184,15 +1186,26 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID") #-----------------------------
     if ("${OpenCV_VERSION}" MATCHES "^4\.[0-9]+\.[0-9]+$")
         set(OpenCV_LINK_LIBS
             ${OpenCV_LINK_LIBS}
-            ade
             ittnotify
             libjpeg-turbo
-            libopenjp2
             quirc)
+
+        # new link libraries for opencv 4.5
+        if ("${OpenCV_VERSION}" MATCHES "^4\.[5-9]+\.[0-9]+$")
+            set(OpenCV_LINK_LIBS
+                ${OpenCV_LINK_LIBS}
+                ade
+                libopenjp2)
+        else()
+            set(OpenCV_LINK_LIBS
+                ${OpenCV_LINK_LIBS}
+                libjasper)
+        endif()
     else()
         set(OpenCV_LINK_LIBS
             ${OpenCV_LINK_LIBS}
-            libjpeg)
+            libjpeg
+            libjasper)
     endif()
 
     foreach(lib ${OpenCV_LINK_LIBS})

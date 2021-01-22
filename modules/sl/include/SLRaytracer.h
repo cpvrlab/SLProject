@@ -110,21 +110,21 @@ public:
     }
 
     // Getters
-    SLRTState state() const { return _state; }
-    SLint     maxDepth() const { return _maxDepth; }
-    SLbool    doDistributed() const { return _doDistributed; }
-    SLbool    doContinuous() const { return _doContinuous; }
-    SLbool    doFresnel() const { return _doFresnel; }
-    SLint     aaSamples() const { return _aaSamples; }
-    SLuint    numThreads() const { return Utils::maxThreads(); }
-    SLint     progressPC() const { return _progressPC; }
-    SLfloat   aaThreshold() const { return _aaThreshold; }
-    SLfloat   renderSec() const { return _renderSec; }
-    SLfloat   gamma() const { return _gamma; }
-    SLfloat   oneOverGamma() const { return _oneOverGamma; }
-    SLfloat   resolutionFactor() const { return _resolutionFactor; }
-    SLint     resolutionFactorPC() const { return (SLint)(_resolutionFactor * 100.0f + 0.00001f); }
-    SLfloat   raysPerMS() { return _raysPerMS.average(); }
+    SLRTState     state() const { return _state; }
+    SLint         maxDepth() const { return _maxDepth; }
+    SLbool        doDistributed() const { return _doDistributed; }
+    SLbool        doContinuous() const { return _doContinuous; }
+    SLbool        doFresnel() const { return _doFresnel; }
+    SLint         aaSamples() const { return _aaSamples; }
+    static SLuint numThreads() { return Utils::maxThreads(); }
+    SLint         progressPC() const { return _progressPC; }
+    SLfloat       aaThreshold() const { return _aaThreshold; }
+    SLfloat       renderSec() const { return _renderSec; }
+    SLfloat       gamma() const { return _gamma; }
+    SLfloat       oneOverGamma() const { return _oneOverGamma; }
+    SLfloat       resolutionFactor() const { return _resolutionFactor; }
+    SLint         resolutionFactorPC() const { return (SLint)(_resolutionFactor * 100.0f + 0.00001f); }
+    SLfloat       raysPerMS() { return _raysPerMS.average(); }
 
     // Render target image
     virtual void prepareImage();
@@ -144,14 +144,14 @@ protected:
     SLfloat      _renderSec;        //!< Rendering time in seconds
     AvgFloat     _raysPerMS;        //!< Averaged rays per ms
 
-    SLfloat     _pxSize;       //!< Pixel size
-    SLVec3f     _EYE;          //!< Camera position
-    SLVec3f     _LA, _LU, _LR; //!< Camera lookat, lookup, lookright
-    SLVec3f     _BL;           //!< Bottom left vector
-    SLint       _nextLine;     //!< next line index to render RT in a thread
-    SLVPixel    _aaPixels;     //!< Vector for antialiasing pixels
-    SLfloat     _gamma;        //!< gamma correction value
-    SLfloat     _oneOverGamma; //!< one over gamma correction value
+    SLfloat  _pxSize;       //!< Pixel size
+    SLVec3f  _EYE;          //!< Camera position
+    SLVec3f  _LA, _LU, _LR; //!< Camera lookat, lookup, lookright
+    SLVec3f  _BL;           //!< Bottom left vector
+    SLint    _nextLine;     //!< next line index to render RT in a thread
+    SLVPixel _aaPixels;     //!< Vector for antialiasing pixels
+    SLfloat  _gamma;        //!< gamma correction value
+    SLfloat  _oneOverGamma; //!< one over gamma correction value
 
     // variables for distributed ray tracing
     SLfloat _aaThreshold; //!< threshold for anti aliasing

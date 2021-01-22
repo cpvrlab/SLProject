@@ -21,7 +21,7 @@ else()
 	
     if (SL_BUILD_WAI)
         add_subdirectory(app_demo_wai)
-        add_subdirectory(app_camera_calibration)
+        #add_subdirectory(app_camera_calibration)
         #add_subdirectory(app-Test-WAI)
         add_subdirectory(app_mapcreator_wai)
         #add_subdirectory(app-RelocDebug-WAI)

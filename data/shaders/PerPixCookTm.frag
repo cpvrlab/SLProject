@@ -29,6 +29,11 @@ uniform float       u_lightSpotCos[NUM_LIGHTS]; // cosine of spot cutoff angle
 uniform float       u_lightSpotExp[NUM_LIGHTS]; // spot exponent
 uniform float       u_oneOverGamma;             // 1.0f / Gamma correction value
 
+uniform sampler2D   u_matTexture0;      // Diffuse Color map (albedo)
+uniform sampler2D   u_matTexture1;      // Normal map
+uniform sampler2D   u_matTexture2;      // Metallic map
+uniform sampler2D   u_matTexture3;      // Roughness map
+
 uniform int         u_camProjection;    // type of stereo
 uniform int         u_camStereoEye;     // -1=left, 0=center, 1=right
 uniform mat3        u_camStereoColors;  // color filter matrix
@@ -39,14 +44,9 @@ uniform float       u_camFogStart;      // fog start distance
 uniform float       u_camFogEnd;        // fog end distance
 uniform vec4        u_camFogColor;      // fog color (usually the background)
 
-uniform sampler2D   u_matTexture0;      // Diffuse Color map (albedo)
-uniform sampler2D   u_matTexture1;      // Normal map
-uniform sampler2D   u_matTexture2;      // Metallic map
-uniform sampler2D   u_matTexture3;      // Roughness map
-
 out     vec4        o_fragColor;        // output fragment color
 // ----------------------------------------------------------------------------
-const float AO = 1.0;               // Constant ambient occlusion factor
+const float matAO = 1.0;                // Constant ambient occlusion factor
 const float PI = 3.14159265359;
 // ----------------------------------------------------------------------------
 vec3 getNormalFromMap()
@@ -68,19 +68,24 @@ vec3 getNormalFromMap()
 //-----------------------------------------------------------------------------
 #pragma include "lightingCookTorrance.glsl"
 #pragma include "fogBlend.glsl"
-#pragma include "doStereoSeparation.glsl
+#pragma include "doStereoSeparation.glsl"
 //-----------------------------------------------------------------------------
 void main()
 {
     vec3 N = getNormalFromMap();    // Get the distracted normal from map
-    vec3 E = normalize(-v_P_VS);    // Vector from p to the viewer
-    vec3 Lo = vec3(0.0);            // Get the reflection from all lights into Lo
+    vec3 E = normalize(-v_P_VS);    // Vector from p to the eye (viewer)
 
     // Get the material parameters out of the textures
     vec3  matDiff  = pow(texture(u_matTexture0, v_uv1).rgb, vec3(2.2));
     float matMetal = texture(u_matTexture2, v_uv1).r;
     float matRough = texture(u_matTexture3, v_uv1).r;
 
+    // Init Fresnel reflection at 90 deg. (0 to N)
+    vec3 F0 = vec3(0.04);           
+    F0 = mix(F0, matDiff.rgb, matMetal);
+
+    // Get the reflection from all lights into Lo
+    vec3 Lo = vec3(0.0);  
     for (int i = 0; i < NUM_LIGHTS; ++i)
     {
         if (u_lightIsOn[i])
@@ -89,8 +94,7 @@ void main()
             {
                 // We use the spot light direction as the light direction vector
                 vec3 S = normalize(-u_lightSpotDir[i].xyz);
-                directLightCookTorrance(i, N, E, S,
-                                        u_lightDiff[i].rgb,
+                directLightCookTorrance(i, N, E, S, F0,
                                         matDiff.rgb,
                                         matMetal,
                                         matRough, Lo);
@@ -99,8 +103,7 @@ void main()
             {
                 vec3 L = u_lightPosVS[i].xyz - v_P_VS;
                 vec3 S = u_lightSpotDir[i];// normalized spot direction in VS
-                pointLightCookTorrance( i, N, E, L, S,
-                                        u_lightDiff[i].rgb,
+                pointLightCookTorrance( i, N, E, L, S, F0,
                                         matDiff.rgb,
                                         matMetal,
                                         matRough, Lo);
@@ -110,7 +113,7 @@ void main()
 
     // ambient lighting (note that the next IBL tutorial will replace
     // this ambient lighting with environment lighting).
-    vec3 ambient = vec3(0.03) * matDiff * AO;
+    vec3 ambient = vec3(0.03) * matDiff * matAO;
     vec3 color = ambient + Lo;
 
     // HDR tonemapping

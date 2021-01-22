@@ -46,15 +46,20 @@ class SLGLProgram;
 //! Texture type enumeration & their filename appendix for auto type detection
 enum SLTextureType
 {
-    TT_unknown,          // will be handled as color maps
-    TT_diffuse,          // diffuse color map (aka albedo or just color map)
-    TT_normal,           // normal map for normal bump mapping
-    TT_height,           // height map for height map bump or parallax mapping
-    TT_specular,         // specular gloss map
-    TT_ambientOcclusion, // ambient occlusion map
-    TT_roughness,        // roughness map (PBR Cook-Torrance roughness 0-1)
-    TT_metallic,         // metalness map (PBR Cook-Torrance metallic 0-1)
-    TT_font,             // texture map for fonts
+    TT_unknown,            // will be handled as color maps
+    TT_diffuse,            // diffuse color map (aka albedo or just color map)
+    TT_normal,             // normal map for normal bump mapping
+    TT_height,             // height map for height map bump or parallax mapping
+    TT_specular,           // specular gloss map
+    TT_ambientOcclusion,   // ambient occlusion map
+    TT_roughness,          // roughness map (PBR Cook-Torrance roughness 0-1)
+    TT_metallic,           // metalness map (PBR Cook-Torrance metallic 0-1)
+    TT_font,               // texture map for fonts
+    TT_hdr,                // High Dynamic Range images
+    TT_environmentCubemap, // environment cubemap generated from HDR Textures
+    TT_irradianceCubemap,  // irradiance cubemap generated from HDR Textures
+    TT_roughnessCubemap,   // prefilter roughness cubemap
+    TT_brdfLUT             // BRDF 2D look up table Texture
 };
 //-----------------------------------------------------------------------------
 //! Texture object for OpenGL texturing
@@ -133,8 +138,12 @@ public:
 
     ~SLGLTexture() override;
 
-    void     clearData();
-    void     build(SLint texUnit = 0);
+    virtual void   clearData();
+    virtual void   build(SLint texUnit = 0);
+    virtual SLuint width() { return _images.empty() ? 0 : _images[0]->width(); }
+    virtual SLuint height() { return _images.empty() ? 0 : _images[0]->height(); }
+    virtual SLint  bytesPerPixel() { return (SLint)_images.empty() ? 0 : _images[0]->bytesPerPixel(); }
+
     void     bindActive(SLuint texUnit = 0);
     void     fullUpdate();
     void     drawSprite(SLbool doUpdate, SLfloat x, SLfloat y, SLfloat w, SLfloat h);
@@ -161,9 +170,6 @@ public:
                                 ((_images[0]->format() == PF_rgba ||
                                   _images[0]->format() == PF_bgra) ||
                                  _texType == TT_font)); }
-    SLuint        width() { return _images[0]->width(); }
-    SLuint        height() { return _images[0]->height(); }
-    SLint         bytesPerPixel() { return (SLint)_images[0]->bytesPerPixel(); }
     SLMat4f       tm() { return _tm; }
     SLbool        autoCalcTM3D() const { return _autoCalcTM3D; }
     SLbool        needsUpdate() { return _needsUpdate; }

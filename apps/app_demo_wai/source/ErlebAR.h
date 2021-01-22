@@ -174,19 +174,25 @@ public:
              SLVec3d     mapTLLla,
              SLVec3d     mapBRLla,
              int         dspPixWidth,
-             std::string geoTiffFileName)
+             std::string geoTiffFileName,
+             std::string url,
+             std::string dirName)
       : id(id),
         name(mapLocationIdToName(id)),
         areaMapImageFileName(areaMapImageFileName),
         mapTLLla(mapTLLla),
         mapBRLla(mapBRLla),
         dspPixWidth(dspPixWidth),
-        geoTiffFileName(geoTiffFileName)
+        geoTiffFileName(geoTiffFileName),
+        url(url),
+        dirName(dirName)
     {
     }
 
     LocationId  id = LocationId::NONE;
     std::string name;
+    std::string url;
+    std::string dirName;
     //name of area map image in erlebAR directory
     std::string areaMapImageFileName;
     //top left image corner in WGS84 (lla)
@@ -226,6 +232,7 @@ enum class StateId
 
     TEST_RUNNER,
 
+    DOWNLOAD,
     LOCATION_MAP,
     AREA_INFO,
     AREA_TRACKING,

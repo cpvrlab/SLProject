@@ -90,7 +90,7 @@ void SelectionGui::resize(int scrW, int scrH)
     _buttonBoardPosX        = _screenWPix - _buttonBoardW - frameButtonBoardR;
     _buttonBoardPosY        = _screenHPix - _buttonBoardH - frameButtonBoardB;
 
-    int nButVert = 6; //number of buttons in vertical direction
+    int nButVert = 5; //number of buttons in vertical direction
     int buttonH  = (int)((_buttonBoardH - 2 * _windowPadding - (nButVert - 1) * _buttonSpace) / nButVert);
     _buttonSz    = {-FLT_MIN, (float)buttonH};
 }
@@ -146,23 +146,23 @@ void SelectionGui::build(SLScene* s, SLSceneView* sv)
 
         if (ImGui::Button(_resources.strings().avenches(), _buttonSz))
         {
-            sendEvent(new StartErlebarEvent("SelectionGui", LocationId::AVENCHES));
+            sendEvent(new StartDownloadEvent("DownloadGui", LocationId::AVENCHES));
         }
 
         if (ImGui::Button(_resources.strings().augst(), _buttonSz))
         {
-            sendEvent(new StartErlebarEvent("SelectionGui", LocationId::AUGST));
+            sendEvent(new StartDownloadEvent("DownloadGui", LocationId::AUGST));
         }
 
         if (ImGui::Button(_resources.strings().bern(), _buttonSz))
         {
-            sendEvent(new StartErlebarEvent("SelectionGui", LocationId::BERN));
+            sendEvent(new StartDownloadEvent("DownloadGui", LocationId::BERN));
         }
 
-        if (ImGui::Button(_resources.strings().tutorial(), _buttonSz))
-        {
-            sendEvent(new StartTutorialEvent("SelectionGui"));
-        }
+        //if (ImGui::Button(_resources.strings().tutorial(), _buttonSz))
+        //{
+        //    sendEvent(new StartTutorialEvent("SelectionGui"));
+        //}
 
         if (ImGui::Button(_resources.strings().settings(), _buttonSz))
         {
@@ -206,12 +206,12 @@ void SelectionGui::build(SLScene* s, SLSceneView* sv)
 
         if (ImGui::Button("Biel", develButtonSize))
         {
-            sendEvent(new StartErlebarEvent("SelectionGui", LocationId::BIEL));
+            sendEvent(new StartDownloadEvent("DownloadGui", LocationId::BIEL));
         }
 
         if (ImGui::Button("Evilard", develButtonSize))
         {
-            sendEvent(new StartErlebarEvent("SelectionGui", LocationId::EVILARD));
+            sendEvent(new StartDownloadEvent("DownloadGui", LocationId::EVILARD));
         }
 
         ImGui::End();

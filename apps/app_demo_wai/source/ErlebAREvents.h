@@ -27,16 +27,28 @@ public:
     const ErlebAR::LocationId location;
 };
 
+class DownloadEventData : public sm::EventData
+{
+public:
+    DownloadEventData(ErlebAR::LocationId location)
+      : location(location)
+    {
+    }
+    const ErlebAR::LocationId location;
+};
+
 class AreaEventData : public sm::EventData
 {
 public:
-    AreaEventData(ErlebAR::LocationId locId, ErlebAR::AreaId areaId)
+    AreaEventData(ErlebAR::LocationId locId, ErlebAR::AreaId areaId, bool hasData)
       : locId(locId),
-        areaId(areaId)
+        areaId(areaId),
+        hasData(hasData)
     {
     }
     const ErlebAR::LocationId locId;
     const ErlebAR::AreaId     areaId;
+    bool                      hasData;
 };
 
 //-----------------------------------------------------------------------------
@@ -69,6 +81,8 @@ public:
     {
         enableTransition((unsigned int)StateId::SELECTION,
                          (unsigned int)StateId::DESTROY);
+        enableTransition((unsigned int)StateId::DOWNLOAD,
+                         (unsigned int)StateId::SELECTION);
         enableTransition((unsigned int)StateId::LOCATION_MAP,
                          (unsigned int)StateId::SELECTION);
         enableTransition((unsigned int)StateId::AREA_TRACKING,
@@ -101,6 +115,8 @@ public:
         enableTransition((unsigned int)StateId::WELCOME,
                          (unsigned int)StateId::DESTROY);
         enableTransition((unsigned int)StateId::INIT,
+                         (unsigned int)StateId::DESTROY);
+        enableTransition((unsigned int)StateId::DOWNLOAD,
                          (unsigned int)StateId::DESTROY);
         enableTransition((unsigned int)StateId::SELECTION,
                          (unsigned int)StateId::DESTROY);
@@ -138,6 +154,8 @@ public:
                          (unsigned int)StateId::WELCOME);
         enableTransition((unsigned int)StateId::WELCOME,
                          (unsigned int)StateId::SELECTION);
+        enableTransition((unsigned int)StateId::DOWNLOAD,
+                         (unsigned int)StateId::LOCATION_MAP);
         enableTransition((unsigned int)StateId::START_TEST,
                          (unsigned int)StateId::TEST);
         enableTransition((unsigned int)StateId::AREA_INFO,
@@ -147,13 +165,28 @@ public:
     }
 };
 
+class StartDownloadEvent : public sm::Event
+{
+public:
+    StartDownloadEvent(std::string senderInfo, ErlebAR::LocationId location)
+      : sm::Event("StartDownloadEvent", senderInfo)
+    {
+        enableTransition((unsigned int)StateId::SELECTION,
+                         (unsigned int)StateId::DOWNLOAD);
+        enableTransition((unsigned int)StateId::AREA_INFO,
+                         (unsigned int)StateId::DOWNLOAD);
+
+        _eventData = new DownloadEventData(location);
+    }
+};
+
 class StartErlebarEvent : public sm::Event
 {
 public:
     StartErlebarEvent(std::string senderInfo, ErlebAR::LocationId location)
       : sm::Event("StartErlebarEvent", senderInfo)
     {
-        enableTransition((unsigned int)StateId::SELECTION,
+        enableTransition((unsigned int)StateId::DOWNLOAD,
                          (unsigned int)StateId::LOCATION_MAP);
 
         _eventData = new ErlebarEventData(location);
@@ -163,13 +196,13 @@ public:
 class AreaSelectedEvent : public sm::Event
 {
 public:
-    AreaSelectedEvent(std::string senderInfo, ErlebAR::LocationId locId, ErlebAR::AreaId areaId)
+    AreaSelectedEvent(std::string senderInfo, ErlebAR::LocationId locId, ErlebAR::AreaId areaId, bool hasData)
       : sm::Event("AreaSelectedEvent", senderInfo)
     {
         enableTransition((unsigned int)StateId::LOCATION_MAP,
                          (unsigned int)StateId::AREA_INFO);
 
-        _eventData = new AreaEventData(locId, areaId);
+        _eventData = new AreaEventData(locId, areaId, hasData);
     }
 };
 

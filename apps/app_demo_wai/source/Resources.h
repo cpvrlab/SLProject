@@ -205,6 +205,12 @@ public:
     const char* language() const { return _language.c_str(); }
     const char* develMode() const { return _develMode.c_str(); }
 
+    const char* downloadManager() const { return _download.c_str(); }
+    const char* download1() const { return _downloadInfoSize1.c_str(); }
+    const char* download2() const { return _downloadInfoSize2.c_str(); }
+    const char* downloadButton() const { return _downloadButton.c_str(); }
+    const char* downloadSkipButton() const { return _downloadSkipButton.c_str(); }
+
     const char* cameraStartError() const { return _cameraStartError.c_str(); }
 
     //info text
@@ -239,6 +245,11 @@ public:
     const char* ugInfoRelocWrongOrient() const { return _ugInfoRelocWrongOrient.c_str(); }
     const char* ugInfoDirArrow() const { return _ugInfoDirArrow.c_str(); }
 
+    //about view:
+    const char* aboutProject() const { return _aboutProject.c_str(); }
+    const char* aboutCredits() const { return _aboutCredits.c_str(); }
+    const char* aboutBFH() const { return _aboutBFH .c_str(); }
+
     void load(std::string fileName);
 
 protected:
@@ -253,6 +264,7 @@ protected:
     std::string _biel     = "Biel";
     std::string _settings = "Settings";
     std::string _about    = "About";
+    std::string _download = "Download";
     std::string _tutorial = "Tutorial";
     //about
     std::string _general        = "General";
@@ -264,6 +276,11 @@ protected:
     std::string _develMode = "Developer mode";
     //errors
     std::string _cameraStartError = "Could not start camera!";
+    //download
+    std::string _downloadInfoSize1 = "For this location, you need to download";
+    std::string _downloadInfoSize2 = ".";
+    std::string _downloadSkipButton = "skip";
+    std::string _downloadButton = "Download";
 
     //info text
     //bern:
@@ -295,6 +312,11 @@ protected:
     std::string _ugInfoReloc            = "Trying to relocalize, please move slowly";
     std::string _ugInfoRelocWrongOrient = "You are looking in the wrong direction";
     std::string _ugInfoDirArrow         = "The area is located %.0fm in the direction of the arrow";
+
+    //about view:
+    std::string _aboutProject = "AboutProject";
+    std::string _aboutCredits = "Credits";
+    std::string _aboutBFH = "BFH";
 };
 
 //-----------------------------------------------------------------------------
