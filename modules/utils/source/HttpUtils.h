@@ -110,7 +110,7 @@ struct DNSRequest
 //! HttpUtils provides networking functionality via the HTTP and HTTPS protocols
 namespace HttpUtils
 {
-//! ???
+//! Class to make http get request
 class GetRequest
 {
 public:
@@ -136,14 +136,34 @@ public:
         if (s) { delete s; }
     }
 
+    // Read http header
     int            processHttpHeaders(vector<char>& data);
+
+    // Send Http request to server
     int            send();
+
+    // Start fetching the content (must be called after send)
     void           getContent(function<int(char* data, int size)> contentCB);
+
+    // Parse http listing and return list of directory and files
     vector<string> getListing();
 
 };
 //------------------------------------------------------------------------------
-//! ???
+//! HTTPUtils::download provides download function for https/http with/without auth.
+
+// Download a file chunk by chunk of 1kB.
+// download is interrupt if any of the callback return non zero value.
+/*!
+* @param url            url to the file / listing to download
+* @param processFile    A callback which is called when a new file will be downloaded.
+* @param writeChunk     A callback which is called for every new chunk of the current 
+*                       file being downloaded.
+* @param processDir     A callback which is called when a new directory is being downloaded.
+* @param user           Username (optional) when site require http auth.
+* @param pwd            Password (optional) when site require http auth.
+* @param base           Path where the files should be saved.
+*/
 int download(string                                               url,
              function<int(string path, string file, size_t size)> processFile,
              function<int(char* data, int size)>                  writeChunk,
@@ -153,6 +173,15 @@ int download(string                                               url,
              string                                               base = "./");
 //------------------------------------------------------------------------------
 //! HTTP download function with login credentials
+// download is interrupt if progress callback return non zero value.
+/*!
+* @param url            url to the file / listing to download
+* @param dst            Path where the files should be saved.
+* @param user           Username (optional) when site require http auth.
+* @param pwd            Password (optional) when site require http auth.
+* @param progress       A callback which is called each 1kB downloaded for the current file.
+*                       The download stop if the returned value is not zero.
+*/
 int download(string                                      url,
              string                                      dst,
              string                                      user,
