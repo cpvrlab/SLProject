@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      SLGLTextureGenerated.cpp
+//  File:      SLGLTextureIBL.cpp
 //  Author:    Carlos Arauz, Marcus Hudritsch
 //  Date:      April 2018
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
@@ -10,58 +10,58 @@
 
 #include <SLAssetManager.h>
 #include <SLScene.h>
-#include <SLGLTextureGenerated.h>
+#include <SLGLTextureIBL.h>
 
 //-----------------------------------------------------------------------------
 //! ctor for generated textures from hdr textures
-SLGLTextureGenerated::SLGLTextureGenerated(SLAssetManager*  am,
-                                           SLstring         shaderPath,
-                                           SLGLTexture*     texture,
-                                           SLGLFrameBuffer* fbo,
-                                           SLTextureType    type,
-                                           SLenum           target,
-                                           SLint            min_filter,
-                                           SLint            mag_filter,
-                                           SLint            wrapS,
-                                           SLint            wrapT)
+SLGLTextureIBL::SLGLTextureIBL(SLAssetManager*  am,
+                               SLstring         shaderPath,
+                               SLGLTexture*     sourceTexture,
+                               SLGLFrameBuffer* fbo,
+                               SLVec2i          size,
+                               SLTextureType    texType,
+                               SLenum           target,
+                               SLint            min_filter,
+                               SLint            mag_filter)
 {
-    if (texture != nullptr)
+    if (sourceTexture != nullptr)
     {
-        assert(texture->texType() >= TT_hdr);
-        assert(type > TT_hdr);
+        assert(sourceTexture->texType() >= TT_hdr);
+        assert(texType > TT_hdr);
     }
 
-    _sourceTexture        = texture;
-    _captureFBO           = fbo;
-    _texType              = type;
-    _min_filter           = min_filter;
-    _mag_filter           = mag_filter;
-    _wrap_s               = wrapS;
-    _wrap_t               = wrapT;
-    _target               = target;
-    _texID                = 0;
-    _bumpScale            = 1.0f;
-    _resizeToPow2         = false;
-    _autoCalcTM3D         = false;
-    _needsUpdate          = false;
-    _bytesOnGPU           = 0;
-    _generatedWidth       = 0;
-    _generatedHeight      = 0;
+    _sourceTexture          = sourceTexture;
+    _captureFBO             = fbo;
+    _texType                = texType;
+    _min_filter             = min_filter;
+    _mag_filter             = mag_filter;
+    _wrap_s                 = GL_CLAMP_TO_EDGE;
+    _wrap_t                 = GL_CLAMP_TO_EDGE;
+    _target                 = target;
+    _texID                  = 0;
+    _bumpScale              = 1.0f;
+    _resizeToPow2           = false;
+    _autoCalcTM3D           = false;
+    _needsUpdate            = false;
+    _bytesOnGPU             = 0;
+    _generatedSize          = size;
     _generatedBytesPerPixel = 0;
 
-    if (type == TT_environment)
+    name("Generated " + typeName());
+
+    if (texType == TT_environmentCubemap)
         _shaderProgram = new SLGLProgramGeneric(am,
                                                 shaderPath + "PBR_CubeMap.vert",
                                                 shaderPath + "PBR_CylinderToCubeMap.frag");
-    if (type == TT_irradiance)
+    if (texType == TT_irradianceCubemap)
         _shaderProgram = new SLGLProgramGeneric(am,
                                                 shaderPath + "PBR_CubeMap.vert",
                                                 shaderPath + "PBR_IrradianceConvolution.frag");
-    if (type == TT_prefilter)
+    if (texType == TT_roughnessCubemap)
         _shaderProgram = new SLGLProgramGeneric(am,
                                                 shaderPath + "PBR_CubeMap.vert",
                                                 shaderPath + "PBR_PrefilterRoughness.frag");
-    if (type == TT_lut)
+    if (texType == TT_brdfLUT)
         _shaderProgram = new SLGLProgramGeneric(am,
                                                 shaderPath + "PBR_BRDFIntegration.vert",
                                                 shaderPath + "PBR_BRDFIntegration.frag");
@@ -96,12 +96,12 @@ SLGLTextureGenerated::SLGLTextureGenerated(SLAssetManager*  am,
         am->textures().push_back(this);
 }
 //-----------------------------------------------------------------------------
-SLGLTextureGenerated::~SLGLTextureGenerated()
+SLGLTextureIBL::~SLGLTextureIBL()
 {
     clearData();
 }
 //-----------------------------------------------------------------------------
-void SLGLTextureGenerated::clearData()
+void SLGLTextureIBL::clearData()
 {
     glDeleteTextures(1, &_texID);
 
@@ -121,23 +121,18 @@ void SLGLTextureGenerated::clearData()
 //-----------------------------------------------------------------------------
 /*!
 Build the texture into a cube map, rendering the texture 6 times and capturing each time
-one side of the cube (except for the BRDF LUT Texture, which is completely generated by
+one side of the cube (except for the BRDF LUT texture, which is completely generated by
 calculations directly with the shader).
 */
-void SLGLTextureGenerated::build(SLint texID)
+void SLGLTextureIBL::build(SLint texID)
 {
-    if (_captureFBO->id() && _captureFBO->rbo())
+    if (_captureFBO->fboId() && _captureFBO->rboId())
     {
-        _captureFBO->bind();
-        _captureFBO->bindRenderBuffer();
-
         glGenTextures(1, &_texID);
         glBindTexture(_target, _texID);
 
-        if (_texType == TT_environment || _texType == TT_irradiance)
+        if (_texType == TT_environmentCubemap || _texType == TT_irradianceCubemap)
         {
-            _generatedWidth       = _captureFBO->rboWidth();
-            _generatedHeight      = _captureFBO->rboHeight();
             _generatedBytesPerPixel = 3 * 2; // GL_RGB16F
 
             for (SLuint i = 0; i < 6; i++)
@@ -145,8 +140,8 @@ void SLGLTextureGenerated::build(SLint texID)
                 glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
                              0,
                              GL_RGB16F,
-                             _captureFBO->rboWidth(),
-                             _captureFBO->rboHeight(),
+                             _generatedSize.x,
+                             _generatedSize.y,
                              0,
                              GL_RGB,
                              GL_FLOAT,
@@ -164,9 +159,9 @@ void SLGLTextureGenerated::build(SLint texID)
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(_sourceTexture->target(),
                           _sourceTexture->texID());
+            glViewport(0, 0, _generatedSize.x, _generatedSize.y);
 
-            glViewport(0, 0, _captureFBO->rboWidth(), _captureFBO->rboHeight());
-            _captureFBO->bind();
+            _captureFBO->bindAndSetBufferStorage(_generatedSize.x, _generatedSize.y);
 
             for (SLuint i = 0; i < 6; i++)
             {
@@ -181,20 +176,17 @@ void SLGLTextureGenerated::build(SLint texID)
 
             _captureFBO->unbind();
 
-            if (_texType == TT_environment)
+            if (_texType == TT_environmentCubemap)
             {
                 glBindTexture(GL_TEXTURE_CUBE_MAP, _texID);
                 glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
             }
         }
-        else if (_texType == TT_prefilter)
+        else if (_texType == TT_roughnessCubemap)
         {
-            assert(_sourceTexture->texType() == TT_environment &&
+            assert(_sourceTexture->texType() == TT_environmentCubemap &&
                    "the source texture is not an environment map");
-            _captureFBO->unbind();
 
-            _generatedWidth       = 128;
-            _generatedHeight      = 128;
             _generatedBytesPerPixel = 3 * 2; // GL_RGB16F
 
             for (unsigned int i = 0; i < 6; ++i)
@@ -202,8 +194,8 @@ void SLGLTextureGenerated::build(SLint texID)
                 glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
                              0,
                              GL_RGB16F,
-                             _generatedWidth,
-                             _generatedHeight,
+                             _generatedSize.x,
+                             _generatedSize.y,
                              0,
                              GL_RGB,
                              GL_FLOAT,
@@ -222,14 +214,13 @@ void SLGLTextureGenerated::build(SLint texID)
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(_sourceTexture->target(), _sourceTexture->texID());
 
-            _captureFBO->bindRenderBuffer();
             SLuint maxMipLevels = 5;
             for (SLuint mip = 0; mip < maxMipLevels; ++mip)
             {
                 // resize framebuffer according to mip-level size
-                SLuint mipWidth  = _generatedWidth * pow(0.5, mip);
-                SLuint mipHeight = _generatedHeight * pow(0.5, mip);
-                _captureFBO->bufferStorage(mipWidth, mipHeight);
+                SLuint mipWidth  = _generatedSize.x * pow(0.5, mip);
+                SLuint mipHeight = _generatedSize.y * pow(0.5, mip);
+                _captureFBO->bindAndSetBufferStorage(mipWidth, mipHeight);
                 glViewport(0, 0, mipWidth, mipHeight);
 
                 SLfloat roughness = (SLfloat)mip / (SLfloat)(maxMipLevels - 1);
@@ -250,19 +241,15 @@ void SLGLTextureGenerated::build(SLint texID)
                 _captureFBO->unbind();
             }
         }
-        else if (_texType == TT_lut)
+        else if (_texType == TT_brdfLUT)
         {
-            _captureFBO->unbind();
-
-            _generatedWidth       = 512;
-            _generatedHeight      = 512;
             _generatedBytesPerPixel = 2 * 2; // GL_RG16F
 
             glTexImage2D(_target,
                          0,
                          GL_RG16F,
-                         _generatedWidth,
-                         _generatedHeight,
+                         _generatedSize.x,
+                         _generatedSize.y,
                          0,
                          GL_RG,
                          GL_FLOAT,
@@ -272,10 +259,10 @@ void SLGLTextureGenerated::build(SLint texID)
             glTexParameteri(_target, GL_TEXTURE_MIN_FILTER, _min_filter);
             glTexParameteri(_target, GL_TEXTURE_MAG_FILTER, _mag_filter);
 
-            _captureFBO->bufferStorage(_generatedWidth, _generatedHeight);
+            _captureFBO->bindAndSetBufferStorage(_generatedSize.x, _generatedSize.y);
             _captureFBO->attachTexture2D(GL_COLOR_ATTACHMENT0, _target, this);
 
-            glViewport(0, 0, _generatedWidth, _generatedHeight);
+            glViewport(0, 0, _generatedSize.x, _generatedSize.y);
             _shaderProgram->useProgram();
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             renderQuad();
@@ -285,7 +272,7 @@ void SLGLTextureGenerated::build(SLint texID)
 }
 //-----------------------------------------------------------------------------
 //! renders 1x1 cube, used to project the source texture and then capture on if its sides
-void SLGLTextureGenerated::renderCube()
+void SLGLTextureIBL::renderCube()
 {
     // initialize (if necessary)
     if (_cubeVAO == 0)
@@ -359,7 +346,7 @@ void SLGLTextureGenerated::renderCube()
 }
 //-----------------------------------------------------------------------------
 //! renders a 1x1 XY quad, used for rendering and capturung the BRDF integral solution
-void SLGLTextureGenerated::renderQuad()
+void SLGLTextureIBL::renderQuad()
 {
     if (_quadVAO == 0)
     {

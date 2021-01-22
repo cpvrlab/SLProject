@@ -101,9 +101,8 @@ void SLOptixPathtracer::setupOptix()
                                       0));
 }
 //-----------------------------------------------------------------------------
-void SLOptixPathtracer::setupScene(SLSceneView* sv)
+void SLOptixPathtracer::setupScene(SLSceneView* sv, SLAssetManager* am)
 {
-    SLAssetManager* am     = sv->assetManager();
     SLVMesh         meshes = am->meshes();
     _sv                    = sv;
 

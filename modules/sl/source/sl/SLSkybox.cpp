@@ -12,7 +12,7 @@
 #include <SLGLProgramGeneric.h>
 #include <SLGLFrameBuffer.h>
 #include <SLGLTexture.h>
-#include <SLGLTextureGenerated.h>
+#include <SLGLTextureIBL.h>
 #include <SLMaterial.h>
 #include <SLSceneView.h>
 #include <SLSkybox.h>
@@ -93,12 +93,6 @@ SLSkybox::SLSkybox(SLProjectScene* projectScene,
     projectScene->eventHandlers().push_back(exposure);
     backgroundShader->addUniform1f(exposure);
 
-    // Create frame buffer for capturing the scene into a cube map
-    SLGLFrameBuffer* captureBuffer = new SLGLFrameBuffer(true,
-                                                         resolution.x,
-                                                         resolution.y);
-    captureBuffer->generate();
-
     // Create texture from the HDR Image
     SLGLTexture* hdrTexture = new SLGLTexture(projectScene,
                                               hdrImage,
@@ -108,39 +102,47 @@ SLSkybox::SLSkybox(SLProjectScene* projectScene,
                                               GL_CLAMP_TO_EDGE,
                                               GL_CLAMP_TO_EDGE);
 
-    // Generate cube map using the HDR texture
-    SLGLTexture* envCubemap = new SLGLTextureGenerated(projectScene,
-                                                       shaderPath,
-                                                       hdrTexture,
-                                                       captureBuffer,
-                                                       TT_environment,
-                                                       GL_TEXTURE_CUBE_MAP,
-                                                       GL_LINEAR_MIPMAP_LINEAR);
+    // Create frame buffer for capturing the IBL textures
+    SLGLFrameBuffer* captureBuffer = new SLGLFrameBuffer(resolution.x, resolution.y);
 
-    // The buffer must be reduced, because we need to lower the resolution for the irradiance and prefilter map
-    captureBuffer->bufferStorage(32, 32);
-    SLGLTexture* irradiancemap  = new SLGLTextureGenerated(projectScene,
-                                                          shaderPath,
-                                                          envCubemap,
-                                                          captureBuffer,
-                                                          TT_irradiance);
-    SLGLTexture* prefilter      = new SLGLTextureGenerated(projectScene,
-                                                      shaderPath,
-                                                      envCubemap,
-                                                      captureBuffer,
-                                                      TT_prefilter);
-    SLGLTexture* brdfLUTTexture = new SLGLTextureGenerated(projectScene,
-                                                           shaderPath,
-                                                           nullptr,
-                                                           captureBuffer,
-                                                           TT_lut,
-                                                           GL_TEXTURE_2D);
+    SLGLTexture* environmentCubemap = new SLGLTextureIBL(projectScene,
+                                                         shaderPath,
+                                                         hdrTexture,
+                                                         captureBuffer,
+                                                         resolution,
+                                                         TT_environmentCubemap,
+                                                         GL_TEXTURE_CUBE_MAP,
+                                                         GL_LINEAR_MIPMAP_LINEAR);
+
+    SLGLTexture* irradianceCubemap = new SLGLTextureIBL(projectScene,
+                                                        shaderPath,
+                                                        environmentCubemap,
+                                                        captureBuffer,
+                                                        SLVec2i(32, 32),
+                                                        TT_irradianceCubemap,
+                                                        GL_TEXTURE_CUBE_MAP);
+
+    SLGLTexture* roughnessCubemap = new SLGLTextureIBL(projectScene,
+                                                       shaderPath,
+                                                       environmentCubemap,
+                                                       captureBuffer,
+                                                       SLVec2i(128, 128),
+                                                       TT_roughnessCubemap,
+                                                       GL_TEXTURE_CUBE_MAP);
+
+    SLGLTexture* brdfLUTTexture = new SLGLTextureIBL(projectScene,
+                                                     shaderPath,
+                                                     nullptr,
+                                                     captureBuffer,
+                                                     SLVec2i(512, 512),
+                                                     TT_brdfLUT,
+                                                     GL_TEXTURE_2D);
 
     // Create the material of the sky box and store there the other texture to be used for other materials
     SLMaterial* hdrMaterial = new SLMaterial(projectScene, "matCubeMap");
-    hdrMaterial->textures().push_back(envCubemap);
-    hdrMaterial->textures().push_back(irradiancemap);
-    hdrMaterial->textures().push_back(prefilter);
+    hdrMaterial->textures().push_back(environmentCubemap);
+    hdrMaterial->textures().push_back(irradianceCubemap);
+    hdrMaterial->textures().push_back(roughnessCubemap);
     hdrMaterial->textures().push_back(brdfLUTTexture);
     hdrMaterial->program(backgroundShader);
 
@@ -156,7 +158,6 @@ SLSkybox::SLSkybox(SLProjectScene* projectScene,
                       hdrMaterial));
 
     // We don't need the frame buffer any longer
-    captureBuffer->unbind();
     delete captureBuffer;
 }
 //-----------------------------------------------------------------------------

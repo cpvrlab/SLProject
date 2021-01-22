@@ -46,20 +46,20 @@ class SLGLProgram;
 //! Texture type enumeration & their filename appendix for auto type detection
 enum SLTextureType
 {
-    TT_unknown,          // will be handled as color maps
-    TT_diffuse,          // diffuse color map (aka albedo or just color map)
-    TT_normal,           // normal map for normal bump mapping
-    TT_height,           // height map for height map bump or parallax mapping
-    TT_specular,         // specular gloss map
-    TT_ambientOcclusion, // ambient occlusion map
-    TT_roughness,        // roughness map (PBR Cook-Torrance roughness 0-1)
-    TT_metallic,         // metalness map (PBR Cook-Torrance metallic 0-1)
-    TT_font,             // texture map for fonts
-    TT_hdr,              // High Dynamic Range images
-    TT_environment,      // environment cubemap generated from HDR Textures
-    TT_irradiance,       // irradiance map generated from HDR Textures
-    TT_prefilter,        // prefilter map
-    TT_lut               // BRDF LUT Texture
+    TT_unknown,            // will be handled as color maps
+    TT_diffuse,            // diffuse color map (aka albedo or just color map)
+    TT_normal,             // normal map for normal bump mapping
+    TT_height,             // height map for height map bump or parallax mapping
+    TT_specular,           // specular gloss map
+    TT_ambientOcclusion,   // ambient occlusion map
+    TT_roughness,          // roughness map (PBR Cook-Torrance roughness 0-1)
+    TT_metallic,           // metalness map (PBR Cook-Torrance metallic 0-1)
+    TT_font,               // texture map for fonts
+    TT_hdr,                // High Dynamic Range images
+    TT_environmentCubemap, // environment cubemap generated from HDR Textures
+    TT_irradianceCubemap,  // irradiance cubemap generated from HDR Textures
+    TT_roughnessCubemap,   // prefilter roughness cubemap
+    TT_brdfLUT             // BRDF 2D look up table Texture
 };
 //-----------------------------------------------------------------------------
 //! Texture object for OpenGL texturing

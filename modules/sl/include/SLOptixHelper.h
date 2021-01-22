@@ -10,7 +10,17 @@
 #ifdef SL_HAS_OPTIX
 #    ifndef SLOPTIXHELPER_H
 #        define SLOPTIXHELPER_H
-#        include <stdafx.h> // Must be the 1st include followed by  an empty line
+
+#include <iostream>     // std::cout, std::ios
+#include <sstream>      // std::ostringstream
+#include <stdexcept>
+#include <string>
+#include <functional>
+#include <chrono>
+#include <SLVec3.h>
+#include <SLVec4.h>
+
+using namespace std;
 
 using namespace std::placeholders;
 using namespace std::chrono;
@@ -28,7 +38,7 @@ using namespace std::chrono;
         OptixResult res = call;                                                \
         if( res != OPTIX_SUCCESS )                                             \
         {                                                                      \
-            stringstream ss;                                              \
+            stringstream ss;                                                   \
             ss << "Optix call '" << #call << "' failed: " __FILE__ ":"         \
                << __LINE__ << ")\n";                                           \
             throw SLOptixException( res, ss.str().c_str() );                   \
@@ -40,7 +50,7 @@ using namespace std::chrono;
         OptixResult res = call;                                                \
         if( res != OPTIX_SUCCESS )                                             \
         {                                                                      \
-            stringstream ss;                                              \
+            stringstream ss;                                                   \
             ss << "Optix call '" << #call << "' failed: " __FILE__ ":"         \
                << __LINE__ << ")\nLog:\n" << log                               \
                << ( sizeof_log > sizeof( log ) ? "<TRUNCATED>" : "" )          \
@@ -59,7 +69,7 @@ using namespace std::chrono;
         {                                                                      \
             const char *errorstr;                                              \
             cuGetErrorString(result, &errorstr);                               \
-            stringstream ss;                                              \
+            stringstream ss;                                                   \
             ss << "CUDA call (" << #call << " ) failed with error: '"          \
                << errorstr                                                     \
                << "' (" __FILE__ << ":" << __LINE__ << ")\n"                   \
@@ -76,7 +86,7 @@ using namespace std::chrono;
         {                                                                      \
             const char *errorstr;                                              \
             cuGetErrorString(result, &errorstr);                               \
-            stringstream ss;                                              \
+            stringstream ss;                                                   \
             ss << "CUDA error on synchronize with error '"                     \
                << errorstr                                                     \
                << "' (" __FILE__ << ":" << __LINE__ << ")\n";                  \
@@ -101,9 +111,9 @@ class SLOptixException : public std::runtime_error
     private:
     string createMessage(OptixResult res, const char* msg)
     {
-        std::ostringstream out;
-        out << optixGetErrorName(res) << ": " << msg;
-        return out.str();
+        std::ostringstream os;
+        os << optixGetErrorName(res) << ": " << msg;
+        return os.str();
     }
 };
 //------------------------------------------------------------------------------

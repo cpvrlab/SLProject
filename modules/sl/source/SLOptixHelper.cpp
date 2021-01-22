@@ -43,7 +43,7 @@ static string getPtxFilename(string filename)
 }
 //-----------------------------------------------------------------------------
 string getPtxStringFromFile(
-  string  filename,
+  string       filename,
   const char** log)
 {
     if (log)

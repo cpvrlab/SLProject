@@ -73,7 +73,7 @@ file(GLOB headers
         ${CMAKE_CURRENT_SOURCE_DIR}/include/gl/SLGLShader.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/gl/SLGLState.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/gl/SLGLTexture.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/gl/SLGLTextureGenerated.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/gl/SLGLTextureIBL.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/gl/SLGLUniform.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/gl/SLGLVertexArray.h
         ${CMAKE_CURRENT_SOURCE_DIR}/include/gl/SLGLVertexArrayExt.h
@@ -187,7 +187,7 @@ set(sources
         ${CMAKE_CURRENT_SOURCE_DIR}/source/gl/SLGLShader.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/gl/SLGLState.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/gl/SLGLTexture.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/gl/SLGLTextureGenerated.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/source/gl/SLGLTextureIBL.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/gl/SLGLVertexArray.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/gl/SLGLVertexArrayExt.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/gl/SLGLVertexBuffer.cpp
