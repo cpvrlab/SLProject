@@ -308,6 +308,23 @@ void SLNode::findChildrenHelper(const SLuint     drawbit,
     }
 }
 //-----------------------------------------------------------------------------
+//! remove child from vector of children. Removes false if not found, else true.
+bool SLNode::removeChild(SLNode* child)
+{
+    assert(child);
+    for(auto it = _children.begin(); it != _children.end(); ++it)
+    {
+        if(*it == child)
+        {
+            (*it)->parent(nullptr);
+            _children.erase(it);
+            return true;
+        }
+    }
+    
+    return false;
+}
+//-----------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------
 /*!

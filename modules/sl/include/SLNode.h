@@ -163,7 +163,6 @@ public:
     virtual void drawMesh(SLSceneView* sv);
     bool         removeMesh();
     bool         removeMesh(SLMesh* mesh);
-
     // Children methods (see impl. for details)
     SLint numChildren() { return (SLint)_children.size(); }
     void  addChild(SLNode* child);
@@ -186,7 +185,8 @@ public:
                                  SLbool        findRecursive = true);
     vector<SLNode*> findChildren(SLuint drawbit,
                                  SLbool findRecursive = true);
-
+    
+    bool         removeChild(SLNode* child);
     // local direction getter functions
     SLVec3f translationOS() const;
     SLVec3f forwardOS() const;
