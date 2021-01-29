@@ -17,7 +17,6 @@
 #include <vector>
 #include <SLGLProgramGeneric.h>
 
-class SLSceneView;
 class SLCamera;
 class SLInputManager;
 
@@ -78,6 +77,24 @@ public:
             if (sp->name() == programName)
                 return sp;
         return nullptr;
+    }
+    
+    //! merge other asset manager into this
+    void merge(SLAssetManager& other)
+    {
+        //update the assetmanager pointer for automatic program assignment
+        for(SLMaterial* m : other.materials())
+            m->assetManager(this);
+        //transfer assets from other to this
+        _meshes.insert(_meshes.end(), other.meshes().begin(), other.meshes().end());
+        _materials.insert(_materials.end(), other.materials().begin(), other.materials().end());
+        _textures.insert(_textures.end(), other.textures().begin(), other.textures().end());
+        _programs.insert(_programs.end(), other.programs().begin(), other.programs().end());
+        //clear ownership of other
+        other.meshes().clear();
+        other.materials().clear();
+        other.textures().clear();
+        other.programs().clear();
     }
 
     SLVMesh&      meshes() { return _meshes; }

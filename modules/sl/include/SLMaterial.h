@@ -210,6 +210,9 @@ public:
     SLGLProgram*    program() { return _program; }
     SLVNode&        nodesVisible2D() { return _nodesVisible2D; }
     SLVNode&        nodesVisible3D() { return _nodesVisible3D; }
+    
+    // Setters
+    void assetManager(SLAssetManager* am) { _assetManager = am; }
 
     // Static variables & functions
     static SLfloat K;       //!< PM: Constant of gloss calibration (slope of point light at dist 1)
