@@ -3,7 +3,7 @@
 #endif
 
 #include "GuiUtils.h"
-#include <CVImage.h>
+#include <cv/CVImage.h>
 #include <Utils.h>
 
 //add this to enable + operator on ImRect

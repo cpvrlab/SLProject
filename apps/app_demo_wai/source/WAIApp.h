@@ -17,7 +17,7 @@
 #include <functional>
 #include "AppWAIScene.h"
 
-#include <CVCalibration.h>
+#include <cv/CVCalibration.h>
 #include <WAIAutoCalibration.h>
 #include <DeviceData.h>
 #include <AppDemoWaiGui.h>

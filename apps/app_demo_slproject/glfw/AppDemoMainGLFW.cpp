@@ -12,8 +12,6 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include <stdafx.h> // Must be the 1st include followed by  an empty line
-
 #include <SLGLState.h>
 #include <SLEnums.h>
 #include <SLInterface.h>

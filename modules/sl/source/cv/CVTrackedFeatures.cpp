@@ -17,9 +17,9 @@ See also the class docs for CVCapture, CVCalibration and CVTracked
 for a good top down information.
 */
 
-#include <CVImage.h>
-#include <CVFeatureManager.h>
-#include <CVTrackedFeatures.h>
+#include <cv/CVImage.h>
+#include <cv/CVFeatureManager.h>
+#include <cv/CVTrackedFeatures.h>
 #include <Utils.h>
 
 #if defined(SL_OS_WINDOWS)

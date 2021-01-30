@@ -13,8 +13,8 @@
 #include <SLAnimPlayback.h>
 #include <SLApplication.h>
 #include <CVCapture.h>
-#include <CVImage.h>
-#include <CVTrackedFeatures.h>
+#include <cv/CVImage.h>
+#include <cv/CVTrackedFeatures.h>
 #include <SLGLDepthBuffer.h>
 #include <SLGLProgramManager.h>
 #include <SLGLShader.h>
@@ -29,7 +29,7 @@
 #include <SLNode.h>
 #include <SLScene.h>
 #include <SLSceneView.h>
-#include <SLColorLUT.h>
+#include <SLTexColorLUT.h>
 #include <SLGLImGui.h>
 #include <SLProjectScene.h>
 #include <SLHorizonNode.h>
@@ -3159,7 +3159,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
 
                                 if (doSunPowerAdaptation)
                                 {
-                                    SLColorLUT* lut = dirLight->sunLightColorLUT();
+                                    SLTexColorLUT* lut = dirLight->sunLightColorLUT();
                                     if (ImGui::TreeNode("Sun Color LUT"))
                                     {
                                         showLUTColors(lut);
@@ -3305,9 +3305,9 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
 
                                 if (tex->target() == GL_TEXTURE_2D)
                                 {
-                                    if (typeid(*tex) == typeid(SLColorLUT))
+                                    if (typeid(*tex) == typeid(SLTexColorLUT))
                                     {
-                                        SLColorLUT* lut = (SLColorLUT*)i;
+                                        SLTexColorLUT* lut = (SLTexColorLUT*)i;
                                         if (ImGui::TreeNode("Color Points in Transfer Function"))
                                         {
                                             showLUTColors(lut);
@@ -3734,7 +3734,7 @@ void AppDemoGui::hideHorizon(SLProjectScene* s)
 
 //-----------------------------------------------------------------------------
 //! Displays a editable color lookup table wit ImGui widgets
-void AppDemoGui::showLUTColors(SLColorLUT* lut)
+void AppDemoGui::showLUTColors(SLTexColorLUT* lut)
 {
     ImGuiColorEditFlags cef = ImGuiColorEditFlags_NoInputs;
     for (SLulong c = 0; c < lut->colors().size(); ++c)

@@ -3,7 +3,7 @@
 #endif
 
 #include <TutorialGui.h>
-#include <CVImage.h>
+#include <cv/CVImage.h>
 #include <GuiUtils.h>
 #include <SLVec2.h>
 #include <ErlebAREvents.h>

@@ -1,7 +1,7 @@
 #include <WelcomeGui.h>
 #include <ErlebAR.h>
 #include <imgui_internal.h>
-#include <CVImage.h>
+#include <cv/CVImage.h>
 
 using namespace ErlebAR;
 

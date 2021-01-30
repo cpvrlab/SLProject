@@ -7,7 +7,7 @@
 #include <SLPolyline.h>
 #include <SLAssetManager.h>
 
-#include <CVCalibration.h>
+#include <cv/CVCalibration.h>
 #include <WAIMapPoint.h>
 #include <VideoBackgroundCamera.h>
 #include <ErlebAR.h>

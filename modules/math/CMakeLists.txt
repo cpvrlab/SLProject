@@ -5,17 +5,17 @@
 set(target lib-SLMath)
 
 file(GLOB headers
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLAlgo.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLCurve.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLMat3.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLMat4.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLMath.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLPlane.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLQuat4.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLVec2.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLVec3.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLVec4.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLVector.h
+        source/SLAlgo.h
+        source/SLCurve.h
+        source/SLMat3.h
+        source/SLMat4.h
+        source/SLMath.h
+        source/SLPlane.h
+        source/SLQuat4.h
+        source/SLVec2.h
+        source/SLVec3.h
+        source/SLVec4.h
+        source/SLVector.h
 
         ${CMAKE_CURRENT_SOURCE_DIR}/externals/Shoemake/Decompose.h
         ${CMAKE_CURRENT_SOURCE_DIR}/externals/Shoemake/EulerAngles.h
@@ -53,7 +53,7 @@ target_include_directories(${target}
         PRIVATE
         ${SL_PROJECT_ROOT}/externals/libigl/include
         PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/source
         ${SL_PROJECT_ROOT}/externals/eigen
 		${CMAKE_CURRENT_SOURCE_DIR}/externals
         ${DEFAULT_INCLUDE_DIRECTORIES}

@@ -4,7 +4,7 @@
  */
 
 #include "CamCalibrationManager.h"
-#include <CVCalibrationEstimator.h>
+#include <cv/CVCalibrationEstimator.h>
 #include "Utils.h"
 
 CamCalibrationManager::CamCalibrationManager(cv::Size boardSize,

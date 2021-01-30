@@ -18,7 +18,7 @@
 #include <SLMat4.h>
 #include <SLNode.h>
 
-#include <CVCalibration.h>
+#include <cv/CVCalibration.h>
 
 class WAIApp;
 

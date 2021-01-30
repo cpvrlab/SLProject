@@ -21,11 +21,11 @@ See also the class docs for CVCapture, CVCalibration and CVTracked
 for a good top down information.
 */
 
-#include <CVTypedefs.h>
-#include <CVImage.h>
+#include <cv/CVTypedefs.h>
+#include <cv/CVImage.h>
 #include <Averaged.h>
 #include <opencv2/opencv.hpp>
-#include <CVCamera.h>
+#include <cv/CVCamera.h>
 #include <HighResTimer.h>
 
 using Utils::AvgFloat;

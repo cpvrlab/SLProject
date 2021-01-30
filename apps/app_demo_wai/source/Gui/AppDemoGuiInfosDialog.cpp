@@ -8,7 +8,6 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include <stdafx.h>
 #include <AppDemoGuiInfosDialog.h>
 #include <SLGLImGui.h>
 

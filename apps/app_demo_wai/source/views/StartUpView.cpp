@@ -2,7 +2,7 @@
 #include <SLGLTexture.h>
 #include <SLGLProgram.h>
 #include <SLLightSpot.h>
-#include <sl/SLTexFont.h>
+#include <SLTexFont.h>
 #include <SLSphere.h>
 #include <SLText.h>
 #include <SelectionGui.h>

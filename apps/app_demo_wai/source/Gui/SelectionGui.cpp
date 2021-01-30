@@ -1,7 +1,7 @@
 #include <SelectionGui.h>
 #include <ErlebAR.h>
 #include <imgui_internal.h>
-#include <CVImage.h>
+#include <cv/CVImage.h>
 #include <float.h>
 #include <ErlebAREvents.h>
 

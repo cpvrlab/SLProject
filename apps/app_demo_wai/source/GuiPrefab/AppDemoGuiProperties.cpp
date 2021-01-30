@@ -6,7 +6,7 @@
 #include <SLLightSpot.h>
 #include <AppDemoGuiInfosDialog.h>
 #include <AppDemoGuiProperties.h>
-#include <SLColorLUT.h>
+#include <SLTexColorLUT.h>
 #include <SLGLShader.h>
 #include <Utils.h>
 //-----------------------------------------------------------------------------
@@ -324,9 +324,9 @@ void AppDemoGuiProperties::buildInfos(SLScene* s, SLSceneView* sv)
                                 }
                                 else
                                 {
-                                    if (typeid(*t) == typeid(SLColorLUT))
+                                    if (typeid(*t) == typeid(SLTexColorLUT))
                                     {
-                                        SLColorLUT* tf = (SLColorLUT*)m->textures()[i];
+                                        SLTexColorLUT* tf = (SLTexColorLUT*)m->textures()[i];
                                         if (ImGui::TreeNode("Color Points in Transfer Function"))
                                         {
                                             for (SLuint c = 0; c < tf->colors().size(); ++c)

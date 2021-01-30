@@ -8,7 +8,6 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include <stdafx.h>
 #include <AppWAISlamParamHelper.h>
 #include <AppDemoGuiMapPointEditor.h>
 #include <WAIMapStorage.h>

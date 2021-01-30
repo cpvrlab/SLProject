@@ -41,7 +41,7 @@ public:
     static void buildProperties(SLScene* s, SLSceneView* sv);
     static void loadConfig(SLint dotsPerInch);
     static void saveConfig();
-    static void showLUTColors(SLColorLUT* lut);
+    static void showLUTColors(SLTexColorLUT* lut);
 
     static SLstring    configTime;          //!< Time of stored configuration
     static SLstring    infoAbout;           //!< About info string

@@ -13,7 +13,7 @@
 #include <GLFW/glfw3.h> // GLFW GUI library
 #include <SLMat4.h>     // 4x4 matrix class
 #include <SLVec3.h>     // 3D vector class
-#include <glUtils.h>    // Basics for OpenGL shaders, buffers & textures
+#include <glUtils.h> // Basics for OpenGL shaders, buffers & textures
 
 //-----------------------------------------------------------------------------
 //! Struct definition for vertex attribute position and color

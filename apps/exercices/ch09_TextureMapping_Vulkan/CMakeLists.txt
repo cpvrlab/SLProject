@@ -8,8 +8,8 @@ set(include_path "${CMAKE_CURRENT_SOURCE_DIR}")
 set(source_path "${CMAKE_CURRENT_SOURCE_DIR}")
 
 file(GLOB headers
-        ${SL_PROJECT_ROOT}/modules/sl/include/cv/CVTypedefs.h
-        ${SL_PROJECT_ROOT}/modules/sl/include/cv/CVImage.h
+        ${SL_PROJECT_ROOT}/modules/sl/source/cv/CVTypedefs.h
+        ${SL_PROJECT_ROOT}/modules/sl/source/cv/CVImage.h
         ${CMAKE_CURRENT_SOURCE_DIR}/Camera.h
         ${CMAKE_CURRENT_SOURCE_DIR}/Buffer.h
         ${CMAKE_CURRENT_SOURCE_DIR}/CommandBuffer.h
@@ -99,9 +99,9 @@ target_include_directories(${target}
         PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}
         ${SL_PROJECT_ROOT}/modules/math/include
-        ${SL_PROJECT_ROOT}/modules/sl/include
-        ${SL_PROJECT_ROOT}/modules/sl/include/cv
-        ${SL_PROJECT_ROOT}/modules/sl/include/sl
+        ${SL_PROJECT_ROOT}/modules/sl/source
+        ${SL_PROJECT_ROOT}/modules/sl/source/cv
+        ${SL_PROJECT_ROOT}/modules/sl/source/sl
         ${SL_PROJECT_ROOT}/modules/sl/external
         ${SL_PROJECT_ROOT}/modules/sl/external/gl3w
         ${SL_PROJECT_ROOT}/modules/sl/external/gl3w/GL

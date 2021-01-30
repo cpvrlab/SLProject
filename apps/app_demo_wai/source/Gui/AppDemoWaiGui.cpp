@@ -9,13 +9,11 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include <stdafx.h> // Must be the 1st include followed by  an empty line
-
 #include <AppDemoWaiGui.h>
 #include <SLAnimPlayback.h>
 #include <AverageTiming.h>
-#include <CVImage.h>
-#include <CVTrackedFeatures.h>
+#include <cv/CVImage.h>
+#include <cv/CVTrackedFeatures.h>
 #include <SLGLProgram.h>
 #include <SLGLShader.h>
 #include <SLGLTexture.h>

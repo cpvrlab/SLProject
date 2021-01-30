@@ -17,7 +17,7 @@ See also the class docs for CVCapture, CVCalibration and CVTracked
 for a good top down information.
 */
 
-#include <CVTrackedChessboard.h>
+#include <cv/CVTrackedChessboard.h>
 #include <Utils.h>
 
 //-----------------------------------------------------------------------------

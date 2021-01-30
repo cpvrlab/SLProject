@@ -2,10 +2,10 @@
 
 #    include <AverageTiming.h>
 #    include <GLSLHessian.h>
-#    include <SLSceneView.h>
-#    include <SLPoints.h>
-#    include <SLPolyline.h>
-#    include <CVCalibration.h>
+#    include <modules/sl/source/SLSceneView.h>
+#    include <modules/sl/source/mesh/SLPoints.h>
+#    include <modules/sl/source/mesh/SLPolyline.h>
+#    include <modules/sl/source/cv/CVCalibration.h>
 #    include <BRIEFPattern.h>
 
 #    define INPUT 0

@@ -8,7 +8,7 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include <CVImageGeoTiff.h>
+#include <cv/CVImageGeoTiff.h>
 #include <json.hpp>
 #include <Utils.h>
 #include <SL.h>

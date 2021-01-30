@@ -8,7 +8,7 @@
 #include <SlamParams.h>
 #include <AppDemoGuiSlamLoad.h>
 #include <SENSVideoStream.h>
-#include <CVCalibration.h>
+#include <cv/CVCalibration.h>
 #include <WAIOrbVocabulary.h>
 #include <queue>
 #include <ImageBuffer.h>

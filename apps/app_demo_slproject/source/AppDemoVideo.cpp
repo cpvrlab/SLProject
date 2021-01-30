@@ -12,9 +12,9 @@
 #include <SLScene.h>
 #include <SLSceneView.h>
 #include <CVCapture.h>
-#include <CVTrackedAruco.h>
+#include <cv/CVTrackedAruco.h>
 #include <SLGLTexture.h>
-#include <CVCalibrationEstimator.h>
+#include <cv/CVCalibrationEstimator.h>
 #include <AppDemoSceneView.h>
 #include <SLApplication.h>
 #include <FtpUtils.h>

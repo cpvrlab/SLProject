@@ -6,7 +6,7 @@
 #include <SLSceneView.h>
 #include <SLPoints.h>
 #include <SLPolyline.h>
-#include <CVCalibration.h>
+#include <cv/CVCalibration.h>
 //#include <BRIEFpattern.h>
 
 #define INPUT 0

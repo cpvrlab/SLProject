@@ -11,8 +11,8 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include <CVTypedefs.h>
-#include <CVRaulMurExtNode.h>
+#include <cv/CVTypedefs.h>
+#include <cv/CVRaulMurExtNode.h>
 #include <algorithm> // std::max
 
 //-----------------------------------------------------------------------------

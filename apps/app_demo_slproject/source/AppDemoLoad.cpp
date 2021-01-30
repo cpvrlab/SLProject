@@ -11,11 +11,11 @@
 #include <GlobalTimer.h>
 
 #include <CVCapture.h>
-#include <CVTrackedAruco.h>
-#include <CVTrackedChessboard.h>
-#include <CVTrackedFaces.h>
-#include <CVTrackedFeatures.h>
-#include <CVCalibrationEstimator.h>
+#include <cv/CVTrackedAruco.h>
+#include <cv/CVTrackedChessboard.h>
+#include <cv/CVTrackedFaces.h>
+#include <cv/CVTrackedFeatures.h>
+#include <cv/CVCalibrationEstimator.h>
 
 #include <SLApplication.h>
 #include <SLAssimpImporter.h>
@@ -37,7 +37,7 @@
 #include <SLSkybox.h>
 #include <SLSphere.h>
 #include <SLText.h>
-#include <SLColorLUT.h>
+#include <SLTexColorLUT.h>
 #include <SLProjectScene.h>
 #include <SLGLProgramManager.h>
 #include <Instrumentor.h>
@@ -45,7 +45,7 @@
 #include <AppDemoGui.h>
 
 #ifdef SL_BUILD_WAI
-#    include <CVTrackedWAI.h>
+#    include <modules/sl/source/cv/CVTrackedWAI.h>
 #endif
 //-----------------------------------------------------------------------------
 // Global pointers declared in AppDemoVideo
@@ -2406,7 +2406,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLVAlphaLUTPoint tfAlphas = {SLAlphaLUTPoint(0.00f, 0.00f),
                                      SLAlphaLUTPoint(0.01f, 0.75f),
                                      SLAlphaLUTPoint(1.00f, 1.00f)};
-        SLColorLUT*      tf       = new SLColorLUT(s, tfAlphas, CLUT_BCGYR);
+        SLTexColorLUT*      tf       = new SLTexColorLUT(s, tfAlphas, CLUT_BCGYR);
 
         // Load shader and uniforms for volume size
         SLGLProgram*   sp   = new SLGLProgramGeneric(s,
@@ -2482,7 +2482,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLVAlphaLUTPoint tfAlphas = {SLAlphaLUTPoint(0.00f, 0.00f),
                                      SLAlphaLUTPoint(0.01f, 0.75f),
                                      SLAlphaLUTPoint(1.00f, 1.00f)};
-        SLColorLUT*      tf       = new SLColorLUT(s, tfAlphas, CLUT_BCGYR);
+        SLTexColorLUT*      tf       = new SLTexColorLUT(s, tfAlphas, CLUT_BCGYR);
 
         // Load shader and uniforms for volume size
         SLGLProgram*   sp   = new SLGLProgramGeneric(s,

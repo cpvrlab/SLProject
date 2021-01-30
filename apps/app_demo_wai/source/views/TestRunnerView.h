@@ -3,7 +3,7 @@
 
 #include <SlamParams.h>
 #include <SLSceneView.h>
-#include <CVCalibration.h>
+#include <cv/CVCalibration.h>
 #include <TestRunnerGui.h>
 #include <sm/EventHandler.h>
 #include <ErlebAR.h>

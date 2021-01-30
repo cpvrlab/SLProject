@@ -17,7 +17,7 @@ See also the class docs for CVCapture, CVCalibration and CVTracked
 for a good top down information.
 */
 
-#include <CVTracked.h>
+#include <cv/CVTracked.h>
 
 //-----------------------------------------------------------------------------
 // Static declarations

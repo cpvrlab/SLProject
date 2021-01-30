@@ -7,8 +7,8 @@ set(target app-CamCalibration)
 set(headers
     ${CMAKE_CURRENT_SOURCE_DIR}/CamCalibration.h
     ${CMAKE_CURRENT_SOURCE_DIR}/CamCalibrationManager.h
-    ${SL_PROJECT_ROOT}/modules/sl/include/cv/CVCalibration.h
-    ${SL_PROJECT_ROOT}/modules/sl/include/cv/CVCalibrationEstimator.h
+    ${SL_PROJECT_ROOT}/modules/sl/source/cv/CVCalibration.h
+    ${SL_PROJECT_ROOT}/modules/sl/source/cv/CVCalibrationEstimator.h
     )
 
 set(sources
@@ -35,8 +35,8 @@ target_include_directories(${target}
     PRIVATE
     ${OpenCV_INCLUDE_DIR}
     ${SL_PROJECT_ROOT}/externals/utils/lib-Utils/source
-    ${SL_PROJECT_ROOT}/modules/sl/include
-    ${SL_PROJECT_ROOT}/modules/sl/include/CV
+    ${SL_PROJECT_ROOT}/modules/sl/source
+    ${SL_PROJECT_ROOT}/modules/sl/source/CV
     PUBLIC
 
     INTERFACE

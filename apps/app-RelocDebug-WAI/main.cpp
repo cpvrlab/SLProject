@@ -14,7 +14,7 @@
 #include <AppWAISlamParamHelper.h>
 #include <Utils.h>
 #include <WAIMapStorage.h>
-#include <CVCamera.h>
+#include <cv/CVCamera.h>
 #include <GLSLextractor.h>
 #include <FeatureExtractorFactory.h>
 

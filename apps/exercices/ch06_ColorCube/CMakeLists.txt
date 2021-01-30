@@ -8,13 +8,13 @@ set(include_path "${CMAKE_CURRENT_SOURCE_DIR}")
 set(source_path "${CMAKE_CURRENT_SOURCE_DIR}")
 
 file(GLOB headers
-        ${SL_PROJECT_ROOT}/modules/sl/include/glUtils.h
-        ${SL_PROJECT_ROOT}/modules/sl/include/CVTypedefs.h
-        ${SL_PROJECT_ROOT}/modules/sl/include/CVImage.h
+        ${SL_PROJECT_ROOT}/modules/sl/source/gl/glUtils.h
+        ${SL_PROJECT_ROOT}/modules/sl/source/cv/CVTypedefs.h
+        ${SL_PROJECT_ROOT}/modules/sl/source/cv/CVImage.h
         )
 
 file(GLOB sources
-        ${SL_PROJECT_ROOT}/modules/sl/source/glUtils.cpp
+        ${SL_PROJECT_ROOT}/modules/sl/source/gl/glUtils.cpp
         ${SL_PROJECT_ROOT}/modules/sl/source/sl/SL.cpp
         ${SL_PROJECT_ROOT}/modules/sl/source/cv/CVImage.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/ColorCube.cpp
@@ -39,12 +39,12 @@ set_target_properties(${target}
 
 target_include_directories(${target}
         PRIVATE
-        ${SL_PROJECT_ROOT}/modules/math/include
+        ${SL_PROJECT_ROOT}/modules/math/source
         ${SL_PROJECT_ROOT}/modules/math/externals
-        ${SL_PROJECT_ROOT}/modules/sl/include
-        ${SL_PROJECT_ROOT}/modules/sl/include/cv
-        ${SL_PROJECT_ROOT}/modules/sl/include/gl
-        ${SL_PROJECT_ROOT}/modules/sl/include/sl
+        ${SL_PROJECT_ROOT}/modules/sl/source
+        ${SL_PROJECT_ROOT}/modules/sl/source/cv
+        ${SL_PROJECT_ROOT}/modules/sl/source/gl
+        ${SL_PROJECT_ROOT}/modules/sl/source/sl
         ${SL_PROJECT_ROOT}/modules/sl/externals
         ${SL_PROJECT_ROOT}/modules/sl/externals/gl3w
         ${SL_PROJECT_ROOT}/modules/sl/externals/gl3w/GL

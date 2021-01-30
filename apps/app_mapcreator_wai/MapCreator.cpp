@@ -1,6 +1,6 @@
 #include <memory>
 #include <vector>
-#include <CVCamera.h>
+#include <cv/CVCamera.h>
 #include <GLSLextractor.h>
 #include <FeatureExtractorFactory.h>
 #include <SENSVideoStream.h>
