@@ -13,9 +13,13 @@
 
 #include <SL.h>
 #include <SLVec4.h>
+#include <SLShadowMap.h>
+
+#ifdef SL_HAS_OPTIX
 #include <SLOptixDefinitions.h>
 #include <SLOptixHelper.h>
-#include <SLShadowMap.h>
+#include <SLOptixVectorMath.h>
+#endif
 
 class SLRay;
 class SLNode;

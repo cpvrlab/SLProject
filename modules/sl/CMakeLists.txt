@@ -320,7 +320,6 @@ if (DEFINED ENV{CUDA_PATH} AND SL_BUILD_WITH_OPTIX)
             ${SL_PROJECT_ROOT}/modules/sl/cuda
             ${SL_PROJECT_ROOT}/modules/sl/source/optix
             ${CMAKE_CURRENT_SOURCE_DIR}/cuda
-            ${CMAKE_CURRENT_SOURCE_DIR}/include
             )
 
     cuda_compile_ptx(ptx
@@ -358,27 +357,27 @@ target_include_directories(${target}
         PRIVATE
 
         PUBLIC
-        ${platform_specific_include_dirs}
-        ${SL_PROJECT_ROOT}/modules/sl/source/accelstruct
-        ${SL_PROJECT_ROOT}/modules/sl/source/animation
-        ${SL_PROJECT_ROOT}/modules/sl/source/cv
-        ${SL_PROJECT_ROOT}/modules/sl/source/gl
-        ${SL_PROJECT_ROOT}/modules/sl/source/input
-        ${SL_PROJECT_ROOT}/modules/sl/source/mesh
-        ${SL_PROJECT_ROOT}/modules/sl/source/node
-        ${SL_PROJECT_ROOT}/modules/sl/source/optix
-        ${SL_PROJECT_ROOT}/modules/sl/source/ray
-        ${SL_PROJECT_ROOT}/modules/sl/source
-        ${SL_PROJECT_ROOT}/modules/math/source
-        ${OpenCV_INCLUDE_DIR}
-        ${OptiX_INCLUDE}
-        ${CUDA_INCLUDE_DIRS}
-        ${assimp_INCLUDE_DIR}
-        ${SL_PROJECT_ROOT}/apps/source
-        ${SL_PROJECT_ROOT}/externals/nlohmann
-        ${SL_PROJECT_ROOT}/externals/eigen
-        ${SL_PROJECT_ROOT}/externals/libigl/include
-        ${DEFAULT_INCLUDE_DIRECTORIES}
+            ${platform_specific_include_dirs}
+            ${SL_PROJECT_ROOT}/modules/sl/source/accelstruct
+            ${SL_PROJECT_ROOT}/modules/sl/source/animation
+            ${SL_PROJECT_ROOT}/modules/sl/source/cv
+            ${SL_PROJECT_ROOT}/modules/sl/source/gl
+            ${SL_PROJECT_ROOT}/modules/sl/source/input
+            ${SL_PROJECT_ROOT}/modules/sl/source/mesh
+            ${SL_PROJECT_ROOT}/modules/sl/source/node
+            ${SL_PROJECT_ROOT}/modules/sl/source/optix
+            ${SL_PROJECT_ROOT}/modules/sl/source/ray
+            ${SL_PROJECT_ROOT}/modules/sl/source
+            ${SL_PROJECT_ROOT}/modules/math/source
+            ${OpenCV_INCLUDE_DIR}
+            ${OptiX_INCLUDE}
+            ${CUDA_INCLUDE_DIRS}
+            ${assimp_INCLUDE_DIR}
+            ${SL_PROJECT_ROOT}/apps/source
+            ${SL_PROJECT_ROOT}/externals/nlohmann
+            ${SL_PROJECT_ROOT}/externals/eigen
+            ${SL_PROJECT_ROOT}/externals/libigl/include
+            ${DEFAULT_INCLUDE_DIRECTORIES}
 
         INTERFACE
         )

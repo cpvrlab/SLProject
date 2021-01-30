@@ -8,7 +8,6 @@
 //#############################################################################
 
 #ifdef SL_HAS_OPTIX
-#    include <stdafx.h> // Must be the 1st include followed by  an empty line
 #    include <SLOptix.h>
 #    include <SLOptixHelper.h>
 

@@ -14,6 +14,11 @@
 #    include <sstream>
 #    include <cuda_runtime.h>
 #    include <SLOptixHelper.h>
+#    include <SLOptixVectorMath.h>
+#    include <SLVec4.h>
+
+using std::string;
+using std::stringstream;
 
 //-----------------------------------------------------------------------------
 static bool readSourceFile(string& str, const string& filename)

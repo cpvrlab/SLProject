@@ -6,7 +6,7 @@
 #include <GLFW/glfw3.h>
 #include <vulkan/vulkan.h>
 #include <string>
-#include <cv/CVImage.h> // Image class for image loading
+#include <CVImage.h> // Image class for image loading
 #include <SLVec3.h>
 #include <glUtils.h>
 #include <Utils.h>

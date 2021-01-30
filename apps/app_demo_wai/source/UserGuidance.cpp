@@ -363,9 +363,9 @@ void UserGuidance::estimateArrowOrientation()
     Z.normalize();
     //build rotation matrix
     // clang-format off
-    SLMat3f enuRp(X.x, Y.x, Z.x,
-                  X.y, Y.y, Z.y,
-                  X.z, Y.z, Z.z);
+    SLMat3f enuRp((float)X.x, (float)Y.x, (float)Z.x,
+                  (float)X.y, (float)Y.y, (float)Z.y,
+                  (float)X.z, (float)Y.z, (float)Z.z);
     // clang-format on
 
     //ROTATION OF ARROW WRT. CAMERA
