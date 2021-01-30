@@ -14,8 +14,8 @@
 #include <SLRaytracer.h>
 #include <SLSceneView.h>
 #include <SLCamera.h>
-#include <modules/sl/_old/SLKDNode.h>
-#include <modules/sl/_old/SLKDTree.h>
+#include <SLKDNode.h>
+#include <SLKDTree.h>
 
 //-----------------------------------------------------------------------------
 SLuint SLKDNode::kdNodeCnt = 0;

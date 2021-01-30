@@ -9,14 +9,14 @@
 
 #include <stdafx.h>           // precompiled headers
 
-#include <modules/sl/_old/SLUniformGrid.h>
+#include <SLUniformGrid.h>
 #include <SLNode.h>
 #include <SLRay.h>
 #include <SLRaytracer.h>
 #include <SLSceneView.h>
 #include <SLCamera.h>
 #include <SLGLProgram.h>
-#include <modules/math/externals/Moeller/TriangleBoxIntersect.h>
+#include <Moeller/TriangleBoxIntersect.h>
 
 //-----------------------------------------------------------------------------
 SLUniformGrid::SLUniformGrid(SLMesh* m) : SLAccelStruct(m)

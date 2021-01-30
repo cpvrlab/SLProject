@@ -25,7 +25,7 @@
 #include <SLOptixRaytracer.h>
 #include <SLOptixPathtracer.h>
 #include <math/SLRect.h>
-#include <modules/sl/source/input/SLUiInterface.h>
+#include <SLUiInterface.h>
 #include <unordered_set>
 
 //-----------------------------------------------------------------------------

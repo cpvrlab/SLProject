@@ -10,7 +10,7 @@
 #include <SLCompactGrid.h>
 #include <SLNode.h>
 #include <SLRay.h>
-#include <modules/math/externals/Moeller/TriangleBoxIntersect.h>
+#include <Moeller/TriangleBoxIntersect.h>
 #include <Instrumentor.h>
 
 //-----------------------------------------------------------------------------

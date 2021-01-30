@@ -45,7 +45,7 @@
 #include <AppDemoGui.h>
 
 #ifdef SL_BUILD_WAI
-#    include <modules/sl/source/cv/CVTrackedWAI.h>
+#    include <CVTrackedWAI.h>
 #endif
 //-----------------------------------------------------------------------------
 // Global pointers declared in AppDemoVideo

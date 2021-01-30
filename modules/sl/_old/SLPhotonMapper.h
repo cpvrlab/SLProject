@@ -11,9 +11,9 @@
 #define SLPHOTONMAPPER_H
 
 #include <stdafx.h>
-#include <randomc.h>       // high qualtiy random generators
+#include <randomc.h>       // high quality random generators
 #include <SLRaytracer.h>
-#include <modules/sl/_old/SLPhotonMap.h>
+#include <SLPhotonMap.h>
 
 class SLLight;
 

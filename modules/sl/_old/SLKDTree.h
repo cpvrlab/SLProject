@@ -11,7 +11,7 @@
 
 #include <stdafx.h>
 #include <SLAccelStruct.h>
-#include <modules/sl/_old/SLKDNode.h>
+#include <SLKDNode.h>
 
 //-----------------------------------------------------------------------------
 //! SLKDTree implements the kd-tree space partitioning structure.

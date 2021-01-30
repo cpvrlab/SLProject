@@ -18,7 +18,7 @@
 #include <SLEnums.h>
 #include <SLVec2.h>
 #include <math/SLRect.h>
-#include <modules/sl/source/input/SLUiInterface.h>
+#include <SLUiInterface.h>
 #include <HighResTimer.h>
 
 class SLScene;

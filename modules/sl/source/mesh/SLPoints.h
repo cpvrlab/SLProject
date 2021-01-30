@@ -12,7 +12,7 @@
 #define SLPOINTS_H
 
 #include <SLMesh.h>
-#include <modules/math/source/SLRnd3f.h>
+#include <SLRnd3f.h>
 
 //-----------------------------------------------------------------------------
 //! SLPoints creates

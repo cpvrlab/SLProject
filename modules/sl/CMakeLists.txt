@@ -38,225 +38,219 @@ file(GLOB cuda
         ${CMAKE_CURRENT_SOURCE_DIR}/cuda/SLOptixRaytracerShading.cu
         )
 
-file(GLOB headers
+file(GLOB sources
         source/SL.h
+        source/SLBackground.cpp
         source/SLBackground.h
         source/SLDrawBits.h
         source/SLEnums.h
         source/SLEventHandler.h
+        source/SLMaterial.cpp
         source/SLMaterial.h
         source/SLObject.h
+        source/SLScene.cpp
         source/SLScene.h
+        source/SLSceneView.cpp
         source/SLSceneView.h
+        source/SLShadowMap.cpp
         source/SLShadowMap.h
+        source/SLTexColorLUT.cpp
         source/SLTexColorLUT.h
+        source/SLTexFont.cpp
         source/SLTexFont.h
+        source/accelstruct/SLAABBox.cpp
         source/accelstruct/SLAABBox.h
         source/accelstruct/SLAccelStruct.h
+        source/accelstruct/SLCompactGrid.cpp
         source/accelstruct/SLCompactGrid.h
+        source/animation/SLAnimKeyframe.cpp
         source/animation/SLAnimKeyframe.h
+        source/animation/SLAnimManager.cpp
         source/animation/SLAnimManager.h
+        source/animation/SLAnimPlayback.cpp
         source/animation/SLAnimPlayback.h
-        source/animation/SLAnimTrack.h
-        source/animation/SLAnimation.h
+        source/animation/SLAnimSkeleton.cpp
         source/animation/SLAnimSkeleton.h
+        source/animation/SLAnimTrack.cpp
+        source/animation/SLAnimTrack.h
+        source/animation/SLAnimation.cpp
+        source/animation/SLAnimation.h
+        source/cv/CVCalibration.cpp
         source/cv/CVCalibration.h
+        source/cv/CVCalibrationEstimator.cpp
         source/cv/CVCalibrationEstimator.h
+        source/cv/CVCamera.cpp
         source/cv/CVCamera.h
+        source/cv/CVFeatureManager.cpp
         source/cv/CVFeatureManager.h
+        source/cv/CVImage.cpp
         source/cv/CVImage.h
+        source/cv/CVImageGeoTiff.cpp
         source/cv/CVImageGeoTiff.h
+        source/cv/CVRaulMurExtNode.cpp
         source/cv/CVRaulMurExtNode.h
+        source/cv/CVRaulMurOrb.cpp
         source/cv/CVRaulMurOrb.h
+        source/cv/CVTracked.cpp
         source/cv/CVTracked.h
+        source/cv/CVTrackedAruco.cpp
         source/cv/CVTrackedAruco.h
+        source/cv/CVTrackedChessboard.cpp
         source/cv/CVTrackedChessboard.h
+        source/cv/CVTrackedFaces.cpp
         source/cv/CVTrackedFaces.h
+        source/cv/CVTrackedFeatures.cpp
         source/cv/CVTrackedFeatures.h
         source/cv/CVTypedefs.h
         source/cv/CVTypes.h
+        source/gl/SLGLConetracer.cpp
         source/gl/SLGLConetracer.h
+        source/gl/SLGLConetracerTex3D.cpp
         source/gl/SLGLConetracerTex3D.h
+        source/gl/SLGLDepthBuffer.cpp
         source/gl/SLGLDepthBuffer.h
         source/gl/SLGLEnums.h
+        source/gl/SLGLFbo.cpp
         source/gl/SLGLFbo.h
+        source/gl/SLGLFrameBuffer.cpp
         source/gl/SLGLFrameBuffer.h
+        source/gl/SLGLImGui.cpp
         source/gl/SLGLImGui.h
         source/gl/SLGLOVRWorkaround.h
+        source/gl/SLGLOculus.cpp
         source/gl/SLGLOculus.h
+        source/gl/SLGLOculusFB.cpp
         source/gl/SLGLOculusFB.h
+        source/gl/SLGLProgram.cpp
         source/gl/SLGLProgram.h
+        source/gl/SLGLProgramGenerated.cpp
         source/gl/SLGLProgramGenerated.h
         source/gl/SLGLProgramGeneric.h
+        source/gl/SLGLProgramManager.cpp
         source/gl/SLGLProgramManager.h
+        source/gl/SLGLShader.cpp
         source/gl/SLGLShader.h
+        source/gl/SLGLState.cpp
         source/gl/SLGLState.h
+        source/gl/SLGLTexture.cpp
         source/gl/SLGLTexture.h
+        source/gl/SLGLTextureIBL.cpp
         source/gl/SLGLTextureIBL.h
         source/gl/SLGLUniform.h
+        source/gl/SLGLVertexArray.cpp
         source/gl/SLGLVertexArray.h
+        source/gl/SLGLVertexArrayExt.cpp
         source/gl/SLGLVertexArrayExt.h
+        source/gl/SLGLVertexBuffer.cpp
         source/gl/SLGLVertexBuffer.h
+        source/input/SLAssetManager.cpp
         source/input/SLAssetManager.h
+        source/input/SLAssimpImporter.cpp
         source/input/SLAssimpImporter.h
+        source/input/SLDeviceLocation.cpp
         source/input/SLDeviceLocation.h
+        source/input/SLDeviceRotation.cpp
         source/input/SLDeviceRotation.h
+        source/input/SLImporter.cpp
         source/input/SLImporter.h
+        source/input/SLInputDevice.cpp
         source/input/SLInputDevice.h
         source/input/SLInputEvent.h
+        source/input/SLInputEventInterface.cpp
         source/input/SLInputEventInterface.h
+        source/input/SLInputManager.cpp
         source/input/SLInputManager.h
         source/input/SLUiInterface.h
+        source/math/SLCurveBezier.cpp
         source/math/SLCurveBezier.h
         source/math/SLRect.h
         source/mesh/SLArrow.h
+        source/mesh/SLBox.cpp
         source/mesh/SLBox.h
+        source/mesh/SLCircle.cpp
         source/mesh/SLCircle.h
+        source/mesh/SLCone.cpp
         source/mesh/SLCone.h
+        source/mesh/SLCoordAxis.cpp
         source/mesh/SLCoordAxis.h
+        source/mesh/SLCoordAxisArrow.cpp
         source/mesh/SLCoordAxisArrow.h
+        source/mesh/SLCylinder.cpp
         source/mesh/SLCylinder.h
+        source/mesh/SLDisk.cpp
         source/mesh/SLDisk.h
+        source/mesh/SLGrid.cpp
         source/mesh/SLGrid.h
+        source/mesh/SLLens.cpp
         source/mesh/SLLens.h
+        source/mesh/SLMesh.cpp
         source/mesh/SLMesh.h
+        source/mesh/SLPoints.cpp
         source/mesh/SLPoints.h
+        source/mesh/SLPolygon.cpp
         source/mesh/SLPolygon.h
         source/mesh/SLPolyline.h
+        source/mesh/SLRectangle.cpp
         source/mesh/SLRectangle.h
+        source/mesh/SLRevolver.cpp
         source/mesh/SLRevolver.h
         source/mesh/SLSphere.h
+        source/mesh/SLSpheric.cpp
         source/mesh/SLSpheric.h
+        source/mesh/SLTriangle.cpp
         source/mesh/SLTriangle.h
+        source/node/SLCamera.cpp
         source/node/SLCamera.h
+        source/node/SLHorizonNode.cpp
         source/node/SLHorizonNode.h
+        source/node/SLJoint.cpp
         source/node/SLJoint.h
+        source/node/SLKeyframeCamera.cpp
         source/node/SLKeyframeCamera.h
+        source/node/SLLight.cpp
         source/node/SLLight.h
+        source/node/SLLightDirect.cpp
         source/node/SLLightDirect.h
+        source/node/SLLightRect.cpp
         source/node/SLLightRect.h
+        source/node/SLLightSpot.cpp
         source/node/SLLightSpot.h
+        source/node/SLNode.cpp
         source/node/SLNode.h
+        source/node/SLSkybox.cpp
         source/node/SLSkybox.h
+        source/node/SLText.cpp
         source/node/SLText.h
+        source/node/SLTransformNode.cpp
         source/node/SLTransformNode.h
-        source/optix/SLOptixCudaBuffer.h
+        source/optix/SLOptix.cpp
         source/optix/SLOptix.h
+        source/optix/SLOptixAccelStruct.cpp
+        source/optix/SLOptixCudaBuffer.h
         source/optix/SLOptixDefinitions.h
+        source/optix/SLOptixHelper.cpp
         source/optix/SLOptixHelper.h
         source/optix/SLOptixHelper.h
+        source/optix/SLOptixPathtracer.cpp
         source/optix/SLOptixPathtracer.h
+        source/optix/SLOptixRaytracer.cpp
         source/optix/SLOptixRaytracer.h
         source/optix/SLOptixVectorMath.h
+        source/ray/SLPathtracer.cpp
         source/ray/SLPathtracer.h
+        source/ray/SLRay.cpp
         source/ray/SLRay.h
+        source/ray/SLRaySamples2D.cpp
         source/ray/SLRaySamples2D.h
+        source/ray/SLRaytracer.cpp
         source/ray/SLRaytracer.h
         )
 
-set(sources
-        source/SLBackground.cpp
-        source/SLMaterial.cpp
-        source/SLScene.cpp
-        source/SLSceneView.cpp
-        source/SLShadowMap.cpp
-        source/SLTexColorLUT.cpp
-        source/SLTexFont.cpp
-        source/accelstruct/SLAABBox.cpp
-        source/accelstruct/SLCompactGrid.cpp
-        source/animation/SLAnimKeyframe.cpp
-        source/animation/SLAnimManager.cpp
-        source/animation/SLAnimPlayback.cpp
-        source/animation/SLAnimTrack.cpp
-        source/animation/SLAnimation.cpp
-        source/animation/SLAnimSkeleton.cpp
-        source/cv/CVCalibration.cpp
-        source/cv/CVCalibrationEstimator.cpp
-        source/cv/CVCamera.cpp
-        source/cv/CVFeatureManager.cpp
-        source/cv/CVImage.cpp
-        source/cv/CVImageGeoTiff.cpp
-        source/cv/CVRaulMurExtNode.cpp
-        source/cv/CVRaulMurOrb.cpp
-        source/cv/CVTracked.cpp
-        source/cv/CVTrackedAruco.cpp
-        source/cv/CVTrackedChessboard.cpp
-        source/cv/CVTrackedFaces.cpp
-        source/cv/CVTrackedFeatures.cpp
-        source/gl/SLGLConetracer.cpp
-        source/gl/SLGLConetracerTex3D.cpp
-        source/gl/SLGLDepthBuffer.cpp
-        source/gl/SLGLFbo.cpp
-        source/gl/SLGLFrameBuffer.cpp
-        source/gl/SLGLImGui.cpp
-        source/gl/SLGLOculus.cpp
-        source/gl/SLGLOculusFB.cpp
-        source/gl/SLGLProgram.cpp
-        source/gl/SLGLProgramGenerated.cpp
-        source/gl/SLGLProgramManager.cpp
-        source/gl/SLGLShader.cpp
-        source/gl/SLGLState.cpp
-        source/gl/SLGLTexture.cpp
-        source/gl/SLGLTextureIBL.cpp
-        source/gl/SLGLVertexArray.cpp
-        source/gl/SLGLVertexArrayExt.cpp
-        source/gl/SLGLVertexBuffer.cpp
-        source/input/SLAssetManager.cpp
-        source/input/SLAssimpImporter.cpp
-        source/input/SLDeviceLocation.cpp
-        source/input/SLDeviceRotation.cpp
-        source/input/SLImporter.cpp
-        source/input/SLInputDevice.cpp
-        source/input/SLInputEventInterface.cpp
-        source/input/SLInputManager.cpp
-        source/math/SLCurveBezier.cpp
-        source/mesh/SLBox.cpp
-        source/mesh/SLCircle.cpp
-        source/mesh/SLCone.cpp
-        source/mesh/SLCoordAxis.cpp
-        source/mesh/SLCoordAxisArrow.cpp
-        source/mesh/SLCylinder.cpp
-        source/mesh/SLDisk.cpp
-        source/mesh/SLGrid.cpp
-        source/mesh/SLLens.cpp
-        source/mesh/SLMesh.cpp
-        source/mesh/SLPoints.cpp
-        source/mesh/SLPolygon.cpp
-        source/mesh/SLRectangle.cpp
-        source/mesh/SLRevolver.cpp
-        source/mesh/SLSpheric.cpp
-        source/mesh/SLTriangle.cpp
-        source/node/SLCamera.cpp
-        source/node/SLHorizonNode.cpp
-        source/node/SLJoint.cpp
-        source/node/SLKeyframeCamera.cpp
-        source/node/SLLight.cpp
-        source/node/SLLightDirect.cpp
-        source/node/SLLightRect.cpp
-        source/node/SLLightSpot.cpp
-        source/node/SLNode.cpp
-        source/node/SLSkybox.cpp
-        source/node/SLText.cpp
-        source/node/SLTransformNode.cpp
-        source/optix/SLOptix.cpp
-        source/optix/SLOptixAccelStruct.cpp
-        source/optix/SLOptixHelper.cpp
-        source/optix/SLOptixPathtracer.cpp
-        source/optix/SLOptixRaytracer.cpp
-        source/ray/SLPathtracer.cpp
-        source/ray/SLRay.cpp
-        source/ray/SLRaySamples2D.cpp
-        source/ray/SLRaytracer.cpp
-        )
-
 if (SL_BUILD_WAI)
-        set(headers
-                ${headers}
-                source/cv/CVTrackedWAI.h)
-
         set(sources
                 ${sources}
-                ${CMAKE_CURRENT_SOURCE_DIR}/source/cv/CVTrackedWAI.cpp)
+                source/cv/CVTrackedWAI.cpp
+                source/cv/CVTrackedWAI.h)
 endif()
 
 file(GLOB shaders
@@ -267,7 +261,6 @@ file(GLOB shaders
         )
 
 # Group source files
-source_group_by_path("${CMAKE_CURRENT_SOURCE_DIR}/include" "\\\\.h$|\\\\.hpp$" "Header Files" ${headers})
 source_group_by_path("${CMAKE_CURRENT_SOURCE_DIR}/source" "\\\\.cpp$|\\\\.c$|\\\\.h$|\\\\.hpp$" "Source Files" ${sources})
 source_group_by_path("${SL_PROJECT_ROOT}/data/shaders" "\\\\.frag|\\\\.vert|\\\\.geom$" "Shaders" ${shaders})
 
@@ -342,7 +335,6 @@ endif()
 
 #==============================================================================
 add_library(${target}
-        ${headers}
         ${sources}
         ${shaders})
 

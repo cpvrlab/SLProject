@@ -2,11 +2,9 @@
 
 #    include <AverageTiming.h>
 #    include <GLSLHessian.h>
-#    include <modules/sl/source/SLSceneView.h>
-#    include <modules/sl/source/mesh/SLPoints.h>
-#    include <modules/sl/source/mesh/SLPolyline.h>
-#    include <modules/sl/source/cv/CVCalibration.h>
-#    include <BRIEFPattern.h>
+#    include <SLSceneView.h>
+#    include <SLPolyline.h>
+#    include <CVCalibration.h>
 
 #    define INPUT 0
 #    define D2GDX2 1
