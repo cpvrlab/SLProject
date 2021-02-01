@@ -32,7 +32,6 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
 
 option(SL_DOWNLOAD_PREBUILTS "Specifies if prebuilt libraries should be downloaded"  ON)
-option(SL_BUILD_WAI          "Specifies if the WAI apps and library should be built" ON)
 option(SL_BUILD_APPS         "Specifies if sample apps should be built"              ON)
 option(SL_BUILD_EXERCISES    "Specifies if exercise apps should be built"            ON)
 option(SL_BUILD_VULKAN_APPS  "Specifies if vulkan apps should be built"             OFF)
@@ -40,7 +39,6 @@ option(SL_BUILD_WITH_OPTIX   "Specifies if Optix renderer should be built"      
 option(LIBIGL_USE_STATIC_LIBRARY "Specifies if LibIGL should be built statically"    ON)
 
 message(STATUS "SL_DOWNLOAD_PREBUILTS: ${SL_DOWNLOAD_PREBUILTS}")
-message(STATUS "SL_BUILD_WAI: ${SL_BUILD_WAI}")
 message(STATUS "SL_BUILD_APPS: ${SL_BUILD_APPS}")
 message(STATUS "SL_BUILD_EXERCISES: ${SL_BUILD_EXERCISES}")
 message(STATUS "SL_BUILD_VULKAN_APPS: ${SL_BUILD_VULKAN_APPS}")
