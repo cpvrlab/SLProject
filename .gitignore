@@ -1,36 +1,39 @@
 # Ignored files
 
-*.suo
-*.vsp
-*.user
-*.user.*
-*.sdf
-*.opensdf
-*.idb
-*.pdb
-*.obj
-*.md5
-*.dll
-*.lib
-*.exe
-*.opendb
-*.psess
+*.bak
+*.blend1
 *.db
+*.dll
+*.exe
+*.idb
+*.lib
+*.lnk
+*.log
+*.md5
+*.obj
+*.opendb
+*.opensdf
+*.pdb
+*.psess
+*.sdf
 *.so
 *.spv
-*.bak
-*.log
+*.suo
 *.tlog
-*.lnk
+*.user
+*.user.*
+*.vsp
 *.xcuserstate
 *~
-xyzrgb_dragon.ply
 
-data/erleb-AR
+erleb-AR
+data/shaders/*.spv
+data/*erleb-AR*
 data/models/PLY/xyzrgb_dragon.ply
 data/models/DAE/Aventicum
 data/models/GLTF/Aventicum
 data/models/GLTF/AugustaRaurica
+data/images/sequences/rgbd_dataset_
 data/images/sequences/rgbd_dataset_freiburg1_desk
 data/calibrations/orb-slam-state-*
 data/calibrations/street*
@@ -44,6 +47,8 @@ externals/g2o/bin
 externals/g2o/lib*
 externals/prebuild_scripts/opencv
 externals/prebuild_scripts/opencv_contrib
+externals/prebuild_scripts/assimp
+externals/prebuild_scripts/glfw
 apps/app-Demo-WAI/android/app/.cxx
 
 moc_*.h
@@ -51,6 +56,8 @@ moc_*.cpp
 
 !christoffelturm.obj
 
+BUILD*
+_BUILD*
 _build*/
 build*/
 _bin*/
@@ -63,6 +70,8 @@ intermediate/
 cmake-build*/
 *Snapchat3D/
 
+Profile_*
+
 Makefile
 .qmake*
 GenerateHTMLDoc.log
@@ -74,9 +83,12 @@ GenerateHTMLDoc.log
 *.class
 *.classpath
 *.project
+.cproject
 .settings
 .vs
 .vscode/*
 .idea
 .DS_Store
 gitcommit.h
+
+Tester

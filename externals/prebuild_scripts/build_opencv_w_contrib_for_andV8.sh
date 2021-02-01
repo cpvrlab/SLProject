@@ -1,8 +1,8 @@
 #!/bin/sh
 
-# ####################################################
-# Build script for OpenCV with contributions for Linux
-# ####################################################
+# ######################################################
+# Build script for OpenCV with contributions for Android
+# ######################################################
 
 CV_VERSION=$1
 ARCH=andV8
@@ -12,7 +12,9 @@ BUILD_D=build/"$ARCH"_debug_"$CV_VERSION"
 BUILD_R=build/"$ARCH"_release_"$CV_VERSION"
 
 clear
-echo "Building OpenCV Version: $CV_VERSION"
+echo "============================================================"
+echo "Building OpenCV Version: $CV_VERSION for architecture: $ARCH"
+echo "============================================================"
 
 if [ "$#" -lt 1 ]; then
     echo "No OpenCV tag passed as 1st parameter"
@@ -47,6 +49,7 @@ else
 fi
 
 # Make build folder for debug version
+echo "============================================================"
 cd opencv
 mkdir build
 rm -rf $BUILD_D
@@ -55,7 +58,7 @@ cd $BUILD_D
 
 # Run cmake to configure and generate the make files
 cmake \
--DCMAKE_TOOLCHAIN_FILE=~/Android/Sdk/ndk/20.0.5594570/build/cmake/android.toolchain.cmake \
+-DCMAKE_TOOLCHAIN_FILE=~/Android/Sdk/ndk/21.3.6528147/build/cmake/android.toolchain.cmake \
 -DCMAKE_BUILD_TYPE=Debug \
 -DANDROID_ABI=arm64-v8a \
 -DWITH_CUDA=off \
@@ -85,7 +88,7 @@ cd $BUILD_R
 
 # Run cmake to configure and generate the make files
 cmake \
--DCMAKE_TOOLCHAIN_FILE=~/Android/Sdk/ndk/20.0.5594570/build/cmake/android.toolchain.cmake \
+-DCMAKE_TOOLCHAIN_FILE=~/Android/Sdk/ndk/21.3.6528147/build/cmake/android.toolchain.cmake \
 -DCMAKE_BUILD_TYPE=Release \
 -DBUILD_WITH_DEBUG_INFO=false \
 -DANDROID_ABI=arm64-v8a \

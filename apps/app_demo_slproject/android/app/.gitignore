@@ -1,0 +1,6 @@
+/build
+/release
+.cxx
+CMakeCache.txt
+CMakeFiles
+local.properties

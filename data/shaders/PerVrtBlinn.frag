@@ -8,51 +8,38 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#ifdef GL_ES
-precision mediump float;
-#endif
+precision highp float;
 
 //-----------------------------------------------------------------------------
-varying vec4      v_color;             // interpolated color from vertex shader
+in      vec3    v_P_VS;             // Interpol. point of illumination in view space (VS)
+in      vec4    v_color;            // interpolated color from vertex shader
 
-uniform int       u_projection;        // type of stereo
-uniform int       u_stereoEye;         // -1=left, 0=center, 1=right 
-uniform mat3      u_stereoColorFilter; // color filter matrix
+uniform int     u_camProjection;    // type of stereo
+uniform int     u_camStereoEye;     // -1=left, 0=center, 1=right
+uniform mat3    u_camStereoColors;  // color filter matrix
+uniform bool    u_camFogIsOn;       // flag if fog is on
+uniform int     u_camFogMode;       // 0=LINEAR, 1=EXP, 2=EXP2
+uniform float   u_camFogDensity;    // fog density value
+uniform float   u_camFogStart;      // fog start distance
+uniform float   u_camFogEnd;        // fog end distance
+uniform vec4    u_camFogColor;      // fog color (usually the background)
 
+out     vec4    o_fragColor;        // output fragment color
+//-----------------------------------------------------------------------------
+// SLGLShader::preprocessPragmas replaces the include pragma by the file
+#pragma include "fogBlend.glsl"
+#pragma include "doStereoSeparation.glsl
 //-----------------------------------------------------------------------------
 void main()
 {     
-    gl_FragColor = v_color;
+    o_fragColor = v_color;
+
+    // Apply fog by blending over distance
+    if (u_camFogIsOn)
+        o_fragColor = fogBlend(v_P_VS, o_fragColor);
    
     // Apply stereo eye separation
-    if (u_projection > 1)
-    {   if (u_projection > 7) // stereoColor??
-        {   // Apply color filter but keep alpha
-            gl_FragColor.rgb = u_stereoColorFilter * gl_FragColor.rgb;
-        }
-        else if (u_projection == 5) // stereoLineByLine
-        {   if (mod(floor(gl_FragCoord.y), 2.0) < 0.5) // even
-            {   if (u_stereoEye ==-1) discard;
-            } else // odd
-            {   if (u_stereoEye == 1) discard;
-            }
-        }
-        else if (u_projection == 6) // stereoColByCol
-        {   if (mod(floor(gl_FragCoord.x), 2.0) < 0.5) // even
-            {   if (u_stereoEye ==-1) discard;
-            } else // odd
-            {   if (u_stereoEye == 1) discard;
-            }
-        } 
-        else if (u_projection == 7) // stereoCheckerBoard
-        {   bool h = (mod(floor(gl_FragCoord.x), 2.0) < 0.5);
-            bool v = (mod(floor(gl_FragCoord.y), 2.0) < 0.5);
-            if (h==v) // both even or odd
-            {   if (u_stereoEye ==-1) discard;
-            } else // odd
-            {   if (u_stereoEye == 1) discard;
-            }
-        }
-    }
+    if (u_camProjection > 1)
+        doStereoSeparation();
 }
 //-----------------------------------------------------------------------------

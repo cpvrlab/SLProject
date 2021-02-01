@@ -8,16 +8,20 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-attribute   vec4    a_position;     // Vertex position attribute
+precision highp float;
 
-uniform     mat4    u_mvpMatrix;    // = projection * modelView
+//-----------------------------------------------------------------------------
+layout (location = 0) in vec4  a_position;     // Vertex position attribute
 
-varying     vec3    v_texCoord;     // texture coordinate at vertex
+uniform mat4    u_mvpMatrix;    // = projection * modelView
 
+out     vec3    v_uv1;          // texture coordinate at vertex
+//-----------------------------------------------------------------------------
 void main()
 {
-    v_texCoord = normalize(vec3(a_position));
+    v_uv1 = normalize(vec3(a_position));
    
     // Set the transformes vertex position   
     gl_Position = u_mvpMatrix * a_position;
 }
+//-----------------------------------------------------------------------------

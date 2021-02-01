@@ -8,24 +8,27 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-attribute vec2  a_position;
-attribute float a_timeWarpFactor;
-attribute float a_vignetteFactor;
-attribute vec2  a_texCoordR;
-attribute vec2  a_texCoordG;
-attribute vec2  a_texCoordB;
+precision highp float;
 
-uniform   vec2  u_eyeToSourceUVScale;
-uniform   vec2  u_eyeToSourceUVOffset;
-uniform   mat4  u_eyeRotationStart;
-uniform   mat4  u_eyeRotationEnd;
+//-----------------------------------------------------------------------------
+layout (location = 0) in vec2  a_position;
+layout (location = 1) in float a_timeWarpFactor;
+layout (location = 2) in float a_vignetteFactor;
+layout (location = 3) in vec2  a_texCoordR;
+layout (location = 4) in vec2  a_texCoordG;
+layout (location = 5) in vec2  a_texCoordB;
 
-varying   vec2  v_texCoordR;
-varying   vec2  v_texCoordG;
-varying   vec2  v_texCoordB;
-varying   float v_vignette;
-varying   float v_timeWarp;
+uniform  vec2  u_eyeToSourceUVScale;
+uniform  vec2  u_eyeToSourceUVOffset;
+uniform  mat4  u_eyeRotationStart;
+uniform  mat4  u_eyeRotationEnd;
 
+out     vec2  v_texCoordR;
+out     vec2  v_texCoordG;
+out     vec2  v_texCoordB;
+out     float v_vignette;
+out     float v_timeWarp;
+//-----------------------------------------------------------------------------
 vec2 timewarpTexCoord(vec2 texCoord)
 {
     // Vertex inputs are in TanEyeAngle space for the R,G,B channels (i.e. after chromatic
@@ -43,7 +46,7 @@ vec2 timewarpTexCoord(vec2 texCoord)
     // Scale them into ([0,0.5],[0,1]) or ([0.5,0],[0,1]) UV lookup space (depending on eye)
     return(u_eyeToSourceUVScale * flattened + u_eyeToSourceUVOffset);
 }
-
+//-----------------------------------------------------------------------------
 void main()
 {
     v_texCoordR = timewarpTexCoord(a_texCoordR);
@@ -53,10 +56,7 @@ void main()
     v_vignette = a_vignetteFactor;
     gl_Position = vec4(a_position.xy, 0.5, 1.0);
 }
-
-
-
-
+//-----------------------------------------------------------------------------
 /* original hlsl shader below
 float2 EyeToSourceUVScale, EyeToSourceUVOffset;
 float4x4 EyeRotationStart, EyeRotationEnd;
@@ -87,5 +87,5 @@ void main(in float2 Position : POSITION, in float timewarpLerpFactor : POSITION1
     oPosition = float4(Position.xy, 0.5, 1.0);
     oVignette = Vignette; // For vignette fade
 }
-
+//-----------------------------------------------------------------------------
 */

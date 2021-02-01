@@ -9,13 +9,13 @@
 //#############################################################################
 
 #ifdef GL_FRAGMENT_PRECISION_HIGH
-precision mediump float;
+precision highp float;
 #endif
 
-varying vec4      v_color;      // interpolated color from the vertex shader
-varying vec2      v_texCoord;   // interpolated texture coordinate
+in      vec4      v_color;      // interpolated color from the vertex shader
+in      vec2      v_texCoord;   // interpolated texture coordinate
 
-uniform sampler2D u_texture0;   // texture map
+uniform sampler2D u_matTexture0;   // texture map
 
 void main()
 {  
@@ -23,5 +23,5 @@ void main()
    gl_FragColor = v_color;
 
    // componentwise multiply w. texture color
-   gl_FragColor *= texture2D(u_texture0, v_texCoord);
+   gl_FragColor *= texture2D(u_matTexture0, v_texCoord);
 }

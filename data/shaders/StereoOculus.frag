@@ -12,17 +12,20 @@
 precision highp float;
 #endif
 
+//-----------------------------------------------------------------------------
+in      vec2		v_texCoord;
+
 uniform sampler2D	u_sceneBuffer;
 uniform float		u_lensCenterOffset;
 uniform vec4		u_hmdWarpParam;
 uniform vec2		u_scale;
 uniform vec2		u_scaleIn;
 
-varying vec2		v_texCoord;
-
+out     vec4        o_fragColor;    // output fragment color
+//-----------------------------------------------------------------------------
 vec2 lensCenter = vec2(0, 0.5);
 vec2 screenCenter = vec2(0.25, 0.5);
-
+//-----------------------------------------------------------------------------
 // Scales input texture coordinates for distortion.
 vec2 hmdWarp(vec2 in01)
 {
@@ -35,7 +38,7 @@ vec2 hmdWarp(vec2 in01)
                             u_hmdWarpParam.w * rSq2 * rSq);
     return lensCenter + u_scale * rvector;
 }
-
+//-----------------------------------------------------------------------------
 void main()
 {
     if(v_texCoord.x > 0.5)
@@ -52,9 +55,10 @@ void main()
     //any tests the bool vector if any parameter is true (are we outside of the screen?)
     if(any(bvec2(clamp(tc,screenCenter-vec2(0.25,0.5), screenCenter+vec2(0.25,0.5)) - tc)))
     {
-        gl_FragColor = vec4(0, 0, 0, 1);
+        o_fragColor = vec4(0, 0, 0, 1);
         return;
     }
 
-    gl_FragColor = texture2D(u_sceneBuffer, v_texCoord);
+    o_fragColor = texture(u_sceneBuffer, v_texCoord);
 }
+//-----------------------------------------------------------------------------

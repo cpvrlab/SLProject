@@ -14,7 +14,7 @@
 
 BasedOnStyle: Mozilla
 BinPackParameters: false
-AccessModifierOffset: 0
+AccessModifierOffset: -4
 
 AlignAfterOpenBracket: Align
 AlignConsecutiveAssignments: true
@@ -56,7 +56,8 @@ Cpp11BracedListStyle: true
 IncludeBlocks: Preserve
 IndentPPDirectives: AfterHash
 IndentWidth: 4
-Language: Cpp
+#Language: Cpp
+#Language: ObjC
 PointerAlignment: Left
 
 #UseTab: ForIndentation

@@ -9,14 +9,11 @@
 //             WITHOUT ANY WARRANTIES WHETHER EXPRESSED OR IMPLIED.
 //#############################################################################
 
-#include "stdafx.h" // Precompiled Headers
-
-#include <GL/glew.h>    // OpenGL headers
+#include <GL/gl3w.h>    // OpenGL headers
 #include <GLFW/glfw3.h> // GLFW GUI library
-#include <SL.h>         // Basic SL type definitions
 #include <SLMat4.h>     // 4x4 matrix class
 #include <SLVec3.h>     // 3D vector class
-#include <glUtils.h>    // Basics for OpenGL shaders, buffers & textures
+#include <glUtils.h> // Basics for OpenGL shaders, buffers & textures
 
 //-----------------------------------------------------------------------------
 //! Struct definition for vertex attribute position and normal
@@ -198,9 +195,9 @@ void onInit()
     _nLoc              = glGetAttribLocation(_shaderProgID, "a_normal");
     _mvpLoc            = glGetUniformLocation(_shaderProgID, "u_mvpMatrix");
     _nmLoc             = glGetUniformLocation(_shaderProgID, "u_nMatrix");
-    _lightSpotDirVSLoc = glGetUniformLocation(_shaderProgID, "u_lightSpotDirVS");
-    _lightDiffuseLoc   = glGetUniformLocation(_shaderProgID, "u_lightDiffuse");
-    _matDiffuseLoc     = glGetUniformLocation(_shaderProgID, "u_matDiffuse");
+    _lightSpotDirVSLoc = glGetUniformLocation(_shaderProgID, "u_lightSpotDir");
+    _lightDiffuseLoc   = glGetUniformLocation(_shaderProgID, "u_lightDiff");
+    _matDiffuseLoc     = glGetUniformLocation(_shaderProgID, "u_matDiff");
     _gLoc              = glGetUniformLocation(_shaderProgID, "u_oneOverGamma");
 
     buildBox();
@@ -426,17 +423,17 @@ int main(int argc, char* argv[])
     // Enable fullscreen anti aliasing with 4 samples
     glfwWindowHint(GLFW_SAMPLES, 4);
 
-//You can enable or restrict newer OpenGL context here (read the GLFW documentation)
-#ifdef SL_OS_MACOS
-//glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-//glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
-//glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-//glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    //You can enable or restrict newer OpenGL context here (read the GLFW documentation)
+#ifdef __APPLE__
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 #else
-//glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
-//glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-//glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-//glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+    //glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
+    //glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    //glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    //glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
 
     _scrWidth  = 640;
@@ -466,19 +463,11 @@ int main(int argc, char* argv[])
     _scr2fbX = (float)fbWidth / (float)_scrWidth;
     _scr2fbY = (float)fbHeight / (float)_scrHeight;
 
-    // Include OpenGL via GLEW (init must be after window creation)
-    // The goal of the OpenGL Extension Wrangler Library (GLEW) is to assist C/C++
-    // OpenGL developers with two tedious tasks: initializing and using extensions
-    // and writing portable applications. GLEW provides an efficient run-time
-    // mechanism to determine whether a certain extension is supported by the
-    // driver or not. OpenGL core and extension functionality is exposed via a
-    // single header file. Download GLEW at: http://glew.sourceforge.net/
-    glewExperimental = GL_TRUE; // avoids a crash
-    GLenum err       = glewInit();
-    if (GLEW_OK != err)
+    // Init OpenGL access library gl3w
+    if (gl3wInit() != 0)
     {
-        fprintf(stderr, "Error: %s\n", glewGetErrorString(err));
-        exit(EXIT_FAILURE);
+        std::cerr << "Failed to initialize OpenGL" << std::endl;
+        exit(-1);
     }
 
     // Check errors before we start

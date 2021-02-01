@@ -9,42 +9,43 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#ifdef GL_ES
-precision mediump float;
-#endif
+precision highp float;
 
 //-----------------------------------------------------------------------------
-varying vec3   v_P_VS;              // Point of illumination in viewspace (VS)
-varying vec3   v_N_VS;              // Unnormalized normal at P
+// SLGLShader::preprocessPragmas replaces #Lights by SLVLights.size()
+#pragma define NUM_LIGHTS #Lights
+//-----------------------------------------------------------------------------
+in      vec3    v_P_VS;              // Point of illumination in viewspace (VS)
+in      vec3    v_N_VS;              // Unnormalized normal at P
 
-uniform int    u_numLightsUsed;     // NO. of lights used light arrays
-uniform bool   u_lightIsOn[8];      // flag if light is on
-uniform vec4   u_lightPosVS[8];     // position of light in view space
-uniform vec4   u_lightAmbient[8];   // ambient light intensity (Ia)
-uniform vec4   u_lightDiffuse[8];   // diffuse light intensity (Id)
-uniform vec4   u_lightSpecular[8];  // specular light intensity (Is)
-uniform vec3   u_lightSpotDirVS[8]; // spot direction in view space
-uniform float  u_lightSpotCutoff[8];// spot cutoff angle 1-180 degrees
-uniform float  u_lightSpotCosCut[8];// cosine of spot cutoff angle
-uniform float  u_lightSpotExp[8];   // spot exponent
-uniform vec3   u_lightAtt[8];       // attenuation (const,linear,quadr.)
-uniform bool   u_lightDoAtt[8];     // flag if att. must be calc.
-uniform vec4   u_globalAmbient;     // Global ambient scene color
-uniform float  u_oneOverGamma;      // 1.0f / Gamma correction value
+uniform bool    u_lightIsOn[NUM_LIGHTS];        // flag if light is on
+uniform vec4    u_lightPosVS[NUM_LIGHTS];       // position of light in view space
+uniform vec4    u_lightAmbi[NUM_LIGHTS];     // ambient light intensity (Ia)
+uniform vec4    u_lightDiff[NUM_LIGHTS];     // diffuse light intensity (Id)
+uniform vec4    u_lightSpec[NUM_LIGHTS];    // specular light intensity (Is)
+uniform vec3    u_lightSpotDir[NUM_LIGHTS];   // spot direction in view space
+uniform float   u_lightSpotDeg[NUM_LIGHTS];  // spot cutoff angle 1-180 degrees
+uniform float   u_lightSpotCos[NUM_LIGHTS];  // cosine of spot cutoff angle
+uniform float   u_lightSpotExp[NUM_LIGHTS];     // spot exponent
+uniform vec3    u_lightAtt[NUM_LIGHTS];         // attenuation (const,linear,quadr.)
+uniform bool    u_lightDoAtt[NUM_LIGHTS];       // flag if att. must be calc.
+uniform vec4    u_globalAmbi;                // Global ambient scene color
+uniform float   u_oneOverGamma;                 // 1.0f / Gamma correction value
 
-uniform vec4   u_matAmbient;        // ambient color reflection coefficient (ka)
-uniform vec4   u_matDiffuse;        // diffuse color reflection coefficient (kd)
-uniform vec4   u_matSpecular;       // specular color reflection coefficient (ks)
-uniform vec4   u_matEmissive;       // emissive color for selfshining materials
-uniform float  u_matShininess;      // shininess exponent
+uniform vec4    u_matAmbi;        // ambient color reflection coefficient (ka)
+uniform vec4    u_matDiff;        // diffuse color reflection coefficient (kd)
+uniform vec4    u_matSpec;       // specular color reflection coefficient (ks)
+uniform vec4    u_matEmis;       // emissive color for self-shining materials
+uniform float   u_matShin;      // shininess exponent
 
+out     vec4    o_fragColor;         // output fragment color
 //-----------------------------------------------------------------------------
 void main()
 {
     float nDotL;                  // N dot L = diffuse reflection factor
     float shine;                  // specular reflection factor
    
-    vec3 N = normalize(v_N_VS);   // A varying normal has not anymore unit length
+    vec3 N = normalize(v_N_VS);   // A input normal has not anymore unit length
     vec3 E = normalize(-v_P_VS);  // Vector from p to the eye
     vec3 L = normalize(u_lightPosVS[0].xyz - v_P_VS); // Vector to light
     vec3 H = normalize(L + E);    // Halfvector between L & E    
@@ -52,18 +53,18 @@ void main()
     // Calculate diffuse & specular factors
     nDotL = max(dot(N,L), 0.0);
     if (nDotL==0.0) shine = 0.0; 
-    else shine = pow(max(dot(N,H), 0.0), u_matShininess); 
+    else shine = pow(max(dot(N,H), 0.0), u_matShin);
    
     // Accumulate pointlight reflection
-    vec4 matCol =  u_globalAmbient +
-                   u_lightAmbient[0] * u_matAmbient +
-                   u_lightDiffuse[0]  * nDotL * u_matDiffuse + 
-                   u_lightSpecular[0] * shine * u_matSpecular;
+    vec4 matCol =  u_globalAmbi +
+                   u_lightAmbi[0] * u_matAmbi +
+                   u_lightDiff[0]  * nDotL * u_matDiff +
+                   u_lightSpec[0] * shine * u_matSpec;
    
     // Mix the final color fifty-fifty
-    gl_FragColor = matCol;
+    o_fragColor = matCol;
 
     // Apply gamma correction
-    gl_FragColor.rgb = pow(gl_FragColor.rgb, vec3(u_oneOverGamma));
+    o_fragColor.rgb = pow(o_fragColor.rgb, vec3(u_oneOverGamma));
 }
 //-----------------------------------------------------------------------------

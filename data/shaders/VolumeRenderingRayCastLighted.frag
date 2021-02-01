@@ -10,22 +10,22 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#ifdef GL_FRAGMENT_PRECISION_HIGH
 precision highp float;
 precision highp sampler2D;
 precision highp sampler3D;
-#endif
 
-varying     vec3       v_raySource;     // The source coordinate of the view ray (model coordinates)
+//-----------------------------------------------------------------------------
+in      vec3       v_raySource;     // The source coordinate of the view ray (model coordinat
 
-uniform     mat4       u_invMvMatrix;   // inverse modelView matrix = view matrix
-uniform     float      u_volumeX;       // 3D texture width
-uniform     float      u_volumeY;       // 3D texture height
-uniform     float      u_volumeZ;       // 3D texture depth
+uniform mat4       u_invMvMatrix;   // inverse modelView matrix = view matrix
+uniform float      u_volumeX;       // 3D texture width
+uniform float      u_volumeY;       // 3D texture height
+uniform float      u_volumeZ;       // 3D texture de
+uniform sampler3D  u_matTexture0;      // The 3D volume texture
+uniform sampler2D  u_matTexture1;      // The 1D LUT for the transform function
 
-uniform     sampler3D  u_texture0;      // The 3D volume texture
-uniform     sampler2D  u_texture1;      // The 1D LUT for the transform function
-
+out     vec4        o_fragColor;    // output fragment color
+//-----------------------------------------------------------------------------
 vec3 findRayDestination(vec3 raySource, vec3 rayDirection)
 {
     // We are looking for the point on raySource + f*rayDirection with either x, y or z set to -1 or 1
@@ -56,7 +56,7 @@ vec3 findRayDestination(vec3 raySource, vec3 rayDirection)
 
     return raySource + f*rayDirection;
 }
-
+//-----------------------------------------------------------------------------
 void main()
 {
     vec3 source  = v_raySource;
@@ -86,18 +86,18 @@ void main()
     //Calculate the amount of steps to loop through
     int num_steps = int(floor(distance/(step_dist)));
     vec3 position = source;
-    gl_FragColor = vec4(0.0);
+    o_fragColor = vec4(0.0);
 
     vec3 lightWS = normalize(vec3(1.0f,1.0f,1.0f));
 
     for (int i = 0; i < num_steps; ++i) //Step along the view ray
     {
         //The voxel can be read directly from there assuming we're using GL_NEAREST as interpolation method
-        vec4 voxel = texture3D(u_texture0, position);
+        vec4 voxel = texture(u_matTexture0, position);
         vec3 N = voxel.xyz * 2.0f - 1.0f;
 
         //Transform the read pixel with the 1D transform function lookup table
-        vec4 src = texture2D(u_texture1, vec2(voxel.a, 0.0));
+        vec4 src = texture(u_matTexture1, vec2(voxel.a, 0.0));
 
         // Diffuse factor from the cos(angle) between N & L
         float diffuseFactor = dot(-N, lightWS.xyz);
@@ -108,14 +108,15 @@ void main()
         //Scale the color addend by it's alpha value
         src.rgb *= src.a;
 
-        gl_FragColor = (1.0-gl_FragColor.a) * src + gl_FragColor;
+        o_fragColor = (1.0-o_fragColor.a) * src + o_fragColor;
 
         //Jump out of the loop if the cumulated alpha is above a threshold
-        if (gl_FragColor.a > 0.99)
+        if (o_fragColor.a > 0.99)
             break;
 
         //Set the position to the next step
         position += direction;
     }
-    gl_FragColor.a = 1.0;
+    o_fragColor.a = 1.0;
 }
+//-----------------------------------------------------------------------------

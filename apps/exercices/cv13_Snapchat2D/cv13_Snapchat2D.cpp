@@ -13,7 +13,7 @@ using namespace cv;
 using namespace cv::face;
 
 //-----------------------------------------------------------------------------
-static void drawDelaunay(Mat& img, Subdiv2D& subdiv, Scalar delaunay_color)
+static void drawDelaunay(Mat& img, Subdiv2D& subdiv, const Scalar& delaunay_color)
 {
     vector<Vec6f> triangleList;
     subdiv.getTriangleList(triangleList);
@@ -21,12 +21,11 @@ static void drawDelaunay(Mat& img, Subdiv2D& subdiv, Scalar delaunay_color)
     Size          size = img.size();
     Rect          rect(0, 0, size.width, size.height);
 
-    for (size_t i = 0; i < triangleList.size(); i++)
+    for (auto t : triangleList)
     {
-        Vec6f t = triangleList[i];
-        pt[0]   = Point(cvRound(t[0]), cvRound(t[1]));
-        pt[1]   = Point(cvRound(t[2]), cvRound(t[3]));
-        pt[2]   = Point(cvRound(t[4]), cvRound(t[5]));
+        pt[0] = Point(cvRound(t[0]), cvRound(t[1]));
+        pt[1] = Point(cvRound(t[2]), cvRound(t[3]));
+        pt[2] = Point(cvRound(t[4]), cvRound(t[5]));
 
         // Draw rectangles completely inside the image.
         if (rect.contains(pt[0]) && rect.contains(pt[1]) && rect.contains(pt[2]))
@@ -45,16 +44,21 @@ static void createDelaunay(Mat&                  img,
                            vector<vector<uint>>& triangleIndexes)
 {
     // Insert points into subdiv
-    for (Point2f p : points)
+    for (const Point2f& p : points)
     {
-        subdiv.insert(p);
 
-        if (drawAnimated)
+        Rect rect(0, 0, img.cols, img.rows);
+        if (rect.contains(p))
         {
-            Mat img_copy = img.clone();
-            drawDelaunay(img_copy, subdiv, Scalar(255, 255, 255));
-            imshow("Delaunay Triangulation", img_copy);
-            waitKey(100);
+            subdiv.insert(p);
+
+            if (drawAnimated)
+            {
+                Mat img_copy = img.clone();
+                drawDelaunay(img_copy, subdiv, Scalar(255, 255, 255));
+                imshow("Delaunay Triangulation", img_copy);
+                waitKey(100);
+            }
         }
     }
 
@@ -68,12 +72,11 @@ static void createDelaunay(Mat&                  img,
     vector<Point2f> pt(3);
     vector<uint>    ind(3);
 
-    for (size_t i = 0; i < triangleList.size(); i++)
+    for (auto t : triangleList)
     {
-        Vec6f t = triangleList[i];
-        pt[0]   = Point2f(t[0], t[1]);
-        pt[1]   = Point2f(t[2], t[3]);
-        pt[2]   = Point2f(t[4], t[5]);
+        pt[0] = Point2f(t[0], t[1]);
+        pt[1] = Point2f(t[2], t[3]);
+        pt[2] = Point2f(t[4], t[5]);
 
         if (rect.contains(pt[0]) &&
             rect.contains(pt[1]) &&
@@ -105,11 +108,11 @@ void warpTriangle(Mat&             img1,
     vector<Point>   tri2CroppedInt;
     for (uint i = 0; i < 3; i++)
     {
-        tri1Cropped.push_back(Point2f(tri1[i].x - rect1.x, tri1[i].y - rect1.y));
-        tri2Cropped.push_back(Point2f(tri2[i].x - rect2.x, tri2[i].y - rect2.y));
+        tri1Cropped.emplace_back(tri1[i].x - rect1.x, tri1[i].y - rect1.y);
+        tri2Cropped.emplace_back(tri2[i].x - rect2.x, tri2[i].y - rect2.y);
 
         // fillConvexPoly needs a vector of int Point and not Point2f
-        tri2CroppedInt.push_back(Point((int)tri2Cropped[i].x, (int)tri2Cropped[i].y));
+        tri2CroppedInt.emplace_back((int)tri2Cropped[i].x, (int)tri2Cropped[i].y);
     }
 
     // Apply warpImage to small rectangular patches
@@ -148,17 +151,17 @@ static void warpImage(Mat&                  img1,
                       vector<Point2f>&      points2,
                       vector<vector<uint>>& triangles)
 {
-    for (size_t i = 0; i < triangles.size(); i++)
+    for (auto& triangle : triangles)
     {
         vector<Point2f> tri1;
-        tri1.push_back(points1[triangles[i][0]]);
-        tri1.push_back(points1[triangles[i][1]]);
-        tri1.push_back(points1[triangles[i][2]]);
+        tri1.push_back(points1[triangle[0]]);
+        tri1.push_back(points1[triangle[1]]);
+        tri1.push_back(points1[triangle[2]]);
 
         vector<Point2f> tri2;
-        tri2.push_back(points2[triangles[i][0]]);
-        tri2.push_back(points2[triangles[i][1]]);
-        tri2.push_back(points2[triangles[i][2]]);
+        tri2.push_back(points2[triangle[0]]);
+        tri2.push_back(points2[triangle[1]]);
+        tri2.push_back(points2[triangle[2]]);
 
         warpTriangle(img1, img2, tri1, tri2);
     }
@@ -179,6 +182,8 @@ int main()
     // Load landmark detector
     facemark->loadModel(projectRoot + "/data/calibrations/lbfmodel.yaml");
 
+    // Be aware that on Windows not more than one process can access the camera at the time.
+    // Be aware that on many OS you have to grant access rights to the camera system
     // Set up webcam for video capture
     VideoCapture cam(0);
 
@@ -208,7 +213,7 @@ int main()
         // Run landmark detector
         bool success = facemark->fit(frame, faces, landmarks);
 
-        if (success && landmarks.size() >= 1)
+        if (success && !landmarks.empty())
         {
             // Add image border points at the end of the landmarks vector
             Size size = frame.size();
@@ -244,6 +249,7 @@ int main()
         if (waitKey(10) != -1)
             return 0;
     }
+
     return 0;
 }
 //-----------------------------------------------------------------------------

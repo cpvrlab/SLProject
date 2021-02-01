@@ -8,9 +8,11 @@
 //             WITHOUT ANY WARRANTIES WHETHER EXPRESSED OR IMPLIED.
 //#############################################################################
 
+precision highp float;
+
 //-----------------------------------------------------------------------------
-attribute   vec4     a_position;       // Vertex position attribute
-attribute   vec3     a_normal;         // Vertex normal attribute
+in          vec4     a_position;       // Vertex position attribute
+in          vec3     a_normal;         // Vertex normal attribute
 
 uniform     mat4     u_mvMatrix;       // modelView matrix
 uniform     mat4     u_mvpMatrix;      // = projection * modelView
@@ -18,7 +20,7 @@ uniform     mat3     u_nMatrix;        // normal matrix=transpose(inverse(mv))
 
 uniform     vec4     u_globalAmbi;     // global ambient intensity (Iaglobal)
 uniform     vec3     u_lightPosVS;     // light position in view space
-uniform     vec3     u_lightSpotDirVS; // light direction in view space
+uniform     vec3     u_lightSpotDir; // light direction in view space
 uniform     vec4     u_lightAmbi;      // light ambient light intensity (Ia)
 uniform     vec4     u_lightDiff;      // light diffuse light intensity (Id)
 uniform     vec4     u_lightSpec;      // light specular light intensity (Is)
@@ -32,8 +34,7 @@ uniform     vec4     u_matSpec;        // material specular reflection (ks)
 uniform     vec4     u_matEmis;        // material emissiveness (ke)
 uniform     float    u_matShine;       // material shininess exponent
 
-varying     vec4     v_color;          // The resulting color per vertex
-
+out         vec4     v_color;          // The resulting color per vertex
 //-----------------------------------------------------------------------------
 void main()
 {        

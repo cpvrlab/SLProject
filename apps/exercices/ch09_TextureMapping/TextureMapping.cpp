@@ -9,16 +9,12 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include <stdafx.h> // Must be the 1st include followed by  an empty line
-
 #include <Utils.h>
-#include <GL/glew.h>    // OpenGL headers
+#include <GL/gl3w.h>    // OpenGL headers
 #include <GLFW/glfw3.h> // GLFW GUI library
-#include <SL.h>         // Basic SL type definitions
-#include <CVImage.h>    // Image class for image loading
 #include <SLMat4.h>     // 4x4 matrix class
 #include <SLVec3.h>     // 3D vector class
-#include <glUtils.h>    // Basics for OpenGL shaders, buffers & textures
+#include <glUtils.h> // Basics for OpenGL shaders, buffers & textures
 
 //-----------------------------------------------------------------------------
 //! Struct definition for vertex attributes
@@ -113,25 +109,29 @@ void buildSphere(float radius, GLuint stacks, GLuint slices)
     assert(stacks > 3 && slices > 3);
 
     // create vertex array
-    _numV               = (stacks + 1) * (slices + 1);
-    VertexPNT* vertices = new VertexPNT[_numV];
+    GLuint     numV = (stacks + 1) * (slices + 1);
+    VertexPNT* v    = new VertexPNT[numV];
 
     float  theta, dtheta; // angles around x-axis
     float  phi, dphi;     // angles around z-axis
-    GLuint i, j;          // loop counters
+    float  s, t, ds, dt;  // texture coords
+    int    i, j;          // loop counters
     GLuint iv = 0;
 
     // init start values
     theta  = 0.0f;
     dtheta = Utils::PI / stacks;
     dphi   = 2.0f * Utils::PI / slices;
+    ds     = 1.0f / slices;
+    dt     = 1.0f / stacks;
+    t      = 1.0f;
 
     // Define vertex position & normals by looping through all stacks
     for (i = 0; i <= stacks; ++i)
     {
         float sin_theta = sin(theta);
         float cos_theta = cos(theta);
-        phi             = 0.0f;
+        phi = s = 0.0f;
 
         // Loop through all slices
         for (j = 0; j <= slices; ++j)
@@ -139,23 +139,25 @@ void buildSphere(float radius, GLuint stacks, GLuint slices)
             if (j == slices) phi = 0.0f;
 
             // define first the normal with length 1
-            vertices[iv].n.x = sin_theta * cos(phi);
-            vertices[iv].n.y = sin_theta * sin(phi);
-            vertices[iv].n.z = cos_theta;
+            v[iv].n.x = sin_theta * cos(phi);
+            v[iv].n.y = sin_theta * sin(phi);
+            v[iv].n.z = cos_theta;
 
             // set the vertex position w. the scaled normal
-            vertices[iv].p.x = radius * vertices[iv].n.x;
-            vertices[iv].p.y = radius * vertices[iv].n.y;
-            vertices[iv].p.z = radius * vertices[iv].n.z;
+            v[iv].p.x = radius * v[iv].n.x;
+            v[iv].p.y = radius * v[iv].n.y;
+            v[iv].p.z = radius * v[iv].n.z;
 
             // set the texture coords.
-            vertices[iv].t.x = 0; // ???
-            vertices[iv].t.y = 0; // ???
+            v[iv].t.x = s;
+            v[iv].t.y = t;
 
             phi += dphi;
+            s += ds;
             iv++;
         }
         theta += dtheta;
+        t -= dt;
     }
 
     // create Index array x
@@ -185,8 +187,8 @@ void buildSphere(float radius, GLuint stacks, GLuint slices)
     glUtils::buildVAO(_vao,
                       _vboV,
                       _vboI,
-                      vertices,
-                      (GLint)_numV,
+                      v,
+                      (GLint)numV,
                       sizeof(VertexPNT),
                       indices,
                       (GLint)_numI,
@@ -197,7 +199,7 @@ void buildSphere(float radius, GLuint stacks, GLuint slices)
                       _nLoc);
 
     // Delete arrays on heap
-    delete[] vertices;
+    delete[] v;
     delete[] indices;
 }
 //-----------------------------------------------------------------------------
@@ -311,19 +313,20 @@ void onInit()
     _nMatrixLoc        = glGetUniformLocation(_shaderProgID, "u_nMatrix");
     _globalAmbiLoc     = glGetUniformLocation(_shaderProgID, "u_globalAmbi");
     _lightPosVSLoc     = glGetUniformLocation(_shaderProgID, "u_lightPosVS");
-    _lightSpotDirVSLoc = glGetUniformLocation(_shaderProgID, "u_lightSpotDirVS");
-    _lightAmbientLoc   = glGetUniformLocation(_shaderProgID, "u_lightAmbient");
-    _lightDiffuseLoc   = glGetUniformLocation(_shaderProgID, "u_lightDiffuse");
-    _lightSpecularLoc  = glGetUniformLocation(_shaderProgID, "u_lightSpecular");
-    _matAmbientLoc     = glGetUniformLocation(_shaderProgID, "u_matAmbient");
-    _matDiffuseLoc     = glGetUniformLocation(_shaderProgID, "u_matDiffuse");
-    _matSpecularLoc    = glGetUniformLocation(_shaderProgID, "u_matSpecular");
-    _matEmissiveLoc    = glGetUniformLocation(_shaderProgID, "u_matEmissive");
-    _matShininessLoc   = glGetUniformLocation(_shaderProgID, "u_matShininess");
-    _texture0Loc       = glGetUniformLocation(_shaderProgID, "u_texture0");
+    _lightSpotDirVSLoc = glGetUniformLocation(_shaderProgID, "u_lightSpotDir");
+    _lightAmbientLoc   = glGetUniformLocation(_shaderProgID, "u_lightAmbi");
+    _lightDiffuseLoc   = glGetUniformLocation(_shaderProgID, "u_lightDiff");
+    _lightSpecularLoc  = glGetUniformLocation(_shaderProgID, "u_lightSpec");
+    _matAmbientLoc     = glGetUniformLocation(_shaderProgID, "u_matAmbi");
+    _matDiffuseLoc     = glGetUniformLocation(_shaderProgID, "u_matDiff");
+    _matSpecularLoc    = glGetUniformLocation(_shaderProgID, "u_matSpec");
+    _matEmissiveLoc    = glGetUniformLocation(_shaderProgID, "u_matEmis");
+    _matShininessLoc   = glGetUniformLocation(_shaderProgID, "u_matShin");
+    _texture0Loc       = glGetUniformLocation(_shaderProgID, "u_matTexture0");
     _gLoc              = glGetUniformLocation(_shaderProgID, "u_oneOverGamma");
 
     // Build object
+    //buildSphere(1.0f, 30, 30);
     buildSquare();
 
     // Set some OpenGL states
@@ -337,7 +340,7 @@ void onInit()
 onClose is called when the user closes the window and can be used for proper
 deallocation of resources.
 */
-void onClose(GLFWwindow* window)
+void onClose(GLFWwindow* myWindow)
 {
     // Delete shaders & programs on GPU
     glDeleteShader(_shaderVertID);
@@ -473,7 +476,7 @@ bool onPaint()
     static float lastTimeSec = 0;
     float        timeNowSec  = (float)glfwGetTime();
     float        fps         = calcFPS(timeNowSec - lastTimeSec);
-    sprintf(title, "Sphere, %d x %d, fps: %4.0f", _resolution, _resolution, fps);
+    sprintf(title, "Texture Mapping %3.1f", fps);
     glfwSetWindowTitle(window, title);
     lastTimeSec = timeNowSec;
 
@@ -486,7 +489,7 @@ onResize: Event handler called on the resize event of the window. This event
 should called once before the onPaint event. Do everything that is dependent on
 the size and ratio of the window.
 */
-void onResize(GLFWwindow* window, int width, int height)
+void onResize(GLFWwindow* myWindow, int width, int height)
 {
     float w = (float)width;
     float h = (float)height;
@@ -506,7 +509,7 @@ void onResize(GLFWwindow* window, int width, int height)
 /*!
 Mouse button down & release eventhandler starts and end mouse rotation
 */
-void onMouseButton(GLFWwindow* window, int button, int action, int mods)
+void onMouseButton(GLFWwindow* myWindow, int button, int action, int mods)
 {
     SLint x = _mouseX;
     SLint y = _mouseY;
@@ -537,7 +540,7 @@ void onMouseButton(GLFWwindow* window, int button, int action, int mods)
 /*!
 Mouse move eventhandler tracks the mouse delta since touch down (_deltaX/_deltaY)
 */
-void onMouseMove(GLFWwindow* window, double x, double y)
+void onMouseMove(GLFWwindow* myWindow, double x, double y)
 {
     _mouseX = (int)x;
     _mouseY = (int)y;
@@ -553,7 +556,7 @@ void onMouseMove(GLFWwindow* window, double x, double y)
 /*!
 Mouse wheel eventhandler that moves the camera foreward or backwards
 */
-void onMouseWheel(GLFWwindow* window, double xscroll, double yscroll)
+void onMouseWheel(GLFWwindow* myWindow, double xscroll, double yscroll)
 {
     if (_modifiers == NONE)
     {
@@ -565,7 +568,7 @@ void onMouseWheel(GLFWwindow* window, double xscroll, double yscroll)
 /*!
 Key action eventhandler handles key down & release events
 */
-void onKey(GLFWwindow* window, int GLFWKey, int scancode, int action, int mods)
+void onKey(GLFWwindow* myWindow, int GLFWKey, int scancode, int action, int mods)
 {
     if (action == GLFW_PRESS)
     {
@@ -631,17 +634,17 @@ int main(int argc, char* argv[])
     // Enable fullscreen anti aliasing with 4 samples
     glfwWindowHint(GLFW_SAMPLES, 4);
 
-//You can enable or restrict newer OpenGL context here (read the GLFW documentation)
-#ifdef SL_OS_MACOS
-//glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-//glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
-//glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-//glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    //You can enable or restrict newer OpenGL context here (read the GLFW documentation)
+#ifdef __APPLE__
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 #else
-//glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
-//glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-//glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-//glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+    //glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
+    //glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    //glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    //glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
 
     _scrWidth  = 640;
@@ -665,19 +668,11 @@ int main(int argc, char* argv[])
     _scr2fbX = (float)fbWidth / (float)_scrWidth;
     _scr2fbY = (float)fbHeight / (float)_scrHeight;
 
-    // Include OpenGL via GLEW (init must be after window creation)
-    // The goal of the OpenGL Extension Wrangler Library (GLEW) is to assist C/C++
-    // OpenGL developers with two tedious tasks: initializing and using extensions
-    // and writing portable applications. GLEW provides an efficient run-time
-    // mechanism to determine whether a certain extension is supported by the
-    // driver or not. OpenGL core and extension functionality is exposed via a
-    // single header file. Download GLEW at: http://glew.sourceforge.net/
-    glewExperimental = GL_TRUE; // avoids a crash
-    GLenum err       = glewInit();
-    if (GLEW_OK != err)
+    // Init OpenGL access library gl3w
+    if (gl3wInit() != 0)
     {
-        fprintf(stderr, "Error: %s\n", glewGetErrorString(err));
-        exit(EXIT_FAILURE);
+        std::cerr << "Failed to initialize OpenGL" << std::endl;
+        exit(-1);
     }
 
     // Check errors before we start

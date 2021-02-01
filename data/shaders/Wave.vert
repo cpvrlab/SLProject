@@ -9,20 +9,22 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-attribute   vec4  a_position;    // Vertex position attribute
-attribute   vec3  a_normal;      // Vertex normal attribute
+precision highp float;
 
-uniform     mat4  u_mvMatrix;    // modelview matrix 
-uniform     mat3  u_nMatrix;     // normal matrix=transpose(inverse(mv))
-uniform     mat4  u_mvpMatrix;   // = projection * modelView
-uniform     float u_t;           // time
-uniform     float u_h;           // height of the wave in y direction
-uniform     float u_a;           // frequency in x direction
-uniform     float u_b;           // frequency in y direction
+//-----------------------------------------------------------------------------
+layout (location = 0) in vec4  a_position;     // Vertex position attribute
+layout (location = 1) in vec3  a_normal;       // Vertex normal attribute
 
-varying     vec3  v_N_VS;        // Normal in viewspace (VS)
-varying     vec3  v_P_VS;        // Vertex in viewspace
+uniform mat4  u_mvMatrix;    // modelview matrix
+uniform mat3  u_nMatrix;     // normal matrix=transpose(inverse(mv))
+uniform mat4  u_mvpMatrix;   // = projection * modelView
+uniform float u_t;           // time
+uniform float u_h;           // height of the wave in y direction
+uniform float u_a;           // frequency in x direction
+uniform float u_b;           // frequency in y direction
 
+out     vec3  v_N_VS;        // Normal in viewspace (VS)
+out     vec3  v_P_VS;        // Vertex in viewspace
 //-----------------------------------------------------------------------------
 void main(void)
 {  

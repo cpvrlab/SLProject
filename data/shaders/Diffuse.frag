@@ -7,13 +7,20 @@
 //             WITHOUT ANY WARRANTIES WHETHER EXPRESSED OR IMPLIED.
 //#############################################################################
 
-varying vec4 diffuseColor;      // interpolated color calculated in the vertex shader
-uniform float u_oneOverGamma;   // 1.0f / Gamma correction value
+precision highp float;
 
+//-----------------------------------------------------------------------------
+in       vec4   diffuseColor;   // interpolated color calculated in the vertex shader
+
+uniform  float  u_oneOverGamma; // 1.0f / Gamma correction value
+
+out      vec4   o_fragColor;    // output fragment color
+//-----------------------------------------------------------------------------
 void main()
 {     
-   gl_FragColor = diffuseColor;
+   o_fragColor = diffuseColor;
 
    // Apply gamma correction
-   gl_FragColor.rgb = pow(gl_FragColor.rgb, vec3(u_oneOverGamma));
+   o_fragColor.rgb = pow(o_fragColor.rgb, vec3(u_oneOverGamma));
 }
+//-----------------------------------------------------------------------------

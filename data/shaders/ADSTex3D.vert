@@ -8,31 +8,32 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
+precision highp float;
+
 //-----------------------------------------------------------------------------
-attribute   vec4     a_position;        // Vertex position attribute
-attribute   vec3     a_normal;          // Vertex normal attribute
-attribute   vec2     a_texCoord;        // Vertex texture coord. attribute
+in      vec4     a_position;        // Vertex position attribute
+in      vec3     a_normal;          // Vertex normal attribute
+in      vec2     a_texCoord;        // Vertex texture coord. attribute
 
-uniform     mat4     u_mvMatrix;        // modelView matrix
-uniform     mat4     u_mvpMatrix;       // = projection * modelView
-uniform     mat3     u_nMatrix;         // normal matrix=transpose(inverse(mv))
-uniform     mat4     u_tMatrix;         // texture transform matrix
+uniform mat4     u_mvMatrix;        // modelView matrix
+uniform mat4     u_mvpMatrix;       // = projection * modelView
+uniform mat3     u_nMatrix;         // normal matrix=transpose(inverse(mv))
+uniform mat4     u_tMatrix;         // texture transform matrix
 
-uniform     vec4     u_globalAmbi;      // global ambient intensity (Iaglobal)
-uniform     vec3     u_lightPosVS;      // light position in view space
-uniform     vec3     u_lightSpotDirVS;  // light direction in view space
-uniform     vec4     u_lightAmbient;    // light ambient light intensity (Ia)
-uniform     vec4     u_lightDiffuse;    // light diffuse light intensity (Id)
-uniform     vec4     u_lightSpecular;   // light specular light intensity (Is)
-uniform     vec4     u_matAmbient;      // material ambient reflection (ka)
-uniform     vec4     u_matDiffuse;      // material diffuse reflection (kd)
-uniform     vec4     u_matSpecular;     // material specular reflection (ks)
-uniform     vec4     u_matEmissive;     // material emissiveness (ke)
-uniform     float    u_matShininess;    // material shininess exponent
+uniform vec4     u_globalAmbi;      // global ambient intensity (Iaglobal)
+uniform vec3     u_lightPosVS;      // light position in view space
+uniform vec3     u_lightSpotDir;  // light direction in view space
+uniform vec4     u_lightAmbi;    // light ambient light intensity (Ia)
+uniform vec4     u_lightDiff;    // light diffuse light intensity (Id)
+uniform vec4     u_lightSpec;   // light specular light intensity (Is)
+uniform vec4     u_matAmbi;      // material ambient reflection (ka)
+uniform vec4     u_matDiff;      // material diffuse reflection (kd)
+uniform vec4     u_matSpec;     // material specular reflection (ks)
+uniform vec4     u_matEmis;     // material emissiveness (ke)
+uniform float    u_matShin;    // material shininess exponent
 
-varying     vec4     v_color;           // The resulting color per vertex
-varying     vec4     v_texCoord3D;      // texture coordinate at vertex
-
+out     vec4     v_color;           // The resulting color per vertex
+out     vec4     v_texCoord3D;      // texture coordinate at vertex
 //-----------------------------------------------------------------------------
 void main()
 {     
@@ -55,14 +56,14 @@ void main()
     float diffFactor = max(dot(N,L), 0.0);
 
     // specular factor
-    float specFactor = pow(max(dot(N,H), 0.0), u_matShininess);
+    float specFactor = pow(max(dot(N,H), 0.0), u_matShin);
 
     // Calculate the full Blinn/Phong light equation 
-    v_color =  u_matEmissive +
-               u_globalAmbi * u_matAmbient +
-               u_lightAmbient * u_matAmbient + 
-               u_lightDiffuse * u_matDiffuse * diffFactor +
-               u_lightSpecular * u_matSpecular * specFactor;
+    v_color =  u_matEmis +
+               u_globalAmbi * u_matAmbi +
+               u_lightAmbi * u_matAmbi +
+               u_lightDiff * u_matDiff * diffFactor +
+               u_lightSpec * u_matSpec * specFactor;
 
     // For 3D texturing we use the vertex position as texture coordinate
     // transformed by the texture matrix

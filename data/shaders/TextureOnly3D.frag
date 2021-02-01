@@ -8,19 +8,22 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#ifdef GL_ES
-precision mediump float;
-precision mediump sampler3D;
-#endif
+precision highp float;
+precision highp sampler3D;
 
-uniform sampler3D u_texture0;       // 3D Color map
+//-----------------------------------------------------------------------------
+in      vec4      v_texCoord3D;     // Interpol. 3D texture coordinate
+
+uniform sampler3D u_matTexture0;    // 3D Color map
 uniform float     u_oneOverGamma;   // 1.0f / Gamma correction value
-varying vec4      v_texCoord3D;     // Interpol. 3D texture coordinate
 
+out     vec4      o_fragColor;      // output fragment color
+//-----------------------------------------------------------------------------
 void main()
-{     
-    gl_FragColor = texture3D(u_texture0, v_texCoord3D.xyz);
+{
+    o_fragColor = texture(u_matTexture0, v_texCoord3D.xyz);
 
     // Apply gamma correction
-    gl_FragColor.rgb = pow(gl_FragColor.rgb, vec3(u_oneOverGamma));
+    o_fragColor.rgb = pow(o_fragColor.rgb, vec3(u_oneOverGamma));
 }
+//-----------------------------------------------------------------------------
