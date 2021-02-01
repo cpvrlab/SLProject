@@ -65,11 +65,8 @@ add_subdirectory(modules/sl)
 add_subdirectory(modules/math)
 add_subdirectory(modules/utils)
 #add_subdirectory(experimental)
+add_subdirectory(modules/wai)
 
 if (SL_BUILD_APPS)
 	add_subdirectory(apps)
-endif()
-
-if (SL_BUILD_WAI)
-	add_subdirectory(modules/wai)
 endif()
