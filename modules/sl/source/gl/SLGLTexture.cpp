@@ -411,6 +411,25 @@ void SLGLTexture::clearData()
 #endif
 }
 //-----------------------------------------------------------------------------
+void SLGLTexture::deleteDataGpu()
+{
+    glDeleteTextures(1, &_texID);
+
+    numBytesInTextures -= _bytesOnGPU;
+
+    _texID      = 0;
+    _bytesOnGPU = 0;
+    _vaoSprite.clearAttribs();
+    
+#ifdef SL_HAS_OPTIX
+    if (_cudaGraphicsResource)
+    {
+        CUDA_CHECK(cuGraphicsUnregisterResource(_cudaGraphicsResource));
+        _cudaGraphicsResource = nullptr;
+    }
+#endif
+}
+//-----------------------------------------------------------------------------
 //! Loads the texture, converts color depth & applies vertical mirroring
 void SLGLTexture::load(const SLstring& filename,
                        SLbool          flipVertical,

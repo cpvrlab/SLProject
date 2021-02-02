@@ -113,6 +113,20 @@ void SLMesh::deleteData()
 #endif
 }
 //-----------------------------------------------------------------------------
+void SLMesh::deleteDataGpu()
+{
+    _vao.deleteGL();
+    _vaoN.deleteGL();
+    _vaoT.deleteGL();
+    
+#ifdef SL_HAS_OPTIX
+    _vertexBuffer.free();
+    _normalBuffer.free();
+    _indexShortBuffer.free();
+    _indexIntBuffer.free();
+#endif
+}
+//-----------------------------------------------------------------------------
 //! Deletes the rectangle selected vertices and the dependent triangles.
 /*! The selection rectangle is defined in SLScene::selectRect and gets set and
  drawn in SLCamera::onMouseDown and SLCamera::onMouseMove. All vertices that

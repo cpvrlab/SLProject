@@ -65,6 +65,7 @@ public:
 
     ~SLGLProgram() override;
 
+    void deleteDataGpu();
     void addShader(SLGLShader* shader);
     void init(SLVLight* lights);
     void initRaw();

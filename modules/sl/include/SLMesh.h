@@ -144,6 +144,7 @@ public:
     virtual void preShade(SLRay* ray);
 
     void         deleteData();
+    void         deleteDataGpu();
     void         deleteSelected(SLNode* node);
     void         deleteUnused();
     void         calcTex3DMatrix(SLNode* node);

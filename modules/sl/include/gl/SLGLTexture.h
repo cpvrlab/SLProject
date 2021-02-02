@@ -144,6 +144,7 @@ public:
     virtual SLuint height() { return _images.empty() ? 0 : _images[0]->height(); }
     virtual SLint  bytesPerPixel() { return (SLint)_images.empty() ? 0 : _images[0]->bytesPerPixel(); }
 
+    void     deleteDataGpu();
     void     bindActive(SLuint texUnit = 0);
     void     fullUpdate();
     void     drawSprite(SLbool doUpdate, SLfloat x, SLfloat y, SLfloat w, SLfloat h);
