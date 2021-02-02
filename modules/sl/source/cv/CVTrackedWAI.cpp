@@ -8,7 +8,7 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include <CVTrackedWAI.h>
+#include <cv/CVTrackedWAI.h>
 #include <SL.h>
 #include <Instrumentor.h>
 

@@ -50,8 +50,17 @@ target_include_directories(
         ${target}
         PRIVATE
         ${SL_PROJECT_ROOT}/apps/app_demo_slproject/include/
-        ${SL_PROJECT_ROOT}/apps/source
-        ${SL_PROJECT_ROOT}/modules/sl/include
+		${SL_PROJECT_ROOT}/apps/source
+		${SL_PROJECT_ROOT}/modules/sl/source/accelstruct
+		${SL_PROJECT_ROOT}/modules/sl/source/animation
+		${SL_PROJECT_ROOT}/modules/sl/source/cv
+		${SL_PROJECT_ROOT}/modules/sl/source/gl
+		${SL_PROJECT_ROOT}/modules/sl/source/input
+		${SL_PROJECT_ROOT}/modules/sl/source/mesh
+		${SL_PROJECT_ROOT}/modules/sl/source/node
+		${SL_PROJECT_ROOT}/modules/sl/source/optix
+		${SL_PROJECT_ROOT}/modules/sl/source/ray
+        ${SL_PROJECT_ROOT}/modules/sl/source
         ${OpenCV_INCLUDE_DIR}
         ${glfw_INCLUDE_DIR}
         PUBLIC

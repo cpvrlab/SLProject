@@ -8,7 +8,7 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include <SLOptixHelper.h>
+#include "../source/optix/SLOptixHelper.h"
 #include <SLOptixDefinitions.h>
 #include <cuda_runtime_api.h>
 

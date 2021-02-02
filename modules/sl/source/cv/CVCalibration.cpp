@@ -17,7 +17,7 @@ See also the class docs for CVCapture, CVCalibration and CVTracked
 for a good top down information.
 */
 
-#include <CVCalibration.h>
+#include <cv/CVCalibration.h>
 #include <Utils.h>
 #include <HighResTimer.h>
 

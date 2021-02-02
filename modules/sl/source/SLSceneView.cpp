@@ -163,7 +163,9 @@ void SLSceneView::initSceneViewCamera(const SLVec3f& dir, SLProjection proj)
         SLAABBox* sceneBounds = _s->root3D()->aabb();
 
         _sceneViewCamera.translation(sceneBounds->centerWS(), TS_world);
-        _sceneViewCamera.lookAt(sceneBounds->centerWS() + dir, SLVec3f::AXISY, TS_parent);
+        _sceneViewCamera.lookAt(sceneBounds->centerWS() + dir,
+                                SLVec3f::AXISY,
+                                TS_parent);
 
         SLfloat minX = sceneBounds->minWS().x;
         SLfloat minY = sceneBounds->minWS().y;
@@ -983,7 +985,7 @@ void SLSceneView::draw3DGLLinesOverlay(SLVNode& nodes)
                     node->drawBit(SL_DB_SKELETON))
                 {
                     // Draw axis of the skeleton joints and its parent bones
-                    const SLSkeleton* skeleton = node->skeleton();
+                    const SLAnimSkeleton* skeleton = node->skeleton();
                     if (skeleton)
                     {
                         for (auto joint : skeleton->joints())

@@ -41,7 +41,7 @@ target_include_directories(
         ${target}
         PRIVATE
         ${SL_PROJECT_ROOT}/apps/app_demo_node/include
-        ${SL_PROJECT_ROOT}/modules/sl/include
+        ${SL_PROJECT_ROOT}/modules/sl/source
         ${SL_PROJECT_ROOT}/externals/lib-SLExternal
         ${SL_PROJECT_ROOT}/modules/sl/externals/imgui
         ${SL_PROJECT_ROOT}/modules/sl/externals/spa

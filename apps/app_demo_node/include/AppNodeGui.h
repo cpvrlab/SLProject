@@ -11,7 +11,7 @@
 #ifndef NEWNODEGUI_H
 #define NEWNODEGUI_H
 
-#include <stdafx.h> // Must be the 1st include followed by  an empty line
+#include <SL.h>
 
 class SLScene;
 class SLSceneView;

@@ -8,7 +8,7 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include <CVImage.h>
+#include <cv/CVImage.h>
 #include <Utils.h>
 #include <algorithm> // std::max
 

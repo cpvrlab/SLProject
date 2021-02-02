@@ -9,8 +9,8 @@
 //#############################################################################
 
 #include <SLOptixDefinitions.h>
-#include <SLOptixHelper.h>
-#include <SLOptixVectorMath.h>
+#include "../source/optix/SLOptixHelper.h"
+#include "../source/optix/SLOptixVectorMath.h"
 #include <cuda_runtime_api.h>
 
 //-----------------------------------------------------------------------------

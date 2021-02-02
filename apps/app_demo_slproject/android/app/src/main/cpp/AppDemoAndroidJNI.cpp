@@ -10,7 +10,6 @@
 //#############################################################################
 
 #include <jni.h>
-#include <stdafx.h>
 #include <SLInterface.h>
 #include <SLProjectScene.h>
 #include <SLApplication.h>

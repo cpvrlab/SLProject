@@ -12,8 +12,8 @@
 //#############################################################################
 
 #include <iterator> // std::back_inserter
-#include <CVRaulMurExtNode.h>
-#include <CVRaulMurOrb.h>
+#include <cv/CVRaulMurExtNode.h>
+#include <cv/CVRaulMurOrb.h>
 
 using namespace cv;
 using std::pair;

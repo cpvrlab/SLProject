@@ -38,230 +38,219 @@ file(GLOB cuda
         ${CMAKE_CURRENT_SOURCE_DIR}/cuda/SLOptixRaytracerShading.cu
         )
 
-file(GLOB headers
-        ${CMAKE_CURRENT_SOURCE_DIR}/cuda/SLOptixHelper.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/cuda/SLOptixVectorMath.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/cv/CVTypedefs.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/cv/CVCamera.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/cv/CVCalibration.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/cv/CVCalibrationEstimator.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/cv/CVTypes.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/cv/CVFeatureManager.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/cv/CVImage.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/cv/CVImageGeoTiff.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/cv/CVRaulMurExtNode.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/cv/CVRaulMurOrb.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/cv/CVTracked.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/cv/CVTrackedAruco.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/cv/CVTrackedChessboard.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/cv/CVTrackedFaces.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/cv/CVTrackedFeatures.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/gl/SLGLConetracer.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/gl/SLGLConetracerTex3D.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/gl/SLGLDepthBuffer.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/gl/SLGLEnums.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/gl/SLGLFbo.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/gl/SLGLFrameBuffer.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/gl/SLGLProgramGeneric.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/gl/SLGLProgramGenerated.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/gl/SLGLImGui.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/gl/SLGLOculus.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/gl/SLGLOculusFB.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/gl/SLGLOVRWorkaround.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/gl/SLGLProgram.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/gl/SLGLProgramManager.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/gl/SLGLShader.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/gl/SLGLState.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/gl/SLGLTexture.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/gl/SLGLTextureIBL.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/gl/SLGLUniform.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/gl/SLGLVertexArray.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/gl/SLGLVertexArrayExt.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/gl/SLGLVertexBuffer.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/sl/SL.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/sl/SLAssimpImporter.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/sl/SLImporter.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/sl/SLInputEventInterface.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/sl/SLSkybox.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/sl/SLTexFont.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/sl/stdafx.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/sl/SLUiInterface.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLAABBox.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLAccelStruct.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLAnimation.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLAnimKeyframe.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLAnimManager.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLAnimPlayback.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLAnimTrack.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLArrow.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLAssetManager.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLBackground.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLBox.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLCamera.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLCircle.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLColorLUT.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLCone.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLCompactGrid.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLCoordAxis.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLCudaBuffer.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLCoordAxisArrow.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLCurveBezier.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLCylinder.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLDeviceRotation.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLDeviceLocation.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLDisk.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLDrawBits.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLEnums.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLEventHandler.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLGrid.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLHorizonNode.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLInputDevice.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLInputEvent.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLInputManager.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLJoint.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLKeyframeCamera.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLLens.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLLight.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLLightRect.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLLightSpot.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLLightDirect.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLMaterial.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLMemoryStats.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLMesh.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLNode.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLNodeMesh.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLOptix.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLOptixAccelerationStructure.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLOptixDefinitions.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLOptixHelper.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLOptixPathtracer.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLOptixRaytracer.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLObject.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLPathtracer.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLPoints.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLPolygon.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLPolyline.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLRay.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLRaytracer.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLRect.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLRectangle.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLRevolver.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLSamples2D.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLScene.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLSceneView.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLShadowMap.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLSkeleton.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLSphere.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLSpheric.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLText.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLTransformNode.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/SLTriangle.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/TriangleBoxIntersect.h
-        )
-
-set(sources
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/cv/CVCamera.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/cv/CVCalibration.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/cv/CVCalibrationEstimator.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/cv/CVFeatureManager.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/cv/CVImage.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/cv/CVImageGeoTiff.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/cv/CVRaulMurExtNode.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/cv/CVRaulMurOrb.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/cv/CVTracked.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/cv/CVTrackedAruco.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/cv/CVTrackedChessboard.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/cv/CVTrackedFaces.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/cv/CVTrackedFeatures.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/gl/SLGLConetracer.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/gl/SLGLConetracerTex3D.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/gl/SLGLDepthBuffer.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/gl/SLGLFbo.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/gl/SLGLFrameBuffer.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/gl/SLGLImGui.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/gl/SLGLOculus.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/gl/SLGLOculusFB.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/gl/SLGLProgram.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/gl/SLGLProgramGenerated.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/gl/SLGLProgramManager.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/gl/SLGLShader.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/gl/SLGLState.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/gl/SLGLTexture.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/gl/SLGLTextureIBL.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/gl/SLGLVertexArray.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/gl/SLGLVertexArrayExt.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/gl/SLGLVertexBuffer.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/sl/SLAssimpImporter.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/sl/SLImporter.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/sl/SLInputEventInterface.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/sl/SLTexFont.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/SLAABBox.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/SLAnimation.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/SLAnimKeyframe.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/SLAnimManager.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/SLAnimPlayback.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/SLAnimTrack.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/SLAssetManager.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/SLBackground.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/SLBox.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/SLCamera.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/SLCircle.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/SLColorLUT.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/SLCone.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/SLCompactGrid.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/SLCoordAxis.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/SLCoordAxisArrow.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/SLCylinder.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/SLCurveBezier.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/SLDeviceRotation.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/SLDeviceLocation.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/SLDisk.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/SLGrid.cpp
-		${CMAKE_CURRENT_SOURCE_DIR}/source/SLHorizonNode.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/SLInputDevice.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/SLInputManager.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/SLJoint.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/SLKeyframeCamera.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/SLLens.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/SLLight.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/SLLightRect.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/SLLightSpot.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/SLLightDirect.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/SLMaterial.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/SLMesh.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/SLNode.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/SLOptix.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/SLOptixAccelStruct.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/SLOptixHelper.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/SLOptixPathtracer.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/SLOptixRaytracer.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/SLPathtracer.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/SLPoints.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/SLPolygon.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/SLRay.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/SLRaytracer.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/SLRectangle.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/SLRevolver.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/SLSamples2D.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/SLScene.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/SLSceneView.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/SLShadowMap.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/SLSkeleton.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/sl/SLSkybox.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/SLSpheric.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/SLText.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/SLTransformNode.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/SLTriangle.cpp
+file(GLOB sources
+        source/SL.h
+        source/SLBackground.cpp
+        source/SLBackground.h
+        source/SLDrawBits.h
+        source/SLEnums.h
+        source/SLEventHandler.h
+        source/SLMaterial.cpp
+        source/SLMaterial.h
+        source/SLObject.h
+        source/SLScene.cpp
+        source/SLScene.h
+        source/SLSceneView.cpp
+        source/SLSceneView.h
+        source/SLShadowMap.cpp
+        source/SLShadowMap.h
+        source/SLTexColorLUT.cpp
+        source/SLTexColorLUT.h
+        source/SLTexFont.cpp
+        source/SLTexFont.h
+        source/accelstruct/SLAABBox.cpp
+        source/accelstruct/SLAABBox.h
+        source/accelstruct/SLAccelStruct.h
+        source/accelstruct/SLCompactGrid.cpp
+        source/accelstruct/SLCompactGrid.h
+        source/animation/SLAnimKeyframe.cpp
+        source/animation/SLAnimKeyframe.h
+        source/animation/SLAnimManager.cpp
+        source/animation/SLAnimManager.h
+        source/animation/SLAnimPlayback.cpp
+        source/animation/SLAnimPlayback.h
+        source/animation/SLAnimSkeleton.cpp
+        source/animation/SLAnimSkeleton.h
+        source/animation/SLAnimTrack.cpp
+        source/animation/SLAnimTrack.h
+        source/animation/SLAnimation.cpp
+        source/animation/SLAnimation.h
+        source/cv/CVCalibration.cpp
+        source/cv/CVCalibration.h
+        source/cv/CVCalibrationEstimator.cpp
+        source/cv/CVCalibrationEstimator.h
+        source/cv/CVCamera.cpp
+        source/cv/CVCamera.h
+        source/cv/CVFeatureManager.cpp
+        source/cv/CVFeatureManager.h
+        source/cv/CVImage.cpp
+        source/cv/CVImage.h
+        source/cv/CVImageGeoTiff.cpp
+        source/cv/CVImageGeoTiff.h
+        source/cv/CVRaulMurExtNode.cpp
+        source/cv/CVRaulMurExtNode.h
+        source/cv/CVRaulMurOrb.cpp
+        source/cv/CVRaulMurOrb.h
+        source/cv/CVTracked.cpp
+        source/cv/CVTracked.h
+        source/cv/CVTrackedAruco.cpp
+        source/cv/CVTrackedAruco.h
+        source/cv/CVTrackedChessboard.cpp
+        source/cv/CVTrackedChessboard.h
+        source/cv/CVTrackedFaces.cpp
+        source/cv/CVTrackedFaces.h
+        source/cv/CVTrackedFeatures.cpp
+        source/cv/CVTrackedFeatures.h
+        source/cv/CVTypedefs.h
+        source/cv/CVTypes.h
+        source/gl/SLGLConetracer.cpp
+        source/gl/SLGLConetracer.h
+        source/gl/SLGLConetracerTex3D.cpp
+        source/gl/SLGLConetracerTex3D.h
+        source/gl/SLGLDepthBuffer.cpp
+        source/gl/SLGLDepthBuffer.h
+        source/gl/SLGLEnums.h
+        source/gl/SLGLFbo.cpp
+        source/gl/SLGLFbo.h
+        source/gl/SLGLFrameBuffer.cpp
+        source/gl/SLGLFrameBuffer.h
+        source/gl/SLGLImGui.cpp
+        source/gl/SLGLImGui.h
+        source/gl/SLGLOVRWorkaround.h
+        source/gl/SLGLOculus.cpp
+        source/gl/SLGLOculus.h
+        source/gl/SLGLOculusFB.cpp
+        source/gl/SLGLOculusFB.h
+        source/gl/SLGLProgram.cpp
+        source/gl/SLGLProgram.h
+        source/gl/SLGLProgramGenerated.cpp
+        source/gl/SLGLProgramGenerated.h
+        source/gl/SLGLProgramGeneric.h
+        source/gl/SLGLProgramManager.cpp
+        source/gl/SLGLProgramManager.h
+        source/gl/SLGLShader.cpp
+        source/gl/SLGLShader.h
+        source/gl/SLGLState.cpp
+        source/gl/SLGLState.h
+        source/gl/SLGLTexture.cpp
+        source/gl/SLGLTexture.h
+        source/gl/SLGLTextureIBL.cpp
+        source/gl/SLGLTextureIBL.h
+        source/gl/SLGLUniform.h
+        source/gl/SLGLVertexArray.cpp
+        source/gl/SLGLVertexArray.h
+        source/gl/SLGLVertexArrayExt.cpp
+        source/gl/SLGLVertexArrayExt.h
+        source/gl/SLGLVertexBuffer.cpp
+        source/gl/SLGLVertexBuffer.h
+        source/input/SLAssetManager.cpp
+        source/input/SLAssetManager.h
+        source/input/SLAssimpImporter.cpp
+        source/input/SLAssimpImporter.h
+        source/input/SLDeviceLocation.cpp
+        source/input/SLDeviceLocation.h
+        source/input/SLDeviceRotation.cpp
+        source/input/SLDeviceRotation.h
+        source/input/SLImporter.cpp
+        source/input/SLImporter.h
+        source/input/SLInputDevice.cpp
+        source/input/SLInputDevice.h
+        source/input/SLInputEvent.h
+        source/input/SLInputEventInterface.cpp
+        source/input/SLInputEventInterface.h
+        source/input/SLInputManager.cpp
+        source/input/SLInputManager.h
+        source/input/SLUiInterface.h
+        source/math/SLCurveBezier.cpp
+        source/math/SLCurveBezier.h
+        source/math/SLRect.h
+        source/mesh/SLArrow.h
+        source/mesh/SLBox.cpp
+        source/mesh/SLBox.h
+        source/mesh/SLCircle.cpp
+        source/mesh/SLCircle.h
+        source/mesh/SLCone.cpp
+        source/mesh/SLCone.h
+        source/mesh/SLCoordAxis.cpp
+        source/mesh/SLCoordAxis.h
+        source/mesh/SLCoordAxisArrow.cpp
+        source/mesh/SLCoordAxisArrow.h
+        source/mesh/SLCylinder.cpp
+        source/mesh/SLCylinder.h
+        source/mesh/SLDisk.cpp
+        source/mesh/SLDisk.h
+        source/mesh/SLGrid.cpp
+        source/mesh/SLGrid.h
+        source/mesh/SLLens.cpp
+        source/mesh/SLLens.h
+        source/mesh/SLMesh.cpp
+        source/mesh/SLMesh.h
+        source/mesh/SLPoints.cpp
+        source/mesh/SLPoints.h
+        source/mesh/SLPolygon.cpp
+        source/mesh/SLPolygon.h
+        source/mesh/SLPolyline.h
+        source/mesh/SLRectangle.cpp
+        source/mesh/SLRectangle.h
+        source/mesh/SLRevolver.cpp
+        source/mesh/SLRevolver.h
+        source/mesh/SLSphere.h
+        source/mesh/SLSpheric.cpp
+        source/mesh/SLSpheric.h
+        source/mesh/SLTriangle.cpp
+        source/mesh/SLTriangle.h
+        source/node/SLCamera.cpp
+        source/node/SLCamera.h
+        source/node/SLHorizonNode.cpp
+        source/node/SLHorizonNode.h
+        source/node/SLJoint.cpp
+        source/node/SLJoint.h
+        source/node/SLKeyframeCamera.cpp
+        source/node/SLKeyframeCamera.h
+        source/node/SLLight.cpp
+        source/node/SLLight.h
+        source/node/SLLightDirect.cpp
+        source/node/SLLightDirect.h
+        source/node/SLLightRect.cpp
+        source/node/SLLightRect.h
+        source/node/SLLightSpot.cpp
+        source/node/SLLightSpot.h
+        source/node/SLNode.cpp
+        source/node/SLNode.h
+        source/node/SLSkybox.cpp
+        source/node/SLSkybox.h
+        source/node/SLText.cpp
+        source/node/SLText.h
+        source/node/SLTransformNode.cpp
+        source/node/SLTransformNode.h
+        source/optix/SLOptix.cpp
+        source/optix/SLOptix.h
+        source/optix/SLOptixAccelStruct.cpp
+        source/optix/SLOptixCudaBuffer.h
+        source/optix/SLOptixDefinitions.h
+        source/optix/SLOptixHelper.cpp
+        source/optix/SLOptixHelper.h
+        source/optix/SLOptixHelper.h
+        source/optix/SLOptixPathtracer.cpp
+        source/optix/SLOptixPathtracer.h
+        source/optix/SLOptixRaytracer.cpp
+        source/optix/SLOptixRaytracer.h
+        source/optix/SLOptixVectorMath.h
+        source/ray/SLPathtracer.cpp
+        source/ray/SLPathtracer.h
+        source/ray/SLRay.cpp
+        source/ray/SLRay.h
+        source/ray/SLRaySamples2D.cpp
+        source/ray/SLRaySamples2D.h
+        source/ray/SLRaytracer.cpp
+        source/ray/SLRaytracer.h
         )
 
 if (SL_BUILD_WAI)
-        set(headers
-                ${headers}
-                ${CMAKE_CURRENT_SOURCE_DIR}/include/cv/CVTrackedWAI.h)
-
         set(sources
                 ${sources}
-                ${CMAKE_CURRENT_SOURCE_DIR}/source/cv/CVTrackedWAI.cpp)
+                source/cv/CVTrackedWAI.cpp
+                source/cv/CVTrackedWAI.h)
 endif()
 
 file(GLOB shaders
@@ -272,7 +261,6 @@ file(GLOB shaders
         )
 
 # Group source files
-source_group_by_path("${CMAKE_CURRENT_SOURCE_DIR}/include" "\\\\.h$|\\\\.hpp$" "Header Files" ${headers})
 source_group_by_path("${CMAKE_CURRENT_SOURCE_DIR}/source" "\\\\.cpp$|\\\\.c$|\\\\.h$|\\\\.hpp$" "Source Files" ${sources})
 source_group_by_path("${SL_PROJECT_ROOT}/data/shaders" "\\\\.frag|\\\\.vert|\\\\.geom$" "Shaders" ${shaders})
 
@@ -285,7 +273,7 @@ if ("${SYSTEM_NAME_UPPER}" STREQUAL "LINUX")
             APP_USES_CVCAPTURE
             SL_GUI_GLFW)
 
-elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
+elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #---------------------------
     set(compile_definitions
             ${compile_definitions}
             _GLFW_NO_DLOAD_GDI32
@@ -293,7 +281,7 @@ elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
             APP_USES_CVCAPTURE
             SL_GUI_GLFW)
 
-elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #-----------------------------
+elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #----------------------------
     set(compile_definitions
             ${compile_definitions}
             APP_USES_CVCAPTURE
@@ -330,9 +318,8 @@ if (DEFINED ENV{CUDA_PATH} AND SL_BUILD_WITH_OPTIX)
             ${OptiX_INCLUDE}
             ${CUDA_INCLUDE_DIRS}
             ${SL_PROJECT_ROOT}/modules/sl/cuda
-            ${SL_PROJECT_ROOT}/modules/sl/include
+            ${SL_PROJECT_ROOT}/modules/sl/source/optix
             ${CMAKE_CURRENT_SOURCE_DIR}/cuda
-            ${CMAKE_CURRENT_SOURCE_DIR}/include
             )
 
     cuda_compile_ptx(ptx
@@ -347,7 +334,6 @@ endif()
 
 #==============================================================================
 add_library(${target}
-        ${headers}
         ${sources}
         ${shaders})
 
@@ -371,20 +357,27 @@ target_include_directories(${target}
         PRIVATE
 
         PUBLIC
-        ${platform_specific_include_dirs}
-        ${CMAKE_CURRENT_SOURCE_DIR}/include
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/cv
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/gl
-        ${CMAKE_CURRENT_SOURCE_DIR}/include/sl
-        ${OpenCV_INCLUDE_DIR}
-        ${OptiX_INCLUDE}
-        ${CUDA_INCLUDE_DIRS}
-        ${assimp_INCLUDE_DIR}
-        ${SL_PROJECT_ROOT}/apps/source
-        ${SL_PROJECT_ROOT}/externals/nlohmann
-        ${SL_PROJECT_ROOT}/externals/eigen
-        ${SL_PROJECT_ROOT}/externals/libigl/include
-        ${DEFAULT_INCLUDE_DIRECTORIES}
+            ${platform_specific_include_dirs}
+            ${SL_PROJECT_ROOT}/modules/sl/source/accelstruct
+            ${SL_PROJECT_ROOT}/modules/sl/source/animation
+            ${SL_PROJECT_ROOT}/modules/sl/source/cv
+            ${SL_PROJECT_ROOT}/modules/sl/source/gl
+            ${SL_PROJECT_ROOT}/modules/sl/source/input
+            ${SL_PROJECT_ROOT}/modules/sl/source/mesh
+            ${SL_PROJECT_ROOT}/modules/sl/source/node
+            ${SL_PROJECT_ROOT}/modules/sl/source/optix
+            ${SL_PROJECT_ROOT}/modules/sl/source/ray
+            ${SL_PROJECT_ROOT}/modules/sl/source
+            ${SL_PROJECT_ROOT}/modules/math/source
+            ${OpenCV_INCLUDE_DIR}
+            ${OptiX_INCLUDE}
+            ${CUDA_INCLUDE_DIRS}
+            ${assimp_INCLUDE_DIR}
+            ${SL_PROJECT_ROOT}/apps/source
+            ${SL_PROJECT_ROOT}/externals/nlohmann
+            ${SL_PROJECT_ROOT}/externals/eigen
+            ${SL_PROJECT_ROOT}/externals/libigl/include
+            ${DEFAULT_INCLUDE_DIRECTORIES}
 
         INTERFACE
         )

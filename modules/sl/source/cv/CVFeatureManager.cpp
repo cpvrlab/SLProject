@@ -18,8 +18,8 @@ See also the class docs for CVCapture, CVCalibration and CVTracked
 for a good top down information.
 */
 
-#include <CVFeatureManager.h>
-#include <CVRaulMurOrb.h>
+#include <cv/CVFeatureManager.h>
+#include <cv/CVRaulMurOrb.h>
 #include <Utils.h>
 #include <algorithm> // std::max
 
