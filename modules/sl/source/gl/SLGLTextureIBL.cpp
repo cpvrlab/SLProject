@@ -30,22 +30,24 @@ SLGLTextureIBL::SLGLTextureIBL(SLAssetManager*  am,
         assert(texType > TT_hdr);
     }
 
-    _sourceTexture          = sourceTexture;
-    _captureFBO             = fbo;
-    _texType                = texType;
-    _min_filter             = min_filter;
-    _mag_filter             = mag_filter;
-    _wrap_s                 = GL_CLAMP_TO_EDGE;
-    _wrap_t                 = GL_CLAMP_TO_EDGE;
-    _target                 = target;
-    _texID                  = 0;
-    _bumpScale              = 1.0f;
-    _resizeToPow2           = false;
-    _autoCalcTM3D           = false;
-    _needsUpdate            = false;
-    _bytesOnGPU             = 0;
-    _generatedSize          = size;
-    _generatedBytesPerPixel = 0;
+    _sourceTexture = sourceTexture;
+    _captureFBO    = fbo;
+    _texType       = texType;
+    _min_filter    = min_filter;
+    _mag_filter    = mag_filter;
+    _wrap_s        = GL_CLAMP_TO_EDGE;
+    _wrap_t        = GL_CLAMP_TO_EDGE;
+    _target        = target;
+    _texID         = 0;
+    _bumpScale     = 1.0f;
+    _resizeToPow2  = false;
+    _autoCalcTM3D  = false;
+    _needsUpdate   = false;
+    _bytesOnGPU    = 0;
+    _width         = size.x;
+    _height        = size.y;
+    _bytesPerPixel = 0;
+    _deleteImageAfterBuild = false;
 
     name("Generated " + typeName());
 
@@ -98,10 +100,10 @@ SLGLTextureIBL::SLGLTextureIBL(SLAssetManager*  am,
 //-----------------------------------------------------------------------------
 SLGLTextureIBL::~SLGLTextureIBL()
 {
-    clearData();
+    deleteData();
 }
 //-----------------------------------------------------------------------------
-void SLGLTextureIBL::clearData()
+void SLGLTextureIBL::deleteData()
 {
     glDeleteTextures(1, &_texID);
 
@@ -133,15 +135,15 @@ void SLGLTextureIBL::build(SLint texID)
 
         if (_texType == TT_environmentCubemap || _texType == TT_irradianceCubemap)
         {
-            _generatedBytesPerPixel = 3 * 2; // GL_RGB16F
+            _bytesPerPixel = 3 * 2; // GL_RGB16F
 
             for (SLuint i = 0; i < 6; i++)
             {
                 glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
                              0,
                              GL_RGB16F,
-                             _generatedSize.x,
-                             _generatedSize.y,
+                             _width,
+                             _height,
                              0,
                              GL_RGB,
                              GL_FLOAT,
@@ -159,9 +161,9 @@ void SLGLTextureIBL::build(SLint texID)
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(_sourceTexture->target(),
                           _sourceTexture->texID());
-            glViewport(0, 0, _generatedSize.x, _generatedSize.y);
+            glViewport(0, 0, _width, _height);
 
-            _captureFBO->bindAndSetBufferStorage(_generatedSize.x, _generatedSize.y);
+            _captureFBO->bindAndSetBufferStorage(_width, _height);
 
             for (SLuint i = 0; i < 6; i++)
             {
@@ -187,15 +189,15 @@ void SLGLTextureIBL::build(SLint texID)
             assert(_sourceTexture->texType() == TT_environmentCubemap &&
                    "the source texture is not an environment map");
 
-            _generatedBytesPerPixel = 3 * 2; // GL_RGB16F
+            _bytesPerPixel = 3 * 2; // GL_RGB16F
 
             for (unsigned int i = 0; i < 6; ++i)
             {
                 glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
                              0,
                              GL_RGB16F,
-                             _generatedSize.x,
-                             _generatedSize.y,
+                             _width,
+                             _height,
                              0,
                              GL_RGB,
                              GL_FLOAT,
@@ -218,8 +220,8 @@ void SLGLTextureIBL::build(SLint texID)
             for (SLuint mip = 0; mip < maxMipLevels; ++mip)
             {
                 // resize framebuffer according to mip-level size
-                SLuint mipWidth  = _generatedSize.x * pow(0.5, mip);
-                SLuint mipHeight = _generatedSize.y * pow(0.5, mip);
+                SLuint mipWidth  = _width * pow(0.5, mip);
+                SLuint mipHeight = _height * pow(0.5, mip);
                 _captureFBO->bindAndSetBufferStorage(mipWidth, mipHeight);
                 glViewport(0, 0, mipWidth, mipHeight);
 
@@ -243,13 +245,13 @@ void SLGLTextureIBL::build(SLint texID)
         }
         else if (_texType == TT_brdfLUT)
         {
-            _generatedBytesPerPixel = 2 * 2; // GL_RG16F
+            _bytesPerPixel = 2 * 2; // GL_RG16F
 
             glTexImage2D(_target,
                          0,
                          GL_RG16F,
-                         _generatedSize.x,
-                         _generatedSize.y,
+                         _width,
+                         _height,
                          0,
                          GL_RG,
                          GL_FLOAT,
@@ -259,10 +261,10 @@ void SLGLTextureIBL::build(SLint texID)
             glTexParameteri(_target, GL_TEXTURE_MIN_FILTER, _min_filter);
             glTexParameteri(_target, GL_TEXTURE_MAG_FILTER, _mag_filter);
 
-            _captureFBO->bindAndSetBufferStorage(_generatedSize.x, _generatedSize.y);
+            _captureFBO->bindAndSetBufferStorage(_width, _height);
             _captureFBO->attachTexture2D(GL_COLOR_ATTACHMENT0, _target, this);
 
-            glViewport(0, 0, _generatedSize.x, _generatedSize.y);
+            glViewport(0, 0, _width, _height);
             _shaderProgram->useProgram();
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             renderQuad();

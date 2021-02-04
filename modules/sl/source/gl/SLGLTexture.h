@@ -64,13 +64,14 @@ enum SLTextureType
 //-----------------------------------------------------------------------------
 //! Texture object for OpenGL texturing
 /*!
-The SLGLTexture class implements an OpenGL texture object that can be used by the
-SLMaterial class. A texture can have 1-n CVImages in the vector _images.
-A simple 2D texture has just a single texture image (_images[0]). For cube maps
-you will need 6 images (_images[0-5]). For 3D textures you can have as much
-images of the same size than your GPU and/or CPU memory can hold.
-The images are not released after the OpenGL texture creation. They may be needed
-for ray tracing.
+ The SLGLTexture class implements an OpenGL texture object that can be used by the
+ SLMaterial class. A texture can have 1-n CVImages in the vector _images.
+ A simple 2D texture has just a single texture image (_images[0]). For cube maps
+ you will need 6 images (_images[0-5]). For 3D textures you can have as much
+ images of the same size than your GPU and/or CPU memory can hold.
+ The images are not released after the OpenGL texture creation unless you set the
+ flag _deleteImageAfterBuild to true. If the images get deleted after build,
+ you won't be able to ray trace the scene.
 */
 class SLGLTexture : public SLObject
 {
@@ -138,13 +139,11 @@ public:
 
     ~SLGLTexture() override;
 
-    virtual void   clearData();
-    virtual void   build(SLint texUnit = 0);
-    virtual SLuint width() { return _images.empty() ? 0 : _images[0]->width(); }
-    virtual SLuint height() { return _images.empty() ? 0 : _images[0]->height(); }
-    virtual SLint  bytesPerPixel() { return (SLint)_images.empty() ? 0 : _images[0]->bytesPerPixel(); }
+    virtual void deleteData();
+    virtual void build(SLint texUnit);
 
     void     deleteDataGpu();
+    void     deleteImages();
     void     bindActive(SLuint texUnit = 0);
     void     fullUpdate();
     void     drawSprite(SLbool doUpdate, SLfloat x, SLfloat y, SLfloat w, SLfloat h);
@@ -155,11 +154,19 @@ public:
     // Setters
     void texType(SLTextureType bt) { _texType = bt; }
     void bumpScale(SLfloat bs) { _bumpScale = bs; }
-    void minFiler(SLint minF) { _min_filter = minF; } // must be called befor build
-    void magFiler(SLint magF) { _mag_filter = magF; } // must be called befor build
+    void minFiler(SLint minF) { _min_filter = minF; } // must be called before build
+    void magFiler(SLint magF) { _mag_filter = magF; } // must be called before build
     void needsUpdate(SLbool update) { _needsUpdate = update; }
 
+    //! If deleteImageAfterBuild is set to true you won't be able to ray trace the scene
+    void deleteImageAfterBuild(SLbool delImg) { _deleteImageAfterBuild = delImg; }
+
     // Getters
+    SLuint        width() { return _width; }
+    SLuint        height() { return _height; }
+    SLuint        depth() { return _depth; }
+    SLint         bytesPerPixel() { return _bytesPerPixel; }
+    SLint         bytesOnGPU() { return _bytesOnGPU; }
     CVVImage&     images() { return _images; }
     SLenum        target() const { return _target; }
     SLuint        texID() const { return _texID; }
@@ -205,7 +212,7 @@ public:
                           SLbool      isContinuous,
                           SLbool      isTopLeft);
 
-    void calc3DGradients(SLint sampleRadius, function<void(int)> onUpdateProgress);
+    void calc3DGradients(SLint sampleRadius, const function<void(int)>& onUpdateProgress);
     void smooth3DGradients(SLint smoothRadius, function<void(int)> onUpdateProgress);
 
     // Bumpmap methods
@@ -213,7 +220,7 @@ public:
 
     // Statics
     static SLfloat maxAnisotropy;      //!< max. anisotropy available
-    static SLuint  numBytesInTextures; //!< NO. of texture bytes on GPU
+    static SLuint  numBytesInTextures; //!< NO. of texture total bytes (CPU & GPU)
 
 protected:
     // loading the image files
@@ -225,6 +232,10 @@ protected:
     CVVImage          _images;        //!< vector of CVImage pointers
     SLuint            _texID;         //!< OpenGL texture ID
     SLTextureType     _texType;       //!< [unknown, ColorMap, NormalMap, HeightMap, GlossMap]
+    SLint             _width;         //!< Texture image width in pixels (images exist either in _images or on the GPU or on both)
+    SLint             _height;        //!< Texture image height in pixels (images exist either in _images or on the GPU or on both)
+    SLint             _depth;         //!< 3D Texture image depth (images exist either in _images or on the GPU or on both)
+    SLint             _bytesPerPixel; //!< Bytes per texture image pixel (images exist either in _images or on the GPU or on both)
     SLint             _min_filter;    //!< Minification filter
     SLint             _mag_filter;    //!< Magnification filter
     SLint             _wrap_s;        //!< Wrapping in s direction
@@ -232,12 +243,14 @@ protected:
     SLenum            _target;        //!< texture target
     SLMat4f           _tm;            //!< texture matrix
     SLuint            _bytesOnGPU;    //!< NO. of bytes on GPU
-    SLbool            _autoCalcTM3D;  //!< flag if texture matrix should be calculated from AABB for 3D mapping
+    SLbool            _autoCalcTM3D;  //!< Flag if texture matrix should be calculated from AABB for 3D mapping
     SLfloat           _bumpScale;     //!< Bump mapping scale factor
     SLbool            _resizeToPow2;  //!< Flag if image should be resized to n^2
     SLGLVertexArray   _vaoSprite;     //!< Vertex array object for sprite rendering
     std::atomic<bool> _needsUpdate{}; //!< Flag if image needs an single update
     std::mutex        _mutex;         //!< Mutex to protect parallel access (used in ray tracing)
+
+    SLbool _deleteImageAfterBuild; //!< Flag if images should be deleted after build on GPU
 
 #ifdef SL_HAS_OPTIX
     CUgraphicsResource _cudaGraphicsResource; //!< Cuda Graphics object

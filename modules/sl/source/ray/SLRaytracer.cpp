@@ -561,7 +561,7 @@ SLCol4f SLRaytracer::shade(SLRay* ray)
     if (!texture.empty() || !ray->hitMesh->C.empty())
     {
         localColor &= ray->hitTexColor; // component wise multiply
-        localColor += localSpec;     // add afterwards the specular component
+        localColor += localSpec;        // add afterwards the specular component
     }
     else
         localColor += localSpec;
@@ -871,6 +871,10 @@ void SLRaytracer::prepareImage()
         _images[0]->allocate((SLint)(_sv->viewportW() * _resolutionFactor),
                              (SLint)(_sv->viewportH() * _resolutionFactor),
                              PF_rgb);
+
+        _width = _images[0]->width();
+        _height = _images[0]->height();
+        _depth = _images.size();
     }
 
     // Fill image black for single RT

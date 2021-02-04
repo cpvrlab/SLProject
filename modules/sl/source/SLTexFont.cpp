@@ -223,6 +223,9 @@ void SLTexFont::create(SLstring fontFilename)
                      true,
                      false);
     delete[] bits;
+    _width = _images[0]->width();
+    _height = _images[0]->height();
+    _depth = _images.size();
 
     // Set characters below 32 to default
     const SLuchar Undef = 127; // default character used as for undifined ones (having ascii codes from 0 to 31)

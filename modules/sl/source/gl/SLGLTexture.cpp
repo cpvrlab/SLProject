@@ -36,18 +36,23 @@ pointer to the SLScene::_texture vector for global deallocation.
 */
 SLGLTexture::SLGLTexture()
 {
-    _texID        = 0;
-    _texType      = TT_unknown;
-    _min_filter   = GL_NEAREST;
-    _mag_filter   = GL_NEAREST;
-    _wrap_s       = GL_REPEAT;
-    _wrap_t       = GL_REPEAT;
-    _target       = GL_TEXTURE_2D;
-    _bumpScale    = 1.0f;
-    _resizeToPow2 = false;
-    _autoCalcTM3D = false;
-    _bytesOnGPU   = 0;
-    _needsUpdate  = false;
+    _texID                 = 0;
+    _texType               = TT_unknown;
+    _width                 = 0;
+    _height                = 0;
+    _depth                 = 0;
+    _bytesPerPixel         = 0;
+    _min_filter            = GL_NEAREST;
+    _mag_filter            = GL_NEAREST;
+    _wrap_s                = GL_REPEAT;
+    _wrap_t                = GL_REPEAT;
+    _target                = GL_TEXTURE_2D;
+    _bumpScale             = 1.0f;
+    _resizeToPow2          = false;
+    _autoCalcTM3D          = false;
+    _bytesOnGPU            = 0;
+    _needsUpdate           = false;
+    _deleteImageAfterBuild = false;
 
 #ifdef SL_HAS_OPTIX
     _cudaGraphicsResource = nullptr;
@@ -75,18 +80,23 @@ SLGLTexture::SLGLTexture(SLAssetManager* assetMgr,
                          SLint           wrapS,
                          SLint           wrapT)
 {
-    _min_filter   = min_filter;
-    _mag_filter   = mag_filter;
-    _wrap_s       = wrapS;
-    _wrap_t       = wrapT;
-    _target       = GL_TEXTURE_2D;
-    _texID        = 0;
-    _bumpScale    = 1.0f;
-    _resizeToPow2 = false;
-    _autoCalcTM3D = false;
-    _needsUpdate  = false;
-    _bytesOnGPU   = 0;
-    _texType      = TT_unknown;
+    _width                 = 0;
+    _height                = 0;
+    _depth                 = 0;
+    _bytesPerPixel         = 0;
+    _min_filter            = min_filter;
+    _mag_filter            = mag_filter;
+    _wrap_s                = wrapS;
+    _wrap_t                = wrapT;
+    _target                = GL_TEXTURE_2D;
+    _texID                 = 0;
+    _bumpScale             = 1.0f;
+    _resizeToPow2          = false;
+    _autoCalcTM3D          = false;
+    _needsUpdate           = false;
+    _bytesOnGPU            = 0;
+    _texType               = TT_unknown;
+    _deleteImageAfterBuild = false;
 
     // Add pointer to the global resource vectors for deallocation
     if (assetMgr)
@@ -126,21 +136,26 @@ SLGLTexture::SLGLTexture(SLAssetManager* assetMgr,
 
     CVImage* image = new CVImage();
     image->load(width, height, PF_red, PF_red, data, true, false);
-
-    _min_filter   = min_filter;
-    _mag_filter   = mag_filter;
-    _wrap_s       = wrapS;
-    _wrap_t       = wrapT;
-    _target       = GL_TEXTURE_2D;
-    _texID        = 0;
-    _bumpScale    = 1.0f;
-    _resizeToPow2 = false;
-    _autoCalcTM3D = false;
-    _needsUpdate  = false;
-    _bytesOnGPU   = 0;
-    _texType      = type;
-
     _images.push_back(image);
+
+    _width                 = image->width();
+    _height                = image->width();
+    _depth                 = _images.size();
+    _bytesPerPixel         = image->bytesPerPixel();
+    _min_filter            = min_filter;
+    _mag_filter            = mag_filter;
+    _wrap_s                = wrapS;
+    _wrap_t                = wrapT;
+    _target                = GL_TEXTURE_2D;
+    _texID                 = 0;
+    _bumpScale             = 1.0f;
+    _resizeToPow2          = false;
+    _autoCalcTM3D          = false;
+    _needsUpdate           = false;
+    _bytesOnGPU            = 0;
+    _texType               = type;
+    _deleteImageAfterBuild = false;
+
     // Add pointer to the global resource vectors for deallocation
     if (assetMgr)
         assetMgr->textures().push_back(this);
@@ -178,6 +193,14 @@ SLGLTexture::SLGLTexture(SLAssetManager* assetMgr,
 
     load(filename);
 
+    if (!_images.empty())
+    {
+        _width         = _images[0]->width();
+        _height        = _images[0]->height();
+        _depth         = _images.size();
+        _bytesPerPixel = _images[0]->bytesPerPixel();
+    }
+
     _min_filter   = min_filter;
     _mag_filter   = mag_filter;
     _wrap_s       = wrapS;
@@ -189,6 +212,7 @@ SLGLTexture::SLGLTexture(SLAssetManager* assetMgr,
     _autoCalcTM3D = false;
     _needsUpdate  = false;
     _bytesOnGPU   = 0;
+    _deleteImageAfterBuild = false;
 
 #ifdef SL_HAS_OPTIX
     _cudaGraphicsResource = nullptr;
@@ -234,17 +258,26 @@ SLGLTexture::SLGLTexture(SLAssetManager*  assetMgr,
     for (const auto& filename : files)
         load(filename, true, loadGrayscaleIntoAlpha);
 
-    _min_filter   = min_filter;
-    _mag_filter   = mag_filter;
-    _wrap_s       = wrapS;
-    _wrap_t       = wrapT;
-    _target       = GL_TEXTURE_3D;
-    _texID        = 0;
-    _bumpScale    = 1.0f;
-    _resizeToPow2 = false;
-    _autoCalcTM3D = true;
-    _needsUpdate  = false;
-    _bytesOnGPU   = 0;
+    if (!_images.empty())
+    {
+        _width         = _images[0]->width();
+        _height        = _images[0]->height();
+        _depth         = _images.size();
+        _bytesPerPixel = _images[0]->bytesPerPixel();
+    }
+
+    _min_filter            = min_filter;
+    _mag_filter            = mag_filter;
+    _wrap_s                = wrapS;
+    _wrap_t                = wrapT;
+    _target                = GL_TEXTURE_3D;
+    _texID                 = 0;
+    _bumpScale             = 1.0f;
+    _resizeToPow2          = false;
+    _autoCalcTM3D          = true;
+    _needsUpdate           = false;
+    _bytesOnGPU            = 0;
+    _deleteImageAfterBuild = false;
 
 #ifdef SL_HAS_OPTIX
     _cudaGraphicsResource = nullptr;
@@ -283,6 +316,14 @@ SLGLTexture::SLGLTexture(SLAssetManager* assetMgr,
 
     load(colors);
 
+    if (!_images.empty())
+    {
+        _width         = _images[0]->width();
+        _height        = _images[0]->height();
+        _depth         = _images.size();
+        _bytesPerPixel = _images[0]->bytesPerPixel();
+    }
+
     _min_filter = min_filter;
     _mag_filter = mag_filter;
     _wrap_s     = wrapS;
@@ -291,12 +332,13 @@ SLGLTexture::SLGLTexture(SLAssetManager* assetMgr,
     // OpenGL ES doesn't define 1D textures. We just make a 1 pixel high 2D texture
     _target = GL_TEXTURE_2D;
 
-    _texID        = 0;
-    _bumpScale    = 1.0f;
-    _resizeToPow2 = false;
-    _autoCalcTM3D = true;
-    _needsUpdate  = false;
-    _bytesOnGPU   = 0;
+    _texID                 = 0;
+    _bumpScale             = 1.0f;
+    _resizeToPow2          = false;
+    _autoCalcTM3D          = true;
+    _needsUpdate           = false;
+    _bytesOnGPU            = 0;
+    _deleteImageAfterBuild = false;
 
 #ifdef SL_HAS_OPTIX
     _cudaGraphicsResource = nullptr;
@@ -353,17 +395,26 @@ SLGLTexture::SLGLTexture(SLAssetManager* assetMgr,
     load(filenameZPos, false);
     load(filenameZNeg, false);
 
-    _min_filter   = min_filter;
-    _mag_filter   = mag_filter;
-    _wrap_s       = GL_CLAMP_TO_EDGE; // other you will see filter artefacts on the edges
-    _wrap_t       = GL_CLAMP_TO_EDGE; // other you will see filter artefacts on the edges
-    _target       = GL_TEXTURE_CUBE_MAP;
-    _texID        = 0;
-    _bumpScale    = 1.0f;
-    _resizeToPow2 = false;
-    _autoCalcTM3D = false;
-    _needsUpdate  = false;
-    _bytesOnGPU   = 0;
+    if (!_images.empty())
+    {
+        _width         = _images[0]->width();
+        _height        = _images[0]->height();
+        _depth         = _images.size();
+        _bytesPerPixel = _images[0]->bytesPerPixel();
+    }
+
+    _min_filter            = min_filter;
+    _mag_filter            = mag_filter;
+    _wrap_s                = GL_CLAMP_TO_EDGE; // other you will see filter artefacts on the edges
+    _wrap_t                = GL_CLAMP_TO_EDGE; // other you will see filter artefacts on the edges
+    _target                = GL_TEXTURE_CUBE_MAP;
+    _texID                 = 0;
+    _bumpScale             = 1.0f;
+    _resizeToPow2          = false;
+    _autoCalcTM3D          = false;
+    _needsUpdate           = false;
+    _bytesOnGPU            = 0;
+    _deleteImageAfterBuild = false;
 
 #ifdef SL_HAS_OPTIX
     _cudaGraphicsResource = nullptr;
@@ -382,45 +433,41 @@ SLGLTexture::SLGLTexture(SLAssetManager* assetMgr,
 SLGLTexture::~SLGLTexture()
 {
     //SL_LOG("~SLGLTexture(%s)", name().c_str());
-    clearData();
+    deleteData();
 }
 //-----------------------------------------------------------------------------
-void SLGLTexture::clearData()
+void SLGLTexture::deleteData()
 {
-    glDeleteTextures(1, &_texID);
+    deleteDataGpu();
+    deleteImages();
 
-    numBytesInTextures -= _bytesOnGPU;
-
+    _texID                 = 0;
+    _texType               = TT_unknown;
+    _width                 = 0;
+    _height                = 0;
+    _depth                 = 0;
+    _bytesPerPixel         = 0;
+    _deleteImageAfterBuild = false;
+}
+//-----------------------------------------------------------------------------
+void SLGLTexture::deleteImages()
+{
     for (auto& _image : _images)
     {
         delete _image;
         _image = nullptr;
     }
     _images.clear();
-
-    _texID      = 0;
-    _bytesOnGPU = 0;
-    _vaoSprite.clearAttribs();
-
-#ifdef SL_HAS_OPTIX
-    if (_cudaGraphicsResource)
-    {
-        CUDA_CHECK(cuGraphicsUnregisterResource(_cudaGraphicsResource));
-        _cudaGraphicsResource = nullptr;
-    }
-#endif
 }
 //-----------------------------------------------------------------------------
 void SLGLTexture::deleteDataGpu()
 {
     glDeleteTextures(1, &_texID);
-
+    _texID = 0;
     numBytesInTextures -= _bytesOnGPU;
-
-    _texID      = 0;
     _bytesOnGPU = 0;
     _vaoSprite.clearAttribs();
-    
+
 #ifdef SL_HAS_OPTIX
     if (_cudaGraphicsResource)
     {
@@ -441,9 +488,10 @@ void SLGLTexture::load(const SLstring& filename,
         SL_EXIT_MSG(msg.c_str());
     }
 
-    _images.push_back(new CVImage(filename,
-                                  flipVertical,
-                                  loadGrayscaleIntoAlpha));
+    CVImage* image = new CVImage(filename,
+                                 flipVertical,
+                                 loadGrayscaleIntoAlpha);
+    _images.push_back(image);
 }
 //-----------------------------------------------------------------------------
 //! Loads the 1D color data into an image of height 1
@@ -456,7 +504,8 @@ void SLGLTexture::load(const SLVCol4f& colors)
     for (const auto& c : colors)
         col4f.push_back(CVVec4f(c.r, c.g, c.b, c.a));
 
-    _images.push_back(new CVImage(col4f));
+    CVImage* image = new CVImage(col4f);
+    _images.push_back(image);
 }
 //-----------------------------------------------------------------------------
 //! Copies the image data from a video camera into the current video image
@@ -497,6 +546,14 @@ SLbool SLGLTexture::copyVideoImage(SLint       camWidth,
                                        isContinuous,
                                        isTopLeft);
 
+    if (!_images.empty())
+    {
+        _width         = _images[0]->width();
+        _height        = _images[0]->height();
+        _depth         = _images.size();
+        _bytesPerPixel = _images[0]->bytesPerPixel();
+    }
+
     // OpenGL ES 2 only can resize non-power-of-two texture with clamp to edge
     _wrap_s = GL_CLAMP_TO_EDGE;
     _wrap_t = GL_CLAMP_TO_EDGE;
@@ -506,7 +563,7 @@ SLbool SLGLTexture::copyVideoImage(SLint       camWidth,
         SL_LOG("SLGLTexture::copyVideoImage: Rebuild: %d, %s",
                _texID,
                _images[0]->name().c_str());
-        build();
+        build(_texID);
     }
 
     _needsUpdate = true;
@@ -538,6 +595,13 @@ SLbool SLGLTexture::copyVideoImage(SLint       camWidth,
                                        data,
                                        isContinuous,
                                        isTopLeft);
+    if (!_images.empty())
+    {
+        _width         = _images[0]->width();
+        _height        = _images[0]->height();
+        _depth         = _images.size();
+        _bytesPerPixel = _images[0]->bytesPerPixel();
+    }
 
     // OpenGL ES 2 only can resize non-power-of-two texture with clamp to edge
     _wrap_s = GL_CLAMP_TO_EDGE;
@@ -548,7 +612,7 @@ SLbool SLGLTexture::copyVideoImage(SLint       camWidth,
         SL_LOG("SLGLTexture::copyVideoImage: Rebuild: %d, %s",
                _texID,
                _images[0]->name().c_str());
-        build();
+        build(_texID);
     }
 
     _needsUpdate = true;
@@ -792,6 +856,10 @@ void SLGLTexture::build(SLint texUnit)
             _bytesOnGPU = (SLuint)((SLfloat)_bytesOnGPU * 1.333333333f);
         }
     }
+
+    // If the images get deleted they only are on the GPU side
+    if (_deleteImageAfterBuild)
+        deleteImages();
 
     // Check if texture name is valid only for debug purpose
     //if (glIsTexture(_texName))
@@ -1215,7 +1283,8 @@ gradient of all images and stores them in the RGB components.
 @param sampleRadius Distance from center to calculate the gradient
 @param onUpdateProgress Callback function for progress display
 */
-void SLGLTexture::calc3DGradients(SLint sampleRadius, function<void(int)> onUpdateProgress)
+void SLGLTexture::calc3DGradients(SLint                      sampleRadius,
+                                  const function<void(int)>& onUpdateProgress)
 {
     SLint   r          = sampleRadius;
     SLint   volX       = (SLint)_images[0]->width();

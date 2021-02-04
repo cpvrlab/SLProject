@@ -266,15 +266,16 @@ added to the according vectors of SLScene for later deallocation. If an
 override material is provided it will be assigned to all meshes and all
 materials within the file are ignored.
 */
-SLNode* SLAssimpImporter::load(SLAnimManager&     aniMan,          //!< Reference to the animation manager
-                               SLAssetManager*    assetMgr,        //!< Pointer to the asset manager
-                               SLstring           pathAndFile,     //!< File with path or on default path
-                               SLstring           texturePath,     //!< Path to the texture images
-                               SLbool             loadMeshesOnly,  //!< Only load nodes with meshes
-                               SLMaterial*        overrideMat,     //!< Override material
-                               float              ambientFactor,   //!< if ambientFactor > 0 ambient = diffuse * AmbientFactor
-                               SLProgressHandler* progressHandler, //!< Pointer to progress handler
-                               SLuint             flags            //!< Import flags (see postprocess.h)
+SLNode* SLAssimpImporter::load(SLAnimManager&     aniMan,                 //!< Reference to the animation manager
+                               SLAssetManager*    assetMgr,               //!< Pointer to the asset manager
+                               SLstring           pathAndFile,            //!< File with path or on default path
+                               SLstring           texturePath,            //!< Path to the texture images
+                               SLbool             deleteTexImgAfterBuild, //!< Default = false
+                               SLbool             loadMeshesOnly,         //!< Default = true
+                               SLMaterial*        overrideMat,            //!< Override material
+                               float              ambientFactor,          //!< if ambientFactor > 0 ambient = diffuse * AmbientFactor
+                               SLProgressHandler* progressHandler,        //!< Pointer to progress handler
+                               SLuint             flags                   //!< Import flags (see postprocess.h)
 )
 {
     PROFILE_FUNCTION();
@@ -325,7 +326,8 @@ SLNode* SLAssimpImporter::load(SLAnimManager&     aniMan,          //!< Referenc
                                              scene->mMaterials[i],
                                              modelPath,
                                              texturePath,
-                                             ambientFactor));
+                                             ambientFactor,
+                                             deleteTexImgAfterBuild));
     }
 
     // load meshes & set their material
@@ -667,7 +669,8 @@ SLMaterial* SLAssimpImporter::loadMaterial(SLAssetManager* s,
                                            aiMaterial*     aiMat,
                                            const SLstring& modelPath,
                                            const SLstring& texturePath,
-                                           float           ambientFactor)
+                                           float           ambientFactor,
+                                           SLbool          deleteTexImgAfterBuild)
 {
     PROFILE_FUNCTION();
 
@@ -723,7 +726,10 @@ SLMaterial* SLAssimpImporter::loadMaterial(SLAssetManager* s,
                 slTexType == TT_normal ||
                 slTexType == TT_ambientOcclusion)
             {
-                SLGLTexture* slTex = loadTexture(s, texFile, slTexType);
+                SLGLTexture* slTex = loadTexture(s,
+                                                 texFile,
+                                                 slTexType,
+                                                 deleteTexImgAfterBuild);
                 slMat->textures().push_back(slTex);
             }
         }
@@ -770,7 +776,8 @@ SLAssimpImporter::loadTexture loads the AssImp texture an returns the SLGLTextur
 */
 SLGLTexture* SLAssimpImporter::loadTexture(SLAssetManager* assetMgr,
                                            SLstring&       textureFile,
-                                           SLTextureType   texType)
+                                           SLTextureType   texType,
+                                           SLbool          deleteTexImgAfterBuild)
 {
     PROFILE_FUNCTION();
 
@@ -789,6 +796,11 @@ SLGLTexture* SLAssimpImporter::loadTexture(SLAssetManager* assetMgr,
                                            minificationFilter,
                                            GL_LINEAR,
                                            texType);
+
+    // if texture images get deleted after build you can't do ray tracing
+    if (deleteTexImgAfterBuild)
+        texture->deleteImageAfterBuild(true);
+
     return texture;
 }
 //-----------------------------------------------------------------------------

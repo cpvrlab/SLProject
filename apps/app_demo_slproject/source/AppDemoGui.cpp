@@ -650,7 +650,12 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
                 if (s->textures().size() && ImGui::TreeNode("Textures"))
                 {
                     for (SLuint i = 0; i < s->textures().size(); ++i)
-                        ImGui::Text("[%u] %s", i, s->textures()[i]->name().c_str());
+                    {
+                        if (s->textures()[i]->images().empty())
+                            ImGui::Text("[%u] %s (GPU)", i, s->textures()[i]->name().c_str());
+                        else
+                            ImGui::Text("[%u] %s", i, s->textures()[i]->name().c_str());
+                    }
 
                     ImGui::TreePop();
                 }
@@ -3298,10 +3303,19 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
 
                             if (ImGui::TreeNode(tex->name().c_str()))
                             {
-                                ImGui::Text("Size   : %dx%dx%d", tex->width(), tex->height(), tex->bytesPerPixel());
-                                ImGui::Text("Type   : %s", tex->typeName().c_str());
-                                ImGui::Text("Min.Flt: %s", tex->minificationFilterName().c_str());
-                                ImGui::Text("Mag.Flt: %s", tex->magnificationFilterName().c_str());
+                                float mbCPU = 0.0f;
+                                for (auto img : tex->images())
+                                    mbCPU += img->bytesPerImage();
+                                float mbGPU = tex->bytesOnGPU();
+
+                                mbCPU/= 1E6f;
+                                mbGPU/= 1E6f;
+
+                                ImGui::Text("Size(PX): %dx%dx%d (images: %d)", tex->width(), tex->height(), tex->bytesPerPixel(), tex->depth());
+                                ImGui::Text("Size(MB): GPU: %4.1f, CPU: %4.1f", mbGPU, mbCPU);
+                                ImGui::Text("Type    : %s", tex->typeName().c_str());
+                                ImGui::Text("Min.Flt : %s", tex->minificationFilterName().c_str());
+                                ImGui::Text("Mag.Flt : %s", tex->magnificationFilterName().c_str());
 
                                 if (tex->target() == GL_TEXTURE_2D)
                                 {
