@@ -12,7 +12,7 @@ set(platform_specific_include_dirs)
 if (DEFINED ENV{CUDA_PATH} AND SL_BUILD_WITH_OPTIX)
     message("CUDA_PATH is defined")
     find_package(CUDA 10 REQUIRED)
-    find_package(OptiX REQUIRED VERSION 7.0)
+    find_package(OptiX 7.2 REQUIRED)
     set(DEFAULT_COMPILE_DEFINITIONS
         ${DEFAULT_COMPILE_DEFINITIONS}
         SL_HAS_OPTIX
@@ -20,6 +20,7 @@ if (DEFINED ENV{CUDA_PATH} AND SL_BUILD_WITH_OPTIX)
 else()
     if (DEFINED ENV{CUDA_PATH})
         message("Has CUDA but OPTIX will not be built.")
+        message("Please download Optix at: https://developer.nvidia.com/designworks/optix/download")
     endif()
     if (SL_BUILD_WITH_OPTIX)
         if ("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS" OR "${SYSTEM_NAME_UPPER}" STREQUAL "LINUX")
