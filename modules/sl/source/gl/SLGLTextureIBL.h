@@ -48,7 +48,6 @@ public:
 
     virtual ~SLGLTextureIBL();
 
-    virtual void   deleteData();
     virtual void   build(SLint texID = 0);
 
 protected:

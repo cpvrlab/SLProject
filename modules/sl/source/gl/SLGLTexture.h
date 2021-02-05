@@ -139,9 +139,9 @@ public:
 
     ~SLGLTexture() override;
 
-    virtual void deleteData();
     virtual void build(SLint texUnit);
 
+    void     deleteData();
     void     deleteDataGpu();
     void     deleteImages();
     void     bindActive(SLuint texUnit = 0);

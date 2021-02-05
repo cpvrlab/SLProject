@@ -436,10 +436,11 @@ SLGLTexture::~SLGLTexture()
     deleteData();
 }
 //-----------------------------------------------------------------------------
+//! Delete all data (CVImages and GPU textures)
 void SLGLTexture::deleteData()
 {
-    deleteDataGpu();
     deleteImages();
+    deleteDataGpu();
 
     _texID                 = 0;
     _texType               = TT_unknown;
@@ -450,16 +451,19 @@ void SLGLTexture::deleteData()
     _deleteImageAfterBuild = false;
 }
 //-----------------------------------------------------------------------------
+//! Deletes the CVImages in _images. No more texture mapping in ray tracing.
 void SLGLTexture::deleteImages()
 {
-    for (auto& _image : _images)
+    for (auto& img : _images)
     {
-        delete _image;
-        _image = nullptr;
+        numBytesInTextures -= img->bytesPerImage();
+        delete img;
+        img = nullptr;
     }
     _images.clear();
 }
 //-----------------------------------------------------------------------------
+//! Deletes the OpenGL texture objects and releases the memory on the GPU
 void SLGLTexture::deleteDataGpu()
 {
     glDeleteTextures(1, &_texID);
