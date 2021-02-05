@@ -1282,8 +1282,8 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID") #-----------------------------
     #######################
 
     set(openssl_VERSION "1.1.1h")
-    set(openssl_PREBUILT_DIR "andV8_openssl")
-    set(openssl_DIR ${PREBUILT_PATH}/andV8_openssl)
+    set(openssl_PREBUILT_DIR "andV8_openssl_${openssl_VERSION}")
+    set(openssl_DIR ${PREBUILT_PATH}/${openssl_PREBUILT_DIR})
     set(openssl_INCLUDE_DIR ${openssl_DIR}/include)
     set(openssl_LINK_DIR ${openssl_DIR}/lib)
     set(openssl_LIBS ssl crypto)
