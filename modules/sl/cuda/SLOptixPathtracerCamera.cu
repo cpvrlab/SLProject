@@ -9,7 +9,7 @@
 //#############################################################################
 
 #include <SLOptixDefinitions.h>
-#include "../source/optix/SLOptixHelper.h"
+#include <SLOptixHelper.h>
 #include <cuda_runtime_api.h>
 #include <curand_kernel.h>
 

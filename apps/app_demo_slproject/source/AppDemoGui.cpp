@@ -3305,8 +3305,8 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                             {
                                 float mbCPU = 0.0f;
                                 for (auto img : tex->images())
-                                    mbCPU += img->bytesPerImage();
-                                float mbGPU = tex->bytesOnGPU();
+                                    mbCPU += (float)img->bytesPerImage();
+                                float mbGPU = (float)tex->bytesOnGPU();
 
                                 mbCPU/= 1E6f;
                                 mbGPU/= 1E6f;

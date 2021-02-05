@@ -26,11 +26,11 @@ protected:
     void buildAccelerationStructure();
     void updateAccelerationStructure();
 
-    OptixBuildInput        _buildInput        = {};
-    OptixAccelBuildOptions _accelBuildOptions = {};
-    OptixAccelBufferSizes  _accelBufferSizes  = {};
-    OptixTraversableHandle _handle            = 0; //!< Handle for generated geometry acceleration structure
-    SLOptixCudaBuffer<void>*    _buffer;
+    OptixBuildInput          _buildInput        = {};
+    OptixAccelBuildOptions   _accelBuildOptions = {};
+    OptixAccelBufferSizes    _accelBufferSizes  = {};
+    OptixTraversableHandle   _handle            = 0; //!< Handle for generated geometry acceleration structure
+    SLOptixCudaBuffer<void>* _buffer;
 };
 //------------------------------------------------------------------------------
 #    endif // SLOPTIXACCELSTRUCT_H

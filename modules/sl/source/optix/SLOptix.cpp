@@ -8,6 +8,7 @@
 //#############################################################################
 
 #ifdef SL_HAS_OPTIX
+#    include <iomanip>
 #    include <SLOptix.h>
 #    include <SLOptixHelper.h>
 
