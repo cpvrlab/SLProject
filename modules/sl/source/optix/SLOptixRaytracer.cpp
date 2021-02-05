@@ -68,7 +68,8 @@ void SLOptixRaytracer::initCompileOptions()
     _pipeline_compile_options.exceptionFlags = OPTIX_EXCEPTION_FLAG_NONE;
 #    else
     _module_compile_options.optLevel         = OPTIX_COMPILE_OPTIMIZATION_LEVEL_0;
-    _module_compile_options.debugLevel       = OPTIX_COMPILE_DEBUG_LEVEL_FULL;
+    //_module_compile_options.debugLevel       = OPTIX_COMPILE_DEBUG_LEVEL_FULL;
+    _module_compile_options.debugLevel       = OPTIX_COMPILE_DEBUG_LEVEL_LINEINFO;
     _pipeline_compile_options.exceptionFlags = OPTIX_EXCEPTION_FLAG_DEBUG | OPTIX_EXCEPTION_FLAG_USER;
 #    endif
 
