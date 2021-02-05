@@ -30,72 +30,18 @@ class SLInputManager;
 class SLAssetManager
 {
 public:
-    ~SLAssetManager() { clear(); }
-
-    void clear()
-    {
-        // delete materials
-        for (auto m : _materials)
-            delete m;
-        _materials.clear();
-
-        // delete textures
-        for (auto t : _textures)
-            delete t;
-        _textures.clear();
-
-        // delete meshes
-        for (auto m : _meshes)
-            delete m;
-        _meshes.clear();
-
-        // delete shader programs
-        for (auto p : _programs)
-            delete p;
-        _programs.clear();
-    }
-
+    ~SLAssetManager();
+    
+    void clear();
+    //! for all assets, clear gpu data
+    void deleteDataGpu();
     //! Removes the specified mesh from the meshes resource vector.
-    bool removeMesh(SLMesh* mesh)
-    {
-        assert(mesh);
-        for (SLulong i = 0; i < _meshes.size(); ++i)
-        {
-            if (_meshes[i] == mesh)
-            {
-                _meshes.erase(_meshes.begin() + i);
-                return true;
-            }
-        }
-        return false;
-    }
-
+    bool removeMesh(SLMesh* mesh);
     //! Returns the pointer to shader program if found by name
-    SLGLProgram* getProgramByName(const string& programName)
-    {
-        for (auto sp : _programs)
-            if (sp->name() == programName)
-                return sp;
-        return nullptr;
-    }
+    SLGLProgram* getProgramByName(const string& programName);
     
     //! merge other asset manager into this
-    void merge(SLAssetManager& other)
-    {
-        //update the assetmanager pointer for automatic program assignment
-        for(SLMaterial* m : other.materials())
-            m->assetManager(this);
-        //transfer assets from other to this
-        _meshes.insert(_meshes.end(), other.meshes().begin(), other.meshes().end());
-        _materials.insert(_materials.end(), other.materials().begin(), other.materials().end());
-        _textures.insert(_textures.end(), other.textures().begin(), other.textures().end());
-        _programs.insert(_programs.end(), other.programs().begin(), other.programs().end());
-        //clear ownership of other
-        other.meshes().clear();
-        other.materials().clear();
-        other.textures().clear();
-        other.programs().clear();
-    }
+    void merge(SLAssetManager& other);
 
     SLVMesh&      meshes() { return _meshes; }
     SLVMaterial&  materials() { return _materials; }

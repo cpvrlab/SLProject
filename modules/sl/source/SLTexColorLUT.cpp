@@ -14,8 +14,8 @@
 //-----------------------------------------------------------------------------
 //! Default ctor color LUT of a specific SLColorLUTType
 SLTexColorLUT::SLTexColorLUT(SLAssetManager* assetMgr,
-                       SLColorLUTType  lutType,
-                       SLuint          length)
+                             SLColorLUTType  lutType,
+                             SLuint          length)
 {
     _min_filter = GL_LINEAR;
     _mag_filter = GL_LINEAR;
@@ -36,9 +36,9 @@ SLTexColorLUT::SLTexColorLUT(SLAssetManager* assetMgr,
 //-----------------------------------------------------------------------------
 //! ctor with vector of alpha values and a predefined color LUT scheme
 SLTexColorLUT::SLTexColorLUT(SLAssetManager*  assetMgr,
-                       SLVAlphaLUTPoint alphaValues,
-                       SLColorLUTType   lutType,
-                       SLuint           length)
+                             SLVAlphaLUTPoint alphaValues,
+                             SLColorLUTType   lutType,
+                             SLuint           length)
 {
     _min_filter = GL_LINEAR;
     _mag_filter = GL_LINEAR;
@@ -58,12 +58,13 @@ SLTexColorLUT::SLTexColorLUT(SLAssetManager*  assetMgr,
     // Add pointer to the global resource vectors for deallocation
     if (assetMgr)
         assetMgr->textures().push_back(this);
-} //-----------------------------------------------------------------------------
+}
+//-----------------------------------------------------------------------------
 //! ctor with vector of alpha and color values
 SLTexColorLUT::SLTexColorLUT(SLAssetManager*  assetMgr,
-                       SLVAlphaLUTPoint alphaValues,
-                       SLVColorLUTPoint colorValues,
-                       SLuint           length)
+                             SLVAlphaLUTPoint alphaValues,
+                             SLVColorLUTPoint colorValues,
+                             SLuint           length)
 {
     _min_filter = GL_LINEAR;
     _mag_filter = GL_LINEAR;
@@ -166,10 +167,10 @@ void SLTexColorLUT::colors(SLColorLUTType lutType)
             break;
         case CLUT_DAYLIGHT:
             // Daylight color ramp with white at noon in the middle
-            _colors.push_back(SLColorLUTPoint(SLCol3f(1, 36.0f/255.0f, 36.0f/255.0f), 0.00f));
-            _colors.push_back(SLColorLUTPoint(SLCol3f(1, 113.0f/255.0f, 6.0f/255.0f), 0.05f));
-            _colors.push_back(SLColorLUTPoint(SLCol3f(1, 243.0f/255.0f, 6.0f/255.0f), 0.10f));
-            _colors.push_back(SLColorLUTPoint(SLCol3f(1, 1, 245.0f/255.0f), 0.20f));
+            _colors.push_back(SLColorLUTPoint(SLCol3f(1, 36.0f / 255.0f, 36.0f / 255.0f), 0.00f));
+            _colors.push_back(SLColorLUTPoint(SLCol3f(1, 113.0f / 255.0f, 6.0f / 255.0f), 0.05f));
+            _colors.push_back(SLColorLUTPoint(SLCol3f(1, 243.0f / 255.0f, 6.0f / 255.0f), 0.10f));
+            _colors.push_back(SLColorLUTPoint(SLCol3f(1, 1, 245.0f / 255.0f), 0.20f));
             _colors.push_back(SLColorLUTPoint(SLCol3f(1, 1, 1), 1.00f));
             name("Color LUT: For daylight");
             break;
@@ -187,7 +188,7 @@ void SLTexColorLUT::generateTexture()
            "SLTexColorLUT::generateTexture: Not enough color values.");
 
     // Delete old data in case of regeneration
-    clearData();
+    deleteData();
 
     SLfloat delta = 1.0f / (SLfloat)_length;
 
@@ -287,7 +288,8 @@ void SLTexColorLUT::generateTexture()
                 deltaA = 1.0f / ((_alphas[a + 1].pos - _alphas[a].pos) / delta);
             }
         }
-    } else
+    }
+    else
     {
         for (SLuint i = 0; i < _length; ++i)
             lut[i].a = 1.0f;
@@ -295,6 +297,9 @@ void SLTexColorLUT::generateTexture()
 
     // Create 1 x length sized image from SLCol4f values
     load(lut);
+    _width  = _images[0]->width();
+    _height = _images[0]->height();
+    _depth  = _images.size();
 }
 //-----------------------------------------------------------------------------
 //! Returns all alpha values of the transfer function as a float vector

@@ -127,16 +127,16 @@ void buildSphere(float radius, GLuint stacks, GLuint slices)
     t      = 1.0f;
 
     // Define vertex position & normals by looping through all stacks
-    for (i = 0; i <= stacks; ++i)
+    for (i = 0; i <= (int)stacks; ++i)
     {
         float sin_theta = sin(theta);
         float cos_theta = cos(theta);
         phi = s = 0.0f;
 
         // Loop through all slices
-        for (j = 0; j <= slices; ++j)
+        for (j = 0; j <= (int)slices; ++j)
         {
-            if (j == slices) phi = 0.0f;
+            if (j == (int)slices) phi = 0.0f;
 
             // define first the normal with length 1
             v[iv].n.x = sin_theta * cos(phi);
@@ -165,13 +165,13 @@ void buildSphere(float radius, GLuint stacks, GLuint slices)
     GLuint* indices = new GLuint[_numI];
     GLuint  ii      = 0, iV1, iV2;
 
-    for (i = 0; i < stacks; ++i)
+    for (i = 0; i < (int)stacks; ++i)
     {
         // index of 1st & 2nd vertex of stack
         iV1 = i * (slices + 1);
         iV2 = iV1 + slices + 1;
 
-        for (j = 0; j < slices; ++j)
+        for (j = 0; j < (int)slices; ++j)
         { // 1st triangle ccw
             indices[ii++] = iV1 + j;
             indices[ii++] = iV2 + j;

@@ -389,7 +389,7 @@ void SLSceneView::onInitialize()
     _stats2D.clear();
     _stats3D.clear();
 
-    _raytracer.clearData();
+    _raytracer.deleteData();
     _renderType   = RT_gl;
     _isFirstFrame = true;
 

@@ -113,6 +113,20 @@ void SLMesh::deleteData()
 #endif
 }
 //-----------------------------------------------------------------------------
+void SLMesh::deleteDataGpu()
+{
+    _vao.deleteGL();
+    _vaoN.deleteGL();
+    _vaoT.deleteGL();
+
+#ifdef SL_HAS_OPTIX
+    _vertexBuffer.free();
+    _normalBuffer.free();
+    _indexShortBuffer.free();
+    _indexIntBuffer.free();
+#endif
+}
+//-----------------------------------------------------------------------------
 //! Deletes the rectangle selected vertices and the dependent triangles.
 /*! The selection rectangle is defined in SLScene::selectRect and gets set and
  drawn in SLCamera::onMouseDown and SLCamera::onMouseMove. All vertices that
@@ -1424,7 +1438,10 @@ void SLMesh::preShade(SLRay* ray)
 
     // calculate interpolated texture coordinates
     SLVGLTexture& textures = ray->hitMesh->mat()->textures();
-    if (!textures.empty() && !UV1.empty())
+
+    if (!textures.empty() &&
+        !textures[0]->images().empty() &&
+        !UV1.empty())
     {
         SLVec2f Tu(UV1[iB] - UV1[iA]);
         SLVec2f Tv(UV1[iC] - UV1[iA]);
@@ -1432,7 +1449,7 @@ void SLMesh::preShade(SLRay* ray)
         ray->hitTexColor.set(textures[0]->getTexelf(tc.x, tc.y));
 
         // bump mapping
-        if (textures.size() > 1)
+        if (textures.size() > 1 && !textures[1]->images().empty())
         {
             if (!T.empty())
             {

@@ -78,6 +78,7 @@ public:
                          SLAssetManager*    assetMgr,
                          SLstring           pathFilename,
                          SLstring           texturePath,
+                         SLbool             deleteTexImgAfterBuild = false,
                          SLbool             loadMeshesOnly  = true,
                          SLMaterial*        overrideMat     = nullptr,
                          float              ambientFactor   = 0.0f,

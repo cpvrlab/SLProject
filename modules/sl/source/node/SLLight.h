@@ -18,7 +18,7 @@
 #ifdef SL_HAS_OPTIX
 #include <SLOptixDefinitions.h>
 #include <SLOptixHelper.h>
-#include <SLOptixVectorMath.h>
+//#include <SLOptixVectorMath.h>
 #endif
 
 class SLRay;

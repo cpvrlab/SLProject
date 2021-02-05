@@ -905,9 +905,12 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // 3D Texture Mapping on a pyramid
         SLVstring tex3DFiles;
-        for (SLint i = 0; i < 256; ++i) tex3DFiles.push_back(SLApplication::texturePath + "Wave_radial10_256C.jpg");
+        for (SLint i = 0; i < 256; ++i)
+            tex3DFiles.push_back(SLApplication::texturePath + "Wave_radial10_256C.jpg");
         SLGLTexture* tex3D = new SLGLTexture(s, tex3DFiles);
-        SLGLProgram* spr3D = new SLGLProgramGeneric(s, SLApplication::shaderPath + "TextureOnly3D.vert", SLApplication::shaderPath + "TextureOnly3D.frag");
+        SLGLProgram* spr3D = new SLGLProgramGeneric(s,
+                                                    SLApplication::shaderPath + "TextureOnly3D.vert",
+                                                    SLApplication::shaderPath + "TextureOnly3D.frag");
         SLMaterial*  mat3D = new SLMaterial(s, "mat3D", tex3D, nullptr, nullptr, nullptr, spr3D);
 
         // Create 3D textured pyramid mesh and node
@@ -2279,6 +2282,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                                               s,
                                               SLApplication::modelPath + "GLTF/AO-Baked-Test/AO-Baked-Test.gltf",
                                               SLApplication::texturePath,
+                                              false,   // delete tex images after build
                                               true,    // load meshes only
                                               nullptr, // override material
                                               0.5f);   // ambient factor
@@ -2406,7 +2410,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLVAlphaLUTPoint tfAlphas = {SLAlphaLUTPoint(0.00f, 0.00f),
                                      SLAlphaLUTPoint(0.01f, 0.75f),
                                      SLAlphaLUTPoint(1.00f, 1.00f)};
-        SLTexColorLUT*      tf       = new SLTexColorLUT(s, tfAlphas, CLUT_BCGYR);
+        SLTexColorLUT*   tf       = new SLTexColorLUT(s, tfAlphas, CLUT_BCGYR);
 
         // Load shader and uniforms for volume size
         SLGLProgram*   sp   = new SLGLProgramGeneric(s,
@@ -2482,7 +2486,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLVAlphaLUTPoint tfAlphas = {SLAlphaLUTPoint(0.00f, 0.00f),
                                      SLAlphaLUTPoint(0.01f, 0.75f),
                                      SLAlphaLUTPoint(1.00f, 1.00f)};
-        SLTexColorLUT*      tf       = new SLTexColorLUT(s, tfAlphas, CLUT_BCGYR);
+        SLTexColorLUT*   tf       = new SLTexColorLUT(s, tfAlphas, CLUT_BCGYR);
 
         // Load shader and uniforms for volume size
         SLGLProgram*   sp   = new SLGLProgramGeneric(s,
@@ -3693,6 +3697,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                                                  s,
                                                  SLApplication::dataPath + "erleb-AR/models/augst/Tempel-Theater-02.gltf",
                                                  SLApplication::texturePath,
+                                                 true,    // delete tex images after build
                                                  true,    // only meshes
                                                  nullptr, // no replacement material
                                                  0.4f);   // 40% ambient reflection
@@ -3816,6 +3821,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                                              s,
                                              SLApplication::dataPath + "erleb-AR/models/avenches/Aventicum-Amphitheater-AO.gltf",
                                              SLApplication::texturePath,
+                                             false,   // delete tex images after build
                                              true,    // only meshes
                                              nullptr, // no replacement material
                                              0.4f);   // 40% ambient reflection
@@ -3913,6 +3919,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                                           s,
                                           SLApplication::dataPath + "erleb-AR/models/avenches/Aventicum-Cigognier2.gltf",
                                           SLApplication::texturePath,
+                                          false,   // delete tex images after build
                                           true,    // only meshes
                                           nullptr, // no replacement material
                                           0.4f);   // 40% ambient reflection
@@ -4008,6 +4015,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                                           s,
                                           SLApplication::dataPath + "erleb-AR/models/avenches/Aventicum-Cigognier-AO.gltf",
                                           SLApplication::texturePath,
+                                          true,    // delete tex images after build
                                           true,    // only meshes
                                           nullptr, // no replacement material
                                           0.4f);   // 40% ambient reflection
@@ -4128,6 +4136,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                                         s,
                                         SLApplication::dataPath + "erleb-AR/models/avenches/Aventicum-Theater1.gltf",
                                         SLApplication::texturePath,
+                                        true,    // delete tex images after build
                                         true,    // only meshes
                                         nullptr, // no replacement material
                                         0.4f);   // 40% ambient reflection
@@ -4642,6 +4651,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                                          s,
                                          largeFile,
                                          SLApplication::texturePath,
+                                         false, // delete tex images after build
                                          true,
                                          diffuseMat,
                                          0.2f,

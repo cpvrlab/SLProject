@@ -12,7 +12,7 @@ set(platform_specific_include_dirs)
 if (DEFINED ENV{CUDA_PATH} AND SL_BUILD_WITH_OPTIX)
     message("CUDA_PATH is defined")
     find_package(CUDA 10 REQUIRED)
-    find_package(OptiX REQUIRED VERSION 7.0)
+    find_package(OptiX 7.2 REQUIRED)
     set(DEFAULT_COMPILE_DEFINITIONS
         ${DEFAULT_COMPILE_DEFINITIONS}
         SL_HAS_OPTIX
@@ -20,6 +20,7 @@ if (DEFINED ENV{CUDA_PATH} AND SL_BUILD_WITH_OPTIX)
 else()
     if (DEFINED ENV{CUDA_PATH})
         message("Has CUDA but OPTIX will not be built.")
+        message("Please download Optix at: https://developer.nvidia.com/designworks/optix/download")
     endif()
     if (SL_BUILD_WITH_OPTIX)
         if ("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS" OR "${SYSTEM_NAME_UPPER}" STREQUAL "LINUX")
@@ -39,6 +40,8 @@ file(GLOB cuda
         )
 
 file(GLOB sources
+        cuda/SLOptixHelper.h
+        cuda/SLOptixVectorMath.h
         source/SL.h
         source/SLBackground.cpp
         source/SLBackground.h
@@ -229,13 +232,10 @@ file(GLOB sources
         source/optix/SLOptixCudaBuffer.h
         source/optix/SLOptixDefinitions.h
         source/optix/SLOptixHelper.cpp
-        source/optix/SLOptixHelper.h
-        source/optix/SLOptixHelper.h
         source/optix/SLOptixPathtracer.cpp
         source/optix/SLOptixPathtracer.h
         source/optix/SLOptixRaytracer.cpp
         source/optix/SLOptixRaytracer.h
-        source/optix/SLOptixVectorMath.h
         source/ray/SLPathtracer.cpp
         source/ray/SLPathtracer.h
         source/ray/SLRay.cpp
@@ -368,6 +368,7 @@ target_include_directories(${target}
             ${SL_PROJECT_ROOT}/modules/sl/source/optix
             ${SL_PROJECT_ROOT}/modules/sl/source/ray
             ${SL_PROJECT_ROOT}/modules/sl/source
+            ${SL_PROJECT_ROOT}/modules/sl/cuda
             ${SL_PROJECT_ROOT}/modules/math/source
             ${OpenCV_INCLUDE_DIR}
             ${OptiX_INCLUDE}

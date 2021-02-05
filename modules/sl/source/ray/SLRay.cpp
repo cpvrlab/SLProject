@@ -50,7 +50,7 @@ SLRay::SLRay(SLSceneView* sceneView)
     hitTriangle    = -1;
     hitPoint       = SLVec3f::ZERO;
     hitNormal      = SLVec3f::ZERO;
-    hitTexColor    = SLCol4f::BLACK;
+    hitTexColor    = SLCol4f::WHITE;
     hitAO          = 1.0f;
     hitNode        = nullptr;
     hitMesh        = nullptr;
@@ -83,7 +83,7 @@ SLRay::SLRay(const SLVec3f& Origin,
     hitTriangle     = -1;
     hitPoint        = SLVec3f::ZERO;
     hitNormal       = SLVec3f::ZERO;
-    hitTexColor     = SLCol4f::BLACK;
+    hitTexColor     = SLCol4f::WHITE;
     hitAO           = 1.0f;
     hitNode         = nullptr;
     hitMesh         = nullptr;
@@ -114,7 +114,7 @@ SLRay::SLRay(SLfloat        distToLight,
     depth           = rayFromHitPoint->depth;
     hitPoint        = SLVec3f::ZERO;
     hitNormal       = SLVec3f::ZERO;
-    hitTexColor     = SLCol4f::BLACK;
+    hitTexColor     = SLCol4f::WHITE;
     hitAO           = 1.0f;
     hitTriangle     = -1;
     hitNode         = nullptr;

@@ -47,10 +47,11 @@ public:
                  SLAssetManager*    assetMgr,
                  SLstring           pathAndFile,
                  SLstring           texturePath,
-                 SLbool             loadMeshesOnly  = true,
-                 SLMaterial*        overrideMat     = nullptr,
-                 float              ambientFactor   = 0.0f,
-                 SLProgressHandler* progressHandler = nullptr,
+                 SLbool             deleteTexImgAfterBuild = false,
+                 SLbool             loadMeshesOnly         = true,
+                 SLMaterial*        overrideMat            = nullptr,
+                 float              ambientFactor          = 0.0f,
+                 SLProgressHandler* progressHandler        = nullptr,
                  SLuint             flags =
                    SLProcess_Triangulate |
                    SLProcess_JoinIdenticalVertices |
@@ -107,23 +108,30 @@ protected:
     void findJoints(const aiScene* scene); // scans all meshes in the assimp scene and populates nameToJoint and jointGroups
     void findSkeletonRoot();               // finds the common ancestor for each remaining group in jointGroups, these are our final skeleton roots
 
-    void                loadSkeleton(SLAnimManager& animManager, SLJoint* parent, aiNode* node);
+    void                loadSkeleton(SLAnimManager& animManager,
+                                     SLJoint*       parent,
+                                     aiNode*        node);
     static SLMaterial*  loadMaterial(SLAssetManager* s,
                                      SLint           index,
                                      aiMaterial*     aiMat,
                                      const SLstring& modelPath,
                                      const SLstring& texturePath,
-                                     float           ambientFactor = 0.0f);
+                                     float           ambientFactor          = 0.0f,
+                                     SLbool          deleteTexImgAfterBuild = false);
     static SLGLTexture* loadTexture(SLAssetManager* assetMgr,
                                     SLstring&       path,
-                                    SLTextureType   texType);
+                                    SLTextureType   texType,
+                                    SLbool          deleteTexImgAfterBuild = false);
     SLMesh*             loadMesh(SLAssetManager* assetMgr, aiMesh* mesh);
     SLNode*             loadNodesRec(SLNode*    curNode,
                                      aiNode*    aiNode,
                                      SLMeshMap& meshes,
                                      SLbool     loadMeshesOnly = true);
-    SLAnimation*        loadAnimation(SLAnimManager& animManager, aiAnimation* anim);
-    static SLstring     checkFilePath(const SLstring& modelPath, const SLstring& texturePath, SLstring texFile);
+    SLAnimation*        loadAnimation(SLAnimManager& animManager,
+                                      aiAnimation*   anim);
+    static SLstring     checkFilePath(const SLstring& modelPath,
+                                      const SLstring& texturePath,
+                                      SLstring        texFile);
     SLbool              aiNodeHasMesh(aiNode* node);
 
     // misc helper

@@ -92,7 +92,7 @@ SLLightDirect::~SLLightDirect()
     delete _shadowMap;
 
     // Clear the color LUT that is also an OpenGL texture
-    _sunLightColorLUT.clearData();
+    _sunLightColorLUT.deleteData();
 }
 //-----------------------------------------------------------------------------
 /*!

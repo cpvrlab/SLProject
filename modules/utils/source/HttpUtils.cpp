@@ -44,7 +44,7 @@ int Socket::connectTo(string ip,
     sa.sin_port        = htons(port);
     addrlen            = sizeof(sa);
 
-    fd = socket(AF_INET, SOCK_STREAM, 0);
+    fd = (int)socket(AF_INET, SOCK_STREAM, 0);
     if (!fd)
     {
         std::cerr << "Error creating socket.\n"
@@ -71,7 +71,7 @@ int Socket::connectTo(string ip,
 int Socket::sendData(const char* data,
                      size_t      size)
 {
-    int len = send(fd, data, size, 0);
+    int len = send(fd, data, (int)size, 0);
     if (len < 0)
         return -1;
     return 0;
@@ -158,7 +158,7 @@ int SecureSocket::connectTo(string ip, int port)
  */
 int SecureSocket::sendData(const char* data, size_t size)
 {
-    int len = SSL_write(ssl, data, size);
+    int len = SSL_write(ssl, data, (int)size);
     if (len < 0)
     {
         int err = SSL_get_error(ssl, len);
@@ -519,7 +519,7 @@ int HttpUtils::GetRequest::processHttpHeaders(std::vector<char>& data)
                                     headers.find("\r", pos + 13) - pos - 13);
         contentType = Utils::trimString(str, " ");
     }
-    return contentPos;
+    return (int)contentPos;
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -683,7 +683,7 @@ int HttpUtils::download(string                                               url
     {
         string file = url.substr(url.rfind("/") + 1);
 
-        int possibleSplit = base.rfind(file);
+        int possibleSplit = (int)base.rfind(file);
         if (possibleSplit != string::npos && base.size() - possibleSplit - 1 == file.size())
             base = base.substr(0, possibleSplit);
 
@@ -801,5 +801,5 @@ int HttpUtils::length(string url, string user, string pwd)
     if (req.send() < 0)
         return 0;
 
-    return req.contentLength;
+    return (int)req.contentLength;
 }
