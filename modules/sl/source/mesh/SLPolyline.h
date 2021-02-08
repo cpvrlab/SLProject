@@ -13,6 +13,8 @@
 
 #include <SLMesh.h>
 
+#include <utility>
+
 //-----------------------------------------------------------------------------
 //! SLPolyline creates a polyline object
 /*! 
@@ -21,20 +23,22 @@ The SLPolyline node draws a polyline object
 class SLPolyline : public SLMesh
 {
 public:
-    SLPolyline(SLAssetManager* assetMgr, SLstring name = "Polyline") : SLMesh(assetMgr, name){};
+    explicit SLPolyline(SLAssetManager* assetMgr,
+                        const SLstring& name = "Polyline") : SLMesh(assetMgr, name){};
+
     //! ctor for polyline with a vector of points
     SLPolyline(SLAssetManager* assetMgr,
-               SLVVec3f        points,
+               const SLVVec3f& points,
                SLbool          closed   = false,
-               SLstring        name     = "Polyline",
+               const SLstring& name     = "Polyline",
                SLMaterial*     material = nullptr) : SLMesh(assetMgr, name)
     {
         buildMesh(points, closed, material);
     }
 
-    void buildMesh(SLVVec3f    points,
-                   SLbool      closed   = false,
-                   SLMaterial* material = nullptr)
+    void buildMesh(const SLVVec3f& points,
+                   SLbool          closed   = false,
+                   SLMaterial*     material = nullptr)
     {
         assert(points.size() > 1);
         P          = points;

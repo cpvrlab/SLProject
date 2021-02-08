@@ -12,7 +12,10 @@
 
 //-----------------------------------------------------------------------------
 //! SLPolygon ctor with corner points vector
-SLPolygon::SLPolygon(SLAssetManager* assetMgr, SLVVec3f corners, SLstring name, SLMaterial* mat)
+SLPolygon::SLPolygon(SLAssetManager* assetMgr,
+                     const SLVVec3f& corners,
+                     const SLstring& name,
+                     SLMaterial*     mat)
   : SLMesh(assetMgr, name)
 {
     assert(corners.size() > 2);
@@ -22,14 +25,14 @@ SLPolygon::SLPolygon(SLAssetManager* assetMgr, SLVVec3f corners, SLstring name, 
 //-----------------------------------------------------------------------------
 //! SLPolygon ctor with corner points and its texture coords vector
 SLPolygon::SLPolygon(SLAssetManager* assetMgr,
-                     SLVVec3f        corners,
-                     SLVVec2f        texCoords,
-                     SLstring        name,
+                     const SLVVec3f& corners,
+                     const SLVVec2f& texCoords,
+                     const SLstring& name,
                      SLMaterial*     mat) : SLMesh(assetMgr, name)
 {
     assert(corners.size() > 2 && texCoords.size() == corners.size());
-    _corners  = corners;
-    _uv1      = texCoords;
+    _corners = corners;
+    _uv1     = texCoords;
     buildMesh(mat);
 }
 //-----------------------------------------------------------------------------
@@ -37,7 +40,7 @@ SLPolygon::SLPolygon(SLAssetManager* assetMgr,
 SLPolygon::SLPolygon(SLAssetManager* assetMgr,
                      SLfloat         width,
                      SLfloat         height,
-                     SLstring        name,
+                     const SLstring& name,
                      SLMaterial*     mat) : SLMesh(assetMgr, name)
 {
     assert(width > 0 && height > 0);
@@ -66,7 +69,7 @@ void SLPolygon::buildMesh(SLMaterial* material)
     P.resize(_corners.size());
     N.clear();
     N.resize(P.size());
-    if (_uv1.size()) UV1.resize(P.size());
+    if (!_uv1.empty()) UV1.resize(P.size());
     UV2.clear();
     I16.clear();
     I16.resize((P.size() - 2) * 3);
@@ -81,15 +84,15 @@ void SLPolygon::buildMesh(SLMaterial* material)
     mat(material);
 
     //Copy vertices and normals
-    for (SLushort i = 0; i < P.size(); ++i)
+    for (SLushort i = 0; i < (SLushort)P.size(); ++i)
     {
         P[i] = _corners[i];
         N[i] = n;
-        if (UV1.size()) UV1[i] = _uv1[i];
+        if (!UV1.empty()) UV1[i] = _uv1[i];
     }
 
     // Build face vertex indices
-    for (SLushort f = 0; f < _corners.size() - 2; ++f)
+    for (SLushort f = 0; f < (SLushort)_corners.size() - 2; ++f)
     {
         SLuint i   = f * 3;
         I16[i]     = 0;

@@ -28,7 +28,7 @@ public:
                 const SLVec2f&  max,
                 SLuint          resX,
                 SLuint          resY,
-                SLstring        name = "rectangle mesh",
+                const SLstring&        name = "rectangle mesh",
                 SLMaterial*     mat  = nullptr);
 
     //! ctor for rectangle w. min & max corner & tex. coord.
@@ -39,7 +39,7 @@ public:
                 const SLVec2f&  uv_max,
                 SLuint          resX,
                 SLuint          resY,
-                SLstring        name = "rectangle mesh",
+                const SLstring&        name = "rectangle mesh",
                 SLMaterial*     mat  = nullptr);
 
     void buildMesh(SLMaterial* mat);
