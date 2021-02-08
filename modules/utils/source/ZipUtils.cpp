@@ -146,19 +146,29 @@ static bool zip_add_file(zipFile zfile,
  * @param processDir
  * @return
  */
-bool unzip(string                                       zipfile,
-           function<bool(string path, string filename)> processFile,
-           function<bool(const char* data, size_t len)> writeChunk,
-           function<bool(string path)>                  processDir)
+bool unzip(string                                         zipfile,
+           function<bool(string path, string filename)>   processFile,
+           function<bool(const char* data, size_t len)>   writeChunk,
+           function<bool(string path)>                    processDir,
+           function<int(int currentFile, int totalFiles)> progress = nullptr)
 {
     unzFile uzfile;
     bool    ret = true;
     size_t  n;
     char    name[256];
+    int     nbProcessedFile = 0;
 
     uzfile = unzOpen64(zipfile.c_str());
     if (uzfile == NULL)
         return false;
+
+    // Get info about the zip file
+    unz_global_info global_info;
+    if (unzGetGlobalInfo(uzfile, &global_info) != UNZ_OK)
+    {
+        unzClose(uzfile);
+        return -1;
+    }
 
     do
     {
@@ -181,6 +191,11 @@ bool unzip(string                                       zipfile,
         string filename = Utils::getFileName(Utils::trimRightString(name, "/"));
 
         processDir(dirname);
+        if (progress != nullptr && progress(nbProcessedFile++, global_info.number_entry))
+        {
+            unzClose(uzfile);
+            return false;
+        }
 
         if (finfo.uncompressed_size == 0 && strlen(name) > 0 && name[strlen(name) - 1] == '/')
         {
@@ -224,6 +239,9 @@ bool unzip(string                                       zipfile,
     } while (1);
 
     unzClose(uzfile);
+
+    if (progress != nullptr)
+        progress(global_info.number_entry, global_info.number_entry);
     return ret;
 }
 //-----------------------------------------------------------------------------
@@ -290,7 +308,10 @@ bool zip(string path, string zipname)
  * @param override
  * @return
  */
-bool unzip(string path, string dest, bool override)
+bool unzip(string path,
+           string dest,
+           bool override,
+           function<int(int currentFile, int totalFiles)> progress)
 {
     std::ofstream fs;
 
@@ -325,7 +346,8 @@ bool unzip(string path, string dest, bool override)
           if (!Utils::dirExists(dest + path))
               return Utils::makeDir(dest + path);
           return true;
-      });
+      },
+      progress);
     return true;
 }
 //-----------------------------------------------------------------------------
