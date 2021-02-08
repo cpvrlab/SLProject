@@ -58,7 +58,7 @@ static bool zip_add_dir(zipFile zfile, string dirname)
                                 0,
                                 0);
 
-    delete temp;
+    delete[] temp;
     if (ret != ZIP_OK)
         return false;
 
@@ -335,6 +335,7 @@ bool unzip(string path,
               }
               catch (std::exception& e)
               {
+                  std::cout << e.what() << std::endl;
                   return false;
               }
           }

@@ -32,18 +32,6 @@ android {
         main {
             assets.srcDirs = ['src/main/assets']
         }
-        debug {
-            // NOTE(jan): This directory MUST contain a subfolder called arm64-v8a (or whatever ABI is built) that contains the libraries
-            jniLibs.srcDirs = [
-                    '../../../../externals/prebuilt/andV8_g2o/Debug'
-            ]
-        }
-        release {
-            // NOTE(jan): This directory MUST contain a subfolder called arm64-v8a (or whatever ABI is built) that contains the libraries
-            jniLibs.srcDirs = [
-                    '../../../../externals/prebuilt/andV8_g2o/Release'
-            ]
-        }
     }
     lintOptions {
         checkReleaseBuilds false

@@ -6,7 +6,7 @@
 #include <SLAssimpImporter.h>
 #include <SLSceneView.h>
 #include <SLLightSpot.h>
-#include <sl/SLTexFont.h>
+#include <SLTexFont.h>
 #include <SLSphere.h>
 #include <SLText.h>
 #include <SENSCamera.h>

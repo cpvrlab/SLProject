@@ -18,6 +18,7 @@
 #include <algorithm>
 #include <fstream>
 #include <thread>
+#include <mutex>
 
 /* Set PROFILING to 1 to enable profiling or to 0 for disabling profiling
  * Just add PROFILE_FUNCTION(); at the beginning of a function that you wand to

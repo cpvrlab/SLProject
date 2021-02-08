@@ -10,11 +10,11 @@
 //#############################################################################
 
 #include "stdafx.h"
-#include "glUtils.h" // Basics for OpenGL shaders, buffers & textures
-#include "SL.h"      // Basic SL type definitions
+#include "modules/sl/source/gl/glUtils.h" // Basics for OpenGL shaders, buffers & textures
+#include "modules/sl/source/SL.h"         // Basic SL type definitions
 #include "SLImage.h" // Image class for image loading
-#include "SLVec3.h"  // 3D vector class
-#include "SLMat4.h"  // 4x4 matrix class
+#include "modules/math/source/SLVec3.h" // 3D vector class
+#include "modules/math/source/SLMat4.h" // 4x4 matrix class
 #include <GL/gl3w.h> // OpenGL headers
 
 //-----------------------------------------------------------------------------

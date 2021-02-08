@@ -8,8 +8,8 @@ set(include_path "${CMAKE_CURRENT_SOURCE_DIR}")
 set(source_path "${CMAKE_CURRENT_SOURCE_DIR}")
 
 file(GLOB headers
-        ${SL_PROJECT_ROOT}/modules/sl/include/cv/CVTypedefs.h
-        ${SL_PROJECT_ROOT}/modules/sl/include/cv/CVImage.h
+        ${SL_PROJECT_ROOT}/modules/sl/source/cv/CVTypedefs.h
+        ${SL_PROJECT_ROOT}/modules/sl/source/cv/CVImage.h
         ${CMAKE_CURRENT_SOURCE_DIR}/Camera.h
         ${CMAKE_CURRENT_SOURCE_DIR}/Buffer.h
         ${CMAKE_CURRENT_SOURCE_DIR}/CommandBuffer.h
@@ -98,10 +98,11 @@ set_target_properties(${target}
 target_include_directories(${target}
         PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}
-        ${SL_PROJECT_ROOT}/modules/math/include
-        ${SL_PROJECT_ROOT}/modules/sl/include
-        ${SL_PROJECT_ROOT}/modules/sl/include/cv
-        ${SL_PROJECT_ROOT}/modules/sl/include/sl
+        ${SL_PROJECT_ROOT}/modules/math/source
+        ${SL_PROJECT_ROOT}/modules/sl/source
+        ${SL_PROJECT_ROOT}/modules/sl/source/cv
+        ${SL_PROJECT_ROOT}/modules/sl/source/gl
+        ${SL_PROJECT_ROOT}/modules/sl/source/sl
         ${SL_PROJECT_ROOT}/modules/sl/external
         ${SL_PROJECT_ROOT}/modules/sl/external/gl3w
         ${SL_PROJECT_ROOT}/modules/sl/external/gl3w/GL
@@ -146,9 +147,9 @@ target_compile_options(${target}
 # Generates glsl shader to spirv
 if("${SYSTEM_NAME_UPPER}" STREQUAL "LINUX") #---------------------------------------------------------------------------
 elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #---------------------------------------------------------------------
-    set(GLSLC "${SL_PROJECT_ROOT}/externals/prebuilt/win64_vulkan_1.2.131.2/Bin32/glslc.exe")
+    set(GLSLC "${SL_PROJECT_ROOT}/externals/prebuilt/win64_vulkan_1.2.162.1/Bin32/glslc.exe")
 elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #----------------------------------------------------------------------
-    set(GLSLC "${SL_PROJECT_ROOT}/externals/prebuilt/mac64_vulkan_1.2.135.0/macOS/bin/glslc")
+    set(GLSLC "${SL_PROJECT_ROOT}/externals/prebuilt/win64_vulkan_1.2.162.1/macOS/bin/glslc")
 endif()
 
 # To convert all shader in folder, replace filename with *.vert / *.frag

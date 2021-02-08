@@ -17,7 +17,7 @@
 #include <SL.h>
 #include <SLEnums.h>
 #include <SLVec2.h>
-#include <SLRect.h>
+#include <math/SLRect.h>
 #include <SLUiInterface.h>
 #include <HighResTimer.h>
 

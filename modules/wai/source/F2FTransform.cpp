@@ -84,7 +84,7 @@ float F2FTransform::filterPoints(const std::vector<cv::Point2f>& p1,
         {
             goodP1.push_back(p1[i]);
             goodP2.push_back(p2[i]);
-            avgMotion += cv::norm(p1[i] - p2[i]);
+            avgMotion += (float)cv::norm(p1[i] - p2[i]);
         }
     }
     return avgMotion / goodP1.size();
@@ -101,7 +101,7 @@ bool F2FTransform::estimateRot(const cv::Mat             K,
         return false;
 
     cv::Mat H = estimateAffinePartial2D(p1, p2);
-    float zrot = atan2(H.at<double>(1, 0), H.at<double>(0, 0));
+    float zrot = (float)atan2(H.at<double>(1, 0), H.at<double>(0, 0));
     float dx = 0;//H.at<double>(0, 2);
     float dy = 0;//H.at<double>(1, 2);
     //Compute dx dy (estimageAffinePartial doesn't give right result when rotating on z axis)
@@ -114,8 +114,8 @@ bool F2FTransform::estimateRot(const cv::Mat             K,
     dy /= (float)p1.size();
 
     Eigen::Vector3f v1(0, 0, 1.0);
-    Eigen::Vector3f vx(dx, 0, K.at<double>(0, 0));
-    Eigen::Vector3f vy(0, dy, K.at<double>(0, 0));
+    Eigen::Vector3f vx(dx, 0, (float)K.at<double>(0, 0));
+    Eigen::Vector3f vy(0, dy, (float)K.at<double>(0, 0));
     vx.normalize();
     vy.normalize();
 
@@ -155,7 +155,7 @@ bool F2FTransform::estimateRotXYZ(const cv::Mat&            K,
     double cx = K.at<double>(0, 2);
     double cy = K.at<double>(1, 2);
     
-    cv::Point2f c(cx, cy); //optical center
+    cv::Point2f c((float)cx, (float)cy); //optical center
     std::vector<cv::Point2f> p1C = p1;
     std::vector<cv::Point2f> p2C = p2;
     for (int i = 0; i < p1.size(); i++)
@@ -178,11 +178,11 @@ bool F2FTransform::estimateRotXYZ(const cv::Mat&            K,
     
     
     //rotation about z-axis: It points into the image plane, so we have to invert the sign
-    zAngRAD = atan2(aHb.at<double>(1, 0), aHb.at<double>(0, 0));
+    zAngRAD = (float)atan2(aHb.at<double>(1, 0), aHb.at<double>(0, 0));
     //rotation around y-axis about x-offset: it points down in cv image, so we have to invert the sign
-    yAngRAD = atan(bTR.at<double>(0) / K.at<double>(0, 0));
+    yAngRAD = (float)atan(bTR.at<double>(0) / K.at<double>(0, 0));
     //rotation around x-axis about y-offset: it points down in cv image, so we have to invert the sign
-    xAngRAD = atan(bTR.at<double>(1) / K.at<double>(1, 1));
+    xAngRAD = (float)atan(bTR.at<double>(1) / K.at<double>(1, 1));
         
     return true;
 }
@@ -205,7 +205,7 @@ bool F2FTransform::estimateRotXY(const cv::Mat&             K,
     //rotation matrix
     
     
-    cv::Point2f c(cx, cy); //optical center
+    cv::Point2f c((float)cx, (float)cy); //optical center
     std::vector<cv::Point2f> p1C = p1;
     std::vector<cv::Point2f> p2C = p2;
     for (int i = 0; i < p1.size(); i++)
@@ -235,9 +235,9 @@ bool F2FTransform::estimateRotXY(const cv::Mat&             K,
     //rotation about z-axis: It points into the image plane, so we have to invert the sign
     //zAngRAD = atan2(aHb.at<double>(1, 0), aHb.at<double>(0, 0));
     //rotation around y-axis about x-offset: it points down in cv image, so we have to invert the sign
-    yAngRAD = atan(aHb.at<double>(0, 2) / K.at<double>(0, 0));
+    yAngRAD = (float)atan(aHb.at<double>(0, 2) / K.at<double>(0, 0));
     //rotation around x-axis about y-offset: it points down in cv image, so we have to invert the sign
-    xAngRAD = atan(aHb.at<double>(1, 2) / K.at<double>(1, 1));
+    xAngRAD = (float)atan(aHb.at<double>(1, 2) / K.at<double>(1, 1));
     
     //std::cout << "xoff: "<< bTR.at<double>(0) << std::endl;
     //std::cout << "yoff: "<< bTR.at<double>(1) << std::endl;

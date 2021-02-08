@@ -18,10 +18,10 @@ See also the class docs for CVCapture, CVCalibration and CVTracked
 for a good top down information.
 */
 
-#include <CVCamera.h>
+#include <cv/CVCamera.h>
 #include <algorithm> // std::max
 #include <CVCapture.h>
-#include <CVImage.h>
+#include <cv/CVImage.h>
 #include <Utils.h>
 #include <FtpUtils.h>
 #include <SLApplication.h>

@@ -9,14 +9,11 @@
 //             WITHOUT ANY WARRANTIES WHETHER EXPRESSED OR IMPLIED.
 //#############################################################################
 
-#include "stdafx.h" // Precompiled Headers
-
 #include <GL/gl3w.h>    // OpenGL headers
 #include <GLFW/glfw3.h> // GLFW GUI library
-#include <SL.h>         // Basic SL type definitions
 #include <SLMat4.h>     // 4x4 matrix class
 #include <SLVec3.h>     // 3D vector class
-#include <glUtils.h>    // Basics for OpenGL shaders, buffers & textures
+#include <glUtils.h> // Basics for OpenGL shaders, buffers & textures
 
 //-----------------------------------------------------------------------------
 //! Struct definition for vertex attribute position and normal

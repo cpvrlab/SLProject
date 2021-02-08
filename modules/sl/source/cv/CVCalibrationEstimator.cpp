@@ -8,8 +8,8 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include <CVCalibrationEstimator.h>
-#include <CVCalibration.h>
+#include <cv/CVCalibrationEstimator.h>
+#include <cv/CVCalibration.h>
 #include <Utils.h>
 
 //-----------------------------------------------------------------------------

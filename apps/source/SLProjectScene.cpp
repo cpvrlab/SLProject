@@ -9,7 +9,6 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include <stdafx.h> // Must be the 1st include followed by  an empty line
 #include <SLProjectScene.h>
 #include <SLTexFont.h>
 #include <SLAssimpImporter.h>
@@ -81,14 +80,15 @@ void SLProjectScene::onLoadAsset(const SLstring& assetFile,
     if (!_root3D)
         name(Utils::getFileName(assetFile));
 
-    // Try to load assed and add it to the scene root node
-                                  SLAssimpImporter importer;
+    // Try to load asset and add it to the scene root node
+    SLAssimpImporter importer;
 
     /////////////////////////////////////////////
     SLNode* loaded = importer.load(_animManager,
                                    this,
                                    assetFile,
                                    SLApplication::texturePath,
+                                   false,
                                    true,
                                    nullptr,
                                    0.0f,
@@ -110,14 +110,14 @@ void SLProjectScene::onLoadAsset(const SLstring& assetFile,
     // Add directional light if no light was in loaded asset
     if (_lights.empty())
     {
-        SLAABBox boundingBox = _root3D->updateAABBRec();
-        SLfloat  arrowLength = boundingBox.radiusWS() > FLT_EPSILON
-                                ? boundingBox.radiusWS() * 0.1f
-                                : 0.5f;
-        SLLightDirect* light = new SLLightDirect(this, this, 0, 0, 0, arrowLength, 1.0f, 1.0f, 1.0f);
-        SLVec3f        pos   = boundingBox.maxWS().isZero()
-                        ? SLVec3f(1, 1, 1)
-                        : boundingBox.maxWS() * 1.1f;
+        SLAABBox       boundingBox = _root3D->updateAABBRec();
+        SLfloat        arrowLength = boundingBox.radiusWS() > FLT_EPSILON
+                                       ? boundingBox.radiusWS() * 0.1f
+                                       : 0.5f;
+        SLLightDirect* light       = new SLLightDirect(this, this, 0, 0, 0, arrowLength, 1.0f, 1.0f, 1.0f);
+        SLVec3f        pos         = boundingBox.maxWS().isZero()
+                                       ? SLVec3f(1, 1, 1)
+                                       : boundingBox.maxWS() * 1.1f;
         light->translation(pos);
         light->lookAt(pos - SLVec3f(1, 1, 1));
         light->attenuation(1, 0, 0);

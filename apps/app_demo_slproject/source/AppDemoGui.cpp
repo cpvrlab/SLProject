@@ -13,8 +13,8 @@
 #include <SLAnimPlayback.h>
 #include <SLApplication.h>
 #include <CVCapture.h>
-#include <CVImage.h>
-#include <CVTrackedFeatures.h>
+#include <cv/CVImage.h>
+#include <cv/CVTrackedFeatures.h>
 #include <SLGLDepthBuffer.h>
 #include <SLGLProgramManager.h>
 #include <SLGLShader.h>
@@ -29,7 +29,7 @@
 #include <SLNode.h>
 #include <SLScene.h>
 #include <SLSceneView.h>
-#include <SLColorLUT.h>
+#include <SLTexColorLUT.h>
 #include <SLGLImGui.h>
 #include <SLProjectScene.h>
 #include <SLHorizonNode.h>
@@ -650,7 +650,12 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
                 if (s->textures().size() && ImGui::TreeNode("Textures"))
                 {
                     for (SLuint i = 0; i < s->textures().size(); ++i)
-                        ImGui::Text("[%u] %s", i, s->textures()[i]->name().c_str());
+                    {
+                        if (s->textures()[i]->images().empty())
+                            ImGui::Text("[%u] %s (GPU)", i, s->textures()[i]->name().c_str());
+                        else
+                            ImGui::Text("[%u] %s", i, s->textures()[i]->name().c_str());
+                    }
 
                     ImGui::TreePop();
                 }
@@ -3159,7 +3164,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
 
                                 if (doSunPowerAdaptation)
                                 {
-                                    SLColorLUT* lut = dirLight->sunLightColorLUT();
+                                    SLTexColorLUT* lut = dirLight->sunLightColorLUT();
                                     if (ImGui::TreeNode("Sun Color LUT"))
                                     {
                                         showLUTColors(lut);
@@ -3298,16 +3303,25 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
 
                             if (ImGui::TreeNode(tex->name().c_str()))
                             {
-                                ImGui::Text("Size   : %dx%dx%d", tex->width(), tex->height(), tex->bytesPerPixel());
-                                ImGui::Text("Type   : %s", tex->typeName().c_str());
-                                ImGui::Text("Min.Flt: %s", tex->minificationFilterName().c_str());
-                                ImGui::Text("Mag.Flt: %s", tex->magnificationFilterName().c_str());
+                                float mbCPU = 0.0f;
+                                for (auto img : tex->images())
+                                    mbCPU += (float)img->bytesPerImage();
+                                float mbGPU = (float)tex->bytesOnGPU();
+
+                                mbCPU/= 1E6f;
+                                mbGPU/= 1E6f;
+
+                                ImGui::Text("Size(PX): %dx%dx%d (images: %d)", tex->width(), tex->height(), tex->bytesPerPixel(), tex->depth());
+                                ImGui::Text("Size(MB): GPU: %4.1f, CPU: %4.1f", mbGPU, mbCPU);
+                                ImGui::Text("Type    : %s", tex->typeName().c_str());
+                                ImGui::Text("Min.Flt : %s", tex->minificationFilterName().c_str());
+                                ImGui::Text("Mag.Flt : %s", tex->magnificationFilterName().c_str());
 
                                 if (tex->target() == GL_TEXTURE_2D)
                                 {
-                                    if (typeid(*tex) == typeid(SLColorLUT))
+                                    if (typeid(*tex) == typeid(SLTexColorLUT))
                                     {
-                                        SLColorLUT* lut = (SLColorLUT*)i;
+                                        SLTexColorLUT* lut = (SLTexColorLUT*)i;
                                         if (ImGui::TreeNode("Color Points in Transfer Function"))
                                         {
                                             showLUTColors(lut);
@@ -3734,7 +3748,7 @@ void AppDemoGui::hideHorizon(SLProjectScene* s)
 
 //-----------------------------------------------------------------------------
 //! Displays a editable color lookup table wit ImGui widgets
-void AppDemoGui::showLUTColors(SLColorLUT* lut)
+void AppDemoGui::showLUTColors(SLTexColorLUT* lut)
 {
     ImGuiColorEditFlags cef = ImGuiColorEditFlags_NoInputs;
     for (SLulong c = 0; c < lut->colors().size(); ++c)

@@ -66,7 +66,6 @@ SLGLProgram::SLGLProgram(SLAssetManager* s,
 SLGLProgram::~SLGLProgram()
 {
     //SL_LOG("~SLGLProgram");
-
     for (auto shader : _shaders)
     {
         if (_isLinked)
@@ -78,18 +77,39 @@ SLGLProgram::~SLGLProgram()
         // always delete shader objects before program object
         delete shader;
     }
+    _isLinked = false;
 
     if (_progID > 0)
     {
         glDeleteProgram(_progID);
         GET_GL_ERROR;
     }
-
+    
     // delete uniform variables
     for (auto uf : _uniforms1f)
         delete uf;
     for (auto ui : _uniforms1i)
         delete ui;
+}
+//-----------------------------------------------------------------------------
+//! Delete all Gpu data
+void SLGLProgram::deleteDataGpu()
+{
+    if (_isLinked)
+    {
+        for (auto shader : _shaders)
+        {
+            glDetachShader(_progID, shader->_shaderID);
+            GET_GL_ERROR;
+        }
+        _isLinked = false;
+    }
+
+    if (_progID > 0)
+    {
+        glDeleteProgram(_progID);
+        GET_GL_ERROR;
+    }
 }
 //-----------------------------------------------------------------------------
 //! SLGLProgram::addShader adds a shader to the shader list

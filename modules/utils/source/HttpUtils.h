@@ -86,7 +86,12 @@ protected:
 class SecureSocket : public Socket
 {
     public:
-    SecureSocket() { Socket::reset(); }
+    SecureSocket()
+    {
+        ssl = nullptr;
+        sslfd = -1;
+        Socket::reset();
+    }
 
     SSL* ssl;
     int  sslfd;
