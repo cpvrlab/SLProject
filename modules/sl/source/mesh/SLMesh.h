@@ -147,7 +147,7 @@ public:
     void         deleteDataGpu();
     void         deleteSelected(SLNode* node);
     void         deleteUnused();
-    void         calcTex3DMatrix(SLNode* node);
+    static void  calcTex3DMatrix(SLNode* node);
     virtual void calcMinMax();
     virtual void calcNormals();
     void         calcCenterRad(SLVec3f& center, SLfloat& radius);
@@ -168,18 +168,18 @@ public:
 #endif
 
     // Getters
-    SLMaterial*       mat() const { return _mat; }
-    SLMaterial*       matOut() const { return _matOut; }
-    SLGLPrimitiveType primitive() const { return _primitive; }
+    SLMaterial*           mat() const { return _mat; }
+    SLMaterial*           matOut() const { return _matOut; }
+    SLGLPrimitiveType     primitive() const { return _primitive; }
     const SLAnimSkeleton* skeleton() const { return _skeleton; }
-    SLuint            numI() const { return (SLuint)(!I16.empty() ? I16.size() : I32.size()); }
-    SLGLVertexArray&  vao() { return _vao; }
-    SLbool            isSelected() const { return _isSelected; }
-    SLfloat           edgeAngleDEG() const { return _edgeAngleDEG; }
-    SLfloat           edgeWidth() const { return _edgeWidth; }
-    SLCol4f           edgeColor() const { return _edgeColor; }
-    SLVec3f           finalP(SLuint i) { return _finalP->operator[](i); }
-    SLVec3f           finalN(SLuint i) { return _finalN->operator[](i); }
+    SLuint                numI() const { return (SLuint)(!I16.empty() ? I16.size() : I32.size()); }
+    SLGLVertexArray&      vao() { return _vao; }
+    SLbool                isSelected() const { return _isSelected; }
+    SLfloat               edgeAngleDEG() const { return _edgeAngleDEG; }
+    SLfloat               edgeWidth() const { return _edgeWidth; }
+    SLCol4f               edgeColor() const { return _edgeColor; }
+    SLVec3f               finalP(SLuint i) { return _finalP->operator[](i); }
+    SLVec3f               finalN(SLuint i) { return _finalN->operator[](i); }
 
     // Setters
     void mat(SLMaterial* m) { _mat = m; }
@@ -189,7 +189,7 @@ public:
     void isSelected(bool isSelected) { _isSelected = isSelected; }
     void edgeWidth(SLfloat ew) { _edgeWidth = ew; }
     void edgeAngleDEG(SLfloat ea) { _edgeAngleDEG = ea; }
-    void edgeColor(SLCol4f ec) { _edgeColor = ec; }
+    void edgeColor(const SLCol4f& ec) { _edgeColor = ec; }
     void vertexPosEpsilon(SLfloat eps) { _vertexPosEpsilon = eps; }
 
     // vertex attributes
@@ -241,16 +241,16 @@ protected:
     SLOptixCudaBuffer<SLVec2f>  _textureBuffer;
     SLOptixCudaBuffer<SLushort> _indexShortBuffer;
     SLOptixCudaBuffer<SLuint>   _indexIntBuffer;
-    unsigned int           _sbtIndex;
+    unsigned int                _sbtIndex;
 #endif
 
-    SLbool         _isVolume;             //!< Flag for RT if mesh is a closed volume
-    SLAccelStruct* _accelStruct;          //!< KD-tree or uniform grid
-    SLbool         _accelStructOutOfDate; //!< flag id accel.struct needs update
-    SLAnimSkeleton*    _skeleton;             //!< the skeleton this mesh is bound to
-    SLVMat4f       _jointMatrices;        //!< joint matrix vector for this mesh
-    SLVVec3f*      _finalP;               //!< Pointer to final vertex position vector
-    SLVVec3f*      _finalN;               //!< pointer to final vertex normal vector
+    SLbool          _isVolume;             //!< Flag for RT if mesh is a closed volume
+    SLAccelStruct*  _accelStruct;          //!< KD-tree or uniform grid
+    SLbool          _accelStructOutOfDate; //!< flag id accel.struct needs update
+    SLAnimSkeleton* _skeleton;             //!< the skeleton this mesh is bound to
+    SLVMat4f        _jointMatrices;        //!< joint matrix vector for this mesh
+    SLVVec3f*       _finalP;               //!< Pointer to final vertex position vector
+    SLVVec3f*       _finalN;               //!< pointer to final vertex normal vector
 };
 //-----------------------------------------------------------------------------
 typedef vector<SLMesh*> SLVMesh;

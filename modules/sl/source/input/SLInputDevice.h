@@ -21,7 +21,7 @@ class SLInputManager;
 class SLInputDevice
 {
 public:
-    SLInputDevice(SLInputManager& inputManager);
+    explicit SLInputDevice(SLInputManager& inputManager);
     virtual ~SLInputDevice();
 
     void enable();

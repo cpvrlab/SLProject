@@ -9,7 +9,7 @@
 //#############################################################################
 
 #include <SLRectangle.h>
-
+#include <limits.h>
 #include <utility>
 
 //-----------------------------------------------------------------------------
@@ -19,13 +19,13 @@ SLRectangle::SLRectangle(SLAssetManager* assetMgr,
                          const SLVec2f&  max,
                          SLuint          resX,
                          SLuint          resY,
-                         SLstring        name,
+                         const SLstring& name,
                          SLMaterial*     mat) : SLMesh(assetMgr, name)
 {
     assert(min != max);
     assert(resX > 0);
     assert(resY > 0);
-    assert(name != "");
+    assert(!name.empty());
     _min = min;
     _max = max;
     _uv_min.set(0, 0);
@@ -44,14 +44,14 @@ SLRectangle::SLRectangle(SLAssetManager* assetMgr,
                          const SLVec2f&  uv_max,
                          SLuint          resX,
                          SLuint          resY,
-                         SLstring        name,
-                         SLMaterial*     mat) : SLMesh(assetMgr, std::move(name))
+                         const SLstring& name,
+                         SLMaterial*     mat) : SLMesh(assetMgr, name)
 {
     assert(min != max);
     assert(uv_min != uv_max);
     assert(resX > 0);
     assert(resY > 0);
-    assert(name != "");
+    assert(!name.empty());
     _min      = min;
     _max      = max;
     _uv_min   = uv_min;

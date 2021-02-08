@@ -8,16 +8,17 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
+#include <climits>
 #include <SLPoints.h>
 
 //-----------------------------------------------------------------------------
 //! SLPoints ctor with a given vector of points
 SLPoints::SLPoints(SLAssetManager* assetMgr,
                    const SLVVec3f& points,
-                   SLstring        name,
+                   const SLstring& name,
                    SLMaterial*     material) : SLMesh(assetMgr, name)
 {
-    assert(name != "");
+    assert(!name.empty());
 
     _primitive = PT_points;
 
@@ -29,21 +30,21 @@ SLPoints::SLPoints(SLAssetManager* assetMgr,
     mat(material);
 }
 //-----------------------------------------------------------------------------
-//! SLPoints ctor with a givven vector of points
+//! SLPoints ctor with a given vector of points
 SLPoints::SLPoints(SLAssetManager* assetMgr,
                    const SLVVec3f& points,
                    const SLVVec3f& normals,
-                   SLstring        name,
+                   const SLstring& name,
                    SLMaterial*     material) : SLMesh(assetMgr, name)
 {
-    assert(name != "");
+    assert(!name.empty());
 
     _primitive = PT_points;
 
     if (points.size() > UINT_MAX)
         SL_EXIT_MSG("SLPoints supports max. 2^32 vertices.");
     if (points.size() != normals.size())
-        SL_EXIT_MSG("SLPoints: diffent size of points and normals vector.");
+        SL_EXIT_MSG("SLPoints: different size of points and normals vector.");
 
     P = points;
     N = normals;
@@ -55,15 +56,15 @@ SLPoints::SLPoints(SLAssetManager* assetMgr,
 SLPoints::SLPoints(SLAssetManager* assetMgr,
                    SLfloat         nPoints,
                    SLRnd3f&        rnd,
-                   SLstring        name,
+                   const SLstring& name,
                    SLMaterial*     material) : SLMesh(assetMgr, name)
 {
-    assert(name != "" && "No name provided in SLPoints!");
+    assert(!name.empty() && "No name provided in SLPoints!");
     assert(nPoints <= UINT_MAX && "SLPoints supports max. 2^32 vertices!");
 
     _primitive = PT_points;
 
-    for (int i = 0; i < nPoints; ++i)
+    for (int i = 0; i < (int)nPoints; ++i)
         P.push_back(rnd.generate());
 
     mat(material);
