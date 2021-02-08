@@ -8,6 +8,7 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
+#include <algorithm>
 #include <SLInputManager.h>
 
 //-----------------------------------------------------------------------------
@@ -42,6 +43,6 @@ SLInputManager
 void SLInputDevice::disable()
 {
     SLVInputDevice& dl = _inputManager.devices();
-    dl.erase(remove(dl.begin(), dl.end(), this), dl.end());
+    dl.erase(std::remove(dl.begin(), dl.end(), this), dl.end());
 }
 //-----------------------------------------------------------------------------
