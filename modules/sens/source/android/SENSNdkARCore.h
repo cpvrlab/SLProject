@@ -36,6 +36,7 @@ private:
 	//float          _lightColor[4];
 	float            _envLightI[3];
 
+    void    checkAvailability(JNIEnv* env, jobject context);
     void    initCameraTexture();
     cv::Mat convertToYuv(ArImage* arImage);
     void    updateFrame(cv::Mat& intrinsics);
