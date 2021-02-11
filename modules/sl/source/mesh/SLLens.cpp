@@ -67,14 +67,14 @@ To correct myopic (short-sightedness) a diverging lens is needed.
 @image html Lens.png
 
 @param assetMgr Pointer to the asset manager
-@param radiusBot SLfloat The radius of the front side of the lens
-@param radiusTop SLfloat The radius of the back side of the lens
-@param diameter SLfloat The diameter (h) of the lens
-@param thickness SLfloat The space between the primary planes of lens sides (d)
-@param stacks SLint
-@param slices SLint
-@param name SLstring of the SLRevolver Mesh
-@param mat SLMaterial* The Material of the lens
+@param radiusBot The radius of the front side of the lens
+@param radiusTop The radius of the back side of the lens
+@param diameter The diameter (h) of the lens
+@param thickness The space between the primary planes of lens sides (d)
+@param stacks No. of stacks of the lens
+@param slices No. of slices in the lens
+@param name Name of the SLRevolver Mesh
+@param mat Pointer to the Material of the lens
 
 Positive radius creates a convex lens side. <br>
 Negative radius creates a concave lens side. <br>
