@@ -1673,14 +1673,18 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         // Material for mirror
         SLMaterial* refl = new SLMaterial(s, "refl", SLCol4f::BLACK, SLCol4f::WHITE, 1000, 1.0f);
         refl->textures().push_back(skyboxTex);
-        refl->program(new SLGLProgramGeneric(s, SLApplication::shaderPath + "Reflect.vert", SLApplication::shaderPath + "Reflect.frag"));
+        refl->program(new SLGLProgramGeneric(s,
+                                             SLApplication::shaderPath + "Reflect.vert",
+                                             SLApplication::shaderPath + "Reflect.frag"));
 
         // Material for glass
         SLMaterial* refr = new SLMaterial(s, "refr", SLCol4f::BLACK, SLCol4f::BLACK, 100, 0.1f, 0.9f, 1.5f);
         refr->translucency(1000);
         refr->transmissive(SLCol4f::WHITE);
         refr->textures().push_back(skyboxTex);
-        refr->program(new SLGLProgramGeneric(s, SLApplication::shaderPath + "RefractReflect.vert", SLApplication::shaderPath + "RefractReflect.frag"));
+        refr->program(new SLGLProgramGeneric(s,
+                                             SLApplication::shaderPath + "RefractReflect.vert",
+                                             SLApplication::shaderPath + "RefractReflect.frag"));
 
         // Create a scene group node
         SLNode* scene = new SLNode("scene node");
@@ -1707,12 +1711,24 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // load teapot
         SLAssimpImporter importer;
-        SLNode*          teapot = importer.load(s->animManager(), s, SLApplication::modelPath + "FBX/Teapot/Teapot.fbx", SLApplication::texturePath, true, refl);
+        SLNode*          teapot = importer.load(s->animManager(),
+                                       s,
+                                       SLApplication::modelPath + "FBX/Teapot/Teapot.fbx",
+                                       SLApplication::texturePath,
+                                       false,
+                                       true,
+                                       refl);
         teapot->translate(-1.5f, -0.5f, 0);
         scene->addChild(teapot);
 
         // load Suzanne
-        SLNode* suzanne = importer.load(s->animManager(), s, SLApplication::modelPath + "FBX/Suzanne/Suzanne.fbx", SLApplication::texturePath, true, refr);
+        SLNode* suzanne = importer.load(s->animManager(),
+                                        s,
+                                        SLApplication::modelPath + "FBX/Suzanne/Suzanne.fbx",
+                                        SLApplication::texturePath,
+                                        false,
+                                        true,
+                                        refr);
         suzanne->translate(1.5f, -0.5f, 0);
         scene->addChild(suzanne);
 
@@ -1820,6 +1836,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                                        s,
                                        SLApplication::modelPath + "FBX/Teapot/Teapot.fbx",
                                        SLApplication::texturePath,
+                                       false,
                                        true,
                                        teapotMat);
 
@@ -2020,6 +2037,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                                             s,
                                             SLApplication::modelPath + "FBX/Teapot/Teapot.fbx",
                                             SLApplication::texturePath,
+                                            false,
                                             true,
                                             mat1);
 
@@ -2567,7 +2585,11 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(char1);
 
         // Sintel character
-        SLNode* char2 = importer.load(s->animManager(), s, SLApplication::modelPath + "DAE/Sintel/SintelLowResOwnRig.dae", SLApplication::texturePath
+        SLNode* char2 = importer.load(s->animManager(),
+                                      s,
+                                      SLApplication::modelPath + "DAE/Sintel/SintelLowResOwnRig.dae",
+                                      SLApplication::texturePath
+                                      //,false
                                       //,true
                                       //,SLProcess_JoinIdenticalVertices
                                       //|SLProcess_RemoveRedundantMaterials
@@ -2582,7 +2604,10 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(char2);
 
         // Skinned cube 1
-        SLNode* cube1 = importer.load(s->animManager(), s, SLApplication::modelPath + "DAE/SkinnedCube/skinnedcube2.dae", SLApplication::texturePath);
+        SLNode* cube1 = importer.load(s->animManager(),
+                                      s,
+                                      SLApplication::modelPath + "DAE/SkinnedCube/skinnedcube2.dae",
+                                      SLApplication::texturePath);
         cube1->translate(3, 0, 0);
         SLAnimPlayback* cube1Anim = s->animManager().lastAnimPlayback();
         cube1Anim->easing(EC_inOutSine);
