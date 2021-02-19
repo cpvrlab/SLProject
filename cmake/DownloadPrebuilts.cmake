@@ -869,7 +869,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN" AND
         file(REMOVE "${PREBUILT_PATH}/${assimp_PREBUILT_ZIP}")
 
         if( NOT EXISTS "${assimp_DIR}" )
-            message( SEND_ERROR "Downloading Prebuilds failed! assimp prebuilds for version ${assimp_VERSION} do not extist!" )
+            message( SEND_ERROR "Downloading Prebuilds failed! assimp prebuilds for version ${assimp_VERSION} do not exist!" )
         endif()
     endif ()
 
@@ -1287,7 +1287,8 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID") #-----------------------------
     set(openssl_INCLUDE_DIR ${openssl_DIR}/include)
     set(openssl_LINK_DIR ${openssl_DIR}/lib)
     set(openssl_LIBS ssl crypto)
-    set(openssl_PREBUILT_ZIP "${openssl_PREBUILT_DIR}_${openssl_VERSION}.zip")
+    set(openssl_PREBUILT_ZIP "andV8_openssl_${openssl_VERSION}.zip")
+    set(openssl_URL ${PREBUILT_URL}/${openssl_PREBUILT_ZIP})
 
     if (NOT EXISTS "${openssl_DIR}")
         file(DOWNLOAD "${PREBUILT_URL}/${openssl_PREBUILT_ZIP}" "${PREBUILT_PATH}/${openssl_PREBUILT_ZIP}")

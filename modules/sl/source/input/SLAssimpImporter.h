@@ -35,8 +35,7 @@ supported file formats and the import processing options.
 class SLAssimpImporter : public SLImporter
 {
 public:
-    SLAssimpImporter() = default;
-    explicit SLAssimpImporter(SLLogVerbosity consoleVerb)
+    explicit SLAssimpImporter(SLLogVerbosity consoleVerb = LV_quiet)
       : SLImporter(consoleVerb) {}
     explicit SLAssimpImporter(SLstring&      logFile,
                               SLLogVerbosity logConsoleVerb = LV_normal,

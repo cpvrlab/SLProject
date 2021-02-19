@@ -25,7 +25,8 @@ SLImporter::SLImporter()
 /*! Constructor that only outputs console logs
 */
 SLImporter::SLImporter(SLLogVerbosity consoleVerb)
-  : _logFileVerbosity(LV_quiet),
+  : _logConsoleVerbosity(consoleVerb),
+    _logFileVerbosity(LV_quiet),
     _sceneRoot(nullptr),
     _skeleton(nullptr)
 {
