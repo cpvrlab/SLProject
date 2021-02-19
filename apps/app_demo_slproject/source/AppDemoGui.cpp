@@ -1539,6 +1539,7 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                 SLstring modelBR1    = erlebarPath + "bern/Bern-Bahnhofsplatz2.gltf";
                 SLstring modelBFH    = erlebarPath + "biel/Biel-BFH-Rolex.gltf";
                 SLstring modelAR1    = erlebarPath + "augst/Tempel-Theater-02.gltf";
+                SLstring modelAR2    = erlebarPath + "augst/Tempel-Theater-03.gltf";
                 SLstring modelAV1    = erlebarPath + "avenches/Aventicum-Amphitheater1.gltf";
                 SLstring modelAV1_AO = erlebarPath + "avenches/Aventicum-Amphitheater-AO.gltf";
                 SLstring modelAV2    = erlebarPath + "avenches/Aventicum-Cigognier2.gltf";
@@ -1546,6 +1547,7 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                 SLstring modelAV3    = erlebarPath + "avenches/Aventicum-Theater1.gltf";
 
                 if (Utils::fileExists(modelAR1) ||
+                    Utils::fileExists(modelAR2) ||
                     Utils::fileExists(modelAV1) ||
                     Utils::fileExists(modelAV2) ||
                     Utils::fileExists(modelAV3) ||
@@ -1564,6 +1566,10 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                         if (Utils::fileExists(modelAR1))
                             if (ImGui::MenuItem("Augusta Raurica", nullptr, sid == SID_ErlebARAugustaRaurica))
                                 s->onLoad(s, sv, SID_ErlebARAugustaRaurica);
+
+                        if (Utils::fileExists(modelAR1))
+                            if (ImGui::MenuItem("Augusta Raurica (AO)", nullptr, sid == SID_ErlebARAugustaRauricaTmpThtAO))
+                                s->onLoad(s, sv, SID_ErlebARAugustaRauricaTmpThtAO);
 
                         if (Utils::fileExists(modelAV1_AO))
                             if (ImGui::MenuItem("Aventicum: Amphitheatre", nullptr, sid == SID_ErlebARAventicumAmphiAO))
@@ -3308,8 +3314,8 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                     mbCPU += (float)img->bytesPerImage();
                                 float mbGPU = (float)tex->bytesOnGPU();
 
-                                mbCPU/= 1E6f;
-                                mbGPU/= 1E6f;
+                                mbCPU /= 1E6f;
+                                mbGPU /= 1E6f;
 
                                 ImGui::Text("Size(PX): %dx%dx%d (images: %d)", tex->width(), tex->height(), tex->bytesPerPixel(), tex->depth());
                                 ImGui::Text("Size(MB): GPU: %4.1f, CPU: %4.1f", mbGPU, mbCPU);

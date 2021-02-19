@@ -455,7 +455,7 @@ void SLAssimpImporter::findNodes(aiNode* node, SLstring padding, SLbool lastChil
 
     //logMessage(LV_Detailed, "%s   |\n", padding.c_str());
     logMessage(LV_detailed,
-               "%s  |-[%s]   (%d children, %d meshes)\n",
+               "%s  |-[%s]   (%d children, %d meshes)",
                padding.c_str(),
                name.c_str(),
                node->mNumChildren,
