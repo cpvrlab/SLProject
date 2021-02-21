@@ -71,7 +71,7 @@ int Socket::connectTo(string ip,
 int Socket::sendData(const char* data,
                      size_t      size)
 {
-    int len = send(fd, data, (int)size, 0);
+    int len = (int)send(fd, data, (int)size, 0);
     if (len < 0)
         return -1;
     return 0;
@@ -107,11 +107,11 @@ void Socket::receive(function<int(char* data, int size)> dataCB, int max)
     {
         if (max != 0 && max - n <= BUFFER_SIZE)
         {
-            len = recv(fd, buf, max - n, 0);
+            len = (int)recv(fd, buf, max - n, 0);
             dataCB(buf, len);
             return;
         }
-        len = recv(fd, buf, BUFFER_SIZE, 0);
+        len = (int)recv(fd, buf, BUFFER_SIZE, 0);
         n   = n + len;
         if (dataCB(buf, len) != 0)
             break;

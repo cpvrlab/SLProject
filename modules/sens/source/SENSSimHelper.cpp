@@ -14,6 +14,10 @@ SENSSimHelper::SENSSimHelper(SENSGps*&                 gps,
     _simDataDir(Utils::unifySlashes(simDataDir)),
     _cameraParametersChangedCB(cameraParametersChangedCB)
 {
+    if(!Utils::dirExists(simDataDir))
+        Utils::makeDir(simDataDir);
+    if(!Utils::dirExists(simDataDir))
+        Utils::log("SENSSimHelper", "Could not create simDataDir!");
 }
 
 SENSSimHelper::~SENSSimHelper()

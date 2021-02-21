@@ -13,22 +13,34 @@ SENSNdkARCore::SENSNdkARCore(ANativeActivity* activity)
     _activity->vm->AttachCurrentThread(&env, NULL);
     jobject activityObj = env->NewGlobalRef(_activity->clazz);
 
-    ArAvailability availability;
-    ArCoreApk_checkAvailability(env, activityObj, &availability);
-
-    _available = true;
-    if (availability == AR_AVAILABILITY_UNSUPPORTED_DEVICE_NOT_CAPABLE)
-    {
-        _available = false;
-    }
-    else if (availability != AR_AVAILABILITY_SUPPORTED_INSTALLED)
-    {
-        ArInstallStatus install_status;
-        ArCoreApk_requestInstall(env, activityObj, true, &install_status);
-    }
+    checkAvailability(env, activityObj);
 
     env->DeleteGlobalRef(activityObj);
     _activity->vm->DetachCurrentThread();
+}
+
+void SENSNdkARCore::checkAvailability(JNIEnv* env, jobject context)
+{
+    ArAvailability availability;
+    ArCoreApk_checkAvailability(env, context, &availability);
+
+    _available = true;
+    if (availability == AR_AVAILABILITY_UNKNOWN_CHECKING)
+    {
+        std::this_thread::sleep_for(std::chrono::microseconds((int)(200000)));
+        checkAvailability(env, context);
+    }
+    else if (availability == AR_AVAILABILITY_SUPPORTED_NOT_INSTALLED ||
+             availability == AR_AVAILABILITY_SUPPORTED_APK_TOO_OLD   ||
+             availability == AR_AVAILABILITY_SUPPORTED_INSTALLED)
+    {
+        ArInstallStatus install_status;
+        ArCoreApk_requestInstall(env, context, true, &install_status);
+    }
+    else
+    {
+        _available = false;
+    }
 }
 
 SENSNdkARCore::~SENSNdkARCore()

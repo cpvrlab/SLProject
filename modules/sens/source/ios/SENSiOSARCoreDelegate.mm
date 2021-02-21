@@ -1,4 +1,5 @@
 #import "SENSiOSARCoreDelegate.h"
+#include <Utils.h>
 
 @interface SENSiOSARCoreDelegate () {
 
@@ -86,6 +87,12 @@
 {
     //Reference the current ARFrame (I think the referenced "currentFrame" may change during this function call)
     ARFrame*  frame  = _arSession.currentFrame;
+    if(!frame)
+    {
+        Utils::log("SENSiOSARCoreDelegate", "frame is invalid");
+        *isTracking = NO;
+        return;
+    }
     ARCamera* camera = frame.camera;
 
     //copy camera pose
@@ -117,22 +124,30 @@
     //copy the image as in camera
     CVImageBufferRef pixelBuffer = frame.capturedImage;
 
-    CVReturn ret         = CVPixelBufferLockBaseAddress(pixelBuffer, 0);
-    OSType   pixelFormat = CVPixelBufferGetPixelFormatType(pixelBuffer);
+    CVReturn ret         = CVPixelBufferLockBaseAddress(pixelBuffer, kCVPixelBufferLock_ReadOnly);
+
     //This is NV12, so the order is U/V (NV12: YYYYUV NV21: YYYYVU)
-    if (ret == kCVReturnSuccess && pixelFormat == kCVPixelFormatType_420YpCbCr8BiPlanarFullRange)
+    if (ret == kCVReturnSuccess)
     {
-        size_t imgWidth  = CVPixelBufferGetWidth(pixelBuffer);
-        size_t imgHeight = CVPixelBufferGetHeight(pixelBuffer);
-        *w               = (int)imgWidth;
-        *h               = (int)imgHeight;
+        OSType   pixelFormat = CVPixelBufferGetPixelFormatType(pixelBuffer);
+        if (pixelFormat == kCVPixelFormatType_420YpCbCr8BiPlanarFullRange)
+        {
+            size_t imgWidth  = CVPixelBufferGetWidth(pixelBuffer);
+            size_t imgHeight = CVPixelBufferGetHeight(pixelBuffer);
+            *w               = (int)imgWidth;
+            *h               = (int)imgHeight;
 
-        uint8_t* yPlane = (uint8_t*)CVPixelBufferGetBaseAddressOfPlane(pixelBuffer, 0);
+            uint8_t* yPlane = (uint8_t*)CVPixelBufferGetBaseAddressOfPlane(pixelBuffer, 0);
 
-        cv::Mat yuvImg((int)imgHeight + ((int)imgHeight / 2), (int)imgWidth, CV_8UC1, yPlane);
-        cv::cvtColor(yuvImg, *imgBGR, cv::COLOR_YUV2BGR_NV12, 3);
+            cv::Mat yuvImg((int)imgHeight + ((int)imgHeight / 2), (int)imgWidth, CV_8UC1, yPlane);
+            cv::cvtColor(yuvImg, *imgBGR, cv::COLOR_YUV2BGR_NV12, 3);
+        }
     }
-    CVPixelBufferUnlockBaseAddress(pixelBuffer, 0);
+    if(ret != kCVReturnSuccess)
+    {
+        Utils::log("SENSiOSARCoreDelegate", "pixelbuffer not locked");
+    }
+    CVPixelBufferUnlockBaseAddress(pixelBuffer, kCVPixelBufferLock_ReadOnly);
 }
 
 #pragma mark - ARSessionDelegate
@@ -144,7 +159,6 @@
 
 - (void)session:(ARSession*)session cameraDidChangeTrackingState:(ARCamera*)camera
 {
-    /*
     switch (camera.trackingState)
     {
         case ARTrackingStateNormal:
@@ -179,7 +193,6 @@
         default:
             break;
     }
-     */
 }
 
 - (void)sessionWasInterrupted:(ARSession*)session

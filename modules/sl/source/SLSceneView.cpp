@@ -545,8 +545,9 @@ SLbool SLSceneView::onPaint()
             _gui->onInitNewFrame(_s, this);
     }
 
-    // Clear NO. of draw calls afer UI creation
+    // Clear NO. of draw calls after UI creation
     SLGLVertexArray::totalDrawCalls = 0;
+    SLGLVertexArray::totalPrimitivesRendered = 0;
 
     if (_s && _camera)
     { // Render the 3D scenegraph by raytracing, pathtracing or OpenGL
@@ -673,7 +674,7 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     // Update camera animation separately (smooth transition on key movement)
     //todo: ghm1: this is currently only necessary for walking animation (which is somehow always enabled)
     //A problem is also, that it only updates the current camera. This is maybe not what we want for sensor rotated camera.
-    SLbool camUpdated = _camera->camUpdate(elapsedTimeMS);
+    SLbool camUpdated = _camera->camUpdate(this, elapsedTimeMS);
 
     //////////////////////
     // 3. Clear Buffers //

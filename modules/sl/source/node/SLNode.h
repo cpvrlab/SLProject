@@ -163,6 +163,7 @@ public:
     virtual void drawMesh(SLSceneView* sv);
     bool         removeMesh();
     bool         removeMesh(SLMesh* mesh);
+
     // Children methods (see impl. for details)
     SLint numChildren() { return (SLint)_children.size(); }
     void  addChild(SLNode* child);
@@ -262,14 +263,6 @@ public:
         _om = mat;
         needUpdate();
     }
-    /*
-    //set rotation part of object matrix
-    void om(const SLMat3f& mat)
-    {
-        _om.setMatrix(mat);
-        needUpdate();
-    }
-     */
     void         animation(SLAnimation* a) { _animation = a; }
     void         castsShadows(SLbool castsShadows) { _castsShadows = castsShadows; }
     virtual void needUpdate();

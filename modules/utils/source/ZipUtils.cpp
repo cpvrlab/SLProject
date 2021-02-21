@@ -191,7 +191,7 @@ bool unzip(string                                         zipfile,
         string filename = Utils::getFileName(Utils::trimRightString(name, "/"));
 
         processDir(dirname);
-        if (progress != nullptr && progress(nbProcessedFile++, global_info.number_entry))
+        if (progress != nullptr && progress(nbProcessedFile++, (int)global_info.number_entry))
         {
             unzClose(uzfile);
             return false;
@@ -241,7 +241,7 @@ bool unzip(string                                         zipfile,
     unzClose(uzfile);
 
     if (progress != nullptr)
-        progress(global_info.number_entry, global_info.number_entry);
+        progress((int)global_info.number_entry, (int)global_info.number_entry);
     return ret;
 }
 //-----------------------------------------------------------------------------

@@ -59,11 +59,11 @@ public:
 
     void           statsRec(SLNodeStats& stats) override;
     void           drawMesh(SLSceneView* sv) override;
-    virtual SLbool camUpdate(SLfloat timeMS);
+    virtual SLbool camUpdate(SLSceneView* sv, SLfloat timeMS);
     void           preShade(SLRay* ray) { (void)ray; }
     void           calcMinMax(SLVec3f& minV, SLVec3f& maxV) const;
     void           buildAABB(SLAABBox& aabb, const SLMat4f& wmNode);
-    SLVec2i        frustumSizeAtDistance(SLfloat distance);
+    SLVec2f        frustumSizeAtDistance(SLfloat distance);
 
     // Event handlers for camera animation
     SLbool onMouseDown(SLMouseButton button, SLint x, SLint y, SLKey mod) override;
@@ -135,6 +135,7 @@ public:
     void fogIsOn(const bool isOn) { _fogIsOn = isOn; }
     void fogMode(const SLFogMode mode) { _fogMode = mode; }
     void fogDensity(const float density) { _fogDensity = density; }
+    void onCamUpdateCB(function<void(SLSceneView* sv)> callbackFunc) { _onCamUpdateCB = callbackFunc; }
 
     // Getters
     const SLMat4f& updateAndGetVM() const { return updateAndGetWMI(); }
@@ -142,8 +143,8 @@ public:
     SLstring       projectionStr() const { return projectionToStr(_projection); }
     SLfloat        unitScaling() const { return _unitScaling; }
     SLfloat        fovV() const { return _fovV; } //!< Vertical field of view
-    //todo: fovH calculation is wrong
-    SLfloat   fovH() const { return _viewportRatio * _fovV; } //!< Horizontal field of view
+    SLfloat        fovH() const; //!< Horizontal field of view
+    
     SLint     viewportW() const { return _viewportW; }
     SLint     viewportH() const { return _viewportH; }
     SLfloat   aspect() const { return _viewportRatio; }
@@ -156,13 +157,13 @@ public:
     SLint   stereoEye() const { return _stereoEye; }
     SLMat3f stereoColorFilter() const { return _stereoColorFilter; }
 
-    SLfloat      lensDiameter() const { return _lensDiameter; }
+    SLfloat         lensDiameter() const { return _lensDiameter; }
     SLRaySamples2D* lensSamples() { return &_lensSamples; }
-    SLfloat      focalDist() const { return _focalDist; }
-    SLfloat      focalDistScrW() const;
-    SLfloat      focalDistScrH() const;
-    SLVec3f      focalPointWS() const { return translationWS() + _focalDist * forwardWS(); }
-    SLVec3f      focalPointOS() const { return translationOS() + _focalDist * forwardOS(); }
+    SLfloat         focalDist() const { return _focalDist; }
+    SLfloat         focalDistScrW() const;
+    SLfloat         focalDistScrH() const;
+    SLVec3f         focalPointWS() const { return translationWS() + _focalDist * forwardWS(); }
+    SLVec3f         focalPointOS() const { return translationOS() + _focalDist * forwardOS(); }
 
     SLbool    fogIsOn() const { return _fogIsOn; }
     SLFogMode fogMode() const { return _fogMode; }
@@ -237,8 +238,8 @@ protected:
     SLfloat _moveAccel;    //!< move acceleration
 
     // ray tracing parameters
-    SLfloat     _focalDist;    //!< distance to lookAt point on the focal plane from lens
-    SLfloat     _lensDiameter; //!< Lens diameter
+    SLfloat        _focalDist;    //!< distance to lookAt point on the focal plane from lens
+    SLfloat        _lensDiameter; //!< Lens diameter
     SLRaySamples2D _lensSamples;  //!< sample points for lens sampling (DOF)
 
     // Stereo rendering
@@ -268,6 +269,8 @@ protected:
     float   _distanceToObjectM = 1.0f; //!< distance to object in meter that should be shifted relative to camera
     float   _enucorrTRenu      = 0.f;  //!< manual camera shift in y direction
     SLMat3f _enucorrRenu;
+
+    function<void(SLSceneView* sv)> _onCamUpdateCB;
 };
 //-----------------------------------------------------------------------------
 #endif
