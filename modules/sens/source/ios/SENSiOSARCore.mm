@@ -59,5 +59,7 @@ bool SENSiOSARCore::update(cv::Mat& pose)
         std::lock_guard<std::mutex> lock(_frameMutex);
         _frame = std::make_unique<SENSFrameBase>(SENSClock::now(), imgBGR, intrinsic);
     }
+    else
+        Utils::log("SENSiOSARCore", "frame is empty!");
     return isTracking;
 }

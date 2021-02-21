@@ -379,13 +379,13 @@ void SLCamera::buildAABB(SLAABBox& aabb, const SLMat4f& wmNode)
 
 //-----------------------------------------------------------------------------
 //! Calculate and return frustum size at distance to camera center
-SLVec2i SLCamera::frustumSizeAtDistance(SLfloat distance)
+SLVec2f SLCamera::frustumSizeAtDistance(SLfloat distance)
 {
-    SLVec2i frustumSize;
+    SLVec2f frustumSize;
 
-    frustumSize.y = (int)(2.f * distance * std::tan(_fovV * 0.5f * RAD2DEG));
-    frustumSize.x = (int)(frustumSize.y * _viewportRatio); //w / h
-
+    frustumSize.y = 2.f * distance * std::tan(_fovV * 0.5f * DEG2RAD);
+    frustumSize.x = frustumSize.y * _viewportRatio; //w / h
+    
     return frustumSize;
 }
 //-----------------------------------------------------------------------------
@@ -1486,6 +1486,13 @@ void SLCamera::setFrustumPlanes()
                               -A.m(6) + A.m(7),
                               -A.m(10) + A.m(11),
                               -A.m(14) + A.m(15));
+}
+//-----------------------------------------------------------------------------
+//!< Horizontal field of view
+SLfloat SLCamera::fovH() const
+{
+    float f = (0.5f * (float)_viewportH) / tanf(_fovV * 0.5f * Utils::DEG2RAD);
+    return 2.f * atanf(0.5f * (float)_viewportW / f) * Utils::RAD2DEG;
 }
 //-----------------------------------------------------------------------------
 //! eyeToPixelRay returns the a ray from the eye to the center of a pixel.
