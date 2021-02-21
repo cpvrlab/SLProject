@@ -312,16 +312,16 @@ void SLNode::findChildrenHelper(const SLuint     drawbit,
 bool SLNode::removeChild(SLNode* child)
 {
     assert(child);
-    for(auto it = _children.begin(); it != _children.end(); ++it)
+    for (auto it = _children.begin(); it != _children.end(); ++it)
     {
-        if(*it == child)
+        if (*it == child)
         {
             (*it)->parent(nullptr);
             _children.erase(it);
             return true;
         }
     }
-    
+
     return false;
 }
 //-----------------------------------------------------------------------------

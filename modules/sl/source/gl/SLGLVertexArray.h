@@ -167,7 +167,8 @@ public:
     SLuint numIndicesEdges() const { return _numIndicesEdges; }
 
     // Some statistics
-    static SLuint totalDrawCalls; //! static total no. of draw calls
+    static SLuint totalDrawCalls;          //! static total no. of draw calls
+    static SLuint totalPrimitivesRendered; //! static total no. of primitives rendered
 
 protected:
     SLuint           _vaoID;              //! OpenGL id of vertex array object

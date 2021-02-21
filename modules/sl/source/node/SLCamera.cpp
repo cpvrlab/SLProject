@@ -43,7 +43,8 @@ SLCamera::SLCamera(const SLstring& name)
     _fogColorIsBack(true),
     _fbRect(0, 0, 640, 480),
     _background(SLGLProgramManager::get(SP_TextureOnly),
-                SLGLProgramManager::get(SP_colorAttribute))
+                SLGLProgramManager::get(SP_colorAttribute)),
+    _onCamUpdateCB(nullptr)
 {
     _fovInit       = 0;
     _viewportW     = 640;
@@ -75,8 +76,13 @@ SLCamera::~SLCamera()
 is called in every frame. It moves the camera after the key was released and
 smoothly stops the motion by decreasing the speed every frame.
 */
-SLbool SLCamera::camUpdate(SLfloat elapsedTimeMS)
+SLbool SLCamera::camUpdate(SLSceneView* sv, SLfloat elapsedTimeMS)
 {
+
+    // call option update callback
+    if (_onCamUpdateCB)
+        _onCamUpdateCB(sv);
+
     if (_velocity == SLVec3f::ZERO && _moveDir == SLVec3f::ZERO)
     {
         return false;
