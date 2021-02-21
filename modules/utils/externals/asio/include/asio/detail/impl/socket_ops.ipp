@@ -3456,7 +3456,7 @@ asio::error_code getnameinfo(const socket_addr_type* addr,
       host, hostlen, serv, servlen, flags, ec);
 #else
   clear_last_error();
-  int error = ::getnameinfo(addr, addrlen, host, hostlen, serv, servlen, flags);
+  int error = ::getnameinfo(addr,(socklen_t)addrlen, host, (socklen_t)hostlen, serv, (socklen_t)servlen, flags);
   return ec = translate_addrinfo_error(error);
 #endif
 }

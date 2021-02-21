@@ -265,7 +265,7 @@ int ftplib::readline(char* buf, int max, ftphandle* ctl)
                 x = net_read(ctl->handle, ctl->cput, ctl->cleft);
         }
 #else
-        x = net_read(ctl->handle, ctl->cput, ctl->cleft);
+        x = (int)net_read(ctl->handle, ctl->cput, ctl->cleft);
 #endif
         if (x == -1)
         {
@@ -317,7 +317,7 @@ int ftplib::writeline(char* buf, int len, ftphandle* nData)
                 else
                     w = net_write(nData->handle, nbp, FTPLIB_BUFSIZ);
 #else
-                w = net_write(nData->handle, nbp, FTPLIB_BUFSIZ);
+                w = (int)net_write(nData->handle, nbp, FTPLIB_BUFSIZ);
 #endif
                 if (w != FTPLIB_BUFSIZ)
                 {
@@ -338,7 +338,7 @@ int ftplib::writeline(char* buf, int len, ftphandle* nData)
             else
                 w = net_write(nData->handle, nbp, FTPLIB_BUFSIZ);
 #else
-            w = net_write(nData->handle, nbp, FTPLIB_BUFSIZ);
+            w = (int)net_write(nData->handle, nbp, FTPLIB_BUFSIZ);
 #endif
             if (w != FTPLIB_BUFSIZ)
             {
@@ -358,7 +358,7 @@ int ftplib::writeline(char* buf, int len, ftphandle* nData)
         else
             w = net_write(nData->handle, nbp, nb);
 #else
-        w = net_write(nData->handle, nbp, nb);
+        w = (int)net_write(nData->handle, nbp, nb);
 #endif
         if (w != nb)
         {
@@ -536,7 +536,7 @@ int ftplib::FtpSendCmd(const char* cmd, char expresp, ftphandle* nControl)
     else
         x = net_write(nControl->handle, buf, strlen(buf));
 #else
-    x = net_write(nControl->handle, buf, (int)strlen(buf));
+    x = (int)net_write(nControl->handle, buf, (int)strlen(buf));
 #endif
     if (x <= 0)
     {
@@ -950,7 +950,7 @@ int ftplib::FtpOpenPasv(ftphandle* nControl, ftphandle** nData, transfermode mod
     else
         ret = net_write(nControl->handle, cmd, strlen(cmd));
 #else
-    ret = net_write(nControl->handle, cmd, (int)strlen(cmd));
+    ret = (int)net_write(nControl->handle, cmd, (int)strlen(cmd));
 #endif
     if (ret <= 0)
     {
@@ -1051,7 +1051,7 @@ int ftplib::FtpRead(void* buf, int max, ftphandle* nData)
         else
             i = net_read(nData->handle, buf, max);
 #else
-        i = net_read(nData->handle, buf, max);
+        i = (int)net_read(nData->handle, buf, max);
 #endif
     }
     if (i == -1) return 0;
@@ -1087,7 +1087,7 @@ int ftplib::FtpWrite(void* buf, int len, ftphandle* nData)
         else
             i = net_write(nData->handle, buf, len);
 #else
-        i = net_write(nData->handle, buf, len);
+        i = (int)net_write(nData->handle, buf, len);
 #endif
     }
     if (i == -1) return 0;
