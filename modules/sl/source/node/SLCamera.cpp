@@ -28,7 +28,7 @@ SLCamera::SLCamera(const SLstring& name)
     _trackballSize(0.8f),
     _moveDir(0, 0, 0),
     _drag(0.05f),
-    _maxSpeed(2.0f),
+    _maxSpeed(0.0f),
     _velocity(0.0f, 0.0f, 0.0f),
     _acceleration(0, 0, 0),
     _brakeAccel(16.0f),
@@ -59,7 +59,7 @@ SLCamera::SLCamera(const SLstring& name)
 
     // depth of field parameters
     _lensDiameter = 0.3f;
-    _lensSamples.samples(1, 1); // e.g. 10,10 > 10x10=100 lenssamples
+    _lensSamples.samples(1, 1); // e.g. 10,10 > 10x10=100 lens samples
     _focalDist           = 5;
     _stereoEyeSeparation = _focalDist / 30.0f;
 
@@ -78,7 +78,6 @@ smoothly stops the motion by decreasing the speed every frame.
 */
 SLbool SLCamera::camUpdate(SLSceneView* sv, SLfloat elapsedTimeMS)
 {
-
     // call option update callback
     if (_onCamUpdateCB)
         _onCamUpdateCB(sv);
@@ -101,7 +100,7 @@ SLbool SLCamera::camUpdate(SLSceneView* sv, SLfloat elapsedTimeMS)
     {
         // x and z movement direction vector should be projected on the x,z plane while
         // but still in local space
-        // the y movement direction should alway be in world space
+        // the y movement direction should always be in world space
         SLVec3f f = forwardOS();
         f.y       = 0;
         f.normalize();
@@ -138,8 +137,9 @@ SLbool SLCamera::camUpdate(SLSceneView* sv, SLfloat elapsedTimeMS)
     velMag = _velocity.length();
 
     // don't go over max speed
-    if (velMag > _maxSpeed)
-        _velocity = _velocity.normalized() * _maxSpeed;
+    SLfloat maxSpeed = _maxSpeed > 0.0f ? _maxSpeed : _clipFar / 50.0f;
+    if (velMag > maxSpeed)
+        _velocity = _velocity.normalized() * maxSpeed;
 
     // final delta movement vector
     SLVec3f delta = _velocity * dtS;
@@ -385,7 +385,7 @@ SLVec2f SLCamera::frustumSizeAtDistance(SLfloat distance)
 
     frustumSize.y = 2.f * distance * std::tan(_fovV * 0.5f * DEG2RAD);
     frustumSize.x = frustumSize.y * _viewportRatio; //w / h
-    
+
     return frustumSize;
 }
 //-----------------------------------------------------------------------------
@@ -1393,12 +1393,12 @@ SLbool SLCamera::onKeyPress(const SLKey key, const SLKey mod)
     {
         case 'D': _moveDir.x += 1.0f; return true;
         case 'A': _moveDir.x -= 1.0f; return true;
-        case 'Q': _moveDir.y += 1.0f; return true;
-        case 'E': _moveDir.y -= 1.0f; return true;
+        case 'Q': _moveDir.y -= 1.0f; return true;
+        case 'E': _moveDir.y += 1.0f; return true;
         case 'S': _moveDir.z += 1.0f; return true;
         case 'W': _moveDir.z -= 1.0f; return true;
-        case (SLchar)K_up: _moveDir.z += 1.0f; return true;
-        case (SLchar)K_down: _moveDir.z -= 1.0f; return true;
+        case (SLchar)K_up: _moveDir.z -= 1.0f; return true;
+        case (SLchar)K_down: _moveDir.z += 1.0f; return true;
         case (SLchar)K_right: _moveDir.x += 1.0f; return true;
         case (SLchar)K_left: _moveDir.x -= 1.0f; return true;
 
@@ -1435,12 +1435,12 @@ SLbool SLCamera::onKeyRelease(const SLKey key, const SLKey mod)
     {
         case 'D': _moveDir.x -= 1.0f; return true;
         case 'A': _moveDir.x += 1.0f; return true;
-        case 'Q': _moveDir.y -= 1.0f; return true;
-        case 'E': _moveDir.y += 1.0f; return true;
+        case 'Q': _moveDir.y += 1.0f; return true;
+        case 'E': _moveDir.y -= 1.0f; return true;
         case 'S': _moveDir.z -= 1.0f; return true;
         case 'W': _moveDir.z += 1.0f; return true;
-        case (SLchar)K_up: _moveDir.z -= 1.0f; return true;
-        case (SLchar)K_down: _moveDir.z += 1.0f; return true;
+        case (SLchar)K_up: _moveDir.z += 1.0f; return true;
+        case (SLchar)K_down: _moveDir.z -= 1.0f; return true;
         case (SLchar)K_right: _moveDir.x -= 1.0f; return true;
         case (SLchar)K_left: _moveDir.x += 1.0f; return true;
     }
