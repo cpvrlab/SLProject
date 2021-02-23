@@ -32,8 +32,10 @@ void WAICompassAlignment::update(const cv::Mat& frameGray,
 
     std::cout << "maxLoc: " << maxLoc << std::endl;
 
-    cv::Point imCenter       = cv::Point(frameGray.cols * 0.5f, frameGray.rows * 0.5f);
-    cv::Point tplCenter      = cv::Point(_template.image.cols * 0.5f, _template.image.rows * 0.5f);
+    cv::Point imCenter       = cv::Point((int)(frameGray.cols * 0.5f),
+                                   (int)(frameGray.rows * 0.5f));
+    cv::Point tplCenter      = cv::Point((int)(_template.image.cols * 0.5f),
+                                    (int)(_template.image.rows * 0.5f));
     cv::Point tplMatchCenter = maxLoc + tplCenter;
 
     cv::Point offset = tplMatchCenter - imCenter;
@@ -46,10 +48,11 @@ void WAICompassAlignment::update(const cv::Mat& frameGray,
     float angleCenterTemplateDegH = offset.x * degPerPixelH;
 
     // TODO(dgj1): actually calculate this
-    cv::Point vecCurTpl = cv::Point(_template.latitudeDEG - latitudeDEG, _template.longitudeDEG - longitudeDEG);
+    cv::Point vecCurTpl = cv::Point((int)(_template.latitudeDEG - latitudeDEG),
+                                    (int)(_template.longitudeDEG - longitudeDEG));
     vecCurTpl /= cv::norm(vecCurTpl);
     vecCurForward /= cv::norm(vecCurForward);
-    float angleGPSTemplateDegH = vecCurTpl.dot(vecCurForward);
+    float angleGPSTemplateDegH = (float)vecCurTpl.dot(vecCurForward);
 
     _rotAngDEG = angleGPSTemplateDegH - angleCenterTemplateDegH;
 }

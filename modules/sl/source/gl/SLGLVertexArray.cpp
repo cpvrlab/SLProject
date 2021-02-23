@@ -15,7 +15,8 @@
 #include <SLScene.h>
 
 //-----------------------------------------------------------------------------
-SLuint SLGLVertexArray::totalDrawCalls = 0;
+SLuint SLGLVertexArray::totalDrawCalls          = 0;
+SLuint SLGLVertexArray::totalPrimitivesRendered = 0;
 //-----------------------------------------------------------------------------
 /*! Constructor initializing with default values
 */
@@ -266,6 +267,19 @@ void SLGLVertexArray::drawElementsAs(SLGLPrimitiveType primitiveType,
 
     GET_GL_ERROR;
     totalDrawCalls++;
+    switch (primitiveType)
+    {
+        case PT_triangles:
+            totalPrimitivesRendered += (numIndexes / 3);
+            break;
+        case PT_lines:
+            totalPrimitivesRendered += (numIndexes / 2);
+            break;
+        case PT_points:
+            totalPrimitivesRendered += numIndexes;
+            break;
+        default: break;
+    }
 
     glBindVertexArray(0);
     GET_GL_ERROR;
@@ -289,7 +303,22 @@ void SLGLVertexArray::drawArrayAs(SLGLPrimitiveType primitiveType,
     glDrawArrays(primitiveType, firstVertex, countVertices);
     ////////////////////////////////////////////////////////
 
+    // Update statistics
     totalDrawCalls++;
+    SLint numVertices = countVertices - firstVertex;
+    switch (primitiveType)
+    {
+        case PT_triangles:
+            totalPrimitivesRendered += (numVertices / 3);
+            break;
+        case PT_lines:
+            totalPrimitivesRendered += (numVertices / 2);
+            break;
+        case PT_points:
+            totalPrimitivesRendered += numVertices;
+            break;
+        default: break;
+    }
 
     glBindVertexArray(0);
 
@@ -323,9 +352,9 @@ void SLGLVertexArray::drawEdges(SLCol4f color,
         glLineWidth(lineWidth);
 #endif
 
-    ////////////////////////////////
+    //////////////////////////////////////////////////////////////////
     drawElementsAs(PT_lines, _numIndicesEdges, _numIndicesElements);
-    ////////////////////////////////
+    //////////////////////////////////////////////////////////////////
 
 #ifndef SL_GLES
     if (lineWidth != 1.0f)

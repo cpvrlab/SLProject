@@ -474,9 +474,6 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->clipFar(30);
         cam1->translation(0, 0, 12);
         cam1->lookAt(0, 0, 0);
-        cam1->maxSpeed(20);
-        cam1->moveAccel(160);
-        cam1->brakeAccel(160);
         cam1->focalDist(12);
         cam1->stereoEyeSeparation(cam1->focalDist() / 30.0f);
         cam1->background().colors(SLCol4f(0.6f, 0.6f, 0.6f), SLCol4f(0.3f, 0.3f, 0.3f));
@@ -3718,21 +3715,21 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLApplication::devLoc.sunLightNode(sunLight); // Let the sun be rotated by time and location
 
         SLAssimpImporter importer;
-        SLNode*          TheaterAndTempel = importer.load(s->animManager(),
-                                                 s,
-                                                 SLApplication::dataPath + "erleb-AR/models/augst/Tempel-Theater-02.gltf",
-                                                 SLApplication::texturePath,
-                                                 true,    // delete tex images after build
-                                                 true,    // only meshes
-                                                 nullptr, // no replacement material
-                                                 0.4f);   // 40% ambient reflection
+        SLNode*          thtAndTmp = importer.load(s->animManager(),
+                                          s,
+                                          SLApplication::dataPath + "erleb-AR/models/augst/Tempel-Theater-02.gltf",
+                                          SLApplication::texturePath,
+                                          true,    // delete tex images after build
+                                          true,    // only meshes
+                                          nullptr, // no replacement material
+                                          0.4f);   // 40% ambient reflection
 
         // Rotate to the true geographic rotation
-        TheaterAndTempel->rotate(16.7f, 0, 1, 0, TS_parent);
+        thtAndTmp->rotate(16.7f, 0, 1, 0, TS_parent);
 
         // Let the video shine through on some objects
-        TheaterAndTempel->findChild<SLNode>("Tmp-Boden")->setMeshMat(matVideoBackgroundSM, true);
-        TheaterAndTempel->findChild<SLNode>("Tht-Boden")->setMeshMat(matVideoBackgroundSM, true);
+        thtAndTmp->findChild<SLNode>("Tmp-Boden")->setMeshMat(matVideoBackgroundSM, true);
+        thtAndTmp->findChild<SLNode>("Tht-Boden")->setMeshMat(matVideoBackgroundSM, true);
 
         // Add axis object a world origin
         SLNode* axis = new SLNode(new SLCoordAxis(s), "Axis Node");
@@ -3741,11 +3738,11 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         axis->castsShadows(false);
 
         // Set some ambient light
-        TheaterAndTempel->updateMeshMat([](SLMaterial* m) { m->ambient(SLCol4f(.25f, .23f, .15f)); }, true);
+        thtAndTmp->updateMeshMat([](SLMaterial* m) { m->ambient(SLCol4f(.25f, .23f, .15f)); }, true);
         SLNode* scene = new SLNode("Scene");
         scene->addChild(sunLight);
         scene->addChild(axis);
-        scene->addChild(TheaterAndTempel);
+        scene->addChild(thtAndTmp);
         scene->addChild(cam1);
 
         //initialize sensor stuff
@@ -3785,6 +3782,10 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->name("Augusta Raurica AR with Ambient Occlusion");
         s->info(s->name());
 
+        string shdDir = SLApplication::shaderPath;
+        string texDir = SLApplication::texturePath;
+        string datDir = SLApplication::dataPath + "erleb-AR/models/augst/";
+
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0, 50, -150);
         cam1->lookAt(0, 0, 0);
@@ -3794,14 +3795,14 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
 
         // Create video texture and turn on live video
-        videoTexture = new SLGLTexture(s, SLApplication::texturePath + "LiveVideoError.png", GL_LINEAR, GL_LINEAR);
+        videoTexture = new SLGLTexture(s, texDir + "LiveVideoError.png", GL_LINEAR, GL_LINEAR);
         cam1->background().texture(videoTexture);
         CVCapture::instance()->videoType(VT_MAIN);
 
         // Define shader that shows on all pixels the video background
         SLGLProgram* spVideoBackground  = new SLGLProgramGeneric(s,
-                                                                SLApplication::shaderPath + "PerPixTmBackground.vert",
-                                                                SLApplication::shaderPath + "PerPixTmBackground.frag");
+                                                                shdDir + "PerPixTmBackground.vert",
+                                                                shdDir + "PerPixTmBackground.frag");
         SLMaterial*  matVideoBackground = new SLMaterial(s,
                                                         "matVideoBackground",
                                                         videoTexture,
@@ -3812,10 +3813,10 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Define shader that shows on all pixels the video background with shadow mapping
         SLGLProgram* spVideoBackgroundSM  = new SLGLProgramGeneric(s,
-                                                                  SLApplication::shaderPath + "PerPixTmBackgroundSm.vert",
-                                                                  SLApplication::shaderPath + "PerPixTmBackgroundSm.frag");
+                                                                  shdDir + "PerPixTmBackgroundSm.vert",
+                                                                  shdDir + "PerPixTmBackgroundSm.frag");
         SLMaterial*  matVideoBackgroundSM = new SLMaterial(s,
-                                                          "matVideoBackground",
+                                                          "matVideoBackgroundSM",
                                                           videoTexture,
                                                           nullptr,
                                                           nullptr,
@@ -3836,26 +3837,33 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sunLight->castsShadows(false);
         SLApplication::devLoc.sunLightNode(sunLight); // Let the sun be rotated by time and location
 
-        SLAssimpImporter importer;
-        SLNode*          TheaterAndTempel = importer.load(s->animManager(),
-                                                 s,
-                                                 SLApplication::dataPath + "erleb-AR/models/augst/Tempel-Theater-03.gltf",
-                                                 SLApplication::texturePath,
-                                                 true,    // delete tex images after build
-                                                 true,    // only meshes
-                                                 nullptr, // no replacement material
-                                                 0.4f);   // 40% ambient reflection
+        // Load main model
+        SLAssimpImporter importer; //(LV_diagnostic);
+        SLNode*          thtAndTmp = importer.load(s->animManager(),
+                                          s,
+                                          datDir + "Tempel-Theater-03.gltf",
+                                          texDir,
+                                          true,    // delete tex images after build
+                                          true,    // only meshes
+                                          nullptr, // no replacement material
+                                          0.4f);   // 40% ambient reflection
 
         // Rotate to the true geographic rotation
-        TheaterAndTempel->rotate(16.7f, 0, 1, 0, TS_parent);
+        thtAndTmp->rotate(16.7f, 0, 1, 0, TS_parent);
 
-        // Let the video shine through on some objects
-        SLNode* tmpFloor = TheaterAndTempel->findChild<SLNode>("TmpFloor");
+        // Let the video shine through on some objects without shadow mapping
+        SLNode* tmpUnderground = thtAndTmp->findChild<SLNode>("TmpUnderground");
+        if (tmpUnderground) tmpUnderground->setMeshMat(matVideoBackground, true);
+        SLNode* thtUnderground = thtAndTmp->findChild<SLNode>("ThtUnderground");
+        if (thtUnderground) thtUnderground->setMeshMat(matVideoBackground, true);
+
+        // Let the video shine through on some objects with shadow mapping
+        SLNode* tmpFloor = thtAndTmp->findChild<SLNode>("TmpFloor");
         if (tmpFloor) tmpFloor->setMeshMat(matVideoBackgroundSM, true);
-        SLNode* terrain = TheaterAndTempel->findChild<SLNode>("Terrain");
+        SLNode* terrain = thtAndTmp->findChild<SLNode>("Terrain");
         if (terrain) terrain->setMeshMat(matVideoBackgroundSM, true);
-        SLNode* floorInbetween = TheaterAndTempel->findChild<SLNode>("TerrainBetweenTmpAndTht");
-        if (floorInbetween) floorInbetween->setMeshMat(matVideoBackgroundSM, true);
+        SLNode* thtFrontTerrain = thtAndTmp->findChild<SLNode>("ThtFrontTerrain");
+        if (thtFrontTerrain) thtFrontTerrain->setMeshMat(matVideoBackgroundSM, true);
 
         // Add axis object a world origin
         SLNode* axis = new SLNode(new SLCoordAxis(s), "Axis Node");
@@ -3864,11 +3872,11 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         axis->castsShadows(false);
 
         // Set some ambient light
-        TheaterAndTempel->updateMeshMat([](SLMaterial* m) { m->ambient(SLCol4f(.25f, .23f, .15f)); }, true);
+        thtAndTmp->updateMeshMat([](SLMaterial* m) { m->ambient(SLCol4f(.25f, .23f, .15f)); }, true);
         SLNode* scene = new SLNode("Scene");
         scene->addChild(sunLight);
         scene->addChild(axis);
-        scene->addChild(TheaterAndTempel);
+        scene->addChild(thtAndTmp);
         scene->addChild(cam1);
 
         //initialize sensor stuff
@@ -3880,8 +3888,44 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLApplication::devLoc.hasOrigin(true);
         SLApplication::devRot.zeroYawAtStart(false); // Use the real yaw from the IMU
 
+        // Level of Detail switch for Temple and Theater
+        SLNode* tmpAltar = thtAndTmp->findChild<SLNode>("TmpAltar");
+        SLNode* tmpL1    = thtAndTmp->findChild<SLNode>("Tmp-L1");
+        SLNode* tmpL2    = thtAndTmp->findChild<SLNode>("Tmp-L2");
+        SLNode* thtL1    = thtAndTmp->findChild<SLNode>("Tht-L1");
+        SLNode* thtL2    = thtAndTmp->findChild<SLNode>("Tht-L2");
+        thtL1->drawBits()->set(SL_DB_HIDDEN, false);
+        thtL2->drawBits()->set(SL_DB_HIDDEN, true);
+        tmpL1->drawBits()->set(SL_DB_HIDDEN, false);
+        tmpL2->drawBits()->set(SL_DB_HIDDEN, true);
+
+        // Add level of detail switch callback lambda
+        cam1->onCamUpdateCB([=](SLSceneView* sv) {
+            SLVec3f posCam     = sv->camera()->updateAndGetWM().translation();
+            SLVec3f posAlt     = tmpAltar->updateAndGetWM().translation();
+            SLVec3f distCamAlt = posCam - posAlt;
+            float   tmpDist    = distCamAlt.length();
+            float   thtDist    = posCam.length();
+
+            //If the temple is closer than the theater activate level 1 and deactivate level 2
+            if (tmpDist < thtDist)
+            {
+                thtL1->drawBits()->set(SL_DB_HIDDEN, true);
+                thtL2->drawBits()->set(SL_DB_HIDDEN, false);
+                tmpL1->drawBits()->set(SL_DB_HIDDEN, false);
+                tmpL2->drawBits()->set(SL_DB_HIDDEN, true);
+            }
+            else
+            {
+                thtL1->drawBits()->set(SL_DB_HIDDEN, false);
+                thtL2->drawBits()->set(SL_DB_HIDDEN, true);
+                tmpL1->drawBits()->set(SL_DB_HIDDEN, true);
+                tmpL2->drawBits()->set(SL_DB_HIDDEN, false);
+            }
+        });
+
         // This loads the DEM file and overwrites the altitude of originLatLonAlt and defaultLatLonAlt
-        SLstring tif = SLApplication::dataPath + "erleb-AR/models/augst/DTM-Theater-Tempel-WGS84.tif";
+        SLstring tif = datDir + "DTM-Theater-Tempel-WGS84.tif";
         SLApplication::devLoc.loadGeoTiff(tif);
 
 #if defined(SL_OS_MACIOS) || defined(SL_OS_ANDROID)
@@ -4144,7 +4188,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         CVCapture::instance()->videoType(VT_MAIN);
 
         // Create directional light for the sun light
-        SLLightDirect* sunLight = new SLLightDirect(s, s, 5.0f);
+        SLLightDirect* sunLight = new SLLightDirect(s, s, 1.0f);
         sunLight->powers(1.0f, 1.5f, 1.0f);
         sunLight->attenuation(1, 0, 0);
         sunLight->translation(0, 10, 0);
