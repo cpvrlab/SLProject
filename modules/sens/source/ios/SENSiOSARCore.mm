@@ -12,17 +12,6 @@ bool SENSiOSARCore::init()
         return false;
 
     [_arcoreDelegate initARKit];
-    
-    //resume();
-    //update until we have a valid frame
-    //cv::Mat pose;
-    //do
-    //{
-    //    update(pose);
-    //}
-    //while (!_frame);
-    
-    //pause();
 
     return true;
 }
@@ -70,10 +59,6 @@ bool SENSiOSARCore::update(cv::Mat& pose)
 
     if (!imgBGR.empty())
     {
-        //update the internal frame
-        //std::lock_guard<std::mutex> lock(_frameMutex);
-        //_frame = std::make_unique<SENSFrameBase>(SENSClock::now(), imgBGR, intrinsic);
-        
         updateFrame(imgBGR, intrinsic, true);
     }
     else
@@ -143,8 +128,6 @@ const SENSCameraConfig& SENSiOSARCore::start(std::string    deviceId,
     const SENSCameraDeviceProperties* props  = _captureProperties.camPropsForDeviceId(deviceId);
     if (props)
         facing = props->facing();
-
-    NSString* devId = [NSString stringWithUTF8String:deviceId.c_str()];
 
     //init config here before processStart
     _config = SENSCameraConfig(deviceId,

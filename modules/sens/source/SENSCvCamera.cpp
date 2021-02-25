@@ -131,7 +131,8 @@ SENSCvCamera::ConfigReturnCode SENSCvCamera::configure(SENSCameraFacing facing,
     //search for best matching stream config
     int   trackingImgW = 640;
     float searchWdivH;
-    if (((float)targetWidth / (float)targetHeight) >
+    if (manipWidth > 0 && manipHeight > 0 &&
+        ((float)targetWidth / (float)targetHeight) >
         ((float)manipWidth / (float)manipHeight))
         searchWdivH = (float)manipWidth / (float)manipHeight;
     else

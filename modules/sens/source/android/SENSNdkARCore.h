@@ -27,6 +27,14 @@ public:
     //int getCameraOpenGLTexture();
     int getPointCloud(float** mapPoints, float confidanceValue);
 
+    const SENSCameraConfig& start(std::string                   deviceId,
+                                  const SENSCameraStreamConfig& streamConfig,
+                                  bool                          provideIntrinsics) override;
+    //from camera (does nothing in this case, because we have no image callbacks but we update arcore and the frame actively
+    void stop() override { _started = false; };
+
+    const SENSCaptureProperties& captureProperties() override;
+
 private:
     ANativeActivity* _activity  = nullptr;
     ArSession*       _arSession = nullptr;
@@ -39,7 +47,9 @@ private:
     void    checkAvailability(JNIEnv* env, jobject context);
     void    initCameraTexture();
     cv::Mat convertToYuv(ArImage* arImage);
-    void    updateFrame(cv::Mat& intrinsics);
+    void    updateCamera(cv::Mat& intrinsics);
+
+    void retrieveCaptureProperties();
 };
 
 #endif
