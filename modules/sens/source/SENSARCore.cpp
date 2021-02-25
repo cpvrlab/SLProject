@@ -5,6 +5,7 @@
 #include <SENSARCore.h>
 #include <SENSUtils.h>
 
+/*
 void SENSARCore::configure(int  targetWidth,
                            int  targetHeight,
                            int  manipWidth,
@@ -17,8 +18,10 @@ void SENSARCore::configure(int  targetWidth,
     _config.manipHeight        = manipHeight;
     _config.convertManipToGray = convertManipToGray;
 }
+ *
 
-SENSFramePtr SENSARCore::latestFrame()
+/*
+SENSFrameBasePtr SENSARCore::latestFrame()
 {
     SENSFrameBasePtr frameBase;
     {
@@ -55,7 +58,9 @@ SENSFramePtr SENSARCore::latestFrame()
 
     return latestFrame;
 }
+ */
 
+/*
 SENSFramePtr SENSARCore::processNewFrame(const SENSTimePt& timePt, cv::Mat& bgrImg, cv::Mat intrinsics)
 {
     //todo: accessing config readonly should be no problem  here, as the config only changes when camera is stopped
@@ -94,3 +99,4 @@ SENSFramePtr SENSARCore::processNewFrame(const SENSTimePt& timePt, cv::Mat& bgrI
 
     return sensFrame;
 }
+ */

@@ -68,44 +68,54 @@ void SENSNdkARCore::initCameraTexture()
     glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 }
 
-bool SENSNdkARCore::init(int w, int h, int manipW, int manipH, bool convertManipToGray)
+bool SENSNdkARCore::init()
 {
     if (!_available)
         return false;
     if (_arSession != nullptr)
         reset();
 
-    configure(w, h, manipW, manipH, convertManipToGray);
+    //configure(w, h, manipW, manipH, convertManipToGray);
     JNIEnv* env;
     _activity->vm->GetEnv((void**)&env, JNI_VERSION_1_6);
-    _activity->vm->AttachCurrentThread(&env, NULL);
-    jobject activityObj = env->NewGlobalRef(_activity->clazz);
+    jint result = _activity->vm->AttachCurrentThread(&env, NULL);
+    if (result == JNI_ERR)
+    {
+        Utils::log("SENSNdkARCore", "error");
+    }
+    //jobject activityObj = env->NewGlobalRef(_activity->clazz);
+    jobject activityObj = _activity->clazz;
 
-    ArInstallStatus install_status;
-    ArCoreApk_requestInstall(env, activityObj, false, &install_status);
+    //ArInstallStatus install_status;
+    //ArCoreApk_requestInstall(env, activityObj, false, &install_status);
 
+    /*
     if (install_status == AR_AVAILABILITY_SUPPORTED_NOT_INSTALLED)
     {
-        env->DeleteGlobalRef(activityObj);
+        //env->DeleteGlobalRef(activityObj);
         _activity->vm->DetachCurrentThread();
         return false;
     }
+     */
 
     if (ArSession_create(env, activityObj, &_arSession) != AR_SUCCESS)
     {
-        env->DeleteGlobalRef(activityObj);
+        //env->DeleteGlobalRef(activityObj);
         _activity->vm->DetachCurrentThread();
         return false;
     }
+
+    _activity->vm->DetachCurrentThread();
 
     if (!_arSession)
     {
-        env->DeleteGlobalRef(activityObj);
+        //env->DeleteGlobalRef(activityObj);
         _activity->vm->DetachCurrentThread();
         return false;
     }
 
-    ArSession_setDisplayGeometry(_arSession, 0, _config.targetWidth, _config.targetHeight);
+    //todo: what do we have to set here? the display size? is it needed at all for our case?
+    //ArSession_setDisplayGeometry(_arSession, 0, _config.targetWidth, _config.targetHeight);
 
     // ----- config -----
     ArConfig* arConfig = nullptr;
@@ -115,7 +125,7 @@ bool SENSNdkARCore::init(int w, int h, int manipW, int manipH, bool convertManip
     {
         ArSession_destroy(_arSession);
         _arSession = nullptr;
-        env->DeleteGlobalRef(activityObj);
+        //env->DeleteGlobalRef(activityObj);
         _activity->vm->DetachCurrentThread();
         return false;
     }
@@ -134,7 +144,7 @@ bool SENSNdkARCore::init(int w, int h, int manipW, int manipH, bool convertManip
         ArConfig_destroy(arConfig);
         ArSession_destroy(_arSession);
         _arSession = nullptr;
-        env->DeleteGlobalRef(activityObj);
+        //env->DeleteGlobalRef(activityObj);
         _activity->vm->DetachCurrentThread();
         return false;
     }
@@ -161,13 +171,13 @@ bool SENSNdkARCore::init(int w, int h, int manipW, int manipH, bool convertManip
     {
         ArSession_destroy(_arSession);
         _arSession = nullptr;
-        env->DeleteGlobalRef(activityObj);
+        //env->DeleteGlobalRef(activityObj);
         _activity->vm->DetachCurrentThread();
         return false;
     }
 
-    env->DeleteGlobalRef(activityObj);
-    _activity->vm->DetachCurrentThread();
+    //env->DeleteGlobalRef(activityObj);
+    //_activity->vm->DetachCurrentThread();
 
     pause();
     return true;
@@ -373,5 +383,6 @@ void SENSNdkARCore::pause()
 {
     _pause = true;
     if (_arSession != nullptr)
-        ArSession_pause(_arSession);
+        if( AR_SUCCESS == ArSession_pause(_arSession))
+            Utils::log("SENSNdkARCore", "success");
 }

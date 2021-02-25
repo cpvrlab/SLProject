@@ -14,7 +14,7 @@ public:
     SENSNdkARCore(ANativeActivity* activity);
     ~SENSNdkARCore();
 
-    bool init(int targetWidth, int targetHeight, int manipWidth, int manipHeight, bool convertManipToGray) override;
+    bool init() override;
     bool isReady() override { return _arSession != nullptr; }
     bool resume() override;
     void reset() override;

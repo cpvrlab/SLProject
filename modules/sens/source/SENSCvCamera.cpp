@@ -69,8 +69,11 @@ void SENSCvCamera::guessAndSetCalibration(float fovDegFallbackGuess)
         _calibration->adaptForNewResolution({_config->targetWidth, _config->targetHeight}, false);
 
     //update second calibration
-    _calibrationManip = std::make_unique<SENSCalibration>(*_calibration);
-    _calibrationManip->adaptForNewResolution(cv::Size(_config->manipWidth, _config->manipHeight), false);
+    if(_config->manipWidth > 0 && _config->manipHeight > 0)
+    {
+        _calibrationManip = std::make_unique<SENSCalibration>(*_calibration);
+        _calibrationManip->adaptForNewResolution(cv::Size(_config->manipWidth, _config->manipHeight), false);
+    }
 }
 
 SENSCvCamera::SENSCvCamera(SENSCamera* camera)
@@ -111,8 +114,12 @@ SENSCvCamera::ConfigReturnCode SENSCvCamera::configure(SENSCameraFacing facing,
     if (!_camera)
         return ERROR_CAMERA_INVALID;
 
+    bool cameraWasStarted = false;
     if (_camera->started())
-        return ERROR_CAMERA_IS_RUNNING;
+    {
+        _camera->stop();
+        cameraWasStarted = true;
+    }
 
     const SENSCaptureProperties& props = _camera->captureProperties();
     //check if facing is available
@@ -162,6 +169,9 @@ SENSCvCamera::ConfigReturnCode SENSCvCamera::configure(SENSCameraFacing facing,
     if (!_calibrationOverwrite)
         guessAndSetCalibration(65.f);
 
+    if(cameraWasStarted)
+        _camera->start(bestConfig.first->deviceId(), *bestConfig.second);
+        
     return returnCode;
 }
 
@@ -223,8 +233,11 @@ SENSFramePtr SENSCvCamera::latestFrame()
             _calibration->adaptForNewResolution({_config->targetWidth, _config->targetHeight}, false);
 
         //update second calibration
-        _calibrationManip = std::make_unique<SENSCalibration>(*_calibration);
-        _calibrationManip->adaptForNewResolution(cv::Size(_config->manipWidth, _config->manipHeight), false);
+        if(_config->manipWidth > 0 && _config->manipHeight > 0)
+        {
+            _calibrationManip = std::make_unique<SENSCalibration>(*_calibration);
+            _calibrationManip->adaptForNewResolution(cv::Size(_config->manipWidth, _config->manipHeight), false);
+        }
 
         SENS_DEBUG("calib update duration %f", t.elapsedTimeInMilliSec());
     }
@@ -250,6 +263,9 @@ void SENSCvCamera::setCalibration(const SENSCalibration& calibration, bool build
     _calibration->adaptForNewResolution(cv::Size(_config->targetWidth, _config->targetHeight), buildUndistortionMaps);
 
     //update second calibration
-    _calibrationManip = std::make_unique<SENSCalibration>(*_calibrationOverwrite);
-    _calibrationManip->adaptForNewResolution(cv::Size(_config->manipWidth, _config->manipHeight), buildUndistortionMaps);
+    if(_config->manipWidth > 0 && _config->manipHeight > 0)
+    {
+        _calibrationManip = std::make_unique<SENSCalibration>(*_calibrationOverwrite);
+        _calibrationManip->adaptForNewResolution(cv::Size(_config->manipWidth, _config->manipHeight), buildUndistortionMaps);
+    }
 }

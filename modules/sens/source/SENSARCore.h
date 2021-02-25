@@ -11,10 +11,12 @@
 
 #include <SENSFrame.h>
 #include <SENSCalibration.h>
+#include <SENSCamera.h>
 
-class SENSARCore
+class SENSARCore : public SENSCameraBase
 {
 public:
+    /*
     struct Config
     {
         //! largest target image width (only BGR)
@@ -28,10 +30,11 @@ public:
         //! provide gray version of small image
         bool convertManipToGray;
     };
+     */
 
     SENSARCore() {}
     virtual ~SENSARCore() {}
-    virtual bool init(int targetWidth, int targetHeight, int manipWidth, int manipHeight, bool convertManipToGray) = 0;
+    virtual bool init() = 0;
     virtual bool isReady()                                                                                         = 0;
     virtual bool resume()                                                                                          = 0;
     virtual void reset()                                                                                           = 0;
@@ -41,26 +44,28 @@ public:
     virtual void lightComponentIntensity(float * components) { }
 
     //! Get the latest camera frame. You have to call update() first to get a new frame.
-    SENSFramePtr latestFrame();
+    //SENSFramePtr latestFrame();
     bool         isAvailable() { return _available; };
     bool         isRunning() { return !_pause; }
 
-    const SENSCalibration* const calibration() const { return _calibration.get(); }
-    const SENSCalibration* const calibrationManip() const { return _calibrationManip.get(); }
+    //const SENSCalibration* const calibration() const { return _calibration.get(); }
+    //const SENSCalibration* const calibrationManip() const { return _calibrationManip.get(); }
 
 protected:
-    SENSFramePtr processNewFrame(const SENSTimePt& timePt, cv::Mat& bgrImg, cv::Mat intrinsics);
+    //SENSFramePtr processNewFrame(const SENSTimePt& timePt, cv::Mat& bgrImg, cv::Mat intrinsics);
 
+    /*
     void configure(int  targetWidth,
                    int  targetHeight,
                    int  manipWidth,
                    int  manipHeight,
                    bool convertManipToGray);
+     */
 
     bool             _running = false;
     std::mutex       _frameMutex;
-    SENSFrameBasePtr _frame;
-    Config           _config;
+    //SENSFrameBasePtr _frame;
+    //Config           _config;
 
     bool _available = false;
     bool _pause     = true;
@@ -68,9 +73,9 @@ protected:
     int _inputFrameW = 0;
     int _inputFrameH = 0;
     //! The calibration is used for computer vision applications. This calibration is adjusted to fit to the original sized image (see SENSFrame::imgBGR and SENSCameraConfig::targetWidth, targetHeight)
-    std::unique_ptr<SENSCalibration> _calibration;
+    //std::unique_ptr<SENSCalibration> _calibration;
     //calibration that fits to (targetWidth,targetHeight)
-    std::unique_ptr<SENSCalibration> _calibrationManip;
+    //std::unique_ptr<SENSCalibration> _calibrationManip;
 
 private:
 };

@@ -221,6 +221,7 @@ protected:
     //! flags if camera was started
     std::atomic<bool> _started{false};
 
+    //indicates what is currently running
     SENSCameraConfig _config;
 
     std::atomic<bool> _permissionGranted{false};
