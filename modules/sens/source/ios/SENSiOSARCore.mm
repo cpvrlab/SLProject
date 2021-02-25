@@ -30,6 +30,7 @@ bool SENSiOSARCore::resume()
     if (success)
     {
         _pause = false;
+        _started = true; //for SENSCameraBase
     }
 
     return success;
@@ -47,6 +48,7 @@ void SENSiOSARCore::pause()
         [_arcoreDelegate pause];
     
     _pause = true;
+    _started = false; //for SENSCameraBase
 }
 
 bool SENSiOSARCore::update(cv::Mat& pose)

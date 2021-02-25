@@ -367,7 +367,10 @@ bool SENSNdkARCore::resume()
     {
         const ArStatus status = ArSession_resume(_arSession);
         if (status == AR_SUCCESS)
+        {
             _pause = false;
+            _started = true; //for SENSCameraBase
+        }
     }
     return !_pause;
 }
@@ -375,6 +378,7 @@ bool SENSNdkARCore::resume()
 void SENSNdkARCore::pause()
 {
     _pause = true;
+    _started = false; //for SENSCameraBase
     if (_arSession != nullptr)
         if( AR_SUCCESS == ArSession_pause(_arSession))
             Utils::log("SENSNdkARCore", "success");
