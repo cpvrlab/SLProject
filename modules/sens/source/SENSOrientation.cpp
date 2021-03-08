@@ -4,7 +4,7 @@
 #include <algorithm>
 #include <fstream>
 
-SENSOrientation::Quat SENSOrientation::getOrientation()
+SENSOrientation::Quat SENSOrientation::getOrientation() const
 {
     const std::lock_guard<std::mutex> lock(_orientationMutex);
     return _orientation;

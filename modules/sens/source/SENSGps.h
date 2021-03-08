@@ -26,7 +26,7 @@ public:
     virtual bool start() = 0;
     virtual void stop()  = 0;
 
-    Location getLocation();
+    Location getLocation() const;
 
     bool isRunning() { return _running; }
 
@@ -44,7 +44,7 @@ protected:
 private:
     SENSTimePt _timePt;
     Location   _location;
-    std::mutex _llaMutex;
+    mutable std::mutex _llaMutex;
 
     std::vector<SENSGpsListener*> _listeners;
     std::mutex                    _listenerMutex;

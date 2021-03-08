@@ -73,7 +73,7 @@ public:
     virtual bool start() = 0;
     virtual void stop()  = 0;
 
-    Quat getOrientation();
+    Quat getOrientation() const;
 
     bool isRunning() { return _running; }
 
@@ -88,7 +88,7 @@ protected:
 private:
     SENSTimePt _timePt;
     Quat       _orientation;
-    std::mutex _orientationMutex;
+    mutable std::mutex _orientationMutex;
 
     std::vector<SENSOrientationListener*> _listeners;
     std::mutex                            _listenerMutex;

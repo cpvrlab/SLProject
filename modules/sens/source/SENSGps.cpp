@@ -2,7 +2,7 @@
 #include <Utils.h>
 #include <algorithm>
 
-SENSGps::Location SENSGps::getLocation()
+SENSGps::Location SENSGps::getLocation() const
 {
     const std::lock_guard<std::mutex> lock(_llaMutex);
     return _location;
