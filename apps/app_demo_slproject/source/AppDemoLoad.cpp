@@ -3521,7 +3521,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->drawBits()->on(SL_DB_ONLYEDGES);
         s->root3D(scene);
     }
-    else if (sceneID == SID_ErlebARChristoffel2) //.................................................
+    else if (sceneID == SID_ErlebARChristoffel2) //................................................
     {
         s->name("Christoffel Tower AR V2");
         s->info("Augmented Reality Christoffel Tower V2");
@@ -3658,7 +3658,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(cam1);
         s->root3D(scene);
     }
-    else if (sceneID == SID_ErlebARChristoffel3) //.................................................
+    else if (sceneID == SID_ErlebARChristoffel3) //................................................
     {
         s->name("Christoffel Tower AR V3");
         s->info("Augmented Reality Christoffel Tower V3");
@@ -3739,6 +3739,10 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         bern->findChild<SLNode>("Baldachin-Glas")->setMeshMat(matVideoBackgroundSM, true);
         bern->findChild<SLNode>("Boden")->setMeshMat(matVideoBackgroundSM, true);
 
+
+        // Hide the new (last) version of the Christoffel tower
+        bern->findChild<SLNode>("Chr-Neu")->drawBits()->set(SL_DB_HIDDEN, true);
+
         // Set ambient on all child nodes
         bern->updateMeshMat([](SLMaterial* m) {
             if (m->name() != "Kupfer-dunkel")
@@ -3751,6 +3755,16 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         axis->setDrawBitsRec(SL_DB_MESHWIRED, false);
         axis->rotate(-90, 1, 0, 0);
         axis->castsShadows(false);
+
+        // Bridge rotation animation
+        SLNode* bridge = bern->findChild<SLNode>("Chr-Alt-Tor");
+        SLAnimation* bridgeAnim = s->animManager().createNodeAnimation("Gate animation", 8.0f, true, EC_inOutQuint, AL_pingPongLoop);
+        bridgeAnim->createNodeAnimTrackForRotation(bridge, 90, bridge->forwardOS());
+
+        // Gate translation animation
+        SLNode* gate = bern->findChild<SLNode>("Chr-Alt-Gatter");
+        SLAnimation* gateAnim = s->animManager().createNodeAnimation("Gatter Animation", 8.0f, true, EC_inOutQuint, AL_pingPongLoop);
+        gateAnim->createNodeAnimTrackForTranslation(gate, SLVec3f(0.0f, -3.6f, 0.0f));
 
         SLNode* scene = new SLNode("Scene");
         scene->addChild(sunLight);

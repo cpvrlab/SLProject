@@ -124,6 +124,8 @@ static SLNode* balda_stahl = nullptr;
 static SLNode* balda_glas  = nullptr;
 static SLNode* mauer       = nullptr;
 static SLNode* graben      = nullptr;
+static SLNode* chrAlt      = nullptr;
+static SLNode* chrNeu      = nullptr;
 
 // Temp. transform node
 static SLTransformNode* transformNode = nullptr;
@@ -1132,15 +1134,6 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
                 ImGui::PopItemWidth();
                 ImGui::End();
             }
-            if (showChristoffel3 && SLApplication::sceneID == SID_ErlebARChristoffel3)
-            {
-                ImGui::Begin("Christoffel",
-                             &showChristoffel3,
-                             ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize);
-
-                
-                ImGui::End();
-            }
             else
             {
                 bern        = nullptr;
@@ -1151,6 +1144,43 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
                 umgeb_fass  = nullptr;
                 mauer       = nullptr;
                 graben      = nullptr;
+            }
+
+            if (showChristoffel3 && SLApplication::sceneID == SID_ErlebARChristoffel3)
+            {
+                ImGui::Begin("Christoffel",
+                             &showChristoffel3,
+                             ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize);
+
+                // Get scene nodes once
+                if (!bern)
+                {
+                    bern   = s->root3D()->findChild<SLNode>("Bern-Bahnhofsplatz3.gltf");
+                    chrAlt = bern->findChild<SLNode>("Chr-Alt", true);
+                    chrNeu = bern->findChild<SLNode>("Chr-Neu", true);
+                }
+
+                SLbool chrAltIsOn = !chrAlt->drawBits()->get(SL_DB_HIDDEN);
+                if (ImGui::Checkbox("Christoffelturm 1500-1800", &chrAltIsOn))
+                {
+                    chrAlt->drawBits()->set(SL_DB_HIDDEN, false);
+                    chrNeu->drawBits()->set(SL_DB_HIDDEN, true);
+                }
+
+                SLbool chrNeuIsOn = !chrNeu->drawBits()->get(SL_DB_HIDDEN);
+                if (ImGui::Checkbox("Christoffelturm 1800-1865", &chrNeuIsOn))
+                {
+                    chrAlt->drawBits()->set(SL_DB_HIDDEN, true);
+                    chrNeu->drawBits()->set(SL_DB_HIDDEN, false);
+                }
+
+                ImGui::End();
+            }
+            else
+            {
+                bern   = nullptr;
+                chrAlt = nullptr;
+                chrNeu = nullptr;
             }
         }
     }
@@ -2761,7 +2791,12 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
             if (SLApplication::sceneID == SID_ErlebARChristoffel2)
             {
                 ImGui::Separator();
-                ImGui::MenuItem("Infos on Christoffel", nullptr, &showChristoffel2);
+                ImGui::MenuItem("Infos on Christoffel V2", nullptr, &showChristoffel2);
+            }
+            if (SLApplication::sceneID == SID_ErlebARChristoffel3)
+            {
+                ImGui::Separator();
+                ImGui::MenuItem("Infos on Christoffel V3", nullptr, &showChristoffel3);
             }
             ImGui::Separator();
             ImGui::MenuItem("Help on Interaction", nullptr, &showHelp);
