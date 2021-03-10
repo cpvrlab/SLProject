@@ -4,7 +4,7 @@
 #include <Utils.h>
 
 //TODO: we scale the original image only to meet the width of manipImg. After that the targetImg may be additionally cropped (e.g. to screen width)
-SENSFramePtr SENSCvCamera::processNewFrame(const SENSTimePt& timePt, cv::Mat& bgrImg, cv::Mat intrinsics, bool intrinsicsChanged)
+SENSFramePtr SENSCvCamera::processNewFrame(const SENSTimePt& timePt, cv::Mat bgrImg, cv::Mat intrinsics, bool intrinsicsChanged)
 {
     //todo: accessing config readonly should be no problem  here, as the config only changes when camera is stopped
     cv::Size inputSize = bgrImg.size();
@@ -39,12 +39,12 @@ SENSFramePtr SENSCvCamera::processNewFrame(const SENSTimePt& timePt, cv::Mat& bg
     }
 
     SENSFramePtr sensFrame = std::make_unique<SENSFrame>(timePt,
-                                                         bgrImg,
+                                                         bgrImg.clone(),
                                                          manipImg,
                                                          _config->mirrorH,
                                                          _config->mirrorV,
                                                          1 / scale,
-                                                         intrinsics);
+                                                         intrinsics.clone());
 
     return sensFrame;
 }

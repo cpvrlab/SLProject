@@ -46,6 +46,33 @@ void SENSGps::unregisterListener(SENSGpsListener* listener)
     }
 }
 
+bool SENSGps::permissionGranted() const
+{
+    return _permissionGranted;
+}
+
+void SENSGps::registerPermissionListener(std::function<void(void)> listener)
+{
+    {
+        std::lock_guard<std::mutex> lock(_permissionListenerMutex);
+        _permissionListeners.push_back(listener);
+    }
+    //inform about initial state
+    informPermissionListeners();
+}
+
+void SENSGps::informPermissionListeners()
+{
+    std::lock_guard<std::mutex> lock(_permissionListenerMutex);
+    for(auto listener : _permissionListeners)
+        listener();
+}
+
+void SENSGps::updatePermission(bool granted)
+{
+    _permissionGranted = granted;
+    informPermissionListeners();
+}
 /**********************************************************************/
 
 SENSDummyGps::~SENSDummyGps()

@@ -126,8 +126,12 @@ public:
             case WAI::TrackingState_TrackingOK:
                 return std::string("TrackingState_TrackingOK");
                 break;
+            case WAI::TrackingState_TrackingStart:
+                return std::string("TrackingState_TrackingStart");
+                break;
+            default:
+                return std::string("");
         }
-        return std::string("");
     }
 
     virtual int     getKeyPointCount() { return _lastFrame.N; }

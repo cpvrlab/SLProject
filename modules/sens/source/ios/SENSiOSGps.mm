@@ -6,7 +6,7 @@ SENSiOSGps::SENSiOSGps()
     //set update callback
     [_gpsDelegate setUpdateCB:std::bind(&SENSiOSGps::updateLocation, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4)];
     //set permission callback
-    [_gpsDelegate setPermissionCB:std::bind(&SENSiOSGps::updatePermission, this, std::placeholders::_1)];
+    [_gpsDelegate setPermissionCB:std::bind(&SENSGps::updatePermission, this, std::placeholders::_1)];
 }
 
 bool SENSiOSGps::start()
@@ -32,9 +32,4 @@ void SENSiOSGps::updateLocation(double latitudeDEG,
                                 double accuracyM)
 {
     setLocation({latitudeDEG, longitudeDEG, altitudeM, (float)accuracyM});
-}
-
-void SENSiOSGps::updatePermission(bool granted)
-{
-    _permissionGranted = granted;
 }

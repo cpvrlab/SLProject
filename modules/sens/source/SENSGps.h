@@ -5,6 +5,7 @@
 #include <mutex>
 #include <atomic>
 #include <vector>
+#include <functional>
 
 #include "SENS.h"
 
@@ -18,7 +19,7 @@ public:
         double latitudeDEG  = 0;
         double longitudeDEG = 0;
         double altitudeM    = 0;
-        float  accuracyM    = 0.f;
+        float  accuracyM    = -1.f;
     };
 
     virtual ~SENSGps() {}
@@ -30,16 +31,20 @@ public:
 
     bool isRunning() { return _running; }
 
-    bool permissionGranted() const { return _permissionGranted; }
+    bool permissionGranted() const;
 
     void registerListener(SENSGpsListener* listener);
     void unregisterListener(SENSGpsListener* listener);
 
+    void registerPermissionListener(std::function<void(void)> listener);
+    void updatePermission(bool granted);
+    
 protected:
     void setLocation(SENSGps::Location location);
-
-    bool _running           = false;
-    bool _permissionGranted = false;
+    void informPermissionListeners();
+    
+    bool _running = false;
+    std::atomic_bool _permissionGranted{false};
 
 private:
     SENSTimePt _timePt;
@@ -48,6 +53,9 @@ private:
 
     std::vector<SENSGpsListener*> _listeners;
     std::mutex                    _listenerMutex;
+    
+    mutable std::mutex _permissionListenerMutex;
+    std::vector<std::function<void(void)>> _permissionListeners;
 };
 
 class SENSGpsListener
