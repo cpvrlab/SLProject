@@ -3826,15 +3826,20 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         matVideoBackgroundSM->getsShadows(true);
 
         // Create directional light for the sun light
-        SLLightDirect* sunLight = new SLLightDirect(s, s, 5.0f);
+        SLLightDirect* sunLight = new SLLightDirect(s, s, 1.0f);
         sunLight->translate(-42, 10, 13);
         sunLight->powers(1.0f, 1.5f, 1.0f);
         sunLight->attenuation(1, 0, 0);
         sunLight->doSunPowerAdaptation(true);
         sunLight->createsShadows(true);
-        sunLight->createShadowMap(-100, 250, SLVec2f(210, 150), SLVec2i(4096, 4096));
+        sunLight->createShadowMap(-100,
+                                  250,
+                                  SLVec2f(210, 150),
+                                  SLVec2i(4096, 4096));
         sunLight->doSmoothShadows(true);
         sunLight->castsShadows(false);
+        sunLight->shadowMinBias(0.001f);
+        sunLight->shadowMinBias(0.002f);
         SLApplication::devLoc.sunLightNode(sunLight); // Let the sun be rotated by time and location
 
         // Load main model
