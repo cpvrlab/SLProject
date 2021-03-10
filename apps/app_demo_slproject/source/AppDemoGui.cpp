@@ -108,7 +108,8 @@ SLbool      AppDemoGui::showInfosSensors    = false;
 SLbool      AppDemoGui::showInfosDevice     = false;
 SLbool      AppDemoGui::showSceneGraph      = false;
 SLbool      AppDemoGui::showProperties      = false;
-SLbool      AppDemoGui::showChristoffel     = false;
+SLbool      AppDemoGui::showChristoffel2    = false;
+SLbool      AppDemoGui::showChristoffel3    = false;
 SLbool      AppDemoGui::showUIPrefs         = false;
 SLbool      AppDemoGui::showTransform       = false;
 std::time_t AppDemoGui::adjustedTime        = 0;
@@ -1079,10 +1080,10 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
                 ImGui::End();
             }
 
-            if (showChristoffel && SLApplication::sceneID == SID_ErlebARChristoffel)
+            if (showChristoffel2 && SLApplication::sceneID == SID_ErlebARChristoffel2)
             {
                 ImGui::Begin("Christoffel",
-                             &showChristoffel,
+                             &showChristoffel2,
                              ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize);
 
                 // Get scene nodes once
@@ -1129,6 +1130,15 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
                     graben->drawBits()->set(SL_DB_HIDDEN, !grabenIsOn);
 
                 ImGui::PopItemWidth();
+                ImGui::End();
+            }
+            if (showChristoffel3 && SLApplication::sceneID == SID_ErlebARChristoffel3)
+            {
+                ImGui::Begin("Christoffel",
+                             &showChristoffel3,
+                             ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize);
+
+                
                 ImGui::End();
             }
             else
@@ -1538,6 +1548,7 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
 
                 SLstring erlebarPath = SLApplication::dataPath + "erleb-AR/models/";
                 SLstring modelBR1    = erlebarPath + "bern/Bern-Bahnhofsplatz2.gltf";
+                SLstring modelBR2    = erlebarPath + "bern/Bern-Bahnhofsplatz3.gltf";
                 SLstring modelBFH    = erlebarPath + "biel/Biel-BFH-Rolex.gltf";
                 SLstring modelAR1    = erlebarPath + "augst/Tempel-Theater-02.gltf";
                 SLstring modelAR2    = erlebarPath + "augst/Tempel-Theater-03.gltf";
@@ -1552,13 +1563,17 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                     Utils::fileExists(modelAV1) ||
                     Utils::fileExists(modelAV2) ||
                     Utils::fileExists(modelAV3) ||
-                    Utils::fileExists(modelBR1))
+                    Utils::fileExists(modelBR1) ||
+                    Utils::fileExists(modelBR2))
                 {
                     if (ImGui::BeginMenu("Erleb-AR"))
                     {
                         if (Utils::fileExists(modelBR1))
-                            if (ImGui::MenuItem("Bern: Christoffel Tower", nullptr, sid == SID_ErlebARChristoffel))
-                                s->onLoad(s, sv, SID_ErlebARChristoffel);
+                            if (ImGui::MenuItem("Bern: Christoffel Tower V2", nullptr, sid == SID_ErlebARChristoffel2))
+                                s->onLoad(s, sv, SID_ErlebARChristoffel2);
+                        if (Utils::fileExists(modelBR1))
+                            if (ImGui::MenuItem("Bern: Christoffel Tower V3", nullptr, sid == SID_ErlebARChristoffel3))
+                                s->onLoad(s, sv, SID_ErlebARChristoffel3);
 
                         if (Utils::fileExists(modelBFH))
                             if (ImGui::MenuItem("Biel: BFH", nullptr, sid == SID_ErlebARBielBFH))
@@ -2743,10 +2758,10 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
             ImGui::Separator();
             ImGui::MenuItem("Infos on Device", nullptr, &showInfosDevice);
             ImGui::MenuItem("Infos on Sensors", nullptr, &showInfosSensors);
-            if (SLApplication::sceneID == SID_ErlebARChristoffel)
+            if (SLApplication::sceneID == SID_ErlebARChristoffel2)
             {
                 ImGui::Separator();
-                ImGui::MenuItem("Infos on Christoffel", nullptr, &showChristoffel);
+                ImGui::MenuItem("Infos on Christoffel", nullptr, &showChristoffel2);
             }
             ImGui::Separator();
             ImGui::MenuItem("Help on Interaction", nullptr, &showHelp);
@@ -3582,8 +3597,10 @@ void AppDemoGui::loadConfig(SLint dotsPerInch)
             AppDemoGui::showSceneGraph = b;
             fs["showProperties"] >> b;
             AppDemoGui::showProperties = b;
-            fs["showChristoffel"] >> b;
-            AppDemoGui::showChristoffel = b;
+            fs["showChristoffel2"] >> b;
+            AppDemoGui::showChristoffel2 = b;
+            fs["showChristoffel3"] >> b;
+            AppDemoGui::showChristoffel3 = b;
             fs["showTransform"] >> b;
             AppDemoGui::showTransform = b;
             fs["showUIPrefs"] >> b;
@@ -3667,7 +3684,8 @@ void AppDemoGui::saveConfig()
     fs << "showInfosSensors" << AppDemoGui::showInfosSensors;
     fs << "showSceneGraph" << AppDemoGui::showSceneGraph;
     fs << "showProperties" << AppDemoGui::showProperties;
-    fs << "showChristoffel" << AppDemoGui::showChristoffel;
+    fs << "showChristoffel2" << AppDemoGui::showChristoffel2;
+    fs << "showChristoffel3" << AppDemoGui::showChristoffel3;
     fs << "showTransform" << AppDemoGui::showTransform;
     fs << "showUIPrefs" << AppDemoGui::showUIPrefs;
     fs << "showDockSpace" << AppDemoGui::showDockSpace;

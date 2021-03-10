@@ -64,7 +64,8 @@ public:
     static SLbool      showInfosScene;      //!< Flag if scene info should be shown
     static SLbool      showSceneGraph;      //!< Flag if scene graph should be shown
     static SLbool      showProperties;      //!< Flag if properties should be shown
-    static SLbool      showChristoffel;     //!< Flag if Christoffel infos should be shown
+    static SLbool      showChristoffel2;    //!< Flag if Christoffel infos should be shown
+    static SLbool      showChristoffel3;    //!< Flag if Christoffel infos should be shown
     static SLbool      showUIPrefs;         //!< Flag if UI preferences
     static SLbool      showTransform;       //!< Flag if tranform dialog should be shown
     static std::time_t adjustedTime;        //!< Adjusted GUI time for sun setting (default 0)

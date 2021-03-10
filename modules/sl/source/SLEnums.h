@@ -167,7 +167,8 @@ enum SLSceneID
     SID_Benchmark4_SkinnedAnimations,
 
     SID_ErlebARBielBFH,
-    SID_ErlebARChristoffel,
+    SID_ErlebARChristoffel2,
+    SID_ErlebARChristoffel3,
     SID_ErlebARAugustaRaurica,
     SID_ErlebARAugustaRauricaTmpThtAO,
     SID_ErlebARAventicumAmphiAO,

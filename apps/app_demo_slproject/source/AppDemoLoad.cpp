@@ -3521,10 +3521,10 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->drawBits()->on(SL_DB_ONLYEDGES);
         s->root3D(scene);
     }
-    else if (sceneID == SID_ErlebARChristoffel) //.................................................
+    else if (sceneID == SID_ErlebARChristoffel2) //.................................................
     {
-        s->name("Christoffel Tower AR");
-        s->info("Augmented Reality Christoffel Tower");
+        s->name("Christoffel Tower AR V2");
+        s->info("Augmented Reality Christoffel Tower V2");
 
         // Create video texture on global pointer updated in AppDemoVideo
         videoTexture = new SLGLTexture(s, SLApplication::texturePath + "LiveVideoError.png", GL_LINEAR, GL_LINEAR);
@@ -3597,6 +3597,138 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         UmgF->setDrawBitsRec(SL_DB_WITHEDGES, true);
         UmgD->castsShadows(false);
         UmgF->castsShadows(false);
+
+        // Hide some objects
+        bern->findChild<SLNode>("Baldachin-Glas")->drawBits()->set(SL_DB_HIDDEN, true);
+        bern->findChild<SLNode>("Baldachin-Stahl")->drawBits()->set(SL_DB_HIDDEN, true);
+
+        // Set the video background shader on the baldachin and the ground with shadow mapping
+        bern->findChild<SLNode>("Baldachin-Stahl")->setMeshMat(matVideoBackgroundSM, true);
+        bern->findChild<SLNode>("Baldachin-Glas")->setMeshMat(matVideoBackgroundSM, true);
+        bern->findChild<SLNode>("Boden")->setMeshMat(matVideoBackgroundSM, true);
+
+        // Set ambient on all child nodes
+        bern->updateMeshMat([](SLMaterial* m) {
+            if (m->name() != "Kupfer-dunkel")
+                m->ambient(SLCol4f(.3f, .3f, .3f));
+        },
+                            true);
+
+        // Add axis object a world origin (Loeb Ecke)
+        SLNode* axis = new SLNode(new SLCoordAxis(s), "Axis Node");
+        axis->setDrawBitsRec(SL_DB_MESHWIRED, false);
+        axis->rotate(-90, 1, 0, 0);
+        axis->castsShadows(false);
+
+        SLNode* scene = new SLNode("Scene");
+        scene->addChild(sunLight);
+        scene->addChild(axis);
+        scene->addChild(bern);
+        scene->addChild(cam1);
+
+        //initialize sensor stuff
+        SLApplication::devLoc.originLatLonAlt(46.94763, 7.44074, 542.2);        // Loeb Ecken
+        SLApplication::devLoc.defaultLatLonAlt(46.94841, 7.43970, 541.1 + 1.7); // Bahnhof Ausgang in Augenhöhe
+        SLApplication::devLoc.locMaxDistanceM(1000.0f);                         // Max. Distanz. zum Loeb Ecken
+        SLApplication::devLoc.improveOrigin(false);                             // Keine autom. Verbesserung vom Origin
+        SLApplication::devLoc.useOriginAltitude(true);
+        SLApplication::devLoc.hasOrigin(true);
+        SLApplication::devRot.zeroYawAtStart(false);
+
+        // This loads the DEM file and overwrites the altitude of originLatLonAlt and defaultLatLonAlt
+        SLstring tif = SLApplication::dataPath + "erleb-AR/models/bern/DEM-Bern-2600_1199-WGS84.tif";
+        SLApplication::devLoc.loadGeoTiff(tif);
+
+#if defined(SL_OS_MACIOS) || defined(SL_OS_ANDROID)
+        SLApplication::devLoc.isUsed(true);
+        SLApplication::devRot.isUsed(true);
+        cam1->camAnim(SLCamAnim::CA_deviceRotLocYUp);
+#else
+        SLApplication::devLoc.isUsed(false);
+        SLApplication::devRot.isUsed(false);
+        SLVec3d pos_d = SLApplication::devLoc.defaultENU() - SLApplication::devLoc.originENU();
+        SLVec3f pos_f((SLfloat)pos_d.x, (SLfloat)pos_d.y, (SLfloat)pos_d.z);
+        cam1->translation(pos_f);
+        cam1->focalDist(pos_f.length());
+        cam1->lookAt(SLVec3f::ZERO);
+        cam1->camAnim(SLCamAnim::CA_turntableYUp);
+#endif
+
+        sv->doWaitOnIdle(false); // for constant video feed
+        sv->camera(cam1);
+        s->root3D(scene);
+    }
+    else if (sceneID == SID_ErlebARChristoffel3) //.................................................
+    {
+        s->name("Christoffel Tower AR V3");
+        s->info("Augmented Reality Christoffel Tower V3");
+
+        // Create video texture on global pointer updated in AppDemoVideo
+        videoTexture = new SLGLTexture(s, SLApplication::texturePath + "LiveVideoError.png", GL_LINEAR, GL_LINEAR);
+
+        // Define shader that shows on all pixels the video background without shadow mapping
+        SLGLProgram* spVideoBackground  = new SLGLProgramGeneric(s,
+                                                                SLApplication::shaderPath + "PerPixTmBackground.vert",
+                                                                SLApplication::shaderPath + "PerPixTmBackground.frag");
+        SLMaterial*  matVideoBackground = new SLMaterial(s,
+                                                        "matVideoBackground",
+                                                        videoTexture,
+                                                        nullptr,
+                                                        nullptr,
+                                                        nullptr,
+                                                        spVideoBackground);
+
+        // Define shader that shows on all pixels the video background with shadow mapping
+        SLGLProgram* spVideoBackgroundSM  = new SLGLProgramGeneric(s,
+                                                                  SLApplication::shaderPath + "PerPixTmBackgroundSm.vert",
+                                                                  SLApplication::shaderPath + "PerPixTmBackgroundSm.frag");
+        SLMaterial*  matVideoBackgroundSM = new SLMaterial(s,
+                                                          "matVideoBackground",
+                                                          videoTexture,
+                                                          nullptr,
+                                                          nullptr,
+                                                          nullptr,
+                                                          spVideoBackgroundSM);
+        matVideoBackgroundSM->ambient(SLCol4f(0.6f, 0.6f, 0.6f));
+        matVideoBackgroundSM->getsShadows(true);
+
+        SLCamera* cam1 = new SLCamera("Camera 1");
+        cam1->translation(0, 2, 0);
+        cam1->lookAt(-10, 2, 0);
+        cam1->clipNear(1);
+        cam1->clipFar(500);
+        cam1->setInitialState();
+        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
+        cam1->background().texture(videoTexture);
+
+        // Turn on main video
+        CVCapture::instance()->videoType(VT_MAIN);
+
+        // Create directional light for the sun light
+        SLLightDirect* sunLight = new SLLightDirect(s, s, 2.0f);
+        sunLight->translate(-44.89f, 18.05f, -26.07f);
+        sunLight->powers(1.0f, 1.5f, 1.0f);
+        sunLight->attenuation(1, 0, 0);
+        sunLight->doSunPowerAdaptation(true);
+        sunLight->createsShadows(true);
+        sunLight->createShadowMap(-100, 150, SLVec2f(250, 250), SLVec2i(4096, 4096));
+        sunLight->doSmoothShadows(true);
+        sunLight->castsShadows(false);
+        SLApplication::devLoc.sunLightNode(sunLight); // Let the sun be rotated by time and location
+
+        // Import the main model
+        SLAssimpImporter importer;
+        SLNode*          bern = importer.load(s->animManager(),
+                                     s,
+                                     SLApplication::dataPath + "erleb-AR/models/bern/Bern-Bahnhofsplatz3.gltf",
+                                     SLApplication::texturePath);
+
+        // Make city with hard edges and without shadow mapping
+        SLNode* Umg = bern->findChild<SLNode>("Umgebung-Swisstopo");
+        if (!Umg) SL_EXIT_MSG("Node: Umgebung-Swisstopo not found!");
+        Umg->setMeshMat(matVideoBackground, true);
+        Umg->setDrawBitsRec(SL_DB_WITHEDGES, true);
+        Umg->castsShadows(false);
 
         // Hide some objects
         bern->findChild<SLNode>("Baldachin-Glas")->drawBits()->set(SL_DB_HIDDEN, true);
