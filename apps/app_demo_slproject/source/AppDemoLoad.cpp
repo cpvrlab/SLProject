@@ -3737,7 +3737,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         // Set the video background shader on the baldachin and the ground with shadow mapping
         bern->findChild<SLNode>("Baldachin-Stahl")->setMeshMat(matVideoBackgroundSM, true);
         bern->findChild<SLNode>("Baldachin-Glas")->setMeshMat(matVideoBackgroundSM, true);
-        bern->findChild<SLNode>("Boden")->setMeshMat(matVideoBackgroundSM, true);
+        bern->findChild<SLNode>("Chr-Alt-Stadtboden")->setMeshMat(matVideoBackgroundSM, true);
+        bern->findChild<SLNode>("Chr-Neu-Stadtboden")->setMeshMat(matVideoBackgroundSM, true);
 
 
         // Hide the new (last) version of the Christoffel tower
