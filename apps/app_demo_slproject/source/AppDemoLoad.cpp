@@ -3696,7 +3696,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->translation(0, 2, 0);
         cam1->lookAt(-10, 2, 0);
         cam1->clipNear(1);
-        cam1->clipFar(500);
+        cam1->clipFar(700);
         cam1->setInitialState();
         cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
         cam1->background().texture(videoTexture);
@@ -3711,7 +3711,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sunLight->attenuation(1, 0, 0);
         sunLight->doSunPowerAdaptation(true);
         sunLight->createsShadows(true);
-        sunLight->createShadowMap(-100, 150, SLVec2f(250, 250), SLVec2i(4096, 4096));
+        sunLight->createShadowMap(-100, 150, SLVec2f(200, 150), SLVec2i(4096, 4096));
         sunLight->doSmoothShadows(true);
         sunLight->castsShadows(false);
         SLApplication::devLoc.sunLightNode(sunLight); // Let the sun be rotated by time and location
