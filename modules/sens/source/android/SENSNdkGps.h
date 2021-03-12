@@ -2,12 +2,12 @@
 #define SENS_NDK_GPS_H
 
 #include <SENSGps.h>
-#include <android_native_app_glue.h>
+#include <jni.h>
 
 class SENSNdkGps : public SENSGps
 {
 public:
-    SENSNdkGps(JavaVM* vm, jobject* activityContext, jclass* clazz);
+    SENSNdkGps() {};
     void init(bool granted);
 
     bool start() override;
@@ -17,10 +17,6 @@ public:
                         double longitudeDEG,
                         double altitudeM,
                         float  accuracyM);
-
-private:
-    JavaVM* _vm     = nullptr;
-    jobject _object = nullptr;
 };
 
 #endif

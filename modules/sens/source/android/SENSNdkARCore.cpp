@@ -5,21 +5,14 @@
 #include "SENS.h"
 #include "SENSUtils.h"
 
-SENSNdkARCore::SENSNdkARCore(ANativeActivity* activity)
-  : _activity(activity)
+SENSNdkARCore::SENSNdkARCore(JNIEnv* env, void * context, void * activity)
 {
-    JNIEnv* env;
-    _activity->vm->GetEnv((void**)&env, JNI_VERSION_1_6);
-    _activity->vm->AttachCurrentThread(&env, NULL);
-    jobject activityObj = env->NewGlobalRef(_activity->clazz);
-
-    checkAvailability(env, activityObj);
-
-    env->DeleteGlobalRef(activityObj);
-    _activity->vm->DetachCurrentThread();
+    checkAvailability(env, context, activity);
+    _arSession = nullptr;
+    _waitInit = false;
 }
 
-void SENSNdkARCore::checkAvailability(JNIEnv* env, jobject context)
+void SENSNdkARCore::checkAvailability(JNIEnv* env, void* context, void * activity)
 {
     ArAvailability availability;
     ArCoreApk_checkAvailability(env, context, &availability);
@@ -28,14 +21,15 @@ void SENSNdkARCore::checkAvailability(JNIEnv* env, jobject context)
     if (availability == AR_AVAILABILITY_UNKNOWN_CHECKING)
     {
         std::this_thread::sleep_for(std::chrono::microseconds((int)(200000)));
-        checkAvailability(env, context);
+        checkAvailability(env, context, activity);
     }
     else if (availability == AR_AVAILABILITY_SUPPORTED_NOT_INSTALLED ||
              availability == AR_AVAILABILITY_SUPPORTED_APK_TOO_OLD   ||
              availability == AR_AVAILABILITY_SUPPORTED_INSTALLED)
     {
+        Utils::log("ErlebAR", "request install");
         ArInstallStatus install_status;
-        ArCoreApk_requestInstall(env, context, true, &install_status);
+        ArCoreApk_requestInstall(env, activity, true, &install_status);
     }
     else
     {
@@ -68,43 +62,41 @@ void SENSNdkARCore::initCameraTexture()
     glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 }
 
+bool SENSNdkARCore::waitInit()
+{
+    return _waitInit;
+}
+
 bool SENSNdkARCore::init()
 {
-    if (!_available)
+    _waitInit = true;
+    return true;
+}
+
+bool SENSNdkARCore::init_(JNIEnv* env, void* context, void* activity)
+{
+    _waitInit = false;
+    if (!_available) {
         return false;
-    if (_arSession != nullptr)
-        reset();
-
-    JNIEnv* env;
-    _activity->vm->GetEnv((void**)&env, JNI_VERSION_1_6);
-    jint result = _activity->vm->AttachCurrentThread(&env, NULL);
-    if (result == JNI_ERR)
-    {
-        Utils::log("SENSNdkARCore", "error");
     }
-    jobject activityObj = env->NewGlobalRef(_activity->clazz);
-
+    if (_arSession != nullptr) {
+        return false;
+    }
     ArInstallStatus install_status;
-    ArCoreApk_requestInstall(env, activityObj, false, &install_status);
+    ArCoreApk_requestInstall(env, activity, false, &install_status);
 
     if (install_status == AR_AVAILABILITY_SUPPORTED_NOT_INSTALLED)
     {
-        env->DeleteGlobalRef(activityObj);
-        _activity->vm->DetachCurrentThread();
         return false;
     }
 
-    if (ArSession_create(env, activityObj, &_arSession) != AR_SUCCESS)
+    if (ArSession_create(env, activity, &_arSession) != AR_SUCCESS)
     {
-        env->DeleteGlobalRef(activityObj);
-        _activity->vm->DetachCurrentThread();
         return false;
     }
 
     if (!_arSession)
     {
-        env->DeleteGlobalRef(activityObj);
-        _activity->vm->DetachCurrentThread();
         return false;
     }
 
@@ -119,8 +111,6 @@ bool SENSNdkARCore::init()
     {
         ArSession_destroy(_arSession);
         _arSession = nullptr;
-        env->DeleteGlobalRef(activityObj);
-        _activity->vm->DetachCurrentThread();
         return false;
     }
 
@@ -138,8 +128,6 @@ bool SENSNdkARCore::init()
         ArConfig_destroy(arConfig);
         ArSession_destroy(_arSession);
         _arSession = nullptr;
-        env->DeleteGlobalRef(activityObj);
-        _activity->vm->DetachCurrentThread();
         return false;
     }
 
@@ -165,13 +153,8 @@ bool SENSNdkARCore::init()
     {
         ArSession_destroy(_arSession);
         _arSession = nullptr;
-        env->DeleteGlobalRef(activityObj);
-        _activity->vm->DetachCurrentThread();
         return false;
     }
-
-    env->DeleteGlobalRef(activityObj);
-    _activity->vm->DetachCurrentThread();
 
     pause();
     return true;
@@ -322,45 +305,6 @@ cv::Mat SENSNdkARCore::convertToYuv(ArImage* arImage)
         return yuv;
 }
 
-int SENSNdkARCore::getPointCloud(float** mapPoints, float confidanceValue)
-{
-    // Update and render point cloud.
-    ArPointCloud* arPointCloud     = nullptr;
-    ArStatus      pointCloudStatus = ArFrame_acquirePointCloud(_arSession, _arFrame, &arPointCloud);
-    int           n;
-    float*        mp;
-
-    ArPointCloud_getNumberOfPoints(_arSession, arPointCloud, &n);
-    ArPointCloud_getData(_arSession, arPointCloud, &mp);
-
-    if (pointCloudStatus != AR_SUCCESS)
-        return 0;
-
-    int nbPoints = 0;
-    for (int i = 0; i < n; i++)
-    {
-        int idx = i * 4;
-        if (mp[idx + 3] >= confidanceValue)
-        {
-            *mapPoints[nbPoints]     = mp[idx];
-            *mapPoints[nbPoints + 1] = mp[idx + 1];
-            *mapPoints[nbPoints + 2] = mp[idx + 2];
-            nbPoints++;
-        }
-    }
-
-    ArPointCloud_release(arPointCloud);
-    return nbPoints;
-}
-
-/*
-void SENSNdkARCore::setDisplaySize(int w, int h)
-{
-    if (_arSession)
-        ArSession_setDisplayGeometry(_arSession, 0, w, h);
-}
- */
-
 bool SENSNdkARCore::resume()
 {
     if (_pause && _arSession != nullptr)
@@ -386,6 +330,11 @@ void SENSNdkARCore::pause()
 
 void SENSNdkARCore::retrieveCaptureProperties()
 {
+    if (!_started || _waitInit)
+    {
+
+        return;
+    }
     //the SENSCameraBase needs to have a valid frame, otherwise we cannot estimate the fov correctly
     if(!_frame)
     {

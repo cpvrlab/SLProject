@@ -11,32 +11,8 @@ SENSNdkGps*        GetGpsPtr()
     return gGpsPtr;
 }
 
-SENSNdkGps::SENSNdkGps(JavaVM* vm, jobject* activityContext, jclass* clazz)
-  : _vm(vm)
-{
-    gGpsPtr = this;
-
-    JNIEnv* env;
-    _vm->GetEnv((void**)&env, JNI_VERSION_1_6);
-    _vm->AttachCurrentThread(&env, NULL);
-
-    //allocate object SENSGps java class
-    jobject o = env->AllocObject(*clazz);
-    _object   = env->NewGlobalRef(o);
-
-    //set java activity context
-    //jclass clazz = env->GetObjectClass(_object);
-    jmethodID methodId = env->GetMethodID(*clazz,
-                                          "init",
-                                          "(Landroid/content/Context;)V");
-    env->CallVoidMethod(_object, methodId, *activityContext);
-
-    _vm->DetachCurrentThread();
-}
-
 void SENSNdkGps::init(bool granted)
 {
-    Utils::log("SENSNdkGps", "init called");
     _permissionGranted = granted;
 }
 
@@ -44,19 +20,6 @@ bool SENSNdkGps::start()
 {
     if (!_permissionGranted)
         return false;
-
-    JNIEnv* env;
-    _vm->GetEnv((void**)&env, JNI_VERSION_1_6);
-    _vm->AttachCurrentThread(&env, NULL);
-
-    jclass    clazz    = env->GetObjectClass(_object);
-    jmethodID methodId = env->GetMethodID(clazz,
-                                          "start",
-                                          "()V");
-    env->CallVoidMethod(_object, methodId);
-
-    _vm->DetachCurrentThread();
-
     _running = true;
     return true;
 }
@@ -66,19 +29,6 @@ void SENSNdkGps::stop()
     if (!_running)
         return;
     _running = false;
-
-    //stop locations manager
-    JNIEnv* env;
-    _vm->GetEnv((void**)&env, JNI_VERSION_1_6);
-    _vm->AttachCurrentThread(&env, NULL);
-
-    jclass    clazz    = env->GetObjectClass(_object);
-    jmethodID methodId = env->GetMethodID(clazz,
-                                          "stop",
-                                          "()V");
-    env->CallVoidMethod(_object, methodId);
-
-    _vm->DetachCurrentThread();
 }
 
 void SENSNdkGps::updateLocation(double latitudeDEG,
