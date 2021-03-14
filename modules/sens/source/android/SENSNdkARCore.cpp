@@ -5,11 +5,17 @@
 #include "SENS.h"
 #include "SENSUtils.h"
 
-SENSNdkARCore::SENSNdkARCore(JNIEnv* env, void * context, void * activity)
+SENSNdkARCore::SENSNdkARCore(JavaVM* jvm, JNIEnv* env, jobject context, jobject activity)
 {
     checkAvailability(env, context, activity);
     _arSession = nullptr;
     _waitInit = false;
+    _context = env->NewGlobalRef((jobject)context);;
+    _activity = activity;
+    _jvm = jvm;
+    gActivity = env->NewGlobalRef(activity);
+    Utils::log("ErlebAR", "init request install  %p", _activity);
+
 }
 
 void SENSNdkARCore::checkAvailability(JNIEnv* env, void* context, void * activity)
@@ -69,19 +75,23 @@ bool SENSNdkARCore::waitInit()
 
 bool SENSNdkARCore::init()
 {
-    _waitInit = true;
-    return true;
+    JNIEnv* env;
+    _jvm->GetEnv((void**)&env, JNI_VERSION_1_6);
+    jclass clazz = env->FindClass("ch/cpvr/wai/GLES3Lib");
+    jmethodID methodid = env->GetStaticMethodID(clazz, "initAR", "()Z");
+
+    return env->CallStaticBooleanMethod(clazz, methodid);
 }
 
-bool SENSNdkARCore::init_(JNIEnv* env, void* context, void* activity)
+bool SENSNdkARCore::init(JNIEnv* env, void* context, void* activity)
 {
-    _waitInit = false;
     if (!_available) {
         return false;
     }
     if (_arSession != nullptr) {
         return false;
     }
+
     ArInstallStatus install_status;
     ArCoreApk_requestInstall(env, activity, false, &install_status);
 

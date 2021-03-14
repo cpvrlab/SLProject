@@ -11,11 +11,11 @@
 class SENSNdkARCore : public SENSARCore
 {
 public:
-    SENSNdkARCore(JNIEnv* env, void* context, void * activity);
+    SENSNdkARCore(JavaVM* jvm, JNIEnv* env, jobject context, jobject activity);
     ~SENSNdkARCore();
 
     bool init() override;
-    bool init_(JNIEnv* env, void* context, void* activity);
+    bool init(JNIEnv* env, void* context, void* activity);
     bool isReady() override { return _arSession != nullptr; }
     bool resume() override;
     void reset() override;
@@ -45,6 +45,10 @@ private:
     GLuint _cameraTextureId;
 	//float          _lightColor[4];
 	float            _envLightI[3];
+	void * _context;
+	void * _activity;
+    JavaVM* _jvm;
+    jobject gActivity;
 
     void    checkAvailability(JNIEnv* env, void* context, void * activity);
     void    initCameraTexture();
