@@ -3696,7 +3696,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->translation(0, 2, 0);
         cam1->lookAt(-10, 2, 0);
         cam1->clipNear(1);
-        cam1->clipFar(500);
+        cam1->clipFar(700);
         cam1->setInitialState();
         cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
         cam1->background().texture(videoTexture);
@@ -3711,7 +3711,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sunLight->attenuation(1, 0, 0);
         sunLight->doSunPowerAdaptation(true);
         sunLight->createsShadows(true);
-        sunLight->createShadowMap(-100, 150, SLVec2f(250, 250), SLVec2i(4096, 4096));
+        sunLight->createShadowMap(-100, 150, SLVec2f(200, 150), SLVec2i(4096, 4096));
         sunLight->doSmoothShadows(true);
         sunLight->castsShadows(false);
         SLApplication::devLoc.sunLightNode(sunLight); // Let the sun be rotated by time and location
@@ -3721,7 +3721,11 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLNode*          bern = importer.load(s->animManager(),
                                      s,
                                      SLApplication::dataPath + "erleb-AR/models/bern/Bern-Bahnhofsplatz3.gltf",
-                                     SLApplication::texturePath);
+                                     SLApplication::texturePath,
+                                     false,
+                                     true,
+                                     nullptr,
+                                     0.3f); // ambient factor
 
         // Make city with hard edges and without shadow mapping
         SLNode* Umg = bern->findChild<SLNode>("Umgebung-Swisstopo");
@@ -3740,16 +3744,35 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         bern->findChild<SLNode>("Chr-Alt-Stadtboden")->setMeshMat(matVideoBackgroundSM, true);
         bern->findChild<SLNode>("Chr-Neu-Stadtboden")->setMeshMat(matVideoBackgroundSM, true);
 
-
         // Hide the new (last) version of the Christoffel tower
         bern->findChild<SLNode>("Chr-Neu")->drawBits()->set(SL_DB_HIDDEN, true);
 
-        // Set ambient on all child nodes
+        /* Set ambient on all child nodes
         bern->updateMeshMat([](SLMaterial* m) {
             if (m->name() != "Kupfer-dunkel")
                 m->ambient(SLCol4f(.3f, .3f, .3f));
         },
                             true);
+                            */
+
+        /* Create textures and material for water
+        SLGLTexture* cubemap = new SLGLTexture(s,
+                                               SLApplication::texturePath + "Desert+X1024_C.jpg",
+                                               SLApplication::texturePath + "Desert-X1024_C.jpg",
+                                               SLApplication::texturePath + "Desert+Y1024_C.jpg",
+                                               SLApplication::texturePath + "Desert-Y1024_C.jpg",
+                                               SLApplication::texturePath + "Desert+Z1024_C.jpg",
+                                               SLApplication::texturePath + "Desert-Z1024_C.jpg");
+        // Material for water
+        SLMaterial* matWater = new SLMaterial(s, "water", SLCol4f::BLACK, SLCol4f::BLACK, 100, 0.1f, 0.9f, 1.5f);
+        matWater->translucency(1000);
+        matWater->transmissive(SLCol4f::WHITE);
+        matWater->textures().push_back(cubemap);
+        matWater->program(new SLGLProgramGeneric(s,
+                                                 SLApplication::shaderPath + "RefractReflect.vert",
+                                                 SLApplication::shaderPath + "RefractReflect.frag"));
+        bern->findChild<SLNode>("Chr-Wasser")->setMeshMat(matWater, true);
+        */
 
         // Add axis object a world origin (Loeb Ecke)
         SLNode* axis = new SLNode(new SLCoordAxis(s), "Axis Node");
@@ -3758,12 +3781,12 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         axis->castsShadows(false);
 
         // Bridge rotation animation
-        SLNode* bridge = bern->findChild<SLNode>("Chr-Alt-Tor");
+        SLNode*      bridge     = bern->findChild<SLNode>("Chr-Alt-Tor");
         SLAnimation* bridgeAnim = s->animManager().createNodeAnimation("Gate animation", 8.0f, true, EC_inOutQuint, AL_pingPongLoop);
         bridgeAnim->createNodeAnimTrackForRotation(bridge, 90, bridge->forwardOS());
 
         // Gate translation animation
-        SLNode* gate = bern->findChild<SLNode>("Chr-Alt-Gatter");
+        SLNode*      gate     = bern->findChild<SLNode>("Chr-Alt-Gatter");
         SLAnimation* gateAnim = s->animManager().createNodeAnimation("Gatter Animation", 8.0f, true, EC_inOutQuint, AL_pingPongLoop);
         gateAnim->createNodeAnimTrackForTranslation(gate, SLVec3f(0.0f, -3.6f, 0.0f));
 
@@ -3775,7 +3798,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         //initialize sensor stuff
         SLApplication::devLoc.originLatLonAlt(46.94763, 7.44074, 542.2);        // Loeb Ecken
-        SLApplication::devLoc.defaultLatLonAlt(46.94841, 7.43970, 541.1 + 1.7); // Bahnhof Ausgang in Augenhöhe
+        SLApplication::devLoc.defaultLatLonAlt(46.94841, 7.43970, 542.2 + 1.7); // Bahnhof Ausgang in Augenhöhe
         SLApplication::devLoc.locMaxDistanceM(1000.0f);                         // Max. Distanz. zum Loeb Ecken
         SLApplication::devLoc.improveOrigin(false);                             // Keine autom. Verbesserung vom Origin
         SLApplication::devLoc.useOriginAltitude(true);
