@@ -3729,7 +3729,6 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Make city with hard edges and without shadow mapping
         SLNode* Umg = bern->findChild<SLNode>("Umgebung-Swisstopo");
-        if (!Umg) SL_EXIT_MSG("Node: Umgebung-Swisstopo not found!");
         Umg->setMeshMat(matVideoBackground, true);
         Umg->setDrawBitsRec(SL_DB_WITHEDGES, true);
         Umg->castsShadows(false);
@@ -4536,6 +4535,133 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLApplication::devLoc.defaultLatLonAlt(46.88044, 7.04846, 455.3f + 1.7); // Vor dem Bühnenhaus
         SLApplication::devLoc.locMaxDistanceM(1000.0f);                          // Max. Distanz. zum Nullpunkt
         SLApplication::devLoc.improveOrigin(false);                              // Keine autom. Verbesserung vom Origin
+        SLApplication::devLoc.hasOrigin(true);
+        SLApplication::devRot.zeroYawAtStart(false);
+
+        // This loads the DEM file and overwrites the altitude of originLatLonAlt and defaultLatLonAlt
+        SLstring tif = SLApplication::dataPath + "erleb-AR/models/avenches/DTM-Aventicum-WGS84.tif";
+        SLApplication::devLoc.loadGeoTiff(tif);
+
+#if defined(SL_OS_MACIOS) || defined(SL_OS_ANDROID)
+        SLApplication::devLoc.isUsed(true);
+        SLApplication::devRot.isUsed(true);
+        cam1->camAnim(SLCamAnim::CA_deviceRotLocYUp);
+#else
+        SLApplication::devLoc.isUsed(false);
+        SLApplication::devRot.isUsed(false);
+        SLVec3d pos_d = SLApplication::devLoc.defaultENU() - SLApplication::devLoc.originENU();
+        SLVec3f pos_f((SLfloat)pos_d.x, (SLfloat)pos_d.y, (SLfloat)pos_d.z);
+        cam1->translation(pos_f);
+        cam1->focalDist(pos_f.length());
+        cam1->lookAt(SLVec3f::ZERO);
+        cam1->camAnim(SLCamAnim::CA_turntableYUp);
+#endif
+
+        sv->doWaitOnIdle(false); // for constant video feed
+        sv->camera(cam1);
+        s->root3D(scene);
+    }
+    else if (sceneID == SID_ErlebARSutzKirchrain18) //.............................................
+    {
+        s->name("Sutz, Kirchrain 18");
+        s->info("Augmented Reality for Sutz, Kirchrain 18");
+
+        SLCamera* cam1 = new SLCamera("Camera 1");
+        cam1->translation(0, 50, -150);
+        cam1->lookAt(0, 0, 0);
+        cam1->clipNear(1);
+        cam1->clipFar(300);
+        cam1->focalDist(150);
+        cam1->setInitialState();
+        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
+
+        // Create video texture and turn on live video
+        videoTexture = new SLGLTexture(s, SLApplication::texturePath + "LiveVideoError.png", GL_LINEAR, GL_LINEAR);
+        cam1->background().texture(videoTexture);
+        CVCapture::instance()->videoType(VT_MAIN);
+
+        // Define shader that shows on all pixels the video background
+        SLGLProgram* spVideoBackground  = new SLGLProgramGeneric(s,
+                                                                 SLApplication::shaderPath + "PerPixTmBackground.vert",
+                                                                 SLApplication::shaderPath + "PerPixTmBackground.frag");
+        SLMaterial*  matVideoBackground = new SLMaterial(s,
+                                                         "matVideoBackground",
+                                                         videoTexture,
+                                                         nullptr,
+                                                         nullptr,
+                                                         nullptr,
+                                                         spVideoBackground);
+
+        // Define shader that shows on all pixels the video background with shadow mapping
+        SLGLProgram* spVideoBackgroundSM  = new SLGLProgramGeneric(s,
+                                                                   SLApplication::shaderPath + "PerPixTmBackgroundSm.vert",
+                                                                   SLApplication::shaderPath + "PerPixTmBackgroundSm.frag");
+        SLMaterial*  matVideoBackgroundSM = new SLMaterial(s,
+                                                           "matVideoBackground",
+                                                           videoTexture,
+                                                           nullptr,
+                                                           nullptr,
+                                                           nullptr,
+                                                           spVideoBackgroundSM);
+        matVideoBackgroundSM->ambient(SLCol4f(0.6f, 0.6f, 0.6f));
+        matVideoBackgroundSM->getsShadows(true);
+
+        // Create directional light for the sun light
+        SLLightDirect* sunLight = new SLLightDirect(s, s, 5.0f);
+        sunLight->powers(1.0f, 1.0f, 1.0f);
+        sunLight->attenuation(1, 0, 0);
+        sunLight->translation(0, 10, 0);
+        sunLight->lookAt(10, 0, 10);
+        sunLight->doSunPowerAdaptation(true);
+        sunLight->createsShadows(true);
+        sunLight->createShadowMap(-100, 150, SLVec2f(150, 150), SLVec2i(4096, 4096));
+        sunLight->doSmoothShadows(true);
+        sunLight->castsShadows(false);
+
+        // Let the sun be rotated by time and location
+        SLApplication::devLoc.sunLightNode(sunLight);
+
+        // Import main model
+        SLAssimpImporter importer;
+        SLNode*          sutzK18 = importer.load(s->animManager(),
+                                                 s,
+                                                 SLApplication::dataPath + "erleb-AR/models/sutzKirchrain18/Sutz-Kirchrain18.gltf",
+                                                 SLApplication::texturePath,
+                                                 true,    // delete tex images after build
+                                                 true,    // only meshes
+                                                 nullptr, // no replacement material
+                                                 0.4f);   // 40% ambient reflection
+
+        // Rotate to the true geographic rotation
+        // Nothing to do here because the model is north up
+
+        // Let the video shine through some objects
+        sutzK18->findChild<SLNode>("Terrain")->setMeshMat(matVideoBackgroundSM, true);
+
+        // Make buildings transparent with edges
+        SLNode* buildings = sutzK18->findChild<SLNode>("Buildings");
+        buildings->setMeshMat(matVideoBackground, true);
+        buildings->setDrawBitsRec(SL_DB_WITHEDGES, true);
+
+        // Add axis object a world origin
+        SLNode* axis = new SLNode(new SLCoordAxis(s), "Axis Node");
+        axis->setDrawBitsRec(SL_DB_MESHWIRED, false);
+        axis->rotate(-90, 1, 0, 0);
+        axis->castsShadows(false);
+
+        SLNode* scene = new SLNode("Scene");
+        scene->addChild(sunLight);
+        scene->addChild(axis);
+        scene->addChild(sutzK18);
+        scene->addChild(cam1);
+
+        //initialize sensor stuff
+        //Go to https://map.geo.admin.ch and choose your origin and default point
+        SLApplication::devLoc.useOriginAltitude(false);
+        SLApplication::devLoc.originLatLonAlt(47.10600, 7.21772, 434.4f);   // Corner Carport
+        SLApplication::devLoc.defaultLatLonAlt(47.10598, 7.21757, 433.9f + 1.7);    // In the street
+        SLApplication::devLoc.locMaxDistanceM(1000.0f); // Max. Distanz. zum Nullpunkt
+        SLApplication::devLoc.improveOrigin(false);       // Keine autom. Verbesserung vom Origin
         SLApplication::devLoc.hasOrigin(true);
         SLApplication::devRot.zeroYawAtStart(false);
 

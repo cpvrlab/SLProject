@@ -175,6 +175,8 @@ enum SLSceneID
     SID_ErlebARAventicumCigognier,
     SID_ErlebARAventicumCigognierAO,
     SID_ErlebARAventicumTheatre,
+    SID_ErlebARSutzKirchrain18,
+    SID_ErlebAREvilardCheminDuRoc2,
 
     SID_Maximal
 };
