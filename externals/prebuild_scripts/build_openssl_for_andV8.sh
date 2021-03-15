@@ -3,7 +3,9 @@
 # ####################################################
 # Build script for assimp for Linux
 # ####################################################
-
+# ATTENTION: if you system is not linux, you have to change
+# the variable TOOLCHAIN (search below). E.g. on macos it is
+# $ANDROID_NDK_HOME/toolchains/llvm/prebuilt/darwin-x86_64/bin
 
 openssl_VERSION="OpenSSL_1_1_1h"
 if [ -n "$1" ]
