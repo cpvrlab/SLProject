@@ -108,8 +108,7 @@ SLbool      AppDemoGui::showInfosSensors    = false;
 SLbool      AppDemoGui::showInfosDevice     = false;
 SLbool      AppDemoGui::showSceneGraph      = false;
 SLbool      AppDemoGui::showProperties      = false;
-SLbool      AppDemoGui::showChristoffel2    = false;
-SLbool      AppDemoGui::showChristoffel3    = false;
+SLbool      AppDemoGui::showChristoffel     = false;
 SLbool      AppDemoGui::showUIPrefs         = false;
 SLbool      AppDemoGui::showTransform       = false;
 SLbool      AppDemoGui::showDateAndTime     = false;
@@ -118,13 +117,8 @@ SLbool      AppDemoGui::_horizonVisuEnabled = false;
 
 // Scene node for Christoffel objects
 static SLNode* bern        = nullptr;
-static SLNode* umgeb_dach  = nullptr;
-static SLNode* umgeb_fass  = nullptr;
-static SLNode* boden       = nullptr;
 static SLNode* balda_stahl = nullptr;
 static SLNode* balda_glas  = nullptr;
-static SLNode* mauer       = nullptr;
-static SLNode* graben      = nullptr;
 static SLNode* chrAlt      = nullptr;
 static SLNode* chrNeu      = nullptr;
 
@@ -1192,82 +1186,20 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
                 ImGui::PopFont();
             }
 
-            if (showChristoffel2 && SLApplication::sceneID == SID_ErlebARChristoffel2)
+            if (showChristoffel && SLApplication::sceneID == SID_ErlebARChristoffel)
             {
                 ImGui::Begin("Christoffel",
-                             &showChristoffel2,
+                             &showChristoffel,
                              ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize);
 
                 // Get scene nodes once
                 if (!bern)
                 {
-                    bern        = s->root3D()->findChild<SLNode>("Bern-Bahnhofsplatz2.gltf");
-                    boden       = bern->findChild<SLNode>("Boden", true);
+                    bern        = s->root3D()->findChild<SLNode>("Bern-Bahnhofsplatz3.gltf");
+                    chrAlt      = bern->findChild<SLNode>("Chr-Alt", true);
+                    chrNeu      = bern->findChild<SLNode>("Chr-Neu", true);
                     balda_stahl = bern->findChild<SLNode>("Baldachin-Stahl", true);
                     balda_glas  = bern->findChild<SLNode>("Baldachin-Glas", true);
-                    umgeb_dach  = bern->findChild<SLNode>("Umgebung-Daecher", true);
-                    umgeb_fass  = bern->findChild<SLNode>("Umgebung-Fassaden", true);
-                    mauer       = bern->findChild<SLNode>("Mauer", true);
-                    graben      = bern->findChild<SLNode>("Graben", true);
-                }
-
-                ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.66f);
-
-                SLbool umgebung = !umgeb_fass->drawBits()->get(SL_DB_HIDDEN);
-                if (ImGui::Checkbox("Umgebung", &umgebung))
-                {
-                    umgeb_fass->drawBits()->set(SL_DB_HIDDEN, !umgebung);
-                    umgeb_dach->drawBits()->set(SL_DB_HIDDEN, !umgebung);
-                }
-
-                SLbool bodenBool = !boden->drawBits()->get(SL_DB_HIDDEN);
-                if (ImGui::Checkbox("Boden", &bodenBool))
-                {
-                    boden->drawBits()->set(SL_DB_HIDDEN, !bodenBool);
-                }
-
-                SLbool baldachin = !balda_stahl->drawBits()->get(SL_DB_HIDDEN);
-                if (ImGui::Checkbox("Baldachin", &baldachin))
-                {
-                    balda_stahl->drawBits()->set(SL_DB_HIDDEN, !baldachin);
-                    balda_glas->drawBits()->set(SL_DB_HIDDEN, !baldachin);
-                }
-
-                SLbool mauerIsOn = !mauer->drawBits()->get(SL_DB_HIDDEN);
-                if (ImGui::Checkbox("Mauer", &mauerIsOn))
-                    mauer->drawBits()->set(SL_DB_HIDDEN, !mauerIsOn);
-
-                SLbool grabenIsOn = !graben->drawBits()->get(SL_DB_HIDDEN);
-                if (ImGui::Checkbox("Graben", &grabenIsOn))
-                    graben->drawBits()->set(SL_DB_HIDDEN, !grabenIsOn);
-
-                ImGui::PopItemWidth();
-                ImGui::End();
-            }
-            else
-            {
-                bern        = nullptr;
-                boden       = nullptr;
-                balda_stahl = nullptr;
-                balda_glas  = nullptr;
-                umgeb_dach  = nullptr;
-                umgeb_fass  = nullptr;
-                mauer       = nullptr;
-                graben      = nullptr;
-            }
-
-            if (showChristoffel3 && SLApplication::sceneID == SID_ErlebARChristoffel3)
-            {
-                ImGui::Begin("Christoffel",
-                             &showChristoffel3,
-                             ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize);
-
-                // Get scene nodes once
-                if (!bern)
-                {
-                    bern   = s->root3D()->findChild<SLNode>("Bern-Bahnhofsplatz3.gltf");
-                    chrAlt = bern->findChild<SLNode>("Chr-Alt", true);
-                    chrNeu = bern->findChild<SLNode>("Chr-Neu", true);
                 }
 
                 SLbool chrAltIsOn = !chrAlt->drawBits()->get(SL_DB_HIDDEN);
@@ -1283,14 +1215,22 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
                     chrAlt->drawBits()->set(SL_DB_HIDDEN, true);
                     chrNeu->drawBits()->set(SL_DB_HIDDEN, false);
                 }
+                SLbool baldachin = !balda_stahl->drawBits()->get(SL_DB_HIDDEN);
+                if (ImGui::Checkbox("Baldachin", &baldachin))
+                {
+                    balda_stahl->drawBits()->set(SL_DB_HIDDEN, !baldachin);
+                    balda_glas->drawBits()->set(SL_DB_HIDDEN, !baldachin);
+                }
 
                 ImGui::End();
             }
             else
             {
-                bern   = nullptr;
-                chrAlt = nullptr;
-                chrNeu = nullptr;
+                bern        = nullptr;
+                chrAlt      = nullptr;
+                chrNeu      = nullptr;
+                balda_stahl = nullptr;
+                balda_glas  = nullptr;
             }
         }
     }
@@ -1715,11 +1655,8 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                     if (ImGui::BeginMenu("Erleb-AR"))
                     {
                         if (Utils::fileExists(modelBR1))
-                            if (ImGui::MenuItem("Bern: Christoffel Tower V2", nullptr, sid == SID_ErlebARChristoffel2))
-                                s->onLoad(s, sv, SID_ErlebARChristoffel2);
-                        if (Utils::fileExists(modelBR1))
-                            if (ImGui::MenuItem("Bern: Christoffel Tower V3", nullptr, sid == SID_ErlebARChristoffel3))
-                                s->onLoad(s, sv, SID_ErlebARChristoffel3);
+                            if (ImGui::MenuItem("Bern: Christoffel Tower", nullptr, sid == SID_ErlebARChristoffel))
+                                s->onLoad(s, sv, SID_ErlebARChristoffel);
 
                         if (Utils::fileExists(modelBFH))
                             if (ImGui::MenuItem("Biel: BFH", nullptr, sid == SID_ErlebARBielBFH))
@@ -2809,15 +2746,10 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
             ImGui::Separator();
             ImGui::MenuItem("Infos on Device", nullptr, &showInfosDevice);
             ImGui::MenuItem("Infos on Sensors", nullptr, &showInfosSensors);
-            if (SLApplication::sceneID == SID_ErlebARChristoffel2)
+            if (SLApplication::sceneID == SID_ErlebARChristoffel)
             {
                 ImGui::Separator();
-                ImGui::MenuItem("Infos on Christoffel V2", nullptr, &showChristoffel2);
-            }
-            if (SLApplication::sceneID == SID_ErlebARChristoffel3)
-            {
-                ImGui::Separator();
-                ImGui::MenuItem("Infos on Christoffel V3", nullptr, &showChristoffel3);
+                ImGui::MenuItem("Infos on Christoffel", nullptr, &showChristoffel);
             }
             ImGui::Separator();
             ImGui::MenuItem("Help on Interaction", nullptr, &showHelp);
@@ -3638,8 +3570,7 @@ void AppDemoGui::loadConfig(SLint dotsPerInch)
             fs["showInfosSensors"] >> b;    AppDemoGui::showInfosSensors = b;
             fs["showSceneGraph"] >> b;      AppDemoGui::showSceneGraph = b;
             fs["showProperties"] >> b;      AppDemoGui::showProperties = b;
-            fs["showChristoffel2"] >> b;    AppDemoGui::showChristoffel2 = b;
-            fs["showChristoffel3"] >> b;    AppDemoGui::showChristoffel3 = b;
+            fs["showChristoffel"] >> b;     AppDemoGui::showChristoffel = b;
             fs["showTransform"] >> b;       AppDemoGui::showTransform = b;
             fs["showUIPrefs"] >> b;         AppDemoGui::showUIPrefs = b;
             fs["showDateAndTime"] >> b;     AppDemoGui::showDateAndTime = b;
@@ -3721,8 +3652,7 @@ void AppDemoGui::saveConfig()
     fs << "showInfosSensors" << AppDemoGui::showInfosSensors;
     fs << "showSceneGraph" << AppDemoGui::showSceneGraph;
     fs << "showProperties" << AppDemoGui::showProperties;
-    fs << "showChristoffel2" << AppDemoGui::showChristoffel2;
-    fs << "showChristoffel3" << AppDemoGui::showChristoffel3;
+    fs << "showChristoffel" << AppDemoGui::showChristoffel;
     fs << "showTransform" << AppDemoGui::showTransform;
     fs << "showUIPrefs" << AppDemoGui::showUIPrefs;
     fs << "showDateAndTime" << AppDemoGui::showDateAndTime;
