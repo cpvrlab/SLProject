@@ -3754,24 +3754,23 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                             true);
                             */
 
-        /* Create textures and material for water
+        // Create textures and material for water
         SLGLTexture* cubemap = new SLGLTexture(s,
-                                               SLApplication::texturePath + "Desert+X1024_C.jpg",
-                                               SLApplication::texturePath + "Desert-X1024_C.jpg",
-                                               SLApplication::texturePath + "Desert+Y1024_C.jpg",
-                                               SLApplication::texturePath + "Desert-Y1024_C.jpg",
-                                               SLApplication::texturePath + "Desert+Z1024_C.jpg",
-                                               SLApplication::texturePath + "Desert-Z1024_C.jpg");
+                                               SLApplication::dataPath + "erleb-AR/models/bern/Sea1+X1024.jpg",
+                                               SLApplication::dataPath + "erleb-AR/models/bern/Sea1-X1024.jpg",
+                                               SLApplication::dataPath + "erleb-AR/models/bern/Sea1+Y1024.jpg",
+                                               SLApplication::dataPath + "erleb-AR/models/bern/Sea1-Y1024.jpg",
+                                               SLApplication::dataPath + "erleb-AR/models/bern/Sea1+Z1024.jpg",
+                                               SLApplication::dataPath + "erleb-AR/models/bern/Sea1-Z1024.jpg");
         // Material for water
         SLMaterial* matWater = new SLMaterial(s, "water", SLCol4f::BLACK, SLCol4f::BLACK, 100, 0.1f, 0.9f, 1.5f);
         matWater->translucency(1000);
         matWater->transmissive(SLCol4f::WHITE);
         matWater->textures().push_back(cubemap);
         matWater->program(new SLGLProgramGeneric(s,
-                                                 SLApplication::shaderPath + "RefractReflect.vert",
-                                                 SLApplication::shaderPath + "RefractReflect.frag"));
+                                                 SLApplication::shaderPath + "Reflect.vert",
+                                                 SLApplication::shaderPath + "Reflect.frag"));
         bern->findChild<SLNode>("Chr-Wasser")->setMeshMat(matWater, true);
-        */
 
         // Add axis object a world origin (Loeb Ecke)
         SLNode* axis = new SLNode(new SLCoordAxis(s), "Axis Node");
