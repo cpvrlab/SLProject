@@ -9,13 +9,7 @@ SENSNdkARCore::SENSNdkARCore(JavaVM* jvm, JNIEnv* env, jobject context, jobject 
 {
     checkAvailability(env, context, activity);
     _arSession = nullptr;
-    _waitInit = false;
-    _context = env->NewGlobalRef((jobject)context);;
-    _activity = activity;
     _jvm = jvm;
-    gActivity = env->NewGlobalRef(activity);
-    Utils::log("ErlebAR", "init request install  %p", _activity);
-
 }
 
 void SENSNdkARCore::checkAvailability(JNIEnv* env, void* context, void * activity)
@@ -33,7 +27,6 @@ void SENSNdkARCore::checkAvailability(JNIEnv* env, void* context, void * activit
              availability == AR_AVAILABILITY_SUPPORTED_APK_TOO_OLD   ||
              availability == AR_AVAILABILITY_SUPPORTED_INSTALLED)
     {
-        Utils::log("ErlebAR", "request install");
         ArInstallStatus install_status;
         ArCoreApk_requestInstall(env, activity, true, &install_status);
     }
@@ -66,11 +59,6 @@ void SENSNdkARCore::initCameraTexture()
     glBindTexture(GL_TEXTURE_EXTERNAL_OES, _cameraTextureId);
     glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-}
-
-bool SENSNdkARCore::waitInit()
-{
-    return _waitInit;
 }
 
 bool SENSNdkARCore::init()
@@ -174,8 +162,10 @@ bool SENSNdkARCore::update(cv::Mat& pose)
     if (!_arSession)
         return false;
 
-    if (ArSession_update(_arSession, _arFrame) != AR_SUCCESS)
+    ArStatus status = ArSession_update(_arSession, _arFrame);
+    if (status != AR_SUCCESS) {
         return false;
+    }
 
     ArCamera* arCamera;
     ArFrame_acquireCamera(_arSession, _arFrame, &arCamera);
@@ -279,8 +269,6 @@ void SENSNdkARCore::updateCamera(cv::Mat& intrinsics)
     updateFrame(bgr, intrinsics, true);
 }
 
-
-
 void SENSNdkARCore::lightComponentIntensity(float * component)
 {
     component[0] = _envLightI[0];
@@ -323,18 +311,20 @@ bool SENSNdkARCore::resume()
         {
             _pause = false;
             _started = true; //for SENSCameraBase
-        }
+        } else
+            Utils::log("ErlebAR", "SENSNdkARCore resume failed!!!");
     }
     return !_pause;
 }
 
 void SENSNdkARCore::pause()
 {
-    _pause = true;
     _started = false; //for SENSCameraBase
     if (_arSession != nullptr)
-        if( AR_SUCCESS == ArSession_pause(_arSession))
-            Utils::log("SENSNdkARCore", "success");
+        if(AR_SUCCESS == ArSession_pause(_arSession))
+            _pause = true;
+        else
+            Utils::log("ErlebAR", "SENSNdkARCore pause failed!!!");
 }
 
 void SENSNdkARCore::retrieveCaptureProperties()

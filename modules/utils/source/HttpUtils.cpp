@@ -799,7 +799,7 @@ int HttpUtils::length(string url, string user, string pwd)
 {
     HttpUtils::GetRequest req = HttpUtils::GetRequest(url, user, pwd);
     if (req.send() < 0)
-        return 0;
+        return -1;
 
     return (int)req.contentLength;
 }
