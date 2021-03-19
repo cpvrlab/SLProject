@@ -1150,6 +1150,31 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "IOS") #---------------------------------
                 )
     endforeach(lib)
 
+    ###################
+    # ktx for iOS     #
+    ###################
+    set(ktx_VERSION "v4.0.0-beta7")
+    set(ktx_DIR ${PREBUILT_PATH}/iosV8_ktx_${ktx_VERSION})
+    set(ktx_PREBUILT_ZIP "iosV8_ktx_${ktx_VERSION}.zip")
+    set(ktx_URL ${PREBUILT_URL}/${ktx_PREBUILT_ZIP})
+
+    if (NOT EXISTS "${ktx_DIR}")
+        message(STATUS "Downloading: ${ktx_PREBUILT_ZIP}")
+        file(DOWNLOAD "${ktx_URL}" "${PREBUILT_PATH}/${ktx_PREBUILT_ZIP}")
+        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
+                "${PREBUILT_PATH}/${ktx_PREBUILT_ZIP}"
+                WORKING_DIRECTORY "${PREBUILT_PATH}")
+        file(REMOVE "${PREBUILT_PATH}/${ktx_PREBUILT_ZIP}")
+    endif()
+
+    add_library(KTX::ktx STATIC IMPORTED)
+    set_target_properties(KTX::ktx
+        PROPERTIES
+        IMPORTED_LOCATION_DEBUG "${ktx_DIR}/release/libktx.a"
+        IMPORTED_LOCATION_RELEASE "${ktx_DIR}/debug/libktx.a"
+        INTERFACE_INCLUDE_DIRECTORIES "${ktx_INCLUDE_DIR}"
+        )
+
 elseif("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID") #---------------------------------------------------------------------
 
     ######################
