@@ -689,6 +689,33 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN" AND
 	    endif()
 	endif()
 
+    ########################
+    # ktx for MacOS-x86_64 #
+    ########################
+    set(ktx_VERSION "v4.0.0-beta7")
+    set(ktx_DIR ${PREBUILT_PATH}/mac64_ktx_${ktx_VERSION})
+    set(ktx_PREBUILT_ZIP "mac64_ktx_${ktx_VERSION}.zip")
+    set(ktx_URL ${PREBUILT_URL}/${ktx_PREBUILT_ZIP})
+
+    if (NOT EXISTS "${ktx_DIR}")
+        message(STATUS "Downloading: ${ktx_PREBUILT_ZIP}")
+        file(DOWNLOAD "${ktx_URL}" "${PREBUILT_PATH}/${ktx_PREBUILT_ZIP}")
+        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
+                "${PREBUILT_PATH}/${ktx_PREBUILT_ZIP}"
+                WORKING_DIRECTORY "${PREBUILT_PATH}")
+        file(REMOVE "${PREBUILT_PATH}/${ktx_PREBUILT_ZIP}")
+    endif()
+
+    add_library(KTX::ktx SHARED IMPORTED)
+    set_target_properties(KTX::ktx
+        PROPERTIES
+        IMPORTED_LOCATION_RELEASE "${ktx_DIR}/release/libktx.dylib"
+        IMPORTED_LOCATION_DEBUG "${ktx_DIR}/debug/libktx.dylib"
+        INTERFACE_INCLUDE_DIRECTORIES "${ktx_DIR}/include"
+        )
+
+    set(ktx_LIBS KTX::ktx)
+
     ############################
     # openssl for MacOS-x86_64 #
     ############################
@@ -1172,8 +1199,17 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "IOS") #---------------------------------
         PROPERTIES
         IMPORTED_LOCATION_DEBUG "${ktx_DIR}/release/libktx.a"
         IMPORTED_LOCATION_RELEASE "${ktx_DIR}/debug/libktx.a"
-        INTERFACE_INCLUDE_DIRECTORIES "${ktx_INCLUDE_DIR}"
+        INTERFACE_INCLUDE_DIRECTORIES "${ktx_DIR}/include"
         )
+
+    add_library(KTX::zstd STATIC IMPORTED)
+    set_target_properties(KTX::zstd
+        PROPERTIES
+        IMPORTED_LOCATION_DEBUG "${ktx_DIR}/release/libzstd.a"
+        IMPORTED_LOCATION_RELEASE "${ktx_DIR}/debug/libzstd.a"
+        )
+
+    set(ktx_LIBS KTX::ktx KTX::zstd)
 
 elseif("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID") #---------------------------------------------------------------------
 
