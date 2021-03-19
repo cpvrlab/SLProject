@@ -21,7 +21,6 @@ public:
     void reset() override;
     void pause() override;
     bool update(cv::Mat& pose);
-    bool waitInit();
     //SENSFramePtr latestFrame() override;
     //void setDisplaySize(int w, int h) override;
     void lightComponentIntensity(float * components);
@@ -45,10 +44,7 @@ private:
     GLuint _cameraTextureId;
 	//float          _lightColor[4];
 	float            _envLightI[3];
-	void * _context;
-	void * _activity;
     JavaVM* _jvm;
-    jobject gActivity;
 
     void    checkAvailability(JNIEnv* env, void* context, void * activity);
     void    initCameraTexture();
