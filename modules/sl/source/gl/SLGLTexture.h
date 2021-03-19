@@ -251,7 +251,7 @@ protected:
     std::mutex        _mutex;         //!< Mutex to protect parallel access (used in ray tracing)
 
     SLbool _deleteImageAfterBuild; //!< Flag if images should be deleted after build on GPU
-
+    SLbool _compressedTexture = false;
 #ifdef SL_HAS_OPTIX
     CUgraphicsResource _cudaGraphicsResource; //!< Cuda Graphics object
     CUtexObject        _cudaTextureObject;

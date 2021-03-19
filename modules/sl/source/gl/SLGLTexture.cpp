@@ -15,6 +15,7 @@
 #include <SLAssetManager.h>
 #include <Utils.h>
 #include <Instrumentor.h>
+#include <ktx.h>
 
 #ifdef SL_HAS_OPTIX
 #    include <cuda.h>
@@ -492,10 +493,25 @@ void SLGLTexture::load(const SLstring& filename,
         SL_EXIT_MSG(msg.c_str());
     }
 
-    CVImage* image = new CVImage(filename,
-                                 flipVertical,
-                                 loadGrayscaleIntoAlpha);
-    _images.push_back(image);
+    std::string ext = Utils::getFileExt(filename);
+    if(ext == "ktx2")
+    {
+        _compressedTexture = true;
+        
+        ktxTexture2* texture;
+        KTX_error_code result;
+         
+        result = ktxTexture_CreateFromNamedFile(filename.c_str(),
+                                                KTX_TEXTURE_CREATE_NO_FLAGS,
+                                                (ktxTexture**)&texture);
+    }
+    else
+    {
+        CVImage* image = new CVImage(filename,
+                                     flipVertical,
+                                     loadGrayscaleIntoAlpha);
+        _images.push_back(image);
+    }
 }
 //-----------------------------------------------------------------------------
 //! Loads the 1D color data into an image of height 1
