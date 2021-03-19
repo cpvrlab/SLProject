@@ -14,7 +14,6 @@ struct SENSFrameBase
     {
     }
 
-    //! cropped input image
     cv::Mat imgBGR;
     cv::Mat intrinsics;
 

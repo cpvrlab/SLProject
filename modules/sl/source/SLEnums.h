@@ -168,12 +168,15 @@ enum SLSceneID
 
     SID_ErlebARBielBFH,
     SID_ErlebARChristoffel,
-    SID_ErlebARAugustaRaurica,
-    SID_ErlebARAugustaRauricaTmpThtAO,
+    SID_ErlebARAugustaRauricaTmp,
+    SID_ErlebARAugustaRauricaTht,
+    SID_ErlebARAugustaRauricaTmpTht,
     SID_ErlebARAventicumAmphiAO,
     SID_ErlebARAventicumCigognier,
     SID_ErlebARAventicumCigognierAO,
     SID_ErlebARAventicumTheatre,
+    SID_ErlebARSutzKirchrain18,
+    SID_ErlebAREvilardCheminDuRoc2,
 
     SID_Maximal
 };

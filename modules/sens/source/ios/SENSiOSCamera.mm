@@ -48,12 +48,13 @@ const SENSCameraConfig& SENSiOSCamera::start(std::string                   devic
     if (provideIntrinsics)
         enableVideoStabilization = NO;
 
-    if ([_cameraDelegate startCamera:devId
-                           withWidth:streamConfig.widthPix
-                           andHeight:streamConfig.heightPix
-                      autoFocusState:YES //alway on on ios because they provide dynamic intrinsics
-             videoStabilizationState:enableVideoStabilization
-                     intrinsicsState:provideIntrinsics])
+    BOOL extractedExpr = [_cameraDelegate startCamera:devId
+                                            withWidth:streamConfig.widthPix
+                                            andHeight:streamConfig.heightPix
+                                       autoFocusState:YES //alway on on ios because they provide dynamic intrinsics
+                              videoStabilizationState:enableVideoStabilization
+                                      intrinsicsState:provideIntrinsics];
+    if (extractedExpr)
     {
         //init config here before processStart
         _config = SENSCameraConfig(deviceId,

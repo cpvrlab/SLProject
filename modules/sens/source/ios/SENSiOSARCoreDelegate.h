@@ -3,6 +3,7 @@
 
 #import <ARKit/ARKit.h>
 #import <simd/simd.h>
+#include <SENSCamera.h>
 
 @interface SENSiOSARCoreDelegate : NSObject<ARSessionDelegate>
 
@@ -13,6 +14,7 @@
 - (BOOL)reset;
 
 - (void)latestFrame:(cv::Mat*)pose withImg:(cv::Mat*)imgBGR AndIntrinsic:(cv::Mat*)intrinsic AndImgWidth:(int*)w AndImgHeight:(int*)h IsTracking:(BOOL*)isTracking;
+- (void)initARKit;
 
 //pose, yPlane, uvPlane, width, height, intrinsic
 @property (nonatomic, assign) std::function<void(simd_float4x4*, uint8_t*, uint8_t*, size_t, size_t, simd_float3x3*, bool isTracking)> updateCB;

@@ -66,7 +66,8 @@ public:
     static SLbool      showProperties;      //!< Flag if properties should be shown
     static SLbool      showChristoffel;     //!< Flag if Christoffel infos should be shown
     static SLbool      showUIPrefs;         //!< Flag if UI preferences
-    static SLbool      showTransform;       //!< Flag if tranform dialog should be shown
+    static SLbool      showTransform;       //!< Flag if transform dialog should be shown
+    static SLbool      showDateAndTime;     //!< Flag if date-time dialog should be shown
     static std::time_t adjustedTime;        //!< Adjusted GUI time for sun setting (default 0)
 
 private:

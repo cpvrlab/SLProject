@@ -20,10 +20,10 @@
     //Initialize members (not necessary with ARC)
     _arSession = nil;
     _arConfig  = nil;
-    if (self)
-    {
-        [self initARKit];
-    }
+    //if (self)
+    //{
+    //    [self initARKit];
+    //}
 
     return self;
 }
@@ -33,16 +33,20 @@
     if (ARWorldTrackingConfiguration.isSupported)
     {
         // Create an ARSession
-        _arSession          = [ARSession new];
-        _arSession.delegate = self;
-
-        _arConfig = [ARWorldTrackingConfiguration new];
-
-        for (int i = 0; i < ARWorldTrackingConfiguration.supportedVideoFormats.count; ++i)
+        if(_arSession == nil)
         {
-            CGSize s = ARWorldTrackingConfiguration.supportedVideoFormats[i].imageResolution;
-            NSLog(NSStringFromCGSize(s));
+            _arSession          = [ARSession new];
+            _arSession.delegate = self;
         }
+
+        if(_arConfig == nil)
+            _arConfig = [ARWorldTrackingConfiguration new];
+
+        //for (int i = 0; i < ARWorldTrackingConfiguration.supportedVideoFormats.count; ++i)
+        //{
+        //    CGSize s = ARWorldTrackingConfiguration.supportedVideoFormats[i].imageResolution;
+        //    NSLog(NSStringFromCGSize(s));
+        //}
 
         _arConfig.videoFormat = ARWorldTrackingConfiguration.supportedVideoFormats.lastObject;
     }
@@ -204,5 +208,5 @@
 {
     // Reset tracking and/or remove existing anchors if consistent tracking is required
 }
-
+    
 @end

@@ -132,7 +132,7 @@ public:
     void clearCalibration() { _calibrationOverwrite.reset(); }
 
 private:
-    SENSFramePtr processNewFrame(const SENSTimePt& timePt, cv::Mat& bgrImg, cv::Mat intrinsics, bool intrinsicsChanged);
+    SENSFramePtr processNewFrame(const SENSTimePt& timePt, cv::Mat bgrImg, cv::Mat intrinsics, bool intrinsicsChanged);
 
     SENSCamera*                         _camera;
     std::unique_ptr<SENSCvCameraConfig> _config;

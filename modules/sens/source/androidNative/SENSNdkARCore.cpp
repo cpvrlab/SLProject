@@ -68,17 +68,20 @@ void SENSNdkARCore::initCameraTexture()
     glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 }
 
-bool SENSNdkARCore::init(int w, int h, int manipW, int manipH, bool convertManipToGray)
+bool SENSNdkARCore::init()
 {
     if (!_available)
         return false;
     if (_arSession != nullptr)
         reset();
 
-    configure(w, h, manipW, manipH, convertManipToGray);
     JNIEnv* env;
     _activity->vm->GetEnv((void**)&env, JNI_VERSION_1_6);
-    _activity->vm->AttachCurrentThread(&env, NULL);
+    jint result = _activity->vm->AttachCurrentThread(&env, NULL);
+    if (result == JNI_ERR)
+    {
+        Utils::log("SENSNdkARCore", "error");
+    }
     jobject activityObj = env->NewGlobalRef(_activity->clazz);
 
     ArInstallStatus install_status;
@@ -105,7 +108,8 @@ bool SENSNdkARCore::init(int w, int h, int manipW, int manipH, bool convertManip
         return false;
     }
 
-    ArSession_setDisplayGeometry(_arSession, 0, _config.targetWidth, _config.targetHeight);
+    //todo: what do we have to set here? the display size? is it needed at all for our case?
+    //ArSession_setDisplayGeometry(_arSession, 0, _config.targetWidth, _config.targetHeight);
 
     // ----- config -----
     ArConfig* arConfig = nullptr;
@@ -232,7 +236,7 @@ bool SENSNdkARCore::update(cv::Mat& pose)
          */
     }
 
-    updateFrame(intrinsics);
+    updateCamera(intrinsics);
 
     //---- LIGHT ESTIMATE ----//
     // Get light estimation value.
@@ -267,7 +271,7 @@ bool SENSNdkARCore::update(cv::Mat& pose)
     return true;
 }
 
-void SENSNdkARCore::updateFrame(cv::Mat& intrinsics)
+void SENSNdkARCore::updateCamera(cv::Mat& intrinsics)
 {
     ArImage* arImage;
     if (ArFrame_acquireCameraImage(_arSession, _arFrame, &arImage) != AR_SUCCESS)
@@ -280,8 +284,7 @@ void SENSNdkARCore::updateFrame(cv::Mat& intrinsics)
 
     cv::cvtColor(yuv, bgr, cv::COLOR_YUV2BGR_NV21, 3);
 
-    std::lock_guard<std::mutex> lock(_frameMutex);
-    _frame = std::make_unique<SENSFrameBase>(SENSClock::now(), bgr, intrinsics);
+    updateFrame(bgr, intrinsics, true);
 }
 
 
@@ -364,7 +367,10 @@ bool SENSNdkARCore::resume()
     {
         const ArStatus status = ArSession_resume(_arSession);
         if (status == AR_SUCCESS)
+        {
             _pause = false;
+            _started = true; //for SENSCameraBase
+        }
     }
     return !_pause;
 }
@@ -372,6 +378,85 @@ bool SENSNdkARCore::resume()
 void SENSNdkARCore::pause()
 {
     _pause = true;
+    _started = false; //for SENSCameraBase
     if (_arSession != nullptr)
-        ArSession_pause(_arSession);
+        if( AR_SUCCESS == ArSession_pause(_arSession))
+            Utils::log("SENSNdkARCore", "success");
 }
+
+void SENSNdkARCore::retrieveCaptureProperties()
+{
+    //the SENSCameraBase needs to have a valid frame, otherwise we cannot estimate the fov correctly
+    if(!_frame)
+    {
+        resume();
+        HighResTimer t;
+        cv::Mat pose;
+        do {
+            update(pose);
+        }
+        while(!_frame && t.elapsedTimeInSec() < 5.f);
+
+        pause();
+    }
+
+    if(_frame)
+    {
+        std::string      deviceId = "ARKit";
+        SENSCameraFacing facing = SENSCameraFacing::BACK;
+
+        float focalLengthPix = -1.f;
+        if(!_frame->intrinsics.empty())
+        {
+            focalLengthPix = 0.5 * (_frame->intrinsics.at<double>(0, 0) + _frame->intrinsics.at<double>(1, 1));
+        }
+        SENSCameraDeviceProperties devProp(deviceId, facing);
+        devProp.add(_frame->imgBGR.cols, _frame->imgBGR.rows, focalLengthPix);
+        _captureProperties.push_back(devProp);
+    }
+    else
+        Utils::warnMsg("SENSiOSARCore", "retrieveCaptureProperties: Could not retrieve a valid frame!", __LINE__, __FILE__);
+}
+
+const SENSCaptureProperties& SENSNdkARCore::captureProperties()
+{
+    if(_captureProperties.size() == 0)
+        retrieveCaptureProperties();
+
+    return _captureProperties;
+}
+
+//This function does not really start the camera as for the arcore iplementation, the frame gets only updated with a call to arcore::update.
+//This function is needed to correctly use arcore as a camera in SENSCVCamera
+const SENSCameraConfig& SENSNdkARCore::start(std::string    deviceId,
+                                             const SENSCameraStreamConfig& streamConfig,
+                                             bool                          provideIntrinsics)
+{
+    //define capture properties
+    if(_captureProperties.size() == 0)
+        retrieveCaptureProperties();
+
+    if (_captureProperties.size() == 0)
+        throw SENSException(SENSType::CAM, "Could not retrieve camera properties!", __LINE__, __FILE__);
+
+    if (!_captureProperties.containsDeviceId(deviceId))
+        throw SENSException(SENSType::CAM, "DeviceId does not exist!", __LINE__, __FILE__);
+
+    SENSCameraFacing                  facing = SENSCameraFacing::UNKNOWN;
+    const SENSCameraDeviceProperties* props  = _captureProperties.camPropsForDeviceId(deviceId);
+    if (props)
+        facing = props->facing();
+
+    //init config here before processStart
+    _config = SENSCameraConfig(deviceId,
+                               streamConfig,
+                               facing,
+                               SENSCameraFocusMode::CONTINIOUS_AUTO_FOCUS);
+    //inform camera listeners
+    processStart();
+
+    _started = true;
+    return _config;
+}
+
+

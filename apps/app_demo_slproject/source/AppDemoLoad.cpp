@@ -474,9 +474,6 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->clipFar(30);
         cam1->translation(0, 0, 12);
         cam1->lookAt(0, 0, 0);
-        cam1->maxSpeed(20);
-        cam1->moveAccel(160);
-        cam1->brakeAccel(160);
         cam1->focalDist(12);
         cam1->stereoEyeSeparation(cam1->focalDist() / 30.0f);
         cam1->background().colors(SLCol4f(0.6f, 0.6f, 0.6f), SLCol4f(0.3f, 0.3f, 0.3f));
@@ -1987,7 +1984,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLNode* scene = new SLNode;
 
         SLCamera* cam1 = new SLCamera("Camera 1");
-        cam1->translation(0, 2, 15);
+        cam1->translation(0, 2, 20);
         cam1->lookAt(0, 2, 0);
         cam1->focalDist(8);
         cam1->background().colors(SLCol4f(0.1f, 0.1f, 0.1f));
@@ -2264,7 +2261,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Create camera in the center
         SLCamera* cam1 = new SLCamera("Camera 1");
-        cam1->translation(0, 0.5f, 3);
+        cam1->translation(0, 0.5f, 2);
         cam1->lookAt(0, 0.5f, 0);
         cam1->setInitialState();
         cam1->focalDist(3);
@@ -3562,7 +3559,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->translation(0, 2, 0);
         cam1->lookAt(-10, 2, 0);
         cam1->clipNear(1);
-        cam1->clipFar(500);
+        cam1->clipFar(700);
         cam1->setInitialState();
         cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
         cam1->background().texture(videoTexture);
@@ -3577,29 +3574,29 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sunLight->attenuation(1, 0, 0);
         sunLight->doSunPowerAdaptation(true);
         sunLight->createsShadows(true);
-        sunLight->createShadowMap(-100, 150, SLVec2f(250, 250), SLVec2i(4096, 4096));
+        sunLight->createShadowMap(-100, 150, SLVec2f(200, 150), SLVec2i(4096, 4096));
         sunLight->doSmoothShadows(true);
         sunLight->castsShadows(false);
+        sunLight->shadowMinBias(0.001f);
+        sunLight->shadowMaxBias(0.002f);
         SLApplication::devLoc.sunLightNode(sunLight); // Let the sun be rotated by time and location
 
         // Import the main model
         SLAssimpImporter importer;
         SLNode*          bern = importer.load(s->animManager(),
                                      s,
-                                     SLApplication::dataPath + "erleb-AR/models/bern/Bern-Bahnhofsplatz2.gltf",
-                                     SLApplication::texturePath);
+                                     SLApplication::dataPath + "erleb-AR/models/bern/Bern-Bahnhofsplatz3.gltf",
+                                     SLApplication::texturePath,
+                                     false,
+                                     true,
+                                     nullptr,
+                                     0.3f); // ambient factor
 
         // Make city with hard edges and without shadow mapping
-        SLNode* UmgD = bern->findChild<SLNode>("Umgebung-Daecher");
-        SLNode* UmgF = bern->findChild<SLNode>("Umgebung-Fassaden");
-        if (!UmgD) SL_EXIT_MSG("Node: Umgebung-Daecher not found!");
-        if (!UmgF) SL_EXIT_MSG("Node: Umgebung-Fassaden not found!");
-        UmgD->setMeshMat(matVideoBackground, true);
-        UmgF->setMeshMat(matVideoBackground, true);
-        UmgD->setDrawBitsRec(SL_DB_WITHEDGES, true);
-        UmgF->setDrawBitsRec(SL_DB_WITHEDGES, true);
-        UmgD->castsShadows(false);
-        UmgF->castsShadows(false);
+        SLNode* Umg = bern->findChild<SLNode>("Umgebung-Swisstopo");
+        Umg->setMeshMat(matVideoBackground, true);
+        Umg->setDrawBitsRec(SL_DB_WITHEDGES, true);
+        Umg->castsShadows(false);
 
         // Hide some objects
         bern->findChild<SLNode>("Baldachin-Glas")->drawBits()->set(SL_DB_HIDDEN, true);
@@ -3608,20 +3605,53 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         // Set the video background shader on the baldachin and the ground with shadow mapping
         bern->findChild<SLNode>("Baldachin-Stahl")->setMeshMat(matVideoBackgroundSM, true);
         bern->findChild<SLNode>("Baldachin-Glas")->setMeshMat(matVideoBackgroundSM, true);
-        bern->findChild<SLNode>("Boden")->setMeshMat(matVideoBackgroundSM, true);
+        bern->findChild<SLNode>("Chr-Alt-Stadtboden")->setMeshMat(matVideoBackgroundSM, true);
+        bern->findChild<SLNode>("Chr-Neu-Stadtboden")->setMeshMat(matVideoBackgroundSM, true);
 
-        // Set ambient on all child nodes
+        // Hide the new (last) version of the Christoffel tower
+        bern->findChild<SLNode>("Chr-Neu")->drawBits()->set(SL_DB_HIDDEN, true);
+
+        /* Set ambient on all child nodes
         bern->updateMeshMat([](SLMaterial* m) {
             if (m->name() != "Kupfer-dunkel")
                 m->ambient(SLCol4f(.3f, .3f, .3f));
         },
                             true);
+                            */
+
+        // Create textures and material for water
+        SLGLTexture* cubemap = new SLGLTexture(s,
+                                               SLApplication::dataPath + "erleb-AR/models/bern/Sea1+X1024.jpg",
+                                               SLApplication::dataPath + "erleb-AR/models/bern/Sea1-X1024.jpg",
+                                               SLApplication::dataPath + "erleb-AR/models/bern/Sea1+Y1024.jpg",
+                                               SLApplication::dataPath + "erleb-AR/models/bern/Sea1-Y1024.jpg",
+                                               SLApplication::dataPath + "erleb-AR/models/bern/Sea1+Z1024.jpg",
+                                               SLApplication::dataPath + "erleb-AR/models/bern/Sea1-Z1024.jpg");
+        // Material for water
+        SLMaterial* matWater = new SLMaterial(s, "water", SLCol4f::BLACK, SLCol4f::BLACK, 100, 0.1f, 0.9f, 1.5f);
+        matWater->translucency(1000);
+        matWater->transmissive(SLCol4f::WHITE);
+        matWater->textures().push_back(cubemap);
+        matWater->program(new SLGLProgramGeneric(s,
+                                                 SLApplication::shaderPath + "Reflect.vert",
+                                                 SLApplication::shaderPath + "Reflect.frag"));
+        bern->findChild<SLNode>("Chr-Wasser")->setMeshMat(matWater, true);
 
         // Add axis object a world origin (Loeb Ecke)
         SLNode* axis = new SLNode(new SLCoordAxis(s), "Axis Node");
         axis->setDrawBitsRec(SL_DB_MESHWIRED, false);
         axis->rotate(-90, 1, 0, 0);
         axis->castsShadows(false);
+
+        // Bridge rotation animation
+        SLNode*      bridge     = bern->findChild<SLNode>("Chr-Alt-Tor");
+        SLAnimation* bridgeAnim = s->animManager().createNodeAnimation("Gate animation", 8.0f, true, EC_inOutQuint, AL_pingPongLoop);
+        bridgeAnim->createNodeAnimTrackForRotation(bridge, 90, bridge->forwardOS());
+
+        // Gate translation animation
+        SLNode*      gate     = bern->findChild<SLNode>("Chr-Alt-Gatter");
+        SLAnimation* gateAnim = s->animManager().createNodeAnimation("Gatter Animation", 8.0f, true, EC_inOutQuint, AL_pingPongLoop);
+        gateAnim->createNodeAnimTrackForTranslation(gate, SLVec3f(0.0f, -3.6f, 0.0f));
 
         SLNode* scene = new SLNode("Scene");
         scene->addChild(sunLight);
@@ -3631,7 +3661,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         //initialize sensor stuff
         SLApplication::devLoc.originLatLonAlt(46.94763, 7.44074, 542.2);        // Loeb Ecken
-        SLApplication::devLoc.defaultLatLonAlt(46.94841, 7.43970, 541.1 + 1.7); // Bahnhof Ausgang in Augenhöhe
+        SLApplication::devLoc.defaultLatLonAlt(46.94841, 7.43970, 542.2 + 1.7); // Bahnhof Ausgang in Augenhöhe
         SLApplication::devLoc.locMaxDistanceM(1000.0f);                         // Max. Distanz. zum Loeb Ecken
         SLApplication::devLoc.improveOrigin(false);                             // Keine autom. Verbesserung vom Origin
         SLApplication::devLoc.useOriginAltitude(true);
@@ -3661,128 +3691,9 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(cam1);
         s->root3D(scene);
     }
-    else if (sceneID == SID_ErlebARAugustaRaurica) //..............................................
+    else if (sceneID == SID_ErlebARAugustaRauricaTmp) //...........................................
     {
-        s->name("Augusta Raurica AR");
-        s->info("Augmented Reality for Augusta Raurica");
-
-        SLCamera* cam1 = new SLCamera("Camera 1");
-        cam1->translation(0, 50, -150);
-        cam1->lookAt(0, 0, 0);
-        cam1->clipNear(1);
-        cam1->clipFar(400);
-        cam1->focalDist(150);
-        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
-
-        // Create video texture and turn on live video
-        videoTexture = new SLGLTexture(s, SLApplication::texturePath + "LiveVideoError.png", GL_LINEAR, GL_LINEAR);
-        cam1->background().texture(videoTexture);
-        CVCapture::instance()->videoType(VT_MAIN);
-
-        // Define shader that shows on all pixels the video background
-        SLGLProgram* spVideoBackground  = new SLGLProgramGeneric(s,
-                                                                SLApplication::shaderPath + "PerPixTmBackground.vert",
-                                                                SLApplication::shaderPath + "PerPixTmBackground.frag");
-        SLMaterial*  matVideoBackground = new SLMaterial(s,
-                                                        "matVideoBackground",
-                                                        videoTexture,
-                                                        nullptr,
-                                                        nullptr,
-                                                        nullptr,
-                                                        spVideoBackground);
-
-        // Define shader that shows on all pixels the video background with shadow mapping
-        SLGLProgram* spVideoBackgroundSM  = new SLGLProgramGeneric(s,
-                                                                  SLApplication::shaderPath + "PerPixTmBackgroundSm.vert",
-                                                                  SLApplication::shaderPath + "PerPixTmBackgroundSm.frag");
-        SLMaterial*  matVideoBackgroundSM = new SLMaterial(s,
-                                                          "matVideoBackground",
-                                                          videoTexture,
-                                                          nullptr,
-                                                          nullptr,
-                                                          nullptr,
-                                                          spVideoBackgroundSM);
-        matVideoBackgroundSM->ambient(SLCol4f(0.6f, 0.6f, 0.6f));
-        matVideoBackgroundSM->getsShadows(true);
-
-        // Create directional light for the sun light
-        SLLightDirect* sunLight = new SLLightDirect(s, s, 5.0f);
-        sunLight->translate(-42, 10, 13);
-        sunLight->powers(1.0f, 1.5f, 1.0f);
-        sunLight->attenuation(1, 0, 0);
-        sunLight->doSunPowerAdaptation(true);
-        sunLight->createsShadows(true);
-        sunLight->createShadowMap(-100, 250, SLVec2f(210, 150), SLVec2i(4096, 4096));
-        sunLight->doSmoothShadows(true);
-        sunLight->castsShadows(false);
-        SLApplication::devLoc.sunLightNode(sunLight); // Let the sun be rotated by time and location
-
-        SLAssimpImporter importer;
-        SLNode*          thtAndTmp = importer.load(s->animManager(),
-                                          s,
-                                          SLApplication::dataPath + "erleb-AR/models/augst/Tempel-Theater-02.gltf",
-                                          SLApplication::texturePath,
-                                          true,    // delete tex images after build
-                                          true,    // only meshes
-                                          nullptr, // no replacement material
-                                          0.4f);   // 40% ambient reflection
-
-        // Rotate to the true geographic rotation
-        thtAndTmp->rotate(16.7f, 0, 1, 0, TS_parent);
-
-        // Let the video shine through on some objects
-        thtAndTmp->findChild<SLNode>("Tmp-Boden")->setMeshMat(matVideoBackgroundSM, true);
-        thtAndTmp->findChild<SLNode>("Tht-Boden")->setMeshMat(matVideoBackgroundSM, true);
-
-        // Add axis object a world origin
-        SLNode* axis = new SLNode(new SLCoordAxis(s), "Axis Node");
-        axis->setDrawBitsRec(SL_DB_MESHWIRED, false);
-        axis->rotate(-90, 1, 0, 0);
-        axis->castsShadows(false);
-
-        // Set some ambient light
-        thtAndTmp->updateMeshMat([](SLMaterial* m) { m->ambient(SLCol4f(.25f, .23f, .15f)); }, true);
-        SLNode* scene = new SLNode("Scene");
-        scene->addChild(sunLight);
-        scene->addChild(axis);
-        scene->addChild(thtAndTmp);
-        scene->addChild(cam1);
-
-        //initialize sensor stuff
-        SLApplication::devLoc.useOriginAltitude(false);                   // Use
-        SLApplication::devLoc.originLatLonAlt(47.53319, 7.72207, 0);      // At the center of the theater
-        SLApplication::devLoc.defaultLatLonAlt(47.5329758, 7.7210428, 0); // At the entrance of the tempel
-        SLApplication::devLoc.locMaxDistanceM(1000.0f);                   // Max. allowed distance to origin
-        SLApplication::devLoc.improveOrigin(false);                       // No autom. origin improvement
-        SLApplication::devLoc.hasOrigin(true);
-        SLApplication::devRot.zeroYawAtStart(false); // Use the real yaw from the IMU
-
-        // This loads the DEM file and overwrites the altitude of originLatLonAlt and defaultLatLonAlt
-        SLstring tif = SLApplication::dataPath + "erleb-AR/models/augst/DTM-Theater-Tempel-WGS84.tif";
-        SLApplication::devLoc.loadGeoTiff(tif);
-
-#if defined(SL_OS_MACIOS) || defined(SL_OS_ANDROID)
-        SLApplication::devLoc.isUsed(true);
-        SLApplication::devRot.isUsed(true);
-        cam1->camAnim(SLCamAnim::CA_deviceRotLocYUp);
-#else
-        SLApplication::devLoc.isUsed(false);
-        SLApplication::devRot.isUsed(false);
-        SLVec3d pos_d = SLApplication::devLoc.defaultENU() - SLApplication::devLoc.originENU();
-        SLVec3f pos_f((SLfloat)pos_d.x, (SLfloat)pos_d.y, (SLfloat)pos_d.z);
-        cam1->translation(pos_f);
-        cam1->focalDist(pos_f.length());
-        cam1->lookAt(SLVec3f::ZERO);
-        cam1->camAnim(SLCamAnim::CA_turntableYUp);
-#endif
-
-        sv->doWaitOnIdle(false); // for constant video feed
-        sv->camera(cam1);
-        s->root3D(scene);
-    }
-    else if (sceneID == SID_ErlebARAugustaRauricaTmpThtAO) //......................................
-    {
-        s->name("Augusta Raurica AR with Ambient Occlusion");
+        s->name("Augusta Raurica Temple AR");
         s->info(s->name());
 
         string shdDir = SLApplication::shaderPath;
@@ -3829,15 +3740,298 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         matVideoBackgroundSM->getsShadows(true);
 
         // Create directional light for the sun light
-        SLLightDirect* sunLight = new SLLightDirect(s, s, 5.0f);
+        SLLightDirect* sunLight = new SLLightDirect(s, s, 1.0f);
         sunLight->translate(-42, 10, 13);
         sunLight->powers(1.0f, 1.5f, 1.0f);
         sunLight->attenuation(1, 0, 0);
         sunLight->doSunPowerAdaptation(true);
         sunLight->createsShadows(true);
-        sunLight->createShadowMap(-100, 250, SLVec2f(210, 150), SLVec2i(4096, 4096));
+        sunLight->createShadowMap(-100,
+                                  250,
+                                  SLVec2f(210, 150),
+                                  SLVec2i(4096, 4096));
         sunLight->doSmoothShadows(true);
         sunLight->castsShadows(false);
+        sunLight->shadowMinBias(0.001f);
+        sunLight->shadowMinBias(0.002f);
+        SLApplication::devLoc.sunLightNode(sunLight); // Let the sun be rotated by time and location
+
+        // Load main model
+        SLAssimpImporter importer; //(LV_diagnostic);
+        SLNode*          thtAndTmp = importer.load(s->animManager(),
+                                          s,
+                                          datDir + "Tempel-03.gltf",
+                                          texDir,
+                                          true,    // delete tex images after build
+                                          true,    // only meshes
+                                          nullptr, // no replacement material
+                                          0.4f);   // 40% ambient reflection
+
+        // Rotate to the true geographic rotation
+        thtAndTmp->rotate(16.7f, 0, 1, 0, TS_parent);
+
+        // Let the video shine through on some objects without shadow mapping
+        SLNode* tmpUnderground = thtAndTmp->findChild<SLNode>("TmpUnderground");
+        if (tmpUnderground) tmpUnderground->setMeshMat(matVideoBackground, true);
+        SLNode* thtUnderground = thtAndTmp->findChild<SLNode>("ThtUnderground");
+        if (thtUnderground) thtUnderground->setMeshMat(matVideoBackground, true);
+
+        // Let the video shine through on some objects with shadow mapping
+        SLNode* tmpFloor = thtAndTmp->findChild<SLNode>("TmpFloor");
+        if (tmpFloor) tmpFloor->setMeshMat(matVideoBackgroundSM, true);
+        SLNode* terrain = thtAndTmp->findChild<SLNode>("Terrain");
+        if (terrain) terrain->setMeshMat(matVideoBackgroundSM, true);
+        SLNode* thtFrontTerrain = thtAndTmp->findChild<SLNode>("ThtFrontTerrain");
+        if (thtFrontTerrain) thtFrontTerrain->setMeshMat(matVideoBackgroundSM, true);
+
+        // Add axis object a world origin
+        SLNode* axis = new SLNode(new SLCoordAxis(s), "Axis Node");
+        axis->setDrawBitsRec(SL_DB_MESHWIRED, false);
+        axis->rotate(-90, 1, 0, 0);
+        axis->castsShadows(false);
+
+        // Set some ambient light
+        thtAndTmp->updateMeshMat([](SLMaterial* m) { m->ambient(SLCol4f(.25f, .23f, .15f)); }, true);
+        SLNode* scene = new SLNode("Scene");
+        scene->addChild(sunLight);
+        scene->addChild(axis);
+        scene->addChild(thtAndTmp);
+        scene->addChild(cam1);
+
+        //initialize sensor stuff
+        SLApplication::devLoc.useOriginAltitude(false);                   // Use
+        SLApplication::devLoc.originLatLonAlt(47.53319, 7.72207, 0);      // At the center of the theater
+        SLApplication::devLoc.defaultLatLonAlt(47.5329758, 7.7210428, 0); // At the entrance of the tempel
+        SLApplication::devLoc.locMaxDistanceM(1000.0f);                   // Max. allowed distance to origin
+        SLApplication::devLoc.improveOrigin(false);                       // No autom. origin improvement
+        SLApplication::devLoc.hasOrigin(true);
+        SLApplication::devRot.zeroYawAtStart(false); // Use the real yaw from the IMU
+
+        // This loads the DEM file and overwrites the altitude of originLatLonAlt and defaultLatLonAlt
+        SLstring tif = datDir + "DTM-Theater-Tempel-WGS84.tif";
+        SLApplication::devLoc.loadGeoTiff(tif);
+
+#if defined(SL_OS_MACIOS) || defined(SL_OS_ANDROID)
+        SLApplication::devLoc.isUsed(true);
+        SLApplication::devRot.isUsed(true);
+        cam1->camAnim(SLCamAnim::CA_deviceRotLocYUp);
+#else
+        SLApplication::devLoc.isUsed(false);
+        SLApplication::devRot.isUsed(false);
+        SLVec3d pos_d = SLApplication::devLoc.defaultENU() - SLApplication::devLoc.originENU();
+        SLVec3f pos_f((SLfloat)pos_d.x, (SLfloat)pos_d.y, (SLfloat)pos_d.z);
+        cam1->translation(pos_f);
+        cam1->focalDist(pos_f.length());
+        cam1->lookAt(SLVec3f::ZERO);
+        cam1->camAnim(SLCamAnim::CA_turntableYUp);
+#endif
+
+        sv->doWaitOnIdle(false); // for constant video feed
+        sv->camera(cam1);
+        s->root3D(scene);
+    }
+    else if (sceneID == SID_ErlebARAugustaRauricaTht) //...........................................
+    {
+        s->name("Augusta Raurica Theater AR");
+        s->info(s->name());
+
+        string shdDir = SLApplication::shaderPath;
+        string texDir = SLApplication::texturePath;
+        string datDir = SLApplication::dataPath + "erleb-AR/models/augst/";
+
+        SLCamera* cam1 = new SLCamera("Camera 1");
+        cam1->translation(0, 50, -150);
+        cam1->lookAt(0, 0, 0);
+        cam1->clipNear(1);
+        cam1->clipFar(400);
+        cam1->focalDist(150);
+        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
+
+        // Create video texture and turn on live video
+        videoTexture = new SLGLTexture(s, texDir + "LiveVideoError.png", GL_LINEAR, GL_LINEAR);
+        cam1->background().texture(videoTexture);
+        CVCapture::instance()->videoType(VT_MAIN);
+
+        // Define shader that shows on all pixels the video background
+        SLGLProgram* spVideoBackground  = new SLGLProgramGeneric(s,
+                                                                shdDir + "PerPixTmBackground.vert",
+                                                                shdDir + "PerPixTmBackground.frag");
+        SLMaterial*  matVideoBackground = new SLMaterial(s,
+                                                        "matVideoBackground",
+                                                        videoTexture,
+                                                        nullptr,
+                                                        nullptr,
+                                                        nullptr,
+                                                        spVideoBackground);
+
+        // Define shader that shows on all pixels the video background with shadow mapping
+        SLGLProgram* spVideoBackgroundSM  = new SLGLProgramGeneric(s,
+                                                                  shdDir + "PerPixTmBackgroundSm.vert",
+                                                                  shdDir + "PerPixTmBackgroundSm.frag");
+        SLMaterial*  matVideoBackgroundSM = new SLMaterial(s,
+                                                          "matVideoBackgroundSM",
+                                                          videoTexture,
+                                                          nullptr,
+                                                          nullptr,
+                                                          nullptr,
+                                                          spVideoBackgroundSM);
+        matVideoBackgroundSM->ambient(SLCol4f(0.6f, 0.6f, 0.6f));
+        matVideoBackgroundSM->getsShadows(true);
+
+        // Create directional light for the sun light
+        SLLightDirect* sunLight = new SLLightDirect(s, s, 1.0f);
+        sunLight->translate(-42, 10, 13);
+        sunLight->powers(1.0f, 1.5f, 1.0f);
+        sunLight->attenuation(1, 0, 0);
+        sunLight->doSunPowerAdaptation(true);
+        sunLight->createsShadows(true);
+        sunLight->createShadowMap(-100,
+                                  250,
+                                  SLVec2f(210, 150),
+                                  SLVec2i(4096, 4096));
+        sunLight->doSmoothShadows(true);
+        sunLight->castsShadows(false);
+        sunLight->shadowMinBias(0.001f);
+        sunLight->shadowMinBias(0.002f);
+        SLApplication::devLoc.sunLightNode(sunLight); // Let the sun be rotated by time and location
+
+        // Load main model
+        SLAssimpImporter importer; //(LV_diagnostic);
+        SLNode*          thtAndTmp = importer.load(s->animManager(),
+                                          s,
+                                          datDir + "Theater-03.gltf",
+                                          texDir,
+                                          true,    // delete tex images after build
+                                          true,    // only meshes
+                                          nullptr, // no replacement material
+                                          0.4f);   // 40% ambient reflection
+
+        // Rotate to the true geographic rotation
+        thtAndTmp->rotate(16.7f, 0, 1, 0, TS_parent);
+
+        // Let the video shine through on some objects without shadow mapping
+        SLNode* tmpUnderground = thtAndTmp->findChild<SLNode>("TmpUnderground");
+        if (tmpUnderground) tmpUnderground->setMeshMat(matVideoBackground, true);
+        SLNode* thtUnderground = thtAndTmp->findChild<SLNode>("ThtUnderground");
+        if (thtUnderground) thtUnderground->setMeshMat(matVideoBackground, true);
+
+        // Let the video shine through on some objects with shadow mapping
+        SLNode* tmpFloor = thtAndTmp->findChild<SLNode>("TmpFloor");
+        if (tmpFloor) tmpFloor->setMeshMat(matVideoBackgroundSM, true);
+        SLNode* terrain = thtAndTmp->findChild<SLNode>("Terrain");
+        if (terrain) terrain->setMeshMat(matVideoBackgroundSM, true);
+        SLNode* thtFrontTerrain = thtAndTmp->findChild<SLNode>("ThtFrontTerrain");
+        if (thtFrontTerrain) thtFrontTerrain->setMeshMat(matVideoBackgroundSM, true);
+
+        // Add axis object a world origin
+        SLNode* axis = new SLNode(new SLCoordAxis(s), "Axis Node");
+        axis->setDrawBitsRec(SL_DB_MESHWIRED, false);
+        axis->rotate(-90, 1, 0, 0);
+        axis->castsShadows(false);
+
+        // Set some ambient light
+        thtAndTmp->updateMeshMat([](SLMaterial* m) { m->ambient(SLCol4f(.25f, .23f, .15f)); }, true);
+        SLNode* scene = new SLNode("Scene");
+        scene->addChild(sunLight);
+        scene->addChild(axis);
+        scene->addChild(thtAndTmp);
+        scene->addChild(cam1);
+
+        //initialize sensor stuff
+        SLApplication::devLoc.useOriginAltitude(false);                         // Use
+        SLApplication::devLoc.originLatLonAlt(47.53319, 7.72207, 282.6);        // At the center of the theater
+        SLApplication::devLoc.defaultLatLonAlt(47.53308, 7.72153, 285.4 + 1.7); // On the street
+        SLApplication::devLoc.locMaxDistanceM(1000.0f);                         // Max. allowed distance to origin
+        SLApplication::devLoc.improveOrigin(false);                             // No autom. origin improvement
+        SLApplication::devLoc.hasOrigin(true);
+        SLApplication::devRot.zeroYawAtStart(false); // Use the real yaw from the IMU
+
+        // This loads the DEM file and overwrites the altitude of originLatLonAlt and defaultLatLonAlt
+        SLstring tif = datDir + "DTM-Theater-Tempel-WGS84.tif";
+        SLApplication::devLoc.loadGeoTiff(tif);
+
+#if defined(SL_OS_MACIOS) || defined(SL_OS_ANDROID)
+        SLApplication::devLoc.isUsed(true);
+        SLApplication::devRot.isUsed(true);
+        cam1->camAnim(SLCamAnim::CA_deviceRotLocYUp);
+#else
+        SLApplication::devLoc.isUsed(false);
+        SLApplication::devRot.isUsed(false);
+        SLVec3d pos_d = SLApplication::devLoc.defaultENU() - SLApplication::devLoc.originENU();
+        SLVec3f pos_f((SLfloat)pos_d.x, (SLfloat)pos_d.y, (SLfloat)pos_d.z);
+        cam1->translation(pos_f);
+        cam1->focalDist(pos_f.length());
+        cam1->lookAt(SLVec3f::ZERO);
+        cam1->camAnim(SLCamAnim::CA_turntableYUp);
+#endif
+
+        sv->doWaitOnIdle(false); // for constant video feed
+        sv->camera(cam1);
+        s->root3D(scene);
+    }
+    else if (sceneID == SID_ErlebARAugustaRauricaTmpTht) //........................................
+    {
+        s->name("Augusta Raurica AR Temple and Theater");
+        s->info(s->name());
+
+        string shdDir = SLApplication::shaderPath;
+        string texDir = SLApplication::texturePath;
+        string datDir = SLApplication::dataPath + "erleb-AR/models/augst/";
+
+        SLCamera* cam1 = new SLCamera("Camera 1");
+        cam1->translation(0, 50, -150);
+        cam1->lookAt(0, 0, 0);
+        cam1->clipNear(1);
+        cam1->clipFar(400);
+        cam1->focalDist(150);
+        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
+
+        // Create video texture and turn on live video
+        videoTexture = new SLGLTexture(s, texDir + "LiveVideoError.png", GL_LINEAR, GL_LINEAR);
+        cam1->background().texture(videoTexture);
+        CVCapture::instance()->videoType(VT_MAIN);
+
+        // Define shader that shows on all pixels the video background
+        SLGLProgram* spVideoBackground  = new SLGLProgramGeneric(s,
+                                                                shdDir + "PerPixTmBackground.vert",
+                                                                shdDir + "PerPixTmBackground.frag");
+        SLMaterial*  matVideoBackground = new SLMaterial(s,
+                                                        "matVideoBackground",
+                                                        videoTexture,
+                                                        nullptr,
+                                                        nullptr,
+                                                        nullptr,
+                                                        spVideoBackground);
+
+        // Define shader that shows on all pixels the video background with shadow mapping
+        SLGLProgram* spVideoBackgroundSM  = new SLGLProgramGeneric(s,
+                                                                  shdDir + "PerPixTmBackgroundSm.vert",
+                                                                  shdDir + "PerPixTmBackgroundSm.frag");
+        SLMaterial*  matVideoBackgroundSM = new SLMaterial(s,
+                                                          "matVideoBackgroundSM",
+                                                          videoTexture,
+                                                          nullptr,
+                                                          nullptr,
+                                                          nullptr,
+                                                          spVideoBackgroundSM);
+        matVideoBackgroundSM->ambient(SLCol4f(0.6f, 0.6f, 0.6f));
+        matVideoBackgroundSM->getsShadows(true);
+
+        // Create directional light for the sun light
+        SLLightDirect* sunLight = new SLLightDirect(s, s, 1.0f);
+        sunLight->translate(-42, 10, 13);
+        sunLight->powers(1.0f, 1.5f, 1.0f);
+        sunLight->attenuation(1, 0, 0);
+        sunLight->doSunPowerAdaptation(true);
+        sunLight->createsShadows(true);
+        sunLight->createShadowMap(-100,
+                                  250,
+                                  SLVec2f(210, 150),
+                                  SLVec2i(4096, 4096));
+        sunLight->doSmoothShadows(true);
+        sunLight->castsShadows(false);
+        sunLight->shadowMinBias(0.001f);
+        sunLight->shadowMaxBias(0.002f);
         SLApplication::devLoc.sunLightNode(sunLight); // Let the sun be rotated by time and location
 
         // Load main model
@@ -4191,7 +4385,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         CVCapture::instance()->videoType(VT_MAIN);
 
         // Create directional light for the sun light
-        SLLightDirect* sunLight = new SLLightDirect(s, s, 5.0f);
+        SLLightDirect* sunLight = new SLLightDirect(s, s, 1.0f);
         sunLight->powers(1.0f, 1.5f, 1.0f);
         sunLight->attenuation(1, 0, 0);
         sunLight->translation(0, 10, 0);
@@ -4369,6 +4563,260 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // This loads the DEM file and overwrites the altitude of originLatLonAlt and defaultLatLonAlt
         SLstring tif = SLApplication::dataPath + "erleb-AR/models/avenches/DTM-Aventicum-WGS84.tif";
+        SLApplication::devLoc.loadGeoTiff(tif);
+
+#if defined(SL_OS_MACIOS) || defined(SL_OS_ANDROID)
+        SLApplication::devLoc.isUsed(true);
+        SLApplication::devRot.isUsed(true);
+        cam1->camAnim(SLCamAnim::CA_deviceRotLocYUp);
+#else
+        SLApplication::devLoc.isUsed(false);
+        SLApplication::devRot.isUsed(false);
+        SLVec3d pos_d = SLApplication::devLoc.defaultENU() - SLApplication::devLoc.originENU();
+        SLVec3f pos_f((SLfloat)pos_d.x, (SLfloat)pos_d.y, (SLfloat)pos_d.z);
+        cam1->translation(pos_f);
+        cam1->focalDist(pos_f.length());
+        cam1->lookAt(SLVec3f::ZERO);
+        cam1->camAnim(SLCamAnim::CA_turntableYUp);
+#endif
+
+        sv->doWaitOnIdle(false); // for constant video feed
+        sv->camera(cam1);
+        s->root3D(scene);
+    }
+    else if (sceneID == SID_ErlebARSutzKirchrain18) //.............................................
+    {
+        s->name("Sutz, Kirchrain 18");
+        s->info("Augmented Reality for Sutz, Kirchrain 18");
+
+        SLCamera* cam1 = new SLCamera("Camera 1");
+        cam1->translation(0, 50, -150);
+        cam1->lookAt(0, 0, 0);
+        cam1->clipNear(1);
+        cam1->clipFar(300);
+        cam1->focalDist(150);
+        cam1->setInitialState();
+        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
+
+        // Create video texture and turn on live video
+        videoTexture = new SLGLTexture(s, SLApplication::texturePath + "LiveVideoError.png", GL_LINEAR, GL_LINEAR);
+        cam1->background().texture(videoTexture);
+        CVCapture::instance()->videoType(VT_MAIN);
+
+        // Define shader that shows on all pixels the video background
+        SLGLProgram* spVideoBackground  = new SLGLProgramGeneric(s,
+                                                                SLApplication::shaderPath + "PerPixTmBackground.vert",
+                                                                SLApplication::shaderPath + "PerPixTmBackground.frag");
+        SLMaterial*  matVideoBackground = new SLMaterial(s,
+                                                        "matVideoBackground",
+                                                        videoTexture,
+                                                        nullptr,
+                                                        nullptr,
+                                                        nullptr,
+                                                        spVideoBackground);
+
+        // Define shader that shows on all pixels the video background with shadow mapping
+        SLGLProgram* spVideoBackgroundSM  = new SLGLProgramGeneric(s,
+                                                                  SLApplication::shaderPath + "PerPixTmBackgroundSm.vert",
+                                                                  SLApplication::shaderPath + "PerPixTmBackgroundSm.frag");
+        SLMaterial*  matVideoBackgroundSM = new SLMaterial(s,
+                                                          "matVideoBackground",
+                                                          videoTexture,
+                                                          nullptr,
+                                                          nullptr,
+                                                          nullptr,
+                                                          spVideoBackgroundSM);
+        matVideoBackgroundSM->ambient(SLCol4f(0.6f, 0.6f, 0.6f));
+        matVideoBackgroundSM->getsShadows(true);
+
+        // Create directional light for the sun light
+        SLLightDirect* sunLight = new SLLightDirect(s, s, 5.0f);
+        sunLight->powers(1.0f, 1.0f, 1.0f);
+        sunLight->attenuation(1, 0, 0);
+        sunLight->translation(0, 10, 0);
+        sunLight->lookAt(10, 0, 10);
+        sunLight->doSunPowerAdaptation(true);
+        sunLight->createsShadows(true);
+        sunLight->createShadowMap(-100, 150, SLVec2f(150, 150), SLVec2i(4096, 4096));
+        sunLight->doSmoothShadows(true);
+        sunLight->castsShadows(false);
+
+        // Let the sun be rotated by time and location
+        SLApplication::devLoc.sunLightNode(sunLight);
+
+        // Import main model
+        SLAssimpImporter importer;
+        SLNode*          sutzK18 = importer.load(s->animManager(),
+                                        s,
+                                        SLApplication::dataPath + "erleb-AR/models/sutzKirchrain18/Sutz-Kirchrain18.gltf",
+                                        SLApplication::texturePath,
+                                        true,    // delete tex images after build
+                                        true,    // only meshes
+                                        nullptr, // no replacement material
+                                        0.4f);   // 40% ambient reflection
+
+        // Rotate to the true geographic rotation
+        // Nothing to do here because the model is north up
+
+        // Let the video shine through some objects
+        sutzK18->findChild<SLNode>("Terrain")->setMeshMat(matVideoBackgroundSM, true);
+
+        // Make buildings transparent with edges
+        SLNode* buildings = sutzK18->findChild<SLNode>("Buildings");
+        buildings->setMeshMat(matVideoBackground, true);
+        buildings->setDrawBitsRec(SL_DB_WITHEDGES, true);
+
+        // Add axis object a world origin
+        SLNode* axis = new SLNode(new SLCoordAxis(s), "Axis Node");
+        axis->setDrawBitsRec(SL_DB_MESHWIRED, false);
+        axis->rotate(-90, 1, 0, 0);
+        axis->castsShadows(false);
+
+        SLNode* scene = new SLNode("Scene");
+        scene->addChild(sunLight);
+        scene->addChild(axis);
+        scene->addChild(sutzK18);
+        scene->addChild(cam1);
+
+        //initialize sensor stuff
+        //Go to https://map.geo.admin.ch and choose your origin and default point
+        SLApplication::devLoc.useOriginAltitude(false);
+        SLApplication::devLoc.originLatLonAlt(47.10600, 7.21772, 434.4f);        // Corner Carport
+        SLApplication::devLoc.defaultLatLonAlt(47.10598, 7.21757, 433.9f + 1.7); // In the street
+        SLApplication::devLoc.locMaxDistanceM(1000.0f);                          // Max. Distanz. zum Nullpunkt
+        SLApplication::devLoc.improveOrigin(false);                              // Keine autom. Verbesserung vom Origin
+        SLApplication::devLoc.hasOrigin(true);
+        SLApplication::devRot.zeroYawAtStart(false);
+
+        // This loads the DEM file and overwrites the altitude of originLatLonAlt and defaultLatLonAlt
+        SLstring tif = SLApplication::dataPath + "erleb-AR/models/sutzKirchrain18/Sutz-Kirchrain18-DEM-WGS84.tif";
+        SLApplication::devLoc.loadGeoTiff(tif);
+
+#if defined(SL_OS_MACIOS) || defined(SL_OS_ANDROID)
+        SLApplication::devLoc.isUsed(true);
+        SLApplication::devRot.isUsed(true);
+        cam1->camAnim(SLCamAnim::CA_deviceRotLocYUp);
+#else
+        SLApplication::devLoc.isUsed(false);
+        SLApplication::devRot.isUsed(false);
+        SLVec3d pos_d = SLApplication::devLoc.defaultENU() - SLApplication::devLoc.originENU();
+        SLVec3f pos_f((SLfloat)pos_d.x, (SLfloat)pos_d.y, (SLfloat)pos_d.z);
+        cam1->translation(pos_f);
+        cam1->focalDist(pos_f.length());
+        cam1->lookAt(SLVec3f::ZERO);
+        cam1->camAnim(SLCamAnim::CA_turntableYUp);
+#endif
+
+        sv->doWaitOnIdle(false); // for constant video feed
+        sv->camera(cam1);
+        s->root3D(scene);
+    }
+    else if (sceneID == SID_ErlebAREvilardCheminDuRoc2) //.........................................
+    {
+        s->name("EvilardCheminDuRoc2");
+        s->info("Augmented Reality for Evilard, Chemin du Roc 2");
+
+        SLCamera* cam1 = new SLCamera("Camera 1");
+        cam1->translation(0, 50, -150);
+        cam1->lookAt(0, 0, 0);
+        cam1->clipNear(1);
+        cam1->clipFar(300);
+        cam1->focalDist(150);
+        cam1->setInitialState();
+        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
+
+        // Create video texture and turn on live video
+        videoTexture = new SLGLTexture(s, SLApplication::texturePath + "LiveVideoError.png", GL_LINEAR, GL_LINEAR);
+        cam1->background().texture(videoTexture);
+        CVCapture::instance()->videoType(VT_MAIN);
+
+        // Define shader that shows on all pixels the video background
+        SLGLProgram* spVideoBackground  = new SLGLProgramGeneric(s,
+                                                                SLApplication::shaderPath + "PerPixTmBackground.vert",
+                                                                SLApplication::shaderPath + "PerPixTmBackground.frag");
+        SLMaterial*  matVideoBackground = new SLMaterial(s,
+                                                        "matVideoBackground",
+                                                        videoTexture,
+                                                        nullptr,
+                                                        nullptr,
+                                                        nullptr,
+                                                        spVideoBackground);
+
+        // Define shader that shows on all pixels the video background with shadow mapping
+        SLGLProgram* spVideoBackgroundSM  = new SLGLProgramGeneric(s,
+                                                                  SLApplication::shaderPath + "PerPixTmBackgroundSm.vert",
+                                                                  SLApplication::shaderPath + "PerPixTmBackgroundSm.frag");
+        SLMaterial*  matVideoBackgroundSM = new SLMaterial(s,
+                                                          "matVideoBackground",
+                                                          videoTexture,
+                                                          nullptr,
+                                                          nullptr,
+                                                          nullptr,
+                                                          spVideoBackgroundSM);
+        matVideoBackgroundSM->ambient(SLCol4f(0.6f, 0.6f, 0.6f));
+        matVideoBackgroundSM->getsShadows(true);
+
+        // Create directional light for the sun light
+        SLLightDirect* sunLight = new SLLightDirect(s, s, 5.0f);
+        sunLight->powers(1.0f, 1.0f, 1.0f);
+        sunLight->attenuation(1, 0, 0);
+        sunLight->translation(0, 10, 0);
+        sunLight->lookAt(10, 0, 10);
+        sunLight->doSunPowerAdaptation(true);
+        sunLight->createsShadows(true);
+        sunLight->createShadowMap(-100, 150, SLVec2f(150, 150), SLVec2i(4096, 4096));
+        sunLight->doSmoothShadows(true);
+        sunLight->castsShadows(false);
+
+        // Let the sun be rotated by time and location
+        SLApplication::devLoc.sunLightNode(sunLight);
+
+        // Import main model
+        SLAssimpImporter importer;
+        SLNode*          evilardC2 = importer.load(s->animManager(),
+                                          s,
+                                          SLApplication::dataPath + "erleb-AR/models/evilardCheminDuRoc2/EvilardCheminDuRoc2.gltf",
+                                          SLApplication::texturePath,
+                                          true,    // delete tex images after build
+                                          true,    // only meshes
+                                          nullptr, // no replacement material
+                                          0.4f);   // 40% ambient reflection
+
+        // Rotate to the true geographic rotation
+        // Nothing to do here because the model is north up
+
+        // Let the video shine through some objects
+        evilardC2->findChild<SLNode>("Terrain")->setMeshMat(matVideoBackgroundSM, true);
+
+        // Make buildings transparent with edges
+        SLNode* buildings = evilardC2->findChild<SLNode>("Buildings");
+        buildings->setMeshMat(matVideoBackground, true);
+        buildings->setDrawBitsRec(SL_DB_WITHEDGES, true);
+
+        // Add axis object a world origin
+        SLNode* axis = new SLNode(new SLCoordAxis(s), "Axis Node");
+        axis->setDrawBitsRec(SL_DB_MESHWIRED, false);
+        axis->rotate(-90, 1, 0, 0);
+        axis->castsShadows(false);
+
+        SLNode* scene = new SLNode("Scene");
+        scene->addChild(sunLight);
+        scene->addChild(axis);
+        scene->addChild(evilardC2);
+        scene->addChild(cam1);
+
+        //initialize sensor stuff
+        //Go to https://map.geo.admin.ch and choose your origin and default point
+        SLApplication::devLoc.useOriginAltitude(false);
+        SLApplication::devLoc.originLatLonAlt(47.14818, 7.23322, 720.6f);        // Corner Chemin du Roc 7
+        SLApplication::devLoc.defaultLatLonAlt(47.14870, 7.23288, 726.0f + 1.7); // Place devant la Lisiere
+        SLApplication::devLoc.locMaxDistanceM(1000.0f);                          // Max. Distanz. zum Nullpunkt
+        SLApplication::devLoc.improveOrigin(false);                              // Keine autom. Verbesserung vom Origin
+        SLApplication::devLoc.hasOrigin(true);
+        SLApplication::devRot.zeroYawAtStart(false);
+
+        // This loads the DEM file and overwrites the altitude of originLatLonAlt and defaultLatLonAlt
+        SLstring tif = SLApplication::dataPath + "erleb-AR/models/evilardCheminDuRoc2/EvilardCheminDuRoc2-DEM-WGS84.tif";
         SLApplication::devLoc.loadGeoTiff(tif);
 
 #if defined(SL_OS_MACIOS) || defined(SL_OS_ANDROID)

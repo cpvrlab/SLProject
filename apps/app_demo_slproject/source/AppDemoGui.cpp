@@ -111,18 +111,16 @@ SLbool      AppDemoGui::showProperties      = false;
 SLbool      AppDemoGui::showChristoffel     = false;
 SLbool      AppDemoGui::showUIPrefs         = false;
 SLbool      AppDemoGui::showTransform       = false;
+SLbool      AppDemoGui::showDateAndTime     = false;
 std::time_t AppDemoGui::adjustedTime        = 0;
 SLbool      AppDemoGui::_horizonVisuEnabled = false;
 
 // Scene node for Christoffel objects
 static SLNode* bern        = nullptr;
-static SLNode* umgeb_dach  = nullptr;
-static SLNode* umgeb_fass  = nullptr;
-static SLNode* boden       = nullptr;
 static SLNode* balda_stahl = nullptr;
 static SLNode* balda_glas  = nullptr;
-static SLNode* mauer       = nullptr;
-static SLNode* graben      = nullptr;
+static SLNode* chrAlt      = nullptr;
+static SLNode* chrNeu      = nullptr;
 
 // Temp. transform node
 static SLTransformNode* transformNode = nullptr;
@@ -1079,6 +1077,115 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
                 ImGui::End();
             }
 
+            if (showDateAndTime && SLApplication::devLoc.originLatLonAlt() != SLVec3d::ZERO)
+            {
+                ImGuiWindowFlags window_flags = 0;
+                window_flags |= ImGuiWindowFlags_AlwaysAutoResize;
+                ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
+                ImGui::Begin("Date and Time Settings", &showTransform, window_flags);
+                ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.66f);
+
+                tm lt{};
+                if (adjustedTime)
+                    memcpy(&lt, std::localtime(&adjustedTime), sizeof(tm));
+                else
+                {
+                    std::time_t now = std::time(nullptr);
+                    memcpy(&lt, std::localtime(&now), sizeof(tm));
+                }
+
+                SLint month = lt.tm_mon + 1;
+                if (ImGui::SliderInt("Month", &month, 1, 12))
+                {
+                    lt.tm_mon    = month - 1;
+                    adjustedTime = mktime(&lt);
+                    SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLatLonAlt(),
+                                                               adjustedTime);
+                }
+                if (ImGui::SliderInt("Day", &lt.tm_mday, 1, 31))
+                {
+                    adjustedTime = mktime(&lt);
+                    SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLatLonAlt(),
+                                                               adjustedTime);
+                }
+                if (ImGui::SliderInt("Hour", &lt.tm_hour, 0, 23))
+                {
+                    adjustedTime = mktime(&lt);
+                    SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLatLonAlt(),
+                                                               adjustedTime);
+                }
+                if (ImGui::SliderInt("Min.", &lt.tm_min, 0, 59))
+                {
+                    adjustedTime = mktime(&lt);
+                    SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLatLonAlt(),
+                                                               adjustedTime);
+                }
+
+                SLchar strTime[100];
+                sprintf(strTime, "Set now (%02d.%02d.%02d %02d:%02d)", lt.tm_mday, lt.tm_mon, lt.tm_year + 1900, lt.tm_hour, lt.tm_min);
+                if (ImGui::MenuItem(strTime))
+                {
+                    adjustedTime    = 0;
+                    std::time_t now = std::time(nullptr);
+                    memcpy(&lt, std::localtime(&now), sizeof(tm));
+                    SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLatLonAlt(), now);
+                }
+
+                SLfloat SRh = SLApplication::devLoc.originSolarSunrise();
+                SLfloat SRm = (SLfloat)(60.0f * (SRh - (int)(SRh)));
+                sprintf(strTime, "Set sunrise time (%02d:%02d)", (int)(SRh), (int)SRm);
+                if (ImGui::MenuItem(strTime))
+                {
+                    lt.tm_hour   = (int)SRh;
+                    lt.tm_min    = (int)SRm;
+                    adjustedTime = mktime(&lt);
+                    SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLatLonAlt(),
+                                                               adjustedTime);
+                }
+
+                SLfloat SSh = SLApplication::devLoc.originSolarSunset();
+                SLfloat SSm = (SLfloat)(60.0f * (SSh - (int)(SSh)));
+                sprintf(strTime, "Set sunset time (%02d:%02d)", (int)(SSh), (int)SSm);
+                if (ImGui::MenuItem(strTime))
+                {
+                    lt.tm_hour   = (int)SSh;
+                    lt.tm_min    = (int)SSm;
+                    adjustedTime = mktime(&lt);
+                    SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLatLonAlt(),
+                                                               adjustedTime);
+                }
+
+                sprintf(strTime, "Set highest noon (21.06.%02d 12:00)", lt.tm_year);
+                if (ImGui::MenuItem(strTime))
+                {
+                    lt.tm_mon    = 6;
+                    lt.tm_mday   = 21;
+                    lt.tm_hour   = 12;
+                    lt.tm_min    = 0;
+                    lt.tm_sec    = 0;
+                    adjustedTime = mktime(&lt);
+                    SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLatLonAlt(),
+                                                               adjustedTime);
+                }
+
+                sprintf(strTime, "Set lowest noon (21.12.%02d 12:00)", lt.tm_year);
+                if (ImGui::MenuItem(strTime))
+                {
+                    lt.tm_mon    = 12;
+                    lt.tm_mday   = 21;
+                    lt.tm_hour   = 12;
+                    lt.tm_min    = 0;
+                    lt.tm_sec    = 0;
+                    adjustedTime = mktime(&lt);
+                    SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLatLonAlt(),
+                                                               adjustedTime);
+                }
+
+                ImGui::PopItemWidth();
+                ImGui::End();
+                ImGui::PopFont();
+            }
+
             if (showChristoffel && SLApplication::sceneID == SID_ErlebARChristoffel)
             {
                 ImGui::Begin("Christoffel",
@@ -1088,31 +1195,26 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
                 // Get scene nodes once
                 if (!bern)
                 {
-                    bern        = s->root3D()->findChild<SLNode>("Bern-Bahnhofsplatz2.gltf");
-                    boden       = bern->findChild<SLNode>("Boden", true);
+                    bern        = s->root3D()->findChild<SLNode>("Bern-Bahnhofsplatz3.gltf");
+                    chrAlt      = bern->findChild<SLNode>("Chr-Alt", true);
+                    chrNeu      = bern->findChild<SLNode>("Chr-Neu", true);
                     balda_stahl = bern->findChild<SLNode>("Baldachin-Stahl", true);
                     balda_glas  = bern->findChild<SLNode>("Baldachin-Glas", true);
-                    umgeb_dach  = bern->findChild<SLNode>("Umgebung-Daecher", true);
-                    umgeb_fass  = bern->findChild<SLNode>("Umgebung-Fassaden", true);
-                    mauer       = bern->findChild<SLNode>("Mauer", true);
-                    graben      = bern->findChild<SLNode>("Graben", true);
                 }
 
-                ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.66f);
-
-                SLbool umgebung = !umgeb_fass->drawBits()->get(SL_DB_HIDDEN);
-                if (ImGui::Checkbox("Umgebung", &umgebung))
+                SLbool chrAltIsOn = !chrAlt->drawBits()->get(SL_DB_HIDDEN);
+                if (ImGui::Checkbox("Christoffelturm 1500-1800", &chrAltIsOn))
                 {
-                    umgeb_fass->drawBits()->set(SL_DB_HIDDEN, !umgebung);
-                    umgeb_dach->drawBits()->set(SL_DB_HIDDEN, !umgebung);
+                    chrAlt->drawBits()->set(SL_DB_HIDDEN, false);
+                    chrNeu->drawBits()->set(SL_DB_HIDDEN, true);
                 }
 
-                SLbool bodenBool = !boden->drawBits()->get(SL_DB_HIDDEN);
-                if (ImGui::Checkbox("Boden", &bodenBool))
+                SLbool chrNeuIsOn = !chrNeu->drawBits()->get(SL_DB_HIDDEN);
+                if (ImGui::Checkbox("Christoffelturm 1800-1865", &chrNeuIsOn))
                 {
-                    boden->drawBits()->set(SL_DB_HIDDEN, !bodenBool);
+                    chrAlt->drawBits()->set(SL_DB_HIDDEN, true);
+                    chrNeu->drawBits()->set(SL_DB_HIDDEN, false);
                 }
-
                 SLbool baldachin = !balda_stahl->drawBits()->get(SL_DB_HIDDEN);
                 if (ImGui::Checkbox("Baldachin", &baldachin))
                 {
@@ -1120,27 +1222,15 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
                     balda_glas->drawBits()->set(SL_DB_HIDDEN, !baldachin);
                 }
 
-                SLbool mauerIsOn = !mauer->drawBits()->get(SL_DB_HIDDEN);
-                if (ImGui::Checkbox("Mauer", &mauerIsOn))
-                    mauer->drawBits()->set(SL_DB_HIDDEN, !mauerIsOn);
-
-                SLbool grabenIsOn = !graben->drawBits()->get(SL_DB_HIDDEN);
-                if (ImGui::Checkbox("Graben", &grabenIsOn))
-                    graben->drawBits()->set(SL_DB_HIDDEN, !grabenIsOn);
-
-                ImGui::PopItemWidth();
                 ImGui::End();
             }
             else
             {
                 bern        = nullptr;
-                boden       = nullptr;
+                chrAlt      = nullptr;
+                chrNeu      = nullptr;
                 balda_stahl = nullptr;
                 balda_glas  = nullptr;
-                umgeb_dach  = nullptr;
-                umgeb_fass  = nullptr;
-                mauer       = nullptr;
-                graben      = nullptr;
             }
         }
     }
@@ -1538,21 +1628,29 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
 
                 SLstring erlebarPath = SLApplication::dataPath + "erleb-AR/models/";
                 SLstring modelBR1    = erlebarPath + "bern/Bern-Bahnhofsplatz2.gltf";
+                SLstring modelBR2    = erlebarPath + "bern/Bern-Bahnhofsplatz3.gltf";
                 SLstring modelBFH    = erlebarPath + "biel/Biel-BFH-Rolex.gltf";
-                SLstring modelAR1    = erlebarPath + "augst/Tempel-Theater-02.gltf";
-                SLstring modelAR2    = erlebarPath + "augst/Tempel-Theater-03.gltf";
+                SLstring modelAR1    = erlebarPath + "augst/Tempel-03.gltf";
+                SLstring modelAR2    = erlebarPath + "augst/Theater-03.gltf";
+                SLstring modelAR3    = erlebarPath + "augst/Tempel-Theater-03.gltf";
                 SLstring modelAV1    = erlebarPath + "avenches/Aventicum-Amphitheater1.gltf";
                 SLstring modelAV1_AO = erlebarPath + "avenches/Aventicum-Amphitheater-AO.gltf";
                 SLstring modelAV2    = erlebarPath + "avenches/Aventicum-Cigognier2.gltf";
                 SLstring modelAV2_AO = erlebarPath + "avenches/Aventicum-Cigognier-AO.gltf";
                 SLstring modelAV3    = erlebarPath + "avenches/Aventicum-Theater1.gltf";
+                SLstring modelSU1    = erlebarPath + "sutzKirchrain18/Sutz-Kirchrain18.gltf";
+                SLstring modelEV1    = erlebarPath + "evilardCheminDuRoc2/EvilardCheminDuRoc2.gltf";
 
                 if (Utils::fileExists(modelAR1) ||
                     Utils::fileExists(modelAR2) ||
+                    Utils::fileExists(modelAR3) ||
                     Utils::fileExists(modelAV1) ||
                     Utils::fileExists(modelAV2) ||
                     Utils::fileExists(modelAV3) ||
-                    Utils::fileExists(modelBR1))
+                    Utils::fileExists(modelBR1) ||
+                    Utils::fileExists(modelBR2) ||
+                    Utils::fileExists(modelSU1) ||
+                    Utils::fileExists(modelEV1))
                 {
                     if (ImGui::BeginMenu("Erleb-AR"))
                     {
@@ -1565,12 +1663,16 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                                 s->onLoad(s, sv, SID_ErlebARBielBFH);
 
                         if (Utils::fileExists(modelAR1))
-                            if (ImGui::MenuItem("Augusta Raurica", nullptr, sid == SID_ErlebARAugustaRaurica))
-                                s->onLoad(s, sv, SID_ErlebARAugustaRaurica);
+                            if (ImGui::MenuItem("Augusta Raurica Temple", nullptr, sid == SID_ErlebARAugustaRauricaTmp))
+                                s->onLoad(s, sv, SID_ErlebARAugustaRauricaTmp);
 
-                        if (Utils::fileExists(modelAR1))
-                            if (ImGui::MenuItem("Augusta Raurica (AO)", nullptr, sid == SID_ErlebARAugustaRauricaTmpThtAO))
-                                s->onLoad(s, sv, SID_ErlebARAugustaRauricaTmpThtAO);
+                        if (Utils::fileExists(modelAR2))
+                            if (ImGui::MenuItem("Augusta Raurica Theater", nullptr, sid == SID_ErlebARAugustaRauricaTht))
+                                s->onLoad(s, sv, SID_ErlebARAugustaRauricaTht);
+
+                        if (Utils::fileExists(modelAR3))
+                            if (ImGui::MenuItem("Augusta Raurica Temple & Theater", nullptr, sid == SID_ErlebARAugustaRauricaTmpTht))
+                                s->onLoad(s, sv, SID_ErlebARAugustaRauricaTmpTht);
 
                         if (Utils::fileExists(modelAV1_AO))
                             if (ImGui::MenuItem("Aventicum: Amphitheatre", nullptr, sid == SID_ErlebARAventicumAmphiAO))
@@ -1587,6 +1689,14 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                         if (Utils::fileExists(modelAV3))
                             if (ImGui::MenuItem("Aventicum: Theatre", nullptr, sid == SID_ErlebARAventicumTheatre))
                                 s->onLoad(s, sv, SID_ErlebARAventicumTheatre);
+
+                        if (Utils::fileExists(modelSU1))
+                            if (ImGui::MenuItem("Sutz: Kirchrain 18", nullptr, sid == SID_ErlebARSutzKirchrain18))
+                                s->onLoad(s, sv, SID_ErlebARSutzKirchrain18);
+
+                        if (Utils::fileExists(modelEV1))
+                            if (ImGui::MenuItem("Evilard: Chemin du Roc 2", nullptr, sid == SID_ErlebAREvilardCheminDuRoc2))
+                                s->onLoad(s, sv, SID_ErlebAREvilardCheminDuRoc2);
 
                         ImGui::EndMenu();
                     }
@@ -1912,114 +2022,6 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
             ImGui::Separator();
 
             ImGui::MenuItem("UI Preferences", nullptr, &showUIPrefs);
-
-            if (SLApplication::devLoc.originLatLonAlt() != SLVec3d::ZERO)
-            {
-                ImGui::Separator();
-
-                if (ImGui::BeginMenu("Local Date/Time"))
-                {
-                    ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.5f);
-                    tm lt{};
-                    if (adjustedTime)
-                        memcpy(&lt, std::localtime(&adjustedTime), sizeof(tm));
-                    else
-                    {
-                        std::time_t now = std::time(nullptr);
-                        memcpy(&lt, std::localtime(&now), sizeof(tm));
-                    }
-
-                    SLint month = lt.tm_mon + 1;
-                    if (ImGui::SliderInt("Month", &month, 1, 12))
-                    {
-                        lt.tm_mon    = month - 1;
-                        adjustedTime = mktime(&lt);
-                        SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLatLonAlt(),
-                                                                   adjustedTime);
-                    }
-                    if (ImGui::SliderInt("Day", &lt.tm_mday, 1, 31))
-                    {
-                        adjustedTime = mktime(&lt);
-                        SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLatLonAlt(),
-                                                                   adjustedTime);
-                    }
-                    if (ImGui::SliderInt("Hour", &lt.tm_hour, 0, 23))
-                    {
-                        adjustedTime = mktime(&lt);
-                        SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLatLonAlt(),
-                                                                   adjustedTime);
-                    }
-                    if (ImGui::SliderInt("Min.", &lt.tm_min, 0, 59))
-                    {
-                        adjustedTime = mktime(&lt);
-                        SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLatLonAlt(),
-                                                                   adjustedTime);
-                    }
-
-                    SLchar strTime[100];
-                    sprintf(strTime, "Set now (%02d.%02d.%02d %02d:%02d)", lt.tm_mday, lt.tm_mon, lt.tm_year + 1900, lt.tm_hour, lt.tm_min);
-                    if (ImGui::MenuItem(strTime))
-                    {
-                        adjustedTime    = 0;
-                        std::time_t now = std::time(nullptr);
-                        memcpy(&lt, std::localtime(&now), sizeof(tm));
-                        SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLatLonAlt(), now);
-                    }
-
-                    SLfloat SRh = SLApplication::devLoc.originSolarSunrise();
-                    SLfloat SRm = (SLfloat)(60.0f * (SRh - (int)(SRh)));
-                    sprintf(strTime, "Set sunrise time (%02d:%02d)", (int)(SRh), (int)SRm);
-                    if (ImGui::MenuItem(strTime))
-                    {
-                        lt.tm_hour   = (int)SRh;
-                        lt.tm_min    = (int)SRm;
-                        adjustedTime = mktime(&lt);
-                        SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLatLonAlt(),
-                                                                   adjustedTime);
-                    }
-
-                    SLfloat SSh = SLApplication::devLoc.originSolarSunset();
-                    SLfloat SSm = (SLfloat)(60.0f * (SSh - (int)(SSh)));
-                    sprintf(strTime, "Set sunset time (%02d:%02d)", (int)(SSh), (int)SSm);
-                    if (ImGui::MenuItem(strTime))
-                    {
-                        lt.tm_hour   = (int)SSh;
-                        lt.tm_min    = (int)SSm;
-                        adjustedTime = mktime(&lt);
-                        SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLatLonAlt(),
-                                                                   adjustedTime);
-                    }
-
-                    sprintf(strTime, "Set highest noon (21.06.%02d 12:00)", lt.tm_year);
-                    if (ImGui::MenuItem(strTime))
-                    {
-                        lt.tm_mon    = 6;
-                        lt.tm_mday   = 21;
-                        lt.tm_hour   = 12;
-                        lt.tm_min    = 0;
-                        lt.tm_sec    = 0;
-                        adjustedTime = mktime(&lt);
-                        SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLatLonAlt(),
-                                                                   adjustedTime);
-                    }
-
-                    sprintf(strTime, "Set lowest noon (21.12.%02d 12:00)", lt.tm_year);
-                    if (ImGui::MenuItem(strTime))
-                    {
-                        lt.tm_mon    = 12;
-                        lt.tm_mday   = 21;
-                        lt.tm_hour   = 12;
-                        lt.tm_min    = 0;
-                        lt.tm_sec    = 0;
-                        adjustedTime = mktime(&lt);
-                        SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLatLonAlt(),
-                                                                   adjustedTime);
-                    }
-
-                    ImGui::PopItemWidth();
-                    ImGui::EndMenu();
-                }
-            }
 
             ImGui::EndMenu();
         }
@@ -2740,6 +2742,7 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
             ImGui::MenuItem("Show Scenegraph", nullptr, &showSceneGraph);
             ImGui::MenuItem("Show Properties", nullptr, &showProperties);
             ImGui::MenuItem("Show Transform", nullptr, &showTransform);
+            ImGui::MenuItem("Show Date & Time", nullptr, &showDateAndTime);
             ImGui::Separator();
             ImGui::MenuItem("Infos on Device", nullptr, &showInfosDevice);
             ImGui::MenuItem("Infos on Sensors", nullptr, &showInfosSensors);
@@ -3525,6 +3528,7 @@ void AppDemoGui::loadConfig(SLint dotsPerInch)
         AppDemoGui::showInfosSensors = false;
         AppDemoGui::showSceneGraph   = false;
         AppDemoGui::showProperties   = false;
+        AppDemoGui::showDateAndTime  = false;
         AppDemoGui::showDockSpace    = true;
 
         // Adjust UI padding on DPI
@@ -3547,49 +3551,30 @@ void AppDemoGui::loadConfig(SLint dotsPerInch)
             SLint i = 0;
             SLbool b = false;
             fs["configTime"] >> AppDemoGui::configTime;
-            fs["fontPropDots"] >> i;
-            SLGLImGui::fontPropDots = (SLfloat) i;
-            fs["fontFixedDots"] >> i;
-            SLGLImGui::fontFixedDots = (SLfloat) i;
-            fs["ItemSpacingX"] >> i;
-            style.ItemSpacing.x = (SLfloat) i;
-            fs["ItemSpacingY"] >> i;
-            style.ItemSpacing.y = (SLfloat) i;
-            style.WindowPadding.x = style.FramePadding.x = style.ItemInnerSpacing.x = style.ItemSpacing.x;
-            style.FramePadding.y = style.ItemInnerSpacing.y = style.ItemSpacing.y;
-            style.WindowPadding.y = style.ItemSpacing.y * 3;
-            fs["ScrollbarSize"] >> i;
-            style.ScrollbarSize = (SLfloat) i;
-            fs["ScrollbarRounding"] >> i;
-            style.ScrollbarRounding = (SLfloat) i;
-            fs["sceneID"] >> i;
-            SLApplication::sceneID = (SLSceneID) i;
-            fs["showInfosScene"] >> b;
-            AppDemoGui::showInfosScene = b;
-            fs["showStatsTiming"] >> b;
-            AppDemoGui::showStatsTiming = b;
-            fs["showStatsMemory"] >> b;
-            AppDemoGui::showStatsScene = b;
-            fs["showStatsVideo"] >> b;
-            AppDemoGui::showStatsVideo = b;
-            fs["showStatsWAI"] >> b;
-            AppDemoGui::showStatsWAI = b;
-            fs["showInfosFrameworks"] >> b;
-            AppDemoGui::showInfosDevice = b;
-            fs["showInfosSensors"] >> b;
-            AppDemoGui::showInfosSensors = b;
-            fs["showSceneGraph"] >> b;
-            AppDemoGui::showSceneGraph = b;
-            fs["showProperties"] >> b;
-            AppDemoGui::showProperties = b;
-            fs["showChristoffel"] >> b;
-            AppDemoGui::showChristoffel = b;
-            fs["showTransform"] >> b;
-            AppDemoGui::showTransform = b;
-            fs["showUIPrefs"] >> b;
-            AppDemoGui::showUIPrefs = b;
-            fs["showDockSpace"] >> b;
-            AppDemoGui::showDockSpace = b;
+            fs["fontPropDots"] >> i;        SLGLImGui::fontPropDots = (SLfloat) i;
+            fs["fontFixedDots"] >> i;       SLGLImGui::fontFixedDots = (SLfloat) i;
+            fs["ItemSpacingX"] >> i;        style.ItemSpacing.x = (SLfloat) i;
+            fs["ItemSpacingY"] >> i;        style.ItemSpacing.y = (SLfloat) i;
+                                            style.WindowPadding.x = style.FramePadding.x = style.ItemInnerSpacing.x = style.ItemSpacing.x;
+                                            style.FramePadding.y = style.ItemInnerSpacing.y = style.ItemSpacing.y;
+                                            style.WindowPadding.y = style.ItemSpacing.y * 3;
+            fs["ScrollbarSize"] >> i;       style.ScrollbarSize = (SLfloat) i;
+            fs["ScrollbarRounding"] >> i;   style.ScrollbarRounding = (SLfloat) i;
+            fs["sceneID"] >> i;             SLApplication::sceneID = (SLSceneID) i;
+            fs["showInfosScene"] >> b;      AppDemoGui::showInfosScene = b;
+            fs["showStatsTiming"] >> b;     AppDemoGui::showStatsTiming = b;
+            fs["showStatsMemory"] >> b;     AppDemoGui::showStatsScene = b;
+            fs["showStatsVideo"] >> b;      AppDemoGui::showStatsVideo = b;
+            fs["showStatsWAI"] >> b;        AppDemoGui::showStatsWAI = b;
+            fs["showInfosFrameworks"] >> b; AppDemoGui::showInfosDevice = b;
+            fs["showInfosSensors"] >> b;    AppDemoGui::showInfosSensors = b;
+            fs["showSceneGraph"] >> b;      AppDemoGui::showSceneGraph = b;
+            fs["showProperties"] >> b;      AppDemoGui::showProperties = b;
+            fs["showChristoffel"] >> b;     AppDemoGui::showChristoffel = b;
+            fs["showTransform"] >> b;       AppDemoGui::showTransform = b;
+            fs["showUIPrefs"] >> b;         AppDemoGui::showUIPrefs = b;
+            fs["showDateAndTime"] >> b;     AppDemoGui::showDateAndTime = b;
+            fs["showDockSpace"] >> b;       AppDemoGui::showDockSpace = b;
             // clang-format on
 
             fs.release();
@@ -3670,6 +3655,7 @@ void AppDemoGui::saveConfig()
     fs << "showChristoffel" << AppDemoGui::showChristoffel;
     fs << "showTransform" << AppDemoGui::showTransform;
     fs << "showUIPrefs" << AppDemoGui::showUIPrefs;
+    fs << "showDateAndTime" << AppDemoGui::showDateAndTime;
     fs << "showDockSpace" << AppDemoGui::showDockSpace;
 
     fs.release();

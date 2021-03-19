@@ -34,12 +34,6 @@ SENSNdkGps::SENSNdkGps(JavaVM* vm, jobject* activityContext, jclass* clazz)
     _vm->DetachCurrentThread();
 }
 
-void SENSNdkGps::init(bool granted)
-{
-    Utils::log("SENSNdkGps", "init called");
-    _permissionGranted = granted;
-}
-
 bool SENSNdkGps::start()
 {
     if (!_permissionGranted)
