@@ -1984,7 +1984,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLNode* scene = new SLNode;
 
         SLCamera* cam1 = new SLCamera("Camera 1");
-        cam1->translation(0, 2, 15);
+        cam1->translation(0, 2, 20);
         cam1->lookAt(0, 2, 0);
         cam1->focalDist(8);
         cam1->background().colors(SLCol4f(0.1f, 0.1f, 0.1f));
@@ -2261,7 +2261,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Create camera in the center
         SLCamera* cam1 = new SLCamera("Camera 1");
-        cam1->translation(0, 0.5f, 3);
+        cam1->translation(0, 0.5f, 2);
         cam1->lookAt(0, 0.5f, 0);
         cam1->setInitialState();
         cam1->focalDist(3);

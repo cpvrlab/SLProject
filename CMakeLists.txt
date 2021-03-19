@@ -32,7 +32,7 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
 
 option(SL_DOWNLOAD_PREBUILTS "Specifies if prebuilt libraries should be downloaded"  ON)
-option(SL_BUILD_WAI          "Specifies if the WAI library should be built"         OFF)
+option(SL_BUILD_WAI          "Specifies if the WAI library should be built"          ON)
 option(SL_BUILD_APPS         "Specifies if sample apps should be built"              ON)
 option(SL_BUILD_EXERCISES    "Specifies if exercise apps should be built"            ON)
 option(SL_BUILD_VULKAN_APPS  "Specifies if vulkan apps should be built"             OFF)
