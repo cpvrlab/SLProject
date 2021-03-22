@@ -1627,14 +1627,12 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                 }
 
                 SLstring erlebarPath = SLApplication::dataPath + "erleb-AR/models/";
-                SLstring modelBR1    = erlebarPath + "bern/Bern-Bahnhofsplatz2.gltf";
                 SLstring modelBR2    = erlebarPath + "bern/Bern-Bahnhofsplatz3.gltf";
                 SLstring modelBFH    = erlebarPath + "biel/Biel-BFH-Rolex.gltf";
                 SLstring modelAR1    = erlebarPath + "augst/Tempel-03.gltf";
                 SLstring modelAR2    = erlebarPath + "augst/Theater-03.gltf";
                 SLstring modelAR3    = erlebarPath + "augst/Tempel-Theater-03.gltf";
                 SLstring modelAV1_AO = erlebarPath + "avenches/Aventicum-Amphitheater-AO.gltf";
-                SLstring modelAV2    = erlebarPath + "avenches/Aventicum-Cigognier2.gltf";
                 SLstring modelAV2_AO = erlebarPath + "avenches/Aventicum-Cigognier-AO.gltf";
                 SLstring modelAV3    = erlebarPath + "avenches/Aventicum-Theater2-AO.gltf";
                 SLstring modelSU1    = erlebarPath + "sutzKirchrain18/Sutz-Kirchrain18.gltf";
@@ -1643,16 +1641,14 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                 if (Utils::fileExists(modelAR1) ||
                     Utils::fileExists(modelAR2) ||
                     Utils::fileExists(modelAR3) ||
-                    Utils::fileExists(modelAV2) ||
                     Utils::fileExists(modelAV3) ||
-                    Utils::fileExists(modelBR1) ||
                     Utils::fileExists(modelBR2) ||
                     Utils::fileExists(modelSU1) ||
                     Utils::fileExists(modelEV1))
                 {
                     if (ImGui::BeginMenu("Erleb-AR"))
                     {
-                        if (Utils::fileExists(modelBR1))
+                        if (Utils::fileExists(modelBR2))
                             if (ImGui::MenuItem("Bern: Christoffel Tower", nullptr, sid == SID_ErlebARChristoffel))
                                 s->onLoad(s, sv, SID_ErlebARChristoffel);
 
@@ -1676,12 +1672,8 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                             if (ImGui::MenuItem("Aventicum: Amphitheatre", nullptr, sid == SID_ErlebARAventicumAmphiAO))
                                 s->onLoad(s, sv, SID_ErlebARAventicumAmphiAO);
 
-                        if (Utils::fileExists(modelAV2))
-                            if (ImGui::MenuItem("Aventicum: Cigognier", nullptr, sid == SID_ErlebARAventicumCigognier))
-                                s->onLoad(s, sv, SID_ErlebARAventicumCigognier);
-
                         if (Utils::fileExists(modelAV2_AO))
-                            if (ImGui::MenuItem("Aventicum: Cigognier (AO)", nullptr, sid == SID_ErlebARAventicumCigognierAO))
+                            if (ImGui::MenuItem("Aventicum: Cigognier", nullptr, sid == SID_ErlebARAventicumCigognierAO))
                                 s->onLoad(s, sv, SID_ErlebARAventicumCigognierAO);
 
                         if (Utils::fileExists(modelAV3))
