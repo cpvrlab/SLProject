@@ -1633,18 +1633,16 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                 SLstring modelAR1    = erlebarPath + "augst/Tempel-03.gltf";
                 SLstring modelAR2    = erlebarPath + "augst/Theater-03.gltf";
                 SLstring modelAR3    = erlebarPath + "augst/Tempel-Theater-03.gltf";
-                SLstring modelAV1    = erlebarPath + "avenches/Aventicum-Amphitheater1.gltf";
                 SLstring modelAV1_AO = erlebarPath + "avenches/Aventicum-Amphitheater-AO.gltf";
                 SLstring modelAV2    = erlebarPath + "avenches/Aventicum-Cigognier2.gltf";
                 SLstring modelAV2_AO = erlebarPath + "avenches/Aventicum-Cigognier-AO.gltf";
-                SLstring modelAV3    = erlebarPath + "avenches/Aventicum-Theater1.gltf";
+                SLstring modelAV3    = erlebarPath + "avenches/Aventicum-Theater2-AO.gltf";
                 SLstring modelSU1    = erlebarPath + "sutzKirchrain18/Sutz-Kirchrain18.gltf";
                 SLstring modelEV1    = erlebarPath + "evilardCheminDuRoc2/EvilardCheminDuRoc2.gltf";
 
                 if (Utils::fileExists(modelAR1) ||
                     Utils::fileExists(modelAR2) ||
                     Utils::fileExists(modelAR3) ||
-                    Utils::fileExists(modelAV1) ||
                     Utils::fileExists(modelAV2) ||
                     Utils::fileExists(modelAV3) ||
                     Utils::fileExists(modelBR1) ||

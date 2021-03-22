@@ -4197,10 +4197,11 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sunLight->lookAt(10, 0, 10);
         sunLight->doSunPowerAdaptation(true);
         sunLight->createsShadows(true);
-        sunLight->createShadowMap(-100, 150, SLVec2f(140, 100), SLVec2i(4096, 4096));
+        sunLight->createShadowMap(-80, 80, SLVec2f(140, 100), SLVec2i(4096, 4096));
         sunLight->doSmoothShadows(true);
-        sunLight->shadowMaxBias(0.02f);
         sunLight->castsShadows(false);
+        sunLight->shadowMinBias(0.001f);
+        sunLight->shadowMaxBias(0.002f);
 
         // Let the sun be rotated by time and location
         SLApplication::devLoc.sunLightNode(sunLight);
@@ -4513,9 +4514,11 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sunLight->lookAt(10, 0, 10);
         sunLight->doSunPowerAdaptation(true);
         sunLight->createsShadows(true);
-        sunLight->createShadowMap(-100, 150, SLVec2f(150, 150), SLVec2i(4096, 4096));
+        sunLight->createShadowMap(-80, 100, SLVec2f(130, 130), SLVec2i(4096, 4096));
         sunLight->doSmoothShadows(true);
         sunLight->castsShadows(false);
+        sunLight->shadowMinBias(0.001f);
+        sunLight->shadowMaxBias(0.002f);
 
         // Let the sun be rotated by time and location
         SLApplication::devLoc.sunLightNode(sunLight);
@@ -4523,7 +4526,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLAssimpImporter importer;
         SLNode*          theatre = importer.load(s->animManager(),
                                         s,
-                                        SLApplication::dataPath + "erleb-AR/models/avenches/Aventicum-Theater1.gltf",
+                                        SLApplication::dataPath + "erleb-AR/models/avenches/Aventicum-Theater2-AO.gltf",
                                         SLApplication::texturePath,
                                         true,    // delete tex images after build
                                         true,    // only meshes
@@ -4533,11 +4536,9 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         // Rotate to the true geographic rotation
         theatre->rotate(-36.7f, 0, 1, 0, TS_parent);
 
-        theatre->findChild<SLNode>("Tht-Buehnenhaus")->drawBits()->set(SL_DB_HIDDEN, true);
-
         // Let the video shine through some objects
-        theatre->findChild<SLNode>("Tht-Rasen")->setMeshMat(matVideoBackground, true);
-        theatre->findChild<SLNode>("Tht-Boden")->setMeshMat(matVideoBackground, true);
+        theatre->findChild<SLNode>("Tht-Rasen")->setMeshMat(matVideoBackgroundSM, true);
+        theatre->findChild<SLNode>("Tht-Untergrund")->setMeshMat(matVideoBackground, true);
 
         // Add axis object a world origin
         SLNode* axis = new SLNode(new SLCoordAxis(s), "Axis Node");
