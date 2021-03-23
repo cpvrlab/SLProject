@@ -9,10 +9,10 @@ public:
     virtual bool hasGPSPermission() { return true; }
     virtual bool hasInternetPermission() { return true; }
     virtual bool hasStoragePermission() { return true; }
-    virtual bool canShowCameraPermissionsDialog() {return true; };
-    virtual bool canShowGPSPermissionsDialog() {return true; };
-    virtual bool canShowInternetPermissionsDialog() {return true; };
-    virtual bool canShowStoragePermissionsDialog() {return true; };
+    virtual bool canShowCameraPermissionDialog() {return true; };
+    virtual bool canShowGPSPermissionDialog() {return true; };
+    virtual bool canShowInternetPermissionDialog() {return true; };
+    virtual bool canShowStoragePermissionDialog() {return true; };
 };
 
 #endif
