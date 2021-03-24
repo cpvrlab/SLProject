@@ -170,14 +170,13 @@ if("${SYSTEM_NAME_UPPER}" STREQUAL "LINUX")
     
     set(ktx_VERSION "v4.0.0-beta7")
     set(ktx_DIR ${PREBUILT_PATH}/linux_ktx_${ktx_VERSION})
-    
     add_library(KTX::ktx SHARED IMPORTED)
     set_target_properties(KTX::ktx
         PROPERTIES
-        IMPORTED_LOCATION_RELEASE "${ktx_DIR}/release/libktx.so"
-        IMPORTED_LOCATION_DEBUG "${ktx_DIR}/debug/libktx.so"
+        IMPORTED_LOCATION "${ktx_DIR}/release/libktx.so"
         INTERFACE_INCLUDE_DIRECTORIES "${ktx_DIR}/include"
         )
+        #IMPORTED_LOCATION_<CONFIG> does not seem to work on linux???!!
 
     set(ktx_LIBS KTX::ktx)
 
