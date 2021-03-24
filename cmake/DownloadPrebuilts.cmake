@@ -692,7 +692,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN" AND
     ########################
     # ktx for MacOS-x86_64 #
     ########################
-    set(ktx_VERSION "v4.0.0-beta7")
+    set(ktx_VERSION "v4.0.0-beta7-cpvr")
     set(ktx_DIR ${PREBUILT_PATH}/mac64_ktx_${ktx_VERSION})
     set(ktx_PREBUILT_ZIP "mac64_ktx_${ktx_VERSION}.zip")
     set(ktx_URL ${PREBUILT_URL}/${ktx_PREBUILT_ZIP})
@@ -1180,7 +1180,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "IOS") #---------------------------------
     ###################
     # ktx for iOS     #
     ###################
-    set(ktx_VERSION "v4.0.0-beta7")
+    set(ktx_VERSION "v4.0.0-beta7-cpvr")
     set(ktx_DIR ${PREBUILT_PATH}/iosV8_ktx_${ktx_VERSION})
     set(ktx_PREBUILT_ZIP "iosV8_ktx_${ktx_VERSION}.zip")
     set(ktx_URL ${PREBUILT_URL}/${ktx_PREBUILT_ZIP})
@@ -1316,7 +1316,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID") #-----------------------------
     set(assimp_PREBUILT_DIR "andV8_assimp_${assimp_VERSION}")
     set(assimp_DIR ${PREBUILT_PATH}/${assimp_PREBUILT_DIR})
     set(assimp_INCLUDE_DIR ${assimp_DIR}/include)
-    set(assimp_LINK_DIR ${assimp_DIR}/${CMAKE_BUILD_TYPE}/${ANDROID_ABI})  #don't forget to add the this link dir down at the bottom
+    set(assimp_LINK_DIR ${assimp_DIR}/Release/${ANDROID_ABI})  #don't forget to add the this link dir down at the bottom
     set(assimp_PREBUILT_ZIP "${assimp_PREBUILT_DIR}.zip")
 
     if (NOT EXISTS "${assimp_DIR}")
@@ -1327,16 +1327,25 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID") #-----------------------------
         file(REMOVE "${PREBUILT_PATH}/${assimp_PREBUILT_ZIP}")
     endif ()
 
-    foreach(lib ${assimp_LINK_LIBS})
-        add_library(lib_${lib} STATIC IMPORTED)
-        set_target_properties(lib_${lib} PROPERTIES
-            IMPORTED_LOCATION "${assimp_LINK_DIR}/lib${lib}.a"
-        )
-        set(assimp_LIBS
-            ${assimp_LIBS}
-            lib_${lib}
-        )
-    endforeach(lib)
+    #foreach(lib ${assimp_LINK_LIBS})
+        #add_library(lib_${lib} STATIC IMPORTED)
+        ##set_target_properties(lib_${lib} PROPERTIES
+        #    IMPORTED_LOCATION "${assimp_LINK_DIR}/lib${lib}.a"
+        #)
+        #set(assimp_LIBS
+        #    ${assimp_LIBS}
+        #    lib_${lib}
+        #)
+    #endforeach(lib)
+    add_library(ASSIMP::assimp SHARED IMPORTED)
+    set_target_properties(ASSIMP::assimp PROPERTIES
+        IMPORTED_LOCATION "${assimp_LINK_DIR}/libassimp.so"
+        INTERFACE_INCLUDE_DIRECTORIES "${assimp_INCLUDE_DIR}"
+    )
+    set(assimp_LIBS
+        ${assimp_LIBS}
+        ASSIMP::assimp
+    )
 
     #######################
     # openssl for Android #
@@ -1368,6 +1377,33 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID") #-----------------------------
     set_target_properties(ssl PROPERTIES
         IMPORTED_LOCATION "${openssl_LINK_DIR}/libssl.a"
     )
+
+    ########################
+    # ktx for Android      #
+    ########################
+    set(ktx_VERSION "v4.0.0-beta7-cpvr")
+    set(ktx_DIR ${PREBUILT_PATH}/andV8_ktx_${ktx_VERSION})
+    set(ktx_PREBUILT_ZIP "andV8_ktx_${ktx_VERSION}.zip")
+    set(ktx_URL ${PREBUILT_URL}/${ktx_PREBUILT_ZIP})
+
+    if (NOT EXISTS "${ktx_DIR}")
+        message(STATUS "Downloading: ${ktx_PREBUILT_ZIP}")
+        file(DOWNLOAD "${ktx_URL}" "${PREBUILT_PATH}/${ktx_PREBUILT_ZIP}")
+        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
+                "${PREBUILT_PATH}/${ktx_PREBUILT_ZIP}"
+                WORKING_DIRECTORY "${PREBUILT_PATH}")
+        file(REMOVE "${PREBUILT_PATH}/${ktx_PREBUILT_ZIP}")
+    endif()
+
+    add_library(KTX::ktx SHARED IMPORTED)
+    set_target_properties(KTX::ktx
+        PROPERTIES
+        IMPORTED_LOCATION_RELEASE "${ktx_DIR}/release/libktx.so"
+        IMPORTED_LOCATION_DEBUG "${ktx_DIR}/debug/libktx.so"
+        INTERFACE_INCLUDE_DIRECTORIES "${ktx_DIR}/include"
+        )
+
+    set(ktx_LIBS KTX::ktx)
 
 endif()
 #==============================================================================

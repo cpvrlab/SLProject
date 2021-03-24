@@ -1,21 +1,25 @@
 #!/bin/sh
+#ATTENTION ATTENTION ATTENTION: you have to build zstd library in Release first and replace it in: other_includes and other_libs/mac/Release
+#additionally: you have to preplace XCODE_DEVELOPMENT_TEAM with your id
 
-ZSTD_INSTALL=zstd/build/BUILD_IOS_RELEASE_v1.4.9-cpvr/install/
+DEVELOPMENT_TEAM="3P67L8WGL7"
+ZSTD_INSTALL=zstd/build/BUILD_ANDROID_RELEASE_v1.4.9-cpvr/install/
 
 DIR="$( cd "$( dirname "$0" )" && pwd )"
 ZSTD_INSTALL=$DIR/$ZSTD_INSTALL
-echo "ZSTD_INSTALL: $ZSTD_INSTALL"
 
 if [ ! -d $ZSTD_INSTALL ]; then
     echo "You have to build zstd library first!"
     exit
 fi
+echo "ZSTD_INSTALL: $ZSTD_INSTALL"
 
 VERSION=v4.0.0-beta7-cpvr
-BUILD_D=BUILD_IOS_DEBUG_"$VERSION"
-BUILD_R=BUILD_IOS_RELEASE_"$VERSION"
+BUILD_D=BUILD_ANDROID_DEBUG_"$VERSION"
+BUILD_R=BUILD_ANDROID_RELEASE_"$VERSION"
+TOOLCHAIN_PATH=/Users/ghm1/Library/Android/sdk/ndk/21.3.6528147/build/cmake/android.toolchain.cmake
 
-ARCH=iosV8
+ARCH=andV8
 DISTRIB_FOLDER="$ARCH"_ktx_"$VERSION"
 
 echo "============================================================"
@@ -41,7 +45,11 @@ if [ ! -d $BUILD_D ]; then
 fi
 cd $BUILD_D
 
-cmake .. -GXcode -DCMAKE_INSTALL_PREFIX=./install -DCMAKE_SYSTEM_NAME=iOS -DZSTD_INSTALL=$ZSTD_INSTALL
+cmake .. \
+	-DCMAKE_INSTALL_PREFIX=./install \
+	-DCMAKE_TOOLCHAIN_FILE=$TOOLCHAIN_PATH \
+    -DANDROID_ABI=arm64-v8a \
+    -DZSTD_INSTALL=$ZSTD_INSTALL
 cmake --build . --config Debug --target install
 cd ..
 
@@ -55,7 +63,11 @@ if [ ! -d $BUILD_R ]; then
 fi
 cd $BUILD_R
 
-cmake .. -GXcode -DCMAKE_INSTALL_PREFIX=./install -DCMAKE_SYSTEM_NAME=iOS -DZSTD_INSTALL=$ZSTD_INSTALL
+cmake .. \
+	-DCMAKE_INSTALL_PREFIX=./install \
+	-DCMAKE_TOOLCHAIN_FILE=$TOOLCHAIN_PATH \
+    -DANDROID_ABI=arm64-v8a \
+    -DZSTD_INSTALL=$ZSTD_INSTALL
 cmake --build . --config Release --target install
 cd ..
 
@@ -72,9 +84,6 @@ if [ ! -z "$DISTRIB_FOLDER" ] ; then
 	cp -a "$BUILD_R/install/include/." "$DISTRIB_FOLDER/include"
 	cp -a "$BUILD_R/install/lib/." "$DISTRIB_FOLDER/release/"
 	cp -a "$BUILD_D/install/lib/." "$DISTRIB_FOLDER/debug/"
-	#distribution of static zstd library
-	cp "$ZSTD_INSTALL/lib/libzstd.a" "$DISTRIB_FOLDER/release/"
-	cp "$ZSTD_INSTALL/lib/libzstd.a" "$DISTRIB_FOLDER/debug/"
 
 	if [ -d "../../prebuilt/$DISTRIB_FOLDER" ] ; then
 	    rm -rf "../../prebuilt/$DISTRIB_FOLDER"

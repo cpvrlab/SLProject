@@ -15,7 +15,6 @@
 #include <SLAssetManager.h>
 #include <Utils.h>
 #include <Instrumentor.h>
-#include <ktx.h>
 
 #ifdef SL_HAS_OPTIX
 #    include <cuda.h>
@@ -200,6 +199,13 @@ SLGLTexture::SLGLTexture(SLAssetManager* assetMgr,
         _height        = _images[0]->height();
         _depth         = _images.size();
         _bytesPerPixel = _images[0]->bytesPerPixel();
+    }
+    else if(_compressedTexture && _ktxErrorCode == KTX_SUCCESS)
+    {
+        //todo ktx: get properties and extract necassary
+        _width = _ktxTexture->baseWidth;
+        _height = _ktxTexture->baseHeight;
+        _depth = _ktxTexture->baseDepth;
     }
 
     _min_filter   = min_filter;
@@ -442,6 +448,9 @@ void SLGLTexture::deleteData()
 {
     deleteImages();
     deleteDataGpu();
+    
+    if(_ktxTexture)
+        ktxTexture_Destroy((ktxTexture*)_ktxTexture);
 
     _texID                 = 0;
     _texType               = TT_unknown;
@@ -497,13 +506,37 @@ void SLGLTexture::load(const SLstring& filename,
     if(ext == "ktx2")
     {
         _compressedTexture = true;
-        
-        ktxTexture2* texture;
-        KTX_error_code result;
-         
-        result = ktxTexture_CreateFromNamedFile(filename.c_str(),
+
+        _ktxErrorCode = ktxTexture_CreateFromNamedFile(filename.c_str(),
                                                 KTX_TEXTURE_CREATE_NO_FLAGS,
-                                                (ktxTexture**)&texture);
+                                                (ktxTexture**)&_ktxTexture);
+        
+        if (_ktxErrorCode == KTX_SUCCESS && ktxTexture2_NeedsTranscoding(_ktxTexture))
+        {
+            //see: https://docs.unity3d.com/2017.3/Documentation/Manual/class-TextureImporterOverride.html
+#if defined(SL_OS_MACIOS)
+            //_ktxErrorCode = ktxTexture2_TranscodeBasis(_ktxTexture, KTX_TTF_PVRTC1_4_RGB, 0);
+            _ktxErrorCode = ktxTexture2_TranscodeBasis(_ktxTexture, KTX_TTF_ETC2_RGBA, 0);
+#elif defined(SL_OS_ANDROID)
+            _ktxErrorCode = ktxTexture2_TranscodeBasis(_ktxTexture, KTX_TTF_ETC2_RGBA, 0);
+#else // all desktop plattforms support the same formats
+            //_ktxErrorCode = ktxTexture2_TranscodeBasis(_ktxTexture, KTX_TTF_BC7_RGBA, 0); //crashed mit earth2048_C_UN_BASISU_ETC1S_Linear: assert(colorModel == KHR_DF_MODEL_UASTC);
+            //_ktxErrorCode = ktxTexture2_TranscodeBasis(_ktxTexture, KTX_TTF_ETC2_RGBA, 0); //crashed mit earth2048_C_UN_BASISU_ETC1S_Linear: assert(colorModel == KHR_DF_MODEL_UASTC);
+            _ktxErrorCode = ktxTexture2_TranscodeBasis(_ktxTexture, KTX_TTF_BC1_RGB, 0);
+#endif
+        }
+            
+        /*
+        if(_ktxErrorCode == KTX_SUCCESS)
+        {
+            //todo: upload in build process
+            GLenum glerror;
+            glGenTextures(1, &_texID); // Optional. GLUpload can generate a texture.
+            ktxTexture_GLUpload((ktxTexture*)_ktxTexture, &_texID, &_target, &glerror);
+            //todo: destroy somewhere else
+            ktxTexture_Destroy((ktxTexture*)_ktxTexture);
+        }
+         */
     }
     else
     {
@@ -651,235 +684,304 @@ void SLGLTexture::build(SLint texUnit)
     PROFILE_FUNCTION();
 
     assert(texUnit >= 0 && texUnit < 16);
-
-    if (_images.empty())
-        SL_EXIT_MSG("No images loaded in SLGLTexture::build");
-
-    // delete texture name if it already exits
-    if (_texID)
+    
+    if(_compressedTexture && _ktxErrorCode == KTX_SUCCESS)
     {
-        glBindTexture(_target, _texID);
-        glDeleteTextures(1, &_texID);
-        SL_LOG("SLGLTexture::build: Deleted: %d, %s",
-               _texID,
-               _images[0]->name().c_str());
-        glBindTexture(_target, 0);
-        _texID = 0;
-        numBytesInTextures -= _bytesOnGPU;
-    }
-
-    // get max texture size
-    SLint texMaxSize = 0;
-    glGetIntegerv(GL_MAX_TEXTURE_SIZE, &texMaxSize);
-
-    // check if texture has to be resized
-    if (_resizeToPow2)
-    {
-        SLuint w2 = Utils::closestPowerOf2(_images[0]->width());
-        SLuint h2 = Utils::closestPowerOf2(_images[0]->height());
-        if (w2 == 0) SL_EXIT_MSG("Image can not be rescaled: width=0");
-        if (h2 == 0) SL_EXIT_MSG("Image can not be rescaled: height=0");
-        if (w2 != _images[0]->width() || h2 != _images[0]->height())
-            _images[0]->resize((SLint)w2, (SLint)h2);
-    }
-
-    // check 2D size
-    if (_target == GL_TEXTURE_2D)
-    {
-        if (_images[0]->width() > (SLuint)texMaxSize)
-            SL_EXIT_MSG("SLGLTexture::build: Texture width is too big.");
-        if (_images[0]->height() > (SLuint)texMaxSize)
-            SL_EXIT_MSG("SLGLTexture::build: Texture height is too big.");
-    }
-
-    // check 3D size
-    if (_target == GL_TEXTURE_3D)
-    {
-        SLint texMax3DSize = 0;
-        glGetIntegerv(GL_MAX_3D_TEXTURE_SIZE, &texMax3DSize);
-        for (auto img : _images)
+        // delete texture name if it already exits
+        if (_texID)
         {
-            if (img->width() > (SLuint)texMax3DSize)
-                SL_EXIT_MSG("SLGLTexture::build: 3D Texture width is too big.");
-            if (img->height() > (SLuint)texMax3DSize)
-                SL_EXIT_MSG("SLGLTexture::build: 3D Texture height is too big.");
-            if (img->width() != _images[0]->width() ||
-                img->height() != _images[0]->height())
-                SL_EXIT_MSG("SLGLTexture::build: Not all images of the 3D texture have the same size.");
+            glBindTexture(_target, _texID);
+            glDeleteTextures(1, &_texID);
+            glBindTexture(_target, 0);
+            _texID = 0;
+            numBytesInTextures -= _bytesOnGPU;
         }
-    }
-
-    // check cube mapping capability & max. cube map size
-    if (_target == GL_TEXTURE_CUBE_MAP)
-    {
-        SLint texMaxCubeSize;
-        glGetIntegerv(GL_MAX_CUBE_MAP_TEXTURE_SIZE, &texMaxCubeSize);
-        if (_images[0]->width() > (SLuint)texMaxCubeSize)
-            SL_EXIT_MSG("SLGLTexture::build: Cube Texture width is too big.");
-        if (_images.size() != 6)
-            SL_EXIT_MSG("SLGLTexture::build: Not six images provided for cube map texture.");
-    }
-
-    // Generate texture names
-    glGenTextures(1, &_texID);
-
-    SLGLState* stateGL = SLGLState::instance();
-    stateGL->activeTexture(GL_TEXTURE0 + (SLuint)texUnit);
-
-    // create binding and apply texture properties
-    stateGL->bindTexture(_target, _texID);
-
-    // check if anisotropic texture filter extension is available
-    if (maxAnisotropy < 0.0f)
-    {
-        if (stateGL->hasExtension("GL_EXT_texture_filter_anisotropic"))
-            glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &maxAnisotropy);
-        else
+        
+        // get max texture size
+        SLint texMaxSize = 0;
+        glGetIntegerv(GL_MAX_TEXTURE_SIZE, &texMaxSize);
+        //todo ktx: compare with image size
+        // check 2D size
+        if (_target == GL_TEXTURE_2D)
         {
-            maxAnisotropy = 0.0f;
-            cout << "GL_EXT_texture_filter_anisotropic not available.\n";
+            if (_width > (SLuint)texMaxSize)
+                SL_EXIT_MSG("SLGLTexture::build: Texture width is too big.");
+            if (_height > (SLuint)texMaxSize)
+                SL_EXIT_MSG("SLGLTexture::build: Texture height is too big.");
         }
-    }
-    GET_GL_ERROR;
+        
+        //todo ktx: cubemaps and 3d textures
+        
+        /*
+        //todo ktx: down there is another special case for this filter
+        glTexParameteri(_target, GL_TEXTURE_MIN_FILTER, _min_filter);
+        GET_GL_ERROR;
 
-    // apply anisotropic or minification filter
-    if (_min_filter > GL_LINEAR_MIPMAP_LINEAR)
-    {
-        SLfloat anisotropy; // = off
-        if (_min_filter == SL_ANISOTROPY_MAX)
-            anisotropy = maxAnisotropy;
-        else
-            anisotropy = std::min((SLfloat)(_min_filter - GL_LINEAR_MIPMAP_LINEAR),
-                                  maxAnisotropy);
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, anisotropy);
+        // apply magnification filter only GL_NEAREST & GL_LINEAR is allowed
+        glTexParameteri(_target, GL_TEXTURE_MAG_FILTER, _mag_filter);
+        GET_GL_ERROR;
+
+        // apply texture wrapping modes
+        glTexParameteri(_target, GL_TEXTURE_WRAP_S, _wrap_s);
+        glTexParameteri(_target, GL_TEXTURE_WRAP_T, _wrap_t);
+        glTexParameteri(_target, GL_TEXTURE_WRAP_R, _wrap_t);
+        GET_GL_ERROR;
+         */
+        
+        //todo: upload in build process
+        GLenum glerror = 0;
+        glGenTextures(1, &_texID); // Optional. GLUpload can generate a texture.
+        
+        //SLGLState* stateGL = SLGLState::instance();
+        //stateGL->activeTexture(GL_TEXTURE0 + (SLuint)texUnit);
+
+        // create binding and apply texture properties
+        //stateGL->bindTexture(_target, _texID);
+
+        ktxTexture_GLUpload((ktxTexture*)_ktxTexture, &_texID, &_target, &glerror);
+        
+        _bytesOnGPU += _ktxTexture->dataSize;
+        numBytesInTextures += _bytesOnGPU;
+        
+        //todo: destroy somewhere else
+        if(_deleteImageAfterBuild)
+        {
+            ktxTexture_Destroy((ktxTexture*)_ktxTexture);
+            _ktxTexture = nullptr;
+        }
+        GET_GL_ERROR;
     }
     else
-        glTexParameteri(_target, GL_TEXTURE_MIN_FILTER, _min_filter);
-    GET_GL_ERROR;
-
-    // apply magnification filter only GL_NEAREST & GL_LINEAR is allowed
-    glTexParameteri(_target, GL_TEXTURE_MAG_FILTER, _mag_filter);
-    GET_GL_ERROR;
-
-    // apply texture wrapping modes
-    glTexParameteri(_target, GL_TEXTURE_WRAP_S, _wrap_s);
-    glTexParameteri(_target, GL_TEXTURE_WRAP_T, _wrap_t);
-    glTexParameteri(_target, GL_TEXTURE_WRAP_R, _wrap_t);
-    GET_GL_ERROR;
-
-    // Handle special stupid case on iOS
-    SLint internalFormat = _images[0]->format();
-    if (internalFormat == PF_red)
-        internalFormat = GL_R8;
-
-    // Handle special case for realtime RT
-    if (_images[0]->name() == "Optix Raytracer")
-        internalFormat = GL_RGB32F;
-
-    // Handle special case for HDR textures
-    if (_texType == TT_hdr)
-        internalFormat = GL_RGB16F;
-
-    // Build textures
-    if (_target == GL_TEXTURE_2D)
     {
-        GLenum format = _images[0]->format();
+        if (_images.empty())
+            SL_EXIT_MSG("No images loaded in SLGLTexture::build");
 
-        //////////////////////////////////////////////////////////////
-        glTexImage2D(GL_TEXTURE_2D,
-                     0,
-                     internalFormat,
-                     (SLsizei)_images[0]->width(),
-                     (SLsizei)_images[0]->height(),
-                     0,
-                     format,
-                     _texType == TT_hdr ? GL_FLOAT : GL_UNSIGNED_BYTE,
-                     (GLvoid*)_images[0]->data());
-        /////////////////////////////////////////////////////////////
-
-        GET_GL_ERROR;
-
-        _bytesOnGPU += _images[0]->bytesPerImage();
-
-        if (_min_filter >= GL_NEAREST_MIPMAP_NEAREST)
+        // delete texture name if it already exits
+        if (_texID)
         {
-            if (stateGL->glIsES2() ||
-                stateGL->glIsES3() ||
-                stateGL->glVersionNOf() >= 3.0)
-                glGenerateMipmap(GL_TEXTURE_2D);
+            glBindTexture(_target, _texID);
+            glDeleteTextures(1, &_texID);
+            SL_LOG("SLGLTexture::build: Deleted: %d, %s",
+                   _texID,
+                   _images[0]->name().c_str());
+            glBindTexture(_target, 0);
+            _texID = 0;
+            numBytesInTextures -= _bytesOnGPU;
+        }
+
+        // get max texture size
+        SLint texMaxSize = 0;
+        glGetIntegerv(GL_MAX_TEXTURE_SIZE, &texMaxSize);
+
+        // check if texture has to be resized
+        if (_resizeToPow2)
+        {
+            SLuint w2 = Utils::closestPowerOf2(_images[0]->width());
+            SLuint h2 = Utils::closestPowerOf2(_images[0]->height());
+            if (w2 == 0) SL_EXIT_MSG("Image can not be rescaled: width=0");
+            if (h2 == 0) SL_EXIT_MSG("Image can not be rescaled: height=0");
+            if (w2 != _images[0]->width() || h2 != _images[0]->height())
+                _images[0]->resize((SLint)w2, (SLint)h2);
+        }
+
+        // check 2D size
+        if (_target == GL_TEXTURE_2D)
+        {
+            if (_images[0]->width() > (SLuint)texMaxSize)
+                SL_EXIT_MSG("SLGLTexture::build: Texture width is too big.");
+            if (_images[0]->height() > (SLuint)texMaxSize)
+                SL_EXIT_MSG("SLGLTexture::build: Texture height is too big.");
+        }
+
+        // check 3D size
+        if (_target == GL_TEXTURE_3D)
+        {
+            SLint texMax3DSize = 0;
+            glGetIntegerv(GL_MAX_3D_TEXTURE_SIZE, &texMax3DSize);
+            for (auto img : _images)
+            {
+                if (img->width() > (SLuint)texMax3DSize)
+                    SL_EXIT_MSG("SLGLTexture::build: 3D Texture width is too big.");
+                if (img->height() > (SLuint)texMax3DSize)
+                    SL_EXIT_MSG("SLGLTexture::build: 3D Texture height is too big.");
+                if (img->width() != _images[0]->width() ||
+                    img->height() != _images[0]->height())
+                    SL_EXIT_MSG("SLGLTexture::build: Not all images of the 3D texture have the same size.");
+            }
+        }
+
+        // check cube mapping capability & max. cube map size
+        if (_target == GL_TEXTURE_CUBE_MAP)
+        {
+            SLint texMaxCubeSize;
+            glGetIntegerv(GL_MAX_CUBE_MAP_TEXTURE_SIZE, &texMaxCubeSize);
+            if (_images[0]->width() > (SLuint)texMaxCubeSize)
+                SL_EXIT_MSG("SLGLTexture::build: Cube Texture width is too big.");
+            if (_images.size() != 6)
+                SL_EXIT_MSG("SLGLTexture::build: Not six images provided for cube map texture.");
+        }
+
+        // Generate texture names
+        glGenTextures(1, &_texID);
+
+        SLGLState* stateGL = SLGLState::instance();
+        stateGL->activeTexture(GL_TEXTURE0 + (SLuint)texUnit);
+
+        // create binding and apply texture properties
+        stateGL->bindTexture(_target, _texID);
+
+        // check if anisotropic texture filter extension is available
+        if (maxAnisotropy < 0.0f)
+        {
+            if (stateGL->hasExtension("GL_EXT_texture_filter_anisotropic"))
+                glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &maxAnisotropy);
             else
-                build2DMipmaps(GL_TEXTURE_2D, 0);
-
-            // Mipmaps use 1/3 more memory on GPU
-            _bytesOnGPU = (SLuint)((SLfloat)_bytesOnGPU * 1.333333333f);
-            GET_GL_ERROR;
+            {
+                maxAnisotropy = 0.0f;
+                cout << "GL_EXT_texture_filter_anisotropic not available.\n";
+            }
         }
-
-        numBytesInTextures += _bytesOnGPU;
-    }
-    else if (_target == GL_TEXTURE_3D)
-    {
-        // temporary buffer for 3D image data
-        SLVuchar buffer(_images[0]->bytesPerImage() * _images.size());
-        SLuchar* imageData = &buffer[0];
-
-        // copy each image data into temp. buffer
-        for (CVImage* img : _images)
-        {
-            memcpy(imageData, img->data(), img->bytesPerImage());
-            imageData += img->bytesPerImage();
-            _bytesOnGPU += _images[0]->bytesPerImage();
-        }
-
-        /////////////////////////////////////////////////////
-        glTexImage3D(GL_TEXTURE_3D,
-                     0,              //Mipmap level,
-                     internalFormat, //Internal format
-                     (SLsizei)_images[0]->width(),
-                     (SLsizei)_images[0]->height(),
-                     (SLsizei)_images.size(),
-                     0,                    //Border
-                     _images[0]->format(), //Format
-                     GL_UNSIGNED_BYTE,     //Data type
-                     &buffer[0]);
-        /////////////////////////////////////////////////////
-
-        numBytesInTextures += _bytesOnGPU;
         GET_GL_ERROR;
-    }
-    else if (_target == GL_TEXTURE_CUBE_MAP)
-    {
-        for (SLuint i = 0; i < 6; i++)
+
+        // apply anisotropic or minification filter
+        if (_min_filter > GL_LINEAR_MIPMAP_LINEAR)
         {
-            //////////////////////////////////////////////
-            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
+            SLfloat anisotropy; // = off
+            if (_min_filter == SL_ANISOTROPY_MAX)
+                anisotropy = maxAnisotropy;
+            else
+                anisotropy = std::min((SLfloat)(_min_filter - GL_LINEAR_MIPMAP_LINEAR),
+                                      maxAnisotropy);
+            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, anisotropy);
+        }
+        else
+            glTexParameteri(_target, GL_TEXTURE_MIN_FILTER, _min_filter);
+        GET_GL_ERROR;
+
+        // apply magnification filter only GL_NEAREST & GL_LINEAR is allowed
+        glTexParameteri(_target, GL_TEXTURE_MAG_FILTER, _mag_filter);
+        GET_GL_ERROR;
+
+        // apply texture wrapping modes
+        glTexParameteri(_target, GL_TEXTURE_WRAP_S, _wrap_s);
+        glTexParameteri(_target, GL_TEXTURE_WRAP_T, _wrap_t);
+        glTexParameteri(_target, GL_TEXTURE_WRAP_R, _wrap_t);
+        GET_GL_ERROR;
+
+        // Handle special stupid case on iOS
+        SLint internalFormat = _images[0]->format();
+        if (internalFormat == PF_red)
+            internalFormat = GL_R8;
+
+        // Handle special case for realtime RT
+        if (_images[0]->name() == "Optix Raytracer")
+            internalFormat = GL_RGB32F;
+
+        // Handle special case for HDR textures
+        if (_texType == TT_hdr)
+            internalFormat = GL_RGB16F;
+
+        // Build textures
+        if (_target == GL_TEXTURE_2D)
+        {
+            GLenum format = _images[0]->format();
+
+            //////////////////////////////////////////////////////////////
+            glTexImage2D(GL_TEXTURE_2D,
                          0,
                          internalFormat,
-                         (SLsizei)_images[i]->width(),
-                         (SLsizei)_images[i]->height(),
+                         (SLsizei)_images[0]->width(),
+                         (SLsizei)_images[0]->height(),
                          0,
-                         _images[i]->format(),
-                         GL_UNSIGNED_BYTE,
-                         (GLvoid*)_images[i]->data());
-            //////////////////////////////////////////////
+                         format,
+                         _texType == TT_hdr ? GL_FLOAT : GL_UNSIGNED_BYTE,
+                         (GLvoid*)_images[0]->data());
+            /////////////////////////////////////////////////////////////
+
+            GET_GL_ERROR;
 
             _bytesOnGPU += _images[0]->bytesPerImage();
+
+            if (_min_filter >= GL_NEAREST_MIPMAP_NEAREST)
+            {
+                if (stateGL->glIsES2() ||
+                    stateGL->glIsES3() ||
+                    stateGL->glVersionNOf() >= 3.0)
+                    glGenerateMipmap(GL_TEXTURE_2D);
+                else
+                    build2DMipmaps(GL_TEXTURE_2D, 0);
+
+                // Mipmaps use 1/3 more memory on GPU
+                _bytesOnGPU = (SLuint)((SLfloat)_bytesOnGPU * 1.333333333f);
+                GET_GL_ERROR;
+            }
+
+            numBytesInTextures += _bytesOnGPU;
+        }
+        else if (_target == GL_TEXTURE_3D)
+        {
+            // temporary buffer for 3D image data
+            SLVuchar buffer(_images[0]->bytesPerImage() * _images.size());
+            SLuchar* imageData = &buffer[0];
+
+            // copy each image data into temp. buffer
+            for (CVImage* img : _images)
+            {
+                memcpy(imageData, img->data(), img->bytesPerImage());
+                imageData += img->bytesPerImage();
+                _bytesOnGPU += _images[0]->bytesPerImage();
+            }
+
+            /////////////////////////////////////////////////////
+            glTexImage3D(GL_TEXTURE_3D,
+                         0,              //Mipmap level,
+                         internalFormat, //Internal format
+                         (SLsizei)_images[0]->width(),
+                         (SLsizei)_images[0]->height(),
+                         (SLsizei)_images.size(),
+                         0,                    //Border
+                         _images[0]->format(), //Format
+                         GL_UNSIGNED_BYTE,     //Data type
+                         &buffer[0]);
+            /////////////////////////////////////////////////////
+
+            numBytesInTextures += _bytesOnGPU;
             GET_GL_ERROR;
         }
-
-        numBytesInTextures += _bytesOnGPU;
-        if (_min_filter >= GL_NEAREST_MIPMAP_NEAREST)
+        else if (_target == GL_TEXTURE_CUBE_MAP)
         {
-            glGenerateMipmap(GL_TEXTURE_2D);
+            for (SLuint i = 0; i < 6; i++)
+            {
+                //////////////////////////////////////////////
+                glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
+                             0,
+                             internalFormat,
+                             (SLsizei)_images[i]->width(),
+                             (SLsizei)_images[i]->height(),
+                             0,
+                             _images[i]->format(),
+                             GL_UNSIGNED_BYTE,
+                             (GLvoid*)_images[i]->data());
+                //////////////////////////////////////////////
 
-            // Mipmaps use 1/3 more memory on GPU
-            _bytesOnGPU = (SLuint)((SLfloat)_bytesOnGPU * 1.333333333f);
+                _bytesOnGPU += _images[0]->bytesPerImage();
+                GET_GL_ERROR;
+            }
+
+            numBytesInTextures += _bytesOnGPU;
+            if (_min_filter >= GL_NEAREST_MIPMAP_NEAREST)
+            {
+                glGenerateMipmap(GL_TEXTURE_2D);
+
+                // Mipmaps use 1/3 more memory on GPU
+                _bytesOnGPU = (SLuint)((SLfloat)_bytesOnGPU * 1.333333333f);
+            }
         }
-    }
 
-    // If the images get deleted they only are on the GPU side
-    if (_deleteImageAfterBuild)
-        deleteImages();
+        // If the images get deleted they only are on the GPU side
+        if (_deleteImageAfterBuild)
+            deleteImages();
+    }
 
     // Check if texture name is valid only for debug purpose
     //if (glIsTexture(_texName))
