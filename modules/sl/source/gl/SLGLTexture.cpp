@@ -698,7 +698,9 @@ void SLGLTexture::build(SLint texUnit)
         
         //todo ktx: cubemaps and 3d textures
         
+        //does not work... makes model black
         //todo ktx: down there is another special case for this filter
+        /*
         glTexParameteri(_target, GL_TEXTURE_MIN_FILTER, _min_filter);
         GET_GL_ERROR;
 
@@ -711,7 +713,7 @@ void SLGLTexture::build(SLint texUnit)
         glTexParameteri(_target, GL_TEXTURE_WRAP_T, _wrap_t);
         glTexParameteri(_target, GL_TEXTURE_WRAP_R, _wrap_t);
         GET_GL_ERROR;
-        
+        */
         //todo: upload in build process
         GLenum glerror = 0;
         glGenTextures(1, &_texID); // Optional. GLUpload can generate a texture.
