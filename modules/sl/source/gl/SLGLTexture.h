@@ -17,6 +17,7 @@
 #include <SLMat4.h>
 #include <atomic>
 #include <mutex>
+#include <ktx.h>
 
 #ifdef SL_HAS_OPTIX
 #    include <cuda.h>
@@ -251,7 +252,10 @@ protected:
     std::mutex        _mutex;         //!< Mutex to protect parallel access (used in ray tracing)
 
     SLbool _deleteImageAfterBuild; //!< Flag if images should be deleted after build on GPU
-
+    SLbool _compressedTexture = false;
+    ktxTexture2* _ktxTexture = nullptr;
+    KTX_error_code _ktxErrorCode;
+    
 #ifdef SL_HAS_OPTIX
     CUgraphicsResource _cudaGraphicsResource; //!< Cuda Graphics object
     CUtexObject        _cudaTextureObject;

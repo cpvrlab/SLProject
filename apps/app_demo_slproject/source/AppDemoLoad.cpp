@@ -41,7 +41,6 @@
 #include <SLProjectScene.h>
 #include <SLGLProgramManager.h>
 #include <Instrumentor.h>
-
 #include <AppDemoGui.h>
 
 #ifdef SL_BUILD_WAI
@@ -388,7 +387,12 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLNode* scene = new SLNode("scene node");
 
         // Create textures and materials
-        SLGLTexture* texC = new SLGLTexture(s, SLApplication::texturePath + "earth1024_C.jpg");
+        SLGLTexture* texC = nullptr;
+#if defined(SL_OS_MACIOS) || defined(SL_OS_ANDROID)
+        texC = new SLGLTexture(s, SLApplication::texturePath + "earth2048_C.ktx2");
+#else
+        texC = new SLGLTexture(s, SLApplication::texturePath + "earth2048_C.ktx2");
+#endif
         SLMaterial*  m1   = new SLMaterial(s, "m1", texC);
 
         // Create a light source node
