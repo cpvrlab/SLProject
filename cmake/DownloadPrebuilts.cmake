@@ -424,6 +424,40 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #-----------------------------
         file(COPY ${glfw_LINK_DIR}/glfw3.dll DESTINATION ${CMAKE_BINARY_DIR}/RelWithDebInfo)
     endif()
 
+    #######################
+    # ktx for windows     #
+    #######################
+	
+	set(ktx_VERSION "v4.0.0-beta7")
+    set(ktx_DIR ${PREBUILT_PATH}/win64_ktx_${ktx_VERSION})
+    set(ktx_PREBUILT_ZIP "win64_ktx_${ktx_VERSION}.zip")
+    set(ktx_URL ${PREBUILT_URL}/${ktx_PREBUILT_ZIP})
+
+    if (NOT EXISTS "${ktx_DIR}")
+        message(STATUS "Downloading: ${ktx_PREBUILT_ZIP}")
+        file(DOWNLOAD "${ktx_URL}" "${PREBUILT_PATH}/${ktx_PREBUILT_ZIP}")
+        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
+                "${PREBUILT_PATH}/${ktx_PREBUILT_ZIP}"
+                WORKING_DIRECTORY "${PREBUILT_PATH}")
+        file(REMOVE "${PREBUILT_PATH}/${ktx_PREBUILT_ZIP}")
+    endif()
+
+    add_library(KTX::ktx SHARED IMPORTED)
+    set_target_properties(KTX::ktx
+        PROPERTIES
+        IMPORTED_IMPLIB "${ktx_DIR}/release/ktx.lib"
+        IMPORTED_LOCATION "${ktx_DIR}/release/ktx.dll"
+        INTERFACE_INCLUDE_DIRECTORIES "${ktx_DIR}/include"
+        )
+
+    set(ktx_LIBS KTX::ktx)
+	
+    if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "MSVC")
+        file(COPY ${ktx_DIR}/release/ktx.dll DESTINATION ${CMAKE_BINARY_DIR}/Debug)
+        file(COPY ${ktx_DIR}/release/ktx.dll DESTINATION ${CMAKE_BINARY_DIR}/Release)
+        file(COPY ${ktx_DIR}/release/ktx.dll DESTINATION ${CMAKE_BINARY_DIR}/RelWithDebInfo)
+    endif()
+	
 elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN" AND
         "${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "x86_64") #----------------------------------------------------------------
 
