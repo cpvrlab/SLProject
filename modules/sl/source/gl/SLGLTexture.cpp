@@ -513,30 +513,16 @@ void SLGLTexture::load(const SLstring& filename,
         
         if (_ktxErrorCode == KTX_SUCCESS && ktxTexture2_NeedsTranscoding(_ktxTexture))
         {
-            //see: https://docs.unity3d.com/2017.3/Documentation/Manual/class-TextureImporterOverride.html
 #if defined(SL_OS_MACIOS)
             //_ktxErrorCode = ktxTexture2_TranscodeBasis(_ktxTexture, KTX_TTF_PVRTC1_4_RGB, 0);
             _ktxErrorCode = ktxTexture2_TranscodeBasis(_ktxTexture, KTX_TTF_ETC2_RGBA, 0);
 #elif defined(SL_OS_ANDROID)
             _ktxErrorCode = ktxTexture2_TranscodeBasis(_ktxTexture, KTX_TTF_ETC2_RGBA, 0);
 #else // all desktop plattforms support the same formats
-            //_ktxErrorCode = ktxTexture2_TranscodeBasis(_ktxTexture, KTX_TTF_BC7_RGBA, 0); //crashed mit earth2048_C_UN_BASISU_ETC1S_Linear: assert(colorModel == KHR_DF_MODEL_UASTC);
-            //_ktxErrorCode = ktxTexture2_TranscodeBasis(_ktxTexture, KTX_TTF_ETC2_RGBA, 0); //crashed mit earth2048_C_UN_BASISU_ETC1S_Linear: assert(colorModel == KHR_DF_MODEL_UASTC);
-            _ktxErrorCode = ktxTexture2_TranscodeBasis(_ktxTexture, KTX_TTF_BC1_RGB, 0);
+            //KTX_TTF_BC1_RGB
+            _ktxErrorCode = ktxTexture2_TranscodeBasis(_ktxTexture, KTX_TTF_BC3_RGBA, 0);
 #endif
         }
-            
-        /*
-        if(_ktxErrorCode == KTX_SUCCESS)
-        {
-            //todo: upload in build process
-            GLenum glerror;
-            glGenTextures(1, &_texID); // Optional. GLUpload can generate a texture.
-            ktxTexture_GLUpload((ktxTexture*)_ktxTexture, &_texID, &_target, &glerror);
-            //todo: destroy somewhere else
-            ktxTexture_Destroy((ktxTexture*)_ktxTexture);
-        }
-         */
     }
     else
     {
@@ -712,7 +698,6 @@ void SLGLTexture::build(SLint texUnit)
         
         //todo ktx: cubemaps and 3d textures
         
-        /*
         //todo ktx: down there is another special case for this filter
         glTexParameteri(_target, GL_TEXTURE_MIN_FILTER, _min_filter);
         GET_GL_ERROR;
@@ -726,18 +711,11 @@ void SLGLTexture::build(SLint texUnit)
         glTexParameteri(_target, GL_TEXTURE_WRAP_T, _wrap_t);
         glTexParameteri(_target, GL_TEXTURE_WRAP_R, _wrap_t);
         GET_GL_ERROR;
-         */
         
         //todo: upload in build process
         GLenum glerror = 0;
         glGenTextures(1, &_texID); // Optional. GLUpload can generate a texture.
         
-        //SLGLState* stateGL = SLGLState::instance();
-        //stateGL->activeTexture(GL_TEXTURE0 + (SLuint)texUnit);
-
-        // create binding and apply texture properties
-        //stateGL->bindTexture(_target, _texID);
-
         ktxTexture_GLUpload((ktxTexture*)_ktxTexture, &_texID, &_target, &glerror);
         
         _bytesOnGPU += _ktxTexture->dataSize;
