@@ -11,11 +11,6 @@ SENSNdkGps*        GetGpsPtr()
     return gGpsPtr;
 }
 
-void SENSNdkGps::init(bool granted)
-{
-    _permissionGranted = granted;
-}
-
 bool SENSNdkGps::start()
 {
     if (!_permissionGranted)
