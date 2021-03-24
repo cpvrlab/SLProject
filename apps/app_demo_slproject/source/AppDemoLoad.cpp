@@ -4485,8 +4485,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         //initialize sensor stuff
         //https://map.geo.admin.ch/?lang=de&topic=ech&bgLayer=ch.swisstopo.swissimage&layers=ch.swisstopo.zeitreihen,ch.bfs.gebaeude_wohnungs_register,ch.bav.haltestellen-oev,ch.swisstopo.swisstlm3d-wanderwege&layers_opacity=1,1,1,0.8&layers_visibility=false,false,false,false&layers_timestamp=18641231,,,&E=2570281&N=1192204&zoom=13&crosshair=marker
         SLApplication::devLoc.useOriginAltitude(false);
-        SLApplication::devLoc.originLatLonAlt(46.88029, 7.04876, 454.9f);        // Zentrum Orchestra
-        SLApplication::devLoc.defaultLatLonAlt(46.88044, 7.04846, 455.3f + 1.7); // Vor dem Bühnenhaus
+        SLApplication::devLoc.originLatLonAlt(46.88029, 7.04876, 454.9);        // Zentrum Orchestra
+        SLApplication::devLoc.defaultLatLonAlt(46.88100, 7.04912, 455.5 + 1.7); // Beim Baum von der Ecke aus
         SLApplication::devLoc.locMaxDistanceM(1000.0f);                          // Max. Distanz. zum Nullpunkt
         SLApplication::devLoc.improveOrigin(false);                              // Keine autom. Verbesserung vom Origin
         SLApplication::devLoc.hasOrigin(true);
