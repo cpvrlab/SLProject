@@ -13,6 +13,8 @@ public:
     virtual bool canShowGPSPermissionDialog() {return true; };
     virtual bool canShowInternetPermissionDialog() {return true; };
     virtual bool canShowStoragePermissionDialog() {return true; };
+    virtual bool isLocationEnabled() {return true; }
+    virtual void askEnabledLocation() {};
 };
 
 #endif

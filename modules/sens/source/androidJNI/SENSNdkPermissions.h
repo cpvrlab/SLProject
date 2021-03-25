@@ -19,6 +19,9 @@ class SENSNdkPermissions : public SENSPermissions
     bool canShowInternetPermissionDialog();
     bool canShowStoragePermissionDialog();
 
+    bool isLocationEnabled();
+    void askEnabledLocation();
+
     private:
     JavaVM* _jvm;
 };

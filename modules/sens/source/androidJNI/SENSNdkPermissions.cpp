@@ -97,4 +97,22 @@ bool SENSNdkPermissions::canShowStoragePermissionDialog()
     return env->CallStaticBooleanMethod(clazz, methodid);
 }
 
+bool SENSNdkPermissions::isLocationEnabled()
+{
+    JNIEnv* env;
+    _jvm->GetEnv((void**)&env, JNI_VERSION_1_6);
+    jclass clazz = env->FindClass("ch/cpvr/wai/GLES3Lib");
+    jmethodID methodid = env->GetStaticMethodID(clazz, "isLocationEnabled", "()Z");
 
+    return env->CallStaticBooleanMethod(clazz, methodid);
+}
+
+void SENSNdkPermissions::askEnabledLocation()
+{
+    JNIEnv* env;
+    _jvm->GetEnv((void**)&env, JNI_VERSION_1_6);
+    jclass clazz = env->FindClass("ch/cpvr/wai/GLES3Lib");
+    jmethodID methodid = env->GetStaticMethodID(clazz, "askEnabledLocation", "()V");
+
+    return env->CallStaticVoidMethod(clazz, methodid);
+}
