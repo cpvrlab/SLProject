@@ -56,6 +56,16 @@
     }
 }
 
+- (BOOL)hasPermission
+{
+    if ([CLLocationManager locationServicesEnabled])
+    {
+        return YES;
+    }
+    
+    return NO;
+}
+
 //! Starts the location data update
 - (BOOL)start
 {
