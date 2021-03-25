@@ -18,6 +18,7 @@ function(copy_resources_slprojectdemo TARGET_DIR)
 			${SL_PROJECT_ROOT}/data/images/textures/cursor.png
 			${SL_PROJECT_ROOT}/data/images/textures/Desert*_C.jpg
 			${SL_PROJECT_ROOT}/data/images/textures/earth*.jpg
+			${SL_PROJECT_ROOT}/data/images/textures/earth*.ktx2
 			${SL_PROJECT_ROOT}/data/images/textures/features_stones.png
 			${SL_PROJECT_ROOT}/data/images/textures/grass0512_C.jpg
 			${SL_PROJECT_ROOT}/data/images/textures/gray_0256_C.jpg

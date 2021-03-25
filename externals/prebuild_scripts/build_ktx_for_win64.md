@@ -1,0 +1,5 @@
+-clone https://github.com/KhronosGroup/KTX-Software.git
+-checkout v4.0.0-beta7
+-run cmake with cmake-gui for visual studio, set install dir
+-open visual studio solution and build install
+-copy files to win64_ktx_v4.0.0-beta7
