@@ -422,7 +422,7 @@ target_link_libraries(${target}
         lib-Utils
         lib-SLMath
         ${DEFAULT_LINKER_OPTIONS}
-
+        ${ktx_LIBS}
         INTERFACE
 
         )

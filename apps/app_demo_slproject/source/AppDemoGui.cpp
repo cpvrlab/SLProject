@@ -1102,20 +1102,21 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
                     SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLatLonAlt(),
                                                                adjustedTime);
                 }
+
                 if (ImGui::SliderInt("Day", &lt.tm_mday, 1, 31))
                 {
                     adjustedTime = mktime(&lt);
                     SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLatLonAlt(),
                                                                adjustedTime);
                 }
-                if (ImGui::SliderInt("Hour", &lt.tm_hour, 0, 23))
+
+                SLfloat SRh = SLApplication::devLoc.originSolarSunrise();
+                SLfloat SSh = SLApplication::devLoc.originSolarSunset();
+                SLfloat nowF = (SLfloat)lt.tm_hour + (float)lt.tm_min / 60.0f;
+                if (ImGui::SliderFloat("Hour", &nowF, SRh, SSh,"%.2f"))
                 {
-                    adjustedTime = mktime(&lt);
-                    SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLatLonAlt(),
-                                                               adjustedTime);
-                }
-                if (ImGui::SliderInt("Min.", &lt.tm_min, 0, 59))
-                {
+                    lt.tm_hour = (int)nowF;
+                    lt.tm_min = (int)((nowF - (int)nowF) * 60.0f);
                     adjustedTime = mktime(&lt);
                     SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLatLonAlt(),
                                                                adjustedTime);
@@ -1129,30 +1130,6 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
                     std::time_t now = std::time(nullptr);
                     memcpy(&lt, std::localtime(&now), sizeof(tm));
                     SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLatLonAlt(), now);
-                }
-
-                SLfloat SRh = SLApplication::devLoc.originSolarSunrise();
-                SLfloat SRm = (SLfloat)(60.0f * (SRh - (int)(SRh)));
-                sprintf(strTime, "Set sunrise time (%02d:%02d)", (int)(SRh), (int)SRm);
-                if (ImGui::MenuItem(strTime))
-                {
-                    lt.tm_hour   = (int)SRh;
-                    lt.tm_min    = (int)SRm;
-                    adjustedTime = mktime(&lt);
-                    SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLatLonAlt(),
-                                                               adjustedTime);
-                }
-
-                SLfloat SSh = SLApplication::devLoc.originSolarSunset();
-                SLfloat SSm = (SLfloat)(60.0f * (SSh - (int)(SSh)));
-                sprintf(strTime, "Set sunset time (%02d:%02d)", (int)(SSh), (int)SSm);
-                if (ImGui::MenuItem(strTime))
-                {
-                    lt.tm_hour   = (int)SSh;
-                    lt.tm_min    = (int)SSm;
-                    adjustedTime = mktime(&lt);
-                    SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLatLonAlt(),
-                                                               adjustedTime);
                 }
 
                 sprintf(strTime, "Set highest noon (21.06.%02d 12:00)", lt.tm_year);
@@ -1627,34 +1604,28 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                 }
 
                 SLstring erlebarPath = SLApplication::dataPath + "erleb-AR/models/";
-                SLstring modelBR1    = erlebarPath + "bern/Bern-Bahnhofsplatz2.gltf";
                 SLstring modelBR2    = erlebarPath + "bern/Bern-Bahnhofsplatz3.gltf";
                 SLstring modelBFH    = erlebarPath + "biel/Biel-BFH-Rolex.gltf";
                 SLstring modelAR1    = erlebarPath + "augst/Tempel-03.gltf";
                 SLstring modelAR2    = erlebarPath + "augst/Theater-03.gltf";
                 SLstring modelAR3    = erlebarPath + "augst/Tempel-Theater-03.gltf";
-                SLstring modelAV1    = erlebarPath + "avenches/Aventicum-Amphitheater1.gltf";
                 SLstring modelAV1_AO = erlebarPath + "avenches/Aventicum-Amphitheater-AO.gltf";
-                SLstring modelAV2    = erlebarPath + "avenches/Aventicum-Cigognier2.gltf";
                 SLstring modelAV2_AO = erlebarPath + "avenches/Aventicum-Cigognier-AO.gltf";
-                SLstring modelAV3    = erlebarPath + "avenches/Aventicum-Theater1.gltf";
+                SLstring modelAV3    = erlebarPath + "avenches/Aventicum-Theater2-AO.gltf";
                 SLstring modelSU1    = erlebarPath + "sutzKirchrain18/Sutz-Kirchrain18.gltf";
                 SLstring modelEV1    = erlebarPath + "evilardCheminDuRoc2/EvilardCheminDuRoc2.gltf";
 
                 if (Utils::fileExists(modelAR1) ||
                     Utils::fileExists(modelAR2) ||
                     Utils::fileExists(modelAR3) ||
-                    Utils::fileExists(modelAV1) ||
-                    Utils::fileExists(modelAV2) ||
                     Utils::fileExists(modelAV3) ||
-                    Utils::fileExists(modelBR1) ||
                     Utils::fileExists(modelBR2) ||
                     Utils::fileExists(modelSU1) ||
                     Utils::fileExists(modelEV1))
                 {
                     if (ImGui::BeginMenu("Erleb-AR"))
                     {
-                        if (Utils::fileExists(modelBR1))
+                        if (Utils::fileExists(modelBR2))
                             if (ImGui::MenuItem("Bern: Christoffel Tower", nullptr, sid == SID_ErlebARChristoffel))
                                 s->onLoad(s, sv, SID_ErlebARChristoffel);
 
@@ -1675,16 +1646,12 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                                 s->onLoad(s, sv, SID_ErlebARAugustaRauricaTmpTht);
 
                         if (Utils::fileExists(modelAV1_AO))
-                            if (ImGui::MenuItem("Aventicum: Amphitheatre", nullptr, sid == SID_ErlebARAventicumAmphiAO))
-                                s->onLoad(s, sv, SID_ErlebARAventicumAmphiAO);
-
-                        if (Utils::fileExists(modelAV2))
-                            if (ImGui::MenuItem("Aventicum: Cigognier", nullptr, sid == SID_ErlebARAventicumCigognier))
-                                s->onLoad(s, sv, SID_ErlebARAventicumCigognier);
+                            if (ImGui::MenuItem("Aventicum: Amphitheatre", nullptr, sid == SID_ErlebARAventicumAmphiteatre))
+                                s->onLoad(s, sv, SID_ErlebARAventicumAmphiteatre);
 
                         if (Utils::fileExists(modelAV2_AO))
-                            if (ImGui::MenuItem("Aventicum: Cigognier (AO)", nullptr, sid == SID_ErlebARAventicumCigognierAO))
-                                s->onLoad(s, sv, SID_ErlebARAventicumCigognierAO);
+                            if (ImGui::MenuItem("Aventicum: Cigognier", nullptr, sid == SID_ErlebARAventicumCigognier))
+                                s->onLoad(s, sv, SID_ErlebARAventicumCigognier);
 
                         if (Utils::fileExists(modelAV3))
                             if (ImGui::MenuItem("Aventicum: Theatre", nullptr, sid == SID_ErlebARAventicumTheatre))
