@@ -2,7 +2,9 @@
 #define SENS_IOSPERMISSIONS_H
 
 #include <SENSPermissions.h>
-#include "SENSiOSGpsDelegate.h"
+
+#import <CoreLocation/CoreLocation.h>
+#import <AVFoundation/AVCaptureDevice.h>
 
 class SENSiOSPermissions : public SENSPermissions {
 public:
@@ -14,13 +16,10 @@ public:
     bool hasGPSPermission();
     bool hasInternetPermission();
     bool hasStoragePermission();
-    bool canShowCameraPermissionsDialog();
-    bool canShowGPSPermissionsDialog();
-    bool canShowInternetPermissionsDialog();
-    bool canShowStoragePermissionsDialog();
-    
-private:
-    SENSiOSGpsDelegate* _gpsDelegate;
+    bool canShowCameraPermissionDialog();
+    bool canShowGPSPermissionDialog();
+    bool canShowInternetPermissionDialog();
+    bool canShowStoragePermissionDialog();
 };
 
 #endif

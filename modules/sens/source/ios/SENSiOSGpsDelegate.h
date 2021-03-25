@@ -5,7 +5,6 @@
 
 @interface SENSiOSGpsDelegate : NSObject<CLLocationManagerDelegate>
 
-- (BOOL)hasPermission;
 - (BOOL)start;
 - (void)stop;
 

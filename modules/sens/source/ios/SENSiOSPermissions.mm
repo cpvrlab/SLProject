@@ -1,49 +1,68 @@
 #include "SENSiOSPermissions.h"
 
 SENSiOSPermissions::SENSiOSPermissions() {
-    _gpsDelegate = [[SENSiOSGpsDelegate alloc] init];
 }
 
 void SENSiOSPermissions::askPermissions() {
-    // TODO: implement
+    // cannot ask for permissions a second time,
+    // so only here to complete the interface
 }
 
 bool SENSiOSPermissions::hasCameraPermission() {
-    // TODO: implement
-    return true;
+    bool result = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo] ==
+        AVAuthorizationStatusAuthorized;
+    
+    return result;
 }
 
 bool SENSiOSPermissions::hasGPSPermission() {
-    bool result = [_gpsDelegate hasPermission];
+    bool result =
+        [CLLocationManager authorizationStatus] == kCLAuthorizationStatusAuthorizedAlways ||
+        [CLLocationManager authorizationStatus] == kCLAuthorizationStatusAuthorizedWhenInUse;; //[CLLocationManager locationServicesEnabled];
+    
     return result;
 }
 
 bool SENSiOSPermissions::hasInternetPermission() {
-    // TODO: implement
+    // no special permissions required (as far as I could tell...)
+    
     return true;
 }
 
 bool SENSiOSPermissions::hasStoragePermission() {
-    // TODO: implement
+    // no special permissions required
+    
     return true;
 }
 
-bool SENSiOSPermissions::canShowCameraPermissionsDialog() {
-    // TODO: implement
-    return true;
+bool SENSiOSPermissions::canShowCameraPermissionDialog() {
+    // iOS will only prompt users for permissions once. After they have to manually
+    // change permissions in the settings.
+    bool result = false;
+    
+    return result;
 }
 
-bool SENSiOSPermissions::canShowGPSPermissionsDialog() {
-    // TODO: implement
-    return true;
+bool SENSiOSPermissions::canShowGPSPermissionDialog() {
+    // iOS will only prompt users for permissions once. After they have to manually
+    // change permissions in the settings.
+    bool result = false;
+    
+    return result;
 }
 
-bool SENSiOSPermissions::canShowInternetPermissionsDialog() {
-    // TODO: implement
-    return true;
+bool SENSiOSPermissions::canShowInternetPermissionDialog() {
+    // iOS will only prompt users for permissions once. After they have to manually
+    // change permissions in the settings.
+    bool result = false;
+    
+    return result;
 }
 
-bool SENSiOSPermissions::canShowStoragePermissionsDialog() {
-    // TODO: implement
-    return true;
+bool SENSiOSPermissions::canShowStoragePermissionDialog() {
+    // iOS will only prompt users for permissions once. After they have to manually
+    // change permissions in the settings.
+    bool result = false;
+    
+    return result;
 }
