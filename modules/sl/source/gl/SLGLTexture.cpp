@@ -517,7 +517,7 @@ void SLGLTexture::load(const SLstring& filename,
             //_ktxErrorCode = ktxTexture2_TranscodeBasis(_ktxTexture, KTX_TTF_PVRTC1_4_RGB, 0);
             _ktxErrorCode = ktxTexture2_TranscodeBasis(_ktxTexture, KTX_TTF_ETC2_RGBA, 0);
 #elif defined(SL_OS_ANDROID)
-            _ktxErrorCode = ktxTexture2_TranscodeBasis(_ktxTexture, KTX_TTF_ETC2_RGBA, 0);
+            _ktxErrorCode = ktxTexture2_TranscodeBasis(_ktxTexture, KTX_TTF_ETC1_RGB, 0);
 #else // all desktop plattforms support the same formats
             //KTX_TTF_BC1_RGB
             _ktxErrorCode = ktxTexture2_TranscodeBasis(_ktxTexture, KTX_TTF_BC3_RGBA, 0);
@@ -697,10 +697,13 @@ void SLGLTexture::build(SLint texUnit)
         }
         
         //todo ktx: cubemaps and 3d textures
+
+        //todo: upload in build process
+        GLenum glerror = 0;
+        glGenTextures(1, &_texID); // Optional. GLUpload can generate a texture.
         
-        //does not work... makes model black
-        //todo ktx: down there is another special case for this filter
-        /*
+        glBindTexture(_target, _texID);
+        
         glTexParameteri(_target, GL_TEXTURE_MIN_FILTER, _min_filter);
         GET_GL_ERROR;
 
@@ -713,10 +716,6 @@ void SLGLTexture::build(SLint texUnit)
         glTexParameteri(_target, GL_TEXTURE_WRAP_T, _wrap_t);
         glTexParameteri(_target, GL_TEXTURE_WRAP_R, _wrap_t);
         GET_GL_ERROR;
-        */
-        //todo: upload in build process
-        GLenum glerror = 0;
-        glGenTextures(1, &_texID); // Optional. GLUpload can generate a texture.
         
         ktxTexture_GLUpload((ktxTexture*)_ktxTexture, &_texID, &_target, &glerror);
         
