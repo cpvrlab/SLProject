@@ -3253,7 +3253,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                                         s,
                                         SLApplication::modelPath + "FBX/Sunglasses.fbx",
                                         SLApplication::texturePath);
-        glasses->scale(0.01f);
+        glasses->scale(0.008f);
+        glasses->translate(0,1.5f,0);
 
         // Add axis arrows at world center
         SLNode* axis = new SLNode(new SLCoordAxis(s), "Axis Node");
