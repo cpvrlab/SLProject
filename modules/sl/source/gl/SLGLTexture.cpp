@@ -704,12 +704,12 @@ void SLGLTexture::build(SLint texUnit)
         
         glBindTexture(_target, _texID);
         
-        glTexParameteri(_target, GL_TEXTURE_MIN_FILTER, _min_filter);
-        GET_GL_ERROR;
+        //glTexParameteri(_target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        //GET_GL_ERROR;
 
         // apply magnification filter only GL_NEAREST & GL_LINEAR is allowed
-        glTexParameteri(_target, GL_TEXTURE_MAG_FILTER, _mag_filter);
-        GET_GL_ERROR;
+        //glTexParameteri(_target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        //GET_GL_ERROR;
 
         // apply texture wrapping modes
         glTexParameteri(_target, GL_TEXTURE_WRAP_S, _wrap_s);
