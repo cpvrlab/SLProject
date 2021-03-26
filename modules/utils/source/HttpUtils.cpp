@@ -14,8 +14,8 @@
 #include <Utils.h>
 #ifdef _WINDOWS
 #else
-#include <netdb.h>
-#include <unistd.h>
+#    include <netdb.h>
+#    include <unistd.h>
 #endif
 
 //-----------------------------------------------------------------------------
@@ -98,7 +98,7 @@ void Socket::disconnect()
  * 
  */
 #define BUFFER_SIZE 1000
-void Socket::receive(function<int(char* data, int size)> dataCB, int max)
+int Socket::receive(function<int(char* data, int size)> dataCB, int max)
 {
     int  n = 0;
     int  len;
@@ -108,15 +108,23 @@ void Socket::receive(function<int(char* data, int size)> dataCB, int max)
         if (max != 0 && max - n <= BUFFER_SIZE)
         {
             len = (int)recv(fd, buf, max - n, 0);
+            if (len == -1)
+                return -1;
             dataCB(buf, len);
-            return;
+            return len;
         }
         len = (int)recv(fd, buf, BUFFER_SIZE, 0);
-        n   = n + len;
+
+        if (len == -1)
+            return -1;
+
+        n = n + len;
         if (dataCB(buf, len) != 0)
             break;
+
     } while (!_interrupt && len > 0);
     _interrupt = false;
+    return n;
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -183,8 +191,8 @@ int SecureSocket::sendData(const char* data, size_t size)
  * @param dataCB
  * @param max
  */
-void SecureSocket::receive(function<int(char* data, int size)> dataCB,
-                           int                                  max)
+int SecureSocket::receive(function<int(char* data, int size)> dataCB,
+                          int                                 max)
 {
     int  len;
     int  n = 0;
@@ -194,15 +202,22 @@ void SecureSocket::receive(function<int(char* data, int size)> dataCB,
         if (max != 0 && max - n <= BUFFER_SIZE)
         {
             len = SSL_read(ssl, buf, max - n);
+            if (len == -1)
+                return -1;
+
             dataCB(buf, len);
-            return;
+            return len;
         }
         len = SSL_read(ssl, buf, BUFFER_SIZE);
+        if (len == -1)
+            return -1;
+
         n += len;
         if (dataCB(buf, len) != 0)
             break;
     } while (!_interrupt && len > 0);
     _interrupt = true;
+    return n;
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -213,7 +228,7 @@ void SecureSocket::receive(function<int(char* data, int size)> dataCB,
 void SecureSocket::disconnect()
 {
     SSL_shutdown(ssl);
-    SSL_free (ssl);
+    SSL_free(ssl);
     ssl = nullptr;
 }
 //-----------------------------------------------------------------------------
@@ -235,11 +250,11 @@ DNSRequest::DNSRequest(string host)
         struct sockaddr_in sa;
         sa.sin_family      = AF_INET;
         sa.sin_addr.s_addr = inet_addr(host.c_str());
-        #ifdef _WINDOWS
-            struct hostent* h = gethostbyaddr(host.c_str(), sizeof(sa.sin_addr), sa.sin_family);
-        #else
-            struct hostent* h = gethostbyaddr(&sa.sin_addr, sizeof(sa.sin_addr), sa.sin_family);
-        #endif
+#ifdef _WINDOWS
+        struct hostent* h = gethostbyaddr(host.c_str(), sizeof(sa.sin_addr), sa.sin_family);
+#else
+        struct hostent* h = gethostbyaddr(&sa.sin_addr, sizeof(sa.sin_addr), sa.sin_family);
+#endif
         if (h != nullptr && h->h_length > 0)
         {
             hostname = string(h->h_name);
@@ -538,15 +553,18 @@ int HttpUtils::GetRequest::send()
     s->sendData(request.c_str(), request.length() + 1);
 
     std::vector<char>* v = &firstBytes;
-    s->receive([v](char* buf, int size) -> int {
+    int                ret;
+    ret = s->receive([v](char* buf, int size) -> int {
         v->reserve(v->size() + size);
         copy(&buf[0], &buf[size], back_inserter(*v));
         return 0;
     },
-               1000);
+                     1000);
 
     contentOffset = processHttpHeaders(firstBytes);
     s->disconnect();
+    if (ret == -1)
+        return 1;
     return 0;
 }
 //-----------------------------------------------------------------------------
@@ -554,13 +572,13 @@ int HttpUtils::GetRequest::send()
  *
  * @param contentCB
  */
-void HttpUtils::GetRequest::getContent(function<int(char* buf, int size)> contentCB)
+int HttpUtils::GetRequest::getContent(function<int(char* buf, int size)> contentCB)
 {
     if (s->connectTo(addr, port) < 0)
     {
         std::cerr << "could not connect\n"
                   << std::endl;
-        return;
+        return 1;
     }
 
     s->sendData(request.c_str(), request.length() + 1);
@@ -576,9 +594,9 @@ void HttpUtils::GetRequest::getContent(function<int(char* buf, int size)> conten
     //if (contentOffset < firstBytes.size())
     //    contentCB(firstBytes.data() + contentOffset, firstBytes.size() - contentOffset);
 
-    s->receive(contentCB, 0);
+    int ret = s->receive(contentCB, 0);
     s->disconnect();
-    return;
+    return ret;
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -653,7 +671,7 @@ int HttpUtils::download(string                                               url
 {
     HttpUtils::GetRequest req = HttpUtils::GetRequest(url, user, pwd);
     if (req.send() < 0)
-        return 0;
+        return 1;
     base = Utils::unifySlashes(base);
 
     if (req.contentType == "text/html")
@@ -662,10 +680,9 @@ int HttpUtils::download(string                                               url
             url = url + "/";
 
         if (!processDir(base))
-            return 0;
+            return 1;
 
         std::vector<string> listing = req.getListing();
-
 
         for (string str : listing)
         {
@@ -689,13 +706,15 @@ int HttpUtils::download(string                                               url
 
         base = Utils::unifySlashes(base);
 
-        if (!processFile(base, file, req.contentLength))
-            return 0;
+        if (processFile(base, file, req.contentLength) != 0)
+            return 1;
 
-        req.getContent(writeChunk);
-        return 1;
+        if (req.getContent(writeChunk) == -1)
+            return 1;
+
+        return 0;
     }
-    return 0;
+    return 1;
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -713,7 +732,7 @@ int HttpUtils::download(string                                      url,
                         function<int(size_t curr, size_t filesize)> progress)
 {
     std::ofstream fs;
-    size_t        totalBytes = 0;
+    size_t        totalBytes  = 0;
     size_t        writtenByte = 0;
 
     bool dstIsDir = true;
@@ -739,10 +758,10 @@ int HttpUtils::download(string                                      url,
           catch (std::exception& e)
           {
               std::cerr << e.what() << '\n';
-              return 0;
+              return 1;
           }
           totalBytes = size;
-          return 1;
+          return 0;
       },
       [&fs, progress, &writtenByte, &totalBytes](char* data, int size) -> int {
           if (size > 0)
@@ -773,8 +792,8 @@ int HttpUtils::download(string                                      url,
       },
       [&dstIsDir](string dir) -> int {
           if (!dstIsDir)
-              return 0;
-          return Utils::makeDir(dir);
+              return 1;
+          return Utils::makeDir(dir) == 0;
       },
       user,
       pwd,
