@@ -1051,6 +1051,34 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN" AND
         endif()
     endif()
 
+
+    #######################
+    # ktx for MacOS-arm64 #
+    #######################
+    set(ktx_VERSION "v4.0.0-beta7-cpvr")
+    set(ktx_DIR ${PREBUILT_PATH}/macArm64_ktx_${ktx_VERSION})
+    set(ktx_PREBUILT_ZIP "macArm64_ktx_${ktx_VERSION}.zip")
+    set(ktx_URL ${PREBUILT_URL}/${ktx_PREBUILT_ZIP})
+
+    if (NOT EXISTS "${ktx_DIR}")
+        message(STATUS "Downloading: ${ktx_PREBUILT_ZIP}")
+        file(DOWNLOAD "${ktx_URL}" "${PREBUILT_PATH}/${ktx_PREBUILT_ZIP}")
+        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
+                "${PREBUILT_PATH}/${ktx_PREBUILT_ZIP}"
+                WORKING_DIRECTORY "${PREBUILT_PATH}")
+        file(REMOVE "${PREBUILT_PATH}/${ktx_PREBUILT_ZIP}")
+    endif()
+
+    add_library(KTX::ktx SHARED IMPORTED)
+    set_target_properties(KTX::ktx
+            PROPERTIES
+            IMPORTED_LOCATION_RELEASE "${ktx_DIR}/release/libktx.dylib"
+            IMPORTED_LOCATION_DEBUG "${ktx_DIR}/debug/libktx.dylib"
+            INTERFACE_INCLUDE_DIRECTORIES "${ktx_DIR}/include"
+            )
+
+    set(ktx_LIBS KTX::ktx)
+
 elseif("${SYSTEM_NAME_UPPER}" STREQUAL "IOS") #-------------------------------------------------------------------------
 
     message(STATUS "Configure prebuilts for iOS_arm64 -------------------------------------")
