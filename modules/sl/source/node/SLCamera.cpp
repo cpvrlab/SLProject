@@ -1035,8 +1035,8 @@ SLbool SLCamera::onMouseMove(const SLMouseButton button,
         SLVec3f lookAtPoint = positionVS + _focalDist * forwardVS;
 
         // Determine rot angles around x- & y-axis
-        SLfloat dY = (y - _oldTouchPos1.y) * _rotFactor;
-        SLfloat dX = (x - _oldTouchPos1.x) * _rotFactor;
+        SLfloat dY = (y - _oldTouchPos1.y) * _mouseRotationFactor;
+        SLfloat dX = (x - _oldTouchPos1.x) * _mouseRotationFactor;
 
         if (_camAnim == CA_turntableYUp) //....................................
         {
@@ -1230,8 +1230,8 @@ SLbool SLCamera::onMouseWheel(const SLint delta,
     {
         if (mod == K_none)
         {
-            translate(SLVec3f(0, 0, -sign * _focalDist * _dPos), TS_object);
-            _focalDist += -sign * _focalDist * _dPos;
+            translate(SLVec3f(0, 0, -sign * _focalDist * _keyboardDeltaPos), TS_object);
+            _focalDist += -sign * _focalDist * _keyboardDeltaPos;
 
             needUpdate();
         }
@@ -1391,12 +1391,12 @@ SLbool SLCamera::onKeyPress(const SLKey key, const SLKey mod)
     // Keep in sync with SLDemoGui::buildMenuBar
     switch ((SLchar)key)
     {
-        case 'D': _moveDir.x += 1.0f; return true;
+        case 'W': _moveDir.z -= 1.0f; return true;
         case 'A': _moveDir.x -= 1.0f; return true;
+        case 'S': _moveDir.z += 1.0f; return true;
+        case 'D': _moveDir.x += 1.0f; return true;
         case 'Q': _moveDir.y -= 1.0f; return true;
         case 'E': _moveDir.y += 1.0f; return true;
-        case 'S': _moveDir.z += 1.0f; return true;
-        case 'W': _moveDir.z -= 1.0f; return true;
         case (SLchar)K_up: _moveDir.z -= 1.0f; return true;
         case (SLchar)K_down: _moveDir.z += 1.0f; return true;
         case (SLchar)K_right: _moveDir.x += 1.0f; return true;

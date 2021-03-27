@@ -251,11 +251,11 @@ protected:
     std::atomic<bool> _needsUpdate{}; //!< Flag if image needs an single update
     std::mutex        _mutex;         //!< Mutex to protect parallel access (used in ray tracing)
 
-    SLbool _deleteImageAfterBuild; //!< Flag if images should be deleted after build on GPU
-    SLbool _compressedTexture = false;
-    ktxTexture2* _ktxTexture = nullptr;
-    KTX_error_code _ktxErrorCode;
-    
+    SLbool         _deleteImageAfterBuild;       //!< Flag if images should be deleted after build on GPU
+    SLbool         _compressedTexture = false;   //!< True for compressed texture format on GPU
+    ktxTexture2*   _ktxTexture        = nullptr; //!< Pointer to the KTX texture after loading
+    KTX_error_code _ktxErrorCode;                //!< Error code from KTX texture loading
+
 #ifdef SL_HAS_OPTIX
     CUgraphicsResource _cudaGraphicsResource; //!< Cuda Graphics object
     CUtexObject        _cudaTextureObject;

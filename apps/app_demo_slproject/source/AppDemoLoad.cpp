@@ -1762,7 +1762,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sp->addUniform1f(offset);
 
         // Create textures
-        SLGLTexture* texC   = new SLGLTexture(s, SLApplication::texturePath + "earth2048_C.jpg");      // color map
+        SLGLTexture* texC   = new SLGLTexture(s, SLApplication::texturePath + "earth2048_C.png");      // color map
         SLGLTexture* texN   = new SLGLTexture(s, SLApplication::texturePath + "earth2048_N.jpg");      // normal map
         SLGLTexture* texH   = new SLGLTexture(s, SLApplication::texturePath + "earth2048_H.jpg");      // height map
         SLGLTexture* texG   = new SLGLTexture(s, SLApplication::texturePath + "earth2048_G.jpg");      // gloss map

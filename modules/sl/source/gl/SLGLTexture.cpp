@@ -503,10 +503,11 @@ void SLGLTexture::load(const SLstring& filename,
     }
 
     std::string ext = Utils::getFileExt(filename);
+
+    // Check for compressed texture in KTX2 (Khronos Texture) format
     if(ext == "ktx2")
     {
         _compressedTexture = true;
-
         _ktxErrorCode = ktxTexture_CreateFromNamedFile(filename.c_str(),
                                                 KTX_TEXTURE_CREATE_NO_FLAGS,
                                                 (ktxTexture**)&_ktxTexture);
