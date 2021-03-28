@@ -168,6 +168,7 @@ public:
     SLuint        depth() { return _depth; }
     SLint         bytesPerPixel() { return _bytesPerPixel; }
     SLint         bytesOnGPU() { return _bytesOnGPU; }
+    SLint         bytesInFile() { return _bytesInFile; }
     CVVImage&     images() { return _images; }
     SLenum        target() const { return _target; }
     SLuint        texID() const { return _texID; }
@@ -215,6 +216,8 @@ public:
 
     void calc3DGradients(SLint sampleRadius, const function<void(int)>& onUpdateProgress);
     void smooth3DGradients(SLint smoothRadius, function<void(int)> onUpdateProgress);
+    SLstring compressionFormatStr();
+    SLstring ktxErrorStr(int ktxErrorCode);
 
     // Bumpmap methods
     SLVec2f dudv(SLfloat u, SLfloat v); //! Returns the derivation as [s,t]
@@ -244,6 +247,7 @@ protected:
     SLenum            _target;        //!< texture target
     SLMat4f           _tm;            //!< texture matrix
     SLuint            _bytesOnGPU;    //!< NO. of bytes on GPU
+    SLuint            _bytesInFile;   //!< NO. of bytes in file
     SLbool            _autoCalcTM3D;  //!< Flag if texture matrix should be calculated from AABB for 3D mapping
     SLfloat           _bumpScale;     //!< Bump mapping scale factor
     SLbool            _resizeToPow2;  //!< Flag if image should be resized to n^2
@@ -251,10 +255,10 @@ protected:
     std::atomic<bool> _needsUpdate{}; //!< Flag if image needs an single update
     std::mutex        _mutex;         //!< Mutex to protect parallel access (used in ray tracing)
 
-    SLbool         _deleteImageAfterBuild;       //!< Flag if images should be deleted after build on GPU
-    SLbool         _compressedTexture = false;   //!< True for compressed texture format on GPU
-    ktxTexture2*   _ktxTexture        = nullptr; //!< Pointer to the KTX texture after loading
-    KTX_error_code _ktxErrorCode;                //!< Error code from KTX texture loading
+    SLbool              _deleteImageAfterBuild;                   //!< Flag if images should be deleted after build on GPU
+    SLbool              _compressedTexture = false;               //!< True for compressed texture format on GPU
+    ktxTexture2*        _ktxTexture        = nullptr;             //!< Pointer to the KTX texture after loading
+    ktx_transcode_fmt_e _compressionFormat = KTX_TTF_NOSELECTION; //!< compression format on GPU
 
 #ifdef SL_HAS_OPTIX
     CUgraphicsResource _cudaGraphicsResource; //!< Cuda Graphics object

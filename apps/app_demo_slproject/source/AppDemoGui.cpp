@@ -1114,13 +1114,13 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
                                                                    adjustedTime);
                     }
 
-                    SLfloat SRh = SLApplication::devLoc.originSolarSunrise();
-                    SLfloat SSh = SLApplication::devLoc.originSolarSunset();
+                    SLfloat SRh  = SLApplication::devLoc.originSolarSunrise();
+                    SLfloat SSh  = SLApplication::devLoc.originSolarSunset();
                     SLfloat nowF = (SLfloat)lt.tm_hour + (float)lt.tm_min / 60.0f;
-                    if (ImGui::SliderFloat("Hour", &nowF, SRh, SSh,"%.2f"))
+                    if (ImGui::SliderFloat("Hour", &nowF, SRh, SSh, "%.2f"))
                     {
-                        lt.tm_hour = (int)nowF;
-                        lt.tm_min = (int)((nowF - (int)nowF) * 60.0f);
+                        lt.tm_hour   = (int)nowF;
+                        lt.tm_min    = (int)((nowF - (int)nowF) * 60.0f);
                         adjustedTime = mktime(&lt);
                         SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLatLonAlt(),
                                                                    adjustedTime);
@@ -1166,7 +1166,6 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
                 {
                     ImGui::Text("Device Location is not in use.");
                 }
-
 
                 ImGui::PopItemWidth();
                 ImGui::End();
@@ -1300,6 +1299,8 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                         s->onLoad(s, sv, SID_TextureBlend);
                     if (ImGui::MenuItem("Texture Filters", nullptr, sid == SID_TextureFilter))
                         s->onLoad(s, sv, SID_TextureFilter);
+                    if (ImGui::MenuItem("Texture Compression", nullptr, sid == SID_TextureCompression))
+                        s->onLoad(s, sv, SID_TextureCompression);
                     if (ImGui::MenuItem("Frustum Culling", nullptr, sid == SID_FrustumCull))
                         s->onLoad(s, sv, SID_FrustumCull);
                     if (ImGui::MenuItem("2D and 3D Text", nullptr, sid == SID_2Dand3DText))
@@ -3301,13 +3302,16 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                 for (auto img : tex->images())
                                     mbCPU += (float)img->bytesPerImage();
                                 float mbGPU = (float)tex->bytesOnGPU();
+                                float mbDSK = (float)tex->bytesInFile();
 
+                                mbDSK /= 1E6f;
                                 mbCPU /= 1E6f;
                                 mbGPU /= 1E6f;
 
                                 ImGui::Text("Size(PX): %dx%dx%d (images: %d)", tex->width(), tex->height(), tex->bytesPerPixel(), tex->depth());
-                                ImGui::Text("Size(MB): GPU: %4.1f, CPU: %4.1f", mbGPU, mbCPU);
+                                ImGui::Text("Size(MB): GPU:%4.2f, CPU:%4.2f, DSK:%4.2f", mbGPU, mbCPU, mbDSK);
                                 ImGui::Text("Type    : %s", tex->typeName().c_str());
+                                ImGui::Text("Compr.  : %s", tex->compressionFormatStr().c_str());
                                 ImGui::Text("Min.Flt : %s", tex->minificationFilterName().c_str());
                                 ImGui::Text("Mag.Flt : %s", tex->magnificationFilterName().c_str());
 

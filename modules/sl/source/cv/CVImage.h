@@ -120,6 +120,7 @@ public:
     uint          bytesPerPixel() { return _bytesPerPixel; }
     uint          bytesPerLine() { return _bytesPerLine; }
     uint          bytesPerImage() { return _bytesPerImage; }
+    uint          bytesInFile() { return _bytesInFile; }
     CVPixFormat   format() { return _format; }
     string        formatString(CVPixFormat format);
     string        formatString() { return formatString(_format); }
@@ -138,6 +139,7 @@ protected:
     uint        _bytesPerPixel; //!< Number of bytes per pixel
     uint        _bytesPerLine;  //!< Number of bytes per line (stride)
     uint        _bytesPerImage; //!< Number of bytes per image
+    uint        _bytesInFile;   //!< Number of bytes in file
     string      _path;          //!< path on the filesystem
 };
 //-----------------------------------------------------------------------------

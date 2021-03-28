@@ -51,6 +51,7 @@ SLGLTexture::SLGLTexture()
     _resizeToPow2          = false;
     _autoCalcTM3D          = false;
     _bytesOnGPU            = 0;
+    _bytesInFile           = 0;
     _needsUpdate           = false;
     _deleteImageAfterBuild = false;
 
@@ -95,6 +96,7 @@ SLGLTexture::SLGLTexture(SLAssetManager* assetMgr,
     _autoCalcTM3D          = false;
     _needsUpdate           = false;
     _bytesOnGPU            = 0;
+    _bytesInFile           = 0;
     _texType               = TT_unknown;
     _deleteImageAfterBuild = false;
 
@@ -153,6 +155,7 @@ SLGLTexture::SLGLTexture(SLAssetManager* assetMgr,
     _autoCalcTM3D          = false;
     _needsUpdate           = false;
     _bytesOnGPU            = 0;
+    _bytesInFile           = 0;
     _texType               = type;
     _deleteImageAfterBuild = false;
 
@@ -199,26 +202,28 @@ SLGLTexture::SLGLTexture(SLAssetManager* assetMgr,
         _height        = _images[0]->height();
         _depth         = _images.size();
         _bytesPerPixel = _images[0]->bytesPerPixel();
+        _bytesInFile   = _images[0]->bytesInFile();
     }
-    else if(_compressedTexture && _ktxErrorCode == KTX_SUCCESS)
+    else if (_compressedTexture)
     {
         //todo ktx: get properties and extract necassary
-        _width = _ktxTexture->baseWidth;
-        _height = _ktxTexture->baseHeight;
-        _depth = _ktxTexture->baseDepth;
+        _width       = _ktxTexture->baseWidth;
+        _height      = _ktxTexture->baseHeight;
+        _depth       = _ktxTexture->baseDepth;
+        _bytesInFile = Utils::getFileSize(filename);
     }
 
-    _min_filter   = min_filter;
-    _mag_filter   = mag_filter;
-    _wrap_s       = wrapS;
-    _wrap_t       = wrapT;
-    _target       = GL_TEXTURE_2D;
-    _texID        = 0;
-    _bumpScale    = 1.0f;
-    _resizeToPow2 = false;
-    _autoCalcTM3D = false;
-    _needsUpdate  = false;
-    _bytesOnGPU   = 0;
+    _min_filter            = min_filter;
+    _mag_filter            = mag_filter;
+    _wrap_s                = wrapS;
+    _wrap_t                = wrapT;
+    _target                = GL_TEXTURE_2D;
+    _texID                 = 0;
+    _bumpScale             = 1.0f;
+    _resizeToPow2          = false;
+    _autoCalcTM3D          = false;
+    _needsUpdate           = false;
+    _bytesOnGPU            = 0;
     _deleteImageAfterBuild = false;
 
 #ifdef SL_HAS_OPTIX
@@ -448,8 +453,8 @@ void SLGLTexture::deleteData()
 {
     deleteImages();
     deleteDataGpu();
-    
-    if(_ktxTexture)
+
+    if (_ktxTexture)
         ktxTexture_Destroy((ktxTexture*)_ktxTexture);
 
     _texID                 = 0;
@@ -502,27 +507,42 @@ void SLGLTexture::load(const SLstring& filename,
         SL_EXIT_MSG(msg.c_str());
     }
 
-    std::string ext = Utils::getFileExt(filename);
+    string ext = Utils::getFileExt(filename);
 
     // Check for compressed texture in KTX2 (Khronos Texture) format
-    if(ext == "ktx2")
+    if (ext == "ktx2")
     {
-        _compressedTexture = true;
-        _ktxErrorCode = ktxTexture_CreateFromNamedFile(filename.c_str(),
-                                                KTX_TEXTURE_CREATE_NO_FLAGS,
-                                                (ktxTexture**)&_ktxTexture);
-        
-        if (_ktxErrorCode == KTX_SUCCESS && ktxTexture2_NeedsTranscoding(_ktxTexture))
+        _compressedTexture   = true;
+        KTX_error_code error = ktxTexture_CreateFromNamedFile(filename.c_str(),
+                                                              KTX_TEXTURE_CREATE_NO_FLAGS,
+                                                              (ktxTexture**)&_ktxTexture);
+
+        if (error != KTX_SUCCESS)
+        {
+            string errStr = "Error in SLGLTexture::load: " +
+                            ktxErrorStr(error) + " in file: " + filename;
+            SL_EXIT_MSG(errStr.c_str());
+        }
+
+        if (ktxTexture2_NeedsTranscoding(_ktxTexture))
         {
 #if defined(SL_OS_MACIOS)
-            //_ktxErrorCode = ktxTexture2_TranscodeBasis(_ktxTexture, KTX_TTF_PVRTC1_4_RGB, 0);
-            _ktxErrorCode = ktxTexture2_TranscodeBasis(_ktxTexture, KTX_TTF_ETC2_RGBA, 0);
+            _compressionFormat = KTX_TTF_ETC2_RGBA;
 #elif defined(SL_OS_ANDROID)
-            _ktxErrorCode = ktxTexture2_TranscodeBasis(_ktxTexture, KTX_TTF_ETC1_RGB, 0);
-#else // all desktop plattforms support the same formats
-            //KTX_TTF_BC1_RGB
-            _ktxErrorCode = ktxTexture2_TranscodeBasis(_ktxTexture, KTX_TTF_BC3_RGBA, 0);
+            _compressionFormat = KTX_TTF_ETC1_RGB;
+#else
+            _compressionFormat = KTX_TTF_BC3_RGBA;
 #endif
+            error = ktxTexture2_TranscodeBasis(_ktxTexture, _compressionFormat, 0);
+
+            if (error != KTX_SUCCESS)
+            {
+                string errStr = "Error in SLGLTexture::load: " +
+                                ktxErrorStr(error) +
+                                "\nwhile transcoding file: " + filename +
+                                "\nto format: " + compressionFormatStr();
+                SL_EXIT_MSG(errStr.c_str());
+            }
         }
     }
     else
@@ -671,8 +691,8 @@ void SLGLTexture::build(SLint texUnit)
     PROFILE_FUNCTION();
 
     assert(texUnit >= 0 && texUnit < 16);
-    
-    if(_compressedTexture && _ktxErrorCode == KTX_SUCCESS)
+
+    if (_compressedTexture)
     {
         // delete texture name if it already exits
         if (_texID)
@@ -683,7 +703,7 @@ void SLGLTexture::build(SLint texUnit)
             _texID = 0;
             numBytesInTextures -= _bytesOnGPU;
         }
-        
+
         // get max texture size
         SLint texMaxSize = 0;
         glGetIntegerv(GL_MAX_TEXTURE_SIZE, &texMaxSize);
@@ -696,35 +716,35 @@ void SLGLTexture::build(SLint texUnit)
             if (_height > (SLuint)texMaxSize)
                 SL_EXIT_MSG("SLGLTexture::build: Texture height is too big.");
         }
-        
+
         //todo ktx: cubemaps and 3d textures
 
         //todo: upload in build process
         GLenum glerror = 0;
         glGenTextures(1, &_texID); // Optional. GLUpload can generate a texture.
-        
+
         glBindTexture(_target, _texID);
-        
-        //glTexParameteri(_target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        //GET_GL_ERROR;
+
+        glTexParameteri(_target, GL_TEXTURE_MIN_FILTER, _min_filter);
+        GET_GL_ERROR;
 
         // apply magnification filter only GL_NEAREST & GL_LINEAR is allowed
-        //glTexParameteri(_target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        //GET_GL_ERROR;
+        glTexParameteri(_target, GL_TEXTURE_MAG_FILTER, _mag_filter);
+        GET_GL_ERROR;
 
         // apply texture wrapping modes
         glTexParameteri(_target, GL_TEXTURE_WRAP_S, _wrap_s);
         glTexParameteri(_target, GL_TEXTURE_WRAP_T, _wrap_t);
         glTexParameteri(_target, GL_TEXTURE_WRAP_R, _wrap_t);
         GET_GL_ERROR;
-        
+
         ktxTexture_GLUpload((ktxTexture*)_ktxTexture, &_texID, &_target, &glerror);
-        
+
         _bytesOnGPU += _ktxTexture->dataSize;
         numBytesInTextures += _bytesOnGPU;
-        
+
         //todo: destroy somewhere else
-        if(_deleteImageAfterBuild)
+        if (_deleteImageAfterBuild)
         {
             ktxTexture_Destroy((ktxTexture*)_ktxTexture);
             _ktxTexture = nullptr;
@@ -1661,4 +1681,61 @@ void SLGLTexture::cubeXYZ2UV(SLfloat  x,
     u = 0.5f * (uc / maxAxis + 1.0f);
     v = -0.5f * (vc / maxAxis + 1.0f);
 }
+//------------------------------------------------------------------------------
+//! Returns the KTX transcoding compression format as string
+SLstring SLGLTexture::compressionFormatStr()
+{
+    switch (_compressionFormat)
+    {
+        case KTX_TTF_ETC1_RGB: return "ETC1_RGB";
+        case KTX_TTF_ETC2_RGBA: return "ETC2_RGBA";
+        case KTX_TTF_BC1_RGB: return "BC1_RGB";
+        case KTX_TTF_BC3_RGBA: return "BC3_RGBA";
+        case KTX_TTF_BC4_R: return "BC4_R";
+        case KTX_TTF_BC5_RG: return "BC5_RG";
+        case KTX_TTF_BC7_RGBA: return "BC7_RGBA";
+        case KTX_TTF_PVRTC1_4_RGB: return "PVRTC1_4_RGB";
+        case KTX_TTF_PVRTC1_4_RGBA: return "PVRTC1_4_RGBA";
+        case KTX_TTF_ASTC_4x4_RGBA: return "ASTC_4x4_RGBA";
+        case KTX_TTF_PVRTC2_4_RGB: return "PVRTC2_4_RGB";
+        case KTX_TTF_PVRTC2_4_RGBA: return "PVRTC2_4_RGBA";
+        case KTX_TTF_ETC2_EAC_R11: return "ETC2_EAC_R11";
+        case KTX_TTF_ETC2_EAC_RG11: return "ETC2_EAC_RG11";
+        case KTX_TTF_RGBA32: return "RGBA32";
+        case KTX_TTF_RGB565: return "RGB565";
+        case KTX_TTF_BGR565: return "BGR565";
+        case KTX_TTF_RGBA4444: return "RGBA4444";
+        case KTX_TTF_ETC: return "ETC";
+        case KTX_TTF_BC1_OR_3: return "BC1_OR_3";
+        default: return "NOT_COMPRESSED";
+    }
+}
+//------------------------------------------------------------------------------
+SLstring SLGLTexture::ktxErrorStr(int ktxErrorCode)
+{
+    switch (ktxErrorCode)
+    {
+        case KTX_SUCCESS: return "KTX_SUCCESS";
+        case KTX_FILE_DATA_ERROR: return "KTX_FILE_DATA_ERROR";
+        case KTX_FILE_ISPIPE: return "KTX_FILE_ISPIPE";
+        case KTX_FILE_OPEN_FAILED: return "KTX_FILE_OPEN_FAILED";
+        case KTX_FILE_OVERFLOW: return "KTX_FILE_OVERFLOW";
+        case KTX_FILE_READ_ERROR: return "KTX_FILE_READ_ERROR";
+        case KTX_FILE_SEEK_ERROR: return "KTX_FILE_SEEK_ERROR";
+        case KTX_FILE_UNEXPECTED_EOF: return "KTX_FILE_UNEXPECTED_EOF";
+        case KTX_FILE_WRITE_ERROR: return "KTX_FILE_WRITE_ERROR";
+        case KTX_GL_ERROR: return "KTX_GL_ERROR";
+        case KTX_INVALID_OPERATION: return "KTX_INVALID_OPERATION";
+        case KTX_INVALID_VALUE: return "KTX_INVALID_VALUE";
+        case KTX_NOT_FOUND: return "KTX_NOT_FOUND";
+        case KTX_OUT_OF_MEMORY: return "KTX_OUT_OF_MEMORY";
+        case KTX_TRANSCODE_FAILED: return "KTX_TRANSCODE_FAILED";
+        case KTX_UNKNOWN_FILE_FORMAT: return "KTX_UNKNOWN_FILE_FORMAT";
+        case KTX_UNSUPPORTED_TEXTURE_TYPE: return "KTX_UNSUPPORTED_TEXTURE_TYPE";
+        case KTX_UNSUPPORTED_FEATURE: return "KTX_UNSUPPORTED_FEATURE";
+        case KTX_LIBRARY_NOT_LINKED: return "KTX_LIBRARY_NOT_LINKED";
+        default: "Unknow KTX_ERROR";
+    }
+}
+
 //------------------------------------------------------------------------------

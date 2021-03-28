@@ -387,12 +387,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLNode* scene = new SLNode("scene node");
 
         // Create textures and materials
-        SLGLTexture* texC = nullptr;
-#if defined(SL_OS_MACIOS) || defined(SL_OS_ANDROID)
-        texC = new SLGLTexture(s, SLApplication::texturePath + "earth2048_C.ktx2");
-#else
-        texC = new SLGLTexture(s, SLApplication::texturePath + "earth2048_C.ktx2");
-#endif
+        SLGLTexture* texC = new SLGLTexture(s, SLApplication::texturePath + "earth2048_C.png");
         SLMaterial*  m1   = new SLMaterial(s, "m1", texC);
 
         // Create a light source node
@@ -942,6 +937,114 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(cam1);
         sv->camera(cam1);
         s->root3D(scene);
+    }
+    else if (sceneID == SID_TextureCompression) //.................................................
+    {
+        // Set scene name and info string
+        s->name("Texture Compression Test Scene");
+        s->info(s->name());
+
+        // Create a scene group node
+        SLNode* scene = new SLNode("scene node");
+
+        // Create a light source node
+        SLLightSpot* light1 = new SLLightSpot(s, s, 0.1f);
+        light1->translation(5, 5, 5);
+        light1->name("light node");
+        scene->addChild(light1);
+
+        SLCamera* cam1 = new SLCamera("Camera 1");
+        cam1->clipNear(0.1f);
+        cam1->clipFar(100);
+        cam1->translation(0, 0, 4.2f
+                          );
+        cam1->lookAt(0, 0, 0);
+        cam1->focalDist(4.2f);
+        cam1->background().colors(SLCol4f(0.7f, 0.7f, 0.7f), SLCol4f(0.2f, 0.2f, 0.2f));
+        cam1->setInitialState();
+        scene->addChild(cam1);
+
+        // Position for rectangle and uv out of earth texture
+        SLVec2f pMin(-.5f, -.5f), pMax(.5f, .5f);
+        SLVec2f tMin(.47f, .69f), tMax(.56f, .81f);
+
+        SLGLTexture* texPng    = new SLGLTexture(s, SLApplication::texturePath + "earth2048_C.png", GL_NEAREST, GL_NEAREST);
+        SLMaterial*  matPng    = new SLMaterial(s, "matPng", texPng);
+        SLMesh* rectMeshPng = new SLRectangle(s, pMin, pMax, tMin, tMax, 1, 1, "rectMeshPng", matPng);
+        SLNode* rectNodePng = new SLNode(rectMeshPng, "rectNodePng");
+        rectNodePng->translate(-1.05f, 1.05f, 0);
+        scene->addChild(rectNodePng);
+
+        SLGLTexture* texJpgQ90 = new SLGLTexture(s, SLApplication::texturePath + "earth2048_C_Q90.jpg", GL_NEAREST, GL_NEAREST);
+        SLMaterial*  matJpgQ90 = new SLMaterial(s, "matJpgQ90", texJpgQ90);
+        SLMesh* rectMeshJpgQ90 = new SLRectangle(s, pMin, pMax, tMin, tMax, 1, 1, "rectMeshJpgQ90", matJpgQ90);
+        SLNode* rectNodeJpgQ90 = new SLNode(rectMeshJpgQ90, "rectNodeJpgQ90");
+        rectNodeJpgQ90->translate(0, 1.05f, 0);
+        scene->addChild(rectNodeJpgQ90);
+
+        SLGLTexture* texJpgQ40 = new SLGLTexture(s, SLApplication::texturePath + "earth2048_C_Q40.jpg", GL_NEAREST, GL_NEAREST);
+        SLMaterial*  matJpgQ40 = new SLMaterial(s, "matJpgQ40", texJpgQ40);
+        SLMesh* rectMeshJpgQ40 = new SLRectangle(s, pMin, pMax, tMin, tMax, 1, 1, "rectMeshJpgQ40", matJpgQ40);
+        SLNode* rectNodeJpgQ40 = new SLNode(rectMeshJpgQ40, "rectNodeJpgQ40");
+        rectNodeJpgQ40->translate(1.05f, 1.05f, 0);
+        scene->addChild(rectNodeJpgQ40);
+
+        //./../../../externals/prebuilt/macArm64_ktx_v4.0.0-beta7-cpvr/release/toktx --bcmp --qlevel 255 --linear --lower_left_maps_to_s0t0 earth2048_C_bcmp_Q255.ktx2 earth2048_C.png
+        SLGLTexture* texKtxBcmp255   = new SLGLTexture(s, SLApplication::texturePath + "earth2048_C_bcmp_Q255.ktx2", GL_NEAREST, GL_NEAREST);
+        SLMaterial*  matKtxBcmp255   = new SLMaterial(s, "matKtxBcmp255", texKtxBcmp255);
+        SLMesh* rectMeshKtxBcmp255 = new SLRectangle(s, pMin, pMax, tMin, tMax, 1, 1, "rectMeshKtxBcmp255", matKtxBcmp255);
+        SLNode* rectNodeKtxBcmp255 = new SLNode(rectMeshKtxBcmp255, "rectNodeKtxBcmp255");
+        rectNodeKtxBcmp255->translate(-1.05f, 0, 0);
+        scene->addChild(rectNodeKtxBcmp255);
+
+        //./../../../externals/prebuilt/macArm64_ktx_v4.0.0-beta7-cpvr/release/toktx --bcmp --qlevel 128 --linear --lower_left_maps_to_s0t0 earth2048_C_bcmp_Q128.ktx2 earth2048_C.png
+        SLGLTexture* texKtxBcmp128   = new SLGLTexture(s, SLApplication::texturePath + "earth2048_C_bcmp_Q128.ktx2", GL_NEAREST, GL_NEAREST);
+        SLMaterial*  matKtxBcmp128   = new SLMaterial(s, "matKtxBcmp128", texKtxBcmp128);
+        SLMesh* rectMeshKtxBcmp128 = new SLRectangle(s, pMin, pMax, tMin, tMax, 1, 1, "rectMeshKtxBcmp128", matKtxBcmp128);
+        SLNode* rectNodeKtxBcmp128 = new SLNode(rectMeshKtxBcmp128, "rectNodeKtxBcmp128");
+        rectNodeKtxBcmp128->translate(0, 0, 0);
+        scene->addChild(rectNodeKtxBcmp128);
+
+        //./../../../externals/prebuilt/macArm64_ktx_v4.0.0-beta7-cpvr/release/toktx --bcmp --qlevel 1 --linear --lower_left_maps_to_s0t0 earth2048_C_bcmp_Q001.ktx2 earth2048_C.png
+        SLGLTexture* texKtxBcmp001   = new SLGLTexture(s, SLApplication::texturePath + "earth2048_C_bcmp_Q001.ktx2", GL_NEAREST, GL_NEAREST);
+        SLMaterial*  matKtxBcmp001   = new SLMaterial(s, "matKtxBcmp001", texKtxBcmp001);
+        SLMesh* rectMeshKtxBcmp001 = new SLRectangle(s, pMin, pMax, tMin, tMax, 1, 1, "rectMeshKtxBcmp001", matKtxBcmp001);
+        SLNode* rectNodeKtxBcmp001 = new SLNode(rectMeshKtxBcmp001, "rectNodeKtxBcmp001");
+        rectNodeKtxBcmp001->translate(1.05f, 0, 0);
+        scene->addChild(rectNodeKtxBcmp001);
+
+        // ./../../../externals/prebuilt/macArm64_ktx_v4.0.0-beta7-cpvr/release/toktx --uastc 0 --zcmp --linear --lower_left_maps_to_s0t0 earth2048_C_uastc0.ktx2 earth2048_C.png
+        SLGLTexture* texKtxUastc0   = new SLGLTexture(s, SLApplication::texturePath + "earth2048_C_uastc0.ktx2", GL_NEAREST, GL_NEAREST);
+        SLMaterial*  matKtxUastc0   = new SLMaterial(s, "matKtxUastc0", texKtxUastc0);
+        SLMesh* rectMeshKtxUastc0 = new SLRectangle(s, pMin, pMax, tMin, tMax, 1, 1, "rectMeshKtxUastc0", matKtxUastc0);
+        SLNode* rectNodeKtxUastc0 = new SLNode(rectMeshKtxUastc0, "rectNodeKtxUastc0");
+        rectNodeKtxUastc0->translate(-1.05f, -1.05f, 0);
+        scene->addChild(rectNodeKtxUastc0);
+
+        // ./../../../externals/prebuilt/macArm64_ktx_v4.0.0-beta7-cpvr/release/toktx --uastc 2 --zcmp --linear --lower_left_maps_to_s0t0 earth2048_C_uastc3.ktx2 earth2048_C.png
+        SLGLTexture* texKtxUastc2   = new SLGLTexture(s, SLApplication::texturePath + "earth2048_C_uastc2.ktx2", GL_NEAREST, GL_NEAREST);
+        SLMaterial*  matKtxUastc2   = new SLMaterial(s, "matKtxUastc2", texKtxUastc2);
+        SLMesh* rectMeshKtxUastc2 = new SLRectangle(s, pMin, pMax, tMin, tMax, 1, 1, "rectMeshKtxUastc2", matKtxUastc2);
+        SLNode* rectNodeKtxUastc2 = new SLNode(rectMeshKtxUastc2, "rectNodeKtxUastc2");
+        rectNodeKtxUastc2->translate(0, -1.05f, 0);
+        scene->addChild(rectNodeKtxUastc2);
+
+        // ./../../../externals/prebuilt/macArm64_ktx_v4.0.0-beta7-cpvr/release/toktx --uastc 4 --zcmp --linear --lower_left_maps_to_s0t0 earth2048_C_uastc4.ktx2 earth2048_C.png
+        SLGLTexture* texKtxUastc4   = new SLGLTexture(s, SLApplication::texturePath + "earth2048_C_uastc4.ktx2", GL_NEAREST, GL_NEAREST);
+        SLMaterial*  matKtxUastc4   = new SLMaterial(s, "matKtxUastc4", texKtxUastc4);
+        SLMesh* rectMeshKtxUastc4 = new SLRectangle(s, pMin, pMax, tMin, tMax, 1, 1, "rectMeshKtxUastc4", matKtxUastc4);
+        SLNode* rectNodeKtxUastc4 = new SLNode(rectMeshKtxUastc4, "rectNodeKtxUastc4");
+        rectNodeKtxUastc4->translate(1.05f, -1.05f, 0);
+        scene->addChild(rectNodeKtxUastc4);
+
+        // pass the scene group as root node
+        s->root3D(scene);
+
+        // Add active camera
+        sv->camera(cam1);
+
+        // Save energy
+        sv->doWaitOnIdle(true);
     }
     else if (sceneID == SID_FrustumCull) //........................................................
     {
@@ -3254,7 +3357,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                                         SLApplication::modelPath + "FBX/Sunglasses.fbx",
                                         SLApplication::texturePath);
         glasses->scale(0.008f);
-        glasses->translate(0,1.5f,0);
+        glasses->translate(0, 1.5f, 0);
 
         // Add axis arrows at world center
         SLNode* axis = new SLNode(new SLCoordAxis(s), "Axis Node");
@@ -4292,27 +4395,27 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Define shader that shows on all pixels the video background
         SLGLProgram* spVideoBackground  = new SLGLProgramGeneric(s,
-                                                                 SLApplication::shaderPath + "PerPixTmBackground.vert",
-                                                                 SLApplication::shaderPath + "PerPixTmBackground.frag");
+                                                                SLApplication::shaderPath + "PerPixTmBackground.vert",
+                                                                SLApplication::shaderPath + "PerPixTmBackground.frag");
         SLMaterial*  matVideoBackground = new SLMaterial(s,
-                                                         "matVideoBackground",
-                                                         videoTexture,
-                                                         nullptr,
-                                                         nullptr,
-                                                         nullptr,
-                                                         spVideoBackground);
+                                                        "matVideoBackground",
+                                                        videoTexture,
+                                                        nullptr,
+                                                        nullptr,
+                                                        nullptr,
+                                                        spVideoBackground);
 
         // Define shader that shows on all pixels the video background with shadow mapping
         SLGLProgram* spVideoBackgroundSM  = new SLGLProgramGeneric(s,
-                                                                   SLApplication::shaderPath + "PerPixTmBackgroundSm.vert",
-                                                                   SLApplication::shaderPath + "PerPixTmBackgroundSm.frag");
+                                                                  SLApplication::shaderPath + "PerPixTmBackgroundSm.vert",
+                                                                  SLApplication::shaderPath + "PerPixTmBackgroundSm.frag");
         SLMaterial*  matVideoBackgroundSM = new SLMaterial(s,
-                                                           "matVideoBackground",
-                                                           videoTexture,
-                                                           nullptr,
-                                                           nullptr,
-                                                           nullptr,
-                                                           spVideoBackgroundSM);
+                                                          "matVideoBackground",
+                                                          videoTexture,
+                                                          nullptr,
+                                                          nullptr,
+                                                          nullptr,
+                                                          spVideoBackgroundSM);
         matVideoBackgroundSM->ambient(SLCol4f(0.6f, 0.6f, 0.6f));
         matVideoBackgroundSM->getsShadows(true);
 
@@ -4492,8 +4595,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLApplication::devLoc.useOriginAltitude(false);
         SLApplication::devLoc.originLatLonAlt(46.88029, 7.04876, 454.9);        // Zentrum Orchestra
         SLApplication::devLoc.defaultLatLonAlt(46.88100, 7.04912, 455.5 + 1.7); // Beim Baum von der Ecke aus
-        SLApplication::devLoc.locMaxDistanceM(1000.0f);                          // Max. Distanz. zum Nullpunkt
-        SLApplication::devLoc.improveOrigin(false);                              // Keine autom. Verbesserung vom Origin
+        SLApplication::devLoc.locMaxDistanceM(1000.0f);                         // Max. Distanz. zum Nullpunkt
+        SLApplication::devLoc.improveOrigin(false);                             // Keine autom. Verbesserung vom Origin
         SLApplication::devLoc.hasOrigin(true);
         SLApplication::devRot.zeroYawAtStart(false);
 
