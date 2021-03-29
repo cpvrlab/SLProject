@@ -92,8 +92,8 @@ void centerNextWindow(SLSceneView* sv,
 //-----------------------------------------------------------------------------
 // Init global static variables
 SLstring    AppDemoGui::configTime          = "-";
-SLbool      AppDemoGui::showProgress        = false;
 SLbool      AppDemoGui::showDockSpace       = true;
+SLbool      AppDemoGui::showProgress        = false;
 SLbool      AppDemoGui::showAbout           = false;
 SLbool      AppDemoGui::showHelp            = false;
 SLbool      AppDemoGui::showHelpCalibration = false;
@@ -114,6 +114,7 @@ SLbool      AppDemoGui::showTransform       = false;
 SLbool      AppDemoGui::showDateAndTime     = false;
 std::time_t AppDemoGui::adjustedTime        = 0;
 SLbool      AppDemoGui::_horizonVisuEnabled = false;
+SLbool      AppDemoGui::hideUI              = false;
 
 // Scene node for Christoffel objects
 static SLNode* bern        = nullptr;
@@ -204,7 +205,9 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
 {
     PROFILE_FUNCTION();
 
-    if (sv->camera() && sv->camera()->projection() == P_stereoSideBySideD)
+    if (AppDemoGui::hideUI ||
+        sv->camera() &&
+        sv->camera()->projection() == P_stereoSideBySideD)
     {
         // So far no UI in distorted stereo projection
     }
@@ -2742,6 +2745,7 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
             ImGui::Separator();
             ImGui::MenuItem("Credits", nullptr, &showCredits);
             ImGui::MenuItem("About SLProject", nullptr, &showAbout);
+            ImGui::MenuItem("Hide User Interface", nullptr, &hideUI);
 
             ImGui::EndMenu();
         }

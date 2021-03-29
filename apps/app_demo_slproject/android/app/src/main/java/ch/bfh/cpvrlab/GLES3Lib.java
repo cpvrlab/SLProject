@@ -10,7 +10,7 @@
 //#############################################################################
 
 // Please do not change the name space. The SLProject app is identified in the app-store with it.
-package ch.fhnw.comgr;
+package ch.bhf.cpvrlab;
 
 import android.content.res.AssetManager;
 import android.app.ActivityManager;
@@ -82,7 +82,7 @@ public class GLES3Lib {
     public static native void    setDeviceParameter (String parameter, String value);
 
     /**
-     * The RaytracingCallback function is used to repaint the ray tracing image during the
+     * The Raytracing Callback function is used to repaint the ray tracing image during the
      * ray tracing process. Only the GUI bound OpenGL context can call the swap the buffer
      * for the OpenGL display. This is an example for a native C++ callback into managed
      * Java. See also the Java_renderRaytracingCallback in SLInterface that calls this

@@ -65,7 +65,7 @@ extern bool onUpdateVideo();
 //! Native ray tracing callback function that calls the Java class method GLES3Lib.RaytracingCallback
 bool Java_renderRaytracingCallback()
 {
-    jclass    klass  = environment->FindClass("ch/fhnw/comgr/GLES3Lib");
+    jclass    klass  = environment->FindClass("ch/bfh/cpvrlab/GLES3Lib");
     jmethodID method = environment->GetStaticMethodID(klass, "RaytracingCallback", "()Z");
     return environment->CallStaticBooleanMethod(klass, method);
 }
