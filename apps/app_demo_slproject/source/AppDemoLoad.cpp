@@ -348,6 +348,11 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
     SLApplication::sceneID = sceneID;
 
+    SLstring texPath    = SLApplication::texturePath;
+    SLstring dataPath   = SLApplication::dataPath;
+    SLstring modelPath  = SLApplication::modelPath;
+    SLstring shaderPath = SLApplication::shaderPath;
+
     // reset existing sceneviews
     for (auto* sceneview : SLApplication::sceneViews)
         sceneview->unInit();
@@ -387,7 +392,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLNode* scene = new SLNode("scene node");
 
         // Create textures and materials
-        SLGLTexture* texC = new SLGLTexture(s, SLApplication::texturePath + "earth2048_C.png");
+        SLGLTexture* texC = new SLGLTexture(s, texPath + "earth2048_C.png");
         SLMaterial*  m1   = new SLMaterial(s, "m1", texC);
 
         // Create a light source node
@@ -493,9 +498,9 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         SLAssimpImporter importer;
 
-        SLNode* mesh3DS = importer.load(s->animManager(), s, SLApplication::modelPath + "3DS/Halloween/jackolan.3ds", SLApplication::texturePath);
-        SLNode* meshFBX = importer.load(s->animManager(), s, SLApplication::modelPath + "FBX/Duck/duck.fbx", SLApplication::texturePath);
-        SLNode* meshDAE = importer.load(s->animManager(), s, SLApplication::modelPath + "DAE/AstroBoy/AstroBoy.dae", SLApplication::texturePath);
+        SLNode* mesh3DS = importer.load(s->animManager(), s, modelPath + "3DS/Halloween/jackolan.3ds", texPath);
+        SLNode* meshFBX = importer.load(s->animManager(), s, modelPath + "FBX/Duck/duck.fbx", texPath);
+        SLNode* meshDAE = importer.load(s->animManager(), s, modelPath + "DAE/AstroBoy/AstroBoy.dae", texPath);
 
         // Start animation
         SLAnimPlayback* charAnim = s->animManager().lastAnimPlayback();
@@ -564,35 +569,35 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                 "Try ray tracing with key R and come back with the ESC key.");
 
         // Test map material
-        SLGLTexture* tex1 = new SLGLTexture(s, SLApplication::texturePath + "Testmap_0512_C.png");
+        SLGLTexture* tex1 = new SLGLTexture(s, texPath + "Testmap_0512_C.png");
         SLMaterial*  mat1 = new SLMaterial(s, "mat1", tex1);
 
         // floor material
-        SLGLTexture* tex2 = new SLGLTexture(s, SLApplication::texturePath + "wood0_0512_C.jpg");
+        SLGLTexture* tex2 = new SLGLTexture(s, texPath + "wood0_0512_C.jpg");
         SLMaterial*  mat2 = new SLMaterial(s, "mat2", tex2);
         mat2->specular(SLCol4f::BLACK);
 
         // Back wall material
-        SLGLTexture* tex3 = new SLGLTexture(s, SLApplication::texturePath + "bricks1_0256_C.jpg");
+        SLGLTexture* tex3 = new SLGLTexture(s, texPath + "bricks1_0256_C.jpg");
         SLMaterial*  mat3 = new SLMaterial(s, "mat3", tex3);
         mat3->specular(SLCol4f::BLACK);
 
         // Left wall material
-        SLGLTexture* tex4 = new SLGLTexture(s, SLApplication::texturePath + "wood2_0512_C.jpg");
+        SLGLTexture* tex4 = new SLGLTexture(s, texPath + "wood2_0512_C.jpg");
         SLMaterial*  mat4 = new SLMaterial(s, "mat4", tex4);
         mat4->specular(SLCol4f::BLACK);
 
         // Glass material
         SLGLTexture* tex5 = new SLGLTexture(s,
-                                            SLApplication::texturePath + "wood2_0256_C.jpg",
-                                            SLApplication::texturePath + "wood2_0256_C.jpg",
-                                            SLApplication::texturePath + "gray_0256_C.jpg",
-                                            SLApplication::texturePath + "wood0_0256_C.jpg",
-                                            SLApplication::texturePath + "gray_0256_C.jpg",
-                                            SLApplication::texturePath + "bricks1_0256_C.jpg");
+                                            texPath + "wood2_0256_C.jpg",
+                                            texPath + "wood2_0256_C.jpg",
+                                            texPath + "gray_0256_C.jpg",
+                                            texPath + "wood0_0256_C.jpg",
+                                            texPath + "gray_0256_C.jpg",
+                                            texPath + "bricks1_0256_C.jpg");
         SLMaterial*  mat5 = new SLMaterial(s, "glass", SLCol4f::BLACK, SLCol4f::WHITE, 255, 0.1f, 0.9f, 1.5f);
         mat5->textures().push_back(tex5);
-        SLGLProgram* sp1 = new SLGLProgramGeneric(s, SLApplication::shaderPath + "RefractReflect.vert", SLApplication::shaderPath + "RefractReflect.frag");
+        SLGLProgram* sp1 = new SLGLProgramGeneric(s, shaderPath + "RefractReflect.vert", shaderPath + "RefractReflect.frag");
         mat5->program(sp1);
 
         // Wine material
@@ -728,14 +733,14 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                 "menu Preferences of press key J.");
 
         SLGLTexture* t1 = new SLGLTexture(s,
-                                          SLApplication::texturePath + "tree1_1024_C.png",
+                                          texPath + "tree1_1024_C.png",
                                           GL_LINEAR_MIPMAP_LINEAR,
                                           GL_LINEAR,
                                           TT_diffuse,
                                           GL_CLAMP_TO_EDGE,
                                           GL_CLAMP_TO_EDGE);
         SLGLTexture* t2 = new SLGLTexture(s,
-                                          SLApplication::texturePath + "grass0512_C.jpg",
+                                          texPath + "grass0512_C.jpg",
                                           GL_LINEAR_MIPMAP_LINEAR,
                                           GL_LINEAR);
 
@@ -743,8 +748,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLMaterial* m2 = new SLMaterial(s, "m2", SLCol4f(1, 1, 1), SLCol4f(0, 0, 0), 100);
 
         SLGLProgram* sp = new SLGLProgramGeneric(s,
-                                                 SLApplication::shaderPath + "PerVrtTm.vert",
-                                                 SLApplication::shaderPath + "PerVrtTm.frag");
+                                                 shaderPath + "PerVrtTm.vert",
+                                                 shaderPath + "PerVrtTm.frag");
         m1->program(sp);
         m1->textures().push_back(t1);
         m2->textures().push_back(t2);
@@ -848,16 +853,16 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
     }
     else if (sceneID == SID_TextureFilter) //......................................................
     {
-        s->name("Texture Filer Test");
+        s->name("Texture Filter Test");
         s->info("Texture minification filters: "
                 "Bottom: nearest, left: linear, top: linear mipmap, right: anisotropic. "
                 "The center sphere uses a 3D texture with linear filtering.");
 
         // Create 4 textures with different filter modes
-        SLGLTexture* texB = new SLGLTexture(s, SLApplication::texturePath + "brick0512_C.png", GL_NEAREST, GL_NEAREST);
-        SLGLTexture* texL = new SLGLTexture(s, SLApplication::texturePath + "brick0512_C.png", GL_LINEAR, GL_LINEAR);
-        SLGLTexture* texT = new SLGLTexture(s, SLApplication::texturePath + "brick0512_C.png", GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
-        SLGLTexture* texR = new SLGLTexture(s, SLApplication::texturePath + "brick0512_C.png", SL_ANISOTROPY_MAX, GL_LINEAR);
+        SLGLTexture* texB = new SLGLTexture(s, texPath + "brick0512_C.png", GL_NEAREST, GL_NEAREST);
+        SLGLTexture* texL = new SLGLTexture(s, texPath + "brick0512_C.png", GL_LINEAR, GL_LINEAR);
+        SLGLTexture* texT = new SLGLTexture(s, texPath + "brick0512_C.png", GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
+        SLGLTexture* texR = new SLGLTexture(s, texPath + "brick0512_C.png", SL_ANISOTROPY_MAX, GL_LINEAR);
 
         // define materials with textureOnly shader, no light needed
         SLMaterial* matB = new SLMaterial(s, "matB", texB, nullptr, nullptr, nullptr, SLGLProgramManager::get(SP_TextureOnly));
@@ -902,11 +907,11 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         // 3D Texture Mapping on a pyramid
         SLVstring tex3DFiles;
         for (SLint i = 0; i < 256; ++i)
-            tex3DFiles.push_back(SLApplication::texturePath + "Wave_radial10_256C.jpg");
+            tex3DFiles.push_back(texPath + "Wave_radial10_256C.jpg");
         SLGLTexture* tex3D = new SLGLTexture(s, tex3DFiles);
         SLGLProgram* spr3D = new SLGLProgramGeneric(s,
-                                                    SLApplication::shaderPath + "TextureOnly3D.vert",
-                                                    SLApplication::shaderPath + "TextureOnly3D.frag");
+                                                    shaderPath + "TextureOnly3D.vert",
+                                                    shaderPath + "TextureOnly3D.frag");
         SLMaterial*  mat3D = new SLMaterial(s, "mat3D", tex3D, nullptr, nullptr, nullptr, spr3D);
 
         // Create 3D textured pyramid mesh and node
@@ -956,8 +961,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->clipNear(0.1f);
         cam1->clipFar(100);
-        cam1->translation(0, 0, 4.2f
-                          );
+        cam1->translation(0, 0, 4.2f);
         cam1->lookAt(0, 0, 0);
         cam1->focalDist(4.2f);
         cam1->background().colors(SLCol4f(0.7f, 0.7f, 0.7f), SLCol4f(0.2f, 0.2f, 0.2f));
@@ -967,75 +971,80 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         // Position for rectangle and uv out of earth texture
         SLVec2f pMin(-.5f, -.5f), pMax(.5f, .5f);
         SLVec2f tMin(.47f, .69f), tMax(.56f, .81f);
+        SLint   minFlt = GL_LINEAR_MIPMAP_LINEAR;
+        SLint   magFlt = GL_NEAREST;
 
-        SLGLTexture* texPng    = new SLGLTexture(s, SLApplication::texturePath + "earth2048_C.png", GL_NEAREST, GL_NEAREST);
-        SLMaterial*  matPng    = new SLMaterial(s, "matPng", texPng);
-        SLMesh* rectMeshPng = new SLRectangle(s, pMin, pMax, tMin, tMax, 1, 1, "rectMeshPng", matPng);
-        SLNode* rectNodePng = new SLNode(rectMeshPng, "rectNodePng");
+        SLGLTexture* texPng      = new SLGLTexture(s, texPath + "earth2048_C.png", minFlt, magFlt);
+        SLMaterial*  matPng      = new SLMaterial(s, "matPng", texPng);
+        SLMesh*      rectMeshPng = new SLRectangle(s, pMin, pMax, tMin, tMax, 1, 1, "rectMeshPng", matPng);
+        SLNode*      rectNodePng = new SLNode(rectMeshPng, "rectNodePng");
         rectNodePng->translate(-1.05f, 1.05f, 0);
         scene->addChild(rectNodePng);
 
-        SLGLTexture* texJpgQ90 = new SLGLTexture(s, SLApplication::texturePath + "earth2048_C_Q90.jpg", GL_NEAREST, GL_NEAREST);
-        SLMaterial*  matJpgQ90 = new SLMaterial(s, "matJpgQ90", texJpgQ90);
-        SLMesh* rectMeshJpgQ90 = new SLRectangle(s, pMin, pMax, tMin, tMax, 1, 1, "rectMeshJpgQ90", matJpgQ90);
-        SLNode* rectNodeJpgQ90 = new SLNode(rectMeshJpgQ90, "rectNodeJpgQ90");
+        SLGLTexture* texJpgQ90      = new SLGLTexture(s, texPath + "earth2048_C_Q90.jpg", minFlt, magFlt);
+        SLMaterial*  matJpgQ90      = new SLMaterial(s, "matJpgQ90", texJpgQ90);
+        SLMesh*      rectMeshJpgQ90 = new SLRectangle(s, pMin, pMax, tMin, tMax, 1, 1, "rectMeshJpgQ90", matJpgQ90);
+        SLNode*      rectNodeJpgQ90 = new SLNode(rectMeshJpgQ90, "rectNodeJpgQ90");
         rectNodeJpgQ90->translate(0, 1.05f, 0);
         scene->addChild(rectNodeJpgQ90);
 
-        SLGLTexture* texJpgQ40 = new SLGLTexture(s, SLApplication::texturePath + "earth2048_C_Q40.jpg", GL_NEAREST, GL_NEAREST);
-        SLMaterial*  matJpgQ40 = new SLMaterial(s, "matJpgQ40", texJpgQ40);
-        SLMesh* rectMeshJpgQ40 = new SLRectangle(s, pMin, pMax, tMin, tMax, 1, 1, "rectMeshJpgQ40", matJpgQ40);
-        SLNode* rectNodeJpgQ40 = new SLNode(rectMeshJpgQ40, "rectNodeJpgQ40");
+        SLGLTexture* texJpgQ40      = new SLGLTexture(s, texPath + "earth2048_C_Q40.jpg", minFlt, magFlt);
+        SLMaterial*  matJpgQ40      = new SLMaterial(s, "matJpgQ40", texJpgQ40);
+        SLMesh*      rectMeshJpgQ40 = new SLRectangle(s, pMin, pMax, tMin, tMax, 1, 1, "rectMeshJpgQ40", matJpgQ40);
+        SLNode*      rectNodeJpgQ40 = new SLNode(rectMeshJpgQ40, "rectNodeJpgQ40");
         rectNodeJpgQ40->translate(1.05f, 1.05f, 0);
         scene->addChild(rectNodeJpgQ40);
 
-        //./../../../externals/prebuilt/macArm64_ktx_v4.0.0-beta7-cpvr/release/toktx --bcmp --qlevel 255 --linear --lower_left_maps_to_s0t0 earth2048_C_bcmp_Q255.ktx2 earth2048_C.png
-        SLGLTexture* texKtxBcmp255   = new SLGLTexture(s, SLApplication::texturePath + "earth2048_C_bcmp_Q255.ktx2", GL_NEAREST, GL_NEAREST);
-        SLMaterial*  matKtxBcmp255   = new SLMaterial(s, "matKtxBcmp255", texKtxBcmp255);
-        SLMesh* rectMeshKtxBcmp255 = new SLRectangle(s, pMin, pMax, tMin, tMax, 1, 1, "rectMeshKtxBcmp255", matKtxBcmp255);
-        SLNode* rectNodeKtxBcmp255 = new SLNode(rectMeshKtxBcmp255, "rectNodeKtxBcmp255");
+        /* Console commands to generate the following KTX files
+        ./../../../externals/prebuilt/mac64_ktx_v4.0.0-beta7-cpvr/release/toktx --automipmap --linear --lower_left_maps_to_s0t0 --bcmp --clevel 4 --qlevel 255 earth2048_C_bcmp_Q255.ktx2 earth2048_C.png
+        ./../../../externals/prebuilt/mac64_ktx_v4.0.0-beta7-cpvr/release/toktx --automipmap --linear --lower_left_maps_to_s0t0 --bcmp --clevel 4 --qlevel 128 earth2048_C_bcmp_Q128.ktx2 earth2048_C.png
+        ./../../../externals/prebuilt/mac64_ktx_v4.0.0-beta7-cpvr/release/toktx --automipmap --linear --lower_left_maps_to_s0t0 --bcmp --clevel 4 --qlevel   1 earth2048_C_bcmp_Q001.ktx2 earth2048_C.png
+        ./../../../externals/prebuilt/mac64_ktx_v4.0.0-beta7-cpvr/release/toktx --automipmap --linear --lower_left_maps_to_s0t0 --uastc 4 --zcmp 19 earth2048_C_uastc4.ktx2 earth2048_C.png
+        ./../../../externals/prebuilt/mac64_ktx_v4.0.0-beta7-cpvr/release/toktx --automipmap --linear --lower_left_maps_to_s0t0 --uastc 2 --zcmp 19 earth2048_C_uastc2.ktx2 earth2048_C.png
+        ./../../../externals/prebuilt/mac64_ktx_v4.0.0-beta7-cpvr/release/toktx --automipmap --linear --lower_left_maps_to_s0t0 --uastc 0 --zcmp 19 earth2048_C_uastc0.ktx2 earth2048_C.png
+        */
+
+        SLGLTexture* texKtxBcmp255      = new SLGLTexture(s, texPath + "earth2048_C_bcmp_Q255.ktx2", minFlt, magFlt);
+        SLMaterial*  matKtxBcmp255      = new SLMaterial(s, "matKtxBcmp255", texKtxBcmp255);
+        SLMesh*      rectMeshKtxBcmp255 = new SLRectangle(s, pMin, pMax, tMin, tMax, 1, 1, "rectMeshKtxBcmp255", matKtxBcmp255);
+        SLNode*      rectNodeKtxBcmp255 = new SLNode(rectMeshKtxBcmp255, "rectNodeKtxBcmp255");
         rectNodeKtxBcmp255->translate(-1.05f, 0, 0);
         scene->addChild(rectNodeKtxBcmp255);
 
-        //./../../../externals/prebuilt/macArm64_ktx_v4.0.0-beta7-cpvr/release/toktx --bcmp --qlevel 128 --linear --lower_left_maps_to_s0t0 earth2048_C_bcmp_Q128.ktx2 earth2048_C.png
-        SLGLTexture* texKtxBcmp128   = new SLGLTexture(s, SLApplication::texturePath + "earth2048_C_bcmp_Q128.ktx2", GL_NEAREST, GL_NEAREST);
-        SLMaterial*  matKtxBcmp128   = new SLMaterial(s, "matKtxBcmp128", texKtxBcmp128);
-        SLMesh* rectMeshKtxBcmp128 = new SLRectangle(s, pMin, pMax, tMin, tMax, 1, 1, "rectMeshKtxBcmp128", matKtxBcmp128);
-        SLNode* rectNodeKtxBcmp128 = new SLNode(rectMeshKtxBcmp128, "rectNodeKtxBcmp128");
+        SLGLTexture* texKtxBcmp128      = new SLGLTexture(s, texPath + "earth2048_C_bcmp_Q128.ktx2", minFlt, magFlt);
+        SLMaterial*  matKtxBcmp128      = new SLMaterial(s, "matKtxBcmp128", texKtxBcmp128);
+        SLMesh*      rectMeshKtxBcmp128 = new SLRectangle(s, pMin, pMax, tMin, tMax, 1, 1, "rectMeshKtxBcmp128", matKtxBcmp128);
+        SLNode*      rectNodeKtxBcmp128 = new SLNode(rectMeshKtxBcmp128, "rectNodeKtxBcmp128");
         rectNodeKtxBcmp128->translate(0, 0, 0);
         scene->addChild(rectNodeKtxBcmp128);
 
-        //./../../../externals/prebuilt/macArm64_ktx_v4.0.0-beta7-cpvr/release/toktx --bcmp --qlevel 1 --linear --lower_left_maps_to_s0t0 earth2048_C_bcmp_Q001.ktx2 earth2048_C.png
-        SLGLTexture* texKtxBcmp001   = new SLGLTexture(s, SLApplication::texturePath + "earth2048_C_bcmp_Q001.ktx2", GL_NEAREST, GL_NEAREST);
-        SLMaterial*  matKtxBcmp001   = new SLMaterial(s, "matKtxBcmp001", texKtxBcmp001);
-        SLMesh* rectMeshKtxBcmp001 = new SLRectangle(s, pMin, pMax, tMin, tMax, 1, 1, "rectMeshKtxBcmp001", matKtxBcmp001);
-        SLNode* rectNodeKtxBcmp001 = new SLNode(rectMeshKtxBcmp001, "rectNodeKtxBcmp001");
+        SLGLTexture* texKtxBcmp001      = new SLGLTexture(s, texPath + "earth2048_C_bcmp_Q001.ktx2", minFlt, magFlt);
+        SLMaterial*  matKtxBcmp001      = new SLMaterial(s, "matKtxBcmp001", texKtxBcmp001);
+        SLMesh*      rectMeshKtxBcmp001 = new SLRectangle(s, pMin, pMax, tMin, tMax, 1, 1, "rectMeshKtxBcmp001", matKtxBcmp001);
+        SLNode*      rectNodeKtxBcmp001 = new SLNode(rectMeshKtxBcmp001, "rectNodeKtxBcmp001");
         rectNodeKtxBcmp001->translate(1.05f, 0, 0);
         scene->addChild(rectNodeKtxBcmp001);
 
-        // ./../../../externals/prebuilt/macArm64_ktx_v4.0.0-beta7-cpvr/release/toktx --uastc 0 --zcmp --linear --lower_left_maps_to_s0t0 earth2048_C_uastc0.ktx2 earth2048_C.png
-        SLGLTexture* texKtxUastc0   = new SLGLTexture(s, SLApplication::texturePath + "earth2048_C_uastc0.ktx2", GL_NEAREST, GL_NEAREST);
-        SLMaterial*  matKtxUastc0   = new SLMaterial(s, "matKtxUastc0", texKtxUastc0);
-        SLMesh* rectMeshKtxUastc0 = new SLRectangle(s, pMin, pMax, tMin, tMax, 1, 1, "rectMeshKtxUastc0", matKtxUastc0);
-        SLNode* rectNodeKtxUastc0 = new SLNode(rectMeshKtxUastc0, "rectNodeKtxUastc0");
-        rectNodeKtxUastc0->translate(-1.05f, -1.05f, 0);
-        scene->addChild(rectNodeKtxUastc0);
+        SLGLTexture* texKtxUastc4      = new SLGLTexture(s, texPath + "earth2048_C_uastc4.ktx2", minFlt, magFlt);
+        SLMaterial*  matKtxUastc4      = new SLMaterial(s, "matKtxUastc4", texKtxUastc4);
+        SLMesh*      rectMeshKtxUastc4 = new SLRectangle(s, pMin, pMax, tMin, tMax, 1, 1, "rectMeshKtxUastc4", matKtxUastc4);
+        SLNode*      rectNodeKtxUastc4 = new SLNode(rectMeshKtxUastc4, "rectNodeKtxUastc4");
+        rectNodeKtxUastc4->translate(1.05f, -1.05f, 0);
+        scene->addChild(rectNodeKtxUastc4);
 
-        // ./../../../externals/prebuilt/macArm64_ktx_v4.0.0-beta7-cpvr/release/toktx --uastc 2 --zcmp --linear --lower_left_maps_to_s0t0 earth2048_C_uastc3.ktx2 earth2048_C.png
-        SLGLTexture* texKtxUastc2   = new SLGLTexture(s, SLApplication::texturePath + "earth2048_C_uastc2.ktx2", GL_NEAREST, GL_NEAREST);
-        SLMaterial*  matKtxUastc2   = new SLMaterial(s, "matKtxUastc2", texKtxUastc2);
-        SLMesh* rectMeshKtxUastc2 = new SLRectangle(s, pMin, pMax, tMin, tMax, 1, 1, "rectMeshKtxUastc2", matKtxUastc2);
-        SLNode* rectNodeKtxUastc2 = new SLNode(rectMeshKtxUastc2, "rectNodeKtxUastc2");
+        SLGLTexture* texKtxUastc2      = new SLGLTexture(s, texPath + "earth2048_C_uastc2.ktx2", minFlt, magFlt);
+        SLMaterial*  matKtxUastc2      = new SLMaterial(s, "matKtxUastc2", texKtxUastc2);
+        SLMesh*      rectMeshKtxUastc2 = new SLRectangle(s, pMin, pMax, tMin, tMax, 1, 1, "rectMeshKtxUastc2", matKtxUastc2);
+        SLNode*      rectNodeKtxUastc2 = new SLNode(rectMeshKtxUastc2, "rectNodeKtxUastc2");
         rectNodeKtxUastc2->translate(0, -1.05f, 0);
         scene->addChild(rectNodeKtxUastc2);
 
-        // ./../../../externals/prebuilt/macArm64_ktx_v4.0.0-beta7-cpvr/release/toktx --uastc 4 --zcmp --linear --lower_left_maps_to_s0t0 earth2048_C_uastc4.ktx2 earth2048_C.png
-        SLGLTexture* texKtxUastc4   = new SLGLTexture(s, SLApplication::texturePath + "earth2048_C_uastc4.ktx2", GL_NEAREST, GL_NEAREST);
-        SLMaterial*  matKtxUastc4   = new SLMaterial(s, "matKtxUastc4", texKtxUastc4);
-        SLMesh* rectMeshKtxUastc4 = new SLRectangle(s, pMin, pMax, tMin, tMax, 1, 1, "rectMeshKtxUastc4", matKtxUastc4);
-        SLNode* rectNodeKtxUastc4 = new SLNode(rectMeshKtxUastc4, "rectNodeKtxUastc4");
-        rectNodeKtxUastc4->translate(1.05f, -1.05f, 0);
-        scene->addChild(rectNodeKtxUastc4);
+        SLGLTexture* texKtxUastc0      = new SLGLTexture(s, texPath + "earth2048_C_uastc0.ktx2", minFlt, magFlt);
+        SLMaterial*  matKtxUastc0      = new SLMaterial(s, "matKtxUastc0", texKtxUastc0);
+        SLMesh*      rectMeshKtxUastc0 = new SLRectangle(s, pMin, pMax, tMin, tMax, 1, 1, "rectMeshKtxUastc0", matKtxUastc0);
+        SLNode*      rectNodeKtxUastc0 = new SLNode(rectMeshKtxUastc0, "rectNodeKtxUastc0");
+        rectNodeKtxUastc0->translate(-1.05f, -1.05f, 0);
+        scene->addChild(rectNodeKtxUastc0);
 
         // pass the scene group as root node
         s->root3D(scene);
@@ -1053,7 +1062,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                 "You can turn view frustum culling on/off in the menu Preferences or with the key F.");
 
         // create texture
-        SLGLTexture* tex  = new SLGLTexture(s, SLApplication::texturePath + "earth1024_C.jpg");
+        SLGLTexture* tex  = new SLGLTexture(s, texPath + "earth1024_C.jpg");
         SLMaterial*  mat1 = new SLMaterial(s, "mat1", tex);
 
         SLCamera* cam1 = new SLCamera("Camera 1");
@@ -1208,8 +1217,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         SLMaterial* pcMat1 = new SLMaterial(s, "Red", SLCol4f::RED);
         pcMat1->program(new SLGLProgramGeneric(s,
-                                               SLApplication::shaderPath + "ColorUniformPoint.vert",
-                                               SLApplication::shaderPath + "Color.frag"));
+                                               shaderPath + "ColorUniformPoint.vert",
+                                               shaderPath + "Color.frag"));
         pcMat1->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 4.0f));
         SLRnd3fNormal rndN(SLVec3f(0, 0, 0), SLVec3f(5, 2, 1));
         SLNode*       pc1 = new SLNode(new SLPoints(s, 1000, rndN, "PC1", pcMat1));
@@ -1217,8 +1226,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         SLMaterial* pcMat2 = new SLMaterial(s, "Green", SLCol4f::GREEN);
         pcMat2->program(new SLGLProgramGeneric(s,
-                                               SLApplication::shaderPath + "ColorUniformPoint.vert",
-                                               SLApplication::shaderPath + "Color.frag"));
+                                               shaderPath + "ColorUniformPoint.vert",
+                                               shaderPath + "Color.frag"));
         pcMat2->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 1.0f));
         SLRnd3fUniform rndU(SLVec3f(0, 0, 0), SLVec3f(2, 3, 5));
         SLNode*        pc2 = new SLNode(new SLPoints(s, 1000, rndU, "PC2", pcMat2));
@@ -1241,7 +1250,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLMaterial*  mL   = nullptr;
         SLMaterial*  mM   = nullptr;
         SLMaterial*  mR   = nullptr;
-        SLGLTexture* texC = new SLGLTexture(s, SLApplication::texturePath + "earth2048_C.jpg"); // color map
+        SLGLTexture* texC = new SLGLTexture(s, texPath + "earth2048_C_Q95.jpg"); // color map
 
         if (sceneID == SID_ShaderPerVertexBlinn)
         {
@@ -1251,11 +1260,11 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                     "The green and the white light are attached to the camera, the others are in the scene. "
                     "The light calculation per vertex is the fastest but leads to artefacts with spot lights");
             SLGLProgram* perVrtTm = new SLGLProgramGeneric(s,
-                                                           SLApplication::shaderPath + "PerVrtBlinnTm.vert",
-                                                           SLApplication::shaderPath + "PerVrtBlinnTm.frag");
+                                                           shaderPath + "PerVrtBlinnTm.vert",
+                                                           shaderPath + "PerVrtBlinnTm.frag");
             SLGLProgram* perVrt   = new SLGLProgramGeneric(s,
-                                                         SLApplication::shaderPath + "PerVrtBlinn.vert",
-                                                         SLApplication::shaderPath + "PerVrtBlinn.frag");
+                                                         shaderPath + "PerVrtBlinn.vert",
+                                                         shaderPath + "PerVrtBlinn.frag");
             mL                    = new SLMaterial(s, "mL", texC, nullptr, nullptr, nullptr, perVrtTm);
             mM                    = new SLMaterial(s, "mM", perVrt);
             mR                    = new SLMaterial(s, "mR", texC, nullptr, nullptr, nullptr, perVrtTm);
@@ -1266,11 +1275,11 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
             s->info("Per-pixel lighting with Blinn-Phong light model. "
                     "The reflection of 5 light sources is calculated per pixel. "
                     "The light calculation is done in the fragmentshader.");
-            SLGLTexture*   texN   = new SLGLTexture(s, SLApplication::texturePath + "earth2048_N.jpg"); // normal map
-            SLGLTexture*   texH   = new SLGLTexture(s, SLApplication::texturePath + "earth2048_H.jpg"); // height map
+            SLGLTexture*   texN   = new SLGLTexture(s, texPath + "earth2048_N.jpg"); // normal map
+            SLGLTexture*   texH   = new SLGLTexture(s, texPath + "earth2048_H.jpg"); // height map
             SLGLProgram*   pR     = new SLGLProgramGeneric(s,
-                                                     SLApplication::shaderPath + "PerPixBlinnTmNm.vert",
-                                                     SLApplication::shaderPath + "PerPixBlinnTmPm.frag");
+                                                     shaderPath + "PerPixBlinnTmNm.vert",
+                                                     shaderPath + "PerPixBlinnTmPm.frag");
             SLGLUniform1f* scale  = new SLGLUniform1f(UT_const, "u_scale", 0.02f, 0.002f, 0, 1);
             SLGLUniform1f* offset = new SLGLUniform1f(UT_const, "u_offset", -0.02f, 0.002f, -1, 1);
             pR->addUniform1f(scale);
@@ -1396,12 +1405,12 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLfloat     deltaM  = 1.0f / (float)(nrCols - 1);
 
         SLGLProgram* sp = new SLGLProgramGeneric(s,
-                                                 SLApplication::shaderPath + "PerPixCook.vert",
-                                                 SLApplication::shaderPath + "PerPixCook.frag");
+                                                 shaderPath + "PerPixCook.vert",
+                                                 shaderPath + "PerPixCook.frag");
 
         SLGLProgram* spTex = new SLGLProgramGeneric(s,
-                                                    SLApplication::shaderPath + "PerPixCookTm.vert",
-                                                    SLApplication::shaderPath + "PerPixCookTm.frag");
+                                                    shaderPath + "PerPixCookTm.vert",
+                                                    shaderPath + "PerPixCookTm.frag");
 
         SLMaterial* mat[nrRows * nrCols];
         SLint       i = 0;
@@ -1416,10 +1425,10 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                     // The center sphere has roughness and metallic encoded in textures
                     mat[i] = new SLMaterial(s,
                                             "CookTorranceMatTex",
-                                            new SLGLTexture(s, SLApplication::texturePath + "rusty-metal_2048C.jpg"),
-                                            new SLGLTexture(s, SLApplication::texturePath + "rusty-metal_2048N.jpg"),
-                                            new SLGLTexture(s, SLApplication::texturePath + "rusty-metal_2048M.jpg"),
-                                            new SLGLTexture(s, SLApplication::texturePath + "rusty-metal_2048R.jpg"),
+                                            new SLGLTexture(s, texPath + "rusty-metal_2048C.jpg"),
+                                            new SLGLTexture(s, texPath + "rusty-metal_2048N.jpg"),
+                                            new SLGLTexture(s, texPath + "rusty-metal_2048M.jpg"),
+                                            new SLGLTexture(s, texPath + "rusty-metal_2048R.jpg"),
                                             spTex);
                 }
                 else
@@ -1494,8 +1503,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Create HDR CubeMap and get precalculated textures from it
         SLSkybox*    hdrCubeMap     = new SLSkybox(s,
-                                            SLApplication::shaderPath,
-                                            SLApplication::texturePath + "env_barce_rooftop.hdr",
+                                            shaderPath,
+                                            texPath + "env_barce_rooftop.hdr",
                                             SLVec2i(2048, 2048),
                                             "HDR Skybox",
                                             new SLGLUniform1f(exposure));
@@ -1505,11 +1514,11 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Get preloaded shader programs
         SLGLProgram* pbr    = new SLGLProgramGeneric(s,
-                                                  SLApplication::shaderPath + "PBR_Lighting.vert",
-                                                  SLApplication::shaderPath + "PBR_Lighting.frag");
+                                                  shaderPath + "PBR_Lighting.vert",
+                                                  shaderPath + "PBR_Lighting.frag");
         SLGLProgram* pbrTex = new SLGLProgramGeneric(s,
-                                                     SLApplication::shaderPath + "PBR_LightingTm.vert",
-                                                     SLApplication::shaderPath + "PBR_LightingTm.frag");
+                                                     shaderPath + "PBR_LightingTm.vert",
+                                                     shaderPath + "PBR_LightingTm.frag");
 
         // Set the uniforms for controlling the exposure
         pbr->addUniform1f(exposure_pbr);
@@ -1551,11 +1560,11 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                     mat[i] = new SLMaterial(s,
                                             "IBLMatTex",
                                             pbrTex,
-                                            new SLGLTexture(s, SLApplication::texturePath + "gold-scuffed_2048C.png"),
-                                            new SLGLTexture(s, SLApplication::texturePath + "gold-scuffed_2048N.png"),
-                                            new SLGLTexture(s, SLApplication::texturePath + "gold-scuffed_2048M.png"),
-                                            new SLGLTexture(s, SLApplication::texturePath + "gold-scuffed_2048R.png"),
-                                            new SLGLTexture(s, SLApplication::texturePath + "gold-scuffed_2048A.png"),
+                                            new SLGLTexture(s, texPath + "gold-scuffed_2048C.png"),
+                                            new SLGLTexture(s, texPath + "gold-scuffed_2048N.png"),
+                                            new SLGLTexture(s, texPath + "gold-scuffed_2048M.png"),
+                                            new SLGLTexture(s, texPath + "gold-scuffed_2048R.png"),
+                                            new SLGLTexture(s, texPath + "gold-scuffed_2048A.png"),
                                             irrandianceMap,
                                             prefilterMap,
                                             brdfLUTTexture);
@@ -1620,7 +1629,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
 
         // Create generic shader program with 4 custom uniforms
-        SLGLProgram*   sp  = new SLGLProgramGeneric(s, SLApplication::shaderPath + "Wave.vert", SLApplication::shaderPath + "Wave.frag");
+        SLGLProgram*   sp  = new SLGLProgramGeneric(s, shaderPath + "Wave.vert", shaderPath + "Wave.frag");
         SLGLUniform1f* u_h = new SLGLUniform1f(UT_const, "u_h", 0.1f, 0.05f, 0.0f, 0.5f, (SLKey)'H');
         s->eventHandlers().push_back(u_h);
         sp->addUniform1f(u_h);
@@ -1658,8 +1667,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->info("Normal map bump mapping combined with a spot and a directional lighting.");
 
         // Create textures
-        SLGLTexture* texC = new SLGLTexture(s, SLApplication::texturePath + "brickwall0512_C.jpg");
-        SLGLTexture* texN = new SLGLTexture(s, SLApplication::texturePath + "brickwall0512_N.jpg");
+        SLGLTexture* texC = new SLGLTexture(s, texPath + "brickwall0512_C.jpg");
+        SLGLTexture* texN = new SLGLTexture(s, texPath + "brickwall0512_N.jpg");
 
         // Create materials
         SLMaterial* m1 = new SLMaterial(s, "m1", texC, texN);
@@ -1707,8 +1716,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Create shader program with 4 uniforms
         SLGLProgram*   sp     = new SLGLProgramGeneric(s,
-                                                 SLApplication::shaderPath + "PerPixBlinnTmNm.vert",
-                                                 SLApplication::shaderPath + "PerPixBlinnTmPm.frag");
+                                                 shaderPath + "PerPixBlinnTmNm.vert",
+                                                 shaderPath + "PerPixBlinnTmPm.frag");
         SLGLUniform1f* scale  = new SLGLUniform1f(UT_const, "u_scale", 0.04f, 0.002f, 0, 1, (SLKey)'X');
         SLGLUniform1f* offset = new SLGLUniform1f(UT_const, "u_offset", -0.03f, 0.002f, -1, 1, (SLKey)'O');
         s->eventHandlers().push_back(scale);
@@ -1717,9 +1726,9 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sp->addUniform1f(offset);
 
         // Create textures
-        SLGLTexture* texC = new SLGLTexture(s, SLApplication::texturePath + "brickwall0512_C.jpg");
-        SLGLTexture* texN = new SLGLTexture(s, SLApplication::texturePath + "brickwall0512_N.jpg");
-        SLGLTexture* texH = new SLGLTexture(s, SLApplication::texturePath + "brickwall0512_H.jpg");
+        SLGLTexture* texC = new SLGLTexture(s, texPath + "brickwall0512_C.jpg");
+        SLGLTexture* texN = new SLGLTexture(s, texPath + "brickwall0512_N.jpg");
+        SLGLTexture* texH = new SLGLTexture(s, texPath + "brickwall0512_H.jpg");
 
         // Create materials
         SLMaterial* m1 = new SLMaterial(s, "mat1", texC, texN, texH, nullptr, sp);
@@ -1765,21 +1774,21 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Create textures and materials
         SLSkybox*    skybox    = new SLSkybox(s,
-                                        SLApplication::shaderPath,
-                                        SLApplication::texturePath + "Desert+X1024_C.jpg",
-                                        SLApplication::texturePath + "Desert-X1024_C.jpg",
-                                        SLApplication::texturePath + "Desert+Y1024_C.jpg",
-                                        SLApplication::texturePath + "Desert-Y1024_C.jpg",
-                                        SLApplication::texturePath + "Desert+Z1024_C.jpg",
-                                        SLApplication::texturePath + "Desert-Z1024_C.jpg");
+                                        shaderPath,
+                                        texPath + "Desert+X1024_C.jpg",
+                                        texPath + "Desert-X1024_C.jpg",
+                                        texPath + "Desert+Y1024_C.jpg",
+                                        texPath + "Desert-Y1024_C.jpg",
+                                        texPath + "Desert+Z1024_C.jpg",
+                                        texPath + "Desert-Z1024_C.jpg");
         SLGLTexture* skyboxTex = skybox->mesh()->mat()->textures()[0];
 
         // Material for mirror
         SLMaterial* refl = new SLMaterial(s, "refl", SLCol4f::BLACK, SLCol4f::WHITE, 1000, 1.0f);
         refl->textures().push_back(skyboxTex);
         refl->program(new SLGLProgramGeneric(s,
-                                             SLApplication::shaderPath + "Reflect.vert",
-                                             SLApplication::shaderPath + "Reflect.frag"));
+                                             shaderPath + "Reflect.vert",
+                                             shaderPath + "Reflect.frag"));
 
         // Material for glass
         SLMaterial* refr = new SLMaterial(s, "refr", SLCol4f::BLACK, SLCol4f::BLACK, 100, 0.1f, 0.9f, 1.5f);
@@ -1787,8 +1796,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         refr->transmissive(SLCol4f::WHITE);
         refr->textures().push_back(skyboxTex);
         refr->program(new SLGLProgramGeneric(s,
-                                             SLApplication::shaderPath + "RefractReflect.vert",
-                                             SLApplication::shaderPath + "RefractReflect.frag"));
+                                             shaderPath + "RefractReflect.vert",
+                                             shaderPath + "RefractReflect.frag"));
 
         // Create a scene group node
         SLNode* scene = new SLNode("scene node");
@@ -1817,8 +1826,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLAssimpImporter importer;
         SLNode*          teapot = importer.load(s->animManager(),
                                        s,
-                                       SLApplication::modelPath + "FBX/Teapot/Teapot.fbx",
-                                       SLApplication::texturePath,
+                                       modelPath + "FBX/Teapot/Teapot.fbx",
+                                       texPath,
                                        false,
                                        true,
                                        refl);
@@ -1828,8 +1837,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         // load Suzanne
         SLNode* suzanne = importer.load(s->animManager(),
                                         s,
-                                        SLApplication::modelPath + "FBX/Suzanne/Suzanne.fbx",
-                                        SLApplication::texturePath,
+                                        modelPath + "FBX/Suzanne/Suzanne.fbx",
+                                        texPath,
                                         false,
                                         true,
                                         refr);
@@ -1855,8 +1864,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Create shader program with 4 uniforms
         SLGLProgram*   sp     = new SLGLProgramGeneric(s,
-                                                 SLApplication::shaderPath + "PerPixBlinnTmNm.vert",
-                                                 SLApplication::shaderPath + "PerPixBlinnTmNmEarth.frag");
+                                                 shaderPath + "PerPixBlinnTmNm.vert",
+                                                 shaderPath + "PerPixBlinnTmNmEarth.frag");
         SLGLUniform1f* scale  = new SLGLUniform1f(UT_const, "u_scale", 0.02f, 0.002f, 0, 1, (SLKey)'X');
         SLGLUniform1f* offset = new SLGLUniform1f(UT_const, "u_offset", -0.02f, 0.002f, -1, 1, (SLKey)'O');
         s->eventHandlers().push_back(scale);
@@ -1865,13 +1874,13 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sp->addUniform1f(offset);
 
         // Create textures
-        SLGLTexture* texC   = new SLGLTexture(s, SLApplication::texturePath + "earth2048_C.png");      // color map
-        SLGLTexture* texN   = new SLGLTexture(s, SLApplication::texturePath + "earth2048_N.jpg");      // normal map
-        SLGLTexture* texH   = new SLGLTexture(s, SLApplication::texturePath + "earth2048_H.jpg");      // height map
-        SLGLTexture* texG   = new SLGLTexture(s, SLApplication::texturePath + "earth2048_G.jpg");      // gloss map
-        SLGLTexture* texNC  = new SLGLTexture(s, SLApplication::texturePath + "earthNight2048_C.jpg"); // night color  map
-        SLGLTexture* texClC = new SLGLTexture(s, SLApplication::texturePath + "earthCloud1024_C.jpg"); // cloud color map
-        SLGLTexture* texClA = new SLGLTexture(s, SLApplication::texturePath + "earthCloud1024_A.jpg"); // cloud alpha map
+        SLGLTexture* texC   = new SLGLTexture(s, texPath + "earth2048_C.png");      // color map
+        SLGLTexture* texN   = new SLGLTexture(s, texPath + "earth2048_N.jpg");      // normal map
+        SLGLTexture* texH   = new SLGLTexture(s, texPath + "earth2048_H.jpg");      // height map
+        SLGLTexture* texG   = new SLGLTexture(s, texPath + "earth2048_G.jpg");      // gloss map
+        SLGLTexture* texNC  = new SLGLTexture(s, texPath + "earthNight2048_C.jpg"); // night color  map
+        SLGLTexture* texClC = new SLGLTexture(s, texPath + "earthCloud1024_C.jpg"); // cloud color map
+        SLGLTexture* texClA = new SLGLTexture(s, texPath + "earthCloud1024_A.jpg"); // cloud alpha map
 
         // Create materials
         SLMaterial* matEarth = new SLMaterial(s, "matEarth", texC, texN, texH, texG, sp);
@@ -1938,8 +1947,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLAssimpImporter importer;
         SLNode*          teapot = importer.load(s->animManager(),
                                        s,
-                                       SLApplication::modelPath + "FBX/Teapot/Teapot.fbx",
-                                       SLApplication::texturePath,
+                                       modelPath + "FBX/Teapot/Teapot.fbx",
+                                       texPath,
                                        false,
                                        true,
                                        teapotMat);
@@ -2035,8 +2044,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Setup shadow mapping material
         //SLGLProgram* progPerPixSM = new SLGLProgramGeneric(s,
-        //                                                   SLApplication::shaderPath + "PerPixBlinnSm.vert",
-        //                                                   SLApplication::shaderPath + "PerPixBlinnSm.frag");
+        //                                                   shaderPath + "PerPixBlinnSm.vert",
+        //                                                   shaderPath + "PerPixBlinnSm.frag");
         SLMaterial* matPerPixSM = new SLMaterial(s, "m1"); //, SLCol4f::WHITE, SLCol4f::WHITE, 500, 0, 0, 1, progPerPixSM);
 
         // Base root group node for the scene
@@ -2139,8 +2148,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                                                                        AL_loop);
         SLNode*          teapotModel = importer.load(s->animManager(),
                                             s,
-                                            SLApplication::modelPath + "FBX/Teapot/Teapot.fbx",
-                                            SLApplication::texturePath,
+                                            modelPath + "FBX/Teapot/Teapot.fbx",
+                                            texPath,
                                             false,
                                             true,
                                             mat1);
@@ -2189,8 +2198,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Setup shadow mapping material
         //SLGLProgram* progPerPixSM = new SLGLProgramGeneric(s,
-        //                                                   SLApplication::shaderPath + "PerPixBlinnSm.vert",
-        //                                                   SLApplication::shaderPath + "PerPixBlinnSm8Cm.frag");
+        //                                                   shaderPath + "PerPixBlinnSm.vert",
+        //                                                   shaderPath + "PerPixBlinnSm8Cm.frag");
         SLMaterial* matPerPixSM = new SLMaterial(s, "m1"); //, SLCol4f::WHITE, SLCol4f::WHITE, 500, 0, 0, 1, progPerPixSM);
 
         // Base root group node for the scene
@@ -2246,8 +2255,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Setup shadow mapping material
         //SLGLProgram* progPerPixSM = new SLGLProgramGeneric(s,
-        //                                                   SLApplication::shaderPath + "PerPixBlinnSm.vert",
-        //                                                   SLApplication::shaderPath + "PerPixBlinnSm8Cm.frag");
+        //                                                   shaderPath + "PerPixBlinnSm.vert",
+        //                                                   shaderPath + "PerPixBlinnSm8Cm.frag");
         SLMaterial* matPerPixSM = new SLMaterial(s, "m1"); //, SLCol4f::WHITE, SLCol4f::WHITE, 500, 0, 0, 1, progPerPixSM);
 
         // Base root group node for the scene
@@ -2402,8 +2411,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLAssimpImporter importer;
         SLNode*          suzanneInCube = importer.load(s->animManager(),
                                               s,
-                                              SLApplication::modelPath + "GLTF/AO-Baked-Test/AO-Baked-Test.gltf",
-                                              SLApplication::texturePath,
+                                              modelPath + "GLTF/AO-Baked-Test/AO-Baked-Test.gltf",
+                                              texPath,
                                               false,   // delete tex images after build
                                               true,    // load meshes only
                                               nullptr, // override material
@@ -2514,7 +2523,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         // Load volume data into 3D texture
         SLVstring mriImages;
         for (SLint i = 0; i < 207; ++i)
-            mriImages.push_back(Utils::formatString(SLApplication::texturePath + "i%04u_0000b.png", i));
+            mriImages.push_back(Utils::formatString(texPath + "i%04u_0000b.png", i));
 
         SLint clamping3D = GL_CLAMP_TO_EDGE;
         if (SLGLState::instance()->getSLVersionNO() > "320")
@@ -2536,8 +2545,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Load shader and uniforms for volume size
         SLGLProgram*   sp   = new SLGLProgramGeneric(s,
-                                                 SLApplication::shaderPath + "VolumeRenderingRayCast.vert",
-                                                 SLApplication::shaderPath + "VolumeRenderingRayCast.frag");
+                                                 shaderPath + "VolumeRenderingRayCast.vert",
+                                                 shaderPath + "VolumeRenderingRayCast.frag");
         SLGLUniform1f* volX = new SLGLUniform1f(UT_const, "u_volumeX", (SLfloat)texMRI->images()[0]->width());
         SLGLUniform1f* volY = new SLGLUniform1f(UT_const, "u_volumeY", (SLfloat)texMRI->images()[0]->height());
         SLGLUniform1f* volZ = new SLGLUniform1f(UT_const, "u_volumeZ", (SLfloat)mriImages.size());
@@ -2589,7 +2598,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
             // Load volume data into 3D texture
             SLVstring mriImages;
             for (SLint i = 0; i < 207; ++i)
-                mriImages.push_back(Utils::formatString(SLApplication::texturePath + "i%04u_0000b.png", i));
+                mriImages.push_back(Utils::formatString(texPath + "i%04u_0000b.png", i));
 
             gTexMRI3D = new SLGLTexture(s,
                                         mriImages,
@@ -2612,8 +2621,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Load shader and uniforms for volume size
         SLGLProgram*   sp   = new SLGLProgramGeneric(s,
-                                                 SLApplication::shaderPath + "VolumeRenderingRayCast.vert",
-                                                 SLApplication::shaderPath + "VolumeRenderingRayCastLighted.frag");
+                                                 shaderPath + "VolumeRenderingRayCast.vert",
+                                                 shaderPath + "VolumeRenderingRayCastLighted.frag");
         SLGLUniform1f* volX = new SLGLUniform1f(UT_const, "u_volumeX", (SLfloat)gTexMRI3D->images()[0]->width());
         SLGLUniform1f* volY = new SLGLUniform1f(UT_const, "u_volumeY", (SLfloat)gTexMRI3D->images()[0]->height());
         SLGLUniform1f* volZ = new SLGLUniform1f(UT_const, "u_volumeZ", (SLfloat)gTexMRI3D->images().size());
@@ -2682,7 +2691,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(new SLNode(grid, "grid"));
 
         // Astro boy character
-        SLNode* char1 = importer.load(s->animManager(), s, SLApplication::modelPath + "DAE/AstroBoy/AstroBoy.dae", SLApplication::texturePath);
+        SLNode* char1 = importer.load(s->animManager(), s, modelPath + "DAE/AstroBoy/AstroBoy.dae", texPath);
         char1->translate(-1, 0, 0);
         SLAnimPlayback* char1Anim = s->animManager().lastAnimPlayback();
         char1Anim->playForward();
@@ -2691,8 +2700,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         // Sintel character
         SLNode* char2 = importer.load(s->animManager(),
                                       s,
-                                      SLApplication::modelPath + "DAE/Sintel/SintelLowResOwnRig.dae",
-                                      SLApplication::texturePath
+                                      modelPath + "DAE/Sintel/SintelLowResOwnRig.dae",
+                                      texPath
                                       //,false
                                       //,true
                                       //,SLProcess_JoinIdenticalVertices
@@ -2710,8 +2719,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         // Skinned cube 1
         SLNode* cube1 = importer.load(s->animManager(),
                                       s,
-                                      SLApplication::modelPath + "DAE/SkinnedCube/skinnedcube2.dae",
-                                      SLApplication::texturePath);
+                                      modelPath + "DAE/SkinnedCube/skinnedcube2.dae",
+                                      texPath);
         cube1->translate(3, 0, 0);
         SLAnimPlayback* cube1Anim = s->animManager().lastAnimPlayback();
         cube1Anim->easing(EC_inOutSine);
@@ -2719,7 +2728,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(cube1);
 
         // Skinned cube 2
-        SLNode* cube2 = importer.load(s->animManager(), s, SLApplication::modelPath + "DAE/SkinnedCube/skinnedcube4.dae", SLApplication::texturePath);
+        SLNode* cube2 = importer.load(s->animManager(), s, modelPath + "DAE/SkinnedCube/skinnedcube4.dae", texPath);
         cube2->translate(-3, 0, 0);
         SLAnimPlayback* cube2Anim = s->animManager().lastAnimPlayback();
         cube2Anim->easing(EC_inOutSine);
@@ -2727,7 +2736,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(cube2);
 
         // Skinned cube 3
-        SLNode* cube3 = importer.load(s->animManager(), s, SLApplication::modelPath + "DAE/SkinnedCube/skinnedcube5.dae", SLApplication::texturePath);
+        SLNode* cube3 = importer.load(s->animManager(), s, modelPath + "DAE/SkinnedCube/skinnedcube5.dae", texPath);
         cube3->translate(0, 3, 0);
         SLAnimPlayback* cube3Anim = s->animManager().lastAnimPlayback();
         cube3Anim->loop(AL_pingPongLoop);
@@ -2745,7 +2754,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->info("Node animations with different easing curves.");
 
         // Create textures and materials
-        SLGLTexture* tex1 = new SLGLTexture(s, SLApplication::texturePath + "Checkerboard0512_C.png");
+        SLGLTexture* tex1 = new SLGLTexture(s, texPath + "Checkerboard0512_C.png");
         SLMaterial*  m1   = new SLMaterial(s, "m1", tex1);
         m1->kr(0.5f);
         SLMaterial* m2 = new SLMaterial(s, "m2", SLCol4f::WHITE * 0.5, SLCol4f::WHITE, 128, 0.5f, 0.0f, 1.0f);
@@ -2955,7 +2964,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         rect->rotate(90, -1, 0, 0);
 
         SLAssimpImporter importer;
-        SLNode*          center = importer.load(s->animManager(), s, SLApplication::modelPath + "DAE/AstroBoy/AstroBoy.dae", SLApplication::texturePath);
+        SLNode*          center = importer.load(s->animManager(), s, modelPath + "DAE/AstroBoy/AstroBoy.dae", texPath);
         s->animManager().lastAnimPlayback()->playForward();
 
         // Assemble scene
@@ -3009,7 +3018,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->viewportSameAsVideo(true);
 
         // Create video texture on global pointer updated in AppDemoVideo
-        videoTexture   = new SLGLTexture(s, SLApplication::texturePath + "LiveVideoError.png", GL_LINEAR, GL_LINEAR);
+        videoTexture   = new SLGLTexture(s, texPath + "LiveVideoError.png", GL_LINEAR, GL_LINEAR);
         SLMaterial* m1 = new SLMaterial(s, "VideoMat", videoTexture);
 
         // Create a root scene group for all nodes
@@ -3104,7 +3113,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         }
 
         // Create video texture on global pointer updated in AppDemoVideo
-        videoTexture = new SLGLTexture(s, SLApplication::texturePath + "LiveVideoError.png", GL_LINEAR, GL_LINEAR);
+        videoTexture = new SLGLTexture(s, texPath + "LiveVideoError.png", GL_LINEAR, GL_LINEAR);
 
         // Material
         SLMaterial* yellow = new SLMaterial(s, "mY", SLCol4f(1, 1, 0, 0.5f));
@@ -3187,7 +3196,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         }
 
         // Create video texture on global pointer updated in AppDemoVideo
-        videoTexture = new SLGLTexture(s, SLApplication::texturePath + "LiveVideoError.png", GL_LINEAR, GL_LINEAR);
+        videoTexture = new SLGLTexture(s, texPath + "LiveVideoError.png", GL_LINEAR, GL_LINEAR);
 
         // Material
         SLMaterial* yellow = new SLMaterial(s, "mY", SLCol4f(1, 1, 0, 0.5f));
@@ -3254,7 +3263,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->info("Augmented Reality 2D Feature Tracking: You need to print out the stones image target from the file data/calibrations/vuforia_markers.pdf");
 
         // Create video texture on global pointer updated in AppDemoVideo
-        videoTexture = new SLGLTexture(s, SLApplication::texturePath + "LiveVideoError.png", GL_LINEAR, GL_LINEAR);
+        videoTexture = new SLGLTexture(s, texPath + "LiveVideoError.png", GL_LINEAR, GL_LINEAR);
 
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0, 2, 60);
@@ -3298,7 +3307,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(cam1);
 
         // Create feature tracker and let it pose the camera for AR posing
-        tracker = new CVTrackedFeatures(SLApplication::texturePath + "features_stones.jpg");
+        tracker = new CVTrackedFeatures(texPath + "features_stones.jpg");
         //tracker = new CVTrackedFeatures("features_abstract.jpg");
         tracker->drawDetection(true);
         trackedNode = cam1;
@@ -3334,7 +3343,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Create video texture on global pointer updated in AppDemoVideo
         videoTexture = new SLGLTexture(s,
-                                       SLApplication::texturePath + "LiveVideoError.png",
+                                       texPath + "LiveVideoError.png",
                                        GL_LINEAR,
                                        GL_LINEAR);
 
@@ -3354,8 +3363,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLAssimpImporter importer;
         SLNode*          glasses = importer.load(s->animManager(),
                                         s,
-                                        SLApplication::modelPath + "FBX/Sunglasses.fbx",
-                                        SLApplication::texturePath);
+                                        modelPath + "FBX/Sunglasses.fbx",
+                                        texPath);
         glasses->scale(0.008f);
         glasses->translate(0, 1.5f, 0);
 
@@ -3391,7 +3400,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->info("Track the scene with a point cloud built with the WAI (Where Am I) library.");
 
         // Create video texture on global pointer updated in AppDemoVideo
-        videoTexture = new SLGLTexture(s, SLApplication::texturePath + "LiveVideoError.png", GL_LINEAR, GL_LINEAR);
+        videoTexture = new SLGLTexture(s, texPath + "LiveVideoError.png", GL_LINEAR, GL_LINEAR);
 
         // Material
         SLMaterial* yellow = new SLMaterial(s, "mY", SLCol4f(1, 1, 0, 0.5f));
@@ -3459,7 +3468,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->info("Minimal scene to test the devices IMU and GPS Sensors. See the sensor information. GPS needs a few sec. to improve the accuracy.");
 
         // Create video texture on global pointer updated in AppDemoVideo
-        videoTexture = new SLGLTexture(s, SLApplication::texturePath + "LiveVideoError.png", GL_LINEAR, GL_LINEAR);
+        videoTexture = new SLGLTexture(s, texPath + "LiveVideoError.png", GL_LINEAR, GL_LINEAR);
 
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0, 0, 60);
@@ -3524,12 +3533,12 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->info("Augmented Reality at Biel-BFH");
 
         // Create video texture on global pointer updated in AppDemoVideo
-        videoTexture = new SLGLTexture(s, SLApplication::texturePath + "LiveVideoError.png", GL_LINEAR, GL_LINEAR);
+        videoTexture = new SLGLTexture(s, texPath + "LiveVideoError.png", GL_LINEAR, GL_LINEAR);
 
         // Define shader that shows on all pixels the video background
         SLGLProgram* spVideoBackground  = new SLGLProgramGeneric(s,
-                                                                SLApplication::shaderPath + "PerPixTmBackground.vert",
-                                                                SLApplication::shaderPath + "PerPixTmBackground.frag");
+                                                                shaderPath + "PerPixTmBackground.vert",
+                                                                shaderPath + "PerPixTmBackground.frag");
         SLMaterial*  matVideoBackground = new SLMaterial(s,
                                                         "matVideoBackground",
                                                         videoTexture,
@@ -3566,8 +3575,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLAssimpImporter importer;
         SLNode*          bfh = importer.load(s->animManager(),
                                     s,
-                                    SLApplication::dataPath + "erleb-AR/models/biel/Biel-BFH-Rolex.gltf",
-                                    SLApplication::texturePath);
+                                    dataPath + "erleb-AR/models/biel/Biel-BFH-Rolex.gltf",
+                                    texPath);
 
         bfh->setMeshMat(matVideoBackground, true);
 
@@ -3606,7 +3615,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLApplication::devRot.zeroYawAtStart(false);
 
         // This loads the DEM file and overwrites the altitude of originLatLonAlt and defaultLatLonAlt
-        SLstring tif = SLApplication::dataPath + "erleb-AR/models/biel/DEM_Biel-BFH_WGS84.tif";
+        SLstring tif = dataPath + "erleb-AR/models/biel/DEM_Biel-BFH_WGS84.tif";
         SLApplication::devLoc.loadGeoTiff(tif);
 
 #if defined(SL_OS_MACIOS) || defined(SL_OS_ANDROID)
@@ -3635,12 +3644,12 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->info("Augmented Reality Christoffel Tower");
 
         // Create video texture on global pointer updated in AppDemoVideo
-        videoTexture = new SLGLTexture(s, SLApplication::texturePath + "LiveVideoError.png", GL_LINEAR, GL_LINEAR);
+        videoTexture = new SLGLTexture(s, texPath + "LiveVideoError.png", GL_LINEAR, GL_LINEAR);
 
         // Define shader that shows on all pixels the video background without shadow mapping
         SLGLProgram* spVideoBackground  = new SLGLProgramGeneric(s,
-                                                                SLApplication::shaderPath + "PerPixTmBackground.vert",
-                                                                SLApplication::shaderPath + "PerPixTmBackground.frag");
+                                                                shaderPath + "PerPixTmBackground.vert",
+                                                                shaderPath + "PerPixTmBackground.frag");
         SLMaterial*  matVideoBackground = new SLMaterial(s,
                                                         "matVideoBackground",
                                                         videoTexture,
@@ -3651,8 +3660,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Define shader that shows on all pixels the video background with shadow mapping
         SLGLProgram* spVideoBackgroundSM  = new SLGLProgramGeneric(s,
-                                                                  SLApplication::shaderPath + "PerPixTmBackgroundSm.vert",
-                                                                  SLApplication::shaderPath + "PerPixTmBackgroundSm.frag");
+                                                                  shaderPath + "PerPixTmBackgroundSm.vert",
+                                                                  shaderPath + "PerPixTmBackgroundSm.frag");
         SLMaterial*  matVideoBackgroundSM = new SLMaterial(s,
                                                           "matVideoBackground",
                                                           videoTexture,
@@ -3693,8 +3702,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLAssimpImporter importer;
         SLNode*          bern = importer.load(s->animManager(),
                                      s,
-                                     SLApplication::dataPath + "erleb-AR/models/bern/Bern-Bahnhofsplatz3.gltf",
-                                     SLApplication::texturePath,
+                                     dataPath + "erleb-AR/models/bern/Bern-Bahnhofsplatz3.gltf",
+                                     texPath,
                                      false,
                                      true,
                                      nullptr,
@@ -3729,20 +3738,20 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Create textures and material for water
         SLGLTexture* cubemap = new SLGLTexture(s,
-                                               SLApplication::dataPath + "erleb-AR/models/bern/Sea1+X1024.jpg",
-                                               SLApplication::dataPath + "erleb-AR/models/bern/Sea1-X1024.jpg",
-                                               SLApplication::dataPath + "erleb-AR/models/bern/Sea1+Y1024.jpg",
-                                               SLApplication::dataPath + "erleb-AR/models/bern/Sea1-Y1024.jpg",
-                                               SLApplication::dataPath + "erleb-AR/models/bern/Sea1+Z1024.jpg",
-                                               SLApplication::dataPath + "erleb-AR/models/bern/Sea1-Z1024.jpg");
+                                               dataPath + "erleb-AR/models/bern/Sea1+X1024.jpg",
+                                               dataPath + "erleb-AR/models/bern/Sea1-X1024.jpg",
+                                               dataPath + "erleb-AR/models/bern/Sea1+Y1024.jpg",
+                                               dataPath + "erleb-AR/models/bern/Sea1-Y1024.jpg",
+                                               dataPath + "erleb-AR/models/bern/Sea1+Z1024.jpg",
+                                               dataPath + "erleb-AR/models/bern/Sea1-Z1024.jpg");
         // Material for water
         SLMaterial* matWater = new SLMaterial(s, "water", SLCol4f::BLACK, SLCol4f::BLACK, 100, 0.1f, 0.9f, 1.5f);
         matWater->translucency(1000);
         matWater->transmissive(SLCol4f::WHITE);
         matWater->textures().push_back(cubemap);
         matWater->program(new SLGLProgramGeneric(s,
-                                                 SLApplication::shaderPath + "Reflect.vert",
-                                                 SLApplication::shaderPath + "Reflect.frag"));
+                                                 shaderPath + "Reflect.vert",
+                                                 shaderPath + "Reflect.frag"));
         bern->findChild<SLNode>("Chr-Wasser")->setMeshMat(matWater, true);
 
         // Add axis object a world origin (Loeb Ecke)
@@ -3777,7 +3786,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLApplication::devRot.zeroYawAtStart(false);
 
         // This loads the DEM file and overwrites the altitude of originLatLonAlt and defaultLatLonAlt
-        SLstring tif = SLApplication::dataPath + "erleb-AR/models/bern/DEM-Bern-2600_1199-WGS84.tif";
+        SLstring tif = dataPath + "erleb-AR/models/bern/DEM-Bern-2600_1199-WGS84.tif";
         SLApplication::devLoc.loadGeoTiff(tif);
 
 #if defined(SL_OS_MACIOS) || defined(SL_OS_ANDROID)
@@ -3804,9 +3813,9 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->name("Augusta Raurica Temple AR");
         s->info(s->name());
 
-        string shdDir = SLApplication::shaderPath;
-        string texDir = SLApplication::texturePath;
-        string datDir = SLApplication::dataPath + "erleb-AR/models/augst/";
+        string shdDir = shaderPath;
+        string texDir = texPath;
+        string datDir = dataPath + "erleb-AR/models/augst/";
 
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0, 50, -150);
@@ -3943,9 +3952,9 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->name("Augusta Raurica Theater AR");
         s->info(s->name());
 
-        string shdDir = SLApplication::shaderPath;
-        string texDir = SLApplication::texturePath;
-        string datDir = SLApplication::dataPath + "erleb-AR/models/augst/";
+        string shdDir = shaderPath;
+        string texDir = texPath;
+        string datDir = dataPath + "erleb-AR/models/augst/";
 
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0, 50, -150);
@@ -4082,9 +4091,9 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->name("Augusta Raurica AR Temple and Theater");
         s->info(s->name());
 
-        string shdDir = SLApplication::shaderPath;
-        string texDir = SLApplication::texturePath;
-        string datDir = SLApplication::dataPath + "erleb-AR/models/augst/";
+        string shdDir = shaderPath;
+        string texDir = texPath;
+        string datDir = dataPath + "erleb-AR/models/augst/";
 
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0, 50, -150);
@@ -4264,14 +4273,14 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
 
         // Create video texture and turn on live video
-        videoTexture = new SLGLTexture(s, SLApplication::texturePath + "LiveVideoError.png", GL_LINEAR, GL_LINEAR);
+        videoTexture = new SLGLTexture(s, texPath + "LiveVideoError.png", GL_LINEAR, GL_LINEAR);
         cam1->background().texture(videoTexture);
         CVCapture::instance()->videoType(VT_MAIN);
 
         // Define shader that shows on all pixels the video background
         SLGLProgram* spVideoBackground  = new SLGLProgramGeneric(s,
-                                                                SLApplication::shaderPath + "PerPixTmBackground.vert",
-                                                                SLApplication::shaderPath + "PerPixTmBackground.frag");
+                                                                shaderPath + "PerPixTmBackground.vert",
+                                                                shaderPath + "PerPixTmBackground.frag");
         SLMaterial*  matVideoBackground = new SLMaterial(s,
                                                         "matVideoBackground",
                                                         videoTexture,
@@ -4282,8 +4291,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Define shader that shows on all pixels the video background with shadow mapping
         SLGLProgram* spVideoBackgroundSM  = new SLGLProgramGeneric(s,
-                                                                  SLApplication::shaderPath + "PerPixTmBackgroundSm.vert",
-                                                                  SLApplication::shaderPath + "PerPixTmBackgroundSm.frag");
+                                                                  shaderPath + "PerPixTmBackgroundSm.vert",
+                                                                  shaderPath + "PerPixTmBackgroundSm.frag");
         SLMaterial*  matVideoBackgroundSM = new SLMaterial(s,
                                                           "matVideoBackground",
                                                           videoTexture,
@@ -4314,8 +4323,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLAssimpImporter importer;
         SLNode*          amphiTheatre = importer.load(s->animManager(),
                                              s,
-                                             SLApplication::dataPath + "erleb-AR/models/avenches/Aventicum-Amphitheater-AO.gltf",
-                                             SLApplication::texturePath,
+                                             dataPath + "erleb-AR/models/avenches/Aventicum-Amphitheater-AO.gltf",
+                                             texPath,
                                              false,   // delete tex images after build
                                              true,    // only meshes
                                              nullptr, // no replacement material
@@ -4352,7 +4361,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLApplication::devRot.zeroYawAtStart(false);
 
         // This loads the DEM file and overwrites the altitude of originLatLonAlt and defaultLatLonAlt
-        SLstring tif = SLApplication::dataPath + "erleb-AR/models/avenches/DTM-Aventicum-WGS84.tif";
+        SLstring tif = dataPath + "erleb-AR/models/avenches/DTM-Aventicum-WGS84.tif";
         SLApplication::devLoc.loadGeoTiff(tif);
 
 #if defined(SL_OS_MACIOS) || defined(SL_OS_ANDROID)
@@ -4389,14 +4398,14 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
 
         // Create video texture and turn on live video
-        videoTexture = new SLGLTexture(s, SLApplication::texturePath + "LiveVideoError.png", GL_LINEAR, GL_LINEAR);
+        videoTexture = new SLGLTexture(s, texPath + "LiveVideoError.png", GL_LINEAR, GL_LINEAR);
         cam1->background().texture(videoTexture);
         CVCapture::instance()->videoType(VT_MAIN);
 
         // Define shader that shows on all pixels the video background
         SLGLProgram* spVideoBackground  = new SLGLProgramGeneric(s,
-                                                                SLApplication::shaderPath + "PerPixTmBackground.vert",
-                                                                SLApplication::shaderPath + "PerPixTmBackground.frag");
+                                                                shaderPath + "PerPixTmBackground.vert",
+                                                                shaderPath + "PerPixTmBackground.frag");
         SLMaterial*  matVideoBackground = new SLMaterial(s,
                                                         "matVideoBackground",
                                                         videoTexture,
@@ -4407,8 +4416,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Define shader that shows on all pixels the video background with shadow mapping
         SLGLProgram* spVideoBackgroundSM  = new SLGLProgramGeneric(s,
-                                                                  SLApplication::shaderPath + "PerPixTmBackgroundSm.vert",
-                                                                  SLApplication::shaderPath + "PerPixTmBackgroundSm.frag");
+                                                                  shaderPath + "PerPixTmBackgroundSm.vert",
+                                                                  shaderPath + "PerPixTmBackgroundSm.frag");
         SLMaterial*  matVideoBackgroundSM = new SLMaterial(s,
                                                           "matVideoBackground",
                                                           videoTexture,
@@ -4439,8 +4448,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLAssimpImporter importer;
         SLNode*          cigognier = importer.load(s->animManager(),
                                           s,
-                                          SLApplication::dataPath + "erleb-AR/models/avenches/Aventicum-Cigognier-AO.gltf",
-                                          SLApplication::texturePath,
+                                          dataPath + "erleb-AR/models/avenches/Aventicum-Cigognier-AO.gltf",
+                                          texPath,
                                           true,    // delete tex images after build
                                           true,    // only meshes
                                           nullptr, // no replacement material
@@ -4477,7 +4486,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLApplication::devRot.zeroYawAtStart(false);
 
         // This loads the DEM file and overwrites the altitude of originLatLonAlt and defaultLatLonAlt
-        SLstring tif = SLApplication::dataPath + "erleb-AR/models/avenches/DTM-Aventicum-WGS84.tif";
+        SLstring tif = dataPath + "erleb-AR/models/avenches/DTM-Aventicum-WGS84.tif";
         SLApplication::devLoc.loadGeoTiff(tif);
 
 #if defined(SL_OS_MACIOS) || defined(SL_OS_ANDROID)
@@ -4514,14 +4523,14 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
 
         // Create video texture and turn on live video
-        videoTexture = new SLGLTexture(s, SLApplication::texturePath + "LiveVideoError.png", GL_LINEAR, GL_LINEAR);
+        videoTexture = new SLGLTexture(s, texPath + "LiveVideoError.png", GL_LINEAR, GL_LINEAR);
         cam1->background().texture(videoTexture);
         CVCapture::instance()->videoType(VT_MAIN);
 
         // Define shader that shows on all pixels the video background
         SLGLProgram* spVideoBackground  = new SLGLProgramGeneric(s,
-                                                                SLApplication::shaderPath + "PerPixTmBackground.vert",
-                                                                SLApplication::shaderPath + "PerPixTmBackground.frag");
+                                                                shaderPath + "PerPixTmBackground.vert",
+                                                                shaderPath + "PerPixTmBackground.frag");
         SLMaterial*  matVideoBackground = new SLMaterial(s,
                                                         "matVideoBackground",
                                                         videoTexture,
@@ -4532,8 +4541,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Define shader that shows on all pixels the video background with shadow mapping
         SLGLProgram* spVideoBackgroundSM  = new SLGLProgramGeneric(s,
-                                                                  SLApplication::shaderPath + "PerPixTmBackgroundSm.vert",
-                                                                  SLApplication::shaderPath + "PerPixTmBackgroundSm.frag");
+                                                                  shaderPath + "PerPixTmBackgroundSm.vert",
+                                                                  shaderPath + "PerPixTmBackgroundSm.frag");
         SLMaterial*  matVideoBackgroundSM = new SLMaterial(s,
                                                           "matVideoBackground",
                                                           videoTexture,
@@ -4564,8 +4573,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLAssimpImporter importer;
         SLNode*          theatre = importer.load(s->animManager(),
                                         s,
-                                        SLApplication::dataPath + "erleb-AR/models/avenches/Aventicum-Theater2-AO.gltf",
-                                        SLApplication::texturePath,
+                                        dataPath + "erleb-AR/models/avenches/Aventicum-Theater2-AO.gltf",
+                                        texPath,
                                         true,    // delete tex images after build
                                         true,    // only meshes
                                         nullptr, // no replacement material
@@ -4601,7 +4610,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLApplication::devRot.zeroYawAtStart(false);
 
         // This loads the DEM file and overwrites the altitude of originLatLonAlt and defaultLatLonAlt
-        SLstring tif = SLApplication::dataPath + "erleb-AR/models/avenches/DTM-Aventicum-WGS84.tif";
+        SLstring tif = dataPath + "erleb-AR/models/avenches/DTM-Aventicum-WGS84.tif";
         SLApplication::devLoc.loadGeoTiff(tif);
 
 #if defined(SL_OS_MACIOS) || defined(SL_OS_ANDROID)
@@ -4638,14 +4647,14 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
 
         // Create video texture and turn on live video
-        videoTexture = new SLGLTexture(s, SLApplication::texturePath + "LiveVideoError.png", GL_LINEAR, GL_LINEAR);
+        videoTexture = new SLGLTexture(s, texPath + "LiveVideoError.png", GL_LINEAR, GL_LINEAR);
         cam1->background().texture(videoTexture);
         CVCapture::instance()->videoType(VT_MAIN);
 
         // Define shader that shows on all pixels the video background
         SLGLProgram* spVideoBackground  = new SLGLProgramGeneric(s,
-                                                                SLApplication::shaderPath + "PerPixTmBackground.vert",
-                                                                SLApplication::shaderPath + "PerPixTmBackground.frag");
+                                                                shaderPath + "PerPixTmBackground.vert",
+                                                                shaderPath + "PerPixTmBackground.frag");
         SLMaterial*  matVideoBackground = new SLMaterial(s,
                                                         "matVideoBackground",
                                                         videoTexture,
@@ -4656,8 +4665,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Define shader that shows on all pixels the video background with shadow mapping
         SLGLProgram* spVideoBackgroundSM  = new SLGLProgramGeneric(s,
-                                                                  SLApplication::shaderPath + "PerPixTmBackgroundSm.vert",
-                                                                  SLApplication::shaderPath + "PerPixTmBackgroundSm.frag");
+                                                                  shaderPath + "PerPixTmBackgroundSm.vert",
+                                                                  shaderPath + "PerPixTmBackgroundSm.frag");
         SLMaterial*  matVideoBackgroundSM = new SLMaterial(s,
                                                           "matVideoBackground",
                                                           videoTexture,
@@ -4687,8 +4696,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLAssimpImporter importer;
         SLNode*          sutzK18 = importer.load(s->animManager(),
                                         s,
-                                        SLApplication::dataPath + "erleb-AR/models/sutzKirchrain18/Sutz-Kirchrain18.gltf",
-                                        SLApplication::texturePath,
+                                        dataPath + "erleb-AR/models/sutzKirchrain18/Sutz-Kirchrain18.gltf",
+                                        texPath,
                                         true,    // delete tex images after build
                                         true,    // only meshes
                                         nullptr, // no replacement material
@@ -4728,7 +4737,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLApplication::devRot.zeroYawAtStart(false);
 
         // This loads the DEM file and overwrites the altitude of originLatLonAlt and defaultLatLonAlt
-        SLstring tif = SLApplication::dataPath + "erleb-AR/models/sutzKirchrain18/Sutz-Kirchrain18-DEM-WGS84.tif";
+        SLstring tif = dataPath + "erleb-AR/models/sutzKirchrain18/Sutz-Kirchrain18-DEM-WGS84.tif";
         SLApplication::devLoc.loadGeoTiff(tif);
 
 #if defined(SL_OS_MACIOS) || defined(SL_OS_ANDROID)
@@ -4765,14 +4774,14 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
 
         // Create video texture and turn on live video
-        videoTexture = new SLGLTexture(s, SLApplication::texturePath + "LiveVideoError.png", GL_LINEAR, GL_LINEAR);
+        videoTexture = new SLGLTexture(s, texPath + "LiveVideoError.png", GL_LINEAR, GL_LINEAR);
         cam1->background().texture(videoTexture);
         CVCapture::instance()->videoType(VT_MAIN);
 
         // Define shader that shows on all pixels the video background
         SLGLProgram* spVideoBackground  = new SLGLProgramGeneric(s,
-                                                                SLApplication::shaderPath + "PerPixTmBackground.vert",
-                                                                SLApplication::shaderPath + "PerPixTmBackground.frag");
+                                                                shaderPath + "PerPixTmBackground.vert",
+                                                                shaderPath + "PerPixTmBackground.frag");
         SLMaterial*  matVideoBackground = new SLMaterial(s,
                                                         "matVideoBackground",
                                                         videoTexture,
@@ -4783,8 +4792,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Define shader that shows on all pixels the video background with shadow mapping
         SLGLProgram* spVideoBackgroundSM  = new SLGLProgramGeneric(s,
-                                                                  SLApplication::shaderPath + "PerPixTmBackgroundSm.vert",
-                                                                  SLApplication::shaderPath + "PerPixTmBackgroundSm.frag");
+                                                                  shaderPath + "PerPixTmBackgroundSm.vert",
+                                                                  shaderPath + "PerPixTmBackgroundSm.frag");
         SLMaterial*  matVideoBackgroundSM = new SLMaterial(s,
                                                           "matVideoBackground",
                                                           videoTexture,
@@ -4814,8 +4823,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLAssimpImporter importer;
         SLNode*          evilardC2 = importer.load(s->animManager(),
                                           s,
-                                          SLApplication::dataPath + "erleb-AR/models/evilardCheminDuRoc2/EvilardCheminDuRoc2.gltf",
-                                          SLApplication::texturePath,
+                                          dataPath + "erleb-AR/models/evilardCheminDuRoc2/EvilardCheminDuRoc2.gltf",
+                                          texPath,
                                           true,    // delete tex images after build
                                           true,    // only meshes
                                           nullptr, // no replacement material
@@ -4855,7 +4864,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLApplication::devRot.zeroYawAtStart(false);
 
         // This loads the DEM file and overwrites the altitude of originLatLonAlt and defaultLatLonAlt
-        SLstring tif = SLApplication::dataPath + "erleb-AR/models/evilardCheminDuRoc2/EvilardCheminDuRoc2-DEM-WGS84.tif";
+        SLstring tif = dataPath + "erleb-AR/models/evilardCheminDuRoc2/EvilardCheminDuRoc2-DEM-WGS84.tif";
         SLApplication::devLoc.loadGeoTiff(tif);
 
 #if defined(SL_OS_MACIOS) || defined(SL_OS_ANDROID)
@@ -4884,17 +4893,17 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->info("Muttenzer Box with environment mapped reflective sphere and transparenz refractive glass sphere. Try ray tracing for real reflections and soft shadows.");
 
         // Create reflection & glass shaders
-        SLGLProgram* sp1 = new SLGLProgramGeneric(s, SLApplication::shaderPath + "Reflect.vert", SLApplication::shaderPath + "Reflect.frag");
-        SLGLProgram* sp2 = new SLGLProgramGeneric(s, SLApplication::shaderPath + "RefractReflect.vert", SLApplication::shaderPath + "RefractReflect.frag");
+        SLGLProgram* sp1 = new SLGLProgramGeneric(s, shaderPath + "Reflect.vert", shaderPath + "Reflect.frag");
+        SLGLProgram* sp2 = new SLGLProgramGeneric(s, shaderPath + "RefractReflect.vert", shaderPath + "RefractReflect.frag");
 
         // Create cube mapping texture
         SLGLTexture* tex1 = new SLGLTexture(s,
-                                            SLApplication::texturePath + "MuttenzerBox+X0512_C.png",
-                                            SLApplication::texturePath + "MuttenzerBox-X0512_C.png",
-                                            SLApplication::texturePath + "MuttenzerBox+Y0512_C.png",
-                                            SLApplication::texturePath + "MuttenzerBox-Y0512_C.png",
-                                            SLApplication::texturePath + "MuttenzerBox+Z0512_C.png",
-                                            SLApplication::texturePath + "MuttenzerBox-Z0512_C.png");
+                                            texPath + "MuttenzerBox+X0512_C.png",
+                                            texPath + "MuttenzerBox-X0512_C.png",
+                                            texPath + "MuttenzerBox+Y0512_C.png",
+                                            texPath + "MuttenzerBox-Y0512_C.png",
+                                            texPath + "MuttenzerBox+Z0512_C.png",
+                                            texPath + "MuttenzerBox-Z0512_C.png");
 
         SLCol4f lightEmisRGB(7.0f, 7.0f, 7.0f);
         SLCol4f grayRGB(0.75f, 0.75f, 0.75f);
@@ -5092,7 +5101,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->name("Ray tracing depth of field");
 
         // Create textures and materials
-        SLGLTexture* texC = new SLGLTexture(s, SLApplication::texturePath + "Checkerboard0512_C.png", SL_ANISOTROPY_MAX, GL_LINEAR);
+        SLGLTexture* texC = new SLGLTexture(s, texPath + "Checkerboard0512_C.png", SL_ANISOTROPY_MAX, GL_LINEAR);
         SLMaterial*  mT   = new SLMaterial(s, "mT", texC);
         mT->kr(0.5f);
         SLMaterial* mW = new SLMaterial(s, "mW", SLCol4f::WHITE);
@@ -5181,8 +5190,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->info("Ray tracing lens test scene.");
 
         // Create textures and materials
-        SLGLTexture* texC = new SLGLTexture(s, SLApplication::texturePath + "VisionExample.jpg");
-        //SLGLTexture* texC = new SLGLTexture(s, SLApplication::texturePath + "Checkerboard0512_C.png");
+        SLGLTexture* texC = new SLGLTexture(s, texPath + "VisionExample.jpg");
+        //SLGLTexture* texC = new SLGLTexture(s, texPath + "Checkerboard0512_C.png");
 
         SLMaterial* mT = new SLMaterial(s, "mT", texC, nullptr, nullptr, nullptr);
         mT->kr(0.5f);
@@ -5332,7 +5341,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
             gDragonModel = importer.load(s->animManager(),
                                          s,
                                          largeFile,
-                                         SLApplication::texturePath,
+                                         texPath,
                                          false, // delete tex images after build
                                          true,
                                          diffuseMat,
@@ -5376,7 +5385,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLVMaterial mat;
         for (int i = 0; i < NUM_MAT; ++i)
         {
-            SLGLTexture* texC    = new SLGLTexture(s, SLApplication::texturePath + "earth2048_C.jpg"); // color map
+            SLGLTexture* texC    = new SLGLTexture(s, texPath + "earth2048_C_Q95.jpg");
             SLstring     matName = "mat-" + std::to_string(i);
             mat.push_back(new SLMaterial(s, matName.c_str(), texC));
             SLCol4f color;
@@ -5440,7 +5449,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLVMaterial mat;
         for (int i = 0; i < NUM_MAT; ++i)
         {
-            SLGLTexture* texC    = new SLGLTexture(s, SLApplication::texturePath + "earth2048_C.jpg"); // color map
+            SLGLTexture* texC    = new SLGLTexture(s, texPath + "earth2048_C_Q95.jpg"); // color map
             SLstring     matName = "mat-" + std::to_string(i);
             mat.push_back(new SLMaterial(s, matName.c_str(), texC));
             SLCol4f color;
@@ -5524,8 +5533,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
             {
                 SLNode* astroboy = importer.load(s->animManager(),
                                                  s,
-                                                 SLApplication::modelPath + "DAE/AstroBoy/AstroBoy.dae",
-                                                 SLApplication::texturePath);
+                                                 modelPath + "DAE/AstroBoy/AstroBoy.dae",
+                                                 texPath);
 
                 s->animManager().lastAnimPlayback()->playForward();
                 s->animManager().lastAnimPlayback()->playbackRate(Utils::random(0.5f, 1.5f));

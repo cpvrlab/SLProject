@@ -28,7 +28,7 @@
 SLfloat SLGLTexture::maxAnisotropy = -1.0f;
 
 //! NO. of texture byte allocated on GPU
-SLuint SLGLTexture::numBytesInTextures = 0;
+SLuint SLGLTexture::totalNumBytesOnGPU = 0;
 //-----------------------------------------------------------------------------
 /*! Default ctor for all stack instances such as the video textures in SLScene
 or the textures inherited by SLRaytracer. All other constructors add the this
@@ -206,10 +206,10 @@ SLGLTexture::SLGLTexture(SLAssetManager* assetMgr,
     }
     else if (_compressedTexture)
     {
-        //todo ktx: get properties and extract necassary
+        //todo ktx: get properties and extract necessary
         _width       = _ktxTexture->baseWidth;
         _height      = _ktxTexture->baseHeight;
-        _depth       = _ktxTexture->baseDepth;
+        _depth       = _ktxTexture->numDimensions == 3 ? _ktxTexture->baseDepth : 1;
         _bytesInFile = Utils::getFileSize(filename);
     }
 
@@ -471,7 +471,6 @@ void SLGLTexture::deleteImages()
 {
     for (auto& img : _images)
     {
-        numBytesInTextures -= img->bytesPerImage();
         delete img;
         img = nullptr;
     }
@@ -483,7 +482,7 @@ void SLGLTexture::deleteDataGpu()
 {
     glDeleteTextures(1, &_texID);
     _texID = 0;
-    numBytesInTextures -= _bytesOnGPU;
+    totalNumBytesOnGPU -= _bytesOnGPU;
     _bytesOnGPU = 0;
     _vaoSprite.clearAttribs();
 
@@ -516,7 +515,6 @@ void SLGLTexture::load(const SLstring& filename,
         KTX_error_code error = ktxTexture_CreateFromNamedFile(filename.c_str(),
                                                               KTX_TEXTURE_CREATE_NO_FLAGS,
                                                               (ktxTexture**)&_ktxTexture);
-
         if (error != KTX_SUCCESS)
         {
             string errStr = "Error in SLGLTexture::load: " +
@@ -527,9 +525,9 @@ void SLGLTexture::load(const SLstring& filename,
         if (ktxTexture2_NeedsTranscoding(_ktxTexture))
         {
 #if defined(SL_OS_MACIOS)
-            _compressionFormat = KTX_TTF_ETC2_RGBA;
+            _compressionFormat = KTX_TTF_PVRTC1_4_RGB;
 #elif defined(SL_OS_ANDROID)
-            _compressionFormat = KTX_TTF_ETC1_RGB;
+            _compressionFormat = KTX_TTF_ETC2_RGBA;
 #else
             _compressionFormat = KTX_TTF_BC3_RGBA;
 #endif
@@ -540,7 +538,7 @@ void SLGLTexture::load(const SLstring& filename,
                 string errStr = "Error in SLGLTexture::load: " +
                                 ktxErrorStr(error) +
                                 "\nwhile transcoding file: " + filename +
-                                "\nto format: " + compressionFormatStr();
+                                "\nto format: " + compressionFormatStr(_compressionFormat);
                 SL_EXIT_MSG(errStr.c_str());
             }
         }
@@ -701,12 +699,13 @@ void SLGLTexture::build(SLint texUnit)
             glDeleteTextures(1, &_texID);
             glBindTexture(_target, 0);
             _texID = 0;
-            numBytesInTextures -= _bytesOnGPU;
+            totalNumBytesOnGPU -= _bytesOnGPU;
         }
 
         // get max texture size
         SLint texMaxSize = 0;
         glGetIntegerv(GL_MAX_TEXTURE_SIZE, &texMaxSize);
+
         //todo ktx: compare with image size
         // check 2D size
         if (_target == GL_TEXTURE_2D)
@@ -739,9 +738,10 @@ void SLGLTexture::build(SLint texUnit)
         GET_GL_ERROR;
 
         ktxTexture_GLUpload((ktxTexture*)_ktxTexture, &_texID, &_target, &glerror);
+        _ktxTexture->baseHeight;
 
         _bytesOnGPU += _ktxTexture->dataSize;
-        numBytesInTextures += _bytesOnGPU;
+        totalNumBytesOnGPU += _bytesOnGPU;
 
         //todo: destroy somewhere else
         if (_deleteImageAfterBuild)
@@ -766,7 +766,8 @@ void SLGLTexture::build(SLint texUnit)
                    _images[0]->name().c_str());
             glBindTexture(_target, 0);
             _texID = 0;
-            numBytesInTextures -= _bytesOnGPU;
+            totalNumBytesOnGPU -= _bytesOnGPU;
+            _bytesOnGPU = 0;
         }
 
         // get max texture size
@@ -869,17 +870,17 @@ void SLGLTexture::build(SLint texUnit)
         GET_GL_ERROR;
 
         // Handle special stupid case on iOS
-        SLint internalFormat = _images[0]->format();
-        if (internalFormat == PF_red)
-            internalFormat = GL_R8;
+        _internalFormat = _images[0]->format();
+        if (_internalFormat == PF_red)
+            _internalFormat = GL_R8;
 
         // Handle special case for realtime RT
         if (_images[0]->name() == "Optix Raytracer")
-            internalFormat = GL_RGB32F;
+            _internalFormat = GL_RGB32F;
 
         // Handle special case for HDR textures
         if (_texType == TT_hdr)
-            internalFormat = GL_RGB16F;
+            _internalFormat = GL_RGB16F;
 
         // Build textures
         if (_target == GL_TEXTURE_2D)
@@ -889,7 +890,7 @@ void SLGLTexture::build(SLint texUnit)
             //////////////////////////////////////////////////////////////
             glTexImage2D(GL_TEXTURE_2D,
                          0,
-                         internalFormat,
+                         _internalFormat,
                          (SLsizei)_images[0]->width(),
                          (SLsizei)_images[0]->height(),
                          0,
@@ -900,7 +901,7 @@ void SLGLTexture::build(SLint texUnit)
 
             GET_GL_ERROR;
 
-            _bytesOnGPU += _images[0]->bytesPerImage();
+            _bytesOnGPU = _images[0]->bytesPerImage();
 
             if (_min_filter >= GL_NEAREST_MIPMAP_NEAREST)
             {
@@ -916,7 +917,7 @@ void SLGLTexture::build(SLint texUnit)
                 GET_GL_ERROR;
             }
 
-            numBytesInTextures += _bytesOnGPU;
+            totalNumBytesOnGPU += _bytesOnGPU;
         }
         else if (_target == GL_TEXTURE_3D)
         {
@@ -935,7 +936,7 @@ void SLGLTexture::build(SLint texUnit)
             /////////////////////////////////////////////////////
             glTexImage3D(GL_TEXTURE_3D,
                          0,              //Mipmap level,
-                         internalFormat, //Internal format
+                         _internalFormat, //Internal format
                          (SLsizei)_images[0]->width(),
                          (SLsizei)_images[0]->height(),
                          (SLsizei)_images.size(),
@@ -945,7 +946,7 @@ void SLGLTexture::build(SLint texUnit)
                          &buffer[0]);
             /////////////////////////////////////////////////////
 
-            numBytesInTextures += _bytesOnGPU;
+            totalNumBytesOnGPU += _bytesOnGPU;
             GET_GL_ERROR;
         }
         else if (_target == GL_TEXTURE_CUBE_MAP)
@@ -955,7 +956,7 @@ void SLGLTexture::build(SLint texUnit)
                 //////////////////////////////////////////////
                 glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
                              0,
-                             internalFormat,
+                             _internalFormat,
                              (SLsizei)_images[i]->width(),
                              (SLsizei)_images[i]->height(),
                              0,
@@ -968,7 +969,7 @@ void SLGLTexture::build(SLint texUnit)
                 GET_GL_ERROR;
             }
 
-            numBytesInTextures += _bytesOnGPU;
+            totalNumBytesOnGPU += _bytesOnGPU;
             if (_min_filter >= GL_NEAREST_MIPMAP_NEAREST)
             {
                 glGenerateMipmap(GL_TEXTURE_2D);
@@ -1087,7 +1088,7 @@ void SLGLTexture::fullUpdate()
         // Do not allow MIP-Maps as they are to big
         if (_min_filter == GL_NEAREST || _min_filter == GL_LINEAR)
         {
-            numBytesInTextures -= _bytesOnGPU;
+            totalNumBytesOnGPU -= _bytesOnGPU;
 
             /////////////////////////////////////////////
             glTexSubImage2D(_target,
@@ -1102,7 +1103,7 @@ void SLGLTexture::fullUpdate()
             /////////////////////////////////////////////
 
             _bytesOnGPU = _images[0]->bytesPerImage();
-            numBytesInTextures += _bytesOnGPU;
+            totalNumBytesOnGPU += _bytesOnGPU;
         }
         else
             SL_WARN_MSG("Filtering to expensive to full update in SLGLTexture::fullupdate!");
@@ -1683,9 +1684,9 @@ void SLGLTexture::cubeXYZ2UV(SLfloat  x,
 }
 //------------------------------------------------------------------------------
 //! Returns the KTX transcoding compression format as string
-SLstring SLGLTexture::compressionFormatStr()
+string SLGLTexture::compressionFormatStr(int compressionFormat)
 {
-    switch (_compressionFormat)
+    switch (compressionFormat)
     {
         case KTX_TTF_ETC1_RGB: return "ETC1_RGB";
         case KTX_TTF_ETC2_RGBA: return "ETC2_RGBA";
@@ -1711,7 +1712,7 @@ SLstring SLGLTexture::compressionFormatStr()
     }
 }
 //------------------------------------------------------------------------------
-SLstring SLGLTexture::ktxErrorStr(int ktxErrorCode)
+string SLGLTexture::ktxErrorStr(int ktxErrorCode)
 {
     switch (ktxErrorCode)
     {
@@ -1737,5 +1738,97 @@ SLstring SLGLTexture::ktxErrorStr(int ktxErrorCode)
         default: "Unknow KTX_ERROR";
     }
 }
-
+//------------------------------------------------------------------------------
+//! Returns the internal pixel format from OpenGL
+/*!
+ * Taken from https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glTexImage2D.xhtml
+ */
+string SLGLTexture::internalFormatStr(int internalFormat)
+{
+    switch (internalFormat)
+    {
+        case GL_DEPTH_COMPONENT: return "GL_DEPTH_COMPONENT";
+        case GL_DEPTH_STENCIL: return "GL_DEPTH_STENCIL";
+        case GL_RED: return "GL_RED";
+        case GL_RG: return "GL_RG";
+        case GL_RGB: return "GL_RGB";
+        case GL_RGBA: return "GL_RGBA";
+        case GL_R8: return "GL_R8";
+        case GL_R8_SNORM: return "GL_R8_SNORM";
+        //case GL_R16: return "GL_R16"; // Not available on iOS
+        //case GL_R16_SNORM: return "GL_R16_SNORM";
+        case GL_RG8: return "GL_RG8";
+        case GL_RG8_SNORM: return "GL_RG8_SNORM";
+        //case GL_RG16: return "GL_RG16";
+        //case GL_RG16_SNORM: return "GL_RG16_SNORM";
+        //case GL_R3_G3_B2: return "GL_R3_G3_B2";
+        //case GL_RGB4: return "GL_RGB4";
+        //case GL_RGB5: return "GL_RGB5";
+        //case GL_RGB8: return "GL_RGB8";
+        case GL_RGB8_SNORM: return "GL_RGB8_SNORM";
+        //case GL_RGB10: return "GL_RGB10";
+        //case GL_RGB12: return "GL_RGB12";
+        //case GL_RGB16_SNORM: return "GL_RGB16_SNORM";
+        //case GL_RGBA2: return "GL_RGBA2";
+        //case GL_RGBA4: return "GL_RGBA4";
+        //case GL_RGB5_A1: return "GL_RGB5_A1";
+        case GL_RGBA8: return "GL_RGBA8";
+        case GL_RGBA8_SNORM: return "GL_RGBA8_SNORM";
+        case GL_RGB10_A2: return "GL_RGB10_A2";
+        case GL_RGB10_A2UI: return "GL_RGB10_A2UI";
+        //case GL_RGBA12: return "GL_RGBA12";
+        //case GL_RGBA16: return "GL_RGBA16";
+        case GL_SRGB8: return "GL_SRGB8";
+        case GL_SRGB8_ALPHA8: return "GL_SRGB8_ALPHA8";
+        case GL_R16F: return "GL_R16F";
+        case GL_RG16F: return "GL_RG16F";
+        case GL_RGB16F: return "GL_RGB16F";
+        case GL_RGBA16F: return "GL_RGBA16F";
+        case GL_R32F: return "GL_R32F";
+        case GL_RG32F: return "GL_RG32F";
+        case GL_RGB32F: return "GL_RGB32F";
+        case GL_RGBA32F: return "GL_RGBA32F";
+        case GL_R11F_G11F_B10F: return "GL_R11F_G11F_B10F";
+        case GL_RGB9_E5: return "GL_RGB9_E5";
+        case GL_R8I: return "GL_R8I";
+        case GL_R8UI: return "GL_R8UI";
+        case GL_R16I: return "GL_R16I";
+        case GL_R16UI: return "GL_R16UI";
+        case GL_R32I: return "GL_R32I";
+        case GL_R32UI: return "GL_R32UI";
+        case GL_RG8I: return "GL_RG8I";
+        case GL_RG8UI: return "GL_RG8UI";
+        case GL_RG16I: return "GL_RG16I";
+        case GL_RG16UI: return "GL_RG16UI";
+        case GL_RG32I: return "GL_RG32I";
+        case GL_RG32UI: return "GL_RG32UI";
+        case GL_RGB8I: return "GL_RGB8I";
+        case GL_RGB8UI: return "GL_RGB8UI";
+        case GL_RGB16I: return "GL_RGB16I";
+        case GL_RGB16UI: return "GL_RGB16UI";
+        case GL_RGB32I: return "GL_RGB32I";
+        case GL_RGB32UI: return "GL_RGB32UI";
+        case GL_RGBA8I: return "GL_RGBA8I";
+        case GL_RGBA8UI: return "GL_RGBA8UI";
+        case GL_RGBA16I: return "GL_RGBA16I";
+        case GL_RGBA16UI: return "GL_RGBA16UI";
+        case GL_RGBA32I: return "GL_RGBA32I";
+        case GL_RGBA32UI: return "GL_RGBA32UI";
+        //case GL_COMPRESSED_RED: return "GL_COMPRESSED_RED";
+        //case GL_COMPRESSED_RG: return "GL_COMPRESSED_RG";
+        //case GL_COMPRESSED_RGB: return "GL_COMPRESSED_RGB";
+        //case GL_COMPRESSED_RGBA: return "GL_COMPRESSED_RGBA";
+        //case GL_COMPRESSED_SRGB: return "GL_COMPRESSED_SRGB";
+        //case GL_COMPRESSED_SRGB_ALPHA: return "GL_COMPRESSED_SRGB_ALPHA";
+        //case GL_COMPRESSED_RED_RGTC1: return "GL_COMPRESSED_RED_RGTC1";
+        //case GL_COMPRESSED_SIGNED_RED_RGTC1: return "GL_COMPRESSED_SIGNED_RED_RGTC1";
+        //case GL_COMPRESSED_RG_RGTC2: return "GL_COMPRESSED_RG_RGTC2";
+        //case GL_COMPRESSED_SIGNED_RG_RGTC2: return "GL_COMPRESSED_SIGNED_RG_RGTC2";
+        //case GL_COMPRESSED_RGBA_BPTC_UNORM: return "GL_COMPRESSED_RGBA_BPTC_UNORM";
+        //case GL_COMPRESSED_SRGB_ALPHA_BPTC_UNORM: return "GL_COMPRESSED_SRGB_ALPHA_BPTC_UNORM";
+        //case GL_COMPRESSED_RGB_BPTC_SIGNED_FLOAT: return "GL_COMPRESSED_RGB_BPTC_SIGNED_FLOAT";
+        //case GL_COMPRESSED_RGB_BPTC_UNSIGNED_FLOAT: return "GL_COMPRESSED_RGB_BPTC_UNSIGNED_FLOAT";
+        default: return "Unknown format";
+    }
+}
 //------------------------------------------------------------------------------

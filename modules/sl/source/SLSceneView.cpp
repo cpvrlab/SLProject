@@ -21,7 +21,7 @@
 
 //-----------------------------------------------------------------------------
 // Milliseconds duration of a long touch event
-const SLint SLSceneView::LONGTOUCH_MS = 500;
+const SLint SLSceneView::LONGTOUCH_MS = 2000;
 //-----------------------------------------------------------------------------
 //! SLSceneView default constructor
 /*! The default constructor adds the this pointer to the sceneView vector in
@@ -1554,6 +1554,8 @@ SLbool SLSceneView::onLongTouch(SLint scrX, SLint scrY)
     // mouse coordinates are top-left, viewport is bottom-left)
     SLint x = scrX - _viewportRect.x;
     SLint y = scrY - ((_scrH - _viewportRect.height) - _viewportRect.y);
+
+    SL_LOG("SLSceneView::onLongTouch");
 
     return true;
 }

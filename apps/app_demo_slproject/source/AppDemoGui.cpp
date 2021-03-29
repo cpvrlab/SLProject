@@ -558,7 +558,7 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
                 SLint   cpuMBTexturePC = (SLint)(cpuMBTexture / cpuMBTotal * 100.0f);
                 SLint   cpuMBMeshesPC  = (SLint)(cpuMBMeshes / cpuMBTotal * 100.0f);
                 SLint   cpuMBVoxelsPC  = (SLint)(cpuMBVoxels / cpuMBTotal * 100.0f);
-                SLfloat gpuMBTexture   = (SLfloat)SLGLTexture::numBytesInTextures / 1E6f;
+                SLfloat gpuMBTexture   = (SLfloat)SLGLTexture::totalNumBytesOnGPU / 1E6f;
                 SLfloat gpuMBVbo       = (SLfloat)SLGLVertexBuffer::totalBufferSize / 1E6f;
                 SLfloat gpuMBTotal     = gpuMBTexture + gpuMBVbo;
                 SLint   gpuMBTexturePC = (SLint)(gpuMBTexture / gpuMBTotal * 100.0f);
@@ -3308,10 +3308,10 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                 mbCPU /= 1E6f;
                                 mbGPU /= 1E6f;
 
-                                ImGui::Text("Size(PX): %dx%dx%d (images: %d)", tex->width(), tex->height(), tex->bytesPerPixel(), tex->depth());
+                                ImGui::Text("Size(PX): %dx%dx%d", tex->width(), tex->height(), tex->depth());
                                 ImGui::Text("Size(MB): GPU:%4.2f, CPU:%4.2f, DSK:%4.2f", mbGPU, mbCPU, mbDSK);
                                 ImGui::Text("Type    : %s", tex->typeName().c_str());
-                                ImGui::Text("Compr.  : %s", tex->compressionFormatStr().c_str());
+                                ImGui::Text("Compr.  : %s", tex->compressionFormatStr(tex->compressionFormat()).c_str());
                                 ImGui::Text("Min.Flt : %s", tex->minificationFilterName().c_str());
                                 ImGui::Text("Mag.Flt : %s", tex->magnificationFilterName().c_str());
 

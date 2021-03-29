@@ -186,6 +186,7 @@ public:
     SLstring      typeName();
     SLstring      minificationFilterName() { return filterString(_min_filter); }
     SLstring      magnificationFilterName() { return filterString(_mag_filter); }
+    SLint         compressionFormat() {return _compressionFormat;}
 
 #ifdef SL_HAS_OPTIX
     void        buildCudaTexture();
@@ -198,6 +199,10 @@ public:
 
     // Misc
     static SLTextureType detectType(const SLstring& filename);
+    static string compressionFormatStr(int compressionFormat);
+    static string ktxErrorStr(int ktxErrorCode);
+    static string internalFormatStr(int internalFormat);
+
     void                 build2DMipmaps(SLint target, SLuint index);
     SLbool               copyVideoImage(SLint       camWidth,
                                         SLint       camHeight,
@@ -214,17 +219,15 @@ public:
                           SLbool      isContinuous,
                           SLbool      isTopLeft);
 
-    void calc3DGradients(SLint sampleRadius, const function<void(int)>& onUpdateProgress);
-    void smooth3DGradients(SLint smoothRadius, function<void(int)> onUpdateProgress);
-    SLstring compressionFormatStr();
-    SLstring ktxErrorStr(int ktxErrorCode);
+    void     calc3DGradients(SLint sampleRadius, const function<void(int)>& onUpdateProgress);
+    void     smooth3DGradients(SLint smoothRadius, function<void(int)> onUpdateProgress);
 
     // Bumpmap methods
     SLVec2f dudv(SLfloat u, SLfloat v); //! Returns the derivation as [s,t]
 
     // Statics
     static SLfloat maxAnisotropy;      //!< max. anisotropy available
-    static SLuint  numBytesInTextures; //!< NO. of texture total bytes (CPU & GPU)
+    static SLuint  totalNumBytesOnGPU; //!< Total NO. of bytes used for textures on GPU
 
 protected:
     // loading the image files
@@ -233,27 +236,28 @@ protected:
               SLbool          loadGrayscaleIntoAlpha = false);
     void load(const SLVCol4f& colors);
 
-    CVVImage          _images;        //!< vector of CVImage pointers
-    SLuint            _texID;         //!< OpenGL texture ID
-    SLTextureType     _texType;       //!< [unknown, ColorMap, NormalMap, HeightMap, GlossMap]
-    SLint             _width;         //!< Texture image width in pixels (images exist either in _images or on the GPU or on both)
-    SLint             _height;        //!< Texture image height in pixels (images exist either in _images or on the GPU or on both)
-    SLint             _depth;         //!< 3D Texture image depth (images exist either in _images or on the GPU or on both)
-    SLint             _bytesPerPixel; //!< Bytes per texture image pixel (images exist either in _images or on the GPU or on both)
-    SLint             _min_filter;    //!< Minification filter
-    SLint             _mag_filter;    //!< Magnification filter
-    SLint             _wrap_s;        //!< Wrapping in s direction
-    SLint             _wrap_t;        //!< Wrapping in t direction
-    SLenum            _target;        //!< texture target
-    SLMat4f           _tm;            //!< texture matrix
-    SLuint            _bytesOnGPU;    //!< NO. of bytes on GPU
-    SLuint            _bytesInFile;   //!< NO. of bytes in file
-    SLbool            _autoCalcTM3D;  //!< Flag if texture matrix should be calculated from AABB for 3D mapping
-    SLfloat           _bumpScale;     //!< Bump mapping scale factor
-    SLbool            _resizeToPow2;  //!< Flag if image should be resized to n^2
-    SLGLVertexArray   _vaoSprite;     //!< Vertex array object for sprite rendering
-    std::atomic<bool> _needsUpdate{}; //!< Flag if image needs an single update
-    std::mutex        _mutex;         //!< Mutex to protect parallel access (used in ray tracing)
+    CVVImage          _images;         //!< vector of CVImage pointers
+    SLuint            _texID;          //!< OpenGL texture ID
+    SLTextureType     _texType;        //!< [unknown, ColorMap, NormalMap, HeightMap, GlossMap]
+    SLint             _width;          //!< Texture image width in pixels (images exist either in _images or on the GPU or on both)
+    SLint             _height;         //!< Texture image height in pixels (images exist either in _images or on the GPU or on both)
+    SLint             _depth;          //!< 3D Texture image depth (images exist either in _images or on the GPU or on both)
+    SLint             _internalFormat; //!< Internal OpenGL format
+    SLint             _bytesPerPixel;  //!< Bytes per texture image pixel (images exist either in _images or on the GPU or on both)
+    SLint             _min_filter;     //!< Minification filter
+    SLint             _mag_filter;     //!< Magnification filter
+    SLint             _wrap_s;         //!< Wrapping in s direction
+    SLint             _wrap_t;         //!< Wrapping in t direction
+    SLenum            _target;         //!< texture target
+    SLMat4f           _tm;             //!< texture matrix
+    SLuint            _bytesOnGPU;     //!< NO. of bytes on GPU
+    SLuint            _bytesInFile;    //!< NO. of bytes in file
+    SLbool            _autoCalcTM3D;   //!< Flag if texture matrix should be calculated from AABB for 3D mapping
+    SLfloat           _bumpScale;      //!< Bump mapping scale factor
+    SLbool            _resizeToPow2;   //!< Flag if image should be resized to n^2
+    SLGLVertexArray   _vaoSprite;      //!< Vertex array object for sprite rendering
+    std::atomic<bool> _needsUpdate{};  //!< Flag if image needs an single update
+    std::mutex        _mutex;          //!< Mutex to protect parallel access (used in ray tracing)
 
     SLbool              _deleteImageAfterBuild;                   //!< Flag if images should be deleted after build on GPU
     SLbool              _compressedTexture = false;               //!< True for compressed texture format on GPU
