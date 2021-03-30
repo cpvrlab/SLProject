@@ -88,5 +88,7 @@ void   slLocationLatLonAlt(double latitudeDEG, double longitudeDEG, double altit
 string slGetWindowTitle(int sceneViewIndex);
 void   slSetupExternalDir(const SLstring& externalDirPath);
 void   slSetDeviceParameter(const SLstring& parameter, SLstring value);
+bool   slScreenCaptureIsRequested(int sceneViewIndex);
+void   slSaveFrameBufferAsImage(int sceneViewIndex);
 //-----------------------------------------------------------------------------
 #endif // SLINTERFACE_H

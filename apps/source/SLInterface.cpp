@@ -534,3 +534,17 @@ void slSetDeviceParameter(const SLstring& parameter,
     SLApplication::deviceParameter[parameter] = std::move(value);
 }
 //-----------------------------------------------------------------------------
+//! Global function to query if a screen capture is requested
+bool slScreenCaptureIsRequested(int sceneViewIndex)
+{
+    SLSceneView* sv = SLApplication::sceneViews[(SLuint)sceneViewIndex];
+    return sv->screenCaptureIsRequested();
+}
+//-----------------------------------------------------------------------------
+//! Global function to save the framebuffer as image
+void slSaveFrameBufferAsImage(int sceneViewIndex)
+{
+    SLSceneView* sv = SLApplication::sceneViews[(SLuint)sceneViewIndex];
+    sv->saveFrameBufferAsImage();
+}
+//-----------------------------------------------------------------------------

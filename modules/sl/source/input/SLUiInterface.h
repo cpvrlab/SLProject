@@ -52,6 +52,9 @@ public:
      * In this case the user input would not be forwarded to 3D scene graph)
      */
     virtual bool doNotDispatchMouse() { return false; }
+
+    //! Turns on or off the mouse cursor drawing
+    virtual void drawMouseCursor(bool doDraw) {}
 };
 
 #endif

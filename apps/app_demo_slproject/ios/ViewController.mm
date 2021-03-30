@@ -231,6 +231,10 @@ float GetSeconds()
     //////////////////////////////////////////////////////
 
     m_lastVideoImageIsConsumed = true;
+    
+    
+    if (slScreenCaptureIsRequested(svIndex))
+        slSaveFrameBufferAsImage(svIndex);
 
     if (slShouldClose())
     {

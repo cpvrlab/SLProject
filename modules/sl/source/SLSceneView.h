@@ -135,6 +135,7 @@ public:
                                   SLViewportAlign vpAlignment,
                                   SLbool          vpSameAsVideo);
     void     initConeTracer(SLstring shaderDir);
+    void     saveFrameBufferAsImage();
 
     // Callback routines
     cbOnWndUpdate      onWndUpdate;        //!< C-Callback for app for intermediate window repaint
@@ -163,6 +164,15 @@ public:
                            _viewportRect.height,
                            _scr2fbX,
                            _scr2fbY);
+    }
+    void screenCaptureIsRequested(bool doScreenCap)
+    {
+        if (doScreenCap)
+        {
+            _gui->drawMouseCursor(false);
+            _screenCaptureWaitFrames = 2;
+        }
+        _screenCaptureIsRequested = doScreenCap;
     }
 
     // Getters
@@ -209,6 +219,7 @@ public:
     AvgFloat&       draw3DTimesMS() { return _draw3DTimesMS; }
     SLNodeStats&    stats2D() { return _stats2D; }
     SLNodeStats&    stats3D() { return _stats3D; }
+    SLbool          screenCaptureIsRequested() { return _screenCaptureIsRequested; }
 
     unordered_set<SLMaterial*>& visibleMaterials2D() { return _visibleMaterials2D; }
     unordered_set<SLMaterial*>& visibleMaterials3D() { return _visibleMaterials3D; }
@@ -259,23 +270,24 @@ protected:
     SLGLVertexArrayExt _vaoTouch;  //!< Buffer for touch pos. rendering
     SLGLVertexArrayExt _vaoCursor; //!< Virtual cursor for stereo rendering
 
-    SLint           _scrW;                //!< Screen width in pixels
-    SLint           _scrH;                //!< Screen height in pixels
-    SLint           _scrWdiv2;            //!< Screen half width in pixels
-    SLint           _scrHdiv2;            //!< Screen half height in pixels
-    SLfloat         _scrWdivH;            //!< Screen side aspect ratio
-    SLfloat         _scr2fbX{1.0f};       //!< Horizontal screen to framebuffer ratio
-    SLfloat         _scr2fbY{1.0f};       //!< Vertical screen to framebuffer ratio
-    int             _dpi;                 //!< dots per inch of screen
-    SLVec2i         _viewportRatio;       //!< ratio of viewport
-    SLViewportAlign _viewportAlign;       //!< alignment of viewport
-    SLRecti         _viewportRect;        //!< rectangle of viewport
-    SLbool          _viewportSameAsVideo; //!< Adapt viewport aspect to the input video
+    SLint           _scrW;                     //!< Screen width in pixels
+    SLint           _scrH;                     //!< Screen height in pixels
+    SLint           _scrWdiv2;                 //!< Screen half width in pixels
+    SLint           _scrHdiv2;                 //!< Screen half height in pixels
+    SLfloat         _scrWdivH;                 //!< Screen side aspect ratio
+    SLfloat         _scr2fbX{1.0f};            //!< Horizontal screen to framebuffer ratio
+    SLfloat         _scr2fbY{1.0f};            //!< Vertical screen to framebuffer ratio
+    int             _dpi;                      //!< dots per inch of screen
+    SLVec2i         _viewportRatio;            //!< ratio of viewport
+    SLViewportAlign _viewportAlign;            //!< alignment of viewport
+    SLRecti         _viewportRect;             //!< rectangle of viewport
+    SLbool          _viewportSameAsVideo;      //!< Adapt viewport aspect to the input video
+    SLbool          _screenCaptureIsRequested; //! Flag if screen capture is requested
+    SLint           _screenCaptureWaitFrames;  //!< Frames to delay the screen capture
 
     SLGLOculusFB _oculusFB; //!< Oculus framebuffer
 
     unordered_set<SLMaterial*> _visibleMaterials3D; //!< visible materials 3D per frame
-
     unordered_set<SLMaterial*> _visibleMaterials2D; //!< visible materials 2D per frame
 
     SLVNode _nodesOpaque2D;  //!< Vector of visible opaque nodes rendered in 2D

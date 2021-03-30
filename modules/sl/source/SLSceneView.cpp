@@ -34,7 +34,8 @@ SLSceneView::SLSceneView(SLScene* s, int dpi, SLInputManager& inputManager)
     _shadowMapTimesMS(60, 0.0f),
     _cullTimesMS(60, 0.0f),
     _draw3DTimesMS(60, 0.0f),
-    _draw2DTimesMS(60, 0.0f)
+    _draw2DTimesMS(60, 0.0f),
+    _screenCaptureIsRequested(false)
 {
 }
 //-----------------------------------------------------------------------------
@@ -107,7 +108,8 @@ void SLSceneView::init(SLstring       name,
 
     _renderType = RT_gl;
 
-    _skybox = nullptr;
+    _skybox                 = nullptr;
+    _screenCaptureIsRequested = false;
 
     if (_gui)
         _gui->init(configPath);
@@ -543,7 +545,7 @@ SLbool SLSceneView::onPaint()
     }
 
     // Clear NO. of draw calls after UI creation
-    SLGLVertexArray::totalDrawCalls = 0;
+    SLGLVertexArray::totalDrawCalls          = 0;
     SLGLVertexArray::totalPrimitivesRendered = 0;
 
     if (_s && _camera)
@@ -2039,5 +2041,59 @@ SLbool SLSceneView::draw3DCT()
 void SLSceneView::initConeTracer(SLstring shaderDir)
 {
     _conetracer = std::make_unique<SLGLConetracer>(shaderDir);
+}
+//-----------------------------------------------------------------------------
+void SLSceneView::saveFrameBufferAsImage()
+{
+
+    if (_screenCaptureWaitFrames == 0)
+    {
+        SLint fbW = (SLint)(_viewportRect.width * _scr2fbX);
+        SLint fbH = (SLint)(_viewportRect.height * _scr2fbY);
+
+        GLsizei nrChannels = 3;
+        GLsizei stride     = nrChannels * fbW;
+        stride += (stride % 4) ? (4 - stride % 4) : 0;
+        GLsizei       bufferSize = stride * fbH;
+        vector<uchar> buffer(bufferSize);
+
+        glPixelStorei(GL_PACK_ALIGNMENT, 4);
+        glReadBuffer(GL_FRONT);
+        glReadPixels(0, 0, fbW, fbH, GL_RGB, GL_UNSIGNED_BYTE, buffer.data());
+
+        CVMat rgbImg = CVMat(fbH, fbW, CV_8UC3, (void*)buffer.data(), stride);
+        cv::cvtColor(rgbImg, rgbImg, cv::COLOR_BGR2RGB);
+        cv::flip(rgbImg, rgbImg, 0);
+
+        vector<int> compression_params;
+        compression_params.push_back(cv::IMWRITE_PNG_COMPRESSION);
+        compression_params.push_back(6);
+
+        SLstring path = SLApplication::configPath + "screenshots/";
+        Utils::makeDirRecurse(path);
+        SLstring filename     = "Screenshot_" + Utils::getDateTime2String() + ".png";
+        SLstring pathFilename = path + filename;
+
+        try
+        {
+            imwrite(pathFilename, rgbImg, compression_params);
+
+            string msg = "Screenshot saved to: " + pathFilename;
+            SL_LOG(msg.c_str());
+        }
+        catch (std::runtime_error& ex)
+        {
+            string msg = "SLSceneView::saveFrameBufferAsImage: Exception: ";
+            msg += ex.what();
+            Utils::exitMsg("SLProject", msg.c_str(), __LINE__, __FILE__);
+        }
+
+#if !defined(SL_OS_ANDROID) && !defined(SL_OS_MACIOS)
+        _gui->drawMouseCursor(true);
+#endif
+        _screenCaptureIsRequested = false;
+    }
+    else
+        _screenCaptureWaitFrames--;
 }
 //-----------------------------------------------------------------------------

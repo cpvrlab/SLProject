@@ -2803,6 +2803,9 @@ void AppDemoGui::buildMenuContext(SLProjectScene* s, SLSceneView* sv)
             if (ImGui::MenuItem("Hide root node"))
                 s->root3D()->drawBits()->toggle(SL_DB_HIDDEN);
 
+        if (ImGui::MenuItem("Capture Screen"))
+            sv->screenCaptureIsRequested(true);
+
         ImGui::EndPopup();
     }
 }
