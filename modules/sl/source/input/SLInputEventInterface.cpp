@@ -159,6 +159,48 @@ void SLInputEventInterface::touch2Up(int sceneViewIndex,
     _inputManager.queueEvent(e);
 }
 //-----------------------------------------------------------------------------
+/*! Global event handler for the two finger touch down events of touchscreen
+devices.
+*/
+void SLInputEventInterface::touch3Down(int sceneViewIndex,
+                                       int xpos,
+                                       int ypos)
+{
+    SLTouchEvent* e = new SLTouchEvent(SLInputEvent::Touch3Down);
+    e->svIndex      = sceneViewIndex;
+    e->x1           = xpos;
+    e->y1           = ypos;
+
+    _inputManager.queueEvent(e);
+}
+//-----------------------------------------------------------------------------
+/*! Global event handler for the two finger move events of touchscreen devices.
+*/
+void SLInputEventInterface::touch3Move(int sceneViewIndex,
+                                       int xpos,
+                                       int ypos)
+{
+    SLTouchEvent* e = new SLTouchEvent(SLInputEvent::Touch3Move);
+    e->svIndex      = sceneViewIndex;
+    e->x1           = xpos;
+    e->y1           = ypos;
+    _inputManager.queueEvent(e);
+}
+//-----------------------------------------------------------------------------
+/*! Global event handler for the two finger touch up events of touchscreen
+devices.
+*/
+void SLInputEventInterface::touch3Up(int sceneViewIndex,
+                                     int xpos,
+                                     int ypos)
+{
+    SLTouchEvent* e = new SLTouchEvent(SLInputEvent::Touch3Up);
+    e->svIndex      = sceneViewIndex;
+    e->x1           = xpos;
+    e->y1           = ypos;
+    _inputManager.queueEvent(e);
+}
+//-----------------------------------------------------------------------------
 /*! Global event handler for mouse wheel events.
 */
 void SLInputEventInterface::mouseWheel(int   sceneViewIndex,

@@ -365,6 +365,8 @@ static void onKeyPress(GLFWwindow* myWindow,
             glfwSetWindowSize(myWindow, scrWidth, scrHeight);
             glfwSetWindowPos(myWindow, 10, 30);
         }
+        if (AppDemoGui::hideUI)
+            AppDemoGui::hideUI = false;
     }
     // Toggle fullscreen mode
     else if (key == K_F9 && action == GLFW_PRESS)

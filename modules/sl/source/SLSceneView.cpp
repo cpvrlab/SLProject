@@ -21,7 +21,7 @@
 
 //-----------------------------------------------------------------------------
 // Milliseconds duration of a long touch event
-const SLint SLSceneView::LONGTOUCH_MS = 500;
+const SLint SLSceneView::LONGTOUCH_MS = 2000;
 //-----------------------------------------------------------------------------
 //! SLSceneView default constructor
 /*! The default constructor adds the this pointer to the sceneView vector in
@@ -1237,7 +1237,7 @@ SLbool SLSceneView::onMouseDown(SLMouseButton button,
                                 SLKey         mod)
 {
     // Correct viewport offset
-    // mouse corrds are top-left, viewport is bottom-left)
+    // mouse corrdinates are top-left, viewport is bottom-left)
     SLint x = scrX - _viewportRect.x;
     SLint y = scrY - ((_scrH - _viewportRect.height) - _viewportRect.y);
 
@@ -1555,6 +1555,8 @@ SLbool SLSceneView::onLongTouch(SLint scrX, SLint scrY)
     SLint x = scrX - _viewportRect.x;
     SLint y = scrY - ((_scrH - _viewportRect.height) - _viewportRect.y);
 
+    SL_LOG("SLSceneView::onLongTouch");
+
     return true;
 }
 //-----------------------------------------------------------------------------
@@ -1620,7 +1622,7 @@ SLbool SLSceneView::onTouch2Move(SLint scrX1, SLint scrY1, SLint scrX2, SLint sc
 }
 //-----------------------------------------------------------------------------
 /*!
-SLSceneView::onTouch2Up gets called whenever two fingers touch a handheld
+SLSceneView::onTouch2Up gets called whenever two fingers lift off a handheld
 screen.
 */
 SLbool SLSceneView::onTouch2Up(SLint scrX1, SLint scrY1, SLint scrX2, SLint scrY2)
@@ -1642,6 +1644,92 @@ SLbool SLSceneView::onTouch2Up(SLint scrX1, SLint scrY1, SLint scrX2, SLint scrY
     for (auto* eh : _s->eventHandlers())
     {
         if (eh->onTouch2Up(x1, y1, x2, y2))
+            result = true;
+    }
+    return result;
+}
+//-----------------------------------------------------------------------------
+/*!
+ SLSceneView::onTouch2Down gets called when three fingers touch a handheld screen.
+ Only and average of the three fingers is evaluated.
+*/
+SLbool SLSceneView::onTouch3Down(SLint scrX, SLint scrY)
+{
+    if (!_s || !_s->root3D())
+        return false;
+
+    // Correct viewport offset
+    // mouse coordinates are top-left, viewport is bottom-left)
+    SLint x = scrX - _viewportRect.x;
+    SLint y = scrY - ((_scrH - _viewportRect.height) - _viewportRect.y);
+
+    _touch[0].set(x, y);
+    _touch[1].set(x, y);
+    _touch[2].set(x, y);
+    _touchDowns = 3;
+
+    SLbool result = _camera->onTouch3Down(x, y);
+
+    for (auto* eh : _s->eventHandlers())
+    {
+        if (eh->onTouch3Down(x, y))
+            result = true;
+    }
+    return result;
+}
+//-----------------------------------------------------------------------------
+/*!
+ SLSceneView::onTouch2Move gets called when three fingers touch a screen.
+ Only and average of the three fingers is evaluated.
+*/
+SLbool SLSceneView::onTouch3Move(SLint scrX, SLint scrY)
+{
+    if (!_s || !_s->root3D())
+        return false;
+
+    // Correct viewport offset
+    SLint x = scrX - _viewportRect.x;
+    SLint y = scrY - ((_scrH - _viewportRect.height) - _viewportRect.y);
+
+    _touch[0].set(x, y);
+    _touch[1].set(x, y);
+    _touch[2].set(x, y);
+
+    SLbool result = false;
+    if (_touchDowns == 3)
+    {
+        result = _camera->onTouch3Move(x, y);
+        for (auto* eh : _s->eventHandlers())
+        {
+            if (eh->onTouch3Move(x, y))
+                result = true;
+        }
+    }
+    return result;
+}
+//-----------------------------------------------------------------------------
+/*!
+ SLSceneView::onTouch2Up gets called when three fingers lift off a handheld
+ screen. Only and average of the three fingers is evaluated.
+*/
+SLbool SLSceneView::onTouch3Up(SLint scrX, SLint scrY)
+{
+    if (!_s || !_s->root3D())
+        return false;
+
+    // Correct viewport offset
+    SLint x = scrX - _viewportRect.x;
+    SLint y = scrY - ((_scrH - _viewportRect.height) - _viewportRect.y);
+
+    _touch[0].set(x, y);
+    _touch[1].set(x, y);
+    _touch[3].set(x, y);
+    _touchDowns = 0;
+
+    SLbool result = _camera->onTouch3Up(x, y);
+    for (auto* eh : _s->eventHandlers())
+    {
+        if (eh->onTouch3Up(x, y))
             result = true;
     }
     return result;

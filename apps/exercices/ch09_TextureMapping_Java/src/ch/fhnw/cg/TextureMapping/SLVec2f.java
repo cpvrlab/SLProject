@@ -7,7 +7,7 @@
 //             WITHOUT ANY WARRANTIES WHETHER EXPRESSED OR IMPLIED.
 //#############################################################################
 
-package ch.fhnw.cg.TextureMapping;
+package ch.bfh.cpvrlab.TextureMapping;
 
 public class SLVec2f 
 {

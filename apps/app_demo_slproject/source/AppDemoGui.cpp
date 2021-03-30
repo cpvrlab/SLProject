@@ -92,8 +92,8 @@ void centerNextWindow(SLSceneView* sv,
 //-----------------------------------------------------------------------------
 // Init global static variables
 SLstring    AppDemoGui::configTime          = "-";
-SLbool      AppDemoGui::showProgress        = false;
 SLbool      AppDemoGui::showDockSpace       = true;
+SLbool      AppDemoGui::showProgress        = false;
 SLbool      AppDemoGui::showAbout           = false;
 SLbool      AppDemoGui::showHelp            = false;
 SLbool      AppDemoGui::showHelpCalibration = false;
@@ -114,6 +114,7 @@ SLbool      AppDemoGui::showTransform       = false;
 SLbool      AppDemoGui::showDateAndTime     = false;
 std::time_t AppDemoGui::adjustedTime        = 0;
 SLbool      AppDemoGui::_horizonVisuEnabled = false;
+SLbool      AppDemoGui::hideUI              = false;
 
 // Scene node for Christoffel objects
 static SLNode* bern        = nullptr;
@@ -204,12 +205,15 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
 {
     PROFILE_FUNCTION();
 
-    if (sv->camera() && sv->camera()->projection() == P_stereoSideBySideD)
+    if (AppDemoGui::hideUI ||
+        sv->camera() &&
+        sv->camera()->projection() == P_stereoSideBySideD)
     {
         // So far no UI in distorted stereo projection
     }
     else
     {
+
         ///////////////////////////////////
         // Show modeless fullscreen dialogs
         ///////////////////////////////////
@@ -558,7 +562,7 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
                 SLint   cpuMBTexturePC = (SLint)(cpuMBTexture / cpuMBTotal * 100.0f);
                 SLint   cpuMBMeshesPC  = (SLint)(cpuMBMeshes / cpuMBTotal * 100.0f);
                 SLint   cpuMBVoxelsPC  = (SLint)(cpuMBVoxels / cpuMBTotal * 100.0f);
-                SLfloat gpuMBTexture   = (SLfloat)SLGLTexture::numBytesInTextures / 1E6f;
+                SLfloat gpuMBTexture   = (SLfloat)SLGLTexture::totalNumBytesOnGPU / 1E6f;
                 SLfloat gpuMBVbo       = (SLfloat)SLGLVertexBuffer::totalBufferSize / 1E6f;
                 SLfloat gpuMBTotal     = gpuMBTexture + gpuMBVbo;
                 SLint   gpuMBTexturePC = (SLint)(gpuMBTexture / gpuMBTotal * 100.0f);
@@ -1044,7 +1048,9 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
             {
                 ImGuiWindowFlags window_flags = 0;
                 window_flags |= ImGuiWindowFlags_AlwaysAutoResize;
+                ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
                 ImGui::Begin("User Interface Preferences", &showUIPrefs, window_flags);
+                ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.66f);
 
                 ImGui::SliderFloat("Prop. Font Size", &SLGLImGui::fontPropDots, 16.f, 70.f, "%0.0f");
                 ImGui::SliderFloat("Fixed Font Size", &SLGLImGui::fontFixedDots, 13.f, 50.f, "%0.0f");
@@ -1059,12 +1065,11 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
 
                 ImGui::Separator();
 
-                ImGui::Checkbox("DockSpace enabled", &showDockSpace);
+                ImGui::Checkbox("Dock-Space enabled", &showDockSpace);
+
                 ImGui::Separator();
 
                 SLchar reset[255];
-
-                ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
                 sprintf(reset, "Reset User Interface (DPI: %d)", sv->dpi());
                 if (ImGui::MenuItem(reset))
                 {
@@ -1072,9 +1077,10 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
                     Utils::deleteFile(fullPathFilename);
                     loadConfig(sv->dpi());
                 }
-                ImGui::PopFont();
 
+                ImGui::PopItemWidth();
                 ImGui::End();
+                ImGui::PopFont();
             }
 
             if (showDateAndTime && SLApplication::devLoc.originLatLonAlt() != SLVec3d::ZERO)
@@ -1085,77 +1091,84 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
                 ImGui::Begin("Date and Time Settings", &showTransform, window_flags);
                 ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.66f);
 
-                tm lt{};
-                if (adjustedTime)
-                    memcpy(&lt, std::localtime(&adjustedTime), sizeof(tm));
+                if (SLApplication::devLoc.isUsed())
+                {
+                    tm lt{};
+                    if (adjustedTime)
+                        memcpy(&lt, std::localtime(&adjustedTime), sizeof(tm));
+                    else
+                    {
+                        std::time_t now = std::time(nullptr);
+                        memcpy(&lt, std::localtime(&now), sizeof(tm));
+                    }
+
+                    SLint month = lt.tm_mon + 1;
+                    if (ImGui::SliderInt("Month", &month, 1, 12))
+                    {
+                        lt.tm_mon    = month - 1;
+                        adjustedTime = mktime(&lt);
+                        SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLatLonAlt(),
+                                                                   adjustedTime);
+                    }
+
+                    if (ImGui::SliderInt("Day", &lt.tm_mday, 1, 31))
+                    {
+                        adjustedTime = mktime(&lt);
+                        SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLatLonAlt(),
+                                                                   adjustedTime);
+                    }
+
+                    SLfloat SRh  = SLApplication::devLoc.originSolarSunrise();
+                    SLfloat SSh  = SLApplication::devLoc.originSolarSunset();
+                    SLfloat nowF = (SLfloat)lt.tm_hour + (float)lt.tm_min / 60.0f;
+                    if (ImGui::SliderFloat("Hour", &nowF, SRh, SSh, "%.2f"))
+                    {
+                        lt.tm_hour   = (int)nowF;
+                        lt.tm_min    = (int)((nowF - (int)nowF) * 60.0f);
+                        adjustedTime = mktime(&lt);
+                        SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLatLonAlt(),
+                                                                   adjustedTime);
+                    }
+
+                    SLchar strTime[100];
+                    sprintf(strTime, "Set now (%02d.%02d.%02d %02d:%02d)", lt.tm_mday, lt.tm_mon, lt.tm_year + 1900, lt.tm_hour, lt.tm_min);
+                    if (ImGui::MenuItem(strTime))
+                    {
+                        adjustedTime    = 0;
+                        std::time_t now = std::time(nullptr);
+                        memcpy(&lt, std::localtime(&now), sizeof(tm));
+                        SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLatLonAlt(), now);
+                    }
+
+                    sprintf(strTime, "Set highest noon (21.06.%02d 12:00)", lt.tm_year);
+                    if (ImGui::MenuItem(strTime))
+                    {
+                        lt.tm_mon    = 6;
+                        lt.tm_mday   = 21;
+                        lt.tm_hour   = 12;
+                        lt.tm_min    = 0;
+                        lt.tm_sec    = 0;
+                        adjustedTime = mktime(&lt);
+                        SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLatLonAlt(),
+                                                                   adjustedTime);
+                    }
+
+                    sprintf(strTime, "Set lowest noon (21.12.%02d 12:00)", lt.tm_year);
+                    if (ImGui::MenuItem(strTime))
+                    {
+                        lt.tm_mon    = 12;
+                        lt.tm_mday   = 21;
+                        lt.tm_hour   = 12;
+                        lt.tm_min    = 0;
+                        lt.tm_sec    = 0;
+                        adjustedTime = mktime(&lt);
+                        SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLatLonAlt(),
+                                                                   adjustedTime);
+                    }
+                }
                 else
                 {
-                    std::time_t now = std::time(nullptr);
-                    memcpy(&lt, std::localtime(&now), sizeof(tm));
-                }
-
-                SLint month = lt.tm_mon + 1;
-                if (ImGui::SliderInt("Month", &month, 1, 12))
-                {
-                    lt.tm_mon    = month - 1;
-                    adjustedTime = mktime(&lt);
-                    SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLatLonAlt(),
-                                                               adjustedTime);
-                }
-
-                if (ImGui::SliderInt("Day", &lt.tm_mday, 1, 31))
-                {
-                    adjustedTime = mktime(&lt);
-                    SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLatLonAlt(),
-                                                               adjustedTime);
-                }
-
-                SLfloat SRh = SLApplication::devLoc.originSolarSunrise();
-                SLfloat SSh = SLApplication::devLoc.originSolarSunset();
-                SLfloat nowF = (SLfloat)lt.tm_hour + (float)lt.tm_min / 60.0f;
-                if (ImGui::SliderFloat("Hour", &nowF, SRh, SSh,"%.2f"))
-                {
-                    lt.tm_hour = (int)nowF;
-                    lt.tm_min = (int)((nowF - (int)nowF) * 60.0f);
-                    adjustedTime = mktime(&lt);
-                    SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLatLonAlt(),
-                                                               adjustedTime);
-                }
-
-                SLchar strTime[100];
-                sprintf(strTime, "Set now (%02d.%02d.%02d %02d:%02d)", lt.tm_mday, lt.tm_mon, lt.tm_year + 1900, lt.tm_hour, lt.tm_min);
-                if (ImGui::MenuItem(strTime))
-                {
-                    adjustedTime    = 0;
-                    std::time_t now = std::time(nullptr);
-                    memcpy(&lt, std::localtime(&now), sizeof(tm));
-                    SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLatLonAlt(), now);
-                }
-
-                sprintf(strTime, "Set highest noon (21.06.%02d 12:00)", lt.tm_year);
-                if (ImGui::MenuItem(strTime))
-                {
-                    lt.tm_mon    = 6;
-                    lt.tm_mday   = 21;
-                    lt.tm_hour   = 12;
-                    lt.tm_min    = 0;
-                    lt.tm_sec    = 0;
-                    adjustedTime = mktime(&lt);
-                    SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLatLonAlt(),
-                                                               adjustedTime);
-                }
-
-                sprintf(strTime, "Set lowest noon (21.12.%02d 12:00)", lt.tm_year);
-                if (ImGui::MenuItem(strTime))
-                {
-                    lt.tm_mon    = 12;
-                    lt.tm_mday   = 21;
-                    lt.tm_hour   = 12;
-                    lt.tm_min    = 0;
-                    lt.tm_sec    = 0;
-                    adjustedTime = mktime(&lt);
-                    SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLatLonAlt(),
-                                                               adjustedTime);
+                    ImGui::Text("Device Location is not in use.");
                 }
 
                 ImGui::PopItemWidth();
@@ -1290,6 +1303,8 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                         s->onLoad(s, sv, SID_TextureBlend);
                     if (ImGui::MenuItem("Texture Filters", nullptr, sid == SID_TextureFilter))
                         s->onLoad(s, sv, SID_TextureFilter);
+                    if (ImGui::MenuItem("Texture Compression", nullptr, sid == SID_TextureCompression))
+                        s->onLoad(s, sv, SID_TextureCompression);
                     if (ImGui::MenuItem("Frustum Culling", nullptr, sid == SID_FrustumCull))
                         s->onLoad(s, sv, SID_FrustumCull);
                     if (ImGui::MenuItem("2D and 3D Text", nullptr, sid == SID_2Dand3DText))
@@ -2564,6 +2579,12 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                 if (ImGui::MenuItem("Walk Z up", nullptr, ca == CA_walkingZUp))
                     sv->camera()->camAnim(CA_walkingZUp);
 
+                float mouseRotFactor = sv->camera()->mouseRotationFactor();
+                if (ImGui::SliderFloat("Mouse Sensibility", &mouseRotFactor, 0.1f, 2.0f, "%2.1f"))
+                    sv->camera()->mouseRotationFactor(mouseRotFactor);
+
+                ImGui::Separator();
+
                 if (ImGui::MenuItem("IMU rotated", nullptr, ca == CA_deviceRotYUp))
                     sv->camera()->camAnim(CA_deviceRotYUp);
 
@@ -2706,10 +2727,11 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
 #endif
             ImGui::MenuItem("Stats on ImGui", nullptr, &showImGuiMetrics);
             ImGui::Separator();
-            ImGui::MenuItem("Show Scenegraph", nullptr, &showSceneGraph);
-            ImGui::MenuItem("Show Properties", nullptr, &showProperties);
-            ImGui::MenuItem("Show Transform", nullptr, &showTransform);
-            ImGui::MenuItem("Show Date & Time", nullptr, &showDateAndTime);
+            ImGui::MenuItem("Scenegraph", nullptr, &showSceneGraph);
+            ImGui::MenuItem("Properties", nullptr, &showProperties);
+            ImGui::MenuItem("Transform", nullptr, &showTransform);
+            ImGui::MenuItem("Date-Time", nullptr, &showDateAndTime);
+            ImGui::MenuItem("UI-Preferences", nullptr, &showUIPrefs);
             ImGui::Separator();
             ImGui::MenuItem("Infos on Device", nullptr, &showInfosDevice);
             ImGui::MenuItem("Infos on Sensors", nullptr, &showInfosSensors);
@@ -2724,6 +2746,7 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
             ImGui::Separator();
             ImGui::MenuItem("Credits", nullptr, &showCredits);
             ImGui::MenuItem("About SLProject", nullptr, &showAbout);
+            ImGui::MenuItem("Hide User Interface", nullptr, &hideUI);
 
             ImGui::EndMenu();
         }
@@ -3284,13 +3307,16 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                 for (auto img : tex->images())
                                     mbCPU += (float)img->bytesPerImage();
                                 float mbGPU = (float)tex->bytesOnGPU();
+                                float mbDSK = (float)tex->bytesInFile();
 
+                                mbDSK /= 1E6f;
                                 mbCPU /= 1E6f;
                                 mbGPU /= 1E6f;
 
-                                ImGui::Text("Size(PX): %dx%dx%d (images: %d)", tex->width(), tex->height(), tex->bytesPerPixel(), tex->depth());
-                                ImGui::Text("Size(MB): GPU: %4.1f, CPU: %4.1f", mbGPU, mbCPU);
+                                ImGui::Text("Size(PX): %dx%dx%d", tex->width(), tex->height(), tex->depth());
+                                ImGui::Text("Size(MB): GPU:%4.2f, CPU:%4.2f, DSK:%4.2f", mbGPU, mbCPU, mbDSK);
                                 ImGui::Text("Type    : %s", tex->typeName().c_str());
+                                ImGui::Text("Compr.  : %s", tex->compressionFormatStr(tex->compressionFormat()).c_str());
                                 ImGui::Text("Min.Flt : %s", tex->minificationFilterName().c_str());
                                 ImGui::Text("Mag.Flt : %s", tex->magnificationFilterName().c_str());
 

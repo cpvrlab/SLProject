@@ -22,6 +22,7 @@ CVImage::CVImage()
     _bytesPerPixel = 0;
     _bytesPerLine  = 0;
     _bytesPerImage = 0;
+    _bytesInFile   = 0;
 };
 //------------------------------------------------------------------------------
 //! Constructor for empty image of a certain format and size
@@ -53,6 +54,7 @@ CVImage::CVImage(CVImage& src) : _name(src.name())
     _bytesPerPixel = src.bytesPerPixel();
     _bytesPerLine  = src.bytesPerLine();
     _bytesPerImage = src.bytesPerImage();
+    _bytesInFile   = src.bytesInFile();
     src.cvMat().copyTo(_cvMat);
 }
 //-----------------------------------------------------------------------------
@@ -98,6 +100,7 @@ void CVImage::clearData()
     _bytesPerPixel = 0;
     _bytesPerLine  = 0;
     _bytesPerImage = 0;
+    _bytesInFile   = 0;
     _path          = "";
 }
 //-----------------------------------------------------------------------------
@@ -396,9 +399,10 @@ void CVImage::load(const string& filename,
                    bool          flipVertical,
                    bool          loadGrayscaleIntoAlpha)
 {
-    string ext = Utils::getFileExt(filename);
-    _name      = Utils::getFileName(filename);
-    _path      = Utils::getPath(filename);
+    string ext   = Utils::getFileExt(filename);
+    _name        = Utils::getFileName(filename);
+    _path        = Utils::getPath(filename);
+    _bytesInFile = Utils::getFileSize(filename);
 
     // load the image format as stored in the file
     _cvMat = cv::imread(filename, -1);
@@ -422,7 +426,7 @@ void CVImage::load(const string& filename,
         string typeStr1 = typeString(_cvMat.type());
         cv::cvtColor(_cvMat, _cvMat, cv::COLOR_BGR2RGB);
         string typeStr2 = typeString(_cvMat.type());
-        _format = PF_rgb;
+        _format         = PF_rgb;
     }
     else if (_format == PF_bgra)
     {

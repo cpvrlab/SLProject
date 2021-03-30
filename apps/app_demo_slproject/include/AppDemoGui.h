@@ -48,6 +48,7 @@ public:
     static SLstring    infoCredits;         //!< Credits info string
     static SLstring    infoHelp;            //!< Help info string
     static SLstring    infoCalibrate;       //!< Calibration info string
+    static SLbool      hideUI;              //!< Flag if menubar should be shown
     static SLbool      showProgress;        //!< Flag if about info should be shown
     static SLbool      showDockSpace;       //!< Flag if dock space should be enabled
     static SLbool      showAbout;           //!< Flag if about info should be shown

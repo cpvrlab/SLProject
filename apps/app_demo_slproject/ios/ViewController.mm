@@ -286,6 +286,10 @@ float GetSeconds()
         else if ([touches count] == 1) // delayed 2nd finger touch
             slTouch2Down(svIndex, 0, 0, 0, 0);
     }
+    else if (m_touchDowns == 3)
+    {
+        slTouch3Down(svIndex, pos1.x, pos1.y);
+    }
 
     m_lastTouchTimeSec = m_lastTouchDownSec = touchDownNowSec;
 }
@@ -311,6 +315,18 @@ float GetSeconds()
         pos2.y *= screenScale;
         slTouch2Move(svIndex, pos1.x, pos1.y, pos2.x, pos2.y);
     }
+    else if (m_touchDowns == 3 && [touches count] == 3)
+    {
+        UITouch* touch2 = [myTouches objectAtIndex:1];
+        CGPoint  pos2   = [touch2 locationInView:touch2.view];
+        pos2.x *= screenScale;
+        pos2.y *= screenScale;
+        UITouch* touch3 = [myTouches objectAtIndex:2];
+        CGPoint  pos3   = [touch3 locationInView:touch3.view];
+        pos3.x *= screenScale;
+        pos3.y *= screenScale;
+        slTouch3Move(svIndex, (pos1.x + pos2.x + pos3.x)/3, (pos1.y + pos2.y + pos3.y)/3);
+    }
 
     m_lastTouchTimeSec = m_lastFrameTimeSec;
 }
@@ -328,13 +344,25 @@ float GetSeconds()
     {
         slMouseUp(svIndex, MB_left, pos1.x, pos1.y, K_none);
     }
-    else if (m_touchDowns == 2 && [touches count] >= 2)
+    else if (m_touchDowns == 2 && [touches count] == 2)
     {
         UITouch* touch2 = [myTouches objectAtIndex:1];
         CGPoint  pos2   = [touch2 locationInView:touch2.view];
         pos2.x *= screenScale;
         pos2.y *= screenScale;
         slTouch2Up(svIndex, pos1.x, pos1.y, pos2.x, pos2.y);
+    }
+    else if (m_touchDowns == 3 && [touches count] == 3)
+    {
+        UITouch* touch2 = [myTouches objectAtIndex:1];
+        CGPoint  pos2   = [touch2 locationInView:touch2.view];
+        pos2.x *= screenScale;
+        pos2.y *= screenScale;
+        UITouch* touch3 = [myTouches objectAtIndex:2];
+        CGPoint  pos3   = [touch3 locationInView:touch3.view];
+        pos3.x *= screenScale;
+        pos3.y *= screenScale;
+        slTouch3Up(svIndex, (pos1.x + pos2.x + pos3.x)/3, (pos1.y + pos2.y + pos3.y)/3);
     }
 
     m_touchDowns = 0;
