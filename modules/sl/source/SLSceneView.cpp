@@ -523,6 +523,10 @@ SLbool SLSceneView::onPaint()
     // (can only happen during raytracing)
     if (_gotPainted)
     {
+        // save previous frame if it is requested
+        if (_screenCaptureIsRequested)
+            saveFrameBufferAsImage();
+
         _gotPainted = false;
         // Process queued up system events and poll custom input devices
         viewConsumedEvents = _inputManager.pollAndProcessEvents(this);
@@ -2069,7 +2073,7 @@ void SLSceneView::saveFrameBufferAsImage()
         compression_params.push_back(cv::IMWRITE_PNG_COMPRESSION);
         compression_params.push_back(6);
 
-        SLstring path = SLApplication::configPath + "screenshots/";
+        SLstring path = SLApplication::externalPath + "screenshots/";
         Utils::makeDirRecurse(path);
         SLstring filename     = "Screenshot_" + Utils::getDateTime2String() + ".png";
         SLstring pathFilename = path + filename;

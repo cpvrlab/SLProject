@@ -94,6 +94,7 @@ void slCreateAppAndScene(SLVstring&      cmdLineArgs,
     SL_LOG("Path to Textures : %s", texturePath.c_str());
     SL_LOG("Path to Fonts    : %s", fontPath.c_str());
     SL_LOG("Path to Config.  : %s", configPath.c_str());
+    SL_LOG("Path to Documents: %s", SLApplication::externalPath.c_str());
     SL_LOG("OpenCV Version   : %d.%d.%d", CV_MAJOR_VERSION, CV_MINOR_VERSION, CV_VERSION_REVISION);
     SL_LOG("OpenCV has OpenCL: %s", cv::ocl::haveOpenCL() ? "yes" : "no");
     SL_LOG("OpenGL Version   : %s", stateGL->glVersion().c_str());
@@ -532,19 +533,5 @@ void slSetDeviceParameter(const SLstring& parameter,
                           SLstring        value)
 {
     SLApplication::deviceParameter[parameter] = std::move(value);
-}
-//-----------------------------------------------------------------------------
-//! Global function to query if a screen capture is requested
-bool slScreenCaptureIsRequested(int sceneViewIndex)
-{
-    SLSceneView* sv = SLApplication::sceneViews[(SLuint)sceneViewIndex];
-    return sv->screenCaptureIsRequested();
-}
-//-----------------------------------------------------------------------------
-//! Global function to save the framebuffer as image
-void slSaveFrameBufferAsImage(int sceneViewIndex)
-{
-    SLSceneView* sv = SLApplication::sceneViews[(SLuint)sceneViewIndex];
-    sv->saveFrameBufferAsImage();
 }
 //-----------------------------------------------------------------------------

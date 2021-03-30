@@ -105,9 +105,9 @@ vector<string> Utils_iOS::getAllNamesInDir(const string& dirName, bool fullPath)
 std::string Utils_iOS::getAppsWritableDir()
 {
     // Get library directory for config file
-    NSArray*  paths            = NSSearchPathForDirectoriesInDomains(NSLibraryDirectory,
-                                                         NSUserDomainMask,
-                                                         YES);
+    NSArray*  paths = NSSearchPathForDirectoriesInDomains(NSLibraryDirectory,
+                                                          NSUserDomainMask,
+                                                          YES);
     NSString* libraryDirectory = [paths objectAtIndex:0];
     string    configDir        = [libraryDirectory UTF8String];
     configDir += "/SLProject";

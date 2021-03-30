@@ -147,8 +147,9 @@ float GetSeconds()
         dpi = 160 * screenScale;
 
     SLVstring cmdLineArgs;
-    SLApplication::exePath    = Utils_iOS::getCurrentWorkingDir();
-    SLApplication::configPath = Utils_iOS::getAppsWritableDir();
+    SLApplication::exePath      = Utils_iOS::getCurrentWorkingDir();
+    SLApplication::configPath   = Utils_iOS::getAppsWritableDir();
+    SLApplication::externalPath = getAppsDocumentsDir();
 
     // Some some computer informations
     struct utsname systemInfo;
@@ -179,7 +180,17 @@ float GetSeconds()
                         (void*)appDemoLoadScene);
 
     ///////////////////////////////////////////////////////////////////////
-    svIndex = slCreateSceneView(SLApplication::scene, self.view.bounds.size.height * screenScale, self.view.bounds.size.width * screenScale, dpi, SID_Revolver, (void*)&onPaintRTGL, 0, (void*)createAppDemoSceneView, (void*)AppDemoGui::build, (void*)AppDemoGui::loadConfig, (void*)AppDemoGui::saveConfig);
+    svIndex = slCreateSceneView(SLApplication::scene,
+                                self.view.bounds.size.height * screenScale,
+                                self.view.bounds.size.width * screenScale,
+                                dpi,
+                                SID_Revolver,
+                                (void*)&onPaintRTGL,
+                                0,
+                                (void*)createAppDemoSceneView,
+                                (void*)AppDemoGui::build,
+                                (void*)AppDemoGui::loadConfig,
+                                (void*)AppDemoGui::saveConfig);
     ///////////////////////////////////////////////////////////////////////
 
     [self setupMotionManager:1.0 / 20.0];
@@ -231,10 +242,6 @@ float GetSeconds()
     //////////////////////////////////////////////////////
 
     m_lastVideoImageIsConsumed = true;
-    
-    
-    if (slScreenCaptureIsRequested(svIndex))
-        slSaveFrameBufferAsImage(svIndex);
 
     if (slShouldClose())
     {
@@ -793,4 +800,27 @@ float GetSeconds()
     }
 }
 //-----------------------------------------------------------------------------
+std::string getAppsDocumentsDir()
+{
+    // Get the documents director
+    NSArray*  paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory,
+                                                          NSUserDomainMask,
+                                                          YES);
+    NSString* documentsDirectory = [paths objectAtIndex:0];
+    string    documentsDir        = [documentsDirectory UTF8String];
+    documentsDir += "/SLProject";
+    NSString* documentsPath = [NSString stringWithUTF8String:documentsDir.c_str()];
+
+    // Create if it does not exist
+    NSError* error;
+    if (![[NSFileManager defaultManager] fileExistsAtPath:documentsPath])
+        [[NSFileManager defaultManager] createDirectoryAtPath:documentsPath
+                                  withIntermediateDirectories:NO
+                                                   attributes:nil
+                                                        error:&error];
+
+    return documentsDir + "/";
+}
+//-----------------------------------------------------------------------------
+
 @end
