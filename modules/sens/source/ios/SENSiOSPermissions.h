@@ -20,6 +20,9 @@ public:
     bool canShowGPSPermissionDialog();
     bool canShowInternetPermissionDialog();
     bool canShowStoragePermissionDialog();
+    
+    bool isLocationEnabled();
+    void askEnabledLocation();
 };
 
 #endif

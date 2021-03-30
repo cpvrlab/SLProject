@@ -66,3 +66,19 @@ bool SENSiOSPermissions::canShowStoragePermissionDialog() {
     
     return result;
 }
+
+bool SENSiOSPermissions::isLocationEnabled() {
+    bool result =
+        [CLLocationManager locationServicesEnabled];
+    
+    return result;
+}
+
+void SENSiOSPermissions::askEnabledLocation() {
+    UIApplication* application = [UIApplication sharedApplication];
+    NSURL* url = [NSURL URLWithString:UIApplicationOpenSettingsURLString];
+    
+    if ([application canOpenURL:url]) {
+        [application openURL:url options:@{} completionHandler:^(BOOL sucess) {}];
+    }
+}
