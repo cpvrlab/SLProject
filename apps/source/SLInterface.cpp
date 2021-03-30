@@ -428,6 +428,49 @@ void slTouch2Up(int sceneViewIndex,
     SLApplication::inputManager.queueEvent(e);
 }
 //-----------------------------------------------------------------------------
+/*! Global event handler for the three finger touch down events of touchscreen
+ devices. Only and average of the three fingers is evaluated.
+*/
+void slTouch3Down(int sceneViewIndex,
+                  int xpos,
+                  int ypos)
+{
+    SLTouchEvent* e = new SLTouchEvent(SLInputEvent::Touch3Down);
+    e->svIndex      = sceneViewIndex;
+    e->x1           = xpos;
+    e->y1           = ypos;
+
+    SLApplication::inputManager.queueEvent(e);
+}
+//-----------------------------------------------------------------------------
+/*! Global event handler for the three finger move events of touchscreen devices.
+ Only and average of the three fingers is evaluated.
+*/
+void slTouch3Move(int sceneViewIndex,
+                  int xpos,
+                  int ypos)
+{
+    SLTouchEvent* e = new SLTouchEvent(SLInputEvent::Touch3Move);
+    e->svIndex      = sceneViewIndex;
+    e->x1           = xpos;
+    e->y1           = ypos;
+    SLApplication::inputManager.queueEvent(e);
+}
+//-----------------------------------------------------------------------------
+/*! Global event handler for the three finger touch up events of touchscreen
+devices. Only and average of the three fingers is evaluated.
+*/
+void slTouch3Up(int sceneViewIndex,
+                int xpos,
+                int ypos)
+{
+    SLTouchEvent* e = new SLTouchEvent(SLInputEvent::Touch3Up);
+    e->svIndex      = sceneViewIndex;
+    e->x1           = xpos;
+    e->y1           = ypos;
+    SLApplication::inputManager.queueEvent(e);
+}
+//-----------------------------------------------------------------------------
 /*! Global event handler for mouse wheel events.
 */
 void slMouseWheel(int   sceneViewIndex,

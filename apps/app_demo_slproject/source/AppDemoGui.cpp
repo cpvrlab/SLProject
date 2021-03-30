@@ -213,6 +213,7 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
     }
     else
     {
+
         ///////////////////////////////////
         // Show modeless fullscreen dialogs
         ///////////////////////////////////

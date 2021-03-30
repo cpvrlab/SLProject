@@ -107,6 +107,21 @@ public:
     {
         return false;
     }
+    virtual SLbool onTouch3Down(const SLint x1,
+                                const SLint y1)
+    {
+        return false;
+    }
+    virtual SLbool onTouch3Move(const SLint x1,
+                                const SLint y1)
+    {
+        return false;
+    }
+    virtual SLbool onTouch3Up(const SLint x1,
+                              const SLint y1)
+    {
+        return false;
+    }
     virtual SLbool onKeyPress(const SLKey key,
                               const SLKey mod)
     {
