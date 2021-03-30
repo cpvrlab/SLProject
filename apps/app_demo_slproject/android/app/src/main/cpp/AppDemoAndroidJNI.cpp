@@ -38,9 +38,9 @@ JNIEXPORT void JNICALL Java_ch_bfh_cpvrlab_GLES3Lib_onResize(JNIEnv* env, jclass
 JNIEXPORT void JNICALL Java_ch_bfh_cpvrlab_GLES3Lib_onMouseDown(JNIEnv* env, jclass obj, jint button, jint x, jint y);
 JNIEXPORT void JNICALL Java_ch_bfh_cpvrlab_GLES3Lib_onMouseUp(JNIEnv* env, jclass obj, jint button, jint x, jint y);
 JNIEXPORT void JNICALL Java_ch_bfh_cpvrlab_GLES3Lib_onMouseMove(JNIEnv* env, jclass obj, jint x, jint y);
-JNIEXPORT void JNICALL Java_ch_bfh_cpvrlab_GLES3Lib_onTouch2Up(JNIEnv* env, jclass obj, jint x1, jint y1, jint x2, jint y2);
 JNIEXPORT void JNICALL Java_ch_bfh_cpvrlab_GLES3Lib_onTouch2Down(JNIEnv* env, jclass obj, jint x1, jint y1, jint x2, jint y2);
 JNIEXPORT void JNICALL Java_ch_bfh_cpvrlab_GLES3Lib_onTouch2Move(JNIEnv* env, jclass obj, jint x1, jint y1, jint x2, jint y2);
+JNIEXPORT void JNICALL Java_ch_bfh_cpvrlab_GLES3Lib_onTouch2Up(JNIEnv* env, jclass obj, jint x1, jint y1, jint x2, jint y2);
 JNIEXPORT void JNICALL Java_ch_bfh_cpvrlab_GLES3Lib_onDoubleClick(JNIEnv* env, jclass obj, jint button, jint x, jint y);
 JNIEXPORT void JNICALL Java_ch_bfh_cpvrlab_GLES3Lib_onClose(JNIEnv* env, jclass obj);
 JNIEXPORT bool JNICALL Java_ch_bfh_cpvrlab_GLES3Lib_usesRotation(JNIEnv* env, jclass obj);
@@ -169,12 +169,12 @@ extern "C" JNIEXPORT void JNICALL Java_ch_bfh_cpvrlab_GLES3Lib_onResize(JNIEnv* 
 //-----------------------------------------------------------------------------
 extern "C" JNIEXPORT void JNICALL Java_ch_bfh_cpvrlab_GLES3Lib_onMouseDown(JNIEnv* env, jclass obj, jint button, jint x, jint y)
 {
-    slMouseDown(svIndex, MB_left, x, y, K_none);
+    slMouseDown(svIndex, (SLMouseButton)button, x, y, K_none);
 }
 //-----------------------------------------------------------------------------
 extern "C" JNIEXPORT void JNICALL Java_ch_bfh_cpvrlab_GLES3Lib_onMouseUp(JNIEnv* env, jclass obj, jint button, jint x, jint y)
 {
-    slMouseUp(svIndex, MB_left, x, y, K_none);
+    slMouseUp(svIndex, (SLMouseButton)button, x, y, K_none);
 }
 //-----------------------------------------------------------------------------
 extern "C" JNIEXPORT void JNICALL Java_ch_bfh_cpvrlab_GLES3Lib_onMouseMove(JNIEnv* env, jclass obj, jint x, jint y)
@@ -187,14 +187,14 @@ extern "C" JNIEXPORT void JNICALL Java_ch_bfh_cpvrlab_GLES3Lib_onTouch2Down(JNIE
     slTouch2Down(svIndex, x1, y1, x2, y2);
 }
 //-----------------------------------------------------------------------------
-extern "C" JNIEXPORT void JNICALL Java_ch_bfh_cpvrlab_GLES3Lib_onTouch2Up(JNIEnv* env, jclass obj, jint x1, jint y1, jint x2, jint y2)
-{
-    slTouch2Up(svIndex, x1, y1, x2, y2);
-}
-//-----------------------------------------------------------------------------
 extern "C" JNIEXPORT void JNICALL Java_ch_bfh_cpvrlab_GLES3Lib_onTouch2Move(JNIEnv* env, jclass obj, jint x1, jint y1, jint x2, jint y2)
 {
     slTouch2Move(svIndex, x1, y1, x2, y2);
+}
+//-----------------------------------------------------------------------------
+extern "C" JNIEXPORT void JNICALL Java_ch_bfh_cpvrlab_GLES3Lib_onTouch2Up(JNIEnv* env, jclass obj, jint x1, jint y1, jint x2, jint y2)
+{
+    slTouch2Up(svIndex, x1, y1, x2, y2);
 }
 //-----------------------------------------------------------------------------
 extern "C" JNIEXPORT void JNICALL Java_ch_bfh_cpvrlab_GLES3Lib_onDoubleClick(JNIEnv* env, jclass obj, jint button, jint x, jint y)

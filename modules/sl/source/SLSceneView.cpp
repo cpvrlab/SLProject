@@ -20,9 +20,6 @@
 #include <utility>
 
 //-----------------------------------------------------------------------------
-// Milliseconds duration of a long touch event
-const SLint SLSceneView::LONGTOUCH_MS = 2000;
-//-----------------------------------------------------------------------------
 //! SLSceneView default constructor
 /*! The default constructor adds the this pointer to the sceneView vector in
 SLScene. If an in between element in the vector is zero (from previous sceneviews)
@@ -1237,7 +1234,7 @@ SLbool SLSceneView::onMouseDown(SLMouseButton button,
                                 SLKey         mod)
 {
     // Correct viewport offset
-    // mouse corrdinates are top-left, viewport is bottom-left)
+    // mouse coordinates are top-left, viewport is bottom-left)
     SLint x = scrX - _viewportRect.x;
     SLint y = scrY - ((_scrH - _viewportRect.height) - _viewportRect.y);
 
@@ -1246,20 +1243,15 @@ SLbool SLSceneView::onMouseDown(SLMouseButton button,
     {
         _gui->onMouseDown(button, x, y);
 
-#ifdef SL_GLES
         // Touch devices on iOS or Android have no mouse move event when the
         // finger isn't touching the screen. Therefore imgui can not detect hovering
         // over an imgui window. Without this extra frame you would have to touch
         // the display twice to open e.g. a menu.
         _gui->renderExtraFrame(_s, this, x, y);
-#endif
 
         if (_gui->doNotDispatchMouse())
             return true;
     }
-
-    //if (ImGui::GetIO().WantCaptureMouse)
-    //    return true;
 
     _mouseDownL = (button == MB_left);
     _mouseDownR = (button == MB_right);
@@ -1300,7 +1292,7 @@ SLbool SLSceneView::onMouseUp(SLMouseButton button,
     _touchDowns = 0;
 
     // Correct viewport offset
-    // mouse corrds are top-left, viewport is bottom-left)
+    // mouse coordinates are top-left, viewport is bottom-left)
     SLint x = scrX - _viewportRect.x;
     SLint y = scrY - ((_scrH - _viewportRect.height) - _viewportRect.y);
 
@@ -1324,6 +1316,12 @@ SLbool SLSceneView::onMouseUp(SLMouseButton button,
         _gui->onMouseUp(button, x, y);
         if (_gui->doNotDispatchMouse())
             return true;
+
+        // Touch devices on iOS or Android have no mouse move event when the
+        // finger isn't touching the screen. Therefore imgui can not detect hovering
+        // over an imgui window. Without this extra frame you would have to touch
+        // the display twice to open e.g. a menu.
+        _gui->renderExtraFrame(_s, this, x, y);
     }
 
     _mouseDownL = false;
@@ -1543,23 +1541,6 @@ SLbool SLSceneView::onDoubleClick(SLMouseButton button,
     return result;
 }
 //-----------------------------------------------------------------------------
-/*! SLSceneView::onLongTouch gets called when the mouse or touch is down for
-more than 500ms and has not moved.
-*/
-SLbool SLSceneView::onLongTouch(SLint scrX, SLint scrY)
-{
-    //SL_LOG("onLongTouch(%d, %d)", x, y);
-
-    // Correct viewport offset
-    // mouse coordinates are top-left, viewport is bottom-left)
-    SLint x = scrX - _viewportRect.x;
-    SLint y = scrY - ((_scrH - _viewportRect.height) - _viewportRect.y);
-
-    SL_LOG("SLSceneView::onLongTouch");
-
-    return true;
-}
-//-----------------------------------------------------------------------------
 /*!
 SLSceneView::onTouch2Down gets called whenever two fingers touch a handheld
 screen.
@@ -1644,92 +1625,6 @@ SLbool SLSceneView::onTouch2Up(SLint scrX1, SLint scrY1, SLint scrX2, SLint scrY
     for (auto* eh : _s->eventHandlers())
     {
         if (eh->onTouch2Up(x1, y1, x2, y2))
-            result = true;
-    }
-    return result;
-}
-//-----------------------------------------------------------------------------
-/*!
- SLSceneView::onTouch2Down gets called when three fingers touch a handheld screen.
- Only and average of the three fingers is evaluated.
-*/
-SLbool SLSceneView::onTouch3Down(SLint scrX, SLint scrY)
-{
-    if (!_s || !_s->root3D())
-        return false;
-
-    // Correct viewport offset
-    // mouse coordinates are top-left, viewport is bottom-left)
-    SLint x = scrX - _viewportRect.x;
-    SLint y = scrY - ((_scrH - _viewportRect.height) - _viewportRect.y);
-
-    _touch[0].set(x, y);
-    _touch[1].set(x, y);
-    _touch[2].set(x, y);
-    _touchDowns = 3;
-
-    SLbool result = _camera->onTouch3Down(x, y);
-
-    for (auto* eh : _s->eventHandlers())
-    {
-        if (eh->onTouch3Down(x, y))
-            result = true;
-    }
-    return result;
-}
-//-----------------------------------------------------------------------------
-/*!
- SLSceneView::onTouch2Move gets called when three fingers touch a screen.
- Only and average of the three fingers is evaluated.
-*/
-SLbool SLSceneView::onTouch3Move(SLint scrX, SLint scrY)
-{
-    if (!_s || !_s->root3D())
-        return false;
-
-    // Correct viewport offset
-    SLint x = scrX - _viewportRect.x;
-    SLint y = scrY - ((_scrH - _viewportRect.height) - _viewportRect.y);
-
-    _touch[0].set(x, y);
-    _touch[1].set(x, y);
-    _touch[2].set(x, y);
-
-    SLbool result = false;
-    if (_touchDowns == 3)
-    {
-        result = _camera->onTouch3Move(x, y);
-        for (auto* eh : _s->eventHandlers())
-        {
-            if (eh->onTouch3Move(x, y))
-                result = true;
-        }
-    }
-    return result;
-}
-//-----------------------------------------------------------------------------
-/*!
- SLSceneView::onTouch2Up gets called when three fingers lift off a handheld
- screen. Only and average of the three fingers is evaluated.
-*/
-SLbool SLSceneView::onTouch3Up(SLint scrX, SLint scrY)
-{
-    if (!_s || !_s->root3D())
-        return false;
-
-    // Correct viewport offset
-    SLint x = scrX - _viewportRect.x;
-    SLint y = scrY - ((_scrH - _viewportRect.height) - _viewportRect.y);
-
-    _touch[0].set(x, y);
-    _touch[1].set(x, y);
-    _touch[3].set(x, y);
-    _touchDowns = 0;
-
-    SLbool result = _camera->onTouch3Up(x, y);
-    for (auto* eh : _s->eventHandlers())
-    {
-        if (eh->onTouch3Up(x, y))
             result = true;
     }
     return result;

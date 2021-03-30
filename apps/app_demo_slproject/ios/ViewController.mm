@@ -85,6 +85,7 @@ float GetSeconds()
     SLfloat m_lastTouchTimeSec; //!< Frame time of the last touch event
     SLfloat m_lastTouchDownSec; //!< Time of last touch down
     SLint   m_touchDowns;       //!< No. of finger touchdowns
+    CGPoint m_touchDownPos1;    //!< Pos. of touch down for finger 1
 
     // Video stuff
     AVCaptureSession* m_avSession;       //!< Audio video session
@@ -243,16 +244,16 @@ float GetSeconds()
 {
     NSArray* myTouches = [touches allObjects];
     UITouch* touch1    = [myTouches objectAtIndex:0];
-    CGPoint  pos1      = [touch1 locationInView:touch1.view];
-    pos1.x *= screenScale;
-    pos1.y *= screenScale;
+    m_touchDownPos1    = [touch1 locationInView:touch1.view];
+    m_touchDownPos1.x *= screenScale;
+    m_touchDownPos1.y *= screenScale;
     float touchDownNowSec = GetSeconds();
 
     // end touch actions on sequential finger touch downs
     if (m_touchDowns > 0)
     {
         if (m_touchDowns == 1)
-            slMouseUp(svIndex, MB_left, pos1.x, pos1.y, K_none);
+            slMouseUp(svIndex, MB_left, m_touchDownPos1.x, m_touchDownPos1.y, K_none);
         if (m_touchDowns == 2)
             slTouch2Up(svIndex, 0, 0, 0, 0);
 
@@ -269,9 +270,9 @@ float GetSeconds()
     if (m_touchDowns == 1 && [touches count] == 1)
     {
         if (touchDownNowSec - m_lastTouchDownSec < 0.3f)
-            slDoubleClick(svIndex, MB_left, pos1.x, pos1.y, K_none);
+            slDoubleClick(svIndex, MB_left, m_touchDownPos1.x, m_touchDownPos1.y, K_none);
         else
-            slMouseDown(svIndex, MB_left, pos1.x, pos1.y, K_none);
+            slMouseDown(svIndex, MB_left, m_touchDownPos1.x, m_touchDownPos1.y, K_none);
     }
     else if (m_touchDowns == 2)
     {
@@ -281,14 +282,10 @@ float GetSeconds()
             CGPoint  pos2   = [touch2 locationInView:touch2.view];
             pos2.x *= screenScale;
             pos2.y *= screenScale;
-            slTouch2Down(svIndex, pos1.x, pos1.y, pos2.x, pos2.y);
+            slTouch2Down(svIndex, m_touchDownPos1.x, m_touchDownPos1.y, pos2.x, pos2.y);
         }
         else if ([touches count] == 1) // delayed 2nd finger touch
             slTouch2Down(svIndex, 0, 0, 0, 0);
-    }
-    else if (m_touchDowns == 3)
-    {
-        slTouch3Down(svIndex, pos1.x, pos1.y);
     }
 
     m_lastTouchTimeSec = m_lastTouchDownSec = touchDownNowSec;
@@ -315,18 +312,6 @@ float GetSeconds()
         pos2.y *= screenScale;
         slTouch2Move(svIndex, pos1.x, pos1.y, pos2.x, pos2.y);
     }
-    else if (m_touchDowns == 3 && [touches count] == 3)
-    {
-        UITouch* touch2 = [myTouches objectAtIndex:1];
-        CGPoint  pos2   = [touch2 locationInView:touch2.view];
-        pos2.x *= screenScale;
-        pos2.y *= screenScale;
-        UITouch* touch3 = [myTouches objectAtIndex:2];
-        CGPoint  pos3   = [touch3 locationInView:touch3.view];
-        pos3.x *= screenScale;
-        pos3.y *= screenScale;
-        slTouch3Move(svIndex, (pos1.x + pos2.x + pos3.x)/3, (pos1.y + pos2.y + pos3.y)/3);
-    }
 
     m_lastTouchTimeSec = m_lastFrameTimeSec;
 }
@@ -339,10 +324,21 @@ float GetSeconds()
     CGPoint  pos1      = [touch1 locationInView:touch1.view];
     pos1.x *= screenScale;
     pos1.y *= screenScale;
+    float touchUpNowSec = GetSeconds();
+    int dX = std::abs(m_touchDownPos1.x - pos1.x);
+    int dY = std::abs(m_touchDownPos1.y - pos1.y);
+    float dSec = touchUpNowSec - m_lastTouchDownSec;
 
     if (m_touchDowns == 1 || [touches count] == 1)
     {
-        slMouseUp(svIndex, MB_left, pos1.x, pos1.y, K_none);
+        // Long touch as right mouse button touch
+        if (dSec > 0.8f && dX < 3 && dY < 3)
+        {
+            slMouseDown(svIndex, MB_right, m_touchDownPos1.x, m_touchDownPos1.y, K_none);
+            slMouseUp(svIndex, MB_right, m_touchDownPos1.x, m_touchDownPos1.y, K_none);
+        }
+        else
+            slMouseUp(svIndex, MB_left, pos1.x, pos1.y, K_none);
     }
     else if (m_touchDowns == 2 && [touches count] == 2)
     {
@@ -352,22 +348,10 @@ float GetSeconds()
         pos2.y *= screenScale;
         slTouch2Up(svIndex, pos1.x, pos1.y, pos2.x, pos2.y);
     }
-    else if (m_touchDowns == 3 && [touches count] == 3)
-    {
-        UITouch* touch2 = [myTouches objectAtIndex:1];
-        CGPoint  pos2   = [touch2 locationInView:touch2.view];
-        pos2.x *= screenScale;
-        pos2.y *= screenScale;
-        UITouch* touch3 = [myTouches objectAtIndex:2];
-        CGPoint  pos3   = [touch3 locationInView:touch3.view];
-        pos3.x *= screenScale;
-        pos3.y *= screenScale;
-        slTouch3Up(svIndex, (pos1.x + pos2.x + pos3.x)/3, (pos1.y + pos2.y + pos3.y)/3);
-    }
 
     m_touchDowns = 0;
 
-    //printf("End   tD: %d, touches count: %d\n", m_touchDowns, [touches count]);
+    //printf("End   tD: %d, touches count: %u, dSec:%3.2f, dX:%d, dY:%d\n", m_touchDowns, (SLuint)[touches count], dSec,dX,dY);
 
     m_lastTouchTimeSec = m_lastFrameTimeSec;
 }

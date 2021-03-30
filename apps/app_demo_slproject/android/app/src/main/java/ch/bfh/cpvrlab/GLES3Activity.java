@@ -28,7 +28,6 @@ import android.os.Bundle;
 import android.os.Environment;
 import androidx.core.app.ActivityCompat;
 
-import android.os.Handler;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -40,12 +39,14 @@ import java.io.IOException;
 
 
 public class GLES3Activity extends Activity implements View.OnTouchListener, SensorEventListener {
-    GLES3View                   myView;             // OpenGL view
-    static int                  pointersDown = 0;   // NO. of fingers down
-    static long                 lastTouchMS = 0;    // Time of last touch in ms
+    GLES3View                   myView;                 // OpenGL view
+    static int                  pointersDown = 0;       // NO. of fingers down
+    static long                 lastTouchDownMS = 0;    // Time of last touch in ms
+    static int                  lastTouchDownX = 0;     // Last X-pos of touch down
+    static int                  lastTouchDownY = 0;     // Last Y-pos of touch down
 
     private static final String TAG = "SLProject";
-    private static final int PERMISSIONS_MULTIPLE_REQUEST = 123;
+    private static final int    PERMISSIONS_MULTIPLE_REQUEST = 123;
 
     private int                     _currentVideoType;
     private boolean                 _permissionCameraGranted;
@@ -377,8 +378,8 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
 
     public boolean handleTouchDown(final MotionEvent event) {
         int touchCount = event.getPointerCount();
-        final int x0 = (int) event.getX(0);
-        final int y0 = (int) event.getY(0);
+        lastTouchDownX = (int) event.getX(0);
+        lastTouchDownY = (int) event.getY(0);
         //Log.i(TAG, "Dn:" + touchCount);
 
         // just got a new single touch
@@ -386,71 +387,27 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
         
             // get time to detect double taps
             long touchNowMS = System.currentTimeMillis();
-            long touchDeltaMS = touchNowMS - lastTouchMS;
-            lastTouchMS = touchNowMS;
+            long touchDeltaMS = touchNowMS - lastTouchDownMS;
+            lastTouchDownMS = touchNowMS;
 
             if (touchDeltaMS < 250)
-                myView.queueEvent(new Runnable() {public void run() {
-                    GLES3Lib.onDoubleClick(1, x0, y0);
-                }});
+                myView.queueEvent(new Runnable() {public void run() {GLES3Lib.onDoubleClick(1, lastTouchDownX, lastTouchDownY);}});
             else
-                myView.queueEvent(new Runnable() {public void run() {
-                    GLES3Lib.onMouseDown(1, x0, y0);
-                }});
+                myView.queueEvent(new Runnable() {public void run() {GLES3Lib.onMouseDown(1, lastTouchDownX, lastTouchDownY);}});
         }
 
         // it's two fingers but one delayed (already executed mouse down
         else if (touchCount == 2 && pointersDown == 1) {
             final int x1 = (int) event.getX(1);
             final int y1 = (int) event.getY(1);
-            myView.queueEvent(new Runnable() {public void run() {
-                    GLES3Lib.onMouseUp(1, x0, y0);
-                }});
-            myView.queueEvent(new Runnable() {
-                public void run() {
-                    GLES3Lib.onTouch2Down(x0, y0, x1, y1);
-                }
-            });
+            myView.queueEvent(new Runnable() {public void run() {GLES3Lib.onMouseUp(1, lastTouchDownX, lastTouchDownY);}});
+            myView.queueEvent(new Runnable() {public void run() {GLES3Lib.onTouch2Down(lastTouchDownX, lastTouchDownY, x1, y1);}});
             // it's two fingers at the same time
-        } else if (touchCount == 2) {
-            // get time to detect double taps
-            long touchNowMS = System.currentTimeMillis();
-            long touchDeltaMS = touchNowMS - lastTouchMS;
-            lastTouchMS = touchNowMS;
-
-            final int x1 = (int) event.getX(1);
-            final int y1 = (int) event.getY(1);
-
-            myView.queueEvent(new Runnable() {
-                public void run() {
-                    GLES3Lib.onTouch2Down(x0, y0, x1, y1);
-                }
-            });
         }
-        pointersDown = touchCount;
-        myView.requestRender();
-        return true;
-    }
-
-    public boolean handleTouchUp(final MotionEvent event) {
-        int touchCount = event.getPointerCount();
-        //Log.i(TAG, "Up:" + touchCount + " x: " + (int)event.getX(0) + " y: " + (int)event.getY(0));
-        final int x0 = (int) event.getX(0);
-        final int y0 = (int) event.getY(0);
-        if (touchCount == 1) {
-            myView.queueEvent(new Runnable() {
-                public void run() {
-                    GLES3Lib.onMouseUp(1, x0, y0);
-                }
-            });
-        } else if (touchCount == 2) {
+        else if (touchCount == 2) {
             final int x1 = (int) event.getX(1);
             final int y1 = (int) event.getY(1);
-            myView.queueEvent(new Runnable() {
-                public void run() {
-                    GLES3Lib.onTouch2Up(x0, y0, x1, y1);
-                }
-            });
+            myView.queueEvent(new Runnable() {public void run() {GLES3Lib.onTouch2Down(lastTouchDownX, lastTouchDownY, x1, y1);}});
         }
 
         pointersDown = touchCount;
@@ -465,20 +422,43 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
         //Log.i(TAG, "Mv:" + touchCount);
 
         if (touchCount == 1) {
-            myView.queueEvent(new Runnable() {
-                public void run() {
-                    GLES3Lib.onMouseMove(x0, y0);
-                }
-            });
-        } else if (touchCount == 2) {
+            myView.queueEvent(new Runnable() {public void run() {GLES3Lib.onMouseMove(x0, y0);}});
+        }
+        else if (touchCount == 2) {
             final int x1 = (int) event.getX(1);
             final int y1 = (int) event.getY(1);
-            myView.queueEvent(new Runnable() {
-                public void run() {
-                    GLES3Lib.onTouch2Move(x0, y0, x1, y1);
-                }
-            });
+            myView.queueEvent(new Runnable() {public void run() {GLES3Lib.onTouch2Move(x0, y0, x1, y1);}});
         }
+
+        myView.requestRender();
+        return true;
+    }
+
+    public boolean handleTouchUp(final MotionEvent event) {
+        int touchCount = event.getPointerCount();
+        //Log.i(TAG, "Up:" + touchCount + " x: " + (int)event.getX(0) + " y: " + (int)event.getY(0));
+        final int x0 = (int) event.getX(0);
+        final int y0 = (int) event.getY(0);
+        int dX = Math.abs(lastTouchDownX - x0);
+        int dY = Math.abs(lastTouchDownY - y0);
+        long dMS = System.currentTimeMillis() - lastTouchDownMS;
+        Log.i(TAG, "dMS:" + dMS + "dX:" + dX + ", dY:" + dY);
+
+        if (touchCount == 1) {
+            // Long touch as right mouse button touch
+            if (dMS > 800 && dX < 15 && dY < 15) {
+                myView.queueEvent(new Runnable() {public void run() {GLES3Lib.onMouseDown(3, lastTouchDownX, lastTouchDownY);}});
+                myView.queueEvent(new Runnable() {public void run() {GLES3Lib.onMouseUp(3, lastTouchDownX, lastTouchDownY);}});
+            } else
+                myView.queueEvent(new Runnable() {public void run() {GLES3Lib.onMouseUp(1, x0, y0);}});
+        }
+        else if (touchCount == 2) {
+            final int x1 = (int) event.getX(1);
+            final int y1 = (int) event.getY(1);
+            myView.queueEvent(new Runnable() {public void run() {GLES3Lib.onTouch2Up(x0, y0, x1, y1);}});
+        }
+
+        pointersDown = touchCount;
         myView.requestRender();
         return true;
     }

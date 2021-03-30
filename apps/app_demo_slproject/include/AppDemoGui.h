@@ -36,6 +36,8 @@ public:
     static void clear();
     static void build(SLProjectScene* s, SLSceneView* sv);
     static void buildMenuBar(SLProjectScene* s, SLSceneView* sv);
+    static void buildMenuEdit(SLProjectScene* s, SLSceneView* sv);
+    static void buildMenuContext(SLProjectScene* s, SLSceneView* sv);
     static void buildSceneGraph(SLScene* s);
     static void addSceneGraphNode(SLScene* s, SLNode* node);
     static void buildProperties(SLScene* s, SLSceneView* sv);

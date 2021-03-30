@@ -47,13 +47,3 @@ SLbool AppDemoSceneView::onMouseDown(SLMouseButton button,
     return baseClassResult;
 }
 //-----------------------------------------------------------------------------
-/*! This method overrides the same method from the base class SLSceneView.
- onTouch2Down gets called when three fingers touch a handheld screen. Only and
- average of the three fingers is evaluated.
-*/
-SLbool AppDemoSceneView::onTouch3Down(SLint scrX, SLint scrY)
-{
-    SL_LOG("AppDemoSceneView::onTouch3Down");
-    return true;
-}
-//-----------------------------------------------------------------------------
