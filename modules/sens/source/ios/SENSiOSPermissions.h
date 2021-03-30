@@ -6,9 +6,11 @@
 #import <CoreLocation/CoreLocation.h>
 #import <AVFoundation/AVCaptureDevice.h>
 
+#include "SENSiOSGps.h"
+
 class SENSiOSPermissions : public SENSPermissions {
 public:
-    SENSiOSPermissions();
+    SENSiOSPermissions(SENSiOSGps* gps);
     
     void askPermissions();
     
@@ -23,6 +25,9 @@ public:
     
     bool isLocationEnabled();
     void askEnabledLocation();
+    
+private:
+    SENSiOSGps* _gps;
 };
 
 #endif

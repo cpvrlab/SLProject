@@ -30,29 +30,23 @@
 //! Starts the location data update if the interval time > 0 else it stops
 - (void)setupLocationManager
 {
-    if ([CLLocationManager locationServicesEnabled])
-    {
-        // Init location manager
-        _locationManager                 = [[CLLocationManager alloc] init];
-        _locationManager.delegate        = self;
-        _locationManager.desiredAccuracy = kCLLocationAccuracyBest;
-        //self.locationManager.distanceFilter = 1;
+    // Init location manager
+    _locationManager                 = [[CLLocationManager alloc] init];
+    _locationManager.delegate        = self;
+    _locationManager.desiredAccuracy = kCLLocationAccuracyBest;
+    
+    [self askPermission];
+}
 
-        // for iOS 8, specific user level permission is required,
-        // "when-in-use" authorization grants access to the user's location.
-        // important: be sure to include NSLocationWhenInUseUsageDescription along with its
-        // explanation string in your Info.plist or startUpdatingLocation will not work
-        if ([_locationManager respondsToSelector:@selector(requestWhenInUseAuthorization)])
-        {
-            [_locationManager requestWhenInUseAuthorization];
-        }
-    }
-    else
+- (void)askPermission
+{
+    // for iOS 8, specific user level permission is required,
+    // "when-in-use" authorization grants access to the user's location.
+    // important: be sure to include NSLocationWhenInUseUsageDescription along with its
+    // explanation string in your Info.plist or startUpdatingLocation will not work
+    if ([_locationManager respondsToSelector:@selector(requestWhenInUseAuthorization)])
     {
-        /* Location services are not enabled.
-         Take appropriate action: for instance, prompt the
-         user to enable the location services */
-        NSLog(@"Location services are not enabled");
+        [_locationManager requestWhenInUseAuthorization];
     }
 }
 

@@ -11,6 +11,7 @@ public:
 
     bool start() override;
     void stop() override;
+    void askPermission();
 
 private:
     //callback from delegate
