@@ -1,11 +1,16 @@
 #include "SENSiOSPermissions.h"
 
-SENSiOSPermissions::SENSiOSPermissions() {
+SENSiOSPermissions::SENSiOSPermissions(SENSiOSGps* gps) {
+    _gps = gps;
 }
 
 void SENSiOSPermissions::askPermissions() {
     // cannot ask for permissions a second time,
     // so only here to complete the interface
+    
+    if ([CLLocationManager authorizationStatus] == kCLAuthorizationStatusNotDetermined) {
+        _gps->askPermission();
+    }
 }
 
 bool SENSiOSPermissions::hasCameraPermission() {
@@ -18,7 +23,7 @@ bool SENSiOSPermissions::hasCameraPermission() {
 bool SENSiOSPermissions::hasGPSPermission() {
     bool result =
         [CLLocationManager authorizationStatus] == kCLAuthorizationStatusAuthorizedAlways ||
-        [CLLocationManager authorizationStatus] == kCLAuthorizationStatusAuthorizedWhenInUse;; //[CLLocationManager locationServicesEnabled];
+        [CLLocationManager authorizationStatus] == kCLAuthorizationStatusAuthorizedWhenInUse;
     
     return result;
 }
@@ -47,6 +52,10 @@ bool SENSiOSPermissions::canShowGPSPermissionDialog() {
     // iOS will only prompt users for permissions once. After they have to manually
     // change permissions in the settings.
     bool result = false;
+    
+    if ([CLLocationManager authorizationStatus] == kCLAuthorizationStatusNotDetermined) {
+        result = true;
+    }
     
     return result;
 }
