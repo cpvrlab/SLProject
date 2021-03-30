@@ -8,7 +8,7 @@
 //             WITHOUT ANY WARRANTIES WHETHER EXPRESSED OR IMPLIED.
 //#############################################################################
 
-package ch.fhnw.cg.TextureMapping;
+package ch.bfh.cpvrlab.TextureMapping;
 
 /**
  * Implements a 3 by 3 matrix class for linear 3D transformations. 

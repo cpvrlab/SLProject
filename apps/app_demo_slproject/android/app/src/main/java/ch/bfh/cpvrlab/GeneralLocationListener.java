@@ -17,7 +17,7 @@
  * along with GPSLogger for Android.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package ch.bhf.cpvrlab;
+package ch.bfh.cpvrlab;
 
 import android.location.Location;
 import android.location.LocationListener;

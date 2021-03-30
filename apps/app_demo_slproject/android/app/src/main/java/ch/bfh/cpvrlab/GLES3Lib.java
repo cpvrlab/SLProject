@@ -10,7 +10,7 @@
 //#############################################################################
 
 // Please do not change the name space. The SLProject app is identified in the app-store with it.
-package ch.bhf.cpvrlab;
+package ch.bfh.cpvrlab;
 
 import android.content.res.AssetManager;
 import android.app.ActivityManager;
