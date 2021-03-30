@@ -203,16 +203,6 @@ static void onResize(GLFWwindow* myWindow, int width, int height)
 }
 //-----------------------------------------------------------------------------
 /*!
-onLongTouch gets called from a 500ms timer after a mouse down event.
-*/
-void onLongTouch()
-{
-    // forward the long touch only if the mouse or touch hasn't moved.
-    if (Utils::abs(mouseX - startX) < 2 && Utils::abs(mouseY - startY) < 2)
-        slLongTouch(svIndex, mouseX, mouseY);
-}
-//-----------------------------------------------------------------------------
-/*!
 Mouse button event handler forwards the events to the slMouseDown or slMouseUp.
 Two finger touches of touch devices are simulated with ALT & CTRL modifiers.
 */
@@ -256,9 +246,6 @@ static void onMouseButton(GLFWwindow* myWindow,
         }
         else // normal mouse clicks
         {
-            // Start timer for the long touch detection
-            HighResTimer::callAfterSleep(SLSceneView::LONGTOUCH_MS, onLongTouch);
-
             switch (button)
             {
                 case GLFW_MOUSE_BUTTON_LEFT:

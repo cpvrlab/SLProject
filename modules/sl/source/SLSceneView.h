@@ -101,11 +101,7 @@ public:
     virtual SLbool onTouch2Down(SLint scrX1, SLint scrY1, SLint scrX2, SLint scrY2);
     virtual SLbool onTouch2Move(SLint scrX1, SLint scrY1, SLint scrX2, SLint scrY2);
     virtual SLbool onTouch2Up(SLint scrX1, SLint scrY1, SLint scrX2, SLint scrY2);
-    virtual SLbool onTouch3Down(SLint scrX, SLint scrY);
-    virtual SLbool onTouch3Move(SLint scrX, SLint scrY);
-    virtual SLbool onTouch3Up(SLint scrX, SLint scrY);
     virtual SLbool onDoubleClick(SLMouseButton button, SLint x, SLint y, SLKey mod);
-    virtual SLbool onLongTouch(SLint x, SLint y);
     virtual SLbool onKeyPress(SLKey key, SLKey mod);
     virtual SLbool onKeyRelease(SLKey key, SLKey mod);
     virtual SLbool onCharInput(SLuint c);
@@ -228,8 +224,6 @@ public:
     void               startOptixRaytracing(SLint maxDepth);
     void               startOptixPathtracing(SLint maxDepth, SLint samples);
 #endif
-
-    static const SLint LONGTOUCH_MS; //!< Milliseconds duration of a long touch event
 
 protected:
     SLScene*       _s;               //!< Pointer scene observed by this scene view

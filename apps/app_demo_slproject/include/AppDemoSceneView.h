@@ -23,7 +23,6 @@ public:
     
     // From SLSceneView overwritten
     SLbool onMouseDown(SLMouseButton button, SLint x, SLint y, SLKey mod) final;
-    SLbool onTouch3Down(SLint scrX, SLint scrY) final;
     SLbool grab = false;
 };
 //-----------------------------------------------------------------------------

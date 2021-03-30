@@ -94,17 +94,6 @@ void SLInputEventInterface::doubleClick(int           sceneViewIndex,
     _inputManager.queueEvent(e);
 }
 //-----------------------------------------------------------------------------
-/*! Global event handler for long touches
-*/
-void SLInputEventInterface::longTouch(int sceneViewIndex, int xpos, int ypos)
-{
-    SLMouseEvent* e = new SLMouseEvent(SLInputEvent::LongTouch);
-    e->svIndex      = sceneViewIndex;
-    e->x            = xpos;
-    e->y            = ypos;
-    _inputManager.queueEvent(e);
-}
-//-----------------------------------------------------------------------------
 /*! Global event handler for the two finger touch down events of touchscreen
 devices.
 */
@@ -156,48 +145,6 @@ void SLInputEventInterface::touch2Up(int sceneViewIndex,
     e->y1           = ypos1;
     e->x2           = xpos2;
     e->y2           = ypos2;
-    _inputManager.queueEvent(e);
-}
-//-----------------------------------------------------------------------------
-/*! Global event handler for the two finger touch down events of touchscreen
-devices.
-*/
-void SLInputEventInterface::touch3Down(int sceneViewIndex,
-                                       int xpos,
-                                       int ypos)
-{
-    SLTouchEvent* e = new SLTouchEvent(SLInputEvent::Touch3Down);
-    e->svIndex      = sceneViewIndex;
-    e->x1           = xpos;
-    e->y1           = ypos;
-
-    _inputManager.queueEvent(e);
-}
-//-----------------------------------------------------------------------------
-/*! Global event handler for the two finger move events of touchscreen devices.
-*/
-void SLInputEventInterface::touch3Move(int sceneViewIndex,
-                                       int xpos,
-                                       int ypos)
-{
-    SLTouchEvent* e = new SLTouchEvent(SLInputEvent::Touch3Move);
-    e->svIndex      = sceneViewIndex;
-    e->x1           = xpos;
-    e->y1           = ypos;
-    _inputManager.queueEvent(e);
-}
-//-----------------------------------------------------------------------------
-/*! Global event handler for the two finger touch up events of touchscreen
-devices.
-*/
-void SLInputEventInterface::touch3Up(int sceneViewIndex,
-                                     int xpos,
-                                     int ypos)
-{
-    SLTouchEvent* e = new SLTouchEvent(SLInputEvent::Touch3Up);
-    e->svIndex      = sceneViewIndex;
-    e->x1           = xpos;
-    e->y1           = ypos;
     _inputManager.queueEvent(e);
 }
 //-----------------------------------------------------------------------------
