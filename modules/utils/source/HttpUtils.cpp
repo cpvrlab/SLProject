@@ -51,6 +51,10 @@ int Socket::connectTo(string ip,
                   << std::endl;
         return -1;
     }
+    struct timeval tv;
+    tv.tv_sec = 1;
+    tv.tv_usec = 0;
+    setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv, sizeof tv);
 
     if (connect(fd, (struct sockaddr*)&sa, addrlen))
     {
@@ -147,6 +151,12 @@ int SecureSocket::connectTo(string ip, int port)
         return -1;
     }
     sslfd = SSL_get_fd(ssl);
+
+    struct timeval tv;
+    tv.tv_sec = 1;
+    tv.tv_usec = 0;
+    setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv, sizeof tv);
+
     SSL_set_fd(ssl, fd);
     int err = SSL_connect(ssl);
     if (err <= 0)

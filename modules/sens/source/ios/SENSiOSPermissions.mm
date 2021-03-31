@@ -1,11 +1,16 @@
 #include "SENSiOSPermissions.h"
 
-SENSiOSPermissions::SENSiOSPermissions() {
+SENSiOSPermissions::SENSiOSPermissions(SENSiOSGps* gps) {
+    _gps = gps;
 }
 
 void SENSiOSPermissions::askPermissions() {
     // cannot ask for permissions a second time,
     // so only here to complete the interface
+    
+    if ([CLLocationManager authorizationStatus] == kCLAuthorizationStatusNotDetermined) {
+        _gps->askPermission();
+    }
 }
 
 bool SENSiOSPermissions::hasCameraPermission() {
@@ -18,7 +23,7 @@ bool SENSiOSPermissions::hasCameraPermission() {
 bool SENSiOSPermissions::hasGPSPermission() {
     bool result =
         [CLLocationManager authorizationStatus] == kCLAuthorizationStatusAuthorizedAlways ||
-        [CLLocationManager authorizationStatus] == kCLAuthorizationStatusAuthorizedWhenInUse;; //[CLLocationManager locationServicesEnabled];
+        [CLLocationManager authorizationStatus] == kCLAuthorizationStatusAuthorizedWhenInUse;
     
     return result;
 }
@@ -48,6 +53,10 @@ bool SENSiOSPermissions::canShowGPSPermissionDialog() {
     // change permissions in the settings.
     bool result = false;
     
+    if ([CLLocationManager authorizationStatus] == kCLAuthorizationStatusNotDetermined) {
+        result = true;
+    }
+    
     return result;
 }
 
@@ -65,4 +74,20 @@ bool SENSiOSPermissions::canShowStoragePermissionDialog() {
     bool result = false;
     
     return result;
+}
+
+bool SENSiOSPermissions::isLocationEnabled() {
+    bool result =
+        [CLLocationManager locationServicesEnabled];
+    
+    return result;
+}
+
+void SENSiOSPermissions::askEnabledLocation() {
+    UIApplication* application = [UIApplication sharedApplication];
+    NSURL* url = [NSURL URLWithString:UIApplicationOpenSettingsURLString];
+    
+    if ([application canOpenURL:url]) {
+        [application openURL:url options:@{} completionHandler:^(BOOL sucess) {}];
+    }
 }

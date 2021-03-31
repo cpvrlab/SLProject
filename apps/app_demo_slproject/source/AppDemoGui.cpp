@@ -206,10 +206,10 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
     PROFILE_FUNCTION();
 
     if (AppDemoGui::hideUI ||
-        sv->camera() &&
-        sv->camera()->projection() == P_stereoSideBySideD)
+        (sv->camera() && sv->camera()->projection() == P_stereoSideBySideD))
     {
         // So far no UI in distorted stereo projection
+        buildMenuContext(s, sv);
     }
     else
     {
@@ -349,6 +349,8 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
             //////////////////
 
             buildMenuBar(s, sv);
+
+            buildMenuContext(s, sv);
 
             if (showStatsTiming)
             {
@@ -2012,71 +2014,7 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
         {
             if (s->singleNodeSelected())
             {
-                if (ImGui::MenuItem("Deselect Node", "ESC"))
-                    s->deselectAllNodesAndMeshes();
-
-                ImGui::Separator();
-
-                if (ImGui::MenuItem("Translate Node", nullptr, transformNode && transformNode->editMode() == NodeEditMode_Translate))
-                {
-                    if (transformNode && transformNode->editMode() == NodeEditMode_Translate)
-                        removeTransformNode(s);
-                    else
-                        setTransformEditMode(s, sv, NodeEditMode_Translate);
-                }
-                if (ImGui::MenuItem("Rotate Node", nullptr, transformNode && transformNode->editMode() == NodeEditMode_Rotate))
-                {
-                    if (transformNode && transformNode->editMode() == NodeEditMode_Rotate)
-                        removeTransformNode(s);
-                    else
-                        setTransformEditMode(s, sv, NodeEditMode_Rotate);
-                }
-                if (ImGui::MenuItem("Scale Node", nullptr, transformNode && transformNode->editMode() == NodeEditMode_Scale))
-                {
-                    if (transformNode && transformNode->editMode() == NodeEditMode_Scale)
-                        removeTransformNode(s);
-                    else
-                        setTransformEditMode(s, sv, NodeEditMode_Scale);
-                }
-
-                ImGui::Separator();
-
-                if (ImGui::BeginMenu("Node Flags"))
-                {
-                    SLNode* selN = s->singleNodeSelected();
-
-                    if (ImGui::MenuItem("Wired Mesh", nullptr, selN->drawBits()->get(SL_DB_MESHWIRED)))
-                        selN->drawBits()->toggle(SL_DB_MESHWIRED);
-
-                    if (ImGui::MenuItem("With hard edges", nullptr, selN->drawBits()->get(SL_DB_WITHEDGES)))
-                        selN->drawBits()->toggle(SL_DB_WITHEDGES);
-
-                    if (ImGui::MenuItem("Only hard edges", nullptr, selN->drawBits()->get(SL_DB_ONLYEDGES)))
-                        selN->drawBits()->toggle(SL_DB_ONLYEDGES);
-
-                    if (ImGui::MenuItem("Normals", nullptr, selN->drawBits()->get(SL_DB_NORMALS)))
-                        selN->drawBits()->toggle(SL_DB_NORMALS);
-
-                    if (ImGui::MenuItem("Bounding Boxes", nullptr, selN->drawBits()->get(SL_DB_BBOX)))
-                        selN->drawBits()->toggle(SL_DB_BBOX);
-
-                    if (ImGui::MenuItem("Voxels", nullptr, selN->drawBits()->get(SL_DB_VOXELS)))
-                        selN->drawBits()->toggle(SL_DB_VOXELS);
-
-                    if (ImGui::MenuItem("Axis", nullptr, selN->drawBits()->get(SL_DB_AXIS)))
-                        selN->drawBits()->toggle(SL_DB_AXIS);
-
-                    if (ImGui::MenuItem("Back Faces", nullptr, selN->drawBits()->get(SL_DB_CULLOFF)))
-                        selN->drawBits()->toggle(SL_DB_CULLOFF);
-
-                    if (ImGui::MenuItem("Skeleton", nullptr, selN->drawBits()->get(SL_DB_SKELETON)))
-                        selN->drawBits()->toggle(SL_DB_SKELETON);
-
-                    if (ImGui::MenuItem("All off"))
-                        selN->drawBits()->allOff();
-
-                    ImGui::EndMenu();
-                }
+                buildMenuEdit(s,sv);
             }
             else
             {
@@ -2754,7 +2692,123 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
         ImGui::EndMainMenuBar();
     }
 }
+//-----------------------------------------------------------------------------
+//! Builds the edit menu that can be in the menu bar and the context menu
+void AppDemoGui::buildMenuEdit(SLProjectScene* s, SLSceneView* sv)
+{
+    if (ImGui::MenuItem("Deselect Node", "ESC"))
+        s->deselectAllNodesAndMeshes();
 
+    ImGui::Separator();
+
+    if (ImGui::MenuItem("Translate Node", nullptr, transformNode && transformNode->editMode() == NodeEditMode_Translate))
+    {
+        if (transformNode && transformNode->editMode() == NodeEditMode_Translate)
+            removeTransformNode(s);
+        else
+            setTransformEditMode(s, sv, NodeEditMode_Translate);
+    }
+    if (ImGui::MenuItem("Rotate Node", nullptr, transformNode && transformNode->editMode() == NodeEditMode_Rotate))
+    {
+        if (transformNode && transformNode->editMode() == NodeEditMode_Rotate)
+            removeTransformNode(s);
+        else
+            setTransformEditMode(s, sv, NodeEditMode_Rotate);
+    }
+    if (ImGui::MenuItem("Scale Node", nullptr, transformNode && transformNode->editMode() == NodeEditMode_Scale))
+    {
+        if (transformNode && transformNode->editMode() == NodeEditMode_Scale)
+            removeTransformNode(s);
+        else
+            setTransformEditMode(s, sv, NodeEditMode_Scale);
+    }
+
+    ImGui::Separator();
+
+    if (ImGui::BeginMenu("Node Flags"))
+    {
+        SLNode* selN = s->singleNodeSelected();
+
+        if (ImGui::MenuItem("Wired Mesh", nullptr, selN->drawBits()->get(SL_DB_MESHWIRED)))
+            selN->drawBits()->toggle(SL_DB_MESHWIRED);
+
+        if (ImGui::MenuItem("With hard edges", nullptr, selN->drawBits()->get(SL_DB_WITHEDGES)))
+            selN->drawBits()->toggle(SL_DB_WITHEDGES);
+
+        if (ImGui::MenuItem("Only hard edges", nullptr, selN->drawBits()->get(SL_DB_ONLYEDGES)))
+            selN->drawBits()->toggle(SL_DB_ONLYEDGES);
+
+        if (ImGui::MenuItem("Normals", nullptr, selN->drawBits()->get(SL_DB_NORMALS)))
+            selN->drawBits()->toggle(SL_DB_NORMALS);
+
+        if (ImGui::MenuItem("Bounding Boxes", nullptr, selN->drawBits()->get(SL_DB_BBOX)))
+            selN->drawBits()->toggle(SL_DB_BBOX);
+
+        if (ImGui::MenuItem("Voxels", nullptr, selN->drawBits()->get(SL_DB_VOXELS)))
+            selN->drawBits()->toggle(SL_DB_VOXELS);
+
+        if (ImGui::MenuItem("Axis", nullptr, selN->drawBits()->get(SL_DB_AXIS)))
+            selN->drawBits()->toggle(SL_DB_AXIS);
+
+        if (ImGui::MenuItem("Back Faces", nullptr, selN->drawBits()->get(SL_DB_CULLOFF)))
+            selN->drawBits()->toggle(SL_DB_CULLOFF);
+
+        if (ImGui::MenuItem("Skeleton", nullptr, selN->drawBits()->get(SL_DB_SKELETON)))
+            selN->drawBits()->toggle(SL_DB_SKELETON);
+
+        if (ImGui::MenuItem("All off"))
+            selN->drawBits()->allOff();
+
+        ImGui::EndMenu();
+    }
+}
+//-----------------------------------------------------------------------------
+//! Builds context menu if right mouse click is over non-imgui area
+void AppDemoGui::buildMenuContext(SLProjectScene* s, SLSceneView* sv)
+{
+    if (!ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow) &&
+        ImGui::IsMouseReleased(1))
+    {
+        ImGui::OpenPopup("Context Menu");
+    }
+
+    if (ImGui::BeginPopup("Context Menu"))
+    {
+        if (s->singleNodeSelected() != nullptr || !sv->camera()->selectRect().isZero())
+        {
+            if (s->singleNodeSelected())
+            {
+                buildMenuEdit(s, sv);
+                ImGui::Separator();
+
+                if (!showProperties)
+                    if (ImGui::MenuItem("Show Properties"))
+                        showProperties = true;
+            }
+        }
+
+        if (AppDemoGui::hideUI)
+            if (ImGui::MenuItem("Show user interface"))
+                AppDemoGui::hideUI = false;
+
+        if (!AppDemoGui::hideUI)
+            if (ImGui::MenuItem("Hide user interface"))
+                AppDemoGui::hideUI = true;
+
+        if (s->root3D()->drawBits()->get(SL_DB_HIDDEN))
+            if (ImGui::MenuItem("Show root node"))
+                s->root3D()->drawBits()->toggle(SL_DB_HIDDEN);
+
+        if (!s->root3D()->drawBits()->get(SL_DB_HIDDEN))
+            if (ImGui::MenuItem("Hide root node"))
+                s->root3D()->drawBits()->toggle(SL_DB_HIDDEN);
+
+        if (ImGui::MenuItem("Capture Screen"))
+            sv->screenCaptureIsRequested(true);
+
+        ImGui::EndPopup();
+    }
+}
 //-----------------------------------------------------------------------------
 //! Builds the scenegraph dialog once per frame
 void AppDemoGui::buildSceneGraph(SLScene* s)

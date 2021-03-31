@@ -61,8 +61,8 @@ public class GLES3Lib {
     public static native void    onMouseUp          (int button, int x, int y);
     public static native void    onMouseMove        (int x, int y);
     public static native void    onTouch2Down       (int x1, int y1, int x2, int y2);
-    public static native void    onTouch2Up         (int x1, int y1, int x2, int y2);
     public static native void    onTouch2Move       (int x1, int y1, int x2, int y2);
+    public static native void    onTouch2Up         (int x1, int y1, int x2, int y2);
     public static native void    onDoubleClick      (int button, int x, int y);
     public static native void    onRotationQUAT     (float quatX, float quatY, float quatZ, float quatW);
     public static native void    onClose            ();

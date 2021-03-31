@@ -96,11 +96,6 @@ SLbool SLInputManager::processQueuedEvents(SLSceneView* sv)
                     eventConsumed |= sv->onMouseWheel(me->y, me->modifier);
                 }
                 break;
-                case SLInputEvent::LongTouch: {
-                    const SLMouseEvent* me = (const SLMouseEvent*)e;
-                    eventConsumed |= sv->onLongTouch(me->x, me->y);
-                }
-                break;
 
                 case SLInputEvent::Touch2Move: {
                     const SLTouchEvent* te = (const SLTouchEvent*)e;
@@ -117,22 +112,6 @@ SLbool SLInputManager::processQueuedEvents(SLSceneView* sv)
                     eventConsumed |= sv->onTouch2Up(te->x1, te->y1, te->x2, te->y2);
                 }
                 break;
-
-                case SLInputEvent::Touch3Move: {
-                    const SLTouchEvent* te = (const SLTouchEvent*)e;
-                    eventConsumed |= sv->onTouch3Move(te->x1, te->y1);
-                }
-                    break;
-                case SLInputEvent::Touch3Down: {
-                    const SLTouchEvent* te = (const SLTouchEvent*)e;
-                    eventConsumed |= sv->onTouch3Down(te->x1, te->y1);
-                }
-                    break;
-                case SLInputEvent::Touch3Up: {
-                    const SLTouchEvent* te = (const SLTouchEvent*)e;
-                    eventConsumed |= sv->onTouch3Up(te->x1, te->y1);
-                }
-                    break;
 
                 case SLInputEvent::KeyDown: {
                     const SLKeyEvent* ke = (const SLKeyEvent*)e;

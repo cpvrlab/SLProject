@@ -20,9 +20,6 @@
 #include <utility>
 
 //-----------------------------------------------------------------------------
-// Milliseconds duration of a long touch event
-const SLint SLSceneView::LONGTOUCH_MS = 2000;
-//-----------------------------------------------------------------------------
 //! SLSceneView default constructor
 /*! The default constructor adds the this pointer to the sceneView vector in
 SLScene. If an in between element in the vector is zero (from previous sceneviews)
@@ -37,7 +34,8 @@ SLSceneView::SLSceneView(SLScene* s, int dpi, SLInputManager& inputManager)
     _shadowMapTimesMS(60, 0.0f),
     _cullTimesMS(60, 0.0f),
     _draw3DTimesMS(60, 0.0f),
-    _draw2DTimesMS(60, 0.0f)
+    _draw2DTimesMS(60, 0.0f),
+    _screenCaptureIsRequested(false)
 {
 }
 //-----------------------------------------------------------------------------
@@ -110,7 +108,8 @@ void SLSceneView::init(SLstring       name,
 
     _renderType = RT_gl;
 
-    _skybox = nullptr;
+    _skybox                 = nullptr;
+    _screenCaptureIsRequested = false;
 
     if (_gui)
         _gui->init(configPath);
@@ -524,6 +523,10 @@ SLbool SLSceneView::onPaint()
     // (can only happen during raytracing)
     if (_gotPainted)
     {
+        // save previous frame if it is requested
+        if (_screenCaptureIsRequested)
+            saveFrameBufferAsImage();
+
         _gotPainted = false;
         // Process queued up system events and poll custom input devices
         viewConsumedEvents = _inputManager.pollAndProcessEvents(this);
@@ -546,7 +549,7 @@ SLbool SLSceneView::onPaint()
     }
 
     // Clear NO. of draw calls after UI creation
-    SLGLVertexArray::totalDrawCalls = 0;
+    SLGLVertexArray::totalDrawCalls          = 0;
     SLGLVertexArray::totalPrimitivesRendered = 0;
 
     if (_s && _camera)
@@ -1237,7 +1240,7 @@ SLbool SLSceneView::onMouseDown(SLMouseButton button,
                                 SLKey         mod)
 {
     // Correct viewport offset
-    // mouse corrdinates are top-left, viewport is bottom-left)
+    // mouse coordinates are top-left, viewport is bottom-left)
     SLint x = scrX - _viewportRect.x;
     SLint y = scrY - ((_scrH - _viewportRect.height) - _viewportRect.y);
 
@@ -1246,20 +1249,15 @@ SLbool SLSceneView::onMouseDown(SLMouseButton button,
     {
         _gui->onMouseDown(button, x, y);
 
-#ifdef SL_GLES
         // Touch devices on iOS or Android have no mouse move event when the
         // finger isn't touching the screen. Therefore imgui can not detect hovering
         // over an imgui window. Without this extra frame you would have to touch
         // the display twice to open e.g. a menu.
         _gui->renderExtraFrame(_s, this, x, y);
-#endif
 
         if (_gui->doNotDispatchMouse())
             return true;
     }
-
-    //if (ImGui::GetIO().WantCaptureMouse)
-    //    return true;
 
     _mouseDownL = (button == MB_left);
     _mouseDownR = (button == MB_right);
@@ -1300,7 +1298,7 @@ SLbool SLSceneView::onMouseUp(SLMouseButton button,
     _touchDowns = 0;
 
     // Correct viewport offset
-    // mouse corrds are top-left, viewport is bottom-left)
+    // mouse coordinates are top-left, viewport is bottom-left)
     SLint x = scrX - _viewportRect.x;
     SLint y = scrY - ((_scrH - _viewportRect.height) - _viewportRect.y);
 
@@ -1324,6 +1322,12 @@ SLbool SLSceneView::onMouseUp(SLMouseButton button,
         _gui->onMouseUp(button, x, y);
         if (_gui->doNotDispatchMouse())
             return true;
+
+        // Touch devices on iOS or Android have no mouse move event when the
+        // finger isn't touching the screen. Therefore imgui can not detect hovering
+        // over an imgui window. Without this extra frame you would have to touch
+        // the display twice to open e.g. a menu.
+        _gui->renderExtraFrame(_s, this, x, y);
     }
 
     _mouseDownL = false;
@@ -1543,23 +1547,6 @@ SLbool SLSceneView::onDoubleClick(SLMouseButton button,
     return result;
 }
 //-----------------------------------------------------------------------------
-/*! SLSceneView::onLongTouch gets called when the mouse or touch is down for
-more than 500ms and has not moved.
-*/
-SLbool SLSceneView::onLongTouch(SLint scrX, SLint scrY)
-{
-    //SL_LOG("onLongTouch(%d, %d)", x, y);
-
-    // Correct viewport offset
-    // mouse coordinates are top-left, viewport is bottom-left)
-    SLint x = scrX - _viewportRect.x;
-    SLint y = scrY - ((_scrH - _viewportRect.height) - _viewportRect.y);
-
-    SL_LOG("SLSceneView::onLongTouch");
-
-    return true;
-}
-//-----------------------------------------------------------------------------
 /*!
 SLSceneView::onTouch2Down gets called whenever two fingers touch a handheld
 screen.
@@ -1644,92 +1631,6 @@ SLbool SLSceneView::onTouch2Up(SLint scrX1, SLint scrY1, SLint scrX2, SLint scrY
     for (auto* eh : _s->eventHandlers())
     {
         if (eh->onTouch2Up(x1, y1, x2, y2))
-            result = true;
-    }
-    return result;
-}
-//-----------------------------------------------------------------------------
-/*!
- SLSceneView::onTouch2Down gets called when three fingers touch a handheld screen.
- Only and average of the three fingers is evaluated.
-*/
-SLbool SLSceneView::onTouch3Down(SLint scrX, SLint scrY)
-{
-    if (!_s || !_s->root3D())
-        return false;
-
-    // Correct viewport offset
-    // mouse coordinates are top-left, viewport is bottom-left)
-    SLint x = scrX - _viewportRect.x;
-    SLint y = scrY - ((_scrH - _viewportRect.height) - _viewportRect.y);
-
-    _touch[0].set(x, y);
-    _touch[1].set(x, y);
-    _touch[2].set(x, y);
-    _touchDowns = 3;
-
-    SLbool result = _camera->onTouch3Down(x, y);
-
-    for (auto* eh : _s->eventHandlers())
-    {
-        if (eh->onTouch3Down(x, y))
-            result = true;
-    }
-    return result;
-}
-//-----------------------------------------------------------------------------
-/*!
- SLSceneView::onTouch2Move gets called when three fingers touch a screen.
- Only and average of the three fingers is evaluated.
-*/
-SLbool SLSceneView::onTouch3Move(SLint scrX, SLint scrY)
-{
-    if (!_s || !_s->root3D())
-        return false;
-
-    // Correct viewport offset
-    SLint x = scrX - _viewportRect.x;
-    SLint y = scrY - ((_scrH - _viewportRect.height) - _viewportRect.y);
-
-    _touch[0].set(x, y);
-    _touch[1].set(x, y);
-    _touch[2].set(x, y);
-
-    SLbool result = false;
-    if (_touchDowns == 3)
-    {
-        result = _camera->onTouch3Move(x, y);
-        for (auto* eh : _s->eventHandlers())
-        {
-            if (eh->onTouch3Move(x, y))
-                result = true;
-        }
-    }
-    return result;
-}
-//-----------------------------------------------------------------------------
-/*!
- SLSceneView::onTouch2Up gets called when three fingers lift off a handheld
- screen. Only and average of the three fingers is evaluated.
-*/
-SLbool SLSceneView::onTouch3Up(SLint scrX, SLint scrY)
-{
-    if (!_s || !_s->root3D())
-        return false;
-
-    // Correct viewport offset
-    SLint x = scrX - _viewportRect.x;
-    SLint y = scrY - ((_scrH - _viewportRect.height) - _viewportRect.y);
-
-    _touch[0].set(x, y);
-    _touch[1].set(x, y);
-    _touch[3].set(x, y);
-    _touchDowns = 0;
-
-    SLbool result = _camera->onTouch3Up(x, y);
-    for (auto* eh : _s->eventHandlers())
-    {
-        if (eh->onTouch3Up(x, y))
             result = true;
     }
     return result;
@@ -2144,5 +2045,59 @@ SLbool SLSceneView::draw3DCT()
 void SLSceneView::initConeTracer(SLstring shaderDir)
 {
     _conetracer = std::make_unique<SLGLConetracer>(shaderDir);
+}
+//-----------------------------------------------------------------------------
+void SLSceneView::saveFrameBufferAsImage()
+{
+
+    if (_screenCaptureWaitFrames == 0)
+    {
+        SLint fbW = (SLint)(_viewportRect.width * _scr2fbX);
+        SLint fbH = (SLint)(_viewportRect.height * _scr2fbY);
+
+        GLsizei nrChannels = 3;
+        GLsizei stride     = nrChannels * fbW;
+        stride += (stride % 4) ? (4 - stride % 4) : 0;
+        GLsizei       bufferSize = stride * fbH;
+        vector<uchar> buffer(bufferSize);
+
+        glPixelStorei(GL_PACK_ALIGNMENT, 4);
+        glReadBuffer(GL_FRONT);
+        glReadPixels(0, 0, fbW, fbH, GL_RGB, GL_UNSIGNED_BYTE, buffer.data());
+
+        CVMat rgbImg = CVMat(fbH, fbW, CV_8UC3, (void*)buffer.data(), stride);
+        cv::cvtColor(rgbImg, rgbImg, cv::COLOR_BGR2RGB);
+        cv::flip(rgbImg, rgbImg, 0);
+
+        vector<int> compression_params;
+        compression_params.push_back(cv::IMWRITE_PNG_COMPRESSION);
+        compression_params.push_back(6);
+
+        SLstring path = SLApplication::externalPath + "screenshots/";
+        Utils::makeDirRecurse(path);
+        SLstring filename     = "Screenshot_" + Utils::getDateTime2String() + ".png";
+        SLstring pathFilename = path + filename;
+
+        try
+        {
+            imwrite(pathFilename, rgbImg, compression_params);
+
+            string msg = "Screenshot saved to: " + pathFilename;
+            SL_LOG(msg.c_str());
+        }
+        catch (std::runtime_error& ex)
+        {
+            string msg = "SLSceneView::saveFrameBufferAsImage: Exception: ";
+            msg += ex.what();
+            Utils::exitMsg("SLProject", msg.c_str(), __LINE__, __FILE__);
+        }
+
+#if !defined(SL_OS_ANDROID) && !defined(SL_OS_MACIOS)
+        _gui->drawMouseCursor(true);
+#endif
+        _screenCaptureIsRequested = false;
+    }
+    else
+        _screenCaptureWaitFrames--;
 }
 //-----------------------------------------------------------------------------

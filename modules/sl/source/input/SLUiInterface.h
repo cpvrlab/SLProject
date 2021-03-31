@@ -46,9 +46,15 @@ public:
 
     //! inform if user keyboard input was consumed by the ui
     virtual bool doNotDispatchKeyboard() { return false; }
+
     //! inform if user mouse input was consumed by the ui
-    //!(e.g. the ui was hit by a mouse click. In this case the user input would not be forwarded to 3D scene graph)
+    /*! (e.g. the ui was hit by a mouse click.
+     * In this case the user input would not be forwarded to 3D scene graph)
+     */
     virtual bool doNotDispatchMouse() { return false; }
+
+    //! Turns on or off the mouse cursor drawing
+    virtual void drawMouseCursor(bool doDraw) {}
 };
 
 #endif
