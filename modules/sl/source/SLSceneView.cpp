@@ -2073,7 +2073,9 @@ void SLSceneView::saveFrameBufferAsImage()
         compression_params.push_back(cv::IMWRITE_PNG_COMPRESSION);
         compression_params.push_back(6);
 
-        SLstring path = SLApplication::externalPath + "screenshots/";
+        SL_EXIT_MSG("SLApplication::externalPath cannot be used in SLSceneView");
+        //SLstring path = SLApplication::externalPath + "screenshots/";
+        SLstring path;
         Utils::makeDirRecurse(path);
         SLstring filename     = "Screenshot_" + Utils::getDateTime2String() + ".png";
         SLstring pathFilename = path + filename;
