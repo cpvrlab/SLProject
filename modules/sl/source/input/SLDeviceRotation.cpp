@@ -121,10 +121,12 @@ SLstring SLDeviceRotation::offsetModeStr() const
     switch(_offsetMode)
     {
         case OM_none: return "None";
-        case OM_fingerX: return "Finger X";
-        case OM_fingerXY: return "Finger X&Y";
-        case OM_autoX: return "Auto X";
-        case OM_autoXY: return "auto X&Y";
+        case OM_fingerX: return "FingerXRot";
+        case OM_fingerXY: return "FingerXYRot";
+        case OM_fingerYTrans: return "FingerYTrans";
+        case OM_fingerXRotYTrans: return "FingerXRotYTrans";
+        case OM_autoX: return "AutoXRot";
+        case OM_autoXY: return "AutoXYRot";
         default: return "Unknown";
     }
 }
