@@ -200,6 +200,7 @@ static void onResize(GLFWwindow* myWindow, int width, int height)
     glfwGetWindowPos(myWindow, &curW, &curH);
     glfwSetWindowSize(myWindow, width, height);
     glfwSetWindowPos(myWindow, curW, curH);
+    onPaint();
 }
 //-----------------------------------------------------------------------------
 /*!

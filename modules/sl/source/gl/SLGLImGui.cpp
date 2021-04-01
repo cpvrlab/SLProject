@@ -601,7 +601,7 @@ void SLGLImGui::onMouseDown(SLMouseButton button, SLint x, SLint y)
     io.MousePos = ImVec2((SLfloat)x, (SLfloat)y);
     if (button == MB_left) io.MouseDown[0] = true;
     if (button == MB_right) io.MouseDown[1] = true;
-    if (button == MB_middle) io.MouseDown[1] = true;
+    if (button == MB_middle) io.MouseDown[2] = true;
     //SL_LOG("D");
 }
 //-----------------------------------------------------------------------------

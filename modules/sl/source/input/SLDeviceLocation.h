@@ -84,6 +84,7 @@ public:
     SLfloat locMaxDistanceM() const { return _locMaxDistanceM; }
     SLVec3d defaultENU() const { return _defaultENU; }
     SLVec3d originLatLonAlt() const { return _originLatLonAlt; }
+    SLVec3d defaultLatLonAlt() const { return _defaultLatLonAlt; }
     SLVec3d originENU() const { return _originENU; }
     SLVec3d originECEF() const { return _originECEF; }
     SLbool  hasOrigin() const { return _hasOrigin; }

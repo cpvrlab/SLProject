@@ -17,7 +17,7 @@
 //-----------------------------------------------------------------------------
 //! Virtual Eventhandler class
 /*!
-SLEventHandler profides virtual methods for basic mouse and keyboard events.
+SLEventHandler provides virtual methods for basic mouse and keyboard events.
 The SLNode class is derived from the SLEventhandler class and therefore all
 nodes can act as a eventhandler. For the moment only the camera class handles
 the events and implements this way the trackball camera.
@@ -31,7 +31,7 @@ public:
     SLEventHandler()
     {
         //todo anim
-        _mouseRotationFactor = 0.5f;
+        _mouseRotationFactor = 0.1f;
         _keyboardDeltaPos    = 0.1f;
         //_dRot      = 15.0f;
     }

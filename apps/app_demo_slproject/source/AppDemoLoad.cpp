@@ -926,7 +926,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         // Create 3D textured sphere mesh and node
         SLNode*   sphere = new SLNode(new SLSphere(s, 0.2f, 16, 16, "Sphere", mat3D));
         SLCamera* cam1   = new SLCamera("Camera 1");
-        cam1->translation(0, 0, 2.2f);
+        cam1->translation(0, 0, 2.6f);
         cam1->lookAt(0, 0, 0);
         cam1->focalDist(2.2f);
         cam1->background().colors(SLCol4f(0.2f, 0.2f, 0.2f));
