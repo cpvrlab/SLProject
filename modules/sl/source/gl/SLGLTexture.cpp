@@ -511,6 +511,7 @@ void SLGLTexture::load(const SLstring& filename,
     // Check for compressed texture in KTX2 (Khronos Texture) format
     if (ext == "ktx2")
     {
+        _ktxFileName         = filename;
         _compressedTexture   = true;
         KTX_error_code error = ktxTexture_CreateFromNamedFile(filename.c_str(),
                                                               KTX_TEXTURE_CREATE_NO_FLAGS,
@@ -533,7 +534,7 @@ void SLGLTexture::load(const SLstring& filename,
 #endif
             error = ktxTexture2_TranscodeBasis(_ktxTexture, _compressionFormat, 0);
 
-            if (error != KTX_SUCCESS)
+            if (error != KTX_SUCCESS || _ktxTexture->pData == nullptr)
             {
                 string errStr = "Error in SLGLTexture::load: " +
                                 ktxErrorStr(error) +
@@ -692,6 +693,12 @@ void SLGLTexture::build(SLint texUnit)
 
     if (_compressedTexture)
     {
+        if (_ktxTexture->pData == nullptr)
+        {
+            string errStr = "Error in SLGLTexture::build: texture " + _ktxFileName + " contains no data";
+            SL_WARN_MSG(errStr.c_str());
+        }
+        
         // delete texture name if it already exits
         if (_texID)
         {

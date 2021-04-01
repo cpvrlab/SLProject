@@ -24,6 +24,7 @@ public:
     void keyPress(int sceneViewIndex, SLKey key, SLKey modifier);
     void keyRelease(int sceneViewIndex, SLKey key, SLKey modifier);
     void charInput(int sceneViewIndex, unsigned int character);
+    void longTouch(int sceneViewIndex, int x, int y) {}
 
 private:
     SLInputManager& _inputManager;
