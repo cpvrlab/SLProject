@@ -47,8 +47,8 @@ T geoDegMinSec2Decimal(int degrees, int minutes, T seconds)
     return (T)degrees + ((T)(minutes * 60) + seconds) / ((T)3600);
 }
 //explicit template instantiation for float and double (only these make sense)
-template float geoDegMinSec2Decimal<float>(int degrees, int minutes, float seconds);
-template double geoDegMinSec2Decimal<double>(int degrees, int minutes, double seconds);
+template float geoDegMinSec2Decimal(int degrees, int minutes, float seconds);
+template double geoDegMinSec2Decimal(int degrees, int minutes, double seconds);
 
 // clang-format off
 template<typename T>
@@ -56,6 +56,7 @@ SLVec3<T> geoDegMinSec2Decimal(int degreesLat, int minutesLat, T secondsLat,
                                int degreesLon, int minutesLon, T secondsLon,
                                T alt)
 {
+    //https://www.koordinaten-umrechner.de/
     assert(degreesLat > -90 && degreesLat < 90);
     assert(degreesLon > -180 && degreesLon < 180);
     assert(minutesLat > 0 && minutesLat < 60);

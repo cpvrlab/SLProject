@@ -263,7 +263,7 @@ protected:
     SLbool              _compressedTexture = false;               //!< True for compressed texture format on GPU
     ktxTexture2*        _ktxTexture        = nullptr;             //!< Pointer to the KTX texture after loading
     ktx_transcode_fmt_e _compressionFormat = KTX_TTF_NOSELECTION; //!< compression format on GPU
-
+    std::string         _ktxFileName;
 #ifdef SL_HAS_OPTIX
     CUgraphicsResource _cudaGraphicsResource; //!< Cuda Graphics object
     CUtexObject        _cudaTextureObject;
