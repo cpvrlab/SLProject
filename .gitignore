@@ -40,6 +40,7 @@ data/calibrations/street*
 data/calibrations/ORBvoc.txt
 data/calibrations/imgs
 data/videos
+data/screenshots
 data/slam-maps
 externals/g2o/BUILD*
 externals/g2o/INSTALL*

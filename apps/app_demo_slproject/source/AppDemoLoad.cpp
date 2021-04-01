@@ -4304,11 +4304,10 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         matVideoBackgroundSM->getsShadows(true);
 
         // Create directional light for the sun light
-        SLLightDirect* sunLight = new SLLightDirect(s, s, 5.0f);
+        SLLightDirect* sunLight = new SLLightDirect(s, s, 1.0f);
         sunLight->powers(1.0f, 1.5f, 1.0f);
         sunLight->attenuation(1, 0, 0);
-        sunLight->translation(0, 10, 0);
-        sunLight->lookAt(10, 0, 10);
+        sunLight->translation(0, 1, 0);
         sunLight->doSunPowerAdaptation(true);
         sunLight->createsShadows(true);
         sunLight->createShadowMap(-70, 70, SLVec2f(140, 100), SLVec2i(4096, 4096));
@@ -4554,11 +4553,11 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         matVideoBackgroundSM->getsShadows(true);
 
         // Create directional light for the sun light
-        SLLightDirect* sunLight = new SLLightDirect(s, s, 5.0f);
+        SLLightDirect* sunLight = new SLLightDirect(s, s, 1.0f);
         sunLight->powers(1.0f, 1.0f, 1.0f);
         sunLight->attenuation(1, 0, 0);
-        sunLight->translation(0, 10, 0);
-        sunLight->lookAt(10, 0, 10);
+        sunLight->translation(0, 1, 0);
+
         sunLight->doSunPowerAdaptation(true);
         sunLight->createsShadows(true);
         sunLight->createShadowMap(-80, 100, SLVec2f(130, 130), SLVec2i(4096, 4096));
@@ -4586,6 +4585,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         // Let the video shine through some objects
         theatre->findChild<SLNode>("Tht-Rasen")->setMeshMat(matVideoBackgroundSM, true);
         theatre->findChild<SLNode>("Tht-Untergrund")->setMeshMat(matVideoBackground, true);
+        theatre->findChild<SLNode>("Tht-Boden")->setMeshMat(matVideoBackgroundSM, true);
 
         // Add axis object a world origin
         SLNode* axis = new SLNode(new SLCoordAxis(s), "Axis Node");

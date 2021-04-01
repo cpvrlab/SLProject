@@ -18,7 +18,7 @@
 #include <Averaged.h>
 
 //-----------------------------------------------------------------------------
-//! Device rotation offset mode
+//! Device rotation and translation offset mode
 enum SLOffsetMode
 {
     OM_none = 0,

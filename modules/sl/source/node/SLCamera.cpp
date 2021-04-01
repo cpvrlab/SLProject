@@ -779,6 +779,7 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
     {
         //camera focal length
         float f = 1.f;
+
         //finger x-y-movement expressed in enu frame
         SLVec3f enuOffsetPix;
 
@@ -852,7 +853,9 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
             //_enucorrTRenu += enuOffsetPix.y / f * _distanceToObjectM;
             // Set the camera position
             const SLVec3f& wtc = _om.translation();
-            SLVec3f        wtc_f((SLfloat)wtc.x, (SLfloat)wtc.y + enuOffsetPix.y / f * _distanceToObjectM, (SLfloat)wtc.z);
+            SLVec3f        wtc_f((SLfloat)wtc.x,
+                          (SLfloat)wtc.y + enuOffsetPix.y / f * _distanceToObjectM,
+                          (SLfloat)wtc.z);
             _om.setTranslation(wtc_f);
             needUpdate();
         }

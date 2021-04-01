@@ -170,7 +170,7 @@ public:
         if (doScreenCap)
         {
             _gui->drawMouseCursor(false);
-            _screenCaptureWaitFrames = 2;
+            _screenCaptureWaitFrames = 4;
         }
         _screenCaptureIsRequested = doScreenCap;
     }
