@@ -1,6 +1,6 @@
 #include "WAIAppTest.h"
 
-#include <SLApplication.h>
+#include <AppDemo.h>
 #include <SLGLTexture.h>
 #include <SLGLProgram.h>
 #include <SLAssimpImporter.h>
@@ -28,7 +28,7 @@
 //#define WAIAPPSTATE_WARN(...)  // nothing
 
 WAIApp::WAIApp()
-  : SLInputEventInterface(SLApplication::inputManager)
+  : SLInputEventInterface(AppDemo::inputManager)
 {
 }
 
@@ -87,25 +87,25 @@ void WAIApp::initDirectories(AppDirectories directories)
     SLGLTexture::defaultPathFonts = _dirs.slDataRoot + "/images/fonts/";
     CVImage::defaultPath          = _dirs.slDataRoot + "/images/textures/";
     SLAssimpImporter::defaultPath = _dirs.slDataRoot + "/models/";
-    SLApplication::configPath     = _dirs.writableDir;
+    AppDemo::configPath     = _dirs.writableDir;
 }
 
 void WAIApp::initSceneGraph(int scrWidth, int scrHeight, float scr2fbX, float scr2fbY, int dpi)
 {
     WAIAPP_DEBUG("initSceneGraph");
-    if (!SLApplication::scene)
+    if (!AppDemo::scene)
     {
-        SLApplication::name  = "WAI Demo App";
-        SLApplication::scene = new SLScene("WAI Demo App", nullptr);
+        AppDemo::name  = "WAI Demo App";
+        AppDemo::scene = new SLScene("WAI Demo App", nullptr);
 
         int screenWidth  = (int)(scrWidth * scr2fbX);
         int screenHeight = (int)(scrHeight * scr2fbY);
 
-        //setupGUI(SLApplication::name, SLApplication::configPath, dpi);
+        //setupGUI(AppDemo::name, AppDemo::configPath, dpi);
         // Set default font sizes depending on the dpi no matter if ImGui is used
         //todo: is this still needed?
-        if (!SLApplication::dpi)
-            SLApplication::dpi = dpi;
+        if (!AppDemo::dpi)
+            AppDemo::dpi = dpi;
 
         _sv = new SLSceneView();
         _sv->init("SceneView",
@@ -176,11 +176,11 @@ bool WAIApp::update()
         }
 
         //update scene
-        SLApplication::scene->onUpdate();
+        AppDemo::scene->onUpdate();
 
         //update sceneviews
         bool needUpdate = false;
-        for (auto sv : SLApplication::scene->sceneViews())
+        for (auto sv : AppDemo::scene->sceneViews())
             if (sv->onPaint() && !needUpdate)
                 needUpdate = true;
 
@@ -210,10 +210,10 @@ void WAIApp::goBack()
 void WAIApp::deleteSceneGraph()
 {
     // Deletes all remaining sceneviews the current scene instance
-    if (SLApplication::scene)
+    if (AppDemo::scene)
     {
-        delete SLApplication::scene;
-        SLApplication::scene = nullptr;
+        delete AppDemo::scene;
+        AppDemo::scene = nullptr;
     }
 }
 
@@ -236,7 +236,7 @@ void WAIApp::initSceneCamera()
 void WAIApp::initIntroScene()
 {
     WAIAPP_DEBUG("initIntroScene");
-    SLScene* s = SLApplication::scene;
+    SLScene* s = AppDemo::scene;
     //clear old scene content
     s->init();
 
@@ -286,7 +286,7 @@ void WAIApp::initIntroScene()
 
     /*
     WAIAPP_DEBUG("initIntroScene");
-    SLScene* s = SLApplication::scene;
+    SLScene* s = AppDemo::scene;
     //clear old scene content
     s->init();
 
@@ -374,7 +374,7 @@ void WAIApp::initIntroScene()
 /*
 void WAIApp::enableSceneGraph()
 {
-    SLScene* s = SLApplication::scene;
+    SLScene* s = AppDemo::scene;
     for (auto sceneView : s->sceneViews())
         if (sceneView != nullptr)
             sceneView->onInitialize();
@@ -384,7 +384,7 @@ void WAIApp::enableSceneGraph()
 
 /*
 WAIAppStateHandler::WAIAppStateHandler(CloseAppCallback cb)
-  : SLInputEventInterface(SLApplication::inputManager),
+  : SLInputEventInterface(AppDemo::inputManager),
     _closeAppCallback(cb)
 {
     WAIAPPSTATE_DEBUG("constructor");

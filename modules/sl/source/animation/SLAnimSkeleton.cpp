@@ -36,7 +36,7 @@ SLAnimSkeleton::~SLAnimSkeleton()
 */
 SLJoint* SLAnimSkeleton::createJoint(SLuint id)
 {
-    ostringstream oss;
+    std::ostringstream oss;
     oss << "Joint " << id;
     return createJoint(oss.str(), id);
 }

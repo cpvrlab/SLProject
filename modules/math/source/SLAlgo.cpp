@@ -54,7 +54,7 @@ template double geoDegMinSec2Decimal(int degrees, int minutes, double seconds);
 template<typename T>
 SLVec3<T> geoDegMinSec2Decimal(int degreesLat, int minutesLat, T secondsLat,
                                int degreesLon, int minutesLon, T secondsLon,
-                               T alt)
+                               T altM)
 {
     //https://www.koordinaten-umrechner.de/
     assert(degreesLat > -90 && degreesLat < 90);
@@ -67,16 +67,16 @@ SLVec3<T> geoDegMinSec2Decimal(int degreesLat, int minutesLat, T secondsLat,
     SLVec3<T> vec;
     vec.x = geoDegMinSec2Decimal<T>(degreesLat, minutesLat, secondsLat);
     vec.y = geoDegMinSec2Decimal<T>(degreesLon, minutesLon, secondsLon);
-    vec.z = alt;
+    vec.z = altM;
     
     return vec;
 }
 //explicit template instantiation for float and double (only these make sense)
 template SLVec3f geoDegMinSec2Decimal(int degreesLat, int minutesLat, float secondsLat,
                                       int degreesLon, int minutesLon, float secondsLon,
-                                      float alt);
+                                      float altM);
 template SLVec3d geoDegMinSec2Decimal(int degreesLat, int minutesLat, double secondsLat,
                                       int degreesLon, int minutesLon, double secondsLon,
-                                      double alt);
+                                      double altM);
 // clang-format on
 };

@@ -523,11 +523,8 @@ SLbool SLSceneView::onPaint()
     // (can only happen during raytracing)
     if (_gotPainted)
     {
-        // save previous frame if it is requested
-        if (_screenCaptureIsRequested)
-            saveFrameBufferAsImage();
-
         _gotPainted = false;
+
         // Process queued up system events and poll custom input devices
         viewConsumedEvents = _inputManager.pollAndProcessEvents(this);
 
@@ -2047,7 +2044,12 @@ void SLSceneView::initConeTracer(SLstring shaderDir)
     _conetracer = std::make_unique<SLGLConetracer>(shaderDir);
 }
 //-----------------------------------------------------------------------------
-void SLSceneView::saveFrameBufferAsImage()
+//! Saves after n wait frames the front frame buffer as a PNG image.
+/* Due to the fact that ImGui needs several frame the render its UI we have to
+ * wait a few frames until we can be sure that the executing menu command has
+ * disappeared before we can save the screen.
+ */
+void SLSceneView::saveFrameBufferAsImage(SLstring pathFilename)
 {
 
     if (_screenCaptureWaitFrames == 0)
@@ -2061,9 +2063,7 @@ void SLSceneView::saveFrameBufferAsImage()
         GLsizei       bufferSize = stride * fbH;
         vector<uchar> buffer(bufferSize);
 
-        glPixelStorei(GL_PACK_ALIGNMENT, 4);
-        glReadBuffer(GL_FRONT);
-        glReadPixels(0, 0, fbW, fbH, GL_RGB, GL_UNSIGNED_BYTE, buffer.data());
+        SLGLState::instance()->readPixels(buffer.data());
 
         CVMat rgbImg = CVMat(fbH, fbW, CV_8UC3, (void*)buffer.data(), stride);
         cv::cvtColor(rgbImg, rgbImg, cv::COLOR_BGR2RGB);
@@ -2073,17 +2073,9 @@ void SLSceneView::saveFrameBufferAsImage()
         compression_params.push_back(cv::IMWRITE_PNG_COMPRESSION);
         compression_params.push_back(6);
 
-        SL_EXIT_MSG("SLApplication::externalPath cannot be used in SLSceneView");
-        //SLstring path = SLApplication::externalPath + "screenshots/";
-        SLstring path;
-        Utils::makeDirRecurse(path);
-        SLstring filename     = "Screenshot_" + Utils::getDateTime2String() + ".png";
-        SLstring pathFilename = path + filename;
-
         try
         {
             imwrite(pathFilename, rgbImg, compression_params);
-
             string msg = "Screenshot saved to: " + pathFilename;
             SL_LOG(msg.c_str());
         }

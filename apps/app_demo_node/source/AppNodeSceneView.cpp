@@ -10,7 +10,7 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include <SLApplication.h>
+#include <AppDemo.h>
 #include <SLAssimpImporter.h>
 #include <SLBox.h>
 #include <SLGLVertexArrayExt.h>
@@ -145,8 +145,8 @@ void AppNodeSceneView::postSceneLoad()
     SLAssimpImporter importer;
     _axesNode = importer.load(_s->animManager(),
                               am,
-                              SLApplication::modelPath + "FBX/Axes/axes_blender.fbx",
-                              SLApplication::texturePath);
+                              AppDemo::modelPath + "FBX/Axes/axes_blender.fbx",
+                              AppDemo::texturePath);
 
     _s->root3D()->addChild(_moveBox);
     _s->root3D()->addChild(_axesNode);
@@ -331,7 +331,7 @@ SLbool AppNodeSceneView::onKeyPress(const SLKey key, const SLKey mod)
         // select parent object
         case K_F1:
             _curObject = (_curObject == _moveBox) ? _moveBoxChild : _moveBox;
-            SLApplication::scene->selectNodeMesh(_curObject,
+            AppDemo::scene->selectNodeMesh(_curObject,
                                                  _curObject->mesh());
             break;
         case K_F2: _continuousInput = !_continuousInput; break;

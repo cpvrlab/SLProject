@@ -33,7 +33,7 @@ enum SLOffsetMode
 //! Encapsulation of a mobile device rotation set by the device's IMU sensor
 /*! This class is only used if SLProject runs on a mobile device. Check out the
  app-Demo-SLProject/android and app_demo_slproject/ios how the sensor data is
- generated and passed to this object hold by SLApplication.
+ generated and passed to this object hold by AppDemo.
  It stores the devices rotation that it gets from its IMU (inertial measurement
  unit) sensor. This is a fused orientation that is calculated from the
  magnetometer, the accelerometer and the gyroscope. The device rotation can

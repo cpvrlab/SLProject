@@ -8,9 +8,10 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
+#include <SLAlgo.h>
 #include <SLDeviceLocation.h>
-#include <spa.h>
 #include <SLImporter.h>
+#include <spa.h>
 
 //-----------------------------------------------------------------------------
 void SLDeviceLocation::init()
@@ -117,12 +118,36 @@ void SLDeviceLocation::onLocationLatLonAlt(SLdouble latDEG,
     _locENU = _wRecef * _locECEF;
 }
 //-----------------------------------------------------------------------------
+//! Origin coordinate setter in WGS84 Lat-Lon in degrees, minutes and seconds
+/* Swisstopo coordinates at https://map.geo.admin.ch in degrees, minutes and
+ * seconds are preciser than their decimal degrees.
+ */
+void SLDeviceLocation::originLatLonAlt(int    degreesLat,
+                                       int    minutesLat,
+                                       double secondsLat,
+                                       int    degreesLon,
+                                       int    minutesLon,
+                                       double secondsLon,
+                                       double altitudeM)
+{
+    SLVec3d originWGS84Decimal = SLAlgo::geoDegMinSec2Decimal(degreesLat,
+                                                              minutesLat,
+                                                              secondsLat,
+                                                              degreesLon,
+                                                              minutesLon,
+                                                              secondsLon,
+                                                              altitudeM);
+    originLatLonAlt(originWGS84Decimal.lat,
+                    originWGS84Decimal.lon,
+                    originWGS84Decimal.alt);
+}
+//-----------------------------------------------------------------------------
 //! Set global origin in latitude, longitude and altitude at the ground level.
 /*! The calculated values can be used for global camera positioning via GPS
  sensor. The origin is the zero point of the model. The origin should be defined
  in the model on the ground.
- /param latDEG Latitude (vertical) on WGS84 geoid in degrees
- /param lonDEG Longitude (horizontal) on WGS84 geoid in degrees
+ /param latDEG Latitude (vertical) on WGS84 geoid in decimal degrees
+ /param lonDEG Longitude (horizontal) on WGS84 geoid in decimal degrees
  /param altM Altitude over WGS84 geoid in meters
 */
 void SLDeviceLocation::originLatLonAlt(SLdouble latDEG,
@@ -164,6 +189,30 @@ void SLDeviceLocation::originLatLonAlt(SLdouble latDEG,
     _hasOrigin = true;
 
     calculateSolarAngles(_originLatLonAlt, std::time(nullptr));
+}
+//-----------------------------------------------------------------------------
+//! Default coordinate setter in WGS84 Lat-Lon in degrees, minutes and seconds
+/* Swisstopo coordinates at https://map.geo.admin.ch in degrees, minutes and
+ * seconds are preciser than their decimal degrees.
+ */
+void SLDeviceLocation::defaultLatLonAlt(int    degreesLat,
+                                        int    minutesLat,
+                                        double secondsLat,
+                                        int    degreesLon,
+                                        int    minutesLon,
+                                        double secondsLon,
+                                        double altitudeM)
+{
+    SLVec3d defaultWGS84Decimal = SLAlgo::geoDegMinSec2Decimal(degreesLat,
+                                                               minutesLat,
+                                                               secondsLat,
+                                                               degreesLon,
+                                                               minutesLon,
+                                                               secondsLon,
+                                                               altitudeM);
+    defaultLatLonAlt(defaultWGS84Decimal.lat,
+                     defaultWGS84Decimal.lon,
+                     defaultWGS84Decimal.alt);
 }
 //-----------------------------------------------------------------------------
 //! Sets the default location in latitude, longitude and altitude.

@@ -22,7 +22,7 @@
 #include "Utils_iOS.h"
 #include <SLInterface.h>
 #include <CVCapture.h>
-#include <SLApplication.h>
+#include <AppDemo.h>
 #include <AppDemoGui.h>
 #include <AppDemoSceneView.h>
 #include <mach/mach_time.h>
@@ -147,9 +147,9 @@ float GetSeconds()
         dpi = 160 * screenScale;
 
     SLVstring cmdLineArgs;
-    SLApplication::exePath      = Utils_iOS::getCurrentWorkingDir();
-    SLApplication::configPath   = Utils_iOS::getAppsWritableDir();
-    SLApplication::externalPath = getAppsDocumentsDir();
+    AppDemo::exePath      = Utils_iOS::getCurrentWorkingDir();
+    AppDemo::configPath   = Utils_iOS::getAppsWritableDir();
+    AppDemo::externalPath = getAppsDocumentsDir();
 
     // Some some computer informations
     struct utsname systemInfo;
@@ -163,24 +163,24 @@ float GetSeconds()
     Utils::ComputerInfos::osVer = std::string([osver UTF8String]);
     Utils::ComputerInfos::arch  = std::string([arch UTF8String]);
 
-    SLApplication::calibIniPath = SLApplication::exePath + "data/calibrations/"; // for calibInitPath
+    AppDemo::calibIniPath = AppDemo::exePath + "data/calibrations/"; // for calibInitPath
     CVCapture::instance()->loadCalibrations(Utils::ComputerInfos::get(),         // deviceInfo string
-                                            SLApplication::configPath);          // for stored calibrations
+                                            AppDemo::configPath);          // for stored calibrations
 
     /////////////////////////////////////////////
     slCreateAppAndScene(cmdLineArgs,
-                        SLApplication::exePath + "data/",
-                        SLApplication::exePath + "data/shaders/",
-                        SLApplication::exePath + "data/models/",
-                        SLApplication::exePath + "data/images/textures/",
-                        SLApplication::exePath + "data/images/fonts/",
-                        SLApplication::exePath + "data/videos/",
-                        SLApplication::configPath,
+                        AppDemo::exePath + "data/",
+                        AppDemo::exePath + "data/shaders/",
+                        AppDemo::exePath + "data/models/",
+                        AppDemo::exePath + "data/images/textures/",
+                        AppDemo::exePath + "data/images/fonts/",
+                        AppDemo::exePath + "data/videos/",
+                        AppDemo::configPath,
                         "AppDemo_iOS",
                         (void*)appDemoLoadScene);
 
     ///////////////////////////////////////////////////////////////////////
-    svIndex = slCreateSceneView(SLApplication::scene,
+    svIndex = slCreateSceneView(AppDemo::scene,
                                 self.view.bounds.size.height * screenScale,
                                 self.view.bounds.size.width * screenScale,
                                 dpi,
@@ -415,7 +415,7 @@ float GetSeconds()
         return;
     }
 
-    SLSceneView* sv            = SLApplication::sceneViews[0];
+    SLSceneView* sv            = AppDemo::sceneViews[0];
     CVCapture*   capture       = CVCapture::instance();
     float        videoImgWdivH = (float)imgWidth / (float)imgHeight;
 
@@ -570,7 +570,7 @@ float GetSeconds()
             [m_avSession stopRunning];
         }
 
-        SLSceneView* sv      = SLApplication::sceneViews[0];
+        SLSceneView* sv      = AppDemo::sceneViews[0];
         CVCapture*   capture = CVCapture::instance();
 
         // Get the current capture size of the videofile

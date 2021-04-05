@@ -135,7 +135,7 @@ public:
                                   SLViewportAlign vpAlignment,
                                   SLbool          vpSameAsVideo);
     void     initConeTracer(SLstring shaderDir);
-    void     saveFrameBufferAsImage();
+    void     saveFrameBufferAsImage(SLstring pathFilename);
 
     // Callback routines
     cbOnWndUpdate      onWndUpdate;        //!< C-Callback for app for intermediate window repaint
@@ -221,8 +221,8 @@ public:
     SLNodeStats&    stats3D() { return _stats3D; }
     SLbool          screenCaptureIsRequested() { return _screenCaptureIsRequested; }
 
-    unordered_set<SLMaterial*>& visibleMaterials2D() { return _visibleMaterials2D; }
-    unordered_set<SLMaterial*>& visibleMaterials3D() { return _visibleMaterials3D; }
+    std::unordered_set<SLMaterial*>& visibleMaterials2D() { return _visibleMaterials2D; }
+    std::unordered_set<SLMaterial*>& visibleMaterials3D() { return _visibleMaterials3D; }
 
 #ifdef SL_HAS_OPTIX
     SLOptixRaytracer* optixRaytracer()
@@ -287,8 +287,8 @@ protected:
 
     SLGLOculusFB _oculusFB; //!< Oculus framebuffer
 
-    unordered_set<SLMaterial*> _visibleMaterials3D; //!< visible materials 3D per frame
-    unordered_set<SLMaterial*> _visibleMaterials2D; //!< visible materials 2D per frame
+    std::unordered_set<SLMaterial*> _visibleMaterials3D; //!< visible materials 3D per frame
+    std::unordered_set<SLMaterial*> _visibleMaterials2D; //!< visible materials 2D per frame
 
     SLVNode _nodesOpaque2D;  //!< Vector of visible opaque nodes rendered in 2D
     SLVNode _nodesBlended2D; //!< Vector of visible blended nodes rendered in 2D

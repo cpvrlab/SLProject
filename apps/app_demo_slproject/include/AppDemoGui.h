@@ -20,6 +20,7 @@ class SLSceneView;
 class SLNode;
 class SLGLTexture;
 class SLProjectScene;
+class SLTexColorLUT;
 
 //-----------------------------------------------------------------------------
 //! ImGui UI class for the UI of the demo applications

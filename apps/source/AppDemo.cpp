@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      SLApplication.h
+//  File:      AppDemo.h
 //  Author:    Marcus Hudritsch
 //  Date:      Februar 2014
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
@@ -9,7 +9,7 @@
 //#############################################################################
 
 #include <SL.h>
-#include <SLApplication.h>
+#include <AppDemo.h>
 #include <SLSceneView.h>
 #include <SLProjectScene.h>
 #include <SLGLImGui.h>
@@ -20,55 +20,55 @@
 
 //-----------------------------------------------------------------------------
 //! Global static objects
-SLInputManager       SLApplication::inputManager;
-SLProjectScene*      SLApplication::scene = nullptr;
-vector<SLSceneView*> SLApplication::sceneViews;
-SLGLImGui*           SLApplication::gui = nullptr;
-SLDeviceRotation     SLApplication::devRot;
-SLDeviceLocation     SLApplication::devLoc;
-SLstring             SLApplication::name    = "SLProjectApp";
-SLstring             SLApplication::appTag  = "SLProject";
-SLstring             SLApplication::version = "3.1.100";
+SLInputManager       AppDemo::inputManager;
+SLProjectScene*      AppDemo::scene = nullptr;
+vector<SLSceneView*> AppDemo::sceneViews;
+SLGLImGui*           AppDemo::gui = nullptr;
+SLDeviceRotation     AppDemo::devRot;
+SLDeviceLocation     AppDemo::devLoc;
+SLstring             AppDemo::name    = "SLProjectApp";
+SLstring             AppDemo::appTag  = "SLProject";
+SLstring             AppDemo::version = "3.1.100";
 #ifdef _DEBUG
-SLstring SLApplication::configuration = "Debug";
+SLstring AppDemo::configuration = "Debug";
 #else
-SLstring SLApplication::configuration = "Release";
+SLstring AppDemo::configuration = "Release";
 #endif
-SLstring            SLApplication::gitBranch = SL_GIT_BRANCH;
-SLstring            SLApplication::gitCommit = SL_GIT_COMMIT;
-SLstring            SLApplication::gitDate   = SL_GIT_DATE;
-map<string, string> SLApplication::deviceParameter;
+SLstring            AppDemo::gitBranch = SL_GIT_BRANCH;
+SLstring            AppDemo::gitCommit = SL_GIT_COMMIT;
+SLstring            AppDemo::gitDate   = SL_GIT_DATE;
+map<string, string> AppDemo::deviceParameter;
 
-CVCalibrationEstimatorParams SLApplication::calibrationEstimatorParams;
-CVCalibrationEstimator*      SLApplication::calibrationEstimator = nullptr;
-SLstring                     SLApplication::calibIniPath;
-SLstring                     SLApplication::calibFilePath;
+CVCalibrationEstimatorParams AppDemo::calibrationEstimatorParams;
+CVCalibrationEstimator*      AppDemo::calibrationEstimator = nullptr;
+SLstring                     AppDemo::calibIniPath;
+SLstring                     AppDemo::calibFilePath;
 
-//! SLApplication::configPath is overwritten in slCreateAppAndScene.
-SLstring SLApplication::exePath;
-SLstring SLApplication::configPath;
-SLstring SLApplication::externalPath;
-SLstring SLApplication::dataPath;
-SLstring SLApplication::shaderPath;
-SLstring SLApplication::modelPath;
-SLstring SLApplication::texturePath;
-SLstring SLApplication::fontPath;
-SLstring SLApplication::videoPath;
+//! AppDemo::configPath is overwritten in slCreateAppAndScene.
+SLstring AppDemo::exePath;
+SLstring AppDemo::configPath;
+SLstring AppDemo::externalPath;
+SLstring AppDemo::dataPath;
+SLstring AppDemo::shaderPath;
+SLstring AppDemo::modelPath;
+SLstring AppDemo::texturePath;
+SLstring AppDemo::fontPath;
+SLstring AppDemo::videoPath;
 
-SLSceneID                   SLApplication::sceneID = SID_Empty;
-deque<function<void(void)>> SLApplication::jobsToBeThreaded;
-deque<function<void(void)>> SLApplication::jobsToFollowInMain;
-atomic<bool>                SLApplication::jobIsRunning(false);
-string                      SLApplication::_jobProgressMsg = "";
-atomic<int>                 SLApplication::_jobProgressNum(0);
-atomic<int>                 SLApplication::_jobProgressMax(0);
-mutex                       SLApplication::_jobMutex;
+SLSceneID                   AppDemo::sceneID = SID_Empty;
+deque<function<void(void)>> AppDemo::jobsToBeThreaded;
+deque<function<void(void)>> AppDemo::jobsToFollowInMain;
+atomic<bool>                AppDemo::jobIsRunning(false);
+string                      AppDemo::_jobProgressMsg = "";
+atomic<int>                 AppDemo::_jobProgressNum(0);
+atomic<int>                 AppDemo::_jobProgressMax(0);
+mutex                       AppDemo::_jobMutex;
 
-const string SLApplication::CALIB_FTP_HOST  = "pallas.ti.bfh.ch:21";
-const string SLApplication::CALIB_FTP_USER  = "upload";
-const string SLApplication::CALIB_FTP_PWD   = "FaAdbD3F2a";
-const string SLApplication::CALIB_FTP_DIR   = "calibrations";
-const string SLApplication::PROFILE_FTP_DIR = "profiles";
+const string AppDemo::CALIB_FTP_HOST  = "pallas.ti.bfh.ch:21";
+const string AppDemo::CALIB_FTP_USER  = "upload";
+const string AppDemo::CALIB_FTP_PWD   = "FaAdbD3F2a";
+const string AppDemo::CALIB_FTP_DIR   = "calibrations";
+const string AppDemo::PROFILE_FTP_DIR = "profiles";
 
 //-----------------------------------------------------------------------------
 //! Application and Scene creation function
@@ -84,11 +84,11 @@ See examples usages in:
 /param applicationName The apps name
 /param onSceneLoadCallback C Callback function as void* pointer for the scene creation.
 */
-void SLApplication::createAppAndScene(SLstring appName,
+void AppDemo::createAppAndScene(SLstring appName,
                                       void*    onSceneLoadCallback)
 {
-    assert(SLApplication::scene == nullptr &&
-           "You can create only one SLApplication");
+    assert(AppDemo::scene == nullptr &&
+           "You can create only one AppDemo");
 
     name = std::move(appName);
     SLGLProgramManager::init(dataPath + "shaders/", configPath);
@@ -107,9 +107,9 @@ All other date gets destroyed from there. This function gets called by the
 SLProject C-Interface function slTerminate that should be called at the end of
 any SLProject application.
 */
-void SLApplication::deleteAppAndScene()
+void AppDemo::deleteAppAndScene()
 {
-    assert(SLApplication::scene != nullptr &&
+    assert(AppDemo::scene != nullptr &&
            "You can delete an  only once");
 
     for (auto* sv : sceneViews)
@@ -144,40 +144,40 @@ If jobProgressMax is 0 the jobProgressNum value can be shown an number.
 If jobProgressMax is not 0 the fraction of jobProgressNum/jobProgressMax can
 be shown within a progress bar. See the example in AppDemoGui::build.
 */
-void SLApplication::handleParallelJob()
+void AppDemo::handleParallelJob()
 {
     // Execute queued jobs in a parallel thread
-    if (!SLApplication::jobIsRunning &&
-        !SLApplication::jobsToBeThreaded.empty())
+    if (!AppDemo::jobIsRunning &&
+        !AppDemo::jobsToBeThreaded.empty())
     {
-        function<void(void)> job = SLApplication::jobsToBeThreaded.front();
+        function<void(void)> job = AppDemo::jobsToBeThreaded.front();
         thread               jobThread(job);
-        SLApplication::jobIsRunning = true;
-        SLApplication::jobsToBeThreaded.pop_front();
+        AppDemo::jobIsRunning = true;
+        AppDemo::jobsToBeThreaded.pop_front();
         jobThread.detach();
     }
 
     // Execute the jobs to follow in the this (the main) thread
-    if (!SLApplication::jobIsRunning &&
-        SLApplication::jobsToBeThreaded.empty() &&
-        !SLApplication::jobsToFollowInMain.empty())
+    if (!AppDemo::jobIsRunning &&
+        AppDemo::jobsToBeThreaded.empty() &&
+        !AppDemo::jobsToFollowInMain.empty())
     {
-        for (const auto& jobToFollow : SLApplication::jobsToFollowInMain)
+        for (const auto& jobToFollow : AppDemo::jobsToFollowInMain)
             jobToFollow();
-        SLApplication::jobsToFollowInMain.clear();
+        AppDemo::jobsToFollowInMain.clear();
     }
 }
 //-----------------------------------------------------------------------------
 //! Thread-safe setter of the progress message
-void SLApplication::jobProgressMsg(string msg)
+void AppDemo::jobProgressMsg(string msg)
 {
-    SLApplication::_jobMutex.lock();
-    SLApplication::_jobProgressMsg = std::move(msg);
-    SLApplication::_jobMutex.unlock();
+    AppDemo::_jobMutex.lock();
+    AppDemo::_jobProgressMsg = std::move(msg);
+    AppDemo::_jobMutex.unlock();
 }
 //-----------------------------------------------------------------------------
 //! Thread-safe getter of the progress message
-string SLApplication::jobProgressMsg()
+string AppDemo::jobProgressMsg()
 {
     lock_guard<mutex> guard(_jobMutex);
     return _jobProgressMsg;

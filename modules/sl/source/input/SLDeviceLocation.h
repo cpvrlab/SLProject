@@ -22,7 +22,7 @@ class SLNode;
 //! Encapsulation of a mobile device location set by the device's GPS sensor
 /*! This class is only used if SLProject runs on a mobile device. Check out the
  app-Demo-SLProject/android and app_demo_slproject/ios how the sensor data is generated
- and passed to this object hold by SLApplication. The class stores the devices location
+ and passed to this object hold by AppDemo. The class stores the devices location
  that it gets from its GPS (global positioning system) sensor. The device location can
  be used in the active camera to apply it to the scene camera
  (s. SLCamera::setView).\n
@@ -62,9 +62,23 @@ public:
     void useOriginAltitude(SLbool useGLA) { _useOriginAltitude = useGLA; }
     void improveOrigin(SLbool impO) { _improveOrigin = impO; }
     void hasOrigin(SLbool hasOL);
+    void originLatLonAlt(int    degreesLat,
+                         int    minutesLat,
+                         double secondsLat,
+                         int    degreesLon,
+                         int    minutesLon,
+                         double secondsLon,
+                         double altitudeM);
     void originLatLonAlt(SLdouble latDEG,
                          SLdouble lonDEG,
                          SLdouble altM);
+    void defaultLatLonAlt(int    degreesLat,
+                          int    minutesLat,
+                          double secondsLat,
+                          int    degreesLon,
+                          int    minutesLon,
+                          double secondsLon,
+                          double altitudeM);
     void defaultLatLonAlt(SLdouble latDEG,
                           SLdouble lonDEG,
                           SLdouble altM);

@@ -358,7 +358,7 @@ SLbool SLTransformNode::onMouseMove(const SLMouseButton button,
                             float   dist = FLT_MAX;
                             SLVec3f axisPointCand;
                             float   t1, t2;
-                            float   minDistToOrigin = min(nodeToCameraDist * 0.1f, 1.0f);
+                            float   minDistToOrigin = std::min(nodeToCameraDist * 0.1f, 1.0f);
                             if (getClosestPointsBetweenRays(pickRay.origin,
                                                             pickRay.dir,
                                                             _transLineX->translationWS(),

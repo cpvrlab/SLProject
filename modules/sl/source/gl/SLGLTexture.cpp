@@ -846,7 +846,7 @@ void SLGLTexture::build(SLint texUnit)
             else
             {
                 maxAnisotropy = 0.0f;
-                cout << "GL_EXT_texture_filter_anisotropic not available.\n";
+                SL_LOG("GL_EXT_texture_filter_anisotropic not available.\n");
             }
         }
         GET_GL_ERROR;

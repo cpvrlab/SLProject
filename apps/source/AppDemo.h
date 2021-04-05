@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      SLApplication.h
+//  File:      AppDemo.h
 //  Author:    Marcus Hudritsch
 //  Date:      February 2018
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
@@ -19,8 +19,6 @@
 #include <mutex>
 #include <map>
 
-using namespace std;
-
 class SLScene;
 class SLSceneView;
 class SLGLImGui;
@@ -29,17 +27,17 @@ class CVCalibrationEstimator;
 //-----------------------------------------------------------------------------
 //! Top level class for an SLProject application.
 /*!
- The SLApplication holds static instances of top-level items such as the scene
+ The AppDemo holds static instances of top-level items such as the scene
  pointer, the camera calibration objects and the device rotation and location
  information. The static function createAppAndScene is called by the C-interface
  functions slCreateAppAndScene and the function deleteAppAndScene by slTerminate.
  At the moment only one scene can be open at the time.
  <br>
- SLApplication holds two static video camera calibrations, one for a main camera
+ AppDemo holds two static video camera calibrations, one for a main camera
  (mainCam) and one for the selfie camera on mobile devices (scndCam).
  The pointer activeCamera points to the active one.
 */
-class SLApplication
+class AppDemo
 {
 public:
     static void   createAppAndScene(SLstring appName,

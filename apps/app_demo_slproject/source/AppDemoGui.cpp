@@ -11,7 +11,7 @@
 
 #include <AppDemoGui.h>
 #include <SLAnimPlayback.h>
-#include <SLApplication.h>
+#include <AppDemo.h>
 #include <CVCapture.h>
 #include <cv/CVImage.h>
 #include <cv/CVTrackedFeatures.h>
@@ -182,7 +182,7 @@ int ftpCallbackXfer(off64_t xfered, void* arg)
     {
         int xferedPC = (int)((float)xfered / (float)ftpXferSizeMax * 100.0f);
         //cout << "Bytes transferred: " << xfered << " (" << xferedPC << ")" << endl;
-        SLApplication::jobProgressNum(xferedPC);
+        AppDemo::jobProgressNum(xferedPC);
     }
     else
         cout << "Bytes transferred: " << xfered << endl;
@@ -219,7 +219,7 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
         ///////////////////////////////////
 
         // if parallel jobs are running show only the progress informations
-        if (SLApplication::jobIsRunning)
+        if (AppDemo::jobIsRunning)
         {
             centerNextWindow(sv, 0.9f, 0.5f);
             ImGui::Begin("Parallel Job in Progress",
@@ -227,11 +227,11 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
                          ImGuiWindowFlags_NoTitleBar);
             ImGui::Text("Parallel Job in Progress:");
             ImGui::Separator();
-            ImGui::Text("%s", SLApplication::jobProgressMsg().c_str());
-            if (SLApplication::jobProgressMax() > 0)
+            ImGui::Text("%s", AppDemo::jobProgressMsg().c_str());
+            if (AppDemo::jobProgressMax() > 0)
             {
-                float num = (float)SLApplication::jobProgressNum();
-                float max = (float)SLApplication::jobProgressMax();
+                float num = (float)AppDemo::jobProgressNum();
+                float max = (float)AppDemo::jobProgressMax();
                 ImGui::ProgressBar(num / max);
             }
             else
@@ -241,9 +241,9 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
 
             ImGui::Separator();
             ImGui::Text("Parallel Jobs to follow: %lu",
-                        SLApplication::jobsToBeThreaded.size());
+                        AppDemo::jobsToBeThreaded.size());
             ImGui::Text("Sequential Jobs to follow: %lu",
-                        SLApplication::jobsToFollowInMain.size());
+                        AppDemo::jobsToFollowInMain.size());
             ImGui::End();
             return;
         }
@@ -306,11 +306,11 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
             {
                 centerNextWindow(sv);
                 ImGui::Begin("About SLProject", &showAbout, ImGuiWindowFlags_NoResize);
-                ImGui::Text("Version: %s", SLApplication::version.c_str());
-                ImGui::Text("Configuration: %s", SLApplication::configuration.c_str());
+                ImGui::Text("Version: %s", AppDemo::version.c_str());
+                ImGui::Text("Configuration: %s", AppDemo::configuration.c_str());
                 ImGui::Separator();
-                ImGui::Text("Git Branch: %s (Commit: %s)", SLApplication::gitBranch.c_str(), SLApplication::gitCommit.c_str());
-                ImGui::Text("Git Date: %s", SLApplication::gitDate.c_str());
+                ImGui::Text("Git Branch: %s (Commit: %s)", AppDemo::gitBranch.c_str(), AppDemo::gitCommit.c_str());
+                ImGui::Text("Git Date: %s", AppDemo::gitDate.c_str());
                 ImGui::Separator();
                 ImGui::TextWrapped("%s", infoAbout.c_str());
                 ImGui::End();
@@ -762,7 +762,7 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
                 ImGui::PopFont();
             }
 #ifdef SL_BUILD_WAI
-            if (showStatsWAI && SLApplication::sceneID == SID_VideoTrackWAI)
+            if (showStatsWAI && AppDemo::sceneID == SID_VideoTrackWAI)
             {
                 ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
                 ImGui::Begin("WAI Statistics", &showStatsWAI, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize);
@@ -956,7 +956,7 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
                 SLchar     m[2550]; // message character array
                 m[0] = 0;           // set zero length
 
-                sprintf(m + strlen(m), "SLProject Version: %s\n", SLApplication::version.c_str());
+                sprintf(m + strlen(m), "SLProject Version: %s\n", AppDemo::version.c_str());
 #ifdef _DEBUG
                 sprintf(m + strlen(m), "Build Config.    : Debug\n");
 #else
@@ -1005,28 +1005,28 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
             {
                 SLchar m[1024];             // message character array
                 m[0]                   = 0; // set zero length
-                SLVec3d offsetToOrigin = SLApplication::devLoc.originENU() - SLApplication::devLoc.locENU();
-                sprintf(m + strlen(m), "Uses IMU Senor   : %s\n", SLApplication::devRot.isUsed() ? "yes" : "no");
-                sprintf(m + strlen(m), "Pitch (deg)      : %3.1f\n", SLApplication::devRot.pitchDEG());
-                sprintf(m + strlen(m), "Yaw   (deg)      : %3.1f\n", SLApplication::devRot.yawDEG());
-                sprintf(m + strlen(m), "Roll  (deg)      : %3.1f\n", SLApplication::devRot.rollDEG());
-                sprintf(m + strlen(m), "No. averaged     : %d\n", SLApplication::devRot.numAveraged());
-                //sprintf(m + strlen(m), "Pitch Offset(deg): %3.1f\n", SLApplication::devRot.pitchOffsetDEG());
-                //sprintf(m + strlen(m), "Yaw   Offset(deg): %3.1f\n", SLApplication::devRot.yawOffsetDEG());
-                sprintf(m + strlen(m), "Offset mode      : %s\n", SLApplication::devRot.offsetModeStr().c_str());
+                SLVec3d offsetToOrigin = AppDemo::devLoc.originENU() - AppDemo::devLoc.locENU();
+                sprintf(m + strlen(m), "Uses IMU Senor   : %s\n", AppDemo::devRot.isUsed() ? "yes" : "no");
+                sprintf(m + strlen(m), "Pitch (deg)      : %3.1f\n", AppDemo::devRot.pitchDEG());
+                sprintf(m + strlen(m), "Yaw   (deg)      : %3.1f\n", AppDemo::devRot.yawDEG());
+                sprintf(m + strlen(m), "Roll  (deg)      : %3.1f\n", AppDemo::devRot.rollDEG());
+                sprintf(m + strlen(m), "No. averaged     : %d\n", AppDemo::devRot.numAveraged());
+                //sprintf(m + strlen(m), "Pitch Offset(deg): %3.1f\n", AppDemo::devRot.pitchOffsetDEG());
+                //sprintf(m + strlen(m), "Yaw   Offset(deg): %3.1f\n", AppDemo::devRot.yawOffsetDEG());
+                sprintf(m + strlen(m), "Offset mode      : %s\n", AppDemo::devRot.offsetModeStr().c_str());
                 sprintf(m + strlen(m), "------------------\n");
-                sprintf(m + strlen(m), "Uses GPS Sensor  : %s\n", SLApplication::devLoc.isUsed() ? "yes" : "no");
-                sprintf(m + strlen(m), "Latitude (deg)   : %10.5f\n", SLApplication::devLoc.locLatLonAlt().lat);
-                sprintf(m + strlen(m), "Longitude (deg)  : %10.5f\n", SLApplication::devLoc.locLatLonAlt().lon);
-                sprintf(m + strlen(m), "Alt. used (m)    : %10.2f\n", SLApplication::devLoc.locLatLonAlt().alt);
-                sprintf(m + strlen(m), "Alt. GPS (m)     : %10.2f\n", SLApplication::devLoc.altGpsM());
-                sprintf(m + strlen(m), "Alt. DEM (m)     : %10.2f\n", SLApplication::devLoc.altDemM());
-                sprintf(m + strlen(m), "Alt. origin (m)  : %10.2f\n", SLApplication::devLoc.altDemM());
-                sprintf(m + strlen(m), "Accuracy Rad.(m) : %6.1f\n", SLApplication::devLoc.locAccuracyM());
+                sprintf(m + strlen(m), "Uses GPS Sensor  : %s\n", AppDemo::devLoc.isUsed() ? "yes" : "no");
+                sprintf(m + strlen(m), "Latitude (deg)   : %10.5f\n", AppDemo::devLoc.locLatLonAlt().lat);
+                sprintf(m + strlen(m), "Longitude (deg)  : %10.5f\n", AppDemo::devLoc.locLatLonAlt().lon);
+                sprintf(m + strlen(m), "Alt. used (m)    : %10.2f\n", AppDemo::devLoc.locLatLonAlt().alt);
+                sprintf(m + strlen(m), "Alt. GPS (m)     : %10.2f\n", AppDemo::devLoc.altGpsM());
+                sprintf(m + strlen(m), "Alt. DEM (m)     : %10.2f\n", AppDemo::devLoc.altDemM());
+                sprintf(m + strlen(m), "Alt. origin (m)  : %10.2f\n", AppDemo::devLoc.altDemM());
+                sprintf(m + strlen(m), "Accuracy Rad.(m) : %6.1f\n", AppDemo::devLoc.locAccuracyM());
                 sprintf(m + strlen(m), "Dist. Origin (m) : %6.1f\n", offsetToOrigin.length());
-                sprintf(m + strlen(m), "Origin improve(s): %6.1f sec.\n", SLApplication::devLoc.improveTime());
-                sprintf(m + strlen(m), "Sun Zenith (deg) : %6.1f sec.\n", SLApplication::devLoc.originSolarZenit());
-                sprintf(m + strlen(m), "Sun Azimuth (deg): %6.1f sec.\n", SLApplication::devLoc.originSolarAzimut());
+                sprintf(m + strlen(m), "Origin improve(s): %6.1f sec.\n", AppDemo::devLoc.improveTime());
+                sprintf(m + strlen(m), "Sun Zenith (deg) : %6.1f sec.\n", AppDemo::devLoc.originSolarZenit());
+                sprintf(m + strlen(m), "Sun Azimuth (deg): %6.1f sec.\n", AppDemo::devLoc.originSolarAzimut());
 
                 // Switch to fixed font
                 ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
@@ -1075,7 +1075,7 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
                 sprintf(reset, "Reset User Interface (DPI: %d)", sv->dpi());
                 if (ImGui::MenuItem(reset))
                 {
-                    SLstring fullPathFilename = SLApplication::configPath + "DemoGui.yml";
+                    SLstring fullPathFilename = AppDemo::configPath + "DemoGui.yml";
                     Utils::deleteFile(fullPathFilename);
                     loadConfig(sv->dpi());
                 }
@@ -1085,98 +1085,99 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
                 ImGui::PopFont();
             }
 
-            if (showDateAndTime && (SLApplication::devLoc.originLatLonAlt() != SLVec3d::ZERO ||
-                                    SLApplication::devLoc.defaultLatLonAlt() != SLVec3d::ZERO))
+            if (showDateAndTime)
             {
-                ImGuiWindowFlags window_flags = 0;
-                window_flags |= ImGuiWindowFlags_AlwaysAutoResize;
-                ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
-                ImGui::Begin("Date and Time Settings", &showTransform, window_flags);
-                ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.66f);
+                if (AppDemo::devLoc.originLatLonAlt() != SLVec3d::ZERO ||
+                    AppDemo::devLoc.defaultLatLonAlt() != SLVec3d::ZERO)
+                {
+                    ImGuiWindowFlags window_flags = 0;
+                    window_flags |= ImGuiWindowFlags_AlwaysAutoResize;
+                    ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
+                    ImGui::Begin("Date and Time Settings", &showTransform, window_flags);
+                    ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.66f);
 
-                tm lt{};
-                if (adjustedTime)
-                    memcpy(&lt, std::localtime(&adjustedTime), sizeof(tm));
+                    tm lt{};
+                    if (adjustedTime)
+                        memcpy(&lt, std::localtime(&adjustedTime), sizeof(tm));
+                    else
+                    {
+                        std::time_t now = std::time(nullptr);
+                        memcpy(&lt, std::localtime(&now), sizeof(tm));
+                    }
+
+                    SLint month = lt.tm_mon + 1;
+                    if (ImGui::SliderInt("Month", &month, 1, 12))
+                    {
+                        lt.tm_mon    = month - 1;
+                        adjustedTime = mktime(&lt);
+                        AppDemo::devLoc.calculateSolarAngles(AppDemo::devLoc.originLatLonAlt(),
+                                                             adjustedTime);
+                    }
+
+                    if (ImGui::SliderInt("Day", &lt.tm_mday, 1, 31))
+                    {
+                        adjustedTime = mktime(&lt);
+                        AppDemo::devLoc.calculateSolarAngles(AppDemo::devLoc.originLatLonAlt(),
+                                                             adjustedTime);
+                    }
+
+                    SLfloat SRh  = AppDemo::devLoc.originSolarSunrise();
+                    SLfloat SSh  = AppDemo::devLoc.originSolarSunset();
+                    SLfloat nowF = (SLfloat)lt.tm_hour + (float)lt.tm_min / 60.0f;
+                    if (ImGui::SliderFloat("Hour", &nowF, SRh, SSh, "%.2f"))
+                    {
+                        lt.tm_hour   = (int)nowF;
+                        lt.tm_min    = (int)((nowF - (int)nowF) * 60.0f);
+                        adjustedTime = mktime(&lt);
+                        AppDemo::devLoc.calculateSolarAngles(AppDemo::devLoc.originLatLonAlt(),
+                                                             adjustedTime);
+                    }
+
+                    SLchar strTime[100];
+                    sprintf(strTime, "Set now (%02d.%02d.%02d %02d:%02d)", lt.tm_mday, lt.tm_mon, lt.tm_year + 1900, lt.tm_hour, lt.tm_min);
+                    if (ImGui::MenuItem(strTime))
+                    {
+                        adjustedTime    = 0;
+                        std::time_t now = std::time(nullptr);
+                        memcpy(&lt, std::localtime(&now), sizeof(tm));
+                        AppDemo::devLoc.calculateSolarAngles(AppDemo::devLoc.originLatLonAlt(), now);
+                    }
+
+                    sprintf(strTime, "Set highest noon (21.06.%02d 12:00)", lt.tm_year);
+                    if (ImGui::MenuItem(strTime))
+                    {
+                        lt.tm_mon    = 6;
+                        lt.tm_mday   = 21;
+                        lt.tm_hour   = 12;
+                        lt.tm_min    = 0;
+                        lt.tm_sec    = 0;
+                        adjustedTime = mktime(&lt);
+                        AppDemo::devLoc.calculateSolarAngles(AppDemo::devLoc.originLatLonAlt(),
+                                                             adjustedTime);
+                    }
+
+                    sprintf(strTime, "Set lowest noon (21.12.%02d 12:00)", lt.tm_year);
+                    if (ImGui::MenuItem(strTime))
+                    {
+                        lt.tm_mon    = 12;
+                        lt.tm_mday   = 21;
+                        lt.tm_hour   = 12;
+                        lt.tm_min    = 0;
+                        lt.tm_sec    = 0;
+                        adjustedTime = mktime(&lt);
+                        AppDemo::devLoc.calculateSolarAngles(AppDemo::devLoc.originLatLonAlt(),
+                                                             adjustedTime);
+                    }
+
+                    ImGui::PopItemWidth();
+                    ImGui::End();
+                    ImGui::PopFont();
+                }
                 else
-                {
-                    std::time_t now = std::time(nullptr);
-                    memcpy(&lt, std::localtime(&now), sizeof(tm));
-                }
-
-                SLint month = lt.tm_mon + 1;
-                if (ImGui::SliderInt("Month", &month, 1, 12))
-                {
-                    lt.tm_mon    = month - 1;
-                    adjustedTime = mktime(&lt);
-                    SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLatLonAlt(),
-                                                               adjustedTime);
-                }
-
-                if (ImGui::SliderInt("Day", &lt.tm_mday, 1, 31))
-                {
-                    adjustedTime = mktime(&lt);
-                    SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLatLonAlt(),
-                                                               adjustedTime);
-                }
-
-                SLfloat SRh  = SLApplication::devLoc.originSolarSunrise();
-                SLfloat SSh  = SLApplication::devLoc.originSolarSunset();
-                SLfloat nowF = (SLfloat)lt.tm_hour + (float)lt.tm_min / 60.0f;
-                if (ImGui::SliderFloat("Hour", &nowF, SRh, SSh, "%.2f"))
-                {
-                    lt.tm_hour   = (int)nowF;
-                    lt.tm_min    = (int)((nowF - (int)nowF) * 60.0f);
-                    adjustedTime = mktime(&lt);
-                    SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLatLonAlt(),
-                                                               adjustedTime);
-                }
-
-                SLchar strTime[100];
-                sprintf(strTime, "Set now (%02d.%02d.%02d %02d:%02d)", lt.tm_mday, lt.tm_mon, lt.tm_year + 1900, lt.tm_hour, lt.tm_min);
-                if (ImGui::MenuItem(strTime))
-                {
-                    adjustedTime    = 0;
-                    std::time_t now = std::time(nullptr);
-                    memcpy(&lt, std::localtime(&now), sizeof(tm));
-                    SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLatLonAlt(), now);
-                }
-
-                sprintf(strTime, "Set highest noon (21.06.%02d 12:00)", lt.tm_year);
-                if (ImGui::MenuItem(strTime))
-                {
-                    lt.tm_mon    = 6;
-                    lt.tm_mday   = 21;
-                    lt.tm_hour   = 12;
-                    lt.tm_min    = 0;
-                    lt.tm_sec    = 0;
-                    adjustedTime = mktime(&lt);
-                    SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLatLonAlt(),
-                                                               adjustedTime);
-                }
-
-                sprintf(strTime, "Set lowest noon (21.12.%02d 12:00)", lt.tm_year);
-                if (ImGui::MenuItem(strTime))
-                {
-                    lt.tm_mon    = 12;
-                    lt.tm_mday   = 21;
-                    lt.tm_hour   = 12;
-                    lt.tm_min    = 0;
-                    lt.tm_sec    = 0;
-                    adjustedTime = mktime(&lt);
-                    SLApplication::devLoc.calculateSolarAngles(SLApplication::devLoc.originLatLonAlt(),
-                                                               adjustedTime);
-                }
-
-                ImGui::PopItemWidth();
-                ImGui::End();
-                ImGui::PopFont();
-            }
-            else
-            {
-                ImGui::Text("Device Location is not in use.");
+                    showDateAndTime = false;
             }
 
-            if (showChristoffel && SLApplication::sceneID == SID_ErlebARChristoffel)
+            if (showChristoffel && AppDemo::sceneID == SID_ErlebARChristoffel)
             {
                 ImGui::Begin("Christoffel",
                              &showChristoffel,
@@ -1232,9 +1233,9 @@ CVCalibration guessCalibration(bool         mirroredH,
                                CVCameraType camType)
 {
     // Try to read device lens and sensor information
-    string strF = SLApplication::deviceParameter["DeviceLensFocalLength"];
-    string strW = SLApplication::deviceParameter["DeviceSensorPhysicalSizeW"];
-    string strH = SLApplication::deviceParameter["DeviceSensorPhysicalSizeH"];
+    string strF = AppDemo::deviceParameter["DeviceLensFocalLength"];
+    string strW = AppDemo::deviceParameter["DeviceSensorPhysicalSizeW"];
+    string strH = AppDemo::deviceParameter["DeviceSensorPhysicalSizeH"];
     if (!strF.empty() && !strW.empty() && !strH.empty())
     {
         float devF = strF.empty() ? 0.0f : stof(strF);
@@ -1271,7 +1272,7 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
 {
     PROFILE_FUNCTION();
 
-    SLSceneID    sid           = SLApplication::sceneID;
+    SLSceneID    sid           = AppDemo::sceneID;
     SLGLState*   stateGL       = SLGLState::instance();
     CVCapture*   capture       = CVCapture::instance();
     SLRenderType rType         = sv->renderType();
@@ -1399,15 +1400,15 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                     if (ImGui::MenuItem("Head MRI Ray Cast Lighted", nullptr, sid == SID_VolumeRayCastLighted))
                     {
                         auto loadMRIImages = []() {
-                            SLApplication::jobProgressMsg("Load MRI Images");
-                            SLApplication::jobProgressMax(100);
+                            AppDemo::jobProgressMsg("Load MRI Images");
+                            AppDemo::jobProgressMax(100);
 
                             // Load volume data into 3D texture
                             SLVstring mriImages;
                             for (SLint i = 0; i < 207; ++i)
-                                mriImages.push_back(SLApplication::texturePath + Utils::formatString("i%04u_0000b.png", i));
+                                mriImages.push_back(AppDemo::texturePath + Utils::formatString("i%04u_0000b.png", i));
 
-                            gTexMRI3D                   = new SLGLTexture(nullptr,
+                            gTexMRI3D             = new SLGLTexture(nullptr,
                                                         mriImages,
                                                         GL_LINEAR,
                                                         GL_LINEAR,
@@ -1415,23 +1416,23 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                                                         0x812D, // GL_CLAMP_TO_BORDER (GLSL 320)
                                                         "mri_head_front_to_back",
                                                         true);
-                            SLApplication::jobIsRunning = false;
+                            AppDemo::jobIsRunning = false;
                         };
 
                         auto calculateGradients = []() {
-                            SLApplication::jobProgressMsg("Calculate MRI Volume Gradients");
-                            SLApplication::jobProgressMax(100);
+                            AppDemo::jobProgressMsg("Calculate MRI Volume Gradients");
+                            AppDemo::jobProgressMax(100);
                             gTexMRI3D->calc3DGradients(1,
-                                                       [](int progress) { SLApplication::jobProgressNum(progress); });
-                            SLApplication::jobIsRunning = false;
+                                                       [](int progress) { AppDemo::jobProgressNum(progress); });
+                            AppDemo::jobIsRunning = false;
                         };
 
                         auto smoothGradients = []() {
-                            SLApplication::jobProgressMsg("Smooth MRI Volume Gradients");
-                            SLApplication::jobProgressMax(100);
+                            AppDemo::jobProgressMsg("Smooth MRI Volume Gradients");
+                            AppDemo::jobProgressMax(100);
                             gTexMRI3D->smooth3DGradients(1,
-                                                         [](int progress) { SLApplication::jobProgressNum(progress); });
-                            SLApplication::jobIsRunning = false;
+                                                         [](int progress) { AppDemo::jobProgressNum(progress); });
+                            AppDemo::jobIsRunning = false;
                         };
 
                         auto followUpJob1 = [](SLScene* s, SLSceneView* sv) {
@@ -1439,10 +1440,10 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                         };
                         function<void(void)> onLoadScene = bind(followUpJob1, s, sv);
 
-                        SLApplication::jobsToBeThreaded.emplace_back(loadMRIImages);
-                        SLApplication::jobsToBeThreaded.emplace_back(calculateGradients);
-                        //SLApplication::jobsToBeThreaded.emplace_back(smoothGradients);  // very slow
-                        SLApplication::jobsToFollowInMain.push_back(onLoadScene);
+                        AppDemo::jobsToBeThreaded.emplace_back(loadMRIImages);
+                        AppDemo::jobsToBeThreaded.emplace_back(calculateGradients);
+                        //AppDemo::jobsToBeThreaded.emplace_back(smoothGradients);  // very slow
+                        AppDemo::jobsToFollowInMain.push_back(onLoadScene);
                     }
 
                     ImGui::EndMenu();
@@ -1521,14 +1522,14 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                 {
                     if (ImGui::MenuItem("Large Model (via FTP)", nullptr, sid == SID_Benchmark1_LargeModel))
                     {
-                        SLstring largeFile = SLApplication::configPath + "models/xyzrgb_dragon/xyzrgb_dragon.ply";
+                        SLstring largeFile = AppDemo::configPath + "models/xyzrgb_dragon/xyzrgb_dragon.ply";
                         if (Utils::fileExists(largeFile))
                             s->onLoad(s, sv, SID_Benchmark1_LargeModel);
                         else
                         {
                             auto downloadJobFTP = []() {
-                                SLApplication::jobProgressMsg("Downloading large dragon file via FTP:");
-                                SLApplication::jobProgressMax(100);
+                                AppDemo::jobProgressMsg("Downloading large dragon file via FTP:");
+                                AppDemo::jobProgressMax(100);
                                 ftplib ftp;
                                 ftp.SetConnmode(ftplib::connmode::port); //enable active mode
 
@@ -1545,10 +1546,10 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                                                      &remoteSize,
                                                      ftplib::transfermode::image);
                                             ftpXferSizeMax  = remoteSize;
-                                            SLstring dstDir = SLApplication::configPath;
+                                            SLstring dstDir = AppDemo::configPath;
                                             if (Utils::dirExists(dstDir))
                                             {
-                                                SLstring outFile = SLApplication::configPath + "models/xyzrgb_dragon.zip";
+                                                SLstring outFile = AppDemo::configPath + "models/xyzrgb_dragon.zip";
                                                 if (!ftp.Get(outFile.c_str(),
                                                              "xyzrgb_dragon.zip",
                                                              ftplib::transfermode::image))
@@ -1567,19 +1568,19 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                                     SL_LOG("*** ERROR: ftp.Connect failed. ***");
 
                                 ftp.Quit();
-                                SLApplication::jobIsRunning = false;
+                                AppDemo::jobIsRunning = false;
                             };
 
                             auto unzipJob = [largeFile]() {
-                                SLApplication::jobProgressMsg("Decompress dragon file:");
-                                SLApplication::jobProgressMax(-1);
-                                string zipFile = SLApplication::configPath + "models/xyzrgb_dragon.zip";
+                                AppDemo::jobProgressMsg("Decompress dragon file:");
+                                AppDemo::jobProgressMax(-1);
+                                string zipFile = AppDemo::configPath + "models/xyzrgb_dragon.zip";
                                 if (Utils::fileExists(zipFile))
                                 {
                                     ZipUtils::unzip(zipFile, Utils::getPath(zipFile));
                                     Utils::deleteFile(zipFile);
                                 }
-                                SLApplication::jobIsRunning = false;
+                                AppDemo::jobIsRunning = false;
                             };
 
                             auto followUpJob1 = [s, sv, largeFile]() {
@@ -1587,14 +1588,14 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                                     s->onLoad(s, sv, SID_Benchmark1_LargeModel);
                             };
 
-                            SLApplication::jobsToBeThreaded.emplace_back(downloadJobFTP);
-                            SLApplication::jobsToBeThreaded.emplace_back(unzipJob);
-                            SLApplication::jobsToFollowInMain.emplace_back(followUpJob1);
+                            AppDemo::jobsToBeThreaded.emplace_back(downloadJobFTP);
+                            AppDemo::jobsToBeThreaded.emplace_back(unzipJob);
+                            AppDemo::jobsToFollowInMain.emplace_back(followUpJob1);
                         }
                     }
                     if (ImGui::MenuItem("Large Model (via HTTPS)", nullptr, sid == SID_Benchmark1_LargeModel))
                     {
-                        SLstring largeFile = SLApplication::configPath + "models/xyzrgb_dragon/xyzrgb_dragon.ply";
+                        SLstring largeFile = AppDemo::configPath + "models/xyzrgb_dragon/xyzrgb_dragon.ply";
                         if (Utils::fileExists(largeFile))
                             s->onLoad(s, sv, SID_Benchmark1_LargeModel);
                         else
@@ -1603,7 +1604,7 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                                                       sv,
                                                       "xyzrgb_dragon.zip",
                                                       "https://pallas.ti.bfh.ch/data/SLProject/models/",
-                                                      SLApplication::configPath + "models/",
+                                                      AppDemo::configPath + "models/",
                                                       "xyzrgb_dragon/xyzrgb_dragon.ply",
                                                       SID_Benchmark1_LargeModel);
                         }
@@ -1618,7 +1619,7 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                     ImGui::EndMenu();
                 }
 
-                SLstring erlebarPath = SLApplication::dataPath + "erleb-AR/models/";
+                SLstring erlebarPath = AppDemo::dataPath + "erleb-AR/models/";
                 SLstring modelBR2    = erlebarPath + "bern/Bern-Bahnhofsplatz3.gltf";
                 SLstring modelBFH    = erlebarPath + "biel/Biel-BFH-Rolex.gltf";
                 SLstring modelAR1    = erlebarPath + "augst/Tempel-03.gltf";
@@ -1693,14 +1694,14 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
             if (ImGui::MenuItem("Next Scene",
                                 "Shift-Alt-CursorRight",
                                 nullptr,
-                                SLApplication::sceneID < SID_Maximal - 1))
-                s->onLoad(s, sv, SLApplication::sceneID + 1);
+                                AppDemo::sceneID < SID_Maximal - 1))
+                s->onLoad(s, sv, AppDemo::sceneID + 1);
 
             if (ImGui::MenuItem("Previous Scene",
                                 "Shift-Alt-CursorLeft",
                                 nullptr,
-                                SLApplication::sceneID > SID_Empty))
-                s->onLoad(s, sv, SLApplication::sceneID - 1);
+                                AppDemo::sceneID > SID_Empty))
+                s->onLoad(s, sv, AppDemo::sceneID - 1);
 
             ImGui::Separator();
 
@@ -1708,37 +1709,37 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
             {
                 auto job1 = []() {
                     uint maxIter = 100000;
-                    SLApplication::jobProgressMsg("Super long job 1");
-                    SLApplication::jobProgressMax(100);
+                    AppDemo::jobProgressMsg("Super long job 1");
+                    AppDemo::jobProgressMax(100);
                     for (uint i = 0; i < maxIter; ++i)
                     {
                         SL_LOG("%u", i);
                         int progressPC = (int)((float)i / (float)maxIter * 100.0f);
-                        SLApplication::jobProgressNum(progressPC);
+                        AppDemo::jobProgressNum(progressPC);
                     }
-                    SLApplication::jobIsRunning = false;
+                    AppDemo::jobIsRunning = false;
                 };
 
                 auto job2 = []() {
                     uint maxIter = 100000;
-                    SLApplication::jobProgressMsg("Super long job 2");
-                    SLApplication::jobProgressMax(100);
+                    AppDemo::jobProgressMsg("Super long job 2");
+                    AppDemo::jobProgressMax(100);
                     for (uint i = 0; i < maxIter; ++i)
                     {
                         SL_LOG("%u", i);
                         int progressPC = (int)((float)i / (float)maxIter * 100.0f);
-                        SLApplication::jobProgressNum(progressPC);
+                        AppDemo::jobProgressNum(progressPC);
                     }
-                    SLApplication::jobIsRunning = false;
+                    AppDemo::jobIsRunning = false;
                 };
 
                 auto followUpJob1 = []() { SL_LOG("followUpJob1"); };
                 auto jobToFollow2 = []() { SL_LOG("JobToFollow2"); };
 
-                SLApplication::jobsToBeThreaded.emplace_back(job1);
-                SLApplication::jobsToBeThreaded.emplace_back(job2);
-                SLApplication::jobsToFollowInMain.emplace_back(followUpJob1);
-                SLApplication::jobsToFollowInMain.emplace_back(jobToFollow2);
+                AppDemo::jobsToBeThreaded.emplace_back(job1);
+                AppDemo::jobsToBeThreaded.emplace_back(job2);
+                AppDemo::jobsToFollowInMain.emplace_back(followUpJob1);
+                AppDemo::jobsToFollowInMain.emplace_back(jobToFollow2);
             }
 
 #ifndef SL_OS_ANDROID
@@ -1818,10 +1819,10 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
 #if defined(SL_OS_ANDROID) || defined(SL_OS_MACIOS)
             if (ImGui::BeginMenu("Rotation Sensor"))
             {
-                SLDeviceRotation& devRot = SLApplication::devRot;
+                SLDeviceRotation& devRot = AppDemo::devRot;
 
                 if (ImGui::MenuItem("Use Device Rotation (IMU)", nullptr, devRot.isUsed()))
-                    devRot.isUsed(!SLApplication::devRot.isUsed());
+                    devRot.isUsed(!AppDemo::devRot.isUsed());
 
                 if (devRot.isUsed())
                 {
@@ -1870,15 +1871,15 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
 
             if (ImGui::BeginMenu("Location Sensor"))
             {
-                if (ImGui::MenuItem("Use Device Location (GPS)", nullptr, SLApplication::devLoc.isUsed()))
-                    SLApplication::devLoc.isUsed(!SLApplication::devLoc.isUsed());
+                if (ImGui::MenuItem("Use Device Location (GPS)", nullptr, AppDemo::devLoc.isUsed()))
+                    AppDemo::devLoc.isUsed(!AppDemo::devLoc.isUsed());
 
-                if (!SLApplication::devLoc.geoTiffIsAvailableAndValid())
-                    if (ImGui::MenuItem("Use Origin Altitude", nullptr, SLApplication::devLoc.useOriginAltitude()))
-                        SLApplication::devLoc.useOriginAltitude(!SLApplication::devLoc.useOriginAltitude());
+                if (!AppDemo::devLoc.geoTiffIsAvailableAndValid())
+                    if (ImGui::MenuItem("Use Origin Altitude", nullptr, AppDemo::devLoc.useOriginAltitude()))
+                        AppDemo::devLoc.useOriginAltitude(!AppDemo::devLoc.useOriginAltitude());
 
                 if (ImGui::MenuItem("Reset Origin to here"))
-                    SLApplication::devLoc.hasOrigin(false);
+                    AppDemo::devLoc.hasOrigin(false);
 
                 ImGui::EndMenu();
             }
@@ -1943,23 +1944,23 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                     if (ImGui::MenuItem("Undistort Image", nullptr, ac->showUndistorted(), ac->calibration.state() == CS_calibrated))
                         ac->showUndistorted(!ac->showUndistorted());
 
-                    if (ImGui::MenuItem("No Tangent Distortion", nullptr, SLApplication::calibrationEstimatorParams.zeroTangentDistortion))
-                        SLApplication::calibrationEstimatorParams.toggleZeroTangentDist();
+                    if (ImGui::MenuItem("No Tangent Distortion", nullptr, AppDemo::calibrationEstimatorParams.zeroTangentDistortion))
+                        AppDemo::calibrationEstimatorParams.toggleZeroTangentDist();
 
-                    if (ImGui::MenuItem("Fix Aspect Ratio", nullptr, SLApplication::calibrationEstimatorParams.fixAspectRatio))
-                        SLApplication::calibrationEstimatorParams.toggleFixAspectRatio();
+                    if (ImGui::MenuItem("Fix Aspect Ratio", nullptr, AppDemo::calibrationEstimatorParams.fixAspectRatio))
+                        AppDemo::calibrationEstimatorParams.toggleFixAspectRatio();
 
-                    if (ImGui::MenuItem("Fix Principal Point", nullptr, SLApplication::calibrationEstimatorParams.fixPrincipalPoint))
-                        SLApplication::calibrationEstimatorParams.toggleFixPrincipalPoint();
+                    if (ImGui::MenuItem("Fix Principal Point", nullptr, AppDemo::calibrationEstimatorParams.fixPrincipalPoint))
+                        AppDemo::calibrationEstimatorParams.toggleFixPrincipalPoint();
 
-                    if (ImGui::MenuItem("Use rational model", nullptr, SLApplication::calibrationEstimatorParams.calibRationalModel))
-                        SLApplication::calibrationEstimatorParams.toggleRationalModel();
+                    if (ImGui::MenuItem("Use rational model", nullptr, AppDemo::calibrationEstimatorParams.calibRationalModel))
+                        AppDemo::calibrationEstimatorParams.toggleRationalModel();
 
-                    if (ImGui::MenuItem("Use tilted model", nullptr, SLApplication::calibrationEstimatorParams.calibTiltedModel))
-                        SLApplication::calibrationEstimatorParams.toggleTiltedModel();
+                    if (ImGui::MenuItem("Use tilted model", nullptr, AppDemo::calibrationEstimatorParams.calibTiltedModel))
+                        AppDemo::calibrationEstimatorParams.toggleTiltedModel();
 
-                    if (ImGui::MenuItem("Use thin prism model", nullptr, SLApplication::calibrationEstimatorParams.calibThinPrismModel))
-                        SLApplication::calibrationEstimatorParams.toggleThinPrismModel();
+                    if (ImGui::MenuItem("Use thin prism model", nullptr, AppDemo::calibrationEstimatorParams.calibThinPrismModel))
+                        AppDemo::calibrationEstimatorParams.toggleThinPrismModel();
 
                     ImGui::EndMenu();
                 }
@@ -2658,7 +2659,7 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
             ImGui::MenuItem("Stats on Scene", nullptr, &showStatsScene);
             ImGui::MenuItem("Stats on Video", nullptr, &showStatsVideo);
 #ifdef SL_BUILD_WAI
-            if (SLApplication::sceneID == SID_VideoTrackWAI)
+            if (AppDemo::sceneID == SID_VideoTrackWAI)
                 ImGui::MenuItem("Stats on WAI", nullptr, &showStatsWAI);
 #endif
             ImGui::MenuItem("Stats on ImGui", nullptr, &showImGuiMetrics);
@@ -2671,7 +2672,7 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
             ImGui::Separator();
             ImGui::MenuItem("Infos on Device", nullptr, &showInfosDevice);
             ImGui::MenuItem("Infos on Sensors", nullptr, &showInfosSensors);
-            if (SLApplication::sceneID == SID_ErlebARChristoffel)
+            if (AppDemo::sceneID == SID_ErlebARChristoffel)
             {
                 ImGui::Separator();
                 ImGui::MenuItem("Infos on Christoffel", nullptr, &showChristoffel);
@@ -3545,8 +3546,8 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
 void AppDemoGui::loadConfig(SLint dotsPerInch)
 {
     ImGuiStyle& style               = ImGui::GetStyle();
-    SLstring    fullPathAndFilename = SLApplication::configPath +
-                                   SLApplication::name + ".yml";
+    SLstring    fullPathAndFilename = AppDemo::configPath +
+                                   AppDemo::name + ".yml";
 
     if (!Utils::fileExists(fullPathAndFilename))
     {
@@ -3602,7 +3603,7 @@ void AppDemoGui::loadConfig(SLint dotsPerInch)
                                             style.WindowPadding.y = style.ItemSpacing.y * 3;
             fs["ScrollbarSize"] >> i;       style.ScrollbarSize = (SLfloat) i;
             fs["ScrollbarRounding"] >> i;   style.ScrollbarRounding = (SLfloat) i;
-            fs["sceneID"] >> i;             SLApplication::sceneID = (SLSceneID) i;
+            fs["sceneID"] >> i;             AppDemo::sceneID = (SLSceneID) i;
             fs["showInfosScene"] >> b;      AppDemoGui::showInfosScene = b;
             fs["showStatsTiming"] >> b;     AppDemoGui::showStatsTiming = b;
             fs["showStatsMemory"] >> b;     AppDemoGui::showStatsScene = b;
@@ -3656,8 +3657,8 @@ void AppDemoGui::loadConfig(SLint dotsPerInch)
 void AppDemoGui::saveConfig()
 {
     ImGuiStyle& style               = ImGui::GetStyle();
-    SLstring    fullPathAndFilename = SLApplication::configPath +
-                                   SLApplication::name + ".yml";
+    SLstring    fullPathAndFilename = AppDemo::configPath +
+                                   AppDemo::name + ".yml";
 
     if (!Utils::fileExists(fullPathAndFilename))
         SL_LOG("New config file will be written: %s",
@@ -3675,11 +3676,11 @@ void AppDemoGui::saveConfig()
     fs << "configTime" << Utils::getLocalTimeString();
     fs << "fontPropDots" << (SLint)SLGLImGui::fontPropDots;
     fs << "fontFixedDots" << (SLint)SLGLImGui::fontFixedDots;
-    if (SLApplication::sceneID == SID_VolumeRayCastLighted ||
-        SLApplication::sceneID == SID_VolumeRayCast)
+    if (AppDemo::sceneID == SID_VolumeRayCastLighted ||
+        AppDemo::sceneID == SID_VolumeRayCast)
         fs << "sceneID" << (SLint)SID_Minimal;
     else
-        fs << "sceneID" << (SLint)SLApplication::sceneID;
+        fs << "sceneID" << (SLint)AppDemo::sceneID;
     fs << "ItemSpacingX" << (SLint)style.ItemSpacing.x;
     fs << "ItemSpacingY" << (SLint)style.ItemSpacing.y;
     fs << "ScrollbarSize" << (SLfloat)style.ScrollbarSize;
@@ -3712,7 +3713,7 @@ void AppDemoGui::setTransformEditMode(SLProjectScene* s,
 
     if (!tN)
     {
-        tN = new SLTransformNode(sv, s->singleNodeSelected(), SLApplication::shaderPath);
+        tN = new SLTransformNode(sv, s->singleNodeSelected(), AppDemo::shaderPath);
         s->root3D()->addChild(tN);
     }
 
@@ -3751,9 +3752,9 @@ void AppDemoGui::showHorizon(SLProjectScene* s, SLSceneView* sv)
     if (!horizonNode)
     {
         horizonNode = new SLHorizonNode(horizonName,
-                                        &SLApplication::devRot,
+                                        &AppDemo::devRot,
                                         s->font16,
-                                        SLApplication::shaderPath,
+                                        AppDemo::shaderPath,
                                         sv->scrW(),
                                         sv->scrH());
         s->root2D()->addChild(horizonNode);
@@ -3823,7 +3824,7 @@ void AppDemoGui::downloadModelAndLoadScene(SLScene*     s,
         if (filesize > 0)
         {
             int transferredPC = (int)((float)curr / (float)filesize * 100.0f);
-            SLApplication::jobProgressNum(transferredPC);
+            AppDemo::jobProgressNum(transferredPC);
         }
         else
             cout << "Bytes transferred: " << curr << endl;
@@ -3834,18 +3835,18 @@ void AppDemoGui::downloadModelAndLoadScene(SLScene*     s,
     auto downloadJobHTTP = [=]() {
         PROFILE_FUNCTION();
         string jobMsg = "Downloading file via HTTPS: " + downloadFilename;
-        SLApplication::jobProgressMsg(jobMsg);
-        SLApplication::jobProgressMax(100);
+        AppDemo::jobProgressMsg(jobMsg);
+        AppDemo::jobProgressMax(100);
         string fileToDownload = urlFolder + downloadFilename;
         if (!HttpUtils::download(fileToDownload, dstFolder, progressCallback))
             SL_LOG("*** Nothing downloaded from: %s ***", fileToDownload.c_str());
-        SLApplication::jobIsRunning = false;
+        AppDemo::jobIsRunning = false;
     };
 
     auto unzipJob = [=]() {
         string jobMsg = "Decompressing file: " + downloadFilename;
-        SLApplication::jobProgressMsg(jobMsg);
-        SLApplication::jobProgressMax(-1);
+        AppDemo::jobProgressMsg(jobMsg);
+        AppDemo::jobProgressMax(-1);
         string zipFile = dstFolder + downloadFilename;
         if (Utils::fileExists(zipFile))
         {
@@ -3859,7 +3860,7 @@ void AppDemoGui::downloadModelAndLoadScene(SLScene*     s,
         else
             SL_LOG("*** File do decompress doesn't exist: %s ***",
                    zipFile.c_str());
-        SLApplication::jobIsRunning = false;
+        AppDemo::jobIsRunning = false;
     };
 
     auto followUpJob1 = [=]() {
@@ -3871,8 +3872,8 @@ void AppDemoGui::downloadModelAndLoadScene(SLScene*     s,
                    modelFile.c_str());
     };
 
-    SLApplication::jobsToBeThreaded.emplace_back(downloadJobHTTP);
-    SLApplication::jobsToBeThreaded.emplace_back(unzipJob);
-    SLApplication::jobsToFollowInMain.push_back(followUpJob1);
+    AppDemo::jobsToBeThreaded.emplace_back(downloadJobHTTP);
+    AppDemo::jobsToBeThreaded.emplace_back(unzipJob);
+    AppDemo::jobsToFollowInMain.push_back(followUpJob1);
 }
 //-----------------------------------------------------------------------------

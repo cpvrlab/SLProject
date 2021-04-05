@@ -12,7 +12,7 @@
 #include <jni.h>
 #include <SLInterface.h>
 #include <SLProjectScene.h>
-#include <SLApplication.h>
+#include <AppDemo.h>
 #include <CVCapture.h>
 #include <AppDemoGui.h>
 #include <AppDemoSceneView.h>
@@ -108,10 +108,10 @@ extern "C" JNIEXPORT void JNICALL Java_ch_bfh_cpvrlab_GLES3Lib_onInit(JNIEnv* en
     string device_path_msg = "Device path:" + devicePath;
     SL_LOG(device_path_msg.c_str(), 0);
 
-    SLApplication::calibFilePath = devicePath + "/data/config/";                //that's where calibrations are stored an loaded from
-    SLApplication::calibIniPath  = devicePath + "/data/calibrations/";
+    AppDemo::calibFilePath = devicePath + "/data/config/";                //that's where calibrations are stored an loaded from
+    AppDemo::calibIniPath  = devicePath + "/data/calibrations/";
     CVCapture::instance()->loadCalibrations(Utils::ComputerInfos::get(),        // deviceInfo string
-                                            SLApplication::calibFilePath);      // for calibrations made
+                                            AppDemo::calibFilePath);      // for calibrations made
 
     ////////////////////////////////////////////////////
     slCreateAppAndScene(*cmdLineArgs,
@@ -126,7 +126,7 @@ extern "C" JNIEXPORT void JNICALL Java_ch_bfh_cpvrlab_GLES3Lib_onInit(JNIEnv* en
                         (void*)appDemoLoadScene);
 
     ////////////////////////////////////////////////////////////////////
-    svIndex = slCreateSceneView(SLApplication::scene,
+    svIndex = slCreateSceneView(AppDemo::scene,
                                 (int)width,
                                 (int)height,
                                 (int)dpi,
@@ -235,7 +235,7 @@ extern "C" JNIEXPORT
 //! Grabs a frame from a video file using OpenCV
 extern "C" JNIEXPORT void JNICALL Java_ch_bfh_cpvrlab_GLES3Lib_grabVideoFileFrame(JNIEnv* env, jclass obj)
 {
-    SLSceneView* sv      = SLApplication::sceneViews[0];
+    SLSceneView* sv      = AppDemo::sceneViews[0];
     CVCapture*   capture = CVCapture::instance();
 
     // Get the current capture size of the videofile
@@ -266,7 +266,7 @@ extern "C" JNIEXPORT void JNICALL Java_ch_bfh_cpvrlab_GLES3Lib_copyVideoImage(JN
     if (srcLumaPtr == nullptr)
         SL_EXIT_MSG("copyVideoImage: No image data pointer passed!");
 
-    SLSceneView* sv            = SLApplication::sceneViews[0];
+    SLSceneView* sv            = AppDemo::sceneViews[0];
     CVCapture*   capture       = CVCapture::instance();
     float        videoImgWdivH = (float)imgWidth / (float)imgHeight;
 
@@ -294,8 +294,8 @@ extern "C" JNIEXPORT void JNICALL Java_ch_bfh_cpvrlab_GLES3Lib_copyVideoYUVPlane
 
     // If viewportWdivH is negative the viewport aspect will be adapted to the video
     // aspect ratio. No cropping will be applied.
-    float viewportWdivH = SLApplication::sceneViews[0]->viewportWdivH();
-    if (SLApplication::sceneViews[0]->viewportSameAsVideo())
+    float viewportWdivH = AppDemo::sceneViews[0]->viewportWdivH();
+    if (AppDemo::sceneViews[0]->viewportSameAsVideo())
         viewportWdivH = -1;
 
     CVCapture::instance()->copyYUVPlanes(viewportWdivH, srcW, srcH, y, ySize, yPixStride, yLineStride, u, uSize, uPixStride, uLineStride, v, vSize, vPixStride, vLineStride);
