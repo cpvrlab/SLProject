@@ -4442,7 +4442,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Create directional light for the sun light
         SLLightDirect* sunLight = new SLLightDirect(s, s, 1.0f);
-        sunLight->powers(1.0f, 1.5f, 1.0f);
+        sunLight->powers(1.0f, 1.0f, 1.0f);
         sunLight->attenuation(1, 0, 0);
         sunLight->translation(0, 10, 0);
         sunLight->lookAt(10, 0, 10);

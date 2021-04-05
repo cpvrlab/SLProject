@@ -3160,51 +3160,61 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                 light->isOn(on);
 
                             ImGuiColorEditFlags cef = ImGuiColorEditFlags_NoInputs;
-                            SLCol4f             ac  = light->ambientColor();
-                            if (ImGui::ColorEdit3("Ambient color", (float*)&ac, cef))
-                                light->ambientColor(ac);
+                            SLCol4f             aC  = light->ambientColor();
+                            if (ImGui::ColorEdit3("Ambient color", (float*)&aC, cef))
+                                light->ambientColor(aC);
 
-                            if (!doSunPowerAdaptation)
+                            float aP = light->ambientPower();
+                            float dP = light->diffusePower();
+                            if (doSunPowerAdaptation)
                             {
-                                SLCol4f dc = light->diffuseColor();
-                                if (ImGui::ColorEdit3("Diffuse color", (float*)&dc, cef))
-                                    light->diffuseColor(dc);
+                                float sum_aPdP = aP + dP;
+                                float ambiFraction = aP / sum_aPdP;
+                                if (ImGui::SliderFloat("Diffuse-Ambient-Mix", &ambiFraction, 0.0f, 1.0f, "%.2f"))
+                                {
+                                    light->ambientPower(ambiFraction * sum_aPdP);
+                                    light->diffusePower((1.0f - ambiFraction) * sum_aPdP);
+                                }
+                            }
+                            else
+                            {
+                                SLCol4f dC = light->diffuseColor();
+                                if (ImGui::ColorEdit3("Diffuse color", (float*)&dC, cef))
+                                    light->diffuseColor(dC);
 
-                                SLCol4f sc = light->specularColor();
-                                if (ImGui::ColorEdit3("Specular color", (float*)&sc, cef))
-                                    light->specularColor(sc);
+                                SLCol4f sC = light->specularColor();
+                                if (ImGui::ColorEdit3("Specular color", (float*)&sC, cef))
+                                    light->specularColor(sC);
                             }
 
-                            float ap = light->ambientPower();
-                            if (ImGui::SliderFloat("Ambient power", &ap, 0.0f, 10.0f))
-                                light->ambientPower(ap);
+                            if (ImGui::SliderFloat("Ambient power", &aP, 0.0f, 10.0f, "%.2f"))
+                                light->ambientPower(aP);
 
-                            float dp = light->diffusePower();
-                            if (ImGui::SliderFloat("Diffuse power", &dp, 0.0f, 10.0f))
-                                light->diffusePower(dp);
+                            if (ImGui::SliderFloat("Diffuse power", &dP, 0.0f, 10.0f, "%.2f"))
+                                light->diffusePower(dP);
 
-                            float sp = light->specularPower();
-                            if (ImGui::SliderFloat("Specular power", &sp, 0.0f, 10.0f))
-                                light->specularPower(sp);
+                            float sP = light->specularPower();
+                            if (ImGui::SliderFloat("Specular power", &sP, 0.0f, 10.0f, "%.2f"))
+                                light->specularPower(sP);
 
                             float cutoff = light->spotCutOffDEG();
-                            if (ImGui::SliderFloat("Spot cut off angle", &cutoff, 0.0f, 180.0f))
+                            if (ImGui::SliderFloat("Spot cut off angle", &cutoff, 0.0f, 180.0f, "%.2f"))
                                 light->spotCutOffDEG(cutoff);
 
                             float spotExp = light->spotExponent();
-                            if (ImGui::SliderFloat("Spot attenuation", &spotExp, 0.0f, 128.0f))
+                            if (ImGui::SliderFloat("Spot attenuation", &spotExp, 0.0f, 128.0f, "%.2f"))
                                 light->spotExponent(spotExp);
 
                             float kc = light->kc();
-                            if (ImGui::SliderFloat("Constant attenuation", &kc, 0.0f, 1.0f))
+                            if (ImGui::SliderFloat("Constant attenuation", &kc, 0.0f, 1.0f, "%.2f"))
                                 light->kc(kc);
 
                             float kl = light->kl();
-                            if (ImGui::SliderFloat("Linear attenuation", &kl, 0.0f, 1.0f))
+                            if (ImGui::SliderFloat("Linear attenuation", &kl, 0.0f, 1.0f, "%.2f"))
                                 light->kl(kl);
 
                             float kq = light->kq();
-                            if (ImGui::SliderFloat("Quadratic attenuation", &kq, 0.0f, 1.0f))
+                            if (ImGui::SliderFloat("Quadratic attenuation", &kq, 0.0f, 1.0f, "%.2f"))
                                 light->kq(kq);
 
                             if (typeid(*singleNode) == typeid(SLLightDirect))
