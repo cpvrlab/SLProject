@@ -28,6 +28,7 @@ void SLDeviceLocation::init()
     _originLatLonAlt.set(0, 0, 0);
     _originECEF.set(0, 0, 0);
     _originENU.set(0, 0, 0);
+    _offsetENU.set(0, 0, 0);
     _originAccuracyM    = FLT_MAX;
     _originSolarZenith  = 45.0f;
     _originSolarAzimuth = 0.0f;
@@ -42,6 +43,7 @@ void SLDeviceLocation::init()
     _altDemM           = 0.0f;
     _altGpsM           = 0.0f;
     _cameraHeightM     = 1.6f;
+    _offsetMode        = LOM_none;
 }
 //-----------------------------------------------------------------------------
 // Setter for hasOrigin flag.
@@ -400,7 +402,7 @@ void SLDeviceLocation::loadGeoTiff(const SLstring& geoTiffFile)
         SL_WARN_MSG("SLDeviceLocation::loadGeoTiff: Unknown exception catched.");
     }
 }
-//------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 /* Returns true if a geoTiff files is loaded and the origin and default
  positions are within the extends of the image.
 */
@@ -416,7 +418,8 @@ bool SLDeviceLocation::geoTiffIsAvailableAndValid()
             _defaultLatLonAlt.lon > _demGeoTiff.upperLeftLatLonAlt()[1] &&
             _defaultLatLonAlt.lon < _demGeoTiff.lowerRightLatLonAlt()[1]);
 }
-//------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+//! Return true if the current GPS location is within the GeoTiff boundaries
 bool SLDeviceLocation::posIsOnGeoTiff(SLdouble latDEG, SLdouble lonDEG)
 {
     return (!_demGeoTiff.empty() &&
@@ -425,3 +428,15 @@ bool SLDeviceLocation::posIsOnGeoTiff(SLdouble latDEG, SLdouble lonDEG)
             lonDEG > _demGeoTiff.upperLeftLatLonAlt()[1] &&
             lonDEG < _demGeoTiff.lowerRightLatLonAlt()[1]);
 }
+//------------------------------------------------------------------------------
+//! Returns the device location offset mode as string
+SLstring SLDeviceLocation::offsetModeStr() const
+{
+    switch(_offsetMode)
+    {
+        case LOM_none: return "None";
+        case LOM_twoFingerY: return "TwoFingerY";
+        default: return "Unknown";
+    }
+}
+//-----------------------------------------------------------------------------

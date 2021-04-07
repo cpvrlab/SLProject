@@ -266,9 +266,9 @@ protected:
     //!parameter for manual finger rotation and translation
     SLint   _xOffsetPix        = 0;
     SLint   _yOffsetPix        = 0;
-    float   _distanceToObjectM = 1.0f; //!< distance to object in meter that should be shifted relative to camera
-    float   _enucorrTRenu      = 0.f;  //!< manual camera shift in y direction
     SLMat3f _enucorrRenu;
+    //float   _distanceToObjectM = 1.0f; //!< distance to object in meter that should be shifted relative to camera
+    //float   _enucorrTRenu      = 0.f;  //!< manual camera shift in y direction
 
     function<void(SLSceneView* sv)> _onCamUpdateCB;
 };

@@ -20,6 +20,8 @@
 #include <SLGLShader.h>
 #include <SLGLTexture.h>
 #include <SLInterface.h>
+#include <SLDeviceLocation.h>
+#include <SLDeviceRotation.h>
 #include <SLLightDirect.h>
 #include <SLLightRect.h>
 #include <SLLightSpot.h>
@@ -1013,7 +1015,7 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
                 sprintf(m + strlen(m), "No. averaged     : %d\n", AppDemo::devRot.numAveraged());
                 //sprintf(m + strlen(m), "Pitch Offset(deg): %3.1f\n", AppDemo::devRot.pitchOffsetDEG());
                 //sprintf(m + strlen(m), "Yaw   Offset(deg): %3.1f\n", AppDemo::devRot.yawOffsetDEG());
-                sprintf(m + strlen(m), "Offset mode      : %s\n", AppDemo::devRot.offsetModeStr().c_str());
+                sprintf(m + strlen(m), "Rot. Offset mode : %s\n", AppDemo::devRot.offsetModeStr().c_str());
                 sprintf(m + strlen(m), "------------------\n");
                 sprintf(m + strlen(m), "Uses GPS Sensor  : %s\n", AppDemo::devLoc.isUsed() ? "yes" : "no");
                 sprintf(m + strlen(m), "Latitude (deg)   : %10.5f\n", AppDemo::devLoc.locLatLonAlt().lat);
@@ -1025,8 +1027,8 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
                 sprintf(m + strlen(m), "Accuracy Rad.(m) : %6.1f\n", AppDemo::devLoc.locAccuracyM());
                 sprintf(m + strlen(m), "Dist. Origin (m) : %6.1f\n", offsetToOrigin.length());
                 sprintf(m + strlen(m), "Origin improve(s): %6.1f sec.\n", AppDemo::devLoc.improveTime());
-                sprintf(m + strlen(m), "Sun Zenith (deg) : %6.1f sec.\n", AppDemo::devLoc.originSolarZenit());
-                sprintf(m + strlen(m), "Sun Azimuth (deg): %6.1f sec.\n", AppDemo::devLoc.originSolarAzimut());
+                sprintf(m + strlen(m), "Loc. Offset mode : %s\n", AppDemo::devLoc.offsetModeStr().c_str());
+                sprintf(m + strlen(m), "Loc. Offset (m)  : %s\n", AppDemo::devLoc.offsetENU().toString(",",1).c_str());
 
                 // Switch to fixed font
                 ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
@@ -1143,7 +1145,7 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
                         AppDemo::devLoc.calculateSolarAngles(AppDemo::devLoc.originLatLonAlt(), now);
                     }
 
-                    sprintf(strTime, "Set highest noon (21.06.%02d 12:00)", lt.tm_year);
+                    sprintf(strTime, "Set highest noon (21.06.%02d 12:00)", lt.tm_year-100);
                     if (ImGui::MenuItem(strTime))
                     {
                         lt.tm_mon    = 6;
@@ -1156,7 +1158,7 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
                                                              adjustedTime);
                     }
 
-                    sprintf(strTime, "Set lowest noon (21.12.%02d 12:00)", lt.tm_year);
+                    sprintf(strTime, "Set lowest noon (21.12.%02d 12:00)", lt.tm_year-100);
                     if (ImGui::MenuItem(strTime))
                     {
                         lt.tm_mon    = 12;
@@ -1167,6 +1169,24 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
                         adjustedTime = mktime(&lt);
                         AppDemo::devLoc.calculateSolarAngles(AppDemo::devLoc.originLatLonAlt(),
                                                              adjustedTime);
+                    }
+
+                    SLNode* sunLightNode = AppDemo::devLoc.sunLightNode();
+                    if (sunLightNode &&
+                        typeid(*sunLightNode) == typeid(SLLightDirect) &&
+                        ((SLLightDirect*)sunLightNode)->doSunPowerAdaptation())
+                    {
+                        SLLight* light        = (SLLight*)(SLLightDirect*)sunLightNode;
+                        float    aP           = light->ambientPower();
+                        float    dP           = light->diffusePower();
+                        float    sum_aPdP     = aP + dP;
+                        float    ambiFraction = aP / sum_aPdP;
+                        ImGui::Separator();
+                        if (ImGui::SliderFloat("Direct-Indirect", &ambiFraction, 0.0f, 1.0f, "%.2f"))
+                        {
+                            light->ambientPower(ambiFraction * sum_aPdP);
+                            light->diffusePower((1.0f - ambiFraction) * sum_aPdP);
+                        }
                     }
 
                     ImGui::PopItemWidth();
@@ -1832,21 +1852,13 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
 
                     if (ImGui::BeginMenu("Offset Mode"))
                     {
-                        SLOffsetMode om = devRot.offsetMode();
-                        if (ImGui::MenuItem("None", nullptr, om == OM_none))
-                            devRot.offsetMode(OM_none);
-                        if (ImGui::MenuItem("Finger rot. X", nullptr, om == OM_fingerX))
-                            devRot.offsetMode(OM_fingerX);
-                        if (ImGui::MenuItem("Finger rot. X and Y", nullptr, om == OM_fingerXY))
-                            devRot.offsetMode(OM_fingerXY);
-                        if (ImGui::MenuItem("Finger trans. Y", nullptr, om == OM_fingerYTrans))
-                            devRot.offsetMode(OM_fingerYTrans);
-                        if (ImGui::MenuItem("Finger rot. X and trans. Y", nullptr, om == OM_fingerXRotYTrans))
-                            devRot.offsetMode(OM_fingerXRotYTrans);
-                        if (ImGui::MenuItem("Auto X", nullptr, om == OM_autoX))
-                            devRot.offsetMode(OM_fingerX);
-                        if (ImGui::MenuItem("Auto X and Y", nullptr, om == OM_autoXY))
-                            devRot.offsetMode(OM_autoXY);
+                        SLRotOffsetMode om = devRot.offsetMode();
+                        if (ImGui::MenuItem("None", nullptr, om == ROM_none))
+                            devRot.offsetMode(ROM_none);
+                        if (ImGui::MenuItem("Finger rot. X", nullptr, om == ROM_oneFingerX))
+                            devRot.offsetMode(ROM_oneFingerX);
+                        if (ImGui::MenuItem("Finger rot. X and Y", nullptr, om == ROM_oneFingerXY))
+                            devRot.offsetMode(ROM_oneFingerXY);
 
                         ImGui::EndMenu();
                     }
@@ -1871,6 +1883,8 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
 
             if (ImGui::BeginMenu("Location Sensor"))
             {
+                SLDeviceLocation& devLoc = AppDemo::devLoc;
+
                 if (ImGui::MenuItem("Use Device Location (GPS)", nullptr, AppDemo::devLoc.isUsed()))
                     AppDemo::devLoc.isUsed(!AppDemo::devLoc.isUsed());
 
@@ -1880,6 +1894,17 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
 
                 if (ImGui::MenuItem("Reset Origin to here"))
                     AppDemo::devLoc.hasOrigin(false);
+
+                if (ImGui::BeginMenu("Offset Mode"))
+                    {
+                        SLLocOffsetMode om = devLoc.offsetMode();
+                        if (ImGui::MenuItem("None", nullptr, om == LOM_none))
+                            devLoc.offsetMode(LOM_none);
+                        if (ImGui::MenuItem("Two Finger Y", nullptr, om == LOM_twoFingerY))
+                            devLoc.offsetMode(LOM_twoFingerY);
+
+                        ImGui::EndMenu();
+                    }
 
                 ImGui::EndMenu();
             }
@@ -3168,7 +3193,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                             float dP = light->diffusePower();
                             if (doSunPowerAdaptation)
                             {
-                                float sum_aPdP = aP + dP;
+                                float sum_aPdP     = aP + dP;
                                 float ambiFraction = aP / sum_aPdP;
                                 if (ImGui::SliderFloat("Diffuse-Ambient-Mix", &ambiFraction, 0.0f, 1.0f, "%.2f"))
                                 {

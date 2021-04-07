@@ -3613,7 +3613,9 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         AppDemo::devLoc.improveOrigin(false);
         AppDemo::devLoc.useOriginAltitude(true);
         AppDemo::devLoc.hasOrigin(true);
+        AppDemo::devLoc.offsetMode(LOM_twoFingerY);
         AppDemo::devRot.zeroYawAtStart(false);
+        AppDemo::devRot.offsetMode(ROM_oneFingerXY);
 
         // This loads the DEM file and overwrites the altitude of originLatLonAlt and defaultLatLonAlt
         SLstring tif = dataPath + "erleb-AR/models/biel/DEM_Biel-BFH_WGS84.tif";
@@ -3784,7 +3786,9 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         AppDemo::devLoc.improveOrigin(false);                             // Keine autom. Verbesserung vom Origin
         AppDemo::devLoc.useOriginAltitude(true);
         AppDemo::devLoc.hasOrigin(true);
+        AppDemo::devLoc.offsetMode(LOM_twoFingerY);
         AppDemo::devRot.zeroYawAtStart(false);
+        AppDemo::devRot.offsetMode(ROM_oneFingerXY);
 
         // This loads the DEM file and overwrites the altitude of originLatLonAlt and defaultLatLonAlt
         SLstring tif = dataPath + "erleb-AR/models/bern/DEM-Bern-2600_1199-WGS84.tif";
@@ -3923,7 +3927,9 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         AppDemo::devLoc.locMaxDistanceM(1000.0f);                   // Max. allowed distance to origin
         AppDemo::devLoc.improveOrigin(false);                       // No autom. origin improvement
         AppDemo::devLoc.hasOrigin(true);
-        AppDemo::devRot.zeroYawAtStart(false); // Use the real yaw from the IMU
+        AppDemo::devLoc.offsetMode(LOM_twoFingerY);
+        AppDemo::devRot.zeroYawAtStart(false);
+        AppDemo::devRot.offsetMode(ROM_oneFingerXY);
 
         // This loads the DEM file and overwrites the altitude of originLatLonAlt and defaultLatLonAlt
         SLstring tif = datDir + "DTM-Theater-Tempel-WGS84.tif";
@@ -4062,7 +4068,9 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         AppDemo::devLoc.locMaxDistanceM(1000.0f);                         // Max. allowed distance to origin
         AppDemo::devLoc.improveOrigin(false);                             // No autom. origin improvement
         AppDemo::devLoc.hasOrigin(true);
-        AppDemo::devRot.zeroYawAtStart(false); // Use the real yaw from the IMU
+        AppDemo::devLoc.offsetMode(LOM_twoFingerY);
+        AppDemo::devRot.zeroYawAtStart(false);
+        AppDemo::devRot.offsetMode(ROM_oneFingerXY);
 
         // This loads the DEM file and overwrites the altitude of originLatLonAlt and defaultLatLonAlt
         SLstring tif = datDir + "DTM-Theater-Tempel-WGS84.tif";
@@ -4198,7 +4206,9 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         AppDemo::devLoc.locMaxDistanceM(1000.0f);                   // Max. allowed distance to origin
         AppDemo::devLoc.improveOrigin(false);                       // No autom. origin improvement
         AppDemo::devLoc.hasOrigin(true);
-        AppDemo::devRot.zeroYawAtStart(false); // Use the real yaw from the IMU
+        AppDemo::devLoc.offsetMode(LOM_twoFingerY);
+        AppDemo::devRot.zeroYawAtStart(false);
+        AppDemo::devRot.offsetMode(ROM_oneFingerXY);
 
         // Level of Detail switch for Temple and Theater
         SLNode* tmpAltar = thtAndTmp->findChild<SLNode>("TmpAltar");
@@ -4370,7 +4380,9 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         AppDemo::devLoc.locMaxDistanceM(1000.0f);      // Max. Distanz. zum Nullpunkt
         AppDemo::devLoc.improveOrigin(false);          // Keine autom. Verbesserung vom Origin
         AppDemo::devLoc.hasOrigin(true);
+        AppDemo::devLoc.offsetMode(LOM_twoFingerY);
         AppDemo::devRot.zeroYawAtStart(false);
+        AppDemo::devRot.offsetMode(ROM_oneFingerXY);
 
         // This loads the DEM file and overwrites the altitude of originLatLonAlt and defaultLatLonAlt
         SLstring tif = dataPath + "erleb-AR/models/avenches/DTM-Aventicum-WGS84.tif";
@@ -4488,8 +4500,6 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         //initialize sensor stuff
         AppDemo::devLoc.useOriginAltitude(false);
-
-        // See Avenches_Cigognier_Orthofoto.png
         AppDemo::devLoc.originLatLonAlt(46,
                                               52,
                                               53.245,
@@ -4507,7 +4517,9 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         AppDemo::devLoc.locMaxDistanceM(1000.0f);      // Max. allowed distance from origin
         AppDemo::devLoc.improveOrigin(false);          // No auto improvement from
         AppDemo::devLoc.hasOrigin(true);
+        AppDemo::devLoc.offsetMode(LOM_twoFingerY);
         AppDemo::devRot.zeroYawAtStart(false);
+        AppDemo::devRot.offsetMode(ROM_oneFingerXY);
 
         // This loads the DEM file and overwrites the altitude of originLatLonAlt and defaultLatLonAlt
         SLstring tif = dataPath + "erleb-AR/models/avenches/DTM-Aventicum-WGS84.tif";
@@ -4644,7 +4656,9 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         AppDemo::devLoc.locMaxDistanceM(1000.0f);      // Max. Distanz. zum Nullpunkt
         AppDemo::devLoc.improveOrigin(false);          // Keine autom. Verbesserung vom Origin
         AppDemo::devLoc.hasOrigin(true);
+        AppDemo::devLoc.offsetMode(LOM_twoFingerY);
         AppDemo::devRot.zeroYawAtStart(false);
+        AppDemo::devRot.offsetMode(ROM_oneFingerXY);
 
         // This loads the DEM file and overwrites the altitude of originLatLonAlt and defaultLatLonAlt
         SLstring tif = dataPath + "erleb-AR/models/avenches/DTM-Aventicum-WGS84.tif";
@@ -4771,7 +4785,9 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         AppDemo::devLoc.locMaxDistanceM(1000.0f);                          // Max. Distanz. zum Nullpunkt
         AppDemo::devLoc.improveOrigin(false);                              // Keine autom. Verbesserung vom Origin
         AppDemo::devLoc.hasOrigin(true);
+        AppDemo::devLoc.offsetMode(LOM_twoFingerY);
         AppDemo::devRot.zeroYawAtStart(false);
+        AppDemo::devRot.offsetMode(ROM_oneFingerXY);
 
         // This loads the DEM file and overwrites the altitude of originLatLonAlt and defaultLatLonAlt
         SLstring tif = dataPath + "erleb-AR/models/sutzKirchrain18/Sutz-Kirchrain18-DEM-WGS84.tif";
@@ -4898,7 +4914,9 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         AppDemo::devLoc.locMaxDistanceM(1000.0f);                          // Max. Distanz. zum Nullpunkt
         AppDemo::devLoc.improveOrigin(false);                              // Keine autom. Verbesserung vom Origin
         AppDemo::devLoc.hasOrigin(true);
+        AppDemo::devLoc.offsetMode(LOM_twoFingerY);
         AppDemo::devRot.zeroYawAtStart(false);
+        AppDemo::devRot.offsetMode(ROM_oneFingerXY);
 
         // This loads the DEM file and overwrites the altitude of originLatLonAlt and defaultLatLonAlt
         SLstring tif = dataPath + "erleb-AR/models/evilardCheminDuRoc2/EvilardCheminDuRoc2-DEM-WGS84.tif";

@@ -250,7 +250,10 @@ static void onMouseButton(GLFWwindow* myWindow,
             switch (button)
             {
                 case GLFW_MOUSE_BUTTON_LEFT:
-                    slMouseDown(svIndex, MB_left, x, y, modifiers);
+                    if (modifiers & K_alt && modifiers & K_ctrl)
+                        slTouch2Down(svIndex, x - 20, y, x + 20, y);
+                    else
+                        slMouseDown(svIndex, MB_left, x, y, modifiers);
                     break;
                 case GLFW_MOUSE_BUTTON_RIGHT:
                     slMouseDown(svIndex, MB_right, x, y, modifiers);
@@ -294,7 +297,10 @@ static void onMouseMove(GLFWwindow* myWindow,
     mouseX = (int)x;
     mouseY = (int)y;
 
-    slMouseMove(svIndex, (int)x, (int)y);
+    if (modifiers & K_alt && modifiers & K_ctrl)
+        slTouch2Move(svIndex, x - 20, y, x + 20, y);
+    else
+        slMouseMove(svIndex, (int)x, (int)y);
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -382,7 +388,7 @@ static void onKeyPress(GLFWwindow* myWindow,
             SLSceneView* sv = AppDemo::sceneViews[0];
             if (action == GLFW_PRESS)
             {
-                if (key == '0' &&  sv)
+                if (key == '0' && sv)
                 {
                     appDemoLoadScene(AppDemo::scene, sv, SID_Empty);
                     SL_LOG("Loading SceneID: %d", AppDemo::sceneID);
@@ -392,7 +398,7 @@ static void onKeyPress(GLFWwindow* myWindow,
                     appDemoLoadScene(AppDemo::scene, sv, (SLSceneID)(AppDemo::sceneID - 1));
                     SL_LOG("Loading SceneID: %d", AppDemo::sceneID);
                 }
-                else if (key == K_right && sv && AppDemo::sceneID < SID_Maximal-1)
+                else if (key == K_right && sv && AppDemo::sceneID < SID_Maximal - 1)
                 {
                     appDemoLoadScene(AppDemo::scene, sv, (SLSceneID)(AppDemo::sceneID + 1));
                     SL_LOG("Loading SceneID: %d", AppDemo::sceneID);
@@ -518,7 +524,7 @@ void initSL(SLVstring& cmdLineArgs)
 
     //setup platform dependent data path
     AppDemo::calibFilePath = configDir;
-    AppDemo::calibIniPath  = projectRoot + "/data/calibrations/"; // for calibInitPath
+    AppDemo::calibIniPath  = projectRoot + "/data/calibrations/";                                 // for calibInitPath
     CVCapture::instance()->loadCalibrations(Utils::ComputerInfos::get(), AppDemo::calibFilePath); // for calibrations made
 
     /////////////////////////////////////////////////////////

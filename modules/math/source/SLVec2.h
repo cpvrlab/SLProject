@@ -124,7 +124,13 @@ class SLVec2
                                                   if (v.y > y) y=v.y;}
     SLbool  isZero      ()                      {return (x==0 && y==0);}
     void    print       (const char* str=nullptr) {if (str) SLMATH_LOG("%s",str);
-        SLMATH_LOG("% 3.3f, % 3.3f",x, y);}
+                                                   SLMATH_LOG("% 3.3f, % 3.3f",x, y);}
+
+    //! Conversion to string
+    SLstring toString   (SLstring delimiter = ", ", int decimals = 2)
+    {   return Utils::toString(x,decimals) + delimiter +
+               Utils::toString(y,decimals);
+    }
    
     static 
     SLVec2  ZERO;

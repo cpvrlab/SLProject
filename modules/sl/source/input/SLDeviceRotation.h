@@ -18,16 +18,12 @@
 #include <Averaged.h>
 
 //-----------------------------------------------------------------------------
-//! Device rotation and translation offset mode
-enum SLOffsetMode
+//! Device rotation offset mode
+enum SLRotOffsetMode
 {
-    OM_none = 0,
-    OM_fingerX,
-    OM_fingerXY,
-    OM_fingerYTrans,
-    OM_fingerXRotYTrans,
-    OM_autoX,
-    OM_autoXY,
+    ROM_none = 0,
+    ROM_oneFingerX,
+    ROM_oneFingerXY
 };
 //-----------------------------------------------------------------------------
 //! Encapsulation of a mobile device rotation set by the device's IMU sensor
@@ -54,26 +50,26 @@ public:
     void hasStarted(SLbool started) { _isFirstSensorValue = started; }
     void zeroYawAtStart(SLbool zeroYaw) { _zeroYawAtStart = zeroYaw; }
     void numAveraged(SLint numAvg);
-    void offsetMode(SLOffsetMode om) { _offsetMode = om; }
+    void offsetMode(SLRotOffsetMode rom) { _offsetMode = rom; }
     void updateRPY(SLbool doUpdate) { _updateRPY = doUpdate; }
 
     // Getters
-    SLbool       isUsed() const { return _isUsed; }
-    SLMat3f      rotation() const { return _rotation; }
-    SLMat3f      rotationAveraged() { return _rotationAvg.average(); }
-    SLQuat4f     quaternion() const { return _quaternion; }
-    SLfloat      pitchRAD() const { return _pitchRAD; }
-    SLfloat      pitchDEG() const { return _pitchRAD * Utils::RAD2DEG; }
-    SLfloat      yawRAD() const { return _yawRAD; }
-    SLfloat      yawDEG() const { return _yawRAD * Utils::RAD2DEG; }
-    SLfloat      rollRAD() const { return _rollRAD; }
-    SLfloat      rollDEG() const { return _rollRAD * Utils::RAD2DEG; }
-    SLbool       zeroYawAtStart() const { return _zeroYawAtStart; }
-    SLfloat      startYawRAD() const { return _startYawRAD; }
-    SLint        numAveraged() { return (int)_rotationAvg.size(); }
-    SLOffsetMode offsetMode() { return _offsetMode; }
-    SLstring     offsetModeStr() const;
-    SLbool       updateRPY() const { return _updateRPY; }
+    SLbool          isUsed() const { return _isUsed; }
+    SLMat3f         rotation() const { return _rotation; }
+    SLMat3f         rotationAveraged() { return _rotationAvg.average(); }
+    SLQuat4f        quaternion() const { return _quaternion; }
+    SLfloat         pitchRAD() const { return _pitchRAD; }
+    SLfloat         pitchDEG() const { return _pitchRAD * Utils::RAD2DEG; }
+    SLfloat         yawRAD() const { return _yawRAD; }
+    SLfloat         yawDEG() const { return _yawRAD * Utils::RAD2DEG; }
+    SLfloat         rollRAD() const { return _rollRAD; }
+    SLfloat         rollDEG() const { return _rollRAD * Utils::RAD2DEG; }
+    SLbool          zeroYawAtStart() const { return _zeroYawAtStart; }
+    SLfloat         startYawRAD() const { return _startYawRAD; }
+    SLint           numAveraged() { return (int)_rotationAvg.size(); }
+    SLRotOffsetMode offsetMode() { return _offsetMode; }
+    SLstring        offsetModeStr() const;
+    SLbool          updateRPY() const { return _updateRPY; }
 
 private:
     SLbool            _isUsed;             //!< Flag if device rotation is used
@@ -86,7 +82,7 @@ private:
     SLQuat4f          _quaternion;         //! Quaternion rotation that is set by IMU
     SLbool            _zeroYawAtStart;     //!< Flag if yaw angle should be zeroed at sensor start
     SLfloat           _startYawRAD;        //!< Initial yaw angle after _zeroYawAfterSec in radians
-    SLOffsetMode      _offsetMode;         //!< Rotation offset mode
+    SLRotOffsetMode   _offsetMode;         //!< Rotation offset mode
     SLbool            _updateRPY;          //!< Calculate roll pitch yaw in onRotationQUAT
 };
 //-----------------------------------------------------------------------------
