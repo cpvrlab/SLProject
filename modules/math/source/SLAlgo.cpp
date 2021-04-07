@@ -30,7 +30,7 @@ bool estimateHorizon(const SLMat3f& enuRs, const SLMat3f& sRc, SLVec3f& horizon)
 
     //check that vectors are not parallel
     float l = horizon.length();
-    if(l < 0.01f)
+    if (l < 0.01f)
     {
         horizon = {1.f, 0.f, 0.f};
         return false;
@@ -48,7 +48,7 @@ T geoDegMinSec2Decimal(int degrees, int minutes, T seconds)
     return (T)degrees + ((T)(minutes * 60) + seconds) / ((T)3600);
 }
 //explicit template instantiation for float and double (only these make sense)
-template float geoDegMinSec2Decimal(int degrees, int minutes, float seconds);
+template float  geoDegMinSec2Decimal(int degrees, int minutes, float seconds);
 template double geoDegMinSec2Decimal(int degrees, int minutes, double seconds);
 
 // clang-format off
