@@ -10,7 +10,7 @@
 //#############################################################################
 
 #include <SLAlgo.h>
-#include <assert.h>
+#include <cassert>
 
 namespace SLAlgo
 {
