@@ -73,7 +73,8 @@ void SENSGps::updatePermission(bool granted)
     _permissionGranted = granted;
     informPermissionListeners();
 }
-/**********************************************************************/
+
+//-----------------------------------------------------------------------------
 
 SENSDummyGps::~SENSDummyGps()
 {
