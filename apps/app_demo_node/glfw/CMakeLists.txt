@@ -9,7 +9,7 @@ set(source_path "${CMAKE_CURRENT_SOURCE_DIR}")
 file(GLOB headers
         ${SL_PROJECT_ROOT}/apps/app_demo_node/include/AppNodeGui.h
         ${SL_PROJECT_ROOT}/apps/app_demo_node/include/AppNodeSceneView.h
-        ${SL_PROJECT_ROOT}/apps/source/SLApplication.h
+        ${SL_PROJECT_ROOT}/apps/source/AppDemo.h
         ${SL_PROJECT_ROOT}/apps/source/SLInterface.h
         ${SL_PROJECT_ROOT}/apps/source/SLProjectScene.h
     )
@@ -18,7 +18,7 @@ file(GLOB sources
         ${SL_PROJECT_ROOT}/apps/app_demo_node/source/AppNodeGui.cpp
         ${SL_PROJECT_ROOT}/apps/app_demo_node/source/AppNodeLoad.cpp
         ${SL_PROJECT_ROOT}/apps/app_demo_node/source/AppNodeSceneView.cpp
-        ${SL_PROJECT_ROOT}/apps/source/SLApplication.cpp
+        ${SL_PROJECT_ROOT}/apps/source/AppDemo.cpp
         ${SL_PROJECT_ROOT}/apps/source/SLInterface.cpp
         ${SL_PROJECT_ROOT}/apps/source/SLProjectScene.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/AppNodeMainGLFW.cpp

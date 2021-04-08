@@ -196,10 +196,10 @@ class SLVec3
                 SLMATH_LOG("% 3.2f, % 3.2f, % 3.2f",x, y, z);}
 
             //! Conversion to string
-            SLstring toString   (SLstring delimiter = ", ")
-            {   return Utils::toString(x,2) + delimiter +
-                       Utils::toString(y,2) + delimiter +
-                       Utils::toString(z,2);
+            SLstring toString   (SLstring delimiter = ", ", int decimals = 2)
+            {   return Utils::toString(x,decimals) + delimiter +
+                       Utils::toString(y,decimals) + delimiter +
+                       Utils::toString(z,decimals);
             }
 
             //! Conversion from string

@@ -14,7 +14,7 @@
 #include <imgui_internal.h>
 
 #include <SLNode.h>
-#include <SLApplication.h>
+#include <AppDemo.h>
 #include <SLCVMap.h>
 
 //-----------------------------------------------------------------------------
@@ -26,23 +26,23 @@ SLImGuiInfosMemoryStats::SLImGuiInfosMemoryStats(string name, SLCVMap* map)
 //-----------------------------------------------------------------------------
 void SLImGuiInfosMemoryStats::buildInfos()
 {
-    if (SLApplication::memStats.valid())
+    if (AppDemo::memStats.valid())
     {
-        SLApplication::memStats.updateValue();
+        AppDemo::memStats.updateValue();
 
-        ImGui::Text("freeMemoryRT:      %d ", SLApplication::memStats._freeMemoryRT);
-        ImGui::Text("totalMemoryRT:     %d ", SLApplication::memStats._totalMemoryRT);
-        ImGui::Text("maxMemoryRT:       %d ", SLApplication::memStats._maxMemoryRT);
-        ImGui::Text("usedMemInMB:       %d ", SLApplication::memStats._usedMemInMB);
-        ImGui::Text("maxHeapSizeInMB:   %d ", SLApplication::memStats._maxHeapSizeInMB);
-        ImGui::Text("availHeapSizeInMB: %d ", SLApplication::memStats._availHeapSizeInMB);
+        ImGui::Text("freeMemoryRT:      %d ", AppDemo::memStats._freeMemoryRT);
+        ImGui::Text("totalMemoryRT:     %d ", AppDemo::memStats._totalMemoryRT);
+        ImGui::Text("maxMemoryRT:       %d ", AppDemo::memStats._maxMemoryRT);
+        ImGui::Text("usedMemInMB:       %d ", AppDemo::memStats._usedMemInMB);
+        ImGui::Text("maxHeapSizeInMB:   %d ", AppDemo::memStats._maxHeapSizeInMB);
+        ImGui::Text("availHeapSizeInMB: %d ", AppDemo::memStats._availHeapSizeInMB);
         ImGui::Separator();
-        ImGui::Text("availMemoryAM:     %d ", SLApplication::memStats._availMemoryAM);
-        ImGui::Text("totalMemoryAM:     %d ", SLApplication::memStats._totalMemoryAM);
-        ImGui::Text("thresholdAM:       %d ", SLApplication::memStats._thresholdAM);
-        ImGui::Text("availableMegs:     %f ", SLApplication::memStats._availableMegs);
-        ImGui::Text("percentAvail:      %f ", SLApplication::memStats._percentAvail);
-        ImGui::Text("lowMemoryAM:       %d ", SLApplication::memStats._lowMemoryAM);
+        ImGui::Text("availMemoryAM:     %d ", AppDemo::memStats._availMemoryAM);
+        ImGui::Text("totalMemoryAM:     %d ", AppDemo::memStats._totalMemoryAM);
+        ImGui::Text("thresholdAM:       %d ", AppDemo::memStats._thresholdAM);
+        ImGui::Text("availableMegs:     %f ", AppDemo::memStats._availableMegs);
+        ImGui::Text("percentAvail:      %f ", AppDemo::memStats._percentAvail);
+        ImGui::Text("lowMemoryAM:       %d ", AppDemo::memStats._lowMemoryAM);
         ImGui::Separator();
     }
     else

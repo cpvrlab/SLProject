@@ -13,6 +13,7 @@
 
 #include <SLEnums.h>
 #include <SLNode.h>
+#include <SLProjectScene.h>
 
 class SLSceneView;
 class SLAssetManager;

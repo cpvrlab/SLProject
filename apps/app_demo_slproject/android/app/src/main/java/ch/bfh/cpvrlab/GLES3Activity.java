@@ -640,7 +640,7 @@ public class GLES3Activity extends Activity implements View.OnTouchListener, Sen
         //long currentTimeStamp = System.currentTimeMillis();
         //if (!loc.hasAccuracy() || loc.getAccuracy() == 0) return;
 
-        Log.i(TAG, "onLocationChanged: " + String.valueOf(loc.getLatitude()) + "," + String.valueOf(loc.getLongitude()));
+        //Log.i(TAG, "onLocationChanged: " + String.valueOf(loc.getLatitude()) + "," + String.valueOf(loc.getLongitude()));
         myView.queueEvent(new Runnable() {
             public void run() {
                 GLES3Lib.onLocationLatLonAlt(

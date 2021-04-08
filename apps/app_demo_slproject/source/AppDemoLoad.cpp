@@ -17,7 +17,8 @@
 #include <cv/CVTrackedFeatures.h>
 #include <cv/CVCalibrationEstimator.h>
 
-#include <SLApplication.h>
+#include <SLAlgo.h>
+#include <AppDemo.h>
 #include <SLAssimpImporter.h>
 #include <SLScene.h>
 #include <SLSceneView.h>
@@ -346,15 +347,15 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
     if (sceneID != SID_VolumeRayCastLighted)
         gTexMRI3D = nullptr; // The 3D MRI texture will be deleted by scene uninit
 
-    SLApplication::sceneID = sceneID;
+    AppDemo::sceneID = sceneID;
 
-    SLstring texPath    = SLApplication::texturePath;
-    SLstring dataPath   = SLApplication::dataPath;
-    SLstring modelPath  = SLApplication::modelPath;
-    SLstring shaderPath = SLApplication::shaderPath;
+    SLstring texPath    = AppDemo::texturePath;
+    SLstring dataPath   = AppDemo::dataPath;
+    SLstring modelPath  = AppDemo::modelPath;
+    SLstring shaderPath = AppDemo::shaderPath;
 
     // reset existing sceneviews
-    for (auto* sceneview : SLApplication::sceneViews)
+    for (auto* sceneview : AppDemo::sceneViews)
         sceneview->unInit();
 
     // Initialize all preloaded stuff from SLScene
@@ -364,8 +365,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
     AppDemoGui::clear();
 
     // Deactivate in general the device sensors
-    SLApplication::devRot.isUsed(false);
-    SLApplication::devLoc.isUsed(false);
+    AppDemo::devRot.init();
+    AppDemo::devLoc.init();
 
     if (sceneID == SID_Empty) //...................................................................
     {
@@ -439,7 +440,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->lookAt(0, -2, 0);
         cam1->focalDist(10);
         cam1->setInitialState();
-        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
+        cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
         cam1->background().colors(SLCol4f(0.7f, 0.6f, 1.0f),
                                   SLCol4f(0.1f, 0.4f, 0.8f));
 
@@ -482,7 +483,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->stereoEyeSeparation(cam1->focalDist() / 30.0f);
         cam1->background().colors(SLCol4f(0.6f, 0.6f, 0.6f), SLCol4f(0.3f, 0.3f, 0.3f));
         cam1->setInitialState();
-        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
+        cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
 
         SLLightSpot* light1 = new SLLightSpot(s, s, 2.5f, 2.5f, 2.5f, 0.2f);
         light1->powers(0.1f, 1.0f, 1.0f);
@@ -613,7 +614,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->focalDist(17);
         cam1->background().colors(SLCol4f(0.7f, 0.7f, 0.7f), SLCol4f(0.2f, 0.2f, 0.2f));
         cam1->setInitialState();
-        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
+        cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
 
         // light
         SLLightSpot* light1 = new SLLightSpot(s, s, 0, 4, 0, 0.3f);
@@ -760,7 +761,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->focalDist(18);
         cam1->background().colors(SLCol4f(0.6f, 0.6f, 1));
         cam1->setInitialState();
-        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
+        cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
 
         SLLightSpot* light = new SLLightSpot(s, s, 0.1f);
         light->translation(5, 5, 5);
@@ -926,12 +927,12 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         // Create 3D textured sphere mesh and node
         SLNode*   sphere = new SLNode(new SLSphere(s, 0.2f, 16, 16, "Sphere", mat3D));
         SLCamera* cam1   = new SLCamera("Camera 1");
-        cam1->translation(0, 0, 2.2f);
+        cam1->translation(0, 0, 2.6f);
         cam1->lookAt(0, 0, 0);
         cam1->focalDist(2.2f);
         cam1->background().colors(SLCol4f(0.2f, 0.2f, 0.2f));
         cam1->setInitialState();
-        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
+        cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
 
         SLNode* scene = new SLNode();
         scene->addChild(polyB);
@@ -1073,7 +1074,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->focalDist(5);
         cam1->background().colors(SLCol4f(0.1f, 0.1f, 0.1f));
         cam1->setInitialState();
-        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
+        cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
 
         SLLightSpot* light1 = new SLLightSpot(s, s, 10, 10, 10, 0.3f);
         light1->powers(0.2f, 0.8f, 1.0f);
@@ -1129,7 +1130,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->focalDist(5);
         cam1->background().colors(SLCol4f(0.1f, 0.1f, 0.1f));
         cam1->setInitialState();
-        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
+        cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
 
         SLLightSpot* light1 = new SLLightSpot(s, s, 10, 10, 10, 0.3f);
         light1->powers(0.2f, 0.8f, 1.0f);
@@ -1209,7 +1210,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->focalDist(15);
         cam1->background().colors(SLCol4f(0.1f, 0.1f, 0.1f));
         cam1->setInitialState();
-        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
+        cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
 
         SLLightSpot* light1 = new SLLightSpot(s, s, 10, 10, 10, 0.3f);
         light1->powers(0.2f, 0.8f, 1.0f);
@@ -1392,7 +1393,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->background().colors(SLCol4f::BLACK);
         cam1->focalDist(30);
         cam1->setInitialState();
-        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
+        cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
         scene->addChild(cam1);
 
         // Create spheres and materials with roughness & metallic values between 0 and 1
@@ -1626,7 +1627,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->focalDist(cam1->translationOS().length());
         cam1->background().colors(SLCol4f(0.1f, 0.4f, 0.8f));
         cam1->setInitialState();
-        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
+        cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
 
         // Create generic shader program with 4 custom uniforms
         SLGLProgram*   sp  = new SLGLProgramGeneric(s, shaderPath + "Wave.vert", shaderPath + "Wave.frag");
@@ -1896,7 +1897,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->focalDist(4);
         cam1->background().colors(SLCol4f(0, 0, 0));
         cam1->setInitialState();
-        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
+        cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
 
         SLLightSpot* sun = new SLLightSpot(s, s);
         sun->powers(0.0f, 1.0f, 0.2f);
@@ -1931,7 +1932,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->background().colors(SLCol4f(0.2f, 0.2f, 0.2f));
         cam1->fov(75.0f);
         cam1->focalDist(1.8f);
-        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
+        cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
 
         scene->addChild(cam1);
 
@@ -2270,7 +2271,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->focalDist(cam1->translationOS().length());
         cam1->background().colors(SLCol4f(0.1f, 0.1f, 0.1f));
         cam1->setInitialState();
-        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
+        cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
 
         // Create lights
         SLAnimation* anim = s->animManager().createNodeAnimation("light_anim", 4.0f);
@@ -2564,7 +2565,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->focalDist(3);
         cam1->background().colors(SLCol4f(0, 0, 0));
         cam1->setInitialState();
-        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
+        cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
 
         // Set light
         SLLightSpot* light1 = new SLLightSpot(s, s, 0.3f);
@@ -2609,8 +2610,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                                         "mri_head_front_to_back",
                                         true);
 
-            gTexMRI3D->calc3DGradients(1, [](int progress) { SLApplication::jobProgressNum(progress); });
-            //gTexMRI3D->smooth3DGradients(1, [](int progress) {SLApplication::jobProgressNum(progress);});
+            gTexMRI3D->calc3DGradients(1, [](int progress) { AppDemo::jobProgressNum(progress); });
+            //gTexMRI3D->smooth3DGradients(1, [](int progress) {AppDemo::jobProgressNum(progress);});
         }
 
         // Create transfer LUT 1D texture
@@ -2640,7 +2641,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->focalDist(3);
         cam1->background().colors(SLCol4f(0, 0, 0));
         cam1->setInitialState();
-        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
+        cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
 
         // Set light
         SLLightSpot* light1 = new SLLightSpot(s, s, 0.3f);
@@ -2676,7 +2677,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->setInitialState();
         cam1->background().colors(SLCol4f(0.1f, 0.4f, 0.8f));
         cam1->setInitialState();
-        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
+        cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
         scene->addChild(cam1);
 
         // light
@@ -2795,7 +2796,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->lookAt(0, 0, 0);
         cam1->focalDist(22);
         cam1->setInitialState();
-        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
+        cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
 
         SLCamera* cam2 = new SLCamera("Camera 2");
         cam2->translation(5, 0, 0);
@@ -2804,7 +2805,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam2->clipFar(10);
         cam2->background().colors(SLCol4f(0, 0, 0.6f), SLCol4f(0, 0, 0.3f));
         cam2->setInitialState();
-        cam2->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
+        cam2->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
 
         SLCamera* cam3 = new SLCamera("Camera 3");
         cam3->translation(-5, -2, 0);
@@ -2813,7 +2814,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam3->clipFar(10);
         cam3->background().colors(SLCol4f(0.6f, 0, 0), SLCol4f(0.3f, 0, 0));
         cam3->setInitialState();
-        cam3->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
+        cam3->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
 
         SLLightSpot* light1 = new SLLightSpot(s, s, 0, 2, 0, 0.5f);
         light1->powers(0.2f, 1.0f, 1.0f);
@@ -2949,7 +2950,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->focalDist(cam1->translationOS().length());
         cam1->background().colors(SLCol4f(0.1f, 0.4f, 0.8f));
         cam1->setInitialState();
-        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
+        cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
 
         // Floor rectangle
         SLNode* rect = new SLNode(new SLRectangle(s,
@@ -3012,7 +3013,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
             s->name("File Video Texture");
             s->info("Minimal texture mapping example with video file source.");
             CVCapture::instance()->videoType(VT_FILE);
-            CVCapture::instance()->videoFilename = SLApplication::videoPath + "street3.mp4";
+            CVCapture::instance()->videoFilename = AppDemo::videoPath + "street3.mp4";
             CVCapture::instance()->videoLoops    = true;
         }
         sv->viewportSameAsVideo(true);
@@ -3031,7 +3032,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->lookAt(0, 0, 0);
         cam1->background().texture(videoTexture);
         cam1->setInitialState();
-        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
+        cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
         scene->addChild(cam1);
 
         // Create rectangle meshe and nodes
@@ -3093,20 +3094,20 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         }
         else if (sceneID == SID_VideoCalibrateMain)
         {
-            if (SLApplication::calibrationEstimator)
+            if (AppDemo::calibrationEstimator)
             {
-                delete SLApplication::calibrationEstimator;
-                SLApplication::calibrationEstimator = nullptr;
+                delete AppDemo::calibrationEstimator;
+                AppDemo::calibrationEstimator = nullptr;
             }
             CVCapture::instance()->videoType(VT_MAIN);
             s->name("Calibrate Main Cam.");
         }
         else if (sceneID == SID_VideoCalibrateScnd)
         {
-            if (SLApplication::calibrationEstimator)
+            if (AppDemo::calibrationEstimator)
             {
-                delete SLApplication::calibrationEstimator;
-                SLApplication::calibrationEstimator = nullptr;
+                delete AppDemo::calibrationEstimator;
+                AppDemo::calibrationEstimator = nullptr;
             }
             CVCapture::instance()->videoType(VT_SCND);
             s->name("Calibrate Scnd Cam.");
@@ -3136,7 +3137,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->fov(CVCapture::instance()->activeCamera->calibration.cameraFovVDeg());
         cam1->background().texture(videoTexture);
         cam1->setInitialState();
-        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
+        cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
         scene->addChild(cam1);
 
         // Create a light source node
@@ -3160,7 +3161,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         }
 
         // Create OpenCV Tracker for the camera node for AR camera.
-        tracker = new CVTrackedChessboard(SLApplication::calibIniPath);
+        tracker = new CVTrackedChessboard(AppDemo::calibIniPath);
         tracker->drawDetection(true);
         trackedNode = cam1;
 
@@ -3212,7 +3213,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->fov(CVCapture::instance()->activeCamera->calibration.cameraFovVDeg());
         cam1->background().texture(videoTexture);
         cam1->setInitialState();
-        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
+        cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
         scene->addChild(cam1);
 
         // Create a light source node
@@ -3236,7 +3237,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(boxNode1);
 
         // Create OpenCV Tracker for the box node
-        tracker = new CVTrackedAruco(9, SLApplication::calibIniPath);
+        tracker = new CVTrackedAruco(9, AppDemo::calibIniPath);
         tracker->drawDetection(true);
         trackedNode = boxNode1;
 
@@ -3271,7 +3272,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->clipNear(0.1f);
         cam1->clipFar(1000.0f); // Increase to infinity?
         cam1->setInitialState();
-        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
+        cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
         cam1->background().texture(videoTexture);
         CVCapture::instance()->videoType(VT_MAIN);
 
@@ -3316,7 +3317,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(cam1);
 
         s->root3D(scene);
-        SLApplication::devRot.isUsed(true);
+        AppDemo::devRot.isUsed(true);
     }
     else if (sceneID == SID_VideoTrackFaceMain ||
              sceneID == SID_VideoTrackFaceScnd) //.................................................
@@ -3352,7 +3353,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->clipNear(0.1f);
         cam1->clipFar(1000.0f); // Increase to infinity?
         cam1->setInitialState();
-        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
+        cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
         cam1->background().texture(videoTexture);
 
         SLLightSpot* light1 = new SLLightSpot(s, s, 10, 10, 10, 1);
@@ -3381,8 +3382,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(axis);
 
         // Add a face tracker that moves the camera node
-        tracker     = new CVTrackedFaces(Utils::findFile("haarcascade_frontalface_alt2.xml", {SLApplication::calibIniPath, SLApplication::exePath}),
-                                     Utils::findFile("lbfmodel.yaml", {SLApplication::calibIniPath, SLApplication::exePath}),
+        tracker     = new CVTrackedFaces(Utils::findFile("haarcascade_frontalface_alt2.xml", {AppDemo::calibIniPath, AppDemo::exePath}),
+                                     Utils::findFile("lbfmodel.yaml", {AppDemo::calibIniPath, AppDemo::exePath}),
                                      3);
         trackedNode = cam1;
         tracker->drawDetection(true);
@@ -3447,7 +3448,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 #    else
         vocFileName = "ORBvoc.bin";
 #    endif
-        tracker = new CVTrackedWAI(Utils::findFile(vocFileName, {SLApplication::calibIniPath, SLApplication::exePath}));
+        tracker = new CVTrackedWAI(Utils::findFile(vocFileName, {AppDemo::calibIniPath, AppDemo::exePath}));
         tracker->drawDetection(true);
         trackedNode = cam1;
 
@@ -3477,7 +3478,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->clipNear(0.1f);
         cam1->clipFar(10000.0f);
         cam1->setInitialState();
-        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
+        cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
         cam1->background().texture(videoTexture);
 
         // Turn on main video
@@ -3489,7 +3490,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         light->attenuation(1, 0, 0);
 
         // Let the sun be rotated by time and location
-        SLApplication::devLoc.sunLightNode(light);
+        AppDemo::devLoc.sunLightNode(light);
 
         SLNode* axis = new SLNode(new SLCoordAxis(s), "Axis Node");
         axis->setDrawBitsRec(SL_DB_MESHWIRED, false);
@@ -3513,15 +3514,15 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
 #if defined(SL_OS_MACIOS) || defined(SL_OS_ANDROID)
         //activate rotation and gps sensor
-        SLApplication::devRot.isUsed(true);
-        SLApplication::devRot.zeroYawAtStart(false);
-        SLApplication::devLoc.isUsed(true);
-        SLApplication::devLoc.useOriginAltitude(true);
-        SLApplication::devLoc.hasOrigin(false);
+        AppDemo::devRot.isUsed(true);
+        AppDemo::devRot.zeroYawAtStart(false);
+        AppDemo::devLoc.isUsed(true);
+        AppDemo::devLoc.useOriginAltitude(true);
+        AppDemo::devLoc.hasOrigin(false);
         cam1->camAnim(SLCamAnim::CA_deviceRotLocYUp);
 #else
         cam1->camAnim(SLCamAnim::CA_turntableYUp);
-        SLApplication::devRot.zeroYawAtStart(true);
+        AppDemo::devRot.zeroYawAtStart(true);
 #endif
 
         sv->doWaitOnIdle(false); // for constant video feed
@@ -3553,7 +3554,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->clipNear(1);
         cam1->clipFar(1000);
         cam1->setInitialState();
-        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
+        cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
         cam1->background().texture(videoTexture);
 
         // Turn on main video
@@ -3570,7 +3571,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sunLight->castsShadows(false);
 
         // Let the sun be rotated by time and location
-        SLApplication::devLoc.sunLightNode(sunLight);
+        AppDemo::devLoc.sunLightNode(sunLight);
 
         SLAssimpImporter importer;
         SLNode*          bfh = importer.load(s->animManager(),
@@ -3606,26 +3607,28 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(cam1);
 
         //initialize sensor stuff
-        SLApplication::devLoc.originLatLonAlt(47.14271, 7.24337, 488.2);        // Ecke Giosa
-        SLApplication::devLoc.defaultLatLonAlt(47.14260, 7.24310, 488.7 + 1.7); // auf Parkplatz
-        SLApplication::devLoc.locMaxDistanceM(1000.0f);
-        SLApplication::devLoc.improveOrigin(false);
-        SLApplication::devLoc.useOriginAltitude(true);
-        SLApplication::devLoc.hasOrigin(true);
-        SLApplication::devRot.zeroYawAtStart(false);
+        AppDemo::devLoc.originLatLonAlt(47.14271, 7.24337, 488.2);        // Ecke Giosa
+        AppDemo::devLoc.defaultLatLonAlt(47.14260, 7.24310, 488.7 + 1.7); // auf Parkplatz
+        AppDemo::devLoc.locMaxDistanceM(1000.0f);
+        AppDemo::devLoc.improveOrigin(false);
+        AppDemo::devLoc.useOriginAltitude(true);
+        AppDemo::devLoc.hasOrigin(true);
+        AppDemo::devLoc.offsetMode(LOM_twoFingerY);
+        AppDemo::devRot.zeroYawAtStart(false);
+        AppDemo::devRot.offsetMode(ROM_oneFingerXY);
 
         // This loads the DEM file and overwrites the altitude of originLatLonAlt and defaultLatLonAlt
         SLstring tif = dataPath + "erleb-AR/models/biel/DEM_Biel-BFH_WGS84.tif";
-        SLApplication::devLoc.loadGeoTiff(tif);
+        AppDemo::devLoc.loadGeoTiff(tif);
 
 #if defined(SL_OS_MACIOS) || defined(SL_OS_ANDROID)
-        SLApplication::devLoc.isUsed(true);
-        SLApplication::devRot.isUsed(true);
+        AppDemo::devLoc.isUsed(true);
+        AppDemo::devRot.isUsed(true);
         cam1->camAnim(SLCamAnim::CA_deviceRotLocYUp);
 #else
-        SLApplication::devLoc.isUsed(false);
-        SLApplication::devRot.isUsed(false);
-        SLVec3d pos_d = SLApplication::devLoc.defaultENU() - SLApplication::devLoc.originENU();
+        AppDemo::devLoc.isUsed(false);
+        AppDemo::devRot.isUsed(false);
+        SLVec3d pos_d = AppDemo::devLoc.defaultENU() - AppDemo::devLoc.originENU();
         SLVec3f pos_f((SLfloat)pos_d.x, (SLfloat)pos_d.y, (SLfloat)pos_d.z);
         cam1->translation(pos_f);
         cam1->focalDist(pos_f.length());
@@ -3678,7 +3681,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->clipNear(1);
         cam1->clipFar(700);
         cam1->setInitialState();
-        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
+        cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
         cam1->background().texture(videoTexture);
 
         // Turn on main video
@@ -3696,7 +3699,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sunLight->castsShadows(false);
         sunLight->shadowMinBias(0.001f);
         sunLight->shadowMaxBias(0.003f);
-        SLApplication::devLoc.sunLightNode(sunLight); // Let the sun be rotated by time and location
+        AppDemo::devLoc.sunLightNode(sunLight); // Let the sun be rotated by time and location
 
         // Import the main model
         SLAssimpImporter importer;
@@ -3777,26 +3780,28 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(cam1);
 
         //initialize sensor stuff
-        SLApplication::devLoc.originLatLonAlt(46.94763, 7.44074, 542.2);        // Loeb Ecken
-        SLApplication::devLoc.defaultLatLonAlt(46.94841, 7.43970, 542.2 + 1.7); // Bahnhof Ausgang in Augenhöhe
-        SLApplication::devLoc.locMaxDistanceM(1000.0f);                         // Max. Distanz. zum Loeb Ecken
-        SLApplication::devLoc.improveOrigin(false);                             // Keine autom. Verbesserung vom Origin
-        SLApplication::devLoc.useOriginAltitude(true);
-        SLApplication::devLoc.hasOrigin(true);
-        SLApplication::devRot.zeroYawAtStart(false);
+        AppDemo::devLoc.originLatLonAlt(46.94763, 7.44074, 542.2);        // Loeb Ecken
+        AppDemo::devLoc.defaultLatLonAlt(46.94841, 7.43970, 542.2 + 1.7); // Bahnhof Ausgang in Augenhöhe
+        AppDemo::devLoc.locMaxDistanceM(1000.0f);                         // Max. Distanz. zum Loeb Ecken
+        AppDemo::devLoc.improveOrigin(false);                             // Keine autom. Verbesserung vom Origin
+        AppDemo::devLoc.useOriginAltitude(true);
+        AppDemo::devLoc.hasOrigin(true);
+        AppDemo::devLoc.offsetMode(LOM_twoFingerY);
+        AppDemo::devRot.zeroYawAtStart(false);
+        AppDemo::devRot.offsetMode(ROM_oneFingerXY);
 
         // This loads the DEM file and overwrites the altitude of originLatLonAlt and defaultLatLonAlt
         SLstring tif = dataPath + "erleb-AR/models/bern/DEM-Bern-2600_1199-WGS84.tif";
-        SLApplication::devLoc.loadGeoTiff(tif);
+        AppDemo::devLoc.loadGeoTiff(tif);
 
 #if defined(SL_OS_MACIOS) || defined(SL_OS_ANDROID)
-        SLApplication::devLoc.isUsed(true);
-        SLApplication::devRot.isUsed(true);
+        AppDemo::devLoc.isUsed(true);
+        AppDemo::devRot.isUsed(true);
         cam1->camAnim(SLCamAnim::CA_deviceRotLocYUp);
 #else
-        SLApplication::devLoc.isUsed(false);
-        SLApplication::devRot.isUsed(false);
-        SLVec3d pos_d = SLApplication::devLoc.defaultENU() - SLApplication::devLoc.originENU();
+        AppDemo::devLoc.isUsed(false);
+        AppDemo::devRot.isUsed(false);
+        SLVec3d pos_d = AppDemo::devLoc.defaultENU() - AppDemo::devLoc.originENU();
         SLVec3f pos_f((SLfloat)pos_d.x, (SLfloat)pos_d.y, (SLfloat)pos_d.z);
         cam1->translation(pos_f);
         cam1->focalDist(pos_f.length());
@@ -3823,7 +3828,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->clipNear(1);
         cam1->clipFar(400);
         cam1->focalDist(150);
-        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
+        cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
 
         // Create video texture and turn on live video
         videoTexture = new SLGLTexture(s, texDir + "LiveVideoError.png", GL_LINEAR, GL_LINEAR);
@@ -3871,7 +3876,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sunLight->castsShadows(false);
         sunLight->shadowMinBias(0.001f);
         sunLight->shadowMinBias(0.003f);
-        SLApplication::devLoc.sunLightNode(sunLight); // Let the sun be rotated by time and location
+        AppDemo::devLoc.sunLightNode(sunLight); // Let the sun be rotated by time and location
 
         // Load main model
         SLAssimpImporter importer; //(LV_diagnostic);
@@ -3916,26 +3921,28 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(cam1);
 
         //initialize sensor stuff
-        SLApplication::devLoc.useOriginAltitude(false);                   // Use
-        SLApplication::devLoc.originLatLonAlt(47.53319, 7.72207, 0);      // At the center of the theater
-        SLApplication::devLoc.defaultLatLonAlt(47.5329758, 7.7210428, 0); // At the entrance of the tempel
-        SLApplication::devLoc.locMaxDistanceM(1000.0f);                   // Max. allowed distance to origin
-        SLApplication::devLoc.improveOrigin(false);                       // No autom. origin improvement
-        SLApplication::devLoc.hasOrigin(true);
-        SLApplication::devRot.zeroYawAtStart(false); // Use the real yaw from the IMU
+        AppDemo::devLoc.useOriginAltitude(false);                   // Use
+        AppDemo::devLoc.originLatLonAlt(47.53319, 7.72207, 0);      // At the center of the theater
+        AppDemo::devLoc.defaultLatLonAlt(47.5329758, 7.7210428, 0); // At the entrance of the tempel
+        AppDemo::devLoc.locMaxDistanceM(1000.0f);                   // Max. allowed distance to origin
+        AppDemo::devLoc.improveOrigin(false);                       // No autom. origin improvement
+        AppDemo::devLoc.hasOrigin(true);
+        AppDemo::devLoc.offsetMode(LOM_twoFingerY);
+        AppDemo::devRot.zeroYawAtStart(false);
+        AppDemo::devRot.offsetMode(ROM_oneFingerXY);
 
         // This loads the DEM file and overwrites the altitude of originLatLonAlt and defaultLatLonAlt
         SLstring tif = datDir + "DTM-Theater-Tempel-WGS84.tif";
-        SLApplication::devLoc.loadGeoTiff(tif);
+        AppDemo::devLoc.loadGeoTiff(tif);
 
 #if defined(SL_OS_MACIOS) || defined(SL_OS_ANDROID)
-        SLApplication::devLoc.isUsed(true);
-        SLApplication::devRot.isUsed(true);
+        AppDemo::devLoc.isUsed(true);
+        AppDemo::devRot.isUsed(true);
         cam1->camAnim(SLCamAnim::CA_deviceRotLocYUp);
 #else
-        SLApplication::devLoc.isUsed(false);
-        SLApplication::devRot.isUsed(false);
-        SLVec3d pos_d = SLApplication::devLoc.defaultENU() - SLApplication::devLoc.originENU();
+        AppDemo::devLoc.isUsed(false);
+        AppDemo::devRot.isUsed(false);
+        SLVec3d pos_d = AppDemo::devLoc.defaultENU() - AppDemo::devLoc.originENU();
         SLVec3f pos_f((SLfloat)pos_d.x, (SLfloat)pos_d.y, (SLfloat)pos_d.z);
         cam1->translation(pos_f);
         cam1->focalDist(pos_f.length());
@@ -3962,7 +3969,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->clipNear(1);
         cam1->clipFar(400);
         cam1->focalDist(150);
-        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
+        cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
 
         // Create video texture and turn on live video
         videoTexture = new SLGLTexture(s, texDir + "LiveVideoError.png", GL_LINEAR, GL_LINEAR);
@@ -4010,7 +4017,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sunLight->castsShadows(false);
         sunLight->shadowMinBias(0.001f);
         sunLight->shadowMinBias(0.003f);
-        SLApplication::devLoc.sunLightNode(sunLight); // Let the sun be rotated by time and location
+        AppDemo::devLoc.sunLightNode(sunLight); // Let the sun be rotated by time and location
 
         // Load main model
         SLAssimpImporter importer; //(LV_diagnostic);
@@ -4055,26 +4062,28 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(cam1);
 
         //initialize sensor stuff
-        SLApplication::devLoc.useOriginAltitude(false);                         // Use
-        SLApplication::devLoc.originLatLonAlt(47.53319, 7.72207, 282.6);        // At the center of the theater
-        SLApplication::devLoc.defaultLatLonAlt(47.53308, 7.72153, 285.4 + 1.7); // On the street
-        SLApplication::devLoc.locMaxDistanceM(1000.0f);                         // Max. allowed distance to origin
-        SLApplication::devLoc.improveOrigin(false);                             // No autom. origin improvement
-        SLApplication::devLoc.hasOrigin(true);
-        SLApplication::devRot.zeroYawAtStart(false); // Use the real yaw from the IMU
+        AppDemo::devLoc.useOriginAltitude(false);                         // Use
+        AppDemo::devLoc.originLatLonAlt(47.53319, 7.72207, 282.6);        // At the center of the theater
+        AppDemo::devLoc.defaultLatLonAlt(47.53308, 7.72153, 285.4 + 1.7); // On the street
+        AppDemo::devLoc.locMaxDistanceM(1000.0f);                         // Max. allowed distance to origin
+        AppDemo::devLoc.improveOrigin(false);                             // No autom. origin improvement
+        AppDemo::devLoc.hasOrigin(true);
+        AppDemo::devLoc.offsetMode(LOM_twoFingerY);
+        AppDemo::devRot.zeroYawAtStart(false);
+        AppDemo::devRot.offsetMode(ROM_oneFingerXY);
 
         // This loads the DEM file and overwrites the altitude of originLatLonAlt and defaultLatLonAlt
         SLstring tif = datDir + "DTM-Theater-Tempel-WGS84.tif";
-        SLApplication::devLoc.loadGeoTiff(tif);
+        AppDemo::devLoc.loadGeoTiff(tif);
 
 #if defined(SL_OS_MACIOS) || defined(SL_OS_ANDROID)
-        SLApplication::devLoc.isUsed(true);
-        SLApplication::devRot.isUsed(true);
+        AppDemo::devLoc.isUsed(true);
+        AppDemo::devRot.isUsed(true);
         cam1->camAnim(SLCamAnim::CA_deviceRotLocYUp);
 #else
-        SLApplication::devLoc.isUsed(false);
-        SLApplication::devRot.isUsed(false);
-        SLVec3d pos_d = SLApplication::devLoc.defaultENU() - SLApplication::devLoc.originENU();
+        AppDemo::devLoc.isUsed(false);
+        AppDemo::devRot.isUsed(false);
+        SLVec3d pos_d = AppDemo::devLoc.defaultENU() - AppDemo::devLoc.originENU();
         SLVec3f pos_f((SLfloat)pos_d.x, (SLfloat)pos_d.y, (SLfloat)pos_d.z);
         cam1->translation(pos_f);
         cam1->focalDist(pos_f.length());
@@ -4101,7 +4110,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->clipNear(1);
         cam1->clipFar(400);
         cam1->focalDist(150);
-        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
+        cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
 
         // Create video texture and turn on live video
         videoTexture = new SLGLTexture(s, texDir + "LiveVideoError.png", GL_LINEAR, GL_LINEAR);
@@ -4146,7 +4155,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sunLight->castsShadows(false);
         sunLight->shadowMinBias(0.001f);
         sunLight->shadowMaxBias(0.003f);
-        SLApplication::devLoc.sunLightNode(sunLight); // Let the sun be rotated by time and location
+        AppDemo::devLoc.sunLightNode(sunLight); // Let the sun be rotated by time and location
 
         // Load main model
         SLAssimpImporter importer; //(LV_diagnostic);
@@ -4191,13 +4200,15 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(cam1);
 
         //initialize sensor stuff
-        SLApplication::devLoc.useOriginAltitude(false);                   // Use
-        SLApplication::devLoc.originLatLonAlt(47.53319, 7.72207, 0);      // At the center of the theater
-        SLApplication::devLoc.defaultLatLonAlt(47.5329758, 7.7210428, 0); // At the entrance of the tempel
-        SLApplication::devLoc.locMaxDistanceM(1000.0f);                   // Max. allowed distance to origin
-        SLApplication::devLoc.improveOrigin(false);                       // No autom. origin improvement
-        SLApplication::devLoc.hasOrigin(true);
-        SLApplication::devRot.zeroYawAtStart(false); // Use the real yaw from the IMU
+        AppDemo::devLoc.useOriginAltitude(false);                   // Use
+        AppDemo::devLoc.originLatLonAlt(47.53319, 7.72207, 0);      // At the center of the theater
+        AppDemo::devLoc.defaultLatLonAlt(47.5329758, 7.7210428, 0); // At the entrance of the tempel
+        AppDemo::devLoc.locMaxDistanceM(1000.0f);                   // Max. allowed distance to origin
+        AppDemo::devLoc.improveOrigin(false);                       // No autom. origin improvement
+        AppDemo::devLoc.hasOrigin(true);
+        AppDemo::devLoc.offsetMode(LOM_twoFingerY);
+        AppDemo::devRot.zeroYawAtStart(false);
+        AppDemo::devRot.offsetMode(ROM_oneFingerXY);
 
         // Level of Detail switch for Temple and Theater
         SLNode* tmpAltar = thtAndTmp->findChild<SLNode>("TmpAltar");
@@ -4237,16 +4248,16 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // This loads the DEM file and overwrites the altitude of originLatLonAlt and defaultLatLonAlt
         SLstring tif = datDir + "DTM-Theater-Tempel-WGS84.tif";
-        SLApplication::devLoc.loadGeoTiff(tif);
+        AppDemo::devLoc.loadGeoTiff(tif);
 
 #if defined(SL_OS_MACIOS) || defined(SL_OS_ANDROID)
-        SLApplication::devLoc.isUsed(true);
-        SLApplication::devRot.isUsed(true);
+        AppDemo::devLoc.isUsed(true);
+        AppDemo::devRot.isUsed(true);
         cam1->camAnim(SLCamAnim::CA_deviceRotLocYUp);
 #else
-        SLApplication::devLoc.isUsed(false);
-        SLApplication::devRot.isUsed(false);
-        SLVec3d pos_d = SLApplication::devLoc.defaultENU() - SLApplication::devLoc.originENU();
+        AppDemo::devLoc.isUsed(false);
+        AppDemo::devRot.isUsed(false);
+        SLVec3d pos_d = AppDemo::devLoc.defaultENU() - AppDemo::devLoc.originENU();
         SLVec3f pos_f((SLfloat)pos_d.x, (SLfloat)pos_d.y, (SLfloat)pos_d.z);
         cam1->translation(pos_f);
         cam1->focalDist(pos_f.length());
@@ -4270,7 +4281,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->clipFar(400);
         cam1->focalDist(150);
         cam1->setInitialState();
-        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
+        cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
 
         // Create video texture and turn on live video
         videoTexture = new SLGLTexture(s, texPath + "LiveVideoError.png", GL_LINEAR, GL_LINEAR);
@@ -4317,7 +4328,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sunLight->shadowMaxBias(0.003f);
 
         // Let the sun be rotated by time and location
-        SLApplication::devLoc.sunLightNode(sunLight);
+        AppDemo::devLoc.sunLightNode(sunLight);
 
         SLAssimpImporter importer;
         SLNode*          amphiTheatre = importer.load(s->animManager(),
@@ -4330,7 +4341,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                                              0.4f);   // 40% ambient reflection
 
         // Rotate to the true geographic rotation
-        amphiTheatre->rotate(13.7f, 0, 1, 0, TS_parent);
+        amphiTheatre->rotate(13.25f, 0, 1, 0, TS_parent);
 
         // Let the video shine through some objects
         amphiTheatre->findChild<SLNode>("Tht-Aussen-Untergrund")->setMeshMat(matVideoBackground, true);
@@ -4351,26 +4362,40 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(cam1);
 
         //initialize sensor stuff
-        SLApplication::devLoc.useOriginAltitude(false);
-        SLApplication::devLoc.originLatLonAlt(46.881013677, 7.042621953, 442.0);        // Zentrum Amphitheater
-        SLApplication::devLoc.defaultLatLonAlt(46.881210148, 7.043767122, 442.0 + 1.7); // Ecke Vorplatz Ost
-        SLApplication::devLoc.locMaxDistanceM(1000.0f);                                 // Max. Distanz. zum Nullpunkt
-        SLApplication::devLoc.improveOrigin(false);                                     // Keine autom. Verbesserung vom Origin
-        SLApplication::devLoc.hasOrigin(true);
-        SLApplication::devRot.zeroYawAtStart(false);
+        AppDemo::devLoc.useOriginAltitude(false);
+        AppDemo::devLoc.originLatLonAlt(46,
+                                              52,
+                                              51.685,
+                                              7,
+                                              2,
+                                              33.458,
+                                              461.4); // Zentrum Amphitheater (See Avenches_Amphitheater_Orthofoto.jpg)
+        AppDemo::devLoc.defaultLatLonAlt(46,
+                                               52,
+                                               52.353,
+                                               7,
+                                               2,
+                                               37.524,
+                                               461.4 + 1.7); // Ecke Vorplatz Ost (See Avenches_Amphitheater_Orthofoto.jpg)
+        AppDemo::devLoc.locMaxDistanceM(1000.0f);      // Max. Distanz. zum Nullpunkt
+        AppDemo::devLoc.improveOrigin(false);          // Keine autom. Verbesserung vom Origin
+        AppDemo::devLoc.hasOrigin(true);
+        AppDemo::devLoc.offsetMode(LOM_twoFingerY);
+        AppDemo::devRot.zeroYawAtStart(false);
+        AppDemo::devRot.offsetMode(ROM_oneFingerXY);
 
         // This loads the DEM file and overwrites the altitude of originLatLonAlt and defaultLatLonAlt
         SLstring tif = dataPath + "erleb-AR/models/avenches/DTM-Aventicum-WGS84.tif";
-        SLApplication::devLoc.loadGeoTiff(tif);
+        AppDemo::devLoc.loadGeoTiff(tif);
 
 #if defined(SL_OS_MACIOS) || defined(SL_OS_ANDROID)
-        SLApplication::devLoc.isUsed(true);
-        SLApplication::devRot.isUsed(true);
+        AppDemo::devLoc.isUsed(true);
+        AppDemo::devRot.isUsed(true);
         cam1->camAnim(SLCamAnim::CA_deviceRotLocYUp);
 #else
-        SLApplication::devLoc.isUsed(false);
-        SLApplication::devRot.isUsed(false);
-        SLVec3d pos_d = SLApplication::devLoc.defaultENU() - SLApplication::devLoc.originENU();
+        AppDemo::devLoc.isUsed(false);
+        AppDemo::devRot.isUsed(false);
+        SLVec3d pos_d = AppDemo::devLoc.defaultENU() - AppDemo::devLoc.originENU();
         SLVec3f pos_f((SLfloat)pos_d.x, (SLfloat)pos_d.y, (SLfloat)pos_d.z);
         cam1->translation(pos_f);
         cam1->focalDist(pos_f.length());
@@ -4394,7 +4419,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->clipFar(400);
         cam1->focalDist(150);
         cam1->setInitialState();
-        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
+        cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
 
         // Create video texture and turn on live video
         videoTexture = new SLGLTexture(s, texPath + "LiveVideoError.png", GL_LINEAR, GL_LINEAR);
@@ -4429,7 +4454,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Create directional light for the sun light
         SLLightDirect* sunLight = new SLLightDirect(s, s, 1.0f);
-        sunLight->powers(1.0f, 1.5f, 1.0f);
+        sunLight->powers(1.0f, 1.0f, 1.0f);
         sunLight->attenuation(1, 0, 0);
         sunLight->translation(0, 10, 0);
         sunLight->lookAt(10, 0, 10);
@@ -4442,7 +4467,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sunLight->shadowMaxBias(0.003f);
 
         // Let the sun be rotated by time and location
-        SLApplication::devLoc.sunLightNode(sunLight);
+        AppDemo::devLoc.sunLightNode(sunLight);
 
         SLAssimpImporter importer;
         SLNode*          cigognier = importer.load(s->animManager(),
@@ -4455,7 +4480,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                                           0.4f);   // 40% ambient reflection
 
         // Rotate to the true geographic rotation
-        cigognier->rotate(-37.0f, 0, 1, 0, TS_parent);
+        cigognier->rotate(-36.52f, 0, 1, 0, TS_parent);
 
         // Let the video shine through some objects
         cigognier->findChild<SLNode>("Tmp-Sol-Pelouse")->setMeshMat(matVideoBackgroundSM, true);
@@ -4474,28 +4499,40 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(cam1);
 
         //initialize sensor stuff
-        SLApplication::devLoc.useOriginAltitude(false);
-        //https://map.geo.admin.ch/?lang=de&topic=ech&bgLayer=ch.swisstopo.swissimage&layers=ch.swisstopo.zeitreihen,ch.bfs.gebaeude_wohnungs_register,ch.bav.haltestellen-oev,ch.swisstopo.swisstlm3d-wanderwege&layers_opacity=1,1,1,0.8&layers_visibility=false,false,false,false&layers_timestamp=18641231,,,&E=2570106&N=1192334&zoom=13&crosshair=marker
-        SLApplication::devLoc.originLatLonAlt(46.88145, 7.04645, 450.9); // In the center of the place before the Cigognier temple
-        //https://map.geo.admin.ch/?lang=de&topic=ech&bgLayer=ch.swisstopo.swissimage&layers=ch.swisstopo.zeitreihen,ch.bfs.gebaeude_wohnungs_register,ch.bav.haltestellen-oev,ch.swisstopo.swisstlm3d-wanderwege&layers_opacity=1,1,1,0.8&layers_visibility=false,false,false,false&layers_timestamp=18641231,,,&E=2570135&N=1192315&zoom=13&crosshair=marker
-        SLApplication::devLoc.defaultLatLonAlt(46.88124, 7.04686, 451.5 + 1.7); // Before the entry if the Cigognier sanctuary
-        SLApplication::devLoc.locMaxDistanceM(1000.0f);                         // Max. allowed distance from origin
-        SLApplication::devLoc.improveOrigin(false);                             // No auto improvement from
-        SLApplication::devLoc.hasOrigin(true);
-        SLApplication::devRot.zeroYawAtStart(false);
+        AppDemo::devLoc.useOriginAltitude(false);
+        AppDemo::devLoc.originLatLonAlt(46,
+                                              52,
+                                              53.245,
+                                              7,
+                                              2,
+                                              47.198,
+                                              450.9); // In the center of the place before the Cigognier temple
+        AppDemo::devLoc.defaultLatLonAlt(46,
+                                               52,
+                                               52.700,
+                                               7,
+                                               2,
+                                               48.261,
+                                               451.5 + 1.7); // In the entry of the Cigognier sanctuary
+        AppDemo::devLoc.locMaxDistanceM(1000.0f);      // Max. allowed distance from origin
+        AppDemo::devLoc.improveOrigin(false);          // No auto improvement from
+        AppDemo::devLoc.hasOrigin(true);
+        AppDemo::devLoc.offsetMode(LOM_twoFingerY);
+        AppDemo::devRot.zeroYawAtStart(false);
+        AppDemo::devRot.offsetMode(ROM_oneFingerXY);
 
         // This loads the DEM file and overwrites the altitude of originLatLonAlt and defaultLatLonAlt
         SLstring tif = dataPath + "erleb-AR/models/avenches/DTM-Aventicum-WGS84.tif";
-        SLApplication::devLoc.loadGeoTiff(tif);
+        AppDemo::devLoc.loadGeoTiff(tif);
 
 #if defined(SL_OS_MACIOS) || defined(SL_OS_ANDROID)
-        SLApplication::devLoc.isUsed(true);
-        SLApplication::devRot.isUsed(true);
+        AppDemo::devLoc.isUsed(true);
+        AppDemo::devRot.isUsed(true);
         cam1->camAnim(SLCamAnim::CA_deviceRotLocYUp);
 #else
-        SLApplication::devLoc.isUsed(false);
-        SLApplication::devRot.isUsed(false);
-        SLVec3d pos_d = SLApplication::devLoc.defaultENU() - SLApplication::devLoc.originENU();
+        AppDemo::devLoc.isUsed(false);
+        AppDemo::devRot.isUsed(false);
+        SLVec3d pos_d = AppDemo::devLoc.defaultENU() - AppDemo::devLoc.originENU();
         SLVec3f pos_f((SLfloat)pos_d.x, (SLfloat)pos_d.y, (SLfloat)pos_d.z);
         cam1->translation(pos_f);
         cam1->focalDist(pos_f.length());
@@ -4519,7 +4556,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->clipFar(300);
         cam1->focalDist(150);
         cam1->setInitialState();
-        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
+        cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
 
         // Create video texture and turn on live video
         videoTexture = new SLGLTexture(s, texPath + "LiveVideoError.png", GL_LINEAR, GL_LINEAR);
@@ -4567,7 +4604,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sunLight->shadowMaxBias(0.003f);
 
         // Let the sun be rotated by time and location
-        SLApplication::devLoc.sunLightNode(sunLight);
+        AppDemo::devLoc.sunLightNode(sunLight);
 
         SLAssimpImporter importer;
         SLNode*          theatre = importer.load(s->animManager(),
@@ -4601,26 +4638,40 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         //initialize sensor stuff
         //https://map.geo.admin.ch/?lang=de&topic=ech&bgLayer=ch.swisstopo.swissimage&layers=ch.swisstopo.zeitreihen,ch.bfs.gebaeude_wohnungs_register,ch.bav.haltestellen-oev,ch.swisstopo.swisstlm3d-wanderwege&layers_opacity=1,1,1,0.8&layers_visibility=false,false,false,false&layers_timestamp=18641231,,,&E=2570281&N=1192204&zoom=13&crosshair=marker
-        SLApplication::devLoc.useOriginAltitude(false);
-        SLApplication::devLoc.originLatLonAlt(46.88029, 7.04876, 454.9);        // Zentrum Orchestra
-        SLApplication::devLoc.defaultLatLonAlt(46.88100, 7.04912, 455.5 + 1.7); // Beim Baum von der Ecke aus
-        SLApplication::devLoc.locMaxDistanceM(1000.0f);                         // Max. Distanz. zum Nullpunkt
-        SLApplication::devLoc.improveOrigin(false);                             // Keine autom. Verbesserung vom Origin
-        SLApplication::devLoc.hasOrigin(true);
-        SLApplication::devRot.zeroYawAtStart(false);
+        AppDemo::devLoc.useOriginAltitude(false);
+        AppDemo::devLoc.originLatLonAlt(46,
+                                              52,
+                                              49.041,
+                                              7,
+                                              2,
+                                              55.543,
+                                              454.9); // Zentrum Orchestra
+        AppDemo::devLoc.defaultLatLonAlt(46,
+                                               52,
+                                               50.791,
+                                               7,
+                                               2,
+                                               55.960,
+                                               455.5 + 1.7); // Beim Baum von der Ecke aus
+        AppDemo::devLoc.locMaxDistanceM(1000.0f);      // Max. Distanz. zum Nullpunkt
+        AppDemo::devLoc.improveOrigin(false);          // Keine autom. Verbesserung vom Origin
+        AppDemo::devLoc.hasOrigin(true);
+        AppDemo::devLoc.offsetMode(LOM_twoFingerY);
+        AppDemo::devRot.zeroYawAtStart(false);
+        AppDemo::devRot.offsetMode(ROM_oneFingerXY);
 
         // This loads the DEM file and overwrites the altitude of originLatLonAlt and defaultLatLonAlt
         SLstring tif = dataPath + "erleb-AR/models/avenches/DTM-Aventicum-WGS84.tif";
-        SLApplication::devLoc.loadGeoTiff(tif);
+        AppDemo::devLoc.loadGeoTiff(tif);
 
 #if defined(SL_OS_MACIOS) || defined(SL_OS_ANDROID)
-        SLApplication::devLoc.isUsed(true);
-        SLApplication::devRot.isUsed(true);
+        AppDemo::devLoc.isUsed(true);
+        AppDemo::devRot.isUsed(true);
         cam1->camAnim(SLCamAnim::CA_deviceRotLocYUp);
 #else
-        SLApplication::devLoc.isUsed(false);
-        SLApplication::devRot.isUsed(false);
-        SLVec3d pos_d = SLApplication::devLoc.defaultENU() - SLApplication::devLoc.originENU();
+        AppDemo::devLoc.isUsed(false);
+        AppDemo::devRot.isUsed(false);
+        SLVec3d pos_d = AppDemo::devLoc.defaultENU() - AppDemo::devLoc.originENU();
         SLVec3f pos_f((SLfloat)pos_d.x, (SLfloat)pos_d.y, (SLfloat)pos_d.z);
         cam1->translation(pos_f);
         cam1->focalDist(pos_f.length());
@@ -4644,7 +4695,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->clipFar(300);
         cam1->focalDist(150);
         cam1->setInitialState();
-        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
+        cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
 
         // Create video texture and turn on live video
         videoTexture = new SLGLTexture(s, texPath + "LiveVideoError.png", GL_LINEAR, GL_LINEAR);
@@ -4690,7 +4741,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sunLight->castsShadows(false);
 
         // Let the sun be rotated by time and location
-        SLApplication::devLoc.sunLightNode(sunLight);
+        AppDemo::devLoc.sunLightNode(sunLight);
 
         // Import main model
         SLAssimpImporter importer;
@@ -4728,26 +4779,28 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         //initialize sensor stuff
         //Go to https://map.geo.admin.ch and choose your origin and default point
-        SLApplication::devLoc.useOriginAltitude(false);
-        SLApplication::devLoc.originLatLonAlt(47.10600, 7.21772, 434.4f);        // Corner Carport
-        SLApplication::devLoc.defaultLatLonAlt(47.10598, 7.21757, 433.9f + 1.7); // In the street
-        SLApplication::devLoc.locMaxDistanceM(1000.0f);                          // Max. Distanz. zum Nullpunkt
-        SLApplication::devLoc.improveOrigin(false);                              // Keine autom. Verbesserung vom Origin
-        SLApplication::devLoc.hasOrigin(true);
-        SLApplication::devRot.zeroYawAtStart(false);
+        AppDemo::devLoc.useOriginAltitude(false);
+        AppDemo::devLoc.originLatLonAlt(47.10600, 7.21772, 434.4f);        // Corner Carport
+        AppDemo::devLoc.defaultLatLonAlt(47.10598, 7.21757, 433.9f + 1.7); // In the street
+        AppDemo::devLoc.locMaxDistanceM(1000.0f);                          // Max. Distanz. zum Nullpunkt
+        AppDemo::devLoc.improveOrigin(false);                              // Keine autom. Verbesserung vom Origin
+        AppDemo::devLoc.hasOrigin(true);
+        AppDemo::devLoc.offsetMode(LOM_twoFingerY);
+        AppDemo::devRot.zeroYawAtStart(false);
+        AppDemo::devRot.offsetMode(ROM_oneFingerXY);
 
         // This loads the DEM file and overwrites the altitude of originLatLonAlt and defaultLatLonAlt
         SLstring tif = dataPath + "erleb-AR/models/sutzKirchrain18/Sutz-Kirchrain18-DEM-WGS84.tif";
-        SLApplication::devLoc.loadGeoTiff(tif);
+        AppDemo::devLoc.loadGeoTiff(tif);
 
 #if defined(SL_OS_MACIOS) || defined(SL_OS_ANDROID)
-        SLApplication::devLoc.isUsed(true);
-        SLApplication::devRot.isUsed(true);
+        AppDemo::devLoc.isUsed(true);
+        AppDemo::devRot.isUsed(true);
         cam1->camAnim(SLCamAnim::CA_deviceRotLocYUp);
 #else
-        SLApplication::devLoc.isUsed(false);
-        SLApplication::devRot.isUsed(false);
-        SLVec3d pos_d = SLApplication::devLoc.defaultENU() - SLApplication::devLoc.originENU();
+        AppDemo::devLoc.isUsed(false);
+        AppDemo::devRot.isUsed(false);
+        SLVec3d pos_d = AppDemo::devLoc.defaultENU() - AppDemo::devLoc.originENU();
         SLVec3f pos_f((SLfloat)pos_d.x, (SLfloat)pos_d.y, (SLfloat)pos_d.z);
         cam1->translation(pos_f);
         cam1->focalDist(pos_f.length());
@@ -4771,7 +4824,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->clipFar(300);
         cam1->focalDist(150);
         cam1->setInitialState();
-        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
+        cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
 
         // Create video texture and turn on live video
         videoTexture = new SLGLTexture(s, texPath + "LiveVideoError.png", GL_LINEAR, GL_LINEAR);
@@ -4817,7 +4870,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sunLight->castsShadows(false);
 
         // Let the sun be rotated by time and location
-        SLApplication::devLoc.sunLightNode(sunLight);
+        AppDemo::devLoc.sunLightNode(sunLight);
 
         // Import main model
         SLAssimpImporter importer;
@@ -4855,26 +4908,28 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         //initialize sensor stuff
         //Go to https://map.geo.admin.ch and choose your origin and default point
-        SLApplication::devLoc.useOriginAltitude(false);
-        SLApplication::devLoc.originLatLonAlt(47.14818, 7.23322, 720.6f);        // Corner Chemin du Roc 7
-        SLApplication::devLoc.defaultLatLonAlt(47.14870, 7.23288, 726.0f + 1.7); // Place devant la Lisiere
-        SLApplication::devLoc.locMaxDistanceM(1000.0f);                          // Max. Distanz. zum Nullpunkt
-        SLApplication::devLoc.improveOrigin(false);                              // Keine autom. Verbesserung vom Origin
-        SLApplication::devLoc.hasOrigin(true);
-        SLApplication::devRot.zeroYawAtStart(false);
+        AppDemo::devLoc.useOriginAltitude(false);
+        AppDemo::devLoc.originLatLonAlt(47.14818, 7.23322, 720.6f);        // Corner Chemin du Roc 7
+        AppDemo::devLoc.defaultLatLonAlt(47.14870, 7.23288, 726.0f + 1.7); // Place devant la Lisiere
+        AppDemo::devLoc.locMaxDistanceM(1000.0f);                          // Max. Distanz. zum Nullpunkt
+        AppDemo::devLoc.improveOrigin(false);                              // Keine autom. Verbesserung vom Origin
+        AppDemo::devLoc.hasOrigin(true);
+        AppDemo::devLoc.offsetMode(LOM_twoFingerY);
+        AppDemo::devRot.zeroYawAtStart(false);
+        AppDemo::devRot.offsetMode(ROM_oneFingerXY);
 
         // This loads the DEM file and overwrites the altitude of originLatLonAlt and defaultLatLonAlt
         SLstring tif = dataPath + "erleb-AR/models/evilardCheminDuRoc2/EvilardCheminDuRoc2-DEM-WGS84.tif";
-        SLApplication::devLoc.loadGeoTiff(tif);
+        AppDemo::devLoc.loadGeoTiff(tif);
 
 #if defined(SL_OS_MACIOS) || defined(SL_OS_ANDROID)
-        SLApplication::devLoc.isUsed(true);
-        SLApplication::devRot.isUsed(true);
+        AppDemo::devLoc.isUsed(true);
+        AppDemo::devRot.isUsed(true);
         cam1->camAnim(SLCamAnim::CA_deviceRotLocYUp);
 #else
-        SLApplication::devLoc.isUsed(false);
-        SLApplication::devRot.isUsed(false);
-        SLVec3d pos_d = SLApplication::devLoc.defaultENU() - SLApplication::devLoc.originENU();
+        AppDemo::devLoc.isUsed(false);
+        AppDemo::devRot.isUsed(false);
+        SLVec3d pos_d = AppDemo::devLoc.defaultENU() - AppDemo::devLoc.originENU();
         SLVec3f pos_f((SLfloat)pos_d.x, (SLfloat)pos_d.y, (SLfloat)pos_d.z);
         cam1->translation(pos_f);
         cam1->focalDist(pos_f.length());
@@ -4959,7 +5014,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->focalDist(cam1->translationOS().length());
         cam1->background().colors(SLCol4f(0.0f, 0.0f, 0.0f));
         cam1->setInitialState();
-        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
+        cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
 
         // assemble scene
         SLNode* scene = new SLNode;
@@ -5026,7 +5081,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->focalDist(cam1->translationOS().length());
         cam1->background().colors(SLCol4f(0.1f, 0.4f, 0.8f));
         cam1->setInitialState();
-        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
+        cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
 
         SLNode* rect = new SLNode(new SLRectangle(s, SLVec2f(-3, -3), SLVec2f(5, 4), 20, 20, "Floor", matYel));
         rect->rotate(90, -1, 0, 0);
@@ -5067,7 +5122,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->focalDist(cam1->translationOS().length());
         cam1->background().colors(SLCol4f(0.1f, 0.4f, 0.8f));
         cam1->setInitialState();
-        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
+        cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
 
         SLNode* rect = new SLNode(new SLRectangle(s, SLVec2f(-5, -5), SLVec2f(5, 5), 1, 1, "Rect", matYel));
         rect->rotate(90, -1, 0, 0);
@@ -5217,7 +5272,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->lensSamples()->samples(numSamples, numSamples);
         cam1->background().colors(SLCol4f(0.1f, 0.4f, 0.8f));
         cam1->setInitialState();
-        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
+        cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
 
         // Light
         //SLLightSpot* light1 = new SLLightSpot(s,s,15, 20, 15, 0.1f);
@@ -5281,7 +5336,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->lookAt(0, 0, 0);
         cam1->background().colors(SLCol4f(0.5f, 0.5f, 0.5f));
         cam1->setInitialState();
-        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
+        cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
 
         // Create a light source node
         SLLightSpot* light1 = new SLLightSpot(s, s, 0.3f);
@@ -5313,7 +5368,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
     else if (sceneID == SID_Benchmark1_LargeModel) //..............................................
     {
-        SLstring largeFile = SLApplication::configPath + "models/xyzrgb_dragon/xyzrgb_dragon.ply";
+        SLstring largeFile = AppDemo::configPath + "models/xyzrgb_dragon/xyzrgb_dragon.ply";
 
         if (Utils::fileExists(largeFile))
         {
@@ -5331,7 +5386,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
             cam1->focalDist(220);
             cam1->background().colors(SLCol4f(0.7f, 0.7f, 0.7f), SLCol4f(0.2f, 0.2f, 0.2f));
             cam1->setInitialState();
-            cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
+            cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
 
             SLLightSpot* light1 = new SLLightSpot(s, s, 200, 200, 200, 1);
             light1->powers(0.1f, 1.0f, 1.0f);
@@ -5499,7 +5554,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->focalDist(cam1->translationOS().length());
         cam1->background().colors(SLCol4f(0.1f, 0.4f, 0.8f));
         cam1->setInitialState();
-        cam1->devRotLoc(&SLApplication::devRot, &SLApplication::devLoc);
+        cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
 
         // Floor rectangle
         SLNode* rect = new SLNode(new SLRectangle(s,
@@ -5552,7 +5607,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
     ////////////////////////////////////////////////////////////////////////////
     // call onInitialize on all scene views to init the scenegraph and stats
-    for (auto* sceneView : SLApplication::sceneViews)
+    for (auto* sceneView : AppDemo::sceneViews)
         if (sceneView != nullptr)
             sceneView->onInitialize();
 

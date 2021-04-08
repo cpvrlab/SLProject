@@ -15,7 +15,7 @@
 #include <SLLightDirect.h>
 #include <SLSceneView.h>
 #include <SLGLProgramManager.h>
-#include <SLApplication.h>
+#include <AppDemo.h>
 
 //-----------------------------------------------------------------------------
 // Initialize static font pointers
@@ -74,7 +74,7 @@ void SLProjectScene::onLoadAsset(const SLstring& assetFile,
                                  SLuint          processFlags)
 {
     assert(false && "I commented the following lines! What influence does this have? I could not test this!");
-    //SLApplication::sceneID = SID_FromFile;
+    //AppDemo::sceneID = SID_FromFile;
 
     // Set scene name for new scenes
     if (!_root3D)
@@ -87,7 +87,7 @@ void SLProjectScene::onLoadAsset(const SLstring& assetFile,
     SLNode* loaded = importer.load(_animManager,
                                    this,
                                    assetFile,
-                                   SLApplication::texturePath,
+                                   AppDemo::texturePath,
                                    false,
                                    true,
                                    nullptr,
@@ -138,27 +138,27 @@ void SLProjectScene::onLoadAsset(const SLstring& assetFile,
 //! Generates all static fonts
 void SLProjectScene::generateFonts(SLGLProgram& fontTexProgram)
 {
-    font07 = new SLTexFont(SLApplication::fontPath + "Font07.png", &fontTexProgram);
+    font07 = new SLTexFont(AppDemo::fontPath + "Font07.png", &fontTexProgram);
     assert(font07);
-    font08 = new SLTexFont(SLApplication::fontPath + "Font08.png", &fontTexProgram);
+    font08 = new SLTexFont(AppDemo::fontPath + "Font08.png", &fontTexProgram);
     assert(font08);
-    font09 = new SLTexFont(SLApplication::fontPath + "Font09.png", &fontTexProgram);
+    font09 = new SLTexFont(AppDemo::fontPath + "Font09.png", &fontTexProgram);
     assert(font09);
-    font10 = new SLTexFont(SLApplication::fontPath + "Font10.png", &fontTexProgram);
+    font10 = new SLTexFont(AppDemo::fontPath + "Font10.png", &fontTexProgram);
     assert(font10);
-    font12 = new SLTexFont(SLApplication::fontPath + "Font12.png", &fontTexProgram);
+    font12 = new SLTexFont(AppDemo::fontPath + "Font12.png", &fontTexProgram);
     assert(font12);
-    font14 = new SLTexFont(SLApplication::fontPath + "Font14.png", &fontTexProgram);
+    font14 = new SLTexFont(AppDemo::fontPath + "Font14.png", &fontTexProgram);
     assert(font14);
-    font16 = new SLTexFont(SLApplication::fontPath + "Font16.png", &fontTexProgram);
+    font16 = new SLTexFont(AppDemo::fontPath + "Font16.png", &fontTexProgram);
     assert(font16);
-    font18 = new SLTexFont(SLApplication::fontPath + "Font18.png", &fontTexProgram);
+    font18 = new SLTexFont(AppDemo::fontPath + "Font18.png", &fontTexProgram);
     assert(font18);
-    font20 = new SLTexFont(SLApplication::fontPath + "Font20.png", &fontTexProgram);
+    font20 = new SLTexFont(AppDemo::fontPath + "Font20.png", &fontTexProgram);
     assert(font20);
-    font22 = new SLTexFont(SLApplication::fontPath + "Font22.png", &fontTexProgram);
+    font22 = new SLTexFont(AppDemo::fontPath + "Font22.png", &fontTexProgram);
     assert(font22);
-    font24 = new SLTexFont(SLApplication::fontPath + "Font24.png", &fontTexProgram);
+    font24 = new SLTexFont(AppDemo::fontPath + "Font24.png", &fontTexProgram);
     assert(font24);
 }
 //-----------------------------------------------------------------------------

@@ -19,7 +19,6 @@
 #include <SLGLUniform.h>
 #include <SLObject.h>
 #include <SLLight.h>
-#include <SLApplication.h>
 
 class SLGLShader;
 class SLScene;
@@ -34,10 +33,10 @@ typedef vector<SLGLShader*> SLVGLShader;
 
 #if defined(TARGET_OS_IOS)
 // The TR1 unordered_map or the hash_map is not yet available on iOS
-typedef map<string, int> SLLocMap;
+typedef std::map<string, int> SLLocMap;
 #else
 //typedef unordered_map<const char*, int, hash<const char*>, eqstr> SLLocMap;
-typedef map<string, int> SLLocMap;
+typedef std::map<string, int> SLLocMap;
 #endif
 
 //-----------------------------------------------------------------------------

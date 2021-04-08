@@ -18,6 +18,8 @@
 #include <SLAssetManager.h>
 #include <Instrumentor.h>
 
+using std::set;
+
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Weverything"
 #include <igl/remove_duplicate_vertices.h>
@@ -1579,7 +1581,7 @@ void SLMesh::transformSkin(const std::function<void(SLMesh*)>& cbInformNodes)
 /*
 void SLMesh::notifyParentNodesAABBUpdate() const
 {
-    SLVNode nodes = SLApplication::scene->root3D()->findChildren(this);
+    SLVNode nodes = AppDemo::scene->root3D()->findChildren(this);
     for (auto node : nodes)
         node->needAABBUpdate();
 }

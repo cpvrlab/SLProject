@@ -15,9 +15,9 @@
 #include <SLGLProgramGeneric.h>
 #include <SLGLProgram.h>
 #include <SLGLTexture.h>
+#include <SLNode.h>
 
 class SLSceneView;
-class SLNode;
 class SLAssetManager;
 
 //-----------------------------------------------------------------------------

@@ -19,6 +19,9 @@
 #include <SLSceneView.h>
 #include <Instrumentor.h>
 
+using std::cout;
+using std::endl;
+
 unsigned int SLNode::instanceIndex = 0;
 
 //-----------------------------------------------------------------------------
