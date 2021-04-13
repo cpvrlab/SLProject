@@ -43,6 +43,7 @@
 #include <SLGLProgramManager.h>
 #include <Instrumentor.h>
 #include <AppDemoGui.h>
+#include <SLDeviceLocation.h>
 
 #ifdef SL_BUILD_WAI
 #    include <CVTrackedWAI.h>
@@ -3782,8 +3783,16 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         //initialize sensor stuff
         AppDemo::devLoc.originLatLonAlt(46.94763, 7.44074, 542.2);        // Loeb Ecken
         AppDemo::devLoc.defaultLatLonAlt(46.94841, 7.43970, 542.2 + 1.7); // Bahnhof Ausgang in Augenhöhe
-        AppDemo::devLoc.locMaxDistanceM(1000.0f);                         // Max. Distanz. zum Loeb Ecken
-        AppDemo::devLoc.improveOrigin(false);                             // Keine autom. Verbesserung vom Origin
+
+        AppDemo::devLoc.nameLocations().push_back(SLLocation("Loeb Ecken, Origin", 46, 56, 51.451, 7, 26, 26.676, 542.2));
+        AppDemo::devLoc.nameLocations().push_back(SLLocation("Milchgässli (Velomarkierung)", 46, 56, 54.197, 7, 26, 23.366, 541.2 + 1.7));
+        AppDemo::devLoc.nameLocations().push_back(SLLocation("Spitalgasse (E)", 46, 56, 51.703, 7, 26, 27.565, 542.1 + 1.7));
+        AppDemo::devLoc.nameLocations().push_back(SLLocation("Bubenbergplatz (S)", 46, 56, 50.304, 7, 26, 22.113, 542.4 + 1.7));
+        AppDemo::devLoc.nameLocations().push_back(SLLocation("Heiliggeistkirche (Dole, N-W)", 46, 56, 53.500, 7, 26, 25.499, 541.6 + 1.7));
+        AppDemo::devLoc.originLatLonAlt(AppDemo::devLoc.nameLocations()[0].posWGS84LatLonAlt);
+        AppDemo::devLoc.activeNamedLocation(1);   //This sets the location 1 as defaultENU
+        AppDemo::devLoc.locMaxDistanceM(1000.0f); // Max. Distanz. zum Loeb Ecken
+        AppDemo::devLoc.improveOrigin(false);     // Keine autom. Verbesserung vom Origin
         AppDemo::devLoc.useOriginAltitude(true);
         AppDemo::devLoc.hasOrigin(true);
         AppDemo::devLoc.offsetMode(LOM_twoFingerY);
@@ -3921,9 +3930,15 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(cam1);
 
         //initialize sensor stuff
-        AppDemo::devLoc.useOriginAltitude(false);                   // Use
-        AppDemo::devLoc.originLatLonAlt(47.53319, 7.72207, 0);      // At the center of the theater
-        AppDemo::devLoc.defaultLatLonAlt(47.5329758, 7.7210428, 0); // At the entrance of the tempel
+        AppDemo::devLoc.useOriginAltitude(false);
+        AppDemo::devLoc.nameLocations().push_back(SLLocation("Center of theatre, Origin", 47, 31, 59.461, 7, 43, 19.446, 282.6));
+        AppDemo::devLoc.nameLocations().push_back(SLLocation("Treppe Tempel", 47, 31, 58.933, 7, 43, 16.799, 290.5 + 1.7));
+        AppDemo::devLoc.nameLocations().push_back(SLLocation("Abzweigung (Dolendeckel)", 47, 31, 57.969, 7, 43, 17.946, 286.5 + 1.7));
+        AppDemo::devLoc.nameLocations().push_back(SLLocation("Marker bei Tempel", 47, 31, 59.235, 7, 43, 15.161, 293.1 + 1.7));
+        AppDemo::devLoc.nameLocations().push_back(SLLocation("Theater 1. Rang Zugang Ost", 47, 31, 59.698, 7, 43, 20.518, 291.0 + 1.7));
+        AppDemo::devLoc.nameLocations().push_back(SLLocation("Theater 1. Rang Nord", 47, 32, 0.216, 7, 43, 19.173, 291.0 + 1.7));
+        AppDemo::devLoc.originLatLonAlt(AppDemo::devLoc.nameLocations()[0].posWGS84LatLonAlt);
+        AppDemo::devLoc.activeNamedLocation(1);   //This sets the location 1 as defaultENU
         AppDemo::devLoc.locMaxDistanceM(1000.0f);                   // Max. allowed distance to origin
         AppDemo::devLoc.improveOrigin(false);                       // No autom. origin improvement
         AppDemo::devLoc.hasOrigin(true);
@@ -4062,9 +4077,15 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(cam1);
 
         //initialize sensor stuff
-        AppDemo::devLoc.useOriginAltitude(false);                         // Use
-        AppDemo::devLoc.originLatLonAlt(47.53319, 7.72207, 282.6);        // At the center of the theater
-        AppDemo::devLoc.defaultLatLonAlt(47.53308, 7.72153, 285.4 + 1.7); // On the street
+        AppDemo::devLoc.useOriginAltitude(false);
+        AppDemo::devLoc.nameLocations().push_back(SLLocation("Center of theatre, Origin", 47, 31, 59.461, 7, 43, 19.446, 282.6));
+        AppDemo::devLoc.nameLocations().push_back(SLLocation("Treppe Tempel", 47, 31, 58.933, 7, 43, 16.799, 290.5 + 1.7));
+        AppDemo::devLoc.nameLocations().push_back(SLLocation("Abzweigung (Dolendeckel)", 47, 31, 57.969, 7, 43, 17.946, 286.5 + 1.7));
+        AppDemo::devLoc.nameLocations().push_back(SLLocation("Marker bei Tempel", 47, 31, 59.235, 7, 43, 15.161, 293.1 + 1.7));
+        AppDemo::devLoc.nameLocations().push_back(SLLocation("Theater 1. Rang Zugang Ost", 47, 31, 59.698, 7, 43, 20.518, 291.0 + 1.7));
+        AppDemo::devLoc.nameLocations().push_back(SLLocation("Theater 1. Rang Nord", 47, 32, 0.216, 7, 43, 19.173, 291.0 + 1.7));
+        AppDemo::devLoc.originLatLonAlt(AppDemo::devLoc.nameLocations()[0].posWGS84LatLonAlt);
+        AppDemo::devLoc.activeNamedLocation(1);   //This sets the location 1 as defaultENU
         AppDemo::devLoc.locMaxDistanceM(1000.0f);                         // Max. allowed distance to origin
         AppDemo::devLoc.improveOrigin(false);                             // No autom. origin improvement
         AppDemo::devLoc.hasOrigin(true);
@@ -4200,11 +4221,17 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(cam1);
 
         //initialize sensor stuff
-        AppDemo::devLoc.useOriginAltitude(false);                   // Use
-        AppDemo::devLoc.originLatLonAlt(47.53319, 7.72207, 0);      // At the center of the theater
-        AppDemo::devLoc.defaultLatLonAlt(47.5329758, 7.7210428, 0); // At the entrance of the tempel
-        AppDemo::devLoc.locMaxDistanceM(1000.0f);                   // Max. allowed distance to origin
-        AppDemo::devLoc.improveOrigin(false);                       // No autom. origin improvement
+        AppDemo::devLoc.useOriginAltitude(false);
+        AppDemo::devLoc.nameLocations().push_back(SLLocation("Center of theatre, Origin", 47, 31, 59.461, 7, 43, 19.446, 282.6));
+        AppDemo::devLoc.nameLocations().push_back(SLLocation("Treppe Tempel", 47, 31, 58.933, 7, 43, 16.799, 290.5 + 1.7));
+        AppDemo::devLoc.nameLocations().push_back(SLLocation("Abzweigung (Dolendeckel)", 47, 31, 57.969, 7, 43, 17.946, 286.5 + 1.7));
+        AppDemo::devLoc.nameLocations().push_back(SLLocation("Marker bei Tempel", 47, 31, 59.235, 7, 43, 15.161, 293.1 + 1.7));
+        AppDemo::devLoc.nameLocations().push_back(SLLocation("Theater 1. Rang Zugang Ost", 47, 31, 59.698, 7, 43, 20.518, 291.0 + 1.7));
+        AppDemo::devLoc.nameLocations().push_back(SLLocation("Theater 1. Rang Nord", 47, 32, 0.216, 7, 43, 19.173, 291.0 + 1.7));
+        AppDemo::devLoc.originLatLonAlt(AppDemo::devLoc.nameLocations()[0].posWGS84LatLonAlt);
+        AppDemo::devLoc.activeNamedLocation(1);   //This sets the location 1 as defaultENU
+        AppDemo::devLoc.locMaxDistanceM(1000.0f); // Max. allowed distance to origin
+        AppDemo::devLoc.improveOrigin(false);     // No autom. origin improvement
         AppDemo::devLoc.hasOrigin(true);
         AppDemo::devLoc.offsetMode(LOM_twoFingerY);
         AppDemo::devRot.zeroYawAtStart(false);
@@ -4363,22 +4390,16 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         //initialize sensor stuff
         AppDemo::devLoc.useOriginAltitude(false);
-        AppDemo::devLoc.originLatLonAlt(46,
-                                              52,
-                                              51.685,
-                                              7,
-                                              2,
-                                              33.458,
-                                              461.4); // Zentrum Amphitheater (See Avenches_Amphitheater_Orthofoto.jpg)
-        AppDemo::devLoc.defaultLatLonAlt(46,
-                                               52,
-                                               52.353,
-                                               7,
-                                               2,
-                                               37.524,
-                                               461.4 + 1.7); // Ecke Vorplatz Ost (See Avenches_Amphitheater_Orthofoto.jpg)
-        AppDemo::devLoc.locMaxDistanceM(1000.0f);      // Max. Distanz. zum Nullpunkt
-        AppDemo::devLoc.improveOrigin(false);          // Keine autom. Verbesserung vom Origin
+        AppDemo::devLoc.nameLocations().push_back(SLLocation("Arena Centre, Origin", 46, 52, 51.685, 7, 2, 33.458, 461.4));
+        AppDemo::devLoc.nameLocations().push_back(SLLocation("Entrance East, Manhole Cover", 46, 52, 52.344, 7, 2, 37.600, 461.4 + 1.7));
+        AppDemo::devLoc.nameLocations().push_back(SLLocation("Arena, Sewer Cover West", 46, 52, 51.484, 7, 2, 32.307, 461.3 + 1.7));
+        AppDemo::devLoc.nameLocations().push_back(SLLocation("Arena, Sewer Cover East", 46, 52, 51.870, 7, 2, 34.595, 461.1 + 1.7));
+        AppDemo::devLoc.nameLocations().push_back(SLLocation("Stand South, Sewer Cover", 46, 52, 50.635, 7, 2, 34.099, 471.7 + 1.7));
+        AppDemo::devLoc.nameLocations().push_back(SLLocation("Stand West, Sewer Cover", 46, 52, 51.889, 7, 2, 31.567, 471.7 + 1.7));
+        AppDemo::devLoc.originLatLonAlt(AppDemo::devLoc.nameLocations()[0].posWGS84LatLonAlt);
+        AppDemo::devLoc.activeNamedLocation(1);   //This sets the location 1 as defaultENU
+        AppDemo::devLoc.locMaxDistanceM(1000.0f); // Max. Distanz. zum Nullpunkt
+        AppDemo::devLoc.improveOrigin(false);     // Keine autom. Verbesserung vom Origin
         AppDemo::devLoc.hasOrigin(true);
         AppDemo::devLoc.offsetMode(LOM_twoFingerY);
         AppDemo::devRot.zeroYawAtStart(false);
@@ -4500,22 +4521,14 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         //initialize sensor stuff
         AppDemo::devLoc.useOriginAltitude(false);
-        AppDemo::devLoc.originLatLonAlt(46,
-                                              52,
-                                              53.245,
-                                              7,
-                                              2,
-                                              47.198,
-                                              450.9); // In the center of the place before the Cigognier temple
-        AppDemo::devLoc.defaultLatLonAlt(46,
-                                               52,
-                                               52.700,
-                                               7,
-                                               2,
-                                               48.261,
-                                               451.5 + 1.7); // In the entry of the Cigognier sanctuary
-        AppDemo::devLoc.locMaxDistanceM(1000.0f);      // Max. allowed distance from origin
-        AppDemo::devLoc.improveOrigin(false);          // No auto improvement from
+        AppDemo::devLoc.nameLocations().push_back(SLLocation("Center of place, Origin", 46, 52, 53.245, 7, 2, 47.198, 450.9));
+        AppDemo::devLoc.nameLocations().push_back(SLLocation("At the altar", 46, 52, 53.107, 7, 2, 47.498, 450.9 + 1.7));
+        AppDemo::devLoc.nameLocations().push_back(SLLocation("Old AR viewer", 46, 52, 53.666, 7, 2, 48.316, 451.0 + 1.7));
+        AppDemo::devLoc.nameLocations().push_back(SLLocation("Temple Entrance in hall", 46, 52, 54.007, 7, 2, 45.702, 453.0 + 1.7));
+        AppDemo::devLoc.originLatLonAlt(AppDemo::devLoc.nameLocations()[0].posWGS84LatLonAlt);
+        AppDemo::devLoc.activeNamedLocation(1);   //This sets the location 1 as defaultENU
+        AppDemo::devLoc.locMaxDistanceM(1000.0f); // Max. allowed distance from origin
+        AppDemo::devLoc.improveOrigin(false);     // No auto improvement from
         AppDemo::devLoc.hasOrigin(true);
         AppDemo::devLoc.offsetMode(LOM_twoFingerY);
         AppDemo::devRot.zeroYawAtStart(false);
@@ -4536,7 +4549,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLVec3f pos_f((SLfloat)pos_d.x, (SLfloat)pos_d.y, (SLfloat)pos_d.z);
         cam1->translation(pos_f);
         cam1->focalDist(pos_f.length());
-        cam1->lookAt(SLVec3f::ZERO);
+        cam1->lookAt(0, cam1->translationWS().y, 0);
         cam1->camAnim(SLCamAnim::CA_turntableYUp);
 #endif
 
@@ -4639,22 +4652,15 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         //initialize sensor stuff
         //https://map.geo.admin.ch/?lang=de&topic=ech&bgLayer=ch.swisstopo.swissimage&layers=ch.swisstopo.zeitreihen,ch.bfs.gebaeude_wohnungs_register,ch.bav.haltestellen-oev,ch.swisstopo.swisstlm3d-wanderwege&layers_opacity=1,1,1,0.8&layers_visibility=false,false,false,false&layers_timestamp=18641231,,,&E=2570281&N=1192204&zoom=13&crosshair=marker
         AppDemo::devLoc.useOriginAltitude(false);
-        AppDemo::devLoc.originLatLonAlt(46,
-                                              52,
-                                              49.041,
-                                              7,
-                                              2,
-                                              55.543,
-                                              454.9); // Zentrum Orchestra
-        AppDemo::devLoc.defaultLatLonAlt(46,
-                                               52,
-                                               50.791,
-                                               7,
-                                               2,
-                                               55.960,
-                                               455.5 + 1.7); // Beim Baum von der Ecke aus
-        AppDemo::devLoc.locMaxDistanceM(1000.0f);      // Max. Distanz. zum Nullpunkt
-        AppDemo::devLoc.improveOrigin(false);          // Keine autom. Verbesserung vom Origin
+        AppDemo::devLoc.nameLocations().push_back(SLLocation("Center of theatre, Origin", 46, 52, 49.041, 7, 2, 55.543, 454.9));
+        AppDemo::devLoc.nameLocations().push_back(SLLocation("On the stage", 46, 52, 49.221, 7, 2, 55.206, 455.5 + 1.7));
+        AppDemo::devLoc.nameLocations().push_back(SLLocation("At the tree (N-E)", 46, 52, 50.791, 7, 2, 55.960, 455.5 + 1.7));
+        AppDemo::devLoc.nameLocations().push_back(SLLocation("Over the entrance (S)", 46, 52, 48.162, 7, 2, 56.097, 464.0 + 1.7));
+        AppDemo::devLoc.nameLocations().push_back(SLLocation("At the 3rd tree (S-W)", 46, 52, 48.140, 7, 2, 51.506, 455.0 + 1.7));
+        AppDemo::devLoc.originLatLonAlt(AppDemo::devLoc.nameLocations()[0].posWGS84LatLonAlt);
+        AppDemo::devLoc.activeNamedLocation(1);   //This sets the location 1 as defaultENU
+        AppDemo::devLoc.locMaxDistanceM(1000.0f); // Max. Distanz. zum Nullpunkt
+        AppDemo::devLoc.improveOrigin(false);     // Keine autom. Verbesserung vom Origin
         AppDemo::devLoc.hasOrigin(true);
         AppDemo::devLoc.offsetMode(LOM_twoFingerY);
         AppDemo::devRot.zeroYawAtStart(false);
@@ -4782,8 +4788,15 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         AppDemo::devLoc.useOriginAltitude(false);
         AppDemo::devLoc.originLatLonAlt(47.10600, 7.21772, 434.4f);        // Corner Carport
         AppDemo::devLoc.defaultLatLonAlt(47.10598, 7.21757, 433.9f + 1.7); // In the street
-        AppDemo::devLoc.locMaxDistanceM(1000.0f);                          // Max. Distanz. zum Nullpunkt
-        AppDemo::devLoc.improveOrigin(false);                              // Keine autom. Verbesserung vom Origin
+
+        AppDemo::devLoc.nameLocations().push_back(SLLocation("Corner Carport, Origin", 47, 6, 21.609, 7, 13, 3.788, 434.4));
+        AppDemo::devLoc.nameLocations().push_back(SLLocation("Einfahrt (Dolendeckel)", 47, 6, 21.639, 7, 13, 2.764, 433.6 + 1.7));
+        AppDemo::devLoc.nameLocations().push_back(SLLocation("Elektrokasten, Brunnenweg", 47, 6, 21.044, 7, 13, 4.920, 438.4 + 1.7));
+        AppDemo::devLoc.nameLocations().push_back(SLLocation("Sitzbänkli am See", 47, 6, 24.537, 7, 13, 2.766, 431.2 + 1.7));
+        AppDemo::devLoc.originLatLonAlt(AppDemo::devLoc.nameLocations()[0].posWGS84LatLonAlt);
+        AppDemo::devLoc.activeNamedLocation(1);   //This sets the location 1 as defaultENU
+        AppDemo::devLoc.locMaxDistanceM(1000.0f); // Max. Distanz. zum Nullpunkt
+        AppDemo::devLoc.improveOrigin(false);     // Keine autom. Verbesserung vom Origin
         AppDemo::devLoc.hasOrigin(true);
         AppDemo::devLoc.offsetMode(LOM_twoFingerY);
         AppDemo::devRot.zeroYawAtStart(false);

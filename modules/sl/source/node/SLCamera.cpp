@@ -825,21 +825,36 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
         }
 
         //The device location sensor (GPS) is turned on and the scene has a global reference position
-        if (_devLoc && _devLoc->isUsed() && _devLoc->hasOrigin())
+        if (_devLoc && _devLoc->hasOrigin())
         {
-            // Direction vector from camera to world origin
-            SLVec3d wtc = _devLoc->locENU() - _devLoc->originENU() + _devLoc->offsetENU();
+            if (_devLoc->isUsed())
+            {
+                // Direction vector from camera to world origin
+                SLVec3d wtc = _devLoc->locENU() - _devLoc->originENU() + _devLoc->offsetENU();
 
-            // Reset to default if device is too far away
-            if (wtc.length() > _devLoc->locMaxDistanceM())
-                wtc = _devLoc->defaultENU() - _devLoc->originENU() + _devLoc->offsetENU();
+                // Reset to default if device is too far away
+                if (wtc.length() > _devLoc->locMaxDistanceM())
+                    wtc = _devLoc->defaultENU() - _devLoc->originENU() + _devLoc->offsetENU();
 
-            // Set the camera position
-            SLVec3f wtc_f((SLfloat)wtc.x, (SLfloat)wtc.y, (SLfloat)wtc.z);
+                // Set the camera position
+                SLVec3f wtc_f((SLfloat)wtc.x, (SLfloat)wtc.y, (SLfloat)wtc.z);
 
-            _om.setTranslation(wtc_f);
+                _om.setTranslation(wtc_f);
 
-            needUpdate();
+                needUpdate();
+            }
+            else // with disabled GPS use the default location
+            {
+                // Direction vector from camera to world origin with default location in ENU
+                SLVec3d wtc = _devLoc->defaultENU() - _devLoc->originENU() + _devLoc->offsetENU();
+
+                // Set the camera position
+                SLVec3f wtc_f((SLfloat)wtc.x, (SLfloat)wtc.y, (SLfloat)wtc.z);
+
+                _om.setTranslation(wtc_f);
+
+                needUpdate();
+            }
         }
 
         /*Calculate and apply finger y-translation
