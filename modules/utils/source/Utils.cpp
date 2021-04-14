@@ -861,7 +861,7 @@ bool fileExists(const string& pathfilename)
     struct stat info
     {
     };
-    return (stat(pathfilename.c_str(), &info) == 0);
+    return (stat(pathfilename.c_str(), &info) == 0) && ((info.st_mode & S_IFDIR) == 0);
 #endif
 }
 //-----------------------------------------------------------------------------
