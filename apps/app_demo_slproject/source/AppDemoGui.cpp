@@ -110,7 +110,7 @@ SLbool      AppDemoGui::showInfosSensors    = false;
 SLbool      AppDemoGui::showInfosDevice     = false;
 SLbool      AppDemoGui::showSceneGraph      = false;
 SLbool      AppDemoGui::showProperties      = false;
-SLbool      AppDemoGui::showChristoffel     = false;
+SLbool      AppDemoGui::showErlebAR         = false;
 SLbool      AppDemoGui::showUIPrefs         = false;
 SLbool      AppDemoGui::showTransform       = false;
 SLbool      AppDemoGui::showDateAndTime     = false;
@@ -1028,7 +1028,7 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
                 sprintf(m + strlen(m), "Dist. Origin (m) : %6.1f\n", offsetToOrigin.length());
                 sprintf(m + strlen(m), "Origin improve(s): %6.1f sec.\n", AppDemo::devLoc.improveTime());
                 sprintf(m + strlen(m), "Loc. Offset mode : %s\n", AppDemo::devLoc.offsetModeStr().c_str());
-                sprintf(m + strlen(m), "Loc. Offset (m)  : %s\n", AppDemo::devLoc.offsetENU().toString(",",1).c_str());
+                sprintf(m + strlen(m), "Loc. Offset (m)  : %s\n", AppDemo::devLoc.offsetENU().toString(",", 1).c_str());
 
                 // Switch to fixed font
                 ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
@@ -1145,7 +1145,7 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
                         AppDemo::devLoc.calculateSolarAngles(AppDemo::devLoc.originLatLonAlt(), now);
                     }
 
-                    sprintf(strTime, "Set highest noon (21.06.%02d 12:00)", lt.tm_year-100);
+                    sprintf(strTime, "Set highest noon (21.06.%02d 12:00)", lt.tm_year - 100);
                     if (ImGui::MenuItem(strTime))
                     {
                         lt.tm_mon    = 6;
@@ -1158,7 +1158,7 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
                                                              adjustedTime);
                     }
 
-                    sprintf(strTime, "Set lowest noon (21.12.%02d 12:00)", lt.tm_year-100);
+                    sprintf(strTime, "Set lowest noon (21.12.%02d 12:00)", lt.tm_year - 100);
                     if (ImGui::MenuItem(strTime))
                     {
                         lt.tm_mon    = 12;
@@ -1197,51 +1197,177 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
                     showDateAndTime = false;
             }
 
-            if (showChristoffel && AppDemo::sceneID == SID_ErlebARChristoffel)
+            if (showErlebAR)
             {
-                ImGui::Begin("Christoffel",
-                             &showChristoffel,
-                             ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize);
+                ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
+                SLint namedLocIndex = AppDemo::devLoc.activeNamedLocation();
 
-                // Get scene nodes once
-                if (!bern)
+                if (AppDemo::sceneID == SID_ErlebARChristoffel)
                 {
-                    bern        = s->root3D()->findChild<SLNode>("Bern-Bahnhofsplatz3.gltf");
-                    chrAlt      = bern->findChild<SLNode>("Chr-Alt", true);
-                    chrNeu      = bern->findChild<SLNode>("Chr-Neu", true);
-                    balda_stahl = bern->findChild<SLNode>("Baldachin-Stahl", true);
-                    balda_glas  = bern->findChild<SLNode>("Baldachin-Glas", true);
+                    ImGui::Begin("Christoffel",
+                                 &showErlebAR,
+                                 ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize);
+
+                    // Get scene nodes once
+                    if (!bern)
+                    {
+                        bern        = s->root3D()->findChild<SLNode>("bern-christoffel.gltf");
+                        chrAlt      = bern->findChild<SLNode>("Chr-Alt", true);
+                        chrNeu      = bern->findChild<SLNode>("Chr-Neu", true);
+                        balda_stahl = bern->findChild<SLNode>("Baldachin-Stahl", true);
+                        balda_glas  = bern->findChild<SLNode>("Baldachin-Glas", true);
+                    }
+
+                    SLbool chrAltIsOn = !chrAlt->drawBits()->get(SL_DB_HIDDEN);
+                    if (ImGui::Checkbox("Christoffelturm 1500-1800", &chrAltIsOn))
+                    {
+                        chrAlt->drawBits()->set(SL_DB_HIDDEN, false);
+                        chrNeu->drawBits()->set(SL_DB_HIDDEN, true);
+                    }
+
+                    SLbool chrNeuIsOn = !chrNeu->drawBits()->get(SL_DB_HIDDEN);
+                    if (ImGui::Checkbox("Christoffelturm 1800-1865", &chrNeuIsOn))
+                    {
+                        chrAlt->drawBits()->set(SL_DB_HIDDEN, true);
+                        chrNeu->drawBits()->set(SL_DB_HIDDEN, false);
+                    }
+                    SLbool baldachin = !balda_stahl->drawBits()->get(SL_DB_HIDDEN);
+                    if (ImGui::Checkbox("Baldachin", &baldachin))
+                    {
+                        balda_stahl->drawBits()->set(SL_DB_HIDDEN, !baldachin);
+                        balda_glas->drawBits()->set(SL_DB_HIDDEN, !baldachin);
+                    }
+
+#if defined(SL_OS_MACIOS) || defined(SL_OS_ANDROID)
+                    bool devLocIsUsed = AppDemo::devLoc.isUsed();
+                    if (ImGui::Checkbox("Use GPS Location", &devLocIsUsed))
+                        AppDemo::devLoc.isUsed(true);
+#endif
+                    for (int i = 1; i < AppDemo::devLoc.nameLocations().size(); ++i)
+                    {
+                        bool namedLocIsActive = namedLocIndex == i;
+                        if (ImGui::Checkbox(AppDemo::devLoc.nameLocations()[i].name.c_str(), &namedLocIsActive))
+                            setActiveNamedLocation(i, sv);
+                    }
+
+                    ImGui::End();
+                }
+                else
+                {
+                    bern        = nullptr;
+                    chrAlt      = nullptr;
+                    chrNeu      = nullptr;
+                    balda_stahl = nullptr;
+                    balda_glas  = nullptr;
                 }
 
-                SLbool chrAltIsOn = !chrAlt->drawBits()->get(SL_DB_HIDDEN);
-                if (ImGui::Checkbox("Christoffelturm 1500-1800", &chrAltIsOn))
+                if (AppDemo::sceneID == SID_ErlebARAugustaRauricaTmpTht ||
+                    AppDemo::sceneID == SID_ErlebARAugustaRauricaTht ||
+                    AppDemo::sceneID == SID_ErlebARAugustaRauricaTmp)
                 {
-                    chrAlt->drawBits()->set(SL_DB_HIDDEN, false);
-                    chrNeu->drawBits()->set(SL_DB_HIDDEN, true);
+                    ImGui::Begin("Augst-Theatre-Temple",
+                                 &showErlebAR,
+                                 ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize);
+
+#if defined(SL_OS_MACIOS) || defined(SL_OS_ANDROID)
+                    bool devLocIsUsed = AppDemo::devLoc.isUsed();
+                    if (ImGui::Checkbox("Use GPS Location", &devLocIsUsed))
+                        AppDemo::devLoc.isUsed(true);
+#endif
+                    for (int i = 1; i < AppDemo::devLoc.nameLocations().size(); ++i)
+                    {
+                        bool namedLocIsActive = namedLocIndex == i;
+                        if (ImGui::Checkbox(AppDemo::devLoc.nameLocations()[i].name.c_str(), &namedLocIsActive))
+                            setActiveNamedLocation(i, sv);
+                    }
+
+                    ImGui::End();
                 }
 
-                SLbool chrNeuIsOn = !chrNeu->drawBits()->get(SL_DB_HIDDEN);
-                if (ImGui::Checkbox("Christoffelturm 1800-1865", &chrNeuIsOn))
+                if (AppDemo::sceneID == SID_ErlebARAventicumAmphiteatre)
                 {
-                    chrAlt->drawBits()->set(SL_DB_HIDDEN, true);
-                    chrNeu->drawBits()->set(SL_DB_HIDDEN, false);
-                }
-                SLbool baldachin = !balda_stahl->drawBits()->get(SL_DB_HIDDEN);
-                if (ImGui::Checkbox("Baldachin", &baldachin))
-                {
-                    balda_stahl->drawBits()->set(SL_DB_HIDDEN, !baldachin);
-                    balda_glas->drawBits()->set(SL_DB_HIDDEN, !baldachin);
+                    ImGui::Begin("Avenche-Amphitheatre",
+                                 &showErlebAR,
+                                 ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize);
+
+#if defined(SL_OS_MACIOS) || defined(SL_OS_ANDROID)
+                    bool devLocIsUsed = AppDemo::devLoc.isUsed();
+                    if (ImGui::Checkbox("Use GPS Location", &devLocIsUsed))
+                        AppDemo::devLoc.isUsed(true);
+#endif
+                    for (int i = 1; i < AppDemo::devLoc.nameLocations().size(); ++i)
+                    {
+                        bool namedLocIsActive = namedLocIndex == i;
+                        if (ImGui::Checkbox(AppDemo::devLoc.nameLocations()[i].name.c_str(), &namedLocIsActive))
+                            setActiveNamedLocation(i, sv);
+                    }
+
+                    ImGui::End();
                 }
 
-                ImGui::End();
-            }
-            else
-            {
-                bern        = nullptr;
-                chrAlt      = nullptr;
-                chrNeu      = nullptr;
-                balda_stahl = nullptr;
-                balda_glas  = nullptr;
+                if (AppDemo::sceneID == SID_ErlebARAventicumCigognier)
+                {
+                    ImGui::Begin("Avenche-Cigognier",
+                                 &showErlebAR,
+                                 ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize);
+
+#if defined(SL_OS_MACIOS) || defined(SL_OS_ANDROID)
+                    bool devLocIsUsed = AppDemo::devLoc.isUsed();
+                    if (ImGui::Checkbox("Use GPS Location", &devLocIsUsed))
+                        AppDemo::devLoc.isUsed(true);
+#endif
+                    for (int i = 1; i < AppDemo::devLoc.nameLocations().size(); ++i)
+                    {
+                        bool namedLocIsActive = namedLocIndex == i;
+                        if (ImGui::Checkbox(AppDemo::devLoc.nameLocations()[i].name.c_str(), &namedLocIsActive))
+                            setActiveNamedLocation(i, sv);
+                    }
+                    ImGui::End();
+                }
+
+                if (AppDemo::sceneID == SID_ErlebARAventicumTheatre)
+                {
+                    ImGui::Begin("Avenche-Theatre",
+                                 &showErlebAR,
+                                 ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize);
+
+#if defined(SL_OS_MACIOS) || defined(SL_OS_ANDROID)
+                    bool devLocIsUsed = AppDemo::devLoc.isUsed();
+                    if (ImGui::Checkbox("Use GPS Location", &devLocIsUsed))
+                        AppDemo::devLoc.isUsed(true);
+#endif
+                    for (int i = 1; i < AppDemo::devLoc.nameLocations().size(); ++i)
+                    {
+                        bool namedLocIsActive = namedLocIndex == i;
+                        if (ImGui::Checkbox(AppDemo::devLoc.nameLocations()[i].name.c_str(), &namedLocIsActive))
+                            setActiveNamedLocation(i, sv);
+                    }
+
+                    ImGui::End();
+                }
+
+                if (AppDemo::sceneID == SID_ErlebARSutzKirchrain18)
+                {
+                    ImGui::Begin("Sutz-Kirchrain18",
+                                 &showErlebAR,
+                                 ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize);
+
+#if defined(SL_OS_MACIOS) || defined(SL_OS_ANDROID)
+                    bool devLocIsUsed = AppDemo::devLoc.isUsed();
+                    if (ImGui::Checkbox("Use GPS Location", &devLocIsUsed))
+                        AppDemo::devLoc.isUsed(true);
+#endif
+                    for (int i = 1; i < AppDemo::devLoc.nameLocations().size(); ++i)
+                    {
+                        bool namedLocIsActive = namedLocIndex == i;
+                        if (ImGui::Checkbox(AppDemo::devLoc.nameLocations()[i].name.c_str(), &namedLocIsActive))
+                            setActiveNamedLocation(i, sv);
+                    }
+
+                    ImGui::End();
+                }
+
+                ImGui::PopFont();
             }
         }
     }
@@ -1896,15 +2022,15 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                     AppDemo::devLoc.hasOrigin(false);
 
                 if (ImGui::BeginMenu("Offset Mode"))
-                    {
-                        SLLocOffsetMode om = devLoc.offsetMode();
-                        if (ImGui::MenuItem("None", nullptr, om == LOM_none))
-                            devLoc.offsetMode(LOM_none);
-                        if (ImGui::MenuItem("Two Finger Y", nullptr, om == LOM_twoFingerY))
-                            devLoc.offsetMode(LOM_twoFingerY);
+                {
+                    SLLocOffsetMode om = devLoc.offsetMode();
+                    if (ImGui::MenuItem("None", nullptr, om == LOM_none))
+                        devLoc.offsetMode(LOM_none);
+                    if (ImGui::MenuItem("Two Finger Y", nullptr, om == LOM_twoFingerY))
+                        devLoc.offsetMode(LOM_twoFingerY);
 
-                        ImGui::EndMenu();
-                    }
+                    ImGui::EndMenu();
+                }
 
                 ImGui::EndMenu();
             }
@@ -2680,15 +2806,20 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
         if (ImGui::BeginMenu("Infos"))
         {
             ImGui::MenuItem("Infos on Scene", nullptr, &showInfosScene);
-            ImGui::MenuItem("Stats on Timing", nullptr, &showStatsTiming);
-            ImGui::MenuItem("Stats on Scene", nullptr, &showStatsScene);
-            ImGui::MenuItem("Stats on Video", nullptr, &showStatsVideo);
+
+            if (ImGui::BeginMenu("Statistics"))
+            {
+                ImGui::MenuItem("Stats on Timing", nullptr, &showStatsTiming);
+                ImGui::MenuItem("Stats on Scene", nullptr, &showStatsScene);
+                ImGui::MenuItem("Stats on Video", nullptr, &showStatsVideo);
 #ifdef SL_BUILD_WAI
-            if (AppDemo::sceneID == SID_VideoTrackWAI)
-                ImGui::MenuItem("Stats on WAI", nullptr, &showStatsWAI);
+                if (AppDemo::sceneID == SID_VideoTrackWAI)
+                    ImGui::MenuItem("Stats on WAI", nullptr, &showStatsWAI);
 #endif
-            ImGui::MenuItem("Stats on ImGui", nullptr, &showImGuiMetrics);
-            ImGui::Separator();
+                ImGui::MenuItem("Stats on ImGui", nullptr, &showImGuiMetrics);
+                ImGui::EndMenu();
+            }
+
             ImGui::MenuItem("Scenegraph", nullptr, &showSceneGraph);
             ImGui::MenuItem("Properties", nullptr, &showProperties);
             ImGui::MenuItem("Transform", nullptr, &showTransform);
@@ -2697,10 +2828,11 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
             ImGui::Separator();
             ImGui::MenuItem("Infos on Device", nullptr, &showInfosDevice);
             ImGui::MenuItem("Infos on Sensors", nullptr, &showInfosSensors);
-            if (AppDemo::sceneID == SID_ErlebARChristoffel)
+            if (AppDemo::sceneID >= SID_ErlebARBielBFH &&
+                AppDemo::sceneID <= SID_ErlebAREvilardCheminDuRoc2)
             {
                 ImGui::Separator();
-                ImGui::MenuItem("Infos on Christoffel", nullptr, &showChristoffel);
+                ImGui::MenuItem("ErlebAR Settings", nullptr, &showErlebAR);
             }
             ImGui::Separator();
             ImGui::MenuItem("Help on Interaction", nullptr, &showHelp);
@@ -2708,7 +2840,6 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
             ImGui::Separator();
             ImGui::MenuItem("Credits", nullptr, &showCredits);
             ImGui::MenuItem("About SLProject", nullptr, &showAbout);
-            ImGui::MenuItem("Hide User Interface", nullptr, &hideUI);
 
             ImGui::EndMenu();
         }
@@ -3648,7 +3779,7 @@ void AppDemoGui::loadConfig(SLint dotsPerInch)
             fs["showInfosSensors"] >> b;    AppDemoGui::showInfosSensors = b;
             fs["showSceneGraph"] >> b;      AppDemoGui::showSceneGraph = b;
             fs["showProperties"] >> b;      AppDemoGui::showProperties = b;
-            fs["showChristoffel"] >> b;     AppDemoGui::showChristoffel = b;
+            fs["showErlebAR"] >> b;         AppDemoGui::showErlebAR = b;
             fs["showTransform"] >> b;       AppDemoGui::showTransform = b;
             fs["showUIPrefs"] >> b;         AppDemoGui::showUIPrefs = b;
             fs["showDateAndTime"] >> b;     AppDemoGui::showDateAndTime = b;
@@ -3729,7 +3860,7 @@ void AppDemoGui::saveConfig()
     fs << "showInfosSensors" << AppDemoGui::showInfosSensors;
     fs << "showSceneGraph" << AppDemoGui::showSceneGraph;
     fs << "showProperties" << AppDemoGui::showProperties;
-    fs << "showChristoffel" << AppDemoGui::showChristoffel;
+    fs << "showErlebAR" << AppDemoGui::showErlebAR;
     fs << "showTransform" << AppDemoGui::showTransform;
     fs << "showUIPrefs" << AppDemoGui::showUIPrefs;
     fs << "showDateAndTime" << AppDemoGui::showDateAndTime;
@@ -3910,5 +4041,21 @@ void AppDemoGui::downloadModelAndLoadScene(SLScene*     s,
     AppDemo::jobsToBeThreaded.emplace_back(downloadJobHTTP);
     AppDemo::jobsToBeThreaded.emplace_back(unzipJob);
     AppDemo::jobsToFollowInMain.push_back(followUpJob1);
+}
+//-----------------------------------------------------------------------------
+//! Set the a new active named location from SLDeviceLocation
+void AppDemoGui::setActiveNamedLocation(int locIndex, SLSceneView* sv)
+{
+    AppDemo::devLoc.activeNamedLocation(locIndex);
+
+#if !defined(SL_OS_MACIOS) && !defined(SL_OS_ANDROID)
+    SLVec3d   pos_d = AppDemo::devLoc.defaultENU() - AppDemo::devLoc.originENU();
+    SLVec3f   pos_f((SLfloat)pos_d.x, (SLfloat)pos_d.y, (SLfloat)pos_d.z);
+    SLCamera* cam = sv->camera();
+    cam->translation(pos_f);
+    cam->focalDist(pos_f.length());
+    cam->lookAt(SLVec3f::ZERO);
+    cam->camAnim(SLCamAnim::CA_turntableYUp);
+#endif
 }
 //-----------------------------------------------------------------------------

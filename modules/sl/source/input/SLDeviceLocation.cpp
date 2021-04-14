@@ -26,7 +26,6 @@ void SLDeviceLocation::init()
     _defaultLatLonAlt.set(0, 0, 0);
     _defaultENU.set(0, 0, 0);
     _originLatLonAlt.set(0, 0, 0);
-    _originECEF.set(0, 0, 0);
     _originENU.set(0, 0, 0);
     _offsetENU.set(0, 0, 0);
     _originAccuracyM    = FLT_MAX;
@@ -44,6 +43,8 @@ void SLDeviceLocation::init()
     _altGpsM           = 0.0f;
     _cameraHeightM     = 1.6f;
     _offsetMode        = LOM_none;
+    _nameLocations.clear();
+    _activeNamedLocation = -1;
 }
 //-----------------------------------------------------------------------------
 // Setter for hasOrigin flag.
@@ -157,7 +158,8 @@ void SLDeviceLocation::originLatLonAlt(SLdouble latDEG,
                                        SLdouble altM)
 {
     _originLatLonAlt = SLVec3d(latDEG, lonDEG, altM);
-    _originECEF.latlonAlt2ecef(_originLatLonAlt);
+    SLVec3d originECEF;
+    originECEF.latlonAlt2ecef(_originLatLonAlt);
 
     // calculation of ECEF to world (scene) rotation matrix
     // definition of rotation matrix for ECEF to world frame rotation:
@@ -185,7 +187,7 @@ void SLDeviceLocation::originLatLonAlt(SLdouble latDEG,
 
     // ECEF w.r.t. world frame (scene)
     _wRecef    = wRenu * enuRecef;
-    _originENU = _wRecef * _originECEF;
+    _originENU = _wRecef * originECEF;
 
     // Indicate that origin is set. Otherwise it would be reset on each update
     _hasOrigin = true;
@@ -448,7 +450,7 @@ bool SLDeviceLocation::posIsOnGeoTiff(SLdouble latDEG, SLdouble lonDEG) const
 //! Returns the device location offset mode as string
 SLstring SLDeviceLocation::offsetModeStr() const
 {
-    switch(_offsetMode)
+    switch (_offsetMode)
     {
         case LOM_none: return "None";
         case LOM_twoFingerY: return "TwoFingerY";
