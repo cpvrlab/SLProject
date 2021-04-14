@@ -1211,7 +1211,7 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
                     // Get scene nodes once
                     if (!bern)
                     {
-                        bern        = s->root3D()->findChild<SLNode>("Bern-Bahnhofsplatz3.gltf");
+                        bern        = s->root3D()->findChild<SLNode>("bern-christoffel.gltf");
                         chrAlt      = bern->findChild<SLNode>("Chr-Alt", true);
                         chrNeu      = bern->findChild<SLNode>("Chr-Neu", true);
                         balda_stahl = bern->findChild<SLNode>("Baldachin-Stahl", true);
@@ -2806,15 +2806,20 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
         if (ImGui::BeginMenu("Infos"))
         {
             ImGui::MenuItem("Infos on Scene", nullptr, &showInfosScene);
-            ImGui::MenuItem("Stats on Timing", nullptr, &showStatsTiming);
-            ImGui::MenuItem("Stats on Scene", nullptr, &showStatsScene);
-            ImGui::MenuItem("Stats on Video", nullptr, &showStatsVideo);
+
+            if (ImGui::BeginMenu("Statistics"))
+            {
+                ImGui::MenuItem("Stats on Timing", nullptr, &showStatsTiming);
+                ImGui::MenuItem("Stats on Scene", nullptr, &showStatsScene);
+                ImGui::MenuItem("Stats on Video", nullptr, &showStatsVideo);
 #ifdef SL_BUILD_WAI
-            if (AppDemo::sceneID == SID_VideoTrackWAI)
-                ImGui::MenuItem("Stats on WAI", nullptr, &showStatsWAI);
+                if (AppDemo::sceneID == SID_VideoTrackWAI)
+                    ImGui::MenuItem("Stats on WAI", nullptr, &showStatsWAI);
 #endif
-            ImGui::MenuItem("Stats on ImGui", nullptr, &showImGuiMetrics);
-            ImGui::Separator();
+                ImGui::MenuItem("Stats on ImGui", nullptr, &showImGuiMetrics);
+                ImGui::EndMenu();
+            }
+
             ImGui::MenuItem("Scenegraph", nullptr, &showSceneGraph);
             ImGui::MenuItem("Properties", nullptr, &showProperties);
             ImGui::MenuItem("Transform", nullptr, &showTransform);
@@ -2835,7 +2840,6 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
             ImGui::Separator();
             ImGui::MenuItem("Credits", nullptr, &showCredits);
             ImGui::MenuItem("About SLProject", nullptr, &showAbout);
-            ImGui::MenuItem("Hide User Interface", nullptr, &hideUI);
 
             ImGui::EndMenu();
         }

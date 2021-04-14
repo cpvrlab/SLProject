@@ -3616,7 +3616,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         AppDemo::devLoc.hasOrigin(true);
         AppDemo::devLoc.offsetMode(LOM_twoFingerY);
         AppDemo::devRot.zeroYawAtStart(false);
-        AppDemo::devRot.offsetMode(ROM_oneFingerXY);
+        AppDemo::devRot.offsetMode(ROM_oneFingerX);
 
         // This loads the DEM file and overwrites the altitude of originLatLonAlt and defaultLatLonAlt
         SLstring tif = dataPath + "erleb-AR/models/biel/DEM_Biel-BFH_WGS84.tif";
@@ -3706,7 +3706,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLAssimpImporter importer;
         SLNode*          bern = importer.load(s->animManager(),
                                      s,
-                                     dataPath + "erleb-AR/models/bern/Bern-Bahnhofsplatz3.gltf",
+                                     dataPath + "erleb-AR/models/bern/bern-christoffel.gltf",
                                      texPath,
                                      false,
                                      true,
@@ -3797,7 +3797,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         AppDemo::devLoc.hasOrigin(true);
         AppDemo::devLoc.offsetMode(LOM_twoFingerY);
         AppDemo::devRot.zeroYawAtStart(false);
-        AppDemo::devRot.offsetMode(ROM_oneFingerXY);
+        AppDemo::devRot.offsetMode(ROM_oneFingerX);
 
         // This loads the DEM file and overwrites the altitude of originLatLonAlt and defaultLatLonAlt
         SLstring tif = dataPath + "erleb-AR/models/bern/DEM-Bern-2600_1199-WGS84.tif";
@@ -3944,7 +3944,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         AppDemo::devLoc.hasOrigin(true);
         AppDemo::devLoc.offsetMode(LOM_twoFingerY);
         AppDemo::devRot.zeroYawAtStart(false);
-        AppDemo::devRot.offsetMode(ROM_oneFingerXY);
+        AppDemo::devRot.offsetMode(ROM_oneFingerX);
 
         // This loads the DEM file and overwrites the altitude of originLatLonAlt and defaultLatLonAlt
         SLstring tif = datDir + "DTM-Theater-Tempel-WGS84.tif";
@@ -4091,7 +4091,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         AppDemo::devLoc.hasOrigin(true);
         AppDemo::devLoc.offsetMode(LOM_twoFingerY);
         AppDemo::devRot.zeroYawAtStart(false);
-        AppDemo::devRot.offsetMode(ROM_oneFingerXY);
+        AppDemo::devRot.offsetMode(ROM_oneFingerX);
 
         // This loads the DEM file and overwrites the altitude of originLatLonAlt and defaultLatLonAlt
         SLstring tif = datDir + "DTM-Theater-Tempel-WGS84.tif";
@@ -4235,7 +4235,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         AppDemo::devLoc.hasOrigin(true);
         AppDemo::devLoc.offsetMode(LOM_twoFingerY);
         AppDemo::devRot.zeroYawAtStart(false);
-        AppDemo::devRot.offsetMode(ROM_oneFingerXY);
+        AppDemo::devRot.offsetMode(ROM_oneFingerX);
 
         // Level of Detail switch for Temple and Theater
         SLNode* tmpAltar = thtAndTmp->findChild<SLNode>("TmpAltar");
@@ -4403,7 +4403,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         AppDemo::devLoc.hasOrigin(true);
         AppDemo::devLoc.offsetMode(LOM_twoFingerY);
         AppDemo::devRot.zeroYawAtStart(false);
-        AppDemo::devRot.offsetMode(ROM_oneFingerXY);
+        AppDemo::devRot.offsetMode(ROM_oneFingerX);
 
         // This loads the DEM file and overwrites the altitude of originLatLonAlt and defaultLatLonAlt
         SLstring tif = dataPath + "erleb-AR/models/avenches/DTM-Aventicum-WGS84.tif";
@@ -4532,7 +4532,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         AppDemo::devLoc.hasOrigin(true);
         AppDemo::devLoc.offsetMode(LOM_twoFingerY);
         AppDemo::devRot.zeroYawAtStart(false);
-        AppDemo::devRot.offsetMode(ROM_oneFingerXY);
+        AppDemo::devRot.offsetMode(ROM_oneFingerX);
 
         // This loads the DEM file and overwrites the altitude of originLatLonAlt and defaultLatLonAlt
         SLstring tif = dataPath + "erleb-AR/models/avenches/DTM-Aventicum-WGS84.tif";
@@ -4664,7 +4664,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         AppDemo::devLoc.hasOrigin(true);
         AppDemo::devLoc.offsetMode(LOM_twoFingerY);
         AppDemo::devRot.zeroYawAtStart(false);
-        AppDemo::devRot.offsetMode(ROM_oneFingerXY);
+        AppDemo::devRot.offsetMode(ROM_oneFingerX);
 
         // This loads the DEM file and overwrites the altitude of originLatLonAlt and defaultLatLonAlt
         SLstring tif = dataPath + "erleb-AR/models/avenches/DTM-Aventicum-WGS84.tif";
@@ -4800,7 +4800,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         AppDemo::devLoc.hasOrigin(true);
         AppDemo::devLoc.offsetMode(LOM_twoFingerY);
         AppDemo::devRot.zeroYawAtStart(false);
-        AppDemo::devRot.offsetMode(ROM_oneFingerXY);
+        AppDemo::devRot.offsetMode(ROM_oneFingerX);
 
         // This loads the DEM file and overwrites the altitude of originLatLonAlt and defaultLatLonAlt
         SLstring tif = dataPath + "erleb-AR/models/sutzKirchrain18/Sutz-Kirchrain18-DEM-WGS84.tif";
@@ -4929,7 +4929,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         AppDemo::devLoc.hasOrigin(true);
         AppDemo::devLoc.offsetMode(LOM_twoFingerY);
         AppDemo::devRot.zeroYawAtStart(false);
-        AppDemo::devRot.offsetMode(ROM_oneFingerXY);
+        AppDemo::devRot.offsetMode(ROM_oneFingerX);
 
         // This loads the DEM file and overwrites the altitude of originLatLonAlt and defaultLatLonAlt
         SLstring tif = dataPath + "erleb-AR/models/evilardCheminDuRoc2/EvilardCheminDuRoc2-DEM-WGS84.tif";
