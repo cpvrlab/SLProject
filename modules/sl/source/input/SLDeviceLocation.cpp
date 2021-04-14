@@ -352,6 +352,22 @@ SLbool SLDeviceLocation::calculateSolarAngles(SLVec3d     locationLatLonAlt,
     return (result == 0);
 }
 //------------------------------------------------------------------------------
+//! Converter method: the transferred wgs84 coordinate is converted to ENU frame and returned (does not change SLDeviceLocation)
+SLVec3d SLDeviceLocation::convertLatLonAlt2ENU(SLVec3d locLatLonAlt) const
+{
+    if (geoTiffIsAvailableAndValid() && posIsOnGeoTiff(locLatLonAlt.x, locLatLonAlt.y))
+        locLatLonAlt.z = _demGeoTiff.getAltitudeAtLatLon(locLatLonAlt.x, locLatLonAlt.y);
+    
+    // Convert to cartesian ECEF coordinates
+    SLVec3d locECEF;
+    locECEF.latlonAlt2ecef(locLatLonAlt);
+
+    // Transform to local east-north-up frame
+    SLVec3d locENU = _wRecef * locECEF;
+    
+    return locENU;
+}
+//------------------------------------------------------------------------------
 //! Loads a GeoTiff DEM (Digital Elevation Model) Image
 /* Loads a GeoTiff DEM (Digital Elevation Model) Image that must be in WGS84
  coordinates. For more info see CVImageGeoTiff.
@@ -406,7 +422,7 @@ void SLDeviceLocation::loadGeoTiff(const SLstring& geoTiffFile)
 /* Returns true if a geoTiff files is loaded and the origin and default
  positions are within the extends of the image.
 */
-bool SLDeviceLocation::geoTiffIsAvailableAndValid()
+bool SLDeviceLocation::geoTiffIsAvailableAndValid() const
 {
     return (!_demGeoTiff.cvMat().empty() &&
             _originLatLonAlt.lat < _demGeoTiff.upperLeftLatLonAlt()[0] &&
@@ -420,7 +436,7 @@ bool SLDeviceLocation::geoTiffIsAvailableAndValid()
 }
 //-----------------------------------------------------------------------------
 //! Return true if the current GPS location is within the GeoTiff boundaries
-bool SLDeviceLocation::posIsOnGeoTiff(SLdouble latDEG, SLdouble lonDEG)
+bool SLDeviceLocation::posIsOnGeoTiff(SLdouble latDEG, SLdouble lonDEG) const
 {
     return (!_demGeoTiff.empty() &&
             latDEG < _demGeoTiff.upperLeftLatLonAlt()[0] &&

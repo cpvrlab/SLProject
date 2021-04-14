@@ -64,6 +64,10 @@ public:
 
     SLbool calculateSolarAngles(SLVec3d     locationLatLonAlt,
                                 std::time_t time);
+    
+    //! Converter method: the transferred wgs84 coordinate is converted to ENU frame and returned (does not change SLDeviceLocation)
+    SLVec3d convertLatLonAlt2ENU(SLVec3d locLatLonAlt) const;
+    
     // Setters
     void isUsed(SLbool isUsed);
     void useOriginAltitude(SLbool useGLA) { _useOriginAltitude = useGLA; }
@@ -92,8 +96,8 @@ public:
     void locMaxDistanceM(SLfloat maxDist) { _locMaxDistanceM = maxDist; }
     void sunLightNode(SLLightDirect* sln) { _sunLightNode = sln; }
     void loadGeoTiff(const SLstring& geoTiffFile);
-    bool geoTiffIsAvailableAndValid();
-    bool posIsOnGeoTiff(SLdouble latDEG, SLdouble lonDEG);
+    bool geoTiffIsAvailableAndValid() const;
+    bool posIsOnGeoTiff(SLdouble latDEG, SLdouble lonDEG) const;
     void cameraHeightM(float camHeightM) { _cameraHeightM = camHeightM; }
     void offsetMode(SLLocOffsetMode lom) { _offsetMode = lom; }
     void offsetENU(SLVec3d offsetENU) { _offsetENU = offsetENU; }
