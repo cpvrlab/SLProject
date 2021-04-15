@@ -3785,8 +3785,10 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         AppDemo::devLoc.defaultLatLonAlt(46.94841, 7.43970, 542.2 + 1.7); // Bahnhof Ausgang in Augenhöhe
 
         AppDemo::devLoc.nameLocations().push_back(SLLocation("Loeb Ecken, Origin", 46, 56, 51.451, 7, 26, 26.676, 542.2));
-        AppDemo::devLoc.nameLocations().push_back(SLLocation("Milchgässli (Velomarkierung)", 46, 56, 54.197, 7, 26, 23.366, 541.2 + 1.7));
+        AppDemo::devLoc.nameLocations().push_back(SLLocation("Milchgässli, Velomarkierung, (N)", 46, 56, 54.197, 7, 26, 23.366, 541.2 + 1.7));
         AppDemo::devLoc.nameLocations().push_back(SLLocation("Spitalgasse (E)", 46, 56, 51.703, 7, 26, 27.565, 542.1 + 1.7));
+        AppDemo::devLoc.nameLocations().push_back(SLLocation("Tramhaltestelle UBS, eckiger Schachtd. (S)", 46, 56, 50.366, 7, 26, 24.544, 542.3 + 1.7));
+        AppDemo::devLoc.nameLocations().push_back(SLLocation("Ecke Schauplatz-Christoffelgasse (S)", 46, 56, 50.139, 7, 26, 27.225, 542.1 + 1.7));
         AppDemo::devLoc.nameLocations().push_back(SLLocation("Bubenbergplatz (S)", 46, 56, 50.304, 7, 26, 22.113, 542.4 + 1.7));
         AppDemo::devLoc.nameLocations().push_back(SLLocation("Heiliggeistkirche (Dole, N-W)", 46, 56, 53.500, 7, 26, 25.499, 541.6 + 1.7));
         AppDemo::devLoc.originLatLonAlt(AppDemo::devLoc.nameLocations()[0].posWGS84LatLonAlt);
