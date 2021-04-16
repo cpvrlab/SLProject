@@ -32,9 +32,9 @@ public:
     ~CVImageGeoTiff();
 
     void    loadGeoTiff(const string& filename);
-    CVVec3d upperLeftLatLonAlt() { return _upperleftLatLonAlt; }
-    CVVec3d lowerRightLatLonAlt() { return _lowerRightLatLonAlt; }
-    float   getAltitudeAtLatLon(double lat, double lon);
+    CVVec3d upperLeftLatLonAlt() const { return _upperleftLatLonAlt; }
+    CVVec3d lowerRightLatLonAlt() const { return _lowerRightLatLonAlt; }
+    float   getAltitudeAtLatLon(double lat, double lon) const;
 
 private:
     CVVec3d _upperleftLatLonAlt;  //! Upper-left corner of DEM in WGS84 coords

@@ -45,6 +45,9 @@ public:
     static void loadConfig(SLint dotsPerInch);
     static void saveConfig();
     static void showLUTColors(SLTexColorLUT* lut);
+    static void setActiveNamedLocation(int          locIndex,
+                                       SLSceneView* sv,
+                                       SLVec3f      lookAtPoint = SLVec3f::ZERO);
 
     static SLstring    configTime;          //!< Time of stored configuration
     static SLstring    infoAbout;           //!< About info string
@@ -68,7 +71,7 @@ public:
     static SLbool      showInfosScene;      //!< Flag if scene info should be shown
     static SLbool      showSceneGraph;      //!< Flag if scene graph should be shown
     static SLbool      showProperties;      //!< Flag if properties should be shown
-    static SLbool      showChristoffel;     //!< Flag if Christoffel infos should be shown
+    static SLbool      showErlebAR;         //!< Flag if Christoffel infos should be shown
     static SLbool      showUIPrefs;         //!< Flag if UI preferences
     static SLbool      showTransform;       //!< Flag if transform dialog should be shown
     static SLbool      showDateAndTime;     //!< Flag if date-time dialog should be shown

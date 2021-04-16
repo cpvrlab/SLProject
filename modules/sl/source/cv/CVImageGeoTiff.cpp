@@ -116,7 +116,7 @@ void CVImageGeoTiff::loadGeoTiff(const string& geoTiffFile)
 //-----------------------------------------------------------------------------
 //! Returns the altitude in m at the given position in WGS84 latitude-longitude
 float CVImageGeoTiff::getAltitudeAtLatLon(double latDEG,
-                                          double lonDEG)
+                                          double lonDEG) const
 {
     double dLatDEG   = _upperleftLatLonAlt[0] - _lowerRightLatLonAlt[0];
     double dLonDEG   = _lowerRightLatLonAlt[1] - _upperleftLatLonAlt[1];

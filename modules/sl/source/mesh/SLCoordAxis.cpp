@@ -45,9 +45,6 @@ void SLCoordAxis::buildMesh()
     SLfloat  w = _arrowHeadWidth * 0.5f;
 
     // predefined normals
-    SLVec3f x = SLVec3f::AXISX;
-    SLVec3f y = SLVec3f::AXISY;
-    SLVec3f z = SLVec3f::AXISZ;
     SLCol4f r = SLCol4f::RED;
     SLCol4f g = SLCol4f::GREEN;
     SLCol4f b = SLCol4f::BLUE;
