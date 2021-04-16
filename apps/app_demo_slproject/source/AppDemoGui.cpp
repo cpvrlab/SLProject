@@ -1201,6 +1201,7 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
             {
                 ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
                 SLint namedLocIndex = AppDemo::devLoc.activeNamedLocation();
+                SLVec3f lookAtPoint = SLVec3f::ZERO;
 
                 if (AppDemo::sceneID == SID_ErlebARChristoffel)
                 {
@@ -1238,16 +1239,19 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
                         balda_glas->drawBits()->set(SL_DB_HIDDEN, !baldachin);
                     }
 
+                    ImGui::Separator();
+
 #if defined(SL_OS_MACIOS) || defined(SL_OS_ANDROID)
                     bool devLocIsUsed = AppDemo::devLoc.isUsed();
                     if (ImGui::Checkbox("Use GPS Location", &devLocIsUsed))
                         AppDemo::devLoc.isUsed(true);
 #endif
+                    lookAtPoint.set(-21, 18, 6);
                     for (int i = 1; i < AppDemo::devLoc.nameLocations().size(); ++i)
                     {
                         bool namedLocIsActive = namedLocIndex == i;
                         if (ImGui::Checkbox(AppDemo::devLoc.nameLocations()[i].name.c_str(), &namedLocIsActive))
-                            setActiveNamedLocation(i, sv);
+                            setActiveNamedLocation(i, sv, lookAtPoint);
                     }
 
                     ImGui::End();
@@ -1320,7 +1324,7 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
                     {
                         bool namedLocIsActive = namedLocIndex == i;
                         if (ImGui::Checkbox(AppDemo::devLoc.nameLocations()[i].name.c_str(), &namedLocIsActive))
-                            setActiveNamedLocation(i, sv);
+                            setActiveNamedLocation(i, sv, lookAtPoint);
                     }
                     ImGui::End();
                 }
@@ -1766,7 +1770,7 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                 }
 
                 SLstring erlebarPath = AppDemo::dataPath + "erleb-AR/models/";
-                SLstring modelBR2    = erlebarPath + "bern/Bern-Bahnhofsplatz3.gltf";
+                SLstring modelBR2    = erlebarPath + "bern/bern-christoffel.gltf";
                 SLstring modelBFH    = erlebarPath + "biel/Biel-BFH-Rolex.gltf";
                 SLstring modelAR1    = erlebarPath + "augst/Tempel-03.gltf";
                 SLstring modelAR2    = erlebarPath + "augst/Theater-03.gltf";
@@ -4044,7 +4048,9 @@ void AppDemoGui::downloadModelAndLoadScene(SLScene*     s,
 }
 //-----------------------------------------------------------------------------
 //! Set the a new active named location from SLDeviceLocation
-void AppDemoGui::setActiveNamedLocation(int locIndex, SLSceneView* sv)
+void AppDemoGui::setActiveNamedLocation(int          locIndex,
+                                        SLSceneView* sv,
+                                        SLVec3f      lookAtPoint)
 {
     AppDemo::devLoc.activeNamedLocation(locIndex);
 
@@ -4053,8 +4059,9 @@ void AppDemoGui::setActiveNamedLocation(int locIndex, SLSceneView* sv)
     SLVec3f   pos_f((SLfloat)pos_d.x, (SLfloat)pos_d.y, (SLfloat)pos_d.z);
     SLCamera* cam = sv->camera();
     cam->translation(pos_f);
-    cam->focalDist(pos_f.length());
-    cam->lookAt(SLVec3f::ZERO);
+    SLVec3f camToLookAt = pos_f - lookAtPoint;
+    cam->focalDist(camToLookAt.length());
+    cam->lookAt(lookAtPoint);
     cam->camAnim(SLCamAnim::CA_turntableYUp);
 #endif
 }
