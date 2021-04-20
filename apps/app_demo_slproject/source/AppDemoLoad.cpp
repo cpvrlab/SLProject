@@ -4362,7 +4362,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLAssimpImporter importer;
         SLNode*          amphiTheatre = importer.load(s->animManager(),
                                              s,
-                                             dataPath + "erleb-AR/models/avenches/Aventicum-Amphitheater-AO.gltf",
+                                             dataPath + "erleb-AR/models/avenches/avenches-amphitheater.gltf",
                                              texPath,
                                              false,   // delete tex images after build
                                              true,    // only meshes
@@ -4376,7 +4376,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         amphiTheatre->findChild<SLNode>("Tht-Aussen-Untergrund")->setMeshMat(matVideoBackground, true);
         amphiTheatre->findChild<SLNode>("Tht-Eingang-Ost-Boden")->setMeshMat(matVideoBackgroundSM, true);
         amphiTheatre->findChild<SLNode>("Tht-Arenaboden")->setMeshMat(matVideoBackgroundSM, true);
-        amphiTheatre->findChild<SLNode>("Tht-Aussen-Terrain")->setMeshMat(matVideoBackgroundSM, true);
+        //amphiTheatre->findChild<SLNode>("Tht-Aussen-Terrain")->setMeshMat(matVideoBackgroundSM, true);
 
         // Add axis object a world origin
         SLNode* axis = new SLNode(new SLCoordAxis(s), "Axis Node");
@@ -4495,7 +4495,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLAssimpImporter importer;
         SLNode*          cigognier = importer.load(s->animManager(),
                                           s,
-                                          dataPath + "erleb-AR/models/avenches/Aventicum-Cigognier-AO.gltf",
+                                          dataPath + "erleb-AR/models/avenches/avenches-cigognier.gltf",
                                           texPath,
                                           true,    // delete tex images after build
                                           true,    // only meshes
@@ -4624,7 +4624,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLAssimpImporter importer;
         SLNode*          theatre = importer.load(s->animManager(),
                                         s,
-                                        dataPath + "erleb-AR/models/avenches/Aventicum-Theater2-AO.gltf",
+                                        dataPath + "erleb-AR/models/avenches/avenches-theater.gltf",
                                         texPath,
                                         true,    // delete tex images after build
                                         true,    // only meshes

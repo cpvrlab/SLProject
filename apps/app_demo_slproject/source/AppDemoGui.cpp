@@ -1775,9 +1775,9 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                 SLstring modelAR1    = erlebarPath + "augst/Tempel-03.gltf";
                 SLstring modelAR2    = erlebarPath + "augst/Theater-03.gltf";
                 SLstring modelAR3    = erlebarPath + "augst/Tempel-Theater-03.gltf";
-                SLstring modelAV1_AO = erlebarPath + "avenches/Aventicum-Amphitheater-AO.gltf";
-                SLstring modelAV2_AO = erlebarPath + "avenches/Aventicum-Cigognier-AO.gltf";
-                SLstring modelAV3    = erlebarPath + "avenches/Aventicum-Theater2-AO.gltf";
+                SLstring modelAV1_AO = erlebarPath + "avenches/avenches-amphitheater.gltf";
+                SLstring modelAV2_AO = erlebarPath + "avenches/avenches-cigognier.gltf";
+                SLstring modelAV3    = erlebarPath + "avenches/avenches-theater.gltf";
                 SLstring modelSU1    = erlebarPath + "sutzKirchrain18/Sutz-Kirchrain18.gltf";
                 SLstring modelEV1    = erlebarPath + "evilardCheminDuRoc2/EvilardCheminDuRoc2.gltf";
 
