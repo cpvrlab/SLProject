@@ -124,7 +124,6 @@ void SENSDummyGps::run()
         i++;
         i = i % _dummyLocs.size();
 
-        Utils::log("SENSDummyGps", "run");
         setLocation(_dummyLocs[i]);
     }
 }
