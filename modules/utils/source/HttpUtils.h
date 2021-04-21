@@ -32,10 +32,16 @@ using std::vector;
 class Socket
 {
 public:
-    int                fd;
-    struct sockaddr_in sa;
-    socklen_t          addrlen;
-    bool               inUse;
+    int fd;
+    union
+    {
+        struct sockaddr_in  sa;
+        struct sockaddr_in6 sa6;
+    };
+
+    socklen_t           addrlen;
+    bool                inUse;
+    int                 ipv;
 #ifdef _WINDOWS
     static WSADATA wsadata;
     static bool    initialized;

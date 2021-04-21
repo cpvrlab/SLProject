@@ -31,35 +31,61 @@ void Socket::reset()
 //-----------------------------------------------------------------------------
 /*!
  *
- * @param ip
+ * @param host (ip or hostname)
  * @param port
  * @return
  */
 int Socket::connectTo(string ip,
                       int    port)
 {
-    memset(&sa, 0, sizeof(sa));
-    sa.sin_family      = AF_INET;
-    sa.sin_addr.s_addr = inet_addr(ip.c_str());
-    sa.sin_port        = htons(port);
-    addrlen            = sizeof(sa);
-
-    fd = (int)socket(AF_INET, SOCK_STREAM, 0);
-    if (!fd)
-    {
-        std::cerr << "Error creating socket.\n"
-                  << std::endl;
+    struct addrinfo *res = NULL;
+    int ret = getaddrinfo(ip.c_str(), NULL, NULL, &res);
+    if (ret) {
+        Utils::log("Socket  ", "invalid address");
         return -1;
     }
+
+    if (res->ai_family == AF_INET)
+    {
+        ipv = 4;
+        memset(&sa, 0, sizeof(sa));
+        sa.sin_family = AF_INET;
+        sa.sin_addr   = (((struct sockaddr_in *)res->ai_addr))->sin_addr;
+        sa.sin_port   = htons(port);
+        addrlen       = sizeof(sa);
+    }
+    else if (res->ai_family == AF_INET6)
+    {
+        ipv = 6;
+        memset(&sa6, 0, sizeof(sa6));
+        sa6.sin6_family = AF_INET6;
+        sa6.sin6_addr   = (((struct sockaddr_in6*)res->ai_addr))->sin6_addr;
+        sa6.sin6_port   = htons(port);
+        addrlen         = sizeof(sa6);
+    }
+    else
+    {
+        std::cerr << "Invalid address" << std::endl;
+        return -1;
+    }
+
+    fd = (int)socket(res->ai_family, SOCK_STREAM, 0);
+    if (!fd)
+    {
+        std::cerr << "Error creating socket.\n" << std::endl;
+        return -1;
+    }
+
+    freeaddrinfo(res);
+
     struct timeval tv;
-    tv.tv_sec = 1;
+    tv.tv_sec = 3;
     tv.tv_usec = 0;
     setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv, sizeof tv);
 
     if (connect(fd, (struct sockaddr*)&sa, addrlen))
     {
-        std::cerr << "Error connecting to server.\n"
-                  << std::endl;
+        std::cerr << "Error connecting to server.\n" << std::endl;
         return -1;
     }
     inUse = true;
@@ -153,7 +179,7 @@ int SecureSocket::connectTo(string ip, int port)
     sslfd = SSL_get_fd(ssl);
 
     struct timeval tv;
-    tv.tv_sec = 1;
+    tv.tv_sec = 3;
     tv.tv_usec = 0;
     setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv, sizeof tv);
 
@@ -248,38 +274,54 @@ void SecureSocket::disconnect()
  */
 DNSRequest::DNSRequest(string host)
 {
-    bool hostIsAddr = true;
-    for (int c : host)
+    char s[250];
+    int  maxlen = 249;
+    struct hostent*  h;
+    struct addrinfo* res = NULL;
+    int              ret = getaddrinfo(host.c_str(), NULL, NULL, &res);
+
+    if (ret)
     {
-        if (!isdigit(c) && c != '.') { hostIsAddr = false; }
-        break;
+        Utils::log("Socket  ", "invalid address");
+        hostname = "";
+        addr = "";
+        return;
     }
 
-    if (hostIsAddr)
+    if (res->ai_family == AF_INET)
     {
         struct sockaddr_in sa;
-        sa.sin_family      = AF_INET;
-        sa.sin_addr.s_addr = inet_addr(host.c_str());
+        memset(&sa, 0, sizeof(sa));
+        sa.sin_family = AF_INET;
+        sa.sin_addr   = (((struct sockaddr_in*)res->ai_addr))->sin_addr;
+        inet_ntop(AF_INET, &(((struct sockaddr_in*)res->ai_addr))->sin_addr, s, maxlen);
+
 #ifdef _WINDOWS
-        struct hostent* h = gethostbyaddr(host.c_str(), sizeof(sa.sin_addr), sa.sin_family);
+        h = gethostbyaddr(s, sizeof(sa.sin_addr), sa.sin_family);
 #else
-        struct hostent* h = gethostbyaddr(&sa.sin_addr, sizeof(sa.sin_addr), sa.sin_family);
+        h = gethostbyaddr(&sa.sin_addr, sizeof(sa.sin_addr), sa.sin_family);
 #endif
-        if (h != nullptr && h->h_length > 0)
-        {
-            hostname = string(h->h_name);
-        }
-        addr = host;
     }
-    else
+    else if (res->ai_family == AF_INET6)
     {
-        struct hostent* h = gethostbyname(host.c_str());
-        if (h != nullptr && h->h_length > 0)
-        {
-            addr = string(inet_ntoa((struct in_addr) * ((struct in_addr*)h->h_addr_list[0])));
-        }
-        hostname = host;
+        struct sockaddr_in6 sa;
+        memset(&sa, 0, sizeof(sa));
+        sa.sin6_family = AF_INET6;
+        sa.sin6_addr   = (((struct sockaddr_in6*)res->ai_addr))->sin6_addr;
+        inet_ntop(AF_INET6, &(((struct sockaddr_in6*)res->ai_addr))->sin6_addr, s, maxlen);
+#ifdef _WINDOWS
+        h = gethostbyaddr(s, sizeof(sa.sin6_addr), sa.sin6_family);
+#else
+        h = gethostbyaddr(&sa.sin6_addr, sizeof(sa.sin6_addr), sa.sin6_family);
+#endif
     }
+
+    if (h != nullptr && h->h_length > 0)
+        hostname = string(h->h_name);
+    else
+        hostname = "";
+
+    addr = string(s);
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -441,7 +483,10 @@ static void parseURL(string  url,
         host = url.substr(offset, pos - offset);
     }
     else
+    {
+        path = "/";
         host = url.substr(offset);
+    }
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -498,8 +543,7 @@ int HttpUtils::GetRequest::processHttpHeaders(std::vector<char>& data)
     size_t contentPos = h.find("\r\n\r\n");
     if (contentPos == string::npos)
     {
-        std::cout << "Invalid http response\n"
-                  << std::endl;
+        Utils::log("HttpUtils", "Invalid http response");
         return -1;
     }
     headers = string(data.begin(), data.begin() + contentPos);
@@ -517,8 +561,7 @@ int HttpUtils::GetRequest::processHttpHeaders(std::vector<char>& data)
 
         if (codeIdx == str.length())
         {
-            std::cout << "Invalid http response\n"
-                      << std::endl;
+            Utils::log("HttpUtils", "Invalid http response");
             return -1;
         }
 
@@ -555,8 +598,7 @@ int HttpUtils::GetRequest::send()
 {
     if (s->connectTo(addr, port) < 0)
     {
-        std::cerr << "could not connect\n"
-                  << std::endl;
+        Utils::log("HttpUtils", "Could not connect");
         return -1;
     }
 
@@ -586,8 +628,7 @@ int HttpUtils::GetRequest::getContent(function<int(char* buf, int size)> content
 {
     if (s->connectTo(addr, port) < 0)
     {
-        std::cerr << "could not connect\n"
-                  << std::endl;
+        Utils::log("HttpUtils", "Could not connect");
         return 1;
     }
 
