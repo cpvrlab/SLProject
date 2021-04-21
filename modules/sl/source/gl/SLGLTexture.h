@@ -17,7 +17,10 @@
 #include <SLMat4.h>
 #include <atomic>
 #include <mutex>
-#include <ktx.h>
+
+#ifdef SL_BUILD_WITH_KTX
+#    include <ktx.h>
+#endif
 
 #ifdef SL_HAS_OPTIX
 #    include <cuda.h>
@@ -186,8 +189,11 @@ public:
     SLstring      typeName();
     SLstring      minificationFilterName() { return filterString(_min_filter); }
     SLstring      magnificationFilterName() { return filterString(_mag_filter); }
+    
+#ifdef SL_BUILD_WITH_KTX
     SLint         compressionFormat() {return _compressionFormat;}
-
+#endif
+    
 #ifdef SL_HAS_OPTIX
     void        buildCudaTexture();
     CUtexObject getCudaTextureObject()
@@ -199,8 +205,10 @@ public:
 
     // Misc
     static SLTextureType detectType(const SLstring& filename);
+#ifdef SL_BUILD_WITH_KTX
     static string compressionFormatStr(int compressionFormat);
     static string ktxErrorStr(int ktxErrorCode);
+#endif
     static string internalFormatStr(int internalFormat);
 
     void                 build2DMipmaps(SLint target, SLuint index);
@@ -261,9 +269,12 @@ protected:
 
     SLbool              _deleteImageAfterBuild;                   //!< Flag if images should be deleted after build on GPU
     SLbool              _compressedTexture = false;               //!< True for compressed texture format on GPU
+#ifdef SL_BUILD_WITH_KTX
     ktxTexture2*        _ktxTexture        = nullptr;             //!< Pointer to the KTX texture after loading
     ktx_transcode_fmt_e _compressionFormat = KTX_TTF_NOSELECTION; //!< compression format on GPU
     std::string         _ktxFileName;
+#endif
+    
 #ifdef SL_HAS_OPTIX
     CUgraphicsResource _cudaGraphicsResource; //!< Cuda Graphics object
     CUtexObject        _cudaTextureObject;

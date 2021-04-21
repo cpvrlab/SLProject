@@ -206,11 +206,13 @@ SLGLTexture::SLGLTexture(SLAssetManager* assetMgr,
     }
     else if (_compressedTexture)
     {
+#ifdef SL_BUILD_WITH_KTX
         //todo ktx: get properties and extract necessary
         _width       = _ktxTexture->baseWidth;
         _height      = _ktxTexture->baseHeight;
         _depth       = _ktxTexture->numDimensions == 3 ? _ktxTexture->baseDepth : 1;
         _bytesInFile = Utils::getFileSize(filename);
+#endif
     }
 
     _min_filter            = min_filter;
@@ -454,9 +456,11 @@ void SLGLTexture::deleteData()
     deleteImages();
     deleteDataGpu();
 
+#ifdef SL_BUILD_WITH_KTX
     if (_ktxTexture)
         ktxTexture_Destroy((ktxTexture*)_ktxTexture);
-
+#endif
+    
     _texID                 = 0;
     _texType               = TT_unknown;
     _width                 = 0;
@@ -511,6 +515,7 @@ void SLGLTexture::load(const SLstring& filename,
     // Check for compressed texture in KTX2 (Khronos Texture) format
     if (ext == "ktx2")
     {
+#ifdef SL_BUILD_WITH_KTX
         _ktxFileName         = filename;
         _compressedTexture   = true;
         KTX_error_code error = ktxTexture_CreateFromNamedFile(filename.c_str(),
@@ -543,6 +548,9 @@ void SLGLTexture::load(const SLstring& filename,
                 SL_EXIT_MSG(errStr.c_str());
             }
         }
+#else
+        SL_EXIT_MSG("Ktx files are not supported. You have to build with SL_BUILD_WITH_KTX flag enabled.");
+#endif
     }
     else
     {
@@ -693,6 +701,7 @@ void SLGLTexture::build(SLint texUnit)
 
     if (_compressedTexture)
     {
+#ifdef SL_BUILD_WITH_KTX
         if (_ktxTexture->pData == nullptr)
         {
             string errStr = "Error in SLGLTexture::build: texture " + _ktxFileName + " contains no data";
@@ -757,6 +766,7 @@ void SLGLTexture::build(SLint texUnit)
             _ktxTexture = nullptr;
         }
         GET_GL_ERROR;
+#endif
     }
     else
     {
@@ -1689,6 +1699,7 @@ void SLGLTexture::cubeXYZ2UV(SLfloat  x,
     u = 0.5f * (uc / maxAxis + 1.0f);
     v = -0.5f * (vc / maxAxis + 1.0f);
 }
+#ifdef SL_BUILD_WITH_KTX
 //------------------------------------------------------------------------------
 //! Returns the KTX transcoding compression format as string
 string SLGLTexture::compressionFormatStr(int compressionFormat)
@@ -1745,6 +1756,7 @@ string SLGLTexture::ktxErrorStr(int ktxErrorCode)
         default: "Unknow KTX_ERROR";
     }
 }
+#endif
 //------------------------------------------------------------------------------
 //! Returns the internal pixel format from OpenGL
 /*!

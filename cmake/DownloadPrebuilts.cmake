@@ -1276,16 +1276,16 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "IOS") #---------------------------------
     add_library(KTX::ktx STATIC IMPORTED)
     set_target_properties(KTX::ktx
         PROPERTIES
-        IMPORTED_LOCATION_DEBUG "${ktx_DIR}/release/libktx.a"
-        IMPORTED_LOCATION_RELEASE "${ktx_DIR}/debug/libktx.a"
+        IMPORTED_LOCATION_DEBUG "${ktx_DIR}/debug/libktx.a"
+        IMPORTED_LOCATION_RELEASE "${ktx_DIR}/release/libktx.a"
         INTERFACE_INCLUDE_DIRECTORIES "${ktx_DIR}/include"
         )
 
     add_library(KTX::zstd STATIC IMPORTED)
     set_target_properties(KTX::zstd
         PROPERTIES
-        IMPORTED_LOCATION_DEBUG "${ktx_DIR}/release/libzstd.a"
-        IMPORTED_LOCATION_RELEASE "${ktx_DIR}/debug/libzstd.a"
+        IMPORTED_LOCATION_DEBUG "${ktx_DIR}/debug/libzstd.a"
+        IMPORTED_LOCATION_RELEASE "${ktx_DIR}/release/libzstd.a"
         )
 
     set(ktx_LIBS KTX::ktx KTX::zstd)
