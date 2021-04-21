@@ -945,6 +945,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(cam1);
         s->root3D(scene);
     }
+#ifdef SL_BUILD_WITH_KTX
     else if (sceneID == SID_TextureCompression) //.................................................
     {
         // Set scene name and info string
@@ -1057,6 +1058,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         // Save energy
         sv->doWaitOnIdle(true);
     }
+#endif
     else if (sceneID == SID_FrustumCull) //........................................................
     {
         s->name("Frustum Culling Test");

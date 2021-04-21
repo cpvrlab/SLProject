@@ -95,7 +95,9 @@ enum SLSceneID
     SID_Revolver,
     SID_TextureFilter,
     SID_TextureBlend,
+#ifdef SL_BUILD_WITH_KTX
     SID_TextureCompression,
+#endif
     SID_FrustumCull,
     SID_2Dand3DText,
     SID_PointClouds,
