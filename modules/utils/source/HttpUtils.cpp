@@ -140,7 +140,8 @@ int Socket::receive(function<int(char* data, int size)> dataCB, int max)
             len = (int)recv(fd, buf, max - n, 0);
             if (len == -1)
                 return -1;
-            dataCB(buf, len);
+            if (dataCB(buf, len) != 0)
+                return -1;
             return len;
         }
         len = (int)recv(fd, buf, BUFFER_SIZE, 0);
@@ -150,7 +151,7 @@ int Socket::receive(function<int(char* data, int size)> dataCB, int max)
 
         n = n + len;
         if (dataCB(buf, len) != 0)
-            break;
+            return -1;
 
     } while (!_interrupt && len > 0);
     _interrupt = false;
@@ -172,8 +173,7 @@ int SecureSocket::connectTo(string ip, int port)
     ssl                    = SSL_new(ctx);
     if (!ssl)
     {
-        std::cerr << "Error creating SSL.\n"
-                  << std::endl;
+        Utils::log("SecureSocket", "Error creating SSL");
         return -1;
     }
     sslfd = SSL_get_fd(ssl);
@@ -187,7 +187,7 @@ int SecureSocket::connectTo(string ip, int port)
     int err = SSL_connect(ssl);
     if (err <= 0)
     {
-        std::cerr << "Error creating SSL connection.  err= " << err << std::endl;
+        Utils::log("SecureSocket", "Error creating SSL connection.  err= ");
         return -1;
     }
 
@@ -241,7 +241,8 @@ int SecureSocket::receive(function<int(char* data, int size)> dataCB,
             if (len == -1)
                 return -1;
 
-            dataCB(buf, len);
+            if (dataCB(buf, len) != 0)
+                return -1;
             return len;
         }
         len = SSL_read(ssl, buf, BUFFER_SIZE);
@@ -250,7 +251,7 @@ int SecureSocket::receive(function<int(char* data, int size)> dataCB,
 
         n += len;
         if (dataCB(buf, len) != 0)
-            break;
+            return -1;
     } while (!_interrupt && len > 0);
     _interrupt = true;
     return n;
@@ -642,10 +643,8 @@ int HttpUtils::GetRequest::getContent(function<int(char* buf, int size)> content
     },
                contentOffset);
 
-    //if (contentOffset < firstBytes.size())
-    //    contentCB(firstBytes.data() + contentOffset, firstBytes.size() - contentOffset);
-
     int ret = s->receive(contentCB, 0);
+    Utils::log("AAAAAAAAAAAAAA", "getContent : s->receive ret = %d", ret);
     s->disconnect();
     return ret;
 }
@@ -758,10 +757,16 @@ int HttpUtils::download(string                                               url
         base = Utils::unifySlashes(base);
 
         if (processFile(base, file, req.contentLength) != 0)
+        {
+            Utils::log("AAAAAAAAAAAAAAAAAA", "processFile return != 0");
             return 1;
+        }
 
-        if (req.getContent(writeChunk) != 0)
+        if (req.getContent(writeChunk) == -1)
+        {
+            Utils::log("AAAAAAAAAAAAAAAAAA", "getContent  writeChunk return != 0");
             return 1;
+        }
 
         return 0;
     }
@@ -838,7 +843,7 @@ int HttpUtils::download(string                                      url,
               if (progress)
                   progress(totalBytes, totalBytes);
               fs.close();
-              return 1;
+              return 0;
           }
       },
       [&dstIsDir](string dir) -> int {
