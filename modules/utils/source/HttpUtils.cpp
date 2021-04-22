@@ -760,7 +760,7 @@ int HttpUtils::download(string                                               url
         if (processFile(base, file, req.contentLength) != 0)
             return 1;
 
-        if (req.getContent(writeChunk) == -1)
+        if (req.getContent(writeChunk) != 0)
             return 1;
 
         return 0;
