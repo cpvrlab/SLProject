@@ -24,6 +24,7 @@ public:
     //SENSFramePtr latestFrame() override;
     //void setDisplaySize(int w, int h) override;
     void lightComponentIntensity(float * components);
+    void checkAvailability(JNIEnv* env, void* context, void * activity);
 
     //int getCameraOpenGLTexture();
     int getPointCloud(float** mapPoints, float confidanceValue);
@@ -46,7 +47,6 @@ private:
 	float            _envLightI[3];
     JavaVM* _jvm;
 
-    void    checkAvailability(JNIEnv* env, void* context, void * activity);
     void    initCameraTexture();
     cv::Mat convertToYuv(ArImage* arImage);
     void    updateCamera(cv::Mat& intrinsics);
