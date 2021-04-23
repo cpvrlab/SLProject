@@ -630,7 +630,7 @@ SLbool SLGLTexture::copyVideoImage(SLint       camWidth,
         SL_LOG("SLGLTexture::copyVideoImage: Rebuild: %d, %s",
                _texID,
                _images[0]->name().c_str());
-        build(_texID);
+        build(0);
     }
 
     _needsUpdate = true;
@@ -679,7 +679,7 @@ SLbool SLGLTexture::copyVideoImage(SLint       camWidth,
         SL_LOG("SLGLTexture::copyVideoImage: Rebuild: %d, %s",
                _texID,
                _images[0]->name().c_str());
-        build(_texID);
+        build(0);
     }
 
     _needsUpdate = true;
