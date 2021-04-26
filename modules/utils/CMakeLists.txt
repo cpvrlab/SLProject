@@ -39,6 +39,7 @@ set(compile_definitions
     NOSSL
     NOLFS
     _CRT_NO_VA_START_VALIDATION
+    WIN32_LEAN_AND_MEAN
 )
 
 set(headers

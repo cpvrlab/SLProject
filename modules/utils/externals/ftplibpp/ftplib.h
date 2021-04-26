@@ -32,7 +32,8 @@
 #        define DLLIMPORT __declspec(dllimport)
 #    endif /* Not BUILDING_DLL */
 #    include <time.h>
-#    include <winsock.h>
+#    include <winsock2.h>
+
 #endif
 
 #ifndef _WIN32

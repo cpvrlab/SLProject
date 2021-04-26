@@ -16,8 +16,7 @@
 #include "ftplib.h"
 
 #if defined(_WIN32)
-#    include <windows.h>
-#    include <winsock.h>
+#    include <winsock2.h>
 #else
 #    include <sys/socket.h>
 #    include <netinet/in.h>

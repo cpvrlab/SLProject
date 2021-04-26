@@ -93,3 +93,5 @@ GenerateHTMLDoc.log
 gitcommit.h
 
 Tester
+/externals/prebuild_scripts/eigen
+/externals/prebuild_scripts/openssl
