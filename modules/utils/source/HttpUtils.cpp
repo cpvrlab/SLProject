@@ -7,10 +7,9 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
+#include <HttpUtils.h>
 #include <iostream>
 #include <cstring>
-
-#include <HttpUtils.h>
 #include <Utils.h>
 #ifdef _WINDOWS
 #else

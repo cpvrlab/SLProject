@@ -7,17 +7,18 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include <vector>
-#include <string>
+
 #ifdef _WINDOWS
-typedef int socklen_t;
-#    include <winsock.h>
+#    include <winsock2.h>
+#    include <ws2tcpip.h>
 #else
 #    include <sys/socket.h>
 #    include <netinet/in.h>
 #    include <arpa/inet.h>
 #endif
 
+#include <vector>
+#include <string>
 #include <openssl/ssl.h>
 #include <openssl/err.h>
 #include <functional>
