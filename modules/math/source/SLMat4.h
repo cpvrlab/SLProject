@@ -19,7 +19,7 @@
 #include <SLVec4.h>
 #include <cassert>
 #include <Shoemake/Decompose.h>
-//#include <Shoemake/EulerAngles.h>
+#include <Shoemake/EulerAngles.h>
 
 //-----------------------------------------------------------------------------
 //! 4x4 matrix template class
@@ -217,6 +217,8 @@ class SLMat4
          // Get euler angles from matrix
          void        toEulerAnglesZYX(T& zRotRAD, T& yRotRAD, T& xRotRAD);
          void        toEulerAnglesXYZ(T& xRotRAD, T& yRotRAD, T& zRotRAD);
+         // (transfer order define in EulerAngles.h from Kent Shoemake)
+         SLVec3<T>   toEulerAngles(int order);
    
          // Misc. methods
          void        identity    ();
@@ -1289,6 +1291,23 @@ void SLMat4<T>::toEulerAnglesXYZ(T& xRotRAD, T& yRotRAD, T& zRotRAD)
     xRotRAD = atan2f(Sx, Cx);
 }
 
+template<class T>
+SLVec3<T> SLMat4<T>::toEulerAngles(int order)
+{
+    HMatrix A;
+    A[0][0]=_m[0]; A[0][1]=_m[4]; A[0][2]=_m[ 8]; A[0][3]=_m[12];
+    A[1][0]=_m[1]; A[1][1]=_m[5]; A[1][2]=_m[ 9]; A[1][3]=_m[13];
+    A[2][0]=_m[2]; A[2][1]=_m[6]; A[2][2]=_m[10]; A[2][3]=_m[14];
+    A[3][0]=_m[3]; A[3][1]=_m[7]; A[3][2]=_m[11]; A[3][3]=_m[15];
+    
+    EulerAngles eulerAngles = Eul_FromHMatrix(A, order);
+
+    SLVec3<T> angles;
+    angles.x = eulerAngles.x;
+    angles.y = eulerAngles.y;
+    angles.z = eulerAngles.z;
+    return angles;
+}
 //-----------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------
