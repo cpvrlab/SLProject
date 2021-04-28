@@ -27,9 +27,11 @@ public:
     virtual bool update(cv::Mat& view) { return false; }
     virtual void lightComponentIntensity(float * components) { }
 
-    bool         isInstalled() { return false; };
-    bool         isAvailable() { return false; };
-    bool         installed() { return false; };
+    virtual bool isInstalled() { return false; };
+    virtual bool isAvailable() { return false; };
+    virtual bool install() { return false; };
+    virtual bool installRefused() { return false; };
+    virtual void installRefused(bool b) { };
     bool         isRunning() { return !_pause; }
 
 protected:

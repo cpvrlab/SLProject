@@ -30,6 +30,8 @@ public:
     bool isInstalled();
     bool askInstall(JNIEnv* env, void* context, void * activity);
     bool install();
+    bool installRefused() { return _installRefused; };
+    void installRefused(bool b) { _installRefused = b; };
 
     //int getCameraOpenGLTexture();
     int getPointCloud(float** mapPoints, float confidanceValue);
@@ -43,9 +45,14 @@ public:
     const SENSCaptureProperties& captureProperties() override;
 
 private:
-    ArSession*       _arSession = nullptr;
-    ArFrame*         _arFrame   = nullptr;
-    bool _waitInit = false;
+    ArSession* _arSession       = nullptr;
+    ArFrame*   _arFrame         = nullptr;
+    bool       _waitInit        = false;
+    bool       _available       = false;
+    bool       _availableCached = false;
+    bool       _installed       = false;
+    bool       _installedCached = false;
+    bool       _installRefused  = false;
 
     GLuint _cameraTextureId;
 	//float          _lightColor[4];
