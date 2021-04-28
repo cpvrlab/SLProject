@@ -24,7 +24,12 @@ public:
     //SENSFramePtr latestFrame() override;
     //void setDisplaySize(int w, int h) override;
     void lightComponentIntensity(float * components);
-    void checkAvailability(JNIEnv* env, void* context, void * activity);
+    bool checkAvailability(JNIEnv* env, void* context, void * activity);
+    bool isAvailable();
+    bool checkInstalled(JNIEnv* env, void* context, void * activity);
+    bool isInstalled();
+    bool askInstall(JNIEnv* env, void* context, void * activity);
+    bool install();
 
     //int getCameraOpenGLTexture();
     int getPointCloud(float** mapPoints, float confidanceValue);
