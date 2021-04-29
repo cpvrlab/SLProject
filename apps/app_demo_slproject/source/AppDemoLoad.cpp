@@ -3881,21 +3881,18 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sunLight->attenuation(1, 0, 0);
         sunLight->doSunPowerAdaptation(true);
         sunLight->createsShadows(true);
-        sunLight->createShadowMap(-100,
-                                  250,
-                                  SLVec2f(210, 150),
-                                  SLVec2i(4096, 4096));
+        sunLight->createShadowMap(-100, 250, SLVec2f(210, 180), SLVec2i(4096, 4096));
         sunLight->doSmoothShadows(true);
         sunLight->castsShadows(false);
         sunLight->shadowMinBias(0.001f);
-        sunLight->shadowMinBias(0.003f);
+        sunLight->shadowMaxBias(0.001f);
         AppDemo::devLoc.sunLightNode(sunLight); // Let the sun be rotated by time and location
 
         // Load main model
         SLAssimpImporter importer; //(LV_diagnostic);
         SLNode*          thtAndTmp = importer.load(s->animManager(),
                                           s,
-                                          datDir + "Tempel-03.gltf",
+                                          datDir + "augst-thtL2-tmpL1.gltf",
                                           texDir,
                                           true,    // delete tex images after build
                                           true,    // only meshes
@@ -3926,7 +3923,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         axis->castsShadows(false);
 
         // Set some ambient light
-        thtAndTmp->updateMeshMat([](SLMaterial* m) { m->ambient(SLCol4f(.25f, .23f, .15f)); }, true);
+        thtAndTmp->updateMeshMat([](SLMaterial* m) { m->ambient(SLCol4f(.25f, .25f, .25f)); }, true);
         SLNode* scene = new SLNode("Scene");
         scene->addChild(sunLight);
         scene->addChild(axis);
@@ -3943,8 +3940,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         AppDemo::devLoc.nameLocations().push_back(SLLocation("Theater 1. Rang Nord", 47, 32, 0.216, 7, 43, 19.173, 291.0 + 1.7));
         AppDemo::devLoc.originLatLonAlt(AppDemo::devLoc.nameLocations()[0].posWGS84LatLonAlt);
         AppDemo::devLoc.activeNamedLocation(1);   //This sets the location 1 as defaultENU
-        AppDemo::devLoc.locMaxDistanceM(1000.0f);                   // Max. allowed distance to origin
-        AppDemo::devLoc.improveOrigin(false);                       // No autom. origin improvement
+        AppDemo::devLoc.locMaxDistanceM(1000.0f); // Max. allowed distance to origin
+        AppDemo::devLoc.improveOrigin(false);     // No autom. origin improvement
         AppDemo::devLoc.hasOrigin(true);
         AppDemo::devLoc.offsetMode(LOM_twoFingerY);
         AppDemo::devRot.zeroYawAtStart(false);
@@ -4028,21 +4025,18 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sunLight->attenuation(1, 0, 0);
         sunLight->doSunPowerAdaptation(true);
         sunLight->createsShadows(true);
-        sunLight->createShadowMap(-100,
-                                  250,
-                                  SLVec2f(210, 150),
-                                  SLVec2i(4096, 4096));
+        sunLight->createShadowMap(-100, 250, SLVec2f(210, 180), SLVec2i(4096, 4096));
         sunLight->doSmoothShadows(true);
         sunLight->castsShadows(false);
         sunLight->shadowMinBias(0.001f);
-        sunLight->shadowMinBias(0.003f);
+        sunLight->shadowMaxBias(0.001f);
         AppDemo::devLoc.sunLightNode(sunLight); // Let the sun be rotated by time and location
 
         // Load main model
         SLAssimpImporter importer; //(LV_diagnostic);
         SLNode*          thtAndTmp = importer.load(s->animManager(),
                                           s,
-                                          datDir + "Theater-03.gltf",
+                                          datDir + "augst-thtL1-tmpL2.gltf",
                                           texDir,
                                           true,    // delete tex images after build
                                           true,    // only meshes
@@ -4073,7 +4067,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         axis->castsShadows(false);
 
         // Set some ambient light
-        thtAndTmp->updateMeshMat([](SLMaterial* m) { m->ambient(SLCol4f(.25f, .23f, .15f)); }, true);
+        thtAndTmp->updateMeshMat([](SLMaterial* m) { m->ambient(SLCol4f(.25f, .25f, .25f)); }, true);
         SLNode* scene = new SLNode("Scene");
         scene->addChild(sunLight);
         scene->addChild(axis);
@@ -4090,8 +4084,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         AppDemo::devLoc.nameLocations().push_back(SLLocation("Theater 1. Rang Nord", 47, 32, 0.216, 7, 43, 19.173, 291.0 + 1.7));
         AppDemo::devLoc.originLatLonAlt(AppDemo::devLoc.nameLocations()[0].posWGS84LatLonAlt);
         AppDemo::devLoc.activeNamedLocation(1);   //This sets the location 1 as defaultENU
-        AppDemo::devLoc.locMaxDistanceM(1000.0f);                         // Max. allowed distance to origin
-        AppDemo::devLoc.improveOrigin(false);                             // No autom. origin improvement
+        AppDemo::devLoc.locMaxDistanceM(1000.0f); // Max. allowed distance to origin
+        AppDemo::devLoc.improveOrigin(false);     // No autom. origin improvement
         AppDemo::devLoc.hasOrigin(true);
         AppDemo::devLoc.offsetMode(LOM_twoFingerY);
         AppDemo::devRot.zeroYawAtStart(false);
@@ -4175,18 +4169,18 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sunLight->attenuation(1, 0, 0);
         sunLight->doSunPowerAdaptation(true);
         sunLight->createsShadows(true);
-        sunLight->createShadowMap(-100, 250, SLVec2f(210, 150), SLVec2i(4096, 4096));
+        sunLight->createShadowMap(-100, 250, SLVec2f(210, 180), SLVec2i(4096, 4096));
         sunLight->doSmoothShadows(true);
         sunLight->castsShadows(false);
         sunLight->shadowMinBias(0.001f);
-        sunLight->shadowMaxBias(0.003f);
+        sunLight->shadowMaxBias(0.001f);
         AppDemo::devLoc.sunLightNode(sunLight); // Let the sun be rotated by time and location
 
         // Load main model
         SLAssimpImporter importer; //(LV_diagnostic);
         SLNode*          thtAndTmp = importer.load(s->animManager(),
                                           s,
-                                          datDir + "Tempel-Theater-03.gltf",
+                                          datDir + "augst-thtL1L2-tmpL1L2.gltf",
                                           texDir,
                                           true,    // delete tex images after build
                                           true,    // only meshes
@@ -4217,7 +4211,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         axis->castsShadows(false);
 
         // Set some ambient light
-        thtAndTmp->updateMeshMat([](SLMaterial* m) { m->ambient(SLCol4f(.25f, .23f, .15f)); }, true);
+        thtAndTmp->updateMeshMat([](SLMaterial* m) { m->ambient(SLCol4f(.25f, .25f, .25f)); }, true);
         SLNode* scene = new SLNode("Scene");
         scene->addChild(sunLight);
         scene->addChild(axis);

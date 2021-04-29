@@ -1774,9 +1774,9 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                 SLstring erlebarPath = AppDemo::dataPath + "erleb-AR/models/";
                 SLstring modelBR2    = erlebarPath + "bern/bern-christoffel.gltf";
                 SLstring modelBFH    = erlebarPath + "biel/Biel-BFH-Rolex.gltf";
-                SLstring modelAR1    = erlebarPath + "augst/Tempel-03.gltf";
-                SLstring modelAR2    = erlebarPath + "augst/Theater-03.gltf";
-                SLstring modelAR3    = erlebarPath + "augst/Tempel-Theater-03.gltf";
+                SLstring modelAR1    = erlebarPath + "augst/augst-thtL1-tmpL2.gltf";
+                SLstring modelAR2    = erlebarPath + "augst/augst-thtL2-tmpL1.gltf";
+                SLstring modelAR3    = erlebarPath + "augst/augst-thtL1L2-tmpL1L2.gltf";
                 SLstring modelAV1_AO = erlebarPath + "avenches/avenches-amphitheater.gltf";
                 SLstring modelAV2_AO = erlebarPath + "avenches/avenches-cigognier.gltf";
                 SLstring modelAV3    = erlebarPath + "avenches/avenches-theater.gltf";
