@@ -35,7 +35,8 @@ SLSceneView::SLSceneView(SLScene* s, int dpi, SLInputManager& inputManager)
     _cullTimesMS(60, 0.0f),
     _draw3DTimesMS(60, 0.0f),
     _draw2DTimesMS(60, 0.0f),
-    _screenCaptureIsRequested(false)
+    _screenCaptureIsRequested(false),
+    _screenCaptureWaitFrames(0)
 {
 }
 //-----------------------------------------------------------------------------
@@ -2049,9 +2050,8 @@ void SLSceneView::initConeTracer(SLstring shaderDir)
  * wait a few frames until we can be sure that the executing menu command has
  * disappeared before we can save the screen.
  */
-void SLSceneView::saveFrameBufferAsImage(SLstring pathFilename)
+void SLSceneView::saveFrameBufferAsImage(SLstring pathFilename, cv::Size targetSize)
 {
-
     if (_screenCaptureWaitFrames == 0)
     {
         SLint fbW = (SLint)(_viewportRect.width * _scr2fbX);
@@ -2068,6 +2068,8 @@ void SLSceneView::saveFrameBufferAsImage(SLstring pathFilename)
         CVMat rgbImg = CVMat(fbH, fbW, CV_8UC3, (void*)buffer.data(), stride);
         cv::cvtColor(rgbImg, rgbImg, cv::COLOR_BGR2RGB);
         cv::flip(rgbImg, rgbImg, 0);
+        if(targetSize.width > 0 && targetSize.height > 0)
+            cv::resize(rgbImg, rgbImg, targetSize);
 
         vector<int> compression_params;
         compression_params.push_back(cv::IMWRITE_PNG_COMPRESSION);

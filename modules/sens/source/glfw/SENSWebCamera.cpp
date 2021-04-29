@@ -34,7 +34,7 @@ const SENSCameraConfig& SENSWebCamera::start(std::string                   devic
     _videoCapture.open(id);
 
     if (!_videoCapture.isOpened())
-        throw SENSException(SENSType::CAM, "Could not open camera with id: " + deviceId, __LINE__, __FILE__);
+        ;//throw SENSException(SENSType::CAM, "Could not open camera with id: " + deviceId, __LINE__, __FILE__);
 
     _videoCapture.set(cv::CAP_PROP_FRAME_WIDTH, streamConfig.widthPix);
     _videoCapture.set(cv::CAP_PROP_FRAME_HEIGHT, streamConfig.heightPix);

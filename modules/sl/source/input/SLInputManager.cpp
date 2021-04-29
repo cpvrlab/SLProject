@@ -139,7 +139,25 @@ SLbool SLInputManager::processQueuedEvents(SLSceneView* sv)
                     const SLUpdateScr2fbEvent* re = (const SLUpdateScr2fbEvent*)e;
                     sv->scr2fb(re->scr2fbX, re->scr2fbY);
                 }
-                    break;
+                break;
+                    
+                case SLInputEvent::ScrCapture: {
+                    const SLScrCaptureRequestEvent* re = (const SLScrCaptureRequestEvent*)e;
+                    //SLstring path = "/Users/ghm1/Development/erlebar/externals/SLProject/data/screenshots/";
+                    SLstring path = re->path;
+
+                    if(!Utils::dirExists(path))
+                        Utils::makeDirRecurse(path);
+                    SLstring filename     = "Screenshot_" + Utils::getDateTime2String() + ".png";
+                    SLstring pathFilename = path + filename;
+#ifdef __APPLE__
+                    sv->saveFrameBufferAsImage(pathFilename, cv::Size(sv->scrW(), sv->scrH()));
+#else
+                    sv->saveFrameBufferAsImage(pathFilename, cv::Size(sv->scrW(), sv->scrH()));
+#endif
+                }
+                break;
+                
                 default: break;
             }
         }
