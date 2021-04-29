@@ -20,6 +20,9 @@ public:
     void reset() override;
     void pause() override;
     bool update(cv::Mat& pose) override;
+    bool isAvailable() { return _available; };
+    bool isInstalled() { return _available; };
+    bool install() { return _available; };
 
     const SENSCameraConfig& start(std::string                   deviceId,
                                   const SENSCameraStreamConfig& streamConfig,
@@ -31,7 +34,7 @@ public:
     
 private:
     void retrieveCaptureProperties();
-    
+    bool _available = false;
     SENSiOSARCoreDelegate* _arcoreDelegate;
 };
 
