@@ -81,11 +81,9 @@ bool SENSNdkARCore::askInstall(JNIEnv* env, void* context, void * activity)
     ArInstallStatus install_status;
     ArCoreApk_requestInstall(env, activity, true, &install_status);
     if (install_status == AR_AVAILABILITY_SUPPORTED_INSTALLED)
-        return true;
-    else
     {
-        Utils::log("AAAAAAAAAAAA", "Install refused");
-        _installRefused = true;
+        _installed = true;
+        return true;
     }
 
     _installed = false;
