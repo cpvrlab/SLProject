@@ -13,7 +13,13 @@
 - (void)pause;
 - (BOOL)reset;
 
-- (void)latestFrame:(cv::Mat*)pose withImg:(cv::Mat*)imgBGR AndIntrinsic:(cv::Mat*)intrinsic AndImgWidth:(int*)w AndImgHeight:(int*)h IsTracking:(BOOL*)isTracking;
+- (void)latestFrame:(cv::Mat*)pose
+            withImg:(cv::Mat*)imgBGR
+       AndIntrinsic:(cv::Mat*)intrinsic
+        AndImgWidth:(int*)w
+       AndImgHeight:(int*)h
+         IsTracking:(BOOL*)isTracking
+     WithPointClout:(cv::Mat*)pc;
 - (void)initARKit;
 
 //pose, yPlane, uvPlane, width, height, intrinsic

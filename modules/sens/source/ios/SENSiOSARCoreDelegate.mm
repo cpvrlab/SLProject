@@ -87,7 +87,13 @@
         return NO;
 }
 
-- (void)latestFrame:(cv::Mat*)pose withImg:(cv::Mat*)imgBGR AndIntrinsic:(cv::Mat*)intrinsic AndImgWidth:(int*)w AndImgHeight:(int*)h IsTracking:(BOOL*)isTracking
+- (void)latestFrame:(cv::Mat*)pose
+            withImg:(cv::Mat*)imgBGR
+       AndIntrinsic:(cv::Mat*)intrinsic
+        AndImgWidth:(int*)w
+       AndImgHeight:(int*)h
+         IsTracking:(BOOL*)isTracking
+     WithPointClout:(cv::Mat*)pc
 {
     //Reference the current ARFrame (I think the referenced "currentFrame" may change during this function call)
     ARFrame*  frame  = _arSession.currentFrame;
@@ -152,6 +158,18 @@
         Utils::log("SENSiOSARCoreDelegate", "pixelbuffer not locked");
     }
     CVPixelBufferUnlockBaseAddress(pixelBuffer, kCVPixelBufferLock_ReadOnly);
+    
+    //extract 3D points
+    if(pc)
+    {
+        ARPointCloud* rawFPts = [frame rawFeaturePoints];
+        if(pc != nil)
+        {
+            //(simd_float3 is an array of four floats)
+            *pc = cv::Mat((int)rawFPts.count, 4, CV_32F);
+            memcpy(pc->data, rawFPts.points, rawFPts.count * sizeof(simd_float3));
+        }
+    }
 }
 
 #pragma mark - ARSessionDelegate
