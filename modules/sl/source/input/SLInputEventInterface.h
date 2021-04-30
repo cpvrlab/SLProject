@@ -1,6 +1,7 @@
 #ifndef SL_INPUTEVENTINTERFACE_H
 #define SL_INPUTEVENTINTERFACE_H
 
+#include <string>
 #include <SLEnums.h>
 
 class SLInputManager;
@@ -25,6 +26,7 @@ public:
     void keyRelease(int sceneViewIndex, SLKey key, SLKey modifier);
     void charInput(int sceneViewIndex, unsigned int character);
     void longTouch(int sceneViewIndex, int x, int y) {}
+    void scrCaptureRequest(int sceneViewIndex, std::string outputPath);
 
 private:
     SLInputManager& _inputManager;

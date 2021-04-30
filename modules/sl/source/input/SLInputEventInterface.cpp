@@ -198,3 +198,13 @@ void SLInputEventInterface::charInput(int          sceneViewIndex,
     e->character        = character;
     _inputManager.queueEvent(e);
 }
+//-----------------------------------------------------------------------------
+/*! Global event handler to trigger a screenshot
+*/
+void SLInputEventInterface::scrCaptureRequest(int sceneViewIndex, std::string outputPath)
+{
+    SLScrCaptureRequestEvent* e = new SLScrCaptureRequestEvent();
+    e->svIndex                  = sceneViewIndex;
+    e->path                     = outputPath;
+    _inputManager.queueEvent(e);
+}

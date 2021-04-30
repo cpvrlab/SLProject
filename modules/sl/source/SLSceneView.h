@@ -135,7 +135,7 @@ public:
                                   SLViewportAlign vpAlignment,
                                   SLbool          vpSameAsVideo);
     void     initConeTracer(SLstring shaderDir);
-    void     saveFrameBufferAsImage(SLstring pathFilename);
+    void     saveFrameBufferAsImage(SLstring pathFilename, cv::Size targetSize = cv::Size(-1, -1));
 
     // Callback routines
     cbOnWndUpdate      onWndUpdate;        //!< C-Callback for app for intermediate window repaint
