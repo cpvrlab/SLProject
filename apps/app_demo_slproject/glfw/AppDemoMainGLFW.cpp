@@ -458,11 +458,6 @@ void initGLFW(int screenWidth, int screenHeight)
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 #endif
-    
-    //window hints for screenshots
-    glfwWindowHint(GLFW_SCALE_TO_MONITOR, GLFW_FALSE);
-    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
-    glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
 
     window = glfwCreateWindow(screenWidth, screenHeight, "My Title", nullptr, nullptr);
 
