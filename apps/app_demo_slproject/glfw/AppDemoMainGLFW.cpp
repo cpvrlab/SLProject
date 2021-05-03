@@ -564,11 +564,8 @@ int main(int argc, char* argv[])
     for (int i = 0; i < argc; i++)
         cmdLineArgs.push_back(SLstring(argv[i]));
 
-    //scrWidth       = 1280 / 2;
-    //scrHeight      = 720 / 2;
-    scrWidth = 2778 / 2;
-    scrHeight = 1284 / 2;
-    
+    scrWidth       = 1280;
+    scrHeight      = 720;
     scrWdivH       = (float)scrWidth / (float)scrHeight;
     fixAspectRatio = false;
     touch2.set(-1, -1);
