@@ -4,6 +4,7 @@
 @interface SENSiOSARCoreDelegate () {
 
 @private
+    
     ARSession*       _arSession;
     ARConfiguration* _arConfig;
 }
@@ -47,8 +48,9 @@
         //    CGSize s = ARWorldTrackingConfiguration.supportedVideoFormats[i].imageResolution;
         //    NSLog(NSStringFromCGSize(s));
         //}
-
         _arConfig.videoFormat = ARWorldTrackingConfiguration.supportedVideoFormats.lastObject;
+        //ARWorldAlignmentGravity is default
+        _arConfig.worldAlignment = ARWorldAlignmentGravity;
     }
 }
 
@@ -219,12 +221,21 @@
 
 - (void)sessionWasInterrupted:(ARSession*)session
 {
+    NSLog(@"sessionInterruptionEnded.\n");
     // Inform the user that the session has been interrupted, for example, by presenting an overlay
 }
 
 - (void)sessionInterruptionEnded:(ARSession*)session
 {
+    NSLog(@"sessionInterruptionEnded.\n");
     // Reset tracking and/or remove existing anchors if consistent tracking is required
+}
+
+//if this is overridden and returns true, it tries to relocalize rather than new initialise
+- (BOOL)sessionShouldAttemptRelocalization:(ARSession *)session
+{
+    NSLog(@"sessionShouldAttemptRelocalization.\n");
+    return YES;
 }
     
 @end

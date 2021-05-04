@@ -310,6 +310,9 @@ bool SENSNdkARCore::update(cv::Mat& pose)
     ArTrackingState camera_tracking_state;
     ArCamera_getTrackingState(_arSession, arCamera, &camera_tracking_state);
 
+    if(_fetchPointCloud)
+        doFetchPointCloud();
+
     ArCamera_release(arCamera);
     // If the camera isn't tracking don't bother rendering other objects.
     if (camera_tracking_state != AR_TRACKING_STATE_TRACKING)
@@ -467,4 +470,37 @@ const SENSCameraConfig& SENSNdkARCore::start(std::string    deviceId,
     return _config;
 }
 
+void SENSNdkARCore::doFetchPointCloud()
+{
+    ArPointCloud* arPointCloud = nullptr;
 
+    if(ArFrame_acquirePointCloud(_arSession, _arFrame, &arPointCloud) == AR_SUCCESS)
+    {
+        int    n;
+        float* mp;
+
+        ArPointCloud_getNumberOfPoints(_arSession, arPointCloud, &n);
+        if(n > 0)
+        {
+            ArPointCloud_getData(_arSession, arPointCloud, &mp);
+
+            _pointCloud = cv::Mat(n, 4, CV_32F);
+            std::memcpy(_pointCloud.data, mp, n * 4 * sizeof(float));
+            /*
+            int nbPoints = 0;
+            for (int i = 0; i < n; i++)
+            {
+                int idx = i * 4;
+                if (mp[idx + 3] >= confidanceValue)
+                {
+                    *mapPoints[nbPoints] = mp[idx];
+                    *mapPoints[nbPoints + 1] = mp[idx + 1];
+                    *mapPoints[nbPoints + 2] = mp[idx + 2];
+                    nbPoints++;
+                }
+            }
+            */
+        }
+        ArPointCloud_release(arPointCloud);
+    }
+}

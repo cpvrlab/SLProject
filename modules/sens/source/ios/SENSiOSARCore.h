@@ -32,15 +32,10 @@ public:
     
     const SENSCaptureProperties& captureProperties() override;
     
-    const cv::Mat getPointCloud();
-    
 private:
     void retrieveCaptureProperties();
     bool _available = false;
     SENSiOSARCoreDelegate* _arcoreDelegate;
-    
-    bool _extractPointCloud = true;
-    cv::Mat _pointCloud;
 };
 
 #endif

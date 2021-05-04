@@ -34,7 +34,6 @@ public:
     void installRefused(bool b) { _installRefused = b; };
 
     //int getCameraOpenGLTexture();
-    int getPointCloud(float** mapPoints, float confidanceValue);
 
     const SENSCameraConfig& start(std::string                   deviceId,
                                   const SENSCameraStreamConfig& streamConfig,
@@ -45,6 +44,8 @@ public:
     const SENSCaptureProperties& captureProperties() override;
 
 private:
+    void doFetchPointCloud();
+
     ArSession* _arSession       = nullptr;
     ArFrame*   _arFrame         = nullptr;
     bool       _waitInit        = false;

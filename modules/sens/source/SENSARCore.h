@@ -33,6 +33,9 @@ public:
     virtual bool installRefused() { return false; };
     virtual void installRefused(bool b) { };
     bool         isRunning() { return !_pause; }
+    
+    void fetchPointCloud(bool s) { _fetchPointCloud = s; }
+    cv::Mat getPointCloud() { return _pointCloud; }
 
 protected:
     bool _running   = false;
@@ -40,6 +43,9 @@ protected:
 
     int _inputFrameW = 0;
     int _inputFrameH = 0;
+    
+    bool _fetchPointCloud = false;
+    cv::Mat _pointCloud;
 private:
 };
 

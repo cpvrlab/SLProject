@@ -58,13 +58,10 @@ bool SENSiOSARCore::update(cv::Mat& pose)
     cv::Mat imgBGR;
     bool    isTracking;
  
-    if(_extractPointCloud)
+    if(_fetchPointCloud)
         [_arcoreDelegate latestFrame:&pose withImg:&imgBGR AndIntrinsic:&intrinsic AndImgWidth:&_inputFrameW AndImgHeight:&_inputFrameH IsTracking:&isTracking WithPointClout:&_pointCloud];
     else
         [_arcoreDelegate latestFrame:&pose withImg:&imgBGR AndIntrinsic:&intrinsic AndImgWidth:&_inputFrameW AndImgHeight:&_inputFrameH IsTracking:&isTracking WithPointClout:nullptr];
-
-    if(!_trackedPts3D.empty())
-        std::cout << "PointCloud " << _trackedPts3D << std::endl;
     
     if (!imgBGR.empty())
     {
