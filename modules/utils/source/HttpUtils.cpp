@@ -77,10 +77,13 @@ int Socket::connectTo(string ip,
 
     freeaddrinfo(res);
 
+    //Set timeout value to 10s
+#ifndef WINDOWS
     struct timeval tv;
-    tv.tv_sec = 3;
+    tv.tv_sec = 10;
     tv.tv_usec = 0;
     setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv, sizeof tv);
+#endif
 
     if (connect(fd, (struct sockaddr*)&sa, addrlen))
     {
@@ -177,16 +180,11 @@ int SecureSocket::connectTo(string ip, int port)
     }
     sslfd = SSL_get_fd(ssl);
 
-    struct timeval tv;
-    tv.tv_sec = 3;
-    tv.tv_usec = 0;
-    setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv, sizeof tv);
-
     SSL_set_fd(ssl, fd);
     int err = SSL_connect(ssl);
     if (err <= 0)
     {
-        Utils::log("SecureSocket", "Error creating SSL connection.  err= ");
+        Utils::log("SecureSocket", "Error creating SSL connection.  err = %d", err);
         return -1;
     }
 
@@ -238,7 +236,10 @@ int SecureSocket::receive(function<int(char* data, int size)> dataCB,
         {
             len = SSL_read(ssl, buf, max - n);
             if (len == -1)
+            {
+                Utils::log("SecureSocket", "SSL_read return -1");
                 return -1;
+            }
 
             if (dataCB(buf, len) != 0)
                 return -1;
@@ -246,7 +247,10 @@ int SecureSocket::receive(function<int(char* data, int size)> dataCB,
         }
         len = SSL_read(ssl, buf, BUFFER_SIZE);
         if (len == -1)
+        {
+            Utils::log("SecureSocket", "SSL_read return -1");
             return -1;
+        }
 
         n += len;
         if (dataCB(buf, len) != 0)
@@ -297,7 +301,7 @@ DNSRequest::DNSRequest(string host)
         inet_ntop(AF_INET, &(((struct sockaddr_in*)res->ai_addr))->sin_addr, s, maxlen);
 
 #ifdef _WINDOWS
-        h = gethostbyaddr(s, sizeof(sa.sin_addr), sa.sin_family);
+        h = gethostbyaddr((const char*)&sa.sin_addr, sizeof(sa.sin_addr), sa.sin_family);
 #else
         h = gethostbyaddr(&sa.sin_addr, sizeof(sa.sin_addr), sa.sin_family);
 #endif
@@ -310,7 +314,7 @@ DNSRequest::DNSRequest(string host)
         sa.sin6_addr   = (((struct sockaddr_in6*)res->ai_addr))->sin6_addr;
         inet_ntop(AF_INET6, &(((struct sockaddr_in6*)res->ai_addr))->sin6_addr, s, maxlen);
 #ifdef _WINDOWS
-        h = gethostbyaddr(s, sizeof(sa.sin6_addr), sa.sin6_family);
+        h = gethostbyaddr((const char*)&sa.sin6_addr, sizeof(sa.sin6_addr), sa.sin6_family);
 #else
         h = gethostbyaddr(&sa.sin6_addr, sizeof(sa.sin6_addr), sa.sin6_family);
 #endif
@@ -643,7 +647,6 @@ int HttpUtils::GetRequest::getContent(function<int(char* buf, int size)> content
                contentOffset);
 
     int ret = s->receive(contentCB, 0);
-    Utils::log("AAAAAAAAAAAAAA", "getContent : s->receive ret = %d", ret);
     s->disconnect();
     return ret;
 }
@@ -756,16 +759,10 @@ int HttpUtils::download(string                                               url
         base = Utils::unifySlashes(base);
 
         if (processFile(base, file, req.contentLength) != 0)
-        {
-            Utils::log("AAAAAAAAAAAAAAAAAA", "processFile return != 0");
             return 1;
-        }
 
         if (req.getContent(writeChunk) == -1)
-        {
-            Utils::log("AAAAAAAAAAAAAAAAAA", "getContent  writeChunk return != 0");
             return 1;
-        }
 
         return 0;
     }
