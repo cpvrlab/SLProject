@@ -4200,9 +4200,17 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLNode* tmpFloor = thtAndTmp->findChild<SLNode>("TmpFloor");
         if (tmpFloor) tmpFloor->setMeshMat(matVideoBackgroundSM, true);
         SLNode* terrain = thtAndTmp->findChild<SLNode>("Terrain");
-        if (terrain) terrain->setMeshMat(matVideoBackgroundSM, true);
+        if (terrain)
+        {
+            terrain->setMeshMat(matVideoBackgroundSM, true);
+            terrain->castsShadows(false);
+        }
         SLNode* thtFrontTerrain = thtAndTmp->findChild<SLNode>("ThtFrontTerrain");
-        if (thtFrontTerrain) thtFrontTerrain->setMeshMat(matVideoBackgroundSM, true);
+        if (thtFrontTerrain)
+        {
+            thtFrontTerrain->setMeshMat(matVideoBackgroundSM, true);
+            thtFrontTerrain->castsShadows(false);
+        }
 
         // Add axis object a world origin
         SLNode* axis = new SLNode(new SLCoordAxis(s), "Axis Node");

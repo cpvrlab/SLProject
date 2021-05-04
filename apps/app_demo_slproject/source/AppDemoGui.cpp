@@ -1095,7 +1095,7 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
                     ImGuiWindowFlags window_flags = 0;
                     window_flags |= ImGuiWindowFlags_AlwaysAutoResize;
                     ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
-                    ImGui::Begin("Date and Time Settings", &showTransform, window_flags);
+                    ImGui::Begin("Date and Time Settings", &showDateAndTime, window_flags);
                     ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.66f);
 
                     tm lt{};
@@ -1200,8 +1200,8 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
             if (showErlebAR)
             {
                 ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
-                SLint namedLocIndex = AppDemo::devLoc.activeNamedLocation();
-                SLVec3f lookAtPoint = SLVec3f::ZERO;
+                SLint   namedLocIndex = AppDemo::devLoc.activeNamedLocation();
+                SLVec3f lookAtPoint   = SLVec3f::ZERO;
 
                 if (AppDemo::sceneID == SID_ErlebARChristoffel)
                 {
@@ -2829,7 +2829,9 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
             ImGui::MenuItem("Scenegraph", nullptr, &showSceneGraph);
             ImGui::MenuItem("Properties", nullptr, &showProperties);
             ImGui::MenuItem("Transform", nullptr, &showTransform);
-            ImGui::MenuItem("Date-Time", nullptr, &showDateAndTime);
+            if (AppDemo::devLoc.originLatLonAlt() != SLVec3d::ZERO ||
+                AppDemo::devLoc.defaultLatLonAlt() != SLVec3d::ZERO)
+                ImGui::MenuItem("Date-Time", nullptr, &showDateAndTime);
             ImGui::MenuItem("UI-Preferences", nullptr, &showUIPrefs);
             ImGui::Separator();
             ImGui::MenuItem("Infos on Device", nullptr, &showInfosDevice);
