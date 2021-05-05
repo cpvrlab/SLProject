@@ -298,7 +298,7 @@ static void onMouseMove(GLFWwindow* myWindow,
     mouseY = (int)y;
 
     if (modifiers & K_alt && modifiers & K_ctrl)
-        slTouch2Move(svIndex, x - 20, y, x + 20, y);
+        slTouch2Move(svIndex, (int)(x - 20), (int)y, (int)(x + 20), (int)y);
     else
         slMouseMove(svIndex, (int)x, (int)y);
 }

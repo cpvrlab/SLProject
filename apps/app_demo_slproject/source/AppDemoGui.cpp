@@ -3643,13 +3643,14 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
 
                         if (ImGui::TreeNode(shd->name().c_str()))
                         {
-                            SLchar text[1024 * 16];
+                            SLchar* text = new char[shd->code().length()+1];
                             strcpy(text, shd->code().c_str());
                             ImGui::InputTextMultiline(shd->name().c_str(),
                                                       text,
                                                       IM_ARRAYSIZE(text),
                                                       ImVec2(-1.0f, -1.0f));
                             ImGui::TreePop();
+                            delete[] text;
                         }
                     }
 
@@ -3755,6 +3756,11 @@ void AppDemoGui::loadConfig(SLint dotsPerInch)
         style.FramePadding.y = style.ItemInnerSpacing.y = std::max(4.0f * dpiScaleFixed, 4.0f);
         style.WindowPadding.y                           = style.ItemSpacing.y * 3;
         style.ScrollbarSize                             = std::max(16.0f * dpiScaleFixed, 16.0f);
+
+        // HSM4: Bugfix in some unknow cases ScrollbarSize gets INT::MIN
+        if (style.ScrollbarSize < 0.0f)
+            style.ScrollbarSize = 16.0f;
+
         style.ScrollbarRounding                         = std::floor(style.ScrollbarSize / 2);
 
         return;
@@ -3778,6 +3784,10 @@ void AppDemoGui::loadConfig(SLint dotsPerInch)
                                             style.FramePadding.y = style.ItemInnerSpacing.y = style.ItemSpacing.y;
                                             style.WindowPadding.y = style.ItemSpacing.y * 3;
             fs["ScrollbarSize"] >> i;       style.ScrollbarSize = (SLfloat) i;
+            // HSM4: Bugfix in some unknow cases ScrollbarSize gets INT::MIN
+            if (style.ScrollbarSize < 0.0f)
+                style.ScrollbarSize = 16.0f;
+
             fs["ScrollbarRounding"] >> i;   style.ScrollbarRounding = (SLfloat) i;
             fs["sceneID"] >> i;             AppDemo::sceneID = (SLSceneID) i;
             fs["showInfosScene"] >> b;      AppDemoGui::showInfosScene = b;
