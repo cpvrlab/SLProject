@@ -3647,7 +3647,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                             strcpy(text, shd->code().c_str());
                             ImGui::InputTextMultiline(shd->name().c_str(),
                                                       text,
-                                                      IM_ARRAYSIZE(text),
+                                                      shd->code().length()+1,
                                                       ImVec2(-1.0f, -1.0f));
                             ImGui::TreePop();
                             delete[] text;
@@ -3757,7 +3757,7 @@ void AppDemoGui::loadConfig(SLint dotsPerInch)
         style.WindowPadding.y                           = style.ItemSpacing.y * 3;
         style.ScrollbarSize                             = std::max(16.0f * dpiScaleFixed, 16.0f);
 
-        // HSM4: Bugfix in some unknow cases ScrollbarSize gets INT::MIN
+        // HSM4: Bugfix in some unknown cases ScrollbarSize gets INT::MIN
         if (style.ScrollbarSize < 0.0f)
             style.ScrollbarSize = 16.0f;
 
