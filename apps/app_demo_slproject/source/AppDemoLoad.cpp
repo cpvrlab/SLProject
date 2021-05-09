@@ -4661,6 +4661,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         theatre->findChild<SLNode>("Tht-Rasen")->setMeshMat(matVideoBackgroundSM, true);
         theatre->findChild<SLNode>("Tht-Untergrund")->setMeshMat(matVideoBackground, true);
         theatre->findChild<SLNode>("Tht-Boden")->setMeshMat(matVideoBackgroundSM, true);
+        theatre->findChild<SLNode>("Tht-Boden")->setDrawBitsRec(SL_DB_WITHEDGES, true);
 
         // Add axis object a world origin
         SLNode* axis = new SLNode(new SLCoordAxis(s), "Axis Node");
