@@ -5,11 +5,13 @@
 #include "SENS.h"
 #include "SENSUtils.h"
 
-SENSNdkARCore::SENSNdkARCore(JavaVM* jvm, JNIEnv* env, jobject context, jobject activity)
+SENSNdkARCore::SENSNdkARCore(JavaVM* jvm, JNIEnv* env, jobject context, jobject activity, std::string appName)
 {
     checkAvailability(env, context, activity);
     _arSession = nullptr;
     _jvm = jvm;
+
+    _appName = appName;
 }
 /*------------------------------------------------------------------------------------------*/
 
@@ -39,7 +41,8 @@ bool SENSNdkARCore::isAvailable()
 
     JNIEnv* env;
     _jvm->GetEnv((void**)&env, JNI_VERSION_1_6);
-    jclass clazz = env->FindClass("ch/cpvr/wai/GLES3Lib");
+    std::string className = "ch/cpvr/" + _appName + "/GLES3Lib";
+    jclass clazz = env->FindClass(className.c_str());
     jmethodID methodid = env->GetStaticMethodID(clazz, "checkARAvailability", "()Z");
 
     _available = env->CallStaticBooleanMethod(clazz, methodid);
@@ -65,7 +68,8 @@ bool SENSNdkARCore::isInstalled()
 
     JNIEnv* env;
     _jvm->GetEnv((void**)&env, JNI_VERSION_1_6);
-    jclass clazz = env->FindClass("ch/cpvr/wai/GLES3Lib");
+    std::string className = "ch/cpvr/" + _appName + "/GLES3Lib";
+    jclass clazz = env->FindClass(className.c_str());
     jmethodID methodid = env->GetStaticMethodID(clazz, "checkARInstalled", "()Z");
 
     _installed = env->CallStaticBooleanMethod(clazz, methodid);
@@ -94,7 +98,8 @@ bool SENSNdkARCore::install()
 {
     JNIEnv* env;
     _jvm->GetEnv((void**)&env, JNI_VERSION_1_6);
-    jclass clazz = env->FindClass("ch/cpvr/wai/GLES3Lib");
+    std::string className = "ch/cpvr/" + _appName + "/GLES3Lib";
+    jclass clazz = env->FindClass(className.c_str());
     jmethodID methodid = env->GetStaticMethodID(clazz, "askARInstall", "()Z");
 
     return env->CallStaticBooleanMethod(clazz, methodid);
@@ -130,7 +135,8 @@ bool SENSNdkARCore::init()
 {
     JNIEnv* env;
     _jvm->GetEnv((void**)&env, JNI_VERSION_1_6);
-    jclass clazz = env->FindClass("ch/cpvr/wai/GLES3Lib");
+    std::string className = "ch/cpvr/" + _appName + "/GLES3Lib";
+    jclass clazz = env->FindClass(className.c_str());
     jmethodID methodid = env->GetStaticMethodID(clazz, "initAR", "()Z");
 
     return env->CallStaticBooleanMethod(clazz, methodid);
