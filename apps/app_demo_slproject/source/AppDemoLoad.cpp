@@ -4639,7 +4639,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sunLight->doSmoothShadows(true);
         sunLight->castsShadows(false);
         sunLight->shadowMinBias(0.001f);
-        sunLight->shadowMaxBias(0.003f);
+        sunLight->shadowMaxBias(0.001f);
 
         // Let the sun be rotated by time and location
         AppDemo::devLoc.sunLightNode(sunLight);
