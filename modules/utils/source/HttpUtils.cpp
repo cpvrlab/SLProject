@@ -7,6 +7,8 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
+#ifdef SL_BUILD_WITH_OPENSSL
+
 #include <HttpUtils.h>
 #include <iostream>
 #include <cstring>
@@ -874,3 +876,5 @@ int HttpUtils::length(string url, string user, string pwd)
 
     return (int)req.contentLength;
 }
+
+#endif // SL_BUILD_WITH_OPENSSL

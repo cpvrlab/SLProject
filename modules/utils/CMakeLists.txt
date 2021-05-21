@@ -153,8 +153,7 @@ target_link_libraries(${target}
     ${PlatformLinkLibs}
     ${DEFAULT_LINKER_OPTIONS}
     zlib
-    ssl
-    crypto
+    ${openssl_LIBS}
 
     INTERFACE
     )

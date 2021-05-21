@@ -38,6 +38,8 @@ option(SL_BUILD_EXERCISES    "Specifies if exercise apps should be built"       
 option(SL_BUILD_VULKAN_APPS  "Specifies if vulkan apps should be built"                 OFF)
 option(SL_BUILD_WITH_OPTIX   "Specifies if Optix renderer should be built"              OFF)
 option(SL_BUILD_WITH_KTX     "Specifies if Kronos Texture library (ktx) should be used" ON)
+option(SL_BUILD_WITH_OPENSSL "Specifies if OpenSSL should be used"                      ON)
+option(SL_BUILD_WITH_ASSIMP  "Specifies if Assimp should be used"                       ON)
 option(LIBIGL_USE_STATIC_LIBRARY "Specifies if LibIGL should be built statically"       ON)
 
 message(STATUS "SL_DOWNLOAD_PREBUILTS: ${SL_DOWNLOAD_PREBUILTS}")
@@ -47,6 +49,8 @@ message(STATUS "SL_BUILD_EXERCISES: ${SL_BUILD_EXERCISES}")
 message(STATUS "SL_BUILD_VULKAN_APPS: ${SL_BUILD_VULKAN_APPS}")
 message(STATUS "SL_BUILD_WITH_OPTIX: ${SL_BUILD_WITH_OPTIX}")
 message(STATUS "SL_BUILD_WITH_KTX: ${SL_BUILD_WITH_KTX}")
+message(STATUS "SL_BUILD_WITH_OPENSSL: ${SL_BUILD_WITH_OPENSSL}")
+message(STATUS "SL_BUILD_WITH_ASSIMP: ${SL_BUILD_WITH_ASSIMP}")
 message(STATUS "LIBIGL_USE_STATIC_LIBRARY: ${LIBIGL_USE_STATIC_LIBRARY}")
 
 include(cmake/SetGitBranchNameAndCommitID.cmake)

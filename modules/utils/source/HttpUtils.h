@@ -7,6 +7,10 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
+#ifndef HTTP_UTILS_H
+#define HTTP_UTILS_H
+
+#ifdef SL_BUILD_WITH_OPENSSL
 
 #ifdef _WINDOWS
 #    include <winsock2.h>
@@ -206,5 +210,9 @@ int download(string                                      url,
 
 //-- return content Length of the HttpGet request
 int length(string url, string user = "", string pwd = "");
-}
+
+}; //namespace HttpUtils
 //------------------------------------------------------------------------------
+
+#endif //SL_BUILD_WITH_OPENSSL
+#endif //HTTP_UTILS_H
