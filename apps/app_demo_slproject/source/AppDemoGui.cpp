@@ -664,9 +664,9 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
                     for (SLuint i = 0; i < s->textures().size(); ++i)
                     {
                         if (s->textures()[i]->images().empty())
-                            ImGui::Text("[%u] %s (GPU)", i, s->textures()[i]->name().c_str());
+                            ImGui::Text("[%u] %s on GPU (%s)", i, s->textures()[i]->name().c_str(), s->textures()[i]->isTexture() ? "ok" : "not ok");
                         else
-                            ImGui::Text("[%u] %s", i, s->textures()[i]->name().c_str());
+                            ImGui::Text("[%u] %s (%s)", i, s->textures()[i]->name().c_str(), s->textures()[i]->isTexture() ? "ok" : "not ok");
                     }
 
                     ImGui::TreePop();
@@ -3545,6 +3545,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
 
                                 ImGui::Text("Size(PX): %dx%dx%d", tex->width(), tex->height(), tex->depth());
                                 ImGui::Text("Size(MB): GPU:%4.2f, CPU:%4.2f, DSK:%4.2f", mbGPU, mbCPU, mbDSK);
+                                ImGui::Text("TexID   : %u (%s)", tex->texID(), tex->isTexture() ? "ok" : "not ok");
                                 ImGui::Text("Type    : %s", tex->typeName().c_str());
 #ifdef SL_BUILD_WITH_KTX
                                 ImGui::Text("Compr.  : %s", tex->compressionFormatStr(tex->compressionFormat()).c_str());

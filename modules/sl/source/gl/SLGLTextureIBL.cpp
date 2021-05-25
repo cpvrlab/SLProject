@@ -30,23 +30,23 @@ SLGLTextureIBL::SLGLTextureIBL(SLAssetManager*  am,
         assert(texType > TT_hdr);
     }
 
-    _sourceTexture = sourceTexture;
-    _captureFBO    = fbo;
-    _texType       = texType;
-    _min_filter    = min_filter;
-    _mag_filter    = mag_filter;
-    _wrap_s        = GL_CLAMP_TO_EDGE;
-    _wrap_t        = GL_CLAMP_TO_EDGE;
-    _target        = target;
-    _texID         = 0;
-    _bumpScale     = 1.0f;
-    _resizeToPow2  = false;
-    _autoCalcTM3D  = false;
-    _needsUpdate   = false;
-    _bytesOnGPU    = 0;
-    _width         = size.x;
-    _height        = size.y;
-    _bytesPerPixel = 0;
+    _sourceTexture         = sourceTexture;
+    _captureFBO            = fbo;
+    _texType               = texType;
+    _min_filter            = min_filter;
+    _mag_filter            = mag_filter;
+    _wrap_s                = GL_CLAMP_TO_EDGE;
+    _wrap_t                = GL_CLAMP_TO_EDGE;
+    _target                = target;
+    _texID                 = 0;
+    _bumpScale             = 1.0f;
+    _resizeToPow2          = false;
+    _autoCalcTM3D          = false;
+    _needsUpdate           = false;
+    _bytesOnGPU            = 0;
+    _width                 = size.x;
+    _height                = size.y;
+    _bytesPerPixel         = 0;
     _deleteImageAfterBuild = false;
 
     name("Generated " + typeName());
@@ -72,21 +72,15 @@ SLGLTextureIBL::SLGLTextureIBL(SLAssetManager*  am,
     _captureProjection.perspective(90.0f, 1.0f, 0.1f, 10.0f);
 
     // initialize capture views: 6 views each at all 6 directions of the faces of a cube map
+    // clang-format off
     SLMat4f mat;
-    //clang-format off
-    mat.lookAt(0, 0, 0, 1, 0, 0, 0, -1, 0);
-    _captureViews.push_back(mat);
-    mat.lookAt(0, 0, 0, -1, 0, 0, 0, -1, 0);
-    _captureViews.push_back(mat);
-    mat.lookAt(0, 0, 0, 0, 1, 0, 0, 0, 1);
-    _captureViews.push_back(mat);
-    mat.lookAt(0, 0, 0, 0, -1, 0, 0, 0, -1);
-    _captureViews.push_back(mat);
-    mat.lookAt(0, 0, 0, 0, 0, 1, 0, -1, 0);
-    _captureViews.push_back(mat);
-    mat.lookAt(0, 0, 0, 0, 0, -1, 0, -1, 0);
-    _captureViews.push_back(mat);
-    //clang-format on
+    mat.lookAt(0, 0, 0, 1, 0, 0, 0,-1, 0); _captureViews.push_back(mat);
+    mat.lookAt(0, 0, 0,-1, 0, 0, 0,-1, 0); _captureViews.push_back(mat);
+    mat.lookAt(0, 0, 0, 0, 1, 0, 0, 0, 1); _captureViews.push_back(mat);
+    mat.lookAt(0, 0, 0, 0,-1, 0, 0, 0,-1); _captureViews.push_back(mat);
+    mat.lookAt(0, 0, 0, 0, 0, 1, 0,-1, 0); _captureViews.push_back(mat);
+    mat.lookAt(0, 0, 0, 0, 0,-1, 0,-1, 0); _captureViews.push_back(mat);
+    // clang-format on
 
     // Add pointer to the global resource vectors for deallocation
     if (am)
@@ -145,7 +139,6 @@ void SLGLTextureIBL::build(SLint texUnit)
                       _sourceTexture->texID());
         glViewport(0, 0, _width, _height);
 
-
         glBindFramebuffer(GL_FRAMEBUFFER, fboID);
 
         for (SLuint i = 0; i < 6; i++)
@@ -161,6 +154,8 @@ void SLGLTextureIBL::build(SLint texUnit)
 
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             renderCube();
+
+            //logFramebufferStatus();
         }
 
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -273,11 +268,10 @@ void SLGLTextureIBL::build(SLint texUnit)
 
     glDeleteFramebuffers(1, &fboID);
 
-    SLGLState * state = SLGLState::instance();
-    glViewport(state->getViewport().x,
-               state->getViewport().y,
-               state->getViewport().z,
-               state->getViewport().w);
+    // Reset the viewport
+    SLGLState* state = SLGLState::instance();
+    auto       vp    = state->getViewport();
+    glViewport(vp.x, vp.y, vp.z, vp.w);
 }
 //-----------------------------------------------------------------------------
 //! renders 1x1 cube, used to project the source texture and then capture on if its sides
@@ -348,6 +342,7 @@ void SLGLTextureIBL::renderCube()
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         glBindVertexArray(0);
     }
+
     // render Cube
     glBindVertexArray(_cubeVAO);
     glDrawArrays(GL_TRIANGLES, 0, 36);
@@ -383,5 +378,23 @@ void SLGLTextureIBL::renderQuad()
     glBindVertexArray(_quadVAO);
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     glBindVertexArray(0);
+}
+//-----------------------------------------------------------------------------
+void SLGLTextureIBL::logFramebufferStatus()
+{
+    GLenum fbStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+    switch (fbStatus)
+    {
+        case GL_FRAMEBUFFER_COMPLETE: SL_LOG("GL_FRAMEBUFFER_COMPLETE"); break;
+        case GL_FRAMEBUFFER_UNDEFINED: SL_LOG("GL_FRAMEBUFFER_UNDEFINED"); break;
+        case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT: SL_LOG("GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT"); break;
+        case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT: SL_LOG("GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT"); break;
+        case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER: SL_LOG("GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER"); break;
+        case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER: SL_LOG("GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER"); break;
+        case GL_FRAMEBUFFER_UNSUPPORTED: SL_LOG("GL_FRAMEBUFFER_UNSUPPORTED"); break;
+        case GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE: SL_LOG("GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE"); break;
+        case GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS: SL_LOG("GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS"); break;
+        default: SL_LOG("Unknown framebuffer status!!!");
+    }
 }
 //-----------------------------------------------------------------------------

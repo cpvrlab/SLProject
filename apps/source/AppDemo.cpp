@@ -85,7 +85,7 @@ See examples usages in:
 /param onSceneLoadCallback C Callback function as void* pointer for the scene creation.
 */
 void AppDemo::createAppAndScene(SLstring appName,
-                                      void*    onSceneLoadCallback)
+                                void*    onSceneLoadCallback)
 {
     assert(AppDemo::scene == nullptr &&
            "You can create only one AppDemo");

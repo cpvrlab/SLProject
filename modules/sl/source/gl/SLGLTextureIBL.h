@@ -48,7 +48,8 @@ public:
 
     virtual ~SLGLTextureIBL();
 
-    virtual void   build(SLint texID = 0);
+    virtual void build(SLint texID = 0);
+    void         logFramebufferStatus();
 
 protected:
     // converting the hdr image file to cubemap
@@ -60,11 +61,11 @@ protected:
     SLuint _quadVAO = 0;
     SLuint _quadVBO = 0;
 
-    SLGLTexture*     _sourceTexture;          //!< 2D Texture from the HDR Image
-    SLGLProgram*     _shaderProgram;          //!< shader program to render the texture
-    SLGLFrameBuffer* _captureFBO;             //!< Frame Buffer Object for capturing the textures
-    SLMat4f          _captureProjection;      //!< Projection matrix for capturing the textures
-    SLVMat4f         _captureViews;           //!< all 6 positions of the views that represent the 6 sides of the cube map
+    SLGLTexture*     _sourceTexture;     //!< 2D Texture from the HDR Image
+    SLGLProgram*     _shaderProgram;     //!< shader program to render the texture
+    SLGLFrameBuffer* _captureFBO;        //!< Frame Buffer Object for capturing the textures
+    SLMat4f          _captureProjection; //!< Projection matrix for capturing the textures
+    SLVMat4f         _captureViews;      //!< all 6 positions of the views that represent the 6 sides of the cube map
 };
 //-----------------------------------------------------------------------------
 #endif

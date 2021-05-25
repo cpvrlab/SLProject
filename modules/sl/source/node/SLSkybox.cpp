@@ -40,6 +40,11 @@ SLSkybox::SLSkybox(SLAssetManager* assetMgr,
     // Set HDR flag to false, this is a normal SkyBox
     _isHDR = false;
     _isBuilt = true;
+    _environmentCubemap = nullptr;
+    _irradianceCubemap = nullptr;
+    _roughnessCubemap = nullptr;
+    _brdfLUTTexture = nullptr;
+    _hdrTexture = nullptr;
 
     // Create texture, material and program
     SLGLTexture* cubeMap    = new SLGLTexture(assetMgr,
@@ -96,7 +101,7 @@ SLSkybox::SLSkybox(SLProjectScene* projectScene,
     backgroundShader->addUniform1f(exposure);
 
     // Create frame buffer for capturing the IBL textures
-    SLGLFrameBuffer* captureBuffer = nullptr;//new SLGLFrameBuffer(resolution.x, resolution.y);
+    SLGLFrameBuffer* captureBuffer = nullptr;
 
     // Create texture from the HDR Image
     _hdrTexture = new SLGLTexture(projectScene,
@@ -115,7 +120,7 @@ SLSkybox::SLSkybox(SLProjectScene* projectScene,
                                              TT_environmentCubemap,
                                              GL_TEXTURE_CUBE_MAP,
                                              GL_LINEAR_MIPMAP_LINEAR);
-
+    /*
     _irradianceCubemap = new SLGLTextureIBL(projectScene,
                                             shaderPath,
                                             _environmentCubemap,
@@ -139,13 +144,14 @@ SLSkybox::SLSkybox(SLProjectScene* projectScene,
                                          SLVec2i(512, 512),
                                          TT_brdfLUT,
                                          GL_TEXTURE_2D);
+    */
 
     // Create the material of the sky box and store there the other texture to be used for other materials
     SLMaterial* hdrMaterial = new SLMaterial(projectScene, "matCubeMap");
     hdrMaterial->textures().push_back(_environmentCubemap);
-    hdrMaterial->textures().push_back(_irradianceCubemap);
-    hdrMaterial->textures().push_back(_roughnessCubemap);
-    hdrMaterial->textures().push_back(_brdfLUTTexture);
+    //hdrMaterial->textures().push_back(_irradianceCubemap);
+    //hdrMaterial->textures().push_back(_roughnessCubemap);
+    //hdrMaterial->textures().push_back(_brdfLUTTexture);
     hdrMaterial->program(backgroundShader);
 
     // Create the box for the sky box
@@ -158,29 +164,19 @@ SLSkybox::SLSkybox(SLProjectScene* projectScene,
                       -10,
                       "box",
                       hdrMaterial));
-
-    // We don't need the frame buffer any longer
 }
 
+//-----------------------------------------------------------------------------
+//! Builds all texture for HDR image based lighting
 void SLSkybox::build()
 {
-    if (_isBuilt)
-        return;
-
     _hdrTexture->build(0);
-    _environmentCubemap->build(1);
-    _irradianceCubemap->build(2);
-    _roughnessCubemap->build(3);
-    _brdfLUTTexture->build(4);
-
+    _environmentCubemap->build(0);
+    //_irradianceCubemap->build(2);
+    //_roughnessCubemap->build(3);
+    //_brdfLUTTexture->build(4);
     _isBuilt = true;
 }
-
-
-SLSkybox::~SLSkybox()
-{
-}
-
 //-----------------------------------------------------------------------------
 //! Draw the skybox with a cube map with the camera in its center.
 void SLSkybox::drawAroundCamera(SLSceneView* sv)
@@ -189,7 +185,8 @@ void SLSkybox::drawAroundCamera(SLSceneView* sv)
 
     SLGLState* stateGL = SLGLState::instance();
 
-    build();
+    if (_isHDR && !_isBuilt)
+        build();
 
     // Set the view transform
     stateGL->modelViewMatrix.setMatrix(stateGL->viewMatrix);
