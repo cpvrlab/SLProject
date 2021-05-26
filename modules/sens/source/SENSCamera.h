@@ -211,8 +211,9 @@ public:
     bool permissionGranted() const override { return _permissionGranted; }
     void setPermissionGranted() override { _permissionGranted = true; }
 
+    bool usesCpuTexture() const { return _useCpuTexture; }
 protected:
-    void updateFrame(cv::Mat bgrImg, cv::Mat intrinsics, bool intrinsicsChanged);
+    void updateFrame(cv::Mat bgrImg, cv::Mat intrinsics, int width, int height, bool intrinsicsChanged);
     //call from start function to do startup preprocessing
     void processStart();
 

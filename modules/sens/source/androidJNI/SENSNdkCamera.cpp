@@ -510,7 +510,7 @@ void SENSNdkCamera::imageCallback(AImageReader* reader)
         cv::cvtColor(yuv, bgr, cv::COLOR_YUV2BGR_NV21, 3);
         SENS_DEBUG("SENSNdkCamera: time for yuv conversion: %f ms", t.elapsedTimeInMilliSec());
 
-        updateFrame(bgr, cv::Mat(), false);
+        updateFrame(bgr, cv::Mat(), false, bgr.cols, bgr.rows);
     }
 }
 

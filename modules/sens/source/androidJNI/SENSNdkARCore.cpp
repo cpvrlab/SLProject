@@ -299,8 +299,7 @@ bool SENSNdkARCore::update(cv::Mat& pose)
          */
     }
 
-    if(_useCpuTexture)
-        updateCamera(intrinsics);
+    updateCamera(intrinsics);
 
     //---- LIGHT ESTIMATE ----//
     // Get light estimation value.
@@ -342,23 +341,26 @@ bool SENSNdkARCore::update(cv::Mat& pose)
 
 void SENSNdkARCore::updateCamera(cv::Mat& intrinsics)
 {
-    HighResTimer t;
-    ArImage* arImage;
-    if (ArFrame_acquireCameraImage(_arSession, _arFrame, &arImage) != AR_SUCCESS)
+    if(_useCpuTexture)
     {
-        Utils::log("SENSNdkARCore", "updateCamera: not aquired %4.0fms", t.elapsedTimeInMilliSec());
-        return;
+        ArImage *arImage;
+        if (ArFrame_acquireCameraImage(_arSession, _arFrame, &arImage) != AR_SUCCESS) {
+            Utils::log("SENSNdkARCore", "updateCamera: not aquired");
+            return;
+        }
+
+        cv::Mat yuv = convertToYuv(arImage);
+        cv::Mat bgr;
+
+        ArImage_release(arImage);
+
+        cv::cvtColor(yuv, bgr, cv::COLOR_YUV2BGR_NV21, 3);
+        updateFrame(bgr, intrinsics, _inputFrameW, _inputFrameH, true);
     }
-
-    cv::Mat yuv = convertToYuv(arImage);
-    cv::Mat bgr;
-
-    ArImage_release(arImage);
-
-    cv::cvtColor(yuv, bgr, cv::COLOR_YUV2BGR_NV21, 3);
-
-    updateFrame(bgr, intrinsics, true);
-    Utils::log("SENSNdkARCore", "updateCamera: %4.0fms", t.elapsedTimeInMilliSec());
+    else
+    {
+        updateFrame(cv::Mat(), intrinsics, _inputFrameW, _inputFrameH, true);
+    }
 }
 
 void SENSNdkARCore::lightComponentIntensity(float * component)

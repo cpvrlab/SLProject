@@ -23,7 +23,7 @@ out     vec4      o_fragColor;      // output fragment color
 //-----------------------------------------------------------------------------
 void main()
 {     
-    o_fragColor = texture(sTexture, v_uv1);
+    o_fragColor = texture(sTexture, vec2(v_uv1.x, 1.0f - v_uv1.y));
 
     // Apply gamma correction
     o_fragColor.rgb = pow(o_fragColor.rgb, vec3(u_oneOverGamma));

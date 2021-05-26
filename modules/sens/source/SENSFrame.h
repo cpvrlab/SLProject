@@ -7,15 +7,19 @@
 //Camera frame obeject
 struct SENSFrameBase
 {
-    SENSFrameBase(SENSTimePt timePt, cv::Mat imgBGR, cv::Mat intrinsics)
+    SENSFrameBase(SENSTimePt timePt, cv::Mat imgBGR, cv::Mat intrinsics, int width, int height)
       : imgBGR(imgBGR),
         intrinsics(intrinsics),
+        width(width),
+        height(height),
         timePt(timePt)
     {
     }
 
     cv::Mat imgBGR;
     cv::Mat intrinsics;
+    int width;
+    int height;
 
     const SENSTimePt timePt;
 };
