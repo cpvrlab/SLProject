@@ -79,7 +79,8 @@ SLGLTexture::SLGLTexture(SLAssetManager* assetMgr,
                          SLint           min_filter,
                          SLint           mag_filter,
                          SLint           wrapS,
-                         SLint           wrapT)
+                         SLint           wrapT,
+                         SLenum          target)
 {
     _width                 = 0;
     _height                = 0;
@@ -89,7 +90,7 @@ SLGLTexture::SLGLTexture(SLAssetManager* assetMgr,
     _mag_filter            = mag_filter;
     _wrap_s                = wrapS;
     _wrap_t                = wrapT;
-    _target                = GL_TEXTURE_2D;
+    _target                = target;
     _texID                 = 0;
     _bumpScale             = 1.0f;
     _resizeToPow2          = false;
@@ -767,6 +768,20 @@ void SLGLTexture::build(SLint texUnit)
         }
         GET_GL_ERROR;
 #endif
+    }
+    else if(_target == GL_TEXTURE_EXTERNAL_OES)
+    {
+        glGenTextures(1, &_texID);
+
+        SLGLState* stateGL = SLGLState::instance();
+        stateGL->activeTexture(GL_TEXTURE0 + (SLuint)texUnit);
+
+        // create binding and apply texture properties
+        stateGL->bindTexture(GL_TEXTURE_EXTERNAL_OES, _texID);
+
+        //glBindTexture(GL_TEXTURE_EXTERNAL_OES, _texID);
+        glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     }
     else
     {

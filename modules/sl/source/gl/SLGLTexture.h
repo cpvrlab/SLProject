@@ -96,7 +96,8 @@ public:
                          SLint           min_filter,
                          SLint           mag_filter,
                          SLint           wrapS,
-                         SLint           wrapT);
+                         SLint           wrapT,
+                         SLenum          target = GL_TEXTURE_2D);
 
     //! ctor for 2D textures from byte pointer
     explicit SLGLTexture(SLAssetManager* assetMgr,

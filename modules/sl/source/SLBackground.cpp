@@ -32,6 +32,7 @@ SLBackground::SLBackground(SLstring shaderDir)
     _textureOnlyProgram    = new SLGLProgramGeneric(nullptr,
                                                  shaderDir + "TextureOnly.vert",
                                                  shaderDir + "TextureOnly.frag");
+
     _colorAttributeProgram = new SLGLProgramGeneric(nullptr,
                                                     shaderDir + "ColorAttribute.vert",
                                                     shaderDir + "Color.frag");

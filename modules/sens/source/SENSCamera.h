@@ -234,6 +234,8 @@ protected:
     //bool             _intrinsicsChanged = false;
     //cv::Mat          _intrinsics;
     std::mutex _frameMutex;
+
+    bool _useCpuTexture = true;
 };
 
 #endif //SENS_CAMERA_H

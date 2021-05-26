@@ -20,7 +20,9 @@ SLProjection SLCamera::currentProjection  = P_monoPerspective;
 SLfloat      SLCamera::currentFOV         = 45.0f;
 SLint        SLCamera::currentDevRotation = 0;
 //-----------------------------------------------------------------------------
-SLCamera::SLCamera(const SLstring& name)
+SLCamera::SLCamera(const SLstring& name,
+                   SLStdShaderProg textureOnlyProgramId,
+                   SLStdShaderProg colorAttributeProgramId)
   : SLNode(name),
     _movedLastFrame(false),
     _oldTouchPos1(0, 0),
@@ -42,8 +44,8 @@ SLCamera::SLCamera(const SLstring& name)
     _fogColor(SLCol4f::GRAY),
     _fogColorIsBack(true),
     _fbRect(0, 0, 640, 480),
-    _background(SLGLProgramManager::get(SP_TextureOnly),
-                SLGLProgramManager::get(SP_colorAttribute)),
+    _background(SLGLProgramManager::get(textureOnlyProgramId),
+                SLGLProgramManager::get(colorAttributeProgramId)),
     _onCamUpdateCB(nullptr)
 {
     _fovInit       = 0;

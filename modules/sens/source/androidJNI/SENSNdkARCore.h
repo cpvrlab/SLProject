@@ -14,13 +14,13 @@ public:
     SENSNdkARCore(JavaVM* jvm, JNIEnv* env, jobject context, jobject activity, std::string appName);
     ~SENSNdkARCore();
 
-    bool init() override;
+    bool init(unsigned int textureId = 0) override;
     bool init(JNIEnv* env, void* context, void* activity);
     bool isReady() override { return _arSession != nullptr; }
     bool resume() override;
     void reset() override;
     void pause() override;
-    bool update(cv::Mat& pose);
+    bool update(cv::Mat& pose) override;
     //SENSFramePtr latestFrame() override;
     //void setDisplaySize(int w, int h) override;
     void lightComponentIntensity(float * components);

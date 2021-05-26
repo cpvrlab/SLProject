@@ -18,7 +18,7 @@ class SENSARCore : public SENSCameraBase
 public:
     SENSARCore() {}
     virtual ~SENSARCore() {}
-    virtual bool init() = 0;
+    virtual bool init(unsigned int textureId = 0) = 0;
     virtual bool isReady()                                                                                         = 0;
     virtual bool resume()                                                                                          = 0;
     virtual void reset()                                                                                           = 0;

@@ -219,8 +219,10 @@ void SLGLProgram::init(SLVLight* lights)
             GET_GL_ERROR;
         }
     }
-    else
+    else {
+        Utils::log("SLGLProgram", "hello my name ich michael");
         SL_EXIT_MSG("No successfully compiled shaders attached!");
+    }
 
     int linked = 0;
     glLinkProgram(_progID);

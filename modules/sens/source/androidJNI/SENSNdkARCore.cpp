@@ -119,20 +119,29 @@ void SENSNdkARCore::reset()
         ArSession_destroy(_arSession);
         ArFrame_destroy(_arFrame);
         _arSession = nullptr;
-        glDeleteTextures(1, &_cameraTextureId);
+        if(_useCpuTexture)
+            glDeleteTextures(1, &_cameraTextureId);
     }
 }
 
-void SENSNdkARCore::initCameraTexture()
-{
-    glGenTextures(1, &_cameraTextureId);
-    glBindTexture(GL_TEXTURE_EXTERNAL_OES, _cameraTextureId);
-    glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+void SENSNdkARCore::initCameraTexture() {
+    if (_useCpuTexture)
+    {
+        glGenTextures(1, &_cameraTextureId);
+        glBindTexture(GL_TEXTURE_EXTERNAL_OES, _cameraTextureId);
+        glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    }
 }
 
-bool SENSNdkARCore::init()
+bool SENSNdkARCore::init(unsigned int textureId)
 {
+    if(textureId > 0)
+    {
+        _useCpuTexture = false;
+        _cameraTextureId = textureId;
+    }
+
     JNIEnv* env;
     _jvm->GetEnv((void**)&env, JNI_VERSION_1_6);
     std::string className = "ch/cpvr/" + _appName + "/GLES3Lib";
@@ -147,6 +156,7 @@ bool SENSNdkARCore::init(JNIEnv* env, void* context, void* activity)
     if (!checkAvailability(env, context, activity)) {
         return false;
     }
+
     if (_arSession != nullptr) {
         return false;
     }
@@ -289,10 +299,12 @@ bool SENSNdkARCore::update(cv::Mat& pose)
          */
     }
 
-    updateCamera(intrinsics);
+    if(_useCpuTexture)
+        updateCamera(intrinsics);
 
     //---- LIGHT ESTIMATE ----//
     // Get light estimation value.
+    /*
     ArLightEstimate*     arLightEstimate;
     ArLightEstimateState arLightEstimateState;
     ArLightEstimate_create(_arSession, &arLightEstimate);
@@ -311,6 +323,7 @@ bool SENSNdkARCore::update(cv::Mat& pose)
 
     ArLightEstimate_destroy(arLightEstimate);
     arLightEstimate = nullptr;
+     */
     //---------------------
 
     ArTrackingState camera_tracking_state;
@@ -329,9 +342,13 @@ bool SENSNdkARCore::update(cv::Mat& pose)
 
 void SENSNdkARCore::updateCamera(cv::Mat& intrinsics)
 {
+    HighResTimer t;
     ArImage* arImage;
     if (ArFrame_acquireCameraImage(_arSession, _arFrame, &arImage) != AR_SUCCESS)
+    {
+        Utils::log("SENSNdkARCore", "updateCamera: not aquired %4.0fms", t.elapsedTimeInMilliSec());
         return;
+    }
 
     cv::Mat yuv = convertToYuv(arImage);
     cv::Mat bgr;
@@ -341,6 +358,7 @@ void SENSNdkARCore::updateCamera(cv::Mat& intrinsics)
     cv::cvtColor(yuv, bgr, cv::COLOR_YUV2BGR_NV21, 3);
 
     updateFrame(bgr, intrinsics, true);
+    Utils::log("SENSNdkARCore", "updateCamera: %4.0fms", t.elapsedTimeInMilliSec());
 }
 
 void SENSNdkARCore::lightComponentIntensity(float * component)
@@ -411,9 +429,11 @@ void SENSNdkARCore::retrieveCaptureProperties()
         cv::Mat pose;
         do {
             update(pose);
+            std::this_thread::sleep_for(200ms);
         }
-        while(!_frame && t.elapsedTimeInSec() < 5.f);
+        while(!_frame && t.elapsedTimeInSec() < 10.f);
 
+        Utils::log("SENSNdkARCore", "retrieveCaptureProperties update for %fs", t.elapsedTimeInSec());
         pause();
     }
 
@@ -432,7 +452,7 @@ void SENSNdkARCore::retrieveCaptureProperties()
         _captureProperties.push_back(devProp);
     }
     else
-        Utils::warnMsg("SENSiOSARCore", "retrieveCaptureProperties: Could not retrieve a valid frame!", __LINE__, __FILE__);
+        Utils::warnMsg("SENSNdkARCore", "retrieveCaptureProperties: Could not retrieve a valid frame!", __LINE__, __FILE__);
 }
 
 const SENSCaptureProperties& SENSNdkARCore::captureProperties()
