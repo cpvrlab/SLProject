@@ -90,6 +90,16 @@ SLGLTextureIBL::SLGLTextureIBL(SLAssetManager*  am,
 SLGLTextureIBL::~SLGLTextureIBL()
 {
     deleteData();
+
+    glDeleteVertexArrays(1, &_cubeVAO);
+    _cubeVAO = 0;
+    glDeleteBuffers(1, &_cubeVBO);
+    _cubeVBO = 0;
+    glDeleteVertexArrays(1, &_quadVAO);
+    _quadVAO = 0;
+    glDeleteBuffers(1, &_quadVBO);
+    _quadVBO = 0;
+
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -282,6 +292,7 @@ void SLGLTextureIBL::renderCube()
     {
         // clang-format off
         float vertices[] = {
+            // position           // normal           // texture Coords
             // back face
             -1.0f, -1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 0.0f, 0.0f, // bottom-left
              1.0f,  1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 1.0f, 1.0f, // top-right
@@ -328,9 +339,11 @@ void SLGLTextureIBL::renderCube()
         // clang-format on
         glGenVertexArrays(1, &_cubeVAO);
         glGenBuffers(1, &_cubeVBO);
+
         // fill buffer
         glBindBuffer(GL_ARRAY_BUFFER, _cubeVBO);
         glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
         // link vertex attributes
         glBindVertexArray(_cubeVAO);
         glEnableVertexAttribArray(0);
