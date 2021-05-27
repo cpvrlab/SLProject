@@ -275,7 +275,10 @@ bool SENSNdkARCore::update(cv::Mat& pose)
     {
         ArCameraIntrinsics* arIntrinsics = nullptr;
         ArCameraIntrinsics_create(_arSession, &arIntrinsics);
-        ArCamera_getImageIntrinsics(_arSession, arCamera, arIntrinsics);
+        if(_useCpuTexture)
+            ArCamera_getImageIntrinsics(_arSession, arCamera, arIntrinsics);
+        else
+            ArCamera_getTextureIntrinsics(_arSession, arCamera, arIntrinsics);
 
         float fx, fy, cx, cy;
         ArCameraIntrinsics_getFocalLength(_arSession, arIntrinsics, &fx, &fy);

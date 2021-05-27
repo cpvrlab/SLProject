@@ -769,6 +769,7 @@ void SLGLTexture::build(SLint texUnit)
         GET_GL_ERROR;
 #endif
     }
+#ifdef SL_OS_ANDROID
     else if(_target == GL_TEXTURE_EXTERNAL_OES)
     {
         glGenTextures(1, &_texID);
@@ -779,10 +780,17 @@ void SLGLTexture::build(SLint texUnit)
         // create binding and apply texture properties
         stateGL->bindTexture(GL_TEXTURE_EXTERNAL_OES, _texID);
 
-        //glBindTexture(GL_TEXTURE_EXTERNAL_OES, _texID);
         glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        // apply texture wrapping modes
+        //glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_WRAP_S, _wrap_s);
+        //glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_WRAP_T, _wrap_t);
+        //glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_WRAP_R, _wrap_t);
+        //int color[] = { 1, 1, 1, 1 };
+        //glTexParameteriv(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_BORDER_COLOR_OES, color);
+        GET_GL_ERROR;
     }
+#endif
     else
     {
         if (_images.empty())

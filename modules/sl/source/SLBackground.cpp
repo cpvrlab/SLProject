@@ -112,12 +112,12 @@ void SLBackground::colors(const SLCol4f& topLeftColor,
 }
 //-----------------------------------------------------------------------------
 //! Sets the background texture
-void SLBackground::texture(SLGLTexture* backgroundTexture, bool repeatBlurred)
+void SLBackground::texture(SLGLTexture* backgroundTexture, bool fixAspectRatio)
 {
-    _texture       = backgroundTexture;
-    _repeatBlurred = repeatBlurred;
-    _isUniform     = false;
-    _avgColor      = SLCol4f::BLACK;
+    _texture        = backgroundTexture;
+    _fixAspectRatio = fixAspectRatio;
+    _isUniform      = false;
+    _avgColor       = SLCol4f::BLACK;
 
     _vao.clearAttribs();
 }
@@ -171,44 +171,59 @@ void SLBackground::render(SLint widthPX, SLint heightPX)
     {
         _resX = widthPX;
         _resY = heightPX;
-        _vao.clearAttribs();
 
-        //if repeatBlurred is active and texture aspect ratio does not fit to sceneview aspect ratio
-        if (_repeatBlurred && _texture &&
-            std::abs((float)_resX / (float)_resY - (float)_texture->width() / (float)_texture->height()) > 0.001f)
+        SLfloat left=0, right=_resX, bottom=0, top=_resY;
+
+        //the background is centered and stretched to the screen boarders while keeping the textures aspect ratio
+        if (_texture && _fixAspectRatio)
         {
-            //in this case we add 2 additional triangles left and right for bars containing a small subregion
-            defineWithBars();
-        }
-        else
-        {
-            // Float array with vertex X & Y of corners
-            SLVVec2f P = {{0.0f, (SLfloat)_resY},
-                          {0.0f, 0.0f},
-                          {(SLfloat)_resX, (SLfloat)_resY},
-                          {(SLfloat)_resX, 0.0f}};
-
-            _vao.setAttrib(AT_position, AT_position, &P);
-
-            // Indexes for a triangle strip
-            SLVushort I = {0, 1, 2, 3};
-            _vao.setIndices(&I, nullptr);
-
-            if (_texture)
-            { // Float array of texture coordinates
-                SLVVec2f T = {{0.0f, 1.0f}, {0.0f, 0.0f}, {1.0f, 1.0f}, {1.0f, 0.0f}};
-                _vao.setAttrib(AT_uv1, AT_uv1, &T);
-                _vao.generate(4);
+            SLfloat backgroundW, backgroundH;
+            if ((SLfloat)_resX / (SLfloat)_resY > (SLfloat)_texture->width() / (SLfloat)_texture->height())
+            {
+                //screen is wider than texture -> adjust background width
+                backgroundH = _resY;
+                backgroundW = _resY / (SLfloat)_texture->height() * (SLfloat)_texture->width();
             }
             else
-            { // Float array of colors of corners
-                SLVVec3f C = {{_colors[0].r, _colors[0].g, _colors[0].b},
-                              {_colors[1].r, _colors[1].g, _colors[1].b},
-                              {_colors[2].r, _colors[2].g, _colors[2].b},
-                              {_colors[3].r, _colors[3].g, _colors[3].b}};
-                _vao.setAttrib(AT_color, AT_color, &C);
-                _vao.generate(4);
+            {
+                //screen is more narrow than texture -> adjust background height
+                backgroundW = _resX;
+                backgroundH = _resX / (SLfloat)_texture->width() * (SLfloat)_texture->height();
             }
+
+            left = (_resX - backgroundW) * 0.5f;
+            right = backgroundW + left;
+            bottom = (_resY - backgroundH) * 0.5f;
+            top = backgroundH + bottom;
+            _vao.clearAttribs();
+        }
+
+        // Float array with vertex X & Y of corners
+        SLVVec2f P = {{left, top},
+                      {left, bottom},
+                      {right, top},
+                      {right, bottom}};
+
+        _vao.setAttrib(AT_position, AT_position, &P);
+
+        // Indexes for a triangle strip
+        SLVushort I = {0, 1, 2, 3};
+        _vao.setIndices(&I, nullptr);
+
+        if (_texture)
+        { // Float array of texture coordinates
+            SLVVec2f T = {{0.0f, 1.0f}, {0.0f, 0.0f}, {1.0f, 1.0f}, {1.0f, 0.0f}};
+            _vao.setAttrib(AT_uv1, AT_uv1, &T);
+            _vao.generate(4);
+        }
+        else
+        { // Float array of colors of corners
+            SLVVec3f C = {{_colors[0].r, _colors[0].g, _colors[0].b},
+                          {_colors[1].r, _colors[1].g, _colors[1].b},
+                          {_colors[2].r, _colors[2].g, _colors[2].b},
+                          {_colors[3].r, _colors[3].g, _colors[3].b}};
+            _vao.setAttrib(AT_color, AT_color, &C);
+            _vao.generate(4);
         }
     }
 
@@ -353,176 +368,5 @@ SLCol4f SLBackground::colorAtPos(SLfloat x,
     }
 
     return color;
-}
-//-----------------------------------------------------------------------------
-/*! Draws the background as a flat 2D rectangle with a height and a width on two
-triangles with zero in the bottom left corner: <br>
-           w
-      +----+----+----+
-       |    /|    /|     /|
-       |   / |   / |    / |
-     h  |  /  |  /  |   /  |
-       | /   | /   |  /   |
-       |/    |/    |/     |
-     0 +----+----+----+
-       0
-
-We render the quad as a triangle strip: <br>
-        0     2     4     6
-        +----+----+----+
-         |    /|    /|     /|
-         |   / |   / |    / |
-         |  /  |  /  |   /  |
-         | /   | /   |  /   |
-         |/    |/    |/     |
-        +----+----+----+
-        1     3    5      7
- 
- ( drawings are for svWdivH > texWdivH case )
- */
-
-/*! Draws the background as a flat 2D rectangle with a height and a width on two
-triangles with zero in the bottom left corner: <br>
-           w
-      +----++----++----+
-       |    /|  |    /| |     /|
-       |   / |  |   / | |    / |
-     h  |  /  |  |  /  | |   /  |
-       | /   |  | /   | |  /   |
-       |/    |  |/    || /     |
-     0 +----++----++----+
-       0
-
-We render the quad as a triangle strip: <br>
-      0     2 4    6 8    10
-      +----++----++----+
-       |    /|  |    /| |     /|
-       |   / |  |   / | |    / |
-       |  /  |  |  /  | |   /  |
-       | /   |  | /   | |  /   |
-       |/    |  |/    || /     |
-      +----+ +----++----+
-      1     3 5    7 9     11
- 
- ( drawings are for svWdivH > texWdivH case
-  For the other case triangles and indices are mirrored at the x-y quadrant diagonal )
- */
-void SLBackground::defineWithBars()
-{
-    SLfloat svWdivH  = (SLfloat)_resX / (SLfloat)_resY;
-    SLfloat texWdivH = (SLfloat)_texture->width() / (SLfloat)_texture->height();
-
-    //screen width and height
-    SLfloat sW = (SLfloat)_resX;
-    SLfloat sH = (SLfloat)_resY;
-
-    //scale factor for bar dimensions for texture coordinate definition
-    SLfloat barS = 0.1f;
-
-    if (svWdivH > texWdivH)
-    {
-        //texture width (relative to resolution defined by resX/resY)
-        SLfloat tW = texWdivH * sH;
-        //bar width
-        SLfloat bW = 0.5f * (sW - tW);
-
-        // Float array with vertex X & Y of corners
-        SLVVec2f P = {
-          {0.0f, sH},      //0
-          {0.0f, 0.0f},    //1
-          {bW, sH},        //2
-          {bW, 0.0f},      //3
-          {bW, sH},        //4
-          {bW, 0.0f},      //5
-          {bW + tW, sH},   //6
-          {bW + tW, 0.0f}, //7
-          {bW + tW, sH},   //8
-          {bW + tW, 0.0f}, //9
-          {sW, sH},        //10
-          {sW, 0.0f}       //11
-        };
-
-        _vao.setAttrib(AT_position, AT_position, &P);
-
-        // Indexes for a triangle strip
-        SLVushort I = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
-        _vao.setIndices(&I);
-
-        SLfloat bWS = bW * barS / sW;
-        SLfloat bHS = barS;
-        //offset from texture boarder to scaled bar in texture
-        SLfloat bHO = 0.5f * (1.0f - bHS);
-
-        SLVVec2f T = {
-          {0.0f, bHO + bHS}, //0
-          {0.0f, bHO},       //1
-          {bWS, bHO + bHS},  //2
-          {bWS, bHO},        //3
-
-          {0.0f, 1.0f}, //4
-          {0.0f, 0.0f}, //5
-          {1.0f, 1.0f}, //6
-          {1.0f, 0.0f}, //7
-
-          {1.0f - bWS, bHO + bHS}, //8
-          {1.0f - bWS, bHO},       //9
-          {1.0f, bHO + bHS},       //10
-          {1.0f, bHO}};            //11
-
-        _vao.setAttrib(AT_uv1, AT_uv1, &T);
-        _vao.generate(12);
-    }
-    else
-    {
-        //texture height (relative to resolution defined by resX/resY)
-        SLfloat tH = sW / texWdivH;
-        //bar height
-        SLfloat bH = 0.5f * (sH - tH);
-
-        // Float array with vertex X & Y of corners
-        SLVVec2f P = {
-          {sW, 0.0f},      //0
-          {0.0f, 0.0f},    //1
-          {sW, bH},        //2
-          {0.0f, bH},      //3
-          {sW, bH},        //4
-          {0.0f, bH},      //5
-          {sW, bH + tH},   //6
-          {0.0f, bH + tH}, //7
-          {sW, bH + tH},   //8
-          {0.0f, bH + tH}, //9
-          {sW, sH},        //10
-          {0, sH}          //11
-        };
-
-        _vao.setAttrib(AT_position, AT_position, &P);
-
-        // Indexes for a triangle strip
-        SLVushort I = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
-        _vao.setIndices(&I);
-
-        SLfloat bWS = barS;
-        SLfloat bHS = bH * barS / sH;
-        //offset from texture boarder to scaled bar in texture
-        SLfloat bO = 0.5f * (1.0f - bWS);
-
-        SLVVec2f T = {
-          {bO + bWS, 0.0f}, //0
-          {bO, 0.0f},       //1
-          {bO + bWS, bHS},  //2
-          {bO, bHS},        //3
-
-          {1.0f, 0.0f}, //4
-          {0.0f, 0.0f}, //5
-          {1.0f, 1.0f}, //6
-          {0.0f, 1.0f}, //7
-
-          {bO + bWS, 1.0f - bHS}, //8
-          {bO, 1.0f - bHS},       //9
-          {bO + bWS, 1.0f},       //10
-          {bO, 1.0f}};            //11
-        _vao.setAttrib(AT_uv1, AT_uv1, &T);
-        _vao.generate(12);
-    }
 }
 //-----------------------------------------------------------------------------
