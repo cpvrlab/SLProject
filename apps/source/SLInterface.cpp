@@ -145,11 +145,11 @@ SLint slCreateSceneView(SLProjectScene* scene,
     //maintain multiple scene views in AppDemo
     AppDemo::sceneViews.push_back(sv);
 
-    AppDemo::gui = new SLGLImGui((cbOnImGuiBuild)onImGuiBuild,
+    AppDemo::gui = nullptr; /*new SLGLImGui((cbOnImGuiBuild)onImGuiBuild,
                                  (cbOnImGuiLoadConfig)onImGuiLoadConfig,
                                  (cbOnImGuiSaveConfig)onImGuiSaveConfig,
                                  dotsPerInch,
-                                 AppDemo::fontPath);
+                                 AppDemo::fontPath);*/
 
     sv->init("SceneView",
              screenWidth,

@@ -403,6 +403,11 @@ static void onKeyPress(GLFWwindow* myWindow,
                     appDemoLoadScene(AppDemo::scene, sv, (SLSceneID)(AppDemo::sceneID + 1));
                     SL_LOG("Loading SceneID: %d", AppDemo::sceneID);
                 }
+                else if (key == K_up) // reload same scene again
+                {
+                    appDemoLoadScene(AppDemo::scene, sv, (SLSceneID)(AppDemo::sceneID));
+                    SL_LOG("Loading SceneID: %d", AppDemo::sceneID);
+                }
             }
             return;
         }
@@ -538,6 +543,7 @@ void initSL(SLVstring& cmdLineArgs)
                         configDir,
                         "AppDemoGLFW",
                         (void*)appDemoLoadScene);
+    /////////////////////////////////////////////////////////
 
     /////////////////////////////////////////////////////////
     slCreateSceneView(AppDemo::scene,
@@ -548,7 +554,7 @@ void initSL(SLVstring& cmdLineArgs)
                       (void*)&onPaint,
                       nullptr,
                       (void*)createAppDemoSceneView,
-                      (void*)AppDemoGui::build,
+                      nullptr, //(void*)AppDemoGui::build,
                       (void*)AppDemoGui::loadConfig,
                       (void*)AppDemoGui::saveConfig);
     /////////////////////////////////////////////////////////

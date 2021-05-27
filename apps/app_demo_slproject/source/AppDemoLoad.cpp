@@ -1506,7 +1506,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->eventHandlers().push_back(exposure_pbrtex);
 
         // Create HDR CubeMap and get precalculated textures from it
-        SLSkybox*    hdrCubeMap     = new SLSkybox(s,
+        SLSkybox* hdrCubeMap = new SLSkybox(s,
                                             shaderPath,
                                             texPath + "env_barce_rooftop.hdr",
                                             SLVec2i(2048, 2048),

@@ -3790,7 +3790,7 @@ void AppDemoGui::loadConfig(SLint dotsPerInch)
                                             style.FramePadding.y = style.ItemInnerSpacing.y = style.ItemSpacing.y;
                                             style.WindowPadding.y = style.ItemSpacing.y * 3;
             fs["ScrollbarSize"] >> i;       style.ScrollbarSize = (SLfloat) i;
-            // HSM4: Bugfix in some unknow cases ScrollbarSize gets INT::MIN
+            // HSM4: Bugfix in some unknown cases ScrollbarSize gets INT::MIN
             if (style.ScrollbarSize < 0.0f)
                 style.ScrollbarSize = 16.0f;
 
