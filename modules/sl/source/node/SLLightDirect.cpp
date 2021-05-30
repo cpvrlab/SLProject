@@ -292,3 +292,13 @@ SLCol4f SLLightDirect::specular()
         return _specularColor * _specularPower;
 }
 //-----------------------------------------------------------------------------
+void SLLightDirect::renderShadowMap(SLSceneView* sv, SLNode* root)
+{
+    // Check if no shadow map was created at load time
+    if (!_shadowMap)
+    {
+        this->createShadowMap();
+    }
+
+    _shadowMap->renderDirectionalLightCascaded(sv, root);
+}

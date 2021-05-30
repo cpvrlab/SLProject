@@ -129,6 +129,7 @@ const string fragInputs_u_lightSm = R"(
 uniform vec4        u_lightPosWS[NUM_LIGHTS];               // position of light in world space
 uniform mat4        u_lightSpace[NUM_LIGHTS * 6];           // projection matrices for lights
 uniform bool        u_lightCreatesShadows[NUM_LIGHTS];      // flag if light creates shadows
+uniform bool        u_lightDoCascadedShadows[NUM_LIGHTS];   // flag if light creates shadows
 uniform bool        u_lightDoSmoothShadows[NUM_LIGHTS];     // flag if percentage-closer filtering is enabled
 uniform int         u_lightSmoothShadowLevel[NUM_LIGHTS];   // radius of area to sample for PCF
 uniform float       u_lightShadowMinBias[NUM_LIGHTS];       // min. shadow bias value at 0° to N
@@ -1733,6 +1734,65 @@ float shadowTest(in int i, in vec3 N, in vec3 lightDir)
 
     return shadowTestCode;
 }
+//-----------------------------------------------------------------------------
+//! Adds the core shadow mapping test routine depending on the lights
+string SLGLProgramGenerated::fragShadowTestCascaded(SLVLight* lights)
+{
+    string shadowTestCode = R"(
+float cascadedShadowTest(in int i, in vec3 N, in vec3 lightDir)
+{
+    if (u_lightDoCascadedShadows[i])
+    {
+        // Calculate position in light space
+        vec3 lightToFragment = v_P_WS - u_lightPosWS[i].xyz;
+
+        for (int j = 0; j < 2; j++)
+        {
+            mat4 lightSpace;
+            lightSpace = u_lightSpace[i * 6 +  j];
+
+            vec4 lightSpacePosition = lightSpace * vec4(v_P_WS, 1.0);
+
+            // Normalize lightSpacePosition
+            vec3 projCoords = lightSpacePosition.xyz / lightSpacePosition.w;
+
+            // Convert to texture coordinates
+            projCoords = projCoords * 0.5 + 0.5;
+
+            float currentDepth = projCoords.z;
+
+            // Look up depth from shadow map
+            float shadow = 0.0;
+            float closestDepth;
+
+            // calculate bias between min. and max. bias depending on the angle between N and lightDir
+            float bias = max(u_lightShadowMaxBias[i] * (1.0 - dot(N, lightDir)), u_lightShadowMinBias[i]);
+
+)";
+
+    for (SLuint i = 0; i < lights->size(); ++i)
+    {
+        SLLight*     light     = lights->at(i);
+        SLShadowMap* shadowMap = light->shadowMap();
+        shadowTestCode += "                if (i == " + to_string(i) + ") { closestDepth = texture(u_cascadedShadowMap_" + to_string(i) + "[j]" + ", projCoords.xy).r; }\n";
+    }
+
+    shadowTestCode += R"(
+                // The fragment is in shadow if the light doesn't "see" it
+                if (currentDepth > closestDepth + bias)
+                    shadow = 1.0;
+            }
+        }
+        return shadow;
+    }
+    return 0.0;
+}
+)";
+
+    return shadowTestCode;
+}
+
+
 //-----------------------------------------------------------------------------
 //! Add vertex shader code to the SLGLShader instance
 void SLGLProgramGenerated::addCodeToShader(SLGLShader*   shader,

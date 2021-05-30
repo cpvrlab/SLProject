@@ -191,7 +191,7 @@ public:
                                  SLfloat        lightDist,
                                  SLNode*        root3D)                           = 0;
 
-    void renderShadowMap(SLSceneView* sv, SLNode* root);
+    virtual void renderShadowMap(SLSceneView* sv, SLNode* root);
 
     // statics valid for overall lighting
     static SLCol4f globalAmbient; //!< static global ambient light intensity

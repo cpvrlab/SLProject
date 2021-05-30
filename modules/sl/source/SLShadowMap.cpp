@@ -17,6 +17,7 @@
 #include <SLNode.h>
 #include <SLShadowMap.h>
 #include <Instrumentor.h>
+#include <SLSceneView.h>
 
 //-----------------------------------------------------------------------------
 SLShadowMap::SLShadowMap(SLProjection   projection,
@@ -31,7 +32,8 @@ SLShadowMap::SLShadowMap(SLProjection   projection,
     _light       = light;
     _projection  = projection;
     _useCubemap  = false;
-    _depthBuffer = nullptr;
+    _useCascaded = false;
+    _depthBuffers = std::vector<SLGLDepthBuffer*>();
     _frustumVAO  = nullptr;
     _rayCount    = SLVec2i(0, 0);
     _mat         = nullptr;
@@ -44,7 +46,7 @@ SLShadowMap::SLShadowMap(SLProjection   projection,
 //-----------------------------------------------------------------------------
 SLShadowMap::~SLShadowMap()
 {
-    delete _depthBuffer;
+    _depthBuffers.erase(_depthBuffers.begin(), _depthBuffers.end());
     delete _frustumVAO;
     delete _mat;
 }
@@ -109,12 +111,12 @@ void SLShadowMap::drawRays()
     SLGLState* stateGL = SLGLState::instance();
     SLVVec3f   P;
 
-    _depthBuffer->bind();
+    _depthBuffers[0]->bind();
 
     SLfloat pixelWidth  = (SLfloat)_textureSize.x / w;
     SLfloat pixelHeight = (SLfloat)_textureSize.y / h;
 
-    SLfloat* depths = _depthBuffer->readPixels();
+    SLfloat* depths = _depthBuffers[0]->readPixels();
 
     for (SLint x = 0; x < w; ++x)
     {
@@ -126,7 +128,7 @@ void SLShadowMap::drawRays()
             SLfloat viewSpaceX = Utils::lerp((x + 0.5f) / w, -1.0f, 1.0f);
             SLfloat viewSpaceY = Utils::lerp((y + 0.5f) / h, -1.0f, 1.0f);
 
-            SLfloat depth = depths[pixelY * _depthBuffer->dimensions().x + pixelX] * 2 - 1;
+            SLfloat depth = depths[pixelY * _depthBuffers[0]->dimensions().x + pixelX] * 2 - 1;
 
             if (depth == 1.0f) continue;
 
@@ -137,7 +139,7 @@ void SLShadowMap::drawRays()
 
     delete depths;
 
-    _depthBuffer->unbind();
+    _depthBuffers[0]->unbind();
 
     if (P.empty()) return;
 
@@ -268,27 +270,39 @@ void SLShadowMap::render(SLSceneView* sv, SLNode* root)
 #else
     SLint wrapMode = GL_CLAMP_TO_BORDER;
 #endif
+ 
 
-    if (_depthBuffer == nullptr ||
-        _depthBuffer->dimensions() != _textureSize ||
-        (_depthBuffer->target() == GL_TEXTURE_CUBE_MAP) != _useCubemap)
+    if (_depthBuffers.size() != 0 &&
+        (_depthBuffers[0]->dimensions() != _textureSize ||
+        (_depthBuffers[0]->target() == GL_TEXTURE_CUBE_MAP) != _useCubemap))
     {
-        delete _depthBuffer;
-        _depthBuffer = new SLGLDepthBuffer(_textureSize,
-                                           GL_NEAREST,
-                                           GL_NEAREST,
-                                           wrapMode,
-                                           borderColor,
-                                           this->_useCubemap
-                                             ? GL_TEXTURE_CUBE_MAP
-                                             : GL_TEXTURE_2D);
+        _depthBuffers.erase(_depthBuffers.begin(), _depthBuffers.end());
     }
-    _depthBuffer->bind();
+
+    if (_depthBuffers.size() == 0)
+    {
+        _depthBuffers.push_back(new SLGLDepthBuffer(_textureSize,
+                                               GL_NEAREST,
+                                               GL_NEAREST,
+                                               wrapMode,
+                                               borderColor,
+                                               this->_useCubemap
+                                                 ? GL_TEXTURE_CUBE_MAP
+                                                 : GL_TEXTURE_2D));
+    }
+
+    if (_depthBuffers.size() != 1 ||
+        _depthBuffers[0]->dimensions() != _textureSize ||
+        (_depthBuffers[0]->target() == GL_TEXTURE_CUBE_MAP) != _useCubemap)
+    {
+
+    }
+    _depthBuffers[0]->bind();
 
     for (SLint i = 0; i < (_useCubemap ? 6 : 1); ++i)
     {
         if (_useCubemap)
-            _depthBuffer->bindFace(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i);
+            _depthBuffers[0]->bindFace(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i);
 
         // Set viewport
         stateGL->viewport(0, 0, _textureSize.x, _textureSize.y);
@@ -305,6 +319,135 @@ void SLShadowMap::render(SLSceneView* sv, SLNode* root)
         drawNodesIntoDepthBuffer(root, sv, _v[i]);
     }
 
-    _depthBuffer->unbind();
+    _depthBuffers[0]->unbind();
 }
 //-----------------------------------------------------------------------------
+
+#include <algorithm>
+
+void frustumGetPoints(std::vector<SLVec3f> &pts, SLVec3f pos, float fovV, float ratio, float clip)
+{
+    SLfloat t = tan(Utils::DEG2RAD * fovV * 0.5f) * clip;          // top
+    SLfloat b = -t;                                                // bottom
+    SLfloat r = ratio * t;                                         // right
+    SLfloat l = -l;                                                // left
+    SLfloat c = std::min(l, r) * 0.05f;                            // size of cross at focal point
+    pts.push_back(SLVec3f(r, t, -clip));
+    pts.push_back(SLVec3f(r, b, -clip));
+    pts.push_back(SLVec3f(l, t, -clip));
+    pts.push_back(SLVec3f(l, b, -clip));
+}
+
+void SLShadowMap::renderDirectionalLightCascaded(SLSceneView* sv, SLNode* root)
+{
+    _useCascaded = true;
+    SLGLState* stateGL = SLGLState::instance();
+    
+    SLint wrapMode = GL_CLAMP_TO_BORDER;
+
+    // Create depth buffer
+    static SLfloat borderColor[] = {1.0, 1.0, 1.0, 1.0};
+
+    // Create Material
+    if (_mat == nullptr)
+        _mat = new SLMaterial(
+          nullptr,
+          "shadowMapMaterial",
+          nullptr,
+          nullptr,
+          nullptr,
+          nullptr,
+          SLGLProgramManager::get(SP_depth));
+
+
+    if (_depthBuffers.size() != 0 &&
+        (_depthBuffers[0]->dimensions() != _textureSize ||
+        _depthBuffers[0]->target() != GL_TEXTURE_2D))
+    {
+        _depthBuffers.erase(_depthBuffers.begin(), _depthBuffers.end());
+    }
+
+    if (_depthBuffers.size() == 0)
+    {
+        for (int i = 0; i < 6; i++)
+        {
+            _depthBuffers.push_back(new SLGLDepthBuffer(_textureSize,
+                                                        GL_NEAREST,
+                                                        GL_NEAREST,
+                                                        wrapMode,
+                                                        borderColor,
+                                                        GL_TEXTURE_2D));
+        }
+    }
+
+    SLCamera * camera = sv->camera();
+
+    SLMat4f cm = camera->updateAndGetWM(); // camera to world space
+    SLVec3f v = cm.axisZ().normalized();
+    SLNode* node = dynamic_cast<SLNode*>(_light);
+
+    float n = camera->clipNear();
+    float step = (camera->clipFar() - camera->clipNear()) / 6;
+    float f = n + step;
+
+    // for all subdivision of frustum
+    for (int i = 0; i < 6; i++)
+    {
+        v = cm.translation() + v * (n + f) * 0.5f;
+
+        SLMat4f lv; // world space to light space
+        SLMat4f lp; // light space to light projected
+        lv.lookAt(v, v + node->forwardOS(), node->upWS());
+        lp.ortho(-_halfSize.x, _halfSize.x, -_halfSize.y, _halfSize.y, -1000, 1000); //TODO NEAR FAR CLIP LIGHT
+
+        std::vector<SLVec3f> frustumPoints;
+        frustumGetPoints(frustumPoints, v, camera->fovV(), sv->scrWdivH(), n);
+        frustumGetPoints(frustumPoints, v, camera->fovV(), sv->scrWdivH(), f);
+
+        float minx = 99999, miny = 99999;
+        float maxx = -99999, maxy = -99999;
+        for (int j = 0; j < 8; j++)
+        {
+            SLVec3f fp = lp * lv * cm * frustumPoints[j];
+            if (fp.x < minx)
+                minx = fp.x;
+            if (fp.y < miny)
+                miny = fp.y;
+            if (fp.x > maxx)
+                maxx = fp.x;
+            if (fp.y > maxy)
+                maxy = fp.y;
+        }
+
+        float sx = 2.f/(maxx - minx);
+        float sy = 2.f/(maxy - miny);
+        SLMat4f C;
+        C.identity();
+        C.scale(sx, sy, 1.f);
+        C.translate(-0.5f * sx * (maxx - minx), -0.5f * sy * (maxy - miny));
+
+        _depthBuffers[i]->bind();
+
+        // Set matrices
+        stateGL->viewMatrix       = lv;
+        stateGL->projectionMatrix = C * lp;
+
+        _v[i] = lv;
+        _p = C * lp;
+        _mvp[i] = _p * lv;
+
+        stateGL->viewport(0, 0, _textureSize.x, _textureSize.y);
+
+        // Clear color buffer
+        stateGL->clearColor(SLCol4f::BLACK);
+        stateGL->clearColorDepthBuffer();
+
+        // Draw meshes
+        drawNodesIntoDepthBuffer(root, sv, lv);
+
+        _depthBuffers[i]->unbind();
+
+        n = f;
+        f = n + step;
+    }
+}

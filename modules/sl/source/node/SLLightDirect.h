@@ -97,11 +97,14 @@ public:
     SLCol4f diffuse() override;
     SLCol4f specular() override;
 
+protected:
+    void renderShadowMap(SLSceneView* sv, SLNode* root) override;
+
 private:
-    SLfloat    _arrowRadius;          //!< The sphere lights radius
-    SLfloat    _arrowLength;          //!< Length of direction line
-    SLbool     _doSunPowerAdaptation; //!< Flag for sun power scaling
-    SLfloat    _sunLightPowerMin;     //!< Min. zenith power scale factor for sun
+    SLfloat       _arrowRadius;          //!< The sphere lights radius
+    SLfloat       _arrowLength;          //!< Length of direction line
+    SLbool        _doSunPowerAdaptation; //!< Flag for sun power scaling
+    SLfloat       _sunLightPowerMin;     //!< Min. zenith power scale factor for sun
     SLTexColorLUT _sunLightColorLUT;     //!< Sun light color LUT
 };
 //-----------------------------------------------------------------------------
