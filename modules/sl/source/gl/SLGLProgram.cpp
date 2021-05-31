@@ -334,7 +334,8 @@ void SLGLProgram::passLightsToUniforms(SLVLight* lights,
         SLfloat          lightShadowMaxBias[SL_MAX_LIGHTS];     //!< shadow mapping max. bias at 90 deg.
         SLint            lightUsesCubemap[SL_MAX_LIGHTS];       //!< flag if light has a cube shadow map
         SLMat4f          lightSpace[SL_MAX_LIGHTS * 6];         //!< projection matrix of the light
-        SLGLDepthBuffer* lightShadowMap[SL_MAX_LIGHTS];         //!< pointers to depth-buffers for shadow mapping
+        SLGLDepthBuffer* lightShadowMap[SL_MAX_LIGHTS * 6];     //!< pointers to depth-buffers for shadow mapping
+        SLint            lightDoCascadedShadows[SL_MAX_LIGHTS]; //!< flag if light has a cube shadow map
 
         // Init to defaults
         for (SLint i = 0; i < SL_MAX_LIGHTS; ++i)
@@ -353,14 +354,17 @@ void SLGLProgram::passLightsToUniforms(SLVLight* lights,
             lightAtt[i].set(1.0f, 0.0f, 0.0f);
             lightDoAtt[i] = 0;
             for (SLint ii = 0; ii < 6; ++ii)
+            {
                 lightSpace[i * 6 + ii] = SLMat4f();
+                lightShadowMap[i * 6 + ii] = nullptr;
+            }
             lightCreatesShadows[i]    = 0;
             lightDoSmoothShadows[i]   = 0;
             lightSmoothShadowLevel[i] = 1;
             lightShadowMinBias[i]     = 0.001f;
             lightShadowMaxBias[i]     = 0.008f;
             lightUsesCubemap[i]       = 0;
-            lightShadowMap[i]         = nullptr;
+            lightDoCascadedShadows[i] = 0;
         }
 
         // Fill up light property vectors
@@ -392,10 +396,16 @@ void SLGLProgram::passLightsToUniforms(SLVLight* lights,
             lightShadowMinBias[i]     = light->shadowMinBias();
             lightShadowMaxBias[i]     = light->shadowMaxBias();
             lightUsesCubemap[i]       = shadowMap && shadowMap->useCubemap() ? 1 : 0;
-            lightShadowMap[i]         = shadowMap && shadowMap->depthBuffer() ? shadowMap->depthBuffer() : nullptr;
-            if (lightShadowMap[i])
+            lightDoCascadedShadows[i] = light->doCascadedShadows();
+
+            if (shadowMap)
+            {
                 for (SLint ls = 0; ls < 6; ++ls)
+                {
+                    lightShadowMap[i * 6 + ls] = shadowMap->depthBuffers().size() > ls? shadowMap->depthBuffers()[ls] : nullptr;
                     lightSpace[i * 6 + ls] = shadowMap->mvp()[ls];
+                }
+            }
         }
 
         // Pass vectors as uniform vectors
@@ -419,14 +429,36 @@ void SLGLProgram::passLightsToUniforms(SLVLight* lights,
         uniform1iv("u_lightCreatesShadows", nL, (SLint*)&lightCreatesShadows);
         uniform1fv("u_lightShadowMinBias", nL, (SLfloat*)&lightShadowMinBias);
         uniform1fv("u_lightShadowMaxBias", nL, (SLfloat*)&lightShadowMaxBias);
+        uniform1iv("u_lightDoCascadedShadows", nL, (SLint*)&lightDoCascadedShadows);
+
+        int unitCounter = numTexInMat;
 
         for (int i = 0; i < SL_MAX_LIGHTS; ++i)
         {
             if (lightCreatesShadows[i])
             {
+                if (lightDoCascadedShadows[i])
+                {
+                    for (int j = 0; j < 6; j++)
+                    {
+                        SLint    loc = 0;
+                        SLstring uniformSm;
+                        uniformSm = "u_cascadedShadowMap_" + std::to_string(i) + "[" + std::to_string(j) + "]";
+
+                        if ((loc = getUniformLocation(uniformSm.c_str())) >= 0)
+                        {
+                            lightShadowMap[i*6 + j]->bindActive(unitCounter);
+                            glUniform1i(loc, unitCounter);
+
+                            unitCounter++;
+                        }
+                    }
+                }
+            }
+            else
+            {
                 SLint    loc = 0;
                 SLstring uniformSm;
-                SLuint   texUnit = numTexInMat + i;
 
                 if (lightUsesCubemap[i])
                     uniformSm = "u_shadowMapCube_" + std::to_string(i);
@@ -435,8 +467,10 @@ void SLGLProgram::passLightsToUniforms(SLVLight* lights,
 
                 if ((loc = getUniformLocation(uniformSm.c_str())) >= 0)
                 {
-                    lightShadowMap[i]->bindActive(texUnit);
-                    glUniform1i(loc, texUnit);
+                    lightShadowMap[i*6]->bindActive(unitCounter);
+                    glUniform1i(loc, unitCounter);
+
+                    unitCounter++;
                 }
             }
         }

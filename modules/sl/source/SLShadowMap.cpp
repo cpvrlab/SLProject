@@ -330,8 +330,7 @@ void frustumGetPoints(std::vector<SLVec3f> &pts, SLVec3f pos, float fovV, float 
     SLfloat t = tan(Utils::DEG2RAD * fovV * 0.5f) * clip;          // top
     SLfloat b = -t;                                                // bottom
     SLfloat r = ratio * t;                                         // right
-    SLfloat l = -l;                                                // left
-    SLfloat c = std::min(l, r) * 0.05f;                            // size of cross at focal point
+    SLfloat l = -r;                                                // left
     pts.push_back(SLVec3f(r, t, -clip));
     pts.push_back(SLVec3f(r, b, -clip));
     pts.push_back(SLVec3f(l, t, -clip));
@@ -383,7 +382,6 @@ void SLShadowMap::renderDirectionalLightCascaded(SLSceneView* sv, SLNode* root)
     SLCamera * camera = sv->camera();
 
     SLMat4f cm = camera->updateAndGetWM(); // camera to world space
-    SLVec3f v = cm.axisZ().normalized();
     SLNode* node = dynamic_cast<SLNode*>(_light);
 
     float n = camera->clipNear();
@@ -393,7 +391,7 @@ void SLShadowMap::renderDirectionalLightCascaded(SLSceneView* sv, SLNode* root)
     // for all subdivision of frustum
     for (int i = 0; i < 6; i++)
     {
-        v = cm.translation() + v * (n + f) * 0.5f;
+        SLVec3f v = cm.translation() + cm.axisZ().normalized() * (n + f) * 0.5f;
 
         SLMat4f lv; // world space to light space
         SLMat4f lp; // light space to light projected
@@ -425,6 +423,8 @@ void SLShadowMap::renderDirectionalLightCascaded(SLSceneView* sv, SLNode* root)
         C.identity();
         C.scale(sx, sy, 1.f);
         C.translate(-0.5f * sx * (maxx - minx), -0.5f * sy * (maxy - miny));
+
+        std::cout << "light frustum " << i << "  near, far " << n << " " << f << "   min max (" << minx << ", " << miny << ") (" << maxx << ", " << maxy << ") " << std::endl;
 
         _depthBuffers[i]->bind();
 

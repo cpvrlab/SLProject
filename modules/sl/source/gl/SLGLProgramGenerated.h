@@ -99,6 +99,7 @@ private:
     void buildPerPixBlinnTmAo(SLVLight* lights);
     void buildPerPixBlinnTmNm(SLVLight* lights);
     void buildPerPixBlinnSm(SLVLight* lights);
+    void buildPerPixBlinnSc(SLVLight* lights);
     void buildPerPixBlinnAo(SLVLight* lights);
     void buildPerPixBlinnNm(SLVLight* lights);
     void buildPerPixBlinnTm(SLVLight* lights);

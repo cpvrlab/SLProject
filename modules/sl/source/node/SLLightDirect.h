@@ -60,6 +60,7 @@ public:
     bool    hitRec(SLRay* ray) override;
     void    statsRec(SLNodeStats& stats) override;
     void    drawMesh(SLSceneView* sv) override;
+    SLbool  doCascadedShadows() const  override { return true; }
     SLfloat shadowTest(SLRay*         ray,
                        const SLVec3f& L,
                        SLfloat        lightDist,

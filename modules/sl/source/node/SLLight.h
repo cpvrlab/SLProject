@@ -151,6 +151,8 @@ public:
     SLuint       softShadowLevel() const { return _softShadowLevel; }
     SLfloat      shadowMinBias() const { return _shadowMinBias; }
     SLfloat      shadowMaxBias() const { return _shadowMaxBias; }
+    
+    virtual SLbool doCascadedShadows() const { return false; }
 
 #ifdef SL_HAS_OPTIX
     virtual ortLight optixLight(bool)
