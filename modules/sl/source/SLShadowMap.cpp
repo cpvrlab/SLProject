@@ -384,29 +384,35 @@ void SLShadowMap::renderDirectionalLightCascaded(SLSceneView* sv, SLNode* root)
     SLMat4f cm = camera->updateAndGetWM(); // camera to world space
     SLNode* node = dynamic_cast<SLNode*>(_light);
 
-    float n = camera->clipNear();
-    float step = (camera->clipFar() - camera->clipNear()) / 6;
-    float f = n + step;
+    float n = std::max(camera->clipNear(), 0.5f);
+    float f = camera->clipFar();
+
+    float ni = n;
+    float fi = n;
 
     // for all subdivision of frustum
     for (int i = 0; i < 6; i++)
     {
-        SLVec3f v = cm.translation() + cm.axisZ().normalized() * (n + f) * 0.5f;
+        ni = fi;
+        fi = n * pow((f/n), (i+1)/6.0f);
+
+        SLVec3f v = cm.translation() - cm.axisZ().normalized() * (ni + fi) * 0.5f;
 
         SLMat4f lv; // world space to light space
         SLMat4f lp; // light space to light projected
         lv.lookAt(v, v + node->forwardOS(), node->upWS());
-        lp.ortho(-_halfSize.x, _halfSize.x, -_halfSize.y, _halfSize.y, -1000, 1000); //TODO NEAR FAR CLIP LIGHT
+        lp.ortho(-_halfSize.x, _halfSize.x, -_halfSize.y, _halfSize.y, -50, 50); //TODO NEAR FAR CLIP LIGHT
 
         std::vector<SLVec3f> frustumPoints;
-        frustumGetPoints(frustumPoints, v, camera->fovV(), sv->scrWdivH(), n);
-        frustumGetPoints(frustumPoints, v, camera->fovV(), sv->scrWdivH(), f);
+        frustumGetPoints(frustumPoints, v, camera->fovV(), sv->scrWdivH(), ni);
+        frustumGetPoints(frustumPoints, v, camera->fovV(), sv->scrWdivH(), fi);
 
         float minx = 99999, miny = 99999;
         float maxx = -99999, maxy = -99999;
+        float minz = 99999;
         for (int j = 0; j < 8; j++)
         {
-            SLVec3f fp = lp * lv * cm * frustumPoints[j];
+            SLVec3f fp = lv * cm * frustumPoints[j];
             if (fp.x < minx)
                 minx = fp.x;
             if (fp.y < miny)
@@ -415,25 +421,28 @@ void SLShadowMap::renderDirectionalLightCascaded(SLSceneView* sv, SLNode* root)
                 maxx = fp.x;
             if (fp.y > maxy)
                 maxy = fp.y;
+
+            if (fp.z < minz)
+                minz = fp.z;
         }
+
+        float maxz = -minz + 100;
 
         float sx = 2.f/(maxx - minx);
         float sy = 2.f/(maxy - miny);
+        float sz = -2.f/(maxz - minz);
         SLMat4f C;
         C.identity();
-        C.scale(sx, sy, 1.f);
-        C.translate(-0.5f * sx * (maxx - minx), -0.5f * sy * (maxy - miny));
-
-        std::cout << "light frustum " << i << "  near, far " << n << " " << f << "   min max (" << minx << ", " << miny << ") (" << maxx << ", " << maxy << ") " << std::endl;
+        C.scale(sx, sy, sz);
+        C.translate(-0.5f * sx * (maxx + minx), -0.5f * sy * (maxy + miny), -0.5f * sz * (maxz - minz));
 
         _depthBuffers[i]->bind();
 
         // Set matrices
         stateGL->viewMatrix       = lv;
-        stateGL->projectionMatrix = C * lp;
-
+        stateGL->projectionMatrix = C;
         _v[i] = lv;
-        _p = C * lp;
+        _p = C;
         _mvp[i] = _p * lv;
 
         stateGL->viewport(0, 0, _textureSize.x, _textureSize.y);
@@ -446,8 +455,5 @@ void SLShadowMap::renderDirectionalLightCascaded(SLSceneView* sv, SLNode* root)
         drawNodesIntoDepthBuffer(root, sv, lv);
 
         _depthBuffers[i]->unbind();
-
-        n = f;
-        f = n + step;
     }
 }

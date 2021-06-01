@@ -226,12 +226,14 @@ const string fragOutputs_o_fragColor = R"(
 out     vec4        o_fragColor;        // output fragment color
 )";
 //-----------------------------------------------------------------------------
+//TODO Change back to normal
 const string fragFunctionLightingBlinnPhong = R"(
 void directLightBlinnPhong(in    int  i,       // Light number between 0 and NUM_LIGHTS
                            in    vec3 N,       // Normalized normal at v_P
                            in    vec3 E,       // Normalized direction at v_P to the eye
                            in    vec3 S,       // Normalized light spot direction
-                           in    float shadow, // shadow factor
+                           //in    float shadow, // shadow factor
+                           in    vec3 shadow, // shadow factor
                            inout vec4 Ia,      // Ambient light intensity
                            inout vec4 Id,      // Diffuse light intensity
                            inout vec4 Is)      // Specular light intensity
@@ -247,9 +249,13 @@ void directLightBlinnPhong(in    int  i,       // Light number between 0 and NUM
     }
 
     // accumulate directional light intesities w/o attenuation
-    Ia += u_lightAmbi[i];
-    Id += u_lightDiff[i]  * diffFactor * (1.0 - shadow);
-    Is += u_lightSpec[i] * specFactor * (1.0 - shadow);
+    //Ia += u_lightAmbi[i];
+    //Id += u_lightDiff[i]  * diffFactor * (1.0 - shadow);
+    //Is += u_lightSpec[i] * specFactor * (1.0 - shadow);
+
+    Ia = vec4(0.5f); 
+    Id = vec4(shadow, 1.0f);
+    Is += u_lightSpec[i] * specFactor;// * (1.0 - shadow);
 }
 
 void pointLightBlinnPhong( in    int   i,
@@ -257,7 +263,8 @@ void pointLightBlinnPhong( in    int   i,
                            in    vec3  E,
                            in    vec3  S,
                            in    vec3  L,
-                           in    float shadow,
+                           //in    float shadow,
+                           in    vec3 shadow,
                            inout vec4  Ia,
                            inout vec4  Id,
                            inout vec4  Is)
@@ -297,9 +304,12 @@ void pointLightBlinnPhong( in    int   i,
     }
 
     // Accumulate light intensities
-    Ia += att * u_lightAmbi[i];
-    Id += att * u_lightDiff[i] * diffFactor * (1.0 - shadow);
-    Is += att * u_lightSpec[i] * specFactor * (1.0 - shadow);
+    //Ia += att * u_lightAmbi[i];
+    //Id += att * u_lightDiff[i] * diffFactor * (1.0 - shadow);
+    //Is += att * u_lightSpec[i] * specFactor * (1.0 - shadow);
+    Ia = vec4(0.5f); 
+    Id = vec4(shadow, 1.0f);
+    Is += att * u_lightSpec[i] * specFactor;// * (1.0 - shadow);
 }
 )";
 //-----------------------------------------------------------------------------
@@ -587,6 +597,8 @@ const string fragMainBlinn_2_LightLoopNm = R"(
         }
     }
 )";
+
+//TODO change back to normal
 const string fragMainBlinn_2_LightLoopSm = R"(
     for (int i = 0; i < NUM_LIGHTS; ++i)
     {
@@ -598,7 +610,8 @@ const string fragMainBlinn_2_LightLoopSm = R"(
                 vec3 S = normalize(-u_lightSpotDir[i].xyz);
 
                 // Test if the current fragment is in shadow
-                float shadow = u_matGetsShadows ? shadowTest(i, N, S) : 0.0;
+                //float shadow = u_matGetsShadows ? shadowTest(i, N, S) : 0.0;
+                vec3 shadow = u_matGetsShadows ? shadowTest(i, N, S) : vec3(0.5);
 
                 directLightBlinnPhong(i, N, E, S, shadow, Ia, Id, Is);
             }
@@ -608,7 +621,8 @@ const string fragMainBlinn_2_LightLoopSm = R"(
                 vec3 L = u_lightPosVS[i].xyz - v_P_VS; // Vector from v_P to light in VS
 
                 // Test if the current fragment is in shadow
-                float shadow = u_matGetsShadows ? shadowTest(i, N, L) : 0.0;
+                //float shadow = u_matGetsShadows ? shadowTest(i, N, L) : 0.0;
+                vec3 shadow = u_matGetsShadows ? shadowTest(i, N, L) : vec3(0.0);
 
                 pointLightBlinnPhong(i, N, E, S, L, shadow, Ia, Id, Is);
             }
@@ -1791,15 +1805,18 @@ float shadowTest(in int i, in vec3 N, in vec3 lightDir)
 string SLGLProgramGenerated::fragShadowTestCascaded(SLVLight* lights)
 {
     string shadowTestCode = R"(
-float shadowTest(in int i, in vec3 N, in vec3 lightDir)
+vec3 shadowTest(in int i, in vec3 N, in vec3 lightDir)
 {
     if (u_lightDoCascadedShadows[i])
     {
         // Calculate position in light space
         vec3 lightToFragment = v_P_WS - u_lightPosWS[i].xyz;
-        float shadow = 0.0;
+        float shadow[3];
+        shadow[0] = 0.f;
+        shadow[1] = 0.f;
+        shadow[2] = 0.f;
 
-        for (int j = 2; j < 3; j++)
+        for (int j = 0; j < 6; j++)
         {
             mat4 lightSpace;
             lightSpace = u_lightSpace[i * 6 +  j];
@@ -1808,6 +1825,9 @@ float shadowTest(in int i, in vec3 N, in vec3 lightDir)
 
             // Normalize lightSpacePosition
             vec3 projCoords = lightSpacePosition.xyz / lightSpacePosition.w;
+
+            if (projCoords.z > 1.0f)
+                break;
 
             // Convert to texture coordinates
             projCoords = projCoords * 0.5 + 0.5;
@@ -1823,7 +1843,7 @@ float shadowTest(in int i, in vec3 N, in vec3 lightDir)
 
     for (SLuint i = 0; i < lights->size(); ++i)
     {
-        SLLight*     light     = lights->at(i);
+        SLLight* light = lights->at(i);
         if (light->doCascadedShadows())
         {
             SLShadowMap* shadowMap = light->shadowMap();
@@ -1834,11 +1854,13 @@ float shadowTest(in int i, in vec3 N, in vec3 lightDir)
     shadowTestCode += R"(
             // The fragment is in shadow if the light doesn't "see" it
             if (currentDepth > closestDepth + bias)
-                shadow = 1.0;
+            {
+                shadow[j%3] = 1.0;
+            }
         }
-        return shadow;
+        return vec3(shadow[0], shadow[1], shadow[2]);
     }
-    return 0.0;
+    return vec3(0.0);
 }
 )";
 
