@@ -342,6 +342,7 @@ void SLShadowMap::renderDirectionalLightCascaded(SLSceneView* sv, SLNode* root)
     _useCascaded = true;
     SLGLState* stateGL = SLGLState::instance();
     
+    SLCamera * camera = sv->camera();
     SLint wrapMode = GL_CLAMP_TO_BORDER;
 
     // Create depth buffer
@@ -368,7 +369,7 @@ void SLShadowMap::renderDirectionalLightCascaded(SLSceneView* sv, SLNode* root)
 
     if (_depthBuffers.size() == 0)
     {
-        for (int i = 0; i < 6; i++)
+        for (int i = 0; i < camera->getShadowMapCascades().size(); i++)
         {
             _depthBuffers.push_back(new SLGLDepthBuffer(_textureSize,
                                                         GL_NEAREST,
@@ -379,23 +380,16 @@ void SLShadowMap::renderDirectionalLightCascaded(SLSceneView* sv, SLNode* root)
         }
     }
 
-    SLCamera * camera = sv->camera();
 
     SLMat4f cm = camera->updateAndGetWM(); // camera to world space
     SLNode* node = dynamic_cast<SLNode*>(_light);
-
-    float n = std::max(camera->clipNear(), 0.5f);
-    float f = camera->clipFar();
-
-    float ni = n;
-    float fi = n;
+    std::vector<SLVec2f> cascades = camera->getShadowMapCascades();
 
     // for all subdivision of frustum
-    for (int i = 0; i < 6; i++)
+    for (int i = 0; i < cascades.size(); i++)
     {
-        ni = fi;
-        fi = n * pow((f/n), (i+1)/6.0f);
-
+        float ni = cascades[i].x;
+        float fi  = cascades[i].y;
         SLVec3f v = cm.translation() - cm.axisZ().normalized() * (ni + fi) * 0.5f;
 
         SLMat4f lv; // world space to light space

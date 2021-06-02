@@ -182,6 +182,10 @@ public:
     SLRectf&      selectRect() { return _selectRect; }
     SLRectf&      deselectRect() { return _deselectRect; }
 
+    void setShadowMapCascades(int n);
+    std::vector<SLVec2f> getShadowMapCascades();
+
+
     //update rotation matrix _enucorrRenu
     void updateEnuCorrRenu(SLSceneView* sv, const SLMat3f& enuRc, float& f, SLVec3f& enuOffsetPix);
 
@@ -219,6 +223,9 @@ protected:
         F
     };                        //!< enumeration for frustum planes
     SLBackground _background; //!< Colors or texture displayed in the background
+
+    std::vector<SLVec2f> _cascades; //!< Position of different near/far plane for cascaded shadowmap
+    int _nbCascades;
 
     SLGLVertexArrayExt _vao; //!< OpenGL Vertex array for rendering
 

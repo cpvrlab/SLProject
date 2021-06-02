@@ -13,6 +13,7 @@
 #include <SLGLShader.h>
 #include <SLCamera.h>
 #include <SLLight.h>
+#include <SLGLDepthBuffer.h>
 
 using std::string;
 using std::to_string;
@@ -221,19 +222,23 @@ uniform float       u_camFogStart;      // fog start distance
 uniform float       u_camFogEnd;        // fog end distance
 uniform vec4        u_camFogColor;      // fog color (usually the background)
 )";
+
+//-----------------------------------------------------------------------------
+const string fragInputs_u_camForCascaded = R"(
+    uniform float u_camCascadeDepth[NUM_CASCADES];
+)";
+
 //-----------------------------------------------------------------------------
 const string fragOutputs_o_fragColor = R"(
 out     vec4        o_fragColor;        // output fragment color
 )";
 //-----------------------------------------------------------------------------
-//TODO Change back to normal
 const string fragFunctionLightingBlinnPhong = R"(
 void directLightBlinnPhong(in    int  i,       // Light number between 0 and NUM_LIGHTS
                            in    vec3 N,       // Normalized normal at v_P
                            in    vec3 E,       // Normalized direction at v_P to the eye
                            in    vec3 S,       // Normalized light spot direction
-                           //in    float shadow, // shadow factor
-                           in    vec3 shadow, // shadow factor
+                           in    float shadow, // shadow factor
                            inout vec4 Ia,      // Ambient light intensity
                            inout vec4 Id,      // Diffuse light intensity
                            inout vec4 Is)      // Specular light intensity
@@ -249,13 +254,9 @@ void directLightBlinnPhong(in    int  i,       // Light number between 0 and NUM
     }
 
     // accumulate directional light intesities w/o attenuation
-    //Ia += u_lightAmbi[i];
-    //Id += u_lightDiff[i]  * diffFactor * (1.0 - shadow);
-    //Is += u_lightSpec[i] * specFactor * (1.0 - shadow);
-
-    Ia = vec4(0.5f); 
-    Id = vec4(shadow, 1.0f);
-    Is += u_lightSpec[i] * specFactor;// * (1.0 - shadow);
+    Ia += u_lightAmbi[i];
+    Id += u_lightDiff[i]  * diffFactor * (1.0 - shadow);
+    Is += u_lightSpec[i] * specFactor * (1.0 - shadow);
 }
 
 void pointLightBlinnPhong( in    int   i,
@@ -263,8 +264,7 @@ void pointLightBlinnPhong( in    int   i,
                            in    vec3  E,
                            in    vec3  S,
                            in    vec3  L,
-                           //in    float shadow,
-                           in    vec3 shadow,
+                           in    float shadow,
                            inout vec4  Ia,
                            inout vec4  Id,
                            inout vec4  Is)
@@ -304,12 +304,9 @@ void pointLightBlinnPhong( in    int   i,
     }
 
     // Accumulate light intensities
-    //Ia += att * u_lightAmbi[i];
-    //Id += att * u_lightDiff[i] * diffFactor * (1.0 - shadow);
-    //Is += att * u_lightSpec[i] * specFactor * (1.0 - shadow);
-    Ia = vec4(0.5f); 
-    Id = vec4(shadow, 1.0f);
-    Is += att * u_lightSpec[i] * specFactor;// * (1.0 - shadow);
+    Ia += att * u_lightAmbi[i];
+    Id += att * u_lightDiff[i] * diffFactor * (1.0 - shadow);
+    Is += att * u_lightSpec[i] * specFactor * (1.0 - shadow);
 }
 )";
 //-----------------------------------------------------------------------------
@@ -598,7 +595,6 @@ const string fragMainBlinn_2_LightLoopNm = R"(
     }
 )";
 
-//TODO change back to normal
 const string fragMainBlinn_2_LightLoopSm = R"(
     for (int i = 0; i < NUM_LIGHTS; ++i)
     {
@@ -610,9 +606,7 @@ const string fragMainBlinn_2_LightLoopSm = R"(
                 vec3 S = normalize(-u_lightSpotDir[i].xyz);
 
                 // Test if the current fragment is in shadow
-                //float shadow = u_matGetsShadows ? shadowTest(i, N, S) : 0.0;
-                vec3 shadow = u_matGetsShadows ? shadowTest(i, N, S) : vec3(0.5);
-
+                float shadow = u_matGetsShadows ? shadowTest(i, N, S) : 0.0;
                 directLightBlinnPhong(i, N, E, S, shadow, Ia, Id, Is);
             }
             else
@@ -621,9 +615,7 @@ const string fragMainBlinn_2_LightLoopSm = R"(
                 vec3 L = u_lightPosVS[i].xyz - v_P_VS; // Vector from v_P to light in VS
 
                 // Test if the current fragment is in shadow
-                //float shadow = u_matGetsShadows ? shadowTest(i, N, L) : 0.0;
-                vec3 shadow = u_matGetsShadows ? shadowTest(i, N, L) : vec3(0.0);
-
+                float shadow = u_matGetsShadows ? shadowTest(i, N, L) : 0.0;
                 pointLightBlinnPhong(i, N, E, S, L, shadow, Ia, Id, Is);
             }
         }
@@ -840,8 +832,8 @@ void SLGLProgramGenerated::buildProgramCode(SLMaterial* mat,
     // Check if any of the scene lights does shadow mapping
     bool Sm = lightsDoShadowMapping(lights);
 
-    buildPerPixBlinnSc(lights);
-    return;
+    //buildPerPixBlinnSc(lights);
+    //return;
 
     if (mat->lightModel() == LM_BlinnPhong)
     {
@@ -1437,9 +1429,21 @@ void SLGLProgramGenerated::buildPerPixBlinnSc(SLVLight* lights)
     vertCode += vertMainBlinn_EndAll;
     addCodeToShader(_shaders[0], vertCode, _name + ".vert");
 
+    int nbCascade = 0;
+    for (SLLight * light : *lights)
+    {
+        if (light->doCascadedShadows())
+        {
+            int n = light->shadowMap()->depthBuffers().size();
+            if (nbCascade != 0 && n != nbCascade)
+                std::cout << "error" << std::endl;
+            nbCascade = n;
+        }
+    }
+
     // Assemble fragment shader code
     string fragCode;
-    fragCode += shaderHeader((int)lights->size());
+    fragCode += shaderHeader((int)lights->size(), nbCascade);
     fragCode += R"(
 in      vec3        v_P_VS;     // Interpol. point of illumination in view space (VS)
 in      vec3        v_P_WS;     // Interpol. point of illumination in world space (WS)
@@ -1451,11 +1455,12 @@ in      vec3        v_N_VS;     // Interpol. normal at v_P_VS in view space
     fragCode += fragInputs_u_matSm;
     fragCode += fragInputs_u_shadowMaps(lights);
     fragCode += fragInputs_u_cam;
+    fragCode += fragInputs_u_camForCascaded;
     fragCode += fragOutputs_o_fragColor;
     fragCode += fragFunctionLightingBlinnPhong;
     fragCode += fragFunctionFogBlend;
     fragCode += fragFunctionDoStereoSeparation;
-    fragCode += fragShadowTestCascaded(lights);
+    fragCode += fragShadowTestCascaded(lights, nbCascade);
     fragCode += fragMainBlinn_0_IntensityDeclaration;
     fragCode += fragMainBlinn_1_EN_fromVert;
     fragCode += fragMainBlinn_2_LightLoopSm;
@@ -1802,32 +1807,34 @@ float shadowTest(in int i, in vec3 N, in vec3 lightDir)
 }
 //-----------------------------------------------------------------------------
 //! Adds the core shadow mapping test routine depending on the lights
-string SLGLProgramGenerated::fragShadowTestCascaded(SLVLight* lights)
+string SLGLProgramGenerated::fragShadowTestCascaded(SLVLight* lights, int nbCascades)
 {
     string shadowTestCode = R"(
-vec3 shadowTest(in int i, in vec3 N, in vec3 lightDir)
+float shadowTest(in int i, in vec3 N, in vec3 lightDir)
 {
     if (u_lightDoCascadedShadows[i])
     {
         // Calculate position in light space
         vec3 lightToFragment = v_P_WS - u_lightPosWS[i].xyz;
-        float shadow[3];
-        shadow[0] = 0.f;
-        shadow[1] = 0.f;
-        shadow[2] = 0.f;
 
-        for (int j = 0; j < 6; j++)
-        {
+        int index = NUM_CASCADES - 1;
+        if (-v_P_VS.z < u_camCascadeDepth[0]) { index = 0; }
+    )";
+
+    //For each cascades
+    for (int i = 1; i < nbCascades-1; i++)
+    {
+        shadowTestCode += "        else if (-v_P_VS.z < u_camCascadeDepth[" + std::to_string(i) + "]) { index = " + std::to_string(i) + "; }\n";
+    }
+
+    shadowTestCode += R"(
             mat4 lightSpace;
-            lightSpace = u_lightSpace[i * 6 +  j];
+            lightSpace = u_lightSpace[i * 6 + index];
 
             vec4 lightSpacePosition = lightSpace * vec4(v_P_WS, 1.0);
 
             // Normalize lightSpacePosition
             vec3 projCoords = lightSpacePosition.xyz / lightSpacePosition.w;
-
-            if (projCoords.z > 1.0f)
-                break;
 
             // Convert to texture coordinates
             projCoords = projCoords * 0.5 + 0.5;
@@ -1839,7 +1846,7 @@ vec3 shadowTest(in int i, in vec3 N, in vec3 lightDir)
 
             // calculate bias between min. and max. bias depending on the angle between N and lightDir
             float bias = max(u_lightShadowMaxBias[i] * (1.0 - dot(N, lightDir)), u_lightShadowMinBias[i]);
-)";
+    )";
 
     for (SLuint i = 0; i < lights->size(); ++i)
     {
@@ -1847,20 +1854,16 @@ vec3 shadowTest(in int i, in vec3 N, in vec3 lightDir)
         if (light->doCascadedShadows())
         {
             SLShadowMap* shadowMap = light->shadowMap();
-            shadowTestCode += "                if (i == " + to_string(i) + ") { closestDepth = texture(u_cascadedShadowMap_" + to_string(i) + "[j]" + ", projCoords.xy).r; }\n";
+            shadowTestCode += "                if (i == " + to_string(i) + ") { closestDepth = texture(u_cascadedShadowMap_" + to_string(i) + "[index]" + ", projCoords.xy).r; }\n";
         }
     }
 
     shadowTestCode += R"(
-            // The fragment is in shadow if the light doesn't "see" it
-            if (currentDepth > closestDepth + bias)
-            {
-                shadow[j%3] = 1.0;
-            }
-        }
-        return vec3(shadow[0], shadow[1], shadow[2]);
+        // The fragment is in shadow if the light doesn't "see" it
+        if (currentDepth > closestDepth + bias)
+            return 1.0f;
     }
-    return vec3(0.0);
+    return 0.0f;
 }
 )";
 
@@ -1892,11 +1895,14 @@ void SLGLProgramGenerated::addCodeToShader(SLGLShader*   shader,
 }
 //-----------------------------------------------------------------------------
 //! Adds shader header code
-string SLGLProgramGenerated::shaderHeader(int numLights)
+string SLGLProgramGenerated::shaderHeader(int numLights, int numCascades)
 
 {
     string header = "\nprecision highp float;\n";
     header += "\n#define NUM_LIGHTS " + to_string(numLights) + "\n";
+    if (numCascades != 0)
+        header += "\n#define NUM_CASCADES " + to_string(numCascades) + "\n";
     return header;
 }
+
 //-----------------------------------------------------------------------------

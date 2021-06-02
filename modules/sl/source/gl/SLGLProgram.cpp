@@ -337,6 +337,8 @@ void SLGLProgram::passLightsToUniforms(SLVLight* lights,
         SLGLDepthBuffer* lightShadowMap[SL_MAX_LIGHTS * 6];     //!< pointers to depth-buffers for shadow mapping
         SLint            lightDoCascadedShadows[SL_MAX_LIGHTS]; //!< flag if light has a cube shadow map
 
+        SLint nbCascades = 0;
+
         // Init to defaults
         for (SLint i = 0; i < SL_MAX_LIGHTS; ++i)
         {
@@ -400,9 +402,10 @@ void SLGLProgram::passLightsToUniforms(SLVLight* lights,
 
             if (shadowMap)
             {
+                nbCascades = shadowMap->depthBuffers().size();
                 for (SLint ls = 0; ls < 6; ++ls)
                 {
-                    lightShadowMap[i * 6 + ls] = shadowMap->depthBuffers().size() > ls? shadowMap->depthBuffers()[ls] : nullptr;
+                    lightShadowMap[i * 6 + ls] = nbCascades > ls? shadowMap->depthBuffers()[ls] : nullptr;
                     lightSpace[i * 6 + ls] = shadowMap->mvp()[ls];
                 }
             }
@@ -439,7 +442,7 @@ void SLGLProgram::passLightsToUniforms(SLVLight* lights,
             {
                 if (lightDoCascadedShadows[i])
                 {
-                    for (int j = 0; j < 6; j++)
+                    for (int j = 0; j < nbCascades; j++)
                     {
                         SLint    loc = 0;
                         SLstring uniformSm;
