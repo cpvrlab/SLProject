@@ -832,8 +832,7 @@ void SLGLProgramGenerated::buildProgramCode(SLMaterial* mat,
     // Check if any of the scene lights does shadow mapping
     bool Sm = lightsDoShadowMapping(lights);
 
-    //buildPerPixBlinnSc(lights);
-    //return;
+    buildPerPixBlinnSc(lights);
 
     if (mat->lightModel() == LM_BlinnPhong)
     {
@@ -1386,9 +1385,21 @@ void SLGLProgramGenerated::buildPerPixBlinnSm(SLVLight* lights)
     vertCode += vertMainBlinn_EndAll;
     addCodeToShader(_shaders[0], vertCode, _name + ".vert");
 
+    int nbCascade = 0;
+    for (SLLight * light : *lights)
+    {
+        if (light->doCascadedShadows())
+        {
+            int n = light->shadowMap()->depthBuffers().size();
+            if (nbCascade != 0 && n != nbCascade)
+                std::cout << "error" << std::endl;
+            nbCascade = n;
+        }
+    }
+
     // Assemble fragment shader code
     string fragCode;
-    fragCode += shaderHeader((int)lights->size());
+    fragCode += shaderHeader((int)lights->size(), nbCascade);
     fragCode += R"(
 in      vec3        v_P_VS;     // Interpol. point of illumination in view space (VS)
 in      vec3        v_P_WS;     // Interpol. point of illumination in world space (WS)
@@ -1400,6 +1411,8 @@ in      vec3        v_N_VS;     // Interpol. normal at v_P_VS in view space
     fragCode += fragInputs_u_matSm;
     fragCode += fragInputs_u_shadowMaps(lights);
     fragCode += fragInputs_u_cam;
+    if (nbCascade > 0)
+        fragCode += fragInputs_u_camForCascaded;
     fragCode += fragOutputs_o_fragColor;
     fragCode += fragFunctionLightingBlinnPhong;
     fragCode += fragFunctionFogBlend;
@@ -1662,7 +1675,7 @@ string SLGLProgramGenerated::fragInputs_u_shadowMaps(SLVLight* lights)
             if (shadowMap->useCubemap())
                 smDecl += "uniform samplerCube u_shadowMapCube_" + to_string(i) + ";\n";
             else if (light->doCascadedShadows())
-                smDecl += "uniform sampler2D   u_cascadedShadowMap_" + to_string(i) + "[6];\n";
+                smDecl += "uniform sampler2D   u_cascadedShadowMap_" + to_string(i) + "[" + std::to_string(light->shadowMap()->depthBuffers().size()) + "];\n";
             else
                 smDecl += "uniform sampler2D   u_shadowMap_" + to_string(i) + ";\n";;
         }
@@ -1673,6 +1686,17 @@ string SLGLProgramGenerated::fragInputs_u_shadowMaps(SLVLight* lights)
 //! Adds the core shadow mapping test routine depending on the lights
 string SLGLProgramGenerated::fragShadowTest(SLVLight* lights)
 {
+    int nbCascades = 0;
+
+    for (SLLight* light : *lights)
+    {
+        if (light->doCascadedShadows())
+        {
+            nbCascades = light->shadowMap()->depthBuffers().size();
+            break;
+        }
+    }
+
     string shadowTestCode = R"(
 int vectorToFace(vec3 vec) // Vector to process
 {
@@ -1692,9 +1716,40 @@ float shadowTest(in int i, in vec3 N, in vec3 lightDir)
         // Calculate position in light space
         mat4 lightSpace;
         vec3 lightToFragment = v_P_WS - u_lightPosWS[i].xyz;
+)";
 
+    if (nbCascades > 0)
+    {
+        shadowTestCode += R"(
+
+        int index = NUM_CASCADES - 1;
+
+        if (u_lightDoCascadedShadows[i])
+        {
+            if (-v_P_VS.z < u_camCascadeDepth[0]) { index = 0; }
+)";
+        //For each cascades
+        for (int i = 1; i < nbCascades - 1; i++)
+        {
+            shadowTestCode +=
+            "            else if (-v_P_VS.z < u_camCascadeDepth[" + std::to_string(i) + "]) { index = " + std::to_string(i) + "; }\n";
+        }
+
+        shadowTestCode += "            lightSpace = u_lightSpace[i * 6 + index];";
+        shadowTestCode += R"(
+
+        }
+        else if (u_lightUsesCubemap[i])
+            lightSpace = u_lightSpace[i * 6 + vectorToFace(lightToFragment)];)";
+    }
+    else
+    {
+  shadowTestCode += R"(
         if (u_lightUsesCubemap[i])
-            lightSpace = u_lightSpace[i * 6 + vectorToFace(lightToFragment)];
+            lightSpace = u_lightSpace[i * 6 + vectorToFace(lightToFragment)]; ")";
+    }
+    
+shadowTestCode += R"(
         else
             lightSpace = u_lightSpace[i * 6];
 
@@ -1725,7 +1780,7 @@ float shadowTest(in int i, in vec3 N, in vec3 lightDir)
     {
         SLLight*     light     = lights->at(i);
         SLShadowMap* shadowMap = light->shadowMap();
-        if (!shadowMap->useCubemap())
+        if (!shadowMap->useCubemap() && !light->doCascadedShadows())
             shadowTestCode += "            if (i == " +
                               to_string(i) + ") texelSize = 1.0 / vec2(textureSize(u_shadowMap_" +
                               to_string(i) + ", 0));\n";
@@ -1744,7 +1799,7 @@ float shadowTest(in int i, in vec3 N, in vec3 lightDir)
     {
         SLLight*     light     = lights->at(i);
         SLShadowMap* shadowMap = light->shadowMap();
-        if (!shadowMap->useCubemap())
+        if (!shadowMap->useCubemap() && !light->doCascadedShadows())
             shadowTestCode += "                    if (i == " +
                               to_string(i) + ") closestDepth = texture(u_shadowMap_" +
                               to_string(i) + ", projCoords.xy + vec2(x, y) * texelSize).r;\n";
@@ -1771,6 +1826,28 @@ float shadowTest(in int i, in vec3 N, in vec3 lightDir)
                               to_string(i) + ") closestDepth = texture(u_shadowMapCube_" +
                               to_string(i) + ", lightToFragment).r;\n";
     }
+
+    shadowTestCode += R"(
+            }
+            else if (u_lightDoCascadedShadows[i])
+            {
+)";
+
+    for (SLuint i = 0; i < lights->size(); ++i)
+    {
+        SLLight* light = lights->at(i);
+        if (light->doCascadedShadows())
+        {
+            SLShadowMap* shadowMap = light->shadowMap();
+            shadowTestCode += "                if (i == " + to_string(i) + ") { closestDepth = texture(u_cascadedShadowMap_" + to_string(i) + "[index]" + ", projCoords.xy).r; }\n";
+        }
+    }
+
+    shadowTestCode += R"(
+                // The fragment is in shadow if the light doesn't "see" it
+                if (currentDepth > closestDepth + bias)
+                    return 1.0f;
+                )";
 
     shadowTestCode += R"(
             }
