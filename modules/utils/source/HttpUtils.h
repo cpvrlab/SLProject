@@ -32,6 +32,11 @@ using std::function;
 using std::string;
 using std::vector;
 
+#define SERVER_NOT_REACHABLE 1
+#define CANT_CREATE_DIR      2
+#define CANT_CREATE_FILE     3
+#define CONNECTION_CLOSED    4
+
 //------------------------------------------------------------------------------
 //! Multiplatform socket helper
 class Socket

@@ -8,7 +8,6 @@
 //#############################################################################
 
 #ifdef SL_BUILD_WITH_OPENSSL
-
 #include <HttpUtils.h>
 #include <iostream>
 #include <cstring>
@@ -66,14 +65,14 @@ int Socket::connectTo(string ip,
     }
     else
     {
-        std::cerr << "Invalid address" << std::endl;
+        Utils::log("Socket  ", "invalid address");
         return -1;
     }
 
     fd = (int)socket(res->ai_family, SOCK_STREAM, 0);
     if (!fd)
     {
-        std::cerr << "Error creating socket.\n" << std::endl;
+        Utils::log("Socket  ", "Error creating socket");
         return -1;
     }
 
@@ -82,14 +81,14 @@ int Socket::connectTo(string ip,
     //Set timeout value to 10s
 #ifndef WINDOWS
     struct timeval tv;
-    tv.tv_sec = 10;
+    tv.tv_sec = 15;
     tv.tv_usec = 0;
     setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv, sizeof tv);
 #endif
 
     if (connect(fd, (struct sockaddr*)&sa, addrlen))
     {
-        std::cerr << "Error connecting to server.\n" << std::endl;
+        Utils::log("Socket  ", "Error connecting to server.\n");
         return -1;
     }
     inUse = true;
@@ -131,7 +130,7 @@ void Socket::disconnect()
 /*!
  * 
  */
-#define BUFFER_SIZE 1000
+#define BUFFER_SIZE 500
 int Socket::receive(function<int(char* data, int size)> dataCB, int max)
 {
     int  n = 0;
@@ -148,14 +147,17 @@ int Socket::receive(function<int(char* data, int size)> dataCB, int max)
                 return -1;
             return len;
         }
-        len = (int)recv(fd, buf, BUFFER_SIZE, 0);
+        else
+        {
+            len = (int)recv(fd, buf, BUFFER_SIZE, 0);
 
-        if (len == -1)
-            return -1;
+            if (len == -1)
+                return -1;
 
-        n = n + len;
-        if (dataCB(buf, len) != 0)
-            return -1;
+            n = n + len;
+            if (dataCB(buf, len) != 0)
+                return -1;
+        }
 
     } while (!_interrupt && len > 0);
     _interrupt = false;
@@ -247,16 +249,19 @@ int SecureSocket::receive(function<int(char* data, int size)> dataCB,
                 return -1;
             return len;
         }
-        len = SSL_read(ssl, buf, BUFFER_SIZE);
-        if (len == -1)
+        else
         {
-            Utils::log("SecureSocket", "SSL_read return -1");
-            return -1;
-        }
+            len = SSL_read(ssl, buf, BUFFER_SIZE);
+            if (len == -1)
+            {
+                Utils::log("SecureSocket", "SSL_read return -1");
+                return -1;
+            }
 
-        n += len;
-        if (dataCB(buf, len) != 0)
-            return -1;
+            n += len;
+            if (dataCB(buf, len) != 0)
+                return -1;
+        }
     } while (!_interrupt && len > 0);
     _interrupt = true;
     return n;
@@ -725,7 +730,7 @@ int HttpUtils::download(string                                               url
 {
     HttpUtils::GetRequest req = HttpUtils::GetRequest(url, user, pwd);
     if (req.send() < 0)
-        return 1;
+        return SERVER_NOT_REACHABLE;
     base = Utils::unifySlashes(base);
 
     if (req.contentType == "text/html")
@@ -734,7 +739,7 @@ int HttpUtils::download(string                                               url
             url = url + "/";
 
         if (!processDir(base))
-            return 1;
+            return CANT_CREATE_DIR;
 
         std::vector<string> listing = req.getListing();
 
@@ -761,10 +766,10 @@ int HttpUtils::download(string                                               url
         base = Utils::unifySlashes(base);
 
         if (processFile(base, file, req.contentLength) != 0)
-            return 1;
+            return CANT_CREATE_FILE;
 
         if (req.getContent(writeChunk) == -1)
-            return 1;
+            return CONNECTION_CLOSED;
 
         return 0;
     }
@@ -878,3 +883,4 @@ int HttpUtils::length(string url, string user, string pwd)
 }
 
 #endif // SL_BUILD_WITH_OPENSSL
+
