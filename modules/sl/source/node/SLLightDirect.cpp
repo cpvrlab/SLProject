@@ -21,13 +21,16 @@
 SLLightDirect::SLLightDirect(SLAssetManager* assetMgr,
                              SLScene*        s,
                              SLfloat         arrowLength,
-                             SLbool          hasMesh)
+                             SLbool          hasMesh,
+                             SLbool          doCascadedShadows)
+
   : SLNode("LightDirect Node"),
     _arrowRadius(arrowLength * 0.1f),
     _arrowLength(arrowLength),
     _doSunPowerAdaptation(false),
     _sunLightPowerMin(0),
-    _sunLightColorLUT(nullptr, CLUT_DAYLIGHT)
+    _sunLightColorLUT(nullptr, CLUT_DAYLIGHT),
+    _doCascadedShadows(doCascadedShadows)
 {
     if (hasMesh)
     {
@@ -58,14 +61,16 @@ SLLightDirect::SLLightDirect(SLAssetManager* assetMgr,
                              SLfloat         ambiPower,
                              SLfloat         diffPower,
                              SLfloat         specPower,
-                             SLbool          hasMesh)
+                             SLbool          hasMesh,
+                             SLbool          doCascadedShadows)
   : SLNode("Directional Light"),
     SLLight(ambiPower, diffPower, specPower),
     _arrowRadius(arrowLength * 0.1f),
     _arrowLength(arrowLength),
     _doSunPowerAdaptation(false),
     _sunLightPowerMin(0),
-    _sunLightColorLUT(nullptr, CLUT_DAYLIGHT)
+    _sunLightColorLUT(nullptr, CLUT_DAYLIGHT),
+    _doCascadedShadows(doCascadedShadows)
 {
     translate(posx, posy, posz, TS_object);
 
@@ -300,5 +305,8 @@ void SLLightDirect::renderShadowMap(SLSceneView* sv, SLNode* root)
         this->createShadowMap();
     }
 
-    _shadowMap->renderDirectionalLightCascaded(sv, root);
+    if (_doCascadedShadows)
+        _shadowMap->renderDirectionalLightCascaded(sv, root);
+    else
+        _shadowMap->render(sv, root);
 }

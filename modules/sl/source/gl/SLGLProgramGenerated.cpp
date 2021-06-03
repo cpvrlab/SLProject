@@ -1392,7 +1392,7 @@ void SLGLProgramGenerated::buildPerPixBlinnSm(SLVLight* lights)
         {
             int n = light->shadowMap()->depthBuffers().size();
             if (nbCascade != 0 && n != nbCascade)
-                std::cout << "error" << std::endl;
+                std::cout << "error not same number of cascades per light" << std::endl;
             nbCascade = n;
         }
     }
@@ -1873,8 +1873,6 @@ shadowTestCode += R"(
     return 0.0;
 }
 )";
-
-    std::cout << shadowTestCode << std::endl;
 
     return shadowTestCode;
 }

@@ -2040,7 +2040,6 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(cam1);
         s->root3D(scene);
     }
-
     else if (sceneID == SID_ShadowMappingBasicScene) //............................................
     {
         s->name("Shadow Mapping Basic Scene");
@@ -2066,6 +2065,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         // Create light source
         // Do constant attenuation for directional lights since it is infinitely far away
         SLLightDirect* light = new SLLightDirect(s, s);
+
         light->powers(0.0f, 1.0f, 1.0f);
         light->translation(0, 5, 0);
         light->lookAt(0, 0, 0);
@@ -2347,6 +2347,59 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
             scene->addChild(boxNode);
         }
+
+        sv->camera(cam1);
+        s->root3D(scene);
+    }
+    else if (sceneID == SID_ShadowMappingCascaded) //............................................
+    {
+        s->name("Shadow Mapping Basic Scene");
+        s->info("Shadow Mapping is a technique to render shadows.");
+
+        // Setup shadow mapping material
+        //SLGLProgram* progPerPixSM = new SLGLProgramGeneric(s,
+        //                                                   shaderPath + "PerPixBlinnSm.vert",
+        //                                                   shaderPath + "PerPixBlinnSm.frag");
+        SLMaterial* matPerPixSM = new SLMaterial(s, "m1"); //, SLCol4f::WHITE, SLCol4f::WHITE, 500, 0, 0, 1, progPerPixSM);
+
+        // Base root group node for the scene
+        SLNode* scene = new SLNode;
+
+        SLCamera* cam1 = new SLCamera("Camera 1");
+        cam1->translation(0, 7, 12);
+        cam1->lookAt(0, 1, 0);
+        cam1->focalDist(8);
+        cam1->background().colors(SLCol4f(0.1f, 0.1f, 0.1f));
+        cam1->setInitialState();
+        scene->addChild(cam1);
+
+        // Create light source
+        // Do constant attenuation for directional lights since it is infinitely far away
+        SLLightDirect* light = new SLLightDirect(s, s);
+        light->doCascadedShadows(true);
+        light->powers(0.0f, 1.0f, 1.0f);
+        light->translation(0, 5, 0);
+        light->lookAt(0, 0, 0);
+        light->attenuation(1, 0, 0);
+        light->createsShadows(true);
+        light->createShadowMap();
+        light->shadowMap()->rayCount(SLVec2i(16, 16));
+        light->castsShadows(false);
+        scene->addChild(light);
+
+        // Add a sphere which casts shadows
+        SLNode* sphereNode = new SLNode(new SLSpheric(s, 1, 0, 180, 20, 20, "Sphere", matPerPixSM));
+        sphereNode->translate(0, 2.0, 0);
+        sphereNode->castsShadows(true);
+        scene->addChild(sphereNode);
+
+        SLAnimation* anim = s->animManager().createNodeAnimation("sphere_anim", 2.0f);
+        anim->createNodeAnimTrackForEllipse(sphereNode, 0.5f, A_x, 0.5f, A_z);
+
+        // Add a box which receives shadows
+        SLNode* boxNode = new SLNode(new SLBox(s, -5, -1, -5, 5, 0, 5, "Box", matPerPixSM));
+        boxNode->castsShadows(false);
+        scene->addChild(boxNode);
 
         sv->camera(cam1);
         s->root3D(scene);

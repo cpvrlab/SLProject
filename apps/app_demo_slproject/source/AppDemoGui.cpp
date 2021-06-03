@@ -1512,6 +1512,8 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                         s->onLoad(s, sv, SID_ShadowMappingPointLights);
                     if (ImGui::MenuItem("RT Soft Shadows", nullptr, sid == SID_RTSoftShadows))
                         s->onLoad(s, sv, SID_RTSoftShadows);
+                    if (ImGui::MenuItem("Cascaded Shadow Map", nullptr, sid == SID_ShadowMappingCascaded))
+                        s->onLoad(s, sv, SID_ShadowMappingCascaded);
 
                     ImGui::EndMenu();
                 }

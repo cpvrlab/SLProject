@@ -42,25 +42,28 @@ class SLLightDirect
 public:
     SLLightDirect(SLAssetManager* assetMgr,
                   SLScene*        s,
-                  SLfloat         arrowLength = 0.5f,
-                  SLbool          hasMesh     = true);
+                  SLfloat         arrowLength       = 0.5f,
+                  SLbool          hasMesh           = true,
+                  SLbool          doCascadedShadows = false);
     SLLightDirect(SLAssetManager* assetMgr,
                   SLScene*        s,
                   SLfloat         posx,
                   SLfloat         posy,
                   SLfloat         posz,
-                  SLfloat         arrowLength = 0.5f,
-                  SLfloat         ambiPower   = 1.0f,
-                  SLfloat         diffPower   = 10.0f,
-                  SLfloat         specPower   = 10.0f,
-                  SLbool          hasMesh     = true);
+                  SLfloat         arrowLength       = 0.5f,
+                  SLfloat         ambiPower         = 1.0f,
+                  SLfloat         diffPower         = 10.0f,
+                  SLfloat         specPower         = 10.0f,
+                  SLbool          hasMesh           = true,
+                  SLbool          doCascadedShadows = false);
     ~SLLightDirect() override;
 
     void    init(SLScene* s);
     bool    hitRec(SLRay* ray) override;
     void    statsRec(SLNodeStats& stats) override;
     void    drawMesh(SLSceneView* sv) override;
-    SLbool  doCascadedShadows() const  override { return true; }
+    void    doCascadedShadows(bool b) { _doCascadedShadows = b; }
+    SLbool  doCascadedShadows() const  override { return _doCascadedShadows; }
     SLfloat shadowTest(SLRay*         ray,
                        const SLVec3f& L,
                        SLfloat        lightDist,
@@ -107,6 +110,7 @@ private:
     SLbool        _doSunPowerAdaptation; //!< Flag for sun power scaling
     SLfloat       _sunLightPowerMin;     //!< Min. zenith power scale factor for sun
     SLTexColorLUT _sunLightColorLUT;     //!< Sun light color LUT
+    bool          _doCascadedShadows;    //!< Cascaded shadow
 };
 //-----------------------------------------------------------------------------
 #endif
