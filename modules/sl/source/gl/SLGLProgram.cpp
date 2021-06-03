@@ -457,23 +457,23 @@ void SLGLProgram::passLightsToUniforms(SLVLight* lights,
                         }
                     }
                 }
-            }
-            else
-            {
-                SLint    loc = 0;
-                SLstring uniformSm;
-
-                if (lightUsesCubemap[i])
-                    uniformSm = "u_shadowMapCube_" + std::to_string(i);
                 else
-                    uniformSm = "u_shadowMap_" + std::to_string(i);
-
-                if ((loc = getUniformLocation(uniformSm.c_str())) >= 0)
                 {
-                    lightShadowMap[i*6]->bindActive(unitCounter);
-                    glUniform1i(loc, unitCounter);
+                    SLint    loc = 0;
+                    SLstring uniformSm;
 
-                    unitCounter++;
+                    if (lightUsesCubemap[i])
+                        uniformSm = "u_shadowMapCube_" + std::to_string(i);
+                    else
+                        uniformSm = "u_shadowMap_" + std::to_string(i);
+
+                    if ((loc = getUniformLocation(uniformSm.c_str())) >= 0)
+                    {
+                        lightShadowMap[i * 6]->bindActive(unitCounter);
+                        glUniform1i(loc, unitCounter);
+
+                        unitCounter++;
+                    }
                 }
             }
         }

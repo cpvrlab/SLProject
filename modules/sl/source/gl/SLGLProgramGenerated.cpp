@@ -1746,7 +1746,7 @@ float shadowTest(in int i, in vec3 N, in vec3 lightDir)
     {
   shadowTestCode += R"(
         if (u_lightUsesCubemap[i])
-            lightSpace = u_lightSpace[i * 6 + vectorToFace(lightToFragment)]; ")";
+            lightSpace = u_lightSpace[i * 6 + vectorToFace(lightToFragment)];)";
     }
     
 shadowTestCode += R"(
@@ -1844,12 +1844,6 @@ shadowTestCode += R"(
     }
 
     shadowTestCode += R"(
-                // The fragment is in shadow if the light doesn't "see" it
-                if (currentDepth > closestDepth + bias)
-                    return 1.0f;
-                )";
-
-    shadowTestCode += R"(
             }
             else
             {
@@ -1879,6 +1873,8 @@ shadowTestCode += R"(
     return 0.0;
 }
 )";
+
+    std::cout << shadowTestCode << std::endl;
 
     return shadowTestCode;
 }
