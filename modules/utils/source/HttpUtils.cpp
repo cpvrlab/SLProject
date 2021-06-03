@@ -16,6 +16,7 @@
 #else
 #    include <netdb.h>
 #    include <unistd.h>
+#    include <errno.h>
 #endif
 
 //-----------------------------------------------------------------------------
@@ -142,7 +143,17 @@ int Socket::receive(function<int(char* data, int size)> dataCB, int max)
         {
             len = (int)recv(fd, buf, max - n, 0);
             if (len == -1)
-                return -1;
+            {
+#ifndef _WINDOWS
+                if (errno != ECONNRESET)
+                    len = (int)recv(fd, buf, max - n, 0);
+#else
+                len = (int)recv(fd, buf, max - n, 0);
+#endif
+
+                if (len == -1)
+                    return -1;
+            }
             if (dataCB(buf, len) != 0)
                 return -1;
             return len;
@@ -152,7 +163,15 @@ int Socket::receive(function<int(char* data, int size)> dataCB, int max)
             len = (int)recv(fd, buf, BUFFER_SIZE, 0);
 
             if (len == -1)
+            {
+#ifndef _WINDOWS
+                if (errno != ECONNRESET)
+                    len = (int)recv(fd, buf, BUFFER_SIZE, 0);
+#else
+                len = (int)recv(fd, buf, BUFFER_SIZE, 0);
+#endif
                 return -1;
+            }
 
             n = n + len;
             if (dataCB(buf, len) != 0)
@@ -241,8 +260,12 @@ int SecureSocket::receive(function<int(char* data, int size)> dataCB,
             len = SSL_read(ssl, buf, max - n);
             if (len == -1)
             {
-                Utils::log("SecureSocket", "SSL_read return -1");
-                return -1;
+                len = SSL_read(ssl, buf, max - n); // retry
+                if (len == -1)
+                {
+                    Utils::log("SecureSocket", "SSL_read return -1");
+                    return -1;
+                }
             }
 
             if (dataCB(buf, len) != 0)
@@ -254,8 +277,12 @@ int SecureSocket::receive(function<int(char* data, int size)> dataCB,
             len = SSL_read(ssl, buf, BUFFER_SIZE);
             if (len == -1)
             {
-                Utils::log("SecureSocket", "SSL_read return -1");
-                return -1;
+                len = SSL_read(ssl, buf, BUFFER_SIZE); // retry
+                if (len == -1)
+                {
+                    Utils::log("SecureSocket", "SSL_read return -1");
+                    return -1;
+                }
             }
 
             n += len;
