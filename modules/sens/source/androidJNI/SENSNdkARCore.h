@@ -55,6 +55,9 @@ private:
     bool       _installedCached = false;
     bool       _installRefused  = false;
 
+    GLuint _fbo = 0;
+    GLuint _pbo = 0;
+
     GLuint _cameraTextureId;
 	//float          _lightColor[4];
 	float            _envLightI[3];

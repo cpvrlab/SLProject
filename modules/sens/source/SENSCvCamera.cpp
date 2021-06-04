@@ -44,7 +44,9 @@ SENSFramePtr SENSCvCamera::processNewFrame(const SENSTimePt& timePt, cv::Mat bgr
                                                          _config->mirrorH,
                                                          _config->mirrorV,
                                                          1 / scale,
-                                                         intrinsics.clone());
+                                                         intrinsics.clone(),
+                                                         manipImg.cols,
+                                                         manipImg.rows);
 
     return sensFrame;
 }

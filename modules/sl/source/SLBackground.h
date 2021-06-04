@@ -13,6 +13,7 @@
 
 #include <SLGLVertexArray.h>
 #include <SLObject.h>
+#include <math/SLRect.h>
 
 class SLGLTexture;
 class SLGLProgram;
@@ -48,11 +49,11 @@ public:
     void texture(SLGLTexture* backgroundTexture, bool fixAspectRatio = false);
 
     // Getters
-    SLVCol4f     colors() { return _colors; }
-    SLCol4f      avgColor() { return _avgColor; }
-    SLbool       isUniform() const { return _isUniform; }
-    SLGLTexture* texture() { return _texture; }
-
+    SLVCol4f       colors() { return _colors; }
+    SLCol4f        avgColor() { return _avgColor; }
+    SLbool         isUniform() const { return _isUniform; }
+    SLGLTexture*   texture() { return _texture; }
+    const SLRectf& rect() const { return _rect; }
 private:
     SLbool          _isUniform;    //!< Flag if background has uniform color
     SLVCol4f        _colors;       //!< Vector of 4 corner colors {TL,BL,TR,BR}
@@ -61,6 +62,7 @@ private:
     SLGLTexture*    _textureError; //!< Pointer to a error texture if background texture is not available
     SLint           _resX;         //!< Background resolution in x-dir.
     SLint           _resY;         //!< Background resolution in y-dir.
+    SLRectf         _rect;         //!< Background rect (it may be different to viewport size)
     SLGLVertexArray _vao;          //!< OpenGL Vertex Array Object for drawing
 
     SLGLProgram* _textureOnlyProgram    = nullptr;

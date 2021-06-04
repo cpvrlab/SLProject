@@ -8,6 +8,8 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
+#extension GL_OES_EGL_image_external_essl3 : enable
+
 precision highp float;
 
 //-----------------------------------------------------------------------------
@@ -16,7 +18,7 @@ uniform float u_bgHeight;      // background height
 uniform float u_bgLeft;        // background left
 uniform float u_bgBottom;      // background bottom
 
-uniform sampler2D u_matTexture0;      // Color map
+uniform samplerExternalOES u_matTexture0;      // Color map
 
 out     vec4 o_fragColor;        // output fragment color
 //-----------------------------------------------------------------------------
@@ -25,6 +27,7 @@ void main()
     float x = (gl_FragCoord.x - u_bgLeft) / u_bgWidth;
     float y = (gl_FragCoord.y - u_bgBottom) / u_bgHeight;
 
-    o_fragColor = texture(u_matTexture0, vec2(x, y));
+    //set and mirror at x axis
+    o_fragColor = texture(u_matTexture0, vec2(x, 1.0f - y));
 }
 //-----------------------------------------------------------------------------

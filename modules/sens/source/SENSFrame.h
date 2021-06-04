@@ -34,14 +34,18 @@ struct SENSFrame
               bool              mirroredH,
               bool              mirroredV,
               float             scaleToManip,
-              cv::Mat           intrinsics)
+              cv::Mat           intrinsics,
+              int               width,
+              int               height)
       : timePt(timePt),
         imgBGR(imgBGR),
         imgManip(imgManip),
         mirroredH(mirroredH),
         mirroredV(mirroredV),
         scaleToManip(scaleToManip),
-        intrinsics(intrinsics)
+        intrinsics(intrinsics),
+        width(width),
+        height(height)
     {
     }
 
@@ -62,7 +66,9 @@ struct SENSFrame
     const float scaleToManip;
 
     cv::Mat intrinsics;
+    int width;
+    int height;
 };
-typedef std::shared_ptr<SENSFrame> SENSFramePtr;
+typedef std::shared_ptr<SENSFrame> SENSFramePtr;
 
 #endif //SENS_FRAME_H

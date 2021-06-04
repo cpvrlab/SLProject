@@ -14,7 +14,7 @@ public:
     {
     }
 
-    bool init() override;
+    bool init(unsigned int textureId = 0) override;
     bool isReady() override;
     bool resume() override;
     void reset() override;

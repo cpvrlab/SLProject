@@ -4,6 +4,8 @@
 #include <Utils.h>
 #include "SENS.h"
 #include "SENSUtils.h"
+#include <glUtils.h>
+#include <SLGLState.h>
 
 SENSNdkARCore::SENSNdkARCore(JavaVM* jvm, JNIEnv* env, jobject context, jobject activity, std::string appName)
 {
@@ -347,22 +349,109 @@ void SENSNdkARCore::updateCamera(cv::Mat& intrinsics)
     if(_useCpuTexture)
     {
         ArImage *arImage;
-        if (ArFrame_acquireCameraImage(_arSession, _arFrame, &arImage) != AR_SUCCESS) {
-            Utils::log("SENSNdkARCore", "updateCamera: not aquired");
+        ArStatus status = ArFrame_acquireCameraImage(_arSession, _arFrame, &arImage);
+        if (status != AR_SUCCESS) {
+            std::string msg;
+            switch(status)
+            {
+                case AR_ERROR_INVALID_ARGUMENT:
+                    msg = "One more input arguments are invalid";
+                    break;
+                case AR_ERROR_DEADLINE_EXCEEDED:
+                    msg = "The input frame is not the current frame.";
+                    break;
+                case AR_ERROR_RESOURCE_EXHAUSTED:
+                    msg = "The caller app has exceeded maximum number of images that it can hold without releasing.";
+                    break;
+                case AR_ERROR_NOT_YET_AVAILABLE:
+                    msg = "Image with the timestamp of the input frame was not found within a bounded amount of time, or the camera failed to produce the image.";
+                    break;
+            }
+
+            msg = "acquireCameraImage not successful: " + msg;
+            Utils::log("SENSNdkARCore", msg.c_str());
             return;
         }
 
-        cv::Mat yuv = convertToYuv(arImage);
-        cv::Mat bgr;
+        if(arImage)
+        {
+            Utils::log("SENSNdkARCore", "pointer valid");
+            cv::Mat yuv = convertToYuv(arImage);
+            cv::Mat bgr;
 
-        ArImage_release(arImage);
+            ArImage_release(arImage);
 
-        cv::cvtColor(yuv, bgr, cv::COLOR_YUV2BGR_NV21, 3);
-        updateFrame(bgr, intrinsics, _inputFrameW, _inputFrameH, true);
+            cv::cvtColor(yuv, bgr, cv::COLOR_YUV2BGR_NV21, 3);
+            updateFrame(bgr, intrinsics, _inputFrameW, _inputFrameH, true);
+        }
     }
     else
     {
-        updateFrame(cv::Mat(), intrinsics, _inputFrameW, _inputFrameH, true);
+        /*
+        if(_fbo == 0)
+        {
+            //int FBO
+            glBindTexture(GL_TEXTURE_EXTERNAL_OES, _cameraTextureId);
+            glGenFramebuffers(1, &_fbo);
+            glBindFramebuffer(GL_FRAMEBUFFER, _fbo);
+            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_EXTERNAL_OES, _cameraTextureId, 0);
+            glBindFramebuffer(GL_FRAMEBUFFER, 0);
+            glBindTexture(GL_TEXTURE_EXTERNAL_OES, 0);
+            GET_GL_ERROR;
+        }
+
+        glBindTexture(GL_TEXTURE_EXTERNAL_OES, _cameraTextureId);
+        glBindFramebuffer(GL_FRAMEBUFFER, _fbo);
+
+        cv::Mat cpuImg(_inputFrameW, _inputFrameH, CV_8UC4);
+        glReadPixels(0, 0, _inputFrameW, _inputFrameH, GL_RGBA_INTEGER, GL_UNSIGNED_BYTE, cpuImg.data);
+        GET_GL_ERROR;
+
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        glBindTexture(GL_TEXTURE_EXTERNAL_OES, 0);
+
+        updateFrame(cpuImg, intrinsics, _inputFrameW, _inputFrameH, true);
+*/
+
+        if(_fbo == 0)
+        {//TODO: free buffers!!
+            //init PBO
+            glGenBuffers(1, &_pbo);
+            glBindBuffer(GL_PIXEL_PACK_BUFFER, _pbo);
+            glBufferData(GL_PIXEL_PACK_BUFFER, _inputFrameW * _inputFrameH * 4, 0, GL_DYNAMIC_READ);
+
+            glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
+            GET_GL_ERROR;
+
+            //int FBO
+            glBindTexture(GL_TEXTURE_EXTERNAL_OES, _cameraTextureId);
+            glGenFramebuffers(1, &_fbo);
+            glBindFramebuffer(GL_FRAMEBUFFER, _fbo);
+            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_EXTERNAL_OES, _cameraTextureId, 0);
+            glBindFramebuffer(GL_FRAMEBUFFER, 0);
+            glBindTexture(GL_TEXTURE_EXTERNAL_OES, 0);
+            GET_GL_ERROR;
+        }
+
+        //read pixels:
+        //Start copying to opengl client side (non blocking)
+        glBindFramebuffer(GL_FRAMEBUFFER, _fbo);
+        glBindBuffer(GL_PIXEL_PACK_BUFFER, _pbo);
+        glReadPixels(0, 0, _inputFrameW, _inputFrameH, GL_RGBA_INTEGER, GL_INT, 0);
+        glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
+        GET_GL_ERROR;
+
+        //Getting the result (blocking call)
+        glBindBuffer(GL_PIXEL_PACK_BUFFER, _pbo);
+        unsigned int* image = (unsigned int*)glMapBufferRange(GL_PIXEL_PACK_BUFFER, 0, _inputFrameW * _inputFrameH * 4, GL_MAP_READ_BIT);
+        glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
+        GET_GL_ERROR;
+
+        //put them into a cv Mat
+        cv::Mat cpuImg(_inputFrameW, _inputFrameH, CV_8UC4);
+        memcpy(cpuImg.data, image, _inputFrameW * _inputFrameH * 4);
+
+        updateFrame(cpuImg, intrinsics, _inputFrameW, _inputFrameH, true);
     }
 }
 
@@ -453,7 +542,8 @@ void SENSNdkARCore::retrieveCaptureProperties()
             focalLengthPix = 0.5 * (_frame->intrinsics.at<double>(0, 0) + _frame->intrinsics.at<double>(1, 1));
         }
         SENSCameraDeviceProperties devProp(deviceId, facing);
-        devProp.add(_frame->imgBGR.cols, _frame->imgBGR.rows, focalLengthPix);
+        //here we have to use the cpu image size (which is not the same as the gpu image size)
+        devProp.add(_inputFrameW, _inputFrameH, focalLengthPix);
         _captureProperties.push_back(devProp);
     }
     else

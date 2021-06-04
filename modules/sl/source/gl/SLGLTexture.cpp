@@ -783,11 +783,12 @@ void SLGLTexture::build(SLint texUnit)
         glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         // apply texture wrapping modes
-        //glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_WRAP_S, _wrap_s);
-        //glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_WRAP_T, _wrap_t);
-        //glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_WRAP_R, _wrap_t);
-        //int color[] = { 1, 1, 1, 1 };
-        //glTexParameteriv(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_BORDER_COLOR_OES, color);
+        glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_WRAP_S, _wrap_s);
+        glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_WRAP_T, _wrap_t);
+        //ATTENTION: setting the color to black or white does not give correct results (dont know why)
+        //colors different to black and white seem to work. Default value is {0, 0, 0, 0}.
+        float color[] = { 0.00001f, 0.00001f, 0.00001f, 1.0f };
+        glTexParameterfv(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_BORDER_COLOR_OES, color);
         GET_GL_ERROR;
     }
 #endif

@@ -6,7 +6,7 @@ SENSiOSARCore::SENSiOSARCore()
     _available      = [_arcoreDelegate isAvailable];
 }
 
-bool SENSiOSARCore::init()
+bool SENSiOSARCore::init(unsigned int textureId)
 {
     if (!_available)
         return false;
@@ -65,7 +65,7 @@ bool SENSiOSARCore::update(cv::Mat& pose)
     
     if (!imgBGR.empty())
     {
-        updateFrame(imgBGR, intrinsic, true);
+        updateFrame(imgBGR, intrinsic, true, imgBGR.cols, imgBGR.rows);
     }
     else
         Utils::log("SENSiOSARCore", "frame is empty!");

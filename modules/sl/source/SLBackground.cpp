@@ -168,7 +168,9 @@ void SLBackground::render(SLint widthPX, SLint heightPX)
 
     // Create or update buffer for vertex position and indices
     if (!_vao.vaoID() || _resX != widthPX || _resY != heightPX)
+    //if (!_vao.vaoID() || (_rect.width != widthPX && _rect.height != heightPX))
     {
+        //texture width and height not yet valid on first call
         _resX = widthPX;
         _resY = heightPX;
 
@@ -196,7 +198,12 @@ void SLBackground::render(SLint widthPX, SLint heightPX)
             bottom = (_resY - backgroundH) * 0.5f;
             top = backgroundH + bottom;
             _vao.clearAttribs();
+
+            _rect.set(left, bottom, backgroundW, backgroundH);
+            SL_LOG("SLBackground: width:%f height:%f left:%f bottom:%f", rect().width, rect().height, rect().x, rect().x);
         }
+        else
+            _rect.set(0, 0, widthPX, heightPX);
 
         // Float array with vertex X & Y of corners
         SLVVec2f P = {{left, top},

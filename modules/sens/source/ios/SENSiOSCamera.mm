@@ -114,7 +114,7 @@ void SENSiOSCamera::processNewFrame(unsigned char* data, int imgWidth, int imgHe
         }
     }
 
-    updateFrame(bgrImg, intrinsics, intrinsicsChanged);
+    updateFrame(bgrImg, intrinsics, intrinsicsChanged, imgWidth, imgHeight);
 }
 
 void SENSiOSCamera::updatePermission(bool granted)
