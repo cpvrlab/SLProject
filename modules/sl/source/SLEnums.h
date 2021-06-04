@@ -116,6 +116,7 @@ enum SLSceneID
     SID_ShadowMappingLightTypes,
     SID_ShadowMappingPointLights,
     SID_ShadowMappingSpotLights,
+    SID_ShadowMappingCascaded,
 
     SID_SuzannePerPixBlinn,
     SID_SuzannePerPixBlinnTm,
