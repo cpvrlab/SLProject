@@ -298,7 +298,7 @@ static void onMouseMove(GLFWwindow* myWindow,
     mouseY = (int)y;
 
     if (modifiers & K_alt && modifiers & K_ctrl)
-        slTouch2Move(svIndex, x - 20, y, x + 20, y);
+        slTouch2Move(svIndex, (int)(x - 20), (int)y, (int)(x + 20), (int)y);
     else
         slMouseMove(svIndex, (int)x, (int)y);
 }
@@ -458,11 +458,6 @@ void initGLFW(int screenWidth, int screenHeight)
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 #endif
-    
-    //window hints for screenshots
-    glfwWindowHint(GLFW_SCALE_TO_MONITOR, GLFW_FALSE);
-    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
-    glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
 
     window = glfwCreateWindow(screenWidth, screenHeight, "My Title", nullptr, nullptr);
 
@@ -569,11 +564,8 @@ int main(int argc, char* argv[])
     for (int i = 0; i < argc; i++)
         cmdLineArgs.push_back(SLstring(argv[i]));
 
-    //scrWidth       = 1280 / 2;
-    //scrHeight      = 720 / 2;
-    scrWidth = 2778 / 2;
-    scrHeight = 1284 / 2;
-    
+    scrWidth       = 1280;
+    scrHeight      = 720;
     scrWdivH       = (float)scrWidth / (float)scrHeight;
     fixAspectRatio = false;
     touch2.set(-1, -1);

@@ -7,6 +7,10 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
+#ifndef HTTP_UTILS_H
+#define HTTP_UTILS_H
+
+#ifdef SL_BUILD_WITH_OPENSSL
 
 #ifdef _WINDOWS
 #    include <winsock2.h>
@@ -27,6 +31,11 @@
 using std::function;
 using std::string;
 using std::vector;
+
+#define SERVER_NOT_REACHABLE 1
+#define CANT_CREATE_DIR      2
+#define CANT_CREATE_FILE     3
+#define CONNECTION_CLOSED    4
 
 //------------------------------------------------------------------------------
 //! Multiplatform socket helper
@@ -206,5 +215,9 @@ int download(string                                      url,
 
 //-- return content Length of the HttpGet request
 int length(string url, string user = "", string pwd = "");
-}
+
+}; //namespace HttpUtils
 //------------------------------------------------------------------------------
+
+#endif //SL_BUILD_WITH_OPENSSL
+#endif //HTTP_UTILS_H

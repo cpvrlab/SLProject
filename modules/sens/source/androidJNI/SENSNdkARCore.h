@@ -50,9 +50,7 @@ private:
     ArFrame*   _arFrame         = nullptr;
     bool       _waitInit        = false;
     bool       _available       = false;
-    bool       _availableCached = false;
     bool       _installed       = false;
-    bool       _installedCached = false;
     bool       _installRefused  = false;
 
     GLuint _fbo = 0;

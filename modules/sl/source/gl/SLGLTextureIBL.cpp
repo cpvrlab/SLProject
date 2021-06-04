@@ -329,7 +329,7 @@ void SLGLTextureIBL::renderCube()
     glBindVertexArray(0);
 }
 //-----------------------------------------------------------------------------
-//! renders a 1x1 XY quad, used for rendering and capturung the BRDF integral solution
+//! renders a 1x1 XY quad, used for rendering and capturing the BRDF integral solution
 void SLGLTextureIBL::renderQuad()
 {
     if (_quadVAO == 0)

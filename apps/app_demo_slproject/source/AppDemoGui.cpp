@@ -141,13 +141,18 @@ Martin Christen, Jan Dellsperger, Manuel Frischknecht, Luc Girod, Michael Goettl
 
 Credits for external libraries:
 - assimp: assimp.sourceforge.net
+- eigen: eigen.tuxfamily.org
 - imgui: github.com/ocornut/imgui
 - gl3w: https://github.com/skaslev/gl3w
 - glfw: glfw.org
+- g2o: github.com/RainerKuemmerle/g2o
+- ktx: khronos.org/ktx
+- libigl: libigl.github.io
+- ORB-SLAM2: github.com/raulmur/ORB_SLAM2
 - OpenCV: opencv.org
 - OpenGL: opengl.org
 - OpenSSL: openssl.org
-- spa: Solar Position Algorithm
+- spa: midcdmz.nrel.gov/spa
 - zlib: zlib.net
 )";
 
@@ -1095,7 +1100,7 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
                     ImGuiWindowFlags window_flags = 0;
                     window_flags |= ImGuiWindowFlags_AlwaysAutoResize;
                     ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
-                    ImGui::Begin("Date and Time Settings", &showTransform, window_flags);
+                    ImGui::Begin("Date and Time Settings", &showDateAndTime, window_flags);
                     ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.66f);
 
                     tm lt{};
@@ -1200,8 +1205,8 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
             if (showErlebAR)
             {
                 ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
-                SLint namedLocIndex = AppDemo::devLoc.activeNamedLocation();
-                SLVec3f lookAtPoint = SLVec3f::ZERO;
+                SLint   namedLocIndex = AppDemo::devLoc.activeNamedLocation();
+                SLVec3f lookAtPoint   = SLVec3f::ZERO;
 
                 if (AppDemo::sceneID == SID_ErlebARChristoffel)
                 {
@@ -2829,7 +2834,9 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
             ImGui::MenuItem("Scenegraph", nullptr, &showSceneGraph);
             ImGui::MenuItem("Properties", nullptr, &showProperties);
             ImGui::MenuItem("Transform", nullptr, &showTransform);
-            ImGui::MenuItem("Date-Time", nullptr, &showDateAndTime);
+            if (AppDemo::devLoc.originLatLonAlt() != SLVec3d::ZERO ||
+                AppDemo::devLoc.defaultLatLonAlt() != SLVec3d::ZERO)
+                ImGui::MenuItem("Date-Time", nullptr, &showDateAndTime);
             ImGui::MenuItem("UI-Preferences", nullptr, &showUIPrefs);
             ImGui::Separator();
             ImGui::MenuItem("Infos on Device", nullptr, &showInfosDevice);
@@ -3641,13 +3648,14 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
 
                         if (ImGui::TreeNode(shd->name().c_str()))
                         {
-                            SLchar text[1024 * 16];
+                            SLchar* text = new char[shd->code().length()+1];
                             strcpy(text, shd->code().c_str());
                             ImGui::InputTextMultiline(shd->name().c_str(),
                                                       text,
-                                                      IM_ARRAYSIZE(text),
+                                                      shd->code().length()+1,
                                                       ImVec2(-1.0f, -1.0f));
                             ImGui::TreePop();
+                            delete[] text;
                         }
                     }
 
@@ -3753,6 +3761,11 @@ void AppDemoGui::loadConfig(SLint dotsPerInch)
         style.FramePadding.y = style.ItemInnerSpacing.y = std::max(4.0f * dpiScaleFixed, 4.0f);
         style.WindowPadding.y                           = style.ItemSpacing.y * 3;
         style.ScrollbarSize                             = std::max(16.0f * dpiScaleFixed, 16.0f);
+
+        // HSM4: Bugfix in some unknown cases ScrollbarSize gets INT::MIN
+        if (style.ScrollbarSize < 0.0f)
+            style.ScrollbarSize = 16.0f;
+
         style.ScrollbarRounding                         = std::floor(style.ScrollbarSize / 2);
 
         return;
@@ -3776,6 +3789,10 @@ void AppDemoGui::loadConfig(SLint dotsPerInch)
                                             style.FramePadding.y = style.ItemInnerSpacing.y = style.ItemSpacing.y;
                                             style.WindowPadding.y = style.ItemSpacing.y * 3;
             fs["ScrollbarSize"] >> i;       style.ScrollbarSize = (SLfloat) i;
+            // HSM4: Bugfix in some unknow cases ScrollbarSize gets INT::MIN
+            if (style.ScrollbarSize < 0.0f)
+                style.ScrollbarSize = 16.0f;
+
             fs["ScrollbarRounding"] >> i;   style.ScrollbarRounding = (SLfloat) i;
             fs["sceneID"] >> i;             AppDemo::sceneID = (SLSceneID) i;
             fs["showInfosScene"] >> b;      AppDemoGui::showInfosScene = b;

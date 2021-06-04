@@ -10,6 +10,7 @@
 #ifndef SLASSIMPPROGRESSHANDLER_H
 #define SLASSIMPPROGRESSHANDLER_H
 
+#ifdef SL_BUILD_WITH_ASSIMP
 #include <assimp/ProgressHandler.hpp>
 #include <AppDemo.h>
 
@@ -37,4 +38,5 @@ public:
     }
 };
 //-----------------------------------------------------------------------------
+#endif // SL_BUILD_WITH_ASSIMP
 #endif // SLASSIMPPROGRESSHANDLER_H

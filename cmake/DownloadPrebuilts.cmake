@@ -367,6 +367,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #-----------------------------
     set_target_properties(ssl PROPERTIES
         IMPORTED_LOCATION "${openssl_LINK_DIR}/libssl_static.lib"
     )
+    set(openssl_LIBS ssl crypto)
 
     ######################
     # Vulkan for Windows #
@@ -1456,6 +1457,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID") #-----------------------------
     set_target_properties(ssl PROPERTIES
         IMPORTED_LOCATION "${openssl_LINK_DIR}/libssl.a"
     )
+    set(openssl_LIBS ssl crypto)
 
     ########################
     # ktx for Android      #
