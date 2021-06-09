@@ -7,13 +7,14 @@
 #include <glUtils.h>
 #include <SLGLState.h>
 
-SENSNdkARCore::SENSNdkARCore(JavaVM* jvm, JNIEnv* env, jobject context, jobject activity, std::string appName)
+SENSNdkARCore::SENSNdkARCore(JavaVM* jvm, JNIEnv* env, jobject context, jobject activity, std::string appName, std::string writableDir)
 {
     checkAvailability(env, context, activity);
     _arSession = nullptr;
     _jvm = jvm;
 
     _appName = appName;
+    _writableDir = writableDir;
 }
 /*------------------------------------------------------------------------------------------*/
 
@@ -404,6 +405,7 @@ void SENSNdkARCore::updateCamera(cv::Mat& intrinsics)
         updateFrame(cpuImg, intrinsics, _inputFrameW, _inputFrameH, true);
 */
 
+        /*
         if(_fbo == 0)
         {//TODO: free buffers!!
             //init PBO
@@ -443,6 +445,63 @@ void SENSNdkARCore::updateCamera(cv::Mat& intrinsics)
         memcpy(cpuImg.data, image, _inputFrameW * _inputFrameH * 4);
 
         updateFrame(cpuImg, intrinsics, _inputFrameW, _inputFrameH, true);
+         */
+
+
+        //LOG_APP_DEBUG("fboTestFBO");
+
+        static bool fboTestDone = false;
+        if(!fboTestDone) {
+            if (_fbo == 0) {
+                GLint lastFBO = -1;
+                glGetIntegerv(GL_FRAMEBUFFER_BINDING, &lastFBO);
+
+                //generate frame buffer
+                glGenFramebuffers(1, &_fbo);
+                GET_GL_ERROR;
+                glBindFramebuffer(GL_FRAMEBUFFER, _fbo);
+                GET_GL_ERROR;
+                //bind fbo to texture
+                glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_EXTERNAL_OES,
+                                       _cameraTextureId, 0);
+                GET_GL_ERROR;
+                //test fbo status
+                GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+                GET_GL_ERROR;
+                if (status != GL_FRAMEBUFFER_COMPLETE)
+                    printf("failed to make complete framebuffer object %x", status);
+
+                glBindFramebuffer(GL_FRAMEBUFFER, lastFBO);
+            }
+
+            GLint lastFBO = -1;
+            glGetIntegerv(GL_FRAMEBUFFER_BINDING, &lastFBO);
+            GET_GL_ERROR;
+            //retrieve texture from framebuffer and load it into cv mat
+            SLGLState *gls = SLGLState::instance();
+            SLVec4i oldVP = gls->getViewport();
+            gls->viewport(0, 0, _inputFrameW, _inputFrameH);
+            GET_GL_ERROR;
+
+            glBindFramebuffer(GL_FRAMEBUFFER, _fbo);
+
+            cv::Mat img(_inputFrameH, _inputFrameW, CV_8UC4);
+            HighResTimer t;
+            glReadPixels(0, 0, _inputFrameW, _inputFrameH, GL_RGBA, GL_UNSIGNED_BYTE, img.data);
+            GET_GL_ERROR;
+
+            Utils::log("SENSNdkARCore", "glReadPixels: %fms", t.elapsedTimeInMilliSec());
+            cv::cvtColor(img, img, cv::COLOR_BGRA2RGBA);
+            cv::imwrite(_writableDir + "fboImg.png", img);
+            if (img.cols == _inputFrameW && img.rows == _inputFrameH)
+                fboTestDone = true;
+            gls->viewport(oldVP.x, oldVP.y, oldVP.z, oldVP.w);
+            //(ios does not allow to bind framebuffer to 0)
+            glBindFramebuffer(GL_FRAMEBUFFER, lastFBO);
+            GET_GL_ERROR;
+        }
+
+        updateFrame(cv::Mat(), intrinsics, _inputFrameW, _inputFrameH, true);
     }
 }
 

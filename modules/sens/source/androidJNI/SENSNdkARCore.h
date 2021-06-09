@@ -11,7 +11,7 @@
 class SENSNdkARCore : public SENSARCore
 {
 public:
-    SENSNdkARCore(JavaVM* jvm, JNIEnv* env, jobject context, jobject activity, std::string appName);
+    SENSNdkARCore(JavaVM* jvm, JNIEnv* env, jobject context, jobject activity, std::string appName, std::string writableDir);
     ~SENSNdkARCore();
 
     bool init(unsigned int textureId = 0) override;
@@ -63,6 +63,7 @@ private:
 
     //needed to find functions
     std::string _appName;
+    std::string _writableDir;
 
     void    initCameraTexture();
     cv::Mat convertToYuv(ArImage* arImage);
