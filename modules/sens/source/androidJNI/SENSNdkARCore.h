@@ -8,6 +8,8 @@
 #include <SENSARCore.h>
 #include <jni.h>
 
+class SENSGLTextureReader;
+
 class SENSNdkARCore : public SENSARCore
 {
 public:
@@ -64,6 +66,8 @@ private:
     //needed to find functions
     std::string _appName;
     std::string _writableDir;
+
+    SENSGLTextureReader* _texImgReader = nullptr;
 
     void    initCameraTexture();
     cv::Mat convertToYuv(ArImage* arImage);

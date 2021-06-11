@@ -4,8 +4,7 @@
 #include <Utils.h>
 #include "SENS.h"
 #include "SENSUtils.h"
-#include <glUtils.h>
-#include <SLGLState.h>
+#include "SENSGLTextureReader.h"
 
 SENSNdkARCore::SENSNdkARCore(JavaVM* jvm, JNIEnv* env, jobject context, jobject activity, std::string appName, std::string writableDir)
 {
@@ -115,6 +114,8 @@ void SENSNdkARCore::reset()
         _arSession = nullptr;
         if(_useCpuTexture)
             glDeleteTextures(1, &_cameraTextureId);
+        if(_texImgReader)
+            delete _texImgReader;
     }
 }
 
@@ -134,7 +135,13 @@ bool SENSNdkARCore::init(unsigned int textureId)
     {
         _useCpuTexture = false;
         _cameraTextureId = textureId;
+
+        if(_texImgReader)
+            delete _texImgReader;
+        _texImgReader = new SENSGLTextureReader(_cameraTextureId, true, 640, 360);
     }
+    else
+        _useCpuTexture = true;
 
     JNIEnv* env;
     _jvm->GetEnv((void**)&env, JNI_VERSION_1_6);
@@ -338,14 +345,15 @@ bool SENSNdkARCore::update(cv::Mat& pose)
 
 void SENSNdkARCore::updateCamera(cv::Mat& intrinsics)
 {
+    cv::Mat image;
+
     if(_useCpuTexture)
     {
         ArImage *arImage;
         ArStatus status = ArFrame_acquireCameraImage(_arSession, _arFrame, &arImage);
         if (status != AR_SUCCESS) {
             std::string msg;
-            switch(status)
-            {
+            switch (status) {
                 case AR_ERROR_INVALID_ARGUMENT:
                     msg = "One more input arguments are invalid";
                     break;
@@ -365,144 +373,24 @@ void SENSNdkARCore::updateCamera(cv::Mat& intrinsics)
             return;
         }
 
-        if(arImage)
-        {
+        if (arImage) {
             Utils::log("SENSNdkARCore", "pointer valid");
-            cv::Mat yuv = convertToYuv(arImage);
-            cv::Mat bgr;
+            cv::Mat image = convertToYuv(arImage);
 
             ArImage_release(arImage);
 
-            cv::cvtColor(yuv, bgr, cv::COLOR_YUV2BGR_NV21, 3);
-            updateFrame(bgr, intrinsics, _inputFrameW, _inputFrameH, true);
+            cv::cvtColor(image, image, cv::COLOR_YUV2BGR_NV21, 3);
         }
+
     }
-    else
+    else if(_texImgReader)
     {
-        /*
-        if(_fbo == 0)
-        {
-            //int FBO
-            glBindTexture(GL_TEXTURE_EXTERNAL_OES, _cameraTextureId);
-            glGenFramebuffers(1, &_fbo);
-            glBindFramebuffer(GL_FRAMEBUFFER, _fbo);
-            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_EXTERNAL_OES, _cameraTextureId, 0);
-            glBindFramebuffer(GL_FRAMEBUFFER, 0);
-            glBindTexture(GL_TEXTURE_EXTERNAL_OES, 0);
-            GET_GL_ERROR;
-        }
-
-        glBindTexture(GL_TEXTURE_EXTERNAL_OES, _cameraTextureId);
-        glBindFramebuffer(GL_FRAMEBUFFER, _fbo);
-
-        cv::Mat cpuImg(_inputFrameW, _inputFrameH, CV_8UC4);
-        glReadPixels(0, 0, _inputFrameW, _inputFrameH, GL_RGBA_INTEGER, GL_UNSIGNED_BYTE, cpuImg.data);
-        GET_GL_ERROR;
-
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
-        glBindTexture(GL_TEXTURE_EXTERNAL_OES, 0);
-
-        updateFrame(cpuImg, intrinsics, _inputFrameW, _inputFrameH, true);
-*/
-
-        /*
-        if(_fbo == 0)
-        {//TODO: free buffers!!
-            //init PBO
-            glGenBuffers(1, &_pbo);
-            glBindBuffer(GL_PIXEL_PACK_BUFFER, _pbo);
-            glBufferData(GL_PIXEL_PACK_BUFFER, _inputFrameW * _inputFrameH * 4, 0, GL_DYNAMIC_READ);
-
-            glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
-            GET_GL_ERROR;
-
-            //int FBO
-            glBindTexture(GL_TEXTURE_EXTERNAL_OES, _cameraTextureId);
-            glGenFramebuffers(1, &_fbo);
-            glBindFramebuffer(GL_FRAMEBUFFER, _fbo);
-            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_EXTERNAL_OES, _cameraTextureId, 0);
-            glBindFramebuffer(GL_FRAMEBUFFER, 0);
-            glBindTexture(GL_TEXTURE_EXTERNAL_OES, 0);
-            GET_GL_ERROR;
-        }
-
-        //read pixels:
-        //Start copying to opengl client side (non blocking)
-        glBindFramebuffer(GL_FRAMEBUFFER, _fbo);
-        glBindBuffer(GL_PIXEL_PACK_BUFFER, _pbo);
-        glReadPixels(0, 0, _inputFrameW, _inputFrameH, GL_RGBA_INTEGER, GL_INT, 0);
-        glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
-        GET_GL_ERROR;
-
-        //Getting the result (blocking call)
-        glBindBuffer(GL_PIXEL_PACK_BUFFER, _pbo);
-        unsigned int* image = (unsigned int*)glMapBufferRange(GL_PIXEL_PACK_BUFFER, 0, _inputFrameW * _inputFrameH * 4, GL_MAP_READ_BIT);
-        glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
-        GET_GL_ERROR;
-
-        //put them into a cv Mat
-        cv::Mat cpuImg(_inputFrameW, _inputFrameH, CV_8UC4);
-        memcpy(cpuImg.data, image, _inputFrameW * _inputFrameH * 4);
-
-        updateFrame(cpuImg, intrinsics, _inputFrameW, _inputFrameH, true);
-         */
-
-
-        //LOG_APP_DEBUG("fboTestFBO");
-
-        static bool fboTestDone = false;
-        if(!fboTestDone) {
-            if (_fbo == 0) {
-                GLint lastFBO = -1;
-                glGetIntegerv(GL_FRAMEBUFFER_BINDING, &lastFBO);
-
-                //generate frame buffer
-                glGenFramebuffers(1, &_fbo);
-                GET_GL_ERROR;
-                glBindFramebuffer(GL_FRAMEBUFFER, _fbo);
-                GET_GL_ERROR;
-                //bind fbo to texture
-                glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_EXTERNAL_OES,
-                                       _cameraTextureId, 0);
-                GET_GL_ERROR;
-                //test fbo status
-                GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-                GET_GL_ERROR;
-                if (status != GL_FRAMEBUFFER_COMPLETE)
-                    printf("failed to make complete framebuffer object %x", status);
-
-                glBindFramebuffer(GL_FRAMEBUFFER, lastFBO);
-            }
-
-            GLint lastFBO = -1;
-            glGetIntegerv(GL_FRAMEBUFFER_BINDING, &lastFBO);
-            GET_GL_ERROR;
-            //retrieve texture from framebuffer and load it into cv mat
-            SLGLState *gls = SLGLState::instance();
-            SLVec4i oldVP = gls->getViewport();
-            gls->viewport(0, 0, _inputFrameW, _inputFrameH);
-            GET_GL_ERROR;
-
-            glBindFramebuffer(GL_FRAMEBUFFER, _fbo);
-
-            cv::Mat img(_inputFrameH, _inputFrameW, CV_8UC4);
-            HighResTimer t;
-            glReadPixels(0, 0, _inputFrameW, _inputFrameH, GL_RGBA, GL_UNSIGNED_BYTE, img.data);
-            GET_GL_ERROR;
-
-            Utils::log("SENSNdkARCore", "glReadPixels: %fms", t.elapsedTimeInMilliSec());
-            cv::cvtColor(img, img, cv::COLOR_BGRA2RGBA);
-            cv::imwrite(_writableDir + "fboImg.png", img);
-            if (img.cols == _inputFrameW && img.rows == _inputFrameH)
-                fboTestDone = true;
-            gls->viewport(oldVP.x, oldVP.y, oldVP.z, oldVP.w);
-            //(ios does not allow to bind framebuffer to 0)
-            glBindFramebuffer(GL_FRAMEBUFFER, lastFBO);
-            GET_GL_ERROR;
-        }
-
-        updateFrame(cv::Mat(), intrinsics, _inputFrameW, _inputFrameH, true);
+        HighResTimer t;
+        image = _texImgReader->readImageFromGpu();
+        Utils::log("SENSNdkARCore", "readImageFromGPU: %fms", t.elapsedTimeInMilliSec());
     }
+
+    updateFrame(image, intrinsics, _inputFrameW, _inputFrameH, true);
 }
 
 void SENSNdkARCore::lightComponentIntensity(float * component)

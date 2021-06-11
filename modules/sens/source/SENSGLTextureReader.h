@@ -10,6 +10,7 @@ class SENSGLTextureReader
 public:
 	//! ATTENTION: make sure this constructor is called from gl thread
 	SENSGLTextureReader(unsigned int textureId, bool isGlTextureExternal, int targetWidth, int targetHeight);
+	~SENSGLTextureReader();
 	//! read gl texture from gpu. The transferred image will be filled. return false if it failed
 	//! in this case one can retrieve the last error
     cv::Mat readImageFromGpu();
@@ -28,7 +29,6 @@ private:
     int _targetHeight;
     
     unsigned int _fbo = 0;
-    unsigned int _renderBuf = 0;
     unsigned int _prog = 0;
     unsigned int _VBO = 0;
     unsigned int _VAO = 0;

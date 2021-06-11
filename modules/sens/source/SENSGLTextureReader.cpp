@@ -115,6 +115,16 @@ SENSGLTextureReader::SENSGLTextureReader(unsigned int textureId, bool isGlTextur
 	initGl();
 }
 
+SENSGLTextureReader::~SENSGLTextureReader()
+{
+    glDeleteTextures(1, &_targetTex);
+    glDeleteFramebuffers(1, &_fbo);
+    glDeleteVertexArrays(1, &_VAO);
+    glDeleteBuffers(1, &_VBO);
+    glDeleteBuffers(1, &_EBO);
+    glDeleteProgram(_prog);
+}
+
 void SENSGLTextureReader::initGl()
 {
     //-----------------------------------------------------------------------------
@@ -127,7 +137,6 @@ void SENSGLTextureReader::initGl()
     //-----------------------------------------------------------------------------
     //setup shader program
     static std::string vertexShSrc =
-        "#include extension\n"
         "#ifdef GL_ES\n"
         "   precision highp float;\n"
         "#endif\n"
@@ -144,6 +153,7 @@ void SENSGLTextureReader::initGl()
         "}\n";
     
     static std::string fragShSrc =
+        "#include extension\n"
         "#ifdef GL_ES\n"
         "   precision highp float;\n"
         "#endif\n"
@@ -156,7 +166,7 @@ void SENSGLTextureReader::initGl()
         "\n"
         "void main()\n"
         "{\n"
-        "    FragColor = texture(texture0, vec2(TexCoords.x, 1.0f - TexCoords.y));\n"
+        "    FragColor = texture(texture0, vec2(TexCoords.x, TexCoords.y));\n"
         "}\n";
     
     GLuint vertexSh = buildShaderFromSource(vertexShSrc, GL_VERTEX_SHADER, _isGlTextureExternal);
@@ -267,7 +277,7 @@ cv::Mat SENSGLTextureReader::readImageFromGpu()
     glViewport(0, 0, _targetWidth, _targetHeight);
     GET_GL_ERROR;
     
-    glClearColor(0.3f, 0.2f, 0.4f, 1.0f);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
     if(lastDepthTestV)
         glDisable(GL_DEPTH_TEST);
