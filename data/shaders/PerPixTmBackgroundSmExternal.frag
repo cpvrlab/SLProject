@@ -59,8 +59,12 @@ void main()
     float y = (gl_FragCoord.y - u_bgBottom) / u_bgHeight;
 
     //mirror at x axis
-    vec4 texColor = texture(u_matTexture0, vec2(x, 1.0f - y));
-
+    vec4 texColor;
+    if(x < u_bgLeft || y < u_bgBottom || x >= u_bgLeft + u_bgWidth || y >= u_bgBottom + u_bgHeight)
+        texColor = vec4(0.0f, 0.0f, 0.0f, 1.0f);
+    else
+        texColor = texture(u_matTexture0, vec2(x, 1.0f - y));
+        
     vec3 N = normalize(v_N_VS);  // A input normal has not anymore unit length
     float shadow = 0.0;
 
