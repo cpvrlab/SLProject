@@ -168,7 +168,6 @@ void SLBackground::render(SLint widthPX, SLint heightPX)
 
     // Create or update buffer for vertex position and indices
     if (!_vao.vaoID() || _resX != widthPX || _resY != heightPX)
-    //if (!_vao.vaoID() || (_rect.width != widthPX && _rect.height != heightPX))
     {
         //texture width and height not yet valid on first call
         _resX = widthPX;
