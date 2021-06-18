@@ -166,7 +166,8 @@ void SENSGLTextureReader::initGl()
         "\n"
         "void main()\n"
         "{\n"
-        "    FragColor = texture(texture0, vec2(TexCoords.x, TexCoords.y));\n"
+        "    //ATTENTION: order is changed to bgr\n"
+        "    FragColor = texture(texture0, vec2(TexCoords.x, TexCoords.y)).bgra;\n"
         "}\n";
     
     GLuint vertexSh = buildShaderFromSource(vertexShSrc, GL_VERTEX_SHADER, _isGlTextureExternal);
@@ -174,14 +175,9 @@ void SENSGLTextureReader::initGl()
     _prog = glCreateProgram();
     glAttachShader(_prog, vertexSh);
     glAttachShader(_prog, fragSh);
-    GET_GL_ERROR;
-    //glBindFragDataLocation(fragSh, 0, "pixel");
-    GET_GL_ERROR;
     glLinkProgram(_prog);
-    GET_GL_ERROR;
     glDeleteShader(vertexSh);
     glDeleteShader(fragSh);
-    
     GET_GL_ERROR;
 
     //-----------------------------------------------------------------------------
@@ -210,7 +206,6 @@ void SENSGLTextureReader::initGl()
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-    GET_GL_ERROR;
     
     // position attribute
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
@@ -218,7 +213,6 @@ void SENSGLTextureReader::initGl()
     // texture coord attribute
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
     glEnableVertexAttribArray(1);
-    GET_GL_ERROR;
     
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
@@ -226,7 +220,7 @@ void SENSGLTextureReader::initGl()
     glGenFramebuffers(1, &_fbo);
     glBindFramebuffer(GL_FRAMEBUFFER, _fbo);
     GET_GL_ERROR;
-    
+
     //-----------------------------------------------------------------------------
     //setup target texture
     glGenTextures(1, &_targetTex);
@@ -236,7 +230,6 @@ void SENSGLTextureReader::initGl()
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    GET_GL_ERROR;
     
     //bind fbo to target texture
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, _targetTex, 0);
@@ -244,10 +237,9 @@ void SENSGLTextureReader::initGl()
 
     //test fbo status
     GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-    GET_GL_ERROR;
     if(status != GL_FRAMEBUFFER_COMPLETE)
         Utils::log("SENSGLTextureReader", "failed to make complete framebuffer object %x", status);
-    
+    GET_GL_ERROR;
     //-----------------------------------------------------------------------------
     //restore old gl state
     glBindFramebuffer(GL_FRAMEBUFFER, lastFBO);
@@ -275,8 +267,7 @@ cv::Mat SENSGLTextureReader::readImageFromGpu()
     //-----------------------------------------------------------------------------
     glBindFramebuffer(GL_FRAMEBUFFER, _fbo);
     glViewport(0, 0, _targetWidth, _targetHeight);
-    GET_GL_ERROR;
-    
+
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
     if(lastDepthTestV)
@@ -288,15 +279,10 @@ cv::Mat SENSGLTextureReader::readImageFromGpu()
     glUseProgram(_prog);
     glBindVertexArray(_VAO);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-    GET_GL_ERROR;
     
     //read pixels from framebuffer
     cv::Mat image = cv::Mat(_targetHeight, _targetWidth, CV_8UC4);
-    //TODO: GL_RGBA on ios and GL_RGB elsewise
-    //TODO: needed?
-    //glReadBuffer(GL_COLOR_ATTACHMENT0);
     glReadPixels(0, 0, _targetWidth, _targetHeight, GL_RGBA, GL_UNSIGNED_BYTE, image.data);
-    GET_GL_ERROR;
     
     //-------------------------------------------------------------------
     //restore old gl state
@@ -308,7 +294,8 @@ cv::Mat SENSGLTextureReader::readImageFromGpu()
         glEnable(GL_DEPTH_TEST);
     if(lastStencilTestV)
         glEnable(GL_STENCIL_TEST);
-    
+    GET_GL_ERROR;
+
     if(image.data)
         return image;
     else

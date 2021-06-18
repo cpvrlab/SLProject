@@ -106,8 +106,9 @@ private:
 };
 
 //---------------------------------------------------------------------------
-//SENSCameraConfig
-//define a config to start a capture session on a camera device
+/*! SENSCameraConfig
+    This class defines the current configuration of a camera
+ */
 struct SENSCameraConfig
 {
     //this constructor forces the user to always define a complete parameter set. In this way no parameter is forgotten..
@@ -211,7 +212,7 @@ public:
     bool permissionGranted() const override { return _permissionGranted; }
     void setPermissionGranted() override { _permissionGranted = true; }
 
-    bool usesCpuTexture() const { return _useCpuTexture; }
+    bool usesCpuTexture() const { return !_retrieveCpuImg; }
 protected:
     void updateFrame(cv::Mat bgrImg, cv::Mat intrinsics, int width, int height, bool intrinsicsChanged);
     //call from start function to do startup preprocessing
@@ -236,7 +237,7 @@ protected:
     //cv::Mat          _intrinsics;
     std::mutex _frameMutex;
 
-    bool _useCpuTexture = true;
+    bool _retrieveCpuImg = false;
 };
 
 #endif //SENS_CAMERA_H

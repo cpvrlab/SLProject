@@ -112,36 +112,22 @@ void SENSNdkARCore::reset()
         ArSession_destroy(_arSession);
         ArFrame_destroy(_arFrame);
         _arSession = nullptr;
-        if(_useCpuTexture)
-            glDeleteTextures(1, &_cameraTextureId);
         if(_texImgReader)
             delete _texImgReader;
     }
 }
 
-void SENSNdkARCore::initCameraTexture() {
-    if (_useCpuTexture)
-    {
-        glGenTextures(1, &_cameraTextureId);
-        glBindTexture(GL_TEXTURE_EXTERNAL_OES, _cameraTextureId);
-        glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    }
-}
-
-bool SENSNdkARCore::init(unsigned int textureId)
+bool SENSNdkARCore::init(unsigned int textureId, bool retrieveCpuImg, int targetWidth, int targetHeight)
 {
     if(textureId > 0)
-    {
-        _useCpuTexture = false;
         _cameraTextureId = textureId;
 
-        if(_texImgReader)
-            delete _texImgReader;
-        _texImgReader = new SENSGLTextureReader(_cameraTextureId, true, 640, 360);
-    }
-    else
-        _useCpuTexture = true;
+    if(_texImgReader)
+        delete _texImgReader;
+
+    _retrieveCpuImg = retrieveCpuImg;
+    _cpuImgTargetWidth = targetWidth;
+    _cpuImgTargetHeight = targetHeight;
 
     JNIEnv* env;
     _jvm->GetEnv((void**)&env, JNI_VERSION_1_6);
@@ -194,13 +180,12 @@ bool SENSNdkARCore::init(JNIEnv* env, void* context, void* activity)
         return false;
     }
 
-    // Deph texture has values between 0 millimeters to 8191 millimeters. 8m is not enough in our case
+    // Depth texture has values between 0 millimeters to 8191 millimeters. 8m is not enough in our case
     // https://developers.google.com/ar/reference/c/group/ar-frame#arframe_acquiredepthimage
     ArConfig_setDepthMode(_arSession, arConfig, AR_DEPTH_MODE_DISABLED);
     ArConfig_setLightEstimationMode(_arSession, arConfig, AR_LIGHT_ESTIMATION_MODE_ENVIRONMENTAL_HDR);
     ArConfig_setInstantPlacementMode(_arSession, arConfig, AR_INSTANT_PLACEMENT_MODE_DISABLED);
 
-    initCameraTexture();
     ArSession_setCameraTextureName(_arSession, _cameraTextureId);
 
     if (ArSession_configure(_arSession, arConfig) != AR_SUCCESS)
@@ -235,6 +220,25 @@ bool SENSNdkARCore::init(JNIEnv* env, void* context, void* activity)
         _arSession = nullptr;
         return false;
     }
+
+    //retrieve intrinsics and frame size
+    ArCamera* arCamera;
+    ArFrame_acquireCamera(_arSession, _arFrame, &arCamera);
+
+    ArCameraIntrinsics* arIntrinsics = nullptr;
+    ArCameraIntrinsics_create(_arSession, &arIntrinsics);
+    ArCamera_getTextureIntrinsics(_arSession, arCamera, arIntrinsics);
+
+    ArCameraIntrinsics_getFocalLength(_arSession, arIntrinsics, &_fx, &_fy);
+    ArCameraIntrinsics_getPrincipalPoint(_arSession, arIntrinsics, &_cx, &_cy);
+    ArCameraIntrinsics_getImageDimensions(_arSession,
+                                          arIntrinsics,
+                                          &_inputFrameW,
+                                          &_inputFrameH);
+
+    ArCameraIntrinsics_destroy(arIntrinsics);
+    ArCamera_release(arCamera);
+
     pause();
     return true;
 }
@@ -276,10 +280,7 @@ bool SENSNdkARCore::update(cv::Mat& pose)
     {
         ArCameraIntrinsics* arIntrinsics = nullptr;
         ArCameraIntrinsics_create(_arSession, &arIntrinsics);
-        if(_useCpuTexture)
-            ArCamera_getImageIntrinsics(_arSession, arCamera, arIntrinsics);
-        else
-            ArCamera_getTextureIntrinsics(_arSession, arCamera, arIntrinsics);
+        ArCamera_getTextureIntrinsics(_arSession, arCamera, arIntrinsics);
 
         float fx, fy, cx, cy;
         ArCameraIntrinsics_getFocalLength(_arSession, arIntrinsics, &fx, &fy);
@@ -347,47 +348,31 @@ void SENSNdkARCore::updateCamera(cv::Mat& intrinsics)
 {
     cv::Mat image;
 
-    if(_useCpuTexture)
+    if(_retrieveCpuImg)
     {
-        ArImage *arImage;
-        ArStatus status = ArFrame_acquireCameraImage(_arSession, _arFrame, &arImage);
-        if (status != AR_SUCCESS) {
-            std::string msg;
-            switch (status) {
-                case AR_ERROR_INVALID_ARGUMENT:
-                    msg = "One more input arguments are invalid";
-                    break;
-                case AR_ERROR_DEADLINE_EXCEEDED:
-                    msg = "The input frame is not the current frame.";
-                    break;
-                case AR_ERROR_RESOURCE_EXHAUSTED:
-                    msg = "The caller app has exceeded maximum number of images that it can hold without releasing.";
-                    break;
-                case AR_ERROR_NOT_YET_AVAILABLE:
-                    msg = "Image with the timestamp of the input frame was not found within a bounded amount of time, or the camera failed to produce the image.";
-                    break;
-            }
-
-            msg = "acquireCameraImage not successful: " + msg;
-            Utils::log("SENSNdkARCore", msg.c_str());
-            return;
+        if (!_texImgReader)
+        {
+            //ATTENTION: for the current implementation the gpu texture (preview image) has to have the same aspect ratio as the cpu image
+            //check aspect ratio
+            if((float)_cpuImgTargetWidth / (float)_cpuImgTargetHeight )
+            _texImgReader = new SENSGLTextureReader(_cameraTextureId, true, _cpuImgTargetWidth,
+                                                    _cpuImgTargetHeight);
         }
 
-        if (arImage) {
-            Utils::log("SENSNdkARCore", "pointer valid");
-            cv::Mat image = convertToYuv(arImage);
 
-            ArImage_release(arImage);
-
-            cv::cvtColor(image, image, cv::COLOR_YUV2BGR_NV21, 3);
-        }
-
-    }
-    else if(_texImgReader)
-    {
         HighResTimer t;
         image = _texImgReader->readImageFromGpu();
+
+
         Utils::log("SENSNdkARCore", "readImageFromGPU: %fms", t.elapsedTimeInMilliSec());
+        /*
+Utils::log("imagesize", "orig w:%d h:%d", image.size().width, image.size().height);
+Utils::log("imagesize", "orig imageSize w:%d h:%d", _inputFrameW, _inputFrameH);
+Utils::log("imagesize", "orig calib cx:%f cy:%f", intrinsics.at<double>(0, 2),
+           intrinsics.at<double>(1, 2));
+*/
+        //adapt intrinsics to cpu image size
+
     }
 
     updateFrame(image, intrinsics, _inputFrameW, _inputFrameH, true);
@@ -454,6 +439,7 @@ void SENSNdkARCore::pause()
 void SENSNdkARCore::retrieveCaptureProperties()
 {
     //the SENSCameraBase needs to have a valid frame, otherwise we cannot estimate the fov correctly
+    /*
     if(!_frame)
     {
         resume();
@@ -486,6 +472,15 @@ void SENSNdkARCore::retrieveCaptureProperties()
     }
     else
         Utils::warnMsg("SENSNdkARCore", "retrieveCaptureProperties: Could not retrieve a valid frame!", __LINE__, __FILE__);
+*/
+    std::string      deviceId = "ARKit";
+    SENSCameraFacing facing = SENSCameraFacing::BACK;
+
+    float focalLengthPix = 0.5 * (_fx + _fy);
+    SENSCameraDeviceProperties devProp(deviceId, facing);
+    //here we have to use the cpu image size (which is not the same as the gpu image size)
+    devProp.add(_inputFrameW, _inputFrameH, focalLengthPix);
+    _captureProperties.push_back(devProp);
 }
 
 const SENSCaptureProperties& SENSNdkARCore::captureProperties()

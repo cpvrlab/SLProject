@@ -6,7 +6,7 @@ SENSiOSARCore::SENSiOSARCore()
     _available      = [_arcoreDelegate isAvailable];
 }
 
-bool SENSiOSARCore::init(unsigned int textureId)
+bool SENSiOSARCore::init(unsigned int textureId, bool retrieveCpuImg, int targetWidth, int targetHeight)
 {
     if (!_available)
         return false;

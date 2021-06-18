@@ -18,7 +18,7 @@ class SENSARCore : public SENSCameraBase
 public:
     SENSARCore() {}
     virtual ~SENSARCore() {}
-    virtual bool init(unsigned int textureId = 0) = 0;
+    virtual bool init(unsigned int textureId=0, bool retrieveCpuImg=false, int targetWidth=-1, int targetHeight=-1) = 0;
     virtual bool isReady()                                                                                         = 0;
     virtual bool resume()                                                                                          = 0;
     virtual void reset()                                                                                           = 0;
@@ -43,7 +43,7 @@ protected:
 
     int _inputFrameW = 0;
     int _inputFrameH = 0;
-    
+
     bool _fetchPointCloud = false;
     cv::Mat _pointCloud;
 private:
