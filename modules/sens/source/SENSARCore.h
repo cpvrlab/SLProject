@@ -37,12 +37,14 @@ public:
     void fetchPointCloud(bool s) { _fetchPointCloud = s; }
     cv::Mat getPointCloud() { return _pointCloud; }
 
+    cv::Size inputFrameSize() { return cv::Size(_inputFrameW, _inputFrameH); }
 protected:
     bool _running   = false;
     bool _pause     = true;
 
     int _inputFrameW = 0;
     int _inputFrameH = 0;
+    bool _retrieveCpuImg = false;
 
     bool _fetchPointCloud = false;
     cv::Mat _pointCloud;

@@ -212,7 +212,6 @@ public:
     bool permissionGranted() const override { return _permissionGranted; }
     void setPermissionGranted() override { _permissionGranted = true; }
 
-    bool usesCpuTexture() const { return !_retrieveCpuImg; }
 protected:
     void updateFrame(cv::Mat bgrImg, cv::Mat intrinsics, int width, int height, bool intrinsicsChanged);
     //call from start function to do startup preprocessing
@@ -236,8 +235,6 @@ protected:
     //bool             _intrinsicsChanged = false;
     //cv::Mat          _intrinsics;
     std::mutex _frameMutex;
-
-    bool _retrieveCpuImg = false;
 };
 
 #endif //SENS_CAMERA_H
