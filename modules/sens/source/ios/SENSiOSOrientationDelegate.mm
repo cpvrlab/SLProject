@@ -66,7 +66,10 @@
 
         // See also: https://developer.apple.com/documentation/coremotion/getting_processed_device_motion_data/understanding_reference_frames_and_device_attitude?language=objc
 
-        [_motionManager startDeviceMotionUpdatesUsingReferenceFrame:CMAttitudeReferenceFrameXTrueNorthZVertical
+        // In case the compass calibration is turned off on the iOS device,
+        // the following code receives an error with code 102 - true north not available.
+        // This is why we use the magnetic north here.
+        [_motionManager startDeviceMotionUpdatesUsingReferenceFrame:CMAttitudeReferenceFrameXMagneticNorthZVertical
                                                             toQueue:[NSOperationQueue currentQueue]
                                                         withHandler:^(CMDeviceMotion* motion, NSError* error) {
                                                           [self performSelectorOnMainThread:@selector(onDeviceMotionUpdate:)
