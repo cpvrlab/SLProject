@@ -62,7 +62,6 @@ protected:
 
     SLGLTexture*     _sourceTexture;     //!< 2D Texture from the HDR Image
     SLGLProgram*     _shaderProgram;     //!< shader program to render the texture
-    SLGLFrameBuffer* _captureFBO;        //!< Frame Buffer Object for capturing the textures
     SLMat4f          _captureProjection; //!< Projection matrix for capturing the textures
     SLVMat4f         _captureViews;      //!< all 6 positions of the views that represent the 6 sides of the cube map
 };
