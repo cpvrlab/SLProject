@@ -338,9 +338,9 @@ SLMaterial::~SLMaterial()
         _errorTexture = nullptr;
     }
 
-    SLGLState* stateGL = SLGLState::instance();
-    if (stateGL->currentMaterial() == this)
-        stateGL->currentMaterial(nullptr);
+    //SLGLState* stateGL = SLGLState::instance();
+    //if (stateGL->currentMaterial() == this)
+    //    stateGL->currentMaterial(nullptr);
 }
 //-----------------------------------------------------------------------------
 /*!

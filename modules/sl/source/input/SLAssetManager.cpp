@@ -42,6 +42,7 @@ void SLAssetManager::clear()
 //! for all assets, clear gpu data
 void SLAssetManager::deleteDataGpu()
 {
+    /*
     SLGLState* stateGL = SLGLState::instance();
 
     // check if current
@@ -50,6 +51,7 @@ void SLAssetManager::deleteDataGpu()
         if (stateGL->currentMaterial() == m)
             stateGL->currentMaterial(nullptr);
     }
+     */
 
     // delete textures
     for (auto t : _textures)
