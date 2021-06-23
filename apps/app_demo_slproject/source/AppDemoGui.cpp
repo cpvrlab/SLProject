@@ -188,7 +188,7 @@ int ftpCallbackXfer(off64_t xfered, void* arg)
     if (ftpXferSizeMax)
     {
         int xferedPC = (int)((float)xfered / (float)ftpXferSizeMax * 100.0f);
-        //cout << "Bytes transferred: " << xfered << " (" << xferedPC << ")" << endl;
+        // cout << "Bytes transferred: " << xfered << " (" << xferedPC << ")" << endl;
         AppDemo::jobProgressNum(xferedPC);
     }
     else
@@ -781,7 +781,7 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
 
                     AverageTiming::getTimingMessage(m);
 
-                    //define ui elements
+                    // define ui elements
                     ImGui::TextUnformatted(m);
                 }
 
@@ -803,9 +803,9 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
                 window_flags |= ImGuiWindowFlags_NoScrollbar;
                 SLfloat  w    = (SLfloat)sv->viewportW();
                 ImVec2   size = ImGui::CalcTextSize(s->info().c_str(),
-                                                  nullptr,
-                                                  true,
-                                                  w);
+                                                    nullptr,
+                                                    true,
+                                                    w);
                 SLfloat  h    = size.y + SLGLImGui::fontPropDots * 2.0f;
                 SLstring info = "Scene Info: " + s->info();
 
@@ -1018,8 +1018,8 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
                 sprintf(m + strlen(m), "Yaw   (deg)      : %3.1f\n", AppDemo::devRot.yawDEG());
                 sprintf(m + strlen(m), "Roll  (deg)      : %3.1f\n", AppDemo::devRot.rollDEG());
                 sprintf(m + strlen(m), "No. averaged     : %d\n", AppDemo::devRot.numAveraged());
-                //sprintf(m + strlen(m), "Pitch Offset(deg): %3.1f\n", AppDemo::devRot.pitchOffsetDEG());
-                //sprintf(m + strlen(m), "Yaw   Offset(deg): %3.1f\n", AppDemo::devRot.yawOffsetDEG());
+                // sprintf(m + strlen(m), "Pitch Offset(deg): %3.1f\n", AppDemo::devRot.pitchOffsetDEG());
+                // sprintf(m + strlen(m), "Yaw   Offset(deg): %3.1f\n", AppDemo::devRot.yawOffsetDEG());
                 sprintf(m + strlen(m), "Rot. Offset mode : %s\n", AppDemo::devRot.offsetModeStr().c_str());
                 sprintf(m + strlen(m), "------------------\n");
                 sprintf(m + strlen(m), "Uses GPS Sensor  : %s\n", AppDemo::devLoc.isUsed() ? "yes" : "no");
@@ -1410,7 +1410,7 @@ CVCalibration guessCalibration(bool         mirroredH,
     }
     else
     {
-        //make a guess using frame size and a guessed field of view
+        // make a guess using frame size and a guessed field of view
         return CVCalibration(cv::Size(CVCapture::instance()->lastFrame.cols,
                                       CVCapture::instance()->lastFrame.rows),
                              60.0,
@@ -1566,13 +1566,13 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                                 mriImages.push_back(AppDemo::texturePath + Utils::formatString("i%04u_0000b.png", i));
 
                             gTexMRI3D             = new SLGLTexture(nullptr,
-                                                        mriImages,
-                                                        GL_LINEAR,
-                                                        GL_LINEAR,
-                                                        0x812D, // GL_CLAMP_TO_BORDER (GLSL 320)
-                                                        0x812D, // GL_CLAMP_TO_BORDER (GLSL 320)
-                                                        "mri_head_front_to_back",
-                                                        true);
+                                                                    mriImages,
+                                                                    GL_LINEAR,
+                                                                    GL_LINEAR,
+                                                                    0x812D, // GL_CLAMP_TO_BORDER (GLSL 320)
+                                                                    0x812D, // GL_CLAMP_TO_BORDER (GLSL 320)
+                                                                    "mri_head_front_to_back",
+                                                                    true);
                             AppDemo::jobIsRunning = false;
                         };
 
@@ -1599,7 +1599,7 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
 
                         AppDemo::jobsToBeThreaded.emplace_back(loadMRIImages);
                         AppDemo::jobsToBeThreaded.emplace_back(calculateGradients);
-                        //AppDemo::jobsToBeThreaded.emplace_back(smoothGradients);  // very slow
+                        // AppDemo::jobsToBeThreaded.emplace_back(smoothGradients);  // very slow
                         AppDemo::jobsToFollowInMain.push_back(onLoadScene);
                     }
 
@@ -1688,7 +1688,7 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                                 AppDemo::jobProgressMsg("Downloading large dragon file via FTP:");
                                 AppDemo::jobProgressMax(100);
                                 ftplib ftp;
-                                ftp.SetConnmode(ftplib::connmode::port); //enable active mode
+                                ftp.SetConnmode(ftplib::connmode::port); // enable active mode
 
                                 if (ftp.Connect("pallas.ti.bfh.ch:21"))
                                 {
@@ -1772,6 +1772,8 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                         s->onLoad(s, sv, SID_Benchmark3_NodeAnimations);
                     if (ImGui::MenuItem("Massive Skinned Animations", nullptr, sid == SID_Benchmark4_SkinnedAnimations))
                         s->onLoad(s, sv, SID_Benchmark4_SkinnedAnimations);
+                    if (ImGui::MenuItem("Level of Detail", nullptr, sid == SID_Benchmark4_LOD))
+                        s->onLoad(s, sv, SID_Benchmark4_LOD);
 
                     ImGui::EndMenu();
                 }
@@ -2055,14 +2057,14 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                     if (ImGui::MenuItem("Horizontally", nullptr, ac->mirrorH()))
                     {
                         ac->toggleMirrorH();
-                        //make a guessed calibration, if there was a calibrated camera it is not valid anymore
+                        // make a guessed calibration, if there was a calibrated camera it is not valid anymore
                         ac->calibration = guessCalibration(ac->mirrorH(), ac->mirrorV(), ac->type());
                     }
 
                     if (ImGui::MenuItem("Vertically", nullptr, ac->mirrorV()))
                     {
                         ac->toggleMirrorV();
-                        //make a guessed calibration, if there was a calibrated camera it is not valid anymore
+                        // make a guessed calibration, if there was a calibrated camera it is not valid anymore
                         ac->calibration = guessCalibration(ac->mirrorH(), ac->mirrorV(), ac->type());
                     }
 
@@ -3520,7 +3522,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                     if (!m->textures().empty() &&
                         ImGui::TreeNode("Tex", "Textures (%lu)", m->textures().size()))
                     {
-                        //SLfloat lineH = ImGui::GetTextLineHeightWithSpacing();
+                        // SLfloat lineH = ImGui::GetTextLineHeightWithSpacing();
                         SLfloat texW = ImGui::GetWindowWidth() - 4 * ImGui::GetTreeNodeToLabelSpacing() - 10;
 
                         for (auto& i : m->textures())
@@ -3648,11 +3650,11 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
 
                         if (ImGui::TreeNode(shd->name().c_str()))
                         {
-                            SLchar* text = new char[shd->code().length()+1];
+                            SLchar* text = new char[shd->code().length() + 1];
                             strcpy(text, shd->code().c_str());
                             ImGui::InputTextMultiline(shd->name().c_str(),
                                                       text,
-                                                      shd->code().length()+1,
+                                                      shd->code().length() + 1,
                                                       ImVec2(-1.0f, -1.0f));
                             ImGui::TreePop();
                             delete[] text;
@@ -3766,7 +3768,7 @@ void AppDemoGui::loadConfig(SLint dotsPerInch)
         if (style.ScrollbarSize < 0.0f)
             style.ScrollbarSize = 16.0f;
 
-        style.ScrollbarRounding                         = std::floor(style.ScrollbarSize / 2);
+        style.ScrollbarRounding = std::floor(style.ScrollbarSize / 2);
 
         return;
     }
@@ -3930,7 +3932,7 @@ void AppDemoGui::removeTransformNode(SLProjectScene* s)
 //! Enables calculation and visualization of horizon line (using rotation sensors)
 void AppDemoGui::showHorizon(SLProjectScene* s, SLSceneView* sv)
 {
-    //todo: why is root2D not always valid?
+    // todo: why is root2D not always valid?
     if (!s->root2D())
     {
         SLNode* scene2D = new SLNode("root2D");
