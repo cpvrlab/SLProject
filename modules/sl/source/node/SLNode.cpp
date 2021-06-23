@@ -328,7 +328,11 @@ bool SLNode::removeChild(SLNode* child)
     return false;
 }
 //-----------------------------------------------------------------------------
-
+void SLNode::cullChildren3D(SLSceneView* sv)
+{
+    for (auto* child : _children)
+        child->cull3DRec(sv);
+}
 //-----------------------------------------------------------------------------
 /*!
 Does the view frustum culling by checking whether the AABB is inside the 3D
@@ -357,12 +361,12 @@ void SLNode::cull3DRec(SLSceneView* sv)
     // Cull the group nodes recursively
     if (_aabb.isVisible() && !this->drawBit(SL_DB_HIDDEN))
     {
-        for (auto* child : _children)
-            child->cull3DRec(sv);
+        cullChildren3D(sv);
 
-        // TODO(dgj1): dont leave this like so!! very bad way of checking
         if (this->drawBit(SL_DB_OVERDRAW))
+        {
             sv->nodesOverdrawn().push_back(this);
+        }
         else
         {
             // All nodes with meshes get rendered sorted by their material

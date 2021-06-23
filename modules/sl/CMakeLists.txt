@@ -220,6 +220,8 @@ file(GLOB sources
         source/node/SLLightSpot.h
         source/node/SLNode.cpp
         source/node/SLNode.h
+        source/node/SLNodeLOD.cpp
+        source/node/SLNodeLOD.h
         source/node/SLSkybox.cpp
         source/node/SLSkybox.h
         source/node/SLText.cpp

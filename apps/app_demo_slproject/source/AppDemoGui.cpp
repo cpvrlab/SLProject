@@ -1772,6 +1772,8 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                         s->onLoad(s, sv, SID_Benchmark3_NodeAnimations);
                     if (ImGui::MenuItem("Massive Skinned Animations", nullptr, sid == SID_Benchmark4_SkinnedAnimations))
                         s->onLoad(s, sv, SID_Benchmark4_SkinnedAnimations);
+                    if (ImGui::MenuItem("LOD", nullptr, sid == SID_Benchmark5_LOD))
+                        s->onLoad(s, sv, SID_Benchmark5_LOD);
 
                     ImGui::EndMenu();
                 }
@@ -3648,11 +3650,11 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
 
                         if (ImGui::TreeNode(shd->name().c_str()))
                         {
-                            SLchar* text = new char[shd->code().length()+1];
+                            SLchar* text = new char[shd->code().length() + 1];
                             strcpy(text, shd->code().c_str());
                             ImGui::InputTextMultiline(shd->name().c_str(),
                                                       text,
-                                                      shd->code().length()+1,
+                                                      shd->code().length() + 1,
                                                       ImVec2(-1.0f, -1.0f));
                             ImGui::TreePop();
                             delete[] text;
@@ -3766,7 +3768,7 @@ void AppDemoGui::loadConfig(SLint dotsPerInch)
         if (style.ScrollbarSize < 0.0f)
             style.ScrollbarSize = 16.0f;
 
-        style.ScrollbarRounding                         = std::floor(style.ScrollbarSize / 2);
+        style.ScrollbarRounding = std::floor(style.ScrollbarSize / 2);
 
         return;
     }
