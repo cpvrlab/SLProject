@@ -17,7 +17,6 @@
 SLGLTextureIBL::SLGLTextureIBL(SLAssetManager*  am,
                                SLstring         shaderPath,
                                SLGLTexture*     sourceTexture,
-                               SLGLFrameBuffer* fbo,
                                SLVec2i          size,
                                SLTextureType    texType,
                                SLenum           target,
@@ -31,7 +30,6 @@ SLGLTextureIBL::SLGLTextureIBL(SLAssetManager*  am,
     }
 
     _sourceTexture         = sourceTexture;
-    _captureFBO            = fbo;
     _texType               = texType;
     _min_filter            = min_filter;
     _mag_filter            = mag_filter;
@@ -111,19 +109,12 @@ void SLGLTextureIBL::build(SLint texUnit)
 {
     glGenTextures(1, &_texID);
     glBindTexture(_target, _texID);
-    SL_LOG("SLGLTextureIBL::build:       _texID = %u", _texID);
-
-    GET_GL_ERROR;
 
     GLuint fboID;
     glGenFramebuffers(1, &fboID);
-    SL_LOG("SLGLTextureIBL::build:        fboID = %u", fboID);
-    GET_GL_ERROR;
 
     GLuint rboID;
     glGenRenderbuffers(1, &rboID);
-    SL_LOG("SLGLTextureIBL::build:        rboID = %u", rboID);
-    GET_GL_ERROR;
 
     if (_texType == TT_environmentCubemap || _texType == TT_irradianceCubemap)
     {
@@ -143,7 +134,6 @@ void SLGLTextureIBL::build(SLint texUnit)
                          nullptr);
         }
 
-        GET_GL_ERROR;
         glTexParameteri(_target, GL_TEXTURE_WRAP_S, _wrap_s);
         glTexParameteri(_target, GL_TEXTURE_WRAP_T, _wrap_t);
         glTexParameteri(_target, GL_TEXTURE_WRAP_R, _wrap_t);
@@ -156,22 +146,15 @@ void SLGLTextureIBL::build(SLint texUnit)
             _sourceTexture->bindActive();
 
         _shaderProgram->uniform1i("u_texture0", texUnit);
-        SL_LOG("SLGLTextureIBL::build:   u_texture0 = %u", texUnit);
 
         glActiveTexture(GL_TEXTURE0 + texUnit);
         glBindTexture(_sourceTexture->target(),
                       _sourceTexture->texID());
         glViewport(0, 0, _width, _height);
-        SL_LOG("SLGLTextureIBL::build:       _width = %d", _width);
-        SL_LOG("SLGLTextureIBL::build:      _height = %d", _height);
-
         glBindFramebuffer(GL_FRAMEBUFFER, fboID);
-        GET_GL_ERROR;
-
         glBindRenderbuffer(GL_RENDERBUFFER, rboID);
         glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, _width, _height);
         glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rboID);
-        GET_GL_ERROR;
 
         // Set the list of draw buffers.
         GLenum DrawBuffers[1] = {GL_COLOR_ATTACHMENT0};
@@ -182,9 +165,6 @@ void SLGLTextureIBL::build(SLint texUnit)
             SLMat4f mvp = _captureProjection * _captureViews[i];
             _shaderProgram->uniformMatrix4fv("u_mvpMatrix", 1, mvp.m());
 
-
-            SL_LOG("SLGLTextureIBL::build:       mvp = \n%s", mvp.toString().c_str());
-
             glFramebufferTexture2D(GL_FRAMEBUFFER,
                                    GL_COLOR_ATTACHMENT0,
                                    GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
@@ -193,21 +173,15 @@ void SLGLTextureIBL::build(SLint texUnit)
 
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             renderCube();
-
-            //logFramebufferStatus();
         }
 
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
-        GET_GL_ERROR;
-
         glBindRenderbuffer(GL_RENDERBUFFER, 0);
-        GET_GL_ERROR;
 
         if (_texType == TT_environmentCubemap)
         {
             glBindTexture(GL_TEXTURE_CUBE_MAP, _texID);
             glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
-            GET_GL_ERROR;
         }
     }
     else if (_texType == TT_roughnessCubemap)
@@ -234,10 +208,8 @@ void SLGLTextureIBL::build(SLint texUnit)
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        GET_GL_ERROR;
 
         glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
-        GET_GL_ERROR;
 
         _shaderProgram->useProgram();
 
@@ -246,7 +218,6 @@ void SLGLTextureIBL::build(SLint texUnit)
         _shaderProgram->uniform1i("u_texture0", texUnit);
         glActiveTexture(GL_TEXTURE0 + texUnit);
         glBindTexture(_sourceTexture->target(), _sourceTexture->texID());
-        GET_GL_ERROR;
 
         SLuint maxMipLevels = 5;
         for (SLuint mip = 0; mip < maxMipLevels; ++mip)
@@ -257,7 +228,6 @@ void SLGLTextureIBL::build(SLint texUnit)
             glViewport(0, 0, mipWidth, mipHeight);
 
             glBindFramebuffer(GL_FRAMEBUFFER, fboID);
-            GET_GL_ERROR;
 
             SLfloat roughness = (SLfloat)mip / (SLfloat)(maxMipLevels - 1);
             _shaderProgram->uniform1f("u_roughness", roughness);
@@ -276,7 +246,6 @@ void SLGLTextureIBL::build(SLint texUnit)
             }
 
             glBindFramebuffer(GL_FRAMEBUFFER, 0);
-            GET_GL_ERROR;
         }
     }
     else if (_texType == TT_brdfLUT)
@@ -296,17 +265,14 @@ void SLGLTextureIBL::build(SLint texUnit)
         glTexParameteri(_target, GL_TEXTURE_WRAP_T, _wrap_t);
         glTexParameteri(_target, GL_TEXTURE_MIN_FILTER, _min_filter);
         glTexParameteri(_target, GL_TEXTURE_MAG_FILTER, _mag_filter);
-        GET_GL_ERROR;
 
         glBindFramebuffer(GL_FRAMEBUFFER, fboID);
-        GET_GL_ERROR;
 
         glFramebufferTexture2D(GL_FRAMEBUFFER,
                                GL_COLOR_ATTACHMENT0,
                                GL_TEXTURE_2D,
                                _texID,
                                0);
-        GET_GL_ERROR;
 
         glViewport(0, 0, _width, _height);
         _shaderProgram->useProgram();
@@ -316,14 +282,10 @@ void SLGLTextureIBL::build(SLint texUnit)
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         renderQuad();
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
-        GET_GL_ERROR;
     }
 
     glDeleteFramebuffers(1, &fboID);
-    GET_GL_ERROR;
-
     glDeleteRenderbuffers(1, &rboID);
-    GET_GL_ERROR;
 
     // Reset the viewport
     SLGLState* state = SLGLState::instance();
@@ -406,7 +368,9 @@ void SLGLTextureIBL::renderCube()
 
     // render Cube
     glBindVertexArray(_cubeVAO);
+    glDisable(GL_CULL_FACE); // This missing line cost about 10 kCHE. Thanks to Michael!!!
     glDrawArrays(GL_TRIANGLES, 0, 36);
+    glEnable(GL_CULL_FACE); // This missing line cost about 10 kCHE. Thanks to Michael!!!
     glBindVertexArray(0);
 }
 //-----------------------------------------------------------------------------
@@ -436,8 +400,12 @@ void SLGLTextureIBL::renderQuad()
         glEnableVertexAttribArray(1);
         glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
     }
+
+    // Render quad
     glBindVertexArray(_quadVAO);
+    glDisable(GL_CULL_FACE); // This missing line cost about 10 kCHE. Thanks to Michael!!!
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    glEnable(GL_CULL_FACE); // This missing line cost about 10 kCHE. Thanks to Michael!!!
     glBindVertexArray(0);
 }
 //-----------------------------------------------------------------------------

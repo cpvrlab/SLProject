@@ -39,7 +39,6 @@ public:
     SLGLTextureIBL(SLAssetManager*  assetMgr,
                    SLstring         shaderPath,
                    SLGLTexture*     sourceTexture,
-                   SLGLFrameBuffer* fbo,
                    SLVec2i          size,
                    SLTextureType    texType,
                    SLenum           target,

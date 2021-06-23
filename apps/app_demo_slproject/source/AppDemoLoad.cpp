@@ -1512,7 +1512,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                                             SLVec2i(2048, 2048),
                                             "HDR Skybox",
                                             new SLGLUniform1f(exposure));
-        /*
+
         SLGLTexture* irrandianceMap = hdrCubeMap->mesh()->mat()->textures()[1];
         SLGLTexture* prefilterMap   = hdrCubeMap->mesh()->mat()->textures()[2];
         SLGLTexture* brdfLUTTexture = hdrCubeMap->mesh()->mat()->textures()[3];
@@ -1528,7 +1528,6 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         // Set the uniforms for controlling the exposure
         pbr->addUniform1f(exposure_pbr);
         pbrTex->addUniform1f(exposure_pbrtex);
-        */
 
         // Create a scene group node
         SLNode* scene = new SLNode("scene node");
@@ -1551,7 +1550,6 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLfloat     deltaR  = 1.0f / (float)(nrRows - 1);
         SLfloat     deltaM  = 1.0f / (float)(nrCols - 1);
 
-        /*
         SLMaterial* mat[nrRows * nrCols];
         SLint       i = 0;
         SLfloat     y = -maxY;
@@ -1590,7 +1588,14 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                                             brdfLUTTexture);
                 }
 
-                SLNode* node = new SLNode(new SLSpheric(s, 1.0f, 0.0f, 180.0f, 32, 32, "Sphere", mat[i]));
+                SLNode* node = new SLNode(new SLSpheric(s,
+                                                        1.0f,
+                                                        0.0f,
+                                                        180.0f,
+                                                        32,
+                                                        32,
+                                                        "Sphere",
+                                                        mat[i]));
                 node->translate(x, y, 0);
                 scene->addChild(node);
                 x += spacing;
@@ -1598,7 +1603,6 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
             }
             y += spacing;
         }
-        */
 
         // Add 4 point light
         SLLight::gamma      = 2.2f;
