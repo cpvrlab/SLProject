@@ -231,11 +231,13 @@
     // Reset tracking and/or remove existing anchors if consistent tracking is required
 }
 
+//ATTENTION: DO NO OVERRIDE THIS AND RETURN YES. It leads to problems, maybe never relocalizes..
 //if this is overridden and returns true, it tries to relocalize rather than new initialise
+/*
 - (BOOL)sessionShouldAttemptRelocalization:(ARSession *)session
 {
     NSLog(@"sessionShouldAttemptRelocalization.\n");
     return YES;
 }
-    
+*/
 @end
