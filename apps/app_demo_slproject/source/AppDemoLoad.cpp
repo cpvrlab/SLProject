@@ -5699,17 +5699,17 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
             for (SLint iX = 0; iX < size; ++iX)
             {
-                SLNode* lod_0     = new SLNode(new SLCylinder(s, 1.0f, 7, 3, 16, true, true, "lod 0", m1));
-                SLNode* lod_1     = new SLNode(new SLCylinder(s, 1.0f, 7, 3, 8, true, true, "lod 1", m1));
-                SLNode* lod_2     = new SLNode(new SLCylinder(s, 1.0f, 7, 3, 4, true, true, "lod 2", m1));
-                SLNode* lod_3     = new SLNode();
-                SLNode* lod_group = new SLNodeLOD();
+                SLNode*    lod_0     = new SLNode(new SLCylinder(s, 1.0f, 7, 3, 16, true, true, "lod 0", m1));
+                SLNode*    lod_1     = new SLNode(new SLCylinder(s, 1.0f, 7, 3, 8, true, true, "lod 1", m1));
+                SLNode*    lod_2     = new SLNode(new SLCylinder(s, 1.0f, 7, 3, 4, true, true, "lod 2", m1));
+                SLNode*    lod_3     = new SLNode();
+                SLNodeLOD* lod_group = new SLNodeLOD();
                 lod_group->rotate(90, -1, 0, 0);
                 lod_group->translate(x, z, 0, TS_object);
-                lod_group->addChild(lod_0);
-                lod_group->addChild(lod_1);
-                lod_group->addChild(lod_2);
-                lod_group->addChild(lod_3);
+                lod_group->addLODChild(lod_3, 0.0f, 0.1f);
+                lod_group->addLODChild(lod_2, 0.1f, 0.3f);
+                lod_group->addLODChild(lod_1, 0.3f, 0.5f);
+                lod_group->addLODChild(lod_0, 0.5f, 1.0f);
                 scene->addChild(lod_group);
 
                 x += offset;

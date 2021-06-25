@@ -1,6 +1,28 @@
 #include <SLSceneView.h>
 #include <SLNodeLOD.h>
 
+SLNodeLOD::SLNodeLOD()
+{
+    for (SLint i = 0; i < 101; i++)
+    {
+        _childIndices[i] = -1;
+    }
+}
+
+void SLNodeLOD::addLODChild(SLNode* child, SLfloat minValue, SLfloat maxValue)
+{
+    assert(minValue >= 0.0f && minValue <= maxValue);
+    assert(maxValue >= minValue && maxValue <= 1.0f);
+
+    SLint childIndex = _children.size();
+    for (SLint i = (SLint)(minValue * 100.0f); i <= (SLint)(maxValue * 100.0f); i++)
+    {
+        _childIndices[i] = childIndex;
+    }
+
+    addChild(child);
+}
+
 void SLNodeLOD::cullChildren3D(SLSceneView* sv)
 {
     // TODO(dgj1): properly choose LOD to use
@@ -17,6 +39,8 @@ void SLNodeLOD::cullChildren3D(SLSceneView* sv)
 
         SLint childIndex = (SLint)distToCamera / lodThreshold;
         childIndex       = MAX(0, MIN(childIndex, numChildren - 1));
+
+        _children[childIndex]->cull3DRec(sv);
 #else // Area based LOD selection \
       // TODO(dgj1): do we need to update aabb first? probably...
         updateAABBRec();
@@ -55,31 +79,15 @@ void SLNodeLOD::cullChildren3D(SLSceneView* sv)
         }
 
         SLVec2f areaVec        = 0.25f * ((maxProjected - minProjected) + SLVec2f(2.0f, 2.0f));
-        SLfloat areaPercentage = areaVec.x * areaVec.y;
+        SLfloat areaPercentage = (areaVec.x * areaVec.y) * 100.0f;
 
-        // TODO(dgj1): make switching percentage parametrizable
-        SLint childIndex;
-        if (areaPercentage < 0.2f)
-        {
-            childIndex = 3;
-        }
-        else if (areaPercentage < 0.4f)
-        {
-            childIndex = 2;
-        }
-        else if (areaPercentage < 0.6f)
-        {
-            childIndex = 1;
-        }
-        else
-        {
-            childIndex = 0;
-        }
+        SLint percentageIndex = MAX(0, MIN((SLint)areaPercentage, 100));
+        SLint childIndex      = _childIndices[percentageIndex];
 
-        SLint numChildren = _children.size();
-        childIndex        = MAX(0, MIN(childIndex, numChildren - 1));
+        if (childIndex >= 0 && childIndex < _children.size())
+        {
+            _children[childIndex]->cull3DRec(sv);
+        }
 #endif
-
-        _children[childIndex]->cull3DRec(sv);
     }
 }
