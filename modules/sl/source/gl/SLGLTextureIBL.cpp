@@ -116,7 +116,8 @@ void SLGLTextureIBL::build(SLint texUnit)
     GLuint rboID;
     glGenRenderbuffers(1, &rboID);
 
-    if (_texType == TT_environmentCubemap || _texType == TT_irradianceCubemap)
+    if (_texType == TT_environmentCubemap ||
+        _texType == TT_irradianceCubemap)
     {
         _bytesPerPixel = 3 * 2; // GL_RGB16F
 
@@ -294,58 +295,63 @@ void SLGLTextureIBL::build(SLint texUnit)
     GET_GL_ERROR;
 }
 //-----------------------------------------------------------------------------
-//! renders 1x1 cube, used to project the source texture and then capture on if its sides
+//! Renders 2x2 cube, used to project a texture to a cube texture with 6 sides
 void SLGLTextureIBL::renderCube()
 {
     // initialize (if necessary)
     if (_cubeVAO == 0)
     {
         // clang-format off
+        // Define vertex positions of an inward facing cube
+        // The original code from learnopengl.com used an outwards facing cube
+        // with disabled face culling. With our default enabled face culling this
+        // lead to a horrible error that cost us about 10kFr. of debugging.
+        // Thanks to the tip of Michael Goettlicher we finally got it correct.
         float vertices[] = {
-            // position           // normal           // texture Coords
-            // back face
-            -1.0f, -1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 0.0f, 0.0f, // bottom-left
-             1.0f,  1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 1.0f, 1.0f, // top-right
-             1.0f, -1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 1.0f, 0.0f, // bottom-right         
-             1.0f,  1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 1.0f, 1.0f, // top-right
-            -1.0f, -1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 0.0f, 0.0f, // bottom-left
-            -1.0f,  1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 0.0f, 1.0f, // top-left
-            // front face
-            -1.0f, -1.0f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f, 0.0f, // bottom-left
-             1.0f, -1.0f,  1.0f,  0.0f,  0.0f,  1.0f, 1.0f, 0.0f, // bottom-right
-             1.0f,  1.0f,  1.0f,  0.0f,  0.0f,  1.0f, 1.0f, 1.0f, // top-right
-             1.0f,  1.0f,  1.0f,  0.0f,  0.0f,  1.0f, 1.0f, 1.0f, // top-right
-            -1.0f,  1.0f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f, 1.0f, // top-left
-            -1.0f, -1.0f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f, 0.0f, // bottom-left
-            // left face
-            -1.0f,  1.0f,  1.0f, -1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-right
-            -1.0f,  1.0f, -1.0f, -1.0f,  0.0f,  0.0f, 1.0f, 1.0f, // top-left
-            -1.0f, -1.0f, -1.0f, -1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom-left
-            -1.0f, -1.0f, -1.0f, -1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom-left
-            -1.0f, -1.0f,  1.0f, -1.0f,  0.0f,  0.0f, 0.0f, 0.0f, // bottom-right
-            -1.0f,  1.0f,  1.0f, -1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-right
-            // right face
-             1.0f,  1.0f,  1.0f,  1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-left
-             1.0f, -1.0f, -1.0f,  1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom-right
-             1.0f,  1.0f, -1.0f,  1.0f,  0.0f,  0.0f, 1.0f, 1.0f, // top-right         
-             1.0f, -1.0f, -1.0f,  1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // bottom-right
-             1.0f,  1.0f,  1.0f,  1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // top-left
-             1.0f, -1.0f,  1.0f,  1.0f,  0.0f,  0.0f, 0.0f, 0.0f, // bottom-left     
-            // bottom face
-            -1.0f, -1.0f, -1.0f,  0.0f, -1.0f,  0.0f, 0.0f, 1.0f, // top-right
-             1.0f, -1.0f, -1.0f,  0.0f, -1.0f,  0.0f, 1.0f, 1.0f, // top-left
-             1.0f, -1.0f,  1.0f,  0.0f, -1.0f,  0.0f, 1.0f, 0.0f, // bottom-left
-             1.0f, -1.0f,  1.0f,  0.0f, -1.0f,  0.0f, 1.0f, 0.0f, // bottom-left
-            -1.0f, -1.0f,  1.0f,  0.0f, -1.0f,  0.0f, 0.0f, 0.0f, // bottom-right
-            -1.0f, -1.0f, -1.0f,  0.0f, -1.0f,  0.0f, 0.0f, 1.0f, // top-right
-            // top face
-            -1.0f,  1.0f, -1.0f,  0.0f,  1.0f,  0.0f, 0.0f, 1.0f, // top-left
-             1.0f,  1.0f , 1.0f,  0.0f,  1.0f,  0.0f, 1.0f, 0.0f, // bottom-right
-             1.0f,  1.0f, -1.0f,  0.0f,  1.0f,  0.0f, 1.0f, 1.0f, // top-right     
-             1.0f,  1.0f,  1.0f,  0.0f,  1.0f,  0.0f, 1.0f, 0.0f, // bottom-right
-            -1.0f,  1.0f, -1.0f,  0.0f,  1.0f,  0.0f, 0.0f, 1.0f, // top-left
-            -1.0f,  1.0f,  1.0f,  0.0f,  1.0f,  0.0f, 0.0f, 0.0f  // bottom-left        
+          // back face
+          -1.0f, -1.0f, -1.0f, // bottom-left
+           1.0f, -1.0f, -1.0f, // bottom-right
+           1.0f,  1.0f, -1.0f, // top-right
+           1.0f,  1.0f, -1.0f, // top-right
+          -1.0f,  1.0f, -1.0f, // top-left
+          -1.0f, -1.0f, -1.0f, // bottom-left
+          // front face
+          -1.0f, -1.0f,  1.0f, // bottom-left
+           1.0f,  1.0f,  1.0f, // top-right
+           1.0f, -1.0f,  1.0f, // bottom-right
+           1.0f,  1.0f,  1.0f, // top-right
+          -1.0f, -1.0f,  1.0f, // bottom-left
+          -1.0f,  1.0f,  1.0f, // top-left
+          // left face
+          -1.0f,  1.0f,  1.0f, // top-right
+          -1.0f, -1.0f, -1.0f, // bottom-left
+          -1.0f,  1.0f, -1.0f, // top-left
+          -1.0f, -1.0f, -1.0f, // bottom-left
+          -1.0f,  1.0f,  1.0f, // top-right
+          -1.0f, -1.0f,  1.0f, // bottom-right
+          // right face
+           1.0f,  1.0f,  1.0f, // top-left
+           1.0f,  1.0f, -1.0f, // top-right
+           1.0f, -1.0f, -1.0f, // bottom-right
+           1.0f, -1.0f, -1.0f, // bottom-right
+           1.0f, -1.0f,  1.0f, // bottom-left
+           1.0f,  1.0f,  1.0f, // top-left
+          // bottom face
+          -1.0f, -1.0f, -1.0f, // top-right
+           1.0f, -1.0f,  1.0f, // bottom-left
+           1.0f, -1.0f, -1.0f, // top-left
+           1.0f, -1.0f,  1.0f, // bottom-left
+          -1.0f, -1.0f, -1.0f, // top-right
+          -1.0f, -1.0f,  1.0f, // bottom-right
+          // top face
+           1.0f,  1.0f,  1.0f, // right-top-front
+          -1.0f,  1.0f,  1.0f, // left-top-front
+          -1.0f,  1.0f, -1.0f, // left-top-back
+          -1.0f,  1.0f, -1.0f, // left-top-back
+           1.0f,  1.0f, -1.0f, // right-top-back
+           1.0f,  1.0f , 1.0f  // right-top-front
         };
+
         // clang-format on
         glGenVertexArrays(1, &_cubeVAO);
         glGenBuffers(1, &_cubeVBO);
@@ -357,29 +363,24 @@ void SLGLTextureIBL::renderCube()
         // link vertex attributes
         glBindVertexArray(_cubeVAO);
         glEnableVertexAttribArray(0);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
-        glEnableVertexAttribArray(1);
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
-        glEnableVertexAttribArray(2);
-        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         glBindVertexArray(0);
     }
 
-    // render Cube
+    // render inwards facing cube with face culling enabled
     glBindVertexArray(_cubeVAO);
-    glDisable(GL_CULL_FACE); // This missing line cost about 10 kCHE. Thanks to Michael!!!
     glDrawArrays(GL_TRIANGLES, 0, 36);
-    glEnable(GL_CULL_FACE); // This missing line cost about 10 kCHE. Thanks to Michael!!!
     glBindVertexArray(0);
 }
 //-----------------------------------------------------------------------------
-//! renders a 1x1 XY quad, used for rendering and capturing the BRDF integral solution
+//! Renders a 2x2 XY quad, used for rendering and capturing the BRDF integral
 void SLGLTextureIBL::renderQuad()
 {
     if (_quadVAO == 0)
     {
         // clang-format off
+        // Define a front (+Z) facing quad with texture coordinates
         float quadVertices[] = {
             // positions         // texture Coords
             -1.0f,  1.0f, 0.0f,  0.0f, 1.0f,
@@ -403,9 +404,7 @@ void SLGLTextureIBL::renderQuad()
 
     // Render quad
     glBindVertexArray(_quadVAO);
-    glDisable(GL_CULL_FACE); // This missing line cost about 10 kCHE. Thanks to Michael!!!
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-    glEnable(GL_CULL_FACE); // This missing line cost about 10 kCHE. Thanks to Michael!!!
     glBindVertexArray(0);
 }
 //-----------------------------------------------------------------------------
