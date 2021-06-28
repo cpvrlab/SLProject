@@ -20,9 +20,9 @@ public:
     void reset() override;
     void pause() override;
     bool update(cv::Mat& pose) override;
-    bool isAvailable() { return _available; };
-    bool isInstalled() { return _available; };
-    bool install() { return _available; };
+    bool isAvailable() override { return _available; };
+    bool isInstalled() override { return _available; };
+    bool install() override { return _available; };
 
     const SENSCameraConfig& start(std::string                   deviceId,
                                   const SENSCameraStreamConfig& streamConfig,

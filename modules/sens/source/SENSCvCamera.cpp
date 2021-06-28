@@ -242,7 +242,7 @@ SENSFramePtr SENSCvCamera::latestFrame()
             _calibrationManip->adaptForNewResolution(cv::Size(_config->manipWidth, _config->manipHeight), false);
         }
 
-        SENS_DEBUG("calib update duration %f", t.elapsedTimeInMilliSec());
+        //SENS_DEBUG("calib update duration %f", t.elapsedTimeInMilliSec());
     }
 
     return latestFrame;
