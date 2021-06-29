@@ -1772,8 +1772,10 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                         s->onLoad(s, sv, SID_Benchmark3_NodeAnimations);
                     if (ImGui::MenuItem("Massive Skinned Animations", nullptr, sid == SID_Benchmark4_SkinnedAnimations))
                         s->onLoad(s, sv, SID_Benchmark4_SkinnedAnimations);
-                    if (ImGui::MenuItem("Level of Detail", nullptr, sid == SID_Benchmark4_LOD))
-                        s->onLoad(s, sv, SID_Benchmark4_LOD);
+
+                    if (Utils::fileExists(AppDemo::configPath + "GLTF/DragonLOD/Dragon_LOD.glb"))
+                        if (ImGui::MenuItem("Level of Detail", nullptr, sid == SID_Benchmark4_LOD))
+                            s->onLoad(s, sv, SID_Benchmark4_LOD);
 
                     ImGui::EndMenu();
                 }

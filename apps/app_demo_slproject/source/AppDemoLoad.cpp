@@ -1484,8 +1484,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->info("Image-based Lighting from skybox using high dynamic range images. "
                 "Use F4-Key to increment (decrement w. shift-F4) exposure of the HDR skybox. "
                 "It uses the Cook-Torrance light model also to calculate the ambient light part "
-                "from the surrounding HDR skybox. This example works only correct if you start "
-                "the application with this scene as the startup scene.");
+                "from the surrounding HDR skybox.");
 
         // Create uniform to control exposure
         // this is done this way so that the exposure of the whole scene remains consistent
