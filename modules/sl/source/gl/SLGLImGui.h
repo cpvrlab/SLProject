@@ -85,6 +85,7 @@ public:
     bool doNotDispatchKeyboard() override { return ImGui::GetIO().WantCaptureKeyboard; }
     bool doNotDispatchMouse() override { return ImGui::GetIO().WantCaptureMouse; }
     void loadFonts(SLfloat fontPropDots, SLfloat fontFixedDots, SLstring fontDir);
+    void drawMouseCursor(bool doDraw) override { ImGui::GetIO().MouseDrawCursor = doDraw; }
 
     // Default font dots
     static SLfloat fontPropDots;  //!< Default font size of proportional font

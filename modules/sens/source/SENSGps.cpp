@@ -73,7 +73,8 @@ void SENSGps::updatePermission(bool granted)
     _permissionGranted = granted;
     informPermissionListeners();
 }
-/**********************************************************************/
+
+//-----------------------------------------------------------------------------
 
 SENSDummyGps::~SENSDummyGps()
 {
@@ -123,7 +124,6 @@ void SENSDummyGps::run()
         i++;
         i = i % _dummyLocs.size();
 
-        Utils::log("SENSDummyGps", "run");
         setLocation(_dummyLocs[i]);
     }
 }

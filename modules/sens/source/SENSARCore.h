@@ -27,13 +27,15 @@ public:
     virtual bool update(cv::Mat& view) { return false; }
     virtual void lightComponentIntensity(float * components) { }
 
-    bool         isAvailable() { return _available; };
+    virtual bool isInstalled() { return false; };
+    virtual bool isAvailable() { return false; };
+    virtual bool install() { return false; };
+    virtual bool installRefused() { return false; };
+    virtual void installRefused(bool b) { };
     bool         isRunning() { return !_pause; }
 
 protected:
-    bool             _running = false;
-
-    bool _available = false;
+    bool _running   = false;
     bool _pause     = true;
 
     int _inputFrameW = 0;

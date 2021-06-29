@@ -96,11 +96,6 @@ SLbool SLInputManager::processQueuedEvents(SLSceneView* sv)
                     eventConsumed |= sv->onMouseWheel(me->y, me->modifier);
                 }
                 break;
-                case SLInputEvent::LongTouch: {
-                    const SLMouseEvent* me = (const SLMouseEvent*)e;
-                    eventConsumed |= sv->onLongTouch(me->x, me->y);
-                }
-                break;
 
                 case SLInputEvent::Touch2Move: {
                     const SLTouchEvent* te = (const SLTouchEvent*)e;
@@ -144,7 +139,20 @@ SLbool SLInputManager::processQueuedEvents(SLSceneView* sv)
                     const SLUpdateScr2fbEvent* re = (const SLUpdateScr2fbEvent*)e;
                     sv->scr2fb(re->scr2fbX, re->scr2fbY);
                 }
-                    break;
+                break;
+                    
+                case SLInputEvent::ScrCapture: {
+                    const SLScrCaptureRequestEvent* re = (const SLScrCaptureRequestEvent*)e;
+                    SLstring path = re->path;
+
+                    if(!Utils::dirExists(path))
+                        Utils::makeDirRecurse(path);
+                    SLstring filename     = "Screenshot_" + Utils::getDateTime2String() + ".png";
+                    SLstring pathFilename = path + filename;
+                    sv->saveFrameBufferAsImage(pathFilename, cv::Size(sv->scrW(), sv->scrH()));
+                }
+                break;
+                
                 default: break;
             }
         }

@@ -20,9 +20,6 @@
 #include <utility>
 
 //-----------------------------------------------------------------------------
-// Milliseconds duration of a long touch event
-const SLint SLSceneView::LONGTOUCH_MS = 500;
-//-----------------------------------------------------------------------------
 //! SLSceneView default constructor
 /*! The default constructor adds the this pointer to the sceneView vector in
 SLScene. If an in between element in the vector is zero (from previous sceneviews)
@@ -37,7 +34,9 @@ SLSceneView::SLSceneView(SLScene* s, int dpi, SLInputManager& inputManager)
     _shadowMapTimesMS(60, 0.0f),
     _cullTimesMS(60, 0.0f),
     _draw3DTimesMS(60, 0.0f),
-    _draw2DTimesMS(60, 0.0f)
+    _draw2DTimesMS(60, 0.0f),
+    _screenCaptureIsRequested(false),
+    _screenCaptureWaitFrames(0)
 {
 }
 //-----------------------------------------------------------------------------
@@ -110,7 +109,8 @@ void SLSceneView::init(SLstring       name,
 
     _renderType = RT_gl;
 
-    _skybox = nullptr;
+    _skybox                 = nullptr;
+    _screenCaptureIsRequested = false;
 
     if (_gui)
         _gui->init(configPath);
@@ -525,6 +525,7 @@ SLbool SLSceneView::onPaint()
     if (_gotPainted)
     {
         _gotPainted = false;
+
         // Process queued up system events and poll custom input devices
         viewConsumedEvents = _inputManager.pollAndProcessEvents(this);
 
@@ -539,14 +540,14 @@ SLbool SLSceneView::onPaint()
     SLbool camUpdated = false;
 
     // Init and build GUI for all projections except distorted stereo
-    //if (_camera && _camera->projection() != P_stereoSideBySideD)
+    if (_camera && _camera->projection() != P_stereoSideBySideD)
     {
         if (_gui)
             _gui->onInitNewFrame(_s, this);
     }
 
     // Clear NO. of draw calls after UI creation
-    SLGLVertexArray::totalDrawCalls = 0;
+    SLGLVertexArray::totalDrawCalls          = 0;
     SLGLVertexArray::totalPrimitivesRendered = 0;
 
     if (_s && _camera)
@@ -1237,7 +1238,7 @@ SLbool SLSceneView::onMouseDown(SLMouseButton button,
                                 SLKey         mod)
 {
     // Correct viewport offset
-    // mouse corrds are top-left, viewport is bottom-left)
+    // mouse coordinates are top-left, viewport is bottom-left)
     SLint x = scrX - _viewportRect.x;
     SLint y = scrY - ((_scrH - _viewportRect.height) - _viewportRect.y);
 
@@ -1246,20 +1247,15 @@ SLbool SLSceneView::onMouseDown(SLMouseButton button,
     {
         _gui->onMouseDown(button, x, y);
 
-#ifdef SL_GLES
         // Touch devices on iOS or Android have no mouse move event when the
         // finger isn't touching the screen. Therefore imgui can not detect hovering
         // over an imgui window. Without this extra frame you would have to touch
         // the display twice to open e.g. a menu.
         _gui->renderExtraFrame(_s, this, x, y);
-#endif
 
         if (_gui->doNotDispatchMouse())
             return true;
     }
-
-    //if (ImGui::GetIO().WantCaptureMouse)
-    //    return true;
 
     _mouseDownL = (button == MB_left);
     _mouseDownR = (button == MB_right);
@@ -1300,7 +1296,7 @@ SLbool SLSceneView::onMouseUp(SLMouseButton button,
     _touchDowns = 0;
 
     // Correct viewport offset
-    // mouse corrds are top-left, viewport is bottom-left)
+    // mouse coordinates are top-left, viewport is bottom-left)
     SLint x = scrX - _viewportRect.x;
     SLint y = scrY - ((_scrH - _viewportRect.height) - _viewportRect.y);
 
@@ -1324,6 +1320,12 @@ SLbool SLSceneView::onMouseUp(SLMouseButton button,
         _gui->onMouseUp(button, x, y);
         if (_gui->doNotDispatchMouse())
             return true;
+
+        // Touch devices on iOS or Android have no mouse move event when the
+        // finger isn't touching the screen. Therefore imgui can not detect hovering
+        // over an imgui window. Without this extra frame you would have to touch
+        // the display twice to open e.g. a menu.
+        _gui->renderExtraFrame(_s, this, x, y);
     }
 
     _mouseDownL = false;
@@ -1543,21 +1545,6 @@ SLbool SLSceneView::onDoubleClick(SLMouseButton button,
     return result;
 }
 //-----------------------------------------------------------------------------
-/*! SLSceneView::onLongTouch gets called when the mouse or touch is down for
-more than 500ms and has not moved.
-*/
-SLbool SLSceneView::onLongTouch(SLint scrX, SLint scrY)
-{
-    //SL_LOG("onLongTouch(%d, %d)", x, y);
-
-    // Correct viewport offset
-    // mouse coordinates are top-left, viewport is bottom-left)
-    SLint x = scrX - _viewportRect.x;
-    SLint y = scrY - ((_scrH - _viewportRect.height) - _viewportRect.y);
-
-    return true;
-}
-//-----------------------------------------------------------------------------
 /*!
 SLSceneView::onTouch2Down gets called whenever two fingers touch a handheld
 screen.
@@ -1620,7 +1607,7 @@ SLbool SLSceneView::onTouch2Move(SLint scrX1, SLint scrY1, SLint scrX2, SLint sc
 }
 //-----------------------------------------------------------------------------
 /*!
-SLSceneView::onTouch2Up gets called whenever two fingers touch a handheld
+SLSceneView::onTouch2Up gets called whenever two fingers lift off a handheld
 screen.
 */
 SLbool SLSceneView::onTouch2Up(SLint scrX1, SLint scrY1, SLint scrX2, SLint scrY2)
@@ -2056,5 +2043,57 @@ SLbool SLSceneView::draw3DCT()
 void SLSceneView::initConeTracer(SLstring shaderDir)
 {
     _conetracer = std::make_unique<SLGLConetracer>(shaderDir);
+}
+//-----------------------------------------------------------------------------
+//! Saves after n wait frames the front frame buffer as a PNG image.
+/* Due to the fact that ImGui needs several frame the render its UI we have to
+ * wait a few frames until we can be sure that the executing menu command has
+ * disappeared before we can save the screen.
+ */
+void SLSceneView::saveFrameBufferAsImage(SLstring pathFilename, cv::Size targetSize)
+{
+    if (_screenCaptureWaitFrames == 0)
+    {
+        SLint fbW = (SLint)(_viewportRect.width * _scr2fbX);
+        SLint fbH = (SLint)(_viewportRect.height * _scr2fbY);
+
+        GLsizei nrChannels = 3;
+        GLsizei stride     = nrChannels * fbW;
+        stride += (stride % 4) ? (4 - stride % 4) : 0;
+        GLsizei       bufferSize = stride * fbH;
+        vector<uchar> buffer(bufferSize);
+
+        SLGLState::instance()->readPixels(buffer.data());
+
+        CVMat rgbImg = CVMat(fbH, fbW, CV_8UC3, (void*)buffer.data(), stride);
+        cv::cvtColor(rgbImg, rgbImg, cv::COLOR_BGR2RGB);
+        cv::flip(rgbImg, rgbImg, 0);
+        if(targetSize.width > 0 && targetSize.height > 0)
+            cv::resize(rgbImg, rgbImg, targetSize);
+
+        vector<int> compression_params;
+        compression_params.push_back(cv::IMWRITE_PNG_COMPRESSION);
+        compression_params.push_back(6);
+
+        try
+        {
+            imwrite(pathFilename, rgbImg, compression_params);
+            string msg = "Screenshot saved to: " + pathFilename;
+            SL_LOG(msg.c_str());
+        }
+        catch (std::runtime_error& ex)
+        {
+            string msg = "SLSceneView::saveFrameBufferAsImage: Exception: ";
+            msg += ex.what();
+            Utils::exitMsg("SLProject", msg.c_str(), __LINE__, __FILE__);
+        }
+
+#if !defined(SL_OS_ANDROID) && !defined(SL_OS_MACIOS)
+        _gui->drawMouseCursor(true);
+#endif
+        _screenCaptureIsRequested = false;
+    }
+    else
+        _screenCaptureWaitFrames--;
 }
 //-----------------------------------------------------------------------------

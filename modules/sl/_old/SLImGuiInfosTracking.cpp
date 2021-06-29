@@ -61,7 +61,7 @@ void SLImGuiInfosTracking::buildInfos()
         }
 
         ////undistort image
-        //SLCVCalibration* ac = SLApplication::activeCalib;
+        //SLCVCalibration* ac = AppDemo::activeCalib;
         //b = (ac->showUndistorted() && ac->state() == CS_calibrated);
         //if (ImGui::Checkbox("Undistort Image", &b))
         //{

@@ -654,7 +654,7 @@ void SLCamera::updateEnuCorrRenu(SLSceneView*   sv,
     and horizon axis estimate focal length (todo: calculate once when fov is set)*/
     f = sv->scrH() / (2 * tan(0.5f * fovV() * DEG2RAD));
 
-    if (_devRot->offsetMode() == OM_fingerXY)
+    if (_devRot->offsetMode() == ROM_oneFingerXY)
     {
         if (_xOffsetPix != 0 && _yOffsetPix != 0)
         {
@@ -672,8 +672,7 @@ void SLCamera::updateEnuCorrRenu(SLSceneView*   sv,
             _enucorrRenu = _enucorrRenu * rotHorizon * rotVertical;
         }
     }
-    else if (_devRot->offsetMode() == OM_fingerX ||
-             _devRot->offsetMode() == OM_fingerXRotYTrans)
+    else if (_devRot->offsetMode() == ROM_oneFingerX) //||_devRot->offsetMode() == OM_fingerXRotYTrans)
     {
         if (_xOffsetPix != 0)
         {
@@ -779,19 +778,12 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
     {
         //camera focal length
         float f = 1.f;
+
         //finger x-y-movement expressed in enu frame
         SLVec3f enuOffsetPix;
 
-        if (!_devRot)
-        {
-            SL_WARN_MSG("SLCamera: _devRot is invalid");
-            return;
-        }
-        if (!_devLoc)
-        {
-            SL_WARN_MSG("SLCamera: _devLoc is invalid");
-            //return;
-        }
+        if (!_devRot) SL_EXIT_MSG("SLCamera::setView: _devRot not set!");
+        if (!_devLoc) SL_EXIT_MSG("SLCamera::setView: _devLoc not set!");
 
         // The device rotation sensor (IMU) is turned on and sends rotation angles
         if (_devRot->isUsed())
@@ -826,36 +818,57 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
             scene (world) coordinate system! Combination of partial rotations to orientation of
             camera w.r.t world */
             SLMat3f wRc = wRenucorr * _enucorrRenu * enuRc;
+
             _om.setRotation(wRc);
+
             needUpdate();
         }
 
         //The device location sensor (GPS) is turned on and the scene has a global reference position
-        if (_devLoc && _devLoc->isUsed() && _devLoc->hasOrigin())
+        if (_devLoc && _devLoc->hasOrigin())
         {
-            // Direction vector from camera to world origin
-            SLVec3d wtc = _devLoc->locENU() - _devLoc->originENU();
+            if (_devLoc->isUsed())
+            {
+                // Direction vector from camera to world origin
+                SLVec3d wtc = _devLoc->locENU() - _devLoc->originENU() + _devLoc->offsetENU();
 
-            // Reset to default if device is too far away
-            if (wtc.length() > _devLoc->locMaxDistanceM())
-                wtc = _devLoc->defaultENU() - _devLoc->originENU();
+                // Reset to default if device is too far away
+                if (wtc.length() > _devLoc->locMaxDistanceM())
+                    wtc = _devLoc->defaultENU() - _devLoc->originENU() + _devLoc->offsetENU();
 
-            // Set the camera position
-            SLVec3f wtc_f((SLfloat)wtc.x, (SLfloat)wtc.y, (SLfloat)wtc.z);
-            _om.setTranslation(wtc_f);
-            needUpdate();
+                // Set the camera position
+                SLVec3f wtc_f((SLfloat)wtc.x, (SLfloat)wtc.y, (SLfloat)wtc.z);
+
+                _om.setTranslation(wtc_f);
+
+                needUpdate();
+            }
+            else // with disabled GPS use the default location
+            {
+                // Direction vector from camera to world origin with default location in ENU
+                SLVec3d wtc = _devLoc->defaultENU() - _devLoc->originENU() + _devLoc->offsetENU();
+
+                // Set the camera position
+                SLVec3f wtc_f((SLfloat)wtc.x, (SLfloat)wtc.y, (SLfloat)wtc.z);
+
+                _om.setTranslation(wtc_f);
+
+                needUpdate();
+            }
         }
 
-        //Calculate and apply finger y-translation
+        /*Calculate and apply finger y-translation
         if (_devRot->offsetMode() == OM_fingerYTrans || _devRot->offsetMode() == OM_fingerXRotYTrans)
         {
             //_enucorrTRenu += enuOffsetPix.y / f * _distanceToObjectM;
             // Set the camera position
             const SLVec3f& wtc = _om.translation();
-            SLVec3f        wtc_f((SLfloat)wtc.x, (SLfloat)wtc.y + enuOffsetPix.y / f * _distanceToObjectM, (SLfloat)wtc.z);
+            SLVec3f        wtc_f((SLfloat)wtc.x,
+                          (SLfloat)wtc.y + enuOffsetPix.y / f * _distanceToObjectM,
+                          (SLfloat)wtc.z);
             _om.setTranslation(wtc_f);
             needUpdate();
-        }
+        }*/
     }
     else if (_camAnim == CA_off)
     {
@@ -882,7 +895,7 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
     {
         if (_projection == P_stereoSideBySideD)
         {
-            // half interpupilar distance
+            // half inter-pupilar distance
             SLfloat halfIPD = (SLfloat)eye * _stereoEyeSeparation * -0.5f;
 
             SLMat4f trackingPos;
@@ -1035,8 +1048,8 @@ SLbool SLCamera::onMouseMove(const SLMouseButton button,
         SLVec3f lookAtPoint = positionVS + _focalDist * forwardVS;
 
         // Determine rot angles around x- & y-axis
-        SLfloat dY = (y - _oldTouchPos1.y) * _rotFactor;
-        SLfloat dX = (x - _oldTouchPos1.x) * _rotFactor;
+        SLfloat dY = (y - _oldTouchPos1.y) * _mouseRotationFactor;
+        SLfloat dX = (x - _oldTouchPos1.x) * _mouseRotationFactor;
 
         if (_camAnim == CA_turntableYUp) //....................................
         {
@@ -1132,20 +1145,16 @@ SLbool SLCamera::onMouseMove(const SLMouseButton button,
             lookAt(positionVS + forwardVS, SLVec3f(0, 0, 1));
             needWMUpdate();
         }
-        else if ((_camAnim == CA_deviceRotLocYUp || _camAnim == CA_deviceRotYUp) && _devRot != nullptr)
+        else if (_camAnim == CA_deviceRotLocYUp || _camAnim == CA_deviceRotYUp)
         {
-            if (_devRot->offsetMode() == OM_fingerX ||
-                _devRot->offsetMode() == OM_fingerXY ||
-                _devRot->offsetMode() == OM_fingerYTrans ||
-                _devRot->offsetMode() == OM_fingerXRotYTrans)
+            if (_devRot)
             {
-                _yOffsetPix += (y - _oldTouchPos1.y);
-                _xOffsetPix += (x - _oldTouchPos1.x);
-            }
-            else if (_devRot->offsetMode() == OM_autoX ||
-                     _devRot->offsetMode() == OM_autoXY)
-            {
-                // Todo: auto offset with template matching
+                if (_devRot->offsetMode() == ROM_oneFingerX ||
+                    _devRot->offsetMode() == ROM_oneFingerXY)
+                {
+                    _yOffsetPix += (y - _oldTouchPos1.y);
+                    _xOffsetPix += (x - _oldTouchPos1.x);
+                }
             }
         }
 
@@ -1230,8 +1239,8 @@ SLbool SLCamera::onMouseWheel(const SLint delta,
     {
         if (mod == K_none)
         {
-            translate(SLVec3f(0, 0, -sign * _focalDist * _dPos), TS_object);
-            _focalDist += -sign * _focalDist * _dPos;
+            translate(SLVec3f(0, 0, -sign * _focalDist * _keyboardDeltaPos), TS_object);
+            _focalDist += -sign * _focalDist * _keyboardDeltaPos;
 
             needUpdate();
         }
@@ -1333,6 +1342,21 @@ SLbool SLCamera::onTouch2Move(const SLint x1,
             //_moveDir.x = delta.x * 100.0f,
             //_moveDir.z = delta.y * 100.0f;
         }
+        else if (_camAnim == CA_deviceRotYUp || _camAnim == CA_deviceRotLocYUp)
+        {
+            if (_devLoc)
+            {
+                if (_devLoc->offsetMode() == LOM_twoFingerY)
+                {
+                    //string msg = "TwoFingerOffset: " + delta.toString();
+                    //SL_LOG(msg.c_str());
+                    SLVec3d offsetENU = _devLoc->offsetENU();
+                    delta *= _mouseRotationFactor;
+                    offsetENU.y += delta.y;
+                    _devLoc->offsetENU(offsetENU);
+                }
+            }
+        }
     }
     else // Two finger pinch
     {
@@ -1391,12 +1415,12 @@ SLbool SLCamera::onKeyPress(const SLKey key, const SLKey mod)
     // Keep in sync with SLDemoGui::buildMenuBar
     switch ((SLchar)key)
     {
-        case 'D': _moveDir.x += 1.0f; return true;
+        case 'W': _moveDir.z -= 1.0f; return true;
         case 'A': _moveDir.x -= 1.0f; return true;
+        case 'S': _moveDir.z += 1.0f; return true;
+        case 'D': _moveDir.x += 1.0f; return true;
         case 'Q': _moveDir.y -= 1.0f; return true;
         case 'E': _moveDir.y += 1.0f; return true;
-        case 'S': _moveDir.z += 1.0f; return true;
-        case 'W': _moveDir.z -= 1.0f; return true;
         case (SLchar)K_up: _moveDir.z -= 1.0f; return true;
         case (SLchar)K_down: _moveDir.z += 1.0f; return true;
         case (SLchar)K_right: _moveDir.x += 1.0f; return true;

@@ -49,7 +49,7 @@ void SLAnimManager::addSkeleton(SLAnimSkeleton* skel)
 SLAnimation* SLAnimManager::createNodeAnimation(SLfloat duration)
 {
     SLuint        index = (SLuint)_nodeAnimations.size();
-    ostringstream oss;
+    std::ostringstream oss;
 
     do
     {

@@ -11,13 +11,13 @@ SENSNdkARCore::SENSNdkARCore(JavaVM* jvm, JNIEnv* env, jobject context, jobject 
     _arSession = nullptr;
     _jvm = jvm;
 }
+/*------------------------------------------------------------------------------------------*/
 
-void SENSNdkARCore::checkAvailability(JNIEnv* env, void* context, void * activity)
+bool SENSNdkARCore::checkAvailability(JNIEnv* env, void* context, void * activity)
 {
     ArAvailability availability;
     ArCoreApk_checkAvailability(env, context, &availability);
 
-    _available = true;
     if (availability == AR_AVAILABILITY_UNKNOWN_CHECKING)
     {
         std::this_thread::sleep_for(std::chrono::microseconds((int)(200000)));
@@ -27,14 +27,70 @@ void SENSNdkARCore::checkAvailability(JNIEnv* env, void* context, void * activit
              availability == AR_AVAILABILITY_SUPPORTED_APK_TOO_OLD   ||
              availability == AR_AVAILABILITY_SUPPORTED_INSTALLED)
     {
-        ArInstallStatus install_status;
-        ArCoreApk_requestInstall(env, activity, true, &install_status);
+        return true;
     }
-    else
-    {
-        _available = false;
-    }
+    return false;
 }
+
+bool SENSNdkARCore::isAvailable()
+{
+    JNIEnv* env;
+    _jvm->GetEnv((void**)&env, JNI_VERSION_1_6);
+    jclass clazz = env->FindClass("ch/cpvr/wai/GLES3Lib");
+    jmethodID methodid = env->GetStaticMethodID(clazz, "checkARAvailability", "()Z");
+
+    _available = env->CallStaticBooleanMethod(clazz, methodid);
+    return _available;
+}
+
+/*------------------------------------------------------------------------------------------*/
+
+bool SENSNdkARCore::checkInstalled(JNIEnv* env, void* context, void * activity)
+{
+    ArAvailability availability;
+    ArCoreApk_checkAvailability(env, context, &availability);
+    if (availability == AR_AVAILABILITY_SUPPORTED_INSTALLED)
+        return true;
+    return false;
+}
+
+bool SENSNdkARCore::isInstalled()
+{
+    JNIEnv* env;
+    _jvm->GetEnv((void**)&env, JNI_VERSION_1_6);
+    jclass clazz = env->FindClass("ch/cpvr/wai/GLES3Lib");
+    jmethodID methodid = env->GetStaticMethodID(clazz, "checkARInstalled", "()Z");
+
+    _installed = env->CallStaticBooleanMethod(clazz, methodid);
+    return _installed;
+}
+
+/*------------------------------------------------------------------------------------------*/
+
+bool SENSNdkARCore::askInstall(JNIEnv* env, void* context, void * activity)
+{
+    ArInstallStatus install_status;
+    ArCoreApk_requestInstall(env, activity, true, &install_status);
+    if (install_status == AR_AVAILABILITY_SUPPORTED_INSTALLED)
+    {
+        _installed = true;
+        return true;
+    }
+
+    _installed = false;
+    return false;
+}
+
+bool SENSNdkARCore::install()
+{
+    JNIEnv* env;
+    _jvm->GetEnv((void**)&env, JNI_VERSION_1_6);
+    jclass clazz = env->FindClass("ch/cpvr/wai/GLES3Lib");
+    jmethodID methodid = env->GetStaticMethodID(clazz, "askARInstall", "()Z");
+
+    return env->CallStaticBooleanMethod(clazz, methodid);
+}
+/*------------------------------------------------------------------------------------------*/
 
 SENSNdkARCore::~SENSNdkARCore()
 {
@@ -73,7 +129,7 @@ bool SENSNdkARCore::init()
 
 bool SENSNdkARCore::init(JNIEnv* env, void* context, void* activity)
 {
-    if (!_available) {
+    if (!checkAvailability(env, context, activity)) {
         return false;
     }
     if (_arSession != nullptr) {

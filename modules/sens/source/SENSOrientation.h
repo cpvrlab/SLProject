@@ -101,4 +101,24 @@ public:
     virtual void onOrientation(const SENSTimePt& timePt, const SENSOrientation::Quat& ori) = 0;
 };
 
+class SENSDummyOrientation : public SENSOrientation
+{
+public:
+    ~SENSDummyOrientation() override {}
+    void setDummyQuat(SENSOrientation::Quat quat)
+    {
+        setOrientation(quat);
+    }
+    
+    bool start() override
+    {
+        _running = true;
+        return _running;
+    }
+    
+    void stop() override
+    {
+    }
+};
+
 #endif

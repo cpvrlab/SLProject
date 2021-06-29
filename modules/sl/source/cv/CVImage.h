@@ -112,14 +112,15 @@ public:
 
     // Getters
     string        name() { return _name; }
-    CVMat         cvMat() { return _cvMat; }
+    CVMat         cvMat() const { return _cvMat; }
     uchar*        data() { return _cvMat.data; }
-    bool          empty() { return _cvMat.empty(); }
+    bool          empty() const { return _cvMat.empty(); }
     uint          width() { return (uint)_cvMat.cols; }
     uint          height() { return (uint)_cvMat.rows; }
     uint          bytesPerPixel() { return _bytesPerPixel; }
     uint          bytesPerLine() { return _bytesPerLine; }
     uint          bytesPerImage() { return _bytesPerImage; }
+    uint          bytesInFile() { return _bytesInFile; }
     CVPixFormat   format() { return _format; }
     string        formatString(CVPixFormat format);
     string        formatString() { return formatString(_format); }
@@ -138,6 +139,7 @@ protected:
     uint        _bytesPerPixel; //!< Number of bytes per pixel
     uint        _bytesPerLine;  //!< Number of bytes per line (stride)
     uint        _bytesPerImage; //!< Number of bytes per image
+    uint        _bytesInFile;   //!< Number of bytes in file
     string      _path;          //!< path on the filesystem
 };
 //-----------------------------------------------------------------------------

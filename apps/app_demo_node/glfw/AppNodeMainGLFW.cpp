@@ -14,7 +14,7 @@
 #include <SLInterface.h>
 #include <SLSceneView.h>
 #include <opencv2/opencv.hpp>
-#include <SLApplication.h>
+#include <AppDemo.h>
 #include "AppNodeGui.h"
 #include "AppNodeSceneView.h"
 #include <GLFW/glfw3.h>
@@ -59,9 +59,9 @@ frame buffer swapping. The FPS calculation is done in slGetWindowTitle.
 */
 SLbool onPaint()
 {
-    if (SLApplication::sceneViews.empty())
+    if (AppDemo::sceneViews.empty())
         return false;
-    SLSceneView* sv = SLApplication::sceneViews[svIndex];
+    SLSceneView* sv = AppDemo::sceneViews[svIndex];
 
     // Calculate screen to framebuffer ratio for high-DPI monitors
     /* This ratio can be different per monitor. We can not retrieve the
@@ -151,8 +151,8 @@ static void onResize(GLFWwindow* myWindow,
                      int         width,
                      int         height)
 {
-    if (SLApplication::sceneViews.empty()) return;
-    SLSceneView* sv = SLApplication::sceneViews[svIndex];
+    if (AppDemo::sceneViews.empty()) return;
+    SLSceneView* sv = AppDemo::sceneViews[svIndex];
 
     lastWidth  = width;
     lastHeight = height;
@@ -511,7 +511,7 @@ int main(int argc, char* argv[])
     //////////////////////////////////////////////////////////
 
     //////////////////////////////////////////////////////////
-    svIndex = slCreateSceneView(SLApplication::scene,
+    svIndex = slCreateSceneView(AppDemo::scene,
                                 scrWidth,
                                 scrHeight,
                                 dpi,

@@ -43,13 +43,13 @@ cd $BUILD_D
 
 # Run cmake to configure and generate the make files
 cmake \
-    -DCMAKE_TOOLCHAIN_FILE=~/Android/Sdk/ndk/21.3.6528147/build/cmake/android.toolchain.cmake \
+    -DCMAKE_TOOLCHAIN_FILE=/Users/ghm1/Library/Android/sdk/ndk/21.3.6528147/build/cmake/android.toolchain.cmake \
     -DANDROID_ABI=arm64-v8a \
     -DCMAKE_INSTALL_PREFIX=install \
     -DCMAKE_BUILD_TYPE=Debug \
     -DASSIMP_BUILD_TESTS=OFF \
     -DINJECT_DEBUG_POSTFIX=OFF \
-    -DBUILD_SHARED_LIBS=OFF \
+    -DBUILD_SHARED_LIBS=ON \
     ..
 
 # finally build it
@@ -66,13 +66,13 @@ cd $BUILD_R
 
 # Run cmake to configure and generate the make files
 cmake \
-    -DCMAKE_TOOLCHAIN_FILE=~/Android/Sdk/ndk/21.3.6528147/build/cmake/android.toolchain.cmake \
+    -DCMAKE_TOOLCHAIN_FILE=/Users/ghm1/Library/Android/sdk/ndk/21.3.6528147/build/cmake/android.toolchain.cmake \
     -DANDROID_ABI=arm64-v8a \
     -DCMAKE_INSTALL_PREFIX=install \
     -DCMAKE_BUILD_TYPE=Release \
     -DASSIMP_BUILD_TESTS=OFF \
     -DINJECT_DEBUG_POSTFIX=OFF \
-    -DBUILD_SHARED_LIBS=OFF \
+    -DBUILD_SHARED_LIBS=ON \
     ..
 
 # finally build it
@@ -89,8 +89,8 @@ mkdir -p $ZIPFOLDER/Release/arm64-v8a
 mkdir -p $ZIPFOLDER/Debug/arm64-v8a
 
 cp -R $BUILD_R/install/include   $ZIPFOLDER/
-cp -R $BUILD_R/install/lib/*.a       $ZIPFOLDER/Release/arm64-v8a
-cp -R $BUILD_D/install/lib/*.a       $ZIPFOLDER/Debug/arm64-v8a
+cp -R $BUILD_R/install/lib/*.so       $ZIPFOLDER/Release/arm64-v8a
+cp -R $BUILD_D/install/lib/*.so       $ZIPFOLDER/Debug/arm64-v8a
 cp LICENSE $ZIPFOLDER
 cp Readme.md $ZIPFOLDER
 

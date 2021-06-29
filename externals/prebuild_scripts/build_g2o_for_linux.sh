@@ -12,6 +12,12 @@ BUILD_R=build/"$ARCH"_release
 
 clear
 echo "Building g2o using the sources in the thirdparty directory"
+if [ ! -d ../g2o ]
+then
+    echo "g2o directory doesn't exists"
+    git clone https://github.com/RainerKuemmerle/g2o.git ../g2o
+fi
+
 cd ../g2o
 
 # Make build folder for debug version

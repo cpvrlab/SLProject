@@ -7,35 +7,51 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include <vector>
-#include <string>
+#ifndef HTTP_UTILS_H
+#define HTTP_UTILS_H
+
+#ifdef SL_BUILD_WITH_OPENSSL
+
 #ifdef _WINDOWS
-typedef int socklen_t;
-#    include <winsock.h>
+#    include <winsock2.h>
+#    include <ws2tcpip.h>
 #else
 #    include <sys/socket.h>
 #    include <netinet/in.h>
 #    include <arpa/inet.h>
 #endif
 
+#include <vector>
+#include <string>
 #include <openssl/ssl.h>
 #include <openssl/err.h>
 #include <functional>
 #include <atomic>
 
+using std::function;
 using std::string;
 using std::vector;
-using std::function;
+
+#define SERVER_NOT_REACHABLE 1
+#define CANT_CREATE_DIR      2
+#define CANT_CREATE_FILE     3
+#define CONNECTION_CLOSED    4
 
 //------------------------------------------------------------------------------
-//! ???
+//! Multiplatform socket helper
 class Socket
 {
 public:
-    int                fd;
-    struct sockaddr_in sa;
-    socklen_t          addrlen;
-    bool               inUse;
+    int fd;
+    union
+    {
+        struct sockaddr_in  sa;
+        struct sockaddr_in6 sa6;
+    };
+
+    socklen_t           addrlen;
+    bool                inUse;
+    int                 ipv;
 #ifdef _WINDOWS
     static WSADATA wsadata;
     static bool    initialized;
@@ -74,7 +90,7 @@ public:
     virtual void reset();
     virtual int  connectTo(string ip, int port);
     virtual int  sendData(const char* data, size_t size);
-    virtual void receive(function<int(char* data, int size)> dataCB, int max = 0);
+    virtual int  receive(function<int(char* data, int size)> dataCB, int max = 0);
     virtual void disconnect();
     void         interrupt() { _interrupt = true; };
 
@@ -82,13 +98,13 @@ protected:
     std::atomic_bool _interrupt{false};
 };
 //------------------------------------------------------------------------------
-//! ???
+//! Multiplatform socket helper with encryption
 class SecureSocket : public Socket
 {
-    public:
+public:
     SecureSocket()
     {
-        ssl = nullptr;
+        ssl   = nullptr;
         sslfd = -1;
         Socket::reset();
     }
@@ -98,11 +114,11 @@ class SecureSocket : public Socket
 
     virtual int  connectTo(string ip, int port);
     virtual int  sendData(const char* data, size_t size);
-    virtual void receive(function<int(char* data, int size)> dataCB, int max = 0);
+    virtual int  receive(function<int(char* data, int size)> dataCB, int max = 0);
     virtual void disconnect();
 };
 //------------------------------------------------------------------------------
-//! ???
+//! helper struct to get DNS from ip and ip from DNS
 struct DNSRequest
 {
     string addr;
@@ -142,17 +158,16 @@ public:
     }
 
     // Read http header
-    int            processHttpHeaders(vector<char>& data);
+    int processHttpHeaders(vector<char>& data);
 
     // Send Http request to server
-    int            send();
+    int send();
 
     // Start fetching the content (must be called after send)
-    void           getContent(function<int(char* data, int size)> contentCB);
+    int getContent(function<int(char* data, int size)> contentCB);
 
     // Parse http listing and return list of directory and files
     vector<string> getListing();
-
 };
 //------------------------------------------------------------------------------
 //! HTTPUtils::download provides download function for https/http with/without auth.
@@ -200,5 +215,9 @@ int download(string                                      url,
 
 //-- return content Length of the HttpGet request
 int length(string url, string user = "", string pwd = "");
-}
+
+}; //namespace HttpUtils
 //------------------------------------------------------------------------------
+
+#endif //SL_BUILD_WITH_OPENSSL
+#endif //HTTP_UTILS_H

@@ -15,7 +15,7 @@
 #include <SLGLState.h>
 #include <SLEnums.h>
 #include <SLInterface.h>
-#include <SLApplication.h>
+#include <AppDemo.h>
 #include <SLSceneView.h>
 #include <SLProjectScene.h>
 #include <CVCapture.h>
@@ -67,9 +67,9 @@ SLbool onPaint()
 {
     PROFILE_SCOPE("GLFW::onPaint");
 
-    if (SLApplication::sceneViews.empty())
+    if (AppDemo::sceneViews.empty())
         return false;
-    SLSceneView* sv = SLApplication::sceneViews[svIndex];
+    SLSceneView* sv = AppDemo::sceneViews[svIndex];
 
     // If live video image is requested grab it and copy it
     if (CVCapture::instance()->videoType() != VT_NONE)
@@ -171,8 +171,8 @@ should called once before the onPaint event.
 */
 static void onResize(GLFWwindow* myWindow, int width, int height)
 {
-    if (SLApplication::sceneViews.empty()) return;
-    SLSceneView* sv = SLApplication::sceneViews[svIndex];
+    if (AppDemo::sceneViews.empty()) return;
+    SLSceneView* sv = AppDemo::sceneViews[svIndex];
 
     if (fixAspectRatio)
     {
@@ -200,16 +200,7 @@ static void onResize(GLFWwindow* myWindow, int width, int height)
     glfwGetWindowPos(myWindow, &curW, &curH);
     glfwSetWindowSize(myWindow, width, height);
     glfwSetWindowPos(myWindow, curW, curH);
-}
-//-----------------------------------------------------------------------------
-/*!
-onLongTouch gets called from a 500ms timer after a mouse down event.
-*/
-void onLongTouch()
-{
-    // forward the long touch only if the mouse or touch hasn't moved.
-    if (Utils::abs(mouseX - startX) < 2 && Utils::abs(mouseY - startY) < 2)
-        slLongTouch(svIndex, mouseX, mouseY);
+    onPaint();
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -256,13 +247,13 @@ static void onMouseButton(GLFWwindow* myWindow,
         }
         else // normal mouse clicks
         {
-            // Start timer for the long touch detection
-            HighResTimer::callAfterSleep(SLSceneView::LONGTOUCH_MS, onLongTouch);
-
             switch (button)
             {
                 case GLFW_MOUSE_BUTTON_LEFT:
-                    slMouseDown(svIndex, MB_left, x, y, modifiers);
+                    if (modifiers & K_alt && modifiers & K_ctrl)
+                        slTouch2Down(svIndex, x - 20, y, x + 20, y);
+                    else
+                        slMouseDown(svIndex, MB_left, x, y, modifiers);
                     break;
                 case GLFW_MOUSE_BUTTON_RIGHT:
                     slMouseDown(svIndex, MB_right, x, y, modifiers);
@@ -306,7 +297,10 @@ static void onMouseMove(GLFWwindow* myWindow,
     mouseX = (int)x;
     mouseY = (int)y;
 
-    slMouseMove(svIndex, (int)x, (int)y);
+    if (modifiers & K_alt && modifiers & K_ctrl)
+        slTouch2Move(svIndex, (int)(x - 20), (int)y, (int)(x + 20), (int)y);
+    else
+        slMouseMove(svIndex, (int)x, (int)y);
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -365,6 +359,8 @@ static void onKeyPress(GLFWwindow* myWindow,
             glfwSetWindowSize(myWindow, scrWidth, scrHeight);
             glfwSetWindowPos(myWindow, 10, 30);
         }
+        if (AppDemoGui::hideUI)
+            AppDemoGui::hideUI = false;
     }
     // Toggle fullscreen mode
     else if (key == K_F9 && action == GLFW_PRESS)
@@ -389,23 +385,23 @@ static void onKeyPress(GLFWwindow* myWindow,
         // Keyboard shortcuts for next or previous sceneID loading
         if (modifiers & K_alt && modifiers & K_shift)
         {
-            SLSceneView* sv = SLApplication::sceneViews[0];
+            SLSceneView* sv = AppDemo::sceneViews[0];
             if (action == GLFW_PRESS)
             {
-                if (key == '0' &&  sv)
+                if (key == '0' && sv)
                 {
-                    appDemoLoadScene(SLApplication::scene, sv, SID_Empty);
-                    SL_LOG("Loading SceneID: %d", SLApplication::sceneID);
+                    appDemoLoadScene(AppDemo::scene, sv, SID_Empty);
+                    SL_LOG("Loading SceneID: %d", AppDemo::sceneID);
                 }
-                else if (key == K_left && sv && SLApplication::sceneID > 0)
+                else if (key == K_left && sv && AppDemo::sceneID > 0)
                 {
-                    appDemoLoadScene(SLApplication::scene, sv, (SLSceneID)(SLApplication::sceneID - 1));
-                    SL_LOG("Loading SceneID: %d", SLApplication::sceneID);
+                    appDemoLoadScene(AppDemo::scene, sv, (SLSceneID)(AppDemo::sceneID - 1));
+                    SL_LOG("Loading SceneID: %d", AppDemo::sceneID);
                 }
-                else if (key == K_right && sv && SLApplication::sceneID < SID_Maximal-1)
+                else if (key == K_right && sv && AppDemo::sceneID < SID_Maximal - 1)
                 {
-                    appDemoLoadScene(SLApplication::scene, sv, (SLSceneID)(SLApplication::sceneID + 1));
-                    SL_LOG("Loading SceneID: %d", SLApplication::sceneID);
+                    appDemoLoadScene(AppDemo::scene, sv, (SLSceneID)(AppDemo::sceneID + 1));
+                    SL_LOG("Loading SceneID: %d", AppDemo::sceneID);
                 }
             }
             return;
@@ -527,9 +523,9 @@ void initSL(SLVstring& cmdLineArgs)
     //Utils::dumpFileSystemRec("SLProject",  projectRoot + "/data");
 
     //setup platform dependent data path
-    SLApplication::calibFilePath = configDir;
-    SLApplication::calibIniPath  = projectRoot + "/data/calibrations/"; // for calibInitPath
-    CVCapture::instance()->loadCalibrations(Utils::ComputerInfos::get(), SLApplication::calibFilePath); // for calibrations made
+    AppDemo::calibFilePath = configDir;
+    AppDemo::calibIniPath  = projectRoot + "/data/calibrations/";                                 // for calibInitPath
+    CVCapture::instance()->loadCalibrations(Utils::ComputerInfos::get(), AppDemo::calibFilePath); // for calibrations made
 
     /////////////////////////////////////////////////////////
     slCreateAppAndScene(cmdLineArgs,
@@ -542,9 +538,10 @@ void initSL(SLVstring& cmdLineArgs)
                         configDir,
                         "AppDemoGLFW",
                         (void*)appDemoLoadScene);
+    /////////////////////////////////////////////////////////
 
     /////////////////////////////////////////////////////////
-    slCreateSceneView(SLApplication::scene,
+    slCreateSceneView(AppDemo::scene,
                       scrWidth,
                       scrHeight,
                       dpi,

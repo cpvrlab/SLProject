@@ -10,8 +10,9 @@
 #ifndef SLASSIMPPROGRESSHANDLER_H
 #define SLASSIMPPROGRESSHANDLER_H
 
+#ifdef SL_BUILD_WITH_ASSIMP
 #include <assimp/ProgressHandler.hpp>
-#include <SLApplication.h>
+#include <AppDemo.h>
 
 //-----------------------------------------------------------------------------
 //!
@@ -29,7 +30,7 @@ public:
     {
         if (percentage >= 0.0f && percentage <= 100.0f)
         {
-            SLApplication::jobProgressNum((SLint)percentage);
+            AppDemo::jobProgressNum((SLint)percentage);
             return true;
         }
         else
@@ -37,4 +38,5 @@ public:
     }
 };
 //-----------------------------------------------------------------------------
+#endif // SL_BUILD_WITH_ASSIMP
 #endif // SLASSIMPPROGRESSHANDLER_H

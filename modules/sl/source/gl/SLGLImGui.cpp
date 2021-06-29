@@ -600,8 +600,8 @@ void SLGLImGui::onMouseDown(SLMouseButton button, SLint x, SLint y)
     ImGuiIO& io = ImGui::GetIO();
     io.MousePos = ImVec2((SLfloat)x, (SLfloat)y);
     if (button == MB_left) io.MouseDown[0] = true;
-    if (button == MB_middle) io.MouseDown[1] = true;
-    if (button == MB_right) io.MouseDown[2] = true;
+    if (button == MB_right) io.MouseDown[1] = true;
+    if (button == MB_middle) io.MouseDown[2] = true;
     //SL_LOG("D");
 }
 //-----------------------------------------------------------------------------
@@ -611,8 +611,8 @@ void SLGLImGui::onMouseUp(SLMouseButton button, SLint x, SLint y)
     ImGuiIO& io = ImGui::GetIO();
     io.MousePos = ImVec2((SLfloat)x, (SLfloat)y);
     if (button == MB_left) io.MouseDown[0] = false;
-    if (button == MB_middle) io.MouseDown[1] = false;
-    if (button == MB_right) io.MouseDown[2] = false;
+    if (button == MB_right) io.MouseDown[1] = false;
+    if (button == MB_middle) io.MouseDown[2] = false;
     //SL_LOG("U\n");
 }
 //-----------------------------------------------------------------------------

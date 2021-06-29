@@ -155,9 +155,9 @@ void SLGLState::buildInverseMatrix()
 }
 //-----------------------------------------------------------------------------
 /*! Builds the normal matrix by the inverse transposed modelview matrix. Only
- the linear 3x3 submatrix of the modelview matrix with the rotation is inversed.
+ the linear 3x3 sub-matrix of the modelview matrix with the rotation is inversed.
  The inverse transposed could be ignored as long as we would only have rotation
- and uniform scaling in the 3x3 submatrix.
+ and uniform scaling in the 3x3 sub-matrix.
  */
 void SLGLState::buildNormalMatrix()
 {
@@ -651,7 +651,7 @@ SLstring SLGLState::getSLVersionNO()
     return SLstring(NO);
 }
 //-----------------------------------------------------------------------------
-//! Returns true if the according GL pixelformat is valid in the GL context
+//! Returns true if the according GL pixel format is valid in the GL context
 SLbool SLGLState::pixelFormatIsSupported(SLint pixelFormat)
 { /*
      #define SL_ALPHA 0x1906             // ES2 ES3 GL2
@@ -697,5 +697,22 @@ SLbool SLGLState::pixelFormatIsSupported(SLint pixelFormat)
         case PF_bgra_integer: return (_glVersionNOf >= 4);
         default: return false;
     }
+}
+//-----------------------------------------------------------------------------
+//! Reads the front framebuffer pixels into the passed buffer
+/*!
+ * @param buffer Pointer to a 4 byte aligned buffer with the correct size.
+ */
+void SLGLState::readPixels(void* buffer)
+{
+    glPixelStorei(GL_PACK_ALIGNMENT, 4);
+    glReadBuffer(GL_FRONT);
+
+    // Get viewport size
+    GLint vp[4];
+    glGetIntegerv(GL_VIEWPORT, vp);
+
+    glReadPixels(vp[0], vp[1], vp[2], vp[3], GL_RGB, GL_UNSIGNED_BYTE, buffer);
+
 }
 //-----------------------------------------------------------------------------

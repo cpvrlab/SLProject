@@ -94,17 +94,6 @@ void SLInputEventInterface::doubleClick(int           sceneViewIndex,
     _inputManager.queueEvent(e);
 }
 //-----------------------------------------------------------------------------
-/*! Global event handler for long touches
-*/
-void SLInputEventInterface::longTouch(int sceneViewIndex, int xpos, int ypos)
-{
-    SLMouseEvent* e = new SLMouseEvent(SLInputEvent::LongTouch);
-    e->svIndex      = sceneViewIndex;
-    e->x            = xpos;
-    e->y            = ypos;
-    _inputManager.queueEvent(e);
-}
-//-----------------------------------------------------------------------------
 /*! Global event handler for the two finger touch down events of touchscreen
 devices.
 */
@@ -207,5 +196,15 @@ void SLInputEventInterface::charInput(int          sceneViewIndex,
     SLCharInputEvent* e = new SLCharInputEvent();
     e->svIndex          = sceneViewIndex;
     e->character        = character;
+    _inputManager.queueEvent(e);
+}
+//-----------------------------------------------------------------------------
+/*! Global event handler to trigger a screenshot
+*/
+void SLInputEventInterface::scrCaptureRequest(int sceneViewIndex, std::string outputPath)
+{
+    SLScrCaptureRequestEvent* e = new SLScrCaptureRequestEvent();
+    e->svIndex                  = sceneViewIndex;
+    e->path                     = outputPath;
     _inputManager.queueEvent(e);
 }

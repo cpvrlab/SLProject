@@ -41,8 +41,8 @@ private:
     ArFrame*         _arFrame   = nullptr;
 
     GLuint _cameraTextureId;
-	//float          _lightColor[4];
-	float            _envLightI[3];
+    float _envLightI[3];
+    //float _lightColor[4];
 
     void    checkAvailability(JNIEnv* env, jobject context);
     void    initCameraTexture();

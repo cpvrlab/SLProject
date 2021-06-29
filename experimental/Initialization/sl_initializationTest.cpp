@@ -10,7 +10,7 @@
 
 #include <Utils.h>
 
-#include <SLApplication.h>
+#include <AppDemo.h>
 #include <SLInterface.h>
 #include <SLGLProgram.h>
 #include <SLScene.h>
@@ -591,7 +591,7 @@ int main()
 
     SLSceneView* sv = new SLSceneView();
 
-    SLApplication::scene = scene;
+    AppDemo::scene = scene;
 
     sv->init("SceneView", scrWidth, scrHeight, (void*)&update, nullptr, nullptr);
     scene->init();

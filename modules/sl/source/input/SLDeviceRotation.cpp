@@ -19,15 +19,15 @@ SLDeviceRotation::SLDeviceRotation()
 void SLDeviceRotation::init()
 {
     _rotation.identity();
-    _pitchRAD           = 0.0f;
-    _yawRAD             = 0.0f;
-    _rollRAD            = 0.0f;
+    _pitchRAD = 0.0f;
+    _yawRAD   = 0.0f;
+    _rollRAD  = 0.0f;
     _rotationAvg.init(3, SLMat3f());
     _zeroYawAtStart     = true;
     _startYawRAD        = 0.0f;
     _isFirstSensorValue = false;
     _isUsed             = false;
-    _offsetMode         = OM_fingerX;
+    _offsetMode         = ROM_none;
     _updateRPY          = true;
 }
 //-----------------------------------------------------------------------------
@@ -50,10 +50,10 @@ void SLDeviceRotation::onRotationQUAT(SLfloat quatX,
                                       SLfloat quatW)
 {
     _quaternion = SLQuat4f(quatX, quatY, quatZ, quatW);
-    _rotation = _quaternion.toMat3();
+    _rotation   = _quaternion.toMat3();
     _rotationAvg.set(_rotation);
 
-    if(_updateRPY)
+    if (_updateRPY)
         _quaternion.toEulerAnglesXYZ(_pitchRAD, _rollRAD, _yawRAD);
 
     /*
@@ -110,21 +110,21 @@ void SLDeviceRotation::isUsed(SLbool use)
     _isUsed = use;
 }
 //------------------------------------------------------------------------------
+//! Returns the device rotation averaged over multple frames
 void SLDeviceRotation::numAveraged(SLint numAvg)
 {
     assert(numAvg > 0 && "Num. of averaged values must be greater than zero");
     _rotationAvg.init(numAvg, _rotationAvg.average());
 }
 //------------------------------------------------------------------------------
+//! Returns the rotation offset mode as string
 SLstring SLDeviceRotation::offsetModeStr() const
 {
-    switch(_offsetMode)
+    switch (_offsetMode)
     {
-        case OM_none: return "None";
-        case OM_fingerX: return "Finger X";
-        case OM_fingerXY: return "Finger X&Y";
-        case OM_autoX: return "Auto X";
-        case OM_autoXY: return "auto X&Y";
+        case ROM_none: return "None";
+        case ROM_oneFingerX: return "OneFingerX";
+        case ROM_oneFingerXY: return "OneFingerXY";
         default: return "Unknown";
     }
 }

@@ -1,4 +1,4 @@
-package ch.fhnw.cg.TextureMapping;
+package ch.bfh.cpvrlab.TextureMapping;
 
 import java.awt.BorderLayout;
 import java.awt.event.MouseAdapter;

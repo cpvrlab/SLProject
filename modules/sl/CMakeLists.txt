@@ -403,9 +403,15 @@ target_compile_options(${target}
         )
 
 if(SL_BUILD_WAI)
-set(PlatformLinkLibs
+    set(PlatformLinkLibs
         ${PlatformLinkLibs}
         ${META_PROJECT_NAME}::lib-WAI)
+endif()
+
+if(SL_BUILD_WITH_KTX)
+    set(PlatformLinkLibs
+        ${PlatformLinkLibs}
+        ${ktx_LIBS})
 endif()
 
 target_link_libraries(${target}
@@ -422,7 +428,6 @@ target_link_libraries(${target}
         lib-Utils
         lib-SLMath
         ${DEFAULT_LINKER_OPTIONS}
-
         INTERFACE
 
         )

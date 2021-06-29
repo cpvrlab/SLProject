@@ -8,7 +8,7 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include <SLApplication.h>
+#include <AppDemo.h>
 #include "AppDemoSceneView.h"
 #include <SLProjectScene.h>
 
@@ -38,8 +38,8 @@ SLbool AppDemoSceneView::onMouseDown(SLMouseButton button,
     bool baseClassResult = SLSceneView::onMouseDown(button, x, y, mod);
 
     // Grab image during calibration if calibration stream is running
-    if (SLApplication::sceneID == SID_VideoCalibrateMain ||
-        SLApplication::sceneID == SID_VideoCalibrateScnd)
+    if (AppDemo::sceneID == SID_VideoCalibrateMain ||
+        AppDemo::sceneID == SID_VideoCalibrateScnd)
     {
         grab = true;
     }

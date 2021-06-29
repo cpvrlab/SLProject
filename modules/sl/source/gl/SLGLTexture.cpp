@@ -28,7 +28,7 @@
 SLfloat SLGLTexture::maxAnisotropy = -1.0f;
 
 //! NO. of texture byte allocated on GPU
-SLuint SLGLTexture::numBytesInTextures = 0;
+SLuint SLGLTexture::totalNumBytesOnGPU = 0;
 //-----------------------------------------------------------------------------
 /*! Default ctor for all stack instances such as the video textures in SLScene
 or the textures inherited by SLRaytracer. All other constructors add the this
@@ -51,6 +51,7 @@ SLGLTexture::SLGLTexture()
     _resizeToPow2          = false;
     _autoCalcTM3D          = false;
     _bytesOnGPU            = 0;
+    _bytesInFile           = 0;
     _needsUpdate           = false;
     _deleteImageAfterBuild = false;
 
@@ -95,6 +96,7 @@ SLGLTexture::SLGLTexture(SLAssetManager* assetMgr,
     _autoCalcTM3D          = false;
     _needsUpdate           = false;
     _bytesOnGPU            = 0;
+    _bytesInFile           = 0;
     _texType               = TT_unknown;
     _deleteImageAfterBuild = false;
 
@@ -153,6 +155,7 @@ SLGLTexture::SLGLTexture(SLAssetManager* assetMgr,
     _autoCalcTM3D          = false;
     _needsUpdate           = false;
     _bytesOnGPU            = 0;
+    _bytesInFile           = 0;
     _texType               = type;
     _deleteImageAfterBuild = false;
 
@@ -199,19 +202,30 @@ SLGLTexture::SLGLTexture(SLAssetManager* assetMgr,
         _height        = _images[0]->height();
         _depth         = _images.size();
         _bytesPerPixel = _images[0]->bytesPerPixel();
+        _bytesInFile   = _images[0]->bytesInFile();
+    }
+    else if (_compressedTexture)
+    {
+#ifdef SL_BUILD_WITH_KTX
+        //todo ktx: get properties and extract necessary
+        _width       = _ktxTexture->baseWidth;
+        _height      = _ktxTexture->baseHeight;
+        _depth       = _ktxTexture->numDimensions == 3 ? _ktxTexture->baseDepth : 1;
+        _bytesInFile = Utils::getFileSize(filename);
+#endif
     }
 
-    _min_filter   = min_filter;
-    _mag_filter   = mag_filter;
-    _wrap_s       = wrapS;
-    _wrap_t       = wrapT;
-    _target       = GL_TEXTURE_2D;
-    _texID        = 0;
-    _bumpScale    = 1.0f;
-    _resizeToPow2 = false;
-    _autoCalcTM3D = false;
-    _needsUpdate  = false;
-    _bytesOnGPU   = 0;
+    _min_filter            = min_filter;
+    _mag_filter            = mag_filter;
+    _wrap_s                = wrapS;
+    _wrap_t                = wrapT;
+    _target                = GL_TEXTURE_2D;
+    _texID                 = 0;
+    _bumpScale             = 1.0f;
+    _resizeToPow2          = false;
+    _autoCalcTM3D          = false;
+    _needsUpdate           = false;
+    _bytesOnGPU            = 0;
     _deleteImageAfterBuild = false;
 
 #ifdef SL_HAS_OPTIX
@@ -442,6 +456,11 @@ void SLGLTexture::deleteData()
     deleteImages();
     deleteDataGpu();
 
+#ifdef SL_BUILD_WITH_KTX
+    if (_ktxTexture)
+        ktxTexture_Destroy((ktxTexture*)_ktxTexture);
+#endif
+    
     _texID                 = 0;
     _texType               = TT_unknown;
     _width                 = 0;
@@ -456,7 +475,6 @@ void SLGLTexture::deleteImages()
 {
     for (auto& img : _images)
     {
-        numBytesInTextures -= img->bytesPerImage();
         delete img;
         img = nullptr;
     }
@@ -468,7 +486,7 @@ void SLGLTexture::deleteDataGpu()
 {
     glDeleteTextures(1, &_texID);
     _texID = 0;
-    numBytesInTextures -= _bytesOnGPU;
+    totalNumBytesOnGPU -= _bytesOnGPU;
     _bytesOnGPU = 0;
     _vaoSprite.clearAttribs();
 
@@ -492,10 +510,55 @@ void SLGLTexture::load(const SLstring& filename,
         SL_EXIT_MSG(msg.c_str());
     }
 
-    CVImage* image = new CVImage(filename,
-                                 flipVertical,
-                                 loadGrayscaleIntoAlpha);
-    _images.push_back(image);
+    string ext = Utils::getFileExt(filename);
+
+    // Check for compressed texture in KTX2 (Khronos Texture) format
+    if (ext == "ktx2")
+    {
+#ifdef SL_BUILD_WITH_KTX
+        _ktxFileName         = filename;
+        _compressedTexture   = true;
+        KTX_error_code error = ktxTexture_CreateFromNamedFile(filename.c_str(),
+                                                              KTX_TEXTURE_CREATE_NO_FLAGS,
+                                                              (ktxTexture**)&_ktxTexture);
+        if (error != KTX_SUCCESS)
+        {
+            string errStr = "Error in SLGLTexture::load: " +
+                            ktxErrorStr(error) + " in file: " + filename;
+            SL_EXIT_MSG(errStr.c_str());
+        }
+
+        if (ktxTexture2_NeedsTranscoding(_ktxTexture))
+        {
+#if defined(SL_OS_MACIOS)
+            _compressionFormat = KTX_TTF_PVRTC1_4_RGB;
+#elif defined(SL_OS_ANDROID)
+            _compressionFormat = KTX_TTF_ETC2_RGBA;
+#else
+            _compressionFormat = KTX_TTF_BC3_RGBA;
+#endif
+            error = ktxTexture2_TranscodeBasis(_ktxTexture, _compressionFormat, 0);
+
+            if (error != KTX_SUCCESS || _ktxTexture->pData == nullptr)
+            {
+                string errStr = "Error in SLGLTexture::load: " +
+                                ktxErrorStr(error) +
+                                "\nwhile transcoding file: " + filename +
+                                "\nto format: " + compressionFormatStr(_compressionFormat);
+                SL_EXIT_MSG(errStr.c_str());
+            }
+        }
+#else
+        SL_EXIT_MSG("Ktx files are not supported. You have to build with SL_BUILD_WITH_KTX flag enabled.");
+#endif
+    }
+    else
+    {
+        CVImage* image = new CVImage(filename,
+                                     flipVertical,
+                                     loadGrayscaleIntoAlpha);
+        _images.push_back(image);
+    }
 }
 //-----------------------------------------------------------------------------
 //! Loads the 1D color data into an image of height 1
@@ -567,7 +630,7 @@ SLbool SLGLTexture::copyVideoImage(SLint       camWidth,
         SL_LOG("SLGLTexture::copyVideoImage: Rebuild: %d, %s",
                _texID,
                _images[0]->name().c_str());
-        build(_texID);
+        build(0);
     }
 
     _needsUpdate = true;
@@ -616,7 +679,7 @@ SLbool SLGLTexture::copyVideoImage(SLint       camWidth,
         SL_LOG("SLGLTexture::copyVideoImage: Rebuild: %d, %s",
                _texID,
                _images[0]->name().c_str());
-        build(_texID);
+        build(0);
     }
 
     _needsUpdate = true;
@@ -636,234 +699,307 @@ void SLGLTexture::build(SLint texUnit)
 
     assert(texUnit >= 0 && texUnit < 16);
 
-    if (_images.empty())
-        SL_EXIT_MSG("No images loaded in SLGLTexture::build");
-
-    // delete texture name if it already exits
-    if (_texID)
+    if (_compressedTexture)
     {
+#ifdef SL_BUILD_WITH_KTX
+        if (_ktxTexture->pData == nullptr)
+        {
+            string errStr = "Error in SLGLTexture::build: texture " + _ktxFileName + " contains no data";
+            SL_WARN_MSG(errStr.c_str());
+        }
+        
+        // delete texture name if it already exits
+        if (_texID)
+        {
+            glBindTexture(_target, _texID);
+            glDeleteTextures(1, &_texID);
+            glBindTexture(_target, 0);
+            _texID = 0;
+            totalNumBytesOnGPU -= _bytesOnGPU;
+        }
+
+        // get max texture size
+        SLint texMaxSize = 0;
+        glGetIntegerv(GL_MAX_TEXTURE_SIZE, &texMaxSize);
+
+        //todo ktx: compare with image size
+        // check 2D size
+        if (_target == GL_TEXTURE_2D)
+        {
+            if (_width > (SLuint)texMaxSize)
+                SL_EXIT_MSG("SLGLTexture::build: Texture width is too big.");
+            if (_height > (SLuint)texMaxSize)
+                SL_EXIT_MSG("SLGLTexture::build: Texture height is too big.");
+        }
+
+        //todo ktx: cubemaps and 3d textures
+
+        //todo: upload in build process
+        GLenum glerror = 0;
+        glGenTextures(1, &_texID); // Optional. GLUpload can generate a texture.
+
         glBindTexture(_target, _texID);
-        glDeleteTextures(1, &_texID);
-        SL_LOG("SLGLTexture::build: Deleted: %d, %s",
-               _texID,
-               _images[0]->name().c_str());
-        glBindTexture(_target, 0);
-        _texID = 0;
-        numBytesInTextures -= _bytesOnGPU;
-    }
 
-    // get max texture size
-    SLint texMaxSize = 0;
-    glGetIntegerv(GL_MAX_TEXTURE_SIZE, &texMaxSize);
+        glTexParameteri(_target, GL_TEXTURE_MIN_FILTER, _min_filter);
+        GET_GL_ERROR;
 
-    // check if texture has to be resized
-    if (_resizeToPow2)
-    {
-        SLuint w2 = Utils::closestPowerOf2(_images[0]->width());
-        SLuint h2 = Utils::closestPowerOf2(_images[0]->height());
-        if (w2 == 0) SL_EXIT_MSG("Image can not be rescaled: width=0");
-        if (h2 == 0) SL_EXIT_MSG("Image can not be rescaled: height=0");
-        if (w2 != _images[0]->width() || h2 != _images[0]->height())
-            _images[0]->resize((SLint)w2, (SLint)h2);
-    }
+        // apply magnification filter only GL_NEAREST & GL_LINEAR is allowed
+        glTexParameteri(_target, GL_TEXTURE_MAG_FILTER, _mag_filter);
+        GET_GL_ERROR;
 
-    // check 2D size
-    if (_target == GL_TEXTURE_2D)
-    {
-        if (_images[0]->width() > (SLuint)texMaxSize)
-            SL_EXIT_MSG("SLGLTexture::build: Texture width is too big.");
-        if (_images[0]->height() > (SLuint)texMaxSize)
-            SL_EXIT_MSG("SLGLTexture::build: Texture height is too big.");
-    }
+        // apply texture wrapping modes
+        glTexParameteri(_target, GL_TEXTURE_WRAP_S, _wrap_s);
+        glTexParameteri(_target, GL_TEXTURE_WRAP_T, _wrap_t);
+        glTexParameteri(_target, GL_TEXTURE_WRAP_R, _wrap_t);
+        GET_GL_ERROR;
 
-    // check 3D size
-    if (_target == GL_TEXTURE_3D)
-    {
-        SLint texMax3DSize = 0;
-        glGetIntegerv(GL_MAX_3D_TEXTURE_SIZE, &texMax3DSize);
-        for (auto img : _images)
+        ktxTexture_GLUpload((ktxTexture*)_ktxTexture, &_texID, &_target, &glerror);
+        _ktxTexture->baseHeight;
+
+        _bytesOnGPU += _ktxTexture->dataSize;
+        totalNumBytesOnGPU += _bytesOnGPU;
+
+        //todo: destroy somewhere else
+        if (_deleteImageAfterBuild)
         {
-            if (img->width() > (SLuint)texMax3DSize)
-                SL_EXIT_MSG("SLGLTexture::build: 3D Texture width is too big.");
-            if (img->height() > (SLuint)texMax3DSize)
-                SL_EXIT_MSG("SLGLTexture::build: 3D Texture height is too big.");
-            if (img->width() != _images[0]->width() ||
-                img->height() != _images[0]->height())
-                SL_EXIT_MSG("SLGLTexture::build: Not all images of the 3D texture have the same size.");
+            ktxTexture_Destroy((ktxTexture*)_ktxTexture);
+            _ktxTexture = nullptr;
         }
-    }
-
-    // check cube mapping capability & max. cube map size
-    if (_target == GL_TEXTURE_CUBE_MAP)
-    {
-        SLint texMaxCubeSize;
-        glGetIntegerv(GL_MAX_CUBE_MAP_TEXTURE_SIZE, &texMaxCubeSize);
-        if (_images[0]->width() > (SLuint)texMaxCubeSize)
-            SL_EXIT_MSG("SLGLTexture::build: Cube Texture width is too big.");
-        if (_images.size() != 6)
-            SL_EXIT_MSG("SLGLTexture::build: Not six images provided for cube map texture.");
-    }
-
-    // Generate texture names
-    glGenTextures(1, &_texID);
-
-    SLGLState* stateGL = SLGLState::instance();
-    stateGL->activeTexture(GL_TEXTURE0 + (SLuint)texUnit);
-
-    // create binding and apply texture properties
-    stateGL->bindTexture(_target, _texID);
-
-    // check if anisotropic texture filter extension is available
-    if (maxAnisotropy < 0.0f)
-    {
-        if (stateGL->hasExtension("GL_EXT_texture_filter_anisotropic"))
-            glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &maxAnisotropy);
-        else
-        {
-            maxAnisotropy = 0.0f;
-            cout << "GL_EXT_texture_filter_anisotropic not available.\n";
-        }
-    }
-    GET_GL_ERROR;
-
-    // apply anisotropic or minification filter
-    if (_min_filter > GL_LINEAR_MIPMAP_LINEAR)
-    {
-        SLfloat anisotropy; // = off
-        if (_min_filter == SL_ANISOTROPY_MAX)
-            anisotropy = maxAnisotropy;
-        else
-            anisotropy = std::min((SLfloat)(_min_filter - GL_LINEAR_MIPMAP_LINEAR),
-                                  maxAnisotropy);
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, anisotropy);
+        GET_GL_ERROR;
+#endif
     }
     else
-        glTexParameteri(_target, GL_TEXTURE_MIN_FILTER, _min_filter);
-    GET_GL_ERROR;
-
-    // apply magnification filter only GL_NEAREST & GL_LINEAR is allowed
-    glTexParameteri(_target, GL_TEXTURE_MAG_FILTER, _mag_filter);
-    GET_GL_ERROR;
-
-    // apply texture wrapping modes
-    glTexParameteri(_target, GL_TEXTURE_WRAP_S, _wrap_s);
-    glTexParameteri(_target, GL_TEXTURE_WRAP_T, _wrap_t);
-    glTexParameteri(_target, GL_TEXTURE_WRAP_R, _wrap_t);
-    GET_GL_ERROR;
-
-    // Handle special stupid case on iOS
-    SLint internalFormat = _images[0]->format();
-    if (internalFormat == PF_red)
-        internalFormat = GL_R8;
-
-    // Handle special case for realtime RT
-    if (_images[0]->name() == "Optix Raytracer")
-        internalFormat = GL_RGB32F;
-
-    // Handle special case for HDR textures
-    if (_texType == TT_hdr)
-        internalFormat = GL_RGB16F;
-
-    // Build textures
-    if (_target == GL_TEXTURE_2D)
     {
-        GLenum format = _images[0]->format();
+        if (_images.empty())
+            SL_EXIT_MSG("No images loaded in SLGLTexture::build");
 
-        //////////////////////////////////////////////////////////////
-        glTexImage2D(GL_TEXTURE_2D,
-                     0,
-                     internalFormat,
-                     (SLsizei)_images[0]->width(),
-                     (SLsizei)_images[0]->height(),
-                     0,
-                     format,
-                     _texType == TT_hdr ? GL_FLOAT : GL_UNSIGNED_BYTE,
-                     (GLvoid*)_images[0]->data());
-        /////////////////////////////////////////////////////////////
-
-        GET_GL_ERROR;
-
-        _bytesOnGPU += _images[0]->bytesPerImage();
-
-        if (_min_filter >= GL_NEAREST_MIPMAP_NEAREST)
+        // delete texture name if it already exits
+        if (_texID)
         {
-            if (stateGL->glIsES2() ||
-                stateGL->glIsES3() ||
-                stateGL->glVersionNOf() >= 3.0)
-                glGenerateMipmap(GL_TEXTURE_2D);
+            glBindTexture(_target, _texID);
+            glDeleteTextures(1, &_texID);
+            SL_LOG("SLGLTexture::build: Deleted: %d, %s",
+                   _texID,
+                   _images[0]->name().c_str());
+            glBindTexture(_target, 0);
+            _texID = 0;
+            totalNumBytesOnGPU -= _bytesOnGPU;
+            _bytesOnGPU = 0;
+        }
+
+        // get max texture size
+        SLint texMaxSize = 0;
+        glGetIntegerv(GL_MAX_TEXTURE_SIZE, &texMaxSize);
+
+        // check if texture has to be resized
+        if (_resizeToPow2)
+        {
+            SLuint w2 = Utils::closestPowerOf2(_images[0]->width());
+            SLuint h2 = Utils::closestPowerOf2(_images[0]->height());
+            if (w2 == 0) SL_EXIT_MSG("Image can not be rescaled: width=0");
+            if (h2 == 0) SL_EXIT_MSG("Image can not be rescaled: height=0");
+            if (w2 != _images[0]->width() || h2 != _images[0]->height())
+                _images[0]->resize((SLint)w2, (SLint)h2);
+        }
+
+        // check 2D size
+        if (_target == GL_TEXTURE_2D)
+        {
+            if (_images[0]->width() > (SLuint)texMaxSize)
+                SL_EXIT_MSG("SLGLTexture::build: Texture width is too big.");
+            if (_images[0]->height() > (SLuint)texMaxSize)
+                SL_EXIT_MSG("SLGLTexture::build: Texture height is too big.");
+        }
+
+        // check 3D size
+        if (_target == GL_TEXTURE_3D)
+        {
+            SLint texMax3DSize = 0;
+            glGetIntegerv(GL_MAX_3D_TEXTURE_SIZE, &texMax3DSize);
+            for (auto img : _images)
+            {
+                if (img->width() > (SLuint)texMax3DSize)
+                    SL_EXIT_MSG("SLGLTexture::build: 3D Texture width is too big.");
+                if (img->height() > (SLuint)texMax3DSize)
+                    SL_EXIT_MSG("SLGLTexture::build: 3D Texture height is too big.");
+                if (img->width() != _images[0]->width() ||
+                    img->height() != _images[0]->height())
+                    SL_EXIT_MSG("SLGLTexture::build: Not all images of the 3D texture have the same size.");
+            }
+        }
+
+        // check cube mapping capability & max. cube map size
+        if (_target == GL_TEXTURE_CUBE_MAP)
+        {
+            SLint texMaxCubeSize;
+            glGetIntegerv(GL_MAX_CUBE_MAP_TEXTURE_SIZE, &texMaxCubeSize);
+            if (_images[0]->width() > (SLuint)texMaxCubeSize)
+                SL_EXIT_MSG("SLGLTexture::build: Cube Texture width is too big.");
+            if (_images.size() != 6)
+                SL_EXIT_MSG("SLGLTexture::build: Not six images provided for cube map texture.");
+        }
+
+        // Generate texture names
+        glGenTextures(1, &_texID);
+
+        SLGLState* stateGL = SLGLState::instance();
+        stateGL->activeTexture(GL_TEXTURE0 + (SLuint)texUnit);
+
+        // create binding and apply texture properties
+        stateGL->bindTexture(_target, _texID);
+
+        // check if anisotropic texture filter extension is available
+        if (maxAnisotropy < 0.0f)
+        {
+            if (stateGL->hasExtension("GL_EXT_texture_filter_anisotropic"))
+                glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &maxAnisotropy);
             else
-                build2DMipmaps(GL_TEXTURE_2D, 0);
-
-            // Mipmaps use 1/3 more memory on GPU
-            _bytesOnGPU = (SLuint)((SLfloat)_bytesOnGPU * 1.333333333f);
-            GET_GL_ERROR;
+            {
+                maxAnisotropy = 0.0f;
+                SL_LOG("GL_EXT_texture_filter_anisotropic not available.\n");
+            }
         }
-
-        numBytesInTextures += _bytesOnGPU;
-    }
-    else if (_target == GL_TEXTURE_3D)
-    {
-        // temporary buffer for 3D image data
-        SLVuchar buffer(_images[0]->bytesPerImage() * _images.size());
-        SLuchar* imageData = &buffer[0];
-
-        // copy each image data into temp. buffer
-        for (CVImage* img : _images)
-        {
-            memcpy(imageData, img->data(), img->bytesPerImage());
-            imageData += img->bytesPerImage();
-            _bytesOnGPU += _images[0]->bytesPerImage();
-        }
-
-        /////////////////////////////////////////////////////
-        glTexImage3D(GL_TEXTURE_3D,
-                     0,              //Mipmap level,
-                     internalFormat, //Internal format
-                     (SLsizei)_images[0]->width(),
-                     (SLsizei)_images[0]->height(),
-                     (SLsizei)_images.size(),
-                     0,                    //Border
-                     _images[0]->format(), //Format
-                     GL_UNSIGNED_BYTE,     //Data type
-                     &buffer[0]);
-        /////////////////////////////////////////////////////
-
-        numBytesInTextures += _bytesOnGPU;
         GET_GL_ERROR;
-    }
-    else if (_target == GL_TEXTURE_CUBE_MAP)
-    {
-        for (SLuint i = 0; i < 6; i++)
-        {
-            //////////////////////////////////////////////
-            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
-                         0,
-                         internalFormat,
-                         (SLsizei)_images[i]->width(),
-                         (SLsizei)_images[i]->height(),
-                         0,
-                         _images[i]->format(),
-                         GL_UNSIGNED_BYTE,
-                         (GLvoid*)_images[i]->data());
-            //////////////////////////////////////////////
 
-            _bytesOnGPU += _images[0]->bytesPerImage();
+        // apply anisotropic or minification filter
+        if (_min_filter > GL_LINEAR_MIPMAP_LINEAR)
+        {
+            SLfloat anisotropy; // = off
+            if (_min_filter == SL_ANISOTROPY_MAX)
+                anisotropy = maxAnisotropy;
+            else
+                anisotropy = std::min((SLfloat)(_min_filter - GL_LINEAR_MIPMAP_LINEAR),
+                                      maxAnisotropy);
+            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, anisotropy);
+        }
+        else
+            glTexParameteri(_target, GL_TEXTURE_MIN_FILTER, _min_filter);
+        GET_GL_ERROR;
+
+        // apply magnification filter only GL_NEAREST & GL_LINEAR is allowed
+        glTexParameteri(_target, GL_TEXTURE_MAG_FILTER, _mag_filter);
+        GET_GL_ERROR;
+
+        // apply texture wrapping modes
+        glTexParameteri(_target, GL_TEXTURE_WRAP_S, _wrap_s);
+        glTexParameteri(_target, GL_TEXTURE_WRAP_T, _wrap_t);
+        glTexParameteri(_target, GL_TEXTURE_WRAP_R, _wrap_t);
+        GET_GL_ERROR;
+
+        // Handle special stupid case on iOS
+        _internalFormat = _images[0]->format();
+        if (_internalFormat == PF_red)
+            _internalFormat = GL_R8;
+
+        // Handle special case for realtime RT
+        if (_images[0]->name() == "Optix Raytracer")
+            _internalFormat = GL_RGB32F;
+
+        // Handle special case for HDR textures
+        if (_texType == TT_hdr)
+            _internalFormat = GL_RGB16F;
+
+        // Build textures
+        if (_target == GL_TEXTURE_2D)
+        {
+            GLenum format = _images[0]->format();
+
+            //////////////////////////////////////////////////////////////
+            glTexImage2D(GL_TEXTURE_2D,
+                         0,
+                         _internalFormat,
+                         (SLsizei)_images[0]->width(),
+                         (SLsizei)_images[0]->height(),
+                         0,
+                         format,
+                         _texType == TT_hdr ? GL_FLOAT : GL_UNSIGNED_BYTE,
+                         (GLvoid*)_images[0]->data());
+            /////////////////////////////////////////////////////////////
+
+            GET_GL_ERROR;
+
+            _bytesOnGPU = _images[0]->bytesPerImage();
+
+            if (_min_filter >= GL_NEAREST_MIPMAP_NEAREST)
+            {
+                if (stateGL->glIsES2() ||
+                    stateGL->glIsES3() ||
+                    stateGL->glVersionNOf() >= 3.0)
+                    glGenerateMipmap(GL_TEXTURE_2D);
+                else
+                    build2DMipmaps(GL_TEXTURE_2D, 0);
+
+                // Mipmaps use 1/3 more memory on GPU
+                _bytesOnGPU = (SLuint)((SLfloat)_bytesOnGPU * 1.333333333f);
+                GET_GL_ERROR;
+            }
+
+            totalNumBytesOnGPU += _bytesOnGPU;
+        }
+        else if (_target == GL_TEXTURE_3D)
+        {
+            // temporary buffer for 3D image data
+            SLVuchar buffer(_images[0]->bytesPerImage() * _images.size());
+            SLuchar* imageData = &buffer[0];
+
+            // copy each image data into temp. buffer
+            for (CVImage* img : _images)
+            {
+                memcpy(imageData, img->data(), img->bytesPerImage());
+                imageData += img->bytesPerImage();
+                _bytesOnGPU += _images[0]->bytesPerImage();
+            }
+
+            /////////////////////////////////////////////////////
+            glTexImage3D(GL_TEXTURE_3D,
+                         0,              //Mipmap level,
+                         _internalFormat, //Internal format
+                         (SLsizei)_images[0]->width(),
+                         (SLsizei)_images[0]->height(),
+                         (SLsizei)_images.size(),
+                         0,                    //Border
+                         _images[0]->format(), //Format
+                         GL_UNSIGNED_BYTE,     //Data type
+                         &buffer[0]);
+            /////////////////////////////////////////////////////
+
+            totalNumBytesOnGPU += _bytesOnGPU;
             GET_GL_ERROR;
         }
-
-        numBytesInTextures += _bytesOnGPU;
-        if (_min_filter >= GL_NEAREST_MIPMAP_NEAREST)
+        else if (_target == GL_TEXTURE_CUBE_MAP)
         {
-            glGenerateMipmap(GL_TEXTURE_2D);
+            for (SLuint i = 0; i < 6; i++)
+            {
+                //////////////////////////////////////////////
+                glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
+                             0,
+                             _internalFormat,
+                             (SLsizei)_images[i]->width(),
+                             (SLsizei)_images[i]->height(),
+                             0,
+                             _images[i]->format(),
+                             GL_UNSIGNED_BYTE,
+                             (GLvoid*)_images[i]->data());
+                //////////////////////////////////////////////
 
-            // Mipmaps use 1/3 more memory on GPU
-            _bytesOnGPU = (SLuint)((SLfloat)_bytesOnGPU * 1.333333333f);
+                _bytesOnGPU += _images[0]->bytesPerImage();
+                GET_GL_ERROR;
+            }
+
+            totalNumBytesOnGPU += _bytesOnGPU;
+            if (_min_filter >= GL_NEAREST_MIPMAP_NEAREST)
+            {
+                glGenerateMipmap(GL_TEXTURE_2D);
+
+                // Mipmaps use 1/3 more memory on GPU
+                _bytesOnGPU = (SLuint)((SLfloat)_bytesOnGPU * 1.333333333f);
+            }
         }
-    }
 
-    // If the images get deleted they only are on the GPU side
-    if (_deleteImageAfterBuild)
-        deleteImages();
+        // If the images get deleted they only are on the GPU side
+        if (_deleteImageAfterBuild)
+            deleteImages();
+    }
 
     // Check if texture name is valid only for debug purpose
     //if (glIsTexture(_texName))
@@ -969,7 +1105,7 @@ void SLGLTexture::fullUpdate()
         // Do not allow MIP-Maps as they are to big
         if (_min_filter == GL_NEAREST || _min_filter == GL_LINEAR)
         {
-            numBytesInTextures -= _bytesOnGPU;
+            totalNumBytesOnGPU -= _bytesOnGPU;
 
             /////////////////////////////////////////////
             glTexSubImage2D(_target,
@@ -984,7 +1120,7 @@ void SLGLTexture::fullUpdate()
             /////////////////////////////////////////////
 
             _bytesOnGPU = _images[0]->bytesPerImage();
-            numBytesInTextures += _bytesOnGPU;
+            totalNumBytesOnGPU += _bytesOnGPU;
         }
         else
             SL_WARN_MSG("Filtering to expensive to full update in SLGLTexture::fullupdate!");
@@ -1562,5 +1698,156 @@ void SLGLTexture::cubeXYZ2UV(SLfloat  x,
     // Convert range from -1 to 1 to 0 to 1
     u = 0.5f * (uc / maxAxis + 1.0f);
     v = -0.5f * (vc / maxAxis + 1.0f);
+}
+#ifdef SL_BUILD_WITH_KTX
+//------------------------------------------------------------------------------
+//! Returns the KTX transcoding compression format as string
+string SLGLTexture::compressionFormatStr(int compressionFormat)
+{
+    switch (compressionFormat)
+    {
+        case KTX_TTF_ETC1_RGB: return "ETC1_RGB";
+        case KTX_TTF_ETC2_RGBA: return "ETC2_RGBA";
+        case KTX_TTF_BC1_RGB: return "BC1_RGB";
+        case KTX_TTF_BC3_RGBA: return "BC3_RGBA";
+        case KTX_TTF_BC4_R: return "BC4_R";
+        case KTX_TTF_BC5_RG: return "BC5_RG";
+        case KTX_TTF_BC7_RGBA: return "BC7_RGBA";
+        case KTX_TTF_PVRTC1_4_RGB: return "PVRTC1_4_RGB";
+        case KTX_TTF_PVRTC1_4_RGBA: return "PVRTC1_4_RGBA";
+        case KTX_TTF_ASTC_4x4_RGBA: return "ASTC_4x4_RGBA";
+        case KTX_TTF_PVRTC2_4_RGB: return "PVRTC2_4_RGB";
+        case KTX_TTF_PVRTC2_4_RGBA: return "PVRTC2_4_RGBA";
+        case KTX_TTF_ETC2_EAC_R11: return "ETC2_EAC_R11";
+        case KTX_TTF_ETC2_EAC_RG11: return "ETC2_EAC_RG11";
+        case KTX_TTF_RGBA32: return "RGBA32";
+        case KTX_TTF_RGB565: return "RGB565";
+        case KTX_TTF_BGR565: return "BGR565";
+        case KTX_TTF_RGBA4444: return "RGBA4444";
+        case KTX_TTF_ETC: return "ETC";
+        case KTX_TTF_BC1_OR_3: return "BC1_OR_3";
+        default: return "NOT_COMPRESSED";
+    }
+}
+//------------------------------------------------------------------------------
+string SLGLTexture::ktxErrorStr(int ktxErrorCode)
+{
+    switch (ktxErrorCode)
+    {
+        case KTX_SUCCESS: return "KTX_SUCCESS";
+        case KTX_FILE_DATA_ERROR: return "KTX_FILE_DATA_ERROR";
+        case KTX_FILE_ISPIPE: return "KTX_FILE_ISPIPE";
+        case KTX_FILE_OPEN_FAILED: return "KTX_FILE_OPEN_FAILED";
+        case KTX_FILE_OVERFLOW: return "KTX_FILE_OVERFLOW";
+        case KTX_FILE_READ_ERROR: return "KTX_FILE_READ_ERROR";
+        case KTX_FILE_SEEK_ERROR: return "KTX_FILE_SEEK_ERROR";
+        case KTX_FILE_UNEXPECTED_EOF: return "KTX_FILE_UNEXPECTED_EOF";
+        case KTX_FILE_WRITE_ERROR: return "KTX_FILE_WRITE_ERROR";
+        case KTX_GL_ERROR: return "KTX_GL_ERROR";
+        case KTX_INVALID_OPERATION: return "KTX_INVALID_OPERATION";
+        case KTX_INVALID_VALUE: return "KTX_INVALID_VALUE";
+        case KTX_NOT_FOUND: return "KTX_NOT_FOUND";
+        case KTX_OUT_OF_MEMORY: return "KTX_OUT_OF_MEMORY";
+        case KTX_TRANSCODE_FAILED: return "KTX_TRANSCODE_FAILED";
+        case KTX_UNKNOWN_FILE_FORMAT: return "KTX_UNKNOWN_FILE_FORMAT";
+        case KTX_UNSUPPORTED_TEXTURE_TYPE: return "KTX_UNSUPPORTED_TEXTURE_TYPE";
+        case KTX_UNSUPPORTED_FEATURE: return "KTX_UNSUPPORTED_FEATURE";
+        case KTX_LIBRARY_NOT_LINKED: return "KTX_LIBRARY_NOT_LINKED";
+        default: "Unknow KTX_ERROR";
+    }
+}
+#endif
+//------------------------------------------------------------------------------
+//! Returns the internal pixel format from OpenGL
+/*!
+ * Taken from https://www.khronos.org/registry/OpenGL-Refpages/gl4/html/glTexImage2D.xhtml
+ */
+string SLGLTexture::internalFormatStr(int internalFormat)
+{
+    switch (internalFormat)
+    {
+        case GL_DEPTH_COMPONENT: return "GL_DEPTH_COMPONENT";
+        case GL_DEPTH_STENCIL: return "GL_DEPTH_STENCIL";
+        case GL_RED: return "GL_RED";
+        case GL_RG: return "GL_RG";
+        case GL_RGB: return "GL_RGB";
+        case GL_RGBA: return "GL_RGBA";
+        case GL_R8: return "GL_R8";
+        case GL_R8_SNORM: return "GL_R8_SNORM";
+        //case GL_R16: return "GL_R16"; // Not available on iOS
+        //case GL_R16_SNORM: return "GL_R16_SNORM";
+        case GL_RG8: return "GL_RG8";
+        case GL_RG8_SNORM: return "GL_RG8_SNORM";
+        //case GL_RG16: return "GL_RG16";
+        //case GL_RG16_SNORM: return "GL_RG16_SNORM";
+        //case GL_R3_G3_B2: return "GL_R3_G3_B2";
+        //case GL_RGB4: return "GL_RGB4";
+        //case GL_RGB5: return "GL_RGB5";
+        //case GL_RGB8: return "GL_RGB8";
+        case GL_RGB8_SNORM: return "GL_RGB8_SNORM";
+        //case GL_RGB10: return "GL_RGB10";
+        //case GL_RGB12: return "GL_RGB12";
+        //case GL_RGB16_SNORM: return "GL_RGB16_SNORM";
+        //case GL_RGBA2: return "GL_RGBA2";
+        //case GL_RGBA4: return "GL_RGBA4";
+        //case GL_RGB5_A1: return "GL_RGB5_A1";
+        case GL_RGBA8: return "GL_RGBA8";
+        case GL_RGBA8_SNORM: return "GL_RGBA8_SNORM";
+        case GL_RGB10_A2: return "GL_RGB10_A2";
+        case GL_RGB10_A2UI: return "GL_RGB10_A2UI";
+        //case GL_RGBA12: return "GL_RGBA12";
+        //case GL_RGBA16: return "GL_RGBA16";
+        case GL_SRGB8: return "GL_SRGB8";
+        case GL_SRGB8_ALPHA8: return "GL_SRGB8_ALPHA8";
+        case GL_R16F: return "GL_R16F";
+        case GL_RG16F: return "GL_RG16F";
+        case GL_RGB16F: return "GL_RGB16F";
+        case GL_RGBA16F: return "GL_RGBA16F";
+        case GL_R32F: return "GL_R32F";
+        case GL_RG32F: return "GL_RG32F";
+        case GL_RGB32F: return "GL_RGB32F";
+        case GL_RGBA32F: return "GL_RGBA32F";
+        case GL_R11F_G11F_B10F: return "GL_R11F_G11F_B10F";
+        case GL_RGB9_E5: return "GL_RGB9_E5";
+        case GL_R8I: return "GL_R8I";
+        case GL_R8UI: return "GL_R8UI";
+        case GL_R16I: return "GL_R16I";
+        case GL_R16UI: return "GL_R16UI";
+        case GL_R32I: return "GL_R32I";
+        case GL_R32UI: return "GL_R32UI";
+        case GL_RG8I: return "GL_RG8I";
+        case GL_RG8UI: return "GL_RG8UI";
+        case GL_RG16I: return "GL_RG16I";
+        case GL_RG16UI: return "GL_RG16UI";
+        case GL_RG32I: return "GL_RG32I";
+        case GL_RG32UI: return "GL_RG32UI";
+        case GL_RGB8I: return "GL_RGB8I";
+        case GL_RGB8UI: return "GL_RGB8UI";
+        case GL_RGB16I: return "GL_RGB16I";
+        case GL_RGB16UI: return "GL_RGB16UI";
+        case GL_RGB32I: return "GL_RGB32I";
+        case GL_RGB32UI: return "GL_RGB32UI";
+        case GL_RGBA8I: return "GL_RGBA8I";
+        case GL_RGBA8UI: return "GL_RGBA8UI";
+        case GL_RGBA16I: return "GL_RGBA16I";
+        case GL_RGBA16UI: return "GL_RGBA16UI";
+        case GL_RGBA32I: return "GL_RGBA32I";
+        case GL_RGBA32UI: return "GL_RGBA32UI";
+        //case GL_COMPRESSED_RED: return "GL_COMPRESSED_RED";
+        //case GL_COMPRESSED_RG: return "GL_COMPRESSED_RG";
+        //case GL_COMPRESSED_RGB: return "GL_COMPRESSED_RGB";
+        //case GL_COMPRESSED_RGBA: return "GL_COMPRESSED_RGBA";
+        //case GL_COMPRESSED_SRGB: return "GL_COMPRESSED_SRGB";
+        //case GL_COMPRESSED_SRGB_ALPHA: return "GL_COMPRESSED_SRGB_ALPHA";
+        //case GL_COMPRESSED_RED_RGTC1: return "GL_COMPRESSED_RED_RGTC1";
+        //case GL_COMPRESSED_SIGNED_RED_RGTC1: return "GL_COMPRESSED_SIGNED_RED_RGTC1";
+        //case GL_COMPRESSED_RG_RGTC2: return "GL_COMPRESSED_RG_RGTC2";
+        //case GL_COMPRESSED_SIGNED_RG_RGTC2: return "GL_COMPRESSED_SIGNED_RG_RGTC2";
+        //case GL_COMPRESSED_RGBA_BPTC_UNORM: return "GL_COMPRESSED_RGBA_BPTC_UNORM";
+        //case GL_COMPRESSED_SRGB_ALPHA_BPTC_UNORM: return "GL_COMPRESSED_SRGB_ALPHA_BPTC_UNORM";
+        //case GL_COMPRESSED_RGB_BPTC_SIGNED_FLOAT: return "GL_COMPRESSED_RGB_BPTC_SIGNED_FLOAT";
+        //case GL_COMPRESSED_RGB_BPTC_UNSIGNED_FLOAT: return "GL_COMPRESSED_RGB_BPTC_UNSIGNED_FLOAT";
+        default: return "Unknown format";
+    }
 }
 //------------------------------------------------------------------------------

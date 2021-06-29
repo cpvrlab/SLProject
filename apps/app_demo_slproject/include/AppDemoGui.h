@@ -20,6 +20,7 @@ class SLSceneView;
 class SLNode;
 class SLGLTexture;
 class SLProjectScene;
+class SLTexColorLUT;
 
 //-----------------------------------------------------------------------------
 //! ImGui UI class for the UI of the demo applications
@@ -36,18 +37,24 @@ public:
     static void clear();
     static void build(SLProjectScene* s, SLSceneView* sv);
     static void buildMenuBar(SLProjectScene* s, SLSceneView* sv);
+    static void buildMenuEdit(SLProjectScene* s, SLSceneView* sv);
+    static void buildMenuContext(SLProjectScene* s, SLSceneView* sv);
     static void buildSceneGraph(SLScene* s);
     static void addSceneGraphNode(SLScene* s, SLNode* node);
     static void buildProperties(SLScene* s, SLSceneView* sv);
     static void loadConfig(SLint dotsPerInch);
     static void saveConfig();
     static void showLUTColors(SLTexColorLUT* lut);
+    static void setActiveNamedLocation(int          locIndex,
+                                       SLSceneView* sv,
+                                       SLVec3f      lookAtPoint = SLVec3f::ZERO);
 
     static SLstring    configTime;          //!< Time of stored configuration
     static SLstring    infoAbout;           //!< About info string
     static SLstring    infoCredits;         //!< Credits info string
     static SLstring    infoHelp;            //!< Help info string
     static SLstring    infoCalibrate;       //!< Calibration info string
+    static SLbool      hideUI;              //!< Flag if menubar should be shown
     static SLbool      showProgress;        //!< Flag if about info should be shown
     static SLbool      showDockSpace;       //!< Flag if dock space should be enabled
     static SLbool      showAbout;           //!< Flag if about info should be shown
@@ -64,7 +71,7 @@ public:
     static SLbool      showInfosScene;      //!< Flag if scene info should be shown
     static SLbool      showSceneGraph;      //!< Flag if scene graph should be shown
     static SLbool      showProperties;      //!< Flag if properties should be shown
-    static SLbool      showChristoffel;     //!< Flag if Christoffel infos should be shown
+    static SLbool      showErlebAR;         //!< Flag if Christoffel infos should be shown
     static SLbool      showUIPrefs;         //!< Flag if UI preferences
     static SLbool      showTransform;       //!< Flag if transform dialog should be shown
     static SLbool      showDateAndTime;     //!< Flag if date-time dialog should be shown

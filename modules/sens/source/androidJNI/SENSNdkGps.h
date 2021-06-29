@@ -8,7 +8,6 @@ class SENSNdkGps : public SENSGps
 {
 public:
     SENSNdkGps() {};
-    void init(bool granted);
 
     bool start() override;
     void stop() override;

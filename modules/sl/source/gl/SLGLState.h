@@ -114,6 +114,7 @@ public:
     void   buildInverseAndNormalMatrix(); //!< build inverse & normal mat. from MV
     void   unbindAnythingAndFlush();      //!< finishes all GL commands
     SLbool pixelFormatIsSupported(SLint pixelFormat);
+    void    readPixels(void* buffer);
 
     // state setters
     void depthTest(SLbool state);

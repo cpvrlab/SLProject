@@ -8,9 +8,10 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
+#include <SLAlgo.h>
 #include <SLDeviceLocation.h>
-#include <spa.h>
 #include <SLImporter.h>
+#include <spa.h>
 
 //-----------------------------------------------------------------------------
 void SLDeviceLocation::init()
@@ -25,8 +26,8 @@ void SLDeviceLocation::init()
     _defaultLatLonAlt.set(0, 0, 0);
     _defaultENU.set(0, 0, 0);
     _originLatLonAlt.set(0, 0, 0);
-    _originECEF.set(0, 0, 0);
     _originENU.set(0, 0, 0);
+    _offsetENU.set(0, 0, 0);
     _originAccuracyM    = FLT_MAX;
     _originSolarZenith  = 45.0f;
     _originSolarAzimuth = 0.0f;
@@ -41,6 +42,9 @@ void SLDeviceLocation::init()
     _altDemM           = 0.0f;
     _altGpsM           = 0.0f;
     _cameraHeightM     = 1.6f;
+    _offsetMode        = LOM_none;
+    _nameLocations.clear();
+    _activeNamedLocation = -1;
 }
 //-----------------------------------------------------------------------------
 // Setter for hasOrigin flag.
@@ -117,12 +121,36 @@ void SLDeviceLocation::onLocationLatLonAlt(SLdouble latDEG,
     _locENU = _wRecef * _locECEF;
 }
 //-----------------------------------------------------------------------------
+//! Origin coordinate setter in WGS84 Lat-Lon in degrees, minutes and seconds
+/* Swisstopo coordinates at https://map.geo.admin.ch in degrees, minutes and
+ * seconds are preciser than their decimal degrees.
+ */
+void SLDeviceLocation::originLatLonAlt(int    degreesLat,
+                                       int    minutesLat,
+                                       double secondsLat,
+                                       int    degreesLon,
+                                       int    minutesLon,
+                                       double secondsLon,
+                                       double altitudeM)
+{
+    SLVec3d originWGS84Decimal = SLAlgo::geoDegMinSec2Decimal(degreesLat,
+                                                              minutesLat,
+                                                              secondsLat,
+                                                              degreesLon,
+                                                              minutesLon,
+                                                              secondsLon,
+                                                              altitudeM);
+    originLatLonAlt(originWGS84Decimal.lat,
+                    originWGS84Decimal.lon,
+                    originWGS84Decimal.alt);
+}
+//-----------------------------------------------------------------------------
 //! Set global origin in latitude, longitude and altitude at the ground level.
 /*! The calculated values can be used for global camera positioning via GPS
  sensor. The origin is the zero point of the model. The origin should be defined
  in the model on the ground.
- /param latDEG Latitude (vertical) on WGS84 geoid in degrees
- /param lonDEG Longitude (horizontal) on WGS84 geoid in degrees
+ /param latDEG Latitude (vertical) on WGS84 geoid in decimal degrees
+ /param lonDEG Longitude (horizontal) on WGS84 geoid in decimal degrees
  /param altM Altitude over WGS84 geoid in meters
 */
 void SLDeviceLocation::originLatLonAlt(SLdouble latDEG,
@@ -130,7 +158,8 @@ void SLDeviceLocation::originLatLonAlt(SLdouble latDEG,
                                        SLdouble altM)
 {
     _originLatLonAlt = SLVec3d(latDEG, lonDEG, altM);
-    _originECEF.latlonAlt2ecef(_originLatLonAlt);
+    SLVec3d originECEF;
+    originECEF.latlonAlt2ecef(_originLatLonAlt);
 
     // calculation of ECEF to world (scene) rotation matrix
     // definition of rotation matrix for ECEF to world frame rotation:
@@ -158,12 +187,36 @@ void SLDeviceLocation::originLatLonAlt(SLdouble latDEG,
 
     // ECEF w.r.t. world frame (scene)
     _wRecef    = wRenu * enuRecef;
-    _originENU = _wRecef * _originECEF;
+    _originENU = _wRecef * originECEF;
 
     // Indicate that origin is set. Otherwise it would be reset on each update
     _hasOrigin = true;
 
     calculateSolarAngles(_originLatLonAlt, std::time(nullptr));
+}
+//-----------------------------------------------------------------------------
+//! Default coordinate setter in WGS84 Lat-Lon in degrees, minutes and seconds
+/* Swisstopo coordinates at https://map.geo.admin.ch in degrees, minutes and
+ * seconds are preciser than their decimal degrees.
+ */
+void SLDeviceLocation::defaultLatLonAlt(int    degreesLat,
+                                        int    minutesLat,
+                                        double secondsLat,
+                                        int    degreesLon,
+                                        int    minutesLon,
+                                        double secondsLon,
+                                        double altitudeM)
+{
+    SLVec3d defaultWGS84Decimal = SLAlgo::geoDegMinSec2Decimal(degreesLat,
+                                                               minutesLat,
+                                                               secondsLat,
+                                                               degreesLon,
+                                                               minutesLon,
+                                                               secondsLon,
+                                                               altitudeM);
+    defaultLatLonAlt(defaultWGS84Decimal.lat,
+                     defaultWGS84Decimal.lon,
+                     defaultWGS84Decimal.alt);
 }
 //-----------------------------------------------------------------------------
 //! Sets the default location in latitude, longitude and altitude.
@@ -301,6 +354,22 @@ SLbool SLDeviceLocation::calculateSolarAngles(SLVec3d     locationLatLonAlt,
     return (result == 0);
 }
 //------------------------------------------------------------------------------
+//! Converter method: the transferred wgs84 coordinate is converted to ENU frame and returned (does not change SLDeviceLocation)
+SLVec3d SLDeviceLocation::convertLatLonAlt2ENU(SLVec3d locLatLonAlt) const
+{
+    if (geoTiffIsAvailableAndValid() && posIsOnGeoTiff(locLatLonAlt.x, locLatLonAlt.y))
+        locLatLonAlt.z = _demGeoTiff.getAltitudeAtLatLon(locLatLonAlt.x, locLatLonAlt.y);
+    
+    // Convert to cartesian ECEF coordinates
+    SLVec3d locECEF;
+    locECEF.latlonAlt2ecef(locLatLonAlt);
+
+    // Transform to local east-north-up frame
+    SLVec3d locENU = _wRecef * locECEF;
+    
+    return locENU;
+}
+//------------------------------------------------------------------------------
 //! Loads a GeoTiff DEM (Digital Elevation Model) Image
 /* Loads a GeoTiff DEM (Digital Elevation Model) Image that must be in WGS84
  coordinates. For more info see CVImageGeoTiff.
@@ -351,11 +420,11 @@ void SLDeviceLocation::loadGeoTiff(const SLstring& geoTiffFile)
         SL_WARN_MSG("SLDeviceLocation::loadGeoTiff: Unknown exception catched.");
     }
 }
-//------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 /* Returns true if a geoTiff files is loaded and the origin and default
  positions are within the extends of the image.
 */
-bool SLDeviceLocation::geoTiffIsAvailableAndValid()
+bool SLDeviceLocation::geoTiffIsAvailableAndValid() const
 {
     return (!_demGeoTiff.cvMat().empty() &&
             _originLatLonAlt.lat < _demGeoTiff.upperLeftLatLonAlt()[0] &&
@@ -367,8 +436,9 @@ bool SLDeviceLocation::geoTiffIsAvailableAndValid()
             _defaultLatLonAlt.lon > _demGeoTiff.upperLeftLatLonAlt()[1] &&
             _defaultLatLonAlt.lon < _demGeoTiff.lowerRightLatLonAlt()[1]);
 }
-//------------------------------------------------------------------------------
-bool SLDeviceLocation::posIsOnGeoTiff(SLdouble latDEG, SLdouble lonDEG)
+//-----------------------------------------------------------------------------
+//! Return true if the current GPS location is within the GeoTiff boundaries
+bool SLDeviceLocation::posIsOnGeoTiff(SLdouble latDEG, SLdouble lonDEG) const
 {
     return (!_demGeoTiff.empty() &&
             latDEG < _demGeoTiff.upperLeftLatLonAlt()[0] &&
@@ -376,3 +446,15 @@ bool SLDeviceLocation::posIsOnGeoTiff(SLdouble latDEG, SLdouble lonDEG)
             lonDEG > _demGeoTiff.upperLeftLatLonAlt()[1] &&
             lonDEG < _demGeoTiff.lowerRightLatLonAlt()[1]);
 }
+//------------------------------------------------------------------------------
+//! Returns the device location offset mode as string
+SLstring SLDeviceLocation::offsetModeStr() const
+{
+    switch (_offsetMode)
+    {
+        case LOM_none: return "None";
+        case LOM_twoFingerY: return "TwoFingerY";
+        default: return "Unknown";
+    }
+}
+//-----------------------------------------------------------------------------

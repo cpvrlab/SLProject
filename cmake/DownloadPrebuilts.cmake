@@ -163,6 +163,22 @@ if("${SYSTEM_NAME_UPPER}" STREQUAL "LINUX")
     set(glfw_INCLUDE_DIR ${glfw_DIR}/include)
     set(glfw_LINK_DIR ${glfw_DIR}/${CMAKE_BUILD_TYPE})
     set(glfw_LIBS glfw3)
+    
+    ####################
+    # ktx for Linux    #
+    ####################
+    
+    set(ktx_VERSION "v4.0.0-beta7")
+    set(ktx_DIR ${PREBUILT_PATH}/linux_ktx_${ktx_VERSION})
+    add_library(KTX::ktx SHARED IMPORTED)
+    set_target_properties(KTX::ktx
+        PROPERTIES
+        IMPORTED_LOCATION "${ktx_DIR}/release/libktx.so"
+        INTERFACE_INCLUDE_DIRECTORIES "${ktx_DIR}/include"
+        )
+        #IMPORTED_LOCATION_<CONFIG> does not seem to work on linux???!!
+
+    set(ktx_LIBS KTX::ktx)
 
 elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #---------------------------------------------------------------------
 
@@ -351,6 +367,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #-----------------------------
     set_target_properties(ssl PROPERTIES
         IMPORTED_LOCATION "${openssl_LINK_DIR}/libssl_static.lib"
     )
+    set(openssl_LIBS ssl crypto)
 
     ######################
     # Vulkan for Windows #
@@ -424,6 +441,40 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #-----------------------------
         file(COPY ${glfw_LINK_DIR}/glfw3.dll DESTINATION ${CMAKE_BINARY_DIR}/RelWithDebInfo)
     endif()
 
+    #######################
+    # ktx for windows     #
+    #######################
+	
+	set(ktx_VERSION "v4.0.0-beta7")
+    set(ktx_DIR ${PREBUILT_PATH}/win64_ktx_${ktx_VERSION})
+    set(ktx_PREBUILT_ZIP "win64_ktx_${ktx_VERSION}.zip")
+    set(ktx_URL ${PREBUILT_URL}/${ktx_PREBUILT_ZIP})
+
+    if (NOT EXISTS "${ktx_DIR}")
+        message(STATUS "Downloading: ${ktx_PREBUILT_ZIP}")
+        file(DOWNLOAD "${ktx_URL}" "${PREBUILT_PATH}/${ktx_PREBUILT_ZIP}")
+        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
+                "${PREBUILT_PATH}/${ktx_PREBUILT_ZIP}"
+                WORKING_DIRECTORY "${PREBUILT_PATH}")
+        file(REMOVE "${PREBUILT_PATH}/${ktx_PREBUILT_ZIP}")
+    endif()
+
+    add_library(KTX::ktx SHARED IMPORTED)
+    set_target_properties(KTX::ktx
+        PROPERTIES
+        IMPORTED_IMPLIB "${ktx_DIR}/release/ktx.lib"
+        IMPORTED_LOCATION "${ktx_DIR}/release/ktx.dll"
+        INTERFACE_INCLUDE_DIRECTORIES "${ktx_DIR}/include"
+        )
+
+    set(ktx_LIBS KTX::ktx)
+	
+    if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "MSVC")
+        file(COPY ${ktx_DIR}/release/ktx.dll DESTINATION ${CMAKE_BINARY_DIR}/Debug)
+        file(COPY ${ktx_DIR}/release/ktx.dll DESTINATION ${CMAKE_BINARY_DIR}/Release)
+        file(COPY ${ktx_DIR}/release/ktx.dll DESTINATION ${CMAKE_BINARY_DIR}/RelWithDebInfo)
+    endif()
+	
 elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN" AND
         "${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "x86_64") #----------------------------------------------------------------
 
@@ -436,9 +487,10 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN" AND
     ###########################
 
     # Now download for MacOS
-    #set(OpenCV_VERSION "4.1.1")
 	#set(OpenCV_VERSION "3.4.1")
-    set(OpenCV_VERSION "4.5.0")
+    #set(OpenCV_VERSION "4.1.1")
+    #set(OpenCV_VERSION "4.5.0")
+    set(OpenCV_VERSION "4.5.2")
     set(OpenCV_PREBUILT_DIR "mac64_opencv_${OpenCV_VERSION}")
     set(OpenCV_DIR "${PREBUILT_PATH}/${OpenCV_PREBUILT_DIR}")
     set(OpenCV_INCLUDE_DIR "${OpenCV_DIR}/include")
@@ -689,6 +741,33 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN" AND
 	    endif()
 	endif()
 
+    ########################
+    # ktx for MacOS-x86_64 #
+    ########################
+    set(ktx_VERSION "v4.0.0-beta7-cpvr")
+    set(ktx_DIR ${PREBUILT_PATH}/mac64_ktx_${ktx_VERSION})
+    set(ktx_PREBUILT_ZIP "mac64_ktx_${ktx_VERSION}.zip")
+    set(ktx_URL ${PREBUILT_URL}/${ktx_PREBUILT_ZIP})
+
+    if (NOT EXISTS "${ktx_DIR}")
+        message(STATUS "Downloading: ${ktx_PREBUILT_ZIP}")
+        file(DOWNLOAD "${ktx_URL}" "${PREBUILT_PATH}/${ktx_PREBUILT_ZIP}")
+        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
+                "${PREBUILT_PATH}/${ktx_PREBUILT_ZIP}"
+                WORKING_DIRECTORY "${PREBUILT_PATH}")
+        file(REMOVE "${PREBUILT_PATH}/${ktx_PREBUILT_ZIP}")
+    endif()
+
+    add_library(KTX::ktx SHARED IMPORTED)
+    set_target_properties(KTX::ktx
+        PROPERTIES
+        IMPORTED_LOCATION_RELEASE "${ktx_DIR}/release/libktx.dylib"
+        IMPORTED_LOCATION_DEBUG "${ktx_DIR}/debug/libktx.dylib"
+        INTERFACE_INCLUDE_DIRECTORIES "${ktx_DIR}/include"
+        )
+
+    set(ktx_LIBS KTX::ktx)
+
     ############################
     # openssl for MacOS-x86_64 #
     ############################
@@ -738,7 +817,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN" AND
     ##########################
 
     # Now download for MacOS-arm64
-    set(OpenCV_VERSION "4.5.0")
+    set(OpenCV_VERSION "4.5.2")
     set(OpenCV_PREBUILT_DIR "macArm64_opencv_${OpenCV_VERSION}")
     set(OpenCV_DIR "${PREBUILT_PATH}/${OpenCV_PREBUILT_DIR}")
     set(OpenCV_INCLUDE_DIR "${OpenCV_DIR}/include")
@@ -974,6 +1053,34 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN" AND
         endif()
     endif()
 
+
+    #######################
+    # ktx for MacOS-arm64 #
+    #######################
+    set(ktx_VERSION "v4.0.0-beta7-cpvr")
+    set(ktx_DIR ${PREBUILT_PATH}/macArm64_ktx_${ktx_VERSION})
+    set(ktx_PREBUILT_ZIP "macArm64_ktx_${ktx_VERSION}.zip")
+    set(ktx_URL ${PREBUILT_URL}/${ktx_PREBUILT_ZIP})
+
+    if (NOT EXISTS "${ktx_DIR}")
+        message(STATUS "Downloading: ${ktx_PREBUILT_ZIP}")
+        file(DOWNLOAD "${ktx_URL}" "${PREBUILT_PATH}/${ktx_PREBUILT_ZIP}")
+        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
+                "${PREBUILT_PATH}/${ktx_PREBUILT_ZIP}"
+                WORKING_DIRECTORY "${PREBUILT_PATH}")
+        file(REMOVE "${PREBUILT_PATH}/${ktx_PREBUILT_ZIP}")
+    endif()
+
+    add_library(KTX::ktx SHARED IMPORTED)
+    set_target_properties(KTX::ktx
+            PROPERTIES
+            IMPORTED_LOCATION_RELEASE "${ktx_DIR}/release/libktx.dylib"
+            IMPORTED_LOCATION_DEBUG "${ktx_DIR}/debug/libktx.dylib"
+            INTERFACE_INCLUDE_DIRECTORIES "${ktx_DIR}/include"
+            )
+
+    set(ktx_LIBS KTX::ktx)
+
 elseif("${SYSTEM_NAME_UPPER}" STREQUAL "IOS") #-------------------------------------------------------------------------
 
     message(STATUS "Configure prebuilts for iOS_arm64 -------------------------------------")
@@ -1150,6 +1257,40 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "IOS") #---------------------------------
                 )
     endforeach(lib)
 
+    ###################
+    # ktx for iOS     #
+    ###################
+    set(ktx_VERSION "v4.0.0-beta7-cpvr")
+    set(ktx_DIR ${PREBUILT_PATH}/iosV8_ktx_${ktx_VERSION})
+    set(ktx_PREBUILT_ZIP "iosV8_ktx_${ktx_VERSION}.zip")
+    set(ktx_URL ${PREBUILT_URL}/${ktx_PREBUILT_ZIP})
+
+    if (NOT EXISTS "${ktx_DIR}")
+        message(STATUS "Downloading: ${ktx_PREBUILT_ZIP}")
+        file(DOWNLOAD "${ktx_URL}" "${PREBUILT_PATH}/${ktx_PREBUILT_ZIP}")
+        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
+                "${PREBUILT_PATH}/${ktx_PREBUILT_ZIP}"
+                WORKING_DIRECTORY "${PREBUILT_PATH}")
+        file(REMOVE "${PREBUILT_PATH}/${ktx_PREBUILT_ZIP}")
+    endif()
+
+    add_library(KTX::ktx STATIC IMPORTED)
+    set_target_properties(KTX::ktx
+        PROPERTIES
+        IMPORTED_LOCATION_DEBUG "${ktx_DIR}/debug/libktx.a"
+        IMPORTED_LOCATION_RELEASE "${ktx_DIR}/release/libktx.a"
+        INTERFACE_INCLUDE_DIRECTORIES "${ktx_DIR}/include"
+        )
+
+    add_library(KTX::zstd STATIC IMPORTED)
+    set_target_properties(KTX::zstd
+        PROPERTIES
+        IMPORTED_LOCATION_DEBUG "${ktx_DIR}/debug/libzstd.a"
+        IMPORTED_LOCATION_RELEASE "${ktx_DIR}/release/libzstd.a"
+        )
+
+    set(ktx_LIBS KTX::ktx KTX::zstd)
+
 elseif("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID") #---------------------------------------------------------------------
 
     ######################
@@ -1255,7 +1396,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID") #-----------------------------
     set(assimp_PREBUILT_DIR "andV8_assimp_${assimp_VERSION}")
     set(assimp_DIR ${PREBUILT_PATH}/${assimp_PREBUILT_DIR})
     set(assimp_INCLUDE_DIR ${assimp_DIR}/include)
-    set(assimp_LINK_DIR ${assimp_DIR}/${CMAKE_BUILD_TYPE}/${ANDROID_ABI})  #don't forget to add the this link dir down at the bottom
+    set(assimp_LINK_DIR ${assimp_DIR}/Release/${ANDROID_ABI})  #don't forget to add the this link dir down at the bottom
     set(assimp_PREBUILT_ZIP "${assimp_PREBUILT_DIR}.zip")
 
     if (NOT EXISTS "${assimp_DIR}")
@@ -1266,16 +1407,25 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID") #-----------------------------
         file(REMOVE "${PREBUILT_PATH}/${assimp_PREBUILT_ZIP}")
     endif ()
 
-    foreach(lib ${assimp_LINK_LIBS})
-        add_library(lib_${lib} STATIC IMPORTED)
-        set_target_properties(lib_${lib} PROPERTIES
-            IMPORTED_LOCATION "${assimp_LINK_DIR}/lib${lib}.a"
-        )
-        set(assimp_LIBS
-            ${assimp_LIBS}
-            lib_${lib}
-        )
-    endforeach(lib)
+    #foreach(lib ${assimp_LINK_LIBS})
+        #add_library(lib_${lib} STATIC IMPORTED)
+        ##set_target_properties(lib_${lib} PROPERTIES
+        #    IMPORTED_LOCATION "${assimp_LINK_DIR}/lib${lib}.a"
+        #)
+        #set(assimp_LIBS
+        #    ${assimp_LIBS}
+        #    lib_${lib}
+        #)
+    #endforeach(lib)
+    add_library(ASSIMP::assimp SHARED IMPORTED)
+    set_target_properties(ASSIMP::assimp PROPERTIES
+        IMPORTED_LOCATION "${assimp_LINK_DIR}/libassimp.so"
+        INTERFACE_INCLUDE_DIRECTORIES "${assimp_INCLUDE_DIR}"
+    )
+    set(assimp_LIBS
+        ${assimp_LIBS}
+        ASSIMP::assimp
+    )
 
     #######################
     # openssl for Android #
@@ -1307,6 +1457,34 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "ANDROID") #-----------------------------
     set_target_properties(ssl PROPERTIES
         IMPORTED_LOCATION "${openssl_LINK_DIR}/libssl.a"
     )
+    set(openssl_LIBS ssl crypto)
+
+    ########################
+    # ktx for Android      #
+    ########################
+    set(ktx_VERSION "v4.0.0-beta7-cpvr")
+    set(ktx_DIR ${PREBUILT_PATH}/andV8_ktx_${ktx_VERSION})
+    set(ktx_PREBUILT_ZIP "andV8_ktx_${ktx_VERSION}.zip")
+    set(ktx_URL ${PREBUILT_URL}/${ktx_PREBUILT_ZIP})
+
+    if (NOT EXISTS "${ktx_DIR}")
+        message(STATUS "Downloading: ${ktx_PREBUILT_ZIP}")
+        file(DOWNLOAD "${ktx_URL}" "${PREBUILT_PATH}/${ktx_PREBUILT_ZIP}")
+        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
+                "${PREBUILT_PATH}/${ktx_PREBUILT_ZIP}"
+                WORKING_DIRECTORY "${PREBUILT_PATH}")
+        file(REMOVE "${PREBUILT_PATH}/${ktx_PREBUILT_ZIP}")
+    endif()
+
+    add_library(KTX::ktx SHARED IMPORTED)
+    set_target_properties(KTX::ktx
+        PROPERTIES
+        IMPORTED_LOCATION_RELEASE "${ktx_DIR}/release/libktx.so"
+        IMPORTED_LOCATION_DEBUG "${ktx_DIR}/debug/libktx.so"
+        INTERFACE_INCLUDE_DIRECTORIES "${ktx_DIR}/include"
+        )
+
+    set(ktx_LIBS KTX::ktx)
 
 endif()
 #==============================================================================

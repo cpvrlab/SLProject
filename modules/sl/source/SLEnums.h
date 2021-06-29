@@ -95,6 +95,9 @@ enum SLSceneID
     SID_Revolver,
     SID_TextureFilter,
     SID_TextureBlend,
+#ifdef SL_BUILD_WITH_KTX
+    SID_TextureCompression,
+#endif
     SID_FrustumCull,
     SID_2Dand3DText,
     SID_PointClouds,
@@ -165,15 +168,15 @@ enum SLSceneID
     SID_Benchmark2_MassiveNodes,
     SID_Benchmark3_NodeAnimations,
     SID_Benchmark4_SkinnedAnimations,
+    SID_Benchmark4_LOD,
 
     SID_ErlebARBielBFH,
     SID_ErlebARChristoffel,
     SID_ErlebARAugustaRauricaTmp,
     SID_ErlebARAugustaRauricaTht,
     SID_ErlebARAugustaRauricaTmpTht,
-    SID_ErlebARAventicumAmphiAO,
+    SID_ErlebARAventicumAmphiteatre,
     SID_ErlebARAventicumCigognier,
-    SID_ErlebARAventicumCigognierAO,
     SID_ErlebARAventicumTheatre,
     SID_ErlebARSutzKirchrain18,
     SID_ErlebAREvilardCheminDuRoc2,

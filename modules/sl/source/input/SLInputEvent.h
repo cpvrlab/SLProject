@@ -32,7 +32,6 @@ class SLInputEvent
         MouseUp,
         MouseDoubleClick,
         MouseWheel,
-        LongTouch,
         Touch2Move,
         Touch2Down,
         Touch2Up,
@@ -43,6 +42,7 @@ class SLInputEvent
         DeviceRotationPYR,
         DeviceRotationQUAT,
         CharInput,
+        ScrCapture,
         NumEvents
     } type;        //!< concrete type of the event
     SLint svIndex; //!< index of the receiving scene view for this event
@@ -131,6 +131,16 @@ class SLCharInputEvent : public SLInputEvent
     SLuint character;
 
     SLCharInputEvent() : SLInputEvent(CharInput) {}
+};
+
+//-----------------------------------------------------------------------------
+//! Specialized SLInput class to trigger a screen capture
+class SLScrCaptureRequestEvent : public SLInputEvent
+{
+    public:
+    SLstring path;
+
+    SLScrCaptureRequestEvent() : SLInputEvent(ScrCapture) {}
 };
 
 //-----------------------------------------------------------------------------
