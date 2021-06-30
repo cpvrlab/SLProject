@@ -3,6 +3,7 @@
 
 #include <opencv2/core.hpp>
 #include <SENS.h>
+#include <memory>
 
 //Camera frame obeject
 struct SENSFrameBase
@@ -18,13 +19,13 @@ struct SENSFrameBase
 
     cv::Mat imgBGR;
     cv::Mat intrinsics;
-    int width;
-    int height;
+    int     width;
+    int     height;
 
     const SENSTimePt timePt;
 };
-
-typedef std::shared_ptr<SENSFrameBase> SENSFrameBasePtr;
+using SENSFrameBasePtr = std::shared_ptr<SENSFrameBase>;
+//typedef std::shared_ptr<SENSFrameBase> SENSFrameBasePtr;
 
 struct SENSFrame
 {
@@ -66,9 +67,10 @@ struct SENSFrame
     const float scaleToManip;
 
     cv::Mat intrinsics;
-    int width;
-    int height;
+    int     width;
+    int     height;
 };
-typedef std::shared_ptr<SENSFrame> SENSFramePtr;
+using SENSFramePtr = std::shared_ptr<SENSFrame>;
+//typedef std::shared_ptr<SENSFrame> SENSFramePtr;
 
 #endif //SENS_FRAME_H
