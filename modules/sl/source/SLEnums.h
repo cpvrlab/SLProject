@@ -169,6 +169,7 @@ enum SLSceneID
     SID_Benchmark3_NodeAnimations,
     SID_Benchmark4_SkinnedAnimations,
     SID_Benchmark5_LOD,
+    SID_Benchmark6_LOD,
 
     SID_ErlebARBielBFH,
     SID_ErlebARChristoffel,

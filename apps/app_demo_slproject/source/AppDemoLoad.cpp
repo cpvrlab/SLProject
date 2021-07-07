@@ -5651,7 +5651,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(cam1);
         s->root3D(scene);
     }
-    else if (sceneID == SID_Benchmark5_LOD)
+    else if (sceneID == SID_Benchmark5_LOD) //.....................................................
     {
         SLchar name[512];
         sprintf(name, "Lots of roman pillars as an LOD test scene");
@@ -5713,16 +5713,104 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                 SLNodeLOD* lod_group = new SLNodeLOD();
                 lod_group->rotate(90, -1, 0, 0);
                 lod_group->translate(x, z, 0, TS_object);
-                lod_group->addLODChild(lod_3, 0.0f, 0.1f);
-                lod_group->addLODChild(lod_2, 0.1f, 0.3f);
-                lod_group->addLODChild(lod_1, 0.3f, 0.5f);
-                lod_group->addLODChild(lod_0, 0.5f, 1.0f);
+                lod_group->addChildLOD(lod_3, 0.0f, 0.1f);
+                lod_group->addChildLOD(lod_2, 0.1f, 0.3f);
+                lod_group->addChildLOD(lod_1, 0.3f, 0.5f);
+                lod_group->addChildLOD(lod_0, 0.5f, 1.0f);
                 scene->addChild(lod_group);
                 x += offset;
             }
             z -= offset;
         }
-        
+
+        // Set active camera & the root pointer
+        sv->camera(cam1);
+        s->root3D(scene);
+    }
+    else if (sceneID == SID_Benchmark6_LOD) //.....................................................
+    {
+        SLchar name[512];
+        sprintf(name, "Lots of Corinthian Columns in LODs");
+        s->name(name);
+        s->info(s->name());
+
+        // Create materials
+        SLMaterial* m1 = new SLMaterial(s, "m1", SLCol4f::GRAY);
+        m1->specular(SLCol4f::BLACK);
+
+        // Define a light
+        SLLightSpot* light1 = new SLLightSpot(s, s, 100, 40, 100, 1);
+        light1->powers(0.1f, 1.0f, 1.0f);
+        light1->attenuation(1, 0, 0);
+
+        // Define camera
+        SLCamera* cam1 = new SLCamera;
+        cam1->translation(0, 1.7f, 10);
+        cam1->lookAt(0, 1.7f, 0);
+        cam1->focalDist(cam1->translationOS().length());
+        cam1->background().colors(SLCol4f(0.1f, 0.4f, 0.8f));
+        cam1->setInitialState();
+        cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
+
+        // Floor rectangle
+        SLNode* rect = new SLNode(new SLRectangle(s,
+                                                  SLVec2f(-200, -200),
+                                                  SLVec2f(200, 200),
+                                                  SLVec2f(0, 0),
+                                                  SLVec2f(50, 50),
+                                                  50,
+                                                  50,
+                                                  "Floor",
+                                                  m1));
+        rect->rotate(90, -1, 0, 0);
+
+        // Load the corinthian column
+        SLAssimpImporter importer;
+        SLNode*          column = importer.load(s->animManager(),
+                                                s,
+                                                dataPath + "models/GLTF/CorinthianColumn/Corinthian-Column-Round-LOD.gltf",
+                                                texPath,
+                                                true,    // delete tex images after build
+                                                true,    // only meshes
+                                                nullptr, // no replacement material
+                                                0.4f);   // 40% ambient reflection
+
+        // Assemble scene
+        SLNode* scene = new SLNode("scene group");
+        scene->addChild(light1);
+        scene->addChild(rect);
+        scene->addChild(column);
+        scene->addChild(cam1);
+
+        // create loads of pillars
+        SLint   size       = 20;
+        SLint   numPillars = size * size;
+        SLfloat offset     = 4.0f;
+        SLfloat z          = (float)(size - 1) * offset * 0.5f;
+
+        for (SLint iZ = 0; iZ < size; ++iZ)
+        {
+            SLfloat x = -(float)(size - 1) * offset * 0.5f;
+
+            for (SLint iX = 0; iX < size; ++iX)
+            {
+                SLNode*    lod_0     = new SLNode(new SLCylinder(s, 1.0f, 7, 3, 16, true, true, "lod 0", m1));
+                SLNode*    lod_1     = new SLNode(new SLCylinder(s, 1.0f, 7, 3, 8, true, true, "lod 1", m1));
+                SLNode*    lod_2     = new SLNode(new SLCylinder(s, 1.0f, 7, 3, 4, true, true, "lod 2", m1));
+                SLNode*    lod_3     = new SLNode();
+                SLNodeLOD* lod_group = new SLNodeLOD();
+                lod_group->rotate(90, -1, 0, 0);
+                lod_group->translate(x, z, 0, TS_object);
+                lod_group->addChildLOD(lod_3, 0.0f, 0.1f);
+                lod_group->addChildLOD(lod_2, 0.1f, 0.3f);
+                lod_group->addChildLOD(lod_1, 0.3f, 0.5f);
+                lod_group->addChildLOD(lod_0, 0.5f, 1.0f);
+                scene->addChild(lod_group);
+                x += offset;
+            }
+            z -= offset;
+        }
+
         // Set active camera & the root pointer
         sv->camera(cam1);
         s->root3D(scene);

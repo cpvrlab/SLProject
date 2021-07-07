@@ -33,6 +33,7 @@ data/models/PLY/xyzrgb_dragon.ply
 data/models/DAE/Aventicum
 data/models/GLTF/Aventicum
 data/models/GLTF/AugustaRaurica
+data/models/GLTF/CorinthianColumn
 data/images/sequences/rgbd_dataset_
 data/images/sequences/rgbd_dataset_freiburg1_desk
 data/calibrations/orb-slam-state-*
