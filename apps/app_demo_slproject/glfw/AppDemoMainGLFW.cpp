@@ -538,6 +538,7 @@ void initSL(SLVstring& cmdLineArgs)
                         configDir,
                         "AppDemoGLFW",
                         (void*)appDemoLoadScene);
+    /////////////////////////////////////////////////////////
 
     /////////////////////////////////////////////////////////
     slCreateSceneView(AppDemo::scene,

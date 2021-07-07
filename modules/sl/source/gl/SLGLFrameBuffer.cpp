@@ -24,7 +24,6 @@ SLGLFrameBuffer::SLGLFrameBuffer(SLsizei rboWidth,
     _prevFboId = 0;
     _rboWidth  = rboWidth;
     _rboHeight = rboHeight;
-    generate();
 }
 //-----------------------------------------------------------------------------
 //! clear delete buffers and respectively adjust the stats variables

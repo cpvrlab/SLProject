@@ -253,7 +253,7 @@ void SLGLConetracer::voxelSpaceTransform(const SLfloat l,
                                      0,1/(t-b),      0,-b/(t-b),
                                      0,      0,1/(f-n),-n/(f-n),
                                      0,      0,      0,      1);
-    //clang-format on
+    // clang-format on
 }
 //-----------------------------------------------------------------------------
 void SLGLConetracer::calcWS2VoxelSpaceTransform(const SLVec3f& minWs,
