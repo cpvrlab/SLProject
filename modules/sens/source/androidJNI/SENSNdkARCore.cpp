@@ -10,14 +10,14 @@ SENSNdkARCore::SENSNdkARCore(JavaVM* jvm, JNIEnv* env, jobject context, jobject 
 {
     checkAvailability(env, context, activity);
     _arSession = nullptr;
-    _jvm = jvm;
+    _jvm       = jvm;
 
-    _appName = appName;
+    _appName     = appName;
     _writableDir = writableDir;
 }
 /*------------------------------------------------------------------------------------------*/
 
-bool SENSNdkARCore::checkAvailability(JNIEnv* env, void* context, void * activity)
+bool SENSNdkARCore::checkAvailability(JNIEnv* env, void* context, void* activity)
 {
     ArAvailability availability;
     ArCoreApk_checkAvailability(env, context, &availability);
@@ -28,7 +28,7 @@ bool SENSNdkARCore::checkAvailability(JNIEnv* env, void* context, void * activit
         checkAvailability(env, context, activity);
     }
     else if (availability == AR_AVAILABILITY_SUPPORTED_NOT_INSTALLED ||
-             availability == AR_AVAILABILITY_SUPPORTED_APK_TOO_OLD   ||
+             availability == AR_AVAILABILITY_SUPPORTED_APK_TOO_OLD ||
              availability == AR_AVAILABILITY_SUPPORTED_INSTALLED)
     {
         return true;
@@ -41,8 +41,8 @@ bool SENSNdkARCore::isAvailable()
     JNIEnv* env;
     _jvm->GetEnv((void**)&env, JNI_VERSION_1_6);
     std::string className = "ch/cpvr/" + _appName + "/GLES3Lib";
-    jclass clazz = env->FindClass(className.c_str());
-    jmethodID methodid = env->GetStaticMethodID(clazz, "checkARAvailability", "()Z");
+    jclass      clazz     = env->FindClass(className.c_str());
+    jmethodID   methodid  = env->GetStaticMethodID(clazz, "checkARAvailability", "()Z");
 
     _available = env->CallStaticBooleanMethod(clazz, methodid);
     return _available;
@@ -50,7 +50,7 @@ bool SENSNdkARCore::isAvailable()
 
 /*------------------------------------------------------------------------------------------*/
 
-bool SENSNdkARCore::checkInstalled(JNIEnv* env, void* context, void * activity)
+bool SENSNdkARCore::checkInstalled(JNIEnv* env, void* context, void* activity)
 {
     ArAvailability availability;
     ArCoreApk_checkAvailability(env, context, &availability);
@@ -64,8 +64,8 @@ bool SENSNdkARCore::isInstalled()
     JNIEnv* env;
     _jvm->GetEnv((void**)&env, JNI_VERSION_1_6);
     std::string className = "ch/cpvr/" + _appName + "/GLES3Lib";
-    jclass clazz = env->FindClass(className.c_str());
-    jmethodID methodid = env->GetStaticMethodID(clazz, "checkARInstalled", "()Z");
+    jclass      clazz     = env->FindClass(className.c_str());
+    jmethodID   methodid  = env->GetStaticMethodID(clazz, "checkARInstalled", "()Z");
 
     _installed = env->CallStaticBooleanMethod(clazz, methodid);
     return _installed;
@@ -73,7 +73,7 @@ bool SENSNdkARCore::isInstalled()
 
 /*------------------------------------------------------------------------------------------*/
 
-bool SENSNdkARCore::askInstall(JNIEnv* env, void* context, void * activity)
+bool SENSNdkARCore::askInstall(JNIEnv* env, void* context, void* activity)
 {
     ArInstallStatus install_status;
     ArCoreApk_requestInstall(env, activity, true, &install_status);
@@ -92,8 +92,8 @@ bool SENSNdkARCore::install()
     JNIEnv* env;
     _jvm->GetEnv((void**)&env, JNI_VERSION_1_6);
     std::string className = "ch/cpvr/" + _appName + "/GLES3Lib";
-    jclass clazz = env->FindClass(className.c_str());
-    jmethodID methodid = env->GetStaticMethodID(clazz, "askARInstall", "()Z");
+    jclass      clazz     = env->FindClass(className.c_str());
+    jmethodID   methodid  = env->GetStaticMethodID(clazz, "askARInstall", "()Z");
 
     return env->CallStaticBooleanMethod(clazz, methodid);
 }
@@ -112,39 +112,41 @@ void SENSNdkARCore::reset()
         ArSession_destroy(_arSession);
         ArFrame_destroy(_arFrame);
         _arSession = nullptr;
-        if(_texImgReader)
+        if (_texImgReader)
             delete _texImgReader;
     }
 }
 
 bool SENSNdkARCore::init(unsigned int textureId, bool retrieveCpuImg, int targetWidth, int targetHeight)
 {
-    if(textureId > 0)
+    if (textureId > 0)
         _cameraTextureId = textureId;
 
-    if(_texImgReader)
+    if (_texImgReader)
         delete _texImgReader;
 
-    _retrieveCpuImg = retrieveCpuImg;
-    _cpuImgTargetWidth = targetWidth;
+    _retrieveCpuImg     = retrieveCpuImg;
+    _cpuImgTargetWidth  = targetWidth;
     _cpuImgTargetHeight = targetHeight;
 
     JNIEnv* env;
     _jvm->GetEnv((void**)&env, JNI_VERSION_1_6);
     std::string className = "ch/cpvr/" + _appName + "/GLES3Lib";
-    jclass clazz = env->FindClass(className.c_str());
-    jmethodID methodid = env->GetStaticMethodID(clazz, "initAR", "()Z");
+    jclass      clazz     = env->FindClass(className.c_str());
+    jmethodID   methodid  = env->GetStaticMethodID(clazz, "initAR", "()Z");
 
     return env->CallStaticBooleanMethod(clazz, methodid);
 }
 
 bool SENSNdkARCore::init(JNIEnv* env, void* context, void* activity)
 {
-    if (!checkAvailability(env, context, activity)) {
+    if (!checkAvailability(env, context, activity))
+    {
         return false;
     }
 
-    if (_arSession != nullptr) {
+    if (_arSession != nullptr)
+    {
         return false;
     }
 
@@ -249,7 +251,8 @@ bool SENSNdkARCore::update(cv::Mat& pose)
         return false;
 
     ArStatus status = ArSession_update(_arSession, _arFrame);
-    if (status != AR_SUCCESS) {
+    if (status != AR_SUCCESS)
+    {
         return false;
     }
 
@@ -333,7 +336,7 @@ bool SENSNdkARCore::update(cv::Mat& pose)
     ArTrackingState camera_tracking_state;
     ArCamera_getTrackingState(_arSession, arCamera, &camera_tracking_state);
 
-    if(_fetchPointCloud)
+    if (_fetchPointCloud)
         doFetchPointCloud();
 
     ArCamera_release(arCamera);
@@ -348,21 +351,18 @@ void SENSNdkARCore::updateCamera(cv::Mat& intrinsics)
 {
     cv::Mat image;
 
-    if(_retrieveCpuImg)
+    if (_retrieveCpuImg)
     {
         if (!_texImgReader)
         {
             //ATTENTION: for the current implementation the gpu texture (preview image) has to have the same aspect ratio as the cpu image
             //check aspect ratio
-            if((float)_cpuImgTargetWidth / (float)_cpuImgTargetHeight )
-            _texImgReader = new SENSGLTextureReader(_cameraTextureId, true, _cpuImgTargetWidth,
-                                                    _cpuImgTargetHeight);
+            if ((float)_cpuImgTargetWidth / (float)_cpuImgTargetHeight)
+                _texImgReader = new SENSGLTextureReader(_cameraTextureId, true, _cpuImgTargetWidth, _cpuImgTargetHeight);
         }
-
 
         HighResTimer t;
         image = _texImgReader->readImageFromGpu();
-
 
         Utils::log("SENSNdkARCore", "readImageFromGPU: %fms", t.elapsedTimeInMilliSec());
         /*
@@ -372,13 +372,12 @@ Utils::log("imagesize", "orig calib cx:%f cy:%f", intrinsics.at<double>(0, 2),
            intrinsics.at<double>(1, 2));
 */
         //adapt intrinsics to cpu image size
-
     }
 
     updateFrame(image, intrinsics, _inputFrameW, _inputFrameH, true);
 }
 
-void SENSNdkARCore::lightComponentIntensity(float * component)
+void SENSNdkARCore::lightComponentIntensity(float* component)
 {
     component[0] = _envLightI[0];
     component[1] = _envLightI[1];
@@ -418,9 +417,10 @@ bool SENSNdkARCore::resume()
         const ArStatus status = ArSession_resume(_arSession);
         if (status == AR_SUCCESS)
         {
-            _pause = false;
+            _pause   = false;
             _started = true; //for SENSCameraBase
-        } else
+        }
+        else
             Utils::log("ErlebAR", "SENSNdkARCore resume failed!!!");
     }
     return !_pause;
@@ -430,7 +430,7 @@ void SENSNdkARCore::pause()
 {
     _started = false; //for SENSCameraBase
     if (_arSession != nullptr)
-        if(AR_SUCCESS == ArSession_pause(_arSession))
+        if (AR_SUCCESS == ArSession_pause(_arSession))
             _pause = true;
         else
             Utils::log("ErlebAR", "SENSNdkARCore pause failed!!!");
@@ -474,9 +474,9 @@ void SENSNdkARCore::retrieveCaptureProperties()
         Utils::warnMsg("SENSNdkARCore", "retrieveCaptureProperties: Could not retrieve a valid frame!", __LINE__, __FILE__);
 */
     std::string      deviceId = "ARKit";
-    SENSCameraFacing facing = SENSCameraFacing::BACK;
+    SENSCameraFacing facing   = SENSCameraFacing::BACK;
 
-    float focalLengthPix = 0.5 * (_fx + _fy);
+    float                      focalLengthPix = 0.5 * (_fx + _fy);
     SENSCameraDeviceProperties devProp(deviceId, facing);
     //here we have to use the cpu image size (which is not the same as the gpu image size)
     devProp.add(_inputFrameW, _inputFrameH, focalLengthPix);
@@ -485,7 +485,7 @@ void SENSNdkARCore::retrieveCaptureProperties()
 
 const SENSCaptureProperties& SENSNdkARCore::captureProperties()
 {
-    if(_captureProperties.size() == 0)
+    if (_captureProperties.size() == 0)
         retrieveCaptureProperties();
 
     return _captureProperties;
@@ -493,12 +493,12 @@ const SENSCaptureProperties& SENSNdkARCore::captureProperties()
 
 //This function does not really start the camera as for the arcore iplementation, the frame gets only updated with a call to arcore::update.
 //This function is needed to correctly use arcore as a camera in SENSCVCamera
-const SENSCameraConfig& SENSNdkARCore::start(std::string    deviceId,
+const SENSCameraConfig& SENSNdkARCore::start(std::string                   deviceId,
                                              const SENSCameraStreamConfig& streamConfig,
                                              bool                          provideIntrinsics)
 {
     //define capture properties
-    if(_captureProperties.size() == 0)
+    if (_captureProperties.size() == 0)
         retrieveCaptureProperties();
 
     if (_captureProperties.size() == 0)
@@ -528,13 +528,13 @@ void SENSNdkARCore::doFetchPointCloud()
 {
     ArPointCloud* arPointCloud = nullptr;
 
-    if(ArFrame_acquirePointCloud(_arSession, _arFrame, &arPointCloud) == AR_SUCCESS)
+    if (ArFrame_acquirePointCloud(_arSession, _arFrame, &arPointCloud) == AR_SUCCESS)
     {
         int    n;
         float* mp;
 
         ArPointCloud_getNumberOfPoints(_arSession, arPointCloud, &n);
-        if(n > 0)
+        if (n > 0)
         {
             ArPointCloud_getData(_arSession, arPointCloud, &mp);
 
