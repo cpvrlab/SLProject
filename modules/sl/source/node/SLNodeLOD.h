@@ -22,7 +22,7 @@ public:
     virtual void cullChildren3D(SLSceneView* sv);
 
 private:
-    SLint _childIndices[101];
+    SLint _childIndices[101];    //!< child indices at every percent (0-100)
 };
 //-----------------------------------------------------------------------------
 #endif

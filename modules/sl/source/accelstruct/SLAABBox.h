@@ -13,6 +13,7 @@
 
 #include <SLGLVertexArrayExt.h>
 #include <SLMat4.h>
+#include <SLRect.h>
 
 class SLRay;
 
@@ -45,37 +46,40 @@ public:
     void sqrViewDist(SLfloat sqrVD) { _sqrViewDist = sqrVD; }
 
     // Getters
-    SLVec3f minWS() { return _minWS; }
-    SLVec3f maxWS() { return _maxWS; }
-    SLVec3f centerWS() { return _centerWS; }
-    SLfloat radiusWS() { return _radiusWS; }
-    SLVec3f minOS() { return _minOS; }
-    SLVec3f maxOS() { return _maxOS; }
-    SLVec3f centerOS() { return _centerOS; }
-    SLfloat radiusOS() { return _radiusOS; }
-    SLbool  isVisible() { return _isVisible; }
-    SLfloat sqrViewDist() { return _sqrViewDist; }
+    SLVec3f  minWS() { return _minWS; }
+    SLVec3f  maxWS() { return _maxWS; }
+    SLVec3f  centerWS() { return _centerWS; }
+    SLfloat  radiusWS() { return _radiusWS; }
+    SLVec3f  minOS() { return _minOS; }
+    SLVec3f  maxOS() { return _maxOS; }
+    SLVec3f  centerOS() { return _centerOS; }
+    SLfloat  radiusOS() { return _radiusOS; }
+    SLbool   isVisible() { return _isVisible; }
+    SLfloat  sqrViewDist() { return _sqrViewDist; }
+    SLRectf& rectSS() { return _rectSS; }
 
     // Misc.
-    void   reset();
-    void   fromOStoWS(const SLVec3f& minOS,
-                      const SLVec3f& maxOS,
-                      const SLMat4f& wm);
-    void   fromWStoOS(const SLVec3f& minWS,
-                      const SLVec3f& maxWS,
-                      const SLMat4f& wmI);
-    void   updateAxisWS(const SLMat4f& wm);
-    void   updateBoneWS(const SLMat4f& parentWM,
-                        SLbool         isRoot,
-                        const SLMat4f& nodeWM);
-    void   mergeWS(SLAABBox& bb);
-    void   drawWS(const SLCol4f& color);
-    void   drawAxisWS();
-    void   drawBoneWS();
-    void   setCenterAndRadius();
-    void   generateVAO();
-    SLbool isHitInOS(SLRay* ray);
-    SLbool isHitInWS(SLRay* ray);
+    void    reset();
+    void    fromOStoWS(const SLVec3f& minOS,
+                       const SLVec3f& maxOS,
+                       const SLMat4f& wm);
+    void    fromWStoOS(const SLVec3f& minWS,
+                       const SLVec3f& maxWS,
+                       const SLMat4f& wmI);
+    void    updateAxisWS(const SLMat4f& wm);
+    void    updateBoneWS(const SLMat4f& parentWM,
+                         SLbool         isRoot,
+                         const SLMat4f& nodeWM);
+    void    mergeWS(SLAABBox& bb);
+    void    drawWS(const SLCol4f& color);
+    void    drawAxisWS();
+    void    drawBoneWS();
+    void    setCenterAndRadius();
+    void    generateVAO();
+    SLbool  isHitInOS(SLRay* ray);
+    SLbool  isHitInWS(SLRay* ray);
+    void    calculateRectSS(SLfloat scr2fbX, SLfloat scr2fbY);
+    SLfloat areaPercentageInSS(SLfloat scr2fbX, SLfloat scr2fbY);
 
 private:
     SLVec3f            _minWS;        //!< Min. corner in world space
@@ -94,6 +98,7 @@ private:
     SLbool             _boneIsOffset; //!< Flag if the connection parent to us is a bone or an offset
     SLVec3f            _parent0WS;    //!< World space vector to the parent position
     SLbool             _isVisible;    //!< Flag if AABB is in the view frustum
+    SLRectf            _rectSS;       //!< Bounding rectangle in screen space
     SLGLVertexArrayExt _vao;          //!< Vertex array object for rendering
 };
 //-----------------------------------------------------------------------------

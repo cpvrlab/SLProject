@@ -365,6 +365,7 @@ target_include_directories(${target}
             ${SL_PROJECT_ROOT}/modules/sl/source/cv
             ${SL_PROJECT_ROOT}/modules/sl/source/gl
             ${SL_PROJECT_ROOT}/modules/sl/source/input
+            ${SL_PROJECT_ROOT}/modules/sl/source/math
             ${SL_PROJECT_ROOT}/modules/sl/source/mesh
             ${SL_PROJECT_ROOT}/modules/sl/source/node
             ${SL_PROJECT_ROOT}/modules/sl/source/optix

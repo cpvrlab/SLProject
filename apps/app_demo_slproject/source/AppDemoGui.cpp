@@ -2243,6 +2243,9 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                 if (ImGui::MenuItem("Normals", "N", sv->drawBits()->get(SL_DB_NORMALS)))
                     sv->drawBits()->toggle(SL_DB_NORMALS);
 
+                if (ImGui::MenuItem("Bounding Rectangles", "U", sv->drawBits()->get(SL_DB_BRECT)))
+                    sv->drawBits()->toggle(SL_DB_BRECT);
+
                 if (ImGui::MenuItem("Bounding Boxes", "B", sv->drawBits()->get(SL_DB_BBOX)))
                     sv->drawBits()->toggle(SL_DB_BBOX);
 
@@ -2916,6 +2919,9 @@ void AppDemoGui::buildMenuEdit(SLProjectScene* s, SLSceneView* sv)
         if (ImGui::MenuItem("Bounding Boxes", nullptr, selN->drawBits()->get(SL_DB_BBOX)))
             selN->drawBits()->toggle(SL_DB_BBOX);
 
+        if (ImGui::MenuItem("Bounding Rectangles", nullptr, selN->drawBits()->get(SL_DB_BRECT)))
+            selN->drawBits()->toggle(SL_DB_BRECT);
+
         if (ImGui::MenuItem("Voxels", nullptr, selN->drawBits()->get(SL_DB_VOXELS)))
             selN->drawBits()->toggle(SL_DB_VOXELS);
 
@@ -3124,6 +3130,10 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                         db = singleNode->drawBit(SL_DB_BBOX);
                         if (ImGui::Checkbox("Show bounding boxes", &db))
                             singleNode->drawBits()->set(SL_DB_BBOX, db);
+
+                        db = singleNode->drawBit(SL_DB_BRECT);
+                        if (ImGui::Checkbox("Show bounding rects", &db))
+                            singleNode->drawBits()->set(SL_DB_BRECT, db);
 
                         db = singleNode->drawBit(SL_DB_AXIS);
                         if (ImGui::Checkbox("Show axis", &db))

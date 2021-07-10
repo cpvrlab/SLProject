@@ -11,6 +11,7 @@
 #include <SLAABBox.h>
 #include <SLRay.h>
 #include <SLScene.h>
+#include <SLGLState.h>
 
 //-----------------------------------------------------------------------------
 //! Default constructor with default zero vector initialization
@@ -38,6 +39,8 @@ void SLAABBox::reset()
     _axisYWS     = SLVec3f::ZERO;
     _axisZWS     = SLVec3f::ZERO;
     _isVisible   = true;
+
+    _rectSS.setZero();
 }
 //-----------------------------------------------------------------------------
 //! Recalculate min and max after transformation in world coords
@@ -218,6 +221,7 @@ void SLAABBox::generateVAO()
 {
     SLVVec3f P; // vertex positions
 
+    // Bounding box lines in world space
     P.push_back(SLVec3f(_minWS.x, _minWS.y, _minWS.z)); // lower rect
     P.push_back(SLVec3f(_maxWS.x, _minWS.y, _minWS.z));
     P.push_back(SLVec3f(_maxWS.x, _minWS.y, _minWS.z));
@@ -243,16 +247,17 @@ void SLAABBox::generateVAO()
     P.push_back(SLVec3f(_maxWS.x, _minWS.y, _maxWS.z));
     P.push_back(SLVec3f(_maxWS.x, _maxWS.y, _maxWS.z));
     P.push_back(SLVec3f(_minWS.x, _minWS.y, _maxWS.z));
-    P.push_back(SLVec3f(_minWS.x, _maxWS.y, _maxWS.z));
+    P.push_back(SLVec3f(_minWS.x, _maxWS.y, _maxWS.z)); // 24
 
+    // Axis lines in world space
     P.push_back(SLVec3f(_axis0WS.x, _axis0WS.y, _axis0WS.z)); // x-axis
     P.push_back(SLVec3f(_axisXWS.x, _axisXWS.y, _axisXWS.z));
     P.push_back(SLVec3f(_axis0WS.x, _axis0WS.y, _axis0WS.z)); // y-axis
     P.push_back(SLVec3f(_axisYWS.x, _axisYWS.y, _axisYWS.z));
     P.push_back(SLVec3f(_axis0WS.x, _axis0WS.y, _axis0WS.z)); // z-axis
-    P.push_back(SLVec3f(_axisZWS.x, _axisZWS.y, _axisZWS.z));
+    P.push_back(SLVec3f(_axisZWS.x, _axisZWS.y, _axisZWS.z)); // 30
 
-    // Bone points
+    // Bone points in world space
     P.push_back(SLVec3f(_parent0WS.x, _parent0WS.y, _parent0WS.z));
     P.push_back(SLVec3f(_axis0WS.x, _axis0WS.y, _axis0WS.z));
 
@@ -397,5 +402,68 @@ void SLAABBox::mergeWS(SLAABBox& bb)
         _minWS.setMin(bb.minWS());
         _maxWS.setMax(bb.maxWS());
     }
+}
+//-----------------------------------------------------------------------------
+//! Calculates the AABBs min. and max. corners in screen space
+void SLAABBox::calculateRectSS(SLfloat scr2fbX, SLfloat scr2fbY)
+{
+    SLVec3f corners[8];
+
+    // Back corners in world space
+    corners[0] = _minWS;
+    corners[1] = SLVec3f(_maxWS.x, _minWS.y, _minWS.z);
+    corners[2] = SLVec3f(_minWS.x, _maxWS.y, _minWS.z);
+    corners[3] = SLVec3f(_maxWS.x, _maxWS.y, _minWS.z);
+
+    // Front corners in world space
+    corners[4] = SLVec3f(_minWS.x, _minWS.y, _maxWS.z);
+    corners[5] = SLVec3f(_maxWS.x, _minWS.y, _maxWS.z);
+    corners[6] = SLVec3f(_minWS.x, _maxWS.y, _maxWS.z);
+    corners[7] = _maxWS;
+
+    // build view-projection-viewport matrix
+    SLGLState* stateGL = SLGLState::instance();
+    SLMat4f    vpvpMat = stateGL->viewportMatrixFB() *
+                      stateGL->projectionMatrix *
+                      stateGL->viewMatrix;
+
+    // transform corners from world to screen space
+    for (SLint i = 0; i < 8; ++i)
+        corners[i] = vpvpMat.multVec(corners[i]);
+
+    // Build min. and max. in screen space
+    SLVec2f minSS(FLT_MAX, FLT_MAX);
+    SLVec2f maxSS(FLT_MIN, FLT_MIN);
+
+    for (SLint i = 0; i < 8; ++i)
+    {
+        minSS.x = std::min(minSS.x, corners[i].x);
+        minSS.y = std::min(minSS.y, corners[i].y);
+        maxSS.x = std::max(maxSS.x, corners[i].x);
+        maxSS.y = std::max(maxSS.y, corners[i].y);
+    }
+
+    // Correct the screen to framebuffer factor
+    minSS.x /= scr2fbX;
+    minSS.y /= scr2fbY;
+    maxSS.x /= scr2fbX;
+    maxSS.y /= scr2fbX;
+
+    _rectSS.set(minSS.x, minSS.y, maxSS.x - minSS.x, maxSS.y - minSS.y);
+    //_rectSS.print();
+}
+//-----------------------------------------------------------------------------
+//! Calculates the AABB corners in screen space and returns the area in percent
+SLfloat SLAABBox::areaPercentageInSS(SLfloat scr2fbX, SLfloat scr2fbY)
+{
+    calculateRectSS(scr2fbX, scr2fbY);
+
+    SLGLState* stateGL = SLGLState::instance();
+    SLfloat    areaSS  = _rectSS.width * _rectSS.height;
+    SLVec4i    vp      = stateGL->viewportFB();
+    SLfloat    areaScreen = (float)vp.z / scr2fbX * (float)vp.w / scr2fbY;
+    SLfloat    areaPC  = areaSS / areaScreen * 100.0f;
+
+    return areaPC;
 }
 //-----------------------------------------------------------------------------

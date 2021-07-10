@@ -52,53 +52,13 @@ void SLNodeLOD::cullChildren3D(SLSceneView* sv)
         _children[childIndex]->cull3DRec(sv);
 #else // Area based LOD selection
 
-        // TODO(dgj1): do we need to update aabb first? probably...
-        updateAABBRec();
-
-        SLAABBox* aabb = &_aabb;
-        SLVec3f   min  = aabb->minWS();
-        SLVec3f   max  = aabb->maxWS();
-
-        SLVec3f points[8];
-        points[0] = min;
-        points[1] = SLVec3f(max.x, min.y, min.z);
-        points[2] = SLVec3f(min.x, max.y, min.z);
-        points[3] = SLVec3f(max.x, max.y, min.z);
-
-        points[4] = SLVec3f(min.x, min.y, max.z);
-        points[5] = SLVec3f(max.x, min.y, max.z);
-        points[6] = SLVec3f(min.x, max.y, max.z);
-        points[7] = max;
-
-        SLGLState* stateGL              = SLGLState::instance();
-        SLMat4f    viewProjectionMatrix = stateGL->projectionMatrix * stateGL->viewMatrix;
-
-        for (SLint i = 0; i < 8; ++i)
-            points[i] = viewProjectionMatrix.multVec(points[i]);
-
-        SLVec2f maxProjected = SLVec2f(points[0].x, points[0].y);
-        SLVec2f minProjected = SLVec2f(points[0].x, points[0].y);
-        for (SLint i = 0; i < 8; ++i)
-        {
-            maxProjected.x = MAX(maxProjected.x, points[i].x);
-            minProjected.x = MIN(minProjected.x, points[i].x);
-
-            maxProjected.y = MAX(maxProjected.y, points[i].y);
-            minProjected.y = MIN(minProjected.y, points[i].y);
-        }
-
-        // max and min are in normalize device coords (-1, 1)
-        SLVec2f areaVec        = 0.25f * ((maxProjected - minProjected) + SLVec2f(2.0f, 2.0f));
-        SLfloat areaPercentage = (areaVec.x * areaVec.y) * 100.0f;
-
-        SLint percentageIndex = MAX(0, MIN((SLint)areaPercentage, 100));
-        SL_LOG("percentageIndex: %d", percentageIndex);
-        SLint childIndex      = _childIndices[percentageIndex];
+        SLfloat areaPercentage = _aabb.areaPercentageInSS(sv->scr2fbX(), sv->scr2fbY());
+        SLint percentageIndex = std::max(0, std::min((SLint)areaPercentage, 100));
+        SLint childIndex = _childIndices[percentageIndex];
 
         if (childIndex >= 0 && childIndex < _children.size())
         {
-            if (childIndex == 0)
-                SL_LOG("childIndex 0");
+            //if (childIndex == 0) SL_LOG("childIndex 0");
 
             _children[childIndex]->cull3DRec(sv);
         }

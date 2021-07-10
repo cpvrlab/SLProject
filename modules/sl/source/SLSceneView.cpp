@@ -109,7 +109,7 @@ void SLSceneView::init(SLstring       name,
 
     _renderType = RT_gl;
 
-    _skybox                 = nullptr;
+    _skybox                   = nullptr;
     _screenCaptureIsRequested = false;
 
     if (_gui)
@@ -921,7 +921,7 @@ void SLSceneView::draw3DGLLines(SLVNode& nodes)
     stateGL->blend(false);
     stateGL->depthMask(true);
 
-    // Set the view transform
+    // Set the view transform for drawing in world space
     stateGL->modelViewMatrix.setMatrix(stateGL->viewMatrix);
 
     // draw the opaque shapes directly w. their wm transform
@@ -943,6 +943,33 @@ void SLSceneView::draw3DGLLines(SLVNode& nodes)
             if (node->isSelected())
             {
                 node->aabb()->drawWS(SLCol4f::YELLOW);
+            }
+
+            // Draw bounding rect in screen space
+            if (drawBit(SL_DB_BRECT) || node->drawBit(SL_DB_BRECT))
+            {
+                node->aabb()->calculateRectSS(_scr2fbX, _scr2fbY);
+
+                SLMat4f prevProjMat = stateGL->projectionMatrix;
+                stateGL->pushModelViewMatrix();
+                SLfloat w2 = (SLfloat)_scrWdiv2;
+                SLfloat h2 = (SLfloat)_scrHdiv2;
+                stateGL->projectionMatrix.ortho(-w2, w2, -h2, h2, 1.0f, -1.0f);
+                stateGL->viewportFB(0,
+                                    0,
+                                    (int)(_scrW * _scr2fbX),
+                                    (int)(_scrH * _scr2fbY));
+                stateGL->modelViewMatrix.identity();
+                stateGL->modelViewMatrix.translate(-w2, h2, 1.0f);
+                stateGL->depthMask(false); // Freeze depth buffer for blending
+                stateGL->depthTest(false); // Disable depth testing
+
+                node->aabb()->rectSS().drawGL(SLCol4f::GREEN);
+
+                stateGL->depthMask(true); // Freeze depth buffer for blending
+                stateGL->depthTest(true); // Disable depth testing
+                stateGL->popModelViewMatrix();
+                stateGL->projectionMatrix = prevProjMat;
             }
         }
     }
@@ -1059,70 +1086,67 @@ void SLSceneView::draw2DGL()
     _stats2D.numNodesBlended = 0;
 
     // Set orthographic projection with 0,0,0 in the screen center
-    //if (_camera && _camera->projection() != P_stereoSideBySideD)
+    if (_s)
     {
-        if (_s)
+        // 1. Set Projection & View
+        stateGL->projectionMatrix.ortho(-w2, w2, -h2, h2, 1.0f, -1.0f);
+        stateGL->viewportFB(0,
+                            0,
+                            (int)(_scrW * _scr2fbX),
+                            (int)(_scrH * _scr2fbY));
+
+        // 2. Pseudo 2D Frustum Culling
+        for (auto material : _visibleMaterials2D)
+            material->nodesVisible2D().clear();
+        _visibleMaterials2D.clear();
+        _nodesOpaque2D.clear();
+        _nodesBlended2D.clear();
+        if (_s->root2D())
+            _s->root2D()->cull2DRec(this);
+
+        // 3. Draw all 2D nodes opaque
+        draw2DGLNodes();
+
+        // Draw selection rectangle. See also SLMesh::handleRectangleSelection
+        if (!_camera->selectRect().isEmpty())
         {
-            // 1. Set Projection & View
-            stateGL->projectionMatrix.ortho(-w2, w2, -h2, h2, 1.0f, -1.0f);
-            stateGL->viewport(0,
-                              0,
-                              (int)(_scrW * _scr2fbX),
-                              (int)(_scrH * _scr2fbY));
-
-            // 2. Pseudo 2D Frustum Culling
-            for (auto material : _visibleMaterials2D)
-                material->nodesVisible2D().clear();
-            _visibleMaterials2D.clear();
-            _nodesOpaque2D.clear();
-            _nodesBlended2D.clear();
-            if (_s->root2D())
-                _s->root2D()->cull2DRec(this);
-
-            // 3. Draw all 2D nodes opaque
-            draw2DGLNodes();
-
-            // Draw selection rectangle. See also SLMesh::handleRectangleSelection
-            if (!_camera->selectRect().isEmpty())
-            {
-                stateGL->pushModelViewMatrix();
-                stateGL->modelViewMatrix.identity();
-                stateGL->modelViewMatrix.translate(-w2, h2, 1.0f);
-                stateGL->depthMask(false); // Freeze depth buffer for blending
-                stateGL->depthTest(false); // Disable depth testing
-                _camera->selectRect().drawGL(SLCol4f::WHITE);
-                stateGL->depthMask(true); // enable depth buffer writing
-                stateGL->depthTest(true); // enable depth testing
-                stateGL->popModelViewMatrix();
-            }
-
-            // Draw deselection rectangle. See also SLMesh::handleRectangleSelection
-            if (!_camera->deselectRect().isEmpty())
-            {
-                stateGL->pushModelViewMatrix();
-                stateGL->modelViewMatrix.identity();
-                stateGL->modelViewMatrix.translate(-w2, h2, 1.0f);
-                stateGL->depthMask(false); // Freeze depth buffer for blending
-                stateGL->depthTest(false); // Disable depth testing
-                _camera->deselectRect().drawGL(SLCol4f::MAGENTA);
-                stateGL->depthMask(true); // enable depth buffer writing
-                stateGL->depthTest(true); // enable depth testing
-                stateGL->popModelViewMatrix();
-            }
+            stateGL->pushModelViewMatrix();
+            stateGL->modelViewMatrix.identity();
+            stateGL->modelViewMatrix.translate(-w2, h2, 1.0f);
+            stateGL->depthMask(false); // Freeze depth buffer for blending
+            stateGL->depthTest(false); // Disable depth testing
+            _camera->selectRect().drawGL(SLCol4f::WHITE);
+            stateGL->depthMask(true); // enable depth buffer writing
+            stateGL->depthTest(true); // enable depth testing
+            stateGL->popModelViewMatrix();
         }
 
-        // 4. Draw UI
-        if (_gui)
+        // Draw deselection rectangle. See also SLMesh::handleRectangleSelection
+        if (!_camera->deselectRect().isEmpty())
         {
-            _gui->onPaint(_viewportRect);
+            stateGL->pushModelViewMatrix();
+            stateGL->modelViewMatrix.identity();
+            stateGL->modelViewMatrix.translate(-w2, h2, 1.0f);
+            stateGL->depthMask(false); // Freeze depth buffer for blending
+            stateGL->depthTest(false); // Disable depth testing
+            _camera->deselectRect().drawGL(SLCol4f::MAGENTA);
+            stateGL->depthMask(true); // enable depth buffer writing
+            stateGL->depthTest(true); // enable depth testing
+            stateGL->popModelViewMatrix();
         }
+    }
+
+    // 4. Draw UI
+    if (_gui)
+    {
+        _gui->onPaint(_viewportRect);
     }
 
     _draw2DTimeMS = GlobalTimer::timeMS() - startMS;
 }
 //-----------------------------------------------------------------------------
 /*!
-SLSceneView::draw2DGLNodes draws 2D nodes from root2D in ortho projection.
+SLSceneView::draw2DGLNodes draws 2D nodes from root2D in orthographic projection
 */
 void SLSceneView::draw2DGLNodes()
 {
@@ -1675,6 +1699,7 @@ SLbool SLSceneView::onKeyPress(SLKey key, SLKey mod)
     if (key=='O') {drawBits()->toggle(SL_DB_ONLYEDGES); return true;}
     if (key=='N') {drawBits()->toggle(SL_DB_NORMALS); return true;}
     if (key=='B') {drawBits()->toggle(SL_DB_BBOX); return true;}
+    if (key=='U') {drawBits()->toggle(SL_DB_BRECT); return true;}
     if (key=='V') {drawBits()->toggle(SL_DB_VOXELS); return true;}
     if (key=='X') {drawBits()->toggle(SL_DB_AXIS); return true;}
     if (key=='C') {drawBits()->toggle(SL_DB_CULLOFF); return true;}
@@ -2068,7 +2093,7 @@ void SLSceneView::saveFrameBufferAsImage(SLstring pathFilename, cv::Size targetS
         CVMat rgbImg = CVMat(fbH, fbW, CV_8UC3, (void*)buffer.data(), stride);
         cv::cvtColor(rgbImg, rgbImg, cv::COLOR_BGR2RGB);
         cv::flip(rgbImg, rgbImg, 0);
-        if(targetSize.width > 0 && targetSize.height > 0)
+        if (targetSize.width > 0 && targetSize.height > 0)
             cv::resize(rgbImg, rgbImg, targetSize);
 
         vector<int> compression_params;

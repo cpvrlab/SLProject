@@ -457,26 +457,26 @@ void SLCamera::setViewport(SLSceneView* sv, const SLEyeType eye)
         SLint fbOcW2 = sv->oculusFB()->halfWidth();
         SLint fbOcH  = sv->oculusFB()->height();
         if (eye == ET_left)
-            stateGL->viewport(0, 0, fbOcW2, fbOcH);
+            stateGL->viewportFB(0, 0, fbOcW2, fbOcH);
         else
-            stateGL->viewport(fbOcW2, 0, fbOcW2, fbOcH);
+            stateGL->viewportFB(fbOcW2, 0, fbOcW2, fbOcH);
     }
     else if (_projection == P_stereoSideBySide)
     {
         if (eye == ET_left)
-            stateGL->viewport(0, 0, fbW2, fbH);
+            stateGL->viewportFB(0, 0, fbW2, fbH);
         else
-            stateGL->viewport(fbW2, 0, fbW2, fbH);
+            stateGL->viewportFB(fbW2, 0, fbW2, fbH);
     }
     else if (_projection == P_stereoSideBySideP)
     {
         if (eye == ET_left)
-            stateGL->viewport(0, fbH4, fbW2, fbH2);
+            stateGL->viewportFB(0, fbH4, fbW2, fbH2);
         else
-            stateGL->viewport(fbW2, fbH4, fbW2, fbH2);
+            stateGL->viewportFB(fbW2, fbH4, fbW2, fbH2);
     }
     else
-        stateGL->viewport(fbX, fbY, fbW, fbH);
+        stateGL->viewportFB(fbX, fbY, fbW, fbH);
 
     _fbRect.set(fbX, fbY, fbW, fbH);
 }
