@@ -160,7 +160,7 @@ public:
     void              setPrimitiveTypeRec(SLGLPrimitiveType primitiveType);
 
     // Mesh methods (see impl. for details)
-    void         addMesh(SLMesh* mesh);
+    virtual void addMesh(SLMesh* mesh);
     virtual void drawMesh(SLSceneView* sv);
     bool         removeMesh();
     bool         removeMesh(SLMesh* mesh);
@@ -173,6 +173,8 @@ public:
     bool  deleteChild();
     bool  deleteChild(SLNode* child);
     bool  deleteChild(const SLstring& name);
+    bool  removeChild(SLNode* child);
+
     template<typename T>
     T* find(const SLstring& name          = "",
             SLbool          findRecursive = true);
@@ -188,7 +190,6 @@ public:
     vector<SLNode*> findChildren(SLuint drawbit,
                                  SLbool findRecursive = true);
 
-    bool removeChild(SLNode* child);
     // local direction getter functions
     SLVec3f translationOS() const;
     SLVec3f forwardOS() const;
@@ -270,6 +271,7 @@ public:
     void         needWMUpdate();
     void         needAABBUpdate();
     void         isSelected(bool isSelected) { _isSelected = isSelected; }
+    void         minLodCoverage(SLfloat minLodCoverage) { _minLodCoverage = minLodCoverage; }
 
     // Getters (see also member)
     SLNode*               parent() { return _parent; }
@@ -295,6 +297,7 @@ public:
                                         bool                               recursive);
     void                  setMeshMat(SLMaterial* mat, bool recursive);
     bool                  isSelected() { return _isSelected; }
+    SLfloat               minLodCoverage() { return _minLodCoverage; }
 
     static SLuint numWMUpdates; //!< NO. of calls to updateWM per frame
 
@@ -338,6 +341,7 @@ protected:
     SLDrawBits      _drawBits;       //!< node level drawing flags
     SLAABBox        _aabb;           //!< axis aligned bounding box
     SLAnimation*    _animation;      //!< animation of the node
+    SLfloat         _minLodCoverage; //!< Min. LOD coverage for visibility (0.0 < _minLodCoverage < 1.0)
 };
 
 ////////////////////////

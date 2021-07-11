@@ -453,8 +453,8 @@ void SLAABBox::calculateRectSS(SLfloat scr2fbX, SLfloat scr2fbY)
     //_rectSS.print();
 }
 //-----------------------------------------------------------------------------
-//! Calculates the AABB corners in screen space and returns the area in percent
-SLfloat SLAABBox::areaPercentageInSS(SLfloat scr2fbX, SLfloat scr2fbY)
+//! Calculates the bounding rectangle in screen space and returns covarage in SS
+SLfloat SLAABBox::rectCoverageInSS(SLfloat scr2fbX, SLfloat scr2fbY)
 {
     calculateRectSS(scr2fbX, scr2fbY);
 
@@ -462,8 +462,7 @@ SLfloat SLAABBox::areaPercentageInSS(SLfloat scr2fbX, SLfloat scr2fbY)
     SLfloat    areaSS  = _rectSS.width * _rectSS.height;
     SLVec4i    vp      = stateGL->viewportFB();
     SLfloat    areaScreen = (float)vp.z / scr2fbX * (float)vp.w / scr2fbY;
-    SLfloat    areaPC  = areaSS / areaScreen * 100.0f;
-
-    return areaPC;
+    SLfloat    coverage  = areaSS / areaScreen;
+    return coverage;
 }
 //-----------------------------------------------------------------------------

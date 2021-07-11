@@ -46,6 +46,7 @@ SLNode::SLNode(const SLstring& name) : SLObject(name)
     _isAABBUpToDate = false;
     _isSelected     = false;
     _mesh           = nullptr;
+    _minLodCoverage = 0.0f;
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -67,6 +68,7 @@ SLNode::SLNode(SLMesh* mesh, const SLstring& name) : SLObject(name)
     _isWMUpToDate   = false;
     _isAABBUpToDate = false;
     _isSelected     = false;
+    _minLodCoverage = 0.0f;
 
     addMesh(mesh);
 }
@@ -93,6 +95,7 @@ SLNode::SLNode(SLMesh*         mesh,
     _isWMUpToDate   = false;
     _isAABBUpToDate = false;
     _isSelected     = false;
+    _minLodCoverage = 0.0f;
 
     addMesh(mesh);
 }
@@ -179,8 +182,7 @@ void SLNode::addChild(SLNode* child)
 }
 //-----------------------------------------------------------------------------
 /*!
-Inserts a child node in the children vector after the
-afterC node.
+Inserts a child node in the children vector after the afterC node.
 */
 bool SLNode::insertChild(SLNode* insertC, SLNode* afterC)
 {

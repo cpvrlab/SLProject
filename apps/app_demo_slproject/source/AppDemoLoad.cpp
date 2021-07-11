@@ -5674,6 +5674,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->focalDist(cam1->translationOS().length());
         cam1->background().colors(SLCol4f(0.1f, 0.4f, 0.8f));
         cam1->setInitialState();
+        cam1->clipFar(1000);
         cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
 
         // Floor rectangle
@@ -5710,15 +5711,13 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                 SLNode*    lod_1     = new SLNode(new SLCylinder(s, 1.0f, 7, 3, 16, true, true, "lod 1", m1));
                 SLNode*    lod_2     = new SLNode(new SLCylinder(s, 1.0f, 7, 3, 8, true, true, "lod 2", m1));
                 SLNode*    lod_3     = new SLNode(new SLCylinder(s, 1.0f, 7, 3, 4, true, true, "lod 3", m1));
-                SLNode*    lod_4     = new SLNode();
                 SLNodeLOD* lod_group = new SLNodeLOD();
                 lod_group->rotate(90, -1, 0, 0);
                 lod_group->translate(x, z, 0, TS_object);
-                lod_group->addChildLOD(lod_4, 0.0f, 0.01f);
-                lod_group->addChildLOD(lod_3, 0.01f, 0.1f);
-                lod_group->addChildLOD(lod_2, 0.1f, 0.3f);
-                lod_group->addChildLOD(lod_1, 0.3f, 0.5f);
-                lod_group->addChildLOD(lod_0, 0.5f, 1.0f);
+                lod_group->addChildLOD(lod_0, 0.1f);
+                lod_group->addChildLOD(lod_1, 0.01f);
+                lod_group->addChildLOD(lod_2, 0.001f);
+                lod_group->addChildLOD(lod_3, 0.0001f);
                 scene->addChild(lod_group);
                 x += offset;
             }
@@ -5790,6 +5789,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLfloat offset     = 4.0f;
         SLfloat z          = (float)(size - 1) * offset * 0.5f;
 
+        /*
         for (SLint iZ = 0; iZ < size; ++iZ)
         {
             SLfloat x = -(float)(size - 1) * offset * 0.5f;
@@ -5812,6 +5812,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
             }
             z -= offset;
         }
+        */
 
         // Set active camera & the root pointer
         sv->camera(cam1);

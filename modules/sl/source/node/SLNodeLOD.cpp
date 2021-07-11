@@ -12,57 +12,48 @@
 #include <SLNodeLOD.h>
 
 //-----------------------------------------------------------------------------
-SLNodeLOD::SLNodeLOD()
+//! Adds an LOD node with forced decreasing min LOD coverage
+/*!
+ * The coverage value is the ratio of the nodes bounding rectangle in screen space
+ * to the full viewport. The minLodCoverage value must be > 0.0 and < 1.0 and
+ * < than the minLodCoverage of the last node in the LOD group. If the first
+ * child node has e.g. a minLodCoverage of 0.1 it means that it will be visible
+ * if its bounding rectangle covers more then 10% of the viewport. The first
+ * child node in the group must be the one with the highest resolution.
+ * @param childToAdd LOD child node pointer to add
+ * @param minLodCoverage A value > 0 and < 1 and < than the minLodCoverage
+ * of the last node in the LOD group
+ */
+void SLNodeLOD::addChildLOD(SLNode* childToAdd, SLfloat minLodCoverage)
 {
-    for (SLint i = 0; i < 101; i++)
-    {
-        _childIndices[i] = -1;
-    }
+    assert(minLodCoverage > 0.0f &&
+             minLodCoverage < 1.0f &&
+           "SLNodeLOD::addChildLOD min. LOD limit must be > 0 and < 1");
+
+    if (!_children.empty() &&
+        _children[_children.size() - 1]->minLodCoverage() <= minLodCoverage)
+        SL_EXIT_MSG("SLNodeLOD::addChildLOD: A new child LOD node must have a smaller LOD limit than the last one.");
+
+    childToAdd->minLodCoverage(minLodCoverage);
+    addChild(childToAdd);
 }
 //-----------------------------------------------------------------------------
-void SLNodeLOD::addChildLOD(SLNode* child, SLfloat minValue, SLfloat maxValue)
-{
-    assert(minValue >= 0.0f && minValue <= maxValue);
-    assert(maxValue >= minValue && maxValue <= 1.0f);
-
-    SLint childIndex = _children.size();
-    for (SLint i = (SLint)(minValue * 100.0f); i <= (SLint)(maxValue * 100.0f); i++)
-        _childIndices[i] = childIndex;
-
-    addChild(child);
-}
-//-----------------------------------------------------------------------------
+//! Culls the LOD children by evaluating the the screen space coverage
 void SLNodeLOD::cullChildren3D(SLSceneView* sv)
 {
-    // TODO(dgj1): properly choose LOD to use
+
     if (!_children.empty())
     {
-#if 0 // Distance based LOD selection
-        SLint   numChildren  = _children.size();
-        SLfloat maxDistance  = 100.0f;
-        SLfloat lodThreshold = maxDistance / numChildren;
+        SLfloat rectCoverage = _aabb.rectCoverageInSS(sv->scr2fbX(), sv->scr2fbY());
 
-        SLVec3f cameraPos    = sv->camera()->translationWS();
-        SLVec3f nodePos      = translationWS();
-        SLfloat distToCamera = nodePos.distance(cameraPos);
-
-        SLint childIndex = (SLint)distToCamera / lodThreshold;
-        childIndex       = MAX(0, MIN(childIndex, numChildren - 1));
-
-        _children[childIndex]->cull3DRec(sv);
-#else // Area based LOD selection
-
-        SLfloat areaPercentage = _aabb.areaPercentageInSS(sv->scr2fbX(), sv->scr2fbY());
-        SLint percentageIndex = std::max(0, std::min((SLint)areaPercentage, 100));
-        SLint childIndex = _childIndices[percentageIndex];
-
-        if (childIndex >= 0 && childIndex < _children.size())
+        for (SLint i=0; i < _children.size(); ++i)
         {
-            //if (childIndex == 0) SL_LOG("childIndex 0");
-
-            _children[childIndex]->cull3DRec(sv);
+            if (rectCoverage > _children[i]->minLodCoverage())
+            {
+                _children[i]->cull3DRec(sv);
+                break;
+            }
         }
-#endif
     }
 }
 //-----------------------------------------------------------------------------

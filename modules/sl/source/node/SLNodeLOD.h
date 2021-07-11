@@ -14,15 +14,15 @@
 #include <SLNode.h>
 
 //-----------------------------------------------------------------------------
+//! Level of detail (LOD) group node based on screen space coverage
+/*!
+ * See the method addChildLOD for more information
+ */
 class SLNodeLOD : public SLNode
 {
 public:
-    SLNodeLOD();
-    void         addChildLOD(SLNode* child, SLfloat minValue, SLfloat maxValue);
+    void         addChildLOD(SLNode* child, SLfloat minLodLimit);
     virtual void cullChildren3D(SLSceneView* sv);
-
-private:
-    SLint _childIndices[101];    //!< child indices at every percent (0-100)
 };
 //-----------------------------------------------------------------------------
 #endif
