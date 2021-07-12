@@ -27,7 +27,7 @@
 void SLNodeLOD::addChildLOD(SLNode* childToAdd, SLfloat minLodCoverage)
 {
     assert(minLodCoverage > 0.0f &&
-             minLodCoverage < 1.0f &&
+           minLodCoverage < 1.0f &&
            "SLNodeLOD::addChildLOD min. LOD limit must be > 0 and < 1");
 
     if (!_children.empty() &&
@@ -46,13 +46,27 @@ void SLNodeLOD::cullChildren3D(SLSceneView* sv)
     {
         SLfloat rectCoverage = _aabb.rectCoverageInSS(sv->scr2fbX(), sv->scr2fbY());
 
-        for (SLint i=0; i < _children.size(); ++i)
+        // Set visibility (draw-bit SL_DB_HIDDEN) for each level
+        for (SLint i = 0; i < _children.size(); ++i)
         {
-            if (rectCoverage > _children[i]->minLodCoverage())
+            bool isVisible;
+
+            if (i == 0)
             {
-                _children[i]->cull3DRec(sv);
-                break;
+                isVisible = rectCoverage < 1.0f &&
+                            rectCoverage >= _children[i]->minLodCoverage();
             }
+            else
+            {
+                isVisible = rectCoverage < _children[i - 1]->minLodCoverage() &&
+                            rectCoverage >= _children[i]->minLodCoverage();
+            }
+
+            _children[i]->drawBits()->set(SL_DB_HIDDEN, !isVisible);
+
+            // cull check only the visible level
+            if (isVisible)
+                _children[i]->cull3DRec(sv);
         }
     }
 }

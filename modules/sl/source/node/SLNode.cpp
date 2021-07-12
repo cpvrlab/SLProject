@@ -347,44 +347,47 @@ See also SLSceneView::draw3DGLAll for more details.
 */
 void SLNode::cull3DRec(SLSceneView* sv)
 {
-    // Do frustum culling for all shapes except cameras & lights
-    // Todo (ghm1): why can't SLLight inherit SLNode?
-    if (sv->doFrustumCulling() &&
+    if (!this->drawBit(SL_DB_HIDDEN))
+    {
+        // Do frustum culling for all shapes except cameras & lights
+        // Todo (ghm1): why can't SLLight inherit SLNode?
+        if (sv->doFrustumCulling() &&
         !dynamic_cast<SLCamera*>(this) && // Ghm1: Checking for typeid fails if someone adds a custom camera that inherits SLCamera
         typeid(*this) != typeid(SLLightRect) &&
         typeid(*this) != typeid(SLLightSpot) &&
         typeid(*this) != typeid(SLLightDirect))
-    {
-        sv->camera()->isInFrustum(&_aabb);
-    }
-    else
-        _aabb.isVisible(true);
-
-    // Cull the group nodes recursively
-    if (_aabb.isVisible() && !this->drawBit(SL_DB_HIDDEN))
-    {
-        cullChildren3D(sv);
-
-        if (this->drawBit(SL_DB_OVERDRAW))
         {
-            sv->nodesOverdrawn().push_back(this);
+            sv->camera()->isInFrustum(&_aabb);
         }
         else
+            _aabb.isVisible(true);
+
+        // Cull the group nodes recursively
+        if (_aabb.isVisible())
         {
-            // All nodes with meshes get rendered sorted by their material
-            if (this->mesh())
+            cullChildren3D(sv);
+
+            if (this->drawBit(SL_DB_OVERDRAW))
             {
-                sv->visibleMaterials3D().insert(this->mesh()->mat());
-                this->mesh()->mat()->nodesVisible3D().push_back(this);
+                sv->nodesOverdrawn().push_back(this);
             }
-            // Todo (hsm4): Only a view nodes without meshes get rendered (they need to be redesigned):
-            // Ghm1: Checking for typeid fails if someone adds a custom camera that inherits SLCamera
-            //else if (typeid(*this) == typeid(SLCamera) ||
-            //         typeid(*this) == typeid(SLKeyframeCamera))
-            else if (dynamic_cast<SLCamera*>(this))
-                sv->nodesOpaque3D().push_back(this);
-            else if (typeid(*this) == typeid(SLText))
-                sv->nodesBlended3D().push_back(this);
+            else
+            {
+                // All nodes with meshes get rendered sorted by their material
+                if (this->mesh())
+                {
+                    sv->visibleMaterials3D().insert(this->mesh()->mat());
+                    this->mesh()->mat()->nodesVisible3D().push_back(this);
+                }
+                // Todo (hsm4): Only a view nodes without meshes get rendered (they need to be redesigned):
+                // Ghm1: Checking for typeid fails if someone adds a custom camera that inherits SLCamera
+                //else if (typeid(*this) == typeid(SLCamera) ||
+                //         typeid(*this) == typeid(SLKeyframeCamera))
+                else if (dynamic_cast<SLCamera*>(this))
+                    sv->nodesOpaque3D().push_back(this);
+                else if (typeid(*this) == typeid(SLText))
+                    sv->nodesBlended3D().push_back(this);
+            }
         }
     }
 }

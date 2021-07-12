@@ -5726,6 +5726,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Set active camera & the root pointer
         sv->camera(cam1);
+        sv->doWaitOnIdle(false);
         s->root3D(scene);
     }
     else if (sceneID == SID_Benchmark6_LOD) //.....................................................

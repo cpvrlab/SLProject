@@ -74,7 +74,7 @@ void SLAABBox::fromOStoWS(const SLVec3f& minOS,
     for (i = 0; i < 8; ++i)
         vCorner[i] = wm.multVec(vCorner[i]);
 
-    //sets the minimum and maximum of the vertex components of the 8 corners
+    // sets the minimum and maximum of the vertex components of the 8 corners
     _minWS.set(vCorner[0]);
     _maxWS.set(vCorner[0]);
     for (i = 1; i < 8; ++i)
@@ -83,7 +83,7 @@ void SLAABBox::fromOStoWS(const SLVec3f& minOS,
         _maxWS.setMax(vCorner[i]);
     }
 
-    //set coordinate axis in world space
+    // set coordinate axis in world space
     _axis0WS = wm.multVec(SLVec3f::ZERO);
     _axisXWS = wm.multVec(SLVec3f::AXISX);
     _axisYWS = wm.multVec(SLVec3f::AXISY);
@@ -122,7 +122,7 @@ void SLAABBox::fromWStoOS(const SLVec3f& minWS,
     for (i = 0; i < 8; ++i)
         vCorner[i] = wmI.multVec(vCorner[i]);
 
-    //sets the minimum and maximum of the vertex components of the 8 corners
+    // sets the minimum and maximum of the vertex components of the 8 corners
     _minOS.set(vCorner[0]);
     _maxOS.set(vCorner[0]);
     for (i = 1; i < 8; ++i)
@@ -140,7 +140,7 @@ void SLAABBox::fromWStoOS(const SLVec3f& minWS,
 //! Updates the axis of the owning node
 void SLAABBox::updateAxisWS(const SLMat4f& wm)
 {
-    //set coordinate axis in world space
+    // set coordinate axis in world space
     _axis0WS = wm.multVec(SLVec3f::ZERO);
     _axisXWS = wm.multVec(SLVec3f::AXISX);
     _axisYWS = wm.multVec(SLVec3f::AXISY);
@@ -297,7 +297,7 @@ void SLAABBox::drawAxisWS()
 }
 //-----------------------------------------------------------------------------
 //! Draws the joint axis and the parent bone in world space
-/*! The joints x-axis is drawn in red, the y-axis in green and the z-axis in 
+/*! The joints x-axis is drawn in red, the y-axis in green and the z-axis in
 blue. If the parent displacement is a bone it is drawn in yellow, if it is a
 an offset displacement in magenta. See also SLAABBox::updateBoneWS.
 */
@@ -338,10 +338,10 @@ void SLAABBox::drawBoneWS()
 //! SLAABBox::isHitInWS: Ray - AABB Intersection Test in object space
 SLbool SLAABBox::isHitInOS(SLRay* ray)
 {
-    //See: "An Efficient and Robust Ray Box Intersection Algorithm"
-    //by Amy L. Williams, Steve Barrus, R. Keith Morley, Peter Shirley
-    //This test is about 10% faster than the test from Woo
-    //It need the pre computed values invDir and sign in SLRay
+    // See: "An Efficient and Robust Ray Box Intersection Algorithm"
+    // by Amy L. Williams, Steve Barrus, R. Keith Morley, Peter Shirley
+    // This test is about 10% faster than the test from Woo
+    // It need the pre computed values invDir and sign in SLRay
 
     SLVec3f params[2] = {_minOS, _maxOS};
     SLfloat tymin, tymax, tzmin, tzmax;
@@ -368,10 +368,10 @@ SLbool SLAABBox::isHitInOS(SLRay* ray)
 //! SLAABBox::isHitInWS: Ray - AABB Intersection Test in world space
 SLbool SLAABBox::isHitInWS(SLRay* ray)
 {
-    //See: "An Efficient and Robust Ray Box Intersection Algorithm"
-    //by Amy L. Williams, Steve Barrus, R. Keith Morley, Peter Shirley
-    //This test is about 10% faster than the test from Woo
-    //It need the pre computed values invDir and sign in SLRay
+    // See: "An Efficient and Robust Ray Box Intersection Algorithm"
+    // by Amy L. Williams, Steve Barrus, R. Keith Morley, Peter Shirley
+    // This test is about 10% faster than the test from Woo
+    // It need the pre computed values invDir and sign in SLRay
     SLVec3f params[2] = {_minWS, _maxWS};
     SLfloat tymin, tymax, tzmin, tzmax;
 
@@ -458,11 +458,11 @@ SLfloat SLAABBox::rectCoverageInSS(SLfloat scr2fbX, SLfloat scr2fbY)
 {
     calculateRectSS(scr2fbX, scr2fbY);
 
-    SLGLState* stateGL = SLGLState::instance();
-    SLfloat    areaSS  = _rectSS.width * _rectSS.height;
-    SLVec4i    vp      = stateGL->viewportFB();
-    SLfloat    areaScreen = (float)vp.z / scr2fbX * (float)vp.w / scr2fbY;
-    SLfloat    coverage  = areaSS / areaScreen;
+    SLGLState* stateGL        = SLGLState::instance();
+    SLfloat    areaSS         = _rectSS.width * _rectSS.height;
+    SLVec4i    vp             = stateGL->viewportFB();
+    SLfloat    areaFullScreen = (float)vp.z / scr2fbX * (float)vp.w / scr2fbY;
+    SLfloat    coverage       = areaSS / areaFullScreen;
     return coverage;
 }
 //-----------------------------------------------------------------------------

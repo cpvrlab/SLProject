@@ -3013,6 +3013,8 @@ void AppDemoGui::addSceneGraphNode(SLScene* s, SLNode* node)
 
     SLbool isSelectedNode = s->singleNodeSelected() == node;
     SLbool isLeafNode     = node->children().empty() && !node->mesh();
+    SLbool isHidden       = node->drawBit(SL_DB_HIDDEN);
+    bool   nodeIsOpen;
 
     ImGuiTreeNodeFlags nodeFlags = 0;
     if (isLeafNode)
@@ -3023,7 +3025,18 @@ void AppDemoGui::addSceneGraphNode(SLScene* s, SLNode* node)
     if (isSelectedNode)
         nodeFlags |= ImGuiTreeNodeFlags_Selected;
 
-    bool nodeIsOpen = ImGui::TreeNodeEx(node->name().c_str(), nodeFlags);
+    if (isHidden)
+    {
+        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.0f, 1.0f, 1.0f));
+        nodeIsOpen = ImGui::TreeNodeEx(node->name().c_str(), nodeFlags);
+        ImGui::PopStyleColor();
+    }
+    else
+    {
+        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 1.0f, 0.0f, 1.0f));
+        nodeIsOpen = ImGui::TreeNodeEx(node->name().c_str(), nodeFlags);
+        ImGui::PopStyleColor();
+    }
 
     if (ImGui::IsItemClicked())
     {
