@@ -278,6 +278,14 @@ cv::Mat SENSGLTextureReader::readImageFromGpu()
         glDisable(GL_STENCIL_TEST);
 
     glBindTexture(GL_TEXTURE_2D, _extTextureId);
+
+#if 0
+// TODO(dgj1): this reports 1920x1352 on all devices - find out why
+    GLint textureWidth, textureHeight;
+    glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &textureWidth);
+    glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &textureHeight);
+#endif
+
     glUseProgram(_prog);
     glBindVertexArray(_VAO);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);

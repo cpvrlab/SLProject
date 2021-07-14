@@ -24,6 +24,8 @@ bool SENSNdkARCore::checkAvailability(JNIEnv* env, void* context, void* activity
 
     if (availability == AR_AVAILABILITY_UNKNOWN_CHECKING)
     {
+        // TODO(dgj1): this could theoretically go on forever (or until the stack-memory is all used up).
+        // add a limit to recursion?
         std::this_thread::sleep_for(std::chrono::microseconds((int)(200000)));
         checkAvailability(env, context, activity);
     }
@@ -364,7 +366,9 @@ void SENSNdkARCore::updateCamera(cv::Mat& intrinsics)
             //ATTENTION: for the current implementation the gpu texture (preview image) has to have the same aspect ratio as the cpu image
             //check aspect ratio
             if ((float)_cpuImgTargetWidth / (float)_cpuImgTargetHeight)
+            {
                 _texImgReader = new SENSGLTextureReader(_cameraTextureId, true, _cpuImgTargetWidth, _cpuImgTargetHeight);
+            }
         }
 
         HighResTimer t;
