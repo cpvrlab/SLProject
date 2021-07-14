@@ -113,7 +113,10 @@ void SENSNdkARCore::reset()
         ArFrame_destroy(_arFrame);
         _arSession = nullptr;
         if (_texImgReader)
+        {
             delete _texImgReader;
+            _texImgReader = nullptr;
+        }
     }
 }
 
@@ -123,7 +126,10 @@ bool SENSNdkARCore::init(unsigned int textureId, bool retrieveCpuImg, int target
         _cameraTextureId = textureId;
 
     if (_texImgReader)
+    {
         delete _texImgReader;
+        _texImgReader = nullptr;
+    }
 
     _retrieveCpuImg     = retrieveCpuImg;
     _cpuImgTargetWidth  = targetWidth;
