@@ -16,7 +16,7 @@ public:
     SENSNdkARCore(JavaVM* jvm, JNIEnv* env, jobject context, jobject activity, std::string appName, std::string writableDir);
     ~SENSNdkARCore();
 
-    bool init(unsigned int textureId = 0, bool retrieveCpuImg = false, int targetWidth = -1, int targetHeight = -1) override;
+    bool init(unsigned int textureId = 0, bool retrieveCpuImg = false, int targetWidth = -1) override;
     bool init(JNIEnv* env, void* context, void* activity);
     bool isReady() override { return _arSession != nullptr; }
     bool resume() override;
@@ -68,8 +68,6 @@ private:
     std::string _writableDir;
 
     SENSGLTextureReader* _texImgReader = nullptr;
-    int                  _cpuImgTargetWidth;
-    int                  _cpuImgTargetHeight;
 
     cv::Mat convertToYuv(ArImage* arImage);
     void    updateCamera(cv::Mat& intrinsics);

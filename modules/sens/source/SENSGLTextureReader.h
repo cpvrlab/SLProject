@@ -3,8 +3,6 @@
 
 #include <string>
 #include <opencv2/core/core.hpp>
-// TODO(dgj1): activate again to get width and height for opengl textures in android
-//#include <GLES3/gl31.h>
 
 //dont include opengl in the header so that opengl is not used if not needed
 class SENSGLTextureReader

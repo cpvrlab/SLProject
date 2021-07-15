@@ -122,7 +122,8 @@ void SENSNdkARCore::reset()
     }
 }
 
-bool SENSNdkARCore::init(unsigned int textureId, bool retrieveCpuImg, int targetWidth, int targetHeight)
+// NOTE(dgj1): targetHeight is automatically calculated based on reported aspect ratio of GPU texture
+bool SENSNdkARCore::init(unsigned int textureId, bool retrieveCpuImg, int targetWidth)
 {
     if (textureId > 0)
         _cameraTextureId = textureId;
@@ -133,9 +134,8 @@ bool SENSNdkARCore::init(unsigned int textureId, bool retrieveCpuImg, int target
         _texImgReader = nullptr;
     }
 
-    _retrieveCpuImg     = retrieveCpuImg;
-    _cpuImgTargetWidth  = targetWidth;
-    _cpuImgTargetHeight = targetHeight;
+    _retrieveCpuImg    = retrieveCpuImg;
+    _cpuImgTargetWidth = targetWidth;
 
     JNIEnv* env;
     _jvm->GetEnv((void**)&env, JNI_VERSION_1_6);
@@ -248,6 +248,12 @@ bool SENSNdkARCore::init(JNIEnv* env, void* context, void* activity)
 
     ArCameraIntrinsics_destroy(arIntrinsics);
     ArCamera_release(arCamera);
+
+    if (_cpuImgTargetWidth > 0)
+    {
+        float aspect        = (float)_inputFrameH / (float)_inputFrameW;
+        _cpuImgTargetHeight = aspect * _cpuImgTargetWidth;
+    }
 
     pause();
     return true;
@@ -365,10 +371,7 @@ void SENSNdkARCore::updateCamera(cv::Mat& intrinsics)
         {
             //ATTENTION: for the current implementation the gpu texture (preview image) has to have the same aspect ratio as the cpu image
             //check aspect ratio
-            if ((float)_cpuImgTargetWidth / (float)_cpuImgTargetHeight)
-            {
-                _texImgReader = new SENSGLTextureReader(_cameraTextureId, true, _cpuImgTargetWidth, _cpuImgTargetHeight);
-            }
+            _texImgReader = new SENSGLTextureReader(_cameraTextureId, true, _cpuImgTargetWidth, _cpuImgTargetHeight);
         }
 
         HighResTimer t;
