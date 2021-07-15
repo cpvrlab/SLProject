@@ -53,8 +53,7 @@ void SLNodeLOD::cullChildren3D(SLSceneView* sv)
 
             if (i == 0)
             {
-                isVisible = rectCoverage < 1.0f &&
-                            rectCoverage >= _children[i]->minLodCoverage();
+                isVisible = rectCoverage >= _children[i]->minLodCoverage();
             }
             else
             {

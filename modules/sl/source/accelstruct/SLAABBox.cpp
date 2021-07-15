@@ -450,7 +450,7 @@ void SLAABBox::calculateRectSS(SLfloat scr2fbX, SLfloat scr2fbY)
     maxSS.y /= scr2fbX;
 
     _rectSS.set(minSS.x, minSS.y, maxSS.x - minSS.x, maxSS.y - minSS.y);
-    //_rectSS.print();
+    //_rectSS.print("_rectSS: ");
 }
 //-----------------------------------------------------------------------------
 //! Calculates the bounding rectangle in screen space and returns covarage in SS

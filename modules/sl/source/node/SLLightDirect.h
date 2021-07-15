@@ -102,7 +102,7 @@ private:
     SLfloat    _arrowLength;          //!< Length of direction line
     SLbool     _doSunPowerAdaptation; //!< Flag for sun power scaling
     SLfloat    _sunLightPowerMin;     //!< Min. zenith power scale factor for sun
-    SLTexColorLUT _sunLightColorLUT;     //!< Sun light color LUT
+    SLTexColorLUT _sunLightColorLUT;     //!< sunlight color LUT
 };
 //-----------------------------------------------------------------------------
 #endif

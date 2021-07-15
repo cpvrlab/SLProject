@@ -944,33 +944,6 @@ void SLSceneView::draw3DGLLines(SLVNode& nodes)
             {
                 node->aabb()->drawWS(SLCol4f::YELLOW);
             }
-
-            // Draw bounding rect in screen space
-            if (drawBit(SL_DB_BRECT) || node->drawBit(SL_DB_BRECT))
-            {
-                node->aabb()->calculateRectSS(_scr2fbX, _scr2fbY);
-
-                SLMat4f prevProjMat = stateGL->projectionMatrix;
-                stateGL->pushModelViewMatrix();
-                SLfloat w2 = (SLfloat)_scrWdiv2;
-                SLfloat h2 = (SLfloat)_scrHdiv2;
-                stateGL->projectionMatrix.ortho(-w2, w2, -h2, h2, 1.0f, -1.0f);
-                stateGL->viewportFB(0,
-                                    0,
-                                    (int)(_scrW * _scr2fbX),
-                                    (int)(_scrH * _scr2fbY));
-                stateGL->modelViewMatrix.identity();
-                stateGL->modelViewMatrix.translate(-w2, h2, 1.0f);
-                stateGL->depthMask(false); // Freeze depth buffer for blending
-                stateGL->depthTest(false); // Disable depth testing
-
-                node->aabb()->rectSS().drawGL(SLCol4f::GREEN);
-
-                stateGL->depthMask(true); // Freeze depth buffer for blending
-                stateGL->depthTest(true); // Disable depth testing
-                stateGL->popModelViewMatrix();
-                stateGL->projectionMatrix = prevProjMat;
-            }
         }
     }
 
@@ -984,6 +957,8 @@ as overlayed
 void SLSceneView::draw3DGLLinesOverlay(SLVNode& nodes)
 {
     PROFILE_FUNCTION();
+
+    SLGLState* stateGL = SLGLState::instance();
 
     // draw the opaque shapes directly w. their wm transform
     for (auto* node : nodes)
@@ -1038,6 +1013,31 @@ void SLSceneView::draw3DGLLinesOverlay(SLVNode& nodes)
                         }
                     }
                 }
+            }
+            else if (drawBit(SL_DB_BRECT) || node->drawBit(SL_DB_BRECT))
+            {
+                node->aabb()->calculateRectSS(_scr2fbX, _scr2fbY);
+
+                SLMat4f prevProjMat = stateGL->projectionMatrix;
+                stateGL->pushModelViewMatrix();
+                SLfloat w2 = (SLfloat)_scrWdiv2;
+                SLfloat h2 = (SLfloat)_scrHdiv2;
+                stateGL->projectionMatrix.ortho(-w2, w2, -h2, h2, 1.0f, -1.0f);
+                stateGL->viewportFB(0,
+                                    0,
+                                    (int)(_scrW * _scr2fbX),
+                                    (int)(_scrH * _scr2fbY));
+                stateGL->modelViewMatrix.identity();
+                stateGL->modelViewMatrix.translate(-w2, h2, 1.0f);
+                stateGL->depthMask(false); // Freeze depth buffer for blending
+                stateGL->depthTest(false); // Disable depth testing
+
+                node->aabb()->rectSS().drawGL(SLCol4f::GREEN);
+
+                stateGL->depthMask(true); // Freeze depth buffer for blending
+                stateGL->depthTest(true); // Disable depth testing
+                stateGL->popModelViewMatrix();
+                stateGL->projectionMatrix = prevProjMat;
             }
             else if (node->drawBit(SL_DB_OVERDRAW))
             {

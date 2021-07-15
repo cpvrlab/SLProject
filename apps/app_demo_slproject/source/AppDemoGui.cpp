@@ -2916,11 +2916,11 @@ void AppDemoGui::buildMenuEdit(SLProjectScene* s, SLSceneView* sv)
         if (ImGui::MenuItem("Normals", nullptr, selN->drawBits()->get(SL_DB_NORMALS)))
             selN->drawBits()->toggle(SL_DB_NORMALS);
 
-        if (ImGui::MenuItem("Bounding Boxes", nullptr, selN->drawBits()->get(SL_DB_BBOX)))
-            selN->drawBits()->toggle(SL_DB_BBOX);
-
         if (ImGui::MenuItem("Bounding Rectangles", nullptr, selN->drawBits()->get(SL_DB_BRECT)))
             selN->drawBits()->toggle(SL_DB_BRECT);
+
+        if (ImGui::MenuItem("Bounding Boxes", nullptr, selN->drawBits()->get(SL_DB_BBOX)))
+            selN->drawBits()->toggle(SL_DB_BBOX);
 
         if (ImGui::MenuItem("Voxels", nullptr, selN->drawBits()->get(SL_DB_VOXELS)))
             selN->drawBits()->toggle(SL_DB_VOXELS);
