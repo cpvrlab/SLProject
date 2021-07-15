@@ -664,9 +664,9 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
                     for (SLuint i = 0; i < s->textures().size(); ++i)
                     {
                         if (s->textures()[i]->images().empty())
-                            ImGui::Text("[%u] %s (GPU)", i, s->textures()[i]->name().c_str());
+                            ImGui::Text("[%u] %s on GPU (%s)", i, s->textures()[i]->name().c_str(), s->textures()[i]->isTexture() ? "ok" : "not ok");
                         else
-                            ImGui::Text("[%u] %s", i, s->textures()[i]->name().c_str());
+                            ImGui::Text("[%u] %s (%s)", i, s->textures()[i]->name().c_str(), s->textures()[i]->isTexture() ? "ok" : "not ok");
                     }
 
                     ImGui::TreePop();
@@ -1772,8 +1772,10 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                         s->onLoad(s, sv, SID_Benchmark3_NodeAnimations);
                     if (ImGui::MenuItem("Massive Skinned Animations", nullptr, sid == SID_Benchmark4_SkinnedAnimations))
                         s->onLoad(s, sv, SID_Benchmark4_SkinnedAnimations);
-                    if (ImGui::MenuItem("Level of Detail", nullptr, sid == SID_Benchmark4_LOD))
-                        s->onLoad(s, sv, SID_Benchmark4_LOD);
+
+                    if (Utils::fileExists(AppDemo::configPath + "GLTF/DragonLOD/Dragon_LOD.glb"))
+                        if (ImGui::MenuItem("Level of Detail", nullptr, sid == SID_Benchmark4_LOD))
+                            s->onLoad(s, sv, SID_Benchmark4_LOD);
 
                     ImGui::EndMenu();
                 }
@@ -3547,6 +3549,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
 
                                 ImGui::Text("Size(PX): %dx%dx%d", tex->width(), tex->height(), tex->depth());
                                 ImGui::Text("Size(MB): GPU:%4.2f, CPU:%4.2f, DSK:%4.2f", mbGPU, mbCPU, mbDSK);
+                                ImGui::Text("TexID   : %u (%s)", tex->texID(), tex->isTexture() ? "ok" : "not ok");
                                 ImGui::Text("Type    : %s", tex->typeName().c_str());
 #ifdef SL_BUILD_WITH_KTX
                                 ImGui::Text("Compr.  : %s", tex->compressionFormatStr(tex->compressionFormat()).c_str());
@@ -3791,7 +3794,7 @@ void AppDemoGui::loadConfig(SLint dotsPerInch)
                                             style.FramePadding.y = style.ItemInnerSpacing.y = style.ItemSpacing.y;
                                             style.WindowPadding.y = style.ItemSpacing.y * 3;
             fs["ScrollbarSize"] >> i;       style.ScrollbarSize = (SLfloat) i;
-            // HSM4: Bugfix in some unknow cases ScrollbarSize gets INT::MIN
+            // HSM4: Bugfix in some unknown cases ScrollbarSize gets INT::MIN
             if (style.ScrollbarSize < 0.0f)
                 style.ScrollbarSize = 16.0f;
 

@@ -540,7 +540,7 @@ SLbool SLSceneView::onPaint()
     SLbool camUpdated = false;
 
     // Init and build GUI for all projections except distorted stereo
-    //if (_camera && _camera->projection() != P_stereoSideBySideD)
+    if (_camera && _camera->projection() != P_stereoSideBySideD)
     {
         if (_gui)
             _gui->onInitNewFrame(_s, this);

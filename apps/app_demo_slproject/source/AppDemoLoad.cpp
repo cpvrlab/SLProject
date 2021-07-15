@@ -1484,8 +1484,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->info("Image-based Lighting from skybox using high dynamic range images. "
                 "Use F4-Key to increment (decrement w. shift-F4) exposure of the HDR skybox. "
                 "It uses the Cook-Torrance light model also to calculate the ambient light part "
-                "from the surrounding HDR skybox. This example works only correct if you start "
-                "the application with this scene as the startup scene.");
+                "from the surrounding HDR skybox.");
 
         // Create uniform to control exposure
         // this is done this way so that the exposure of the whole scene remains consistent
@@ -1506,12 +1505,13 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->eventHandlers().push_back(exposure_pbrtex);
 
         // Create HDR CubeMap and get precalculated textures from it
-        SLSkybox*    hdrCubeMap     = new SLSkybox(s,
-                                                   shaderPath,
-                                                   texPath + "env_barce_rooftop.hdr",
-                                                   SLVec2i(2048, 2048),
-                                                   "HDR Skybox",
-                                                   new SLGLUniform1f(exposure));
+        SLSkybox* hdrCubeMap = new SLSkybox(s,
+                                            shaderPath,
+                                            texPath + "env_barce_rooftop.hdr",
+                                            SLVec2i(2048, 2048),
+                                            "HDR Skybox",
+                                            new SLGLUniform1f(exposure));
+
         SLGLTexture* irrandianceMap = hdrCubeMap->mesh()->mat()->textures()[1];
         SLGLTexture* prefilterMap   = hdrCubeMap->mesh()->mat()->textures()[2];
         SLGLTexture* brdfLUTTexture = hdrCubeMap->mesh()->mat()->textures()[3];
@@ -1587,7 +1587,14 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                                             brdfLUTTexture);
                 }
 
-                SLNode* node = new SLNode(new SLSpheric(s, 1.0f, 0.0f, 180.0f, 32, 32, "Sphere", mat[i]));
+                SLNode* node = new SLNode(new SLSpheric(s,
+                                                        1.0f,
+                                                        0.0f,
+                                                        180.0f,
+                                                        32,
+                                                        32,
+                                                        "Sphere",
+                                                        mat[i]));
                 node->translate(x, y, 0);
                 scene->addChild(node);
                 x += spacing;
