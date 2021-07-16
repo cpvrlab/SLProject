@@ -1775,7 +1775,21 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                     if (ImGui::MenuItem("Level of Detail", nullptr, sid == SID_Benchmark5_LOD))
                         s->onLoad(s, sv, SID_Benchmark5_LOD);
                     if (ImGui::MenuItem("Corinthian Columns (LOD)", nullptr, sid == SID_Benchmark6_LOD))
-                        s->onLoad(s, sv, SID_Benchmark6_LOD);
+                    {
+                        SLstring largeFile = AppDemo::configPath + "models/GLTF-CorinthianColumn/Corinthian-Column-Round-LOD.gltf";
+                        if (Utils::fileExists(largeFile))
+                            s->onLoad(s, sv, SID_Benchmark6_LOD);
+                        else
+                        {
+                            downloadModelAndLoadScene(s,
+                                                      sv,
+                                                      "GLTF-CorinthianColumn.zip",
+                                                      "https://pallas.ti.bfh.ch/data/SLProject/models/",
+                                                      AppDemo::configPath + "models/",
+                                                      "GLTF-CorinthianColumn/Corinthian-Column-Round-LOD.gltf",
+                                                      SID_Benchmark6_LOD);
+                        }
+                    }
 
                     ImGui::EndMenu();
                 }
@@ -4057,7 +4071,7 @@ void AppDemoGui::downloadModelAndLoadScene(SLScene*     s,
         AppDemo::jobProgressMsg(jobMsg);
         AppDemo::jobProgressMax(100);
         string fileToDownload = urlFolder + downloadFilename;
-        if (!HttpUtils::download(fileToDownload, dstFolder, progressCallback))
+        if (HttpUtils::download(fileToDownload, dstFolder, progressCallback)!=0)
             SL_LOG("*** Nothing downloaded from: %s ***", fileToDownload.c_str());
         AppDemo::jobIsRunning = false;
     };

@@ -887,10 +887,11 @@ int HttpUtils::download(string                                      url,
 }
 //-----------------------------------------------------------------------------
 /*!
- *
- * @param url
- * @param dst
- * @param progress
+ * HttpUtils::download return 0 on success otherwise an error code if the
+ * download of the file at url to the destination at dst was successful.
+ * @param url A uniform resource locator file address of the file to download
+ * @param dst A uniform resource locator folder address as destination folder
+ * @param progress A function object that is called during the progress
  */
 int HttpUtils::download(string                                      url,
                         string                                      dst,
@@ -908,6 +909,7 @@ int HttpUtils::length(string url, string user, string pwd)
 
     return (int)req.contentLength;
 }
+//-----------------------------------------------------------------------------
 
 #endif // SL_BUILD_WITH_OPENSSL
 
