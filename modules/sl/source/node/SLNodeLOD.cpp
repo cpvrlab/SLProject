@@ -62,6 +62,7 @@ void SLNodeLOD::cullChildren3D(SLSceneView* sv)
             }
 
             _children[i]->drawBits()->set(SL_DB_HIDDEN, !isVisible);
+            _aabb.isVisible(isVisible);
 
             // cull check only the visible level
             if (isVisible)

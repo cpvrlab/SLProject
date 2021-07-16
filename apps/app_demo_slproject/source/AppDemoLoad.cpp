@@ -5732,7 +5732,10 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
     else if (sceneID == SID_Benchmark6_LOD) //.....................................................
     {
         SLstring modelFile = AppDemo::configPath + "models/GLTF-CorinthianColumn/Corinthian-Column-Round-LOD.gltf";
-        if (Utils::fileExists(modelFile))
+        SLstring texCFile  = AppDemo::configPath + "models/GLTF-CorinthianColumn/PavementSlateSquare2_2K_DIF.jpg";
+        SLstring texNFile  = AppDemo::configPath + "models/GLTF-CorinthianColumn/PavementSlateSquare2_2K_NRM.jpg";
+
+        if (Utils::fileExists(modelFile) && Utils::fileExists(texCFile) && Utils::fileExists(texNFile))
         {
             SLchar name[512];
             sprintf(name, "Lots of Corinthian Columns in LODs");
@@ -5740,9 +5743,9 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
             s->info(s->name());
 
             // Create ground material
-            SLGLTexture* texFloorDif = new SLGLTexture(s, AppDemo::configPath + "models/GLTF-CorinthianColumn/PavementSlateSquare2_2K_DIF.jpg", SL_ANISOTROPY_MAX, GL_LINEAR);
-            SLGLTexture* texFloorNrm = new SLGLTexture(s, AppDemo::configPath + "models/GLTF-CorinthianColumn/PavementSlateSquare2_2K_NRM.jpg", SL_ANISOTROPY_MAX, GL_LINEAR);
-            SLMaterial* matFloor = new SLMaterial(s, "matFloor", texFloorDif, texFloorNrm);
+            SLGLTexture* texFloorDif = new SLGLTexture(s, texCFile, SL_ANISOTROPY_MAX, GL_LINEAR);
+            SLGLTexture* texFloorNrm = new SLGLTexture(s, texNFile, SL_ANISOTROPY_MAX, GL_LINEAR);
+            SLMaterial*  matFloor    = new SLMaterial(s, "matFloor", texFloorDif, texFloorNrm);
 
             // Create directional light for the sunlight
             SLLightDirect* sunLight = new SLLightDirect(s, s, 1.0f);
@@ -5795,44 +5798,46 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                                                        nullptr, // no replacement material
                                                        1.0f);   // 40% ambient reflection
 
-                                                       SLNode* columnL0 = columnLOD->findChild<SLNode>("Corinthian-Column-Round-L0");
-                                                       SLNode* columnL1 = columnLOD->findChild<SLNode>("Corinthian-Column-Round-L1");
-                                                       SLNode* columnL2 = columnLOD->findChild<SLNode>("Corinthian-Column-Round-L2");
-                                                       SLNode* columnL3 = columnLOD->findChild<SLNode>("Corinthian-Column-Round-L3");
+            SLNode* columnL0 = columnLOD->findChild<SLNode>("Corinthian-Column-Round-L0");
+            SLNode* columnL1 = columnLOD->findChild<SLNode>("Corinthian-Column-Round-L1");
+            SLNode* columnL2 = columnLOD->findChild<SLNode>("Corinthian-Column-Round-L2");
+            SLNode* columnL3 = columnLOD->findChild<SLNode>("Corinthian-Column-Round-L3");
 
-                                                       // Assemble scene
-                                                       SLNode* scene = new SLNode("scene group");
-                                                       scene->addChild(sunLight);
-                                                       scene->addChild(rect);
-                                                       scene->addChild(cam1);
+            // Assemble scene
+            SLNode* scene = new SLNode("Scene");
+            scene->addChild(sunLight);
+            scene->addChild(rect);
+            scene->addChild(cam1);
 
-                                                       // create loads of pillars
-                                                       SLint   size       = 20;
-                                                       SLint   numColumns = size * size;
-                                                       SLfloat offset     = 5.0f;
-                                                       SLfloat z          = (float)(size - 1) * offset * 0.5f;
+            // create loads of pillars
+            SLint   size       = 20;
+            SLint   numColumns = size * size;
+            SLfloat offset     = 5.0f;
+            SLfloat z          = (float)(size - 1) * offset * 0.5f;
 
-                                                       for (SLint iZ = 0; iZ < size; ++iZ)
-                                                       {
-                                                           SLfloat x = -(float)(size - 1) * offset * 0.5f;
+            for (SLint iZ = 0; iZ < size; ++iZ)
+            {
+                SLfloat x = -(float)(size - 1) * offset * 0.5f;
 
-                                                           for (SLint iX = 0; iX < size; ++iX)
-                                                           {
-                                                               SLNodeLOD* lod_group = new SLNodeLOD();
-                                                               lod_group->translate(x, 0, z, TS_object);
-                                                               lod_group->addChildLOD(new SLNode(columnL1->mesh(),"Column-L0"), 0.1f);
-                                                               lod_group->addChildLOD(new SLNode(columnL2->mesh(),"Column-L1"), 0.01f);
-                                                               lod_group->addChildLOD(new SLNode(columnL3->mesh(),"Column-L2"), 0.0001f);
-                                                               scene->addChild(lod_group);
-                                                               x += offset;
-                                                           }
-                                                           z -= offset;
-                                                       }
+                for (SLint iX = 0; iX < size; ++iX)
+                {
+                    SLint      iZX       = iZ * size + iX;
+                    string     strLOD    = "LOD" + std::to_string(iZX);
+                    SLNodeLOD* lod_group = new SLNodeLOD(strLOD);
+                    lod_group->translate(x, 0, z, TS_object);
+                    lod_group->addChildLOD(new SLNode(columnL1->mesh(), "Column-L0"), 0.1f);
+                    lod_group->addChildLOD(new SLNode(columnL2->mesh(), "Column-L1"), 0.01f);
+                    lod_group->addChildLOD(new SLNode(columnL3->mesh(), "Column-L2"), 0.0001f);
+                    scene->addChild(lod_group);
+                    x += offset;
+                }
+                z -= offset;
+            }
 
-                                                       // Set active camera & the root pointer
-                                                       sv->camera(cam1);
-                                                       sv->doWaitOnIdle(false);
-                                                       s->root3D(scene);
+            // Set active camera & the root pointer
+            sv->camera(cam1);
+            sv->doWaitOnIdle(false);
+            s->root3D(scene);
         }
     }
 
