@@ -5,14 +5,14 @@ void Buffer::destroy()
 {
     if (_handle != VK_NULL_HANDLE)
     {
-        vkDestroyBuffer(_device.handle(), _handle, nullptr);
-        vkFreeMemory(_device.handle(), _memory, nullptr);
+        vmaDestroyBuffer(_device.vmaAllocator(), _handle, _vmaAllocation);
     }
 }
 //-----------------------------------------------------------------------------
 void Buffer::createBuffer(VkDeviceSize          size,
                           VkBufferUsageFlags    usage,
-                          VkMemoryPropertyFlags properties)
+                          VkMemoryPropertyFlags properties,
+                          VmaAllocationInfo*    vmaAllocationInfo)
 {
     VkBufferCreateInfo bufferInfo{};
     bufferInfo.sType       = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
@@ -20,22 +20,14 @@ void Buffer::createBuffer(VkDeviceSize          size,
     bufferInfo.usage       = usage;
     bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-    VkResult result = vkCreateBuffer(_device.handle(), &bufferInfo, nullptr, &_handle);
+    VmaAllocationCreateInfo allocInfo = {};
+    allocInfo.usage                   = VMA_MEMORY_USAGE_GPU_ONLY;
+    allocInfo.requiredFlags           = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT;
+    allocInfo.preferredFlags          = VK_MEMORY_PROPERTY_HOST_COHERENT_BIT | VK_MEMORY_PROPERTY_HOST_CACHED_BIT;
+    allocInfo.flags                   = VMA_ALLOCATION_CREATE_MAPPED_BIT;
+
+    VkResult result = vmaCreateBuffer(_device.vmaAllocator(), &bufferInfo, &allocInfo, &_handle, &_vmaAllocation, vmaAllocationInfo);
     ASSERT_VULKAN(result, "Failed to create buffer");
-
-    VkMemoryRequirements memRequirements;
-    vkGetBufferMemoryRequirements(_device.handle(), _handle, &memRequirements);
-
-    VkMemoryAllocateInfo allocInfo{};
-    allocInfo.sType           = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-    allocInfo.allocationSize  = memRequirements.size;
-    allocInfo.memoryTypeIndex = findMemoryType(_device, memRequirements.memoryTypeBits, properties);
-
-    result = vkAllocateMemory(_device.handle(), &allocInfo, nullptr, &_memory);
-    ASSERT_VULKAN(result, "Failed to allocate buffer memory");
-
-    result = vkBindBufferMemory(_device.handle(), _handle, _memory, 0);
-    ASSERT_VULKAN(result, "Failed to bind Buffer memory!");
 }
 //-----------------------------------------------------------------------------
 uint32_t Buffer::findMemoryType(Device&               device,
@@ -70,19 +62,19 @@ void Buffer::createVertexBuffer(const vector<Vertex>& vertices)
 {
     VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
 
-    Buffer stagingBuffer = Buffer(_device);
+    VmaAllocationInfo stagingVertexBufferAllocInfo = {};
+    Buffer            stagingBuffer                = Buffer(_device);
     stagingBuffer.createBuffer(bufferSize,
                                VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-                               VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+                               VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                               &stagingVertexBufferAllocInfo);
 
-    void* data;
-    vkMapMemory(_device.handle(), stagingBuffer._memory, 0, bufferSize, 0, &data);
-    memcpy(data, vertices.data(), (size_t)bufferSize);
-    vkUnmapMemory(_device.handle(), stagingBuffer._memory);
+    memcpy(stagingVertexBufferAllocInfo.pMappedData, vertices.data(), (size_t)bufferSize);
 
     createBuffer(bufferSize,
                  VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-                 VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+                 VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+                 nullptr);
 
     copy(stagingBuffer, bufferSize);
 
@@ -91,15 +83,15 @@ void Buffer::createVertexBuffer(const vector<Vertex>& vertices)
 //-----------------------------------------------------------------------------
 void Buffer::createVertexBuffer(const SLVVec3f pos, const SLVVec3f norm, const SLVVec2f texCoord, const SLVCol4f color, const size_t size)
 {
-    VkDeviceSize totalBufferSize = (sizeof(SLVec3f) * 2 + sizeof(SLVec2f) + sizeof(SLCol4f)) * size;
-    Buffer       stagingBuffer   = Buffer(_device);
+    VkDeviceSize      totalBufferSize              = (sizeof(SLVec3f) * 2 + sizeof(SLVec2f) + sizeof(SLCol4f)) * size;
+    VmaAllocationInfo stagingVertexBufferAllocInfo = {};
+    Buffer            stagingBuffer                = Buffer(_device);
     stagingBuffer.createBuffer(totalBufferSize,
                                VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-                               VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+                               VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                               &stagingVertexBufferAllocInfo);
 
-    void* data;
-    vkMapMemory(_device.handle(), stagingBuffer._memory, 0, totalBufferSize, 0, &data);
-    char* temp = (char*)data;
+    char* temp = (char*)stagingVertexBufferAllocInfo.pMappedData;
     for (size_t i = 0; i < size; i++)
     {
         memcpy((temp), &pos[i], sizeof(SLVec3f));
@@ -110,11 +102,10 @@ void Buffer::createVertexBuffer(const SLVVec3f pos, const SLVVec3f norm, const S
     }
     temp -= totalBufferSize;
 
-    vkUnmapMemory(_device.handle(), stagingBuffer._memory);
-
     createBuffer(totalBufferSize,
                  VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-                 VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+                 VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+                 nullptr);
 
     copy(stagingBuffer, totalBufferSize);
 
@@ -123,22 +114,21 @@ void Buffer::createVertexBuffer(const SLVVec3f pos, const SLVVec3f norm, const S
 //-----------------------------------------------------------------------------
 void Buffer::createIndexBuffer(const SLVuint indices)
 {
-    VkDeviceSize bufferSize = sizeof(indices[0]) * indices.size();
-
-    Buffer stagingBuffer = Buffer(_device);
+    VkDeviceSize      bufferSize                  = sizeof(indices[0]) * indices.size();
+    VmaAllocationInfo stagingIndexBufferAllocInfo = {};
+    Buffer            stagingBuffer               = Buffer(_device);
     stagingBuffer.createBuffer(bufferSize,
                                VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
                                VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
-                                 VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+                                 VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                               &stagingIndexBufferAllocInfo);
 
-    void* data;
-    vkMapMemory(_device.handle(), stagingBuffer._memory, 0, bufferSize, 0, &data);
-    memcpy(data, indices.data(), (size_t)bufferSize);
-    vkUnmapMemory(_device.handle(), stagingBuffer._memory);
+    memcpy(stagingIndexBufferAllocInfo.pMappedData, indices.data(), (size_t)bufferSize);
 
     createBuffer(bufferSize,
                  VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
-                 VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+                 VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+                 nullptr);
 
     copy(stagingBuffer, bufferSize);
 

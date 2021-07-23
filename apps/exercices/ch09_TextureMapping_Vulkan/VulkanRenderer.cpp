@@ -133,7 +133,7 @@ void VulkanRenderer::createMesh(Camera& camera, const vector<DrawingObject>& dra
     }
 
     _commandBuffer = new CommandBuffer(*_device);
-    _commandBuffer->setVertices(*_swapchain, *_framebuffer, *_renderPass, vertexBufferList, indexBufferList, pipelineList, descriptorSetList, indexSize, rangeManager);
+    _commandBuffer->setVertices(*_swapchain, *_framebuffer, *_renderPass, vertexBufferList, indexBufferList, pipelineList, descriptorSetList, indexSize, rangeManager, uniformBufferList);
     _device->createSyncObjects(*_swapchain);
 }
 //-----------------------------------------------------------------------------
@@ -156,7 +156,7 @@ void VulkanRenderer::draw()
         cerr << "failed to acquire swapchain image!" << endl;
 
     for (UniformBuffer* ub : uniformBufferList)
-        ub->update(imageIndex);
+        ub->update(_currentFrame);
 
     if (_device->imagesInFlight()[imageIndex] != VK_NULL_HANDLE)
         vkWaitForFences(_device->handle(), 1, &_device->imagesInFlight()[imageIndex], VK_TRUE, UINT64_MAX);

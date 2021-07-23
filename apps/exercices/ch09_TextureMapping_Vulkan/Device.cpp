@@ -48,6 +48,15 @@ Device::Device(Instance&                 instance,
     vkGetDeviceQueue(_handle, indices.presentFamily, 0, &_presentQueue);
 
     createCommandPool();
+
+    VmaAllocatorCreateInfo allocatorInfo = {};
+    allocatorInfo.vulkanApiVersion       = VK_API_VERSION_1_0;
+    allocatorInfo.physicalDevice         = _physicalDevice;
+    allocatorInfo.device                 = _handle;
+    allocatorInfo.instance               = _instance.handle;
+
+    result = vmaCreateAllocator(&allocatorInfo, &_vmaAllocator);
+    ASSERT_VULKAN(result, "Failed to create vmaAllocator");
 }
 //-----------------------------------------------------------------------------
 void Device::destroy()
@@ -60,12 +69,11 @@ void Device::destroy()
             vkDestroySemaphore(_handle, _imageAvailableSemaphores[i], nullptr);
         if (_inFlightFences[i] != VK_NULL_HANDLE)
             vkDestroyFence(_handle, _inFlightFences[i], nullptr);
-        // if (imagesInFlight[i] != VK_NULL_HANDLE)
-        //     vkDestroyFence(_handle, imagesInFlight[i], nullptr);
     }
 
     vkDestroyCommandPool(_handle, _commandPool, nullptr);
     vkDestroyDevice(_handle, nullptr);
+    vmaDestroyAllocator(_vmaAllocator);
     vkDestroySurfaceKHR(_instance.handle, _surface, nullptr);
 }
 //-----------------------------------------------------------------------------

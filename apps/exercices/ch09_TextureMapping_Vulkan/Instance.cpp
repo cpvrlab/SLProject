@@ -53,10 +53,6 @@ Instance::Instance(const char*                applicationName,
 void Instance::destroy()
 {
 #if defined(VK_DEBUG)
-    // if (debugUtilsMessenger != VK_NULL_HANDLE)
-    //     vkDestroyDebugUtilsMessengerEXT(handle, debugUtilsMessenger, nullptr);
-    // if (debugReportCallback != VK_NULL_HANDLE)
-    //     vkDestroyDebugReportCallbackEXT(handle, debugReportCallback, nullptr);
     auto func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(handle,
                                                                            "vkDestroyDebugUtilsMessengerEXT");
     if (func != nullptr)

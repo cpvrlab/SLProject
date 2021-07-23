@@ -119,7 +119,7 @@ void CommandBuffer::setVertices(Swapchain& swapchain, Framebuffer& framebuffer, 
     }
 }
 
-void CommandBuffer::setVertices(Swapchain& swapchain, Framebuffer& framebuffer, RenderPass& renderPass, vector<Buffer*> vertexBuffer, vector<Buffer*> indexBuffer, vector<Pipeline*> pipeline, vector<DescriptorSet*> descriptorSet, vector<int> indicesSize, RangeManager& rangeManager)
+void CommandBuffer::setVertices(Swapchain& swapchain, Framebuffer& framebuffer, RenderPass& renderPass, vector<Buffer*> vertexBuffer, vector<Buffer*> indexBuffer, vector<Pipeline*> pipeline, vector<DescriptorSet*> descriptorSet, vector<int> indicesSize, RangeManager& rangeManager, vector<UniformBuffer*> uniformBufferList)
 {
     _handles.resize(framebuffer.handle().size());
 
@@ -164,10 +164,6 @@ void CommandBuffer::setVertices(Swapchain& swapchain, Framebuffer& framebuffer, 
                               VK_PIPELINE_BIND_POINT_GRAPHICS,
                               pipeline[j]->graphicsPipeline());
 
-            // TODO: Fill array of vertexBuffers + indexBuffers
-            // VkBuffer* vertexBuffers = new VkBuffer[rangeManager.getDiff(j)];
-            // for (int k = rangeManager.getMin(j); k < rangeManager.getMax(j); k++)
-            //     vertexBuffers[k] = vertexBuffer[k]->handle();
             vector<VkBuffer> vertexBuffers = vector<VkBuffer>(rangeManager.getDiff(j));
             int              zeroCounter   = 0;
             for (int k = rangeManager.getMin(j); k < rangeManager.getMax(j); k++)
@@ -183,7 +179,6 @@ void CommandBuffer::setVertices(Swapchain& swapchain, Framebuffer& framebuffer, 
                                    vertexBuffers.data(),
                                    offsets);
 
-            // TODO: Create List for which pipeline owns which vertexBuffer
             for (int k = rangeManager.getMin(j); k < rangeManager.getMax(j); k++)
             {
                 vkCmdBindIndexBuffer(_handles[i],
@@ -205,9 +200,6 @@ void CommandBuffer::setVertices(Swapchain& swapchain, Framebuffer& framebuffer, 
                                  0,
                                  0);
             }
-
-            // delete[] vertexBuffers;
-            // vertexBuffers = nullptr;
         }
 
         vkCmdEndRenderPass(_handles[i]);

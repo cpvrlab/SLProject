@@ -8,8 +8,7 @@ void TextureImage::destroy()
 
     if (_image != VK_NULL_HANDLE)
     {
-        vkDestroyImage(_device.handle(), _image, nullptr);
-        vkFreeMemory(_device.handle(), _imageMemory, nullptr);
+        vmaDestroyImage(_device.vmaAllocator(), _image, _vmaAllocation);
     }
 
     _sampler->destroy();
@@ -22,16 +21,15 @@ void TextureImage::createTextureImage(void* pixels, unsigned int texWidth, unsig
     if (texWidth == 0)
         cerr << "Failed to load texture _image" << endl;
 
-    Buffer buffer = Buffer(_device);
+    VmaAllocationInfo bufferAllocInfo = {};
+    Buffer            buffer          = Buffer(_device);
     buffer.createBuffer(imageSize,
                         VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
                         VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
-                          VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+                          VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                        &bufferAllocInfo);
 
-    void* data;
-    vkMapMemory(_device.handle(), buffer.memory(), 0, imageSize, 0, &data);
-    memcpy(data, pixels, static_cast<size_t>(imageSize));
-    vkUnmapMemory(_device.handle(), buffer.memory());
+    memcpy(bufferAllocInfo.pMappedData, pixels, static_cast<size_t>(imageSize));
 
     createImage(texWidth,
                 texHeight,
@@ -66,7 +64,7 @@ void TextureImage::createDepthImage(Swapchain& swapchain)
                 VK_IMAGE_TILING_OPTIMAL,
                 VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
                 VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-    // TODO: Find a better solution (without return)
+
     _imageView = createImageView(_image, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT);
 }
 //-----------------------------------------------------------------------------
@@ -92,21 +90,13 @@ void TextureImage::createImage(uint32_t              width,
     imageInfo.samples       = VK_SAMPLE_COUNT_1_BIT;
     imageInfo.sharingMode   = VK_SHARING_MODE_EXCLUSIVE;
 
-    VkResult result = vkCreateImage(_device.handle(), &imageInfo, nullptr, &_image);
-    ASSERT_VULKAN(result, "Failed to create _image");
+    VmaAllocationCreateInfo imageAllocCreateInfo = {};
+    imageAllocCreateInfo.usage                   = VMA_MEMORY_USAGE_GPU_ONLY;
+    imageAllocCreateInfo.flags                   = VMA_ALLOCATION_CREATE_USER_DATA_COPY_STRING_BIT;
+    imageAllocCreateInfo.pUserData               = "   ";
 
-    VkMemoryRequirements memRequirements;
-    vkGetImageMemoryRequirements(_device.handle(), _image, &memRequirements);
-
-    VkMemoryAllocateInfo allocInfo{};
-    allocInfo.sType           = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-    allocInfo.allocationSize  = memRequirements.size;
-    allocInfo.memoryTypeIndex = Buffer::findMemoryType(_device, memRequirements.memoryTypeBits, properties);
-
-    result = vkAllocateMemory(_device.handle(), &allocInfo, nullptr, &_imageMemory);
-    ASSERT_VULKAN(result, "Failed to allocate _image memory");
-
-    vkBindImageMemory(_device.handle(), _image, _imageMemory, 0);
+    VkResult result = vmaCreateImage(_device.vmaAllocator(), &imageInfo, &imageAllocCreateInfo, &_image, &_vmaAllocation, nullptr);
+    ASSERT_VULKAN(result, "Failed to create image");
 }
 //-----------------------------------------------------------------------------
 void TextureImage::transitionImageLayout(VkImage&      _image,

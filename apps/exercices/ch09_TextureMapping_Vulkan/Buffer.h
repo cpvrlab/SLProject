@@ -23,16 +23,15 @@ public:
                                        const SLVCol4f color,
                                        const size_t   size);
     void            createIndexBuffer(const SLVuint indices);
-    void            createBuffer(VkDeviceSize, VkBufferUsageFlags, VkMemoryPropertyFlags);
+    void            createBuffer(VkDeviceSize, VkBufferUsageFlags, VkMemoryPropertyFlags, VmaAllocationInfo*);
 
     // Getter
-    Device&        device() const { return _device; }
-    VkBuffer       handle() const { return _handle; }
-    VkDeviceMemory memory() const { return _memory; }
+    Device&  device() const { return _device; }
+    VkBuffer handle() const { return _handle; }
 
 private:
-    Device&        _device;
-    VkBuffer       _handle{VK_NULL_HANDLE};
-    VkDeviceMemory _memory;
+    Device&       _device;
+    VkBuffer      _handle{VK_NULL_HANDLE};
+    VmaAllocation _vmaAllocation;
 };
 //-----------------------------------------------------------------------------

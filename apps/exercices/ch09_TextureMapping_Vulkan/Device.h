@@ -4,6 +4,7 @@
 
 #include "Instance.h"
 #include "Swapchain.h"
+#include "vk_mem_alloc.h"
 
 class Swapchain;
 
@@ -22,11 +23,6 @@ public:
            VkSurfaceKHR              surface,
            const vector<const char*> extensions);
 
-    // Device(const Device&) = delete;
-    // Device(Device&&)      = delete;
-    // Device& operator=(const Device&) = delete;
-    // Device& operator=(Device&&) = delete;
-
     void               destroy();
     void               createCommandPool();
     void               waitIdle();
@@ -36,6 +32,7 @@ public:
     // Getter
     Instance&           instance() const { return _instance; }
     VkPhysicalDevice&   physicalDevice() const { return _physicalDevice; }
+    VmaAllocator        vmaAllocator() const { return _vmaAllocator; }
     VkSurfaceKHR        surface() const { return _surface; }
     VkDevice            handle() const { return _handle; }
     VkCommandPool       commandPool() const { return _commandPool; }
@@ -51,6 +48,7 @@ private:
     VkPhysicalDevice&             _physicalDevice;
     VkSurfaceKHR                  _surface{VK_NULL_HANDLE};
     VkDevice                      _handle{VK_NULL_HANDLE};
+    VmaAllocator                  _vmaAllocator;
     vector<VkExtensionProperties> _device_extensions;
     vector<const char*>           _enabled_extensions;
     VkQueue                       _graphicsQueue;

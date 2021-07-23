@@ -2,6 +2,7 @@
 #define IMAGE_H
 
 #include "Buffer.h"
+#include "vk_mem_alloc.h"
 
 // forward decalaration
 class Buffer;
@@ -21,9 +22,6 @@ public:
     VkImage     image() const { return _image; }
     VkImageView imageView() const { return _imageView; }
     Sampler&    sampler() const { return *_sampler; }
-
-    // Setter
-    // void setSampler(Sampler& sampler) { _sampler = &sampler; }
 
     void createTextureImage(void*        pixels,
                             unsigned int texWidth,
@@ -50,11 +48,11 @@ private:
                                 VkImageAspectFlags aspectFlags);
 
 public:
-    Device&        _device;
-    VkImage        _image;
-    VkDeviceMemory _imageMemory;
-    VkImageView    _imageView;
-    Sampler*       _sampler = nullptr;
+    Device&       _device;
+    VkImage       _image;
+    VmaAllocation _vmaAllocation;
+    VkImageView   _imageView;
+    Sampler*      _sampler = nullptr;
 };
 //-----------------------------------------------------------------------------
 #endif

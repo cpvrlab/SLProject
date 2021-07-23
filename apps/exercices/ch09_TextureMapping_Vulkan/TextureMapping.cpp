@@ -95,15 +95,12 @@ void printFPS()
 {
     char         title[255];
     static float lastTimeSec = 0.0f;
-    // static float updateTimeSec = 0.0f;
-    float timeNowSec = (float)glfwGetTime();
-    float fps        = calcFPS(timeNowSec - lastTimeSec);
-    // if ((timeNowSec - updateTimeSec) >= 0.001f)
-    {
-        sprintf(title, "fps: %5.0f", fps);
-        glfwSetWindowTitle(window, title);
-        //  updateTimeSec = timeNowSec;
-    }
+    float        timeNowSec  = (float)glfwGetTime();
+    float        fps         = calcFPS(timeNowSec - lastTimeSec);
+
+    sprintf(title, "fps: %5.0f", fps);
+    glfwSetWindowTitle(window, title);
+
     lastTimeSec = timeNowSec;
 }
 //-----------------------------------------------------------------------------
@@ -139,7 +136,7 @@ void createScene(Node& root)
 
     for (int x = 0; x < NUM_MAT; x++)
     {
-        Texture*  texture  = new Texture("Tree", SLstring(SL_PROJECT_ROOT) + "/data/images/textures/earth1024_C_alpha.png");
+        Texture*  texture  = new Texture("Earth", SLstring(SL_PROJECT_ROOT) + "/data/images/textures/earth1024_C_alpha.png");
         Material* material = new Material("Texture");
         material->addTexture(texture);
         GPUProgram* gpuProgram = new GPUProgram("First_Shader");
@@ -152,8 +149,8 @@ void createScene(Node& root)
     }
 
     // create a 3D array of spheres
-    SLint   halfSize = 10;
-    SLuint  n        = 0;
+    SLint   halfSize = 2;
+    SLuint  iterator = 0;
     SLCol4f color;
     for (SLint iZ = -halfSize; iZ <= halfSize; ++iZ)
     {
@@ -164,7 +161,7 @@ void createScene(Node& root)
                 // Choose a random material index
                 SLuint   res      = 36;
                 SLint    iMat     = Utils::random(0, NUM_MAT - 1);
-                SLstring nodeName = "earth-" + std::to_string(n);
+                SLstring nodeName = "earth-" + std::to_string(iterator);
 
                 Mesh* mesh = new Sphere("sphere-mesh", 0.3f, res, res);
                 color.hsva2rgba(SLVec4f(Utils::TWOPI * iMat / NUM_MAT, 1.0f, 1.0f));
@@ -174,39 +171,10 @@ void createScene(Node& root)
                 node->SetMesh(mesh);
                 node->om(SLMat4f((float)iX, (float)iY, (float)iZ));
                 root.AddChild(node);
-                n++;
+                iterator++;
             }
         }
     }
-
-    /*
-    for (int x = 0; x < sizeX; x++)
-    {
-        for (int y = 0; y < sizeY; y++)
-        {
-            for (int z = 0; z < sizeZ; z++)
-            {
-
-                Mesh* mesh = new Sphere("Simple_Sphere", 1.0f, 18, 18);
-
-                float rR = random(0.0f, 1.0f);
-                float rG = random(0.0f, 1.0f);
-                float rB = random(0.0f, 1.0f);
-                mesh->setColor(SLCol4f(rR, rG, rB, 1.0f));
-
-                int randomMaterialIndex = (int)random(0, materialCount);
-                mesh->mat               = materialList[randomMaterialIndex];
-                Node* node              = new Node("Sphere");
-                node->om(SLMat4f((x + offsetX - (sizeX / 2)) * offsetDimension,
-                                 (y + offsetY - (sizeY / 2)) * offsetDimension,
-                                 (z + offsetZ - (sizeZ / 2)) * offsetDimension));
-                node->SetMesh(mesh);
-
-                root.AddChild(node);
-            }
-        }
-    }
-    */
 
 #if 0
     // Mesh 1
@@ -300,6 +268,7 @@ int main()
 {
     initWindow();
     camera.setViewport(WINDOW_WIDTH, WINDOW_HEIGHT);
+    updateCamera();
     // Create a sphere
     Node root = Node("Root");
     createScene(root);
@@ -308,11 +277,6 @@ int main()
 
     VulkanRenderer renderer(window);
     renderer.createMesh(camera, objectsInScene);
-
-    // TODO:
-    // - Create other vector<DrawingObject> for actural drawing in scene
-    // - Loop checking each nodes frustum and take it from objectsInScene
-    // - Clear list after each frame (or check if camera has been moved)
 
     // Render
     while (!glfwWindowShouldClose(window))

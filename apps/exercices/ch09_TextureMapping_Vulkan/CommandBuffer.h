@@ -8,6 +8,7 @@
 #include "DescriptorSet.h"
 #include "VertexBuffer.h"
 #include "RangeManager.h"
+#include "UniformBuffer.h"
 
 #include <array>
 
@@ -44,7 +45,8 @@ public:
                          vector<Pipeline*>      pipeline,
                          vector<DescriptorSet*> descriptorSet,
                          vector<int>            indicesSize,
-                         RangeManager&          rangeManager);
+                         RangeManager&          rangeManager,
+                         vector<UniformBuffer*> uniformBufferList);
 
     // Getter
     Device&                 device() const { return _device; }

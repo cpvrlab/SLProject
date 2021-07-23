@@ -42,6 +42,7 @@ file(GLOB headers
         ${CMAKE_CURRENT_SOURCE_DIR}/UniformBufferObject.h
         ${CMAKE_CURRENT_SOURCE_DIR}/vkEnums.h
         ${CMAKE_CURRENT_SOURCE_DIR}/VulkanRenderer.h
+	${CMAKE_CURRENT_SOURCE_DIR}/vk_mem_alloc.h
         )
 
 file(GLOB sources
@@ -75,7 +76,7 @@ file(GLOB sources
         ${CMAKE_CURRENT_SOURCE_DIR}/UniformBuffer.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/UniformBufferObject.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/VulkanRenderer.cpp
-
+	${CMAKE_CURRENT_SOURCE_DIR}/VmaUsage.cpp
         )
 
 # file(GLOB shaders

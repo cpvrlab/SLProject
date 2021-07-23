@@ -16,7 +16,6 @@ class Texture : public Object
 public:
     Texture(string name, const string filename);
     Texture(Texture&) = default;
-    void load();
 
     // Getter
     uint   imageHeight() { return _image.height(); };

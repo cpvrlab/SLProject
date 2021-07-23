@@ -9,9 +9,6 @@ class Camera : public Node
 public:
     Camera() : Node("Camera") { ; }
 
-    // void setFrustumPlanes();
-    // bool isInFrustum(SLAABBox* aabb);
-
     // Getter
     float fov() { return _fov; }
     float viewportWidth() { return _viewportWidth; }

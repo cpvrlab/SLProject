@@ -12,6 +12,7 @@ UniformBuffer::UniformBuffer(Device&    device,
     VkDeviceSize bufferSize = sizeof(UniformBufferObject);
 
     _buffers.resize(_swapchain.images().size());
+    _uniformAllocInfo.resize(_swapchain.images().size());
 
     for (size_t i = 0; i < _swapchain.images().size(); i++)
     {
@@ -19,7 +20,8 @@ UniformBuffer::UniformBuffer(Device&    device,
         _buffers[i]->createBuffer(bufferSize,
                                   VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
                                   VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
-                                    VK_MEMORY_PROPERTY_HOST_COHERENT_BIT);
+                                    VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                                  &_uniformAllocInfo[i]);
     }
 }
 //-----------------------------------------------------------------------------
@@ -35,7 +37,6 @@ void UniformBuffer::destroy()
 //-----------------------------------------------------------------------------
 void UniformBuffer::update(uint32_t currentImage)
 {
-    UniformBufferObject ubo{};
     ubo.model    = _modelPos;
     ubo.view     = _camera.om();
     float width  = (float)_swapchain.extent().width;
@@ -45,9 +46,9 @@ void UniformBuffer::update(uint32_t currentImage)
                          _camera.clipNear(),
                          _camera.clipFar());
 
-    void* data;
-    vkMapMemory(_device.handle(), _buffers[currentImage]->memory(), 0, sizeof(ubo), 0, &data);
-    memcpy(data, &ubo, sizeof(ubo));
-    vkUnmapMemory(_device.handle(), _buffers[currentImage]->memory());
+    for (size_t i = 0; i < _uniformAllocInfo.size(); i++)
+    {
+        memcpy(_uniformAllocInfo[i].pMappedData, &ubo, sizeof(ubo));
+    }
 }
 //-----------------------------------------------------------------------------

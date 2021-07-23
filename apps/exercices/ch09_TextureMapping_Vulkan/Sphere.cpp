@@ -13,14 +13,14 @@ void Sphere::build()
     C.resize(numV);
     I32.resize(numV);
 
-    float  theta, dtheta; // angles around x-axis
-    float  phi, dphi;     // angles around z-axis
-    SLint i, j;           // loop counters
+    float theta, dtheta; // angles around x-axis
+    float phi, dphi;     // angles around z-axis
+    SLint i, j;          // loop counters
     SLint iv  = 0;
-    float  dtx = 1.0f / _slices;
-    float  dty = 1.0f / _stacks;
-    float  tx  = 0.0f;
-    float  ty  = 1.0f;
+    float dtx = 1.0f / _slices;
+    float dty = 1.0f / _stacks;
+    float tx  = 0.0f;
+    float ty  = 1.0f;
 
     // init start values
     theta  = 0.0f;
@@ -52,8 +52,6 @@ void Sphere::build()
             P[iv].z = _radius * N[iv].z;
 
             // set the texture coords.
-            // Tc[iv].x = atan2(N[iv].x, N[iv].z) / (2.0f * Utils::PI) + 0.5f;
-            // Tc[iv].y = N[iv].y * 0.5f + 0.5f;
             Tc[iv].x = tx;
             Tc[iv].y = ty;
 

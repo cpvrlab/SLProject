@@ -21,10 +21,13 @@ public:
     vector<Buffer*> buffers() const { return _buffers; }
 
 private:
-    Device&         _device;
-    Swapchain&      _swapchain;
-    vector<Buffer*> _buffers;
-    Camera&         _camera;
-    SLMat4f&        _modelPos;
+    Device&                   _device;
+    Swapchain&                _swapchain;
+    vector<VmaAllocationInfo> _uniformAllocInfo;
+    VmaAllocationInfo         _info;
+    vector<Buffer*>           _buffers;
+    Camera&                   _camera;
+    SLMat4f&                  _modelPos;
+    UniformBufferObject       ubo{};
 };
 //-----------------------------------------------------------------------------

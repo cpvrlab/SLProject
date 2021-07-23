@@ -1,13 +1,6 @@
 #include "ShaderModule.h"
 
 //-----------------------------------------------------------------------------
-// ShaderModule::ShaderModule(Device&       device,
-//                            const string& shaderPath) : _device{device}
-// {
-//     vector<char> code = readFile(shaderPath);
-//     createShaderModule(code);
-// }
-//-----------------------------------------------------------------------------
 ShaderModule::ShaderModule(Device&             device,
                            const vector<char>& code) : _device{device}
 {

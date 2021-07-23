@@ -11,6 +11,8 @@
 #include <glUtils.h>
 #include <Utils.h>
 
+#include "vk_mem_alloc.h"
+
 #include "Instance.h"
 #include "Device.h"
 #include "Swapchain.h"
@@ -38,16 +40,10 @@ public:
     VulkanRenderer(GLFWwindow* window);
     ~VulkanRenderer();
 
-    // VulkanRenderer(const VulkanRenderer&) = default;
-    // VulkanRenderer& operator=(const VulkanRenderer&) = default;
-
     void draw();
-    // temp
     void createMesh(Camera& camera, const vector<DrawingObject>& drawingObj);
 
 private:
-    void createA();
-
     VkSurfaceKHR         _surface;
     Instance*            _instance            = nullptr;
     Device*              _device              = nullptr;
