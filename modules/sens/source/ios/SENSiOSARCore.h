@@ -14,7 +14,7 @@ public:
     {
     }
 
-    bool init(unsigned int textureId=0, bool retrieveCpuImg=false, int targetWidth=-1, int targetHeight=-1) override;
+    bool init(unsigned int textureId=0, bool retrieveCpuImg=false, int targetWidth=-1) override;
     bool isReady() override;
     bool resume() override;
     void reset() override;
