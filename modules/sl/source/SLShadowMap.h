@@ -82,8 +82,11 @@ private:
     SLProjection                  _projection;   //!< Projection to use to create shadow map
     SLbool                        _useCubemap;   //!< Flag if cubemap should be used for perspective projections
     SLbool                        _useCascaded;  //!< Flag if cubemap should be used for perspective projections
+    SLint                         _nbCascades;   //!< Number of cascades
     SLMat4f                       _v[6];         //!< View matrices
-    SLMat4f                       _p;            //!< Projection matrix
+    SLMat4f                       _p[6];         //!< Projection matrix
+    SLMat4f                       _pInv[6];         //!< Projection matrix
+    SLMat4f                       _vInv[6];         //!< Projection matrix
     SLMat4f                       _mvp[6];       //!< Model-view-projection matrices
     std::vector<SLGLDepthBuffer*> _depthBuffers; //!< Framebuffer and texture
     SLGLVertexArrayExt*           _frustumVAO;   //!< Visualization of light-space-frustum

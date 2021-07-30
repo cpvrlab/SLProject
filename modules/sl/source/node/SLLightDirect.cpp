@@ -146,6 +146,7 @@ void SLLightDirect::statsRec(SLNodeStats& stats)
     SLNode::statsRec(stats);
 }
 //-----------------------------------------------------------------------------
+
 /*!
 SLLightDirect::drawMeshes sets the light states and calls then the drawMeshes
 method of its node.

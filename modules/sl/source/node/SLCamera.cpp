@@ -56,7 +56,7 @@ SLCamera::SLCamera(const SLstring& name)
     _projection    = P_monoPerspective;
     _camAnim       = CA_turntableYUp;
     _castsShadows  = false;
-    _nbCascades    = 5;
+    _nbCascades    = 4;
 
     // depth of field parameters
     _lensDiameter = 0.3f;
@@ -344,7 +344,7 @@ std::vector<SLVec2f> SLCamera::getShadowMapCascades()
     float ni = n;
     float fi = n;
 
-    float factor = 30.0f;
+    float factor = 100.0f;
 
     for (int i = 0; i < _nbCascades; i++)
     {

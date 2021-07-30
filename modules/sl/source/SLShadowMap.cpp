@@ -50,6 +50,7 @@ SLShadowMap::~SLShadowMap()
     delete _frustumVAO;
     delete _mat;
 }
+
 //-----------------------------------------------------------------------------
 /*! SLShadowMap::drawFrustum draws the volume affected by the shadow map
 */
@@ -82,17 +83,35 @@ void SLShadowMap::drawFrustum()
 
     SLGLState* stateGL = SLGLState::instance();
 
-    for (SLint i = 0; i < (_useCubemap ? 6 : 1); ++i)
+    if (_useCascaded)
     {
-        stateGL->modelViewMatrix = stateGL->viewMatrix * _mvp[i].inverted();
+        for (SLint i = 0; i < _nbCascades-1; ++i)
+        {
+            stateGL->modelViewMatrix = stateGL->viewMatrix * _vInv[i];
 
-        _frustumVAO->drawArrayAsColored(PT_lines,
-                                        SLCol4f::GREEN,
-                                        1.0f,
-                                        0,
-                                        (SLuint)P.size());
+            _frustumVAO->drawArrayAsColored(PT_lines,
+                                            SLCol4f::GREEN,
+                                            1.0f,
+                                            0,
+                                            (SLuint)P.size());
+        }
     }
+    else
+    {
+        for (SLint i = 0; i < (_useCubemap ? 6 : 1); ++i)
+        {
+            stateGL->modelViewMatrix = stateGL->viewMatrix * _mvp[i].inverted();
+
+            _frustumVAO->drawArrayAsColored(PT_lines,
+                                            SLCol4f::GREEN,
+                                            1.0f,
+                                            0,
+                                            (SLuint)P.size());
+        }
+    }
+
 }
+
 //-----------------------------------------------------------------------------
 /*! SLShadowMap::drawRays draws sample rays of the light.
 */
@@ -199,11 +218,11 @@ void SLShadowMap::updateMVP()
     switch (_projection)
     {
         case P_monoOrthographic:
-            _p.ortho(-_halfSize.x, _halfSize.x, -_halfSize.y, _halfSize.y, _clipNear, _clipFar);
+            _p[0].ortho(-_halfSize.x, _halfSize.x, -_halfSize.y, _halfSize.y, _clipNear, _clipFar);
             break;
 
         case P_monoPerspective:
-            _p.perspective(fov, 1.0f, _clipNear, _clipFar);
+            _p[0].perspective(fov, 1.0f, _clipNear, _clipFar);
             break;
 
         default:
@@ -212,7 +231,7 @@ void SLShadowMap::updateMVP()
 
     // Set the model-view-projection matrix
     for (SLint i = 0; i < (_useCubemap ? 6 : 1); ++i)
-        _mvp[i] = _p * _v[i];
+        _mvp[i] = _p[i] * _v[i];
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -309,7 +328,7 @@ void SLShadowMap::render(SLSceneView* sv, SLNode* root)
 
         // Set matrices
         stateGL->viewMatrix       = _v[i];
-        stateGL->projectionMatrix = _p;
+        stateGL->projectionMatrix = _p[0];
 
         // Clear color buffer
         stateGL->clearColor(SLCol4f::BLACK);
@@ -341,8 +360,14 @@ void SLShadowMap::renderDirectionalLightCascaded(SLSceneView* sv, SLNode* root)
 {
     _useCascaded = true;
     SLGLState* stateGL = SLGLState::instance();
-    
     SLCamera * camera = sv->camera();
+
+    if (sv->isSceneViewCameraActive())
+    {
+
+    }
+
+    Utils::log("AAAAAAAAAAAAAAAAA", "camera p %p", camera);
     SLint wrapMode = GL_CLAMP_TO_BORDER;
 
     // Create depth buffer
@@ -385,8 +410,9 @@ void SLShadowMap::renderDirectionalLightCascaded(SLSceneView* sv, SLNode* root)
     SLNode* node = dynamic_cast<SLNode*>(_light);
     std::vector<SLVec2f> cascades = camera->getShadowMapCascades();
 
+    _nbCascades = cascades.size();
     // for all subdivision of frustum
-    for (int i = 0; i < cascades.size(); i++)
+    for (int i = 0; i < _nbCascades; i++)
     {
         float ni = cascades[i].x;
         float fi  = cascades[i].y;
@@ -415,7 +441,6 @@ void SLShadowMap::renderDirectionalLightCascaded(SLSceneView* sv, SLNode* root)
                 maxx = fp.x;
             if (fp.y > maxy)
                 maxy = fp.y;
-
             if (fp.z < minz)
                 minz = fp.z;
         }
@@ -425,19 +450,28 @@ void SLShadowMap::renderDirectionalLightCascaded(SLSceneView* sv, SLNode* root)
         float sx = 2.f/(maxx - minx);
         float sy = 2.f/(maxy - miny);
         float sz = -2.f/(maxz - minz);
+        SLVec3f t = SLVec3f(-0.5f * sx * (maxx + minx), -0.5f * sy * (maxy + miny), -0.5f * sz * (maxz - minz));
         SLMat4f C;
         C.identity();
         C.scale(sx, sy, sz);
-        C.translate(-0.5f * sx * (maxx + minx), -0.5f * sy * (maxy + miny), -0.5f * sz * (maxz - minz));
+        C.translate(t);
+
+        _pInv[i].identity();
+        _pInv[i].scale((maxx - minx)*0.5f, (maxy - miny)*0.5f, (maxz - minz)*0.5f);
+        _pInv[i].translation(-t);
+
+        _vInv[i].identity();
+        _vInv[i].translate(v);
 
         _depthBuffers[i]->bind();
 
         // Set matrices
         stateGL->viewMatrix       = lv;
         stateGL->projectionMatrix = C;
+
         _v[i] = lv;
-        _p = C;
-        _mvp[i] = _p * lv;
+        _p[i] = C;
+        _mvp[i] = _p[i] * lv;
 
         stateGL->viewport(0, 0, _textureSize.x, _textureSize.y);
 

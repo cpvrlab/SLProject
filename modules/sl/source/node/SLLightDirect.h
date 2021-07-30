@@ -64,6 +64,7 @@ public:
     void    drawMesh(SLSceneView* sv) override;
     void    doCascadedShadows(bool b) { _doCascadedShadows = b; }
     SLbool  doCascadedShadows() const  override { return _doCascadedShadows; }
+
     SLfloat shadowTest(SLRay*         ray,
                        const SLVec3f& L,
                        SLfloat        lightDist,
