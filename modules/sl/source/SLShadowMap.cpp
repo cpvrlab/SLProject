@@ -18,6 +18,7 @@
 #include <SLShadowMap.h>
 #include <Instrumentor.h>
 #include <SLSceneView.h>
+#include <SLCamera.h>
 
 //-----------------------------------------------------------------------------
 SLShadowMap::SLShadowMap(SLProjection   projection,
@@ -85,9 +86,9 @@ void SLShadowMap::drawFrustum()
 
     if (_useCascaded)
     {
-        for (SLint i = 0; i < _nbCascades-1; ++i)
+        for (SLint i = 0; i < _nbCascades; ++i)
         {
-            stateGL->modelViewMatrix = stateGL->viewMatrix * _vInv[i];
+            stateGL->modelViewMatrix = stateGL->viewMatrix * _mvp[i].inverted();
 
             _frustumVAO->drawArrayAsColored(PT_lines,
                                             SLCol4f::GREEN,
@@ -360,14 +361,13 @@ void SLShadowMap::renderDirectionalLightCascaded(SLSceneView* sv, SLNode* root)
 {
     _useCascaded = true;
     SLGLState* stateGL = SLGLState::instance();
-    SLCamera * camera = sv->camera();
+    static SLCamera * camera;
 
-    if (sv->isSceneViewCameraActive())
-    {
+    if (!sv->isSceneViewCameraActive())
+        camera = sv->camera();
+    else if (camera == nullptr)
+        return;
 
-    }
-
-    Utils::log("AAAAAAAAAAAAAAAAA", "camera p %p", camera);
     SLint wrapMode = GL_CLAMP_TO_BORDER;
 
     // Create depth buffer
@@ -455,13 +455,6 @@ void SLShadowMap::renderDirectionalLightCascaded(SLSceneView* sv, SLNode* root)
         C.identity();
         C.scale(sx, sy, sz);
         C.translate(t);
-
-        _pInv[i].identity();
-        _pInv[i].scale((maxx - minx)*0.5f, (maxy - miny)*0.5f, (maxz - minz)*0.5f);
-        _pInv[i].translation(-t);
-
-        _vInv[i].identity();
-        _vInv[i].translate(v);
 
         _depthBuffers[i]->bind();
 
