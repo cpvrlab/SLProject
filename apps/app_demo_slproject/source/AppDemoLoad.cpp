@@ -2382,7 +2382,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         light->lookAt(0, 0, 0);
         light->attenuation(1, 0, 0);
         light->createsShadows(true);
-        light->createShadowMap();
+        light->createShadowMap(cam1);
         light->shadowMap()->rayCount(SLVec2i(16, 16));
         light->castsShadows(false);
         scene->addChild(light);

@@ -30,6 +30,30 @@ SLShadowMap::SLShadowMap(SLProjection   projection,
 {
     PROFILE_FUNCTION();
 
+    _light        = light;
+    _projection   = projection;
+    _useCubemap   = false;
+    _useCascaded  = false;
+    _depthBuffers = std::vector<SLGLDepthBuffer*>();
+    _frustumVAO   = nullptr;
+    _rayCount     = SLVec2i(0, 0);
+    _mat          = nullptr;
+    _clipNear     = clipNear;
+    _clipFar      = clipFar;
+    _size         = size;
+    _halfSize     = _size / 2;
+    _textureSize  = texSize;
+    _camera       = nullptr;
+}
+//-----------------------------------------------------------------------------
+SLShadowMap::SLShadowMap(SLProjection   projection,
+                         SLLight*       light,
+                         SLCamera*      camera,
+                         const SLVec2f& size,
+                         const SLVec2i& texSize)
+{
+    PROFILE_FUNCTION();
+
     _light       = light;
     _projection  = projection;
     _useCubemap  = false;
@@ -38,11 +62,12 @@ SLShadowMap::SLShadowMap(SLProjection   projection,
     _frustumVAO  = nullptr;
     _rayCount    = SLVec2i(0, 0);
     _mat         = nullptr;
-    _clipNear    = clipNear;
-    _clipFar     = clipFar;
+    _camera      = camera;
     _size        = size;
     _halfSize    = _size / 2;
     _textureSize = texSize;
+    _clipNear     = 0.1f;
+    _clipFar      = 20.f;
 }
 //-----------------------------------------------------------------------------
 SLShadowMap::~SLShadowMap()
@@ -264,6 +289,12 @@ void SLShadowMap::render(SLSceneView* sv, SLNode* root)
 {
     PROFILE_FUNCTION();
 
+    if (_projection == P_monoOrthographic && _camera != nullptr)
+    {
+        renderDirectionalLightCascaded(sv, root);
+        return;
+    }
+
     SLGLState* stateGL = SLGLState::instance();
 
     // Create Material
@@ -361,12 +392,6 @@ void SLShadowMap::renderDirectionalLightCascaded(SLSceneView* sv, SLNode* root)
 {
     _useCascaded = true;
     SLGLState* stateGL = SLGLState::instance();
-    static SLCamera * camera;
-
-    if (!sv->isSceneViewCameraActive())
-        camera = sv->camera();
-    else if (camera == nullptr)
-        return;
 
     SLint wrapMode = GL_CLAMP_TO_BORDER;
 
@@ -394,7 +419,7 @@ void SLShadowMap::renderDirectionalLightCascaded(SLSceneView* sv, SLNode* root)
 
     if (_depthBuffers.size() == 0)
     {
-        for (int i = 0; i < camera->getShadowMapCascades().size(); i++)
+        for (int i = 0; i < _camera->getShadowMapCascades().size(); i++)
         {
             _depthBuffers.push_back(new SLGLDepthBuffer(_textureSize,
                                                         GL_NEAREST,
@@ -406,9 +431,9 @@ void SLShadowMap::renderDirectionalLightCascaded(SLSceneView* sv, SLNode* root)
     }
 
 
-    SLMat4f cm = camera->updateAndGetWM(); // camera to world space
+    SLMat4f cm = _camera->updateAndGetWM(); // camera to world space
     SLNode* node = dynamic_cast<SLNode*>(_light);
-    std::vector<SLVec2f> cascades = camera->getShadowMapCascades();
+    std::vector<SLVec2f> cascades = _camera->getShadowMapCascades();
 
     _nbCascades = cascades.size();
     // for all subdivision of frustum
@@ -424,8 +449,8 @@ void SLShadowMap::renderDirectionalLightCascaded(SLSceneView* sv, SLNode* root)
         lp.ortho(-_halfSize.x, _halfSize.x, -_halfSize.y, _halfSize.y, -50, 50); //TODO NEAR FAR CLIP LIGHT
 
         std::vector<SLVec3f> frustumPoints;
-        frustumGetPoints(frustumPoints, v, camera->fovV(), sv->scrWdivH(), ni);
-        frustumGetPoints(frustumPoints, v, camera->fovV(), sv->scrWdivH(), fi);
+        frustumGetPoints(frustumPoints, v, _camera->fovV(), sv->scrWdivH(), ni);
+        frustumGetPoints(frustumPoints, v, _camera->fovV(), sv->scrWdivH(), fi);
 
         float minx = 99999, miny = 99999;
         float maxx = -99999, maxy = -99999;
@@ -445,7 +470,7 @@ void SLShadowMap::renderDirectionalLightCascaded(SLSceneView* sv, SLNode* root)
                 minz = fp.z;
         }
 
-        float maxz = -minz + 100;
+        float maxz = -minz;
 
         float sx = 2.f/(maxx - minx);
         float sy = 2.f/(maxy - miny);

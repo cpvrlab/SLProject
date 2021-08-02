@@ -24,7 +24,7 @@ class SLMaterial;
 class SLMaterial;
 class SLNode;
 class SLSceneView;
-
+class SLCamera;
 //-----------------------------------------------------------------------------
 //! Class for shadow mapping
 /*!
@@ -42,7 +42,14 @@ public:
                 float        clipFar  = 20.0f,
                 const SLVec2f&      size     = SLVec2f(8, 8),
                 const SLVec2i&      texSize  = SLVec2i(1024, 1024));
-    ~SLShadowMap();
+
+    SLShadowMap(SLProjection   projection,
+                SLLight*       light,
+                SLCamera*      camera,
+                const SLVec2f& size    = SLVec2f(8, 8),
+                const SLVec2i& texSize = SLVec2i(1024, 1024));
+
+      ~SLShadowMap();
 
     // Setters
     void useCubemap(SLbool useCubemap) { _useCubemap = useCubemap; }
@@ -95,6 +102,7 @@ private:
     SLVec2f                       _size;         //!< Height and width of the frustum (only for SLLightDirect)
     SLVec2f                       _halfSize;     //!< _size divided by two
     SLVec2i                       _textureSize;  //!< Size of the shadow map texture
+    SLCamera*                     _camera;
 };
 //-----------------------------------------------------------------------------
 #endif //SLSHADOWMAP_H

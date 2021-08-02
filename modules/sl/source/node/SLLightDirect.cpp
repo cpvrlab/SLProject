@@ -187,6 +187,20 @@ void SLLightDirect::createShadowMap(float   clipNear,
                                  size,
                                  texSize);
 }
+
+void SLLightDirect::createShadowMap(SLCamera* camera,
+                                    SLVec2f size,
+                                    SLVec2i texSize)
+{
+    if (!_shadowMap)
+        delete _shadowMap;
+
+    _shadowMap = new SLShadowMap(P_monoOrthographic,
+                                 this,
+                                 camera,
+                                 size,
+                                 texSize);
+}
 //-----------------------------------------------------------------------------
 /*!
 SLLightDirect::shadowTest returns 0.0 if the hit point is completely shaded and
@@ -305,9 +319,5 @@ void SLLightDirect::renderShadowMap(SLSceneView* sv, SLNode* root)
     {
         this->createShadowMap();
     }
-
-    if (_doCascadedShadows)
-        _shadowMap->renderDirectionalLightCascaded(sv, root);
-    else
-        _shadowMap->render(sv, root);
+    _shadowMap->render(sv, root);
 }
