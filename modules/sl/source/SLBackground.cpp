@@ -172,6 +172,7 @@ void SLBackground::render(SLint widthPX, SLint heightPX)
         //texture width and height not yet valid on first call
         _resX = widthPX;
         _resY = heightPX;
+        _vao.clearAttribs();
 
         SLfloat left=0, right=_resX, bottom=0, top=_resY;
 
@@ -196,7 +197,6 @@ void SLBackground::render(SLint widthPX, SLint heightPX)
             right = backgroundW + left;
             bottom = (_resY - backgroundH) * 0.5f;
             top = backgroundH + bottom;
-            _vao.clearAttribs();
 
             _rect.set(left, bottom, backgroundW, backgroundH);
             SL_LOG("SLBackground: width:%f height:%f left:%f bottom:%f", rect().width, rect().height, rect().x, rect().x);
