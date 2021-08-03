@@ -25,6 +25,7 @@ enum SLStdShaderProg
     SP_colorAttribute = 0,
     SP_colorUniform,
     SP_TextureOnly,
+    SP_TextureOnlyExternal,
     SP_fontTex,
     SP_stereoOculus,
     SP_stereoOculusDistortion,

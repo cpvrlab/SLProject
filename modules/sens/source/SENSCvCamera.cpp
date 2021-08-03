@@ -44,7 +44,9 @@ SENSFramePtr SENSCvCamera::processNewFrame(const SENSTimePt& timePt, cv::Mat bgr
                                                          _config->mirrorH,
                                                          _config->mirrorV,
                                                          1 / scale,
-                                                         intrinsics.clone());
+                                                         intrinsics.clone(),
+                                                         manipImg.cols,
+                                                         manipImg.rows);
 
     return sensFrame;
 }
@@ -240,7 +242,7 @@ SENSFramePtr SENSCvCamera::latestFrame()
             _calibrationManip->adaptForNewResolution(cv::Size(_config->manipWidth, _config->manipHeight), false);
         }
 
-        SENS_DEBUG("calib update duration %f", t.elapsedTimeInMilliSec());
+        //SENS_DEBUG("calib update duration %f", t.elapsedTimeInMilliSec());
     }
 
     return latestFrame;

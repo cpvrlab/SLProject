@@ -195,7 +195,7 @@ std::pair<const SENSCameraDeviceProperties* const, const SENSCameraStreamConfig*
     }
 }
 
-void SENSCameraBase::updateFrame(cv::Mat bgrImg, cv::Mat intrinsics, bool intrinsicsChanged)
+void SENSCameraBase::updateFrame(cv::Mat bgrImg, cv::Mat intrinsics,  int width, int height, bool intrinsicsChanged)
 {
     //estimate time before running into lock
     SENSTimePt timePt = SENSClock::now();
@@ -212,7 +212,7 @@ void SENSCameraBase::updateFrame(cv::Mat bgrImg, cv::Mat intrinsics, bool intrin
 
     {
         std::lock_guard<std::mutex> lock(_frameMutex);
-        _frame = std::make_shared<SENSFrameBase>(timePt, bgrImg, intrinsics);
+        _frame = std::make_shared<SENSFrameBase>(timePt, bgrImg, intrinsics, width, height);
     }
 }
 

@@ -4,6 +4,7 @@
 @interface SENSiOSARCoreDelegate () {
 
 @private
+    
     ARSession*       _arSession;
     ARConfiguration* _arConfig;
 }
@@ -47,8 +48,9 @@
         //    CGSize s = ARWorldTrackingConfiguration.supportedVideoFormats[i].imageResolution;
         //    NSLog(NSStringFromCGSize(s));
         //}
-
         _arConfig.videoFormat = ARWorldTrackingConfiguration.supportedVideoFormats.lastObject;
+        //ARWorldAlignmentGravity is default
+        _arConfig.worldAlignment = ARWorldAlignmentGravity;
     }
 }
 
@@ -87,7 +89,13 @@
         return NO;
 }
 
-- (void)latestFrame:(cv::Mat*)pose withImg:(cv::Mat*)imgBGR AndIntrinsic:(cv::Mat*)intrinsic AndImgWidth:(int*)w AndImgHeight:(int*)h IsTracking:(BOOL*)isTracking
+- (void)latestFrame:(cv::Mat*)pose
+            withImg:(cv::Mat*)imgBGR
+       AndIntrinsic:(cv::Mat*)intrinsic
+        AndImgWidth:(int*)w
+       AndImgHeight:(int*)h
+         IsTracking:(BOOL*)isTracking
+     WithPointClout:(cv::Mat*)pc
 {
     //Reference the current ARFrame (I think the referenced "currentFrame" may change during this function call)
     ARFrame*  frame  = _arSession.currentFrame;
@@ -152,6 +160,18 @@
         Utils::log("SENSiOSARCoreDelegate", "pixelbuffer not locked");
     }
     CVPixelBufferUnlockBaseAddress(pixelBuffer, kCVPixelBufferLock_ReadOnly);
+    
+    //extract 3D points
+    if(pc)
+    {
+        ARPointCloud* rawFPts = [frame rawFeaturePoints];
+        if(pc != nil)
+        {
+            //(simd_float3 is an array of four floats)
+            *pc = cv::Mat((int)rawFPts.count, 4, CV_32F);
+            memcpy(pc->data, rawFPts.points, rawFPts.count * sizeof(simd_float3));
+        }
+    }
 }
 
 #pragma mark - ARSessionDelegate
@@ -201,12 +221,23 @@
 
 - (void)sessionWasInterrupted:(ARSession*)session
 {
+    NSLog(@"sessionInterruptionEnded.\n");
     // Inform the user that the session has been interrupted, for example, by presenting an overlay
 }
 
 - (void)sessionInterruptionEnded:(ARSession*)session
 {
+    NSLog(@"sessionInterruptionEnded.\n");
     // Reset tracking and/or remove existing anchors if consistent tracking is required
 }
-    
+
+//ATTENTION: DO NO OVERRIDE THIS AND RETURN YES. It leads to problems, maybe never relocalizes..
+//if this is overridden and returns true, it tries to relocalize rather than new initialise
+/*
+- (BOOL)sessionShouldAttemptRelocalization:(ARSession *)session
+{
+    NSLog(@"sessionShouldAttemptRelocalization.\n");
+    return YES;
+}
+*/
 @end

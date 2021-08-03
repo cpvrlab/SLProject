@@ -75,6 +75,11 @@ bool SENSNdkARCore::init()
     if (_arSession != nullptr)
         reset();
 
+    if(textureId > 0)
+    {
+        _useCpuTexture = false;
+    }
+
     JNIEnv* env;
     _activity->vm->GetEnv((void**)&env, JNI_VERSION_1_6);
     jint result = _activity->vm->AttachCurrentThread(&env, NULL);

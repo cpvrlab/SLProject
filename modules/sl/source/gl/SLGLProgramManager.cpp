@@ -61,6 +61,9 @@ void SLGLProgramManager::makeProgram(SLStdShaderProg id)
         case SP_TextureOnly:
             _programs.insert({id, new SLGLProgramGeneric(nullptr, shaderPath + "TextureOnly.vert", shaderPath + "TextureOnly.frag")});
             break;
+        case SP_TextureOnlyExternal:
+            _programs.insert({id, new SLGLProgramGeneric(nullptr, shaderPath + "TextureOnlyExternal.vert", shaderPath + "TextureOnlyExternal.frag")});
+            break;
         case SP_fontTex:
             _programs.insert({id, new SLGLProgramGeneric(nullptr, shaderPath + "FontTex.vert", shaderPath + "FontTex.frag")});
             break;
