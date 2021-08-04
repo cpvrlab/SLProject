@@ -402,10 +402,19 @@ void SLGLProgram::passLightsToUniforms(SLVLight* lights,
 
             if (shadowMap)
             {
-                nbCascades = shadowMap->depthBuffers().size();
+                int cascades = shadowMap->depthBuffers().size();
+
+                if (light->doCascadedShadows())
+                {
+                    if (nbCascades == 0)
+                        nbCascades = cascades;
+                    if (nbCascades != cascades)
+                        std::cout << "lights doesn't have the same number of shadow cascades" << std::endl;
+                }
+
                 for (SLint ls = 0; ls < 6; ++ls)
                 {
-                    lightShadowMap[i * 6 + ls] = nbCascades > ls? shadowMap->depthBuffers()[ls] : nullptr;
+                    lightShadowMap[i * 6 + ls] = cascades > ls? shadowMap->depthBuffers()[ls] : nullptr;
                     lightSpace[i * 6 + ls] = shadowMap->mvp()[ls];
                 }
             }

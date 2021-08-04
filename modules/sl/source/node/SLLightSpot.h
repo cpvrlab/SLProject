@@ -63,6 +63,9 @@ public:
                             float   clipFar  = 20.0f,
                             SLVec2f size     = SLVec2f(8, 8),
                             SLVec2i texSize  = SLVec2i(1024, 1024)) override;
+    void    createShadowMap(SLCamera* camera,
+                            SLVec2f size     = SLVec2f(8, 8),
+                            SLVec2i texSize  = SLVec2i(1024, 1024)) override;
     SLfloat shadowTest(SLRay*         ray,
                        const SLVec3f& L,
                        SLfloat        lightDist,

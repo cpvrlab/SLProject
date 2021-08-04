@@ -195,6 +195,7 @@ void SLLightDirect::createShadowMap(SLCamera* camera,
     if (!_shadowMap)
         delete _shadowMap;
 
+    _doCascadedShadows = true;
     _shadowMap = new SLShadowMap(P_monoOrthographic,
                                  this,
                                  camera,

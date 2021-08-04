@@ -301,6 +301,19 @@ void SLLightRect::createShadowMap(float   clipNear,
                                  size,
                                  texSize);
 }
+void SLLightRect::createShadowMap(SLCamera* camera,
+                                  SLVec2f   size,
+                                  SLVec2i   texSize)
+{
+    if (!_shadowMap)
+        delete _shadowMap;
+
+    _shadowMap = new SLShadowMap(P_monoPerspective,
+                                 this,
+                                 camera,
+                                 size,
+                                 texSize);
+}
 //-----------------------------------------------------------------------------
 void SLLightRect::samples(const SLVec2i samples)
 {
