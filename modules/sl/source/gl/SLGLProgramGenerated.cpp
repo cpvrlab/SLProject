@@ -232,16 +232,23 @@ const string fragInputs_u_camForCascaded = R"(
 const string fragOutputs_o_fragColor = R"(
 out     vec4        o_fragColor;        // output fragment color
 )";
+
+//-----------------------------------------------------------------------------
+const string fragFunctionColoredCascadedShadow = R"(
+void coloredCascadedShadow(in int i, in float shadow, inout vec4 Id, inout vec4 Is)
+
+
+)";
 //-----------------------------------------------------------------------------
 const string fragFunctionLightingBlinnPhong = R"(
-void directLightBlinnPhong(in    int  i,       // Light number between 0 and NUM_LIGHTS
-                           in    vec3 N,       // Normalized normal at v_P
-                           in    vec3 E,       // Normalized direction at v_P to the eye
-                           in    vec3 S,       // Normalized light spot direction
-                           in    float shadow, // shadow factor
-                           inout vec4 Ia,      // Ambient light intensity
-                           inout vec4 Id,      // Diffuse light intensity
-                           inout vec4 Is)      // Specular light intensity
+void directLightBlinnPhong(in    int  i,         // Light number between 0 and NUM_LIGHTS
+                           in    vec3 N,         // Normalized normal at v_P
+                           in    vec3 E,         // Normalized direction at v_P to the eye
+                           in    vec3 S,         // Normalized light spot direction
+                           in    float shadow,   // shadow factor
+                           inout vec4 Ia,        // Ambient light intensity
+                           inout vec4 Id,        // Diffuse light intensity
+                           inout vec4 Is)        // Specular light intensity
 {
     // Calculate diffuse & specular factors
     float diffFactor = max(dot(N, S), 0.0);
@@ -553,6 +560,19 @@ const string fragMainBlinn_1_EN_fromNm1Hm2 = R"(
     // Get normal from normal map, move from [0,1] to [-1, 1] range & normalize
     vec3 N = normalize(texture(u_matTexture1, Tc).rgb * 2.0 - 1.0);
 )";
+
+const string indexToColor = R"(
+    vec3 indexToColor(int index)
+    {
+        if (index == 0)      { return vec3(1.0, 0.0, 0.0); }
+        else if (index == 1) { return vec3(0.0, 1.0, 0.0); }
+        else if (index == 2) { return vec3(0.0, 0.0, 1.0); }
+        else if (index == 3) { return vec3(1.0, 1.0, 0.0); }
+        else if (index == 4) { return vec3(0.0, 1.0, 1.0); }
+        else if (index == 5) { return vec3(1.0, 0.0, 1.0); }
+    }
+)";
+
 //-----------------------------------------------------------------------------
 const string fragMainBlinn_2_LightLoop = R"(
     for (int i = 0; i < NUM_LIGHTS; ++i)
@@ -621,6 +641,7 @@ const string fragMainBlinn_2_LightLoopSm = R"(
         }
     }
 )";
+
 const string fragMainBlinn_2_LightLoopNmSm = R"(
     for (int i = 0; i < NUM_LIGHTS; ++i)
     {
@@ -752,8 +773,6 @@ const string fragMainBlinn_4_End = R"(
 }
 )";
 //-----------------------------------------------------------------------------
-
-
 
 
 //-----------------------------------------------------------------------------
@@ -1411,6 +1430,7 @@ in      vec3        v_N_VS;     // Interpol. normal at v_P_VS in view space
     fragCode += fragInputs_u_matSm;
     fragCode += fragInputs_u_shadowMaps(lights);
     fragCode += fragInputs_u_cam;
+    fragCode += indexToColor;
     if (nbCascade > 0)
         fragCode += fragInputs_u_camForCascaded;
     fragCode += fragOutputs_o_fragColor;
@@ -1422,6 +1442,7 @@ in      vec3        v_N_VS;     // Interpol. normal at v_P_VS in view space
     fragCode += fragMainBlinn_1_EN_fromVert;
     fragCode += fragMainBlinn_2_LightLoopSm;
     fragCode += fragMainBlinn_3_FragColor;
+    //fragCode += coloredShadows();
     fragCode += fragMainBlinn_4_End;
     addCodeToShader(_shaders[1], fragCode, _name + ".frag");
 }
@@ -1683,6 +1704,31 @@ string SLGLProgramGenerated::fragInputs_u_shadowMaps(SLVLight* lights)
     return smDecl;
 }
 //-----------------------------------------------------------------------------
+string SLGLProgramGenerated::coloredShadows()
+{
+    string shadowColored = R"(
+    for (int i = 0; i < NUM_LIGHTS; ++i)
+    {
+        if (u_lightIsOn[i])
+        {
+            if (u_lightPosVS[i].w == 0.0)
+            {
+                vec3 S = normalize(-u_lightSpotDir[i].xyz);
+
+                // Test if the current fragment is in shadow
+                float shadow = u_matGetsShadows ? shadowTest(i, N, S) : 0.0;
+                
+                o_fragColor.rgb += shadow * indexToColor(getCascadesDepthIndex(i));
+            }
+        }
+    }
+    )";
+
+    return shadowColored;
+}
+
+//-----------------------------------------------------------------------------
+
 //! Adds the core shadow mapping test routine depending on the lights
 string SLGLProgramGenerated::fragShadowTest(SLVLight* lights)
 {
@@ -1707,6 +1753,34 @@ int vectorToFace(vec3 vec) // Vector to process
         return vec.y > 0.0 ? 2 : 3;
     else
         return vec.z > 0.0 ? 4 : 5;
+}
+
+int getCascadesDepthIndex(in int i)
+{
+    )";
+    if (nbCascades > 0)
+    {
+        shadowTestCode += R"(
+    int index = NUM_CASCADES - 1;
+    if (u_lightDoCascadedShadows[i])
+    {
+        if (-v_P_VS.z < u_camCascadeDepth[0]) { index = 0; }
+        )";
+        //For each cascades
+        for (int i = 1; i < nbCascades - 1; i++)
+        {
+            shadowTestCode +=
+            "            else if (-v_P_VS.z < u_camCascadeDepth[" + std::to_string(i) + "]) { index = " + std::to_string(i) + "; }\n";
+        }
+        shadowTestCode += "}\n";
+    }
+    else
+    {
+        shadowTestCode += "    int index = 0;\n";
+    }
+    
+    shadowTestCode += R"(
+    return index;
 }
 
 float shadowTest(in int i, in vec3 N, in vec3 lightDir)

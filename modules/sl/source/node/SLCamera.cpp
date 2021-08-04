@@ -344,7 +344,7 @@ std::vector<SLVec2f> SLCamera::getShadowMapCascades()
     float ni = n;
     float fi = n;
 
-    float factor = 100.0f;
+    float factor = 30.0f;
 
     for (int i = 0; i < _nbCascades; i++)
     {
