@@ -11,6 +11,8 @@
 #ifndef SLASSIMPIMPORTER_H
 #define SLASSIMPIMPORTER_H
 
+#ifdef SL_BUILD_WITH_ASSIMP
+
 #include <SLGLTexture.h>
 #include <SLImporter.h>
 
@@ -136,5 +138,7 @@ protected:
     // misc helper
     void clear();
 };
+
 //-----------------------------------------------------------------------------
+#endif // SL_BUILD_WITH_ASSIMP
 #endif // SLASSIMP_H

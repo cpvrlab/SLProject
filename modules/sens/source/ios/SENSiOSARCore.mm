@@ -6,7 +6,7 @@ SENSiOSARCore::SENSiOSARCore()
     _available      = [_arcoreDelegate isAvailable];
 }
 
-bool SENSiOSARCore::init()
+bool SENSiOSARCore::init(unsigned int textureId, bool retrieveCpuImg, int targetWidth)
 {
     if (!_available)
         return false;
@@ -57,11 +57,15 @@ bool SENSiOSARCore::update(cv::Mat& pose)
     cv::Mat intrinsic;
     cv::Mat imgBGR;
     bool    isTracking;
-    [_arcoreDelegate latestFrame:&pose withImg:&imgBGR AndIntrinsic:&intrinsic AndImgWidth:&_inputFrameW AndImgHeight:&_inputFrameH IsTracking:&isTracking];
-
+ 
+    if(_fetchPointCloud)
+        [_arcoreDelegate latestFrame:&pose withImg:&imgBGR AndIntrinsic:&intrinsic AndImgWidth:&_inputFrameW AndImgHeight:&_inputFrameH IsTracking:&isTracking WithPointClout:&_pointCloud];
+    else
+        [_arcoreDelegate latestFrame:&pose withImg:&imgBGR AndIntrinsic:&intrinsic AndImgWidth:&_inputFrameW AndImgHeight:&_inputFrameH IsTracking:&isTracking WithPointClout:nullptr];
+    
     if (!imgBGR.empty())
     {
-        updateFrame(imgBGR, intrinsic, true);
+        updateFrame(imgBGR, intrinsic, true, imgBGR.cols, imgBGR.rows);
     }
     else
         Utils::log("SENSiOSARCore", "frame is empty!");

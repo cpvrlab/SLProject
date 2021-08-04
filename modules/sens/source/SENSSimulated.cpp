@@ -311,7 +311,7 @@ void SENSSimulatedCamera::feedSensorData(const int counter)
         prepareSensorData(counter);
     }
 
-    updateFrame(_preparedFrame, cv::Mat(), false);
+    updateFrame(_preparedFrame, cv::Mat(), false, _preparedFrame.size().width, _preparedFrame.size().height);
 
     SENS_DEBUG("feedSensorData %lld us", t.elapsedTimeInMicroSec());
 }

@@ -4,44 +4,102 @@
 #include <Utils.h>
 #include "SENS.h"
 #include "SENSUtils.h"
+#include "SENSGLTextureReader.h"
 
-SENSNdkARCore::SENSNdkARCore(ANativeActivity* activity)
-  : _activity(activity)
+SENSNdkARCore::SENSNdkARCore(JavaVM* jvm, JNIEnv* env, jobject context, jobject activity, std::string appName, std::string writableDir)
 {
-    JNIEnv* env;
-    _activity->vm->GetEnv((void**)&env, JNI_VERSION_1_6);
-    _activity->vm->AttachCurrentThread(&env, NULL);
-    jobject activityObj = env->NewGlobalRef(_activity->clazz);
+    checkAvailability(env, context, activity);
+    _arSession = nullptr;
+    _jvm       = jvm;
 
-    checkAvailability(env, activityObj);
-
-    env->DeleteGlobalRef(activityObj);
-    _activity->vm->DetachCurrentThread();
+    _appName     = appName;
+    _writableDir = writableDir;
 }
+/*------------------------------------------------------------------------------------------*/
 
-void SENSNdkARCore::checkAvailability(JNIEnv* env, jobject context)
+bool SENSNdkARCore::checkAvailability(JNIEnv* env, void* context, void* activity)
 {
     ArAvailability availability;
     ArCoreApk_checkAvailability(env, context, &availability);
 
-    _available = true;
     if (availability == AR_AVAILABILITY_UNKNOWN_CHECKING)
     {
+        // TODO(dgj1): this could theoretically go on forever (or until the stack-memory is all used up).
+        // add a limit to recursion?
         std::this_thread::sleep_for(std::chrono::microseconds((int)(200000)));
-        checkAvailability(env, context);
+        checkAvailability(env, context, activity);
     }
     else if (availability == AR_AVAILABILITY_SUPPORTED_NOT_INSTALLED ||
-             availability == AR_AVAILABILITY_SUPPORTED_APK_TOO_OLD   ||
+             availability == AR_AVAILABILITY_SUPPORTED_APK_TOO_OLD ||
              availability == AR_AVAILABILITY_SUPPORTED_INSTALLED)
     {
-        ArInstallStatus install_status;
-        ArCoreApk_requestInstall(env, context, true, &install_status);
+        return true;
     }
-    else
-    {
-        _available = false;
-    }
+    return false;
 }
+
+bool SENSNdkARCore::isAvailable()
+{
+    JNIEnv* env;
+    _jvm->GetEnv((void**)&env, JNI_VERSION_1_6);
+    std::string className = "ch/cpvr/" + _appName + "/GLES3Lib";
+    jclass      clazz     = env->FindClass(className.c_str());
+    jmethodID   methodid  = env->GetStaticMethodID(clazz, "checkARAvailability", "()Z");
+
+    _available = env->CallStaticBooleanMethod(clazz, methodid);
+    return _available;
+}
+
+/*------------------------------------------------------------------------------------------*/
+
+bool SENSNdkARCore::checkInstalled(JNIEnv* env, void* context, void* activity)
+{
+    ArAvailability availability;
+    ArCoreApk_checkAvailability(env, context, &availability);
+    if (availability == AR_AVAILABILITY_SUPPORTED_INSTALLED)
+        return true;
+    return false;
+}
+
+bool SENSNdkARCore::isInstalled()
+{
+    JNIEnv* env;
+    _jvm->GetEnv((void**)&env, JNI_VERSION_1_6);
+    std::string className = "ch/cpvr/" + _appName + "/GLES3Lib";
+    jclass      clazz     = env->FindClass(className.c_str());
+    jmethodID   methodid  = env->GetStaticMethodID(clazz, "checkARInstalled", "()Z");
+
+    _installed = env->CallStaticBooleanMethod(clazz, methodid);
+    return _installed;
+}
+
+/*------------------------------------------------------------------------------------------*/
+
+bool SENSNdkARCore::askInstall(JNIEnv* env, void* context, void* activity)
+{
+    ArInstallStatus install_status;
+    ArCoreApk_requestInstall(env, activity, true, &install_status);
+    if (install_status == AR_AVAILABILITY_SUPPORTED_INSTALLED)
+    {
+        _installed = true;
+        return true;
+    }
+
+    _installed = false;
+    return false;
+}
+
+bool SENSNdkARCore::install()
+{
+    JNIEnv* env;
+    _jvm->GetEnv((void**)&env, JNI_VERSION_1_6);
+    std::string className = "ch/cpvr/" + _appName + "/GLES3Lib";
+    jclass      clazz     = env->FindClass(className.c_str());
+    jmethodID   methodid  = env->GetStaticMethodID(clazz, "askARInstall", "()Z");
+
+    return env->CallStaticBooleanMethod(clazz, methodid);
+}
+/*------------------------------------------------------------------------------------------*/
 
 SENSNdkARCore::~SENSNdkARCore()
 {
@@ -56,55 +114,65 @@ void SENSNdkARCore::reset()
         ArSession_destroy(_arSession);
         ArFrame_destroy(_arFrame);
         _arSession = nullptr;
-        glDeleteTextures(1, &_cameraTextureId);
+        if (_texImgReader)
+        {
+            delete _texImgReader;
+            _texImgReader = nullptr;
+        }
     }
 }
 
-void SENSNdkARCore::initCameraTexture()
+// NOTE(dgj1): targetHeight is automatically calculated based on reported aspect ratio of GPU texture
+bool SENSNdkARCore::init(unsigned int textureId, bool retrieveCpuImg, int targetWidth)
 {
-    glGenTextures(1, &_cameraTextureId);
-    glBindTexture(GL_TEXTURE_EXTERNAL_OES, _cameraTextureId);
-    glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-}
+    if (textureId > 0)
+        _cameraTextureId = textureId;
 
-bool SENSNdkARCore::init()
-{
-    if (!_available)
-        return false;
-    if (_arSession != nullptr)
-        reset();
+    if (_texImgReader)
+    {
+        delete _texImgReader;
+        _texImgReader = nullptr;
+    }
+
+    _retrieveCpuImg    = retrieveCpuImg;
+    _cpuImgTargetWidth = targetWidth;
 
     JNIEnv* env;
-    _activity->vm->GetEnv((void**)&env, JNI_VERSION_1_6);
-    jint result = _activity->vm->AttachCurrentThread(&env, NULL);
-    if (result == JNI_ERR)
+    _jvm->GetEnv((void**)&env, JNI_VERSION_1_6);
+    std::string className = "ch/cpvr/" + _appName + "/GLES3Lib";
+    jclass      clazz     = env->FindClass(className.c_str());
+    jmethodID   methodid  = env->GetStaticMethodID(clazz, "initAR", "()Z");
+
+    return env->CallStaticBooleanMethod(clazz, methodid);
+}
+
+bool SENSNdkARCore::init(JNIEnv* env, void* context, void* activity)
+{
+    if (!checkAvailability(env, context, activity))
     {
-        Utils::log("SENSNdkARCore", "error");
+        return false;
     }
-    jobject activityObj = env->NewGlobalRef(_activity->clazz);
+
+    if (_arSession != nullptr)
+    {
+        return false;
+    }
 
     ArInstallStatus install_status;
-    ArCoreApk_requestInstall(env, activityObj, false, &install_status);
+    ArCoreApk_requestInstall(env, activity, false, &install_status);
 
     if (install_status == AR_AVAILABILITY_SUPPORTED_NOT_INSTALLED)
     {
-        env->DeleteGlobalRef(activityObj);
-        _activity->vm->DetachCurrentThread();
         return false;
     }
 
-    if (ArSession_create(env, activityObj, &_arSession) != AR_SUCCESS)
+    if (ArSession_create(env, activity, &_arSession) != AR_SUCCESS)
     {
-        env->DeleteGlobalRef(activityObj);
-        _activity->vm->DetachCurrentThread();
         return false;
     }
 
     if (!_arSession)
     {
-        env->DeleteGlobalRef(activityObj);
-        _activity->vm->DetachCurrentThread();
         return false;
     }
 
@@ -119,18 +187,15 @@ bool SENSNdkARCore::init()
     {
         ArSession_destroy(_arSession);
         _arSession = nullptr;
-        env->DeleteGlobalRef(activityObj);
-        _activity->vm->DetachCurrentThread();
         return false;
     }
 
-    // Deph texture has values between 0 millimeters to 8191 millimeters. 8m is not enough in our case
+    // Depth texture has values between 0 millimeters to 8191 millimeters. 8m is not enough in our case
     // https://developers.google.com/ar/reference/c/group/ar-frame#arframe_acquiredepthimage
     ArConfig_setDepthMode(_arSession, arConfig, AR_DEPTH_MODE_DISABLED);
     ArConfig_setLightEstimationMode(_arSession, arConfig, AR_LIGHT_ESTIMATION_MODE_ENVIRONMENTAL_HDR);
     ArConfig_setInstantPlacementMode(_arSession, arConfig, AR_INSTANT_PLACEMENT_MODE_DISABLED);
 
-    initCameraTexture();
     ArSession_setCameraTextureName(_arSession, _cameraTextureId);
 
     if (ArSession_configure(_arSession, arConfig) != AR_SUCCESS)
@@ -138,8 +203,6 @@ bool SENSNdkARCore::init()
         ArConfig_destroy(arConfig);
         ArSession_destroy(_arSession);
         _arSession = nullptr;
-        env->DeleteGlobalRef(activityObj);
-        _activity->vm->DetachCurrentThread();
         return false;
     }
 
@@ -165,13 +228,32 @@ bool SENSNdkARCore::init()
     {
         ArSession_destroy(_arSession);
         _arSession = nullptr;
-        env->DeleteGlobalRef(activityObj);
-        _activity->vm->DetachCurrentThread();
         return false;
     }
 
-    env->DeleteGlobalRef(activityObj);
-    _activity->vm->DetachCurrentThread();
+    //retrieve intrinsics and frame size
+    ArCamera* arCamera;
+    ArFrame_acquireCamera(_arSession, _arFrame, &arCamera);
+
+    ArCameraIntrinsics* arIntrinsics = nullptr;
+    ArCameraIntrinsics_create(_arSession, &arIntrinsics);
+    ArCamera_getTextureIntrinsics(_arSession, arCamera, arIntrinsics);
+
+    ArCameraIntrinsics_getFocalLength(_arSession, arIntrinsics, &_fx, &_fy);
+    ArCameraIntrinsics_getPrincipalPoint(_arSession, arIntrinsics, &_cx, &_cy);
+    ArCameraIntrinsics_getImageDimensions(_arSession,
+                                          arIntrinsics,
+                                          &_inputFrameW,
+                                          &_inputFrameH);
+
+    ArCameraIntrinsics_destroy(arIntrinsics);
+    ArCamera_release(arCamera);
+
+    if (_cpuImgTargetWidth > 0)
+    {
+        float aspect        = (float)_inputFrameH / (float)_inputFrameW;
+        _cpuImgTargetHeight = aspect * _cpuImgTargetWidth;
+    }
 
     pause();
     return true;
@@ -182,8 +264,11 @@ bool SENSNdkARCore::update(cv::Mat& pose)
     if (!_arSession)
         return false;
 
-    if (ArSession_update(_arSession, _arFrame) != AR_SUCCESS)
+    ArStatus status = ArSession_update(_arSession, _arFrame);
+    if (status != AR_SUCCESS)
+    {
         return false;
+    }
 
     ArCamera* arCamera;
     ArFrame_acquireCamera(_arSession, _arFrame, &arCamera);
@@ -212,7 +297,7 @@ bool SENSNdkARCore::update(cv::Mat& pose)
     {
         ArCameraIntrinsics* arIntrinsics = nullptr;
         ArCameraIntrinsics_create(_arSession, &arIntrinsics);
-        ArCamera_getImageIntrinsics(_arSession, arCamera, arIntrinsics);
+        ArCamera_getTextureIntrinsics(_arSession, arCamera, arIntrinsics);
 
         float fx, fy, cx, cy;
         ArCameraIntrinsics_getFocalLength(_arSession, arIntrinsics, &fx, &fy);
@@ -240,6 +325,7 @@ bool SENSNdkARCore::update(cv::Mat& pose)
 
     //---- LIGHT ESTIMATE ----//
     // Get light estimation value.
+    /*
     ArLightEstimate*     arLightEstimate;
     ArLightEstimateState arLightEstimateState;
     ArLightEstimate_create(_arSession, &arLightEstimate);
@@ -258,10 +344,14 @@ bool SENSNdkARCore::update(cv::Mat& pose)
 
     ArLightEstimate_destroy(arLightEstimate);
     arLightEstimate = nullptr;
+     */
     //---------------------
 
     ArTrackingState camera_tracking_state;
     ArCamera_getTrackingState(_arSession, arCamera, &camera_tracking_state);
+
+    if (_fetchPointCloud)
+        doFetchPointCloud();
 
     ArCamera_release(arCamera);
     // If the camera isn't tracking don't bother rendering other objects.
@@ -273,23 +363,34 @@ bool SENSNdkARCore::update(cv::Mat& pose)
 
 void SENSNdkARCore::updateCamera(cv::Mat& intrinsics)
 {
-    ArImage* arImage;
-    if (ArFrame_acquireCameraImage(_arSession, _arFrame, &arImage) != AR_SUCCESS)
-        return;
+    cv::Mat image;
 
-    cv::Mat yuv = convertToYuv(arImage);
-    cv::Mat bgr;
+    if (_retrieveCpuImg)
+    {
+        if (!_texImgReader)
+        {
+            //ATTENTION: for the current implementation the gpu texture (preview image) has to have the same aspect ratio as the cpu image
+            //check aspect ratio
+            _texImgReader = new SENSGLTextureReader(_cameraTextureId, true, _cpuImgTargetWidth, _cpuImgTargetHeight);
+        }
 
-    ArImage_release(arImage);
+        HighResTimer t;
+        image = _texImgReader->readImageFromGpu();
 
-    cv::cvtColor(yuv, bgr, cv::COLOR_YUV2BGR_NV21, 3);
+        Utils::log("SENSNdkARCore", "readImageFromGPU: %fms", t.elapsedTimeInMilliSec());
+        /*
+Utils::log("imagesize", "orig w:%d h:%d", image.size().width, image.size().height);
+Utils::log("imagesize", "orig imageSize w:%d h:%d", _inputFrameW, _inputFrameH);
+Utils::log("imagesize", "orig calib cx:%f cy:%f", intrinsics.at<double>(0, 2),
+           intrinsics.at<double>(1, 2));
+*/
+        //adapt intrinsics to cpu image size
+    }
 
-    updateFrame(bgr, intrinsics, true);
+    updateFrame(image, intrinsics, _inputFrameW, _inputFrameH, true);
 }
 
-
-
-void SENSNdkARCore::lightComponentIntensity(float * component)
+void SENSNdkARCore::lightComponentIntensity(float* component)
 {
     component[0] = _envLightI[0];
     component[1] = _envLightI[1];
@@ -322,45 +423,6 @@ cv::Mat SENSNdkARCore::convertToYuv(ArImage* arImage)
         return yuv;
 }
 
-int SENSNdkARCore::getPointCloud(float** mapPoints, float confidanceValue)
-{
-    // Update and render point cloud.
-    ArPointCloud* arPointCloud     = nullptr;
-    ArStatus      pointCloudStatus = ArFrame_acquirePointCloud(_arSession, _arFrame, &arPointCloud);
-    int           n;
-    float*        mp;
-
-    ArPointCloud_getNumberOfPoints(_arSession, arPointCloud, &n);
-    ArPointCloud_getData(_arSession, arPointCloud, &mp);
-
-    if (pointCloudStatus != AR_SUCCESS)
-        return 0;
-
-    int nbPoints = 0;
-    for (int i = 0; i < n; i++)
-    {
-        int idx = i * 4;
-        if (mp[idx + 3] >= confidanceValue)
-        {
-            *mapPoints[nbPoints]     = mp[idx];
-            *mapPoints[nbPoints + 1] = mp[idx + 1];
-            *mapPoints[nbPoints + 2] = mp[idx + 2];
-            nbPoints++;
-        }
-    }
-
-    ArPointCloud_release(arPointCloud);
-    return nbPoints;
-}
-
-/*
-void SENSNdkARCore::setDisplaySize(int w, int h)
-{
-    if (_arSession)
-        ArSession_setDisplayGeometry(_arSession, 0, w, h);
-}
- */
-
 bool SENSNdkARCore::resume()
 {
     if (_pause && _arSession != nullptr)
@@ -368,25 +430,29 @@ bool SENSNdkARCore::resume()
         const ArStatus status = ArSession_resume(_arSession);
         if (status == AR_SUCCESS)
         {
-            _pause = false;
+            _pause   = false;
             _started = true; //for SENSCameraBase
         }
+        else
+            Utils::log("ErlebAR", "SENSNdkARCore resume failed!!!");
     }
     return !_pause;
 }
 
 void SENSNdkARCore::pause()
 {
-    _pause = true;
     _started = false; //for SENSCameraBase
     if (_arSession != nullptr)
-        if( AR_SUCCESS == ArSession_pause(_arSession))
-            Utils::log("SENSNdkARCore", "success");
+        if (AR_SUCCESS == ArSession_pause(_arSession))
+            _pause = true;
+        else
+            Utils::log("ErlebAR", "SENSNdkARCore pause failed!!!");
 }
 
 void SENSNdkARCore::retrieveCaptureProperties()
 {
     //the SENSCameraBase needs to have a valid frame, otherwise we cannot estimate the fov correctly
+    /*
     if(!_frame)
     {
         resume();
@@ -394,9 +460,11 @@ void SENSNdkARCore::retrieveCaptureProperties()
         cv::Mat pose;
         do {
             update(pose);
+            std::this_thread::sleep_for(200ms);
         }
-        while(!_frame && t.elapsedTimeInSec() < 5.f);
+        while(!_frame && t.elapsedTimeInSec() < 10.f);
 
+        Utils::log("SENSNdkARCore", "retrieveCaptureProperties update for %fs", t.elapsedTimeInSec());
         pause();
     }
 
@@ -411,16 +479,26 @@ void SENSNdkARCore::retrieveCaptureProperties()
             focalLengthPix = 0.5 * (_frame->intrinsics.at<double>(0, 0) + _frame->intrinsics.at<double>(1, 1));
         }
         SENSCameraDeviceProperties devProp(deviceId, facing);
-        devProp.add(_frame->imgBGR.cols, _frame->imgBGR.rows, focalLengthPix);
+        //here we have to use the cpu image size (which is not the same as the gpu image size)
+        devProp.add(_inputFrameW, _inputFrameH, focalLengthPix);
         _captureProperties.push_back(devProp);
     }
     else
-        Utils::warnMsg("SENSiOSARCore", "retrieveCaptureProperties: Could not retrieve a valid frame!", __LINE__, __FILE__);
+        Utils::warnMsg("SENSNdkARCore", "retrieveCaptureProperties: Could not retrieve a valid frame!", __LINE__, __FILE__);
+*/
+    std::string      deviceId = "ARKit";
+    SENSCameraFacing facing   = SENSCameraFacing::BACK;
+
+    float                      focalLengthPix = 0.5 * (_fx + _fy);
+    SENSCameraDeviceProperties devProp(deviceId, facing);
+    //here we have to use the cpu image size (which is not the same as the gpu image size)
+    devProp.add(_inputFrameW, _inputFrameH, focalLengthPix);
+    _captureProperties.push_back(devProp);
 }
 
 const SENSCaptureProperties& SENSNdkARCore::captureProperties()
 {
-    if(_captureProperties.size() == 0)
+    if (_captureProperties.size() == 0)
         retrieveCaptureProperties();
 
     return _captureProperties;
@@ -428,12 +506,12 @@ const SENSCaptureProperties& SENSNdkARCore::captureProperties()
 
 //This function does not really start the camera as for the arcore iplementation, the frame gets only updated with a call to arcore::update.
 //This function is needed to correctly use arcore as a camera in SENSCVCamera
-const SENSCameraConfig& SENSNdkARCore::start(std::string    deviceId,
+const SENSCameraConfig& SENSNdkARCore::start(std::string                   deviceId,
                                              const SENSCameraStreamConfig& streamConfig,
                                              bool                          provideIntrinsics)
 {
     //define capture properties
-    if(_captureProperties.size() == 0)
+    if (_captureProperties.size() == 0)
         retrieveCaptureProperties();
 
     if (_captureProperties.size() == 0)
@@ -459,4 +537,37 @@ const SENSCameraConfig& SENSNdkARCore::start(std::string    deviceId,
     return _config;
 }
 
+void SENSNdkARCore::doFetchPointCloud()
+{
+    ArPointCloud* arPointCloud = nullptr;
 
+    if (ArFrame_acquirePointCloud(_arSession, _arFrame, &arPointCloud) == AR_SUCCESS)
+    {
+        int    n;
+        float* mp;
+
+        ArPointCloud_getNumberOfPoints(_arSession, arPointCloud, &n);
+        if (n > 0)
+        {
+            ArPointCloud_getData(_arSession, arPointCloud, &mp);
+
+            _pointCloud = cv::Mat(n, 4, CV_32F);
+            std::memcpy(_pointCloud.data, mp, n * 4 * sizeof(float));
+            /*
+            int nbPoints = 0;
+            for (int i = 0; i < n; i++)
+            {
+                int idx = i * 4;
+                if (mp[idx + 3] >= confidanceValue)
+                {
+                    *mapPoints[nbPoints] = mp[idx];
+                    *mapPoints[nbPoints + 1] = mp[idx + 1];
+                    *mapPoints[nbPoints + 2] = mp[idx + 2];
+                    nbPoints++;
+                }
+            }
+            */
+        }
+        ArPointCloud_release(arPointCloud);
+    }
+}

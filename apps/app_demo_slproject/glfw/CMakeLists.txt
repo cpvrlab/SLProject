@@ -6,7 +6,7 @@ set(target app-Demo-SLProject)
 
 set(include_path "${CMAKE_CURRENT_SOURCE_DIR}")
 set(source_path "${CMAKE_CURRENT_SOURCE_DIR}")
-set(compile_definitions SL_STARTSCENE=SID_Minimal)
+set(compile_definitions SL_STARTSCENE=SID_ShaderIBL)
 
 file(GLOB headers
         ${SL_PROJECT_ROOT}/apps/app_demo_slproject/include/AppDemoGui.h

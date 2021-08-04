@@ -79,7 +79,8 @@ SLGLTexture::SLGLTexture(SLAssetManager* assetMgr,
                          SLint           min_filter,
                          SLint           mag_filter,
                          SLint           wrapS,
-                         SLint           wrapT)
+                         SLint           wrapT,
+                         SLenum          target)
 {
     _width                 = 0;
     _height                = 0;
@@ -89,7 +90,7 @@ SLGLTexture::SLGLTexture(SLAssetManager* assetMgr,
     _mag_filter            = mag_filter;
     _wrap_s                = wrapS;
     _wrap_t                = wrapT;
-    _target                = GL_TEXTURE_2D;
+    _target                = target;
     _texID                 = 0;
     _bumpScale             = 1.0f;
     _resizeToPow2          = false;
@@ -141,7 +142,7 @@ SLGLTexture::SLGLTexture(SLAssetManager* assetMgr,
     _images.push_back(image);
 
     _width                 = image->width();
-    _height                = image->width();
+    _height                = image->height();
     _depth                 = _images.size();
     _bytesPerPixel         = image->bytesPerPixel();
     _min_filter            = min_filter;
@@ -460,7 +461,7 @@ void SLGLTexture::deleteData()
     if (_ktxTexture)
         ktxTexture_Destroy((ktxTexture*)_ktxTexture);
 #endif
-    
+
     _texID                 = 0;
     _texType               = TT_unknown;
     _width                 = 0;
@@ -530,13 +531,13 @@ void SLGLTexture::load(const SLstring& filename,
 
         if (ktxTexture2_NeedsTranscoding(_ktxTexture))
         {
-#if defined(SL_OS_MACIOS)
+#    if defined(SL_OS_MACIOS)
             _compressionFormat = KTX_TTF_PVRTC1_4_RGB;
-#elif defined(SL_OS_ANDROID)
+#    elif defined(SL_OS_ANDROID)
             _compressionFormat = KTX_TTF_ETC2_RGBA;
-#else
+#    else
             _compressionFormat = KTX_TTF_BC3_RGBA;
-#endif
+#    endif
             error = ktxTexture2_TranscodeBasis(_ktxTexture, _compressionFormat, 0);
 
             if (error != KTX_SUCCESS || _ktxTexture->pData == nullptr)
@@ -707,7 +708,7 @@ void SLGLTexture::build(SLint texUnit)
             string errStr = "Error in SLGLTexture::build: texture " + _ktxFileName + " contains no data";
             SL_WARN_MSG(errStr.c_str());
         }
-        
+
         // delete texture name if it already exits
         if (_texID)
         {
@@ -768,6 +769,29 @@ void SLGLTexture::build(SLint texUnit)
         GET_GL_ERROR;
 #endif
     }
+#ifdef SL_OS_ANDROID
+    else if (_target == GL_TEXTURE_EXTERNAL_OES)
+    {
+        glGenTextures(1, &_texID);
+
+        SLGLState* stateGL = SLGLState::instance();
+        stateGL->activeTexture(GL_TEXTURE0 + (SLuint)texUnit);
+
+        // create binding and apply texture properties
+        stateGL->bindTexture(GL_TEXTURE_EXTERNAL_OES, _texID);
+
+        glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        // apply texture wrapping modes
+        glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_WRAP_S, _wrap_s);
+        glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_WRAP_T, _wrap_t);
+        //ATTENTION: setting the color to black or white does not give correct results (dont know why)
+        //colors different to black and white seem to work. Default value is {0, 0, 0, 0}.
+        float color[] = {0.00001f, 0.00001f, 0.00001f, 1.0f};
+        glTexParameterfv(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_BORDER_COLOR_OES, color);
+        GET_GL_ERROR;
+    }
+#endif
     else
     {
         if (_images.empty())
@@ -952,7 +976,7 @@ void SLGLTexture::build(SLint texUnit)
 
             /////////////////////////////////////////////////////
             glTexImage3D(GL_TEXTURE_3D,
-                         0,              //Mipmap level,
+                         0,               //Mipmap level,
                          _internalFormat, //Internal format
                          (SLsizei)_images[0]->width(),
                          (SLsizei)_images[0]->height(),

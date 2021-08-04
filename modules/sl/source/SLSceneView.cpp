@@ -540,7 +540,7 @@ SLbool SLSceneView::onPaint()
     SLbool camUpdated = false;
 
     // Init and build GUI for all projections except distorted stereo
-    //if (_camera && _camera->projection() != P_stereoSideBySideD)
+    if (_camera && _camera->projection() != P_stereoSideBySideD)
     {
         if (_gui)
             _gui->onInitNewFrame(_s, this);
@@ -690,7 +690,7 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     }
 
     // Clear color buffer
-    stateGL->clearColor(SLCol4f::BLACK);
+    stateGL->clearColor(SLVec4f(0.00001f, 0.00001f, 0.00001f, 1.0f));
     stateGL->clearColorDepthBuffer();
 
     /////////////////////

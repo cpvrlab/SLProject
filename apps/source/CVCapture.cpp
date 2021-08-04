@@ -37,7 +37,11 @@ CVCapture::CVCapture()
     videoFileCam(CVCameraType::VIDEOFILE)
 {
     startCaptureTimeMS = 0.0f;
+#ifdef APP_USES_CVCAPTURE
+    hasSecondaryCamera = false;
+#else
     hasSecondaryCamera = true;
+#endif
     videoFilename      = "";
     videoLoops         = true;
     fps                = 1;

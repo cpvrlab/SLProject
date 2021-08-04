@@ -96,7 +96,8 @@ public:
                          SLint           min_filter,
                          SLint           mag_filter,
                          SLint           wrapS,
-                         SLint           wrapT);
+                         SLint           wrapT,
+                         SLenum          target = GL_TEXTURE_2D);
 
     //! ctor for 2D textures from byte pointer
     explicit SLGLTexture(SLAssetManager* assetMgr,
@@ -161,6 +162,8 @@ public:
     void minFiler(SLint minF) { _min_filter = minF; } // must be called before build
     void magFiler(SLint magF) { _mag_filter = magF; } // must be called before build
     void needsUpdate(SLbool update) { _needsUpdate = update; }
+    // must be called before build and makes only sense for SL_TEXTURE_EXTERNAL
+    void textureSize(int width, int height) { _width = width; _height = height; }
 
     //! If deleteImageAfterBuild is set to true you won't be able to ray trace the scene
     void deleteImageAfterBuild(SLbool delImg) { _deleteImageAfterBuild = delImg; }
@@ -187,13 +190,17 @@ public:
     SLbool        autoCalcTM3D() const { return _autoCalcTM3D; }
     SLbool        needsUpdate() { return _needsUpdate; }
     SLstring      typeName();
+    bool          isTexture() { return (bool)glIsTexture(_texID); }
     SLstring      minificationFilterName() { return filterString(_min_filter); }
     SLstring      magnificationFilterName() { return filterString(_mag_filter); }
-    
+
 #ifdef SL_BUILD_WITH_KTX
-    SLint         compressionFormat() {return _compressionFormat;}
+    SLint compressionFormat()
+    {
+        return _compressionFormat;
+    }
 #endif
-    
+
 #ifdef SL_HAS_OPTIX
     void        buildCudaTexture();
     CUtexObject getCudaTextureObject()
@@ -211,13 +218,13 @@ public:
 #endif
     static string internalFormatStr(int internalFormat);
 
-    void                 build2DMipmaps(SLint target, SLuint index);
-    SLbool               copyVideoImage(SLint       camWidth,
-                                        SLint       camHeight,
-                                        CVPixFormat glFormat,
-                                        SLuchar*    data,
-                                        SLbool      isContinuous,
-                                        SLbool      isTopLeft);
+    void   build2DMipmaps(SLint target, SLuint index);
+    SLbool copyVideoImage(SLint       camWidth,
+                          SLint       camHeight,
+                          CVPixFormat glFormat,
+                          SLuchar*    data,
+                          SLbool      isContinuous,
+                          SLbool      isTopLeft);
 
     SLbool copyVideoImage(SLint       camWidth,
                           SLint       camHeight,
@@ -227,8 +234,8 @@ public:
                           SLbool      isContinuous,
                           SLbool      isTopLeft);
 
-    void     calc3DGradients(SLint sampleRadius, const function<void(int)>& onUpdateProgress);
-    void     smooth3DGradients(SLint smoothRadius, function<void(int)> onUpdateProgress);
+    void calc3DGradients(SLint sampleRadius, const function<void(int)>& onUpdateProgress);
+    void smooth3DGradients(SLint smoothRadius, function<void(int)> onUpdateProgress);
 
     // Bumpmap methods
     SLVec2f dudv(SLfloat u, SLfloat v); //! Returns the derivation as [s,t]
@@ -267,14 +274,14 @@ protected:
     std::atomic<bool> _needsUpdate{};  //!< Flag if image needs an single update
     std::mutex        _mutex;          //!< Mutex to protect parallel access (used in ray tracing)
 
-    SLbool              _deleteImageAfterBuild;                   //!< Flag if images should be deleted after build on GPU
-    SLbool              _compressedTexture = false;               //!< True for compressed texture format on GPU
+    SLbool _deleteImageAfterBuild;     //!< Flag if images should be deleted after build on GPU
+    SLbool _compressedTexture = false; //!< True for compressed texture format on GPU
 #ifdef SL_BUILD_WITH_KTX
     ktxTexture2*        _ktxTexture        = nullptr;             //!< Pointer to the KTX texture after loading
     ktx_transcode_fmt_e _compressionFormat = KTX_TTF_NOSELECTION; //!< compression format on GPU
     std::string         _ktxFileName;
 #endif
-    
+
 #ifdef SL_HAS_OPTIX
     CUgraphicsResource _cudaGraphicsResource; //!< Cuda Graphics object
     CUtexObject        _cudaTextureObject;

@@ -53,7 +53,14 @@ public:
     void drawAroundCamera(SLSceneView* sv);
 
 private:
-    SLbool _isHDR; //!< flag for HDR skyboxes
+    void         build();
+    SLGLTexture* _environmentCubemap;
+    SLGLTexture* _irradianceCubemap;
+    SLGLTexture* _roughnessCubemap;
+    SLGLTexture* _brdfLUTTexture;
+    SLGLTexture* _hdrTexture;
+    SLbool       _isHDR;   //!< flag for HDR skyboxes
+    SLbool       _isBuilt; //!< flag for late HDR skybox building
 };
 //-----------------------------------------------------------------------------
 #endif // #define SLSKYBOX_H

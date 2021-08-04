@@ -54,7 +54,9 @@ drawn on the far clipping plane of the visualized view frustum.
 class SLCamera : public SLNode
 {
 public:
-    explicit SLCamera(const SLstring& name = "Camera");
+    explicit SLCamera(const SLstring& name = "Camera",
+                      SLStdShaderProg textureOnlyProgramId = SP_TextureOnly,
+                      SLStdShaderProg colorAttributeProgramId = SP_colorAttribute);
     ~SLCamera() override;
 
     void           statsRec(SLNodeStats& stats) override;

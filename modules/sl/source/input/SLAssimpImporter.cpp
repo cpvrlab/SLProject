@@ -8,6 +8,8 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
+#ifdef SL_BUILD_WITH_ASSIMP
+
 #include <iomanip>
 #include <Utils.h>
 
@@ -1372,3 +1374,5 @@ SLstring SLAssimpImporter::checkFilePath(const SLstring& modelPath,
     return texturePath + "TexNotFound.png";
 }
 //-----------------------------------------------------------------------------
+
+#endif // SL_BUILD_WITH_ASSIMP

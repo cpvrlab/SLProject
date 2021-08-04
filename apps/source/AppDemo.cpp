@@ -28,7 +28,7 @@ SLDeviceRotation     AppDemo::devRot;
 SLDeviceLocation     AppDemo::devLoc;
 SLstring             AppDemo::name    = "SLProjectApp";
 SLstring             AppDemo::appTag  = "SLProject";
-SLstring             AppDemo::version = "3.1.100";
+SLstring             AppDemo::version = "3.1.201";
 #ifdef _DEBUG
 SLstring AppDemo::configuration = "Debug";
 #else
@@ -85,7 +85,7 @@ See examples usages in:
 /param onSceneLoadCallback C Callback function as void* pointer for the scene creation.
 */
 void AppDemo::createAppAndScene(SLstring appName,
-                                      void*    onSceneLoadCallback)
+                                void*    onSceneLoadCallback)
 {
     assert(AppDemo::scene == nullptr &&
            "You can create only one AppDemo");

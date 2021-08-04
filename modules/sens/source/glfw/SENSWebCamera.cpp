@@ -83,7 +83,7 @@ void SENSWebCamera::grab()
         {
             if (bgrImg.cols == _config.streamConfig.widthPix &&
                 bgrImg.rows == _config.streamConfig.heightPix)
-                updateFrame(bgrImg, cv::Mat(), false);
+                updateFrame(bgrImg, cv::Mat(), false, bgrImg.rows, bgrImg.cols);
             else
                 LOG_WEBCAM_WARN("video capture delivers wrong resolution!");
         }

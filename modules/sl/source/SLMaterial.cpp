@@ -248,7 +248,7 @@ SLMaterial::SLMaterial(SLAssetManager* am,
 }
 
 //-----------------------------------------------------------------------------
-    //! Ctor for PBR shading with IBL without textures
+//! Ctor for PBR shading with IBL without textures
 SLMaterial::SLMaterial(SLAssetManager* am,
                        const SLchar*   name,
                        SLCol4f         diffuse,
@@ -257,7 +257,7 @@ SLMaterial::SLMaterial(SLAssetManager* am,
                        SLGLProgram*    pbrIblShaderProg,
                        SLGLTexture*    irrandianceMap,
                        SLGLTexture*    prefilterIrradianceMap,
-                       SLGLTexture*    brdfLUTTexture)
+                       SLGLTexture*    brdfLUTTexture) : SLObject(name)
 {
     _ambient.set(0, 0, 0); // not used in Cook-Torrance
     _diffuse = diffuse;
@@ -293,7 +293,7 @@ SLMaterial::SLMaterial(SLAssetManager* am,
                        SLGLTexture*    texture5,
                        SLGLTexture*    texture6,
                        SLGLTexture*    texture7,
-                       SLGLTexture*    texture8)
+                       SLGLTexture*    texture8) : SLObject(name)
 {
     _ambient.set(1, 1, 1);
     _diffuse.set(1, 1, 1);
@@ -337,10 +337,6 @@ SLMaterial::~SLMaterial()
         delete _errorTexture;
         _errorTexture = nullptr;
     }
-
-    SLGLState* stateGL = SLGLState::instance();
-    if (stateGL->currentMaterial() == this)
-        stateGL->currentMaterial(nullptr);
 }
 //-----------------------------------------------------------------------------
 /*!

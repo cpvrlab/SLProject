@@ -20,7 +20,9 @@ SLProjection SLCamera::currentProjection  = P_monoPerspective;
 SLfloat      SLCamera::currentFOV         = 45.0f;
 SLint        SLCamera::currentDevRotation = 0;
 //-----------------------------------------------------------------------------
-SLCamera::SLCamera(const SLstring& name)
+SLCamera::SLCamera(const SLstring& name,
+                   SLStdShaderProg textureOnlyProgramId,
+                   SLStdShaderProg colorAttributeProgramId)
   : SLNode(name),
     _movedLastFrame(false),
     _oldTouchPos1(0, 0),
@@ -42,8 +44,8 @@ SLCamera::SLCamera(const SLstring& name)
     _fogColor(SLCol4f::GRAY),
     _fogColorIsBack(true),
     _fbRect(0, 0, 640, 480),
-    _background(SLGLProgramManager::get(SP_TextureOnly),
-                SLGLProgramManager::get(SP_colorAttribute)),
+    _background(SLGLProgramManager::get(textureOnlyProgramId),
+                SLGLProgramManager::get(colorAttributeProgramId)),
     _onCamUpdateCB(nullptr)
 {
     _fovInit       = 0;
@@ -1750,8 +1752,13 @@ void SLCamera::passToUniforms(SLGLProgram* program)
     loc = program->uniform4fv("u_camFogColor", 1, (SLfloat*)&_fogColor);
     loc = program->uniform1i("u_camFbWidth", _fbRect.width);
     loc = program->uniform1i("u_camFbHeight", _fbRect.height);
+    program->uniform1f("u_bgWidth", _background.rect().width);
+    program->uniform1f("u_bgHeight", _background.rect().height);
+    program->uniform1f("u_bgLeft", _background.rect().x);
+    program->uniform1f("u_bgBottom", _background.rect().y);
 
     for (int i = 0; i < _cascades.size(); i++)
         loc = program->uniform1f(("u_camCascadeDepth[" + std::to_string(i) + "]").c_str(), _cascades[i].y);
+    //SL_LOG("SLCamera: width:%f height:%f left:%f bottom:%f", _background.rect().width, _background.rect().height, _background.rect().x, _background.rect().x);
 }
 //-----------------------------------------------------------------------------

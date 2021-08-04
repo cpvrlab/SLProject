@@ -13,6 +13,7 @@
 
 #include <SLGLVertexArray.h>
 #include <SLObject.h>
+#include <math/SLRect.h>
 
 class SLGLTexture;
 class SLGLProgram;
@@ -45,18 +46,15 @@ public:
                 const SLCol4f& topRightColor,
                 const SLCol4f& bottomRightColor);
     //! If flag _repeatBlurred is true the texture is not distorted if its size does not fit to screen aspect ratio. Instead it is repeated
-    void texture(SLGLTexture* backgroundTexture, bool repeatBlurred = false);
+    void texture(SLGLTexture* backgroundTexture, bool fixAspectRatio = false);
 
     // Getters
-    SLVCol4f     colors() { return _colors; }
-    SLCol4f      avgColor() { return _avgColor; }
-    SLbool       isUniform() const { return _isUniform; }
-    SLGLTexture* texture() { return _texture; }
-
+    SLVCol4f       colors() { return _colors; }
+    SLCol4f        avgColor() { return _avgColor; }
+    SLbool         isUniform() const { return _isUniform; }
+    SLGLTexture*   texture() { return _texture; }
+    const SLRectf& rect() const { return _rect; }
 private:
-    //! Define background with two additional triangles left and right for bars containing a small texture subregions
-    void defineWithBars();
-    
     SLbool          _isUniform;    //!< Flag if background has uniform color
     SLVCol4f        _colors;       //!< Vector of 4 corner colors {TL,BL,TR,BR}
     SLCol4f         _avgColor;     //!< Average color of all 4 corner colors
@@ -64,14 +62,14 @@ private:
     SLGLTexture*    _textureError; //!< Pointer to a error texture if background texture is not available
     SLint           _resX;         //!< Background resolution in x-dir.
     SLint           _resY;         //!< Background resolution in y-dir.
+    SLRectf         _rect;         //!< Background rect (it may be different to viewport size)
     SLGLVertexArray _vao;          //!< OpenGL Vertex Array Object for drawing
 
     SLGLProgram* _textureOnlyProgram    = nullptr;
     SLGLProgram* _colorAttributeProgram = nullptr;
     bool         _deletePrograms        = false;
-    //!if flag is true the texture is not distorted if its size does not fit to screen aspect ratio. Instead bars are
-    //!added left and right and filled with a small subregion of the texture, that then looks blurred
-    bool _repeatBlurred = false;
+    //! if true, the background is centered and stretched to the screen boarders while keeping the textures aspect ratio
+    bool _fixAspectRatio = false;
 };
 //-----------------------------------------------------------------------------
 #endif
