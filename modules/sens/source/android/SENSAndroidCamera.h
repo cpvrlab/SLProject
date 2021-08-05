@@ -1,5 +1,14 @@
-#ifndef SENS_NDKCAMERA_H
-#define SENS_NDKCAMERA_H
+//#############################################################################
+//  File:      SENSAndroidCamera.h
+//  Author:    Michael Goettlicher, Luc Girod, Marcus Hudritsch
+//  Date:      Winter 2016
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
+//  License:   This software is provide under the GNU General Public License
+//             Please visit: http://opensource.org/licenses/GPL-3.0
+//#############################################################################
+
+#ifndef SENS_ANDROID_CAMERA_H
+#define SENS_ANDROID_CAMERA_H
 
 #include <string>
 #include <map>
@@ -11,6 +20,7 @@
 #include <media/NdkImageReader.h>
 #include <SENSException.h>
 
+//-----------------------------------------------------------------------------
 enum class CaptureSessionState
 {
     READY = 0, // session is ready
@@ -18,12 +28,12 @@ enum class CaptureSessionState
     CLOSED,    // session is closed(by itself or a new session evicts)
     MAX_STATE
 };
-
-class SENSNdkCamera : public SENSCameraBase
+//-----------------------------------------------------------------------------
+class SENSAndroidCamera : public SENSBaseCamera
 {
 public:
-    SENSNdkCamera();
-    ~SENSNdkCamera();
+    SENSAndroidCamera();
+    ~SENSAndroidCamera();
 
     const SENSCameraConfig& start(std::string                   deviceId,
                                   const SENSCameraStreamConfig& streamConfig,
@@ -31,7 +41,7 @@ public:
 
     void stop() override;
 
-    const SENSCaptureProperties& captureProperties() override;
+    const SENSCaptureProps& captureProperties() override;
 
     //callbacks
     void onDeviceDisconnected(ACameraDevice* dev);
@@ -75,5 +85,5 @@ private:
     //camera state
     cv::Size _captureSize;
 };
-
-#endif //SENS_NDKCAMERA_H
+//-----------------------------------------------------------------------------
+#endif //SENS_ANDROID_CAMERA_H

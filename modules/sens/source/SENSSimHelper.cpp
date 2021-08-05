@@ -288,10 +288,10 @@ void SENSSimHelper::startSim()
     {
         _cameraRef = _simulator->getCameraSensorPtr();
         //there is only one prop:
-        const SENSCaptureProperties& capProps = _cameraRef->captureProperties();
+        const SENSCaptureProps& capProps = _cameraRef->captureProperties();
         if (capProps.size())
         {
-            const SENSCameraDeviceProperties* currCamProps = &capProps.front();
+            const SENSCameraDeviceProps* currCamProps = &capProps.front();
             auto                              streamConfig = currCamProps->streamConfigs().front();
             //first start the camera, the intrinsic is valid afterwards
             _cameraRef->start(currCamProps->deviceId(),

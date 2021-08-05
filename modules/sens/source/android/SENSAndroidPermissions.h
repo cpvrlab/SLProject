@@ -1,12 +1,12 @@
-#ifndef SENS_NDK_PERMISSIONS
-#define SENS_NDK_PERMISSIONS
+#ifndef SENS_ANDROID_PERMISSIONS
+#define SENS_ANDROID_PERMISSIONS
 #include <SENSPermissions.h>
 #include <jni.h>
 
-class SENSNdkPermissions : public SENSPermissions
+class SENSAndroidPermissions : public SENSPermissions
 {
     public:
-    SENSNdkPermissions(JavaVM* jvm);
+    SENSAndroidPermissions(JavaVM* jvm);
     void askPermissions();
 
     bool hasCameraPermission();

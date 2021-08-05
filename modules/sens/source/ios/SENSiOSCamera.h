@@ -6,7 +6,7 @@
 #import <simd/matrix_types.h>
 #include <opencv2/opencv.hpp>
 
-class SENSiOSCamera : public SENSCameraBase
+class SENSiOSCamera : public SENSBaseCamera
 {
 public:
     SENSiOSCamera();
@@ -18,7 +18,7 @@ public:
                                   bool                          provideIntrinsics = true) override;
 
     void                         stop() override;
-    const SENSCaptureProperties& captureProperties() override;
+    const SENSCaptureProps& captureProperties() override;
 
 private:
     void processNewFrame(unsigned char* data, int imgWidth, int imgHeight, matrix_float3x3* camMat3x3);

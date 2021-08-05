@@ -1,20 +1,21 @@
-#include "SENSARCore.h"
-#include "SENSNdkARCoreJava.h"
+//#############################################################################
+//  File:      SENSAndroidARCoreJava.cpp
+//  Author:    Michael Goettlicher, Marcus Hudritsch, Luc Girod
+//  Date:      Winter 2016
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
+//  License:   This software is provide under the GNU General Public License
+//             Please visit: http://opensource.org/licenses/GPL-3.0
+//#############################################################################
+
+#include "SENSARBaseCamera.h"
+#include "SENSAndroidARCoreJava.h"
 #include <jni.h>
 #include <assert.h>
 #include <Utils.h>
 
-/*
-static SENSNdkARCoreJava* gARCore = nullptr;
-SENSNdkARCoreJava*        GetARCorePtr()
-{
-    if (gARCore == nullptr)
-        Utils::log("SENSNdkARCoreJava", "Global ARCoreJava has not been initialized");
-    return gARCore;
-}
-*/
-
-SENSNdkARCoreJava::SENSNdkARCoreJava(JavaVM* vm, jobject* activityContext)
+//-----------------------------------------------------------------------------
+SENSAndroidARCoreJava::SENSAndroidARCoreJava(JavaVM*  vm,
+                                             jobject* activityContext)
   : _vm(vm), _object(*activityContext)
 {
     JNIEnv* env;
@@ -30,11 +31,12 @@ SENSNdkARCoreJava::SENSNdkARCoreJava(JavaVM* vm, jobject* activityContext)
 
     _vm->DetachCurrentThread();
 }
-
-SENSNdkARCoreJava::~SENSNdkARCoreJava()
-{}
-
-bool SENSNdkARCoreJava::init(int targetWidth, int targetHeight, int manipWidth, int manipHeight, bool convertManipToGray)
+//-----------------------------------------------------------------------------
+bool SENSAndroidARCoreJava::init(int  targetWidth,
+                                 nt   targetHeight,
+                                 int  manipWidth,
+                                 int  manipHeight,
+                                 bool convertManipToGray)
 {
     JNIEnv* env;
     _vm->GetEnv((void**)&env, JNI_VERSION_1_6);
@@ -51,13 +53,13 @@ bool SENSNdkARCoreJava::init(int targetWidth, int targetHeight, int manipWidth, 
     _running = true;
     return _isReady;
 }
-
-void SENSNdkARCoreJava::reset()
+//-----------------------------------------------------------------------------
+void SENSAndroidARCoreJava::reset()
 {
     return;
 }
-
-bool SENSNdkARCoreJava::resume()
+//-----------------------------------------------------------------------------
+bool SENSAndroidARCoreJava::resume()
 {
     Utils::log("AAAAAAAAAAAAAAA", "resume");
     if (_running)
@@ -71,7 +73,7 @@ bool SENSNdkARCoreJava::resume()
     jmethodID methodId = env->GetMethodID(clazz,
                                           "ResumeARCore",
                                           "()Z");
-    bool success  = env->CallBooleanMethod(_object, methodId);
+    bool      success  = env->CallBooleanMethod(_object, methodId);
 
     _vm->DetachCurrentThread();
 
@@ -79,14 +81,14 @@ bool SENSNdkARCoreJava::resume()
     Utils::log("AAAAAAAAAAAAAAA", "resumed");
     return _running;
 }
-
-void SENSNdkARCoreJava::pause()
+//-----------------------------------------------------------------------------
+void SENSAndroidARCoreJava::pause()
 {
     if (!_running)
         return;
     _running = false;
 
-    //stop locations manager
+    // stop locations manager
     JNIEnv* env;
     _vm->GetEnv((void**)&env, JNI_VERSION_1_6);
     _vm->AttachCurrentThread(&env, NULL);
@@ -99,8 +101,8 @@ void SENSNdkARCoreJava::pause()
 
     _vm->DetachCurrentThread();
 }
-
-bool SENSNdkARCoreJava::update(cv::Mat& pose)
+//-----------------------------------------------------------------------------
+bool SENSAndroidARCoreJava::update(cv::Mat& pose)
 {
     JNIEnv* env;
     _vm->GetEnv((void**)&env, JNI_VERSION_1_6);
@@ -114,7 +116,6 @@ bool SENSNdkARCoreJava::update(cv::Mat& pose)
 
     _vm->DetachCurrentThread();
 
-    //cv::Mat view = cv::Mat::eye(4, 4, CV_32F);
-
     return tracking;
 }
+//-----------------------------------------------------------------------------

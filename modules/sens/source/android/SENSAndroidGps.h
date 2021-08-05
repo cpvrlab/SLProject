@@ -1,13 +1,13 @@
-#ifndef SENS_NDK_GPS_H
-#define SENS_NDK_GPS_H
+#ifndef SENS_ANDROID_GPS_H
+#define SENS_ANDROID_GPS_H
 
 #include <SENSGps.h>
 #include <jni.h>
 
-class SENSNdkGps : public SENSGps
+class SENSAndroidGps : public SENSGps
 {
 public:
-    SENSNdkGps() {};
+    SENSAndroidGps() {};
 
     bool start() override;
     void stop() override;

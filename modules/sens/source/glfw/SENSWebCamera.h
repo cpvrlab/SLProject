@@ -8,7 +8,7 @@
 #include <opencv2/opencv.hpp>
 #include <SENSCamera.h>
 
-class SENSWebCamera : public SENSCameraBase
+class SENSWebCamera : public SENSBaseCamera
 {
 public:
     SENSWebCamera()
@@ -22,7 +22,7 @@ public:
 
     void stop() override;
 
-    const SENSCaptureProperties& captureProperties() override;
+    const SENSCaptureProps& captureProperties() override;
 
     void grab();
 
