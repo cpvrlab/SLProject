@@ -1,5 +1,5 @@
-#ifndef SENS_IOSARCORE_DELEGATE_H
-#define SENS_IOSARCORE_DELEGATE_H
+#ifndef SENS_IOSARKIT_DELEGATE_H
+#define SENS_IOSARKIT_DELEGATE_H
 
 #import <ARKit/ARKit.h>
 #import <simd/simd.h>
@@ -13,7 +13,13 @@
 - (void)pause;
 - (BOOL)reset;
 
-- (void)latestFrame:(cv::Mat*)pose withImg:(cv::Mat*)imgBGR AndIntrinsic:(cv::Mat*)intrinsic AndImgWidth:(int*)w AndImgHeight:(int*)h IsTracking:(BOOL*)isTracking;
+- (void)latestFrame:(cv::Mat*)pose
+            withImg:(cv::Mat*)imgBGR
+       AndIntrinsic:(cv::Mat*)intrinsic
+        AndImgWidth:(int*)w
+       AndImgHeight:(int*)h
+         IsTracking:(BOOL*)isTracking
+     WithPointClout:(cv::Mat*)pc;
 - (void)initARKit;
 
 //pose, yPlane, uvPlane, width, height, intrinsic

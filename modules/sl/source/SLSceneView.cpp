@@ -690,7 +690,7 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     }
 
     // Clear color buffer
-    stateGL->clearColor(SLCol4f::BLACK);
+    stateGL->clearColor(SLVec4f(0.00001f, 0.00001f, 0.00001f, 1.0f));
     stateGL->clearColorDepthBuffer();
 
     /////////////////////

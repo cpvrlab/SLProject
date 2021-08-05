@@ -38,7 +38,7 @@ const SENSCameraConfig& SENSiOSCamera::start(std::string                   devic
         throw SENSException(SENSType::CAM, "DeviceId does not exist!", __LINE__, __FILE__);
 
     SENSCameraFacing                  facing = SENSCameraFacing::UNKNOWN;
-    const SENSCameraDeviceProperties* props  = _captureProperties.camPropsForDeviceId(deviceId);
+    const SENSCameraDeviceProps* props  = _captureProperties.camPropsForDeviceId(deviceId);
     if (props)
         facing = props->facing();
 
@@ -84,7 +84,7 @@ void SENSiOSCamera::stop()
         Utils::log("SENSiOSCamera", "Camera not started but stop called!");
 }
 
-const SENSCaptureProperties& SENSiOSCamera::captureProperties()
+const SENSCaptureProps& SENSiOSCamera::captureProperties()
 {
     if (_captureProperties.size() == 0)
         _captureProperties = [_cameraDelegate retrieveCaptureProperties];
@@ -114,7 +114,7 @@ void SENSiOSCamera::processNewFrame(unsigned char* data, int imgWidth, int imgHe
         }
     }
 
-    updateFrame(bgrImg, intrinsics, intrinsicsChanged);
+    updateFrame(bgrImg, intrinsics, intrinsicsChanged, imgWidth, imgHeight);
 }
 
 void SENSiOSCamera::updatePermission(bool granted)

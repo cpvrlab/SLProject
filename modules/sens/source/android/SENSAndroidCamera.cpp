@@ -1,30 +1,39 @@
+//#############################################################################
+//  File:      SENSAndroidCamera.cpp
+//  Author:    Michael Goettlicher, Luc Girod, Marcus Hudritsch
+//  Date:      Winter 2016
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
+//  License:   This software is provide under the GNU General Public License
+//             Please visit: http://opensource.org/licenses/GPL-3.0
+//#############################################################################
+
 #include <iostream>
 #include <string>
 #include <utility>
 #include <algorithm>
-#include "SENSNdkCamera.h"
+#include "SENSAndroidCamera.h"
 #include "SENSException.h"
 
 #include <android/log.h>
 #include <opencv2/opencv.hpp>
 #include <Utils.h>
 #include <HighResTimer.h>
-#include "SENSNdkCameraUtils.h"
+#include "SENSAndroidCameraUtils.h"
 #include "SENSUtils.h"
 
-#define LOG_NDKCAM_WARN(...) Utils::log("SENSNdkCamera", __VA_ARGS__);
-#define LOG_NDKCAM_INFO(...) Utils::log("SENSNdkCamera", __VA_ARGS__);
-#define LOG_NDKCAM_DEBUG(...) Utils::log("SENSNdkCamera", __VA_ARGS__);
+#define LOG_NDKCAM_WARN(...) Utils::log("SENSAndroidCamera", __VA_ARGS__);
+#define LOG_NDKCAM_INFO(...) Utils::log("SENSAndroidCamera", __VA_ARGS__);
+#define LOG_NDKCAM_DEBUG(...) Utils::log("SENSAndroidCamera", __VA_ARGS__);
 /*
  * Camera Manager Listener object
  */
 void onCameraAvailable(void* ctx, const char* id)
 {
-    reinterpret_cast<SENSNdkCamera*>(ctx)->onCameraStatusChanged(id, true);
+    reinterpret_cast<SENSAndroidCamera*>(ctx)->onCameraStatusChanged(id, true);
 }
 void onCameraUnavailable(void* ctx, const char* id)
 {
-    reinterpret_cast<SENSNdkCamera*>(ctx)->onCameraStatusChanged(id, false);
+    reinterpret_cast<SENSAndroidCamera*>(ctx)->onCameraStatusChanged(id, false);
 }
 
 /*
@@ -32,46 +41,46 @@ void onCameraUnavailable(void* ctx, const char* id)
  */
 void onDeviceDisconnected(void* ctx, ACameraDevice* dev)
 {
-    reinterpret_cast<SENSNdkCamera*>(ctx)->onDeviceDisconnected(dev);
+    reinterpret_cast<SENSAndroidCamera*>(ctx)->onDeviceDisconnected(dev);
 }
 
 void onDeviceErrorChanges(void* ctx, ACameraDevice* dev, int err)
 {
-    reinterpret_cast<SENSNdkCamera*>(ctx)->onDeviceError(dev, err);
+    reinterpret_cast<SENSAndroidCamera*>(ctx)->onDeviceError(dev, err);
 }
 
 // CaptureSession state callbacks
 void onSessionClosed(void* ctx, ACameraCaptureSession* ses)
 {
     LOG_NDKCAM_WARN("onSessionClosed: CaptureSession state: session %p closed", ses);
-    reinterpret_cast<SENSNdkCamera*>(ctx)
+    reinterpret_cast<SENSAndroidCamera*>(ctx)
       ->onSessionState(ses, CaptureSessionState::CLOSED);
 }
 
 void onSessionReady(void* ctx, ACameraCaptureSession* ses)
 {
     LOG_NDKCAM_WARN("onSessionReady: CaptureSession state: session %p ready", ses);
-    reinterpret_cast<SENSNdkCamera*>(ctx)
+    reinterpret_cast<SENSAndroidCamera*>(ctx)
       ->onSessionState(ses, CaptureSessionState::READY);
 }
 
 void onSessionActive(void* ctx, ACameraCaptureSession* ses)
 {
     LOG_NDKCAM_WARN("onSessionActive: CaptureSession state: session %p active", ses);
-    reinterpret_cast<SENSNdkCamera*>(ctx)
+    reinterpret_cast<SENSAndroidCamera*>(ctx)
       ->onSessionState(ses, CaptureSessionState::ACTIVE);
 }
 
-SENSNdkCamera::SENSNdkCamera()
+SENSAndroidCamera::SENSAndroidCamera()
   : _cameraDeviceOpened(false)
 {
     LOG_NDKCAM_INFO("Camera instantiated");
 }
 
-SENSNdkCamera::~SENSNdkCamera()
+SENSAndroidCamera::~SENSAndroidCamera()
 {
     //stop();
-    LOG_NDKCAM_INFO("~SENSNdkCamera: Camera destructor finished");
+    LOG_NDKCAM_INFO("~SENSAndroidCamera: Camera destructor finished");
 }
 
 /**
@@ -86,17 +95,17 @@ SENSNdkCamera::~SENSNdkCamera()
  */
 void onImageCallback(void* ctx, AImageReader* reader)
 {
-    reinterpret_cast<SENSNdkCamera*>(ctx)->imageCallback(reader);
+    reinterpret_cast<SENSAndroidCamera*>(ctx)->imageCallback(reader);
 }
 
 //start camera selected in initOptimalCamera as soon as it is available
-void SENSNdkCamera::openCamera()
+void SENSAndroidCamera::openCamera()
 {
     //init camera manager
     if (!_cameraManager)
     {
         //init availability
-        for (const SENSCameraDeviceProperties& c : _captureProperties)
+        for (const SENSCameraDeviceProps& c : _captureProperties)
         {
             _cameraAvailability[c.deviceId()] = false;
         }
@@ -125,8 +134,8 @@ void SENSNdkCamera::openCamera()
         LOG_NDKCAM_DEBUG("openCamera: Camera manager created!");
     }
 
-    //find current SENSCameraDeviceProperties
-    const SENSCameraDeviceProperties* camProps = _captureProperties.camPropsForDeviceId(_config.deviceId);
+    //find current SENSCameraDeviceProps
+    const SENSCameraDeviceProps* camProps = _captureProperties.camPropsForDeviceId(_config.deviceId);
 
     if (!_cameraDeviceOpened)
     {
@@ -272,7 +281,7 @@ void SENSNdkCamera::openCamera()
     }
 }
 
-const SENSCameraConfig& SENSNdkCamera::start(std::string                   deviceId,
+const SENSCameraConfig& SENSAndroidCamera::start(std::string                   deviceId,
                                              const SENSCameraStreamConfig& streamConfig,
                                              bool                          provideIntrinsics)
 {
@@ -293,7 +302,7 @@ const SENSCameraConfig& SENSNdkCamera::start(std::string                   devic
         throw SENSException(SENSType::CAM, "DeviceId does not exist!", __LINE__, __FILE__);
 
     SENSCameraFacing                  facing = SENSCameraFacing::UNKNOWN;
-    const SENSCameraDeviceProperties* props  = _captureProperties.camPropsForDeviceId(deviceId);
+    const SENSCameraDeviceProps* props  = _captureProperties.camPropsForDeviceId(deviceId);
     if (props)
         facing = props->facing();
 
@@ -310,7 +319,7 @@ const SENSCameraConfig& SENSNdkCamera::start(std::string                   devic
     return _config;
 }
 
-void SENSNdkCamera::createCaptureSession()
+void SENSAndroidCamera::createCaptureSession()
 {
     //Get the pointer to a surface from the image reader (Surface from java is like nativeWindow in ndk)
     AImageReader_getWindow(_imageReader, &_surface);
@@ -376,7 +385,7 @@ void SENSNdkCamera::createCaptureSession()
     ACameraCaptureSession_setRepeatingRequest(_captureSession, nullptr, 1, &_captureRequest, nullptr);
 }
 
-void SENSNdkCamera::stop()
+void SENSAndroidCamera::stop()
 {
     if (_started)
     {
@@ -450,7 +459,7 @@ void SENSNdkCamera::stop()
     }
 }
 
-cv::Mat SENSNdkCamera::convertToYuv(AImage* image)
+cv::Mat SENSAndroidCamera::convertToYuv(AImage* image)
 {
     int32_t height, width, rowStrideY;
     AImage_getHeight(image, &height);
@@ -495,7 +504,7 @@ cv::Mat SENSNdkCamera::convertToYuv(AImage* image)
         return yuv;
 }
 
-void SENSNdkCamera::imageCallback(AImageReader* reader)
+void SENSAndroidCamera::imageCallback(AImageReader* reader)
 {
     AImage*        image  = nullptr;
     media_status_t status = AImageReader_acquireLatestImage(reader, &image);
@@ -508,9 +517,9 @@ void SENSNdkCamera::imageCallback(AImageReader* reader)
         cv::Mat      bgr;
         HighResTimer t;
         cv::cvtColor(yuv, bgr, cv::COLOR_YUV2BGR_NV21, 3);
-        SENS_DEBUG("SENSNdkCamera: time for yuv conversion: %f ms", t.elapsedTimeInMilliSec());
+        SENS_DEBUG("SENSAndroidCamera: time for yuv conversion: %f ms", t.elapsedTimeInMilliSec());
 
-        updateFrame(bgr, cv::Mat(), false);
+        updateFrame(bgr, cv::Mat(), false, bgr.cols, bgr.rows);
     }
 }
 
@@ -518,7 +527,7 @@ void SENSNdkCamera::imageCallback(AImageReader* reader)
  * Handle Camera DeviceStateChanges msg, notify device is disconnected
  * simply close the camera
  */
-void SENSNdkCamera::onDeviceDisconnected(ACameraDevice* dev)
+void SENSAndroidCamera::onDeviceDisconnected(ACameraDevice* dev)
 {
     if (dev == _cameraDevice)
     {
@@ -541,7 +550,7 @@ void SENSNdkCamera::onDeviceDisconnected(ACameraDevice* dev)
  *
  *
  */
-void SENSNdkCamera::onDeviceError(ACameraDevice* dev, int err)
+void SENSAndroidCamera::onDeviceError(ACameraDevice* dev, int err)
 {
     if (dev == _cameraDevice)
     {
@@ -582,7 +591,7 @@ void SENSNdkCamera::onDeviceError(ACameraDevice* dev, int err)
  * OnCameraStatusChanged()
  *  handles Callback from ACameraManager
  */
-void SENSNdkCamera::onCameraStatusChanged(const char* id, bool available)
+void SENSAndroidCamera::onCameraStatusChanged(const char* id, bool available)
 {
     LOG_NDKCAM_INFO("onCameraStatusChanged: id: %s available: %s ", id, available ? "true" : "false");
     {
@@ -609,7 +618,7 @@ std::string getPrintableState(CaptureSessionState state)
  * Handles capture session state changes.
  *   Update into internal session state.
  */
-void SENSNdkCamera::onSessionState(ACameraCaptureSession* ses,
+void SENSAndroidCamera::onSessionState(ACameraCaptureSession* ses,
                                    CaptureSessionState    state)
 {
     if (!_captureSession)
@@ -638,7 +647,7 @@ void SENSNdkCamera::onSessionState(ACameraCaptureSession* ses,
     _captureSessionStateCV.notify_one();
 }
 
-const SENSCaptureProperties& SENSNdkCamera::captureProperties()
+const SENSCaptureProps& SENSAndroidCamera::captureProperties()
 {
     if (_captureProperties.size() == 0)
     {
@@ -709,7 +718,7 @@ const SENSCaptureProperties& SENSNdkCamera::captureProperties()
             //todo: if we have more than one focal length, what do we do?
             //if we have more than one focal length, we select the first one..
 
-            SENSCameraDeviceProperties characteristics(cameraId, facing);
+            SENSCameraDeviceProps characteristics(cameraId, facing);
 
             //in the second loop we use the physical sensor parameters to specify a focal length in pixel for every stream config
             for (int tagIdx = 0; tagIdx < numEntries; ++tagIdx)

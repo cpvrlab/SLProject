@@ -1,3 +1,12 @@
+//#############################################################################
+//  File:      SENSCamera.h
+//  Author:    Michael Goettlicher, Marcus Hudritsch
+//  Date:      Winter 2016
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
+//  License:   This software is provide under the GNU General Public License
+//             Please visit: http://opensource.org/licenses/GPL-3.0
+//#############################################################################
+
 #ifndef SENS_CAMERA_H
 #define SENS_CAMERA_H
 
@@ -11,9 +20,9 @@
 #include <algorithm>
 #include "SENSUtils.h"
 #include <HighResTimer.h>
-//---------------------------------------------------------------------------
-//Common defininitions:
-
+//-----------------------------------------------------------------------------
+// Common definitions:
+//-----------------------------------------------------------------------------
 //! Definition of camera facing
 enum class SENSCameraFacing
 {
@@ -22,7 +31,7 @@ enum class SENSCameraFacing
     EXTERNAL,
     UNKNOWN
 };
-
+//-----------------------------------------------------------------------------
 //! mapping of SENSCameraFacing to a readable string
 static std::string getPrintableFacing(SENSCameraFacing facing)
 {
@@ -34,7 +43,7 @@ static std::string getPrintableFacing(SENSCameraFacing facing)
         default: return "UNKNOWN";
     }
 }
-
+//-----------------------------------------------------------------------------
 //! Definition of autofocus mode
 enum class SENSCameraFocusMode
 {
@@ -42,7 +51,7 @@ enum class SENSCameraFocusMode
     FIXED_INFINITY_FOCUS,
     UNKNOWN
 };
-
+//-----------------------------------------------------------------------------
 //! mapping of SENSCameraFocusMode to a readable string
 static std::string getPrintableFocusMode(SENSCameraFocusMode focusMode)
 {
@@ -53,25 +62,19 @@ static std::string getPrintableFocusMode(SENSCameraFocusMode focusMode)
         default: return "UNKNOWN";
     }
 }
-//---------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 struct SENSCameraStreamConfig
 {
-    int widthPix  = 0;
-    int heightPix = 0;
-    //focal length in pixel (-1 means unknown)
-    float focalLengthPix = -1.f;
-    //todo: min max frame rate
-    //bool intrinsicsProvided = false;
-    //float minFrameRate = 0.f;
-    //float maxFrameRate = 0.f;
+    int   widthPix       = 0;
+    int   heightPix      = 0;
+    float focalLengthPix = -1.f; //< focal length in pixel (-1 means unknown)
 };
-
-//---------------------------------------------------------------------------
-class SENSCameraDeviceProperties
+//-----------------------------------------------------------------------------
+class SENSCameraDeviceProps
 {
 public:
-    SENSCameraDeviceProperties() {}
-    SENSCameraDeviceProperties(const std::string& deviceId, SENSCameraFacing facing)
+    SENSCameraDeviceProps() {}
+    SENSCameraDeviceProps(const std::string& deviceId, SENSCameraFacing facing)
       : _deviceId(deviceId),
         _facing(facing)
     {
@@ -104,13 +107,13 @@ private:
     SENSCameraFacing                    _facing = SENSCameraFacing::UNKNOWN;
     std::vector<SENSCameraStreamConfig> _streamConfigs;
 };
-
-//---------------------------------------------------------------------------
-//SENSCameraConfig
-//define a config to start a capture session on a camera device
+//-----------------------------------------------------------------------------
+/*! SENSCameraConfig
+    This class defines the current configuration of a camera
+ */
 struct SENSCameraConfig
 {
-    //this constructor forces the user to always define a complete parameter set. In this way no parameter is forgotten..
+    // this constructor forces the user to always define a complete parameter set. In this way no parameter is forgotten..
     SENSCameraConfig(std::string                   deviceId,
                      const SENSCameraStreamConfig& streamConfig,
                      SENSCameraFacing              facing,
@@ -123,31 +126,26 @@ struct SENSCameraConfig
     }
     SENSCameraConfig() = default;
 
-    std::string deviceId;
-    //! currently selected stream config index (use it to look up original capture size)
-    //int streamConfigIndex = -1;
-    SENSCameraStreamConfig streamConfig;
-    //! autofocus mode
-    SENSCameraFocusMode focusMode;
-    //! camera facing
-    SENSCameraFacing facing;
+    std::string            deviceId;
+    SENSCameraStreamConfig streamConfig; //!< currently selected stream config index (use it to look up original capture size)
+    SENSCameraFocusMode    focusMode;    //!< autofocus mode
+    SENSCameraFacing       facing;       //!< camera facing
 };
-
-//---------------------------------------------------------------------------
-class SENSCaptureProperties : public std::vector<SENSCameraDeviceProperties>
+//-----------------------------------------------------------------------------
+class SENSCaptureProps : public std::vector<SENSCameraDeviceProps>
 {
 public:
-    bool                              containsDeviceId(const std::string& deviceId) const;
-    bool                              supportsCameraFacing(const SENSCameraFacing& facing) const;
-    const SENSCameraDeviceProperties* camPropsForDeviceId(const std::string& deviceId) const;
-    //returned pointer is null if nothing was found
-    std::pair<const SENSCameraDeviceProperties* const, const SENSCameraStreamConfig* const> findBestMatchingConfig(SENSCameraFacing facing,
-                                                                                                                   const float      horizFov,
-                                                                                                                   const int        width,
-                                                                                                                   const int        height) const;
+    bool                         containsDeviceId(const std::string& deviceId) const;
+    bool                         supportsCameraFacing(const SENSCameraFacing& facing) const;
+    const SENSCameraDeviceProps* camPropsForDeviceId(const std::string& deviceId) const;
+    // returned pointer is null if nothing was found
+    std::pair<const SENSCameraDeviceProps* const, const SENSCameraStreamConfig* const>
+    findBestMatchingConfig(SENSCameraFacing facing,
+                           const float      horizFov,
+                           const int        width,
+                           const int        height) const;
 };
-
-//---------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 class SENSCameraListener
 {
 public:
@@ -155,8 +153,7 @@ public:
     virtual void onFrame(const SENSTimePt& timePt, cv::Mat frame)      = 0;
     virtual void onCameraConfigChanged(const SENSCameraConfig& config) = 0;
 };
-
-//---------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 //! Pure abstract camera class
 class SENSCamera
 {
@@ -165,7 +162,7 @@ public:
 
     /*!
     Call this function to configure the camera if you exactly know, what device you want to open and with which stream configuration.
-    You can find out these properties by using SENSCaptureProperties object (see getCaptureProperties())
+    You can find out these properties by using SENSCaptureProps object (see getCaptureProperties())
     @param deviceId camera device id to start
     @param streamConfig SENSCameraStreamConfig from camera device. This defines the size of the image. The image is converted to BGR and assigned to SENSFrame::imgBGR.
     @param provideIntrinsics specifies if intrinsics estimation should be enabled. The estimated intrinsics are transferred with every SENSFrame as they may be different for every frame (e.g. on iOS). This value has different effects on different architectures.
@@ -177,63 +174,52 @@ public:
 
     //! Stop a started camera device
     virtual void stop() = 0;
-    //! Get SENSCaptureProperties which contains necessary information about all available camera devices and their capabilities
-    virtual const SENSCaptureProperties& captureProperties() = 0;
+
+    //! Get SENSCaptureProps which contains necessary information about all available camera devices and their capabilities
+    virtual const SENSCaptureProps& captureProperties() = 0;
 
     //! Get the latest captured frame. If no frame was captured the frame will be empty (null).
     virtual SENSFrameBasePtr latestFrame() = 0;
+
     //! defines how the camera was configured during start
     virtual const SENSCameraConfig& config() const = 0;
 
     virtual void registerListener(SENSCameraListener* listener)   = 0;
     virtual void unregisterListener(SENSCameraListener* listener) = 0;
-
     virtual bool started() const = 0;
-
     virtual bool permissionGranted() const = 0;
     virtual void setPermissionGranted()    = 0;
 };
-
-//---------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 //! Implementation of common functionality and members
-class SENSCameraBase : public SENSCamera
+class SENSBaseCamera : public SENSCamera
 {
 public:
-    SENSFrameBasePtr latestFrame() override;
-
+    SENSFrameBasePtr        latestFrame() override;
     const SENSCameraConfig& config() const override { return _config; };
-
-    void registerListener(SENSCameraListener* listener) override;
-    void unregisterListener(SENSCameraListener* listener) override;
-
-    bool started() const override { return _started; }
-
-    bool permissionGranted() const override { return _permissionGranted; }
-    void setPermissionGranted() override { _permissionGranted = true; }
+    void                    registerListener(SENSCameraListener* listener) override;
+    void                    unregisterListener(SENSCameraListener* listener) override;
+    bool                    started() const override { return _started; }
+    bool                    permissionGranted() const override { return _permissionGranted; }
+    void                    setPermissionGranted() override { _permissionGranted = true; }
 
 protected:
-    void updateFrame(cv::Mat bgrImg, cv::Mat intrinsics, bool intrinsicsChanged);
-    //call from start function to do startup preprocessing
-    void processStart();
+    void updateFrame(cv::Mat bgrImg,
+                     cv::Mat intrinsics,
+                     int     width,
+                     int     height,
+                     bool    intrinsicsChanged);
 
-    SENSCaptureProperties _captureProperties;
+    void processStart(); //!< call from start function to do startup preprocessing
 
-    //! flags if camera was started
-    std::atomic<bool> _started{false};
-
-    //indicates what is currently running
-    SENSCameraConfig _config;
-
-    std::atomic<bool> _permissionGranted{false};
-
+    SENSCaptureProps                 _captureProperties;
+    std::atomic<bool>                _started{false}; //!< flags if camera was started
+    SENSCameraConfig                 _config;         //!< indicates what is currently running
+    std::atomic<bool>                _permissionGranted{false};
     std::vector<SENSCameraListener*> _listeners;
     std::mutex                       _listenerMutex;
-
-    //current frame
-    SENSFrameBasePtr _frame;
-    //bool             _intrinsicsChanged = false;
-    //cv::Mat          _intrinsics;
-    std::mutex _frameMutex;
+    SENSFrameBasePtr                 _frame; //!< current frame
+    std::mutex                       _frameMutex;
 };
-
-#endif //SENS_CAMERA_H
+//-----------------------------------------------------------------------------
+#endif // SENS_CAMERA_H

@@ -1,13 +1,13 @@
 #include <jni.h>
 #include <Utils.h>
-#include "SENSNdkPermissions.h"
+#include "SENSAndroidPermissions.h"
 
-SENSNdkPermissions::SENSNdkPermissions(JavaVM* jvm): 
+SENSAndroidPermissions::SENSAndroidPermissions(JavaVM* jvm):
    _jvm(jvm)
 {
 }
 
-void SENSNdkPermissions::askPermissions()
+void SENSAndroidPermissions::askPermissions()
 {
     JNIEnv* env;
     _jvm->GetEnv((void**)&env, JNI_VERSION_1_6);
@@ -17,7 +17,7 @@ void SENSNdkPermissions::askPermissions()
     env->CallStaticVoidMethod(clazz, methodid);
 }
 
-bool SENSNdkPermissions::hasCameraPermission()
+bool SENSAndroidPermissions::hasCameraPermission()
 {
     JNIEnv* env;
     _jvm->GetEnv((void**)&env, JNI_VERSION_1_6);
@@ -27,7 +27,7 @@ bool SENSNdkPermissions::hasCameraPermission()
     return env->CallStaticBooleanMethod(clazz, methodid);
 }
 
-bool SENSNdkPermissions::hasGPSPermission()
+bool SENSAndroidPermissions::hasGPSPermission()
 {
     JNIEnv* env;
     _jvm->GetEnv((void**)&env, JNI_VERSION_1_6);
@@ -37,7 +37,7 @@ bool SENSNdkPermissions::hasGPSPermission()
     return env->CallStaticBooleanMethod(clazz, methodid);
 }
 
-bool SENSNdkPermissions::hasInternetPermission()
+bool SENSAndroidPermissions::hasInternetPermission()
 {
     JNIEnv* env;
     _jvm->GetEnv((void**)&env, JNI_VERSION_1_6);
@@ -47,7 +47,7 @@ bool SENSNdkPermissions::hasInternetPermission()
     return env->CallStaticBooleanMethod(clazz, methodid);
 }
 
-bool SENSNdkPermissions::hasStoragePermission()
+bool SENSAndroidPermissions::hasStoragePermission()
 {
     JNIEnv* env;
     _jvm->GetEnv((void**)&env, JNI_VERSION_1_6);
@@ -57,7 +57,7 @@ bool SENSNdkPermissions::hasStoragePermission()
     return env->CallStaticBooleanMethod(clazz, methodid);
 }
 
-bool SENSNdkPermissions::canShowCameraPermissionDialog()
+bool SENSAndroidPermissions::canShowCameraPermissionDialog()
 {
     JNIEnv* env;
     _jvm->GetEnv((void**)&env, JNI_VERSION_1_6);
@@ -67,7 +67,7 @@ bool SENSNdkPermissions::canShowCameraPermissionDialog()
     return env->CallStaticBooleanMethod(clazz, methodid);
 }
 
-bool SENSNdkPermissions::canShowGPSPermissionDialog()
+bool SENSAndroidPermissions::canShowGPSPermissionDialog()
 {
     JNIEnv* env;
     _jvm->GetEnv((void**)&env, JNI_VERSION_1_6);
@@ -77,7 +77,7 @@ bool SENSNdkPermissions::canShowGPSPermissionDialog()
     return env->CallStaticBooleanMethod(clazz, methodid);
 }
 
-bool SENSNdkPermissions::canShowInternetPermissionDialog()
+bool SENSAndroidPermissions::canShowInternetPermissionDialog()
 {
     JNIEnv* env;
     _jvm->GetEnv((void**)&env, JNI_VERSION_1_6);
@@ -87,7 +87,7 @@ bool SENSNdkPermissions::canShowInternetPermissionDialog()
     return env->CallStaticBooleanMethod(clazz, methodid);
 }
 
-bool SENSNdkPermissions::canShowStoragePermissionDialog()
+bool SENSAndroidPermissions::canShowStoragePermissionDialog()
 {
     JNIEnv* env;
     _jvm->GetEnv((void**)&env, JNI_VERSION_1_6);
@@ -97,7 +97,7 @@ bool SENSNdkPermissions::canShowStoragePermissionDialog()
     return env->CallStaticBooleanMethod(clazz, methodid);
 }
 
-bool SENSNdkPermissions::isLocationEnabled()
+bool SENSAndroidPermissions::isLocationEnabled()
 {
     JNIEnv* env;
     _jvm->GetEnv((void**)&env, JNI_VERSION_1_6);
@@ -107,7 +107,7 @@ bool SENSNdkPermissions::isLocationEnabled()
     return env->CallStaticBooleanMethod(clazz, methodid);
 }
 
-void SENSNdkPermissions::askEnabledLocation()
+void SENSAndroidPermissions::askEnabledLocation()
 {
     JNIEnv* env;
     _jvm->GetEnv((void**)&env, JNI_VERSION_1_6);

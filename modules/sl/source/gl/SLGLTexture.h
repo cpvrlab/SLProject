@@ -96,7 +96,8 @@ public:
                          SLint           min_filter,
                          SLint           mag_filter,
                          SLint           wrapS,
-                         SLint           wrapT);
+                         SLint           wrapT,
+                         SLenum          target = GL_TEXTURE_2D);
 
     //! ctor for 2D textures from byte pointer
     explicit SLGLTexture(SLAssetManager* assetMgr,
@@ -161,6 +162,8 @@ public:
     void minFiler(SLint minF) { _min_filter = minF; } // must be called before build
     void magFiler(SLint magF) { _mag_filter = magF; } // must be called before build
     void needsUpdate(SLbool update) { _needsUpdate = update; }
+    // must be called before build and makes only sense for SL_TEXTURE_EXTERNAL
+    void textureSize(int width, int height) { _width = width; _height = height; }
 
     //! If deleteImageAfterBuild is set to true you won't be able to ray trace the scene
     void deleteImageAfterBuild(SLbool delImg) { _deleteImageAfterBuild = delImg; }

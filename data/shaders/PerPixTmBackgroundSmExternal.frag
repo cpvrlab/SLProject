@@ -9,6 +9,8 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
+#extension GL_OES_EGL_image_external_essl3 : enable
+
 precision highp float;
 
 //-----------------------------------------------------------------------------
@@ -45,7 +47,7 @@ uniform float       u_bgBottom;         // background bottom
 uniform bool        u_matGetsShadows;   // flag if material receives shadows
 uniform vec4        u_matAmbi;          // ambient color reflection coefficient (ka)
 
-uniform sampler2D   u_matTexture0;      // Color map
+uniform samplerExternalOES   u_matTexture0;      // Color map
 
 out     vec4        o_fragColor;        // output fragment color
 //-----------------------------------------------------------------------------
@@ -56,11 +58,12 @@ void main()
     float x = (gl_FragCoord.x - u_bgLeft) / u_bgWidth;
     float y = (gl_FragCoord.y - u_bgBottom) / u_bgHeight;
 
+    //mirror at x axis
     vec4 texColor;
     if(x < 0.0f || y < 0.0f || x > 1.0f || y > 1.0f)
         texColor = vec4(0.0f, 0.0f, 0.0f, 1.0f);
     else
-        texColor = texture(u_matTexture0, vec2(x, y));
+        texColor = texture(u_matTexture0, vec2(x, 1.0f - y));
         
     vec3 N = normalize(v_N_VS);  // A input normal has not anymore unit length
     float shadow = 0.0;

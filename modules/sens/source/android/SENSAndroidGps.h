@@ -1,13 +1,13 @@
-#ifndef SENS_NDK_GPS_H
-#define SENS_NDK_GPS_H
+#ifndef SENS_ANDROID_GPS_H
+#define SENS_ANDROID_GPS_H
 
 #include <SENSGps.h>
-#include <android_native_app_glue.h>
+#include <jni.h>
 
-class SENSNdkGps : public SENSGps
+class SENSAndroidGps : public SENSGps
 {
 public:
-    SENSNdkGps(JavaVM* vm, jobject* activityContext, jclass* clazz);
+    SENSAndroidGps() {};
 
     bool start() override;
     void stop() override;
@@ -16,10 +16,6 @@ public:
                         double longitudeDEG,
                         double altitudeM,
                         float  accuracyM);
-
-private:
-    JavaVM* _vm     = nullptr;
-    jobject _object = nullptr;
 };
 
 #endif
