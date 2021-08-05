@@ -13,6 +13,7 @@
 
 #include <SL.h>
 #include <SLEnums.h>
+#include <SLPlane.h>
 #include <SLMat4.h>
 
 class SLGLDepthBuffer;
@@ -80,7 +81,6 @@ public:
     void drawFrustum();
     void drawRays();
     void updateMVP();
-    void drawNodesIntoDepthBuffer(SLNode* node, SLSceneView* sv, const SLMat4f& v);
     void render(SLSceneView* sv, SLNode* root);
     void renderDirectionalLightCascaded(SLSceneView* sv, SLNode* root);
 
@@ -103,6 +103,14 @@ private:
     SLVec2f                       _halfSize;     //!< _size divided by two
     SLVec2i                       _textureSize;  //!< Size of the shadow map texture
     SLCamera*                     _camera;
+
+    void drawNodesIntoDepthBufferHelper(SLNode* node, SLSceneView* sv, SLMat4f& p, SLMat4f& v, SLPlane *planes);
+
+    void drawNodesIntoDepthBuffer(SLNode* node, SLSceneView* sv, SLMat4f& p, SLMat4f& v);
+
+    void drawNodesDirectionalHelper(SLNode* node, SLSceneView* sv, SLMat4f& P, SLMat4f& lv, SLPlane* planes);
+
+    void drawNodesDirectional(SLNode* node, SLSceneView* sv, SLMat4f& P, SLMat4f& lv);
 };
 //-----------------------------------------------------------------------------
 #endif //SLSHADOWMAP_H

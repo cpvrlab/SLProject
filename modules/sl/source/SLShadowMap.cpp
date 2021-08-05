@@ -19,6 +19,7 @@
 #include <Instrumentor.h>
 #include <SLSceneView.h>
 #include <SLCamera.h>
+#include <SLFrustum.h>
 
 //-----------------------------------------------------------------------------
 SLShadowMap::SLShadowMap(SLProjection   projection,
@@ -54,18 +55,18 @@ SLShadowMap::SLShadowMap(SLProjection   projection,
 {
     PROFILE_FUNCTION();
 
-    _light       = light;
-    _projection  = projection;
-    _useCubemap  = false;
-    _useCascaded = false;
+    _light        = light;
+    _projection   = projection;
+    _useCubemap   = false;
+    _useCascaded  = false;
     _depthBuffers = std::vector<SLGLDepthBuffer*>();
-    _frustumVAO  = nullptr;
-    _rayCount    = SLVec2i(0, 0);
-    _mat         = nullptr;
-    _camera      = camera;
-    _size        = size;
-    _halfSize    = _size / 2;
-    _textureSize = texSize;
+    _frustumVAO   = nullptr;
+    _rayCount     = SLVec2i(0, 0);
+    _mat          = nullptr;
+    _camera       = camera;
+    _size         = size;
+    _halfSize     = _size / 2;
+    _textureSize  = texSize;
     _clipNear     = 0.1f;
     _clipFar      = 20.f;
 }
@@ -135,7 +136,6 @@ void SLShadowMap::drawFrustum()
                                             (SLuint)P.size());
         }
     }
-
 }
 
 //-----------------------------------------------------------------------------
@@ -264,15 +264,45 @@ void SLShadowMap::updateMVP()
 SLShadowMap::drawNodesIntoDepthBuffer recursively renders all objects which
 cast shadows
 */
-void SLShadowMap::drawNodesIntoDepthBuffer(SLNode*        node,
-                                           SLSceneView*   sv,
-                                           const SLMat4f& v)
+
+void SLShadowMap::drawNodesDirectionalHelper(SLNode*      node,
+                                             SLSceneView* sv,
+                                             SLMat4f&     P,
+                                             SLMat4f&     lv,
+                                             SLPlane*     planes)
 {
-    if (node->drawBit(SL_DB_HIDDEN))
+    for (int i = 0; i < 4; i++)
+    {
+        SLPlane p        = planes[i];
+        SLfloat distance = p.distToPoint(node->aabb()->centerWS());
+        if (distance < -node->aabb()->radiusWS())
+            return;
+    }
+ 
+    //We don't need to increase far plane distance
+    SLfloat distance = planes[5].distToPoint(node->aabb()->centerWS());
+    if (distance < -node->aabb()->radiusWS())
         return;
 
-    SLGLState* stateGL       = SLGLState::instance();
-    stateGL->modelViewMatrix = v * node->updateAndGetWM();
+    //If object is behind the light's near plane, move the near plane back
+    distance = planes[4].distToPoint(node->aabb()->centerWS());
+    if (distance < -node->aabb()->radiusWS())
+    {
+        float a = P.m(10);
+        float b = P.m(14);
+
+        float n = (2 * b / a + 2 / a) * 0.5;
+        float f = n - 2 / a;
+        n += distance;
+        P.m(10, -2 / (f - n));
+        P.m(14, -(f + n) / (f - n));
+
+        SLFrustum::viewToFrustumPlanes(planes, P, lv);
+    }
+
+    SLGLState* stateGL        = SLGLState::instance();
+    stateGL->modelViewMatrix  = lv * node->updateAndGetWM();
+    stateGL->projectionMatrix = P;
 
     if (node->castsShadows() &&
         node->mesh() &&
@@ -280,7 +310,61 @@ void SLShadowMap::drawNodesIntoDepthBuffer(SLNode*        node,
         node->mesh()->drawIntoDepthBuffer(sv, node, _mat);
 
     for (SLNode* child : node->children())
-        drawNodesIntoDepthBuffer(child, sv, v);
+        drawNodesDirectionalHelper(child, sv, P, lv, planes);
+}
+
+void SLShadowMap::drawNodesDirectional(SLNode*      node,
+                                       SLSceneView* sv,
+                                       SLMat4f&     P,
+                                       SLMat4f&     lv)
+{
+    SLPlane planes[6];
+    SLFrustum::viewToFrustumPlanes(planes, P, lv);
+
+    drawNodesDirectionalHelper(node,
+                               sv,
+                               P,
+                               lv,
+                               planes);
+}
+
+void SLShadowMap::drawNodesIntoDepthBufferHelper(SLNode*      node,
+                                                 SLSceneView* sv,
+                                                 SLMat4f&     P,
+                                                 SLMat4f&     lv,
+                                                 SLPlane*     planes)
+{
+    if (node->drawBit(SL_DB_HIDDEN))
+        return;
+
+    for (int i = 0; i < 6; i++)
+    {
+        SLfloat distance = planes[i].distToPoint(node->aabb()->centerWS());
+        if (distance < -node->aabb()->radiusWS())
+            return;
+    }
+
+    SLGLState* stateGL        = SLGLState::instance();
+    stateGL->modelViewMatrix  = lv * node->updateAndGetWM();
+    stateGL->projectionMatrix = P;
+
+    if (node->castsShadows() &&
+        node->mesh() &&
+        node->mesh()->primitive() >= GL_TRIANGLES)
+        node->mesh()->drawIntoDepthBuffer(sv, node, _mat);
+
+    for (SLNode* child : node->children())
+        drawNodesIntoDepthBufferHelper(child, sv, P, lv, planes);
+}
+
+void SLShadowMap::drawNodesIntoDepthBuffer(SLNode*      node,
+                                           SLSceneView* sv,
+                                           SLMat4f&     P,
+                                           SLMat4f&     v)
+{
+    SLPlane planes[6];
+    SLFrustum::viewToFrustumPlanes(planes, P, v);
+    drawNodesIntoDepthBufferHelper(node, sv, P, v, planes);
 }
 //-----------------------------------------------------------------------------
 /*! SLShadowMap::render renders the shadow map of the light
@@ -321,11 +405,10 @@ void SLShadowMap::render(SLSceneView* sv, SLNode* root)
 #else
     SLint wrapMode = GL_CLAMP_TO_BORDER;
 #endif
- 
 
     if (_depthBuffers.size() != 0 &&
         (_depthBuffers[0]->dimensions() != _textureSize ||
-        (_depthBuffers[0]->target() == GL_TEXTURE_CUBE_MAP) != _useCubemap))
+         (_depthBuffers[0]->target() == GL_TEXTURE_CUBE_MAP) != _useCubemap))
     {
         _depthBuffers.erase(_depthBuffers.begin(), _depthBuffers.end());
     }
@@ -333,20 +416,19 @@ void SLShadowMap::render(SLSceneView* sv, SLNode* root)
     if (_depthBuffers.size() == 0)
     {
         _depthBuffers.push_back(new SLGLDepthBuffer(_textureSize,
-                                               GL_NEAREST,
-                                               GL_NEAREST,
-                                               wrapMode,
-                                               borderColor,
-                                               this->_useCubemap
-                                                 ? GL_TEXTURE_CUBE_MAP
-                                                 : GL_TEXTURE_2D));
+                                                    GL_NEAREST,
+                                                    GL_NEAREST,
+                                                    wrapMode,
+                                                    borderColor,
+                                                    this->_useCubemap
+                                                      ? GL_TEXTURE_CUBE_MAP
+                                                      : GL_TEXTURE_2D));
     }
 
     if (_depthBuffers.size() != 1 ||
         _depthBuffers[0]->dimensions() != _textureSize ||
         (_depthBuffers[0]->target() == GL_TEXTURE_CUBE_MAP) != _useCubemap)
     {
-
     }
     _depthBuffers[0]->bind();
 
@@ -367,7 +449,7 @@ void SLShadowMap::render(SLSceneView* sv, SLNode* root)
         stateGL->clearColorDepthBuffer();
 
         // Draw meshes
-        drawNodesIntoDepthBuffer(root, sv, _v[i]);
+        drawNodesIntoDepthBuffer(root, sv, _p[0], _v[i]);
     }
 
     _depthBuffers[0]->unbind();
@@ -376,21 +458,9 @@ void SLShadowMap::render(SLSceneView* sv, SLNode* root)
 
 #include <algorithm>
 
-void frustumGetPoints(std::vector<SLVec3f> &pts, SLVec3f pos, float fovV, float ratio, float clip)
-{
-    SLfloat t = tan(Utils::DEG2RAD * fovV * 0.5f) * clip;          // top
-    SLfloat b = -t;                                                // bottom
-    SLfloat r = ratio * t;                                         // right
-    SLfloat l = -r;                                                // left
-    pts.push_back(SLVec3f(r, t, -clip));
-    pts.push_back(SLVec3f(r, b, -clip));
-    pts.push_back(SLVec3f(l, t, -clip));
-    pts.push_back(SLVec3f(l, b, -clip));
-}
-
 void SLShadowMap::renderDirectionalLightCascaded(SLSceneView* sv, SLNode* root)
 {
-    _useCascaded = true;
+    _useCascaded       = true;
     SLGLState* stateGL = SLGLState::instance();
 
     SLint wrapMode = GL_CLAMP_TO_BORDER;
@@ -409,10 +479,9 @@ void SLShadowMap::renderDirectionalLightCascaded(SLSceneView* sv, SLNode* root)
           nullptr,
           SLGLProgramManager::get(SP_depth));
 
-
     if (_depthBuffers.size() != 0 &&
         (_depthBuffers[0]->dimensions() != _textureSize ||
-        _depthBuffers[0]->target() != GL_TEXTURE_2D))
+         _depthBuffers[0]->target() != GL_TEXTURE_2D))
     {
         _depthBuffers.erase(_depthBuffers.begin(), _depthBuffers.end());
     }
@@ -430,27 +499,25 @@ void SLShadowMap::renderDirectionalLightCascaded(SLSceneView* sv, SLNode* root)
         }
     }
 
-
-    SLMat4f cm = _camera->updateAndGetWM(); // camera to world space
-    SLNode* node = dynamic_cast<SLNode*>(_light);
+    SLMat4f              cm       = _camera->updateAndGetWM(); // camera to world space
+    SLNode*              node     = dynamic_cast<SLNode*>(_light);
     std::vector<SLVec2f> cascades = _camera->getShadowMapCascades();
 
     _nbCascades = cascades.size();
     // for all subdivision of frustum
     for (int i = 0; i < _nbCascades; i++)
     {
-        float ni = cascades[i].x;
-        float fi  = cascades[i].y;
-        SLVec3f v = cm.translation() - cm.axisZ().normalized() * (ni + fi) * 0.5f;
+        float   ni = cascades[i].x;
+        float   fi = cascades[i].y;
+        SLVec3f v  = cm.translation() - cm.axisZ().normalized() * (ni + fi) * 0.5f;
 
         SLMat4f lv; // world space to light space
         SLMat4f lp; // light space to light projected
         lv.lookAt(v, v + node->forwardOS(), node->upWS());
-        lp.ortho(-_halfSize.x, _halfSize.x, -_halfSize.y, _halfSize.y, -50, 50); //TODO NEAR FAR CLIP LIGHT
+        lp.ortho(-_halfSize.x, _halfSize.x, -_halfSize.y, _halfSize.y, -1, 1); //TODO NEAR FAR CLIP LIGHT
 
-        std::vector<SLVec3f> frustumPoints;
-        frustumGetPoints(frustumPoints, v, _camera->fovV(), sv->scrWdivH(), ni);
-        frustumGetPoints(frustumPoints, v, _camera->fovV(), sv->scrWdivH(), fi);
+        SLVec3f frustumPoints[8];
+        SLFrustum::getPointsEyeSpace(frustumPoints, _camera->fovV(), sv->scrWdivH(), ni, fi);
 
         float minx = 99999, miny = 99999;
         float maxx = -99999, maxy = -99999;
@@ -469,13 +536,12 @@ void SLShadowMap::renderDirectionalLightCascaded(SLSceneView* sv, SLNode* root)
             if (fp.z < minz)
                 minz = fp.z;
         }
-
         float maxz = -minz;
 
-        float sx = 2.f/(maxx - minx);
-        float sy = 2.f/(maxy - miny);
-        float sz = -2.f/(maxz - minz);
-        SLVec3f t = SLVec3f(-0.5f * sx * (maxx + minx), -0.5f * sy * (maxy + miny), -0.5f * sz * (maxz - minz));
+        float   sx = 2.f / (maxx - minx);
+        float   sy = 2.f / (maxy - miny);
+        float   sz = -2.f / (maxz - minz);
+        SLVec3f t  = SLVec3f(-0.5f * (maxx + minx), -0.5f * (maxy + miny), 0.5f * (maxz + minz));
         SLMat4f C;
         C.identity();
         C.scale(sx, sy, sz);
@@ -487,8 +553,8 @@ void SLShadowMap::renderDirectionalLightCascaded(SLSceneView* sv, SLNode* root)
         stateGL->viewMatrix       = lv;
         stateGL->projectionMatrix = C;
 
-        _v[i] = lv;
-        _p[i] = C;
+        _v[i]   = lv;
+        _p[i]   = C;
         _mvp[i] = _p[i] * lv;
 
         stateGL->viewport(0, 0, _textureSize.x, _textureSize.y);
@@ -498,7 +564,8 @@ void SLShadowMap::renderDirectionalLightCascaded(SLSceneView* sv, SLNode* root)
         stateGL->clearColorDepthBuffer();
 
         // Draw meshes
-        drawNodesIntoDepthBuffer(root, sv, lv);
+        //drawNodesIntoDepthBuffer(root, sv, C, lv);
+        drawNodesDirectional(root, sv, C, lv);
 
         _depthBuffers[i]->unbind();
     }

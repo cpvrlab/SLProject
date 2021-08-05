@@ -12,6 +12,7 @@
 #include <SLDeviceLocation.h>
 #include <SLDeviceRotation.h>
 #include <SLGLProgramManager.h>
+#include <SLFrustum.h>
 
 //-----------------------------------------------------------------------------
 // Static global default parameters for new cameras
@@ -1514,33 +1515,7 @@ void SLCamera::setFrustumPlanes()
     // build combined view projection matrix
     // SLCamera::setView should've been called before so viewMatrix contains the right value
     SLGLState* stateGL = SLGLState::instance();
-    SLMat4f    A(stateGL->projectionMatrix * stateGL->viewMatrix);
-
-    // set the A,B,C & D coeffitient for each plane
-    _plane[T].setCoefficients(-A.m(1) + A.m(3),
-                              -A.m(5) + A.m(7),
-                              -A.m(9) + A.m(11),
-                              -A.m(13) + A.m(15));
-    _plane[B].setCoefficients(A.m(1) + A.m(3),
-                              A.m(5) + A.m(7),
-                              A.m(9) + A.m(11),
-                              A.m(13) + A.m(15));
-    _plane[L].setCoefficients(A.m(0) + A.m(3),
-                              A.m(4) + A.m(7),
-                              A.m(8) + A.m(11),
-                              A.m(12) + A.m(15));
-    _plane[R].setCoefficients(-A.m(0) + A.m(3),
-                              -A.m(4) + A.m(7),
-                              -A.m(8) + A.m(11),
-                              -A.m(12) + A.m(15));
-    _plane[N].setCoefficients(A.m(2) + A.m(3),
-                              A.m(6) + A.m(7),
-                              A.m(10) + A.m(11),
-                              A.m(14) + A.m(15));
-    _plane[F].setCoefficients(-A.m(2) + A.m(3),
-                              -A.m(6) + A.m(7),
-                              -A.m(10) + A.m(11),
-                              -A.m(14) + A.m(15));
+    SLFrustum::viewToFrustumPlanes(_plane, stateGL->projectionMatrix, stateGL->viewMatrix);
 }
 //-----------------------------------------------------------------------------
 //!< Horizontal field of view

@@ -16,6 +16,7 @@
 #include <Utils.h>
 #include <SLVec3.h>
 #include <iostream>
+#include <assert.h>
 
 using namespace Utils;
 
