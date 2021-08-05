@@ -300,9 +300,9 @@
     return true;
 }
 
-- (SENSCaptureProperties)retrieveCaptureProperties
+- (SENSCaptureProps)retrieveCaptureProperties
 {
-    SENSCaptureProperties characsVec;
+    SENSCaptureProps characsVec;
 
     // specifying AVMediaTypeVideo will ensure we only get a list of cameras, no microphones
     NSArray* devices = [AVCaptureDevice devicesWithMediaType:AVMediaTypeVideo];
@@ -320,7 +320,7 @@
         else
             facing = SENSCameraFacing::UNKNOWN;
 
-        SENSCameraDeviceProperties characs(deviceId, facing);
+        SENSCameraDeviceProps characs(deviceId, facing);
 
         NSArray<AVCaptureDeviceFormat*>* deviceFormats = [device formats];
         for (AVCaptureDeviceFormat* format in deviceFormats)

@@ -1,11 +1,19 @@
+//#############################################################################
+//  File:      SENSCalibrationEstimatorParams.h
+//  Author:    Michael Goettlicher, Marcus Hudritsch
+//  Date:      Winter 2019
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
+//  License:   This software is provide under the GNU General Public License
+//             Please visit: http://opensource.org/licenses/GPL-3.0
+//#############################################################################
+
 #ifndef SENSCALIBRATION_ESTIMATOR_PARAMS_H
 #define SENSCALIBRATION_ESTIMATOR_PARAMS_H
 
 #include <opencv2/calib3d.hpp>
 
-/*
-    Parameterset for the SENSCalibrationEstimator
-*/
+//-----------------------------------------------------------------------------
+//! Parameterset for the SENSCalibrationEstimator
 class SENSCalibrationEstimatorParams
 {
 public:
@@ -50,12 +58,12 @@ public:
     EstimatorMode mode                   = EstimatorMode::ExtractAndCalculate;
     bool          useReleaseObjectMethod = false;
 };
-
+//-----------------------------------------------------------------------------
 enum class SENSCameraType
 {
     FRONTFACING,
     BACKFACING,
     VIDEOFILE
 };
-
-#endif //SENSCALIBRATION_ESTIMATOR_PARAMS_H
+//-----------------------------------------------------------------------------
+#endif // SENSCALIBRATION_ESTIMATOR_PARAMS_H

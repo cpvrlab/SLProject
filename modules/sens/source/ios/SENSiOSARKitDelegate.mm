@@ -1,4 +1,4 @@
-#import "SENSiOSARCoreDelegate.h"
+#import "SENSiOSARKitDelegate.h"
 #include <Utils.h>
 
 @interface SENSiOSARCoreDelegate () {

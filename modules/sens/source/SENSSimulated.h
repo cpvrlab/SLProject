@@ -152,10 +152,10 @@ private:
 
 //-----------------------------------------------------------------------------
 /*! SENSSimulatedCamera
-SENSSimulated implementation for Camera sensor simulation. Implements the SENSCameraBase interface
+SENSSimulated implementation for Camera sensor simulation. Implements the SENSBaseCamera interface
 to make it a full camera sensor and the SENSSimulated interface for the sensor simulation backend.
  */
-class SENSSimulatedCamera : public SENSCameraBase
+class SENSSimulatedCamera : public SENSBaseCamera
   , public SENSSimulated<int>
 {
     friend class SENSSimulator;
@@ -169,7 +169,7 @@ public:
 
     void stop() override;
 
-    const SENSCaptureProperties& captureProperties() override;
+    const SENSCaptureProps& captureProperties() override;
 
 private:
     SENSSimulatedCamera(StartSimCB                                startSimCB,

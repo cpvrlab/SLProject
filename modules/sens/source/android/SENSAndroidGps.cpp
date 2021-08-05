@@ -1,17 +1,17 @@
-#include "SENSNdkGps.h"
+#include "SENSAndroidGps.h"
 #include <jni.h>
 #include <assert.h>
 #include <Utils.h>
 
-static SENSNdkGps* gGpsPtr = nullptr;
-SENSNdkGps*        GetGpsPtr()
+static SENSAndroidGps* gGpsPtr = nullptr;
+SENSAndroidGps*        GetGpsPtr()
 {
     if (gGpsPtr == nullptr)
-        Utils::log("SENSNdkGps", "Global gps pointer has not been initialized");
+        Utils::log("SENSAndroidGps", "Global gps pointer has not been initialized");
     return gGpsPtr;
 }
 
-bool SENSNdkGps::start()
+bool SENSAndroidGps::start()
 {
     if (!_permissionGranted)
         return false;
@@ -19,14 +19,14 @@ bool SENSNdkGps::start()
     return true;
 }
 
-void SENSNdkGps::stop()
+void SENSAndroidGps::stop()
 {
     if (!_running)
         return;
     _running = false;
 }
 
-void SENSNdkGps::updateLocation(double latitudeDEG,
+void SENSAndroidGps::updateLocation(double latitudeDEG,
                                 double longitudeDEG,
                                 double altitudeM,
                                 float  accuracyM)
