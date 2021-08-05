@@ -92,7 +92,7 @@ bool SENSCvCamera::supportsFacing(SENSCameraFacing facing)
     if (!_camera)
         return false;
 
-    const SENSCaptureProperties& props = _camera->captureProperties();
+    const SENSCaptureProps& props = _camera->captureProperties();
     return props.supportsCameraFacing(facing);
 }
 
@@ -123,7 +123,7 @@ SENSCvCamera::ConfigReturnCode SENSCvCamera::configure(SENSCameraFacing facing,
         cameraWasStarted = true;
     }
 
-    const SENSCaptureProperties& props = _camera->captureProperties();
+    const SENSCaptureProps& props = _camera->captureProperties();
     //check if facing is available
     if (!props.supportsCameraFacing(facing))
         return ERROR_FACING_NOT_AVAILABLE;
@@ -143,7 +143,7 @@ SENSCvCamera::ConfigReturnCode SENSCvCamera::configure(SENSCameraFacing facing,
     //approximately what resolution we search for visualiation image
     int aproxHighImgW = targetWidth;
 
-    std::pair<const SENSCameraDeviceProperties*, const SENSCameraStreamConfig*> bestConfig =
+    std::pair<const SENSCameraDeviceProps*, const SENSCameraStreamConfig*> bestConfig =
       props.findBestMatchingConfig(facing, 65.f, aproxHighImgW, (int)((float)aproxHighImgW / searchWdivH));
 
     //warn if extrapolation needed (image will not be extrapolated)

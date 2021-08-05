@@ -20,7 +20,7 @@
 #include <cinttypes>
 #include <media/NdkImage.h>
 #include <camera/NdkCameraManager.h>
-#include "SENSNdkCameraUtils.h"
+#include "SENSAndroidCameraUtils.h"
 
 #include <android/log.h>
 

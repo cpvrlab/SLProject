@@ -64,6 +64,7 @@ class SLMat3
         void        setMatrix   (T M0, T M3, T M6,
                                 T M1, T M4, T M7,
                                 T M2, T M5, T M8);
+        void        m           (int i, T val) {assert(i>=0 && i<9); _m[i] = val;}
       
         // Overloaded operators                         
         SLMat3<T>&  operator=   (const SLMat3& A);

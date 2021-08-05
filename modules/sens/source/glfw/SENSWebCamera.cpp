@@ -90,7 +90,7 @@ void SENSWebCamera::grab()
     }
 }
 
-const SENSCaptureProperties& SENSWebCamera::captureProperties()
+const SENSCaptureProps& SENSWebCamera::captureProperties()
 {
     if (!_captureProperties.size())
     {
@@ -111,7 +111,7 @@ const SENSCaptureProperties& SENSWebCamera::captureProperties()
 
             if (_videoCapture.isOpened())
             {
-                SENSCameraDeviceProperties characteristics(std::to_string(i), SENSCameraFacing::UNKNOWN);
+                SENSCameraDeviceProps characteristics(std::to_string(i), SENSCameraFacing::UNKNOWN);
 
                 //try some standard capture sizes
                 for (auto s : testSizes)
@@ -137,7 +137,7 @@ const SENSCaptureProperties& SENSWebCamera::captureProperties()
         //if still no caputure properties add a dummy
         if (_captureProperties.size() == 0)
         {
-            SENSCameraDeviceProperties dummyProps("0", SENSCameraFacing::UNKNOWN);
+            SENSCameraDeviceProps dummyProps("0", SENSCameraFacing::UNKNOWN);
             dummyProps.add(640, 480, -1.f);
             _captureProperties.push_back(dummyProps);
         }

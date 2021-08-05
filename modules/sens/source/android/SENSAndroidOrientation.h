@@ -1,13 +1,13 @@
-#ifndef SENS_NDK_ORIENTATION_H
-#define SENS_NDK_ORIENTATION_H
+#ifndef SENS_ANDROID_ORIENTATION_H
+#define SENS_ANDROID_ORIENTATION_H
 
 #include <SENSOrientation.h>
 #include <jni.h>
 
-class SENSNdkOrientation : public SENSOrientation
+class SENSAndroidOrientation : public SENSOrientation
 {
 public:
-    SENSNdkOrientation(){};
+    SENSAndroidOrientation(){};
     void init(bool granted) {};
 
     bool start() override;

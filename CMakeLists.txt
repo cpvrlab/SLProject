@@ -55,6 +55,7 @@ message(STATUS "LIBIGL_USE_STATIC_LIBRARY: ${LIBIGL_USE_STATIC_LIBRARY}")
 
 include(cmake/SetGitBranchNameAndCommitID.cmake)
 include(cmake/CompileOptions.cmake)
+include(cmake/ConfigureMSVCCLion.cmake)
 
 
 if (SL_DOWNLOAD_PREBUILTS)

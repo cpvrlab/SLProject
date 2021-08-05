@@ -276,11 +276,11 @@ void SENSSimulatedCamera::stop()
     }
 }
 
-const SENSCaptureProperties& SENSSimulatedCamera::captureProperties()
+const SENSCaptureProps& SENSSimulatedCamera::captureProperties()
 {
     if (!_captureProperties.size())
     {
-        SENSCameraDeviceProperties characteristics(_config.deviceId, _config.facing);
+        SENSCameraDeviceProps characteristics(_config.deviceId, _config.facing);
         characteristics.add(_config.streamConfig.widthPix, _config.streamConfig.heightPix, _config.streamConfig.focalLengthPix);
         _captureProperties.push_back(characteristics);
     }

@@ -1,4 +1,13 @@
-#include "SENSNdkARCore.h"
+//#############################################################################
+//  File:      SENSAndroidARCore.cpp
+//  Author:    Michael Goettlicher, Marcus Hudritsch
+//  Date:      Winter 2021
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
+//  License:   This software is provide under the GNU General Public License
+//             Please visit: http://opensource.org/licenses/GPL-3.0
+//#############################################################################
+
+#include "SENSAndroidARCore.h"
 #include <jni.h>
 #include <assert.h>
 #include <Utils.h>
@@ -6,7 +15,13 @@
 #include "SENSUtils.h"
 #include "SENSGLTextureReader.h"
 
-SENSNdkARCore::SENSNdkARCore(JavaVM* jvm, JNIEnv* env, jobject context, jobject activity, std::string appName, std::string writableDir)
+//-----------------------------------------------------------------------------
+SENSAndroidARCore::SENSAndroidARCore(JavaVM*     jvm,
+                                     JNIEnv*     env,
+                                     jobject     context,
+                                     jobject     activity,
+                                     std::string appName,
+                                     std::string writableDir)
 {
     checkAvailability(env, context, activity);
     _arSession = nullptr;
@@ -15,9 +30,10 @@ SENSNdkARCore::SENSNdkARCore(JavaVM* jvm, JNIEnv* env, jobject context, jobject 
     _appName     = appName;
     _writableDir = writableDir;
 }
-/*------------------------------------------------------------------------------------------*/
-
-bool SENSNdkARCore::checkAvailability(JNIEnv* env, void* context, void* activity)
+//-----------------------------------------------------------------------------
+bool SENSAndroidARCore::checkAvailability(JNIEnv* env,
+                                          void*   context,
+                                          void*   activity)
 {
     ArAvailability availability;
     ArCoreApk_checkAvailability(env, context, &availability);
@@ -37,8 +53,8 @@ bool SENSNdkARCore::checkAvailability(JNIEnv* env, void* context, void* activity
     }
     return false;
 }
-
-bool SENSNdkARCore::isAvailable()
+//-----------------------------------------------------------------------------
+bool SENSAndroidARCore::isAvailable()
 {
     JNIEnv* env;
     _jvm->GetEnv((void**)&env, JNI_VERSION_1_6);
@@ -49,10 +65,10 @@ bool SENSNdkARCore::isAvailable()
     _available = env->CallStaticBooleanMethod(clazz, methodid);
     return _available;
 }
-
-/*------------------------------------------------------------------------------------------*/
-
-bool SENSNdkARCore::checkInstalled(JNIEnv* env, void* context, void* activity)
+//-----------------------------------------------------------------------------
+bool SENSAndroidARCore::checkInstalled(JNIEnv* env,
+                                       void*   context,
+                                       void*   activity)
 {
     ArAvailability availability;
     ArCoreApk_checkAvailability(env, context, &availability);
@@ -60,8 +76,8 @@ bool SENSNdkARCore::checkInstalled(JNIEnv* env, void* context, void* activity)
         return true;
     return false;
 }
-
-bool SENSNdkARCore::isInstalled()
+//-----------------------------------------------------------------------------
+bool SENSAndroidARCore::isInstalled()
 {
     JNIEnv* env;
     _jvm->GetEnv((void**)&env, JNI_VERSION_1_6);
@@ -72,10 +88,8 @@ bool SENSNdkARCore::isInstalled()
     _installed = env->CallStaticBooleanMethod(clazz, methodid);
     return _installed;
 }
-
-/*------------------------------------------------------------------------------------------*/
-
-bool SENSNdkARCore::askInstall(JNIEnv* env, void* context, void* activity)
+//-----------------------------------------------------------------------------
+bool SENSAndroidARCore::askInstall(JNIEnv* env, void* context, void* activity)
 {
     ArInstallStatus install_status;
     ArCoreApk_requestInstall(env, activity, true, &install_status);
@@ -88,8 +102,8 @@ bool SENSNdkARCore::askInstall(JNIEnv* env, void* context, void* activity)
     _installed = false;
     return false;
 }
-
-bool SENSNdkARCore::install()
+//-----------------------------------------------------------------------------
+bool SENSAndroidARCore::install()
 {
     JNIEnv* env;
     _jvm->GetEnv((void**)&env, JNI_VERSION_1_6);
@@ -99,14 +113,13 @@ bool SENSNdkARCore::install()
 
     return env->CallStaticBooleanMethod(clazz, methodid);
 }
-/*------------------------------------------------------------------------------------------*/
-
-SENSNdkARCore::~SENSNdkARCore()
+//-----------------------------------------------------------------------------
+SENSAndroidARCore::~SENSAndroidARCore()
 {
     reset();
 }
-
-void SENSNdkARCore::reset()
+//-----------------------------------------------------------------------------
+void SENSAndroidARCore::reset()
 {
     if (_arSession != nullptr)
     {
@@ -121,9 +134,10 @@ void SENSNdkARCore::reset()
         }
     }
 }
-
+//-----------------------------------------------------------------------------
 // NOTE(dgj1): targetHeight is automatically calculated based on reported aspect ratio of GPU texture
-bool SENSNdkARCore::init(unsigned int textureId, bool retrieveCpuImg, int targetWidth)
+bool SENSAndroidARCore::init(unsigned int textureId,
+                             bool retrieveCpuImg, int targetWidth)
 {
     if (textureId > 0)
         _cameraTextureId = textureId;
@@ -145,39 +159,21 @@ bool SENSNdkARCore::init(unsigned int textureId, bool retrieveCpuImg, int target
 
     return env->CallStaticBooleanMethod(clazz, methodid);
 }
-
-bool SENSNdkARCore::init(JNIEnv* env, void* context, void* activity)
+//-----------------------------------------------------------------------------
+bool SENSAndroidARCore::init(JNIEnv* env, void* context, void* activity)
 {
-    if (!checkAvailability(env, context, activity))
-    {
-        return false;
-    }
-
-    if (_arSession != nullptr)
-    {
-        return false;
-    }
+    if (!checkAvailability(env, context, activity)) return false;
+    if (_arSession != nullptr) return false;
 
     ArInstallStatus install_status;
     ArCoreApk_requestInstall(env, activity, false, &install_status);
 
-    if (install_status == AR_AVAILABILITY_SUPPORTED_NOT_INSTALLED)
-    {
-        return false;
-    }
+    if (install_status == AR_AVAILABILITY_SUPPORTED_NOT_INSTALLED) return false;
+    if (ArSession_create(env, activity, &_arSession) != AR_SUCCESS) return false;
+    if (!_arSession) return false;
 
-    if (ArSession_create(env, activity, &_arSession) != AR_SUCCESS)
-    {
-        return false;
-    }
-
-    if (!_arSession)
-    {
-        return false;
-    }
-
-    //todo: what do we have to set here? the display size? is it needed at all for our case?
-    //ArSession_setDisplayGeometry(_arSession, 0, _config.targetWidth, _config.targetHeight);
+    // todo: what do we have to set here? the display size? is it needed at all for our case?
+    // ArSession_setDisplayGeometry(_arSession, 0, _config.targetWidth, _config.targetHeight);
 
     // ----- config -----
     ArConfig* arConfig = nullptr;
@@ -205,13 +201,6 @@ bool SENSNdkARCore::init(JNIEnv* env, void* context, void* activity)
         _arSession = nullptr;
         return false;
     }
-
-    /*
-    _lightColor[0] = 1.0f;
-    _lightColor[1] = 1.0f;
-    _lightColor[2] = 1.0f;
-    _lightColor[3] = 1.0f;
-    */
     _envLightI[0] = 1.0f;
     _envLightI[1] = 1.0f;
     _envLightI[2] = 1.0f;
@@ -231,7 +220,7 @@ bool SENSNdkARCore::init(JNIEnv* env, void* context, void* activity)
         return false;
     }
 
-    //retrieve intrinsics and frame size
+    // retrieve intrinsics and frame size
     ArCamera* arCamera;
     ArFrame_acquireCamera(_arSession, _arFrame, &arCamera);
 
@@ -258,17 +247,12 @@ bool SENSNdkARCore::init(JNIEnv* env, void* context, void* activity)
     pause();
     return true;
 }
-
-bool SENSNdkARCore::update(cv::Mat& pose)
+//-----------------------------------------------------------------------------
+bool SENSAndroidARCore::update(cv::Mat& pose)
 {
-    if (!_arSession)
-        return false;
-
+    if (!_arSession) return false;
     ArStatus status = ArSession_update(_arSession, _arFrame);
-    if (status != AR_SUCCESS)
-    {
-        return false;
-    }
+    if (status != AR_SUCCESS) return false;
 
     ArCamera* arCamera;
     ArFrame_acquireCamera(_arSession, _arFrame, &arCamera);
@@ -276,16 +260,16 @@ bool SENSNdkARCore::update(cv::Mat& pose)
     cv::Mat view = cv::Mat::eye(4, 4, CV_32F);
     ArCamera_getViewMatrix(_arSession, arCamera, view.ptr<float>(0));
 
-    //convertions to sl camera pose:
-    //from row- to column-major
+    // conversions to sl camera pose:
+    // from row- to column-major
     view = view.t();
-    //inversion
+    // inversion
     cv::Mat wRc = (view.rowRange(0, 3).colRange(0, 3)).t();
     cv::Mat wtc = -wRc * view.rowRange(0, 3).col(3);
     cv::Mat wTc = cv::Mat::eye(4, 4, CV_32F);
     wRc.copyTo(wTc.colRange(0, 3).rowRange(0, 3));
     wtc.copyTo(wTc.rowRange(0, 3).col(3));
-    //axis direction adaption (x = -y, y = x, z = z, t = t)
+    // axis direction adaption (x = -y, y = x, z = z, t = t)
     pose = cv::Mat::eye(4, 4, CV_32F);
     wTc.col(1) *= -1;
     wTc.col(1).copyTo(pose.col(0));
@@ -317,7 +301,7 @@ bool SENSNdkARCore::update(cv::Mat& pose)
         /*
         std::stringstream ss;
         ss << intrinsics;
-        Utils::log("SENSNdkARCore", "intrinsics %s", ss.str().c_str());
+        Utils::log("SENSAndroidARCore", "intrinsics %s", ss.str().c_str());
          */
     }
 
@@ -360,8 +344,8 @@ bool SENSNdkARCore::update(cv::Mat& pose)
 
     return true;
 }
-
-void SENSNdkARCore::updateCamera(cv::Mat& intrinsics)
+//-----------------------------------------------------------------------------
+void SENSAndroidARCore::updateCamera(cv::Mat& intrinsics)
 {
     cv::Mat image;
 
@@ -369,41 +353,42 @@ void SENSNdkARCore::updateCamera(cv::Mat& intrinsics)
     {
         if (!_texImgReader)
         {
-            //ATTENTION: for the current implementation the gpu texture (preview image) has to have the same aspect ratio as the cpu image
-            //check aspect ratio
+            // ATTENTION: for the current implementation the gpu texture (preview image) has to have the same aspect ratio as the cpu image
+            // check aspect ratio
             _texImgReader = new SENSGLTextureReader(_cameraTextureId, true, _cpuImgTargetWidth, _cpuImgTargetHeight);
         }
 
         HighResTimer t;
         image = _texImgReader->readImageFromGpu();
 
-        Utils::log("SENSNdkARCore", "readImageFromGPU: %fms", t.elapsedTimeInMilliSec());
+        Utils::log("SENSAndroidARCore", "readImageFromGPU: %fms", t.elapsedTimeInMilliSec());
         /*
-Utils::log("imagesize", "orig w:%d h:%d", image.size().width, image.size().height);
-Utils::log("imagesize", "orig imageSize w:%d h:%d", _inputFrameW, _inputFrameH);
-Utils::log("imagesize", "orig calib cx:%f cy:%f", intrinsics.at<double>(0, 2),
-           intrinsics.at<double>(1, 2));
-*/
-        //adapt intrinsics to cpu image size
+        Utils::log("imagesize", "orig w:%d h:%d", image.size().width, image.size().height);
+        Utils::log("imagesize", "orig imageSize w:%d h:%d", _inputFrameW, _inputFrameH);
+        Utils::log("imagesize", "orig calib cx:%f cy:%f", intrinsics.at<double>(0, 2),
+                   intrinsics.at<double>(1, 2));
+        */
+        // adapt intrinsics to cpu image size
     }
 
     updateFrame(image, intrinsics, _inputFrameW, _inputFrameH, true);
 }
-
-void SENSNdkARCore::lightComponentIntensity(float* component)
+//-----------------------------------------------------------------------------
+void SENSAndroidARCore::lightComponentIntensity(float* component)
 {
     component[0] = _envLightI[0];
     component[1] = _envLightI[1];
     component[2] = _envLightI[2];
 }
-cv::Mat SENSNdkARCore::convertToYuv(ArImage* arImage)
+//-----------------------------------------------------------------------------
+cv::Mat SENSAndroidARCore::convertToYuv(ArImage* arImage)
 {
     int32_t height, width, rowStrideY;
     ArImage_getHeight(_arSession, arImage, &height);
     ArImage_getWidth(_arSession, arImage, &width);
     ArImage_getPlaneRowStride(_arSession, arImage, 0, &rowStrideY);
 
-    //pointers to yuv data planes and length of yuv data planes in byte
+    // pointers to yuv data planes and length of yuv data planes in byte
     const uint8_t *yPixel, *vPixel;
     int32_t        yLen, vLen;
     ArImage_getPlaneData(_arSession, arImage, (int32_t)0, &yPixel, &yLen);
@@ -422,8 +407,8 @@ cv::Mat SENSNdkARCore::convertToYuv(ArImage* arImage)
     else
         return yuv;
 }
-
-bool SENSNdkARCore::resume()
+//-----------------------------------------------------------------------------
+bool SENSAndroidARCore::resume()
 {
     if (_pause && _arSession != nullptr)
     {
@@ -431,27 +416,28 @@ bool SENSNdkARCore::resume()
         if (status == AR_SUCCESS)
         {
             _pause   = false;
-            _started = true; //for SENSCameraBase
+            _started = true; // for SENSBaseCamera
         }
         else
-            Utils::log("ErlebAR", "SENSNdkARCore resume failed!!!");
+            Utils::log("ErlebAR", "SENSAndroidARCore resume failed!!!");
     }
     return !_pause;
 }
-
-void SENSNdkARCore::pause()
+//-----------------------------------------------------------------------------
+void SENSAndroidARCore::pause()
 {
-    _started = false; //for SENSCameraBase
-    if (_arSession != nullptr)
-        if (AR_SUCCESS == ArSession_pause(_arSession))
-            _pause = true;
-        else
-            Utils::log("ErlebAR", "SENSNdkARCore pause failed!!!");
+    _started = false; // for SENSBaseCamera
+    if (!_arSession) return;
+
+    if (AR_SUCCESS == ArSession_pause(_arSession))
+        _pause = true;
+    else
+        Utils::log("ErlebAR", "SENSAndroidARCore pause failed!!!");
 }
-
-void SENSNdkARCore::retrieveCaptureProperties()
+//-----------------------------------------------------------------------------
+void SENSAndroidARCore::retrieveCaptureProperties()
 {
-    //the SENSCameraBase needs to have a valid frame, otherwise we cannot estimate the fov correctly
+    // the SENSBaseCamera needs to have a valid frame, otherwise we cannot estimate the fov correctly
     /*
     if(!_frame)
     {
@@ -464,7 +450,7 @@ void SENSNdkARCore::retrieveCaptureProperties()
         }
         while(!_frame && t.elapsedTimeInSec() < 10.f);
 
-        Utils::log("SENSNdkARCore", "retrieveCaptureProperties update for %fs", t.elapsedTimeInSec());
+        Utils::log("SENSAndroidARCore", "retrieveCaptureProperties update for %fs", t.elapsedTimeInSec());
         pause();
     }
 
@@ -478,70 +464,81 @@ void SENSNdkARCore::retrieveCaptureProperties()
         {
             focalLengthPix = 0.5 * (_frame->intrinsics.at<double>(0, 0) + _frame->intrinsics.at<double>(1, 1));
         }
-        SENSCameraDeviceProperties devProp(deviceId, facing);
+        SENSCameraDeviceProps devProp(deviceId, facing);
         //here we have to use the cpu image size (which is not the same as the gpu image size)
         devProp.add(_inputFrameW, _inputFrameH, focalLengthPix);
         _captureProperties.push_back(devProp);
     }
     else
-        Utils::warnMsg("SENSNdkARCore", "retrieveCaptureProperties: Could not retrieve a valid frame!", __LINE__, __FILE__);
-*/
+        Utils::warnMsg("SENSAndroidARCore", "retrieveCaptureProperties: Could not retrieve a valid frame!", __LINE__, __FILE__);
+    */
     std::string      deviceId = "ARKit";
     SENSCameraFacing facing   = SENSCameraFacing::BACK;
 
-    float                      focalLengthPix = 0.5 * (_fx + _fy);
-    SENSCameraDeviceProperties devProp(deviceId, facing);
-    //here we have to use the cpu image size (which is not the same as the gpu image size)
+    float                 focalLengthPix = 0.5 * (_fx + _fy);
+    SENSCameraDeviceProps devProp(deviceId, facing);
+
+    // here we have to use the cpu image size (which is not the same as the gpu image size)
     devProp.add(_inputFrameW, _inputFrameH, focalLengthPix);
     _captureProperties.push_back(devProp);
 }
-
-const SENSCaptureProperties& SENSNdkARCore::captureProperties()
+//-----------------------------------------------------------------------------
+const SENSCaptureProps& SENSAndroidARCore::captureProperties()
 {
     if (_captureProperties.size() == 0)
         retrieveCaptureProperties();
 
     return _captureProperties;
 }
-
-//This function does not really start the camera as for the arcore iplementation, the frame gets only updated with a call to arcore::update.
-//This function is needed to correctly use arcore as a camera in SENSCVCamera
-const SENSCameraConfig& SENSNdkARCore::start(std::string                   deviceId,
-                                             const SENSCameraStreamConfig& streamConfig,
-                                             bool                          provideIntrinsics)
+//-----------------------------------------------------------------------------
+//! This function is needed to correctly use arcore as a camera in SENSCVCamera
+/*! This function does not really start the camera as for the arcore
+ * implementation, the frame gets only updated with a call to arcore::update.
+ */
+const SENSCameraConfig& SENSAndroidARCore::start(std::string                   deviceId,
+                                                 const SENSCameraStreamConfig& streamConfig,
+                                                 bool                          provideIntrinsics)
 {
-    //define capture properties
+    // define capture properties
     if (_captureProperties.size() == 0)
         retrieveCaptureProperties();
 
     if (_captureProperties.size() == 0)
-        throw SENSException(SENSType::CAM, "Could not retrieve camera properties!", __LINE__, __FILE__);
+        throw SENSException(SENSType::CAM,
+                            "Could not retrieve camera properties!",
+                            __LINE__,
+                            __FILE__);
 
     if (!_captureProperties.containsDeviceId(deviceId))
-        throw SENSException(SENSType::CAM, "DeviceId does not exist!", __LINE__, __FILE__);
+        throw SENSException(SENSType::CAM,
+                            "DeviceId does not exist!",
+                            __LINE__,
+                            __FILE__);
 
-    SENSCameraFacing                  facing = SENSCameraFacing::UNKNOWN;
-    const SENSCameraDeviceProperties* props  = _captureProperties.camPropsForDeviceId(deviceId);
+    SENSCameraFacing             facing = SENSCameraFacing::UNKNOWN;
+    const SENSCameraDeviceProps* props  = _captureProperties.camPropsForDeviceId(deviceId);
     if (props)
         facing = props->facing();
 
-    //init config here before processStart
+    // init config here before processStart
     _config = SENSCameraConfig(deviceId,
                                streamConfig,
                                facing,
                                SENSCameraFocusMode::CONTINIOUS_AUTO_FOCUS);
-    //inform camera listeners
+    // inform camera listeners
     processStart();
 
     _started = true;
     return _config;
 }
-
-void SENSNdkARCore::doFetchPointCloud()
+//-----------------------------------------------------------------------------
+void SENSAndroidARCore::doFetchPointCloud()
 {
     ArPointCloud* arPointCloud = nullptr;
 
-    if (ArFrame_acquirePointCloud(_arSession, _arFrame, &arPointCloud) == AR_SUCCESS)
+    if (ArFrame_acquirePointCloud(_arSession,
+                                  _arFrame,
+                                  &arPointCloud) == AR_SUCCESS)
     {
         int    n;
         float* mp;
@@ -571,3 +568,4 @@ void SENSNdkARCore::doFetchPointCloud()
         ArPointCloud_release(arPointCloud);
     }
 }
+//-----------------------------------------------------------------------------

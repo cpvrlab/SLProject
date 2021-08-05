@@ -1,5 +1,5 @@
-#ifndef SENS_IOSARCORE_DELEGATE_H
-#define SENS_IOSARCORE_DELEGATE_H
+#ifndef SENS_IOSARKIT_DELEGATE_H
+#define SENS_IOSARKIT_DELEGATE_H
 
 #import <ARKit/ARKit.h>
 #import <simd/simd.h>

@@ -18,7 +18,7 @@
           intrinsicsState:(BOOL)provideIntrinsics;
 - (BOOL)stopCamera;
 
-- (SENSCaptureProperties)retrieveCaptureProperties;
+- (SENSCaptureProps)retrieveCaptureProperties;
 
 @property (nonatomic, assign) std::function<void(unsigned char*, int, int, matrix_float3x3*)> updateCB;
 @property (nonatomic, assign) std::function<void(bool)>                                       permissionCB;

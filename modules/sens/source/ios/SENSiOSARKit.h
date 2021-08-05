@@ -1,20 +1,17 @@
-#ifndef SENS_IOSARCORE_H
-#define SENS_IOSARCORE_H
+#ifndef SENS_IOSARKIT_H
+#define SENS_IOSARKIT_H
 
-#include <SENSARCore.h>
-
-#import "SENSiOSARCoreDelegate.h"
+#include <SENSARBaseCamera.h>
+#import "SENSiOSARKitDelegate.h"
 #import <simd/simd.h>
 
-class SENSiOSARCore : public SENSARCore
+class SENSiOSARKit : public SENSARBaseCamera
 {
 public:
-    SENSiOSARCore();
-    ~SENSiOSARCore()
-    {
-    }
+    SENSiOSARKit();
+    ~SENSiOSARKit() {}
 
-    bool init(unsigned int textureId=0, bool retrieveCpuImg=false, int targetWidth=-1) override;
+    bool init(unsigned int textureId = 0, bool retrieveCpuImg = false, int targetWidth = -1) override;
     bool isReady() override;
     bool resume() override;
     void reset() override;
@@ -27,14 +24,14 @@ public:
     const SENSCameraConfig& start(std::string                   deviceId,
                                   const SENSCameraStreamConfig& streamConfig,
                                   bool                          provideIntrinsics) override;
-    //from camera (does nothing in this case, because we have no image callbacks but we update arcore and the frame actively
+    // from camera (does nothing in this case, because we have no image callbacks but we update arcore and the frame actively
     void stop() override { _started = false; };
-    
-    const SENSCaptureProperties& captureProperties() override;
-    
+
+    const SENSCaptureProps& captureProperties() override;
+
 private:
-    void retrieveCaptureProperties();
-    bool _available = false;
+    void                   retrieveCaptureProperties();
+    bool                   _available = false;
     SENSiOSARCoreDelegate* _arcoreDelegate;
 };
 
