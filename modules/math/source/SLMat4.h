@@ -90,6 +90,8 @@ class SLMat4
         void        setMatrix   (const int16_t i, const SLfloat value) { assert(i >= 0 && i < 16); _m[i] = value; }
         void        setRotation (const SLMat3<T>& rotation); //!< Set 3x3 submatrix describing the rotational part
         void        setTranslation (const SLVec3<T>& translation); //!< Set vector as submatrix describing the translational part
+        void        m           (int i, T val) {assert(i>=0 && i<16); _m[i] = val;}
+
         // Getters
   const T*          m           () const        {return _m;}
         T           m           (int i) const   {assert(i>=0 && i<16); return _m[i];}
