@@ -541,6 +541,10 @@ void SLShadowMap::renderDirectionalLightCascaded(SLSceneView* sv, SLNode* root)
         float   sx = 2.f / (maxx - minx);
         float   sy = 2.f / (maxy - miny);
         float   sz = -2.f / (maxz - minz);
+        sx         = sx > 0.005 ? sx : 0.005;
+        sy         = sy > 0.005 ? sy : 0.005;
+        sz         = sz < -0.005 ? sz : -0.005;
+
         SLVec3f t  = SLVec3f(-0.5f * (maxx + minx), -0.5f * (maxy + miny), 0.5f * (maxz + minz));
         SLMat4f C;
         C.identity();
