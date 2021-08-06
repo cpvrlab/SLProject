@@ -291,7 +291,7 @@ void SLGLTextureIBL::build(SLint texUnit)
 
     // Reset the viewport
     SLGLState* state = SLGLState::instance();
-    auto       vp    = state->getViewport();
+    auto       vp    = state->viewportFB();
     glViewport(vp.x, vp.y, vp.z, vp.w);
     GET_GL_ERROR;
 }

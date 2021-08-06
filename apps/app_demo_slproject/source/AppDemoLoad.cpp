@@ -44,6 +44,7 @@
 #include <Instrumentor.h>
 #include <AppDemoGui.h>
 #include <SLDeviceLocation.h>
+#include <SLNodeLOD.h>
 
 #ifdef SL_BUILD_WAI
 #    include <CVTrackedWAI.h>
@@ -1821,7 +1822,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // There is no light needed in this scene. All reflections come from cube maps
         // But ray tracing needs light sources
-        // Create directional light for the sun light
+        // Create directional light for the sunlight
         SLLightDirect* light = new SLLightDirect(s, s, 0.5f);
         light->ambientColor(SLCol4f(0.3f, 0.3f, 0.3f));
         light->attenuation(1, 0, 0);
@@ -2447,7 +2448,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->focalDist(3);
         scene->addChild(cam1);
 
-        // Create directional light for the sun light
+        // Create directional light for the sunlight
         SLLightDirect* light = new SLLightDirect(s, s, 0.1f);
         light->ambientPower(0.6f);
         light->diffusePower(0.6f);
@@ -3547,7 +3548,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         // Turn on main video
         CVCapture::instance()->videoType(VT_MAIN);
 
-        // Create directional light for the sun light
+        // Create directional light for the sunlight
         SLLightDirect* light = new SLLightDirect(s, s, 1.0f);
         light->powers(1.0f, 1.0f, 1.0f);
         light->attenuation(1, 0, 0);
@@ -3623,7 +3624,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         // Turn on main video
         CVCapture::instance()->videoType(VT_MAIN);
 
-        // Create directional light for the sun light
+        // Create directional light for the sunlight
         SLLightDirect* sunLight = new SLLightDirect(s, s, 5.0f);
         sunLight->powers(1.0f, 1.0f, 1.0f);
         sunLight->attenuation(1, 0, 0);
@@ -3750,7 +3751,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         // Turn on main video
         CVCapture::instance()->videoType(VT_MAIN);
 
-        // Create directional light for the sun light
+        // Create directional light for the sunlight
         SLLightDirect* sunLight = new SLLightDirect(s, s, 2.0f);
         sunLight->translate(-44.89f, 18.05f, -26.07f);
         sunLight->powers(1.0f, 1.5f, 1.0f);
@@ -3934,7 +3935,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         matVideoBackgroundSM->ambient(SLCol4f(0.6f, 0.6f, 0.6f));
         matVideoBackgroundSM->getsShadows(true);
 
-        // Create directional light for the sun light
+        // Create directional light for the sunlight
         SLLightDirect* sunLight = new SLLightDirect(s, s, 1.0f);
         sunLight->translate(-42, 10, 13);
         sunLight->powers(1.0f, 1.5f, 1.0f);
@@ -4087,7 +4088,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         matVideoBackgroundSM->ambient(SLCol4f(0.6f, 0.6f, 0.6f));
         matVideoBackgroundSM->getsShadows(true);
 
-        // Create directional light for the sun light
+        // Create directional light for the sunlight
         SLLightDirect* sunLight = new SLLightDirect(s, s, 1.0f);
         sunLight->translate(-42, 10, 13);
         sunLight->powers(1.0f, 1.5f, 1.0f);
@@ -4240,7 +4241,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         matVideoBackgroundSM->ambient(SLCol4f(0.6f, 0.6f, 0.6f));
         matVideoBackgroundSM->getsShadows(true);
 
-        // Create directional light for the sun light
+        // Create directional light for the sunlight
         SLLightDirect* sunLight = new SLLightDirect(s, s, 1.0f);
         sunLight->translate(-42, 10, 13);
         sunLight->powers(1.0f, 1.5f, 1.0f);
@@ -4426,7 +4427,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         matVideoBackgroundSM->ambient(SLCol4f(0.6f, 0.6f, 0.6f));
         matVideoBackgroundSM->getsShadows(true);
 
-        // Create directional light for the sun light
+        // Create directional light for the sunlight
         SLLightDirect* sunLight = new SLLightDirect(s, s, 1.0f);
         sunLight->powers(1.0f, 1.5f, 1.0f);
         sunLight->attenuation(1, 0, 0);
@@ -4558,7 +4559,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         matVideoBackgroundSM->ambient(SLCol4f(0.6f, 0.6f, 0.6f));
         matVideoBackgroundSM->getsShadows(true);
 
-        // Create directional light for the sun light
+        // Create directional light for the sunlight
         SLLightDirect* sunLight = new SLLightDirect(s, s, 1.0f);
         sunLight->powers(1.0f, 1.0f, 1.0f);
         sunLight->attenuation(1, 0, 0);
@@ -4687,7 +4688,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         matVideoBackgroundSM->ambient(SLCol4f(0.6f, 0.6f, 0.6f));
         matVideoBackgroundSM->getsShadows(true);
 
-        // Create directional light for the sun light
+        // Create directional light for the sunlight
         SLLightDirect* sunLight = new SLLightDirect(s, s, 1.0f);
         sunLight->powers(1.0f, 1.0f, 1.0f);
         sunLight->attenuation(1, 0, 0);
@@ -4820,7 +4821,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         matVideoBackgroundSM->ambient(SLCol4f(0.6f, 0.6f, 0.6f));
         matVideoBackgroundSM->getsShadows(true);
 
-        // Create directional light for the sun light
+        // Create directional light for the sunlight
         SLLightDirect* sunLight = new SLLightDirect(s, s, 5.0f);
         sunLight->powers(1.0f, 1.0f, 1.0f);
         sunLight->attenuation(1, 0, 0);
@@ -4956,7 +4957,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         matVideoBackgroundSM->ambient(SLCol4f(0.6f, 0.6f, 0.6f));
         matVideoBackgroundSM->getsShadows(true);
 
-        // Create directional light for the sun light
+        // Create directional light for the sunlight
         SLLightDirect* sunLight = new SLLightDirect(s, s, 5.0f);
         sunLight->powers(1.0f, 1.0f, 1.0f);
         sunLight->attenuation(1, 0, 0);
@@ -5703,69 +5704,55 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(cam1);
         s->root3D(scene);
     }
-    else if (sceneID == SID_Benchmark4_LOD) //.....................................................
+    else if (sceneID == SID_Benchmark5_LOD) //.....................................................
     {
-        SLint   size       = 1;
-        SLfloat offset     = 1.2f;
-        SLint   numDragons = size * size;
-        SLchar  name[512];
-        sprintf(name, "Level of Detail Benchmark w. %d Stanford Dragons", numDragons);
+        SLchar name[512];
+        sprintf(name, "Lots of roman pillars as an LOD test scene");
         s->name(name);
         s->info(s->name());
 
         // Create materials
-        // Create textures and materials
-        SLGLTexture* texC = new SLGLTexture(s, texPath + "Checkerboard0512_C.png", SL_ANISOTROPY_MAX, GL_LINEAR);
-        SLMaterial*  mT   = new SLMaterial(s, "mT", texC);
-        mT->kr(0.5f);
+        SLMaterial* m1 = new SLMaterial(s, "m1", SLCol4f::GRAY);
+        m1->specular(SLCol4f::BLACK);
 
-        // Create directional light for the sunlight
-        SLLightDirect* light = new SLLightDirect(s, s, 0.1f);
-        light->ambientPower(0.6f);
-        light->diffusePower(0.9f);
-        light->attenuation(1, 0, 0);
-        light->translate(0, 0, 0.5);
-        light->lookAt(1, -1, 0.5);
-        //light->createsShadows(true);
-        //light->createShadowMap(-25, 25, SLVec2f(50, 50), SLVec2i(4096, 4096));
-        //light->doSmoothShadows(true);
+        // Define a light
+        SLLightSpot* light1 = new SLLightSpot(s, s, 100, 40, 100, 1);
+        light1->powers(0.1f, 1.0f, 1.0f);
+        light1->attenuation(1, 0, 0);
 
         // Define camera
         SLCamera* cam1 = new SLCamera;
-        cam1->translation(0, 0.3f, 2);
-        cam1->lookAt(0, 0.3f, 0);
+        cam1->translation(0, 30, 0);
+        cam1->lookAt(0, 0, 0);
         cam1->focalDist(cam1->translationOS().length());
         cam1->background().colors(SLCol4f(0.1f, 0.4f, 0.8f));
         cam1->setInitialState();
+        cam1->clipFar(1000);
         cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
 
         // Floor rectangle
         SLNode* rect = new SLNode(new SLRectangle(s,
-                                                  SLVec2f(-20, -20),
-                                                  SLVec2f(20, 20),
+                                                  SLVec2f(-40, -40),
+                                                  SLVec2f(40, 40),
                                                   SLVec2f(0, 0),
                                                   SLVec2f(50, 50),
                                                   50,
                                                   50,
                                                   "Floor",
-                                                  mT));
+                                                  m1));
         rect->rotate(90, -1, 0, 0);
-
-        SLAssimpImporter importer;
 
         // Assemble scene
         SLNode* scene = new SLNode("scene group");
-        scene->addChild(light);
+        scene->addChild(light1);
         scene->addChild(rect);
         scene->addChild(cam1);
 
-        // create array with individual dragons
-        SLfloat z = (float)(size - 1) * offset * 0.5f;
-
-        SLNode* dragonLOD = importer.load(s->animManager(),
-                                          s,
-                                          modelPath + "GLTF/DragonLOD/Dragon_LOD.glb",
-                                          texPath);
+        // create loads of pillars
+        SLint   size       = 20;
+        SLint   numPillars = size * size;
+        SLfloat offset     = 4.0f;
+        SLfloat z          = (float)(size - 1) * offset * 0.5f;
 
         for (SLint iZ = 0; iZ < size; ++iZ)
         {
@@ -5773,9 +5760,18 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
             for (SLint iX = 0; iX < size; ++iX)
             {
-                SLNode* dragonCopy = dragonLOD->copyRec();
-                dragonCopy->translate(x, 0, z, TS_object);
-                scene->addChild(dragonCopy);
+                SLNode*    lod_0     = new SLNode(new SLCylinder(s, 1.0f, 7, 3, 32, true, true, "lod 0", m1));
+                SLNode*    lod_1     = new SLNode(new SLCylinder(s, 1.0f, 7, 3, 16, true, true, "lod 1", m1));
+                SLNode*    lod_2     = new SLNode(new SLCylinder(s, 1.0f, 7, 3, 8, true, true, "lod 2", m1));
+                SLNode*    lod_3     = new SLNode(new SLCylinder(s, 1.0f, 7, 3, 4, true, true, "lod 3", m1));
+                SLNodeLOD* lod_group = new SLNodeLOD();
+                lod_group->rotate(90, -1, 0, 0);
+                lod_group->translate(x, z, 0, TS_object);
+                lod_group->addChildLOD(lod_0, 0.1f);
+                lod_group->addChildLOD(lod_1, 0.01f);
+                lod_group->addChildLOD(lod_2, 0.001f);
+                lod_group->addChildLOD(lod_3, 0.0001f);
+                scene->addChild(lod_group);
                 x += offset;
             }
             z -= offset;
@@ -5783,7 +5779,119 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Set active camera & the root pointer
         sv->camera(cam1);
+        sv->doWaitOnIdle(false);
         s->root3D(scene);
+    }
+    else if (sceneID == SID_Benchmark6_LOD) //.....................................................
+    {
+        SLstring modelFile = AppDemo::configPath + "models/GLTF-CorinthianColumn/Corinthian-Column-Round-LOD.gltf";
+        SLstring texCFile  = AppDemo::configPath + "models/GLTF-CorinthianColumn/PavementSlateSquare2_2K_DIF.jpg";
+        SLstring texNFile  = AppDemo::configPath + "models/GLTF-CorinthianColumn/PavementSlateSquare2_2K_NRM.jpg";
+
+        if (Utils::fileExists(modelFile) && Utils::fileExists(texCFile) && Utils::fileExists(texNFile))
+        {
+            SLchar name[512];
+            sprintf(name, "Lots of Corinthian Columns in LODs");
+            s->name(name);
+            s->info(s->name());
+
+            // Create ground material
+            SLGLTexture* texFloorDif = new SLGLTexture(s, texCFile, SL_ANISOTROPY_MAX, GL_LINEAR);
+            SLGLTexture* texFloorNrm = new SLGLTexture(s, texNFile, SL_ANISOTROPY_MAX, GL_LINEAR);
+            SLMaterial*  matFloor    = new SLMaterial(s, "matFloor", texFloorDif, texFloorNrm);
+
+            // Create directional light for the sunlight
+            SLLightDirect* sunLight = new SLLightDirect(s, s, 1.0f);
+            sunLight->powers(0.25f, 1.0f, 1.0f);
+            sunLight->attenuation(1, 0, 0);
+            sunLight->translation(0, 1.7f, 0);
+            sunLight->lookAt(-1, 0, -1);
+            sunLight->doSunPowerAdaptation(true);
+            sunLight->createsShadows(true);
+            sunLight->createShadowMap(-70, 120, SLVec2f(150, 150), SLVec2i(2048, 2048));
+            sunLight->doSmoothShadows(true);
+            sunLight->castsShadows(false);
+            sunLight->shadowMinBias(0.001f);
+            sunLight->shadowMaxBias(0.003f);
+
+            // Let the sun be rotated by time and location
+            AppDemo::devLoc.sunLightNode(sunLight);
+            AppDemo::devLoc.originLatLonAlt(47.14271, 7.24337, 488.2);        // Ecke Giosa
+            AppDemo::devLoc.defaultLatLonAlt(47.14260, 7.24310, 488.7 + 1.7); // auf Parkplatz
+
+            // Define camera
+            SLCamera* cam1 = new SLCamera;
+            cam1->translation(0, 1.7f, 20);
+            cam1->lookAt(0, 1.7f, 0);
+            cam1->focalDist(cam1->translationOS().length());
+            cam1->clipFar(1000);
+            cam1->background().colors(SLCol4f(0.1f, 0.4f, 0.8f));
+            cam1->setInitialState();
+
+            // Floor rectangle
+            SLNode* rect = new SLNode(new SLRectangle(s,
+                                                      SLVec2f(-200, -200),
+                                                      SLVec2f(200, 200),
+                                                      SLVec2f(0, 0),
+                                                      SLVec2f(50, 50),
+                                                      50,
+                                                      50,
+                                                      "Floor",
+                                                      matFloor));
+            rect->rotate(90, -1, 0, 0);
+
+            // Load the corinthian column
+            SLAssimpImporter importer;
+            SLNode*          columnLOD = importer.load(s->animManager(),
+                                                       s,
+                                                       modelFile,
+                                                       texPath,
+                                                       true,    // delete tex images after build
+                                                       true,    // only meshes
+                                                       nullptr, // no replacement material
+                                                       1.0f);   // 40% ambient reflection
+
+            SLNode* columnL0 = columnLOD->findChild<SLNode>("Corinthian-Column-Round-L0");
+            SLNode* columnL1 = columnLOD->findChild<SLNode>("Corinthian-Column-Round-L1");
+            SLNode* columnL2 = columnLOD->findChild<SLNode>("Corinthian-Column-Round-L2");
+            SLNode* columnL3 = columnLOD->findChild<SLNode>("Corinthian-Column-Round-L3");
+
+            // Assemble scene
+            SLNode* scene = new SLNode("Scene");
+            scene->addChild(sunLight);
+            scene->addChild(rect);
+            scene->addChild(cam1);
+
+            // create loads of pillars
+            SLint   size       = 20;
+            SLint   numColumns = size * size;
+            SLfloat offset     = 5.0f;
+            SLfloat z          = (float)(size - 1) * offset * 0.5f;
+
+            for (SLint iZ = 0; iZ < size; ++iZ)
+            {
+                SLfloat x = -(float)(size - 1) * offset * 0.5f;
+
+                for (SLint iX = 0; iX < size; ++iX)
+                {
+                    SLint      iZX       = iZ * size + iX;
+                    string     strLOD    = "LOD" + std::to_string(iZX);
+                    SLNodeLOD* lod_group = new SLNodeLOD(strLOD);
+                    lod_group->translate(x, 0, z, TS_object);
+                    lod_group->addChildLOD(new SLNode(columnL1->mesh(), "Column-L0"), 0.1f);
+                    lod_group->addChildLOD(new SLNode(columnL2->mesh(), "Column-L1"), 0.01f);
+                    lod_group->addChildLOD(new SLNode(columnL3->mesh(), "Column-L2"), 0.0001f);
+                    scene->addChild(lod_group);
+                    x += offset;
+                }
+                z -= offset;
+            }
+
+            // Set active camera & the root pointer
+            sv->camera(cam1);
+            sv->doWaitOnIdle(false);
+            s->root3D(scene);
+        }
     }
 
     ////////////////////////////////////////////////////////////////////////////

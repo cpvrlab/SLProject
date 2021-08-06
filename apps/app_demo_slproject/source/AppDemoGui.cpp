@@ -1774,10 +1774,24 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                         s->onLoad(s, sv, SID_Benchmark3_NodeAnimations);
                     if (ImGui::MenuItem("Massive Skinned Animations", nullptr, sid == SID_Benchmark4_SkinnedAnimations))
                         s->onLoad(s, sv, SID_Benchmark4_SkinnedAnimations);
-
-                    if (Utils::fileExists(AppDemo::configPath + "GLTF/DragonLOD/Dragon_LOD.glb"))
-                        if (ImGui::MenuItem("Level of Detail", nullptr, sid == SID_Benchmark4_LOD))
-                            s->onLoad(s, sv, SID_Benchmark4_LOD);
+                    if (ImGui::MenuItem("Level of Detail", nullptr, sid == SID_Benchmark5_LOD))
+                        s->onLoad(s, sv, SID_Benchmark5_LOD);
+                    if (ImGui::MenuItem("Corinthian Columns (LOD)", nullptr, sid == SID_Benchmark6_LOD))
+                    {
+                        SLstring largeFile = AppDemo::configPath + "models/GLTF-CorinthianColumn/Corinthian-Column-Round-LOD.gltf";
+                        if (Utils::fileExists(largeFile))
+                            s->onLoad(s, sv, SID_Benchmark6_LOD);
+                        else
+                        {
+                            downloadModelAndLoadScene(s,
+                                                      sv,
+                                                      "GLTF-CorinthianColumn.zip",
+                                                      "https://pallas.ti.bfh.ch/data/SLProject/models/",
+                                                      AppDemo::configPath + "models/",
+                                                      "GLTF-CorinthianColumn/Corinthian-Column-Round-LOD.gltf",
+                                                      SID_Benchmark6_LOD);
+                        }
+                    }
 
                     ImGui::EndMenu();
                 }
@@ -2244,6 +2258,9 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
 
                 if (ImGui::MenuItem("Normals", "N", sv->drawBits()->get(SL_DB_NORMALS)))
                     sv->drawBits()->toggle(SL_DB_NORMALS);
+
+                if (ImGui::MenuItem("Bounding Rectangles", "U", sv->drawBits()->get(SL_DB_BRECT)))
+                    sv->drawBits()->toggle(SL_DB_BRECT);
 
                 if (ImGui::MenuItem("Bounding Boxes", "B", sv->drawBits()->get(SL_DB_BBOX)))
                     sv->drawBits()->toggle(SL_DB_BBOX);
@@ -2915,6 +2932,9 @@ void AppDemoGui::buildMenuEdit(SLProjectScene* s, SLSceneView* sv)
         if (ImGui::MenuItem("Normals", nullptr, selN->drawBits()->get(SL_DB_NORMALS)))
             selN->drawBits()->toggle(SL_DB_NORMALS);
 
+        if (ImGui::MenuItem("Bounding Rectangles", nullptr, selN->drawBits()->get(SL_DB_BRECT)))
+            selN->drawBits()->toggle(SL_DB_BRECT);
+
         if (ImGui::MenuItem("Bounding Boxes", nullptr, selN->drawBits()->get(SL_DB_BBOX)))
             selN->drawBits()->toggle(SL_DB_BBOX);
 
@@ -3009,6 +3029,8 @@ void AppDemoGui::addSceneGraphNode(SLScene* s, SLNode* node)
 
     SLbool isSelectedNode = s->singleNodeSelected() == node;
     SLbool isLeafNode     = node->children().empty() && !node->mesh();
+    SLbool isHidden       = node->drawBit(SL_DB_HIDDEN);
+    bool   nodeIsOpen;
 
     ImGuiTreeNodeFlags nodeFlags = 0;
     if (isLeafNode)
@@ -3019,7 +3041,18 @@ void AppDemoGui::addSceneGraphNode(SLScene* s, SLNode* node)
     if (isSelectedNode)
         nodeFlags |= ImGuiTreeNodeFlags_Selected;
 
-    bool nodeIsOpen = ImGui::TreeNodeEx(node->name().c_str(), nodeFlags);
+    if (isHidden)
+    {
+        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.0f, 1.0f, 1.0f));
+        nodeIsOpen = ImGui::TreeNodeEx(node->name().c_str(), nodeFlags);
+        ImGui::PopStyleColor();
+    }
+    else
+    {
+        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 1.0f, 0.0f, 1.0f));
+        nodeIsOpen = ImGui::TreeNodeEx(node->name().c_str(), nodeFlags);
+        ImGui::PopStyleColor();
+    }
 
     if (ImGui::IsItemClicked())
     {
@@ -3126,6 +3159,10 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                         db = singleNode->drawBit(SL_DB_BBOX);
                         if (ImGui::Checkbox("Show bounding boxes", &db))
                             singleNode->drawBits()->set(SL_DB_BBOX, db);
+
+                        db = singleNode->drawBit(SL_DB_BRECT);
+                        if (ImGui::Checkbox("Show bounding rects", &db))
+                            singleNode->drawBits()->set(SL_DB_BRECT, db);
 
                         db = singleNode->drawBit(SL_DB_AXIS);
                         if (ImGui::Checkbox("Show axis", &db))
@@ -4036,7 +4073,7 @@ void AppDemoGui::downloadModelAndLoadScene(SLScene*     s,
         AppDemo::jobProgressMsg(jobMsg);
         AppDemo::jobProgressMax(100);
         string fileToDownload = urlFolder + downloadFilename;
-        if (!HttpUtils::download(fileToDownload, dstFolder, progressCallback))
+        if (HttpUtils::download(fileToDownload, dstFolder, progressCallback)!=0)
             SL_LOG("*** Nothing downloaded from: %s ***", fileToDownload.c_str());
         AppDemo::jobIsRunning = false;
     };

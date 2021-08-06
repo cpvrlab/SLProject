@@ -438,7 +438,7 @@ void SLShadowMap::render(SLSceneView* sv, SLNode* root)
             _depthBuffers[0]->bindFace(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i);
 
         // Set viewport
-        stateGL->viewport(0, 0, _textureSize.x, _textureSize.y);
+        stateGL->viewportFB(0, 0, _textureSize.x, _textureSize.y);
 
         // Set matrices
         stateGL->viewMatrix       = _v[i];

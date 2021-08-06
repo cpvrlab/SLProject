@@ -30,6 +30,7 @@ view or per single node object. Not all are used from the beginning
 #define SL_DB_OVERDRAW 512    //!< Draw node over all other nodes
 #define SL_DB_WITHEDGES 1024  //!< Draw faces with hard edges
 #define SL_DB_ONLYEDGES 2048  //!< Draw only hard edges
+#define SL_DB_BRECT 4096      //!< Draw the bounding rectangle of a node
 
 //-----------------------------------------------------------------------------
 //! Drawing states stored in the bits of an unsigned int

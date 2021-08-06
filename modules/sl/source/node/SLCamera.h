@@ -19,7 +19,7 @@
 #include <SLPlane.h>
 #include <SLRay.h>
 #include <SLRaySamples2D.h>
-#include <math/SLRect.h>
+#include <SLRect.h>
 
 class SLSceneView;
 class SLDeviceRotation;

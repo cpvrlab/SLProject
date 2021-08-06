@@ -89,21 +89,6 @@ public:
     SLMat4f viewMatrix;       //!< matrix for the active cameras view transform
     SLMat4f textureMatrix;    //!< matrix for the texture transform
 
-    // fog
-    /*
-    SLbool  fogIsOn;      //!< Flag if fog blending is enabled
-    SLint   fogMode;      //!< 0=GL_LINEAR, 1=GL_EXP, 2=GL_EXP2
-    SLfloat fogDensity;   //!< Fog density for exponential modes
-    SLfloat fogDistStart; //!< Fog start distance for linear mode
-    SLfloat fogDistEnd;   //!< Fog end distance for linear mode
-    SLCol4f fogColor;     //!< fog color blended to the final color
-
-    // stereo
-    SLint   projection;        //!< type of projection (see SLCamera)
-    SLint   stereoEye;         //!< -1=left, 0=center, 1=right
-    SLMat3f stereoColorFilter; //!< color filter matrix for anaglyph
-    */
-
     // setters
     void invModelViewMatrix(SLMat4f& im) { _invModelViewMatrix.setMatrix(im); }
     void normalMatrix(SLMat3f& nm) { _normalMatrix.setMatrix(nm); }
@@ -120,7 +105,7 @@ public:
     void   buildInverseAndNormalMatrix(); //!< build inverse & normal mat. from MV
     void   unbindAnythingAndFlush();      //!< finishes all GL commands
     SLbool pixelFormatIsSupported(SLint pixelFormat);
-    void    readPixels(void* buffer);
+    void   readPixels(void* buffer);
 
     // state setters
     void depthTest(SLbool state);
@@ -134,7 +119,7 @@ public:
     void polygonOffsetPoint(SLbool enabled, SLfloat factor = -1.0f, SLfloat units = -1.0f);
     void polygonOffsetLine(SLbool enabled, SLfloat factor = -1.0f, SLfloat units = -1.0f);
     void polygonOffsetFill(SLbool enabled, SLfloat factor = -1.0f, SLfloat units = -1.0f);
-    void viewport(SLint x, SLint y, SLsizei w, SLsizei h);
+    void viewportFB(SLint x, SLint y, SLsizei w, SLsizei h);
     void colorMask(GLboolean r, GLboolean g, GLboolean b, GLboolean a);
     void useProgram(SLuint progID);
     void bindTexture(SLenum target, SLuint textureID);
@@ -146,18 +131,24 @@ public:
     void clearColorDepthBuffer() { glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); }
 
     // state getters
-    SLbool      blend() const { return _blend; }
-    SLstring    glVersion() { return _glVersion; }
-    SLstring    glVersionNO() { return _glVersionNO; }
-    SLfloat     glVersionNOf() const { return _glVersionNOf; }
-    SLstring    glVendor() { return _glVendor; }
-    SLstring    glRenderer() { return _glRenderer; }
-    SLstring    glSLVersion() { return _glSLVersion; }
-    SLstring    glSLVersionNO() { return _glSLVersionNO; }
-    SLbool      glIsES2() const { return _glIsES2; }
-    SLbool      glIsES3() const { return _glIsES3; }
-    SLbool      hasExtension(const SLstring& e) { return _glExtensions.find(e) != string::npos; }
-    SLVec4i     getViewport() { return _viewport; }
+    SLbool   blend() const { return _blend; }
+    SLstring glVersion() { return _glVersion; }
+    SLstring glVersionNO() { return _glVersionNO; }
+    SLfloat  glVersionNOf() const { return _glVersionNOf; }
+    SLstring glVendor() { return _glVendor; }
+    SLstring glRenderer() { return _glRenderer; }
+    SLstring glSLVersion() { return _glSLVersion; }
+    SLstring glSLVersionNO() { return _glSLVersionNO; }
+    SLbool   glIsES2() const { return _glIsES2; }
+    SLbool   glIsES3() const { return _glIsES3; }
+    SLbool   hasExtension(const SLstring& e) { return _glExtensions.find(e) != string::npos; }
+    SLVec4i  viewportFB() { return _viewportFB; }
+    SLMat4f  viewportMatrixFB()
+    {
+        SLMat4f vpm;
+        vpm.viewport(_viewportFB.x, _viewportFB.y, _viewportFB.z, _viewportFB.w);
+        return vpm;
+    }
     SLMaterial* currentMaterial() { return _currentMaterial; }
 
     // stack operations
@@ -184,7 +175,7 @@ private:
     SLMat4f  _invModelViewMatrix;   //!< inverse modelview transform
     SLMat3f  _normalMatrix;         //!< matrix for the normal transform
     SLMat4f  _mvpMatrix;            //!< combined modelview-projection transform
-    SLSMat4f _modelViewMatrixStack; //!< stack for modelView matrices
+    SLSMat4f _modelViewMatrixStack; //!< stack for modelview matrices
 
     SLstring _glVersion;     //!< OpenGL Version string
     SLstring _glVersionNO;   //!< OpenGL Version number string
@@ -211,7 +202,7 @@ private:
     SLbool  _polygonOffsetPointEnabled; //!< GL_POLYGON_OFFSET_POINT state enabled
     SLbool  _polygonOffsetLineEnabled;  //!< GL_POLYGON_OFFSET_LINE state enabled
     SLbool  _polygonOffsetFillEnabled;  //!< GL_POLYGON_OFFSET_FILL state enabled
-    SLVec4i _viewport;                  //!< viewport size (x,y,w,h)
+    SLVec4i _viewportFB;                  //!< viewport size (x,y,w,h) of the framebuffer
     SLCol4f _clearColor;                //!< clear color
 
     // states

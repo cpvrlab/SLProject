@@ -148,6 +148,7 @@ public:
 
     // Recursive scene traversal methods (see impl. for details)
     virtual void      cull3DRec(SLSceneView* sv);
+    virtual void      cullChildren3D(SLSceneView* sv);
     virtual void      cull2DRec(SLSceneView* sv);
     virtual void      drawRec(SLSceneView* sv);
     virtual bool      hitRec(SLRay* ray);
@@ -159,7 +160,7 @@ public:
     void              setPrimitiveTypeRec(SLGLPrimitiveType primitiveType);
 
     // Mesh methods (see impl. for details)
-    void         addMesh(SLMesh* mesh);
+    virtual void addMesh(SLMesh* mesh);
     virtual void drawMesh(SLSceneView* sv);
     bool         removeMesh();
     bool         removeMesh(SLMesh* mesh);
@@ -172,6 +173,8 @@ public:
     bool  deleteChild();
     bool  deleteChild(SLNode* child);
     bool  deleteChild(const SLstring& name);
+    bool  removeChild(SLNode* child);
+
     template<typename T>
     T* find(const SLstring& name          = "",
             SLbool          findRecursive = true);
@@ -186,8 +189,7 @@ public:
                                  SLbool        findRecursive = true);
     vector<SLNode*> findChildren(SLuint drawbit,
                                  SLbool findRecursive = true);
-    
-    bool         removeChild(SLNode* child);
+
     // local direction getter functions
     SLVec3f translationOS() const;
     SLVec3f forwardOS() const;
@@ -269,31 +271,33 @@ public:
     void         needWMUpdate();
     void         needAABBUpdate();
     void         isSelected(bool isSelected) { _isSelected = isSelected; }
+    void         minLodCoverage(SLfloat minLodCoverage) { _minLodCoverage = minLodCoverage; }
 
     // Getters (see also member)
-    SLNode*           parent() { return _parent; }
-    SLint             depth() const { return _depth; }
-    const SLMat4f&    om() { return _om; }
-    const SLMat4f&    initialOM() { return _initialOM; }
-    const SLMat4f&    updateAndGetWM() const;
-    const SLMat4f&    updateAndGetWMI() const;
-    const SLMat3f&    updateAndGetWMN() const;
-    SLDrawBits*       drawBits() { return &_drawBits; }
-    SLbool            drawBit(SLuint bit) { return _drawBits.get(bit); }
-    SLAABBox*         aabb() { return &_aabb; }
-    SLAnimation*      animation() { return _animation; }
-    SLbool            castsShadows() { return _castsShadows; }
-    SLMesh*           mesh() { return _mesh; }
-    SLVNode&          children() { return _children; }
+    SLNode*               parent() { return _parent; }
+    SLint                 depth() const { return _depth; }
+    const SLMat4f&        om() { return _om; }
+    const SLMat4f&        initialOM() { return _initialOM; }
+    const SLMat4f&        updateAndGetWM() const;
+    const SLMat4f&        updateAndGetWMI() const;
+    const SLMat3f&        updateAndGetWMN() const;
+    SLDrawBits*           drawBits() { return &_drawBits; }
+    SLbool                drawBit(SLuint bit) { return _drawBits.get(bit); }
+    SLAABBox*             aabb() { return &_aabb; }
+    SLAnimation*          animation() { return _animation; }
+    SLbool                castsShadows() { return _castsShadows; }
+    SLMesh*               mesh() { return _mesh; }
+    SLVNode&              children() { return _children; }
     const SLAnimSkeleton* skeleton();
-    void              updateRec();
-    virtual void      doUpdate() {}
-    bool              updateMeshSkins(const std::function<void(SLMesh*)>& cbInformNodes);
-    void              updateMeshAccelStructs();
-    void              updateMeshMat(std::function<void(SLMaterial* m)> setMat,
-                                    bool                               recursive);
-    void              setMeshMat(SLMaterial* mat, bool recursive);
-    bool              isSelected() { return _isSelected; }
+    void                  updateRec();
+    virtual void          doUpdate() {}
+    bool                  updateMeshSkins(const std::function<void(SLMesh*)>& cbInformNodes);
+    void                  updateMeshAccelStructs();
+    void                  updateMeshMat(std::function<void(SLMaterial* m)> setMat,
+                                        bool                               recursive);
+    void                  setMeshMat(SLMaterial* mat, bool recursive);
+    bool                  isSelected() { return _isSelected; }
+    SLfloat               minLodCoverage() { return _minLodCoverage; }
 
     static SLuint numWMUpdates; //!< NO. of calls to updateWM per frame
 
@@ -337,6 +341,7 @@ protected:
     SLDrawBits      _drawBits;       //!< node level drawing flags
     SLAABBox        _aabb;           //!< axis aligned bounding box
     SLAnimation*    _animation;      //!< animation of the node
+    SLfloat         _minLodCoverage; //!< Min. LOD coverage for visibility (0.0 < _minLodCoverage < 1.0)
 };
 
 ////////////////////////

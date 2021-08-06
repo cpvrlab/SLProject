@@ -222,6 +222,8 @@ file(GLOB sources
         source/node/SLLightSpot.h
         source/node/SLNode.cpp
         source/node/SLNode.h
+        source/node/SLNodeLOD.cpp
+        source/node/SLNodeLOD.h
         source/node/SLSkybox.cpp
         source/node/SLSkybox.h
         source/node/SLText.cpp
@@ -365,6 +367,7 @@ target_include_directories(${target}
             ${SL_PROJECT_ROOT}/modules/sl/source/cv
             ${SL_PROJECT_ROOT}/modules/sl/source/gl
             ${SL_PROJECT_ROOT}/modules/sl/source/input
+            ${SL_PROJECT_ROOT}/modules/sl/source/math
             ${SL_PROJECT_ROOT}/modules/sl/source/mesh
             ${SL_PROJECT_ROOT}/modules/sl/source/node
             ${SL_PROJECT_ROOT}/modules/sl/source/optix

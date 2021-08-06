@@ -261,7 +261,7 @@ SLfloat SLLightDirect::shadowTestMC(SLRay*         ray,       // ray of hit poin
         return 1.0f;
 }
 //-----------------------------------------------------------------------------
-//! Calculates the sun light color depending on the zenith angle
+//! Calculates the sunlight color depending on the zenith angle
 /*! If the angle is 0 it return 1 and _sunLightPowerMin at 90 degrees or more.
  This can be used to the downscale the directional light to simulate the reduced
  power of the sun. The color is take from a color ramp that is white at 0 degree

@@ -904,7 +904,7 @@ void SLMat4<T>::ortho(const T l, const T r, const T b, const T t,
     _m[3]=0;       _m[7]=0;       _m[11]=0;        _m[15]=1;
 }
 //---------------------------------------------------------------------------
-//! Defines a viewport matrix as it is defined by glViewport
+//! Defines a viewport matrix as it will be produced by glViewport
 /*!
 @param x left window coord. in px.
 @param y top window coord. in px.

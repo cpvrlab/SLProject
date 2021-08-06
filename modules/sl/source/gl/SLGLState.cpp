@@ -81,7 +81,7 @@ void SLGLState::initAll()
     _polygonOffsetPointEnabled = false;
     _polygonOffsetLineEnabled  = false;
     _polygonOffsetFillEnabled  = false;
-    _viewport.set(-1, -1, -1, -1);
+    _viewportFB.set(-1, -1, -1, -1);
     _clearColor.set(-1, -1, -1, -1);
 
     // Reset all cached states to an invalid state
@@ -449,13 +449,15 @@ void SLGLState::polygonOffsetFill(SLbool enabled, SLfloat factor, SLfloat units)
 //-----------------------------------------------------------------------------
 /*! SLGLState::viewport sets the OpenGL viewport position and size
  */
-void SLGLState::viewport(SLint x, SLint y, SLsizei width, SLsizei height)
+void SLGLState::viewportFB(SLint x, SLint y, SLsizei width, SLsizei height)
 {
-
-    if (_viewport.x != x || _viewport.y != y || _viewport.z != width || _viewport.w != height)
+    if (_viewportFB.x != x ||
+        _viewportFB.y != y ||
+        _viewportFB.z != width ||
+        _viewportFB.w != height)
     {
         glViewport(x, y, width, height);
-        _viewport.set(x, y, width, height);
+        _viewportFB.set(x, y, width, height);
 
         GET_GL_ERROR;
     }
@@ -713,6 +715,5 @@ void SLGLState::readPixels(void* buffer)
     glGetIntegerv(GL_VIEWPORT, vp);
 
     glReadPixels(vp[0], vp[1], vp[2], vp[3], GL_RGB, GL_UNSIGNED_BYTE, buffer);
-
 }
 //-----------------------------------------------------------------------------

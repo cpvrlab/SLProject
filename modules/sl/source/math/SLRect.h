@@ -82,7 +82,7 @@ class SLRect
     {
         if (str) 
             SL_LOG("%s",str);
-        SL_LOG("% 3.3f, % 3.3f, % 3.3f, % 3.3f",x, y, width, height);
+        SL_LOG("% 3.1f, % 3.1f, % 3.1f, % 3.1f",x, y, width, height);
     }
 
     // Draw rectangle with OpenGL VAO
@@ -104,7 +104,7 @@ class SLRect
 //-----------------------------------------------------------------------------
 typedef SLRect<SLint, SLVec2i>      SLRecti;
 typedef SLRect<SLfloat, SLVec2f>    SLRectf;
-typedef vector<SLRecti>        SLVRecti;
-typedef vector<SLRectf>        SLVRectf;
+typedef vector<SLRecti>             SLVRecti;
+typedef vector<SLRectf>             SLVRectf;
 //-----------------------------------------------------------------------------
 #endif
