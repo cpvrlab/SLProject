@@ -338,8 +338,7 @@ void SLCamera::setShadowMapCascades(int n)
 
 std::vector<SLVec2f> SLCamera::getShadowMapCascades()
 {
-    if (_cascades.size() == _nbCascades)
-        return _cascades;
+    _cascades.clear();
 
     float f = clipFar();
     float n = clipNear();
