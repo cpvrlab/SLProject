@@ -561,7 +561,7 @@ void SLShadowMap::renderDirectionalLightCascaded(SLSceneView* sv, SLNode* root)
         _p[i]   = C;
         _mvp[i] = _p[i] * lv;
 
-        stateGL->viewport(0, 0, _textureSize.x, _textureSize.y);
+        stateGL->viewportFB(0, 0, _textureSize.x, _textureSize.y);
 
         // Clear color buffer
         stateGL->clearColor(SLCol4f::BLACK);
