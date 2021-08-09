@@ -66,6 +66,11 @@ class SLMat3
                                 T M1, T M4, T M7,
                                 T M2, T M5, T M8);
         void        m           (int i, T val) {assert(i>=0 && i<9); _m[i] = val;}
+
+        // Getters
+  const T*          m           () const        {return _m;}
+        T           m           (int i) const   {assert(i>=0 && i<9); return _m[i];}
+
       
         // Overloaded operators                         
         SLMat3<T>&  operator=   (const SLMat3& A);

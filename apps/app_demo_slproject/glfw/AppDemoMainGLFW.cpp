@@ -195,11 +195,6 @@ static void onResize(GLFWwindow* myWindow, int width, int height)
     // width & height are in screen coords.
     slResize(svIndex, width, height);
 
-    //update glfw window with new size but keep position
-    int curW = 0, curH = 0;
-    glfwGetWindowPos(myWindow, &curW, &curH);
-    glfwSetWindowSize(myWindow, width, height);
-    glfwSetWindowPos(myWindow, curW, curH);
     onPaint();
 }
 //-----------------------------------------------------------------------------
