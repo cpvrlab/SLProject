@@ -499,7 +499,7 @@ void SLShadowMap::renderDirectionalLightCascaded(SLSceneView* sv, SLNode* root)
         }
     }
 
-    SLMat4f              cm       = _camera->updateAndGetWM(); // camera to world space
+    SLMat4f              cm       = _camera->updateAndGetWM(); // camera space to world space
     SLNode*              node     = dynamic_cast<SLNode*>(_light);
     std::vector<SLVec2f> cascades = _camera->getShadowMapCascades();
 
@@ -512,16 +512,14 @@ void SLShadowMap::renderDirectionalLightCascaded(SLSceneView* sv, SLNode* root)
         SLVec3f v  = cm.translation() - cm.axisZ().normalized() * (ni + fi) * 0.5f;
 
         SLMat4f lv; // world space to light space
-        SLMat4f lp; // light space to light projected
         lv.lookAt(v, v + node->forwardOS(), node->upWS());
-        lp.ortho(-_halfSize.x, _halfSize.x, -_halfSize.y, _halfSize.y, -1, 1); //TODO NEAR FAR CLIP LIGHT
 
         SLVec3f frustumPoints[8];
         SLFrustum::getPointsEyeSpace(frustumPoints, _camera->fovV(), sv->scrWdivH(), ni, fi);
 
         float minx = 99999, miny = 99999;
         float maxx = -99999, maxy = -99999;
-        float minz = 99999;
+        float minz = 99999, maxz = -99999;
         for (int j = 0; j < 8; j++)
         {
             SLVec3f fp = lv * cm * frustumPoints[j];
@@ -535,8 +533,9 @@ void SLShadowMap::renderDirectionalLightCascaded(SLSceneView* sv, SLNode* root)
                 maxy = fp.y;
             if (fp.z < minz)
                 minz = fp.z;
+            if (fp.z > maxz)
+                maxz = fp.z;
         }
-        float maxz = -minz;
 
         float   sx = 2.f / (maxx - minx);
         float   sy = 2.f / (maxy - miny);
@@ -545,7 +544,7 @@ void SLShadowMap::renderDirectionalLightCascaded(SLSceneView* sv, SLNode* root)
         sy         = sy > 0.005 ? sy : 0.005;
         sz         = sz < -0.005 ? sz : -0.005;
 
-        SLVec3f t  = SLVec3f(-0.5f * (maxx + minx), -0.5f * (maxy + miny), 0.5f * (maxz + minz));
+        SLVec3f t  = SLVec3f(-0.5f * (maxx + minx), -0.5f * (maxy + miny), -0.5f * (maxz + minz));
         SLMat4f C;
         C.identity();
         C.scale(sx, sy, sz);
