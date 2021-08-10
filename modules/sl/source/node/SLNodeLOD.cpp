@@ -36,12 +36,15 @@ void SLNodeLOD::addChildLOD(SLNode* childToAdd, SLfloat minLodCoverage)
 
     childToAdd->minLodCoverage(minLodCoverage);
     addChild(childToAdd);
+
+    // Set new node hidden, so they won't be shadowed
+    // Only the LOD algorithm in cullChildren3D can make them visible
+    childToAdd->drawBits()->set(SL_DB_HIDDEN, true);
 }
 //-----------------------------------------------------------------------------
 //! Culls the LOD children by evaluating the the screen space coverage
 void SLNodeLOD::cullChildren3D(SLSceneView* sv)
 {
-
     if (!_children.empty())
     {
         SLfloat rectCoverage = _aabb.rectCoverageInSS(sv->scr2fbX(), sv->scr2fbY());

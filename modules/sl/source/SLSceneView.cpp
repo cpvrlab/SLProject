@@ -667,7 +667,7 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     _shadowMapTimeMS = GlobalTimer::timeMS() - startMS;
 
     /////////////////////////
-    // 2. Do camera Update //
+    // 2. Do camera update //
     /////////////////////////
 
     startMS = GlobalTimer::timeMS();
@@ -678,7 +678,7 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     SLbool camUpdated = _camera->camUpdate(this, elapsedTimeMS);
 
     //////////////////////
-    // 3. Clear Buffers //
+    // 3. Clear buffers //
     //////////////////////
 
     // Render into framebuffer if Oculus stereo projection is used
@@ -715,7 +715,7 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     stateGL->depthTest(_doDepthTest);
 
     //////////////////////////////
-    // 6. Set Projection & View //
+    // 6. Set projection & View //
     //////////////////////////////
 
     // Set projection
@@ -733,7 +733,7 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     }
 
     ////////////////////////
-    // 7. Frustum Culling //
+    // 7. Frustum culling //
     ////////////////////////
 
     // Delete all visible nodes from the last frame
