@@ -104,11 +104,13 @@ private:
     SLVec2i                       _textureSize;  //!< Size of the shadow map texture
     SLCamera*                     _camera;
 
-    void drawNodesIntoDepthBufferHelper(SLNode* node, SLSceneView* sv, SLMat4f& p, SLMat4f& v, SLPlane *planes);
+    void drawNodesIntoDepthBufferCulling(SLNode* node, SLSceneView* sv, SLMat4f& p, SLMat4f& v, SLPlane *planes);
 
     void drawNodesIntoDepthBuffer(SLNode* node, SLSceneView* sv, SLMat4f& p, SLMat4f& v);
 
-    void drawNodesDirectionalHelper(SLNode* node, SLSceneView* sv, SLMat4f& P, SLMat4f& lv, SLPlane* planes);
+    void findOptimalNearPlane(SLNode* node, SLSceneView* sv, SLMat4f& P, SLMat4f& lv, SLPlane* planes, std::vector<SLNode*>& visibleNodes);
+
+    void drawNodesDirectionalCulling(std::vector<SLNode*> visibleNodes, SLSceneView* sv, SLMat4f& P, SLMat4f& lv, SLPlane* planes);
 
     void drawNodesDirectional(SLNode* node, SLSceneView* sv, SLMat4f& P, SLMat4f& lv);
 };

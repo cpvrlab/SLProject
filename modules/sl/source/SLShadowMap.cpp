@@ -260,17 +260,17 @@ void SLShadowMap::updateMVP()
         _mvp[i] = _p[i] * _v[i];
 }
 //-----------------------------------------------------------------------------
-/*!
-SLShadowMap::drawNodesIntoDepthBuffer recursively renders all objects which
-cast shadows
-*/
 
-void SLShadowMap::drawNodesDirectionalHelper(SLNode*      node,
-                                             SLSceneView* sv,
-                                             SLMat4f&     P,
-                                             SLMat4f&     lv,
-                                             SLPlane*     planes)
+void SLShadowMap::findOptimalNearPlane(SLNode*               node,
+                                       SLSceneView*          sv,
+                                       SLMat4f&              P,
+                                       SLMat4f&              lv,
+                                       SLPlane*              planes,
+                                       std::vector<SLNode*>& visibleNodes)
 {
+    if (node->drawBit(SL_DB_HIDDEN))
+        return;
+
     for (int i = 0; i < 4; i++)
     {
         SLPlane p        = planes[i];
@@ -293,13 +293,48 @@ void SLShadowMap::drawNodesDirectionalHelper(SLNode*      node,
 
         float n = (2 * b / a + 2 / a) * 0.5;
         float f = n - 2 / a;
-        n += distance;
+        n += (distance - node->aabb()->radiusWS());
         P.m(10, -2 / (f - n));
         P.m(14, -(f + n) / (f - n));
 
         SLFrustum::viewToFrustumPlanes(planes, P, lv);
     }
 
+    visibleNodes.push_back(node);
+ 
+    for (SLNode* child : node->children())
+        findOptimalNearPlane(child, sv, P, lv, planes, visibleNodes);
+}
+
+//-----------------------------------------------------------------------------
+/*!
+SLShadowMap::drawNodesIntoDepthBuffer recursively renders all objects which
+cast shadows
+*/
+void SLShadowMap::drawNodesDirectionalCulling(std::vector<SLNode*> visibleNodes,
+                                              SLSceneView* sv,
+                                              SLMat4f&     P,
+                                              SLMat4f&     lv,
+                                              SLPlane*     planes)
+{
+    for (SLNode* node : visibleNodes)
+    {
+        SLGLState* stateGL        = SLGLState::instance();
+        stateGL->modelViewMatrix  = lv * node->updateAndGetWM();
+        stateGL->projectionMatrix = P;
+
+        if (node->castsShadows() &&
+            node->mesh() &&
+            node->mesh()->primitive() >= GL_TRIANGLES)
+            node->mesh()->drawIntoDepthBuffer(sv, node, _mat);
+    }
+}
+
+void SLShadowMap::drawNodesDirectional(SLNode*      node,
+                                       SLSceneView* sv,
+                                       SLMat4f&     P,
+                                       SLMat4f&     lv)
+{
     SLGLState* stateGL        = SLGLState::instance();
     stateGL->modelViewMatrix  = lv * node->updateAndGetWM();
     stateGL->projectionMatrix = P;
@@ -310,29 +345,14 @@ void SLShadowMap::drawNodesDirectionalHelper(SLNode*      node,
         node->mesh()->drawIntoDepthBuffer(sv, node, _mat);
 
     for (SLNode* child : node->children())
-        drawNodesDirectionalHelper(child, sv, P, lv, planes);
+        drawNodesDirectional(child, sv, P, lv);
 }
 
-void SLShadowMap::drawNodesDirectional(SLNode*      node,
-                                       SLSceneView* sv,
-                                       SLMat4f&     P,
-                                       SLMat4f&     lv)
-{
-    SLPlane planes[6];
-    SLFrustum::viewToFrustumPlanes(planes, P, lv);
-
-    drawNodesDirectionalHelper(node,
-                               sv,
-                               P,
-                               lv,
-                               planes);
-}
-
-void SLShadowMap::drawNodesIntoDepthBufferHelper(SLNode*      node,
-                                                 SLSceneView* sv,
-                                                 SLMat4f&     P,
-                                                 SLMat4f&     lv,
-                                                 SLPlane*     planes)
+void SLShadowMap::drawNodesIntoDepthBufferCulling(SLNode*      node,
+                                                  SLSceneView* sv,
+                                                  SLMat4f&     P,
+                                                  SLMat4f&     lv,
+                                                  SLPlane*     planes)
 {
     if (node->drawBit(SL_DB_HIDDEN))
         return;
@@ -354,7 +374,7 @@ void SLShadowMap::drawNodesIntoDepthBufferHelper(SLNode*      node,
         node->mesh()->drawIntoDepthBuffer(sv, node, _mat);
 
     for (SLNode* child : node->children())
-        drawNodesIntoDepthBufferHelper(child, sv, P, lv, planes);
+        drawNodesIntoDepthBufferCulling(child, sv, P, lv, planes);
 }
 
 void SLShadowMap::drawNodesIntoDepthBuffer(SLNode*      node,
@@ -362,10 +382,21 @@ void SLShadowMap::drawNodesIntoDepthBuffer(SLNode*      node,
                                            SLMat4f&     P,
                                            SLMat4f&     v)
 {
-    SLPlane planes[6];
-    SLFrustum::viewToFrustumPlanes(planes, P, v);
-    drawNodesIntoDepthBufferHelper(node, sv, P, v, planes);
+    if (node->drawBit(SL_DB_HIDDEN))
+        return;
+    SLGLState* stateGL        = SLGLState::instance();
+    stateGL->modelViewMatrix  = v * node->updateAndGetWM();
+    stateGL->projectionMatrix = P;
+
+    if (node->castsShadows() &&
+        node->mesh() &&
+        node->mesh()->primitive() >= GL_TRIANGLES)
+        node->mesh()->drawIntoDepthBuffer(sv, node, _mat);
+
+    for (SLNode* child : node->children())
+        drawNodesIntoDepthBuffer(child, sv, P, v);
 }
+
 //-----------------------------------------------------------------------------
 /*! SLShadowMap::render renders the shadow map of the light
 */
@@ -556,10 +587,6 @@ void SLShadowMap::renderDirectionalLightCascaded(SLSceneView* sv, SLNode* root)
         stateGL->viewMatrix       = lv;
         stateGL->projectionMatrix = C;
 
-        _v[i]   = lv;
-        _p[i]   = C;
-        _mvp[i] = _p[i] * lv;
-
         stateGL->viewportFB(0, 0, _textureSize.x, _textureSize.y);
 
         // Clear color buffer
@@ -568,7 +595,17 @@ void SLShadowMap::renderDirectionalLightCascaded(SLSceneView* sv, SLNode* root)
 
         // Draw meshes
         //drawNodesIntoDepthBuffer(root, sv, C, lv);
-        drawNodesDirectional(root, sv, C, lv);
+        SLPlane planes[6];
+        SLFrustum::viewToFrustumPlanes(planes, C, lv);
+
+        std::vector<SLNode*> visibleNodes;
+        findOptimalNearPlane(root, sv, C, lv, planes, visibleNodes);
+
+        _v[i]   = lv;
+        _p[i]   = C;
+        _mvp[i] = _p[i] * lv;
+
+        drawNodesDirectionalCulling (visibleNodes, sv, C, lv, planes);
 
         _depthBuffers[i]->unbind();
     }
