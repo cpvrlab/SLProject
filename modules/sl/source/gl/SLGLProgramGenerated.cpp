@@ -817,7 +817,12 @@ void SLGLProgramGenerated::buildProgramName(SLMaterial* mat,
     for (auto light : *lights)
     {
         if (light->positionWS().w == 0.0f)
-            programName += "D"; // Directional light
+        {
+            if (light->doCascadedShadows())
+                programName += "C"; // Directional light with cascaded shadowmap
+            else
+                programName += "D"; // Directional light
+        }
         else if (light->spotCutOffDEG() < 180.0f)
             programName += "S"; // Spot light
         else
@@ -1809,24 +1814,27 @@ float shadowTest(in int i, in vec3 N, in vec3 lightDir)
             "            else if (-v_P_VS.z < u_camCascadeDepth[" + std::to_string(i) + "]) { index = " + std::to_string(i) + "; }\n";
         }
 
-        shadowTestCode += "            lightSpace = u_lightSpace[i * 6 + index];";
         shadowTestCode += R"(
-
+            lightSpace = u_lightSpace[i * 6 + index];
         }
+
         else if (u_lightUsesCubemap[i])
-            lightSpace = u_lightSpace[i * 6 + vectorToFace(lightToFragment)];)";
+            lightSpace = u_lightSpace[i * 6 + vectorToFace(lightToFragment)];
+        else
+            lightSpace = u_lightSpace[i * 6];
+        )";
     }
     else
     {
-  shadowTestCode += R"(
+        shadowTestCode += R"(
         if (u_lightUsesCubemap[i])
-            lightSpace = u_lightSpace[i * 6 + vectorToFace(lightToFragment)];)";
-    }
-    
-shadowTestCode += R"(
+            lightSpace = u_lightSpace[i * 6 + vectorToFace(lightToFragment)];
         else
             lightSpace = u_lightSpace[i * 6];
+        )";
+    }
 
+    shadowTestCode += R"(
         vec4 lightSpacePosition = lightSpace * vec4(v_P_WS, 1.0);
 
         // Normalize lightSpacePosition
@@ -1845,41 +1853,36 @@ shadowTestCode += R"(
         float bias = max(u_lightShadowMaxBias[i] * (1.0 - dot(N, lightDir)), u_lightShadowMinBias[i]);
 
         // Use percentage-closer filtering (PCF) for softer shadows (if enabled)
-        if (!u_lightUsesCubemap[i] && u_lightDoSmoothShadows[i])
+        if (u_lightDoSmoothShadows[i])
         {
+            int level = u_lightSmoothShadowLevel[i];
             vec2 texelSize;
 )";
 
     for (SLuint i = 0; i < lights->size(); ++i)
     {
-        SLLight*     light     = lights->at(i);
-        SLShadowMap* shadowMap = light->shadowMap();
-        if (!shadowMap->useCubemap() && !light->doCascadedShadows())
-            shadowTestCode += "            if (i == " +
-                              to_string(i) + ") texelSize = 1.0 / vec2(textureSize(u_shadowMap_" +
-                              to_string(i) + ", 0));\n";
-    }
-
-    shadowTestCode += R"(
-            int level = u_lightSmoothShadowLevel[i];
-
-            for (int x = -level; x <= level; ++x)
-            {
-                for (int y = -level; y <= level; ++y)
+        SLShadowMap* shadowMap = lights->at(i)->shadowMap();
+        if (!shadowMap->useCascaded() && !shadowMap->useCubemap())
+            shadowTestCode += "            if (i == " + to_string(i) + ") texelSize = 1.0 / vec2(textureSize(u_shadowMap_" + to_string(i) + ", 0));\n";
+        else if (shadowMap->useCascaded())
+            shadowTestCode += "            if (i == " + to_string(i) + ") texelSize = 1.0 / vec2(textureSize(u_cascadedShadowMap_" + to_string(i) + "[index]" + ", 0));\n";
+        }
+        shadowTestCode += R"(
+                for (int x = -level; x <= level; ++x)
                 {
-)";
+                    for (int y = -level; y <= level; ++y)
+                    {
+                        )";
+        for (SLuint i = 0; i < lights->size(); ++i)
+        {
+            SLShadowMap* shadowMap = lights->at(i)->shadowMap();
+            if (!shadowMap->useCascaded() && !shadowMap->useCubemap())
+                shadowTestCode += "            if (i == " + to_string(i) + ") closestDepth = texture(u_shadowMap_" + to_string(i) + ", projCoords.xy + vec2(x, y) * texelSize).r;\n";
+            else if (shadowMap->useCascaded())
+                shadowTestCode += "            if (i == " + to_string(i) + ") closestDepth = texture(u_cascadedShadowMap_" + to_string(i) + "[index]" + ", projCoords.xy + vec2(x, y) * texelSize).r;\n";
+        }
 
-    for (SLuint i = 0; i < lights->size(); ++i)
-    {
-        SLLight*     light     = lights->at(i);
-        SLShadowMap* shadowMap = light->shadowMap();
-        if (!shadowMap->useCubemap() && !light->doCascadedShadows())
-            shadowTestCode += "                    if (i == " +
-                              to_string(i) + ") closestDepth = texture(u_shadowMap_" +
-                              to_string(i) + ", projCoords.xy + vec2(x, y) * texelSize).r;\n";
-    }
-
-    shadowTestCode += R"(
+        shadowTestCode += R"(
                     shadow += currentDepth - bias > closestDepth ? 1.0 : 0.0;
                 }
             }
@@ -1890,29 +1893,22 @@ shadowTestCode += R"(
             if (u_lightUsesCubemap[i])
             {
 )";
-
-    for (SLuint i = 0; i < lights->size(); ++i)
-    {
-        SLLight*     light     = lights->at(i);
-        SLShadowMap* shadowMap = light->shadowMap();
-        if (shadowMap->useCubemap() && !light->doCascadedShadows())
-            shadowTestCode += "                if (i == " +
-                              to_string(i) + ") closestDepth = texture(u_shadowMapCube_" +
-                              to_string(i) + ", lightToFragment).r;\n";
+        for (SLuint i = 0; i < lights->size(); ++i)
+        {
+            SLShadowMap* shadowMap =  lights->at(i)->shadowMap();
+            if (shadowMap->useCubemap())
+                shadowTestCode += "                if (i == " + to_string(i) + ") closestDepth = texture(u_shadowMapCube_" + to_string(i) + ", lightToFragment).r;\n";
     }
-
     shadowTestCode += R"(
             }
             else if (u_lightDoCascadedShadows[i])
             {
 )";
-
     for (SLuint i = 0; i < lights->size(); ++i)
     {
         SLLight* light = lights->at(i);
         if (light->doCascadedShadows())
         {
-            SLShadowMap* shadowMap = light->shadowMap();
             shadowTestCode += "                if (i == " + to_string(i) + ") { closestDepth = texture(u_cascadedShadowMap_" + to_string(i) + "[index]" + ", projCoords.xy).r; }\n";
         }
     }
@@ -1925,13 +1921,9 @@ shadowTestCode += R"(
 
     for (SLuint i = 0; i < lights->size(); ++i)
     {
-        SLLight*     light     = lights->at(i);
-        SLShadowMap* shadowMap = light->shadowMap();
-        if (!shadowMap->useCubemap() && !light->doCascadedShadows())
-            shadowTestCode += "                if (i == " +
-                              to_string(i) + ") closestDepth = texture(u_shadowMap_" +
-                              to_string(i) + ", projCoords.xy).r;\n";
-    }
+        SLShadowMap* shadowMap = lights->at(i)->shadowMap();
+        if (!shadowMap->useCubemap() && !shadowMap->useCascaded())
+            shadowTestCode += "                if (i == " + to_string(i) + ") closestDepth = texture(u_shadowMap_" + to_string(i) + ", projCoords.xy).r;\n"; }
 
     shadowTestCode += R"(
             }
@@ -1993,17 +1985,8 @@ float shadowTest(in int i, in vec3 N, in vec3 lightDir)
             float bias = max(u_lightShadowMaxBias[i] * (1.0 - dot(N, lightDir)), u_lightShadowMinBias[i]);
     )";
 
-    for (SLuint i = 0; i < lights->size(); ++i)
-    {
-        SLLight* light = lights->at(i);
-        if (light->doCascadedShadows())
-        {
-            SLShadowMap* shadowMap = light->shadowMap();
-            shadowTestCode += "                if (i == " + to_string(i) + ") { closestDepth = texture(u_cascadedShadowMap_" + to_string(i) + "[index]" + ", projCoords.xy).r; }\n";
-        }
-    }
-
     shadowTestCode += R"(
+        if (u_lightDoCascadedShadows[i]) { closestDepth = texture(u_cascadedShadowMap_" + to_string(i) + "[index]" + ", projCoords.xy).r; }
         // The fragment is in shadow if the light doesn't "see" it
         if (currentDepth > closestDepth + bias)
             return 1.0f;

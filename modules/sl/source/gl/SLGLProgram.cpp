@@ -220,7 +220,6 @@ void SLGLProgram::init(SLVLight* lights)
         }
     }
     else {
-        Utils::log("SLGLProgram", "hello my name ich michael");
         SL_EXIT_MSG("No successfully compiled shaders attached!");
     }
 
