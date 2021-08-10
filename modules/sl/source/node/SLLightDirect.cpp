@@ -172,6 +172,7 @@ void SLLightDirect::drawMesh(SLSceneView* sv)
     }
 }
 //-----------------------------------------------------------------------------
+//!< Request for single shadow map with specified size
 void SLLightDirect::createShadowMap(float   clipNear,
                                     float   clipFar,
                                     SLVec2f size,
@@ -187,7 +188,15 @@ void SLLightDirect::createShadowMap(float   clipNear,
                                  size,
                                  texSize);
 }
-
+//-----------------------------------------------------------------------------
+//!< Request for cascaded shadow maps with automatic size calculation.
+/*!
+ * Creates the shadows with multiple shadow maps (cascades) with automatically
+ * calculated size depending on the cameras view frustum.
+ * @param camera Camera for witch the shadow cascaded are automatically calculated.
+ * @param size This size will be automatically adapted to the cameras frustum
+ * @param texSize Size of the cascades
+ */
 void SLLightDirect::createShadowMap(SLCamera* camera,
                                     SLVec2f size,
                                     SLVec2i texSize)

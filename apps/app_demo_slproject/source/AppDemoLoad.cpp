@@ -2359,16 +2359,14 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(cam1);
         s->root3D(scene);
     }
-    else if (sceneID == SID_ShadowMappingCascaded) //............................................
+    else if (sceneID == SID_ShadowMappingCascaded) //..............................................
     {
-        s->name("Shadow Mapping Basic Scene");
-        s->info("Shadow Mapping is a technique to render shadows.");
+        s->name("Cascaded Shadow Mapping Test Scene");
+        s->info("Cascaded Shadow Mapping uses several cascades of shadow maps to provide higher \
+resolution shadows near the camera and lower resolution shadows further away.");
 
         // Setup shadow mapping material
-        //SLGLProgram* progPerPixSM = new SLGLProgramGeneric(s,
-        //                                                   shaderPath + "PerPixBlinnSm.vert",
-        //                                                   shaderPath + "PerPixBlinnSm.frag");
-        SLMaterial* matPerPixSM = new SLMaterial(s, "m1"); //, SLCol4f::WHITE, SLCol4f::WHITE, 500, 0, 0, 1, progPerPixSM);
+        SLMaterial* matPerPixSM = new SLMaterial(s, "m1");
 
         // Base root group node for the scene
         SLNode* scene = new SLNode;
@@ -2384,12 +2382,12 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         // Create light source
         // Do constant attenuation for directional lights since it is infinitely far away
         SLLightDirect* light = new SLLightDirect(s, s);
-        light->doCascadedShadows(true);
         light->powers(0.0f, 1.0f, 1.0f);
         light->translation(0, 5, 0);
         light->lookAt(0, 0, 0);
         light->attenuation(1, 0, 0);
         light->createsShadows(true);
+        light->doCascadedShadows(true);
         light->createShadowMap(cam1);
         light->shadowMap()->rayCount(SLVec2i(16, 16));
         light->castsShadows(false);
