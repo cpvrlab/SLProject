@@ -2594,7 +2594,10 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
             SLProjection proj = cam->projection();
 
             if (ImGui::MenuItem("Reset"))
+            {
                 cam->resetToInitialState();
+                cam->focalDist(cam->translationOS().length());
+            }
 
             if (ImGui::BeginMenu("Look from"))
             {

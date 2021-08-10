@@ -2382,12 +2382,12 @@ resolution shadows near the camera and lower resolution shadows further away.");
         // Create light source
         // Do constant attenuation for directional lights since it is infinitely far away
         SLLightDirect* light = new SLLightDirect(s, s);
+        light->doCascadedShadows(true);
         light->powers(0.0f, 1.0f, 1.0f);
         light->translation(0, 5, 0);
         light->lookAt(0, 0, 0);
         light->attenuation(1, 0, 0);
         light->createsShadows(true);
-        light->doCascadedShadows(true);
         light->createShadowMap(cam1);
         light->shadowMap()->rayCount(SLVec2i(16, 16));
         light->castsShadows(false);
@@ -5876,9 +5876,10 @@ resolution shadows near the camera and lower resolution shadows further away.");
                     string     strLOD    = "LOD" + std::to_string(iZX);
                     SLNodeLOD* lod_group = new SLNodeLOD(strLOD);
                     lod_group->translate(x, 0, z, TS_object);
-                    lod_group->addChildLOD(new SLNode(columnL1->mesh(), "Column-L0"), 0.1f);
-                    lod_group->addChildLOD(new SLNode(columnL2->mesh(), "Column-L1"), 0.01f);
-                    lod_group->addChildLOD(new SLNode(columnL3->mesh(), "Column-L2"), 0.0001f);
+                    lod_group->addChildLOD(new SLNode(columnL0->mesh(), "Column-L0"), 0.1f);
+                    lod_group->addChildLOD(new SLNode(columnL1->mesh(), "Column-L1"), 0.01f);
+                    lod_group->addChildLOD(new SLNode(columnL2->mesh(), "Column-L2"), 0.001f);
+                    lod_group->addChildLOD(new SLNode(columnL3->mesh(), "Column-L3"), 0.0001f);
                     scene->addChild(lod_group);
                     x += offset;
                 }
