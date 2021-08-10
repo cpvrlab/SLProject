@@ -45,13 +45,15 @@ SLShadowMap::SLShadowMap(SLProjection   projection,
     _halfSize     = _size / 2;
     _textureSize  = texSize;
     _camera       = nullptr;
+    _nbCascades   = 0;
 }
 //-----------------------------------------------------------------------------
 SLShadowMap::SLShadowMap(SLProjection   projection,
                          SLLight*       light,
                          SLCamera*      camera,
                          const SLVec2f& size,
-                         const SLVec2i& texSize)
+                         const SLVec2i& texSize,
+                         int            nbCascades)
 {
     PROFILE_FUNCTION();
 
@@ -64,6 +66,7 @@ SLShadowMap::SLShadowMap(SLProjection   projection,
     _rayCount     = SLVec2i(0, 0);
     _mat          = nullptr;
     _camera       = camera;
+    _nbCascades   = nbCascades;
     _size         = size;
     _halfSize     = _size / 2;
     _textureSize  = texSize;
@@ -489,6 +492,24 @@ void SLShadowMap::render(SLSceneView* sv, SLNode* root)
 
 #include <algorithm>
 
+std::vector<SLVec2f> SLShadowMap::getShadowMapCascades(int nbCascades, float n, float f)
+{
+    std::vector<SLVec2f> cascades;
+
+    float ni = n;
+    float fi = n;
+
+    float factor = 30.0f;
+
+    for (int i = 0; i < nbCascades; i++)
+    {
+        ni = fi;
+        fi = factor * n * pow((f/(factor*n)), (float)(i+1)/(float)nbCascades);
+        cascades.push_back(SLVec2f(ni, fi));
+    }
+    return cascades;
+}
+
 void SLShadowMap::renderDirectionalLightCascaded(SLSceneView* sv, SLNode* root)
 {
     _useCascaded       = true;
@@ -517,9 +538,13 @@ void SLShadowMap::renderDirectionalLightCascaded(SLSceneView* sv, SLNode* root)
         _depthBuffers.erase(_depthBuffers.begin(), _depthBuffers.end());
     }
 
+    std::vector<SLVec2f> cascades = getShadowMapCascades(4, _camera->clipNear(), _camera->clipFar());
+    SLMat4f              cm       = _camera->updateAndGetWM(); // camera space to world space
+    SLNode*              node     = dynamic_cast<SLNode*>(_light);
+
     if (_depthBuffers.size() == 0)
     {
-        for (int i = 0; i < _camera->getShadowMapCascades().size(); i++)
+        for (int i = 0; i < cascades.size(); i++)
         {
             _depthBuffers.push_back(new SLGLDepthBuffer(_textureSize,
                                                         GL_NEAREST,
@@ -530,13 +555,8 @@ void SLShadowMap::renderDirectionalLightCascaded(SLSceneView* sv, SLNode* root)
         }
     }
 
-    SLMat4f              cm       = _camera->updateAndGetWM(); // camera space to world space
-    SLNode*              node     = dynamic_cast<SLNode*>(_light);
-    std::vector<SLVec2f> cascades = _camera->getShadowMapCascades();
-
-    _nbCascades = cascades.size();
     // for all subdivision of frustum
-    for (int i = 0; i < _nbCascades; i++)
+    for (int i = 0; i < cascades.size(); i++)
     {
         float   ni = cascades[i].x;
         float   fi = cascades[i].y;
@@ -548,9 +568,9 @@ void SLShadowMap::renderDirectionalLightCascaded(SLSceneView* sv, SLNode* root)
         SLVec3f frustumPoints[8];
         SLFrustum::getPointsEyeSpace(frustumPoints, _camera->fovV(), sv->scrWdivH(), ni, fi);
 
-        float minx = 99999, miny = 99999;
-        float maxx = -99999, maxy = -99999;
-        float minz = 99999, maxz = -99999;
+        float minx = FLT_MAX, maxx = FLT_MIN;
+        float miny = FLT_MAX, maxy = FLT_MIN;
+        float minz = FLT_MAX, maxz = FLT_MIN;
         for (int j = 0; j < 8; j++)
         {
             SLVec3f fp = lv * cm * frustumPoints[j];

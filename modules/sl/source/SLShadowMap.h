@@ -37,20 +37,21 @@ lights.
 class SLShadowMap
 {
 public:
-    SLShadowMap(SLProjection projection,
-                SLLight*     light,
-                float        clipNear = 0.1f,
-                float        clipFar  = 20.0f,
-                const SLVec2f&      size     = SLVec2f(8, 8),
-                const SLVec2i&      texSize  = SLVec2i(1024, 1024));
+    SLShadowMap(SLProjection   projection,
+                SLLight*       light,
+                float          clipNear = 0.1f,
+                float          clipFar  = 20.0f,
+                const SLVec2f& size     = SLVec2f(8, 8),
+                const SLVec2i& texSize  = SLVec2i(1024, 1024));
 
     SLShadowMap(SLProjection   projection,
                 SLLight*       light,
                 SLCamera*      camera,
-                const SLVec2f& size    = SLVec2f(8, 8),
-                const SLVec2i& texSize = SLVec2i(1024, 1024));
+                const SLVec2f& size       = SLVec2f(8, 8),
+                const SLVec2i& texSize    = SLVec2i(1024, 1024),
+                int            nbCascades = 4);
 
-      ~SLShadowMap();
+    ~SLShadowMap();
 
     // Setters
     void useCubemap(SLbool useCubemap) { _useCubemap = useCubemap; }
@@ -76,6 +77,7 @@ public:
     SLfloat                       clipFar() const { return _clipFar; }
     SLVec2f                       size() { return _size; }
     SLVec2i                       textureSize() { return _textureSize; }
+    int                           nbCascades() { return _nbCascades; }
 
     // Other methods
     void drawFrustum();
@@ -104,14 +106,12 @@ private:
     SLVec2i                       _textureSize;  //!< Size of the shadow map texture
     SLCamera*                     _camera;
 
+
+    std::vector<SLVec2f> getShadowMapCascades(int nbCascades, float n, float f);
     void drawNodesIntoDepthBufferCulling(SLNode* node, SLSceneView* sv, SLMat4f& p, SLMat4f& v, SLPlane *planes);
-
     void drawNodesIntoDepthBuffer(SLNode* node, SLSceneView* sv, SLMat4f& p, SLMat4f& v);
-
     void findOptimalNearPlane(SLNode* node, SLSceneView* sv, SLMat4f& P, SLMat4f& lv, SLPlane* planes, std::vector<SLNode*>& visibleNodes);
-
     void drawNodesDirectionalCulling(std::vector<SLNode*> visibleNodes, SLSceneView* sv, SLMat4f& P, SLMat4f& lv, SLPlane* planes);
-
     void drawNodesDirectional(SLNode* node, SLSceneView* sv, SLMat4f& P, SLMat4f& lv);
 };
 //-----------------------------------------------------------------------------

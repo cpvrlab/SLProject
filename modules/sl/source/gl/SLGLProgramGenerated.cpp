@@ -130,7 +130,7 @@ const string fragInputs_u_lightSm = R"(
 uniform vec4        u_lightPosWS[NUM_LIGHTS];               // position of light in world space
 uniform mat4        u_lightSpace[NUM_LIGHTS * 6];           // projection matrices for lights
 uniform bool        u_lightCreatesShadows[NUM_LIGHTS];      // flag if light creates shadows
-uniform bool        u_lightDoCascadedShadows[NUM_LIGHTS];   // flag if light creates shadows
+uniform int         u_lightNbCascades[NUM_LIGHTS];          // number of cascades for cascaded shadowmap
 uniform bool        u_lightDoSmoothShadows[NUM_LIGHTS];     // flag if percentage-closer filtering is enabled
 uniform int         u_lightSmoothShadowLevel[NUM_LIGHTS];   // radius of area to sample for PCF
 uniform float       u_lightShadowMinBias[NUM_LIGHTS];       // min. shadow bias value at 0° to N
@@ -212,6 +212,8 @@ uniform bool        u_matGetsShadows;   // flag if material receives shadows
 )";
 //-----------------------------------------------------------------------------
 const string fragInputs_u_cam = R"(
+uniform float       u_camNearPlane;     // near plane distance
+uniform float       u_camFarPlane;      // far plane distance
 uniform int         u_camProjection;    // type of stereo
 uniform int         u_camStereoEye;     // -1=left, 0=center, 1=right
 uniform mat3        u_camStereoColors;  // color filter matrix
@@ -856,8 +858,6 @@ void SLGLProgramGenerated::buildProgramCode(SLMaterial* mat,
     // Check if any of the scene lights does shadow mapping
     bool Sm = lightsDoShadowMapping(lights);
 
-    buildPerPixBlinnSc(lights);
-
     if (mat->lightModel() == LM_BlinnPhong)
     {
         if (Tm && Nm && Ao && Sm)
@@ -1452,62 +1452,6 @@ in      vec3        v_N_VS;     // Interpol. normal at v_P_VS in view space
     addCodeToShader(_shaders[1], fragCode, _name + ".frag");
 }
 //-----------------------------------------------------------------------------
-void SLGLProgramGenerated::buildPerPixBlinnSc(SLVLight* lights)
-{
-    // Assemble vertex shader code
-    string vertCode;
-    vertCode += shaderHeader((int)lights->size());
-    vertCode += vertInputs_a_pn;
-    vertCode += vertInputs_u_matrices;
-    vertCode += vertOutputs_v_P_VS;
-    vertCode += vertOutputs_v_P_WS;
-    vertCode += vertOutputs_v_N_VS;
-    vertCode += vertMainBlinn_BeginAll;
-    vertCode += vertMainBlinn_v_P_WS_Sm;
-    vertCode += vertMainBlinn_v_N_VS;
-    vertCode += vertMainBlinn_EndAll;
-    addCodeToShader(_shaders[0], vertCode, _name + ".vert");
-
-    int nbCascade = 0;
-    for (SLLight * light : *lights)
-    {
-        if (light->doCascadedShadows())
-        {
-            int n = light->shadowMap()->depthBuffers().size();
-            if (nbCascade != 0 && n != nbCascade)
-                std::cout << "error" << std::endl;
-            nbCascade = n;
-        }
-    }
-
-    // Assemble fragment shader code
-    string fragCode;
-    fragCode += shaderHeader((int)lights->size(), nbCascade);
-    fragCode += R"(
-in      vec3        v_P_VS;     // Interpol. point of illumination in view space (VS)
-in      vec3        v_P_WS;     // Interpol. point of illumination in world space (WS)
-in      vec3        v_N_VS;     // Interpol. normal at v_P_VS in view space
-)";
-    fragCode += fragInputs_u_lightAll;
-    fragCode += fragInputs_u_lightSm;
-    fragCode += fragInputs_u_matAllBlinn;
-    fragCode += fragInputs_u_matSm;
-    fragCode += fragInputs_u_shadowMaps(lights);
-    fragCode += fragInputs_u_cam;
-    fragCode += fragInputs_u_camForCascaded;
-    fragCode += fragOutputs_o_fragColor;
-    fragCode += fragFunctionLightingBlinnPhong;
-    fragCode += fragFunctionFogBlend;
-    fragCode += fragFunctionDoStereoSeparation;
-    fragCode += fragShadowTestCascaded(lights, nbCascade);
-    fragCode += fragMainBlinn_0_IntensityDeclaration;
-    fragCode += fragMainBlinn_1_EN_fromVert;
-    fragCode += fragMainBlinn_2_LightLoopSm;
-    fragCode += fragMainBlinn_3_FragColor;
-    fragCode += fragMainBlinn_4_End;
-    addCodeToShader(_shaders[1], fragCode, _name + ".frag");
-}
-//-----------------------------------------------------------------------------
 void SLGLProgramGenerated::buildPerPixBlinnAo(SLVLight* lights)
 {
     // Assemble vertex shader code
@@ -1749,6 +1693,7 @@ string SLGLProgramGenerated::fragShadowTest(SLVLight* lights)
     }
 
     string shadowTestCode = R"(
+
 int vectorToFace(vec3 vec) // Vector to process
 {
     vec3 absVec = abs(vec);
@@ -1760,32 +1705,21 @@ int vectorToFace(vec3 vec) // Vector to process
         return vec.z > 0.0 ? 4 : 5;
 }
 
-int getCascadesDepthIndex(in int i)
+
+int getCascadesDepthIndex(in int i, int nbCascades)
 {
-    )";
-    if (nbCascades > 0)
+    float ni = u_camNearPlane;
+    float fi = u_camNearPlane;
+    float factor = 30.0f;
+
+    for (int i = 0; i < nbCascades-1; i++)
     {
-        shadowTestCode += R"(
-    int index = NUM_CASCADES - 1;
-    if (u_lightDoCascadedShadows[i])
-    {
-        if (-v_P_VS.z < u_camCascadeDepth[0]) { index = 0; }
-        )";
-        //For each cascades
-        for (int i = 1; i < nbCascades - 1; i++)
-        {
-            shadowTestCode +=
-            "            else if (-v_P_VS.z < u_camCascadeDepth[" + std::to_string(i) + "]) { index = " + std::to_string(i) + "; }\n";
-        }
-        shadowTestCode += "}\n";
+        ni = fi;
+        fi = factor * u_camNearPlane * pow((u_camFarPlane/(factor*u_camNearPlane)), float(i+1)/float(nbCascades));
+        if (-v_P_VS.z < fi)
+            return i;
     }
-    else
-    {
-        shadowTestCode += "    int index = 0;\n";
-    }
-    
-    shadowTestCode += R"(
-    return index;
+    return nbCascades-1;
 }
 
 float shadowTest(in int i, in vec3 N, in vec3 lightDir)
@@ -1801,23 +1735,13 @@ float shadowTest(in int i, in vec3 N, in vec3 lightDir)
     {
         shadowTestCode += R"(
 
-        int index = NUM_CASCADES - 1;
+        int index = 0;
 
-        if (u_lightDoCascadedShadows[i])
+        if (u_lightNbCascades[i] > 0)
         {
-            if (-v_P_VS.z < u_camCascadeDepth[0]) { index = 0; }
-)";
-        //For each cascades
-        for (int i = 1; i < nbCascades - 1; i++)
-        {
-            shadowTestCode +=
-            "            else if (-v_P_VS.z < u_camCascadeDepth[" + std::to_string(i) + "]) { index = " + std::to_string(i) + "; }\n";
-        }
-
-        shadowTestCode += R"(
+            index = getCascadesDepthIndex(i, u_lightNbCascades[i]);
             lightSpace = u_lightSpace[i * 6 + index];
         }
-
         else if (u_lightUsesCubemap[i])
             lightSpace = u_lightSpace[i * 6 + vectorToFace(lightToFragment)];
         else
@@ -1901,7 +1825,7 @@ float shadowTest(in int i, in vec3 N, in vec3 lightDir)
     }
     shadowTestCode += R"(
             }
-            else if (u_lightDoCascadedShadows[i])
+            else if (u_lightNbCascades[i] > 0)
             {
 )";
     for (SLuint i = 0; i < lights->size(); ++i)
@@ -1942,63 +1866,6 @@ float shadowTest(in int i, in vec3 N, in vec3 lightDir)
 
     return shadowTestCode;
 }
-//-----------------------------------------------------------------------------
-//! Adds the core shadow mapping test routine depending on the lights
-string SLGLProgramGenerated::fragShadowTestCascaded(SLVLight* lights, int nbCascades)
-{
-    string shadowTestCode = R"(
-float shadowTest(in int i, in vec3 N, in vec3 lightDir)
-{
-    if (u_lightDoCascadedShadows[i])
-    {
-        // Calculate position in light space
-        vec3 lightToFragment = v_P_WS - u_lightPosWS[i].xyz;
-
-        int index = NUM_CASCADES - 1;
-        if (-v_P_VS.z < u_camCascadeDepth[0]) { index = 0; }
-    )";
-
-    //For each cascades
-    for (int i = 1; i < nbCascades-1; i++)
-    {
-        shadowTestCode += "        else if (-v_P_VS.z < u_camCascadeDepth[" + std::to_string(i) + "]) { index = " + std::to_string(i) + "; }\n";
-    }
-
-    shadowTestCode += R"(
-            mat4 lightSpace;
-            lightSpace = u_lightSpace[i * 6 + index];
-
-            vec4 lightSpacePosition = lightSpace * vec4(v_P_WS, 1.0);
-
-            // Normalize lightSpacePosition
-            vec3 projCoords = lightSpacePosition.xyz / lightSpacePosition.w;
-
-            // Convert to texture coordinates
-            projCoords = projCoords * 0.5 + 0.5;
-
-            float currentDepth = projCoords.z;
-
-            // Look up depth from shadow map
-            float closestDepth;
-
-            // calculate bias between min. and max. bias depending on the angle between N and lightDir
-            float bias = max(u_lightShadowMaxBias[i] * (1.0 - dot(N, lightDir)), u_lightShadowMinBias[i]);
-    )";
-
-    shadowTestCode += R"(
-        if (u_lightDoCascadedShadows[i]) { closestDepth = texture(u_cascadedShadowMap_" + to_string(i) + "[index]" + ", projCoords.xy).r; }
-        // The fragment is in shadow if the light doesn't "see" it
-        if (currentDepth > closestDepth + bias)
-            return 1.0f;
-    }
-    return 0.0f;
-}
-)";
-
-    return shadowTestCode;
-}
-
-
 //-----------------------------------------------------------------------------
 //! Add vertex shader code to the SLGLShader instance
 void SLGLProgramGenerated::addCodeToShader(SLGLShader*   shader,

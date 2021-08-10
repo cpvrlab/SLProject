@@ -74,9 +74,10 @@ public:
                             SLVec2f size     = SLVec2f(8, 8),
                             SLVec2i texSize  = SLVec2i(1024, 1024)) override;
 
-    void    createShadowMap(SLCamera* camera,
-                            SLVec2f   size = SLVec2f(8, 8),
-                            SLVec2i   texSize = SLVec2i(1024, 1024)) override;
+    void createShadowMap(SLCamera* camera,
+                         SLVec2f   size       = SLVec2f(8, 8),
+                         SLVec2i   texSize    = SLVec2i(1024, 1024),
+                         int       nbCascades = 4) override;
 
     SLfloat shadowTestMC(SLRay*         ray,
                          const SLVec3f& L,

@@ -198,8 +198,9 @@ void SLLightDirect::createShadowMap(float   clipNear,
  * @param texSize Size of the cascades
  */
 void SLLightDirect::createShadowMap(SLCamera* camera,
-                                    SLVec2f size,
-                                    SLVec2i texSize)
+                                    SLVec2f   size,
+                                    SLVec2i   texSize,
+                                    int       nbCascades)
 {
     if (!_shadowMap)
         delete _shadowMap;
@@ -209,7 +210,8 @@ void SLLightDirect::createShadowMap(SLCamera* camera,
                                  this,
                                  camera,
                                  size,
-                                 texSize);
+                                 texSize,
+                                 nbCascades);
 }
 //-----------------------------------------------------------------------------
 /*!

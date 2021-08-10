@@ -59,7 +59,6 @@ SLCamera::SLCamera(const SLstring& name,
     _projection    = P_monoPerspective;
     _camAnim       = CA_turntableYUp;
     _castsShadows  = false;
-    _nbCascades    = 4;
 
     // depth of field parameters
     _lensDiameter = 0.3f;
@@ -330,33 +329,6 @@ void SLCamera::statsRec(SLNodeStats& stats)
     SLNode::statsRec(stats);
 }
 //-----------------------------------------------------------------------------
-
-void SLCamera::setShadowMapCascades(int n)
-{
-    _nbCascades = n;
-}
-
-std::vector<SLVec2f> SLCamera::getShadowMapCascades()
-{
-    _cascades.clear();
-
-    float f = clipFar();
-    float n = clipNear();
-
-    float ni = n;
-    float fi = n;
-
-    float factor = 30.0f;
-
-    for (int i = 0; i < _nbCascades; i++)
-    {
-        ni = fi;
-        fi = factor * n * pow((f/(factor*n)), (float)(i+1)/(float)_nbCascades);
-        _cascades.push_back(SLVec2f(ni, fi));
-    }
-    return _cascades;
-}
-
 /*!
 SLCamera::calcMinMax calculates the axis alligned minimum and maximum point of
 the camera position and the 4 near clipping plane points in object space (OS).
@@ -1730,9 +1702,8 @@ void SLCamera::passToUniforms(SLGLProgram* program)
     program->uniform1f("u_bgHeight", _background.rect().height);
     program->uniform1f("u_bgLeft", _background.rect().x);
     program->uniform1f("u_bgBottom", _background.rect().y);
-
-    for (int i = 0; i < _cascades.size(); i++)
-        loc = program->uniform1f(("u_camCascadeDepth[" + std::to_string(i) + "]").c_str(), _cascades[i].y);
+    program->uniform1f("u_camFarPlane", clipFar());
+    program->uniform1f("u_camNearPlane", clipNear());
     //SL_LOG("SLCamera: width:%f height:%f left:%f bottom:%f", _background.rect().width, _background.rect().height, _background.rect().x, _background.rect().x);
 }
 //-----------------------------------------------------------------------------
