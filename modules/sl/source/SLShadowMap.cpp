@@ -260,7 +260,7 @@ void SLShadowMap::updateMVP()
 
     // Set the model-view-projection matrix
     for (SLint i = 0; i < (_useCubemap ? 6 : 1); ++i)
-        _mvp[i] = _p[i] * _v[i];
+        _mvp[i] = _p[0] * _v[i];
 }
 //-----------------------------------------------------------------------------
 
