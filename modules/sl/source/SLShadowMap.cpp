@@ -117,6 +117,7 @@ void SLShadowMap::drawFrustum()
     {
         for (SLint i = 0; i < _nbCascades; ++i)
         {
+            //Inverse matrix in a way to avoid precision error
             SLMat4f s;
             SLMat4f t;
             s.identity();
@@ -279,6 +280,13 @@ void SLShadowMap::findOptimalNearPlane(SLNode*               node,
 {
     if (node->drawBit(SL_DB_HIDDEN))
         return;
+
+    for (int i = 0; i < 4; i++)
+    {
+        float distance = planes[i].distToPoint(node->aabb()->centerWS());
+        if (distance < -node->aabb()->radiusWS())
+            return;
+    }
 
     //We don't need to increase far plane distance
     float distance = planes[5].distToPoint(node->aabb()->centerWS());
