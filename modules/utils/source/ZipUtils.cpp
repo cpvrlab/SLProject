@@ -167,7 +167,7 @@ bool unzip(string                                         zipfile,
     if (unzGetGlobalInfo(uzfile, &global_info) != UNZ_OK)
     {
         unzClose(uzfile);
-        return -1;
+        return (bool)-1;
     }
 
     do

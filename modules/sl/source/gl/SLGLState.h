@@ -21,11 +21,11 @@
 #    include <GL/gl3w.h>
 #elif defined(SL_OS_ANDROID)
 //https://stackoverflow.com/questions/31003863/gles-3-0-including-gl2ext-h
-#   include <GLES3/gl3.h>
-#   include <GLES2/gl2ext.h>
-#   ifndef GL_CLAMP_TO_BORDER //see #define GL_CLAMP_TO_BORDER_OES 0x812D in gl2ext.h
-#       define GL_CLAMP_TO_BORDER GL_CLAMP_TO_BORDER_OES
-#   endif
+#    include <GLES3/gl3.h>
+#    include <GLES2/gl2ext.h>
+#    ifndef GL_CLAMP_TO_BORDER //see #define GL_CLAMP_TO_BORDER_OES 0x812D in gl2ext.h
+#        define GL_CLAMP_TO_BORDER GL_CLAMP_TO_BORDER_OES
+#    endif
 //#    include <GLES3/gl31.h>
 //#    include <GLES3/gl3ext.h>
 #elif defined(SL_OS_WINDOWS)
@@ -146,7 +146,10 @@ public:
     SLMat4f  viewportMatrixFB()
     {
         SLMat4f vpm;
-        vpm.viewport(_viewportFB.x, _viewportFB.y, _viewportFB.z, _viewportFB.w);
+        vpm.viewport((SLfloat)_viewportFB.x,
+                     (SLfloat)_viewportFB.y,
+                     (SLfloat)_viewportFB.z,
+                     (SLfloat)_viewportFB.w);
         return vpm;
     }
     SLMaterial* currentMaterial() { return _currentMaterial; }
@@ -202,7 +205,7 @@ private:
     SLbool  _polygonOffsetPointEnabled; //!< GL_POLYGON_OFFSET_POINT state enabled
     SLbool  _polygonOffsetLineEnabled;  //!< GL_POLYGON_OFFSET_LINE state enabled
     SLbool  _polygonOffsetFillEnabled;  //!< GL_POLYGON_OFFSET_FILL state enabled
-    SLVec4i _viewportFB;                  //!< viewport size (x,y,w,h) of the framebuffer
+    SLVec4i _viewportFB;                //!< viewport size (x,y,w,h) of the framebuffer
     SLCol4f _clearColor;                //!< clear color
 
     // states
