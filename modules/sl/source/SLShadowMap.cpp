@@ -117,7 +117,14 @@ void SLShadowMap::drawFrustum()
     {
         for (SLint i = 0; i < _nbCascades; ++i)
         {
-            stateGL->modelViewMatrix = stateGL->viewMatrix * _mvp[i].inverted();
+            SLMat4f s;
+            SLMat4f t;
+            s.identity();
+            t.identity();
+            s.scale(1.0f/_p[i].m(0), 1.0f/_p[i].m(5), 1.0f/_p[i].m(10));
+            t.translate((-_p[i].m(12)), (-_p[i].m(13)), (-_p[i].m(14)));
+
+            stateGL->modelViewMatrix = stateGL->viewMatrix * _v[i].inverted() * s * t;
 
             _frustumVAO->drawArrayAsColored(PT_lines,
                                             SLCol4f::GREEN,
@@ -263,7 +270,6 @@ void SLShadowMap::updateMVP()
         _mvp[i] = _p[0] * _v[i];
 }
 //-----------------------------------------------------------------------------
-
 void SLShadowMap::findOptimalNearPlane(SLNode*               node,
                                        SLSceneView*          sv,
                                        SLMat4f&              P,
@@ -274,16 +280,8 @@ void SLShadowMap::findOptimalNearPlane(SLNode*               node,
     if (node->drawBit(SL_DB_HIDDEN))
         return;
 
-    for (int i = 0; i < 4; i++)
-    {
-        SLPlane p        = planes[i];
-        SLfloat distance = p.distToPoint(node->aabb()->centerWS());
-        if (distance < -node->aabb()->radiusWS())
-            return;
-    }
- 
     //We don't need to increase far plane distance
-    SLfloat distance = planes[5].distToPoint(node->aabb()->centerWS());
+    float distance = planes[5].distToPoint(node->aabb()->centerWS());
     if (distance < -node->aabb()->radiusWS())
         return;
 
@@ -293,13 +291,11 @@ void SLShadowMap::findOptimalNearPlane(SLNode*               node,
     {
         float a = P.m(10);
         float b = P.m(14);
-
-        float n = (2 * b / a + 2 / a) * 0.5;
-        float f = n - 2 / a;
-        n += (distance - node->aabb()->radiusWS());
-        P.m(10, -2 / (f - n));
+        float n = (b + 1.f) / a;
+        float f = (b - 1.f) / a;
+        n = n + (distance - node->aabb()->radiusWS());
+        P.m(10, -2.f / (f - n));
         P.m(14, -(f + n) / (f - n));
-
         SLFrustum::viewToFrustumPlanes(planes, P, lv);
     }
 
@@ -591,9 +587,6 @@ void SLShadowMap::renderDirectionalLightCascaded(SLSceneView* sv, SLNode* root)
         float   sx = 2.f / (maxx - minx);
         float   sy = 2.f / (maxy - miny);
         float   sz = -2.f / (maxz - minz);
-        sx         = sx > 0.005 ? sx : 0.005;
-        sy         = sy > 0.005 ? sy : 0.005;
-        sz         = sz < -0.005 ? sz : -0.005;
 
         SLVec3f t  = SLVec3f(-0.5f * (maxx + minx), -0.5f * (maxy + miny), -0.5f * (maxz + minz));
         SLMat4f C;
@@ -616,14 +609,14 @@ void SLShadowMap::renderDirectionalLightCascaded(SLSceneView* sv, SLNode* root)
         // Draw meshes
         //drawNodesIntoDepthBuffer(root, sv, C, lv);
         SLPlane planes[6];
+        std::vector<SLNode*> visibleNodes;
         SLFrustum::viewToFrustumPlanes(planes, C, lv);
 
-        std::vector<SLNode*> visibleNodes;
         findOptimalNearPlane(root, sv, C, lv, planes, visibleNodes);
 
         _v[i]   = lv;
         _p[i]   = C;
-        _mvp[i] = _p[i] * lv;
+        _mvp[i] = C * lv;
 
         drawNodesDirectionalCulling (visibleNodes, sv, C, lv, planes);
 
