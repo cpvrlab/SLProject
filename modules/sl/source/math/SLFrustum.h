@@ -11,13 +11,13 @@
 #define SLFRUSTUM
 
 //-----------------------------------------------------------------------------
-//! ???
+//! Matrix to 6 frustum plane conversion functions
 class SLFrustum
 {
 public:
     static void viewToFrustumPlanes(SLPlane*       planes,
-                                    const SLMat4f& P,
-                                    const SLMat4f& V);
+                                    const SLMat4f& projectionMat,
+                                    const SLMat4f& viewMat);
     static void viewToFrustumPlanes(SLPlane*       planes,
                                     const SLMat4f& A);
     static void getPointsEyeSpace(SLVec3f* points,

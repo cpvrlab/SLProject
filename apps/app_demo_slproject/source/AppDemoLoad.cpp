@@ -5819,7 +5819,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
             sunLight->createShadowMap(cam1);
             sunLight->doSmoothShadows(true);
             sunLight->castsShadows(false);
-            sunLight->shadowMinBias(0.001f);
+            sunLight->shadowMinBias(0.003f);
             sunLight->shadowMaxBias(0.003f);
 
             // Let the sun be rotated by time and location

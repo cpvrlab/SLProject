@@ -48,8 +48,8 @@ file(GLOB sources
         source/SLDrawBits.h
         source/SLEnums.h
         source/SLEventHandler.h
-        source/SLFrustum.h
-        source/SLFrustum.cpp
+        source/math/SLFrustum.h
+        source/math/SLFrustum.cpp
         source/SLMaterial.cpp
         source/SLMaterial.h
         source/SLObject.h

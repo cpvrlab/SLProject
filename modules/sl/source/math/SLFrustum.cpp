@@ -13,18 +13,32 @@
 #include <SLFrustum.h>
 
 //-----------------------------------------------------------------------------
-//! ???
+/*!
+ * Calculates the coefficients of the 6 frustum planes from the passed
+ * projection and view matrices. See the paper from Gribb and Hartmann:
+ * https://www.gamedevs.org/uploads/fast-extraction-viewing-frustum-planes-from-world-view-projection-matrix.pdf
+ * @param planes Pointer to an array of 6 SLPlanes
+ * @param projectionMat 4x4 projection matrix
+ * @param viewMat 4x4 view matrix
+ */
 void SLFrustum::viewToFrustumPlanes(SLPlane*       planes,
-                                    const SLMat4f& P,
-                                    const SLMat4f& V)
+                                    const SLMat4f& projectionMat,
+                                    const SLMat4f& viewMat)
 {
-    SLMat4f A = P * V;
+    //
+    SLMat4f A = projectionMat * viewMat;
 
     // Order is T B L R N F
     viewToFrustumPlanes(planes, A);
 }
 //-----------------------------------------------------------------------------
-//! ???
+/*!
+ * Calculates the coefficients of the 6 frustum planes from the passed
+ * matrix A. See the paper from Gribb and Hartmann:
+ * https://www.gamedevs.org/uploads/fast-extraction-viewing-frustum-planes-from-world-view-projection-matrix.pdf
+ * @param planes Pointer to an array of 6 SLPlanes
+ * @param A The projection matrix
+ */
 void SLFrustum::viewToFrustumPlanes(SLPlane* planes, const SLMat4f& A)
 {
     // set the A,B,C & D coefficient for each plane
