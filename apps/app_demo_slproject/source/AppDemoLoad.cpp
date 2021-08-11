@@ -2382,12 +2382,12 @@ resolution shadows near the camera and lower resolution shadows further away.");
         // Create light source
         // Do constant attenuation for directional lights since it is infinitely far away
         SLLightDirect* light = new SLLightDirect(s, s);
-        light->doCascadedShadows(true);
         light->powers(0.0f, 1.0f, 1.0f);
         light->translation(0, 5, 0);
         light->lookAt(0, 0, 0);
         light->attenuation(1, 0, 0);
         light->createsShadows(true);
+        light->doCascadedShadows(true);
         light->createShadowMap(cam1);
         light->shadowMap()->rayCount(SLVec2i(16, 16));
         light->castsShadows(false);
@@ -5798,6 +5798,15 @@ resolution shadows near the camera and lower resolution shadows further away.");
             SLGLTexture* texFloorNrm = new SLGLTexture(s, texNFile, SL_ANISOTROPY_MAX, GL_LINEAR);
             SLMaterial*  matFloor    = new SLMaterial(s, "matFloor", texFloorDif, texFloorNrm);
 
+            // Define camera
+            SLCamera* cam1 = new SLCamera;
+            cam1->translation(0, 1.7f, 20);
+            cam1->lookAt(0, 1.7f, 0);
+            cam1->focalDist(cam1->translationOS().length());
+            cam1->clipFar(300);
+            cam1->background().colors(SLCol4f(0.1f, 0.4f, 0.8f));
+            cam1->setInitialState();
+
             // Create directional light for the sunlight
             SLLightDirect* sunLight = new SLLightDirect(s, s, 1.0f);
             sunLight->powers(0.25f, 1.0f, 1.0f);
@@ -5806,7 +5815,8 @@ resolution shadows near the camera and lower resolution shadows further away.");
             sunLight->lookAt(-1, 0, -1);
             sunLight->doSunPowerAdaptation(true);
             sunLight->createsShadows(true);
-            sunLight->createShadowMap(-70, 120, SLVec2f(150, 150), SLVec2i(2048, 2048));
+            sunLight->doCascadedShadows(true);
+            sunLight->createShadowMap(cam1);
             sunLight->doSmoothShadows(true);
             sunLight->castsShadows(false);
             sunLight->shadowMinBias(0.001f);
@@ -5816,15 +5826,6 @@ resolution shadows near the camera and lower resolution shadows further away.");
             AppDemo::devLoc.sunLightNode(sunLight);
             AppDemo::devLoc.originLatLonAlt(47.14271, 7.24337, 488.2);        // Ecke Giosa
             AppDemo::devLoc.defaultLatLonAlt(47.14260, 7.24310, 488.7 + 1.7); // auf Parkplatz
-
-            // Define camera
-            SLCamera* cam1 = new SLCamera;
-            cam1->translation(0, 1.7f, 20);
-            cam1->lookAt(0, 1.7f, 0);
-            cam1->focalDist(cam1->translationOS().length());
-            cam1->clipFar(1000);
-            cam1->background().colors(SLCol4f(0.1f, 0.4f, 0.8f));
-            cam1->setInitialState();
 
             // Floor rectangle
             SLNode* rect = new SLNode(new SLRectangle(s,
@@ -5872,6 +5873,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
                 for (SLint iX = 0; iX < size; ++iX)
                 {
+                    /*
                     SLint      iZX       = iZ * size + iX;
                     string     strLOD    = "LOD" + std::to_string(iZX);
                     SLNodeLOD* lod_group = new SLNodeLOD(strLOD);
@@ -5881,6 +5883,11 @@ resolution shadows near the camera and lower resolution shadows further away.");
                     lod_group->addChildLOD(new SLNode(columnL2->mesh(), "Column-L2"), 0.001f);
                     lod_group->addChildLOD(new SLNode(columnL3->mesh(), "Column-L3"), 0.0001f);
                     scene->addChild(lod_group);
+                    */
+                    SLNode* singleColumn = new SLNode(columnL2->mesh(), "Mesh-L2");
+                    singleColumn->translate(x, 0, z, TS_object);
+                    scene->addChild(singleColumn);
+
                     x += offset;
                 }
                 z -= offset;
