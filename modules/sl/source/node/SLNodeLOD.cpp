@@ -37,8 +37,9 @@ void SLNodeLOD::addChildLOD(SLNode* childToAdd, SLfloat minLodCoverage)
     childToAdd->minLodCoverage(minLodCoverage);
     addChild(childToAdd);
 
-    // Set new node hidden, so they won't be shadowed
-    // Only the LOD algorithm in cullChildren3D can make them visible
+    /* Set new node hidden, so they won't be shadowed if they are outside
+     * the view frustum. Only the LOD algorithm in cullChildren3D can make
+     * them visible */
     childToAdd->drawBits()->set(SL_DB_HIDDEN, true);
 }
 //-----------------------------------------------------------------------------

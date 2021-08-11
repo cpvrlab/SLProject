@@ -1478,8 +1478,6 @@ SLbool SLCamera::onKeyRelease(const SLKey key, const SLKey mod)
 //! SLCamera::setFrustumPlanes set the 6 plane from the view frustum.
 /*! SLCamera::setFrustumPlanes set the 6 frustum planes by extracting the plane
 coefficients from the combined view and projection matrix.
-See the paper from Gribb and Hartmann:
-http://www2.ravensoft.com/users/ggribb/plane%20extraction.pdf
 */
 void SLCamera::setFrustumPlanes()
 {
