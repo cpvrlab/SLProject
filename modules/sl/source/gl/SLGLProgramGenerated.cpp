@@ -1700,7 +1700,6 @@ string SLGLProgramGenerated::coloredShadows()
         }
     }
     )";
-
     return shadowColored;
 }
 
@@ -1787,7 +1786,8 @@ float shadowTest(in int i, in vec3 N, in vec3 lightDir)
         shadowTestCode += R"(
         }
         else
-        {)";
+        {
+        )";
         for (SLuint i = 0; i < lights->size(); ++i)
         {
             SLShadowMap* shadowMap = lights->at(i)->shadowMap();
@@ -1802,7 +1802,8 @@ float shadowTest(in int i, in vec3 N, in vec3 lightDir)
     {
         shadowTestCode += R"(
         if (u_lightUsesCubemap[i])
-        {)";
+        {
+        )";
         for (SLuint i = 0; i < lights->size(); ++i)
         {
             SLShadowMap* shadowMap = lights->at(i)->shadowMap();
@@ -1812,15 +1813,15 @@ float shadowTest(in int i, in vec3 N, in vec3 lightDir)
         shadowTestCode += R"(
         }
         else
-        {)";
+        {
+        )";
         for (SLuint i = 0; i < lights->size(); ++i)
         {
             SLShadowMap* shadowMap = lights->at(i)->shadowMap();
             if (shadowMap && !shadowMap->useCubemap() && !shadowMap->useCascaded())
-                shadowTestCode += "if (i == " + std::to_string(i) + ") lightSpace = u_lightSpace_" + std::to_string(i) + "[vectorToFace(lightToFragment)];\n";
+                shadowTestCode += "if (i == " + std::to_string(i) + ") lightSpace = u_lightSpace_" + std::to_string(i) + ";\n";
         }
         shadowTestCode += R"(
-            lightSpace = u_lightSpace[i * 6];
         }
         )";
     }
