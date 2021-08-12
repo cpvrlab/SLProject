@@ -111,8 +111,7 @@ private:
     static string fragInputs_u_lightSm(SLVLight* lights);
     static string fragInputs_u_shadowMaps(SLVLight* lights);
     static string fragShadowTest(SLVLight* lights);
-    static string fragShadowTestCascaded(SLVLight* lights, int numCascades = 0);
-    static string shaderHeader(int numLights, int numCascades = 0);
+    static string shaderHeader(int numLights);
     static void   addCodeToShader(SLGLShader*   shader,
                                   const string& code,
                                   const string& name);
