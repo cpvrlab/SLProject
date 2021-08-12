@@ -804,7 +804,7 @@ void SLGLProgramGenerated::buildProgramName(SLMaterial* mat,
         if (light->positionWS().w == 0.0f)
         {
             if (light->doCascadedShadows())
-                programName += "C" + light->shadowMap()->nbCascades(); // Directional light with cascaded shadowmap
+                programName += "C" + std::to_string(light->shadowMap()->nbCascades()); // Directional light with cascaded shadowmap
             else
                 programName += "D"; // Directional light
         }
