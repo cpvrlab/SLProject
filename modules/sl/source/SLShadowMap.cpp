@@ -118,11 +118,8 @@ void SLShadowMap::drawFrustum()
         for (SLint i = 0; i < _nbCascades; ++i)
         {
             //Inverse matrix in a way to avoid precision error
-            SLMat4f s;
-            SLMat4f t;
-            s.identity();
-            t.identity();
-            s.scale(1.0f/_p[i].m(0), 1.0f/_p[i].m(5), 1.0f/_p[i].m(10));
+            SLMat4f s, t;
+            s.scale(1.0f / _p[i].m(0), 1.0f / _p[i].m(5), 1.0f / _p[i].m(10));
             t.translate((-_p[i].m(12)), (-_p[i].m(13)), (-_p[i].m(14)));
 
             stateGL->modelViewMatrix = stateGL->viewMatrix * _v[i].inverted() * s * t;
@@ -301,14 +298,14 @@ void SLShadowMap::findOptimalNearPlane(SLNode*               node,
         float b = P.m(14);
         float n = (b + 1.f) / a;
         float f = (b - 1.f) / a;
-        n = n + (distance - node->aabb()->radiusWS());
+        n       = n + (distance - node->aabb()->radiusWS());
         P.m(10, -2.f / (f - n));
         P.m(14, -(f + n) / (f - n));
         SLFrustum::viewToFrustumPlanes(planes, P, lv);
     }
 
     visibleNodes.push_back(node);
- 
+
     for (SLNode* child : node->children())
         findOptimalNearPlane(child, sv, P, lv, planes, visibleNodes);
 }
@@ -319,10 +316,10 @@ SLShadowMap::drawNodesIntoDepthBuffer recursively renders all objects which
 cast shadows
 */
 void SLShadowMap::drawNodesDirectionalCulling(std::vector<SLNode*> visibleNodes,
-                                              SLSceneView* sv,
-                                              SLMat4f&     P,
-                                              SLMat4f&     lv,
-                                              SLPlane*     planes)
+                                              SLSceneView*         sv,
+                                              SLMat4f&             P,
+                                              SLMat4f&             lv,
+                                              SLPlane*             planes)
 {
     for (SLNode* node : visibleNodes)
     {
@@ -508,7 +505,7 @@ std::vector<SLVec2f> SLShadowMap::getShadowMapCascades(int nbCascades, float n, 
     for (int i = 0; i < nbCascades; i++)
     {
         ni = fi;
-        fi = factor * n * pow((f/(factor*n)), (float)(i+1)/(float)nbCascades);
+        fi = factor * n * pow((f / (factor * n)), (float)(i + 1) / (float)nbCascades);
         cascades.push_back(SLVec2f(ni, fi));
     }
     return cascades;
@@ -592,11 +589,11 @@ void SLShadowMap::renderDirectionalLightCascaded(SLSceneView* sv, SLNode* root)
                 maxz = fp.z;
         }
 
-        float   sx = 2.f / (maxx - minx);
-        float   sy = 2.f / (maxy - miny);
-        float   sz = -2.f / (maxz - minz);
+        float sx = 2.f / (maxx - minx);
+        float sy = 2.f / (maxy - miny);
+        float sz = -2.f / (maxz - minz);
 
-        SLVec3f t  = SLVec3f(-0.5f * (maxx + minx), -0.5f * (maxy + miny), -0.5f * (maxz + minz));
+        SLVec3f t = SLVec3f(-0.5f * (maxx + minx), -0.5f * (maxy + miny), -0.5f * (maxz + minz));
         SLMat4f C;
         C.identity();
         C.scale(sx, sy, sz);
@@ -616,7 +613,7 @@ void SLShadowMap::renderDirectionalLightCascaded(SLSceneView* sv, SLNode* root)
 
         // Draw meshes
         //drawNodesIntoDepthBuffer(root, sv, C, lv);
-        SLPlane planes[6];
+        SLPlane              planes[6];
         std::vector<SLNode*> visibleNodes;
         SLFrustum::viewToFrustumPlanes(planes, C, lv);
 
@@ -626,7 +623,7 @@ void SLShadowMap::renderDirectionalLightCascaded(SLSceneView* sv, SLNode* root)
         _p[i]   = C;
         _mvp[i] = C * lv;
 
-        drawNodesDirectionalCulling (visibleNodes, sv, C, lv, planes);
+        drawNodesDirectionalCulling(visibleNodes, sv, C, lv, planes);
 
         _depthBuffers[i]->unbind();
     }
