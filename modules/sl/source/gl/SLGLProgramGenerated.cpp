@@ -126,17 +126,7 @@ uniform vec4        u_globalAmbi;                           // Global ambient sc
 uniform float       u_oneOverGamma;                         // 1.0f / Gamma correction value
 )";
 //-----------------------------------------------------------------------------
-const string fragInputs_u_lightSm = R"(
-uniform vec4        u_lightPosWS[NUM_LIGHTS];               // position of light in world space
-uniform mat4        u_lightSpace[NUM_LIGHTS * 6];           // projection matrices for lights
-uniform bool        u_lightCreatesShadows[NUM_LIGHTS];      // flag if light creates shadows
-uniform int         u_lightNbCascades[NUM_LIGHTS];          // number of cascades for cascaded shadowmap
-uniform bool        u_lightDoSmoothShadows[NUM_LIGHTS];     // flag if percentage-closer filtering is enabled
-uniform int         u_lightSmoothShadowLevel[NUM_LIGHTS];   // radius of area to sample for PCF
-uniform float       u_lightShadowMinBias[NUM_LIGHTS];       // min. shadow bias value at 0° to N
-uniform float       u_lightShadowMaxBias[NUM_LIGHTS];       // min. shadow bias value at 90° to N
-uniform bool        u_lightUsesCubemap[NUM_LIGHTS];         // flag if light has a cube shadow map
-)";
+
 
 
 const string fragInputs_u_lightSc = R"(
@@ -938,7 +928,7 @@ in      vec3        v_lightDirTS[NUM_LIGHTS];   // Vector to light 0 in tangent 
 in      vec3        v_spotDirTS[NUM_LIGHTS];    // Spot direction in tangent space
 )";
     fragCode += fragInputs_u_lightAll;
-    fragCode += fragInputs_u_lightSm;
+    fragCode += fragInputs_u_lightSm(lights);
     fragCode += fragInputs_u_matAllBlinn;
     fragCode += fragInputs_u_matTmNmAoSm;
     fragCode += fragInputs_u_shadowMaps(lights);
@@ -1039,7 +1029,7 @@ in      vec3        v_lightDirTS[NUM_LIGHTS];   // Vector to light 0 in tangent 
 in      vec3        v_spotDirTS[NUM_LIGHTS];    // Spot direction in tangent space
 )";
     fragCode += fragInputs_u_lightAll;
-    fragCode += fragInputs_u_lightSm;
+    fragCode += fragInputs_u_lightSm(lights);
     fragCode += fragInputs_u_matAllBlinn;
     fragCode += fragInputs_u_matTmNmSm;
     fragCode += fragInputs_u_shadowMaps(lights);
@@ -1090,7 +1080,7 @@ in      vec2        v_uv1;      // Interpol. texture coordinate
 in      vec2        v_uv2;      // Texture coordinate 2 varying for AO
 )";
     fragCode += fragInputs_u_lightAll;
-    fragCode += fragInputs_u_lightSm;
+    fragCode += fragInputs_u_lightSm(lights);
     fragCode += fragInputs_u_matAllBlinn;
     fragCode += fragInputs_u_matTmAoSm;
     fragCode += fragInputs_u_shadowMaps(lights);
@@ -1137,7 +1127,7 @@ in      vec3        v_N_VS;     // Interpol. normal at v_P_VS in view space
 in      vec2        v_uv1;      // Interpol. texture coordinate
 )";
     fragCode += fragInputs_u_lightAll;
-    fragCode += fragInputs_u_lightSm;
+    fragCode += fragInputs_u_lightSm(lights);
     fragCode += fragInputs_u_matAllBlinn;
     fragCode += fragInputs_u_matTmSm;
     fragCode += fragInputs_u_shadowMaps(lights);
@@ -1189,7 +1179,7 @@ in      vec3        v_lightDirTS[NUM_LIGHTS];   // Vector to light 0 in tangent 
 in      vec3        v_spotDirTS[NUM_LIGHTS];    // Spot direction in tangent space
 )";
     fragCode += fragInputs_u_lightAll;
-    fragCode += fragInputs_u_lightSm;
+    fragCode += fragInputs_u_lightSm(lights);
     fragCode += fragInputs_u_matAllBlinn;
     fragCode += fragInputs_u_matNmSm;
     fragCode += fragInputs_u_shadowMaps(lights);
@@ -1236,7 +1226,7 @@ in      vec3        v_N_VS;     // Interpol. normal at v_P_VS in view space
 in      vec2        v_uv2;      // Texture coordinate 2 varying for AO
 )";
     fragCode += fragInputs_u_lightAll;
-    fragCode += fragInputs_u_lightSm;
+    fragCode += fragInputs_u_lightSm(lights);
     fragCode += fragInputs_u_matAllBlinn;
     fragCode += fragInputs_u_matAoSm;
     fragCode += fragInputs_u_shadowMaps(lights);
@@ -1430,7 +1420,7 @@ in      vec3        v_P_WS;     // Interpol. point of illumination in world spac
 in      vec3        v_N_VS;     // Interpol. normal at v_P_VS in view space
 )";
     fragCode += fragInputs_u_lightAll;
-    fragCode += fragInputs_u_lightSm;
+    fragCode += fragInputs_u_lightSm(lights);
     fragCode += fragInputs_u_matAllBlinn;
     fragCode += fragInputs_u_matSm;
     fragCode += fragInputs_u_shadowMaps(lights);
@@ -1632,6 +1622,44 @@ bool SLGLProgramGenerated::lightsDoShadowMapping(SLVLight* lights)
     }
     return false;
 }
+
+//-----------------------------------------------------------------------------
+string SLGLProgramGenerated::fragInputs_u_lightSm(SLVLight* lights)
+{
+    string u_lightSm = R"(
+uniform vec4        u_lightPosWS[NUM_LIGHTS];               // position of light in world space
+uniform bool        u_lightCreatesShadows[NUM_LIGHTS];      // flag if light creates shadows
+uniform int         u_lightNbCascades[NUM_LIGHTS];          // number of cascades for cascaded shadowmap
+uniform bool        u_lightDoSmoothShadows[NUM_LIGHTS];     // flag if percentage-closer filtering is enabled
+uniform int         u_lightSmoothShadowLevel[NUM_LIGHTS];   // radius of area to sample for PCF
+uniform float       u_lightShadowMinBias[NUM_LIGHTS];       // min. shadow bias value at 0° to N
+uniform float       u_lightShadowMaxBias[NUM_LIGHTS];       // min. shadow bias value at 90° to N
+uniform bool        u_lightUsesCubemap[NUM_LIGHTS];         // flag if light has a cube shadow map
+)";
+    for (SLuint i = 0; i < lights->size(); ++i)
+    {
+        SLLight* light = lights->at(i);
+        if (light->createsShadows())
+        {
+            SLShadowMap* shadowMap = light->shadowMap();
+
+            if (shadowMap->useCubemap())
+            {
+                u_lightSm += "uniform mat4        u_lightSpace_" + std::to_string(i) + "[6];";
+            }
+            else if (light->doCascadedShadows())
+            {
+                u_lightSm += "uniform mat4        u_lightSpace_" + std::to_string(i) + "[" + std::to_string(shadowMap->nbCascades()) + "];";
+            }
+            else
+            {
+                u_lightSm += "uniform mat4        u_lightSpace_" + std::to_string(i) + ";";
+            }
+        }
+    }
+    return u_lightSm;
+}
+
 //-----------------------------------------------------------------------------
 string SLGLProgramGenerated::fragInputs_u_shadowMaps(SLVLight* lights)
 {
@@ -1739,22 +1767,61 @@ float shadowTest(in int i, in vec3 N, in vec3 lightDir)
 
         if (u_lightNbCascades[i] > 0)
         {
-            index = getCascadesDepthIndex(i, u_lightNbCascades[i]);
-            lightSpace = u_lightSpace[i * 6 + index];
+            index = getCascadesDepthIndex(i, u_lightNbCascades[i]);)";
+        for (SLuint i = 0; i < lights->size(); ++i)
+        {
+            SLShadowMap* shadowMap = lights->at(i)->shadowMap();
+            if (shadowMap && shadowMap->useCascaded())
+                shadowTestCode += "if (i == " + std::to_string(i) + ") lightSpace = u_lightSpace_" + std::to_string(i) + "[index];\n";
+        }
+        shadowTestCode += R"(
         }
         else if (u_lightUsesCubemap[i])
-            lightSpace = u_lightSpace[i * 6 + vectorToFace(lightToFragment)];
+        {)";
+        for (SLuint i = 0; i < lights->size(); ++i)
+        {
+            SLShadowMap* shadowMap = lights->at(i)->shadowMap();
+            if (shadowMap && shadowMap->useCubemap())
+                shadowTestCode += "if (i == " + std::to_string(i) + ") lightSpace = u_lightSpace_" + std::to_string(i) + "[vectorToFace(lightToFragment)];\n";
+        }
+        shadowTestCode += R"(
+        }
         else
-            lightSpace = u_lightSpace[i * 6];
+        {)";
+        for (SLuint i = 0; i < lights->size(); ++i)
+        {
+            SLShadowMap* shadowMap = lights->at(i)->shadowMap();
+            if (shadowMap && !shadowMap->useCubemap() && !shadowMap->useCascaded())
+            shadowTestCode += "if (i == " + std::to_string(i) + ") lightSpace = u_lightSpace_" + std::to_string(i); + "\n";
+        }
+        shadowTestCode += R"(
+        }
         )";
     }
     else
     {
         shadowTestCode += R"(
         if (u_lightUsesCubemap[i])
-            lightSpace = u_lightSpace[i * 6 + vectorToFace(lightToFragment)];
+        {)";
+        for (SLuint i = 0; i < lights->size(); ++i)
+        {
+            SLShadowMap* shadowMap = lights->at(i)->shadowMap();
+            if (shadowMap && shadowMap->useCubemap())
+                shadowTestCode += "if (i == " + std::to_string(i) + ") lightSpace = u_lightSpace_" + std::to_string(i) + "[vectorToFace(lightToFragment)];\n";
+        }
+        shadowTestCode += R"(
+        }
         else
+        {)";
+        for (SLuint i = 0; i < lights->size(); ++i)
+        {
+            SLShadowMap* shadowMap = lights->at(i)->shadowMap();
+            if (shadowMap && !shadowMap->useCubemap() && !shadowMap->useCascaded())
+                shadowTestCode += "if (i == " + std::to_string(i) + ") lightSpace = u_lightSpace_" + std::to_string(i) + "[vectorToFace(lightToFragment)];\n";
+        }
+        shadowTestCode += R"(
             lightSpace = u_lightSpace[i * 6];
+        }
         )";
     }
 

@@ -108,6 +108,7 @@ private:
     // Helpers
 
     static string coloredShadows();
+    static string fragInputs_u_lightSm(SLVLight* lights);
     static string fragInputs_u_shadowMaps(SLVLight* lights);
     static string fragShadowTest(SLVLight* lights);
     static string fragShadowTestCascaded(SLVLight* lights, int numCascades = 0);

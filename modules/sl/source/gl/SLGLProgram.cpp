@@ -430,7 +430,6 @@ void SLGLProgram::passLightsToUniforms(SLVLight* lights,
         uniform1iv("u_lightDoSmoothShadows", nL, (SLint*)&lightDoSmoothShadows);
         uniform1iv("u_lightSmoothShadowLevel", nL, (SLint*)&lightSmoothShadowLevel);
         uniform1iv("u_lightUsesCubemap", nL, (SLint*)&lightUsesCubemap);
-        uniformMatrix4fv("u_lightSpace", nL * 6, (SLfloat*)&lightSpace);
         uniform1iv("u_lightCreatesShadows", nL, (SLint*)&lightCreatesShadows);
         uniform1fv("u_lightShadowMinBias", nL, (SLfloat*)&lightShadowMinBias);
         uniform1fv("u_lightShadowMaxBias", nL, (SLfloat*)&lightShadowMaxBias);
@@ -444,12 +443,13 @@ void SLGLProgram::passLightsToUniforms(SLVLight* lights,
             {
                 if (lightNbCascades[i])
                 {
+                    SLstring uniformSm;
+                    uniformSm = ("u_lightSpace_" + std::to_string(i));
+                    uniformMatrix4fv(uniformSm.c_str(), lightNbCascades[i], (SLfloat*)(lightSpace + (i * 6)));
                     for (int j = 0; j < lightNbCascades[i]; j++)
                     {
                         SLint    loc = 0;
-                        SLstring uniformSm;
                         uniformSm = "u_cascadedShadowMap_" + std::to_string(i) + "[" + std::to_string(j) + "]";
-
                         if ((loc = getUniformLocation(uniformSm.c_str())) >= 0)
                         {
                             lightShadowMap[i*6 + j]->bindActive(unitCounter);
@@ -465,9 +465,17 @@ void SLGLProgram::passLightsToUniforms(SLVLight* lights,
                     SLstring uniformSm;
 
                     if (lightUsesCubemap[i])
+                    {
+                        uniformSm = ("u_lightSpace_" + std::to_string(i));
+                        uniformMatrix4fv(uniformSm.c_str(), 6, (SLfloat*)(lightSpace + (i * 6)));
                         uniformSm = "u_shadowMapCube_" + std::to_string(i);
+                    }
                     else
+                    {
+                        uniformSm = ("u_lightSpace_" + std::to_string(i));
+                        uniformMatrix4fv(uniformSm.c_str(), 1, (SLfloat*)(lightSpace + (i * 6)));
                         uniformSm = "u_shadowMap_" + std::to_string(i);
+                    }
 
                     if ((loc = getUniformLocation(uniformSm.c_str())) >= 0)
                     {
