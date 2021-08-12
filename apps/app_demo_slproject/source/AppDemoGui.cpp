@@ -3221,11 +3221,20 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                     SLfloat clipNear = shadowMap->clipNear();
                                     SLfloat clipFar  = shadowMap->clipFar();
 
-                                    if (ImGui::SliderFloat("Near clipping plane", &clipNear, 0.01f, clipFar))
-                                        shadowMap->clipNear(clipNear);
+                                    if (!shadowMap->useCascaded())
+                                    {
+                                        if (ImGui::SliderFloat("Near clipping plane", &clipNear, 0.01f, clipFar))
+                                            shadowMap->clipNear(clipNear);
 
-                                    if (ImGui::SliderFloat("Far clipping plane", &clipFar, clipNear, 200.0f))
-                                        shadowMap->clipFar(clipFar);
+                                        if (ImGui::SliderFloat("Far clipping plane", &clipFar, clipNear, 200.0f))
+                                            shadowMap->clipFar(clipFar);
+                                    }
+                                    else
+                                    {
+                                        SLint nbCascades = shadowMap->nbCascades();
+                                        if (ImGui::SliderInt("Number of cascades", &nbCascades, 1, 5))
+                                            shadowMap->nbCascades(nbCascades);
+                                    }
 
                                     SLVec2i texSize = shadowMap->textureSize();
                                     if (ImGui::SliderInt2("Texture resolution", (int*)&texSize, 32, 4096))
@@ -3279,9 +3288,21 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
 
                                     if (!shadowMap->useCubemap())
                                     {
-                                        ImGui::Text("Depth Buffer:");
-                                        ImGui::Image((void*)(intptr_t)shadowMap->depthBuffer()->texID(),
-                                                     ImVec2(200, 200));
+                                        if (shadowMap->useCascaded())
+                                        {
+                                            for (int i = 0; i < shadowMap->depthBuffers().size(); i++)
+                                            {
+                                                ImGui::Text(("Depth Buffer " + std::to_string(i) + ":").c_str());
+                                                ImGui::Image((void*)(intptr_t)shadowMap->depthBuffers().at(i)->texID(),
+                                                             ImVec2(200, 200));
+                                            }
+                                        }
+                                        else
+                                        {
+                                            ImGui::Text("Depth Buffer:");
+                                            ImGui::Image((void*)(intptr_t)shadowMap->depthBuffer()->texID(),
+                                                         ImVec2(200, 200));
+                                        }
                                     }
                                 }
                             }

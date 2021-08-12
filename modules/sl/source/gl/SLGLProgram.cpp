@@ -444,6 +444,11 @@ void SLGLProgram::passLightsToUniforms(SLVLight* lights,
                 if (lightNbCascades[i])
                 {
                     SLstring uniformSm;
+
+                    uniformSm = ("u_lightShadowClipFar_" + std::to_string(i));
+                    uniform1f(uniformSm.c_str(), lights->at(i)->shadowMap()->clipFar());
+                    uniformSm = ("u_lightShadowClipNear_" + std::to_string(i));
+                    uniform1f(uniformSm.c_str(), lights->at(i)->shadowMap()->clipNear());
                     uniformSm = ("u_lightSpace_" + std::to_string(i));
                     uniformMatrix4fv(uniformSm.c_str(), lightNbCascades[i], (SLfloat*)(lightSpace + (i * 6)));
                     for (int j = 0; j < lightNbCascades[i]; j++)

@@ -202,8 +202,6 @@ uniform bool        u_matGetsShadows;   // flag if material receives shadows
 )";
 //-----------------------------------------------------------------------------
 const string fragInputs_u_cam = R"(
-uniform float       u_camNearPlane;     // near plane distance
-uniform float       u_camFarPlane;      // far plane distance
 uniform int         u_camProjection;    // type of stereo
 uniform int         u_camStereoEye;     // -1=left, 0=center, 1=right
 uniform mat3        u_camStereoColors;  // color filter matrix
@@ -806,7 +804,7 @@ void SLGLProgramGenerated::buildProgramName(SLMaterial* mat,
         if (light->positionWS().w == 0.0f)
         {
             if (light->doCascadedShadows())
-                programName += "C"; // Directional light with cascaded shadowmap
+                programName += "C" + light->shadowMap()->nbCascades(); // Directional light with cascaded shadowmap
             else
                 programName += "D"; // Directional light
         }
@@ -1638,11 +1636,13 @@ uniform bool        u_lightUsesCubemap[NUM_LIGHTS];         // flag if light has
 
             if (shadowMap->useCubemap())
             {
-                u_lightSm += "uniform mat4        u_lightSpace_" + std::to_string(i) + "[6];";
+                u_lightSm += "uniform mat4        u_lightSpace_" + std::to_string(i) + "[6];\n";
             }
             else if (light->doCascadedShadows())
             {
                 u_lightSm += "uniform mat4        u_lightSpace_" + std::to_string(i) + "[" + std::to_string(shadowMap->nbCascades()) + "];";
+                u_lightSm += "uniform float       u_lightShadowClipNear_" + std::to_string(i) + ";\n";         // near plane distance
+                u_lightSm += "uniform float       u_lightShadowClipFar_" + std::to_string(i) + ";\n";          // far plane distance
             }
             else
             {
@@ -1704,13 +1704,12 @@ string SLGLProgramGenerated::coloredShadows()
 //! Adds the core shadow mapping test routine depending on the lights
 string SLGLProgramGenerated::fragShadowTest(SLVLight* lights)
 {
-    int nbCascades = 0;
-
+    bool doCascadedSM = false;
     for (SLLight* light : *lights)
     {
         if (light->doCascadedShadows())
         {
-            nbCascades = light->shadowMap()->depthBuffers().size();
+            doCascadedSM = true;
             break;
         }
     }
@@ -1731,14 +1730,31 @@ int vectorToFace(vec3 vec) // Vector to process
 
 int getCascadesDepthIndex(in int i, int nbCascades)
 {
-    float ni = u_camNearPlane;
-    float fi = u_camNearPlane;
+    float N, F;
+)";
+
+    for (SLuint i = 0; i < lights->size(); ++i)
+    {
+        SLShadowMap* shadowMap = lights->at(i)->shadowMap();
+        if (shadowMap && shadowMap->useCascaded())
+        {
+            shadowTestCode += "    if (i == " + std::to_string(i) + ")\n";
+            shadowTestCode += "    {\n";
+            shadowTestCode += "        N = u_lightShadowClipNear_" + std::to_string(i) + ";\n";
+            shadowTestCode += "        F = u_lightShadowClipFar_" + std::to_string(i) + ";\n";
+            shadowTestCode += "    }\n";
+        }
+    }
+
+    shadowTestCode += R"(
+    float ni = N;
+    float fi = F;
     float factor = 30.0f;
 
     for (int i = 0; i < nbCascades-1; i++)
     {
         ni = fi;
-        fi = factor * u_camNearPlane * pow((u_camFarPlane/(factor*u_camNearPlane)), float(i+1)/float(nbCascades));
+        fi = factor * N * pow((F/(factor*N)), float(i+1)/float(nbCascades));
         if (-v_P_VS.z < fi)
             return i;
     }
@@ -1754,7 +1770,7 @@ float shadowTest(in int i, in vec3 N, in vec3 lightDir)
         vec3 lightToFragment = v_P_WS - u_lightPosWS[i].xyz;
 )";
 
-    if (nbCascades > 0)
+    if (doCascadedSM > 0)
     {
         shadowTestCode += R"(
 

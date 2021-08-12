@@ -1700,8 +1700,6 @@ void SLCamera::passToUniforms(SLGLProgram* program)
     program->uniform1f("u_bgHeight", _background.rect().height);
     program->uniform1f("u_bgLeft", _background.rect().x);
     program->uniform1f("u_bgBottom", _background.rect().y);
-    program->uniform1f("u_camFarPlane", clipFar());
-    program->uniform1f("u_camNearPlane", clipNear());
     //SL_LOG("SLCamera: width:%f height:%f left:%f bottom:%f", _background.rect().width, _background.rect().height, _background.rect().x, _background.rect().x);
 }
 //-----------------------------------------------------------------------------

@@ -64,6 +64,7 @@ public:
         _halfSize.set(size / 2);
     }
     void textureSize(const SLVec2i& textureSize) { _textureSize.set(textureSize); }
+    void nbCascades(int nbCascades) { _nbCascades = nbCascades; }
 
     // Getters
     SLProjection                  projection() { return _projection; }
@@ -73,8 +74,8 @@ public:
     SLGLDepthBuffer*              depthBuffer() { return _depthBuffers.at(0); }
     std::vector<SLGLDepthBuffer*> depthBuffers() { return _depthBuffers; }
     SLVec2i                       rayCount() { return _rayCount; }
-    SLfloat                       clipNear() const { return _clipNear; }
-    SLfloat                       clipFar() const { return _clipFar; }
+    SLfloat                       clipNear();
+    SLfloat                       clipFar();
     SLVec2f                       size() { return _size; }
     SLVec2i                       textureSize() { return _textureSize; }
     int                           nbCascades() { return _nbCascades; }

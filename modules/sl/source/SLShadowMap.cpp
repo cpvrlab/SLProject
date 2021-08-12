@@ -82,6 +82,10 @@ SLShadowMap::~SLShadowMap()
 }
 
 //-----------------------------------------------------------------------------
+SLfloat SLShadowMap::clipNear() { return _camera? _camera->clipNear() : _clipNear; }
+SLfloat SLShadowMap::clipFar() { return _camera? _camera->clipFar() : _clipFar; }
+
+//-----------------------------------------------------------------------------
 /*! SLShadowMap::drawFrustum draws the volume affected by the shadow map
 */
 void SLShadowMap::drawFrustum()
@@ -278,13 +282,6 @@ void SLShadowMap::findOptimalNearPlane(SLNode*               node,
     if (node->drawBit(SL_DB_HIDDEN))
         return;
 
-    for (int i = 0; i < 4; i++)
-    {
-        float distance = planes[i].distToPoint(node->aabb()->centerWS());
-        if (distance < -node->aabb()->radiusWS())
-            return;
-    }
-
     //We don't need to increase far plane distance
     float distance = planes[5].distToPoint(node->aabb()->centerWS());
     if (distance < -node->aabb()->radiusWS())
@@ -302,6 +299,13 @@ void SLShadowMap::findOptimalNearPlane(SLNode*               node,
         P.m(10, -2.f / (f - n));
         P.m(14, -(f + n) / (f - n));
         SLFrustum::viewToFrustumPlanes(planes, P, lv);
+    }
+
+    for (int i = 0; i < 4; i++)
+    {
+        float distance = planes[i].distToPoint(node->aabb()->centerWS());
+        if (distance < -node->aabb()->radiusWS())
+            return;
     }
 
     visibleNodes.push_back(node);
@@ -534,12 +538,13 @@ void SLShadowMap::renderDirectionalLightCascaded(SLSceneView* sv, SLNode* root)
 
     if (_depthBuffers.size() != 0 &&
         (_depthBuffers[0]->dimensions() != _textureSize ||
-         _depthBuffers[0]->target() != GL_TEXTURE_2D))
+         _depthBuffers[0]->target() != GL_TEXTURE_2D ||
+         _depthBuffers.size() != _nbCascades))
     {
         _depthBuffers.erase(_depthBuffers.begin(), _depthBuffers.end());
     }
 
-    std::vector<SLVec2f> cascades = getShadowMapCascades(4, _camera->clipNear(), _camera->clipFar());
+    std::vector<SLVec2f> cascades = getShadowMapCascades(_nbCascades, _camera->clipNear(), _camera->clipFar());
     SLMat4f              cm       = _camera->updateAndGetWM(); // camera space to world space
     SLNode*              node     = dynamic_cast<SLNode*>(_light);
 
