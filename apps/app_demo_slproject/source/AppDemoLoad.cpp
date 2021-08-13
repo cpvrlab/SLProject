@@ -5797,6 +5797,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
             SLGLTexture* texFloorDif = new SLGLTexture(s, texCFile, SL_ANISOTROPY_MAX, GL_LINEAR);
             SLGLTexture* texFloorNrm = new SLGLTexture(s, texNFile, SL_ANISOTROPY_MAX, GL_LINEAR);
             SLMaterial*  matFloor    = new SLMaterial(s, "matFloor", texFloorDif, texFloorNrm);
+            SLMaterial* matPerPixSM = new SLMaterial(s, "m1");
 
             // Define camera
             SLCamera* cam1 = new SLCamera;
@@ -5836,7 +5837,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
                                                       50,
                                                       50,
                                                       "Floor",
-                                                      matFloor));
+                                                      matPerPixSM));
             rect->rotate(90, -1, 0, 0);
 
             // Load the corinthian column
@@ -5862,7 +5863,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
             scene->addChild(cam1);
 
             // create loads of pillars
-            SLint   size       = 20;
+            SLint   size       = 2;
             SLint   numColumns = size * size;
             SLfloat offset     = 5.0f;
             SLfloat z          = (float)(size - 1) * offset * 0.5f;

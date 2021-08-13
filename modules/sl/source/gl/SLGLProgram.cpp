@@ -247,7 +247,7 @@ void SLGLProgram::init(SLVLight* lights)
         SL_LOG("Source files: ");
         for (auto* shader : _shaders)
             SL_LOG("%s", shader->name().c_str());
-        SL_LOG("%s", log);
+        SL_LOG("ProgramInfoLog: %s", log);
         SL_EXIT_MSG("GLSL linker error");
     }
 }

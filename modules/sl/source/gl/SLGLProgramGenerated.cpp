@@ -18,6 +18,8 @@
 using std::string;
 using std::to_string;
 
+#define COLORED_SHADOW_CASCADES
+
 ///////////////////////////////
 // Const. GLSL code snippets //
 ///////////////////////////////
@@ -596,7 +598,6 @@ const string fragMainBlinn_2_LightLoopNm = R"(
         }
     }
 )";
-
 const string fragMainBlinn_2_LightLoopSm = R"(
     for (int i = 0; i < NUM_LIGHTS; ++i)
     {
@@ -623,7 +624,6 @@ const string fragMainBlinn_2_LightLoopSm = R"(
         }
     }
 )";
-
 const string fragMainBlinn_2_LightLoopNmSm = R"(
     for (int i = 0; i < NUM_LIGHTS; ++i)
     {
@@ -636,7 +636,6 @@ const string fragMainBlinn_2_LightLoopNmSm = R"(
 
                 // Test if the current fragment is in shadow
                 float shadow = u_matGetsShadows ? shadowTest(i, N, S) : 0.0;
-
                 directLightBlinnPhong(i, N, E, S, shadow, Ia, Id, Is);
             }
             else
@@ -646,7 +645,6 @@ const string fragMainBlinn_2_LightLoopNmSm = R"(
 
                 // Test if the current fragment is in shadow
                 float shadow = u_matGetsShadows ? shadowTest(i, N, L) : 0.0;
-
                 pointLightBlinnPhong(i, N, E, S, L, shadow, Ia, Id, Is);
             }
         }
@@ -930,7 +928,9 @@ in      vec3        v_spotDirTS[NUM_LIGHTS];    // Spot direction in tangent spa
     fragCode += fragMainBlinn_1_EN_fromNm1;
     fragCode += fragMainBlinn_2_LightLoopNmSm;
     fragCode += fragMainBlinn_3_FragColorAo2Tm;
-    // fragCode += coloredShadows(); // enable this to see the different cascades with different colors
+#ifdef COLORED_SHADOW_CASCADES
+    fragCode += coloredShadows(); // enable this to see the different cascades with different colors
+#endif
     fragCode += fragMainBlinn_4_End;
     addCodeToShader(_shaders[1], fragCode, _name + ".frag");
 }
@@ -1033,7 +1033,9 @@ in      vec3        v_spotDirTS[NUM_LIGHTS];    // Spot direction in tangent spa
     fragCode += fragMainBlinn_1_EN_fromNm1;
     fragCode += fragMainBlinn_2_LightLoopNmSm;
     fragCode += fragMainBlinn_3_FragColorTm;
+#ifdef COLORED_SHADOW_CASCADES
     fragCode += coloredShadows(); // enable this to see the different cascades with different colors
+#endif
     fragCode += fragMainBlinn_4_End;
     addCodeToShader(_shaders[1], fragCode, _name + ".frag");
 }
@@ -1086,7 +1088,9 @@ in      vec2        v_uv2;      // Texture coordinate 2 varying for AO
     fragCode += fragMainBlinn_1_EN_fromVert;
     fragCode += fragMainBlinn_2_LightLoopSm;
     fragCode += fragMainBlinn_3_FragColorAo1Tm;
-    // fragCode += coloredShadows(); // enable this to see the different cascades with different colors
+#ifdef COLORED_SHADOW_CASCADES
+    fragCode += coloredShadows(); // enable this to see the different cascades with different colors
+#endif
     fragCode += fragMainBlinn_4_End;
     addCodeToShader(_shaders[1], fragCode, _name + ".frag");
 }
@@ -1135,7 +1139,9 @@ in      vec2        v_uv1;      // Interpol. texture coordinate
     fragCode += fragMainBlinn_1_EN_fromVert;
     fragCode += fragMainBlinn_2_LightLoopSm;
     fragCode += fragMainBlinn_3_FragColorTm;
-    // fragCode += coloredShadows(); // enable this to see the different cascades with different colors
+#ifdef COLORED_SHADOW_CASCADES
+    fragCode += coloredShadows(); // enable this to see the different cascades with different colors
+#endif
     fragCode += fragMainBlinn_4_End;
     addCodeToShader(_shaders[1], fragCode, _name + ".frag");
 }
@@ -1189,7 +1195,9 @@ in      vec3        v_spotDirTS[NUM_LIGHTS];    // Spot direction in tangent spa
     fragCode += fragMainBlinn_1_EN_fromNm0;
     fragCode += fragMainBlinn_2_LightLoopNmSm;
     fragCode += fragMainBlinn_3_FragColor;
-    // fragCode += coloredShadows(); // enable this to see the different cascades with different colors
+#ifdef COLORED_SHADOW_CASCADES
+    fragCode += coloredShadows(); // enable this to see the different cascades with different colors
+#endif
     fragCode += fragMainBlinn_4_End;
     addCodeToShader(_shaders[1], fragCode, _name + ".frag");
 }
@@ -1238,7 +1246,9 @@ in      vec2        v_uv2;      // Texture coordinate 2 varying for AO
     fragCode += fragMainBlinn_1_EN_fromVert;
     fragCode += fragMainBlinn_2_LightLoopSm;
     fragCode += fragMainBlinn_3_FragColorAo0;
-    // fragCode += coloredShadows(); // enable this to see the different cascades with different colors
+#ifdef COLORED_SHADOW_CASCADES
+    fragCode += coloredShadows(); // enable this to see the different cascades with different colors
+#endif
     fragCode += fragMainBlinn_4_End;
     addCodeToShader(_shaders[1], fragCode, _name + ".frag");
 }
@@ -1422,7 +1432,9 @@ in      vec3        v_N_VS;     // Interpol. normal at v_P_VS in view space
     fragCode += fragMainBlinn_1_EN_fromVert;
     fragCode += fragMainBlinn_2_LightLoopSm;
     fragCode += fragMainBlinn_3_FragColor;
-    // fragCode += coloredShadows(); // enable this to see the different cascades with different colors
+#ifdef COLORED_SHADOW_CASCADES
+    fragCode += coloredShadows(); // enable this to see the different cascades with different colors
+#endif
     fragCode += fragMainBlinn_4_End;
     addCodeToShader(_shaders[1], fragCode, _name + ".frag");
 }
