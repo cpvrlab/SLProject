@@ -62,10 +62,10 @@ SLGLProgram::SLGLProgram(SLAssetManager* s,
  * asset manager was passed in the constructor it will do it after scene destruction.
  * The destructor deletes all shader objects (SLGLShader) in the RAM as well
  * as on the GPU.
-*/
+ */
 SLGLProgram::~SLGLProgram()
 {
-    //SL_LOG("~SLGLProgram");
+    // SL_LOG("~SLGLProgram");
     for (auto shader : _shaders)
     {
         if (_isLinked)
@@ -84,7 +84,7 @@ SLGLProgram::~SLGLProgram()
         glDeleteProgram(_progID);
         GET_GL_ERROR;
     }
-    
+
     // delete uniform variables
     for (auto uf : _uniforms1f)
         delete uf;
@@ -219,7 +219,8 @@ void SLGLProgram::init(SLVLight* lights)
             GET_GL_ERROR;
         }
     }
-    else {
+    else
+    {
         SL_EXIT_MSG("No successfully compiled shaders attached!");
     }
 
@@ -336,9 +337,7 @@ void SLGLProgram::passLightsToUniforms(SLVLight* lights,
         SLint            lightUsesCubemap[SL_MAX_LIGHTS];       //!< flag if light has a cube shadow map
         SLMat4f          lightSpace[SL_MAX_LIGHTS * 6];         //!< projection matrix of the light
         SLGLDepthBuffer* lightShadowMap[SL_MAX_LIGHTS * 6];     //!< pointers to depth-buffers for shadow mapping
-        SLint            lightNbCascades[SL_MAX_LIGHTS];        //!< number of cascades for cascaded shadow mapping
-
-        SLint numCascades = 0;
+        SLint            lightNumCascades[SL_MAX_LIGHTS];       //!< number of cascades for cascaded shadow mapping
 
         // Init to defaults
         for (SLint i = 0; i < SL_MAX_LIGHTS; ++i)
@@ -358,7 +357,7 @@ void SLGLProgram::passLightsToUniforms(SLVLight* lights,
             lightDoAtt[i] = 0;
             for (SLint ii = 0; ii < 6; ++ii)
             {
-                lightSpace[i * 6 + ii] = SLMat4f();
+                lightSpace[i * 6 + ii]     = SLMat4f();
                 lightShadowMap[i * 6 + ii] = nullptr;
             }
             lightCreatesShadows[i]    = 0;
@@ -367,7 +366,7 @@ void SLGLProgram::passLightsToUniforms(SLVLight* lights,
             lightShadowMinBias[i]     = 0.001f;
             lightShadowMaxBias[i]     = 0.008f;
             lightUsesCubemap[i]       = 0;
-            lightNbCascades[i]        = 0;
+            lightNumCascades[i]       = 0;
         }
 
         // Fill up light property vectors
@@ -399,7 +398,7 @@ void SLGLProgram::passLightsToUniforms(SLVLight* lights,
             lightShadowMinBias[i]     = light->shadowMinBias();
             lightShadowMaxBias[i]     = light->shadowMaxBias();
             lightUsesCubemap[i]       = shadowMap && shadowMap->useCubemap() ? 1 : 0;
-            lightNbCascades[i]        = shadowMap ? shadowMap->numCascades() : 0;
+            lightNumCascades[i]       = shadowMap ? shadowMap->numCascades() : 0;
 
             if (shadowMap)
             {
@@ -407,8 +406,8 @@ void SLGLProgram::passLightsToUniforms(SLVLight* lights,
 
                 for (SLint ls = 0; ls < 6; ++ls)
                 {
-                    lightShadowMap[i * 6 + ls] = cascades > ls? shadowMap->depthBuffers()[ls] : nullptr;
-                    lightSpace[i * 6 + ls] = shadowMap->mvp()[ls];
+                    lightShadowMap[i * 6 + ls] = cascades > ls ? shadowMap->depthBuffers()[ls] : nullptr;
+                    lightSpace[i * 6 + ls]     = shadowMap->mvp()[ls];
                 }
             }
         }
@@ -433,7 +432,7 @@ void SLGLProgram::passLightsToUniforms(SLVLight* lights,
         uniform1iv("u_lightCreatesShadows", nL, (SLint*)&lightCreatesShadows);
         uniform1fv("u_lightShadowMinBias", nL, (SLfloat*)&lightShadowMinBias);
         uniform1fv("u_lightShadowMaxBias", nL, (SLfloat*)&lightShadowMaxBias);
-        uniform1iv("u_lightNbCascades", nL, (SLint*)&lightNbCascades);
+        uniform1iv("u_lightNumCascades", nL, (SLint*)&lightNumCascades);
 
         int unitCounter = numTexInMat;
 
@@ -441,7 +440,7 @@ void SLGLProgram::passLightsToUniforms(SLVLight* lights,
         {
             if (lightCreatesShadows[i])
             {
-                if (lightNbCascades[i])
+                if (lightNumCascades[i])
                 {
                     SLstring uniformSm;
 
@@ -450,14 +449,14 @@ void SLGLProgram::passLightsToUniforms(SLVLight* lights,
                     uniformSm = ("u_lightShadowClipNear_" + std::to_string(i));
                     uniform1f(uniformSm.c_str(), lights->at(i)->shadowMap()->clipNear());
                     uniformSm = ("u_lightSpace_" + std::to_string(i));
-                    uniformMatrix4fv(uniformSm.c_str(), lightNbCascades[i], (SLfloat*)(lightSpace + (i * 6)));
-                    for (int j = 0; j < lightNbCascades[i]; j++)
+                    uniformMatrix4fv(uniformSm.c_str(), lightNumCascades[i], (SLfloat*)(lightSpace + (i * 6)));
+                    for (int j = 0; j < lightNumCascades[i]; j++)
                     {
-                        SLint    loc = 0;
+                        SLint loc = 0;
                         uniformSm = "u_cascadedShadowMap_" + std::to_string(i) + "[" + std::to_string(j) + "]";
                         if ((loc = getUniformLocation(uniformSm.c_str())) >= 0)
                         {
-                            lightShadowMap[i*6 + j]->bindActive(unitCounter);
+                            lightShadowMap[i * 6 + j]->bindActive(unitCounter);
                             glUniform1i(loc, unitCounter);
 
                             unitCounter++;

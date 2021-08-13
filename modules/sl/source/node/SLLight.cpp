@@ -53,41 +53,35 @@ SLLight::SLLight(SLfloat ambiPower,
     kl(0.0f);
     kq(0.0f);
 }
-
 //-----------------------------------------------------------------------------
 void SLLight::kc(SLfloat kc)
 {
     _kc           = kc;
     _isAttenuated = !(_kc == 1.0f && _kl == 0.0f && _kq == 0.0f);
 }
-
 //-----------------------------------------------------------------------------
 void SLLight::kl(SLfloat kl)
 {
     _kl           = kl;
     _isAttenuated = !(_kc == 1.0f && _kl == 0.0f && _kq == 0.0f);
 }
-
 //-----------------------------------------------------------------------------
 void SLLight::kq(SLfloat kq)
 {
     _kq           = kq;
     _isAttenuated = !(_kc == 1.0f && _kl == 0.0f && _kq == 0.0f);
 }
-
 //-----------------------------------------------------------------------------
 void SLLight::spotCutOffDEG(const SLfloat cutOffAngleDEG)
 {
     _spotCutOffDEG    = cutOffAngleDEG;
     _spotCosCutOffRAD = cos(Utils::DEG2RAD * _spotCutOffDEG);
 }
-
 //-----------------------------------------------------------------------------
 void SLLight::createsShadows(SLbool createsShadows)
 {
     _createsShadows = createsShadows;
 }
-
 //-----------------------------------------------------------------------------
 //! SLLight::renderShadowMap renders the shadow map of the light
 void SLLight::renderShadowMap(SLSceneView* sv, SLNode* root)

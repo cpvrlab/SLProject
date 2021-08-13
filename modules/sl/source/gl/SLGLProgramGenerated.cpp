@@ -25,12 +25,12 @@ using std::to_string;
 //-----------------------------------------------------------------------------
 string SLGLProgramGenerated::generatedShaderPath;
 //-----------------------------------------------------------------------------
-const string vertInputs_a_pn = R"(
+const string vertInputs_a_pn      = R"(
 layout (location = 0) in vec4  a_position;  // Vertex position attribute
 layout (location = 1) in vec3  a_normal;    // Vertex normal attribute)";
-const string vertInputs_a_uv1 = R"(
+const string vertInputs_a_uv1     = R"(
 layout (location = 2) in vec2  a_uv1;       // Vertex tex.coord. 1 for diffuse color)";
-const string vertInputs_a_uv2 = R"(
+const string vertInputs_a_uv2     = R"(
 layout (location = 3) in vec2  a_uv2;       // Vertex tex.coord. 2 for AO)";
 const string vertInputs_a_tangent = R"(
 layout (location = 5) in vec4  a_tangent;   // Vertex tangent attribute
@@ -49,15 +49,15 @@ uniform vec3  u_lightSpotDir[NUM_LIGHTS];   // spot direction in view space
 uniform float u_lightSpotDeg[NUM_LIGHTS];   // spot cutoff angle 1-180 degrees
 )";
 //-----------------------------------------------------------------------------
-const string vertOutputs_v_P_VS = R"(
+const string vertOutputs_v_P_VS    = R"(
 out     vec3  v_P_VS;                   // Point of illumination in view space (VS))";
-const string vertOutputs_v_N_VS = R"(
+const string vertOutputs_v_N_VS    = R"(
 out     vec3  v_N_VS;                   // Normal at P_VS in view space (VS))";
-const string vertOutputs_v_P_WS = R"(
+const string vertOutputs_v_P_WS    = R"(
 out     vec3  v_P_WS;                   // Point of illumination in world space (WS))";
-const string vertOutputs_v_uv1 = R"(
+const string vertOutputs_v_uv1     = R"(
 out     vec2  v_uv1;                    // Texture coordinate 1 output)";
-const string vertOutputs_v_uv2 = R"(
+const string vertOutputs_v_uv2     = R"(
 out     vec2  v_uv2;                    // Texture coordinate 1 output)";
 const string vertOutputs_v_lightNm = R"(
 out     vec3  v_eyeDirTS;               // Vector to the eye in tangent space
@@ -65,19 +65,19 @@ out     vec3  v_lightDirTS[NUM_LIGHTS]; // Vector to the light 0 in tangent spac
 out     vec3  v_spotDirTS[NUM_LIGHTS];  // Spot direction in tangent space
 )";
 //-----------------------------------------------------------------------------
-const string vertMainBlinn_BeginAll = R"(
+const string vertMainBlinn_BeginAll  = R"(
 void main()
 {
     v_P_VS = vec3(u_mvMatrix *  a_position); // vertex position in view space)";
 const string vertMainBlinn_v_P_WS_Sm = R"(
     v_P_WS = vec3(u_mMatrix * a_position);   // vertex position in world space)";
-const string vertMainBlinn_v_N_VS = R"(
+const string vertMainBlinn_v_N_VS    = R"(
     v_N_VS = vec3(u_nMatrix * a_normal);     // vertex normal in view space)";
-const string vertMainBlinn_v_uv1 = R"(
+const string vertMainBlinn_v_uv1     = R"(
     v_uv1 = a_uv1;  // pass diffuse color tex.coord. 1 for interpolation)";
-const string vertMainBlinn_v_uv2_Ao = R"(
+const string vertMainBlinn_v_uv2_Ao  = R"(
     v_uv2 = a_uv2;  // pass ambient occlusion tex.coord. 2 for interpolation)";
-const string vertMainBlinn_TBN_Nm = R"(
+const string vertMainBlinn_TBN_Nm    = R"(
     // Building the matrix Eye Space -> Tangent Space
     // See the math behind at: http://www.terathon.com/code/tangent.html
     vec3 n = normalize(u_nMatrix * a_normal);
@@ -101,13 +101,12 @@ const string vertMainBlinn_TBN_Nm = R"(
         v_lightDirTS[i] *= TBN;
     }
 )";
-const string vertMainBlinn_EndAll = R"(
+const string vertMainBlinn_EndAll    = R"(
     // pass the vertex w. the fix-function transform
     gl_Position = u_mvpMatrix * a_position;
 }
 )";
 //-----------------------------------------------------------------------------
-
 
 //-----------------------------------------------------------------------------
 const string fragInputs_u_lightAll = R"(
@@ -127,8 +126,6 @@ uniform float       u_oneOverGamma;                         // 1.0f / Gamma corr
 )";
 //-----------------------------------------------------------------------------
 
-
-
 const string fragInputs_u_lightSc = R"(
 )";
 
@@ -141,55 +138,55 @@ uniform vec4        u_matEmis;          // emissive color for self-shining mater
 uniform float       u_matShin;          // shininess exponent
 )";
 //-----------------------------------------------------------------------------
-const string fragInputs_u_matTm = R"(
+const string fragInputs_u_matTm       = R"(
 uniform sampler2D   u_matTexture0;      // diffuse color map
 )";
-const string fragInputs_u_matAo = R"(
+const string fragInputs_u_matAo       = R"(
 uniform sampler2D   u_matTexture0;      // ambient occlusion map
 )";
-const string fragInputs_u_matSm = R"(
+const string fragInputs_u_matSm       = R"(
 uniform bool        u_matGetsShadows;   // flag if material receives shadows
 )";
-const string fragInputs_u_matTmNm = R"(
+const string fragInputs_u_matTmNm     = R"(
 uniform sampler2D   u_matTexture0;      // diffuse color map
 uniform sampler2D   u_matTexture1;      // normal bump map
 )";
-const string fragInputs_u_matTmPm = R"(
+const string fragInputs_u_matTmPm     = R"(
 uniform sampler2D   u_matTexture0;      // diffuse color map
 uniform sampler2D   u_matTexture1;      // normal bump map
 uniform sampler2D   u_matTexture2;      // normal bump map
 )";
-const string fragInputs_u_matTmAo = R"(
+const string fragInputs_u_matTmAo     = R"(
 uniform sampler2D   u_matTexture0;      // diffuse color map
 uniform sampler2D   u_matTexture1;      // ambient occlusion map
 )";
-const string fragInputs_u_matTmSm = R"(
+const string fragInputs_u_matTmSm     = R"(
 uniform sampler2D   u_matTexture0;      // diffuse color map
 uniform bool        u_matGetsShadows;   // flag if material receives shadows
 )";
-const string fragInputs_u_matNmSm = R"(
+const string fragInputs_u_matNmSm     = R"(
 uniform sampler2D   u_matTexture0;      // normal bump map
 uniform bool        u_matGetsShadows;   // flag if material receives shadows
 )";
-const string fragInputs_u_matAoSm = R"(
+const string fragInputs_u_matAoSm     = R"(
 uniform sampler2D   u_matTexture0;      // ambient occlusion map
 uniform bool        u_matGetsShadows;   // flag if material receives shadows
 )";
-const string fragInputs_u_matNmAo = R"(
+const string fragInputs_u_matNmAo     = R"(
 uniform sampler2D   u_matTexture0;      // normal bump map
 uniform sampler2D   u_matTexture1;      // ambient occlusion map
 )";
-const string fragInputs_u_matTmNmAo = R"(
+const string fragInputs_u_matTmNmAo   = R"(
 uniform sampler2D   u_matTexture0;      // diffuse color map
 uniform sampler2D   u_matTexture1;      // normal bump map
 uniform sampler2D   u_matTexture2;      // ambient occlusion map
 )";
-const string fragInputs_u_matTmNmSm = R"(
+const string fragInputs_u_matTmNmSm   = R"(
 uniform sampler2D   u_matTexture0;      // diffuse color map
 uniform sampler2D   u_matTexture1;      // normal bump map
 uniform bool        u_matGetsShadows;   // flag if material receives shadows
 )";
-const string fragInputs_u_matTmAoSm = R"(
+const string fragInputs_u_matTmAoSm   = R"(
 uniform sampler2D   u_matTexture0;      // diffuse color map
 uniform sampler2D   u_matTexture1;      // ambient occlusion map
 uniform bool        u_matGetsShadows;   // flag if material receives shadows
@@ -515,16 +512,16 @@ void main()
     vec4 Is = vec4(0.0); // Accumulated specular light intensity at v_P_VS
 )";
 //-----------------------------------------------------------------------------
-const string fragMainBlinn_1_EN_fromVert = R"(
+const string fragMainBlinn_1_EN_fromVert   = R"(
     vec3 E = normalize(-v_P_VS); // Interpolated vector from p to the eye
     vec3 N = normalize(v_N_VS);  // A input normal has not anymore unit length
 )";
-const string fragMainBlinn_1_EN_fromNm0 = R"(
+const string fragMainBlinn_1_EN_fromNm0    = R"(
     vec3 E = normalize(v_eyeDirTS);   // normalized interpolated eye direction
     // Get normal from normal map, move from [0,1] to [-1, 1] range & normalize
     vec3 N = normalize(texture(u_matTexture0, v_uv1).rgb * 2.0 - 1.0);
 )";
-const string fragMainBlinn_1_EN_fromNm1 = R"(
+const string fragMainBlinn_1_EN_fromNm1    = R"(
     vec3 E = normalize(v_eyeDirTS);   // normalized interpolated eye direction
     // Get normal from normal map, move from [0,1] to [-1, 1] range & normalize
     vec3 N = normalize(texture(u_matTexture1, v_uv1).rgb * 2.0 - 1.0);
@@ -559,7 +556,7 @@ vec3 indexToColor(int index)
 )";
 
 //-----------------------------------------------------------------------------
-const string fragMainBlinn_2_LightLoop = R"(
+const string fragMainBlinn_2_LightLoop   = R"(
     for (int i = 0; i < NUM_LIGHTS; ++i)
     {
         if (u_lightIsOn[i])
@@ -656,7 +653,7 @@ const string fragMainBlinn_2_LightLoopNmSm = R"(
     }
 )";
 //-----------------------------------------------------------------------------
-const string fragMainBlinn_3_FragColor = R"(
+const string fragMainBlinn_3_FragColor      = R"(
     // Sum up all the reflected color components
     o_fragColor =  u_matEmis +
                    u_globalAmbi +
@@ -667,7 +664,7 @@ const string fragMainBlinn_3_FragColor = R"(
     // For correct alpha blending overwrite alpha component
     o_fragColor.a = u_matDiff.a;
 )";
-const string fragMainBlinn_3_FragColorTm = R"(
+const string fragMainBlinn_3_FragColorTm    = R"(
     // Sum up all the reflected color components
     o_fragColor =  u_matEmis +
                    u_globalAmbi +
@@ -681,7 +678,7 @@ const string fragMainBlinn_3_FragColorTm = R"(
     vec4 specColor = Is * u_matSpec;
     o_fragColor.rgb += specColor.rgb;
 )";
-const string fragMainBlinn_3_FragColorAo0 = R"(
+const string fragMainBlinn_3_FragColorAo0   = R"(
     // Get ambient occlusion factor
     float AO = texture(u_matTexture0, v_uv2).r;
 
@@ -695,7 +692,7 @@ const string fragMainBlinn_3_FragColorAo0 = R"(
     // For correct alpha blending overwrite alpha component
     o_fragColor.a = u_matDiff.a;
 )";
-const string fragMainBlinn_3_FragColorAo1 = R"(
+const string fragMainBlinn_3_FragColorAo1   = R"(
     // Get ambient occlusion factor
     float AO = texture(u_matTexture1, v_uv2).r;
 
@@ -759,7 +756,6 @@ const string fragMainBlinn_4_End = R"(
 )";
 //-----------------------------------------------------------------------------
 
-
 //-----------------------------------------------------------------------------
 //! Builds unique program name that identifies shader program
 /*! See the class information for more insights of the generated name. This
@@ -790,8 +786,8 @@ void SLGLProgramGenerated::buildProgramName(SLMaterial* mat,
         programName += "Custom";
     if (matHasTm)
         programName += "Tm";
-    //if (matHasNm && matHasHm)
-    //    programName += "Pm";
+    // if (matHasNm && matHasHm)
+    //     programName += "Pm";
     if (matHasNm && !matHasHm)
         programName += "Nm";
     if (matHasAo)
@@ -867,8 +863,8 @@ void SLGLProgramGenerated::buildProgramCode(SLMaterial* mat,
             buildPerPixBlinnSm(lights);
         else if (Ao)
             buildPerPixBlinnAo(lights);
-        //else if (Nm && Hm)
-        //    buildPerPixBlinnPm(lights);
+        // else if (Nm && Hm)
+        //     buildPerPixBlinnPm(lights);
         else if (Nm)
             buildPerPixBlinnNm(lights);
         else if (Tm)
@@ -879,8 +875,6 @@ void SLGLProgramGenerated::buildProgramCode(SLMaterial* mat,
     else
         SL_EXIT_MSG("Only Blinn-Phong supported yet.");
 }
-
-
 
 //-----------------------------------------------------------------------------
 void SLGLProgramGenerated::buildPerPixBlinnTmNmAoSm(SLVLight* lights)
@@ -936,7 +930,7 @@ in      vec3        v_spotDirTS[NUM_LIGHTS];    // Spot direction in tangent spa
     fragCode += fragMainBlinn_1_EN_fromNm1;
     fragCode += fragMainBlinn_2_LightLoopNmSm;
     fragCode += fragMainBlinn_3_FragColorAo2Tm;
-    //fragCode += coloredShadows(); // enable this to see the different cascades with different colors
+    // fragCode += coloredShadows(); // enable this to see the different cascades with different colors
     fragCode += fragMainBlinn_4_End;
     addCodeToShader(_shaders[1], fragCode, _name + ".frag");
 }
@@ -1039,11 +1033,9 @@ in      vec3        v_spotDirTS[NUM_LIGHTS];    // Spot direction in tangent spa
     fragCode += fragMainBlinn_1_EN_fromNm1;
     fragCode += fragMainBlinn_2_LightLoopNmSm;
     fragCode += fragMainBlinn_3_FragColorTm;
-    //fragCode += coloredShadows(); // enable this to see the different cascades with different colors
+    fragCode += coloredShadows(); // enable this to see the different cascades with different colors
     fragCode += fragMainBlinn_4_End;
     addCodeToShader(_shaders[1], fragCode, _name + ".frag");
-
-    std::cout << fragCode << std::endl;
 }
 //-----------------------------------------------------------------------------
 void SLGLProgramGenerated::buildPerPixBlinnTmAoSm(SLVLight* lights)
@@ -1094,7 +1086,7 @@ in      vec2        v_uv2;      // Texture coordinate 2 varying for AO
     fragCode += fragMainBlinn_1_EN_fromVert;
     fragCode += fragMainBlinn_2_LightLoopSm;
     fragCode += fragMainBlinn_3_FragColorAo1Tm;
-    //fragCode += coloredShadows(); // enable this to see the different cascades with different colors
+    // fragCode += coloredShadows(); // enable this to see the different cascades with different colors
     fragCode += fragMainBlinn_4_End;
     addCodeToShader(_shaders[1], fragCode, _name + ".frag");
 }
@@ -1143,7 +1135,7 @@ in      vec2        v_uv1;      // Interpol. texture coordinate
     fragCode += fragMainBlinn_1_EN_fromVert;
     fragCode += fragMainBlinn_2_LightLoopSm;
     fragCode += fragMainBlinn_3_FragColorTm;
-    //fragCode += coloredShadows(); // enable this to see the different cascades with different colors
+    // fragCode += coloredShadows(); // enable this to see the different cascades with different colors
     fragCode += fragMainBlinn_4_End;
     addCodeToShader(_shaders[1], fragCode, _name + ".frag");
 }
@@ -1197,7 +1189,7 @@ in      vec3        v_spotDirTS[NUM_LIGHTS];    // Spot direction in tangent spa
     fragCode += fragMainBlinn_1_EN_fromNm0;
     fragCode += fragMainBlinn_2_LightLoopNmSm;
     fragCode += fragMainBlinn_3_FragColor;
-    //fragCode += coloredShadows(); // enable this to see the different cascades with different colors
+    // fragCode += coloredShadows(); // enable this to see the different cascades with different colors
     fragCode += fragMainBlinn_4_End;
     addCodeToShader(_shaders[1], fragCode, _name + ".frag");
 }
@@ -1246,7 +1238,7 @@ in      vec2        v_uv2;      // Texture coordinate 2 varying for AO
     fragCode += fragMainBlinn_1_EN_fromVert;
     fragCode += fragMainBlinn_2_LightLoopSm;
     fragCode += fragMainBlinn_3_FragColorAo0;
-    //fragCode += coloredShadows(); // enable this to see the different cascades with different colors
+    // fragCode += coloredShadows(); // enable this to see the different cascades with different colors
     fragCode += fragMainBlinn_4_End;
     addCodeToShader(_shaders[1], fragCode, _name + ".frag");
 }
@@ -1430,7 +1422,7 @@ in      vec3        v_N_VS;     // Interpol. normal at v_P_VS in view space
     fragCode += fragMainBlinn_1_EN_fromVert;
     fragCode += fragMainBlinn_2_LightLoopSm;
     fragCode += fragMainBlinn_3_FragColor;
-    //fragCode += coloredShadows(); // enable this to see the different cascades with different colors
+    // fragCode += coloredShadows(); // enable this to see the different cascades with different colors
     fragCode += fragMainBlinn_4_End;
     addCodeToShader(_shaders[1], fragCode, _name + ".frag");
 }
@@ -1603,7 +1595,6 @@ in      vec3        v_N_VS;     // Interpol. normal at v_P_VS in view space
 }
 //-----------------------------------------------------------------------------
 
-
 //-----------------------------------------------------------------------------
 //! Returns true if at least one of the light does shadow mapping
 bool SLGLProgramGenerated::lightsDoShadowMapping(SLVLight* lights)
@@ -1615,14 +1606,13 @@ bool SLGLProgramGenerated::lightsDoShadowMapping(SLVLight* lights)
     }
     return false;
 }
-
 //-----------------------------------------------------------------------------
 string SLGLProgramGenerated::fragInputs_u_lightSm(SLVLight* lights)
 {
     string u_lightSm = R"(
 uniform vec4        u_lightPosWS[NUM_LIGHTS];               // position of light in world space
 uniform bool        u_lightCreatesShadows[NUM_LIGHTS];      // flag if light creates shadows
-uniform int         u_lightNbCascades[NUM_LIGHTS];          // number of cascades for cascaded shadowmap
+uniform int         u_lightNumCascades[NUM_LIGHTS];          // number of cascades for cascaded shadowmap
 uniform bool        u_lightDoSmoothShadows[NUM_LIGHTS];     // flag if percentage-closer filtering is enabled
 uniform int         u_lightSmoothShadowLevel[NUM_LIGHTS];   // radius of area to sample for PCF
 uniform float       u_lightShadowMinBias[NUM_LIGHTS];       // min. shadow bias value at 0° to N
@@ -1643,8 +1633,8 @@ uniform bool        u_lightUsesCubemap[NUM_LIGHTS];         // flag if light has
             else if (light->doCascadedShadows())
             {
                 u_lightSm += "uniform mat4        u_lightSpace_" + std::to_string(i) + "[" + std::to_string(shadowMap->numCascades()) + "];\n";
-                u_lightSm += "uniform float       u_lightShadowClipNear_" + std::to_string(i) + ";\n";         // near plane distance
-                u_lightSm += "uniform float       u_lightShadowClipFar_" + std::to_string(i) + ";\n";          // far plane distance
+                u_lightSm += "uniform float       u_lightShadowClipNear_" + std::to_string(i) + ";\n"; // near plane distance
+                u_lightSm += "uniform float       u_lightShadowClipFar_" + std::to_string(i) + ";\n";  // far plane distance
             }
             else
             {
@@ -1654,7 +1644,6 @@ uniform bool        u_lightUsesCubemap[NUM_LIGHTS];         // flag if light has
     }
     return u_lightSm;
 }
-
 //-----------------------------------------------------------------------------
 string SLGLProgramGenerated::fragInputs_u_shadowMaps(SLVLight* lights)
 {
@@ -1670,12 +1659,14 @@ string SLGLProgramGenerated::fragInputs_u_shadowMaps(SLVLight* lights)
             else if (light->doCascadedShadows())
                 smDecl += "uniform sampler2D   u_cascadedShadowMap_" + to_string(i) + "[" + std::to_string(light->shadowMap()->depthBuffers().size()) + "];\n";
             else
-                smDecl += "uniform sampler2D   u_shadowMap_" + to_string(i) + ";\n";;
+                smDecl += "uniform sampler2D   u_shadowMap_" + to_string(i) + ";\n";
+            ;
         }
     }
     return smDecl;
 }
 //-----------------------------------------------------------------------------
+//! Makes colored shadow cascades for visualization
 string SLGLProgramGenerated::coloredShadows()
 {
     string shadowColored = R"(
@@ -1683,7 +1674,7 @@ string SLGLProgramGenerated::coloredShadows()
     {
         if (u_lightIsOn[i])
         {
-            if (u_lightNbCascades[i] > 0)
+            if (u_lightNumCascades[i] > 0)
             {
                 if (u_lightPosVS[i].w == 0.0)
                 {
@@ -1692,7 +1683,7 @@ string SLGLProgramGenerated::coloredShadows()
                     // Test if the current fragment is in shadow
                     float shadow = u_matGetsShadows ? shadowTest(i, N, S) : 0.0;
                 
-                    o_fragColor.rgb += shadow * indexToColor(getCascadesDepthIndex(i, u_lightNbCascades[i]));
+                    o_fragColor.rgb += shadow * indexToColor(getCascadesDepthIndex(i, u_lightNumCascades[i]));
                 }
             }
         }
@@ -1700,9 +1691,7 @@ string SLGLProgramGenerated::coloredShadows()
     )";
     return shadowColored;
 }
-
 //-----------------------------------------------------------------------------
-
 //! Adds the core shadow mapping test routine depending on the lights
 string SLGLProgramGenerated::fragShadowTest(SLVLight* lights)
 {
@@ -1775,15 +1764,15 @@ float shadowTest(in int i, in vec3 N, in vec3 lightDir)
         shadowTestCode += R"(
         int index = 0;
 
-        if (u_lightNbCascades[i] > 0)
+        if (u_lightNumCascades[i] > 0)
         {
-            index = getCascadesDepthIndex(i, u_lightNbCascades[i]);
+            index = getCascadesDepthIndex(i, u_lightNumCascades[i]);
         )";
         for (SLuint i = 0; i < lights->size(); ++i)
         {
             SLShadowMap* shadowMap = lights->at(i)->shadowMap();
             if (shadowMap && shadowMap->useCascaded())
-                shadowTestCode += "if (i == " + std::to_string(i) + ") { lightSpace = u_lightSpace_" + std::to_string(i) + "[index]; }\n";
+                shadowTestCode += "    if (i == " + std::to_string(i) + ") { lightSpace = u_lightSpace_" + std::to_string(i) + "[index]; }\n";
         }
         shadowTestCode += R"(
         }
@@ -1804,7 +1793,8 @@ float shadowTest(in int i, in vec3 N, in vec3 lightDir)
         {
             SLShadowMap* shadowMap = lights->at(i)->shadowMap();
             if (shadowMap && !shadowMap->useCubemap() && !shadowMap->useCascaded())
-            shadowTestCode += "if (i == " + std::to_string(i) + ") { lightSpace = u_lightSpace_" + std::to_string(i); + "}\n";
+                shadowTestCode += "if (i == " + std::to_string(i) + ") { lightSpace = u_lightSpace_" + std::to_string(i);
+            +"}\n";
         }
         shadowTestCode += R"(
         }
@@ -1870,23 +1860,23 @@ float shadowTest(in int i, in vec3 N, in vec3 lightDir)
             shadowTestCode += "            if (i == " + to_string(i) + ") { texelSize = 1.0 / vec2(textureSize(u_shadowMap_" + to_string(i) + ", 0)); }\n";
         else if (shadowMap->useCascaded())
             shadowTestCode += "            if (i == " + to_string(i) + ") { texelSize = 1.0 / vec2(textureSize(u_cascadedShadowMap_" + to_string(i) + "[index]" + ", 0)); }\n";
-        }
-        shadowTestCode += R"(
+    }
+    shadowTestCode += R"(
             for (int x = -level; x <= level; ++x)
             {
                 for (int y = -level; y <= level; ++y)
                 {
                     )";
-        for (SLuint i = 0; i < lights->size(); ++i)
-        {
-            SLShadowMap* shadowMap = lights->at(i)->shadowMap();
-            if (!shadowMap->useCascaded() && !shadowMap->useCubemap())
-                shadowTestCode += "if (i == " + to_string(i) + ") { closestDepth = texture(u_shadowMap_" + to_string(i) + ", projCoords.xy + vec2(x, y) * texelSize).r; }\n";
-            else if (shadowMap->useCascaded())
-                shadowTestCode += "if (i == " + to_string(i) + ") { closestDepth = texture(u_cascadedShadowMap_" + to_string(i) + "[index]" + ", projCoords.xy + vec2(x, y) * texelSize).r; }\n";
-        }
+    for (SLuint i = 0; i < lights->size(); ++i)
+    {
+        SLShadowMap* shadowMap = lights->at(i)->shadowMap();
+        if (!shadowMap->useCascaded() && !shadowMap->useCubemap())
+            shadowTestCode += "if (i == " + to_string(i) + ") { closestDepth = texture(u_shadowMap_" + to_string(i) + ", projCoords.xy + vec2(x, y) * texelSize).r; }\n";
+        else if (shadowMap->useCascaded())
+            shadowTestCode += "if (i == " + to_string(i) + ") { closestDepth = texture(u_cascadedShadowMap_" + to_string(i) + "[index]" + ", projCoords.xy + vec2(x, y) * texelSize).r; }\n";
+    }
 
-        shadowTestCode += R"(
+    shadowTestCode += R"(
                     shadow += currentDepth - bias > closestDepth ? 1.0 : 0.0;
                 }
             }
@@ -1897,15 +1887,15 @@ float shadowTest(in int i, in vec3 N, in vec3 lightDir)
             if (u_lightUsesCubemap[i])
             {
 )";
-        for (SLuint i = 0; i < lights->size(); ++i)
-        {
-            SLShadowMap* shadowMap =  lights->at(i)->shadowMap();
-            if (shadowMap->useCubemap())
-                shadowTestCode += "                if (i == " + to_string(i) + ") closestDepth = texture(u_shadowMapCube_" + to_string(i) + ", lightToFragment).r;\n";
+    for (SLuint i = 0; i < lights->size(); ++i)
+    {
+        SLShadowMap* shadowMap = lights->at(i)->shadowMap();
+        if (shadowMap->useCubemap())
+            shadowTestCode += "                if (i == " + to_string(i) + ") closestDepth = texture(u_shadowMapCube_" + to_string(i) + ", lightToFragment).r;\n";
     }
     shadowTestCode += R"(
             }
-            else if (u_lightNbCascades[i] > 0)
+            else if (u_lightNumCascades[i] > 0)
             {
 )";
     for (SLuint i = 0; i < lights->size(); ++i)
@@ -1927,7 +1917,8 @@ float shadowTest(in int i, in vec3 N, in vec3 lightDir)
     {
         SLShadowMap* shadowMap = lights->at(i)->shadowMap();
         if (!shadowMap->useCubemap() && !shadowMap->useCascaded())
-            shadowTestCode += "                if (i == " + to_string(i) + ") closestDepth = texture(u_shadowMap_" + to_string(i) + ", projCoords.xy).r;\n"; }
+            shadowTestCode += "                if (i == " + to_string(i) + ") closestDepth = texture(u_shadowMap_" + to_string(i) + ", projCoords.xy).r;\n";
+    }
 
     shadowTestCode += R"(
             }
@@ -1952,13 +1943,19 @@ void SLGLProgramGenerated::addCodeToShader(SLGLShader*   shader,
                                            const string& code,
                                            const string& name)
 {
+
+#if defined(DEBUG) && defined(_DEBUG)
     shader->code(SLGLShader::removeComments(code));
+#else
+    shader->code(code);
+#endif
     shader->name(name);
 
     // Check if generatedShaderPath folder exists
     generatedShaderPath = SLGLProgramManager::configPath + "generatedShaders/";
     if (!Utils::dirExists(SLGLProgramManager::configPath))
         SL_EXIT_MSG("SLGLProgramGenerated::addCodeToShader: SLGLProgramManager::configPath not existing");
+
     if (!Utils::dirExists(generatedShaderPath))
     {
         bool dirCreated = Utils::makeDir(generatedShaderPath);
@@ -1977,5 +1974,4 @@ string SLGLProgramGenerated::shaderHeader(int numLights)
     header += "\n#define NUM_LIGHTS " + to_string(numLights) + "\n";
     return header;
 }
-
 //-----------------------------------------------------------------------------

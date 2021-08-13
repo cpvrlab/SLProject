@@ -59,4 +59,4 @@ protected:
     SLstring     _file;     //!< Path & filename of shader
 };
 //-----------------------------------------------------------------------------
-#endif // SLSHADEROBJECT_H
+#endif // SLGLSHADER_H

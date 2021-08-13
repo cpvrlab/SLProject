@@ -67,7 +67,7 @@ void SLGLShader::loadFromMemory(const SLstring& shaderSource)
 //-----------------------------------------------------------------------------
 SLGLShader::~SLGLShader()
 {
-    //SL_LOG("~SLGLShader(%s)", name().c_str());
+    // SL_LOG("~SLGLShader(%s)", name().c_str());
     if (_shaderID)
         glDeleteShader(_shaderID);
     GET_GL_ERROR;
@@ -187,6 +187,20 @@ SLbool SLGLShader::createAndCompile(SLVLight* lights)
     // Write generated shader out
     if (!_file.empty())
     {
+#if defined(DEBUG) || defined(_DEBUG)
+        string filename = Utils::getFileName(_file);
+        string path     = Utils::getDirName(_file);
+        if (Utils::dirExists(path))
+        {
+            if (Utils::containsString(path, "generatedShaders"))
+            {
+                Utils::writeStringIntoTextFile("SLProject", _code, _file);
+                SL_LOG("Exported Shader Program: %s", filename.c_str());
+            }
+        }
+        else
+            SL_WARN_MSG("**** No path to write shader ***");
+#else
         if (!Utils::fileExists(_file))
         {
             string filename = Utils::getFileName(_file);
@@ -199,6 +213,7 @@ SLbool SLGLShader::createAndCompile(SLVLight* lights)
             else
                 SL_WARN_MSG("**** No path to write shader ***");
         }
+#endif
     }
     else
         SL_WARN_MSG("**** No shader path and filename for shader ***");

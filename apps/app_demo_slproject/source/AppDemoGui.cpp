@@ -803,9 +803,9 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
                 window_flags |= ImGuiWindowFlags_NoScrollbar;
                 SLfloat  w    = (SLfloat)sv->viewportW();
                 ImVec2   size = ImGui::CalcTextSize(s->info().c_str(),
-                                                  nullptr,
-                                                  true,
-                                                  w);
+                                                    nullptr,
+                                                    true,
+                                                    w);
                 SLfloat  h    = size.y + SLGLImGui::fontPropDots * 2.0f;
                 SLstring info = "Scene Info: " + s->info();
 
@@ -1568,13 +1568,13 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                                 mriImages.push_back(AppDemo::texturePath + Utils::formatString("i%04u_0000b.png", i));
 
                             gTexMRI3D             = new SLGLTexture(nullptr,
-                                                        mriImages,
-                                                        GL_LINEAR,
-                                                        GL_LINEAR,
-                                                        0x812D, // GL_CLAMP_TO_BORDER (GLSL 320)
-                                                        0x812D, // GL_CLAMP_TO_BORDER (GLSL 320)
-                                                        "mri_head_front_to_back",
-                                                        true);
+                                                                    mriImages,
+                                                                    GL_LINEAR,
+                                                                    GL_LINEAR,
+                                                                    0x812D, // GL_CLAMP_TO_BORDER (GLSL 320)
+                                                                    0x812D, // GL_CLAMP_TO_BORDER (GLSL 320)
+                                                                    "mri_head_front_to_back",
+                                                                    true);
                             AppDemo::jobIsRunning = false;
                         };
 
@@ -3273,17 +3273,28 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                         shadowMap->rayCount(rayCount);
 #endif
 
-                                    if (ImGui::TreeNode(shadowMap->useCubemap()
-                                                          ? "Light space matrices"
-                                                          : "Light space matrix"))
+                                    if (shadowMap->useCascaded())
                                     {
-                                        if (shadowMap->useCubemap())
-                                            for (SLint i = 0; i < 6; ++i)
+                                        if (ImGui::TreeNode("Light cascade space matrices"))
+                                        {
+                                            for (SLint i = 0; i < shadowMap->numCascades(); ++i)
                                                 ImGui::Text("Matrix %i:\n%s", i + 1, shadowMap->mvp()[i].toString().c_str());
-                                        else
-                                            ImGui::Text(shadowMap->mvp()[0].toString().c_str());
 
-                                        ImGui::TreePop();
+                                            ImGui::TreePop();
+                                        }
+                                    }
+                                    else
+                                    {
+                                        if (ImGui::TreeNode(shadowMap->useCubemap() ? "Light space matrices" : "Light space matrix"))
+                                        {
+                                            if (shadowMap->useCubemap())
+                                                for (SLint i = 0; i < 6; ++i)
+                                                    ImGui::Text("Matrix %i:\n%s", i + 1, shadowMap->mvp()[i].toString().c_str());
+                                            else
+                                                ImGui::Text(shadowMap->mvp()[0].toString().c_str());
+
+                                            ImGui::TreePop();
+                                        }
                                     }
 
                                     if (!shadowMap->useCubemap())
@@ -3494,7 +3505,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
 
             ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 0.0f, 1.0f));
             ImGui::Separator();
-            
+
             if (singleFullMesh)
             {
                 // See also SLScene::selectNodeMesh
