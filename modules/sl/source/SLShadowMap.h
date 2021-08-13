@@ -47,8 +47,8 @@ public:
     SLShadowMap(SLProjection   projection,
                 SLLight*       light,
                 SLCamera*      camera,
-                const SLVec2f& size       = SLVec2f(8, 8),
-                const SLVec2i& texSize    = SLVec2i(1024, 1024),
+                const SLVec2f& size        = SLVec2f(8, 8),
+                const SLVec2i& texSize     = SLVec2i(1024, 1024),
                 int            numCascades = 4);
 
     ~SLShadowMap();
@@ -96,7 +96,7 @@ private:
     SLMat4f             _v[6];         //!< View matrices
     SLMat4f             _p[6];         //!< Projection matrix
     SLMat4f             _mvp[6];       //!< Model-view-projection matrices
-    SLGLVDepthBuffer    _depthBuffers; //!< Framebuffer and tesxture
+    SLGLVDepthBuffer    _depthBuffers; //!< Framebuffer and texture
     SLGLVertexArrayExt* _frustumVAO;   //!< Visualization of light-space-frustum
     SLVec2i             _rayCount;     //!< Amount of rays drawn by drawRays()
     SLMaterial*         _mat;          //!< Material used to render the shadow map
@@ -108,11 +108,6 @@ private:
     SLCamera*           _camera;       //!< Camera to witch the light frustums are adapted
 
     SLVVec2f getShadowMapCascades(int numCascades, float n, float f);
-    void     drawNodesIntoDepthBufferCulling(SLNode*      node,
-                                             SLSceneView* sv,
-                                             SLMat4f&     p,
-                                             SLMat4f&     v,
-                                             SLPlane*     planes);
     void     drawNodesIntoDepthBuffer(SLNode*      node,
                                       SLSceneView* sv,
                                       SLMat4f&     p,
@@ -128,10 +123,17 @@ private:
                                          SLMat4f&     P,
                                          SLMat4f&     lv,
                                          SLPlane*     planes);
+    /*
     void     drawNodesDirectional(SLNode*      node,
                                   SLSceneView* sv,
                                   SLMat4f&     P,
                                   SLMat4f&     lv);
+    void     drawNodesIntoDepthBufferCulling(SLNode*      node,
+                                             SLSceneView* sv,
+                                             SLMat4f&     p,
+                                             SLMat4f&     v,
+                                             SLPlane*     planes);
+                                             */
 };
 //-----------------------------------------------------------------------------
-#endif //SLSHADOWMAP_H
+#endif // SLSHADOWMAP_H

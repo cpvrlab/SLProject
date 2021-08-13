@@ -46,7 +46,7 @@ SLShadowMap::SLShadowMap(SLProjection   projection,
     _halfSize     = _size / 2;
     _textureSize  = texSize;
     _camera       = nullptr;
-    _numCascades   = 0;
+    _numCascades  = 0;
 }
 //-----------------------------------------------------------------------------
 SLShadowMap::SLShadowMap(SLProjection   projection,
@@ -67,7 +67,7 @@ SLShadowMap::SLShadowMap(SLProjection   projection,
     _rayCount     = SLVec2i(0, 0);
     _mat          = nullptr;
     _camera       = camera;
-    _numCascades   = numCascades;
+    _numCascades  = numCascades;
     _size         = size;
     _halfSize     = _size / 2;
     _textureSize  = texSize;
@@ -93,7 +93,7 @@ SLfloat SLShadowMap::clipFar()
 }
 //-----------------------------------------------------------------------------
 /*! SLShadowMap::drawFrustum draws the volume affected by the shadow map
-*/
+ */
 void SLShadowMap::drawFrustum()
 {
     // clang-format off
@@ -127,7 +127,7 @@ void SLShadowMap::drawFrustum()
     {
         for (SLint i = 0; i < _numCascades; ++i)
         {
-            //Inverse matrix in a way to avoid precision error
+            // Inverse matrix in a way to avoid precision error
             SLMat4f s, t;
             s.scale(1.0f / _p[i].m(0), 1.0f / _p[i].m(5), 1.0f / _p[i].m(10));
             t.translate((-_p[i].m(12)), (-_p[i].m(13)), (-_p[i].m(14)));
@@ -155,10 +155,9 @@ void SLShadowMap::drawFrustum()
         }
     }
 }
-
 //-----------------------------------------------------------------------------
 /*! SLShadowMap::drawRays draws sample rays of the light.
-*/
+ */
 void SLShadowMap::drawRays()
 {
 #ifndef SL_GLES // Reading the depth-buffer with GLES is non-trivial
@@ -262,7 +261,12 @@ void SLShadowMap::updateMVP()
     switch (_projection)
     {
         case P_monoOrthographic:
-            _p[0].ortho(-_halfSize.x, _halfSize.x, -_halfSize.y, _halfSize.y, _clipNear, _clipFar);
+            _p[0].ortho(-_halfSize.x,
+                        _halfSize.x,
+                        -_halfSize.y,
+                        _halfSize.y,
+                        _clipNear,
+                        _clipFar);
             break;
 
         case P_monoPerspective:
@@ -288,12 +292,12 @@ void SLShadowMap::findOptimalNearPlane(SLNode*      node,
     if (node->drawBit(SL_DB_HIDDEN))
         return;
 
-    //We don't need to increase far plane distance
+    // We don't need to increase far plane distance
     float distance = planes[5].distToPoint(node->aabb()->centerWS());
     if (distance < -node->aabb()->radiusWS())
         return;
 
-    //If object is behind the light's near plane, move the near plane back
+    // If object is behind the light's near plane, move the near plane back
     distance = planes[4].distToPoint(node->aabb()->centerWS());
     if (distance < -node->aabb()->radiusWS())
     {
@@ -344,6 +348,7 @@ void SLShadowMap::drawNodesDirectionalCulling(SLVNode      visibleNodes,
     }
 }
 //-----------------------------------------------------------------------------
+/*
 void SLShadowMap::drawNodesDirectional(SLNode*      node,
                                        SLSceneView* sv,
                                        SLMat4f&     P,
@@ -390,6 +395,7 @@ void SLShadowMap::drawNodesIntoDepthBufferCulling(SLNode*      node,
     for (SLNode* child : node->children())
         drawNodesIntoDepthBufferCulling(child, sv, P, lv, planes);
 }
+ */
 //-----------------------------------------------------------------------------
 void SLShadowMap::drawNodesIntoDepthBuffer(SLNode*      node,
                                            SLSceneView* sv,
@@ -412,7 +418,7 @@ void SLShadowMap::drawNodesIntoDepthBuffer(SLNode*      node,
 }
 //-----------------------------------------------------------------------------
 /*! SLShadowMap::render renders the shadow map of the light
-*/
+ */
 void SLShadowMap::render(SLSceneView* sv, SLNode* root)
 {
     PROFILE_FUNCTION();
@@ -549,9 +555,9 @@ void SLShadowMap::renderDirectionalLightCascaded(SLSceneView* sv,
         _depthBuffers.erase(_depthBuffers.begin(), _depthBuffers.end());
     }
 
-    SLVVec2f cascades = getShadowMapCascades(_numCascades, _camera->clipNear(), _camera->clipFar());
-    SLMat4f  cm       = _camera->updateAndGetWM(); // camera space to world space
-    SLNode*  node     = dynamic_cast<SLNode*>(_light);
+    SLVVec2f cascades  = getShadowMapCascades(_numCascades, _camera->clipNear(), _camera->clipFar());
+    SLMat4f  camWN     = _camera->updateAndGetWM(); // camera space to world space
+    SLNode*  lightNode = dynamic_cast<SLNode*>(_light);
 
     if (_depthBuffers.size() == 0)
     {
@@ -571,10 +577,10 @@ void SLShadowMap::renderDirectionalLightCascaded(SLSceneView* sv,
     {
         float   ni = cascades[i].x;
         float   fi = cascades[i].y;
-        SLVec3f v  = cm.translation() - cm.axisZ().normalized() * (ni + fi) * 0.5f;
+        SLVec3f v  = camWN.translation() - camWN.axisZ().normalized() * (ni + fi) * 0.5f;
 
-        SLMat4f lv; // world space to light space
-        lv.lookAt(v, v + node->forwardOS(), node->upWS());
+        SLMat4f lightViewMat; // world space to light space
+        lightViewMat.lookAt(v, v + lightNode->forwardOS(), lightNode->upWS());
 
         SLVec3f frustumPoints[8];
         SLFrustum::getPointsEyeSpace(frustumPoints, _camera->fovV(), sv->scrWdivH(), ni, fi);
@@ -584,36 +590,31 @@ void SLShadowMap::renderDirectionalLightCascaded(SLSceneView* sv,
         float minz = FLT_MAX, maxz = FLT_MIN;
         for (int j = 0; j < 8; j++)
         {
-            SLVec3f fp = lv * cm * frustumPoints[j];
-            if (fp.x < minx)
-                minx = fp.x;
-            if (fp.y < miny)
-                miny = fp.y;
-            if (fp.x > maxx)
-                maxx = fp.x;
-            if (fp.y > maxy)
-                maxy = fp.y;
-            if (fp.z < minz)
-                minz = fp.z;
-            if (fp.z > maxz)
-                maxz = fp.z;
+            SLVec3f fp = lightViewMat * camWN * frustumPoints[j];
+            if (fp.x < minx) minx = fp.x;
+            if (fp.y < miny) miny = fp.y;
+            if (fp.x > maxx) maxx = fp.x;
+            if (fp.y > maxy) maxy = fp.y;
+            if (fp.z < minz) minz = fp.z;
+            if (fp.z > maxz) maxz = fp.z;
         }
 
         float sx = 2.f / (maxx - minx);
         float sy = 2.f / (maxy - miny);
         float sz = -2.f / (maxz - minz);
 
-        SLVec3f t = SLVec3f(-0.5f * (maxx + minx), -0.5f * (maxy + miny), -0.5f * (maxz + minz));
-        SLMat4f C;
-        C.identity();
-        C.scale(sx, sy, sz);
-        C.translate(t);
+        SLVec3f t = SLVec3f(-0.5f * (maxx + minx),
+                            -0.5f * (maxy + miny),
+                            -0.5f * (maxz + minz));
+        SLMat4f lightProjMat;
+        lightProjMat.scale(sx, sy, sz);
+        lightProjMat.translate(t);
 
         _depthBuffers[i]->bind();
 
         // Set matrices
-        stateGL->viewMatrix       = lv;
-        stateGL->projectionMatrix = C;
+        stateGL->viewMatrix       = lightViewMat;
+        stateGL->projectionMatrix = lightProjMat;
 
         stateGL->viewportFB(0, 0, _textureSize.x, _textureSize.y);
 
@@ -622,18 +623,26 @@ void SLShadowMap::renderDirectionalLightCascaded(SLSceneView* sv,
         stateGL->clearColorDepthBuffer();
 
         // Draw meshes
-        //drawNodesIntoDepthBuffer(root, sv, C, lv);
         SLPlane planes[6];
         SLVNode visibleNodes;
-        SLFrustum::viewToFrustumPlanes(planes, C, lv);
+        SLFrustum::viewToFrustumPlanes(planes, lightProjMat, lightViewMat);
 
-        findOptimalNearPlane(root, sv, C, lv, planes, visibleNodes);
+        findOptimalNearPlane(root,
+                             sv,
+                             lightProjMat,
+                             lightViewMat,
+                             planes,
+                             visibleNodes);
 
-        _v[i]   = lv;
-        _p[i]   = C;
-        _mvp[i] = C * lv;
+        _v[i]   = lightViewMat;
+        _p[i]   = lightProjMat;
+        _mvp[i] = lightProjMat * lightViewMat;
 
-        drawNodesDirectionalCulling(visibleNodes, sv, C, lv, planes);
+        drawNodesDirectionalCulling(visibleNodes,
+                                    sv,
+                                    lightProjMat,
+                                    lightViewMat,
+                                    planes);
 
         _depthBuffers[i]->unbind();
     }

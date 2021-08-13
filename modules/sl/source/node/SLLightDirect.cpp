@@ -332,3 +332,4 @@ void SLLightDirect::renderShadowMap(SLSceneView* sv, SLNode* root)
     }
     _shadowMap->render(sv, root);
 }
+//-----------------------------------------------------------------------------
