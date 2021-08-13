@@ -188,7 +188,7 @@ public:
     virtual void createShadowMap(SLCamera* camera,
                                  SLVec2f   size       = SLVec2f(8, 8),
                                  SLVec2i   texSize    = SLVec2i(1024, 1024),
-                                 int       nbCascades = 0) = 0;
+                                 int       numCascades = 0) = 0;
 
     virtual SLfloat shadowTest(SLRay*         ray,
                                const SLVec3f& L,

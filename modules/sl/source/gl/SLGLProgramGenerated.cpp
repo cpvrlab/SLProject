@@ -804,7 +804,7 @@ void SLGLProgramGenerated::buildProgramName(SLMaterial* mat,
         if (light->positionWS().w == 0.0f)
         {
             if (light->doCascadedShadows())
-                programName += "C" + std::to_string(light->shadowMap()->nbCascades()); // Directional light with cascaded shadowmap
+                programName += "C" + std::to_string(light->shadowMap()->numCascades()); // Directional light with cascaded shadowmap
             else
                 programName += "D"; // Directional light
         }
@@ -1642,7 +1642,7 @@ uniform bool        u_lightUsesCubemap[NUM_LIGHTS];         // flag if light has
             }
             else if (light->doCascadedShadows())
             {
-                u_lightSm += "uniform mat4        u_lightSpace_" + std::to_string(i) + "[" + std::to_string(shadowMap->nbCascades()) + "];\n";
+                u_lightSm += "uniform mat4        u_lightSpace_" + std::to_string(i) + "[" + std::to_string(shadowMap->numCascades()) + "];\n";
                 u_lightSm += "uniform float       u_lightShadowClipNear_" + std::to_string(i) + ";\n";         // near plane distance
                 u_lightSm += "uniform float       u_lightShadowClipFar_" + std::to_string(i) + ";\n";          // far plane distance
             }
@@ -1717,7 +1717,6 @@ string SLGLProgramGenerated::fragShadowTest(SLVLight* lights)
     }
 
     string shadowTestCode = R"(
-
 int vectorToFace(vec3 vec) // Vector to process
 {
     vec3 absVec = abs(vec);
@@ -1729,8 +1728,7 @@ int vectorToFace(vec3 vec) // Vector to process
         return vec.z > 0.0 ? 4 : 5;
 }
 
-
-int getCascadesDepthIndex(in int i, int nbCascades)
+int getCascadesDepthIndex(in int i, int numCascades)
 {
     float N, F;
 )";
@@ -1753,14 +1751,14 @@ int getCascadesDepthIndex(in int i, int nbCascades)
     float fi = F;
     float factor = 30.0f;
 
-    for (int i = 0; i < nbCascades-1; i++)
+    for (int i = 0; i < numCascades-1; i++)
     {
         ni = fi;
-        fi = factor * N * pow((F/(factor*N)), float(i+1)/float(nbCascades));
+        fi = factor * N * pow((F/(factor*N)), float(i+1)/float(numCascades));
         if (-v_P_VS.z < fi)
             return i;
     }
-    return nbCascades-1;
+    return numCascades-1;
 }
 
 float shadowTest(in int i, in vec3 N, in vec3 lightDir)

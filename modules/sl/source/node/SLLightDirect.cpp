@@ -200,23 +200,22 @@ void SLLightDirect::createShadowMap(float   clipNear,
 void SLLightDirect::createShadowMap(SLCamera* camera,
                                     SLVec2f   size,
                                     SLVec2i   texSize,
-                                    int       nbCascades)
+                                    int       numCascades)
 {
     if (!_shadowMap)
         delete _shadowMap;
 
     _doCascadedShadows = true;
-    _shadowMap = new SLShadowMap(P_monoOrthographic,
+    _shadowMap         = new SLShadowMap(P_monoOrthographic,
                                  this,
                                  camera,
                                  size,
                                  texSize,
-                                 nbCascades);
+                                 numCascades);
 }
 //-----------------------------------------------------------------------------
-/*!
-SLLightDirect::shadowTest returns 0.0 if the hit point is completely shaded and
-1.0 if it is 100% lighted. A directional light can not generate soft shadows.
+/*! SLLightDirect::shadowTest returns 0.0 if the hit point is completely shaded 
+and 1.0 if it is 100% lighted. A directional light can not generate soft shadows.
 */
 SLfloat SLLightDirect::shadowTest(SLRay*         ray,       // ray of hit point
                                   const SLVec3f& L,         // vector from hit point to light

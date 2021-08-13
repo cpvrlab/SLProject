@@ -8,13 +8,14 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
+#include <algorithm>
+
 #include <SLGLDepthBuffer.h>
 #include <SLGLProgramManager.h>
 #include <SLGLState.h>
 #include <SLGLVertexArrayExt.h>
 #include <SLLight.h>
 #include <SLMaterial.h>
-#include <SLNode.h>
 #include <SLShadowMap.h>
 #include <Instrumentor.h>
 #include <SLSceneView.h>
@@ -35,7 +36,7 @@ SLShadowMap::SLShadowMap(SLProjection   projection,
     _projection   = projection;
     _useCubemap   = false;
     _useCascaded  = false;
-    _depthBuffers = std::vector<SLGLDepthBuffer*>();
+    _depthBuffers = SLGLVDepthBuffer();
     _frustumVAO   = nullptr;
     _rayCount     = SLVec2i(0, 0);
     _mat          = nullptr;
@@ -45,7 +46,7 @@ SLShadowMap::SLShadowMap(SLProjection   projection,
     _halfSize     = _size / 2;
     _textureSize  = texSize;
     _camera       = nullptr;
-    _nbCascades   = 0;
+    _numCascades   = 0;
 }
 //-----------------------------------------------------------------------------
 SLShadowMap::SLShadowMap(SLProjection   projection,
@@ -53,7 +54,7 @@ SLShadowMap::SLShadowMap(SLProjection   projection,
                          SLCamera*      camera,
                          const SLVec2f& size,
                          const SLVec2i& texSize,
-                         int            nbCascades)
+                         int            numCascades)
 {
     PROFILE_FUNCTION();
 
@@ -61,12 +62,12 @@ SLShadowMap::SLShadowMap(SLProjection   projection,
     _projection   = projection;
     _useCubemap   = false;
     _useCascaded  = false;
-    _depthBuffers = std::vector<SLGLDepthBuffer*>();
+    _depthBuffers = SLGLVDepthBuffer();
     _frustumVAO   = nullptr;
     _rayCount     = SLVec2i(0, 0);
     _mat          = nullptr;
     _camera       = camera;
-    _nbCascades   = nbCascades;
+    _numCascades   = numCascades;
     _size         = size;
     _halfSize     = _size / 2;
     _textureSize  = texSize;
@@ -80,11 +81,16 @@ SLShadowMap::~SLShadowMap()
     delete _frustumVAO;
     delete _mat;
 }
-
 //-----------------------------------------------------------------------------
-SLfloat SLShadowMap::clipNear() { return _camera? _camera->clipNear() : _clipNear; }
-SLfloat SLShadowMap::clipFar() { return _camera? _camera->clipFar() : _clipFar; }
-
+SLfloat SLShadowMap::clipNear()
+{
+    return _camera ? _camera->clipNear() : _clipNear;
+}
+//-----------------------------------------------------------------------------
+SLfloat SLShadowMap::clipFar()
+{
+    return _camera ? _camera->clipFar() : _clipFar;
+}
 //-----------------------------------------------------------------------------
 /*! SLShadowMap::drawFrustum draws the volume affected by the shadow map
 */
@@ -119,7 +125,7 @@ void SLShadowMap::drawFrustum()
 
     if (_useCascaded)
     {
-        for (SLint i = 0; i < _nbCascades; ++i)
+        for (SLint i = 0; i < _numCascades; ++i)
         {
             //Inverse matrix in a way to avoid precision error
             SLMat4f s, t;
@@ -272,12 +278,12 @@ void SLShadowMap::updateMVP()
         _mvp[i] = _p[0] * _v[i];
 }
 //-----------------------------------------------------------------------------
-void SLShadowMap::findOptimalNearPlane(SLNode*               node,
-                                       SLSceneView*          sv,
-                                       SLMat4f&              P,
-                                       SLMat4f&              lv,
-                                       SLPlane*              planes,
-                                       std::vector<SLNode*>& visibleNodes)
+void SLShadowMap::findOptimalNearPlane(SLNode*      node,
+                                       SLSceneView* sv,
+                                       SLMat4f&     P,
+                                       SLMat4f&     lv,
+                                       SLPlane*     planes,
+                                       SLVNode&     visibleNodes)
 {
     if (node->drawBit(SL_DB_HIDDEN))
         return;
@@ -319,11 +325,11 @@ void SLShadowMap::findOptimalNearPlane(SLNode*               node,
 SLShadowMap::drawNodesIntoDepthBuffer recursively renders all objects which
 cast shadows
 */
-void SLShadowMap::drawNodesDirectionalCulling(std::vector<SLNode*> visibleNodes,
-                                              SLSceneView*         sv,
-                                              SLMat4f&             P,
-                                              SLMat4f&             lv,
-                                              SLPlane*             planes)
+void SLShadowMap::drawNodesDirectionalCulling(SLVNode      visibleNodes,
+                                              SLSceneView* sv,
+                                              SLMat4f&     P,
+                                              SLMat4f&     lv,
+                                              SLPlane*     planes)
 {
     for (SLNode* node : visibleNodes)
     {
@@ -337,7 +343,7 @@ void SLShadowMap::drawNodesDirectionalCulling(std::vector<SLNode*> visibleNodes,
             node->mesh()->drawIntoDepthBuffer(sv, node, _mat);
     }
 }
-
+//-----------------------------------------------------------------------------
 void SLShadowMap::drawNodesDirectional(SLNode*      node,
                                        SLSceneView* sv,
                                        SLMat4f&     P,
@@ -355,7 +361,7 @@ void SLShadowMap::drawNodesDirectional(SLNode*      node,
     for (SLNode* child : node->children())
         drawNodesDirectional(child, sv, P, lv);
 }
-
+//-----------------------------------------------------------------------------
 void SLShadowMap::drawNodesIntoDepthBufferCulling(SLNode*      node,
                                                   SLSceneView* sv,
                                                   SLMat4f&     P,
@@ -384,7 +390,7 @@ void SLShadowMap::drawNodesIntoDepthBufferCulling(SLNode*      node,
     for (SLNode* child : node->children())
         drawNodesIntoDepthBufferCulling(child, sv, P, lv, planes);
 }
-
+//-----------------------------------------------------------------------------
 void SLShadowMap::drawNodesIntoDepthBuffer(SLNode*      node,
                                            SLSceneView* sv,
                                            SLMat4f&     P,
@@ -404,7 +410,6 @@ void SLShadowMap::drawNodesIntoDepthBuffer(SLNode*      node,
     for (SLNode* child : node->children())
         drawNodesIntoDepthBuffer(child, sv, P, v);
 }
-
 //-----------------------------------------------------------------------------
 /*! SLShadowMap::render renders the shadow map of the light
 */
@@ -494,28 +499,28 @@ void SLShadowMap::render(SLSceneView* sv, SLNode* root)
     _depthBuffers[0]->unbind();
 }
 //-----------------------------------------------------------------------------
-
-#include <algorithm>
-
-std::vector<SLVec2f> SLShadowMap::getShadowMapCascades(int nbCascades, float n, float f)
+SLVVec2f SLShadowMap::getShadowMapCascades(int   numCascades,
+                                           float n,
+                                           float f)
 {
-    std::vector<SLVec2f> cascades;
+    SLVVec2f cascades;
 
     float ni = n;
     float fi = n;
 
     float factor = 30.0f;
 
-    for (int i = 0; i < nbCascades; i++)
+    for (int i = 0; i < numCascades; i++)
     {
         ni = fi;
-        fi = factor * n * pow((f / (factor * n)), (float)(i + 1) / (float)nbCascades);
+        fi = factor * n * pow((f / (factor * n)), (float)(i + 1) / (float)numCascades);
         cascades.push_back(SLVec2f(ni, fi));
     }
     return cascades;
 }
-
-void SLShadowMap::renderDirectionalLightCascaded(SLSceneView* sv, SLNode* root)
+//-----------------------------------------------------------------------------
+void SLShadowMap::renderDirectionalLightCascaded(SLSceneView* sv,
+                                                 SLNode*      root)
 {
     _useCascaded       = true;
     SLGLState* stateGL = SLGLState::instance();
@@ -539,14 +544,14 @@ void SLShadowMap::renderDirectionalLightCascaded(SLSceneView* sv, SLNode* root)
     if (_depthBuffers.size() != 0 &&
         (_depthBuffers[0]->dimensions() != _textureSize ||
          _depthBuffers[0]->target() != GL_TEXTURE_2D ||
-         _depthBuffers.size() != _nbCascades))
+         _depthBuffers.size() != _numCascades))
     {
         _depthBuffers.erase(_depthBuffers.begin(), _depthBuffers.end());
     }
 
-    std::vector<SLVec2f> cascades = getShadowMapCascades(_nbCascades, _camera->clipNear(), _camera->clipFar());
-    SLMat4f              cm       = _camera->updateAndGetWM(); // camera space to world space
-    SLNode*              node     = dynamic_cast<SLNode*>(_light);
+    SLVVec2f cascades = getShadowMapCascades(_numCascades, _camera->clipNear(), _camera->clipFar());
+    SLMat4f  cm       = _camera->updateAndGetWM(); // camera space to world space
+    SLNode*  node     = dynamic_cast<SLNode*>(_light);
 
     if (_depthBuffers.size() == 0)
     {
@@ -618,8 +623,8 @@ void SLShadowMap::renderDirectionalLightCascaded(SLSceneView* sv, SLNode* root)
 
         // Draw meshes
         //drawNodesIntoDepthBuffer(root, sv, C, lv);
-        SLPlane              planes[6];
-        std::vector<SLNode*> visibleNodes;
+        SLPlane planes[6];
+        SLVNode visibleNodes;
         SLFrustum::viewToFrustumPlanes(planes, C, lv);
 
         findOptimalNearPlane(root, sv, C, lv, planes, visibleNodes);
@@ -633,3 +638,4 @@ void SLShadowMap::renderDirectionalLightCascaded(SLSceneView* sv, SLNode* root)
         _depthBuffers[i]->unbind();
     }
 }
+//-----------------------------------------------------------------------------

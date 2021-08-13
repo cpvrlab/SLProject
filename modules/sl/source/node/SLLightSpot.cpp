@@ -196,13 +196,13 @@ void SLLightSpot::createShadowMap(float   clipNear,
                                  size,
                                  texSize);
 }
-
+//-----------------------------------------------------------------------------
 void SLLightSpot::createShadowMap(SLCamera* camera,
                                   SLVec2f   size,
                                   SLVec2i   texSize,
-                                  int       nbCascades)
+                                  int       numCascades)
 {
-    (void)nbCascades;
+    (void)numCascades;
     if (!_shadowMap)
         delete _shadowMap;
 

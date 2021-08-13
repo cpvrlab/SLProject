@@ -338,7 +338,7 @@ void SLGLProgram::passLightsToUniforms(SLVLight* lights,
         SLGLDepthBuffer* lightShadowMap[SL_MAX_LIGHTS * 6];     //!< pointers to depth-buffers for shadow mapping
         SLint            lightNbCascades[SL_MAX_LIGHTS];        //!< number of cascades for cascaded shadow mapping
 
-        SLint nbCascades = 0;
+        SLint numCascades = 0;
 
         // Init to defaults
         for (SLint i = 0; i < SL_MAX_LIGHTS; ++i)
@@ -399,7 +399,7 @@ void SLGLProgram::passLightsToUniforms(SLVLight* lights,
             lightShadowMinBias[i]     = light->shadowMinBias();
             lightShadowMaxBias[i]     = light->shadowMaxBias();
             lightUsesCubemap[i]       = shadowMap && shadowMap->useCubemap() ? 1 : 0;
-            lightNbCascades[i]        = shadowMap ? shadowMap->nbCascades() : 0;
+            lightNbCascades[i]        = shadowMap ? shadowMap->numCascades() : 0;
 
             if (shadowMap)
             {

@@ -45,4 +45,6 @@ private:
     SLenum  _target;     //!< GL_TEXTURE_2D or GL_TEXTURE_CUBE_MAP
 };
 //-----------------------------------------------------------------------------
+typedef std::vector<SLGLDepthBuffer*> SLGLVDepthBuffer;
+//-----------------------------------------------------------------------------
 #endif //SLGLDEPTHBUFFER_H

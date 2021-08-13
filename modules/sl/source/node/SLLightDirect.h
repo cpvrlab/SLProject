@@ -62,38 +62,35 @@ public:
     bool    hitRec(SLRay* ray) override;
     void    statsRec(SLNodeStats& stats) override;
     void    drawMesh(SLSceneView* sv) override;
-    void    doCascadedShadows(bool b) { _doCascadedShadows = b; }
-    SLbool  doCascadedShadows() const  override { return _doCascadedShadows; }
-
     SLfloat shadowTest(SLRay*         ray,
                        const SLVec3f& L,
                        SLfloat        lightDist,
                        SLNode*        root3D) override;
-    void    createShadowMap(float   clipNear = 0.1f,
-                            float   clipFar  = 20.0f,
-                            SLVec2f size     = SLVec2f(8, 8),
-                            SLVec2i texSize  = SLVec2i(1024, 1024)) override;
-
-    void createShadowMap(SLCamera* camera,
-                         SLVec2f   size       = SLVec2f(8, 8),
-                         SLVec2i   texSize    = SLVec2i(1024, 1024),
-                         int       nbCascades = 4) override;
-
     SLfloat shadowTestMC(SLRay*         ray,
                          const SLVec3f& L,
                          SLfloat        lightDist,
                          SLNode*        root3D) override;
+    void    createShadowMap(float   clipNear = 0.1f,
+                            float   clipFar  = 20.0f,
+                            SLVec2f size     = SLVec2f(8, 8),
+                            SLVec2i texSize  = SLVec2i(1024, 1024)) override;
+    void    createShadowMap(SLCamera* camera,
+                            SLVec2f   size        = SLVec2f(8, 8),
+                            SLVec2i   texSize     = SLVec2i(1024, 1024),
+                            int       numCascades = 4) override;
     SLCol4f calculateSunLight(SLfloat standardPower);
 
     // Setters
     void doSunPowerAdaptation(SLbool enabled) { _doSunPowerAdaptation = enabled; }
     void sunLightPowerMin(SLfloat minPower) { _sunLightPowerMin = minPower; }
+    void doCascadedShadows(bool b) { _doCascadedShadows = b; }
 
     // Getters
-    SLfloat     radius() const { return _arrowRadius; }
-    SLfloat     dirLength() const { return _arrowLength; }
-    SLbool      doSunPowerAdaptation() { return _doSunPowerAdaptation; }
+    SLfloat        radius() const { return _arrowRadius; }
+    SLfloat        dirLength() const { return _arrowLength; }
+    SLbool         doSunPowerAdaptation() { return _doSunPowerAdaptation; }
     SLTexColorLUT* sunLightColorLUT() { return &_sunLightColorLUT; }
+    SLbool         doCascadedShadows() const override { return _doCascadedShadows; }
 
     // For directional lights the position vector is interpreted as a
     // direction with the homogeneous component equals zero:

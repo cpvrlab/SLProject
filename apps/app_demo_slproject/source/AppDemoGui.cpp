@@ -803,9 +803,9 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
                 window_flags |= ImGuiWindowFlags_NoScrollbar;
                 SLfloat  w    = (SLfloat)sv->viewportW();
                 ImVec2   size = ImGui::CalcTextSize(s->info().c_str(),
-                                                    nullptr,
-                                                    true,
-                                                    w);
+                                                  nullptr,
+                                                  true,
+                                                  w);
                 SLfloat  h    = size.y + SLGLImGui::fontPropDots * 2.0f;
                 SLstring info = "Scene Info: " + s->info();
 
@@ -1568,13 +1568,13 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                                 mriImages.push_back(AppDemo::texturePath + Utils::formatString("i%04u_0000b.png", i));
 
                             gTexMRI3D             = new SLGLTexture(nullptr,
-                                                                    mriImages,
-                                                                    GL_LINEAR,
-                                                                    GL_LINEAR,
-                                                                    0x812D, // GL_CLAMP_TO_BORDER (GLSL 320)
-                                                                    0x812D, // GL_CLAMP_TO_BORDER (GLSL 320)
-                                                                    "mri_head_front_to_back",
-                                                                    true);
+                                                        mriImages,
+                                                        GL_LINEAR,
+                                                        GL_LINEAR,
+                                                        0x812D, // GL_CLAMP_TO_BORDER (GLSL 320)
+                                                        0x812D, // GL_CLAMP_TO_BORDER (GLSL 320)
+                                                        "mri_head_front_to_back",
+                                                        true);
                             AppDemo::jobIsRunning = false;
                         };
 
@@ -3231,9 +3231,9 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                     }
                                     else
                                     {
-                                        SLint nbCascades = shadowMap->nbCascades();
-                                        if (ImGui::SliderInt("Number of cascades", &nbCascades, 1, 5))
-                                            shadowMap->nbCascades(nbCascades);
+                                        SLint numCascades = shadowMap->numCascades();
+                                        if (ImGui::SliderInt("Number of cascades", &numCascades, 1, 5))
+                                            shadowMap->numCascades(numCascades);
                                     }
 
                                     SLVec2i texSize = shadowMap->textureSize();
@@ -4097,7 +4097,7 @@ void AppDemoGui::downloadModelAndLoadScene(SLScene*     s,
         AppDemo::jobProgressMsg(jobMsg);
         AppDemo::jobProgressMax(100);
         string fileToDownload = urlFolder + downloadFilename;
-        if (HttpUtils::download(fileToDownload, dstFolder, progressCallback)!=0)
+        if (HttpUtils::download(fileToDownload, dstFolder, progressCallback) != 0)
             SL_LOG("*** Nothing downloaded from: %s ***", fileToDownload.c_str());
         AppDemo::jobIsRunning = false;
     };

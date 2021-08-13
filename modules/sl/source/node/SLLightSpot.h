@@ -64,9 +64,9 @@ public:
                             SLVec2f size     = SLVec2f(8, 8),
                             SLVec2i texSize  = SLVec2i(1024, 1024)) override;
     void    createShadowMap(SLCamera* camera,
-                            SLVec2f   size       = SLVec2f(8, 8),
-                            SLVec2i   texSize    = SLVec2i(1024, 1024),
-                            int       nbCascades = 0) override;
+                            SLVec2f   size        = SLVec2f(8, 8),
+                            SLVec2i   texSize     = SLVec2i(1024, 1024),
+                            int       numCascades = 0) override;
     SLfloat shadowTest(SLRay*         ray,
                        const SLVec3f& L,
                        SLfloat        lightDist,
@@ -123,7 +123,7 @@ public:
 #endif
 
 private:
-    SLfloat     _radius;  //!< The sphere lights radius
+    SLfloat        _radius;  //!< The sphere lights radius
     SLRaySamples2D _samples; //!< 2D sample points for soft shadows
 };
 //-----------------------------------------------------------------------------
