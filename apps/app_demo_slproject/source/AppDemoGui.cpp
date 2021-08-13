@@ -3106,7 +3106,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
 
     if (sv->renderType() != RT_gl)
     {
-        ImGui::Begin("Properties of Selection", &showProperties);
+        ImGui::Begin("Properties of Selection", &showProperties, ImGuiWindowFlags_AlwaysVerticalScrollbar);
         ImGui::Text("Node selection and the");
         ImGui::Text("properties of it can only");
         ImGui::Text("be shown in the OpenGL");
@@ -3118,7 +3118,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
         // Only single node and no partial mesh selection
         if (singleNode && !partialSelection)
         {
-            ImGui::Begin("Properties of Selection", &showProperties);
+            ImGui::Begin("Properties of Selection", &showProperties, ImGuiWindowFlags_AlwaysVerticalScrollbar);
 
             if (ImGui::TreeNode("Single Node Properties"))
             {
@@ -3249,7 +3249,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                     if (ImGui::SliderFloat("Max. shadow bias", &shadowMaxBias, shadowMinBias, 0.02f, "%.03f"))
                                         light->shadowMaxBias(shadowMaxBias);
 
-                                    if (typeid(*singleNode) == typeid(SLLightDirect))
+                                    if (typeid(*singleNode) == typeid(SLLightDirect) && !shadowMap->useCascaded())
                                     {
                                         SLVec2f size = shadowMap->size();
                                         if (ImGui::InputFloat2("Size", (float*)&size))
@@ -3494,7 +3494,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
 
             ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 0.0f, 1.0f));
             ImGui::Separator();
-
+            
             if (singleFullMesh)
             {
                 // See also SLScene::selectNodeMesh
@@ -3741,7 +3741,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
         else if (!singleFullMesh && !s->selectedMeshes().empty())
         {
             // See also SLMesh::handleRectangleSelection
-            ImGui::Begin("Properties of Selection", &showProperties);
+            ImGui::Begin("Properties of Selection", &showProperties, ImGuiWindowFlags_AlwaysVerticalScrollbar);
 
             for (auto* selectedNode : s->selectedNodes())
             {
@@ -3770,7 +3770,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
         else
         {
             // Nothing is selected
-            ImGui::Begin("Properties of Selection", &showProperties);
+            ImGui::Begin("Properties of Selection", &showProperties, ImGuiWindowFlags_AlwaysVerticalScrollbar);
             ImGui::Text("There is nothing selected.");
             ImGui::Text("");
             ImGui::Text("Select a single node by");
