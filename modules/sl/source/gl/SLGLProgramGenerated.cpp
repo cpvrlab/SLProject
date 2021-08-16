@@ -1669,10 +1669,12 @@ string SLGLProgramGenerated::fragInputs_u_shadowMaps(SLVLight* lights)
             if (shadowMap->useCubemap())
                 smDecl += "uniform samplerCube u_shadowMapCube_" + to_string(i) + ";\n";
             else if (light->doCascadedShadows())
-                smDecl += "uniform sampler2D   u_cascadedShadowMap_" + to_string(i) + "[" + std::to_string(light->shadowMap()->depthBuffers().size()) + "];\n";
+            {
+                for (int j = 0; j < light->shadowMap()->depthBuffers().size(); j++)
+                    smDecl += "uniform sampler2D   u_cascadedShadowMap_" + to_string(i) + "_" + std::to_string(j) + ";\n";
+            }
             else
                 smDecl += "uniform sampler2D   u_shadowMap_" + to_string(i) + ";\n";
-            ;
         }
     }
     return smDecl;
@@ -1872,7 +1874,13 @@ float shadowTest(in int i, in vec3 N, in vec3 lightDir)
         if (!shadowMap->useCascaded() && !shadowMap->useCubemap())
             shadowTestCode += "            if (i == " + to_string(i) + ") { texelSize = 1.0 / vec2(textureSize(u_shadowMap_" + to_string(i) + ", 0)); }\n";
         else if (shadowMap->useCascaded())
-            shadowTestCode += "            if (i == " + to_string(i) + ") { texelSize = 1.0 / vec2(textureSize(u_cascadedShadowMap_" + to_string(i) + "[index]" + ", 0)); }\n";
+        {
+            shadowTestCode += "            if (i == " + to_string(i) + ")\n            {\n";
+            for (int j = 0; j < shadowMap->depthBuffers().size(); j++)
+                shadowTestCode += "               if (index == " + to_string(j) + ") { texelSize = 1.0 / vec2(textureSize(u_cascadedShadowMap_" + to_string(i) + "_" + to_string(j) + ", 0)); }\n";
+
+            shadowTestCode += "}\n";
+        }
     }
     shadowTestCode += R"(
             for (int x = -level; x <= level; ++x)
@@ -1886,12 +1894,16 @@ float shadowTest(in int i, in vec3 N, in vec3 lightDir)
         if (!shadowMap->useCascaded() && !shadowMap->useCubemap())
             shadowTestCode += "if (i == " + to_string(i) + ") { closestDepth = texture(u_shadowMap_" + to_string(i) + ", projCoords.xy + vec2(x, y) * texelSize).r; }\n";
         else if (shadowMap->useCascaded())
-            shadowTestCode += "if (i == " + to_string(i) + ") { closestDepth = texture(u_cascadedShadowMap_" + to_string(i) + "[index]" + ", projCoords.xy + vec2(x, y) * texelSize).r; }\n";
+        {
+            shadowTestCode += "if (i == " + to_string(i) + ")\n{\n";
+            for (int j = 0; j < shadowMap->depthBuffers().size(); j++)
+                shadowTestCode += "if (index == " + to_string(j) + ") { closestDepth = texture(u_cascadedShadowMap_" + to_string(i) + "_" + to_string(j) + ", projCoords.xy + vec2(x, y) * texelSize).r; }\n";
+            shadowTestCode += "}\n";
+        }
     }
 
     shadowTestCode += R"(
-                    //shadow += currentDepth - bias > closestDepth ? 1.0 : 0.0;
-                    shadow += currentDepth > closestDepth ? 1.0 : 0.0;
+                    shadow += currentDepth - bias > closestDepth ? 1.0 : 0.0;
                 }
             }
             shadow /= pow(1.0 + 2.0 * float(level), 2.0);
@@ -1915,9 +1927,13 @@ float shadowTest(in int i, in vec3 N, in vec3 lightDir)
     for (SLuint i = 0; i < lights->size(); ++i)
     {
         SLLight* light = lights->at(i);
+        SLShadowMap* shadowMap = lights->at(i)->shadowMap();
         if (light->doCascadedShadows())
         {
-            shadowTestCode += "                if (i == " + to_string(i) + ") { closestDepth = texture(u_cascadedShadowMap_" + to_string(i) + "[index]" + ", projCoords.xy).r; }\n";
+            shadowTestCode += "                if (i == " + to_string(i) + ")\n{\n";
+            for (int j = 0; j < shadowMap->depthBuffers().size(); j++)
+                shadowTestCode += "                if (index == " + to_string(j) + ") { closestDepth = texture(u_cascadedShadowMap_" + to_string(i) + "_" + to_string(j) + ", projCoords.xy).r; }\n";
+            shadowTestCode += "}\n";
         }
     }
 
@@ -1938,7 +1954,7 @@ float shadowTest(in int i, in vec3 N, in vec3 lightDir)
             }
 
             // The fragment is in shadow if the light doesn't "see" it
-            if (currentDepth > closestDepth) // + bias)
+            if (currentDepth > closestDepth + bias)
                 shadow = 1.0;
         }
 

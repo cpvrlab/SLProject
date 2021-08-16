@@ -453,7 +453,7 @@ void SLGLProgram::passLightsToUniforms(SLVLight* lights,
                     for (int j = 0; j < lightNumCascades[i]; j++)
                     {
                         SLint loc = 0;
-                        uniformSm = "u_cascadedShadowMap_" + std::to_string(i) + "[" + std::to_string(j) + "]";
+                        uniformSm = "u_cascadedShadowMap_" + std::to_string(i) + "_" + std::to_string(j);
                         if ((loc = getUniformLocation(uniformSm.c_str())) >= 0)
                         {
                             lightShadowMap[i * 6 + j]->bindActive(unitCounter);

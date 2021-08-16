@@ -5796,8 +5796,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
             // Create ground material
             SLGLTexture* texFloorDif = new SLGLTexture(s, texCFile, SL_ANISOTROPY_MAX, GL_LINEAR);
             SLGLTexture* texFloorNrm = new SLGLTexture(s, texNFile, SL_ANISOTROPY_MAX, GL_LINEAR);
-            //SLMaterial*  matFloor    = new SLMaterial(s, "matFloor", texFloorDif, texFloorNrm);
-            SLMaterial*  matFloor    = new SLMaterial(s, "m1");
+            SLMaterial*  matFloor    = new SLMaterial(s, "matFloor", texFloorDif, texFloorNrm);
 
             // Define camera
             SLCamera* cam1 = new SLCamera;
@@ -5816,7 +5815,6 @@ resolution shadows near the camera and lower resolution shadows further away.");
             sunLight->lookAt(-1, 0, -1);
             sunLight->doSunPowerAdaptation(true);
             sunLight->createsShadows(true);
-            sunLight->doCascadedShadows(true);
             sunLight->createShadowMap(cam1);
             sunLight->doSmoothShadows(true);
             sunLight->castsShadows(false);
