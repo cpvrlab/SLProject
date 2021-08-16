@@ -5796,8 +5796,8 @@ resolution shadows near the camera and lower resolution shadows further away.");
             // Create ground material
             SLGLTexture* texFloorDif = new SLGLTexture(s, texCFile, SL_ANISOTROPY_MAX, GL_LINEAR);
             SLGLTexture* texFloorNrm = new SLGLTexture(s, texNFile, SL_ANISOTROPY_MAX, GL_LINEAR);
-            SLMaterial*  matFloor    = new SLMaterial(s, "matFloor", texFloorDif, texFloorNrm);
-            SLMaterial* matPerPixSM = new SLMaterial(s, "m1");
+            //SLMaterial*  matFloor    = new SLMaterial(s, "matFloor", texFloorDif, texFloorNrm);
+            SLMaterial*  matFloor    = new SLMaterial(s, "m1");
 
             // Define camera
             SLCamera* cam1 = new SLCamera;
@@ -5837,7 +5837,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
                                                       50,
                                                       50,
                                                       "Floor",
-                                                      matPerPixSM));
+                                                      matFloor));
             rect->rotate(90, -1, 0, 0);
 
             // Load the corinthian column
@@ -5888,7 +5888,6 @@ resolution shadows near the camera and lower resolution shadows further away.");
                     SLNode* singleColumn = new SLNode(columnL2->mesh(), "Mesh-L2");
                     singleColumn->translate(x, 0, z, TS_object);
                     scene->addChild(singleColumn);
-                    
 
                     x += offset;
                 }

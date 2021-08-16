@@ -18,7 +18,7 @@
 using std::string;
 using std::to_string;
 
-#define COLORED_SHADOW_CASCADES
+//#define COLORED_SHADOW_CASCADES
 
 ///////////////////////////////
 // Const. GLSL code snippets //
@@ -1682,6 +1682,7 @@ string SLGLProgramGenerated::fragInputs_u_shadowMaps(SLVLight* lights)
 string SLGLProgramGenerated::coloredShadows()
 {
     string shadowColored = R"(
+    // Colorize cascaded shadows for debugging purpose
     for (int i = 0; i < NUM_LIGHTS; ++i)
     {
         if (u_lightIsOn[i])
@@ -1889,7 +1890,8 @@ float shadowTest(in int i, in vec3 N, in vec3 lightDir)
     }
 
     shadowTestCode += R"(
-                    shadow += currentDepth - bias > closestDepth ? 1.0 : 0.0;
+                    //shadow += currentDepth - bias > closestDepth ? 1.0 : 0.0;
+                    shadow += currentDepth > closestDepth ? 1.0 : 0.0;
                 }
             }
             shadow /= pow(1.0 + 2.0 * float(level), 2.0);
@@ -1936,7 +1938,7 @@ float shadowTest(in int i, in vec3 N, in vec3 lightDir)
             }
 
             // The fragment is in shadow if the light doesn't "see" it
-            if (currentDepth > closestDepth + bias)
+            if (currentDepth > closestDepth) // + bias)
                 shadow = 1.0;
         }
 
