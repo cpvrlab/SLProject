@@ -5739,6 +5739,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
                                                   "Floor",
                                                   m1));
         rect->rotate(90, -1, 0, 0);
+        rect->castsShadows(false);
 
         // Assemble scene
         SLNode* scene = new SLNode("scene group");
@@ -5837,7 +5838,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
                                                       "Floor",
                                                       matFloor));
             rect->rotate(90, -1, 0, 0);
-
+            rect->castsShadows(false);
             // Load the corinthian column
             SLAssimpImporter importer;
             SLNode*          columnLOD = importer.load(s->animManager(),

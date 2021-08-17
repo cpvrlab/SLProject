@@ -155,6 +155,7 @@ void SLShadowMap::drawFrustum()
         }
     }
 }
+
 //-----------------------------------------------------------------------------
 /*! SLShadowMap::drawRays draws sample rays of the light.
  */
@@ -254,7 +255,7 @@ void SLShadowMap::updateMVP()
     else
     {
         SLNode* node = dynamic_cast<SLNode*>(_light);
-        _v[0].lookAt(positionWS, positionWS + node->forwardOS(), node->upWS());
+        _v[0].lookAt(positionWS, positionWS + node->forwardWS(), node->upWS());
     }
 
     // Set projection matrix
@@ -292,14 +293,24 @@ void SLShadowMap::findOptimalNearPlane(SLNode*      node,
     if (node->drawBit(SL_DB_HIDDEN))
         return;
 
+    if (node->castsShadows() == false)
+        return;
+
     // We don't need to increase far plane distance
     float distance = planes[5].distToPoint(node->aabb()->centerWS());
     if (distance < -node->aabb()->radiusWS())
         return;
+ 
+    for (int i = 0; i < 4; i++)
+    {
+        float distance = planes[i].distToPoint(node->aabb()->centerWS());
+        if (distance < -node->aabb()->radiusWS())
+            return;
+    }
 
     // If object is behind the light's near plane, move the near plane back
     distance = planes[4].distToPoint(node->aabb()->centerWS());
-    if (distance < -node->aabb()->radiusWS())
+    if (distance < node->aabb()->radiusWS())
     {
         float a = P.m(10);
         float b = P.m(14);
@@ -309,13 +320,6 @@ void SLShadowMap::findOptimalNearPlane(SLNode*      node,
         P.m(10, -2.f / (f - n));
         P.m(14, -(f + n) / (f - n));
         SLFrustum::viewToFrustumPlanes(planes, P, lv);
-    }
-
-    for (int i = 0; i < 4; i++)
-    {
-        float distance = planes[i].distToPoint(node->aabb()->centerWS());
-        if (distance < -node->aabb()->radiusWS())
-            return;
     }
 
     visibleNodes.push_back(node);
@@ -580,7 +584,7 @@ void SLShadowMap::renderDirectionalLightCascaded(SLSceneView* sv,
         SLVec3f v  = camWN.translation() - camWN.axisZ().normalized() * (ni + fi) * 0.5f;
 
         SLMat4f lightViewMat; // world space to light space
-        lightViewMat.lookAt(v, v + lightNode->forwardOS(), lightNode->upWS());
+        lightViewMat.lookAt(v, v + lightNode->forwardWS(), lightNode->upWS());
 
         SLVec3f frustumPoints[8];
         SLFrustum::getPointsEyeSpace(frustumPoints, _camera->fovV(), sv->scrWdivH(), ni, fi);
@@ -627,12 +631,10 @@ void SLShadowMap::renderDirectionalLightCascaded(SLSceneView* sv,
         SLVNode visibleNodes;
         SLFrustum::viewToFrustumPlanes(planes, lightProjMat, lightViewMat);
 
-        findOptimalNearPlane(root,
-                             sv,
-                             lightProjMat,
-                             lightViewMat,
-                             planes,
-                             visibleNodes);
+        for (SLNode* child : root->children())
+        {
+            findOptimalNearPlane(child, sv, lightProjMat, lightViewMat, planes, visibleNodes);
+        }
 
         _v[i]   = lightViewMat;
         _p[i]   = lightProjMat;
