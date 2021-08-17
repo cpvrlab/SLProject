@@ -474,6 +474,21 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #-----------------------------
         file(COPY ${ktx_DIR}/release/ktx.dll DESTINATION ${CMAKE_BINARY_DIR}/Release)
         file(COPY ${ktx_DIR}/release/ktx.dll DESTINATION ${CMAKE_BINARY_DIR}/RelWithDebInfo)
     endif()
+
+    ######################
+    # OpenVR for Windows #
+    ######################
+
+    set(openvr_DIR ${PREBUILT_PATH}/win64_openvr)
+    set(openvr_INCLUDE_DIR ${openvr_DIR}/include)
+    set(openvr_LINK_DIR ${openvr_DIR}/lib)
+    set(openvr_LIBS openvr_api)
+
+    if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "MSVC")
+        file(COPY ${openvr_LINK_DIR}/openvr_api.dll DESTINATION ${CMAKE_BINARY_DIR}/Debug)
+        file(COPY ${openvr_LINK_DIR}/openvr_api.dll DESTINATION ${CMAKE_BINARY_DIR}/Release)
+        file(COPY ${openvr_LINK_DIR}/openvr_api.dll DESTINATION ${CMAKE_BINARY_DIR}/RelWithDebInfo)
+    endif()
 	
 elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN" AND
         "${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "x86_64") #----------------------------------------------------------------
@@ -1494,3 +1509,4 @@ link_directories(${g2o_LINK_DIR})
 link_directories(${assimp_LINK_DIR})
 link_directories(${vk_LINK_DIR})
 link_directories(${glfw_LINK_DIR})
+link_directories(${openvr_LINK_DIR})
