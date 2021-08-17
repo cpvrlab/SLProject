@@ -1672,6 +1672,8 @@ string SLGLProgramGenerated::fragInputs_u_shadowMaps(SLVLight* lights)
             {
                 for (int j = 0; j < light->shadowMap()->depthBuffers().size(); j++)
                     smDecl += "uniform sampler2D   u_cascadedShadowMap_" + to_string(i) + "_" + std::to_string(j) + ";\n";
+
+                smDecl  += "uniform float u_cascadesFactor_" + to_string(i) + ";\n";
             }
             else
                 smDecl += "uniform sampler2D   u_shadowMap_" + to_string(i) + ";\n";
@@ -1734,7 +1736,8 @@ int vectorToFace(vec3 vec) // Vector to process
 
 int getCascadesDepthIndex(in int i, int numCascades)
 {
-    float N, F;
+    float clipNear, clipFar;
+    float factor;
 )";
 
     for (SLuint i = 0; i < lights->size(); ++i)
@@ -1744,21 +1747,21 @@ int getCascadesDepthIndex(in int i, int numCascades)
         {
             shadowTestCode += "    if (i == " + std::to_string(i) + ")\n";
             shadowTestCode += "    {\n";
-            shadowTestCode += "        N = u_lightShadowClipNear_" + std::to_string(i) + ";\n";
-            shadowTestCode += "        F = u_lightShadowClipFar_" + std::to_string(i) + ";\n";
+            shadowTestCode += "        clipNear = u_lightShadowClipNear_" + std::to_string(i) + ";\n";
+            shadowTestCode += "        clipFar = u_lightShadowClipFar_" + std::to_string(i) + ";\n";
+            shadowTestCode += "        factor = u_cascadesFactor_" + std::to_string(i) + ";\n";
             shadowTestCode += "    }\n";
         }
     }
 
     shadowTestCode += R"(
-    float ni = N;
-    float fi = F;
-    float factor = 30.0f;
+    float ni = clipNear;
+    float fi = clipFar;
 
     for (int i = 0; i < numCascades-1; i++)
     {
         ni = fi;
-        fi = factor * N * pow((F/(factor*N)), float(i+1)/float(numCascades));
+        fi = factor * clipNear * pow((clipFar/(factor*clipNear)), float(i+1)/float(numCascades));
         if (-v_P_VS.z < fi)
             return i;
     }

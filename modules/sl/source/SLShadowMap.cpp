@@ -73,6 +73,8 @@ SLShadowMap::SLShadowMap(SLProjection   projection,
     _textureSize  = texSize;
     _clipNear     = 0.1f;
     _clipFar      = 20.f;
+
+    _cascadesFactor = 30.f;
 }
 //-----------------------------------------------------------------------------
 SLShadowMap::~SLShadowMap()
@@ -518,12 +520,10 @@ SLVVec2f SLShadowMap::getShadowMapCascades(int   numCascades,
     float ni = n;
     float fi = n;
 
-    float factor = 30.0f;
-
     for (int i = 0; i < numCascades; i++)
     {
         ni = fi;
-        fi = factor * n * pow((f / (factor * n)), (float)(i + 1) / (float)numCascades);
+        fi = _cascadesFactor * n * pow((f / (_cascadesFactor * n)), (float)(i + 1) / (float)numCascades);
         cascades.push_back(SLVec2f(ni, fi));
     }
     return cascades;
