@@ -3220,6 +3220,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
 
                                     SLfloat clipNear = shadowMap->clipNear();
                                     SLfloat clipFar  = shadowMap->clipFar();
+                                    SLfloat factor   = shadowMap->cascadesFactor();
 
                                     if (!shadowMap->useCascaded())
                                     {
@@ -3234,6 +3235,8 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                         SLint numCascades = shadowMap->numCascades();
                                         if (ImGui::SliderInt("Number of cascades", &numCascades, 1, 5))
                                             shadowMap->numCascades(numCascades);
+                                        if (ImGui::SliderFloat("Cascades factor", &factor, 1.0, 500.0f))
+                                            shadowMap->cascadesFactor(factor);
                                     }
 
                                     SLVec2i texSize = shadowMap->textureSize();

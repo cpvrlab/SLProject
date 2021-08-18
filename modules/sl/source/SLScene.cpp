@@ -78,7 +78,7 @@ void SLScene::init()
     SLLight::globalAmbient.set(0.15f, 0.15f, 0.15f, 1.0f);
 
     // Reset timing variables
-    _frameTimesMS.init(60, 0.0f);
+    _frameTimesMS.init(10, 0.0f);
     _updateTimesMS.init(60, 0.0f);
     _updateAnimTimesMS.init(60, 0.0f);
     _updateAABBTimesMS.init(60, 0.0f);

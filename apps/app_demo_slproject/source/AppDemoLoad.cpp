@@ -5739,6 +5739,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
                                                   "Floor",
                                                   m1));
         rect->rotate(90, -1, 0, 0);
+        rect->castsShadows(false);
 
         // Assemble scene
         SLNode* scene = new SLNode("scene group");
@@ -5800,8 +5801,8 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
             // Define camera
             SLCamera* cam1 = new SLCamera;
-            cam1->translation(0, 1.7f, 20);
-            cam1->lookAt(0, 1.7f, 0);
+            cam1->translation(0, 7.7f, 20);
+            cam1->lookAt(0, 7.7f, 0);
             cam1->focalDist(cam1->translationOS().length());
             cam1->clipFar(300);
             cam1->background().colors(SLCol4f(0.1f, 0.4f, 0.8f));
@@ -5837,7 +5838,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
                                                       "Floor",
                                                       matFloor));
             rect->rotate(90, -1, 0, 0);
-
+            rect->castsShadows(false);
             // Load the corinthian column
             SLAssimpImporter importer;
             SLNode*          columnLOD = importer.load(s->animManager(),
@@ -5872,20 +5873,20 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
                 for (SLint iX = 0; iX < size; ++iX)
                 {
-                    /*
+
                     SLint      iZX       = iZ * size + iX;
                     string     strLOD    = "LOD" + std::to_string(iZX);
                     SLNodeLOD* lod_group = new SLNodeLOD(strLOD);
                     lod_group->translate(x, 0, z, TS_object);
-                    lod_group->addChildLOD(new SLNode(columnL0->mesh(), "Column-L0"), 0.1f);
-                    lod_group->addChildLOD(new SLNode(columnL1->mesh(), "Column-L1"), 0.01f);
-                    lod_group->addChildLOD(new SLNode(columnL2->mesh(), "Column-L2"), 0.001f);
-                    lod_group->addChildLOD(new SLNode(columnL3->mesh(), "Column-L3"), 0.0001f);
+                    lod_group->addChildLOD(new SLNode(columnL1->mesh(), "Column-L0"), 0.1f);
+                    lod_group->addChildLOD(new SLNode(columnL2->mesh(), "Column-L1"), 0.01f);
+                    lod_group->addChildLOD(new SLNode(columnL3->mesh(), "Column-L2"), 0.0001f);
                     scene->addChild(lod_group);
-                    */
+                    /*
                     SLNode* singleColumn = new SLNode(columnL2->mesh(), "Mesh-L2");
                     singleColumn->translate(x, 0, z, TS_object);
                     scene->addChild(singleColumn);
+                     */
 
                     x += offset;
                 }

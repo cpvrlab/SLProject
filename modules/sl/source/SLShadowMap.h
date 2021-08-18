@@ -65,6 +65,7 @@ public:
     }
     void textureSize(const SLVec2i& textureSize) { _textureSize.set(textureSize); }
     void numCascades(int numCascades) { _numCascades = numCascades; }
+    void cascadesFactor(float factor) { _cascadesFactor = factor; }
 
     // Getters
     SLProjection     projection() { return _projection; }
@@ -79,6 +80,7 @@ public:
     SLVec2f          size() { return _size; }
     SLVec2i          textureSize() { return _textureSize; }
     int              numCascades() { return _numCascades; }
+    float            cascadesFactor() { return _cascadesFactor; }
 
     // Other methods
     void drawFrustum();
@@ -106,6 +108,8 @@ private:
     SLVec2f             _halfSize;     //!< _size divided by two
     SLVec2i             _textureSize;  //!< Size of the shadow map texture
     SLCamera*           _camera;       //!< Camera to witch the light frustums are adapted
+
+    SLfloat             _cascadesFactor;
 
     SLVVec2f getShadowMapCascades(int numCascades, float n, float f);
     void     drawNodesIntoDepthBuffer(SLNode*      node,
