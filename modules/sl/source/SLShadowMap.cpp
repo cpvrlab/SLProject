@@ -285,24 +285,24 @@ void SLShadowMap::updateMVP()
         _mvp[i] = _p[0] * _v[i];
 }
 //-----------------------------------------------------------------------------
-void SLShadowMap::findOptimalNearPlane(SLNode*      node,
-                                       SLSceneView* sv,
-                                       SLMat4f&     P,
-                                       SLMat4f&     lv,
-                                       SLPlane*     planes,
-                                       SLVNode&     visibleNodes)
+void SLShadowMap::lightCullingRec(SLNode*      node,
+                                  SLSceneView* sv,
+                                  SLMat4f&     P,
+                                  SLMat4f&     lv,
+                                  SLPlane*     planes,
+                                  SLVNode&     visibleNodes)
 {
     if (node->drawBit(SL_DB_HIDDEN))
         return;
 
-    if (node->castsShadows() == false)
+    if (!node->castsShadows())
         return;
 
     // We don't need to increase far plane distance
     float distance = planes[5].distToPoint(node->aabb()->centerWS());
     if (distance < -node->aabb()->radiusWS())
         return;
- 
+
     for (int i = 0; i < 4; i++)
     {
         float distance = planes[i].distToPoint(node->aabb()->centerWS());
@@ -327,9 +327,8 @@ void SLShadowMap::findOptimalNearPlane(SLNode*      node,
     visibleNodes.push_back(node);
 
     for (SLNode* child : node->children())
-        findOptimalNearPlane(child, sv, P, lv, planes, visibleNodes);
+        lightCullingRec(child, sv, P, lv, planes, visibleNodes);
 }
-
 //-----------------------------------------------------------------------------
 /*!
 SLShadowMap::drawNodesIntoDepthBuffer recursively renders all objects which
@@ -511,19 +510,23 @@ void SLShadowMap::render(SLSceneView* sv, SLNode* root)
     _depthBuffers[0]->unbind();
 }
 //-----------------------------------------------------------------------------
+//! Returns a vector of near and far clip distances for all shadow cascades
 SLVVec2f SLShadowMap::getShadowMapCascades(int   numCascades,
-                                           float n,
-                                           float f)
+                                           float camClipNear,
+                                           float camClipFar)
 {
     SLVVec2f cascades;
 
-    float ni = n;
-    float fi = n;
+    float ni, fi = camClipNear;
 
     for (int i = 0; i < numCascades; i++)
     {
         ni = fi;
-        fi = _cascadesFactor * n * pow((f / (_cascadesFactor * n)), (float)(i + 1) / (float)numCascades);
+        fi = _cascadesFactor *
+             camClipNear *
+             pow((camClipFar / (_cascadesFactor * camClipNear)),
+                 (float)(i + 1) / (float)numCascades);
+
         cascades.push_back(SLVec2f(ni, fi));
     }
     return cascades;
@@ -540,7 +543,7 @@ void SLShadowMap::renderDirectionalLightCascaded(SLSceneView* sv,
     // Create depth buffer
     static SLfloat borderColor[] = {1.0, 1.0, 1.0, 1.0};
 
-    // Create Material
+    // Create material
     if (_mat == nullptr)
         _mat = new SLMaterial(
           nullptr,
@@ -551,6 +554,7 @@ void SLShadowMap::renderDirectionalLightCascaded(SLSceneView* sv,
           nullptr,
           SLGLProgramManager::get(SP_depth));
 
+    // Create depth buffer textures if the number or size changes
     if (_depthBuffers.size() != 0 &&
         (_depthBuffers[0]->dimensions() != _textureSize ||
          _depthBuffers[0]->target() != GL_TEXTURE_2D ||
@@ -559,9 +563,13 @@ void SLShadowMap::renderDirectionalLightCascaded(SLSceneView* sv,
         _depthBuffers.erase(_depthBuffers.begin(), _depthBuffers.end());
     }
 
-    SLVVec2f cascades  = getShadowMapCascades(_numCascades, _camera->clipNear(), _camera->clipFar());
-    SLMat4f  camWN     = _camera->updateAndGetWM(); // camera space to world space
-    SLNode*  lightNode = dynamic_cast<SLNode*>(_light);
+    // Get the vector of cascades with near and far distances
+    SLVVec2f cascades = getShadowMapCascades(_numCascades,
+                                             _camera->clipNear(),
+                                             _camera->clipFar());
+
+    SLMat4f camWN     = _camera->updateAndGetWM(); // camera space to world space
+    SLNode* lightNode = dynamic_cast<SLNode*>(_light);
 
     if (_depthBuffers.size() == 0)
     {
@@ -626,14 +634,18 @@ void SLShadowMap::renderDirectionalLightCascaded(SLSceneView* sv,
         stateGL->clearColor(SLCol4f::BLACK);
         stateGL->clearColorDepthBuffer();
 
-        // Draw meshes
+        // Do light culling
         SLPlane planes[6];
         SLVNode visibleNodes;
         SLFrustum::viewToFrustumPlanes(planes, lightProjMat, lightViewMat);
-
         for (SLNode* child : root->children())
         {
-            findOptimalNearPlane(child, sv, lightProjMat, lightViewMat, planes, visibleNodes);
+            lightCullingRec(child,
+                            sv,
+                            lightProjMat,
+                            lightViewMat,
+                            planes,
+                            visibleNodes);
         }
 
         _v[i]   = lightViewMat;

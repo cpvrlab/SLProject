@@ -23,7 +23,9 @@ class SLNodeLOD : public SLNode
 public:
     explicit SLNodeLOD(const SLstring& name = "NodeLOD") : SLNode(name) { ; }
 
-    void         addChildLOD(SLNode* child, SLfloat minLodLimit);
+    void         addChildLOD(SLNode* child,
+                             SLfloat minLodLimit,
+                             SLint   levelForSM = 0);
     virtual void cullChildren3D(SLSceneView* sv);
 };
 //-----------------------------------------------------------------------------

@@ -111,12 +111,12 @@ private:
 
     SLfloat             _cascadesFactor;
 
-    SLVVec2f getShadowMapCascades(int numCascades, float n, float f);
+    SLVVec2f getShadowMapCascades(int numCascades, float camClipNear, float camClipFar);
     void     drawNodesIntoDepthBuffer(SLNode*      node,
                                       SLSceneView* sv,
                                       SLMat4f&     p,
                                       SLMat4f&     v);
-    void     findOptimalNearPlane(SLNode*      node,
+    void     lightCullingRec(SLNode*      node,
                                   SLSceneView* sv,
                                   SLMat4f&     P,
                                   SLMat4f&     lv,

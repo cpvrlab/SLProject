@@ -23,8 +23,11 @@
  * @param childToAdd LOD child node pointer to add
  * @param minLodCoverage A value > 0 and < 1 and < than the minLodCoverage
  * of the last node in the LOD group
+ * @param levelForSM Level to use for shadow mapping (0 uses the active level)
  */
-void SLNodeLOD::addChildLOD(SLNode* childToAdd, SLfloat minLodCoverage)
+void SLNodeLOD::addChildLOD(SLNode* childToAdd,
+                            SLfloat minLodCoverage,
+                            SLint levelForSM)
 {
     assert(minLodCoverage > 0.0f &&
            minLodCoverage < 1.0f &&
@@ -35,6 +38,7 @@ void SLNodeLOD::addChildLOD(SLNode* childToAdd, SLfloat minLodCoverage)
         SL_EXIT_MSG("SLNodeLOD::addChildLOD: A new child LOD node must have a smaller LOD limit than the last one.");
 
     childToAdd->minLodCoverage(minLodCoverage);
+    childToAdd->levelForSM(levelForSM);
     addChild(childToAdd);
 
     /* Set new node hidden, so they won't be shadowed if they are outside
