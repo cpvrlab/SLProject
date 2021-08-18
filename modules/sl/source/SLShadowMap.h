@@ -81,6 +81,7 @@ public:
     SLVec2i          textureSize() { return _textureSize; }
     int              numCascades() { return _numCascades; }
     float            cascadesFactor() { return _cascadesFactor; }
+    SLCamera*        camera() { return _camera; }
 
     // Other methods
     void drawFrustum();

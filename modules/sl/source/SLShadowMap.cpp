@@ -21,6 +21,7 @@
 #include <SLSceneView.h>
 #include <SLCamera.h>
 #include <SLFrustum.h>
+#include <SLNodeLOD.h>
 
 //-----------------------------------------------------------------------------
 SLShadowMap::SLShadowMap(SLProjection   projection,
@@ -94,8 +95,7 @@ SLfloat SLShadowMap::clipFar()
     return _camera ? _camera->clipFar() : _clipFar;
 }
 //-----------------------------------------------------------------------------
-/*! SLShadowMap::drawFrustum draws the volume affected by the shadow map
- */
+//! SLShadowMap::drawFrustum draws the volume affected by the shadow map
 void SLShadowMap::drawFrustum()
 {
     // clang-format off
@@ -292,8 +292,30 @@ void SLShadowMap::lightCullingRec(SLNode*      node,
                                   SLPlane*     planes,
                                   SLVNode&     visibleNodes)
 {
-    if (node->drawBit(SL_DB_HIDDEN))
-        return;
+    //if (node->drawBit(SL_DB_HIDDEN))
+    //    return;
+
+    if (typeid(*node->parent()) == typeid(SLNodeLOD))
+    {
+        int levelForSM = node->levelForSM();
+        if (levelForSM == 0 && node->drawBit(SL_DB_HIDDEN))
+            return;
+        else // levelForSM > 0
+        {
+            if (node->parent()->children().size() < levelForSM)
+            {
+                SL_EXIT_MSG("SLShadowMap::lightCullingRec: levelForSM > num. LOD Nodes.");
+            }
+            SLNode* nodeForSM = node->parent()->children()[levelForSM - 1];
+            if (nodeForSM != node)
+                return;
+        }
+    }
+    else
+    {
+        if (node->drawBit(SL_DB_HIDDEN))
+            return;
+    }
 
     if (!node->castsShadows())
         return;

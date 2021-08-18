@@ -336,9 +336,9 @@ void SLMesh::drawIntoDepthBuffer(SLSceneView* sv,
     }
 
     // Return if hidden
-    if (sv->drawBit(SL_DB_HIDDEN) ||
-        node->drawBit(SL_DB_HIDDEN) ||
-        _primitive == PT_points)
+    if (node->levelForSM() == 0 &&
+        (node->drawBit(SL_DB_HIDDEN) ||
+        _primitive == PT_points))
         return;
 
     if (!_vao.vaoID())

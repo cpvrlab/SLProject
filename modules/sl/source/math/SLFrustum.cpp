@@ -17,7 +17,7 @@
  * Calculates the coefficients of the 6 frustum planes from the passed
  * projection and view matrices. See the paper from Gribb and Hartmann:
  * https://www.gamedevs.org/uploads/fast-extraction-viewing-frustum-planes-from-world-view-projection-matrix.pdf
- * @param planes Pointer to an array of 6 SLPlanes
+ * @param planes Pointer to an array of 6 SLPlanes (L R T B N F)
  * @param projectionMat 4x4 projection matrix
  * @param viewMat 4x4 view matrix
  */
@@ -28,7 +28,7 @@ void SLFrustum::viewToFrustumPlanes(SLPlane*       planes,
     //
     SLMat4f A = projectionMat * viewMat;
 
-    // Order is T B L R N F
+    // Order is L R T B N F
     viewToFrustumPlanes(planes, A);
 }
 //-----------------------------------------------------------------------------
@@ -36,29 +36,29 @@ void SLFrustum::viewToFrustumPlanes(SLPlane*       planes,
  * Calculates the coefficients of the 6 frustum planes from the passed
  * matrix A. See the paper from Gribb and Hartmann:
  * https://www.gamedevs.org/uploads/fast-extraction-viewing-frustum-planes-from-world-view-projection-matrix.pdf
- * @param planes Pointer to an array of 6 SLPlanes
+ * @param planes Pointer to an array of 6 SLPlanes (L R T B N F)
  * @param A The projection matrix
  */
 void SLFrustum::viewToFrustumPlanes(SLPlane* planes, const SLMat4f& A)
 {
     // set the A,B,C & D coefficient for each plane
-    // Order is T B L R N F
-    planes[0].setCoefficients(-A.m(1) + A.m(3),
-                              -A.m(5) + A.m(7),
-                              -A.m(9) + A.m(11),
-                              -A.m(13) + A.m(15));
-    planes[1].setCoefficients(A.m(1) + A.m(3),
-                              A.m(5) + A.m(7),
-                              A.m(9) + A.m(11),
-                              A.m(13) + A.m(15));
-    planes[2].setCoefficients(A.m(0) + A.m(3),
+    // Order is L R T B N F
+    planes[0].setCoefficients(A.m(0) + A.m(3),
                               A.m(4) + A.m(7),
                               A.m(8) + A.m(11),
                               A.m(12) + A.m(15));
-    planes[3].setCoefficients(-A.m(0) + A.m(3),
+    planes[1].setCoefficients(-A.m(0) + A.m(3),
                               -A.m(4) + A.m(7),
                               -A.m(8) + A.m(11),
                               -A.m(12) + A.m(15));
+    planes[2].setCoefficients(-A.m(1) + A.m(3),
+                              -A.m(5) + A.m(7),
+                              -A.m(9) + A.m(11),
+                              -A.m(13) + A.m(15));
+    planes[3].setCoefficients(A.m(1) + A.m(3),
+                              A.m(5) + A.m(7),
+                              A.m(9) + A.m(11),
+                              A.m(13) + A.m(15));
     planes[4].setCoefficients(A.m(2) + A.m(3),
                               A.m(6) + A.m(7),
                               A.m(10) + A.m(11),

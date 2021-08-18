@@ -5862,7 +5862,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
             scene->addChild(cam1);
 
             // create loads of pillars
-            SLint   size       = 20;
+            SLint   size       = 40;
             SLint   numColumns = size * size;
             SLfloat offset     = 5.0f;
             SLfloat z          = (float)(size - 1) * offset * 0.5f;
@@ -5877,9 +5877,9 @@ resolution shadows near the camera and lower resolution shadows further away.");
                     string     strLOD    = "LOD" + std::to_string(iZX);
                     SLNodeLOD* lod_group = new SLNodeLOD(strLOD);
                     lod_group->translate(x, 0, z, TS_object);
-                    lod_group->addChildLOD(new SLNode(columnL1->mesh(), "Column-L0"), 0.1f);
-                    lod_group->addChildLOD(new SLNode(columnL2->mesh(), "Column-L1"), 0.01f);
-                    lod_group->addChildLOD(new SLNode(columnL3->mesh(), "Column-L2"), 0.0001f);
+                    lod_group->addChildLOD(new SLNode(columnL1->mesh(), strLOD + "-L0"), 0.1f, 3);
+                    lod_group->addChildLOD(new SLNode(columnL2->mesh(), strLOD + "-L1"), 0.01f, 3);
+                    lod_group->addChildLOD(new SLNode(columnL3->mesh(), strLOD + "-L2"), 0.0001f, 3);
                     scene->addChild(lod_group);
 
                     x += offset;

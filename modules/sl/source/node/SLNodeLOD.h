@@ -25,7 +25,7 @@ public:
 
     void         addChildLOD(SLNode* child,
                              SLfloat minLodLimit,
-                             SLint   levelForSM = 0);
+                             SLubyte levelForSM = 0);
     virtual void cullChildren3D(SLSceneView* sv);
 };
 //-----------------------------------------------------------------------------
