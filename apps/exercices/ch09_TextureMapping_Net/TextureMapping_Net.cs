@@ -309,7 +309,7 @@ public class TextureMapping_Net : GameWindow
         unsafe
         {   gl.UniformMatrix4(_mvMatrixLoc,  1, false, mv.m);
             gl.UniformMatrix3(_nMatrixLoc,   1, false, nm.m);
-            gl.UniformMatrix4(_mvpMatrixLoc, 1, false, mvp.m);
+            gl.UniformMatrix4(_mvpMatrixLoc, 1, false, lightSpace.m);
 
             // Pass lighting uniforms variables
             gl.Uniform4(_globalAmbiLoc,     1, (float[])_globalAmbi);

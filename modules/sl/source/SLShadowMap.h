@@ -71,7 +71,7 @@ public:
     SLProjection     projection() { return _projection; }
     SLbool           useCubemap() const { return _useCubemap; }
     SLbool           useCascaded() const { return _useCascaded; }
-    SLMat4f*         mvp() { return _mvp; }
+    SLMat4f*         lightSpace() { return _lightSpace; }
     SLGLDepthBuffer* depthBuffer() { return _depthBuffers.at(0); }
     SLGLVDepthBuffer depthBuffers() { return _depthBuffers; }
     SLVec2i          rayCount() { return _rayCount; }
@@ -86,47 +86,46 @@ public:
     // Other methods
     void drawFrustum();
     void drawRays();
-    void updateMVP();
+    void updateLightViewProj();
     void render(SLSceneView* sv, SLNode* root);
     void renderDirectionalLightCascaded(SLSceneView* sv, SLNode* root);
 
 private:
-    SLLight*            _light;        //!< The light which uses this shadow map
-    SLProjection        _projection;   //!< Projection to use to create shadow map
-    SLbool              _useCubemap;   //!< Flag if cubemap should be used for perspective projections
-    SLbool              _useCascaded;  //!< Flag if cascaded shadow maps should be used
-    SLint               _numCascades;  //!< Number of cascades
-    SLMat4f             _v[6];         //!< View matrices
-    SLMat4f             _p[6];         //!< Projection matrix
-    SLMat4f             _mvp[6];       //!< Model-view-projection matrices
-    SLGLVDepthBuffer    _depthBuffers; //!< Framebuffer and texture
-    SLGLVertexArrayExt* _frustumVAO;   //!< Visualization of light-space-frustum
-    SLVec2i             _rayCount;     //!< Amount of rays drawn by drawRays()
-    SLMaterial*         _mat;          //!< Material used to render the shadow map
-    SLfloat             _clipNear;     //!< Near clipping plane
-    SLfloat             _clipFar;      //!< Far clipping plane
-    SLVec2f             _size;         //!< Height and width of the frustum (only for SLLightDirect)
-    SLVec2f             _halfSize;     //!< _size divided by two
-    SLVec2i             _textureSize;  //!< Size of the shadow map texture
-    SLCamera*           _camera;       //!< Camera to witch the light frustums are adapted
+    SLLight*            _light;         //!< The light which uses this shadow map
+    SLProjection        _projection;    //!< Projection to use to create shadow map
+    SLbool              _useCubemap;    //!< Flag if cubemap should be used for perspective projections
+    SLbool              _useCascaded;   //!< Flag if cascaded shadow maps should be used
+    SLint               _numCascades;   //!< Number of cascades
+    SLMat4f             _lightView[6];  //!< Light view matrices
+    SLMat4f             _lightProj[6];  //!< Light projection matrices
+    SLMat4f             _lightSpace[6]; //!< Light space matrices
+    SLGLVDepthBuffer    _depthBuffers;  //!< Framebuffer and texture
+    SLGLVertexArrayExt* _frustumVAO;    //!< Visualization of light-space-frustum
+    SLVec2i             _rayCount;      //!< Amount of rays drawn by drawRays()
+    SLMaterial*         _mat;           //!< Material used to render the shadow map
+    SLfloat             _clipNear;      //!< Light near clipping plane
+    SLfloat             _clipFar;       //!< Light far clipping plane
+    SLVec2f             _size;          //!< Height and width of the frustum (only for SLLightDirect)
+    SLVec2f             _halfSize;      //!< _size divided by two
+    SLVec2i             _textureSize;   //!< Size of the shadow map texture
+    SLCamera*           _camera;        //!< Camera to witch the light frustums are adapted
 
-    SLfloat             _cascadesFactor;
+    SLfloat _cascadesFactor;
 
     SLVVec2f getShadowMapCascades(int numCascades, float camClipNear, float camClipFar);
     void     drawNodesIntoDepthBuffer(SLNode*      node,
                                       SLSceneView* sv,
                                       SLMat4f&     p,
                                       SLMat4f&     v);
-    void     lightCullingRec(SLNode*      node,
-                                  SLSceneView* sv,
-                                  SLMat4f&     P,
-                                  SLMat4f&     lv,
-                                  SLPlane*     planes,
-                                  SLVNode&     visibleNodes);
+    void     lightCullingAdaptiveRec(SLNode*  node,
+                                     SLMat4f& lightProj,
+                                     SLMat4f& lightView,
+                                     SLPlane* frustumPlanes,
+                                     SLVNode& visibleNodes);
     void     drawNodesDirectionalCulling(SLVNode      visibleNodes,
                                          SLSceneView* sv,
-                                         SLMat4f&     P,
-                                         SLMat4f&     lv,
+                                         SLMat4f&     lightProj,
+                                         SLMat4f&     lightView,
                                          SLPlane*     planes);
     /*
     void     drawNodesDirectional(SLNode*      node,

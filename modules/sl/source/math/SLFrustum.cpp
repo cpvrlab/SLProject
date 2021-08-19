@@ -69,13 +69,14 @@ void SLFrustum::viewToFrustumPlanes(SLPlane* planes, const SLMat4f& A)
                               -A.m(14) + A.m(15));
 }
 //-----------------------------------------------------------------------------
-//! ???
-void SLFrustum::getPointsEyeSpace(SLVec3f* points,
-                                  float    fovV,
-                                  float    ratio,
-                                  float    clipNear,
-                                  float    clipFar)
+//! Returns frustum points in view space
+void SLFrustum::getPointsInViewSpace(SLVec3f* points,
+                                     float    fovV,
+                                     float    ratio,
+                                     float    clipNear,
+                                     float    clipFar)
 {
+    // Calculate the 4 points on the near plane
     SLfloat t = tan(Utils::DEG2RAD * fovV * 0.5f) * clipNear; // top
     SLfloat b = -t;                                           // bottom
     SLfloat r = ratio * t;                                    // right
@@ -85,6 +86,7 @@ void SLFrustum::getPointsEyeSpace(SLVec3f* points,
     points[2] = (SLVec3f(l, t, -clipNear));
     points[3] = (SLVec3f(l, b, -clipNear));
 
+    // Calculate the 4 points on the far plane
     t = tan(Utils::DEG2RAD * fovV * 0.5f) * clipFar; // top
     b = -t;                                          // bottom
     r = ratio * t;                                   // right
