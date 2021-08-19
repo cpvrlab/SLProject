@@ -20,11 +20,11 @@ public:
                                     const SLMat4f& viewMat);
     static void viewToFrustumPlanes(SLPlane*       planes,
                                     const SLMat4f& A);
-    static void getPointsEyeSpace(SLVec3f* points,
+    static void getPointsInViewSpace(SLVec3f* points,
                                   float    fovV,
                                   float    ratio,
-                                  float    near,
-                                  float    far);
+                                  float    clipNear,
+                                  float    clipFar);
 };
 //-----------------------------------------------------------------------------
 #endif

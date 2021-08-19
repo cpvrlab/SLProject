@@ -407,7 +407,7 @@ void SLGLProgram::passLightsToUniforms(SLVLight* lights,
                 for (SLint ls = 0; ls < 6; ++ls)
                 {
                     lightShadowMap[i * 6 + ls] = cascades > ls ? shadowMap->depthBuffers()[ls] : nullptr;
-                    lightSpace[i * 6 + ls]     = shadowMap->mvp()[ls];
+                    lightSpace[i * 6 + ls]     = shadowMap->lightSpace()[ls];
                 }
             }
         }
@@ -426,10 +426,10 @@ void SLGLProgram::passLightsToUniforms(SLVLight* lights,
         uniform1fv("u_lightSpotExp", nL, (SLfloat*)&lightSpotExp);
         uniform3fv("u_lightAtt", nL, (SLfloat*)&lightAtt);
         uniform1iv("u_lightDoAtt", nL, (SLint*)&lightDoAtt);
+        uniform1iv("u_lightCreatesShadows", nL, (SLint*)&lightCreatesShadows);
         uniform1iv("u_lightDoSmoothShadows", nL, (SLint*)&lightDoSmoothShadows);
         uniform1iv("u_lightSmoothShadowLevel", nL, (SLint*)&lightSmoothShadowLevel);
         uniform1iv("u_lightUsesCubemap", nL, (SLint*)&lightUsesCubemap);
-        uniform1iv("u_lightCreatesShadows", nL, (SLint*)&lightCreatesShadows);
         uniform1fv("u_lightShadowMinBias", nL, (SLfloat*)&lightShadowMinBias);
         uniform1fv("u_lightShadowMaxBias", nL, (SLfloat*)&lightShadowMaxBias);
         uniform1iv("u_lightNumCascades", nL, (SLint*)&lightNumCascades);

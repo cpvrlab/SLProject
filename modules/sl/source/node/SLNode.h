@@ -272,7 +272,7 @@ public:
     void         needAABBUpdate();
     void         isSelected(bool isSelected) { _isSelected = isSelected; }
     void         minLodCoverage(SLfloat minLodCoverage) { _minLodCoverage = minLodCoverage; }
-    void         levelForSM(SLint lfsm) { _levelForSM = lfsm; }
+    void         levelForSM(SLubyte lfsm) { _levelForSM = lfsm; }
 
     // Getters (see also member)
     SLNode*               parent() { return _parent; }
@@ -299,7 +299,7 @@ public:
     void                  setMeshMat(SLMaterial* mat, bool recursive);
     bool                  isSelected() { return _isSelected; }
     SLfloat               minLodCoverage() { return _minLodCoverage; }
-    SLint                 levelForSM() { return _levelForSM; }
+    SLubyte               levelForSM() { return _levelForSM; }
 
     static SLuint numWMUpdates; //!< NO. of calls to updateWM per frame
 
@@ -344,7 +344,7 @@ protected:
     SLAABBox        _aabb;           //!< axis aligned bounding box
     SLAnimation*    _animation;      //!< animation of the node
     SLfloat         _minLodCoverage; //!< Min. LOD coverage for visibility (0.0 < _minLodCoverage < 1.0)
-    SLint           _levelForSM;     //!< Level of LOD to use for shadow mapping (0 = the visible one will be drawn)
+    SLubyte         _levelForSM;     //!< Level of LOD to use for shadow mapping (0 = the visible one will be drawn)
 };
 
 ////////////////////////

@@ -21,6 +21,7 @@
 #include <SLSceneView.h>
 #include <SLCamera.h>
 #include <SLFrustum.h>
+#include <SLNodeLOD.h>
 
 //-----------------------------------------------------------------------------
 SLShadowMap::SLShadowMap(SLProjection   projection,
@@ -94,8 +95,7 @@ SLfloat SLShadowMap::clipFar()
     return _camera ? _camera->clipFar() : _clipFar;
 }
 //-----------------------------------------------------------------------------
-/*! SLShadowMap::drawFrustum draws the volume affected by the shadow map
- */
+//! SLShadowMap::drawFrustum draws the volume affected by the shadow map
 void SLShadowMap::drawFrustum()
 {
     // clang-format off
@@ -131,10 +131,10 @@ void SLShadowMap::drawFrustum()
         {
             // Inverse matrix in a way to avoid precision error
             SLMat4f s, t;
-            s.scale(1.0f / _p[i].m(0), 1.0f / _p[i].m(5), 1.0f / _p[i].m(10));
-            t.translate((-_p[i].m(12)), (-_p[i].m(13)), (-_p[i].m(14)));
+            s.scale(1.0f / _lightProj[i].m(0), 1.0f / _lightProj[i].m(5), 1.0f / _lightProj[i].m(10));
+            t.translate((-_lightProj[i].m(12)), (-_lightProj[i].m(13)), (-_lightProj[i].m(14)));
 
-            stateGL->modelViewMatrix = stateGL->viewMatrix * _v[i].inverted() * s * t;
+            stateGL->modelViewMatrix = stateGL->viewMatrix * _lightView[i].inverted() * s * t;
 
             _frustumVAO->drawArrayAsColored(PT_lines,
                                             SLCol4f::GREEN,
@@ -147,7 +147,7 @@ void SLShadowMap::drawFrustum()
     {
         for (SLint i = 0; i < (_useCubemap ? 6 : 1); ++i)
         {
-            stateGL->modelViewMatrix = stateGL->viewMatrix * _mvp[i].inverted();
+            stateGL->modelViewMatrix = stateGL->viewMatrix * _lightSpace[i].inverted();
 
             _frustumVAO->drawArrayAsColored(PT_lines,
                                             SLCol4f::GREEN,
@@ -211,7 +211,7 @@ void SLShadowMap::drawRays()
     SLGLVertexArrayExt vao;
     vao.generateVertexPos(&P);
 
-    stateGL->modelViewMatrix = stateGL->viewMatrix * _mvp[0].inverted();
+    stateGL->modelViewMatrix = stateGL->viewMatrix * _lightSpace[0].inverted();
 
     vao.drawArrayAsColored(PT_lines,
                            SLCol4f::YELLOW,
@@ -222,10 +222,8 @@ void SLShadowMap::drawRays()
 #endif
 }
 //-----------------------------------------------------------------------------
-/*!
-SLShadowMap::updateMVP creates a lightSpace matrix for a directional light.
-*/
-void SLShadowMap::updateMVP()
+//! SLShadowMap::updateLightViewProj updates a light view projection matrix
+void SLShadowMap::updateLightViewProj()
 {
     // Calculate FOV
     SLfloat fov;
@@ -247,33 +245,33 @@ void SLShadowMap::updateMVP()
 
     if (_useCubemap)
     {
-        _v[0].lookAt(positionWS, positionWS + SLVec3f::AXISX, -SLVec3f::AXISY);
-        _v[1].lookAt(positionWS, positionWS - SLVec3f::AXISX, -SLVec3f::AXISY);
-        _v[2].lookAt(positionWS, positionWS + SLVec3f::AXISY, SLVec3f::AXISZ);
-        _v[3].lookAt(positionWS, positionWS - SLVec3f::AXISY, -SLVec3f::AXISZ);
-        _v[4].lookAt(positionWS, positionWS + SLVec3f::AXISZ, -SLVec3f::AXISY);
-        _v[5].lookAt(positionWS, positionWS - SLVec3f::AXISZ, -SLVec3f::AXISY);
+        _lightView[0].lookAt(positionWS, positionWS + SLVec3f::AXISX, -SLVec3f::AXISY);
+        _lightView[1].lookAt(positionWS, positionWS - SLVec3f::AXISX, -SLVec3f::AXISY);
+        _lightView[2].lookAt(positionWS, positionWS + SLVec3f::AXISY, SLVec3f::AXISZ);
+        _lightView[3].lookAt(positionWS, positionWS - SLVec3f::AXISY, -SLVec3f::AXISZ);
+        _lightView[4].lookAt(positionWS, positionWS + SLVec3f::AXISZ, -SLVec3f::AXISY);
+        _lightView[5].lookAt(positionWS, positionWS - SLVec3f::AXISZ, -SLVec3f::AXISY);
     }
     else
     {
         SLNode* node = dynamic_cast<SLNode*>(_light);
-        _v[0].lookAt(positionWS, positionWS + node->forwardWS(), node->upWS());
+        _lightView[0].lookAt(positionWS, positionWS + node->forwardWS(), node->upWS());
     }
 
     // Set projection matrix
     switch (_projection)
     {
         case P_monoOrthographic:
-            _p[0].ortho(-_halfSize.x,
-                        _halfSize.x,
-                        -_halfSize.y,
-                        _halfSize.y,
-                        _clipNear,
-                        _clipFar);
+            _lightProj[0].ortho(-_halfSize.x,
+                                _halfSize.x,
+                                -_halfSize.y,
+                                _halfSize.y,
+                                _clipNear,
+                                _clipFar);
             break;
 
         case P_monoPerspective:
-            _p[0].perspective(fov, 1.0f, _clipNear, _clipFar);
+            _lightProj[0].perspective(fov, 1.0f, _clipNear, _clipFar);
             break;
 
         default:
@@ -282,52 +280,81 @@ void SLShadowMap::updateMVP()
 
     // Set the model-view-projection matrix
     for (SLint i = 0; i < (_useCubemap ? 6 : 1); ++i)
-        _mvp[i] = _p[0] * _v[i];
+        _lightSpace[i] = _lightProj[0] * _lightView[i];
 }
 //-----------------------------------------------------------------------------
-void SLShadowMap::lightCullingRec(SLNode*      node,
-                                  SLSceneView* sv,
-                                  SLMat4f&     P,
-                                  SLMat4f&     lv,
-                                  SLPlane*     planes,
-                                  SLVNode&     visibleNodes)
+//! Returns the visible nodes inside the light frustum
+/*!
+ * Check if the passed node is inside the light frustum and adds if so to the
+ * visibleNodes vector.
+ * @param node Node to cull or add to to visibleNodes vector
+ * @param lightProj The cascades light projection matrix that gets adapted
+ * @param lightView The cascades light view matrix
+ * @param frustumPlanes
+ * @param visibleNodes
+ */
+void SLShadowMap::lightCullingAdaptiveRec(SLNode*  node,
+                                          SLMat4f& lightProj,
+                                          SLMat4f& lightView,
+                                          SLPlane* frustumPlanes,
+                                          SLVNode& visibleNodes)
 {
-    if (node->drawBit(SL_DB_HIDDEN))
-        return;
+
+    if (typeid(*node->parent()) == typeid(SLNodeLOD))
+    {
+        int levelForSM = node->levelForSM();
+        if (levelForSM == 0 && node->drawBit(SL_DB_HIDDEN))
+            return;
+        else // levelForSM > 0
+        {
+            if (node->parent()->children().size() < levelForSM)
+            {
+                SL_EXIT_MSG("SLShadowMap::lightCullingAdaptiveRec: levelForSM > num. LOD Nodes.");
+            }
+            SLNode* nodeForSM = node->parent()->children()[levelForSM - 1];
+            if (nodeForSM != node)
+                return;
+        }
+    }
+    else
+    {
+        if (node->drawBit(SL_DB_HIDDEN))
+            return;
+    }
 
     if (!node->castsShadows())
         return;
 
     // We don't need to increase far plane distance
-    float distance = planes[5].distToPoint(node->aabb()->centerWS());
+    float distance = frustumPlanes[5].distToPoint(node->aabb()->centerWS());
     if (distance < -node->aabb()->radiusWS())
         return;
 
     for (int i = 0; i < 4; i++)
     {
-        float distance = planes[i].distToPoint(node->aabb()->centerWS());
+        float distance = frustumPlanes[i].distToPoint(node->aabb()->centerWS());
         if (distance < -node->aabb()->radiusWS())
             return;
     }
 
     // If object is behind the light's near plane, move the near plane back
-    distance = planes[4].distToPoint(node->aabb()->centerWS());
+    distance = frustumPlanes[4].distToPoint(node->aabb()->centerWS());
     if (distance < node->aabb()->radiusWS())
     {
-        float a = P.m(10);
-        float b = P.m(14);
+        float a = lightProj.m(10);
+        float b = lightProj.m(14);
         float n = (b + 1.f) / a;
         float f = (b - 1.f) / a;
         n       = n + (distance - node->aabb()->radiusWS());
-        P.m(10, -2.f / (f - n));
-        P.m(14, -(f + n) / (f - n));
-        SLFrustum::viewToFrustumPlanes(planes, P, lv);
+        lightProj.m(10, -2.f / (f - n));
+        lightProj.m(14, -(f + n) / (f - n));
+        SLFrustum::viewToFrustumPlanes(frustumPlanes, lightProj, lightView);
     }
 
     visibleNodes.push_back(node);
 
     for (SLNode* child : node->children())
-        lightCullingRec(child, sv, P, lv, planes, visibleNodes);
+        lightCullingAdaptiveRec(child, lightProj, lightView, frustumPlanes, visibleNodes);
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -336,15 +363,15 @@ cast shadows
 */
 void SLShadowMap::drawNodesDirectionalCulling(SLVNode      visibleNodes,
                                               SLSceneView* sv,
-                                              SLMat4f&     P,
-                                              SLMat4f&     lv,
+                                              SLMat4f&     lightProj,
+                                              SLMat4f&     lightView,
                                               SLPlane*     planes)
 {
+    SLGLState* stateGL        = SLGLState::instance();
+
     for (SLNode* node : visibleNodes)
     {
-        SLGLState* stateGL        = SLGLState::instance();
-        stateGL->modelViewMatrix  = lv * node->updateAndGetWM();
-        stateGL->projectionMatrix = P;
+        stateGL->modelViewMatrix  = lightView * node->updateAndGetWM();
 
         if (node->castsShadows() &&
             node->mesh() &&
@@ -450,7 +477,7 @@ void SLShadowMap::render(SLSceneView* sv, SLNode* root)
     // Create depth buffer
     static SLfloat borderColor[] = {1.0, 1.0, 1.0, 1.0};
 
-    updateMVP();
+    updateLightViewProj();
 
     if (this->_useCubemap)
         this->_textureSize.y = this->_textureSize.x;
@@ -496,15 +523,15 @@ void SLShadowMap::render(SLSceneView* sv, SLNode* root)
         stateGL->viewportFB(0, 0, _textureSize.x, _textureSize.y);
 
         // Set matrices
-        stateGL->viewMatrix       = _v[i];
-        stateGL->projectionMatrix = _p[0];
+        stateGL->viewMatrix       = _lightView[i];
+        stateGL->projectionMatrix = _lightProj[0];
 
         // Clear color buffer
         stateGL->clearColor(SLCol4f::BLACK);
         stateGL->clearColorDepthBuffer();
 
         // Draw meshes
-        drawNodesIntoDepthBuffer(root, sv, _p[0], _v[i]);
+        drawNodesIntoDepthBuffer(root, sv, _lightProj[0], _lightView[i]);
     }
 
     _depthBuffers[0]->unbind();
@@ -532,6 +559,7 @@ SLVVec2f SLShadowMap::getShadowMapCascades(int   numCascades,
     return cascades;
 }
 //-----------------------------------------------------------------------------
+//! Renders the nodes into cascaded shadow maps for directional lights
 void SLShadowMap::renderDirectionalLightCascaded(SLSceneView* sv,
                                                  SLNode*      root)
 {
@@ -554,7 +582,7 @@ void SLShadowMap::renderDirectionalLightCascaded(SLSceneView* sv,
           nullptr,
           SLGLProgramManager::get(SP_depth));
 
-    // Create depth buffer textures if the number or size changes
+    // Erase depth buffer textures if the number or size changed
     if (_depthBuffers.size() != 0 &&
         (_depthBuffers[0]->dimensions() != _textureSize ||
          _depthBuffers[0]->target() != GL_TEXTURE_2D ||
@@ -568,41 +596,50 @@ void SLShadowMap::renderDirectionalLightCascaded(SLSceneView* sv,
                                              _camera->clipNear(),
                                              _camera->clipFar());
 
-    SLMat4f camWN     = _camera->updateAndGetWM(); // camera space to world space
+    SLMat4f camWM     = _camera->updateAndGetWM(); // camera space in world space
     SLNode* lightNode = dynamic_cast<SLNode*>(_light);
 
+    // Create the depth buffer if they don't exist
     if (_depthBuffers.size() == 0)
     {
         for (int i = 0; i < cascades.size(); i++)
-        {
             _depthBuffers.push_back(new SLGLDepthBuffer(_textureSize,
                                                         GL_NEAREST,
                                                         GL_NEAREST,
                                                         wrapMode,
                                                         borderColor,
                                                         GL_TEXTURE_2D));
-        }
     }
 
     // for all subdivision of frustum
     for (int i = 0; i < cascades.size(); i++)
     {
-        float   ni = cascades[i].x;
-        float   fi = cascades[i].y;
-        SLVec3f v  = camWN.translation() - camWN.axisZ().normalized() * (ni + fi) * 0.5f;
+        // The cascades near and far distance on the view direction in WS
+        float ni = cascades[i].x;
+        float fi = cascades[i].y;
 
+        // The cascades middle point on the view direction in WS
+        SLVec3f v = camWM.translation() - camWM.axisZ().normalized() * (ni + fi) * 0.5f;
+
+        // Build the view matrix with lookAt method
         SLMat4f lightViewMat; // world space to light space
         lightViewMat.lookAt(v, v + lightNode->forwardWS(), lightNode->upWS());
 
-        SLVec3f frustumPoints[8];
-        SLFrustum::getPointsEyeSpace(frustumPoints, _camera->fovV(), sv->scrWdivH(), ni, fi);
+        // Get the 8 camera frustum points in view space
+        SLVec3f camFrustumPoints[8];
+        SLFrustum::getPointsInViewSpace(camFrustumPoints,
+                                        _camera->fovV(),
+                                        sv->scrWdivH(),
+                                        ni,
+                                        fi);
 
+        // Build min & max point of the cascades light frustum around the view frustum
         float minx = FLT_MAX, maxx = FLT_MIN;
         float miny = FLT_MAX, maxy = FLT_MIN;
         float minz = FLT_MAX, maxz = FLT_MIN;
         for (int j = 0; j < 8; j++)
         {
-            SLVec3f fp = lightViewMat * camWN * frustumPoints[j];
+            SLVec3f fp = lightViewMat * camWM * camFrustumPoints[j];
             if (fp.x < minx) minx = fp.x;
             if (fp.y < miny) miny = fp.y;
             if (fp.x > maxx) maxx = fp.x;
@@ -610,53 +647,49 @@ void SLShadowMap::renderDirectionalLightCascaded(SLSceneView* sv,
             if (fp.z < minz) minz = fp.z;
             if (fp.z > maxz) maxz = fp.z;
         }
+        float   sx = 2.f / (maxx - minx);
+        float   sy = 2.f / (maxy - miny);
+        float   sz = -2.f / (maxz - minz);
+        SLVec3f t  = SLVec3f(-0.5f * (maxx + minx),
+                             -0.5f * (maxy + miny),
+                             -0.5f * (maxz + minz));
 
-        float sx = 2.f / (maxx - minx);
-        float sy = 2.f / (maxy - miny);
-        float sz = -2.f / (maxz - minz);
-
-        SLVec3f t = SLVec3f(-0.5f * (maxx + minx),
-                            -0.5f * (maxy + miny),
-                            -0.5f * (maxz + minz));
+        // Build orthographic light projection matrix
         SLMat4f lightProjMat;
         lightProjMat.scale(sx, sy, sz);
         lightProjMat.translate(t);
 
-        _depthBuffers[i]->bind();
-
-        // Set matrices
-        stateGL->viewMatrix       = lightViewMat;
-        stateGL->projectionMatrix = lightProjMat;
-
-        stateGL->viewportFB(0, 0, _textureSize.x, _textureSize.y);
-
-        // Clear color buffer
-        stateGL->clearColor(SLCol4f::BLACK);
-        stateGL->clearColorDepthBuffer();
-
-        // Do light culling
-        SLPlane planes[6];
+        // Do light culling recursively with light frustum adaptation
+        SLPlane frustumPlanes[6];
         SLVNode visibleNodes;
-        SLFrustum::viewToFrustumPlanes(planes, lightProjMat, lightViewMat);
+        SLFrustum::viewToFrustumPlanes(frustumPlanes, lightProjMat, lightViewMat);
         for (SLNode* child : root->children())
         {
-            lightCullingRec(child,
-                            sv,
-                            lightProjMat,
-                            lightViewMat,
-                            planes,
-                            visibleNodes);
+            lightCullingAdaptiveRec(child,
+                                    lightProjMat,
+                                    lightViewMat,
+                                    frustumPlanes,
+                                    visibleNodes);
         }
 
-        _v[i]   = lightViewMat;
-        _p[i]   = lightProjMat;
-        _mvp[i] = lightProjMat * lightViewMat;
+        _lightView[i]  = lightViewMat;
+        _lightProj[i]  = lightProjMat;
+        _lightSpace[i] = lightProjMat * lightViewMat;
+
+        _depthBuffers[i]->bind();
+
+        // Set OpenGL states for depth buffer rendering
+        stateGL->viewportFB(0, 0, _textureSize.x, _textureSize.y);
+        stateGL->clearColor(SLCol4f::BLACK);
+        stateGL->clearColorDepthBuffer();
+        stateGL->projectionMatrix = lightProjMat;
+        stateGL->viewMatrix       = lightViewMat;
 
         drawNodesDirectionalCulling(visibleNodes,
                                     sv,
                                     lightProjMat,
                                     lightViewMat,
-                                    planes);
+                                    frustumPlanes);
 
         _depthBuffers[i]->unbind();
     }

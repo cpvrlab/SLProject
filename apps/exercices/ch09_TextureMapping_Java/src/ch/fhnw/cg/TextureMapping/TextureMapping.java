@@ -350,7 +350,7 @@ public class TextureMapping
 		   // Pass the matrix uniform variables
 		   gl.glUniformMatrix4fv(_mvMatrixLoc,  1, false, _modelViewMatrix.toArray(), 0);
 		   gl.glUniformMatrix3fv(_nMatrixLoc,   1, false, nm.toArray(), 0);
-		   gl.glUniformMatrix4fv(_mvpMatrixLoc, 1, false, mvp.toArray(), 0);
+		   gl.glUniformMatrix4fv(_mvpMatrixLoc, 1, false, lightSpace.toArray(), 0);
 		   
 		   // Pass lighting uniforms variables
 		   gl.glUniform4f(_globalAmbiLoc, _globalAmbi.x, _globalAmbi.y, _globalAmbi.z, _globalAmbi.w);

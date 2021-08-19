@@ -47,6 +47,7 @@ SLNode::SLNode(const SLstring& name) : SLObject(name)
     _isSelected     = false;
     _mesh           = nullptr;
     _minLodCoverage = 0.0f;
+    _levelForSM     = 0;
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -69,6 +70,7 @@ SLNode::SLNode(SLMesh* mesh, const SLstring& name) : SLObject(name)
     _isAABBUpToDate = false;
     _isSelected     = false;
     _minLodCoverage = 0.0f;
+    _levelForSM     = 0;
 
     addMesh(mesh);
 }
@@ -96,6 +98,7 @@ SLNode::SLNode(SLMesh*         mesh,
     _isAABBUpToDate = false;
     _isSelected     = false;
     _minLodCoverage = 0.0f;
+    _levelForSM     = 0;
 
     addMesh(mesh);
 }

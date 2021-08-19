@@ -27,7 +27,7 @@
  */
 void SLNodeLOD::addChildLOD(SLNode* childToAdd,
                             SLfloat minLodCoverage,
-                            SLint levelForSM)
+                            SLubyte levelForSM)
 {
     assert(minLodCoverage > 0.0f &&
            minLodCoverage < 1.0f &&

@@ -1141,16 +1141,18 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
                     }
 
                     SLchar strTime[100];
-                    sprintf(strTime, "Set now (%02d.%02d.%02d %02d:%02d)", lt.tm_mday, lt.tm_mon, lt.tm_year + 1900, lt.tm_hour, lt.tm_min);
+                    std::time_t now = std::time(nullptr);
+                    tm tnow{};
+                    memcpy(&tnow, std::localtime(&now), sizeof(tm));
+                    sprintf(strTime, "Set now (%02d.%02d.%02d %02d:%02d)", tnow.tm_mday, tnow.tm_mon+1, tnow.tm_year + 1900, tnow.tm_hour, tnow.tm_min);
                     if (ImGui::MenuItem(strTime))
                     {
                         adjustedTime    = 0;
-                        std::time_t now = std::time(nullptr);
                         memcpy(&lt, std::localtime(&now), sizeof(tm));
                         AppDemo::devLoc.calculateSolarAngles(AppDemo::devLoc.originLatLonAlt(), now);
                     }
 
-                    sprintf(strTime, "Set highest noon (21.06.%02d 12:00)", lt.tm_year - 100);
+                    sprintf(strTime, "Set highest noon (21.07.%02d 12:00)", lt.tm_year - 100);
                     if (ImGui::MenuItem(strTime))
                     {
                         lt.tm_mon    = 6;
@@ -1166,7 +1168,7 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
                     sprintf(strTime, "Set lowest noon (21.12.%02d 12:00)", lt.tm_year - 100);
                     if (ImGui::MenuItem(strTime))
                     {
-                        lt.tm_mon    = 12;
+                        lt.tm_mon    = 11;
                         lt.tm_mday   = 21;
                         lt.tm_hour   = 12;
                         lt.tm_min    = 0;
@@ -3281,7 +3283,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                         if (ImGui::TreeNode("Light cascade space matrices"))
                                         {
                                             for (SLint i = 0; i < shadowMap->numCascades(); ++i)
-                                                ImGui::Text("Matrix %i:\n%s", i + 1, shadowMap->mvp()[i].toString().c_str());
+                                                ImGui::Text("Matrix %i:\n%s", i + 1, shadowMap->lightSpace()[i].toString().c_str());
 
                                             ImGui::TreePop();
                                         }
@@ -3292,9 +3294,9 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                         {
                                             if (shadowMap->useCubemap())
                                                 for (SLint i = 0; i < 6; ++i)
-                                                    ImGui::Text("Matrix %i:\n%s", i + 1, shadowMap->mvp()[i].toString().c_str());
+                                                    ImGui::Text("Matrix %i:\n%s", i + 1, shadowMap->lightSpace()[i].toString().c_str());
                                             else
-                                                ImGui::Text(shadowMap->mvp()[0].toString().c_str());
+                                                ImGui::Text(shadowMap->lightSpace()[0].toString().c_str());
 
                                             ImGui::TreePop();
                                         }

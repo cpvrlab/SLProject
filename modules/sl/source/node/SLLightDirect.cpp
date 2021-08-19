@@ -166,7 +166,8 @@ void SLLightDirect::drawMesh(SLSceneView* sv)
         // Draw the volume affected by the shadow map
         if (_createsShadows && _isOn && sv->s()->singleNodeSelected() == this)
         {
-            _shadowMap->drawFrustum();
+            if (sv->camera() != _shadowMap->camera())
+                _shadowMap->drawFrustum();
             _shadowMap->drawRays();
         }
     }
