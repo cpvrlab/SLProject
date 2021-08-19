@@ -1696,10 +1696,13 @@ void SLCamera::passToUniforms(SLGLProgram* program)
     loc = program->uniform4fv("u_camFogColor", 1, (SLfloat*)&_fogColor);
     loc = program->uniform1i("u_camFbWidth", _fbRect.width);
     loc = program->uniform1i("u_camFbHeight", _fbRect.height);
-    program->uniform1f("u_bgWidth", _background.rect().width);
-    program->uniform1f("u_bgHeight", _background.rect().height);
-    program->uniform1f("u_bgLeft", _background.rect().x);
-    program->uniform1f("u_bgBottom", _background.rect().y);
+    loc = program->uniform1f("u_bgWidth", _background.rect().width);
+    loc = program->uniform1f("u_bgHeight", _background.rect().height);
+    loc = program->uniform1f("u_bgLeft", _background.rect().x);
+    loc = program->uniform1f("u_bgBottom", _background.rect().y);
+    loc = program->uniform1f("u_camClipNear", _clipNear);
+    loc = program->uniform1f("u_camClipFar", _clipFar);
+
     //SL_LOG("SLCamera: width:%f height:%f left:%f bottom:%f", _background.rect().width, _background.rect().height, _background.rect().x, _background.rect().x);
 }
 //-----------------------------------------------------------------------------

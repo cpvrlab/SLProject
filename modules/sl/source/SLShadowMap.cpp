@@ -87,12 +87,12 @@ SLShadowMap::~SLShadowMap()
 //-----------------------------------------------------------------------------
 SLfloat SLShadowMap::clipNear()
 {
-    return _camera ? _camera->clipNear() : _clipNear;
+    return _clipNear;
 }
 //-----------------------------------------------------------------------------
 SLfloat SLShadowMap::clipFar()
 {
-    return _camera ? _camera->clipFar() : _clipFar;
+    return _clipFar;
 }
 //-----------------------------------------------------------------------------
 //! SLShadowMap::drawFrustum draws the volume affected by the shadow map

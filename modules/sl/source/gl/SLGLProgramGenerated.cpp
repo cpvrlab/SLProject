@@ -210,6 +210,8 @@ uniform float       u_camFogDensity;    // fog density value
 uniform float       u_camFogStart;      // fog start distance
 uniform float       u_camFogEnd;        // fog end distance
 uniform vec4        u_camFogColor;      // fog color (usually the background)
+uniform float       u_camClipNear;      // camera near plane
+uniform float       u_camClipFar;       // camera far plane
 )";
 
 //-----------------------------------------------------------------------------
@@ -1645,8 +1647,6 @@ uniform bool        u_lightUsesCubemap[NUM_LIGHTS];         // flag if light has
             else if (light->doCascadedShadows())
             {
                 u_lightSm += "uniform mat4        u_lightSpace_" + std::to_string(i) + "[" + std::to_string(shadowMap->numCascades()) + "];\n";
-                u_lightSm += "uniform float       u_lightShadowClipNear_" + std::to_string(i) + ";\n"; // near plane distance
-                u_lightSm += "uniform float       u_lightShadowClipFar_" + std::to_string(i) + ";\n";  // far plane distance
             }
             else
             {
@@ -1736,7 +1736,6 @@ int vectorToFace(vec3 vec) // Vector to process
 
 int getCascadesDepthIndex(in int i, int numCascades)
 {
-    float clipNear, clipFar;
     float factor;
 )";
 
@@ -1747,21 +1746,19 @@ int getCascadesDepthIndex(in int i, int numCascades)
         {
             shadowTestCode += "    if (i == " + std::to_string(i) + ")\n";
             shadowTestCode += "    {\n";
-            shadowTestCode += "        clipNear = u_lightShadowClipNear_" + std::to_string(i) + ";\n";
-            shadowTestCode += "        clipFar = u_lightShadowClipFar_" + std::to_string(i) + ";\n";
             shadowTestCode += "        factor = u_cascadesFactor_" + std::to_string(i) + ";\n";
             shadowTestCode += "    }\n";
         }
     }
 
     shadowTestCode += R"(
-    float ni = clipNear;
-    float fi = clipFar;
+    float fi = u_camClipNear;
+    float ni;
 
     for (int i = 0; i < numCascades-1; i++)
     {
         ni = fi;
-        fi = factor * clipNear * pow((clipFar/(factor*clipNear)), float(i+1)/float(numCascades));
+        fi = factor * u_camClipNear * pow((u_camClipFar/(factor*u_camClipNear)), float(i+1)/float(numCascades));
         if (-v_P_VS.z < fi)
             return i;
     }
