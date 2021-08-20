@@ -332,23 +332,26 @@ void SLShadowMap::lightCullingAdaptiveRec(SLNode*  node,
     }
 
     // If object is behind the light's near plane, move the near plane back
-    distance = lightFrustumPlanes[4].distToPoint(node->aabb()->centerWS());
-    if (distance < node->aabb()->radiusWS())
+    if (node->mesh()) // Don't add empty group nodes
     {
-        float a = lightProj.m(10);
-        float b = lightProj.m(14);
-        float n = (b + 1.f) / a;
-        float f = (b - 1.f) / a;
-        n       = n + (distance - node->aabb()->radiusWS());
-        lightProj.m(10, -2.f / (f - n));
-        lightProj.m(14, -(f + n) / (f - n));
-        SLFrustum::viewToFrustumPlanes(lightFrustumPlanes,
-                                       lightProj,
-                                       lightView);
-    }
+        distance = lightFrustumPlanes[4].distToPoint(node->aabb()->centerWS());
+        if (distance < node->aabb()->radiusWS())
+        {
+            float a = lightProj.m(10);
+            float b = lightProj.m(14);
+            float n = (b + 1.f) / a;
+            float f = (b - 1.f) / a;
+            n       = n + (distance - node->aabb()->radiusWS());
+            lightProj.m(10, -2.f / (f - n));
+            lightProj.m(14, -(f + n) / (f - n));
+            SLFrustum::viewToFrustumPlanes(lightFrustumPlanes,
+                                           lightProj,
+                                           lightView);
+        }
 
-    // If the node survived until now it can cast a shadow in this cascade
-    visibleNodes.push_back(node);
+        // If the node survived until now it can cast a shadow in this cascade
+        visibleNodes.push_back(node);
+    }
 
     // Now recursively cull the children nodes
     for (SLNode* child : node->children())
@@ -373,12 +376,13 @@ void SLShadowMap::drawNodesDirectionalCulling(SLVNode      visibleNodes,
 
     for (SLNode* node : visibleNodes)
     {
-        stateGL->modelViewMatrix = lightView * node->updateAndGetWM();
-
         if (node->castsShadows() &&
             node->mesh() &&
             node->mesh()->primitive() >= GL_TRIANGLES)
+        {
+            stateGL->modelViewMatrix = lightView * node->updateAndGetWM();
             node->mesh()->drawIntoDepthBuffer(sv, node, _material);
+        }
     }
 }
 //-----------------------------------------------------------------------------
