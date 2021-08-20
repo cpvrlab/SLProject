@@ -187,8 +187,7 @@ void SLLightDirect::createShadowMap(float   clipNear,
     if (!_shadowMap)
         delete _shadowMap;
 
-    _shadowMap = new SLShadowMap(P_monoOrthographic,
-                                 this,
+    _shadowMap = new SLShadowMap(this,
                                  clipNear,
                                  clipFar,
                                  size,

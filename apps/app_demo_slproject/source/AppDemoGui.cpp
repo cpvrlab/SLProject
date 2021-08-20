@@ -405,6 +405,8 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
                     sprintf(m + strlen(m), "Window size: %d x %d\n", sv->viewportW(), sv->viewportH());
                     sprintf(m + strlen(m), "Framebuffer: %d x %d\n", (int)(sv->viewportW() * sv->scr2fbY()), (int)(sv->viewportH() * sv->scr2fbX()));
                     sprintf(m + strlen(m), "Drawcalls  : %d\n", SLGLVertexArray::totalDrawCalls);
+                    sprintf(m + strlen(m), " Shadow    : %d\n", SLShadowMap::drawCalls);
+                    sprintf(m + strlen(m), " Render    : %d\n", SLGLVertexArray::totalDrawCalls-SLShadowMap::drawCalls);
                     sprintf(m + strlen(m), "Primitives : %d\n", SLGLVertexArray::totalPrimitivesRendered);
                     sprintf(m + strlen(m), "FPS        : %5.1f\n", s->fps());
                     sprintf(m + strlen(m), "Frame time : %5.1f ms (100%%)\n", ft);

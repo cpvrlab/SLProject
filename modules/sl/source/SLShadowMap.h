@@ -39,8 +39,7 @@ class SLShadowMap
 {
 public:
     //! Ctor for standard fixed sized shadow mapping without cascades
-    SLShadowMap(SLProjection   projection,
-                SLLight*       light,
+    SLShadowMap(SLLight*       light,
                 const SLfloat  lightClipNear = 0.1f,
                 const SLfloat  lightClipFar  = 20.0f,
                 const SLVec2f& size          = SLVec2f(8, 8),
@@ -88,6 +87,8 @@ public:
     int              numCascades() { return _numCascades; }
     float            cascadesFactor() { return _cascadesFactor; }
     SLCamera*        camera() { return _camera; }
+
+    static SLuint drawCalls; //!< NO. of draw calls for shadow mapping
 
 private:
     void     updateLightSpaces();

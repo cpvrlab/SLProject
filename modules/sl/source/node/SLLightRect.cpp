@@ -300,8 +300,7 @@ void SLLightRect::createShadowMap(float   lightClipNear,
     if (!_shadowMap)
         delete _shadowMap;
 
-    _shadowMap = new SLShadowMap(P_monoPerspective,
-                                 this,
+    _shadowMap = new SLShadowMap(this,
                                  lightClipNear,
                                  lightClipFar,
                                  size,

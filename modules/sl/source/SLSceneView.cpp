@@ -307,7 +307,7 @@ void SLSceneView::setViewportFromRatio(const SLVec2i&  vpRatio,
     {
         _viewportRect.set(0, 0, _scrW, _scrH);
         _viewportAlign = VA_center;
-        //todo: when this call comes, scr2fb are maybe not updated yet (I initialized them with 1.0)
+        // todo: when this call comes, scr2fb are maybe not updated yet (I initialized them with 1.0)
         if (_gui)
             _gui->onResize(_viewportRect.width,
                            _viewportRect.height,
@@ -508,7 +508,7 @@ SLbool SLSceneView::onPaint()
 {
     PROFILE_FUNCTION();
 
-    //SL_LOG("onPaint: -----------------------------------------------------");
+    // SL_LOG("onPaint: -----------------------------------------------------");
 
     _shadowMapTimesMS.set(_shadowMapTimeMS);
     _cullTimesMS.set(_cullTimeMS);
@@ -549,6 +549,7 @@ SLbool SLSceneView::onPaint()
     // Clear NO. of draw calls after UI creation
     SLGLVertexArray::totalDrawCalls          = 0;
     SLGLVertexArray::totalPrimitivesRendered = 0;
+    SLShadowMap::drawCalls                   = 0;
 
     if (_s && _camera)
     { // Render the 3D scenegraph by raytracing, pathtracing or OpenGL
@@ -673,8 +674,8 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     startMS = GlobalTimer::timeMS();
 
     // Update camera animation separately (smooth transition on key movement)
-    //todo: ghm1: this is currently only necessary for walking animation (which is somehow always enabled)
-    //A problem is also, that it only updates the current camera. This is maybe not what we want for sensor rotated camera.
+    // todo: ghm1: this is currently only necessary for walking animation (which is somehow always enabled)
+    // A problem is also, that it only updates the current camera. This is maybe not what we want for sensor rotated camera.
     SLbool camUpdated = _camera->camUpdate(this, elapsedTimeMS);
 
     //////////////////////
@@ -727,8 +728,8 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     else
     {
         _camera->setProjection(this, ET_center);
-        //todo: ghm1: set view is only called on the active camera. Then the camera animation is not updated
-        //of a camera the is not the current camera!
+        // todo: ghm1: set view is only called on the active camera. Then the camera animation is not updated
+        // of a camera the is not the current camera!
         _camera->setView(this, ET_center);
     }
 
@@ -1890,7 +1891,7 @@ SLbool SLSceneView::draw3DRT()
         {
             // Update transforms and AABBs
             // @Todo: causes multithreading bug in RT
-            //s->root3D()->needUpdate();
+            // s->root3D()->needUpdate();
 
             // Do software skinning on all changed skeletons
             _s->root3D()->updateMeshAccelStructs();
@@ -1943,7 +1944,7 @@ SLbool SLSceneView::draw3DPT()
         {
             // Update transforms and AABBs
             // @Todo: causes multithreading bug in RT
-            //s->root3D()->needUpdate();
+            // s->root3D()->needUpdate();
 
             // Do software skinning on all changed skeletons
             _s->root3D()->updateMeshAccelStructs();
@@ -2055,7 +2056,7 @@ SLSceneView::draw3DCT draws all 3D content with voxel cone tracing.
 */
 SLbool SLSceneView::draw3DCT()
 {
-    //SL_LOG("Rendering VXC ");
+    // SL_LOG("Rendering VXC ");
     SLfloat startMS = GlobalTimer::timeMS();
 
     SLbool rendered = _conetracer->render(this);
