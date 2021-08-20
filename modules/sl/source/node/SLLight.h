@@ -16,8 +16,8 @@
 #include <SLShadowMap.h>
 
 #ifdef SL_HAS_OPTIX
-#include <SLOptixDefinitions.h>
-#include <SLOptixHelper.h>
+#    include <SLOptixDefinitions.h>
+#    include <SLOptixHelper.h>
 //#include <SLOptixVectorMath.h>
 #endif
 
@@ -129,29 +129,28 @@ public:
     void shadowMaxBias(SLfloat maxBias) { _shadowMaxBias = maxBias; }
 
     // Getters
-    SLint        id() const { return _id; }
-    SLbool       isOn() const { return _isOn; }
-    SLCol4f      ambientColor() { return _ambientColor; }
-    SLfloat      ambientPower() const { return _ambientPower; }
-    SLCol4f      diffuseColor() { return _diffuseColor; }
-    SLfloat      diffusePower() const { return _diffusePower; }
-    SLCol4f      specularColor() { return _specularColor; }
-    SLfloat      specularPower() const { return _specularPower; }
-    SLfloat      spotCutOffDEG() const { return _spotCutOffDEG; }
-    SLfloat      spotCosCut() const { return _spotCosCutOffRAD; }
-    SLfloat      spotExponent() const { return _spotExponent; }
-    SLfloat      kc() const { return _kc; }
-    SLfloat      kl() const { return _kl; }
-    SLfloat      kq() const { return _kq; }
-    SLbool       isAttenuated() const { return _isAttenuated; }
-    SLfloat      attenuation(SLfloat dist) const { return 1.0f / (_kc + _kl * dist + _kq * dist * dist); }
-    SLbool       createsShadows() const { return _createsShadows; }
-    SLShadowMap* shadowMap() { return _shadowMap; }
-    SLbool       doSoftShadows() const { return _doSoftShadows; }
-    SLuint       softShadowLevel() const { return _softShadowLevel; }
-    SLfloat      shadowMinBias() const { return _shadowMinBias; }
-    SLfloat      shadowMaxBias() const { return _shadowMaxBias; }
-    
+    SLint          id() const { return _id; }
+    SLbool         isOn() const { return _isOn; }
+    SLCol4f        ambientColor() { return _ambientColor; }
+    SLfloat        ambientPower() const { return _ambientPower; }
+    SLCol4f        diffuseColor() { return _diffuseColor; }
+    SLfloat        diffusePower() const { return _diffusePower; }
+    SLCol4f        specularColor() { return _specularColor; }
+    SLfloat        specularPower() const { return _specularPower; }
+    SLfloat        spotCutOffDEG() const { return _spotCutOffDEG; }
+    SLfloat        spotCosCut() const { return _spotCosCutOffRAD; }
+    SLfloat        spotExponent() const { return _spotExponent; }
+    SLfloat        kc() const { return _kc; }
+    SLfloat        kl() const { return _kl; }
+    SLfloat        kq() const { return _kq; }
+    SLbool         isAttenuated() const { return _isAttenuated; }
+    SLfloat        attenuation(SLfloat dist) const { return 1.0f / (_kc + _kl * dist + _kq * dist * dist); }
+    SLbool         createsShadows() const { return _createsShadows; }
+    SLShadowMap*   shadowMap() { return _shadowMap; }
+    SLbool         doSoftShadows() const { return _doSoftShadows; }
+    SLuint         softShadowLevel() const { return _softShadowLevel; }
+    SLfloat        shadowMinBias() const { return _shadowMinBias; }
+    SLfloat        shadowMaxBias() const { return _shadowMaxBias; }
     virtual SLbool doCascadedShadows() const { return false; }
 
 #ifdef SL_HAS_OPTIX
@@ -175,30 +174,28 @@ public:
 #endif
 
     // Virtual functions to be implemented by the inherited
-    virtual SLCol4f ambient()                                              = 0; //!< Return normally _ambientColor * _ambientPower
-    virtual SLCol4f diffuse()                                              = 0; //!< Returns normally _diffuseColor * _diffusePower
-    virtual SLCol4f specular()                                             = 0; //!< Returns normally _specularColor * _specularPower
-    virtual SLVec4f positionWS() const                                     = 0;
-    virtual SLVec3f spotDirWS()                                            = 0;
-    virtual void    createShadowMap(float   clipNear = 0.1f,
-                                    float   clipFar  = 20.0f,
-                                    SLVec2f size     = SLVec2f(8, 8),
-                                    SLVec2i texSize  = SLVec2i(1024, 1024)) = 0;
-
-    virtual void createShadowMap(SLCamera* camera,
-                                 SLVec2f   size       = SLVec2f(8, 8),
-                                 SLVec2i   texSize    = SLVec2i(1024, 1024),
-                                 int       numCascades = 0) = 0;
-
+    virtual SLCol4f ambient()                    = 0; //!< Return normally _ambientColor * _ambientPower
+    virtual SLCol4f diffuse()                    = 0; //!< Returns normally _diffuseColor * _diffusePower
+    virtual SLCol4f specular()                   = 0; //!< Returns normally _specularColor * _specularPower
+    virtual SLVec4f positionWS() const           = 0;
+    virtual SLVec3f spotDirWS()                  = 0;
     virtual SLfloat shadowTest(SLRay*         ray,
                                const SLVec3f& L,
                                SLfloat        lightDist,
-                               SLNode*        root3D)                             = 0;
+                               SLNode*        root3D)   = 0;
     virtual SLfloat shadowTestMC(SLRay*         ray,
                                  const SLVec3f& L,
                                  SLfloat        lightDist,
-                                 SLNode*        root3D)                           = 0;
+                                 SLNode*        root3D) = 0;
 
+    // Shadow Mapping functions
+    virtual void createShadowMap(float   lightClipNear = 0.1f,
+                                 float   lightClipFar  = 20.0f,
+                                 SLVec2f size          = SLVec2f(8, 8),
+                                 SLVec2i texSize       = SLVec2i(1024, 1024)) = 0;
+    virtual void createShadowMapAutoSize(SLCamera* camera,
+                                         SLVec2i   texSize     = SLVec2i(1024, 1024),
+                                         int       numCascades = 0)           = 0;
     virtual void renderShadowMap(SLSceneView* sv, SLNode* root);
 
     // statics valid for overall lighting

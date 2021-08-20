@@ -59,14 +59,13 @@ public:
     bool    hitRec(SLRay* ray) override;
     void    statsRec(SLNodeStats& stats) override;
     void    drawMesh(SLSceneView* sv) override;
-    void    createShadowMap(float   clipNear = 0.1f,
-                            float   clipFar  = 20.0f,
-                            SLVec2f size     = SLVec2f(8, 8),
-                            SLVec2i texSize  = SLVec2i(1024, 1024)) override;
-    void    createShadowMap(SLCamera* camera,
-                            SLVec2f   size        = SLVec2f(8, 8),
-                            SLVec2i   texSize     = SLVec2i(1024, 1024),
-                            int       numCascades = 0) override;
+    void    createShadowMap(float   lightClipNear = 0.1f,
+                            float   lightClipFar  = 20.0f,
+                            SLVec2f size          = SLVec2f(8, 8),
+                            SLVec2i texSize       = SLVec2i(1024, 1024)) override;
+    void    createShadowMapAutoSize(SLCamera* camera,
+                                    SLVec2i   texSize     = SLVec2i(1024, 1024),
+                                    int       numCascades = 0) override;
     SLfloat shadowTest(SLRay*         ray,
                        const SLVec3f& L,
                        SLfloat        lightDist,

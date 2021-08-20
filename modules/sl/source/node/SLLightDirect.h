@@ -74,10 +74,9 @@ public:
                             float   clipFar  = 20.0f,
                             SLVec2f size     = SLVec2f(8, 8),
                             SLVec2i texSize  = SLVec2i(1024, 1024)) override;
-    void    createShadowMap(SLCamera* camera,
-                            SLVec2f   size        = SLVec2f(8, 8),
-                            SLVec2i   texSize     = SLVec2i(1024, 1024),
-                            int       numCascades = 4) override;
+    void    createShadowMapAutoSize(SLCamera* camera,
+                                    SLVec2i   texSize     = SLVec2i(1024, 1024),
+                                    int       numCascades = 4) override;
     SLCol4f calculateSunLight(SLfloat standardPower);
 
     // Setters

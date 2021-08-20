@@ -315,7 +315,7 @@ void SLMesh::init(SLNode* node)
 }
 //-----------------------------------------------------------------------------
 //! Simplified drawing method for shadow map creation
-/*! This is used from within SLShadowMap::drawNodesIntoDepthBuffer
+/*! This is used from within SLShadowMap::drawNodesIntoDepthBufferRec
 */
 void SLMesh::drawIntoDepthBuffer(SLSceneView* sv,
                                  SLNode*      node,

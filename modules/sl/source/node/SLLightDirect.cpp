@@ -173,7 +173,12 @@ void SLLightDirect::drawMesh(SLSceneView* sv)
     }
 }
 //-----------------------------------------------------------------------------
-//!< Request for single shadow map with specified size
+/*! Creates an fixed sized standard shadow map for a directional light.
+ * @param lightClipNear The light frustums near clipping distance
+ * @param lightClipFar The light frustums near clipping distance
+ * @param size Width and height of the orthographic light frustum
+ * @param texSize Shadow texture map size
+ */
 void SLLightDirect::createShadowMap(float   clipNear,
                                     float   clipFar,
                                     SLVec2f size,
@@ -190,32 +195,26 @@ void SLLightDirect::createShadowMap(float   clipNear,
                                  texSize);
 }
 //-----------------------------------------------------------------------------
-//!< Request for cascaded shadow maps with automatic size calculation.
-/*!
- * Creates the shadows with multiple shadow maps (cascades) with automatically
- * calculated size depending on the cameras view frustum.
- * @param camera Camera for witch the shadow cascaded are automatically calculated.
- * @param size This size will be automatically adapted to the cameras frustum
- * @param texSize Size of the cascades
+/*! Creates an automatic sized and cascaded shadow map for the directional light.
+ * @param camera Pointer to the camera for witch the shadow map gets sized
+ * @param texSize Shadow texture map size (equal for all cascades)
+ * @param numCascades NO. of cascades shadow maps
  */
-void SLLightDirect::createShadowMap(SLCamera* camera,
-                                    SLVec2f   size,
-                                    SLVec2i   texSize,
-                                    int       numCascades)
+void SLLightDirect::createShadowMapAutoSize(SLCamera* camera,
+                                            SLVec2i   texSize,
+                                            int       numCascades)
 {
     if (!_shadowMap)
         delete _shadowMap;
 
     _doCascadedShadows = true;
-    _shadowMap         = new SLShadowMap(P_monoOrthographic,
-                                 this,
-                                 camera,
-                                 size,
-                                 texSize,
-                                 numCascades);
+    _shadowMap         = new SLShadowMap(this,
+                                         camera,
+                                         texSize,
+                                         numCascades);
 }
 //-----------------------------------------------------------------------------
-/*! SLLightDirect::shadowTest returns 0.0 if the hit point is completely shaded 
+/*! SLLightDirect::shadowTest returns 0.0 if the hit point is completely shaded
 and 1.0 if it is 100% lighted. A directional light can not generate soft shadows.
 */
 SLfloat SLLightDirect::shadowTest(SLRay*         ray,       // ray of hit point

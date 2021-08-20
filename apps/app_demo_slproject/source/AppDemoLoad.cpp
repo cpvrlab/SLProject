@@ -2388,7 +2388,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         light->attenuation(1, 0, 0);
         light->createsShadows(true);
         light->doCascadedShadows(true);
-        light->createShadowMap(cam1);
+        light->createShadowMapAutoSize(cam1);
         light->shadowMap()->rayCount(SLVec2i(16, 16));
         light->castsShadows(false);
         scene->addChild(light);
@@ -5816,11 +5816,11 @@ resolution shadows near the camera and lower resolution shadows further away.");
             sunLight->lookAt(-1, 0, -1);
             sunLight->doSunPowerAdaptation(true);
             sunLight->createsShadows(true);
-            sunLight->createShadowMap(cam1);
+            sunLight->createShadowMapAutoSize(cam1);
             sunLight->doSmoothShadows(true);
             sunLight->castsShadows(false);
             sunLight->shadowMinBias(0.003f);
-            sunLight->shadowMaxBias(0.003f);
+            sunLight->shadowMaxBias(0.012f);
 
             // Let the sun be rotated by time and location
             AppDemo::devLoc.sunLightNode(sunLight);

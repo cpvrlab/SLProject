@@ -20,10 +20,10 @@
 #elif defined(SL_OS_MACOS)
 #    include <GL/gl3w.h>
 #elif defined(SL_OS_ANDROID)
-//https://stackoverflow.com/questions/31003863/gles-3-0-including-gl2ext-h
+// https://stackoverflow.com/questions/31003863/gles-3-0-including-gl2ext-h
 #    include <GLES3/gl3.h>
 #    include <GLES2/gl2ext.h>
-#    ifndef GL_CLAMP_TO_BORDER //see #define GL_CLAMP_TO_BORDER_OES 0x812D in gl2ext.h
+#    ifndef GL_CLAMP_TO_BORDER // see #define GL_CLAMP_TO_BORDER_OES 0x812D in gl2ext.h
 #        define GL_CLAMP_TO_BORDER GL_CLAMP_TO_BORDER_OES
 #    endif
 //#    include <GLES3/gl31.h>

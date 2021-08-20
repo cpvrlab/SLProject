@@ -3220,8 +3220,8 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                             shadowMap->useCubemap(useCubemap);
                                     }
 
-                                    SLfloat clipNear = shadowMap->clipNear();
-                                    SLfloat clipFar  = shadowMap->clipFar();
+                                    SLfloat clipNear = shadowMap->lightClipNear();
+                                    SLfloat clipFar  = shadowMap->lightClipFar();
                                     SLfloat factor   = shadowMap->cascadesFactor();
 
                                     if (!shadowMap->useCascaded())
