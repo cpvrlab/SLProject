@@ -454,12 +454,11 @@ void SLShadowMap::drawNodesIntoDepthBufferRec(SLNode*      node,
         drawNodesIntoDepthBufferRec(child, sv, lightView);
 }
 //-----------------------------------------------------------------------------
-/*! SLShadowMap::render renders the standard shadow map of the light without
- * cascades into the depth buffer.
+/*! SLShadowMap::render Toplevel entry function for shadow map rendering.
  * @param sv Pointer of the sceneview
  * @param root Pointer to the root node of the scene
  */
-void SLShadowMap::render(SLSceneView* sv, SLNode* root)
+void SLShadowMap::renderShadows(SLSceneView* sv, SLNode* root)
 {
     assert(node && "SLShadowMap::render: No root node passed.");
 

@@ -723,7 +723,7 @@ void SLMesh::drawSelectedVertices()
 //! Generate the Vertex Array Object for a specific shader program
 void SLMesh::generateVAO(SLGLVertexArray& vao)
 {
-    PROFILE_FUNCTION()
+    PROFILE_FUNCTION();
 
     vao.setAttrib(AT_position, AT_position, _finalP);
     if (!N.empty()) vao.setAttrib(AT_normal, AT_normal, _finalN);

@@ -18,6 +18,7 @@
 using std::string;
 using std::to_string;
 
+//Uncomment the next define to draw the different shadow cascaded colored
 //#define COLORED_SHADOW_CASCADES
 
 ///////////////////////////////
@@ -127,10 +128,8 @@ uniform vec4        u_globalAmbi;                           // Global ambient sc
 uniform float       u_oneOverGamma;                         // 1.0f / Gamma correction value
 )";
 //-----------------------------------------------------------------------------
-
 const string fragInputs_u_lightSc = R"(
 )";
-
 //-----------------------------------------------------------------------------
 const string fragInputs_u_matAllBlinn = R"(
 uniform vec4        u_matAmbi;          // ambient color reflection coefficient (ka)
@@ -213,12 +212,22 @@ uniform vec4        u_camFogColor;      // fog color (usually the background)
 uniform float       u_camClipNear;      // camera near plane
 uniform float       u_camClipFar;       // camera far plane
 )";
-
 //-----------------------------------------------------------------------------
 const string fragOutputs_o_fragColor = R"(
 out     vec4        o_fragColor;        // output fragment color
 )";
-
+//-----------------------------------------------------------------------------
+const string fragFunctionCascadeIndexToColor = R"(
+vec3 cascadeIndexToColor(int index)
+{
+    if (index == 0)      { return vec3(1.0, 0.0, 0.0); }
+    else if (index == 1) { return vec3(0.0, 1.0, 0.0); }
+    else if (index == 2) { return vec3(0.0, 0.0, 1.0); }
+    else if (index == 3) { return vec3(1.0, 1.0, 0.0); }
+    else if (index == 4) { return vec3(0.0, 1.0, 1.0); }
+    else if (index == 5) { return vec3(1.0, 0.0, 1.0); }
+}
+)";
 //-----------------------------------------------------------------------------
 const string fragFunctionColoredCascadedShadow = R"(
 void coloredCascadedShadow(in int i, in float shadow, inout vec4 Id, inout vec4 Is)
@@ -546,21 +555,8 @@ const string fragMainBlinn_1_EN_fromNm1Hm2 = R"(
     // Get normal from normal map, move from [0,1] to [-1, 1] range & normalize
     vec3 N = normalize(texture(u_matTexture1, Tc).rgb * 2.0 - 1.0);
 )";
-
-const string indexToColor = R"(
-vec3 indexToColor(int index)
-{
-    if (index == 0)      { return vec3(1.0, 0.0, 0.0); }
-    else if (index == 1) { return vec3(0.0, 1.0, 0.0); }
-    else if (index == 2) { return vec3(0.0, 0.0, 1.0); }
-    else if (index == 3) { return vec3(1.0, 1.0, 0.0); }
-    else if (index == 4) { return vec3(0.0, 1.0, 1.0); }
-    else if (index == 5) { return vec3(1.0, 0.0, 1.0); }
-}
-)";
-
 //-----------------------------------------------------------------------------
-const string fragMainBlinn_2_LightLoop   = R"(
+const string fragMainBlinn_2_LightLoop     = R"(
     for (int i = 0; i < NUM_LIGHTS; ++i)
     {
         if (u_lightIsOn[i])
@@ -580,7 +576,7 @@ const string fragMainBlinn_2_LightLoop   = R"(
         }
     }
 )";
-const string fragMainBlinn_2_LightLoopNm = R"(
+const string fragMainBlinn_2_LightLoopNm   = R"(
     for (int i = 0; i < NUM_LIGHTS; ++i)
     {
         if (u_lightIsOn[i])
@@ -600,7 +596,7 @@ const string fragMainBlinn_2_LightLoopNm = R"(
         }
     }
 )";
-const string fragMainBlinn_2_LightLoopSm = R"(
+const string fragMainBlinn_2_LightLoopSm   = R"(
     for (int i = 0; i < NUM_LIGHTS; ++i)
     {
         if (u_lightIsOn[i])
@@ -921,7 +917,9 @@ in      vec3        v_spotDirTS[NUM_LIGHTS];    // Spot direction in tangent spa
     fragCode += fragInputs_u_shadowMaps(lights);
     fragCode += fragInputs_u_cam;
     fragCode += fragOutputs_o_fragColor;
-    fragCode += indexToColor;
+#ifdef COLORED_SHADOW_CASCADES
+    fragCode += fragFunctionCascadeIndexToColor;
+#endif
     fragCode += fragFunctionLightingBlinnPhong;
     fragCode += fragFunctionFogBlend;
     fragCode += fragFunctionDoStereoSeparation;
@@ -1026,7 +1024,9 @@ in      vec3        v_spotDirTS[NUM_LIGHTS];    // Spot direction in tangent spa
     fragCode += fragInputs_u_shadowMaps(lights);
     fragCode += fragInputs_u_cam;
     fragCode += fragOutputs_o_fragColor;
-    fragCode += indexToColor;
+#ifdef COLORED_SHADOW_CASCADES
+    fragCode += fragFunctionCascadeIndexToColor;
+#endif
     fragCode += fragFunctionLightingBlinnPhong;
     fragCode += fragFunctionFogBlend;
     fragCode += fragFunctionDoStereoSeparation;
@@ -1081,7 +1081,9 @@ in      vec2        v_uv2;      // Texture coordinate 2 varying for AO
     fragCode += fragInputs_u_shadowMaps(lights);
     fragCode += fragInputs_u_cam;
     fragCode += fragOutputs_o_fragColor;
-    fragCode += indexToColor;
+#ifdef COLORED_SHADOW_CASCADES
+    fragCode += fragFunctionCascadeIndexToColor;
+#endif
     fragCode += fragFunctionLightingBlinnPhong;
     fragCode += fragFunctionFogBlend;
     fragCode += fragFunctionDoStereoSeparation;
@@ -1132,7 +1134,9 @@ in      vec2        v_uv1;      // Interpol. texture coordinate
     fragCode += fragInputs_u_shadowMaps(lights);
     fragCode += fragInputs_u_cam;
     fragCode += fragOutputs_o_fragColor;
-    fragCode += indexToColor;
+#ifdef COLORED_SHADOW_CASCADES
+    fragCode += fragFunctionCascadeIndexToColor;
+#endif
     fragCode += fragFunctionLightingBlinnPhong;
     fragCode += fragFunctionFogBlend;
     fragCode += fragFunctionDoStereoSeparation;
@@ -1188,7 +1192,9 @@ in      vec3        v_spotDirTS[NUM_LIGHTS];    // Spot direction in tangent spa
     fragCode += fragInputs_u_shadowMaps(lights);
     fragCode += fragInputs_u_cam;
     fragCode += fragOutputs_o_fragColor;
-    fragCode += indexToColor;
+#ifdef COLORED_SHADOW_CASCADES
+    fragCode += fragFunctionCascadeIndexToColor;
+#endif
     fragCode += fragFunctionLightingBlinnPhong;
     fragCode += fragFunctionFogBlend;
     fragCode += fragFunctionDoStereoSeparation;
@@ -1239,7 +1245,9 @@ in      vec2        v_uv2;      // Texture coordinate 2 varying for AO
     fragCode += fragInputs_u_shadowMaps(lights);
     fragCode += fragInputs_u_cam;
     fragCode += fragOutputs_o_fragColor;
-    fragCode += indexToColor;
+#ifdef COLORED_SHADOW_CASCADES
+    fragCode += fragFunctionCascadeIndexToColor;
+#endif
     fragCode += fragFunctionLightingBlinnPhong;
     fragCode += fragFunctionFogBlend;
     fragCode += fragFunctionDoStereoSeparation;
@@ -1425,7 +1433,9 @@ in      vec3        v_N_VS;     // Interpol. normal at v_P_VS in view space
     fragCode += fragInputs_u_shadowMaps(lights);
     fragCode += fragInputs_u_cam;
     fragCode += fragOutputs_o_fragColor;
-    fragCode += indexToColor;
+#ifdef COLORED_SHADOW_CASCADES
+    fragCode += fragFunctionCascadeIndexToColor;
+#endif
     fragCode += fragFunctionLightingBlinnPhong;
     fragCode += fragFunctionFogBlend;
     fragCode += fragFunctionDoStereoSeparation;
@@ -1673,7 +1683,7 @@ string SLGLProgramGenerated::fragInputs_u_shadowMaps(SLVLight* lights)
                 for (int j = 0; j < light->shadowMap()->depthBuffers().size(); j++)
                     smDecl += "uniform sampler2D   u_cascadedShadowMap_" + to_string(i) + "_" + std::to_string(j) + ";\n";
 
-                smDecl  += "uniform float u_cascadesFactor_" + to_string(i) + ";\n";
+                smDecl += "uniform float       u_cascadesFactor_" + to_string(i) + ";\n";
             }
             else
                 smDecl += "uniform sampler2D   u_shadowMap_" + to_string(i) + ";\n";
@@ -1700,7 +1710,7 @@ string SLGLProgramGenerated::coloredShadows()
                     // Test if the current fragment is in shadow
                     float shadow = u_matGetsShadows ? shadowTest(i, N, S) : 0.0;
                 
-                    o_fragColor.rgb += shadow * indexToColor(getCascadesDepthIndex(i, u_lightNumCascades[i]));
+                    o_fragColor.rgb += shadow * cascadeIndexToColor(getCascadesDepthIndex(i, u_lightNumCascades[i]));
                 }
             }
         }
@@ -1926,7 +1936,7 @@ float shadowTest(in int i, in vec3 N, in vec3 lightDir)
 )";
     for (SLuint i = 0; i < lights->size(); ++i)
     {
-        SLLight* light = lights->at(i);
+        SLLight*     light     = lights->at(i);
         SLShadowMap* shadowMap = lights->at(i)->shadowMap();
         if (light->doCascadedShadows())
         {

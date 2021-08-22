@@ -31,9 +31,10 @@ class SLCamera;
 /*! Shadow mapping is a technique to render shadows. The scene gets rendered
  * from the point of view of the lights which cast shadows. The resulting
  * depth-map of that render-pass can be used to determine which fragments are
- * affected by which lights. The standard shadow maps can be used with all
- * light types. The cascaded shadow maps can only be generated for direction
- * lights (e.g. a sun light)
+ * affected by which lights. The standard fixed size shadow maps can be used
+ * with all light types. The auto sized shadow maps get automatically sized
+ * to a specified camera. At the moment only directional light get supported
+ * with multiple cascaded shadow maps.
  */
 class SLShadowMap
 {
@@ -54,7 +55,7 @@ public:
     ~SLShadowMap();
 
     // Public methods
-    void render(SLSceneView* sv, SLNode* root);
+    void renderShadows(SLSceneView* sv, SLNode* root);
     void drawFrustum();
     void drawRays();
 

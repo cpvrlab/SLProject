@@ -5806,7 +5806,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
             cam1->translation(0, 1.7f, 20);
             cam1->lookAt(0, 1.7f, 0);
             cam1->focalDist(cam1->translationOS().length());
-            cam1->clipFar(300);
+            cam1->clipFar(400);
             cam1->background().colors(SLCol4f(0.1f, 0.4f, 0.8f));
             cam1->setInitialState();
 
@@ -5841,6 +5841,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
                                                       matFloor));
             rect->rotate(90, -1, 0, 0);
             rect->castsShadows(false);
+
             // Load the corinthian column
             SLAssimpImporter importer;
             SLNode*          columnLOD = importer.load(s->animManager(),
@@ -5864,7 +5865,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
             scene->addChild(cam1);
 
             // create loads of pillars
-            SLint   size       = 40;
+            SLint   size       = 50;
             SLint   numColumns = size * size;
             SLfloat offset     = 5.0f;
             SLfloat z          = (float)(size - 1) * offset * 0.5f;

@@ -92,6 +92,6 @@ void SLLight::renderShadowMap(SLSceneView* sv, SLNode* root)
         this->createShadowMap();
     }
 
-    _shadowMap->render(sv, root);
+    _shadowMap->renderShadows(sv, root);
 }
 //-----------------------------------------------------------------------------
