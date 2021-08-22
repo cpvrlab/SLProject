@@ -453,7 +453,7 @@ void SLAABBox::calculateRectSS(SLfloat scr2fbX, SLfloat scr2fbY)
     //_rectSS.print("_rectSS: ");
 }
 //-----------------------------------------------------------------------------
-//! Calculates the bounding rectangle in screen space and returns covarage in SS
+//! Calculates the bounding rectangle in screen space and returns coverage in SS
 SLfloat SLAABBox::rectCoverageInSS(SLfloat scr2fbX, SLfloat scr2fbY)
 {
     calculateRectSS(scr2fbX, scr2fbY);

@@ -1,6 +1,6 @@
 //#############################################################################
 //  File:      SLFrustum.cpp
-//  Author:    Luc Girod
+//  Author:    Luc Girod, Marcus Hudritsch
 //  Date:      Summer 2021
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Licesne:   This software is provide under the GNU General Public License
@@ -25,7 +25,7 @@ void SLFrustum::viewToFrustumPlanes(SLPlane*       planes,
                                     const SLMat4f& projectionMat,
                                     const SLMat4f& viewMat)
 {
-    //
+    // Combine view and projection matrix
     SLMat4f A = projectionMat * viewMat;
 
     // Order is L R T B N F
@@ -76,21 +76,23 @@ void SLFrustum::getPointsInViewSpace(SLVec3f* points,
                                      float    clipNear,
                                      float    clipFar)
 {
+    SLfloat tanFovV = tan(Utils::DEG2RAD * fovV * 0.5f);
+
     // Calculate the 4 points on the near plane
-    SLfloat t = tan(Utils::DEG2RAD * fovV * 0.5f) * clipNear; // top
-    SLfloat b = -t;                                           // bottom
-    SLfloat r = ratio * t;                                    // right
-    SLfloat l = -r;                                           // left
+    SLfloat t = tanFovV * clipNear; // top
+    SLfloat b = -t;                 // bottom
+    SLfloat r = ratio * t;          // right
+    SLfloat l = -r;                 // left
     points[0] = (SLVec3f(r, t, -clipNear));
     points[1] = (SLVec3f(r, b, -clipNear));
     points[2] = (SLVec3f(l, t, -clipNear));
     points[3] = (SLVec3f(l, b, -clipNear));
 
     // Calculate the 4 points on the far plane
-    t = tan(Utils::DEG2RAD * fovV * 0.5f) * clipFar; // top
-    b = -t;                                          // bottom
-    r = ratio * t;                                   // right
-    l = -r;                                          // left
+    t = tanFovV * clipFar; // top
+    b = -t;                // bottom
+    r = ratio * t;         // right
+    l = -r;                // left
 
     points[4] = (SLVec3f(r, t, -clipFar));
     points[5] = (SLVec3f(r, b, -clipFar));

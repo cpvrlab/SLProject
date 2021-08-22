@@ -1481,10 +1481,10 @@ coefficients from the combined view and projection matrix.
 */
 void SLCamera::setFrustumPlanes()
 {
-    // build combined view projection matrix
-    // SLCamera::setView should've been called before so viewMatrix contains the right value
     SLGLState* stateGL = SLGLState::instance();
-    SLFrustum::viewToFrustumPlanes(_plane, stateGL->projectionMatrix, stateGL->viewMatrix);
+    SLFrustum::viewToFrustumPlanes(_plane,
+                                   stateGL->projectionMatrix,
+                                   stateGL->viewMatrix);
 }
 //-----------------------------------------------------------------------------
 //!< Horizontal field of view

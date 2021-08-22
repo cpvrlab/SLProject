@@ -4248,7 +4248,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         sunLight->createsShadows(true);
         sunLight->createShadowMapAutoSize(cam1, SLVec2i(4096, 4096), 4);
         sunLight->shadowMap()->cascadesFactor(3.0);
-        //sunLight->createShadowMap(-100, 250, SLVec2f(210, 180), SLVec2i(4096, 4096));
+        // sunLight->createShadowMap(-100, 250, SLVec2f(210, 180), SLVec2i(4096, 4096));
         sunLight->doSmoothShadows(true);
         sunLight->castsShadows(false);
         sunLight->shadowMinBias(0.001f);
@@ -5704,86 +5704,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         sv->camera(cam1);
         s->root3D(scene);
     }
-    else if (sceneID == SID_Benchmark5_LOD) //.....................................................
-    {
-        SLchar name[512];
-        sprintf(name, "Lots of roman pillars as an LOD test scene");
-        s->name(name);
-        s->info(s->name());
-
-        // Create materials
-        SLMaterial* m1 = new SLMaterial(s, "m1", SLCol4f::GRAY);
-        m1->specular(SLCol4f::BLACK);
-
-        // Define a light
-        SLLightSpot* light1 = new SLLightSpot(s, s, 100, 40, 100, 1);
-        light1->powers(0.1f, 1.0f, 1.0f);
-        light1->attenuation(1, 0, 0);
-
-        // Define camera
-        SLCamera* cam1 = new SLCamera;
-        cam1->translation(0, 30, 0);
-        cam1->lookAt(0, 0, 0);
-        cam1->focalDist(cam1->translationOS().length());
-        cam1->background().colors(SLCol4f(0.1f, 0.4f, 0.8f));
-        cam1->setInitialState();
-        cam1->clipFar(1000);
-        cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
-
-        // Floor rectangle
-        SLNode* rect = new SLNode(new SLRectangle(s,
-                                                  SLVec2f(-40, -40),
-                                                  SLVec2f(40, 40),
-                                                  SLVec2f(0, 0),
-                                                  SLVec2f(50, 50),
-                                                  50,
-                                                  50,
-                                                  "Floor",
-                                                  m1));
-        rect->rotate(90, -1, 0, 0);
-        rect->castsShadows(false);
-
-        // Assemble scene
-        SLNode* scene = new SLNode("scene group");
-        scene->addChild(light1);
-        scene->addChild(rect);
-        scene->addChild(cam1);
-
-        // create loads of pillars
-        SLint   size       = 20;
-        SLint   numPillars = size * size;
-        SLfloat offset     = 4.0f;
-        SLfloat z          = (float)(size - 1) * offset * 0.5f;
-
-        for (SLint iZ = 0; iZ < size; ++iZ)
-        {
-            SLfloat x = -(float)(size - 1) * offset * 0.5f;
-
-            for (SLint iX = 0; iX < size; ++iX)
-            {
-                SLNode*    lod_0     = new SLNode(new SLCylinder(s, 1.0f, 7, 3, 32, true, true, "lod 0", m1));
-                SLNode*    lod_1     = new SLNode(new SLCylinder(s, 1.0f, 7, 3, 16, true, true, "lod 1", m1));
-                SLNode*    lod_2     = new SLNode(new SLCylinder(s, 1.0f, 7, 3, 8, true, true, "lod 2", m1));
-                SLNode*    lod_3     = new SLNode(new SLCylinder(s, 1.0f, 7, 3, 4, true, true, "lod 3", m1));
-                SLNodeLOD* lod_group = new SLNodeLOD();
-                lod_group->rotate(90, -1, 0, 0);
-                lod_group->translate(x, z, 0, TS_object);
-                lod_group->addChildLOD(lod_0, 0.1f);
-                lod_group->addChildLOD(lod_1, 0.01f);
-                lod_group->addChildLOD(lod_2, 0.001f);
-                lod_group->addChildLOD(lod_3, 0.0001f);
-                scene->addChild(lod_group);
-                x += offset;
-            }
-            z -= offset;
-        }
-
-        // Set active camera & the root pointer
-        sv->camera(cam1);
-        sv->doWaitOnIdle(false);
-        s->root3D(scene);
-    }
-    else if (sceneID == SID_Benchmark6_LOD) //.....................................................
+    else if (sceneID == SID_Benchmark5_LevelOfDetail) //...........................................
     {
         SLstring modelFile = AppDemo::configPath + "models/GLTF-CorinthianColumn/Corinthian-Column-Round-LOD.gltf";
         SLstring texCFile  = AppDemo::configPath + "models/GLTF-CorinthianColumn/PavementSlateSquare2_2K_DIF.jpg";
@@ -5792,7 +5713,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         if (Utils::fileExists(modelFile) && Utils::fileExists(texCFile) && Utils::fileExists(texNFile))
         {
             SLchar name[512];
-            sprintf(name, "Lots of Corinthian Columns in LODs");
+            sprintf(name, "Lots of corinthian columns in different levels of detail (LOD) and cascaded shadow mapping.");
             s->name(name);
             s->info(s->name());
 
@@ -5817,6 +5738,8 @@ resolution shadows near the camera and lower resolution shadows further away.");
             sunLight->translation(0, 1.7f, 0);
             sunLight->lookAt(-1, 0, -1);
             sunLight->doSunPowerAdaptation(true);
+
+            // Add cascaded shadow mapping
             sunLight->createsShadows(true);
             sunLight->createShadowMapAutoSize(cam1);
             sunLight->doSmoothShadows(true);
@@ -5865,7 +5788,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
             scene->addChild(cam1);
 
             // create loads of pillars
-            SLint   size       = 50;
+            SLint   size       = 20;
             SLint   numColumns = size * size;
             SLfloat offset     = 5.0f;
             SLfloat z          = (float)(size - 1) * offset * 0.5f;
@@ -5876,7 +5799,9 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
                 for (SLint iX = 0; iX < size; ++iX)
                 {
-                    SLint      iZX       = iZ * size + iX;
+                    SLint iZX = iZ * size + iX;
+
+                    // With LOD parent node and 3 levels
                     string     strLOD    = "LOD" + std::to_string(iZX);
                     SLNodeLOD* lod_group = new SLNodeLOD(strLOD);
                     lod_group->translate(x, 0, z, TS_object);
@@ -5884,6 +5809,12 @@ resolution shadows near the camera and lower resolution shadows further away.");
                     lod_group->addChildLOD(new SLNode(columnL2->mesh(), strLOD + "-L1"), 0.01f, 3);
                     lod_group->addChildLOD(new SLNode(columnL3->mesh(), strLOD + "-L2"), 0.0001f, 3);
                     scene->addChild(lod_group);
+
+                    /* Without just the level 1 node
+                    string strNode = "Node" + std::to_string(iZX);
+                    SLNode* column = new SLNode(columnL1->mesh(), strNode + "-L0");
+                    column->translate(x, 0, z, TS_object);
+                    scene->addChild(column);*/
 
                     x += offset;
                 }
