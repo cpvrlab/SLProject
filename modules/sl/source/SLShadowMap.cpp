@@ -460,7 +460,7 @@ void SLShadowMap::drawNodesIntoDepthBufferRec(SLNode*      node,
  */
 void SLShadowMap::renderShadows(SLSceneView* sv, SLNode* root)
 {
-    assert(node && "SLShadowMap::render: No root node passed.");
+    assert(root && "SLShadowMap::render: No root node passed.");
 
     PROFILE_FUNCTION();
 
