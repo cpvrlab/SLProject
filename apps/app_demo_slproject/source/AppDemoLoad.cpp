@@ -599,13 +599,13 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                                             texPath + "gray_0256_C.jpg",
                                             texPath + "bricks1_0256_C.jpg");
         SLMaterial*  mat5 = new SLMaterial(s, "glass", SLCol4f::BLACK, SLCol4f::WHITE, 255, 0.1f, 0.9f, 1.5f);
-        mat5->textures().push_back(tex5);
+        mat5->addTexture(tex5);
         SLGLProgram* sp1 = new SLGLProgramGeneric(s, shaderPath + "RefractReflect.vert", shaderPath + "RefractReflect.frag");
         mat5->program(sp1);
 
         // Wine material
         SLMaterial* mat6 = new SLMaterial(s, "wine", SLCol4f(0.4f, 0.0f, 0.2f), SLCol4f::BLACK, 255, 0.2f, 0.7f, 1.3f);
-        mat6->textures().push_back(tex5);
+        mat6->addTexture(tex5);
         mat6->program(sp1);
 
         // camera
@@ -754,8 +754,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                                                  shaderPath + "PerVrtTm.vert",
                                                  shaderPath + "PerVrtTm.frag");
         m1->program(sp);
-        m1->textures().push_back(t1);
-        m2->textures().push_back(t2);
+        m1->addTexture(t1);
+        m2->addTexture(t2);
 
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(6.5f, 0.5f, -18);
@@ -1513,9 +1513,9 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                                             "HDR Skybox",
                                             new SLGLUniform1f(exposure));
 
-        SLGLTexture* irrandianceMap = hdrCubeMap->mesh()->mat()->textures()[1];
-        SLGLTexture* prefilterMap   = hdrCubeMap->mesh()->mat()->textures()[2];
-        SLGLTexture* brdfLUTTexture = hdrCubeMap->mesh()->mat()->textures()[3];
+        SLGLTexture* irrandianceMap = hdrCubeMap->mesh()->mat()->textures(TT_irradianceCubemap)[0];
+        SLGLTexture* prefilterMap   = hdrCubeMap->mesh()->mat()->textures(TT_roughnessCubemap)[0];
+        SLGLTexture* brdfLUTTexture = hdrCubeMap->mesh()->mat()->textures(TT_brdfLUT)[0];
 
         // Get preloaded shader programs
         SLGLProgram* pbr    = new SLGLProgramGeneric(s,
@@ -1793,11 +1793,11 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                                               texPath + "Desert-Y1024_C.jpg",
                                               texPath + "Desert+Z1024_C.jpg",
                                               texPath + "Desert-Z1024_C.jpg");
-        SLGLTexture* skyboxTex = skybox->mesh()->mat()->textures()[0];
+        SLGLTexture* skyboxTex = skybox->mesh()->mat()->textures(TT_unknown)[0];
 
         // Material for mirror
         SLMaterial* refl = new SLMaterial(s, "refl", SLCol4f::BLACK, SLCol4f::WHITE, 1000, 1.0f);
-        refl->textures().push_back(skyboxTex);
+        refl->addTexture(skyboxTex);
         refl->program(new SLGLProgramGeneric(s,
                                              shaderPath + "Reflect.vert",
                                              shaderPath + "Reflect.frag"));
@@ -1806,7 +1806,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLMaterial* refr = new SLMaterial(s, "refr", SLCol4f::BLACK, SLCol4f::BLACK, 100, 0.1f, 0.9f, 1.5f);
         refr->translucency(1000);
         refr->transmissive(SLCol4f::WHITE);
-        refr->textures().push_back(skyboxTex);
+        refr->addTexture(skyboxTex);
         refr->program(new SLGLProgramGeneric(s,
                                              shaderPath + "RefractReflect.vert",
                                              shaderPath + "RefractReflect.frag"));
@@ -1896,9 +1896,9 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Create materials
         SLMaterial* matEarth = new SLMaterial(s, "matEarth", texC, texN, texH, texG, sp);
-        matEarth->textures().push_back(texClC);
-        matEarth->textures().push_back(texClA);
-        matEarth->textures().push_back(texNC);
+        matEarth->addTexture(texClC);
+        matEarth->addTexture(texClA);
+        matEarth->addTexture(texNC);
         matEarth->shininess(4000);
         matEarth->program(sp);
 
@@ -2488,7 +2488,9 @@ resolution shadows near the camera and lower resolution shadows further away.");
             sceneID == SID_SuzannePerPixBlinnSm)
         {
             auto removeAllTm = [=](SLMaterial* mat) {
-                mat->textures().clear();
+                mat->removeTextureType(TT_diffuse);
+                mat->removeTextureType(TT_normal);
+                mat->removeTextureType(TT_ambientOcclusion);
                 mat->ambientDiffuse(stoneColor);
             };
             suzanneInCube->updateMeshMat(removeAllTm, true);
@@ -3813,7 +3815,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         SLMaterial* matWater = new SLMaterial(s, "water", SLCol4f::BLACK, SLCol4f::BLACK, 100, 0.1f, 0.9f, 1.5f);
         matWater->translucency(1000);
         matWater->transmissive(SLCol4f::WHITE);
-        matWater->textures().push_back(cubemap);
+        matWater->addTexture(cubemap);
         matWater->program(new SLGLProgramGeneric(s,
                                                  shaderPath + "Reflect.vert",
                                                  shaderPath + "Reflect.frag"));
@@ -5071,14 +5073,14 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         // Material for mirror sphere
         SLMaterial* refl = new SLMaterial(s, "refl", blackRGB, SLCol4f::WHITE, 1000, 1.0f);
-        refl->textures().push_back(tex1);
+        refl->addTexture(tex1);
         refl->program(sp1);
 
         // Material for glass sphere
         SLMaterial* refr = new SLMaterial(s, "refr", blackRGB, blackRGB, 100, 0.05f, 0.95f, 1.5f);
         refr->translucency(1000);
         refr->transmissive(SLCol4f::WHITE);
-        refr->textures().push_back(tex1);
+        refr->addTexture(tex1);
         refr->program(sp2);
 
         SLNode* sphere1 = new SLNode(new SLSphere(s, 0.5f, 32, 32, "Sphere1", refl));

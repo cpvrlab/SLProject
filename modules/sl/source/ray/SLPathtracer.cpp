@@ -227,7 +227,7 @@ SLCol4f SLPathtracer::trace(SLRay* ray, SLbool em)
     if (ray->hitMatIsDiffuse())
     {
         // Add component wise the texture color
-        if (!mat->textures().empty())
+        if (!mat->textures(TT_diffuse).empty())
         {
             objectColor &= ray->hitTexColor;
         }

@@ -732,7 +732,7 @@ SLMaterial* SLAssimpImporter::loadMaterial(SLAssetManager* s,
                                                  texFile,
                                                  slTexType,
                                                  deleteTexImgAfterBuild);
-                slMat->textures().push_back(slTex);
+                slMat->addTexture(slTex);
             }
         }
     }

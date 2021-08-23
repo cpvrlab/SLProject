@@ -116,10 +116,27 @@ SLMaterial::SLMaterial(SLAssetManager* am,
     _kn           = 1.0f;
     _diffuse.w    = 1.0f - _kt;
 
-    if (texture1) _textures.push_back(texture1);
-    if (texture2) _textures.push_back(texture2);
-    if (texture3) _textures.push_back(texture3);
-    if (texture4) _textures.push_back(texture4);
+    _nbTextures = 0;
+    if (texture1)
+    {
+        _textures[texture1->texType()].push_back(texture1);
+        _nbTextures++;
+    }
+    if (texture2)
+    {
+        _textures[texture2->texType()].push_back(texture2);
+        _nbTextures++;
+    }
+    if (texture3)
+    {
+        _textures[texture3->texType()].push_back(texture3);
+        _nbTextures++;
+    }
+    if (texture4)
+    {
+        _textures[texture4->texType()].push_back(texture4);
+        _nbTextures++;
+    }
 
     // Add pointer to the global resource vectors for deallocation
     if (am)
@@ -273,9 +290,9 @@ SLMaterial::SLMaterial(SLAssetManager* am,
 
     _program = pbrIblShaderProg;
 
-    if (irrandianceMap) _textures.push_back(irrandianceMap);
-    if (prefilterIrradianceMap) _textures.push_back(prefilterIrradianceMap);
-    if (brdfLUTTexture) _textures.push_back(brdfLUTTexture);
+    if (irrandianceMap) _textures[irrandianceMap->texType()].push_back(irrandianceMap);
+    if (prefilterIrradianceMap) _textures[prefilterIrradianceMap->texType()].push_back(prefilterIrradianceMap);
+    if (brdfLUTTexture) _textures[brdfLUTTexture->texType()].push_back(brdfLUTTexture);
 
     // Add pointer to the global resource vectors for deallocation
     if (am)
@@ -302,16 +319,47 @@ SLMaterial::SLMaterial(SLAssetManager* am,
     _shininess = 125;
     _roughness = 0.5f;
     _metalness = 0.0f;
-
-    if (texture1) _textures.push_back(texture1);
-    if (texture2) _textures.push_back(texture2);
-    if (texture3) _textures.push_back(texture3);
-    if (texture4) _textures.push_back(texture4);
-    if (texture5) _textures.push_back(texture5);
-    if (texture6) _textures.push_back(texture6);
-    if (texture7) _textures.push_back(texture7);
-    if (texture8) _textures.push_back(texture8);
-
+    _nbTextures = 0;
+    if (texture1)
+    {
+        _textures[texture1->texType()].push_back(texture1);
+        _nbTextures++;
+    }
+    if (texture2)
+    {
+        _textures[texture2->texType()].push_back(texture2);
+        _nbTextures++;
+    }
+    if (texture3)
+    {
+        _textures[texture3->texType()].push_back(texture3);
+        _nbTextures++;
+    }
+    if (texture4)
+    {
+        _textures[texture4->texType()].push_back(texture4);
+        _nbTextures++;
+    }
+    if (texture5)
+    {
+        _textures[texture5->texType()].push_back(texture5);
+        _nbTextures++;
+    }
+    if (texture6)
+    {
+        _textures[texture6->texType()].push_back(texture6);
+        _nbTextures++;
+    }
+    if (texture7)
+    {
+        _textures[texture7->texType()].push_back(texture7);
+        _nbTextures++;
+    }
+    if (texture8)
+    {
+        _textures[texture8->texType()].push_back(texture8);
+        _nbTextures++;
+    }
     _program = shaderProg;
 
     _kr        = 0.0f;
@@ -323,6 +371,15 @@ SLMaterial::SLMaterial(SLAssetManager* am,
     if (am)
         am->materials().push_back(this);
 }
+//-----------------------------------------------------------------------------
+void SLMaterial::addTexture(SLGLTexture* texture)
+{
+    if (texture->target() == GL_TEXTURE_3D)
+        _textures3d.push_back(texture);
+
+    _textures[texture->texType()].push_back(texture);
+}
+
 //-----------------------------------------------------------------------------
 /*!
  The destructor should be called by the owner of the material. If an asset
@@ -378,10 +435,11 @@ void SLMaterial::activate(SLCamera* cam, SLVLight* lights)
     // Check if shader had compile error and the error texture should be shown
     if (_program && _program->name().find("ErrorTex") != string::npos)
     {
-        _textures.clear();
+        for (int i = 0; i < TT_nbTextureType; i++)
+            _textures[i].clear();
         if (!_errorTexture && !_compileErrorTexFilePath.empty())
             _errorTexture = new SLGLTexture(nullptr, _compileErrorTexFilePath);
-        _textures.push_back(_errorTexture);
+        _textures[TT_diffuse].push_back(_errorTexture);
     }
 
     // Activate the shader program now
@@ -404,15 +462,77 @@ void SLMaterial::passToUniforms(SLGLProgram* program)
     program->uniform1f("u_matKt", _kt);
     program->uniform1f("u_matKn", _kn);
     program->uniform1i("u_matGetsShadows", _getsShadows);
-    program->uniform1i("u_matHasTexture", !_textures.empty() ? 1 : 0);
 
     // pass textures unit id to the sampler uniform
-    for (SLuint texUnit = 0; texUnit < _textures.size(); ++texUnit)
+    SLuint texUnit = 0;
+    for (SLuint i = 0; i < TT_nbTextureType; i++)
     {
-        SLchar name[100];
-        _textures[texUnit]->bindActive(texUnit);
-        sprintf(name, "u_matTexture%d", texUnit);
-        program->uniform1i(name, texUnit);
+        int texNb = 0;
+        for (SLGLTexture* texture : _textures[i])
+        {
+            SLchar name[100];
+            texture->bindActive(texUnit);
+            switch (i)
+            {
+                case TT_diffuse: {
+                    sprintf(name, "u_matTextureDiffuse", texNb);
+                    break;
+                }
+                case TT_specular: {
+                    sprintf(name, "u_matTextureSpecular", texNb);
+                    break;
+                }
+                case TT_normal: {
+                    sprintf(name, "u_matTextureNormal", texNb);
+                    break;
+                }
+                case TT_height: {
+                    sprintf(name, "u_matTextureHeight", texNb);
+                    break;
+                }
+                case TT_ambientOcclusion: {
+                    sprintf(name, "u_matTextureAo", texNb);
+                    break;
+                }
+                case TT_roughness: {
+                    sprintf(name, "u_matTextureRougthness", texNb);
+                    break;
+                }
+                case TT_metallic: {
+                    sprintf(name, "u_matTextureMetallic", texNb);
+                    break;
+                }
+                case TT_hdr: {
+                    sprintf(name, "u_matTextureHDR", texNb);
+                    break;
+                }
+                case TT_environmentCubemap: {
+                    sprintf(name, "u_matTextureEnvCubemap", texNb);
+                    break;
+                }
+                case TT_irradianceCubemap: {
+                    sprintf(name, "u_matTextureIrradianceCubemap", texNb);
+                    break;
+                }
+                case TT_roughnessCubemap: {
+                    sprintf(name, "u_matTextureRoughnessCubemap", texNb);
+                    break;
+                }
+                case TT_brdfLUT: {
+                    sprintf(name, "u_matTextureBRDF", texNb);
+                    break;
+                }
+                case TT_font: {
+                    sprintf(name, "u_matTextureFont", texNb);
+                    break;
+                }
+            }
+            program->uniform1i(name, texUnit);
+            texNb++;
+            texUnit++;
+        }
     }
+
+    program->uniform1i("u_matHasTexture", texUnit ? 1 : 0);
 }
 //-----------------------------------------------------------------------------

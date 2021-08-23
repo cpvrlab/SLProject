@@ -105,6 +105,8 @@ private:
     void buildPerPixBlinnTm(SLVLight* lights);
     void buildPerPixBlinn(SLVLight* lights);
 
+    void buildPerPixCookTorrance(SLVLight* lights);
+
     // Helpers
 
     static string coloredShadows();

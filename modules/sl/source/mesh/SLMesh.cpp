@@ -468,10 +468,10 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
     }
     if (locTM >= 0)
     {
-        if (_mat->has3DTexture() && _mat->textures()[0]->autoCalcTM3D())
+        if (_mat->has3DTexture() && _mat->textures3d()[0]->autoCalcTM3D())
             calcTex3DMatrix(node);
         else
-            stateGL->textureMatrix = _mat->textures()[0]->tm();
+            stateGL->textureMatrix = _mat->textures(TT_diffuse)[0]->tm();
         sp->uniformMatrix4fv(locTM, 1, (SLfloat*)&stateGL->textureMatrix);
     }
 
@@ -1440,19 +1440,20 @@ void SLMesh::preShade(SLRay* ray)
     ray->hitNormal.normalize();
 
     // calculate interpolated texture coordinates
-    SLVGLTexture& textures = ray->hitMesh->mat()->textures();
+    SLVGLTexture& diffuseTex = ray->hitMesh->mat()->textures(TT_diffuse);
 
-    if (!textures.empty() &&
-        !textures[0]->images().empty() &&
+    if (!diffuseTex.empty() &&
+        !diffuseTex[0]->images().empty() &&
         !UV1.empty())
     {
         SLVec2f Tu(UV1[iB] - UV1[iA]);
         SLVec2f Tv(UV1[iC] - UV1[iA]);
         SLVec2f tc(UV1[iA] + ray->hitU * Tu + ray->hitV * Tv);
-        ray->hitTexColor.set(textures[0]->getTexelf(tc.x, tc.y));
+        ray->hitTexColor.set(diffuseTex[0]->getTexelf(tc.x, tc.y));
 
         // bump mapping
-        if (textures.size() > 1 && !textures[1]->images().empty())
+        SLVGLTexture& bumpTex = ray->hitMesh->mat()->textures(TT_normal);
+        if (!bumpTex.empty() && !bumpTex[0]->images().empty())
         {
             if (!T.empty())
             {
@@ -1463,7 +1464,7 @@ void SLMesh::preShade(SLRay* ray)
 
                 SLVec3f T3(hitT.x, hitT.y, hitT.z);           // tangent with 3 components
                 T3.set(ray->hitNode->updateAndGetWMN() * T3); // transform tangent back to world space
-                SLVec2f d   = textures[1]->dudv(tc.x, tc.y);  // slope of bump-map at tc
+                SLVec2f d   = bumpTex[0]->dudv(tc.x, tc.y);  // slope of bump-map at tc
                 SLVec3f Nrm = ray->hitNormal;                 // unperturbated normal
                 SLVec3f B(Nrm ^ T3);                          // bi-normal tangent B
                 B *= T[iA].w;                                 // correct handedness
@@ -1475,16 +1476,16 @@ void SLMesh::preShade(SLRay* ray)
         }
 
         // Get ambient occlusion
+
+        SLVGLTexture& aoTex = ray->hitMesh->mat()->textures(TT_ambientOcclusion);
         if (!UV2.empty())
         {
             SLVec2f Tu2(UV2[iB] - UV2[iA]);
             SLVec2f Tv2(UV2[iC] - UV2[iA]);
             SLVec2f tc2(UV2[iA] + ray->hitU * Tu2 + ray->hitV * Tv2);
 
-            if (textures.size() > 1 && textures[1]->texType() == TT_ambientOcclusion)
-                ray->hitAO = textures[1]->getTexelf(tc2.x, tc2.y).r;
-            if (textures.size() > 2 && textures[2]->texType() == TT_ambientOcclusion)
-                ray->hitAO = textures[2]->getTexelf(tc2.x, tc2.y).r;
+            if (!aoTex.empty())
+                ray->hitAO = aoTex[0]->getTexelf(tc2.x, tc2.y).r;
         }
     }
 

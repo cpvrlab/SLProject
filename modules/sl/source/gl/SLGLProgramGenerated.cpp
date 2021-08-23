@@ -109,6 +109,47 @@ const string vertMainBlinn_EndAll    = R"(
 }
 )";
 //-----------------------------------------------------------------------------
+const string vertMainCT_BeginAll  = R"(
+void main()
+{
+    v_P_VS = vec3(u_mvMatrix *  a_position); // vertex position in view space)";
+const string vertMainCT_v_P_WS_Sm = R"(
+    v_P_WS = vec3(u_mMatrix * a_position);   // vertex position in world space)";
+const string vertMainCT_v_N_VS    = R"(
+    v_N_VS = vec3(u_nMatrix * a_normal);     // vertex normal in view space)";
+const string vertMainCT_v_uv1     = R"(
+    v_uv1 = a_uv1;  // pass diffuse color tex.coord. 1 for interpolation)";
+const string vertMainCT_v_uv2_Ao  = R"(
+    v_uv2 = a_uv2;  // pass ambient occlusion tex.coord. 2 for interpolation)";
+const string vertMainCT_TBN_Nm    = R"(
+    // Building the matrix Eye Space -> Tangent Space
+    // See the math behind at: http://www.terathon.com/code/tangent.html
+    vec3 n = normalize(u_nMatrix * a_normal);
+    vec3 t = normalize(u_nMatrix * a_tangent.xyz);
+    vec3 b = cross(n, t) * a_tangent.w; // bitangent w. corrected handedness
+    mat3 TBN = mat3(t,b,n);
+
+    // Transform vector to the eye into tangent space
+    v_eyeDirTS = -v_P_VS;  // eye vector in view space
+    v_eyeDirTS *= TBN;
+
+    for (int i = 0; i < NUM_LIGHTS; ++i)
+    {
+        // Transform spot direction into tangent space
+        v_spotDirTS[i] = u_lightSpotDir[i];
+        v_spotDirTS[i]  *= TBN;
+
+        // Transform vector to the light 0 into tangent space
+        vec3 L = u_lightPosVS[i].xyz - v_P_VS;
+        v_lightDirTS[i] = L;
+        v_lightDirTS[i] *= TBN;
+    }
+)";
+const string vertMainCT_EndAll    = R"(
+    // pass the vertex w. the fix-function transform
+    gl_Position = u_mvpMatrix * a_position;
+}
+)";
 
 //-----------------------------------------------------------------------------
 const string fragInputs_u_lightAll = R"(
@@ -139,64 +180,80 @@ uniform vec4        u_matSpec;          // specular color reflection coefficient
 uniform vec4        u_matEmis;          // emissive color for self-shining materials
 uniform float       u_matShin;          // shininess exponent
 )";
+
+//-----------------------------------------------------------------------------
+const string fragInputs_u_matAllCookTorrance = R"(
+uniform vec4        u_matAmbi;          // ambient color reflection coefficient (ka)
+uniform vec4        u_matDiff;          // diffuse color reflection coefficient (kd)
+uniform float       u_matRough;          // specular color reflection coefficient (ks)
+uniform float       u_matMetal;          // emissive color for self-shining materials
+)";
+
+const string fragInputs_u_matCookTorrance = R"(
+uniform sampler2D u_matTextureRoughness;
+uniform sampler2D u_matTextureMetallic;
+uniform sampler2D u_matTextureHDR;
+uniform sampler2D u_matTextureBRDF;
+)";
+
 //-----------------------------------------------------------------------------
 const string fragInputs_u_matTm       = R"(
-uniform sampler2D   u_matTexture0;      // diffuse color map
+uniform sampler2D   u_matTextureDiffuse0;      // diffuse color map
 )";
 const string fragInputs_u_matAo       = R"(
-uniform sampler2D   u_matTexture0;      // ambient occlusion map
+uniform sampler2D   u_matTextureAo0;      // ambient occlusion map
 )";
 const string fragInputs_u_matSm       = R"(
 uniform bool        u_matGetsShadows;   // flag if material receives shadows
 )";
 const string fragInputs_u_matTmNm     = R"(
-uniform sampler2D   u_matTexture0;      // diffuse color map
-uniform sampler2D   u_matTexture1;      // normal bump map
+uniform sampler2D   u_matTextureDiffuse0;     // diffuse color map
+uniform sampler2D   u_matTextureNormal0;      // normal bump map
 )";
 const string fragInputs_u_matTmPm     = R"(
-uniform sampler2D   u_matTexture0;      // diffuse color map
-uniform sampler2D   u_matTexture1;      // normal bump map
-uniform sampler2D   u_matTexture2;      // normal bump map
+uniform sampler2D   u_matTextureDiffuse0;// diffuse color map
+uniform sampler2D   u_matTextureNormal0; // normal bump map
+uniform sampler2D   u_matTextureNormal1; // normal bump map
 )";
 const string fragInputs_u_matTmAo     = R"(
-uniform sampler2D   u_matTexture0;      // diffuse color map
-uniform sampler2D   u_matTexture1;      // ambient occlusion map
+uniform sampler2D   u_matTextureDiffuse0; // diffuse color map
+uniform sampler2D   u_matTextureAo0;      // ambient occlusion map
 )";
 const string fragInputs_u_matTmSm     = R"(
-uniform sampler2D   u_matTexture0;      // diffuse color map
-uniform bool        u_matGetsShadows;   // flag if material receives shadows
+uniform sampler2D   u_matTextureDiffuse0;// diffuse color map
+uniform bool        u_matGetsShadows;    // flag if material receives shadows
 )";
 const string fragInputs_u_matNmSm     = R"(
-uniform sampler2D   u_matTexture0;      // normal bump map
+uniform sampler2D   u_matTextureNormal0;// normal bump map
 uniform bool        u_matGetsShadows;   // flag if material receives shadows
 )";
 const string fragInputs_u_matAoSm     = R"(
-uniform sampler2D   u_matTexture0;      // ambient occlusion map
+uniform sampler2D   u_matTextureAo0;    // ambient occlusion map
 uniform bool        u_matGetsShadows;   // flag if material receives shadows
 )";
 const string fragInputs_u_matNmAo     = R"(
-uniform sampler2D   u_matTexture0;      // normal bump map
-uniform sampler2D   u_matTexture1;      // ambient occlusion map
+uniform sampler2D   u_matTextureNormal0;      // normal bump map
+uniform sampler2D   u_matTextureAo0;      // ambient occlusion map
 )";
 const string fragInputs_u_matTmNmAo   = R"(
-uniform sampler2D   u_matTexture0;      // diffuse color map
-uniform sampler2D   u_matTexture1;      // normal bump map
-uniform sampler2D   u_matTexture2;      // ambient occlusion map
+uniform sampler2D   u_matTextureDiffuse0;      // diffuse color map
+uniform sampler2D   u_matTextureNormal0;      // normal bump map
+uniform sampler2D   u_matTextureAo0;      // ambient occlusion map
 )";
 const string fragInputs_u_matTmNmSm   = R"(
-uniform sampler2D   u_matTexture0;      // diffuse color map
-uniform sampler2D   u_matTexture1;      // normal bump map
+uniform sampler2D   u_matTextureDiffuse0;      // diffuse color map
+uniform sampler2D   u_matTextureNormal0;      // normal bump map
 uniform bool        u_matGetsShadows;   // flag if material receives shadows
 )";
 const string fragInputs_u_matTmAoSm   = R"(
-uniform sampler2D   u_matTexture0;      // diffuse color map
-uniform sampler2D   u_matTexture1;      // ambient occlusion map
+uniform sampler2D   u_matTextureDiffuse0;      // diffuse color map
+uniform sampler2D   u_matTextureAo0;      // ambient occlusion map
 uniform bool        u_matGetsShadows;   // flag if material receives shadows
 )";
 const string fragInputs_u_matTmNmAoSm = R"(
-uniform sampler2D   u_matTexture0;      // diffuse color map
-uniform sampler2D   u_matTexture1;      // normal bump map
-uniform sampler2D   u_matTexture2;      // ambient occlusion map
+uniform sampler2D   u_matTextureDiffuse0;      // diffuse color map
+uniform sampler2D   u_matTextureNormal0;      // normal bump map
+uniform sampler2D   u_matTextureAo0;      // ambient occlusion map
 uniform bool        u_matGetsShadows;   // flag if material receives shadows
 )";
 //-----------------------------------------------------------------------------
@@ -303,7 +360,7 @@ void pointLightBlinnPhong( in    int   i,
 }
 )";
 //-----------------------------------------------------------------------------
-const string fragFunctionLightingCookTorrance = R"(
+const string fragCookTorranceFunction = R"(
 vec3 fresnelSchlick(float cosTheta, vec3 F0)
 {
     return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
@@ -342,7 +399,9 @@ float geometrySmith(vec3 N, vec3 E, vec3 L, float roughness)
     float ggx1  = geometrySchlickGGX(NdotL, roughness);
     return ggx1 * ggx2;
 }
+)";
 
+const string fragFunctionLightingCookTorrance = R"(
 void directLightCookTorrance(in    int   i,        // Light index
                              in    vec3  N,        // Normalized normal at v_P_VS
                              in    vec3  E,        // Normalized vector from v_P to the eye
@@ -523,19 +582,19 @@ const string fragMainBlinn_1_EN_fromVert   = R"(
 const string fragMainBlinn_1_EN_fromNm0    = R"(
     vec3 E = normalize(v_eyeDirTS);   // normalized interpolated eye direction
     // Get normal from normal map, move from [0,1] to [-1, 1] range & normalize
-    vec3 N = normalize(texture(u_matTexture0, v_uv1).rgb * 2.0 - 1.0);
+    vec3 N = normalize(texture(u_matTextureNormal0, v_uv1).rgb * 2.0 - 1.0);
 )";
 const string fragMainBlinn_1_EN_fromNm1    = R"(
     vec3 E = normalize(v_eyeDirTS);   // normalized interpolated eye direction
     // Get normal from normal map, move from [0,1] to [-1, 1] range & normalize
-    vec3 N = normalize(texture(u_matTexture1, v_uv1).rgb * 2.0 - 1.0);
+    vec3 N = normalize(texture(u_matTextureNormal1, v_uv1).rgb * 2.0 - 1.0);
 )";
-const string fragMainBlinn_1_EN_fromNm1Hm2 = R"(
+const string fragMainBlinn_1_EN_fromNm0Hm0 = R"(
     vec3 E = normalize(v_eyeDirTS);   // normalized interpolated eye direction
 
     // Calculate new texture coord. Tc for Parallax mapping
     // The height comes from red channel from the height map
-    float height = texture(u_matTexture2, v_uv1.st).r;
+    float height = texture(u_matTextureHeight0, v_uv1.st).r;
 
     // Scale the height and add the bias (height offset)
     height = height * u_scale + u_offset;
@@ -544,7 +603,7 @@ const string fragMainBlinn_1_EN_fromNm1Hm2 = R"(
     vec2 Tc = v_uv1.st + (height * E.st);
 
     // Get normal from normal map, move from [0,1] to [-1, 1] range & normalize
-    vec3 N = normalize(texture(u_matTexture1, Tc).rgb * 2.0 - 1.0);
+    vec3 N = normalize(texture(u_matTextureNormal0, Tc).rgb * 2.0 - 1.0);
 )";
 
 const string indexToColor = R"(
@@ -559,6 +618,45 @@ vec3 indexToColor(int index)
 }
 )";
 
+//-----------------------------------------------------------------------------
+const string fragMainCookTorrance_2_LightLoop   = R"(
+    vec3 N = normalize(v_N_VS);     // A varying normal has not anymore unit length
+    vec3 E = normalize(-v_P_VS);    // Vector from p to the eye (viewer)
+
+    // Init Fresnel reflection at 90 deg. (0 to N)
+    vec3 F0 = vec3(0.04);           
+    F0 = mix(F0, u_matDiff.rgb, u_matMetal);
+
+    // Get the reflection from all lights into Lo
+    vec3 Lo = vec3(0.0);  
+    for (int i = 0; i < NUM_LIGHTS; ++i)
+    {
+        if (u_lightIsOn[i])
+        {
+            if (u_lightPosVS[i].w == 0.0)
+            {
+                // We use the spot light direction as the light direction vector
+                vec3 S = normalize(-u_lightSpotDir[i].xyz);
+                directLightCookTorrance(i, N, E, S, F0,
+                                        u_matDiff.rgb,
+                                        u_matMetal,
+                                        u_matRough, 
+                                        Lo);
+            }
+            else
+            {
+                vec3 L = u_lightPosVS[i].xyz - v_P_VS;
+                vec3 S = u_lightSpotDir[i]; // normalized spot direction in VS
+                pointLightCookTorrance( i, N, E, L, S, F0,
+                                        u_matDiff.rgb,
+                                        u_matMetal,
+                                        u_matRough, 
+                                        Lo);
+            }
+        }
+    }
+
+)";
 //-----------------------------------------------------------------------------
 const string fragMainBlinn_2_LightLoop   = R"(
     for (int i = 0; i < NUM_LIGHTS; ++i)
@@ -653,6 +751,34 @@ const string fragMainBlinn_2_LightLoopNmSm = R"(
     }
 )";
 //-----------------------------------------------------------------------------
+const string fragMainCookTorrance_3_FragColor      = R"(
+
+    // Build diffuse reflection for environment light map
+    vec3 F = fresnelSchlickRoughness(max(dot(N, E), 0.0), F0, u_matRough);
+    vec3 kS = F;
+    vec3 kD = 1.0 - kS;
+    kD *= 1.0 - u_matMetal;
+    vec3 irradiance = texture(u_matTextureDiffuse0, N).rgb;
+    vec3 diffuse    = kD * irradiance * u_matDiff.rgb;
+
+    // sample both the pre-filter map and the BRDF lut and combine them together as per the Split-Sum approximation to get the IBL specular part.
+    const float MAX_REFLECTION_LOD = 4.0;
+    vec3 prefilteredColor = textureLod(u_matTextureRoughtness0, v_R_OS, u_matRough * MAX_REFLECTION_LOD).rgb;
+    vec2 brdf = texture(u_matTextureBRDF, vec2(max(dot(N, E), 0.0), u_matRough)).rg;
+    vec3 specular = prefilteredColor * (F * brdf.x + brdf.y);
+    vec3 ambient = (diffuse + specular) * AO;
+
+    vec3 color = ambient + Lo;
+    
+    // Exposure tone mapping
+    vec3 mapped = vec3(1.0) - exp(-color * u_exposure);
+    o_fragColor = vec4(mapped, 1.0);
+ 
+    // For correct alpha blending overwrite alpha component
+    o_fragColor.a = u_matDiff.a;
+)";
+
+//-----------------------------------------------------------------------------
 const string fragMainBlinn_3_FragColor      = R"(
     // Sum up all the reflected color components
     o_fragColor =  u_matEmis +
@@ -672,7 +798,7 @@ const string fragMainBlinn_3_FragColorTm    = R"(
                    Id * u_matDiff;
 
     // Componentwise multiply w. texture color
-    o_fragColor *= texture(u_matTexture0, v_uv1);
+    o_fragColor *= texture(u_matTextureDiffuse0, v_uv1);
 
     // add finally the specular RGB-part
     vec4 specColor = Is * u_matSpec;
@@ -680,7 +806,7 @@ const string fragMainBlinn_3_FragColorTm    = R"(
 )";
 const string fragMainBlinn_3_FragColorAo0   = R"(
     // Get ambient occlusion factor
-    float AO = texture(u_matTexture0, v_uv2).r;
+    float AO = texture(u_matTextureAo0, v_uv2).r;
 
     // Sum up all the reflected color components
     o_fragColor =  u_matEmis +
@@ -694,7 +820,7 @@ const string fragMainBlinn_3_FragColorAo0   = R"(
 )";
 const string fragMainBlinn_3_FragColorAo1   = R"(
     // Get ambient occlusion factor
-    float AO = texture(u_matTexture1, v_uv2).r;
+    float AO = texture(u_matTextureAo1, v_uv2).r;
 
     // Sum up all the reflected color components
     o_fragColor =  u_matEmis +
@@ -708,7 +834,7 @@ const string fragMainBlinn_3_FragColorAo1   = R"(
 )";
 const string fragMainBlinn_3_FragColorAo1Tm = R"(
     // Get ambient occlusion factor
-    float AO = texture(u_matTexture1, v_uv2).r;
+    float AO = texture(u_matTextureAo1, v_uv2).r;
 
     // Sum up all the reflected color components
     o_fragColor =  u_matEmis +
@@ -717,7 +843,7 @@ const string fragMainBlinn_3_FragColorAo1Tm = R"(
                    Id * u_matDiff;
 
     // Componentwise multiply w. texture color
-    o_fragColor *= texture(u_matTexture0, v_uv1);
+    o_fragColor *= texture(u_matTextureDiffuse0, v_uv1);
 
     // add finally the specular RGB-part
     vec4 specColor = Is * u_matSpec;
@@ -725,7 +851,7 @@ const string fragMainBlinn_3_FragColorAo1Tm = R"(
 )";
 const string fragMainBlinn_3_FragColorAo2Tm = R"(
     // Get ambient occlusion factor
-    float AO = texture(u_matTexture2, v_uv2).r;
+    float AO = texture(u_matTextureAo2, v_uv2).r;
 
     // Sum up all the reflected color components
     o_fragColor =  u_matEmis +
@@ -734,7 +860,7 @@ const string fragMainBlinn_3_FragColorAo2Tm = R"(
                    Id * u_matDiff;
 
     // Componentwise multiply w. texture color
-    o_fragColor *= texture(u_matTexture0, v_uv1);
+    o_fragColor *= texture(u_matTextureDiffuse0, v_uv1);
 
     // add finally the specular RGB-part
     vec4 specColor = Is * u_matSpec;
@@ -755,6 +881,135 @@ const string fragMainBlinn_4_End = R"(
 }
 )";
 //-----------------------------------------------------------------------------
+const string fragCookTorrenceFunctions = R"(
+
+//-----------------------------------------------------------------------------
+vec3 fresnelSchlick(float cosTheta, vec3 F0)
+{
+    return F0 + (1.0 - F0) * pow(1.0 - cosTheta, 5.0);
+}
+// ----------------------------------------------------------------------------
+vec3 fresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness)
+{
+    return F0 + (max(vec3(1.0 - roughness), F0) - F0) * pow(1.0 - cosTheta, 5.0);
+}
+//-----------------------------------------------------------------------------
+float distributionGGX(vec3 N, vec3 H, float roughness)
+{
+    float a      = roughness*roughness;
+    float a2     = a*a;
+    float NdotH  = max(dot(N, H), 0.0);
+    float NdotH2 = NdotH*NdotH;
+
+    float nom   = a2;
+    float denom = (NdotH2 * (a2 - 1.0) + 1.0);
+    denom = PI * denom * denom;
+
+    return nom / denom;
+}
+//-----------------------------------------------------------------------------
+float geometrySchlickGGX(float NdotV, float roughness)
+{
+    float r = (roughness + 1.0);
+    float k = (r*r) / 8.0;
+
+    float nom   = NdotV;
+    float denom = NdotV * (1.0 - k) + k;
+
+    return nom / denom;
+}
+//-----------------------------------------------------------------------------
+float geometrySmith(vec3 N, vec3 E, vec3 L, float roughness)
+{
+    float NdotV = max(dot(N, E), 0.0);
+    float NdotL = max(dot(N, L), 0.0);
+    float ggx2  = geometrySchlickGGX(NdotV, roughness);
+    float ggx1  = geometrySchlickGGX(NdotL, roughness);
+    return ggx1 * ggx2;
+}
+//-----------------------------------------------------------------------------
+void directLightCookTorrance(in    int   i,        // Light index
+                             in    vec3  N,        // Normalized normal at v_P_VS
+                             in    vec3  E,        // Normalized vector from v_P to the eye
+                             in    vec3  S,        // Normalized light spot direction
+                             in    vec3  F0,       // Fresnel reflection at 90 deg. (0 to N)
+                             in    vec3  matDiff,  // diffuse material reflection
+                             in    float matMetal, // diffuse material reflection
+                             in    float matRough, // diffuse material reflection
+                             inout vec3  Lo)       // reflected intensity
+{
+    vec3 H = normalize(E + S);  // Normalized halfvector between eye and light vector
+
+    vec3 radiance = u_lightDiff[i].rgb;  // Per light radiance without attenuation
+
+    // cook-torrance brdf
+    float NDF = distributionGGX(N, H, matRough);
+    float G   = geometrySmith(N, E, S, matRough);
+    vec3  F   = fresnelSchlick(max(dot(H, E), 0.0), F0);
+
+    vec3 kS = F;
+    vec3 kD = vec3(1.0) - kS;
+    kD *= 1.0 - matMetal;
+
+    vec3  nominator   = NDF * G * F;
+    float denominator = 4.0 * max(dot(N, E), 0.0) * max(dot(N, S), 0.0) + 0.001;
+    vec3  specular    = nominator / denominator;
+
+    // add to outgoing radiance Lo
+    float NdotL = max(dot(N, S), 0.0);
+
+    Lo += (kD*matDiff.rgb/PI + specular) * radiance * NdotL;
+}
+//-----------------------------------------------------------------------------
+void pointLightCookTorrance(in    int   i,        // Light index
+                            in    vec3  N,        // Normalized normal at v_P_VS
+                            in    vec3  E,        // Normalized vector from v_P to the eye
+                            in    vec3  L,        // Vector from v_P to the light
+                            in    vec3  S,        // Normalized light spot direction
+                            in    vec3  F0,       // Fresnel reflection at 90 deg. (0 to N)
+                            in    vec3  matDiff,  // diffuse material reflection
+                            in    float matMetal, // diffuse material reflection
+                            in    float matRough, // diffuse material reflection
+                            inout vec3  Lo)       // reflected intensity
+{
+    float distance = length(L); // distance to light
+    L /= distance;              // normalize light vector
+    float att = 1.0 / (distance*distance);  // quadratic light attenuation
+
+    // Calculate spot attenuation
+    if (u_lightSpotDeg[i] < 180.0)
+    {
+        float spotAtt; // Spot attenuation
+        float spotDot; // Cosine of angle between L and spotdir
+        spotDot = dot(-L, S);
+        if (spotDot < u_lightSpotCos[i]) spotAtt = 0.0;
+        else spotAtt = max(pow(spotDot, u_lightSpotExp[i]), 0.0);
+        att *= spotAtt;
+    }
+
+    vec3 radiance = u_lightDiff[i].rgb * att;  // per light radiance
+
+    // cook-torrance brdf
+    vec3  H   = normalize(E + L);  // Normalized halfvector between eye and light vector
+    float NDF = distributionGGX(N, H, matRough);
+    float G   = geometrySmith(N, E, L, matRough);
+    vec3  F   = fresnelSchlick(max(dot(H, E), 0.0), F0);
+
+    vec3 kS = F;
+    vec3 kD = vec3(1.0) - kS;
+    kD *= 1.0 - matMetal;
+
+    vec3  nominator   = NDF * G * F;
+    float denominator = 4.0 * max(dot(N, E), 0.0) * max(dot(N, L), 0.0) + 0.001;
+    vec3  specular    = nominator / denominator;
+
+    // add to outgoing radiance Lo
+    float NdotL = max(dot(N, L), 0.0);
+
+    Lo += (kD*matDiff.rgb/PI + specular) * radiance * NdotL;
+}
+
+)";
 
 //-----------------------------------------------------------------------------
 //! Builds unique program name that identifies shader program
@@ -872,8 +1127,54 @@ void SLGLProgramGenerated::buildProgramCode(SLMaterial* mat,
         else
             buildPerPixBlinn(lights);
     }
+    else if (mat->lightModel() == LM_CookTorrance)
+    {
+            buildPerPixCookTorrance(lights);
+
+    }
     else
         SL_EXIT_MSG("Only Blinn-Phong supported yet.");
+}
+
+
+void SLGLProgramGenerated::buildPerPixCookTorrance(SLVLight* lights)
+{
+    assert(_shaders.size() > 1 &&
+           _shaders[0]->type() == ST_vertex &&
+           _shaders[1]->type() == ST_fragment);
+
+    // Assemble vertex shader code
+    string vertCode;
+    vertCode += shaderHeader((int)lights->size());
+    vertCode += vertInputs_a_pn;
+    vertCode += vertInputs_u_matrices;
+    vertCode += vertOutputs_v_P_VS;
+    vertCode += vertOutputs_v_N_VS;
+    vertCode += vertMainBlinn_BeginAll;
+    vertCode += vertMainBlinn_v_N_VS;
+    vertCode += vertMainBlinn_EndAll;
+    addCodeToShader(_shaders[0], vertCode, _name + ".vert");
+
+    // Assemble fragment shader code
+    string fragCode;
+    fragCode += shaderHeader((int)lights->size());
+    fragCode += R"(
+in      vec3        v_P_VS;     // Interpol. point of illumination in view space (VS)
+in      vec3        v_N_VS;     // Interpol. normal at v_P_VS in view space
+)";
+    fragCode += fragInputs_u_lightAll;
+    fragCode += fragInputs_u_matAllBlinn;
+    fragCode += fragInputs_u_cam;
+    fragCode += fragOutputs_o_fragColor;
+    fragCode += fragFunctionLightingBlinnPhong;
+    fragCode += fragFunctionFogBlend;
+    fragCode += fragFunctionDoStereoSeparation;
+    fragCode += fragMainBlinn_0_IntensityDeclaration;
+    fragCode += fragMainBlinn_1_EN_fromVert;
+    fragCode += fragMainBlinn_2_LightLoop;
+    fragCode += fragMainBlinn_3_FragColor;
+    fragCode += fragMainBlinn_4_End;
+    addCodeToShader(_shaders[1], fragCode, _name + ".frag");
 }
 
 //-----------------------------------------------------------------------------
@@ -927,7 +1228,7 @@ in      vec3        v_spotDirTS[NUM_LIGHTS];    // Spot direction in tangent spa
     fragCode += fragFunctionDoStereoSeparation;
     fragCode += fragShadowTest(lights);
     fragCode += fragMainBlinn_0_IntensityDeclaration;
-    fragCode += fragMainBlinn_1_EN_fromNm1;
+    fragCode += fragMainBlinn_1_EN_fromNm0;
     fragCode += fragMainBlinn_2_LightLoopNmSm;
     fragCode += fragMainBlinn_3_FragColorAo2Tm;
 #ifdef COLORED_SHADOW_CASCADES
@@ -979,7 +1280,7 @@ in      vec3        v_spotDirTS[NUM_LIGHTS];    // Spot direction in tangent spa
     fragCode += fragFunctionFogBlend;
     fragCode += fragFunctionDoStereoSeparation;
     fragCode += fragMainBlinn_0_IntensityDeclaration;
-    fragCode += fragMainBlinn_1_EN_fromNm1;
+    fragCode += fragMainBlinn_1_EN_fromNm0;
     fragCode += fragMainBlinn_2_LightLoopNm;
     fragCode += fragMainBlinn_3_FragColorAo2Tm;
     fragCode += fragMainBlinn_4_End;
@@ -1032,7 +1333,7 @@ in      vec3        v_spotDirTS[NUM_LIGHTS];    // Spot direction in tangent spa
     fragCode += fragFunctionDoStereoSeparation;
     fragCode += fragShadowTest(lights);
     fragCode += fragMainBlinn_0_IntensityDeclaration;
-    fragCode += fragMainBlinn_1_EN_fromNm1;
+    fragCode += fragMainBlinn_1_EN_fromNm0;
     fragCode += fragMainBlinn_2_LightLoopNmSm;
     fragCode += fragMainBlinn_3_FragColorTm;
 #ifdef COLORED_SHADOW_CASCADES
@@ -1387,7 +1688,7 @@ in      vec3        v_spotDirTS[NUM_LIGHTS];    // Spot direction in tangent spa
     fragCode += fragFunctionFogBlend;
     fragCode += fragFunctionDoStereoSeparation;
     fragCode += fragMainBlinn_0_IntensityDeclaration;
-    fragCode += fragMainBlinn_1_EN_fromNm1;
+    fragCode += fragMainBlinn_1_EN_fromNm0;
     fragCode += fragMainBlinn_2_LightLoopNm;
     fragCode += fragMainBlinn_3_FragColorTm;
     fragCode += fragMainBlinn_4_End;
@@ -1520,7 +1821,7 @@ in      vec3        v_spotDirTS[NUM_LIGHTS];    // Spot direction in tangent spa
     fragCode += fragFunctionFogBlend;
     fragCode += fragFunctionDoStereoSeparation;
     fragCode += fragMainBlinn_0_IntensityDeclaration;
-    fragCode += fragMainBlinn_1_EN_fromNm1;
+    fragCode += fragMainBlinn_1_EN_fromNm0;
     fragCode += fragMainBlinn_2_LightLoopNm;
     fragCode += fragMainBlinn_3_FragColor;
     fragCode += fragMainBlinn_4_End;
