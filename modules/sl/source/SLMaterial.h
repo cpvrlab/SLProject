@@ -201,7 +201,7 @@ public:
     SLfloat         kt() const { return _kt; }
     SLfloat         kn() const { return _kn; }
     SLbool          getsShadows() const { return _getsShadows; }
-    SLint           nbTextures() { return _nbTextures; }
+    SLuint          nbTextures() { return _nbTextures; }
     SLGLProgram*    program() { return _program; }
     SLVNode&        nodesVisible2D() { return _nodesVisible2D; }
     SLVNode&        nodesVisible3D() { return _nodesVisible3D; }

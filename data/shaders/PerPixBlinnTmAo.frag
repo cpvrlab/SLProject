@@ -39,8 +39,8 @@ uniform vec4        u_matSpec;          // specular color reflection coefficient
 uniform vec4        u_matEmis;          // emissive color for self-shining materials
 uniform float       u_matShin;          // shininess exponent
 
-uniform sampler2D   u_matTexture0;      // diffuse color map
-uniform sampler2D   u_matTexture2;      // ambient occlusion map
+uniform sampler2D   u_matTextureDiffuse0; // diffuse color map
+uniform sampler2D   u_matTextureAo0;      // ambient occlusion map
 
 uniform int         u_camProjection;    // type of stereo
 uniform int         u_camStereoEye;     // -1=left, 0=center, 1=right
@@ -88,7 +88,7 @@ void main()
     }
 
     // Get ambient occlusion factor
-    float AO = texture(u_matTexture2, v_uv2).r;
+    float AO = texture(u_matTextureAo0, v_uv2).r;
 
     // Sum up all the reflected color components
     o_fragColor =  u_globalAmbi +
@@ -97,7 +97,7 @@ void main()
                    Id * u_matDiff;
 
     // Componentwise multiply w. texture color
-    o_fragColor *= texture(u_matTexture0, v_uv1);
+    o_fragColor *= texture(u_matTextureDiffuse0, v_uv1);
 
     // add finally the specular RGB-part
     vec4 specColor = Is * u_matSpec;

@@ -463,6 +463,7 @@ void SLMaterial::passToUniforms(SLGLProgram* program)
     program->uniform1f("u_matKn", _kn);
     program->uniform1i("u_matGetsShadows", _getsShadows);
 
+    static int pass;
     // pass textures unit id to the sampler uniform
     SLuint texUnit = 0;
     for (SLuint i = 0; i < TT_nbTextureType; i++)
@@ -475,63 +476,72 @@ void SLMaterial::passToUniforms(SLGLProgram* program)
             switch (i)
             {
                 case TT_diffuse: {
-                    sprintf(name, "u_matTextureDiffuse", texNb);
+                    sprintf(name, "u_matTextureDiffuse%d", texNb);
                     break;
                 }
                 case TT_specular: {
-                    sprintf(name, "u_matTextureSpecular", texNb);
+                    sprintf(name, "u_matTextureSpecular%d", texNb);
                     break;
                 }
                 case TT_normal: {
-                    sprintf(name, "u_matTextureNormal", texNb);
+                    sprintf(name, "u_matTextureNormal%d", texNb);
                     break;
                 }
                 case TT_height: {
-                    sprintf(name, "u_matTextureHeight", texNb);
+                    sprintf(name, "u_matTextureHeight%d", texNb);
                     break;
                 }
                 case TT_ambientOcclusion: {
-                    sprintf(name, "u_matTextureAo", texNb);
+                    sprintf(name, "u_matTextureAo%d", texNb);
                     break;
                 }
                 case TT_roughness: {
-                    sprintf(name, "u_matTextureRougthness", texNb);
+                    sprintf(name, "u_matTextureRougthness%d", texNb);
                     break;
                 }
                 case TT_metallic: {
-                    sprintf(name, "u_matTextureMetallic", texNb);
+                    sprintf(name, "u_matTextureMetallic%d", texNb);
                     break;
                 }
                 case TT_hdr: {
-                    sprintf(name, "u_matTextureHDR", texNb);
+                    sprintf(name, "u_matTextureHDR%d", texNb);
                     break;
                 }
                 case TT_environmentCubemap: {
-                    sprintf(name, "u_matTextureEnvCubemap", texNb);
+                    sprintf(name, "u_matTextureEnvCubemap%d", texNb);
                     break;
                 }
                 case TT_irradianceCubemap: {
-                    sprintf(name, "u_matTextureIrradianceCubemap", texNb);
+                    sprintf(name, "u_matTextureIrradianceCubemap%d", texNb);
                     break;
                 }
                 case TT_roughnessCubemap: {
-                    sprintf(name, "u_matTextureRoughnessCubemap", texNb);
+                    sprintf(name, "u_matTextureRoughnessCubemap%d", texNb);
                     break;
                 }
                 case TT_brdfLUT: {
-                    sprintf(name, "u_matTextureBRDF", texNb);
+                    sprintf(name, "u_matTextureBRDF%d", texNb);
                     break;
                 }
                 case TT_font: {
-                    sprintf(name, "u_matTextureFont", texNb);
+                    sprintf(name, "u_matTextureFont%d", texNb);
                     break;
                 }
             }
-            program->uniform1i(name, texUnit);
+            if (pass == 0)
+            {
+                std::cout << "name " << name << std::endl;
+            }
+
+            if (program->uniform1i(name, texUnit) < 0)
+            {
+                std::cout << "name not found " << name << std::endl;
+            }
             texNb++;
             texUnit++;
         }
     }
+                pass = 1;
 
     program->uniform1i("u_matHasTexture", texUnit ? 1 : 0);
 }

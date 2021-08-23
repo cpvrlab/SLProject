@@ -16,10 +16,10 @@ in       vec3      E_TS;        // Vector to the eye in tangent space
 in       vec3      S_TS;        // Spot direction in tangent space
 in       float     d;           // Light distance
 
-uniform  sampler2D Texture0;    // Color map
-uniform  sampler2D Texture1;    // Normal map
-uniform  sampler2D Texture2;    // Height map;
-uniform  sampler2D Texture3;    // Gloss map;
+uniform  sampler2D TextureDiffuse0;   // Color map
+uniform  sampler2D TextureNormal0;    // Normal map
+uniform  sampler2D TextureHeight0;    // Height map;
+uniform  sampler2D TextureSpecular0;  // Gloss map;
 uniform  float     scale;       // Height scale factor for parallax mapping
 uniform  float     bias;        // Height bias for parallax mapping
 
@@ -37,7 +37,7 @@ void main()
    ////////////////////////////////////////////////////////////
    // Calculate new texture coord. Tc for Parallax mapping
    // The height comes from red channel from the height map
-   float height = texture(Texture2, gl_TexCoord[0].st).r;
+   float height = texture(TextureHeight0, gl_TexCoord[0].st).r;
    
    // Scale the height and add the bias (height offset)
    height = height * scale + bias;
@@ -47,7 +47,7 @@ void main()
    ////////////////////////////////////////////////////////////
    
    // Get normal from normal map, move from [0,1] to [-1, 1] range & normalize
-   vec3 N = normalize(texture(Texture1, Tc).rgb * 2.0 - 1.0);
+   vec3 N = normalize(texture(TextureNormal0, Tc).rgb * 2.0 - 1.0);
    
    // Calculate attenuation over distance d
    float att = 1.0 / (gl_LightSource[0].constantAttenuation +	
@@ -77,7 +77,7 @@ void main()
    o_fragColor += att * gl_LightSource[0].diffuse * gl_FrontMaterial.diffuse * diffFactor;
    
    // componentwise multiply w. texture color (= GL_MODULATE)
-   o_fragColor *= texture(Texture0, Tc);
+   o_fragColor *= texture(TextureDiffuse0, Tc);
    
    // add finally the specular part
    o_fragColor += att *

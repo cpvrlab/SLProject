@@ -44,15 +44,15 @@ uniform int         u_lightSmoothShadowLevel[NUM_LIGHTS];   // radius of area to
 uniform float       u_lightShadowMinBias[NUM_LIGHTS];       // min. shadow bias value at 0° to N
 uniform float       u_lightShadowMaxBias[NUM_LIGHTS];       // min. shadow bias value at 90° to N
 
-uniform vec4        u_matAmbi;          // ambient color reflection coefficient (ka)
-uniform vec4        u_matDiff;          // diffuse color reflection coefficient (kd)
-uniform vec4        u_matSpec;          // specular color reflection coefficient (ks)
-uniform vec4        u_matEmis;          // emissive color for self-shining materials
-uniform float       u_matShin;          // shininess exponent
-uniform bool        u_matGetsShadows;   // flag if material receives shadows
-uniform sampler2D   u_matTexture0;      // diffuse color map
-uniform sampler2D   u_matTexture1;      // normal bump map
-uniform sampler2D   u_matTexture2;      // ambient occlusion map
+uniform vec4        u_matAmbi;            // ambient color reflection coefficient (ka)
+uniform vec4        u_matDiff;            // diffuse color reflection coefficient (kd)
+uniform vec4        u_matSpec;            // specular color reflection coefficient (ks)
+uniform vec4        u_matEmis;            // emissive color for self-shining materials
+uniform float       u_matShin;            // shininess exponent
+uniform bool        u_matGetsShadows;     // flag if material receives shadows
+uniform sampler2D   u_matTextureDiffuse0; // diffuse color map
+uniform sampler2D   u_matTextureNormal0;  // normal bump map
+uniform sampler2D   u_matTextureAo0;      // ambient occlusion map
 
 uniform int         u_camProjection;    // type of stereo
 uniform int         u_camStereoEye;     // -1=left, 0=center, 1=right
@@ -84,7 +84,7 @@ void main()
     vec4 Is = vec4(0.0); // Accumulated specular light intensity at v_P_VS
 
     // Get normal from normal map, move from [0,1] to [-1, 1] range & normalize
-    vec3 N = normalize(texture(u_matTexture1, v_uv1).rgb * 2.0 - 1.0);
+    vec3 N = normalize(texture(u_matTextureNormal0, v_uv1).rgb * 2.0 - 1.0);
     vec3 E = normalize(v_eyeDirTS);   // normalized eye direction
 
     for (int i = 0; i < NUM_LIGHTS; ++i)
@@ -115,7 +115,7 @@ void main()
     }
 
     // Get ambient occlusion factor
-    float AO = texture(u_matTexture2, v_uv2).r;
+    float AO = texture(u_matTextureAo0, v_uv2).r;
 
     // Sum up all the reflected color components
     o_fragColor =  u_matEmis +
@@ -124,7 +124,7 @@ void main()
                    Id * u_matDiff;
 
     // Componentwise multiply w. texture color
-    o_fragColor *= texture(u_matTexture0, v_uv1);
+    o_fragColor *= texture(u_matTextureDiffuse0, v_uv1);
 
     // add finally the specular RGB-part
     vec4 specColor = Is * u_matSpec;

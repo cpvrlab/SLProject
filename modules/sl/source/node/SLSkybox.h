@@ -48,6 +48,8 @@ public:
 
     ~SLSkybox() { ; }
 
+
+    SLGLTexture* getTexture() { return mesh()->mat()->textures(TT_diffuse)[0]; };
     SLCol4f colorAtDir(const SLVec3f& dir);
 
     void drawAroundCamera(SLSceneView* sv);

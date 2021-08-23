@@ -3601,7 +3601,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                     }
 
                     if (m->nbTextures() > 0 &&
-                        ImGui::TreeNode("Tex", "Textures (%lu)", m->nbTextures()))
+                        ImGui::TreeNode("Tex", "Textures (%d)", m->nbTextures()))
                     {
                         // SLfloat lineH = ImGui::GetTextLineHeightWithSpacing();
                         SLfloat texW = ImGui::GetWindowWidth() - 4 * ImGui::GetTreeNodeToLabelSpacing() - 10;

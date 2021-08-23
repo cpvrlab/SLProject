@@ -1793,7 +1793,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                                               texPath + "Desert-Y1024_C.jpg",
                                               texPath + "Desert+Z1024_C.jpg",
                                               texPath + "Desert-Z1024_C.jpg");
-        SLGLTexture* skyboxTex = skybox->mesh()->mat()->textures(TT_unknown)[0];
+        SLGLTexture* skyboxTex = skybox->getTexture();
 
         // Material for mirror
         SLMaterial* refl = new SLMaterial(s, "refl", SLCol4f::BLACK, SLCol4f::WHITE, 1000, 1.0f);
@@ -1810,7 +1810,6 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         refr->program(new SLGLProgramGeneric(s,
                                              shaderPath + "RefractReflect.vert",
                                              shaderPath + "RefractReflect.frag"));
-
         // Create a scene group node
         SLNode* scene = new SLNode("scene node");
 

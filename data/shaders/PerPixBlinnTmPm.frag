@@ -34,16 +34,16 @@ uniform bool        u_lightDoAtt[NUM_LIGHTS];    // flag if att. must be calc.
 uniform vec4        u_globalAmbi;                // Global ambient scene color
 uniform float       u_oneOverGamma;              // 1.0f / Gamma correction value
 
-uniform vec4        u_matAmbi;          // ambient color reflection coefficient (ka)
-uniform vec4        u_matDiff;          // diffuse color reflection coefficient (kd)
-uniform vec4        u_matSpec;          // specular color reflection coefficient (ks)
-uniform vec4        u_matEmis;          // emissive color for self-shining materials
-uniform float       u_matShin;          // shininess exponent
-uniform sampler2D   u_matTexture0;      // Color map
-uniform sampler2D   u_matTexture1;      // Normal map
-uniform sampler2D   u_matTexture2;      // Height map;
-uniform float       u_scale;            // Height scale for parallax mapping
-uniform float       u_offset;           // Height bias for parallax mapping
+uniform vec4        u_matAmbi;            // ambient color reflection coefficient (ka)
+uniform vec4        u_matDiff;            // diffuse color reflection coefficient (kd)
+uniform vec4        u_matSpec;            // specular color reflection coefficient (ks)
+uniform vec4        u_matEmis;            // emissive color for self-shining materials
+uniform float       u_matShin;            // shininess exponent
+uniform sampler2D   u_matTextureDiffuse0; // Color map
+uniform sampler2D   u_matTextureNormal0;  // Normal map
+uniform sampler2D   u_matTextureHeight0;  // Height map;
+uniform float       u_scale;              // Height scale for parallax mapping
+uniform float       u_offset;             // Height bias for parallax mapping
 
 uniform int         u_camProjection;    // type of stereo
 uniform int         u_camStereoEye;     // -1=left, 0=center, 1=right
@@ -72,7 +72,7 @@ void main()
 
     // Calculate new texture coord. Tc for Parallax mapping
     // The height comes from red channel from the height map
-    float height = texture(u_matTexture2, v_uv1.st).r;
+    float height = texture(u_matTextureHeight0, v_uv1.st).r;
 
     // Scale the height and add the bias (height offset)
     height = height * u_scale + u_offset;
@@ -81,13 +81,12 @@ void main()
     vec2 Tc = v_uv1.st + (height * E.st);
 
     // Get normal from normal map, move from [0,1] to [-1, 1] range & normalize
-    vec3 N = normalize(texture(u_matTexture1, Tc).rgb * 2.0 - 1.0);
+    vec3 N = normalize(texture(u_matTextureNormal0, Tc).rgb * 2.0 - 1.0);
 
     for (int i = 0; i < NUM_LIGHTS; ++i)
     {
         if (u_lightIsOn[i])
         {
-
             if (u_lightPosVS[i].w == 0.0)
             {
                 // We use the spot light direction as the light direction vector
@@ -110,7 +109,7 @@ void main()
                    Id * u_matDiff;
 
     // Componentwise multiply w. texture color
-    o_fragColor *= texture(u_matTexture0, Tc);
+    o_fragColor *= texture(u_matTextureDiffuse0, Tc);
 
     // add finally the specular RGB-part
     vec4 specColor = Is * u_matSpec;

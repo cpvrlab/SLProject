@@ -16,17 +16,17 @@ in      vec3        v_T_OS;         // Refracted ray in object space
 in      float       v_F_Theta;      // Fresnel reflection coefficient
 in      vec4        v_specColor;    // Specular color at vertex
 
-uniform vec4        u_matDiff;      // diffuse color reflection coefficient (kd)
-uniform samplerCube u_matTexture0;  // Cubic environment texture map
-uniform float       u_oneOverGamma; // 1.0f / Gamma correction value
+uniform vec4        u_matDiff;              // diffuse color reflection coefficient (kd)
+uniform samplerCube u_matTextureDiffuse0;   // Cubic environment texture map
+uniform float       u_oneOverGamma;         // 1.0f / Gamma correction value
 
 out     vec4        o_fragColor;    // output fragment color
 //-----------------------------------------------------------------------------
 void main()
 {     
     // get the reflection & refraction color out of the cubic map
-    vec4 reflCol = texture(u_matTexture0, v_R_OS);
-    vec4 refrCol = texture(u_matTexture0, v_T_OS);
+    vec4 reflCol = texture(u_matTextureDiffuse0, v_R_OS);
+    vec4 refrCol = texture(u_matTextureDiffuse0, v_T_OS);
    
     // Mix the final color with the fast frenel factor
     o_fragColor = mix(refrCol, reflCol, v_F_Theta);
