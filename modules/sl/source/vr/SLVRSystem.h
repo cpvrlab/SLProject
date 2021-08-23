@@ -53,6 +53,7 @@ public:
     void update();
 
     // Getters
+    bool isRunning() { return _system != nullptr; }
     SLVVRTrackedDevices trackedDevices() { return _trackedDevices; };
     SLVRTrackedDevice*  hmd() { return _hmd; };
     SLVRTrackedDevice*  leftController() { return _leftController; };

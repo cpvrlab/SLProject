@@ -90,9 +90,6 @@ bool SLVRSystem::detectTrackedDevices()
 {
     for (vr::TrackedDeviceIndex_t i = 0; i < vr::k_unMaxTrackedDeviceCount; i++)
     {
-        // Skip this device if it is not connected
-        if (!_system->IsTrackedDeviceConnected(i)) continue;
-
         // Get the class of the device (HMD, controller, etc.)
         vr::TrackedDeviceClass deviceClass = _system->GetTrackedDeviceClass(i);
 
@@ -101,12 +98,10 @@ bool SLVRSystem::detectTrackedDevices()
             case vr::TrackedDeviceClass_HMD:
                 registerHmd(i);
                 break;
-            case vr::TrackedDeviceClass_Controller: {
+            case vr::TrackedDeviceClass_Controller:
                 registerController(i);
                 break;
-            }
             default:
-                VR_LOG("Unknown device detected (device class " << deviceClass << ")")
                 break;
         }
     }

@@ -31,6 +31,8 @@ private:
 
     explicit SLVRTrackedDevice(vr::TrackedDeviceIndex_t index);
 
+    SLstring getStringProperty(vr::TrackedDeviceProperty property);
+
 public:
     // Setters
     void pose(const SLMat4f& pose) { _pose = pose; };
@@ -38,6 +40,10 @@ public:
     // Getters
     vr::TrackedDeviceIndex_t index() const { return _index; };
     SLMat4f                  pose() { return _pose; };
+
+    SLbool isConnected();
+    SLbool isAwake();
+    SLstring getManufacturer();
 };
 
 #endif // SLPROJECT_SLVRTRACKEDDEVICE_H

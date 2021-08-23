@@ -24,6 +24,8 @@
 #include <GLFW/glfw3.h>
 #include <Instrumentor.h>
 
+#include <vr/SLVRSystem.h>
+
 //-----------------------------------------------------------------------------
 //! Forward declaration of the scene definition function from AppDemoLoad.cpp
 extern void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID);
@@ -51,7 +53,7 @@ static SLKey       modifiers         = K_none; //!< last modifier keys
 static SLbool      fullscreen        = false;  //!< flag if window is in fullscreen mode
 
 //-----------------------------------------------------------------------------
-/*! 
+/*!
 onClose event handler for deallocation of the scene & sceneview. onClose is
 called glfwPollEvents, glfwWaitEvents or glfwSwapBuffers.
 */
@@ -61,7 +63,7 @@ void onClose(GLFWwindow* myWindow)
 }
 //-----------------------------------------------------------------------------
 /*!
-onPaint: Paint event handler that passes the event to the slPaint function. 
+onPaint: Paint event handler that passes the event to the slPaint function.
 */
 SLbool onPaint()
 {
@@ -176,7 +178,7 @@ static void onResize(GLFWwindow* myWindow, int width, int height)
 
     if (fixAspectRatio)
     {
-        //correct target width and height
+        // correct target width and height
         if ((float)height * scrWdivH <= (float)width)
         {
             width  = (int)((float)height * scrWdivH);
@@ -447,7 +449,7 @@ void initGLFW(int screenWidth, int screenHeight)
     glfwWindowHint(GLFW_SAMPLES, 4);
 
 #ifdef __APPLE__
-    //You can enable or restrict newer OpenGL context here (read the GLFW documentation)
+    // You can enable or restrict newer OpenGL context here (read the GLFW documentation)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
@@ -456,7 +458,7 @@ void initGLFW(int screenWidth, int screenHeight)
 
     window = glfwCreateWindow(screenWidth, screenHeight, "My Title", nullptr, nullptr);
 
-    //get real window size
+    // get real window size
     glfwGetWindowSize(window, &scrWidth, &scrHeight);
 
     if (!window)
@@ -515,9 +517,9 @@ void initSL(SLVstring& cmdLineArgs)
     SLstring projectRoot = SLstring(SL_PROJECT_ROOT);
     SLstring configDir   = Utils::getAppsWritableDir();
     slSetupExternalDir(projectRoot + "/data/");
-    //Utils::dumpFileSystemRec("SLProject",  projectRoot + "/data");
+    // Utils::dumpFileSystemRec("SLProject",  projectRoot + "/data");
 
-    //setup platform dependent data path
+    // setup platform dependent data path
     AppDemo::calibFilePath = configDir;
     AppDemo::calibIniPath  = projectRoot + "/data/calibrations/";                                 // for calibInitPath
     CVCapture::instance()->loadCalibrations(Utils::ComputerInfos::get(), AppDemo::calibFilePath); // for calibrations made
@@ -573,17 +575,26 @@ int main(int argc, char* argv[])
     // Event loop
     while (!slShouldClose())
     {
+        if (SLVRSystem::instance().isRunning())
+        {
+            SLVRSystem::instance().update();
+            AppDemo::sceneViews[svIndex]->camera()->om(SLVRSystem::instance().hmd()->pose());
+        }
+
         /////////////////////////////
         SLbool doRepaint = onPaint();
         /////////////////////////////
 
         // if no updated occurred wait for the next event (power saving)
         if (!doRepaint)
-            //todo ghm1: glfwWaitEvents is not working on my machine (maybe https://github.com/glfw/glfw/issues/685)
+            // todo ghm1: glfwWaitEvents is not working on my machine (maybe https://github.com/glfw/glfw/issues/685)
             glfwWaitEvents();
         else
             glfwPollEvents();
     }
+
+    if (SLVRSystem::instance().isRunning())
+        SLVRSystem::instance().shutdown();
 
     slTerminate();
 

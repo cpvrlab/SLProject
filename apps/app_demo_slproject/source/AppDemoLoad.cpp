@@ -45,6 +45,8 @@
 #include <AppDemoGui.h>
 #include <SLDeviceLocation.h>
 
+#include <vr/SLVRSystem.h>
+
 #ifdef SL_BUILD_WAI
 #    include <CVTrackedWAI.h>
 #endif
@@ -1246,6 +1248,141 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(cam1);
         sv->doWaitOnIdle(false);
         s->root3D(scene);
+    }
+    else if (sceneID == SID_OpenVR)
+    {
+        s->name("OpenVR Test");
+        s->info("Nobody cares about this description so I won't even write one.");
+
+        SLVRSystem& vr = SLVRSystem::instance();
+        vr.startup();
+
+        /*
+         * Shameless copy from here...
+         */
+
+        SLGLTexture* t1 = new SLGLTexture(s,
+                                          texPath + "tree1_1024_C.png",
+                                          GL_LINEAR_MIPMAP_LINEAR,
+                                          GL_LINEAR,
+                                          TT_diffuse,
+                                          GL_CLAMP_TO_EDGE,
+                                          GL_CLAMP_TO_EDGE);
+        SLGLTexture* t2 = new SLGLTexture(s,
+                                          texPath + "grass0512_C.jpg",
+                                          GL_LINEAR_MIPMAP_LINEAR,
+                                          GL_LINEAR);
+
+        SLMaterial* m1 = new SLMaterial(s, "m1", SLCol4f(1, 1, 1), SLCol4f(0, 0, 0), 100);
+        SLMaterial* m2 = new SLMaterial(s, "m2", SLCol4f(1, 1, 1), SLCol4f(0, 0, 0), 100);
+
+        SLGLProgram* sp = new SLGLProgramGeneric(s,
+                                                 shaderPath + "PerVrtTm.vert",
+                                                 shaderPath + "PerVrtTm.frag");
+        m1->program(sp);
+        m1->textures().push_back(t1);
+        m2->textures().push_back(t2);
+
+        SLCamera* cam1 = new SLCamera("Camera 1");
+        cam1->translation(6.5f, 0.5f, -18);
+        cam1->lookAt(0, 0, 0);
+        cam1->focalDist(18);
+        cam1->background().colors(SLCol4f(0.6f, 0.6f, 1));
+        cam1->setInitialState();
+        cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
+
+        SLLightSpot* light = new SLLightSpot(s, s, 0.1f);
+        light->translation(5, 5, 5);
+        light->lookAt(0, 0, 0);
+        light->attenuation(1, 0, 0);
+
+        // Build arrays for polygon vertices and texcoords for tree
+        SLVVec3f pNW, pSE;
+        SLVVec2f tNW, tSE;
+        pNW.push_back(SLVec3f(0, 0, 0));
+        tNW.push_back(SLVec2f(0.5f, 0.0f));
+        pNW.push_back(SLVec3f(1, 0, 0));
+        tNW.push_back(SLVec2f(1.0f, 0.0f));
+        pNW.push_back(SLVec3f(1, 2, 0));
+        tNW.push_back(SLVec2f(1.0f, 1.0f));
+        pNW.push_back(SLVec3f(0, 2, 0));
+        tNW.push_back(SLVec2f(0.5f, 1.0f));
+        pSE.push_back(SLVec3f(-1, 0, 0));
+        tSE.push_back(SLVec2f(0.0f, 0.0f));
+        pSE.push_back(SLVec3f(0, 0, 0));
+        tSE.push_back(SLVec2f(0.5f, 0.0f));
+        pSE.push_back(SLVec3f(0, 2, 0));
+        tSE.push_back(SLVec2f(0.5f, 1.0f));
+        pSE.push_back(SLVec3f(-1, 2, 0));
+        tSE.push_back(SLVec2f(0.0f, 1.0f));
+
+        // Build tree out of 4 polygons
+        SLNode* p1 = new SLNode(new SLPolygon(s, pNW, tNW, "Tree+X", m1));
+        SLNode* p2 = new SLNode(new SLPolygon(s, pNW, tNW, "Tree-Z", m1));
+        p2->rotate(90, 0, 1, 0);
+        SLNode* p3 = new SLNode(new SLPolygon(s, pSE, tSE, "Tree-X", m1));
+        SLNode* p4 = new SLNode(new SLPolygon(s, pSE, tSE, "Tree+Z", m1));
+        p4->rotate(90, 0, 1, 0);
+
+        // Turn face culling off so that we see both sides
+        p1->drawBits()->on(SL_DB_CULLOFF);
+        p2->drawBits()->on(SL_DB_CULLOFF);
+        p3->drawBits()->on(SL_DB_CULLOFF);
+        p4->drawBits()->on(SL_DB_CULLOFF);
+
+        // Build tree group
+        SLNode* tree = new SLNode("grTree");
+        tree->addChild(p1);
+        tree->addChild(p2);
+        tree->addChild(p3);
+        tree->addChild(p4);
+
+        // Build arrays for polygon vertices and texcoords for ground
+        SLVVec3f pG;
+        SLVVec2f tG;
+        SLfloat  size = 22.0f;
+        pG.push_back(SLVec3f(-size, 0, size));
+        tG.push_back(SLVec2f(0, 0));
+        pG.push_back(SLVec3f(size, 0, size));
+        tG.push_back(SLVec2f(30, 0));
+        pG.push_back(SLVec3f(size, 0, -size));
+        tG.push_back(SLVec2f(30, 30));
+        pG.push_back(SLVec3f(-size, 0, -size));
+        tG.push_back(SLVec2f(0, 30));
+
+        SLNode* scene = new SLNode("grScene");
+        scene->addChild(light);
+        scene->addChild(tree);
+        scene->addChild(new SLNode(new SLPolygon(s, pG, tG, "Ground", m2)));
+
+        // create 21*21*21-1 references around the center tree
+        SLint res = 10;
+        for (SLint iZ = -res; iZ <= res; ++iZ)
+        {
+            for (SLint iX = -res; iX <= res; ++iX)
+            {
+                if (iX != 0 || iZ != 0)
+                {
+                    SLNode* t = tree->copyRec();
+                    t->translate(float(iX) * 2 + Utils::random(0.7f, 1.4f),
+                                 0,
+                                 float(iZ) * 2 + Utils::random(0.7f, 1.4f),
+                                 TS_object);
+                    t->rotate(Utils::random(0, 90), 0, 1, 0);
+                    t->scale(Utils::random(0.5f, 1.0f));
+                    scene->addChild(t);
+                }
+            }
+        }
+
+        scene->addChild(cam1);
+
+        sv->camera(cam1);
+        s->root3D(scene);
+
+        /*
+         * ... to here!
+         */
     }
 
     else if (sceneID == SID_ShaderPerPixelBlinn ||
