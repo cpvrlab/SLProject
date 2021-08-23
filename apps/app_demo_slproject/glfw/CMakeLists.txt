@@ -16,7 +16,9 @@ file(GLOB headers
 		${SL_PROJECT_ROOT}/apps/source/SLInterface.h
         ${SL_PROJECT_ROOT}/apps/source/SLProjectScene.h
 
+		${SL_PROJECT_ROOT}/modules/sl/source/vr/SLVR.h
 		${SL_PROJECT_ROOT}/modules/sl/source/vr/SLVRSystem.h
+		${SL_PROJECT_ROOT}/modules/sl/source/vr/SLVRTrackedDevice.h
     )
 
 file(GLOB sources
@@ -31,6 +33,7 @@ file(GLOB sources
         ${CMAKE_CURRENT_SOURCE_DIR}/AppDemoMainGLFW.cpp
 
 		${SL_PROJECT_ROOT}/modules/sl/source/vr/SLVRSystem.cpp
+		${SL_PROJECT_ROOT}/modules/sl/source/vr/SLVRTrackedDevice.cpp
     )
 
 # Group source files
