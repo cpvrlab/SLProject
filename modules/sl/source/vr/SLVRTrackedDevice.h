@@ -15,22 +15,24 @@
 #include <SLMat4.h>
 #include <SL.h>
 
+typedef vr::TrackedDeviceIndex_t SLVRTrackedDeviceIndex;
+
 class SLVRSystem; // Forward declaration of SLVRSystem for friend declaration
 
 //! The main class for interfacing with devices
-/*! SLVRTrackedDevice provides access to the properties that all tracked VR devices have in common.
- * These properties are the index and the pose.
+/*! SLVRTrackedDevice provides access to the properties that all tracked VR devices have in common,
+ * such as the index, the pose, whether or not this device is connected, etc.
  */
 class SLVRTrackedDevice
 {
     friend class SLVRSystem; // Only SLVRSystem is allowed to instantiate this class
 
-private:
-    vr::TrackedDeviceIndex_t _index;
-    SLMat4f                  _pose;
+protected:
+    SLVRTrackedDeviceIndex _index;
+    SLMat4f                _pose;
 
-    explicit SLVRTrackedDevice(vr::TrackedDeviceIndex_t index);
-
+    explicit SLVRTrackedDevice(SLVRTrackedDeviceIndex index);
+    vr::IVRSystem* system();
     SLstring getStringProperty(vr::TrackedDeviceProperty property);
 
 public:
@@ -38,11 +40,11 @@ public:
     void pose(const SLMat4f& pose) { _pose = pose; };
 
     // Getters
-    vr::TrackedDeviceIndex_t index() const { return _index; };
-    SLMat4f                  pose() { return _pose; };
+    SLVRTrackedDeviceIndex index() const { return _index; };
+    SLMat4f                pose() { return _pose; };
 
-    SLbool isConnected();
-    SLbool isAwake();
+    SLbool   isConnected();
+    SLbool   isAwake();
     SLstring getManufacturer();
 };
 

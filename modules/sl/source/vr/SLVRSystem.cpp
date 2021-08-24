@@ -11,10 +11,8 @@
 #include <vr/SLVRSystem.h>
 #include <vr/SLVR.h>
 
-SLVRSystem::SLVRSystem()
-{
-    VR_LOG("VR system initialized")
-}
+SLVRSystem::SLVRSystem(){
+  VR_LOG("VR system initialized")}
 
 SLVRSystem::~SLVRSystem()
 {
@@ -135,7 +133,7 @@ void SLVRSystem::registerHmd(vr::TrackedDeviceIndex_t index)
  */
 void SLVRSystem::registerController(vr::TrackedDeviceIndex_t index)
 {
-    SLVRTrackedDevice* device = new SLVRTrackedDevice(index);
+    SLVRController* device = new SLVRController(index);
     _trackedDevices.push_back(device);
 
     vr::ETrackedControllerRole role = _system->GetControllerRoleForTrackedDeviceIndex(index);
@@ -172,6 +170,13 @@ void SLVRSystem::update()
         SLMat4f matrix = openVRMatrixToSLMatrix(pose.mDeviceToAbsoluteTracking);
         trackedDevice->pose(matrix);
     }
+
+    // Update controller states
+    if (leftController())
+        leftController()->updateState();
+
+    if (rightController())
+        rightController()->updateState();
 }
 
 /*! Converts an OpenVR matrix to a SLProject matrix

@@ -15,6 +15,11 @@ SLVRTrackedDevice::SLVRTrackedDevice(vr::TrackedDeviceIndex_t index) : _index(in
 {
 }
 
+vr::IVRSystem* SLVRTrackedDevice::system()
+{
+    return SLVRSystem::instance().system();
+}
+
 SLstring SLVRTrackedDevice::getStringProperty(vr::TrackedDeviceProperty property)
 {
     // Create string buffer
@@ -22,7 +27,7 @@ SLstring SLVRTrackedDevice::getStringProperty(vr::TrackedDeviceProperty property
     char*    buffer     = new char[bufferSize];
 
     // Read property value into buffer
-    SLVRSystem::instance()._system->GetStringTrackedDeviceProperty(_index, property, buffer, bufferSize);
+    system()->GetStringTrackedDeviceProperty(_index, property, buffer, bufferSize);
 
     // Convert char array to string and deallocate buffer
     std::string result = std::string(buffer);
@@ -33,12 +38,14 @@ SLstring SLVRTrackedDevice::getStringProperty(vr::TrackedDeviceProperty property
 
 SLbool SLVRTrackedDevice::isConnected()
 {
-    return SLVRSystem::instance()._system->IsTrackedDeviceConnected(_index);
+    return system()->IsTrackedDeviceConnected(_index);
 }
 
 SLbool SLVRTrackedDevice::isAwake()
 {
-    return SLVRSystem::instance()._system->GetTrackedDeviceActivityLevel(_index) == vr::EDeviceActivityLevel::k_EDeviceActivityLevel_UserInteraction;
+    vr::EDeviceActivityLevel level = system()->GetTrackedDeviceActivityLevel(_index);
+    return level == vr::EDeviceActivityLevel::k_EDeviceActivityLevel_UserInteraction ||
+           level == vr::EDeviceActivityLevel::k_EDeviceActivityLevel_UserInteraction_Timeout;
 }
 
 SLstring SLVRTrackedDevice::getManufacturer()
