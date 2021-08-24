@@ -832,9 +832,9 @@ const string fragMainBlinn_3_FragColorAo1   = R"(
     // For correct alpha blending overwrite alpha component
     o_fragColor.a = u_matDiff.a;
 )";
-const string fragMainBlinn_3_FragColorAo1Tm = R"(
+const string fragMainBlinn_3_FragColorAo0Tm = R"(
     // Get ambient occlusion factor
-    float AO = texture(u_matTextureAo1, v_uv2).r;
+    float AO = texture(u_matTextureAo0, v_uv2).r;
 
     // Sum up all the reflected color components
     o_fragColor =  u_matEmis +
@@ -849,9 +849,9 @@ const string fragMainBlinn_3_FragColorAo1Tm = R"(
     vec4 specColor = Is * u_matSpec;
     o_fragColor.rgb += specColor.rgb;
 )";
-const string fragMainBlinn_3_FragColorAo2Tm = R"(
+const string fragMainBlinn_3_FragColorAo1Tm = R"(
     // Get ambient occlusion factor
-    float AO = texture(u_matTextureAo2, v_uv2).r;
+    float AO = texture(u_matTextureAo1, v_uv2).r;
 
     // Sum up all the reflected color components
     o_fragColor =  u_matEmis +
@@ -1230,7 +1230,7 @@ in      vec3        v_spotDirTS[NUM_LIGHTS];    // Spot direction in tangent spa
     fragCode += fragMainBlinn_0_IntensityDeclaration;
     fragCode += fragMainBlinn_1_EN_fromNm0;
     fragCode += fragMainBlinn_2_LightLoopNmSm;
-    fragCode += fragMainBlinn_3_FragColorAo2Tm;
+    fragCode += fragMainBlinn_3_FragColorAo0Tm;
 #ifdef COLORED_SHADOW_CASCADES
     fragCode += coloredShadows(); // enable this to see the different cascades with different colors
 #endif
@@ -1282,7 +1282,7 @@ in      vec3        v_spotDirTS[NUM_LIGHTS];    // Spot direction in tangent spa
     fragCode += fragMainBlinn_0_IntensityDeclaration;
     fragCode += fragMainBlinn_1_EN_fromNm0;
     fragCode += fragMainBlinn_2_LightLoopNm;
-    fragCode += fragMainBlinn_3_FragColorAo2Tm;
+    fragCode += fragMainBlinn_3_FragColorAo0Tm;
     fragCode += fragMainBlinn_4_End;
     addCodeToShader(_shaders[1], fragCode, _name + ".frag");
 }
@@ -1390,7 +1390,7 @@ in      vec2        v_uv2;      // Texture coordinate 2 varying for AO
     fragCode += fragMainBlinn_0_IntensityDeclaration;
     fragCode += fragMainBlinn_1_EN_fromVert;
     fragCode += fragMainBlinn_2_LightLoopSm;
-    fragCode += fragMainBlinn_3_FragColorAo1Tm;
+    fragCode += fragMainBlinn_3_FragColorAo0Tm;
 #ifdef COLORED_SHADOW_CASCADES
     fragCode += coloredShadows(); // enable this to see the different cascades with different colors
 #endif
@@ -1600,7 +1600,7 @@ in      vec3        v_spotDirTS[NUM_LIGHTS];    // Spot direction in tangent spa
     fragCode += fragMainBlinn_0_IntensityDeclaration;
     fragCode += fragMainBlinn_1_EN_fromNm0;
     fragCode += fragMainBlinn_2_LightLoopNm;
-    fragCode += fragMainBlinn_3_FragColorAo1;
+    fragCode += fragMainBlinn_3_FragColorAo0;
     fragCode += fragMainBlinn_4_End;
     addCodeToShader(_shaders[1], fragCode, _name + ".frag");
 }
@@ -1645,7 +1645,7 @@ in      vec2        v_uv2;      // Texture coordinate 2 varying for AO
     fragCode += fragMainBlinn_0_IntensityDeclaration;
     fragCode += fragMainBlinn_1_EN_fromVert;
     fragCode += fragMainBlinn_2_LightLoop;
-    fragCode += fragMainBlinn_3_FragColorAo1Tm;
+    fragCode += fragMainBlinn_3_FragColorAo0Tm;
     fragCode += fragMainBlinn_4_End;
     addCodeToShader(_shaders[1], fragCode, _name + ".frag");
 }

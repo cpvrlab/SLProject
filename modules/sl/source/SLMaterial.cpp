@@ -124,6 +124,7 @@ SLMaterial::SLMaterial(SLAssetManager* am,
     }
     if (texture2)
     {
+        std::cout << texture2->texType() << std::endl;
         _textures[texture2->texType()].push_back(texture2);
         _nbTextures++;
     }
@@ -527,7 +528,10 @@ void SLMaterial::passToUniforms(SLGLProgram* program)
                     sprintf(name, "u_matTextureFont%d", texNb);
                     break;
                 }
+                default: {
+                }
             }
+
             if (pass == 0)
             {
                 std::cout << "name " << name << std::endl;

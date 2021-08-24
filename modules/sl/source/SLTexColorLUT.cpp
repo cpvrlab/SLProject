@@ -21,13 +21,13 @@ SLTexColorLUT::SLTexColorLUT(SLAssetManager* assetMgr,
     _mag_filter = GL_LINEAR;
     _wrap_s     = GL_CLAMP_TO_EDGE;
     _wrap_t     = GL_CLAMP_TO_EDGE;
-    _texType    = TT_diffuse;
     _length     = length;
     _target     = GL_TEXTURE_2D; // OpenGL ES doesn't define 1D textures. We just make a 1 pixel high 2D texture
 
     colors(lutType);
 
     generateTexture();
+    _texType    = TT_diffuse;
 
     // Add pointer to the global resource vectors for deallocation
     if (assetMgr)
@@ -44,7 +44,6 @@ SLTexColorLUT::SLTexColorLUT(SLAssetManager*  assetMgr,
     _mag_filter = GL_LINEAR;
     _wrap_s     = GL_CLAMP_TO_EDGE;
     _wrap_t     = GL_CLAMP_TO_EDGE;
-    _texType    = TT_diffuse;
     _length     = length;
     _target     = GL_TEXTURE_2D; // OpenGL ES doesn't define 1D textures. We just make a 1 pixel high 2D texture
 
@@ -54,6 +53,7 @@ SLTexColorLUT::SLTexColorLUT(SLAssetManager*  assetMgr,
         _alphas.push_back(alpha);
 
     generateTexture();
+    _texType    = TT_diffuse;
 
     // Add pointer to the global resource vectors for deallocation
     if (assetMgr)
@@ -81,6 +81,7 @@ SLTexColorLUT::SLTexColorLUT(SLAssetManager*  assetMgr,
         _alphas.push_back(alpha);
 
     generateTexture();
+    _texType    = TT_diffuse;
 
     // Add pointer to the global resource vectors for deallocation
     if (assetMgr)

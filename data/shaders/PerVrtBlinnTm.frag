@@ -16,8 +16,8 @@ in      vec4        v_color;            // Interpol. ambient & diff. color
 in      vec4        v_specColor;        // Interpol. specular color
 in      vec2        v_uv1;              // Interpol. texture coordinate
 
-uniform float       u_oneOverGamma;     // 1.0f / Gamma correction value
-uniform sampler2D   u_matTexture0;      // Color map
+uniform float       u_oneOverGamma;       // 1.0f / Gamma correction value
+uniform sampler2D   u_matTextureDiffuse0; // Color map
 
 uniform int         u_camProjection;    // type of stereo
 uniform int         u_camStereoEye;     // -1=left, 0=center, 1=right
@@ -41,7 +41,7 @@ void main()
     o_fragColor = v_color;
    
     // componentwise multiply w. texture color
-    o_fragColor *= texture(u_matTexture0, v_uv1);
+    o_fragColor *= texture(u_matTextureDiffuse0, v_uv1);
    
     // add finally the specular RGB part but not alpha
     o_fragColor.rgb += v_specColor.rgb;
