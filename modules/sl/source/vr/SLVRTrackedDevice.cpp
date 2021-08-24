@@ -15,11 +15,18 @@ SLVRTrackedDevice::SLVRTrackedDevice(vr::TrackedDeviceIndex_t index) : _index(in
 {
 }
 
+/*! Function for accessing vr::IVRSystem* quickly
+ * @return The instance of vr::IVRSystem that SLVRSystem uses
+ */
 vr::IVRSystem* SLVRTrackedDevice::system()
 {
     return SLVRSystem::instance().system();
 }
 
+/*! Utility function for getting a string property from OpenVR
+ * @param property The property whose value will be returned
+ * @return The value of the property as a SLstring
+ */
 SLstring SLVRTrackedDevice::getStringProperty(vr::TrackedDeviceProperty property)
 {
     // Create string buffer
@@ -36,11 +43,18 @@ SLstring SLVRTrackedDevice::getStringProperty(vr::TrackedDeviceProperty property
     return result;
 }
 
+/*! Returns whether or not this device is connected
+ * @return True if the device is connected, false otherwise
+ */
 SLbool SLVRTrackedDevice::isConnected()
 {
     return system()->IsTrackedDeviceConnected(_index);
 }
 
+/*! Returns whether or not this device is awake
+ * "Awake" is defined as having had activity in the last 5 seconds
+ * @return True if the device is awake, false otherwise
+ */
 SLbool SLVRTrackedDevice::isAwake()
 {
     vr::EDeviceActivityLevel level = system()->GetTrackedDeviceActivityLevel(_index);
@@ -48,6 +62,9 @@ SLbool SLVRTrackedDevice::isAwake()
            level == vr::EDeviceActivityLevel::k_EDeviceActivityLevel_UserInteraction_Timeout;
 }
 
+/*! Returns the name of the manufacturer
+ * @return The name of the manufacturer
+ */
 SLstring SLVRTrackedDevice::getManufacturer()
 {
     return getStringProperty(vr::TrackedDeviceProperty::Prop_ManufacturerName_String);

@@ -19,6 +19,7 @@ file(GLOB headers
 		${SL_PROJECT_ROOT}/modules/sl/source/vr/SLVR.h
 		${SL_PROJECT_ROOT}/modules/sl/source/vr/SLVRSystem.h
 		${SL_PROJECT_ROOT}/modules/sl/source/vr/SLVRTrackedDevice.h
+		${SL_PROJECT_ROOT}/modules/sl/source/vr/SLVRHmd.h
 		${SL_PROJECT_ROOT}/modules/sl/source/vr/SLVRController.h
 		)
 
@@ -35,6 +36,7 @@ file(GLOB sources
 
 		${SL_PROJECT_ROOT}/modules/sl/source/vr/SLVRSystem.cpp
 		${SL_PROJECT_ROOT}/modules/sl/source/vr/SLVRTrackedDevice.cpp
+		${SL_PROJECT_ROOT}/modules/sl/source/vr/SLVRHmd.cpp
 		${SL_PROJECT_ROOT}/modules/sl/source/vr/SLVRController.cpp
     )
 

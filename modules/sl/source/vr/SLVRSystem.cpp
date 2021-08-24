@@ -11,8 +11,10 @@
 #include <vr/SLVRSystem.h>
 #include <vr/SLVR.h>
 
-SLVRSystem::SLVRSystem(){
-  VR_LOG("VR system initialized")}
+SLVRSystem::SLVRSystem()
+{
+    VR_LOG("VR system initialized"); // This semicolon prevents strange auto-formatting
+}
 
 SLVRSystem::~SLVRSystem()
 {
@@ -119,7 +121,7 @@ bool SLVRSystem::detectTrackedDevices()
  */
 void SLVRSystem::registerHmd(vr::TrackedDeviceIndex_t index)
 {
-    SLVRTrackedDevice* device = new SLVRTrackedDevice(index);
+    SLVRHmd* device = new SLVRHmd(index);
     _trackedDevices.push_back(device);
 
     _hmd = device;
@@ -149,7 +151,8 @@ void SLVRSystem::registerController(vr::TrackedDeviceIndex_t index)
     }
 }
 
-/*! Updates the poses of the detected devices
+/*! Updates the poses of the detected devices and gets the
+ * states of buttons, triggers and axes
  */
 void SLVRSystem::update()
 {
@@ -171,7 +174,10 @@ void SLVRSystem::update()
         trackedDevice->pose(matrix);
     }
 
-    // Update controller states
+    // Update device states
+    if (hmd())
+        hmd()->updateState();
+
     if (leftController())
         leftController()->updateState();
 
@@ -231,6 +237,10 @@ void SLVRSystem::shutdown()
     {
         delete trackedDevice;
     }
+
+    _hmd = nullptr;
+    _leftController = nullptr;
+    _rightController = nullptr;
 
     vr::VR_Shutdown();
 }

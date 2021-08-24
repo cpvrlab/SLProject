@@ -14,6 +14,7 @@
 #include <openvr.h>
 
 #include <vr/SLVRTrackedDevice.h>
+#include <vr/SLVRHmd.h>
 #include <vr/SLVRController.h>
 
 #include <SLMat4.h>
@@ -36,9 +37,9 @@ private:
     vr::IVRSystem*      _system = nullptr;
     SLVVRTrackedDevices _trackedDevices;
 
-    SLVRTrackedDevice* _hmd             = nullptr;
-    SLVRController*    _leftController  = nullptr;
-    SLVRController*    _rightController = nullptr;
+    SLVRHmd*        _hmd             = nullptr;
+    SLVRController* _leftController  = nullptr;
+    SLVRController* _rightController = nullptr;
 
 public:
     static SLVRSystem& instance()
@@ -57,7 +58,7 @@ public:
     vr::IVRSystem*      system() { return _system; }
     bool                isRunning() { return _system != nullptr; }
     SLVVRTrackedDevices trackedDevices() { return _trackedDevices; };
-    SLVRTrackedDevice*  hmd() { return _hmd; };
+    SLVRHmd*            hmd() { return _hmd; };
     SLVRController*     leftController() { return _leftController; };
     SLVRController*     rightController() { return _rightController; };
 
