@@ -172,7 +172,7 @@ enum SLSceneID
     SID_Benchmark5_LevelOfDetail,
 
     SID_ErlebARBielBFH,
-    SID_ErlebARChristoffel,
+    SID_ErlebARBernChristoffel,
     SID_ErlebARAugustaRauricaTmp,
     SID_ErlebARAugustaRauricaTht,
     SID_ErlebARAugustaRauricaTmpTht,

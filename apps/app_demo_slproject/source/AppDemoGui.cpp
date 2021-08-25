@@ -1212,7 +1212,7 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
                 SLint   namedLocIndex = AppDemo::devLoc.activeNamedLocation();
                 SLVec3f lookAtPoint   = SLVec3f::ZERO;
 
-                if (AppDemo::sceneID == SID_ErlebARChristoffel)
+                if (AppDemo::sceneID == SID_ErlebARBernChristoffel)
                 {
                     ImGui::Begin("Christoffel",
                                  &showErlebAR,
@@ -1823,8 +1823,8 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                     if (ImGui::BeginMenu("Erleb-AR"))
                     {
                         if (Utils::fileExists(modelBR2))
-                            if (ImGui::MenuItem("Bern: Christoffel Tower", nullptr, sid == SID_ErlebARChristoffel))
-                                s->onLoad(s, sv, SID_ErlebARChristoffel);
+                            if (ImGui::MenuItem("Bern: Christoffel Tower", nullptr, sid == SID_ErlebARBernChristoffel))
+                                s->onLoad(s, sv, SID_ErlebARBernChristoffel);
 
                         if (Utils::fileExists(modelBFH))
                             if (ImGui::MenuItem("Biel: BFH", nullptr, sid == SID_ErlebARBielBFH))

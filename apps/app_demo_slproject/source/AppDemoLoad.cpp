@@ -3703,7 +3703,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         sv->drawBits()->on(SL_DB_ONLYEDGES);
         s->root3D(scene);
     }
-    else if (sceneID == SID_ErlebARChristoffel) //.................................................
+    else if (sceneID == SID_ErlebARBernChristoffel) //.............................................
     {
         s->name("Christoffel Tower AR");
         s->info("Augmented Reality Christoffel Tower");
@@ -3728,7 +3728,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
                                                                    shaderPath + "PerPixTmBackgroundSm.vert",
                                                                    shaderPath + "PerPixTmBackgroundSm.frag");
         SLMaterial*  matVideoBackgroundSM = new SLMaterial(s,
-                                                           "matVideoBackground",
+                                                           "matVideoBackgroundSM",
                                                            videoTexture,
                                                            nullptr,
                                                            nullptr,

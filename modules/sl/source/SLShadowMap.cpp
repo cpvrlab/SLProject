@@ -43,8 +43,7 @@ SLShadowMap::SLShadowMap(SLLight*       light,
                          const SLVec2i& texSize)
 {
     assert(light && "SLShadowMap::SLShadowMap: No light passed");
-    assert(lightClipNear > 0.0f &&
-           lightClipFar > lightClipNear &&
+    assert(lightClipFar > lightClipNear &&
            "SLShadowMap::SLShadowMap: Invalid clip distances passed");
 
     PROFILE_FUNCTION();
