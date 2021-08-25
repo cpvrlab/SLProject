@@ -119,7 +119,7 @@ public:
     void polygonOffsetPoint(SLbool enabled, SLfloat factor = -1.0f, SLfloat units = -1.0f);
     void polygonOffsetLine(SLbool enabled, SLfloat factor = -1.0f, SLfloat units = -1.0f);
     void polygonOffsetFill(SLbool enabled, SLfloat factor = -1.0f, SLfloat units = -1.0f);
-    void viewportFB(SLint x, SLint y, SLsizei w, SLsizei h);
+    void viewport(SLint x, SLint y, SLsizei width, SLsizei height);
     void colorMask(GLboolean r, GLboolean g, GLboolean b, GLboolean a);
     void useProgram(SLuint progID);
     void bindTexture(SLenum target, SLuint textureID);
@@ -142,14 +142,14 @@ public:
     SLbool   glIsES2() const { return _glIsES2; }
     SLbool   glIsES3() const { return _glIsES3; }
     SLbool   hasExtension(const SLstring& e) { return _glExtensions.find(e) != string::npos; }
-    SLVec4i  viewportFB() { return _viewportFB; }
-    SLMat4f  viewportMatrixFB()
+    SLVec4i  viewport() { return _viewport; }
+    SLMat4f  viewportMatrix()
     {
         SLMat4f vpm;
-        vpm.viewport((SLfloat)_viewportFB.x,
-                     (SLfloat)_viewportFB.y,
-                     (SLfloat)_viewportFB.z,
-                     (SLfloat)_viewportFB.w);
+        vpm.viewport((SLfloat)_viewport.x,
+                     (SLfloat)_viewport.y,
+                     (SLfloat)_viewport.z,
+                     (SLfloat)_viewport.w);
         return vpm;
     }
     SLMaterial* currentMaterial() { return _currentMaterial; }
@@ -205,7 +205,7 @@ private:
     SLbool  _polygonOffsetPointEnabled; //!< GL_POLYGON_OFFSET_POINT state enabled
     SLbool  _polygonOffsetLineEnabled;  //!< GL_POLYGON_OFFSET_LINE state enabled
     SLbool  _polygonOffsetFillEnabled;  //!< GL_POLYGON_OFFSET_FILL state enabled
-    SLVec4i _viewportFB;                //!< viewport size (x,y,w,h) of the framebuffer
+    SLVec4i _viewport;                  //!< viewport size (x,y,w,h) of the framebuffer
     SLCol4f _clearColor;                //!< clear color
 
     // states

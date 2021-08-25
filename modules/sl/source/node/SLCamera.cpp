@@ -446,11 +446,10 @@ void SLCamera::setViewport(SLSceneView* sv, const SLEyeType eye)
     //////////////////
 
     // calculate frame buffer size
-    // This can be different from the logical viewport size on high DPI displays
-    SLint fbX  = (SLint)(vpRect.x * sv->scr2fbX());
-    SLint fbY  = (SLint)(vpRect.y * sv->scr2fbY());
-    SLint fbW  = (SLint)(vpRect.width * sv->scr2fbX());
-    SLint fbH  = (SLint)(vpRect.height * sv->scr2fbY());
+    SLint fbX  = vpRect.x;
+    SLint fbY  = vpRect.y;
+    SLint fbW  = vpRect.width;
+    SLint fbH  = vpRect.height;
     SLint fbW2 = fbW >> 1;  // fbW/2
     SLint fbH2 = fbH >> 1;  // fbH/2
     SLint fbH4 = fbH2 >> 1; // fbH2/2
@@ -460,26 +459,26 @@ void SLCamera::setViewport(SLSceneView* sv, const SLEyeType eye)
         SLint fbOcW2 = sv->oculusFB()->halfWidth();
         SLint fbOcH  = sv->oculusFB()->height();
         if (eye == ET_left)
-            stateGL->viewportFB(0, 0, fbOcW2, fbOcH);
+            stateGL->viewport(0, 0, fbOcW2, fbOcH);
         else
-            stateGL->viewportFB(fbOcW2, 0, fbOcW2, fbOcH);
+            stateGL->viewport(fbOcW2, 0, fbOcW2, fbOcH);
     }
     else if (_projection == P_stereoSideBySide)
     {
         if (eye == ET_left)
-            stateGL->viewportFB(0, 0, fbW2, fbH);
+            stateGL->viewport(0, 0, fbW2, fbH);
         else
-            stateGL->viewportFB(fbW2, 0, fbW2, fbH);
+            stateGL->viewport(fbW2, 0, fbW2, fbH);
     }
     else if (_projection == P_stereoSideBySideP)
     {
         if (eye == ET_left)
-            stateGL->viewportFB(0, fbH4, fbW2, fbH2);
+            stateGL->viewport(0, fbH4, fbW2, fbH2);
         else
-            stateGL->viewportFB(fbW2, fbH4, fbW2, fbH2);
+            stateGL->viewport(fbW2, fbH4, fbW2, fbH2);
     }
     else
-        stateGL->viewportFB(fbX, fbY, fbW, fbH);
+        stateGL->viewport(fbX, fbY, fbW, fbH);
 
     _fbRect.set(fbX, fbY, fbW, fbH);
 }
@@ -1693,16 +1692,12 @@ void SLCamera::passToUniforms(SLGLProgram* program)
     loc = program->uniform1f("u_camFogDensity", _fogDensity);
     loc = program->uniform1f("u_camFogStart", _fogStart);
     loc = program->uniform1f("u_camFogEnd", _fogEnd);
+    loc = program->uniform1f("u_camClipNear", _clipNear);
+    loc = program->uniform1f("u_camClipFar", _clipFar);
     loc = program->uniform4fv("u_camFogColor", 1, (SLfloat*)&_fogColor);
-    loc = program->uniform1i("u_camFbWidth", _fbRect.width);
-    loc = program->uniform1i("u_camFbHeight", _fbRect.height);
     loc = program->uniform1f("u_bgWidth", _background.rect().width);
     loc = program->uniform1f("u_bgHeight", _background.rect().height);
     loc = program->uniform1f("u_bgLeft", _background.rect().x);
     loc = program->uniform1f("u_bgBottom", _background.rect().y);
-    loc = program->uniform1f("u_camClipNear", _clipNear);
-    loc = program->uniform1f("u_camClipFar", _clipFar);
-
-    //SL_LOG("SLCamera: width:%f height:%f left:%f bottom:%f", _background.rect().width, _background.rect().height, _background.rect().x, _background.rect().x);
 }
 //-----------------------------------------------------------------------------

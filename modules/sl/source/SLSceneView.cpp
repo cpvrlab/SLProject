@@ -104,8 +104,6 @@ void SLSceneView::init(SLstring       name,
     _scrWdiv2 = _scrW >> 1;
     _scrHdiv2 = _scrH >> 1;
     _scrWdivH = (SLfloat)_scrW / (SLfloat)_scrH;
-    _scr2fbX  = 1.0f;
-    _scr2fbY  = 1.0f;
 
     _renderType = RT_gl;
 
@@ -307,12 +305,9 @@ void SLSceneView::setViewportFromRatio(const SLVec2i&  vpRatio,
     {
         _viewportRect.set(0, 0, _scrW, _scrH);
         _viewportAlign = VA_center;
-        // todo: when this call comes, scr2fb are maybe not updated yet (I initialized them with 1.0)
         if (_gui)
             _gui->onResize(_viewportRect.width,
-                           _viewportRect.height,
-                           _scr2fbX,
-                           _scr2fbY);
+                           _viewportRect.height);
         return;
     }
 
@@ -356,10 +351,7 @@ void SLSceneView::setViewportFromRatio(const SLVec2i&  vpRatio,
     {
         _viewportRect = vpRect;
         if (_gui)
-            _gui->onResize(_viewportRect.width,
-                           _viewportRect.height,
-                           _scr2fbX,
-                           _scr2fbY);
+            _gui->onResize(_viewportRect.width, _viewportRect.height);
     }
     else
         SL_EXIT_MSG("SLSceneView::viewport: Viewport is bigger than the screen!");
@@ -453,10 +445,7 @@ void SLSceneView::onInitialize()
 #endif
 
     if (_gui)
-        _gui->onResize(_viewportRect.width,
-                       _viewportRect.height,
-                       1.0f,
-                       1.0f);
+        _gui->onResize(_viewportRect.width, _viewportRect.height);
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -573,8 +562,8 @@ SLbool SLSceneView::onPaint()
 
     // Finish Oculus framebuffer
     if (_s && _camera && _camera->projection() == P_stereoSideBySideD)
-        _s->oculus()->renderDistortion(_scrW * _scr2fbX,
-                                       _scrH * _scr2fbY,
+        _s->oculus()->renderDistortion(_scrW,
+                                       _scrH,
                                        _oculusFB.texID(),
                                        _camera->background().colors()[0]);
 
@@ -1017,17 +1006,14 @@ void SLSceneView::draw3DGLLinesOverlay(SLVNode& nodes)
             }
             else if (drawBit(SL_DB_BRECT) || node->drawBit(SL_DB_BRECT))
             {
-                node->aabb()->calculateRectSS(_scr2fbX, _scr2fbY);
+                node->aabb()->calculateRectSS();
 
                 SLMat4f prevProjMat = stateGL->projectionMatrix;
                 stateGL->pushModelViewMatrix();
                 SLfloat w2 = (SLfloat)_scrWdiv2;
                 SLfloat h2 = (SLfloat)_scrHdiv2;
                 stateGL->projectionMatrix.ortho(-w2, w2, -h2, h2, 1.0f, -1.0f);
-                stateGL->viewportFB(0,
-                                    0,
-                                    (int)(_scrW * _scr2fbX),
-                                    (int)(_scrH * _scr2fbY));
+                stateGL->viewport(0, 0, _scrW, _scrH);
                 stateGL->modelViewMatrix.identity();
                 stateGL->modelViewMatrix.translate(-w2, h2, 1.0f);
                 stateGL->depthMask(false); // Freeze depth buffer for blending
@@ -1091,10 +1077,7 @@ void SLSceneView::draw2DGL()
     {
         // 1. Set Projection & View
         stateGL->projectionMatrix.ortho(-w2, w2, -h2, h2, 1.0f, -1.0f);
-        stateGL->viewportFB(0,
-                            0,
-                            (int)(_scrW * _scr2fbX),
-                            (int)(_scrH * _scr2fbY));
+        stateGL->viewport(0, 0, _scrW, _scrH);
 
         // 2. Pseudo 2D Frustum Culling
         for (auto material : _visibleMaterials2D)
@@ -2080,8 +2063,8 @@ void SLSceneView::saveFrameBufferAsImage(SLstring pathFilename, cv::Size targetS
 {
     if (_screenCaptureWaitFrames == 0)
     {
-        SLint fbW = (SLint)(_viewportRect.width * _scr2fbX);
-        SLint fbH = (SLint)(_viewportRect.height * _scr2fbY);
+        SLint fbW = _viewportRect.width;
+        SLint fbH = _viewportRect.height;
 
         GLsizei nrChannels = 3;
         GLsizei stride     = nrChannels * fbW;

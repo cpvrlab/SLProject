@@ -26,7 +26,7 @@ public:
 
     WAIApp();
 
-    void init(int screenWidth, int screenHeight, float scr2fbX, float scr2fbY, int screenDpi, AppDirectories directories);
+    void init(int screenWidth, int screenHeight, int screenDpi, AppDirectories directories);
     void initCloseAppCallback(CloseAppCallback cb);
     void initCamera(SENSCamera* camera);
 
@@ -41,7 +41,7 @@ private:
     void initDirectories(AppDirectories directories);
 
     //initialize SLScene, SLSceneView and UI
-    void initSceneGraph(int scrWidth, int scrHeight, float scr2fbX, float scr2fbY, int dpi);
+    void initSceneGraph(int scrWidth, int scrHeight, int dpi);
     void initIntroScene();
     void deleteSceneGraph();
 

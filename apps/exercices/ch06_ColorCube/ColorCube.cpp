@@ -40,8 +40,6 @@ static GLFWwindow* window;       //!< The global GLFW window handle
 static SLstring    _projectRoot; //!< Directory of executable
 static SLint       _scrWidth;    //!< Window width at start up
 static SLint       _scrHeight;   //!< Window height at start up
-static SLfloat     _scr2fbX;     //!< Factor from screen to framebuffer coords
-static SLfloat     _scr2fbY;     //!< Factor from screen to framebuffer coords
 
 static SLMat4f _viewMatrix;       //!< 4x4 view matrix
 static SLMat4f _modelMatrix;      //!< 4x4 model matrix
@@ -403,6 +401,7 @@ int main(int argc, char* argv[])
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, GL_FALSE);
 #else
     //glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
     //glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -429,14 +428,6 @@ int main(int argc, char* argv[])
     // Get the current GL context. After this you can call GL
     glfwMakeContextCurrent(window);
 
-    // On some systems screen & framebuffer size are different (e.g. Mac Retina Displays)
-    // All commands in GLFW are in screen coords but rendering in GL is
-    // in framebuffer coords
-    SLint fbWidth, fbHeight;
-    glfwGetFramebufferSize(window, &fbWidth, &fbHeight);
-    _scr2fbX = (float)fbWidth / (float)_scrWidth;
-    _scr2fbY = (float)fbHeight / (float)_scrHeight;
-
     // Init OpenGL access library gl3w
     if (gl3wInit() != 0)
     {
@@ -456,7 +447,7 @@ int main(int argc, char* argv[])
     onInit();
 
     // Call resize once for correct projection
-    onResize(window, (SLint)(_scrWidth * _scr2fbX), (SLint)(_scrHeight * _scr2fbY));
+    onResize(window, _scrWidth, _scrHeight);
 
     // Set GLFW callback functions
     glfwSetKeyCallback(window, onKey);

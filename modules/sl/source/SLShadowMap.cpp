@@ -522,7 +522,7 @@ void SLShadowMap::renderShadows(SLSceneView* sv, SLNode* root)
 
         // Set OpenGL states
         SLGLState* stateGL = SLGLState::instance();
-        stateGL->viewportFB(0, 0, _textureSize.x, _textureSize.y);
+        stateGL->viewport(0, 0, _textureSize.x, _textureSize.y);
         stateGL->viewMatrix       = _lightView[i];
         stateGL->projectionMatrix = _lightProj[0];
         stateGL->clearColor(SLCol4f::BLACK);
@@ -693,7 +693,7 @@ void SLShadowMap::renderDirectionalLightCascaded(SLSceneView* sv,
 
         // Set OpenGL states for depth buffer rendering
         SLGLState* stateGL = SLGLState::instance();
-        stateGL->viewportFB(0, 0, _textureSize.x, _textureSize.y);
+        stateGL->viewport(0, 0, _textureSize.x, _textureSize.y);
         stateGL->clearColor(SLCol4f::BLACK);
         stateGL->clearColorDepthBuffer();
         stateGL->projectionMatrix = lightProjMat;

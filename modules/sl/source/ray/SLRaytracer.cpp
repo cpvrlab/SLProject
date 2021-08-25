@@ -48,8 +48,8 @@ SLRaytracer::~SLRaytracer()
 }
 //-----------------------------------------------------------------------------
 /*!
-This is the main rendering method for the classic ray tracing. It loops over all 
-lines and pixels and determines for each pixel a color with a partly global 
+This is the main rendering method for the classic ray tracing. It loops over all
+lines and pixels and determines for each pixel a color with a partly global
 illumination calculation.
 */
 SLbool SLRaytracer::renderClassic(SLSceneView* sv)
@@ -465,12 +465,12 @@ void SLRaytracer::setPrimaryRay(SLfloat x, SLfloat y, SLRay* primaryRay)
 }
 //-----------------------------------------------------------------------------
 /*!
-This method calculates the local illumination at the rays intersection point. 
-It uses the OpenGL local light model where the color is calculated as 
+This method calculates the local illumination at the rays intersection point.
+It uses the OpenGL local light model where the color is calculated as
 follows:
-color = material emission + 
-        global ambient light scaled by the material's ambient color + 
-        ambient, diffuse, and specular contributions from all lights, 
+color = material emission +
+        global ambient light scaled by the material's ambient color +
+        ambient, diffuse, and specular contributions from all lights,
         properly attenuated
 */
 SLCol4f SLRaytracer::shade(SLRay* ray)
@@ -713,8 +713,8 @@ void SLRaytracer::sampleAAPixels(const bool isMainThread)
     }
 }
 //-----------------------------------------------------------------------------
-/*! 
-fogBlend: Blends the a fog color to the passed color according to to OpenGL fog 
+/*!
+fogBlend: Blends the a fog color to the passed color according to to OpenGL fog
 calculation. See OpenGL docs for more information on fog properties.
 */
 SLCol4f SLRaytracer::fogBlend(SLfloat z, SLCol4f color)
@@ -761,7 +761,7 @@ void SLRaytracer::initStats(SLint depth)
     SLRay::avgDepth         = 0.0f;
 }
 //-----------------------------------------------------------------------------
-/*! 
+/*!
 Prints some statistics after the rendering
 */
 void SLRaytracer::printStats(SLfloat sec)
@@ -872,16 +872,16 @@ void SLRaytracer::prepareImage()
                              (SLint)(_sv->viewportH() * _resolutionFactor),
                              PF_rgb);
 
-        _width = _images[0]->width();
+        _width  = _images[0]->width();
         _height = _images[0]->height();
-        _depth = _images.size();
+        _depth  = _images.size();
     }
 
     // Fill image black for single RT
     if (!_doContinuous) _images[0]->fill(0, 0, 0);
 }
 //-----------------------------------------------------------------------------
-/*! 
+/*!
 Draw the RT-Image as a textured quad in 2D-Orthographic projection
 */
 void SLRaytracer::renderImage(bool updateTextureGL)
@@ -894,10 +894,7 @@ void SLRaytracer::renderImage(bool updateTextureGL)
 
     // Set orthographic projection with the size of the window
     SLGLState* stateGL = SLGLState::instance();
-    stateGL->viewportFB((SLint)(vpRect.x * _sv->scr2fbX()),
-                      (SLint)(vpRect.y * _sv->scr2fbX()),
-                      (SLsizei)(w * _sv->scr2fbX()),
-                      (SLsizei)(h * _sv->scr2fbY()));
+    stateGL->viewport(vpRect.x, vpRect.y, w, h);
     stateGL->projectionMatrix.ortho(0.0f, w, 0.0f, h, -1.0f, 0.0f);
     stateGL->modelViewMatrix.identity();
     stateGL->clearColorBuffer();

@@ -159,7 +159,7 @@ extern "C" JNIEXPORT bool JNICALL Java_ch_bfh_cpvrlab_GLES3Lib_onUpdateParallelJ
 //-----------------------------------------------------------------------------
 extern "C" JNIEXPORT bool JNICALL Java_ch_bfh_cpvrlab_GLES3Lib_onPaintAllViews(JNIEnv* env, jclass obj)
 {
-    return slPaintAllViews(1.0f, 1.0f);
+    return slPaintAllViews();
 }
 //-----------------------------------------------------------------------------
 extern "C" JNIEXPORT void JNICALL Java_ch_bfh_cpvrlab_GLES3Lib_onResize(JNIEnv* env, jclass obj, jint width, jint height)

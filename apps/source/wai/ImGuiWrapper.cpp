@@ -490,13 +490,11 @@ void ImGuiWrapper::onInitNewFrame(SLScene* s, SLSceneView* sv)
 //-----------------------------------------------------------------------------
 //! Callback if window got resized
 void ImGuiWrapper::onResize(SLint   scrW,
-                            SLint   scrH,
-                            SLfloat scr2fbX,
-                            SLfloat scr2fbY)
+                            SLint   scrH)
 {
     ImGuiIO& io                = _context->IO;
     io.DisplaySize             = ImVec2((SLfloat)scrW, (SLfloat)scrH);
-    io.DisplayFramebufferScale = ImVec2(scr2fbX, scr2fbY);
+    io.DisplayFramebufferScale = ImVec2(1, 1);
 }
 //-----------------------------------------------------------------------------
 //! Callback for main rendering for the ImGui GUI system

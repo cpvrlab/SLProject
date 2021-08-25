@@ -78,8 +78,8 @@ public:
     void    generateVAO();
     SLbool  isHitInOS(SLRay* ray);
     SLbool  isHitInWS(SLRay* ray);
-    void    calculateRectSS(SLfloat scr2fbX, SLfloat scr2fbY);
-    SLfloat rectCoverageInSS(SLfloat scr2fbX, SLfloat scr2fbY);
+    void    calculateRectSS();
+    SLfloat rectCoverageInSS();
 
 private:
     SLVec3f            _minWS;        //!< Min. corner in world space

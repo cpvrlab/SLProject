@@ -12,10 +12,10 @@
 #include "stdafx.h"
 #include "modules/sl/source/gl/glUtils.h" // Basics for OpenGL shaders, buffers & textures
 #include "modules/sl/source/SL.h"         // Basic SL type definitions
-#include "SLImage.h" // Image class for image loading
-#include "modules/math/source/SLVec3.h" // 3D vector class
-#include "modules/math/source/SLMat4.h" // 4x4 matrix class
-#include <GL/gl3w.h> // OpenGL headers
+#include "SLImage.h"                      // Image class for image loading
+#include "modules/math/source/SLVec3.h"   // 3D vector class
+#include "modules/math/source/SLMat4.h"   // 4x4 matrix class
+#include <GL/gl3w.h>                      // OpenGL headers
 
 //-----------------------------------------------------------------------------
 //! Struct definition for vertex attributes
@@ -32,12 +32,10 @@ struct VertexPN
     }
 };
 //-----------------------------------------------------------------------------
-// GLobal application variables
+// Global application variables
 GLFWwindow* window;     //!< The global glfw window handle
 SLint       _scrWidth;  //!< Window width at start up
 SLint       _scrHeight; //!< Window height at start up
-SLfloat     _scr2fbX;   //!< Factor from screen to framebuffer coords
-SLfloat     _scr2fbY;   //!< Factor from screen to framebuffer coords
 
 SLMat4f _viewMatrix;       //!< 4x4 view matrix
 SLMat4f _modelMatrix;      //!< 4x4 model matrix
@@ -407,16 +405,8 @@ int main()
     // Get the current GL context. After this you can call GL
     glfwMakeContextCurrent(window);
 
-    // On some systems screen & framebuffer size are different
-    // All commands in GLFW are in screen coords but rendering in GL is
-    // in framebuffer coords
-    SLint fbWidth, fbHeight;
-    glfwGetFramebufferSize(window, &fbWidth, &fbHeight);
-    _scr2fbX = (float)fbWidth / (float)_scrWidth;
-    _scr2fbY = (float)fbHeight / (float)_scrHeight;
-
     // Init OpenGL access library gl3w
-    if (gl3wInit()!=0)
+    if (gl3wInit() != 0)
     {
         cerr << "Failed to initialize OpenGL" << endl;
         exit(-1);
@@ -432,7 +422,7 @@ int main()
     glfwSwapInterval(1);
 
     onInit();
-    onResize(window, (SLint)(_scrWidth * _scr2fbX), (SLint)(_scrHeight * _scr2fbY));
+    onResize(window, _scrWidth, _scrHeight);
 
     // Set GLFW callback functions
     glfwSetKeyCallback(window, onKey);

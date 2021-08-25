@@ -403,7 +403,6 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
                     sprintf(m + strlen(m), "Renderer   : OpenGL\n");
                     sprintf(m + strlen(m), "Load time  : %5.1f ms\n", s->loadTimeMS());
                     sprintf(m + strlen(m), "Window size: %d x %d\n", sv->viewportW(), sv->viewportH());
-                    sprintf(m + strlen(m), "Framebuffer: %d x %d\n", (int)(sv->viewportW() * sv->scr2fbY()), (int)(sv->viewportH() * sv->scr2fbX()));
                     sprintf(m + strlen(m), "Drawcalls  : %d\n", SLGLVertexArray::totalDrawCalls);
                     sprintf(m + strlen(m), " Shadow    : %d\n", SLShadowMap::drawCalls);
                     sprintf(m + strlen(m), " Render    : %d\n", SLGLVertexArray::totalDrawCalls-SLShadowMap::drawCalls);
@@ -1873,13 +1872,13 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                 s->onLoad(s, sv, SID_Empty);
 
             if (ImGui::MenuItem("Next Scene",
-                                "Shift-Alt-CursorRight",
+                                "Shift-Alt-Right",
                                 nullptr,
                                 AppDemo::sceneID < SID_Maximal - 1))
                 s->onLoad(s, sv, AppDemo::sceneID + 1);
 
             if (ImGui::MenuItem("Previous Scene",
-                                "Shift-Alt-CursorLeft",
+                                "Shift-Alt-Left",
                                 nullptr,
                                 AppDemo::sceneID > SID_Empty))
                 s->onLoad(s, sv, AppDemo::sceneID - 1);

@@ -52,7 +52,7 @@ void SLNodeLOD::cullChildren3D(SLSceneView* sv)
 {
     if (!_children.empty())
     {
-        SLfloat rectCoverage = _aabb.rectCoverageInSS(sv->scr2fbX(), sv->scr2fbY());
+        SLfloat rectCoverage = _aabb.rectCoverageInSS();
 
         // Set visibility (draw-bit SL_DB_HIDDEN) for each level
         for (SLint i = 0; i < _children.size(); ++i)

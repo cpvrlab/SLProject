@@ -38,7 +38,6 @@ class SLInputEvent
         KeyDown,
         KeyUp,
         Resize,
-        UpdateScr2fb,
         DeviceRotationPYR,
         DeviceRotationQUAT,
         CharInput,
@@ -106,17 +105,6 @@ class SLResizeEvent : public SLInputEvent
     int height;
 
     SLResizeEvent() : SLInputEvent(Resize) {}
-};
-
-//-----------------------------------------------------------------------------
-//! Specialized SLInput class for UpdateScr2fb events.
-class SLUpdateScr2fbEvent : public SLInputEvent
-{
-public:
-    float scr2fbX;
-    float scr2fbY;
-
-    SLUpdateScr2fbEvent() : SLInputEvent(UpdateScr2fb) {}
 };
 
 //-----------------------------------------------------------------------------

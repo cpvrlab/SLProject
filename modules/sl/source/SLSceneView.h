@@ -154,17 +154,6 @@ public:
     void doAlphaSorting(SLbool doAS) { _doAlphaSorting = doAS; }
     void renderType(SLRenderType rt) { _renderType = rt; }
     void viewportSameAsVideo(bool sameAsVideo) { _viewportSameAsVideo = sameAsVideo; }
-    void scr2fb(float scr2fbX, float scr2fbY)
-    {
-        _scr2fbX = scr2fbX;
-        _scr2fbY = scr2fbY;
-
-        if (_gui)
-            _gui->onResize(_viewportRect.width,
-                           _viewportRect.height,
-                           _scr2fbX,
-                           _scr2fbY);
-    }
     void screenCaptureIsRequested(bool doScreenCap)
     {
         if (doScreenCap)
@@ -185,8 +174,6 @@ public:
     SLint           scrWdiv2() const { return _scrWdiv2; }
     SLint           scrHdiv2() const { return _scrHdiv2; }
     SLfloat         scrWdivH() const { return _scrWdivH; }
-    SLfloat         scr2fbX() const { return _scr2fbX; }
-    SLfloat         scr2fbY() const { return _scr2fbY; }
     SLint           dpi() const { return _dpi; }
     SLRecti         viewportRect() const { return _viewportRect; }
     SLVec2i         viewportRatio() const { return _viewportRatio; }
@@ -275,8 +262,6 @@ protected:
     SLint           _scrWdiv2;                 //!< Screen half width in pixels
     SLint           _scrHdiv2;                 //!< Screen half height in pixels
     SLfloat         _scrWdivH;                 //!< Screen side aspect ratio
-    SLfloat         _scr2fbX{1.0f};            //!< Horizontal screen to framebuffer ratio
-    SLfloat         _scr2fbY{1.0f};            //!< Vertical screen to framebuffer ratio
     int             _dpi;                      //!< dots per inch of screen
     SLVec2i         _viewportRatio;            //!< ratio of viewport
     SLViewportAlign _viewportAlign;            //!< alignment of viewport

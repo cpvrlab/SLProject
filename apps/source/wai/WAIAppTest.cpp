@@ -32,7 +32,7 @@ WAIApp::WAIApp()
 {
 }
 
-void WAIApp::init(int screenWidth, int screenHeight, float scr2fbX, float scr2fbY, int screenDpi, AppDirectories directories)
+void WAIApp::init(int screenWidth, int screenHeight, int screenDpi, AppDirectories directories)
 {
     WAIAPPSTATE_DEBUG("init");
     //Utils::initFileLog(directories.logFileDir, true);
@@ -40,7 +40,7 @@ void WAIApp::init(int screenWidth, int screenHeight, float scr2fbX, float scr2fb
     if (!_initSceneGraphDone)
     {
         initDirectories(directories);
-        initSceneGraph(screenWidth, screenHeight, scr2fbX, scr2fbY, screenDpi);
+        initSceneGraph(screenWidth, screenHeight, screenDpi);
         _initSceneGraphDone = true;
     }
     if (!_initIntroSceneDone)
@@ -90,7 +90,7 @@ void WAIApp::initDirectories(AppDirectories directories)
     AppDemo::configPath     = _dirs.writableDir;
 }
 
-void WAIApp::initSceneGraph(int scrWidth, int scrHeight, float scr2fbX, float scr2fbY, int dpi)
+void WAIApp::initSceneGraph(int scrWidth, int scrHeight, int dpi)
 {
     WAIAPP_DEBUG("initSceneGraph");
     if (!AppDemo::scene)
@@ -98,8 +98,8 @@ void WAIApp::initSceneGraph(int scrWidth, int scrHeight, float scr2fbX, float sc
         AppDemo::name  = "WAI Demo App";
         AppDemo::scene = new SLScene("WAI Demo App", nullptr);
 
-        int screenWidth  = (int)(scrWidth * scr2fbX);
-        int screenHeight = (int)(scrHeight * scr2fbY);
+        int screenWidth  = scrWidth;
+        int screenHeight = scrHeight;
 
         //setupGUI(AppDemo::name, AppDemo::configPath, dpi);
         // Set default font sizes depending on the dpi no matter if ImGui is used
@@ -478,7 +478,7 @@ bool WAIAppStateHandler::processState()
 
 /*
 
-void WAIAppStateHandler::init(int screenWidth, int screenHeight, float scr2fbX, float scr2fbY, int screenDpi, AppDirectories directories)
+void WAIAppStateHandler::init(int screenWidth, int screenHeight, int screenDpi, AppDirectories directories)
 {
     WAIAPPSTATE_DEBUG("init");
     //Utils::initFileLog(directories.logFileDir, true);
@@ -486,7 +486,7 @@ void WAIAppStateHandler::init(int screenWidth, int screenHeight, float scr2fbX, 
     if (!_initSceneGraphDone)
     {
         _waiApp->initDirectories(directories);
-        _waiApp->initSceneGraph(screenWidth, screenHeight, scr2fbX, scr2fbY, screenDpi);
+        _waiApp->initSceneGraph(screenWidth, screenHeight, screenDpi);
         _initSceneGraphDone = true;
     }
     if (!_initIntroSceneDone)

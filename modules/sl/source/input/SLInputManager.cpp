@@ -132,12 +132,6 @@ SLbool SLInputManager::processQueuedEvents(SLSceneView* sv)
                     sv->onResize(re->width, re->height);
                 }
                 break;
-
-                case SLInputEvent::UpdateScr2fb: {
-                    const SLUpdateScr2fbEvent* re = (const SLUpdateScr2fbEvent*)e;
-                    sv->scr2fb(re->scr2fbX, re->scr2fbY);
-                }
-                break;
                     
                 case SLInputEvent::ScrCapture: {
                     const SLScrCaptureRequestEvent* re = (const SLScrCaptureRequestEvent*)e;

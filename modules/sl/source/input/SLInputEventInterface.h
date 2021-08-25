@@ -12,7 +12,7 @@ public:
     SLInputEventInterface(SLInputManager& inputManager);
 
     void resize(int sceneViewIndex, int width, int height);
-    void updateScr2fb(int sceneViewIndex, float scr2fbX, float scr2fbY);
+    void updateScr2fb(int sceneViewIndex);
 
     void mouseDown(int sceneViewIndex, SLMouseButton button, int x, int y, SLKey modifier);
     void mouseMove(int sceneViewIndex, int x, int y);

@@ -39,8 +39,6 @@ uniform float       u_bgWidth;          // background width
 uniform float       u_bgHeight;         // background height
 uniform float       u_bgLeft;           // background left
 uniform float       u_bgBottom;         // background bottom
-//uniform int         u_camFbWidth;       // framebuffer width
-//uniform int         u_camFbHeight;      // framebuffer height
 
 uniform bool        u_matGetsShadows;   // flag if material receives shadows
 uniform vec4        u_matAmbi;          // ambient color reflection coefficient (ka)

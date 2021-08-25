@@ -41,8 +41,6 @@ static SLint   scrWidth;                   //!< Window width at start up
 static SLint   scrHeight;                  //!< Window height at start up
 static SLbool  fixAspectRatio;             //!< Flag if aspect ratio should be fixed
 static SLfloat scrWdivH;                   //!< aspect ratio screen width divided by height
-static SLfloat scr2fbX;                    //!< Factor from screen to framebuffer coords
-static SLfloat scr2fbY;                    //!< Factor from screen to framebuffer coords
 static SLint   startX;                     //!< start position x in pixels
 static SLint   startY;                     //!< start position y in pixels
 static SLint   mouseX;                     //!< Last mouse position x in pixels
@@ -130,7 +128,7 @@ static void onResize(GLFWwindow* window, int width, int height)
 {
     if (fixAspectRatio)
     {
-        //correct target width and height
+        // correct target width and height
         if (height * scrWdivH <= width)
         {
             width  = (int)(height * scrWdivH);
@@ -148,9 +146,9 @@ static void onResize(GLFWwindow* window, int width, int height)
 
     // width & height are in screen coords.
     // We need to scale them to framebuffer coords.
-    slResize(svIndex, (int)(width * scr2fbX), (int)(height * scr2fbY));
+    slResize(svIndex, width, height);
 
-    //update glfw window with new size
+    // update glfw window with new size
     glfwSetWindowSize(window, width, height);
 }
 //-----------------------------------------------------------------------------
@@ -293,9 +291,6 @@ static void onMouseMove(GLFWwindow* window,
                         double      y)
 {
     // x & y are in screen coords.
-    // We need to scale them to framebuffer coords
-    x *= scr2fbX;
-    y *= scr2fbY;
     mouseX = (int)x;
     mouseY = (int)y;
 
@@ -444,14 +439,14 @@ void renderMapPoints(std::string                      name,
                      SLPoints*&                       mesh,
                      SLMaterial*&                     material)
 {
-    //remove old mesh, if it exists
+    // remove old mesh, if it exists
     if (mesh)
         node->deleteMesh(mesh);
 
-    //instantiate and add new mesh
+    // instantiate and add new mesh
     if (pts.size())
     {
-        //get points as Vec3f
+        // get points as Vec3f
         std::vector<SLVec3f> points, normals;
         for (WAIMapPoint* mapPt : pts)
         {
@@ -500,7 +495,7 @@ void renderKeyframes(const std::vector<WAIKeyFrame*>& keyframes,
 
         cam->om(om);
 
-        //calculate vertical field of view
+        // calculate vertical field of view
         SLfloat fy     = (SLfloat)kf->fy;
         SLfloat cy     = (SLfloat)kf->cy;
         SLfloat fovDeg = 2 * (SLfloat)atan2(cy, fy) * Utils::RAD2DEG;
@@ -557,13 +552,8 @@ int main()
 
     glfwMakeContextCurrent(window);
 
-    SLint fbWidth, fbHeight;
-    glfwGetFramebufferSize(window, &fbWidth, &fbHeight);
-    scr2fbX = (float)fbWidth / (float)scrWidth;
-    scr2fbY = (float)fbHeight / (float)scrHeight;
-
     // Init OpenGL access library gl3w
-    if (gl3wInit()!=0)
+    if (gl3wInit() != 0)
     {
         cerr << "Failed to initialize OpenGL" << endl;
         exit(-1);
@@ -587,7 +577,7 @@ int main()
     SLGLProgram::defaultPath = slRoot + "/data/shaders/";
 
     SLScene* scene = new SLScene("Initialization Test Scene", nullptr);
-    //scene->init();
+    // scene->init();
 
     SLSceneView* sv = new SLSceneView();
 
@@ -606,13 +596,13 @@ int main()
     cameraNode->translation(2.0f, 2.0f, 0.0f);
     cameraNode->lookAt(0, 0, 0);
 
-    //calculate vertical field of view
+    // calculate vertical field of view
     float fy     = cameraMat.at<double>(1, 1);
     float cy     = cameraMat.at<double>(1, 2);
     float fovRad = 2.0 * atan2(cy, fy);
     float fov    = fovRad * 180.0 / M_PI;
 
-    //for tracking we have to use the field of view from calibration
+    // for tracking we have to use the field of view from calibration
     cameraNode->fov(fov);
     cameraNode->clipNear(0.001f);
     cameraNode->clipFar(1000000.0f); // Increase to infinity?
@@ -649,7 +639,6 @@ int main()
     scene->root3D(rootNode);
 
     sv->onInitialize();
-    //scene->onAfterLoad();
 
     // WAI initialization
     std::string orbVocFile   = std::string(SL_PROJECT_ROOT) + "/data/calibrations/voc_fbow.bin";
@@ -679,16 +668,16 @@ int main()
     cv::mixChannels(&img2, 1, &img2Gray, 1, from_to, 1);
 
     int flags =
-      //CALIB_CB_ADAPTIVE_THRESH |
-      //CALIB_CB_NORMALIZE_IMAGE |
+      // CALIB_CB_ADAPTIVE_THRESH |
+      // CALIB_CB_NORMALIZE_IMAGE |
       cv::CALIB_CB_FAST_CHECK;
     cv::Size chessboardSize(8, 5);
 
     std::vector<cv::Point2f> p2D1;
     bool                     found1 = cv::findChessboardCorners(img1Gray,
-                                            chessboardSize,
-                                            p2D1,
-                                            flags);
+                                                                chessboardSize,
+                                                                p2D1,
+                                                                flags);
 
     if (found1)
     {
@@ -697,9 +686,9 @@ int main()
 
     std::vector<cv::Point2f> p2D2;
     bool                     found2 = cv::findChessboardCorners(img2Gray,
-                                            chessboardSize,
-                                            p2D2,
-                                            flags);
+                                                                chessboardSize,
+                                                                p2D2,
+                                                                flags);
 
     if (found2)
     {
@@ -723,21 +712,21 @@ int main()
 
         cv::Mat r1, t1, r2, t2;
         bool    pose1Found = cv::solvePnP(p3Dw,
-                                       p2D1,
-                                       cameraMat,
-                                       distortionMat,
-                                       r1,
-                                       t1,
-                                       false,
-                                       cv::SOLVEPNP_ITERATIVE);
+                                          p2D1,
+                                          cameraMat,
+                                          distortionMat,
+                                          r1,
+                                          t1,
+                                          false,
+                                          cv::SOLVEPNP_ITERATIVE);
         bool    pose2Found = cv::solvePnP(p3Dw,
-                                       p2D2,
-                                       cameraMat,
-                                       distortionMat,
-                                       r2,
-                                       t2,
-                                       false,
-                                       cv::SOLVEPNP_ITERATIVE);
+                                          p2D2,
+                                          cameraMat,
+                                          distortionMat,
+                                          r2,
+                                          t2,
+                                          false,
+                                          cv::SOLVEPNP_ITERATIVE);
 
         if (pose1Found && pose2Found)
         {
@@ -809,7 +798,7 @@ int main()
 
                 triangulatedCount++;
 
-                //Create MapPoint.
+                // Create MapPoint.
                 cv::Mat worldPos(vP3De[i]);
 
                 WAIMapPoint* pMP = new WAIMapPoint(worldPos, pKFcur);
@@ -823,7 +812,7 @@ int main()
                 pMP->ComputeDistinctiveDescriptors();
                 pMP->UpdateNormalAndDepth();
 
-                //Add to Map
+                // Add to Map
                 map->AddMapPoint(pMP);
             }
 
