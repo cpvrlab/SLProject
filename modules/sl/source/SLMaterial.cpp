@@ -116,6 +116,8 @@ SLMaterial::SLMaterial(SLAssetManager* am,
     _kn           = 1.0f;
     _diffuse.w    = 1.0f - _kt;
 
+    std::cout << "make material " << std::endl;
+
     _nbTextures = 0;
     if (texture1)
     {
@@ -225,6 +227,47 @@ SLMaterial::SLMaterial(SLAssetManager* am,
 }
 //-----------------------------------------------------------------------------
 /*!
+ Constructor for Cook-Torrance shaded materials with roughness and metalness.
+ Materials can be used by multiple meshes (SLMesh). Materials can belong
+ therefore to the global assets such as meshes, materials, textures and
+ shader programs.
+ @param am Pointer to a global asset manager. If passed the asset
+ manager is the owner of the instance and will do the deallocation. If a
+ nullptr is passed the creator is responsible for the deallocation.
+ @param name Name of the material
+ @param diffuse Diffuse reflection color
+ @param roughness Roughness (0.0-1.0)
+ @param metalness Metalness (0.0-1.0)
+ @param compileErrorTexFilePath Path to an error texture
+ */
+SLMaterial::SLMaterial(SLAssetManager* am,
+                       const SLchar*   name,
+                       const SLCol4f&  diffuse,
+                       SLfloat         roughness,
+                       SLfloat         metalness,
+                       const SLstring& compileErrorTexFilePath) : SLObject(name)
+{
+    _assetManager = am;
+    _lightModel   = LM_CookTorrance;
+    _ambient.set(0, 0, 0); // not used in Cook-Torrance
+    _diffuse = diffuse;
+    _specular.set(1, 1, 1);                      // not used in Cook-Torrance
+    _emissive.set(0, 0, 0, 0);                   // not used in Cook-Torrance
+    _shininess    = (1.0f - roughness) * 500.0f; // not used in Cook-Torrance
+    _roughness    = roughness;
+    _metalness    = metalness;
+    _translucency = 0.0f;
+    _getsShadows  = true;
+    _kr           = 0.0f;
+    _kt           = 0.0f;
+    _kn           = 1.0f;
+
+    // Add pointer to the global resource vectors for deallocation
+    if (am)
+        am->materials().push_back(this);
+}
+//-----------------------------------------------------------------------------
+/*!
  Constructor for uniform color material without lighting
  Materials can be used by multiple meshes (SLMesh). Materials can belong
  therefore to the global assets such as meshes, materials, textures and
@@ -321,6 +364,7 @@ SLMaterial::SLMaterial(SLAssetManager* am,
     _roughness = 0.5f;
     _metalness = 0.0f;
     _nbTextures = 0;
+    _lightModel   = LM_BlinnPhong;
     if (texture1)
     {
         _textures[texture1->texType()].push_back(texture1);
@@ -464,7 +508,6 @@ void SLMaterial::passToUniforms(SLGLProgram* program)
     program->uniform1f("u_matKn", _kn);
     program->uniform1i("u_matGetsShadows", _getsShadows);
 
-    static int pass;
     // pass textures unit id to the sampler uniform
     SLuint texUnit = 0;
     for (SLuint i = 0; i < TT_nbTextureType; i++)
@@ -497,7 +540,7 @@ void SLMaterial::passToUniforms(SLGLProgram* program)
                     break;
                 }
                 case TT_roughness: {
-                    sprintf(name, "u_matTextureRougthness%d", texNb);
+                    sprintf(name, "u_matTextureRoughness%d", texNb);
                     break;
                 }
                 case TT_metallic: {
@@ -529,23 +572,19 @@ void SLMaterial::passToUniforms(SLGLProgram* program)
                     break;
                 }
                 default: {
+                    sprintf(name, "u_matTexture%d", texNb);
+                    break;
                 }
-            }
-
-            if (pass == 0)
-            {
-                std::cout << "name " << name << std::endl;
             }
 
             if (program->uniform1i(name, texUnit) < 0)
             {
-                std::cout << "name not found " << name << std::endl;
+                Utils::log("Material", "texture name %s not found", name);
             }
             texNb++;
             texUnit++;
         }
     }
-                pass = 1;
 
     program->uniform1i("u_matHasTexture", texUnit ? 1 : 0);
 }

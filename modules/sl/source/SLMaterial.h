@@ -70,6 +70,14 @@ public:
                SLfloat         roughness,
                SLfloat         metalness,
                const SLstring& compileErrorTexFilePath = "");
+ 
+    //! Ctor for Cook-Torrance light model materials
+    SLMaterial(SLAssetManager* am,
+               const SLchar*   name,
+               const SLCol4f&  diffuse,
+               SLfloat         roughness,
+               SLfloat         metalness,
+               const SLstring& compileErrorTexFilePath = "");
 
     //! Ctor for uniform color material without lighting
     explicit SLMaterial(SLAssetManager* am,
