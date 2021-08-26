@@ -14,23 +14,23 @@ if (DEFINED ENV{CUDA_PATH} AND SL_BUILD_WITH_OPTIX)
     find_package(CUDA 10 REQUIRED)
     find_package(OptiX 7.2 REQUIRED)
     set(DEFAULT_COMPILE_DEFINITIONS
-        ${DEFAULT_COMPILE_DEFINITIONS}
-        SL_HAS_OPTIX
-        SL_BUILD_WITH_OPTIX)
-else()
+            ${DEFAULT_COMPILE_DEFINITIONS}
+            SL_HAS_OPTIX
+            SL_BUILD_WITH_OPTIX)
+else ()
     if (DEFINED ENV{CUDA_PATH})
         message("Has CUDA but OPTIX will not be built.")
         message("Please download Optix at: https://developer.nvidia.com/designworks/optix/download")
-    endif()
+    endif ()
     if (SL_BUILD_WITH_OPTIX)
         if ("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS" OR "${SYSTEM_NAME_UPPER}" STREQUAL "LINUX")
             message("For Optix you have to install the latest CUDA Toolkit ")
             message("and the latest Optix SDK from NVidia.")
-        else()
+        else ()
             message("Optix is so far only available on Windows or Linux")
-        endif()
-    endif()
-endif()
+        endif ()
+    endif ()
+endif ()
 
 file(GLOB cuda
         ${CMAKE_CURRENT_SOURCE_DIR}/cuda/SLOptixPathtracerCamera.cu
@@ -244,29 +244,32 @@ file(GLOB sources
         source/ray/SLRaySamples2D.h
         source/ray/SLRaytracer.cpp
         source/ray/SLRaytracer.h
-
-        source/vr/SLVR.h
-        source/vr/SLVRConvert.h
-        source/vr/SLVRSystem.h
-        source/vr/SLVRTrackedDevice.h
-        source/vr/SLVRHmd.h
-        source/vr/SLVRController.h
-        source/vr/SLVRCompositor.h
-
-        source/vr/SLVRConvert.cpp
-        source/vr/SLVRSystem.cpp
-        source/vr/SLVRTrackedDevice.cpp
-        source/vr/SLVRHmd.cpp
-        source/vr/SLVRController.cpp
-        source/vr/SLVRCompositor.cpp
         )
 
 if (SL_BUILD_WAI)
-        set(sources
-                ${sources}
-                source/cv/CVTrackedWAI.cpp
-                source/cv/CVTrackedWAI.h)
-endif()
+    set(sources
+            ${sources}
+            source/cv/CVTrackedWAI.cpp
+            source/cv/CVTrackedWAI.h)
+endif ()
+
+if ("${SL_BUILD_WITH_OPENVR}")
+    list(APPEND sources
+            source/vr/SLVR.h
+            source/vr/SLVRConvert.h
+            source/vr/SLVRSystem.h
+            source/vr/SLVRTrackedDevice.h
+            source/vr/SLVRHmd.h
+            source/vr/SLVRController.h
+            source/vr/SLVRCompositor.h
+            source/vr/SLVRConvert.cpp
+            source/vr/SLVRSystem.cpp
+            source/vr/SLVRTrackedDevice.cpp
+            source/vr/SLVRHmd.cpp
+            source/vr/SLVRController.cpp
+            source/vr/SLVRCompositor.cpp
+            )
+endif ()
 
 file(GLOB shaders
         ${SL_PROJECT_ROOT}/data/shaders/*.vert
@@ -311,21 +314,21 @@ if (DEFINED ENV{CUDA_PATH} AND SL_BUILD_WITH_OPTIX)
     message("Has-Optics: " "${OptiX_INCLUDE}")
 
     list(FIND CUDA_NVCC_FLAGS "-arch" index)
-    if(index EQUAL -1)
+    if (index EQUAL -1)
         list(APPEND CUDA_NVCC_FLAGS -arch sm_30)
         set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} CACHE STRING "Semi-colon delimit multiple arguments." FORCE)
-    endif()
+    endif ()
     set(flag "--use_fast_math")
     list(FIND CUDA_NVCC_FLAGS ${flag} index)
-    if(index EQUAL -1)
+    if (index EQUAL -1)
         list(APPEND CUDA_NVCC_FLAGS ${flag})
         set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} CACHE STRING "Semi-colon delimit multiple arguments." FORCE)
-    endif()
+    endif ()
 
-    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    if (CMAKE_BUILD_TYPE STREQUAL "Debug")
         list(APPEND CUDA_NVCC_FLAGS -lineinfo)
         set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} CACHE STRING "Semi-colon delimit multiple arguments." FORCE)
-    endif(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    endif (CMAKE_BUILD_TYPE STREQUAL "Debug")
 
     set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} "-DSL_HAS_OPTIX")
 
@@ -345,7 +348,7 @@ if (DEFINED ENV{CUDA_PATH} AND SL_BUILD_WITH_OPTIX)
             DEPENDS ${cuda}
             SOURCES ${cuda}
             )
-endif()
+endif ()
 
 #==============================================================================
 add_library(${target}
@@ -362,43 +365,45 @@ set_target_properties(${target}
         ${DEFAULT_PROJECT_OPTIONS}
         )
 
-if(SL_BUILD_WAI)
-set(DEFAULT_INCLUDE_DIRECTORIES
-        ${DEFAULT_INCLUDE_DIRECTORIES}
-        ${SL_PROJECT_ROOT}/lib-WAI/source)
-endif()
+if (SL_BUILD_WAI)
+    set(DEFAULT_INCLUDE_DIRECTORIES
+            ${DEFAULT_INCLUDE_DIRECTORIES}
+            ${SL_PROJECT_ROOT}/lib-WAI/source)
+endif ()
 
 target_include_directories(${target}
         PRIVATE
 
         PUBLIC
-            ${platform_specific_include_dirs}
-            ${SL_PROJECT_ROOT}/modules/sl/source/accelstruct
-            ${SL_PROJECT_ROOT}/modules/sl/source/animation
-            ${SL_PROJECT_ROOT}/modules/sl/source/cv
-            ${SL_PROJECT_ROOT}/modules/sl/source/gl
-            ${SL_PROJECT_ROOT}/modules/sl/source/input
-            ${SL_PROJECT_ROOT}/modules/sl/source/mesh
-            ${SL_PROJECT_ROOT}/modules/sl/source/node
-            ${SL_PROJECT_ROOT}/modules/sl/source/optix
-            ${SL_PROJECT_ROOT}/modules/sl/source/ray
-            ${SL_PROJECT_ROOT}/modules/sl/source
-            ${SL_PROJECT_ROOT}/modules/sl/cuda
-            ${SL_PROJECT_ROOT}/modules/math/source
-            ${OpenCV_INCLUDE_DIR}
-            ${OptiX_INCLUDE}
-            ${CUDA_INCLUDE_DIRS}
-            ${assimp_INCLUDE_DIR}
-            ${SL_PROJECT_ROOT}/apps/source
-            ${SL_PROJECT_ROOT}/externals/nlohmann
-            ${SL_PROJECT_ROOT}/externals/eigen
-            ${SL_PROJECT_ROOT}/externals/libigl/include
-            ${DEFAULT_INCLUDE_DIRECTORIES}
-
-            ${openvr_INCLUDE_DIR}
+        ${platform_specific_include_dirs}
+        ${SL_PROJECT_ROOT}/modules/sl/source/accelstruct
+        ${SL_PROJECT_ROOT}/modules/sl/source/animation
+        ${SL_PROJECT_ROOT}/modules/sl/source/cv
+        ${SL_PROJECT_ROOT}/modules/sl/source/gl
+        ${SL_PROJECT_ROOT}/modules/sl/source/input
+        ${SL_PROJECT_ROOT}/modules/sl/source/mesh
+        ${SL_PROJECT_ROOT}/modules/sl/source/node
+        ${SL_PROJECT_ROOT}/modules/sl/source/optix
+        ${SL_PROJECT_ROOT}/modules/sl/source/ray
+        ${SL_PROJECT_ROOT}/modules/sl/source
+        ${SL_PROJECT_ROOT}/modules/sl/cuda
+        ${SL_PROJECT_ROOT}/modules/math/source
+        ${OpenCV_INCLUDE_DIR}
+        ${OptiX_INCLUDE}
+        ${CUDA_INCLUDE_DIRS}
+        ${assimp_INCLUDE_DIR}
+        ${SL_PROJECT_ROOT}/apps/source
+        ${SL_PROJECT_ROOT}/externals/nlohmann
+        ${SL_PROJECT_ROOT}/externals/eigen
+        ${SL_PROJECT_ROOT}/externals/libigl/include
+        ${DEFAULT_INCLUDE_DIRECTORIES}
 
         INTERFACE
         )
+
+if ("${SL_BUILD_WITH_OPENVR}")
+    target_include_directories(${target} PRIVATE PUBLIC ${openvr_INCLUDE_DIR} INTERFACE)
+endif ()
 
 target_compile_definitions(${target}
         PRIVATE
@@ -419,17 +424,17 @@ target_compile_options(${target}
         INTERFACE
         )
 
-if(SL_BUILD_WAI)
+if (SL_BUILD_WAI)
     set(PlatformLinkLibs
-        ${PlatformLinkLibs}
-        ${META_PROJECT_NAME}::lib-WAI)
-endif()
+            ${PlatformLinkLibs}
+            ${META_PROJECT_NAME}::lib-WAI)
+endif ()
 
-if(SL_BUILD_WITH_KTX)
+if (SL_BUILD_WITH_KTX)
     set(PlatformLinkLibs
-        ${PlatformLinkLibs}
-        ${ktx_LIBS})
-endif()
+            ${PlatformLinkLibs}
+            ${ktx_LIBS})
+endif ()
 
 target_link_libraries(${target}
         PRIVATE
@@ -446,14 +451,15 @@ target_link_libraries(${target}
         lib-SLMath
         ${DEFAULT_LINKER_OPTIONS}
         INTERFACE
-
-        ${openvr_LIBS}
-
         )
+
+if ("${SL_BUILD_WITH_OPENVR}")
+    target_link_libraries(${target} PRIVATE PUBLIC ${openvr_LIBS} INTERFACE)
+endif ()
 
 
 if (DEFINED ENV{CUDA_PATH} AND SL_BUILD_WITH_OPTIX)
     add_dependencies(${target} ptx)
-endif()
+endif ()
 
 

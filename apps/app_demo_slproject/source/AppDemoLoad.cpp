@@ -45,7 +45,9 @@
 #include <AppDemoGui.h>
 #include <SLDeviceLocation.h>
 
-#include <vr/SLVRSystem.h>
+#ifdef SL_HAS_OPENVR
+#    include <vr/SLVRSystem.h>
+#endif
 
 #ifdef SL_BUILD_WAI
 #    include <CVTrackedWAI.h>
@@ -5810,9 +5812,9 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         light->attenuation(1, 0, 0);
         light->translate(0, 0, 0.5);
         light->lookAt(1, -1, 0.5);
-        //light->createsShadows(true);
-        //light->createShadowMap(-25, 25, SLVec2f(50, 50), SLVec2i(4096, 4096));
-        //light->doSmoothShadows(true);
+        // light->createsShadows(true);
+        // light->createShadowMap(-25, 25, SLVec2f(50, 50), SLVec2i(4096, 4096));
+        // light->doSmoothShadows(true);
 
         // Define camera
         SLCamera* cam1 = new SLCamera;

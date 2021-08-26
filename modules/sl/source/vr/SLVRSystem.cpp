@@ -190,6 +190,12 @@ void SLVRSystem::update()
         rightController()->updateState();
 }
 
+/*! Gets the projection matrix for an eye
+ * @param eye The eye this projection matrix corresponds to
+ * @param nearPlane The near clipping plane of the frustum
+ * @param farPlane The far clipping plane of the frustum
+ * @return The projection matrix
+ */
 SLMat4f SLVRSystem::getProjectionMatrix(SLEyeType eye, float nearPlane, float farPlane)
 {
     vr::Hmd_Eye openVREye = SLVRConvert::SLEyeTypeToOpenVREye(eye);
@@ -197,6 +203,10 @@ SLMat4f SLVRSystem::getProjectionMatrix(SLEyeType eye, float nearPlane, float fa
     return SLVRConvert::openVRMatrixToSLMatrix(openVRMatrix);
 }
 
+/*! Gets the per-eye offset of the camera relative to the HMD
+ * @param eye The eye this eye matrix corresponds to
+ * @return The eye matrix
+ */
 SLMat4f SLVRSystem::getEyeMatrix(SLEyeType eye)
 {
     vr::Hmd_Eye openVREye = SLVRConvert::SLEyeTypeToOpenVREye(eye);

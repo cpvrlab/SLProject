@@ -21,7 +21,9 @@
 #include <SLRaySamples2D.h>
 #include <math/SLRect.h>
 
-#include <vr/SLVRSystem.h>
+#ifdef SL_HAS_OPENVR
+#    include <vr/SLVRSystem.h>
+#endif
 
 class SLSceneView;
 class SLDeviceRotation;
@@ -56,8 +58,8 @@ drawn on the far clipping plane of the visualized view frustum.
 class SLCamera : public SLNode
 {
 public:
-    explicit SLCamera(const SLstring& name = "Camera",
-                      SLStdShaderProg textureOnlyProgramId = SP_TextureOnly,
+    explicit SLCamera(const SLstring& name                    = "Camera",
+                      SLStdShaderProg textureOnlyProgramId    = SP_TextureOnly,
                       SLStdShaderProg colorAttributeProgramId = SP_colorAttribute);
     ~SLCamera() override;
 
@@ -96,14 +98,18 @@ public:
     // Setters
     void projection(SLProjection p)
     {
-        if(_projection != p && p != P_stereoOpenVR && SLVRSystem::instance().isRunning())
+#ifdef SL_HAS_OPENVR
+        if (_projection != p && p != P_stereoOpenVR && SLVRSystem::instance().isRunning())
             SLVRSystem::instance().shutdown();
+#endif
 
         _projection       = p;
         currentProjection = p;
 
-        if(_projection == P_stereoOpenVR && !SLVRSystem::instance().isRunning())
+#ifdef SL_HAS_OPENVR
+        if (_projection == P_stereoOpenVR && !SLVRSystem::instance().isRunning())
             SLVRSystem::instance().startup();
+#endif
     }
     //! vertical field of view
     void fov(const SLfloat fov)
@@ -153,8 +159,8 @@ public:
     SLstring       projectionStr() const { return projectionToStr(_projection); }
     SLfloat        unitScaling() const { return _unitScaling; }
     SLfloat        fovV() const { return _fovV; } //!< Vertical field of view
-    SLfloat        fovH() const; //!< Horizontal field of view
-    
+    SLfloat        fovH() const;                  //!< Horizontal field of view
+
     SLint     viewportW() const { return _viewportW; }
     SLint     viewportH() const { return _viewportH; }
     SLfloat   aspect() const { return _viewportRatio; }
@@ -192,7 +198,7 @@ public:
     SLRectf&      selectRect() { return _selectRect; }
     SLRectf&      deselectRect() { return _deselectRect; }
 
-    //update rotation matrix _enucorrRenu
+    // update rotation matrix _enucorrRenu
     void updateEnuCorrRenu(SLSceneView* sv, const SLMat3f& enuRc, float& f, SLVec3f& enuOffsetPix);
 
     // Static global default parameters for new cameras
@@ -273,12 +279,12 @@ protected:
     SLRectf _selectRect;   //!< Mouse selection rectangle. See SLMesh::handleRectangleSelection
     SLRectf _deselectRect; //!< Mouse deselection rectangle. See SLMesh::handleRectangleSelection
 
-    //!parameter for manual finger rotation and translation
-    SLint   _xOffsetPix        = 0;
-    SLint   _yOffsetPix        = 0;
+    //! parameter for manual finger rotation and translation
+    SLint   _xOffsetPix = 0;
+    SLint   _yOffsetPix = 0;
     SLMat3f _enucorrRenu;
-    //float   _distanceToObjectM = 1.0f; //!< distance to object in meter that should be shifted relative to camera
-    //float   _enucorrTRenu      = 0.f;  //!< manual camera shift in y direction
+    // float   _distanceToObjectM = 1.0f; //!< distance to object in meter that should be shifted relative to camera
+    // float   _enucorrTRenu      = 0.f;  //!< manual camera shift in y direction
 
     function<void(SLSceneView* sv)> _onCamUpdateCB;
 };

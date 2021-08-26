@@ -2627,7 +2627,11 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
 
                 if (ImGui::BeginMenu("Stereo"))
                 {
+#ifdef SL_HAS_OPENVR
                     for (SLint p = P_stereoSideBySide; p <= P_stereoOpenVR; ++p)
+#else
+                    for (SLint p = P_stereoSideBySide; p <= P_stereoColorYB; ++p)
+#endif
                     {
                         SLstring pStr = SLCamera::projectionToStr((SLProjection)p);
                         if (ImGui::MenuItem(pStr.c_str(), nullptr, proj == (SLProjection)p))

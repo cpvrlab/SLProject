@@ -13,7 +13,9 @@
 #include <SLDeviceRotation.h>
 #include <SLGLProgramManager.h>
 
-#include <vr/SLVRSystem.h>
+#ifdef SL_HAS_OPENVR
+#    include <vr/SLVRSystem.h>
+#endif
 
 //-----------------------------------------------------------------------------
 // Static global default parameters for new cameras
@@ -411,7 +413,9 @@ SLstring SLCamera::projectionToStr(SLProjection p)
         case P_stereoColorRG: return "Red-Green";
         case P_stereoColorRB: return "Red-Blue";
         case P_stereoColorYB: return "Yellow-Blue";
+#ifdef SL_HAS_OPENVR
         case P_stereoOpenVR: return "OpenVR";
+#endif
         default: return "Unknown";
     }
 }
@@ -480,12 +484,14 @@ void SLCamera::setViewport(SLSceneView* sv, const SLEyeType eye)
         else
             stateGL->viewport(fbW2, fbH4, fbW2, fbH2);
     }
+#ifdef SL_HAS_OPENVR
     else if (_projection == P_stereoOpenVR)
     {
         SLsizei width  = SLVRSystem::instance().compositor()->frameBufferWidth();
         SLsizei height = SLVRSystem::instance().compositor()->frameBufferHeight();
         stateGL->viewport(0, 0, width, height);
     }
+#endif
     else
         stateGL->viewport(fbX, fbY, fbW, fbH);
 
@@ -545,9 +551,11 @@ void SLCamera::setProjection(SLSceneView* sv, const SLEyeType eye)
             stateGL->projectionMatrix = sv->s()->oculus()->projection(eye);
 
             break;
+#ifdef SL_HAS_OPENVR
         case P_stereoOpenVR:
             stateGL->projectionMatrix = SLVRSystem::instance().getProjectionMatrix(eye, _clipNear, _clipFar);
             break;
+#endif
         // all other stereo projections
         default:
             // asymmetric frustum shift d (see chapter stereo projection)
@@ -889,14 +897,16 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
         // nothing
     }
 
-    // clear stored finger rotation
-    _xOffsetPix = 0;
-    _yOffsetPix = 0;
-
-    if(_projection == P_stereoOpenVR)
+#ifdef SL_HAS_OPENVR
+    if (_projection == P_stereoOpenVR)
     {
         om(SLVRSystem::instance().hmd()->pose());
     }
+#endif
+
+    // clear stored finger rotation
+    _xOffsetPix = 0;
+    _yOffsetPix = 0;
 
     // The view matrix is the camera nodes inverse world matrix
     SLMat4f vm = updateAndGetWMI();
@@ -952,10 +962,12 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
                 stateGL->viewMatrix = vmEye;
             }
         }
+#ifdef SL_HAS_OPENVR
         else if (_projection == P_stereoOpenVR)
         {
             stateGL->viewMatrix.setMatrix(SLVRSystem::instance().getEyeMatrix(eye) * vm);
         }
+#endif
         else
         {
             // Get central camera vectors eye, lookAt, lookUp out of the view matrix vm

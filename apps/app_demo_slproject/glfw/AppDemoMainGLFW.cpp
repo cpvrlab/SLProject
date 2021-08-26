@@ -24,8 +24,6 @@
 #include <GLFW/glfw3.h>
 #include <Instrumentor.h>
 
-#include <vr/SLVRSystem.h>
-
 //-----------------------------------------------------------------------------
 //! Forward declaration of the scene definition function from AppDemoLoad.cpp
 extern void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID);
@@ -575,6 +573,7 @@ int main(int argc, char* argv[])
     // Event loop
     while (!slShouldClose())
     {
+#ifdef SL_HAS_OPENVR
         if (SLVRSystem::instance().isRunning())
         {
             SLNode* camParent = AppDemo::scene->root3D()->findChild<SLNode>("Camera Parent");
@@ -587,21 +586,28 @@ int main(int argc, char* argv[])
                 camParent->translate((forward * axis.y + right * axis.x) * deltaTime);
             }
         }
+#endif
 
         /////////////////////////////
         SLbool doRepaint = onPaint();
         /////////////////////////////
 
         // if no updated occurred wait for the next event (power saving)
+#ifdef SL_HAS_OPENVR
         if (!doRepaint && !SLVRSystem::instance().isRunning())
+#else
+        if (!doRepaint)
+#endif
             // todo ghm1: glfwWaitEvents is not working on my machine (maybe https://github.com/glfw/glfw/issues/685)
             glfwWaitEvents();
         else
             glfwPollEvents();
     }
 
+#ifdef SL_HAS_OPENVR
     if (SLVRSystem::instance().isRunning())
         SLVRSystem::instance().shutdown();
+#endif
 
     slTerminate();
 

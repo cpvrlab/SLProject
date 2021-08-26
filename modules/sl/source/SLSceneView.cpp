@@ -17,8 +17,6 @@
 #include <SLInputManager.h>
 #include <Instrumentor.h>
 
-#include <vr/SLVRSystem.h>
-
 #include <utility>
 
 //-----------------------------------------------------------------------------
@@ -111,7 +109,7 @@ void SLSceneView::init(SLstring       name,
 
     _renderType = RT_gl;
 
-    _skybox                 = nullptr;
+    _skybox                   = nullptr;
     _screenCaptureIsRequested = false;
 
     if (_gui)
@@ -309,7 +307,7 @@ void SLSceneView::setViewportFromRatio(const SLVec2i&  vpRatio,
     {
         _viewportRect.set(0, 0, _scrW, _scrH);
         _viewportAlign = VA_center;
-        //todo: when this call comes, scr2fb are maybe not updated yet (I initialized them with 1.0)
+        // todo: when this call comes, scr2fb are maybe not updated yet (I initialized them with 1.0)
         if (_gui)
             _gui->onResize(_viewportRect.width,
                            _viewportRect.height,
@@ -510,7 +508,7 @@ SLbool SLSceneView::onPaint()
 {
     PROFILE_FUNCTION();
 
-    //SL_LOG("onPaint: -----------------------------------------------------");
+    // SL_LOG("onPaint: -----------------------------------------------------");
 
     _shadowMapTimesMS.set(_shadowMapTimeMS);
     _cullTimesMS.set(_cullTimeMS);
@@ -567,11 +565,13 @@ SLbool SLSceneView::onPaint()
         }
     }
 
+#ifdef SL_HAS_OPENVR
     // We need to clear manually when we use OpenVR
     // because the "draw3Dxx" methods don't take care of that in this case
     // (they clear the OpenVR frame buffers instead)
     if (_camera->projection() == P_stereoOpenVR)
         SLGLState::instance()->clearColorDepthBuffer();
+#endif
 
     // Render the 2D stuff inclusive the ImGui
     draw2DGL();
@@ -585,11 +585,13 @@ SLbool SLSceneView::onPaint()
                                        _oculusFB.texID(),
                                        _camera->background().colors()[0]);
 
-    if(_camera->projection() == P_stereoOpenVR)
+#ifdef SL_HAS_OPENVR
+    if (_camera->projection() == P_stereoOpenVR)
     {
         SLVRSystem::instance().compositor()->submit();
         SLVRSystem::instance().update();
     }
+#endif
 
     // Set gotPainted only to true if RT is not busy
     _gotPainted = _renderType == RT_gl || raytracer()->state() != rtBusy;
@@ -687,8 +689,8 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     startMS = GlobalTimer::timeMS();
 
     // Update camera animation separately (smooth transition on key movement)
-    //todo: ghm1: this is currently only necessary for walking animation (which is somehow always enabled)
-    //A problem is also, that it only updates the current camera. This is maybe not what we want for sensor rotated camera.
+    // todo: ghm1: this is currently only necessary for walking animation (which is somehow always enabled)
+    // A problem is also, that it only updates the current camera. This is maybe not what we want for sensor rotated camera.
     SLbool camUpdated = _camera->camUpdate(this, elapsedTimeMS);
 
     //////////////////////
@@ -703,10 +705,12 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
                                   (SLint)(_s->oculus()->resolutionScale() * (SLfloat)_scrH));
     }
 
-    if(_camera->projection() == P_stereoOpenVR)
+#ifdef SL_HAS_OPENVR
+    if (_camera->projection() == P_stereoOpenVR)
     {
         SLVRSystem::instance().compositor()->prepareLeftEye();
     }
+#endif
 
     // Clear color buffer
     stateGL->clearColor(SLVec4f(0.00001f, 0.00001f, 0.00001f, 1.0f));
@@ -746,8 +750,8 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     else
     {
         _camera->setProjection(this, ET_center);
-        //todo: ghm1: set view is only called on the active camera. Then the camera animation is not updated
-        //of a camera the is not the current camera!
+        // todo: ghm1: set view is only called on the active camera. Then the camera animation is not updated
+        // of a camera the is not the current camera!
         _camera->setView(this, ET_center);
     }
 
@@ -787,10 +791,12 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
 
     draw3DGLAll();
 
-    if(_camera->projection() == P_stereoOpenVR)
+#ifdef SL_HAS_OPENVR
+    if (_camera->projection() == P_stereoOpenVR)
     {
         SLVRSystem::instance().compositor()->finishEye();
     }
+#endif
 
     ///////////////////////////////////////////////
     // 10. Draw right eye for stereo projections //
@@ -798,7 +804,8 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
 
     if (_camera->projection() > P_monoOrthographic)
     {
-        if(_camera->projection() == P_stereoOpenVR)
+#ifdef SL_HAS_OPENVR
+        if (_camera->projection() == P_stereoOpenVR)
         {
             SLVRSystem::instance().compositor()->prepareRightEye();
 
@@ -806,6 +813,7 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
             stateGL->clearColor(SLVec4f(0.00001f, 0.00001f, 0.00001f, 1.0f));
             stateGL->clearColorDepthBuffer();
         }
+#endif
 
         if (!_skybox)
             _camera->background().render(_viewportRect.width, _viewportRect.height);
@@ -823,10 +831,12 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
             _skybox->drawAroundCamera(this);
         draw3DGLAll();
 
-        if(_camera->projection() == P_stereoOpenVR)
+#ifdef SL_HAS_OPENVR
+        if (_camera->projection() == P_stereoOpenVR)
         {
             SLVRSystem::instance().compositor()->finishEye();
         }
+#endif
     }
 
     // Enable all color channels again
@@ -1100,7 +1110,7 @@ void SLSceneView::draw2DGL()
     _stats2D.numNodesBlended = 0;
 
     // Set orthographic projection with 0,0,0 in the screen center
-    //if (_camera && _camera->projection() != P_stereoSideBySideD)
+    // if (_camera && _camera->projection() != P_stereoSideBySideD)
     {
         if (_s)
         {
@@ -1906,7 +1916,7 @@ SLbool SLSceneView::draw3DRT()
         {
             // Update transforms and AABBs
             // @Todo: causes multithreading bug in RT
-            //s->root3D()->needUpdate();
+            // s->root3D()->needUpdate();
 
             // Do software skinning on all changed skeletons
             _s->root3D()->updateMeshAccelStructs();
@@ -1959,7 +1969,7 @@ SLbool SLSceneView::draw3DPT()
         {
             // Update transforms and AABBs
             // @Todo: causes multithreading bug in RT
-            //s->root3D()->needUpdate();
+            // s->root3D()->needUpdate();
 
             // Do software skinning on all changed skeletons
             _s->root3D()->updateMeshAccelStructs();
@@ -2071,7 +2081,7 @@ SLSceneView::draw3DCT draws all 3D content with voxel cone tracing.
 */
 SLbool SLSceneView::draw3DCT()
 {
-    //SL_LOG("Rendering VXC ");
+    // SL_LOG("Rendering VXC ");
     SLfloat startMS = GlobalTimer::timeMS();
 
     SLbool rendered = _conetracer->render(this);
@@ -2109,7 +2119,7 @@ void SLSceneView::saveFrameBufferAsImage(SLstring pathFilename, cv::Size targetS
         CVMat rgbImg = CVMat(fbH, fbW, CV_8UC3, (void*)buffer.data(), stride);
         cv::cvtColor(rgbImg, rgbImg, cv::COLOR_BGR2RGB);
         cv::flip(rgbImg, rgbImg, 0);
-        if(targetSize.width > 0 && targetSize.height > 0)
+        if (targetSize.width > 0 && targetSize.height > 0)
             cv::resize(rgbImg, rgbImg, targetSize);
 
         vector<int> compression_params;
