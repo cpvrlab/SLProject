@@ -33,10 +33,13 @@ public:
     ~SLAssetManager();
     
     void clear();
+
     //! for all assets, clear gpu data
     void deleteDataGpu();
+
     //! Removes the specified mesh from the meshes resource vector.
     bool removeMesh(SLMesh* mesh);
+
     //! Returns the pointer to shader program if found by name
     SLGLProgram* getProgramByName(const string& programName);
     
