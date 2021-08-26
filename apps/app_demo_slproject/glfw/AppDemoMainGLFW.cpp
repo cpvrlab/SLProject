@@ -484,7 +484,7 @@ void initGLFW(int screenWidth, int screenHeight)
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 
     // Set number of monitor refreshes between 2 buffer swaps
-    glfwSwapInterval(1);
+    glfwSwapInterval(0);
 
     // Get GL errors that occurred before our framework is involved
     GET_GL_ERROR;
@@ -577,7 +577,15 @@ int main(int argc, char* argv[])
     {
         if (SLVRSystem::instance().isRunning())
         {
-            SLVRSystem::instance().update();
+            SLNode* camParent = AppDemo::scene->root3D()->findChild<SLNode>("Camera Parent");
+            if (camParent)
+            {
+                SLVec2f axis      = SLVRSystem::instance().leftController()->get2DAxis(VRCA_axis_0);
+                float   deltaTime = AppDemo::scene->elapsedTimeSec();
+                SLVec3f forward   = -SLVRSystem::instance().hmd()->pose().axisZ();
+                SLVec3f right     = SLVRSystem::instance().hmd()->pose().axisX();
+                camParent->translate((forward * axis.y + right * axis.x) * deltaTime);
+            }
         }
 
         /////////////////////////////
@@ -585,7 +593,7 @@ int main(int argc, char* argv[])
         /////////////////////////////
 
         // if no updated occurred wait for the next event (power saving)
-        if (!doRepaint)
+        if (!doRepaint && !SLVRSystem::instance().isRunning())
             // todo ghm1: glfwWaitEvents is not working on my machine (maybe https://github.com/glfw/glfw/issues/685)
             glfwWaitEvents();
         else

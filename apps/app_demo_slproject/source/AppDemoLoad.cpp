@@ -1288,6 +1288,9 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->setInitialState();
         cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
 
+        SLNode* camParent = new SLNode("Camera Parent");
+        camParent->addChild(cam1);
+
         SLLightSpot* light = new SLLightSpot(s, s, 0.1f);
         light->translation(5, 5, 5);
         light->lookAt(0, 0, 0);
@@ -1372,7 +1375,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
             }
         }
 
-        scene->addChild(cam1);
+        scene->addChild(camParent);
 
         sv->camera(cam1);
         s->root3D(scene);

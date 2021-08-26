@@ -43,8 +43,8 @@ void SLVRCompositor::startup()
     system->GetRecommendedRenderTargetSize(&width, &height);
     VR_LOG("Recommended frame buffer size: " << width << "x" << height)
 
-    _frameBufferWidth = (SLsizei)width;
-    _frameBufferHeight  = (SLsizei)height;
+    _frameBufferWidth  = (SLsizei)width;
+    _frameBufferHeight = (SLsizei)height;
 
     initFBO(&_leftFBO, &_leftTexture, &_leftDepthRenderBuffer);
     initFBO(&_rightFBO, &_rightTexture, &_rightDepthRenderBuffer);
@@ -109,8 +109,8 @@ void SLVRCompositor::submit() const
     vr::VRCompositor()->Submit(vr::EVREye::Eye_Left, &leftVRTexture);
 
     vr::Texture_t rightVRTexture = {(void*)(uintptr_t)_rightTexture,
-                                   vr::ETextureType::TextureType_OpenGL,
-                                   vr::EColorSpace::ColorSpace_Gamma};
+                                    vr::ETextureType::TextureType_OpenGL,
+                                    vr::EColorSpace::ColorSpace_Gamma};
     vr::VRCompositor()->Submit(vr::EVREye::Eye_Right, &rightVRTexture);
 }
 

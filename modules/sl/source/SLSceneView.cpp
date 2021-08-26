@@ -585,6 +585,12 @@ SLbool SLSceneView::onPaint()
                                        _oculusFB.texID(),
                                        _camera->background().colors()[0]);
 
+    if(_camera->projection() == P_stereoOpenVR)
+    {
+        SLVRSystem::instance().compositor()->submit();
+        SLVRSystem::instance().update();
+    }
+
     // Set gotPainted only to true if RT is not busy
     _gotPainted = _renderType == RT_gl || raytracer()->state() != rtBusy;
 
@@ -820,7 +826,6 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
         if(_camera->projection() == P_stereoOpenVR)
         {
             SLVRSystem::instance().compositor()->finishEye();
-            SLVRSystem::instance().compositor()->submit();
         }
     }
 
