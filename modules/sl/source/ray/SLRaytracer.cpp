@@ -644,7 +644,7 @@ void SLRaytracer::sampleAAPixels(const bool isMainThread)
     PROFILE_FUNCTION();
 
     assert(_aaSamples % 2 == 1 && "subSample: maskSize must be uneven");
-    double t1 = 0, t2 = 0;
+    double t1 = 0, t2;
 
     while (_nextLine < (SLint)_aaPixels.size())
     {
@@ -663,12 +663,14 @@ void SLRaytracer::sampleAAPixels(const bool isMainThread)
             SLCol4f centerColor(c4f[0], c4f[1], c4f[2], c4f[3]);
             SLint   centerIndex = _aaSamples >> 1;
             SLfloat f           = 1.0f / (SLfloat)_aaSamples;
-            SLfloat xpos        = x - centerIndex * f;
-            SLfloat ypos        = y - centerIndex * f;
-            SLfloat samples     = (SLfloat)_aaSamples * _aaSamples;
+            SLfloat xpos        = (SLfloat)x - (SLfloat)centerIndex * f;
+            SLfloat ypos        = (SLfloat)y - (SLfloat)centerIndex * f;
+            SLfloat samples     = (SLfloat)_aaSamples * (SLfloat)_aaSamples;
             SLCol4f color(0, 0, 0);
 
             // Loop regularly over the float pixel
+
+
             for (SLint sy = 0; sy < _aaSamples; ++sy)
             {
                 for (SLint sx = 0; sx < _aaSamples; ++sx)
@@ -825,7 +827,7 @@ void SLRaytracer::prepareImage()
         SLfloat hw = hh * _sv->viewportWdivH();
 
         // calculate the size of a pixel in world coords.
-        _pxSize = hw * 2 / ((SLint)(_sv->viewportW() * _resolutionFactor));
+        _pxSize = hw * 2 / ((SLint)((SLfloat)_sv->viewportW() * _resolutionFactor));
 
         _BL = _EYE - hw * _LR - hh * _LU + _pxSize / 2 * _LR - _pxSize / 2 * _LU;
     }
@@ -842,7 +844,7 @@ void SLRaytracer::prepareImage()
         SLfloat hw = hh * _sv->viewportWdivH();
 
         // calculate the size of a pixel in world coords.
-        _pxSize = hw * 2 / ((SLint)(_sv->viewportW() * _resolutionFactor));
+        _pxSize = hw * 2 / ((SLint)((SLfloat)_sv->viewportW() * _resolutionFactor));
 
         // calculate a vector to the center (C) of the bottom left (BL) pixel
         SLVec3f C = _LA * _cam->focalDist();
@@ -851,14 +853,14 @@ void SLRaytracer::prepareImage()
 
     // Create the image for the first time
     if (_images.empty())
-        _images.push_back(new CVImage((SLint)(_sv->viewportW() * _resolutionFactor),
-                                      (SLint)(_sv->viewportH() * _resolutionFactor),
+        _images.push_back(new CVImage((SLint)((SLfloat)_sv->viewportW() * _resolutionFactor),
+                                      (SLint)((SLfloat)_sv->viewportH() * _resolutionFactor),
                                       PF_rgb,
                                       "Raytracer"));
 
     // Allocate image of the inherited texture class
-    if ((SLint)(_sv->viewportW() * _resolutionFactor) != (SLint)_images[0]->width() ||
-        (SLint)(_sv->viewportH() * _resolutionFactor) != (SLint)_images[0]->height())
+    if ((SLint)((SLfloat)_sv->viewportW() * _resolutionFactor) != (SLint)_images[0]->width() ||
+        (SLint)((SLfloat)_sv->viewportH() * _resolutionFactor) != (SLint)_images[0]->height())
     {
         // Delete the OpenGL Texture if it already exists
         if (_texID)
@@ -868,13 +870,13 @@ void SLRaytracer::prepareImage()
         }
 
         _vaoSprite.clearAttribs();
-        _images[0]->allocate((SLint)(_sv->viewportW() * _resolutionFactor),
-                             (SLint)(_sv->viewportH() * _resolutionFactor),
+        _images[0]->allocate((SLint)((SLfloat)_sv->viewportW() * _resolutionFactor),
+                             (SLint)((SLfloat)_sv->viewportH() * _resolutionFactor),
                              PF_rgb);
 
-        _width  = _images[0]->width();
-        _height = _images[0]->height();
-        _depth  = _images.size();
+        _width  = (SLint)_images[0]->width();
+        _height = (SLint)_images[0]->height();
+        _depth  = (SLint)_images.size();
     }
 
     // Fill image black for single RT
@@ -894,7 +896,7 @@ void SLRaytracer::renderImage(bool updateTextureGL)
 
     // Set orthographic projection with the size of the window
     SLGLState* stateGL = SLGLState::instance();
-    stateGL->viewport(vpRect.x, vpRect.y, w, h);
+    stateGL->viewport(vpRect.x, vpRect.y, (SLsizei)w, (SLsizei)h);
     stateGL->projectionMatrix.ortho(0.0f, w, 0.0f, h, -1.0f, 0.0f);
     stateGL->modelViewMatrix.identity();
     stateGL->clearColorBuffer();

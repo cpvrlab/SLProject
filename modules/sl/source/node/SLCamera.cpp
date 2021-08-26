@@ -648,7 +648,7 @@ void SLCamera::updateEnuCorrRenu(SLSceneView*   sv,
     float horizAngDEG = atan2f((float)cHorizon.y, (float)cHorizon.x) * RAD2DEG;
 
     //rotate display x- and y-offsets to enuUp - horizon plane
-    SLVec3f cOffsetPix(_xOffsetPix, _yOffsetPix, 0.f);
+    SLVec3f cOffsetPix((SLfloat)_xOffsetPix, (SLfloat)_yOffsetPix, 0.f);
     SLMat3f rot(horizAngDEG, 0, 0, 1);
     enuOffsetPix = rot * cOffsetPix;
 
@@ -1154,8 +1154,8 @@ SLbool SLCamera::onMouseMove(const SLMouseButton button,
                 if (_devRot->offsetMode() == ROM_oneFingerX ||
                     _devRot->offsetMode() == ROM_oneFingerXY)
                 {
-                    _yOffsetPix += (y - _oldTouchPos1.y);
-                    _xOffsetPix += (x - _oldTouchPos1.x);
+                    _yOffsetPix += (SLint)(y - _oldTouchPos1.y);
+                    _xOffsetPix += (SLint)(x - _oldTouchPos1.x);
                 }
             }
         }
