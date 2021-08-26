@@ -236,7 +236,8 @@ enum SLProjection
     P_stereoColorRC,        //!< color masking for red-cyan anaglyphs
     P_stereoColorRG,        //!< color masking for red-green anaglyphs
     P_stereoColorRB,        //!< color masking for red-blue anaglyphs
-    P_stereoColorYB         //!< color masking for yellow-blue anaglyphs (ColorCode 3D)
+    P_stereoColorYB,        //!< color masking for yellow-blue anaglyphs (ColorCode 3D)
+    P_stereoOpenVR          //!< stereo rendering for submitting to the OpenVR API
 };
 //-----------------------------------------------------------------------------
 //! Enumeration for stereo eye type used for camera projection

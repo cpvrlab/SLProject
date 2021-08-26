@@ -1254,9 +1254,6 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->name("OpenVR Test");
         s->info("Nobody cares about this description so I won't even write one.");
 
-        SLVRSystem& vr = SLVRSystem::instance();
-        vr.startup();
-
         /*
          * Shameless copy from here...
          */

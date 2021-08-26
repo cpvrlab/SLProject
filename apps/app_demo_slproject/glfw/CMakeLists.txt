@@ -15,12 +15,6 @@ file(GLOB headers
 		${SL_PROJECT_ROOT}/apps/source/AppDemo.h
 		${SL_PROJECT_ROOT}/apps/source/SLInterface.h
         ${SL_PROJECT_ROOT}/apps/source/SLProjectScene.h
-
-		${SL_PROJECT_ROOT}/modules/sl/source/vr/SLVR.h
-		${SL_PROJECT_ROOT}/modules/sl/source/vr/SLVRSystem.h
-		${SL_PROJECT_ROOT}/modules/sl/source/vr/SLVRTrackedDevice.h
-		${SL_PROJECT_ROOT}/modules/sl/source/vr/SLVRHmd.h
-		${SL_PROJECT_ROOT}/modules/sl/source/vr/SLVRController.h
 		)
 
 file(GLOB sources
@@ -33,11 +27,6 @@ file(GLOB sources
 		${SL_PROJECT_ROOT}/apps/source/SLInterface.cpp
         ${SL_PROJECT_ROOT}/apps/source/SLProjectScene.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/AppDemoMainGLFW.cpp
-
-		${SL_PROJECT_ROOT}/modules/sl/source/vr/SLVRSystem.cpp
-		${SL_PROJECT_ROOT}/modules/sl/source/vr/SLVRTrackedDevice.cpp
-		${SL_PROJECT_ROOT}/modules/sl/source/vr/SLVRHmd.cpp
-		${SL_PROJECT_ROOT}/modules/sl/source/vr/SLVRController.cpp
     )
 
 # Group source files
@@ -75,7 +64,6 @@ target_include_directories(
         ${SL_PROJECT_ROOT}/modules/sl/source
         ${OpenCV_INCLUDE_DIR}
         ${glfw_INCLUDE_DIR}
-		${openvr_INCLUDE_DIR}
         PUBLIC
         INTERFACE
     )
@@ -89,7 +77,6 @@ target_link_libraries(
         lib-Utils
         ${OpenCV_LIBS}
         ${glfw_LIBS}
-		${openvr_LIBS}
         PUBLIC
         INTERFACE
     )

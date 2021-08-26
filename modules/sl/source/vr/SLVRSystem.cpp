@@ -10,6 +10,7 @@
 
 #include <vr/SLVRSystem.h>
 #include <vr/SLVR.h>
+#include <vr/SLVRConvert.h>
 
 SLVRSystem::SLVRSystem()
 {
@@ -26,6 +27,7 @@ SLVRSystem::~SLVRSystem()
  * 1. The system checks if the SteamVR runtime is present and if there's a HMD connected
  * 2. The OpenVR API is initialized for scene rendering (this will also launch SteamVR)
  * 3. Tracked devices (such as a HMD or a controller) are detected
+ * 4. The compositor is initialized
  */
 void SLVRSystem::startup()
 {
@@ -33,6 +35,9 @@ void SLVRSystem::startup()
     {
         return;
     }
+
+    _compositor = new SLVRCompositor();
+    _compositor->startup();
 }
 
 /*! Checks if the conditions for starting OpenVR are met
@@ -170,7 +175,7 @@ void SLVRSystem::update()
         if (!pose.bPoseIsValid) continue;
 
         // Convert the OpenVR matrix to an SL matrix and set the pose of the corresponding device
-        SLMat4f matrix = openVRMatrixToSLMatrix(pose.mDeviceToAbsoluteTracking);
+        SLMat4f matrix = SLVRConvert::openVRMatrixToSLMatrix(pose.mDeviceToAbsoluteTracking);
         trackedDevice->pose(matrix);
     }
 
@@ -185,62 +190,37 @@ void SLVRSystem::update()
         rightController()->updateState();
 }
 
-/*! Converts an OpenVR matrix to a SLProject matrix
- * @param matrix The OpenVR matrix
- * @return The converted SLProject matrix
- */
-SLMat4f SLVRSystem::openVRMatrixToSLMatrix(vr::HmdMatrix34_t matrix)
+SLMat4f SLVRSystem::getProjectionMatrix(SLEyeType eye, float nearPlane, float farPlane)
 {
-    SLMat4f result;
-
-    // First column
-    result.m(0, matrix.m[0][0]);
-    result.m(1, matrix.m[1][0]);
-    result.m(2, matrix.m[2][0]);
-    result.m(3, 0);
-
-    // Second column
-    result.m(4, matrix.m[0][1]);
-    result.m(5, matrix.m[1][1]);
-    result.m(6, matrix.m[2][1]);
-    result.m(7, 0);
-
-    // Third column
-    result.m(8, matrix.m[0][2]);
-    result.m(9, matrix.m[1][2]);
-    result.m(10, matrix.m[2][2]);
-    result.m(11, 0);
-
-    // Fourth column
-    result.m(12, matrix.m[0][3]);
-    result.m(13, matrix.m[1][3]);
-    result.m(14, matrix.m[2][3]);
-    result.m(15, 1);
-
-    return result;
+    vr::Hmd_Eye openVREye = SLVRConvert::SLEyeTypeToOpenVREye(eye);
+    vr::HmdMatrix44_t openVRMatrix = _system->GetProjectionMatrix(openVREye, nearPlane, farPlane);
+    return SLVRConvert::openVRMatrixToSLMatrix(openVRMatrix);
 }
 
-/*! Fades to the color specified in the amount of time specified
- * @param seconds The number of seconds it takes the display to fade
- * @param color The color the display fades to
- */
-void SLVRSystem::fade(float seconds, const SLCol4f& color)
+SLMat4f SLVRSystem::getEyeMatrix(SLEyeType eye)
 {
-    vr::VRCompositor()->FadeToColor(seconds, color.x, color.y, color.z, color.w);
+    vr::Hmd_Eye openVREye = SLVRConvert::SLEyeTypeToOpenVREye(eye);
+    vr::HmdMatrix34_t openVRMatrix = _system->GetEyeToHeadTransform(openVREye);
+    return SLVRConvert::openVRMatrixToSLMatrix(openVRMatrix).inverted();
 }
 
 /*! Shuts down the OpenVR API and frees all resources
  */
 void SLVRSystem::shutdown()
 {
-    for (SLVRTrackedDevice* trackedDevice : _trackedDevices)
-    {
-        delete trackedDevice;
-    }
+    VR_LOG("Shutting OpenVR down...")
 
-    _hmd = nullptr;
-    _leftController = nullptr;
+    for (SLVRTrackedDevice* trackedDevice : _trackedDevices)
+        delete trackedDevice;
+    _trackedDevices.clear();
+
+    delete _compositor;
+
+    _hmd             = nullptr;
+    _leftController  = nullptr;
     _rightController = nullptr;
+    _compositor      = nullptr;
 
     vr::VR_Shutdown();
+    _system = nullptr;
 }

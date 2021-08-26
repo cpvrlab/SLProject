@@ -2627,7 +2627,7 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
 
                 if (ImGui::BeginMenu("Stereo"))
                 {
-                    for (SLint p = P_stereoSideBySide; p <= P_stereoColorYB; ++p)
+                    for (SLint p = P_stereoSideBySide; p <= P_stereoOpenVR; ++p)
                     {
                         SLstring pStr = SLCamera::projectionToStr((SLProjection)p);
                         if (ImGui::MenuItem(pStr.c_str(), nullptr, proj == (SLProjection)p))
@@ -3274,7 +3274,8 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                                          "Stereo Color Red-Cyan",
                                                          "Stereo Color Red-Green",
                                                          "Stereo Color Red-Blue",
-                                                         "Stereo Color Yellow-Blue"};
+                                                         "Stereo Color Yellow-Blue",
+                                                         "Stereo OpenVR"};
 
                             int proj = cam->projection();
                             if (ImGui::Combo("Projection", &proj, projections, IM_ARRAYSIZE(projections)))

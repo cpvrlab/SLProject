@@ -578,7 +578,6 @@ int main(int argc, char* argv[])
         if (SLVRSystem::instance().isRunning())
         {
             SLVRSystem::instance().update();
-            AppDemo::sceneViews[svIndex]->camera()->om(SLVRSystem::instance().hmd()->pose());
         }
 
         /////////////////////////////

@@ -16,9 +16,11 @@
 #include <vr/SLVRTrackedDevice.h>
 #include <vr/SLVRHmd.h>
 #include <vr/SLVRController.h>
+#include <vr/SLVRCompositor.h>
 
 #include <SLMat4.h>
 #include <SLVec4.h>
+#include <SLEnums.h>
 
 #include <vector>
 
@@ -34,12 +36,14 @@ class SLVRSystem
     friend class SLVRTrackedDevice;
 
 private:
-    vr::IVRSystem*      _system = nullptr;
-    SLVVRTrackedDevices _trackedDevices;
+    vr::IVRSystem* _system = nullptr;
 
-    SLVRHmd*        _hmd             = nullptr;
-    SLVRController* _leftController  = nullptr;
-    SLVRController* _rightController = nullptr;
+    SLVVRTrackedDevices _trackedDevices;
+    SLVRHmd*            _hmd             = nullptr;
+    SLVRController*     _leftController  = nullptr;
+    SLVRController*     _rightController = nullptr;
+
+    SLVRCompositor* _compositor = nullptr;
 
 public:
     static SLVRSystem& instance()
@@ -55,14 +59,19 @@ public:
     void update();
 
     // Getters
-    vr::IVRSystem*      system() { return _system; }
-    bool                isRunning() { return _system != nullptr; }
+    vr::IVRSystem* system() { return _system; }
+    bool           isRunning() { return _system != nullptr; }
+
     SLVVRTrackedDevices trackedDevices() { return _trackedDevices; };
     SLVRHmd*            hmd() { return _hmd; };
     SLVRController*     leftController() { return _leftController; };
     SLVRController*     rightController() { return _rightController; };
 
-    void fade(float seconds, const SLCol4f& color);
+    SLVRCompositor* compositor() { return _compositor; }
+
+    SLMat4f getProjectionMatrix(SLEyeType eye, float nearPlane, float farPlane);
+    SLMat4f getEyeMatrix(SLEyeType eye);
+
     void shutdown();
 
 private:
@@ -71,8 +80,6 @@ private:
     bool detectTrackedDevices();
     void registerHmd(vr::TrackedDeviceIndex_t index);
     void registerController(vr::TrackedDeviceIndex_t index);
-
-    SLMat4f openVRMatrixToSLMatrix(vr::HmdMatrix34_t matrix);
 };
 
 #endif // SLPROJECT_SLVRSYSTEM_H

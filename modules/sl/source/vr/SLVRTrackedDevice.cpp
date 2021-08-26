@@ -52,7 +52,7 @@ SLbool SLVRTrackedDevice::isConnected()
 }
 
 /*! Returns whether or not this device is awake
- * "Awake" is defined as having had activity in the last 5 seconds
+ * A device is awake if it has had activity in the last 5 seconds
  * @return True if the device is awake, false otherwise
  */
 SLbool SLVRTrackedDevice::isAwake()

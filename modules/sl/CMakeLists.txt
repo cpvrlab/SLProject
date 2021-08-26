@@ -244,6 +244,21 @@ file(GLOB sources
         source/ray/SLRaySamples2D.h
         source/ray/SLRaytracer.cpp
         source/ray/SLRaytracer.h
+
+        source/vr/SLVR.h
+        source/vr/SLVRConvert.h
+        source/vr/SLVRSystem.h
+        source/vr/SLVRTrackedDevice.h
+        source/vr/SLVRHmd.h
+        source/vr/SLVRController.h
+        source/vr/SLVRCompositor.h
+
+        source/vr/SLVRConvert.cpp
+        source/vr/SLVRSystem.cpp
+        source/vr/SLVRTrackedDevice.cpp
+        source/vr/SLVRHmd.cpp
+        source/vr/SLVRController.cpp
+        source/vr/SLVRCompositor.cpp
         )
 
 if (SL_BUILD_WAI)
@@ -380,6 +395,8 @@ target_include_directories(${target}
             ${SL_PROJECT_ROOT}/externals/libigl/include
             ${DEFAULT_INCLUDE_DIRECTORIES}
 
+            ${openvr_INCLUDE_DIR}
+
         INTERFACE
         )
 
@@ -429,6 +446,8 @@ target_link_libraries(${target}
         lib-SLMath
         ${DEFAULT_LINKER_OPTIONS}
         INTERFACE
+
+        ${openvr_LIBS}
 
         )
 

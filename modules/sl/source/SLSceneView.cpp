@@ -17,6 +17,8 @@
 #include <SLInputManager.h>
 #include <Instrumentor.h>
 
+#include <vr/SLVRSystem.h>
+
 #include <utility>
 
 //-----------------------------------------------------------------------------
@@ -565,6 +567,12 @@ SLbool SLSceneView::onPaint()
         }
     }
 
+    // We need to clear manually when we use OpenVR
+    // because the "draw3Dxx" methods don't take care of that in this case
+    // (they clear the OpenVR frame buffers instead)
+    if (_camera->projection() == P_stereoOpenVR)
+        SLGLState::instance()->clearColorDepthBuffer();
+
     // Render the 2D stuff inclusive the ImGui
     draw2DGL();
 
@@ -689,6 +697,11 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
                                   (SLint)(_s->oculus()->resolutionScale() * (SLfloat)_scrH));
     }
 
+    if(_camera->projection() == P_stereoOpenVR)
+    {
+        SLVRSystem::instance().compositor()->prepareLeftEye();
+    }
+
     // Clear color buffer
     stateGL->clearColor(SLVec4f(0.00001f, 0.00001f, 0.00001f, 1.0f));
     stateGL->clearColorDepthBuffer();
@@ -768,12 +781,29 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
 
     draw3DGLAll();
 
+    if(_camera->projection() == P_stereoOpenVR)
+    {
+        SLVRSystem::instance().compositor()->finishEye();
+    }
+
     ///////////////////////////////////////////////
     // 10. Draw right eye for stereo projections //
     ///////////////////////////////////////////////
 
     if (_camera->projection() > P_monoOrthographic)
     {
+        if(_camera->projection() == P_stereoOpenVR)
+        {
+            SLVRSystem::instance().compositor()->prepareRightEye();
+
+            // Clear color buffer
+            stateGL->clearColor(SLVec4f(0.00001f, 0.00001f, 0.00001f, 1.0f));
+            stateGL->clearColorDepthBuffer();
+        }
+
+        if (!_skybox)
+            _camera->background().render(_viewportRect.width, _viewportRect.height);
+
         _camera->setViewport(this, ET_right);
 
         // Only draw backgrounds for stereo projections in different viewports
@@ -786,6 +816,12 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
         if (_skybox)
             _skybox->drawAroundCamera(this);
         draw3DGLAll();
+
+        if(_camera->projection() == P_stereoOpenVR)
+        {
+            SLVRSystem::instance().compositor()->finishEye();
+            SLVRSystem::instance().compositor()->submit();
+        }
     }
 
     // Enable all color channels again

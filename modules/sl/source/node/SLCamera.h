@@ -21,6 +21,8 @@
 #include <SLRaySamples2D.h>
 #include <math/SLRect.h>
 
+#include <vr/SLVRSystem.h>
+
 class SLSceneView;
 class SLDeviceRotation;
 class SLDeviceLocation;
@@ -94,8 +96,14 @@ public:
     // Setters
     void projection(SLProjection p)
     {
+        if(_projection != p && p != P_stereoOpenVR && SLVRSystem::instance().isRunning())
+            SLVRSystem::instance().shutdown();
+
         _projection       = p;
         currentProjection = p;
+
+        if(_projection == P_stereoOpenVR && !SLVRSystem::instance().isRunning())
+            SLVRSystem::instance().startup();
     }
     //! vertical field of view
     void fov(const SLfloat fov)
