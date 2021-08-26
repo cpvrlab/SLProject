@@ -23,7 +23,6 @@ uniform bool        u_lightIsOn[NUM_LIGHTS];                // flag if light is 
 uniform vec4        u_lightPosWS[NUM_LIGHTS];               // position of light in world space
 uniform vec4        u_lightPosVS[NUM_LIGHTS];               // position of light in world space
 uniform vec3        u_lightSpotDir[NUM_LIGHTS];             // spot direction in view space
-uniform mat4        u_lightSpace[NUM_LIGHTS * 6];           // projection matrices for lights
 uniform bool        u_lightCreatesShadows[NUM_LIGHTS];      // flag if light creates shadows
 uniform bool        u_lightDoSmoothShadows[NUM_LIGHTS];     // flag if percentage-closer filtering is enabled
 uniform int         u_lightSmoothShadowLevel[NUM_LIGHTS];   // radius of area to sample for PCF
@@ -31,9 +30,7 @@ uniform float       u_lightShadowMinBias[NUM_LIGHTS];       // min. shadow bias 
 uniform float       u_lightShadowMaxBias[NUM_LIGHTS];       // min. shadow bias value at 90° to N
 
 uniform sampler2D   u_shadowMap_0;      // shadow map for light 0
-uniform sampler2D   u_shadowMap_1;      // shadow map for light 1
-uniform sampler2D   u_shadowMap_2;      // shadow map for light 2
-uniform sampler2D   u_shadowMap_3;      // shadow map for light 3
+uniform mat4        u_lightSpace_0;     // projection matrices for lights
 
 uniform float       u_bgWidth;          // background width
 uniform float       u_bgHeight;         // background height
@@ -47,7 +44,7 @@ uniform sampler2D   u_matTexture0;      // Color map
 
 out     vec4        o_fragColor;        // output fragment color
 //-----------------------------------------------------------------------------
-#pragma include "shadowTest4Lights.glsl"
+#pragma include "shadowTest1Light.glsl"
 //-----------------------------------------------------------------------------
 void main()
 {
@@ -71,14 +68,14 @@ void main()
             vec3 S = normalize(-u_lightSpotDir[0].xyz);
 
             // Test if the current fragment is in shadow
-            shadow = u_matGetsShadows ? shadowTest4Lights(0, N, S) : 0.0;
+            shadow = u_matGetsShadows ? shadowTest1Light(0, N, S) : 0.0;
         }
         else
         {
             vec3 L = u_lightPosVS[0].xyz - v_P_VS; // Vector from v_P to light in VS
 
             // Test if the current fragment is in shadow
-            shadow = u_matGetsShadows ? shadowTest4Lights(0, N, L) : 0.0;
+            shadow = u_matGetsShadows ? shadowTest1Light(0, N, L) : 0.0;
         }
     }
 

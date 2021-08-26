@@ -414,25 +414,26 @@ void SLGLProgram::passLightsToUniforms(SLVLight* lights,
 
         // Pass vectors as uniform vectors
         auto nL = (SLint)lights->size();
-        uniform1iv("u_lightIsOn", nL, (SLint*)&lightIsOn);
-        uniform4fv("u_lightPosWS", nL, (SLfloat*)&lightPosWS);
-        uniform4fv("u_lightPosVS", nL, (SLfloat*)&lightPosVS);
-        uniform4fv("u_lightAmbi", nL, (SLfloat*)&lightAmbient);
-        uniform4fv("u_lightDiff", nL, (SLfloat*)&lightDiffuse);
-        uniform4fv("u_lightSpec", nL, (SLfloat*)&lightSpecular);
-        uniform3fv("u_lightSpotDir", nL, (SLfloat*)&lightSpotDirVS);
-        uniform1fv("u_lightSpotDeg", nL, (SLfloat*)&lightSpotCutoff);
-        uniform1fv("u_lightSpotCos", nL, (SLfloat*)&lightSpotCosCut);
-        uniform1fv("u_lightSpotExp", nL, (SLfloat*)&lightSpotExp);
-        uniform3fv("u_lightAtt", nL, (SLfloat*)&lightAtt);
-        uniform1iv("u_lightDoAtt", nL, (SLint*)&lightDoAtt);
-        uniform1iv("u_lightCreatesShadows", nL, (SLint*)&lightCreatesShadows);
-        uniform1iv("u_lightDoSmoothShadows", nL, (SLint*)&lightDoSmoothShadows);
-        uniform1iv("u_lightSmoothShadowLevel", nL, (SLint*)&lightSmoothShadowLevel);
-        uniform1iv("u_lightUsesCubemap", nL, (SLint*)&lightUsesCubemap);
-        uniform1fv("u_lightShadowMinBias", nL, (SLfloat*)&lightShadowMinBias);
-        uniform1fv("u_lightShadowMaxBias", nL, (SLfloat*)&lightShadowMaxBias);
-        uniform1iv("u_lightNumCascades", nL, (SLint*)&lightNumCascades);
+        SLint loc;
+        loc = uniform1iv("u_lightIsOn", nL, (SLint*)&lightIsOn);
+        loc = uniform4fv("u_lightPosWS", nL, (SLfloat*)&lightPosWS);
+        loc = uniform4fv("u_lightPosVS", nL, (SLfloat*)&lightPosVS);
+        loc = uniform4fv("u_lightAmbi", nL, (SLfloat*)&lightAmbient);
+        loc = uniform4fv("u_lightDiff", nL, (SLfloat*)&lightDiffuse);
+        loc = uniform4fv("u_lightSpec", nL, (SLfloat*)&lightSpecular);
+        loc = uniform3fv("u_lightSpotDir", nL, (SLfloat*)&lightSpotDirVS);
+        loc = uniform1fv("u_lightSpotDeg", nL, (SLfloat*)&lightSpotCutoff);
+        loc = uniform1fv("u_lightSpotCos", nL, (SLfloat*)&lightSpotCosCut);
+        loc = uniform1fv("u_lightSpotExp", nL, (SLfloat*)&lightSpotExp);
+        loc = uniform3fv("u_lightAtt", nL, (SLfloat*)&lightAtt);
+        loc = uniform1iv("u_lightDoAtt", nL, (SLint*)&lightDoAtt);
+        loc = uniform1iv("u_lightCreatesShadows", nL, (SLint*)&lightCreatesShadows);
+        loc = uniform1iv("u_lightDoSmoothShadows", nL, (SLint*)&lightDoSmoothShadows);
+        loc = uniform1iv("u_lightSmoothShadowLevel", nL, (SLint*)&lightSmoothShadowLevel);
+        loc = uniform1iv("u_lightUsesCubemap", nL, (SLint*)&lightUsesCubemap);
+        loc = uniform1fv("u_lightShadowMinBias", nL, (SLfloat*)&lightShadowMinBias);
+        loc = uniform1fv("u_lightShadowMaxBias", nL, (SLfloat*)&lightShadowMaxBias);
+        loc = uniform1iv("u_lightNumCascades", nL, (SLint*)&lightNumCascades);
 
         int unitCounter = numTexInMat;
 
@@ -445,37 +446,34 @@ void SLGLProgram::passLightsToUniforms(SLVLight* lights,
                     SLstring uniformSm;
 
                     uniformSm = ("u_cascadesFactor_" + std::to_string(i));
-                    uniform1f(uniformSm.c_str(), lights->at(i)->shadowMap()->cascadesFactor());
+                    loc = uniform1f(uniformSm.c_str(), lights->at(i)->shadowMap()->cascadesFactor());
                     uniformSm = ("u_lightSpace_" + std::to_string(i));
-                    uniformMatrix4fv(uniformSm.c_str(), lightNumCascades[i], (SLfloat*)(lightSpace + (i * 6)));
+                    loc = uniformMatrix4fv(uniformSm.c_str(), lightNumCascades[i], (SLfloat*)(lightSpace + (i * 6)));
                     for (int j = 0; j < lightNumCascades[i]; j++)
                     {
-                        SLint loc = 0;
                         uniformSm = "u_cascadedShadowMap_" + std::to_string(i) + "_" + std::to_string(j);
                         if ((loc = getUniformLocation(uniformSm.c_str())) >= 0)
                         {
                             lightShadowMap[i * 6 + j]->bindActive(unitCounter);
                             glUniform1i(loc, unitCounter);
-
                             unitCounter++;
                         }
                     }
                 }
                 else
                 {
-                    SLint    loc = 0;
                     SLstring uniformSm;
 
                     if (lightUsesCubemap[i])
                     {
                         uniformSm = ("u_lightSpace_" + std::to_string(i));
-                        uniformMatrix4fv(uniformSm.c_str(), 6, (SLfloat*)(lightSpace + (i * 6)));
+                        loc = uniformMatrix4fv(uniformSm.c_str(), 6, (SLfloat*)(lightSpace + (i * 6)));
                         uniformSm = "u_shadowMapCube_" + std::to_string(i);
                     }
                     else
                     {
                         uniformSm = ("u_lightSpace_" + std::to_string(i));
-                        uniformMatrix4fv(uniformSm.c_str(), 1, (SLfloat*)(lightSpace + (i * 6)));
+                        loc = uniformMatrix4fv(uniformSm.c_str(), 1, (SLfloat*)(lightSpace + (i * 6)));
                         uniformSm = "u_shadowMap_" + std::to_string(i);
                     }
 
