@@ -105,6 +105,7 @@ SLShadowMap::SLShadowMap(SLLight*       light,
     _material       = nullptr;
     _camera         = camera;
     _numCascades    = numCascades;
+    _maxCascades    = numCascades;
     _textureSize    = texSize;
     _size           = SLVec2f(0, 0); // will be ignored and automatically calculated
     _halfSize       = SLVec2f(0, 0); // will be ignored and automatically calculated

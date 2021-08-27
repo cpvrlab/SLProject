@@ -86,6 +86,7 @@ public:
     SLVec2f          size() { return _size; }
     SLVec2i          textureSize() { return _textureSize; }
     int              numCascades() { return _numCascades; }
+    int              maxCascades() { return _maxCascades; }
     float            cascadesFactor() { return _cascadesFactor; }
     SLCamera*        camera() { return _camera; }
 
@@ -115,6 +116,8 @@ private:
     SLbool              _useCubemap;     //!< Flag if cubemap should be used for perspective projections
     SLbool              _useCascaded;    //!< Flag if cascaded shadow maps should be used
     SLint               _numCascades;    //!< Number of cascades for directional light shadow mapping
+    SLint               _maxCascades;    //!< Max. number of cascades for for which the shader gets generated
+    SLfloat             _cascadesFactor; //!< Factor that determines the cascades distribution
     SLMat4f             _lightView[6];   //!< Light view matrices
     SLMat4f             _lightProj[6];   //!< Light projection matrices
     SLMat4f             _lightSpace[6];  //!< Light space matrices (= _lightProj * _lightView)
@@ -128,7 +131,6 @@ private:
     SLVec2f             _halfSize;       //!< _size divided by two (only for SLLightDirect non cascaded)
     SLVec2i             _textureSize;    //!< Size of the shadow map texture
     SLCamera*           _camera;         //!< Camera to witch the light frustums are adapted
-    SLfloat             _cascadesFactor; //!< Factor that determines the cascades distribution
 };
 //-----------------------------------------------------------------------------
 #endif // SLSHADOWMAP_H

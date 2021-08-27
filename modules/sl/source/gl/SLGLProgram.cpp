@@ -413,7 +413,7 @@ void SLGLProgram::passLightsToUniforms(SLVLight* lights,
         }
 
         // Pass vectors as uniform vectors
-        auto nL = (SLint)lights->size();
+        auto  nL = (SLint)lights->size();
         SLint loc;
         loc = uniform1iv("u_lightIsOn", nL, (SLint*)&lightIsOn);
         loc = uniform4fv("u_lightPosWS", nL, (SLfloat*)&lightPosWS);
@@ -446,9 +446,9 @@ void SLGLProgram::passLightsToUniforms(SLVLight* lights,
                     SLstring uniformSm;
 
                     uniformSm = ("u_cascadesFactor_" + std::to_string(i));
-                    loc = uniform1f(uniformSm.c_str(), lights->at(i)->shadowMap()->cascadesFactor());
+                    loc       = uniform1f(uniformSm.c_str(), lights->at(i)->shadowMap()->cascadesFactor());
                     uniformSm = ("u_lightSpace_" + std::to_string(i));
-                    loc = uniformMatrix4fv(uniformSm.c_str(), lightNumCascades[i], (SLfloat*)(lightSpace + (i * 6)));
+                    loc       = uniformMatrix4fv(uniformSm.c_str(), lightNumCascades[i], (SLfloat*)(lightSpace + (i * 6)));
                     for (int j = 0; j < lightNumCascades[i]; j++)
                     {
                         uniformSm = "u_cascadedShadowMap_" + std::to_string(i) + "_" + std::to_string(j);
@@ -467,13 +467,13 @@ void SLGLProgram::passLightsToUniforms(SLVLight* lights,
                     if (lightUsesCubemap[i])
                     {
                         uniformSm = ("u_lightSpace_" + std::to_string(i));
-                        loc = uniformMatrix4fv(uniformSm.c_str(), 6, (SLfloat*)(lightSpace + (i * 6)));
+                        loc       = uniformMatrix4fv(uniformSm.c_str(), 6, (SLfloat*)(lightSpace + (i * 6)));
                         uniformSm = "u_shadowMapCube_" + std::to_string(i);
                     }
                     else
                     {
                         uniformSm = ("u_lightSpace_" + std::to_string(i));
-                        loc = uniformMatrix4fv(uniformSm.c_str(), 1, (SLfloat*)(lightSpace + (i * 6)));
+                        loc       = uniformMatrix4fv(uniformSm.c_str(), 1, (SLfloat*)(lightSpace + (i * 6)));
                         uniformSm = "u_shadowMap_" + std::to_string(i);
                     }
 
@@ -487,6 +487,8 @@ void SLGLProgram::passLightsToUniforms(SLVLight* lights,
                 }
             }
         }
+
+        loc = uniform1i("u_lightsDoColoredShadows", (SLint)SLLight::doColoredShadows);
     }
 }
 //-----------------------------------------------------------------------------

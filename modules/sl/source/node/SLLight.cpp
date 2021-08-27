@@ -12,9 +12,9 @@
 #include <SLShadowMap.h>
 
 //-----------------------------------------------------------------------------
-SLCol4f SLLight::globalAmbient = SLCol4f(0.1f, 0.1f, 0.1f, 1.0f);
-SLfloat SLLight::gamma         = 1.0f;
-
+SLCol4f SLLight::globalAmbient    = SLCol4f(0.1f, 0.1f, 0.1f, 1.0f);
+SLfloat SLLight::gamma            = 1.0f;
+SLbool  SLLight::doColoredShadows = false;
 //-----------------------------------------------------------------------------
 SLLight::SLLight(SLfloat ambiPower,
                  SLfloat diffPower,
@@ -42,7 +42,7 @@ SLLight::SLLight(SLfloat ambiPower,
     _specularColor.set(1, 1, 1);
     _specularPower = specPower;
 
-    // By default there is no attenuation set. This is physically not correct
+    // By default, there is no attenuation set. This is physically not correct
     // Default OpenGL:      kc=1, kl=0, kq=0
     // Physically correct:  kc=0, kl=0, kq=1
     // set quadratic attenuation with d = distance to light

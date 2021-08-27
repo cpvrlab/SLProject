@@ -2053,11 +2053,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->name("Shadow Mapping Basic Scene");
         s->info("Shadow Mapping is a technique to render shadows.");
 
-        // Setup shadow mapping material
-        // SLGLProgram* progPerPixSM = new SLGLProgramGeneric(s,
-        //                                                   shaderPath + "PerPixBlinnSm.vert",
-        //                                                   shaderPath + "PerPixBlinnSm.frag");
-        SLMaterial* matPerPixSM = new SLMaterial(s, "m1"); //, SLCol4f::WHITE, SLCol4f::WHITE, 500, 0, 0, 1, progPerPixSM);
+        SLMaterial* matPerPixSM = new SLMaterial(s, "m1");
 
         // Base root group node for the scene
         SLNode* scene = new SLNode;
@@ -3710,6 +3706,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         // Create video texture on global pointer updated in AppDemoVideo
         videoTexture = new SLGLTexture(s, texPath + "LiveVideoError.png", GL_LINEAR, GL_LINEAR);
+        videoTexture->texType(TT_videoBkgd);
 
         // Define shader that shows on all pixels the video background without shadow mapping
         SLGLProgram* spVideoBackground  = new SLGLProgramGeneric(s,

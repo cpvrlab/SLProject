@@ -99,18 +99,15 @@ private:
     void buildPerPixBlinnTmAo(SLVLight* lights);
     void buildPerPixBlinnTmNm(SLVLight* lights);
     void buildPerPixBlinnSm(SLVLight* lights);
-    void buildPerPixBlinnSc(SLVLight* lights);
     void buildPerPixBlinnAo(SLVLight* lights);
     void buildPerPixBlinnNm(SLVLight* lights);
     void buildPerPixBlinnTm(SLVLight* lights);
     void buildPerPixBlinn(SLVLight* lights);
 
     // Helpers
-
-    static string coloredShadows();
     static string fragInputs_u_lightSm(SLVLight* lights);
     static string fragInputs_u_shadowMaps(SLVLight* lights);
-    static string fragShadowTest(SLVLight* lights);
+    static string fragFunctionShadowTest(SLVLight* lights);
     static string shaderHeader(int numLights);
     static void   addCodeToShader(SLGLShader*   shader,
                                   const string& code,

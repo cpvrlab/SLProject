@@ -63,7 +63,8 @@ enum SLTextureType
     TT_environmentCubemap, // environment cubemap generated from HDR Textures
     TT_irradianceCubemap,  // irradiance cubemap generated from HDR Textures
     TT_roughnessCubemap,   // prefilter roughness cubemap
-    TT_brdfLUT             // BRDF 2D look up table Texture
+    TT_brdfLUT,            // BRDF 2D look up table Texture
+    TT_videoBkgd           // Video background
 };
 //-----------------------------------------------------------------------------
 //! Texture object for OpenGL texturing

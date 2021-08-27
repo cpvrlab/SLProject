@@ -405,7 +405,7 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
                     sprintf(m + strlen(m), "Window size: %d x %d\n", sv->viewportW(), sv->viewportH());
                     sprintf(m + strlen(m), "Drawcalls  : %d\n", SLGLVertexArray::totalDrawCalls);
                     sprintf(m + strlen(m), " Shadow    : %d\n", SLShadowMap::drawCalls);
-                    sprintf(m + strlen(m), " Render    : %d\n", SLGLVertexArray::totalDrawCalls-SLShadowMap::drawCalls);
+                    sprintf(m + strlen(m), " Render    : %d\n", SLGLVertexArray::totalDrawCalls - SLShadowMap::drawCalls);
                     sprintf(m + strlen(m), "Primitives : %d\n", SLGLVertexArray::totalPrimitivesRendered);
                     sprintf(m + strlen(m), "FPS        : %5.1f\n", s->fps());
                     sprintf(m + strlen(m), "Frame time : %5.1f ms (100%%)\n", ft);
@@ -1141,14 +1141,14 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
                                                              adjustedTime);
                     }
 
-                    SLchar strTime[100];
+                    SLchar      strTime[100];
                     std::time_t now = std::time(nullptr);
-                    tm tnow{};
+                    tm          tnow{};
                     memcpy(&tnow, std::localtime(&now), sizeof(tm));
-                    sprintf(strTime, "Set now (%02d.%02d.%02d %02d:%02d)", tnow.tm_mday, tnow.tm_mon+1, tnow.tm_year + 1900, tnow.tm_hour, tnow.tm_min);
+                    sprintf(strTime, "Set now (%02d.%02d.%02d %02d:%02d)", tnow.tm_mday, tnow.tm_mon + 1, tnow.tm_year + 1900, tnow.tm_hour, tnow.tm_min);
                     if (ImGui::MenuItem(strTime))
                     {
-                        adjustedTime    = 0;
+                        adjustedTime = 0;
                         memcpy(&lt, std::localtime(&now), sizeof(tm));
                         AppDemo::devLoc.calculateSolarAngles(AppDemo::devLoc.originLatLonAlt(), now);
                     }
@@ -3236,7 +3236,8 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                     else
                                     {
                                         SLint numCascades = shadowMap->numCascades();
-                                        if (ImGui::SliderInt("Number of cascades", &numCascades, 1, 5))
+                                        SLint maxCascades = shadowMap->maxCascades();
+                                        if (ImGui::SliderInt("Number of cascades", &numCascades, 1, maxCascades))
                                             shadowMap->numCascades(numCascades);
                                         if (ImGui::SliderFloat("Cascades factor", &factor, 1.0, 500.0f))
                                             shadowMap->cascadesFactor(factor);
@@ -3264,15 +3265,18 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
 
                                     if (!shadowMap->useCubemap())
                                     {
-                                        SLbool doesSmoothShadows = light->doSoftShadows();
-                                        if (ImGui::Checkbox("Smooth shadows enabled", &doesSmoothShadows))
-                                            light->doSmoothShadows(doesSmoothShadows);
+                                        SLbool doSmoothShadows = light->doSoftShadows();
+                                        if (ImGui::Checkbox("Do smooth shadows", &doSmoothShadows))
+                                            light->doSmoothShadows(doSmoothShadows);
 
                                         SLuint pcfLevel = light->softShadowLevel();
                                         if (ImGui::SliderInt("Smoothing level", (SLint*)&pcfLevel, 1, 3))
                                             light->smoothShadowLevel(pcfLevel);
                                     }
 
+                                    SLbool doColoredShadows = SLLight::doColoredShadows;
+                                    if (ImGui::Checkbox("Do colored shadows", &doColoredShadows))
+                                        SLLight::doColoredShadows = doColoredShadows;
 #ifndef SL_GLES
                                     SLVec2i rayCount = shadowMap->rayCount();
                                     if (ImGui::InputInt2("Visualization rays", (int*)&rayCount))
