@@ -104,6 +104,10 @@ private:
     void buildPerPixBlinnTm(SLVLight* lights);
     void buildPerPixBlinn(SLVLight* lights);
 
+    // Video background shader builder functions
+    void buildPerPixVideoBkgdSm(SLVLight* lights);
+    void buildPerPixVideoBkgd(SLVLight* lights);
+
     // Helpers
     static string fragInputs_u_lightSm(SLVLight* lights);
     static string fragInputs_u_shadowMaps(SLVLight* lights);

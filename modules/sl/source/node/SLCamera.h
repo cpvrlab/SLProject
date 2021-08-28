@@ -54,8 +54,8 @@ drawn on the far clipping plane of the visualized view frustum.
 class SLCamera : public SLNode
 {
 public:
-    explicit SLCamera(const SLstring& name = "Camera",
-                      SLStdShaderProg textureOnlyProgramId = SP_TextureOnly,
+    explicit SLCamera(const SLstring& name                    = "Camera",
+                      SLStdShaderProg textureOnlyProgramId    = SP_TextureOnly,
                       SLStdShaderProg colorAttributeProgramId = SP_colorAttribute);
     ~SLCamera() override;
 
@@ -145,10 +145,9 @@ public:
     SLstring       projectionStr() const { return projectionToStr(_projection); }
     SLfloat        unitScaling() const { return _unitScaling; }
     SLfloat        fovV() const { return _fovV; } //!< Vertical field of view
-    SLfloat        fovH() const; //!< Horizontal field of view
-    
-    SLint     viewportW() const { return _viewportW; }
-    SLint     viewportH() const { return _viewportH; }
+    SLfloat        fovH() const;                  //!< Horizontal field of view
+
+    SLRecti   viewport() const { return _viewport; }
     SLfloat   aspect() const { return _viewportRatio; }
     SLfloat   clipNear() const { return _clipNear; }
     SLfloat   clipFar() const { return _clipFar; }
@@ -184,7 +183,7 @@ public:
     SLRectf&      selectRect() { return _selectRect; }
     SLRectf&      deselectRect() { return _deselectRect; }
 
-    //update rotation matrix _enucorrRenu
+    // update rotation matrix _enucorrRenu
     void updateEnuCorrRenu(SLSceneView* sv, const SLMat3f& enuRc, float& f, SLVec3f& enuOffsetPix);
 
     // Static global default parameters for new cameras
@@ -201,26 +200,14 @@ protected:
     SLfloat      _fovInit;       //!< Initial vertical field of view (view angle) in degrees
     SLfloat      _clipNear;      //!< Dist. to the near clipping plane
     SLfloat      _clipFar;       //!< Dist. to the far clipping plane
-    SLPlane      _plane[6];      //!< 6 frustum planes (t, b, l, r, n, f)
-    SLint        _viewportW;     //!< screen width in screen coordinates (the framebuffer may be bigger)
-    SLint        _viewportH;     //!< screen height in screen coordinates (the framebuffer may be bigger)
-    SLfloat      _viewportRatio; //!< _scrW /_srcH = screen ratio
+    SLPlane      _plane[6];      //!< 6 frustum planes (l, r, t, b, n, f)
+    SLRecti      _viewport;      //!< framebuffer rectangle
+    SLfloat      _viewportRatio; //!< viewport.width / viewport.height = screen ratio
     SLfloat      _fx;            //!< horizontal focal length
     SLfloat      _fy;            //!< vertical focal length
     SLfloat      _cx;            //!< sensor center in x direction
     SLfloat      _cy;            //!< sensor center in y direction
-    SLRecti      _fbRect;        //!< framebuffer rectangle (this could be different than the viewport on high dpi displays such as on MacOS)
-
-    enum
-    {
-        T = 0,
-        B,
-        L,
-        R,
-        N,
-        F
-    };                        //!< enumeration for frustum planes
-    SLBackground _background; //!< Colors or texture displayed in the background
+    SLBackground _background;    //!< Colors or texture displayed in the background
 
     SLGLVertexArrayExt _vao; //!< OpenGL Vertex array for rendering
 
@@ -265,12 +252,12 @@ protected:
     SLRectf _selectRect;   //!< Mouse selection rectangle. See SLMesh::handleRectangleSelection
     SLRectf _deselectRect; //!< Mouse deselection rectangle. See SLMesh::handleRectangleSelection
 
-    //!parameter for manual finger rotation and translation
-    SLint   _xOffsetPix        = 0;
-    SLint   _yOffsetPix        = 0;
+    //! parameter for manual finger rotation and translation
+    SLint   _xOffsetPix = 0;
+    SLint   _yOffsetPix = 0;
     SLMat3f _enucorrRenu;
-    //float   _distanceToObjectM = 1.0f; //!< distance to object in meter that should be shifted relative to camera
-    //float   _enucorrTRenu      = 0.f;  //!< manual camera shift in y direction
+    // float   _distanceToObjectM = 1.0f; //!< distance to object in meter that should be shifted relative to camera
+    // float   _enucorrTRenu      = 0.f;  //!< manual camera shift in y direction
 
     function<void(SLSceneView* sv)> _onCamUpdateCB;
 };

@@ -25,6 +25,8 @@ using std::to_string;
 //-----------------------------------------------------------------------------
 string SLGLProgramGenerated::generatedShaderPath;
 //-----------------------------------------------------------------------------
+const string vertInputs_a_p       = R"(
+layout (location = 0) in vec4  a_position;  // Vertex position attribute)";
 const string vertInputs_a_pn      = R"(
 layout (location = 0) in vec4  a_position;  // Vertex position attribute
 layout (location = 1) in vec3  a_normal;    // Vertex normal attribute)";
@@ -36,10 +38,13 @@ const string vertInputs_a_tangent = R"(
 layout (location = 5) in vec4  a_tangent;   // Vertex tangent attribute
 )";
 //-----------------------------------------------------------------------------
-const string vertInputs_u_matrices = R"(
+const string vertInputs_u_matrices_all = R"(
 uniform mat3  u_nMatrix;    // normal matrix=transpose(inverse(mv))
 uniform mat4  u_mMatrix;    // model matrix
 uniform mat4  u_mvMatrix;   // modelview matrix
+uniform mat4  u_mvpMatrix;  // = projection * modelView
+)";
+const string vertInputs_u_matrices_mvp = R"(
 uniform mat4  u_mvpMatrix;  // = projection * modelView
 )";
 //-----------------------------------------------------------------------------
@@ -51,10 +56,10 @@ uniform float u_lightSpotDeg[NUM_LIGHTS];   // spot cutoff angle 1-180 degrees
 //-----------------------------------------------------------------------------
 const string vertOutputs_v_P_VS    = R"(
 out     vec3  v_P_VS;                   // Point of illumination in view space (VS))";
-const string vertOutputs_v_N_VS    = R"(
-out     vec3  v_N_VS;                   // Normal at P_VS in view space (VS))";
 const string vertOutputs_v_P_WS    = R"(
 out     vec3  v_P_WS;                   // Point of illumination in world space (WS))";
+const string vertOutputs_v_N_VS    = R"(
+out     vec3  v_N_VS;                   // Normal at P_VS in view space (VS))";
 const string vertOutputs_v_uv1     = R"(
 out     vec2  v_uv1;                    // Texture coordinate 1 output)";
 const string vertOutputs_v_uv2     = R"(
@@ -65,7 +70,11 @@ out     vec3  v_lightDirTS[NUM_LIGHTS]; // Vector to the light 0 in tangent spac
 out     vec3  v_spotDirTS[NUM_LIGHTS];  // Spot direction in tangent space
 )";
 //-----------------------------------------------------------------------------
-const string vertMainBlinn_BeginAll  = R"(
+const string vertMainBeginOnly       = R"(
+void main()
+{)";
+const string vertMainBlinn_v_P_VS    = R"(
+
 void main()
 {
     v_P_VS = vec3(u_mvMatrix *  a_position); // vertex position in view space)";
@@ -102,6 +111,7 @@ const string vertMainBlinn_TBN_Nm    = R"(
     }
 )";
 const string vertMainBlinn_EndAll    = R"(
+
     // pass the vertex w. the fix-function transform
     gl_Position = u_mvpMatrix * a_position;
 }
@@ -125,15 +135,15 @@ uniform vec4        u_globalAmbi;                           // Global ambient sc
 uniform float       u_oneOverGamma;                         // 1.0f / Gamma correction value
 )";
 //-----------------------------------------------------------------------------
-const string fragInputs_u_lightSc = R"(
-)";
-//-----------------------------------------------------------------------------
 const string fragInputs_u_matAllBlinn = R"(
 uniform vec4        u_matAmbi;          // ambient color reflection coefficient (ka)
 uniform vec4        u_matDiff;          // diffuse color reflection coefficient (kd)
 uniform vec4        u_matSpec;          // specular color reflection coefficient (ks)
 uniform vec4        u_matEmis;          // emissive color for self-shining materials
 uniform float       u_matShin;          // shininess exponent
+)";
+const string fragInputs_u_matAmbi     = R"(
+uniform vec4        u_matAmbi;          // ambient color reflection coefficient (ka)
 )";
 //-----------------------------------------------------------------------------
 const string fragInputs_u_matTm       = R"(
@@ -148,11 +158,6 @@ uniform bool        u_matGetsShadows;   // flag if material receives shadows
 const string fragInputs_u_matTmNm     = R"(
 uniform sampler2D   u_matTexture0;      // diffuse color map
 uniform sampler2D   u_matTexture1;      // normal bump map
-)";
-const string fragInputs_u_matTmPm     = R"(
-uniform sampler2D   u_matTexture0;      // diffuse color map
-uniform sampler2D   u_matTexture1;      // normal bump map
-uniform sampler2D   u_matTexture2;      // normal bump map
 )";
 const string fragInputs_u_matTmAo     = R"(
 uniform sampler2D   u_matTexture0;      // diffuse color map
@@ -208,6 +213,10 @@ uniform float       u_camFogEnd;        // fog end distance
 uniform vec4        u_camFogColor;      // fog color (usually the background)
 uniform float       u_camClipNear;      // camera near plane
 uniform float       u_camClipFar;       // camera far plane
+uniform float       u_camBkgdWidth;     // camera background width
+uniform float       u_camBkgdHeight;    // camera background height
+uniform float       u_camBkgdLeft;      // camera background left
+uniform float       u_camBkgdBottom;    // camera background bottom
 )";
 //-----------------------------------------------------------------------------
 const string fragOutputs_o_fragColor = R"(
@@ -777,6 +786,52 @@ const string fragMainBlinn_5_End = R"(
 }
 )";
 //-----------------------------------------------------------------------------
+const string fragMainVideoBkgd = R"(
+void main()
+{
+    float x = (gl_FragCoord.x - u_camBkgdLeft) / u_camBkgdWidth;
+    float y = (gl_FragCoord.y - u_camBkgdBottom) / u_camBkgdHeight;
+
+    if(x < 0.0f || y < 0.0f || x > 1.0f || y > 1.0f)
+        o_fragColor = vec4(0.0f, 0.0f, 0.0f, 1.0f);
+    else
+        o_fragColor = texture(u_matTexture0, vec2(x, y));
+
+    vec3 N = normalize(v_N_VS);  // A input normal has not anymore unit length
+    float shadow = 0.0;
+
+    // Colorize cascaded shadows for debugging purpose
+    if (u_lightsDoColoredShadows)
+        doColoredShadows(N);
+    else
+    {
+        for (int i = 0; i < NUM_LIGHTS; ++i)
+        {
+            if (u_lightIsOn[i])
+            {
+                if (u_lightPosVS[i].w == 0.0)
+                {
+                    // We use the spot light direction as the light direction vector
+                    vec3 S = normalize(-u_lightSpotDir[i].xyz);
+
+                    // Test if the current fragment is in shadow
+                    shadow = u_matGetsShadows ? shadowTest(i, N, S) : 0.0;
+                }
+                else
+                {
+                    vec3 L = u_lightPosVS[i].xyz - v_P_VS; // Vector from v_P to light in VS
+
+                    // Test if the current fragment is in shadow
+                    shadow = u_matGetsShadows ? shadowTest(i, N, L) : 0.0;
+                }
+                o_fragColor = o_fragColor * min(1.0 - shadow + u_matAmbi.r, 1.0);
+            }
+        }
+    }
+
+)";
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------
 //! Builds unique program name that identifies shader program
@@ -856,8 +911,8 @@ void SLGLProgramGenerated::buildProgramCode(SLMaterial* mat,
     // Check what textures the material has
     bool Tm = mat->hasTextureType(TT_diffuse);
     bool Nm = mat->hasTextureType(TT_normal);
-    bool Hm = mat->hasTextureType(TT_height);
     bool Ao = mat->hasTextureType(TT_ambientOcclusion);
+    bool Vb = mat->hasTextureType(TT_videoBkgd);
 
     // Check if any of the scene lights does shadow mapping
     bool Sm = lightsDoShadowMapping(lights);
@@ -897,8 +952,15 @@ void SLGLProgramGenerated::buildProgramCode(SLMaterial* mat,
         else
             buildPerPixBlinn(lights);
     }
+    else if (mat->lightModel() == LM_Custom)
+    {
+        if (Vb && Sm)
+            buildPerPixVideoBkgdSm(lights);
+        else
+            SL_EXIT_MSG("SLGLProgramGenerated::buildProgramCode: Unknown program for LM_Custom.");
+    }
     else
-        SL_EXIT_MSG("Only Blinn-Phong supported yet.");
+        SL_EXIT_MSG("SLGLProgramGenerated::buildProgramCode: Unknown Lighting Model.");
 }
 
 //-----------------------------------------------------------------------------
@@ -911,7 +973,7 @@ void SLGLProgramGenerated::buildPerPixBlinnTmNmAoSm(SLVLight* lights)
     vertCode += vertInputs_a_uv1;
     vertCode += vertInputs_a_uv2;
     vertCode += vertInputs_a_tangent;
-    vertCode += vertInputs_u_matrices;
+    vertCode += vertInputs_u_matrices_all;
     vertCode += vertInputs_u_lightNm;
     vertCode += vertOutputs_v_P_VS;
     vertCode += vertOutputs_v_P_WS;
@@ -919,7 +981,7 @@ void SLGLProgramGenerated::buildPerPixBlinnTmNmAoSm(SLVLight* lights)
     vertCode += vertOutputs_v_uv1;
     vertCode += vertOutputs_v_uv2;
     vertCode += vertOutputs_v_lightNm;
-    vertCode += vertMainBlinn_BeginAll;
+    vertCode += vertMainBlinn_v_P_VS;
     vertCode += vertMainBlinn_v_P_WS_Sm;
     vertCode += vertMainBlinn_v_uv1;
     vertCode += vertMainBlinn_v_uv2_Ao;
@@ -970,12 +1032,12 @@ void SLGLProgramGenerated::buildPerPixBlinnTmNmAo(SLVLight* lights)
     vertCode += vertInputs_a_uv2;
     vertCode += vertInputs_a_tangent;
     vertCode += vertInputs_u_lightNm;
-    vertCode += vertInputs_u_matrices;
+    vertCode += vertInputs_u_matrices_all;
     vertCode += vertOutputs_v_P_VS;
     vertCode += vertOutputs_v_uv1;
     vertCode += vertOutputs_v_uv2;
     vertCode += vertOutputs_v_lightNm;
-    vertCode += vertMainBlinn_BeginAll;
+    vertCode += vertMainBlinn_v_P_VS;
     vertCode += vertMainBlinn_v_uv1;
     vertCode += vertMainBlinn_v_uv2_Ao;
     vertCode += vertMainBlinn_TBN_Nm;
@@ -1017,14 +1079,14 @@ void SLGLProgramGenerated::buildPerPixBlinnTmNmSm(SLVLight* lights)
     vertCode += vertInputs_a_pn;
     vertCode += vertInputs_a_uv1;
     vertCode += vertInputs_a_tangent;
-    vertCode += vertInputs_u_matrices;
+    vertCode += vertInputs_u_matrices_all;
     vertCode += vertInputs_u_lightNm;
     vertCode += vertOutputs_v_P_VS;
     vertCode += vertOutputs_v_P_WS;
     vertCode += vertOutputs_v_N_VS;
     vertCode += vertOutputs_v_uv1;
     vertCode += vertOutputs_v_lightNm;
-    vertCode += vertMainBlinn_BeginAll;
+    vertCode += vertMainBlinn_v_P_VS;
     vertCode += vertMainBlinn_v_P_WS_Sm;
     vertCode += vertMainBlinn_v_uv1;
     vertCode += vertMainBlinn_TBN_Nm;
@@ -1071,13 +1133,13 @@ void SLGLProgramGenerated::buildPerPixBlinnTmAoSm(SLVLight* lights)
     vertCode += vertInputs_a_pn;
     vertCode += vertInputs_a_uv1;
     vertCode += vertInputs_a_uv2;
-    vertCode += vertInputs_u_matrices;
+    vertCode += vertInputs_u_matrices_all;
     vertCode += vertOutputs_v_P_VS;
     vertCode += vertOutputs_v_P_WS;
     vertCode += vertOutputs_v_N_VS;
     vertCode += vertOutputs_v_uv1;
     vertCode += vertOutputs_v_uv2;
-    vertCode += vertMainBlinn_BeginAll;
+    vertCode += vertMainBlinn_v_P_VS;
     vertCode += vertMainBlinn_v_P_WS_Sm;
     vertCode += vertMainBlinn_v_N_VS;
     vertCode += vertMainBlinn_v_uv1;
@@ -1123,12 +1185,12 @@ void SLGLProgramGenerated::buildPerPixBlinnTmSm(SLVLight* lights)
     vertCode += shaderHeader((int)lights->size());
     vertCode += vertInputs_a_pn;
     vertCode += vertInputs_a_uv1;
-    vertCode += vertInputs_u_matrices;
+    vertCode += vertInputs_u_matrices_all;
     vertCode += vertOutputs_v_P_VS;
     vertCode += vertOutputs_v_P_WS;
     vertCode += vertOutputs_v_N_VS;
     vertCode += vertOutputs_v_uv1;
-    vertCode += vertMainBlinn_BeginAll;
+    vertCode += vertMainBlinn_v_P_VS;
     vertCode += vertMainBlinn_v_P_WS_Sm;
     vertCode += vertMainBlinn_v_N_VS;
     vertCode += vertMainBlinn_v_uv1;
@@ -1174,13 +1236,13 @@ void SLGLProgramGenerated::buildPerPixBlinnNmSm(SLVLight* lights)
     vertCode += vertInputs_a_uv1;
     vertCode += vertInputs_a_tangent;
     vertCode += vertInputs_u_lightNm;
-    vertCode += vertInputs_u_matrices;
+    vertCode += vertInputs_u_matrices_all;
     vertCode += vertOutputs_v_P_VS;
     vertCode += vertOutputs_v_P_WS;
     vertCode += vertOutputs_v_N_VS;
     vertCode += vertOutputs_v_uv1;
     vertCode += vertOutputs_v_lightNm;
-    vertCode += vertMainBlinn_BeginAll;
+    vertCode += vertMainBlinn_v_P_VS;
     vertCode += vertMainBlinn_v_P_WS_Sm;
     vertCode += vertMainBlinn_v_uv1;
     vertCode += vertMainBlinn_TBN_Nm;
@@ -1226,12 +1288,12 @@ void SLGLProgramGenerated::buildPerPixBlinnAoSm(SLVLight* lights)
     vertCode += shaderHeader((int)lights->size());
     vertCode += vertInputs_a_pn;
     vertCode += vertInputs_a_uv2;
-    vertCode += vertInputs_u_matrices;
+    vertCode += vertInputs_u_matrices_all;
     vertCode += vertOutputs_v_P_VS;
     vertCode += vertOutputs_v_P_WS;
     vertCode += vertOutputs_v_N_VS;
     vertCode += vertOutputs_v_uv2;
-    vertCode += vertMainBlinn_BeginAll;
+    vertCode += vertMainBlinn_v_P_VS;
     vertCode += vertMainBlinn_v_P_WS_Sm;
     vertCode += vertMainBlinn_v_N_VS;
     vertCode += vertMainBlinn_v_uv2_Ao;
@@ -1277,13 +1339,13 @@ void SLGLProgramGenerated::buildPerPixBlinnNmAo(SLVLight* lights)
     vertCode += vertInputs_a_uv1;
     vertCode += vertInputs_a_uv2;
     vertCode += vertInputs_a_tangent;
-    vertCode += vertInputs_u_matrices;
+    vertCode += vertInputs_u_matrices_all;
     vertCode += vertInputs_u_lightNm;
     vertCode += vertOutputs_v_P_VS;
     vertCode += vertOutputs_v_uv1;
     vertCode += vertOutputs_v_uv2;
     vertCode += vertOutputs_v_lightNm;
-    vertCode += vertMainBlinn_BeginAll;
+    vertCode += vertMainBlinn_v_P_VS;
     vertCode += vertMainBlinn_v_uv1;
     vertCode += vertMainBlinn_v_uv2_Ao;
     vertCode += vertMainBlinn_TBN_Nm;
@@ -1325,12 +1387,12 @@ void SLGLProgramGenerated::buildPerPixBlinnTmAo(SLVLight* lights)
     vertCode += vertInputs_a_pn;
     vertCode += vertInputs_a_uv1;
     vertCode += vertInputs_a_uv2;
-    vertCode += vertInputs_u_matrices;
+    vertCode += vertInputs_u_matrices_all;
     vertCode += vertOutputs_v_P_VS;
     vertCode += vertOutputs_v_N_VS;
     vertCode += vertOutputs_v_uv1;
     vertCode += vertOutputs_v_uv2;
-    vertCode += vertMainBlinn_BeginAll;
+    vertCode += vertMainBlinn_v_P_VS;
     vertCode += vertMainBlinn_v_N_VS;
     vertCode += vertMainBlinn_v_uv1;
     vertCode += vertMainBlinn_v_uv2_Ao;
@@ -1370,12 +1432,12 @@ void SLGLProgramGenerated::buildPerPixBlinnTmNm(SLVLight* lights)
     vertCode += vertInputs_a_pn;
     vertCode += vertInputs_a_uv1;
     vertCode += vertInputs_a_tangent;
-    vertCode += vertInputs_u_matrices;
+    vertCode += vertInputs_u_matrices_all;
     vertCode += vertInputs_u_lightNm;
     vertCode += vertOutputs_v_P_VS;
     vertCode += vertOutputs_v_uv1;
     vertCode += vertOutputs_v_lightNm;
-    vertCode += vertMainBlinn_BeginAll;
+    vertCode += vertMainBlinn_v_P_VS;
     vertCode += vertMainBlinn_v_uv1;
     vertCode += vertMainBlinn_TBN_Nm;
     vertCode += vertMainBlinn_EndAll;
@@ -1413,11 +1475,11 @@ void SLGLProgramGenerated::buildPerPixBlinnSm(SLVLight* lights)
     string vertCode;
     vertCode += shaderHeader((int)lights->size());
     vertCode += vertInputs_a_pn;
-    vertCode += vertInputs_u_matrices;
+    vertCode += vertInputs_u_matrices_all;
     vertCode += vertOutputs_v_P_VS;
     vertCode += vertOutputs_v_P_WS;
     vertCode += vertOutputs_v_N_VS;
-    vertCode += vertMainBlinn_BeginAll;
+    vertCode += vertMainBlinn_v_P_VS;
     vertCode += vertMainBlinn_v_P_WS_Sm;
     vertCode += vertMainBlinn_v_N_VS;
     vertCode += vertMainBlinn_EndAll;
@@ -1459,11 +1521,11 @@ void SLGLProgramGenerated::buildPerPixBlinnAo(SLVLight* lights)
     vertCode += shaderHeader((int)lights->size());
     vertCode += vertInputs_a_pn;
     vertCode += vertInputs_a_uv2;
-    vertCode += vertInputs_u_matrices;
+    vertCode += vertInputs_u_matrices_all;
     vertCode += vertOutputs_v_P_VS;
     vertCode += vertOutputs_v_N_VS;
     vertCode += vertOutputs_v_uv2;
-    vertCode += vertMainBlinn_BeginAll;
+    vertCode += vertMainBlinn_v_P_VS;
     vertCode += vertMainBlinn_v_N_VS;
     vertCode += vertMainBlinn_v_uv2_Ao;
     vertCode += vertMainBlinn_EndAll;
@@ -1501,12 +1563,12 @@ void SLGLProgramGenerated::buildPerPixBlinnNm(SLVLight* lights)
     vertCode += vertInputs_a_pn;
     vertCode += vertInputs_a_uv1;
     vertCode += vertInputs_a_tangent;
-    vertCode += vertInputs_u_matrices;
+    vertCode += vertInputs_u_matrices_all;
     vertCode += vertInputs_u_lightNm;
     vertCode += vertOutputs_v_P_VS;
     vertCode += vertOutputs_v_uv1;
     vertCode += vertOutputs_v_lightNm;
-    vertCode += vertMainBlinn_BeginAll;
+    vertCode += vertMainBlinn_v_P_VS;
     vertCode += vertMainBlinn_v_uv1;
     vertCode += vertMainBlinn_TBN_Nm;
     vertCode += vertMainBlinn_EndAll;
@@ -1545,11 +1607,11 @@ void SLGLProgramGenerated::buildPerPixBlinnTm(SLVLight* lights)
     vertCode += shaderHeader((int)lights->size());
     vertCode += vertInputs_a_pn;
     vertCode += vertInputs_a_uv1;
-    vertCode += vertInputs_u_matrices;
+    vertCode += vertInputs_u_matrices_all;
     vertCode += vertOutputs_v_P_VS;
     vertCode += vertOutputs_v_N_VS;
     vertCode += vertOutputs_v_uv1;
-    vertCode += vertMainBlinn_BeginAll;
+    vertCode += vertMainBlinn_v_P_VS;
     vertCode += vertMainBlinn_v_N_VS;
     vertCode += vertMainBlinn_v_uv1;
     vertCode += vertMainBlinn_EndAll;
@@ -1589,10 +1651,10 @@ void SLGLProgramGenerated::buildPerPixBlinn(SLVLight* lights)
     string vertCode;
     vertCode += shaderHeader((int)lights->size());
     vertCode += vertInputs_a_pn;
-    vertCode += vertInputs_u_matrices;
+    vertCode += vertInputs_u_matrices_all;
     vertCode += vertOutputs_v_P_VS;
     vertCode += vertOutputs_v_N_VS;
-    vertCode += vertMainBlinn_BeginAll;
+    vertCode += vertMainBlinn_v_P_VS;
     vertCode += vertMainBlinn_v_N_VS;
     vertCode += vertMainBlinn_EndAll;
     addCodeToShader(_shaders[0], vertCode, _name + ".vert");
@@ -1615,6 +1677,52 @@ in      vec3        v_N_VS;     // Interpol. normal at v_P_VS in view space
     fragCode += fragMainBlinn_1_EN_fromVert;
     fragCode += fragMainBlinn_2_LightLoop;
     fragCode += fragMainBlinn_3_FragColor;
+    fragCode += fragMainBlinn_5_End;
+    addCodeToShader(_shaders[1], fragCode, _name + ".frag");
+}
+//-----------------------------------------------------------------------------
+
+//-----------------------------------------------------------------------------
+void SLGLProgramGenerated::buildPerPixVideoBkgdSm(SLVLight* lights)
+{
+    assert(_shaders.size() > 1 &&
+           _shaders[0]->type() == ST_vertex &&
+           _shaders[1]->type() == ST_fragment);
+
+    // Assemble vertex shader code
+    string vertCode;
+    vertCode += shaderHeader((int)lights->size());
+    vertCode += vertInputs_a_pn;
+    vertCode += vertInputs_u_matrices_all;
+    vertCode += vertOutputs_v_P_VS;
+    vertCode += vertOutputs_v_P_WS;
+    vertCode += vertOutputs_v_N_VS;
+    vertCode += vertMainBlinn_v_P_VS;
+    vertCode += vertMainBlinn_v_P_WS_Sm;
+    vertCode += vertMainBlinn_v_N_VS;
+    vertCode += vertMainBlinn_EndAll;
+    addCodeToShader(_shaders[0], vertCode, _name + ".vert");
+
+    // Assemble fragment shader code
+    string fragCode;
+    fragCode += shaderHeader((int)lights->size());
+    fragCode += R"(
+in      vec3        v_P_VS;     // Interpol. point of illumination in view space (VS)
+in      vec3        v_P_WS;     // Interpol. point of illumination in world space (WS)
+in      vec3        v_N_VS;     // Interpol. normal at v_P_VS in view space
+)";
+    fragCode += fragInputs_u_lightAll;
+    fragCode += fragInputs_u_lightSm(lights);
+    fragCode += fragInputs_u_cam;
+    fragCode += fragInputs_u_matAmbi;
+    fragCode += fragInputs_u_matTmSm;
+    fragCode += fragInputs_u_shadowMaps(lights);
+    fragCode += fragOutputs_o_fragColor;
+    fragCode += fragFunctionFogBlend;
+    fragCode += fragFunctionDoStereoSeparation;
+    fragCode += fragFunctionShadowTest(lights);
+    fragCode += fragFunctionDoColoredShadows;
+    fragCode += fragMainVideoBkgd;
     fragCode += fragMainBlinn_5_End;
     addCodeToShader(_shaders[1], fragCode, _name + ".frag");
 }

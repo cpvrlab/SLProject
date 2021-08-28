@@ -37,10 +37,10 @@ uniform sampler2D   u_shadowMap_1;      // shadow map for light 1
 uniform sampler2D   u_shadowMap_2;      // shadow map for light 2
 uniform sampler2D   u_shadowMap_3;      // shadow map for light 3
 
-uniform float       u_bgWidth;          // background width
-uniform float       u_bgHeight;         // background height
-uniform float       u_bgLeft;           // background left
-uniform float       u_bgBottom;         // background bottom
+uniform float       u_camBkgdWidth;     // background width
+uniform float       u_camBkgdHeight;    // background height
+uniform float       u_camBkgdLeft;      // background left
+uniform float       u_camBkgdBottom;    // background bottom
 
 uniform bool        u_matGetsShadows;   // flag if material receives shadows
 uniform vec4        u_matAmbi;          // ambient color reflection coefficient (ka)
@@ -53,8 +53,8 @@ out     vec4        o_fragColor;        // output fragment color
 //-----------------------------------------------------------------------------
 void main()
 {
-    float x = (gl_FragCoord.x - u_bgLeft) / u_bgWidth;
-    float y = (gl_FragCoord.y - u_bgBottom) / u_bgHeight;
+    float x = (gl_FragCoord.x - u_camBkgdLeft) / u_camBkgdWidth;
+    float y = (gl_FragCoord.y - u_camBkgdBottom) / u_camBkgdHeight;
 
     //mirror at x axis
     vec4 texColor;

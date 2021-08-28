@@ -32,10 +32,10 @@ uniform float       u_lightShadowMaxBias[NUM_LIGHTS];       // min. shadow bias 
 uniform sampler2D   u_shadowMap_0;      // shadow map for light 0
 uniform mat4        u_lightSpace_0;     // projection matrices for lights
 
-uniform float       u_bgWidth;          // background width
-uniform float       u_bgHeight;         // background height
-uniform float       u_bgLeft;           // background left
-uniform float       u_bgBottom;         // background bottom
+uniform float       u_camBkgdWidth;     // background width
+uniform float       u_camBkgdHeight;    // background height
+uniform float       u_camBkgdLeft;      // background left
+uniform float       u_camBkgdBottom;    // background bottom
 
 uniform bool        u_matGetsShadows;   // flag if material receives shadows
 uniform vec4        u_matAmbi;          // ambient color reflection coefficient (ka)
@@ -48,14 +48,14 @@ out     vec4        o_fragColor;        // output fragment color
 //-----------------------------------------------------------------------------
 void main()
 {
-    float x = (gl_FragCoord.x - u_bgLeft) / u_bgWidth;
-    float y = (gl_FragCoord.y - u_bgBottom) / u_bgHeight;
+    float x = (gl_FragCoord.x - u_camBkgdLeft) / u_camBkgdWidth;
+    float y = (gl_FragCoord.y - u_camBkgdBottom) / u_camBkgdHeight;
 
-    vec4 texColor;
+    vec4 fragVideo;
     if(x < 0.0f || y < 0.0f || x > 1.0f || y > 1.0f)
-        texColor = vec4(0.0f, 0.0f, 0.0f, 1.0f);
+        fragVideo = vec4(0.0f, 0.0f, 0.0f, 1.0f);
     else
-        texColor = texture(u_matTexture0, vec2(x, y));
+        fragVideo = texture(u_matTexture0, vec2(x, y));
         
     vec3 N = normalize(v_N_VS);  // A input normal has not anymore unit length
     float shadow = 0.0;
@@ -79,6 +79,6 @@ void main()
         }
     }
 
-    o_fragColor = texColor * min(1.0 - shadow + u_matAmbi.r, 1.0);
+    o_fragColor = fragVideo * min(1.0 - shadow + u_matAmbi.r, 1.0);
 }
 //-----------------------------------------------------------------------------

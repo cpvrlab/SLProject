@@ -213,6 +213,7 @@ public:
     
     // Setters
     void assetManager(SLAssetManager* am) { _assetManager = am; }
+    void lightModel(SLLightModel lm) { _lightModel = lm; }
 
     // Static variables & functions
     static SLfloat K;       //!< PM: Constant of gloss calibration (slope of point light at dist 1)

@@ -1857,10 +1857,6 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                             if (ImGui::MenuItem("Sutz: Kirchrain 18", nullptr, sid == SID_ErlebARSutzKirchrain18))
                                 s->onLoad(s, sv, SID_ErlebARSutzKirchrain18);
 
-                        if (Utils::fileExists(modelEV1))
-                            if (ImGui::MenuItem("Evilard: Chemin du Roc 2", nullptr, sid == SID_ErlebAREvilardCheminDuRoc2))
-                                s->onLoad(s, sv, SID_ErlebAREvilardCheminDuRoc2);
-
                         ImGui::EndMenu();
                     }
                 }
@@ -2871,7 +2867,7 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
             ImGui::MenuItem("Infos on Device", nullptr, &showInfosDevice);
             ImGui::MenuItem("Infos on Sensors", nullptr, &showInfosSensors);
             if (AppDemo::sceneID >= SID_ErlebARBielBFH &&
-                AppDemo::sceneID <= SID_ErlebAREvilardCheminDuRoc2)
+                AppDemo::sceneID <= SID_ErlebARSutzKirchrain18)
             {
                 ImGui::Separator();
                 ImGui::MenuItem("ErlebAR Settings", nullptr, &showErlebAR);
