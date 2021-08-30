@@ -1777,8 +1777,9 @@ string SLGLTexture::ktxErrorStr(int ktxErrorCode)
         case KTX_UNSUPPORTED_TEXTURE_TYPE: return "KTX_UNSUPPORTED_TEXTURE_TYPE";
         case KTX_UNSUPPORTED_FEATURE: return "KTX_UNSUPPORTED_FEATURE";
         case KTX_LIBRARY_NOT_LINKED: return "KTX_LIBRARY_NOT_LINKED";
-        default: "Unknow KTX_ERROR";
+        default: "Unknown KTX_ERROR";
     }
+    return string("Unknown KTX_ERROR");
 }
 #endif
 //------------------------------------------------------------------------------
