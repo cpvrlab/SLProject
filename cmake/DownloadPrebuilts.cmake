@@ -479,8 +479,6 @@ elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #----------------------------
     # OpenVR for Windows #
     ######################
 
-    set(SL_BUILD_WITH_OPENVR ON)
-
     if ("${SL_BUILD_WITH_OPENVR}")
         set(openvr_VERSION "1.16.8")
         set(openvr_DIR ${PREBUILT_PATH}/win64_openvr_${openvr_VERSION})
@@ -839,6 +837,39 @@ elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN" AND
                 ${lib}
                 )
     endforeach (lib)
+
+    ###########################
+    # OpenVR for MacOS-x86_64 #
+    ###########################
+
+    if ("${SL_BUILD_WITH_OPENVR}")
+        set(openvr_VERSION "1.16.8")
+        set(openvr_DIR ${PREBUILT_PATH}/mac64_openvr_${openvr_VERSION})
+        set(openvr_PREBUILT_ZIP "mac64_openvr_${openvr_VERSION}.zip")
+        set(openvr_URL ${PREBUILT_URL}/${openvr_PREBUILT_ZIP})
+
+        if (NOT EXISTS "${openvr_DIR}")
+            message(STATUS "Downloading: ${openvr_PREBUILT_ZIP}")
+            file(DOWNLOAD "${openvr_URL}" "${PREBUILT_PATH}/${openvr_PREBUILT_ZIP}")
+            execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
+                    "${PREBUILT_PATH}/${openvr_PREBUILT_ZIP}"
+                    WORKING_DIRECTORY "${PREBUILT_PATH}")
+            file(REMOVE "${PREBUILT_PATH}/${openvr_PREBUILT_ZIP}")
+        endif ()
+
+        set(openvr_INCLUDE_DIR ${openvr_DIR}/include)
+        set(openvr_LINK_DIR ${openvr_DIR}/lib)
+        set(openvr_LIBS openvr_api)
+
+        if (COPY_LIBS_TO_CONFIG_FOLDER)
+            if (${CMAKE_GENERATOR} STREQUAL Xcode)
+                file(COPY ${glfw_LINK_DIR}/Release/libopenvr_api.dylib DESTINATION ${CMAKE_BINARY_DIR}/Debug)
+                file(COPY ${glfw_LINK_DIR}/Release/libopenvr_api.dylib DESTINATION ${CMAKE_BINARY_DIR}/Release)
+            endif ()
+        endif ()
+
+        add_compile_definitions(SL_HAS_OPENVR)
+    endif ()
 elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN" AND
         "${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "arm64") #-----------------------------------------------------------------
 

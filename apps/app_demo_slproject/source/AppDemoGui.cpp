@@ -1469,8 +1469,10 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                         s->onLoad(s, sv, SID_2Dand3DText);
                     if (ImGui::MenuItem("Point Clouds", nullptr, sid == SID_PointClouds))
                         s->onLoad(s, sv, SID_PointClouds);
+#ifdef SL_HAS_OPENVR
                     if (ImGui::MenuItem("OpenVR", nullptr, sid == SID_OpenVR))
                         s->onLoad(s, sv, SID_OpenVR);
+#endif
 
                     ImGui::EndMenu();
                 }

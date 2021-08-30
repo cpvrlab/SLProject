@@ -1251,14 +1251,11 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->doWaitOnIdle(false);
         s->root3D(scene);
     }
+#ifdef SL_HAS_OPENVR
     else if (sceneID == SID_OpenVR)
     {
         s->name("OpenVR Test");
         s->info("Nobody cares about this description so I won't even write one.");
-
-        /*
-         * Shameless copy from here...
-         */
 
         SLGLTexture* t1 = new SLGLTexture(s,
                                           texPath + "tree1_1024_C.png",
@@ -1384,11 +1381,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         sv->camera(cam1);
         s->root3D(scene);
-
-        /*
-         * ... to here!
-         */
     }
+#endif
 
     else if (sceneID == SID_ShaderPerPixelBlinn ||
              sceneID == SID_ShaderPerVertexBlinn) //...............................................

@@ -101,7 +101,9 @@ enum SLSceneID
     SID_FrustumCull,
     SID_2Dand3DText,
     SID_PointClouds,
+#ifdef SL_HAS_OPENVR
     SID_OpenVR,
+#endif
 
     SID_ShaderPerVertexBlinn,
     SID_ShaderPerPixelBlinn,

@@ -55,7 +55,7 @@ bool CVTrackedAruco::track(CVMat          imageGray,
     if (params.arucoParams.empty() || params.dictionary.empty())
     {
         Utils::warnMsg("SLProject",
-                       "CVTrackedAruco::track: Aruco paramters are empty.",
+                       "CVTrackedAruco::track: Aruco parameters are empty.",
                        __LINE__,
                        __FILE__);
         return false;

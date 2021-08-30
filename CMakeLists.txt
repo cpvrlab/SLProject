@@ -40,6 +40,7 @@ option(SL_BUILD_WITH_OPTIX   "Specifies if Optix renderer should be built"      
 option(SL_BUILD_WITH_KTX     "Specifies if Kronos Texture library (ktx) should be used" ON)
 option(SL_BUILD_WITH_OPENSSL "Specifies if OpenSSL should be used"                      ON)
 option(SL_BUILD_WITH_ASSIMP  "Specifies if Assimp should be used"                       ON)
+option(SL_BUILD_WITH_OPENVR  "Specifies if OpenVR should be used"						ON)
 option(LIBIGL_USE_STATIC_LIBRARY "Specifies if LibIGL should be built statically"       ON)
 
 message(STATUS "SL_DOWNLOAD_PREBUILTS: ${SL_DOWNLOAD_PREBUILTS}")

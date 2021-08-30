@@ -75,9 +75,11 @@ bool SLVRSystem::initializeOpenVR()
 
     vr::HmdError error;
     _system = vr::VR_Init(&error, vr::EVRApplicationType::VRApplication_Scene);
+
     if (!_system)
     {
-        VR_ERROR("Failed to initialize the OpenVR system (error code " << error << ")");
+        const char* description = vr::VR_GetVRInitErrorAsEnglishDescription(error);
+        VR_ERROR("Failed to initialize the OpenVR system: " << description)
         return false;
     }
 
@@ -98,6 +100,7 @@ bool SLVRSystem::detectTrackedDevices()
         // Get the class of the device (HMD, controller, etc.)
         vr::TrackedDeviceClass deviceClass = _system->GetTrackedDeviceClass(i);
 
+        // Register the device depending on its class
         switch (deviceClass)
         {
             case vr::TrackedDeviceClass_HMD:
@@ -202,7 +205,7 @@ void SLVRSystem::update()
  */
 SLMat4f SLVRSystem::getProjectionMatrix(SLEyeType eye, float nearPlane, float farPlane)
 {
-    vr::Hmd_Eye openVREye = SLVRConvert::SLEyeTypeToOpenVREye(eye);
+    vr::Hmd_Eye       openVREye    = SLVRConvert::SLEyeTypeToOpenVREye(eye);
     vr::HmdMatrix44_t openVRMatrix = _system->GetProjectionMatrix(openVREye, nearPlane, farPlane);
     return SLVRConvert::openVRMatrixToSLMatrix(openVRMatrix);
 }
@@ -213,7 +216,7 @@ SLMat4f SLVRSystem::getProjectionMatrix(SLEyeType eye, float nearPlane, float fa
  */
 SLMat4f SLVRSystem::getEyeMatrix(SLEyeType eye)
 {
-    vr::Hmd_Eye openVREye = SLVRConvert::SLEyeTypeToOpenVREye(eye);
+    vr::Hmd_Eye       openVREye    = SLVRConvert::SLEyeTypeToOpenVREye(eye);
     vr::HmdMatrix34_t openVRMatrix = _system->GetEyeToHeadTransform(openVREye);
     return SLVRConvert::openVRMatrixToSLMatrix(openVRMatrix).inverted();
 }
