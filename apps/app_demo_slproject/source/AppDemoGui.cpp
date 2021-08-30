@@ -247,9 +247,9 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
             }
 
             ImGui::Separator();
-            ImGui::Text("Parallel Jobs to follow: %lu",
+            ImGui::Text("Parallel Jobs to follow: %llu",
                         AppDemo::jobsToBeThreaded.size());
-            ImGui::Text("Sequential Jobs to follow: %lu",
+            ImGui::Text("Sequential Jobs to follow: %llu",
                         AppDemo::jobsToFollowInMain.size());
             ImGui::End();
             return;
