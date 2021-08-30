@@ -4190,10 +4190,10 @@ resolution shadows near the camera and lower resolution shadows further away.");
         sunLight->attenuation(1, 0, 0);
         sunLight->doSunPowerAdaptation(true);
         sunLight->createsShadows(true);
-        // ToDo: Implement auto genarated background shader
-        // sunLight->createShadowMapAutoSize(cam1, SLVec2i(4096, 4096), 4);
-        // sunLight->shadowMap()->cascadesFactor(3.0);
-        sunLight->createShadowMap(-100, 250, SLVec2f(210, 180), SLVec2i(4096, 4096));
+        sunLight->createShadowMapAutoSize(cam1, SLVec2i(2048, 2048), 4);
+        sunLight->shadowMap()->cascadesFactor(3.0);
+        // Old stanard single map shadow map
+        //sunLight->createShadowMap(-100, 250, SLVec2f(210, 180), SLVec2i(4096, 4096));
         sunLight->doSmoothShadows(true);
         sunLight->castsShadows(false);
         sunLight->shadowMinBias(0.001f);
