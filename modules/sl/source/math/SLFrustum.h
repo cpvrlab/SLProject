@@ -1,6 +1,6 @@
 //#############################################################################
 //  File:      SLFrustum.h
-//  Author:    Luc Girod
+//  Authors:   Luc Girod
 //  Date:      Summer 2021
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Licesne:   This software is provide under the GNU General Public License

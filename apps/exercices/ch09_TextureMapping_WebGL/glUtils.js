@@ -1,11 +1,10 @@
 //#############################################################################
 //  File:      glUtils.js
 //  Purpose:   General WebGL utility functions for simple WebGL demo apps
-//  Author:    Marcus Hudritsch
 //  Date:      September 2012 (HS12)
-//  Copyright: M. Hudritsch, Fachhochschule Nordwestschweiz
-//             THIS SOFTWARE IS PROVIDED FOR EDUCATIONAL PURPOSE ONLY AND
-//             WITHOUT ANY WARRANTIES WHETHER EXPRESSED OR IMPLIED.
+//  Authors:   Marcus Hudritsch
+//  License:   This software is provided under the GNU General Public License
+//             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
 ///////////////////////

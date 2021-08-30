@@ -4,8 +4,8 @@
 //             program with 50% from a cube texture and 50% from a pointlight.
 //  Author:    Marcus Hudritsch
 //  Date:      July 2014
-//  Copyright: Marcus Hudritsch
-//             This software is provide under the GNU General Public License
+//  Authors:   Marcus Hudritsch
+//  License:   This software is provided under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 

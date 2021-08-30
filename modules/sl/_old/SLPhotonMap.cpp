@@ -1,7 +1,10 @@
 //#############################################################################
 //  File:      SLPhotonMap.h
-// Authors:    Michael Strub, Stefan Traud
-// Date:       25-NOV-2003
+//  Authors:   Michael Strub, Stefan Traud
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
+//  Date:      25-NOV-2003
+//  License:   This software is provided under the GNU General Public License
+//             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
 #include <stdafx.h>

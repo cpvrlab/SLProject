@@ -2,10 +2,9 @@
 //  File:      TextureMapping_Net.cs
 //  Purpose:   Minimal core profile OpenGL application for ambient-diffuse-
 //             specular lighting shaders with Textures.
-//  Author:    Marcus Hudritsch
 //  Date:      February 2014
-//  Copyright: Marcus Hudritsch
-//             This software is provide under the GNU General Public License
+//  Authors:   Marcus Hudritsch
+//  License:   This software is provided under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 

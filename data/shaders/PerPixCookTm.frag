@@ -3,10 +3,9 @@
 //  Purpose:   GLSL fragment shader for Cook-Torrance physical based rendering.
 //             Based on the physically based rendering (PBR) tutorial with GLSL
 //             from Joey de Vries on https://learnopengl.com/#!PBR/Theory
-//  Author:    Marcus Hudritsch
 //  Date:      July 2017
-//  Copyright: Marcus Hudritsch
-//             This software is provide under the GNU General Public License
+//  Authors:   Marcus Hudritsch
+//  License:   This software is provided under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 

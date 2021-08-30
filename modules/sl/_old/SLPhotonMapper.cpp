@@ -1,9 +1,8 @@
 //#############################################################################
 //  File:      SLPhotonMapper.cpp
-//  Author:    Michael Strub, Stefan Traud, Marcus Hudritsch
+//  Authors:   Michael Strub, Stefan Traud, Marcus Hudritsch
 //  Date:      September 2011 (HS11)
-//  Copyright (c): 2002-2013 Marcus Hudritsch
-//             This software is provide under the GNU General Public License
+//  License:   This software is provided under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 

@@ -1,10 +1,9 @@
 //#############################################################################
 //  File:      Terrain.frag
 //  Purpose:   GLSL per vertex diffuse lighting with texturing
-//  Author:    Marcus Hudritsch
 //  Date:      September 2012 (HS12)
-//             THIS SOFTWARE IS PROVIDED FOR EDUCATIONAL PURPOSE ONLY AND
-//             WITHOUT ANY WARRANTIES WHETHER EXPRESSED OR IMPLIED.
+//  License:   This software is provided under the GNU General Public License
+//             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
 precision highp float;

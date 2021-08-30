@@ -1,9 +1,9 @@
 //#############################################################################
 //  File:      SLKDTree.h
-//  Author:    Marcus Hudritsch
+//  Authors:   Marcus Hudritsch
 //  Date:      04-AUG-08
-//  Copyright: THIS SOFTWARE IS PROVIDED FOR EDUCATIONAL PURPOSE ONLY AND
-//             WITHOUT ANY WARRANTIES WHETHER EXPRESSED OR IMPLIED.
+//  License:   This software is provided under the GNU General Public License
+//             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
 #ifndef SLKDTREE_H

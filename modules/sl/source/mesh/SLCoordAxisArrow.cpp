@@ -1,10 +1,9 @@
 //#############################################################################
 //  File:      SLCoordAxisArrow.cpp
-//  Author:    Jan Dellsperger
 //  Date:      April 2020
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
-//  Copyright: Jan Dellsperger, Marcus Hudritsch
-//             This software is provide under the GNU General Public License
+//  Authors:   Jan Dellsperger, Marcus Hudritsch
+//  License:   This software is provided under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 

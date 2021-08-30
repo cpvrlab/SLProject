@@ -4,9 +4,9 @@
 //             the equirectangular map as if it is a cube map. Based on the
 //             physically based rendering (PBR) tutorial with GLSL by Joey de
 //             Vries on https://learnopengl.com/PBR/IBL/Diffuse-irradiance
-//  Author:    Carlos Arauz
+//  Authors:   Carlos Arauz, Marcus Hudritsch
 //  Date:      April 2018
-//             This software is provide under the GNU General Public License
+//  License:   This software is provided under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 

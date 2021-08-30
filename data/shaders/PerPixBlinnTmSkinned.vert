@@ -2,10 +2,9 @@
 //  File:      PerPixBlinnTmSkinned.vert
 //  Purpose:   GLSL vertex program for per pixel Blinn-Phong lighting with
 //             Texture Mapping and vertex skinning
-//  Author:    Marc Wacker and Marcus Hudritsch
 //  Date:      January 2015
-//  Copyright: Marcus Hudritsch
-//             This software is provide under the GNU General Public License
+//  Authors:   Marc Wacker and Marcus Hudritsch
+//  License:   This software is provided under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 

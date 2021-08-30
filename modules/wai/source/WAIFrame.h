@@ -1,10 +1,9 @@
 //#############################################################################
 //  File:      WAIFrame.h
-//  Author:    Raúl Mur-Artal, Michael Goettlicher
 //  Date:      Dez 2017
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
-//  Copyright: Marcus Hudritsch, Michael Goettlicher
-//             This software is provide under the GNU General Public License
+//  Authors:   Raúl Mur-Artal, Marcus Hudritsch, Michael Goettlicher
+//  License:   This software is provided under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 /**

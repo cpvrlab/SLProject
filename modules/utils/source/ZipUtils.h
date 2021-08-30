@@ -1,9 +1,9 @@
 //#############################################################################
 //  File:      ZipUtils.h
-//  Author:    Luc Girod
+//  Authors:   Luc Girod
 //  Date:      2020
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
-//             This software is provide under the GNU General Public License
+//  License:   This software is provided under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 

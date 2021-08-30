@@ -1,10 +1,9 @@
 //#############################################################################
 //  File:      SLGLConetracerTex3D.h
-//  Author:    Stefan Thoeni
 //  Date:      September 2018
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
-//  Copyright: Stefan Thoeni
-//             This software is provide under the GNU General Public License
+//  Authors:   Stefan Thoeni
+//  License:   This software is provided under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 

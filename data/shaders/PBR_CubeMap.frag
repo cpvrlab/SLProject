@@ -1,10 +1,9 @@
 //#############################################################################
 //  File:      PBR_CubeMap.frag
 //  Purpose:   GLSL fragment program for rendering cube maps
-//  Author:    Carlos Arauz
 //  Date:      April 2018
-//  Copyright: Marcus Hudritsch
-//             This software is provide under the GNU General Public License
+//  Authors:   Carlos Arauz, Marcus Hudritsch
+//  License:   This software is provided under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 

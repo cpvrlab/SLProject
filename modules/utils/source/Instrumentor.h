@@ -1,6 +1,6 @@
 //#############################################################################
 //  File:      Utils/lib-utils/source/Instrumentor.h
-//  Author:    Cherno, adaptations by Marcus Hudritsch
+//  Authors:   Cherno, adaptations by Marcus Hudritsch
 //  Purpose:   Basic instrumentation profiler for writing performance measures
 //             that can be used in Chrome://tracing app.
 //  Original:  Based on https://gist.github.com/TheCherno

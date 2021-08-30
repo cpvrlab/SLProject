@@ -1,9 +1,9 @@
 //#############################################################################
 //  File:      SLCompactGrid.cpp
-//  Author:    Manuel Frischknecht, Marcus Hudritsch
+//  Authors:   Manuel Frischknecht, Marcus Hudritsch
 //  Date:      July 2015
-//  Copyright: Manuel Frischknecht, Marcus Hudritsch
-//             This software is provide under the GNU General Public License
+//  Authors:   Manuel Frischknecht, Marcus Hudritsch
+//  License:   This software is provided under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 

@@ -2,10 +2,9 @@
 //  File:      ADSTex.vert
 //  Purpose:   GLSL vertex program for ambient, diffuse & specular per vertex 
 //             point lighting with texture mapping.
-//  Author:    Marcus Hudritsch
 //  Date:      September 2011 (HS11)
-//             THIS SOFTWARE IS PROVIDED FOR EDUCATIONAL PURPOSE ONLY AND
-//             WITHOUT ANY WARRANTIES WHETHER EXPRESSED OR IMPLIED.
+//  License:   This software is provided under the GNU General Public License
+//             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
 //-----------------------------------------------------------------------------

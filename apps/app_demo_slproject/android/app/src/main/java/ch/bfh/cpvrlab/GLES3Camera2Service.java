@@ -1,11 +1,10 @@
 //#############################################################################
 //  File:      GLES3Camera2Service.java
-//  Author:    Marcus Hudritsch
 //  Date:      Spring 2017
 //  Purpose:   Android camera2 service implementation
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
-//  Copyright: Marcus Hudritsch
-//             This software is provide under the GNU General Public License
+//  Authors:   Marcus Hudritsch
+//  License:   This software is provided under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 

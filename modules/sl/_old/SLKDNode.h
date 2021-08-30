@@ -1,10 +1,9 @@
 //#############################################################################
 //  File:      SLKDNode.h
-//  Author:    Original version from the students Roll, Schaub & Stocker
 //  Date:      02-APR-06
-//  Copyright: Marcus Hudritsch, Kirchrain 18, 2572 Sutz
-//             THIS SOFTWARE IS PROVIDED FOR EDUCATIONAL PURPOSE ONLY AND
-//             WITHOUT ANY WARRANTIES WHETHER EXPRESSED OR IMPLIED.
+//  Authors:   Marcus Hudritsch
+//  License:   This software is provided under the GNU General Public License
+//             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
 #ifndef SLKDNODE_H

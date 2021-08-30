@@ -1,9 +1,8 @@
 //#############################################################################
 //  File:      SLPathtracer.h
-//  Author:    Thomas Schneiter, Marcus Hudritsch
 //  Date:      February 2014
-//  Copyright: Marcus Hudritsch
-//             This software is provide under the GNU General Public License
+//  Authors:   Thomas Schneiter, Marcus Hudritsch
+//  License:   This software is provided under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 

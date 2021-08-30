@@ -1,10 +1,9 @@
 //#############################################################################
 //  File:      CVTrackedFeatures.cpp
-//  Author:    Pascal Zingg, Timon Tschanz, Marcus Hudritsch
 //  Date:      Spring 2017
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
-//  Copyright: Marcus Hudritsch, Michael Goettlicher
-//             This software is provide under the GNU General Public License
+//  Authors:   Pascal Zingg, Timon Tschanz, Marcus Hudritsch, Michael Goettlicher
+//  License:   This software is provided under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 

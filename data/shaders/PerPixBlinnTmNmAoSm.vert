@@ -3,8 +3,8 @@
 //  Purpose:   GLSL normal bump mapping w. shadow mapping & ambient occlusion
 //  Author:    Marcus Hudritsch
 //  Date:      October 2020
-//  Copyright: Marcus Hudritsch
-//             This software is provide under the GNU General Public License
+//  Authors:   Marcus Hudritsch
+//  License:   This software is provided under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 

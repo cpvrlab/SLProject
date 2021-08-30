@@ -3,9 +3,9 @@
 //  Purpose:   GLSL fragment program for simple ADS per vertex lighting
 //  Author:    Marcus Hudritsch
 //  Date:      September 2011 (HS11)
-//  Copyright: Marcus Hudritsch
-//             THIS SOFTWARE IS PROVIDED FOR EDUCATIONAL PURPOSE ONLY AND
-//             WITHOUT ANY WARRANTIES WHETHER EXPRESSED OR IMPLIED.
+//  Authors:   Marcus Hudritsch
+//  License:   This software is provided under the GNU General Public License
+//             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
 precision highp float;

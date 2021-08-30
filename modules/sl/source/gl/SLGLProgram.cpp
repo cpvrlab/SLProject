@@ -1,11 +1,11 @@
 //#############################################################################
 //  File:      SLGLProgram.cpp
-//  Author:    Marcus Hudritsch
-//             Mainly based on Martin Christens GLSL Tutorial
-//             See http://www.clockworkcoders.com
 //  Date:      July 2014
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
-//             This software is provide under the GNU General Public License
+//  Authors:   Marcus Hudritsch
+//             Mainly based on Martin Christens GLSL Tutorial
+//             See http://www.clockworkcoders.com
+//  License:   This software is provided under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 

@@ -1,10 +1,9 @@
 //#############################################################################
 //  File:      StereoOculus.frag
 //  Purpose:   Oculus Rift Distortion Shader
-//  Author:    Marc Wacker, Roman K�hne
 //  Date:      November 2013
-//  Copyright: Marcus Hudritsch
-//             This software is provide under the GNU General Public License
+//  Authors:   Marc Wacker, Marcus Hudritsch
+//  License:   This software is provided under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 

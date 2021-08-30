@@ -1,10 +1,9 @@
 //#############################################################################
 //  File:      SLGLDepthBuffer.h
 //  Purpose:   Uses an OpenGL framebuffer object as a depth-buffer
-//  Author:    Michael Schertenleib
 //  Date:      May 2020
-//  Copyright: Michael Schertenleib
-//             This software is provide under the GNU General Public License
+//  Authors:   Michael Schertenleib
+//  License:   This software is provided under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 

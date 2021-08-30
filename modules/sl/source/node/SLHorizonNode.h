@@ -1,10 +1,10 @@
 //#############################################################################
 //  File:      SLHorizonNode.h
-//  Author:    Michael Göttlicher
+//  Authors:   Michael Göttlicher
 //  Date:      November 2020
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
-//  Copyright: Michael Göttlicher, Marcus Hudritsch
-//             This software is provide under the GNU General Public License
+//  Authors:   Michael Göttlicher, Marcus Hudritsch
+//  License:   This software is provided under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 

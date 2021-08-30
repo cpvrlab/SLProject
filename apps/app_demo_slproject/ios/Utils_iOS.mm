@@ -1,10 +1,9 @@
 //#############################################################################
 //  File:      Utils_iOS.mm
-//  Author:    Marcus Hudritsch
 //  Date:      September 2011 (HS11)
-//  Copyright: M. Hudritsch, Fachhochschule Nordwestschweiz
-//             THIS SOFTWARE IS PROVIDED FOR EDUCATIONAL PURPOSE ONLY AND
-//             WITHOUT ANY WARRANTIES WHETHER EXPRESSED OR IMPLIED.
+//  Authors:   Marcus Hudritsch
+//  License:   This software is provided under the GNU General Public License
+//             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
 #include "Utils_iOS.h"

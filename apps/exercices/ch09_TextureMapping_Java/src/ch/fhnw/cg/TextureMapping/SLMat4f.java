@@ -1,11 +1,10 @@
 //#############################################################################
 //  File:      Globals/SLMat4f.java
 //  Purpose:   4 x 4 Matrix for affine transformations
-//  Author:    Marcus Hudritsch
 //  Date:      September 2012 (HS12)
-//  Copyright: Marcus Hudritsch, Switzerland
-//             THIS SOFTWARE IS PROVIDED FOR EDUCATIONAL PURPOSE ONLY AND
-//             WITHOUT ANY WARRANTIES WHETHER EXPRESSED OR IMPLIED.
+//  Authors:   Marcus Hudritsch
+//  License:   This software is provided under the GNU General Public License
+//             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
 package ch.bfh.cpvrlab.TextureMapping;

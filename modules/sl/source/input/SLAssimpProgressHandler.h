@@ -1,9 +1,9 @@
 //#############################################################################
 //  File:      SLAssimpProgressHandler.h
-//  Author:    Marcus Hudritsch
+//  Authors:   Marcus Hudritsch
 //  Date:      December 2020
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
-//             This software is provide under the GNU General Public License
+//  License:   This software is provided under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 

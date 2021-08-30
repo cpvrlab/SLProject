@@ -1,9 +1,9 @@
 //#############################################################################
 //  File:      FtpUtils.cpp
-//  Author:    Marcus Hudritsch, Michael Goettlicher
+//  Authors:   Marcus Hudritsch, Michael Goettlicher
 //  Date:      May 2019
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
-//             This software is provide under the GNU General Public License
+//  License:   This software is provided under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 

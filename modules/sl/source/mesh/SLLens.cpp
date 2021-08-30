@@ -1,9 +1,8 @@
 //#############################################################################
 //  File:      SLLens.cpp
-//  Author:    Philipp Jueni
 //  Date:      October 2014
-//  Copyright: Marcus Hudritsch, Philipp Jueni
-//             This software is provide under the GNU General Public License
+//  Authors:   Marcus Hudritsch, Philipp Jueni
+//  License:   This software is provided under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 

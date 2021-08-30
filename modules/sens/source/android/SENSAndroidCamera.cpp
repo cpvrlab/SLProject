@@ -1,6 +1,6 @@
 //#############################################################################
 //  File:      SENSAndroidCamera.cpp
-//  Author:    Michael Goettlicher, Luc Girod, Marcus Hudritsch
+//  Authors:   Michael Goettlicher, Luc Girod, Marcus Hudritsch
 //  Date:      Winter 2016
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  License:   This software is provide under the GNU General Public License

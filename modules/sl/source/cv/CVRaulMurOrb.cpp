@@ -3,10 +3,9 @@
 //  Purpose:   Declares the Raul Mur ORB feature detector and descriptor
 //  Source:    This File is based on the ORB Implementation of ORB_SLAM
 //             https://github.com/raulmur/ORB_SLAM2
-//  Author:    Pascal Zingg, Timon Tschanz
 //  Date:      Spring 2017
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
-//  Copyright: Marcus Hudritsch, Michael Goettlicher
+//  Authors:   Pascal Zingg, Timon Tschanz, Michael Goettlicher, Marcus Hudritsch
 //             This softwareis provide under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################

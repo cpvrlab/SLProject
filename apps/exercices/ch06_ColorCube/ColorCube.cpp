@@ -4,9 +4,9 @@
 //             GLFW as the OS GUI interface (http://www.glfw.org/).
 //  Author:    Marcus Hudritsch
 //  Date:      April 2016 (FS16)
-//  Copyright: Marcus Hudritsch, Switzerland
-//             THIS SOFTWARE IS PROVIDED FOR EDUCATIONAL PURPOSE ONLY AND
-//             WITHOUT ANY WARRANTIES WHETHER EXPRESSED OR IMPLIED.
+//  Authors:   Marcus Hudritsch
+//  License:   This software is provided under the GNU General Public License
+//             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
 #include <GL/gl3w.h>    // OpenGL headers

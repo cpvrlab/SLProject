@@ -2,10 +2,9 @@
 //  File:      PerVrtBlinnSkinned.vert
 //  Purpose:   GLSL vertex program for per vertex Blinn-Phong lighting with
 //             vertex skinning
-//  Author:    Marc Wacker, Marcus Hudritsch
 //  Date:      Januar 2015
-//  Copyright: Marcus Hudritsch
-//             This software is provide under the GNU General Public License
+//  Authors:   Marc Wacker, Marcus Hudritsch
+//  License:   This software is provided under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 

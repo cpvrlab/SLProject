@@ -5,8 +5,8 @@
 //             calculated using a transfer function (via a lookup table).
 //  Author:    Manuel Frischknecht
 //  Date:      March 2015
-//  Copyright: Marcus Hudritsch
-//             This software is provide under the GNU General Public License
+//  Authors:   Marcus Hudritsch
+//  License:   This software is provided under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 

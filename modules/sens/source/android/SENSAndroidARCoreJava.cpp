@@ -1,6 +1,6 @@
 //#############################################################################
 //  File:      SENSAndroidARCoreJava.cpp
-//  Author:    Michael Goettlicher, Marcus Hudritsch, Luc Girod
+//  Authors:   Michael Goettlicher, Marcus Hudritsch, Luc Girod
 //  Date:      Winter 2016
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  License:   This software is provide under the GNU General Public License

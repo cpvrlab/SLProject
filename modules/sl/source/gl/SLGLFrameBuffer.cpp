@@ -1,11 +1,10 @@
 //#############################################################################
 //  File:      SLGLFrameBuffer.cpp
 //  Purpose:   Wrapper class around OpenGL Frame Buffer Objects (FBO)
-//  Author:    Carlos Arauz
 //  Date:      April 2018
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/Coding-Style-Guidelines
-//  Copyright: Marcus Hudritsch
-//             This software is provide under the GNU General Public License
+//  Authors:   Carlos Arauz, Marcus Hudritsch
+//  License:   This software is provided under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
