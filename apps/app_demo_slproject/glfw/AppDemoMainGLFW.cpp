@@ -522,6 +522,10 @@ void initSL(SLVstring& cmdLineArgs)
     AppDemo::calibIniPath  = projectRoot + "/data/calibrations/";                                 // for calibInitPath
     CVCapture::instance()->loadCalibrations(Utils::ComputerInfos::get(), AppDemo::calibFilePath); // for calibrations made
 
+#ifdef SL_HAS_OPENVR
+    SLVRSystem::instance().startup();
+#endif
+
     /////////////////////////////////////////////////////////
     slCreateAppAndScene(cmdLineArgs,
                         projectRoot + "/data/",
@@ -576,15 +580,15 @@ int main(int argc, char* argv[])
 #ifdef SL_HAS_OPENVR
         if (SLVRSystem::instance().isRunning())
         {
-            SLNode* camParent = AppDemo::scene->root3D()->findChild<SLNode>("Camera Parent");
-            if (camParent)
-            {
-                SLVec2f axis      = SLVRSystem::instance().leftController()->get2DAxis(VRCA_axis_0);
-                float   deltaTime = AppDemo::scene->elapsedTimeSec();
-                SLVec3f forward   = -SLVRSystem::instance().hmd()->pose().axisZ();
-                SLVec3f right     = SLVRSystem::instance().hmd()->pose().axisX();
-                camParent->translate((forward * axis.y + right * axis.x) * deltaTime);
-            }
+            //            SLNode* camParent = AppDemo::scene->root3D()->findChild<SLNode>("Camera Parent");
+            //            if (camParent)
+            //            {
+            //                SLVec2f axis      = SLVRSystem::instance().leftController()->get2DAxis(VRCA_axis_0);
+            //                float   deltaTime = AppDemo::scene->elapsedTimeSec();
+            //                SLVec3f forward   = -SLVRSystem::instance().hmd()->pose().axisZ();
+            //                SLVec3f right     = SLVRSystem::instance().hmd()->pose().axisX();
+            //                camParent->translate((forward * axis.y + right * axis.x) * deltaTime);
+            //            }
         }
 #endif
 

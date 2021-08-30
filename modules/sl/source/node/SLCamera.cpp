@@ -487,9 +487,22 @@ void SLCamera::setViewport(SLSceneView* sv, const SLEyeType eye)
 #ifdef SL_HAS_OPENVR
     else if (_projection == P_stereoOpenVR)
     {
-        SLsizei width  = SLVRSystem::instance().compositor()->frameBufferWidth();
-        SLsizei height = SLVRSystem::instance().compositor()->frameBufferHeight();
-        stateGL->viewport(0, 0, width, height);
+        if (eye == ET_center)
+        {
+            stateGL->viewport(fbX, fbY, fbW, fbH);
+        }
+        else
+        {
+            SLsizei width  = SLVRSystem::instance().compositor()->frameBufferWidth();
+            SLsizei height = SLVRSystem::instance().compositor()->frameBufferHeight();
+
+            fbX = 0;
+            fbY = 0;
+            fbW = width;
+            fbH = height;
+
+            stateGL->viewport(0, 0, width, height);
+        }
     }
 #endif
     else
@@ -553,7 +566,11 @@ void SLCamera::setProjection(SLSceneView* sv, const SLEyeType eye)
             break;
 #ifdef SL_HAS_OPENVR
         case P_stereoOpenVR:
-            stateGL->projectionMatrix = SLVRSystem::instance().getProjectionMatrix(eye, _clipNear, _clipFar);
+            if(eye != ET_center)
+                stateGL->projectionMatrix = SLVRSystem::instance().getProjectionMatrix(eye, _clipNear, _clipFar);
+            else
+                stateGL->projectionMatrix.perspective(_fovV, _viewportRatio, _clipNear, _clipFar);
+
             break;
 #endif
         // all other stereo projections
@@ -965,7 +982,10 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
 #ifdef SL_HAS_OPENVR
         else if (_projection == P_stereoOpenVR)
         {
-            stateGL->viewMatrix.setMatrix(SLVRSystem::instance().getEyeMatrix(eye) * vm);
+            if(eye != ET_center)
+                stateGL->viewMatrix.setMatrix(SLVRSystem::instance().getEyeMatrix(eye) * vm);
+            else
+                stateGL->viewMatrix.setMatrix(vm);
         }
 #endif
         else

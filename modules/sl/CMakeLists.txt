@@ -262,12 +262,15 @@ if ("${SL_BUILD_WITH_OPENVR}")
             source/vr/SLVRHmd.h
             source/vr/SLVRController.h
             source/vr/SLVRCompositor.h
+            source/vr/SLVRRenderModel.h
+
             source/vr/SLVRConvert.cpp
             source/vr/SLVRSystem.cpp
             source/vr/SLVRTrackedDevice.cpp
             source/vr/SLVRHmd.cpp
             source/vr/SLVRController.cpp
             source/vr/SLVRCompositor.cpp
+            source/vr/SLVRRenderModel.cpp
             )
 endif ()
 

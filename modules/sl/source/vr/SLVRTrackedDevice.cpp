@@ -15,6 +15,11 @@ SLVRTrackedDevice::SLVRTrackedDevice(vr::TrackedDeviceIndex_t index) : _index(in
 {
 }
 
+SLVRTrackedDevice::~SLVRTrackedDevice() noexcept
+{
+    delete _renderModel;
+}
+
 /*! Function for accessing vr::IVRSystem* quickly
  * @return The instance of vr::IVRSystem that SLVRSystem uses
  */
@@ -68,4 +73,17 @@ SLbool SLVRTrackedDevice::isAwake()
 SLstring SLVRTrackedDevice::getManufacturer()
 {
     return getStringProperty(vr::TrackedDeviceProperty::Prop_ManufacturerName_String);
+}
+
+/*! Loads the render model for this device from disk and returns it
+ * The render model can also be accessed later through the renderModel getter
+ * @param assetManager The asset manager that will own the assets of this render model
+ * @return The loaded render model
+ */
+SLVRRenderModel* SLVRTrackedDevice::loadRenderModel(SLAssetManager* assetManager)
+{
+    SLstring         renderModelName = getStringProperty(vr::ETrackedDeviceProperty::Prop_RenderModelName_String);
+    _renderModel     = new SLVRRenderModel();
+    _renderModel->load(renderModelName, assetManager);
+    return _renderModel;
 }

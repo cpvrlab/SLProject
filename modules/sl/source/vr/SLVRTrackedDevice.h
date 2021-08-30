@@ -12,12 +12,15 @@
 #define SLPROJECT_SLVRTRACKEDDEVICE_H
 
 #include <openvr.h>
+
 #include <SLMat4.h>
 #include <SL.h>
+#include <SLMesh.h>
+#include <SLAssetManager.h>
+
+#include <vr/SLVRRenderModel.h>
 
 typedef vr::TrackedDeviceIndex_t SLVRTrackedDeviceIndex;
-
-class SLVRSystem; // Forward declaration of SLVRSystem for friend declaration
 
 //! The main class for interfacing with devices
 /*! SLVRTrackedDevice provides access to the properties that all tracked VR devices have in common,
@@ -25,15 +28,18 @@ class SLVRSystem; // Forward declaration of SLVRSystem for friend declaration
  */
 class SLVRTrackedDevice
 {
-    friend class SLVRSystem; // Only SLVRSystem is allowed to instantiate this class
+    friend class SLVRSystem;
 
 protected:
     SLVRTrackedDeviceIndex _index;
     SLMat4f                _pose;
+    SLVRRenderModel*       _renderModel = nullptr;
 
     explicit SLVRTrackedDevice(SLVRTrackedDeviceIndex index);
+    ~SLVRTrackedDevice();
+
     vr::IVRSystem* system();
-    SLstring getStringProperty(vr::TrackedDeviceProperty property);
+    SLstring       getStringProperty(vr::TrackedDeviceProperty property);
 
 public:
     // Setters
@@ -42,10 +48,13 @@ public:
     // Getters
     SLVRTrackedDeviceIndex index() const { return _index; };
     SLMat4f                pose() { return _pose; };
+    SLVRRenderModel*       renderModel() { return _renderModel; }
 
     SLbool   isConnected();
     SLbool   isAwake();
     SLstring getManufacturer();
+
+    SLVRRenderModel* loadRenderModel(SLAssetManager* assetManager);
 };
 
 #endif // SLPROJECT_SLVRTRACKEDDEVICE_H

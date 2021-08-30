@@ -98,18 +98,8 @@ public:
     // Setters
     void projection(SLProjection p)
     {
-#ifdef SL_HAS_OPENVR
-        if (_projection != p && p != P_stereoOpenVR && SLVRSystem::instance().isRunning())
-            SLVRSystem::instance().shutdown();
-#endif
-
         _projection       = p;
         currentProjection = p;
-
-#ifdef SL_HAS_OPENVR
-        if (_projection == P_stereoOpenVR && !SLVRSystem::instance().isRunning())
-            SLVRSystem::instance().startup();
-#endif
     }
     //! vertical field of view
     void fov(const SLfloat fov)

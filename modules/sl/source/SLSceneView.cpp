@@ -565,14 +565,6 @@ SLbool SLSceneView::onPaint()
         }
     }
 
-#ifdef SL_HAS_OPENVR
-    // We need to clear manually when we use OpenVR
-    // because the "draw3Dxx" methods don't take care of that in this case
-    // (they clear the OpenVR frame buffers instead)
-    if (_camera->projection() == P_stereoOpenVR)
-        SLGLState::instance()->clearColorDepthBuffer();
-#endif
-
     // Render the 2D stuff inclusive the ImGui
     draw2DGL();
 
@@ -812,11 +804,11 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
             // Clear color buffer
             stateGL->clearColor(SLVec4f(0.00001f, 0.00001f, 0.00001f, 1.0f));
             stateGL->clearColorDepthBuffer();
+
+            if (!_skybox)
+                _camera->background().render(_viewportRect.width, _viewportRect.height);
         }
 #endif
-
-        if (!_skybox)
-            _camera->background().render(_viewportRect.width, _viewportRect.height);
 
         _camera->setViewport(this, ET_right);
 
@@ -835,6 +827,23 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
         if (_camera->projection() == P_stereoOpenVR)
         {
             SLVRSystem::instance().compositor()->finishEye();
+
+            // Draw everything one last time for the companion window
+            stateGL->clearColor(SLVec4f(0.00001f, 0.00001f, 0.00001f, 1.0f));
+            stateGL->clearColorDepthBuffer();
+
+            _camera->setViewport(this, ET_center);
+
+            if (!_skybox)
+                _camera->background().render(_viewportRect.width, _viewportRect.height);
+
+            _camera->setProjection(this, ET_center);
+            _camera->setView(this, ET_center);
+
+            stateGL->depthTest(true);
+            if (_skybox)
+                _skybox->drawAroundCamera(this);
+            draw3DGLAll();
         }
 #endif
     }

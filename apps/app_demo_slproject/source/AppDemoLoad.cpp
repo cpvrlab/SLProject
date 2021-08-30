@@ -1377,6 +1377,9 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
             }
         }
 
+        scene->addChild(SLVRSystem::instance().leftController()->loadRenderModel(s)->node());
+        scene->addChild(SLVRSystem::instance().rightController()->loadRenderModel(s)->node());
+
         scene->addChild(camParent);
 
         sv->camera(cam1);

@@ -156,8 +156,8 @@ void SLVRSystem::registerController(vr::TrackedDeviceIndex_t index)
     }
 }
 
-/*! Updates the poses of the detected devices and gets the
- * states of buttons, triggers and axes
+/*! Updates the poses of the detected devices and gets the states of buttons, triggers and axes
+ * The poses of render models will be updated as well
  */
 void SLVRSystem::update()
 {
@@ -170,13 +170,17 @@ void SLVRSystem::update()
         // Continue if there's no device at this index
         if (!trackedDevice) continue;
 
-        // Get the pose of the current and chuck it out if it is invalid
+        // Get the pose of the current device and chuck it out if it is invalid
         vr::TrackedDevicePose_t pose = poses[trackedDevice->index()];
         if (!pose.bPoseIsValid) continue;
 
-        // Convert the OpenVR matrix to an SL matrix and set the pose of the corresponding device
+        // Convert the OpenVR matrix to a SL matrix and set the pose of the corresponding device
         SLMat4f matrix = SLVRConvert::openVRMatrixToSLMatrix(pose.mDeviceToAbsoluteTracking);
         trackedDevice->pose(matrix);
+
+        // Update the render model pose if it's loaded
+        if (trackedDevice->renderModel())
+            trackedDevice->renderModel()->node()->om(trackedDevice->pose());
     }
 
     // Update device states

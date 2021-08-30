@@ -51,8 +51,6 @@ enum SLVRControllerAxis
     VRCA_axis_4 = 4
 };
 
-class SLVRSystem; // Forward declaration of SLVRSystem for friend declaration
-
 //! SLVRController provides access to controller input
 /*! SLVRController is a subclass of SLVRTrackedDevice with functions for interfacing with controllers.
  * The functions return information about the buttons, the triggers and the axes.

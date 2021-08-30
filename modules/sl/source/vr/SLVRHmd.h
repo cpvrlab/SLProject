@@ -17,8 +17,6 @@
 #include <SLVec2.h>
 #include <vr/SLVRTrackedDevice.h>
 
-class SLVRSystem; // Forward declaration of SLVRSystem for friend declaration
-
 //! SLVRHmd provides access to HMD input
 /*! SLVRHmd is a subclass of SLVRTrackedDevice with functions for interfacing with HMDs.
  * The (currently) only function returns whether the proximity sensor is activated.

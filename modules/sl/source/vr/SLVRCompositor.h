@@ -15,8 +15,6 @@
 #include <SLGLFrameBuffer.h>
 #include <SLGLTexture.h>
 
-class SLVRSystem; // Forward declaration for friend declaration
-
 //! SLVRCompositor is used for submitting frames to the HMD
 /*! This class is responsible for handling the framebuffers the application renders to
  * and for submitting the textures of these framebuffers to the HMD
