@@ -1374,8 +1374,15 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
             }
         }
 
-        scene->addChild(SLVRSystem::instance().leftController()->loadRenderModel(s)->node());
-        scene->addChild(SLVRSystem::instance().rightController()->loadRenderModel(s)->node());
+        if (SLVRSystem::instance().leftController())
+            scene->addChild(SLVRSystem::instance().leftController()->loadRenderModel(s)->node());
+        else
+            VR_WARNING("Left controller not detected, render model won't be visible")
+
+        if (SLVRSystem::instance().rightController())
+            scene->addChild(SLVRSystem::instance().rightController()->loadRenderModel(s)->node());
+        else
+            VR_WARNING("Right controller not detected, render model won't be visible")
 
         scene->addChild(camParent);
 

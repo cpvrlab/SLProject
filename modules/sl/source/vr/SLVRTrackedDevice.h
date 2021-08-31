@@ -32,7 +32,7 @@ class SLVRTrackedDevice
 
 protected:
     SLVRTrackedDeviceIndex _index;
-    SLMat4f                _pose;
+    SLMat4f                _localPose;
     SLVRRenderModel*       _renderModel = nullptr;
 
     explicit SLVRTrackedDevice(SLVRTrackedDeviceIndex index);
@@ -43,12 +43,14 @@ protected:
 
 public:
     // Setters
-    void pose(const SLMat4f& pose) { _pose = pose; };
+    void localPose(const SLMat4f& localPose) { _localPose = localPose; };
 
     // Getters
     SLVRTrackedDeviceIndex index() const { return _index; };
-    SLMat4f                pose() { return _pose; };
+    SLMat4f                localPose() { return _localPose; }
     SLVRRenderModel*       renderModel() { return _renderModel; }
+
+    SLMat4f pose();
 
     SLbool   isConnected();
     SLbool   isAwake();

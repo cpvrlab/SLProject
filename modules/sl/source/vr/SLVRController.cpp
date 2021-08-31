@@ -8,12 +8,19 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include <vr/SLVR.h>
 #include <vr/SLVRController.h>
 #include <vr/SLVRSystem.h>
 
 SLVRController::SLVRController(SLVRTrackedDeviceIndex index) : SLVRTrackedDevice(index)
 {
+    _state.ulButtonPressed = 0;
+    _state.ulButtonTouched = 0;
+
+    for (int i = 0; i < vr::k_unControllerStateAxisCount; i++)
+    {
+        _state.rAxis[i].x = 0;
+        _state.rAxis[i].y = 0;
+    }
 }
 
 /*! Updates the state of the controller

@@ -45,6 +45,8 @@ private:
 
     SLVRCompositor* _compositor = nullptr;
 
+    SLMat4f _globalOffset;
+
 public:
     static SLVRSystem& instance()
     {
@@ -66,6 +68,11 @@ public:
     SLVRHmd*            hmd() { return _hmd; };
     SLVRController*     leftController() { return _leftController; };
     SLVRController*     rightController() { return _rightController; };
+
+    SLMat4f& globalOffset() { return _globalOffset; }
+
+    // Setters
+    void globalOffset(const SLMat4f& globalOffset) { _globalOffset = globalOffset; }
 
     SLVRCompositor* compositor() { return _compositor; }
 

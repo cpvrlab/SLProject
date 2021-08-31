@@ -91,7 +91,7 @@ vr::Hmd_Eye SLVRConvert::SLEyeTypeToOpenVREye(SLEyeType type)
     else if(type == ET_right) return vr::Hmd_Eye::Eye_Right;
     else
     {
-        VR_ERROR("Invalid eye type specified")
+        VR_WARNING("Invalid eye type specified")
         return vr::Hmd_Eye::Eye_Left;
     }
 }

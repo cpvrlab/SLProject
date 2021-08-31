@@ -48,8 +48,7 @@ bool SLVRSystem::checkStartupConditions()
 {
     if (!vr::VR_IsRuntimeInstalled())
     {
-        std::cout << "The SteamVR runtime is not installed.\n";
-        std::cout << "Please download SteamVR from: https://store.steampowered.com/app/250820/SteamVR/" << std::endl;
+        VR_ERROR("The SteamVR runtime is not installed.\nPlease download SteamVR from: https://store.steampowered.com/app/250820/SteamVR/")
         return false;
     }
 
@@ -179,8 +178,9 @@ void SLVRSystem::update()
 
         // Convert the OpenVR matrix to a SL matrix and set the pose of the corresponding device
         SLMat4f matrix = SLVRConvert::openVRMatrixToSLMatrix(pose.mDeviceToAbsoluteTracking);
-        trackedDevice->pose(matrix);
+        trackedDevice->localPose(matrix);
 
+        // FIXME: This causes a segmentation fault when the scene is unloaded because the node then gets deleted
         // Update the render model pose if it's loaded
         if (trackedDevice->renderModel())
             trackedDevice->renderModel()->node()->om(trackedDevice->pose());
@@ -218,6 +218,8 @@ SLMat4f SLVRSystem::getEyeMatrix(SLEyeType eye)
 {
     vr::Hmd_Eye       openVREye    = SLVRConvert::SLEyeTypeToOpenVREye(eye);
     vr::HmdMatrix34_t openVRMatrix = _system->GetEyeToHeadTransform(openVREye);
+
+    // The matrix is inverted at the end to convert from the eye to head to the head to eye matrix
     return SLVRConvert::openVRMatrixToSLMatrix(openVRMatrix).inverted();
 }
 

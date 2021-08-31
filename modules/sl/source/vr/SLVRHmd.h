@@ -28,6 +28,8 @@ class SLVRHmd : public SLVRTrackedDevice
 private:
     vr::VRControllerState_t _state;
 
+    SLfloat _lastMovementTime;
+
 protected:
     SLVRHmd(SLVRTrackedDeviceIndex index);
     void updateState();

@@ -48,6 +48,16 @@ SLstring SLVRTrackedDevice::getStringProperty(vr::TrackedDeviceProperty property
     return result;
 }
 
+/*!
+ * Calculates the position and rotation of the tracked device in world space
+ * by multiplying the local pose with the VR global offset
+ * @return The pose in world space
+ */
+SLMat4f SLVRTrackedDevice::pose()
+{
+    return SLVRSystem::instance().globalOffset() * _localPose;
+}
+
 /*! Returns whether or not this device is connected
  * @return True if the device is connected, false otherwise
  */
@@ -82,8 +92,8 @@ SLstring SLVRTrackedDevice::getManufacturer()
  */
 SLVRRenderModel* SLVRTrackedDevice::loadRenderModel(SLAssetManager* assetManager)
 {
-    SLstring         renderModelName = getStringProperty(vr::ETrackedDeviceProperty::Prop_RenderModelName_String);
-    _renderModel     = new SLVRRenderModel();
+    SLstring renderModelName = getStringProperty(vr::ETrackedDeviceProperty::Prop_RenderModelName_String);
+    _renderModel = new SLVRRenderModel();
     _renderModel->load(renderModelName, assetManager);
     return _renderModel;
 }
