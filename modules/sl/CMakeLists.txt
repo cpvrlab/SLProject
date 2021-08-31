@@ -450,15 +450,12 @@ target_link_libraries(${target}
         ${optix_LIBRARY}
         ${META_PROJECT_NAME}::lib-SLExternal
         ${assimp_LIBS}
+        ${openvr_LIBS}
         lib-Utils
         lib-SLMath
         ${DEFAULT_LINKER_OPTIONS}
         INTERFACE
         )
-
-if ("${SL_BUILD_WITH_OPENVR}")
-    target_link_libraries(${target} PRIVATE PUBLIC ${openvr_LIBS} INTERFACE)
-endif ()
 
 
 if (DEFINED ENV{CUDA_PATH} AND SL_BUILD_WITH_OPTIX)

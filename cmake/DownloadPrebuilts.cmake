@@ -67,6 +67,11 @@ set(openssl_LINK_LIBS
         crypto
         ssl
         )
+        
+set(openvr_DIR)
+set(openvr_INCLUDE_DIR)
+set(openvr_LINK_DIR)
+set(openvr_LINK_LIBS)
 
 set(PREBUILT_PATH "${SL_PROJECT_ROOT}/externals/prebuilt")
 set(PREBUILT_URL "http://pallas.ti.bfh.ch/libs/SLProject/_lib/prebuilt/")
@@ -858,13 +863,16 @@ elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN" AND
         endif ()
 
         set(openvr_INCLUDE_DIR ${openvr_DIR}/include)
-        set(openvr_LINK_DIR ${openvr_DIR}/lib)
-        set(openvr_LIBS openvr_api)
-
+        set(openvr_LINK_DIR ${openvr_DIR})
+        
+        add_library(libopenvr_api SHARED IMPORTED)
+        set_target_properties(libopenvr_api PROPERTIES IMPORTED_LOCATION "${openvr_LINK_DIR}/Release/libopenvr_api.dylib")
+        set(openvr_LIBS libopenvr_api)
+        
         if (COPY_LIBS_TO_CONFIG_FOLDER)
             if (${CMAKE_GENERATOR} STREQUAL Xcode)
-                file(COPY ${glfw_LINK_DIR}/Release/libopenvr_api.dylib DESTINATION ${CMAKE_BINARY_DIR}/Debug)
-                file(COPY ${glfw_LINK_DIR}/Release/libopenvr_api.dylib DESTINATION ${CMAKE_BINARY_DIR}/Release)
+                file(COPY ${openvr_LINK_DIR}/Debug/libopenvr_api.dylib DESTINATION ${CMAKE_BINARY_DIR}/Debug)
+                file(COPY ${openvr_LINK_DIR}/Release/libopenvr_api.dylib DESTINATION ${CMAKE_BINARY_DIR}/Release)
             endif ()
         endif ()
 
@@ -1559,7 +1567,4 @@ link_directories(${g2o_LINK_DIR})
 link_directories(${assimp_LINK_DIR})
 link_directories(${vk_LINK_DIR})
 link_directories(${glfw_LINK_DIR})
-
-if ("${SL_BUILD_WITH_OPENVR}")
-    link_directories(${openvr_LINK_DIR})
-endif ()
+link_directories(${openvr_LINK_DIR})
