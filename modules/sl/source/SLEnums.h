@@ -156,6 +156,7 @@ enum SLSceneID
 #ifdef SL_BUILD_WAI
     SID_VideoTrackWAI,
 #endif
+    SID_VideoTrackArucoCubeMain,
 
     SID_RTMuttenzerBox,
     SID_RTSpheres,

@@ -36,7 +36,31 @@ bool CVTrackedAruco::track(CVMat          imageGray,
                            CVMat          imageRgb,
                            CVCalibration* calib)
 {
+    if (!trackAll(imageGray, imageRgb, calib))
+    {
+        return false;
+    }
 
+    if (!arucoIDs.empty())
+    {
+        // Find the marker with the matching id
+        for (size_t i = 0; i < arucoIDs.size(); ++i)
+        {
+            if (arucoIDs[i] == _arucoID)
+            {
+                _objectViewMat = objectViewMats[i];
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+//-----------------------------------------------------------------------------
+bool CVTrackedAruco::trackAll(CVMat          imageGray,
+                              CVMat          imageRgb,
+                              CVCalibration* calib)
+{
     assert(!imageGray.empty() && "ImageGray is empty");
     assert(!imageRgb.empty() && "ImageRGB is empty");
     assert(!calib->cameraMat().empty() && "Calibration is empty");
@@ -95,7 +119,7 @@ bool CVTrackedAruco::track(CVMat          imageGray,
 
         cout << "Aruco IdS: " << arucoIDs.size() << " : ";
 
-        //find the camera extrinsic parameters (rVec & tVec)
+        // find the camera extrinsic parameters (rVec & tVec)
         CVVPoint3d rVecs, tVecs;
         cv::aruco::estimatePoseSingleMarkers(corners,
                                              params.edgeLength,
@@ -116,20 +140,7 @@ bool CVTrackedAruco::track(CVMat          imageGray,
         cout << endl;
     }
 
-    if (!arucoIDs.empty())
-    {
-        // Find the marker with the matching id
-        for (size_t i = 0; i < arucoIDs.size(); ++i)
-        {
-            if (arucoIDs[i] == _arucoID)
-            {
-                _objectViewMat = objectViewMats[i];
-                return true;
-            }
-        }
-    }
-
-    return false;
+    return true;
 }
 //-----------------------------------------------------------------------------
 /*! CVTrackedAruco::drawArucoMarkerBoard draws and saves an aruco board

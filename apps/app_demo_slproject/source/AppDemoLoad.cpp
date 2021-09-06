@@ -11,6 +11,7 @@
 
 #include <CVCapture.h>
 #include <cv/CVTrackedAruco.h>
+#include <cv/CVTrackedArucoCube.h>
 #include <cv/CVTrackedChessboard.h>
 #include <cv/CVTrackedFaces.h>
 #include <cv/CVTrackedFeatures.h>
@@ -3294,7 +3295,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         scene->addChild(boxNode1);
 
         // Create OpenCV Tracker for the box node
-        tracker = new CVTrackedAruco(9, AppDemo::calibIniPath);
+        tracker = new CVTrackedAruco(0, AppDemo::calibIniPath);
         tracker->drawDetection(true);
         trackedNode = boxNode1;
 
@@ -3584,6 +3585,91 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         sv->doWaitOnIdle(false); // for constant video feed
     }
+    else if (sceneID == SID_VideoTrackArucoCubeMain) //............................................
+    {
+        /*
+        The tracking of markers is done in AppDemoVideo::onUpdateVideo by calling the specific
+        CVTracked::track method. If a marker was found it overwrites the linked nodes
+        object matrix (SLNode::_om). If the linked node is the active camera the found
+        transform is additionally inversed. This would be the standard augmented realtiy
+        use case.
+        */
+
+        if (sceneID == SID_VideoTrackArucoMain)
+        {
+            CVCapture::instance()->videoType(VT_MAIN);
+            s->name("Track Aruco (main cam.)");
+            s->info("Hold the Aruco board dictionary 0 into the field of view of the main camera. You can find the Aruco markers in the file data/Calibrations. If not all markers are tracked you may have the mirror the video horizontally.");
+        }
+        else
+        {
+            CVCapture::instance()->videoType(VT_SCND);
+            s->name("Track Aruco (scnd. cam.)");
+            s->info("Hold the Aruco board dictionary 0 into the field of view of the secondary camera. You can find the Aruco markers in the file data/Calibrations. If not all markers are tracked you may have the mirror the video horizontally.");
+        }
+
+        // Create video texture on global pointer updated in AppDemoVideo
+        videoTexture = new SLGLTexture(s, texPath + "LiveVideoError.png", GL_LINEAR, GL_LINEAR);
+
+        // Material
+        SLMaterial* yellow = new SLMaterial(s, "mY", SLCol4f(1, 1, 0, 0.2f));
+        SLMaterial* cyan   = new SLMaterial(s, "mY", SLCol4f(0, 1, 1, 0.5f));
+
+        // Create a scene group node
+        SLNode* scene = new SLNode("scene node");
+
+        // Create a camera node 1
+        SLCamera* cam1 = new SLCamera("Camera 1");
+        cam1->translation(0, 0, 5);
+        cam1->lookAt(0, 0, 0);
+        cam1->fov(CVCapture::instance()->activeCamera->calibration.cameraFovVDeg());
+        cam1->background().texture(videoTexture);
+        cam1->setInitialState();
+        cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
+        scene->addChild(cam1);
+
+        // Create a light source node
+        SLLightSpot* light1 = new SLLightSpot(s, s, 0.02f);
+        light1->translation(0.12f, 0.12f, 0.12f);
+        light1->name("light node");
+        scene->addChild(light1);
+
+        // Get the half edge length of the aruco marker
+        SLfloat edgeLen = CVTrackedAruco::params.edgeLength;
+        SLfloat he      = 0.002f;
+
+        // Build mesh & node that will be tracked by the 1st marker (camera)
+        SLMesh*  box1      = new SLBox(s, -he, -he, -he, he, he, he, "Box 1", yellow);
+        SLNode* boxNode1  = new SLNode(box1, "Box Node 1");
+        SLNode* axisNode1 = new SLNode(new SLCoordAxis(s), "Axis Node 1");
+        axisNode1->setDrawBitsRec(SL_DB_MESHWIRED, false);
+        axisNode1->scale(edgeLen);
+        //boxNode1->addChild(axisNode1);
+        boxNode1->setDrawBitsRec(SL_DB_CULLOFF, true);
+        scene->addChild(boxNode1);
+
+        int trackedFaces[6];
+        trackedFaces[ACF_front] = 0;
+        trackedFaces[ACF_right] = 1;
+        trackedFaces[ACF_back] = 2;
+        trackedFaces[ACF_left] = 3;
+        trackedFaces[ACF_top] = 4;
+        trackedFaces[ACF_bottom] = CVTrackedArucoCube::NO_MARKER;
+
+        // Create OpenCV Tracker for the box node
+        tracker = new CVTrackedArucoCube(trackedFaces, AppDemo::calibIniPath);
+        tracker->drawDetection(true);
+        trackedNode = cam1;
+
+        // pass the scene group as root node
+        s->root3D(scene);
+
+        // Set active camera
+        sv->camera(cam1);
+
+        // Turn on constant redraw
+        sv->doWaitOnIdle(false);
+    }
 
     else if (sceneID == SID_ErlebARBielBFH) //.....................................................
     {
@@ -3712,7 +3798,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         matVideoBkgd->lightModel(LM_Custom);
 
         // Create see through video background material with shadow mapping
-        SLMaterial*  matVideoBkgdSM = new SLMaterial(s,"matVideoBkgdSM", videoTexture);
+        SLMaterial* matVideoBkgdSM = new SLMaterial(s, "matVideoBkgdSM", videoTexture);
         matVideoBkgdSM->lightModel(LM_Custom);
         matVideoBkgdSM->ambient(SLCol4f(0.6f, 0.6f, 0.6f));
         matVideoBkgdSM->getsShadows(true);
@@ -3738,7 +3824,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         sunLight->createsShadows(true);
         sunLight->createShadowMapAutoSize(cam1, SLVec2i(2048, 2048), 4);
         sunLight->shadowMap()->cascadesFactor(3.0);
-        //sunLight->createShadowMap(-100, 150, SLVec2f(200, 150), SLVec2i(4096, 4096));
+        // sunLight->createShadowMap(-100, 150, SLVec2f(200, 150), SLVec2i(4096, 4096));
         sunLight->doSmoothShadows(true);
         sunLight->castsShadows(false);
         sunLight->shadowMinBias(0.001f);
@@ -3881,7 +3967,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         matVideoBkgd->lightModel(LM_Custom);
 
         // Create see through video background material with shadow mapping
-        SLMaterial*  matVideoBkgdSM = new SLMaterial(s,"matVideoBkgdSM", videoTexture);
+        SLMaterial* matVideoBkgdSM = new SLMaterial(s, "matVideoBkgdSM", videoTexture);
         matVideoBkgdSM->lightModel(LM_Custom);
         matVideoBkgdSM->ambient(SLCol4f(0.6f, 0.6f, 0.6f));
         matVideoBkgdSM->getsShadows(true);
@@ -3912,7 +3998,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         sunLight->createsShadows(true);
         sunLight->createShadowMapAutoSize(cam1, SLVec2i(2048, 2048), 4);
         sunLight->shadowMap()->cascadesFactor(3.0);
-        //sunLight->createShadowMap(-100, 250, SLVec2f(210, 180), SLVec2i(4096, 4096));
+        // sunLight->createShadowMap(-100, 250, SLVec2f(210, 180), SLVec2i(4096, 4096));
         sunLight->doSmoothShadows(true);
         sunLight->castsShadows(false);
         sunLight->shadowMinBias(0.001f);
@@ -4024,7 +4110,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         matVideoBkgd->lightModel(LM_Custom);
 
         // Create see through video background material with shadow mapping
-        SLMaterial*  matVideoBkgdSM = new SLMaterial(s,"matVideoBkgdSM", videoTexture);
+        SLMaterial* matVideoBkgdSM = new SLMaterial(s, "matVideoBkgdSM", videoTexture);
         matVideoBkgdSM->lightModel(LM_Custom);
         matVideoBkgdSM->ambient(SLCol4f(0.6f, 0.6f, 0.6f));
         matVideoBkgdSM->getsShadows(true);
@@ -4055,7 +4141,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         sunLight->createsShadows(true);
         sunLight->createShadowMapAutoSize(cam1, SLVec2i(2048, 2048), 4);
         sunLight->shadowMap()->cascadesFactor(3.0);
-        //sunLight->createShadowMap(-100, 250, SLVec2f(210, 180), SLVec2i(4096, 4096));
+        // sunLight->createShadowMap(-100, 250, SLVec2f(210, 180), SLVec2i(4096, 4096));
         sunLight->doSmoothShadows(true);
         sunLight->castsShadows(false);
         sunLight->shadowMinBias(0.001f);
@@ -4167,7 +4253,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         matVideoBkgd->lightModel(LM_Custom);
 
         // Create see through video background material with shadow mapping
-        SLMaterial*  matVideoBkgdSM = new SLMaterial(s,"matVideoBkgdSM", videoTexture);
+        SLMaterial* matVideoBkgdSM = new SLMaterial(s, "matVideoBkgdSM", videoTexture);
         matVideoBkgdSM->lightModel(LM_Custom);
         matVideoBkgdSM->ambient(SLCol4f(0.6f, 0.6f, 0.6f));
         matVideoBkgdSM->getsShadows(true);
@@ -4199,7 +4285,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         sunLight->createShadowMapAutoSize(cam1, SLVec2i(2048, 2048), 4);
         sunLight->shadowMap()->cascadesFactor(3.0);
         // Old stanard single map shadow map
-        //sunLight->createShadowMap(-100, 250, SLVec2f(210, 180), SLVec2i(4096, 4096));
+        // sunLight->createShadowMap(-100, 250, SLVec2f(210, 180), SLVec2i(4096, 4096));
         sunLight->doSmoothShadows(true);
         sunLight->castsShadows(false);
         sunLight->shadowMinBias(0.001f);
@@ -4347,7 +4433,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         matVideoBkgd->lightModel(LM_Custom);
 
         // Create see through video background material with shadow mapping
-        SLMaterial*  matVideoBkgdSM = new SLMaterial(s,"matVideoBkgdSM", videoTexture);
+        SLMaterial* matVideoBkgdSM = new SLMaterial(s, "matVideoBkgdSM", videoTexture);
         matVideoBkgdSM->lightModel(LM_Custom);
         matVideoBkgdSM->ambient(SLCol4f(0.6f, 0.6f, 0.6f));
         matVideoBkgdSM->getsShadows(true);
@@ -4375,7 +4461,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         sunLight->createsShadows(true);
         sunLight->createShadowMapAutoSize(cam1, SLVec2i(2048, 2048), 4);
         sunLight->shadowMap()->cascadesFactor(3.0);
-        //sunLight->createShadowMap(-70, 70, SLVec2f(140, 100), SLVec2i(4096, 4096));
+        // sunLight->createShadowMap(-70, 70, SLVec2f(140, 100), SLVec2i(4096, 4096));
         sunLight->doSmoothShadows(true);
         sunLight->castsShadows(false);
         sunLight->shadowMinBias(0.001f);
@@ -4469,7 +4555,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         matVideoBkgd->lightModel(LM_Custom);
 
         // Create see through video background material with shadow mapping
-        SLMaterial*  matVideoBkgdSM = new SLMaterial(s,"matVideoBkgdSM", videoTexture);
+        SLMaterial* matVideoBkgdSM = new SLMaterial(s, "matVideoBkgdSM", videoTexture);
         matVideoBkgdSM->lightModel(LM_Custom);
         matVideoBkgdSM->ambient(SLCol4f(0.6f, 0.6f, 0.6f));
         matVideoBkgdSM->getsShadows(true);
@@ -4498,7 +4584,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         sunLight->createsShadows(true);
         sunLight->createShadowMapAutoSize(cam1, SLVec2i(2048, 2048), 4);
         sunLight->shadowMap()->cascadesFactor(3.0);
-        //sunLight->createShadowMap(-70, 120, SLVec2f(150, 150), SLVec2i(2048, 2048));
+        // sunLight->createShadowMap(-70, 120, SLVec2f(150, 150), SLVec2i(2048, 2048));
         sunLight->doSmoothShadows(true);
         sunLight->castsShadows(false);
         sunLight->shadowMinBias(0.001f);
@@ -4588,7 +4674,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         matVideoBkgd->lightModel(LM_Custom);
 
         // Create see through video background material with shadow mapping
-        SLMaterial*  matVideoBkgdSM = new SLMaterial(s,"matVideoBkgdSM", videoTexture);
+        SLMaterial* matVideoBkgdSM = new SLMaterial(s, "matVideoBkgdSM", videoTexture);
         matVideoBkgdSM->lightModel(LM_Custom);
         matVideoBkgdSM->ambient(SLCol4f(0.6f, 0.6f, 0.6f));
         matVideoBkgdSM->getsShadows(true);
@@ -4617,7 +4703,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         sunLight->createsShadows(true);
         sunLight->createShadowMapAutoSize(cam1, SLVec2i(2048, 2048), 4);
         sunLight->shadowMap()->cascadesFactor(3.0);
-        //sunLight->createShadowMap(-80, 100, SLVec2f(130, 130), SLVec2i(4096, 4096));
+        // sunLight->createShadowMap(-80, 100, SLVec2f(130, 130), SLVec2i(4096, 4096));
         sunLight->doSmoothShadows(true);
         sunLight->castsShadows(false);
         sunLight->shadowMinBias(0.001f);
@@ -4711,7 +4797,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         matVideoBkgd->lightModel(LM_Custom);
 
         // Create see through video background material with shadow mapping
-        SLMaterial*  matVideoBkgdSM = new SLMaterial(s,"matVideoBkgdSM", videoTexture);
+        SLMaterial* matVideoBkgdSM = new SLMaterial(s, "matVideoBkgdSM", videoTexture);
         matVideoBkgdSM->lightModel(LM_Custom);
         matVideoBkgdSM->ambient(SLCol4f(0.6f, 0.6f, 0.6f));
         matVideoBkgdSM->getsShadows(true);

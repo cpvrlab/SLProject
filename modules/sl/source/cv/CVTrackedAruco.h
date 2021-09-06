@@ -55,9 +55,9 @@ public:
         fs["polygonalApproxAccuracyRate"] >> arucoParams->polygonalApproxAccuracyRate;
         fs["minCornerDistanceRate"] >> arucoParams->minCornerDistanceRate;
         fs["minDistanceToBorder"] >> arucoParams->minDistanceToBorder;
-        //fs["minMarkerDistanceRate"] >> arucoParams->minMarkerDistanceRate; //achtung minMarkerDistance -> minMarkerDistanceRate
-        //fs["doCornerRefinement"] >> arucoParams->doCornerRefinement; //does not exist anymore in opencv 3.4.0
-        fs["cornerRefinementMethod"] >> arucoParams->cornerRefinementMethod; //cv::aruco::CornerRefineMethod
+        // fs["minMarkerDistanceRate"] >> arucoParams->minMarkerDistanceRate; //achtung minMarkerDistance -> minMarkerDistanceRate
+        // fs["doCornerRefinement"] >> arucoParams->doCornerRefinement; //does not exist anymore in opencv 3.4.0
+        fs["cornerRefinementMethod"] >> arucoParams->cornerRefinementMethod; // cv::aruco::CornerRefineMethod
         fs["cornerRefinementWinSize"] >> arucoParams->cornerRefinementWinSize;
         fs["cornerRefinementMaxIterations"] >> arucoParams->cornerRefinementMaxIterations;
         fs["cornerRefinementMinAccuracy"] >> arucoParams->cornerRefinementMinAccuracy;
@@ -97,7 +97,7 @@ public:
 
     bool track(CVMat          imageGray,
                CVMat          imageRgb,
-               CVCalibration* calib) final;
+               CVCalibration* calib);
 
     //! Helper function to draw and save an aruco marker board image
     static void drawArucoMarkerBoard(int           dictionaryId,
@@ -117,12 +117,17 @@ public:
 
     static CVArucoParams params; //!< Parameter class instance
 
-private:
+protected:
+    bool trackAll(CVMat          imageGray,
+                  CVMat          imageRgb,
+                  CVCalibration* calib);
+
     static bool        paramsLoaded;   //!< Flag for loaded parameters
     static vector<int> arucoIDs;       //!< detected Aruco marker IDs
     static CVVMatx44f  objectViewMats; //!< object view matrices for all found markers
 
-    int         _arucoID; //!< Aruco Marker ID for this node
+private:
+    int    _arucoID; //!< Aruco Marker ID for this node
     string _calibIniPath;
 };
 //-----------------------------------------------------------------------------

@@ -1651,6 +1651,8 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
 #ifdef SL_BUILD_WAI
                     if (ImGui::MenuItem("Track WAI (Main)", nullptr, sid == SID_VideoTrackWAI))
                         s->onLoad(s, sv, SID_VideoTrackWAI);
+                    if (ImGui::MenuItem("Track Aruco Cube (Main)", nullptr, sid == SID_VideoTrackArucoCubeMain))
+                        s->onLoad(s, sv, SID_VideoTrackArucoCubeMain);
 #endif
                     ImGui::EndMenu();
                 }
