@@ -13,11 +13,11 @@
 precision highp float;
 
 //-----------------------------------------------------------------------------
-in      vec3        v_P_WS;         // sample direction in world space
+in      vec3        v_P_WS;               // sample direction in world space
 
-uniform sampler2D   u_texture0;     // Equirectagular map
+uniform sampler2D   u_textureEnvCubemap0; // Equirectagular map
 
-out     vec4        o_fragColor;    // output fragment color
+out     vec4        o_fragColor;          // output fragment color
 //-----------------------------------------------------------------------------
 const   vec2        invAtan = vec2(0.1591, 0.3183);
 //-----------------------------------------------------------------------------
@@ -35,7 +35,7 @@ vec2 SampleSphericalMap(vec3 v)
 void main()
 {
     vec2 uv = SampleSphericalMap(normalize(v_P_WS));
-    vec3 color = texture(u_texture0, uv).rgb;
+    vec3 color = texture(u_textureEnvCubemap0, uv).rgb;
     
     o_fragColor = vec4(color, 1.0);
 }

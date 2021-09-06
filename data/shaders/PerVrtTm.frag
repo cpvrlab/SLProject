@@ -13,8 +13,8 @@ precision highp float;
 in      vec3        v_P_VS;             // Interpol. point of illumination in view space (VS)
 in      vec2        v_uv1;              // Interpol. texture coordinate
 
-uniform sampler2D   u_matTexture0;      // Color map
-uniform float       u_oneOverGamma;     // 1.0f / Gamma correction value
+uniform sampler2D   u_matTextureDiffuse0; // Color map
+uniform float       u_oneOverGamma;       // 1.0f / Gamma correction value
 
 uniform int         u_camProjection;    // type of stereo
 uniform int         u_camStereoEye;     // -1=left, 0=center, 1=right
@@ -34,7 +34,7 @@ out     vec4        o_fragColor;        // output fragment color
 //-----------------------------------------------------------------------------
 void main()
 {     
-    o_fragColor = texture(u_matTexture0, v_uv1);
+    o_fragColor = texture(u_matTextureDiffuse0, v_uv1);
 
     // Apply fog by blending over distance
     if (u_camFogIsOn)

@@ -18,11 +18,11 @@ in      vec3        v_R_OS;         // Reflected ray in object space
 in      float       v_F_Theta;      // Fresnel reflection coefficient
 in      vec4        v_specColor;    // Specular color at vertex
 
-uniform samplerCube u_matTexture0;  // Cubic environment texture map
-uniform mat4        u_mvMatrix;     // modelview matrix
-uniform mat4        u_invMvMatrix;  // inverse modelview
-uniform mat3        u_nMatrix;      // normal matrix=transpose(inverse(mv))
-uniform float       u_oneOverGamma; // 1.0f / Gamma correction value
+uniform samplerCube u_matTextureDiffuse0;  // Cubic environment texture map
+uniform mat4        u_mvMatrix;            // modelview matrix
+uniform mat4        u_invMvMatrix;         // inverse modelview
+uniform mat3        u_nMatrix;             // normal matrix=transpose(inverse(mv))
+uniform float       u_oneOverGamma;        // 1.0f / Gamma correction value
 
 out     vec4        o_fragColor;    // output fragment color
 //-----------------------------------------------------------------------------

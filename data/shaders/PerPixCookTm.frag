@@ -28,10 +28,10 @@ uniform float       u_lightSpotCos[NUM_LIGHTS]; // cosine of spot cutoff angle
 uniform float       u_lightSpotExp[NUM_LIGHTS]; // spot exponent
 uniform float       u_oneOverGamma;             // 1.0f / Gamma correction value
 
-uniform sampler2D   u_matTexture0;      // Diffuse Color map (albedo)
-uniform sampler2D   u_matTexture1;      // Normal map
-uniform sampler2D   u_matTexture2;      // Metallic map
-uniform sampler2D   u_matTexture3;      // Roughness map
+uniform sampler2D   u_matTextureDiffuse0;       // Diffuse Color map (albedo)
+uniform sampler2D   u_matTextureNormal0;        // Normal map
+uniform sampler2D   u_matTextureMetallic0;      // Metallic map
+uniform sampler2D   u_matTextureRoughness0;     // Roughness map
 
 uniform int         u_camProjection;    // type of stereo
 uniform int         u_camStereoEye;     // -1=left, 0=center, 1=right
@@ -50,7 +50,7 @@ const float PI = 3.14159265359;
 // ----------------------------------------------------------------------------
 vec3 getNormalFromMap()
 {
-    vec3 tangentNormal = texture(u_matTexture1, v_uv1).xyz * 2.0 - 1.0;
+    vec3 tangentNormal = texture(u_matTextureNormal0, v_uv1).xyz * 2.0 - 1.0;
 
     vec3 Q1  = dFdx(v_P_VS);
     vec3 Q2  = dFdy(v_P_VS);
@@ -75,9 +75,9 @@ void main()
     vec3 E = normalize(-v_P_VS);    // Vector from p to the eye (viewer)
 
     // Get the material parameters out of the textures
-    vec3  matDiff  = pow(texture(u_matTexture0, v_uv1).rgb, vec3(2.2));
-    float matMetal = texture(u_matTexture2, v_uv1).r;
-    float matRough = texture(u_matTexture3, v_uv1).r;
+    vec3  matDiff  = pow(texture(u_matTextureDiffuse0, v_uv1).rgb, vec3(2.2));
+    float matMetal = texture(u_matTextureMetallic0, v_uv1).r;
+    float matRough = texture(u_matTextureRoughness0, v_uv1).r;
 
     // Init Fresnel reflection at 90 deg. (0 to N)
     vec3 F0 = vec3(0.04);           

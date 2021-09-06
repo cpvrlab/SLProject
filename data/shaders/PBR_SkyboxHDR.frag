@@ -11,7 +11,7 @@ precision highp float;
 
 //-----------------------------------------------------------------------------
 uniform   float         u_exposure;     // exposure for tone mapping
-uniform   samplerCube   u_matTexture0;  // cube map texture
+uniform   samplerCube   u_matTextureEnvCubemap0;  // cube map texture
 
 in        vec3          v_uv1;          // Interpol. 3D texture coordinate
 
@@ -20,7 +20,7 @@ out       vec4          o_fragColor;    // output fragment color
 void main()
 {
     const float gamma = 2.2;
-    vec3 hdrColor = texture(u_matTexture0, v_uv1).rgb;
+    vec3 hdrColor = texture(u_matTextureEnvCubemap0, v_uv1).rgb;
   
     // Exposure tone mapping
     vec3 mapped = vec3(1.0) - exp(-hdrColor * u_exposure);

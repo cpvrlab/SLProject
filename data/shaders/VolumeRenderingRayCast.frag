@@ -17,13 +17,13 @@ precision highp sampler3D;
 //-----------------------------------------------------------------------------
 in      vec3        v_raySource;     // The source coordinate of the view ray (model coordinates)
 
-uniform mat4        u_invMvMatrix;   // inverse modelView matrix = view matrix
-uniform float       u_volumeX;       // 3D texture width
-uniform float       u_volumeY;       // 3D texture height
-uniform float       u_volumeZ;       // 3D texture depth
-uniform float       u_oneOverGamma;  // 1.0f / Gamma correction value
-uniform sampler3D   u_matTexture0;      // The 3D volume texture
-uniform sampler2D   u_matTexture1;      // The 1D LUT for the transform function
+uniform mat4        u_invMvMatrix;         // inverse modelView matrix = view matrix
+uniform float       u_volumeX;             // 3D texture width
+uniform float       u_volumeY;             // 3D texture height
+uniform float       u_volumeZ;             // 3D texture depth
+uniform float       u_oneOverGamma;        // 1.0f / Gamma correction value
+uniform sampler3D   u_matTextureDiffuse0;  // The 3D volume texture
+uniform sampler2D   u_matTextureDiffuse1;  // The 1D LUT for the transform function
 
 out     vec4        o_fragColor;      // output fragment color
 //-----------------------------------------------------------------------------
@@ -91,10 +91,10 @@ void main()
     for (int i = 0; i < num_steps; ++i) //Step along the view ray
     {
         //The voxel can be read directly from there assuming we're using GL_NEAREST as interpolation method
-        vec4 voxel = texture(u_matTexture0, position);
+        vec4 voxel = texture(u_matTextureDiffuse0, position);
 
         //Transform the read pixel with the 1D transform function lookup table
-        voxel = texture(u_matTexture1, vec2(voxel.r, 0.0));
+        voxel = texture(u_matTextureDiffuse1, vec2(voxel.r, 0.0));
 
         //Scale the color addend by it's alpha value
         voxel.rgb *= voxel.a;

@@ -37,9 +37,9 @@ uniform vec4        u_matDiff;      // diffuse color reflection coefficient (kd)
 uniform float       u_matRough;     // Cook-Torrance material roughness 0-1
 uniform float       u_matMetal;     // Cook-Torrance material metallic 0-1
 
-uniform samplerCube u_matTexture0;  // IBL irradiance convolution map
-uniform samplerCube u_matTexture1;  // IBL prefilter roughness map
-uniform sampler2D   u_matTexture2;  // IBL brdf integration map
+uniform samplerCube u_matTextureIrradianceCubemap0; // IBL irradiance convolution map
+uniform samplerCube u_matTextureRoughnessCubemap0;  // IBL prefilter roughness map
+uniform sampler2D   u_matTextureBRDF0;              // IBL brdf integration map
 
 uniform int         u_camProjection;    // type of stereo
 uniform int         u_camStereoEye;     // -1=left, 0=center, 1=right
@@ -103,13 +103,13 @@ void main()
     vec3 kS = F;
     vec3 kD = 1.0 - kS;
     kD *= 1.0 - u_matMetal;
-    vec3 irradiance = texture(u_matTexture0, N).rgb;
+    vec3 irradiance = texture(u_matTextureIrradianceCubemap0, N).rgb;
     vec3 diffuse    = kD * irradiance * u_matDiff.rgb;
     
     // sample both the pre-filter map and the BRDF lut and combine them together as per the Split-Sum approximation to get the IBL specular part.
     const float MAX_REFLECTION_LOD = 4.0;
-    vec3 prefilteredColor = textureLod(u_matTexture1, v_R_OS, u_matRough * MAX_REFLECTION_LOD).rgb;
-    vec2 brdf = texture(u_matTexture2, vec2(max(dot(N, E), 0.0), u_matRough)).rg;
+    vec3 prefilteredColor = textureLod(u_matTextureRoughnessCubemap0, v_R_OS, u_matRough * MAX_REFLECTION_LOD).rgb;
+    vec2 brdf = texture(u_matTextureBRDF0, vec2(max(dot(N, E), 0.0), u_matRough)).rg;
     vec3 specular = prefilteredColor * (F * brdf.x + brdf.y);
 
     vec3 ambient = (diffuse + specular) * AO;

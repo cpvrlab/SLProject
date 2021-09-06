@@ -38,13 +38,13 @@ const string vertInputs_a_tangent = R"(
 layout (location = 5) in vec4  a_tangent;   // Vertex tangent attribute
 )";
 //-----------------------------------------------------------------------------
-const string vertInputs_u_matrices_all = R"(
+const string vertInputs_u_matrices_all   = R"(
 uniform mat3  u_nMatrix;    // normal matrix=transpose(inverse(mv))
 uniform mat4  u_mMatrix;    // model matrix
 uniform mat4  u_mvMatrix;   // modelview matrix
 uniform mat4  u_mvpMatrix;  // = projection * modelView
 )";
-const string vertInputs_u_matrices_mvp = R"(
+const string vertInputs_u_matrices_mvp   = R"(
 uniform mat4  u_mvpMatrix;  // = projection * modelView
 )";
 const string vertInputs_u_matrices_extra = R"(
@@ -75,26 +75,26 @@ out     vec3  v_lightDirTS[NUM_LIGHTS]; // Vector to the light 0 in tangent spac
 out     vec3  v_spotDirTS[NUM_LIGHTS];  // Spot direction in tangent space
 )";
 //-----------------------------------------------------------------------------
-const string vertMainBlinn_Begin     = R"(
+const string vertMain_Begin         = R"(
 
 void main()
 {
 )";
-const string vertMainBlinn_v_P_VS    = R"(
+const string vertMain_v_P_VS        = R"(
     v_P_VS = vec3(u_mvMatrix *  a_position); // vertex position in view space)";
-const string vertMainBlinn_v_P_WS_Sm = R"(
+const string vertMain_v_P_WS_Sm     = R"(
     v_P_WS = vec3(u_mMatrix * a_position);   // vertex position in world space)";
-const string vertMainBlinn_v_N_VS    = R"(
+const string vertMain_v_N_VS        = R"(
     v_N_VS = vec3(u_nMatrix * a_normal);     // vertex normal in view space)";
-const string vertMainBlinn_v_R_OS    = R"(
+const string vertMain_v_R_OS        = R"(
     vec3 I = normalize(v_P_VS);
     vec3 N = normalize(v_N_VS);
     v_R_OS =  mat3(u_invMvMatrix) * reflect(I, v_N_VS); // = I - 2.0*dot(N,I)*N;)";
-const string vertMainBlinn_v_uv1     = R"(
+const string vertMain_v_uv1         = R"(
     v_uv1 = a_uv1;  // pass diffuse color tex.coord. 1 for interpolation)";
-const string vertMainBlinn_v_uv2_Ao  = R"(
+const string vertMainBlinn_v_uv2_Ao = R"(
     v_uv2 = a_uv2;  // pass ambient occlusion tex.coord. 2 for interpolation)";
-const string vertMainBlinn_TBN_Nm    = R"(
+const string vertMain_TBN_Nm        = R"(
     // Building the matrix Eye Space -> Tangent Space
     // See the math behind at: http://www.terathon.com/code/tangent.html
     vec3 n = normalize(u_nMatrix * a_normal);
@@ -118,14 +118,14 @@ const string vertMainBlinn_TBN_Nm    = R"(
         v_lightDirTS[i] *= TBN;
     }
 )";
-const string vertMainBlinn_EndAll    = R"(
+const string vertMain_EndAll        = R"(
 
     // pass the vertex w. the fix-function transform
     gl_Position = u_mvpMatrix * a_position;
 }
 )";
 //-----------------------------------------------------------------------------
-const string fragInputs_u_lightAll    = R"(
+const string fragInputs_u_lightAll           = R"(
 uniform bool        u_lightIsOn[NUM_LIGHTS];                // flag if light is on
 uniform vec4        u_lightPosVS[NUM_LIGHTS];               // position of light in view space
 uniform vec4        u_lightAmbi[NUM_LIGHTS];                // ambient light intensity (Ia)
@@ -140,14 +140,14 @@ uniform bool        u_lightDoAtt[NUM_LIGHTS];               // flag if att. must
 uniform vec4        u_globalAmbi;                           // Global ambient scene color
 uniform float       u_oneOverGamma;                         // 1.0f / Gamma correction value
 )";
-const string fragInputs_u_matBlinnAll = R"(
+const string fragInputs_u_matBlinnAll        = R"(
 uniform vec4        u_matAmbi;          // ambient color reflection coefficient (ka)
 uniform vec4        u_matDiff;          // diffuse color reflection coefficient (kd)
 uniform vec4        u_matSpec;          // specular color reflection coefficient (ks)
 uniform vec4        u_matEmis;          // emissive color for self-shining materials
 uniform float       u_matShin;          // shininess exponent
 )";
-const string fragInputs_u_matAmbi     = R"(
+const string fragInputs_u_matAmbi            = R"(
 uniform vec4        u_matAmbi;          // ambient color reflection coefficient (ka)
 uniform vec4        u_matDiff;          // diffuse color reflection coefficient (kd)
 uniform float       u_matRough;          // specular color reflection coefficient (ks)
@@ -577,30 +577,25 @@ void doColoredShadows(in vec3 N)
 }
 )";
 //-----------------------------------------------------------------------------
-const string fragMainBlinn_Begin         = R"(
+const string fragMain_Begin         = R"(
 
 void main()
 {
 )";
-const string fragMainBlinn_0_Intensities = R"(
+const string fragMain_0_Intensities = R"(
     vec4 Ia = vec4(0.0); // Accumulated ambient light intensity at v_P_VS
     vec4 Id = vec4(0.0); // Accumulated diffuse light intensity at v_P_VS
     vec4 Is = vec4(0.0); // Accumulated specular light intensity at v_P_VS
 )";
 //-----------------------------------------------------------------------------
-const string fragMainBlinn_1_EN_fromVert   = R"(
+const string fragMain_1_EN_fromVert = R"(
     vec3 E = normalize(-v_P_VS); // Interpolated vector from p to the eye
     vec3 N = normalize(v_N_VS);  // A input normal has not anymore unit length
 )";
-const string fragMainBlinn_1_EN_fromNm0    = R"(
+const string fragMain_1_EN_fromNm   = R"(
     vec3 E = normalize(v_eyeDirTS);   // normalized interpolated eye direction
     // Get normal from normal map, move from [0,1] to [-1, 1] range & normalize
-    vec3 N = normalize(texture(u_matTexture0, v_uv1).rgb * 2.0 - 1.0);
-)";
-const string fragMainBlinn_1_EN_fromNm1    = R"(
-    vec3 E = normalize(v_eyeDirTS);   // normalized interpolated eye direction
-    // Get normal from normal map, move from [0,1] to [-1, 1] range & normalize
-    vec3 N = normalize(texture(u_matTexture1, v_uv1).rgb * 2.0 - 1.0);
+    vec3 N = normalize(texture(u_matTextureNormal0, v_uv1).rgb * 2.0 - 1.0);
 )";
 //-----------------------------------------------------------------------------
 const string fragMainBlinn_2_LightLoop     = R"(
@@ -623,7 +618,7 @@ const string fragMainBlinn_2_LightLoop     = R"(
         }
     }
 )";
-const string fragMainBlinn_2_LightLoopNm          = R"(
+const string fragMainBlinn_2_LightLoopNm   = R"(
     for (int i = 0; i < NUM_LIGHTS; ++i)
     {
         if (u_lightIsOn[i])
@@ -643,7 +638,7 @@ const string fragMainBlinn_2_LightLoopNm          = R"(
         }
     }
 )";
-const string fragMainBlinn_2_LightLoopSm          = R"(
+const string fragMainBlinn_2_LightLoopSm   = R"(
     for (int i = 0; i < NUM_LIGHTS; ++i)
     {
         if (u_lightIsOn[i])
@@ -669,7 +664,7 @@ const string fragMainBlinn_2_LightLoopSm          = R"(
         }
     }
 )";
-const string fragMainBlinn_2_LightLoopNmSm        = R"(
+const string fragMainBlinn_2_LightLoopNmSm = R"(
     for (int i = 0; i < NUM_LIGHTS; ++i)
     {
         if (u_lightIsOn[i])
@@ -695,7 +690,7 @@ const string fragMainBlinn_2_LightLoopNmSm        = R"(
         }
     }
 )";
-const string fragMainBlinn_3_FragColor            = R"(
+const string fragMainBlinn_3_FragColor     = R"(
     // Sum up all the reflected color components
     o_fragColor =  u_matEmis +
                    u_globalAmbi +
@@ -706,7 +701,7 @@ const string fragMainBlinn_3_FragColor            = R"(
     // For correct alpha blending overwrite alpha component
     o_fragColor.a = u_matDiff.a;
 )";
-const string fragMainBlinn_3_FragColorTm          = R"(
+const string fragMainBlinn_3_FragColorTm   = R"(
     // Sum up all the reflected color components
     o_fragColor =  u_matEmis +
                    u_globalAmbi +
@@ -720,7 +715,7 @@ const string fragMainBlinn_3_FragColorTm          = R"(
     vec4 specColor = Is * u_matSpec;
     o_fragColor.rgb += specColor.rgb;
 )";
-const string fragMainBlinn_3_FragColorAo0         = R"(
+const string fragMainBlinn_3_FragColorAo   = R"(
     // Get ambient occlusion factor
     float AO = texture(u_matTextureAo0, v_uv2).r;
 
@@ -734,23 +729,9 @@ const string fragMainBlinn_3_FragColorAo0         = R"(
     // For correct alpha blending overwrite alpha component
     o_fragColor.a = u_matDiff.a;
 )";
-const string fragMainBlinn_3_FragColorAo1   = R"(
+const string fragMainBlinn_3_FragColorTmAo = R"(
     // Get ambient occlusion factor
-    float AO = texture(u_matTexture1, v_uv2).r;
-
-    // Sum up all the reflected color components
-    o_fragColor =  u_matEmis +
-                   u_globalAmbi +
-                   Ia * u_matAmbi * AO +
-                   Id * u_matDiff +
-                   Is * u_matSpec;
-
-    // For correct alpha blending overwrite alpha component
-    o_fragColor.a = u_matDiff.a;
-)";
-const string fragMainBlinn_3_FragColorAo1Tm = R"(
-    // Get ambient occlusion factor
-    float AO = texture(u_matTexture1, v_uv2).r;
+    float AO = texture(u_matTextureAo0, v_uv2).r;
 
     // Sum up all the reflected color components
     o_fragColor =  u_matEmis +
@@ -759,37 +740,20 @@ const string fragMainBlinn_3_FragColorAo1Tm = R"(
                    Id * u_matDiff;
 
     // Componentwise multiply w. texture color
-    o_fragColor *= texture(u_matTexture0, v_uv1);
-
-    // add finally the specular RGB-part
-    vec4 specColor = Is * u_matSpec;
-    o_fragColor.rgb += specColor.rgb;
-)";
-const string fragMainBlinn_3_FragColorAo2Tm = R"(
-    // Get ambient occlusion factor
-    float AO = texture(u_matTexture2, v_uv2).r;
-
-    // Sum up all the reflected color components
-    o_fragColor =  u_matEmis +
-                   u_globalAmbi +
-                   Ia * u_matAmbi * AO +
-                   Id * u_matDiff;
-
-    // Componentwise multiply w. texture color
-    o_fragColor *= texture(u_matTexture0, v_uv1);
+    o_fragColor *= texture(u_matTextureDiffuse0, v_uv1);
 
     // add finally the specular RGB-part
     vec4 specColor = Is * u_matSpec;
     o_fragColor.rgb += specColor.rgb;
 )";
 //-----------------------------------------------------------------------------
-const string fragMainBlinn_4_ColoredShadows = R"(
+const string fragMain_4_ColoredShadows = R"(
     // Colorize cascaded shadows for debugging purpose
     if (u_lightsDoColoredShadows)
         doColoredShadows(N);
 )";
 //-----------------------------------------------------------------------------
-const string fragMainBlinn_5_FogGammaStereo = R"(
+const string fragMain_5_FogGammaStereo = R"(
     // Apply fog by blending over distance
     if (u_camFogIsOn)
         o_fragColor = fogBlend(v_P_VS, o_fragColor);
@@ -1113,7 +1077,7 @@ void main()
     if(x < 0.0f || y < 0.0f || x > 1.0f || y > 1.0f)
         o_fragColor = vec4(0.0f, 0.0f, 0.0f, 1.0f);
     else
-        o_fragColor = texture(u_matTexture0, vec2(x, y));
+        o_fragColor = texture(u_matTextureDiffuse0, vec2(x, y));
 
     vec3 N = normalize(v_N_VS);  // A input normal has not anymore unit length
     float shadow = 0.0;
@@ -1336,14 +1300,14 @@ void SLGLProgramGenerated::buildPerPixCookTmNmAoSm(SLVLight* lights, bool env)
     vertCode += vertOutputs_v_uv1;
     vertCode += vertOutputs_v_R_OS;
     vertCode += vertOutputs_v_lightNm;
-    vertCode += vertMainBlinn_Begin;
-    vertCode += vertMainBlinn_v_P_VS;
-    vertCode += vertMainBlinn_v_P_WS_Sm;
-    vertCode += vertMainBlinn_v_N_VS;
-    vertCode += vertMainBlinn_v_uv1;
-    vertCode += vertMainBlinn_TBN_Nm;
-    vertCode += vertMainBlinn_v_R_OS;
-    vertCode += vertMainBlinn_EndAll;
+    vertCode += vertMain_Begin;
+    vertCode += vertMain_v_P_VS;
+    vertCode += vertMain_v_P_WS_Sm;
+    vertCode += vertMain_v_N_VS;
+    vertCode += vertMain_v_uv1;
+    vertCode += vertMain_TBN_Nm;
+    vertCode += vertMain_v_R_OS;
+    vertCode += vertMain_EndAll;
     addCodeToShader(_shaders[0], vertCode, _name + ".vert");
 
     // Assemble fragment shader code
@@ -1373,16 +1337,16 @@ in      vec3        v_spotDirTS[NUM_LIGHTS];    // Spot direction in tangent spa
     fragCode += fragFunctionDoStereoSeparation;
     fragCode += fragFunctionShadowTest(lights);
     fragCode += fragFunctionDoColoredShadows;
-    fragCode += fragMainBlinn_Begin;
-    fragCode += fragMainBlinn_0_Intensities;
-    fragCode += fragMainBlinn_1_EN_fromNm0;
+    fragCode += fragMain_Begin;
+    fragCode += fragMain_0_Intensities;
+    fragCode += fragMain_1_EN_fromNm;
     fragCode += fragMainCook_2_LightLoopTmNm;
     if (env)
         fragCode += fragMainCook_3_FragColorTmEvAo;
     else
         fragCode += fragMainCook_3_FragColorTmAo;
-    fragCode += fragMainBlinn_4_ColoredShadows;
-    fragCode += fragMainBlinn_5_FogGammaStereo;
+    fragCode += fragMain_4_ColoredShadows;
+    fragCode += fragMain_5_FogGammaStereo;
     addCodeToShader(_shaders[1], fragCode, _name + ".frag");
 }
 //-----------------------------------------------------------------------------
@@ -1406,13 +1370,13 @@ void SLGLProgramGenerated::buildPerPixCookTmNmAo(SLVLight* lights, bool env)
     vertCode += vertOutputs_v_uv1;
     vertCode += vertOutputs_v_R_OS;
     vertCode += vertOutputs_v_lightNm;
-    vertCode += vertMainBlinn_Begin;
-    vertCode += vertMainBlinn_v_P_VS;
-    vertCode += vertMainBlinn_v_N_VS;
-    vertCode += vertMainBlinn_v_uv1;
-    vertCode += vertMainBlinn_TBN_Nm;
-    vertCode += vertMainBlinn_v_R_OS;
-    vertCode += vertMainBlinn_EndAll;
+    vertCode += vertMain_Begin;
+    vertCode += vertMain_v_P_VS;
+    vertCode += vertMain_v_N_VS;
+    vertCode += vertMain_v_uv1;
+    vertCode += vertMain_TBN_Nm;
+    vertCode += vertMain_v_R_OS;
+    vertCode += vertMain_EndAll;
     addCodeToShader(_shaders[0], vertCode, _name + ".vert");
 
     // Assemble fragment shader code
@@ -1437,15 +1401,15 @@ in      vec3        v_spotDirTS[NUM_LIGHTS];    // Spot direction in tangent spa
     fragCode += fragFunctionsCookTorrence;
     fragCode += fragFunctionFogBlend;
     fragCode += fragFunctionDoStereoSeparation;
-    fragCode += fragMainBlinn_Begin;
-    fragCode += fragMainBlinn_0_Intensities;
-    fragCode += fragMainBlinn_1_EN_fromNm0;
+    fragCode += fragMain_Begin;
+    fragCode += fragMain_0_Intensities;
+    fragCode += fragMain_1_EN_fromNm;
     fragCode += fragMainCook_2_LightLoopTmNm;
     if (env)
         fragCode += fragMainCook_3_FragColorTmEvAo;
     else
         fragCode += fragMainCook_3_FragColorTmAo;
-    fragCode += fragMainBlinn_5_FogGammaStereo;
+    fragCode += fragMain_5_FogGammaStereo;
     addCodeToShader(_shaders[1], fragCode, _name + ".frag");
 }
 //-----------------------------------------------------------------------------
@@ -1470,14 +1434,14 @@ void SLGLProgramGenerated::buildPerPixCookTmNmSm(SLVLight* lights, bool env)
     vertCode += vertOutputs_v_uv1;
     vertCode += vertOutputs_v_R_OS;
     vertCode += vertOutputs_v_lightNm;
-    vertCode += vertMainBlinn_Begin;
-    vertCode += vertMainBlinn_v_P_VS;
-    vertCode += vertMainBlinn_v_P_WS_Sm;
-    vertCode += vertMainBlinn_v_N_VS;
-    vertCode += vertMainBlinn_v_uv1;
-    vertCode += vertMainBlinn_TBN_Nm;
-    vertCode += vertMainBlinn_v_R_OS;
-    vertCode += vertMainBlinn_EndAll;
+    vertCode += vertMain_Begin;
+    vertCode += vertMain_v_P_VS;
+    vertCode += vertMain_v_P_WS_Sm;
+    vertCode += vertMain_v_N_VS;
+    vertCode += vertMain_v_uv1;
+    vertCode += vertMain_TBN_Nm;
+    vertCode += vertMain_v_R_OS;
+    vertCode += vertMain_EndAll;
     addCodeToShader(_shaders[0], vertCode, _name + ".vert");
 
     // Assemble fragment shader code
@@ -1507,16 +1471,16 @@ in      vec3        v_spotDirTS[NUM_LIGHTS];    // Spot direction in tangent spa
     fragCode += fragFunctionDoStereoSeparation;
     fragCode += fragFunctionShadowTest(lights);
     fragCode += fragFunctionDoColoredShadows;
-    fragCode += fragMainBlinn_Begin;
-    fragCode += fragMainBlinn_0_Intensities;
-    fragCode += fragMainBlinn_1_EN_fromNm0;
+    fragCode += fragMain_Begin;
+    fragCode += fragMain_0_Intensities;
+    fragCode += fragMain_1_EN_fromNm;
     fragCode += fragMainCook_2_LightLoopTmNm;
     if (env)
         fragCode += fragMainCook_3_FragColorTmEv;
     else
         fragCode += fragMainCook_3_FragColorTm;
-    fragCode += fragMainBlinn_4_ColoredShadows;
-    fragCode += fragMainBlinn_5_FogGammaStereo;
+    fragCode += fragMain_4_ColoredShadows;
+    fragCode += fragMain_5_FogGammaStereo;
     addCodeToShader(_shaders[1], fragCode, _name + ".frag");
 }
 //-----------------------------------------------------------------------------
@@ -1538,13 +1502,13 @@ void SLGLProgramGenerated::buildPerPixCookTmAoSm(SLVLight* lights, bool env)
     vertCode += vertOutputs_v_N_VS;
     vertCode += vertOutputs_v_uv1;
     vertCode += vertOutputs_v_R_OS;
-    vertCode += vertMainBlinn_Begin;
-    vertCode += vertMainBlinn_v_P_VS;
-    vertCode += vertMainBlinn_v_P_WS_Sm;
-    vertCode += vertMainBlinn_v_N_VS;
-    vertCode += vertMainBlinn_v_uv1;
-    vertCode += vertMainBlinn_v_R_OS;
-    vertCode += vertMainBlinn_EndAll;
+    vertCode += vertMain_Begin;
+    vertCode += vertMain_v_P_VS;
+    vertCode += vertMain_v_P_WS_Sm;
+    vertCode += vertMain_v_N_VS;
+    vertCode += vertMain_v_uv1;
+    vertCode += vertMain_v_R_OS;
+    vertCode += vertMain_EndAll;
     addCodeToShader(_shaders[0], vertCode, _name + ".vert");
 
     // Assemble fragment shader code
@@ -1571,16 +1535,16 @@ in      vec2        v_uv1;      // Texture coordinate varying
     fragCode += fragFunctionDoStereoSeparation;
     fragCode += fragFunctionShadowTest(lights);
     fragCode += fragFunctionDoColoredShadows;
-    fragCode += fragMainBlinn_Begin;
-    fragCode += fragMainBlinn_0_Intensities;
-    fragCode += fragMainBlinn_1_EN_fromVert;
+    fragCode += fragMain_Begin;
+    fragCode += fragMain_0_Intensities;
+    fragCode += fragMain_1_EN_fromVert;
     fragCode += fragMainCook_2_LightLoopTm;
     if (env)
         fragCode += fragMainCook_3_FragColorTmEvAo;
     else
         fragCode += fragMainCook_3_FragColorTmAo;
-    fragCode += fragMainBlinn_4_ColoredShadows;
-    fragCode += fragMainBlinn_5_FogGammaStereo;
+    fragCode += fragMain_4_ColoredShadows;
+    fragCode += fragMain_5_FogGammaStereo;
     addCodeToShader(_shaders[1], fragCode, _name + ".frag");
 }
 //-----------------------------------------------------------------------------
@@ -1602,13 +1566,13 @@ void SLGLProgramGenerated::buildPerPixCookAoSm(SLVLight* lights, bool env)
     vertCode += vertOutputs_v_N_VS;
     vertCode += vertOutputs_v_uv1;
     vertCode += vertOutputs_v_R_OS;
-    vertCode += vertMainBlinn_Begin;
-    vertCode += vertMainBlinn_v_P_VS;
-    vertCode += vertMainBlinn_v_P_WS_Sm;
-    vertCode += vertMainBlinn_v_N_VS;
-    vertCode += vertMainBlinn_v_uv1;
-    vertCode += vertMainBlinn_v_R_OS;
-    vertCode += vertMainBlinn_EndAll;
+    vertCode += vertMain_Begin;
+    vertCode += vertMain_v_P_VS;
+    vertCode += vertMain_v_P_WS_Sm;
+    vertCode += vertMain_v_N_VS;
+    vertCode += vertMain_v_uv1;
+    vertCode += vertMain_v_R_OS;
+    vertCode += vertMain_EndAll;
     addCodeToShader(_shaders[0], vertCode, _name + ".vert");
 
     // Assemble fragment shader code
@@ -1635,16 +1599,16 @@ in      vec2        v_uv1;      // Texture coordinate varying
     fragCode += fragFunctionDoStereoSeparation;
     fragCode += fragFunctionShadowTest(lights);
     fragCode += fragFunctionDoColoredShadows;
-    fragCode += fragMainBlinn_Begin;
-    fragCode += fragMainBlinn_0_Intensities;
-    fragCode += fragMainBlinn_1_EN_fromVert;
+    fragCode += fragMain_Begin;
+    fragCode += fragMain_0_Intensities;
+    fragCode += fragMain_1_EN_fromVert;
     fragCode += fragMainCook_2_LightLoop;
     if (env)
         fragCode += fragMainCook_3_FragColorEvAo;
     else
         fragCode += fragMainCook_3_FragColorAo;
-    fragCode += fragMainBlinn_4_ColoredShadows;
-    fragCode += fragMainBlinn_5_FogGammaStereo;
+    fragCode += fragMain_4_ColoredShadows;
+    fragCode += fragMain_5_FogGammaStereo;
     addCodeToShader(_shaders[1], fragCode, _name + ".frag");
 }
 //-----------------------------------------------------------------------------
@@ -1669,14 +1633,14 @@ void SLGLProgramGenerated::buildPerPixCookNmSm(SLVLight* lights, bool env)
     vertCode += vertOutputs_v_uv1;
     vertCode += vertOutputs_v_R_OS;
     vertCode += vertOutputs_v_lightNm;
-    vertCode += vertMainBlinn_Begin;
-    vertCode += vertMainBlinn_v_P_VS;
-    vertCode += vertMainBlinn_v_P_WS_Sm;
-    vertCode += vertMainBlinn_v_N_VS;
-    vertCode += vertMainBlinn_v_uv1;
-    vertCode += vertMainBlinn_TBN_Nm;
-    vertCode += vertMainBlinn_v_R_OS;
-    vertCode += vertMainBlinn_EndAll;
+    vertCode += vertMain_Begin;
+    vertCode += vertMain_v_P_VS;
+    vertCode += vertMain_v_P_WS_Sm;
+    vertCode += vertMain_v_N_VS;
+    vertCode += vertMain_v_uv1;
+    vertCode += vertMain_TBN_Nm;
+    vertCode += vertMain_v_R_OS;
+    vertCode += vertMain_EndAll;
     addCodeToShader(_shaders[0], vertCode, _name + ".vert");
 
     // Assemble fragment shader code
@@ -1706,16 +1670,16 @@ in      vec3        v_spotDirTS[NUM_LIGHTS];    // Spot direction in tangent spa
     fragCode += fragFunctionDoStereoSeparation;
     fragCode += fragFunctionShadowTest(lights);
     fragCode += fragFunctionDoColoredShadows;
-    fragCode += fragMainBlinn_Begin;
-    fragCode += fragMainBlinn_0_Intensities;
-    fragCode += fragMainBlinn_1_EN_fromNm0;
+    fragCode += fragMain_Begin;
+    fragCode += fragMain_0_Intensities;
+    fragCode += fragMain_1_EN_fromNm;
     fragCode += fragMainCook_2_LightLoop;
     if (env)
         fragCode += fragMainCook_3_FragColorEv;
     else
         fragCode += fragMainCook_3_FragColor;
-    fragCode += fragMainBlinn_4_ColoredShadows;
-    fragCode += fragMainBlinn_5_FogGammaStereo;
+    fragCode += fragMain_4_ColoredShadows;
+    fragCode += fragMain_5_FogGammaStereo;
     addCodeToShader(_shaders[1], fragCode, _name + ".frag");
 }
 //-----------------------------------------------------------------------------
@@ -1738,13 +1702,13 @@ void SLGLProgramGenerated::buildPerPixCookTmSm(SLVLight* lights, bool env)
     vertCode += vertOutputs_v_N_VS;
     vertCode += vertOutputs_v_uv1;
     vertCode += vertOutputs_v_R_OS;
-    vertCode += vertMainBlinn_Begin;
-    vertCode += vertMainBlinn_v_P_VS;
-    vertCode += vertMainBlinn_v_P_WS_Sm;
-    vertCode += vertMainBlinn_v_N_VS;
-    vertCode += vertMainBlinn_v_uv1;
-    vertCode += vertMainBlinn_v_R_OS;
-    vertCode += vertMainBlinn_EndAll;
+    vertCode += vertMain_Begin;
+    vertCode += vertMain_v_P_VS;
+    vertCode += vertMain_v_P_WS_Sm;
+    vertCode += vertMain_v_N_VS;
+    vertCode += vertMain_v_uv1;
+    vertCode += vertMain_v_R_OS;
+    vertCode += vertMain_EndAll;
     addCodeToShader(_shaders[0], vertCode, _name + ".vert");
 
     // Assemble fragment shader code
@@ -1771,16 +1735,16 @@ in      vec2        v_uv1;      // Texture coordinate varying
     fragCode += fragFunctionDoStereoSeparation;
     fragCode += fragFunctionShadowTest(lights);
     fragCode += fragFunctionDoColoredShadows;
-    fragCode += fragMainBlinn_Begin;
-    fragCode += fragMainBlinn_0_Intensities;
-    fragCode += fragMainBlinn_1_EN_fromVert;
+    fragCode += fragMain_Begin;
+    fragCode += fragMain_0_Intensities;
+    fragCode += fragMain_1_EN_fromVert;
     fragCode += fragMainCook_2_LightLoopTm;
     if (env)
         fragCode += fragMainCook_3_FragColorTmEv;
     else
         fragCode += fragMainCook_3_FragColorTm;
-    fragCode += fragMainBlinn_4_ColoredShadows;
-    fragCode += fragMainBlinn_5_FogGammaStereo;
+    fragCode += fragMain_4_ColoredShadows;
+    fragCode += fragMain_5_FogGammaStereo;
     addCodeToShader(_shaders[1], fragCode, _name + ".frag");
 }
 //-----------------------------------------------------------------------------
@@ -1801,12 +1765,12 @@ void SLGLProgramGenerated::buildPerPixCookTmAo(SLVLight* lights, bool env)
     vertCode += vertOutputs_v_N_VS;
     vertCode += vertOutputs_v_uv1;
     vertCode += vertOutputs_v_R_OS;
-    vertCode += vertMainBlinn_Begin;
-    vertCode += vertMainBlinn_v_P_VS;
-    vertCode += vertMainBlinn_v_N_VS;
-    vertCode += vertMainBlinn_v_uv1;
-    vertCode += vertMainBlinn_v_R_OS;
-    vertCode += vertMainBlinn_EndAll;
+    vertCode += vertMain_Begin;
+    vertCode += vertMain_v_P_VS;
+    vertCode += vertMain_v_N_VS;
+    vertCode += vertMain_v_uv1;
+    vertCode += vertMain_v_R_OS;
+    vertCode += vertMain_EndAll;
     addCodeToShader(_shaders[0], vertCode, _name + ".vert");
 
     // Assemble fragment shader code
@@ -1827,12 +1791,12 @@ in      vec2        v_uv1;      // Texture coordinate varying
     fragCode += fragFunctionsCookTorrence;
     fragCode += fragFunctionFogBlend;
     fragCode += fragFunctionDoStereoSeparation;
-    fragCode += fragMainBlinn_Begin;
-    fragCode += fragMainBlinn_0_Intensities;
-    fragCode += fragMainBlinn_1_EN_fromVert;
+    fragCode += fragMain_Begin;
+    fragCode += fragMain_0_Intensities;
+    fragCode += fragMain_1_EN_fromVert;
     fragCode += fragMainCook_2_LightLoopTm;
     fragCode += fragMainCook_3_FragColorTmEvAo;
-    fragCode += fragMainBlinn_5_FogGammaStereo;
+    fragCode += fragMain_5_FogGammaStereo;
     addCodeToShader(_shaders[1], fragCode, _name + ".frag");
 }
 //-----------------------------------------------------------------------------
@@ -1857,13 +1821,13 @@ void SLGLProgramGenerated::buildPerPixCookTmNm(SLVLight* lights, bool env)
     vertCode += vertOutputs_v_uv1;
     vertCode += vertOutputs_v_R_OS;
     vertCode += vertOutputs_v_lightNm;
-    vertCode += vertMainBlinn_Begin;
-    vertCode += vertMainBlinn_v_P_VS;
-    vertCode += vertMainBlinn_v_N_VS;
-    vertCode += vertMainBlinn_v_uv1;
-    vertCode += vertMainBlinn_TBN_Nm;
-    vertCode += vertMainBlinn_v_R_OS;
-    vertCode += vertMainBlinn_EndAll;
+    vertCode += vertMain_Begin;
+    vertCode += vertMain_v_P_VS;
+    vertCode += vertMain_v_N_VS;
+    vertCode += vertMain_v_uv1;
+    vertCode += vertMain_TBN_Nm;
+    vertCode += vertMain_v_R_OS;
+    vertCode += vertMain_EndAll;
     addCodeToShader(_shaders[0], vertCode, _name + ".vert");
 
     // Assemble fragment shader code
@@ -1888,15 +1852,15 @@ in      vec3        v_spotDirTS[NUM_LIGHTS];    // Spot direction in tangent spa
     fragCode += fragFunctionsCookTorrence;
     fragCode += fragFunctionFogBlend;
     fragCode += fragFunctionDoStereoSeparation;
-    fragCode += fragMainBlinn_Begin;
-    fragCode += fragMainBlinn_0_Intensities;
-    fragCode += fragMainBlinn_1_EN_fromNm0;
+    fragCode += fragMain_Begin;
+    fragCode += fragMain_0_Intensities;
+    fragCode += fragMain_1_EN_fromNm;
     fragCode += fragMainCook_2_LightLoopTmNm;
     if (env)
         fragCode += fragMainCook_3_FragColorTmEv;
     else
         fragCode += fragMainCook_3_FragColorTm;
-    fragCode += fragMainBlinn_5_FogGammaStereo;
+    fragCode += fragMain_5_FogGammaStereo;
     addCodeToShader(_shaders[1], fragCode, _name + ".frag");
 }
 //-----------------------------------------------------------------------------
@@ -1916,12 +1880,12 @@ void SLGLProgramGenerated::buildPerPixCookSm(SLVLight* lights, bool env)
     vertCode += vertOutputs_v_P_VS;
     vertCode += vertOutputs_v_N_VS;
     vertCode += vertOutputs_v_R_OS;
-    vertCode += vertMainBlinn_Begin;
-    vertCode += vertMainBlinn_v_P_VS;
-    vertCode += vertMainBlinn_v_P_WS_Sm;
-    vertCode += vertMainBlinn_v_N_VS;
-    vertCode += vertMainBlinn_v_R_OS;
-    vertCode += vertMainBlinn_EndAll;
+    vertCode += vertMain_Begin;
+    vertCode += vertMain_v_P_VS;
+    vertCode += vertMain_v_P_WS_Sm;
+    vertCode += vertMain_v_N_VS;
+    vertCode += vertMain_v_R_OS;
+    vertCode += vertMain_EndAll;
     addCodeToShader(_shaders[0], vertCode, _name + ".vert");
 
     // Assemble fragment shader code
@@ -1947,16 +1911,16 @@ in      vec3        v_P_WS;     // Interpol. point of illumination in world spac
     fragCode += fragFunctionDoStereoSeparation;
     fragCode += fragFunctionShadowTest(lights);
     fragCode += fragFunctionDoColoredShadows;
-    fragCode += fragMainBlinn_Begin;
-    fragCode += fragMainBlinn_0_Intensities;
-    fragCode += fragMainBlinn_1_EN_fromVert;
+    fragCode += fragMain_Begin;
+    fragCode += fragMain_0_Intensities;
+    fragCode += fragMain_1_EN_fromVert;
     fragCode += fragMainCook_2_LightLoop;
     if (env)
         fragCode += fragMainCook_3_FragColorEv;
     else
         fragCode += fragMainCook_3_FragColor;
-    fragCode += fragMainBlinn_4_ColoredShadows;
-    fragCode += fragMainBlinn_5_FogGammaStereo;
+    fragCode += fragMain_4_ColoredShadows;
+    fragCode += fragMain_5_FogGammaStereo;
     addCodeToShader(_shaders[1], fragCode, _name + ".frag");
 }
 //-----------------------------------------------------------------------------
@@ -1977,12 +1941,12 @@ void SLGLProgramGenerated::buildPerPixCookAo(SLVLight* lights, bool env)
     vertCode += vertOutputs_v_N_VS;
     vertCode += vertOutputs_v_uv1;
     vertCode += vertOutputs_v_R_OS;
-    vertCode += vertMainBlinn_Begin;
-    vertCode += vertMainBlinn_v_P_VS;
-    vertCode += vertMainBlinn_v_N_VS;
-    vertCode += vertMainBlinn_v_uv1;
-    vertCode += vertMainBlinn_v_R_OS;
-    vertCode += vertMainBlinn_EndAll;
+    vertCode += vertMain_Begin;
+    vertCode += vertMain_v_P_VS;
+    vertCode += vertMain_v_N_VS;
+    vertCode += vertMain_v_uv1;
+    vertCode += vertMain_v_R_OS;
+    vertCode += vertMain_EndAll;
     addCodeToShader(_shaders[0], vertCode, _name + ".vert");
 
     // Assemble fragment shader code
@@ -2004,15 +1968,15 @@ in      vec2        v_uv1;      // Texture coordinate varying
     fragCode += fragFunctionsCookTorrence;
     fragCode += fragFunctionFogBlend;
     fragCode += fragFunctionDoStereoSeparation;
-    fragCode += fragMainBlinn_Begin;
-    fragCode += fragMainBlinn_0_Intensities;
-    fragCode += fragMainBlinn_1_EN_fromVert;
+    fragCode += fragMain_Begin;
+    fragCode += fragMain_0_Intensities;
+    fragCode += fragMain_1_EN_fromVert;
     fragCode += fragMainCook_2_LightLoop;
     if (env)
         fragCode += fragMainCook_3_FragColorEvAo;
     else
         fragCode += fragMainCook_3_FragColorAo;
-    fragCode += fragMainBlinn_5_FogGammaStereo;
+    fragCode += fragMain_5_FogGammaStereo;
     addCodeToShader(_shaders[1], fragCode, _name + ".frag");
 }
 //-----------------------------------------------------------------------------
@@ -2033,12 +1997,12 @@ void SLGLProgramGenerated::buildPerPixCookTm(SLVLight* lights, bool env)
     vertCode += vertOutputs_v_N_VS;
     vertCode += vertOutputs_v_uv1;
     vertCode += vertOutputs_v_R_OS;
-    vertCode += vertMainBlinn_Begin;
-    vertCode += vertMainBlinn_v_P_VS;
-    vertCode += vertMainBlinn_v_N_VS;
-    vertCode += vertMainBlinn_v_uv1;
-    vertCode += vertMainBlinn_v_R_OS;
-    vertCode += vertMainBlinn_EndAll;
+    vertCode += vertMain_Begin;
+    vertCode += vertMain_v_P_VS;
+    vertCode += vertMain_v_N_VS;
+    vertCode += vertMain_v_uv1;
+    vertCode += vertMain_v_R_OS;
+    vertCode += vertMain_EndAll;
     addCodeToShader(_shaders[0], vertCode, _name + ".vert");
 
     // Assemble fragment shader code
@@ -2060,15 +2024,15 @@ in      vec2        v_uv1;      // Texture coordinate varying
     fragCode += fragFunctionsCookTorrence;
     fragCode += fragFunctionFogBlend;
     fragCode += fragFunctionDoStereoSeparation;
-    fragCode += fragMainBlinn_Begin;
-    fragCode += fragMainBlinn_0_Intensities;
-    fragCode += fragMainBlinn_1_EN_fromVert;
+    fragCode += fragMain_Begin;
+    fragCode += fragMain_0_Intensities;
+    fragCode += fragMain_1_EN_fromVert;
     fragCode += fragMainCook_2_LightLoopTm;
     if (env)
         fragCode += fragMainCook_3_FragColorTmEv;
     else
         fragCode += fragMainCook_3_FragColorTm;
-    fragCode += fragMainBlinn_5_FogGammaStereo;
+    fragCode += fragMain_5_FogGammaStereo;
     addCodeToShader(_shaders[1], fragCode, _name + ".frag");
 }
 //-----------------------------------------------------------------------------
@@ -2093,14 +2057,14 @@ void SLGLProgramGenerated::buildPerPixCookNm(SLVLight* lights, bool env)
     vertCode += vertOutputs_v_uv1;
     vertCode += vertOutputs_v_R_OS;
     vertCode += vertOutputs_v_lightNm;
-    vertCode += vertMainBlinn_Begin;
-    vertCode += vertMainBlinn_v_P_VS;
-    vertCode += vertMainBlinn_v_P_WS_Sm;
-    vertCode += vertMainBlinn_v_N_VS;
-    vertCode += vertMainBlinn_v_uv1;
-    vertCode += vertMainBlinn_TBN_Nm;
-    vertCode += vertMainBlinn_v_R_OS;
-    vertCode += vertMainBlinn_EndAll;
+    vertCode += vertMain_Begin;
+    vertCode += vertMain_v_P_VS;
+    vertCode += vertMain_v_P_WS_Sm;
+    vertCode += vertMain_v_N_VS;
+    vertCode += vertMain_v_uv1;
+    vertCode += vertMain_TBN_Nm;
+    vertCode += vertMain_v_R_OS;
+    vertCode += vertMain_EndAll;
     addCodeToShader(_shaders[0], vertCode, _name + ".vert");
 
     // Assemble fragment shader code
@@ -2126,15 +2090,15 @@ in      vec3        v_spotDirTS[NUM_LIGHTS];    // Spot direction in tangent spa
     fragCode += fragFunctionsCookTorrence;
     fragCode += fragFunctionFogBlend;
     fragCode += fragFunctionDoStereoSeparation;
-    fragCode += fragMainBlinn_Begin;
-    fragCode += fragMainBlinn_0_Intensities;
-    fragCode += fragMainBlinn_1_EN_fromNm0;
+    fragCode += fragMain_Begin;
+    fragCode += fragMain_0_Intensities;
+    fragCode += fragMain_1_EN_fromNm;
     fragCode += fragMainCook_2_LightLoop;
     if (env)
         fragCode += fragMainCook_3_FragColorEv;
     else
         fragCode += fragMainCook_3_FragColor;
-    fragCode += fragMainBlinn_5_FogGammaStereo;
+    fragCode += fragMain_5_FogGammaStereo;
     addCodeToShader(_shaders[1], fragCode, _name + ".frag");
 }
 //-----------------------------------------------------------------------------
@@ -2153,11 +2117,11 @@ void SLGLProgramGenerated::buildPerPixCook(SLVLight* lights, bool env)
     vertCode += vertOutputs_v_P_VS;
     vertCode += vertOutputs_v_N_VS;
     vertCode += vertOutputs_v_R_OS;
-    vertCode += vertMainBlinn_Begin;
-    vertCode += vertMainBlinn_v_P_VS;
-    vertCode += vertMainBlinn_v_N_VS;
-    vertCode += vertMainBlinn_v_R_OS;
-    vertCode += vertMainBlinn_EndAll;
+    vertCode += vertMain_Begin;
+    vertCode += vertMain_v_P_VS;
+    vertCode += vertMain_v_N_VS;
+    vertCode += vertMain_v_R_OS;
+    vertCode += vertMain_EndAll;
     addCodeToShader(_shaders[0], vertCode, _name + ".vert");
 
     // Assemble fragment shader code
@@ -2177,15 +2141,15 @@ in      vec3        v_R_OS;     // Interpol. reflect in object space
     fragCode += fragFunctionsCookTorrence;
     fragCode += fragFunctionFogBlend;
     fragCode += fragFunctionDoStereoSeparation;
-    fragCode += fragMainBlinn_Begin;
-    fragCode += fragMainBlinn_0_Intensities;
-    fragCode += fragMainBlinn_1_EN_fromVert;
+    fragCode += fragMain_Begin;
+    fragCode += fragMain_0_Intensities;
+    fragCode += fragMain_1_EN_fromVert;
     fragCode += fragMainCook_2_LightLoop;
     if (env)
         fragCode += fragMainCook_3_FragColorEv;
     else
         fragCode += fragMainCook_3_FragColor;
-    fragCode += fragMainBlinn_5_FogGammaStereo;
+    fragCode += fragMain_5_FogGammaStereo;
     addCodeToShader(_shaders[1], fragCode, _name + ".frag");
 }
 //-----------------------------------------------------------------------------
@@ -2208,13 +2172,13 @@ void SLGLProgramGenerated::buildPerPixBlinnTmNmAoSm(SLVLight* lights)
     vertCode += vertOutputs_v_uv1;
     vertCode += vertOutputs_v_uv2;
     vertCode += vertOutputs_v_lightNm;
-    vertCode += vertMainBlinn_Begin;
-    vertCode += vertMainBlinn_v_P_VS;
-    vertCode += vertMainBlinn_v_P_WS_Sm;
-    vertCode += vertMainBlinn_v_uv1;
+    vertCode += vertMain_Begin;
+    vertCode += vertMain_v_P_VS;
+    vertCode += vertMain_v_P_WS_Sm;
+    vertCode += vertMain_v_uv1;
     vertCode += vertMainBlinn_v_uv2_Ao;
-    vertCode += vertMainBlinn_TBN_Nm;
-    vertCode += vertMainBlinn_EndAll;
+    vertCode += vertMain_TBN_Nm;
+    vertCode += vertMain_EndAll;
     addCodeToShader(_shaders[0], vertCode, _name + ".vert");
 
     // Assemble fragment shader code
@@ -2241,13 +2205,13 @@ in      vec3        v_spotDirTS[NUM_LIGHTS];    // Spot direction in tangent spa
     fragCode += fragFunctionDoStereoSeparation;
     fragCode += fragFunctionShadowTest(lights);
     fragCode += fragFunctionDoColoredShadows;
-    fragCode += fragMainBlinn_Begin;
-    fragCode += fragMainBlinn_0_Intensities;
-    fragCode += fragMainBlinn_1_EN_fromNm1;
+    fragCode += fragMain_Begin;
+    fragCode += fragMain_0_Intensities;
+    fragCode += fragMain_1_EN_fromNm;
     fragCode += fragMainBlinn_2_LightLoopNmSm;
-    fragCode += fragMainBlinn_3_FragColorAo2Tm;
-    fragCode += fragMainBlinn_4_ColoredShadows;
-    fragCode += fragMainBlinn_5_FogGammaStereo;
+    fragCode += fragMainBlinn_3_FragColorTmAo;
+    fragCode += fragMain_4_ColoredShadows;
+    fragCode += fragMain_5_FogGammaStereo;
     addCodeToShader(_shaders[1], fragCode, _name + ".frag");
 }
 //-----------------------------------------------------------------------------
@@ -2266,12 +2230,12 @@ void SLGLProgramGenerated::buildPerPixBlinnTmNmAo(SLVLight* lights)
     vertCode += vertOutputs_v_uv1;
     vertCode += vertOutputs_v_uv2;
     vertCode += vertOutputs_v_lightNm;
-    vertCode += vertMainBlinn_Begin;
-    vertCode += vertMainBlinn_v_P_VS;
-    vertCode += vertMainBlinn_v_uv1;
+    vertCode += vertMain_Begin;
+    vertCode += vertMain_v_P_VS;
+    vertCode += vertMain_v_uv1;
     vertCode += vertMainBlinn_v_uv2_Ao;
-    vertCode += vertMainBlinn_TBN_Nm;
-    vertCode += vertMainBlinn_EndAll;
+    vertCode += vertMain_TBN_Nm;
+    vertCode += vertMain_EndAll;
     addCodeToShader(_shaders[0], vertCode, _name + ".vert");
 
     // Assemble fragment shader code
@@ -2293,12 +2257,12 @@ in      vec3        v_spotDirTS[NUM_LIGHTS];    // Spot direction in tangent spa
     fragCode += fragFunctionsLightingBlinnPhong;
     fragCode += fragFunctionFogBlend;
     fragCode += fragFunctionDoStereoSeparation;
-    fragCode += fragMainBlinn_Begin;
-    fragCode += fragMainBlinn_0_Intensities;
-    fragCode += fragMainBlinn_1_EN_fromNm1;
+    fragCode += fragMain_Begin;
+    fragCode += fragMain_0_Intensities;
+    fragCode += fragMain_1_EN_fromNm;
     fragCode += fragMainBlinn_2_LightLoopNm;
-    fragCode += fragMainBlinn_3_FragColorAo2Tm;
-    fragCode += fragMainBlinn_5_FogGammaStereo;
+    fragCode += fragMainBlinn_3_FragColorTmAo;
+    fragCode += fragMain_5_FogGammaStereo;
     addCodeToShader(_shaders[1], fragCode, _name + ".frag");
 }
 //-----------------------------------------------------------------------------
@@ -2317,12 +2281,12 @@ void SLGLProgramGenerated::buildPerPixBlinnTmNmSm(SLVLight* lights)
     vertCode += vertOutputs_v_N_VS;
     vertCode += vertOutputs_v_uv1;
     vertCode += vertOutputs_v_lightNm;
-    vertCode += vertMainBlinn_Begin;
-    vertCode += vertMainBlinn_v_P_VS;
-    vertCode += vertMainBlinn_v_P_WS_Sm;
-    vertCode += vertMainBlinn_v_uv1;
-    vertCode += vertMainBlinn_TBN_Nm;
-    vertCode += vertMainBlinn_EndAll;
+    vertCode += vertMain_Begin;
+    vertCode += vertMain_v_P_VS;
+    vertCode += vertMain_v_P_WS_Sm;
+    vertCode += vertMain_v_uv1;
+    vertCode += vertMain_TBN_Nm;
+    vertCode += vertMain_EndAll;
     addCodeToShader(_shaders[0], vertCode, _name + ".vert");
 
     // Assemble fragment shader code
@@ -2348,13 +2312,13 @@ in      vec3        v_spotDirTS[NUM_LIGHTS];    // Spot direction in tangent spa
     fragCode += fragFunctionDoStereoSeparation;
     fragCode += fragFunctionShadowTest(lights);
     fragCode += fragFunctionDoColoredShadows;
-    fragCode += fragMainBlinn_Begin;
-    fragCode += fragMainBlinn_0_Intensities;
-    fragCode += fragMainBlinn_1_EN_fromNm1;
+    fragCode += fragMain_Begin;
+    fragCode += fragMain_0_Intensities;
+    fragCode += fragMain_1_EN_fromNm;
     fragCode += fragMainBlinn_2_LightLoopNmSm;
     fragCode += fragMainBlinn_3_FragColorTm;
-    fragCode += fragMainBlinn_4_ColoredShadows;
-    fragCode += fragMainBlinn_5_FogGammaStereo;
+    fragCode += fragMain_4_ColoredShadows;
+    fragCode += fragMain_5_FogGammaStereo;
     addCodeToShader(_shaders[1], fragCode, _name + ".frag");
 }
 //-----------------------------------------------------------------------------
@@ -2372,13 +2336,13 @@ void SLGLProgramGenerated::buildPerPixBlinnTmAoSm(SLVLight* lights)
     vertCode += vertOutputs_v_N_VS;
     vertCode += vertOutputs_v_uv1;
     vertCode += vertOutputs_v_uv2;
-    vertCode += vertMainBlinn_Begin;
-    vertCode += vertMainBlinn_v_P_VS;
-    vertCode += vertMainBlinn_v_P_WS_Sm;
-    vertCode += vertMainBlinn_v_N_VS;
-    vertCode += vertMainBlinn_v_uv1;
+    vertCode += vertMain_Begin;
+    vertCode += vertMain_v_P_VS;
+    vertCode += vertMain_v_P_WS_Sm;
+    vertCode += vertMain_v_N_VS;
+    vertCode += vertMain_v_uv1;
     vertCode += vertMainBlinn_v_uv2_Ao;
-    vertCode += vertMainBlinn_EndAll;
+    vertCode += vertMain_EndAll;
     addCodeToShader(_shaders[0], vertCode, _name + ".vert");
 
     // Assemble fragment shader code
@@ -2403,13 +2367,13 @@ in      vec2        v_uv2;      // Texture coordinate 2 varying for AO
     fragCode += fragFunctionDoStereoSeparation;
     fragCode += fragFunctionShadowTest(lights);
     fragCode += fragFunctionDoColoredShadows;
-    fragCode += fragMainBlinn_Begin;
-    fragCode += fragMainBlinn_0_Intensities;
-    fragCode += fragMainBlinn_1_EN_fromVert;
+    fragCode += fragMain_Begin;
+    fragCode += fragMain_0_Intensities;
+    fragCode += fragMain_1_EN_fromVert;
     fragCode += fragMainBlinn_2_LightLoopSm;
-    fragCode += fragMainBlinn_3_FragColorAo1Tm;
-    fragCode += fragMainBlinn_4_ColoredShadows;
-    fragCode += fragMainBlinn_5_FogGammaStereo;
+    fragCode += fragMainBlinn_3_FragColorTmAo;
+    fragCode += fragMain_4_ColoredShadows;
+    fragCode += fragMain_5_FogGammaStereo;
     addCodeToShader(_shaders[1], fragCode, _name + ".frag");
 }
 //-----------------------------------------------------------------------------
@@ -2425,12 +2389,12 @@ void SLGLProgramGenerated::buildPerPixBlinnTmSm(SLVLight* lights)
     vertCode += vertOutputs_v_P_WS;
     vertCode += vertOutputs_v_N_VS;
     vertCode += vertOutputs_v_uv1;
-    vertCode += vertMainBlinn_Begin;
-    vertCode += vertMainBlinn_v_P_VS;
-    vertCode += vertMainBlinn_v_P_WS_Sm;
-    vertCode += vertMainBlinn_v_N_VS;
-    vertCode += vertMainBlinn_v_uv1;
-    vertCode += vertMainBlinn_EndAll;
+    vertCode += vertMain_Begin;
+    vertCode += vertMain_v_P_VS;
+    vertCode += vertMain_v_P_WS_Sm;
+    vertCode += vertMain_v_N_VS;
+    vertCode += vertMain_v_uv1;
+    vertCode += vertMain_EndAll;
     addCodeToShader(_shaders[0], vertCode, _name + ".vert");
 
     // Assemble fragment shader code
@@ -2454,13 +2418,13 @@ in      vec2        v_uv1;      // Interpol. texture coordinate
     fragCode += fragFunctionDoStereoSeparation;
     fragCode += fragFunctionShadowTest(lights);
     fragCode += fragFunctionDoColoredShadows;
-    fragCode += fragMainBlinn_Begin;
-    fragCode += fragMainBlinn_0_Intensities;
-    fragCode += fragMainBlinn_1_EN_fromVert;
+    fragCode += fragMain_Begin;
+    fragCode += fragMain_0_Intensities;
+    fragCode += fragMain_1_EN_fromVert;
     fragCode += fragMainBlinn_2_LightLoopSm;
     fragCode += fragMainBlinn_3_FragColorTm;
-    fragCode += fragMainBlinn_4_ColoredShadows;
-    fragCode += fragMainBlinn_5_FogGammaStereo;
+    fragCode += fragMain_4_ColoredShadows;
+    fragCode += fragMain_5_FogGammaStereo;
     addCodeToShader(_shaders[1], fragCode, _name + ".frag");
 }
 //-----------------------------------------------------------------------------
@@ -2479,12 +2443,12 @@ void SLGLProgramGenerated::buildPerPixBlinnNmSm(SLVLight* lights)
     vertCode += vertOutputs_v_N_VS;
     vertCode += vertOutputs_v_uv1;
     vertCode += vertOutputs_v_lightNm;
-    vertCode += vertMainBlinn_Begin;
-    vertCode += vertMainBlinn_v_P_VS;
-    vertCode += vertMainBlinn_v_P_WS_Sm;
-    vertCode += vertMainBlinn_v_uv1;
-    vertCode += vertMainBlinn_TBN_Nm;
-    vertCode += vertMainBlinn_EndAll;
+    vertCode += vertMain_Begin;
+    vertCode += vertMain_v_P_VS;
+    vertCode += vertMain_v_P_WS_Sm;
+    vertCode += vertMain_v_uv1;
+    vertCode += vertMain_TBN_Nm;
+    vertCode += vertMain_EndAll;
     addCodeToShader(_shaders[0], vertCode, _name + ".vert");
 
     // Assemble fragment shader code
@@ -2510,13 +2474,13 @@ in      vec3        v_spotDirTS[NUM_LIGHTS];    // Spot direction in tangent spa
     fragCode += fragFunctionDoStereoSeparation;
     fragCode += fragFunctionShadowTest(lights);
     fragCode += fragFunctionDoColoredShadows;
-    fragCode += fragMainBlinn_Begin;
-    fragCode += fragMainBlinn_0_Intensities;
-    fragCode += fragMainBlinn_1_EN_fromNm0;
+    fragCode += fragMain_Begin;
+    fragCode += fragMain_0_Intensities;
+    fragCode += fragMain_1_EN_fromNm;
     fragCode += fragMainBlinn_2_LightLoopNmSm;
     fragCode += fragMainBlinn_3_FragColor;
-    fragCode += fragMainBlinn_4_ColoredShadows;
-    fragCode += fragMainBlinn_5_FogGammaStereo;
+    fragCode += fragMain_4_ColoredShadows;
+    fragCode += fragMain_5_FogGammaStereo;
     addCodeToShader(_shaders[1], fragCode, _name + ".frag");
 }
 //-----------------------------------------------------------------------------
@@ -2532,12 +2496,12 @@ void SLGLProgramGenerated::buildPerPixBlinnAoSm(SLVLight* lights)
     vertCode += vertOutputs_v_P_WS;
     vertCode += vertOutputs_v_N_VS;
     vertCode += vertOutputs_v_uv2;
-    vertCode += vertMainBlinn_Begin;
-    vertCode += vertMainBlinn_v_P_VS;
-    vertCode += vertMainBlinn_v_P_WS_Sm;
-    vertCode += vertMainBlinn_v_N_VS;
+    vertCode += vertMain_Begin;
+    vertCode += vertMain_v_P_VS;
+    vertCode += vertMain_v_P_WS_Sm;
+    vertCode += vertMain_v_N_VS;
     vertCode += vertMainBlinn_v_uv2_Ao;
-    vertCode += vertMainBlinn_EndAll;
+    vertCode += vertMain_EndAll;
     addCodeToShader(_shaders[0], vertCode, _name + ".vert");
 
     // Assemble fragment shader code
@@ -2561,13 +2525,13 @@ in      vec2        v_uv2;      // Texture coordinate 2 varying for AO
     fragCode += fragFunctionDoStereoSeparation;
     fragCode += fragFunctionShadowTest(lights);
     fragCode += fragFunctionDoColoredShadows;
-    fragCode += fragMainBlinn_Begin;
-    fragCode += fragMainBlinn_0_Intensities;
-    fragCode += fragMainBlinn_1_EN_fromVert;
+    fragCode += fragMain_Begin;
+    fragCode += fragMain_0_Intensities;
+    fragCode += fragMain_1_EN_fromVert;
     fragCode += fragMainBlinn_2_LightLoopSm;
-    fragCode += fragMainBlinn_3_FragColorAo0;
-    fragCode += fragMainBlinn_4_ColoredShadows;
-    fragCode += fragMainBlinn_5_FogGammaStereo;
+    fragCode += fragMainBlinn_3_FragColorAo;
+    fragCode += fragMain_4_ColoredShadows;
+    fragCode += fragMain_5_FogGammaStereo;
     addCodeToShader(_shaders[1], fragCode, _name + ".frag");
 }
 //-----------------------------------------------------------------------------
@@ -2586,12 +2550,12 @@ void SLGLProgramGenerated::buildPerPixBlinnNmAo(SLVLight* lights)
     vertCode += vertOutputs_v_uv1;
     vertCode += vertOutputs_v_uv2;
     vertCode += vertOutputs_v_lightNm;
-    vertCode += vertMainBlinn_Begin;
-    vertCode += vertMainBlinn_v_P_VS;
-    vertCode += vertMainBlinn_v_uv1;
+    vertCode += vertMain_Begin;
+    vertCode += vertMain_v_P_VS;
+    vertCode += vertMain_v_uv1;
     vertCode += vertMainBlinn_v_uv2_Ao;
-    vertCode += vertMainBlinn_TBN_Nm;
-    vertCode += vertMainBlinn_EndAll;
+    vertCode += vertMain_TBN_Nm;
+    vertCode += vertMain_EndAll;
     addCodeToShader(_shaders[0], vertCode, _name + ".vert");
 
     // Assemble fragment shader code
@@ -2613,12 +2577,12 @@ in      vec3        v_spotDirTS[NUM_LIGHTS];    // Spot direction in tangent spa
     fragCode += fragFunctionsLightingBlinnPhong;
     fragCode += fragFunctionFogBlend;
     fragCode += fragFunctionDoStereoSeparation;
-    fragCode += fragMainBlinn_Begin;
-    fragCode += fragMainBlinn_0_Intensities;
-    fragCode += fragMainBlinn_1_EN_fromNm0;
+    fragCode += fragMain_Begin;
+    fragCode += fragMain_0_Intensities;
+    fragCode += fragMain_1_EN_fromNm;
     fragCode += fragMainBlinn_2_LightLoopNm;
-    fragCode += fragMainBlinn_3_FragColorAo1;
-    fragCode += fragMainBlinn_5_FogGammaStereo;
+    fragCode += fragMainBlinn_3_FragColorAo;
+    fragCode += fragMain_5_FogGammaStereo;
     addCodeToShader(_shaders[1], fragCode, _name + ".frag");
 }
 //-----------------------------------------------------------------------------
@@ -2635,12 +2599,12 @@ void SLGLProgramGenerated::buildPerPixBlinnTmAo(SLVLight* lights)
     vertCode += vertOutputs_v_N_VS;
     vertCode += vertOutputs_v_uv1;
     vertCode += vertOutputs_v_uv2;
-    vertCode += vertMainBlinn_Begin;
-    vertCode += vertMainBlinn_v_P_VS;
-    vertCode += vertMainBlinn_v_N_VS;
-    vertCode += vertMainBlinn_v_uv1;
+    vertCode += vertMain_Begin;
+    vertCode += vertMain_v_P_VS;
+    vertCode += vertMain_v_N_VS;
+    vertCode += vertMain_v_uv1;
     vertCode += vertMainBlinn_v_uv2_Ao;
-    vertCode += vertMainBlinn_EndAll;
+    vertCode += vertMain_EndAll;
     addCodeToShader(_shaders[0], vertCode, _name + ".vert");
 
     // Assemble fragment shader code
@@ -2660,12 +2624,12 @@ in      vec2        v_uv2;      // Texture coordinate 2 varying for AO
     fragCode += fragFunctionsLightingBlinnPhong;
     fragCode += fragFunctionFogBlend;
     fragCode += fragFunctionDoStereoSeparation;
-    fragCode += fragMainBlinn_Begin;
-    fragCode += fragMainBlinn_0_Intensities;
-    fragCode += fragMainBlinn_1_EN_fromVert;
+    fragCode += fragMain_Begin;
+    fragCode += fragMain_0_Intensities;
+    fragCode += fragMain_1_EN_fromVert;
     fragCode += fragMainBlinn_2_LightLoop;
-    fragCode += fragMainBlinn_3_FragColorAo1Tm;
-    fragCode += fragMainBlinn_5_FogGammaStereo;
+    fragCode += fragMainBlinn_3_FragColorTmAo;
+    fragCode += fragMain_5_FogGammaStereo;
     addCodeToShader(_shaders[1], fragCode, _name + ".frag");
 }
 //-----------------------------------------------------------------------------
@@ -2682,11 +2646,11 @@ void SLGLProgramGenerated::buildPerPixBlinnTmNm(SLVLight* lights)
     vertCode += vertOutputs_v_P_VS;
     vertCode += vertOutputs_v_uv1;
     vertCode += vertOutputs_v_lightNm;
-    vertCode += vertMainBlinn_Begin;
-    vertCode += vertMainBlinn_v_P_VS;
-    vertCode += vertMainBlinn_v_uv1;
-    vertCode += vertMainBlinn_TBN_Nm;
-    vertCode += vertMainBlinn_EndAll;
+    vertCode += vertMain_Begin;
+    vertCode += vertMain_v_P_VS;
+    vertCode += vertMain_v_uv1;
+    vertCode += vertMain_TBN_Nm;
+    vertCode += vertMain_EndAll;
     addCodeToShader(_shaders[0], vertCode, _name + ".vert");
 
     // Assemble fragment shader code
@@ -2707,12 +2671,12 @@ in      vec3        v_spotDirTS[NUM_LIGHTS];    // Spot direction in tangent spa
     fragCode += fragFunctionsLightingBlinnPhong;
     fragCode += fragFunctionFogBlend;
     fragCode += fragFunctionDoStereoSeparation;
-    fragCode += fragMainBlinn_Begin;
-    fragCode += fragMainBlinn_0_Intensities;
-    fragCode += fragMainBlinn_1_EN_fromNm1;
+    fragCode += fragMain_Begin;
+    fragCode += fragMain_0_Intensities;
+    fragCode += fragMain_1_EN_fromNm;
     fragCode += fragMainBlinn_2_LightLoopNm;
     fragCode += fragMainBlinn_3_FragColorTm;
-    fragCode += fragMainBlinn_5_FogGammaStereo;
+    fragCode += fragMain_5_FogGammaStereo;
     addCodeToShader(_shaders[1], fragCode, _name + ".frag");
 }
 //-----------------------------------------------------------------------------
@@ -2726,11 +2690,11 @@ void SLGLProgramGenerated::buildPerPixBlinnSm(SLVLight* lights)
     vertCode += vertOutputs_v_P_VS;
     vertCode += vertOutputs_v_P_WS;
     vertCode += vertOutputs_v_N_VS;
-    vertCode += vertMainBlinn_Begin;
-    vertCode += vertMainBlinn_v_P_VS;
-    vertCode += vertMainBlinn_v_P_WS_Sm;
-    vertCode += vertMainBlinn_v_N_VS;
-    vertCode += vertMainBlinn_EndAll;
+    vertCode += vertMain_Begin;
+    vertCode += vertMain_v_P_VS;
+    vertCode += vertMain_v_P_WS_Sm;
+    vertCode += vertMain_v_N_VS;
+    vertCode += vertMain_EndAll;
     addCodeToShader(_shaders[0], vertCode, _name + ".vert");
 
     // Assemble fragment shader code
@@ -2753,13 +2717,13 @@ in      vec3        v_N_VS;     // Interpol. normal at v_P_VS in view space
     fragCode += fragFunctionDoStereoSeparation;
     fragCode += fragFunctionShadowTest(lights);
     fragCode += fragFunctionDoColoredShadows;
-    fragCode += fragMainBlinn_Begin;
-    fragCode += fragMainBlinn_0_Intensities;
-    fragCode += fragMainBlinn_1_EN_fromVert;
+    fragCode += fragMain_Begin;
+    fragCode += fragMain_0_Intensities;
+    fragCode += fragMain_1_EN_fromVert;
     fragCode += fragMainBlinn_2_LightLoopSm;
     fragCode += fragMainBlinn_3_FragColor;
-    fragCode += fragMainBlinn_4_ColoredShadows;
-    fragCode += fragMainBlinn_5_FogGammaStereo;
+    fragCode += fragMain_4_ColoredShadows;
+    fragCode += fragMain_5_FogGammaStereo;
     addCodeToShader(_shaders[1], fragCode, _name + ".frag");
 }
 //-----------------------------------------------------------------------------
@@ -2774,11 +2738,11 @@ void SLGLProgramGenerated::buildPerPixBlinnAo(SLVLight* lights)
     vertCode += vertOutputs_v_P_VS;
     vertCode += vertOutputs_v_N_VS;
     vertCode += vertOutputs_v_uv2;
-    vertCode += vertMainBlinn_Begin;
-    vertCode += vertMainBlinn_v_P_VS;
-    vertCode += vertMainBlinn_v_N_VS;
+    vertCode += vertMain_Begin;
+    vertCode += vertMain_v_P_VS;
+    vertCode += vertMain_v_N_VS;
     vertCode += vertMainBlinn_v_uv2_Ao;
-    vertCode += vertMainBlinn_EndAll;
+    vertCode += vertMain_EndAll;
     addCodeToShader(_shaders[0], vertCode, _name + ".vert");
 
     // Assemble fragment shader code
@@ -2797,12 +2761,12 @@ in      vec2        v_uv2;      // Texture coordinate 2 varying for AO
     fragCode += fragFunctionsLightingBlinnPhong;
     fragCode += fragFunctionFogBlend;
     fragCode += fragFunctionDoStereoSeparation;
-    fragCode += fragMainBlinn_Begin;
-    fragCode += fragMainBlinn_0_Intensities;
-    fragCode += fragMainBlinn_1_EN_fromVert;
+    fragCode += fragMain_Begin;
+    fragCode += fragMain_0_Intensities;
+    fragCode += fragMain_1_EN_fromVert;
     fragCode += fragMainBlinn_2_LightLoop;
-    fragCode += fragMainBlinn_3_FragColorAo0;
-    fragCode += fragMainBlinn_5_FogGammaStereo;
+    fragCode += fragMainBlinn_3_FragColorAo;
+    fragCode += fragMain_5_FogGammaStereo;
     addCodeToShader(_shaders[1], fragCode, _name + ".frag");
 }
 //-----------------------------------------------------------------------------
@@ -2819,11 +2783,11 @@ void SLGLProgramGenerated::buildPerPixBlinnNm(SLVLight* lights)
     vertCode += vertOutputs_v_P_VS;
     vertCode += vertOutputs_v_uv1;
     vertCode += vertOutputs_v_lightNm;
-    vertCode += vertMainBlinn_Begin;
-    vertCode += vertMainBlinn_v_P_VS;
-    vertCode += vertMainBlinn_v_uv1;
-    vertCode += vertMainBlinn_TBN_Nm;
-    vertCode += vertMainBlinn_EndAll;
+    vertCode += vertMain_Begin;
+    vertCode += vertMain_v_P_VS;
+    vertCode += vertMain_v_uv1;
+    vertCode += vertMain_TBN_Nm;
+    vertCode += vertMain_EndAll;
     addCodeToShader(_shaders[0], vertCode, _name + ".vert");
 
     // Assemble fragment shader code
@@ -2844,12 +2808,12 @@ in      vec3        v_spotDirTS[NUM_LIGHTS];    // Spot direction in tangent spa
     fragCode += fragFunctionsLightingBlinnPhong;
     fragCode += fragFunctionFogBlend;
     fragCode += fragFunctionDoStereoSeparation;
-    fragCode += fragMainBlinn_Begin;
-    fragCode += fragMainBlinn_0_Intensities;
-    fragCode += fragMainBlinn_1_EN_fromNm1;
+    fragCode += fragMain_Begin;
+    fragCode += fragMain_0_Intensities;
+    fragCode += fragMain_1_EN_fromNm;
     fragCode += fragMainBlinn_2_LightLoopNm;
     fragCode += fragMainBlinn_3_FragColor;
-    fragCode += fragMainBlinn_5_FogGammaStereo;
+    fragCode += fragMain_5_FogGammaStereo;
     addCodeToShader(_shaders[1], fragCode, _name + ".frag");
 }
 //-----------------------------------------------------------------------------
@@ -2864,11 +2828,11 @@ void SLGLProgramGenerated::buildPerPixBlinnTm(SLVLight* lights)
     vertCode += vertOutputs_v_P_VS;
     vertCode += vertOutputs_v_N_VS;
     vertCode += vertOutputs_v_uv1;
-    vertCode += vertMainBlinn_Begin;
-    vertCode += vertMainBlinn_v_P_VS;
-    vertCode += vertMainBlinn_v_N_VS;
-    vertCode += vertMainBlinn_v_uv1;
-    vertCode += vertMainBlinn_EndAll;
+    vertCode += vertMain_Begin;
+    vertCode += vertMain_v_P_VS;
+    vertCode += vertMain_v_N_VS;
+    vertCode += vertMain_v_uv1;
+    vertCode += vertMain_EndAll;
     addCodeToShader(_shaders[0], vertCode, _name + ".vert");
 
     // Assemble fragment shader code
@@ -2887,12 +2851,12 @@ in      vec2   v_uv1;   // Interpol. texture coordinate
     fragCode += fragFunctionsLightingBlinnPhong;
     fragCode += fragFunctionFogBlend;
     fragCode += fragFunctionDoStereoSeparation;
-    fragCode += fragMainBlinn_Begin;
-    fragCode += fragMainBlinn_0_Intensities;
-    fragCode += fragMainBlinn_1_EN_fromVert;
+    fragCode += fragMain_Begin;
+    fragCode += fragMain_0_Intensities;
+    fragCode += fragMain_1_EN_fromVert;
     fragCode += fragMainBlinn_2_LightLoop;
     fragCode += fragMainBlinn_3_FragColorTm;
-    fragCode += fragMainBlinn_5_FogGammaStereo;
+    fragCode += fragMain_5_FogGammaStereo;
     addCodeToShader(_shaders[1], fragCode, _name + ".frag");
 }
 //-----------------------------------------------------------------------------
@@ -2909,10 +2873,10 @@ void SLGLProgramGenerated::buildPerPixBlinn(SLVLight* lights)
     vertCode += vertInputs_u_matrices_all;
     vertCode += vertOutputs_v_P_VS;
     vertCode += vertOutputs_v_N_VS;
-    vertCode += vertMainBlinn_Begin;
-    vertCode += vertMainBlinn_v_P_VS;
-    vertCode += vertMainBlinn_v_N_VS;
-    vertCode += vertMainBlinn_EndAll;
+    vertCode += vertMain_Begin;
+    vertCode += vertMain_v_P_VS;
+    vertCode += vertMain_v_N_VS;
+    vertCode += vertMain_EndAll;
     addCodeToShader(_shaders[0], vertCode, _name + ".vert");
 
     // Assemble fragment shader code
@@ -2929,12 +2893,12 @@ in      vec3        v_N_VS;     // Interpol. normal at v_P_VS in view space
     fragCode += fragFunctionsLightingBlinnPhong;
     fragCode += fragFunctionFogBlend;
     fragCode += fragFunctionDoStereoSeparation;
-    fragCode += fragMainBlinn_Begin;
-    fragCode += fragMainBlinn_0_Intensities;
-    fragCode += fragMainBlinn_1_EN_fromVert;
+    fragCode += fragMain_Begin;
+    fragCode += fragMain_0_Intensities;
+    fragCode += fragMain_1_EN_fromVert;
     fragCode += fragMainBlinn_2_LightLoop;
     fragCode += fragMainBlinn_3_FragColor;
-    fragCode += fragMainBlinn_5_FogGammaStereo;
+    fragCode += fragMain_5_FogGammaStereo;
     addCodeToShader(_shaders[1], fragCode, _name + ".frag");
 }
 //-----------------------------------------------------------------------------
@@ -2954,11 +2918,11 @@ void SLGLProgramGenerated::buildPerPixVideoBkgdSm(SLVLight* lights)
     vertCode += vertOutputs_v_P_VS;
     vertCode += vertOutputs_v_P_WS;
     vertCode += vertOutputs_v_N_VS;
-    vertCode += vertMainBlinn_Begin;
-    vertCode += vertMainBlinn_v_P_VS;
-    vertCode += vertMainBlinn_v_P_WS_Sm;
-    vertCode += vertMainBlinn_v_N_VS;
-    vertCode += vertMainBlinn_EndAll;
+    vertCode += vertMain_Begin;
+    vertCode += vertMain_v_P_VS;
+    vertCode += vertMain_v_P_WS_Sm;
+    vertCode += vertMain_v_N_VS;
+    vertCode += vertMain_EndAll;
     addCodeToShader(_shaders[0], vertCode, _name + ".vert");
 
     // Assemble fragment shader code
@@ -2981,7 +2945,7 @@ in      vec3        v_N_VS;     // Interpol. normal at v_P_VS in view space
     fragCode += fragFunctionShadowTest(lights);
     fragCode += fragFunctionDoColoredShadows;
     fragCode += fragMainVideoBkgd;
-    fragCode += fragMainBlinn_5_FogGammaStereo;
+    fragCode += fragMain_5_FogGammaStereo;
     addCodeToShader(_shaders[1], fragCode, _name + ".frag");
 }
 //-----------------------------------------------------------------------------

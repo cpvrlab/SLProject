@@ -34,14 +34,14 @@ uniform float   u_lightSpotExp[NUM_LIGHTS]; // spot exponent
 uniform float   u_oneOverGamma;             // 1.0f / Gamma correction value
 uniform float   u_exposure;                 // environment map exposure value
 
-uniform sampler2D   u_matTexture0;      // Diffuse Color map (albedo)
-uniform sampler2D   u_matTexture1;      // Normal map
-uniform sampler2D   u_matTexture2;      // Metallic map
-uniform sampler2D   u_matTexture3;      // Roughness map
-uniform sampler2D   u_matTexture4;      // Ambient Occlusion map
-uniform samplerCube u_matTexture5;      // IBL irradiance convolution map
-uniform samplerCube u_matTexture6;      // IBL prefilter roughness map
-uniform sampler2D   u_matTexture7;      // IBL brdf integration map
+uniform sampler2D   u_matTextureDiffuse0;            // Diffuse Color map (albedo)
+uniform sampler2D   u_matTextureNormal0;             // Normal map
+uniform sampler2D   u_matTextureMetallic0;           // Metallic map
+uniform sampler2D   u_matTextureRoughness0;          // Roughness map
+uniform sampler2D   u_matTextureAo0;                 // Ambient Occlusion map
+uniform samplerCube u_matTextureIrradianceCubemap0;  // IBL irradiance convolution map
+uniform samplerCube u_matTextureRoughnessCubemap0;   // IBL prefilter roughness map
+uniform sampler2D   u_matTextureBRDF0;               // IBL brdf integration map
 
 uniform int         u_camProjection;    // type of stereo
 uniform int         u_camStereoEye;     // -1=left, 0=center, 1=right
@@ -59,7 +59,7 @@ const float         PI = 3.14159265359;
 //-----------------------------------------------------------------------------
 vec3 getNormalFromMap()
 {
-    vec3 tangentNormal = texture(u_matTexture1, v_uv1).xyz * 2.0 - 1.0;
+    vec3 tangentNormal = texture(u_matTextureNormal0, v_uv1).xyz * 2.0 - 1.0;
 
     vec3 Q1  = dFdx(v_P_VS);
     vec3 Q2  = dFdy(v_P_VS);
@@ -84,10 +84,10 @@ void main()
     vec3 E = normalize(-v_P_VS);    // Vector from p to the eye (viewer)
 
     // Get the material parameters out of the textures
-    vec3  matDiff  = pow(texture(u_matTexture0, v_uv1).rgb, vec3(2.2));
-    float matMetal = texture(u_matTexture2, v_uv1).r;
-    float matRough = texture(u_matTexture3, v_uv1).r;
-    float matAO    = texture(u_matTexture4, v_uv1).r;
+    vec3  matDiff  = pow(texture(u_matTextureDiffuse0, v_uv1).rgb, vec3(2.2));
+    float matMetal = texture(u_matTextureMetallic0, v_uv1).r;
+    float matRough = texture(u_matTextureRoughness0, v_uv1).r;
+    float matAO    = texture(u_matTextureAo0, v_uv1).r;
     
     // Init Fresnel reflection at 90 deg. (0 to N)
     vec3 F0 = vec3(0.04);           
@@ -126,13 +126,13 @@ void main()
     vec3 kD = 1.0 - kS;
     kD *= 1.0 - matMetal;
     
-    vec3 irradiance = texture(u_matTexture5, N).rgb;
+    vec3 irradiance = texture(u_matTextureIrradianceCubemap0, N).rgb;
     vec3 diffuse    = irradiance * matDiff;
     
     // sample both the pre-filter map and the BRDF lut and combine them together as per the Split-Sum approximation to get the IBL specular part.
     const float MAX_REFLECTION_LOD = 4.0;
-    vec3 prefilteredColor = textureLod(u_matTexture6, v_R_OS, matRough * MAX_REFLECTION_LOD).rgb;
-    vec2 brdf = texture(u_matTexture7, vec2(max(dot(N, E), 0.0), matRough)).rg;
+    vec3 prefilteredColor = textureLod(u_matTextureRoughnessCubemap0, v_R_OS, matRough * MAX_REFLECTION_LOD).rgb;
+    vec2 brdf = texture(u_matTextureBRDF0, vec2(max(dot(N, E), 0.0), matRough)).rg;
     vec3 specular = prefilteredColor * (F * brdf.x + brdf.y);
     
     vec3 ambient = (kD * diffuse + specular) * matAO;

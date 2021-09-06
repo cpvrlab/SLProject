@@ -39,13 +39,13 @@ uniform vec4        u_matDiff;              // diffuse color reflection coeffici
 uniform vec4        u_matSpec;              // specular color reflection coefficient (ks)
 uniform vec4        u_matEmis;              // emissive color for self-shining materials
 uniform float       u_matShin;              // shininess exponent
-uniform sampler2D   u_matTexture0;          // Color map
-uniform sampler2D   u_matTexture1;          // Normal map
-uniform sampler2D   u_matTexture2;          // Height map;
-uniform sampler2D   u_matTexture3;          // Gloss map;
-uniform sampler2D   u_matTexture4;          // Cloud Color map;
-uniform sampler2D   u_matTexture5;          // Cloud Alpha map;
-uniform sampler2D   u_matTexture6;          // Night Color map;
+uniform sampler2D   u_matTextureDiffuse0;   // Color map
+uniform sampler2D   u_matTextureNormal0;    // Normal map
+uniform sampler2D   u_matTextureHeight0;    // Height map;
+uniform sampler2D   u_matTextureSpecular0;  // Gloss map;
+uniform sampler2D   u_matTextureDiffuse1;   // Cloud Color map;
+uniform sampler2D   u_matTextureDiffuse2;   // Cloud Alpha map;
+uniform sampler2D   u_matTextureDiffuse3;   // Night Color map;
 uniform float       u_scale;                // Height scale for parallax mapping
 uniform float       u_offset;               // Height bias for parallax mapping
 
@@ -79,7 +79,7 @@ void main()
     ////////////////////////////////////////////////////////////
     // Calculate new texture coord. Tc for Parallax mapping
     // The height comes from red channel from the height map
-    float height = texture(u_matTexture2, v_uv1.st).r;
+    float height = texture(u_matTextureHeight0, v_uv1.st).r;
    
     // Scale the height and add the bias (height offset)
     height = height * u_scale + u_offset;
@@ -92,7 +92,7 @@ void main()
     ////////////////////////////////////////////////////////////
    
     // Get normal from normal map, move from [0,1] to [-1, 1] range & normalize
-    vec3 N = normalize(texture(u_matTexture1, Tc).rgb * 2.0 - 1.0);
+    vec3 N = normalize(texture(u_matTextureNormal0, Tc).rgb * 2.0 - 1.0);
    
     // Calculate attenuation over distance v_d
     float att = 1.0;  // Total attenuation factor
@@ -135,12 +135,12 @@ void main()
     float night2 = nightInv * nightInv;
    
     //Calculate mixed day night texture 
-    float alpha = texture(u_matTexture5, v_uv1.st)[0];
-    vec4 ground = (texture(u_matTexture6, Tc)*night2 +
-                   texture(u_matTexture0, Tc)*(1.0-night2))*alpha;
+    float alpha = texture(u_matTextureDiffuse2, v_uv1.st)[0];
+    vec4 ground = (texture(u_matTextureDiffuse3, Tc)*night2 +
+                   texture(u_matTextureDiffuse0, Tc)*(1.0-night2))*alpha;
    
     //Calculate CloudTexture
-    vec4 cloud = o_fragColor*texture(u_matTexture4, Wtc)*(1.0-alpha);
+    vec4 cloud = o_fragColor*texture(u_matTextureDiffuse1, Wtc)*(1.0-alpha);
    
     o_fragColor = ground  + cloud;
    
@@ -149,7 +149,7 @@ void main()
                    u_lightSpec[0] *
                    u_matSpec *
                    specFactor *
-                   texture(u_matTexture3, Tc)[0];
+                   texture(u_matTextureSpecular0, Tc)[0];
 
     // Apply gamma correction
     o_fragColor.rgb = pow(o_fragColor.rgb, vec3(u_oneOverGamma));

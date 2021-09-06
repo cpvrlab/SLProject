@@ -1278,7 +1278,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
             s->name("Blinn-Phong per pixel lighting");
             s->info("Per-pixel lighting with Blinn-Phong light model. "
                     "The reflection of 5 light sources is calculated per pixel. "
-                    "The light calculation is done in the fragmentshader.");
+                    "The light calculation is done in the fragment shader.");
             SLGLTexture*   texN   = new SLGLTexture(s, texPath + "earth2048_N.jpg"); // normal map
             SLGLTexture*   texH   = new SLGLTexture(s, texPath + "earth2048_H.jpg"); // height map
             SLGLProgram*   pR     = new SLGLProgramGeneric(s,
