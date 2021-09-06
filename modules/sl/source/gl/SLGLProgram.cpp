@@ -283,7 +283,7 @@ void SLGLProgram::beginUse(SLCamera* cam, SLMaterial* mat, SLVLight* lights)
         stateGL->useProgram(_progID);
 
         if (lights)
-            passLightsToUniforms(lights, (SLuint)mat->textures().size());
+            passLightsToUniforms(lights, (SLuint)mat->numTextures());
 
         if (mat)
             mat->passToUniforms(this);

@@ -475,7 +475,7 @@ color = material emission +
 SLCol4f SLRaytracer::shade(SLRay* ray)
 {
     SLMaterial*   mat     = ray->hitMesh->mat();
-    SLVGLTexture& texture = mat->textures();
+    SLVGLTexture& texture = mat->textures(TT_diffuse);
     SLVec3f       L, N, H;
     SLfloat       lightDist, LdotN, NdotH, df, sf, spotEffect, att, lighted;
     SLCol4f       amdi, spec;

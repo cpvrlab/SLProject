@@ -55,6 +55,7 @@ SLMaterial::SLMaterial(SLAssetManager* am,
     _translucency = 0.0f;
     _getsShadows  = true;
     _program      = program;
+    _numTextures  = 0;
 
     _kr = kr;
     _kt = kt;
@@ -115,10 +116,14 @@ SLMaterial::SLMaterial(SLAssetManager* am,
     _kn           = 1.0f;
     _diffuse.w    = 1.0f - _kt;
 
-    if (texture1) _textures.push_back(texture1);
-    if (texture2) _textures.push_back(texture2);
-    if (texture3) _textures.push_back(texture3);
-    if (texture4) _textures.push_back(texture4);
+    _numTextures = 0;
+    addTexture(texture1);
+    addTexture(texture2);
+    addTexture(texture3);
+    addTexture(texture4);
+
+    if (_textures[TT_roughness].size() > 0 || _textures[TT_metallic].size() > 0)
+        _lightModel = LM_CookTorrance;
 
     // Add pointer to the global resource vectors for deallocation
     if (am)
@@ -154,6 +159,7 @@ SLMaterial::SLMaterial(SLAssetManager* am,
     _metalness    = 0.0f;
     _translucency = 0.0f;
     _getsShadows  = true;
+    _numTextures  = 0;
 
     // Add pointer to the global resource vectors for deallocation
     if (am)
@@ -199,6 +205,49 @@ SLMaterial::SLMaterial(SLAssetManager* am,
     _kt           = 0.0f;
     _kn           = 1.0f;
     _program      = perPixCookTorranceProgram;
+    _numTextures  = 0;
+
+    // Add pointer to the global resource vectors for deallocation
+    if (am)
+        am->materials().push_back(this);
+}
+//-----------------------------------------------------------------------------
+/*!
+ Constructor for Cook-Torrance shaded materials with roughness and metalness.
+ Materials can be used by multiple meshes (SLMesh). Materials can belong
+ therefore to the global assets such as meshes, materials, textures and
+ shader programs.
+ @param am Pointer to a global asset manager. If passed the asset
+ manager is the owner of the instance and will do the deallocation. If a
+ nullptr is passed the creator is responsible for the deallocation.
+ @param name Name of the material
+ @param diffuse Diffuse reflection color
+ @param roughness Roughness (0.0-1.0)
+ @param metalness Metalness (0.0-1.0)
+ @param compileErrorTexFilePath Path to an error texture
+ */
+SLMaterial::SLMaterial(SLAssetManager* am,
+                       const SLchar*   name,
+                       const SLCol4f&  diffuse,
+                       SLfloat         roughness,
+                       SLfloat         metalness,
+                       const SLstring& compileErrorTexFilePath) : SLObject(name)
+{
+    _assetManager = am;
+    _lightModel   = LM_CookTorrance;
+    _ambient.set(0, 0, 0); // not used in Cook-Torrance
+    _diffuse = diffuse;
+    _specular.set(1, 1, 1);                      // not used in Cook-Torrance
+    _emissive.set(0, 0, 0, 0);                   // not used in Cook-Torrance
+    _shininess    = (1.0f - roughness) * 500.0f; // not used in Cook-Torrance
+    _roughness    = roughness;
+    _metalness    = metalness;
+    _translucency = 0.0f;
+    _getsShadows  = true;
+    _kr           = 0.0f;
+    _kt           = 0.0f;
+    _kn           = 1.0f;
+    _numTextures  = 0;
 
     // Add pointer to the global resource vectors for deallocation
     if (am)
@@ -240,6 +289,7 @@ SLMaterial::SLMaterial(SLAssetManager* am,
     _kt           = 0.0f;
     _kn           = 1.0f;
     _getsShadows  = true;
+    _numTextures  = 0;
 
     // Add pointer to the global resource vectors for deallocation
     if (am)
@@ -258,6 +308,7 @@ SLMaterial::SLMaterial(SLAssetManager* am,
                        SLGLTexture*    prefilterIrradianceMap,
                        SLGLTexture*    brdfLUTTexture) : SLObject(name)
 {
+    _assetManager = am;
     _ambient.set(0, 0, 0); // not used in Cook-Torrance
     _diffuse = diffuse;
     _specular.set(1, 1, 1);                   // not used in Cook-Torrance
@@ -265,6 +316,7 @@ SLMaterial::SLMaterial(SLAssetManager* am,
     _shininess = (1.0f - roughness) * 500.0f; // not used in Cook-Torrance
     _roughness = roughness;
     _metalness = metalness;
+    _lightModel = LM_CookTorrance;
 
     _kr = 0.0f;
     _kt = 0.0f;
@@ -272,9 +324,69 @@ SLMaterial::SLMaterial(SLAssetManager* am,
 
     _program = pbrIblShaderProg;
 
-    if (irrandianceMap) _textures.push_back(irrandianceMap);
-    if (prefilterIrradianceMap) _textures.push_back(prefilterIrradianceMap);
-    if (brdfLUTTexture) _textures.push_back(brdfLUTTexture);
+    _numTextures  = 0;
+    if (irrandianceMap)
+    {
+        _textures[irrandianceMap->texType()].push_back(irrandianceMap);
+        _numTextures++;
+    }
+    if (prefilterIrradianceMap)
+    {
+        _textures[prefilterIrradianceMap->texType()].push_back(prefilterIrradianceMap);
+        _numTextures++;
+    }
+    if (brdfLUTTexture)
+    {
+        _textures[brdfLUTTexture->texType()].push_back(brdfLUTTexture);
+        _numTextures++;
+    }
+
+    // Add pointer to the global resource vectors for deallocation
+    if (am)
+        am->materials().push_back(this);
+}
+//-----------------------------------------------------------------------------
+//! Ctor for PBR shading with IBL without textures
+SLMaterial::SLMaterial(SLAssetManager* am,
+                       const SLchar*   name,
+                       SLCol4f         diffuse,
+                       SLfloat         roughness,
+                       SLfloat         metalness,
+                       SLGLTexture*    irrandianceMap,
+                       SLGLTexture*    prefilterIrradianceMap,
+                       SLGLTexture*    brdfLUTTexture) : SLObject(name)
+{
+    _assetManager = am;
+    _ambient.set(0, 0, 0); // not used in Cook-Torrance
+    _diffuse = diffuse;
+    _specular.set(1, 1, 1);                   // not used in Cook-Torrance
+    _emissive.set(0, 0, 0, 0);                // not used in Cook-Torrance
+    _shininess = (1.0f - roughness) * 500.0f; // not used in Cook-Torrance
+    _roughness = roughness;
+    _metalness = metalness;
+    _lightModel = LM_CookTorrance;
+    _program = nullptr;
+
+    _kr = 0.0f;
+    _kt = 0.0f;
+    _kn = 1.0f;
+
+    _numTextures  = 0;
+    if (irrandianceMap)
+    {
+        _textures[irrandianceMap->texType()].push_back(irrandianceMap);
+        _numTextures++;
+    }
+    if (prefilterIrradianceMap)
+    {
+        _textures[prefilterIrradianceMap->texType()].push_back(prefilterIrradianceMap);
+        _numTextures++;
+    }
+    if (brdfLUTTexture)
+    {
+        _textures[brdfLUTTexture->texType()].push_back(brdfLUTTexture);
+        _numTextures++;
+    }
 
     // Add pointer to the global resource vectors for deallocation
     if (am)
@@ -294,6 +406,7 @@ SLMaterial::SLMaterial(SLAssetManager* am,
                        SLGLTexture*    texture7,
                        SLGLTexture*    texture8) : SLObject(name)
 {
+    _assetManager = am;
     _ambient.set(1, 1, 1);
     _diffuse.set(1, 1, 1);
     _specular.set(1, 1, 1);
@@ -301,16 +414,16 @@ SLMaterial::SLMaterial(SLAssetManager* am,
     _shininess = 125;
     _roughness = 0.5f;
     _metalness = 0.0f;
-
-    if (texture1) _textures.push_back(texture1);
-    if (texture2) _textures.push_back(texture2);
-    if (texture3) _textures.push_back(texture3);
-    if (texture4) _textures.push_back(texture4);
-    if (texture5) _textures.push_back(texture5);
-    if (texture6) _textures.push_back(texture6);
-    if (texture7) _textures.push_back(texture7);
-    if (texture8) _textures.push_back(texture8);
-
+    _numTextures = 0;
+    _lightModel = LM_CookTorrance;
+    addTexture(texture1);
+    addTexture(texture2);
+    addTexture(texture3);
+    addTexture(texture4);
+    addTexture(texture5);
+    addTexture(texture6);
+    addTexture(texture7);
+    addTexture(texture8);
     _program = shaderProg;
 
     _kr        = 0.0f;
@@ -322,6 +435,65 @@ SLMaterial::SLMaterial(SLAssetManager* am,
     if (am)
         am->materials().push_back(this);
 }
+
+
+//-----------------------------------------------------------------------------
+// Ctor for textures with PBR materials
+SLMaterial::SLMaterial(SLAssetManager* am,
+                       const SLchar*   name,
+                       SLGLTexture*    texture1,
+                       SLGLTexture*    texture2,
+                       SLGLTexture*    texture3,
+                       SLGLTexture*    texture4,
+                       SLGLTexture*    texture5,
+                       SLGLTexture*    texture6,
+                       SLGLTexture*    texture7,
+                       SLGLTexture*    texture8) : SLObject(name)
+{
+    _assetManager = am;
+    _ambient.set(1, 1, 1);
+    _diffuse.set(1, 1, 1);
+    _specular.set(1, 1, 1);
+    _emissive.set(0, 0, 0, 0);
+    _shininess = 125;
+    _roughness = 0.5f;
+    _metalness = 0.0f;
+    _numTextures = 0;
+    _lightModel = LM_CookTorrance;
+
+    addTexture(texture1);
+    addTexture(texture2);
+    addTexture(texture3);
+    addTexture(texture4);
+    addTexture(texture5);
+    addTexture(texture6);
+    addTexture(texture7);
+    addTexture(texture8);
+
+    _kr        = 0.0f;
+    _kt        = 0.0f;
+    _kn        = 1.0f;
+    _diffuse.w = 1.0f - _kt;
+    _program = nullptr;
+
+    // Add pointer to the global resource vectors for deallocation
+    if (am)
+        am->materials().push_back(this);
+}
+//-----------------------------------------------------------------------------
+void SLMaterial::addTexture(SLGLTexture* texture)
+{
+    if (!texture)
+        return;
+
+    if (texture->target() == GL_TEXTURE_3D)
+        _textures3d.push_back(texture);
+
+    _textures[texture->texType()].push_back(texture);
+
+    _numTextures++;
+}
+
 //-----------------------------------------------------------------------------
 /*!
  The destructor should be called by the owner of the material. If an asset
@@ -364,6 +536,7 @@ void SLMaterial::activate(SLCamera* cam, SLVLight* lights)
     // A 3D object can be stored without material or shader program information.
     if (!_program)
     {
+
         // Check first the asset manager if the requested program type already exists
         string programName;
         SLGLProgramGenerated::buildProgramName(this, lights, programName);
@@ -371,19 +544,23 @@ void SLMaterial::activate(SLCamera* cam, SLVLight* lights)
 
         // If the program was not found by name generate a new one
         if (!_program)
+        {
             _program = new SLGLProgramGenerated(_assetManager, programName, this, lights);
+        }
     }
 
     // Check if shader had compile error and the error texture should be shown
     if (_program && _program->name().find("ErrorTex") != string::npos)
     {
-        _textures.clear();
+        for (int i = 0; i < TT_numTextureType; i++)
+            _textures[i].clear();
         if (!_errorTexture && !_compileErrorTexFilePath.empty())
             _errorTexture = new SLGLTexture(nullptr, _compileErrorTexFilePath);
-        _textures.push_back(_errorTexture);
+        _textures[TT_diffuse].push_back(_errorTexture);
     }
 
     // Activate the shader program now
+
     _program->beginUse(cam, this, lights);
 }
 //-----------------------------------------------------------------------------
@@ -403,15 +580,86 @@ void SLMaterial::passToUniforms(SLGLProgram* program)
     program->uniform1f("u_matKt", _kt);
     program->uniform1f("u_matKn", _kn);
     program->uniform1i("u_matGetsShadows", _getsShadows);
-    program->uniform1i("u_matHasTexture", !_textures.empty() ? 1 : 0);
+    program->uniform1i("u_matHasTexture", _numTextures > 0 ? 1 : 0);
 
     // pass textures unit id to the sampler uniform
-    for (SLuint texUnit = 0; texUnit < _textures.size(); ++texUnit)
+    SLuint texUnit = 0;
+    for (SLuint i = 0; i < TT_numTextureType; i++)
     {
-        SLchar name[100];
-        _textures[texUnit]->bindActive(texUnit);
-        sprintf(name, "u_matTexture%d", texUnit);
-        program->uniform1i(name, texUnit);
+        int texNb = 0;
+        for (SLGLTexture* texture : _textures[i])
+        {
+            SLchar name[100];
+            texture->bindActive(texUnit);
+            switch (i)
+            {
+                case TT_diffuse: {
+                    sprintf(name, "u_matTextureDiffuse%d", texNb);
+                    break;
+                }
+                case TT_specular: {
+                    sprintf(name, "u_matTextureSpecular%d", texNb);
+                    break;
+                }
+                case TT_normal: {
+                    sprintf(name, "u_matTextureNormal%d", texNb);
+                    break;
+                }
+                case TT_height: {
+                    sprintf(name, "u_matTextureHeight%d", texNb);
+                    break;
+                }
+                case TT_ambientOcclusion: {
+                    sprintf(name, "u_matTextureAo%d", texNb);
+                    break;
+                }
+                case TT_roughness: {
+                    sprintf(name, "u_matTextureRoughness%d", texNb);
+                    break;
+                }
+                case TT_metallic: {
+                    sprintf(name, "u_matTextureMetallic%d", texNb);
+                    break;
+                }
+                case TT_hdr: {
+                    sprintf(name, "u_matTextureHDR%d", texNb);
+                    break;
+                }
+                case TT_environmentCubemap: {
+                    sprintf(name, "u_matTextureEnvCubemap%d", texNb);
+                    break;
+                }
+                case TT_irradianceCubemap: {
+                    sprintf(name, "u_matTextureIrradianceCubemap%d", texNb);
+                    break;
+                }
+                case TT_roughnessCubemap: {
+                    sprintf(name, "u_matTextureRoughnessCubemap%d", texNb);
+                    break;
+                }
+                case TT_brdfLUT: {
+                    sprintf(name, "u_matTextureBRDF%d", texNb);
+                    break;
+                }
+                case TT_font: {
+                    sprintf(name, "u_matTextureFont%d", texNb);
+                    break;
+                }
+                default: {
+                    sprintf(name, "u_matTexture%d", texNb);
+                    break;
+                }
+            }
+
+            if (program->uniform1i(name, texUnit) < 0)
+            {
+                Utils::log("Material", "texture name %s not found", name);
+            }
+            texNb++;
+            texUnit++;
+        }
     }
+
+    program->uniform1i("u_matHasTexture", texUnit ? 1 : 0);
 }
 //-----------------------------------------------------------------------------

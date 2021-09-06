@@ -598,13 +598,13 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                                             texPath + "gray_0256_C.jpg",
                                             texPath + "bricks1_0256_C.jpg");
         SLMaterial*  mat5 = new SLMaterial(s, "glass", SLCol4f::BLACK, SLCol4f::WHITE, 255, 0.1f, 0.9f, 1.5f);
-        mat5->textures().push_back(tex5);
+        mat5->addTexture(tex5);
         SLGLProgram* sp1 = new SLGLProgramGeneric(s, shaderPath + "RefractReflect.vert", shaderPath + "RefractReflect.frag");
         mat5->program(sp1);
 
         // Wine material
         SLMaterial* mat6 = new SLMaterial(s, "wine", SLCol4f(0.4f, 0.0f, 0.2f), SLCol4f::BLACK, 255, 0.2f, 0.7f, 1.3f);
-        mat6->textures().push_back(tex5);
+        mat6->addTexture(tex5);
         mat6->program(sp1);
 
         // camera
@@ -753,8 +753,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                                                  shaderPath + "PerVrtTm.vert",
                                                  shaderPath + "PerVrtTm.frag");
         m1->program(sp);
-        m1->textures().push_back(t1);
-        m2->textures().push_back(t2);
+        m1->addTexture(t1);
+        m2->addTexture(t2);
 
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(6.5f, 0.5f, -18);
@@ -1429,10 +1429,10 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                     // The center sphere has roughness and metallic encoded in textures
                     mat[i] = new SLMaterial(s,
                                             "CookTorranceMatTex",
-                                            new SLGLTexture(s, texPath + "rusty-metal_2048C.jpg"),
-                                            new SLGLTexture(s, texPath + "rusty-metal_2048N.jpg"),
-                                            new SLGLTexture(s, texPath + "rusty-metal_2048M.jpg"),
-                                            new SLGLTexture(s, texPath + "rusty-metal_2048R.jpg"),
+                                            new SLGLTexture(s, texPath + "rusty-metal_2048_C.jpg"),
+                                            new SLGLTexture(s, texPath + "rusty-metal_2048_N.jpg"),
+                                            new SLGLTexture(s, texPath + "rusty-metal_2048_M.jpg"),
+                                            new SLGLTexture(s, texPath + "rusty-metal_2048_R.jpg"),
                                             spTex);
                 }
                 else
@@ -1440,6 +1440,94 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                     // Cook-Torrance material without textures
                     mat[i] = new SLMaterial(s,
                                             sp,
+                                            "CookTorranceMat",
+                                            SLCol4f::RED * 0.5f,
+                                            Utils::clamp((float)r * deltaR, 0.05f, 1.0f),
+                                            (float)m * deltaM);
+                }
+
+                SLNode* node = new SLNode(new SLSpheric(s, 1.0f, 0.0f, 180.0f, 32, 32, "Sphere", mat[i]));
+                node->translate(x, y, 0);
+                scene->addChild(node);
+                x += spacing;
+                i++;
+            }
+            y += spacing;
+        }
+
+        // Add 5 Lights: 2 point lights, 2 directional lights and 1 spot light in the center.
+        SLLight::gamma      = 2.2f;
+        SLLightSpot* light1 = new SLLightSpot(s, s, -maxX, maxY, maxY, 0.2f, 180, 0, 1000, 1000);
+        light1->attenuation(0, 0, 1);
+        SLLightDirect* light2 = new SLLightDirect(s, s, maxX, maxY, maxY, 0.5f, 0, 10, 10);
+        light2->lookAt(0, 0, 0);
+        light2->attenuation(0, 0, 1);
+        SLLightSpot* light3 = new SLLightSpot(s, s, 0, 0, maxY, 0.2f, 36, 0, 1000, 1000);
+        light3->attenuation(0, 0, 1);
+        SLLightDirect* light4 = new SLLightDirect(s, s, -maxX, -maxY, maxY, 0.5f, 0, 10, 10);
+        light4->lookAt(0, 0, 0);
+        light4->attenuation(0, 0, 1);
+        SLLightSpot* light5 = new SLLightSpot(s, s, maxX, -maxY, maxY, 0.2f, 180, 0, 1000, 1000);
+        light5->attenuation(0, 0, 1);
+        scene->addChild(light1);
+        scene->addChild(light2);
+        scene->addChild(light3);
+        scene->addChild(light4);
+        scene->addChild(light5);
+        sv->camera(cam1);
+        s->root3D(scene);
+    }
+    else if (sceneID == SID_ShaderCookAuto) //.....................................................
+    {
+        s->name("Generated shader Cook-Torrance");
+        s->info("Cook-Torrance light model. Left-Right: roughness 0.05-1, Top-Down: metallic: 1-0. "
+                "The center sphere has roughness and metallic encoded in textures. "
+                "The light model has a more produces a more physically based light reflection "
+                "than the standard Blinn-Phong light model.");
+
+        // Base root group node for the scene
+        SLNode* scene = new SLNode;
+
+        SLCamera* cam1 = new SLCamera("Camera 1");
+        cam1->translation(0, 0, 30);
+        cam1->lookAt(0, 0, 0);
+        cam1->background().colors(SLCol4f::BLACK);
+        cam1->focalDist(30);
+        cam1->setInitialState();
+        cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
+        scene->addChild(cam1);
+
+        // Create spheres and materials with roughness & metallic values between 0 and 1
+        const SLint nrRows  = 7;
+        const SLint nrCols  = 7;
+        SLfloat     spacing = 2.5f;
+        SLfloat     maxX    = (float)(nrCols - 1) * spacing * 0.5f;
+        SLfloat     maxY    = (float)(nrRows - 1) * spacing * 0.5f;
+        SLfloat     deltaR  = 1.0f / (float)(nrRows - 1);
+        SLfloat     deltaM  = 1.0f / (float)(nrCols - 1);
+
+        SLMaterial* mat[nrRows * nrCols];
+        SLint       i = 0;
+        SLfloat     y = -maxY;
+        for (SLint m = 0; m < nrRows; ++m)
+        {
+            SLfloat x = -maxX;
+            for (SLint r = 0; r < nrCols; ++r)
+            {
+                if (m == nrRows / 2 && r == nrCols / 2)
+                {
+                    // The center sphere has roughness and metallic encoded in textures
+                    mat[i] = new SLMaterial(s,
+                                            "CookTorranceMatTex",
+                                            new SLGLTexture(s, texPath + "rusty-metal_2048_C.jpg"),
+                                            new SLGLTexture(s, texPath + "rusty-metal_2048_N.jpg"),
+                                            new SLGLTexture(s, texPath + "rusty-metal_2048_M.jpg"),
+                                            new SLGLTexture(s, texPath + "rusty-metal_2048_R.jpg"));
+                }
+                else
+                {
+                    // Cook-Torrance material without textures
+                    mat[i] = new SLMaterial(s,
                                             "CookTorranceMat",
                                             SLCol4f::RED * 0.5f,
                                             Utils::clamp((float)r * deltaR, 0.05f, 1.0f),
@@ -1512,9 +1600,10 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                                             "HDR Skybox",
                                             new SLGLUniform1f(exposure));
 
-        SLGLTexture* irrandianceMap = hdrCubeMap->mesh()->mat()->textures()[1];
-        SLGLTexture* prefilterMap   = hdrCubeMap->mesh()->mat()->textures()[2];
-        SLGLTexture* brdfLUTTexture = hdrCubeMap->mesh()->mat()->textures()[3];
+        std::vector<SLGLTexture*> textures = hdrCubeMap->getTextures();
+        SLGLTexture* irrandianceMap = textures[1];
+        SLGLTexture* prefilterMap   = textures[2];
+        SLGLTexture* brdfLUTTexture = textures[3];
 
         // Get preloaded shader programs
         SLGLProgram* pbr    = new SLGLProgramGeneric(s,
@@ -1541,8 +1630,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(cam1);
 
         // Create spheres and materials with roughness & metallic values between 0 and 1
-        const SLint nrRows  = 7;
-        const SLint nrCols  = 7;
+        const SLint nrRows  = 10;
+        const SLint nrCols  = 10;
         SLfloat     spacing = 2.5f;
         SLfloat     maxX    = (nrCols / 2) * spacing;
         SLfloat     maxY    = (nrRows / 2) * spacing;
@@ -1564,11 +1653,11 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                     mat[i] = new SLMaterial(s,
                                             "IBLMatTex",
                                             pbrTex,
-                                            new SLGLTexture(s, texPath + "gold-scuffed_2048C.png"),
-                                            new SLGLTexture(s, texPath + "gold-scuffed_2048N.png"),
-                                            new SLGLTexture(s, texPath + "gold-scuffed_2048M.png"),
-                                            new SLGLTexture(s, texPath + "gold-scuffed_2048R.png"),
-                                            new SLGLTexture(s, texPath + "gold-scuffed_2048A.png"),
+                                            new SLGLTexture(s, texPath + "gold-scuffed_2048_C.png"),
+                                            new SLGLTexture(s, texPath + "gold-scuffed_2048_N.png"),
+                                            new SLGLTexture(s, texPath + "gold-scuffed_2048_M.png"),
+                                            new SLGLTexture(s, texPath + "gold-scuffed_2048_R.png"),
+                                            new SLGLTexture(s, texPath + "gold-scuffed_2048_A.png"),
                                             irrandianceMap,
                                             prefilterMap,
                                             brdfLUTTexture);
@@ -1617,6 +1706,152 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(light2);
         scene->addChild(light3);
         scene->addChild(light4);
+
+        sv->camera(cam1);
+        sv->skybox(hdrCubeMap);
+        s->root3D(scene);
+
+        // Save energy
+        sv->doWaitOnIdle(true);
+    }
+    else if (sceneID == SID_ShaderIBLAuto) //......................................................
+    {
+        // Set scene name and info string
+        s->name("HDR IBL Shader Auto");
+        s->info("Image-based Lighting from skybox using high dynamic range images. "
+                "Use F4-Key to increment (decrement w. shift-F4) exposure of the HDR skybox. "
+                "It uses the Cook-Torrance light model also to calculate the ambient light part "
+                "from the surrounding HDR skybox.");
+
+        // Create uniform to control exposure
+        // this is done this way so that the exposure of the whole scene remains consistent
+        // just modify this uniform to affect the others.
+        SLGLUniform1f exposure = SLGLUniform1f(UT_const,
+                                               "u_exposure",
+                                               1.0f,
+                                               0.25f,
+                                               0.01f,
+                                               5.0f,
+                                               SLKey::K_F4);
+
+        // Clone uniform for various shaders
+        // do not modify these uniforms otherwise the exposure of the scene will not be changed correctly
+        // Create HDR CubeMap and get precalculated textures from it
+        SLSkybox* hdrCubeMap = new SLSkybox(s,
+                                            shaderPath,
+                                            texPath + "env_barce_rooftop.hdr",
+                                            SLVec2i(2048, 2048),
+                                            "HDR Skybox",
+                                            new SLGLUniform1f(exposure));
+
+        std::vector<SLGLTexture*> textures = hdrCubeMap->getTextures();
+
+        SLGLTexture* irrandianceMap = textures[1];
+        SLGLTexture* prefilterMap   = textures[2];
+        SLGLTexture* brdfLUTTexture = textures[3];
+
+        // Create a scene group node
+        SLNode* scene = new SLNode("scene node");
+
+        // Create camera and initialize its parameters
+        SLCamera* cam1 = new SLCamera("Camera 1");
+        cam1->translation(0, 0, 30);
+        cam1->lookAt(0, 0, 0);
+        cam1->background().colors(SLCol4f(0.2f, 0.2f, 0.2f));
+        cam1->focalDist(30);
+        cam1->setInitialState();
+        scene->addChild(cam1);
+
+        // Create spheres and materials with roughness & metallic values between 0 and 1
+        const SLint nrRows  = 10;
+        const SLint nrCols  = 10;
+        SLfloat     spacing = 2.5f;
+        SLfloat     maxX    = (nrCols / 2) * spacing;
+        SLfloat     maxY    = (nrRows / 2) * spacing;
+        SLfloat     deltaR  = 1.0f / (float)(nrRows);
+        SLfloat     deltaM  = 1.0f / (float)(nrCols);
+
+        SLMaterial* mat[nrRows * nrCols];
+        SLint       i = 0;
+        SLfloat     y = -maxY;
+        for (SLint m = 0; m < nrRows; ++m)
+        {
+            SLfloat x = -maxX;
+            for (SLint r = 0; r < nrCols; ++r)
+            {
+                if (m == nrRows / 2 && r == nrCols / 2)
+                {
+                    // The center sphere has roughness and metallic encoded in textures
+                    // and the prefiltered textures for IBL
+                    mat[i] = new SLMaterial(s,
+                                            "IBLMatTex",
+                                            new SLGLTexture(s, texPath + "gold-scuffed_2048_C.png"),
+                                            new SLGLTexture(s, texPath + "gold-scuffed_2048_N.png"),
+                                            new SLGLTexture(s, texPath + "gold-scuffed_2048_M.png"),
+                                            new SLGLTexture(s, texPath + "gold-scuffed_2048_R.png"),
+                                            new SLGLTexture(s, texPath + "gold-scuffed_2048_A.png"),
+                                            irrandianceMap,
+                                            prefilterMap,
+                                            brdfLUTTexture);
+                }
+                else
+                {
+                    // Cook-Torrance material with IBL but without textures
+                    mat[i] = new SLMaterial(s,
+                                            "IBLMat",
+                                            SLCol4f::WHITE * 0.5f,
+                                            Utils::clamp((float)r * deltaR, 0.05f, 1.0f),
+                                            (float)m * deltaM,
+                                            irrandianceMap,
+                                            prefilterMap,
+                                            brdfLUTTexture);
+                }
+
+                SLNode* node = new SLNode(new SLSpheric(s,
+                                                        1.0f,
+                                                        0.0f,
+                                                        180.0f,
+                                                        32,
+                                                        32,
+                                                        "Sphere",
+                                                        mat[i]));
+                node->translate(x, y, 0);
+                scene->addChild(node);
+                x += spacing;
+                i++;
+            }
+            y += spacing;
+        }
+        // Add 4 point light
+        SLLight::gamma      = 2.2f;
+
+        SLLightSpot* light1 = new SLLightSpot(s, s, -maxX, maxY, maxY, 0.1f, 180, 0, 300, 300);
+        light1->attenuation(0, 0, 1);
+        SLLightSpot* light2 = new SLLightSpot(s, s, maxX, maxY, maxY, 0.1f, 180, 0, 300, 300);
+        light2->attenuation(0, 0, 1);
+        SLLightSpot* light3 = new SLLightSpot(s, s, -maxX, -maxY, maxY, 0.1f, 180, 0, 300, 300);
+        light3->attenuation(0, 0, 1);
+        SLLightSpot* light4 = new SLLightSpot(s, s, maxX, -maxY, maxY, 0.1f, 180, 0, 300, 300);
+        light4->attenuation(0, 0, 1);
+        light1->castsShadows(true);
+        light2->castsShadows(true);
+        light3->castsShadows(true);
+        light4->castsShadows(true);
+        light1->createsShadows(true);
+        light2->createsShadows(true);
+        light3->createsShadows(true);
+        light4->createsShadows(true);
+        scene->addChild(light1);
+        scene->addChild(light2);
+        scene->addChild(light3);
+        scene->addChild(light4);
+
+        // Add a box which receives shadows
+        SLMaterial* matPerPixSM = new SLMaterial(s, "m1"); //, SLCol4f::WHITE, SLCol4f::WHITE, 500, 0, 0, 1, progPerPixSM);
+        SLNode* boxNode = new SLNode(new SLBox(s, -15, -15, -0.2, 15, 15, 0.2, "Box", matPerPixSM));
+        boxNode->translate(SLVec3f(0, 0, -10));
+        boxNode->castsShadows(false);
+        scene->addChild(boxNode);
 
         sv->camera(cam1);
         sv->skybox(hdrCubeMap);
@@ -1792,11 +2027,11 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                                               texPath + "Desert-Y1024_C.jpg",
                                               texPath + "Desert+Z1024_C.jpg",
                                               texPath + "Desert-Z1024_C.jpg");
-        SLGLTexture* skyboxTex = skybox->mesh()->mat()->textures()[0];
+        SLGLTexture* skyboxTex = skybox->getTexture();
 
         // Material for mirror
         SLMaterial* refl = new SLMaterial(s, "refl", SLCol4f::BLACK, SLCol4f::WHITE, 1000, 1.0f);
-        refl->textures().push_back(skyboxTex);
+        refl->addTexture(skyboxTex);
         refl->program(new SLGLProgramGeneric(s,
                                              shaderPath + "Reflect.vert",
                                              shaderPath + "Reflect.frag"));
@@ -1805,11 +2040,10 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLMaterial* refr = new SLMaterial(s, "refr", SLCol4f::BLACK, SLCol4f::BLACK, 100, 0.1f, 0.9f, 1.5f);
         refr->translucency(1000);
         refr->transmissive(SLCol4f::WHITE);
-        refr->textures().push_back(skyboxTex);
+        refr->addTexture(skyboxTex);
         refr->program(new SLGLProgramGeneric(s,
                                              shaderPath + "RefractReflect.vert",
                                              shaderPath + "RefractReflect.frag"));
-
         // Create a scene group node
         SLNode* scene = new SLNode("scene node");
 
@@ -1895,9 +2129,9 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Create materials
         SLMaterial* matEarth = new SLMaterial(s, "matEarth", texC, texN, texH, texG, sp);
-        matEarth->textures().push_back(texClC);
-        matEarth->textures().push_back(texClA);
-        matEarth->textures().push_back(texNC);
+        matEarth->addTexture(texClC);
+        matEarth->addTexture(texClA);
+        matEarth->addTexture(texNC);
         matEarth->shininess(4000);
         matEarth->program(sp);
 
@@ -2483,7 +2717,9 @@ resolution shadows near the camera and lower resolution shadows further away.");
             sceneID == SID_SuzannePerPixBlinnSm)
         {
             auto removeAllTm = [=](SLMaterial* mat) {
-                mat->textures().clear();
+                mat->removeTextureType(TT_diffuse);
+                mat->removeTextureType(TT_normal);
+                mat->removeTextureType(TT_ambientOcclusion);
                 mat->ambientDiffuse(stoneColor);
             };
             suzanneInCube->updateMeshMat(removeAllTm, true);
@@ -3795,7 +4031,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         SLMaterial* matWater = new SLMaterial(s, "water", SLCol4f::BLACK, SLCol4f::BLACK, 100, 0.1f, 0.9f, 1.5f);
         matWater->translucency(1000);
         matWater->transmissive(SLCol4f::WHITE);
-        matWater->textures().push_back(cubemap);
+        matWater->addTexture(cubemap);
         matWater->program(new SLGLProgramGeneric(s,
                                                  shaderPath + "Reflect.vert",
                                                  shaderPath + "Reflect.frag"));
@@ -4853,14 +5089,14 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         // Material for mirror sphere
         SLMaterial* refl = new SLMaterial(s, "refl", blackRGB, SLCol4f::WHITE, 1000, 1.0f);
-        refl->textures().push_back(tex1);
+        refl->addTexture(tex1);
         refl->program(sp1);
 
         // Material for glass sphere
         SLMaterial* refr = new SLMaterial(s, "refr", blackRGB, blackRGB, 100, 0.05f, 0.95f, 1.5f);
         refr->translucency(1000);
         refr->transmissive(SLCol4f::WHITE);
-        refr->textures().push_back(tex1);
+        refr->addTexture(tex1);
         refr->program(sp2);
 
         SLNode* sphere1 = new SLNode(new SLSphere(s, 0.5f, 32, 32, "Sphere1", refl));

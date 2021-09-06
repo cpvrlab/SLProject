@@ -70,6 +70,14 @@ public:
                SLfloat         metalness,
                const SLstring& compileErrorTexFilePath = "");
 
+    //! Ctor for Cook-Torrance light model materials
+    SLMaterial(SLAssetManager* am,
+               const SLchar*   name,
+               const SLCol4f&  diffuse,
+               SLfloat         roughness,
+               SLfloat         metalness,
+               const SLstring& compileErrorTexFilePath = "");
+
     //! Ctor for uniform color material without lighting
     explicit SLMaterial(SLAssetManager* am,
                         SLGLProgram*    colorUniformProgram,
@@ -92,12 +100,34 @@ public:
                SLGLProgram*    pbrIblShaderProg,
                SLGLTexture*    irrandianceMap,
                SLGLTexture*    prefilterIrradianceMap,
-               SLGLTexture*    brdfLUTTexture3);
+               SLGLTexture*    brdfLUTTexture);
+
+    //! Ctor for PBR shading with IBL without textures
+    SLMaterial(SLAssetManager* am,
+               const SLchar*   name,
+               SLCol4f         diffuse,
+               SLfloat         roughness,
+               SLfloat         metalness,
+               SLGLTexture*    irrandianceMap,
+               SLGLTexture*    prefilterIrradianceMap,
+               SLGLTexture*    brdfLUTTexture);
 
     //! Ctor for PBR material with IBL with PBR textures
     SLMaterial(SLAssetManager* am,
                const SLchar*   name,
                SLGLProgram*    shaderProg,
+               SLGLTexture*    texture1,
+               SLGLTexture*    texture2,
+               SLGLTexture*    texture3,
+               SLGLTexture*    texture4,
+               SLGLTexture*    texture5,
+               SLGLTexture*    texture6,
+               SLGLTexture*    texture7,
+               SLGLTexture*    texture8);
+
+    //! Ctor for PBR material with IBL with PBR textures
+    SLMaterial(SLAssetManager* am,
+               const SLchar*   name,
                SLGLTexture*    texture1,
                SLGLTexture*    texture2,
                SLGLTexture*    texture3,
@@ -115,41 +145,37 @@ public:
     //! Returns true if there is any transparency in diffuse alpha or textures
     SLbool hasAlpha()
     {
-        return (_diffuse.a < 1.0f ||
-                (!_textures.empty() &&
-                 _textures[0]->hasAlpha()));
+        if (_diffuse.a < 1.0)
+            return true;
+
+        for (int i = 0; i < _textures[TT_diffuse].size(); i++)
+        {
+            if (_textures[TT_diffuse][i]->hasAlpha())
+                return true;
+        }
+        return false;
     }
 
     //! Returns true if a material has a 3D texture
     SLbool has3DTexture()
     {
-        return !_textures.empty() > 0 &&
-               _textures[0]->target() == GL_TEXTURE_3D;
+        return !_textures3d.empty();
     }
     SLbool needsTangents()
     {
-        return _textures.size() >= 2 &&
-               _textures[0]->target() == GL_TEXTURE_2D &&
-               _textures[1]->texType() == TT_normal;
+        return !_textures[TT_normal].empty() &&
+               _textures[TT_normal][0]->target() == GL_TEXTURE_2D;
     }
     SLbool hasTextureType(SLTextureType tt)
     {
-        for (auto t : _textures)
-            if (t->texType() == tt)
-                return true;
-        return false;
+        return !_textures[tt].empty();
     }
     void removeTextureType(SLTextureType tt)
     {
-        for (int i = 0; i < _textures.size(); ++i)
-        {
-            if (_textures[i]->texType() == tt)
-            {
-                _textures.erase(_textures.begin() + i);
-                break;
-            }
-        }
+        _numTextures -= _textures[tt].size();
+        _textures[tt].clear();
     }
+    void addTexture(SLGLTexture* texture);
 
     // Setters
     void ambient(const SLCol4f& ambi) { _ambient = ambi; }
@@ -205,11 +231,14 @@ public:
     SLfloat         kt() const { return _kt; }
     SLfloat         kn() const { return _kn; }
     SLbool          getsShadows() const { return _getsShadows; }
-    SLVGLTexture&   textures() { return _textures; }
+    SLuint          numTextures() { return _numTextures; }
     SLGLProgram*    program() { return _program; }
     SLVNode&        nodesVisible2D() { return _nodesVisible2D; }
     SLVNode&        nodesVisible3D() { return _nodesVisible3D; }
-    
+
+    SLVGLTexture& textures(SLTextureType type) { return _textures[type]; }
+    SLVGLTexture& textures3d() { return _textures3d; }
+
     // Setters
     void assetManager(SLAssetManager* am) { _assetManager = am; }
     void lightModel(SLLightModel lm) { _lightModel = lm; }
@@ -234,9 +263,11 @@ protected:
     SLfloat         _kt{};         //!< transmission coefficient 0.0 - 1.0
     SLfloat         _kn{};         //!< refraction index
     SLbool          _getsShadows;  //!< true if shadows are visible on this material
-    SLVGLTexture    _textures;     //!< vector of texture pointers
     SLGLProgram*    _program{};    //!< pointer to a GLSL shader program
+    SLint           _numTextures;  //!< Number of textures in all _texuture vectors
 
+    SLVGLTexture _textures[TT_numTextureType];
+    SLVGLTexture _textures3d;
     SLGLTexture* _errorTexture = nullptr; //!< pointer to error texture that is shown if another texture fails
     SLstring     _compileErrorTexFilePath;
 

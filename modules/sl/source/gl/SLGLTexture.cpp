@@ -1299,6 +1299,7 @@ SLTextureType SLGLTexture::detectType(const SLstring& filename)
     if (appendix == "_S") return TT_specular;
     if (appendix == "_R") return TT_roughness;
     if (appendix == "_M") return TT_metallic;
+    if (appendix == "_A") return TT_ambientOcclusion;
     if (appendix == "_F") return TT_font;
 
     // Now check various formats found in the past
