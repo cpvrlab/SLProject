@@ -69,7 +69,7 @@ SLGLTexture* SLVRRenderModel::loadTexture(vr::TextureID_t id, SLAssetManager* as
             break;
     }
 
-    // Convert the RGBA format to the RGB format
+    // Convert the RGBA image data to RGB image data
     const uint8_t* sourceData = renderModelTextureMap->rubTextureMapData;
     unsigned char* targetData = new unsigned char[renderModelTextureMap->unWidth * renderModelTextureMap->unHeight * 3];
 
@@ -89,6 +89,7 @@ SLGLTexture* SLVRRenderModel::loadTexture(vr::TextureID_t id, SLAssetManager* as
                 targetData,
                 true,
                 false);
+    delete targetData;
 
     // Create the texture from the CVImage
     SLGLTexture* texture = new SLGLTexture(assetManager, GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER);
