@@ -28,12 +28,20 @@ bool CVTrackedArucoCube::track(CVMat          imageGray,
 
     vector<SLVec3f>  translations;
     vector<SLQuat4f> rotations;
+    vector<float>    weights;
 
     for (size_t i = 0; i < arucoIDs.size(); ++i)
     {
         // Convert the OpenCV matrix to an SL matrix
         SLMat4f faceViewMatrix(objectViewMats[i].val);
         faceViewMatrix.transpose();
+
+        // Calculate how much this face contributes to the total transformation
+        // The steeper a face is relative to the camera,
+        // the less it should contribute because the accuracy is generally poorer in this case
+        float weight = faceViewMatrix.axisZ().dot(SLVec3f::AXISZ);
+        weight = Utils::clamp(weight, 0.0f, 1.0f);
+        weights.push_back(weight);
 
         // Move to the center
         faceViewMatrix.translate(0.0f, 0.0f, -0.5f * _edgeLength);
@@ -66,8 +74,8 @@ bool CVTrackedArucoCube::track(CVMat          imageGray,
     if (!translations.empty())
     {
         // Average the translations and rotations
-        SLVec3f  pos     = averageVector(translations);
-        SLQuat4f rotQuat = averageQuaternion(rotations);
+        SLVec3f  pos     = averageVector(translations, weights);
+        SLQuat4f rotQuat = averageQuaternion(rotations, weights);
         SLMat3f  rot     = rotQuat.toMat3();
 
         // Convert to a OpenCV matrix
@@ -81,39 +89,46 @@ bool CVTrackedArucoCube::track(CVMat          imageGray,
     return false;
 }
 
-SLVec3f CVTrackedArucoCube::averageVector(vector<SLVec3f> vectors)
+SLVec3f CVTrackedArucoCube::averageVector(vector<SLVec3f> vectors, vector<float> weights)
 {
     if (vectors.size() == 1)
         return vectors[0];
 
     SLVec3f total;
-    for (const SLVec3f& vector : vectors)
-        total += vector;
-    return total / (float)vectors.size();
+    float totalWeights = 0.0f;
+
+    for (int i = 0; i < vectors.size(); i++)
+    {
+        float weight = weights[i];
+        total += vectors[i] * weight;
+        totalWeights += weight;
+    }
+
+    return total / totalWeights;
 }
 
-SLQuat4f CVTrackedArucoCube::averageQuaternion(vector<SLQuat4f> quaternions)
+SLQuat4f CVTrackedArucoCube::averageQuaternion(vector<SLQuat4f> quaternions, vector<float> weights)
 {
+    // Based on: https://math.stackexchange.com/questions/61146/averaging-quaternions
+
     if (quaternions.size() == 1)
         return quaternions[0];
 
-    // Based on: https://math.stackexchange.com/questions/61146/averaging-quaternions
-
-    SLQuat4f average(0.0f, 0.0f, 0.0f, 0.0f);
+    SLQuat4f total(0.0f, 0.0f, 0.0f, 0.0f);
 
     for (int i = 0; i < quaternions.size(); i++)
     {
         SLQuat4f quaternion = quaternions[i];
-        float    weight     = 1.0f;
+        float    weight     = weights[i];
 
         if (i > 0 && quaternion.dot(quaternions[0]) < 0.0f)
             weight = -weight;
 
-        average.set(average.x() + weight * quaternion.x(),
-                    average.y() + weight * quaternion.y(),
-                    average.z() + weight * quaternion.z(),
-                    average.w() + weight * quaternion.w());
+        total.set(total.x() + weight * quaternion.x(),
+                  total.y() + weight * quaternion.y(),
+                  total.z() + weight * quaternion.z(),
+                  total.w() + weight * quaternion.w());
     }
 
-    return average.normalized();
+    return total.normalized();
 }
