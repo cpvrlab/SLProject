@@ -13,6 +13,7 @@
 #include <cv/CVTypedefs.h>
 #include <cv/CVTrackedAruco.h>
 
+// TODO: Replace with OpenCV classes, SL not allowed in OpenCV module
 #include <SLVec3.h>
 #include <SLQuat4.h>
 
@@ -37,7 +38,7 @@ public:
                CVCalibration* calib);
 
 private:
-    SLVec3f  averageVector(vector<SLVec3f> vectors, vector<float> weights);
+    CVVec3f averageVector(vector<CVVec3f> vectors, vector<float> weights);
     SLQuat4f averageQuaternion(vector<SLQuat4f> quaternions, vector<float> weights);
 
 private:

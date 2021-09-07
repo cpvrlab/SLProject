@@ -9,10 +9,14 @@
 
 #include <cv/CVTrackedArucoCube.h>
 #include <Utils.h>
+
+// TODO: Replace with OpenCV classes, SL not allowed in OpenCV module
 #include <SLMat4.h>
 
+#include <utility>
+
 CVTrackedArucoCube::CVTrackedArucoCube(string calibIniPath, float edgeLength)
-  : CVTrackedAruco(-1, calibIniPath),
+  : CVTrackedAruco(-1, std::move(calibIniPath)),
     _edgeLength(edgeLength)
 {
 }
@@ -26,7 +30,7 @@ bool CVTrackedArucoCube::track(CVMat          imageGray,
         return false;
     }
 
-    vector<SLVec3f>  translations;
+    vector<CVVec3f>  translations;
     vector<SLQuat4f> rotations;
     vector<float>    weights;
 
@@ -43,7 +47,7 @@ bool CVTrackedArucoCube::track(CVMat          imageGray,
         weight = Utils::clamp(weight, 0.0f, 1.0f);
         weights.push_back(weight);
 
-        // Move to the center
+        // Move to the center of the cube
         faceViewMatrix.translate(0.0f, 0.0f, -0.5f * _edgeLength);
 
         // Rotate face to cube space
@@ -65,7 +69,7 @@ bool CVTrackedArucoCube::track(CVMat          imageGray,
         faceViewMatrix.m(14, translation.z);
 
         // Convert the matrix to a translation vector and a rotation quaternion
-        translations.push_back(faceViewMatrix.translation());
+        translations.emplace_back(translation.x, translation.y, translation.z);
         SLQuat4f rotation;
         rotation.fromMat3(faceViewMatrix.mat3());
         rotations.push_back(rotation);
@@ -74,14 +78,14 @@ bool CVTrackedArucoCube::track(CVMat          imageGray,
     if (!translations.empty())
     {
         // Average the translations and rotations
-        SLVec3f  pos     = averageVector(translations, weights);
+        CVVec3f  pos     = averageVector(translations, weights);
         SLQuat4f rotQuat = averageQuaternion(rotations, weights);
         SLMat3f  rot     = rotQuat.toMat3();
 
         // Convert to a OpenCV matrix
-        _objectViewMat = CVMatx44f(rot.m(0), rot.m(3), rot.m(6), pos.x,
-                                   rot.m(1), rot.m(4), rot.m(7), pos.y,
-                                   rot.m(2), rot.m(5), rot.m(8), pos.z,
+        _objectViewMat = CVMatx44f(rot.m(0), rot.m(3), rot.m(6), pos.val[0],
+                                   rot.m(1), rot.m(4), rot.m(7), pos.val[1],
+                                   rot.m(2), rot.m(5), rot.m(8), pos.val[2],
                                    0, 0, 0, 1);
         return true;
     }
@@ -89,12 +93,12 @@ bool CVTrackedArucoCube::track(CVMat          imageGray,
     return false;
 }
 
-SLVec3f CVTrackedArucoCube::averageVector(vector<SLVec3f> vectors, vector<float> weights)
+CVVec3f CVTrackedArucoCube::averageVector(vector<CVVec3f> vectors, vector<float> weights)
 {
     if (vectors.size() == 1)
         return vectors[0];
 
-    SLVec3f total;
+    CVVec3f total;
     float totalWeights = 0.0f;
 
     for (int i = 0; i < vectors.size(); i++)
