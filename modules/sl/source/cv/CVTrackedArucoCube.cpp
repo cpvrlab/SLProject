@@ -8,21 +8,13 @@
 //#############################################################################
 
 #include <cv/CVTrackedArucoCube.h>
-#include <cv/CVTrackedAruco.h>
-
 #include <Utils.h>
-
 #include <SLMat4.h>
-#include <SLVec3.h>
-#include <GlobalTimer.h>
 
-CVTrackedArucoCube::CVTrackedArucoCube(const int trackedMarkerIDs[6], string calibIniPath)
-  : CVTrackedAruco(-1, calibIniPath)
+CVTrackedArucoCube::CVTrackedArucoCube(string calibIniPath, float edgeLength)
+  : CVTrackedAruco(-1, calibIniPath),
+    _edgeLength(edgeLength)
 {
-    for (int i = 0; i < 6; i++)
-    {
-        _trackedMarkerIDs[i] = trackedMarkerIDs[i];
-    }
 }
 
 bool CVTrackedArucoCube::track(CVMat          imageGray,
@@ -34,55 +26,54 @@ bool CVTrackedArucoCube::track(CVMat          imageGray,
         return false;
     }
 
-    float edgeLength     = 0.05f;
-    float halfEdgeLength = edgeLength / 2.0f;
-    float penLength      = 0.145f;
-    float downwardOffset = penLength - halfEdgeLength;
-
-    float x = 0;
-    float y = 0;
-    float z = 0;
-    int numVisibleFaces = 0;
+    vector<SLVec3f>  translations;
+    vector<SLQuat4f> rotations;
 
     for (size_t i = 0; i < arucoIDs.size(); ++i)
     {
+        // Convert the OpenCV matrix to an SL matrix
         SLMat4f faceViewMatrix(objectViewMats[i].val);
         faceViewMatrix.transpose();
 
-        faceViewMatrix.translate(0.0, 0.0, -0.025);
+        // Move to the center
+        faceViewMatrix.translate(0.0f, 0.0f, -0.5f * _edgeLength);
 
+        // Rotate face to cube space
         SLVec3f translation = faceViewMatrix.translation();
-        if (arucoIDs[i] == 1) faceViewMatrix.rotate(-90, SLVec3f::AXISY);        // right
-        else if (arucoIDs[i] == 2) faceViewMatrix.rotate(-180, SLVec3f::AXISY);  // back
-        else if (arucoIDs[i] == 3) faceViewMatrix.rotate(90, SLVec3f::AXISY);    // left
-        else if (arucoIDs[i] == 4) faceViewMatrix.rotate(90, SLVec3f::AXISX);    // top
+        if (arucoIDs[i] == 1)
+            faceViewMatrix.rotate(-90, SLVec3f::AXISY); // right
+        else if (arucoIDs[i] == 2)
+            faceViewMatrix.rotate(-180, SLVec3f::AXISY); // back
+        else if (arucoIDs[i] == 3)
+            faceViewMatrix.rotate(90, SLVec3f::AXISY); // left
+        else if (arucoIDs[i] == 4)
+            faceViewMatrix.rotate(90, SLVec3f::AXISX); // top
+        else if (arucoIDs[i] == 5)
+            faceViewMatrix.rotate(-90, SLVec3f::AXISX); // bottom
 
         // Reset translation
         faceViewMatrix.m(12, translation.x);
         faceViewMatrix.m(13, translation.y);
         faceViewMatrix.m(14, translation.z);
 
-        /*
-        _objectViewMat = CVMatx44f(faceViewMatrix.m(0), faceViewMatrix.m(4), faceViewMatrix.m(8), faceViewMatrix.m(12),
-                                   faceViewMatrix.m(1), faceViewMatrix.m(5), faceViewMatrix.m(9), faceViewMatrix.m(13),
-                                   faceViewMatrix.m(2), faceViewMatrix.m(6), faceViewMatrix.m(10), faceViewMatrix.m(14),
-                                   faceViewMatrix.m(3), faceViewMatrix.m(7), faceViewMatrix.m(11), faceViewMatrix.m(15));
-        return true;
-        */
-
-        faceViewMatrix.translate(0.0, -downwardOffset, 0.0);
-
-        x += faceViewMatrix.m(12);
-        y += faceViewMatrix.m(13);
-        z += faceViewMatrix.m(14);
-        numVisibleFaces++;
+        // Convert the matrix to a translation vector and a rotation quaternion
+        translations.push_back(faceViewMatrix.translation());
+        SLQuat4f rotation;
+        rotation.fromMat3(faceViewMatrix.mat3());
+        rotations.push_back(rotation);
     }
 
-    if(numVisibleFaces > 0)
+    if (!translations.empty())
     {
-        _objectViewMat = CVMatx44f(1, 0, 0, x / numVisibleFaces,
-                                   0, 1, 0, y / numVisibleFaces,
-                                   0, 0, 1, z / numVisibleFaces,
+        // Average the translations and rotations
+        SLVec3f  pos     = averageVector(translations);
+        SLQuat4f rotQuat = averageQuaternion(rotations);
+        SLMat3f  rot     = rotQuat.toMat3();
+
+        // Convert to a OpenCV matrix
+        _objectViewMat = CVMatx44f(rot.m(0), rot.m(3), rot.m(6), pos.x,
+                                   rot.m(1), rot.m(4), rot.m(7), pos.y,
+                                   rot.m(2), rot.m(5), rot.m(8), pos.z,
                                    0, 0, 0, 1);
         return true;
     }
@@ -90,26 +81,39 @@ bool CVTrackedArucoCube::track(CVMat          imageGray,
     return false;
 }
 
-CVMatx44f CVTrackedArucoCube::getFaceToCubeRotation(CVTrackedArucoCubeFace face)
+SLVec3f CVTrackedArucoCube::averageVector(vector<SLVec3f> vectors)
 {
-    CVVec3f rotation;
+    if (vectors.size() == 1)
+        return vectors[0];
 
-    switch (face)
+    SLVec3f total;
+    for (const SLVec3f& vector : vectors)
+        total += vector;
+    return total / (float)vectors.size();
+}
+
+SLQuat4f CVTrackedArucoCube::averageQuaternion(vector<SLQuat4f> quaternions)
+{
+    if (quaternions.size() == 1)
+        return quaternions[0];
+
+    // Based on: https://math.stackexchange.com/questions/61146/averaging-quaternions
+
+    SLQuat4f average(0.0f, 0.0f, 0.0f, 0.0f);
+
+    for (int i = 0; i < quaternions.size(); i++)
     {
-        case ACF_left: rotation = CVVec3f(0, Utils::HALFPI, 0); break;
-        case ACF_right: rotation = CVVec3f(0, -Utils::HALFPI, 0); break;
-        case ACF_bottom: rotation = CVVec3f(Utils::HALFPI, 0, 0); break;
-        case ACF_top: rotation = CVVec3f(-Utils::HALFPI, 0, 0); break;
-        case ACF_back: rotation = CVVec3f(0, 0, 0); break;
-        case ACF_front: rotation = CVVec3f(0, Utils::PI, 0); break;
+        SLQuat4f quaternion = quaternions[i];
+        float    weight     = 1.0f;
+
+        if (i > 0 && quaternion.dot(quaternions[0]) < 0.0f)
+            weight = -weight;
+
+        average.set(average.x() + weight * quaternion.x(),
+                    average.y() + weight * quaternion.y(),
+                    average.z() + weight * quaternion.z(),
+                    average.w() + weight * quaternion.w());
     }
 
-    CVMatx33f rotMat;
-    cv::Rodrigues(rotation, rotMat);
-
-    CVMatx44f result(rotMat.val[0], rotMat.val[1], rotMat.val[2], 0,
-                     rotMat.val[3], rotMat.val[4], rotMat.val[5], 0,
-                     rotMat.val[6], rotMat.val[7], rotMat.val[8], 0);
-
-    return result;
+    return average.normalized();
 }

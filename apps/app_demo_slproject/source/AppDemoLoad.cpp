@@ -3595,25 +3595,16 @@ resolution shadows near the camera and lower resolution shadows further away.");
         use case.
         */
 
-        if (sceneID == SID_VideoTrackArucoMain)
-        {
-            CVCapture::instance()->videoType(VT_MAIN);
-            s->name("Track Aruco (main cam.)");
-            s->info("Hold the Aruco board dictionary 0 into the field of view of the main camera. You can find the Aruco markers in the file data/Calibrations. If not all markers are tracked you may have the mirror the video horizontally.");
-        }
-        else
-        {
-            CVCapture::instance()->videoType(VT_SCND);
-            s->name("Track Aruco (scnd. cam.)");
-            s->info("Hold the Aruco board dictionary 0 into the field of view of the secondary camera. You can find the Aruco markers in the file data/Calibrations. If not all markers are tracked you may have the mirror the video horizontally.");
-        }
+        CVCapture::instance()->videoType(VT_MAIN);
+        s->name("Track Aruco Cube (main cam.)");
+        s->info("Hold the Aruco Cube into the field of view of the main camera. You can find the Aruco markers in the file data/Calibrations. If not all markers are tracked you may have the mirror the video horizontally.");
 
         // Create video texture on global pointer updated in AppDemoVideo
         videoTexture = new SLGLTexture(s, texPath + "LiveVideoError.png", GL_LINEAR, GL_LINEAR);
 
         // Material
-        SLMaterial* yellow = new SLMaterial(s, "mY", SLCol4f(1, 1, 0, 0.2f));
-        SLMaterial* cyan   = new SLMaterial(s, "mY", SLCol4f(0, 1, 1, 0.5f));
+        SLMaterial* yellow = new SLMaterial(s, "mY", SLCol4f(1, 1, 0, 0.5f));
+        SLMaterial* cyan   = new SLMaterial(s, "mY", SLCol4f(0, 1, 1, 0.25f));
 
         // Create a scene group node
         SLNode* scene = new SLNode("scene node");
@@ -3636,28 +3627,44 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         // Get the half edge length of the aruco marker
         SLfloat edgeLen = CVTrackedAruco::params.edgeLength;
-        SLfloat he      = 0.002f;
+        SLfloat he      = edgeLen / 2;
 
         // Build mesh & node that will be tracked by the 1st marker (camera)
+        /*
         SLMesh*  box1      = new SLBox(s, -he, -he, -he, he, he, he, "Box 1", yellow);
         SLNode* boxNode1  = new SLNode(box1, "Box Node 1");
         SLNode* axisNode1 = new SLNode(new SLCoordAxis(s), "Axis Node 1");
         axisNode1->setDrawBitsRec(SL_DB_MESHWIRED, false);
         axisNode1->scale(edgeLen);
-        //boxNode1->addChild(axisNode1);
+        boxNode1->addChild(axisNode1);
         boxNode1->setDrawBitsRec(SL_DB_CULLOFF, true);
         scene->addChild(boxNode1);
+        */
 
-        int trackedFaces[6];
-        trackedFaces[ACF_front] = 0;
-        trackedFaces[ACF_right] = 1;
-        trackedFaces[ACF_back] = 2;
-        trackedFaces[ACF_left] = 3;
-        trackedFaces[ACF_top] = 4;
-        trackedFaces[ACF_bottom] = CVTrackedArucoCube::NO_MARKER;
+        float tipOffset = 0.145f - 0.025f + 0.0015f;
+        float tiphe = 0.002f;
+
+        SLAssimpImporter importer;
+        SLNode* penNode = importer.load(s->animManager(),
+                                         s,
+                                         modelPath + "DAE/ArucoPen/ArucoPen.dae",
+                                         texPath,
+                                                  true,
+                                                  true,
+                                                  cyan);
+
+        SLMesh*  tipMesh      = new SLBox(s, -tiphe, -tiphe, -tiphe - tipOffset, tiphe, tiphe, tiphe - tipOffset, "Pen Tip", yellow);
+        SLNode* tipNode  = new SLNode(tipMesh, "Pen Tip Node");
+        penNode->addChild(tipNode);
+        scene->addChild(penNode);
+
+        SLNode* axisNode = new SLNode(new SLCoordAxis(s), "Axis Node");
+        axisNode->setDrawBitsRec(SL_DB_MESHWIRED, false);
+        axisNode->scale(edgeLen);
+        scene->addChild(axisNode);
 
         // Create OpenCV Tracker for the box node
-        tracker = new CVTrackedArucoCube(trackedFaces, AppDemo::calibIniPath);
+        tracker = new CVTrackedArucoCube(AppDemo::calibIniPath, edgeLen);
         tracker->drawDetection(true);
         trackedNode = cam1;
 

@@ -17,6 +17,6 @@ perspectiveRemovePixelPerCell: 8
 perspectiveRemoveIgnoredMarginPerCell: 0.13
 maxErroneousBitsInBorderRate: 0.04
 
-edgeLength: 0.038
+edgeLength: 0.0375
 arucoDictionaryId: 0
 

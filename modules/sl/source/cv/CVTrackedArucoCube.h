@@ -13,33 +13,35 @@
 #include <cv/CVTypedefs.h>
 #include <cv/CVTrackedAruco.h>
 
-enum CVTrackedArucoCubeFace
-{
-    ACF_left   = 0,
-    ACF_right  = 1,
-    ACF_bottom = 2,
-    ACF_top    = 3,
-    ACF_back   = 4,
-    ACF_front  = 5
-};
+#include <SLVec3.h>
+#include <SLQuat4.h>
 
+//! OpenCV ArUco cube marker tracker class derived from CVTrackedAruco
+/*! Tracks a cube of ArUco markers and averages their values. The origin
+ * of the cube is in the center.
+ * The markers must be placed in the following manner:
+ * ID 0: front
+ * ID 1: right
+ * ID 2: back
+ * ID 3: left
+ * ID 4: top
+ * ID 5: bottom
+*/
 class CVTrackedArucoCube : public CVTrackedAruco
 {
 public:
-    static const int NO_MARKER = -1;
-
-    CVTrackedArucoCube(const int trackedMarkerIDs[6], string calibIniPath);
+    CVTrackedArucoCube(string calibIniPath, float edgeLength);
 
     bool track(CVMat          imageGray,
                CVMat          imageRgb,
                CVCalibration* calib);
 
 private:
-    CVMatx44f getFaceToCubeRotation(CVTrackedArucoCubeFace face);
+    SLVec3f  averageVector(vector<SLVec3f> vectors);
+    SLQuat4f averageQuaternion(vector<SLQuat4f> quaternions);
 
 private:
-    int    _trackedMarkerIDs[6];
-    string _calibIniPath;
+    float _edgeLength;
 };
 
 #endif // SLPROJECT_CVTRACKEDARUCOCUBE_H
