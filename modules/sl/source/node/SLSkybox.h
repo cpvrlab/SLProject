@@ -49,17 +49,20 @@ public:
     ~SLSkybox() { ; }
 
 
+    // Getters
+    SLGLTexture* environmentCubemap() { return _environmentCubemap; }
+    SLGLTexture* irradianceCubemap() { return _irradianceCubemap; }
+    SLGLTexture* roughnessCubemap() { return _roughnessCubemap; }
+    SLGLTexture* brdfLUTTexture() { return _brdfLUTTexture; }
     SLGLTexture* getTexture() { return mesh()->mat()->textures(TT_diffuse)[0]; };
     SLCol4f colorAtDir(const SLVec3f& dir);
 
     void drawAroundCamera(SLSceneView* sv);
 
-    const std::vector<SLGLTexture*> getTextures() { return _textures; };
+    //const std::vector<SLGLTexture*> getTextures() { return _textures; };
 
 private:
     void         build();
-    std::vector<SLGLTexture*> _textures;
-
     SLGLTexture* _environmentCubemap;
     SLGLTexture* _irradianceCubemap;
     SLGLTexture* _roughnessCubemap;

@@ -47,7 +47,7 @@ SLSkybox::SLSkybox(SLAssetManager* assetMgr,
     _hdrTexture         = nullptr;
 
     // Create texture, material and program
-    SLGLTexture* cubeMap    = new SLGLTexture(assetMgr,
+    _environmentCubemap = new SLGLTexture(assetMgr,
                                            cubeMapXPos,
                                            cubeMapXNeg,
                                            cubeMapYPos,
@@ -55,7 +55,7 @@ SLSkybox::SLSkybox(SLAssetManager* assetMgr,
                                            cubeMapZPos,
                                            cubeMapZNeg);
     SLMaterial*  matCubeMap = new SLMaterial(assetMgr, "matCubeMap");
-    matCubeMap->addTexture(cubeMap);
+    matCubeMap->addTexture(_environmentCubemap);
     SLGLProgram* sp = new SLGLProgramGeneric(assetMgr,
                                              shaderPath + "SkyBox.vert",
                                              shaderPath + "SkyBox.frag");
@@ -72,9 +72,6 @@ SLSkybox::SLSkybox(SLAssetManager* assetMgr,
                       -10,
                       "box",
                       matCubeMap));
-
-
-    _textures.push_back(cubeMap);
 }
 //-----------------------------------------------------------------------------
 //! Draw the skybox with a cube map with the camera in its center.
@@ -145,11 +142,6 @@ SLSkybox::SLSkybox(SLProjectScene* projectScene,
     SLMaterial* hdrMaterial = new SLMaterial(projectScene, "matCubeMap");
     hdrMaterial->addTexture(_environmentCubemap);
     hdrMaterial->program(backgroundShader);
-
-    _textures.push_back(_environmentCubemap);
-    _textures.push_back(_irradianceCubemap);
-    _textures.push_back(_roughnessCubemap);
-    _textures.push_back(_brdfLUTTexture);
 
     // Create the box for the sky box
     addMesh(new SLBox(projectScene,
