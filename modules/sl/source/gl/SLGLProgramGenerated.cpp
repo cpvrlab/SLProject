@@ -156,8 +156,8 @@ uniform float       u_matMetal;          // emissive color for self-shining mate
 const string fragInputs_u_matCookAll         = R"(
 uniform vec4        u_matAmbi;          // ambient color reflection coefficient (ka)
 uniform vec4        u_matDiff;          // diffuse color reflection coefficient (kd)
-uniform float       u_matRough;          // specular color reflection coefficient (ks)
-uniform float       u_matMetal;          // emissive color for self-shining materials
+uniform float       u_matRough;         // specular color reflection coefficient (ks)
+uniform float       u_matMetal;         // emissive color for self-shining materials
 )";
 const string fragInputs_u_matCookTextures    = R"(
 uniform sampler2D u_matTextureRoughness0;
@@ -167,7 +167,7 @@ uniform sampler2D u_matTextureHDR0;
 const string fragInputs_u_matCookEnvironment = R"(
 uniform samplerCube u_matTextureIrradianceCubemap0;
 uniform samplerCube u_matTextureRoughnessCubemap0;
-uniform sampler2D u_matTextureBRDF0;
+uniform sampler2D   u_matTextureBRDF0;
 )";
 //-----------------------------------------------------------------------------
 const string fragInputs_u_matTm       = R"(

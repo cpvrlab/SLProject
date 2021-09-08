@@ -64,7 +64,7 @@ CVCapture::~CVCapture()
 //-----------------------------------------------------------------------------
 //! Opens the capture device and returns the frame size
 /* This so far called in start if a scene uses a live video by
-setting the the CVCapture::videoType to VT_MAIN. On desktop systems the webcam
+setting the CVCapture::videoType to VT_MAIN. On desktop systems the webcam
 is the only and main camera.
 */
 CVSize2i CVCapture::open(int deviceNum)

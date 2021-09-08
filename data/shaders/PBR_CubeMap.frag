@@ -18,7 +18,7 @@ out     vec4        o_fragColor;    // output fragment color
 //-----------------------------------------------------------------------------
 void main()
 {
-    vec3 uv = v_P_WS;
+    vec3 uv = v_P_WS.xyz;
     o_fragColor = vec4(texture(u_matTextureDiffuse0, uv).rgb, 1.0);
 }
 //-----------------------------------------------------------------------------
