@@ -64,8 +64,8 @@ uniform float  u_matKr;             // reflection factor (kr)
 uniform bool   u_matHasTexture;     // flag if material has texture
 uniform float  u_oneOverGamma;		// oneOverGamma correction factor
 
-uniform sampler2D u_matTexture0;       // Color texture map
-uniform sampler3D u_texture3D;      // Voxelization texture.
+uniform sampler2D u_matTextureDiffuse0; // Color texture map
+uniform sampler3D u_texture3D;          // Voxelization texture.
 
 out     vec4      o_fragColor;      // output fragment color
 

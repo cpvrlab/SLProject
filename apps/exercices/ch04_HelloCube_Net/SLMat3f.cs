@@ -1,7 +1,6 @@
 //#############################################################################
 //  File:      Globals/SLMat3f.cs
 //  Purpose:   3 x 3 Matrix for linear 3D transformations
-//  Author:    Marcus Hudritsch
 //  Date:      February 2014
 //  Authors:   Marcus Hudritsch
 //  License:   This software is provided under the GNU General Public License

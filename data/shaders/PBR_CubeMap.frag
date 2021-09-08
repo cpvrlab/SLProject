@@ -12,13 +12,13 @@ precision highp float;
 //-----------------------------------------------------------------------------
 in      vec4        v_P_WS;         // sample direction in world space
 
-uniform samplerCube u_matTexture0;  // cube map texture
+uniform samplerCube u_matTextureDiffuse0;  // cube map texture
 
 out     vec4        o_fragColor;    // output fragment color
 //-----------------------------------------------------------------------------
 void main()
 {
     vec3 uv = v_P_WS;
-    o_fragColor = vec4(texture(u_matTexture0, uv).rgb, 1.0);
+    o_fragColor = vec4(texture(u_matTextureDiffuse0, uv).rgb, 1.0);
 }
 //-----------------------------------------------------------------------------

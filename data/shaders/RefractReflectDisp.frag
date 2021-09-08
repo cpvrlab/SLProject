@@ -2,7 +2,6 @@
 //  File:      RefractReflectDisp.frag
 //  Purpose:   GLSL fragment program for refraction- & reflection mapping with
 //             chromatic dispersion
-//  Author:    Marcus Hudritsch
 //  Date:      July 2014
 //  Authors:   Marcus Hudritsch
 //  License:   This software is provided under the GNU General Public License

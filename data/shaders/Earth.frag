@@ -1,7 +1,6 @@
 //#############################################################################
 //  File:      BumpParallax.frag
 //  Purpose:   OGLSL parallax bump mapping
-//  Author:    Marcus Hudritsch
 //  Date:      18-SEP-09 (HS09)
 //  Authors:   Marcus Hudritsch
 //  License:   This software is provided under the GNU General Public License

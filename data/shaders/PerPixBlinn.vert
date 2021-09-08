@@ -1,9 +1,8 @@
 //#############################################################################
 //  File:      PerPixBlinn.vert
 //  Purpose:   GLSL vertex program for per fragment Blinn-Phong lighting
-//  Author:    Marcus Hudritsch
 //  Date:      July 2014
-//  Authors:   Marcus Hudritsch
+//  Authors:   Carlos Arauz, Marcus Hudritsch
 //  License:   This software is provided under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################

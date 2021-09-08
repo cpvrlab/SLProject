@@ -2,7 +2,6 @@
 //  File:      PerPixBlinnAoSm.vert
 //  Purpose:   GLSL vertex shader for per pixel Blinn-Phong lighting with 
 //             shadow mapping and ambient occlusion.
-//  Author:    Marcus Hudritsch
 //  Date:      July 2019
 //  Authors:   Marcus Hudritsch
 //  License:   This software is provided under the GNU General Public License

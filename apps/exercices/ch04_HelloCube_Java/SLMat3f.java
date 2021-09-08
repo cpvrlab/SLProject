@@ -1,6 +1,5 @@
 //#############################################################################
 //  Purpose:   3 x 3 Matrix for linear 3D transformations
-//  Author:    Marcus Hudritsch
 //  Date:      September 2012 (HS12)
 //  Authors:   Marcus Hudritsch
 //  License:   This software is provided under the GNU General Public License

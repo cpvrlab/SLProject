@@ -2102,7 +2102,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
     else if (sceneID == SID_ShaderEarth) //........................................................
     {
         s->name("Earth Shader Test");
-        s->info("Complex earth shader with 7 textures: day color, night color, normal, height & gloss map of earth, color & alphamap of clouds");
+        s->info("Complex earth shader with 7 textures: day color, night color, normal, height & gloss map of earth, color & alpha-map of clouds");
         SL_LOG("Earth Shader from Markus Knecht");
         SL_LOG("Use (SHIFT) & key X to change scale of the parallax mapping");
         SL_LOG("Use (SHIFT) & key O to change offset of the parallax mapping");
@@ -2124,13 +2124,13 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLGLTexture* texH   = new SLGLTexture(s, texPath + "earth2048_H.jpg");      // height map
         SLGLTexture* texG   = new SLGLTexture(s, texPath + "earth2048_G.jpg");      // gloss map
         SLGLTexture* texNC  = new SLGLTexture(s, texPath + "earthNight2048_C.jpg"); // night color  map
-        SLGLTexture* texClC = new SLGLTexture(s, texPath + "earthCloud1024_C.jpg"); // cloud color map
-        SLGLTexture* texClA = new SLGLTexture(s, texPath + "earthCloud1024_A.jpg"); // cloud alpha map
+        SLGLTexture* texClC = new SLGLTexture(s, texPath + "earthCloud1024_alpha_C.png"); // cloud color map
+        //SLGLTexture* texClA = new SLGLTexture(s, texPath + "earthCloud1024_A.jpg"); // cloud alpha map
 
         // Create materials
         SLMaterial* matEarth = new SLMaterial(s, "matEarth", texC, texN, texH, texG, sp);
         matEarth->addTexture(texClC);
-        matEarth->addTexture(texClA);
+        //matEarth->addTexture(texClA);
         matEarth->addTexture(texNC);
         matEarth->shininess(4000);
         matEarth->program(sp);

@@ -2,7 +2,6 @@
 //  File:      PerPixTmBackgroundSm.frag
 //  Purpose:   GLSL fragment shader for background texture mapping with
 //             shadow mapping
-//  Author:    Marcus Hudritsch
 //  Date:      November 2020
 //  Authors:   Marcus Hudritsch
 //  License:   This software is provided under the GNU General Public License

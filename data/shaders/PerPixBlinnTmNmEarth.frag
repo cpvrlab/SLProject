@@ -44,8 +44,7 @@ uniform sampler2D   u_matTextureNormal0;    // Normal map
 uniform sampler2D   u_matTextureHeight0;    // Height map;
 uniform sampler2D   u_matTextureSpecular0;  // Gloss map;
 uniform sampler2D   u_matTextureDiffuse1;   // Cloud Color map;
-uniform sampler2D   u_matTextureDiffuse2;   // Cloud Alpha map;
-uniform sampler2D   u_matTextureDiffuse3;   // Night Color map;
+uniform sampler2D   u_matTextureDiffuse2;   // Night Color map;
 uniform float       u_scale;                // Height scale for parallax mapping
 uniform float       u_offset;               // Height bias for parallax mapping
 
@@ -135,12 +134,13 @@ void main()
     float night2 = nightInv * nightInv;
    
     //Calculate mixed day night texture 
-    float alpha = texture(u_matTextureDiffuse2, v_uv1.st)[0];
-    vec4 ground = (texture(u_matTextureDiffuse3, Tc)*night2 +
-                   texture(u_matTextureDiffuse0, Tc)*(1.0-night2))*alpha;
+    vec4 cloudColor = texture(u_matTextureDiffuse1, v_uv1.st);
+    float cloudAlpha = cloudColor.a;
+    vec4 ground = (texture(u_matTextureDiffuse2, Tc)*night2 +
+                   texture(u_matTextureDiffuse0, Tc)*(1.0-night2))*(1-cloudAlpha);
    
     //Calculate CloudTexture
-    vec4 cloud = o_fragColor*texture(u_matTextureDiffuse1, Wtc)*(1.0-alpha);
+    vec4 cloud = o_fragColor*texture(u_matTextureDiffuse1, Wtc)*(cloudAlpha);
    
     o_fragColor = ground  + cloud;
    

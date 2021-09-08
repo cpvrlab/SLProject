@@ -646,15 +646,14 @@ void SLMaterial::passToUniforms(SLGLProgram* program)
                     break;
                 }
                 default: {
-                    sprintf(name, "u_matTexture%d", texNb);
+                    sprintf(name, "u_matTextureDiffuse%d", texNb);
                     break;
                 }
             }
 
             if (program->uniform1i(name, texUnit) < 0)
-            {
                 Utils::log("Material", "texture name %s not found", name);
-            }
+
             texNb++;
             texUnit++;
         }

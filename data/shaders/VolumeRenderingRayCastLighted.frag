@@ -3,9 +3,8 @@
 //  Purpose:   GLSL fragment shader performing volume rendering using a simple
 //             sampling method along the view ray. The resulting color is
 //             calculated using a transfer function (via a lookup table).
-//  Author:    Manuel Frischknecht
 //  Date:      March 2015
-//  Authors:   Marcus Hudritsch
+//  Authors:   Manuel Frischknecht, Marcus Hudritsch
 //  License:   This software is provided under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################

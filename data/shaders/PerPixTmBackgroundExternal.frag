@@ -1,9 +1,8 @@
 //#############################################################################
 //  File:      PerPixTmBackground.frag
 //  Purpose:   GLSL fragment shader for background texture mapping
-//  Author:    Marcus Hudritsch
 //  Date:      September 2020
-//  Authors:   Marcus Hudritsch
+//  Authors:   Marcus Hudritsch, Michael Goettlicher
 //  License:   This software is provided under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
@@ -18,7 +17,7 @@ uniform float u_camBkgdHeight;  // background height
 uniform float u_camBkgdLeft;    // background left
 uniform float u_camBkgdBottom;  // background bottom
 
-uniform samplerExternalOES u_matTexture0;      // Color map
+uniform samplerExternalOES u_matTextureDiffuse0;      // Color map
 
 out     vec4 o_fragColor;       // output fragment color
 //-----------------------------------------------------------------------------
@@ -30,6 +29,6 @@ void main()
     if(x < 0.0f || y < 0.0f || x > 1.0f || y > 1.0f)
         o_fragColor = vec4(0.0f, 0.0f, 0.0f, 1.0f);
     else
-        o_fragColor = texture(u_matTexture0, vec2(x, 1.0f - y));
+        o_fragColor = texture(u_matTextureDiffuse0, vec2(x, 1.0f - y));
 }
 //-----------------------------------------------------------------------------

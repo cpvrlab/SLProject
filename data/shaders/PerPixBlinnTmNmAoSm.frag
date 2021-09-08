@@ -2,7 +2,6 @@
 //  File:      PerPixBlinnTmNmAoSm.frag
 //  Purpose:   GLSL normal bump mapping with ambient occlusion and shadow
 //             mapping for max. 4 lights.
-//  Author:    Marcus Hudritsch
 //  Date:      October 2020
 //  Authors:   Marcus Hudritsch
 //  License:   This software is provided under the GNU General Public License

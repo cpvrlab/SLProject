@@ -1,7 +1,6 @@
 //#############################################################################
 //  File:      PBR_CubeMap.vert
 //  Purpose:   GLSL vertex program for rendering cube maps
-//  Author:    Carlos Arauz
 //  Date:      April 2018
 //  Authors:   Marcus Hudritsch
 //  License:   This software is provided under the GNU General Public License

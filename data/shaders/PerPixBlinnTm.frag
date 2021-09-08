@@ -1,9 +1,8 @@
 //#############################################################################
 //  File:      PerPixBlinnTm.frag
 //  Purpose:   GLSL per pixel lighting with texturing
-//  Author:    Marcus Hudritsch
 //  Date:      July 2014
-//  Authors:   Marcus Hudritsch
+//  Authors:   Michel Schertenleib, Marcus Hudritsch
 //  License:   This software is provided under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################

@@ -1,7 +1,6 @@
 //#############################################################################
 //  File:      ADS.frag
 //  Purpose:   GLSL fragment program for simple ADS per vertex lighting
-//  Author:    Marcus Hudritsch
 //  Date:      September 2011 (HS11)
 //  Authors:   Marcus Hudritsch
 //  License:   This software is provided under the GNU General Public License

@@ -4,10 +4,9 @@
 //             including diffuse irradiance and specular IBL. Based on the
 //             physically based rendering (PBR) tutorial with GLSL by Joey de
 //             Vries on https://learnopengl.com/#!PBR/Theory
-//  Author:    Carlos Arauz, 
 //             adapted from PerPixCookTorrance.frag by Marcus Hudritsch
 //  Date:      April 2018
-//  Authors:   Marcus Hudritsch
+//  Authors:   Carlos Arauz, Marcus Hudritsch
 //  License:   This software is provided under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################

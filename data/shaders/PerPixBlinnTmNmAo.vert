@@ -1,7 +1,6 @@
 //#############################################################################
 //  File:      PerPixBlinnTmNm.vert
 //  Purpose:   GLSL normal map bump mapping & ambient occlusion
-//  Author:    Marcus Hudritsch
 //  Date:      July 2014
 //  Authors:   Marcus Hudritsch
 //  License:   This software is provided under the GNU General Public License

@@ -2,8 +2,6 @@
 //  File:      PerPixBlinnSm.vert
 //  Purpose:   GLSL vertex program for per pixel Blinn-Phong lighting with 
 //             texture and shadow mapping
-//             (and Shadow mapping)
-//  Author:    Marcus Hudritsch
 //  Date:      July 2014
 //  Authors:   Marcus Hudritsch
 //  License:   This software is provided under the GNU General Public License

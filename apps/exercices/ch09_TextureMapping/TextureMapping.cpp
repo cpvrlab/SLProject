@@ -320,7 +320,7 @@ void onInit()
     _matSpecularLoc    = glGetUniformLocation(_shaderProgID, "u_matSpec");
     _matEmissiveLoc    = glGetUniformLocation(_shaderProgID, "u_matEmis");
     _matShininessLoc   = glGetUniformLocation(_shaderProgID, "u_matShin");
-    _texture0Loc       = glGetUniformLocation(_shaderProgID, "u_matTexture0");
+    _texture0Loc       = glGetUniformLocation(_shaderProgID, "u_matTextureDiffuse0");
     _gLoc              = glGetUniformLocation(_shaderProgID, "u_oneOverGamma");
 
     // Build object

@@ -2,9 +2,9 @@
 //  File:      PBR_IrradianceConvolution.frag
 //  Purpose:   GLSL fragment program to generate an irradiance map by
 //             convoluting of an environment map.
-//  Author:    Carlos Arauz
+//  Author:
 //  Date:      April 2018
-//  Authors:   Marcus Hudritsch
+//  Authors:   Carlos Arauz, Marcus Hudritsch
 //  License:   This software is provided under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
@@ -14,7 +14,7 @@ precision highp float;
 //-----------------------------------------------------------------------------
 in      vec3        v_P_WS;         // sample direction in world space
 
-uniform samplerCube u_matTexture0;  // environment cube map texture
+uniform samplerCube u_matTextureDiffuse0;  // environment cube map texture
 
 out     vec4        o_fragColor;    // output fragment color
 //-----------------------------------------------------------------------------
@@ -48,7 +48,7 @@ void main()
                              tangentSample.y * up + 
                              tangentSample.z * N; 
 
-            irradiance += texture(u_matTexture0, sampleVec).rgb * cos(theta) * sin(theta);
+            irradiance += texture(u_matTextureDiffuse0, sampleVec).rgb * cos(theta) * sin(theta);
             nrSamples++;
         }
     }

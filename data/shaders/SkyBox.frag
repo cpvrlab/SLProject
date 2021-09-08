@@ -1,7 +1,6 @@
 //#############################################################################
 //  File:      SkyBox.frag
 //  Purpose:   GLSL vertex program for unlit skybox with a cube map
-//  Author:    Marcus Hudritsch
 //  Date:      October 2017
 //  Authors:   Marcus Hudritsch
 //  License:   This software is provided under the GNU General Public License

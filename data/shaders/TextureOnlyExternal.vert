@@ -1,7 +1,6 @@
 //#############################################################################
 //  File:      TextureOnlyExternal.vert
 //  Purpose:   GLSL vertex program for texture mapping of an external texture
-//  Author:    Marcus Hudritsch
 //  Date:      July 2014
 //  Authors:   Marcus Hudritsch
 //  License:   This software is provided under the GNU General Public License

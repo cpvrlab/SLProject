@@ -1,7 +1,6 @@
 //#############################################################################
 //  File:      PerPixBlinn.frag
 //  Purpose:   GLSL per pixel lighting without texturing
-//  Author:    Marcus Hudritsch
 //  Date:      July 2014
 //  Authors:   Marcus Hudritsch
 //  License:   This software is provided under the GNU General Public License
