@@ -48,18 +48,16 @@ public:
 
     ~SLSkybox() { ; }
 
-
     // Getters
     SLGLTexture* environmentCubemap() { return _environmentCubemap; }
     SLGLTexture* irradianceCubemap() { return _irradianceCubemap; }
     SLGLTexture* roughnessCubemap() { return _roughnessCubemap; }
     SLGLTexture* brdfLUTTexture() { return _brdfLUTTexture; }
-    SLGLTexture* getTexture() { return mesh()->mat()->textures(TT_diffuse)[0]; };
+    SLbool       isHDR() { return _isHDR; }
+
+    void    drawAroundCamera(SLSceneView* sv);
     SLCol4f colorAtDir(const SLVec3f& dir);
-
-    void drawAroundCamera(SLSceneView* sv);
-
-    //const std::vector<SLGLTexture*> getTextures() { return _textures; };
+    void    passToUniforms(SLGLProgram* program);
 
 private:
     void         build();

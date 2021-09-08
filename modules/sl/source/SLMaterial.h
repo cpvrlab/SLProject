@@ -16,6 +16,7 @@
 #include <SLGLTexture.h>
 #include <SLNode.h>
 
+class SLSkybox;
 class SLSceneView;
 class SLAssetManager;
 
@@ -139,7 +140,9 @@ public:
 
     ~SLMaterial() override;
 
-    void activate(SLCamera* cam, SLVLight* lights);
+    void activate(SLCamera* cam,
+                  SLVLight* lights,
+                  SLSkybox* skybox = nullptr);
     void passToUniforms(SLGLProgram* program);
 
     //! Returns true if there is any transparency in diffuse alpha or textures
@@ -264,12 +267,12 @@ protected:
     SLfloat         _kn{};         //!< refraction index
     SLbool          _getsShadows;  //!< true if shadows are visible on this material
     SLGLProgram*    _program{};    //!< pointer to a GLSL shader program
-    SLint           _numTextures;  //!< Number of textures in all _texuture vectors
+    SLint           _numTextures;  //!< Number of textures in all _textures vectors array
 
-    SLVGLTexture _textures[TT_numTextureType];
-    SLVGLTexture _textures3d;
-    SLGLTexture* _errorTexture = nullptr; //!< pointer to error texture that is shown if another texture fails
-    SLstring     _compileErrorTexFilePath;
+    SLVGLTexture _textures[TT_numTextureType]; //!< Array of texture vectors one for each type
+    SLVGLTexture _textures3d;                  //!< Texture vector for diffuse 3D textures
+    SLGLTexture* _errorTexture = nullptr;      //!< Pointer to error texture that is shown if another texture fails
+    SLstring     _compileErrorTexFilePath;     //!< Path to the error texture
 
     SLVNode _nodesVisible2D; //!< Vector of all visible 2D nodes of with this material
     SLVNode _nodesVisible3D; //!< Vector of all visible 3D nodes of with this material

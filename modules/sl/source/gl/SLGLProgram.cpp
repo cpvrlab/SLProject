@@ -15,6 +15,7 @@
 #include <SLGLShader.h>
 #include <SLGLState.h>
 #include <SLScene.h>
+#include <SLSkybox.h>
 
 //-----------------------------------------------------------------------------
 // Error Strings defined in SLGLShader.h
@@ -271,7 +272,10 @@ void SLGLProgram::useProgram()
 the camera,  lights and material parameter as uniform variables. It also passes
 the custom uniform variables of the _uniform1fList as well as the texture names.
 */
-void SLGLProgram::beginUse(SLCamera* cam, SLMaterial* mat, SLVLight* lights)
+void SLGLProgram::beginUse(SLCamera*   cam,
+                           SLMaterial* mat,
+                           SLVLight*   lights,
+                           SLSkybox*   skybox)
 {
     if (_progID == 0 && !_shaders.empty())
         init(lights);
@@ -290,6 +294,9 @@ void SLGLProgram::beginUse(SLCamera* cam, SLMaterial* mat, SLVLight* lights)
 
         if (cam)
             cam->passToUniforms(this);
+
+        if (skybox && skybox->isHDR())
+            skybox->passToUniforms(this);
 
         for (auto* uf : _uniforms1f)
             uniform1f(uf->name(), uf->value());

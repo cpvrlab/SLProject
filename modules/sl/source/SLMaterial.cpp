@@ -481,6 +481,7 @@ SLMaterial::SLMaterial(SLAssetManager* am,
         am->materials().push_back(this);
 }
 //-----------------------------------------------------------------------------
+//! Adds the passed texture to the equivalent texture type vector
 void SLMaterial::addTexture(SLGLTexture* texture)
 {
     if (!texture)
@@ -517,7 +518,7 @@ SLMaterial::~SLMaterial()
  will be generated with an instance of SLGLProgramGenerated.
  At the end the shader program will begin its usage with SLGLProgram::beginUse.
 */
-void SLMaterial::activate(SLCamera* cam, SLVLight* lights)
+void SLMaterial::activate(SLCamera* cam, SLVLight* lights, SLSkybox* skybox)
 {
     SLGLState* stateGL = SLGLState::instance();
 
@@ -544,9 +545,7 @@ void SLMaterial::activate(SLCamera* cam, SLVLight* lights)
 
         // If the program was not found by name generate a new one
         if (!_program)
-        {
             _program = new SLGLProgramGenerated(_assetManager, programName, this, lights);
-        }
     }
 
     // Check if shader had compile error and the error texture should be shown
@@ -560,8 +559,7 @@ void SLMaterial::activate(SLCamera* cam, SLVLight* lights)
     }
 
     // Activate the shader program now
-
-    _program->beginUse(cam, this, lights);
+    _program->beginUse(cam, this, lights, skybox);
 }
 //-----------------------------------------------------------------------------
 //! Passes all material parameters as uniforms to the passed shader program

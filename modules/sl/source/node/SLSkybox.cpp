@@ -216,3 +216,90 @@ SLCol4f SLSkybox::colorAtDir(const SLVec3f& dir)
         return SLCol4f::BLACK; // Generated skybox texture do not exist in _image
 }
 //-----------------------------------------------------------------------------
+//! Passes all skybox parameters as uniforms to the passed shader program
+void SLSkybox::passToUniforms(SLGLProgram* program)
+{
+    assert(program && "SLMaterial::passToUniforms: No shader program set!");
+
+    /*
+    // pass textures unit id to the sampler uniform
+    SLuint texUnit = 0;
+    for (SLuint i = 0; i < TT_numTextureType; i++)
+    {
+        int texNb = 0;
+        for (SLGLTexture* texture : _textures[i])
+        {
+            SLchar name[100];
+            texture->bindActive(texUnit);
+            switch (i)
+            {
+                case TT_diffuse: {
+                    sprintf(name, "u_matTextureDiffuse%d", texNb);
+                    break;
+                }
+                case TT_specular: {
+                    sprintf(name, "u_matTextureSpecular%d", texNb);
+                    break;
+                }
+                case TT_normal: {
+                    sprintf(name, "u_matTextureNormal%d", texNb);
+                    break;
+                }
+                case TT_height: {
+                    sprintf(name, "u_matTextureHeight%d", texNb);
+                    break;
+                }
+                case TT_ambientOcclusion: {
+                    sprintf(name, "u_matTextureAo%d", texNb);
+                    break;
+                }
+                case TT_roughness: {
+                    sprintf(name, "u_matTextureRoughness%d", texNb);
+                    break;
+                }
+                case TT_metallic: {
+                    sprintf(name, "u_matTextureMetallic%d", texNb);
+                    break;
+                }
+                case TT_hdr: {
+                    sprintf(name, "u_matTextureHDR%d", texNb);
+                    break;
+                }
+                case TT_environmentCubemap: {
+                    sprintf(name, "u_matTextureEnvCubemap%d", texNb);
+                    break;
+                }
+                case TT_irradianceCubemap: {
+                    sprintf(name, "u_matTextureIrradianceCubemap%d", texNb);
+                    break;
+                }
+                case TT_roughnessCubemap: {
+                    sprintf(name, "u_matTextureRoughnessCubemap%d", texNb);
+                    break;
+                }
+                case TT_brdfLUT: {
+                    sprintf(name, "u_matTextureBRDF%d", texNb);
+                    break;
+                }
+                case TT_font: {
+                    sprintf(name, "u_matTextureFont%d", texNb);
+                    break;
+                }
+                default: {
+                    sprintf(name, "u_matTextureDiffuse%d", texNb);
+                    break;
+                }
+            }
+
+            if (program->uniform1i(name, texUnit) < 0)
+                Utils::log("Material", "texture name %s not found", name);
+
+            texNb++;
+            texUnit++;
+        }
+    }
+
+    program->uniform1i("u_matHasTexture", texUnit ? 1 : 0);
+     */
+}
+//-----------------------------------------------------------------------------

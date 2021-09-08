@@ -26,6 +26,7 @@ class SLMaterial;
 class SLGLState;
 class SLAssetManager;
 class SLCamera;
+class SLSkybox;
 
 //-----------------------------------------------------------------------------
 //! STL vector type for SLGLShader pointers
@@ -35,7 +36,7 @@ typedef vector<SLGLShader*> SLVGLShader;
 // The TR1 unordered_map or the hash_map is not yet available on iOS
 typedef std::map<string, int> SLLocMap;
 #else
-//typedef unordered_map<const char*, int, hash<const char*>, eqstr> SLLocMap;
+// typedef unordered_map<const char*, int, hash<const char*>, eqstr> SLLocMap;
 typedef std::map<string, int> SLLocMap;
 #endif
 
@@ -43,7 +44,7 @@ typedef std::map<string, int> SLLocMap;
 //! Encapsulation of an OpenGL shader program object
 /*!
 The SLGLProgram base class represents a shader program object of the OpenGL
-Shading Language (GLSL). Multiple SLGLShader objects can be attached and linked 
+Shading Language (GLSL). Multiple SLGLShader objects can be attached and linked
 at run time. An SLGLProgram object can then be attached to an SLMaterial
 node for execution. An SLGLProgram object can hold an vector of uniform
 variable that can transfer variables from the CPU program to the GPU program.
@@ -57,10 +58,10 @@ class SLGLProgram : public SLObject
 {
 public:
     SLGLProgram(SLAssetManager* s,
-                const string& vertShaderFile,
-                const string& fragShaderFile,
-                const string& geomShaderFile = "",
-                const string& programName = "");
+                const string&   vertShaderFile,
+                const string&   fragShaderFile,
+                const string&   geomShaderFile = "",
+                const string&   programName    = "");
 
     ~SLGLProgram() override;
 
@@ -76,23 +77,24 @@ public:
 
     void beginUse(SLCamera*   cam,
                   SLMaterial* mat,
-                  SLVLight*   lights);
+                  SLVLight*   lights,
+                  SLSkybox*   skybox = nullptr);
     void passLightsToUniforms(SLVLight* lights,
-                              SLuint numTexInMat) const;
+                              SLuint    numTexInMat) const;
     void endUse();
     void useProgram();
 
     void addUniform1f(SLGLUniform1f* u); //!< add float uniform
     void addUniform1i(SLGLUniform1i* u); //!< add int uniform
 
-    //Getters
+    // Getters
     SLuint       progID() const { return _progID; }
     SLVGLShader& shaders() { return _shaders; }
 
-    //Variable location getters
+    // Variable location getters
     SLint getUniformLocation(const SLchar* name) const;
 
-    //Send uniform variables to program
+    // Send uniform variables to program
     SLint uniform1f(const SLchar* name, SLfloat v0) const;
     SLint uniform2f(const SLchar* name, SLfloat v0, SLfloat v1) const;
     SLint uniform3f(const SLchar* name, SLfloat v0, SLfloat v1, SLfloat v2) const;

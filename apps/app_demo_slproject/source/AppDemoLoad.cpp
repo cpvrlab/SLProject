@@ -1812,7 +1812,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
             y += spacing;
         }
         // Add 4 point light
-        SLLight::gamma      = 2.2f;
+        SLLight::gamma = 2.2f;
 
         SLLightSpot* light1 = new SLLightSpot(s, s, -maxX, maxY, maxY, 0.1f, 180, 0, 300, 300);
         light1->attenuation(0, 0, 1);
@@ -1822,7 +1822,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Add a box which receives shadows
         SLMaterial* matPerPixSM = new SLMaterial(s, "m1"); //, SLCol4f::WHITE, SLCol4f::WHITE, 500, 0, 0, 1, progPerPixSM);
-        SLNode* boxNode = new SLNode(new SLBox(s, -15, -15, -0.2, 15, 15, 0.2, "Box", matPerPixSM));
+        SLNode*     boxNode     = new SLNode(new SLBox(s, -15, -15, -0.2, 15, 15, 0.2, "Box", matPerPixSM));
         boxNode->translate(SLVec3f(0, 0, -10));
         boxNode->castsShadows(false);
         scene->addChild(boxNode);
@@ -1993,28 +1993,25 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->info("Sky box cube with cubemap skybox shader");
 
         // Create textures and materials
-        SLSkybox*    skybox    = new SLSkybox(s,
-                                              shaderPath,
-                                              texPath + "Desert+X1024_C.jpg",
-                                              texPath + "Desert-X1024_C.jpg",
-                                              texPath + "Desert+Y1024_C.jpg",
-                                              texPath + "Desert-Y1024_C.jpg",
-                                              texPath + "Desert+Z1024_C.jpg",
-                                              texPath + "Desert-Z1024_C.jpg");
-        SLGLTexture* skyboxTex = skybox->getTexture();
-
+        SLSkybox* skybox = new SLSkybox(s,
+                                        shaderPath,
+                                        texPath + "Desert+X1024_C.jpg",
+                                        texPath + "Desert-X1024_C.jpg",
+                                        texPath + "Desert+Y1024_C.jpg",
+                                        texPath + "Desert-Y1024_C.jpg",
+                                        texPath + "Desert+Z1024_C.jpg",
+                                        texPath + "Desert-Z1024_C.jpg");
         // Material for mirror
         SLMaterial* refl = new SLMaterial(s, "refl", SLCol4f::BLACK, SLCol4f::WHITE, 1000, 1.0f);
-        refl->addTexture(skyboxTex);
+        refl->addTexture(skybox->environmentCubemap());
         refl->program(new SLGLProgramGeneric(s,
                                              shaderPath + "Reflect.vert",
                                              shaderPath + "Reflect.frag"));
-
         // Material for glass
         SLMaterial* refr = new SLMaterial(s, "refr", SLCol4f::BLACK, SLCol4f::BLACK, 100, 0.1f, 0.9f, 1.5f);
         refr->translucency(1000);
         refr->transmissive(SLCol4f::WHITE);
-        refr->addTexture(skyboxTex);
+        refr->addTexture(skybox->environmentCubemap());
         refr->program(new SLGLProgramGeneric(s,
                                              shaderPath + "RefractReflect.vert",
                                              shaderPath + "RefractReflect.frag"));
@@ -2093,18 +2090,18 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sp->addUniform1f(offset);
 
         // Create textures
-        SLGLTexture* texC   = new SLGLTexture(s, texPath + "earth2048_C.png");      // color map
-        SLGLTexture* texN   = new SLGLTexture(s, texPath + "earth2048_N.jpg");      // normal map
-        SLGLTexture* texH   = new SLGLTexture(s, texPath + "earth2048_H.jpg");      // height map
-        SLGLTexture* texG   = new SLGLTexture(s, texPath + "earth2048_G.jpg");      // gloss map
-        SLGLTexture* texNC  = new SLGLTexture(s, texPath + "earthNight2048_C.jpg"); // night color  map
+        SLGLTexture* texC   = new SLGLTexture(s, texPath + "earth2048_C.png");            // color map
+        SLGLTexture* texN   = new SLGLTexture(s, texPath + "earth2048_N.jpg");            // normal map
+        SLGLTexture* texH   = new SLGLTexture(s, texPath + "earth2048_H.jpg");            // height map
+        SLGLTexture* texG   = new SLGLTexture(s, texPath + "earth2048_G.jpg");            // gloss map
+        SLGLTexture* texNC  = new SLGLTexture(s, texPath + "earthNight2048_C.jpg");       // night color  map
         SLGLTexture* texClC = new SLGLTexture(s, texPath + "earthCloud1024_alpha_C.png"); // cloud color map
-        //SLGLTexture* texClA = new SLGLTexture(s, texPath + "earthCloud1024_A.jpg"); // cloud alpha map
+        // SLGLTexture* texClA = new SLGLTexture(s, texPath + "earthCloud1024_A.jpg"); // cloud alpha map
 
         // Create materials
         SLMaterial* matEarth = new SLMaterial(s, "matEarth", texC, texN, texH, texG, sp);
         matEarth->addTexture(texClC);
-        //matEarth->addTexture(texClA);
+        // matEarth->addTexture(texClA);
         matEarth->addTexture(texNC);
         matEarth->shininess(4000);
         matEarth->program(sp);
@@ -3922,7 +3919,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         matVideoBkgd->lightModel(LM_Custom);
 
         // Create see through video background material with shadow mapping
-        SLMaterial*  matVideoBkgdSM = new SLMaterial(s,"matVideoBkgdSM", videoTexture);
+        SLMaterial* matVideoBkgdSM = new SLMaterial(s, "matVideoBkgdSM", videoTexture);
         matVideoBkgdSM->lightModel(LM_Custom);
         matVideoBkgdSM->ambient(SLCol4f(0.6f, 0.6f, 0.6f));
         matVideoBkgdSM->getsShadows(true);
@@ -3948,7 +3945,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         sunLight->createsShadows(true);
         sunLight->createShadowMapAutoSize(cam1, SLVec2i(2048, 2048), 4);
         sunLight->shadowMap()->cascadesFactor(3.0);
-        //sunLight->createShadowMap(-100, 150, SLVec2f(200, 150), SLVec2i(4096, 4096));
+        // sunLight->createShadowMap(-100, 150, SLVec2f(200, 150), SLVec2i(4096, 4096));
         sunLight->doSmoothShadows(true);
         sunLight->castsShadows(false);
         sunLight->shadowMinBias(0.001f);
@@ -4091,7 +4088,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         matVideoBkgd->lightModel(LM_Custom);
 
         // Create see through video background material with shadow mapping
-        SLMaterial*  matVideoBkgdSM = new SLMaterial(s,"matVideoBkgdSM", videoTexture);
+        SLMaterial* matVideoBkgdSM = new SLMaterial(s, "matVideoBkgdSM", videoTexture);
         matVideoBkgdSM->lightModel(LM_Custom);
         matVideoBkgdSM->ambient(SLCol4f(0.6f, 0.6f, 0.6f));
         matVideoBkgdSM->getsShadows(true);
@@ -4122,7 +4119,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         sunLight->createsShadows(true);
         sunLight->createShadowMapAutoSize(cam1, SLVec2i(2048, 2048), 4);
         sunLight->shadowMap()->cascadesFactor(3.0);
-        //sunLight->createShadowMap(-100, 250, SLVec2f(210, 180), SLVec2i(4096, 4096));
+        // sunLight->createShadowMap(-100, 250, SLVec2f(210, 180), SLVec2i(4096, 4096));
         sunLight->doSmoothShadows(true);
         sunLight->castsShadows(false);
         sunLight->shadowMinBias(0.001f);
@@ -4234,7 +4231,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         matVideoBkgd->lightModel(LM_Custom);
 
         // Create see through video background material with shadow mapping
-        SLMaterial*  matVideoBkgdSM = new SLMaterial(s,"matVideoBkgdSM", videoTexture);
+        SLMaterial* matVideoBkgdSM = new SLMaterial(s, "matVideoBkgdSM", videoTexture);
         matVideoBkgdSM->lightModel(LM_Custom);
         matVideoBkgdSM->ambient(SLCol4f(0.6f, 0.6f, 0.6f));
         matVideoBkgdSM->getsShadows(true);
@@ -4265,7 +4262,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         sunLight->createsShadows(true);
         sunLight->createShadowMapAutoSize(cam1, SLVec2i(2048, 2048), 4);
         sunLight->shadowMap()->cascadesFactor(3.0);
-        //sunLight->createShadowMap(-100, 250, SLVec2f(210, 180), SLVec2i(4096, 4096));
+        // sunLight->createShadowMap(-100, 250, SLVec2f(210, 180), SLVec2i(4096, 4096));
         sunLight->doSmoothShadows(true);
         sunLight->castsShadows(false);
         sunLight->shadowMinBias(0.001f);
@@ -4377,7 +4374,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         matVideoBkgd->lightModel(LM_Custom);
 
         // Create see through video background material with shadow mapping
-        SLMaterial*  matVideoBkgdSM = new SLMaterial(s,"matVideoBkgdSM", videoTexture);
+        SLMaterial* matVideoBkgdSM = new SLMaterial(s, "matVideoBkgdSM", videoTexture);
         matVideoBkgdSM->lightModel(LM_Custom);
         matVideoBkgdSM->ambient(SLCol4f(0.6f, 0.6f, 0.6f));
         matVideoBkgdSM->getsShadows(true);
@@ -4409,7 +4406,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         sunLight->createShadowMapAutoSize(cam1, SLVec2i(2048, 2048), 4);
         sunLight->shadowMap()->cascadesFactor(3.0);
         // Old stanard single map shadow map
-        //sunLight->createShadowMap(-100, 250, SLVec2f(210, 180), SLVec2i(4096, 4096));
+        // sunLight->createShadowMap(-100, 250, SLVec2f(210, 180), SLVec2i(4096, 4096));
         sunLight->doSmoothShadows(true);
         sunLight->castsShadows(false);
         sunLight->shadowMinBias(0.001f);
@@ -4557,7 +4554,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         matVideoBkgd->lightModel(LM_Custom);
 
         // Create see through video background material with shadow mapping
-        SLMaterial*  matVideoBkgdSM = new SLMaterial(s,"matVideoBkgdSM", videoTexture);
+        SLMaterial* matVideoBkgdSM = new SLMaterial(s, "matVideoBkgdSM", videoTexture);
         matVideoBkgdSM->lightModel(LM_Custom);
         matVideoBkgdSM->ambient(SLCol4f(0.6f, 0.6f, 0.6f));
         matVideoBkgdSM->getsShadows(true);
@@ -4585,7 +4582,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         sunLight->createsShadows(true);
         sunLight->createShadowMapAutoSize(cam1, SLVec2i(2048, 2048), 4);
         sunLight->shadowMap()->cascadesFactor(3.0);
-        //sunLight->createShadowMap(-70, 70, SLVec2f(140, 100), SLVec2i(4096, 4096));
+        // sunLight->createShadowMap(-70, 70, SLVec2f(140, 100), SLVec2i(4096, 4096));
         sunLight->doSmoothShadows(true);
         sunLight->castsShadows(false);
         sunLight->shadowMinBias(0.001f);
@@ -4679,7 +4676,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         matVideoBkgd->lightModel(LM_Custom);
 
         // Create see through video background material with shadow mapping
-        SLMaterial*  matVideoBkgdSM = new SLMaterial(s,"matVideoBkgdSM", videoTexture);
+        SLMaterial* matVideoBkgdSM = new SLMaterial(s, "matVideoBkgdSM", videoTexture);
         matVideoBkgdSM->lightModel(LM_Custom);
         matVideoBkgdSM->ambient(SLCol4f(0.6f, 0.6f, 0.6f));
         matVideoBkgdSM->getsShadows(true);
@@ -4708,7 +4705,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         sunLight->createsShadows(true);
         sunLight->createShadowMapAutoSize(cam1, SLVec2i(2048, 2048), 4);
         sunLight->shadowMap()->cascadesFactor(3.0);
-        //sunLight->createShadowMap(-70, 120, SLVec2f(150, 150), SLVec2i(2048, 2048));
+        // sunLight->createShadowMap(-70, 120, SLVec2f(150, 150), SLVec2i(2048, 2048));
         sunLight->doSmoothShadows(true);
         sunLight->castsShadows(false);
         sunLight->shadowMinBias(0.001f);
@@ -4798,7 +4795,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         matVideoBkgd->lightModel(LM_Custom);
 
         // Create see through video background material with shadow mapping
-        SLMaterial*  matVideoBkgdSM = new SLMaterial(s,"matVideoBkgdSM", videoTexture);
+        SLMaterial* matVideoBkgdSM = new SLMaterial(s, "matVideoBkgdSM", videoTexture);
         matVideoBkgdSM->lightModel(LM_Custom);
         matVideoBkgdSM->ambient(SLCol4f(0.6f, 0.6f, 0.6f));
         matVideoBkgdSM->getsShadows(true);
@@ -4827,7 +4824,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         sunLight->createsShadows(true);
         sunLight->createShadowMapAutoSize(cam1, SLVec2i(2048, 2048), 4);
         sunLight->shadowMap()->cascadesFactor(3.0);
-        //sunLight->createShadowMap(-80, 100, SLVec2f(130, 130), SLVec2i(4096, 4096));
+        // sunLight->createShadowMap(-80, 100, SLVec2f(130, 130), SLVec2i(4096, 4096));
         sunLight->doSmoothShadows(true);
         sunLight->castsShadows(false);
         sunLight->shadowMinBias(0.001f);
@@ -4921,7 +4918,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         matVideoBkgd->lightModel(LM_Custom);
 
         // Create see through video background material with shadow mapping
-        SLMaterial*  matVideoBkgdSM = new SLMaterial(s,"matVideoBkgdSM", videoTexture);
+        SLMaterial* matVideoBkgdSM = new SLMaterial(s, "matVideoBkgdSM", videoTexture);
         matVideoBkgdSM->lightModel(LM_Custom);
         matVideoBkgdSM->ambient(SLCol4f(0.6f, 0.6f, 0.6f));
         matVideoBkgdSM->getsShadows(true);
