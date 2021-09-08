@@ -12,6 +12,7 @@
 #include <SLLight.h>
 #include <SLLightRect.h>
 #include <SLSceneView.h>
+#include <SLSkybox.h>
 #include <GlobalTimer.h>
 #include <SLInputManager.h>
 #include <Instrumentor.h>
@@ -106,7 +107,6 @@ void SLSceneView::init(SLstring       name,
 
     _renderType = RT_gl;
 
-    _skybox                   = nullptr;
     _screenCaptureIsRequested = false;
 
     if (_gui)
@@ -118,7 +118,6 @@ void SLSceneView::init(SLstring       name,
 void SLSceneView::unInit()
 {
     _camera     = &_sceneViewCamera;
-    _skybox     = nullptr; // enables and modes
     _mouseDownL = false;
     _mouseDownR = false;
     _mouseDownM = false;
@@ -696,7 +695,7 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     //////////////////////////
 
     // Render solid color, gradient or textured background from active camera
-    if (!_skybox)
+    if (!_s->skybox())
         _camera->background().render(_viewportRect.width, _viewportRect.height);
 
     // Change state (only when changed)
@@ -746,8 +745,8 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     // 8. Draw skybox //
     ////////////////////
 
-    if (_skybox)
-        _skybox->drawAroundCamera(this);
+    if (_s->skybox())
+        _s->skybox()->drawAroundCamera(this);
 
     ////////////////////////////
     // 9. Draw all visible nodes
@@ -766,14 +765,14 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
         _camera->setViewport(this, ET_right);
 
         // Only draw backgrounds for stereo projections in different viewports
-        if (!_skybox && _camera->projection() < P_stereoLineByLine)
+        if (!_s->skybox() && _camera->projection() < P_stereoLineByLine)
             _camera->background().render(_viewportRect.width, _viewportRect.height);
 
         _camera->setProjection(this, ET_right);
         _camera->setView(this, ET_right);
         stateGL->depthTest(true);
-        if (_skybox)
-            _skybox->drawAroundCamera(this);
+        if (_s->skybox())
+            _s->skybox()->drawAroundCamera(this);
         draw3DGLAll();
     }
 

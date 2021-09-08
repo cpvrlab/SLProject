@@ -8,6 +8,7 @@
 
 #include <SLRay.h>
 #include <SLSceneView.h>
+#include <SLSkybox.h>
 
 // init static variables
 SLint   SLRay::maxDepth         = 0;
@@ -174,8 +175,8 @@ void SLRay::reflect(SLRay* reflected) const
     reflected->x           = x;
     reflected->y           = y;
     reflected->sv          = sv;
-    if (sv->skybox())
-        reflected->backgroundColor = sv->skybox()->colorAtDir(reflected->dir);
+    if (sv->s()->skybox())
+        reflected->backgroundColor = sv->s()->skybox()->colorAtDir(reflected->dir);
     else
         reflected->backgroundColor = backgroundColor;
 
@@ -296,8 +297,8 @@ void SLRay::refract(SLRay* refracted)
     refracted->x           = x;
     refracted->y           = y;
     refracted->sv          = sv;
-    if (sv->skybox())
-        refracted->backgroundColor = sv->skybox()->colorAtDir(refracted->dir);
+    if (sv->s()->skybox())
+        refracted->backgroundColor = sv->s()->skybox()->colorAtDir(refracted->dir);
     else
         refracted->backgroundColor = backgroundColor;
     depthReached = refracted->depth;
@@ -360,8 +361,8 @@ bool SLRay::reflectMC(SLRay* reflected, const SLMat3f& rotMat) const
     reflected->x  = x;
     reflected->y  = y;
     reflected->sv = sv;
-    if (sv->skybox())
-        reflected->backgroundColor = sv->skybox()->colorAtDir(reflected->dir);
+    if (sv->s()->skybox())
+        reflected->backgroundColor = sv->s()->skybox()->colorAtDir(reflected->dir);
     else
         reflected->backgroundColor = backgroundColor;
 
@@ -412,8 +413,8 @@ void SLRay::refractMC(SLRay* refracted, const SLMat3f& rotMat) const
     refracted->x  = x;
     refracted->y  = y;
     refracted->sv = sv;
-    if (sv->skybox())
-        refracted->backgroundColor = sv->skybox()->colorAtDir(refracted->dir);
+    if (sv->s()->skybox())
+        refracted->backgroundColor = sv->s()->skybox()->colorAtDir(refracted->dir);
     else
         refracted->backgroundColor = backgroundColor;
 }
@@ -462,8 +463,8 @@ void SLRay::diffuseMC(SLRay* scattered) const
     scattered->x  = x;
     scattered->y  = y;
     scattered->sv = sv;
-    if (sv->skybox())
-        scattered->backgroundColor = sv->skybox()->colorAtDir(scattered->dir);
+    if (sv->s()->skybox())
+        scattered->backgroundColor = sv->s()->skybox()->colorAtDir(scattered->dir);
     else
         scattered->backgroundColor = backgroundColor;
 }

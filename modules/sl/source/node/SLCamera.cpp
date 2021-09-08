@@ -313,7 +313,7 @@ void SLCamera::drawMesh(SLSceneView* sv)
         SLCol4f color = sv->s()->singleNodeSelected() == this ? SLCol4f::YELLOW : SLCol4f::WHITE * 0.7f;
         _vao.drawArrayAsColored(PT_lines, color);
 
-        if (!sv->skybox())
+        if (!sv->s()->skybox())
             _background.renderInScene(farLT, farLB, farRT, farRB);
     }
 }

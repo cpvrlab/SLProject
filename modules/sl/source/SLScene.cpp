@@ -10,9 +10,10 @@
 #include <SLScene.h>
 #include <Utils.h>
 #include <SLKeyframeCamera.h>
+#include <SLGLProgramManager.h>
+#include <SLSkybox.h>
 #include <GlobalTimer.h>
 #include <Instrumentor.h>
-#include <SLGLProgramManager.h>
 
 //-----------------------------------------------------------------------------
 SLMaterialDefaultGray*           SLMaterialDefaultGray::_instance           = nullptr;
@@ -42,6 +43,7 @@ SLScene::SLScene(const SLstring& name,
 
     _root3D           = nullptr;
     _root2D           = nullptr;
+    _skybox     = nullptr;
     _info             = "";
     _stopAnimations   = false;
     _fps              = 0;
@@ -64,7 +66,7 @@ SLScene::~SLScene()
 }
 //-----------------------------------------------------------------------------
 /*! The scene init is called before a new scene is assembled.
-*/
+ */
 void SLScene::init()
 {
     unInit();
@@ -95,6 +97,7 @@ void SLScene::unInit()
     _root3D = nullptr;
     delete _root2D;
     _root2D = nullptr;
+    _skybox = nullptr;
 
     // clear light pointers
     _lights.clear();
@@ -160,7 +163,7 @@ bool SLScene::onUpdate(bool renderTypeIsRT,
     // Do software skinning on all changed skeletons. Update any out of date acceleration structure for RT or if they're being rendered.
     if (_root3D)
     {
-        //we use a lambda to inform nodes that share a mesh that the mesh got updated (so we dont have to transfer the root node)
+        // we use a lambda to inform nodes that share a mesh that the mesh got updated (so we dont have to transfer the root node)
         sceneHasChanged |= _root3D->updateMeshSkins([&](SLMesh* mesh) {
             SLVNode nodes = _root3D->findChildren(mesh, true);
             for (auto* node : nodes)
@@ -191,7 +194,7 @@ bool SLScene::onUpdate(bool renderTypeIsRT,
     SLfloat updateTimeMS = GlobalTimer::timeMS() - startUpdateMS;
     _updateTimesMS.set(updateTimeMS);
 
-    //SL_LOG("SLScene::onUpdate");
+    // SL_LOG("SLScene::onUpdate");
     return sceneHasChanged;
 }
 //-----------------------------------------------------------------------------

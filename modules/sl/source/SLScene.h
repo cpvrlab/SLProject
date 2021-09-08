@@ -21,13 +21,14 @@
 #include <SLMesh.h>
 
 class SLCamera;
+class SLSkybox;
 
 //-----------------------------------------------------------------------------
 //! C-Callback function typedef for scene load function
 typedef void(SL_STDCALL* cbOnSceneLoad)(SLScene* s, SLSceneView* sv, SLint sceneID);
 //-----------------------------------------------------------------------------
 //! The SLScene class represents the top level instance holding the scene structure
-/*!      
+/*!
  The SLScene class holds everything that is common for all scene views such as
  the root pointer (_root3D) to the scene, an array of lights as well as the
  global resources (_meshes (SLMesh), _materials (SLMaterial), _textures
@@ -54,6 +55,7 @@ public:
     // Setters
     void root3D(SLNode* root3D) { _root3D = root3D; }
     void root2D(SLNode* root2D) { _root2D = root2D; }
+    void skybox(SLSkybox* skybox) { _skybox = skybox; }
     void stopAnimations(SLbool stop) { _stopAnimations = stop; }
     void info(SLstring i) { _info = std::move(i); }
     void loadTimeMS(SLfloat loadTimeMS) { _loadTimeMS = loadTimeMS; }
@@ -64,6 +66,7 @@ public:
     SLAssetManager*  assetManager() { return _assetManager; }
     SLNode*          root3D() { return _root3D; }
     SLNode*          root2D() { return _root2D; }
+    SLSkybox*        skybox() { return _skybox; }
     SLstring&        info() { return _info; }
     SLfloat          elapsedTimeMS() const { return _frameTimeMS; }
     SLfloat          elapsedTimeSec() const { return _frameTimeMS * 0.001f; }
@@ -83,8 +86,8 @@ public:
     SLMesh*  singleMeshFullSelected() { return (_selectedNodes.size() == 1 &&
                                                _selectedMeshes.size() == 1 &&
                                                _selectedMeshes[0]->IS32.empty())
-                                                ? _selectedMeshes[0]
-                                                : nullptr; }
+                                                 ? _selectedMeshes[0]
+                                                 : nullptr; }
     SLVNode& selectedNodes() { return _selectedNodes; }
     SLVMesh& selectedMeshes() { return _selectedMeshes; }
 
@@ -110,11 +113,12 @@ protected:
     SLAnimManager   _animManager;   //!< Animation manager instance
     SLAssetManager* _assetManager;  //!< Pointer to the external assetManager
 
-    SLNode*  _root3D;         //!< Root node for 3D scene
-    SLNode*  _root2D;         //!< Root node for 2D scene displayed in ortho projection
-    SLstring _info;           //!< scene info string
-    SLVNode  _selectedNodes;  //!< Vector of selected nodes. See SLMesh::selectNodeMesh.
-    SLVMesh  _selectedMeshes; //!< Vector of selected meshes. See SLMesh::selectNodeMesh.
+    SLNode*   _root3D;         //!< Root node for 3D scene
+    SLNode*   _root2D;         //!< Root node for 2D scene displayed in ortho projection
+    SLSkybox* _skybox;         //!< pointer to skybox
+    SLstring  _info;           //!< scene info string
+    SLVNode   _selectedNodes;  //!< Vector of selected nodes. See SLMesh::selectNodeMesh.
+    SLVMesh   _selectedMeshes; //!< Vector of selected meshes. See SLMesh::selectNodeMesh.
 
     SLfloat _loadTimeMS;       //!< time to load scene in ms
     SLfloat _frameTimeMS;      //!< Last frame time in ms

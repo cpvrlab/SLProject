@@ -1708,7 +1708,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(light4);
 
         sv->camera(cam1);
-        sv->skybox(hdrCubeMap);
+        s->skybox(hdrCubeMap);
         s->root3D(scene);
 
         // Save energy
@@ -1854,7 +1854,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(boxNode);
 
         sv->camera(cam1);
-        sv->skybox(hdrCubeMap);
+        s->skybox(hdrCubeMap);
         s->root3D(scene);
 
         // Save energy
@@ -2091,7 +2091,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(suzanne);
 
         sv->camera(cam1);
-        sv->skybox(skybox);
+        s->skybox(skybox);
 
         // pass the scene group as root node
         s->root3D(scene);

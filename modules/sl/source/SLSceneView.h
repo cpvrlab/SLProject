@@ -20,7 +20,6 @@
 #include <SLRaytracer.h>
 #include <SLGLConetracer.h>
 #include <SLScene.h>
-#include <SLSkybox.h>
 #include <SLOptixRaytracer.h>
 #include <SLOptixPathtracer.h>
 #include <math/SLRect.h>
@@ -143,7 +142,6 @@ public:
     // Setters
     void camera(SLCamera* camera) { _camera = camera; }
     void scene(SLScene* scene) { _s = scene; }
-    void skybox(SLSkybox* skybox) { _skybox = skybox; }
     void scrW(SLint scrW) { _scrW = scrW; }
     void scrH(SLint scrH) { _scrH = scrH; }
     void doWaitOnIdle(SLbool doWI) { _doWaitOnIdle = doWI; }
@@ -167,7 +165,6 @@ public:
     SLScene*        s() { return _s; }
     SLCamera*       camera() { return _camera; }
     SLCamera*       sceneViewCamera() { return &_sceneViewCamera; }
-    SLSkybox*       skybox() { return _skybox; }
     SLint           scrW() const { return _scrW; }
     SLint           scrH() const { return _scrH; }
     SLint           scrWdiv2() const { return _scrWdiv2; }
@@ -227,7 +224,6 @@ protected:
     SLCamera*      _camera;          //!< Pointer to the _active camera
     SLCamera       _sceneViewCamera; //!< Default camera for this SceneView (default cam not in scenegraph)
     SLUiInterface* _gui = nullptr;   //!< ImGui instance
-    SLSkybox*      _skybox;          //!< pointer to skybox
     SLNodeStats    _stats2D;         //!< Statistic numbers for 2D nodes
     SLNodeStats    _stats3D;         //!< Statistic numbers for 3D nodes
     SLbool         _gotPainted;      //!< flag if this sceneview got painted

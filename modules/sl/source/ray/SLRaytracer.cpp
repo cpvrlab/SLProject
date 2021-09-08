@@ -13,6 +13,7 @@ using namespace std::placeholders;
 #include <SLRay.h>
 #include <SLRaytracer.h>
 #include <SLSceneView.h>
+#include <SLSkybox.h>
 #include <GlobalTimer.h>
 #include <Instrumentor.h>
 
@@ -311,8 +312,8 @@ void SLRaytracer::renderSlicesMS(const bool isMainThread)
                         lensToFP.normalize();
 
                         SLCol4f backColor;
-                        if (_sv->skybox())
-                            backColor = _sv->skybox()->colorAtDir(lensToFP);
+                        if (_sv->s()->skybox())
+                            backColor = _sv->s()->skybox()->colorAtDir(lensToFP);
                         else
                             backColor = _sv->camera()->background().colorAtPos((SLfloat)x,
                                                                                (SLfloat)y,
@@ -453,8 +454,8 @@ void SLRaytracer::setPrimaryRay(SLfloat x, SLfloat y, SLRay* primaryRay)
         primaryRay->origin = _EYE;
     }
 
-    if (_sv->skybox())
-        primaryRay->backgroundColor = _sv->skybox()->colorAtDir(primaryRay->dir);
+    if (_sv->s()->skybox())
+        primaryRay->backgroundColor = _sv->s()->skybox()->colorAtDir(primaryRay->dir);
     else
         primaryRay->backgroundColor = _sv->camera()->background().colorAtPos(x,
                                                                              y,
