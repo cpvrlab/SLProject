@@ -59,6 +59,8 @@ public:
 
     void startup();
     void update();
+    void resetRenderModels();
+    void shutdown();
 
     // Getters
     vr::IVRSystem* system() { return _system; }
@@ -78,8 +80,6 @@ public:
 
     SLMat4f getProjectionMatrix(SLEyeType eye, float nearPlane, float farPlane);
     SLMat4f getEyeMatrix(SLEyeType eye);
-
-    void shutdown();
 
 private:
     bool checkStartupConditions();

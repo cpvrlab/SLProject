@@ -180,7 +180,6 @@ void SLVRSystem::update()
         SLMat4f matrix = SLVRConvert::openVRMatrixToSLMatrix(pose.mDeviceToAbsoluteTracking);
         trackedDevice->localPose(matrix);
 
-        // FIXME: This causes a segmentation fault when the scene is unloaded because the node then gets deleted
         // Update the render model pose if it's loaded
         if (trackedDevice->renderModel())
             trackedDevice->renderModel()->node()->om(trackedDevice->pose());
@@ -195,6 +194,19 @@ void SLVRSystem::update()
 
     if (rightController())
         rightController()->updateState();
+}
+
+/*! Deletes all render models without the nodes
+ * This method is called when uninitializing a scene so we don't have
+ * a dangling pointer to the node in the render model
+ */
+void SLVRSystem::resetRenderModels()
+{
+    for (SLVRTrackedDevice* trackedDevice : _trackedDevices)
+    {
+        if (trackedDevice->renderModel())
+            trackedDevice->deleteRenderModelWithoutNode();
+    }
 }
 
 /*! Gets the projection matrix for an eye

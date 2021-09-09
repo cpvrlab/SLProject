@@ -57,6 +57,7 @@ public:
     SLstring getManufacturer();
 
     SLVRRenderModel* loadRenderModel(SLAssetManager* assetManager);
+    void deleteRenderModelWithoutNode();
 };
 
 #endif // SLPROJECT_SLVRTRACKEDDEVICE_H

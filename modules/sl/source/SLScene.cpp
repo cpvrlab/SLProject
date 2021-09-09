@@ -15,6 +15,10 @@
 #include <Instrumentor.h>
 #include <SLGLProgramManager.h>
 
+#ifdef SL_HAS_OPENVR
+#    include <vr/SLVRSystem.h>
+#endif
+
 //-----------------------------------------------------------------------------
 SLMaterialDefaultGray*           SLMaterialDefaultGray::_instance           = nullptr;
 SLMaterialDefaultColorAttribute* SLMaterialDefaultColorAttribute::_instance = nullptr;
@@ -91,6 +95,10 @@ destructed at process end.
 */
 void SLScene::unInit()
 {
+#ifdef SL_HAS_OPENVR
+    SLVRSystem::instance().resetRenderModels();
+#endif
+
     // delete entire scene graph
     delete _root3D;
     _root3D = nullptr;

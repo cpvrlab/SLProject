@@ -97,3 +97,12 @@ SLVRRenderModel* SLVRTrackedDevice::loadRenderModel(SLAssetManager* assetManager
     _renderModel->load(renderModelName, assetManager);
     return _renderModel;
 }
+
+/*! Deletes the render model and sets the pointer to nullptr
+ * The node won't get deleted because it is owned by the scene
+ */
+void SLVRTrackedDevice::deleteRenderModelWithoutNode()
+{
+    delete _renderModel;
+    _renderModel = nullptr;
+}
