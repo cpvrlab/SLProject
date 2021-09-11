@@ -43,18 +43,19 @@ SLSkybox::SLSkybox(SLAssetManager* assetMgr,
     _environmentCubemap = nullptr;
     _irradianceCubemap  = nullptr;
     _roughnessCubemap   = nullptr;
-    _brdfLUTTexture     = nullptr;
+    _brdfLutTexture     = nullptr;
     _hdrTexture         = nullptr;
+    _skyExposure        = 1.0f;
 
     // Create texture, material and program
-    _environmentCubemap = new SLGLTexture(assetMgr,
-                                           cubeMapXPos,
-                                           cubeMapXNeg,
-                                           cubeMapYPos,
-                                           cubeMapYNeg,
-                                           cubeMapZPos,
-                                           cubeMapZNeg);
-    SLMaterial*  matCubeMap = new SLMaterial(assetMgr, "matCubeMap");
+    _environmentCubemap    = new SLGLTexture(assetMgr,
+                                             cubeMapXPos,
+                                             cubeMapXNeg,
+                                             cubeMapYPos,
+                                             cubeMapYNeg,
+                                             cubeMapZPos,
+                                             cubeMapZNeg);
+    SLMaterial* matCubeMap = new SLMaterial(assetMgr, "matCubeMap");
     matCubeMap->addTexture(_environmentCubemap);
     SLGLProgram* sp = new SLGLProgramGeneric(assetMgr,
                                              shaderPath + "SkyBox.vert",
@@ -83,22 +84,17 @@ SLSkybox::SLSkybox(SLProjectScene* projectScene,
                    SLstring        shaderPath,
                    SLstring        hdrImage,
                    SLVec2i         resolution,
-                   SLstring        name,
-                   SLGLUniform1f*  exposureUniform) : SLNode(name)
+                   SLstring        name) : SLNode(name)
 {
     // Set HDR flag to true, this is a HDR SkyBox
-    _isHDR   = true;
-    _isBuilt = false;
+    _isHDR       = true;
+    _isBuilt     = false;
+    _skyExposure = 1.0f;
 
     // Create shader program for the background
     SLGLProgram* backgroundShader = new SLGLProgramGeneric(projectScene,
                                                            shaderPath + "PBR_SkyboxHDR.vert",
                                                            shaderPath + "PBR_SkyboxHDR.frag");
-
-    // if an exposure uniform is passed the initialize this exposure with it otherwise it is constant at 1.0
-    SLGLUniform1f* exposure = exposureUniform ? exposureUniform : new SLGLUniform1f(UT_const, "u_exposure", 1.0f);
-    projectScene->eventHandlers().push_back(exposure);
-    backgroundShader->addUniform1f(exposure);
 
     // Create texture from the HDR Image
     _hdrTexture = new SLGLTexture(projectScene,
@@ -131,7 +127,7 @@ SLSkybox::SLSkybox(SLProjectScene* projectScene,
                                            TT_roughnessCubemap,
                                            GL_TEXTURE_CUBE_MAP);
 
-    _brdfLUTTexture = new SLGLTextureIBL(projectScene,
+    _brdfLutTexture = new SLGLTextureIBL(projectScene,
                                          shaderPath,
                                          nullptr,
                                          SLVec2i(512, 512),
@@ -163,7 +159,7 @@ void SLSkybox::build()
     _environmentCubemap->build(0);
     _irradianceCubemap->build(2);
     _roughnessCubemap->build(3);
-    _brdfLUTTexture->build(4);
+    _brdfLutTexture->build(4);
     _isBuilt = true;
 }
 //-----------------------------------------------------------------------------
@@ -216,90 +212,32 @@ SLCol4f SLSkybox::colorAtDir(const SLVec3f& dir)
         return SLCol4f::BLACK; // Generated skybox texture do not exist in _image
 }
 //-----------------------------------------------------------------------------
-//! Passes all skybox parameters as uniforms to the passed shader program
-void SLSkybox::passToUniforms(SLGLProgram* program)
+/*! Passes all skybox parameters as uniforms to the passed shader program
+ * @param program SLGLProgram pointer
+ * @param nextTexUnit The next texture unit to use in the shader
+ * @return Returns the next texture unit to use in the shader
+ */
+SLint SLSkybox::passToUniforms(SLGLProgram* program, SLint nextTexUnit)
 {
     assert(program && "SLMaterial::passToUniforms: No shader program set!");
 
-    /*
-    // pass textures unit id to the sampler uniform
-    SLuint texUnit = 0;
-    for (SLuint i = 0; i < TT_numTextureType; i++)
-    {
-        int texNb = 0;
-        for (SLGLTexture* texture : _textures[i])
-        {
-            SLchar name[100];
-            texture->bindActive(texUnit);
-            switch (i)
-            {
-                case TT_diffuse: {
-                    sprintf(name, "u_matTextureDiffuse%d", texNb);
-                    break;
-                }
-                case TT_specular: {
-                    sprintf(name, "u_matTextureSpecular%d", texNb);
-                    break;
-                }
-                case TT_normal: {
-                    sprintf(name, "u_matTextureNormal%d", texNb);
-                    break;
-                }
-                case TT_height: {
-                    sprintf(name, "u_matTextureHeight%d", texNb);
-                    break;
-                }
-                case TT_ambientOcclusion: {
-                    sprintf(name, "u_matTextureAo%d", texNb);
-                    break;
-                }
-                case TT_roughness: {
-                    sprintf(name, "u_matTextureRoughness%d", texNb);
-                    break;
-                }
-                case TT_metallic: {
-                    sprintf(name, "u_matTextureMetallic%d", texNb);
-                    break;
-                }
-                case TT_hdr: {
-                    sprintf(name, "u_matTextureHDR%d", texNb);
-                    break;
-                }
-                case TT_environmentCubemap: {
-                    sprintf(name, "u_matTextureEnvCubemap%d", texNb);
-                    break;
-                }
-                case TT_irradianceCubemap: {
-                    sprintf(name, "u_matTextureIrradianceCubemap%d", texNb);
-                    break;
-                }
-                case TT_roughnessCubemap: {
-                    sprintf(name, "u_matTextureRoughnessCubemap%d", texNb);
-                    break;
-                }
-                case TT_brdfLUT: {
-                    sprintf(name, "u_matTextureBRDF%d", texNb);
-                    break;
-                }
-                case TT_font: {
-                    sprintf(name, "u_matTextureFont%d", texNb);
-                    break;
-                }
-                default: {
-                    sprintf(name, "u_matTextureDiffuse%d", texNb);
-                    break;
-                }
-            }
+    if (program->uniform1i("u_skyHDRTexture", nextTexUnit) < 0)
+        _hdrTexture->bindActive(nextTexUnit++);
 
-            if (program->uniform1i(name, texUnit) < 0)
-                Utils::log("Material", "texture name %s not found", name);
+    if (program->uniform1i("u_skyEnvironmentCubemap", nextTexUnit) < 0)
+        _environmentCubemap->bindActive(nextTexUnit++);
 
-            texNb++;
-            texUnit++;
-        }
-    }
+    if (program->uniform1i("u_skyIrradianceCubemap", nextTexUnit) < 0)
+        _irradianceCubemap->bindActive(nextTexUnit++);
 
-    program->uniform1i("u_matHasTexture", texUnit ? 1 : 0);
-     */
+    if (program->uniform1i("u_skyRoughnessCubemap", nextTexUnit) < 0)
+        _roughnessCubemap->bindActive(nextTexUnit++);
+
+    if (program->uniform1i("u_skyBrdfLutTexture", nextTexUnit) < 0)
+        _brdfLutTexture->bindActive(nextTexUnit++);
+
+    program->uniform1f("u_skyExposure", _skyExposure);
+
+    return nextTexUnit;
 }
 //-----------------------------------------------------------------------------

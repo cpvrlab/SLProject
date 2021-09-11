@@ -1574,31 +1574,12 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                 "It uses the Cook-Torrance light model also to calculate the ambient light part "
                 "from the surrounding HDR skybox.");
 
-        // Create uniform to control exposure
-        // this is done this way so that the exposure of the whole scene remains consistent
-        // just modify this uniform to affect the others.
-        SLGLUniform1f exposure = SLGLUniform1f(UT_const,
-                                               "u_exposure",
-                                               1.0f,
-                                               0.25f,
-                                               0.01f,
-                                               5.0f,
-                                               SLKey::K_F4);
-
-        // Clone uniform for various shaders
-        // do not modify these uniforms otherwise the exposure of the scene will not be changed correctly
-        SLGLUniform1f* exposure_pbr    = new SLGLUniform1f(exposure);
-        SLGLUniform1f* exposure_pbrtex = new SLGLUniform1f(exposure);
-        s->eventHandlers().push_back(exposure_pbr);
-        s->eventHandlers().push_back(exposure_pbrtex);
-
         // Create HDR CubeMap and get precalculated textures from it
         SLSkybox* hdrCubeMap = new SLSkybox(s,
                                             shaderPath,
                                             texPath + "env_barce_rooftop.hdr",
                                             SLVec2i(2048, 2048),
-                                            "HDR Skybox",
-                                            new SLGLUniform1f(exposure));
+                                            "HDR Skybox");
 
         // Get preloaded shader programs
         SLGLProgram* pbr    = new SLGLProgramGeneric(s,
@@ -1607,10 +1588,6 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLGLProgram* pbrTex = new SLGLProgramGeneric(s,
                                                      shaderPath + "PBR_LightingTm.vert",
                                                      shaderPath + "PBR_LightingTm.frag");
-
-        // Set the uniforms for controlling the exposure
-        pbr->addUniform1f(exposure_pbr);
-        pbrTex->addUniform1f(exposure_pbrtex);
 
         // Create a scene group node
         SLNode* scene = new SLNode("scene node");
@@ -1625,8 +1602,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(cam1);
 
         // Create spheres and materials with roughness & metallic values between 0 and 1
-        const SLint nrRows  = 10;
-        const SLint nrCols  = 10;
+        const SLint nrRows  = 7;
+        const SLint nrCols  = 7;
         SLfloat     spacing = 2.5f;
         SLfloat     maxX    = (nrCols / 2) * spacing;
         SLfloat     maxY    = (nrRows / 2) * spacing;
@@ -1718,17 +1695,6 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                 "It uses the Cook-Torrance light model also to calculate the ambient light part "
                 "from the surrounding HDR skybox.");
 
-        // Create uniform to control exposure
-        // this is done this way so that the exposure of the whole scene remains consistent
-        // just modify this uniform to affect the others.
-        SLGLUniform1f exposure = SLGLUniform1f(UT_const,
-                                               "u_exposure",
-                                               1.0f,
-                                               0.25f,
-                                               0.01f,
-                                               5.0f,
-                                               SLKey::K_F4);
-
         // Clone uniform for various shaders
         // do not modify these uniforms otherwise the exposure of the scene will not be changed correctly
         // Create HDR CubeMap and get precalculated textures from it
@@ -1736,8 +1702,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                                             shaderPath,
                                             texPath + "env_barce_rooftop.hdr",
                                             SLVec2i(2048, 2048),
-                                            "HDR Skybox",
-                                            new SLGLUniform1f(exposure));
+                                            "HDR Skybox");
 
         // Create a scene group node
         SLNode* scene = new SLNode("scene node");
@@ -1752,8 +1717,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(cam1);
 
         // Create spheres and materials with roughness & metallic values between 0 and 1
-        const SLint nrRows  = 10;
-        const SLint nrCols  = 10;
+        const SLint nrRows  = 7;
+        const SLint nrCols  = 7;
         SLfloat     spacing = 2.5f;
         SLfloat     maxX    = (nrCols / 2) * spacing;
         SLfloat     maxY    = (nrRows / 2) * spacing;

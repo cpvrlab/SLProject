@@ -43,8 +43,7 @@ public:
              SLstring        shaderPath,
              SLstring        hdrImage,
              SLVec2i         resolution,
-             SLstring        name            = "HDR Skybox",
-             SLGLUniform1f*  exposureUniform = nullptr);
+             SLstring        name = "HDR Skybox");
 
     ~SLSkybox() { ; }
 
@@ -52,20 +51,22 @@ public:
     SLGLTexture* environmentCubemap() { return _environmentCubemap; }
     SLGLTexture* irradianceCubemap() { return _irradianceCubemap; }
     SLGLTexture* roughnessCubemap() { return _roughnessCubemap; }
-    SLGLTexture* brdfLUTTexture() { return _brdfLUTTexture; }
+    SLGLTexture* brdfLUTTexture() { return _brdfLutTexture; }
+    SLGLTexture* hdrTexture() { return _hdrTexture; }
     SLbool       isHDR() { return _isHDR; }
 
     void    drawAroundCamera(SLSceneView* sv);
     SLCol4f colorAtDir(const SLVec3f& dir);
-    void    passToUniforms(SLGLProgram* program);
+    SLint   passToUniforms(SLGLProgram* program, SLint nextTexUnit);
 
 private:
     void         build();
     SLGLTexture* _environmentCubemap;
     SLGLTexture* _irradianceCubemap;
     SLGLTexture* _roughnessCubemap;
-    SLGLTexture* _brdfLUTTexture;
+    SLGLTexture* _brdfLutTexture;
     SLGLTexture* _hdrTexture;
+    SLfloat      _skyExposure;
     SLbool       _isHDR;   //!< flag for HDR skyboxes
     SLbool       _isBuilt; //!< flag for late HDR skybox building
 };

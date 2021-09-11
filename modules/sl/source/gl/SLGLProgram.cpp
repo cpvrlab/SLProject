@@ -289,14 +289,14 @@ void SLGLProgram::beginUse(SLCamera*   cam,
         if (lights)
             passLightsToUniforms(lights, (SLuint)mat->numTextures());
 
+        //if (skybox && skybox->isHDR())
+        //skybox->passToUniforms(this);
+
         if (mat)
             mat->passToUniforms(this);
 
         if (cam)
             cam->passToUniforms(this);
-
-        if (skybox && skybox->isHDR())
-            skybox->passToUniforms(this);
 
         for (auto* uf : _uniforms1f)
             uniform1f(uf->name(), uf->value());

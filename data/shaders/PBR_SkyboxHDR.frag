@@ -10,7 +10,6 @@
 precision highp float;
 
 //-----------------------------------------------------------------------------
-uniform   float         u_exposure;     // exposure for tone mapping
 uniform   samplerCube   u_matTextureEnvCubemap0;  // cube map texture
 
 in        vec3          v_uv1;          // Interpol. 3D texture coordinate
@@ -23,7 +22,8 @@ void main()
     vec3 hdrColor = texture(u_matTextureEnvCubemap0, v_uv1).rgb;
   
     // Exposure tone mapping
-    vec3 mapped = vec3(1.0) - exp(-hdrColor * u_exposure);
+    float skyExposure = 1.0;
+    vec3 mapped = vec3(1.0) - exp(-hdrColor * skyExposure);
     
     // Gamma correction
     mapped = pow(mapped, vec3(1.0 / gamma));

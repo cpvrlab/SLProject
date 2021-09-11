@@ -31,7 +31,6 @@ uniform float   u_lightSpotDeg[NUM_LIGHTS]; // spot cutoff angle 1-180 degrees
 uniform float   u_lightSpotCos[NUM_LIGHTS]; // cosine of spot cutoff angle
 uniform float   u_lightSpotExp[NUM_LIGHTS]; // spot exponent
 uniform float   u_oneOverGamma;             // 1.0f / Gamma correction value
-uniform float   u_exposure;                 // environment map exposure value
 
 uniform sampler2D   u_matTextureDiffuse0;            // Diffuse Color map (albedo)
 uniform sampler2D   u_matTextureNormal0;             // Normal map
@@ -139,7 +138,8 @@ void main()
     vec3 color = ambient + Lo;
     
     // Exposure tone mapping
-    vec3 mapped = vec3(1.0) - exp(-color * u_exposure);
+    float skyExposure = 1.0;
+    vec3 mapped = vec3(1.0) - exp(-color * skyExposure);
     o_fragColor = vec4(mapped, 1.0);
 
     // Apply fog by blending over distance
