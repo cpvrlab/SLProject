@@ -10,7 +10,6 @@
 
 #include <SLBox.h>
 #include <SLGLProgramGeneric.h>
-#include <SLGLFrameBuffer.h>
 #include <SLGLTexture.h>
 #include <SLGLTextureIBL.h>
 #include <SLMaterial.h>
@@ -45,7 +44,7 @@ SLSkybox::SLSkybox(SLAssetManager* assetMgr,
     _roughnessCubemap   = nullptr;
     _brdfLutTexture     = nullptr;
     _hdrTexture         = nullptr;
-    _skyExposure        = 1.0f;
+    _exposure           = 1.0f;
 
     // Create texture, material and program
     _environmentCubemap    = new SLGLTexture(assetMgr,
@@ -87,16 +86,16 @@ SLSkybox::SLSkybox(SLProjectScene* projectScene,
                    SLstring        name) : SLNode(name)
 {
     // Set HDR flag to true, this is a HDR SkyBox
-    _isHDR       = true;
-    _isBuilt     = false;
-    _skyExposure = 1.0f;
+    _isHDR    = true;
+    _isBuilt  = false;
+    _exposure = 1.0f;
 
     // Create shader program for the background
     SLGLProgram* backgroundShader = new SLGLProgramGeneric(projectScene,
                                                            shaderPath + "PBR_SkyboxHDR.vert",
                                                            shaderPath + "PBR_SkyboxHDR.frag");
 
-    // Create texture from the HDR Image
+    // The HDR texture is only used to create the environment, the irradiance and the roughness cubemaps
     _hdrTexture = new SLGLTexture(projectScene,
                                   hdrImage,
                                   GL_LINEAR,
@@ -105,6 +104,7 @@ SLSkybox::SLSkybox(SLProjectScene* projectScene,
                                   GL_CLAMP_TO_EDGE,
                                   GL_CLAMP_TO_EDGE);
 
+    // The environment cubemap is used for the rendering of the skybox
     _environmentCubemap = new SLGLTextureIBL(projectScene,
                                              shaderPath,
                                              _hdrTexture,
@@ -113,6 +113,7 @@ SLSkybox::SLSkybox(SLProjectScene* projectScene,
                                              GL_TEXTURE_CUBE_MAP,
                                              GL_LINEAR_MIPMAP_LINEAR);
 
+    // The irradiance cubemap is used for the ambient indirect light of PBR materials
     _irradianceCubemap = new SLGLTextureIBL(projectScene,
                                             shaderPath,
                                             _environmentCubemap,
@@ -120,6 +121,7 @@ SLSkybox::SLSkybox(SLProjectScene* projectScene,
                                             TT_irradianceCubemap,
                                             GL_TEXTURE_CUBE_MAP);
 
+    // The roughness cubemap is used for the blurred reflections on PBR materials
     _roughnessCubemap = new SLGLTextureIBL(projectScene,
                                            shaderPath,
                                            _environmentCubemap,
@@ -127,6 +129,7 @@ SLSkybox::SLSkybox(SLProjectScene* projectScene,
                                            TT_roughnessCubemap,
                                            GL_TEXTURE_CUBE_MAP);
 
+    // The BRDF lookup texture is used for the specular gloss reflection calculation
     _brdfLutTexture = new SLGLTextureIBL(projectScene,
                                          shaderPath,
                                          nullptr,
@@ -135,9 +138,10 @@ SLSkybox::SLSkybox(SLProjectScene* projectScene,
                                          GL_TEXTURE_2D);
 
     // Create the material of the sky box and store there the other texture to be used for other materials
-    SLMaterial* hdrMaterial = new SLMaterial(projectScene, "matCubeMap");
-    hdrMaterial->addTexture(_environmentCubemap);
-    hdrMaterial->program(backgroundShader);
+    SLMaterial* envMaterial = new SLMaterial(projectScene, "matCubeMap");
+    envMaterial->addTexture(_environmentCubemap);
+    envMaterial->program(backgroundShader);
+    envMaterial->skybox(this);
 
     // Create the box for the sky box
     addMesh(new SLBox(projectScene,
@@ -148,7 +152,7 @@ SLSkybox::SLSkybox(SLProjectScene* projectScene,
                       -10,
                       -10,
                       "box",
-                      hdrMaterial));
+                      envMaterial));
 }
 
 //-----------------------------------------------------------------------------

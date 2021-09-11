@@ -166,12 +166,6 @@ enum SLSceneID
     SID_RTLens,
     SID_RTTest,
 
-    SID_Benchmark1_LargeModel,
-    SID_Benchmark2_MassiveNodes,
-    SID_Benchmark3_NodeAnimations,
-    SID_Benchmark4_SkinnedAnimations,
-    SID_Benchmark5_LevelOfDetail,
-
     SID_ErlebARBielBFH,
     SID_ErlebARBernChristoffel,
     SID_ErlebARAugustaRauricaTmp,
@@ -181,6 +175,12 @@ enum SLSceneID
     SID_ErlebARAventicumCigognier,
     SID_ErlebARAventicumTheatre,
     SID_ErlebARSutzKirchrain18,
+
+    SID_Benchmark1_LargeModel,
+    SID_Benchmark2_MassiveNodes,
+    SID_Benchmark3_NodeAnimations,
+    SID_Benchmark4_SkinnedAnimations,
+    SID_Benchmark5_LevelOfDetail,
 
     SID_Maximal
 };

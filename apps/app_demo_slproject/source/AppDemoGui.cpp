@@ -30,6 +30,7 @@
 #include <SLNode.h>
 #include <SLScene.h>
 #include <SLSceneView.h>
+#include <SLSkybox.h>
 #include <SLTexColorLUT.h>
 #include <SLGLImGui.h>
 #include <SLProjectScene.h>
@@ -3577,22 +3578,37 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                     {
                         if (ImGui::TreeNode("Light Model: Cook-Torrance"))
                         {
-                            ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.5f);
+                            if (m->numTextures())
+                            {
+                                ImGui::Text("Controlled by textures");
+                            }
+                            else
+                            {
+                                ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.5f);
 
-                            ImGuiColorEditFlags cef = ImGuiColorEditFlags_NoInputs;
-                            SLCol4f             dc  = m->diffuse();
-                            if (ImGui::ColorEdit3("Diffuse color", (float*)&dc, cef))
-                                m->diffuse(dc);
+                                ImGuiColorEditFlags cef = ImGuiColorEditFlags_NoInputs;
+                                SLCol4f             dc  = m->diffuse();
+                                if (ImGui::ColorEdit3("Diffuse color", (float*)&dc, cef))
+                                    m->diffuse(dc);
 
-                            SLfloat rough = m->roughness();
-                            if (ImGui::SliderFloat("Roughness", &rough, 0.0f, 1.0f))
-                                m->roughness(rough);
+                                SLfloat rough = m->roughness();
+                                if (ImGui::SliderFloat("Roughness", &rough, 0.0f, 1.0f))
+                                    m->roughness(rough);
 
-                            SLfloat metal = m->metalness();
-                            if (ImGui::SliderFloat("Metalness", &metal, 0.0f, 1.0f))
-                                m->metalness(metal);
+                                SLfloat metal = m->metalness();
+                                if (ImGui::SliderFloat("Metalness", &metal, 0.0f, 1.0f))
+                                    m->metalness(metal);
 
-                            ImGui::PopItemWidth();
+                                ImGui::PopItemWidth();
+                            }
+                            ImGui::TreePop();
+                        }
+
+                        if (m->skybox() && ImGui::TreeNode("Sky", "Skybox"))
+                        {
+                            float exposure = m->skybox()->exposure();
+                            if (ImGui::SliderFloat("Exposure", &exposure, 0.05f, 5.0f))
+                                m->skybox()->exposure(exposure);
                             ImGui::TreePop();
                         }
                     }

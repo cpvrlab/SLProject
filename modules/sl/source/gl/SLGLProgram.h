@@ -77,8 +77,7 @@ public:
 
     void  beginUse(SLCamera*   cam,
                    SLMaterial* mat,
-                   SLVLight*   lights,
-                   SLSkybox*   skybox = nullptr);
+                   SLVLight*   lights);
     SLint passLightsToUniforms(SLVLight* lights,
                                SLuint    nextTexUnit) const;
     void  endUse();

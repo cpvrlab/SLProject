@@ -51,9 +51,12 @@ public:
     SLGLTexture* environmentCubemap() { return _environmentCubemap; }
     SLGLTexture* irradianceCubemap() { return _irradianceCubemap; }
     SLGLTexture* roughnessCubemap() { return _roughnessCubemap; }
-    SLGLTexture* brdfLUTTexture() { return _brdfLutTexture; }
-    SLGLTexture* hdrTexture() { return _hdrTexture; }
+    SLGLTexture* brdfLutTexture() { return _brdfLutTexture; }
+    SLfloat      exposure() { return _exposure; }
     SLbool       isHDR() { return _isHDR; }
+
+    // Setters
+    void exposure(float exp) { _exposure = exp; }
 
     void    drawAroundCamera(SLSceneView* sv);
     SLCol4f colorAtDir(const SLVec3f& dir);
@@ -65,7 +68,7 @@ private:
     SLGLTexture* _roughnessCubemap;
     SLGLTexture* _brdfLutTexture;
     SLGLTexture* _hdrTexture;
-    SLfloat      _skyExposure;
+    SLfloat      _exposure;
     SLbool       _isHDR;   //!< flag for HDR skyboxes
     SLbool       _isBuilt; //!< flag for late HDR skybox building
 };

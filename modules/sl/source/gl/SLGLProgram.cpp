@@ -274,8 +274,7 @@ the custom uniform variables of the _uniform1fList as well as the texture names.
 */
 void SLGLProgram::beginUse(SLCamera*   cam,
                            SLMaterial* mat,
-                           SLVLight*   lights,
-                           SLSkybox*   skybox)
+                           SLVLight*   lights)
 {
     if (_progID == 0 && !_shaders.empty())
         init(lights);

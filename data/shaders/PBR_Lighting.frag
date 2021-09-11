@@ -31,9 +31,10 @@ uniform float   u_lightSpotCos[NUM_LIGHTS]; // cosine of spot cutoff angle
 uniform float   u_lightSpotExp[NUM_LIGHTS]; // spot exponent
 uniform float   u_oneOverGamma;             // 1.0f / Gamma correction value
 
-uniform samplerCube u_skyIrradianceCubemap; // IBL irradiance convolution map
-uniform samplerCube u_skyRoughnessCubemap;  // IBL prefilter roughness map
-uniform sampler2D   u_skyBrdfLutTexture;    // IBL brdf integration map
+uniform samplerCube u_skyIrradianceCubemap; // PBR skybox irradiance light
+uniform samplerCube u_skyRoughnessCubemap;  // PBR skybox cubemap for rough reflections
+uniform sampler2D   u_skyBrdfLutTexture;    // PBR lighting lookup table for BRDF
+uniform float       u_skyExposure;          // PBR skybox exposure
 
 uniform vec4        u_matDiff;      // diffuse color reflection coefficient (kd)
 uniform float       u_matRough;     // Cook-Torrance material roughness 0-1
@@ -116,7 +117,7 @@ void main()
     
     // Exposure tone mapping
     float skyExposure = 1.0;
-    vec3 mapped = vec3(1.0) - exp(-color * skyExposure);
+    vec3 mapped = vec3(1.0) - exp(-color * u_skyExposure);
     o_fragColor = vec4(mapped, 1.0);
 
     // Apply fog by blending over distance

@@ -54,6 +54,7 @@ SLMaterial::SLMaterial(SLAssetManager* am,
     _translucency = 0.0f;
     _getsShadows  = true;
     _program      = program;
+    _skybox       = nullptr;
     _numTextures  = 0;
 
     _kr = kr;
@@ -108,6 +109,7 @@ SLMaterial::SLMaterial(SLAssetManager* am,
     _translucency = 0.0f;
     _getsShadows  = true;
     _program      = shaderProg;
+    _skybox       = nullptr;
     _kr           = 0.0f;
     _kt           = 0.0f;
     _kn           = 1.0f;
@@ -159,23 +161,11 @@ SLMaterial::SLMaterial(SLAssetManager* am,
     _numTextures = 0;
     _lightModel  = LM_CookTorrance;
     _program     = nullptr;
+    _skybox      = skybox;
 
     _kr = 0.0f;
     _kt = 0.0f;
     _kn = 1.0f;
-
-    if (skybox &&
-        skybox->irradianceCubemap() &&
-        skybox->roughnessCubemap() &&
-        skybox->brdfLUTTexture())
-    {
-        _textures[skybox->irradianceCubemap()->texType()].push_back(skybox->irradianceCubemap());
-        _numTextures++;
-        _textures[skybox->roughnessCubemap()->texType()].push_back(skybox->roughnessCubemap());
-        _numTextures++;
-        _textures[skybox->brdfLUTTexture()->texType()].push_back(skybox->brdfLUTTexture());
-        _numTextures++;
-    }
 
     // Add pointer to the global resource vectors for deallocation
     if (am)
@@ -218,19 +208,7 @@ SLMaterial::SLMaterial(SLAssetManager* am,
     _numTextures = 0;
     _lightModel  = LM_CookTorrance;
     _program     = nullptr;
-
-    if (skybox &&
-        skybox->irradianceCubemap() &&
-        skybox->roughnessCubemap() &&
-        skybox->brdfLUTTexture())
-    {
-        _textures[skybox->irradianceCubemap()->texType()].push_back(skybox->irradianceCubemap());
-        _numTextures++;
-        _textures[skybox->roughnessCubemap()->texType()].push_back(skybox->roughnessCubemap());
-        _numTextures++;
-        _textures[skybox->brdfLUTTexture()->texType()].push_back(skybox->brdfLUTTexture());
-        _numTextures++;
-    }
+    _skybox      = skybox;
 
     addTexture(texture1);
     addTexture(texture2);
@@ -266,6 +244,7 @@ SLMaterial::SLMaterial(SLAssetManager* am,
 {
     _assetManager = am;
     _program      = shaderProg;
+    _skybox       = nullptr;
     _lightModel   = LM_BlinnPhong;
     _ambient.set(1, 1, 1);
     _diffuse.set(1, 1, 1);
@@ -311,6 +290,7 @@ SLMaterial::SLMaterial(SLAssetManager* am,
     _metalness    = 0.0f;
     _translucency = 0.0f;
     _program      = colorUniformProgram;
+    _skybox       = nullptr;
     _kr           = 0.0f;
     _kt           = 0.0f;
     _kn           = 1.0f;
@@ -400,7 +380,7 @@ void SLMaterial::activate(SLCamera* cam, SLVLight* lights, SLSkybox* skybox)
     }
 
     // Activate the shader program now
-    _program->beginUse(cam, this, lights, skybox);
+    _program->beginUse(cam, this, lights);
 }
 //-----------------------------------------------------------------------------
 //! Passes all material parameters as uniforms to the passed shader program
@@ -459,24 +439,8 @@ SLint SLMaterial::passToUniforms(SLGLProgram* program, SLint nextTexUnit)
                     sprintf(name, "u_matTextureMetallic%d", texNb);
                     break;
                 }
-                case TT_hdr: {
-                    sprintf(name, "u_matTextureHDR%d", texNb);
-                    break;
-                }
                 case TT_environmentCubemap: {
                     sprintf(name, "u_matTextureEnvCubemap%d", texNb);
-                    break;
-                }
-                case TT_irradianceCubemap: {
-                    sprintf(name, "u_skyIrradianceCubemap");
-                    break;
-                }
-                case TT_roughnessCubemap: {
-                    sprintf(name, "u_skyRoughnessCubemap");
-                    break;
-                }
-                case TT_brdfLUT: {
-                    sprintf(name, "u_skyBrdfLutTexture");
                     break;
                 }
                 case TT_font: {
@@ -497,7 +461,25 @@ SLint SLMaterial::passToUniforms(SLGLProgram* program, SLint nextTexUnit)
         }
     }
 
-    program->uniform1i("u_matHasTexture", nextTexUnit ? 1 : 0);
+    // Pass environment mapping uniforms from the skybox
+    if (_skybox &&
+        _skybox->irradianceCubemap() &&
+        _skybox->roughnessCubemap() &&
+        _skybox->brdfLutTexture())
+    {
+        if (program->uniform1i("u_skyIrradianceCubemap", nextTexUnit) >= 0)
+            _skybox->irradianceCubemap()->bindActive(nextTexUnit++);
+
+        if (program->uniform1i("u_skyRoughnessCubemap", nextTexUnit) >= 0)
+            _skybox->roughnessCubemap()->bindActive(nextTexUnit++);
+
+        if (program->uniform1i("u_skyBrdfLutTexture", nextTexUnit) >= 0)
+            _skybox->brdfLutTexture()->bindActive(nextTexUnit++);
+
+        program->uniform1f("u_skyExposure", _skybox->exposure());
+    }
+
+
     return nextTexUnit;
 }
 //-----------------------------------------------------------------------------

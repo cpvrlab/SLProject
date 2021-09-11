@@ -168,6 +168,7 @@ public:
     }
     void getsShadows(SLbool receivesShadows) { _getsShadows = receivesShadows; }
     void program(SLGLProgram* sp) { _program = sp; }
+    void skybox(SLSkybox* sb) { _skybox = sb; }
 
     // Getters
     SLAssetManager* assetManager() { return _assetManager; }
@@ -187,6 +188,7 @@ public:
     SLbool          getsShadows() const { return _getsShadows; }
     SLuint          numTextures() { return _numTextures; }
     SLGLProgram*    program() { return _program; }
+    SLSkybox*       skybox() { return _skybox; }
     SLVNode&        nodesVisible2D() { return _nodesVisible2D; }
     SLVNode&        nodesVisible3D() { return _nodesVisible3D; }
 
@@ -219,6 +221,7 @@ protected:
     SLbool          _getsShadows;  //!< true if shadows are visible on this material
     SLGLProgram*    _program{};    //!< pointer to a GLSL shader program
     SLint           _numTextures;  //!< Number of textures in all _textures vectors array
+    SLSkybox*       _skybox;       //!< Pointer to the skybox
 
     SLVGLTexture _textures[TT_numTextureType]; //!< Array of texture vectors one for each type
     SLVGLTexture _textures3d;                  //!< Texture vector for diffuse 3D textures
