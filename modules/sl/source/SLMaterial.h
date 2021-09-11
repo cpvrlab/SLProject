@@ -49,8 +49,7 @@ public:
                         SLfloat         kr                      = 0.0,
                         SLfloat         kt                      = 0.0f,
                         SLfloat         kn                      = 1.0f,
-                        SLGLProgram*    program                 = nullptr,
-                        const SLstring& compileErrorTexFilePath = "");
+                        SLGLProgram*    program                 = nullptr);
 
     //! Ctor for textured Blinn-Phong light model materials
     SLMaterial(SLAssetManager* am,
@@ -59,84 +58,36 @@ public:
                SLGLTexture*    texture2                = nullptr,
                SLGLTexture*    texture3                = nullptr,
                SLGLTexture*    texture4                = nullptr,
-               SLGLProgram*    program                 = nullptr,
-               const SLstring& compileErrorTexFilePath = "");
+               SLGLProgram*    program                 = nullptr);
 
-    //! Ctor for Cook-Torrance light model materials
-    SLMaterial(SLAssetManager* am,
-               SLGLProgram*    perPixCookTorranceProgram,
-               const SLchar*   name,
-               const SLCol4f&  diffuse,
-               SLfloat         roughness,
-               SLfloat         metalness,
-               const SLstring& compileErrorTexFilePath = "");
-
-    //! Ctor for Cook-Torrance light model materials
+    //! Ctor for PBR material with Cook-Torrance material parameters
     SLMaterial(SLAssetManager* am,
                const SLchar*   name,
-               const SLCol4f&  diffuse,
+               SLSkybox*       skybox,
+               SLCol4f         diffuse,
                SLfloat         roughness,
-               SLfloat         metalness,
-               const SLstring& compileErrorTexFilePath = "");
+               SLfloat         metalness);
+
+    //! Ctor for PBR material with Cook-Torrance material textures
+    SLMaterial(SLAssetManager* am,
+               const SLchar*   name,
+               SLSkybox*       skybox,
+               SLGLTexture*    texture1,
+               SLGLTexture*    texture2 = nullptr,
+               SLGLTexture*    texture3 = nullptr,
+               SLGLTexture*    texture4 = nullptr,
+               SLGLTexture*    texture5 = nullptr);
 
     //! Ctor for uniform color material without lighting
     explicit SLMaterial(SLAssetManager* am,
                         SLGLProgram*    colorUniformProgram,
                         const SLCol4f&  uniformColor,
-                        const SLchar*   name                    = (const char*)"Uniform color",
-                        const SLstring& compileErrorTexFilePath = "");
+                        const SLchar*   name                    = (const char*)"Uniform color");
 
     //! Ctor for cone tracer
     SLMaterial(SLAssetManager* am,
                const SLchar*   name,
-               SLGLProgram*    program,
-               const SLstring& compileErrorTexFilePath = "");
-
-    //! Ctor for PBR shading with IBL without textures
-    SLMaterial(SLAssetManager* am,
-               const SLchar*   name,
-               SLCol4f         diffuse,
-               SLfloat         roughness,
-               SLfloat         metalness,
-               SLGLProgram*    pbrIblShaderProg,
-               SLGLTexture*    irrandianceMap,
-               SLGLTexture*    prefilterIrradianceMap,
-               SLGLTexture*    brdfLUTTexture);
-
-    //! Ctor for PBR shading with IBL without textures
-    SLMaterial(SLAssetManager* am,
-               const SLchar*   name,
-               SLCol4f         diffuse,
-               SLfloat         roughness,
-               SLfloat         metalness,
-               SLGLTexture*    irrandianceMap,
-               SLGLTexture*    prefilterIrradianceMap,
-               SLGLTexture*    brdfLUTTexture);
-
-    //! Ctor for PBR material with IBL with PBR textures
-    SLMaterial(SLAssetManager* am,
-               const SLchar*   name,
-               SLGLProgram*    shaderProg,
-               SLGLTexture*    texture1,
-               SLGLTexture*    texture2,
-               SLGLTexture*    texture3,
-               SLGLTexture*    texture4,
-               SLGLTexture*    texture5,
-               SLGLTexture*    texture6,
-               SLGLTexture*    texture7,
-               SLGLTexture*    texture8);
-
-    //! Ctor for PBR material with IBL with PBR textures
-    SLMaterial(SLAssetManager* am,
-               const SLchar*   name,
-               SLGLTexture*    texture1,
-               SLGLTexture*    texture2,
-               SLGLTexture*    texture3,
-               SLGLTexture*    texture4,
-               SLGLTexture*    texture5,
-               SLGLTexture*    texture6,
-               SLGLTexture*    texture7,
-               SLGLTexture*    texture8);
+               SLGLProgram*    program);
 
     ~SLMaterial() override;
 

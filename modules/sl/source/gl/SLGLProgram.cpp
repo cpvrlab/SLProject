@@ -290,9 +290,6 @@ void SLGLProgram::beginUse(SLCamera*   cam,
         if (lights)
             nextTexUnit = passLightsToUniforms(lights, nextTexUnit);
 
-        //if (skybox && skybox->isHDR())
-        //nextTexUnit = skybox->passToUniforms(this, nextTexUnit);
-
         if (mat)
             mat->passToUniforms(this, nextTexUnit);
 

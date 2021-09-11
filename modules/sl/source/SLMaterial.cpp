@@ -11,6 +11,7 @@
 #include <SLSceneView.h>
 #include <SLAssetManager.h>
 #include <SLGLProgramGenerated.h>
+#include <SLSkybox.h>
 
 //-----------------------------------------------------------------------------
 SLfloat SLMaterial::PERFECT = 1000.0f;
@@ -31,7 +32,6 @@ SLfloat SLMaterial::PERFECT = 1000.0f;
  @param kt Transparency coefficient used for ray tracing. (0.0-1.0)
  @param kn Refraction index used for ray tracing (1.0-2.5)
  @param program Pointer to the shader program for the material
- @param compileErrorTexFilePath Path to an error texture
 */
 SLMaterial::SLMaterial(SLAssetManager* am,
                        const SLchar*   name,
@@ -41,8 +41,7 @@ SLMaterial::SLMaterial(SLAssetManager* am,
                        SLfloat         kr,
                        SLfloat         kt,
                        SLfloat         kn,
-                       SLGLProgram*    program,
-                       const SLstring& compileErrorTexFilePath) : SLObject(name)
+                       SLGLProgram*    program) : SLObject(name)
 {
     _assetManager = am;
     _lightModel   = LM_BlinnPhong;
@@ -88,7 +87,6 @@ SLMaterial::SLMaterial(SLAssetManager* am,
  @param texture4 Texture 4 image filename. If only a filename is
  passed it will be search on the SLGLTexture::defaultPath.
  @param shaderProg Pointer to the shader program for the material
- @param compileErrorTexFilePath Path to an error texture
  */
 SLMaterial::SLMaterial(SLAssetManager* am,
                        const SLchar*   name,
@@ -96,8 +94,7 @@ SLMaterial::SLMaterial(SLAssetManager* am,
                        SLGLTexture*    texture2,
                        SLGLTexture*    texture3,
                        SLGLTexture*    texture4,
-                       SLGLProgram*    shaderProg,
-                       const SLstring& compileErrorTexFilePath) : SLObject(name)
+                       SLGLProgram*    shaderProg) : SLObject(name)
 {
     _assetManager = am;
     _lightModel   = LM_BlinnPhong;
@@ -131,6 +128,128 @@ SLMaterial::SLMaterial(SLAssetManager* am,
 }
 //-----------------------------------------------------------------------------
 /*!
+ * Constructor for Cook-Torrance shaded materials with roughness and metalness.
+ * Materials can be used by multiple meshes (SLMesh). Materials can belong
+ * therefore to the global assets such as meshes, materials, textures and
+ * shader programs.
+ * @param am Pointer to a global asset manager. If passed the asset manager
+ * is the owner of the instance and will do the deallocation. If a nullptr
+ * is passed the creator is responsible for the deallocation.
+ * @param name Name of the material
+ * @param skybox Pointer to the skybox if available
+ * @param diffuse Diffuse reflection color
+ * @param roughness Roughness (0.0-1.0)
+ * @param metalness Metalness (0.0-1.0)
+ */
+SLMaterial::SLMaterial(SLAssetManager* am,
+                       const SLchar*   name,
+                       SLSkybox*       skybox,
+                       SLCol4f         diffuse,
+                       SLfloat         roughness,
+                       SLfloat         metalness) : SLObject(name)
+{
+    _assetManager = am;
+    _ambient.set(0, 0, 0); // not used in Cook-Torrance
+    _diffuse = diffuse;
+    _specular.set(1, 1, 1);                     // not used in Cook-Torrance
+    _emissive.set(0, 0, 0, 0);                  // not used in Cook-Torrance
+    _shininess   = (1.0f - roughness) * 500.0f; // not used in Cook-Torrance
+    _roughness   = roughness;
+    _metalness   = metalness;
+    _numTextures = 0;
+    _lightModel  = LM_CookTorrance;
+    _program     = nullptr;
+
+    _kr = 0.0f;
+    _kt = 0.0f;
+    _kn = 1.0f;
+
+    if (skybox &&
+        skybox->irradianceCubemap() &&
+        skybox->roughnessCubemap() &&
+        skybox->brdfLUTTexture())
+    {
+        _textures[skybox->irradianceCubemap()->texType()].push_back(skybox->irradianceCubemap());
+        _numTextures++;
+        _textures[skybox->roughnessCubemap()->texType()].push_back(skybox->roughnessCubemap());
+        _numTextures++;
+        _textures[skybox->brdfLUTTexture()->texType()].push_back(skybox->brdfLUTTexture());
+        _numTextures++;
+    }
+
+    // Add pointer to the global resource vectors for deallocation
+    if (am)
+        am->materials().push_back(this);
+}
+//-----------------------------------------------------------------------------
+/*!
+ * Constructor for Cook-Torrance shaded materials with PBR textures.
+ * Materials can be used by multiple meshes (SLMesh). Materials can belong
+ * therefore to the global assets such as meshes, materials, textures and
+ * shader programs.
+ * @param am Pointer to a global asset manager. If passed the asset manager
+ * is the owner of the instance and will do the deallocation. If a nullptr
+ * is passed the creator is responsible for the deallocation.
+ * @param name Name of the material
+ * @param skybox Pointer to the skybox if available
+ * @param texture1 PBR texture of a specific type (see SLTextureType)
+ * @param texture2 PBR texture of a specific type (see SLTextureType)
+ * @param texture3 PBR texture of a specific type (see SLTextureType)
+ * @param texture4 PBR texture of a specific type (see SLTextureType)
+ * @param texture5 PBR texture of a specific type (see SLTextureType)
+ */
+SLMaterial::SLMaterial(SLAssetManager* am,
+                       const SLchar*   name,
+                       SLSkybox*       skybox,
+                       SLGLTexture*    texture1,
+                       SLGLTexture*    texture2,
+                       SLGLTexture*    texture3,
+                       SLGLTexture*    texture4,
+                       SLGLTexture*    texture5) : SLObject(name)
+{
+    _assetManager = am;
+    _ambient.set(1, 1, 1);
+    _diffuse.set(1, 1, 1);
+    _specular.set(1, 1, 1);
+    _emissive.set(0, 0, 0, 0);
+    _shininess   = 125;
+    _roughness   = 0.5f;
+    _metalness   = 0.0f;
+    _numTextures = 0;
+    _lightModel  = LM_CookTorrance;
+    _program     = nullptr;
+
+    if (skybox &&
+        skybox->irradianceCubemap() &&
+        skybox->roughnessCubemap() &&
+        skybox->brdfLUTTexture())
+    {
+        _textures[skybox->irradianceCubemap()->texType()].push_back(skybox->irradianceCubemap());
+        _numTextures++;
+        _textures[skybox->roughnessCubemap()->texType()].push_back(skybox->roughnessCubemap());
+        _numTextures++;
+        _textures[skybox->brdfLUTTexture()->texType()].push_back(skybox->brdfLUTTexture());
+        _numTextures++;
+    }
+
+    addTexture(texture1);
+    addTexture(texture2);
+    addTexture(texture3);
+    addTexture(texture4);
+    addTexture(texture5);
+
+    _kr        = 0.0f;
+    _kt        = 0.0f;
+    _kn        = 1.0f;
+    _diffuse.w = 1.0f - _kt;
+    _program   = nullptr;
+
+    // Add pointer to the global resource vectors for deallocation
+    if (am)
+        am->materials().push_back(this);
+}
+//-----------------------------------------------------------------------------
+/*!
  Constructor for materials used within the cone tracer (SLGLConetracer).
  Materials can be used by multiple meshes (SLMesh). Materials can belong
  therefore to the global assets such as meshes, materials, textures and
@@ -139,13 +258,11 @@ SLMaterial::SLMaterial(SLAssetManager* am,
  manager is the owner of the instance and will do the deallocation. If a
  nullptr is passed the creator is responsible for the deallocation.
  @param name Name of the material
- @param shaderProg Pointer to the shader program for the material.
- @param compileErrorTexFilePath Path to an error texture
+ @param shaderProg Pointer to the shader program for the material
  */
 SLMaterial::SLMaterial(SLAssetManager* am,
                        const SLchar*   name,
-                       SLGLProgram*    shaderProg,
-                       const SLstring& compileErrorTexFilePath) : SLObject(name)
+                       SLGLProgram*    shaderProg) : SLObject(name)
 {
     _assetManager = am;
     _program      = shaderProg;
@@ -167,94 +284,6 @@ SLMaterial::SLMaterial(SLAssetManager* am,
 }
 //-----------------------------------------------------------------------------
 /*!
- Constructor for Cook-Torrance shaded materials with roughness and metalness.
- Materials can be used by multiple meshes (SLMesh). Materials can belong
- therefore to the global assets such as meshes, materials, textures and
- shader programs.
- @param am Pointer to a global asset manager. If passed the asset
- manager is the owner of the instance and will do the deallocation. If a
- nullptr is passed the creator is responsible for the deallocation.
- @param perPixCookTorranceProgram Pointer to the shader program for
- Cook-Torrance shading
- @param name Name of the material
- @param diffuse Diffuse reflection color
- @param roughness Roughness (0.0-1.0)
- @param metalness Metalness (0.0-1.0)
- @param compileErrorTexFilePath Path to an error texture
- */
-SLMaterial::SLMaterial(SLAssetManager* am,
-                       SLGLProgram*    perPixCookTorranceProgram,
-                       const SLchar*   name,
-                       const SLCol4f&  diffuse,
-                       SLfloat         roughness,
-                       SLfloat         metalness,
-                       const SLstring& compileErrorTexFilePath) : SLObject(name)
-{
-    _assetManager = am;
-    _lightModel   = LM_CookTorrance;
-    _ambient.set(0, 0, 0); // not used in Cook-Torrance
-    _diffuse = diffuse;
-    _specular.set(1, 1, 1);                      // not used in Cook-Torrance
-    _emissive.set(0, 0, 0, 0);                   // not used in Cook-Torrance
-    _shininess    = (1.0f - roughness) * 500.0f; // not used in Cook-Torrance
-    _roughness    = roughness;
-    _metalness    = metalness;
-    _translucency = 0.0f;
-    _getsShadows  = true;
-    _kr           = 0.0f;
-    _kt           = 0.0f;
-    _kn           = 1.0f;
-    _program      = perPixCookTorranceProgram;
-    _numTextures  = 0;
-
-    // Add pointer to the global resource vectors for deallocation
-    if (am)
-        am->materials().push_back(this);
-}
-//-----------------------------------------------------------------------------
-/*!
- Constructor for Cook-Torrance shaded materials with roughness and metalness.
- Materials can be used by multiple meshes (SLMesh). Materials can belong
- therefore to the global assets such as meshes, materials, textures and
- shader programs.
- @param am Pointer to a global asset manager. If passed the asset
- manager is the owner of the instance and will do the deallocation. If a
- nullptr is passed the creator is responsible for the deallocation.
- @param name Name of the material
- @param diffuse Diffuse reflection color
- @param roughness Roughness (0.0-1.0)
- @param metalness Metalness (0.0-1.0)
- @param compileErrorTexFilePath Path to an error texture
- */
-SLMaterial::SLMaterial(SLAssetManager* am,
-                       const SLchar*   name,
-                       const SLCol4f&  diffuse,
-                       SLfloat         roughness,
-                       SLfloat         metalness,
-                       const SLstring& compileErrorTexFilePath) : SLObject(name)
-{
-    _assetManager = am;
-    _lightModel   = LM_CookTorrance;
-    _ambient.set(0, 0, 0); // not used in Cook-Torrance
-    _diffuse = diffuse;
-    _specular.set(1, 1, 1);                      // not used in Cook-Torrance
-    _emissive.set(0, 0, 0, 0);                   // not used in Cook-Torrance
-    _shininess    = (1.0f - roughness) * 500.0f; // not used in Cook-Torrance
-    _roughness    = roughness;
-    _metalness    = metalness;
-    _translucency = 0.0f;
-    _getsShadows  = true;
-    _kr           = 0.0f;
-    _kt           = 0.0f;
-    _kn           = 1.0f;
-    _numTextures  = 0;
-
-    // Add pointer to the global resource vectors for deallocation
-    if (am)
-        am->materials().push_back(this);
-}
-//-----------------------------------------------------------------------------
-/*!
  Constructor for uniform color material without lighting
  Materials can be used by multiple meshes (SLMesh). Materials can belong
  therefore to the global assets such as meshes, materials, textures and
@@ -265,14 +294,11 @@ SLMaterial::SLMaterial(SLAssetManager* am,
  @param colorUniformProgram Pointer to shader program for uniform coloring.
  @param uniformColor Color to apply
  @param name Name of the material
- @param compileErrorTexFilePath Path to an error texture
  */
 SLMaterial::SLMaterial(SLAssetManager* am,
                        SLGLProgram*    colorUniformProgram,
                        const SLCol4f&  uniformColor,
-                       const SLchar*   name,
-                       const SLstring& compileErrorTexFilePath)
-  : SLObject(name)
+                       const SLchar*   name) : SLObject(name)
 {
     _assetManager = am;
     _lightModel   = LM_Custom;
@@ -290,191 +316,6 @@ SLMaterial::SLMaterial(SLAssetManager* am,
     _kn           = 1.0f;
     _getsShadows  = true;
     _numTextures  = 0;
-
-    // Add pointer to the global resource vectors for deallocation
-    if (am)
-        am->materials().push_back(this);
-}
-
-//-----------------------------------------------------------------------------
-//! Ctor for PBR shading with IBL without textures
-SLMaterial::SLMaterial(SLAssetManager* am,
-                       const SLchar*   name,
-                       SLCol4f         diffuse,
-                       SLfloat         roughness,
-                       SLfloat         metalness,
-                       SLGLProgram*    pbrIblShaderProg,
-                       SLGLTexture*    irrandianceMap,
-                       SLGLTexture*    prefilterIrradianceMap,
-                       SLGLTexture*    brdfLUTTexture) : SLObject(name)
-{
-    _assetManager = am;
-    _ambient.set(0, 0, 0); // not used in Cook-Torrance
-    _diffuse = diffuse;
-    _specular.set(1, 1, 1);                   // not used in Cook-Torrance
-    _emissive.set(0, 0, 0, 0);                // not used in Cook-Torrance
-    _shininess = (1.0f - roughness) * 500.0f; // not used in Cook-Torrance
-    _roughness = roughness;
-    _metalness = metalness;
-    _lightModel = LM_CookTorrance;
-
-    _kr = 0.0f;
-    _kt = 0.0f;
-    _kn = 1.0f;
-
-    _program = pbrIblShaderProg;
-
-    _numTextures  = 0;
-    if (irrandianceMap)
-    {
-        _textures[irrandianceMap->texType()].push_back(irrandianceMap);
-        _numTextures++;
-    }
-    if (prefilterIrradianceMap)
-    {
-        _textures[prefilterIrradianceMap->texType()].push_back(prefilterIrradianceMap);
-        _numTextures++;
-    }
-    if (brdfLUTTexture)
-    {
-        _textures[brdfLUTTexture->texType()].push_back(brdfLUTTexture);
-        _numTextures++;
-    }
-
-    // Add pointer to the global resource vectors for deallocation
-    if (am)
-        am->materials().push_back(this);
-}
-//-----------------------------------------------------------------------------
-//! Ctor for PBR shading with IBL without textures
-SLMaterial::SLMaterial(SLAssetManager* am,
-                       const SLchar*   name,
-                       SLCol4f         diffuse,
-                       SLfloat         roughness,
-                       SLfloat         metalness,
-                       SLGLTexture*    irrandianceMap,
-                       SLGLTexture*    prefilterIrradianceMap,
-                       SLGLTexture*    brdfLUTTexture) : SLObject(name)
-{
-    _assetManager = am;
-    _ambient.set(0, 0, 0); // not used in Cook-Torrance
-    _diffuse = diffuse;
-    _specular.set(1, 1, 1);                   // not used in Cook-Torrance
-    _emissive.set(0, 0, 0, 0);                // not used in Cook-Torrance
-    _shininess = (1.0f - roughness) * 500.0f; // not used in Cook-Torrance
-    _roughness = roughness;
-    _metalness = metalness;
-    _lightModel = LM_CookTorrance;
-    _program = nullptr;
-
-    _kr = 0.0f;
-    _kt = 0.0f;
-    _kn = 1.0f;
-
-    _numTextures  = 0;
-    if (irrandianceMap)
-    {
-        _textures[irrandianceMap->texType()].push_back(irrandianceMap);
-        _numTextures++;
-    }
-    if (prefilterIrradianceMap)
-    {
-        _textures[prefilterIrradianceMap->texType()].push_back(prefilterIrradianceMap);
-        _numTextures++;
-    }
-    if (brdfLUTTexture)
-    {
-        _textures[brdfLUTTexture->texType()].push_back(brdfLUTTexture);
-        _numTextures++;
-    }
-
-    // Add pointer to the global resource vectors for deallocation
-    if (am)
-        am->materials().push_back(this);
-}
-//-----------------------------------------------------------------------------
-// Ctor for textures with PBR materials
-SLMaterial::SLMaterial(SLAssetManager* am,
-                       const SLchar*   name,
-                       SLGLProgram*    shaderProg,
-                       SLGLTexture*    texture1,
-                       SLGLTexture*    texture2,
-                       SLGLTexture*    texture3,
-                       SLGLTexture*    texture4,
-                       SLGLTexture*    texture5,
-                       SLGLTexture*    texture6,
-                       SLGLTexture*    texture7,
-                       SLGLTexture*    texture8) : SLObject(name)
-{
-    _assetManager = am;
-    _ambient.set(1, 1, 1);
-    _diffuse.set(1, 1, 1);
-    _specular.set(1, 1, 1);
-    _emissive.set(0, 0, 0, 0);
-    _shininess = 125;
-    _roughness = 0.5f;
-    _metalness = 0.0f;
-    _numTextures = 0;
-    _lightModel = LM_CookTorrance;
-    addTexture(texture1);
-    addTexture(texture2);
-    addTexture(texture3);
-    addTexture(texture4);
-    addTexture(texture5);
-    addTexture(texture6);
-    addTexture(texture7);
-    addTexture(texture8);
-    _program = shaderProg;
-
-    _kr        = 0.0f;
-    _kt        = 0.0f;
-    _kn        = 1.0f;
-    _diffuse.w = 1.0f - _kt;
-
-    // Add pointer to the global resource vectors for deallocation
-    if (am)
-        am->materials().push_back(this);
-}
-
-
-//-----------------------------------------------------------------------------
-// Ctor for textures with PBR materials
-SLMaterial::SLMaterial(SLAssetManager* am,
-                       const SLchar*   name,
-                       SLGLTexture*    texture1,
-                       SLGLTexture*    texture2,
-                       SLGLTexture*    texture3,
-                       SLGLTexture*    texture4,
-                       SLGLTexture*    texture5,
-                       SLGLTexture*    texture6,
-                       SLGLTexture*    texture7,
-                       SLGLTexture*    texture8) : SLObject(name)
-{
-    _assetManager = am;
-    _ambient.set(1, 1, 1);
-    _diffuse.set(1, 1, 1);
-    _specular.set(1, 1, 1);
-    _emissive.set(0, 0, 0, 0);
-    _shininess = 125;
-    _roughness = 0.5f;
-    _metalness = 0.0f;
-    _numTextures = 0;
-    _lightModel = LM_CookTorrance;
-
-    addTexture(texture1);
-    addTexture(texture2);
-    addTexture(texture3);
-    addTexture(texture4);
-    addTexture(texture5);
-    addTexture(texture6);
-    addTexture(texture7);
-    addTexture(texture8);
-
-    _kr        = 0.0f;
-    _kt        = 0.0f;
-    _kn        = 1.0f;
-    _diffuse.w = 1.0f - _kt;
-    _program = nullptr;
 
     // Add pointer to the global resource vectors for deallocation
     if (am)

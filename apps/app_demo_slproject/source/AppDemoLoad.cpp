@@ -1429,21 +1429,23 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                     // The center sphere has roughness and metallic encoded in textures
                     mat[i] = new SLMaterial(s,
                                             "CookTorranceMatTex",
+                                            nullptr,
                                             new SLGLTexture(s, texPath + "rusty-metal_2048_C.jpg"),
                                             new SLGLTexture(s, texPath + "rusty-metal_2048_N.jpg"),
                                             new SLGLTexture(s, texPath + "rusty-metal_2048_M.jpg"),
-                                            new SLGLTexture(s, texPath + "rusty-metal_2048_R.jpg"),
-                                            spTex);
+                                            new SLGLTexture(s, texPath + "rusty-metal_2048_R.jpg"));
+                    mat[i]->program(spTex);
                 }
                 else
                 {
                     // Cook-Torrance material without textures
                     mat[i] = new SLMaterial(s,
-                                            sp,
                                             "CookTorranceMat",
+                                            nullptr,
                                             SLCol4f::RED * 0.5f,
                                             Utils::clamp((float)r * deltaR, 0.05f, 1.0f),
                                             (float)m * deltaM);
+                    mat[i]->program(sp);
                 }
 
                 SLNode* node = new SLNode(new SLSpheric(s, 1.0f, 0.0f, 180.0f, 32, 32, "Sphere", mat[i]));
@@ -1519,6 +1521,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                     // The center sphere has roughness and metallic encoded in textures
                     mat[i] = new SLMaterial(s,
                                             "CookTorranceMatTex",
+                                            nullptr,
                                             new SLGLTexture(s, texPath + "rusty-metal_2048_C.jpg"),
                                             new SLGLTexture(s, texPath + "rusty-metal_2048_N.jpg"),
                                             new SLGLTexture(s, texPath + "rusty-metal_2048_M.jpg"),
@@ -1529,6 +1532,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                     // Cook-Torrance material without textures
                     mat[i] = new SLMaterial(s,
                                             "CookTorranceMat",
+                                            nullptr,
                                             SLCol4f::RED * 0.5f,
                                             Utils::clamp((float)r * deltaR, 0.05f, 1.0f),
                                             (float)m * deltaM);
@@ -1570,24 +1574,23 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         // Set scene name and info string
         s->name("HDR IBL Shader");
         s->info("Image-based Lighting from skybox using high dynamic range images. "
-                "Use F4-Key to increment (decrement w. shift-F4) exposure of the HDR skybox. "
                 "It uses the Cook-Torrance light model also to calculate the ambient light part "
                 "from the surrounding HDR skybox.");
 
         // Create HDR CubeMap and get precalculated textures from it
-        SLSkybox* hdrCubeMap = new SLSkybox(s,
-                                            shaderPath,
-                                            texPath + "env_barce_rooftop.hdr",
-                                            SLVec2i(2048, 2048),
-                                            "HDR Skybox");
+        SLSkybox* skybox = new SLSkybox(s,
+                                        shaderPath,
+                                        texPath + "env_barce_rooftop.hdr",
+                                        SLVec2i(2048, 2048),
+                                        "HDR Skybox");
 
         // Get preloaded shader programs
-        SLGLProgram* pbr    = new SLGLProgramGeneric(s,
-                                                     shaderPath + "PBR_Lighting.vert",
-                                                     shaderPath + "PBR_Lighting.frag");
-        SLGLProgram* pbrTex = new SLGLProgramGeneric(s,
-                                                     shaderPath + "PBR_LightingTm.vert",
-                                                     shaderPath + "PBR_LightingTm.frag");
+        SLGLProgram* progPbr    = new SLGLProgramGeneric(s,
+                                                         shaderPath + "PBR_Lighting.vert",
+                                                         shaderPath + "PBR_Lighting.frag");
+        SLGLProgram* progPbrTex = new SLGLProgramGeneric(s,
+                                                         shaderPath + "PBR_LightingTm.vert",
+                                                         shaderPath + "PBR_LightingTm.frag");
 
         // Create a scene group node
         SLNode* scene = new SLNode("scene node");
@@ -1624,28 +1627,24 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                     // and the prefiltered textures for IBL
                     mat[i] = new SLMaterial(s,
                                             "IBLMatTex",
-                                            pbrTex,
+                                            skybox,
                                             new SLGLTexture(s, texPath + "gold-scuffed_2048_C.png"),
                                             new SLGLTexture(s, texPath + "gold-scuffed_2048_N.png"),
                                             new SLGLTexture(s, texPath + "gold-scuffed_2048_M.png"),
                                             new SLGLTexture(s, texPath + "gold-scuffed_2048_R.png"),
-                                            new SLGLTexture(s, texPath + "gold-scuffed_2048_A.png"),
-                                            hdrCubeMap->irradianceCubemap(),
-                                            hdrCubeMap->roughnessCubemap(),
-                                            hdrCubeMap->brdfLUTTexture());
+                                            new SLGLTexture(s, texPath + "gold-scuffed_2048_A.png"));
+                    mat[i]->program(progPbrTex);
                 }
                 else
                 {
                     // Cook-Torrance material with IBL but without textures
                     mat[i] = new SLMaterial(s,
                                             "IBLMat",
+                                            skybox,
                                             SLCol4f::WHITE * 0.5f,
                                             Utils::clamp((float)r * deltaR, 0.05f, 1.0f),
-                                            (float)m * deltaM,
-                                            pbr,
-                                            hdrCubeMap->irradianceCubemap(),
-                                            hdrCubeMap->roughnessCubemap(),
-                                            hdrCubeMap->brdfLUTTexture());
+                                            (float)m * deltaM);
+                    mat[i]->program(progPbr);
                 }
 
                 SLNode* node = new SLNode(new SLSpheric(s,
@@ -1664,23 +1663,15 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
             y += spacing;
         }
 
-        // Add 4 point light
-        SLLight::gamma      = 2.2f;
-        SLLightSpot* light1 = new SLLightSpot(s, s, -maxX, maxY, maxY, 0.1f, 180, 0, 300, 300);
+        // Add directional light
+        SLLight::gamma        = 2.2f;
+        SLLightDirect* light1 = new SLLightDirect(s, s, maxX, maxY, maxY, 0.5f, 0, 10, 10);
+        light1->lookAt(0, 0, 0);
         light1->attenuation(0, 0, 1);
-        SLLightSpot* light2 = new SLLightSpot(s, s, maxX, maxY, maxY, 0.1f, 180, 0, 300, 300);
-        light2->attenuation(0, 0, 1);
-        SLLightSpot* light3 = new SLLightSpot(s, s, -maxX, -maxY, maxY, 0.1f, 180, 0, 300, 300);
-        light3->attenuation(0, 0, 1);
-        SLLightSpot* light4 = new SLLightSpot(s, s, maxX, -maxY, maxY, 0.1f, 180, 0, 300, 300);
-        light4->attenuation(0, 0, 1);
         scene->addChild(light1);
-        scene->addChild(light2);
-        scene->addChild(light3);
-        scene->addChild(light4);
 
         sv->camera(cam1);
-        s->skybox(hdrCubeMap);
+        s->skybox(skybox);
         s->root3D(scene);
 
         // Save energy
@@ -1691,18 +1682,17 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         // Set scene name and info string
         s->name("HDR IBL Shader Auto");
         s->info("Image-based Lighting from skybox using high dynamic range images. "
-                "Use F4-Key to increment (decrement w. shift-F4) exposure of the HDR skybox. "
                 "It uses the Cook-Torrance light model also to calculate the ambient light part "
                 "from the surrounding HDR skybox.");
 
         // Clone uniform for various shaders
         // do not modify these uniforms otherwise the exposure of the scene will not be changed correctly
         // Create HDR CubeMap and get precalculated textures from it
-        SLSkybox* hdrCubeMap = new SLSkybox(s,
-                                            shaderPath,
-                                            texPath + "env_barce_rooftop.hdr",
-                                            SLVec2i(2048, 2048),
-                                            "HDR Skybox");
+        SLSkybox* skybox = new SLSkybox(s,
+                                        shaderPath,
+                                        texPath + "env_barce_rooftop.hdr",
+                                        SLVec2i(2048, 2048),
+                                        "HDR Skybox");
 
         // Create a scene group node
         SLNode* scene = new SLNode("scene node");
@@ -1739,26 +1729,22 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                     // and the prefiltered textures for IBL
                     mat[i] = new SLMaterial(s,
                                             "IBLMatTex",
+                                            skybox,
                                             new SLGLTexture(s, texPath + "gold-scuffed_2048_C.png"),
                                             new SLGLTexture(s, texPath + "gold-scuffed_2048_N.png"),
                                             new SLGLTexture(s, texPath + "gold-scuffed_2048_M.png"),
                                             new SLGLTexture(s, texPath + "gold-scuffed_2048_R.png"),
-                                            new SLGLTexture(s, texPath + "gold-scuffed_2048_A.png"),
-                                            hdrCubeMap->irradianceCubemap(),
-                                            hdrCubeMap->roughnessCubemap(),
-                                            hdrCubeMap->brdfLUTTexture());
+                                            new SLGLTexture(s, texPath + "gold-scuffed_2048_A.png"));
                 }
                 else
                 {
                     // Cook-Torrance material with IBL but without textures
                     mat[i] = new SLMaterial(s,
                                             "IBLMat",
+                                            skybox,
                                             SLCol4f::WHITE * 0.5f,
                                             Utils::clamp((float)r * deltaR, 0.05f, 1.0f),
-                                            (float)m * deltaM,
-                                            hdrCubeMap->irradianceCubemap(),
-                                            hdrCubeMap->roughnessCubemap(),
-                                            hdrCubeMap->brdfLUTTexture());
+                                            (float)m * deltaM);
                 }
 
                 SLNode* node = new SLNode(new SLSpheric(s,
@@ -1776,24 +1762,16 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
             }
             y += spacing;
         }
-        // Add 4 point light
-        SLLight::gamma = 2.2f;
 
-        SLLightSpot* light1 = new SLLightSpot(s, s, -maxX, maxY, maxY, 0.1f, 180, 0, 300, 300);
+        // Add directional light
+        SLLight::gamma        = 2.2f;
+        SLLightDirect* light1 = new SLLightDirect(s, s, maxX, maxY, maxY, 0.5f, 0, 10, 10);
+        light1->lookAt(0, 0, 0);
         light1->attenuation(0, 0, 1);
-        light1->castsShadows(true);
-        light1->createsShadows(true);
         scene->addChild(light1);
 
-        // Add a box which receives shadows
-        SLMaterial* matPerPixSM = new SLMaterial(s, "m1"); //, SLCol4f::WHITE, SLCol4f::WHITE, 500, 0, 0, 1, progPerPixSM);
-        SLNode*     boxNode     = new SLNode(new SLBox(s, -15, -15, -0.2, 15, 15, 0.2, "Box", matPerPixSM));
-        boxNode->translate(SLVec3f(0, 0, -10));
-        boxNode->castsShadows(false);
-        scene->addChild(boxNode);
-
         sv->camera(cam1);
-        s->skybox(hdrCubeMap);
+        s->skybox(skybox);
         s->root3D(scene);
 
         // Save energy

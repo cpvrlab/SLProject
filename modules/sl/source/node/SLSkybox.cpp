@@ -212,33 +212,3 @@ SLCol4f SLSkybox::colorAtDir(const SLVec3f& dir)
         return SLCol4f::BLACK; // Generated skybox texture do not exist in _image
 }
 //-----------------------------------------------------------------------------
-/*! Passes all skybox parameters as uniforms to the passed shader program
- * @param program SLGLProgram pointer
- * @param nextTexUnit The next texture unit to use in the shader
- * @return Returns the next texture unit to use in the shader
- */
-SLint SLSkybox::passToUniforms(SLGLProgram* program, SLint nextTexUnit)
-{
-    assert(program && "SLMaterial::passToUniforms: No shader program set!");
-
-    /*
-    if (program->uniform1i("u_skyHDRTexture", nextTexUnit) < 0)
-        _hdrTexture->bindActive(nextTexUnit++);
-
-    if (program->uniform1i("u_skyEnvironmentCubemap", nextTexUnit) < 0)
-        _environmentCubemap->bindActive(nextTexUnit++);
-    */
-    if (program->uniform1i("u_skyIrradianceCubemap", nextTexUnit) < 0)
-        _irradianceCubemap->bindActive(nextTexUnit++);
-
-    if (program->uniform1i("u_skyRoughnessCubemap", nextTexUnit) < 0)
-        _roughnessCubemap->bindActive(nextTexUnit++);
-
-    if (program->uniform1i("u_skyBrdfLutTexture", nextTexUnit) < 0)
-        _brdfLutTexture->bindActive(nextTexUnit++);
-
-    program->uniform1f("u_skyExposure", _skyExposure);
-
-    return nextTexUnit;
-}
-//-----------------------------------------------------------------------------

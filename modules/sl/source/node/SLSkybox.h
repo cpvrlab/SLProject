@@ -57,7 +57,6 @@ public:
 
     void    drawAroundCamera(SLSceneView* sv);
     SLCol4f colorAtDir(const SLVec3f& dir);
-    SLint   passToUniforms(SLGLProgram* program, SLint nextTexUnit);
 
 private:
     void         build();
