@@ -322,7 +322,7 @@ void SLGLConetracer::renderNode(SLNode* node, SLGLProgram* program)
     {
         SLMesh* mesh = node->mesh();
         SLMaterial* mat = mesh->mat();
-        mat->passToUniforms(program);
+        mat->passToUniforms(program, 0);
 
         // generate a VAO if it does not exist yet
         if (!mesh->vao().vaoID())

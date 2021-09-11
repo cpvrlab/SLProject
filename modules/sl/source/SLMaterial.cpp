@@ -563,7 +563,7 @@ void SLMaterial::activate(SLCamera* cam, SLVLight* lights, SLSkybox* skybox)
 }
 //-----------------------------------------------------------------------------
 //! Passes all material parameters as uniforms to the passed shader program
-void SLMaterial::passToUniforms(SLGLProgram* program)
+SLint SLMaterial::passToUniforms(SLGLProgram* program, SLint nextTexUnit)
 {
     assert(program && "SLMaterial::passToUniforms: No shader program set!");
 
@@ -581,14 +581,13 @@ void SLMaterial::passToUniforms(SLGLProgram* program)
     program->uniform1i("u_matHasTexture", _numTextures > 0 ? 1 : 0);
 
     // pass textures unit id to the sampler uniform
-    SLuint texUnit = 0;
     for (SLuint i = 0; i < TT_numTextureType; i++)
     {
         int texNb = 0;
         for (SLGLTexture* texture : _textures[i])
         {
             SLchar name[100];
-            texture->bindActive(texUnit);
+            texture->bindActive(nextTexUnit);
             switch (i)
             {
                 case TT_diffuse: {
@@ -649,14 +648,15 @@ void SLMaterial::passToUniforms(SLGLProgram* program)
                 }
             }
 
-            if (program->uniform1i(name, texUnit) < 0)
+            if (program->uniform1i(name, nextTexUnit) < 0)
                 Utils::log("Material", "texture name %s not found", name);
 
             texNb++;
-            texUnit++;
+            nextTexUnit++;
         }
     }
 
-    program->uniform1i("u_matHasTexture", texUnit ? 1 : 0);
+    program->uniform1i("u_matHasTexture", nextTexUnit ? 1 : 0);
+    return nextTexUnit;
 }
 //-----------------------------------------------------------------------------

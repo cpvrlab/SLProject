@@ -75,14 +75,14 @@ public:
                              SLVLight*   lights) = 0; //!< starter for derived classes
     virtual void endShader()                   = 0;
 
-    void beginUse(SLCamera*   cam,
-                  SLMaterial* mat,
-                  SLVLight*   lights,
-                  SLSkybox*   skybox = nullptr);
-    void passLightsToUniforms(SLVLight* lights,
-                              SLuint    numTexInMat) const;
-    void endUse();
-    void useProgram();
+    void  beginUse(SLCamera*   cam,
+                   SLMaterial* mat,
+                   SLVLight*   lights,
+                   SLSkybox*   skybox = nullptr);
+    SLint passLightsToUniforms(SLVLight* lights,
+                               SLuint    nextTexUnit) const;
+    void  endUse();
+    void  useProgram();
 
     void addUniform1f(SLGLUniform1f* u); //!< add float uniform
     void addUniform1i(SLGLUniform1i* u); //!< add int uniform

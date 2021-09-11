@@ -286,14 +286,15 @@ void SLGLProgram::beginUse(SLCamera*   cam,
 
         stateGL->useProgram(_progID);
 
+        SLint nextTexUnit = 0;
         if (lights)
-            passLightsToUniforms(lights, (SLuint)mat->numTextures());
+            nextTexUnit = passLightsToUniforms(lights, nextTexUnit);
 
         //if (skybox && skybox->isHDR())
-        //skybox->passToUniforms(this);
+        //nextTexUnit = skybox->passToUniforms(this, nextTexUnit);
 
         if (mat)
-            mat->passToUniforms(this);
+            mat->passToUniforms(this, nextTexUnit);
 
         if (cam)
             cam->passToUniforms(this);
@@ -308,8 +309,8 @@ void SLGLProgram::beginUse(SLCamera*   cam,
     }
 }
 //-----------------------------------------------------------------------------
-void SLGLProgram::passLightsToUniforms(SLVLight* lights,
-                                       SLuint    numTexInMat) const
+SLint SLGLProgram::passLightsToUniforms(SLVLight* lights,
+                                        SLuint    nextTexUnit) const
 {
     SLGLState* stateGL = SLGLState::instance();
 
@@ -442,8 +443,6 @@ void SLGLProgram::passLightsToUniforms(SLVLight* lights,
         loc = uniform1fv("u_lightShadowMaxBias", nL, (SLfloat*)&lightShadowMaxBias);
         loc = uniform1iv("u_lightNumCascades", nL, (SLint*)&lightNumCascades);
 
-        int unitCounter = numTexInMat;
-
         for (int i = 0; i < SL_MAX_LIGHTS; ++i)
         {
             if (lightCreatesShadows[i])
@@ -461,9 +460,9 @@ void SLGLProgram::passLightsToUniforms(SLVLight* lights,
                         uniformSm = "u_cascadedShadowMap_" + std::to_string(i) + "_" + std::to_string(j);
                         if ((loc = getUniformLocation(uniformSm.c_str())) >= 0)
                         {
-                            lightShadowMap[i * 6 + j]->bindActive(unitCounter);
-                            glUniform1i(loc, unitCounter);
-                            unitCounter++;
+                            lightShadowMap[i * 6 + j]->bindActive(nextTexUnit);
+                            glUniform1i(loc, nextTexUnit);
+                            nextTexUnit++;
                         }
                     }
                 }
@@ -486,10 +485,9 @@ void SLGLProgram::passLightsToUniforms(SLVLight* lights,
 
                     if ((loc = getUniformLocation(uniformSm.c_str())) >= 0)
                     {
-                        lightShadowMap[i * 6]->bindActive(unitCounter);
-                        glUniform1i(loc, unitCounter);
-
-                        unitCounter++;
+                        lightShadowMap[i * 6]->bindActive(nextTexUnit);
+                        glUniform1i(loc, nextTexUnit);
+                        nextTexUnit++;
                     }
                 }
             }
@@ -497,6 +495,7 @@ void SLGLProgram::passLightsToUniforms(SLVLight* lights,
 
         loc = uniform1i("u_lightsDoColoredShadows", (SLint)SLLight::doColoredShadows);
     }
+    return nextTexUnit;
 }
 //-----------------------------------------------------------------------------
 //! SLGLProgram::endUse stops the shader program

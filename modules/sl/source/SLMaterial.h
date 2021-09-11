@@ -143,7 +143,7 @@ public:
     void activate(SLCamera* cam,
                   SLVLight* lights,
                   SLSkybox* skybox = nullptr);
-    void passToUniforms(SLGLProgram* program);
+    SLint passToUniforms(SLGLProgram* program, SLint nextTexUnit);
 
     //! Returns true if there is any transparency in diffuse alpha or textures
     SLbool hasAlpha()
