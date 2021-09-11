@@ -148,26 +148,26 @@ uniform vec4        u_matEmis;          // emissive color for self-shining mater
 uniform float       u_matShin;          // shininess exponent
 )";
 const string fragInputs_u_matAmbi            = R"(
-uniform vec4        u_matAmbi;          // ambient color reflection coefficient (ka)
-uniform vec4        u_matDiff;          // diffuse color reflection coefficient (kd)
-uniform float       u_matRough;          // specular color reflection coefficient (ks)
-uniform float       u_matMetal;          // emissive color for self-shining materials
+uniform vec4        u_matAmbi;              // ambient color reflection coefficient (ka)
+uniform vec4        u_matDiff;              // diffuse color reflection coefficient (kd)
+uniform float       u_matRough;             // specular color reflection coefficient (ks)
+uniform float       u_matMetal;             // emissive color for self-shining materials
 )";
 const string fragInputs_u_matCookAll         = R"(
-uniform vec4        u_matAmbi;          // ambient color reflection coefficient (ka)
-uniform vec4        u_matDiff;          // diffuse color reflection coefficient (kd)
-uniform float       u_matRough;         // specular color reflection coefficient (ks)
-uniform float       u_matMetal;         // emissive color for self-shining materials
+uniform vec4        u_matAmbi;              // ambient color reflection coefficient (ka)
+uniform vec4        u_matDiff;              // diffuse color reflection coefficient (kd)
+uniform float       u_matRough;             // specular color reflection coefficient (ks)
+uniform float       u_matMetal;             // emissive color for self-shining materials
 )";
 const string fragInputs_u_matCookTextures    = R"(
-uniform sampler2D u_matTextureRoughness0;
-uniform sampler2D u_matTextureMetallic0;
-uniform sampler2D u_matTextureHDR0;
+uniform sampler2D   u_matTextureRoughness0; // PBR material roughness texture
+uniform sampler2D   u_matTextureMetallic0;  // PBR material metallic texture
+uniform sampler2D   u_matTextureHDR0;       // PBR material HDR texture
 )";
 const string fragInputs_u_matCookEnvironment = R"(
-uniform samplerCube u_matTextureIrradianceCubemap0;
-uniform samplerCube u_matTextureRoughnessCubemap0;
-uniform sampler2D   u_matTextureBRDF0;
+uniform samplerCube u_skyIrradianceCubemap; // PBR skybox irradiance light
+uniform samplerCube u_skyRoughnessCubemap;  // PBR skybox cubemap for rough reflections
+uniform sampler2D   u_skyBrdfLutTexture;    // PBR lighting lookup table for BRDF
 )";
 //-----------------------------------------------------------------------------
 const string fragInputs_u_matTm       = R"(
@@ -969,13 +969,13 @@ const string fragMainCook_3_FragColorEv     = R"(
     vec3 kS = F;
     vec3 kD = 1.0 - kS;
     kD *= 1.0 - u_matMetal;
-    vec3 irradiance = texture(u_matTextureIrradianceCubemap0, N).rgb;
+    vec3 irradiance = texture(u_skyIrradianceCubemap, N).rgb;
     vec3 diffuse    = kD * irradiance * u_matDiff.rgb;
 
     // sample both the pre-filter map and the BRDF lut and combine them together as per the Split-Sum approximation to get the IBL specular part.
     const float MAX_REFLECTION_LOD = 4.0;
-    vec3 prefilteredColor = textureLod(u_matTextureRoughnessCubemap0, v_R_OS, u_matRough * MAX_REFLECTION_LOD).rgb;
-    vec2 brdf = texture(u_matTextureBRDF0, vec2(max(dot(N, E), 0.0), u_matRough)).rg;
+    vec3 prefilteredColor = textureLod(u_skyRoughnessCubemap, v_R_OS, u_matRough * MAX_REFLECTION_LOD).rgb;
+    vec2 brdf = texture(u_skyBrdfLutTexture, vec2(max(dot(N, E), 0.0), u_matRough)).rg;
     vec3 specular = prefilteredColor * (F * brdf.x + brdf.y);
     vec3 ambient = (diffuse + specular);
 
@@ -988,7 +988,7 @@ const string fragMainCook_3_FragColorEv     = R"(
     // For correct alpha blending overwrite alpha component
     o_fragColor.a = u_matDiff.a;
 )";
-const string fragMainCook_3_FragColorEvAo   = R"(
+const string fragMainCook_3_FragColorAoEv   = R"(
 
     // Build diffuse reflection for environment light map
     float matAO    = texture(u_matTextureAo0, v_uv1).r;
@@ -997,13 +997,13 @@ const string fragMainCook_3_FragColorEvAo   = R"(
     vec3 kS = F;
     vec3 kD = 1.0 - kS;
     kD *= 1.0 - u_matMetal;
-    vec3 irradiance = texture(u_matTextureIrradianceCubemap0, N).rgb;
+    vec3 irradiance = texture(u_skyIrradianceCubemap, N).rgb;
     vec3 diffuse    = kD * irradiance * u_matDiff.rgb;
 
     // sample both the pre-filter map and the BRDF lut and combine them together as per the Split-Sum approximation to get the IBL specular part.
     const float MAX_REFLECTION_LOD = 4.0;
-    vec3 prefilteredColor = textureLod(u_matTextureRoughnessCubemap0, v_R_OS, u_matRough * MAX_REFLECTION_LOD).rgb;
-    vec2 brdf = texture(u_matTextureBRDF0, vec2(max(dot(N, E), 0.0), u_matRough)).rg;
+    vec3 prefilteredColor = textureLod(u_skyRoughnessCubemap, v_R_OS, u_matRough * MAX_REFLECTION_LOD).rgb;
+    vec2 brdf = texture(u_skyBrdfLutTexture, vec2(max(dot(N, E), 0.0), u_matRough)).rg;
     vec3 specular = prefilteredColor * (F * brdf.x + brdf.y);
     vec3 ambient = (diffuse + specular) * matAO;
 
@@ -1020,18 +1020,17 @@ const string fragMainCook_3_FragColorTmEv   = R"(
 
     // Build diffuse reflection for environment light map
     float exposureToneMapping = 1.0f;
-
     vec3 F = fresnelSchlickRoughness(max(dot(N, E), 0.0), F0, matRough);
     vec3 kS = F;
     vec3 kD = 1.0 - kS;
     kD *= 1.0 - matMetal;
-    vec3 irradiance = texture(u_matTextureIrradianceCubemap0, N).rgb;
+    vec3 irradiance = texture(u_skyIrradianceCubemap, N).rgb;
     vec3 diffuse    = kD * irradiance * matDiff.rgb;
 
     // sample both the pre-filter map and the BRDF lut and combine them together as per the Split-Sum approximation to get the IBL specular part.
     const float MAX_REFLECTION_LOD = 4.0;
-    vec3 prefilteredColor = textureLod(u_matTextureRoughnessCubemap0, v_R_OS, matRough * MAX_REFLECTION_LOD).rgb;
-    vec2 brdf = texture(u_matTextureBRDF0, vec2(max(dot(N, E), 0.0), matRough)).rg;
+    vec3 prefilteredColor = textureLod(u_skyRoughnessCubemap, v_R_OS, matRough * MAX_REFLECTION_LOD).rgb;
+    vec2 brdf = texture(u_skyBrdfLutTexture, vec2(max(dot(N, E), 0.0), matRough)).rg;
     vec3 specular = prefilteredColor * (F * brdf.x + brdf.y);
     vec3 ambient = (kD * diffuse + specular);
 
@@ -1041,23 +1040,22 @@ const string fragMainCook_3_FragColorTmEv   = R"(
     vec3 mapped = vec3(1.0) - exp(-color * exposureToneMapping);
     o_fragColor = vec4(mapped, 1.0);
 )";
-const string fragMainCook_3_FragColorTmEvAo = R"(
+const string fragMainCook_3_FragColorTmAoEv = R"(
 
     // Build diffuse reflection for environment light map
     float exposureToneMapping = 1.0f;
-
     float matAO    = texture(u_matTextureAo0, v_uv1).r;
     vec3 F = fresnelSchlickRoughness(max(dot(N, E), 0.0), F0, matRough);
     vec3 kS = F;
     vec3 kD = 1.0 - kS;
     kD *= 1.0 - matMetal;
-    vec3 irradiance = texture(u_matTextureIrradianceCubemap0, N).rgb;
+    vec3 irradiance = texture(u_skyIrradianceCubemap, N).rgb;
     vec3 diffuse    = kD * irradiance * matDiff.rgb;
 
     // sample both the pre-filter map and the BRDF lut and combine them together as per the Split-Sum approximation to get the IBL specular part.
     const float MAX_REFLECTION_LOD = 4.0;
-    vec3 prefilteredColor = textureLod(u_matTextureRoughnessCubemap0, v_R_OS, matRough * MAX_REFLECTION_LOD).rgb;
-    vec2 brdf = texture(u_matTextureBRDF0, vec2(max(dot(N, E), 0.0), matRough)).rg;
+    vec3 prefilteredColor = textureLod(u_skyRoughnessCubemap, v_R_OS, matRough * MAX_REFLECTION_LOD).rgb;
+    vec2 brdf = texture(u_skyBrdfLutTexture, vec2(max(dot(N, E), 0.0), matRough)).rg;
     vec3 specular = prefilteredColor * (F * brdf.x + brdf.y);
     vec3 ambient = (kD * diffuse + specular) * matAO;
 
@@ -1342,7 +1340,7 @@ in      vec3        v_spotDirTS[NUM_LIGHTS];    // Spot direction in tangent spa
     fragCode += fragMain_1_EN_fromNm;
     fragCode += fragMainCook_2_LightLoopTmNm;
     if (env)
-        fragCode += fragMainCook_3_FragColorTmEvAo;
+        fragCode += fragMainCook_3_FragColorTmAoEv;
     else
         fragCode += fragMainCook_3_FragColorTmAo;
     fragCode += fragMain_4_ColoredShadows;
@@ -1406,7 +1404,7 @@ in      vec3        v_spotDirTS[NUM_LIGHTS];    // Spot direction in tangent spa
     fragCode += fragMain_1_EN_fromNm;
     fragCode += fragMainCook_2_LightLoopTmNm;
     if (env)
-        fragCode += fragMainCook_3_FragColorTmEvAo;
+        fragCode += fragMainCook_3_FragColorTmAoEv;
     else
         fragCode += fragMainCook_3_FragColorTmAo;
     fragCode += fragMain_5_FogGammaStereo;
@@ -1540,7 +1538,7 @@ in      vec2        v_uv1;      // Texture coordinate varying
     fragCode += fragMain_1_EN_fromVert;
     fragCode += fragMainCook_2_LightLoopTm;
     if (env)
-        fragCode += fragMainCook_3_FragColorTmEvAo;
+        fragCode += fragMainCook_3_FragColorTmAoEv;
     else
         fragCode += fragMainCook_3_FragColorTmAo;
     fragCode += fragMain_4_ColoredShadows;
@@ -1604,7 +1602,7 @@ in      vec2        v_uv1;      // Texture coordinate varying
     fragCode += fragMain_1_EN_fromVert;
     fragCode += fragMainCook_2_LightLoop;
     if (env)
-        fragCode += fragMainCook_3_FragColorEvAo;
+        fragCode += fragMainCook_3_FragColorAoEv;
     else
         fragCode += fragMainCook_3_FragColorAo;
     fragCode += fragMain_4_ColoredShadows;
@@ -1795,7 +1793,7 @@ in      vec2        v_uv1;      // Texture coordinate varying
     fragCode += fragMain_0_Intensities;
     fragCode += fragMain_1_EN_fromVert;
     fragCode += fragMainCook_2_LightLoopTm;
-    fragCode += fragMainCook_3_FragColorTmEvAo;
+    fragCode += fragMainCook_3_FragColorTmAoEv;
     fragCode += fragMain_5_FogGammaStereo;
     addCodeToShader(_shaders[1], fragCode, _name + ".frag");
 }
@@ -1973,7 +1971,7 @@ in      vec2        v_uv1;      // Texture coordinate varying
     fragCode += fragMain_1_EN_fromVert;
     fragCode += fragMainCook_2_LightLoop;
     if (env)
-        fragCode += fragMainCook_3_FragColorEvAo;
+        fragCode += fragMainCook_3_FragColorAoEv;
     else
         fragCode += fragMainCook_3_FragColorAo;
     fragCode += fragMain_5_FogGammaStereo;

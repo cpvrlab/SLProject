@@ -221,12 +221,13 @@ SLint SLSkybox::passToUniforms(SLGLProgram* program, SLint nextTexUnit)
 {
     assert(program && "SLMaterial::passToUniforms: No shader program set!");
 
+    /*
     if (program->uniform1i("u_skyHDRTexture", nextTexUnit) < 0)
         _hdrTexture->bindActive(nextTexUnit++);
 
     if (program->uniform1i("u_skyEnvironmentCubemap", nextTexUnit) < 0)
         _environmentCubemap->bindActive(nextTexUnit++);
-
+    */
     if (program->uniform1i("u_skyIrradianceCubemap", nextTexUnit) < 0)
         _irradianceCubemap->bindActive(nextTexUnit++);
 

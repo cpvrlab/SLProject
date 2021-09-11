@@ -32,14 +32,15 @@ uniform float   u_lightSpotCos[NUM_LIGHTS]; // cosine of spot cutoff angle
 uniform float   u_lightSpotExp[NUM_LIGHTS]; // spot exponent
 uniform float   u_oneOverGamma;             // 1.0f / Gamma correction value
 
+uniform samplerCube u_skyIrradianceCubemap; // IBL irradiance convolution map
+uniform samplerCube u_skyRoughnessCubemap;  // IBL prefilter roughness map
+uniform sampler2D   u_skyBrdfLutTexture;    // IBL brdf integration map
+
 uniform sampler2D   u_matTextureDiffuse0;            // Diffuse Color map (albedo)
 uniform sampler2D   u_matTextureNormal0;             // Normal map
 uniform sampler2D   u_matTextureMetallic0;           // Metallic map
 uniform sampler2D   u_matTextureRoughness0;          // Roughness map
 uniform sampler2D   u_matTextureAo0;                 // Ambient Occlusion map
-uniform samplerCube u_matTextureIrradianceCubemap0;  // IBL irradiance convolution map
-uniform samplerCube u_matTextureRoughnessCubemap0;   // IBL prefilter roughness map
-uniform sampler2D   u_matTextureBRDF0;               // IBL brdf integration map
 
 uniform int         u_camProjection;    // type of stereo
 uniform int         u_camStereoEye;     // -1=left, 0=center, 1=right
@@ -124,13 +125,13 @@ void main()
     vec3 kD = 1.0 - kS;
     kD *= 1.0 - matMetal;
     
-    vec3 irradiance = texture(u_matTextureIrradianceCubemap0, N).rgb;
+    vec3 irradiance = texture(u_skyIrradianceCubemap, N).rgb;
     vec3 diffuse    = irradiance * matDiff;
     
     // sample both the pre-filter map and the BRDF lut and combine them together as per the Split-Sum approximation to get the IBL specular part.
     const float MAX_REFLECTION_LOD = 4.0;
-    vec3 prefilteredColor = textureLod(u_matTextureRoughnessCubemap0, v_R_OS, matRough * MAX_REFLECTION_LOD).rgb;
-    vec2 brdf = texture(u_matTextureBRDF0, vec2(max(dot(N, E), 0.0), matRough)).rg;
+    vec3 prefilteredColor = textureLod(u_skyRoughnessCubemap, v_R_OS, matRough * MAX_REFLECTION_LOD).rgb;
+    vec2 brdf = texture(u_skyBrdfLutTexture, vec2(max(dot(N, E), 0.0), matRough)).rg;
     vec3 specular = prefilteredColor * (F * brdf.x + brdf.y);
     
     vec3 ambient = (kD * diffuse + specular) * matAO;

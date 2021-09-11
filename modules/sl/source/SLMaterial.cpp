@@ -627,15 +627,15 @@ SLint SLMaterial::passToUniforms(SLGLProgram* program, SLint nextTexUnit)
                     break;
                 }
                 case TT_irradianceCubemap: {
-                    sprintf(name, "u_matTextureIrradianceCubemap%d", texNb);
+                    sprintf(name, "u_skyIrradianceCubemap");
                     break;
                 }
                 case TT_roughnessCubemap: {
-                    sprintf(name, "u_matTextureRoughnessCubemap%d", texNb);
+                    sprintf(name, "u_skyRoughnessCubemap");
                     break;
                 }
                 case TT_brdfLUT: {
-                    sprintf(name, "u_matTextureBRDF%d", texNb);
+                    sprintf(name, "u_skyBrdfLutTexture");
                     break;
                 }
                 case TT_font: {
