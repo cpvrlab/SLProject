@@ -354,6 +354,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
     SLstring dataPath   = AppDemo::dataPath;
     SLstring modelPath  = AppDemo::modelPath;
     SLstring shaderPath = AppDemo::shaderPath;
+    SLstring configPath = AppDemo::configPath;
 
     // reset existing sceneviews
     for (auto* sceneview : AppDemo::sceneViews)
@@ -1775,6 +1776,60 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Save energy
         sv->doWaitOnIdle(true);
+    }
+    else if (sceneID == SID_ShaderPbrMaterials) //.................................................
+    {
+        SLstring modelFile = configPath + "models/PBR-Materials/PBR-Materials.blend";
+
+        if (Utils::fileExists(modelFile))
+        {
+            // Set scene name and info string
+            s->name("PBR Materials");
+            s->info("Most Physically Based Rendering (PBR) materials shown here where found at freepbr.com");
+
+            // Create HDR CubeMap and get precalculated textures from it
+            SLSkybox* skybox = new SLSkybox(s,
+                                            shaderPath,
+                                            configPath + "models/PBR-Materials/envmap_malibu.hdr",
+                                            SLVec2i(2048, 2048),
+                                            "HDR Skybox");
+
+            // Create a scene group node
+            SLNode* scene = new SLNode("scene node");
+
+            // Create camera and initialize its parameters
+            SLCamera* cam1 = new SLCamera("Camera 1");
+            cam1->translation(0, 0, 30);
+            cam1->lookAt(0, 0, 0);
+            cam1->background().colors(SLCol4f(0.2f, 0.2f, 0.2f));
+            cam1->focalDist(30);
+            cam1->setInitialState();
+            scene->addChild(cam1);
+
+            // Add directional light with a position that corresponds roughly to the sun direction
+            SLLight::gamma        = 2.2f;
+            SLLightDirect* light1 = new SLLightDirect(s, s, 1.5f, .3f, 2.0f, 0.5f, 0, 10, 10);
+            light1->lookAt(0, 0, 0);
+            light1->attenuation(0, 0, 1);
+            scene->addChild(light1);
+
+            // Import main model
+            SLAssimpImporter importer;
+            SLNode*          pbrGroup = importer.load(s->animManager(),
+                                                      s,
+                                                      configPath + "models/PBR-Materials/PBR-Materials.blend",
+                                                      texPath,
+                                                      false,   // delete tex images after build
+                                                      true,    // only meshes
+                                                      nullptr, // no replacement material
+                                                      0.4f);   // 40% ambient reflection
+            scene->addChild(pbrGroup);
+
+            s->skybox(skybox);
+            s->root3D(scene);
+            sv->camera(cam1);
+            sv->doWaitOnIdle(true); // Saves energy
+        }
     }
     else if (sceneID == SID_ShaderPerVertexWave) //................................................
     {
@@ -5397,7 +5452,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
     else if (sceneID == SID_Benchmark1_LargeModel) //..............................................
     {
-        SLstring largeFile = AppDemo::configPath + "models/xyzrgb_dragon/xyzrgb_dragon.ply";
+        SLstring largeFile = configPath + "models/xyzrgb_dragon/xyzrgb_dragon.ply";
 
         if (Utils::fileExists(largeFile))
         {
@@ -5635,9 +5690,9 @@ resolution shadows near the camera and lower resolution shadows further away.");
     }
     else if (sceneID == SID_Benchmark5_LevelOfDetail) //...........................................
     {
-        SLstring modelFile = AppDemo::configPath + "models/GLTF-CorinthianColumn/Corinthian-Column-Round-LOD.gltf";
-        SLstring texCFile  = AppDemo::configPath + "models/GLTF-CorinthianColumn/PavementSlateSquare2_2K_DIF.jpg";
-        SLstring texNFile  = AppDemo::configPath + "models/GLTF-CorinthianColumn/PavementSlateSquare2_2K_NRM.jpg";
+        SLstring modelFile = configPath + "models/GLTF-CorinthianColumn/Corinthian-Column-Round-LOD.gltf";
+        SLstring texCFile  = configPath + "models/GLTF-CorinthianColumn/PavementSlateSquare2_2K_DIF.jpg";
+        SLstring texNFile  = configPath + "models/GLTF-CorinthianColumn/PavementSlateSquare2_2K_NRM.jpg";
 
         if (Utils::fileExists(modelFile) && Utils::fileExists(texCFile) && Utils::fileExists(texNFile))
         {

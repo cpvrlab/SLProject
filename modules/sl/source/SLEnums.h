@@ -108,6 +108,7 @@ enum SLSceneID
     SID_ShaderCookAuto,
     SID_ShaderIBL,
     SID_ShaderIBLAuto,
+    SID_ShaderPbrMaterials,
     SID_ShaderBumpNormal,
     SID_ShaderBumpParallax,
     SID_ShaderSkyBox,
