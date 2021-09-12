@@ -31,7 +31,8 @@ SLfloat SLMaterial::PERFECT = 1000.0f;
  @param kr Reflection coefficient used for ray tracing. (0.0-1.0)
  @param kt Transparency coefficient used for ray tracing. (0.0-1.0)
  @param kn Refraction index used for ray tracing (1.0-2.5)
- @param program Pointer to the shader program for the material
+ @param program Pointer to the shader program for the material.
+ If none is passed a program will be generated from the passed parameters.
 */
 SLMaterial::SLMaterial(SLAssetManager* am,
                        const SLchar*   name,
@@ -70,8 +71,7 @@ SLMaterial::SLMaterial(SLAssetManager* am,
         am->materials().push_back(this);
 }
 //-----------------------------------------------------------------------------
-/*!
- Constructor for textured Blinn-Phong light model materials.
+/*! Constructor for textured Blinn-Phong light model materials.
  Materials can be used by multiple meshes (SLMesh). Materials can belong
  therefore to the global assets such as meshes, materials, textures and
  shader programs.
@@ -79,15 +79,12 @@ SLMaterial::SLMaterial(SLAssetManager* am,
  manager is the owner of the instance and will do the deallocation. If a
  nullptr is passed the creator is responsible for the deallocation.
  @param name Name of the material
- @param texture1 Texture 1 image filename. If only a filename is
- passed it will be search on the SLGLTexture::defaultPath.
- @param texture2 Texture 2 image filename. If only a filename is
- passed it will be search on the SLGLTexture::defaultPath.
- @param texture3 Texture 3 image filename. If only a filename is
- passed it will be search on the SLGLTexture::defaultPath.
- @param texture4 Texture 4 image filename. If only a filename is
- passed it will be search on the SLGLTexture::defaultPath.
- @param shaderProg Pointer to the shader program for the material
+ @param texture1 Pointer to an SLGLTexture of a specific SLTextureType
+ @param texture2 Pointer to an SLGLTexture of a specific SLTextureType
+ @param texture3 Pointer to an SLGLTexture of a specific SLTextureType
+ @param texture4 Pointer to an SLGLTexture of a specific SLTextureType
+ @param program Pointer to the shader program for the material.
+ If none is passed a program will be generated from the passed parameters.
  */
 SLMaterial::SLMaterial(SLAssetManager* am,
                        const SLchar*   name,
@@ -95,7 +92,7 @@ SLMaterial::SLMaterial(SLAssetManager* am,
                        SLGLTexture*    texture2,
                        SLGLTexture*    texture3,
                        SLGLTexture*    texture4,
-                       SLGLProgram*    shaderProg) : SLObject(name)
+                       SLGLProgram*    program) : SLObject(name)
 {
     _assetManager = am;
     _lightModel   = LM_BlinnPhong;
@@ -108,12 +105,12 @@ SLMaterial::SLMaterial(SLAssetManager* am,
     _metalness    = 0.0f;
     _translucency = 0.0f;
     _getsShadows  = true;
-    _program      = shaderProg;
-    _skybox       = nullptr;
     _kr           = 0.0f;
     _kt           = 0.0f;
     _kn           = 1.0f;
     _diffuse.w    = 1.0f - _kt;
+    _skybox       = nullptr;
+    _program      = program;
 
     _numTextures = 0;
     addTexture(texture1);
@@ -129,26 +126,28 @@ SLMaterial::SLMaterial(SLAssetManager* am,
         am->materials().push_back(this);
 }
 //-----------------------------------------------------------------------------
-/*!
- * Constructor for Cook-Torrance shaded materials with roughness and metalness.
- * Materials can be used by multiple meshes (SLMesh). Materials can belong
- * therefore to the global assets such as meshes, materials, textures and
- * shader programs.
- * @param am Pointer to a global asset manager. If passed the asset manager
- * is the owner of the instance and will do the deallocation. If a nullptr
- * is passed the creator is responsible for the deallocation.
- * @param name Name of the material
- * @param skybox Pointer to the skybox if available
- * @param diffuse Diffuse reflection color
- * @param roughness Roughness (0.0-1.0)
- * @param metalness Metalness (0.0-1.0)
+/*! Constructor for Cook-Torrance shaded materials with roughness and metalness.
+ Materials can be used by multiple meshes (SLMesh). Materials can belong
+ therefore to the global assets such as meshes, materials, textures and
+ shader programs.
+ @param am Pointer to a global asset manager. If passed the asset manager
+ is the owner of the instance and will do the deallocation. If a nullptr
+ is passed the creator is responsible for the deallocation.
+ @param name Name of the material
+ @param skybox Pointer to the skybox if available
+ @param diffuse Diffuse reflection color
+ @param roughness Roughness (0.0-1.0)
+ @param metalness Metalness (0.0-1.0)
+ @param program Pointer to the shader program for the material.
+ If none is passed a program will be generated from the passed parameters.
  */
 SLMaterial::SLMaterial(SLAssetManager* am,
                        const SLchar*   name,
                        SLSkybox*       skybox,
                        SLCol4f         diffuse,
                        SLfloat         roughness,
-                       SLfloat         metalness) : SLObject(name)
+                       SLfloat         metalness,
+                       SLGLProgram*    program) : SLObject(name)
 {
     _assetManager = am;
     _ambient.set(0, 0, 0); // not used in Cook-Torrance
@@ -160,8 +159,8 @@ SLMaterial::SLMaterial(SLAssetManager* am,
     _metalness   = metalness;
     _numTextures = 0;
     _lightModel  = LM_CookTorrance;
-    _program     = nullptr;
     _skybox      = skybox;
+    _program     = program;
 
     _kr = 0.0f;
     _kt = 0.0f;
@@ -172,21 +171,25 @@ SLMaterial::SLMaterial(SLAssetManager* am,
         am->materials().push_back(this);
 }
 //-----------------------------------------------------------------------------
-/*!
- * Constructor for Cook-Torrance shaded materials with PBR textures.
- * Materials can be used by multiple meshes (SLMesh). Materials can belong
- * therefore to the global assets such as meshes, materials, textures and
- * shader programs.
- * @param am Pointer to a global asset manager. If passed the asset manager
- * is the owner of the instance and will do the deallocation. If a nullptr
- * is passed the creator is responsible for the deallocation.
- * @param name Name of the material
- * @param skybox Pointer to the skybox if available
- * @param texture1 PBR texture of a specific type (see SLTextureType)
- * @param texture2 PBR texture of a specific type (see SLTextureType)
- * @param texture3 PBR texture of a specific type (see SLTextureType)
- * @param texture4 PBR texture of a specific type (see SLTextureType)
- * @param texture5 PBR texture of a specific type (see SLTextureType)
+/*! Constructor for Cook-Torrance shaded materials with PBR textures.
+ Materials can be used by multiple meshes (SLMesh). Materials can belong
+ therefore to the global assets such as meshes, materials, textures and
+ shader programs.
+ @param am Pointer to a global asset manager. If passed the asset manager
+ is the owner of the instance and will do the deallocation. If a nullptr
+ is passed the creator is responsible for the deallocation.
+ @param name Name of the material
+ @param skybox Pointer to the skybox if available. If the skybox is an HDR
+ skybox it will influence the ambient and specular reflection.
+ @param texture1 Pointer to a SLGLTexture of a specific SLTextureType. For
+ PBR materials this can be TT_diffuse, TT_normal, TT_roughness, TT_metallic
+ and TT_ambientOcclusion.
+ @param texture2 Pointer to a SLGLTexture of a specific SLTextureType.
+ @param texture3 Pointer to a SLGLTexture of a specific SLTextureType.
+ @param texture4 Pointer to a SLGLTexture of a specific SLTextureType.
+ @param texture5 Pointer to a SLGLTexture of a specific SLTextureType.
+ @param program Pointer to the shader program for the material.
+ If none is passed a program will be generated from the passed parameters.
  */
 SLMaterial::SLMaterial(SLAssetManager* am,
                        const SLchar*   name,
@@ -195,7 +198,8 @@ SLMaterial::SLMaterial(SLAssetManager* am,
                        SLGLTexture*    texture2,
                        SLGLTexture*    texture3,
                        SLGLTexture*    texture4,
-                       SLGLTexture*    texture5) : SLObject(name)
+                       SLGLTexture*    texture5,
+                       SLGLProgram*    program) : SLObject(name)
 {
     _assetManager = am;
     _ambient.set(1, 1, 1);
@@ -207,8 +211,8 @@ SLMaterial::SLMaterial(SLAssetManager* am,
     _metalness   = 0.0f;
     _numTextures = 0;
     _lightModel  = LM_CookTorrance;
-    _program     = nullptr;
     _skybox      = skybox;
+    _program     = program;
 
     addTexture(texture1);
     addTexture(texture2);
@@ -227,8 +231,7 @@ SLMaterial::SLMaterial(SLAssetManager* am,
         am->materials().push_back(this);
 }
 //-----------------------------------------------------------------------------
-/*!
- Constructor for materials used within the cone tracer (SLGLConetracer).
+/*! Constructor for materials used within the cone tracer (SLGLConetracer).
  Materials can be used by multiple meshes (SLMesh). Materials can belong
  therefore to the global assets such as meshes, materials, textures and
  shader programs.
@@ -478,7 +481,6 @@ SLint SLMaterial::passToUniforms(SLGLProgram* program, SLint nextTexUnit)
 
         program->uniform1f("u_skyExposure", _skybox->exposure());
     }
-
 
     return nextTexUnit;
 }

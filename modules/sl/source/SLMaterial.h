@@ -43,22 +43,22 @@ public:
     //! Default ctor for Blinn-Phong light model materials without textures
     explicit SLMaterial(SLAssetManager* am,
                         const SLchar*   name,
-                        const SLCol4f&  amdi                    = SLCol4f::WHITE,
-                        const SLCol4f&  spec                    = SLCol4f::WHITE,
-                        SLfloat         shininess               = 100.0f,
-                        SLfloat         kr                      = 0.0,
-                        SLfloat         kt                      = 0.0f,
-                        SLfloat         kn                      = 1.0f,
-                        SLGLProgram*    program                 = nullptr);
+                        const SLCol4f&  amdi      = SLCol4f::WHITE,
+                        const SLCol4f&  spec      = SLCol4f::WHITE,
+                        SLfloat         shininess = 100.0f,
+                        SLfloat         kr        = 0.0,
+                        SLfloat         kt        = 0.0f,
+                        SLfloat         kn        = 1.0f,
+                        SLGLProgram*    program   = nullptr);
 
     //! Ctor for textured Blinn-Phong light model materials
     SLMaterial(SLAssetManager* am,
                const SLchar*   name,
                SLGLTexture*    texture1,
-               SLGLTexture*    texture2                = nullptr,
-               SLGLTexture*    texture3                = nullptr,
-               SLGLTexture*    texture4                = nullptr,
-               SLGLProgram*    program                 = nullptr);
+               SLGLTexture*    texture2 = nullptr,
+               SLGLTexture*    texture3 = nullptr,
+               SLGLTexture*    texture4 = nullptr,
+               SLGLProgram*    program  = nullptr);
 
     //! Ctor for PBR material with Cook-Torrance material parameters
     SLMaterial(SLAssetManager* am,
@@ -66,7 +66,8 @@ public:
                SLSkybox*       skybox,
                SLCol4f         diffuse,
                SLfloat         roughness,
-               SLfloat         metalness);
+               SLfloat         metalness,
+               SLGLProgram*    program = nullptr);
 
     //! Ctor for PBR material with Cook-Torrance material textures
     SLMaterial(SLAssetManager* am,
@@ -76,13 +77,14 @@ public:
                SLGLTexture*    texture2 = nullptr,
                SLGLTexture*    texture3 = nullptr,
                SLGLTexture*    texture4 = nullptr,
-               SLGLTexture*    texture5 = nullptr);
+               SLGLTexture*    texture5 = nullptr,
+               SLGLProgram*    program  = nullptr);
 
     //! Ctor for uniform color material without lighting
     explicit SLMaterial(SLAssetManager* am,
                         SLGLProgram*    colorUniformProgram,
                         const SLCol4f&  uniformColor,
-                        const SLchar*   name                    = (const char*)"Uniform color");
+                        const SLchar*   name = (const char*)"Uniform color");
 
     //! Ctor for cone tracer
     SLMaterial(SLAssetManager* am,
@@ -91,9 +93,9 @@ public:
 
     ~SLMaterial() override;
 
-    void activate(SLCamera* cam,
-                  SLVLight* lights,
-                  SLSkybox* skybox = nullptr);
+    void  activate(SLCamera* cam,
+                   SLVLight* lights,
+                   SLSkybox* skybox = nullptr);
     SLint passToUniforms(SLGLProgram* program, SLint nextTexUnit);
 
     //! Returns true if there is any transparency in diffuse alpha or textures
