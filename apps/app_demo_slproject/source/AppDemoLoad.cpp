@@ -1779,7 +1779,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
     }
     else if (sceneID == SID_ShaderPbrMaterials) //.................................................
     {
-        SLstring modelFile = configPath + "models/PBR-Materials/PBR-Materials.blend";
+        SLstring modelFile = configPath + "models/PBR-Materials/PBR-Materials.gltf";
 
         if (Utils::fileExists(modelFile))
         {
@@ -1808,16 +1808,16 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
             // Add directional light with a position that corresponds roughly to the sun direction
             SLLight::gamma        = 2.2f;
-            SLLightDirect* light1 = new SLLightDirect(s, s, 1.5f, .3f, 2.0f, 0.5f, 0, 10, 10);
+            SLLightDirect* light1 = new SLLightDirect(s, s, 1.5f, .3f, 2.0f, 0.5f, 0, 1, 1);
             light1->lookAt(0, 0, 0);
-            light1->attenuation(0, 0, 1);
+            light1->attenuation(1, 0, 0);
             scene->addChild(light1);
 
             // Import main model
             SLAssimpImporter importer;
             SLNode*          pbrGroup = importer.load(s->animManager(),
                                                       s,
-                                                      configPath + "models/PBR-Materials/PBR-Materials.blend",
+                                                      configPath + "models/PBR-Materials/PBR-Materials.gltf",
                                                       texPath,
                                                       false,   // delete tex images after build
                                                       true,    // only meshes
