@@ -1779,7 +1779,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
     }
     else if (sceneID == SID_ShaderPbrMaterials) //.................................................
     {
-        SLstring modelFile = configPath + "models/PBR-Materials/PBR-Materials.gltf";
+        SLstring modelFile = configPath + "models/PBR-Materials/waterbottle/WaterBottle.gltf";
 
         if (Utils::fileExists(modelFile))
         {
@@ -1817,8 +1817,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
             SLAssimpImporter importer;
             SLNode*          pbrGroup = importer.load(s->animManager(),
                                                       s,
-                                                      configPath + "models/PBR-Materials/PBR-Materials.gltf",
-                                                      texPath,
+                                                      modelFile,
+                                                      "models/PBR-Materials/waterbottle",
                                                       false,   // delete tex images after build
                                                       true,    // only meshes
                                                       nullptr, // no replacement material
