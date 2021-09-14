@@ -88,35 +88,35 @@ public:
 
 private:
     // Blinn-Phong shader builder functions
-    void buildPerPixBlinnTmNmAoSm(SLVLight* lights);
-    void buildPerPixBlinnTmNmAo(SLVLight* lights);
-    void buildPerPixBlinnTmNmSm(SLVLight* lights);
-    void buildPerPixBlinnTmAoSm(SLVLight* lights);
-    void buildPerPixBlinnAoSm(SLVLight* lights);
+    void buildPerPixBlinnDmNmOmSm(SLVLight* lights);
+    void buildPerPixBlinnDmNmOm(SLVLight* lights);
+    void buildPerPixBlinnDmNmSm(SLVLight* lights);
+    void buildPerPixBlinnDmOmSm(SLVLight* lights);
+    void buildPerPixBlinnOmSm(SLVLight* lights);
     void buildPerPixBlinnNmSm(SLVLight* lights);
-    void buildPerPixBlinnTmSm(SLVLight* lights);
-    void buildPerPixBlinnNmAo(SLVLight* lights);
-    void buildPerPixBlinnTmAo(SLVLight* lights);
-    void buildPerPixBlinnTmNm(SLVLight* lights);
+    void buildPerPixBlinnDmSm(SLVLight* lights);
+    void buildPerPixBlinnNmOm(SLVLight* lights);
+    void buildPerPixBlinnDmOm(SLVLight* lights);
+    void buildPerPixBlinnDmNm(SLVLight* lights);
     void buildPerPixBlinnSm(SLVLight* lights);
     void buildPerPixBlinnSc(SLVLight* lights);
-    void buildPerPixBlinnAo(SLVLight* lights);
+    void buildPerPixBlinnOm(SLVLight* lights);
     void buildPerPixBlinnNm(SLVLight* lights);
-    void buildPerPixBlinnTm(SLVLight* lights);
+    void buildPerPixBlinnDm(SLVLight* lights);
     void buildPerPixBlinn(SLVLight* lights);
 
-    void buildPerPixCookTmNmAoSm(SLVLight* lights, bool ev);
-    void buildPerPixCookTmNmAo(SLVLight* lights, bool ev);
-    void buildPerPixCookTmNmSm(SLVLight* lights, bool ev);
-    void buildPerPixCookTmAoSm(SLVLight* lights, bool ev);
-    void buildPerPixCookAoSm(SLVLight* lights, bool ev);
+    void buildPerPixCookDmNmOmSm(SLVLight* lights, bool doEnvMap);
+    void buildPerPixCookDmNmOm(SLVLight* lights, bool doEnvMap);
+    void buildPerPixCookDmNmSm(SLVLight* lights, bool ev);
+    void buildPerPixCookDmOmSm(SLVLight* lights, bool doEnvMap);
+    void buildPerPixCookOmSm(SLVLight* lights, bool doEnvMap);
     void buildPerPixCookNmSm(SLVLight* lights, bool ev);
-    void buildPerPixCookTmSm(SLVLight* lights, bool ev);
-    void buildPerPixCookTmAo(SLVLight* lights, bool ev);
-    void buildPerPixCookTmNm(SLVLight* lights, bool ev);
+    void buildPerPixCookDmSm(SLVLight* lights, bool ev);
+    void buildPerPixCookDmOm(SLVLight* lights, bool doEnvMap);
+    void buildPerPixCookDmNm(SLVLight* lights, bool ev);
     void buildPerPixCookSm(SLVLight* lights, bool ev);
-    void buildPerPixCookAo(SLVLight* lights, bool ev);
-    void buildPerPixCookTm(SLVLight* lights, bool ev);
+    void buildPerPixCookOm(SLVLight* lights, bool doEnvMap);
+    void buildPerPixCookDm(SLVLight* lights, bool ev);
     void buildPerPixCookNm(SLVLight* lights, bool ev);
     void buildPerPixCook(SLVLight* lights, bool ev);
 

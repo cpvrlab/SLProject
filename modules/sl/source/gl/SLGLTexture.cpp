@@ -1299,7 +1299,7 @@ SLTextureType SLGLTexture::detectType(const SLstring& filename)
     if (appendix == "_S") return TT_specular;
     if (appendix == "_R") return TT_roughness;
     if (appendix == "_M") return TT_metallic;
-    if (appendix == "_A") return TT_ambientOcclusion;
+    if (appendix == "_A") return TT_occlusion;
     if (appendix == "_F") return TT_font;
 
     // Now check various formats found in the past
@@ -1352,7 +1352,7 @@ SLTextureType SLGLTexture::detectType(const SLstring& filename)
         Utils::containsString(name, "OCCLUSION") ||
         Utils::containsString(name, "OCCL") ||
         Utils::containsString(name, "OCC"))
-        return TT_ambientOcclusion;
+        return TT_occlusion;
 
     // if nothing was detected so far we interpret it as a color texture
     //SLstring msg = Utils::formatString("SLGLTexture::detectType: No type detected in file: %s", filename.c_str());
@@ -1425,7 +1425,7 @@ SLstring SLGLTexture::typeName()
         case TT_metallic: return "metalness";
         case TT_occlusionRoughnessMetallic: return "occlusionRoughnessMetallic";
         case TT_roughnessMetallic: return "roughnessMetallic";
-        case TT_ambientOcclusion: return "ambient occlusion";
+        case TT_occlusion: return "ambient occlusion";
         case TT_font: return "font";
         case TT_hdr: return "hdr";
         case TT_environmentCubemap: return "environmentCubemap";

@@ -2687,7 +2687,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
             auto removeAllTm = [=](SLMaterial* mat) {
                 mat->removeTextureType(TT_diffuse);
                 mat->removeTextureType(TT_normal);
-                mat->removeTextureType(TT_ambientOcclusion);
+                mat->removeTextureType(TT_occlusion);
                 mat->ambientDiffuse(stoneColor);
             };
             suzanneInCube->updateMeshMat(removeAllTm, true);
@@ -2696,7 +2696,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         {
             auto removeNmAo = [=](SLMaterial* mat) {
                 mat->removeTextureType(TT_normal);
-                mat->removeTextureType(TT_ambientOcclusion);
+                mat->removeTextureType(TT_occlusion);
             };
             suzanneInCube->updateMeshMat(removeNmAo, true);
         }
@@ -2705,7 +2705,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
             auto removeNmAo = [=](SLMaterial* mat) {
                 mat->ambientDiffuse(stoneColor);
                 mat->removeTextureType(TT_diffuse);
-                mat->removeTextureType(TT_ambientOcclusion);
+                mat->removeTextureType(TT_occlusion);
             };
             suzanneInCube->updateMeshMat(removeNmAo, true);
         }
@@ -2722,7 +2722,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         {
             auto removeTmNm = [=](SLMaterial* mat) {
                 mat->removeTextureType(TT_normal);
-                mat->removeTextureType(TT_ambientOcclusion);
+                mat->removeTextureType(TT_occlusion);
             };
             suzanneInCube->updateMeshMat(removeTmNm, true);
         }
@@ -2731,7 +2731,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
             auto removeTmNm = [=](SLMaterial* mat) {
                 mat->ambientDiffuse(stoneColor);
                 mat->removeTextureType(TT_diffuse);
-                mat->removeTextureType(TT_ambientOcclusion);
+                mat->removeTextureType(TT_occlusion);
             };
             suzanneInCube->updateMeshMat(removeTmNm, true);
         }
@@ -2762,7 +2762,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         if (sceneID == SID_SuzannePerPixBlinnTmNm ||
             sceneID == SID_SuzannePerPixBlinnTmNmSm)
         {
-            auto removeAo = [=](SLMaterial* mat) { mat->removeTextureType(TT_ambientOcclusion); };
+            auto removeAo = [=](SLMaterial* mat) { mat->removeTextureType(TT_occlusion); };
             suzanneInCube->updateMeshMat(removeAo, true);
         }
 
@@ -5755,7 +5755,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
                                                        s,
                                                        modelFile,
                                                        texPath,
-                                                       false,    // delete tex images after build
+                                                       false,   // delete tex images after build
                                                        true,    // only meshes
                                                        nullptr, // no replacement material
                                                        1.0f);   // 40% ambient reflection

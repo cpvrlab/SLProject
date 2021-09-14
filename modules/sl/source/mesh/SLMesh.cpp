@@ -1475,7 +1475,7 @@ void SLMesh::preShade(SLRay* ray)
         }
 
         // Get ambient occlusion
-        SLVGLTexture& aoTex = ray->hitMesh->mat()->textures(TT_ambientOcclusion);
+        SLVGLTexture& aoTex = ray->hitMesh->mat()->textures(TT_occlusion);
         if (!UV2.empty())
         {
             SLVec2f Tu2(UV2[iB] - UV2[iA]);

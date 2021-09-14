@@ -183,7 +183,7 @@ SLMaterial::SLMaterial(SLAssetManager* am,
  skybox it will influence the ambient and specular reflection.
  @param texture1 Pointer to a SLGLTexture of a specific SLTextureType. For
  PBR materials this can be TT_diffuse, TT_normal, TT_roughness, TT_metallic
- and TT_ambientOcclusion.
+ and TT_occlusion.
  @param texture2 Pointer to a SLGLTexture of a specific SLTextureType.
  @param texture3 Pointer to a SLGLTexture of a specific SLTextureType.
  @param texture4 Pointer to a SLGLTexture of a specific SLTextureType.
@@ -430,7 +430,7 @@ SLint SLMaterial::passToUniforms(SLGLProgram* program, SLint nextTexUnit)
                     sprintf(name, "u_matTextureHeight%d", texNb);
                     break;
                 }
-                case TT_ambientOcclusion: {
+                case TT_occlusion: {
                     sprintf(name, "u_matTextureAo%d", texNb);
                     break;
                 }

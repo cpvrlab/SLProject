@@ -52,9 +52,10 @@ enum SLTextureType
     TT_unknown,                    // Will be handled as color maps
     TT_diffuse,                    // Diffuse color map (aka albedo or just color map)
     TT_normal,                     // Normal map for normal bump mapping
+    TT_height,                     // Height map for height map bump or parallax mapping
     TT_specular,                   // Specular gloss map
     TT_emissive,                   // Emissive map
-    TT_ambientOcclusion,           // Ambient occlusion map
+    TT_occlusion,                  // Ambient occlusion map
     TT_roughness,                  // Roughness map (PBR Cook-Torrance roughness 0-1)
     TT_metallic,                   // Metalness map (PBR Cook-Torrance metallic 0-1)
     TT_roughnessMetallic,          // Roughness on G, metallness on B channel (R channel unused)

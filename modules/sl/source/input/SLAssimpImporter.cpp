@@ -726,7 +726,7 @@ SLMaterial* SLAssimpImporter::loadMaterial(SLAssetManager* s,
                     if (occRghMtlTex == occlusionTex)
                         slTexType = TT_occlusionRoughnessMetallic;
                     else
-                        slTexType = TT_ambientOcclusion;
+                        slTexType = TT_occlusion;
                     break; // glTF stores AO maps as light maps
                 }
                 case aiTextureType_AMBIENT_OCCLUSION: {
@@ -739,7 +739,7 @@ SLMaterial* SLAssimpImporter::loadMaterial(SLAssetManager* s,
                     if (occRghMtlTex == occlusionTex)
                         slTexType = TT_occlusionRoughnessMetallic;
                     else
-                        slTexType = TT_ambientOcclusion;
+                        slTexType = TT_occlusion;
                     break; // glTF stores AO maps as light maps
                 }
                 case aiTextureType_UNKNOWN: {
@@ -773,7 +773,7 @@ SLMaterial* SLAssimpImporter::loadMaterial(SLAssetManager* s,
             // For normal maps we have to adjust first the normal and tangent generation
             if (slTexType == TT_diffuse ||
                 slTexType == TT_normal ||
-                slTexType == TT_ambientOcclusion ||
+                slTexType == TT_occlusion ||
                 slTexType == TT_emissive ||
                 slTexType == TT_roughnessMetallic ||
                 slTexType == TT_occlusionRoughnessMetallic)
@@ -860,7 +860,7 @@ SLGLTexture* SLAssimpImporter::loadTexture(SLAssetManager* assetMgr,
         if (i->url() == textureFile)
             return i;
 
-    SLint minificationFilter = texType == TT_ambientOcclusion ? GL_LINEAR : SL_ANISOTROPY_MAX;
+    SLint minificationFilter = texType == TT_occlusion ? GL_LINEAR : SL_ANISOTROPY_MAX;
 
     // Create the new texture. It is also push back to SLScene::_textures
     SLGLTexture* texture = new SLGLTexture(assetMgr,
