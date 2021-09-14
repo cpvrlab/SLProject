@@ -418,7 +418,7 @@ SLint SLMaterial::passToUniforms(SLGLProgram* program, SLint nextTexUnit)
                     sprintf(name, "u_matTextureDiffuse%d", texNb);
                     break;
                 }
-                case TT_specular: {
+                case TT_gloss: {
                     sprintf(name, "u_matTextureSpecular%d", texNb);
                     break;
                 }

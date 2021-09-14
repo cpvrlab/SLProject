@@ -50,17 +50,17 @@ class SLGLProgram;
 enum SLTextureType
 {
     TT_unknown,                    // Will be handled as color maps
-    TT_diffuse,                    // Diffuse color map (aka albedo or just color map)
-    TT_normal,                     // Normal map for normal bump mapping
-    TT_height,                     // Height map for height map bump or parallax mapping
-    TT_specular,                   // Specular gloss map
-    TT_emissive,                   // Emissive map
-    TT_occlusion,                  // Ambient occlusion map
-    TT_roughness,                  // Roughness map (PBR Cook-Torrance roughness 0-1)
-    TT_metallic,                   // Metalness map (PBR Cook-Torrance metallic 0-1)
-    TT_roughnessMetallic,          // Roughness on G, metallness on B channel (R channel unused)
-    TT_occlusionRoughnessMetallic, // Occlusion on R, roughness on G, metallness on B channel
-    TT_font,                       // Texture map for fonts
+    TT_diffuse,                    // Dm: Diffuse color map (aka albedo or just color map)
+    TT_normal,                     // Nm: Normal map for normal bump mapping
+    TT_height,                     // Hm: Height map for height map bump or parallax mapping
+    TT_gloss,                      // Gm: Gloss map (specular)
+    TT_emissive,                   // Em: Emissive map
+    TT_occlusion,                  // Om: Ambient occlusion map
+    TT_roughness,                  // Rm: Roughness map (PBR Cook-Torrance roughness 0-1)
+    TT_metallic,                   // Mm: Metalness map (PBR Cook-Torrance metallic 0-1)
+    TT_roughnessMetallic,          // RMm: Roughness on G, metallness on B (R unused)
+    TT_occlusionRoughnessMetallic, // ORMm: Occlusion on R, roughness on G, metallness on B
+    TT_font,                       // Fm: Texture map for fonts
     TT_hdr,                        // High Dynamic Range images
     TT_environmentCubemap,         // Environment cubemap generated from HDR Textures
     TT_irradianceCubemap,          // Irradiance cubemap generated from HDR Textures

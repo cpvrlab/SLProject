@@ -712,7 +712,7 @@ SLMaterial* SLAssimpImporter::loadMaterial(SLAssetManager* s,
             {
                 case aiTextureType_DIFFUSE: slTexType = TT_diffuse; break;
                 case aiTextureType_NORMALS: slTexType = TT_normal; break;
-                case aiTextureType_SPECULAR: slTexType = TT_specular; break;
+                case aiTextureType_SPECULAR: slTexType = TT_gloss; break;
                 case aiTextureType_HEIGHT: slTexType = TT_height; break;
                 case aiTextureType_OPACITY: slTexType = TT_diffuse; break;
                 case aiTextureType_EMISSION_COLOR: slTexType = TT_emissive; break;

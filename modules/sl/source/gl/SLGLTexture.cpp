@@ -1295,8 +1295,8 @@ SLTextureType SLGLTexture::detectType(const SLstring& filename)
     if (appendix == "_D") return TT_diffuse;
     if (appendix == "_N") return TT_normal;
     if (appendix == "_H") return TT_height;
-    if (appendix == "_G") return TT_specular;
-    if (appendix == "_S") return TT_specular;
+    if (appendix == "_G") return TT_gloss;
+    if (appendix == "_S") return TT_gloss;
     if (appendix == "_R") return TT_roughness;
     if (appendix == "_M") return TT_metallic;
     if (appendix == "_A") return TT_occlusion;
@@ -1329,7 +1329,7 @@ SLTextureType SLGLTexture::detectType(const SLstring& filename)
         Utils::containsString(name, "REFL") ||
         Utils::containsString(name, "SPECULAR") ||
         Utils::containsString(name, "SPEC"))
-        return TT_specular;
+        return TT_gloss;
 
     if (Utils::containsString(name, "OCCLUSIONROUGHNESSMETALLIC"))
         return TT_occlusionRoughnessMetallic;
@@ -1419,7 +1419,7 @@ SLstring SLGLTexture::typeName()
         case TT_diffuse: return "diffuse";
         case TT_normal: return "normal";
         case TT_height: return "height";
-        case TT_specular: return "specular";
+        case TT_gloss: return "specular";
         case TT_emissive: return "emissive";
         case TT_roughness: return "roughness";
         case TT_metallic: return "metalness";
