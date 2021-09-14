@@ -49,22 +49,24 @@ class SLGLProgram;
 //! Texture type enumeration & their filename appendix for auto type detection
 enum SLTextureType
 {
-    TT_unknown,            // will be handled as color maps
-    TT_diffuse,            // diffuse color map (aka albedo or just color map)
-    TT_normal,             // normal map for normal bump mapping
-    TT_height,             // height map for height map bump or parallax mapping
-    TT_specular,           // specular gloss map
-    TT_ambientOcclusion,   // ambient occlusion map
-    TT_roughness,          // roughness map (PBR Cook-Torrance roughness 0-1)
-    TT_metallic,           // metalness map (PBR Cook-Torrance metallic 0-1)
-    TT_font,               // texture map for fonts
-    TT_hdr,                // High Dynamic Range images
-    TT_environmentCubemap, // environment cubemap generated from HDR Textures
-    TT_irradianceCubemap,  // irradiance cubemap generated from HDR Textures
-    TT_roughnessCubemap,   // prefilter roughness cubemap
-    TT_brdfLUT,            // BRDF 2D look up table Texture
-    TT_videoBkgd,          // Video background
-    TT_numTextureType      // New texture types must be before TT_numTextureType
+    TT_unknown,                    // Will be handled as color maps
+    TT_diffuse,                    // Diffuse color map (aka albedo or just color map)
+    TT_normal,                     // Normal map for normal bump mapping
+    TT_specular,                   // Specular gloss map
+    TT_emissive,                   // Emissive map
+    TT_ambientOcclusion,           // Ambient occlusion map
+    TT_roughness,                  // Roughness map (PBR Cook-Torrance roughness 0-1)
+    TT_metallic,                   // Metalness map (PBR Cook-Torrance metallic 0-1)
+    TT_roughnessMetallic,          // Roughness on G, metallness on B channel (R channel unused)
+    TT_occlusionRoughnessMetallic, // Occlusion on R, roughness on G, metallness on B channel
+    TT_font,                       // Texture map for fonts
+    TT_hdr,                        // High Dynamic Range images
+    TT_environmentCubemap,         // Environment cubemap generated from HDR Textures
+    TT_irradianceCubemap,          // Irradiance cubemap generated from HDR Textures
+    TT_roughnessCubemap,           // Prefilter roughness cubemap
+    TT_brdfLUT,                    // BRDF 2D look up table Texture
+    TT_videoBkgd,                  // Video background
+    TT_numTextureType              // New texture types must be before TT_numTextureType
 };
 //-----------------------------------------------------------------------------
 //! Texture object for OpenGL texturing

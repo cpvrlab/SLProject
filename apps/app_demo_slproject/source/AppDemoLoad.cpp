@@ -5755,7 +5755,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
                                                        s,
                                                        modelFile,
                                                        texPath,
-                                                       true,    // delete tex images after build
+                                                       false,    // delete tex images after build
                                                        true,    // only meshes
                                                        nullptr, // no replacement material
                                                        1.0f);   // 40% ambient reflection

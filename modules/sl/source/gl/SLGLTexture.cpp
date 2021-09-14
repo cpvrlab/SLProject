@@ -1307,6 +1307,7 @@ SLTextureType SLGLTexture::detectType(const SLstring& filename)
 
     if (Utils::containsString(name, "COL") ||
         Utils::containsString(name, "COLOR") ||
+        Utils::containsString(name, "BASECOLOR") ||
         Utils::containsString(name, "ALBEDO") ||
         Utils::containsString(name, "DIFFUSE") ||
         Utils::containsString(name, "DIFF") ||
@@ -1329,6 +1330,12 @@ SLTextureType SLGLTexture::detectType(const SLstring& filename)
         Utils::containsString(name, "SPECULAR") ||
         Utils::containsString(name, "SPEC"))
         return TT_specular;
+
+    if (Utils::containsString(name, "OCCLUSIONROUGHNESSMETALLIC"))
+        return TT_occlusionRoughnessMetallic;
+
+    if (Utils::containsString(name, "ROUGHNESSMETALLIC"))
+        return TT_roughnessMetallic;
 
     if (Utils::containsString(name, "ROUGHNESS") ||
         Utils::containsString(name, "RGH") ||
@@ -1413,15 +1420,19 @@ SLstring SLGLTexture::typeName()
         case TT_normal: return "normal";
         case TT_height: return "height";
         case TT_specular: return "specular";
+        case TT_emissive: return "emissive";
         case TT_roughness: return "roughness";
         case TT_metallic: return "metalness";
+        case TT_occlusionRoughnessMetallic: return "occlusionRoughnessMetallic";
+        case TT_roughnessMetallic: return "roughnessMetallic";
         case TT_ambientOcclusion: return "ambient occlusion";
         case TT_font: return "font";
         case TT_hdr: return "hdr";
-        case TT_environmentCubemap: return "environment";
-        case TT_irradianceCubemap: return "irradiance";
-        case TT_roughnessCubemap: return "roughness";
+        case TT_environmentCubemap: return "environmentCubemap";
+        case TT_irradianceCubemap: return "irradianceCubemap";
+        case TT_roughnessCubemap: return "roughnessCubemap";
         case TT_brdfLUT: return "brdfLUT";
+        case TT_videoBkgd: return "videoBkgd";
         default: return "unknown";
     }
 }

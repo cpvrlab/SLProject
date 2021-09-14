@@ -3650,6 +3650,10 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                     ImGui::Text("Size(MB): GPU:%4.2f, CPU:%4.2f, DSK:%4.2f", mbGPU, mbCPU, mbDSK);
                                     ImGui::Text("TexID   : %u (%s)", tex->texID(), tex->isTexture() ? "ok" : "not ok");
                                     ImGui::Text("Type    : %s", tex->typeName().c_str());
+                                    if (tex->images()[0])
+                                        ImGui::Text("Format  : %s", tex->images()[0]->formatString().c_str());
+                                    else
+                                        ImGui::Text("Format  : %s", "n/a (GPU only)");
 #ifdef SL_BUILD_WITH_KTX
                                     ImGui::Text("Compr.  : %s", tex->compressionFormatStr(tex->compressionFormat()).c_str());
 #endif
