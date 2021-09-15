@@ -158,6 +158,7 @@ SLMaterial::SLMaterial(SLAssetManager* am,
     _roughness   = roughness;
     _metalness   = metalness;
     _numTextures = 0;
+    _getsShadows = true;
     _lightModel  = LM_CookTorrance;
     _skybox      = skybox;
     _program     = program;
@@ -211,6 +212,7 @@ SLMaterial::SLMaterial(SLAssetManager* am,
     _metalness   = 0.0f;
     _numTextures = 0;
     _lightModel  = LM_CookTorrance;
+    _getsShadows = true;
     _skybox      = skybox;
     _program     = program;
 

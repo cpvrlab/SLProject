@@ -1708,9 +1708,16 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Add directional light with a position that corresponds roughly to the sun direction
         SLLight::gamma        = 2.2f;
-        SLLightDirect* light1 = new SLLightDirect(s, s, 1.5f, .3f, 2.0f, 0.5f, 0, 10, 10);
+        SLLightDirect* light1 = new SLLightDirect(s, s, 4.0f, .3f, 2.0f, 0.5f, 0, 1, 1);
         light1->lookAt(0, 0, 0);
-        light1->attenuation(0, 0, 1);
+        light1->attenuation(1, 0, 0);
+        light1->createsShadows(true);
+        light1->createShadowMapAutoSize(cam1, SLVec2i(2048, 2048), 4);
+        light1->shadowMap()->cascadesFactor(30.0);
+        light1->doSmoothShadows(true);
+        light1->castsShadows(false);
+        light1->shadowMinBias(0.001f);
+        light1->shadowMaxBias(0.003f);
         scene->addChild(light1);
 
         // Create spheres and materials with roughness & metallic values between 0 and 1

@@ -724,7 +724,7 @@ SLMaterial* SLAssimpImporter::loadMaterial(SLAssetManager* s,
                     SLstring occRghMtlTex = checkFilePath(modelPath, texturePath, fileRoughnessMetallic.data);
                     SLstring occlusionTex = checkFilePath(modelPath, texturePath, aiPath.data);
                     if (occRghMtlTex == occlusionTex)
-                        slTexType = TT_occlusionRoughnessMetallic;
+                        slTexType = TT_occlRoughMetallic;
                     else
                         slTexType = TT_occlusion;
                     break; // glTF stores AO maps as light maps
@@ -737,7 +737,7 @@ SLMaterial* SLAssimpImporter::loadMaterial(SLAssetManager* s,
                     SLstring occRghMtlTex = checkFilePath(modelPath, texturePath, fileRoughnessMetallic.data);
                     SLstring occlusionTex = checkFilePath(modelPath, texturePath, aiPath.data);
                     if (occRghMtlTex == occlusionTex)
-                        slTexType = TT_occlusionRoughnessMetallic;
+                        slTexType = TT_occlRoughMetallic;
                     else
                         slTexType = TT_occlusion;
                     break; // glTF stores AO maps as light maps
@@ -758,7 +758,7 @@ SLMaterial* SLAssimpImporter::loadMaterial(SLAssetManager* s,
                         if (rghMtlTex == occlusionTex)
                             slTexType = TT_unknown; // Don't load twice. The occlusionRoughnessMetallic texture will be loaded as aiTextureType_LIGHTMAP
                         else
-                            slTexType = TT_roughnessMetallic;
+                            slTexType = TT_roughMetallic;
                     }
                     else
                         slTexType = TT_unknown;
@@ -775,8 +775,8 @@ SLMaterial* SLAssimpImporter::loadMaterial(SLAssetManager* s,
                 slTexType == TT_normal ||
                 slTexType == TT_occlusion ||
                 slTexType == TT_emissive ||
-                slTexType == TT_roughnessMetallic ||
-                slTexType == TT_occlusionRoughnessMetallic)
+                slTexType == TT_roughMetallic ||
+                slTexType == TT_occlRoughMetallic)
             {
                 SLGLTexture* slTex = loadTexture(s,
                                                  texFile,
@@ -827,15 +827,15 @@ SLMaterial* SLAssimpImporter::loadMaterial(SLAssetManager* s,
 
     bool hasRoughness = slMat->hasTextureType(TT_roughness);
     bool hasMetalness = slMat->hasTextureType(TT_metallic);
-    bool hasRghMtl = slMat->hasTextureType(TT_roughnessMetallic);
-    bool hasOclRghMtl = slMat->hasTextureType(TT_occlusionRoughnessMetallic);
+    bool hasRghMtl = slMat->hasTextureType(TT_roughMetallic);
+    bool hasOclRghMtl = slMat->hasTextureType(TT_occlRoughMetallic);
 
     // Switch lighting model to PBR (LM_CookTorrance) only if PBR textures are used.
     // PBR without must be set by additional setter call
     if (slMat->hasTextureType(TT_roughness) ||
         slMat->hasTextureType(TT_metallic) ||
-        slMat->hasTextureType(TT_roughnessMetallic) ||
-        slMat->hasTextureType(TT_occlusionRoughnessMetallic))
+        slMat->hasTextureType(TT_roughMetallic) ||
+        slMat->hasTextureType(TT_occlRoughMetallic))
         slMat->lightModel(LM_CookTorrance);
     else
         slMat->lightModel(LM_BlinnPhong);

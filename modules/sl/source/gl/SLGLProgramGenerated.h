@@ -87,6 +87,23 @@ public:
     void        endShader() override { endUse(); }
 
 private:
+    // Cook-Torrance (PBR) shader generation functions
+    void buildPerPixCookDmNmOmSm(SLVLight* lights, bool doEnvMap);
+    void buildPerPixCookDmNmOm(SLVLight* lights, bool doEnvMap);
+    void buildPerPixCookDmNmSm(SLVLight* lights, bool doEnvMap);
+    void buildPerPixCookDmOmSm(SLVLight* lights, bool doEnvMap);
+    void buildPerPixCookOmSm(SLVLight* lights, bool doEnvMap);
+    void buildPerPixCookNmSm(SLVLight* lights, bool doEnvMap);
+    void buildPerPixCookDmSm(SLVLight* lights, bool doEnvMap);
+    void buildPerPixCookDmOm(SLVLight* lights, bool doEnvMap);
+    void buildPerPixCookDmNm(SLVLight* lights, bool doEnvMap);
+    void buildPerPixCookSm(SLVLight* lights, bool doEnvMap);
+    void buildPerPixCookOm(SLVLight* lights, bool doEnvMap);
+    void buildPerPixCookDm(SLVLight* lights, bool doEnvMap);
+    void buildPerPixCookNm(SLVLight* lights, bool doEnvMap);
+    void buildPerPixCook(SLVLight* lights, bool doEnvMap);
+    void buildPerPixCook(SLMaterial* mat, SLVLight* lights);
+
     // Blinn-Phong shader builder functions
     void buildPerPixBlinnDmNmOmSm(SLVLight* lights);
     void buildPerPixBlinnDmNmOm(SLVLight* lights);
@@ -99,26 +116,10 @@ private:
     void buildPerPixBlinnDmOm(SLVLight* lights);
     void buildPerPixBlinnDmNm(SLVLight* lights);
     void buildPerPixBlinnSm(SLVLight* lights);
-    void buildPerPixBlinnSc(SLVLight* lights);
     void buildPerPixBlinnOm(SLVLight* lights);
     void buildPerPixBlinnNm(SLVLight* lights);
     void buildPerPixBlinnDm(SLVLight* lights);
     void buildPerPixBlinn(SLVLight* lights);
-
-    void buildPerPixCookDmNmOmSm(SLVLight* lights, bool doEnvMap);
-    void buildPerPixCookDmNmOm(SLVLight* lights, bool doEnvMap);
-    void buildPerPixCookDmNmSm(SLVLight* lights, bool ev);
-    void buildPerPixCookDmOmSm(SLVLight* lights, bool doEnvMap);
-    void buildPerPixCookOmSm(SLVLight* lights, bool doEnvMap);
-    void buildPerPixCookNmSm(SLVLight* lights, bool ev);
-    void buildPerPixCookDmSm(SLVLight* lights, bool ev);
-    void buildPerPixCookDmOm(SLVLight* lights, bool doEnvMap);
-    void buildPerPixCookDmNm(SLVLight* lights, bool ev);
-    void buildPerPixCookSm(SLVLight* lights, bool ev);
-    void buildPerPixCookOm(SLVLight* lights, bool doEnvMap);
-    void buildPerPixCookDm(SLVLight* lights, bool ev);
-    void buildPerPixCookNm(SLVLight* lights, bool ev);
-    void buildPerPixCook(SLVLight* lights, bool ev);
 
     // Video background shader builder functions
     void buildPerPixVideoBkgdSm(SLVLight* lights);
