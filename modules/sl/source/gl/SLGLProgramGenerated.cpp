@@ -120,7 +120,7 @@ const string vertMain_EndAll        = R"(
 }
 )";
 //-----------------------------------------------------------------------------
-const string fragInputs_u_lightAll           = R"(
+const string fragInputs_u_lightAll       = R"(
 uniform bool        u_lightIsOn[NUM_LIGHTS];                // flag if light is on
 uniform vec4        u_lightPosVS[NUM_LIGHTS];               // position of light in view space
 uniform vec4        u_lightAmbi[NUM_LIGHTS];                // ambient light intensity (Ia)
@@ -135,47 +135,47 @@ uniform bool        u_lightDoAtt[NUM_LIGHTS];               // flag if att. must
 uniform vec4        u_globalAmbi;                           // Global ambient scene color
 uniform float       u_oneOverGamma;                         // 1.0f / Gamma correction value
 )";
-const string fragInputs_u_matBlinnAll        = R"(
+const string fragInputs_u_matBlinnAll    = R"(
 uniform vec4        u_matAmbi;          // ambient color reflection coefficient (ka)
 uniform vec4        u_matDiff;          // diffuse color reflection coefficient (kd)
 uniform vec4        u_matSpec;          // specular color reflection coefficient (ks)
 uniform vec4        u_matEmis;          // emissive color for self-shining materials
 uniform float       u_matShin;          // shininess exponent
 )";
-const string fragInputs_u_matAmbi            = R"(
+const string fragInputs_u_matAmbi        = R"(
 uniform vec4        u_matAmbi;              // ambient color reflection coefficient (ka)
 uniform vec4        u_matDiff;              // diffuse color reflection coefficient (kd)
 uniform float       u_matRough;             // specular color reflection coefficient (ks)
 uniform float       u_matMetal;             // emissive color for self-shining materials
 )";
-const string fragInputs_u_matCookAll         = R"(
+const string fragInputs_u_matCookAll     = R"(
 uniform vec4        u_matAmbi;              // ambient color reflection coefficient (ka)
 uniform vec4        u_matDiff;              // diffuse color reflection coefficient (kd)
 uniform float       u_matRough;             // specular color reflection coefficient (ks)
 uniform float       u_matMetal;             // emissive color for self-shining materials
 )";
-const string fragInputs_u_matCookEnvMaps     = R"(
+const string fragInputs_u_matCookEnvMaps = R"(
 uniform samplerCube u_skyIrradianceCubemap; // PBR skybox irradiance light
 uniform samplerCube u_skyRoughnessCubemap;  // PBR skybox cubemap for rough reflections
 uniform sampler2D   u_skyBrdfLutTexture;    // PBR lighting lookup table for BRDF
 uniform float       u_skyExposure;          // PBR skybox exposure
 )";
 //-----------------------------------------------------------------------------
-const string fragInputs_u_matTexDm  = R"(
+const string fragInputs_u_matTexDm     = R"(
 uniform sampler2D   u_matTextureDiffuse0;   // diffuse color map)";
-const string fragInputs_u_matTexNm  = R"(
+const string fragInputs_u_matTexNm     = R"(
 uniform sampler2D   u_matTextureNormal0;    // normal bump map)";
-const string fragInputs_u_matTexOm  = R"(
+const string fragInputs_u_matTexOm     = R"(
 uniform sampler2D   u_matTextureAo0;        // ambient occlusion map)";
-const string fragInputs_u_matTexRm  = R"(
+const string fragInputs_u_matTexRm     = R"(
 uniform sampler2D   u_matTextureRoughness0; // PBR material roughness texture)";
-const string fragInputs_u_matTexMm  = R"(
+const string fragInputs_u_matTexMm     = R"(
 uniform sampler2D   u_matTextureMetallic0;  // PBR material metallic texture)";
-const string fragInputs_u_matTexRmMm = R"(
+const string fragInputs_u_matTexRmMm   = R"(
 uniform sampler2D   u_matTextureRoughMetal0; // PBR material roughness-metallic texture)";
 const string fragInputs_u_matTexOmRmMm = R"(
 uniform sampler2D   u_matTextureOcclRoughMetal0; // PBR material occlusion-roughness-metalic texture)";
-const string fragInputs_u_matGetsSm = R"(
+const string fragInputs_u_matGetsSm    = R"(
 uniform bool        u_matGetsShadows;       // flag if material receives shadows
 )";
 /*
@@ -757,16 +757,19 @@ const string fragMain_5_FogGammaStereo = R"(
 )";
 //-----------------------------------------------------------------------------
 const string fragMainCook_1_MatFromMaterial = R"(
-    // Set the source for the diffuse color, roughness and metalness
     vec4  matDiff  = u_matDiff;
     float matRough = u_matRough;
     float matMetal = u_matMetal;
 )";
 const string fragMainCook_1_MatFromDmRmMm   = R"(
-    // Set the source for the diffuse color, roughness and metalness
     vec4  matDiff  = pow(texture(u_matTextureDiffuse0, v_uv1), vec4(2.2));
     float matRough = texture(u_matTextureRoughness0, v_uv1).r;
     float matMetal = texture(u_matTextureMetallic0, v_uv1).r;
+)";
+const string fragMainCook_1_MatFromDmRMm    = R"(
+    vec4  matDiff  = pow(texture(u_matTextureDiffuse0, v_uv1), vec4(2.2));
+    float matRough = texture(u_matTextureRoughMetallic0, v_uv1).g;
+    float matMetal = texture(u_matTextureRoughMetallic0, v_uv1).b;
 )";
 const string fragMainCook_2_LightLoop       = R"(
     // Init Fresnel reflection at 90 deg. (0 to N)
@@ -954,6 +957,7 @@ const string fragMainCook_3_FragColorTm     = R"(
 
     vec3 ambient = vec3(0.03) * matDiff.rgb;
     vec3 color = ambient + Lo;
+
     // HDR tonemapping
     color = color / (color + vec3(1.0));
     o_fragColor = vec4(color, 1.0);
@@ -966,6 +970,7 @@ const string fragMainCook_3_FragColorDmOm   = R"(
 
     vec3 ambient = vec3(0.03) * matDiff.rgb + matAO;
     vec3 color = ambient + Lo;
+
     // HDR tonemapping
     color = color / (color + vec3(1.0));
     o_fragColor = vec4(color, 1.0);
@@ -1322,13 +1327,13 @@ void SLGLProgramGenerated::buildPerPixCook(SLMaterial* mat, SLVLight* lights)
     vertCode += vertMain_v_N_VS;
     vertCode += vertMain_v_R_OS;
     vertCode += vertMain_EndAll;
-    addCodeToShader(_shaders[0], vertCode, _name + ".vert");
+    addCodeToShader(_shaders[0], vertCode, _name + "-new.vert");
 
     // Assemble fragment shader code
     string fragCode;
     fragCode += shaderHeader((int)lights->size());
 
-    addCodeToShader(_shaders[1], fragCode, _name + ".frag");
+    addCodeToShader(_shaders[1], fragCode, _name + "-new.frag");
 }
 //-----------------------------------------------------------------------------
 void SLGLProgramGenerated::buildPerPixCookDmNmOmSm(SLVLight* lights, bool doEnvMap)
