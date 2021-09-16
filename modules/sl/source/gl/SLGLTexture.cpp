@@ -530,6 +530,17 @@ void SLGLTexture::load(const SLstring& filename,
 
         if (ktxTexture2_NeedsTranscoding(_ktxTexture))
         {
+#    if 0
+            // NOTE(dgj1): The following lines are for reading out supported compressed texture formats 
+            // from the openGL driver. I have the suspicion that the enabled compression format (KTX_TTF_ETC2_RGBA)
+            // is not supported on the tested device and that the reason the textures are not displayed on
+            // these devices is this. However, this could not be verified.
+            GLint numCompressedTextureFormats = 0;
+            glGetIntegerv(GL_NUM_COMPRESSED_TEXTURE_FORMATS, &numCompressedTextureFormats);
+            std::vector<GLint> compressedTextureFormats(numCompressedTextureFormats, 0);
+            glGetIntegerv(GL_COMPRESSED_TEXTURE_FORMATS, &compressedTextureFormats[0]);
+#    endif
+
 #    if defined(SL_OS_MACIOS)
             _compressionFormat = KTX_TTF_PVRTC1_4_RGB;
 #    elif defined(SL_OS_ANDROID)
@@ -738,6 +749,7 @@ void SLGLTexture::build(SLint texUnit)
         GLenum glerror = 0;
         glGenTextures(1, &_texID); // Optional. GLUpload can generate a texture.
 
+#    if 0
         glBindTexture(_target, _texID);
 
         glTexParameteri(_target, GL_TEXTURE_MIN_FILTER, _min_filter);
@@ -752,8 +764,11 @@ void SLGLTexture::build(SLint texUnit)
         glTexParameteri(_target, GL_TEXTURE_WRAP_T, _wrap_t);
         glTexParameteri(_target, GL_TEXTURE_WRAP_R, _wrap_t);
         GET_GL_ERROR;
+#    endif
 
-        ktxTexture_GLUpload((ktxTexture*)_ktxTexture, &_texID, &_target, &glerror);
+        KTX_error_code ktxErrorCode = ktxTexture_GLUpload((ktxTexture*)_ktxTexture, &_texID, &_target, &glerror);
+        GET_GL_ERROR;
+
         _ktxTexture->baseHeight;
 
         _bytesOnGPU += _ktxTexture->dataSize;
