@@ -126,8 +126,8 @@ private:
     void buildPerPixVideoBkgd(SLVLight* lights);
 
     // Helpers
-    static string fragInputs_u_lightSm(SLVLight* lights);
-    static string fragInputs_u_shadowMaps(SLVLight* lights);
+    static string fragInput_u_lightSm(SLVLight* lights);
+    static string fragInput_u_shadowMaps(SLVLight* lights);
     static string fragFunctionShadowTest(SLVLight* lights);
     static string shaderHeader(int numLights);
     static void   addCodeToShader(SLGLShader*   shader,

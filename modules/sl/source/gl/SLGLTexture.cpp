@@ -1347,10 +1347,10 @@ SLTextureType SLGLTexture::detectType(const SLstring& filename)
         return TT_gloss;
 
     if (Utils::containsString(name, "OCCLUSIONROUGHNESSMETALLIC"))
-        return TT_occlRoughMetallic;
+        return TT_occluRoughMetal;
 
     if (Utils::containsString(name, "ROUGHNESSMETALLIC"))
-        return TT_roughMetallic;
+        return TT_roughMetal;
 
     if (Utils::containsString(name, "ROUGHNESS") ||
         Utils::containsString(name, "RGH") ||
@@ -1438,8 +1438,8 @@ SLstring SLGLTexture::typeName()
         case TT_emissive: return "emissive";
         case TT_roughness: return "roughness";
         case TT_metallic: return "metalness";
-        case TT_occlRoughMetallic: return "occlusionRoughnessMetallic";
-        case TT_roughMetallic: return "roughnessMetallic";
+        case TT_occluRoughMetal: return "occlusionRoughnessMetallic";
+        case TT_roughMetal: return "roughnessMetallic";
         case TT_occlusion: return "ambient occlusion";
         case TT_font: return "font";
         case TT_hdr: return "hdr";

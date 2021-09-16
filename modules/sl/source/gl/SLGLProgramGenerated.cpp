@@ -25,50 +25,48 @@ using std::to_string;
 //-----------------------------------------------------------------------------
 string SLGLProgramGenerated::generatedShaderPath;
 //-----------------------------------------------------------------------------
-const string vertInputs_a_pn      = R"(
+const string vertInput_a_pn      = R"(
 layout (location = 0) in vec4  a_position;  // Vertex position attribute
 layout (location = 1) in vec3  a_normal;    // Vertex normal attribute)";
-const string vertInputs_a_uv1     = R"(
+const string vertInput_a_uv1     = R"(
 layout (location = 2) in vec2  a_uv1;       // Vertex tex.coord. 1 for diffuse color)";
-const string vertInputs_a_uv2     = R"(
+const string vertInput_a_uv2     = R"(
 layout (location = 3) in vec2  a_uv2;       // Vertex tex.coord. 2 for AO)";
-const string vertInputs_a_tangent = R"(
-layout (location = 5) in vec4  a_tangent;   // Vertex tangent attribute
-)";
+const string vertInput_a_tangent = R"(
+layout (location = 5) in vec4  a_tangent;   // Vertex tangent attribute)";
 //-----------------------------------------------------------------------------
-const string vertInputs_u_matrices_all = R"(
+const string vertInput_u_matrices_all = R"(
+
 uniform mat3  u_nMatrix;    // normal matrix=transpose(inverse(mv))
 uniform mat4  u_mMatrix;    // model matrix
 uniform mat4  u_mvMatrix;   // modelview matrix
-uniform mat4  u_mvpMatrix;  // = projection * modelView
-)";
-const string vertInputs_u_matrix_invMv = R"(
-uniform mat4  u_invMvMatrix;// inverse modelview matrix
-)";
+uniform mat4  u_mvpMatrix;  // = projection * modelView)";
+const string vertInput_u_matrix_invMv = R"(
+uniform mat4  u_invMvMatrix;// inverse modelview matrix)";
 //-----------------------------------------------------------------------------
-const string vertInputs_u_lightNm = R"(
+const string vertInput_u_lightNm = R"(
+
 uniform vec4  u_lightPosVS[NUM_LIGHTS];     // position of light in view space
 uniform vec3  u_lightSpotDir[NUM_LIGHTS];   // spot direction in view space
-uniform float u_lightSpotDeg[NUM_LIGHTS];   // spot cutoff angle 1-180 degrees
-)";
+uniform float u_lightSpotDeg[NUM_LIGHTS];   // spot cutoff angle 1-180 degrees)";
 //-----------------------------------------------------------------------------
-const string vertOutputs_v_P_VS    = R"(
+const string vertOutput_v_P_VS       = R"(
+
 out     vec3  v_P_VS;                   // Point of illumination in view space (VS))";
-const string vertOutputs_v_P_WS    = R"(
+const string vertOutput_v_P_WS       = R"(
 out     vec3  v_P_WS;                   // Point of illumination in world space (WS))";
-const string vertOutputs_v_N_VS    = R"(
+const string vertOutput_v_N_VS       = R"(
 out     vec3  v_N_VS;                   // Normal at P_VS in view space (VS))";
-const string vertOutputs_v_R_OS    = R"(
+const string vertOutput_v_R_OS       = R"(
 out     vec3  v_R_OS;                   // Reflection vector in object space (WS))";
-const string vertOutputs_v_uv1     = R"(
+const string vertOutput_v_uv1        = R"(
 out     vec2  v_uv1;                    // Texture coordinate 1 output)";
-const string vertOutputs_v_uv2     = R"(
+const string vertOutput_v_uv2        = R"(
 out     vec2  v_uv2;                    // Texture coordinate 1 output)";
-const string vertOutputs_v_lightNm = R"(
+const string vertOutput_v_lightVecTS = R"(
 out     vec3  v_eyeDirTS;               // Vector to the eye in tangent space
 out     vec3  v_lightDirTS[NUM_LIGHTS]; // Vector to the light 0 in tangent space
-out     vec3  v_spotDirTS[NUM_LIGHTS];  // Spot direction in tangent space
-)";
+out     vec3  v_spotDirTS[NUM_LIGHTS];  // Spot direction in tangent space)";
 //-----------------------------------------------------------------------------
 const string vertMain_Begin         = R"(
 
@@ -83,7 +81,7 @@ const string vertMain_v_N_VS        = R"(
 const string vertMain_v_R_OS        = R"(
     vec3 I = normalize(v_P_VS);
     vec3 N = normalize(v_N_VS);
-    v_R_OS =  mat3(u_invMvMatrix) * reflect(I, v_N_VS); // = I - 2.0*dot(N,I)*N;)";
+    v_R_OS =  mat3(u_invMvMatrix) * reflect(I, N); // R = I-2.0*dot(N,I)*N;)";
 const string vertMain_v_uv1         = R"(
     v_uv1 = a_uv1;  // pass diffuse color tex.coord. 1 for interpolation)";
 const string vertMainBlinn_v_uv2_Ao = R"(
@@ -120,7 +118,23 @@ const string vertMain_EndAll        = R"(
 }
 )";
 //-----------------------------------------------------------------------------
-const string fragInputs_u_lightAll       = R"(
+const string fragInput_v_P_VS       = R"(
+in      vec3        v_P_VS;     // Interpol. point of illumination in view space (VS))";
+const string fragInput_v_P_WS       = R"(
+in      vec3        v_P_WS;     // Interpol. point of illumination in world space (WS))";
+const string fragInput_v_N_VS       = R"(
+in      vec3        v_N_VS;     // Interpol. normal at v_P_VS in view space)";
+const string fragInput_v_R_OS       = R"(
+in      vec3        v_R_OS;     // Interpol. reflect in object space)";
+const string fragInput_v_uv1        = R"(
+in      vec2        v_uv1;      // Texture coordinate varying)";
+const string fragInput_v_lightVecTS = R"(
+in      vec3        v_eyeDirTS;                 // Vector to the eye in tangent space
+in      vec3        v_lightDirTS[NUM_LIGHTS];   // Vector to light 0 in tangent space
+in      vec3        v_spotDirTS[NUM_LIGHTS];    // Spot direction in tangent space)";
+//-----------------------------------------------------------------------------
+const string fragInput_u_lightAll    = R"(
+
 uniform bool        u_lightIsOn[NUM_LIGHTS];                // flag if light is on
 uniform vec4        u_lightPosVS[NUM_LIGHTS];               // position of light in view space
 uniform vec4        u_lightAmbi[NUM_LIGHTS];                // ambient light intensity (Ia)
@@ -135,51 +149,45 @@ uniform bool        u_lightDoAtt[NUM_LIGHTS];               // flag if att. must
 uniform vec4        u_globalAmbi;                           // Global ambient scene color
 uniform float       u_oneOverGamma;                         // 1.0f / Gamma correction value
 )";
-const string fragInputs_u_matBlinnAll    = R"(
+const string fragInput_u_matBlinnAll = R"(
 uniform vec4        u_matAmbi;          // ambient color reflection coefficient (ka)
 uniform vec4        u_matDiff;          // diffuse color reflection coefficient (kd)
 uniform vec4        u_matSpec;          // specular color reflection coefficient (ks)
 uniform vec4        u_matEmis;          // emissive color for self-shining materials
 uniform float       u_matShin;          // shininess exponent
 )";
-const string fragInputs_u_matAmbi        = R"(
-uniform vec4        u_matAmbi;              // ambient color reflection coefficient (ka)
+const string fragInput_u_matAmbi     = R"(
+uniform vec4        u_matAmbi;              // ambient color reflection coefficient (ka))";
+const string fragInput_u_matCookAll  = R"(
 uniform vec4        u_matDiff;              // diffuse color reflection coefficient (kd)
-uniform float       u_matRough;             // specular color reflection coefficient (ks)
-uniform float       u_matMetal;             // emissive color for self-shining materials
-)";
-const string fragInputs_u_matCookAll     = R"(
-uniform vec4        u_matAmbi;              // ambient color reflection coefficient (ka)
-uniform vec4        u_matDiff;              // diffuse color reflection coefficient (kd)
-uniform float       u_matRough;             // specular color reflection coefficient (ks)
-uniform float       u_matMetal;             // emissive color for self-shining materials
-)";
-const string fragInputs_u_matCookEnvMaps = R"(
+uniform float       u_matRough;             // roughness factor (0-1)
+uniform float       u_matMetal;             // metalness factor (0-1)";
+//-----------------------------------------------------------------------------
+const string fragInput_u_matTexDm       = R"(
+uniform sampler2D   u_matTextureDiffuse0;       // diffuse color map)";
+const string fragInput_u_matTexNm       = R"(
+uniform sampler2D   u_matTextureNormal0;        // normal bump map)";
+const string fragInput_u_matTexOm       = R"(
+uniform sampler2D   u_matTextureOcclusion0;     // ambient occlusion map)";
+const string fragInput_u_matTexRm       = R"(
+uniform sampler2D   u_matTextureRoughness0;     // PBR material roughness texture)";
+const string fragInput_u_matTexMm       = R"(
+uniform sampler2D   u_matTextureMetallic0;      // PBR material metallic texture)";
+const string fragInput_u_matTexRmMm     = R"(
+uniform sampler2D   u_matTextureRoughMetal0;    // PBR material roughness-metallic texture)";
+const string fragInput_u_matTexOmRmMm   = R"(
+uniform sampler2D   u_matTextureOccluRoughMetal0;// PBR material occlusion-roughness-metalic texture)";
+const string fragInput_u_matGetsSm      = R"(
+
+uniform bool        u_matGetsShadows;       // flag if material receives shadows)";
+const string fragInput_u_skyCookEnvMaps = R"(
 uniform samplerCube u_skyIrradianceCubemap; // PBR skybox irradiance light
 uniform samplerCube u_skyRoughnessCubemap;  // PBR skybox cubemap for rough reflections
 uniform sampler2D   u_skyBrdfLutTexture;    // PBR lighting lookup table for BRDF
-uniform float       u_skyExposure;          // PBR skybox exposure
-)";
+uniform float       u_skyExposure;          // PBR skybox exposure)";
 //-----------------------------------------------------------------------------
-const string fragInputs_u_matTexDm     = R"(
-uniform sampler2D   u_matTextureDiffuse0;   // diffuse color map)";
-const string fragInputs_u_matTexNm     = R"(
-uniform sampler2D   u_matTextureNormal0;    // normal bump map)";
-const string fragInputs_u_matTexOm     = R"(
-uniform sampler2D   u_matTextureOcclusion0; // ambient occlusion map)";
-const string fragInputs_u_matTexRm     = R"(
-uniform sampler2D   u_matTextureRoughness0; // PBR material roughness texture)";
-const string fragInputs_u_matTexMm     = R"(
-uniform sampler2D   u_matTextureMetallic0;  // PBR material metallic texture)";
-const string fragInputs_u_matTexRmMm   = R"(
-uniform sampler2D   u_matTextureRoughMetal0;// PBR material roughness-metallic texture)";
-const string fragInputs_u_matTexOmRmMm = R"(
-uniform sampler2D   u_matTextureOcclRoughMetal0; // PBR material occlusion-roughness-metalic texture)";
-const string fragInputs_u_matGetsSm    = R"(
-uniform bool        u_matGetsShadows;       // flag if material receives shadows
-)";
-//-----------------------------------------------------------------------------
-const string fragInputs_u_cam = R"(
+const string fragInput_u_cam = R"(
+
 uniform int         u_camProjection;    // type of stereo
 uniform int         u_camStereoEye;     // -1=left, 0=center, 1=right
 uniform mat3        u_camStereoColors;  // color filter matrix
@@ -194,15 +202,14 @@ uniform float       u_camClipFar;       // camera far plane
 uniform float       u_camBkgdWidth;     // camera background width
 uniform float       u_camBkgdHeight;    // camera background height
 uniform float       u_camBkgdLeft;      // camera background left
-uniform float       u_camBkgdBottom;    // camera background bottom
-)";
-
+uniform float       u_camBkgdBottom;    // camera background bottom)";
 //-----------------------------------------------------------------------------
 const string fragOutputs_o_fragColor = R"(
-out     vec4        o_fragColor;        // output fragment color
-)";
+
+out     vec4        o_fragColor;        // output fragment color)";
 //-----------------------------------------------------------------------------
 const string fragFunctionsLightingBlinnPhong = R"(
+//-----------------------------------------------------------------------------
 void directLightBlinnPhong(in    int  i,         // Light number between 0 and NUM_LIGHTS
                            in    vec3 N,         // Normalized normal at v_P
                            in    vec3 E,         // Normalized direction at v_P to the eye
@@ -227,7 +234,7 @@ void directLightBlinnPhong(in    int  i,         // Light number between 0 and N
     Id += u_lightDiff[i] * diffFactor * (1.0 - shadow);
     Is += u_lightSpec[i] * specFactor * (1.0 - shadow);
 }
-
+//-----------------------------------------------------------------------------
 void pointLightBlinnPhong( in    int   i,
                            in    vec3  N,
                            in    vec3  E,
@@ -276,11 +283,9 @@ void pointLightBlinnPhong( in    int   i,
     Ia += att * u_lightAmbi[i];
     Id += att * u_lightDiff[i] * diffFactor * (1.0 - shadow);
     Is += att * u_lightSpec[i] * specFactor * (1.0 - shadow);
-}
-)";
+})";
 //-----------------------------------------------------------------------------
-const string fragFunctionsLightingCookTorrence = R"(
-
+const string fragFunctionsLightingCookTorrance = R"(
 //-----------------------------------------------------------------------------
 vec3 fresnelSchlick(float cosTheta, vec3 F0)
 {
@@ -410,10 +415,10 @@ void pointLightCookTorrance(in    int   i,        // Light index
     float NdotL = max(dot(N, L), 0.0);
 
     Lo += (kD*matDiff.rgb/PI + specular) * radiance * NdotL * (1.0 - shadow);
-}
-)";
+})";
 //-----------------------------------------------------------------------------
 const string fragFunctionDoStereoSeparation = R"(
+//-----------------------------------------------------------------------------
 void doStereoSeparation()
 {
     // See SLProjection in SLEnum.h
@@ -460,10 +465,10 @@ void doStereoSeparation()
                 discard;
         }
     }
-}
-)";
+})";
 //-----------------------------------------------------------------------------
 const string fragFunctionFogBlend = R"(
+//-----------------------------------------------------------------------------
 vec4 fogBlend(vec3 P_VS, vec4 inColor)
 {
     float factor = 0.0f;
@@ -485,10 +490,10 @@ vec4 fogBlend(vec3 P_VS, vec4 inColor)
     vec4 outColor = factor * inColor + (1.0 - factor) * u_camFogColor;
     outColor = clamp(outColor, 0.0, 1.0);
     return outColor;
-}
-)";
+})";
 //-----------------------------------------------------------------------------
 const string fragFunctionDoColoredShadows = R"(
+//-----------------------------------------------------------------------------
 void doColoredShadows(in vec3 N)
 {
     const vec3 SHADOW_COLOR[6] = vec3[6](vec3(1.0, 0.0, 0.0),
@@ -529,7 +534,7 @@ void doColoredShadows(in vec3 N)
 })";
 //-----------------------------------------------------------------------------
 const string fragMain_Begin         = R"(
-
+//-----------------------------------------------------------------------------
 void main()
 {)";
 const string fragMain_0_Intensities = R"(
@@ -538,11 +543,11 @@ const string fragMain_0_Intensities = R"(
     vec4 Is = vec4(0.0); // Accumulated specular light intensity at v_P_VS
 )";
 //-----------------------------------------------------------------------------
-const string fragMain_1_EN_fromVert = R"(
+const string fragMain_1_EN_in_VS = R"(
     vec3 E = normalize(-v_P_VS); // Interpolated vector from p to the eye
     vec3 N = normalize(v_N_VS);  // A input normal has not anymore unit length
 )";
-const string fragMain_1_EN_fromNm   = R"(
+const string fragMain_1_EN_in_TS = R"(
     vec3 E = normalize(v_eyeDirTS);   // normalized interpolated eye direction
     // Get normal from normal map, move from [0,1] to [-1, 1] range & normalize
     vec3 N = normalize(texture(u_matTextureNormal0, v_uv1).rgb * 2.0 - 1.0);
@@ -717,16 +722,43 @@ const string fragMain_5_FogGammaStereo = R"(
 }
 )";
 //-----------------------------------------------------------------------------
-const string fragMainCook_1_MatFromMaterial = R"(
-    vec4  matDiff  = u_matDiff;
-    float matRough = u_matRough;
-    float matMetal = u_matMetal;
-    float matOccl  = 1.0;
-)";
+const string fragMainCook_1_matDiff       = R"(
+    vec4  matDiff  = u_matDiff;)";
+const string fragMainCook_1_matDiff_Dm    = R"(
+    vec4  matDiff  = pow(texture(u_matTextureDiffuse0, v_uv1), vec4(2.2));)";
+const string fragMainCook_1_matRough      = R"(
+    float matRough = u_matRough;)";
+const string fragMainCook_1_matRough_Rm   = R"(
+    float matRough = texture(u_matTextureRoughness0, v_uv1).r;)";
+const string fragMainCook_1_matRough_RMm  = R"(
+     float matRough = texture(u_matTextureRoughMetallic0, v_uv1).g;)";
+const string fragMainCook_1_matRough_ORMm = R"(
+     float matRough = texture(u_matTextureOccluRoughMetal0, v_uv1).g;)";
+const string fragMainCook_1_matMetal      = R"(
+     float matMetal = u_matMetal;)";
+const string fragMainCook_1_matMetal_Mm   = R"(
+     float matMetal = texture(u_matTextureMetallic0, v_uv1).r;)";
+const string fragMainCook_1_matMetal_RMm  = R"(
+     float matMetal = texture(u_matTextureRoughMetallic0, v_uv1).b;)";
+const string fragMainCook_1_matMetal_ORMm = R"(
+     float matMetal = texture(u_matTextureOccluRoughMetal0, v_uv1).b;)";
+const string fragMainCook_1_matOcclu_1    = R"(
+     float matOccl  = 1.0;)";
+const string fragMainCook_1_matOcclu_Om   = R"(
+     float matOccl  = texture(u_matTextureOcclusion0, v_uv1).r;)";
+const string fragMainCook_1_matOcclu_ORMm = R"(
+     float matOccl  = texture(u_matTextureOccluRoughMetal0, v_uv1).r;)";
+
 const string fragMainCook_1_MatFromDmRmMm   = R"(
     vec4  matDiff  = pow(texture(u_matTextureDiffuse0, v_uv1), vec4(2.2));
     float matRough = texture(u_matTextureRoughness0, v_uv1).r;
     float matMetal = texture(u_matTextureMetallic0, v_uv1).r;
+    float matOccl  = 1.0;
+)";
+const string fragMainCook_1_MatFromMaterial = R"(
+    vec4  matDiff  = u_matDiff;
+    float matRough = u_matRough;
+    float matMetal = u_matMetal;
     float matOccl  = 1.0;
 )";
 const string fragMainCook_1_MatFromDmRmMmOm = R"(
@@ -734,12 +766,6 @@ const string fragMainCook_1_MatFromDmRmMmOm = R"(
     float matRough = texture(u_matTextureRoughness0, v_uv1).r;
     float matMetal = texture(u_matTextureMetallic0, v_uv1).r;
     float matOccl  = texture(u_matTextureOcclusion0, v_uv1).r;
-)";
-const string fragMainCook_1_MatFromDmRMm    = R"(
-    vec4  matDiff  = pow(texture(u_matTextureDiffuse0, v_uv1), vec4(2.2));
-    float matRough = texture(u_matTextureRoughMetallic0, v_uv1).g;
-    float matMetal = texture(u_matTextureRoughMetallic0, v_uv1).b;
-    float matOccl  = 1.0;
 )";
 const string fragMainCook_2_LightLoop       = R"(
     // Init Fresnel reflection at 90 deg. (0 to N)
@@ -912,46 +938,9 @@ const string fragMainCook_3_FragColor       = R"(
     // For correct alpha blending overwrite alpha component
     o_fragColor.a = matDiff.a;
 )";
-/*
-const string fragMainCook_3_FragColorOm     = R"(
+const string fragMainCook_3_FragColorEnv    = R"(
 
-    // ambient lighting (note that the next IBL tutorial will replace
-    // this ambient lighting with environment lighting).
-    float matOccl = texture(u_matTextureOcclusion0, v_uv1).r;
-    vec3 ambient  = vec3(0.03) * matDiff.rgb * matOccl;
-    vec3 color    = ambient + Lo;
-
-    // HDR tone-mapping
-    color = color / (color + vec3(1.0));
-    o_fragColor = vec4(color, 1.0);
-)";
-const string fragMainCook_3_FragColorTm     = R"(
-
-    // Build diffuse reflection for environment light map
-    float exposureToneMapping = 1.0f;
-
-    vec3 ambient = vec3(0.03) * matDiff.rgb;
-    vec3 color  = ambient + Lo;
-
-    // HDR tone-mapping
-    color = color / (color + vec3(1.0));
-    o_fragColor = vec4(color, 1.0);
-)";
-const string fragMainCook_3_FragColorDmOm   = R"(
-
-    // Build diffuse reflection for environment light map
-    float exposureToneMapping = 1.0f;
-
-    vec3 ambient = vec3(0.03) * matDiff.rgb * matOccl;
-    vec3 color = ambient + Lo;
-
-    // HDR tone-mapping
-    color = color / (color + vec3(1.0));
-    o_fragColor = vec4(color, 1.0);
-)";*/
-const string fragMainCook_3_FragColorEnv     = R"(
-
-    // Build diffuse reflection for environment light map
+    // Build diffuse reflection from environment light map
     vec3 F = fresnelSchlickRoughness(max(dot(N, E), 0.0), F0, matRough);
     vec3 kS = F;
     vec3 kD = 1.0 - kS;
@@ -959,7 +948,7 @@ const string fragMainCook_3_FragColorEnv     = R"(
     vec3 irradiance = texture(u_skyIrradianceCubemap, N).rgb;
     vec3 diffuse    = kD * irradiance * matDiff.rgb;
 
-    // sample both the pre-filter map and the BRDF lut and combine them together as per the Split-Sum approximation to get the IBL specular part.
+    // sample both the pre-filter map and the BRDF lut and combine them together as per the split-sum approximation to get the IBL specular part.
     const float MAX_REFLECTION_LOD = 4.0;
     vec3 prefilteredColor = textureLod(u_skyRoughnessCubemap, v_R_OS, matRough * MAX_REFLECTION_LOD).rgb;
     vec2 brdf = texture(u_skyBrdfLutTexture, vec2(max(dot(N, E), 0.0), matRough)).rg;
@@ -975,81 +964,6 @@ const string fragMainCook_3_FragColorEnv     = R"(
     // For correct alpha blending overwrite alpha component
     o_fragColor.a = matDiff.a;
 )";
-/*
-const string fragMainCook_3_FragColorOmEnv   = R"(
-
-    // Build diffuse reflection for environment light map
-    vec3 F = fresnelSchlickRoughness(max(dot(N, E), 0.0), F0, matRough);
-    vec3 kS = F;
-    vec3 kD = 1.0 - kS;
-    kD *= 1.0 - matMetal;
-    vec3 irradiance = texture(u_skyIrradianceCubemap, N).rgb;
-    vec3 diffuse    = kD * irradiance * matDiff.rgb;
-
-    // sample both the pre-filter map and the BRDF lut and combine them together as per the Split-Sum approximation to get the IBL specular part.
-    const float MAX_REFLECTION_LOD = 4.0;
-    vec3 prefilteredColor = textureLod(u_skyRoughnessCubemap, v_R_OS, matRough * MAX_REFLECTION_LOD).rgb;
-    vec2 brdf = texture(u_skyBrdfLutTexture, vec2(max(dot(N, E), 0.0), matRough)).rg;
-    vec3 specular = prefilteredColor * (F * brdf.x + brdf.y);
-    vec3 ambient = (diffuse + specular) * matOccl;
-
-    vec3 color = ambient + Lo;
-
-    // Exposure tone mapping
-    vec3 mapped = vec3(1.0) - exp(-color * u_skyExposure);
-    o_fragColor = vec4(mapped, 1.0);
-
-    // For correct alpha blending overwrite alpha component
-    o_fragColor.a = matDiff.a;
-)";
-const string fragMainCook_3_FragColorDmEnv   = R"(
-
-    // Build diffuse reflection for environment light map
-    vec3 F = fresnelSchlickRoughness(max(dot(N, E), 0.0), F0, matRough);
-    vec3 kS = F;
-    vec3 kD = 1.0 - kS;
-    kD *= 1.0 - matMetal;
-    vec3 irradiance = texture(u_skyIrradianceCubemap, N).rgb;
-    vec3 diffuse    = kD * irradiance * matDiff.rgb;
-
-    // sample both the pre-filter map and the BRDF lut and combine them together as per the Split-Sum approximation to get the IBL specular part.
-    const float MAX_REFLECTION_LOD = 4.0;
-    vec3 prefilteredColor = textureLod(u_skyRoughnessCubemap, v_R_OS, matRough * MAX_REFLECTION_LOD).rgb;
-    vec2 brdf = texture(u_skyBrdfLutTexture, vec2(max(dot(N, E), 0.0), matRough)).rg;
-    vec3 specular = prefilteredColor * (F * brdf.x + brdf.y);
-    vec3 ambient = (kD * diffuse + specular);
-
-    vec3 color = ambient + Lo;
-
-    // Exposure tone mapping
-    vec3 mapped = vec3(1.0) - exp(-color * u_skyExposure);
-    o_fragColor = vec4(mapped, 1.0);
-)";
-const string fragMainCook_3_FragColorDmOmEnv = R"(
-
-    // Build diffuse reflection for environment light map
-    float matOccl    = texture(u_matTextureOcclusion0, v_uv1).r;
-    vec3 F = fresnelSchlickRoughness(max(dot(N, E), 0.0), F0, matRough);
-    vec3 kS = F;
-    vec3 kD = 1.0 - kS;
-    kD *= 1.0 - matMetal;
-    vec3 irradiance = texture(u_skyIrradianceCubemap, N).rgb;
-    vec3 diffuse    = kD * irradiance * matDiff.rgb;
-
-    // sample both the pre-filter map and the BRDF lut and combine them together as per the Split-Sum approximation to get the IBL specular part.
-    const float MAX_REFLECTION_LOD = 4.0;
-    vec3 prefilteredColor = textureLod(u_skyRoughnessCubemap, v_R_OS, matRough * MAX_REFLECTION_LOD).rgb;
-    vec2 brdf = texture(u_skyBrdfLutTexture, vec2(max(dot(N, E), 0.0), matRough)).rg;
-    vec3 specular = prefilteredColor * (F * brdf.x + brdf.y);
-    vec3 ambient = (kD * diffuse + specular) * matOccl;
-
-    vec3 color = ambient + Lo;
-
-    // Exposure tone mapping
-    vec3 mapped = vec3(1.0) - exp(-color * u_skyExposure);
-    o_fragColor = vec4(mapped, 1.0);
-)";
-*/
 //-----------------------------------------------------------------------------
 const string fragMainVideoBkgd = R"(
 void main()
@@ -1278,37 +1192,105 @@ void SLGLProgramGenerated::buildPerPixCook(SLMaterial* mat, SLVLight* lights)
     bool Hm   = mat->hasTextureType(TT_height);
     bool Rm   = mat->hasTextureType(TT_roughness);
     bool Mm   = mat->hasTextureType(TT_metallic);
-    bool RMm  = mat->hasTextureType(TT_roughMetallic);
+    bool RMm  = mat->hasTextureType(TT_roughMetal);
     bool Em   = mat->hasTextureType(TT_emissive);
     bool Om   = mat->hasTextureType(TT_occlusion);
-    bool ORMm = mat->hasTextureType(TT_occlRoughMetallic);
+    bool ORMm = mat->hasTextureType(TT_occluRoughMetal);
     bool Vm   = mat->hasTextureType(TT_videoBkgd);
     bool Sm   = lightsDoShadowMapping(lights);
+    bool uv1  = Dm || Nm || Rm || Sm || Om;
     bool env  = mat->skybox() != nullptr;
 
     // Assemble vertex shader code
     string vertCode;
     vertCode += shaderHeader((int)lights->size());
-    vertCode += vertInputs_a_pn;
-    if (Dm) vertCode += vertInputs_a_uv1;
-    if (Nm) vertCode += vertInputs_a_tangent;
-    vertCode += vertInputs_u_matrices_all;
-    vertCode += vertInputs_u_matrix_invMv;
-    vertCode += vertOutputs_v_P_VS;
-    vertCode += vertOutputs_v_N_VS;
-    if (env) vertCode += vertOutputs_v_R_OS;
+
+    // Vertex shader inputs
+    vertCode += vertInput_a_pn;
+    if (Dm) vertCode += vertInput_a_uv1;
+    if (Nm) vertCode += vertInput_a_tangent;
+    vertCode += vertInput_u_matrices_all;
+    if (env) vertCode += vertInput_u_matrix_invMv;
+    if (Nm) vertCode += vertInput_u_lightNm;
+
+    // Vertex shader outputs
+    vertCode += vertOutput_v_P_VS;
+    if (Sm) vertCode += vertOutput_v_P_WS;
+    vertCode += vertOutput_v_N_VS;
+    if (env) vertCode += vertOutput_v_R_OS;
+    if (uv1) vertCode += vertOutput_v_uv1;
+    if (Nm) vertCode += vertOutput_v_lightVecTS;
+
+    // Vertex shader main loop
     vertCode += vertMain_Begin;
     vertCode += vertMain_v_P_VS;
+    if (Sm) vertCode += vertMain_v_P_WS_Sm;
     vertCode += vertMain_v_N_VS;
-    vertCode += vertMain_v_R_OS;
+    if (env) vertCode += vertMain_v_R_OS;
+    if (uv1) vertCode += vertMain_v_uv1;
+    if (Nm) vertCode += vertMain_TBN_Nm;
     vertCode += vertMain_EndAll;
-    addCodeToShader(_shaders[0], vertCode, _name + "-new.vert");
+
+    addCodeToShader(_shaders[0], vertCode, _name + ".vert");
 
     // Assemble fragment shader code
     string fragCode;
     fragCode += shaderHeader((int)lights->size());
 
-    addCodeToShader(_shaders[1], fragCode, _name + "-new.frag");
+    // Fragment shader inputs
+    fragCode += fragInput_v_P_VS;
+    if (Sm) fragCode += fragInput_v_P_WS;
+    fragCode += fragInput_v_N_VS;
+    if (env) fragCode += fragInput_v_R_OS;
+    if (uv1) fragCode += fragInput_v_uv1;
+    if (Nm) fragCode += fragInput_v_lightVecTS;
+
+    // Fragment shader uniforms
+    fragCode += fragInput_u_lightAll;
+    if (Sm) fragCode += fragInput_u_lightSm(lights);
+    if (Dm) fragCode += fragInput_u_matTexDm;
+    if (Nm) fragCode += fragInput_u_matTexNm;
+    if (Om) fragCode += fragInput_u_matTexOm;
+    if (Rm) fragCode += fragInput_u_matTexRm;
+    if (Mm) fragCode += fragInput_u_matTexMm;
+    if (RMm) fragCode += fragInput_u_matTexRmMm;
+    if (ORMm) fragCode += fragInput_u_matTexOmRmMm;
+    if (Sm) fragCode += fragInput_u_matGetsSm;
+    if (Sm) fragCode += fragInput_u_shadowMaps(lights);
+    if (env) fragCode += fragInput_u_skyCookEnvMaps;
+    fragCode += fragInput_u_cam;
+
+    // Fragment shader outputs
+    fragCode += fragOutputs_o_fragColor;
+
+    // Fragment shader functions
+    fragCode += fragFunctionsLightingCookTorrance;
+    fragCode += fragFunctionFogBlend;
+    fragCode += fragFunctionDoStereoSeparation;
+    if (Sm) fragCode += fragFunctionShadowTest(lights);
+    if (Sm) fragCode += fragFunctionDoColoredShadows;
+
+    // Fragment shader main loop
+    fragCode += fragMain_Begin;
+    fragCode += fragMain_0_Intensities;
+    fragCode += Nm ? fragMain_1_EN_in_TS : fragMain_1_EN_in_VS;
+    fragCode += Dm ? fragMainCook_1_matDiff_Dm : fragMainCook_1_matDiff;
+    fragCode += ORMm ? fragMainCook_1_matRough_ORMm : RMm ? fragMainCook_1_matRough_RMm
+                                                    : Rm  ? fragMainCook_1_matRough_Rm
+                                                          : fragMainCook_1_matRough;
+    fragCode += ORMm ? fragMainCook_1_matMetal_ORMm : RMm ? fragMainCook_1_matMetal_RMm
+                                                    : Rm  ? fragMainCook_1_matMetal_Mm
+                                                          : fragMainCook_1_matMetal;
+    fragCode += ORMm ? fragMainCook_1_matOcclu_ORMm : Om ? fragMainCook_1_matOcclu_Om
+                                                         : fragMainCook_1_matOcclu_1;
+    fragCode += Nm && Sm ? fragMainCook_2_LightLoopNmSm : Nm ? fragMainCook_2_LightLoopNm
+                                                        : Sm ? fragMainCook_2_LightLoopSm
+                                                             : fragMainCook_2_LightLoop;
+    fragCode += env ? fragMainCook_3_FragColorEnv : fragMainCook_3_FragColor;
+    fragCode += fragMain_4_ColoredShadows;
+    fragCode += fragMain_5_FogGammaStereo;
+
+    addCodeToShader(_shaders[1], fragCode, _name + ".frag");
 }
 //-----------------------------------------------------------------------------
 void SLGLProgramGenerated::buildPerPixCookDmNmOmSm(SLVLight* lights, bool doEnvMap)
@@ -1320,68 +1302,60 @@ void SLGLProgramGenerated::buildPerPixCookDmNmOmSm(SLVLight* lights, bool doEnvM
     // Assemble vertex shader code
     string vertCode;
     vertCode += shaderHeader((int)lights->size());
-    vertCode += vertInputs_a_pn;
-    vertCode += vertInputs_a_uv1;
-    vertCode += vertInputs_a_tangent;
-    vertCode += vertInputs_u_matrices_all;
-    vertCode += vertInputs_u_matrix_invMv;
-    vertCode += vertInputs_u_lightNm;
-    vertCode += vertOutputs_v_P_WS;
-    vertCode += vertOutputs_v_P_VS;
-    vertCode += vertOutputs_v_N_VS;
-    vertCode += vertOutputs_v_uv1;
-    vertCode += vertOutputs_v_R_OS;
-    vertCode += vertOutputs_v_lightNm;
+    vertCode += vertInput_a_pn;
+    vertCode += vertInput_a_uv1;
+    vertCode += vertInput_a_tangent;
+    vertCode += vertInput_u_matrices_all;
+    vertCode += vertInput_u_matrix_invMv;
+    vertCode += vertInput_u_lightNm;
+    vertCode += vertOutput_v_P_VS;
+    vertCode += vertOutput_v_P_WS;
+    vertCode += vertOutput_v_N_VS;
+    vertCode += vertOutput_v_uv1;
+    vertCode += vertOutput_v_R_OS;
+    vertCode += vertOutput_v_lightVecTS;
     vertCode += vertMain_Begin;
     vertCode += vertMain_v_P_VS;
     vertCode += vertMain_v_P_WS_Sm;
     vertCode += vertMain_v_N_VS;
+    vertCode += vertMain_v_R_OS;
     vertCode += vertMain_v_uv1;
     vertCode += vertMain_TBN_Nm;
-    vertCode += vertMain_v_R_OS;
     vertCode += vertMain_EndAll;
     addCodeToShader(_shaders[0], vertCode, _name + ".vert");
 
     // Assemble fragment shader code
     string fragCode;
     fragCode += shaderHeader((int)lights->size());
-    fragCode += R"(
-in      vec3        v_P_VS;     // Interpol. point of illumination in view space (VS)
-in      vec3        v_P_WS;     // Interpol. point of illumination in world space (WS)
-in      vec3        v_N_VS;     // Interpol. normal at v_P_VS in view space
-in      vec3        v_R_OS;     // Interpol. reflect in object space
-in      vec2        v_uv1;      // Texture coordinate varying
-in      vec3        v_eyeDirTS; // Vector to the eye in tangent space
-in      vec3        v_lightDirTS[NUM_LIGHTS];   // Vector to light 0 in tangent space
-in      vec3        v_spotDirTS[NUM_LIGHTS];    // Spot direction in tangent space
-)";
-    fragCode += fragInputs_u_lightAll;
-    fragCode += fragInputs_u_lightSm(lights);
-    if (doEnvMap)
-        fragCode += fragInputs_u_matCookEnvMaps;
-    fragCode += fragInputs_u_matTexDm;
-    fragCode += fragInputs_u_matTexNm;
-    fragCode += fragInputs_u_matTexOm;
-    fragCode += fragInputs_u_matTexRm;
-    fragCode += fragInputs_u_matTexMm;
-    fragCode += fragInputs_u_matGetsSm;
-    fragCode += fragInputs_u_shadowMaps(lights);
-    fragCode += fragInputs_u_cam;
+    fragCode += fragInput_v_P_VS;
+    fragCode += fragInput_v_P_WS;
+    fragCode += fragInput_v_N_VS;
+    fragCode += fragInput_v_R_OS;
+    fragCode += fragInput_v_uv1;
+    fragCode += fragInput_v_lightVecTS;
+    fragCode += fragInput_u_lightAll;
+    fragCode += fragInput_u_lightSm(lights);
+    fragCode += fragInput_u_matTexDm;
+    fragCode += fragInput_u_matTexNm;
+    fragCode += fragInput_u_matTexOm;
+    fragCode += fragInput_u_matTexRm;
+    fragCode += fragInput_u_matTexMm;
+    fragCode += fragInput_u_matGetsSm;
+    fragCode += fragInput_u_shadowMaps(lights);
+    if (doEnvMap) fragCode += fragInput_u_skyCookEnvMaps;
+    fragCode += fragInput_u_cam;
     fragCode += fragOutputs_o_fragColor;
-    fragCode += fragFunctionsLightingCookTorrence;
+    fragCode += fragFunctionsLightingCookTorrance;
     fragCode += fragFunctionFogBlend;
     fragCode += fragFunctionDoStereoSeparation;
     fragCode += fragFunctionShadowTest(lights);
     fragCode += fragFunctionDoColoredShadows;
     fragCode += fragMain_Begin;
     fragCode += fragMain_0_Intensities;
-    fragCode += fragMain_1_EN_fromNm;
+    fragCode += fragMain_1_EN_in_TS;
     fragCode += fragMainCook_1_MatFromDmRmMmOm;
     fragCode += fragMainCook_2_LightLoopNmSm;
-    if (doEnvMap)
-        fragCode += fragMainCook_3_FragColorEnv;
-    else
-        fragCode += fragMainCook_3_FragColor;
+    fragCode += doEnvMap ? fragMainCook_3_FragColorEnv : fragMainCook_3_FragColor;
     fragCode += fragMain_4_ColoredShadows;
     fragCode += fragMain_5_FogGammaStereo;
     addCodeToShader(_shaders[1], fragCode, _name + ".frag");
@@ -1396,17 +1370,17 @@ void SLGLProgramGenerated::buildPerPixCookDmNmOm(SLVLight* lights, bool doEnvMap
     // Assemble vertex shader code
     string vertCode;
     vertCode += shaderHeader((int)lights->size());
-    vertCode += vertInputs_a_pn;
-    vertCode += vertInputs_a_uv1;
-    vertCode += vertInputs_a_tangent;
-    vertCode += vertInputs_u_matrices_all;
-    vertCode += vertInputs_u_matrix_invMv;
-    vertCode += vertInputs_u_lightNm;
-    vertCode += vertOutputs_v_P_VS;
-    vertCode += vertOutputs_v_N_VS;
-    vertCode += vertOutputs_v_uv1;
-    vertCode += vertOutputs_v_R_OS;
-    vertCode += vertOutputs_v_lightNm;
+    vertCode += vertInput_a_pn;
+    vertCode += vertInput_a_uv1;
+    vertCode += vertInput_a_tangent;
+    vertCode += vertInput_u_matrices_all;
+    vertCode += vertInput_u_matrix_invMv;
+    vertCode += vertInput_u_lightNm;
+    vertCode += vertOutput_v_P_VS;
+    vertCode += vertOutput_v_N_VS;
+    vertCode += vertOutput_v_uv1;
+    vertCode += vertOutput_v_R_OS;
+    vertCode += vertOutput_v_lightVecTS;
     vertCode += vertMain_Begin;
     vertCode += vertMain_v_P_VS;
     vertCode += vertMain_v_N_VS;
@@ -1419,37 +1393,29 @@ void SLGLProgramGenerated::buildPerPixCookDmNmOm(SLVLight* lights, bool doEnvMap
     // Assemble fragment shader code
     string fragCode;
     fragCode += shaderHeader((int)lights->size());
-    fragCode += R"(
-in      vec3        v_P_VS;     // Interpol. point of illumination in view space (VS)
-in      vec3        v_N_VS;     // Interpol. normal at v_P_VS in view space
-in      vec3        v_R_OS;     // Interpol. reflect in object space
-in      vec2        v_uv1;      // Texture coordinate varying
-in      vec3        v_eyeDirTS;                 // Vector to the eye in tangent space
-in      vec3        v_lightDirTS[NUM_LIGHTS];   // Vector to light 0 in tangent space
-in      vec3        v_spotDirTS[NUM_LIGHTS];    // Spot direction in tangent space
-)";
-    fragCode += fragInputs_u_lightAll;
-    if (doEnvMap)
-        fragCode += fragInputs_u_matCookEnvMaps;
-    fragCode += fragInputs_u_matTexDm;
-    fragCode += fragInputs_u_matTexNm;
-    fragCode += fragInputs_u_matTexRm;
-    fragCode += fragInputs_u_matTexMm;
-    fragCode += fragInputs_u_matTexOm;
-    fragCode += fragInputs_u_cam;
+    fragCode += fragInput_v_P_VS;
+    fragCode += fragInput_v_N_VS;
+    fragCode += fragInput_v_R_OS;
+    fragCode += fragInput_v_uv1;
+    fragCode += fragInput_v_lightVecTS;
+    fragCode += fragInput_u_lightAll;
+    fragCode += fragInput_u_matTexDm;
+    fragCode += fragInput_u_matTexNm;
+    fragCode += fragInput_u_matTexRm;
+    fragCode += fragInput_u_matTexMm;
+    fragCode += fragInput_u_matTexOm;
+    if (doEnvMap) fragCode += fragInput_u_skyCookEnvMaps;
+    fragCode += fragInput_u_cam;
     fragCode += fragOutputs_o_fragColor;
-    fragCode += fragFunctionsLightingCookTorrence;
+    fragCode += fragFunctionsLightingCookTorrance;
     fragCode += fragFunctionFogBlend;
     fragCode += fragFunctionDoStereoSeparation;
     fragCode += fragMain_Begin;
     fragCode += fragMain_0_Intensities;
-    fragCode += fragMain_1_EN_fromNm;
+    fragCode += fragMain_1_EN_in_TS;
     fragCode += fragMainCook_1_MatFromDmRmMmOm;
     fragCode += fragMainCook_2_LightLoopNm;
-    if (doEnvMap)
-        fragCode += fragMainCook_3_FragColorEnv;
-    else
-        fragCode += fragMainCook_3_FragColor;
+    fragCode += doEnvMap ? fragMainCook_3_FragColorEnv : fragMainCook_3_FragColor;
     fragCode += fragMain_5_FogGammaStereo;
     addCodeToShader(_shaders[1], fragCode, _name + ".frag");
 }
@@ -1463,18 +1429,18 @@ void SLGLProgramGenerated::buildPerPixCookDmNmSm(SLVLight* lights, bool doEnvMap
     // Assemble vertex shader code
     string vertCode;
     vertCode += shaderHeader((int)lights->size());
-    vertCode += vertInputs_a_pn;
-    vertCode += vertInputs_a_uv1;
-    vertCode += vertInputs_a_tangent;
-    vertCode += vertInputs_u_matrices_all;
-    vertCode += vertInputs_u_matrix_invMv;
-    vertCode += vertInputs_u_lightNm;
-    vertCode += vertOutputs_v_P_WS;
-    vertCode += vertOutputs_v_P_VS;
-    vertCode += vertOutputs_v_N_VS;
-    vertCode += vertOutputs_v_uv1;
-    vertCode += vertOutputs_v_R_OS;
-    vertCode += vertOutputs_v_lightNm;
+    vertCode += vertInput_a_pn;
+    vertCode += vertInput_a_uv1;
+    vertCode += vertInput_a_tangent;
+    vertCode += vertInput_u_matrices_all;
+    vertCode += vertInput_u_matrix_invMv;
+    vertCode += vertInput_u_lightNm;
+    vertCode += vertOutput_v_P_VS;
+    vertCode += vertOutput_v_P_WS;
+    vertCode += vertOutput_v_N_VS;
+    vertCode += vertOutput_v_uv1;
+    vertCode += vertOutput_v_R_OS;
+    vertCode += vertOutput_v_lightVecTS;
     vertCode += vertMain_Begin;
     vertCode += vertMain_v_P_VS;
     vertCode += vertMain_v_P_WS_Sm;
@@ -1488,42 +1454,34 @@ void SLGLProgramGenerated::buildPerPixCookDmNmSm(SLVLight* lights, bool doEnvMap
     // Assemble fragment shader code
     string fragCode;
     fragCode += shaderHeader((int)lights->size());
-    fragCode += R"(
-in      vec3        v_P_VS;     // Interpol. point of illumination in view space (VS)
-in      vec3        v_P_WS;     // Interpol. point of illumination in world space (WS)
-in      vec3        v_N_VS;     // Interpol. normal at v_P_VS in view space
-in      vec3        v_R_OS;     // Interpol. reflect in object space
-in      vec2        v_uv1;      // Texture coordinate varying
-in      vec3        v_eyeDirTS; // Vector to the eye in tangent space
-in      vec3        v_lightDirTS[NUM_LIGHTS];   // Vector to light 0 in tangent space
-in      vec3        v_spotDirTS[NUM_LIGHTS];    // Spot direction in tangent space
-)";
-    fragCode += fragInputs_u_lightAll;
-    fragCode += fragInputs_u_lightSm(lights);
-    if (doEnvMap)
-        fragCode += fragInputs_u_matCookEnvMaps;
-    fragCode += fragInputs_u_matTexDm;
-    fragCode += fragInputs_u_matTexNm;
-    fragCode += fragInputs_u_matTexRm;
-    fragCode += fragInputs_u_matTexMm;
-    fragCode += fragInputs_u_matGetsSm;
-    fragCode += fragInputs_u_shadowMaps(lights);
-    fragCode += fragInputs_u_cam;
+    fragCode += fragInput_v_P_VS;
+    fragCode += fragInput_v_P_WS;
+    fragCode += fragInput_v_N_VS;
+    fragCode += fragInput_v_R_OS;
+    fragCode += fragInput_v_uv1;
+    fragCode += fragInput_v_lightVecTS;
+    fragCode += fragInput_u_lightAll;
+    fragCode += fragInput_u_lightSm(lights);
+    fragCode += fragInput_u_matTexDm;
+    fragCode += fragInput_u_matTexNm;
+    fragCode += fragInput_u_matTexRm;
+    fragCode += fragInput_u_matTexMm;
+    fragCode += fragInput_u_matGetsSm;
+    fragCode += fragInput_u_shadowMaps(lights);
+    if (doEnvMap) fragCode += fragInput_u_skyCookEnvMaps;
+    fragCode += fragInput_u_cam;
     fragCode += fragOutputs_o_fragColor;
-    fragCode += fragFunctionsLightingCookTorrence;
+    fragCode += fragFunctionsLightingCookTorrance;
     fragCode += fragFunctionFogBlend;
     fragCode += fragFunctionDoStereoSeparation;
     fragCode += fragFunctionShadowTest(lights);
     fragCode += fragFunctionDoColoredShadows;
     fragCode += fragMain_Begin;
     fragCode += fragMain_0_Intensities;
-    fragCode += fragMain_1_EN_fromNm;
+    fragCode += fragMain_1_EN_in_TS;
     fragCode += fragMainCook_1_MatFromDmRmMm;
     fragCode += fragMainCook_2_LightLoopNmSm;
-    if (doEnvMap)
-        fragCode += fragMainCook_3_FragColorEnv;
-    else
-        fragCode += fragMainCook_3_FragColor;
+    fragCode += doEnvMap ? fragMainCook_3_FragColorEnv : fragMainCook_3_FragColor;
     fragCode += fragMain_4_ColoredShadows;
     fragCode += fragMain_5_FogGammaStereo;
     addCodeToShader(_shaders[1], fragCode, _name + ".frag");
@@ -1538,15 +1496,15 @@ void SLGLProgramGenerated::buildPerPixCookDmOmSm(SLVLight* lights, bool doEnvMap
     // Assemble vertex shader code
     string vertCode;
     vertCode += shaderHeader((int)lights->size());
-    vertCode += vertInputs_a_pn;
-    vertCode += vertInputs_a_uv1;
-    vertCode += vertInputs_u_matrices_all;
-    vertCode += vertInputs_u_matrix_invMv;
-    vertCode += vertOutputs_v_P_WS;
-    vertCode += vertOutputs_v_P_VS;
-    vertCode += vertOutputs_v_N_VS;
-    vertCode += vertOutputs_v_uv1;
-    vertCode += vertOutputs_v_R_OS;
+    vertCode += vertInput_a_pn;
+    vertCode += vertInput_a_uv1;
+    vertCode += vertInput_u_matrices_all;
+    vertCode += vertInput_u_matrix_invMv;
+    vertCode += vertOutput_v_P_VS;
+    vertCode += vertOutput_v_P_WS;
+    vertCode += vertOutput_v_N_VS;
+    vertCode += vertOutput_v_uv1;
+    vertCode += vertOutput_v_R_OS;
     vertCode += vertMain_Begin;
     vertCode += vertMain_v_P_VS;
     vertCode += vertMain_v_P_WS_Sm;
@@ -1559,39 +1517,33 @@ void SLGLProgramGenerated::buildPerPixCookDmOmSm(SLVLight* lights, bool doEnvMap
     // Assemble fragment shader code
     string fragCode;
     fragCode += shaderHeader((int)lights->size());
-    fragCode += R"(
-in      vec3        v_P_VS;     // Interpol. point of illumination in view space (VS)
-in      vec3        v_P_WS;     // Interpol. point of illumination in world space (WS)
-in      vec3        v_N_VS;     // Interpol. normal at v_P_VS in view space
-in      vec3        v_R_OS;     // Interpol. reflect in object space
-in      vec2        v_uv1;      // Texture coordinate varying
-)";
-    fragCode += fragInputs_u_lightAll;
-    fragCode += fragInputs_u_lightSm(lights);
-    if (doEnvMap)
-        fragCode += fragInputs_u_matCookEnvMaps;
-    fragCode += fragInputs_u_matTexDm;
-    fragCode += fragInputs_u_matTexOm;
-    fragCode += fragInputs_u_matTexRm;
-    fragCode += fragInputs_u_matTexMm;
-    fragCode += fragInputs_u_matGetsSm;
-    fragCode += fragInputs_u_shadowMaps(lights);
-    fragCode += fragInputs_u_cam;
+    fragCode += fragInput_v_P_VS;
+    fragCode += fragInput_v_P_WS;
+    fragCode += fragInput_v_N_VS;
+    fragCode += fragInput_v_R_OS;
+    fragCode += fragInput_v_uv1;
+    fragCode += fragInput_u_lightAll;
+    fragCode += fragInput_u_lightSm(lights);
+    fragCode += fragInput_u_matTexDm;
+    fragCode += fragInput_u_matTexOm;
+    fragCode += fragInput_u_matTexRm;
+    fragCode += fragInput_u_matTexMm;
+    fragCode += fragInput_u_matGetsSm;
+    fragCode += fragInput_u_shadowMaps(lights);
+    if (doEnvMap) fragCode += fragInput_u_skyCookEnvMaps;
+    fragCode += fragInput_u_cam;
     fragCode += fragOutputs_o_fragColor;
-    fragCode += fragFunctionsLightingCookTorrence;
+    fragCode += fragFunctionsLightingCookTorrance;
     fragCode += fragFunctionFogBlend;
     fragCode += fragFunctionDoStereoSeparation;
     fragCode += fragFunctionShadowTest(lights);
     fragCode += fragFunctionDoColoredShadows;
     fragCode += fragMain_Begin;
     fragCode += fragMain_0_Intensities;
-    fragCode += fragMain_1_EN_fromVert;
+    fragCode += fragMain_1_EN_in_VS;
     fragCode += fragMainCook_1_MatFromDmRmMmOm;
     fragCode += fragMainCook_2_LightLoopSm;
-    if (doEnvMap)
-        fragCode += fragMainCook_3_FragColorEnv;
-    else
-        fragCode += fragMainCook_3_FragColor;
+    fragCode += doEnvMap ? fragMainCook_3_FragColorEnv : fragMainCook_3_FragColor;
     fragCode += fragMain_4_ColoredShadows;
     fragCode += fragMain_5_FogGammaStereo;
     addCodeToShader(_shaders[1], fragCode, _name + ".frag");
@@ -1606,15 +1558,15 @@ void SLGLProgramGenerated::buildPerPixCookOmSm(SLVLight* lights, bool doEnvMap)
     // Assemble vertex shader code
     string vertCode;
     vertCode += shaderHeader((int)lights->size());
-    vertCode += vertInputs_a_pn;
-    vertCode += vertInputs_a_uv1;
-    vertCode += vertInputs_u_matrices_all;
-    vertCode += vertInputs_u_matrix_invMv;
-    vertCode += vertOutputs_v_P_WS;
-    vertCode += vertOutputs_v_P_VS;
-    vertCode += vertOutputs_v_N_VS;
-    vertCode += vertOutputs_v_uv1;
-    vertCode += vertOutputs_v_R_OS;
+    vertCode += vertInput_a_pn;
+    vertCode += vertInput_a_uv1;
+    vertCode += vertInput_u_matrices_all;
+    vertCode += vertInput_u_matrix_invMv;
+    vertCode += vertOutput_v_P_VS;
+    vertCode += vertOutput_v_P_WS;
+    vertCode += vertOutput_v_N_VS;
+    vertCode += vertOutput_v_uv1;
+    vertCode += vertOutput_v_R_OS;
     vertCode += vertMain_Begin;
     vertCode += vertMain_v_P_VS;
     vertCode += vertMain_v_P_WS_Sm;
@@ -1627,37 +1579,31 @@ void SLGLProgramGenerated::buildPerPixCookOmSm(SLVLight* lights, bool doEnvMap)
     // Assemble fragment shader code
     string fragCode;
     fragCode += shaderHeader((int)lights->size());
-    fragCode += R"(
-in      vec3        v_P_VS;     // Interpol. point of illumination in view space (VS)
-in      vec3        v_P_WS;     // Interpol. point of illumination in world space (WS)
-in      vec3        v_N_VS;     // Interpol. normal at v_P_VS in view space
-in      vec3        v_R_OS;     // Interpol. reflect in object space
-in      vec2        v_uv1;      // Texture coordinate varying
-)";
-    fragCode += fragInputs_u_lightAll;
-    fragCode += fragInputs_u_lightSm(lights);
-    fragCode += fragInputs_u_matCookAll;
-    if (doEnvMap)
-        fragCode += fragInputs_u_matCookEnvMaps;
-    fragCode += fragInputs_u_matTexOm;
-    fragCode += fragInputs_u_matGetsSm;
-    fragCode += fragInputs_u_shadowMaps(lights);
-    fragCode += fragInputs_u_cam;
+    fragCode += fragInput_v_P_VS;
+    fragCode += fragInput_v_P_WS;
+    fragCode += fragInput_v_N_VS;
+    fragCode += fragInput_v_R_OS;
+    fragCode += fragInput_v_uv1;
+    fragCode += fragInput_u_lightAll;
+    fragCode += fragInput_u_lightSm(lights);
+    fragCode += fragInput_u_matCookAll;
+    fragCode += fragInput_u_matTexOm;
+    fragCode += fragInput_u_matGetsSm;
+    fragCode += fragInput_u_shadowMaps(lights);
+    if (doEnvMap) fragCode += fragInput_u_skyCookEnvMaps;
+    fragCode += fragInput_u_cam;
     fragCode += fragOutputs_o_fragColor;
-    fragCode += fragFunctionsLightingCookTorrence;
+    fragCode += fragFunctionsLightingCookTorrance;
     fragCode += fragFunctionFogBlend;
     fragCode += fragFunctionDoStereoSeparation;
     fragCode += fragFunctionShadowTest(lights);
     fragCode += fragFunctionDoColoredShadows;
     fragCode += fragMain_Begin;
     fragCode += fragMain_0_Intensities;
-    fragCode += fragMain_1_EN_fromVert;
+    fragCode += fragMain_1_EN_in_VS;
     fragCode += fragMainCook_1_MatFromMaterial;
     fragCode += fragMainCook_2_LightLoop;
-    if (doEnvMap)
-        fragCode += fragMainCook_3_FragColorEnv;
-    else
-        fragCode += fragMainCook_3_FragColor;
+    fragCode += doEnvMap ? fragMainCook_3_FragColorEnv : fragMainCook_3_FragColor;
     fragCode += fragMain_4_ColoredShadows;
     fragCode += fragMain_5_FogGammaStereo;
     addCodeToShader(_shaders[1], fragCode, _name + ".frag");
@@ -1672,18 +1618,18 @@ void SLGLProgramGenerated::buildPerPixCookNmSm(SLVLight* lights, bool doEnvMap)
     // Assemble vertex shader code
     string vertCode;
     vertCode += shaderHeader((int)lights->size());
-    vertCode += vertInputs_a_pn;
-    vertCode += vertInputs_a_uv1;
-    vertCode += vertInputs_a_tangent;
-    vertCode += vertInputs_u_matrices_all;
-    vertCode += vertInputs_u_matrix_invMv;
-    vertCode += vertInputs_u_lightNm;
-    vertCode += vertOutputs_v_P_WS;
-    vertCode += vertOutputs_v_P_VS;
-    vertCode += vertOutputs_v_N_VS;
-    vertCode += vertOutputs_v_uv1;
-    vertCode += vertOutputs_v_R_OS;
-    vertCode += vertOutputs_v_lightNm;
+    vertCode += vertInput_a_pn;
+    vertCode += vertInput_a_uv1;
+    vertCode += vertInput_a_tangent;
+    vertCode += vertInput_u_matrices_all;
+    vertCode += vertInput_u_matrix_invMv;
+    vertCode += vertInput_u_lightNm;
+    vertCode += vertOutput_v_P_VS;
+    vertCode += vertOutput_v_P_WS;
+    vertCode += vertOutput_v_N_VS;
+    vertCode += vertOutput_v_uv1;
+    vertCode += vertOutput_v_R_OS;
+    vertCode += vertOutput_v_lightVecTS;
     vertCode += vertMain_Begin;
     vertCode += vertMain_v_P_VS;
     vertCode += vertMain_v_P_WS_Sm;
@@ -1697,41 +1643,33 @@ void SLGLProgramGenerated::buildPerPixCookNmSm(SLVLight* lights, bool doEnvMap)
     // Assemble fragment shader code
     string fragCode;
     fragCode += shaderHeader((int)lights->size());
-    fragCode += R"(
-in      vec3        v_P_VS;     // Interpol. point of illumination in view space (VS)
-in      vec3        v_P_WS;     // Interpol. point of illumination in world space (WS)
-in      vec3        v_N_VS;     // Interpol. normal at v_P_VS in view space
-in      vec3        v_R_OS;     // Interpol. reflect in object space
-in      vec2        v_uv1;      // Texture coordinate varying
-in      vec3        v_eyeDirTS;                 // Vector to the eye in tangent space
-in      vec3        v_lightDirTS[NUM_LIGHTS];   // Vector to light 0 in tangent space
-in      vec3        v_spotDirTS[NUM_LIGHTS];    // Spot direction in tangent space
-)";
-    fragCode += fragInputs_u_lightAll;
-    fragCode += fragInputs_u_lightSm(lights);
-    if (doEnvMap)
-        fragCode += fragInputs_u_matCookEnvMaps;
-    fragCode += fragInputs_u_matTexNm;
-    fragCode += fragInputs_u_matTexRm;
-    fragCode += fragInputs_u_matTexMm;
-    fragCode += fragInputs_u_matGetsSm;
-    fragCode += fragInputs_u_shadowMaps(lights);
-    fragCode += fragInputs_u_cam;
+    fragCode += fragInput_v_P_VS;
+    fragCode += fragInput_v_P_WS;
+    fragCode += fragInput_v_N_VS;
+    fragCode += fragInput_v_R_OS;
+    fragCode += fragInput_v_uv1;
+    fragCode += fragInput_v_lightVecTS;
+    fragCode += fragInput_u_lightAll;
+    fragCode += fragInput_u_lightSm(lights);
+    fragCode += fragInput_u_matTexNm;
+    fragCode += fragInput_u_matTexRm;
+    fragCode += fragInput_u_matTexMm;
+    fragCode += fragInput_u_matGetsSm;
+    fragCode += fragInput_u_shadowMaps(lights);
+    if (doEnvMap) fragCode += fragInput_u_skyCookEnvMaps;
+    fragCode += fragInput_u_cam;
     fragCode += fragOutputs_o_fragColor;
-    fragCode += fragFunctionsLightingCookTorrence;
+    fragCode += fragFunctionsLightingCookTorrance;
     fragCode += fragFunctionFogBlend;
     fragCode += fragFunctionDoStereoSeparation;
     fragCode += fragFunctionShadowTest(lights);
     fragCode += fragFunctionDoColoredShadows;
     fragCode += fragMain_Begin;
     fragCode += fragMain_0_Intensities;
-    fragCode += fragMain_1_EN_fromNm;
+    fragCode += fragMain_1_EN_in_TS;
     fragCode += fragMainCook_1_MatFromMaterial;
     fragCode += fragMainCook_2_LightLoop;
-    if (doEnvMap)
-        fragCode += fragMainCook_3_FragColorEnv;
-    else
-        fragCode += fragMainCook_3_FragColor;
+    fragCode += doEnvMap ? fragMainCook_3_FragColorEnv : fragMainCook_3_FragColor;
     fragCode += fragMain_4_ColoredShadows;
     fragCode += fragMain_5_FogGammaStereo;
     addCodeToShader(_shaders[1], fragCode, _name + ".frag");
@@ -1746,16 +1684,16 @@ void SLGLProgramGenerated::buildPerPixCookDmSm(SLVLight* lights, bool doEnvMap)
     // Assemble vertex shader code
     string vertCode;
     vertCode += shaderHeader((int)lights->size());
-    vertCode += vertInputs_a_pn;
-    vertCode += vertInputs_a_uv1;
-    vertCode += vertInputs_a_tangent;
-    vertCode += vertInputs_u_matrices_all;
-    vertCode += vertInputs_u_matrix_invMv;
-    vertCode += vertOutputs_v_P_WS;
-    vertCode += vertOutputs_v_P_VS;
-    vertCode += vertOutputs_v_N_VS;
-    vertCode += vertOutputs_v_uv1;
-    vertCode += vertOutputs_v_R_OS;
+    vertCode += vertInput_a_pn;
+    vertCode += vertInput_a_uv1;
+    vertCode += vertInput_a_tangent;
+    vertCode += vertInput_u_matrices_all;
+    vertCode += vertInput_u_matrix_invMv;
+    vertCode += vertOutput_v_P_VS;
+    vertCode += vertOutput_v_P_WS;
+    vertCode += vertOutput_v_N_VS;
+    vertCode += vertOutput_v_uv1;
+    vertCode += vertOutput_v_R_OS;
     vertCode += vertMain_Begin;
     vertCode += vertMain_v_P_VS;
     vertCode += vertMain_v_P_WS_Sm;
@@ -1768,38 +1706,32 @@ void SLGLProgramGenerated::buildPerPixCookDmSm(SLVLight* lights, bool doEnvMap)
     // Assemble fragment shader code
     string fragCode;
     fragCode += shaderHeader((int)lights->size());
-    fragCode += R"(
-in      vec3        v_P_VS;     // Interpol. point of illumination in view space (VS)
-in      vec3        v_P_WS;     // Interpol. point of illumination in world space (WS)
-in      vec3        v_N_VS;     // Interpol. normal at v_P_VS in view space
-in      vec3        v_R_OS;     // Interpol. reflect in object space
-in      vec2        v_uv1;      // Texture coordinate varying
-)";
-    fragCode += fragInputs_u_lightAll;
-    fragCode += fragInputs_u_lightSm(lights);
-    if (doEnvMap)
-        fragCode += fragInputs_u_matCookEnvMaps;
-    fragCode += fragInputs_u_matTexDm;
-    fragCode += fragInputs_u_matTexRm;
-    fragCode += fragInputs_u_matTexMm;
-    fragCode += fragInputs_u_matGetsSm;
-    fragCode += fragInputs_u_shadowMaps(lights);
-    fragCode += fragInputs_u_cam;
+    fragCode += fragInput_v_P_VS;
+    fragCode += fragInput_v_P_WS;
+    fragCode += fragInput_v_N_VS;
+    fragCode += fragInput_v_R_OS;
+    fragCode += fragInput_v_uv1;
+    fragCode += fragInput_u_lightAll;
+    fragCode += fragInput_u_lightSm(lights);
+    fragCode += fragInput_u_matTexDm;
+    fragCode += fragInput_u_matTexRm;
+    fragCode += fragInput_u_matTexMm;
+    fragCode += fragInput_u_matGetsSm;
+    fragCode += fragInput_u_shadowMaps(lights);
+    if (doEnvMap) fragCode += fragInput_u_skyCookEnvMaps;
+    fragCode += fragInput_u_cam;
     fragCode += fragOutputs_o_fragColor;
-    fragCode += fragFunctionsLightingCookTorrence;
+    fragCode += fragFunctionsLightingCookTorrance;
     fragCode += fragFunctionFogBlend;
     fragCode += fragFunctionDoStereoSeparation;
     fragCode += fragFunctionShadowTest(lights);
     fragCode += fragFunctionDoColoredShadows;
     fragCode += fragMain_Begin;
     fragCode += fragMain_0_Intensities;
-    fragCode += fragMain_1_EN_fromVert;
+    fragCode += fragMain_1_EN_in_VS;
     fragCode += fragMainCook_1_MatFromDmRmMm;
     fragCode += fragMainCook_2_LightLoopSm;
-    if (doEnvMap)
-        fragCode += fragMainCook_3_FragColorEnv;
-    else
-        fragCode += fragMainCook_3_FragColor;
+    fragCode += doEnvMap ? fragMainCook_3_FragColorEnv : fragMainCook_3_FragColor;
     fragCode += fragMain_4_ColoredShadows;
     fragCode += fragMain_5_FogGammaStereo;
     addCodeToShader(_shaders[1], fragCode, _name + ".frag");
@@ -1814,14 +1746,14 @@ void SLGLProgramGenerated::buildPerPixCookDmOm(SLVLight* lights, bool doEnvMap)
     // Assemble vertex shader code
     string vertCode;
     vertCode += shaderHeader((int)lights->size());
-    vertCode += vertInputs_a_pn;
-    vertCode += vertInputs_u_matrices_all;
-    vertCode += vertInputs_u_matrix_invMv;
-    vertCode += vertInputs_a_uv1;
-    vertCode += vertOutputs_v_P_VS;
-    vertCode += vertOutputs_v_N_VS;
-    vertCode += vertOutputs_v_uv1;
-    vertCode += vertOutputs_v_R_OS;
+    vertCode += vertInput_a_pn;
+    vertCode += vertInput_u_matrices_all;
+    vertCode += vertInput_u_matrix_invMv;
+    vertCode += vertInput_a_uv1;
+    vertCode += vertOutput_v_P_VS;
+    vertCode += vertOutput_v_N_VS;
+    vertCode += vertOutput_v_uv1;
+    vertCode += vertOutput_v_R_OS;
     vertCode += vertMain_Begin;
     vertCode += vertMain_v_P_VS;
     vertCode += vertMain_v_N_VS;
@@ -1833,29 +1765,27 @@ void SLGLProgramGenerated::buildPerPixCookDmOm(SLVLight* lights, bool doEnvMap)
     // Assemble fragment shader code
     string fragCode;
     fragCode += shaderHeader((int)lights->size());
-    fragCode += R"(
-in      vec3        v_P_VS;     // Interpol. point of illumination in view space (VS)
-in      vec3        v_N_VS;     // Interpol. normal at v_P_VS in view space
-in      vec3        v_R_OS;     // Interpol. reflect in object space
-in      vec2        v_uv1;      // Texture coordinate varying
-)";
-    fragCode += fragInputs_u_lightAll;
-    fragCode += fragInputs_u_matCookEnvMaps;
-    fragCode += fragInputs_u_matTexDm;
-    fragCode += fragInputs_u_matTexRm;
-    fragCode += fragInputs_u_matTexMm;
-    fragCode += fragInputs_u_matTexOm;
-    fragCode += fragInputs_u_cam;
+    fragCode += fragInput_v_P_VS;
+    fragCode += fragInput_v_N_VS;
+    fragCode += fragInput_v_R_OS;
+    fragCode += fragInput_v_uv1;
+    fragCode += fragInput_u_lightAll;
+    fragCode += fragInput_u_matTexDm;
+    fragCode += fragInput_u_matTexRm;
+    fragCode += fragInput_u_matTexMm;
+    fragCode += fragInput_u_matTexOm;
+    if (doEnvMap) fragCode += fragInput_u_skyCookEnvMaps;
+    fragCode += fragInput_u_cam;
     fragCode += fragOutputs_o_fragColor;
-    fragCode += fragFunctionsLightingCookTorrence;
+    fragCode += fragFunctionsLightingCookTorrance;
     fragCode += fragFunctionFogBlend;
     fragCode += fragFunctionDoStereoSeparation;
     fragCode += fragMain_Begin;
     fragCode += fragMain_0_Intensities;
-    fragCode += fragMain_1_EN_fromVert;
+    fragCode += fragMain_1_EN_in_VS;
     fragCode += fragMainCook_1_MatFromDmRmMm;
     fragCode += fragMainCook_2_LightLoop;
-    fragCode += fragMainCook_3_FragColorEnv;
+    fragCode += doEnvMap ? fragMainCook_3_FragColorEnv : fragMainCook_3_FragColor;
     fragCode += fragMain_5_FogGammaStereo;
     addCodeToShader(_shaders[1], fragCode, _name + ".frag");
 }
@@ -1869,18 +1799,18 @@ void SLGLProgramGenerated::buildPerPixCookDmNm(SLVLight* lights, bool doEnvMap)
     // Assemble vertex shader code
     string vertCode;
     vertCode += shaderHeader((int)lights->size());
-    vertCode += vertInputs_a_pn;
-    vertCode += vertInputs_a_uv1;
-    vertCode += vertInputs_a_tangent;
-    vertCode += vertInputs_u_matrices_all;
-    vertCode += vertInputs_u_matrix_invMv;
-    vertCode += vertInputs_u_lightNm;
-    vertCode += vertOutputs_v_P_WS;
-    vertCode += vertOutputs_v_P_VS;
-    vertCode += vertOutputs_v_N_VS;
-    vertCode += vertOutputs_v_uv1;
-    vertCode += vertOutputs_v_R_OS;
-    vertCode += vertOutputs_v_lightNm;
+    vertCode += vertInput_a_pn;
+    vertCode += vertInput_a_uv1;
+    vertCode += vertInput_a_tangent;
+    vertCode += vertInput_u_matrices_all;
+    vertCode += vertInput_u_matrix_invMv;
+    vertCode += vertInput_u_lightNm;
+    vertCode += vertOutput_v_P_VS;
+    vertCode += vertOutput_v_P_WS;
+    vertCode += vertOutput_v_N_VS;
+    vertCode += vertOutput_v_uv1;
+    vertCode += vertOutput_v_R_OS;
+    vertCode += vertOutput_v_lightVecTS;
     vertCode += vertMain_Begin;
     vertCode += vertMain_v_P_VS;
     vertCode += vertMain_v_N_VS;
@@ -1893,36 +1823,28 @@ void SLGLProgramGenerated::buildPerPixCookDmNm(SLVLight* lights, bool doEnvMap)
     // Assemble fragment shader code
     string fragCode;
     fragCode += shaderHeader((int)lights->size());
-    fragCode += R"(
-in      vec3        v_P_VS;     // Interpol. point of illumination in view space (VS)
-in      vec3        v_N_VS;     // Interpol. normal at v_P_VS in view space
-in      vec3        v_R_OS;     // Interpol. reflect in object space
-in      vec2        v_uv1;      // Texture coordinate varying
-in      vec3        v_eyeDirTS; // Vector to the eye in tangent space
-in      vec3        v_lightDirTS[NUM_LIGHTS];   // Vector to light 0 in tangent space
-in      vec3        v_spotDirTS[NUM_LIGHTS];    // Spot direction in tangent space
-)";
-    fragCode += fragInputs_u_lightAll;
-    if (doEnvMap)
-        fragCode += fragInputs_u_matCookEnvMaps;
-    fragCode += fragInputs_u_matTexDm;
-    fragCode += fragInputs_u_matTexNm;
-    fragCode += fragInputs_u_matTexRm;
-    fragCode += fragInputs_u_matTexMm;
-    fragCode += fragInputs_u_cam;
+    fragCode += fragInput_v_P_VS;
+    fragCode += fragInput_v_N_VS;
+    fragCode += fragInput_v_R_OS;
+    fragCode += fragInput_v_uv1;
+    fragCode += fragInput_v_lightVecTS;
+    fragCode += fragInput_u_lightAll;
+    fragCode += fragInput_u_matTexDm;
+    fragCode += fragInput_u_matTexNm;
+    fragCode += fragInput_u_matTexRm;
+    fragCode += fragInput_u_matTexMm;
+    if (doEnvMap) fragCode += fragInput_u_skyCookEnvMaps;
+    fragCode += fragInput_u_cam;
     fragCode += fragOutputs_o_fragColor;
-    fragCode += fragFunctionsLightingCookTorrence;
+    fragCode += fragFunctionsLightingCookTorrance;
     fragCode += fragFunctionFogBlend;
     fragCode += fragFunctionDoStereoSeparation;
     fragCode += fragMain_Begin;
     fragCode += fragMain_0_Intensities;
-    fragCode += fragMain_1_EN_fromNm;
+    fragCode += fragMain_1_EN_in_TS;
     fragCode += fragMainCook_1_MatFromDmRmMm;
     fragCode += fragMainCook_2_LightLoopNm;
-    if (doEnvMap)
-        fragCode += fragMainCook_3_FragColorEnv;
-    else
-        fragCode += fragMainCook_3_FragColor;
+    fragCode += doEnvMap ? fragMainCook_3_FragColorEnv : fragMainCook_3_FragColor;
     fragCode += fragMain_5_FogGammaStereo;
     addCodeToShader(_shaders[1], fragCode, _name + ".frag");
 }
@@ -1936,13 +1858,13 @@ void SLGLProgramGenerated::buildPerPixCookSm(SLVLight* lights, bool doEnvMap)
     // Assemble vertex shader code
     string vertCode;
     vertCode += shaderHeader((int)lights->size());
-    vertCode += vertInputs_a_pn;
-    vertCode += vertInputs_u_matrices_all;
-    vertCode += vertInputs_u_matrix_invMv;
-    vertCode += vertOutputs_v_P_WS;
-    vertCode += vertOutputs_v_P_VS;
-    vertCode += vertOutputs_v_N_VS;
-    vertCode += vertOutputs_v_R_OS;
+    vertCode += vertInput_a_pn;
+    vertCode += vertInput_u_matrices_all;
+    vertCode += vertInput_u_matrix_invMv;
+    vertCode += vertOutput_v_P_VS;
+    vertCode += vertOutput_v_P_WS;
+    vertCode += vertOutput_v_N_VS;
+    vertCode += vertOutput_v_R_OS;
     vertCode += vertMain_Begin;
     vertCode += vertMain_v_P_VS;
     vertCode += vertMain_v_P_WS_Sm;
@@ -1954,35 +1876,29 @@ void SLGLProgramGenerated::buildPerPixCookSm(SLVLight* lights, bool doEnvMap)
     // Assemble fragment shader code
     string fragCode;
     fragCode += shaderHeader((int)lights->size());
-    fragCode += R"(
-in      vec3        v_P_VS;     // Interpol. point of illumination in view space (VS)
-in      vec3        v_N_VS;     // Interpol. normal at v_P_VS in view space
-in      vec3        v_R_OS;     // Interpol. reflect in object space
-in      vec3        v_P_WS;     // Interpol. point of illumination in world space (WS)
-)";
-    fragCode += fragInputs_u_lightAll;
-    fragCode += fragInputs_u_lightSm(lights);
-    fragCode += fragInputs_u_matCookAll;
-    if (doEnvMap)
-        fragCode += fragInputs_u_matCookEnvMaps;
-    fragCode += fragInputs_u_matGetsSm;
-    fragCode += fragInputs_u_shadowMaps(lights);
-    fragCode += fragInputs_u_cam;
+    fragCode += fragInput_v_P_VS;
+    fragCode += fragInput_v_P_WS;
+    fragCode += fragInput_v_N_VS;
+    fragCode += fragInput_v_R_OS;
+    fragCode += fragInput_u_lightAll;
+    fragCode += fragInput_u_lightSm(lights);
+    fragCode += fragInput_u_matCookAll;
+    fragCode += fragInput_u_matGetsSm;
+    fragCode += fragInput_u_shadowMaps(lights);
+    if (doEnvMap) fragCode += fragInput_u_skyCookEnvMaps;
+    fragCode += fragInput_u_cam;
     fragCode += fragOutputs_o_fragColor;
-    fragCode += fragFunctionsLightingCookTorrence;
+    fragCode += fragFunctionsLightingCookTorrance;
     fragCode += fragFunctionFogBlend;
     fragCode += fragFunctionDoStereoSeparation;
     fragCode += fragFunctionShadowTest(lights);
     fragCode += fragFunctionDoColoredShadows;
     fragCode += fragMain_Begin;
     fragCode += fragMain_0_Intensities;
-    fragCode += fragMain_1_EN_fromVert;
+    fragCode += fragMain_1_EN_in_VS;
     fragCode += fragMainCook_1_MatFromMaterial;
     fragCode += fragMainCook_2_LightLoopSm;
-    if (doEnvMap)
-        fragCode += fragMainCook_3_FragColorEnv;
-    else
-        fragCode += fragMainCook_3_FragColor;
+    fragCode += doEnvMap ? fragMainCook_3_FragColorEnv : fragMainCook_3_FragColor;
     fragCode += fragMain_4_ColoredShadows;
     fragCode += fragMain_5_FogGammaStereo;
     addCodeToShader(_shaders[1], fragCode, _name + ".frag");
@@ -1997,14 +1913,14 @@ void SLGLProgramGenerated::buildPerPixCookOm(SLVLight* lights, bool doEnvMap)
     // Assemble vertex shader code
     string vertCode;
     vertCode += shaderHeader((int)lights->size());
-    vertCode += vertInputs_a_pn;
-    vertCode += vertInputs_u_matrices_all;
-    vertCode += vertInputs_u_matrix_invMv;
-    vertCode += vertInputs_a_uv1;
-    vertCode += vertOutputs_v_P_VS;
-    vertCode += vertOutputs_v_N_VS;
-    vertCode += vertOutputs_v_uv1;
-    vertCode += vertOutputs_v_R_OS;
+    vertCode += vertInput_a_pn;
+    vertCode += vertInput_u_matrices_all;
+    vertCode += vertInput_u_matrix_invMv;
+    vertCode += vertInput_a_uv1;
+    vertCode += vertOutput_v_P_VS;
+    vertCode += vertOutput_v_N_VS;
+    vertCode += vertOutput_v_uv1;
+    vertCode += vertOutput_v_R_OS;
     vertCode += vertMain_Begin;
     vertCode += vertMain_v_P_VS;
     vertCode += vertMain_v_N_VS;
@@ -2016,32 +1932,26 @@ void SLGLProgramGenerated::buildPerPixCookOm(SLVLight* lights, bool doEnvMap)
     // Assemble fragment shader code
     string fragCode;
     fragCode += shaderHeader((int)lights->size());
-    fragCode += R"(
-in      vec3        v_P_VS;     // Interpol. point of illumination in view space (VS)
-in      vec3        v_N_VS;     // Interpol. normal at v_P_VS in view space
-in      vec3        v_R_OS;     // Interpol. reflect in object space
-in      vec2        v_uv1;      // Texture coordinate varying
-)";
-    fragCode += fragInputs_u_lightAll;
-    if (doEnvMap)
-        fragCode += fragInputs_u_matCookEnvMaps;
-    fragCode += fragInputs_u_matTexRm;
-    fragCode += fragInputs_u_matTexMm;
-    fragCode += fragInputs_u_matTexOm;
-    fragCode += fragInputs_u_cam;
+    fragCode += fragInput_v_P_VS;
+    fragCode += fragInput_v_N_VS;
+    fragCode += fragInput_v_R_OS;
+    fragCode += fragInput_v_uv1;
+    fragCode += fragInput_u_lightAll;
+    fragCode += fragInput_u_matTexRm;
+    fragCode += fragInput_u_matTexMm;
+    fragCode += fragInput_u_matTexOm;
+    if (doEnvMap) fragCode += fragInput_u_skyCookEnvMaps;
+    fragCode += fragInput_u_cam;
     fragCode += fragOutputs_o_fragColor;
-    fragCode += fragFunctionsLightingCookTorrence;
+    fragCode += fragFunctionsLightingCookTorrance;
     fragCode += fragFunctionFogBlend;
     fragCode += fragFunctionDoStereoSeparation;
     fragCode += fragMain_Begin;
     fragCode += fragMain_0_Intensities;
-    fragCode += fragMain_1_EN_fromVert;
+    fragCode += fragMain_1_EN_in_VS;
     fragCode += fragMainCook_1_MatFromMaterial;
     fragCode += fragMainCook_2_LightLoop;
-    if (doEnvMap)
-        fragCode += fragMainCook_3_FragColorEnv;
-    else
-        fragCode += fragMainCook_3_FragColor;
+    fragCode += doEnvMap ? fragMainCook_3_FragColorEnv : fragMainCook_3_FragColor;
     fragCode += fragMain_5_FogGammaStereo;
     addCodeToShader(_shaders[1], fragCode, _name + ".frag");
 }
@@ -2055,14 +1965,14 @@ void SLGLProgramGenerated::buildPerPixCookDm(SLVLight* lights, bool doEnvMap)
     // Assemble vertex shader code
     string vertCode;
     vertCode += shaderHeader((int)lights->size());
-    vertCode += vertInputs_a_pn;
-    vertCode += vertInputs_u_matrices_all;
-    vertCode += vertInputs_u_matrix_invMv;
-    vertCode += vertInputs_a_uv1;
-    vertCode += vertOutputs_v_P_VS;
-    vertCode += vertOutputs_v_N_VS;
-    vertCode += vertOutputs_v_uv1;
-    vertCode += vertOutputs_v_R_OS;
+    vertCode += vertInput_a_pn;
+    vertCode += vertInput_u_matrices_all;
+    vertCode += vertInput_u_matrix_invMv;
+    vertCode += vertInput_a_uv1;
+    vertCode += vertOutput_v_P_VS;
+    vertCode += vertOutput_v_N_VS;
+    vertCode += vertOutput_v_uv1;
+    vertCode += vertOutput_v_R_OS;
     vertCode += vertMain_Begin;
     vertCode += vertMain_v_P_VS;
     vertCode += vertMain_v_N_VS;
@@ -2074,32 +1984,26 @@ void SLGLProgramGenerated::buildPerPixCookDm(SLVLight* lights, bool doEnvMap)
     // Assemble fragment shader code
     string fragCode;
     fragCode += shaderHeader((int)lights->size());
-    fragCode += R"(
-in      vec3        v_P_VS;     // Interpol. point of illumination in view space (VS)
-in      vec3        v_N_VS;     // Interpol. normal at v_P_VS in view space
-in      vec3        v_R_OS;     // Interpol. reflect in object space
-in      vec2        v_uv1;      // Texture coordinate varying
-)";
-    fragCode += fragInputs_u_lightAll;
-    if (doEnvMap)
-        fragCode += fragInputs_u_matCookEnvMaps;
-    fragCode += fragInputs_u_matTexDm;
-    fragCode += fragInputs_u_matTexRm;
-    fragCode += fragInputs_u_matTexMm;
-    fragCode += fragInputs_u_cam;
+    fragCode += fragInput_v_P_VS;
+    fragCode += fragInput_v_N_VS;
+    fragCode += fragInput_v_R_OS;
+    fragCode += fragInput_v_uv1;
+    fragCode += fragInput_u_lightAll;
+    fragCode += fragInput_u_matTexDm;
+    fragCode += fragInput_u_matTexRm;
+    fragCode += fragInput_u_matTexMm;
+    if (doEnvMap) fragCode += fragInput_u_skyCookEnvMaps;
+    fragCode += fragInput_u_cam;
     fragCode += fragOutputs_o_fragColor;
-    fragCode += fragFunctionsLightingCookTorrence;
+    fragCode += fragFunctionsLightingCookTorrance;
     fragCode += fragFunctionFogBlend;
     fragCode += fragFunctionDoStereoSeparation;
     fragCode += fragMain_Begin;
     fragCode += fragMain_0_Intensities;
-    fragCode += fragMain_1_EN_fromVert;
+    fragCode += fragMain_1_EN_in_VS;
     fragCode += fragMainCook_1_MatFromDmRmMm;
     fragCode += fragMainCook_2_LightLoop;
-    if (doEnvMap)
-        fragCode += fragMainCook_3_FragColorEnv;
-    else
-        fragCode += fragMainCook_3_FragColor;
+    fragCode += doEnvMap ? fragMainCook_3_FragColorEnv : fragMainCook_3_FragColor;
     fragCode += fragMain_5_FogGammaStereo;
     addCodeToShader(_shaders[1], fragCode, _name + ".frag");
 }
@@ -2113,18 +2017,18 @@ void SLGLProgramGenerated::buildPerPixCookNm(SLVLight* lights, bool doEnvMap)
     // Assemble vertex shader code
     string vertCode;
     vertCode += shaderHeader((int)lights->size());
-    vertCode += vertInputs_a_pn;
-    vertCode += vertInputs_a_uv1;
-    vertCode += vertInputs_a_tangent;
-    vertCode += vertInputs_u_matrices_all;
-    vertCode += vertInputs_u_matrix_invMv;
-    vertCode += vertInputs_u_lightNm;
-    vertCode += vertOutputs_v_P_WS;
-    vertCode += vertOutputs_v_P_VS;
-    vertCode += vertOutputs_v_N_VS;
-    vertCode += vertOutputs_v_uv1;
-    vertCode += vertOutputs_v_R_OS;
-    vertCode += vertOutputs_v_lightNm;
+    vertCode += vertInput_a_pn;
+    vertCode += vertInput_a_uv1;
+    vertCode += vertInput_a_tangent;
+    vertCode += vertInput_u_matrices_all;
+    vertCode += vertInput_u_matrix_invMv;
+    vertCode += vertInput_u_lightNm;
+    vertCode += vertOutput_v_P_VS;
+    vertCode += vertOutput_v_P_WS;
+    vertCode += vertOutput_v_N_VS;
+    vertCode += vertOutput_v_uv1;
+    vertCode += vertOutput_v_R_OS;
+    vertCode += vertOutput_v_lightVecTS;
     vertCode += vertMain_Begin;
     vertCode += vertMain_v_P_VS;
     vertCode += vertMain_v_P_WS_Sm;
@@ -2138,35 +2042,27 @@ void SLGLProgramGenerated::buildPerPixCookNm(SLVLight* lights, bool doEnvMap)
     // Assemble fragment shader code
     string fragCode;
     fragCode += shaderHeader((int)lights->size());
-    fragCode += R"(
-in      vec3        v_P_VS;     // Interpol. point of illumination in view space (VS)
-in      vec3        v_P_WS;     // Interpol. point of illumination in world space (WS)
-in      vec3        v_N_VS;     // Interpol. normal at v_P_VS in view space
-in      vec3        v_R_OS;     // Interpol. reflect in object space
-in      vec2        v_uv1;      // Texture coordinate varying
-in      vec3        v_eyeDirTS; // Vector to the eye in tangent space
-in      vec3        v_lightDirTS[NUM_LIGHTS];   // Vector to light 0 in tangent space
-in      vec3        v_spotDirTS[NUM_LIGHTS];    // Spot direction in tangent space
-)";
-    fragCode += fragInputs_u_lightAll;
-    if (doEnvMap)
-        fragCode += fragInputs_u_matCookEnvMaps;
-    fragCode += fragInputs_u_matCookAll;
-    fragCode += fragInputs_u_matTexNm;
-    fragCode += fragInputs_u_cam;
+    fragCode += fragInput_v_P_VS;
+    fragCode += fragInput_v_P_WS;
+    fragCode += fragInput_v_N_VS;
+    fragCode += fragInput_v_R_OS;
+    fragCode += fragInput_v_uv1;
+    fragCode += fragInput_v_lightVecTS;
+    fragCode += fragInput_u_lightAll;
+    fragCode += fragInput_u_matCookAll;
+    fragCode += fragInput_u_matTexNm;
+    if (doEnvMap) fragCode += fragInput_u_skyCookEnvMaps;
+    fragCode += fragInput_u_cam;
     fragCode += fragOutputs_o_fragColor;
-    fragCode += fragFunctionsLightingCookTorrence;
+    fragCode += fragFunctionsLightingCookTorrance;
     fragCode += fragFunctionFogBlend;
     fragCode += fragFunctionDoStereoSeparation;
     fragCode += fragMain_Begin;
     fragCode += fragMain_0_Intensities;
-    fragCode += fragMain_1_EN_fromNm;
+    fragCode += fragMain_1_EN_in_TS;
     fragCode += fragMainCook_1_MatFromMaterial;
     fragCode += fragMainCook_2_LightLoop;
-    if (doEnvMap)
-        fragCode += fragMainCook_3_FragColorEnv;
-    else
-        fragCode += fragMainCook_3_FragColor;
+    fragCode += doEnvMap ? fragMainCook_3_FragColorEnv : fragMainCook_3_FragColor;
     fragCode += fragMain_5_FogGammaStereo;
     addCodeToShader(_shaders[1], fragCode, _name + ".frag");
 }
@@ -2180,12 +2076,12 @@ void SLGLProgramGenerated::buildPerPixCook(SLVLight* lights, bool doEnvMap)
     // Assemble vertex shader code
     string vertCode;
     vertCode += shaderHeader((int)lights->size());
-    vertCode += vertInputs_a_pn;
-    vertCode += vertInputs_u_matrices_all;
-    vertCode += vertInputs_u_matrix_invMv;
-    vertCode += vertOutputs_v_P_VS;
-    vertCode += vertOutputs_v_N_VS;
-    vertCode += vertOutputs_v_R_OS;
+    vertCode += vertInput_a_pn;
+    vertCode += vertInput_u_matrices_all;
+    vertCode += vertInput_u_matrix_invMv;
+    vertCode += vertOutput_v_P_VS;
+    vertCode += vertOutput_v_N_VS;
+    vertCode += vertOutput_v_R_OS;
     vertCode += vertMain_Begin;
     vertCode += vertMain_v_P_VS;
     vertCode += vertMain_v_N_VS;
@@ -2196,29 +2092,23 @@ void SLGLProgramGenerated::buildPerPixCook(SLVLight* lights, bool doEnvMap)
     // Assemble fragment shader code
     string fragCode;
     fragCode += shaderHeader((int)lights->size());
-    fragCode += R"(
-in      vec3        v_P_VS;     // Interpol. point of illumination in view space (VS)
-in      vec3        v_N_VS;     // Interpol. normal at v_P_VS in view space
-in      vec3        v_R_OS;     // Interpol. reflect in object space
-)";
-    fragCode += fragInputs_u_lightAll;
-    fragCode += fragInputs_u_matCookAll;
-    if (doEnvMap)
-        fragCode += fragInputs_u_matCookEnvMaps;
-    fragCode += fragInputs_u_cam;
+    fragCode += fragInput_v_P_VS;
+    fragCode += fragInput_v_N_VS;
+    fragCode += fragInput_v_R_OS;
+    fragCode += fragInput_u_lightAll;
+    fragCode += fragInput_u_matCookAll;
+    if (doEnvMap) fragCode += fragInput_u_skyCookEnvMaps;
+    fragCode += fragInput_u_cam;
     fragCode += fragOutputs_o_fragColor;
-    fragCode += fragFunctionsLightingCookTorrence;
+    fragCode += fragFunctionsLightingCookTorrance;
     fragCode += fragFunctionFogBlend;
     fragCode += fragFunctionDoStereoSeparation;
     fragCode += fragMain_Begin;
     fragCode += fragMain_0_Intensities;
-    fragCode += fragMain_1_EN_fromVert;
+    fragCode += fragMain_1_EN_in_VS;
     fragCode += fragMainCook_1_MatFromMaterial;
     fragCode += fragMainCook_2_LightLoop;
-    if (doEnvMap)
-        fragCode += fragMainCook_3_FragColorEnv;
-    else
-        fragCode += fragMainCook_3_FragColor;
+    fragCode += doEnvMap ? fragMainCook_3_FragColorEnv : fragMainCook_3_FragColor;
     fragCode += fragMain_5_FogGammaStereo;
     addCodeToShader(_shaders[1], fragCode, _name + ".frag");
 }
@@ -2230,18 +2120,18 @@ void SLGLProgramGenerated::buildPerPixBlinnDmNmOmSm(SLVLight* lights)
     // Assemble vertex shader code
     string vertCode;
     vertCode += shaderHeader((int)lights->size());
-    vertCode += vertInputs_a_pn;
-    vertCode += vertInputs_a_uv1;
-    vertCode += vertInputs_a_uv2;
-    vertCode += vertInputs_a_tangent;
-    vertCode += vertInputs_u_matrices_all;
-    vertCode += vertInputs_u_lightNm;
-    vertCode += vertOutputs_v_P_VS;
-    vertCode += vertOutputs_v_P_WS;
-    vertCode += vertOutputs_v_N_VS;
-    vertCode += vertOutputs_v_uv1;
-    vertCode += vertOutputs_v_uv2;
-    vertCode += vertOutputs_v_lightNm;
+    vertCode += vertInput_a_pn;
+    vertCode += vertInput_a_uv1;
+    vertCode += vertInput_a_uv2;
+    vertCode += vertInput_a_tangent;
+    vertCode += vertInput_u_matrices_all;
+    vertCode += vertInput_u_lightNm;
+    vertCode += vertOutput_v_P_VS;
+    vertCode += vertOutput_v_P_WS;
+    vertCode += vertOutput_v_N_VS;
+    vertCode += vertOutput_v_uv1;
+    vertCode += vertOutput_v_uv2;
+    vertCode += vertOutput_v_lightVecTS;
     vertCode += vertMain_Begin;
     vertCode += vertMain_v_P_VS;
     vertCode += vertMain_v_P_WS_Sm;
@@ -2263,15 +2153,15 @@ in      vec3        v_eyeDirTS;                 // Vector to the eye in tangent 
 in      vec3        v_lightDirTS[NUM_LIGHTS];   // Vector to light 0 in tangent space
 in      vec3        v_spotDirTS[NUM_LIGHTS];    // Spot direction in tangent space
 )";
-    fragCode += fragInputs_u_lightAll;
-    fragCode += fragInputs_u_lightSm(lights);
-    fragCode += fragInputs_u_matBlinnAll;
-    fragCode += fragInputs_u_matTexDm;
-    fragCode += fragInputs_u_matTexNm;
-    fragCode += fragInputs_u_matTexOm;
-    fragCode += fragInputs_u_matGetsSm;
-    fragCode += fragInputs_u_shadowMaps(lights);
-    fragCode += fragInputs_u_cam;
+    fragCode += fragInput_u_lightAll;
+    fragCode += fragInput_u_lightSm(lights);
+    fragCode += fragInput_u_matBlinnAll;
+    fragCode += fragInput_u_matTexDm;
+    fragCode += fragInput_u_matTexNm;
+    fragCode += fragInput_u_matTexOm;
+    fragCode += fragInput_u_matGetsSm;
+    fragCode += fragInput_u_shadowMaps(lights);
+    fragCode += fragInput_u_cam;
     fragCode += fragOutputs_o_fragColor;
     fragCode += fragFunctionsLightingBlinnPhong;
     fragCode += fragFunctionFogBlend;
@@ -2280,7 +2170,7 @@ in      vec3        v_spotDirTS[NUM_LIGHTS];    // Spot direction in tangent spa
     fragCode += fragFunctionDoColoredShadows;
     fragCode += fragMain_Begin;
     fragCode += fragMain_0_Intensities;
-    fragCode += fragMain_1_EN_fromNm;
+    fragCode += fragMain_1_EN_in_TS;
     fragCode += fragMainBlinn_2_LightLoopNmSm;
     fragCode += fragMainBlinn_3_FragColorTmAo;
     fragCode += fragMain_4_ColoredShadows;
@@ -2293,16 +2183,16 @@ void SLGLProgramGenerated::buildPerPixBlinnDmNmOm(SLVLight* lights)
     // Assemble vertex shader code
     string vertCode;
     vertCode += shaderHeader((int)lights->size());
-    vertCode += vertInputs_a_pn;
-    vertCode += vertInputs_a_uv1;
-    vertCode += vertInputs_a_uv2;
-    vertCode += vertInputs_a_tangent;
-    vertCode += vertInputs_u_lightNm;
-    vertCode += vertInputs_u_matrices_all;
-    vertCode += vertOutputs_v_P_VS;
-    vertCode += vertOutputs_v_uv1;
-    vertCode += vertOutputs_v_uv2;
-    vertCode += vertOutputs_v_lightNm;
+    vertCode += vertInput_a_pn;
+    vertCode += vertInput_a_uv1;
+    vertCode += vertInput_a_uv2;
+    vertCode += vertInput_a_tangent;
+    vertCode += vertInput_u_lightNm;
+    vertCode += vertInput_u_matrices_all;
+    vertCode += vertOutput_v_P_VS;
+    vertCode += vertOutput_v_uv1;
+    vertCode += vertOutput_v_uv2;
+    vertCode += vertOutput_v_lightVecTS;
     vertCode += vertMain_Begin;
     vertCode += vertMain_v_P_VS;
     vertCode += vertMain_v_uv1;
@@ -2322,19 +2212,19 @@ in      vec3        v_eyeDirTS;                 // Vector to the eye in tangent 
 in      vec3        v_lightDirTS[NUM_LIGHTS];   // Vector to light 0 in tangent space
 in      vec3        v_spotDirTS[NUM_LIGHTS];    // Spot direction in tangent space
 )";
-    fragCode += fragInputs_u_lightAll;
-    fragCode += fragInputs_u_matBlinnAll;
-    fragCode += fragInputs_u_matTexDm;
-    fragCode += fragInputs_u_matTexNm;
-    fragCode += fragInputs_u_matTexOm;
-    fragCode += fragInputs_u_cam;
+    fragCode += fragInput_u_lightAll;
+    fragCode += fragInput_u_matBlinnAll;
+    fragCode += fragInput_u_matTexDm;
+    fragCode += fragInput_u_matTexNm;
+    fragCode += fragInput_u_matTexOm;
+    fragCode += fragInput_u_cam;
     fragCode += fragOutputs_o_fragColor;
     fragCode += fragFunctionsLightingBlinnPhong;
     fragCode += fragFunctionFogBlend;
     fragCode += fragFunctionDoStereoSeparation;
     fragCode += fragMain_Begin;
     fragCode += fragMain_0_Intensities;
-    fragCode += fragMain_1_EN_fromNm;
+    fragCode += fragMain_1_EN_in_TS;
     fragCode += fragMainBlinn_2_LightLoopNm;
     fragCode += fragMainBlinn_3_FragColorTmAo;
     fragCode += fragMain_5_FogGammaStereo;
@@ -2346,16 +2236,16 @@ void SLGLProgramGenerated::buildPerPixBlinnDmNmSm(SLVLight* lights)
     // Assemble vertex shader code
     string vertCode;
     vertCode += shaderHeader((int)lights->size());
-    vertCode += vertInputs_a_pn;
-    vertCode += vertInputs_a_uv1;
-    vertCode += vertInputs_a_tangent;
-    vertCode += vertInputs_u_matrices_all;
-    vertCode += vertInputs_u_lightNm;
-    vertCode += vertOutputs_v_P_VS;
-    vertCode += vertOutputs_v_P_WS;
-    vertCode += vertOutputs_v_N_VS;
-    vertCode += vertOutputs_v_uv1;
-    vertCode += vertOutputs_v_lightNm;
+    vertCode += vertInput_a_pn;
+    vertCode += vertInput_a_uv1;
+    vertCode += vertInput_a_tangent;
+    vertCode += vertInput_u_matrices_all;
+    vertCode += vertInput_u_lightNm;
+    vertCode += vertOutput_v_P_VS;
+    vertCode += vertOutput_v_P_WS;
+    vertCode += vertOutput_v_N_VS;
+    vertCode += vertOutput_v_uv1;
+    vertCode += vertOutput_v_lightVecTS;
     vertCode += vertMain_Begin;
     vertCode += vertMain_v_P_VS;
     vertCode += vertMain_v_P_WS_Sm;
@@ -2375,14 +2265,14 @@ in      vec3        v_eyeDirTS;                 // Vector to the eye in tangent 
 in      vec3        v_lightDirTS[NUM_LIGHTS];   // Vector to light 0 in tangent space
 in      vec3        v_spotDirTS[NUM_LIGHTS];    // Spot direction in tangent space
 )";
-    fragCode += fragInputs_u_lightAll;
-    fragCode += fragInputs_u_lightSm(lights);
-    fragCode += fragInputs_u_matBlinnAll;
-    fragCode += fragInputs_u_matTexDm;
-    fragCode += fragInputs_u_matTexNm;
-    fragCode += fragInputs_u_matGetsSm;
-    fragCode += fragInputs_u_shadowMaps(lights);
-    fragCode += fragInputs_u_cam;
+    fragCode += fragInput_u_lightAll;
+    fragCode += fragInput_u_lightSm(lights);
+    fragCode += fragInput_u_matBlinnAll;
+    fragCode += fragInput_u_matTexDm;
+    fragCode += fragInput_u_matTexNm;
+    fragCode += fragInput_u_matGetsSm;
+    fragCode += fragInput_u_shadowMaps(lights);
+    fragCode += fragInput_u_cam;
     fragCode += fragOutputs_o_fragColor;
     fragCode += fragFunctionsLightingBlinnPhong;
     fragCode += fragFunctionFogBlend;
@@ -2391,7 +2281,7 @@ in      vec3        v_spotDirTS[NUM_LIGHTS];    // Spot direction in tangent spa
     fragCode += fragFunctionDoColoredShadows;
     fragCode += fragMain_Begin;
     fragCode += fragMain_0_Intensities;
-    fragCode += fragMain_1_EN_fromNm;
+    fragCode += fragMain_1_EN_in_TS;
     fragCode += fragMainBlinn_2_LightLoopNmSm;
     fragCode += fragMainBlinn_3_FragColorTm;
     fragCode += fragMain_4_ColoredShadows;
@@ -2404,15 +2294,15 @@ void SLGLProgramGenerated::buildPerPixBlinnDmOmSm(SLVLight* lights)
     // Assemble vertex shader code
     string vertCode;
     vertCode += shaderHeader((int)lights->size());
-    vertCode += vertInputs_a_pn;
-    vertCode += vertInputs_a_uv1;
-    vertCode += vertInputs_a_uv2;
-    vertCode += vertInputs_u_matrices_all;
-    vertCode += vertOutputs_v_P_VS;
-    vertCode += vertOutputs_v_P_WS;
-    vertCode += vertOutputs_v_N_VS;
-    vertCode += vertOutputs_v_uv1;
-    vertCode += vertOutputs_v_uv2;
+    vertCode += vertInput_a_pn;
+    vertCode += vertInput_a_uv1;
+    vertCode += vertInput_a_uv2;
+    vertCode += vertInput_u_matrices_all;
+    vertCode += vertOutput_v_P_VS;
+    vertCode += vertOutput_v_P_WS;
+    vertCode += vertOutput_v_N_VS;
+    vertCode += vertOutput_v_uv1;
+    vertCode += vertOutput_v_uv2;
     vertCode += vertMain_Begin;
     vertCode += vertMain_v_P_VS;
     vertCode += vertMain_v_P_WS_Sm;
@@ -2432,14 +2322,14 @@ in      vec3        v_N_VS;     // Interpol. normal at v_P_VS in view space
 in      vec2        v_uv1;      // Interpol. texture coordinate
 in      vec2        v_uv2;      // Texture coordinate 2 varying for AO
 )";
-    fragCode += fragInputs_u_lightAll;
-    fragCode += fragInputs_u_lightSm(lights);
-    fragCode += fragInputs_u_matBlinnAll;
-    fragCode += fragInputs_u_matTexDm;
-    fragCode += fragInputs_u_matTexOm;
-    fragCode += fragInputs_u_matGetsSm;
-    fragCode += fragInputs_u_shadowMaps(lights);
-    fragCode += fragInputs_u_cam;
+    fragCode += fragInput_u_lightAll;
+    fragCode += fragInput_u_lightSm(lights);
+    fragCode += fragInput_u_matBlinnAll;
+    fragCode += fragInput_u_matTexDm;
+    fragCode += fragInput_u_matTexOm;
+    fragCode += fragInput_u_matGetsSm;
+    fragCode += fragInput_u_shadowMaps(lights);
+    fragCode += fragInput_u_cam;
     fragCode += fragOutputs_o_fragColor;
     fragCode += fragFunctionsLightingBlinnPhong;
     fragCode += fragFunctionFogBlend;
@@ -2448,7 +2338,7 @@ in      vec2        v_uv2;      // Texture coordinate 2 varying for AO
     fragCode += fragFunctionDoColoredShadows;
     fragCode += fragMain_Begin;
     fragCode += fragMain_0_Intensities;
-    fragCode += fragMain_1_EN_fromVert;
+    fragCode += fragMain_1_EN_in_VS;
     fragCode += fragMainBlinn_2_LightLoopSm;
     fragCode += fragMainBlinn_3_FragColorTmAo;
     fragCode += fragMain_4_ColoredShadows;
@@ -2461,13 +2351,13 @@ void SLGLProgramGenerated::buildPerPixBlinnDmSm(SLVLight* lights)
     // Assemble vertex shader code
     string vertCode;
     vertCode += shaderHeader((int)lights->size());
-    vertCode += vertInputs_a_pn;
-    vertCode += vertInputs_a_uv1;
-    vertCode += vertInputs_u_matrices_all;
-    vertCode += vertOutputs_v_P_VS;
-    vertCode += vertOutputs_v_P_WS;
-    vertCode += vertOutputs_v_N_VS;
-    vertCode += vertOutputs_v_uv1;
+    vertCode += vertInput_a_pn;
+    vertCode += vertInput_a_uv1;
+    vertCode += vertInput_u_matrices_all;
+    vertCode += vertOutput_v_P_VS;
+    vertCode += vertOutput_v_P_WS;
+    vertCode += vertOutput_v_N_VS;
+    vertCode += vertOutput_v_uv1;
     vertCode += vertMain_Begin;
     vertCode += vertMain_v_P_VS;
     vertCode += vertMain_v_P_WS_Sm;
@@ -2485,13 +2375,13 @@ in      vec3        v_P_WS;     // Interpol. point of illumination in world spac
 in      vec3        v_N_VS;     // Interpol. normal at v_P_VS in view space
 in      vec2        v_uv1;      // Interpol. texture coordinate
 )";
-    fragCode += fragInputs_u_lightAll;
-    fragCode += fragInputs_u_lightSm(lights);
-    fragCode += fragInputs_u_matBlinnAll;
-    fragCode += fragInputs_u_matTexDm;
-    fragCode += fragInputs_u_matGetsSm;
-    fragCode += fragInputs_u_shadowMaps(lights);
-    fragCode += fragInputs_u_cam;
+    fragCode += fragInput_u_lightAll;
+    fragCode += fragInput_u_lightSm(lights);
+    fragCode += fragInput_u_matBlinnAll;
+    fragCode += fragInput_u_matTexDm;
+    fragCode += fragInput_u_matGetsSm;
+    fragCode += fragInput_u_shadowMaps(lights);
+    fragCode += fragInput_u_cam;
     fragCode += fragOutputs_o_fragColor;
     fragCode += fragFunctionsLightingBlinnPhong;
     fragCode += fragFunctionFogBlend;
@@ -2500,7 +2390,7 @@ in      vec2        v_uv1;      // Interpol. texture coordinate
     fragCode += fragFunctionDoColoredShadows;
     fragCode += fragMain_Begin;
     fragCode += fragMain_0_Intensities;
-    fragCode += fragMain_1_EN_fromVert;
+    fragCode += fragMain_1_EN_in_VS;
     fragCode += fragMainBlinn_2_LightLoopSm;
     fragCode += fragMainBlinn_3_FragColorTm;
     fragCode += fragMain_4_ColoredShadows;
@@ -2513,16 +2403,16 @@ void SLGLProgramGenerated::buildPerPixBlinnNmSm(SLVLight* lights)
     // Assemble vertex shader code
     string vertCode;
     vertCode += shaderHeader((int)lights->size());
-    vertCode += vertInputs_a_pn;
-    vertCode += vertInputs_a_uv1;
-    vertCode += vertInputs_a_tangent;
-    vertCode += vertInputs_u_lightNm;
-    vertCode += vertInputs_u_matrices_all;
-    vertCode += vertOutputs_v_P_VS;
-    vertCode += vertOutputs_v_P_WS;
-    vertCode += vertOutputs_v_N_VS;
-    vertCode += vertOutputs_v_uv1;
-    vertCode += vertOutputs_v_lightNm;
+    vertCode += vertInput_a_pn;
+    vertCode += vertInput_a_uv1;
+    vertCode += vertInput_a_tangent;
+    vertCode += vertInput_u_lightNm;
+    vertCode += vertInput_u_matrices_all;
+    vertCode += vertOutput_v_P_VS;
+    vertCode += vertOutput_v_P_WS;
+    vertCode += vertOutput_v_N_VS;
+    vertCode += vertOutput_v_uv1;
+    vertCode += vertOutput_v_lightVecTS;
     vertCode += vertMain_Begin;
     vertCode += vertMain_v_P_VS;
     vertCode += vertMain_v_P_WS_Sm;
@@ -2542,13 +2432,13 @@ in      vec3        v_eyeDirTS;                 // Vector to the eye in tangent 
 in      vec3        v_lightDirTS[NUM_LIGHTS];   // Vector to light 0 in tangent space
 in      vec3        v_spotDirTS[NUM_LIGHTS];    // Spot direction in tangent space
 )";
-    fragCode += fragInputs_u_lightAll;
-    fragCode += fragInputs_u_lightSm(lights);
-    fragCode += fragInputs_u_matBlinnAll;
-    fragCode += fragInputs_u_matTexNm;
-    fragCode += fragInputs_u_matGetsSm;
-    fragCode += fragInputs_u_shadowMaps(lights);
-    fragCode += fragInputs_u_cam;
+    fragCode += fragInput_u_lightAll;
+    fragCode += fragInput_u_lightSm(lights);
+    fragCode += fragInput_u_matBlinnAll;
+    fragCode += fragInput_u_matTexNm;
+    fragCode += fragInput_u_matGetsSm;
+    fragCode += fragInput_u_shadowMaps(lights);
+    fragCode += fragInput_u_cam;
     fragCode += fragOutputs_o_fragColor;
     fragCode += fragFunctionsLightingBlinnPhong;
     fragCode += fragFunctionFogBlend;
@@ -2557,7 +2447,7 @@ in      vec3        v_spotDirTS[NUM_LIGHTS];    // Spot direction in tangent spa
     fragCode += fragFunctionDoColoredShadows;
     fragCode += fragMain_Begin;
     fragCode += fragMain_0_Intensities;
-    fragCode += fragMain_1_EN_fromNm;
+    fragCode += fragMain_1_EN_in_TS;
     fragCode += fragMainBlinn_2_LightLoopNmSm;
     fragCode += fragMainBlinn_3_FragColor;
     fragCode += fragMain_4_ColoredShadows;
@@ -2570,13 +2460,13 @@ void SLGLProgramGenerated::buildPerPixBlinnOmSm(SLVLight* lights)
     // Assemble vertex shader code
     string vertCode;
     vertCode += shaderHeader((int)lights->size());
-    vertCode += vertInputs_a_pn;
-    vertCode += vertInputs_a_uv2;
-    vertCode += vertInputs_u_matrices_all;
-    vertCode += vertOutputs_v_P_VS;
-    vertCode += vertOutputs_v_P_WS;
-    vertCode += vertOutputs_v_N_VS;
-    vertCode += vertOutputs_v_uv2;
+    vertCode += vertInput_a_pn;
+    vertCode += vertInput_a_uv2;
+    vertCode += vertInput_u_matrices_all;
+    vertCode += vertOutput_v_P_VS;
+    vertCode += vertOutput_v_P_WS;
+    vertCode += vertOutput_v_N_VS;
+    vertCode += vertOutput_v_uv2;
     vertCode += vertMain_Begin;
     vertCode += vertMain_v_P_VS;
     vertCode += vertMain_v_P_WS_Sm;
@@ -2594,13 +2484,13 @@ in      vec3        v_P_WS;     // Interpol. point of illumination in world spac
 in      vec3        v_N_VS;     // Interpol. normal at v_P_VS in view space
 in      vec2        v_uv2;      // Texture coordinate 2 varying for AO
 )";
-    fragCode += fragInputs_u_lightAll;
-    fragCode += fragInputs_u_lightSm(lights);
-    fragCode += fragInputs_u_matBlinnAll;
-    fragCode += fragInputs_u_matTexOm;
-    fragCode += fragInputs_u_matGetsSm;
-    fragCode += fragInputs_u_shadowMaps(lights);
-    fragCode += fragInputs_u_cam;
+    fragCode += fragInput_u_lightAll;
+    fragCode += fragInput_u_lightSm(lights);
+    fragCode += fragInput_u_matBlinnAll;
+    fragCode += fragInput_u_matTexOm;
+    fragCode += fragInput_u_matGetsSm;
+    fragCode += fragInput_u_shadowMaps(lights);
+    fragCode += fragInput_u_cam;
     fragCode += fragOutputs_o_fragColor;
     fragCode += fragFunctionsLightingBlinnPhong;
     fragCode += fragFunctionFogBlend;
@@ -2609,7 +2499,7 @@ in      vec2        v_uv2;      // Texture coordinate 2 varying for AO
     fragCode += fragFunctionDoColoredShadows;
     fragCode += fragMain_Begin;
     fragCode += fragMain_0_Intensities;
-    fragCode += fragMain_1_EN_fromVert;
+    fragCode += fragMain_1_EN_in_VS;
     fragCode += fragMainBlinn_2_LightLoopSm;
     fragCode += fragMainBlinn_3_FragColorAo;
     fragCode += fragMain_4_ColoredShadows;
@@ -2622,16 +2512,16 @@ void SLGLProgramGenerated::buildPerPixBlinnNmOm(SLVLight* lights)
     // Assemble vertex shader code
     string vertCode;
     vertCode += shaderHeader((int)lights->size());
-    vertCode += vertInputs_a_pn;
-    vertCode += vertInputs_a_uv1;
-    vertCode += vertInputs_a_uv2;
-    vertCode += vertInputs_a_tangent;
-    vertCode += vertInputs_u_matrices_all;
-    vertCode += vertInputs_u_lightNm;
-    vertCode += vertOutputs_v_P_VS;
-    vertCode += vertOutputs_v_uv1;
-    vertCode += vertOutputs_v_uv2;
-    vertCode += vertOutputs_v_lightNm;
+    vertCode += vertInput_a_pn;
+    vertCode += vertInput_a_uv1;
+    vertCode += vertInput_a_uv2;
+    vertCode += vertInput_a_tangent;
+    vertCode += vertInput_u_matrices_all;
+    vertCode += vertInput_u_lightNm;
+    vertCode += vertOutput_v_P_VS;
+    vertCode += vertOutput_v_uv1;
+    vertCode += vertOutput_v_uv2;
+    vertCode += vertOutput_v_lightVecTS;
     vertCode += vertMain_Begin;
     vertCode += vertMain_v_P_VS;
     vertCode += vertMain_v_uv1;
@@ -2651,18 +2541,18 @@ in      vec3        v_eyeDirTS;                 // Vector to the eye in tangent 
 in      vec3        v_lightDirTS[NUM_LIGHTS];   // Vector to light 0 in tangent space
 in      vec3        v_spotDirTS[NUM_LIGHTS];    // Spot direction in tangent space
 )";
-    fragCode += fragInputs_u_lightAll;
-    fragCode += fragInputs_u_matBlinnAll;
-    fragCode += fragInputs_u_matTexNm;
-    fragCode += fragInputs_u_matTexOm;
-    fragCode += fragInputs_u_cam;
+    fragCode += fragInput_u_lightAll;
+    fragCode += fragInput_u_matBlinnAll;
+    fragCode += fragInput_u_matTexNm;
+    fragCode += fragInput_u_matTexOm;
+    fragCode += fragInput_u_cam;
     fragCode += fragOutputs_o_fragColor;
     fragCode += fragFunctionsLightingBlinnPhong;
     fragCode += fragFunctionFogBlend;
     fragCode += fragFunctionDoStereoSeparation;
     fragCode += fragMain_Begin;
     fragCode += fragMain_0_Intensities;
-    fragCode += fragMain_1_EN_fromNm;
+    fragCode += fragMain_1_EN_in_TS;
     fragCode += fragMainBlinn_2_LightLoopNm;
     fragCode += fragMainBlinn_3_FragColorAo;
     fragCode += fragMain_5_FogGammaStereo;
@@ -2674,14 +2564,14 @@ void SLGLProgramGenerated::buildPerPixBlinnDmOm(SLVLight* lights)
     // Assemble vertex shader code
     string vertCode;
     vertCode += shaderHeader((int)lights->size());
-    vertCode += vertInputs_a_pn;
-    vertCode += vertInputs_a_uv1;
-    vertCode += vertInputs_a_uv2;
-    vertCode += vertInputs_u_matrices_all;
-    vertCode += vertOutputs_v_P_VS;
-    vertCode += vertOutputs_v_N_VS;
-    vertCode += vertOutputs_v_uv1;
-    vertCode += vertOutputs_v_uv2;
+    vertCode += vertInput_a_pn;
+    vertCode += vertInput_a_uv1;
+    vertCode += vertInput_a_uv2;
+    vertCode += vertInput_u_matrices_all;
+    vertCode += vertOutput_v_P_VS;
+    vertCode += vertOutput_v_N_VS;
+    vertCode += vertOutput_v_uv1;
+    vertCode += vertOutput_v_uv2;
     vertCode += vertMain_Begin;
     vertCode += vertMain_v_P_VS;
     vertCode += vertMain_v_N_VS;
@@ -2699,18 +2589,18 @@ in      vec3        v_N_VS;     // Interpol. normal at v_P_VS in view space
 in      vec2        v_uv1;      // Interpol. texture coordinate
 in      vec2        v_uv2;      // Texture coordinate 2 varying for AO
 )";
-    fragCode += fragInputs_u_lightAll;
-    fragCode += fragInputs_u_matBlinnAll;
-    fragCode += fragInputs_u_matTexDm;
-    fragCode += fragInputs_u_matTexOm;
-    fragCode += fragInputs_u_cam;
+    fragCode += fragInput_u_lightAll;
+    fragCode += fragInput_u_matBlinnAll;
+    fragCode += fragInput_u_matTexDm;
+    fragCode += fragInput_u_matTexOm;
+    fragCode += fragInput_u_cam;
     fragCode += fragOutputs_o_fragColor;
     fragCode += fragFunctionsLightingBlinnPhong;
     fragCode += fragFunctionFogBlend;
     fragCode += fragFunctionDoStereoSeparation;
     fragCode += fragMain_Begin;
     fragCode += fragMain_0_Intensities;
-    fragCode += fragMain_1_EN_fromVert;
+    fragCode += fragMain_1_EN_in_VS;
     fragCode += fragMainBlinn_2_LightLoop;
     fragCode += fragMainBlinn_3_FragColorTmAo;
     fragCode += fragMain_5_FogGammaStereo;
@@ -2722,14 +2612,14 @@ void SLGLProgramGenerated::buildPerPixBlinnDmNm(SLVLight* lights)
     // Assemble vertex shader code
     string vertCode;
     vertCode += shaderHeader((int)lights->size());
-    vertCode += vertInputs_a_pn;
-    vertCode += vertInputs_a_uv1;
-    vertCode += vertInputs_a_tangent;
-    vertCode += vertInputs_u_matrices_all;
-    vertCode += vertInputs_u_lightNm;
-    vertCode += vertOutputs_v_P_VS;
-    vertCode += vertOutputs_v_uv1;
-    vertCode += vertOutputs_v_lightNm;
+    vertCode += vertInput_a_pn;
+    vertCode += vertInput_a_uv1;
+    vertCode += vertInput_a_tangent;
+    vertCode += vertInput_u_matrices_all;
+    vertCode += vertInput_u_lightNm;
+    vertCode += vertOutput_v_P_VS;
+    vertCode += vertOutput_v_uv1;
+    vertCode += vertOutput_v_lightVecTS;
     vertCode += vertMain_Begin;
     vertCode += vertMain_v_P_VS;
     vertCode += vertMain_v_uv1;
@@ -2747,18 +2637,18 @@ in      vec3        v_eyeDirTS;                 // Vector to the eye in tangent 
 in      vec3        v_lightDirTS[NUM_LIGHTS];   // Vector to light 0 in tangent space
 in      vec3        v_spotDirTS[NUM_LIGHTS];    // Spot direction in tangent space
 )";
-    fragCode += fragInputs_u_lightAll;
-    fragCode += fragInputs_u_matBlinnAll;
-    fragCode += fragInputs_u_matTexDm;
-    fragCode += fragInputs_u_matTexNm;
-    fragCode += fragInputs_u_cam;
+    fragCode += fragInput_u_lightAll;
+    fragCode += fragInput_u_matBlinnAll;
+    fragCode += fragInput_u_matTexDm;
+    fragCode += fragInput_u_matTexNm;
+    fragCode += fragInput_u_cam;
     fragCode += fragOutputs_o_fragColor;
     fragCode += fragFunctionsLightingBlinnPhong;
     fragCode += fragFunctionFogBlend;
     fragCode += fragFunctionDoStereoSeparation;
     fragCode += fragMain_Begin;
     fragCode += fragMain_0_Intensities;
-    fragCode += fragMain_1_EN_fromNm;
+    fragCode += fragMain_1_EN_in_TS;
     fragCode += fragMainBlinn_2_LightLoopNm;
     fragCode += fragMainBlinn_3_FragColorTm;
     fragCode += fragMain_5_FogGammaStereo;
@@ -2770,11 +2660,11 @@ void SLGLProgramGenerated::buildPerPixBlinnSm(SLVLight* lights)
     // Assemble vertex shader code
     string vertCode;
     vertCode += shaderHeader((int)lights->size());
-    vertCode += vertInputs_a_pn;
-    vertCode += vertInputs_u_matrices_all;
-    vertCode += vertOutputs_v_P_VS;
-    vertCode += vertOutputs_v_P_WS;
-    vertCode += vertOutputs_v_N_VS;
+    vertCode += vertInput_a_pn;
+    vertCode += vertInput_u_matrices_all;
+    vertCode += vertOutput_v_P_VS;
+    vertCode += vertOutput_v_P_WS;
+    vertCode += vertOutput_v_N_VS;
     vertCode += vertMain_Begin;
     vertCode += vertMain_v_P_VS;
     vertCode += vertMain_v_P_WS_Sm;
@@ -2790,12 +2680,12 @@ in      vec3        v_P_VS;     // Interpol. point of illumination in view space
 in      vec3        v_P_WS;     // Interpol. point of illumination in world space (WS)
 in      vec3        v_N_VS;     // Interpol. normal at v_P_VS in view space
 )";
-    fragCode += fragInputs_u_lightAll;
-    fragCode += fragInputs_u_lightSm(lights);
-    fragCode += fragInputs_u_matBlinnAll;
-    fragCode += fragInputs_u_matGetsSm;
-    fragCode += fragInputs_u_shadowMaps(lights);
-    fragCode += fragInputs_u_cam;
+    fragCode += fragInput_u_lightAll;
+    fragCode += fragInput_u_lightSm(lights);
+    fragCode += fragInput_u_matBlinnAll;
+    fragCode += fragInput_u_matGetsSm;
+    fragCode += fragInput_u_shadowMaps(lights);
+    fragCode += fragInput_u_cam;
     fragCode += fragOutputs_o_fragColor;
     fragCode += fragFunctionsLightingBlinnPhong;
     fragCode += fragFunctionFogBlend;
@@ -2804,7 +2694,7 @@ in      vec3        v_N_VS;     // Interpol. normal at v_P_VS in view space
     fragCode += fragFunctionDoColoredShadows;
     fragCode += fragMain_Begin;
     fragCode += fragMain_0_Intensities;
-    fragCode += fragMain_1_EN_fromVert;
+    fragCode += fragMain_1_EN_in_VS;
     fragCode += fragMainBlinn_2_LightLoopSm;
     fragCode += fragMainBlinn_3_FragColor;
     fragCode += fragMain_4_ColoredShadows;
@@ -2817,12 +2707,12 @@ void SLGLProgramGenerated::buildPerPixBlinnOm(SLVLight* lights)
     // Assemble vertex shader code
     string vertCode;
     vertCode += shaderHeader((int)lights->size());
-    vertCode += vertInputs_a_pn;
-    vertCode += vertInputs_a_uv2;
-    vertCode += vertInputs_u_matrices_all;
-    vertCode += vertOutputs_v_P_VS;
-    vertCode += vertOutputs_v_N_VS;
-    vertCode += vertOutputs_v_uv2;
+    vertCode += vertInput_a_pn;
+    vertCode += vertInput_a_uv2;
+    vertCode += vertInput_u_matrices_all;
+    vertCode += vertOutput_v_P_VS;
+    vertCode += vertOutput_v_N_VS;
+    vertCode += vertOutput_v_uv2;
     vertCode += vertMain_Begin;
     vertCode += vertMain_v_P_VS;
     vertCode += vertMain_v_N_VS;
@@ -2838,17 +2728,17 @@ in      vec3        v_P_VS;     // Interpol. point of illumination in view space
 in      vec3        v_N_VS;     // Interpol. normal at v_P_VS in view space
 in      vec2        v_uv2;      // Texture coordinate 2 varying for AO
 )";
-    fragCode += fragInputs_u_lightAll;
-    fragCode += fragInputs_u_matBlinnAll;
-    fragCode += fragInputs_u_matTexOm;
-    fragCode += fragInputs_u_cam;
+    fragCode += fragInput_u_lightAll;
+    fragCode += fragInput_u_matBlinnAll;
+    fragCode += fragInput_u_matTexOm;
+    fragCode += fragInput_u_cam;
     fragCode += fragOutputs_o_fragColor;
     fragCode += fragFunctionsLightingBlinnPhong;
     fragCode += fragFunctionFogBlend;
     fragCode += fragFunctionDoStereoSeparation;
     fragCode += fragMain_Begin;
     fragCode += fragMain_0_Intensities;
-    fragCode += fragMain_1_EN_fromVert;
+    fragCode += fragMain_1_EN_in_VS;
     fragCode += fragMainBlinn_2_LightLoop;
     fragCode += fragMainBlinn_3_FragColorAo;
     fragCode += fragMain_5_FogGammaStereo;
@@ -2860,14 +2750,14 @@ void SLGLProgramGenerated::buildPerPixBlinnNm(SLVLight* lights)
     // Assemble vertex shader code
     string vertCode;
     vertCode += shaderHeader((int)lights->size());
-    vertCode += vertInputs_a_pn;
-    vertCode += vertInputs_a_uv1;
-    vertCode += vertInputs_a_tangent;
-    vertCode += vertInputs_u_matrices_all;
-    vertCode += vertInputs_u_lightNm;
-    vertCode += vertOutputs_v_P_VS;
-    vertCode += vertOutputs_v_uv1;
-    vertCode += vertOutputs_v_lightNm;
+    vertCode += vertInput_a_pn;
+    vertCode += vertInput_a_uv1;
+    vertCode += vertInput_a_tangent;
+    vertCode += vertInput_u_matrices_all;
+    vertCode += vertInput_u_lightNm;
+    vertCode += vertOutput_v_P_VS;
+    vertCode += vertOutput_v_uv1;
+    vertCode += vertOutput_v_lightVecTS;
     vertCode += vertMain_Begin;
     vertCode += vertMain_v_P_VS;
     vertCode += vertMain_v_uv1;
@@ -2885,18 +2775,18 @@ in      vec3        v_eyeDirTS;                 // Vector to the eye in tangent 
 in      vec3        v_lightDirTS[NUM_LIGHTS];   // Vector to light 0 in tangent space
 in      vec3        v_spotDirTS[NUM_LIGHTS];    // Spot direction in tangent space
 )";
-    fragCode += fragInputs_u_lightAll;
-    fragCode += fragInputs_u_matBlinnAll;
-    fragCode += fragInputs_u_matTexDm;
-    fragCode += fragInputs_u_matTexNm;
-    fragCode += fragInputs_u_cam;
+    fragCode += fragInput_u_lightAll;
+    fragCode += fragInput_u_matBlinnAll;
+    fragCode += fragInput_u_matTexDm;
+    fragCode += fragInput_u_matTexNm;
+    fragCode += fragInput_u_cam;
     fragCode += fragOutputs_o_fragColor;
     fragCode += fragFunctionsLightingBlinnPhong;
     fragCode += fragFunctionFogBlend;
     fragCode += fragFunctionDoStereoSeparation;
     fragCode += fragMain_Begin;
     fragCode += fragMain_0_Intensities;
-    fragCode += fragMain_1_EN_fromNm;
+    fragCode += fragMain_1_EN_in_TS;
     fragCode += fragMainBlinn_2_LightLoopNm;
     fragCode += fragMainBlinn_3_FragColor;
     fragCode += fragMain_5_FogGammaStereo;
@@ -2908,12 +2798,12 @@ void SLGLProgramGenerated::buildPerPixBlinnDm(SLVLight* lights)
     // Assemble vertex shader code
     string vertCode;
     vertCode += shaderHeader((int)lights->size());
-    vertCode += vertInputs_a_pn;
-    vertCode += vertInputs_a_uv1;
-    vertCode += vertInputs_u_matrices_all;
-    vertCode += vertOutputs_v_P_VS;
-    vertCode += vertOutputs_v_N_VS;
-    vertCode += vertOutputs_v_uv1;
+    vertCode += vertInput_a_pn;
+    vertCode += vertInput_a_uv1;
+    vertCode += vertInput_u_matrices_all;
+    vertCode += vertOutput_v_P_VS;
+    vertCode += vertOutput_v_N_VS;
+    vertCode += vertOutput_v_uv1;
     vertCode += vertMain_Begin;
     vertCode += vertMain_v_P_VS;
     vertCode += vertMain_v_N_VS;
@@ -2929,17 +2819,17 @@ in      vec3   v_P_VS;  // Interpol. point of illumination in view space (VS)
 in      vec3   v_N_VS;  // Interpol. normal at v_P_VS in view space
 in      vec2   v_uv1;   // Interpol. texture coordinate
 )";
-    fragCode += fragInputs_u_lightAll;
-    fragCode += fragInputs_u_matBlinnAll;
-    fragCode += fragInputs_u_matTexDm;
-    fragCode += fragInputs_u_cam;
+    fragCode += fragInput_u_lightAll;
+    fragCode += fragInput_u_matBlinnAll;
+    fragCode += fragInput_u_matTexDm;
+    fragCode += fragInput_u_cam;
     fragCode += fragOutputs_o_fragColor;
     fragCode += fragFunctionsLightingBlinnPhong;
     fragCode += fragFunctionFogBlend;
     fragCode += fragFunctionDoStereoSeparation;
     fragCode += fragMain_Begin;
     fragCode += fragMain_0_Intensities;
-    fragCode += fragMain_1_EN_fromVert;
+    fragCode += fragMain_1_EN_in_VS;
     fragCode += fragMainBlinn_2_LightLoop;
     fragCode += fragMainBlinn_3_FragColorTm;
     fragCode += fragMain_5_FogGammaStereo;
@@ -2955,10 +2845,10 @@ void SLGLProgramGenerated::buildPerPixBlinn(SLVLight* lights)
     // Assemble vertex shader code
     string vertCode;
     vertCode += shaderHeader((int)lights->size());
-    vertCode += vertInputs_a_pn;
-    vertCode += vertInputs_u_matrices_all;
-    vertCode += vertOutputs_v_P_VS;
-    vertCode += vertOutputs_v_N_VS;
+    vertCode += vertInput_a_pn;
+    vertCode += vertInput_u_matrices_all;
+    vertCode += vertOutput_v_P_VS;
+    vertCode += vertOutput_v_N_VS;
     vertCode += vertMain_Begin;
     vertCode += vertMain_v_P_VS;
     vertCode += vertMain_v_N_VS;
@@ -2972,16 +2862,16 @@ void SLGLProgramGenerated::buildPerPixBlinn(SLVLight* lights)
 in      vec3        v_P_VS;     // Interpol. point of illumination in view space (VS)
 in      vec3        v_N_VS;     // Interpol. normal at v_P_VS in view space
 )";
-    fragCode += fragInputs_u_lightAll;
-    fragCode += fragInputs_u_matBlinnAll;
-    fragCode += fragInputs_u_cam;
+    fragCode += fragInput_u_lightAll;
+    fragCode += fragInput_u_matBlinnAll;
+    fragCode += fragInput_u_cam;
     fragCode += fragOutputs_o_fragColor;
     fragCode += fragFunctionsLightingBlinnPhong;
     fragCode += fragFunctionFogBlend;
     fragCode += fragFunctionDoStereoSeparation;
     fragCode += fragMain_Begin;
     fragCode += fragMain_0_Intensities;
-    fragCode += fragMain_1_EN_fromVert;
+    fragCode += fragMain_1_EN_in_VS;
     fragCode += fragMainBlinn_2_LightLoop;
     fragCode += fragMainBlinn_3_FragColor;
     fragCode += fragMain_5_FogGammaStereo;
@@ -2999,11 +2889,11 @@ void SLGLProgramGenerated::buildPerPixVideoBkgdSm(SLVLight* lights)
     // Assemble vertex shader code
     string vertCode;
     vertCode += shaderHeader((int)lights->size());
-    vertCode += vertInputs_a_pn;
-    vertCode += vertInputs_u_matrices_all;
-    vertCode += vertOutputs_v_P_VS;
-    vertCode += vertOutputs_v_P_WS;
-    vertCode += vertOutputs_v_N_VS;
+    vertCode += vertInput_a_pn;
+    vertCode += vertInput_u_matrices_all;
+    vertCode += vertOutput_v_P_VS;
+    vertCode += vertOutput_v_P_WS;
+    vertCode += vertOutput_v_N_VS;
     vertCode += vertMain_Begin;
     vertCode += vertMain_v_P_VS;
     vertCode += vertMain_v_P_WS_Sm;
@@ -3019,13 +2909,13 @@ in      vec3        v_P_VS;     // Interpol. point of illumination in view space
 in      vec3        v_P_WS;     // Interpol. point of illumination in world space (WS)
 in      vec3        v_N_VS;     // Interpol. normal at v_P_VS in view space
 )";
-    fragCode += fragInputs_u_lightAll;
-    fragCode += fragInputs_u_lightSm(lights);
-    fragCode += fragInputs_u_cam;
-    fragCode += fragInputs_u_matAmbi;
-    fragCode += fragInputs_u_matTexDm;
-    fragCode += fragInputs_u_matGetsSm;
-    fragCode += fragInputs_u_shadowMaps(lights);
+    fragCode += fragInput_u_lightAll;
+    fragCode += fragInput_u_lightSm(lights);
+    fragCode += fragInput_u_cam;
+    fragCode += fragInput_u_matAmbi;
+    fragCode += fragInput_u_matTexDm;
+    fragCode += fragInput_u_matGetsSm;
+    fragCode += fragInput_u_shadowMaps(lights);
     fragCode += fragOutputs_o_fragColor;
     fragCode += fragFunctionFogBlend;
     fragCode += fragFunctionDoStereoSeparation;
@@ -3049,7 +2939,7 @@ bool SLGLProgramGenerated::lightsDoShadowMapping(SLVLight* lights)
     return false;
 }
 //-----------------------------------------------------------------------------
-string SLGLProgramGenerated::fragInputs_u_lightSm(SLVLight* lights)
+string SLGLProgramGenerated::fragInput_u_lightSm(SLVLight* lights)
 {
     string u_lightSm = R"(
 uniform vec4        u_lightPosWS[NUM_LIGHTS];               // position of light in world space
@@ -3086,9 +2976,9 @@ uniform bool        u_lightsDoColoredShadows;               // flag if shadows s
     return u_lightSm;
 }
 //-----------------------------------------------------------------------------
-string SLGLProgramGenerated::fragInputs_u_shadowMaps(SLVLight* lights)
+string SLGLProgramGenerated::fragInput_u_shadowMaps(SLVLight* lights)
 {
-    string smDecl;
+    string smDecl = "\n";
     for (SLuint i = 0; i < lights->size(); ++i)
     {
         SLLight* light = lights->at(i);
@@ -3125,6 +3015,7 @@ string SLGLProgramGenerated::fragFunctionShadowTest(SLVLight* lights)
     }
 
     string shadowTestCode = R"(
+//-----------------------------------------------------------------------------
 int vectorToFace(vec3 vec) // Vector to process
 {
     vec3 absVec = abs(vec);
@@ -3135,7 +3026,7 @@ int vectorToFace(vec3 vec) // Vector to process
     else
         return vec.z > 0.0 ? 4 : 5;
 }
-
+//-----------------------------------------------------------------------------
 int getCascadesDepthIndex(in int i, int numCascades)
 {
     float factor;
@@ -3166,7 +3057,7 @@ int getCascadesDepthIndex(in int i, int numCascades)
     }
     return numCascades-1;
 }
-
+//-----------------------------------------------------------------------------
 float shadowTest(in int i, in vec3 N, in vec3 lightDir)
 {
     if (u_lightCreatesShadows[i])

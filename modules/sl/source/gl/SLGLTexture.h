@@ -58,8 +58,8 @@ enum SLTextureType
     TT_occlusion,          // Om: Ambient occlusion map
     TT_roughness,          // Rm: Roughness map (PBR Cook-Torrance roughness 0-1)
     TT_metallic,           // Mm: Metalness map (PBR Cook-Torrance metallic 0-1)
-    TT_roughMetallic,      // RMm: Roughness on G, metallness on B (R unused)
-    TT_occlRoughMetallic,  // ORMm: Occlusion on R, roughness on G, metallness on B
+    TT_roughMetal,         // RMm: Roughness on G, metallness on B (R unused)
+    TT_occluRoughMetal,    // ORMm: Occlusion on R, roughness on G, metallness on B
     TT_font,               // Fm: Texture map for fonts
     TT_hdr,                // High Dynamic Range images
     TT_environmentCubemap, // Environment cubemap generated from HDR Textures

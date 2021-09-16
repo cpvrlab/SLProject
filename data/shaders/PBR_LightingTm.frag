@@ -140,7 +140,6 @@ void main()
     vec3 color = ambient + Lo;
     
     // Exposure tone mapping
-    float skyExposure = 1.0;
     vec3 mapped = vec3(1.0) - exp(-color * u_skyExposure);
     o_fragColor = vec4(mapped, 1.0);
 
