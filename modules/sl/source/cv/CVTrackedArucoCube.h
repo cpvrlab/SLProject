@@ -27,7 +27,7 @@
  * ID 3: left
  * ID 4: top
  * ID 5: bottom
-*/
+ */
 class CVTrackedArucoCube : public CVTrackedAruco
 {
 public:
@@ -38,11 +38,20 @@ public:
                CVCalibration* calib);
 
 private:
-    CVVec3f averageVector(vector<CVVec3f> vectors, vector<float> weights);
-    SLQuat4f averageQuaternion(vector<SLQuat4f> quaternions, vector<float> weights);
+    CVVec3f  averageVector(vector<CVVec3f> vectors,
+                           vector<float>   weights);
+
+    SLQuat4f averageQuaternion(vector<SLQuat4f> quaternions,
+                               vector<float>    weights);
 
 private:
     float _edgeLength;
+
+    Averaged<CVVec3f> _averagePosition;
+    Averaged<SLQuat4f> _averageRotation;
+
+    SLQuat4f _lastRotation;
+
 };
 
 #endif // SLPROJECT_CVTRACKEDARUCOCUBE_H

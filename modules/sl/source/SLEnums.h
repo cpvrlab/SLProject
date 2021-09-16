@@ -148,6 +148,7 @@ enum SLSceneID
     SID_VideoTrackChessScnd,
     SID_VideoTrackArucoMain,
     SID_VideoTrackArucoScnd,
+    SID_VideoTrackArucoCubeMain,
     SID_VideoTrackFeature2DMain,
     SID_VideoTrackFeature2DScnd,
     SID_VideoTrackFaceMain,
@@ -156,7 +157,6 @@ enum SLSceneID
 #ifdef SL_BUILD_WAI
     SID_VideoTrackWAI,
 #endif
-    SID_VideoTrackArucoCubeMain,
 
     SID_RTMuttenzerBox,
     SID_RTSpheres,

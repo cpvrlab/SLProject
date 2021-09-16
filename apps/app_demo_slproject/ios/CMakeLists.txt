@@ -60,6 +60,7 @@ set(headers
 	${SL_PROJECT_ROOT}/apps/source/AppDemo.h
 	${SL_PROJECT_ROOT}/apps/source/SLInterface.h
     ${SL_PROJECT_ROOT}/apps/source/SLProjectScene.h
+	${SL_PROJECT_ROOT}/apps/source/SLArucoPen.h
     ${CMAKE_CURRENT_SOURCE_DIR}/AppDelegate.h
 	${CMAKE_CURRENT_SOURCE_DIR}/ViewController.h
     )
@@ -73,6 +74,7 @@ set(sources
 	${SL_PROJECT_ROOT}/apps/source/AppDemo.cpp
 	${SL_PROJECT_ROOT}/apps/source/SLInterface.cpp
     ${SL_PROJECT_ROOT}/apps/source/SLProjectScene.cpp
+	${SL_PROJECT_ROOT}/apps/source/SLArucoPen.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/AppDelegate.mm
 	${CMAKE_CURRENT_SOURCE_DIR}/main.m
 	${CMAKE_CURRENT_SOURCE_DIR}/ViewController.mm

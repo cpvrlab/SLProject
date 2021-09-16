@@ -367,8 +367,8 @@ SLMat3<T> SLMat3<T>::inverted()
 
     if (fabs(d) < FLT_EPSILON) 
     {
-        SLMATH_LOG("3x3-Matrix is singular. Inversion impossible.");
-        exit(0);
+        //SLMATH_LOG("3x3-Matrix is singular. Inversion impossible.");
+        //exit(0);
     }
 
     SLMat3<T> i;

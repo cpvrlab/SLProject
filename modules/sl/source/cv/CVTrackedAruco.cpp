@@ -117,8 +117,6 @@ bool CVTrackedAruco::trackAll(CVMat          imageGray,
 
         startMS = _timer.elapsedTimeInMilliSec();
 
-        cout << "Aruco IdS: " << arucoIDs.size() << " : ";
-
         // find the camera extrinsic parameters (rVec & tVec)
         CVVPoint3d rVecs, tVecs;
         cv::aruco::estimatePoseSingleMarkers(corners,
@@ -133,11 +131,19 @@ bool CVTrackedAruco::trackAll(CVMat          imageGray,
         // Get the object view matrix for all aruco markers
         for (size_t i = 0; i < arucoIDs.size(); ++i)
         {
-            cout << arucoIDs[i] << ",";
             CVMatx44f ovm = createGLMatrix(cv::Mat(tVecs[i]), cv::Mat(rVecs[i]));
             objectViewMats.push_back(ovm);
+
+            if (_drawDetection)
+            {
+                cv::aruco::drawAxis(imageRgb,
+                                    calib->cameraMat(),
+                                    calib->distortion(),
+                                    cv::Mat(rVecs[i]),
+                                    cv::Mat(tVecs[i]),
+                                    0.01f);
+            }
         }
-        cout << endl;
     }
 
     return true;

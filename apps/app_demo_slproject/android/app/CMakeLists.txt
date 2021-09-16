@@ -16,6 +16,7 @@ set(sources
     ${SL_PROJECT_ROOT}/apps/source/CVCapture.cpp
     ${SL_PROJECT_ROOT}/apps/source/AppDemo.cpp
     ${SL_PROJECT_ROOT}/apps/source/SLInterface.cpp
+    ${SL_PROJECT_ROOT}/apps/source/SLArucoPen.cpp
  )
 
 set(headers
@@ -25,6 +26,7 @@ set(headers
     ${SL_PROJECT_ROOT}/apps/source/CVCapture.h
     ${SL_PROJECT_ROOT}/apps/source/AppDemo.h
     ${SL_PROJECT_ROOT}/apps/source/SLInterface.h
+    ${SL_PROJECT_ROOT}/apps/source/SLArucoPen.h
     )
 
 add_library(${target}

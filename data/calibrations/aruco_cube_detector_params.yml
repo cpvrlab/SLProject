@@ -9,13 +9,14 @@ polygonalApproxAccuracyRate: 0.05
 minCornerDistance: 10.0
 minDistanceToBorder: 3
 cornerRefinementMethod: 1
-cornerRefinementWinSize: 5
-cornerRefinementMaxIterations: 30
-cornerRefinementMinAccuracy: 0.1
+cornerRefinementWinSize: 2                      # The culprit
+cornerRefinementMaxIterations: 1000
+cornerRefinementMinAccuracy: 1.0
 markerBorderBits: 1
 perspectiveRemovePixelPerCell: 8
 perspectiveRemoveIgnoredMarginPerCell: 0.13
 maxErroneousBitsInBorderRate: 0.04
 
-edgeLength: 0.06
+edgeLength: 0.037
 arucoDictionaryId: 0
+

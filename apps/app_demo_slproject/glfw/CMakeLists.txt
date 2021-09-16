@@ -15,6 +15,7 @@ file(GLOB headers
 		${SL_PROJECT_ROOT}/apps/source/AppDemo.h
 		${SL_PROJECT_ROOT}/apps/source/SLInterface.h
         ${SL_PROJECT_ROOT}/apps/source/SLProjectScene.h
+		${SL_PROJECT_ROOT}/apps/source/SLArucoPen.h
     )
 
 file(GLOB sources
@@ -26,6 +27,7 @@ file(GLOB sources
 		${SL_PROJECT_ROOT}/apps/source/AppDemo.cpp
 		${SL_PROJECT_ROOT}/apps/source/SLInterface.cpp
         ${SL_PROJECT_ROOT}/apps/source/SLProjectScene.cpp
+		${SL_PROJECT_ROOT}/apps/source/SLArucoPen.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/AppDemoMainGLFW.cpp
     )
 

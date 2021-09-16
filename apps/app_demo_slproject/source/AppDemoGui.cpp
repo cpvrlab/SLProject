@@ -1636,6 +1636,8 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                         s->onLoad(s, sv, SID_VideoTrackArucoMain);
                     if (ImGui::MenuItem("Track ArUco Marker (Scnd)", nullptr, sid == SID_VideoTrackArucoScnd, capture->hasSecondaryCamera))
                         s->onLoad(s, sv, SID_VideoTrackArucoScnd);
+                    if (ImGui::MenuItem("Track Aruco Cube (Main)", nullptr, sid == SID_VideoTrackArucoCubeMain))
+                        s->onLoad(s, sv, SID_VideoTrackArucoCubeMain);
                     if (ImGui::MenuItem("Track Chessboard (Main)", nullptr, sid == SID_VideoTrackChessMain))
                         s->onLoad(s, sv, SID_VideoTrackChessMain);
                     if (ImGui::MenuItem("Track Chessboard (Scnd)", nullptr, sid == SID_VideoTrackChessScnd, capture->hasSecondaryCamera))
@@ -1651,8 +1653,6 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
 #ifdef SL_BUILD_WAI
                     if (ImGui::MenuItem("Track WAI (Main)", nullptr, sid == SID_VideoTrackWAI))
                         s->onLoad(s, sv, SID_VideoTrackWAI);
-                    if (ImGui::MenuItem("Track Aruco Cube (Main)", nullptr, sid == SID_VideoTrackArucoCubeMain))
-                        s->onLoad(s, sv, SID_VideoTrackArucoCubeMain);
 #endif
                     ImGui::EndMenu();
                 }

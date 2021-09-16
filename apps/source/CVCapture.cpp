@@ -77,8 +77,8 @@ CVSize2i CVCapture::open(int deviceNum)
             return CVSize2i(0, 0);
 
         Utils::log("SLProject", "Capture devices created.");
-        //_captureDevice.set(cv::CAP_PROP_FRAME_WIDTH, 1440);
-        //_captureDevice.set(cv::CAP_PROP_FRAME_HEIGHT, 1080);
+        _captureDevice.set(cv::CAP_PROP_FRAME_WIDTH, 1280);
+        _captureDevice.set(cv::CAP_PROP_FRAME_HEIGHT, 720);
         int w = (int)_captureDevice.get(cv::CAP_PROP_FRAME_WIDTH);
         int h = (int)_captureDevice.get(cv::CAP_PROP_FRAME_HEIGHT);
         //Utils::log("SLProject", "CV_CAP_PROP_FRAME_WIDTH : %d", w);
