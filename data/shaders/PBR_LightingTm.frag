@@ -41,7 +41,7 @@ uniform sampler2D   u_matTextureDiffuse0;   // Diffuse Color map (albedo)
 uniform sampler2D   u_matTextureNormal0;    // Normal map
 uniform sampler2D   u_matTextureMetallic0;  // Metallic map
 uniform sampler2D   u_matTextureRoughness0; // Roughness map
-uniform sampler2D   u_matTextureAo0;        // Ambient Occlusion map
+uniform sampler2D   u_matTextureOcclusion0; // Ambient Occlusion map
 
 uniform int         u_camProjection;    // type of stereo
 uniform int         u_camStereoEye;     // -1=left, 0=center, 1=right
@@ -87,7 +87,7 @@ void main()
     vec3  matDiff  = pow(texture(u_matTextureDiffuse0, v_uv1).rgb, vec3(2.2));
     float matMetal = texture(u_matTextureMetallic0, v_uv1).r;
     float matRough = texture(u_matTextureRoughness0, v_uv1).r;
-    float matAO    = texture(u_matTextureAo0, v_uv1).r;
+    float matOccl  = texture(u_matTextureOcclusion0, v_uv1).r;
     
     // Init Fresnel reflection at 90 deg. (0 to N)
     vec3 F0 = vec3(0.04);           
@@ -135,7 +135,7 @@ void main()
     vec2 brdf = texture(u_skyBrdfLutTexture, vec2(max(dot(N, E), 0.0), matRough)).rg;
     vec3 specular = prefilteredColor * (F * brdf.x + brdf.y);
     
-    vec3 ambient = (kD * diffuse + specular) * matAO;
+    vec3 ambient = (kD * diffuse + specular) * matOccl;
     
     vec3 color = ambient + Lo;
     

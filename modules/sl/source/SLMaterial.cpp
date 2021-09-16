@@ -433,7 +433,7 @@ SLint SLMaterial::passToUniforms(SLGLProgram* program, SLint nextTexUnit)
                     break;
                 }
                 case TT_occlusion: {
-                    sprintf(name, "u_matTextureAo%d", texNb);
+                    sprintf(name, "u_matTextureOcclusion%d", texNb);
                     break;
                 }
                 case TT_roughness: {

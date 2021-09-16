@@ -45,7 +45,7 @@ uniform vec4        u_camFogColor;      // fog color (usually the background)
 
 out     vec4        o_fragColor;        // output fragment color
 // ----------------------------------------------------------------------------
-const float matAO = 1.0;                // Constant ambient occlusion factor
+const float matOccl = 1.0;                // Constant ambient occlusion factor
 const float PI = 3.14159265359;
 // ----------------------------------------------------------------------------
 vec3 getNormalFromMap()
@@ -112,7 +112,7 @@ void main()
 
     // ambient lighting (note that the next IBL tutorial will replace
     // this ambient lighting with environment lighting).
-    vec3 ambient = vec3(0.03) * matDiff * matAO;
+    vec3 ambient = vec3(0.03) * matDiff * matOccl;
     vec3 color = ambient + Lo;
 
     // HDR tonemapping
