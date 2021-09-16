@@ -10,22 +10,23 @@
 
 #ifdef SL_BUILD_WITH_ASSIMP
 
-#include <iomanip>
-#include <Utils.h>
+#    include <iomanip>
+#    include <Utils.h>
 
-#include <SLAnimation.h>
-#include <SLAssimpImporter.h>
-#include <SLGLTexture.h>
-#include <SLMaterial.h>
-#include <SLAnimSkeleton.h>
-#include <SLAssetManager.h>
-#include <SLAnimManager.h>
-#include <Instrumentor.h>
-#include <SLAssimpProgressHandler.h>
+#    include <SLAnimation.h>
+#    include <SLAssimpImporter.h>
+#    include <SLGLTexture.h>
+#    include <SLMaterial.h>
+#    include <SLAnimSkeleton.h>
+#    include <SLAssetManager.h>
+#    include <SLAnimManager.h>
+#    include <Instrumentor.h>
+#    include <SLAssimpProgressHandler.h>
 
 // assimp is only included in the source file to not expose it to the rest of the framework
-#include <assimp/Importer.hpp>
-#include <assimp/scene.h>
+#    include <assimp/Importer.hpp>
+#    include <assimp/scene.h>
+#    include <assimp/pbrmaterial.h>
 
 //-----------------------------------------------------------------------------
 //! Temporary struct to hold keyframe data during assimp import.
@@ -124,7 +125,7 @@ SLVec3f getTranslation(SLfloat time, const KeyframeMap& keyframes)
 /*! Get the correct scaling out of the keyframes map for a given time
     this function interpolates linearly if no value is present in the map.
 
-    @note    this function does not wrap around to interpolate. if there is no 
+    @note    this function does not wrap around to interpolate. if there is no
              scaling key to the right of the passed in time then this function will take
              the last known value on the left!
 */
@@ -192,9 +193,9 @@ SLVec3f getScaling(SLfloat time, const KeyframeMap& keyframes)
 }
 //-----------------------------------------------------------------------------
 /*! Get the correct rotation out of the keyframes map for a given time
-    this function interpolates linearly if no value is present in the 
+    this function interpolates linearly if no value is present in the
 
-    @note    this function does not wrap around to interpolate. if there is no 
+    @note    this function does not wrap around to interpolate. if there is no
              rotation key to the right of the passed in time then this function will take
              the last known value on the left!
 */
@@ -262,7 +263,7 @@ SLQuat4f getRotation(SLfloat time, const KeyframeMap& keyframes)
 }
 
 //-----------------------------------------------------------------------------
-/*! Loads the scene from a file and creates materials with textures, the 
+/*! Loads the scene from a file and creates materials with textures, the
 meshes and the nodes for the scene graph. Materials, textures and meshes are
 added to the according vectors of SLScene for later deallocation. If an
 override material is provided it will be assigned to all meshes and all
@@ -436,7 +437,7 @@ void SLAssimpImporter::findNodes(aiNode* node, SLstring padding, SLbool lastChil
         SLint index = 0;
         std::ostringstream ss;
         SLstring lastMatch = name;
-        while (_nodeMap.find(lastMatch) != _nodeMap.end()) 
+        while (_nodeMap.find(lastMatch) != _nodeMap.end())
         {
             ss.str(SLstring());
             ss.clear();
@@ -455,7 +456,7 @@ void SLAssimpImporter::findNodes(aiNode* node, SLstring padding, SLbool lastChil
     assert(_nodeMap.find(name) == _nodeMap.end() && "Duplicated node name found!");
     _nodeMap[name] = node;
 
-    //logMessage(LV_Detailed, "%s   |\n", padding.c_str());
+    // logMessage(LV_Detailed, "%s   |\n", padding.c_str());
     logMessage(LV_detailed,
                "%s  |-[%s]   (%d children, %d meshes)",
                padding.c_str(),
@@ -711,12 +712,58 @@ SLMaterial* SLAssimpImporter::loadMaterial(SLAssetManager* s,
             {
                 case aiTextureType_DIFFUSE: slTexType = TT_diffuse; break;
                 case aiTextureType_NORMALS: slTexType = TT_normal; break;
-                case aiTextureType_SPECULAR: slTexType = TT_specular; break;
+                case aiTextureType_SPECULAR: slTexType = TT_gloss; break;
                 case aiTextureType_HEIGHT: slTexType = TT_height; break;
                 case aiTextureType_OPACITY: slTexType = TT_diffuse; break;
-                case aiTextureType_LIGHTMAP: slTexType = TT_ambientOcclusion; break; // glTF stores AO maps as light maps
-                case aiTextureType_AMBIENT_OCCLUSION: slTexType = TT_ambientOcclusion; break;
-                case aiTextureType_UNKNOWN: slTexType = TT_unknown; break;
+                case aiTextureType_EMISSION_COLOR: slTexType = TT_emissive; break;
+                case aiTextureType_LIGHTMAP: {
+                    // Check if the glTF occlusion texture is within a occlusionRoughnessMetallic texture
+                    aiString fileRoughnessMetallic;
+                    aiMat->GetTexture(AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_METALLICROUGHNESS_TEXTURE,
+                                      &fileRoughnessMetallic);
+                    SLstring occRghMtlTex = checkFilePath(modelPath, texturePath, fileRoughnessMetallic.data);
+                    SLstring occlusionTex = checkFilePath(modelPath, texturePath, aiPath.data);
+                    if (occRghMtlTex == occlusionTex)
+                        slTexType = TT_occlRoughMetallic;
+                    else
+                        slTexType = TT_occlusion;
+                    break; // glTF stores AO maps as light maps
+                }
+                case aiTextureType_AMBIENT_OCCLUSION: {
+                    // Check if the glTF occlusion texture is within a occlusionRoughnessMetallic texture
+                    aiString fileRoughnessMetallic;
+                    aiMat->GetTexture(AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_METALLICROUGHNESS_TEXTURE,
+                                      &fileRoughnessMetallic);
+                    SLstring occRghMtlTex = checkFilePath(modelPath, texturePath, fileRoughnessMetallic.data);
+                    SLstring occlusionTex = checkFilePath(modelPath, texturePath, aiPath.data);
+                    if (occRghMtlTex == occlusionTex)
+                        slTexType = TT_occlRoughMetallic;
+                    else
+                        slTexType = TT_occlusion;
+                    break; // glTF stores AO maps as light maps
+                }
+                case aiTextureType_UNKNOWN: {
+                    // Check if the unknown texture is a roughnessMetallic texture
+                    aiString fileMetallicRoughness;
+                    aiMat->GetTexture(AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_METALLICROUGHNESS_TEXTURE,
+                                      &fileMetallicRoughness);
+                    SLstring rghMtlTex  = checkFilePath(modelPath, texturePath, fileMetallicRoughness.data);
+                    SLstring unknownTex = checkFilePath(modelPath, texturePath, aiPath.data);
+                    if (rghMtlTex == unknownTex)
+                    {
+                        // Check if the  roughnessMetallic texture also is the occlusion texture
+                        aiString fileOcclusion;
+                        aiMat->GetTexture(aiTextureType_LIGHTMAP, 0, &fileOcclusion);
+                        SLstring occlusionTex = checkFilePath(modelPath, texturePath, fileOcclusion.data);
+                        if (rghMtlTex == occlusionTex)
+                            slTexType = TT_unknown; // Don't load twice. The occlusionRoughnessMetallic texture will be loaded as aiTextureType_LIGHTMAP
+                        else
+                            slTexType = TT_roughMetallic;
+                    }
+                    else
+                        slTexType = TT_unknown;
+                    break;
+                }
                 default: break;
             }
 
@@ -726,7 +773,10 @@ SLMaterial* SLAssimpImporter::loadMaterial(SLAssetManager* s,
             // For normal maps we have to adjust first the normal and tangent generation
             if (slTexType == TT_diffuse ||
                 slTexType == TT_normal ||
-                slTexType == TT_ambientOcclusion)
+                slTexType == TT_occlusion ||
+                slTexType == TT_emissive ||
+                slTexType == TT_roughMetallic ||
+                slTexType == TT_occlRoughMetallic)
             {
                 SLGLTexture* slTex = loadTexture(s,
                                                  texFile,
@@ -739,7 +789,7 @@ SLMaterial* SLAssimpImporter::loadMaterial(SLAssetManager* s,
 
     // get color data
     aiColor3D ambient, diffuse, specular, emissive;
-    SLfloat   shininess, refracti, reflectivity, opacity;
+    SLfloat   shininess, refracti, reflectivity, opacity, roughness = -1, metalness = -1;
     aiMat->Get(AI_MATKEY_COLOR_AMBIENT, ambient);
     aiMat->Get(AI_MATKEY_COLOR_DIFFUSE, diffuse);
     aiMat->Get(AI_MATKEY_COLOR_SPECULAR, specular);
@@ -748,6 +798,9 @@ SLMaterial* SLAssimpImporter::loadMaterial(SLAssetManager* s,
     aiMat->Get(AI_MATKEY_REFRACTI, refracti);
     aiMat->Get(AI_MATKEY_REFLECTIVITY, reflectivity);
     aiMat->Get(AI_MATKEY_OPACITY, opacity);
+    aiMat->Get(AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_METALLIC_FACTOR, metalness);
+    aiMat->Get(AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_ROUGHNESS_FACTOR, roughness);
+    aiString texRoughnessMetallic;
 
     // increase shininess if specular color is not low.
     // The aiMat will otherwise be to bright
@@ -769,6 +822,23 @@ SLMaterial* SLAssimpImporter::loadMaterial(SLAssetManager* s,
     slMat->specular(SLCol4f(specular.r, specular.g, specular.b));
     slMat->emissive(SLCol4f(emissive.r, emissive.g, emissive.b));
     slMat->shininess(shininess);
+    slMat->roughness(roughness);
+    slMat->metalness(metalness);
+
+    bool hasRoughness = slMat->hasTextureType(TT_roughness);
+    bool hasMetalness = slMat->hasTextureType(TT_metallic);
+    bool hasRghMtl = slMat->hasTextureType(TT_roughMetallic);
+    bool hasOclRghMtl = slMat->hasTextureType(TT_occlRoughMetallic);
+
+    // Switch lighting model to PBR (LM_CookTorrance) only if PBR textures are used.
+    // PBR without must be set by additional setter call
+    if (slMat->hasTextureType(TT_roughness) ||
+        slMat->hasTextureType(TT_metallic) ||
+        slMat->hasTextureType(TT_roughMetallic) ||
+        slMat->hasTextureType(TT_occlRoughMetallic))
+        slMat->lightModel(LM_CookTorrance);
+    else
+        slMat->lightModel(LM_BlinnPhong);
 
     return slMat;
 }
@@ -790,7 +860,7 @@ SLGLTexture* SLAssimpImporter::loadTexture(SLAssetManager* assetMgr,
         if (i->url() == textureFile)
             return i;
 
-    SLint minificationFilter = texType == TT_ambientOcclusion ? GL_LINEAR : SL_ANISOTROPY_MAX;
+    SLint minificationFilter = texType == TT_occlusion ? GL_LINEAR : SL_ANISOTROPY_MAX;
 
     // Create the new texture. It is also push back to SLScene::_textures
     SLGLTexture* texture = new SLGLTexture(assetMgr,
@@ -834,10 +904,10 @@ SLMesh* SLAssimpImporter::loadMesh(SLAssetManager* assetMgr, aiMesh* mesh)
         (numLines && (numTriangles || numPoints)) ||
         (numPoints && (numLines || numTriangles)))
     {
-        //SL_LOG("SLAssimpImporter::loadMesh:  Mesh contains multiple primitive types: %s, Lines: %d, Points: %d",
-        //       mesh->mName.C_Str(),
-        //       numLines,
-        //       numPoints);
+        // SL_LOG("SLAssimpImporter::loadMesh:  Mesh contains multiple primitive types: %s, Lines: %d, Points: %d",
+        //        mesh->mName.C_Str(),
+        //        numLines,
+        //        numPoints);
 
         // Prioritize triangles over lines over points
         if (numTriangles && numLines) numLines = 0;
@@ -1051,7 +1121,7 @@ SLMesh* SLAssimpImporter::loadMesh(SLAssetManager* assetMgr, aiMesh* mesh)
             {
                 SL_LOG("Failed to load joint of skeleton in SLAssimpImporter::loadMesh: %s",
                        joint->mName.C_Str());
-                //return nullptr;
+                // return nullptr;
             }
         }
     }
@@ -1325,7 +1395,7 @@ any visuals.
 
 @todo   this function doesn't look well optimized. It's currently used if the option to
         only load nodes containing meshes somewhere in their heirarchy is enabled.
-        This means we call it on ancestor nodes first. This also means that we will 
+        This means we call it on ancestor nodes first. This also means that we will
         redundantly traverse the same exact nodes multiple times. This isn't a pressing
         issue at the moment but should be tackled when this importer is being optimized
 */
@@ -1339,8 +1409,8 @@ SLbool SLAssimpImporter::aiNodeHasMesh(aiNode* node)
     return false;
 }
 //-----------------------------------------------------------------------------
-/*! 
-SLAssimpImporter::checkFilePath tries to build the full absolut texture file path. 
+/*!
+SLAssimpImporter::checkFilePath tries to build the full absolut texture file path.
 Some file formats have absolute path stored, some have relative paths.
 1st attempt: modelPath + aiTexFile
 2nd attempt: aiTexFile

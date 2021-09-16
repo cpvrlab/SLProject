@@ -1310,11 +1310,11 @@ SLTextureType SLGLTexture::detectType(const SLstring& filename)
     if (appendix == "_D") return TT_diffuse;
     if (appendix == "_N") return TT_normal;
     if (appendix == "_H") return TT_height;
-    if (appendix == "_G") return TT_specular;
-    if (appendix == "_S") return TT_specular;
+    if (appendix == "_G") return TT_gloss;
+    if (appendix == "_S") return TT_gloss;
     if (appendix == "_R") return TT_roughness;
     if (appendix == "_M") return TT_metallic;
-    if (appendix == "_A") return TT_ambientOcclusion;
+    if (appendix == "_A") return TT_occlusion;
     if (appendix == "_F") return TT_font;
 
     // Now check various formats found in the past
@@ -1322,6 +1322,7 @@ SLTextureType SLGLTexture::detectType(const SLstring& filename)
 
     if (Utils::containsString(name, "COL") ||
         Utils::containsString(name, "COLOR") ||
+        Utils::containsString(name, "BASECOLOR") ||
         Utils::containsString(name, "ALBEDO") ||
         Utils::containsString(name, "DIFFUSE") ||
         Utils::containsString(name, "DIFF") ||
@@ -1343,7 +1344,13 @@ SLTextureType SLGLTexture::detectType(const SLstring& filename)
         Utils::containsString(name, "REFL") ||
         Utils::containsString(name, "SPECULAR") ||
         Utils::containsString(name, "SPEC"))
-        return TT_specular;
+        return TT_gloss;
+
+    if (Utils::containsString(name, "OCCLUSIONROUGHNESSMETALLIC"))
+        return TT_occlRoughMetallic;
+
+    if (Utils::containsString(name, "ROUGHNESSMETALLIC"))
+        return TT_roughMetallic;
 
     if (Utils::containsString(name, "ROUGHNESS") ||
         Utils::containsString(name, "RGH") ||
@@ -1360,7 +1367,7 @@ SLTextureType SLGLTexture::detectType(const SLstring& filename)
         Utils::containsString(name, "OCCLUSION") ||
         Utils::containsString(name, "OCCL") ||
         Utils::containsString(name, "OCC"))
-        return TT_ambientOcclusion;
+        return TT_occlusion;
 
     // if nothing was detected so far we interpret it as a color texture
     //SLstring msg = Utils::formatString("SLGLTexture::detectType: No type detected in file: %s", filename.c_str());
@@ -1427,16 +1434,20 @@ SLstring SLGLTexture::typeName()
         case TT_diffuse: return "diffuse";
         case TT_normal: return "normal";
         case TT_height: return "height";
-        case TT_specular: return "specular";
+        case TT_gloss: return "specular";
+        case TT_emissive: return "emissive";
         case TT_roughness: return "roughness";
         case TT_metallic: return "metalness";
-        case TT_ambientOcclusion: return "ambient occlusion";
+        case TT_occlRoughMetallic: return "occlusionRoughnessMetallic";
+        case TT_roughMetallic: return "roughnessMetallic";
+        case TT_occlusion: return "ambient occlusion";
         case TT_font: return "font";
         case TT_hdr: return "hdr";
-        case TT_environmentCubemap: return "environment";
-        case TT_irradianceCubemap: return "irradiance";
-        case TT_roughnessCubemap: return "roughness";
+        case TT_environmentCubemap: return "environmentCubemap";
+        case TT_irradianceCubemap: return "irradianceCubemap";
+        case TT_roughnessCubemap: return "roughnessCubemap";
         case TT_brdfLUT: return "brdfLUT";
+        case TT_videoBkgd: return "videoBkgd";
         default: return "unknown";
     }
 }

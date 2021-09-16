@@ -49,19 +49,22 @@ class SLGLProgram;
 //! Texture type enumeration & their filename appendix for auto type detection
 enum SLTextureType
 {
-    TT_unknown,            // will be handled as color maps
-    TT_diffuse,            // diffuse color map (aka albedo or just color map)
-    TT_normal,             // normal map for normal bump mapping
-    TT_height,             // height map for height map bump or parallax mapping
-    TT_specular,           // specular gloss map
-    TT_ambientOcclusion,   // ambient occlusion map
-    TT_roughness,          // roughness map (PBR Cook-Torrance roughness 0-1)
-    TT_metallic,           // metalness map (PBR Cook-Torrance metallic 0-1)
-    TT_font,               // texture map for fonts
+    TT_unknown,            // Will be handled as color maps
+    TT_diffuse,            // Dm: Diffuse color map (aka albedo or just color map)
+    TT_normal,             // Nm: Normal map for normal bump mapping
+    TT_height,             // Hm: Height map for height map bump or parallax mapping
+    TT_gloss,              // Gm: Gloss map (specular)
+    TT_emissive,           // Em: Emissive map
+    TT_occlusion,          // Om: Ambient occlusion map
+    TT_roughness,          // Rm: Roughness map (PBR Cook-Torrance roughness 0-1)
+    TT_metallic,           // Mm: Metalness map (PBR Cook-Torrance metallic 0-1)
+    TT_roughMetallic,      // RMm: Roughness on G, metallness on B (R unused)
+    TT_occlRoughMetallic,  // ORMm: Occlusion on R, roughness on G, metallness on B
+    TT_font,               // Fm: Texture map for fonts
     TT_hdr,                // High Dynamic Range images
-    TT_environmentCubemap, // environment cubemap generated from HDR Textures
-    TT_irradianceCubemap,  // irradiance cubemap generated from HDR Textures
-    TT_roughnessCubemap,   // prefilter roughness cubemap
+    TT_environmentCubemap, // Environment cubemap generated from HDR Textures
+    TT_irradianceCubemap,  // Irradiance cubemap generated from HDR Textures
+    TT_roughnessCubemap,   // Prefilter roughness cubemap
     TT_brdfLUT,            // BRDF 2D look up table Texture
     TT_videoBkgd,          // Video background
     TT_numTextureType      // New texture types must be before TT_numTextureType
