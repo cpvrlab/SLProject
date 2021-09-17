@@ -320,7 +320,6 @@ void SLMaterial::addTexture(SLGLTexture* texture)
 
     _numTextures++;
 }
-
 //-----------------------------------------------------------------------------
 /*!
  The destructor should be called by the owner of the material. If an asset
@@ -420,7 +419,7 @@ SLint SLMaterial::passToUniforms(SLGLProgram* program, SLint nextTexUnit)
                     sprintf(name, "u_matTextureDiffuse%d", texNb);
                     break;
                 }
-                case TT_gloss: {
+                case TT_specular: {
                     sprintf(name, "u_matTextureSpecular%d", texNb);
                     break;
                 }
@@ -485,5 +484,22 @@ SLint SLMaterial::passToUniforms(SLGLProgram* program, SLint nextTexUnit)
     }
 
     return nextTexUnit;
+}
+//-----------------------------------------------------------------------------
+//! Returns a unique string that represent all textures used
+SLstring SLMaterial::texturesString()
+{
+    SLstring texStr;
+    for (SLuint iTT = 0; iTT < TT_numTextureType; ++iTT)
+    {
+        for (SLuint iT = 0; iT < _textures[iTT].size(); ++iT)
+        {
+            texStr += "-"+
+                      _textures[iTT][iT]->typeShortName() +
+                      std::to_string(iT) +
+                      std::to_string(_textures[iTT][iT]->uvIndex());
+        }
+    }
+    return texStr;
 }
 //-----------------------------------------------------------------------------

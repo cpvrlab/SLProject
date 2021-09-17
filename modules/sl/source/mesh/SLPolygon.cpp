@@ -68,8 +68,12 @@ void SLPolygon::buildMesh(SLMaterial* material)
     P.resize(_corners.size());
     N.clear();
     N.resize(P.size());
-    if (!_uv1.empty()) UV1.resize(P.size());
-    UV2.clear();
+    if (!_uv1.empty())
+    {
+        UV[0].clear();
+        UV[0].resize(P.size());
+    }
+    UV[1].clear();
     I16.clear();
     I16.resize((P.size() - 2) * 3);
 
@@ -87,7 +91,7 @@ void SLPolygon::buildMesh(SLMaterial* material)
     {
         P[i] = _corners[i];
         N[i] = n;
-        if (!UV1.empty()) UV1[i] = _uv1[i];
+        if (!UV[0].empty()) UV[0][i] = _uv1[i];
     }
 
     // Build face vertex indices

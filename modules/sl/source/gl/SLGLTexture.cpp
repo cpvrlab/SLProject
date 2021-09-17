@@ -40,6 +40,7 @@ SLGLTexture::SLGLTexture()
     _width                 = 0;
     _height                = 0;
     _depth                 = 0;
+    _uvIndex               = 0;
     _bytesPerPixel         = 0;
     _min_filter            = GL_NEAREST;
     _mag_filter            = GL_NEAREST;
@@ -59,7 +60,6 @@ SLGLTexture::SLGLTexture()
     _cudaTextureObject    = 0;
 #endif
 }
-
 //-----------------------------------------------------------------------------
 /*!
  * Constructor for empty 2D textures.
@@ -85,6 +85,7 @@ SLGLTexture::SLGLTexture(SLAssetManager* assetMgr,
     _height                = 0;
     _depth                 = 0;
     _bytesPerPixel         = 0;
+    _uvIndex               = 0;
     _min_filter            = min_filter;
     _mag_filter            = mag_filter;
     _wrap_s                = wrapS;
@@ -104,7 +105,6 @@ SLGLTexture::SLGLTexture(SLAssetManager* assetMgr,
     if (assetMgr)
         assetMgr->textures().push_back(this);
 }
-
 //-----------------------------------------------------------------------------
 /*!
  * Constructor for 2D texture with a passed image data pointer.
@@ -143,6 +143,7 @@ SLGLTexture::SLGLTexture(SLAssetManager* assetMgr,
     _width                 = image->width();
     _height                = image->height();
     _depth                 = _images.size();
+    _uvIndex               = 0;
     _bytesPerPixel         = image->bytesPerPixel();
     _min_filter            = min_filter;
     _mag_filter            = mag_filter;
@@ -163,7 +164,6 @@ SLGLTexture::SLGLTexture(SLAssetManager* assetMgr,
     if (assetMgr)
         assetMgr->textures().push_back(this);
 }
-
 //-----------------------------------------------------------------------------
 /*!
  * Constructor for 2D textures from image file with internal image allocation.
@@ -221,6 +221,7 @@ SLGLTexture::SLGLTexture(SLAssetManager* assetMgr,
     _wrap_t                = wrapT;
     _target                = GL_TEXTURE_2D;
     _texID                 = 0;
+    _uvIndex               = 0;
     _bumpScale             = 1.0f;
     _resizeToPow2          = false;
     _autoCalcTM3D          = false;
@@ -286,6 +287,7 @@ SLGLTexture::SLGLTexture(SLAssetManager*  assetMgr,
     _wrap_t                = wrapT;
     _target                = GL_TEXTURE_3D;
     _texID                 = 0;
+    _uvIndex               = 0;
     _bumpScale             = 1.0f;
     _resizeToPow2          = false;
     _autoCalcTM3D          = true;
@@ -347,6 +349,7 @@ SLGLTexture::SLGLTexture(SLAssetManager* assetMgr,
     _target = GL_TEXTURE_2D;
 
     _texID                 = 0;
+    _uvIndex               = 0;
     _bumpScale             = 1.0f;
     _resizeToPow2          = false;
     _autoCalcTM3D          = true;
@@ -423,6 +426,7 @@ SLGLTexture::SLGLTexture(SLAssetManager* assetMgr,
     _wrap_t                = GL_CLAMP_TO_EDGE; // other you will see filter artefacts on the edges
     _target                = GL_TEXTURE_CUBE_MAP;
     _texID                 = 0;
+    _uvIndex               = 0;
     _bumpScale             = 1.0f;
     _resizeToPow2          = false;
     _autoCalcTM3D          = false;
@@ -1306,14 +1310,15 @@ SLTextureType SLGLTexture::detectType(const SLstring& filename)
     SLstring appendix = name.substr(name.length() - 2, 2);
 
     if (ext == "hdr") return TT_hdr;
-    if (appendix == "_C") return TT_diffuse;
+    if (appendix == "_C") return TT_diffuse; // Color
     if (appendix == "_D") return TT_diffuse;
     if (appendix == "_N") return TT_normal;
     if (appendix == "_H") return TT_height;
-    if (appendix == "_G") return TT_gloss;
-    if (appendix == "_S") return TT_gloss;
+    if (appendix == "_G") return TT_specular; // Gloss
+    if (appendix == "_S") return TT_specular;
     if (appendix == "_R") return TT_roughness;
     if (appendix == "_M") return TT_metallic;
+    if (appendix == "_O") return TT_occlusion; // Ambient Occlusion
     if (appendix == "_A") return TT_occlusion;
     if (appendix == "_F") return TT_font;
 
@@ -1344,7 +1349,7 @@ SLTextureType SLGLTexture::detectType(const SLstring& filename)
         Utils::containsString(name, "REFL") ||
         Utils::containsString(name, "SPECULAR") ||
         Utils::containsString(name, "SPEC"))
-        return TT_gloss;
+        return TT_specular;
 
     if (Utils::containsString(name, "OCCLUSIONROUGHNESSMETALLIC"))
         return TT_occluRoughMetal;
@@ -1365,6 +1370,7 @@ SLTextureType SLGLTexture::detectType(const SLstring& filename)
     if (Utils::containsString(name, "AO") ||
         Utils::containsString(name, "AMBIENT") ||
         Utils::containsString(name, "OCCLUSION") ||
+        Utils::containsString(name, "OCCLU") ||
         Utils::containsString(name, "OCCL") ||
         Utils::containsString(name, "OCC"))
         return TT_occlusion;
@@ -1430,25 +1436,52 @@ SLstring SLGLTexture::typeName()
 {
     switch (_texType)
     {
-        case TT_unknown: return "unknown";
-        case TT_diffuse: return "diffuse";
-        case TT_normal: return "normal";
-        case TT_height: return "height";
-        case TT_gloss: return "specular";
-        case TT_emissive: return "emissive";
-        case TT_roughness: return "roughness";
-        case TT_metallic: return "metalness";
-        case TT_occluRoughMetal: return "occlusionRoughnessMetallic";
-        case TT_roughMetal: return "roughnessMetallic";
-        case TT_occlusion: return "ambient occlusion";
-        case TT_font: return "font";
-        case TT_hdr: return "hdr";
-        case TT_environmentCubemap: return "environmentCubemap";
-        case TT_irradianceCubemap: return "irradianceCubemap";
-        case TT_roughnessCubemap: return "roughnessCubemap";
+        case TT_unknown: return "Unknown";
+        case TT_diffuse: return "Diffuse";
+        case TT_normal: return "Normal";
+        case TT_height: return "Height";
+        case TT_specular: return "Specular";
+        case TT_emissive: return "Emissive";
+        case TT_roughness: return "Roughness";
+        case TT_metallic: return "Metalness";
+        case TT_occluRoughMetal: return "OcclusionRoughnessMetallic";
+        case TT_roughMetal: return "RoughnessMetallic";
+        case TT_occlusion: return "Acclusion";
+        case TT_font: return "Font";
+        case TT_hdr: return "HDR";
+        case TT_environmentCubemap: return "EnvironmentCubemap";
+        case TT_irradianceCubemap: return "IrradianceCubemap";
+        case TT_roughnessCubemap: return "RoughnessCubemap";
         case TT_brdfLUT: return "brdfLUT";
-        case TT_videoBkgd: return "videoBkgd";
-        default: return "unknown";
+        case TT_videoBkgd: return "VideoBkgd";
+        default: return "Unknown";
+    }
+}
+//-----------------------------------------------------------------------------
+//! Returns the texture type short
+SLstring SLGLTexture::typeShortName()
+{
+    switch (_texType)
+    {
+        case TT_unknown: return "U";
+        case TT_diffuse: return "D";
+        case TT_normal: return "N";
+        case TT_height: return "H";
+        case TT_specular: return "S";
+        case TT_emissive: return "E";
+        case TT_roughness: return "R";
+        case TT_metallic: return "M";
+        case TT_occlusion: return "O";
+        case TT_roughMetal: return "RM";
+        case TT_occluRoughMetal: return "ORM";
+        case TT_font: return "F";
+        case TT_hdr: return "HDR";
+        case TT_environmentCubemap: return "EnvE";
+        case TT_irradianceCubemap: return "EnvI";
+        case TT_roughnessCubemap: return "EnvR";
+        case TT_brdfLUT: return "brdf";
+        case TT_videoBkgd: return "VidBkgd";
+        default: return "U";
     }
 }
 //-----------------------------------------------------------------------------

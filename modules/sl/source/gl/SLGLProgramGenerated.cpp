@@ -1027,27 +1027,16 @@ void SLGLProgramGenerated::buildProgramName(SLMaterial* mat,
     assert(lights && !lights->empty() && "No lights passed!");
     programName = "gen";
 
-    bool matHasDm = mat->hasTextureType(TT_diffuse);
-    bool matHasNm = mat->hasTextureType(TT_normal);
-    bool matHasHm = mat->hasTextureType(TT_height);
-    bool matHasAo = mat->hasTextureType(TT_occlusion);
-    bool matHasVb = mat->hasTextureType(TT_videoBkgd);
-
-    if (matHasVb)
-        programName += "PerPixVideoBkgdDm";
+    if (mat->hasTextureType(TT_videoBkgd))
+        programName += "VideoBkgdDm";
     else if (mat->lightModel() == LM_BlinnPhong)
-        programName += "PerPixBlinn";
+        programName += "Blinn";
     else if (mat->lightModel() == LM_CookTorrance)
-        programName += "PerPixCook";
+        programName += "Cook";
     else
         programName += "Custom";
 
-    if (matHasDm)
-        programName += "Dm";
-    if (matHasNm && !matHasHm)
-        programName += "Nm";
-    if (matHasAo)
-        programName += "Om";
+    programName += mat->texturesString();
     programName += "-";
 
     // Add letter per light type

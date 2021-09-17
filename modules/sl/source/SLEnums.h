@@ -167,8 +167,8 @@ enum SLSceneID
     SID_RTLens,
     SID_RTTest,
 
-    SID_ErlebARBielBFH,
     SID_ErlebARBernChristoffel,
+    SID_ErlebARBielBFH,
     SID_ErlebARAugustaRauricaTmp,
     SID_ErlebARAugustaRauricaTht,
     SID_ErlebARAugustaRauricaTmpTht,

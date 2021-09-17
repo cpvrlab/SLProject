@@ -693,9 +693,9 @@ SLMaterial* SLAssimpImporter::loadMaterial(SLAssetManager* s,
 
         if (aiMat->GetTextureCount(aiTexType) > 0)
         {
-            aiString         aiPath;
-            aiTextureMapping mappingType;
-            SLuint           uvIndex;
+            aiString         aiPath("");
+            aiTextureMapping mappingType = aiTextureMapping_UV;
+            SLuint           uvIndex     = 0;
 
             aiMat->GetTexture(aiTexType,
                               0,
@@ -712,7 +712,7 @@ SLMaterial* SLAssimpImporter::loadMaterial(SLAssetManager* s,
             {
                 case aiTextureType_DIFFUSE: slTexType = TT_diffuse; break;
                 case aiTextureType_NORMALS: slTexType = TT_normal; break;
-                case aiTextureType_SPECULAR: slTexType = TT_gloss; break;
+                case aiTextureType_SPECULAR: slTexType = TT_specular; break;
                 case aiTextureType_HEIGHT: slTexType = TT_height; break;
                 case aiTextureType_OPACITY: slTexType = TT_diffuse; break;
                 case aiTextureType_EMISSION_COLOR: slTexType = TT_emissive; break;
@@ -721,8 +721,14 @@ SLMaterial* SLAssimpImporter::loadMaterial(SLAssetManager* s,
                     aiString fileRoughnessMetallic;
                     aiMat->GetTexture(AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_METALLICROUGHNESS_TEXTURE,
                                       &fileRoughnessMetallic);
-                    SLstring occRghMtlTex = checkFilePath(modelPath, texturePath, fileRoughnessMetallic.data);
-                    SLstring occlusionTex = checkFilePath(modelPath, texturePath, aiPath.data);
+                    SLstring occRghMtlTex = checkFilePath(modelPath,
+                                                          texturePath,
+                                                          fileRoughnessMetallic.data,
+                                                          false);
+                    SLstring occlusionTex = checkFilePath(modelPath,
+                                                          texturePath,
+                                                          aiPath.data,
+                                                          false);
                     if (occRghMtlTex == occlusionTex)
                         slTexType = TT_occluRoughMetal;
                     else
@@ -734,8 +740,14 @@ SLMaterial* SLAssimpImporter::loadMaterial(SLAssetManager* s,
                     aiString fileRoughnessMetallic;
                     aiMat->GetTexture(AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_METALLICROUGHNESS_TEXTURE,
                                       &fileRoughnessMetallic);
-                    SLstring occRghMtlTex = checkFilePath(modelPath, texturePath, fileRoughnessMetallic.data);
-                    SLstring occlusionTex = checkFilePath(modelPath, texturePath, aiPath.data);
+                    SLstring occRghMtlTex = checkFilePath(modelPath,
+                                                          texturePath,
+                                                          fileRoughnessMetallic.data,
+                                                          false);
+                    SLstring occlusionTex = checkFilePath(modelPath,
+                                                          texturePath,
+                                                          aiPath.data,
+                                                          false);
                     if (occRghMtlTex == occlusionTex)
                         slTexType = TT_occluRoughMetal;
                     else
@@ -747,14 +759,24 @@ SLMaterial* SLAssimpImporter::loadMaterial(SLAssetManager* s,
                     aiString fileMetallicRoughness;
                     aiMat->GetTexture(AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_METALLICROUGHNESS_TEXTURE,
                                       &fileMetallicRoughness);
-                    SLstring rghMtlTex  = checkFilePath(modelPath, texturePath, fileMetallicRoughness.data);
-                    SLstring unknownTex = checkFilePath(modelPath, texturePath, aiPath.data);
+                    SLstring rghMtlTex  = checkFilePath(modelPath,
+                                                        texturePath,
+                                                        fileMetallicRoughness.data,
+                                                        false);
+                    SLstring unknownTex = checkFilePath(modelPath,
+                                                        texturePath,
+                                                        aiPath.data,
+                                                        false);
                     if (rghMtlTex == unknownTex)
                     {
                         // Check if the  roughnessMetallic texture also is the occlusion texture
                         aiString fileOcclusion;
-                        aiMat->GetTexture(aiTextureType_LIGHTMAP, 0, &fileOcclusion);
-                        SLstring occlusionTex = checkFilePath(modelPath, texturePath, fileOcclusion.data);
+                        aiMat->GetTexture(aiTextureType_LIGHTMAP,
+                                          0,
+                                          &fileOcclusion);
+                        SLstring occlusionTex = checkFilePath(modelPath,
+                                                              texturePath,
+                                                              fileOcclusion.data);
                         if (rghMtlTex == occlusionTex)
                             slTexType = TT_unknown; // Don't load twice. The occlusionRoughnessMetallic texture will be loaded as aiTextureType_LIGHTMAP
                         else
@@ -781,6 +803,7 @@ SLMaterial* SLAssimpImporter::loadMaterial(SLAssetManager* s,
                 SLGLTexture* slTex = loadTexture(s,
                                                  texFile,
                                                  slTexType,
+                                                 uvIndex,
                                                  deleteTexImgAfterBuild);
                 slMat->addTexture(slTex);
             }
@@ -827,7 +850,7 @@ SLMaterial* SLAssimpImporter::loadMaterial(SLAssetManager* s,
 
     bool hasRoughness = slMat->hasTextureType(TT_roughness);
     bool hasMetalness = slMat->hasTextureType(TT_metallic);
-    bool hasRghMtl = slMat->hasTextureType(TT_roughMetal);
+    bool hasRghMtl    = slMat->hasTextureType(TT_roughMetal);
     bool hasOclRghMtl = slMat->hasTextureType(TT_occluRoughMetal);
 
     // Switch lighting model to PBR (LM_CookTorrance) only if PBR textures are used.
@@ -849,6 +872,7 @@ SLAssimpImporter::loadTexture loads the AssImp texture an returns the SLGLTextur
 SLGLTexture* SLAssimpImporter::loadTexture(SLAssetManager* assetMgr,
                                            SLstring&       textureFile,
                                            SLTextureType   texType,
+                                           SLuint          uvIndex,
                                            SLbool          deleteTexImgAfterBuild)
 {
     PROFILE_FUNCTION();
@@ -868,6 +892,7 @@ SLGLTexture* SLAssimpImporter::loadTexture(SLAssetManager* assetMgr,
                                            minificationFilter,
                                            GL_LINEAR,
                                            texType);
+    texture->uvIndex(uvIndex);
 
     // if texture images get deleted after build you can't do ray tracing
     if (deleteTexImgAfterBuild)
@@ -962,16 +987,16 @@ SLMesh* SLAssimpImporter::loadMesh(SLAssetManager* assetMgr, aiMesh* mesh)
     // Allocate 1st tex. coord. vector if needed
     if (mesh->HasTextureCoords(0) && numTriangles)
     {
-        m->UV1.clear();
-        m->UV1.resize(m->P.size());
+        m->UV[0].clear();
+        m->UV[0].resize(m->P.size());
     }
 
     // Allocate 2nd texture coordinate vector if needed
     // Some models use multiple textures with different uv's
     if (mesh->HasTextureCoords(1) && numTriangles)
     {
-        m->UV2.clear();
-        m->UV2.resize(m->P.size());
+        m->UV[1].clear();
+        m->UV[1].resize(m->P.size());
     }
 
     // copy vertex positions & tex. coord.
@@ -984,12 +1009,12 @@ SLMesh* SLAssimpImporter::loadMesh(SLAssetManager* assetMgr, aiMesh* mesh)
             m->N[i].set(mesh->mNormals[i].x,
                         mesh->mNormals[i].y,
                         mesh->mNormals[i].z);
-        if (!m->UV1.empty())
-            m->UV1[i].set(mesh->mTextureCoords[0][i].x,
-                          mesh->mTextureCoords[0][i].y);
-        if (!m->UV2.empty())
-            m->UV2[i].set(mesh->mTextureCoords[1][i].x,
-                          mesh->mTextureCoords[1][i].y);
+        if (!m->UV[0].empty())
+            m->UV[0][i].set(mesh->mTextureCoords[0][i].x,
+                            mesh->mTextureCoords[0][i].y);
+        if (!m->UV[1].empty())
+            m->UV[1][i].set(mesh->mTextureCoords[1][i].x,
+                            mesh->mTextureCoords[1][i].y);
     }
 
     // create primitive index vector
@@ -1420,7 +1445,8 @@ model file in the same folder.
 */
 SLstring SLAssimpImporter::checkFilePath(const SLstring& modelPath,
                                          const SLstring& texturePath,
-                                         SLstring        aiTexFile)
+                                         SLstring        aiTexFile,
+                                         bool            showWarning)
 {
     // Check path & file combination
     SLstring pathFile = modelPath + aiTexFile;
@@ -1436,9 +1462,12 @@ SLstring SLAssimpImporter::checkFilePath(const SLstring& modelPath,
     if (Utils::fileExists(pathFile))
         return pathFile;
 
-    SLstring msg = "SLAssimpImporter: Texture file not found: \n" + aiTexFile +
-                   "\non model path: " + modelPath + "\n";
-    SL_WARN_MSG(msg.c_str());
+    if (showWarning)
+    {
+        SLstring msg = "SLAssimpImporter: Texture file not found: \n" + aiTexFile +
+                       "\non model path: " + modelPath + "\n";
+        SL_WARN_MSG(msg.c_str());
+    }
 
     // Return path for texture not found image;
     return texturePath + "TexNotFound.png";

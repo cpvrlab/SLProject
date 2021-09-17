@@ -56,9 +56,9 @@ void SLRevolver::buildMesh(SLMaterial* material)
     P.resize((_slices + 1) * _revPoints.size());
     N.clear();
     N.resize(P.size());
-    UV1.clear();
-    UV1.resize(P.size());
-    UV2.clear();
+    UV[0].clear();
+    UV[0].resize(P.size());
+    UV[1].clear();
 
     // calculate length of segments for texture coords
     SLfloat  totalLenght = 0;
@@ -98,7 +98,7 @@ void SLRevolver::buildMesh(SLMaterial* material)
             else
                 P[iV] = m.multVec(_revPoints[r]);
 
-            UV1[iV++] = uv1;
+            UV[0][iV++] = uv1;
             m.rotate(dPhi, _revAxis);
             uv1.x += deltaS;
         }

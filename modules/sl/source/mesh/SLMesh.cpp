@@ -67,7 +67,7 @@ SLMesh::SLMesh(SLAssetManager* assetMgr, const SLstring& name) : SLObject(name)
  * The destructor should be called by the owner of the mesh. If an asset manager
  * was passed in the constructor it will do it after scene destruction.
  * The material (SLMaterial) that the mesh uses will not be deallocated.
-*/
+ */
 SLMesh::~SLMesh()
 {
     deleteData();
@@ -80,8 +80,8 @@ void SLMesh::deleteData()
     N.clear();
     C.clear();
     T.clear();
-    UV1.clear();
-    UV2.clear();
+    UV[0].clear();
+    UV[1].clear();
     for (auto i : Ji) i.clear();
     Ji.clear();
     for (auto i : Jw) i.clear();
@@ -145,8 +145,8 @@ void SLMesh::deleteSelected(SLNode* node)
         if (ixDel < N.size()) N.erase(N.begin() + ixDel);
         if (ixDel < C.size()) C.erase(C.begin() + ixDel);
         if (ixDel < T.size()) T.erase(T.begin() + ixDel);
-        if (ixDel < UV1.size()) UV1.erase(UV1.begin() + ixDel);
-        if (ixDel < UV2.size()) UV2.erase(UV2.begin() + ixDel);
+        if (ixDel < UV[0].size()) UV[0].erase(UV[0].begin() + ixDel);
+        if (ixDel < UV[1].size()) UV[1].erase(UV[1].begin() + ixDel);
         if (ixDel < Ji.size()) Ji.erase(Ji.begin() + ixDel);
         if (ixDel < Jw.size()) Jw.erase(Jw.begin() + ixDel);
 
@@ -212,7 +212,7 @@ void SLMesh::deleteSelected(SLNode* node)
     calcNormals();
 
     // build tangents for bump mapping
-    if (mat()->needsTangents() && !UV1.empty() && T.empty())
+    if (mat()->needsTangents() && !UV[0].empty() && T.empty())
         calcTangents();
 
     // delete vertex array object so it gets regenerated
@@ -260,8 +260,8 @@ void SLMesh::deleteUnused()
             if (ixDel < N.size()) N.erase(N.begin() + ixDel);
             if (ixDel < C.size()) C.erase(C.begin() + ixDel);
             if (ixDel < T.size()) T.erase(T.begin() + ixDel);
-            if (ixDel < UV1.size()) UV1.erase(UV1.begin() + ixDel);
-            if (ixDel < UV2.size()) UV2.erase(UV2.begin() + ixDel);
+            if (ixDel < UV[0].size()) UV[0].erase(UV[0].begin() + ixDel);
+            if (ixDel < UV[1].size()) UV[1].erase(UV[1].begin() + ixDel);
             if (ixDel < Ji.size()) Ji.erase(Ji.begin() + ixDel);
             if (ixDel < Jw.size()) Jw.erase(Jw.begin() + ixDel);
 
@@ -307,7 +307,7 @@ void SLMesh::init(SLNode* node)
     }
 
     // build tangents for bump mapping
-    if (mat()->needsTangents() && !UV1.empty() && T.empty())
+    if (mat()->needsTangents() && !UV[0].empty() && T.empty())
         calcTangents();
 
     _isSelected = false;
@@ -315,7 +315,7 @@ void SLMesh::init(SLNode* node)
 //-----------------------------------------------------------------------------
 //! Simplified drawing method for shadow map creation
 /*! This is used from within SLShadowMap::drawNodesIntoDepthBufferRec
-*/
+ */
 void SLMesh::drawIntoDepthBuffer(SLSceneView* sv,
                                  SLNode*      node,
                                  SLMaterial*  depthMat)
@@ -337,7 +337,7 @@ void SLMesh::drawIntoDepthBuffer(SLSceneView* sv,
     // Return if hidden
     if (node->levelForSM() == 0 &&
         (node->drawBit(SL_DB_HIDDEN) ||
-        _primitive == PT_points))
+         _primitive == PT_points))
         return;
 
     if (!_vao.vaoID())
@@ -726,9 +726,9 @@ void SLMesh::generateVAO(SLGLVertexArray& vao)
 
     vao.setAttrib(AT_position, AT_position, _finalP);
     if (!N.empty()) vao.setAttrib(AT_normal, AT_normal, _finalN);
-    if (!UV1.empty()) vao.setAttrib(AT_uv1, AT_uv1, &UV1);
-    if (!UV2.empty())
-        vao.setAttrib(AT_uv2, AT_uv2, &UV2);
+    if (!UV[0].empty()) vao.setAttrib(AT_uv1, AT_uv1, &UV[0]);
+    if (!UV[1].empty())
+        vao.setAttrib(AT_uv2, AT_uv2, &UV[1]);
     if (!C.empty()) vao.setAttrib(AT_color, AT_color, &C);
     if (!T.empty()) vao.setAttrib(AT_tangent, AT_tangent, &T);
 
@@ -889,8 +889,8 @@ void SLMesh::addStats(SLNodeStats& stats)
     stats.numBytes += sizeof(SLMesh);
     if (!P.empty()) stats.numBytes += SL_sizeOfVector(P);
     if (!N.empty()) stats.numBytes += SL_sizeOfVector(N);
-    if (!UV1.empty()) stats.numBytes += SL_sizeOfVector(UV1);
-    if (!UV2.empty()) stats.numBytes += SL_sizeOfVector(UV2);
+    if (!UV[0].empty()) stats.numBytes += SL_sizeOfVector(UV[0]);
+    if (!UV[1].empty()) stats.numBytes += SL_sizeOfVector(UV[1]);
     if (!C.empty()) stats.numBytes += SL_sizeOfVector(C);
     if (!T.empty()) stats.numBytes += SL_sizeOfVector(T);
     if (!Ji.empty()) stats.numBytes += SL_sizeOfVector(Ji);
@@ -1167,7 +1167,9 @@ detail explained in: http://www.terathon.com/code/tangent.html
 */
 void SLMesh::calcTangents()
 {
-    if (!P.empty() && !N.empty() && !UV1.empty() && (!I16.empty() || !I32.empty()))
+    if (!P.empty() &&
+        !N.empty() && !UV[0].empty() &&
+        (!I16.empty() || !I32.empty()))
     {
         // Delete old tangents
         T.clear();
@@ -1187,7 +1189,7 @@ void SLMesh::calcTangents()
         fill(T2.begin(), T2.end(), SLVec3f::ZERO);
 
         SLuint iVA, iVB, iVC;
-        SLuint numT = numI() / 3; //NO. of triangles
+        SLuint numT = numI() / 3; // NO. of triangles
 
         for (SLuint t = 0; t < numT; ++t)
         {
@@ -1214,10 +1216,10 @@ void SLMesh::calcTangents()
             float z1 = P[iVB].z - P[iVA].z;
             float z2 = P[iVC].z - P[iVA].z;
 
-            float s1 = UV1[iVB].x - UV1[iVA].x;
-            float s2 = UV1[iVC].x - UV1[iVA].x;
-            float t1 = UV1[iVB].y - UV1[iVA].y;
-            float t2 = UV1[iVC].y - UV1[iVA].y;
+            float s1 = UV[0][iVB].x - UV[0][iVA].x;
+            float s2 = UV[0][iVC].x - UV[0][iVA].x;
+            float t1 = UV[0][iVB].y - UV[0][iVA].y;
+            float t2 = UV[0][iVC].y - UV[0][iVA].y;
 
             float   r = 1.0F / (s1 * t2 - s2 * t1);
             SLVec3f sdir((t2 * x1 - t1 * x2) * r,
@@ -1443,11 +1445,11 @@ void SLMesh::preShade(SLRay* ray)
 
     if (!diffuseTex.empty() &&
         !diffuseTex[0]->images().empty() &&
-        !UV1.empty())
+        !UV[0].empty())
     {
-        SLVec2f Tu(UV1[iB] - UV1[iA]);
-        SLVec2f Tv(UV1[iC] - UV1[iA]);
-        SLVec2f tc(UV1[iA] + ray->hitU * Tu + ray->hitV * Tv);
+        SLVec2f Tu(UV[0][iB] - UV[0][iA]);
+        SLVec2f Tv(UV[0][iC] - UV[0][iA]);
+        SLVec2f tc(UV[0][iA] + ray->hitU * Tu + ray->hitV * Tv);
         ray->hitTexColor.set(diffuseTex[0]->getTexelf(tc.x, tc.y));
 
         // bump mapping
@@ -1476,11 +1478,11 @@ void SLMesh::preShade(SLRay* ray)
 
         // Get ambient occlusion
         SLVGLTexture& aoTex = ray->hitMesh->mat()->textures(TT_occlusion);
-        if (!UV2.empty())
+        if (!UV[1].empty())
         {
-            SLVec2f Tu2(UV2[iB] - UV2[iA]);
-            SLVec2f Tv2(UV2[iC] - UV2[iA]);
-            SLVec2f tc2(UV2[iA] + ray->hitU * Tu2 + ray->hitV * Tv2);
+            SLVec2f Tu2(UV[1][iB] - UV[1][iA]);
+            SLVec2f Tv2(UV[1][iC] - UV[1][iA]);
+            SLVec2f tc2(UV[1][iA] + ray->hitU * Tu2 + ray->hitV * Tv2);
 
             if (!aoTex.empty())
                 ray->hitAO = aoTex[0]->getTexelf(tc2.x, tc2.y).r;
@@ -1532,7 +1534,7 @@ void SLMesh::transformSkin(const std::function<void(SLMesh*)>& cbInformNodes)
     // update the joint matrix array
     _skeleton->getJointMatrices(_jointMatrices);
 
-    //notify Parent Nodes to update AABB
+    // notify Parent Nodes to update AABB
     cbInformNodes(this);
 
     // temporarily set finalP and finalN

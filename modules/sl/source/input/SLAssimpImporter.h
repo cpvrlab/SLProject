@@ -121,6 +121,7 @@ protected:
     static SLGLTexture* loadTexture(SLAssetManager* assetMgr,
                                     SLstring&       path,
                                     SLTextureType   texType,
+                                    SLuint          uvIndex,
                                     SLbool          deleteTexImgAfterBuild = false);
     SLMesh*             loadMesh(SLAssetManager* assetMgr, aiMesh* mesh);
     SLNode*             loadNodesRec(SLNode*    curNode,
@@ -131,7 +132,8 @@ protected:
                                       aiAnimation*   anim);
     static SLstring     checkFilePath(const SLstring& modelPath,
                                       const SLstring& texturePath,
-                                      SLstring        texFile);
+                                      SLstring        texFile,
+                                      bool            showWarning = true);
     SLbool              aiNodeHasMesh(aiNode* node);
 
     // misc helper

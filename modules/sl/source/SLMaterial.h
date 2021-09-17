@@ -132,6 +132,7 @@ public:
         _textures[tt].clear();
     }
     void addTexture(SLGLTexture* texture);
+    SLstring texturesString();
 
     // Setters
     void ambient(const SLCol4f& ambi) { _ambient = ambi; }

@@ -50,17 +50,17 @@ class SLGLProgram;
 enum SLTextureType
 {
     TT_unknown,            // Will be handled as color maps
-    TT_diffuse,            // Dm: Diffuse color map (aka albedo or just color map)
-    TT_normal,             // Nm: Normal map for normal bump mapping
-    TT_height,             // Hm: Height map for height map bump or parallax mapping
-    TT_gloss,              // Gm: Gloss map (specular)
-    TT_emissive,           // Em: Emissive map
-    TT_occlusion,          // Om: Ambient occlusion map
-    TT_roughness,          // Rm: Roughness map (PBR Cook-Torrance roughness 0-1)
-    TT_metallic,           // Mm: Metalness map (PBR Cook-Torrance metallic 0-1)
-    TT_roughMetal,         // RMm: Roughness on G, metallness on B (R unused)
-    TT_occluRoughMetal,    // ORMm: Occlusion on R, roughness on G, metallness on B
-    TT_font,               // Fm: Texture map for fonts
+    TT_diffuse,            // D: Diffuse color map (aka albedo or just color map)
+    TT_normal,             // N: Normal map for normal bump mapping
+    TT_height,             // H: Height map for height map bump or parallax mapping
+    TT_specular,           // S: Specular map
+    TT_emissive,           // E: Emissive map
+    TT_occlusion,          // O: Ambient occlusion map
+    TT_roughness,          // R: Roughness map (PBR Cook-Torrance roughness 0-1)
+    TT_metallic,           // M: Metalness map (PBR Cook-Torrance metallic 0-1)
+    TT_roughMetal,         // RM: Roughness on G, metallness on B (R unused)
+    TT_occluRoughMetal,    // ORM: Occlusion on R, roughness on G, metallness on B
+    TT_font,               // F: Texture map for fonts
     TT_hdr,                // High Dynamic Range images
     TT_environmentCubemap, // Environment cubemap generated from HDR Textures
     TT_irradianceCubemap,  // Irradiance cubemap generated from HDR Textures
@@ -162,6 +162,7 @@ public:
 
     // Setters
     void texType(SLTextureType bt) { _texType = bt; }
+    void uvIndex(SLbyte i) { _uvIndex = i; }
     void bumpScale(SLfloat bs) { _bumpScale = bs; }
     void minFiler(SLint minF) { _min_filter = minF; } // must be called before build
     void magFiler(SLint magF) { _mag_filter = magF; } // must be called before build
@@ -181,6 +182,7 @@ public:
     SLuint        width() { return _width; }
     SLuint        height() { return _height; }
     SLuint        depth() { return _depth; }
+    SLbyte        uvIndex() { return _uvIndex; }
     SLint         bytesPerPixel() { return _bytesPerPixel; }
     SLint         bytesOnGPU() { return _bytesOnGPU; }
     SLint         bytesInFile() { return _bytesInFile; }
@@ -199,6 +201,7 @@ public:
     SLbool        autoCalcTM3D() const { return _autoCalcTM3D; }
     SLbool        needsUpdate() { return _needsUpdate; }
     SLstring      typeName();
+    SLstring      typeShortName();
     bool          isTexture() { return (bool)glIsTexture(_texID); }
     SLstring      minificationFilterName() { return filterString(_min_filter); }
     SLstring      magnificationFilterName() { return filterString(_mag_filter); }
@@ -262,10 +265,11 @@ protected:
 
     CVVImage          _images;         //!< vector of CVImage pointers
     SLuint            _texID;          //!< OpenGL texture ID
-    SLTextureType     _texType;        //!< [unknown, ColorMap, NormalMap, HeightMap, GlossMap]
+    SLTextureType     _texType;        //!< See SLTextureType
     SLint             _width;          //!< Texture image width in pixels (images exist either in _images or on the GPU or on both)
     SLint             _height;         //!< Texture image height in pixels (images exist either in _images or on the GPU or on both)
     SLint             _depth;          //!< 3D Texture image depth (images exist either in _images or on the GPU or on both)
+    SLbyte            _uvIndex;            //!< Texture coordinate index in SLMesh (0 = default)
     SLint             _internalFormat; //!< Internal OpenGL format
     SLint             _bytesPerPixel;  //!< Bytes per texture image pixel (images exist either in _images or on the GPU or on both)
     SLint             _min_filter;     //!< Minification filter
