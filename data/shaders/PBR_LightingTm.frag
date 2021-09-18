@@ -20,7 +20,7 @@ precision highp float;
 in      vec3    v_P_VS; // Interpol. point of illumination in view space (VS)
 in      vec3    v_N_VS; // Interpol. normal at v_P_VS in view space
 in      vec3    v_R_OS; // Interpol. reflected ray in object space
-in      vec2    v_uv1;  // Interpol. texture coordinate in tex. space
+in      vec2    v_uv0;  // Interpol. texture coordinate in tex. space
 
 uniform bool    u_lightIsOn[NUM_LIGHTS];    // flag if light is on
 uniform vec4    u_lightPosVS[NUM_LIGHTS];   // position of light in view space
@@ -59,12 +59,12 @@ const float         PI = 3.14159265359;
 //-----------------------------------------------------------------------------
 vec3 getNormalFromMap()
 {
-    vec3 tangentNormal = texture(u_matTextureNormal0, v_uv1).xyz * 2.0 - 1.0;
+    vec3 tangentNormal = texture(u_matTextureNormal0, v_uv0).xyz * 2.0 - 1.0;
 
     vec3 Q1  = dFdx(v_P_VS);
     vec3 Q2  = dFdy(v_P_VS);
-    vec2 st1 = dFdx(v_uv1);
-    vec2 st2 = dFdy(v_uv1);
+    vec2 st1 = dFdx(v_uv0);
+    vec2 st2 = dFdy(v_uv0);
 
     vec3 N  =  normalize(v_N_VS);
     vec3 T  =  normalize(Q1*st2.t - Q2*st1.t);
@@ -84,10 +84,10 @@ void main()
     vec3 E = normalize(-v_P_VS);    // Vector from p to the eye (viewer)
 
     // Get the material parameters out of the textures
-    vec3  matDiff  = pow(texture(u_matTextureDiffuse0, v_uv1).rgb, vec3(2.2));
-    float matMetal = texture(u_matTextureMetallic0, v_uv1).r;
-    float matRough = texture(u_matTextureRoughness0, v_uv1).r;
-    float matOccl  = texture(u_matTextureOcclusion0, v_uv1).r;
+    vec3  matDiff  = pow(texture(u_matTextureDiffuse0, v_uv0).rgb, vec3(2.2));
+    float matMetal = texture(u_matTextureMetallic0, v_uv0).r;
+    float matRough = texture(u_matTextureRoughness0, v_uv0).r;
+    float matOccl  = texture(u_matTextureOcclusion0, v_uv0).r;
     
     // Init Fresnel reflection at 90 deg. (0 to N)
     vec3 F0 = vec3(0.04);           

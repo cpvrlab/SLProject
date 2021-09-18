@@ -10,7 +10,7 @@ precision highp float;
 
 //-----------------------------------------------------------------------------
 in      vec4      v_color;       // Interpol. ambient & diff. color
-in      vec2      v_uv1;         // Interpol. texture coordinate
+in      vec2      v_uv0;         // Interpol. texture coordinate
 
 uniform sampler2D u_matTexture0; // Color map
 
@@ -21,6 +21,6 @@ void main()
    o_fragColor = v_color;
    
    // componentwise multiply w. texture color
-   o_fragColor *= texture(u_matTexture0, v_uv1);
+   o_fragColor *= texture(u_matTexture0, v_uv0);
 }
 //-----------------------------------------------------------------------------

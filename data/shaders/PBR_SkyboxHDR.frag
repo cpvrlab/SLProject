@@ -13,14 +13,14 @@ precision highp float;
 uniform   samplerCube   u_matTextureEnvCubemap0;    // cube map texture
 uniform   float         u_skyExposure;              // skybox exposure value
 
-in        vec3          v_uv1;          // Interpol. 3D texture coordinate
+in        vec3          v_uv0;          // Interpol. 3D texture coordinate
 
 out       vec4          o_fragColor;    // output fragment color
 //-----------------------------------------------------------------------------
 void main()
 {
     const float gamma = 2.2;
-    vec3 envColor = texture(u_matTextureEnvCubemap0, v_uv1).rgb;
+    vec3 envColor = texture(u_matTextureEnvCubemap0, v_uv0).rgb;
   
     // Exposure tone mapping
     vec3 mapped = vec3(1.0) - exp(-envColor * u_skyExposure);

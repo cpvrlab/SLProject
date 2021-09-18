@@ -18,7 +18,7 @@ precision highp float;
 in      vec3        v_P_VS;     // Interpol. point of illumination in view space (VS)
 in      vec3        v_P_WS;     // Interpol. point of illumination in world space (WS)
 in      vec3        v_N_VS;     // Interpol. normal at v_P_VS in view space
-in      vec2        v_uv2;      // Texture coordinate 2 varying for AO
+in      vec2        v_uv1;      // Texture coordinate 2 varying for AO
 
 uniform bool        u_lightIsOn[NUM_LIGHTS];                // flag if light is on
 uniform vec4        u_lightPosWS[NUM_LIGHTS];               // position of light in world space
@@ -109,7 +109,7 @@ void main()
     }
 
     // Get ambient occlusion factor
-    float AO = texture(u_matTexture2, v_uv2).r;
+    float AO = texture(u_matTexture2, v_uv1).r;
 
     // Sum up all the reflected color components
     o_fragColor =  u_globalAmbi +

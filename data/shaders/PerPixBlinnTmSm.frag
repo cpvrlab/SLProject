@@ -17,7 +17,7 @@ precision highp float;
 in      vec3        v_P_VS;     // Interpol. point of illumination in view space (VS)
 in      vec3        v_P_WS;     // Interpol. point of illumination in world space (WS)
 in      vec3        v_N_VS;     // Interpol. normal at v_P_VS in view space
-in      vec2        v_uv1;      // Interpol. texture coordinate
+in      vec2        v_uv0;      // Interpol. texture coordinate
 
 uniform bool        u_lightIsOn[NUM_LIGHTS];                // flag if light is on
 uniform vec4        u_lightPosWS[NUM_LIGHTS];               // position of light in world space
@@ -115,7 +115,7 @@ void main()
                     Is * u_matSpec;
 
     // Componentwise multiply w. texture color
-    o_fragColor *= texture(u_matTexture0, v_uv1);
+    o_fragColor *= texture(u_matTexture0, v_uv0);
 
     // add finally the specular RGB-part
     vec4 specColor = Is * u_matSpec;

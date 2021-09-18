@@ -117,6 +117,7 @@ public:
     {
         return !_textures3d.empty();
     }
+    SLbool usesUVIndex(SLbyte uvIndex);
     SLbool needsTangents()
     {
         return !_textures[TT_normal].empty() &&

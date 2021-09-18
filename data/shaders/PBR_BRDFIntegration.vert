@@ -12,13 +12,13 @@ precision highp float;
 
 //-----------------------------------------------------------------------------
 in vec3   a_position; // Vertex position attribute
-in vec2   a_uv1;      // Vertex texture coord. attribute
+in vec2   a_uv0;      // Vertex texture coord. attribute
 
-out                      vec2   v_uv1;      // Output for interpolated texture coord.
+out                      vec2   v_uv0;      // Output for interpolated texture coord.
 //-----------------------------------------------------------------------------
 void main()
 {
-    v_uv1  = a_uv1;
+    v_uv0  = a_uv0;
     gl_Position = vec4(a_position, 1.0);
 }
 //-----------------------------------------------------------------------------

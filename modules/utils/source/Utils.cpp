@@ -37,7 +37,7 @@ namespace fs = std::experimental::filesystem;
 #    endif
 #    include <dirent.h>
 #    include <sys/stat.h> //dirent
-#    include <unistd.h> //getcwd
+#    include <unistd.h>   //getcwd
 #elif defined(ANDROID) || defined(ANDROID_NDK)
 #    include <android/log.h>
 #    include <dirent.h>
@@ -320,6 +320,23 @@ bool containsString(const string& container, const string& search)
     return (container.find(search) != string::npos);
 }
 //-----------------------------------------------------------------------------
+// Return true if the container string starts with the startStr
+bool startsWithString(const string& container, const string& startStr)
+{
+    return  container.find(startStr) == 0;
+}
+//-----------------------------------------------------------------------------
+// Return true if the container string ends with the endStr
+bool endsWithString(const string& container, const string& endStr)
+{
+    if (container.length() >= endStr.length())
+        return (0 == container.compare(container.length() - endStr.length(),
+                                       endStr.length(),
+                                       endStr));
+    else
+        return false;
+}
+//-----------------------------------------------------------------------------
 // Returns inputDir with unified forward slashes
 string unifySlashes(const string& inputDir)
 {
@@ -386,7 +403,7 @@ bool getFileContent(const string&   fileName,
             vecOfStrings.push_back(str);
     }
 
-    //Close The File
+    // Close The File
     in.close();
     return true;
 }
@@ -713,7 +730,7 @@ vector<string> getFileNamesInDir(const string& dirName, bool fullPath)
         }
     }
 #else
-    //todo: does this part also return directories? It should only return file names..
+    // todo: does this part also return directories? It should only return file names..
     DIR* dir = opendir(dirName.c_str());
 
     if (dir)
@@ -883,7 +900,7 @@ unsigned int getFileSize(const string& pathfilename)
 #endif
 }
 //-----------------------------------------------------------------------------
-//! Returns the file size in bytes
+// Returns the file size in bytes
 unsigned int getFileSize(std::ifstream& fs)
 {
     fs.seekg(0, std::ios::beg);
@@ -1208,7 +1225,7 @@ unsigned nextPowerOf2(unsigned num)
 //-----------------------------------------------------------------------------
 
 //-----------------------------------------------------------------------------
-//ComputerInfos
+// ComputerInfos
 //-----------------------------------------------------------------------------
 std::string ComputerInfos::user  = "USER?";
 std::string ComputerInfos::name  = "NAME?";
@@ -1289,20 +1306,20 @@ std::string ComputerInfos::get()
     os    = "MacOS";
 
     // Get MacOS version
-    //SInt32 majorV, minorV, bugfixV;
-    //Gestalt(gestaltSystemVersionMajor, &majorV);
-    //Gestalt(gestaltSystemVersionMinor, &minorV);
-    //Gestalt(gestaltSystemVersionBugFix, &bugfixV);
-    //char osVer[50];
-    //sprintf(osVer, "%d.%d.%d", majorV, minorV, bugfixV);
-    //osVer = string(osVer);
+    // SInt32 majorV, minorV, bugfixV;
+    // Gestalt(gestaltSystemVersionMajor, &majorV);
+    // Gestalt(gestaltSystemVersionMinor, &minorV);
+    // Gestalt(gestaltSystemVersionBugFix, &bugfixV);
+    // char osVer[50];
+    // sprintf(osVer, "%d.%d.%d", majorV, minorV, bugfixV);
+    // osVer = string(osVer);
 
     // Get model
-    //size_t len = 0;
-    //sysctlbyname("hw.model", nullptr, &len, nullptr, 0);
-    //char model[255];
-    //sysctlbyname("hw.model", model, &len, nullptr, 0);
-    //model = model;
+    // size_t len = 0;
+    // sysctlbyname("hw.model", nullptr, &len, nullptr, 0);
+    // char model[255];
+    // sysctlbyname("hw.model", model, &len, nullptr, 0);
+    // model = model;
 #    endif
 
 #elif defined(ANDROID) //................................................

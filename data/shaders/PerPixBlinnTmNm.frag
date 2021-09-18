@@ -14,7 +14,7 @@ precision highp float;
 #pragma define NUM_LIGHTS #Lights
 //-----------------------------------------------------------------------------
 in      vec3        v_P_VS;                     // Interpol. point of illumination in view space (VS)
-in      vec2        v_uv1;                      // Texture coordinate varying
+in      vec2        v_uv0;                      // Texture coordinate varying
 in      vec3        v_eyeDirTS;                 // Vector to the eye in tangent space
 in      vec3        v_lightDirTS[NUM_LIGHTS];   // Vector to light 0 in tangent space
 in      vec3        v_spotDirTS[NUM_LIGHTS];    // Spot direction in tangent space
@@ -65,7 +65,7 @@ void main()
     vec4 Is = vec4(0.0); // Accumulated specular light intensity at v_P_VS
 
     // Get normal from normal map, move from [0,1] to [-1, 1] range & normalize
-    vec3 N = normalize(texture(u_matTextureNormal0, v_uv1).rgb * 2.0 - 1.0);
+    vec3 N = normalize(texture(u_matTextureNormal0, v_uv0).rgb * 2.0 - 1.0);
     vec3 E = normalize(v_eyeDirTS);   // normalized eye direction
 
     for (int i = 0; i < NUM_LIGHTS; ++i)
@@ -95,7 +95,7 @@ void main()
                    Id * u_matDiff;
 
     // Componentwise multiply w. texture color
-    o_fragColor *= texture(u_matTextureDiffuse0, v_uv1);
+    o_fragColor *= texture(u_matTextureDiffuse0, v_uv0);
 
     // add finally the specular RGB-part
     vec4 specColor = Is * u_matSpec;

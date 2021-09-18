@@ -12,7 +12,7 @@
 precision highp float;
 
 //-----------------------------------------------------------------------------
-in      vec2      v_uv1;            // Interpol. texture coordinate
+in      vec2      v_uv0;            // Interpol. texture coordinate
 
 uniform samplerExternalOES sTexture;
 
@@ -22,7 +22,7 @@ out     vec4      o_fragColor;      // output fragment color
 //-----------------------------------------------------------------------------
 void main()
 {     
-    o_fragColor = texture(sTexture, vec2(v_uv1.x, 1.0f - v_uv1.y));
+    o_fragColor = texture(sTexture, vec2(v_uv0.x, 1.0f - v_uv0.y));
 
     // Apply gamma correction
     o_fragColor.rgb = pow(o_fragColor.rgb, vec3(u_oneOverGamma));

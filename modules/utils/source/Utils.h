@@ -101,6 +101,12 @@ string formatString(string fmt_str, ...);
 //! Returns true if container contains the search string
 bool containsString(const string& container, const string& search);
 
+//! Return true if the container string starts with the startStr
+bool startsWithString(const string& container, const string& startStr);
+
+//! Return true if the container string ends with the endStr
+bool endsWithString(const string& container, const string& endStr);
+
 //! Returns the inputDir string with unified forward slashes, e.g.: "dirA/dirB/"
 string unifySlashes(const string& inputDir);
 

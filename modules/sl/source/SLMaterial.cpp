@@ -503,3 +503,17 @@ SLstring SLMaterial::texturesString()
     return texStr;
 }
 //-----------------------------------------------------------------------------
+//! Returns true if the specified uvIndex is used by one of the textures
+SLbool SLMaterial::usesUVIndex(SLbyte uvIndex)
+{
+    for (SLuint iTT = 0; iTT < TT_numTextureType; ++iTT)
+    {
+        for (SLuint iT = 0; iT < _textures[iTT].size(); ++iT)
+        {
+            if (_textures[iTT][iT]->uvIndex() == uvIndex)
+                return true;
+        }
+    }
+    return false;
+}
+//-----------------------------------------------------------------------------

@@ -2097,7 +2097,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLGLTexture* texC   = new SLGLTexture(s, texPath + "earth2048_C.png");            // color map
         SLGLTexture* texN   = new SLGLTexture(s, texPath + "earth2048_N.jpg");            // normal map
         SLGLTexture* texH   = new SLGLTexture(s, texPath + "earth2048_H.jpg");            // height map
-        SLGLTexture* texG   = new SLGLTexture(s, texPath + "earth2048_G.jpg");            // gloss map
+        SLGLTexture* texG   = new SLGLTexture(s, texPath + "earth2048_S.jpg");            // specular map
         SLGLTexture* texNC  = new SLGLTexture(s, texPath + "earthNight2048_C.jpg");       // night color  map
         SLGLTexture* texClC = new SLGLTexture(s, texPath + "earthCloud1024_alpha_C.png"); // cloud color map
         // SLGLTexture* texClA = new SLGLTexture(s, texPath + "earthCloud1024_A.jpg"); // cloud alpha map

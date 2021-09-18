@@ -12,7 +12,7 @@ precision highp float;
 //-----------------------------------------------------------------------------
 layout (location = 0) in vec4  a_position;      // Vertex position attribute
 layout (location = 1) in vec3  a_normal;        // Vertex normal attribute
-layout (location = 2) in vec2  a_uv1;           // Vertex texture attribute
+layout (location = 2) in vec2  a_uv0;           // Vertex texture attribute
 layout (location = 4) in vec4  a_color;         // Vertex color attribute
 layout (location = 5) in vec3  a_tangent;       // Vertex tangent attribute
 layout (location = 6) in vec4  a_jointIds;      // Vertex joint indices attributes
@@ -25,7 +25,7 @@ uniform mat4  u_jointMatrices[100]; // joint matrices for skinning
 
 out     vec3  v_P_VS;       // Point of illumination in view space (VS)
 out     vec3  v_N_VS;       // Normal at P_VS in view space
-out     vec2  v_uv1;        // Texture coordinate output
+out     vec2  v_uv0;        // Texture coordinate output
 //-----------------------------------------------------------------------------
 void main(void)
 {  
@@ -50,7 +50,7 @@ void main(void)
     v_P_VS = vec3(u_mvMatrix * jm * a_position);
     v_N_VS = vec3(u_nMatrix * jnm * a_normal);
     v_N_VS = normalize(v_N_VS);
-    v_uv1 = a_uv1;
+    v_uv0 = a_uv0;
 
     // Transform the vertex with the modelview and joint matrix
     gl_Position = u_mvpMatrix * jm * a_position;

@@ -11,16 +11,16 @@ precision highp float;
 
 //-----------------------------------------------------------------------------
 layout (location = 0) in vec4  a_position;  // Vertex position attribute
-layout (location = 2) in vec2  a_uv1;       // Vertex texture attribute
+layout (location = 2) in vec2  a_uv0;       // Vertex texture attribute
 
 uniform mat4     u_mvpMatrix;   // = projection * modelView
 
-out     vec2     v_uv1;         // texture coordinate at vertex
+out     vec2     v_uv0;         // texture coordinate at vertex
 //-----------------------------------------------------------------------------
 void main()
 {
     // Set the texture coord. output for interpolated tex. coords.
-    v_uv1 = a_uv1;
+    v_uv0 = a_uv0;
    
     // Set the transformes vertex position   
     gl_Position = u_mvpMatrix * a_position;

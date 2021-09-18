@@ -733,6 +733,11 @@ SLMaterial* SLAssimpImporter::loadMaterial(SLAssetManager* s,
                         slTexType = TT_occluRoughMetal;
                     else
                         slTexType = TT_occlusion;
+
+                    // Erleb-AR occulsion map use uvIndex 1
+                    if (Utils::startsWithString(aiPath.data, "AO_"))
+                        uvIndex = 1;
+
                     break; // glTF stores AO maps as light maps
                 }
                 case aiTextureType_AMBIENT_OCCLUSION: {

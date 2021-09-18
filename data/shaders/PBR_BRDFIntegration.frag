@@ -11,7 +11,7 @@
 precision highp float;
 
 // ----------------------------------------------------------------------------
-in      vec2        v_uv1;
+in      vec2        v_uv0;
 
 out     vec4        o_FragColor;
 // ----------------------------------------------------------------------------
@@ -121,7 +121,7 @@ vec2 IntegrateBRDF(float NdotV, float roughness)
 // ----------------------------------------------------------------------------
 void main() 
 {
-    vec2 integratedBRDF = IntegrateBRDF(v_uv1.x, v_uv1.y);
+    vec2 integratedBRDF = IntegrateBRDF(v_uv0.x, v_uv0.y);
     
     o_FragColor = vec4(integratedBRDF, 1.0, 1.0);
 }

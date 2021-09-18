@@ -15,8 +15,8 @@ precision highp float;
 //-----------------------------------------------------------------------------
 layout (location = 0) in vec4  a_position;  // Vertex position attribute
 layout (location = 1) in vec3  a_normal;    // Vertex normal attribute
-layout (location = 2) in vec2  a_uv1;       // Vertex tex.coord. 1 for diffuse color
-layout (location = 3) in vec2  a_uv2;       // Vertex tex.coord. 2 for AO
+layout (location = 2) in vec2  a_uv0;       // Vertex tex.coord. 1 for diffuse color
+layout (location = 3) in vec2  a_uv1;       // Vertex tex.coord. 2 for AO
 layout (location = 5) in vec4  a_tangent;   // Vertex tangent attribute
 
 uniform mat4  u_mvMatrix;   // modelview matrix
@@ -28,8 +28,8 @@ uniform vec3  u_lightSpotDir[NUM_LIGHTS];   // spot direction in view space
 uniform float u_lightSpotDeg[NUM_LIGHTS];   // spot cutoff angle 1-180 degrees
 
 out     vec3  v_P_VS;                   // Point of illumination in view space (VS)
-out     vec2  v_uv1;                    // Texture coordinate output for uv1
-out     vec2  v_uv2;                    // Texture coordinate output for uv2
+out     vec2  v_uv0;                    // Texture coordinate output for uv1
+out     vec2  v_uv1;                    // Texture coordinate output for uv2
 out     vec3  v_eyeDirTS;               // Vector to the eye in tangent space
 out     vec3  v_lightDirTS[NUM_LIGHTS]; // Vector to the light 0 in tangent space
 out     vec3  v_spotDirTS[NUM_LIGHTS];  // Spot direction in tangent space
@@ -37,8 +37,8 @@ out     float v_lightDist[NUM_LIGHTS];  // Light distance
 //-----------------------------------------------------------------------------
 void main()
 {  
-    v_uv1 = a_uv1;  // pass diffuse color tex.coord. 1 for interpolation
-    v_uv2 = a_uv2;  // pass ambient occlusion tex.coord. 2 for interpolation
+    v_uv0 = a_uv0;  // pass diffuse color tex.coord. 1 for interpolation
+    v_uv1 = a_uv1;  // pass ambient occlusion tex.coord. 2 for interpolation
    
     // Building the matrix Eye Space -> Tangent Space
     // See the math behind at: http://www.terathon.com/code/tangent.html
