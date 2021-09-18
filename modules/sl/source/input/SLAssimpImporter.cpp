@@ -667,7 +667,7 @@ SLAssimpImporter::loadMaterial loads the AssImp aiMat an returns the SLMaterial.
 The materials and textures are added to the SLScene aiMat and texture
 vectors.
 */
-SLMaterial* SLAssimpImporter::loadMaterial(SLAssetManager* s,
+SLMaterial* SLAssimpImporter::loadMaterial(SLAssetManager* am,
                                            SLint           index,
                                            aiMaterial*     aiMat,
                                            const SLstring& modelPath,
@@ -684,7 +684,7 @@ SLMaterial* SLAssimpImporter::loadMaterial(SLAssetManager* s,
     if (name.empty()) name = "Import Material";
 
     // Create SLMaterial instance. It is also added to the SLScene::_materials vector
-    SLMaterial* slMat = new SLMaterial(s, name.c_str());
+    SLMaterial* slMat = new SLMaterial(am, name.c_str());
 
     // load all the textures for this aiMat and add it to the aiMat vector
     for (int tt = aiTextureType_NONE; tt <= aiTextureType_UNKNOWN; ++tt)
@@ -805,7 +805,7 @@ SLMaterial* SLAssimpImporter::loadMaterial(SLAssetManager* s,
                 slTexType == TT_roughMetal ||
                 slTexType == TT_occluRoughMetal)
             {
-                SLGLTexture* slTex = loadTexture(s,
+                SLGLTexture* slTex = loadTexture(am,
                                                  texFile,
                                                  slTexType,
                                                  uvIndex,
@@ -864,7 +864,9 @@ SLMaterial* SLAssimpImporter::loadMaterial(SLAssetManager* s,
         slMat->hasTextureType(TT_metallic) ||
         slMat->hasTextureType(TT_roughMetal) ||
         slMat->hasTextureType(TT_occluRoughMetal))
+    {
         slMat->lightModel(LM_CookTorrance);
+    }
     else
         slMat->lightModel(LM_BlinnPhong);
 
@@ -911,7 +913,7 @@ SLAssimpImporter::loadMesh creates a new SLMesh an copies the meshs vertex data 
 triangle face indices. Normals & tangents are not loaded. They are calculated
 in SLMesh.
 */
-SLMesh* SLAssimpImporter::loadMesh(SLAssetManager* assetMgr, aiMesh* mesh)
+SLMesh* SLAssimpImporter::loadMesh(SLAssetManager* am, aiMesh* mesh)
 {
     PROFILE_FUNCTION();
 
@@ -971,7 +973,7 @@ SLMesh* SLAssimpImporter::loadMesh(SLAssetManager* assetMgr, aiMesh* mesh)
     // create a new mesh.
     // The mesh pointer is added automatically to the SLScene::meshes vector.
     SLstring name = mesh->mName.data;
-    SLMesh*  m    = new SLMesh(assetMgr, name.empty() ? "Imported Mesh" : name);
+    SLMesh*  m    = new SLMesh(am, name.empty() ? "Imported Mesh" : name);
 
     // Set primitive type
     if (numTriangles) m->primitive(SLGLPrimitiveType::PT_triangles);

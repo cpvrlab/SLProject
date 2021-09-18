@@ -111,7 +111,7 @@ protected:
     void                loadSkeleton(SLAnimManager& animManager,
                                      SLJoint*       parent,
                                      aiNode*        node);
-    static SLMaterial*  loadMaterial(SLAssetManager* s,
+    static SLMaterial*  loadMaterial(SLAssetManager* am,
                                      SLint           index,
                                      aiMaterial*     aiMat,
                                      const SLstring& modelPath,
@@ -123,7 +123,7 @@ protected:
                                     SLTextureType   texType,
                                     SLuint          uvIndex,
                                     SLbool          deleteTexImgAfterBuild = false);
-    SLMesh*             loadMesh(SLAssetManager* assetMgr, aiMesh* mesh);
+    SLMesh*             loadMesh(SLAssetManager* am, aiMesh* mesh);
     SLNode*             loadNodesRec(SLNode*    curNode,
                                      aiNode*    aiNode,
                                      SLMeshMap& meshes,

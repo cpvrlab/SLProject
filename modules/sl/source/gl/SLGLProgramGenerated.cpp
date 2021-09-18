@@ -741,7 +741,7 @@ const string fragMainCook_1_matRough_Rm   = R"(
 const string fragMainCook_1_matRough_RMm  = R"(
      float matRough = texture(u_matTextureRoughMetallic0, v_uv0).g;)";
 const string fragMainCook_1_matRough_ORMm = R"(
-     float matRough = texture(u_matTextureOccluRoughMetal0, v_uv0).g;)";
+    float matRough = texture(u_matTextureOccluRoughMetal0, v_uv0).g;)";
 const string fragMainCook_1_matMetal      = R"(
      float matMetal = u_matMetal;)";
 const string fragMainCook_1_matMetal_Mm   = R"(
@@ -749,13 +749,13 @@ const string fragMainCook_1_matMetal_Mm   = R"(
 const string fragMainCook_1_matMetal_RMm  = R"(
      float matMetal = texture(u_matTextureRoughMetallic0, v_uv0).b;)";
 const string fragMainCook_1_matMetal_ORMm = R"(
-     float matMetal = texture(u_matTextureOccluRoughMetal0, v_uv0).b;)";
+    float matMetal = texture(u_matTextureOccluRoughMetal0, v_uv0).b;)";
 const string fragMainCook_1_matOcclu_1    = R"(
      float matOccl  = 1.0;)";
 const string fragMainCook_1_matOcclu_Om   = R"(
      float matOccl  = texture(u_matTextureOcclusion0, v_uv0).r;)";
 const string fragMainCook_1_matOcclu_ORMm = R"(
-     float matOccl  = texture(u_matTextureOccluRoughMetal0, v_uv0).r;)";
+    float matOccl  = texture(u_matTextureOccluRoughMetal0, v_uv0).r;)";
 
 const string fragMainCook_1_MatFromDmRmMm   = R"(
     vec4  matDiff  = pow(texture(u_matTextureDiffuse0, v_uv0), vec4(2.2));
@@ -1064,7 +1064,6 @@ void SLGLProgramGenerated::buildProgramName(SLMaterial* mat,
         if (light->createsShadows())
             programName += "s"; // Creates shadows
     }
-    programName += "_new";
 }
 //-----------------------------------------------------------------------------
 /*! Builds the GLSL program code for the vertex and fragment shaders. The code

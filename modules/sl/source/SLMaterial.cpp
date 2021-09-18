@@ -362,7 +362,6 @@ void SLMaterial::activate(SLCamera* cam, SLVLight* lights, SLSkybox* skybox)
     // A 3D object can be stored without material or shader program information.
     if (!_program)
     {
-
         // Check first the asset manager if the requested program type already exists
         string programName;
         SLGLProgramGenerated::buildProgramName(this, lights, programName);
@@ -441,6 +440,18 @@ SLint SLMaterial::passToUniforms(SLGLProgram* program, SLint nextTexUnit)
                 }
                 case TT_metallic: {
                     sprintf(name, "u_matTextureMetallic%d", texNb);
+                    break;
+                }
+                case TT_roughMetal: {
+                    sprintf(name, "u_matTextureRoughMetal%d", texNb);
+                    break;
+                }
+                case TT_occluRoughMetal: {
+                    sprintf(name, "u_matTextureOccluRoughMetal%d", texNb);
+                    break;
+                }
+                case TT_emissive: {
+                    sprintf(name, "u_matTextureEmissive%d", texNb);
                     break;
                 }
                 case TT_environmentCubemap: {
