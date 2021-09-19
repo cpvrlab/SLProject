@@ -160,31 +160,31 @@ uniform float       u_matShin;          // shininess exponent
 )";
 const string fragInput_u_matAmbi     = R"(
 uniform vec4        u_matAmbi;              // ambient color reflection coefficient (ka))";
-const string fragInput_u_matCookAll  = R"(
-uniform vec4        u_matDiff;              // diffuse color reflection coefficient (kd)
-uniform float       u_matRough;             // roughness factor (0-1)
-uniform float       u_matMetal;             // metalness factor (0-1))";
-const string fragInput_u_matDiff  = R"(
+const string fragInput_u_matDiff     = R"(
 uniform vec4        u_matDiff;              // diffuse color reflection coefficient (kd))";
-const string fragInput_u_matRough  = R"(
+const string fragInput_u_matEmis     = R"(
+uniform vec4        u_matEmis;              // emissive color (ke))";
+const string fragInput_u_matRough    = R"(
 uniform float       u_matRough;             // roughness factor (0-1))";
-const string fragInput_u_matMetal  = R"(
+const string fragInput_u_matMetal    = R"(
 uniform float       u_matMetal;             // metalness factor (0-1)";
 //-----------------------------------------------------------------------------
 const string fragInput_u_matTexDm       = R"(
-uniform sampler2D   u_matTextureDiffuse0;       // diffuse color map)";
+uniform sampler2D   u_matTextureDiffuse0;           // Diffuse color map)";
 const string fragInput_u_matTexNm       = R"(
-uniform sampler2D   u_matTextureNormal0;        // normal bump map)";
+uniform sampler2D   u_matTextureNormal0;            // Normal bump map)";
+const string fragInput_u_matTexEm       = R"(
+uniform sampler2D   u_matTextureEmissive0;          // PBR material emissive texture)";
 const string fragInput_u_matTexOm       = R"(
-uniform sampler2D   u_matTextureOcclusion0;     // ambient occlusion map)";
+uniform sampler2D   u_matTextureOcclusion0;         // ambient occlusion map)";
 const string fragInput_u_matTexRm       = R"(
-uniform sampler2D   u_matTextureRoughness0;     // PBR material roughness texture)";
+uniform sampler2D   u_matTextureRoughness0;         // PBR material roughness texture)";
 const string fragInput_u_matTexMm       = R"(
-uniform sampler2D   u_matTextureMetallic0;      // PBR material metallic texture)";
+uniform sampler2D   u_matTextureMetallic0;          // PBR material metallic texture)";
 const string fragInput_u_matTexRmMm     = R"(
-uniform sampler2D   u_matTextureRoughMetal0;    // PBR material roughness-metallic texture)";
+uniform sampler2D   u_matTextureRoughMetal0;        // PBR material roughness-metallic texture)";
 const string fragInput_u_matTexOmRmMm   = R"(
-uniform sampler2D   u_matTextureOccluRoughMetal0;// PBR material occlusion-roughness-metalic texture)";
+uniform sampler2D   u_matTextureOccluRoughMetal0;   // PBR material occlusion-roughness-metalic texture)";
 const string fragInput_u_matGetsSm      = R"(
 
 uniform bool        u_matGetsShadows;       // flag if material receives shadows)";
@@ -734,6 +734,10 @@ const string fragMainCook_1_matDiff       = R"(
     vec4  matDiff  = u_matDiff;)";
 const string fragMainCook_1_matDiff_Dm    = R"(
     vec4  matDiff  = pow(texture(u_matTextureDiffuse0, v_uv0), vec4(2.2));)";
+const string fragMainCook_1_matEmis       = R"(
+    vec4  matEmis  = u_matEmis;)";
+const string fragMainCook_1_matEmis_Em    = R"(
+    vec4  matEmis  = pow(texture(u_matTextureEmissive0, v_uv0), vec4(2.2));)";
 const string fragMainCook_1_matRough      = R"(
     float matRough = u_matRough;)";
 const string fragMainCook_1_matRough_Rm   = R"(
@@ -756,26 +760,7 @@ const string fragMainCook_1_matOcclu_Om   = R"(
      float matOccl  = texture(u_matTextureOcclusion0, v_uv0).r;)";
 const string fragMainCook_1_matOcclu_ORMm = R"(
     float matOccl  = texture(u_matTextureOccluRoughMetal0, v_uv0).r;)";
-
-const string fragMainCook_1_MatFromDmRmMm   = R"(
-    vec4  matDiff  = pow(texture(u_matTextureDiffuse0, v_uv0), vec4(2.2));
-    float matRough = texture(u_matTextureRoughness0, v_uv0).r;
-    float matMetal = texture(u_matTextureMetallic0, v_uv0).r;
-    float matOccl  = 1.0;
-)";
-const string fragMainCook_1_MatFromMaterial = R"(
-    vec4  matDiff  = u_matDiff;
-    float matRough = u_matRough;
-    float matMetal = u_matMetal;
-    float matOccl  = 1.0;
-)";
-const string fragMainCook_1_MatFromDmRmMmOm = R"(
-    vec4  matDiff  = pow(texture(u_matTextureDiffuse0, v_uv0), vec4(2.2));
-    float matRough = texture(u_matTextureRoughness0, v_uv0).r;
-    float matMetal = texture(u_matTextureMetallic0, v_uv0).r;
-    float matOccl  = texture(u_matTextureOcclusion0, v_uv0).r;
-)";
-const string fragMainCook_2_LightLoop       = R"(
+const string fragMainCook_2_LightLoop     = R"(
     // Init Fresnel reflection at 90 deg. (0 to N)
     vec3 F0 = vec3(0.04);
     F0 = mix(F0, matDiff.rgb, matMetal);
@@ -811,7 +796,7 @@ const string fragMainCook_2_LightLoop       = R"(
         }
     }
 )";
-const string fragMainCook_2_LightLoopNm     = R"(
+const string fragMainCook_2_LightLoopNm   = R"(
     // Init Fresnel reflection at 90 deg. (0 to N)
     vec3 F0 = vec3(0.04);
     F0 = mix(F0, matDiff.rgb, matMetal);
@@ -847,7 +832,7 @@ const string fragMainCook_2_LightLoopNm     = R"(
         }
     }
 )";
-const string fragMainCook_2_LightLoopSm     = R"(
+const string fragMainCook_2_LightLoopSm   = R"(
     // Init Fresnel reflection at 90 deg. (0 to N)
     vec3 F0 = vec3(0.04);
     F0 = mix(F0, matDiff.rgb, matMetal);
@@ -889,7 +874,7 @@ const string fragMainCook_2_LightLoopSm     = R"(
         }
     }
 )";
-const string fragMainCook_2_LightLoopNmSm   = R"(
+const string fragMainCook_2_LightLoopNmSm = R"(
     // Init Fresnel reflection at 90 deg. (0 to N)
     vec3 F0 = vec3(0.04);
     F0 = mix(F0, matDiff.rgb, matMetal);
@@ -931,13 +916,13 @@ const string fragMainCook_2_LightLoopNmSm   = R"(
         }
     }
 )";
-const string fragMainCook_3_FragColor       = R"(
+const string fragMainCook_3_FragColor     = R"(
 
     // ambient lighting (note that the next IBL tutorial will replace
     // this ambient lighting with environment lighting).
     vec3 ambient = vec3(0.03) * matDiff.rgb * matOccl;
 
-    vec3 color   = ambient + Lo;
+    vec3 color   = ambient + matEmis.rgb + Lo;
 
     // HDR tone-mapping
     color = color / (color + vec3(1.0));
@@ -946,7 +931,7 @@ const string fragMainCook_3_FragColor       = R"(
     // For correct alpha blending overwrite alpha component
     o_fragColor.a = matDiff.a;
 )";
-const string fragMainCook_3_FragColorEnv    = R"(
+const string fragMainCook_3_FragColorSky  = R"(
 
     // Build diffuse reflection from environment light map
     vec3 F = fresnelSchlickRoughness(max(dot(N, E), 0.0), F0, matRough);
@@ -963,7 +948,7 @@ const string fragMainCook_3_FragColorEnv    = R"(
     vec3 specular = prefilteredColor * (F * brdf.x + brdf.y);
     vec3 ambient = (diffuse + specular) * matOccl;
 
-    vec3 color = ambient + Lo;
+    vec3 color = ambient + matEmis.rgb + Lo;
 
     // Exposure tone mapping
     vec3 mapped = vec3(1.0) - exp(-color * u_skyExposure);
@@ -1197,7 +1182,7 @@ void SLGLProgramGenerated::buildPerPixCook(SLMaterial* mat, SLVLight* lights)
     bool Sm   = lightsDoShadowMapping(lights);
     bool uv0  = mat->usesUVIndex(0);
     bool uv1  = mat->usesUVIndex(1);
-    bool env  = mat->skybox() != nullptr;
+    bool sky  = mat->skybox() != nullptr;
 
     // Assemble vertex shader code
     string vertCode;
@@ -1208,14 +1193,14 @@ void SLGLProgramGenerated::buildPerPixCook(SLMaterial* mat, SLVLight* lights)
     if (Dm) vertCode += vertInput_a_uv0;
     if (Nm) vertCode += vertInput_a_tangent;
     vertCode += vertInput_u_matrices_all;
-    if (env) vertCode += vertInput_u_matrix_invMv;
+    if (sky) vertCode += vertInput_u_matrix_invMv;
     if (Nm) vertCode += vertInput_u_lightNm;
 
     // Vertex shader outputs
     vertCode += vertOutput_v_P_VS;
     if (Sm) vertCode += vertOutput_v_P_WS;
     vertCode += vertOutput_v_N_VS;
-    if (env) vertCode += vertOutput_v_R_OS;
+    if (sky) vertCode += vertOutput_v_R_OS;
     if (uv0) vertCode += vertOutput_v_uv0;
     if (Nm) vertCode += vertOutput_v_lightVecTS;
 
@@ -1224,7 +1209,7 @@ void SLGLProgramGenerated::buildPerPixCook(SLMaterial* mat, SLVLight* lights)
     vertCode += vertMain_v_P_VS;
     if (Sm) vertCode += vertMain_v_P_WS_Sm;
     vertCode += vertMain_v_N_VS;
-    if (env) vertCode += vertMain_v_R_OS;
+    if (sky) vertCode += vertMain_v_R_OS;
     if (uv0) vertCode += vertMain_v_uv0;
     if (Nm) vertCode += vertMain_TBN_Nm;
     vertCode += vertMain_EndAll;
@@ -1239,7 +1224,7 @@ void SLGLProgramGenerated::buildPerPixCook(SLMaterial* mat, SLVLight* lights)
     fragCode += fragInput_v_P_VS;
     if (Sm) fragCode += fragInput_v_P_WS;
     fragCode += fragInput_v_N_VS;
-    if (env) fragCode += fragInput_v_R_OS;
+    if (sky) fragCode += fragInput_v_R_OS;
     if (uv0) fragCode += fragInput_v_uv0;
     if (Nm) fragCode += fragInput_v_lightVecTS;
 
@@ -1247,6 +1232,7 @@ void SLGLProgramGenerated::buildPerPixCook(SLMaterial* mat, SLVLight* lights)
     fragCode += fragInput_u_lightAll;
     if (Sm) fragCode += fragInput_u_lightSm(lights);
     fragCode += Dm ? fragInput_u_matTexDm : fragInput_u_matDiff;
+    fragCode += Em ? fragInput_u_matTexEm : fragInput_u_matEmis;
     if (Rm) fragCode += fragInput_u_matTexRm;
     if (Mm) fragCode += fragInput_u_matTexMm;
     if (RMm) fragCode += fragInput_u_matTexRmMm;
@@ -1257,7 +1243,7 @@ void SLGLProgramGenerated::buildPerPixCook(SLMaterial* mat, SLVLight* lights)
     if (Om) fragCode += fragInput_u_matTexOm;
     if (Sm) fragCode += fragInput_u_matGetsSm;
     if (Sm) fragCode += fragInput_u_shadowMaps(lights);
-    if (env) fragCode += fragInput_u_skyCookEnvMaps;
+    if (sky) fragCode += fragInput_u_skyCookEnvMaps;
     fragCode += fragInput_u_cam;
 
     // Fragment shader outputs
@@ -1275,6 +1261,7 @@ void SLGLProgramGenerated::buildPerPixCook(SLMaterial* mat, SLVLight* lights)
     fragCode += fragMain_0_Intensities;
     fragCode += Nm ? fragMain_1_EN_in_TS : fragMain_1_EN_in_VS;
     fragCode += Dm ? fragMainCook_1_matDiff_Dm : fragMainCook_1_matDiff;
+    fragCode += Em ? fragMainCook_1_matEmis_Em : fragMainCook_1_matEmis;
     fragCode += ORMm ? fragMainCook_1_matRough_ORMm : RMm ? fragMainCook_1_matRough_RMm
                                                     : Rm  ? fragMainCook_1_matRough_Rm
                                                           : fragMainCook_1_matRough;
@@ -1286,830 +1273,10 @@ void SLGLProgramGenerated::buildPerPixCook(SLMaterial* mat, SLVLight* lights)
     fragCode += Nm && Sm ? fragMainCook_2_LightLoopNmSm : Nm ? fragMainCook_2_LightLoopNm
                                                         : Sm ? fragMainCook_2_LightLoopSm
                                                              : fragMainCook_2_LightLoop;
-    fragCode += env ? fragMainCook_3_FragColorEnv : fragMainCook_3_FragColor;
+    fragCode += sky ? fragMainCook_3_FragColorSky : fragMainCook_3_FragColor;
     if (Sm) fragCode += fragMain_4_ColoredShadows;
     fragCode += fragMain_5_FogGammaStereo;
 
-    addCodeToShader(_shaders[1], fragCode, _name + ".frag");
-}
-//-----------------------------------------------------------------------------
-void SLGLProgramGenerated::buildPerPixCookDmNmOmSm(SLVLight* lights, bool doEnvMap)
-{
-    assert(_shaders.size() > 1 &&
-           _shaders[0]->type() == ST_vertex &&
-           _shaders[1]->type() == ST_fragment);
-
-    // Assemble vertex shader code
-    string vertCode;
-    vertCode += shaderHeader((int)lights->size());
-    vertCode += vertInput_a_pn;
-    vertCode += vertInput_a_uv0;
-    vertCode += vertInput_a_tangent;
-    vertCode += vertInput_u_matrices_all;
-    vertCode += vertInput_u_matrix_invMv;
-    vertCode += vertInput_u_lightNm;
-    vertCode += vertOutput_v_P_VS;
-    vertCode += vertOutput_v_P_WS;
-    vertCode += vertOutput_v_N_VS;
-    vertCode += vertOutput_v_uv0;
-    vertCode += vertOutput_v_R_OS;
-    vertCode += vertOutput_v_lightVecTS;
-    vertCode += vertMain_Begin;
-    vertCode += vertMain_v_P_VS;
-    vertCode += vertMain_v_P_WS_Sm;
-    vertCode += vertMain_v_N_VS;
-    vertCode += vertMain_v_R_OS;
-    vertCode += vertMain_v_uv0;
-    vertCode += vertMain_TBN_Nm;
-    vertCode += vertMain_EndAll;
-    addCodeToShader(_shaders[0], vertCode, _name + ".vert");
-
-    // Assemble fragment shader code
-    string fragCode;
-    fragCode += shaderHeader((int)lights->size());
-    fragCode += fragInput_v_P_VS;
-    fragCode += fragInput_v_P_WS;
-    fragCode += fragInput_v_N_VS;
-    fragCode += fragInput_v_R_OS;
-    fragCode += fragInput_v_uv0;
-    fragCode += fragInput_v_lightVecTS;
-    fragCode += fragInput_u_lightAll;
-    fragCode += fragInput_u_lightSm(lights);
-    fragCode += fragInput_u_matTexDm;
-    fragCode += fragInput_u_matTexNm;
-    fragCode += fragInput_u_matTexOm;
-    fragCode += fragInput_u_matTexRm;
-    fragCode += fragInput_u_matTexMm;
-    fragCode += fragInput_u_matGetsSm;
-    fragCode += fragInput_u_shadowMaps(lights);
-    if (doEnvMap) fragCode += fragInput_u_skyCookEnvMaps;
-    fragCode += fragInput_u_cam;
-    fragCode += fragOutputs_o_fragColor;
-    fragCode += fragFunctionsLightingCookTorrance;
-    fragCode += fragFunctionFogBlend;
-    fragCode += fragFunctionDoStereoSeparation;
-    fragCode += fragFunctionShadowTest(lights);
-    fragCode += fragFunctionDoColoredShadows;
-    fragCode += fragMain_Begin;
-    fragCode += fragMain_0_Intensities;
-    fragCode += fragMain_1_EN_in_TS;
-    fragCode += fragMainCook_1_MatFromDmRmMmOm;
-    fragCode += fragMainCook_2_LightLoopNmSm;
-    fragCode += doEnvMap ? fragMainCook_3_FragColorEnv : fragMainCook_3_FragColor;
-    fragCode += fragMain_4_ColoredShadows;
-    fragCode += fragMain_5_FogGammaStereo;
-    addCodeToShader(_shaders[1], fragCode, _name + ".frag");
-}
-//-----------------------------------------------------------------------------
-void SLGLProgramGenerated::buildPerPixCookDmNmOm(SLVLight* lights, bool doEnvMap)
-{
-    assert(_shaders.size() > 1 &&
-           _shaders[0]->type() == ST_vertex &&
-           _shaders[1]->type() == ST_fragment);
-
-    // Assemble vertex shader code
-    string vertCode;
-    vertCode += shaderHeader((int)lights->size());
-    vertCode += vertInput_a_pn;
-    vertCode += vertInput_a_uv0;
-    vertCode += vertInput_a_tangent;
-    vertCode += vertInput_u_matrices_all;
-    vertCode += vertInput_u_matrix_invMv;
-    vertCode += vertInput_u_lightNm;
-    vertCode += vertOutput_v_P_VS;
-    vertCode += vertOutput_v_N_VS;
-    vertCode += vertOutput_v_uv0;
-    vertCode += vertOutput_v_R_OS;
-    vertCode += vertOutput_v_lightVecTS;
-    vertCode += vertMain_Begin;
-    vertCode += vertMain_v_P_VS;
-    vertCode += vertMain_v_N_VS;
-    vertCode += vertMain_v_uv0;
-    vertCode += vertMain_TBN_Nm;
-    vertCode += vertMain_v_R_OS;
-    vertCode += vertMain_EndAll;
-    addCodeToShader(_shaders[0], vertCode, _name + ".vert");
-
-    // Assemble fragment shader code
-    string fragCode;
-    fragCode += shaderHeader((int)lights->size());
-    fragCode += fragInput_v_P_VS;
-    fragCode += fragInput_v_N_VS;
-    fragCode += fragInput_v_R_OS;
-    fragCode += fragInput_v_uv0;
-    fragCode += fragInput_v_lightVecTS;
-    fragCode += fragInput_u_lightAll;
-    fragCode += fragInput_u_matTexDm;
-    fragCode += fragInput_u_matTexNm;
-    fragCode += fragInput_u_matTexRm;
-    fragCode += fragInput_u_matTexMm;
-    fragCode += fragInput_u_matTexOm;
-    if (doEnvMap) fragCode += fragInput_u_skyCookEnvMaps;
-    fragCode += fragInput_u_cam;
-    fragCode += fragOutputs_o_fragColor;
-    fragCode += fragFunctionsLightingCookTorrance;
-    fragCode += fragFunctionFogBlend;
-    fragCode += fragFunctionDoStereoSeparation;
-    fragCode += fragMain_Begin;
-    fragCode += fragMain_0_Intensities;
-    fragCode += fragMain_1_EN_in_TS;
-    fragCode += fragMainCook_1_MatFromDmRmMmOm;
-    fragCode += fragMainCook_2_LightLoopNm;
-    fragCode += doEnvMap ? fragMainCook_3_FragColorEnv : fragMainCook_3_FragColor;
-    fragCode += fragMain_5_FogGammaStereo;
-    addCodeToShader(_shaders[1], fragCode, _name + ".frag");
-}
-//-----------------------------------------------------------------------------
-void SLGLProgramGenerated::buildPerPixCookDmNmSm(SLVLight* lights, bool doEnvMap)
-{
-    assert(_shaders.size() > 1 &&
-           _shaders[0]->type() == ST_vertex &&
-           _shaders[1]->type() == ST_fragment);
-
-    // Assemble vertex shader code
-    string vertCode;
-    vertCode += shaderHeader((int)lights->size());
-    vertCode += vertInput_a_pn;
-    vertCode += vertInput_a_uv0;
-    vertCode += vertInput_a_tangent;
-    vertCode += vertInput_u_matrices_all;
-    vertCode += vertInput_u_matrix_invMv;
-    vertCode += vertInput_u_lightNm;
-    vertCode += vertOutput_v_P_VS;
-    vertCode += vertOutput_v_P_WS;
-    vertCode += vertOutput_v_N_VS;
-    vertCode += vertOutput_v_uv0;
-    vertCode += vertOutput_v_R_OS;
-    vertCode += vertOutput_v_lightVecTS;
-    vertCode += vertMain_Begin;
-    vertCode += vertMain_v_P_VS;
-    vertCode += vertMain_v_P_WS_Sm;
-    vertCode += vertMain_v_N_VS;
-    vertCode += vertMain_v_uv0;
-    vertCode += vertMain_TBN_Nm;
-    vertCode += vertMain_v_R_OS;
-    vertCode += vertMain_EndAll;
-    addCodeToShader(_shaders[0], vertCode, _name + ".vert");
-
-    // Assemble fragment shader code
-    string fragCode;
-    fragCode += shaderHeader((int)lights->size());
-    fragCode += fragInput_v_P_VS;
-    fragCode += fragInput_v_P_WS;
-    fragCode += fragInput_v_N_VS;
-    fragCode += fragInput_v_R_OS;
-    fragCode += fragInput_v_uv0;
-    fragCode += fragInput_v_lightVecTS;
-    fragCode += fragInput_u_lightAll;
-    fragCode += fragInput_u_lightSm(lights);
-    fragCode += fragInput_u_matTexDm;
-    fragCode += fragInput_u_matTexNm;
-    fragCode += fragInput_u_matTexRm;
-    fragCode += fragInput_u_matTexMm;
-    fragCode += fragInput_u_matGetsSm;
-    fragCode += fragInput_u_shadowMaps(lights);
-    if (doEnvMap) fragCode += fragInput_u_skyCookEnvMaps;
-    fragCode += fragInput_u_cam;
-    fragCode += fragOutputs_o_fragColor;
-    fragCode += fragFunctionsLightingCookTorrance;
-    fragCode += fragFunctionFogBlend;
-    fragCode += fragFunctionDoStereoSeparation;
-    fragCode += fragFunctionShadowTest(lights);
-    fragCode += fragFunctionDoColoredShadows;
-    fragCode += fragMain_Begin;
-    fragCode += fragMain_0_Intensities;
-    fragCode += fragMain_1_EN_in_TS;
-    fragCode += fragMainCook_1_MatFromDmRmMm;
-    fragCode += fragMainCook_2_LightLoopNmSm;
-    fragCode += doEnvMap ? fragMainCook_3_FragColorEnv : fragMainCook_3_FragColor;
-    fragCode += fragMain_4_ColoredShadows;
-    fragCode += fragMain_5_FogGammaStereo;
-    addCodeToShader(_shaders[1], fragCode, _name + ".frag");
-}
-//-----------------------------------------------------------------------------
-void SLGLProgramGenerated::buildPerPixCookDmOmSm(SLVLight* lights, bool doEnvMap)
-{
-    assert(_shaders.size() > 1 &&
-           _shaders[0]->type() == ST_vertex &&
-           _shaders[1]->type() == ST_fragment);
-
-    // Assemble vertex shader code
-    string vertCode;
-    vertCode += shaderHeader((int)lights->size());
-    vertCode += vertInput_a_pn;
-    vertCode += vertInput_a_uv0;
-    vertCode += vertInput_u_matrices_all;
-    vertCode += vertInput_u_matrix_invMv;
-    vertCode += vertOutput_v_P_VS;
-    vertCode += vertOutput_v_P_WS;
-    vertCode += vertOutput_v_N_VS;
-    vertCode += vertOutput_v_uv0;
-    vertCode += vertOutput_v_R_OS;
-    vertCode += vertMain_Begin;
-    vertCode += vertMain_v_P_VS;
-    vertCode += vertMain_v_P_WS_Sm;
-    vertCode += vertMain_v_N_VS;
-    vertCode += vertMain_v_uv0;
-    vertCode += vertMain_v_R_OS;
-    vertCode += vertMain_EndAll;
-    addCodeToShader(_shaders[0], vertCode, _name + ".vert");
-
-    // Assemble fragment shader code
-    string fragCode;
-    fragCode += shaderHeader((int)lights->size());
-    fragCode += fragInput_v_P_VS;
-    fragCode += fragInput_v_P_WS;
-    fragCode += fragInput_v_N_VS;
-    fragCode += fragInput_v_R_OS;
-    fragCode += fragInput_v_uv0;
-    fragCode += fragInput_u_lightAll;
-    fragCode += fragInput_u_lightSm(lights);
-    fragCode += fragInput_u_matTexDm;
-    fragCode += fragInput_u_matTexOm;
-    fragCode += fragInput_u_matTexRm;
-    fragCode += fragInput_u_matTexMm;
-    fragCode += fragInput_u_matGetsSm;
-    fragCode += fragInput_u_shadowMaps(lights);
-    if (doEnvMap) fragCode += fragInput_u_skyCookEnvMaps;
-    fragCode += fragInput_u_cam;
-    fragCode += fragOutputs_o_fragColor;
-    fragCode += fragFunctionsLightingCookTorrance;
-    fragCode += fragFunctionFogBlend;
-    fragCode += fragFunctionDoStereoSeparation;
-    fragCode += fragFunctionShadowTest(lights);
-    fragCode += fragFunctionDoColoredShadows;
-    fragCode += fragMain_Begin;
-    fragCode += fragMain_0_Intensities;
-    fragCode += fragMain_1_EN_in_VS;
-    fragCode += fragMainCook_1_MatFromDmRmMmOm;
-    fragCode += fragMainCook_2_LightLoopSm;
-    fragCode += doEnvMap ? fragMainCook_3_FragColorEnv : fragMainCook_3_FragColor;
-    fragCode += fragMain_4_ColoredShadows;
-    fragCode += fragMain_5_FogGammaStereo;
-    addCodeToShader(_shaders[1], fragCode, _name + ".frag");
-}
-//-----------------------------------------------------------------------------
-void SLGLProgramGenerated::buildPerPixCookOmSm(SLVLight* lights, bool doEnvMap)
-{
-    assert(_shaders.size() > 1 &&
-           _shaders[0]->type() == ST_vertex &&
-           _shaders[1]->type() == ST_fragment);
-
-    // Assemble vertex shader code
-    string vertCode;
-    vertCode += shaderHeader((int)lights->size());
-    vertCode += vertInput_a_pn;
-    vertCode += vertInput_a_uv0;
-    vertCode += vertInput_u_matrices_all;
-    vertCode += vertInput_u_matrix_invMv;
-    vertCode += vertOutput_v_P_VS;
-    vertCode += vertOutput_v_P_WS;
-    vertCode += vertOutput_v_N_VS;
-    vertCode += vertOutput_v_uv0;
-    vertCode += vertOutput_v_R_OS;
-    vertCode += vertMain_Begin;
-    vertCode += vertMain_v_P_VS;
-    vertCode += vertMain_v_P_WS_Sm;
-    vertCode += vertMain_v_N_VS;
-    vertCode += vertMain_v_uv0;
-    vertCode += vertMain_v_R_OS;
-    vertCode += vertMain_EndAll;
-    addCodeToShader(_shaders[0], vertCode, _name + ".vert");
-
-    // Assemble fragment shader code
-    string fragCode;
-    fragCode += shaderHeader((int)lights->size());
-    fragCode += fragInput_v_P_VS;
-    fragCode += fragInput_v_P_WS;
-    fragCode += fragInput_v_N_VS;
-    fragCode += fragInput_v_R_OS;
-    fragCode += fragInput_v_uv0;
-    fragCode += fragInput_u_lightAll;
-    fragCode += fragInput_u_lightSm(lights);
-    fragCode += fragInput_u_matCookAll;
-    fragCode += fragInput_u_matTexOm;
-    fragCode += fragInput_u_matGetsSm;
-    fragCode += fragInput_u_shadowMaps(lights);
-    if (doEnvMap) fragCode += fragInput_u_skyCookEnvMaps;
-    fragCode += fragInput_u_cam;
-    fragCode += fragOutputs_o_fragColor;
-    fragCode += fragFunctionsLightingCookTorrance;
-    fragCode += fragFunctionFogBlend;
-    fragCode += fragFunctionDoStereoSeparation;
-    fragCode += fragFunctionShadowTest(lights);
-    fragCode += fragFunctionDoColoredShadows;
-    fragCode += fragMain_Begin;
-    fragCode += fragMain_0_Intensities;
-    fragCode += fragMain_1_EN_in_VS;
-    fragCode += fragMainCook_1_MatFromMaterial;
-    fragCode += fragMainCook_2_LightLoop;
-    fragCode += doEnvMap ? fragMainCook_3_FragColorEnv : fragMainCook_3_FragColor;
-    fragCode += fragMain_4_ColoredShadows;
-    fragCode += fragMain_5_FogGammaStereo;
-    addCodeToShader(_shaders[1], fragCode, _name + ".frag");
-}
-//-----------------------------------------------------------------------------
-void SLGLProgramGenerated::buildPerPixCookNmSm(SLVLight* lights, bool doEnvMap)
-{
-    assert(_shaders.size() > 1 &&
-           _shaders[0]->type() == ST_vertex &&
-           _shaders[1]->type() == ST_fragment);
-
-    // Assemble vertex shader code
-    string vertCode;
-    vertCode += shaderHeader((int)lights->size());
-    vertCode += vertInput_a_pn;
-    vertCode += vertInput_a_uv0;
-    vertCode += vertInput_a_tangent;
-    vertCode += vertInput_u_matrices_all;
-    vertCode += vertInput_u_matrix_invMv;
-    vertCode += vertInput_u_lightNm;
-    vertCode += vertOutput_v_P_VS;
-    vertCode += vertOutput_v_P_WS;
-    vertCode += vertOutput_v_N_VS;
-    vertCode += vertOutput_v_uv0;
-    vertCode += vertOutput_v_R_OS;
-    vertCode += vertOutput_v_lightVecTS;
-    vertCode += vertMain_Begin;
-    vertCode += vertMain_v_P_VS;
-    vertCode += vertMain_v_P_WS_Sm;
-    vertCode += vertMain_v_N_VS;
-    vertCode += vertMain_v_uv0;
-    vertCode += vertMain_TBN_Nm;
-    vertCode += vertMain_v_R_OS;
-    vertCode += vertMain_EndAll;
-    addCodeToShader(_shaders[0], vertCode, _name + ".vert");
-
-    // Assemble fragment shader code
-    string fragCode;
-    fragCode += shaderHeader((int)lights->size());
-    fragCode += fragInput_v_P_VS;
-    fragCode += fragInput_v_P_WS;
-    fragCode += fragInput_v_N_VS;
-    fragCode += fragInput_v_R_OS;
-    fragCode += fragInput_v_uv0;
-    fragCode += fragInput_v_lightVecTS;
-    fragCode += fragInput_u_lightAll;
-    fragCode += fragInput_u_lightSm(lights);
-    fragCode += fragInput_u_matTexNm;
-    fragCode += fragInput_u_matTexRm;
-    fragCode += fragInput_u_matTexMm;
-    fragCode += fragInput_u_matGetsSm;
-    fragCode += fragInput_u_shadowMaps(lights);
-    if (doEnvMap) fragCode += fragInput_u_skyCookEnvMaps;
-    fragCode += fragInput_u_cam;
-    fragCode += fragOutputs_o_fragColor;
-    fragCode += fragFunctionsLightingCookTorrance;
-    fragCode += fragFunctionFogBlend;
-    fragCode += fragFunctionDoStereoSeparation;
-    fragCode += fragFunctionShadowTest(lights);
-    fragCode += fragFunctionDoColoredShadows;
-    fragCode += fragMain_Begin;
-    fragCode += fragMain_0_Intensities;
-    fragCode += fragMain_1_EN_in_TS;
-    fragCode += fragMainCook_1_MatFromMaterial;
-    fragCode += fragMainCook_2_LightLoop;
-    fragCode += doEnvMap ? fragMainCook_3_FragColorEnv : fragMainCook_3_FragColor;
-    fragCode += fragMain_4_ColoredShadows;
-    fragCode += fragMain_5_FogGammaStereo;
-    addCodeToShader(_shaders[1], fragCode, _name + ".frag");
-}
-//-----------------------------------------------------------------------------
-void SLGLProgramGenerated::buildPerPixCookDmSm(SLVLight* lights, bool doEnvMap)
-{
-    assert(_shaders.size() > 1 &&
-           _shaders[0]->type() == ST_vertex &&
-           _shaders[1]->type() == ST_fragment);
-
-    // Assemble vertex shader code
-    string vertCode;
-    vertCode += shaderHeader((int)lights->size());
-    vertCode += vertInput_a_pn;
-    vertCode += vertInput_a_uv0;
-    vertCode += vertInput_a_tangent;
-    vertCode += vertInput_u_matrices_all;
-    vertCode += vertInput_u_matrix_invMv;
-    vertCode += vertOutput_v_P_VS;
-    vertCode += vertOutput_v_P_WS;
-    vertCode += vertOutput_v_N_VS;
-    vertCode += vertOutput_v_uv0;
-    vertCode += vertOutput_v_R_OS;
-    vertCode += vertMain_Begin;
-    vertCode += vertMain_v_P_VS;
-    vertCode += vertMain_v_P_WS_Sm;
-    vertCode += vertMain_v_N_VS;
-    vertCode += vertMain_v_uv0;
-    vertCode += vertMain_v_R_OS;
-    vertCode += vertMain_EndAll;
-    addCodeToShader(_shaders[0], vertCode, _name + ".vert");
-
-    // Assemble fragment shader code
-    string fragCode;
-    fragCode += shaderHeader((int)lights->size());
-    fragCode += fragInput_v_P_VS;
-    fragCode += fragInput_v_P_WS;
-    fragCode += fragInput_v_N_VS;
-    fragCode += fragInput_v_R_OS;
-    fragCode += fragInput_v_uv0;
-    fragCode += fragInput_u_lightAll;
-    fragCode += fragInput_u_lightSm(lights);
-    fragCode += fragInput_u_matTexDm;
-    fragCode += fragInput_u_matTexRm;
-    fragCode += fragInput_u_matTexMm;
-    fragCode += fragInput_u_matGetsSm;
-    fragCode += fragInput_u_shadowMaps(lights);
-    if (doEnvMap) fragCode += fragInput_u_skyCookEnvMaps;
-    fragCode += fragInput_u_cam;
-    fragCode += fragOutputs_o_fragColor;
-    fragCode += fragFunctionsLightingCookTorrance;
-    fragCode += fragFunctionFogBlend;
-    fragCode += fragFunctionDoStereoSeparation;
-    fragCode += fragFunctionShadowTest(lights);
-    fragCode += fragFunctionDoColoredShadows;
-    fragCode += fragMain_Begin;
-    fragCode += fragMain_0_Intensities;
-    fragCode += fragMain_1_EN_in_VS;
-    fragCode += fragMainCook_1_MatFromDmRmMm;
-    fragCode += fragMainCook_2_LightLoopSm;
-    fragCode += doEnvMap ? fragMainCook_3_FragColorEnv : fragMainCook_3_FragColor;
-    fragCode += fragMain_4_ColoredShadows;
-    fragCode += fragMain_5_FogGammaStereo;
-    addCodeToShader(_shaders[1], fragCode, _name + ".frag");
-}
-//-----------------------------------------------------------------------------
-void SLGLProgramGenerated::buildPerPixCookDmOm(SLVLight* lights, bool doEnvMap)
-{
-    assert(_shaders.size() > 1 &&
-           _shaders[0]->type() == ST_vertex &&
-           _shaders[1]->type() == ST_fragment);
-
-    // Assemble vertex shader code
-    string vertCode;
-    vertCode += shaderHeader((int)lights->size());
-    vertCode += vertInput_a_pn;
-    vertCode += vertInput_u_matrices_all;
-    vertCode += vertInput_u_matrix_invMv;
-    vertCode += vertInput_a_uv0;
-    vertCode += vertOutput_v_P_VS;
-    vertCode += vertOutput_v_N_VS;
-    vertCode += vertOutput_v_uv0;
-    vertCode += vertOutput_v_R_OS;
-    vertCode += vertMain_Begin;
-    vertCode += vertMain_v_P_VS;
-    vertCode += vertMain_v_N_VS;
-    vertCode += vertMain_v_uv0;
-    vertCode += vertMain_v_R_OS;
-    vertCode += vertMain_EndAll;
-    addCodeToShader(_shaders[0], vertCode, _name + ".vert");
-
-    // Assemble fragment shader code
-    string fragCode;
-    fragCode += shaderHeader((int)lights->size());
-    fragCode += fragInput_v_P_VS;
-    fragCode += fragInput_v_N_VS;
-    fragCode += fragInput_v_R_OS;
-    fragCode += fragInput_v_uv0;
-    fragCode += fragInput_u_lightAll;
-    fragCode += fragInput_u_matTexDm;
-    fragCode += fragInput_u_matTexRm;
-    fragCode += fragInput_u_matTexMm;
-    fragCode += fragInput_u_matTexOm;
-    if (doEnvMap) fragCode += fragInput_u_skyCookEnvMaps;
-    fragCode += fragInput_u_cam;
-    fragCode += fragOutputs_o_fragColor;
-    fragCode += fragFunctionsLightingCookTorrance;
-    fragCode += fragFunctionFogBlend;
-    fragCode += fragFunctionDoStereoSeparation;
-    fragCode += fragMain_Begin;
-    fragCode += fragMain_0_Intensities;
-    fragCode += fragMain_1_EN_in_VS;
-    fragCode += fragMainCook_1_MatFromDmRmMm;
-    fragCode += fragMainCook_2_LightLoop;
-    fragCode += doEnvMap ? fragMainCook_3_FragColorEnv : fragMainCook_3_FragColor;
-    fragCode += fragMain_5_FogGammaStereo;
-    addCodeToShader(_shaders[1], fragCode, _name + ".frag");
-}
-//-----------------------------------------------------------------------------
-void SLGLProgramGenerated::buildPerPixCookDmNm(SLVLight* lights, bool doEnvMap)
-{
-    assert(_shaders.size() > 1 &&
-           _shaders[0]->type() == ST_vertex &&
-           _shaders[1]->type() == ST_fragment);
-
-    // Assemble vertex shader code
-    string vertCode;
-    vertCode += shaderHeader((int)lights->size());
-    vertCode += vertInput_a_pn;
-    vertCode += vertInput_a_uv0;
-    vertCode += vertInput_a_tangent;
-    vertCode += vertInput_u_matrices_all;
-    vertCode += vertInput_u_matrix_invMv;
-    vertCode += vertInput_u_lightNm;
-    vertCode += vertOutput_v_P_VS;
-    vertCode += vertOutput_v_P_WS;
-    vertCode += vertOutput_v_N_VS;
-    vertCode += vertOutput_v_uv0;
-    vertCode += vertOutput_v_R_OS;
-    vertCode += vertOutput_v_lightVecTS;
-    vertCode += vertMain_Begin;
-    vertCode += vertMain_v_P_VS;
-    vertCode += vertMain_v_N_VS;
-    vertCode += vertMain_v_uv0;
-    vertCode += vertMain_TBN_Nm;
-    vertCode += vertMain_v_R_OS;
-    vertCode += vertMain_EndAll;
-    addCodeToShader(_shaders[0], vertCode, _name + ".vert");
-
-    // Assemble fragment shader code
-    string fragCode;
-    fragCode += shaderHeader((int)lights->size());
-    fragCode += fragInput_v_P_VS;
-    fragCode += fragInput_v_N_VS;
-    fragCode += fragInput_v_R_OS;
-    fragCode += fragInput_v_uv0;
-    fragCode += fragInput_v_lightVecTS;
-    fragCode += fragInput_u_lightAll;
-    fragCode += fragInput_u_matTexDm;
-    fragCode += fragInput_u_matTexNm;
-    fragCode += fragInput_u_matTexRm;
-    fragCode += fragInput_u_matTexMm;
-    if (doEnvMap) fragCode += fragInput_u_skyCookEnvMaps;
-    fragCode += fragInput_u_cam;
-    fragCode += fragOutputs_o_fragColor;
-    fragCode += fragFunctionsLightingCookTorrance;
-    fragCode += fragFunctionFogBlend;
-    fragCode += fragFunctionDoStereoSeparation;
-    fragCode += fragMain_Begin;
-    fragCode += fragMain_0_Intensities;
-    fragCode += fragMain_1_EN_in_TS;
-    fragCode += fragMainCook_1_MatFromDmRmMm;
-    fragCode += fragMainCook_2_LightLoopNm;
-    fragCode += doEnvMap ? fragMainCook_3_FragColorEnv : fragMainCook_3_FragColor;
-    fragCode += fragMain_5_FogGammaStereo;
-    addCodeToShader(_shaders[1], fragCode, _name + ".frag");
-}
-//-----------------------------------------------------------------------------
-void SLGLProgramGenerated::buildPerPixCookSm(SLVLight* lights, bool doEnvMap)
-{
-    assert(_shaders.size() > 1 &&
-           _shaders[0]->type() == ST_vertex &&
-           _shaders[1]->type() == ST_fragment);
-
-    // Assemble vertex shader code
-    string vertCode;
-    vertCode += shaderHeader((int)lights->size());
-    vertCode += vertInput_a_pn;
-    vertCode += vertInput_u_matrices_all;
-    vertCode += vertInput_u_matrix_invMv;
-    vertCode += vertOutput_v_P_VS;
-    vertCode += vertOutput_v_P_WS;
-    vertCode += vertOutput_v_N_VS;
-    vertCode += vertOutput_v_R_OS;
-    vertCode += vertMain_Begin;
-    vertCode += vertMain_v_P_VS;
-    vertCode += vertMain_v_P_WS_Sm;
-    vertCode += vertMain_v_N_VS;
-    vertCode += vertMain_v_R_OS;
-    vertCode += vertMain_EndAll;
-    addCodeToShader(_shaders[0], vertCode, _name + ".vert");
-
-    // Assemble fragment shader code
-    string fragCode;
-    fragCode += shaderHeader((int)lights->size());
-    fragCode += fragInput_v_P_VS;
-    fragCode += fragInput_v_P_WS;
-    fragCode += fragInput_v_N_VS;
-    fragCode += fragInput_v_R_OS;
-    fragCode += fragInput_u_lightAll;
-    fragCode += fragInput_u_lightSm(lights);
-    fragCode += fragInput_u_matCookAll;
-    fragCode += fragInput_u_matGetsSm;
-    fragCode += fragInput_u_shadowMaps(lights);
-    if (doEnvMap) fragCode += fragInput_u_skyCookEnvMaps;
-    fragCode += fragInput_u_cam;
-    fragCode += fragOutputs_o_fragColor;
-    fragCode += fragFunctionsLightingCookTorrance;
-    fragCode += fragFunctionFogBlend;
-    fragCode += fragFunctionDoStereoSeparation;
-    fragCode += fragFunctionShadowTest(lights);
-    fragCode += fragFunctionDoColoredShadows;
-    fragCode += fragMain_Begin;
-    fragCode += fragMain_0_Intensities;
-    fragCode += fragMain_1_EN_in_VS;
-    fragCode += fragMainCook_1_MatFromMaterial;
-    fragCode += fragMainCook_2_LightLoopSm;
-    fragCode += doEnvMap ? fragMainCook_3_FragColorEnv : fragMainCook_3_FragColor;
-    fragCode += fragMain_4_ColoredShadows;
-    fragCode += fragMain_5_FogGammaStereo;
-    addCodeToShader(_shaders[1], fragCode, _name + ".frag");
-}
-//-----------------------------------------------------------------------------
-void SLGLProgramGenerated::buildPerPixCookOm(SLVLight* lights, bool doEnvMap)
-{
-    assert(_shaders.size() > 1 &&
-           _shaders[0]->type() == ST_vertex &&
-           _shaders[1]->type() == ST_fragment);
-
-    // Assemble vertex shader code
-    string vertCode;
-    vertCode += shaderHeader((int)lights->size());
-    vertCode += vertInput_a_pn;
-    vertCode += vertInput_u_matrices_all;
-    vertCode += vertInput_u_matrix_invMv;
-    vertCode += vertInput_a_uv0;
-    vertCode += vertOutput_v_P_VS;
-    vertCode += vertOutput_v_N_VS;
-    vertCode += vertOutput_v_uv0;
-    vertCode += vertOutput_v_R_OS;
-    vertCode += vertMain_Begin;
-    vertCode += vertMain_v_P_VS;
-    vertCode += vertMain_v_N_VS;
-    vertCode += vertMain_v_uv0;
-    vertCode += vertMain_v_R_OS;
-    vertCode += vertMain_EndAll;
-    addCodeToShader(_shaders[0], vertCode, _name + ".vert");
-
-    // Assemble fragment shader code
-    string fragCode;
-    fragCode += shaderHeader((int)lights->size());
-    fragCode += fragInput_v_P_VS;
-    fragCode += fragInput_v_N_VS;
-    fragCode += fragInput_v_R_OS;
-    fragCode += fragInput_v_uv0;
-    fragCode += fragInput_u_lightAll;
-    fragCode += fragInput_u_matTexRm;
-    fragCode += fragInput_u_matTexMm;
-    fragCode += fragInput_u_matTexOm;
-    if (doEnvMap) fragCode += fragInput_u_skyCookEnvMaps;
-    fragCode += fragInput_u_cam;
-    fragCode += fragOutputs_o_fragColor;
-    fragCode += fragFunctionsLightingCookTorrance;
-    fragCode += fragFunctionFogBlend;
-    fragCode += fragFunctionDoStereoSeparation;
-    fragCode += fragMain_Begin;
-    fragCode += fragMain_0_Intensities;
-    fragCode += fragMain_1_EN_in_VS;
-    fragCode += fragMainCook_1_MatFromMaterial;
-    fragCode += fragMainCook_2_LightLoop;
-    fragCode += doEnvMap ? fragMainCook_3_FragColorEnv : fragMainCook_3_FragColor;
-    fragCode += fragMain_5_FogGammaStereo;
-    addCodeToShader(_shaders[1], fragCode, _name + ".frag");
-}
-//-----------------------------------------------------------------------------
-void SLGLProgramGenerated::buildPerPixCookDm(SLVLight* lights, bool doEnvMap)
-{
-    assert(_shaders.size() > 1 &&
-           _shaders[0]->type() == ST_vertex &&
-           _shaders[1]->type() == ST_fragment);
-
-    // Assemble vertex shader code
-    string vertCode;
-    vertCode += shaderHeader((int)lights->size());
-    vertCode += vertInput_a_pn;
-    vertCode += vertInput_u_matrices_all;
-    vertCode += vertInput_u_matrix_invMv;
-    vertCode += vertInput_a_uv0;
-    vertCode += vertOutput_v_P_VS;
-    vertCode += vertOutput_v_N_VS;
-    vertCode += vertOutput_v_uv0;
-    vertCode += vertOutput_v_R_OS;
-    vertCode += vertMain_Begin;
-    vertCode += vertMain_v_P_VS;
-    vertCode += vertMain_v_N_VS;
-    vertCode += vertMain_v_uv0;
-    vertCode += vertMain_v_R_OS;
-    vertCode += vertMain_EndAll;
-    addCodeToShader(_shaders[0], vertCode, _name + ".vert");
-
-    // Assemble fragment shader code
-    string fragCode;
-    fragCode += shaderHeader((int)lights->size());
-    fragCode += fragInput_v_P_VS;
-    fragCode += fragInput_v_N_VS;
-    fragCode += fragInput_v_R_OS;
-    fragCode += fragInput_v_uv0;
-    fragCode += fragInput_u_lightAll;
-    fragCode += fragInput_u_matTexDm;
-    fragCode += fragInput_u_matTexRm;
-    fragCode += fragInput_u_matTexMm;
-    if (doEnvMap) fragCode += fragInput_u_skyCookEnvMaps;
-    fragCode += fragInput_u_cam;
-    fragCode += fragOutputs_o_fragColor;
-    fragCode += fragFunctionsLightingCookTorrance;
-    fragCode += fragFunctionFogBlend;
-    fragCode += fragFunctionDoStereoSeparation;
-    fragCode += fragMain_Begin;
-    fragCode += fragMain_0_Intensities;
-    fragCode += fragMain_1_EN_in_VS;
-    fragCode += fragMainCook_1_MatFromDmRmMm;
-    fragCode += fragMainCook_2_LightLoop;
-    fragCode += doEnvMap ? fragMainCook_3_FragColorEnv : fragMainCook_3_FragColor;
-    fragCode += fragMain_5_FogGammaStereo;
-    addCodeToShader(_shaders[1], fragCode, _name + ".frag");
-}
-//-----------------------------------------------------------------------------
-void SLGLProgramGenerated::buildPerPixCookNm(SLVLight* lights, bool doEnvMap)
-{
-    assert(_shaders.size() > 1 &&
-           _shaders[0]->type() == ST_vertex &&
-           _shaders[1]->type() == ST_fragment);
-
-    // Assemble vertex shader code
-    string vertCode;
-    vertCode += shaderHeader((int)lights->size());
-    vertCode += vertInput_a_pn;
-    vertCode += vertInput_a_uv0;
-    vertCode += vertInput_a_tangent;
-    vertCode += vertInput_u_matrices_all;
-    vertCode += vertInput_u_matrix_invMv;
-    vertCode += vertInput_u_lightNm;
-    vertCode += vertOutput_v_P_VS;
-    vertCode += vertOutput_v_P_WS;
-    vertCode += vertOutput_v_N_VS;
-    vertCode += vertOutput_v_uv0;
-    vertCode += vertOutput_v_R_OS;
-    vertCode += vertOutput_v_lightVecTS;
-    vertCode += vertMain_Begin;
-    vertCode += vertMain_v_P_VS;
-    vertCode += vertMain_v_P_WS_Sm;
-    vertCode += vertMain_v_N_VS;
-    vertCode += vertMain_v_uv0;
-    vertCode += vertMain_TBN_Nm;
-    vertCode += vertMain_v_R_OS;
-    vertCode += vertMain_EndAll;
-    addCodeToShader(_shaders[0], vertCode, _name + ".vert");
-
-    // Assemble fragment shader code
-    string fragCode;
-    fragCode += shaderHeader((int)lights->size());
-    fragCode += fragInput_v_P_VS;
-    fragCode += fragInput_v_P_WS;
-    fragCode += fragInput_v_N_VS;
-    fragCode += fragInput_v_R_OS;
-    fragCode += fragInput_v_uv0;
-    fragCode += fragInput_v_lightVecTS;
-    fragCode += fragInput_u_lightAll;
-    fragCode += fragInput_u_matCookAll;
-    fragCode += fragInput_u_matTexNm;
-    if (doEnvMap) fragCode += fragInput_u_skyCookEnvMaps;
-    fragCode += fragInput_u_cam;
-    fragCode += fragOutputs_o_fragColor;
-    fragCode += fragFunctionsLightingCookTorrance;
-    fragCode += fragFunctionFogBlend;
-    fragCode += fragFunctionDoStereoSeparation;
-    fragCode += fragMain_Begin;
-    fragCode += fragMain_0_Intensities;
-    fragCode += fragMain_1_EN_in_TS;
-    fragCode += fragMainCook_1_MatFromMaterial;
-    fragCode += fragMainCook_2_LightLoop;
-    fragCode += doEnvMap ? fragMainCook_3_FragColorEnv : fragMainCook_3_FragColor;
-    fragCode += fragMain_5_FogGammaStereo;
-    addCodeToShader(_shaders[1], fragCode, _name + ".frag");
-}
-//-----------------------------------------------------------------------------
-void SLGLProgramGenerated::buildPerPixCook(SLVLight* lights, bool doEnvMap)
-{
-    assert(_shaders.size() > 1 &&
-           _shaders[0]->type() == ST_vertex &&
-           _shaders[1]->type() == ST_fragment);
-
-    // Assemble vertex shader code
-    string vertCode;
-    vertCode += shaderHeader((int)lights->size());
-    vertCode += vertInput_a_pn;
-    vertCode += vertInput_u_matrices_all;
-    vertCode += vertInput_u_matrix_invMv;
-    vertCode += vertOutput_v_P_VS;
-    vertCode += vertOutput_v_N_VS;
-    vertCode += vertOutput_v_R_OS;
-    vertCode += vertMain_Begin;
-    vertCode += vertMain_v_P_VS;
-    vertCode += vertMain_v_N_VS;
-    vertCode += vertMain_v_R_OS;
-    vertCode += vertMain_EndAll;
-    addCodeToShader(_shaders[0], vertCode, _name + ".vert");
-
-    // Assemble fragment shader code
-    string fragCode;
-    fragCode += shaderHeader((int)lights->size());
-    fragCode += fragInput_v_P_VS;
-    fragCode += fragInput_v_N_VS;
-    fragCode += fragInput_v_R_OS;
-    fragCode += fragInput_u_lightAll;
-    fragCode += fragInput_u_matCookAll;
-    if (doEnvMap) fragCode += fragInput_u_skyCookEnvMaps;
-    fragCode += fragInput_u_cam;
-    fragCode += fragOutputs_o_fragColor;
-    fragCode += fragFunctionsLightingCookTorrance;
-    fragCode += fragFunctionFogBlend;
-    fragCode += fragFunctionDoStereoSeparation;
-    fragCode += fragMain_Begin;
-    fragCode += fragMain_0_Intensities;
-    fragCode += fragMain_1_EN_in_VS;
-    fragCode += fragMainCook_1_MatFromMaterial;
-    fragCode += fragMainCook_2_LightLoop;
-    fragCode += doEnvMap ? fragMainCook_3_FragColorEnv : fragMainCook_3_FragColor;
-    fragCode += fragMain_5_FogGammaStereo;
     addCodeToShader(_shaders[1], fragCode, _name + ".frag");
 }
 //-----------------------------------------------------------------------------

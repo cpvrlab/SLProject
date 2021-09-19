@@ -24,6 +24,7 @@ class SLMaterial;
 class SLAssetManager;
 class SLAnimManager;
 class SLProgressHandler;
+class SLSkybox;
 
 //-----------------------------------------------------------------------------
 //! Copy of the aiPostProcessStep enum for usage in the wrapper load function
@@ -78,6 +79,7 @@ public:
                          SLAssetManager*    assetMgr,
                          SLstring           pathFilename,
                          SLstring           texturePath,
+                         SLSkybox*          skybox                 = nullptr,
                          SLbool             deleteTexImgAfterBuild = false,
                          SLbool             loadMeshesOnly  = true,
                          SLMaterial*        overrideMat     = nullptr,

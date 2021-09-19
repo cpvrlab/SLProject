@@ -273,6 +273,7 @@ SLNode* SLAssimpImporter::load(SLAnimManager&     aniMan,                 //!< R
                                SLAssetManager*    assetMgr,               //!< Pointer to the asset manager
                                SLstring           pathAndFile,            //!< File with path or on default path
                                SLstring           texturePath,            //!< Path to the texture images
+                               SLSkybox*          skybox,                 //!< Pointer to the skybox
                                SLbool             deleteTexImgAfterBuild, //!< Default = false
                                SLbool             loadMeshesOnly,         //!< Default = true
                                SLMaterial*        overrideMat,            //!< Override material
@@ -329,6 +330,7 @@ SLNode* SLAssimpImporter::load(SLAnimManager&     aniMan,                 //!< R
                                              scene->mMaterials[i],
                                              modelPath,
                                              texturePath,
+                                             skybox,
                                              ambientFactor,
                                              deleteTexImgAfterBuild));
     }
@@ -672,6 +674,7 @@ SLMaterial* SLAssimpImporter::loadMaterial(SLAssetManager* am,
                                            aiMaterial*     aiMat,
                                            const SLstring& modelPath,
                                            const SLstring& texturePath,
+                                           SLSkybox*       skybox,
                                            float           ambientFactor,
                                            SLbool          deleteTexImgAfterBuild)
 {
@@ -715,7 +718,7 @@ SLMaterial* SLAssimpImporter::loadMaterial(SLAssetManager* am,
                 case aiTextureType_SPECULAR: slTexType = TT_specular; break;
                 case aiTextureType_HEIGHT: slTexType = TT_height; break;
                 case aiTextureType_OPACITY: slTexType = TT_diffuse; break;
-                case aiTextureType_EMISSION_COLOR: slTexType = TT_emissive; break;
+                case aiTextureType_EMISSIVE: slTexType = TT_emissive; break;
                 case aiTextureType_LIGHTMAP: {
                     // Check if the glTF occlusion texture is within a occlusionRoughnessMetallic texture
                     aiString fileRoughnessMetallic;
@@ -853,11 +856,6 @@ SLMaterial* SLAssimpImporter::loadMaterial(SLAssetManager* am,
     slMat->roughness(roughness);
     slMat->metalness(metalness);
 
-    bool hasRoughness = slMat->hasTextureType(TT_roughness);
-    bool hasMetalness = slMat->hasTextureType(TT_metallic);
-    bool hasRghMtl    = slMat->hasTextureType(TT_roughMetal);
-    bool hasOclRghMtl = slMat->hasTextureType(TT_occluRoughMetal);
-
     // Switch lighting model to PBR (LM_CookTorrance) only if PBR textures are used.
     // PBR without must be set by additional setter call
     if (slMat->hasTextureType(TT_roughness) ||
@@ -866,6 +864,7 @@ SLMaterial* SLAssimpImporter::loadMaterial(SLAssetManager* am,
         slMat->hasTextureType(TT_occluRoughMetal))
     {
         slMat->lightModel(LM_CookTorrance);
+        slMat->skybox(skybox);
     }
     else
         slMat->lightModel(LM_BlinnPhong);

@@ -12,8 +12,8 @@
 
 #ifdef SL_BUILD_WITH_ASSIMP
 
-#include <SLGLTexture.h>
-#include <SLImporter.h>
+#    include <SLGLTexture.h>
+#    include <SLImporter.h>
 
 // forward declarations of assimp types
 struct aiScene;
@@ -25,12 +25,13 @@ struct aiMesh;
 class SLAssetManager;
 class SLAnimManager;
 class SLProgressHandler;
+class SLSkybox;
 
 //-----------------------------------------------------------------------------
 typedef std::map<int, SLMesh*> SLMeshMap;
 //-----------------------------------------------------------------------------
 //! Small class interface into the AssImp library for importing 3D assets.
-/*! See AssImp library (http://assimp.sourceforge.net/) documentation for 
+/*! See AssImp library (http://assimp.sourceforge.net/) documentation for
 supported file formats and the import processing options.
 */
 class SLAssimpImporter : public SLImporter
@@ -47,6 +48,7 @@ public:
                  SLAssetManager*    assetMgr,
                  SLstring           pathAndFile,
                  SLstring           texturePath,
+                 SLSkybox*          skybox                 = nullptr,
                  SLbool             deleteTexImgAfterBuild = false,
                  SLbool             loadMeshesOnly         = true,
                  SLMaterial*        overrideMat            = nullptr,
@@ -116,6 +118,7 @@ protected:
                                      aiMaterial*     aiMat,
                                      const SLstring& modelPath,
                                      const SLstring& texturePath,
+                                     SLSkybox*       skybox                 = nullptr,
                                      float           ambientFactor          = 0.0f,
                                      SLbool          deleteTexImgAfterBuild = false);
     static SLGLTexture* loadTexture(SLAssetManager* assetMgr,
@@ -142,4 +145,4 @@ protected:
 
 //-----------------------------------------------------------------------------
 #endif // SL_BUILD_WITH_ASSIMP
-#endif // SLASSIMP_H
+#endif // SLASSIMPIMPORTER_H

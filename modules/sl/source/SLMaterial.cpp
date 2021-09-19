@@ -511,6 +511,9 @@ SLstring SLMaterial::texturesString()
                       std::to_string(_textures[iTT][iT]->uvIndex());
         }
     }
+    if (_skybox)
+        texStr += "-Sky";
+
     return texStr;
 }
 //-----------------------------------------------------------------------------

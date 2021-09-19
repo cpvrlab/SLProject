@@ -1786,7 +1786,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
     }
     else if (sceneID == SID_ShaderPbrMaterials) //.................................................
     {
-        SLstring modelFile = configPath + "models/PBR-Materials/waterbottle/WaterBottle.gltf";
+        SLstring modelFile = configPath + "models/glTF-Sample-Models/2.0/WaterBottle/glTF/WaterBottle.gltf";
 
         if (Utils::fileExists(modelFile))
         {
@@ -1797,8 +1797,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
             // Create HDR CubeMap and get precalculated textures from it
             SLSkybox* skybox = new SLSkybox(s,
                                             shaderPath,
-                                            configPath + "models/PBR-Materials/envmap_malibu.hdr",
-                                            SLVec2i(2048, 2048),
+                                            configPath + "hdris/envmap_malibu.hdr",
+                                            SLVec2i(256, 256),
                                             "HDR Skybox");
 
             // Create a scene group node
@@ -1806,10 +1806,10 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
             // Create camera and initialize its parameters
             SLCamera* cam1 = new SLCamera("Camera 1");
-            cam1->translation(0, 0, 30);
+            cam1->translation(0, 0, 1);
             cam1->lookAt(0, 0, 0);
             cam1->background().colors(SLCol4f(0.2f, 0.2f, 0.2f));
-            cam1->focalDist(30);
+            cam1->focalDist(1.0f);
             cam1->setInitialState();
             scene->addChild(cam1);
 
@@ -1825,7 +1825,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
             SLNode*          pbrGroup = importer.load(s->animManager(),
                                                       s,
                                                       modelFile,
-                                                      "models/PBR-Materials/waterbottle",
+                                                      Utils::getPath(modelFile),
+                                                      skybox,
                                                       false,   // delete tex images after build
                                                       true,    // only meshes
                                                       nullptr, // no replacement material
@@ -2048,6 +2049,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                                                 s,
                                                 modelPath + "FBX/Teapot/Teapot.fbx",
                                                 texPath,
+                                                nullptr,
                                                 false,
                                                 true,
                                                 refl);
@@ -2059,6 +2061,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                                         s,
                                         modelPath + "FBX/Suzanne/Suzanne.fbx",
                                         texPath,
+                                        nullptr,
                                         false,
                                         true,
                                         refr);
@@ -2169,6 +2172,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                                                 s,
                                                 modelPath + "FBX/Teapot/Teapot.fbx",
                                                 texPath,
+                                                nullptr,
                                                 false,
                                                 true,
                                                 teapotMat);
@@ -2366,6 +2370,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                                                      s,
                                                      modelPath + "FBX/Teapot/Teapot.fbx",
                                                      texPath,
+                                                     nullptr,
                                                      false,
                                                      true,
                                                      mat1);
@@ -2680,6 +2685,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
                                                        s,
                                                        modelPath + "GLTF/AO-Baked-Test/AO-Baked-Test.gltf",
                                                        texPath,
+                                                       nullptr,
                                                        false,   // delete tex images after build
                                                        true,    // load meshes only
                                                        nullptr, // override material
@@ -3849,6 +3855,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
                                               s,
                                               dataPath + "erleb-AR/models/bern/bern-christoffel.gltf",
                                               texPath,
+                                              nullptr,
                                               false,
                                               true,
                                               nullptr,
@@ -4136,6 +4143,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
                                                    s,
                                                    datDir + "augst-thtL2-tmpL1.gltf",
                                                    texDir,
+                                                   nullptr,
                                                    true,    // delete tex images after build
                                                    true,    // only meshes
                                                    nullptr, // no replacement material
@@ -4279,6 +4287,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
                                                    s,
                                                    datDir + "augst-thtL1-tmpL2.gltf",
                                                    texDir,
+                                                   nullptr,
                                                    true,    // delete tex images after build
                                                    true,    // only meshes
                                                    nullptr, // no replacement material
@@ -4423,6 +4432,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
                                                    s,
                                                    datDir + "augst-thtL1L2-tmpL1L2.gltf",
                                                    texDir,
+                                                   nullptr,
                                                    true,    // delete tex images after build
                                                    true,    // only meshes
                                                    nullptr, // no replacement material
@@ -4600,6 +4610,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
                                                       s,
                                                       dataPath + "erleb-AR/models/avenches/avenches-amphitheater.gltf",
                                                       texPath,
+                                                      nullptr,
                                                       false,   // delete tex images after build
                                                       true,    // only meshes
                                                       nullptr, // no replacement material
@@ -4723,6 +4734,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
                                                    s,
                                                    dataPath + "erleb-AR/models/avenches/avenches-cigognier.gltf",
                                                    texPath,
+                                                   nullptr,
                                                    true,    // delete tex images after build
                                                    true,    // only meshes
                                                    nullptr, // no replacement material
@@ -4842,6 +4854,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
                                                  s,
                                                  dataPath + "erleb-AR/models/avenches/avenches-theater.gltf",
                                                  texPath,
+                                                 nullptr,
                                                  true,    // delete tex images after build
                                                  true,    // only meshes
                                                  nullptr, // no replacement material
@@ -4962,6 +4975,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
                                                  s,
                                                  dataPath + "erleb-AR/models/sutzKirchrain18/Sutz-Kirchrain18.gltf",
                                                  texPath,
+                                                 nullptr,
                                                  true,    // delete tex images after build
                                                  true,    // only meshes
                                                  nullptr, // no replacement material
@@ -5488,6 +5502,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
                                          s,
                                          largeFile,
                                          texPath,
+                                         nullptr,
                                          false, // delete tex images after build
                                          true,
                                          diffuseMat,
@@ -5762,6 +5777,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
                                                        s,
                                                        modelFile,
                                                        texPath,
+                                                       nullptr,
                                                        false,   // delete tex images after build
                                                        true,    // only meshes
                                                        nullptr, // no replacement material
