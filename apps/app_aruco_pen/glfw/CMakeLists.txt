@@ -2,15 +2,15 @@
 # CMake configuration for app-Demo-SLProject application
 #
 
-set(target app-Demo-SLProject)
+set(target app-Aruco-Pen)
 
 set(include_path "${CMAKE_CURRENT_SOURCE_DIR}")
 set(source_path "${CMAKE_CURRENT_SOURCE_DIR}")
 set(compile_definitions SL_STARTSCENE=SID_ShaderIBL)
 
 file(GLOB headers
-        ${SL_PROJECT_ROOT}/apps/app_demo_slproject/include/AppDemoGui.h
-        ${SL_PROJECT_ROOT}/apps/app_demo_slproject/include/AppDemoSceneView.h
+        ${SL_PROJECT_ROOT}/apps/app_aruco_pen/include/AppDemoGui.h
+        ${SL_PROJECT_ROOT}/apps/app_aruco_pen/include/AppDemoSceneView.h
 		${SL_PROJECT_ROOT}/apps/source/CVCapture.h
 		${SL_PROJECT_ROOT}/apps/source/AppDemo.h
 		${SL_PROJECT_ROOT}/apps/source/SLInterface.h
@@ -20,10 +20,10 @@ file(GLOB headers
     )
 
 file(GLOB sources
-        ${SL_PROJECT_ROOT}/apps/app_demo_slproject/source/AppDemoGui.cpp
-        ${SL_PROJECT_ROOT}/apps/app_demo_slproject/source/AppDemoLoad.cpp
-        ${SL_PROJECT_ROOT}/apps/app_demo_slproject/source/AppDemoVideo.cpp
-        ${SL_PROJECT_ROOT}/apps/app_demo_slproject/source/AppDemoSceneView.cpp
+        ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/AppDemoGui.cpp
+        ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/AppDemoLoad.cpp
+        ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/AppDemoVideo.cpp
+        ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/AppDemoSceneView.cpp
 		${SL_PROJECT_ROOT}/apps/source/CVCapture.cpp
 		${SL_PROJECT_ROOT}/apps/source/AppDemo.cpp
 		${SL_PROJECT_ROOT}/apps/source/SLInterface.cpp
@@ -53,7 +53,7 @@ set_target_properties(
 target_include_directories(
         ${target}
         PRIVATE
-        ${SL_PROJECT_ROOT}/apps/app_demo_slproject/include/
+        ${SL_PROJECT_ROOT}/apps/app_aruco_pen/include/
 		${SL_PROJECT_ROOT}/apps/source
 		${SL_PROJECT_ROOT}/modules/sl/source/accelstruct
 		${SL_PROJECT_ROOT}/modules/sl/source/animation

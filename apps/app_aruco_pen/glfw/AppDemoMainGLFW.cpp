@@ -343,14 +343,7 @@ void onCharInput(GLFWwindow*, SLuint c)
 {
     slCharInput(svIndex, c);
 }
-//-----------------------------------------------------------------------------
-/*!
-Error callback handler for GLFW.
-*/
-void onGLFWError(int error, const char* description)
-{
-    fputs(description, stderr);
-}
+
 //-----------------------------------------------------------------------------
 //! Alternative SceneView creation C-function passed by slCreateSceneView
 SLSceneView* createAppDemoSceneView(SLProjectScene* scene,
@@ -364,13 +357,7 @@ SLSceneView* createAppDemoSceneView(SLProjectScene* scene,
 //! Initialises all GLFW and GL3W stuff
 void initGLFW(int screenWidth, int screenHeight)
 {
-    if (!glfwInit())
-    {
-        fprintf(stderr, "Failed to initialize GLFW\n");
-        exit(EXIT_FAILURE);
-    }
-
-    glfwSetErrorCallback(onGLFWError);
+    SLGLFWInterface::initialize();
 
     // Enable fullscreen anti aliasing with 4 samples
     glfwWindowHint(GLFW_SAMPLES, 4);
