@@ -1784,61 +1784,6 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         // Save energy
         sv->doWaitOnIdle(true);
     }
-    else if (sceneID == SID_ShaderPbrMaterials) //.................................................
-    {
-        SLstring modelFile = configPath + "models/glTF-Sample-Models/2.0/WaterBottle/glTF/WaterBottle.gltf";
-
-        if (Utils::fileExists(modelFile))
-        {
-            // Set scene name and info string
-            s->name("PBR Materials");
-            s->info("Most Physically Based Rendering (PBR) materials shown here where found at freepbr.com");
-
-            // Create HDR CubeMap and get precalculated textures from it
-            SLSkybox* skybox = new SLSkybox(s,
-                                            shaderPath,
-                                            configPath + "hdris/envmap_malibu.hdr",
-                                            SLVec2i(256, 256),
-                                            "HDR Skybox");
-
-            // Create a scene group node
-            SLNode* scene = new SLNode("scene node");
-
-            // Create camera and initialize its parameters
-            SLCamera* cam1 = new SLCamera("Camera 1");
-            cam1->translation(0, 0, 1);
-            cam1->lookAt(0, 0, 0);
-            cam1->background().colors(SLCol4f(0.2f, 0.2f, 0.2f));
-            cam1->focalDist(1.0f);
-            cam1->setInitialState();
-            scene->addChild(cam1);
-
-            // Add directional light with a position that corresponds roughly to the sun direction
-            SLLight::gamma        = 2.2f;
-            SLLightDirect* light1 = new SLLightDirect(s, s, 1.5f, .3f, 2.0f, 0.5f, 0, 1, 1);
-            light1->lookAt(0, 0, 0);
-            light1->attenuation(1, 0, 0);
-            scene->addChild(light1);
-
-            // Import main model
-            SLAssimpImporter importer;
-            SLNode*          pbrGroup = importer.load(s->animManager(),
-                                                      s,
-                                                      modelFile,
-                                                      Utils::getPath(modelFile),
-                                                      skybox,
-                                                      false,   // delete tex images after build
-                                                      true,    // only meshes
-                                                      nullptr, // no replacement material
-                                                      0.4f);   // 40% ambient reflection
-            scene->addChild(pbrGroup);
-
-            s->skybox(skybox);
-            s->root3D(scene);
-            sv->camera(cam1);
-            sv->doWaitOnIdle(true); // Saves energy
-        }
-    }
     else if (sceneID == SID_ShaderPerVertexWave) //................................................
     {
         s->name("Wave Shader Test");
@@ -2620,7 +2565,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         s->root3D(scene);
     }
     else if (sceneID >= SID_SuzannePerPixBlinn &&
-             sceneID <= SID_SuzannePerPixBlinnTmNmAoSm)
+             sceneID <= SID_SuzannePerPixBlinnTmNmAoSm) //.........................................
     {
         // Set scene name and info string
         switch (sceneID)
@@ -2788,6 +2733,114 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         // Save energy
         sv->doWaitOnIdle(true);
+    }
+
+    else if (sceneID == SID_glTF_DamagedHelmet ||
+             sceneID == SID_glTF_FlightHelmet ||
+             sceneID == SID_glTF_Sponza ||
+             sceneID == SID_glTF_WaterBottle) //...................................................
+    {
+        SLstring damagedHelmet = configPath + "models/glTF-Sample-Models/2.0/DamagedHelmet/glTF/DamagedHelmet.gltf";
+        SLstring flightHelmet  = configPath + "models/glTF-Sample-Models/2.0/FlightHelmet/glTF/FlightHelmet.gltf";
+        SLstring sponzaPalace  = configPath + "models/glTF-Sample-Models/2.0/Sponza/glTF/Sponza.gltf";
+        SLstring waterBottle   = configPath + "models/glTF-Sample-Models/2.0/WaterBottle/glTF/WaterBottle.gltf";
+
+        if (sceneID == SID_glTF_DamagedHelmet && Utils::fileExists(damagedHelmet) ||
+            sceneID == SID_glTF_FlightHelmet && Utils::fileExists(flightHelmet) ||
+            sceneID == SID_glTF_Sponza && Utils::fileExists(sponzaPalace) ||
+            sceneID == SID_glTF_WaterBottle && Utils::fileExists(waterBottle))
+        {
+            SLVec3f  camPos, lookAt;
+            SLfloat camClipFar = 100;
+            SLstring modelFile;
+            switch (sceneID)
+            {
+                case SID_glTF_DamagedHelmet: {
+                    s->name("glTF-Sample-Model: Damaged Helmet");
+                    modelFile = damagedHelmet;
+                    camPos.set(0, 0, 3);
+                    lookAt.set(0, camPos.y, 0);
+                    camClipFar = 10;
+                    break;
+                }
+                case SID_glTF_FlightHelmet: {
+                    s->name("glTF-Sample-Model: Flight Helmet");
+                    modelFile = flightHelmet;
+                    camPos.set(0, 0.33f, 1.1f);
+                    lookAt.set(0, camPos.y, 0);
+                    camClipFar = 10;
+                    break;
+                }
+                case SID_glTF_Sponza: {
+                    s->name("glTF-Sample-Model: Sponza Palace in Dubrovnic");
+                    modelFile = sponzaPalace;
+                    camPos.set(-8, 1.6f, 0);
+                    lookAt.set(0, camPos.y, 0);
+                    break;
+                }
+                case SID_glTF_WaterBottle: {
+                    s->name("glTF-Sample-Model: WaterBottle");
+                    modelFile = waterBottle;
+                    camPos.set(0, 0, 0.5f);
+                    lookAt.set(0, camPos.y, 0);
+                    camClipFar = 10;
+                    break;
+                }
+            }
+            s->info("glTF Sample Model with Physically Based Rendering material and Image Based Lighting.");
+
+            // Create HDR CubeMap and get precalculated textures from it
+            SLSkybox* skybox = new SLSkybox(s,
+                                            shaderPath,
+                                            configPath + "hdris/envmap_malibu.hdr",
+                                            SLVec2i(256, 256),
+                                            "HDR Skybox");
+
+            // Create a scene group node
+            SLNode* scene = new SLNode("scene node");
+
+            // Create camera and initialize its parameters
+            SLCamera* cam1 = new SLCamera("Camera 1");
+            cam1->translation(camPos);
+            cam1->lookAt(lookAt);
+            cam1->background().colors(SLCol4f(0.2f, 0.2f, 0.2f));
+            cam1->focalDist(camPos.z);
+            cam1->clipFar(camClipFar);
+            cam1->setInitialState();
+            scene->addChild(cam1);
+
+            // Add directional light with a position that corresponds roughly to the sun direction
+            SLLight::gamma        = 2.2f;
+            SLLightDirect* light1 = new SLLightDirect(s, s, 0.55f, 1.0f, -0.2f, 0.2f, 0, 1, 1);
+            light1->lookAt(0, 0, 0);
+            light1->attenuation(1, 0, 0);
+            light1->createsShadows(true);
+            light1->createShadowMapAutoSize(cam1, SLVec2i(2048, 2048), 4);
+            light1->shadowMap()->cascadesFactor(1.0);
+            light1->doSmoothShadows(true);
+            light1->castsShadows(false);
+            light1->shadowMinBias(0.001f);
+            light1->shadowMaxBias(0.003f);
+            scene->addChild(light1);
+
+            // Import main model
+            SLAssimpImporter importer;
+            SLNode*          pbrGroup = importer.load(s->animManager(),
+                                                      s,
+                                                      modelFile,
+                                                      Utils::getPath(modelFile),
+                                                      skybox,
+                                                      false,   // delete tex images after build
+                                                      true,    // only meshes
+                                                      nullptr, // no replacement material
+                                                      0.4f);   // 40% ambient reflection
+            scene->addChild(pbrGroup);
+
+            s->skybox(skybox);
+            s->root3D(scene);
+            sv->camera(cam1);
+            sv->doWaitOnIdle(true); // Saves energy
+        }
     }
 
     else if (sceneID == SID_VolumeRayCast) //......................................................
@@ -3879,14 +3932,6 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         // Hide the new (last) version of the Christoffel tower
         bern->findChild<SLNode>("Chr-Neu")->drawBits()->set(SL_DB_HIDDEN, true);
-
-        /* Set ambient on all child nodes
-        bern->updateMeshMat([](SLMaterial* m) {
-            if (m->name() != "Kupfer-dunkel")
-                m->ambient(SLCol4f(.3f, .3f, .3f));
-        },
-                            true);
-                            */
 
         // Create textures and material for water
         SLGLTexture* cubemap = new SLGLTexture(s,

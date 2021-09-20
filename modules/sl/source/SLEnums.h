@@ -108,7 +108,6 @@ enum SLSceneID
     SID_ShaderCookAuto,
     SID_ShaderIBL,
     SID_ShaderIBLAuto,
-    SID_ShaderPbrMaterials,
     SID_ShaderBumpNormal,
     SID_ShaderBumpParallax,
     SID_ShaderSkyBox,
@@ -134,6 +133,11 @@ enum SLSceneID
     SID_SuzannePerPixBlinnTmNmAo,
     SID_SuzannePerPixBlinnTmNmSm,
     SID_SuzannePerPixBlinnTmNmAoSm,
+
+    SID_glTF_DamagedHelmet,
+    SID_glTF_FlightHelmet,
+    SID_glTF_Sponza,
+    SID_glTF_WaterBottle,
 
     SID_VolumeRayCast,
     SID_VolumeRayCastLighted,

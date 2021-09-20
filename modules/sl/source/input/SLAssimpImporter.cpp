@@ -784,7 +784,8 @@ SLMaterial* SLAssimpImporter::loadMaterial(SLAssetManager* am,
                                           &fileOcclusion);
                         SLstring occlusionTex = checkFilePath(modelPath,
                                                               texturePath,
-                                                              fileOcclusion.data);
+                                                              fileOcclusion.data,
+                                                              false);
                         if (rghMtlTex == occlusionTex)
                             slTexType = TT_unknown; // Don't load twice. The occlusionRoughnessMetallic texture will be loaded as aiTextureType_LIGHTMAP
                         else
