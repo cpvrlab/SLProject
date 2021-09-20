@@ -1380,312 +1380,12 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(cam1);
         s->root3D(scene);
     }
-    else if (sceneID == SID_ShaderCook) //.........................................................
-    {
-        s->name("Cook-Torrance Test");
-        s->info("Cook-Torrance light model. Left-Right: roughness 0.05-1, Top-Down: metallic: 1-0. "
-                "The center sphere has roughness and metallic encoded in textures. "
-                "The light model has a more produces a more physically based light reflection "
-                "than the standard Blinn-Phong light model.");
-
-        // Base root group node for the scene
-        SLNode* scene = new SLNode;
-
-        SLCamera* cam1 = new SLCamera("Camera 1");
-        cam1->translation(0, 0, 30);
-        cam1->lookAt(0, 0, 0);
-        cam1->background().colors(SLCol4f::BLACK);
-        cam1->focalDist(30);
-        cam1->setInitialState();
-        cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
-        scene->addChild(cam1);
-
-        // Create spheres and materials with roughness & metallic values between 0 and 1
-        const SLint nrRows  = 7;
-        const SLint nrCols  = 7;
-        SLfloat     spacing = 2.5f;
-        SLfloat     maxX    = (float)(nrCols - 1) * spacing * 0.5f;
-        SLfloat     maxY    = (float)(nrRows - 1) * spacing * 0.5f;
-        SLfloat     deltaR  = 1.0f / (float)(nrRows - 1);
-        SLfloat     deltaM  = 1.0f / (float)(nrCols - 1);
-
-        SLGLProgram* sp = new SLGLProgramGeneric(s,
-                                                 shaderPath + "PerPixCook.vert",
-                                                 shaderPath + "PerPixCook.frag");
-
-        SLGLProgram* spTex = new SLGLProgramGeneric(s,
-                                                    shaderPath + "PerPixCookTm.vert",
-                                                    shaderPath + "PerPixCookTm.frag");
-
-        SLMaterial* mat[nrRows * nrCols];
-        SLint       i = 0;
-        SLfloat     y = -maxY;
-        for (SLint m = 0; m < nrRows; ++m)
-        {
-            SLfloat x = -maxX;
-            for (SLint r = 0; r < nrCols; ++r)
-            {
-                if (m == nrRows / 2 && r == nrCols / 2)
-                {
-                    // The center sphere has roughness and metallic encoded in textures
-                    mat[i] = new SLMaterial(s,
-                                            "CookTorranceMatTex",
-                                            nullptr,
-                                            new SLGLTexture(s, texPath + "rusty-metal_2048_C.jpg"),
-                                            new SLGLTexture(s, texPath + "rusty-metal_2048_N.jpg"),
-                                            new SLGLTexture(s, texPath + "rusty-metal_2048_M.jpg"),
-                                            new SLGLTexture(s, texPath + "rusty-metal_2048_R.jpg"),
-                                            nullptr,
-                                            spTex);
-                }
-                else
-                {
-                    // Cook-Torrance material without textures
-                    mat[i] = new SLMaterial(s,
-                                            "CookTorranceMat",
-                                            nullptr,
-                                            SLCol4f::RED * 0.5f,
-                                            Utils::clamp((float)r * deltaR, 0.05f, 1.0f),
-                                            (float)m * deltaM,
-                                            sp);
-                }
-
-                SLNode* node = new SLNode(new SLSpheric(s, 1.0f, 0.0f, 180.0f, 32, 32, "Sphere", mat[i]));
-                node->translate(x, y, 0);
-                scene->addChild(node);
-                x += spacing;
-                i++;
-            }
-            y += spacing;
-        }
-
-        // Add 5 Lights: 2 point lights, 2 directional lights and 1 spot light in the center.
-        SLLight::gamma      = 2.2f;
-        SLLightSpot* light1 = new SLLightSpot(s, s, -maxX, maxY, maxY, 0.2f, 180, 0, 1000, 1000);
-        light1->attenuation(0, 0, 1);
-        SLLightDirect* light2 = new SLLightDirect(s, s, maxX, maxY, maxY, 0.5f, 0, 10, 10);
-        light2->lookAt(0, 0, 0);
-        light2->attenuation(0, 0, 1);
-        SLLightSpot* light3 = new SLLightSpot(s, s, 0, 0, maxY, 0.2f, 36, 0, 1000, 1000);
-        light3->attenuation(0, 0, 1);
-        SLLightDirect* light4 = new SLLightDirect(s, s, -maxX, -maxY, maxY, 0.5f, 0, 10, 10);
-        light4->lookAt(0, 0, 0);
-        light4->attenuation(0, 0, 1);
-        SLLightSpot* light5 = new SLLightSpot(s, s, maxX, -maxY, maxY, 0.2f, 180, 0, 1000, 1000);
-        light5->attenuation(0, 0, 1);
-        scene->addChild(light1);
-        scene->addChild(light2);
-        scene->addChild(light3);
-        scene->addChild(light4);
-        scene->addChild(light5);
-        sv->camera(cam1);
-        s->root3D(scene);
-    }
-    else if (sceneID == SID_ShaderCookAuto) //.....................................................
-    {
-        s->name("Generated shader Cook-Torrance");
-        s->info("Cook-Torrance light model. Left-Right: roughness 0.05-1, Top-Down: metallic: 1-0. "
-                "The center sphere has roughness and metallic encoded in textures. "
-                "The light model has a more produces a more physically based light reflection "
-                "than the standard Blinn-Phong light model.");
-
-        // Base root group node for the scene
-        SLNode* scene = new SLNode;
-
-        SLCamera* cam1 = new SLCamera("Camera 1");
-        cam1->translation(0, 0, 30);
-        cam1->lookAt(0, 0, 0);
-        cam1->background().colors(SLCol4f::BLACK);
-        cam1->focalDist(30);
-        cam1->setInitialState();
-        cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
-        scene->addChild(cam1);
-
-        // Create spheres and materials with roughness & metallic values between 0 and 1
-        const SLint nrRows  = 7;
-        const SLint nrCols  = 7;
-        SLfloat     spacing = 2.5f;
-        SLfloat     maxX    = (float)(nrCols - 1) * spacing * 0.5f;
-        SLfloat     maxY    = (float)(nrRows - 1) * spacing * 0.5f;
-        SLfloat     deltaR  = 1.0f / (float)(nrRows - 1);
-        SLfloat     deltaM  = 1.0f / (float)(nrCols - 1);
-
-        SLMaterial* mat[nrRows * nrCols];
-        SLint       i = 0;
-        SLfloat     y = -maxY;
-        for (SLint m = 0; m < nrRows; ++m)
-        {
-            SLfloat x = -maxX;
-            for (SLint r = 0; r < nrCols; ++r)
-            {
-                if (m == nrRows / 2 && r == nrCols / 2)
-                {
-                    // The center sphere has roughness and metallic encoded in textures
-                    mat[i] = new SLMaterial(s,
-                                            "CookTorranceMatTex",
-                                            nullptr,
-                                            new SLGLTexture(s, texPath + "rusty-metal_2048_C.jpg"),
-                                            new SLGLTexture(s, texPath + "rusty-metal_2048_N.jpg"),
-                                            new SLGLTexture(s, texPath + "rusty-metal_2048_M.jpg"),
-                                            new SLGLTexture(s, texPath + "rusty-metal_2048_R.jpg"));
-                }
-                else
-                {
-                    // Cook-Torrance material without textures
-                    mat[i] = new SLMaterial(s,
-                                            "CookTorranceMat",
-                                            nullptr,
-                                            SLCol4f::RED * 0.5f,
-                                            Utils::clamp((float)r * deltaR, 0.05f, 1.0f),
-                                            (float)m * deltaM);
-                }
-
-                SLNode* node = new SLNode(new SLSpheric(s, 1.0f, 0.0f, 180.0f, 32, 32, "Sphere", mat[i]));
-                node->translate(x, y, 0);
-                scene->addChild(node);
-                x += spacing;
-                i++;
-            }
-            y += spacing;
-        }
-
-        // Add 5 Lights: 2 point lights, 2 directional lights and 1 spot light in the center.
-        SLLight::gamma      = 2.2f;
-        SLLightSpot* light1 = new SLLightSpot(s, s, -maxX, maxY, maxY, 0.2f, 180, 0, 1000, 1000);
-        light1->attenuation(0, 0, 1);
-        SLLightDirect* light2 = new SLLightDirect(s, s, maxX, maxY, maxY, 0.5f, 0, 10, 10);
-        light2->lookAt(0, 0, 0);
-        light2->attenuation(0, 0, 1);
-        SLLightSpot* light3 = new SLLightSpot(s, s, 0, 0, maxY, 0.2f, 36, 0, 1000, 1000);
-        light3->attenuation(0, 0, 1);
-        SLLightDirect* light4 = new SLLightDirect(s, s, -maxX, -maxY, maxY, 0.5f, 0, 10, 10);
-        light4->lookAt(0, 0, 0);
-        light4->attenuation(0, 0, 1);
-        SLLightSpot* light5 = new SLLightSpot(s, s, maxX, -maxY, maxY, 0.2f, 180, 0, 1000, 1000);
-        light5->attenuation(0, 0, 1);
-        scene->addChild(light1);
-        scene->addChild(light2);
-        scene->addChild(light3);
-        scene->addChild(light4);
-        scene->addChild(light5);
-        sv->camera(cam1);
-        s->root3D(scene);
-    }
-    else if (sceneID == SID_ShaderIBL) //..........................................................
+    else if (sceneID == SID_ShaderPBR) //......................................................
     {
         // Set scene name and info string
-        s->name("HDR IBL Shader");
-        s->info("Image-based Lighting from skybox using high dynamic range images. "
-                "It uses the Cook-Torrance light model also to calculate the ambient light part "
-                "from the surrounding HDR skybox.");
-
-        // Create HDR CubeMap and get precalculated textures from it
-        SLSkybox* skybox = new SLSkybox(s,
-                                        shaderPath,
-                                        texPath + "env_barce_rooftop.hdr",
-                                        SLVec2i(2048, 2048),
-                                        "HDR Skybox");
-
-        // Get preloaded shader programs
-        SLGLProgram* progPbr    = new SLGLProgramGeneric(s,
-                                                         shaderPath + "PBR_Lighting.vert",
-                                                         shaderPath + "PBR_Lighting.frag");
-        SLGLProgram* progPbrTex = new SLGLProgramGeneric(s,
-                                                         shaderPath + "PBR_LightingTm.vert",
-                                                         shaderPath + "PBR_LightingTm.frag");
-
-        // Create a scene group node
-        SLNode* scene = new SLNode("scene node");
-
-        // Create camera and initialize its parameters
-        SLCamera* cam1 = new SLCamera("Camera 1");
-        cam1->translation(0, 0, 30);
-        cam1->lookAt(0, 0, 0);
-        cam1->background().colors(SLCol4f(0.2f, 0.2f, 0.2f));
-        cam1->focalDist(30);
-        cam1->setInitialState();
-        scene->addChild(cam1);
-
-        // Add directional light with a position that corresponds roughly to the sun direction
-        SLLight::gamma        = 2.2f;
-        SLLightDirect* light1 = new SLLightDirect(s, s, 1.5f, .3f, 2.0f, 0.5f, 0, 10, 10);
-        light1->lookAt(0, 0, 0);
-        light1->attenuation(0, 0, 1);
-        scene->addChild(light1);
-
-        // Create spheres and materials with roughness & metallic values between 0 and 1
-        const SLint nrRows  = 7;
-        const SLint nrCols  = 7;
-        SLfloat     spacing = 2.5f;
-        SLfloat     maxX    = (nrCols / 2) * spacing;
-        SLfloat     maxY    = (nrRows / 2) * spacing;
-        SLfloat     deltaR  = 1.0f / (float)(nrRows - 1);
-        SLfloat     deltaM  = 1.0f / (float)(nrCols - 1);
-
-        SLMaterial* mat[nrRows * nrCols];
-        SLint       i = 0;
-        SLfloat     y = -maxY;
-        for (SLint m = 0; m < nrRows; ++m)
-        {
-            SLfloat x = -maxX;
-            for (SLint r = 0; r < nrCols; ++r)
-            {
-                if (m == nrRows / 2 && r == nrCols / 2)
-                {
-                    // The center sphere has roughness and metallic encoded in textures
-                    // and the prefiltered textures for IBL
-                    mat[i] = new SLMaterial(s,
-                                            "IBLMatTex",
-                                            skybox,
-                                            new SLGLTexture(s, texPath + "gold-scuffed_2048_C.png"),
-                                            new SLGLTexture(s, texPath + "gold-scuffed_2048_N.png"),
-                                            new SLGLTexture(s, texPath + "gold-scuffed_2048_M.png"),
-                                            new SLGLTexture(s, texPath + "gold-scuffed_2048_R.png"),
-                                            new SLGLTexture(s, texPath + "gold-scuffed_2048_A.png"),
-                                            progPbrTex);
-                }
-                else
-                {
-                    // Cook-Torrance material with IBL but without textures
-                    mat[i] = new SLMaterial(s,
-                                            "IBLMat",
-                                            skybox,
-                                            SLCol4f::WHITE * 0.5f,
-                                            Utils::clamp((float)r * deltaR, 0.05f, 1.0f),
-                                            (float)m * deltaM,
-                                            progPbr);
-                }
-
-                SLNode* node = new SLNode(new SLSpheric(s,
-                                                        1.0f,
-                                                        0.0f,
-                                                        180.0f,
-                                                        32,
-                                                        32,
-                                                        "Sphere",
-                                                        mat[i]));
-                node->translate(x, y, 0);
-                scene->addChild(node);
-                x += spacing;
-                i++;
-            }
-            y += spacing;
-        }
-
-        sv->camera(cam1);
-        s->skybox(skybox);
-        s->root3D(scene);
-
-        // Save energy
-        sv->doWaitOnIdle(true);
-    }
-    else if (sceneID == SID_ShaderIBLAuto) //......................................................
-    {
-        // Set scene name and info string
-        s->name("HDR IBL Shader Auto");
-        s->info("Image-based Lighting from skybox using high dynamic range images. "
-                "It uses the Cook-Torrance light model also to calculate the ambient light part "
-                "from the surrounding HDR skybox.");
+        s->name("Physically Based Rendering");
+        s->info("Physically Based Rendering (PBR) uses image-based lighting from skybox using high dynamic range images. "
+                "It uses the Cook-Torrance light model also to calculate the ambient light part from the surrounding HDR skybox.");
 
         // Create HDR CubeMap and get precalculated textures from it
         SLSkybox* skybox = new SLSkybox(s,
@@ -2735,7 +2435,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         sv->doWaitOnIdle(true);
     }
 
-    else if (sceneID == SID_glTF_ClearCoatTest ||
+    else if (//sceneID == SID_glTF_ClearCoatTest ||
              sceneID == SID_glTF_DamagedHelmet ||
              sceneID == SID_glTF_FlightHelmet ||
              sceneID == SID_glTF_Sponza ||
@@ -2747,7 +2447,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         SLstring sponzaPalace  = configPath + "models/glTF-Sample-Models/2.0/Sponza/glTF/Sponza.gltf";
         SLstring waterBottle   = configPath + "models/glTF-Sample-Models/2.0/WaterBottle/glTF/WaterBottle.gltf";
 
-        if (sceneID == SID_glTF_ClearCoatTest && Utils::fileExists(clearCoatTest) ||
+        if (//sceneID == SID_glTF_ClearCoatTest && Utils::fileExists(clearCoatTest) ||
             sceneID == SID_glTF_DamagedHelmet && Utils::fileExists(damagedHelmet) ||
             sceneID == SID_glTF_FlightHelmet && Utils::fileExists(flightHelmet) ||
             sceneID == SID_glTF_Sponza && Utils::fileExists(sponzaPalace) ||
@@ -2759,14 +2459,14 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
             switch (sceneID)
             {
-                case SID_glTF_ClearCoatTest: {
+                /*case SID_glTF_ClearCoatTest: {
                     s->name("glTF-Sample-Model: Clear Coat Test");
                     modelFile = clearCoatTest;
                     camPos.set(0, 0, 18);
                     lookAt.set(0, camPos.y, 0);
-                    camClipFar = 20;
+                    camClipFar = 100;
                     break;
-                }
+                }*/
                 case SID_glTF_DamagedHelmet: {
                     s->name("glTF-Sample-Model: Damaged Helmet");
                     modelFile = damagedHelmet;
@@ -2799,6 +2499,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
                     break;
                 }
             }
+
             s->info("glTF Sample Model with Physically Based Rendering material and Image Based Lighting.");
 
             // Create HDR CubeMap and get precalculated textures from it

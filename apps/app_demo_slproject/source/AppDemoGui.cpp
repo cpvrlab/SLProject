@@ -1482,10 +1482,8 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                         s->onLoad(s, sv, SID_ShaderPerVertexBlinn);
                     if (ImGui::MenuItem("Per Pixel Blinn-Phong", nullptr, sid == SID_ShaderPerPixelBlinn))
                         s->onLoad(s, sv, SID_ShaderPerPixelBlinn);
-                    if (ImGui::MenuItem("Per Pixel Cook-Torrance", nullptr, sid == SID_ShaderCookAuto))
-                        s->onLoad(s, sv, SID_ShaderCookAuto);
-                    if (ImGui::MenuItem("Image Based Lighting", nullptr, sid == SID_ShaderIBLAuto))
-                        s->onLoad(s, sv, SID_ShaderCookAuto);
+                    if (ImGui::MenuItem("Physically Based Rendering", nullptr, sid == SID_ShaderPBR))
+                        s->onLoad(s, sv, SID_ShaderPBR);
                     if (ImGui::MenuItem("Per Vertex Wave", nullptr, sid == SID_ShaderPerVertexWave))
                         s->onLoad(s, sv, SID_ShaderPerVertexWave);
                     if (ImGui::MenuItem("Bump Mapping", nullptr, sid == SID_ShaderBumpNormal))
@@ -1562,14 +1560,14 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                     SLstring pathSrc = "https://pallas.ti.bfh.ch/data/SLProject/models/";
                     SLstring pathDst = AppDemo::configPath + "models/";
 
-                    if (ImGui::MenuItem("Clear Coat Test", nullptr, sid == SID_glTF_ClearCoatTest))
+                    /*if (ImGui::MenuItem("Clear Coat Test", nullptr, sid == SID_glTF_ClearCoatTest))
                     {
                         SLstring fileToLoad = AppDemo::configPath + "models/glTF-Sample-Models/2.0/ClearCoatTest/glTF/ClearCoatTest.gltf";
                         if (Utils::fileExists(fileToLoad))
                             s->onLoad(s, sv, SID_glTF_ClearCoatTest);
                         else
                             downloadModelAndLoadScene(s, sv, zip, pathSrc, pathDst, fileToLoad, SID_glTF_ClearCoatTest);
-                    }
+                    }*/
                     if (ImGui::MenuItem("Damaged Helmet", nullptr, sid == SID_glTF_DamagedHelmet))
                     {
                         SLstring fileToLoad = AppDemo::configPath + "models/glTF-Sample-Models/2.0/DamagedHelmet/glTF/DamagedHelmet.gltf";

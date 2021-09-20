@@ -27,7 +27,7 @@ SLDeviceRotation     AppDemo::devRot;
 SLDeviceLocation     AppDemo::devLoc;
 SLstring             AppDemo::name    = "SLProjectApp";
 SLstring             AppDemo::appTag  = "SLProject";
-SLstring             AppDemo::version = "3.1.201";
+SLstring             AppDemo::version = "3.2.000";
 #ifdef _DEBUG
 SLstring AppDemo::configuration = "Debug";
 #else

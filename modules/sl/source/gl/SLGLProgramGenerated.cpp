@@ -68,27 +68,25 @@ out     vec3  v_eyeDirTS;               // Vector to the eye in tangent space
 out     vec3  v_lightDirTS[NUM_LIGHTS]; // Vector to the light 0 in tangent space
 out     vec3  v_spotDirTS[NUM_LIGHTS];  // Spot direction in tangent space)";
 //-----------------------------------------------------------------------------
-const string vertMain_Begin         = R"(
+const string vertMain_Begin     = R"(
 
 void main()
 {)";
-const string vertMain_v_P_VS        = R"(
+const string vertMain_v_P_VS    = R"(
     v_P_VS = vec3(u_mvMatrix *  a_position); // vertex position in view space)";
-const string vertMain_v_P_WS_Sm     = R"(
+const string vertMain_v_P_WS_Sm = R"(
     v_P_WS = vec3(u_mMatrix * a_position);   // vertex position in world space)";
-const string vertMain_v_N_VS        = R"(
+const string vertMain_v_N_VS    = R"(
     v_N_VS = vec3(u_nMatrix * a_normal);     // vertex normal in view space)";
-const string vertMain_v_R_OS        = R"(
+const string vertMain_v_R_OS    = R"(
     vec3 I = normalize(v_P_VS);
     vec3 N = normalize(v_N_VS);
     v_R_OS =  mat3(u_invMvMatrix) * reflect(I, N); // R = I-2.0*dot(N,I)*N;)";
-const string vertMain_v_uv0         = R"(
+const string vertMain_v_uv0     = R"(
     v_uv0 = a_uv0;  // pass diffuse color tex.coord. 1 for interpolation)";
-const string vertMain_v_uv1         = R"(
+const string vertMain_v_uv1     = R"(
     v_uv1 = a_uv1;  // pass diffuse color tex.coord. 1 for interpolation)";
-const string vertMainBlinn_v_uv1_Ao = R"(
-    v_uv1 = a_uv1;  // pass ambient occlusion tex.coord. 2 for interpolation)";
-const string vertMain_TBN_Nm        = R"(
+const string vertMain_TBN_Nm    = R"(
 
     // Building the matrix Eye Space -> Tangent Space
     // See the math behind at: http://www.terathon.com/code/tangent.html
@@ -113,7 +111,7 @@ const string vertMain_TBN_Nm        = R"(
         v_lightDirTS[i] *= TBN;
     }
 )";
-const string vertMain_EndAll        = R"(
+const string vertMain_EndAll    = R"(
 
     // pass the vertex w. the fix-function transform
     gl_Position = u_mvpMatrix * a_position;
@@ -1034,7 +1032,6 @@ void SLGLProgramGenerated::buildProgramName(SLMaterial* mat,
         if (light->createsShadows())
             programName += "s"; // Creates shadows
     }
-    programName += "-new";
 }
 //-----------------------------------------------------------------------------
 /*! Builds the GLSL program code for the vertex and fragment shaders. The code
