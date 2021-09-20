@@ -738,7 +738,9 @@ SLMaterial* SLAssimpImporter::loadMaterial(SLAssetManager* am,
                         slTexType = TT_occlusion;
 
                     // Erleb-AR occulsion map use uvIndex 1
-                    if (Utils::startsWithString(aiPath.data, "AO_"))
+                    string filenameWOExt = Utils::getFileNameWOExt(aiPath.data);
+                    if (Utils::startsWithString(filenameWOExt, "AO") ||
+                        Utils::endsWithString(filenameWOExt, "AO"))
                         uvIndex = 1;
 
                     break; // glTF stores AO maps as light maps

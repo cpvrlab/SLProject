@@ -134,6 +134,7 @@ enum SLSceneID
     SID_SuzannePerPixBlinnTmNmSm,
     SID_SuzannePerPixBlinnTmNmAoSm,
 
+    SID_glTF_ClearCoatTest,
     SID_glTF_DamagedHelmet,
     SID_glTF_FlightHelmet,
     SID_glTF_Sponza,

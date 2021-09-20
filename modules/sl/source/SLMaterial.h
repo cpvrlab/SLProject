@@ -127,6 +127,12 @@ public:
     {
         return !_textures[tt].empty();
     }
+    SLbool hasTextureTypeWithUVIndex(SLTextureType tt, SLuint texIndex, SLbyte uvIndex)
+    {
+        return (_textures[tt].size() > texIndex &&
+                _textures[tt][texIndex]->uvIndex()==uvIndex);
+    }
+
     void removeTextureType(SLTextureType tt)
     {
         _numTextures -= _textures[tt].size();

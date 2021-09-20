@@ -1436,25 +1436,25 @@ SLstring SLGLTexture::typeName()
 {
     switch (_texType)
     {
-        case TT_unknown: return "Unknown";
-        case TT_diffuse: return "Diffuse";
-        case TT_normal: return "Normal";
-        case TT_height: return "Height";
-        case TT_specular: return "Specular";
-        case TT_emissive: return "Emissive";
-        case TT_roughness: return "Roughness";
-        case TT_metallic: return "Metalness";
-        case TT_occluRoughMetal: return "OcclusionRoughnessMetallic";
-        case TT_roughMetal: return "RoughnessMetallic";
-        case TT_occlusion: return "Acclusion";
-        case TT_font: return "Font";
-        case TT_hdr: return "HDR";
-        case TT_environmentCubemap: return "EnvironmentCubemap";
-        case TT_irradianceCubemap: return "IrradianceCubemap";
-        case TT_roughnessCubemap: return "RoughnessCubemap";
-        case TT_brdfLUT: return "brdfLUT";
-        case TT_videoBkgd: return "VideoBkgd";
-        default: return "Unknown";
+        case TT_unknown: return "TT_unknown";
+        case TT_diffuse: return "TT_diffuse";
+        case TT_normal: return "TT_normal";
+        case TT_height: return "TT_height";
+        case TT_specular: return "TT_specular";
+        case TT_emissive: return "TT_emissive";
+        case TT_roughness: return "TT_roughness";
+        case TT_metallic: return "TT_metallic";
+        case TT_occluRoughMetal: return "TT_occluRoughMetal";
+        case TT_roughMetal: return "TT_roughMetal";
+        case TT_occlusion: return "TT_occlusion";
+        case TT_font: return "TT_font";
+        case TT_hdr: return "TT_hdr";
+        case TT_environmentCubemap: return "TT_environmentCubemap";
+        case TT_irradianceCubemap: return "TT_irradianceCubemap";
+        case TT_roughnessCubemap: return "TT_roughnessCubemap";
+        case TT_brdfLUT: return "TT_roughnessCubemap";
+        case TT_videoBkgd: return "TT_videoBkgd";
+        default: return "TT_unknown";
     }
 }
 //-----------------------------------------------------------------------------

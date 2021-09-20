@@ -1562,6 +1562,14 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                     SLstring pathSrc = "https://pallas.ti.bfh.ch/data/SLProject/models/";
                     SLstring pathDst = AppDemo::configPath + "models/";
 
+                    if (ImGui::MenuItem("Clear Coat Test", nullptr, sid == SID_glTF_ClearCoatTest))
+                    {
+                        SLstring fileToLoad = AppDemo::configPath + "models/glTF-Sample-Models/2.0/ClearCoatTest/glTF/ClearCoatTest.gltf";
+                        if (Utils::fileExists(fileToLoad))
+                            s->onLoad(s, sv, SID_glTF_ClearCoatTest);
+                        else
+                            downloadModelAndLoadScene(s, sv, zip, pathSrc, pathDst, fileToLoad, SID_glTF_ClearCoatTest);
+                    }
                     if (ImGui::MenuItem("Damaged Helmet", nullptr, sid == SID_glTF_DamagedHelmet))
                     {
                         SLstring fileToLoad = AppDemo::configPath + "models/glTF-Sample-Models/2.0/DamagedHelmet/glTF/DamagedHelmet.gltf";
@@ -1811,7 +1819,7 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                                                       "xyzrgb_dragon.zip",
                                                       "https://pallas.ti.bfh.ch/data/SLProject/models/",
                                                       AppDemo::configPath + "models/",
-                                                      "xyzrgb_dragon/xyzrgb_dragon.ply",
+                                                      largeFile,
                                                       SID_Benchmark1_LargeModel);
                         }
                     }
@@ -1833,7 +1841,7 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                                                       "GLTF-CorinthianColumn.zip",
                                                       "https://pallas.ti.bfh.ch/data/SLProject/models/",
                                                       AppDemo::configPath + "models/",
-                                                      "GLTF-CorinthianColumn/Corinthian-Column-Round-LOD.gltf",
+                                                      largeFile,
                                                       SID_Benchmark5_LevelOfDetail);
                         }
                     }
@@ -4156,7 +4164,7 @@ void AppDemoGui::downloadModelAndLoadScene(SLScene*     s,
                                            string       downloadFilename,
                                            string       urlFolder,
                                            string       dstFolder,
-                                           string       filenameToLoad,
+                                           string       pathAndFileToLoad,
                                            SLSceneID    sceneIDToLoad)
 {
     auto progressCallback = [](size_t curr, size_t filesize) {
@@ -4203,12 +4211,11 @@ void AppDemoGui::downloadModelAndLoadScene(SLScene*     s,
     };
 
     auto followUpJob1 = [=]() {
-        string modelFile = dstFolder + filenameToLoad;
-        if (Utils::fileExists(modelFile))
+        if (Utils::fileExists(pathAndFileToLoad))
             s->onLoad(s, sv, sceneIDToLoad);
         else
             SL_LOG("*** File do load doesn't exist: %s ***",
-                   modelFile.c_str());
+                   pathAndFileToLoad.c_str());
     };
 
     AppDemo::jobsToBeThreaded.emplace_back(downloadJobHTTP);

@@ -87,43 +87,11 @@ public:
     void        endShader() override { endUse(); }
 
 private:
-    // Cook-Torrance (PBR) shader generation functions
-    void buildPerPixCookDmNmOmSm(SLVLight* lights, bool doEnvMap);
-    void buildPerPixCookDmNmOm(SLVLight* lights, bool doEnvMap);
-    void buildPerPixCookDmNmSm(SLVLight* lights, bool doEnvMap);
-    void buildPerPixCookDmOmSm(SLVLight* lights, bool doEnvMap);
-    void buildPerPixCookOmSm(SLVLight* lights, bool doEnvMap);
-    void buildPerPixCookNmSm(SLVLight* lights, bool doEnvMap);
-    void buildPerPixCookDmSm(SLVLight* lights, bool doEnvMap);
-    void buildPerPixCookDmOm(SLVLight* lights, bool doEnvMap);
-    void buildPerPixCookDmNm(SLVLight* lights, bool doEnvMap);
-    void buildPerPixCookSm(SLVLight* lights, bool doEnvMap);
-    void buildPerPixCookOm(SLVLight* lights, bool doEnvMap);
-    void buildPerPixCookDm(SLVLight* lights, bool doEnvMap);
-    void buildPerPixCookNm(SLVLight* lights, bool doEnvMap);
-    void buildPerPixCook(SLVLight* lights, bool doEnvMap);
     void buildPerPixCook(SLMaterial* mat, SLVLight* lights);
-
-    // Blinn-Phong shader builder functions
-    void buildPerPixBlinnDmNmOmSm(SLVLight* lights);
-    void buildPerPixBlinnDmNmOm(SLVLight* lights);
-    void buildPerPixBlinnDmNmSm(SLVLight* lights);
-    void buildPerPixBlinnDmOmSm(SLVLight* lights);
-    void buildPerPixBlinnOmSm(SLVLight* lights);
-    void buildPerPixBlinnNmSm(SLVLight* lights);
-    void buildPerPixBlinnDmSm(SLVLight* lights);
-    void buildPerPixBlinnNmOm(SLVLight* lights);
-    void buildPerPixBlinnDmOm(SLVLight* lights);
-    void buildPerPixBlinnDmNm(SLVLight* lights);
-    void buildPerPixBlinnSm(SLVLight* lights);
-    void buildPerPixBlinnOm(SLVLight* lights);
-    void buildPerPixBlinnNm(SLVLight* lights);
-    void buildPerPixBlinnDm(SLVLight* lights);
-    void buildPerPixBlinn(SLVLight* lights);
+    void buildPerPixBlinn(SLMaterial* mat, SLVLight* lights);
 
     // Video background shader builder functions
     void buildPerPixVideoBkgdSm(SLVLight* lights);
-    void buildPerPixVideoBkgd(SLVLight* lights);
 
     // Helpers
     static string fragInput_u_lightSm(SLVLight* lights);

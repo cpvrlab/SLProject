@@ -2735,32 +2735,44 @@ resolution shadows near the camera and lower resolution shadows further away.");
         sv->doWaitOnIdle(true);
     }
 
-    else if (sceneID == SID_glTF_DamagedHelmet ||
+    else if (sceneID == SID_glTF_ClearCoatTest ||
+             sceneID == SID_glTF_DamagedHelmet ||
              sceneID == SID_glTF_FlightHelmet ||
              sceneID == SID_glTF_Sponza ||
              sceneID == SID_glTF_WaterBottle) //...................................................
     {
+        SLstring clearCoatTest = configPath + "models/glTF-Sample-Models/2.0/ClearCoatTest/glTF/ClearCoatTest.gltf";
         SLstring damagedHelmet = configPath + "models/glTF-Sample-Models/2.0/DamagedHelmet/glTF/DamagedHelmet.gltf";
         SLstring flightHelmet  = configPath + "models/glTF-Sample-Models/2.0/FlightHelmet/glTF/FlightHelmet.gltf";
         SLstring sponzaPalace  = configPath + "models/glTF-Sample-Models/2.0/Sponza/glTF/Sponza.gltf";
         SLstring waterBottle   = configPath + "models/glTF-Sample-Models/2.0/WaterBottle/glTF/WaterBottle.gltf";
 
-        if (sceneID == SID_glTF_DamagedHelmet && Utils::fileExists(damagedHelmet) ||
+        if (sceneID == SID_glTF_ClearCoatTest && Utils::fileExists(clearCoatTest) ||
+            sceneID == SID_glTF_DamagedHelmet && Utils::fileExists(damagedHelmet) ||
             sceneID == SID_glTF_FlightHelmet && Utils::fileExists(flightHelmet) ||
             sceneID == SID_glTF_Sponza && Utils::fileExists(sponzaPalace) ||
             sceneID == SID_glTF_WaterBottle && Utils::fileExists(waterBottle))
         {
             SLVec3f  camPos, lookAt;
-            SLfloat camClipFar = 100;
+            SLfloat  camClipFar = 100;
             SLstring modelFile;
+
             switch (sceneID)
             {
+                case SID_glTF_ClearCoatTest: {
+                    s->name("glTF-Sample-Model: Clear Coat Test");
+                    modelFile = clearCoatTest;
+                    camPos.set(0, 0, 18);
+                    lookAt.set(0, camPos.y, 0);
+                    camClipFar = 20;
+                    break;
+                }
                 case SID_glTF_DamagedHelmet: {
                     s->name("glTF-Sample-Model: Damaged Helmet");
                     modelFile = damagedHelmet;
                     camPos.set(0, 0, 3);
                     lookAt.set(0, camPos.y, 0);
-                    camClipFar = 10;
+                    camClipFar = 20;
                     break;
                 }
                 case SID_glTF_FlightHelmet: {
@@ -2768,7 +2780,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
                     modelFile = flightHelmet;
                     camPos.set(0, 0.33f, 1.1f);
                     lookAt.set(0, camPos.y, 0);
-                    camClipFar = 10;
+                    camClipFar = 20;
                     break;
                 }
                 case SID_glTF_Sponza: {
@@ -2783,7 +2795,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
                     modelFile = waterBottle;
                     camPos.set(0, 0, 0.5f);
                     lookAt.set(0, camPos.y, 0);
-                    camClipFar = 10;
+                    camClipFar = 20;
                     break;
                 }
             }
@@ -2792,7 +2804,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
             // Create HDR CubeMap and get precalculated textures from it
             SLSkybox* skybox = new SLSkybox(s,
                                             shaderPath,
-                                            configPath + "hdris/envmap_malibu.hdr",
+                                            configPath + "models/glTF-Sample-Models/hdris/envmap_malibu.hdr",
                                             SLVec2i(256, 256),
                                             "HDR Skybox");
 
