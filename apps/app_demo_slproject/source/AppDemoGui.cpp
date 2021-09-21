@@ -8,7 +8,7 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include <AppDemoGui.h>
+#include <AppArucoPenGui.h>
 #include <SLAnimPlayback.h>
 #include <AppDemo.h>
 #include <CVCapture.h>

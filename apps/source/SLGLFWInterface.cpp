@@ -4,8 +4,10 @@
 
 #include <SLGLFWInterface.h>
 
+#include <iostream>
+
 //-----------------------------------------------------------------------------
-GLFWwindow* SLGLFWInterface::_window = nullptr;
+GLFWwindow* SLGLFWInterface::window = nullptr;
 //-----------------------------------------------------------------------------
 void SLGLFWInterface::initialize()
 {
@@ -24,12 +26,54 @@ GLFWwindow* SLGLFWInterface::createWindow(int width,
                          int swapInterval,
                          int samples)
 {
-    return nullptr;
+    // Enable fullscreen anti aliasing with n samples
+    glfwWindowHint(GLFW_SAMPLES, samples);
+
+#ifdef __APPLE__
+    //You can enable or restrict newer OpenGL context here (read the GLFW documentation)
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, GL_FALSE);
+#endif
+
+    window = glfwCreateWindow(width, height, title.c_str(), nullptr, nullptr);
+
+    if (!window)
+    {
+        glfwTerminate();
+        exit(EXIT_FAILURE);
+    }
+
+    // Set number of monitor refreshes between 2 buffer swaps
+    glfwSwapInterval(0);
+
+    glfwSetWindowCloseCallback(window, onCloseInternal);
+
+    return window;
 }
 //-----------------------------------------------------------------------------
 void SLGLFWInterface::createGLContext()
 {
+    // Get the current GL context. After this you can call GL
+    glfwMakeContextCurrent(window);
 
+    // Init OpenGL access library gl3w
+    if (gl3wInit() != 0)
+    {
+        std::cerr << "Failed to initialize OpenGL" << std::endl;
+        exit(-1);
+    }
+}
+//-----------------------------------------------------------------------------
+/*!
+onCloseInternal event handler for deallocation of the scene & sceneview. onCloseInternal is
+called glfwPollEvents, glfwWaitEvents or glfwSwapBuffers.
+*/
+void SLGLFWInterface::onCloseInternal(GLFWwindow* window)
+{
+    slShouldClose(true);
 }
 //-----------------------------------------------------------------------------
 //! Maps the GLFW key codes to the SLKey codes

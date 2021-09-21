@@ -14,7 +14,7 @@
 #include <cv/CVTrackedAruco.h>
 #include <SLGLTexture.h>
 #include <cv/CVCalibrationEstimator.h>
-#include <AppDemoSceneView.h>
+#include <AppArucoPenSceneView.h>
 #include <AppDemo.h>
 #include <FtpUtils.h>
 #include <GlobalTimer.h>
@@ -55,7 +55,7 @@ void runCalibrationEstimator(CVCamera* ac, SLScene* s, SLSceneView* sv)
 {
     PROFILE_FUNCTION();
 
-    AppDemoSceneView* adSv                 = dynamic_cast<AppDemoSceneView*>(sv);
+    AppArucoPenSceneView* adSv                 = dynamic_cast<AppArucoPenSceneView*>(sv);
     static bool       processedCalibResult = false;
     try
     {

@@ -14,14 +14,16 @@
 #include <SLMat4.h>
 #include <Averaged.h>
 
+#include <GlobalTimer.h>
+
 #include <utility>
 
 //-----------------------------------------------------------------------------
 CVTrackedArucoCube::CVTrackedArucoCube(string calibIniPath, float edgeLength)
   : CVTrackedAruco(-1, std::move(calibIniPath)),
     _edgeLength(edgeLength),
-    _averagePosition(4, CVVec3f(0.0f, 0.0f, 0.0f)),
-    _averageRotation(4, SLQuat4f(0.0f, 0.0f, 0.0f, 1.0f))
+    _averagePosition(3, CVVec3f(0.0f, 0.0f, 0.0f)),
+    _averageRotation(3, SLQuat4f(0.0f, 0.0f, 0.0f, 1.0f))
 {
 }
 //-----------------------------------------------------------------------------
@@ -79,6 +81,11 @@ bool CVTrackedArucoCube::track(CVMat          imageGray,
         // Create a quaternion from the rotation of the matrix
         SLQuat4f rotation;
         rotation.fromMat3(faceViewMatrix.mat3());
+
+//        if(fabs(rotation.dot(_averageRotation.average())) < 0.9f) {
+//            SL_LOG("%f", GlobalTimer::timeMS());
+//            continue;
+//        }
 
         translations.emplace_back(translation.x, translation.y, translation.z);
         rotations.push_back(rotation);
@@ -146,7 +153,7 @@ SLQuat4f CVTrackedArucoCube::averageQuaternion(vector<SLQuat4f> quaternions,
         SLQuat4f quaternion = quaternions[i];
         float    weight     = weights[i];
 
-        if (i > 0 && quaternion.dot(quaternions[0]) < 0.0f)
+        if (i > 0 && quaternion.dot(quaternions[0]) < -0.001)
             weight = -weight;
 
         total.set(total.x() + weight * quaternion.x(),

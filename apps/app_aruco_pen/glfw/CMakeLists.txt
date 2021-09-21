@@ -9,8 +9,8 @@ set(source_path "${CMAKE_CURRENT_SOURCE_DIR}")
 set(compile_definitions SL_STARTSCENE=SID_ShaderIBL)
 
 file(GLOB headers
-        ${SL_PROJECT_ROOT}/apps/app_aruco_pen/include/AppDemoGui.h
-        ${SL_PROJECT_ROOT}/apps/app_aruco_pen/include/AppDemoSceneView.h
+        ${SL_PROJECT_ROOT}/apps/app_aruco_pen/include/AppArucoPenGui.h
+        ${SL_PROJECT_ROOT}/apps/app_aruco_pen/include/AppArucoPenSceneView.h
 		${SL_PROJECT_ROOT}/apps/source/CVCapture.h
 		${SL_PROJECT_ROOT}/apps/source/AppDemo.h
 		${SL_PROJECT_ROOT}/apps/source/SLInterface.h
@@ -20,17 +20,17 @@ file(GLOB headers
     )
 
 file(GLOB sources
-        ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/AppDemoGui.cpp
-        ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/AppDemoLoad.cpp
-        ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/AppDemoVideo.cpp
-        ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/AppDemoSceneView.cpp
+        ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/AppArucoPenGui.cpp
+        ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/AppArucoPenLoad.cpp
+        ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/AppArucoPenVideo.cpp
+        ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/AppArucoPenSceneView.cpp
 		${SL_PROJECT_ROOT}/apps/source/CVCapture.cpp
 		${SL_PROJECT_ROOT}/apps/source/AppDemo.cpp
 		${SL_PROJECT_ROOT}/apps/source/SLInterface.cpp
         ${SL_PROJECT_ROOT}/apps/source/SLProjectScene.cpp
 		${SL_PROJECT_ROOT}/apps/source/SLArucoPen.cpp
 		${SL_PROJECT_ROOT}/apps/source/SLGLFWInterface.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/AppDemoMainGLFW.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/AppArucoPenMainGLFW.cpp
     )
 
 # Group source files

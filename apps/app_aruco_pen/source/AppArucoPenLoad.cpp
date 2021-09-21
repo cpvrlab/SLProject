@@ -41,7 +41,7 @@
 #include <SLProjectScene.h>
 #include <SLGLProgramManager.h>
 #include <Instrumentor.h>
-#include <AppDemoGui.h>
+#include <AppArucoPenGui.h>
 #include <SLDeviceLocation.h>
 #include <SLNodeLOD.h>
 
@@ -98,7 +98,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
     s->init();
 
     // clear gui stuff that depends on scene and sceneview
-    AppDemoGui::clear();
+    AppArucoPenGui::clear();
 
     // Deactivate in general the device sensors
     AppDemo::devRot.init();
@@ -280,7 +280,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLNode* axisNode = new SLNode(new SLCoordAxis(s), "Axis Node");
         axisNode->setDrawBitsRec(SL_DB_MESHWIRED, false);
         axisNode->scale(edgeLen);
-        scene->addChild(axisNode);
+        //scene->addChild(axisNode);
 
         // Create OpenCV Tracker for the box node
         CVTrackedAruco::params.filename = "aruco_cube_detector_params.yml";

@@ -8,13 +8,13 @@
 //#############################################################################
 
 #include <AppDemo.h>
-#include "AppDemoSceneView.h"
+#include "AppArucoPenSceneView.h"
 #include <SLProjectScene.h>
 
 //-----------------------------------------------------------------------------
-AppDemoSceneView::AppDemoSceneView(SLProjectScene* s,
-                                   int             dpi,
-                                   SLInputManager& inputManager)
+AppArucoPenSceneView::AppArucoPenSceneView(SLProjectScene* s,
+                                           int             dpi,
+                                           SLInputManager& inputManager)
   : SLSceneView(s, dpi, inputManager)
 {
 }
@@ -28,10 +28,10 @@ AppDemoSceneView::AppDemoSceneView(SLProjectScene* s,
  of the core SLProject we need to add an additional handling for mouse down
  withing the calibration routine.
  */
-SLbool AppDemoSceneView::onMouseDown(SLMouseButton button,
-                                     SLint         x,
-                                     SLint         y,
-                                     SLKey         mod)
+SLbool AppArucoPenSceneView::onMouseDown(SLMouseButton button,
+                                         SLint         x,
+                                         SLint         y,
+                                         SLKey         mod)
 {
     // Call base class event-handler for default mouse and touchdown behaviour
     bool baseClassResult = SLSceneView::onMouseDown(button, x, y, mod);

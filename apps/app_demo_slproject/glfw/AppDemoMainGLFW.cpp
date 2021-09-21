@@ -18,7 +18,7 @@
 #include <SLSceneView.h>
 #include <SLProjectScene.h>
 #include <CVCapture.h>
-#include <AppDemoGui.h>
+#include <AppArucoPenGui.h>
 #include <AppDemoSceneView.h>
 #include <GLFW/glfw3.h>
 #include <Instrumentor.h>

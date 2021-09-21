@@ -18,15 +18,15 @@
 #include <SLSceneView.h>
 #include <SLProjectScene.h>
 #include <CVCapture.h>
-#include <AppDemoGui.h>
-#include <AppDemoSceneView.h>
+#include <AppArucoPenGui.h>
+#include <AppArucoPenSceneView.h>
 #include <GLFW/glfw3.h>
 #include <Instrumentor.h>
 
 #include <SLGLFWInterface.h>
 
 //-----------------------------------------------------------------------------
-//! Forward declaration of the scene definition function from AppDemoLoad.cpp
+//! Forward declaration of the scene definition function from AppArucoPenLoad.cpp
 extern void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID);
 extern bool onUpdateVideo();
 
@@ -51,15 +51,6 @@ static SLfloat     lastMouseDownTime = 0.0f;   //!< Last mouse press time
 static SLKey       modifiers         = K_none; //!< last modifier keys
 static SLbool      fullscreen        = false;  //!< flag if window is in fullscreen mode
 
-//-----------------------------------------------------------------------------
-/*! 
-onClose event handler for deallocation of the scene & sceneview. onClose is
-called glfwPollEvents, glfwWaitEvents or glfwSwapBuffers.
-*/
-void onClose(GLFWwindow* myWindow)
-{
-    slShouldClose(true);
-}
 //-----------------------------------------------------------------------------
 /*!
 onPaint: Paint event handler that passes the event to the slPaint function. 
@@ -283,8 +274,8 @@ static void onKeyPress(GLFWwindow* myWindow,
             glfwSetWindowSize(myWindow, scrWidth, scrHeight);
             glfwSetWindowPos(myWindow, 10, 30);
         }
-        if (AppDemoGui::hideUI)
-            AppDemoGui::hideUI = false;
+        if (AppArucoPenGui::hideUI)
+            AppArucoPenGui::hideUI = false;
     }
     // Toggle fullscreen mode
     else if (key == K_F9 && action == GLFW_PRESS)
@@ -351,55 +342,25 @@ SLSceneView* createAppDemoSceneView(SLProjectScene* scene,
                                     SLInputManager& inputManager)
 {
     // The sceneview will be deleted by SLScene::~SLScene()
-    return new AppDemoSceneView(scene, curDPI, inputManager);
+    return new AppArucoPenSceneView(scene, curDPI, inputManager);
 }
 //-----------------------------------------------------------------------------
 //! Initialises all GLFW and GL3W stuff
 void initGLFW(int screenWidth, int screenHeight)
 {
     SLGLFWInterface::initialize();
-
-    // Enable fullscreen anti aliasing with 4 samples
-    glfwWindowHint(GLFW_SAMPLES, 4);
-
-#ifdef __APPLE__
-    //You can enable or restrict newer OpenGL context here (read the GLFW documentation)
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, GL_FALSE);
-#endif
-
-    window = glfwCreateWindow(screenWidth, screenHeight, "My Title", nullptr, nullptr);
+    window = SLGLFWInterface::createWindow(screenWidth, screenHeight, "My Title", 1, 4);
 
     //get real window size
     glfwGetWindowSize(window, &scrWidth, &scrHeight);
 
-    if (!window)
-    {
-        glfwTerminate();
-        exit(EXIT_FAILURE);
-    }
-
-    // Get the current GL context. After this you can call GL
-    glfwMakeContextCurrent(window);
-
-    // Init OpenGL access library gl3w
-    if (gl3wInit() != 0)
-    {
-        cerr << "Failed to initialize OpenGL" << endl;
-        exit(-1);
-    }
+    SLGLFWInterface::createGLContext();
 
     glfwSetWindowTitle(window, "SLProject Test Application");
     glfwSetWindowPos(window, 50, 100);
 
     // With GLFW ImGui draws the cursor
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
-
-    // Set number of monitor refreshes between 2 buffer swaps
-    glfwSwapInterval(1);
 
     // Get GL errors that occurred before our framework is involved
     GET_GL_ERROR;
@@ -422,7 +383,6 @@ void initGLFW(int screenWidth, int screenHeight)
     glfwSetMouseButtonCallback(window, onMouseButton);
     glfwSetCursorPosCallback(window, onMouseMove);
     glfwSetScrollCallback(window, onMouseWheel);
-    glfwSetWindowCloseCallback(window, onClose);
 }
 //-----------------------------------------------------------------------------
 //! Inits all for SLProject library
@@ -461,9 +421,9 @@ void initSL(SLVstring& cmdLineArgs)
                       (void*)&onPaint,
                       nullptr,
                       (void*)createAppDemoSceneView,
-                      (void*)AppDemoGui::build,
-                      (void*)AppDemoGui::loadConfig,
-                      (void*)AppDemoGui::saveConfig);
+                      (void*)AppArucoPenGui::build,
+                      (void*)AppArucoPenGui::loadConfig,
+                      (void*)AppArucoPenGui::saveConfig);
     /////////////////////////////////////////////////////////
 }
 //-----------------------------------------------------------------------------

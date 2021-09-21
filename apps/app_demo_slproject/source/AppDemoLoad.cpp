@@ -41,7 +41,7 @@
 #include <SLProjectScene.h>
 #include <SLGLProgramManager.h>
 #include <Instrumentor.h>
-#include <AppDemoGui.h>
+#include <AppArucoPenGui.h>
 #include <SLDeviceLocation.h>
 #include <SLNodeLOD.h>
 

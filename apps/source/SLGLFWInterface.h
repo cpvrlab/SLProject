@@ -7,12 +7,17 @@
 
 #include <SL.h>
 #include <SLEnums.h>
+#include <SLGLState.h>
 #include <GLFW/glfw3.h>
+
+#include <SLInterface.h>
 
 class SLGLFWInterface
 {
 private:
-    static GLFWwindow* _window;
+    static GLFWwindow* window;
+
+    static void onCloseInternal(GLFWwindow* window);
 
 public:
     static void initialize();
