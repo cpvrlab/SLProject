@@ -40,7 +40,9 @@ protected:
     ~SLVRCompositor();
 
     void startup();
-    void initFBO(unsigned int* fbo, unsigned int* texture, unsigned int* depthRenderBuffer) const;
+    void initFBO(unsigned int* fbo,
+                 unsigned int* texture,
+                 unsigned int* depthRenderBuffer) const;
 
 public:
     void prepareLeftEye() const;

@@ -35,9 +35,9 @@ private:
 
     SLVRRenderModel();
 
-    void load(const SLstring& name, SLAssetManager* assetManager);
+    void         load(const SLstring& name, SLAssetManager* assetManager);
     SLGLTexture* loadTexture(vr::TextureID_t id, SLAssetManager* assetManager);
-    void copyRenderModelGeometryToMesh(vr::RenderModel_t* renderModel, SLMesh* mesh);
+    void         copyRenderModelGeometryToMesh(vr::RenderModel_t* renderModel, SLMesh* mesh);
 
 public:
     // Getters

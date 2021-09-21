@@ -10,10 +10,11 @@
 
 #include <vr/SLVRRenderModel.h>
 
+//-----------------------------------------------------------------------------
 SLVRRenderModel::SLVRRenderModel()
 {
 }
-
+//-----------------------------------------------------------------------------
 /*! Loads the render model from disk
  * The method walks through the following steps:
  * 1. Load the geometry
@@ -50,7 +51,7 @@ void SLVRRenderModel::load(const SLstring& name, SLAssetManager* assetManager)
 
     _node = new SLNode(mesh, name);
 }
-
+//-----------------------------------------------------------------------------
 /*! Loads the render model texture from disk
  * After loading, the image data gets converted from the RGBA format to the RGB format
  * The image is then converted to a CVImage (RGB format) and attached to a SLGLTexture
@@ -102,7 +103,7 @@ SLGLTexture* SLVRRenderModel::loadTexture(vr::TextureID_t id, SLAssetManager* as
 
     return texture;
 }
-
+//-----------------------------------------------------------------------------
 /*! Copies the OpenVR render model data (vertices, UVs, normals, indices) to a SLMesh
  * @param renderModel The render model that contains the source data
  * @param mesh The mesh that the data will be copied to
@@ -135,3 +136,4 @@ void SLVRRenderModel::copyRenderModelGeometryToMesh(vr::RenderModel_t* renderMod
         mesh->I16.push_back(openVRIndex);
     }
 }
+//-----------------------------------------------------------------------------

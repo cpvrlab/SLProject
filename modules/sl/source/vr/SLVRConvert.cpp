@@ -11,6 +11,7 @@
 #include <vr/SLVRConvert.h>
 #include <vr/SLVR.h>
 
+//-----------------------------------------------------------------------------
 /*! Converts an OpenVR 3x4 matrix to a SLProject matrix
  * @param matrix The OpenVR matrix
  * @return The converted SLProject matrix
@@ -45,7 +46,7 @@ SLMat4f SLVRConvert::openVRMatrixToSLMatrix(vr::HmdMatrix34_t matrix)
 
     return result;
 }
-
+//-----------------------------------------------------------------------------
 /*! Converts an OpenVR 4x4 matrix to a SLProject matrix
  * @param matrix The OpenVR matrix
  * @return The converted SLProject matrix
@@ -80,18 +81,21 @@ SLMat4f SLVRConvert::openVRMatrixToSLMatrix(vr::HmdMatrix44_t matrix)
 
     return result;
 }
-
+//-----------------------------------------------------------------------------
 /*! Converts a SLEyeType value to a OpenVR eye value
  * @param type The SLEyeType value
  * @return The converted OpenVR eye value
  */
 vr::Hmd_Eye SLVRConvert::SLEyeTypeToOpenVREye(SLEyeType type)
 {
-    if(type == ET_left) return vr::Hmd_Eye::Eye_Left;
-    else if(type == ET_right) return vr::Hmd_Eye::Eye_Right;
+    if (type == ET_left)
+        return vr::Hmd_Eye::Eye_Left;
+    else if (type == ET_right)
+        return vr::Hmd_Eye::Eye_Right;
     else
     {
         VR_WARNING("Invalid eye type specified")
         return vr::Hmd_Eye::Eye_Left;
     }
 }
+//-----------------------------------------------------------------------------

@@ -78,7 +78,9 @@ public:
 
     SLVRCompositor* compositor() { return _compositor; }
 
-    SLMat4f getProjectionMatrix(SLEyeType eye, float nearPlane, float farPlane);
+    SLMat4f getProjectionMatrix(SLEyeType eye,
+                                float     nearPlane,
+                                float     farPlane);
     SLMat4f getEyeMatrix(SLEyeType eye);
 
 private:

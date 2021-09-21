@@ -12,16 +12,17 @@
 #include <vr/SLVR.h>
 #include <vr/SLVRConvert.h>
 
+//-----------------------------------------------------------------------------
 SLVRSystem::SLVRSystem()
 {
     VR_LOG("VR system initialized"); // This semicolon prevents strange auto-formatting
 }
-
+//-----------------------------------------------------------------------------
 SLVRSystem::~SLVRSystem()
 {
     VR_LOG("VR system destroyed")
 }
-
+//-----------------------------------------------------------------------------
 /*! Prepares the system for everything VR
  * The following sequence of events will be triggered:
  * 1. The system checks if the SteamVR runtime is present and if there's a HMD connected
@@ -39,9 +40,10 @@ void SLVRSystem::startup()
     _compositor = new SLVRCompositor();
     _compositor->startup();
 }
-
+//-----------------------------------------------------------------------------
 /*! Checks if the conditions for starting OpenVR are met
- * The conditions are that the SteamVR runtime is installed and that the system thinks that a HMD is present
+ * The conditions are that the SteamVR runtime is installed and
+ * that the system thinks that a HMD is present
  * @return Are the standard conditions met?
  */
 bool SLVRSystem::checkStartupConditions()
@@ -64,7 +66,7 @@ bool SLVRSystem::checkStartupConditions()
 
     return true;
 }
-
+//-----------------------------------------------------------------------------
 /*! Initializes the OpenVR API for scene rendering
  * @return Was the initialization successful?
  */
@@ -86,7 +88,7 @@ bool SLVRSystem::initializeOpenVR()
 
     return true;
 }
-
+//-----------------------------------------------------------------------------
 /*! Detects all tracked devices, creates objects for interfacing with them
  * and stores the objects in a list of all devices and in instance variables
  * for accessing specific devices
@@ -122,8 +124,9 @@ bool SLVRSystem::detectTrackedDevices()
 
     return true;
 }
-
-/*! Creates an object for a HMD, adds it to the list of all devices and sets the _hmd instance variable
+//-----------------------------------------------------------------------------
+/*! Creates an object for a HMD, adds it to the list of all devices and
+ * sets the _hmd instance variable
  * @param index The OpenVR index of the HMD
  */
 void SLVRSystem::registerHmd(vr::TrackedDeviceIndex_t index)
@@ -134,7 +137,7 @@ void SLVRSystem::registerHmd(vr::TrackedDeviceIndex_t index)
     _hmd = device;
     VR_LOG("Device detected: HMD")
 }
-
+//-----------------------------------------------------------------------------
 /*! Creates an object for a controller, add it to the list of all devices
  * and set the _leftController or _rightController instance variable depending on
  * which type of controller this is
@@ -157,8 +160,9 @@ void SLVRSystem::registerController(vr::TrackedDeviceIndex_t index)
         VR_LOG("Device detected: Right Controller")
     }
 }
-
-/*! Updates the poses of the detected devices and gets the states of buttons, triggers and axes
+//-----------------------------------------------------------------------------
+/*! Updates the poses of the detected devices and gets the states
+ * of buttons, triggers and axes
  * The poses of render models will be updated as well
  */
 void SLVRSystem::update()
@@ -195,7 +199,7 @@ void SLVRSystem::update()
     if (rightController())
         rightController()->updateState();
 }
-
+//-----------------------------------------------------------------------------
 /*! Deletes all render models without the nodes
  * This method is called when uninitializing a scene so we don't have
  * a dangling pointer to the node in the render model
@@ -208,20 +212,24 @@ void SLVRSystem::resetRenderModels()
             trackedDevice->deleteRenderModelWithoutNode();
     }
 }
-
+//-----------------------------------------------------------------------------
 /*! Gets the projection matrix for an eye
  * @param eye The eye this projection matrix corresponds to
  * @param nearPlane The near clipping plane of the frustum
  * @param farPlane The far clipping plane of the frustum
  * @return The projection matrix
  */
-SLMat4f SLVRSystem::getProjectionMatrix(SLEyeType eye, float nearPlane, float farPlane)
+SLMat4f SLVRSystem::getProjectionMatrix(SLEyeType eye,
+                                        float     nearPlane,
+                                        float     farPlane)
 {
     vr::Hmd_Eye       openVREye    = SLVRConvert::SLEyeTypeToOpenVREye(eye);
-    vr::HmdMatrix44_t openVRMatrix = _system->GetProjectionMatrix(openVREye, nearPlane, farPlane);
+    vr::HmdMatrix44_t openVRMatrix = _system->GetProjectionMatrix(openVREye,
+                                                                  nearPlane,
+                                                                  farPlane);
     return SLVRConvert::openVRMatrixToSLMatrix(openVRMatrix);
 }
-
+//-----------------------------------------------------------------------------
 /*! Gets the per-eye offset of the camera relative to the HMD
  * @param eye The eye this eye matrix corresponds to
  * @return The eye matrix
@@ -231,10 +239,11 @@ SLMat4f SLVRSystem::getEyeMatrix(SLEyeType eye)
     vr::Hmd_Eye       openVREye    = SLVRConvert::SLEyeTypeToOpenVREye(eye);
     vr::HmdMatrix34_t openVRMatrix = _system->GetEyeToHeadTransform(openVREye);
 
-    // The matrix is inverted at the end to convert from the eye to head to the head to eye matrix
+    // The matrix is inverted at the end to convert from
+    // the eye to head to the head to eye matrix
     return SLVRConvert::openVRMatrixToSLMatrix(openVRMatrix).inverted();
 }
-
+//-----------------------------------------------------------------------------
 /*! Shuts down the OpenVR API and frees all resources
  */
 void SLVRSystem::shutdown()
@@ -255,3 +264,4 @@ void SLVRSystem::shutdown()
     vr::VR_Shutdown();
     _system = nullptr;
 }
+//-----------------------------------------------------------------------------
