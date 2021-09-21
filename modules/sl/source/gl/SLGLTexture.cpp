@@ -142,7 +142,7 @@ SLGLTexture::SLGLTexture(SLAssetManager* assetMgr,
 
     _width                 = image->width();
     _height                = image->height();
-    _depth                 = _images.size();
+    _depth                 = (SLint)_images.size();
     _uvIndex               = 0;
     _bytesPerPixel         = image->bytesPerPixel();
     _min_filter            = min_filter;
@@ -200,7 +200,7 @@ SLGLTexture::SLGLTexture(SLAssetManager* assetMgr,
     {
         _width         = _images[0]->width();
         _height        = _images[0]->height();
-        _depth         = _images.size();
+        _depth         = (SLint)_images.size();
         _bytesPerPixel = _images[0]->bytesPerPixel();
         _bytesInFile   = _images[0]->bytesInFile();
     }
@@ -277,7 +277,7 @@ SLGLTexture::SLGLTexture(SLAssetManager*  assetMgr,
     {
         _width         = _images[0]->width();
         _height        = _images[0]->height();
-        _depth         = _images.size();
+        _depth         = (SLint)_images.size();
         _bytesPerPixel = _images[0]->bytesPerPixel();
     }
 
@@ -336,7 +336,7 @@ SLGLTexture::SLGLTexture(SLAssetManager* assetMgr,
     {
         _width         = _images[0]->width();
         _height        = _images[0]->height();
-        _depth         = _images.size();
+        _depth         = (SLint)_images.size();
         _bytesPerPixel = _images[0]->bytesPerPixel();
     }
 
@@ -416,7 +416,7 @@ SLGLTexture::SLGLTexture(SLAssetManager* assetMgr,
     {
         _width         = _images[0]->width();
         _height        = _images[0]->height();
-        _depth         = _images.size();
+        _depth         = (SLint)_images.size();
         _bytesPerPixel = _images[0]->bytesPerPixel();
     }
 
@@ -632,7 +632,7 @@ SLbool SLGLTexture::copyVideoImage(SLint       camWidth,
     {
         _width         = _images[0]->width();
         _height        = _images[0]->height();
-        _depth         = _images.size();
+        _depth         = (SLint)_images.size();
         _bytesPerPixel = _images[0]->bytesPerPixel();
     }
 
@@ -681,7 +681,7 @@ SLbool SLGLTexture::copyVideoImage(SLint       camWidth,
     {
         _width         = _images[0]->width();
         _height        = _images[0]->height();
-        _depth         = _images.size();
+        _depth         = (SLint)_images.size();
         _bytesPerPixel = _images[0]->bytesPerPixel();
     }
 

@@ -298,7 +298,7 @@ void SLTexColorLUT::generateTexture()
     load(lut);
     _width  = _images[0]->width();
     _height = _images[0]->height();
-    _depth  = _images.size();
+    _depth  = (SLint)_images.size();
 }
 //-----------------------------------------------------------------------------
 //! Returns all alpha values of the transfer function as a float vector

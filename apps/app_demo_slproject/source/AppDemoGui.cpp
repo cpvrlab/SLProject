@@ -1482,8 +1482,10 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                         s->onLoad(s, sv, SID_ShaderPerVertexBlinn);
                     if (ImGui::MenuItem("Per Pixel Blinn-Phong", nullptr, sid == SID_ShaderPerPixelBlinn))
                         s->onLoad(s, sv, SID_ShaderPerPixelBlinn);
-                    if (ImGui::MenuItem("Physically Based Rendering", nullptr, sid == SID_ShaderPBR))
-                        s->onLoad(s, sv, SID_ShaderPBR);
+                    if (ImGui::MenuItem("Per Pixel Cook-Torrance", nullptr, sid == SID_ShaderPerPixelCook))
+                        s->onLoad(s, sv, SID_ShaderPerPixelCook);
+                    if (ImGui::MenuItem("Image Based Lighting", nullptr, sid == SID_ShaderIBL))
+                        s->onLoad(s, sv, SID_ShaderIBL);
                     if (ImGui::MenuItem("Per Vertex Wave", nullptr, sid == SID_ShaderPerVertexWave))
                         s->onLoad(s, sv, SID_ShaderPerVertexWave);
                     if (ImGui::MenuItem("Bump Mapping", nullptr, sid == SID_ShaderBumpNormal))

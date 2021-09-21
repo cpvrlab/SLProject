@@ -103,9 +103,9 @@ enum SLSceneID
 
     SID_ShaderPerVertexBlinn,
     SID_ShaderPerPixelBlinn,
+    SID_ShaderPerPixelCook,
+    SID_ShaderIBL,
     SID_ShaderPerVertexWave,
-    SID_ShaderPBR_old,
-    SID_ShaderPBR,
     SID_ShaderBumpNormal,
     SID_ShaderBumpParallax,
     SID_ShaderSkyBox,

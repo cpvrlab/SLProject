@@ -406,7 +406,7 @@ SLint SLGLProgram::passLightsToUniforms(SLVLight* lights,
 
             if (shadowMap)
             {
-                int cascades = shadowMap->depthBuffers().size();
+                int cascades = (int)shadowMap->depthBuffers().size();
 
                 for (SLint ls = 0; ls < 6; ++ls)
                 {
