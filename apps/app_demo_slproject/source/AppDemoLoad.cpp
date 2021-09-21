@@ -1380,6 +1380,114 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         sv->camera(cam1);
         s->root3D(scene);
     }
+    else if (sceneID == SID_ShaderPBR_old) //......................................................
+    {
+        // Set scene name and info string
+        s->name("HDR IBL Shader");
+        s->info("Image-based Lighting from skybox using high dynamic range images. "
+                "It uses the Cook-Torrance light model also to calculate the ambient light part "
+                "from the surrounding HDR skybox.");
+
+        // Create HDR CubeMap and get precalculated textures from it
+        SLSkybox* skybox = new SLSkybox(s,
+                                        shaderPath,
+                                        texPath + "env_barce_rooftop.hdr",
+                                        SLVec2i(2048, 2048),
+                                        "HDR Skybox");
+
+        // Get preloaded shader programs
+        SLGLProgram* progPbr    = new SLGLProgramGeneric(s,
+                                                         shaderPath + "PBR_Lighting.vert",
+                                                         shaderPath + "PBR_Lighting.frag");
+        SLGLProgram* progPbrTex = new SLGLProgramGeneric(s,
+                                                         shaderPath + "PBR_LightingTm.vert",
+                                                         shaderPath + "PBR_LightingTm.frag");
+
+        // Create a scene group node
+        SLNode* scene = new SLNode("scene node");
+
+        // Create camera and initialize its parameters
+        SLCamera* cam1 = new SLCamera("Camera 1");
+        cam1->translation(0, 0, 30);
+        cam1->lookAt(0, 0, 0);
+        cam1->background().colors(SLCol4f(0.2f, 0.2f, 0.2f));
+        cam1->focalDist(30);
+        cam1->setInitialState();
+        scene->addChild(cam1);
+
+        // Add directional light with a position that corresponds roughly to the sun direction
+        SLLight::gamma        = 2.2f;
+        SLLightDirect* light1 = new SLLightDirect(s, s, 1.5f, .3f, 2.0f, 0.5f, 0, 10, 10);
+        light1->lookAt(0, 0, 0);
+        light1->attenuation(0, 0, 1);
+        scene->addChild(light1);
+
+        // Create spheres and materials with roughness & metallic values between 0 and 1
+        const SLint nrRows  = 7;
+        const SLint nrCols  = 7;
+        SLfloat     spacing = 2.5f;
+        SLfloat     maxX    = (nrCols / 2) * spacing;
+        SLfloat     maxY    = (nrRows / 2) * spacing;
+        SLfloat     deltaR  = 1.0f / (float)(nrRows - 1);
+        SLfloat     deltaM  = 1.0f / (float)(nrCols - 1);
+
+        SLMaterial* mat[nrRows * nrCols];
+        SLint       i = 0;
+        SLfloat     y = -maxY;
+        for (SLint m = 0; m < nrRows; ++m)
+        {
+            SLfloat x = -maxX;
+            for (SLint r = 0; r < nrCols; ++r)
+            {
+                if (m == nrRows / 2 && r == nrCols / 2)
+                {
+                    // The center sphere has roughness and metallic encoded in textures
+                    // and the prefiltered textures for IBL
+                    mat[i] = new SLMaterial(s,
+                                            "IBLMatTex",
+                                            skybox,
+                                            new SLGLTexture(s, texPath + "gold-scuffed_2048_C.png"),
+                                            new SLGLTexture(s, texPath + "gold-scuffed_2048_N.png"),
+                                            new SLGLTexture(s, texPath + "gold-scuffed_2048_M.png"),
+                                            new SLGLTexture(s, texPath + "gold-scuffed_2048_R.png"),
+                                            new SLGLTexture(s, texPath + "gold-scuffed_2048_A.png"),
+                                            progPbrTex);
+                }
+                else
+                {
+                    // Cook-Torrance material with IBL but without textures
+                    mat[i] = new SLMaterial(s,
+                                            "IBLMat",
+                                            skybox,
+                                            SLCol4f::WHITE * 0.5f,
+                                            Utils::clamp((float)r * deltaR, 0.05f, 1.0f),
+                                            (float)m * deltaM,
+                                            progPbr);
+                }
+
+                SLNode* node = new SLNode(new SLSpheric(s,
+                                                        1.0f,
+                                                        0.0f,
+                                                        180.0f,
+                                                        32,
+                                                        32,
+                                                        "Sphere",
+                                                        mat[i]));
+                node->translate(x, y, 0);
+                scene->addChild(node);
+                x += spacing;
+                i++;
+            }
+            y += spacing;
+        }
+
+        sv->camera(cam1);
+        s->skybox(skybox);
+        s->root3D(scene);
+
+        // Save energy
+        sv->doWaitOnIdle(true);
+    }
     else if (sceneID == SID_ShaderPBR) //......................................................
     {
         // Set scene name and info string
@@ -5477,7 +5585,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         if (Utils::fileExists(modelFile) && Utils::fileExists(texCFile) && Utils::fileExists(texNFile))
         {
             SLchar name[512];
-            sprintf(name, "Lots of corinthian columns in different levels of detail (LOD) and cascaded shadow mapping.");
+            sprintf(name, "Lots of corinthian columns in different levels of detail (LOD) and cascaded shadow mapping. In the Day-Time dialogue you can change the sun angle.");
             s->name(name);
             s->info(s->name());
 
