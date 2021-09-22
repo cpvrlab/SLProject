@@ -112,8 +112,8 @@ void SLGLTextureIBL::build(SLint texUnit)
     GLuint fboID;
     glGenFramebuffers(1, &fboID);
 
-    //GLuint rboID;
-    //glGenRenderbuffers(1, &rboID);
+    GLuint rboID;
+    glGenRenderbuffers(1, &rboID);
 
     if (_texType == TT_environmentCubemap ||
         _texType == TT_irradianceCubemap)
@@ -153,9 +153,9 @@ void SLGLTextureIBL::build(SLint texUnit)
         glViewport(0, 0, _width, _height);
         glBindFramebuffer(GL_FRAMEBUFFER, fboID);
 
-        //glBindRenderbuffer(GL_RENDERBUFFER, rboID);
-        //glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, _width, _height);
-        //glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rboID);
+        glBindRenderbuffer(GL_RENDERBUFFER, rboID);
+        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, _width, _height);
+        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rboID);
 
         // Set the list of draw buffers.
         GLenum DrawBuffers[1] = {GL_COLOR_ATTACHMENT0};
@@ -177,7 +177,7 @@ void SLGLTextureIBL::build(SLint texUnit)
         }
 
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
-        //glBindRenderbuffer(GL_RENDERBUFFER, 0);
+        glBindRenderbuffer(GL_RENDERBUFFER, 0);
 
         if (_texType == TT_environmentCubemap)
         {
@@ -286,12 +286,13 @@ void SLGLTextureIBL::build(SLint texUnit)
     }
 
     glDeleteFramebuffers(1, &fboID);
-    //glDeleteRenderbuffers(1, &rboID);
+    glDeleteRenderbuffers(1, &rboID);
 
     // Reset the viewport
     SLGLState* state = SLGLState::instance();
     auto       vp    = state->viewport();
     glViewport(vp.x, vp.y, vp.z, vp.w);
+    glFinish();
     GET_GL_ERROR;
 }
 //-----------------------------------------------------------------------------

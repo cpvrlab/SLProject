@@ -3152,24 +3152,38 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
     bool    partialSelection = !s->selectedMeshes().empty() && !s->selectedMeshes()[0]->IS32.empty();
 
     ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
+    ImGui::Begin("Properties", &showProperties, ImGuiWindowFlags_AlwaysVerticalScrollbar);
+    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.0f, 1.0f, 1.0f, 1.0f));
 
-    if (sv->renderType() != RT_gl)
+    if (ImGui::TreeNode("Scene Properties"))
     {
-        ImGui::Begin("Properties of Selection", &showProperties, ImGuiWindowFlags_AlwaysVerticalScrollbar);
-        ImGui::Text("Node selection and the");
-        ImGui::Text("properties of it can only");
-        ImGui::Text("be shown in the OpenGL");
-        ImGui::Text("renderer.");
-        ImGui::End();
+        if (ImGui::TreeNode("Sky", "Skybox"))
+        {
+            if (s->skybox())
+            {
+                float exposure = s->skybox()->exposure();
+                if (ImGui::SliderFloat("Exposure", &exposure, 0.05f, 5.0f))
+                    s->skybox()->exposure(exposure);
+            }
+            else
+            {
+                ImGui::Text("Skybox: None");
+            }
+            ImGui::TreePop();
+        }
+        ImGui::TreePop();
     }
-    else
+
+    ImGui::PopStyleColor();
+    ImGui::Separator();
+
+    // Node and Mesh Properties
+    if (sv->renderType() == RT_gl)
     {
         // Only single node and no partial mesh selection
         if (singleNode && !partialSelection)
         {
-            ImGui::Begin("Properties of Selection", &showProperties, ImGuiWindowFlags_AlwaysVerticalScrollbar);
-
-            if (ImGui::TreeNode("Single Node Properties"))
+            if (ImGui::TreeNode("Node Properties"))
             {
                 if (singleNode)
                 {
@@ -3565,7 +3579,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
             if (singleFullMesh)
             {
                 // See also SLScene::selectNodeMesh
-                if (ImGui::TreeNode("Single Mesh Properties"))
+                if (ImGui::TreeNode("Mesh Properties"))
                 {
                     SLuint      v = (SLuint)singleFullMesh->P.size();
                     SLuint      t = (SLuint)(!singleFullMesh->I16.empty() ? singleFullMesh->I16.size() / 3 : singleFullMesh->I32.size() / 3);
@@ -3651,14 +3665,6 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
 
                                 ImGui::PopItemWidth();
                             }
-                            ImGui::TreePop();
-                        }
-
-                        if (m->skybox() && ImGui::TreeNode("Sky", "Skybox"))
-                        {
-                            float exposure = m->skybox()->exposure();
-                            if (ImGui::SliderFloat("Exposure", &exposure, 0.05f, 5.0f))
-                                m->skybox()->exposure(exposure);
                             ImGui::TreePop();
                         }
                     }
@@ -3824,7 +3830,6 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
             }
 
             ImGui::PopStyleColor();
-            ImGui::End();
         }
         else if (!singleFullMesh && !s->selectedMeshes().empty())
         {
@@ -3858,7 +3863,6 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
         else
         {
             // Nothing is selected
-            ImGui::Begin("Properties of Selection", &showProperties, ImGuiWindowFlags_AlwaysVerticalScrollbar);
             ImGui::Text("There is nothing selected.");
             ImGui::Text("");
             ImGui::Text("Select a single node by");
@@ -3873,10 +3877,17 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
             ImGui::Text("");
             ImGui::Text("Be aware that a node may be");
             ImGui::Text("flagged as not selectable.");
-            ImGui::End();
         }
     }
+    else
+    {
+        ImGui::Text("Node selection and the");
+        ImGui::Text("properties of it can only");
+        ImGui::Text("be shown in the OpenGL");
+        ImGui::Text("renderer.");
+    }
 
+    ImGui::End();
     ImGui::PopFont();
 }
 //-----------------------------------------------------------------------------

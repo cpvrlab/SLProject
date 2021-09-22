@@ -1492,7 +1492,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLSkybox* skybox = new SLSkybox(s,
                                         shaderPath,
                                         texPath + "env_barce_rooftop.hdr",
-                                        SLVec2i(2048, 2048),
+                                        SLVec2i(256, 256),
                                         "HDR Skybox");
 
         // Create a scene group node
