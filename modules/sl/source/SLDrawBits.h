@@ -14,7 +14,7 @@
 
 //-----------------------------------------------------------------------------
 /*!
-Drawing Bits control some visual states of the scene and are applied per scene 
+Drawing Bits control some visual states of the scene and are applied per scene
 view or per single node object. Not all are used from the beginning
 */
 #define SL_DB_HIDDEN 1        //!< Flags an object as hidden
@@ -35,7 +35,7 @@ view or per single node object. Not all are used from the beginning
 //! Drawing states stored in the bits of an unsigned int
 /*! The drawing bits can be applied to the entire scene, a group or a mesh. The
 default value is 0 signifying the default state. See the defines above for the
-different drawing bit flags. 
+different drawing bit flags.
 */
 class SLDrawBits
 {

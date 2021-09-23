@@ -3161,9 +3161,27 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
         {
             if (s->skybox())
             {
-                float exposure = s->skybox()->exposure();
-                if (ImGui::SliderFloat("Exposure", &exposure, 0.05f, 5.0f))
-                    s->skybox()->exposure(exposure);
+                SLSkybox* sky = s->skybox();
+
+                if (sky->isHDR())
+                {
+                    float exposure = sky->exposure();
+                    if (ImGui::SliderFloat("Exposure", &exposure, 0.05f, 5.0f))
+                        sky->exposure(exposure);
+
+                    if (sky->environmentCubemap())
+                        showTexInfos(sky->environmentCubemap());
+                    if (sky->irradianceCubemap())
+                        showTexInfos(sky->irradianceCubemap());
+                    if (sky->roughnessCubemap())
+                        showTexInfos(sky->roughnessCubemap());
+                    if (sky->brdfLutTexture())
+                        showTexInfos(sky->brdfLutTexture());
+                }
+                else
+                {
+                    ImGui::Text("No properties for skyboxes that are not used for lighting (HDR)");
+                }
             }
             else
             {
@@ -3675,132 +3693,10 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                     if (m->numTextures() > 0 &&
                         ImGui::TreeNode("Tex", "Textures (%d)", m->numTextures()))
                     {
-                        // SLfloat lineH = ImGui::GetTextLineHeightWithSpacing();
-                        SLfloat texW = ImGui::GetWindowWidth() - 4 * ImGui::GetTreeNodeToLabelSpacing() - 10;
+                        for (int tt = 0; tt < TT_numTextureType; ++tt)
+                            for (auto& tex : m->textures((SLTextureType)tt))
+                                showTexInfos(tex);
 
-                        for (int j = 0; j < TT_numTextureType; j++)
-                        {
-                            for (auto& i : m->textures((SLTextureType)j))
-                            {
-                                SLGLTexture* tex    = i;
-                                void*        tid    = (ImTextureID)(intptr_t)tex->texID();
-                                SLfloat      w      = (SLfloat)tex->width();
-                                SLfloat      h      = (SLfloat)tex->height();
-                                SLfloat      h_to_w = h / w;
-
-                                if (ImGui::TreeNode(tex->name().c_str()))
-                                {
-                                    float mbCPU = 0.0f;
-                                    for (auto img : tex->images())
-                                        mbCPU += (float)img->bytesPerImage();
-                                    float mbGPU = (float)tex->bytesOnGPU();
-                                    float mbDSK = (float)tex->bytesInFile();
-
-                                    mbDSK /= 1E6f;
-                                    mbCPU /= 1E6f;
-                                    mbGPU /= 1E6f;
-
-                                    ImGui::Text("Size(PX): %dx%dx%d", tex->width(), tex->height(), tex->depth());
-                                    ImGui::Text("Size(MB): GPU:%4.2f, CPU:%4.2f, DSK:%4.2f", mbGPU, mbCPU, mbDSK);
-                                    ImGui::Text("TexID   : %u (%s)", tex->texID(), tex->isTexture() ? "ok" : "not ok");
-                                    ImGui::Text("Type    : %s", tex->typeName().c_str());
-                                    if (tex->images()[0])
-                                        ImGui::Text("Format  : %s", tex->images()[0]->formatString().c_str());
-                                    else
-                                        ImGui::Text("Format  : %s", "n/a (GPU only)");
-#ifdef SL_BUILD_WITH_KTX
-                                    ImGui::Text("Compr.  : %s", tex->compressionFormatStr(tex->compressionFormat()).c_str());
-#endif
-                                    ImGui::Text("Min.Flt : %s", tex->minificationFilterName().c_str());
-                                    ImGui::Text("Mag.Flt : %s", tex->magnificationFilterName().c_str());
-
-                                    if (tex->target() == GL_TEXTURE_2D)
-                                    {
-                                        if (typeid(*tex) == typeid(SLTexColorLUT))
-                                        {
-                                            SLTexColorLUT* lut = (SLTexColorLUT*)i;
-                                            if (ImGui::TreeNode("Color Points in Transfer Function"))
-                                            {
-                                                showLUTColors(lut);
-                                                ImGui::TreePop();
-                                            }
-
-                                            if (ImGui::TreeNode("Alpha Points in Transfer Function"))
-                                            {
-                                                for (SLulong a = 0; a < lut->alphas().size(); ++a)
-                                                {
-                                                    ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.25f);
-                                                    SLfloat alpha = lut->alphas()[a].alpha;
-                                                    SLchar  label[20];
-                                                    sprintf(label, "Alpha %lu", a);
-                                                    if (ImGui::SliderFloat(label, &alpha, 0.0f, 1.0f, "%3.2f"))
-                                                    {
-                                                        lut->alphas()[a].alpha = alpha;
-                                                        lut->generateTexture();
-                                                    }
-                                                    ImGui::SameLine();
-                                                    sprintf(label, "Pos. %lu", a);
-                                                    SLfloat pos = lut->alphas()[a].pos;
-                                                    if (a > 0 && a < lut->alphas().size() - 1)
-                                                    {
-                                                        SLfloat min = lut->alphas()[a - 1].pos +
-                                                                      2.0f / (SLfloat)lut->length();
-                                                        SLfloat max = lut->alphas()[a + 1].pos -
-                                                                      2.0f / (SLfloat)lut->length();
-                                                        if (ImGui::SliderFloat(label, &pos, min, max, "%3.2f"))
-                                                        {
-                                                            lut->alphas()[a].pos = pos;
-                                                            lut->generateTexture();
-                                                        }
-                                                    }
-                                                    else
-                                                        ImGui::Text("%3.2f Pos. %lu", pos, a);
-
-                                                    ImGui::PopItemWidth();
-                                                }
-
-                                                ImGui::TreePop();
-                                            }
-
-                                            ImGui::Image(tid,
-                                                         ImVec2(texW, texW * 0.15f),
-                                                         ImVec2(0, 1),
-                                                         ImVec2(1, 0),
-                                                         ImVec4(1, 1, 1, 1),
-                                                         ImVec4(1, 1, 1, 1));
-
-                                            SLVfloat allAlpha = lut->allAlphas();
-                                            ImGui::PlotLines("",
-                                                             allAlpha.data(),
-                                                             (SLint)allAlpha.size(),
-                                                             0,
-                                                             nullptr,
-                                                             0.0f,
-                                                             1.0f,
-                                                             ImVec2(texW, texW * 0.25f));
-                                        }
-                                        else
-                                        {
-                                            ImGui::Image(tid,
-                                                         ImVec2(texW, texW * h_to_w),
-                                                         ImVec2(0, 1),
-                                                         ImVec2(1, 0),
-                                                         ImVec4(1, 1, 1, 1),
-                                                         ImVec4(1, 1, 1, 1));
-                                        }
-                                    }
-                                    else
-                                    {
-                                        if (tex->target() == GL_TEXTURE_CUBE_MAP)
-                                            ImGui::Text("Cube maps can not be displayed.");
-                                        else if (tex->target() == GL_TEXTURE_3D)
-                                            ImGui::Text("3D textures can not be displayed.");
-                                    }
-
-                                    ImGui::TreePop();
-                                }
-                            }
-                        }
                         ImGui::TreePop();
                     }
 
@@ -3889,6 +3785,129 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
 
     ImGui::End();
     ImGui::PopFont();
+}
+//-----------------------------------------------------------------------------
+//! Shows UI infos for a texture
+void AppDemoGui::showTexInfos(SLGLTexture* tex)
+{
+    // SLfloat lineH = ImGui::GetTextLineHeightWithSpacing();
+    SLfloat texW   = ImGui::GetWindowWidth() - 4 * ImGui::GetTreeNodeToLabelSpacing() - 10;
+    void*   tid    = (ImTextureID)(intptr_t)tex->texID();
+    SLfloat w      = (SLfloat)tex->width();
+    SLfloat h      = (SLfloat)tex->height();
+    SLfloat h_to_w = h / w;
+
+    if (ImGui::TreeNode(tex->name().c_str()))
+    {
+        float mbCPU = 0.0f;
+        for (auto img : tex->images())
+            mbCPU += (float)img->bytesPerImage();
+        float mbGPU = (float)tex->bytesOnGPU();
+        float mbDSK = (float)tex->bytesInFile();
+
+        mbDSK /= 1E6f;
+        mbCPU /= 1E6f;
+        mbGPU /= 1E6f;
+
+        ImGui::Text("Size(PX): %dx%dx%d", tex->width(), tex->height(), tex->depth());
+        ImGui::Text("Size(MB): GPU:%4.2f, CPU:%4.2f, DSK:%4.2f", mbGPU, mbCPU, mbDSK);
+        ImGui::Text("TexID   : %u (%s)", tex->texID(), tex->isTexture() ? "ok" : "not ok");
+        ImGui::Text("Type    : %s", tex->typeName().c_str());
+        if (!tex->images().empty() && tex->images()[0])
+            ImGui::Text("Format  : %s", tex->images()[0]->formatString().c_str());
+        else
+            ImGui::Text("Format  : %s", "n/a (GPU only)");
+#ifdef SL_BUILD_WITH_KTX
+        ImGui::Text("Compr.  : %s", tex->compressionFormatStr(tex->compressionFormat()).c_str());
+#endif
+        ImGui::Text("Min.Flt : %s", tex->minificationFilterName().c_str());
+        ImGui::Text("Mag.Flt : %s", tex->magnificationFilterName().c_str());
+
+        if (tex->target() == GL_TEXTURE_2D)
+        {
+            if (typeid(*tex) == typeid(SLTexColorLUT))
+            {
+                SLTexColorLUT* lut = (SLTexColorLUT*)tex;
+                if (ImGui::TreeNode("Color Points in Transfer Function"))
+                {
+                    showLUTColors(lut);
+                    ImGui::TreePop();
+                }
+
+                if (ImGui::TreeNode("Alpha Points in Transfer Function"))
+                {
+                    for (SLulong a = 0; a < lut->alphas().size(); ++a)
+                    {
+                        ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.25f);
+                        SLfloat alpha = lut->alphas()[a].alpha;
+                        SLchar  label[20];
+                        sprintf(label, "Alpha %lu", a);
+                        if (ImGui::SliderFloat(label, &alpha, 0.0f, 1.0f, "%3.2f"))
+                        {
+                            lut->alphas()[a].alpha = alpha;
+                            lut->generateTexture();
+                        }
+                        ImGui::SameLine();
+                        sprintf(label, "Pos. %lu", a);
+                        SLfloat pos = lut->alphas()[a].pos;
+                        if (a > 0 && a < lut->alphas().size() - 1)
+                        {
+                            SLfloat min = lut->alphas()[a - 1].pos +
+                                          2.0f / (SLfloat)lut->length();
+                            SLfloat max = lut->alphas()[a + 1].pos -
+                                          2.0f / (SLfloat)lut->length();
+                            if (ImGui::SliderFloat(label, &pos, min, max, "%3.2f"))
+                            {
+                                lut->alphas()[a].pos = pos;
+                                lut->generateTexture();
+                            }
+                        }
+                        else
+                            ImGui::Text("%3.2f Pos. %lu", pos, a);
+
+                        ImGui::PopItemWidth();
+                    }
+
+                    ImGui::TreePop();
+                }
+
+                ImGui::Image(tid,
+                             ImVec2(texW, texW * 0.15f),
+                             ImVec2(0, 1),
+                             ImVec2(1, 0),
+                             ImVec4(1, 1, 1, 1),
+                             ImVec4(1, 1, 1, 1));
+
+                SLVfloat allAlpha = lut->allAlphas();
+                ImGui::PlotLines("",
+                                 allAlpha.data(),
+                                 (SLint)allAlpha.size(),
+                                 0,
+                                 nullptr,
+                                 0.0f,
+                                 1.0f,
+                                 ImVec2(texW, texW * 0.25f));
+            }
+            else
+            {
+                ImGui::Image(tid,
+                             ImVec2(texW, texW * h_to_w),
+                             ImVec2(0, 1),
+                             ImVec2(1, 0),
+                             ImVec4(1, 1, 1, 1),
+                             ImVec4(1, 1, 1, 1));
+            }
+        }
+        else
+        {
+            if (tex->target() == GL_TEXTURE_CUBE_MAP)
+                ImGui::Text("Cube maps can not be displayed.");
+            else if (tex->target() == GL_TEXTURE_3D)
+                ImGui::Text("3D textures can not be displayed.");
+        }
+
+        ImGui::TreePop();
+    }
 }
 //-----------------------------------------------------------------------------
 //! Loads the UI configuration

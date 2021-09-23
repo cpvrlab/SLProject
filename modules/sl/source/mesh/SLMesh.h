@@ -194,8 +194,7 @@ public:
     // vertex attributes
     SLVVec3f  P;        //!< Vector for vertex positions                   layout (location = 0)
     SLVVec3f  N;        //!< Vector for vertex normals (opt.)              layout (location = 1)
-    SLVVec2f  UV[2];    //!< Array of 2 Vectors for tex. coords. (opt.)            layout (location = 2)
-    //SLVVec2f  UV2;      //!< Vector for 2nd tex. coords. (opt.)            layout (location = 3)
+    SLVVec2f  UV[2];    //!< Array of 2 Vectors for tex. coords. (opt.)    layout (location = 2)
     SLVCol4f  C;        //!< Vector of vertex colors (opt.)                layout (location = 4)
     SLVVec4f  T;        //!< Vector of vertex tangents (opt.)              layout (location = 5)
     SLVVuchar Ji;       //!< 2D Vector of per vertex joint ids (opt.)      layout (location = 6)
