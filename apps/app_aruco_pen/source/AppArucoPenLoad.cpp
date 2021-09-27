@@ -305,6 +305,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         if (sceneView != nullptr)
             sceneView->onInitialize();
 
+    /*
     if (CVCapture::instance()->videoType() != VT_NONE)
     {
         if (sv->viewportSameAsVideo())
@@ -321,6 +322,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         else
             CVCapture::instance()->start(sv->viewportWdivH());
     }
+    */
+
     s->loadTimeMS(GlobalTimer::timeMS() - startLoadMS);
 }
 //-----------------------------------------------------------------------------

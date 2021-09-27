@@ -47,7 +47,7 @@ GLFWwindow* SLGLFWInterface::createWindow(int width,
     }
 
     // Set number of monitor refreshes between 2 buffer swaps
-    glfwSwapInterval(0);
+    glfwSwapInterval(swapInterval);
 
     glfwSetWindowCloseCallback(window, onCloseInternal);
 

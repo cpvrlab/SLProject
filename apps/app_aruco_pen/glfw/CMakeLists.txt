@@ -17,6 +17,9 @@ file(GLOB headers
         ${SL_PROJECT_ROOT}/apps/source/SLProjectScene.h
 		${SL_PROJECT_ROOT}/apps/source/SLArucoPen.h
 		${SL_PROJECT_ROOT}/apps/source/SLGLFWInterface.h
+
+		${SL_PROJECT_ROOT}/apps/app_aruco_pen/glfw/IDSPeakInterface.h
+		${SL_PROJECT_ROOT}/apps/app_aruco_pen/glfw/IDSPeakCapture.h
     )
 
 file(GLOB sources
@@ -31,6 +34,9 @@ file(GLOB sources
 		${SL_PROJECT_ROOT}/apps/source/SLArucoPen.cpp
 		${SL_PROJECT_ROOT}/apps/source/SLGLFWInterface.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/AppArucoPenMainGLFW.cpp
+
+		${SL_PROJECT_ROOT}/apps/app_aruco_pen/glfw/IDSPeakInterface.cpp
+		${SL_PROJECT_ROOT}/apps/app_aruco_pen/glfw/IDSPeakCapture.cpp
     )
 
 # Group source files
@@ -54,6 +60,7 @@ target_include_directories(
         ${target}
         PRIVATE
         ${SL_PROJECT_ROOT}/apps/app_aruco_pen/include/
+		${SL_PROJECT_ROOT}/apps/app_aruco_pen/glfw/
 		${SL_PROJECT_ROOT}/apps/source
 		${SL_PROJECT_ROOT}/modules/sl/source/accelstruct
 		${SL_PROJECT_ROOT}/modules/sl/source/animation
@@ -105,3 +112,30 @@ target_link_libraries(${target}
     ${DEFAULT_LINKER_OPTIONS}
     INTERFACE
     )
+
+target_include_directories(${target}
+		PRIVATE
+		${SL_PROJECT_ROOT}/apps/app_aruco_pen/external/peak/api/include
+		${SL_PROJECT_ROOT}/apps/app_aruco_pen/external/peak/ipl/include
+		PUBLIC
+		INTERFACE)
+
+target_link_directories(${target}
+		PRIVATE
+		${SL_PROJECT_ROOT}/apps/app_aruco_pen/external/peak/api/lib/x86_64
+		${SL_PROJECT_ROOT}/apps/app_aruco_pen/external/peak/ipl/lib/x86_64
+		PUBLIC
+		INTERFACE)
+
+target_link_libraries(${target}
+		PRIVATE
+		ids_peak
+		ids_peak_ipl
+		PUBLIC
+		INTERFACE)
+
+file(GLOB
+		IDS_PEAK_DLLS
+		"${SL_PROJECT_ROOT}/apps/app_aruco_pen/external/peak/api/lib/x86_64/*.dll"
+		"${SL_PROJECT_ROOT}/apps/app_aruco_pen/external/peak/ipl/lib/x86_64/*.dll")
+file(COPY ${IDS_PEAK_DLLS} DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})

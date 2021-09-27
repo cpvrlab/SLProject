@@ -25,6 +25,10 @@
 
 #include <SLGLFWInterface.h>
 
+#include <IDSPeakInterface.h>
+#include <IDSPeakCapture.h>
+#include <GlobalTimer.h>
+
 //-----------------------------------------------------------------------------
 //! Forward declaration of the scene definition function from AppArucoPenLoad.cpp
 extern void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID);
@@ -53,7 +57,7 @@ static SLbool      fullscreen        = false;  //!< flag if window is in fullscr
 
 //-----------------------------------------------------------------------------
 /*!
-onPaint: Paint event handler that passes the event to the slPaint function. 
+onPaint: Paint event handler that passes the event to the slPaint function.
 */
 SLbool onPaint()
 {
@@ -67,7 +71,19 @@ SLbool onPaint()
     if (CVCapture::instance()->videoType() != VT_NONE)
     {
         float viewportWdivH = sv->viewportWdivH();
-        CVCapture::instance()->grabAndAdjustForSL(viewportWdivH);
+
+        IDSPeakCapture::instance().grab();
+        int      width  = IDSPeakCapture::instance().width();
+        int      height = IDSPeakCapture::instance().height();
+        uint8_t* data   = IDSPeakCapture::instance().dataBGR();
+        uint8_t* dataGray = IDSPeakCapture::instance().dataGray();
+
+        // It's much faster if we do this ourselves instead of calling "loadIntoLastFrame"
+        CVCapture::instance()->lastFrame = CVMat(height, width, CV_8UC3, data, 0);
+        cv::resize(CVCapture::instance()->lastFrame, CVCapture::instance()->lastFrame, cv::Size(width / 2, height / 2));
+        CVCapture::instance()->adjustForSL(viewportWdivH);
+
+        // CVCapture::instance()->grabAndAdjustForSL(viewportWdivH);
     }
 
     ////////////////////////////////////////////////
@@ -96,7 +112,7 @@ static void onResize(GLFWwindow* myWindow, int width, int height)
 
     if (fixAspectRatio)
     {
-        //correct target width and height
+        // correct target width and height
         if ((float)height * scrWdivH <= (float)width)
         {
             width  = (int)((float)height * scrWdivH);
@@ -351,7 +367,7 @@ void initGLFW(int screenWidth, int screenHeight)
     SLGLFWInterface::initialize();
     window = SLGLFWInterface::createWindow(screenWidth, screenHeight, "My Title", 1, 4);
 
-    //get real window size
+    // get real window size
     glfwGetWindowSize(window, &scrWidth, &scrHeight);
 
     SLGLFWInterface::createGLContext();
@@ -361,6 +377,9 @@ void initGLFW(int screenWidth, int screenHeight)
 
     // With GLFW ImGui draws the cursor
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+
+    // Set number of monitor refreshes between 2 buffer swaps
+    glfwSwapInterval(1);
 
     // Get GL errors that occurred before our framework is involved
     GET_GL_ERROR;
@@ -392,9 +411,9 @@ void initSL(SLVstring& cmdLineArgs)
     SLstring projectRoot = SLstring(SL_PROJECT_ROOT);
     SLstring configDir   = Utils::getAppsWritableDir();
     slSetupExternalDir(projectRoot + "/data/");
-    //Utils::dumpFileSystemRec("SLProject",  projectRoot + "/data");
+    // Utils::dumpFileSystemRec("SLProject",  projectRoot + "/data");
 
-    //setup platform dependent data path
+    // setup platform dependent data path
     AppDemo::calibFilePath = configDir;
     AppDemo::calibIniPath  = projectRoot + "/data/calibrations/";                                 // for calibInitPath
     CVCapture::instance()->loadCalibrations(Utils::ComputerInfos::get(), AppDemo::calibFilePath); // for calibrations made
@@ -432,6 +451,8 @@ The C main procedure running the GLFW GUI application.
 */
 int main(int argc, char* argv[])
 {
+    IDSPeakCapture::instance().start();
+
     // set command line arguments
     SLVstring cmdLineArgs;
     for (int i = 0; i < argc; i++)
@@ -456,7 +477,7 @@ int main(int argc, char* argv[])
 
         // if no updated occurred wait for the next event (power saving)
         if (!doRepaint)
-            //todo ghm1: glfwWaitEvents is not working on my machine (maybe https://github.com/glfw/glfw/issues/685)
+            // todo ghm1: glfwWaitEvents is not working on my machine (maybe https://github.com/glfw/glfw/issues/685)
             glfwWaitEvents();
         else
             glfwPollEvents();
@@ -466,6 +487,9 @@ int main(int argc, char* argv[])
 
     glfwDestroyWindow(window);
     glfwTerminate();
+
+    IDSPeakCapture::instance().stop();
+
     return 0;
 }
 //-----------------------------------------------------------------------------
