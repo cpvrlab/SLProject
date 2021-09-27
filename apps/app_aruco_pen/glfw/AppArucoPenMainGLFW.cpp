@@ -70,20 +70,23 @@ SLbool onPaint()
     // If live video image is requested grab it and copy it
     if (CVCapture::instance()->videoType() != VT_NONE)
     {
-        float viewportWdivH = sv->viewportWdivH();
+        if (AppArucoPenGui::useIDSCamera)
+        {
+            if (!IDSPeakCapture::instance().running())
+            {
+                IDSPeakCapture::instance().start();
+            }
 
-        IDSPeakCapture::instance().grab();
-        int      width  = IDSPeakCapture::instance().width();
-        int      height = IDSPeakCapture::instance().height();
-        uint8_t* data   = IDSPeakCapture::instance().dataBGR();
-        uint8_t* dataGray = IDSPeakCapture::instance().dataGray();
-
-        // It's much faster if we do this ourselves instead of calling "loadIntoLastFrame"
-        CVCapture::instance()->lastFrame = CVMat(height, width, CV_8UC3, data, 0);
-        cv::resize(CVCapture::instance()->lastFrame, CVCapture::instance()->lastFrame, cv::Size(width / 2, height / 2));
-        CVCapture::instance()->adjustForSL(viewportWdivH);
-
-        // CVCapture::instance()->grabAndAdjustForSL(viewportWdivH);
+            float before = GlobalTimer::timeMS();
+            IDSPeakCapture::instance().grab();
+            IDSPeakCapture::instance().loadIntoCVCapture();
+            CVCapture::instance()->captureTimesMS().set(GlobalTimer::timeMS() - before);
+        }
+        else
+        {
+            float viewportWdivH = sv->viewportWdivH();
+            CVCapture::instance()->grabAndAdjustForSL(viewportWdivH);
+        }
     }
 
     ////////////////////////////////////////////////
@@ -451,8 +454,6 @@ The C main procedure running the GLFW GUI application.
 */
 int main(int argc, char* argv[])
 {
-    IDSPeakCapture::instance().start();
-
     // set command line arguments
     SLVstring cmdLineArgs;
     for (int i = 0; i < argc; i++)
@@ -488,7 +489,10 @@ int main(int argc, char* argv[])
     glfwDestroyWindow(window);
     glfwTerminate();
 
-    IDSPeakCapture::instance().stop();
+    if (IDSPeakCapture::instance().running())
+    {
+        IDSPeakCapture::instance().stop();
+    }
 
     return 0;
 }

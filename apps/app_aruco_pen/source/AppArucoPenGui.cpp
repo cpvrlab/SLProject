@@ -91,15 +91,16 @@ void centerNextWindow(SLSceneView* sv,
 }
 //-----------------------------------------------------------------------------
 // Init global static variables
-SLstring    AppArucoPenGui::configTime          = "-";
-SLbool      AppArucoPenGui::showDockSpace       = true;
-SLbool      AppArucoPenGui::showStatsTiming     = false;
-SLbool      AppArucoPenGui::showStatsScene      = false;
-SLbool      AppArucoPenGui::showStatsVideo      = false;
-SLbool      AppArucoPenGui::showImGuiMetrics    = false;
-SLbool      AppArucoPenGui::showInfosSensors    = false;
-SLbool      AppArucoPenGui::showInfosDevice     = false;
-SLbool      AppArucoPenGui::hideUI              = false;
+SLstring AppArucoPenGui::configTime       = "-";
+SLbool   AppArucoPenGui::showDockSpace    = true;
+SLbool   AppArucoPenGui::showStatsTiming  = false;
+SLbool   AppArucoPenGui::showStatsScene   = false;
+SLbool   AppArucoPenGui::showStatsVideo   = false;
+SLbool   AppArucoPenGui::showImGuiMetrics = false;
+SLbool   AppArucoPenGui::showInfosSensors = false;
+SLbool   AppArucoPenGui::showInfosDevice  = false;
+SLbool   AppArucoPenGui::hideUI           = false;
+SLbool   AppArucoPenGui::useIDSCamera     = true;
 
 //-----------------------------------------------------------------------------
 void AppArucoPenGui::clear()
@@ -698,7 +699,6 @@ void AppArucoPenGui::build(SLProjectScene* s, SLSceneView* sv)
                 ImGui::End();
                 ImGui::PopFont();
             }
-
         }
     }
 }
@@ -762,17 +762,12 @@ void AppArucoPenGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
         {
             if (ImGui::BeginMenu("Load Test Scene"))
             {
-                if (ImGui::BeginMenu("Using Video"))
-                {
-                    if (ImGui::MenuItem("Track Aruco Cube (Main)", nullptr, sid == SID_VideoTrackArucoCubeMain))
-                        s->onLoad(s, sv, SID_VideoTrackArucoCubeMain);
-                    if (ImGui::MenuItem("Track Chessboard (Main)", nullptr, sid == SID_VideoTrackChessMain))
-                        s->onLoad(s, sv, SID_VideoTrackChessMain);
-                    if (ImGui::MenuItem("Track Chessboard (Scnd)", nullptr, sid == SID_VideoTrackChessScnd, capture->hasSecondaryCamera))
-                        s->onLoad(s, sv, SID_VideoTrackChessScnd);
-
-                    ImGui::EndMenu();
-                }
+                if (ImGui::MenuItem("Track Aruco Cube (Main)", nullptr, sid == SID_VideoTrackArucoCubeMain))
+                    s->onLoad(s, sv, SID_VideoTrackArucoCubeMain);
+                if (ImGui::MenuItem("Track Chessboard (Main)", nullptr, sid == SID_VideoTrackChessMain))
+                    s->onLoad(s, sv, SID_VideoTrackChessMain);
+                if (ImGui::MenuItem("Track Chessboard (Scnd)", nullptr, sid == SID_VideoTrackChessScnd, capture->hasSecondaryCamera))
+                    s->onLoad(s, sv, SID_VideoTrackChessScnd);
 
                 ImGui::EndMenu();
             }
@@ -852,6 +847,9 @@ void AppArucoPenGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
 
             if (ImGui::BeginMenu("Video Sensor"))
             {
+                if (ImGui::MenuItem("Use IDS Camera", nullptr, useIDSCamera))
+                    useIDSCamera = !useIDSCamera;
+
                 CVCamera* ac = capture->activeCamera;
                 if (ImGui::BeginMenu("Mirror Camera"))
                 {
@@ -962,8 +960,6 @@ void AppArucoPenGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
 
                 ImGui::EndMenu();
             }
-
-            ImGui::Separator();
 
             ImGui::EndMenu();
         }

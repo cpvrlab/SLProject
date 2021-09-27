@@ -7,6 +7,7 @@
 
 #include <cstdint>
 #include <IDSPeakInterface.h>
+#include <CVCapture.h>
 
 class IDSPeakCapture
 {
@@ -24,17 +25,19 @@ private:
     uint8_t* _dataBGR;
     uint8_t* _dataGray;
 
-    bool running = false;
+    bool _running = false;
 
 public:
     void start();
     void grab();
+    void loadIntoCVCapture();
     void stop();
 
     int width() { return _width; }
     int height() { return _height; }
     uint8_t* dataBGR() { return _dataBGR; }
     uint8_t* dataGray() { return _dataGray; }
+    bool running() { return _running; }
 
 private:
     IDSPeakCapture();

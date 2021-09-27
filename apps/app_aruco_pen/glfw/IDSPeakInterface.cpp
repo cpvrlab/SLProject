@@ -5,7 +5,6 @@
 #include "IDSPeakInterface.h"
 
 #include <SL.h>
-#include <GlobalTimer.h>
 
 std::shared_ptr<peak::core::Device>     IDSPeakInterface::device              = nullptr;
 std::shared_ptr<peak::core::DataStream> IDSPeakInterface::dataStream          = nullptr;
@@ -58,7 +57,7 @@ void IDSPeakInterface::setDeviceParameters()
         // Set frame rate to maximum
         auto frameRateNode = nodeMapRemoteDevice->FindNode<peak::core::nodes::FloatNode>("AcquisitionFrameRate");
         frameRateNode->SetValue(frameRateNode->Maximum());
-        SL_LOG("IDS Peak: Frame rate = %fHz", frameRateNode->Value());
+        SL_LOG("IDS Peak: Frame rate = %f Hz", frameRateNode->Value());
 
         // Set region of interest
         auto offsetXNode = nodeMapRemoteDevice->FindNode<peak::core::nodes::IntegerNode>("OffsetX");
@@ -71,7 +70,7 @@ void IDSPeakInterface::setDeviceParameters()
         widthNode->SetValue(widthNode->Maximum());
         heightNode->SetValue(heightNode->Maximum());
 
-        SL_LOG("IDS Peak: Region of Interest = [x=%d, y=%d, width=%d, height=%d]",
+        SL_LOG("IDS Peak: Region of Interest = [x: %d, y: %d, width: %d, height: %d]",
                offsetXNode->Value(),
                offsetYNode->Value(),
                widthNode->Value(),
@@ -79,8 +78,14 @@ void IDSPeakInterface::setDeviceParameters()
 
         // Set gain
         auto gainNode = nodeMapRemoteDevice->FindNode<peak::core::nodes::FloatNode>("Gamma");
-        gainNode->SetValue(2.0f);
+        gainNode->SetValue(2.5f);
         SL_LOG("IDS Peak: Gain = %f", gainNode->Value());
+
+        // Set binning
+        auto binningHNode = nodeMapRemoteDevice->FindNode<peak::core::nodes::IntegerNode>("BinningHorizontal");
+        auto binningVNode = nodeMapRemoteDevice->FindNode<peak::core::nodes::IntegerNode>("BinningVertical");
+        binningHNode->SetValue(2);
+        binningVNode->SetValue(2);
     }
     catch (const std::exception& e)
     {
@@ -150,8 +155,6 @@ void IDSPeakInterface::captureImage(int* width, int* height, uint8_t** dataBGR, 
                                                peak::ipl::ConversionMode::Fast);
         const auto imageGray = image.ConvertTo(peak::ipl::PixelFormatName::Mono8,
                                                peak::ipl::ConversionMode::Fast);
-
-        // SL_LOG("IDS Peak: Image captured (%f)", GlobalTimer::timeS());
 
         *width    = (int)image.Width();
         *height   = (int)image.Height();
