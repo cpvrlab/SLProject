@@ -14,14 +14,14 @@
 #include <cv/CVTrackedAruco.h>
 #include <SLGLTexture.h>
 #include <cv/CVCalibrationEstimator.h>
-#include <AppArucoPenSceneView.h>
+#include <apps/app_aruco_pen/source/app/AppArucoPenSceneView.h>
 #include <AppDemo.h>
 #include <FtpUtils.h>
 #include <GlobalTimer.h>
 #include <SLProjectScene.h>
 #include <Instrumentor.h>
 
-#include <IDSPeakInterface.h>
+#include <app/AppArucoPen.h>
 
 //-----------------------------------------------------------------------------
 /*! Global pointer for the video texture defined in AppDemoLoad for video scenes
@@ -51,108 +51,6 @@ void updateTrackingSceneCamera(CVCamera* ac)
         trackingCam->fov(ac->calibration.cameraFovVDeg());
     }
 }
-//-----------------------------------------------------------------------------
-// CVCalibrationEstimator* calibrationEstimator = nullptr;
-void runCalibrationEstimator(CVCamera* ac, SLScene* s, SLSceneView* sv)
-{
-    PROFILE_FUNCTION();
-
-    AppArucoPenSceneView* adSv                 = dynamic_cast<AppArucoPenSceneView*>(sv);
-    static bool           processedCalibResult = false;
-    try
-    {
-        if (!AppDemo::calibrationEstimator)
-        {
-            AppDemo::calibrationEstimator = new CVCalibrationEstimator(AppDemo::calibrationEstimatorParams,
-                                                                       CVCapture::instance()->activeCamSizeIndex,
-                                                                       ac->mirrorH(),
-                                                                       ac->mirrorV(),
-                                                                       ac->type(),
-                                                                       Utils::ComputerInfos::get(),
-                                                                       AppDemo::calibIniPath,
-                                                                       AppDemo::externalPath,
-                                                                       AppDemo::exePath);
-
-            // clear grab request from sceneview
-            adSv->grab           = false;
-            processedCalibResult = false;
-        }
-
-        if (AppDemo::calibrationEstimator->isStreaming())
-        {
-            AppDemo::calibrationEstimator->updateAndDecorate(CVCapture::instance()->lastFrame, CVCapture::instance()->lastFrameGray, adSv->grab);
-            // reset grabbing switch
-            adSv->grab = false;
-
-            stringstream ss;
-            ss << "Click on the screen to create a calibration photo. Created "
-               << AppDemo::calibrationEstimator->numCapturedImgs() << " of " << AppDemo::calibrationEstimator->numImgsToCapture();
-            s->info(ss.str());
-        }
-        else if (AppDemo::calibrationEstimator->isBusyExtracting())
-        {
-            // also reset grabbing, user has to click again
-            adSv->grab = false;
-            AppDemo::calibrationEstimator->updateAndDecorate(CVCapture::instance()->lastFrame, CVCapture::instance()->lastFrameGray, false);
-            s->info("Busy extracting corners, please wait with grabbing ...");
-        }
-        else if (AppDemo::calibrationEstimator->isCalculating())
-        {
-            AppDemo::calibrationEstimator->updateAndDecorate(CVCapture::instance()->lastFrame, CVCapture::instance()->lastFrameGray, false);
-            s->info("Calculating calibration, please wait ...");
-        }
-        else if (AppDemo::calibrationEstimator->isDone())
-        {
-            if (!processedCalibResult)
-            {
-                if (AppDemo::calibrationEstimator->calibrationSuccessful())
-                {
-                    processedCalibResult = true;
-                    ac->calibration      = AppDemo::calibrationEstimator->getCalibration();
-
-                    std::string computerInfo      = Utils::ComputerInfos::get();
-                    string      mainCalibFilename = "camCalib_" + computerInfo + "_main.xml";
-                    string      scndCalibFilename = "camCalib_" + computerInfo + "_scnd.xml";
-                    std::string errorMsg;
-                    if (ac->calibration.save(AppDemo::calibFilePath, mainCalibFilename))
-                    {
-
-                        if (!FtpUtils::uploadFile(AppDemo::calibFilePath,
-                                                  mainCalibFilename,
-                                                  AppDemo::CALIB_FTP_HOST,
-                                                  AppDemo::CALIB_FTP_USER,
-                                                  AppDemo::CALIB_FTP_PWD,
-                                                  AppDemo::CALIB_FTP_DIR,
-                                                  errorMsg))
-                        {
-                            Utils::log("WAIApp", errorMsg.c_str());
-                        }
-                    }
-                    else
-                    {
-                        errorMsg += " Saving calibration failed!";
-                    }
-
-                    s->info("Calibration successful." + errorMsg);
-                }
-                else
-                {
-                    s->info(("Calibration failed!"));
-                }
-            }
-        }
-        else if (AppDemo::calibrationEstimator->isDoneCaptureAndSave())
-        {
-            s->info(("Capturing done!"));
-        }
-    }
-    catch (CVCalibrationEstimatorException& e)
-    {
-        log("SLProject", e.what());
-        s->info("Exception during calibration! Please restart!");
-    }
-}
-
 //-----------------------------------------------------------------------------
 //! logic that ensures that we have a valid calibration state
 void ensureValidCalibration(CVCamera* ac, SLSceneView* sv)
@@ -223,12 +121,11 @@ bool onUpdateVideo()
     {
         SLfloat trackingTimeStartMS = GlobalTimer::timeMS();
 
-        CVCamera* ac = CVCapture::instance()->activeCamera;
+        CVCamera* ac = &AppArucoPen::instance().currentCaptureProvider()->camera();
 
-        if (AppDemo::sceneID == SID_VideoCalibrateMain ||
-            AppDemo::sceneID == SID_VideoCalibrateScnd)
+        if (AppDemo::sceneID == SID_VideoCalibrateMain)
         {
-            runCalibrationEstimator(ac, s, sv);
+            AppArucoPen::instance().calibrator().update(ac, s, sv);
         }
         else
         {
@@ -275,14 +172,12 @@ bool onUpdateVideo()
 
             // Update info text only for chessboard scene
             if (AppDemo::sceneID == SID_VideoCalibrateMain ||
-                AppDemo::sceneID == SID_VideoCalibrateScnd ||
-                AppDemo::sceneID == SID_VideoTrackChessMain ||
-                AppDemo::sceneID == SID_VideoTrackChessScnd)
+                AppDemo::sceneID == SID_VideoTrackChessMain)
             {
                 SLfloat      fovH = ac->calibration.cameraFovHDeg();
                 SLfloat      err  = ac->calibration.reprojectionError();
                 stringstream ss; // info line text
-                ss << "Tracking Chessboard on " << (CVCapture::instance()->videoType() == VT_MAIN ? "main " : "scnd. ") << "camera. ";
+                ss << "Tracking Chessboard on main camera. ";
                 if (ac->calibration.state() == CS_calibrated)
                     ss << "FOVH: " << fovH << ", error: " << err;
                 else
@@ -310,8 +205,6 @@ bool onUpdateVideo()
             }
             else
             {
-                // CVCapture::instance()->videoTexture()->copyVideoImage(CVCapture::instance()->lastFrame.cols,
-
                 videoTexture->copyVideoImage(CVCapture::instance()->lastFrame.cols,
                                              CVCapture::instance()->lastFrame.rows,
                                              CVCapture::instance()->format,

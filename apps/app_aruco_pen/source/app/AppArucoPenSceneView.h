@@ -7,6 +7,9 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
+#ifndef SLPROJECT_APPARUCOPENSCENEVIEW_H
+#define SLPROJECT_APPARUCOPENSCENEVIEW_H
+
 #include <SLSceneView.h>
 
 class SLProjectScene;
@@ -25,3 +28,4 @@ public:
     SLbool grab = false;
 };
 //-----------------------------------------------------------------------------
+#endif

@@ -8,8 +8,8 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include <AppArucoPenGui.h>
-#include <AppArucoPen.h>
+#include <apps/app_aruco_pen/source/app/AppArucoPenGui.h>
+#include <apps/app_aruco_pen/source/app/AppArucoPen.h>
 #include <SLAnimPlayback.h>
 #include <AppDemo.h>
 #include <CVCapture.h>
@@ -22,7 +22,7 @@
 #include <SLInterface.h>
 #include <SLDeviceLocation.h>
 #include <SLDeviceRotation.h>
-#include <SLLightDirect.h>
+#include <SLLightSpot.h>
 #include <SLLightRect.h>
 #include <SLLightSpot.h>
 #include <SLShadowMap.h>
@@ -30,7 +30,7 @@
 #include <SLMesh.h>
 #include <SLNode.h>
 #include <SLScene.h>
-#include <SLSceneView.h>
+#include <SLGLImGui.h>
 #include <SLTexColorLUT.h>
 #include <SLGLImGui.h>
 #include <SLProjectScene.h>
@@ -92,15 +92,16 @@ void centerNextWindow(SLSceneView* sv,
 }
 //-----------------------------------------------------------------------------
 // Init global static variables
-SLstring AppArucoPenGui::configTime       = "-";
-SLbool   AppArucoPenGui::showDockSpace    = true;
-SLbool   AppArucoPenGui::showStatsTiming  = false;
-SLbool   AppArucoPenGui::showStatsScene   = false;
-SLbool   AppArucoPenGui::showStatsVideo   = false;
-SLbool   AppArucoPenGui::showImGuiMetrics = false;
-SLbool   AppArucoPenGui::showInfosSensors = false;
-SLbool   AppArucoPenGui::showInfosDevice  = false;
-SLbool   AppArucoPenGui::hideUI           = false;
+SLstring AppArucoPenGui::configTime        = "-";
+SLbool   AppArucoPenGui::showDockSpace     = true;
+SLbool   AppArucoPenGui::showStatsTiming   = false;
+SLbool   AppArucoPenGui::showStatsScene    = false;
+SLbool   AppArucoPenGui::showStatsVideo    = false;
+SLbool   AppArucoPenGui::showImGuiMetrics  = false;
+SLbool   AppArucoPenGui::showInfosSensors  = false;
+SLbool   AppArucoPenGui::showInfosDevice   = false;
+SLbool   AppArucoPenGui::showInfosTracking = false;
+SLbool   AppArucoPenGui::hideUI            = false;
 
 //-----------------------------------------------------------------------------
 void AppArucoPenGui::clear()
@@ -699,6 +700,25 @@ void AppArucoPenGui::build(SLProjectScene* s, SLSceneView* sv)
                 ImGui::End();
                 ImGui::PopFont();
             }
+
+            if (showInfosTracking && AppArucoPen::instance().arucoPen())
+            {
+                SLchar m[1024]; // message character array
+                m[0] = 0;       // set zero length
+
+                SLArucoPen* pen    = AppArucoPen::instance().arucoPen();
+                SLVec3f     tipPos = pen->tipPosition();
+                sprintf(m + strlen(m), "Tip position             : %s\n", tipPos.toString(", ", 4).c_str());
+                sprintf(m + strlen(m), "Measured Distance (Live) : %.2f cm\n", pen->liveDistance() * 100.0f);
+                sprintf(m + strlen(m), "Measured Distance (Last) : %.2f cm\n", pen->lastDistance() * 100.0f);
+
+                // Switch to fixed font
+                ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
+                ImGui::Begin("Tracking Information", &showInfosTracking, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize);
+                ImGui::TextUnformatted(m);
+                ImGui::End();
+                ImGui::PopFont();
+            }
         }
     }
 }
@@ -766,8 +786,6 @@ void AppArucoPenGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                     s->onLoad(s, sv, SID_VideoTrackArucoCubeMain);
                 if (ImGui::MenuItem("Track Chessboard (Main)", nullptr, sid == SID_VideoTrackChessMain))
                     s->onLoad(s, sv, SID_VideoTrackChessMain);
-                if (ImGui::MenuItem("Track Chessboard (Scnd)", nullptr, sid == SID_VideoTrackChessScnd, capture->hasSecondaryCamera))
-                    s->onLoad(s, sv, SID_VideoTrackChessScnd);
 
                 ImGui::EndMenu();
             }
@@ -851,10 +869,10 @@ void AppArucoPenGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                 {
                     AppArucoPen& app = AppArucoPen::instance();
 
-                    for (CVCaptureProvider* provider : app.captureProviders)
+                    for (CVCaptureProvider* provider : app.captureProviders())
                     {
-                        if (ImGui::MenuItem(provider->name().c_str(), nullptr, app.currentCaptureProvider == provider))
-                            app.currentCaptureProvider = provider;
+                        if (ImGui::MenuItem(provider->name().c_str(), nullptr, app.currentCaptureProvider() == provider))
+                            app.currentCaptureProvider(provider);
                     }
 
                     ImGui::EndMenu();
@@ -880,9 +898,7 @@ void AppArucoPenGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                     ImGui::EndMenu();
                 }
 
-                if (ImGui::BeginMenu("Resolution",
-                                     (capture->videoType() == VT_MAIN ||
-                                      capture->videoType() == VT_SCND)))
+                if (ImGui::BeginMenu("Resolution", capture->videoType() == VT_MAIN))
                 {
                     for (int i = 0; i < (int)capture->camSizes.size(); ++i)
                     {
@@ -903,11 +919,6 @@ void AppArucoPenGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                     if (ImGui::MenuItem("Start Calibration (Main Camera)"))
                     {
                         s->onLoad(s, sv, SID_VideoCalibrateMain);
-                    }
-
-                    if (ImGui::MenuItem("Start Calibration (Scnd. Camera)", nullptr, false, capture->hasSecondaryCamera))
-                    {
-                        s->onLoad(s, sv, SID_VideoCalibrateScnd);
                     }
 
                     if (ImGui::MenuItem("Undistort Image", nullptr, ac->showUndistorted(), ac->calibration.state() == CS_calibrated))
@@ -1067,6 +1078,7 @@ void AppArucoPenGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
             ImGui::Separator();
             ImGui::MenuItem("Infos on Device", nullptr, &showInfosDevice);
             ImGui::MenuItem("Infos on Sensors", nullptr, &showInfosSensors);
+            ImGui::MenuItem("Infos on Tracking", nullptr, &showInfosTracking);
 
             ImGui::EndMenu();
         }
@@ -1177,6 +1189,7 @@ void AppArucoPenGui::loadConfig(SLint dotsPerInch)
             fs["showStatsVideo"] >> b;      AppArucoPenGui::showStatsVideo = b;
             fs["showInfosFrameworks"] >> b; AppArucoPenGui::showInfosDevice = b;
             fs["showInfosSensors"] >> b;    AppArucoPenGui::showInfosSensors = b;
+            fs["showInfosTracking"] >> b;   AppArucoPenGui::showInfosTracking = b;
             fs["showDockSpace"] >> b;       AppArucoPenGui::showDockSpace = b;
             // clang-format on
 
@@ -1250,6 +1263,7 @@ void AppArucoPenGui::saveConfig()
     fs << "showStatsVideo" << AppArucoPenGui::showStatsVideo;
     fs << "showInfosFrameworks" << AppArucoPenGui::showInfosDevice;
     fs << "showInfosSensors" << AppArucoPenGui::showInfosSensors;
+    fs << "showInfosTracking" << AppArucoPenGui::showInfosTracking;
     fs << "showDockSpace" << AppArucoPenGui::showDockSpace;
 
     fs.release();

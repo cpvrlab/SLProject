@@ -1,0 +1,111 @@
+#include "AppArucoPenCalibrator.h"
+
+#include <AppDemo.h>
+#include <app/AppArucoPen.h>
+
+#include <CVCapture.h>
+
+#include <string>
+#include <sstream>
+
+AppArucoPenCalibrator::~AppArucoPenCalibrator()
+{
+    delete _calibrationEstimator;
+}
+
+void AppArucoPenCalibrator::reset()
+{
+    delete _calibrationEstimator;
+    _calibrationEstimator = nullptr;
+}
+
+void AppArucoPenCalibrator::update(CVCamera* ac, SLScene* s, SLSceneView* sv)
+{
+    auto* aapSv = dynamic_cast<AppArucoPenSceneView*>(sv);
+
+    try
+    {
+        if (!_calibrationEstimator)
+        {
+            init(ac, aapSv);
+        }
+
+        if (_calibrationEstimator->isStreaming())
+        {
+            _calibrationEstimator->updateAndDecorate(CVCapture::instance()->lastFrame, CVCapture::instance()->lastFrameGray, aapSv->grab);
+            // reset grabbing switch
+            aapSv->grab = false;
+
+            stringstream ss;
+            ss << "Click on the screen to create a calibration photo. Created "
+               << _calibrationEstimator->numCapturedImgs() << " of " << _calibrationEstimator->numImgsToCapture();
+            s->info(ss.str());
+        }
+        else if (_calibrationEstimator->isBusyExtracting())
+        {
+            // also reset grabbing, user has to click again
+            aapSv->grab = false;
+            _calibrationEstimator->updateAndDecorate(CVCapture::instance()->lastFrame, CVCapture::instance()->lastFrameGray, false);
+            s->info("Busy extracting corners, please wait with grabbing ...");
+        }
+        else if (_calibrationEstimator->isCalculating())
+        {
+            _calibrationEstimator->updateAndDecorate(CVCapture::instance()->lastFrame, CVCapture::instance()->lastFrameGray, false);
+            s->info("Calculating calibration, please wait ...");
+        }
+        else if (_calibrationEstimator->isDone())
+        {
+            if (!_processedCalibResult)
+            {
+                if (_calibrationEstimator->calibrationSuccessful())
+                {
+                    _processedCalibResult = true;
+                    ac->calibration       = _calibrationEstimator->getCalibration();
+
+                    std::string camUID            = AppArucoPen::instance().currentCaptureProvider()->uid();
+                    string      mainCalibFilename = "camCalib_" + camUID + ".xml";
+                    std::string errorMsg;
+
+                    if (!ac->calibration.save(AppDemo::calibFilePath, mainCalibFilename))
+                    {
+                        errorMsg += " Saving calibration failed!";
+                    }
+
+                    s->info("Calibration successful." + errorMsg);
+                }
+                else
+                {
+                    s->info(("Calibration failed!"));
+                }
+
+                s->onLoad(s, sv, SID_VideoTrackArucoCubeMain);
+            }
+        }
+        else if (_calibrationEstimator->isDoneCaptureAndSave())
+        {
+            s->info(("Capturing done!"));
+        }
+    }
+    catch (CVCalibrationEstimatorException& e)
+    {
+        log("SLProject", e.what());
+        s->info("Exception during calibration! Please restart!");
+    }
+}
+
+void AppArucoPenCalibrator::init(CVCamera* ac, AppArucoPenSceneView* aapSv)
+{
+    _calibrationEstimator = new CVCalibrationEstimator(AppDemo::calibrationEstimatorParams,
+                                                       CVCapture::instance()->activeCamSizeIndex,
+                                                       ac->mirrorH(),
+                                                       ac->mirrorV(),
+                                                       ac->type(),
+                                                       Utils::ComputerInfos::get(),
+                                                       AppDemo::calibIniPath,
+                                                       AppDemo::externalPath,
+                                                       AppDemo::exePath);
+
+    // clear grab request from sceneview
+    aapSv->grab           = false;
+    _processedCalibResult = false;
+}

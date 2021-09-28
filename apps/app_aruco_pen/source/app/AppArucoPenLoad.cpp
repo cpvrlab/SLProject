@@ -41,15 +41,13 @@
 #include <SLProjectScene.h>
 #include <SLGLProgramManager.h>
 #include <Instrumentor.h>
-#include <AppArucoPenGui.h>
+#include <apps/app_aruco_pen/source/app/AppArucoPenGui.h>
 #include <SLDeviceLocation.h>
 #include <SLNodeLOD.h>
 
+#include <app/AppArucoPen.h>
 #include <SLArucoPen.h>
 
-#ifdef SL_BUILD_WAI
-#    include <CVTrackedWAI.h>
-#endif
 //-----------------------------------------------------------------------------
 // Global pointers declared in AppDemoVideo
 extern SLGLTexture* videoTexture;
@@ -104,10 +102,10 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
     AppDemo::devRot.init();
     AppDemo::devLoc.init();
 
+    AppArucoPen::instance().arucoPen(nullptr);
+
     if (sceneID == SID_VideoTrackChessMain ||
-             sceneID == SID_VideoTrackChessScnd ||
-             sceneID == SID_VideoCalibrateMain ||
-             sceneID == SID_VideoCalibrateScnd) //.................................................
+        sceneID == SID_VideoCalibrateMain) //.................................................
     {
         /*
         The tracking of markers is done in AppDemoVideo::onUpdateTracking by calling the specific
@@ -121,39 +119,19 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         */
 
         // Setup here only the requested scene.
-        if (sceneID == SID_VideoTrackChessMain ||
-            sceneID == SID_VideoTrackChessScnd)
+        if (sceneID == SID_VideoTrackChessMain)
         {
             if (sceneID == SID_VideoTrackChessMain)
             {
                 CVCapture::instance()->videoType(VT_MAIN);
                 s->name("Track Chessboard (main cam.)");
             }
-            else
-            {
-                CVCapture::instance()->videoType(VT_SCND);
-                s->name("Track Chessboard (scnd cam.");
-            }
         }
         else if (sceneID == SID_VideoCalibrateMain)
         {
-            if (AppDemo::calibrationEstimator)
-            {
-                delete AppDemo::calibrationEstimator;
-                AppDemo::calibrationEstimator = nullptr;
-            }
+            AppArucoPen::instance().calibrator().reset();
             CVCapture::instance()->videoType(VT_MAIN);
             s->name("Calibrate Main Cam.");
-        }
-        else if (sceneID == SID_VideoCalibrateScnd)
-        {
-            if (AppDemo::calibrationEstimator)
-            {
-                delete AppDemo::calibrationEstimator;
-                AppDemo::calibrationEstimator = nullptr;
-            }
-            CVCapture::instance()->videoType(VT_SCND);
-            s->name("Calibrate Scnd Cam.");
         }
 
         // Create video texture on global pointer updated in AppDemoVideo
@@ -190,8 +168,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         scene->addChild(light1);
 
         // Build mesh & node
-        if (sceneID == SID_VideoTrackChessMain ||
-            sceneID == SID_VideoTrackChessScnd)
+        if (sceneID == SID_VideoTrackChessMain)
         {
             SLBox*  box     = new SLBox(s, 0.0f, 0.0f, 0.0f, e3, e3, e3, "Box", yellow);
             SLNode* boxNode = new SLNode(box, "Box Node");
@@ -264,12 +241,12 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         SLAssimpImporter importer;
         SLNode*          penNode = importer.load(s->animManager(),
-                                        s,
-                                        modelPath + "DAE/ArucoPen/ArucoPen.dae",
-                                        texPath,
-                                        true,
-                                        true,
-                                        cyan);
+                                                 s,
+                                                 modelPath + "DAE/ArucoPen/ArucoPen.dae",
+                                                 texPath,
+                                                 true,
+                                                 true,
+                                                 cyan);
 
         scene->addChild(penNode);
 
@@ -280,22 +257,17 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLNode* axisNode = new SLNode(new SLCoordAxis(s), "Axis Node");
         axisNode->setDrawBitsRec(SL_DB_MESHWIRED, false);
         axisNode->scale(edgeLen);
-        //scene->addChild(axisNode);
+        // scene->addChild(axisNode);
 
-        // Create OpenCV Tracker for the box node
         CVTrackedAruco::params.filename = "aruco_cube_detector_params.yml";
         tracker                         = new SLArucoPen(AppDemo::calibIniPath, 0.05f);
         tracker->drawDetection(true);
         trackedNode = cam1;
         s->eventHandlers().push_back((SLArucoPen*)tracker);
+        AppArucoPen::instance().arucoPen((SLArucoPen*)tracker);
 
-        // pass the scene group as root node
         s->root3D(scene);
-
-        // Set active camera
         sv->camera(cam1);
-
-        // Turn on constant redraw
         sv->doWaitOnIdle(false);
     }
 
@@ -305,24 +277,22 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         if (sceneView != nullptr)
             sceneView->onInitialize();
 
-//    if (CVCapture::instance()->videoType() != VT_NONE)
-//    {
-//        if (sv->viewportSameAsVideo())
-//        {
-//            // Pass a negative value to the start function, so that the
-//            // viewport aspect ratio can be adapted later to the video aspect.
-//            // This will be known after start.
-//            CVCapture::instance()->start(-1.0f);
-//            SLVec2i videoAspect;
-//            videoAspect.x = CVCapture::instance()->captureSize.width;
-//            videoAspect.y = CVCapture::instance()->captureSize.height;
-//            sv->setViewportFromRatio(videoAspect, sv->viewportAlign(), true);
-//        }
-//        else
-//            CVCapture::instance()->start(sv->viewportWdivH());
-//    }
-
-
+    //    if (CVCapture::instance()->videoType() != VT_NONE)
+    //    {
+    //        if (sv->viewportSameAsVideo())
+    //        {
+    //            // Pass a negative value to the start function, so that the
+    //            // viewport aspect ratio can be adapted later to the video aspect.
+    //            // This will be known after start.
+    //            CVCapture::instance()->start(-1.0f);
+    //            SLVec2i videoAspect;
+    //            videoAspect.x = CVCapture::instance()->captureSize.width;
+    //            videoAspect.y = CVCapture::instance()->captureSize.height;
+    //            sv->setViewportFromRatio(videoAspect, sv->viewportAlign(), true);
+    //        }
+    //        else
+    //            CVCapture::instance()->start(sv->viewportWdivH());
+    //    }
 
     s->loadTimeMS(GlobalTimer::timeMS() - startLoadMS);
 }

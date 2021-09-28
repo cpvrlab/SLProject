@@ -1,9 +1,12 @@
 #include "IDSPeakCaptureProvider.h"
 
-#include <IDSPeakInterface.h>
+#include <apps/app_aruco_pen/source/IDSPeakInterface.h>
 
-IDSPeakCaptureProvider::IDSPeakCaptureProvider()
-  : CVCaptureProvider("IDS Camera")
+IDSPeakCaptureProvider::IDSPeakCaptureProvider(SLint deviceIndex, CVSize captureSize)
+  : CVCaptureProvider("ids_camera_" + std::to_string(deviceIndex),
+                      "IDS Camera " + std::to_string(deviceIndex),
+                      captureSize),
+    _deviceIndex(deviceIndex)
 {
 }
 
@@ -25,7 +28,7 @@ void IDSPeakCaptureProvider::open()
     _isOpened = true;
 
     IDSPeakInterface::init();
-    IDSPeakInterface::openDevice();
+    IDSPeakInterface::openDevice(_deviceIndex);
     IDSPeakInterface::setDeviceParameters();
     IDSPeakInterface::allocateBuffers();
     IDSPeakInterface::startCapture();
@@ -33,8 +36,13 @@ void IDSPeakCaptureProvider::open()
 
 void IDSPeakCaptureProvider::grab()
 {
-    int width;
-    int height;
+    if (!_isOpened)
+    {
+        return;
+    }
+
+    int      width;
+    int      height;
     uint8_t* dataBGR;
     uint8_t* dataGray;
     IDSPeakInterface::captureImage(&width, &height, &dataBGR, &dataGray);
@@ -44,13 +52,11 @@ void IDSPeakCaptureProvider::grab()
 
     // Store the BGR image
     _lastFrameBGR = CVMat(height, width, CV_8UC3, dataBGR, 0);
-    cv::resize(_lastFrameBGR, _lastFrameBGR, cv::Size(width / 2, height / 2));
+    cv::resize(_lastFrameBGR, _lastFrameBGR, captureSize());
 
     // Store the gray image
     _lastFrameGray = CVMat(height, width, CV_8UC1, dataGray, 0);
-    cv::resize(_lastFrameGray, _lastFrameGray, cv::Size(width / 2, height / 2));
-
-    _captureSize = _lastFrameBGR.size();
+    cv::resize(_lastFrameGray, _lastFrameGray, captureSize());
 }
 
 void IDSPeakCaptureProvider::close()

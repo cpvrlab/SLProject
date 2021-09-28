@@ -19,7 +19,7 @@ void IDSPeakInterface::init()
     }
 }
 
-void IDSPeakInterface::openDevice()
+void IDSPeakInterface::openDevice(int index)
 {
     try
     {
@@ -34,7 +34,7 @@ void IDSPeakInterface::openDevice()
         if (!devices.empty())
         {
             // Open the first available device
-            device = devices.at(0)->OpenDevice(peak::core::DeviceAccessType::Control);
+            device = devices.at(index)->OpenDevice(peak::core::DeviceAccessType::Control);
             SL_LOG("IDS Peak: Device \"%s\" opened", device->DisplayName().c_str());
         }
     }
@@ -145,7 +145,7 @@ void IDSPeakInterface::captureImage(int* width, int* height, uint8_t** dataBGR, 
 {
     try
     {
-        const auto buffer    = dataStream->WaitForFinishedBuffer(500);
+        const auto buffer    = dataStream->WaitForFinishedBuffer(5000);
         const auto image     = peak::ipl::Image(peak::BufferTo<peak::ipl::Image>(buffer));
         const auto imageBGR  = image.ConvertTo(peak::ipl::PixelFormatName::BGR8,
                                                peak::ipl::ConversionMode::Fast);

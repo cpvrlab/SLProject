@@ -16,7 +16,7 @@ private:
 
 public:
     static void init();
-    static void openDevice();
+    static void openDevice(int index);
     static void setDeviceParameters();
     static void allocateBuffers();
 

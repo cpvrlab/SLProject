@@ -11,7 +11,7 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include <AppArucoPen.h>
+#include <apps/app_aruco_pen/source/app/AppArucoPen.h>
 #include <SLGLState.h>
 #include <SLEnums.h>
 #include <SLInterface.h>
@@ -19,8 +19,8 @@
 #include <SLSceneView.h>
 #include <SLProjectScene.h>
 #include <CVCapture.h>
-#include <AppArucoPenGui.h>
-#include <AppArucoPenSceneView.h>
+#include <apps/app_aruco_pen/source/app/AppArucoPenGui.h>
+#include <apps/app_aruco_pen/source/app/AppArucoPenSceneView.h>
 #include <GLFW/glfw3.h>
 #include <Instrumentor.h>
 
@@ -71,15 +71,21 @@ SLbool onPaint()
     // If live video image is requested grab it and copy it
     if (CVCapture::instance()->videoType() != VT_NONE)
     {
+        CVCaptureProvider* provider = AppArucoPen::instance().currentCaptureProvider();
+
+        CVCapture::instance()->camSizes.clear();
+        CVCapture::instance()->camSizes.push_back(provider->captureSize());
+
         float before = GlobalTimer::timeMS();
 
-        CVCaptureProvider* provider = AppArucoPen::instance().currentCaptureProvider;
         provider->grab();
+
         CVCapture::instance()->lastFrame     = provider->lastFrameBGR();
         CVCapture::instance()->lastFrameGray = provider->lastFrameGray();
         CVCapture::instance()->captureSize   = provider->captureSize();
         CVCapture::instance()->format        = PF_bgr;
 
+        CVCapture::instance()->adjustForSL(sv->viewportWdivH());
         CVCapture::instance()->captureTimesMS().set(GlobalTimer::timeMS() - before);
     }
 
@@ -413,7 +419,7 @@ void initSL(SLVstring& cmdLineArgs)
     // setup platform dependent data path
     AppDemo::calibFilePath = configDir;
     AppDemo::calibIniPath  = projectRoot + "/data/calibrations/";                                 // for calibInitPath
-    CVCapture::instance()->loadCalibrations(Utils::ComputerInfos::get(), AppDemo::calibFilePath); // for calibrations made
+    //CVCapture::instance()->loadCalibrations(Utils::ComputerInfos::get(), AppDemo::calibFilePath); // for calibrations made
 
     /////////////////////////////////////////////////////////
     slCreateAppAndScene(cmdLineArgs,
@@ -448,8 +454,6 @@ The C main procedure running the GLFW GUI application.
 */
 int main(int argc, char* argv[])
 {
-    AppArucoPen::instance().openCaptureProviders();
-
     // set command line arguments
     SLVstring cmdLineArgs;
     for (int i = 0; i < argc; i++)
@@ -465,6 +469,8 @@ int main(int argc, char* argv[])
     initGLFW(scrWidth, scrHeight);
     initSL(cmdLineArgs);
 
+    AppArucoPen::instance().openCaptureProviders();
+
     // Event loop
     while (!slShouldClose())
     {
@@ -479,6 +485,8 @@ int main(int argc, char* argv[])
         else
             glfwPollEvents();
     }
+
+    AppArucoPen::instance().closeCaptureProviders();
 
     slTerminate();
 

@@ -1,1 +1,149 @@
-add_subdirectory(glfw)
+#
+# CMake configuration for app-Aruco-Pen application
+#
+
+set(target app-Aruco-Pen)
+
+set(include_path "${CMAKE_CURRENT_SOURCE_DIR}")
+set(source_path "${CMAKE_CURRENT_SOURCE_DIR}")
+set(compile_definitions SL_STARTSCENE=SID_ShaderIBL)
+
+file(GLOB headers
+        ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/app/AppArucoPen.h
+        ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/app/AppArucoPenGui.h
+        ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/app/AppArucoPenSceneView.h
+        ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/app/AppArucoPenCalibrator.h
+        ${SL_PROJECT_ROOT}/apps/source/CVCapture.h
+        ${SL_PROJECT_ROOT}/apps/source/AppDemo.h
+        ${SL_PROJECT_ROOT}/apps/source/SLInterface.h
+        ${SL_PROJECT_ROOT}/apps/source/SLProjectScene.h
+        ${SL_PROJECT_ROOT}/apps/source/SLArucoPen.h
+        ${SL_PROJECT_ROOT}/apps/source/SLGLFWInterface.h
+
+        ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/CVCaptureProvider.h
+        ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/CVStandardCaptureProvider.h
+        ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/IDSPeakInterface.h
+        ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/IDSPeakCaptureProvider.h
+        )
+
+file(GLOB sources
+        ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/app/AppArucoPen.cpp
+        ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/app/AppArucoPenGui.cpp
+        ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/app/AppArucoPenLoad.cpp
+        ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/app/AppArucoPenVideo.cpp
+        ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/app/AppArucoPenSceneView.cpp
+        ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/app/AppArucoPenCalibrator.cpp
+        ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/app/AppArucoPenMainGLFW.cpp
+        ${SL_PROJECT_ROOT}/apps/source/CVCapture.cpp
+        ${SL_PROJECT_ROOT}/apps/source/AppDemo.cpp
+        ${SL_PROJECT_ROOT}/apps/source/SLInterface.cpp
+        ${SL_PROJECT_ROOT}/apps/source/SLProjectScene.cpp
+        ${SL_PROJECT_ROOT}/apps/source/SLArucoPen.cpp
+        ${SL_PROJECT_ROOT}/apps/source/SLGLFWInterface.cpp
+
+        ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/CVCaptureProvider.cpp
+        ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/CVStandardCaptureProvider.cpp
+        ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/IDSPeakInterface.cpp
+        ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/IDSPeakCaptureProvider.cpp
+        )
+
+# Group source files
+source_group_by_path("${CMAKE_CURRENT_SOURCE_DIR}" "\\\\.h$|\\\\.hpp$" "Header Files" ${headers})
+source_group_by_path("${CMAKE_CURRENT_SOURCE_DIR}" "\\\\.cpp$|\\\\.c$|\\\\.h$|\\\\.hpp$" "Source Files" ${sources})
+
+add_executable(
+        ${target}
+        ${headers}
+        ${sources}
+)
+
+set_target_properties(
+        ${target}
+        PROPERTIES
+        ${DEFAULT_PROJECT_OPTIONS}
+        FOLDER "apps"
+)
+
+target_include_directories(
+        ${target}
+        PRIVATE
+        ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/
+        ${SL_PROJECT_ROOT}/apps/app_aruco_pen/glfw/
+        ${SL_PROJECT_ROOT}/apps/source
+        ${SL_PROJECT_ROOT}/modules/sl/source/accelstruct
+        ${SL_PROJECT_ROOT}/modules/sl/source/animation
+        ${SL_PROJECT_ROOT}/modules/sl/source/cv
+        ${SL_PROJECT_ROOT}/modules/sl/source/gl
+        ${SL_PROJECT_ROOT}/modules/sl/source/input
+        ${SL_PROJECT_ROOT}/modules/sl/source/mesh
+        ${SL_PROJECT_ROOT}/modules/sl/source/node
+        ${SL_PROJECT_ROOT}/modules/sl/source/optix
+        ${SL_PROJECT_ROOT}/modules/sl/source/ray
+        ${SL_PROJECT_ROOT}/modules/sl/source
+        ${OpenCV_INCLUDE_DIR}
+        ${glfw_INCLUDE_DIR}
+        PUBLIC
+        INTERFACE
+)
+
+target_link_libraries(
+        ${target}
+        PRIVATE
+        lib-SLProject
+        ${PlatformLinkLibs}
+        lib-SLExternal
+        lib-Utils
+        ${OpenCV_LIBS}
+        ${glfw_LIBS}
+        PUBLIC
+        INTERFACE
+)
+
+target_compile_definitions(${target}
+        PRIVATE
+        ${compile_definitions}
+        PUBLIC
+        ${DEFAULT_COMPILE_DEFINITIONS}
+        INTERFACE
+        )
+
+target_compile_options(${target}
+        PRIVATE
+        PUBLIC
+        ${DEFAULT_COMPILE_OPTIONS}
+        INTERFACE
+        )
+
+target_link_libraries(${target}
+        PRIVATE
+        PUBLIC
+        ${DEFAULT_LINKER_OPTIONS}
+        INTERFACE
+        )
+
+target_include_directories(${target}
+        PRIVATE
+        ${SL_PROJECT_ROOT}/apps/app_aruco_pen/external/peak/api/include
+        ${SL_PROJECT_ROOT}/apps/app_aruco_pen/external/peak/ipl/include
+        PUBLIC
+        INTERFACE)
+
+target_link_directories(${target}
+        PRIVATE
+        ${SL_PROJECT_ROOT}/apps/app_aruco_pen/external/peak/api/lib/x86_64
+        ${SL_PROJECT_ROOT}/apps/app_aruco_pen/external/peak/ipl/lib/x86_64
+        PUBLIC
+        INTERFACE)
+
+target_link_libraries(${target}
+        PRIVATE
+        ids_peak
+        ids_peak_ipl
+        PUBLIC
+        INTERFACE)
+
+file(GLOB
+        IDS_PEAK_DLLS
+        "${SL_PROJECT_ROOT}/apps/app_aruco_pen/external/peak/api/lib/x86_64/*.dll"
+        "${SL_PROJECT_ROOT}/apps/app_aruco_pen/external/peak/ipl/lib/x86_64/*.dll")
+file(COPY ${IDS_PEAK_DLLS} DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})

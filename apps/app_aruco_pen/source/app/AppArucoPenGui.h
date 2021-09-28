@@ -40,15 +40,16 @@ public:
     static void loadConfig(SLint dotsPerInch);
     static void saveConfig();
 
-    static SLstring configTime;       //!< Time of stored configuration
-    static SLbool   hideUI;           //!< Flag if menubar should be shown
-    static SLbool   showDockSpace;    //!< Flag if dock space should be enabled
-    static SLbool   showStatsTiming;  //!< Flag if timing info should be shown
-    static SLbool   showStatsScene;   //!< Flag if scene info should be shown
-    static SLbool   showStatsVideo;   //!< Flag if video info should be shown
-    static SLbool   showImGuiMetrics; //!< Flag if imgui metrics infor should be shown
-    static SLbool   showInfosSensors; //!< Flag if device sensors info should be shown
-    static SLbool   showInfosDevice;  //!< Flag if device info should be shown
+    static SLstring configTime;        //!< Time of stored configuration
+    static SLbool   hideUI;            //!< Flag if menubar should be shown
+    static SLbool   showDockSpace;     //!< Flag if dock space should be enabled
+    static SLbool   showStatsTiming;   //!< Flag if timing info should be shown
+    static SLbool   showStatsScene;    //!< Flag if scene info should be shown
+    static SLbool   showStatsVideo;    //!< Flag if video info should be shown
+    static SLbool   showImGuiMetrics;  //!< Flag if imgui metrics infor should be shown
+    static SLbool   showInfosSensors;  //!< Flag if device sensors info should be shown
+    static SLbool   showInfosDevice;   //!< Flag if device info should be shown
+    static SLbool   showInfosTracking; //!< Flag if tracking info should be shown
 };
 //-----------------------------------------------------------------------------
 #endif

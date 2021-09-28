@@ -22,11 +22,17 @@ public:
     SLArucoPen(string calibIniPath, float edgeLength);
 
     SLbool onKeyPress(const SLKey key,
-                      const SLKey mod);
+                      const SLKey mod) override;
+
+    SLVec3f tipPosition();
+
+    SLfloat liveDistance();
+    SLfloat lastDistance();
 
 private:
     SLVec3f _lastPrintedPosition;
     SLbool _positionPrintedOnce = false;
+    SLfloat _lastDistance;
 
 };
 
