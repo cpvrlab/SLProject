@@ -9,6 +9,7 @@
 //#############################################################################
 
 #include <AppArucoPenGui.h>
+#include <AppArucoPen.h>
 #include <SLAnimPlayback.h>
 #include <AppDemo.h>
 #include <CVCapture.h>
@@ -100,7 +101,6 @@ SLbool   AppArucoPenGui::showImGuiMetrics = false;
 SLbool   AppArucoPenGui::showInfosSensors = false;
 SLbool   AppArucoPenGui::showInfosDevice  = false;
 SLbool   AppArucoPenGui::hideUI           = false;
-SLbool   AppArucoPenGui::useIDSCamera     = true;
 
 //-----------------------------------------------------------------------------
 void AppArucoPenGui::clear()
@@ -847,8 +847,18 @@ void AppArucoPenGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
 
             if (ImGui::BeginMenu("Video Sensor"))
             {
-                if (ImGui::MenuItem("Use IDS Camera", nullptr, useIDSCamera))
-                    useIDSCamera = !useIDSCamera;
+                if (ImGui::BeginMenu("Capture Provider"))
+                {
+                    AppArucoPen& app = AppArucoPen::instance();
+
+                    for (CVCaptureProvider* provider : app.captureProviders)
+                    {
+                        if (ImGui::MenuItem(provider->name().c_str(), nullptr, app.currentCaptureProvider == provider))
+                            app.currentCaptureProvider = provider;
+                    }
+
+                    ImGui::EndMenu();
+                }
 
                 CVCamera* ac = capture->activeCamera;
                 if (ImGui::BeginMenu("Mirror Camera"))

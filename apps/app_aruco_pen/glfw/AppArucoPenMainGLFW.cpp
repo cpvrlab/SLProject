@@ -6,11 +6,12 @@
 //             such as Windows, MacOS and Linux.
 //  Date:      July 2014
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
-//  Authors:   Marcus Hudritsch
+//  Authors:   Marcus Hudritsch, Marino von Wattenwyl
 //  License:   This software is provided under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
+#include <AppArucoPen.h>
 #include <SLGLState.h>
 #include <SLEnums.h>
 #include <SLInterface.h>
@@ -25,8 +26,6 @@
 
 #include <SLGLFWInterface.h>
 
-#include <IDSPeakInterface.h>
-#include <IDSPeakCapture.h>
 #include <GlobalTimer.h>
 
 //-----------------------------------------------------------------------------
@@ -55,6 +54,8 @@ static SLfloat     lastMouseDownTime = 0.0f;   //!< Last mouse press time
 static SLKey       modifiers         = K_none; //!< last modifier keys
 static SLbool      fullscreen        = false;  //!< flag if window is in fullscreen mode
 
+
+
 //-----------------------------------------------------------------------------
 /*!
 onPaint: Paint event handler that passes the event to the slPaint function.
@@ -70,23 +71,16 @@ SLbool onPaint()
     // If live video image is requested grab it and copy it
     if (CVCapture::instance()->videoType() != VT_NONE)
     {
-        if (AppArucoPenGui::useIDSCamera)
-        {
-            if (!IDSPeakCapture::instance().running())
-            {
-                IDSPeakCapture::instance().start();
-            }
+        float before = GlobalTimer::timeMS();
 
-            float before = GlobalTimer::timeMS();
-            IDSPeakCapture::instance().grab();
-            IDSPeakCapture::instance().loadIntoCVCapture();
-            CVCapture::instance()->captureTimesMS().set(GlobalTimer::timeMS() - before);
-        }
-        else
-        {
-            float viewportWdivH = sv->viewportWdivH();
-            CVCapture::instance()->grabAndAdjustForSL(viewportWdivH);
-        }
+        CVCaptureProvider* provider = AppArucoPen::instance().currentCaptureProvider;
+        provider->grab();
+        CVCapture::instance()->lastFrame     = provider->lastFrameBGR();
+        CVCapture::instance()->lastFrameGray = provider->lastFrameGray();
+        CVCapture::instance()->captureSize   = provider->captureSize();
+        CVCapture::instance()->format        = PF_bgr;
+
+        CVCapture::instance()->captureTimesMS().set(GlobalTimer::timeMS() - before);
     }
 
     ////////////////////////////////////////////////
@@ -454,6 +448,8 @@ The C main procedure running the GLFW GUI application.
 */
 int main(int argc, char* argv[])
 {
+    AppArucoPen::instance().openCaptureProviders();
+
     // set command line arguments
     SLVstring cmdLineArgs;
     for (int i = 0; i < argc; i++)
@@ -488,11 +484,6 @@ int main(int argc, char* argv[])
 
     glfwDestroyWindow(window);
     glfwTerminate();
-
-    if (IDSPeakCapture::instance().running())
-    {
-        IDSPeakCapture::instance().stop();
-    }
 
     return 0;
 }

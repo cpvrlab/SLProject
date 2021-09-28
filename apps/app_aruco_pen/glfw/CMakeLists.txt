@@ -9,6 +9,7 @@ set(source_path "${CMAKE_CURRENT_SOURCE_DIR}")
 set(compile_definitions SL_STARTSCENE=SID_ShaderIBL)
 
 file(GLOB headers
+		${SL_PROJECT_ROOT}/apps/app_aruco_pen/include/AppArucoPen.h
         ${SL_PROJECT_ROOT}/apps/app_aruco_pen/include/AppArucoPenGui.h
         ${SL_PROJECT_ROOT}/apps/app_aruco_pen/include/AppArucoPenSceneView.h
 		${SL_PROJECT_ROOT}/apps/source/CVCapture.h
@@ -18,11 +19,14 @@ file(GLOB headers
 		${SL_PROJECT_ROOT}/apps/source/SLArucoPen.h
 		${SL_PROJECT_ROOT}/apps/source/SLGLFWInterface.h
 
+		${SL_PROJECT_ROOT}/apps/app_aruco_pen/glfw/CVCaptureProvider.h
+		${SL_PROJECT_ROOT}/apps/app_aruco_pen/glfw/CVStandardCaptureProvider.h
 		${SL_PROJECT_ROOT}/apps/app_aruco_pen/glfw/IDSPeakInterface.h
-		${SL_PROJECT_ROOT}/apps/app_aruco_pen/glfw/IDSPeakCapture.h
-    )
+		${SL_PROJECT_ROOT}/apps/app_aruco_pen/glfw/IDSPeakCaptureProvider.h
+		)
 
 file(GLOB sources
+		${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/AppArucoPen.cpp
         ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/AppArucoPenGui.cpp
         ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/AppArucoPenLoad.cpp
         ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/AppArucoPenVideo.cpp
@@ -35,9 +39,10 @@ file(GLOB sources
 		${SL_PROJECT_ROOT}/apps/source/SLGLFWInterface.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/AppArucoPenMainGLFW.cpp
 
+		${SL_PROJECT_ROOT}/apps/app_aruco_pen/glfw/CVStandardCaptureProvider.cpp
 		${SL_PROJECT_ROOT}/apps/app_aruco_pen/glfw/IDSPeakInterface.cpp
-		${SL_PROJECT_ROOT}/apps/app_aruco_pen/glfw/IDSPeakCapture.cpp
-    )
+		${SL_PROJECT_ROOT}/apps/app_aruco_pen/glfw/IDSPeakCaptureProvider.cpp
+		)
 
 # Group source files
 source_group_by_path("${CMAKE_CURRENT_SOURCE_DIR}" "\\\\.h$|\\\\.hpp$" "Header Files" ${headers})

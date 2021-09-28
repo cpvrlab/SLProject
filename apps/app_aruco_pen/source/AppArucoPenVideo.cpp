@@ -22,7 +22,6 @@
 #include <Instrumentor.h>
 
 #include <IDSPeakInterface.h>
-#include <IDSPeakCapture.h>
 
 //-----------------------------------------------------------------------------
 /*! Global pointer for the video texture defined in AppDemoLoad for video scenes

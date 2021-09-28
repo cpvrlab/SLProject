@@ -1,7 +1,3 @@
-//
-// Created by vwm1 on 23/09/2021.
-//
-
 #include "IDSPeakInterface.h"
 
 #include <SL.h>
