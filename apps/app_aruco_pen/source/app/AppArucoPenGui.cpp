@@ -780,10 +780,12 @@ void AppArucoPenGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
     {
         if (ImGui::BeginMenu("File"))
         {
-            if (ImGui::BeginMenu("Load Test Scene"))
+            if (ImGui::BeginMenu("Load Scene"))
             {
                 if (ImGui::MenuItem("Track Aruco Cube (Main)", nullptr, sid == SID_VideoTrackArucoCubeMain))
                     s->onLoad(s, sv, SID_VideoTrackArucoCubeMain);
+                if (ImGui::MenuItem("Show Aruco Pen Trail", nullptr, sid == SID_ArucoPenTrail))
+                    s->onLoad(s, sv, SID_ArucoPenTrail);
                 if (ImGui::MenuItem("Track Chessboard (Main)", nullptr, sid == SID_VideoTrackChessMain))
                     s->onLoad(s, sv, SID_VideoTrackChessMain);
 
@@ -802,26 +804,6 @@ void AppArucoPenGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
 
         if (ImGui::BeginMenu("Preferences"))
         {
-            if (ImGui::MenuItem("Do Wait on Idle", "I", sv->doWaitOnIdle()))
-                sv->doWaitOnIdle(!sv->doWaitOnIdle());
-
-            if (ImGui::MenuItem("Do Multi Sampling", "L", sv->doMultiSampling()))
-                sv->doMultiSampling(!sv->doMultiSampling());
-
-            if (ImGui::MenuItem("Do Frustum Culling", "F", sv->doFrustumCulling()))
-                sv->doFrustumCulling(!sv->doFrustumCulling());
-
-            if (ImGui::MenuItem("Do Alpha Sorting", "J", sv->doAlphaSorting()))
-                sv->doAlphaSorting(!sv->doAlphaSorting());
-
-            if (ImGui::MenuItem("Do Depth Test", "T", sv->doDepthTest()))
-                sv->doDepthTest(!sv->doDepthTest());
-
-            if (ImGui::MenuItem("Animation off", "Space", s->stopAnimations()))
-                s->stopAnimations(!s->stopAnimations());
-
-            ImGui::Separator();
-
             if (ImGui::BeginMenu("Viewport Aspect"))
             {
 

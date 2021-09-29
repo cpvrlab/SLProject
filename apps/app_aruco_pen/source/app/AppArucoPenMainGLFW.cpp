@@ -11,7 +11,7 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include <apps/app_aruco_pen/source/app/AppArucoPen.h>
+#include <app/AppArucoPen.h>
 #include <SLGLState.h>
 #include <SLEnums.h>
 #include <SLInterface.h>
@@ -54,8 +54,6 @@ static SLfloat     lastMouseDownTime = 0.0f;   //!< Last mouse press time
 static SLKey       modifiers         = K_none; //!< last modifier keys
 static SLbool      fullscreen        = false;  //!< flag if window is in fullscreen mode
 
-
-
 //-----------------------------------------------------------------------------
 /*!
 onPaint: Paint event handler that passes the event to the slPaint function.
@@ -71,14 +69,13 @@ SLbool onPaint()
     // If live video image is requested grab it and copy it
     if (CVCapture::instance()->videoType() != VT_NONE)
     {
+        CVCapture::instance()->startCaptureTimeMS = GlobalTimer::timeMS();
+
         CVCaptureProvider* provider = AppArucoPen::instance().currentCaptureProvider();
+        provider->grab();
 
         CVCapture::instance()->camSizes.clear();
         CVCapture::instance()->camSizes.push_back(provider->captureSize());
-
-        float before = GlobalTimer::timeMS();
-
-        provider->grab();
 
         CVCapture::instance()->lastFrame     = provider->lastFrameBGR();
         CVCapture::instance()->lastFrameGray = provider->lastFrameGray();
@@ -86,7 +83,11 @@ SLbool onPaint()
         CVCapture::instance()->format        = PF_bgr;
 
         CVCapture::instance()->adjustForSL(sv->viewportWdivH());
-        CVCapture::instance()->captureTimesMS().set(GlobalTimer::timeMS() - before);
+
+        if(glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS)
+        {
+            AppArucoPen::instance().tipPositions.push_back(AppArucoPen::instance().arucoPen()->tipPosition());
+        }
     }
 
     ////////////////////////////////////////////////
@@ -418,8 +419,8 @@ void initSL(SLVstring& cmdLineArgs)
 
     // setup platform dependent data path
     AppDemo::calibFilePath = configDir;
-    AppDemo::calibIniPath  = projectRoot + "/data/calibrations/";                                 // for calibInitPath
-    //CVCapture::instance()->loadCalibrations(Utils::ComputerInfos::get(), AppDemo::calibFilePath); // for calibrations made
+    AppDemo::calibIniPath  = projectRoot + "/data/calibrations/"; // for calibInitPath
+    // CVCapture::instance()->loadCalibrations(Utils::ComputerInfos::get(), AppDemo::calibFilePath); // for calibrations made
 
     /////////////////////////////////////////////////////////
     slCreateAppAndScene(cmdLineArgs,
@@ -454,44 +455,51 @@ The C main procedure running the GLFW GUI application.
 */
 int main(int argc, char* argv[])
 {
-    // set command line arguments
-    SLVstring cmdLineArgs;
-    for (int i = 0; i < argc; i++)
-        cmdLineArgs.push_back(SLstring(argv[i]));
-
-    scrWidth       = 1280;
-    scrHeight      = 720;
-    scrWdivH       = (float)scrWidth / (float)scrHeight;
-    fixAspectRatio = false;
-    touch2.set(-1, -1);
-    touchDelta.set(-1, -1);
-
-    initGLFW(scrWidth, scrHeight);
-    initSL(cmdLineArgs);
-
-    AppArucoPen::instance().openCaptureProviders();
-
-    // Event loop
-    while (!slShouldClose())
+    try
     {
-        /////////////////////////////
-        SLbool doRepaint = onPaint();
-        /////////////////////////////
+        // set command line arguments
+        SLVstring cmdLineArgs;
+        for (int i = 0; i < argc; i++)
+            cmdLineArgs.push_back(SLstring(argv[i]));
 
-        // if no updated occurred wait for the next event (power saving)
-        if (!doRepaint)
-            // todo ghm1: glfwWaitEvents is not working on my machine (maybe https://github.com/glfw/glfw/issues/685)
-            glfwWaitEvents();
-        else
-            glfwPollEvents();
+        scrWidth       = 1280;
+        scrHeight      = 720;
+        scrWdivH       = (float)scrWidth / (float)scrHeight;
+        fixAspectRatio = false;
+        touch2.set(-1, -1);
+        touchDelta.set(-1, -1);
+
+        initGLFW(scrWidth, scrHeight);
+        initSL(cmdLineArgs);
+
+        AppArucoPen::instance().openCaptureProviders();
+
+        // Event loop
+        while (!slShouldClose())
+        {
+            /////////////////////////////
+            SLbool doRepaint = onPaint();
+            /////////////////////////////
+
+            // if no updated occurred wait for the next event (power saving)
+            if (!doRepaint)
+                // todo ghm1: glfwWaitEvents is not working on my machine (maybe https://github.com/glfw/glfw/issues/685)
+                glfwWaitEvents();
+            else
+                glfwPollEvents();
+        }
+
+        AppArucoPen::instance().closeCaptureProviders();
+
+        slTerminate();
+
+        glfwDestroyWindow(window);
+        glfwTerminate();
     }
-
-    AppArucoPen::instance().closeCaptureProviders();
-
-    slTerminate();
-
-    glfwDestroyWindow(window);
-    glfwTerminate();
+    catch (std::exception& e)
+    {
+        SL_LOG("%s", e.what());
+    }
 
     return 0;
 }

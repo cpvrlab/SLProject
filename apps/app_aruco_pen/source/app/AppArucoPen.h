@@ -5,6 +5,7 @@
 #include <CVStandardCaptureProvider.h>
 #include <IDSPeakCaptureProvider.h>
 
+#include <SLVec3.h>
 #include <SLArucoPen.h>
 
 #include <app/AppArucoPenCalibrator.h>
@@ -21,6 +22,8 @@ public:
         static AppArucoPen instance;
         return instance;
     }
+
+    SLVVec3f tipPositions;
 
 private:
     CVVCaptureProvider _captureProviders;

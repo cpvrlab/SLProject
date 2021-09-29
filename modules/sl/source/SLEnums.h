@@ -181,6 +181,8 @@ enum SLSceneID
     SID_ErlebARAventicumTheatre,
     SID_ErlebARSutzKirchrain18,
 
+    SID_ArucoPenTrail,
+
     SID_Maximal
 };
 //-----------------------------------------------------------------------------

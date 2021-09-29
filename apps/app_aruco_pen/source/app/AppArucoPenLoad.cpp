@@ -230,6 +230,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLLightSpot* light1 = new SLLightSpot(s, s, 0.02f);
         light1->translation(0.12f, 0.12f, 0.12f);
         light1->name("light node");
+        light1->setDrawBitsRec(SL_DB_HIDDEN, true);
         scene->addChild(light1);
 
         // Get the half edge length of the aruco marker
@@ -269,6 +270,61 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->root3D(scene);
         sv->camera(cam1);
         sv->doWaitOnIdle(false);
+    }
+    else if (sceneID == SID_ArucoPenTrail)
+    {
+        // Set scene name and info string
+        s->name("Minimal Scene Test");
+        s->info("Minimal scene with a texture mapped rectangle with a point light source.\n"
+                "You can find all other test scenes in the menu File > Load Test Scenes."
+                "You can jump to the next scene with the Shift-Alt-CursorRight.\n"
+                "You can open various info windows under the menu Infos. You can drag, dock and stack them on all sides.\n"
+                "You can rotate the scene with click and drag on the left mouse button (LMB).\n"
+                "You can zoom in/out with the mousewheel. You can pan with click and drag on the middle mouse button (MMB).\n");
+
+        // Create a scene group node
+        SLNode* scene = new SLNode("scene node");
+
+        // Create textures and materials
+        SLMaterial*  m1   = new SLMaterial(s, "m1");
+
+        // Create a light source node
+        SLLightSpot* light1 = new SLLightSpot(s, s, 0.3f);
+        light1->translation(0, 0, 5);
+        light1->name("light node");
+        scene->addChild(light1);
+
+        SLVec3f total(0.0f, 0.0f, 0.0f);
+        SLSphere* mesh = new SLSphere(s, 0.002f, 8, 8, "Marker", m1);
+
+        for(int i = 0; i < AppArucoPen::instance().tipPositions.size(); i++)
+        {
+            SLVec3f tipPosition = AppArucoPen::instance().tipPositions[i];
+
+            SLNode* node = new SLNode(mesh, "Marker Node");
+            node->translate(tipPosition);
+
+            if(i != AppArucoPen::instance().tipPositions.size() - 1) {
+                node->lookAt(AppArucoPen::instance().tipPositions[i + 1]);
+            }
+
+            scene->addChild(node);
+
+            total += tipPosition;
+        }
+
+        SLVec3f center = total / AppArucoPen::instance().tipPositions.size();
+
+        SLCamera* cam1 = new SLCamera("Camera 1");
+        cam1->translation(center.x, center.y + 1, center.z + 1);
+        cam1->lookAt(center.x, center.y, center.z);
+        cam1->focalDist((float) sqrt(2.0));
+        cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
+        scene->addChild(cam1);
+
+        s->root3D(scene);
+        sv->camera(cam1);
+        sv->doWaitOnIdle(true);
     }
 
     ////////////////////////////////////////////////////////////////////////////

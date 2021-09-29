@@ -52,12 +52,20 @@ bool CVTrackedArucoCube::track(CVMat          imageGray,
         float weight = faceViewMatrix.axisZ().dot(SLVec3f::AXISZ);
         weight       = Utils::clamp(weight, 0.0f, 1.0f);
 
+        // Some weights are just too bad to be even included
+        if (weight < 0.1f)
+        {
+            continue;
+        }
+
         // Move to the center of the cube
         faceViewMatrix.translate(0.0f, 0.0f, -0.5f * _edgeLength);
 
         // Rotate face to cube space
         SLVec3f translation = faceViewMatrix.translation();
-        if (arucoIDs[i] == 1)
+        if (arucoIDs[i] == 0)
+            ; // front
+        else if (arucoIDs[i] == 1)
             faceViewMatrix.rotate(-90, SLVec3f::AXISY); // right
         else if (arucoIDs[i] == 2)
             faceViewMatrix.rotate(-180, SLVec3f::AXISY); // back
@@ -67,7 +75,7 @@ bool CVTrackedArucoCube::track(CVMat          imageGray,
             faceViewMatrix.rotate(90, SLVec3f::AXISX); // top
         else if (arucoIDs[i] == 5)
             faceViewMatrix.rotate(-90, SLVec3f::AXISX); // bottom
-        else if (arucoIDs[i] != 0)
+        else
         {
             SL_LOG("ArUco cube: Invalid ID: %d", arucoIDs[i]);
             continue;
@@ -82,10 +90,10 @@ bool CVTrackedArucoCube::track(CVMat          imageGray,
         SLQuat4f rotation;
         rotation.fromMat3(faceViewMatrix.mat3());
 
-//        if(fabs(rotation.dot(_averageRotation.average())) < 0.9f) {
-//            SL_LOG("%f", GlobalTimer::timeMS());
-//            continue;
-//        }
+        //        if(fabs(rotation.dot(_averageRotation.average())) < 0.9f) {
+        //            SL_LOG("%f", GlobalTimer::timeMS());
+        //            continue;
+        //        }
 
         translations.emplace_back(translation.x, translation.y, translation.z);
         rotations.push_back(rotation);
@@ -101,9 +109,9 @@ bool CVTrackedArucoCube::track(CVMat          imageGray,
         _averagePosition.set(posNow);
         _averageRotation.set(rotNow);
 
-        CVVec3f pos = _averagePosition.average();
+        CVVec3f  pos     = _averagePosition.average();
         SLQuat4f rotQuat = _averageRotation.average();
-        SLMat3f rot = rotQuat.toMat3();
+        SLMat3f  rot     = rotQuat.toMat3();
 
         // clang-format off
         // Convert to an OpenCV matrix

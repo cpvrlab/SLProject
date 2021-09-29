@@ -10,12 +10,12 @@ void AppArucoPen::openCaptureProviders()
 {
     SL_LOG("Loading capture providers...");
 
-    openCaptureProvider(new CVStandardCaptureProvider(0, CVSize(640, 480)));
-    openCaptureProvider(new IDSPeakCaptureProvider(0, CVSize(1920, 1280)));
+//    openCaptureProvider(new CVStandardCaptureProvider(0, CVSize(640, 480)));
+//    openCaptureProvider(new IDSPeakCaptureProvider(0, CVSize(1920, 1280)));
 
-    /*
-    openCaptureProvider(new CVStandardCaptureProvider(0, CVSize(1280, 720)));
-    */
+    // 1280x960 actually provides better results than 1920x1080
+    // What the hell
+    openCaptureProvider(new CVStandardCaptureProvider(0, CVSize(1280, 960)));
 
     _currentCaptureProvider = _captureProviders[0];
 

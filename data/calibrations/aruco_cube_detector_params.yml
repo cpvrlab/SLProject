@@ -3,19 +3,19 @@ adaptiveThreshWinSizeMin: 4
 adaptiveThreshWinSizeMax: 7
 adaptiveThreshWinSizeStep: 1
 adaptiveThreshConstant: 7
-minMarkerPerimeterRate: 0.03
+minMarkerPerimeterRate: 0.01
 maxMarkerPerimeterRate: 4.0
-polygonalApproxAccuracyRate: 0.05
-minCornerDistance: 10.0
+polygonalApproxAccuracyRate: 0.01
+minCornerDistanceRate: 0.05
 minDistanceToBorder: 3
 cornerRefinementMethod: 1
-cornerRefinementWinSize: 2                      # The culprit
-cornerRefinementMaxIterations: 1000
+cornerRefinementWinSize: 3                      # The culprit
+cornerRefinementMaxIterations: 100
 cornerRefinementMinAccuracy: 1.0
 markerBorderBits: 1
 perspectiveRemovePixelPerCell: 8
-perspectiveRemoveIgnoredMarginPerCell: 0.13
-maxErroneousBitsInBorderRate: 0.04
+perspectiveRemoveIgnoredMarginPerCell: 0.2
+maxErroneousBitsInBorderRate: 0.35
 
 edgeLength: 0.037
 arucoDictionaryId: 0

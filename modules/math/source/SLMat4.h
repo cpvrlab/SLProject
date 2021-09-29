@@ -1383,8 +1383,8 @@ SLMat4<T> SLMat4<T>::inverted() const
     // Run singularity test.
     if (fabs(det) < FLT_EPSILON) 
     {
-        SL_LOG("4x4-Matrix is singular. Inversion impossible.");
-        exit(-1);
+        //SL_LOG("4x4-Matrix is singular. Inversion impossible.");
+        //exit(-1);
     }
     else
     {
