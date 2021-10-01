@@ -82,7 +82,7 @@ SLbool onPaint()
         CVCapture::instance()->captureSize   = provider->captureSize();
         CVCapture::instance()->format        = PF_bgr;
 
-        CVCapture::instance()->adjustForSL(sv->viewportWdivH());
+        CVCapture::instance()->adjustForSLGrayAvailable(sv->viewportWdivH());
 
         if(glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS)
         {

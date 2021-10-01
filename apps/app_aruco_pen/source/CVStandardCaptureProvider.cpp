@@ -1,9 +1,11 @@
 #include "CVStandardCaptureProvider.h"
 
+#include <utility>
+
 CVStandardCaptureProvider::CVStandardCaptureProvider(SLint deviceIndex, CVSize captureSize)
   : CVCaptureProvider("cv_camera_" + std::to_string(deviceIndex),
                       "CV Camera " + std::to_string(deviceIndex),
-                      captureSize),
+                      std::move(captureSize)),
     _deviceIndex(deviceIndex)
 {
 }
@@ -27,10 +29,8 @@ void CVStandardCaptureProvider::open()
     // a memory leak when releasing the device if the MSMF backend is used
     // (https://github.com/opencv/opencv-python/issues/198)
     // (https://stackoverflow.com/questions/53888878/cv2-warn0-terminating-async-callback-when-attempting-to-take-a-picture)
-    // TODO FIXME HACK HACK HACK DON'T DO THIS
-    alloca(128);
-    _captureDevice.open(_deviceIndex);
 
+    _captureDevice.open(_deviceIndex);
     _isOpened = _captureDevice.isOpened();
 
     _captureDevice.set(cv::CAP_PROP_FRAME_WIDTH, captureSize().width);

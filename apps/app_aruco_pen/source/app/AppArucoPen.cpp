@@ -17,6 +17,8 @@ void AppArucoPen::openCaptureProviders()
     // What the hell
     openCaptureProvider(new CVStandardCaptureProvider(0, CVSize(1280, 960)));
 
+//    openCaptureProvider(new IDSPeakCaptureProvider(0, CVSize(1920, 1280)));
+
     _currentCaptureProvider = _captureProviders[0];
 
     SL_LOG("All capture providers opened");
@@ -26,6 +28,13 @@ void AppArucoPen::openCaptureProvider(CVCaptureProvider* captureProvider)
 {
     float before = GlobalTimer::timeS();
     captureProvider->open();
+
+    if(!captureProvider->isOpened())
+    {
+        SL_LOG("Failed to open capture provider");
+        return;
+    }
+
     _captureProviders.push_back(captureProvider);
     float delta = GlobalTimer::timeS() - before;
 

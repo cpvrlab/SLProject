@@ -46,7 +46,7 @@ version as well as a single static instance of the OpenCV capture device.
 \n
 The live video image grabbing is not mandatory and can be replaced by the the
 top level application with its own video grabbing functionality. This is e.g.
-used in the iOS or Android examples. 
+used in the iOS or Android examples.
 The CVCapture::lastFrame and CVCapture::lastFrameGray are on the other
 hand used in all applications as the buffer for the last captured image.\n
 Alternatively CVCapture can open a video file by a given videoFilename.
@@ -79,6 +79,8 @@ public: //! Public static instance getter for singleton pattern
                                const uchar* data,
                                bool         isContinuous);
     void     adjustForSL(float viewportWdivH);
+    void     adjustForSLGrayAvailable(float viewportWdivH);
+    void     cropImageToBackground(CVMat image, float viewportWdivH);
     bool     isOpened() { return _captureDevice.isOpened(); }
     void     release();
     void     copyYUVPlanes(float  scrWdivH,

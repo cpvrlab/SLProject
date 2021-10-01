@@ -2,10 +2,12 @@
 
 #include <apps/app_aruco_pen/source/IDSPeakInterface.h>
 
+#include <utility>
+
 IDSPeakCaptureProvider::IDSPeakCaptureProvider(SLint deviceIndex, CVSize captureSize)
   : CVCaptureProvider("ids_camera_" + std::to_string(deviceIndex),
                       "IDS Camera " + std::to_string(deviceIndex),
-                      captureSize),
+                      std::move(captureSize)),
     _deviceIndex(deviceIndex)
 {
 }
