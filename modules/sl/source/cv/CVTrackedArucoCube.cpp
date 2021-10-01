@@ -50,13 +50,16 @@ bool CVTrackedArucoCube::track(CVMat          imageGray,
         // The steeper a face is relative to the camera,
         // the less it should contribute because the accuracy is generally poorer in this case
         float weight = faceViewMatrix.axisZ().dot(SLVec3f::AXISZ);
-        weight       = Utils::clamp(weight, 0.0f, 1.0f);
 
-        // Some weights are just too bad to be even included
-        if (weight < 0.1f)
+        // Weights below 0.3 are very inaccurate
+        // If the weight is negative, this means that the z axis
+        // is pointing the wrong way
+        if (weight < 0.3f)
         {
             continue;
         }
+
+        weight = Utils::clamp(weight, 0.0f, 1.0f);
 
         // Move to the center of the cube
         faceViewMatrix.translate(0.0f, 0.0f, -0.5f * _edgeLength);

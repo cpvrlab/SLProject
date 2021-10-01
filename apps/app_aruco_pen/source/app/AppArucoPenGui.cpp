@@ -708,7 +708,7 @@ void AppArucoPenGui::build(SLProjectScene* s, SLSceneView* sv)
 
                 SLArucoPen* pen    = AppArucoPen::instance().arucoPen();
                 SLVec3f     tipPos = pen->tipPosition();
-                sprintf(m + strlen(m), "Tip position             : %s\n", tipPos.toString(", ", 4).c_str());
+                sprintf(m + strlen(m), "Tip position             : %s\n", tipPos.toString(", ", 2).c_str());
                 sprintf(m + strlen(m), "Measured Distance (Live) : %.2f cm\n", pen->liveDistance() * 100.0f);
                 sprintf(m + strlen(m), "Measured Distance (Last) : %.2f cm\n", pen->lastDistance() * 100.0f);
 

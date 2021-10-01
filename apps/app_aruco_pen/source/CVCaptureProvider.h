@@ -24,7 +24,6 @@ public:
                       SLstring name,
                       CVSize   captureSize);
 
-    // Methods that must be implemented by all capture providers
     virtual ~CVCaptureProvider() noexcept = default;
     virtual void   open()                 = 0;
     virtual void   grab()                 = 0;

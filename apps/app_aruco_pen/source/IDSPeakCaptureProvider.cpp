@@ -12,7 +12,7 @@ IDSPeakCaptureProvider::IDSPeakCaptureProvider(SLint deviceIndex, CVSize capture
 
 IDSPeakCaptureProvider::~IDSPeakCaptureProvider() noexcept
 {
-    if (IDSPeakCaptureProvider::isOpened())
+    if (_isOpened)
     {
         IDSPeakCaptureProvider::close();
     }

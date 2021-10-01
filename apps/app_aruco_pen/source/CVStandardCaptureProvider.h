@@ -10,6 +10,7 @@ class CVStandardCaptureProvider : public CVCaptureProvider
 private:
     SLint          _deviceIndex;
     CVVideoCapture _captureDevice;
+    SLbool _isOpened = false;
 
 public:
     explicit CVStandardCaptureProvider(SLint deviceIndex, CVSize captureSize);

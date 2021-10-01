@@ -210,8 +210,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         videoTexture = new SLGLTexture(s, texPath + "LiveVideoError.png", GL_LINEAR, GL_LINEAR);
 
         // Material
-        SLMaterial* yellow = new SLMaterial(s, "mY", SLCol4f(1, 1, 0, 0.5f));
-        SLMaterial* cyan   = new SLMaterial(s, "mY", SLCol4f(0, 1, 1, 0.25f));
+        SLMaterial* penTipMaterial = new SLMaterial(s, "Pen Tip Material", SLCol4f(1, 1, 0, 0.5f));
+        SLMaterial* penMaterial   = new SLMaterial(s, "Pen Material", SLCol4f(0.3, 0.1, 1, 0.25f));
 
         // Create a scene group node
         SLNode* scene = new SLNode("scene node");
@@ -247,11 +247,11 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                                                  texPath,
                                                  true,
                                                  true,
-                                                 cyan);
+                                                 penMaterial);
 
         scene->addChild(penNode);
 
-        SLMesh* tipMesh = new SLBox(s, -tiphe, -tiphe - tipOffset, -tiphe, tiphe, tiphe - tipOffset, tiphe, "Pen Tip", yellow);
+        SLMesh* tipMesh = new SLBox(s, -tiphe, -tiphe - tipOffset, -tiphe, tiphe, tiphe - tipOffset, tiphe, "Pen Tip", penTipMaterial);
         SLNode* tipNode = new SLNode(tipMesh, "Pen Tip Node");
         scene->addChild(tipNode);
 
