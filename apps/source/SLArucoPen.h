@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      SLArucoPen.hpp
+//  File:      SLArucoPen.h
 //  Date:      September 2021
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Authors:   Marino von Wattenwyl

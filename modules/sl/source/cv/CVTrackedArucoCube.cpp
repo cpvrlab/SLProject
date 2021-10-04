@@ -40,6 +40,7 @@ bool CVTrackedArucoCube::track(CVMat          imageGray,
     vector<SLQuat4f> rotations;
     vector<float>    weights;
 
+
     for (size_t i = 0; i < arucoIDs.size(); ++i)
     {
         // Convert the OpenCV matrix to an SL matrix
@@ -176,3 +177,4 @@ SLQuat4f CVTrackedArucoCube::averageQuaternion(vector<SLQuat4f> quaternions,
     return total.normalized();
 }
 //-----------------------------------------------------------------------------
+

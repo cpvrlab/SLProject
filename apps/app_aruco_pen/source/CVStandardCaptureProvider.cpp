@@ -1,7 +1,17 @@
+//#############################################################################
+//  File:      CVStandardCaptureProvider.cpp
+//  Date:      October 2021
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
+//  Authors:   Marino von Wattenwyl
+//  License:   This software is provided under the GNU General Public License
+//             Please visit: http://opensource.org/licenses/GPL-3.0
+//#############################################################################
+
 #include "CVStandardCaptureProvider.h"
 
 #include <utility>
 
+//-----------------------------------------------------------------------------
 CVStandardCaptureProvider::CVStandardCaptureProvider(SLint deviceIndex, CVSize captureSize)
   : CVCaptureProvider("cv_camera_" + std::to_string(deviceIndex),
                       "CV Camera " + std::to_string(deviceIndex),
@@ -9,18 +19,18 @@ CVStandardCaptureProvider::CVStandardCaptureProvider(SLint deviceIndex, CVSize c
     _deviceIndex(deviceIndex)
 {
 }
-
+//-----------------------------------------------------------------------------
 CVStandardCaptureProvider::~CVStandardCaptureProvider() noexcept
 {
-    if (_isOpened)
+    if (CVStandardCaptureProvider::isOpened())
     {
         CVStandardCaptureProvider::close();
     }
 }
-
+//-----------------------------------------------------------------------------
 void CVStandardCaptureProvider::open()
 {
-    if (_isOpened)
+    if (isOpened())
     {
         return;
     }
@@ -31,15 +41,13 @@ void CVStandardCaptureProvider::open()
     // (https://stackoverflow.com/questions/53888878/cv2-warn0-terminating-async-callback-when-attempting-to-take-a-picture)
 
     _captureDevice.open(_deviceIndex);
-    _isOpened = _captureDevice.isOpened();
-
     _captureDevice.set(cv::CAP_PROP_FRAME_WIDTH, captureSize().width);
     _captureDevice.set(cv::CAP_PROP_FRAME_HEIGHT, captureSize().height);
 }
-
+//-----------------------------------------------------------------------------
 void CVStandardCaptureProvider::grab()
 {
-    if (!_isOpened)
+    if (!isOpened())
     {
         return;
     }
@@ -47,7 +55,7 @@ void CVStandardCaptureProvider::grab()
     _captureDevice.read(_lastFrameBGR);
     cv::cvtColor(_lastFrameBGR, _lastFrameGray, cv::COLOR_BGR2GRAY);
 }
-
+//-----------------------------------------------------------------------------
 void CVStandardCaptureProvider::close()
 {
     if (!CVStandardCaptureProvider::isOpened())
@@ -57,8 +65,9 @@ void CVStandardCaptureProvider::close()
 
     _captureDevice.release();
 }
-
+//-----------------------------------------------------------------------------
 SLbool CVStandardCaptureProvider::isOpened()
 {
-    return _isOpened;
+    return _captureDevice.isOpened();
 }
+//-----------------------------------------------------------------------------

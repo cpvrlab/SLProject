@@ -1,8 +1,8 @@
 //#############################################################################
-//  File:      AppDemoSceneView.h
-//  Date:      August 2019
+//  File:      AppArucoPenSceneView.h
+//  Date:      October 2021
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
-//  Authors:   Marcus Hudritsch
+//  Authors:   Marcus Hudritsch, Marino von Wattenwyl
 //  License:   This software is provided under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################

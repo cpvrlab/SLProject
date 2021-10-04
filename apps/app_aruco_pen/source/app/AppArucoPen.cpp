@@ -1,3 +1,12 @@
+//#############################################################################
+//  File:      AppArucoPen.cpp
+//  Date:      October 2021
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
+//  Authors:   Marino von Wattenwyl
+//  License:   This software is provided under the GNU General Public License
+//             Please visit: http://opensource.org/licenses/GPL-3.0
+//#############################################################################
+
 #include "AppArucoPen.h"
 
 #include <SL.h>
@@ -6,6 +15,7 @@
 #include <Utils.h>
 #include <AppDemo.h>
 
+//-----------------------------------------------------------------------------
 void AppArucoPen::openCaptureProviders()
 {
     SL_LOG("Loading capture providers...");
@@ -23,7 +33,7 @@ void AppArucoPen::openCaptureProviders()
 
     SL_LOG("All capture providers opened");
 }
-
+//-----------------------------------------------------------------------------
 void AppArucoPen::openCaptureProvider(CVCaptureProvider* captureProvider)
 {
     float before = GlobalTimer::timeS();
@@ -38,7 +48,9 @@ void AppArucoPen::openCaptureProvider(CVCaptureProvider* captureProvider)
     _captureProviders.push_back(captureProvider);
     float delta = GlobalTimer::timeS() - before;
 
-    SL_LOG("%s capture provider opened in %f s", captureProvider->name().c_str(), delta);
+    SL_LOG("%s capture provider opened in %f s",
+           captureProvider->name().c_str(),
+           delta);
 
     SLstring configPath = AppDemo::calibFilePath;
     SLstring calibFilename = "camCalib_" + captureProvider->uid() + ".xml";
@@ -47,7 +59,9 @@ void AppArucoPen::openCaptureProvider(CVCaptureProvider* captureProvider)
     if (Utils::fileExists(calibPath))
     {
         SL_LOG("Found calibration for capture at %s", calibPath.c_str());
-        if (captureProvider->camera().calibration.load(configPath, calibFilename, true))
+        if (captureProvider->camera().calibration.load(configPath,
+                                                       calibFilename,
+                                                       true))
         {
             SL_LOG("Calibration successfully loaded");
         }
@@ -56,7 +70,7 @@ void AppArucoPen::openCaptureProvider(CVCaptureProvider* captureProvider)
             SL_LOG("Failed to load calibration");
         }
     }
-}
+}//-----------------------------------------------------------------------------
 
 void AppArucoPen::closeCaptureProviders()
 {
@@ -70,3 +84,4 @@ void AppArucoPen::closeCaptureProviders()
 
     SL_LOG("All capture providers closed");
 }
+//-----------------------------------------------------------------------------

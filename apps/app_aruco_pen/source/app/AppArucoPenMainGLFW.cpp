@@ -1,10 +1,6 @@
 //#############################################################################
-//  File:      AppDemoMainGLFW.cpp
-//  Purpose:   The demo application demonstrates most features of the SLProject
-//             framework. Implementation of the GUI with the GLFW3 framework
-//             that can create a window and receive system event on desktop OS
-//             such as Windows, MacOS and Linux.
-//  Date:      July 2014
+//  File:      AppArucoPenMainGLFW.cpp
+//  Date:      October 2021
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Authors:   Marcus Hudritsch, Marino von Wattenwyl
 //  License:   This software is provided under the GNU General Public License
@@ -25,8 +21,11 @@
 #include <Instrumentor.h>
 
 #include <SLGLFWInterface.h>
+#include <ArucoPenPublisher.h>
 
 #include <GlobalTimer.h>
+
+#include <thread>
 
 //-----------------------------------------------------------------------------
 //! Forward declaration of the scene definition function from AppArucoPenLoad.cpp
@@ -88,6 +87,10 @@ SLbool onPaint()
         {
             AppArucoPen::instance().tipPositions.push_back(AppArucoPen::instance().arucoPen()->tipPosition());
         }
+
+        SLVec3f p = AppArucoPen::instance().arucoPen()->tipPosition();
+        float data[3]{p.x, p.y, p.z};
+        aruco_pen_publish((void*)data, 12);
     }
 
     ////////////////////////////////////////////////
@@ -474,6 +477,8 @@ int main(int argc, char* argv[])
 
         AppArucoPen::instance().openCaptureProviders();
 
+        aruco_pen_listen();
+
         // Event loop
         while (!slShouldClose())
         {
@@ -488,6 +493,8 @@ int main(int argc, char* argv[])
             else
                 glfwPollEvents();
         }
+
+        aruco_pen_close();
 
         AppArucoPen::instance().closeCaptureProviders();
 

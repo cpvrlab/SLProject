@@ -1,9 +1,19 @@
+//#############################################################################
+//  File:      IDSPeakCaptureProvider.cpp
+//  Date:      October 2021
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
+//  Authors:   Marino von Wattenwyl
+//  License:   This software is provided under the GNU General Public License
+//             Please visit: http://opensource.org/licenses/GPL-3.0
+//#############################################################################
+
 #include "IDSPeakCaptureProvider.h"
 
 #include <apps/app_aruco_pen/source/IDSPeakInterface.h>
 
 #include <utility>
 
+//-----------------------------------------------------------------------------
 IDSPeakCaptureProvider::IDSPeakCaptureProvider(SLint deviceIndex, CVSize captureSize)
   : CVCaptureProvider("ids_camera_" + std::to_string(deviceIndex),
                       "IDS Camera " + std::to_string(deviceIndex),
@@ -11,7 +21,7 @@ IDSPeakCaptureProvider::IDSPeakCaptureProvider(SLint deviceIndex, CVSize capture
     _deviceIndex(deviceIndex)
 {
 }
-
+//-----------------------------------------------------------------------------
 IDSPeakCaptureProvider::~IDSPeakCaptureProvider() noexcept
 {
     if (_isOpened)
@@ -19,7 +29,7 @@ IDSPeakCaptureProvider::~IDSPeakCaptureProvider() noexcept
         IDSPeakCaptureProvider::close();
     }
 }
-
+//-----------------------------------------------------------------------------
 void IDSPeakCaptureProvider::open()
 {
     if (_isOpened)
@@ -35,7 +45,7 @@ void IDSPeakCaptureProvider::open()
     IDSPeakInterface::allocateBuffers();
     IDSPeakInterface::startCapture();
 }
-
+//-----------------------------------------------------------------------------
 void IDSPeakCaptureProvider::grab()
 {
     if (!_isOpened)
@@ -60,7 +70,7 @@ void IDSPeakCaptureProvider::grab()
     _lastFrameGray = CVMat(height, width, CV_8UC1, dataGray, 0);
     cv::resize(_lastFrameGray, _lastFrameGray, captureSize());
 }
-
+//-----------------------------------------------------------------------------
 void IDSPeakCaptureProvider::close()
 {
     if (!_isOpened)
@@ -74,8 +84,9 @@ void IDSPeakCaptureProvider::close()
 
     _isOpened = false;
 }
-
+//-----------------------------------------------------------------------------
 SLbool IDSPeakCaptureProvider::isOpened()
 {
     return _isOpened;
 }
+//-----------------------------------------------------------------------------

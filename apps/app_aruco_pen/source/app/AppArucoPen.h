@@ -1,3 +1,12 @@
+//#############################################################################
+//  File:      AppArucoPen.h
+//  Date:      October 2021
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
+//  Authors:   Marino von Wattenwyl
+//  License:   This software is provided under the GNU General Public License
+//             Please visit: http://opensource.org/licenses/GPL-3.0
+//#############################################################################
+
 #ifndef SLPROJECT_APPARUCOPEN_H
 #define SLPROJECT_APPARUCOPEN_H
 
@@ -12,8 +21,9 @@
 
 #include <vector>
 
+//-----------------------------------------------------------------------------
 typedef std::vector<CVCaptureProvider*> CVVCaptureProvider;
-
+//-----------------------------------------------------------------------------
 class AppArucoPen
 {
 public:
@@ -49,5 +59,5 @@ public:
 private:
     void openCaptureProvider(CVCaptureProvider* captureProvider);
 };
-
+//-----------------------------------------------------------------------------
 #endif // SLPROJECT_APPARUCOPEN_H

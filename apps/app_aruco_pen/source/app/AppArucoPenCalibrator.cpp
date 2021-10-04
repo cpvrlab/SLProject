@@ -1,3 +1,12 @@
+//#############################################################################
+//  File:      AppArucoPenCalibrator.cpp
+//  Date:      October 2021
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
+//  Authors:   Marcus Hudritsch, Marino von Wattenwyl
+//  License:   This software is provided under the GNU General Public License
+//             Please visit: http://opensource.org/licenses/GPL-3.0
+//#############################################################################
+
 #include "AppArucoPenCalibrator.h"
 
 #include <AppDemo.h>
@@ -8,18 +17,21 @@
 #include <string>
 #include <sstream>
 
+//-----------------------------------------------------------------------------
 AppArucoPenCalibrator::~AppArucoPenCalibrator()
 {
     delete _calibrationEstimator;
 }
-
+//-----------------------------------------------------------------------------
 void AppArucoPenCalibrator::reset()
 {
     delete _calibrationEstimator;
     _calibrationEstimator = nullptr;
 }
-
-void AppArucoPenCalibrator::update(CVCamera* ac, SLScene* s, SLSceneView* sv)
+//-----------------------------------------------------------------------------
+void AppArucoPenCalibrator::update(CVCamera* ac,
+                                   SLScene* s,
+                                   SLSceneView* sv)
 {
     auto* aapSv = dynamic_cast<AppArucoPenSceneView*>(sv);
 
@@ -92,8 +104,9 @@ void AppArucoPenCalibrator::update(CVCamera* ac, SLScene* s, SLSceneView* sv)
         s->info("Exception during calibration! Please restart!");
     }
 }
-
-void AppArucoPenCalibrator::init(CVCamera* ac, AppArucoPenSceneView* aapSv)
+//-----------------------------------------------------------------------------
+void AppArucoPenCalibrator::init(CVCamera* ac,
+                                 AppArucoPenSceneView* aapSv)
 {
     _calibrationEstimator = new CVCalibrationEstimator(AppDemo::calibrationEstimatorParams,
                                                        CVCapture::instance()->activeCamSizeIndex,
@@ -109,3 +122,4 @@ void AppArucoPenCalibrator::init(CVCamera* ac, AppArucoPenSceneView* aapSv)
     aapSv->grab           = false;
     _processedCalibResult = false;
 }
+//-----------------------------------------------------------------------------

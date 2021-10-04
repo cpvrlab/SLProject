@@ -132,6 +132,7 @@ target_link_directories(${target}
         PRIVATE
         ${SL_PROJECT_ROOT}/apps/app_aruco_pen/external/peak/api/lib/x86_64
         ${SL_PROJECT_ROOT}/apps/app_aruco_pen/external/peak/ipl/lib/x86_64
+        ${SL_PROJECT_ROOT}/apps/app_aruco_pen/external/aruco_pen/
         PUBLIC
         INTERFACE)
 
@@ -139,6 +140,7 @@ target_link_libraries(${target}
         PRIVATE
         ids_peak
         ids_peak_ipl
+        aruco_pen_publisher
         PUBLIC
         INTERFACE)
 

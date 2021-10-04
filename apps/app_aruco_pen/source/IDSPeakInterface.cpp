@@ -1,11 +1,21 @@
+//#############################################################################
+//  File:      IDSPeakInterface.cpp
+//  Date:      October 2021
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
+//  Authors:   Marino von Wattenwyl
+//  License:   This software is provided under the GNU General Public License
+//             Please visit: http://opensource.org/licenses/GPL-3.0
+//#############################################################################
+
 #include "IDSPeakInterface.h"
 
 #include <SL.h>
 
+//-----------------------------------------------------------------------------
 std::shared_ptr<peak::core::Device>     IDSPeakInterface::device              = nullptr;
 std::shared_ptr<peak::core::DataStream> IDSPeakInterface::dataStream          = nullptr;
 std::shared_ptr<peak::core::NodeMap>    IDSPeakInterface::nodeMapRemoteDevice = nullptr;
-
+//-----------------------------------------------------------------------------
 void IDSPeakInterface::init()
 {
     try
@@ -18,7 +28,7 @@ void IDSPeakInterface::init()
         SL_EXIT_MSG(e.what());
     }
 }
-
+//-----------------------------------------------------------------------------
 void IDSPeakInterface::openDevice(int index)
 {
     try
@@ -43,7 +53,7 @@ void IDSPeakInterface::openDevice(int index)
         SL_EXIT_MSG(e.what());
     }
 }
-
+//-----------------------------------------------------------------------------
 void IDSPeakInterface::setDeviceParameters()
 {
     try
@@ -88,7 +98,7 @@ void IDSPeakInterface::setDeviceParameters()
         SL_EXIT_MSG(e.what());
     }
 }
-
+//-----------------------------------------------------------------------------
 void IDSPeakInterface::allocateBuffers()
 {
     try
@@ -123,7 +133,7 @@ void IDSPeakInterface::allocateBuffers()
         SL_EXIT_MSG(e.what());
     }
 }
-
+//-----------------------------------------------------------------------------
 void IDSPeakInterface::startCapture()
 {
     try
@@ -140,8 +150,11 @@ void IDSPeakInterface::startCapture()
         SL_EXIT_MSG(e.what());
     }
 }
-
-void IDSPeakInterface::captureImage(int* width, int* height, uint8_t** dataBGR, uint8_t** dataGray)
+//-----------------------------------------------------------------------------
+void IDSPeakInterface::captureImage(int* width,
+                                    int* height,
+                                    uint8_t** dataBGR,
+                                    uint8_t** dataGray)
 {
     try
     {
@@ -164,7 +177,7 @@ void IDSPeakInterface::captureImage(int* width, int* height, uint8_t** dataBGR, 
         SL_EXIT_MSG(e.what());
     }
 }
-
+//-----------------------------------------------------------------------------
 void IDSPeakInterface::stopCapture()
 {
     try
@@ -181,7 +194,7 @@ void IDSPeakInterface::stopCapture()
         SL_EXIT_MSG(e.what());
     }
 }
-
+//-----------------------------------------------------------------------------
 void IDSPeakInterface::deallocateBuffers()
 {
     try
@@ -198,7 +211,7 @@ void IDSPeakInterface::deallocateBuffers()
         SL_EXIT_MSG(e.what());
     }
 }
-
+//-----------------------------------------------------------------------------
 void IDSPeakInterface::uninit()
 {
     try
@@ -211,3 +224,4 @@ void IDSPeakInterface::uninit()
         SL_EXIT_MSG(e.what());
     }
 }
+//-----------------------------------------------------------------------------

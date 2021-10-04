@@ -1,3 +1,12 @@
+//#############################################################################
+//  File:      AppArucoPenCalibrator.h
+//  Date:      October 2021
+//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
+//  Authors:   Marcus Hudritsch, Marino von Wattenwyl
+//  License:   This software is provided under the GNU General Public License
+//             Please visit: http://opensource.org/licenses/GPL-3.0
+//#############################################################################
+
 #ifndef SLPROJECT_APPARUCOPENCALIBRATOR_H
 #define SLPROJECT_APPARUCOPENCALIBRATOR_H
 
@@ -7,6 +16,7 @@
 #include <SLSceneView.h>
 #include <app/AppArucoPenSceneView.h>
 
+//-----------------------------------------------------------------------------
 class AppArucoPenCalibrator
 {
 private:
@@ -19,9 +29,12 @@ public:
     ~AppArucoPenCalibrator();
 
     void reset();
-    void update(CVCamera* ac, SLScene* s, SLSceneView* sv);
-    void init(CVCamera* ac, AppArucoPenSceneView* aapSv);
+    void update(CVCamera* ac,
+                SLScene* s,
+                SLSceneView* sv);
+    void init(CVCamera* ac,
+              AppArucoPenSceneView* aapSv);
 
 };
-
+//-----------------------------------------------------------------------------
 #endif // SLPROJECT_APPARUCOPENCALIBRATOR_H

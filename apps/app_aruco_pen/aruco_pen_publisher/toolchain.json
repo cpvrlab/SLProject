@@ -1,0 +1,5 @@
+{
+	"architecture": "x86_64",
+	"os": "windows",
+	"linker": "msvc"
+}

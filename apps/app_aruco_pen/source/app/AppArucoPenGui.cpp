@@ -1,9 +1,8 @@
 //#############################################################################
 //  File:      AppArucoPenGui.cpp
-//  Purpose:   UI with the ImGUI framework fully rendered in OpenGL 3+
-//  Date:      Summer 2017
+//  Date:      October 2021
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
-//  Authors:   Marcus Hudritsch
+//  Authors:   Marcus Hudritsch, Marino von Wattenwyl
 //  License:   This software is provided under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
