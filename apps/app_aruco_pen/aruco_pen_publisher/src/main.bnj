@@ -1,11 +1,11 @@
 import socket;
 import memory;
-import time;
 
 ListenSocket* server = null;
 Socket* client = null;
 
 exposed void aruco_pen_listen() {
+	# save rbx register
 	asm {
 		mov r10, rbx
 	}
@@ -19,6 +19,7 @@ exposed void aruco_pen_listen() {
 	client = socket.ls_accept(server);
 	banjo.print_str("client connected");
 
+	# restore rbx register
 	asm {
 		mov rbx, r10
 	}

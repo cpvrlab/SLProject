@@ -31,7 +31,7 @@ public:
 
 private:
     SLVec3f _lastPrintedPosition;
-    SLbool _positionPrintedOnce = false;
+    SLbool  _positionPrintedOnce = false;
     SLfloat _lastDistance;
 
 };

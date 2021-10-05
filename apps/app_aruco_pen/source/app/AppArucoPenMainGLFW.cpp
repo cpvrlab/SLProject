@@ -68,29 +68,17 @@ SLbool onPaint()
     // If live video image is requested grab it and copy it
     if (CVCapture::instance()->videoType() != VT_NONE)
     {
-        CVCapture::instance()->startCaptureTimeMS = GlobalTimer::timeMS();
+        AppArucoPen::instance().grabFrame(sv);
 
-        CVCaptureProvider* provider = AppArucoPen::instance().currentCaptureProvider();
-        provider->grab();
+        if(AppDemo::sceneID == SID_VideoTrackArucoCubeMain)
+        {
+            AppArucoPen::instance().publishTipPosition();
+        }
 
-        CVCapture::instance()->camSizes.clear();
-        CVCapture::instance()->camSizes.push_back(provider->captureSize());
-
-        CVCapture::instance()->lastFrame     = provider->lastFrameBGR();
-        CVCapture::instance()->lastFrameGray = provider->lastFrameGray();
-        CVCapture::instance()->captureSize   = provider->captureSize();
-        CVCapture::instance()->format        = PF_bgr;
-
-        CVCapture::instance()->adjustForSLGrayAvailable(sv->viewportWdivH());
-
-        if(glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS)
+        if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS)
         {
             AppArucoPen::instance().tipPositions.push_back(AppArucoPen::instance().arucoPen()->tipPosition());
         }
-
-        SLVec3f p = AppArucoPen::instance().arucoPen()->tipPosition();
-        float data[3]{p.x, p.y, p.z};
-        aruco_pen_publish((void*)data, 12);
     }
 
     ////////////////////////////////////////////////
@@ -439,17 +427,17 @@ void initSL(SLVstring& cmdLineArgs)
     /////////////////////////////////////////////////////////
 
     /////////////////////////////////////////////////////////
-    slCreateSceneView(AppDemo::scene,
-                      scrWidth,
-                      scrHeight,
-                      dpi,
-                      (SLSceneID)SL_STARTSCENE,
-                      (void*)&onPaint,
-                      nullptr,
-                      (void*)createAppDemoSceneView,
-                      (void*)AppArucoPenGui::build,
-                      (void*)AppArucoPenGui::loadConfig,
-                      (void*)AppArucoPenGui::saveConfig);
+    svIndex = slCreateSceneView(AppDemo::scene,
+                                scrWidth,
+                                scrHeight,
+                                dpi,
+                                (SLSceneID)SL_STARTSCENE,
+                                (void*)&onPaint,
+                                nullptr,
+                                (void*)createAppDemoSceneView,
+                                (void*)AppArucoPenGui::build,
+                                (void*)AppArucoPenGui::loadConfig,
+                                (void*)AppArucoPenGui::saveConfig);
     /////////////////////////////////////////////////////////
 }
 //-----------------------------------------------------------------------------
@@ -477,7 +465,7 @@ int main(int argc, char* argv[])
 
         AppArucoPen::instance().openCaptureProviders();
 
-        aruco_pen_listen();
+//        aruco_pen_listen();
 
         // Event loop
         while (!slShouldClose())

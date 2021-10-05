@@ -136,6 +136,12 @@ target_link_directories(${target}
         PUBLIC
         INTERFACE)
 
+# compile the aruco pen publisher library
+add_custom_target(compile-banjo
+        COMMAND cd ${CMAKE_CURRENT_SOURCE_DIR}/aruco_pen_publisher
+        COMMAND bango build)
+add_dependencies(${target} compile-banjo)
+
 target_link_libraries(${target}
         PRIVATE
         ids_peak

@@ -16,6 +16,7 @@
 
 #include <SLVec3.h>
 #include <SLArucoPen.h>
+#include <SLSceneView.h>
 
 #include <app/AppArucoPenCalibrator.h>
 
@@ -45,6 +46,8 @@ private:
 public:
     void openCaptureProviders();
     void closeCaptureProviders();
+    void grabFrame(SLSceneView* sv);
+    void publishTipPosition();
 
     // Getters
     CVVCaptureProvider&    captureProviders() { return _captureProviders; }

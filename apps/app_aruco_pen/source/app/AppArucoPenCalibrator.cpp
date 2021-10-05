@@ -117,7 +117,6 @@ void AppArucoPenCalibrator::init(CVCamera* ac,
                                                        AppDemo::calibIniPath,
                                                        AppDemo::externalPath,
                                                        AppDemo::exePath);
-
     // clear grab request from sceneview
     aapSv->grab           = false;
     _processedCalibResult = false;

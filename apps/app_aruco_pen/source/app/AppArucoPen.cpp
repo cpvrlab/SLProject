@@ -14,20 +14,21 @@
 #include <CVCapture.h>
 #include <Utils.h>
 #include <AppDemo.h>
+#include <ArucoPenPublisher.h>
 
 //-----------------------------------------------------------------------------
 void AppArucoPen::openCaptureProviders()
 {
     SL_LOG("Loading capture providers...");
 
-//    openCaptureProvider(new CVStandardCaptureProvider(0, CVSize(640, 480)));
-//    openCaptureProvider(new IDSPeakCaptureProvider(0, CVSize(1920, 1280)));
+    //    openCaptureProvider(new CVStandardCaptureProvider(0, CVSize(640, 480)));
+    //    openCaptureProvider(new IDSPeakCaptureProvider(0, CVSize(1920, 1280)));
 
     // 1280x960 actually provides better results than 1920x1080
     // What the hell
     openCaptureProvider(new CVStandardCaptureProvider(0, CVSize(1280, 960)));
 
-//    openCaptureProvider(new IDSPeakCaptureProvider(0, CVSize(1920, 1280)));
+    //    openCaptureProvider(new IDSPeakCaptureProvider(0, CVSize(1920, 1280)));
 
     _currentCaptureProvider = _captureProviders[0];
 
@@ -39,7 +40,7 @@ void AppArucoPen::openCaptureProvider(CVCaptureProvider* captureProvider)
     float before = GlobalTimer::timeS();
     captureProvider->open();
 
-    if(!captureProvider->isOpened())
+    if (!captureProvider->isOpened())
     {
         SL_LOG("Failed to open capture provider");
         return;
@@ -52,9 +53,9 @@ void AppArucoPen::openCaptureProvider(CVCaptureProvider* captureProvider)
            captureProvider->name().c_str(),
            delta);
 
-    SLstring configPath = AppDemo::calibFilePath;
+    SLstring configPath    = AppDemo::calibFilePath;
     SLstring calibFilename = "camCalib_" + captureProvider->uid() + ".xml";
-    SLstring calibPath = Utils::unifySlashes(configPath) + calibFilename;
+    SLstring calibPath     = Utils::unifySlashes(configPath) + calibFilename;
 
     if (Utils::fileExists(calibPath))
     {
@@ -70,8 +71,8 @@ void AppArucoPen::openCaptureProvider(CVCaptureProvider* captureProvider)
             SL_LOG("Failed to load calibration");
         }
     }
-}//-----------------------------------------------------------------------------
-
+}
+//-----------------------------------------------------------------------------
 void AppArucoPen::closeCaptureProviders()
 {
     SL_LOG("Closing capture providers...");
@@ -85,3 +86,27 @@ void AppArucoPen::closeCaptureProviders()
     SL_LOG("All capture providers closed");
 }
 //-----------------------------------------------------------------------------
+void AppArucoPen::grabFrame(SLSceneView* sv)
+{
+    CVCapture::instance()->startCaptureTimeMS = GlobalTimer::timeMS();
+
+    CVCaptureProvider* provider = AppArucoPen::instance().currentCaptureProvider();
+    provider->grab();
+
+    CVCapture::instance()->camSizes.clear();
+    CVCapture::instance()->camSizes.push_back(provider->captureSize());
+
+    CVCapture::instance()->lastFrame     = provider->lastFrameBGR();
+    CVCapture::instance()->lastFrameGray = provider->lastFrameGray();
+    CVCapture::instance()->captureSize   = provider->captureSize();
+    CVCapture::instance()->format        = PF_bgr;
+
+    CVCapture::instance()->adjustForSLGrayAvailable(sv->viewportWdivH());
+}
+//-----------------------------------------------------------------------------
+void AppArucoPen::publishTipPosition()
+{
+    SLVec3f p = AppArucoPen::instance().arucoPen()->tipPosition();
+    float data[3]{p.x, p.y, p.z};
+    aruco_pen_publish((void*)data, 12);
+}

@@ -103,6 +103,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
     AppDemo::devLoc.init();
 
     AppArucoPen::instance().arucoPen(nullptr);
+    CVCapture::instance()->activeCamera = &AppArucoPen::instance().currentCaptureProvider()->camera();
 
     if (sceneID == SID_VideoTrackChessMain ||
         sceneID == SID_VideoCalibrateMain) //.................................................
@@ -121,11 +122,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         // Setup here only the requested scene.
         if (sceneID == SID_VideoTrackChessMain)
         {
-            if (sceneID == SID_VideoTrackChessMain)
-            {
-                CVCapture::instance()->videoType(VT_MAIN);
-                s->name("Track Chessboard (main cam.)");
-            }
+            CVCapture::instance()->videoType(VT_MAIN);
+            s->name("Track Chessboard (main cam.)");
         }
         else if (sceneID == SID_VideoCalibrateMain)
         {
@@ -218,9 +216,12 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Create a camera node 1
         SLCamera* cam1 = new SLCamera("Camera 1");
-        cam1->translation(0, 0, 5);
+        cam1->translation(0, 0, 1);
         cam1->lookAt(0, 0, 0);
-        cam1->fov(CVCapture::instance()->activeCamera->calibration.cameraFovVDeg());
+        cam1->fov(36);         // FIXME: Hardcoded FOV for Logitech 1080p webcam
+        cam1->clipNear(0.001f);
+        cam1->clipFar(10.0f);
+        cam1->focalDist(1.0f);
         cam1->background().texture(videoTexture);
         cam1->setInitialState();
         cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
@@ -251,9 +252,9 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         scene->addChild(penNode);
 
-        SLMesh* tipMesh = new SLBox(s, -tiphe, -tiphe - tipOffset, -tiphe, tiphe, tiphe - tipOffset, tiphe, "Pen Tip", penTipMaterial);
+        SLMesh* tipMesh = new SLBox(s, -tiphe, -tiphe, -tiphe - tipOffset, tiphe, tiphe, tiphe - tipOffset, "Pen Tip", penTipMaterial);
         SLNode* tipNode = new SLNode(tipMesh, "Pen Tip Node");
-        scene->addChild(tipNode);
+        penNode->addChild(tipNode);
 
         SLNode* axisNode = new SLNode(new SLCoordAxis(s), "Axis Node");
         axisNode->setDrawBitsRec(SL_DB_MESHWIRED, false);
@@ -270,6 +271,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->root3D(scene);
         sv->camera(cam1);
         sv->doWaitOnIdle(false);
+        sv->doFrustumCulling(false);
     }
     else if (sceneID == SID_ArucoPenTrail)
     {

@@ -18,7 +18,6 @@ extern recv
 extern send
 extern malloc
 extern free
-extern Sleep
 extern printf
 extern scanf
 extern ExitProcess
