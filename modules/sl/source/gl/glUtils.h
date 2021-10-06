@@ -17,7 +17,7 @@
 using std::string;
 
 #ifdef __APPLE__
-#    if TARGET_OS_IOS
+#    if defined(TARGET_OS_IOS) && (TARGET_OS_IOS==1)
 #        include <OpenGLES/ES3/gl.h>
 #        include <OpenGLES/ES3/glext.h>
 #    else
