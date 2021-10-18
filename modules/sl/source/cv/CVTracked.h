@@ -26,6 +26,8 @@ for a good top down information.
 #include <opencv2/aruco.hpp>
 #include <opencv2/xfeatures2d.hpp>
 
+#include <SLQuat4.h>
+
 using Utils::AvgFloat;
 
 //-----------------------------------------------------------------------------
@@ -76,6 +78,14 @@ public:
     static AvgFloat matchTimesMS;    //!< Averaged time for video feature matching in ms
     static AvgFloat optFlowTimesMS;  //!< Averaged time for video feature optical flow tracking in ms
     static AvgFloat poseTimesMS;     //!< Averaged time for video feature pose estimation in ms
+
+    // Static methods for commonly used operations
+public:
+    static CVVec3f averageVector(vector<CVVec3f> vectors,
+                                 vector<float>   weights);
+
+    static SLQuat4f averageQuaternion(vector<SLQuat4f> quaternions,
+                                      vector<float>    weights);
 
 protected:
     bool         _isVisible;     //!< Flag if marker is visible

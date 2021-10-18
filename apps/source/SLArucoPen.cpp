@@ -12,7 +12,7 @@
 //-----------------------------------------------------------------------------
 SLArucoPen::SLArucoPen(string calibIniPath,
                        float  edgeLength)
-  : CVTrackedArucoCube(calibIniPath, edgeLength)
+  : CVMultiTracked(new CVTrackedArucoCube(calibIniPath, edgeLength))
 {
 }
 //-----------------------------------------------------------------------------
@@ -39,7 +39,7 @@ SLbool SLArucoPen::onKeyPress(const SLKey key,
             }
 
             _lastPrintedPosition = position;
-            _lastDistance = distance;
+            _lastDistance        = distance;
 
             return true;
         }

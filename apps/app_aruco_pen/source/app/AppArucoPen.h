@@ -36,6 +36,10 @@ public:
 
     SLVVec3f tipPositions;
 
+    SLGLTexture* videoTexture = nullptr;
+    CVTracked* tracker = nullptr;
+    SLNode* trackedNode = nullptr;
+
 private:
     CVVCaptureProvider _captureProviders;
     CVCaptureProvider* _currentCaptureProvider = nullptr;

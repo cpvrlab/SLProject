@@ -18,23 +18,9 @@
 #include <AppDemo.h>
 #include <FtpUtils.h>
 #include <GlobalTimer.h>
-#include <SLProjectScene.h>
 #include <Instrumentor.h>
 
 #include <app/AppArucoPen.h>
-
-//-----------------------------------------------------------------------------
-/*! Global pointer for the video texture defined in AppDemoLoad for video scenes
- It gets updated in the following onUpdateTracking routine */
-SLGLTexture* videoTexture = nullptr;
-
-/*! Global pointer for a tracker that is set in AppDemoLoad for video scenes
- It gets updated in the following onUpdateTracking routine */
-CVTracked* tracker = nullptr;
-
-/*! Global pointer to a node that from witch the tracker changes the pose.
- it gets updated in the following onUpdateTracking routine */
-SLNode* trackedNode = nullptr;
 
 //-----------------------------------------------------------------------------
 // always update scene camera fovV from calibration because the calibration may have
@@ -45,6 +31,7 @@ void updateTrackingSceneCamera(CVCamera* ac)
 {
     PROFILE_FUNCTION();
 
+    SLNode* trackedNode = AppArucoPen::instance().trackedNode;
     if (trackedNode && typeid(*trackedNode) == typeid(SLCamera))
     {
         SLCamera* trackingCam = dynamic_cast<SLCamera*>(trackedNode);
@@ -101,6 +88,56 @@ void ensureValidCalibration(CVCamera* ac, SLSceneView* sv)
     }
 }
 //-----------------------------------------------------------------------------
+void trackVideo()
+{
+    SLSceneView* sv = AppDemo::sceneViews[0];
+    CVCamera* ac = &AppArucoPen::instance().currentCaptureProvider()->camera();
+
+    ensureValidCalibration(ac, sv);
+    // Attention: Always update scene camera fovV from calibration because the calibration may have
+    // been adapted in adjustForSL after a change of aspect ratio!
+    // The active scene view camera may be a different one that the tracking camera
+    // but we have to update the tracking camera only!
+    updateTrackingSceneCamera(ac);
+
+    if (AppArucoPen::instance().tracker && AppArucoPen::instance().trackedNode)
+    {
+        bool foundPose = AppArucoPen::instance().tracker->track(CVCapture::instance()->lastFrameGray,
+                                                                CVCapture::instance()->lastFrame,
+                                                                &ac->calibration);
+        if (foundPose)
+        {
+            // clang-format off
+            // convert matrix type CVMatx44f to SLMat4f
+            CVMatx44f cvOVM = AppArucoPen::instance().tracker->objectViewMat();
+            SLMat4f glOVM(cvOVM.val[0], cvOVM.val[1], cvOVM.val[2], cvOVM.val[3],
+                          cvOVM.val[4], cvOVM.val[5], cvOVM.val[6], cvOVM.val[7],
+                          cvOVM.val[8], cvOVM.val[9], cvOVM.val[10],cvOVM.val[11],
+                          cvOVM.val[12],cvOVM.val[13],cvOVM.val[14],cvOVM.val[15]);
+            // clang-format on
+
+            // set the object matrix depending if the
+            // tracked node is attached to a camera or not
+
+            SLNode* trackedNode = AppArucoPen::instance().trackedNode;
+
+            if (typeid(*trackedNode) == typeid(SLCamera))
+            {
+                trackedNode->om(glOVM.inverted());
+                trackedNode->setDrawBitsRec(SL_DB_HIDDEN, true);
+            }
+            else
+            {
+                // see comments in CVTracked::calcObjectMatrix
+                trackedNode->om(sv->camera()->om() * glOVM);
+                trackedNode->setDrawBitsRec(SL_DB_HIDDEN, false);
+            }
+        }
+        else
+            AppArucoPen::instance().trackedNode->setDrawBitsRec(SL_DB_HIDDEN, false);
+    }
+}
+//-----------------------------------------------------------------------------
 //! Implements the update per frame for video update and feature tracking
 /*! This routine is called once per frame before any other update within the
  the main rendering loop (see: AppDemoMainGLFW::onPaint or GLES3View::onDrawFrame).
@@ -129,47 +166,6 @@ bool onUpdateVideo()
         }
         else
         {
-            ensureValidCalibration(ac, sv);
-            // Attention: Always update scene camera fovV from calibration because the calibration may have
-            // been adapted in adjustForSL after a change of aspect ratio!
-            // The active scene view camera may be a different one that the tracking camera
-            // but we have to update the tracking camera only!
-            updateTrackingSceneCamera(ac);
-
-            if (tracker && trackedNode)
-            {
-                bool foundPose = tracker->track(CVCapture::instance()->lastFrameGray,
-                                                CVCapture::instance()->lastFrame,
-                                                &ac->calibration);
-                if (foundPose)
-                {
-                    // clang-format off
-                    // convert matrix type CVMatx44f to SLMat4f
-                    CVMatx44f cvOVM = tracker->objectViewMat();
-                    SLMat4f glOVM(cvOVM.val[0], cvOVM.val[1], cvOVM.val[2], cvOVM.val[3],
-                                  cvOVM.val[4], cvOVM.val[5], cvOVM.val[6], cvOVM.val[7],
-                                  cvOVM.val[8], cvOVM.val[9], cvOVM.val[10],cvOVM.val[11],
-                                  cvOVM.val[12],cvOVM.val[13],cvOVM.val[14],cvOVM.val[15]);
-                    // clang-format on
-
-                    // set the object matrix depending if the
-                    // tracked node is attached to a camera or not
-                    if (typeid(*trackedNode) == typeid(SLCamera))
-                    {
-                        trackedNode->om(glOVM.inverted());
-                        trackedNode->setDrawBitsRec(SL_DB_HIDDEN, true);
-                    }
-                    else
-                    {
-                        // see comments in CVTracked::calcObjectMatrix
-                        trackedNode->om(sv->camera()->om() * glOVM);
-                        trackedNode->setDrawBitsRec(SL_DB_HIDDEN, false);
-                    }
-                }
-                else
-                    trackedNode->setDrawBitsRec(SL_DB_HIDDEN, false);
-            }
-
             // Update info text only for chessboard scene
             if (AppDemo::sceneID == SID_VideoCalibrateMain ||
                 AppDemo::sceneID == SID_VideoTrackChessMain)
@@ -188,7 +184,7 @@ bool onUpdateVideo()
 
         //...................................................................
         // copy image to video texture
-        if (videoTexture)
+        if (AppArucoPen::instance().videoTexture)
         {
             if (ac->calibration.state() == CS_calibrated && ac->showUndistorted())
             {
@@ -196,21 +192,21 @@ bool onUpdateVideo()
                 ac->calibration.remap(CVCapture::instance()->lastFrame, undistorted);
 
                 // CVCapture::instance()->videoTexture()->copyVideoImage(undistorted.cols,
-                videoTexture->copyVideoImage(undistorted.cols,
-                                             undistorted.rows,
-                                             CVCapture::instance()->format,
-                                             undistorted.data,
-                                             undistorted.isContinuous(),
-                                             true);
+                AppArucoPen::instance().videoTexture->copyVideoImage(undistorted.cols,
+                                                                     undistorted.rows,
+                                                                     CVCapture::instance()->format,
+                                                                     undistorted.data,
+                                                                     undistorted.isContinuous(),
+                                                                     true);
             }
             else
             {
-                videoTexture->copyVideoImage(CVCapture::instance()->lastFrame.cols,
-                                             CVCapture::instance()->lastFrame.rows,
-                                             CVCapture::instance()->format,
-                                             CVCapture::instance()->lastFrame.data,
-                                             CVCapture::instance()->lastFrame.isContinuous(),
-                                             true);
+                AppArucoPen::instance().videoTexture->copyVideoImage(CVCapture::instance()->lastFrame.cols,
+                                                                     CVCapture::instance()->lastFrame.rows,
+                                                                     CVCapture::instance()->format,
+                                                                     CVCapture::instance()->lastFrame.data,
+                                                                     CVCapture::instance()->lastFrame.isContinuous(),
+                                                                     true);
             }
         }
         else

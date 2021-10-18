@@ -16,13 +16,15 @@
 #include <AppDemo.h>
 #include <ArucoPenPublisher.h>
 
+extern void trackVideo();
+
 //-----------------------------------------------------------------------------
 void AppArucoPen::openCaptureProviders()
 {
     SL_LOG("Loading capture providers...");
 
-    //    openCaptureProvider(new CVStandardCaptureProvider(0, CVSize(640, 480)));
-    //    openCaptureProvider(new IDSPeakCaptureProvider(0, CVSize(1920, 1280)));
+//        openCaptureProvider(new CVStandardCaptureProvider(0, CVSize(640, 480)));
+//        openCaptureProvider(new IDSPeakCaptureProvider(0, CVSize(1920, 1280)));
 
     // 1280x960 actually provides better results than 1920x1080
     // What the hell
@@ -42,7 +44,7 @@ void AppArucoPen::openCaptureProvider(CVCaptureProvider* captureProvider)
 
     if (!captureProvider->isOpened())
     {
-        SL_LOG("Failed to open capture provider");
+        SL_LOG("Failed to open capture provider \"%s\"", captureProvider->name().c_str());
         return;
     }
 
@@ -88,20 +90,26 @@ void AppArucoPen::closeCaptureProviders()
 //-----------------------------------------------------------------------------
 void AppArucoPen::grabFrame(SLSceneView* sv)
 {
-    CVCapture::instance()->startCaptureTimeMS = GlobalTimer::timeMS();
-
-    CVCaptureProvider* provider = AppArucoPen::instance().currentCaptureProvider();
-    provider->grab();
 
     CVCapture::instance()->camSizes.clear();
-    CVCapture::instance()->camSizes.push_back(provider->captureSize());
 
-    CVCapture::instance()->lastFrame     = provider->lastFrameBGR();
-    CVCapture::instance()->lastFrameGray = provider->lastFrameGray();
-    CVCapture::instance()->captureSize   = provider->captureSize();
-    CVCapture::instance()->format        = PF_bgr;
+    for(CVCaptureProvider* provider : AppArucoPen::instance().captureProviders())
+    {
+        CVCapture::instance()->startCaptureTimeMS = GlobalTimer::timeMS();
 
-    CVCapture::instance()->adjustForSLGrayAvailable(sv->viewportWdivH());
+        provider->grab();
+
+        CVCapture::instance()->camSizes.push_back(provider->captureSize());
+
+        CVCapture::instance()->lastFrame     = provider->lastFrameBGR();
+        CVCapture::instance()->lastFrameGray = provider->lastFrameGray();
+        CVCapture::instance()->captureSize   = provider->captureSize();
+        CVCapture::instance()->format        = PF_bgr;
+
+        CVCapture::instance()->adjustForSLGrayAvailable(sv->viewportWdivH());
+
+        trackVideo();
+    }
 }
 //-----------------------------------------------------------------------------
 void AppArucoPen::publishTipPosition()

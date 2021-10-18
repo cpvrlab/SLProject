@@ -31,13 +31,13 @@ AvgFloat CVTracked::poseTimesMS;
 void CVTracked::resetTimes()
 {
     // Reset all timing variables
-    CVTracked::trackingTimesMS.init(60,0.0f);
-    CVTracked::detectTimesMS.init(60,0.0f);
-    CVTracked::detect1TimesMS.init(60,0.0f);
-    CVTracked::detect2TimesMS.init(60,0.0f);
-    CVTracked::matchTimesMS.init(60,0.0f);
-    CVTracked::optFlowTimesMS.init(60,0.0f);
-    CVTracked::poseTimesMS.init(60,0.0f);
+    CVTracked::trackingTimesMS.init(60, 0.0f);
+    CVTracked::detectTimesMS.init(60, 0.0f);
+    CVTracked::detect1TimesMS.init(60, 0.0f);
+    CVTracked::detect2TimesMS.init(60, 0.0f);
+    CVTracked::matchTimesMS.init(60, 0.0f);
+    CVTracked::optFlowTimesMS.init(60, 0.0f);
+    CVTracked::poseTimesMS.init(60, 0.0f);
 }
 //-----------------------------------------------------------------------------
 // clang-format off
@@ -134,5 +134,51 @@ CVMatx44f CVTracked::calcObjectMatrix(const CVMatx44f& cameraObjectMat,
     return cameraObjectMat * objectViewMat;
 }
 //-----------------------------------------------------------------------------
+// clang-format on
+//-----------------------------------------------------------------------------
+CVVec3f CVTracked::averageVector(vector<CVVec3f> vectors,
+                                 vector<float>   weights)
+{
+    if (vectors.size() == 1)
+        return vectors[0];
 
+    CVVec3f total;
+    float   totalWeights = 0.0f;
 
+    for (int i = 0; i < vectors.size(); i++)
+    {
+        float weight = weights[i];
+        total += vectors[i] * weight;
+        totalWeights += weight;
+    }
+
+    return total / totalWeights;
+}
+//-----------------------------------------------------------------------------
+SLQuat4f CVTracked::averageQuaternion(vector<SLQuat4f> quaternions,
+                                      vector<float>    weights)
+{
+    // Based on: https://math.stackexchange.com/questions/61146/averaging-quaternions
+
+    if (quaternions.size() == 1)
+        return quaternions[0];
+
+    SLQuat4f total(0.0f, 0.0f, 0.0f, 0.0f);
+
+    for (int i = 0; i < quaternions.size(); i++)
+    {
+        SLQuat4f quaternion = quaternions[i];
+        float    weight     = weights[i];
+
+        if (i > 0 && quaternion.dot(quaternions[0]) < -0.001)
+            weight = -weight;
+
+        total.set(total.x() + weight * quaternion.x(),
+                  total.y() + weight * quaternion.y(),
+                  total.z() + weight * quaternion.z(),
+                  total.w() + weight * quaternion.w());
+    }
+
+    return total.normalized();
+}
+//-----------------------------------------------------------------------------

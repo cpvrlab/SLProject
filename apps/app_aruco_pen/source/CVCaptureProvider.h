@@ -20,10 +20,11 @@
 //! Interface for accessing capture data from cameras, files, etc.
 /*! CVCaptureProvider generalizes access to video capture by exposing
  * functions that all capture sources have in common.
- * These functions can then for example be called
+ * These functions could then for example be called
  * to display the capture on screen or to perform tracking.
  * The advantage of an independent interface is that the capture source
- * can be easily replaced by instantiating another implementation of CVCaptureProvider.
+ * can easily be replaced by instantiating a different implementation
+ * of CVCaptureProvider.
  */
 class CVCaptureProvider
 {

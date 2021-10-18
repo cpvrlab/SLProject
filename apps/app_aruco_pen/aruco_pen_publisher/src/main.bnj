@@ -3,31 +3,21 @@ import memory;
 
 ListenSocket* server = null;
 Socket* client = null;
-
+	
 exposed void aruco_pen_listen() {
-	# save rbx register
-	asm {
-		mov r10, rbx
-	}
-
 	banjo.print_str("starting server...");
 
-	server = socket.ls_new();
-	socket.ls_listen(server, "48792");
+	server = new ListenSocket();
+	server.listen("48792");
 	banjo.print_str("server started, waiting for client to connect");
 	
-	client = socket.ls_accept(server);
+	client = server.accept();
 	banjo.print_str("client connected");
-
-	# restore rbx register
-	asm {
-		mov rbx, r10
-	}
 }
 
 exposed void aruco_pen_publish(addr data, int len) {
 	if(client != null) {
-		socket.s_send(client, data, len);
+		client.send(data, len);
 	}
 }
 
@@ -35,11 +25,13 @@ exposed void aruco_pen_close() {
 	banjo.print_str("closing...");
 
 	if(client != null) {
-		socket.s_delete(client);
+		client.close();
+		delete client;
 	}
 	
 	if(server != null) {
-		socket.ls_delete(server);
+		server.close();
+		delete server;
 	}
 	
 	banjo.print_str("server and client closed");

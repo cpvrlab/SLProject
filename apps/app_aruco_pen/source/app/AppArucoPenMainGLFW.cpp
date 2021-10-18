@@ -31,6 +31,7 @@
 //! Forward declaration of the scene definition function from AppArucoPenLoad.cpp
 extern void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID);
 extern bool onUpdateVideo();
+extern void trackVideo();
 
 //-----------------------------------------------------------------------------
 // Global application variables
@@ -69,6 +70,8 @@ SLbool onPaint()
     if (CVCapture::instance()->videoType() != VT_NONE)
     {
         AppArucoPen::instance().grabFrame(sv);
+
+        AppArucoPen::instance().arucoPen()->combine();
 
         if(AppDemo::sceneID == SID_VideoTrackArucoCubeMain)
         {
@@ -465,7 +468,7 @@ int main(int argc, char* argv[])
 
         AppArucoPen::instance().openCaptureProviders();
 
-//        aruco_pen_listen();
+        //aruco_pen_listen();
 
         // Event loop
         while (!slShouldClose())

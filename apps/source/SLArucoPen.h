@@ -11,11 +11,12 @@
 #define SLPROJECT_SLARUCOPEN_H
 
 #include <cv/CVTrackedArucoCube.h>
+#include <cv/CVMultiTracked.h>
 
 #include <SLEventHandler.h>
 #include <SLVec3.h>
 
-class SLArucoPen : public CVTrackedArucoCube
+class SLArucoPen : public CVMultiTracked
   , public SLEventHandler
 {
 public:

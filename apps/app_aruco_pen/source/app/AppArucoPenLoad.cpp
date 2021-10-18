@@ -12,6 +12,7 @@
 #include <CVCapture.h>
 #include <cv/CVTrackedAruco.h>
 #include <cv/CVTrackedChessboard.h>
+#include <cv/CVMultiTracked.h>
 #include <cv/CVTrackedFaces.h>
 #include <cv/CVTrackedFeatures.h>
 #include <cv/CVCalibrationEstimator.h>
@@ -49,11 +50,6 @@
 #include <SLArucoPen.h>
 
 //-----------------------------------------------------------------------------
-// Global pointers declared in AppDemoVideo
-extern SLGLTexture* videoTexture;
-extern CVTracked*   tracker;
-extern SLNode*      trackedNode;
-//-----------------------------------------------------------------------------
 //! appDemoLoadScene builds a scene from source code.
 /*! appDemoLoadScene builds a scene from source code. Such a function must be
  passed as a void*-pointer to slCreateScene. It will be called from within
@@ -76,10 +72,10 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
     CVCapture::instance()->videoType(VT_NONE); // turn off any video
 
     // Reset asset pointer from previous scenes
-    delete tracker;
-    tracker      = nullptr;
-    videoTexture = nullptr; // The video texture will be deleted by scene uninit
-    trackedNode  = nullptr; // The tracked node will be deleted by scene uninit
+    delete AppArucoPen::instance().tracker;
+    AppArucoPen::instance().tracker      = nullptr;
+    AppArucoPen::instance().videoTexture = nullptr; // The video texture will be deleted by scene uninit
+    AppArucoPen::instance().trackedNode  = nullptr; // The tracked node will be deleted by scene uninit
 
     AppDemo::sceneID = sceneID;
 
@@ -133,7 +129,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         }
 
         // Create video texture on global pointer updated in AppDemoVideo
-        videoTexture = new SLGLTexture(s, texPath + "LiveVideoError.png", GL_LINEAR, GL_LINEAR);
+        AppArucoPen::instance().videoTexture = new SLGLTexture(s, texPath + "LiveVideoError.png", GL_LINEAR, GL_LINEAR);
 
         // Material
         SLMaterial* yellow = new SLMaterial(s, "mY", SLCol4f(1, 1, 0, 0.5f));
@@ -154,7 +150,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->focalDist(5);
         cam1->clipFar(10);
         cam1->fov(CVCapture::instance()->activeCamera->calibration.cameraFovVDeg());
-        cam1->background().texture(videoTexture);
+        cam1->background().texture(AppArucoPen::instance().videoTexture);
         cam1->setInitialState();
         cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
         scene->addChild(cam1);
@@ -179,9 +175,9 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         }
 
         // Create OpenCV Tracker for the camera node for AR camera.
-        tracker = new CVTrackedChessboard(AppDemo::calibIniPath);
-        tracker->drawDetection(true);
-        trackedNode = cam1;
+        AppArucoPen::instance().tracker = new CVTrackedChessboard(AppDemo::calibIniPath);
+        AppArucoPen::instance().tracker->drawDetection(true);
+        AppArucoPen::instance().trackedNode = cam1;
 
         // pass the scene group as root node
         s->root3D(scene);
@@ -205,7 +201,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->info("Hold the Aruco Cube into the field of view of the main camera. You can find the Aruco markers in the file data/Calibrations. Press F6 to print the ArUco pen position and measure distances");
 
         // Create video texture on global pointer updated in AppDemoVideo
-        videoTexture = new SLGLTexture(s, texPath + "LiveVideoError.png", GL_LINEAR, GL_LINEAR);
+        AppArucoPen::instance().videoTexture = new SLGLTexture(s, texPath + "LiveVideoError.png", GL_LINEAR, GL_LINEAR);
 
         // Material
         SLMaterial* penTipMaterial = new SLMaterial(s, "Pen Tip Material", SLCol4f(1, 1, 0, 0.5f));
@@ -222,7 +218,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         cam1->clipNear(0.001f);
         cam1->clipFar(10.0f);
         cam1->focalDist(1.0f);
-        cam1->background().texture(videoTexture);
+        cam1->background().texture(AppArucoPen::instance().videoTexture);
         cam1->setInitialState();
         cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
         scene->addChild(cam1);
@@ -262,11 +258,11 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         // scene->addChild(axisNode);
 
         CVTrackedAruco::params.filename = "aruco_cube_detector_params.yml";
-        tracker                         = new SLArucoPen(AppDemo::calibIniPath, 0.05f);
-        tracker->drawDetection(true);
-        trackedNode = cam1;
-        s->eventHandlers().push_back((SLArucoPen*)tracker);
-        AppArucoPen::instance().arucoPen((SLArucoPen*)tracker);
+        AppArucoPen::instance().tracker                         = new SLArucoPen(AppDemo::calibIniPath, 0.05f);
+        AppArucoPen::instance().tracker->drawDetection(true);
+        AppArucoPen::instance().trackedNode = cam1;
+        s->eventHandlers().push_back((SLArucoPen*)AppArucoPen::instance().tracker);
+        AppArucoPen::instance().arucoPen((SLArucoPen*)AppArucoPen::instance().tracker);
 
         s->root3D(scene);
         sv->camera(cam1);

@@ -105,13 +105,6 @@ public:
                CVCalibration* calib);
 
 private:
-    CVVec3f averageVector(vector<CVVec3f> vectors,
-                          vector<float>   weights);
-
-    SLQuat4f averageQuaternion(vector<SLQuat4f> quaternions,
-                               vector<float>    weights);
-
-private:
     float _edgeLength;
 
     Averaged<CVVec3f> _averagePosition;

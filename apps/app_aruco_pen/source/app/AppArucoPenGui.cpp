@@ -39,14 +39,13 @@
 #include <HttpUtils.h>
 #include <ZipUtils.h>
 #include <Instrumentor.h>
+#include <app/AppArucoPen.h>
 
 #ifdef SL_BUILD_WAI
 #    include <Eigen/Dense>
 #endif
 
 //-----------------------------------------------------------------------------
-extern CVTracked*   tracker;      // Global pointer declared in AppDemoTracking
-extern SLNode*      trackedNode;  // Global pointer declared in AppDemoTracking
 extern SLGLTexture* gTexMRI3D;    // Global pointer declared in AppDemoLoad
 extern SLNode*      gDragonModel; // Global pointer declared in AppDemoLoad
 
@@ -584,18 +583,20 @@ void AppArucoPenGui::build(SLProjectScene* s, SLSceneView* sv)
                 sprintf(m + strlen(m), "Calib. state : %s\n", c->stateStr().c_str());
                 sprintf(m + strlen(m), "Num. caps    : %d\n", c->numCapturedImgs());
 
-                if (vt != VT_NONE && tracker != nullptr && trackedNode != nullptr)
+                if (vt != VT_NONE && AppArucoPen::instance().tracker != nullptr && AppArucoPen::instance().trackedNode != nullptr)
                 {
                     sprintf(m + strlen(m), "-------------:\n");
+
+                    SLNode* trackedNode = AppArucoPen::instance().trackedNode;
                     if (typeid(*trackedNode) == typeid(SLCamera))
                     {
-                        SLVec3f cameraPos = trackedNode->updateAndGetWM().translation();
+                        SLVec3f cameraPos = AppArucoPen::instance().trackedNode->updateAndGetWM().translation();
                         sprintf(m + strlen(m), "Dist. to zero: %4.2f\n", cameraPos.length());
                     }
                     else
                     {
                         SLVec3f cameraPos = ((SLNode*)sv->camera())->updateAndGetWM().translation();
-                        SLVec3f objectPos = trackedNode->updateAndGetWM().translation();
+                        SLVec3f objectPos = AppArucoPen::instance().trackedNode->updateAndGetWM().translation();
                         SLVec3f camToObj  = objectPos - cameraPos;
                         sprintf(m + strlen(m), "Dist. to obj.: %4.2f\n", camToObj.length());
                     }
@@ -926,39 +927,9 @@ void AppArucoPenGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                     ImGui::EndMenu();
                 }
 
-                CVTrackedFeatures* featureTracker = nullptr;
-                if (tracker != nullptr && typeid(*tracker) == typeid(CVTrackedFeatures))
-                    featureTracker = (CVTrackedFeatures*)tracker;
-
-                if (tracker != nullptr)
-                    if (ImGui::MenuItem("Draw Detection", nullptr, tracker->drawDetection()))
-                        tracker->drawDetection(!tracker->drawDetection());
-
-                if (ImGui::BeginMenu("Feature Tracking", featureTracker != nullptr))
-                {
-                    if (ImGui::MenuItem("Force Relocation", nullptr, featureTracker->forceRelocation()))
-                        featureTracker->forceRelocation(!featureTracker->forceRelocation());
-
-                    if (ImGui::BeginMenu("Detector/Descriptor", featureTracker != nullptr))
-                    {
-                        CVDetectDescribeType type = featureTracker->type();
-
-                        if (ImGui::MenuItem("RAUL/RAUL", nullptr, type == DDT_RAUL_RAUL))
-                            featureTracker->type(DDT_RAUL_RAUL);
-                        if (ImGui::MenuItem("ORB/ORB", nullptr, type == DDT_ORB_ORB))
-                            featureTracker->type(DDT_ORB_ORB);
-                        if (ImGui::MenuItem("FAST/BRIEF", nullptr, type == DDT_FAST_BRIEF))
-                            featureTracker->type(DDT_FAST_BRIEF);
-                        if (ImGui::MenuItem("SURF/SURF", nullptr, type == DDT_SURF_SURF))
-                            featureTracker->type(DDT_SURF_SURF);
-                        if (ImGui::MenuItem("SIFT/SIFT", nullptr, type == DDT_SIFT_SIFT))
-                            featureTracker->type(DDT_SIFT_SIFT);
-
-                        ImGui::EndMenu();
-                    }
-
-                    ImGui::EndMenu();
-                }
+                if (AppArucoPen::instance().tracker != nullptr)
+                    if (ImGui::MenuItem("Draw Detection", nullptr, AppArucoPen::instance().tracker->drawDetection()))
+                        AppArucoPen::instance().tracker->drawDetection(!AppArucoPen::instance().tracker->drawDetection());
 
                 ImGui::EndMenu();
             }
