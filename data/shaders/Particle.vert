@@ -1,0 +1,39 @@
+//#############################################################################
+//  File:      ColorAttribute.vert
+//  Purpose:   GLSL vertex program for simple per vertex attribute color
+//  Date:      July 2014
+//  Authors:   Marcus Hudritsch
+//  License:   This software is provided under the GNU General Public License
+//             Please visit: http://opensource.org/licenses/GPL-3.0
+//#############################################################################
+
+precision highp float;
+
+//-----------------------------------------------------------------------------
+in          vec4     a_position;       // Vertex position attribute
+in          vec3     a_normal;         // Vertex normal attribute
+in          vec2     a_texCoord;       // Vertex texture coord. attribute
+
+
+uniform mat4     u_mvpMatrix;       // modelview-projection matrix = projection * modelView
+uniform vec4 color;
+uniform vec3 offset; 
+uniform float scale; 
+
+out     vec4     v_particleColor;           // The resulting color per vertex
+out     vec2     v_texCoord;        // texture coordinate at vertex
+//-----------------------------------------------------------------------------
+void main(void)
+{   
+    v_particleColor = color;                        // pass color for interpolation
+
+    // Set the texture coord. output for interpolated tex. coords.
+    v_texCoord = a_texCoord;
+
+    gl_Position = u_mvpMatrix * vec4((a_position.xy * scale) + offset.xy,a_position.z + offset.z, 1.0);   // transform vertex position
+    //gl_Position = u_mvpMatrix * vec4((a_position.xyz * scale) + offset, 1.0);   // transform vertex position
+
+   // Set the transformes vertex position           
+   //gl_Position = u_mvpMatrix * a_position;
+}
+//-----------------------------------------------------------------------------
