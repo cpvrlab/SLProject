@@ -10,7 +10,7 @@
 #ifndef SLPROJECT_IDSPEAKCAPTUREPROVIDER_H
 #define SLPROJECT_IDSPEAKCAPTUREPROVIDER_H
 
-#include <apps/app_aruco_pen/source/CVCaptureProvider.h>
+#include <CVCaptureProvider.h>
 
 //-----------------------------------------------------------------------------
 //! Implementation of CVCaptureProvider for IDS Peak cameras

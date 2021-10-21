@@ -80,7 +80,7 @@ public: //! Public static instance getter for singleton pattern
                                bool         isContinuous);
     void     adjustForSL(float viewportWdivH);
     void     adjustForSLGrayAvailable(float viewportWdivH);
-    void     cropImageToBackground(CVMat image, float viewportWdivH);
+    void     cropImageToBackground(CVMat& image, float viewportWdivH);
     bool     isOpened() { return _captureDevice.isOpened(); }
     void     release();
     void     copyYUVPlanes(float  scrWdivH,

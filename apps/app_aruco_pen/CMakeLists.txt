@@ -13,6 +13,7 @@ file(GLOB headers
         ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/app/AppArucoPenGui.h
         ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/app/AppArucoPenSceneView.h
         ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/app/AppArucoPenCalibrator.h
+        ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/app/AppArucoPenROSNode.h
         ${SL_PROJECT_ROOT}/apps/source/CVCapture.h
         ${SL_PROJECT_ROOT}/apps/source/AppDemo.h
         ${SL_PROJECT_ROOT}/apps/source/SLInterface.h
@@ -33,6 +34,7 @@ file(GLOB sources
         ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/app/AppArucoPenVideo.cpp
         ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/app/AppArucoPenSceneView.cpp
         ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/app/AppArucoPenCalibrator.cpp
+        ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/app/AppArucoPenROSNode.cpp
         ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/app/AppArucoPenMainGLFW.cpp
         ${SL_PROJECT_ROOT}/apps/source/CVCapture.cpp
         ${SL_PROJECT_ROOT}/apps/source/AppDemo.cpp
@@ -55,7 +57,7 @@ add_executable(
         ${target}
         ${headers}
         ${sources}
-)
+        source/app/AppArucoPenROSNode.h source/app/AppArucoPenROSNode.cpp)
 
 set_target_properties(
         ${target}
@@ -118,6 +120,7 @@ target_link_libraries(${target}
         PRIVATE
         PUBLIC
         ${DEFAULT_LINKER_OPTIONS}
+        ${ros_LIBRARIES}
         INTERFACE
         )
 
@@ -125,6 +128,13 @@ target_include_directories(${target}
         PRIVATE
         ${SL_PROJECT_ROOT}/apps/app_aruco_pen/external/peak/api/include
         ${SL_PROJECT_ROOT}/apps/app_aruco_pen/external/peak/ipl/include
+
+        # HACK: catkin includes an older version of imgui
+        # To prevent include errors, we need to add the path
+        # to the correct imgui headers ourselves before catkin includes it's below
+        ${SL_PROJECT_ROOT}/modules/sl/externals/imgui
+
+        ${ros_INCLUDE_DIRS}
         PUBLIC
         INTERFACE)
 
@@ -136,17 +146,10 @@ target_link_directories(${target}
         PUBLIC
         INTERFACE)
 
-# compile the aruco pen publisher library
-add_custom_target(compile-banjo
-        COMMAND cd ${CMAKE_CURRENT_SOURCE_DIR}/aruco_pen_publisher
-        COMMAND bango build)
-add_dependencies(${target} compile-banjo)
-
 target_link_libraries(${target}
         PRIVATE
         ids_peak
         ids_peak_ipl
-        aruco_pen_publisher
         PUBLIC
         INTERFACE)
 

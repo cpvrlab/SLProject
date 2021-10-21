@@ -53,9 +53,15 @@ public:
     SLstring  uid() { return _uid; }
     SLstring  name() { return _name; }
     CVCamera& camera() { return _camera; }
-    CVMat     lastFrameBGR() { return _lastFrameBGR; }
-    CVMat     lastFrameGray() { return _lastFrameGray; }
+    CVMat&    lastFrameBGR() { return _lastFrameBGR; }
+    CVMat&    lastFrameGray() { return _lastFrameGray; }
     CVSize    captureSize() { return _captureSize; }
+    CVSize    lastFrameSize() { return {_lastFrameBGR.cols, _lastFrameBGR.cols}; }
+
+    void cropToAspectRatio(float aspectRatio);
+
+private:
+    static void cropToAspectRatio(CVMat& image, float aspectRatio);
 };
 //-----------------------------------------------------------------------------
 #endif // SLPROJECT_CVCAPTUREPROVIDER_H

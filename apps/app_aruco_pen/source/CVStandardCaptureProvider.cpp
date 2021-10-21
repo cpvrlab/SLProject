@@ -40,9 +40,15 @@ void CVStandardCaptureProvider::open()
     // (https://github.com/opencv/opencv-python/issues/198)
     // (https://stackoverflow.com/questions/53888878/cv2-warn0-terminating-async-callback-when-attempting-to-take-a-picture)
 
-    _captureDevice.open(_deviceIndex);
-    _captureDevice.set(cv::CAP_PROP_FRAME_WIDTH, captureSize().width);
-    _captureDevice.set(cv::CAP_PROP_FRAME_HEIGHT, captureSize().height);
+    _captureDevice.setExceptionMode(true);
+
+    try {
+        _captureDevice.open(_deviceIndex);
+        _captureDevice.set(cv::CAP_PROP_FRAME_WIDTH, captureSize().width);
+        _captureDevice.set(cv::CAP_PROP_FRAME_HEIGHT, captureSize().height);
+    } catch (cv::Exception& e) {
+        SL_LOG(e.what());
+    }
 }
 //-----------------------------------------------------------------------------
 void CVStandardCaptureProvider::grab()

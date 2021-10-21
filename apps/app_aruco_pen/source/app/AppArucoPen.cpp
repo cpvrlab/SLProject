@@ -14,7 +14,7 @@
 #include <CVCapture.h>
 #include <Utils.h>
 #include <AppDemo.h>
-#include <ArucoPenPublisher.h>
+#include <app/AppArucoPenROSNode.h>
 
 extern void trackVideo();
 
@@ -23,18 +23,22 @@ void AppArucoPen::openCaptureProviders()
 {
     SL_LOG("Loading capture providers...");
 
-//        openCaptureProvider(new CVStandardCaptureProvider(0, CVSize(640, 480)));
-//        openCaptureProvider(new IDSPeakCaptureProvider(0, CVSize(1920, 1280)));
+    // Logitech + IDS Peak
+    // openCaptureProvider(new CVStandardCaptureProvider(0, CVSize(640, 480)));
+    // openCaptureProvider(new IDSPeakCaptureProvider(0, CVSize(1920, 1280)));
 
+    // Logitech
     // 1280x960 actually provides better results than 1920x1080
-    // What the hell
-    openCaptureProvider(new CVStandardCaptureProvider(0, CVSize(1280, 960)));
+    // Are you kidding
+    // openCaptureProvider(new CVStandardCaptureProvider(0, CVSize(1280, 960)));
 
-    //    openCaptureProvider(new IDSPeakCaptureProvider(0, CVSize(1920, 1280)));
+    // Logitech + Intel
+    openCaptureProvider(new CVStandardCaptureProvider(0, CVSize(1280, 960)));
+    openCaptureProvider(new CVStandardCaptureProvider(2, CVSize(640, 480)));
 
     _currentCaptureProvider = _captureProviders[0];
 
-    SL_LOG("All capture providers opened");
+    SL_LOG("Opening done");
 }
 //-----------------------------------------------------------------------------
 void AppArucoPen::openCaptureProvider(CVCaptureProvider* captureProvider)
@@ -88,33 +92,47 @@ void AppArucoPen::closeCaptureProviders()
     SL_LOG("All capture providers closed");
 }
 //-----------------------------------------------------------------------------
-void AppArucoPen::grabFrame(SLSceneView* sv)
+void AppArucoPen::grabFrameImagesAndTrack(SLSceneView* sv)
 {
-
     CVCapture::instance()->camSizes.clear();
 
-    for(CVCaptureProvider* provider : AppArucoPen::instance().captureProviders())
-    {
-        CVCapture::instance()->startCaptureTimeMS = GlobalTimer::timeMS();
+    // Grab and track all non-displayed capture providers if we are in the ArUco cube scene
+//    if (AppDemo::sceneID == SID_VideoTrackArucoCubeMain)
+//    {
+//        for (CVCaptureProvider* provider : _captureProviders)
+//        {
+//            if(provider != _currentCaptureProvider)
+//            {
+//                grabFrameImageAndTrack(provider, sv);
+//            }
+//        }
+//    }
 
-        provider->grab();
+    // Grab and track the currently displayed capture provider
+    grabFrameImageAndTrack(_currentCaptureProvider, sv);
+}
+//-----------------------------------------------------------------------------
+void AppArucoPen::grabFrameImageAndTrack(CVCaptureProvider* provider, SLSceneView* sv)
+{
+    CVCapture::instance()->startCaptureTimeMS = GlobalTimer::timeMS();
 
-        CVCapture::instance()->camSizes.push_back(provider->captureSize());
+    provider->grab();
+    provider->cropToAspectRatio(sv->viewportWdivH());
 
-        CVCapture::instance()->lastFrame     = provider->lastFrameBGR();
-        CVCapture::instance()->lastFrameGray = provider->lastFrameGray();
-        CVCapture::instance()->captureSize   = provider->captureSize();
-        CVCapture::instance()->format        = PF_bgr;
+    CVCapture::instance()->camSizes.push_back(provider->captureSize());
 
-        CVCapture::instance()->adjustForSLGrayAvailable(sv->viewportWdivH());
+    CVCapture::instance()->lastFrame     = provider->lastFrameBGR();
+    CVCapture::instance()->lastFrameGray = provider->lastFrameGray();
+    CVCapture::instance()->captureSize   = provider->captureSize();
+    CVCapture::instance()->format        = PF_bgr;
 
-        trackVideo();
-    }
+//    CVCapture::instance()->adjustForSLGrayAvailable(sv->viewportWdivH());
+
+    trackVideo();
 }
 //-----------------------------------------------------------------------------
 void AppArucoPen::publishTipPosition()
 {
     SLVec3f p = AppArucoPen::instance().arucoPen()->tipPosition();
-    float data[3]{p.x, p.y, p.z};
-    aruco_pen_publish((void*)data, 12);
+    AppArucoPenROSNode::instance().publish(p.x, p.y, p.z);
 }

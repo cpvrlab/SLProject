@@ -1,8 +1,0 @@
-{
-	"target": "static_library",
-	"commands": {
-		"after": [
-			"move static_library.lib ../external/aruco_pen/aruco_pen_publisher.lib"
-		]
-	}
-}

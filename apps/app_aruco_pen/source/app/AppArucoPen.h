@@ -50,7 +50,7 @@ private:
 public:
     void openCaptureProviders();
     void closeCaptureProviders();
-    void grabFrame(SLSceneView* sv);
+    void grabFrameImagesAndTrack(SLSceneView* sv);
     void publishTipPosition();
 
     // Getters
@@ -65,6 +65,7 @@ public:
 
 private:
     void openCaptureProvider(CVCaptureProvider* captureProvider);
+    void grabFrameImageAndTrack(CVCaptureProvider* provider, SLSceneView* sv);
 };
 //-----------------------------------------------------------------------------
 #endif // SLPROJECT_APPARUCOPEN_H

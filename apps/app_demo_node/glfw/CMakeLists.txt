@@ -12,7 +12,8 @@ file(GLOB headers
         ${SL_PROJECT_ROOT}/apps/source/AppDemo.h
         ${SL_PROJECT_ROOT}/apps/source/SLInterface.h
         ${SL_PROJECT_ROOT}/apps/source/SLProjectScene.h
-    )
+        ${SL_PROJECT_ROOT}/apps/source/SLGLFWInterface.h
+        )
 
 file(GLOB sources
         ${SL_PROJECT_ROOT}/apps/app_demo_node/source/AppNodeGui.cpp
@@ -21,6 +22,7 @@ file(GLOB sources
         ${SL_PROJECT_ROOT}/apps/source/AppDemo.cpp
         ${SL_PROJECT_ROOT}/apps/source/SLInterface.cpp
         ${SL_PROJECT_ROOT}/apps/source/SLProjectScene.cpp
+        ${SL_PROJECT_ROOT}/apps/source/SLGLFWInterface.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/AppNodeMainGLFW.cpp
     )
 

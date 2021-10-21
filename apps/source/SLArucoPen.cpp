@@ -72,7 +72,7 @@ SLfloat SLArucoPen::liveDistance()
     return position.distance(_lastPrintedPosition);
 }
 //-----------------------------------------------------------------------------
-SLfloat SLArucoPen::lastDistance()
+SLfloat SLArucoPen::lastDistance() const
 {
     return _lastDistance;
 }

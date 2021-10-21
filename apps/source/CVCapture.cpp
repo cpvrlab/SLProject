@@ -432,7 +432,7 @@ void CVCapture::adjustForSLGrayAvailable(float viewportWdivH)
     _captureTimesMS.set(_timer.elapsedTimeInMilliSec() - startCaptureTimeMS);
 }
 //-----------------------------------------------------------------------------
-void CVCapture::cropImageToBackground(CVMat image, float viewportWdivH)
+void CVCapture::cropImageToBackground(CVMat& image, float viewportWdivH)
 {
     float inWdivH = (float)image.cols / (float)image.rows;
     // viewportWdivH is negative the viewport aspect will be the same

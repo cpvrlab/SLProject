@@ -42,7 +42,7 @@
 #include <SLProjectScene.h>
 #include <SLGLProgramManager.h>
 #include <Instrumentor.h>
-#include <apps/app_aruco_pen/source/app/AppArucoPenGui.h>
+#include <app/AppArucoPenGui.h>
 #include <SLDeviceLocation.h>
 #include <SLNodeLOD.h>
 
@@ -205,7 +205,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Material
         SLMaterial* penTipMaterial = new SLMaterial(s, "Pen Tip Material", SLCol4f(1, 1, 0, 0.5f));
-        SLMaterial* penMaterial   = new SLMaterial(s, "Pen Material", SLCol4f(0.3, 0.1, 1, 0.25f));
+        SLMaterial* penMaterial    = new SLMaterial(s, "Pen Material", SLCol4f(0.3, 0.1, 1, 0.25f));
 
         // Create a scene group node
         SLNode* scene = new SLNode("scene node");
@@ -214,7 +214,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0, 0, 1);
         cam1->lookAt(0, 0, 0);
-        cam1->fov(36);         // FIXME: Hardcoded FOV for Logitech 1080p webcam
+        cam1->fov(36); // FIXME: Hardcoded FOV for Logitech 1080p webcam
         cam1->clipNear(0.001f);
         cam1->clipFar(10.0f);
         cam1->focalDist(1.0f);
@@ -239,12 +239,12 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         SLAssimpImporter importer;
         SLNode*          penNode = importer.load(s->animManager(),
-                                                 s,
-                                                 modelPath + "DAE/ArucoPen/ArucoPen.dae",
-                                                 texPath,
-                                                 true,
-                                                 true,
-                                                 penMaterial);
+                                        s,
+                                        modelPath + "DAE/ArucoPen/ArucoPen.dae",
+                                        texPath,
+                                        true,
+                                        true,
+                                        penMaterial);
 
         scene->addChild(penNode);
 
@@ -258,7 +258,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         // scene->addChild(axisNode);
 
         CVTrackedAruco::params.filename = "aruco_cube_detector_params.yml";
-        AppArucoPen::instance().tracker                         = new SLArucoPen(AppDemo::calibIniPath, 0.05f);
+        AppArucoPen::instance().tracker = new SLArucoPen(AppDemo::calibIniPath, 0.05f);
         AppArucoPen::instance().tracker->drawDetection(true);
         AppArucoPen::instance().trackedNode = cam1;
         s->eventHandlers().push_back((SLArucoPen*)AppArucoPen::instance().tracker);
@@ -284,7 +284,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLNode* scene = new SLNode("scene node");
 
         // Create textures and materials
-        SLMaterial*  m1   = new SLMaterial(s, "m1");
+        SLMaterial* m1 = new SLMaterial(s, "m1");
 
         // Create a light source node
         SLLightSpot* light1 = new SLLightSpot(s, s, 0.3f);
@@ -292,17 +292,18 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         light1->name("light node");
         scene->addChild(light1);
 
-        SLVec3f total(0.0f, 0.0f, 0.0f);
+        SLVec3f   total(0.0f, 0.0f, 0.0f);
         SLSphere* mesh = new SLSphere(s, 0.002f, 8, 8, "Marker", m1);
 
-        for(int i = 0; i < AppArucoPen::instance().tipPositions.size(); i++)
+        for (int i = 0; i < AppArucoPen::instance().tipPositions.size(); i++)
         {
             SLVec3f tipPosition = AppArucoPen::instance().tipPositions[i];
 
             SLNode* node = new SLNode(mesh, "Marker Node");
             node->translate(tipPosition);
 
-            if(i != AppArucoPen::instance().tipPositions.size() - 1) {
+            if (i != AppArucoPen::instance().tipPositions.size() - 1)
+            {
                 node->lookAt(AppArucoPen::instance().tipPositions[i + 1]);
             }
 
@@ -316,7 +317,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(center.x, center.y + 1, center.z + 1);
         cam1->lookAt(center.x, center.y, center.z);
-        cam1->focalDist((float) sqrt(2.0));
+        cam1->focalDist((float)sqrt(2.0));
         cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
         scene->addChild(cam1);
 
@@ -331,22 +332,22 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         if (sceneView != nullptr)
             sceneView->onInitialize();
 
-    //    if (CVCapture::instance()->videoType() != VT_NONE)
-    //    {
-    //        if (sv->viewportSameAsVideo())
-    //        {
-    //            // Pass a negative value to the start function, so that the
-    //            // viewport aspect ratio can be adapted later to the video aspect.
-    //            // This will be known after start.
-    //            CVCapture::instance()->start(-1.0f);
-    //            SLVec2i videoAspect;
-    //            videoAspect.x = CVCapture::instance()->captureSize.width;
-    //            videoAspect.y = CVCapture::instance()->captureSize.height;
-    //            sv->setViewportFromRatio(videoAspect, sv->viewportAlign(), true);
-    //        }
-    //        else
-    //            CVCapture::instance()->start(sv->viewportWdivH());
-    //    }
+//        if (CVCapture::instance()->videoType() != VT_NONE)
+//        {
+//            if (sv->viewportSameAsVideo())
+//            {
+//                // Pass a negative value to the start function, so that the
+//                // viewport aspect ratio can be adapted later to the video aspect.
+//                // This will be known after start.
+//                CVCapture::instance()->start(-1.0f);
+//                SLVec2i videoAspect;
+//                videoAspect.x = CVCapture::instance()->captureSize.width;
+//                videoAspect.y = CVCapture::instance()->captureSize.height;
+//                sv->setViewportFromRatio(videoAspect, sv->viewportAlign(), true);
+//            }
+//            else
+//                CVCapture::instance()->start(sv->viewportWdivH());
+//        }
 
     s->loadTimeMS(GlobalTimer::timeMS() - startLoadMS);
 }

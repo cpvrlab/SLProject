@@ -22,13 +22,13 @@ class SLArucoPen : public CVMultiTracked
 public:
     SLArucoPen(string calibIniPath, float edgeLength);
 
-    SLbool onKeyPress(const SLKey key,
-                      const SLKey mod) override;
+    SLbool onKeyPress(SLKey key,
+                      SLKey mod) override;
 
     SLVec3f tipPosition();
 
     SLfloat liveDistance();
-    SLfloat lastDistance();
+    SLfloat lastDistance() const;
 
 private:
     SLVec3f _lastPrintedPosition;

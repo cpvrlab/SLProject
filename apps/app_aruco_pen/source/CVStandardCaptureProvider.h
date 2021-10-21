@@ -10,7 +10,7 @@
 #ifndef SLPROJECT_CVSTANDARDCAPTUREPROVIDER_H
 #define SLPROJECT_CVSTANDARDCAPTUREPROVIDER_H
 
-#include <apps/app_aruco_pen/source/CVCaptureProvider.h>
+#include <CVCaptureProvider.h>
 #include <cv/CVTypedefs.h>
 #include <cv/CVTypes.h>
 

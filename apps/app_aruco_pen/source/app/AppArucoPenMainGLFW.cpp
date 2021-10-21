@@ -15,13 +15,12 @@
 #include <SLSceneView.h>
 #include <SLProjectScene.h>
 #include <CVCapture.h>
-#include <apps/app_aruco_pen/source/app/AppArucoPenGui.h>
-#include <apps/app_aruco_pen/source/app/AppArucoPenSceneView.h>
+#include <app/AppArucoPenGui.h>
+#include <app/AppArucoPenSceneView.h>
 #include <GLFW/glfw3.h>
 #include <Instrumentor.h>
 
 #include <SLGLFWInterface.h>
-#include <ArucoPenPublisher.h>
 
 #include <GlobalTimer.h>
 
@@ -69,19 +68,22 @@ SLbool onPaint()
     // If live video image is requested grab it and copy it
     if (CVCapture::instance()->videoType() != VT_NONE)
     {
-        AppArucoPen::instance().grabFrame(sv);
+        AppArucoPen::instance().grabFrameImagesAndTrack(sv);
 
-        AppArucoPen::instance().arucoPen()->combine();
+        if (AppArucoPen::instance().arucoPen())
+        {
+            AppArucoPen::instance().arucoPen()->combine();
+        }
 
         if(AppDemo::sceneID == SID_VideoTrackArucoCubeMain)
         {
             AppArucoPen::instance().publishTipPosition();
         }
 
-        if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS)
-        {
-            AppArucoPen::instance().tipPositions.push_back(AppArucoPen::instance().arucoPen()->tipPosition());
-        }
+//        if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS)
+//        {
+//            AppArucoPen::instance().tipPositions.push_back(AppArucoPen::instance().arucoPen()->tipPosition());
+//        }
     }
 
     ////////////////////////////////////////////////
@@ -468,8 +470,6 @@ int main(int argc, char* argv[])
 
         AppArucoPen::instance().openCaptureProviders();
 
-        //aruco_pen_listen();
-
         // Event loop
         while (!slShouldClose())
         {
@@ -484,8 +484,6 @@ int main(int argc, char* argv[])
             else
                 glfwPollEvents();
         }
-
-        aruco_pen_close();
 
         AppArucoPen::instance().closeCaptureProviders();
 

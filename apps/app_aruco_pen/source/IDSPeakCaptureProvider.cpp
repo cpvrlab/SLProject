@@ -9,7 +9,7 @@
 
 #include "IDSPeakCaptureProvider.h"
 
-#include <apps/app_aruco_pen/source/IDSPeakInterface.h>
+#include <IDSPeakInterface.h>
 
 #include <utility>
 
