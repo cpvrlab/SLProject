@@ -28,6 +28,6 @@ void main()
    o_fragColor *= texture(u_matTextureDiffuse0, v_texCoord);
 
    // Apply gamma correction
-   o_fragColor.rgb = pow(o_fragColor.rgb, vec3(u_oneOverGamma));
+   //o_fragColor.rgb = pow(o_fragColor.rgb, vec3(u_oneOverGamma));
 }
 //-----------------------------------------------------------------------------

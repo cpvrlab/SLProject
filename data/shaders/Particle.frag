@@ -26,6 +26,9 @@ void main()
    // componentwise multiply w. texture color
    o_fragColor *= texture(u_matTextureDiffuse0, v_texCoord);
 
+   if(o_fragColor.a < 0.1)
+        discard;
+
    o_fragColor.rgb = pow(o_fragColor.rgb, vec3(u_oneOverGamma));
 }
 //-----------------------------------------------------------------------------

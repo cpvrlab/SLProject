@@ -18,6 +18,8 @@ in          vec2     a_texCoord;       // Vertex texture coord. attribute
 uniform mat4     u_mvpMatrix;       // modelview-projection matrix = projection * modelView
 uniform vec4 color;
 uniform vec3 offset; 
+uniform vec3 cr_wSpace; 
+uniform vec3 cu_wSpace; 
 uniform float scale; 
 
 out     vec4     v_particleColor;           // The resulting color per vertex
@@ -30,6 +32,9 @@ void main(void)
     // Set the texture coord. output for interpolated tex. coords.
     v_texCoord = a_texCoord;
 
+    vec3 vP_wSpace = offset + cr_wSpace * a_position.x * scale + cu_wSpace * a_position.y * scale;
+
+    //gl_Position = vec4(vP_wSpace, 1.0);
     gl_Position = u_mvpMatrix * vec4((a_position.xy * scale) + offset.xy,a_position.z + offset.z, 1.0);   // transform vertex position
     //gl_Position = u_mvpMatrix * vec4((a_position.xyz * scale) + offset, 1.0);   // transform vertex position
 
