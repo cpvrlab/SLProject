@@ -123,8 +123,13 @@ int main()
     polylines(imgIn, triInInt, true, color, 1, LINE_AA);
     polylines(imgOut, triOutInt, true, color, 1, LINE_AA);
 
-    imshow("Input", imgIn);
-    imshow("Output", imgOut);
+    string title1 = "Input";
+    imshow(title1, imgIn);
+    setWindowProperty(title1, WND_PROP_TOPMOST, 1);
+
+    string title2 = "Output";
+    imshow(title2, imgOut);
+    setWindowProperty(title2, WND_PROP_TOPMOST, 1);
 
     waitKey(0);
     return 0;

@@ -101,7 +101,9 @@ int main()
     cout << nose_end_point2D << endl;
 
     // Display image.
-    imshow("Output", image);
+    string title1 = "Pose Estimation with solvePnP:";
+    imshow(title1 , image);
+    setWindowProperty(title1, WND_PROP_TOPMOST, 1);
 
     // Wait until user presses some key
     waitKey(0);

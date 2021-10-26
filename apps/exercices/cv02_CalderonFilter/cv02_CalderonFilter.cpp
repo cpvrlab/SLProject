@@ -97,8 +97,14 @@ int main()
     Mat output = clarendon(image);
     //////////////////////////////
 
-    imshow("Original Image", image);
-    imshow("Calderon Image", output);
+    string title1 = "Original Image";
+    imshow(title1, image);
+    setWindowProperty(title1, WND_PROP_TOPMOST, 1);
+
+    string title2 = "Calderon Image";
+    imshow(title2, output);
+    setWindowProperty(title2, WND_PROP_TOPMOST, 1);
+
     waitKey(0);
     destroyAllWindows();
 
