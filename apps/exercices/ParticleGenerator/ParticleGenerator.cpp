@@ -115,9 +115,7 @@ void initParticles()
                       (GLint)_numI,
                       sizeof(GL_UNSIGNED_INT),
                       (GLint)_shaderProgID,
-                      _pLoc,
-                      _nLoc,
-                      _tLoc);
+                      _pLoc);
 
     // create this->amount default particle instances
     for(unsigned int i = 0; i < AMOUNT; ++i)
@@ -169,15 +167,6 @@ void onInit()
     //buildBox();
     //buildSquare();
     initParticles();
-    /*particles[0].life = 2.0f;
-    particles[0].c.r = 1.0f;
-    particles[0].c.g = 1.0f;
-    particles[0].c.b = 0.0f;
-    particles[0].c.a = 1.0f;
-    particles[0].p.x  = 0.0f;
-    particles[0].p.y  = 0.5f;
-    particles[0].p.z  = 0.0f;
-    particles[1].life = 2.0f;*/
 
     glClearColor(0.5f, 0.5f, 0.5f, 1); // Set the background color
     glEnable(GL_DEPTH_TEST);           // Enables depth test

@@ -11,7 +11,6 @@ precision highp float;
 
 //-----------------------------------------------------------------------------
 in          vec4     a_position;       // Vertex position attribute
-in          vec3     a_normal;         // Vertex normal attribute
 in          vec2     a_texCoord;       // Vertex texture coord. attribute
 
 
@@ -35,10 +34,10 @@ void main(void)
     // Set the texture coord. output for interpolated tex. coords.
     vertex.vv_texCoord = a_texCoord;
 
-    vec3 vP_wSpace = offset + cr_wSpace * a_position.x * scale + cu_wSpace * a_position.y * scale;
+    //vec3 vP_wSpace = offset + cr_wSpace * a_position.x * scale + cu_wSpace * a_position.y * scale;
 
-    gl_Position = u_mvpMatrix * vec4(vP_wSpace, 1.0);
-    //gl_Position = u_mvpMatrix * vec4((a_position.xy * scale) + offset.xy,a_position.z + offset.z, 1.0);   // transform vertex position
+    //gl_Position = u_mvpMatrix * vec4(vP_wSpace, 1.0);
+    gl_Position = u_mvpMatrix * vec4((a_position.xy * scale) + offset.xy,a_position.z + offset.z, 1.0);   // transform vertex position
     //gl_Position = u_mvpMatrix * vec4((a_position.xyz * scale) + offset, 1.0);   // transform vertex position
 
    // Set the transformes vertex position           
