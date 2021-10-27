@@ -1,6 +1,6 @@
 //#############################################################################
-//  File:      Color.frag
-//  Purpose:   Simple GLSL fragment program for texture mapping
+//  File:      Particle.frag
+//  Purpose:   Simple GLSL fragment program for particle system
 //  Date:      October 2021
 //  Authors:   Marcus Hudritsch
 //  License:   This software is provided under the GNU General Public License

@@ -34,8 +34,8 @@ void main(void)
 
     vec3 vP_wSpace = offset + cr_wSpace * a_position.x * scale + cu_wSpace * a_position.y * scale;
 
-    //gl_Position = vec4(vP_wSpace, 1.0);
-    gl_Position = u_mvpMatrix * vec4((a_position.xy * scale) + offset.xy,a_position.z + offset.z, 1.0);   // transform vertex position
+    gl_Position = u_mvpMatrix * vec4(vP_wSpace, 1.0);
+    //gl_Position = u_mvpMatrix * vec4((a_position.xy * scale) + offset.xy,a_position.z + offset.z, 1.0);   // transform vertex position
     //gl_Position = u_mvpMatrix * vec4((a_position.xyz * scale) + offset, 1.0);   // transform vertex position
 
    // Set the transformes vertex position           

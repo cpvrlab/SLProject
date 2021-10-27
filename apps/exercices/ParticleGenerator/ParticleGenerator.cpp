@@ -69,6 +69,7 @@ const GLuint  ALT        = 0x00800000; //!< constant for alt key modifier
 
 static GLuint _shaderVertID = 0; //! vertex shader id
 static GLuint _shaderFragID = 0; //! fragment shader id
+static GLuint _shaderGeomID = 0; //! geometry shader id
 static GLuint _shaderProgID = 0; //! shader program id
 static GLuint _textureID    = 0; //!< texture id
 
@@ -94,10 +95,10 @@ void initParticles()
     _numV = 4;
 
     // clang-format off
-    float vertices[] = {1, 0, 1, 0,-1, 0, 1, 0, // Vertex 0
-                        1, 1, 1, 0,-1, 0, 1, 1, // Vertex 1
-                        0, 1, 1, 0,-1, 0, 0, 1, // Vertex 2
-                        0, 0, 1, 0,-1, 0, 0, 0}; // Vertex 3
+    float vertices[] = {0.5, -0.5, 0, 0,-1, 0, 1, 0, // Vertex 0
+                        0.5, 0.5, 0, 0,-1, 0, 1, 1, // Vertex 1
+                        -0.5, 0.5, 0, 0,-1, 0, 0, 1, // Vertex 2
+                        -0.5, -0.5, 0, 0,-1, 0, 0, 0}; // Vertex 3
     // clang-format on
     // create index array for GL_TRIANGLES
     _numI            = 6;
@@ -146,6 +147,7 @@ void onInit()
     // Load, compile & link shaders
     _shaderVertID = glUtils::buildShader(_projectRoot + "/data/shaders/Particle.vert", GL_VERTEX_SHADER);
     _shaderFragID = glUtils::buildShader(_projectRoot + "/data/shaders/Particle.frag", GL_FRAGMENT_SHADER);
+    _shaderGeomID = glUtils::buildShader(_projectRoot + "/data/shaders/Particle.geom", GL_GEOMETRY_SHADER);
     _shaderProgID = glUtils::buildProgram(_shaderVertID, _shaderFragID);
 
     // Activate the shader program
@@ -287,16 +289,12 @@ bool onPaint()
     _viewMatrix.translate(0, 0, _camZ);
 
     //2b) Model transform: rotate the coordinate system increasingly
-    _viewMatrix.rotate(_rotX + _deltaX, 1, 0, 0);
-    _viewMatrix.rotate(_rotY + _deltaY, 0, 1, 0);
-
-    //2c)
-    SLVec3f CameraRight_worldspace = SLVec3f(_viewMatrix(0, 0), _viewMatrix(1, 0), _viewMatrix(2, 0));
-    SLVec3f CameraUp_worldspace  = SLVec3f(_viewMatrix(0, 1), _viewMatrix(1, 1), _viewMatrix(2, 1));
+    //_viewMatrix.rotate(_rotX + _deltaX, 1, 0, 0);
+    //_viewMatrix.rotate(_rotY + _deltaY, 0, 1, 0);
 
     //3) Model transform: move the cube so that it rotates around its center
     _modelMatrix.identity();
-    _modelMatrix.translate(-0.5f, -0.5f, -0.5f);
+    //_modelMatrix.translate(-0.5f, -0.5f, -0.5f);
 
     //4) Build the combined modelview-projection matrix
     SLMat4f mvp(_projectionMatrix);
@@ -309,8 +307,8 @@ bool onPaint()
     glUniformMatrix4fv(_mvpLoc, 1, 0, (float*)&mvp);
     glUniform1f(_gLoc, 1.0f);
     glUniform1i(_texture0Loc, 0);
-    glUniform3f(_crLoc, CameraRight_worldspace.x, CameraRight_worldspace.y, CameraRight_worldspace.z);
-    glUniform3f(_cuLoc, CameraUp_worldspace.x, CameraUp_worldspace.y, CameraUp_worldspace.z);
+    glUniform3f(_crLoc, _viewMatrix(0, 0), _viewMatrix(1, 0), _viewMatrix(2, 0));
+    glUniform3f(_cuLoc, _viewMatrix(0, 1), _viewMatrix(1, 1), _viewMatrix(2, 1));
 
     // Enable all of the vertex attribute arrays
     glEnableVertexAttribArray((GLuint)_pLoc);
@@ -603,7 +601,7 @@ int main(int argc, char* argv[])
         lastFrame    = currentFrame;
         timingRespawn += deltaTime;
         if (timingRespawn > 0.1f) {
-            spawnParticles(3, SLVec3f(0, 0.2, 0));
+            spawnParticles(3, SLVec3f(0, -0.5, 0));
             timingRespawn = 0.0f;
         }
         updateParticles(deltaTime);

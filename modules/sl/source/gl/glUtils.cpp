@@ -192,6 +192,35 @@ GLuint glUtils::buildProgram(GLuint vertShaderID,
     }
     return programHandle;
 }
+/*!
+buildProgram creates a program object, attaches the shaders, links them and
+returns the OpenGL handle of the program. If the linking fails the linker log
+is sent to the stdout before the app exits with code 1.
+*/
+GLuint glUtils::buildProgram(GLuint vertShaderID,
+                             GLuint geomShaderID,
+                             GLuint fragShaderID)
+{
+    // Create program, attach shaders and link them
+    GLuint programHandle = glCreateProgram();
+    glAttachShader(programHandle, vertShaderID);
+    glAttachShader(programHandle, geomShaderID);
+    glAttachShader(programHandle, fragShaderID);
+    glLinkProgram(programHandle);
+
+    // Check linker success
+    GLint linkSuccess;
+    glGetProgramiv(programHandle, GL_LINK_STATUS, &linkSuccess);
+    if (linkSuccess == GL_FALSE)
+    {
+        GLchar log[256];
+        glGetProgramInfoLog(programHandle, sizeof(log), nullptr, &log[0]);
+        std::cout << "**** Link Error ****" << std::endl;
+        std::cout << log;
+        exit(1);
+    }
+    return programHandle;
+}
 //-----------------------------------------------------------------------------
 /*! Generates a Vertex Buffer Object (VBO) and copies the data into the
 buffer on the GPU. The targetTypeGL distincts between GL_ARRAY_BUFFER for

@@ -23,6 +23,7 @@ file(GLOB sources
 file(GLOB shaders
         ${SL_PROJECT_ROOT}/data/shaders/Particle.vert
         ${SL_PROJECT_ROOT}/data/shaders/Particle.frag
+	${SL_PROJECT_ROOT}/data/shaders/Particle.geom
         )
 
 add_executable(${target}
