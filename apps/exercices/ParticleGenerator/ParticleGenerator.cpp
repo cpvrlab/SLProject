@@ -148,7 +148,7 @@ void onInit()
     _shaderVertID = glUtils::buildShader(_projectRoot + "/data/shaders/Particle.vert", GL_VERTEX_SHADER);
     _shaderFragID = glUtils::buildShader(_projectRoot + "/data/shaders/Particle.frag", GL_FRAGMENT_SHADER);
     _shaderGeomID = glUtils::buildShader(_projectRoot + "/data/shaders/Particle.geom", GL_GEOMETRY_SHADER);
-    _shaderProgID = glUtils::buildProgram(_shaderVertID, _shaderFragID);
+    _shaderProgID = glUtils::buildProgram(_shaderVertID,_shaderGeomID, _shaderFragID);
 
     // Activate the shader program
     glUseProgram(_shaderProgID);

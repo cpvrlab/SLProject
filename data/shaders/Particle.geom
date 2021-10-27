@@ -11,45 +11,35 @@ precision highp float;
 
 //-----------------------------------------------------------------------------
 
-layout (points) in;
+layout (triangles) in;
 layout (triangle_strip) out;
 layout (max_vertices = 4) out;    
 
-uniform mat4 u_mvpMatrix;  // modelview-projection matrix = projection * modelView
-uniform mat4 u_mvMatrix;  // modelview matrix
-
-uniform vec4 color;
-uniform vec3 offset; 
-uniform float scale; // Particle scale 
+in Vertex
+{
+	vec4 vv_particleColor; // The resulting color per vertex
+	vec2 vv_texCoord;
+} vertex[];
 
 out vec2 v_texCoord; // texture coordinate at vertex
 out vec4 v_particleColor; // The resulting color per vertex
 //-----------------------------------------------------------------------------
 void main (void)
 {
-  vec3 va = vec3(-0.5, -0.5, 0);
-  gl_Position = u_mvpMatrix * vec4(va, 1.0);
-  v_texCoord = vec2(0.0, 0.0);
-  v_particleColor = color;
-  EmitVertex();  
-  
-  vec3 vb = vec3(-0.5, 0.5, 0);
-  gl_Position = u_mvpMatrix * vec4(vb, 1.0);
-  v_texCoord = vec2(0.0, 1.0);
-  v_particleColor = color;
-  EmitVertex();  
+  gl_Position = gl_in[0].gl_Position;
+  v_texCoord = vertex[0].vv_texCoord;
+  v_particleColor = vertex[0].vv_particleColor;
+  EmitVertex();
 
-  vec3 vd = vec3(0.5, -0.5, 0);
-  gl_Position = u_mvpMatrix * vec4(vd, 1.0);
-  v_texCoord = vec2(1.0, 0.0);
-  v_particleColor = color;
-  EmitVertex();  
+  gl_Position = gl_in[1].gl_Position;
+  v_texCoord = vertex[1].vv_texCoord;
+  v_particleColor = vertex[1].vv_particleColor;
+  EmitVertex();
 
-  vec3 vc = vec3(0.5, 0.5, 0);
-  gl_Position = u_mvpMatrix * vec4(vc, 1.0);
-  v_texCoord = vec2(1.0, 1.0);
-  v_particleColor = color;
-  EmitVertex();  
+  gl_Position = gl_in[2].gl_Position;
+  v_texCoord = vertex[2].vv_texCoord;
+  v_particleColor = vertex[2].vv_particleColor;
+  EmitVertex();
   
   EndPrimitive();  
 }   

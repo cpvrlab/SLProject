@@ -22,15 +22,18 @@ uniform vec3 cr_wSpace;
 uniform vec3 cu_wSpace; 
 uniform float scale; 
 
-out     vec4     v_particleColor;           // The resulting color per vertex
-out     vec2     v_texCoord;        // texture coordinate at vertex
+out Vertex
+{
+    vec4     vv_particleColor;           // The resulting color per vertex
+    vec2     vv_texCoord;        // texture coordinate at vertex
+} vertex;
 //-----------------------------------------------------------------------------
 void main(void)
 {   
-    v_particleColor = color;                        // pass color for interpolation
+    vertex.vv_particleColor = color;                        // pass color for interpolation
 
     // Set the texture coord. output for interpolated tex. coords.
-    v_texCoord = a_texCoord;
+    vertex.vv_texCoord = a_texCoord;
 
     vec3 vP_wSpace = offset + cr_wSpace * a_position.x * scale + cu_wSpace * a_position.y * scale;
 
