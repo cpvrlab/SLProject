@@ -75,7 +75,6 @@ static GLuint _textureID    = 0; //!< texture id
 
 // Attribute & uniform variable location indexes
 static GLint _pLoc;   //!< attribute location for vertex position
-static GLint _nLoc;   //!< attribute location for vertex normal
 static GLint _cLoc;   //!< attribute location for vertex color
 static GLint _oLoc;   //!< attribute location for vertex offset
 static GLint _crLoc;   //!< uniform location for camera right
@@ -95,10 +94,10 @@ void initParticles()
     _numV = 4;
 
     // clang-format off
-    float vertices[] = {0.5, -0.5, 0, 0,-1, 0, 1, 0, // Vertex 0
-                        0.5, 0.5, 0, 0,-1, 0, 1, 1, // Vertex 1
-                        -0.5, 0.5, 0, 0,-1, 0, 0, 1, // Vertex 2
-                        -0.5, -0.5, 0, 0,-1, 0, 0, 0}; // Vertex 3
+    float vertices[] = {0.5, -0.5, 0, 1, 0, // Vertex 0
+                        0.5, 0.5, 0, 1, 1, // Vertex 1
+                        -0.5, 0.5, 0, 0, 1, // Vertex 2
+                        -0.5, -0.5, 0, 0, 0}; // Vertex 3
     // clang-format on
     // create index array for GL_TRIANGLES
     _numI            = 6;
@@ -153,7 +152,6 @@ void onInit()
 
     // Get the variable locations (identifiers) within the program
     _pLoc   = glGetAttribLocation(_shaderProgID, "a_position");
-    _nLoc   = glGetAttribLocation(_shaderProgID, "a_normal");
     _tLoc   = glGetAttribLocation(_shaderProgID, "a_texCoord");
     _gLoc   = glGetUniformLocation(_shaderProgID, "u_oneOverGamma");
     _mvpLoc = glGetUniformLocation(_shaderProgID, "u_mvpMatrix");
@@ -301,7 +299,6 @@ bool onPaint()
 
     // Enable all of the vertex attribute arrays
     glEnableVertexAttribArray((GLuint)_pLoc);
-    glEnableVertexAttribArray((GLuint)_nLoc);
     glEnableVertexAttribArray((GLuint)_tLoc);
 
     //7a) Activate the vertex array
@@ -314,21 +311,14 @@ bool onPaint()
     glBindTexture(GL_TEXTURE_2D, _textureID);
 
     // For VBO only offset instead of data pointer
-    GLsizei stride  = sizeof(VertexPNT);
-    GLsizei offsetN = sizeof(SLVec3f);
-    GLsizei offsetT = sizeof(SLVec3f) + sizeof(SLVec3f);
+    GLsizei stride  = sizeof(SLVec3f) + sizeof(SLVec2f);
+    GLsizei offsetT = sizeof(SLVec3f);
     glVertexAttribPointer((GLuint)_pLoc,
                           3,
                           GL_FLOAT,
                           GL_FALSE,
                           stride,
                           nullptr);
-    glVertexAttribPointer((GLuint)_nLoc,
-                          3,
-                          GL_FLOAT,
-                          GL_FALSE,
-                          stride,
-                          (void*)(size_t)offsetN);
     glVertexAttribPointer((GLuint)_tLoc,
                           2,
                           GL_FLOAT,
@@ -362,7 +352,6 @@ bool onPaint()
 
     // Disable the vertex arrays
     glDisableVertexAttribArray((GLuint)_pLoc);
-    glDisableVertexAttribArray((GLuint)_nLoc);
     glDisableVertexAttribArray((GLuint)_tLoc);
 
     //8) Fast copy the back buffer to the front buffer. This is OS dependent.
