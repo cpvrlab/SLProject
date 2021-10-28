@@ -8,6 +8,7 @@
 //#############################################################################
 
 #include "SLArucoPen.h"
+#include <app/AppArucoPen.h>
 
 //-----------------------------------------------------------------------------
 SLArucoPen::SLArucoPen(string calibIniPath,
@@ -51,13 +52,29 @@ SLVec3f SLArucoPen::tipPosition()
 {
     float tipOffset = -(0.147f - 0.025f + 0.002f);
 
-    float offsetX = _objectViewMat.val[1] * tipOffset;
-    float offsetY = _objectViewMat.val[5] * tipOffset;
-    float offsetZ = _objectViewMat.val[9] * tipOffset;
+    CVMatx44f          worldMatrix = CVMatx44f(_objectViewMat);
+    CVCaptureProvider* provider    = AppArucoPen::instance().currentCaptureProvider();
+    CVCalibration      calibration = provider->camera().calibration;
 
-    SLVec3f position(_objectViewMat.val[3] + offsetX,
-                     _objectViewMat.val[7] + offsetY,
-                     _objectViewMat.val[11] + offsetZ);
+    if (!calibration.rvec.empty() && !calibration.tvec.empty())
+    {
+        CVMatx44f extrinsic = CVTracked::createGLMatrix(calibration.tvec, calibration.rvec);
+        // clang-format off
+        extrinsic = CVMatx44f(-extrinsic.val[ 1],  extrinsic.val[ 2], -extrinsic.val[ 0],  extrinsic.val[3],
+                              -extrinsic.val[ 5],  extrinsic.val[ 6], -extrinsic.val[ 4],  extrinsic.val[7],
+                              -extrinsic.val[ 9],  extrinsic.val[10], -extrinsic.val[ 8],  extrinsic.val[11],
+                               0.0f,                0.0f,               0.0f,               1.0f);
+        // clang-format on
+        worldMatrix         = extrinsic.inv() * worldMatrix;
+    }
+
+    float offsetX = worldMatrix.val[1] * tipOffset;
+    float offsetY = worldMatrix.val[5] * tipOffset;
+    float offsetZ = worldMatrix.val[9] * tipOffset;
+
+    SLVec3f position(worldMatrix.val[3] + offsetX,
+                     worldMatrix.val[7] + offsetY,
+                     worldMatrix.val[11] + offsetZ);
     return position;
 }
 //-----------------------------------------------------------------------------

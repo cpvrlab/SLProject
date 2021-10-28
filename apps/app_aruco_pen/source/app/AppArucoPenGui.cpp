@@ -898,10 +898,11 @@ void AppArucoPenGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
 
                 if (ImGui::BeginMenu("Calibration"))
                 {
-                    if (ImGui::MenuItem("Start Calibration (Main Camera)"))
-                    {
+                    if (ImGui::MenuItem("Start Calibration (Current Camera)"))
                         s->onLoad(s, sv, SID_VideoCalibrateMain);
-                    }
+
+                    if (ImGui::MenuItem("Calculate Extrinsic (Current Camera)"))
+                        AppArucoPenCalibrator::calcExtrinsicParams(AppArucoPen::instance().currentCaptureProvider());
 
                     if (ImGui::MenuItem("Undistort Image", nullptr, ac->showUndistorted(), ac->calibration.state() == CS_calibrated))
                         ac->showUndistorted(!ac->showUndistorted());

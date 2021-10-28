@@ -29,8 +29,8 @@ void AppArucoPenCalibrator::reset()
     _calibrationEstimator = nullptr;
 }
 //-----------------------------------------------------------------------------
-void AppArucoPenCalibrator::update(CVCamera* ac,
-                                   SLScene* s,
+void AppArucoPenCalibrator::update(CVCamera*    ac,
+                                   SLScene*     s,
                                    SLSceneView* sv)
 {
     auto* aapSv = dynamic_cast<AppArucoPenSceneView*>(sv);
@@ -74,6 +74,8 @@ void AppArucoPenCalibrator::update(CVCamera* ac,
                     _processedCalibResult = true;
                     ac->calibration       = _calibrationEstimator->getCalibration();
 
+                    calcExtrinsicParams(AppArucoPen::instance().currentCaptureProvider());
+
                     std::string camUID            = AppArucoPen::instance().currentCaptureProvider()->uid();
                     string      mainCalibFilename = "camCalib_" + camUID + ".xml";
                     std::string errorMsg;
@@ -105,7 +107,7 @@ void AppArucoPenCalibrator::update(CVCamera* ac,
     }
 }
 //-----------------------------------------------------------------------------
-void AppArucoPenCalibrator::init(CVCamera* ac,
+void AppArucoPenCalibrator::init(CVCamera*             ac,
                                  AppArucoPenSceneView* aapSv)
 {
     _calibrationEstimator = new CVCalibrationEstimator(AppDemo::calibrationEstimatorParams,
@@ -120,5 +122,54 @@ void AppArucoPenCalibrator::init(CVCamera* ac,
     // clear grab request from sceneview
     aapSv->grab           = false;
     _processedCalibResult = false;
+}
+//-----------------------------------------------------------------------------
+void AppArucoPenCalibrator::calcExtrinsicParams(CVCaptureProvider* provider)
+{
+    SL_LOG("Calculating extrinsic parameters...");
+
+    CVSize     boardSize(8, 5);
+    CVVPoint2f corners2D;
+    int        flags = cv::CALIB_CB_FAST_CHECK;
+
+    if (!cv::findChessboardCorners(provider->lastFrameGray(),
+                                   boardSize,
+                                   corners2D,
+                                   flags))
+    {
+        SL_LOG("ERROR: Failed to calculate extrinsic parameters: Chessboard not detected");
+        return;
+    }
+
+    CVVVec3f boardPoints3D;
+    float    squareSize = 0.029f;
+
+    for (int y = boardSize.height - 1; y >= 0; --y)
+        for (int x = 0; x < boardSize.width; ++x)
+            boardPoints3D.push_back(CVPoint3f((float)x * squareSize, (float)y * squareSize, 0));
+
+    CVMat rVec;
+    CVMat tVec;
+    bool  solved;
+
+    solved = cv::solvePnP(CVMat(boardPoints3D),
+                          CVMat(corners2D),
+                          provider->camera().calibration.cameraMat(),
+                          provider->camera().calibration.distortion(),
+                          rVec,
+                          tVec,
+                          false,
+                          cv::SOLVEPNP_ITERATIVE);
+
+    if (!solved)
+    {
+        SL_LOG("ERROR: Failed to calculate extrinsic parameters: Couldn't solve PnP");
+        return;
+    }
+
+    provider->camera().calibration.rvec = rVec;
+    provider->camera().calibration.tvec = tVec;
+
+    SL_LOG("Extrinsic parameters calculated!");
 }
 //-----------------------------------------------------------------------------

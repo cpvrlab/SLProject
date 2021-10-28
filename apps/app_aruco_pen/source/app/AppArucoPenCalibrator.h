@@ -15,13 +15,14 @@
 #include <SLScene.h>
 #include <SLSceneView.h>
 #include <app/AppArucoPenSceneView.h>
+#include <CVCaptureProvider.h>
 
 //-----------------------------------------------------------------------------
 class AppArucoPenCalibrator
 {
 private:
     CVCalibrationEstimator* _calibrationEstimator = nullptr;
-    bool _processedCalibResult = false;
+    bool                    _processedCalibResult = false;
 
 public:
     bool grab = false;
@@ -29,12 +30,13 @@ public:
     ~AppArucoPenCalibrator();
 
     void reset();
-    void update(CVCamera* ac,
-                SLScene* s,
+    void update(CVCamera*    ac,
+                SLScene*     s,
                 SLSceneView* sv);
-    void init(CVCamera* ac,
+    void init(CVCamera*             ac,
               AppArucoPenSceneView* aapSv);
 
+    static void calcExtrinsicParams(CVCaptureProvider* provider);
 };
 //-----------------------------------------------------------------------------
 #endif // SLPROJECT_APPARUCOPENCALIBRATOR_H

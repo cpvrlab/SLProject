@@ -220,6 +220,10 @@ private:
     string       _computerInfos;
     CVCameraType _camType = CVCameraType::FRONTFACING;
 
+public:
+    CVMat rvec;
+    CVMat tvec;
+
     static const int _CALIBFILEVERSION; //!< Global const file format version
 };
 //-----------------------------------------------------------------------------
