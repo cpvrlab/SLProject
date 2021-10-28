@@ -9,9 +9,11 @@
 
 #include <app/AppArucoPenGui.h>
 #include <app/AppArucoPen.h>
+#include <SLAnimPlayback.h>
 #include <AppDemo.h>
 #include <CVCapture.h>
 #include <cv/CVImage.h>
+#include <cv/CVTrackedFeatures.h>
 #include <SLGLDepthBuffer.h>
 #include <SLGLProgramManager.h>
 #include <SLGLShader.h>
@@ -21,6 +23,7 @@
 #include <SLDeviceRotation.h>
 #include <SLLightSpot.h>
 #include <SLLightRect.h>
+#include <SLLightSpot.h>
 #include <SLShadowMap.h>
 #include <SLMaterial.h>
 #include <SLMesh.h>
@@ -37,7 +40,6 @@
 #include <ZipUtils.h>
 #include <Instrumentor.h>
 #include <app/AppArucoPen.h>
-#include <CVCaptureProvider.h>
 
 #ifdef SL_BUILD_WAI
 #    include <Eigen/Dense>
@@ -533,14 +535,12 @@ void AppArucoPenGui::build(SLProjectScene* s, SLSceneView* sv)
 
             if (showStatsVideo)
             {
-                CVCaptureProvider* captureProvider = AppArucoPen::instance().currentCaptureProvider();
-
                 SLchar m[2550]; // message character array
                 m[0] = 0;       // set zero length
 
-                CVCamera*      ac       = &captureProvider->camera();
-                CVCalibration* c        = &ac->calibration;
-                CVSize         capSize  = captureProvider->captureSize();
+                CVCamera*      ac       = CVCapture::instance()->activeCamera;
+                CVCalibration* c        = &CVCapture::instance()->activeCamera->calibration;
+                CVSize         capSize  = CVCapture::instance()->captureSize;
                 CVVideoType    vt       = CVCapture::instance()->videoType();
                 SLstring       mirrored = "None";
                 if (c->isMirroredH() && c->isMirroredV())
@@ -553,7 +553,7 @@ void AppArucoPenGui::build(SLProjectScene* s, SLSceneView* sv)
                 sprintf(m + strlen(m), "Video Type   : %s\n", vt == VT_NONE ? "None" : vt == VT_MAIN ? "Main Camera"
                                                                                      : vt == VT_FILE ? "File"
                                                                                                      : "Secondary Camera");
-                sprintf(m + strlen(m), "Display size : %d x %d\n", captureProvider->lastFrameBGR().cols, captureProvider->lastFrameBGR().rows);
+                sprintf(m + strlen(m), "Display size : %d x %d\n", CVCapture::instance()->lastFrame.cols, CVCapture::instance()->lastFrame.rows);
                 sprintf(m + strlen(m), "Capture size : %d x %d\n", capSize.width, capSize.height);
                 sprintf(m + strlen(m), "Size Index   : %d\n", ac->camSizeIndex());
                 sprintf(m + strlen(m), "Mirrored     : %s\n", mirrored.c_str());
@@ -742,7 +742,8 @@ CVCalibration guessCalibration(bool         mirroredH,
         return CVCalibration(devW,
                              devH,
                              devF,
-                             AppArucoPen::instance().currentCaptureProvider()->lastFrameSize(),
+                             cv::Size(CVCapture::instance()->lastFrame.cols,
+                                      CVCapture::instance()->lastFrame.rows),
                              mirroredH,
                              mirroredV,
                              camType,
@@ -751,7 +752,8 @@ CVCalibration guessCalibration(bool         mirroredH,
     else
     {
         // make a guess using frame size and a guessed field of view
-        return CVCalibration(AppArucoPen::instance().currentCaptureProvider()->lastFrameSize(),
+        return CVCalibration(cv::Size(CVCapture::instance()->lastFrame.cols,
+                                      CVCapture::instance()->lastFrame.rows),
                              60.0,
                              mirroredH,
                              mirroredV,

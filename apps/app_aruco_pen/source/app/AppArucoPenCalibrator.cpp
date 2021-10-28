@@ -29,9 +29,9 @@ void AppArucoPenCalibrator::reset()
     _calibrationEstimator = nullptr;
 }
 //-----------------------------------------------------------------------------
-void AppArucoPenCalibrator::update(CVCaptureProvider* provider,
-                                   SLScene*           s,
-                                   SLSceneView*       sv)
+void AppArucoPenCalibrator::update(CVCamera* ac,
+                                   SLScene* s,
+                                   SLSceneView* sv)
 {
     auto* aapSv = dynamic_cast<AppArucoPenSceneView*>(sv);
 
@@ -39,14 +39,12 @@ void AppArucoPenCalibrator::update(CVCaptureProvider* provider,
     {
         if (!_calibrationEstimator)
         {
-            init(&provider->camera(), aapSv);
+            init(ac, aapSv);
         }
 
         if (_calibrationEstimator->isStreaming())
         {
-            _calibrationEstimator->updateAndDecorate(provider->lastFrameBGR(),
-                                                     provider->lastFrameGray(),
-                                                     aapSv->grab);
+            _calibrationEstimator->updateAndDecorate(CVCapture::instance()->lastFrame, CVCapture::instance()->lastFrameGray, aapSv->grab);
             // reset grabbing switch
             aapSv->grab = false;
 
@@ -59,16 +57,12 @@ void AppArucoPenCalibrator::update(CVCaptureProvider* provider,
         {
             // also reset grabbing, user has to click again
             aapSv->grab = false;
-            _calibrationEstimator->updateAndDecorate(provider->lastFrameBGR(),
-                                                     provider->lastFrameGray(),
-                                                     false);
+            _calibrationEstimator->updateAndDecorate(CVCapture::instance()->lastFrame, CVCapture::instance()->lastFrameGray, false);
             s->info("Busy extracting corners, please wait with grabbing ...");
         }
         else if (_calibrationEstimator->isCalculating())
         {
-            _calibrationEstimator->updateAndDecorate(provider->lastFrameBGR(),
-                                                     provider->lastFrameGray(),
-                                                     false);
+            _calibrationEstimator->updateAndDecorate(CVCapture::instance()->lastFrame, CVCapture::instance()->lastFrameGray, false);
             s->info("Calculating calibration, please wait ...");
         }
         else if (_calibrationEstimator->isDone())
@@ -77,14 +71,14 @@ void AppArucoPenCalibrator::update(CVCaptureProvider* provider,
             {
                 if (_calibrationEstimator->calibrationSuccessful())
                 {
-                    _processedCalibResult          = true;
-                    provider->camera().calibration = _calibrationEstimator->getCalibration();
+                    _processedCalibResult = true;
+                    ac->calibration       = _calibrationEstimator->getCalibration();
 
                     std::string camUID            = AppArucoPen::instance().currentCaptureProvider()->uid();
                     string      mainCalibFilename = "camCalib_" + camUID + ".xml";
                     std::string errorMsg;
 
-                    if (!provider->camera().calibration.save(AppDemo::calibFilePath, mainCalibFilename))
+                    if (!ac->calibration.save(AppDemo::calibFilePath, mainCalibFilename))
                     {
                         errorMsg += " Saving calibration failed!";
                     }
@@ -111,7 +105,7 @@ void AppArucoPenCalibrator::update(CVCaptureProvider* provider,
     }
 }
 //-----------------------------------------------------------------------------
-void AppArucoPenCalibrator::init(CVCamera*             ac,
+void AppArucoPenCalibrator::init(CVCamera* ac,
                                  AppArucoPenSceneView* aapSv)
 {
     _calibrationEstimator = new CVCalibrationEstimator(AppDemo::calibrationEstimatorParams,

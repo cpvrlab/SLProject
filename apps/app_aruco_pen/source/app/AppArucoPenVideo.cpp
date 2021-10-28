@@ -40,7 +40,7 @@ void updateTrackingSceneCamera(CVCamera* ac)
 }
 //-----------------------------------------------------------------------------
 //! logic that ensures that we have a valid calibration state
-void ensureValidCalibration(CVCaptureProvider* provider, SLSceneView* sv)
+void ensureValidCalibration(CVCamera* ac, SLSceneView* sv)
 {
     PROFILE_FUNCTION();
 
@@ -51,7 +51,7 @@ void ensureValidCalibration(CVCaptureProvider* provider, SLSceneView* sv)
         AppDemo::calibrationEstimator = nullptr;
     }
 
-    if (provider->camera().calibration.state() == CS_uncalibrated)
+    if (ac->calibration.state() == CS_uncalibrated)
     {
         // Try to read device lens and sensor information
         string strF = AppDemo::deviceParameter["DeviceLensFocalLength"];
@@ -64,35 +64,36 @@ void ensureValidCalibration(CVCaptureProvider* provider, SLSceneView* sv)
             float devH = strH.empty() ? 0.0f : stof(strH);
 
             // Changes the state to CS_guessed
-            provider->camera().calibration = CVCalibration(devW,
-                                                           devH,
-                                                           devF,
-                                                           provider->lastFrameSize(),
-                                                           provider->camera().mirrorH(),
-                                                           provider->camera().mirrorV(),
-                                                           provider->camera().type(),
-                                                           Utils::ComputerInfos::get());
+            ac->calibration = CVCalibration(devW,
+                                            devH,
+                                            devF,
+                                            cv::Size(CVCapture::instance()->lastFrame.cols,
+                                                     CVCapture::instance()->lastFrame.rows),
+                                            ac->mirrorH(),
+                                            ac->mirrorV(),
+                                            ac->type(),
+                                            Utils::ComputerInfos::get());
         }
         else
         {
             // make a guess using frame size and a guessed field of view
-            provider->camera().calibration = CVCalibration(provider->lastFrameSize(),
-                                                           60.0,
-                                                           provider->camera().mirrorH(),
-                                                           provider->camera().mirrorV(),
-                                                           provider->camera().type(),
-                                                           Utils::ComputerInfos::get());
+            ac->calibration = CVCalibration(cv::Size(CVCapture::instance()->lastFrame.cols,
+                                                     CVCapture::instance()->lastFrame.rows),
+                                            60.0,
+                                            ac->mirrorH(),
+                                            ac->mirrorV(),
+                                            ac->type(),
+                                            Utils::ComputerInfos::get());
         }
     }
 }
 //-----------------------------------------------------------------------------
 void trackVideo()
 {
-    SLSceneView*       sv       = AppDemo::sceneViews[0];
-    CVCaptureProvider* provider = AppArucoPen::instance().currentCaptureProvider();
-    CVCamera*          ac       = &provider->camera();
+    SLSceneView* sv = AppDemo::sceneViews[0];
+    CVCamera* ac = &AppArucoPen::instance().currentCaptureProvider()->camera();
 
-    ensureValidCalibration(provider, sv);
+    ensureValidCalibration(ac, sv);
     // Attention: Always update scene camera fovV from calibration because the calibration may have
     // been adapted in adjustForSL after a change of aspect ratio!
     // The active scene view camera may be a different one that the tracking camera
@@ -101,8 +102,8 @@ void trackVideo()
 
     if (AppArucoPen::instance().tracker && AppArucoPen::instance().trackedNode)
     {
-        bool foundPose = AppArucoPen::instance().tracker->track(provider->lastFrameGray(),
-                                                                provider->lastFrameBGR(),
+        bool foundPose = AppArucoPen::instance().tracker->track(CVCapture::instance()->lastFrameGray,
+                                                                CVCapture::instance()->lastFrame,
                                                                 &ac->calibration);
         if (foundPose)
         {
@@ -149,19 +150,19 @@ bool onUpdateVideo()
     if (AppDemo::sceneViews.empty())
         return false;
 
-    SLScene*           s        = AppDemo::scene;
-    SLSceneView*       sv       = AppDemo::sceneViews[0];
-    CVCaptureProvider* provider = AppArucoPen::instance().currentCaptureProvider();
+    SLScene*     s  = AppDemo::scene;
+    SLSceneView* sv = AppDemo::sceneViews[0];
 
-    if (CVCapture::instance()->videoType() != VT_NONE && !provider->lastFrameBGR().empty())
+    if (CVCapture::instance()->videoType() != VT_NONE &&
+        !CVCapture::instance()->lastFrame.empty())
     {
         SLfloat trackingTimeStartMS = GlobalTimer::timeMS();
 
-        CVCamera* ac = &provider->camera();
+        CVCamera* ac = &AppArucoPen::instance().currentCaptureProvider()->camera();
 
         if (AppDemo::sceneID == SID_VideoCalibrateMain)
         {
-            AppArucoPen::instance().calibrator().update(AppArucoPen::instance().currentCaptureProvider(), s, sv);
+            AppArucoPen::instance().calibrator().update(ac, s, sv);
         }
         else
         {
@@ -188,23 +189,23 @@ bool onUpdateVideo()
             if (ac->calibration.state() == CS_calibrated && ac->showUndistorted())
             {
                 CVMat undistorted;
-                ac->calibration.remap(provider->lastFrameBGR(), undistorted);
+                ac->calibration.remap(CVCapture::instance()->lastFrame, undistorted);
 
                 // CVCapture::instance()->videoTexture()->copyVideoImage(undistorted.cols,
                 AppArucoPen::instance().videoTexture->copyVideoImage(undistorted.cols,
                                                                      undistorted.rows,
-                                                                     PF_bgr,
+                                                                     CVCapture::instance()->format,
                                                                      undistorted.data,
                                                                      undistorted.isContinuous(),
                                                                      true);
             }
             else
             {
-                AppArucoPen::instance().videoTexture->copyVideoImage(provider->lastFrameBGR().cols,
-                                                                     provider->lastFrameBGR().rows,
-                                                                     PF_bgr,
-                                                                     provider->lastFrameBGR().data,
-                                                                     provider->lastFrameBGR().isContinuous(),
+                AppArucoPen::instance().videoTexture->copyVideoImage(CVCapture::instance()->lastFrame.cols,
+                                                                     CVCapture::instance()->lastFrame.rows,
+                                                                     CVCapture::instance()->format,
+                                                                     CVCapture::instance()->lastFrame.data,
+                                                                     CVCapture::instance()->lastFrame.isContinuous(),
                                                                      true);
             }
         }

@@ -432,7 +432,7 @@ target_link_libraries(${target}
         ${CUDA_LIBRARIES}
         ${CUDA_CUDA_LIBRARY}
         ${optix_LIBRARY}
-        lib-SLExternal
+        ${META_PROJECT_NAME}::lib-SLExternal
         ${assimp_LIBS}
         lib-Utils
         lib-SLMath
@@ -440,6 +440,7 @@ target_link_libraries(${target}
         INTERFACE
 
         )
+
 
 if (DEFINED ENV{CUDA_PATH} AND SL_BUILD_WITH_OPTIX)
     add_dependencies(${target} ptx)
