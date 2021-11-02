@@ -69,21 +69,6 @@ SLbool onPaint()
     if (CVCapture::instance()->videoType() != VT_NONE)
     {
         AppArucoPen::instance().grabFrameImagesAndTrack(sv);
-
-        if (AppArucoPen::instance().arucoPen())
-        {
-            AppArucoPen::instance().arucoPen()->combine();
-        }
-
-        if(AppDemo::sceneID == SID_VideoTrackArucoCubeMain)
-        {
-            AppArucoPen::instance().publishTipPosition();
-        }
-
-//        if (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS)
-//        {
-//            AppArucoPen::instance().tipPositions.push_back(AppArucoPen::instance().arucoPen()->tipPosition());
-//        }
     }
 
     ////////////////////////////////////////////////
@@ -466,9 +451,9 @@ int main(int argc, char* argv[])
         touchDelta.set(-1, -1);
 
         initGLFW(scrWidth, scrHeight);
-        initSL(cmdLineArgs);
 
         AppArucoPen::instance().openCaptureProviders();
+        initSL(cmdLineArgs);
 
         // Event loop
         while (!slShouldClose())

@@ -182,6 +182,7 @@ enum SLSceneID
     SID_ErlebARSutzKirchrain18,
 
     SID_ArucoPenTrail,
+    SID_VirtualArucoPen,
 
     SID_Maximal
 };

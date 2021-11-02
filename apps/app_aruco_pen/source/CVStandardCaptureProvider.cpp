@@ -46,6 +46,9 @@ void CVStandardCaptureProvider::open()
         _captureDevice.open(_deviceIndex);
         _captureDevice.set(cv::CAP_PROP_FRAME_WIDTH, captureSize().width);
         _captureDevice.set(cv::CAP_PROP_FRAME_HEIGHT, captureSize().height);
+
+        _captureSize.width = (int) _captureDevice.get(cv::CAP_PROP_FRAME_WIDTH);
+        _captureSize.height = (int) _captureDevice.get(cv::CAP_PROP_FRAME_HEIGHT);
     } catch (cv::Exception& e) {
         SL_LOG(e.what());
     }

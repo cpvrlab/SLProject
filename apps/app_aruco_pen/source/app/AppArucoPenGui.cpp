@@ -583,7 +583,7 @@ void AppArucoPenGui::build(SLProjectScene* s, SLSceneView* sv)
                 sprintf(m + strlen(m), "Calib. state : %s\n", c->stateStr().c_str());
                 sprintf(m + strlen(m), "Num. caps    : %d\n", c->numCapturedImgs());
 
-                if (vt != VT_NONE && AppArucoPen::instance().tracker != nullptr && AppArucoPen::instance().trackedNode != nullptr)
+                if (vt != VT_NONE && AppArucoPen::instance().trackedNode != nullptr)
                 {
                     sprintf(m + strlen(m), "-------------:\n");
 
@@ -701,16 +701,16 @@ void AppArucoPenGui::build(SLProjectScene* s, SLSceneView* sv)
                 ImGui::PopFont();
             }
 
-            if (showInfosTracking && AppArucoPen::instance().arucoPen())
+            if (showInfosTracking)
             {
                 SLchar m[1024]; // message character array
                 m[0] = 0;       // set zero length
 
-                SLArucoPen* pen    = AppArucoPen::instance().arucoPen();
-                SLVec3f     tipPos = pen->tipPosition();
+                SLArucoPen& pen    = AppArucoPen::instance().arucoPen();
+                SLVec3f     tipPos = pen.tipPosition();
                 sprintf(m + strlen(m), "Tip position             : %s\n", tipPos.toString(", ", 2).c_str());
-                sprintf(m + strlen(m), "Measured Distance (Live) : %.2f cm\n", pen->liveDistance() * 100.0f);
-                sprintf(m + strlen(m), "Measured Distance (Last) : %.2f cm\n", pen->lastDistance() * 100.0f);
+                sprintf(m + strlen(m), "Measured Distance (Live) : %.2f cm\n", pen.liveDistance() * 100.0f);
+                sprintf(m + strlen(m), "Measured Distance (Last) : %.2f cm\n", pen.lastDistance() * 100.0f);
 
                 // Switch to fixed font
                 ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
@@ -782,8 +782,10 @@ void AppArucoPenGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
         {
             if (ImGui::BeginMenu("Load Scene"))
             {
-                if (ImGui::MenuItem("Track Aruco Cube (Main)", nullptr, sid == SID_VideoTrackArucoCubeMain))
+                if (ImGui::MenuItem("Track Aruco Cube", nullptr, sid == SID_VideoTrackArucoCubeMain))
                     s->onLoad(s, sv, SID_VideoTrackArucoCubeMain);
+                if (ImGui::MenuItem("Track Aruco Cube (Virtual)", nullptr, sid == SID_VirtualArucoPen))
+                    s->onLoad(s, sv, SID_VirtualArucoPen);
                 if (ImGui::MenuItem("Show Aruco Pen Trail", nullptr, sid == SID_ArucoPenTrail))
                     s->onLoad(s, sv, SID_ArucoPenTrail);
                 if (ImGui::MenuItem("Track Chessboard (Main)", nullptr, sid == SID_VideoTrackChessMain))
@@ -904,6 +906,14 @@ void AppArucoPenGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                     if (ImGui::MenuItem("Calculate Extrinsic (Current Camera)"))
                         AppArucoPenCalibrator::calcExtrinsicParams(AppArucoPen::instance().currentCaptureProvider());
 
+                    if (ImGui::MenuItem("Calculate Extrinsic (All Cameras)"))
+                    {
+                        for (CVCaptureProvider* provider : AppArucoPen::instance().captureProviders())
+                        {
+                            AppArucoPenCalibrator::calcExtrinsicParams(provider);
+                        }
+                    }
+
                     if (ImGui::MenuItem("Undistort Image", nullptr, ac->showUndistorted(), ac->calibration.state() == CS_calibrated))
                         ac->showUndistorted(!ac->showUndistorted());
 
@@ -928,9 +938,9 @@ void AppArucoPenGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                     ImGui::EndMenu();
                 }
 
-                if (AppArucoPen::instance().tracker != nullptr)
-                    if (ImGui::MenuItem("Draw Detection", nullptr, AppArucoPen::instance().tracker->drawDetection()))
-                        AppArucoPen::instance().tracker->drawDetection(!AppArucoPen::instance().tracker->drawDetection());
+//                if (!AppArucoPen::instance().trackers().empty())
+//                    if (ImGui::MenuItem("Draw Detection", nullptr, AppArucoPen::instance().tracker->drawDetection()))
+//                        AppArucoPen::instance().tracker->drawDetection(!AppArucoPen::instance().tracker->drawDetection());
 
                 ImGui::EndMenu();
             }

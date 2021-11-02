@@ -170,7 +170,7 @@ SLQuat4f CVTracked::averageQuaternion(vector<SLQuat4f> quaternions,
         SLQuat4f quaternion = quaternions[i];
         float    weight     = weights[i];
 
-        if (i > 0 && quaternion.dot(quaternions[0]) < -0.001)
+        if (i > 0 && quaternion.dot(quaternions[0]) < 0.0)
             weight = -weight;
 
         total.set(total.x() + weight * quaternion.x(),

@@ -12,7 +12,7 @@
 #include <CVCapture.h>
 #include <cv/CVTrackedAruco.h>
 #include <cv/CVTrackedChessboard.h>
-#include <cv/CVMultiTracked.h>
+#include <cv/CVMultiTracker.h>
 #include <cv/CVTrackedFaces.h>
 #include <cv/CVTrackedFeatures.h>
 #include <cv/CVCalibrationEstimator.h>
@@ -72,8 +72,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
     CVCapture::instance()->videoType(VT_NONE); // turn off any video
 
     // Reset asset pointer from previous scenes
-    delete AppArucoPen::instance().tracker;
-    AppArucoPen::instance().tracker      = nullptr;
+    for (const auto& tracker : AppArucoPen::instance().trackers()) delete tracker.second;
+    AppArucoPen::instance().trackers().clear();
     AppArucoPen::instance().videoTexture = nullptr; // The video texture will be deleted by scene uninit
     AppArucoPen::instance().trackedNode  = nullptr; // The tracked node will be deleted by scene uninit
 
@@ -98,7 +98,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
     AppDemo::devRot.init();
     AppDemo::devLoc.init();
 
-    AppArucoPen::instance().arucoPen(nullptr);
+    s->eventHandlers().push_back(&AppArucoPen::instance().arucoPen());
     CVCapture::instance()->activeCamera = &AppArucoPen::instance().currentCaptureProvider()->camera();
 
     if (sceneID == SID_VideoTrackChessMain ||
@@ -175,8 +175,9 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         }
 
         // Create OpenCV Tracker for the camera node for AR camera.
-        AppArucoPen::instance().tracker = new CVTrackedChessboard(AppDemo::calibIniPath);
-        AppArucoPen::instance().tracker->drawDetection(true);
+        CVTrackedChessboard* tracker = new CVTrackedChessboard(AppDemo::calibIniPath);
+        tracker->drawDetection(true);
+        AppArucoPen::instance().trackers().insert({AppArucoPen::instance().currentCaptureProvider(), tracker});
         AppArucoPen::instance().trackedNode = cam1;
 
         // pass the scene group as root node
@@ -205,7 +206,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Material
         SLMaterial* penTipMaterial = new SLMaterial(s, "Pen Tip Material", SLCol4f(1, 1, 0, 0.5f));
-        SLMaterial* penMaterial   = new SLMaterial(s, "Pen Material", SLCol4f(0.3, 0.1, 1, 0.25f));
+        SLMaterial* penMaterial    = new SLMaterial(s, "Pen Material", SLCol4f(0.3, 0.1, 1, 0.25f));
 
         // Create a scene group node
         SLNode* scene = new SLNode("scene node");
@@ -214,7 +215,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(0, 0, 1);
         cam1->lookAt(0, 0, 0);
-        cam1->fov(36);         // FIXME: Hardcoded FOV for Logitech 1080p webcam
+        cam1->fov(36); // FIXME: Hardcoded FOV for Logitech 1080p webcam
         cam1->clipNear(0.001f);
         cam1->clipFar(10.0f);
         cam1->focalDist(1.0f);
@@ -238,17 +239,18 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         float tiphe     = 0.002f;
 
         SLAssimpImporter importer;
-        SLNode*          penNode = importer.load(s->animManager(),
-                                                 s,
-                                                 modelPath + "DAE/ArucoPen/ArucoPen.dae",
-                                                 texPath,
-                                                 true,
-                                                 true,
-                                                 penMaterial);
+
+        SLNode* penNode = importer.load(s->animManager(),
+                                        s,
+                                        modelPath + "DAE/ArucoPen/ArucoPen.dae",
+                                        texPath,
+                                        true,
+                                        true,
+                                        penMaterial);
 
         scene->addChild(penNode);
 
-        SLMesh* tipMesh = new SLBox(s, -tiphe, -tiphe, -tiphe - tipOffset, tiphe, tiphe, tiphe - tipOffset, "Pen Tip", penTipMaterial);
+        SLMesh* tipMesh = new SLBox(s, -tiphe, -tiphe - tipOffset, -tiphe, tiphe, tiphe - tipOffset, tiphe, "Pen Tip", penTipMaterial);
         SLNode* tipNode = new SLNode(tipMesh, "Pen Tip Node");
         penNode->addChild(tipNode);
 
@@ -258,11 +260,95 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         // scene->addChild(axisNode);
 
         CVTrackedAruco::params.filename = "aruco_cube_detector_params.yml";
-        AppArucoPen::instance().tracker                         = new SLArucoPen(AppDemo::calibIniPath, 0.05f);
-        AppArucoPen::instance().tracker->drawDetection(true);
+
+        for (CVCaptureProvider* provider : AppArucoPen::instance().captureProviders())
+        {
+            CVTrackedArucoCube* tracker = new CVTrackedArucoCube(AppDemo::calibIniPath, 0.05f);
+            tracker->drawDetection(true);
+            AppArucoPen::instance().trackers().insert({provider, tracker});
+        }
+
         AppArucoPen::instance().trackedNode = cam1;
-        s->eventHandlers().push_back((SLArucoPen*)AppArucoPen::instance().tracker);
-        AppArucoPen::instance().arucoPen((SLArucoPen*)AppArucoPen::instance().tracker);
+
+        s->root3D(scene);
+        sv->camera(cam1);
+        sv->doWaitOnIdle(false);
+        sv->doFrustumCulling(false);
+    }
+    else if (sceneID == SID_VirtualArucoPen) //............................................
+    {
+        CVCapture::instance()->videoType(VT_MAIN);
+        s->name("Track Aruco Cube (Virtual)");
+        s->info("Hold the Aruco Cube into the field of view of the main camera. You can find the Aruco markers in the file data/Calibrations. Press F6 to print the ArUco pen position and measure distances");
+
+        // Material
+        SLMaterial* penTipMaterial = new SLMaterial(s, "Pen Tip Material", SLCol4f(1, 1, 0, 0.5f));
+        SLMaterial* penMaterial    = new SLMaterial(s, "Pen Material", SLCol4f(0.3, 0.1, 1, 0.25f));
+
+        // Create a scene group node
+        SLNode* scene = new SLNode("scene node");
+
+        // Create a camera node 1
+        SLCamera* cam1 = new SLCamera("Camera 1");
+        cam1->translation(0.8, 0.5, 0.8);
+        cam1->lookAt(0, 0, 0);
+        cam1->fov(36); // FIXME: Hardcoded FOV for Logitech 1080p webcam
+        cam1->clipNear(0.001f);
+        cam1->clipFar(10.0f);
+        cam1->focalDist(cam1->om().translation().length());
+        cam1->background().texture(AppArucoPen::instance().videoTexture);
+        cam1->setInitialState();
+        cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
+        scene->addChild(cam1);
+
+        // Create a light source node
+        SLLightSpot* light1 = new SLLightSpot(s, s, 0.02f);
+        light1->translation(0.12f, 0.12f, 0.12f);
+        light1->name("light node");
+        light1->setDrawBitsRec(SL_DB_HIDDEN, true);
+        scene->addChild(light1);
+
+        // Get the half edge length of the aruco marker
+        SLfloat edgeLen = CVTrackedAruco::params.edgeLength;
+        SLfloat he      = edgeLen / 2;
+
+        float tipOffset = 0.147f - 0.025f + 0.002f;
+        float tiphe     = 0.002f;
+
+        SLAssimpImporter importer;
+
+        SLNode* chessboardNode = importer.load(s->animManager(),
+                                               s,
+                                               modelPath + "DAE/Chessboard/Chessboard.dae",
+                                               texPath);
+        scene->addChild(chessboardNode);
+
+        SLNode* penNode = importer.load(s->animManager(),
+                                        s,
+                                        modelPath + "DAE/ArucoPen/ArucoPen.dae",
+                                        texPath);
+
+        scene->addChild(penNode);
+
+        SLMesh* tipMesh = new SLBox(s, -tiphe, -tiphe - tipOffset, -tiphe, tiphe, tiphe - tipOffset, tiphe, "Pen Tip", penTipMaterial);
+        SLNode* tipNode = new SLNode(tipMesh, "Pen Tip Node");
+        penNode->addChild(tipNode);
+
+        SLNode* axisNode = new SLNode(new SLCoordAxis(s), "Axis Node");
+        axisNode->setDrawBitsRec(SL_DB_MESHWIRED, false);
+        axisNode->scale(edgeLen);
+        // scene->addChild(axisNode);
+
+        CVTrackedAruco::params.filename = "aruco_cube_detector_params.yml";
+
+        for (CVCaptureProvider* provider : AppArucoPen::instance().captureProviders())
+        {
+            CVTrackedArucoCube* tracker = new CVTrackedArucoCube(AppDemo::calibIniPath, 0.05f);
+            tracker->drawDetection(true);
+            AppArucoPen::instance().trackers().insert({provider, tracker});
+        }
+
+        AppArucoPen::instance().trackedNode = penNode;
 
         s->root3D(scene);
         sv->camera(cam1);
@@ -284,7 +370,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLNode* scene = new SLNode("scene node");
 
         // Create textures and materials
-        SLMaterial*  m1   = new SLMaterial(s, "m1");
+        SLMaterial* m1 = new SLMaterial(s, "m1");
 
         // Create a light source node
         SLLightSpot* light1 = new SLLightSpot(s, s, 0.3f);
@@ -292,17 +378,18 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         light1->name("light node");
         scene->addChild(light1);
 
-        SLVec3f total(0.0f, 0.0f, 0.0f);
+        SLVec3f   total(0.0f, 0.0f, 0.0f);
         SLSphere* mesh = new SLSphere(s, 0.002f, 8, 8, "Marker", m1);
 
-        for(int i = 0; i < AppArucoPen::instance().tipPositions.size(); i++)
+        for (int i = 0; i < AppArucoPen::instance().tipPositions.size(); i++)
         {
             SLVec3f tipPosition = AppArucoPen::instance().tipPositions[i];
 
             SLNode* node = new SLNode(mesh, "Marker Node");
             node->translate(tipPosition);
 
-            if(i != AppArucoPen::instance().tipPositions.size() - 1) {
+            if (i != AppArucoPen::instance().tipPositions.size() - 1)
+            {
                 node->lookAt(AppArucoPen::instance().tipPositions[i + 1]);
             }
 
@@ -316,7 +403,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(center.x, center.y + 1, center.z + 1);
         cam1->lookAt(center.x, center.y, center.z);
-        cam1->focalDist((float) sqrt(2.0));
+        cam1->focalDist((float)sqrt(2.0));
         cam1->devRotLoc(&AppDemo::devRot, &AppDemo::devLoc);
         scene->addChild(cam1);
 

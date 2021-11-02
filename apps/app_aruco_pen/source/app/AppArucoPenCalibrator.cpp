@@ -130,7 +130,7 @@ void AppArucoPenCalibrator::calcExtrinsicParams(CVCaptureProvider* provider)
 
     CVSize     boardSize(8, 5);
     CVVPoint2f corners2D;
-    int        flags = cv::CALIB_CB_FAST_CHECK;
+    int        flags = cv::CALIB_CB_FAST_CHECK + cv::CALIB_CB_ADAPTIVE_THRESH;
 
     if (!cv::findChessboardCorners(provider->lastFrameGray(),
                                    boardSize,
@@ -140,6 +140,14 @@ void AppArucoPenCalibrator::calcExtrinsicParams(CVCaptureProvider* provider)
         SL_LOG("ERROR: Failed to calculate extrinsic parameters: Chessboard not detected");
         return;
     }
+
+    cv::cornerSubPix(provider->lastFrameGray(),
+                     corners2D,
+                     cv::Size(11, 11),
+                     cv::Size(-1, -1),
+                     cv::TermCriteria(cv::TermCriteria::EPS + cv::TermCriteria::COUNT,
+                                      30,
+                                      0.0001));
 
     CVVVec3f boardPoints3D;
     float    squareSize = 0.029f;

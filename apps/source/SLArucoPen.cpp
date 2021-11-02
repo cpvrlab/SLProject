@@ -11,12 +11,6 @@
 #include <app/AppArucoPen.h>
 
 //-----------------------------------------------------------------------------
-SLArucoPen::SLArucoPen(string calibIniPath,
-                       float  edgeLength)
-  : CVMultiTracked(new CVTrackedArucoCube(calibIniPath, edgeLength))
-{
-}
-//-----------------------------------------------------------------------------
 SLbool SLArucoPen::onKeyPress(const SLKey key,
                               const SLKey mod)
 {
@@ -52,21 +46,7 @@ SLVec3f SLArucoPen::tipPosition()
 {
     float tipOffset = -(0.147f - 0.025f + 0.002f);
 
-    CVMatx44f          worldMatrix = CVMatx44f(_objectViewMat);
-    CVCaptureProvider* provider    = AppArucoPen::instance().currentCaptureProvider();
-    CVCalibration      calibration = provider->camera().calibration;
-
-    if (!calibration.rvec.empty() && !calibration.tvec.empty())
-    {
-        CVMatx44f extrinsic = CVTracked::createGLMatrix(calibration.tvec, calibration.rvec);
-        // clang-format off
-        extrinsic = CVMatx44f(-extrinsic.val[ 1],  extrinsic.val[ 2], -extrinsic.val[ 0],  extrinsic.val[3],
-                              -extrinsic.val[ 5],  extrinsic.val[ 6], -extrinsic.val[ 4],  extrinsic.val[7],
-                              -extrinsic.val[ 9],  extrinsic.val[10], -extrinsic.val[ 8],  extrinsic.val[11],
-                               0.0f,                0.0f,               0.0f,               1.0f);
-        // clang-format on
-        worldMatrix         = extrinsic.inv() * worldMatrix;
-    }
+    CVMatx44f worldMatrix = _multiTracker.averageWorldMatrix();
 
     float offsetX = worldMatrix.val[1] * tipOffset;
     float offsetY = worldMatrix.val[5] * tipOffset;

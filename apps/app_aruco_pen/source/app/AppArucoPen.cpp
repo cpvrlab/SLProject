@@ -16,7 +16,7 @@
 #include <AppDemo.h>
 #include <app/AppArucoPenROSNode.h>
 
-extern void trackVideo();
+extern void trackVideo(CVCaptureProvider* provider);
 
 //-----------------------------------------------------------------------------
 void AppArucoPen::openCaptureProviders()
@@ -33,8 +33,8 @@ void AppArucoPen::openCaptureProviders()
     // openCaptureProvider(new CVStandardCaptureProvider(0, CVSize(1280, 960)));
 
     // Logitech + Intel
-    openCaptureProvider(new CVStandardCaptureProvider(0, CVSize(1280, 960)));
-    openCaptureProvider(new CVStandardCaptureProvider(2, CVSize(640, 480)));
+    openCaptureProvider(new CVStandardCaptureProvider(2, CVSize(1280, 960)));
+    openCaptureProvider(new CVStandardCaptureProvider(1, CVSize(640, 480)));
 
     _currentCaptureProvider = _captureProviders[0];
 
@@ -97,19 +97,25 @@ void AppArucoPen::grabFrameImagesAndTrack(SLSceneView* sv)
     CVCapture::instance()->camSizes.clear();
 
     // Grab and track all non-displayed capture providers if we are in the ArUco cube scene
-//    if (AppDemo::sceneID == SID_VideoTrackArucoCubeMain)
-//    {
-//        for (CVCaptureProvider* provider : _captureProviders)
-//        {
-//            if(provider != _currentCaptureProvider)
-//            {
-//                grabFrameImageAndTrack(provider, sv);
-//            }
-//        }
-//    }
+    if (AppDemo::sceneID == SID_VideoTrackArucoCubeMain || AppDemo::sceneID == SID_VirtualArucoPen)
+    {
+        for (CVCaptureProvider* provider : _captureProviders)
+        {
+            if (provider != _currentCaptureProvider)
+            {
+                grabFrameImageAndTrack(provider, sv);
+            }
+        }
+    }
 
     // Grab and track the currently displayed capture provider
     grabFrameImageAndTrack(_currentCaptureProvider, sv);
+
+    if (AppDemo::sceneID == SID_VideoTrackArucoCubeMain || AppDemo::sceneID == SID_VirtualArucoPen)
+    {
+        AppArucoPen::instance().arucoPen().multiTracker().combine();
+        AppArucoPen::instance().publishTipPosition();
+    }
 }
 //-----------------------------------------------------------------------------
 void AppArucoPen::grabFrameImageAndTrack(CVCaptureProvider* provider, SLSceneView* sv)
@@ -126,13 +132,25 @@ void AppArucoPen::grabFrameImageAndTrack(CVCaptureProvider* provider, SLSceneVie
     CVCapture::instance()->captureSize   = provider->captureSize();
     CVCapture::instance()->format        = PF_bgr;
 
-//    CVCapture::instance()->adjustForSLGrayAvailable(sv->viewportWdivH());
+    //    CVCapture::instance()->adjustForSLGrayAvailable(sv->viewportWdivH());
 
-    trackVideo();
+    trackVideo(provider);
+}
+//-----------------------------------------------------------------------------
+CVTracked* AppArucoPen::currentTracker()
+{
+    if(_trackers.empty())
+    {
+        return nullptr;
+    }
+
+    CVTracked* tracked = _trackers.at(_currentCaptureProvider);
+    return tracked;
 }
 //-----------------------------------------------------------------------------
 void AppArucoPen::publishTipPosition()
 {
-    SLVec3f p = AppArucoPen::instance().arucoPen()->tipPosition();
+    SLVec3f p = AppArucoPen::instance().arucoPen().tipPosition();
     AppArucoPenROSNode::instance().publish(p.x, p.y, p.z);
 }
+//-----------------------------------------------------------------------------

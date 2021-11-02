@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      CVMultiTracked.h
+//  File:      CVMultiTracker.h
 //  Date:      October 2021
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Authors:   Marino von Wattenwyl
@@ -7,8 +7,8 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#ifndef SLPROJECT_CVMULTITRACKED_H
-#define SLPROJECT_CVMULTITRACKED_H
+#ifndef SLPROJECT_CVMULTITRACKER_H
+#define SLPROJECT_CVMULTITRACKER_H
 
 #include <cv/CVTracked.h>
 #include <cv/CVTypedefs.h>
@@ -16,32 +16,26 @@
 #include <SLQuat4.h>
 
 //-----------------------------------------------------------------------------
-//! CVMultiTracked is used for tracking the same object in multiple frames
-/*! The CVMultiTracked class averages the object view matrices of the same
+//! CVMultiTracker is used for tracking the same object in multiple frames
+/*! The CVMultiTracker class averages the object view matrices of the same
  * object in multiple frames.
  * The class is given a pointer to a CVTracked which is used for tracking in
  * a single frame of data. The "track" method can then be called an arbitrary
  * number of times. Every call, the "track" method of the provided CVTracked*
  * is called and the resulting object view matrix stored in a vector.
- * To get the averaged object view matrix of the CVMultiTracked, the method
+ * To get the averaged object view matrix of the CVMultiTracker, the method
  * "combine" can called. This also clears the internal vector for new frames.
  */
-class CVMultiTracked : public CVTracked
+class CVMultiTracker
 {
-
 private:
-    CVTracked* _tracked;
-    CVVMatx44f _objectViewMatrices;
+    CVVMatx44f _worldMatrices;
+    CVMatx44f  _averageWorldMatrix;
 
 public:
-    CVMultiTracked(CVTracked* tracked);
-    ~CVMultiTracked() noexcept;
-
-    bool track(CVMat          imageGray,
-               CVMat          imageRgb,
-               CVCalibration* calib);
-
-    void combine();
+    void      recordCurrentPose(CVTracked* tracked, CVCalibration* calib);
+    void      combine();
+    CVMatx44f averageWorldMatrix() { return _averageWorldMatrix; }
 };
 //-----------------------------------------------------------------------------
-#endif //SLPROJECT_CVMULTITRACKED_H
+#endif // SLPROJECT_CVMULTITRACKER_H

@@ -29,14 +29,14 @@
 class CVCaptureProvider
 {
 private:
-    SLstring _uid;         //!< the unique identifier for this capture provider
-    SLstring _name;        //!< human-readable name intended for displaying
-    CVCamera _camera;      //!< camera object for tracking, mirroring, distortion, etc.
-    CVSize   _captureSize; //!< width and height of the capture in pixels
+    SLstring _uid;    //!< the unique identifier for this capture provider
+    SLstring _name;   //!< human-readable name intended for displaying
+    CVCamera _camera; //!< camera object for tracking, mirroring, distortion, etc.
 
 protected:
-    CVMat _lastFrameBGR;  //!< the last grabbed frame in the BGR format
-    CVMat _lastFrameGray; //!< the gray version of the last grabbed frame
+    CVMat  _lastFrameBGR;  //!< the last grabbed frame in the BGR format
+    CVMat  _lastFrameGray; //!< the gray version of the last grabbed frame
+    CVSize _captureSize;   //!< width and height of the capture in pixels
 
 public:
     CVCaptureProvider(SLstring uid,

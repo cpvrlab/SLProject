@@ -21,9 +21,11 @@
 #include <app/AppArucoPenCalibrator.h>
 
 #include <vector>
+#include <map>
 
 //-----------------------------------------------------------------------------
-typedef std::vector<CVCaptureProvider*> CVVCaptureProvider;
+typedef std::vector<CVCaptureProvider*>          CVVCaptureProvider;
+typedef std::map<CVCaptureProvider*, CVTracked*> ArucoPenTrackers;
 //-----------------------------------------------------------------------------
 class AppArucoPen
 {
@@ -37,31 +39,33 @@ public:
     SLVVec3f tipPositions;
 
     SLGLTexture* videoTexture = nullptr;
-    CVTracked* tracker = nullptr;
-    SLNode* trackedNode = nullptr;
+    SLNode*      trackedNode  = nullptr;
 
 private:
     CVVCaptureProvider _captureProviders;
     CVCaptureProvider* _currentCaptureProvider = nullptr;
-    SLArucoPen*        _arucoPen               = nullptr;
+    ArucoPenTrackers   _trackers;
+
+    SLArucoPen _arucoPen;
 
     AppArucoPenCalibrator _calibrator;
 
 public:
-    void openCaptureProviders();
-    void closeCaptureProviders();
-    void grabFrameImagesAndTrack(SLSceneView* sv);
-    void publishTipPosition();
+    void       openCaptureProviders();
+    void       closeCaptureProviders();
+    void       grabFrameImagesAndTrack(SLSceneView* sv);
+    CVTracked* currentTracker();
+    void       publishTipPosition();
 
     // Getters
     CVVCaptureProvider&    captureProviders() { return _captureProviders; }
     CVCaptureProvider*     currentCaptureProvider() const { return _currentCaptureProvider; }
-    SLArucoPen*            arucoPen() const { return _arucoPen; }
+    ArucoPenTrackers&      trackers() { return _trackers; }
+    SLArucoPen&            arucoPen() { return _arucoPen; }
     AppArucoPenCalibrator& calibrator() { return _calibrator; }
 
     // Setters
     void currentCaptureProvider(CVCaptureProvider* captureProvider) { _currentCaptureProvider = captureProvider; }
-    void arucoPen(SLArucoPen* arucoPen) { _arucoPen = arucoPen; }
 
 private:
     void openCaptureProvider(CVCaptureProvider* captureProvider);

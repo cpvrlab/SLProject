@@ -108,8 +108,8 @@ file(GLOB sources
         source/cv/CVTrackedFaces.h
         source/cv/CVTrackedFeatures.cpp
         source/cv/CVTrackedFeatures.h
-        source/cv/CVMultiTracked.cpp
-        source/cv/CVMultiTracked.h
+        source/cv/CVMultiTracker.cpp
+        source/cv/CVMultiTracker.h
         source/cv/CVTypedefs.h
         source/cv/CVTypes.h
         source/gl/SLGLConetracer.cpp

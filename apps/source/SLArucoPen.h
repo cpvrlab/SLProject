@@ -11,17 +11,15 @@
 #define SLPROJECT_SLARUCOPEN_H
 
 #include <cv/CVTrackedArucoCube.h>
-#include <cv/CVMultiTracked.h>
+#include <cv/CVMultiTracker.h>
+#include <CVCaptureProvider.h>
 
 #include <SLEventHandler.h>
 #include <SLVec3.h>
 
-class SLArucoPen : public CVMultiTracked
-  , public SLEventHandler
+class SLArucoPen : public SLEventHandler
 {
 public:
-    SLArucoPen(string calibIniPath, float edgeLength);
-
     SLbool onKeyPress(SLKey key,
                       SLKey mod) override;
 
@@ -30,11 +28,14 @@ public:
     SLfloat liveDistance();
     SLfloat lastDistance() const;
 
+    CVMultiTracker& multiTracker() { return _multiTracker; }
+
 private:
+    CVMultiTracker _multiTracker;
+
     SLVec3f _lastPrintedPosition;
     SLbool  _positionPrintedOnce = false;
     SLfloat _lastDistance;
-
 };
 
 #endif // SLPROJECT_SLARUCOPEN_H

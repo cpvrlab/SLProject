@@ -40,8 +40,7 @@ bool CVTrackedArucoCube::track(CVMat          imageGray,
     vector<SLQuat4f> rotations;
     vector<float>    weights;
 
-
-    for (size_t i = 0; i < arucoIDs.size(); ++i)
+    for (size_t i = 0; i < arucoIDs.size(); i++)
     {
         // Convert the OpenCV matrix to an SL matrix
         SLMat4f faceViewMatrix(objectViewMats[i].val);

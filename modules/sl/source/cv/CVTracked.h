@@ -53,14 +53,6 @@ public:
                        CVMat          imageRgb,
                        CVCalibration* calib) = 0;
 
-    cv::Matx44f createGLMatrix(const CVMat& tVec,
-                               const CVMat& rVec);
-    void        createRvecTvec(const CVMatx44f& glMat,
-                               CVMat&           tVec,
-                               CVMat&           rVec);
-    CVMatx44f   calcObjectMatrix(const CVMatx44f& cameraObjectMat,
-                                 const CVMatx44f& objectViewMat);
-
     // Setters
     void drawDetection(bool draw) { _drawDetection = draw; }
 
@@ -81,11 +73,17 @@ public:
 
     // Static methods for commonly used operations
 public:
-    static CVVec3f averageVector(vector<CVVec3f> vectors,
-                                 vector<float>   weights);
-
-    static SLQuat4f averageQuaternion(vector<SLQuat4f> quaternions,
-                                      vector<float>    weights);
+    static cv::Matx44f createGLMatrix(const CVMat& tVec,
+                                      const CVMat& rVec);
+    static void        createRvecTvec(const CVMatx44f& glMat,
+                                      CVMat&           tVec,
+                                      CVMat&           rVec);
+    static CVMatx44f   calcObjectMatrix(const CVMatx44f& cameraObjectMat,
+                                        const CVMatx44f& objectViewMat);
+    static CVVec3f     averageVector(vector<CVVec3f> vectors,
+                                     vector<float>   weights);
+    static SLQuat4f    averageQuaternion(vector<SLQuat4f> quaternions,
+                                         vector<float>    weights);
 
 protected:
     bool         _isVisible;     //!< Flag if marker is visible
