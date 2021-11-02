@@ -89,7 +89,7 @@ int main()
     // Input triangle
     vector<Point2f> triIn;
     triIn.push_back(Point2f(360, 200));
-    triIn.push_back(Point2d(60, 250));
+    triIn.push_back(Point2f(60, 250));
     triIn.push_back(Point2f(450, 400));
 
     // Output triangle
