@@ -116,6 +116,17 @@ void initParticles()
                       (GLint)_shaderProgID,
                       _pLoc);
 
+    //Need to comment/remove VboI
+    /*float points[] = {0.5f, 0.5f, 0.0f};
+    glGenBuffers(1, &_vboV);
+    glGenVertexArrays(1, &_vao);
+    glBindVertexArray(_vao);
+    glBindBuffer(GL_ARRAY_BUFFER, _vboV);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(points), &points, GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(_pLoc, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), 0);
+    glBindVertexArray(0);*/
+
     // create this->amount default particle instances
     for(unsigned int i = 0; i < AMOUNT; ++i)
     {
