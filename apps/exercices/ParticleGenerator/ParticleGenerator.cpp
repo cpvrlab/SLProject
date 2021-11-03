@@ -198,10 +198,11 @@ void respawnParticle(Particle& particle, SLVec3f offset)
     //particle.p.x += random;
     particle.c    = SLVec4f(rColor, rColor, rColor, 1.0f);
     particle.life     = 5.0f;
-    particle.s = ((float)rand() / (RAND_MAX));
+    particle.s        = randomFloat(0.5f, 1.0f);
+    //particle.s        = 0.5f;
     particle.v        = SLVec3f(0, 0.2, 0);
     particle.v.x      = randomFloat(0.2f, -0.2f);
-    particle.v.y      = randomFloat(0.2f, 0.6f);
+    particle.v.y      = randomFloat(0.4f, 0.6f);
     
 }
 void spawnParticles(unsigned int newParticles, SLVec3f offset)
@@ -527,7 +528,7 @@ int main(int argc, char* argv[])
         deltaTime    = currentFrame - lastFrame;
         lastFrame    = currentFrame;
         timingRespawn += deltaTime;
-        if (timingRespawn > 0.1f) {
+        if (timingRespawn > 0.05f) {
             spawnParticles(3, SLVec3f(0, -0.5, 0));
             timingRespawn = 0.0f;
         }
