@@ -1,7 +1,7 @@
 //#############################################################################
-//  File:      Particle.geom
-//  Purpose:   GLSL geom program for particle system
-//  Date:      October 2021
+//  File:      Geom.geom
+//  Purpose:   GLSL geom program for geom exercise
+//  Date:      November 2021
 //  Authors:   Marc Affolter
 //  License:   This software is provided under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
@@ -13,39 +13,46 @@ precision highp float;
 
 layout (points) in;
 layout (triangle_strip) out;
-layout (max_vertices = 4) out;    
+layout (max_vertices = 4) out;
+
+uniform mat4 u_pMatrix;  // modelview-projection matrix = projection * modelView
+
+uniform vec4 u_color; // Object color
+uniform float u_scale; // Object scale 
 
 out vec4 v_particleColor; // The resulting color per vertex
 out vec2 v_texCoord; 
 //-----------------------------------------------------------------------------
 void main (void)
 {
-  vec3 va = vec3(-0.2, -0.2, 0);
-  va += gl_in[0].gl_Position.xyz;
-  gl_Position =  vec4(va, 1.0);
+  vec4 P = gl_in[0].gl_Position;
+
+  //BOTTOM LEFT
+  vec2 va = (P.xy + vec2(-0.5, -0.5)) * u_scale;
+  gl_Position = u_pMatrix * vec4(va, P.zw);
   v_texCoord = vec2(0.0, 0.0);
-  v_particleColor = vec4(1.0, 0.0, 0.0, 1.0); // red 
+  v_particleColor = u_color;
   EmitVertex();  
   
-  vec3 vb = vec3(-0.2, 0.2, 0);
-  vb += gl_in[0].gl_Position.xyz;
-  gl_Position = vec4(vb, 1.0);
-  v_texCoord = vec2(0.0, 1.0);
-  v_particleColor = vec4(0.0, 1.0, 0.0, 1.0); // green
-  EmitVertex();  
-
-  vec3 vd = vec3(0.2, -0.2, 0);
-  vd += gl_in[0].gl_Position.xyz;
-  gl_Position = vec4(vd, 1.0);
+  //BOTTOM RIGHT
+  vec2 vd = (P.xy + vec2(0.5, -0.5)) * u_scale;
+  gl_Position = u_pMatrix *  vec4(vd, P.zw);
   v_texCoord = vec2(1.0, 0.0);
-  v_particleColor = vec4(0.0, 0.0, 1.0, 1.0); // blue
+  v_particleColor = u_color;
   EmitVertex();  
 
-  vec3 vc = vec3(0.2, 0.2, 0);
-  vc += gl_in[0].gl_Position.xyz;
-  gl_Position = vec4(vc, 1.0);
+  //TOP LEFT
+  vec2 vb = (P.xy + vec2(-0.5, 0.5)) * u_scale;
+  gl_Position = u_pMatrix * vec4(vb, P.zw);
+  v_texCoord = vec2(0.0, 1.0);
+  v_particleColor = u_color;
+  EmitVertex();  
+
+  //TOP RIGHT
+  vec2 vc = (P.xy + vec2(0.5, 0.5)) * u_scale;
+  gl_Position = u_pMatrix *  vec4(vc, P.zw);
   v_texCoord = vec2(1.0, 1.0);
-  v_particleColor = vec4(1.0, 1.0, 1.0, 1.0);
+  v_particleColor = u_color;
   EmitVertex();  
   
   EndPrimitive();  

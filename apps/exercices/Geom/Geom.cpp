@@ -25,6 +25,16 @@ static SLint       _scrHeight;   //!< Window height at start up
 static GLuint _vao  = 0; //!< ID of the vertex array object
 static GLuint _vboV = 0; //!< ID of the VBO for vertex attributes
 
+static SLMat4f _viewMatrix;       //!< 4x4 view matrix
+static SLMat4f _modelMatrix;      //!< 4x4 model matrix
+static SLMat4f _projectionMatrix; //!< 4x4 projection matrix
+
+static float  _camZ;                   //!< z-distance of camera
+static float  _rotX, _rotY;            //!< rotation angles around x & y axis
+static int    _deltaX, _deltaY;        //!< delta mouse motion
+static int    _startX, _startY;        //!< x,y mouse start positions
+static int    _mouseX, _mouseY;        //!< current mouse position
+static bool   _mouseLeftDown;          //!< Flag if mouse is down
 static GLuint _modifiers = 0;          //!< modifier bit flags
 const GLuint  NONE       = 0;          //!< constant for no modifier
 const GLuint  SHIFT      = 0x00200000; //!< constant for shift key modifier
@@ -38,6 +48,11 @@ static GLuint _shaderProgID = 0; //! shader program id
 static GLuint _textureID    = 0; //!< texture id
 
 static GLint _pLoc; //!< attribute location for vertex position
+static GLint _cLoc;    //!< uniform location for object color
+static GLint _oLoc;    //!< uniform location for object offset
+static GLint _sLoc;    //!< uniform location for object scale
+static GLint _pMatLoc; //!< uniform location for projection matrix
+static GLint _mvLoc; //!< uniform location for modelview matrix
 
 static GLint _texture0Loc; //!< uniform location for texture 0
 
@@ -45,10 +60,7 @@ static GLint _texture0Loc; //!< uniform location for texture 0
 void initParticles()
 {
     float points[] = {
-      -0.5f, 0.5f, // top-left
-      0.5f, 0.5f, // top-right
-      0.5f, -0.5f, // bottom-right
-      -0.5f,-0.5f // bottom-left
+      0.0f, 0.0f //
     };
     glGenBuffers(1, &_vboV);
     glGenVertexArrays(1, &_vao);
@@ -67,7 +79,14 @@ should be called after a window with a valid OpenGL context is present.
 */
 void onInit()
 {
-    
+    // backwards movement of the camera
+    _camZ = -3;
+
+    // Mouse rotation parameters
+    _rotX = _rotY = 0;
+    _deltaX = _deltaY = 0;
+    _mouseLeftDown    = false;
+
     // Load textures
     _textureID = glUtils::buildTexture(_projectRoot + "/data/images/textures/circle_01.png");
 
@@ -80,7 +99,13 @@ void onInit()
     // Activate the shader program
     glUseProgram(_shaderProgID);
 
+    // Get the variable locations (identifiers) within the program
     _pLoc = glGetAttribLocation(_shaderProgID, "aPos");
+    _cLoc        = glGetUniformLocation(_shaderProgID, "u_color");
+    _oLoc        = glGetUniformLocation(_shaderProgID, "u_offset");
+    _sLoc        = glGetUniformLocation(_shaderProgID, "u_scale");
+    _pMatLoc  = glGetUniformLocation(_shaderProgID, "u_pMatrix");
+    _mvLoc  = glGetUniformLocation(_shaderProgID, "u_mvMatrix");
     _texture0Loc = glGetUniformLocation(_shaderProgID, "u_matTextureDiffuse0");
 
 
@@ -88,6 +113,7 @@ void onInit()
 
     glClearColor(0.0f, 0.0f, 0.0f, 1); // Set the background color
     glEnable(GL_DEPTH_TEST);           // Enables depth test
+    glEnable(GL_CULL_FACE);            // Enables the culling of back faces
     GETGLERROR;
 }
 //-----------------------------------------------------------------------------
@@ -115,15 +141,35 @@ bool onPaint()
     //) Clear the color & depth buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    // View transform: move the coordinate system away from the camera
+    _viewMatrix.identity();
+    _viewMatrix.translate(0, 0, _camZ);
+
+    // Model transform: rotate the coordinate system increasingly
+    _viewMatrix.rotate(_rotX + _deltaX, 1, 0, 0);
+    _viewMatrix.rotate(_rotY + _deltaY, 0, 1, 0);
+
+    // Model transform: move the cube so that it rotates around its center
+    _modelMatrix.identity();
+    //_modelMatrix.translate(-0.5f, -0.5f, -0.5f);
+
+    // Build the combined modelview-projection matrix
+    SLMat4f mv(_viewMatrix);
+    mv.multiply(_modelMatrix);
+
     //) Activate the shader program and pass the uniform variables to the shader
     glUseProgram(_shaderProgID);
-    
+    glUniformMatrix4fv(_pMatLoc, 1, 0, (float*)&_projectionMatrix);
+    glUniformMatrix4fv(_mvLoc, 1, 0, (float*)&mv);
+    glUniform1f(_sLoc, 0.5f);
+    glUniform4f(_cLoc, 1.0, 1.0, 1.0, 1.0);
+    glUniform3f(_oLoc, 0.0, 0.5, 0.0);
 
 
     //) Activate the vertex array
     glBindVertexArray(_vao);
     glUniform1i(_texture0Loc, 0);
-    glDrawArrays(GL_POINTS, 0, 4);
+    glDrawArrays(GL_POINTS, 0, 1);
 
     //) Fast copy the back buffer to the front buffer. This is OS dependent.
     glfwSwapBuffers(window);
@@ -142,6 +188,9 @@ void onResize(GLFWwindow* window, int width, int height)
     float w = (float)width;
     float h = (float)height;
 
+    // define the projection matrix
+    _projectionMatrix.perspective(50, w / h, 0.01f, 10.0f);
+
     // define the viewport
     glViewport(0, 0, width, height);
 
@@ -149,7 +198,65 @@ void onResize(GLFWwindow* window, int width, int height)
 
     onPaint();
 }
+//-----------------------------------------------------------------------------
+/*!
+Mouse button down & release eventhandler starts and end mouse rotation
+*/
+void onMouseButton(GLFWwindow* window, int button, int action, int mods)
+{
+    SLint x = _mouseX;
+    SLint y = _mouseY;
 
+    _mouseLeftDown = (action == GLFW_PRESS);
+    if (_mouseLeftDown)
+    {
+        _startX = x;
+        _startY = y;
+
+        // Renders only the lines of a polygon during mouse moves
+        if (button == GLFW_MOUSE_BUTTON_RIGHT)
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    }
+    else
+    {
+        _rotX += _deltaX;
+        _rotY += _deltaY;
+        _deltaX = 0;
+        _deltaY = 0;
+
+        // Renders filled polygons
+        if (button == GLFW_MOUSE_BUTTON_RIGHT)
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    }
+}
+//-----------------------------------------------------------------------------
+/*!
+Mouse move eventhandler tracks the mouse delta since touch down (_deltaX/_deltaY)
+*/
+void onMouseMove(GLFWwindow* window, double x, double y)
+{
+    _mouseX = (int)x;
+    _mouseY = (int)y;
+
+    if (_mouseLeftDown)
+    {
+        _deltaY = (int)x - _startX;
+        _deltaX = (int)y - _startY;
+        onPaint();
+    }
+}
+//-----------------------------------------------------------------------------
+/*!
+Mouse wheel eventhandler that moves the camera forward or backwards
+*/
+void onMouseWheel(GLFWwindow* window, double xscroll, double yscroll)
+{
+    if (_modifiers == NONE)
+    {
+        _camZ += (SLfloat)Utils::sign(yscroll) * 0.1f;
+        onPaint();
+    }
+}
 //-----------------------------------------------------------------------------
 /*!
 Key action eventhandler handles key down & release events
@@ -234,7 +341,7 @@ int main(int argc, char* argv[])
     // Create the GLFW window
     window = glfwCreateWindow(_scrWidth,
                               _scrHeight,
-                              "Particle Generator",
+                              "Geom",
                               glfwGetPrimaryMonitor(),
                               nullptr);
 
@@ -271,6 +378,9 @@ int main(int argc, char* argv[])
     // Set GLFW callback functions
     glfwSetKeyCallback(window, onKey);
     glfwSetFramebufferSizeCallback(window, onResize);
+    glfwSetMouseButtonCallback(window, onMouseButton);
+    glfwSetCursorPosCallback(window, onMouseMove);
+    glfwSetScrollCallback(window, onMouseWheel);
     glfwSetWindowCloseCallback(window, onClose);
 
     while (!glfwWindowShouldClose(window))
