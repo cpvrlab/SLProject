@@ -11,7 +11,6 @@ precision highp float;
 
 //-----------------------------------------------------------------------------
 in          vec2     a_position;       // Vertex position attribute
-in          vec2     a_texCoord;       // Vertex texture coord. attribute
 
 
 uniform mat4 u_mvMatrix;  // modelview matrix
