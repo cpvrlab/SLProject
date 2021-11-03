@@ -47,7 +47,6 @@ static SLMat4f _projectionMatrix; //!< 4x4 projection matrix
 
 static GLuint _vao  = 0; //!< ID of the vertex array object
 static GLuint _vboV = 0; //!< ID of the VBO for vertex attributes
-static GLuint _vboI = 0; //!< ID of the VBO for vertex index array
 
 static GLuint _numV = 0; //!< NO. of vertices
 static GLuint _numI = 0; //!< NO. of vertex indexes for triangles
@@ -82,50 +81,25 @@ static GLint _cuLoc;   //!< uniform location for camera up
 static GLint _sLoc;   //!< uniform location for vertex scale
 static GLint _tLoc;   //!< attribute location for vertex texture coord
 static GLint _gLoc;   //!< uniform location for gamma value
-static GLint _mvpLoc; //!< uniform location for modelview-projection matrix
+static GLint _mvLoc; //!< uniform location for modelview matrix
+static GLint _pMatLoc; //!< uniform location for projection matrix
 
 static GLint _texture0Loc; //!< uniform location for texture 0
 
 //-----------------------------------------------------------------------------
 void initParticles()
 {
-    // create vertex array for interleaved position, normal and texCoord
-    //                  Position,  Normal, texCrd,
-    _numV = 4;
-
-    // clang-format off
-    float vertices[] = {0.5, -0.5, 0, 1, 0, // Vertex 0
-                        0.5, 0.5, 0, 1, 1, // Vertex 1
-                        -0.5, 0.5, 0, 0, 1, // Vertex 2
-                        -0.5, -0.5, 0, 0, 0}; // Vertex 3
-    // clang-format on
-    // create index array for GL_TRIANGLES
-    _numI            = 6;
-    GLuint indices[] = {0, 1, 2, 0, 2, 3};
-
-    // Generate the OpenGL vertex array object
-    glUtils::buildVAO(_vao,
-                      _vboV,
-                      _vboI,
-                      vertices,
-                      (GLint)_numV,
-                      sizeof(VertexPNT),
-                      indices,
-                      (GLint)_numI,
-                      sizeof(GL_UNSIGNED_INT),
-                      (GLint)_shaderProgID,
-                      _pLoc);
-
-    //Need to comment/remove VboI
-    /*float points[] = {0.5f, 0.5f, 0.0f};
+    float points[] = {
+      0.0f, 0.0f //
+    };
     glGenBuffers(1, &_vboV);
     glGenVertexArrays(1, &_vao);
     glBindVertexArray(_vao);
     glBindBuffer(GL_ARRAY_BUFFER, _vboV);
     glBufferData(GL_ARRAY_BUFFER, sizeof(points), &points, GL_STATIC_DRAW);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(_pLoc, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), 0);
-    glBindVertexArray(0);*/
+    glEnableVertexAttribArray(_pLoc);
+    glVertexAttribPointer(_pLoc, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), nullptr);
+    glBindVertexArray(0);
 
     // create this->amount default particle instances
     for(unsigned int i = 0; i < AMOUNT; ++i)
@@ -163,21 +137,19 @@ void onInit()
 
     // Get the variable locations (identifiers) within the program
     _pLoc   = glGetAttribLocation(_shaderProgID, "a_position");
-    _tLoc   = glGetAttribLocation(_shaderProgID, "a_texCoord");
     _gLoc   = glGetUniformLocation(_shaderProgID, "u_oneOverGamma");
-    _mvpLoc = glGetUniformLocation(_shaderProgID, "u_mvpMatrix");
-    _cLoc        = glGetUniformLocation(_shaderProgID, "color");
-    _oLoc        = glGetUniformLocation(_shaderProgID, "offset");
-    _sLoc        = glGetUniformLocation(_shaderProgID, "scale");
-    _crLoc        = glGetUniformLocation(_shaderProgID, "cr_wSpace");
-    _cuLoc        = glGetUniformLocation(_shaderProgID, "cu_wSpace");
+    _mvLoc = glGetUniformLocation(_shaderProgID, "u_mvMatrix");
+    _pMatLoc     = glGetUniformLocation(_shaderProgID, "u_pMatrix");
+    _cLoc        = glGetUniformLocation(_shaderProgID, "u_color");
+    _oLoc        = glGetUniformLocation(_shaderProgID, "u_offset");
+    _sLoc        = glGetUniformLocation(_shaderProgID, "u_scale");
     _texture0Loc = glGetUniformLocation(_shaderProgID, "u_matTextureDiffuse0");
 
     //buildBox();
     //buildSquare();
     initParticles();
 
-    glClearColor(0.5f, 0.5f, 0.5f, 1); // Set the background color
+    glClearColor(0.0f, 0.0f, 0.0f, 1); // Set the background color
     glEnable(GL_DEPTH_TEST);           // Enables depth test
     glEnable(GL_CULL_FACE);            // Enables the culling of back faces
     GETGLERROR;
@@ -228,8 +200,8 @@ void respawnParticle(Particle& particle, SLVec3f offset)
     particle.life     = 5.0f;
     particle.s = ((float)rand() / (RAND_MAX));
     particle.v        = SLVec3f(0, 0.2, 0);
-    particle.v.x      = randomFloat(0.2, -0.2);
-    particle.v.y      = randomFloat(0.2, 0.6);
+    particle.v.x      = randomFloat(0.2f, -0.2f);
+    particle.v.y      = randomFloat(0.2f, 0.6f);
     
 }
 void spawnParticles(unsigned int newParticles, SLVec3f offset)
@@ -271,7 +243,6 @@ void onClose(GLFWwindow* window)
     // Delete arrays & buffers on GPU
     glDeleteVertexArrays(1, &_vao);
     glDeleteBuffers(1, &_vboV);
-    glDeleteBuffers(1, &_vboI);
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -287,56 +258,29 @@ bool onPaint()
     _viewMatrix.translate(0, 0, _camZ);
 
     //2b) Model transform: rotate the coordinate system increasingly
-    //_viewMatrix.rotate(_rotX + _deltaX, 1, 0, 0);
-    //_viewMatrix.rotate(_rotY + _deltaY, 0, 1, 0);
+    _viewMatrix.rotate(_rotX + _deltaX, 1, 0, 0);
+    _viewMatrix.rotate(_rotY + _deltaY, 0, 1, 0);
 
     //3) Model transform: move the cube so that it rotates around its center
     _modelMatrix.identity();
     //_modelMatrix.translate(-0.5f, -0.5f, -0.5f);
 
     //4) Build the combined modelview-projection matrix
-    SLMat4f mvp(_projectionMatrix);
     SLMat4f mv(_viewMatrix);
     mv.multiply(_modelMatrix);
-    mvp.multiply(mv);
 
     //6) Activate the shader program and pass the uniform variables to the shader
     glUseProgram(_shaderProgID);
-    glUniformMatrix4fv(_mvpLoc, 1, 0, (float*)&mvp);
+    glUniformMatrix4fv(_mvLoc, 1, 0, (float*)&mv);
+    glUniformMatrix4fv(_pMatLoc, 1, 0, (float*)&_projectionMatrix);
     glUniform1f(_gLoc, 1.0f);
     glUniform1i(_texture0Loc, 0);
-    glUniform3f(_crLoc, _viewMatrix(0, 0), _viewMatrix(1, 0), _viewMatrix(2, 0));
-    glUniform3f(_cuLoc, _viewMatrix(0, 1), _viewMatrix(1, 1), _viewMatrix(2, 1));
-
-    // Enable all of the vertex attribute arrays
-    glEnableVertexAttribArray((GLuint)_pLoc);
-    glEnableVertexAttribArray((GLuint)_tLoc);
 
     //7a) Activate the vertex array
     glBindVertexArray(_vao);
 
-    //7b) Activate the index buffer
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _vboI);
-
     // Activate Texture
     glBindTexture(GL_TEXTURE_2D, _textureID);
-
-    // For VBO only offset instead of data pointer
-    GLsizei stride  = sizeof(SLVec3f) + sizeof(SLVec2f);
-    GLsizei offsetT = sizeof(SLVec3f);
-    glVertexAttribPointer((GLuint)_pLoc,
-                          3,
-                          GL_FLOAT,
-                          GL_FALSE,
-                          stride,
-                          nullptr);
-    glVertexAttribPointer((GLuint)_tLoc,
-                          2,
-                          GL_FLOAT,
-                          GL_FALSE,
-                          stride,
-                          (void*)(size_t)offsetT);
-    glUniform1f(_sLoc, 1.0f);
     
     glEnable(GL_BLEND); // activate transparency (blending)
     // use additive blending to give it a 'glow' effect
@@ -351,19 +295,13 @@ bool onPaint()
             glUniform4f(_cLoc, particle.c.r, particle.c.g, particle.c.b, particle.c.a);
             glUniform3f(_oLoc, particle.p.x, particle.p.y, particle.p.z);
             //7c) Draw cube with triangles by indexes
-            glDrawElements(GL_TRIANGLES, (GLint)_numI, GL_UNSIGNED_INT, nullptr);
+            glDrawArrays(GL_POINTS, 0, 1);
             
         }
     }
     // don't forget to reset to default blending mode
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glDisable(GL_BLEND); // disable transparency
-
-    
-
-    // Disable the vertex arrays
-    glDisableVertexAttribArray((GLuint)_pLoc);
-    glDisableVertexAttribArray((GLuint)_tLoc);
 
     //8) Fast copy the back buffer to the front buffer. This is OS dependent.
     glfwSwapBuffers(window);

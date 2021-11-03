@@ -11,35 +11,49 @@ precision highp float;
 
 //-----------------------------------------------------------------------------
 
-layout (triangles) in;
+layout (points) in;
 layout (triangle_strip) out;
-layout (max_vertices = 4) out;    
+layout (max_vertices = 4) out;
 
-in Vertex
-{
-	vec4 vv_particleColor; // The resulting color per vertex
-	vec2 vv_texCoord;
-} vertex[];
+uniform mat4 u_pMatrix;  // projection matrix
 
-out vec2 v_texCoord; // texture coordinate at vertex
+uniform vec4 u_color; // Object color
+uniform float u_scale; // Object scale 
+
 out vec4 v_particleColor; // The resulting color per vertex
+out vec2 v_texCoord; //Texture coordinate at vertex
 //-----------------------------------------------------------------------------
 void main (void)
 {
-  gl_Position = gl_in[0].gl_Position;
-  v_texCoord = vertex[0].vv_texCoord;
-  v_particleColor = vertex[0].vv_particleColor;
-  EmitVertex();
+  vec4 P = gl_in[0].gl_Position;
 
-  gl_Position = gl_in[1].gl_Position;
-  v_texCoord = vertex[1].vv_texCoord;
-  v_particleColor = vertex[1].vv_particleColor;
-  EmitVertex();
+  //BOTTOM LEFT
+  vec2 va = (P.xy + vec2(-0.5, -0.5)) * u_scale;
+  gl_Position = u_pMatrix * vec4(va, P.zw);
+  v_texCoord = vec2(0.0, 0.0);
+  v_particleColor = u_color;
+  EmitVertex();  
+  
+  //BOTTOM RIGHT
+  vec2 vd = (P.xy + vec2(0.5, -0.5)) * u_scale;
+  gl_Position = u_pMatrix *  vec4(vd, P.zw);
+  v_texCoord = vec2(1.0, 0.0);
+  v_particleColor = u_color;
+  EmitVertex();  
 
-  gl_Position = gl_in[2].gl_Position;
-  v_texCoord = vertex[2].vv_texCoord;
-  v_particleColor = vertex[2].vv_particleColor;
-  EmitVertex();
+  //TOP LEFT
+  vec2 vb = (P.xy + vec2(-0.5, 0.5)) * u_scale;
+  gl_Position = u_pMatrix * vec4(vb, P.zw);
+  v_texCoord = vec2(0.0, 1.0);
+  v_particleColor = u_color;
+  EmitVertex();  
+
+  //TOP RIGHT
+  vec2 vc = (P.xy + vec2(0.5, 0.5)) * u_scale;
+  gl_Position = u_pMatrix *  vec4(vc, P.zw);
+  v_texCoord = vec2(1.0, 1.0);
+  v_particleColor = u_color;
+  EmitVertex();  
   
   EndPrimitive();  
 }   
