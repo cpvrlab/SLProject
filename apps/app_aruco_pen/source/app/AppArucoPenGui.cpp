@@ -39,7 +39,9 @@
 #include <HttpUtils.h>
 #include <ZipUtils.h>
 #include <Instrumentor.h>
+
 #include <app/AppArucoPen.h>
+#include <app/AppArucoPenEvaluator.h>
 
 #ifdef SL_BUILD_WAI
 #    include <Eigen/Dense>
@@ -849,19 +851,6 @@ void AppArucoPenGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
 
             if (ImGui::BeginMenu("Video Sensor"))
             {
-                if (ImGui::BeginMenu("Capture Provider"))
-                {
-                    AppArucoPen& app = AppArucoPen::instance();
-
-                    for (CVCaptureProvider* provider : app.captureProviders())
-                    {
-                        if (ImGui::MenuItem(provider->name().c_str(), nullptr, app.currentCaptureProvider() == provider))
-                            app.currentCaptureProvider(provider);
-                    }
-
-                    ImGui::EndMenu();
-                }
-
                 CVCamera* ac = capture->activeCamera;
                 if (ImGui::BeginMenu("Mirror Camera"))
                 {
@@ -902,17 +891,6 @@ void AppArucoPenGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                 {
                     if (ImGui::MenuItem("Start Calibration (Current Camera)"))
                         s->onLoad(s, sv, SID_VideoCalibrateMain);
-
-                    if (ImGui::MenuItem("Calculate Extrinsic (Current Camera)"))
-                        AppArucoPenCalibrator::calcExtrinsicParams(AppArucoPen::instance().currentCaptureProvider());
-
-                    if (ImGui::MenuItem("Calculate Extrinsic (All Cameras)"))
-                    {
-                        for (CVCaptureProvider* provider : AppArucoPen::instance().captureProviders())
-                        {
-                            AppArucoPenCalibrator::calcExtrinsicParams(provider);
-                        }
-                    }
 
                     if (ImGui::MenuItem("Undistort Image", nullptr, ac->showUndistorted(), ac->calibration.state() == CS_calibrated))
                         ac->showUndistorted(!ac->showUndistorted());
@@ -1022,6 +1000,45 @@ void AppArucoPenGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
 
                 ImGui::PopItemWidth();
                 ImGui::EndMenu();
+            }
+
+            ImGui::EndMenu();
+        }
+
+        if (ImGui::BeginMenu("ArUco Pen Tracking"))
+        {
+            if (ImGui::BeginMenu("Capture Provider"))
+            {
+                AppArucoPen& app = AppArucoPen::instance();
+
+                for (CVCaptureProvider* provider : app.captureProviders())
+                {
+                    if (ImGui::MenuItem(provider->name().c_str(), nullptr, app.currentCaptureProvider() == provider))
+                        app.currentCaptureProvider(provider);
+                }
+
+                ImGui::EndMenu();
+            }
+
+            if (ImGui::MenuItem("Calculate Extrinsic (Current Camera)"))
+                AppArucoPenCalibrator::calcExtrinsicParams(AppArucoPen::instance().currentCaptureProvider());
+
+            if (ImGui::MenuItem("Calculate Extrinsic (All Cameras)"))
+            {
+                for (CVCaptureProvider* provider : AppArucoPen::instance().captureProviders())
+                {
+                    AppArucoPenCalibrator::calcExtrinsicParams(provider);
+                }
+            }
+
+            if (ImGui::MenuItem("Multi Tracking", nullptr, AppArucoPen::instance().doMultiTracking()))
+            {
+                AppArucoPen::instance().doMultiTracking(!AppArucoPen::instance().doMultiTracking());
+            }
+
+            if (ImGui::MenuItem("Start Evaluation"))
+            {
+                AppArucoPenEvaluator::instance().start(0.029f);
             }
 
             ImGui::EndMenu();

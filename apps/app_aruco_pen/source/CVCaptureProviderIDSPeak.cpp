@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      IDSPeakCaptureProvider.cpp
+//  File:      CVCaptureProviderIDSPeak.cpp
 //  Date:      October 2021
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Authors:   Marino von Wattenwyl
@@ -7,14 +7,14 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include "IDSPeakCaptureProvider.h"
+#include "CVCaptureProviderIDSPeak.h"
 
 #include <IDSPeakInterface.h>
 
 #include <utility>
 
 //-----------------------------------------------------------------------------
-IDSPeakCaptureProvider::IDSPeakCaptureProvider(SLint deviceIndex, CVSize captureSize)
+CVCaptureProviderIDSPeak::CVCaptureProviderIDSPeak(SLint deviceIndex, CVSize captureSize)
   : CVCaptureProvider("ids_camera_" + std::to_string(deviceIndex),
                       "IDS Camera " + std::to_string(deviceIndex),
                       std::move(captureSize)),
@@ -22,15 +22,15 @@ IDSPeakCaptureProvider::IDSPeakCaptureProvider(SLint deviceIndex, CVSize capture
 {
 }
 //-----------------------------------------------------------------------------
-IDSPeakCaptureProvider::~IDSPeakCaptureProvider() noexcept
+CVCaptureProviderIDSPeak::~CVCaptureProviderIDSPeak() noexcept
 {
     if (_isOpened)
     {
-        IDSPeakCaptureProvider::close();
+        CVCaptureProviderIDSPeak::close();
     }
 }
 //-----------------------------------------------------------------------------
-void IDSPeakCaptureProvider::open()
+void CVCaptureProviderIDSPeak::open()
 {
     if (_isOpened)
     {
@@ -46,7 +46,7 @@ void IDSPeakCaptureProvider::open()
     IDSPeakInterface::startCapture();
 }
 //-----------------------------------------------------------------------------
-void IDSPeakCaptureProvider::grab()
+void CVCaptureProviderIDSPeak::grab()
 {
     if (!_isOpened)
     {
@@ -71,7 +71,7 @@ void IDSPeakCaptureProvider::grab()
     cv::resize(_lastFrameGray, _lastFrameGray, captureSize());
 }
 //-----------------------------------------------------------------------------
-void IDSPeakCaptureProvider::close()
+void CVCaptureProviderIDSPeak::close()
 {
     if (!_isOpened)
     {
@@ -85,7 +85,7 @@ void IDSPeakCaptureProvider::close()
     _isOpened = false;
 }
 //-----------------------------------------------------------------------------
-SLbool IDSPeakCaptureProvider::isOpened()
+SLbool CVCaptureProviderIDSPeak::isOpened()
 {
     return _isOpened;
 }

@@ -139,9 +139,6 @@ void trackVideo(CVCaptureProvider* provider)
                               cvOVM.val[12],cvOVM.val[13],cvOVM.val[14],cvOVM.val[15]);
                 // clang-format on
 
-                // set the object matrix depending if the
-                // tracked node is attached to a camera or not
-
                 SLNode* trackedNode = AppArucoPen::instance().trackedNode;
 
                 if (typeid(*trackedNode) == typeid(SLCamera))
@@ -151,6 +148,23 @@ void trackVideo(CVCaptureProvider* provider)
                 }
                 else
                 {
+                    CVCalibration* calib = &ac->calibration;
+                    if (!calib->rvec.empty() && !calib->tvec.empty())
+                    {
+                        CVMatx44f extrinsic = CVTracked::createGLMatrix(calib->tvec, calib->rvec);
+                        // clang-format off
+                        extrinsic = CVMatx44f(extrinsic.val[ 1], extrinsic.val[ 2], extrinsic.val[ 0], extrinsic.val[3],
+                                              extrinsic.val[ 5], extrinsic.val[ 6], extrinsic.val[ 4], extrinsic.val[7],
+                                              extrinsic.val[ 9], extrinsic.val[10], extrinsic.val[ 8], extrinsic.val[11],
+                                              0.0f,              0.0f,             0.0f,               1.0f);
+                        SLMat4f glExtrinsic(extrinsic.val[0], extrinsic.val[1], extrinsic.val[2], extrinsic.val[3],
+                                            extrinsic.val[4], extrinsic.val[5], extrinsic.val[6], extrinsic.val[7],
+                                            extrinsic.val[8], extrinsic.val[9], extrinsic.val[10],extrinsic.val[11],
+                                            extrinsic.val[12],extrinsic.val[13],extrinsic.val[14],extrinsic.val[15]);
+                        // clang-format on
+                        sv->camera()->om(glExtrinsic.inverted());
+                    }
+
                     // see comments in CVTracked::calcObjectMatrix
                     trackedNode->om(sv->camera()->om() * glOVM);
                     trackedNode->setDrawBitsRec(SL_DB_HIDDEN, false);

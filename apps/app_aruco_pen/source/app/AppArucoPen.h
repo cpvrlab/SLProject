@@ -11,8 +11,8 @@
 #define SLPROJECT_APPARUCOPEN_H
 
 #include <CVCaptureProvider.h>
-#include <CVStandardCaptureProvider.h>
-#include <IDSPeakCaptureProvider.h>
+#include <CVCaptureProviderStandard.h>
+#include <CVCaptureProviderIDSPeak.h>
 
 #include <SLVec3.h>
 #include <SLArucoPen.h>
@@ -45,6 +45,7 @@ private:
     CVVCaptureProvider _captureProviders;
     CVCaptureProvider* _currentCaptureProvider = nullptr;
     ArucoPenTrackers   _trackers;
+    bool               _doMultiTracking = true;
 
     SLArucoPen _arucoPen;
 
@@ -61,11 +62,13 @@ public:
     CVVCaptureProvider&    captureProviders() { return _captureProviders; }
     CVCaptureProvider*     currentCaptureProvider() const { return _currentCaptureProvider; }
     ArucoPenTrackers&      trackers() { return _trackers; }
+    bool                   doMultiTracking() { return _doMultiTracking; }
     SLArucoPen&            arucoPen() { return _arucoPen; }
     AppArucoPenCalibrator& calibrator() { return _calibrator; }
 
     // Setters
     void currentCaptureProvider(CVCaptureProvider* captureProvider) { _currentCaptureProvider = captureProvider; }
+    void doMultiTracking(bool doMultiTracking) { _doMultiTracking = doMultiTracking; }
 
 private:
     void openCaptureProvider(CVCaptureProvider* captureProvider);

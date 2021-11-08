@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      CVStandardCaptureProvider.cpp
+//  File:      CVCaptureProviderStandard.cpp
 //  Date:      October 2021
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Authors:   Marino von Wattenwyl
@@ -7,12 +7,12 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include "CVStandardCaptureProvider.h"
+#include "CVCaptureProviderStandard.h"
 
 #include <utility>
 
 //-----------------------------------------------------------------------------
-CVStandardCaptureProvider::CVStandardCaptureProvider(SLint deviceIndex, CVSize captureSize)
+CVCaptureProviderStandard::CVCaptureProviderStandard(SLint deviceIndex, CVSize captureSize)
   : CVCaptureProvider("cv_camera_" + std::to_string(deviceIndex),
                       "CV Camera " + std::to_string(deviceIndex),
                       std::move(captureSize)),
@@ -20,15 +20,15 @@ CVStandardCaptureProvider::CVStandardCaptureProvider(SLint deviceIndex, CVSize c
 {
 }
 //-----------------------------------------------------------------------------
-CVStandardCaptureProvider::~CVStandardCaptureProvider() noexcept
+CVCaptureProviderStandard::~CVCaptureProviderStandard() noexcept
 {
-    if (CVStandardCaptureProvider::isOpened())
+    if (CVCaptureProviderStandard::isOpened())
     {
-        CVStandardCaptureProvider::close();
+        CVCaptureProviderStandard::close();
     }
 }
 //-----------------------------------------------------------------------------
-void CVStandardCaptureProvider::open()
+void CVCaptureProviderStandard::open()
 {
     if (isOpened())
     {
@@ -54,7 +54,7 @@ void CVStandardCaptureProvider::open()
     }
 }
 //-----------------------------------------------------------------------------
-void CVStandardCaptureProvider::grab()
+void CVCaptureProviderStandard::grab()
 {
     if (!isOpened())
     {
@@ -65,9 +65,9 @@ void CVStandardCaptureProvider::grab()
     cv::cvtColor(_lastFrameBGR, _lastFrameGray, cv::COLOR_BGR2GRAY);
 }
 //-----------------------------------------------------------------------------
-void CVStandardCaptureProvider::close()
+void CVCaptureProviderStandard::close()
 {
-    if (!CVStandardCaptureProvider::isOpened())
+    if (!CVCaptureProviderStandard::isOpened())
     {
         return;
     }
@@ -75,7 +75,7 @@ void CVStandardCaptureProvider::close()
     _captureDevice.release();
 }
 //-----------------------------------------------------------------------------
-SLbool CVStandardCaptureProvider::isOpened()
+SLbool CVCaptureProviderStandard::isOpened()
 {
     return _captureDevice.isOpened();
 }

@@ -13,6 +13,9 @@
 #include <cv/CVTracked.h>
 #include <cv/CVTypedefs.h>
 
+#include <Averaged.h>
+#include <cv/CVTrackedArucoCube.h>
+
 #include <SLQuat4.h>
 
 //-----------------------------------------------------------------------------
@@ -31,6 +34,9 @@ class CVMultiTracker
 private:
     CVVMatx44f _worldMatrices;
     CVMatx44f  _averageWorldMatrix;
+
+    Averaged<CVVec3f> _averagePosition = Averaged<CVVec3f>(6, CVVec3f(0.0f, 0.0f, 0.0f));
+    AveragedQuat4f    _averageRotation = AveragedQuat4f(6, SLQuat4f(0.0f, 0.0f, 0.0f, 1.0f));
 
 public:
     void      recordCurrentPose(CVTracked* tracked, CVCalibration* calib);

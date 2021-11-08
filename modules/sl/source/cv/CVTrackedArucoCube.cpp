@@ -22,8 +22,8 @@
 CVTrackedArucoCube::CVTrackedArucoCube(string calibIniPath, float edgeLength)
   : CVTrackedAruco(-1, std::move(calibIniPath)),
     _edgeLength(edgeLength),
-    _averagePosition(3, CVVec3f(0.0f, 0.0f, 0.0f)),
-    _averageRotation(3, SLQuat4f(0.0f, 0.0f, 0.0f, 1.0f))
+    _averagePosition(2, CVVec3f(0.0f, 0.0f, 0.0f)),
+    _averageRotation(2, SLQuat4f(0.0f, 0.0f, 0.0f, 1.0f))
 {
 }
 //-----------------------------------------------------------------------------

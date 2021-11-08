@@ -14,6 +14,7 @@ file(GLOB headers
         ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/app/AppArucoPenSceneView.h
         ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/app/AppArucoPenCalibrator.h
         ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/app/AppArucoPenROSNode.h
+        ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/app/AppArucoPenEvaluator.h
         ${SL_PROJECT_ROOT}/apps/source/CVCapture.h
         ${SL_PROJECT_ROOT}/apps/source/AppDemo.h
         ${SL_PROJECT_ROOT}/apps/source/SLInterface.h
@@ -21,10 +22,10 @@ file(GLOB headers
         ${SL_PROJECT_ROOT}/apps/source/SLArucoPen.h
         ${SL_PROJECT_ROOT}/apps/source/SLGLFWInterface.h
 
-        ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/CVCaptureProvider.h
-        ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/CVStandardCaptureProvider.h
         ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/IDSPeakInterface.h
-        ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/IDSPeakCaptureProvider.h
+        ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/CVCaptureProvider.h
+        ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/CVCaptureProviderStandard.h
+        ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/CVCaptureProviderIDSPeak.h
         )
 
 file(GLOB sources
@@ -35,6 +36,7 @@ file(GLOB sources
         ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/app/AppArucoPenSceneView.cpp
         ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/app/AppArucoPenCalibrator.cpp
         ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/app/AppArucoPenROSNode.cpp
+        ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/app/AppArucoPenEvaluator.cpp
         ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/app/AppArucoPenMainGLFW.cpp
         ${SL_PROJECT_ROOT}/apps/source/CVCapture.cpp
         ${SL_PROJECT_ROOT}/apps/source/AppDemo.cpp
@@ -43,10 +45,10 @@ file(GLOB sources
         ${SL_PROJECT_ROOT}/apps/source/SLArucoPen.cpp
         ${SL_PROJECT_ROOT}/apps/source/SLGLFWInterface.cpp
 
-        ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/CVCaptureProvider.cpp
-        ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/CVStandardCaptureProvider.cpp
         ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/IDSPeakInterface.cpp
-        ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/IDSPeakCaptureProvider.cpp
+        ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/CVCaptureProvider.cpp
+        ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/CVCaptureProviderStandard.cpp
+        ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/CVCaptureProviderIDSPeak.cpp
         )
 
 # Group source files
@@ -121,6 +123,8 @@ target_link_libraries(${target}
         PUBLIC
         ${DEFAULT_LINKER_OPTIONS}
         ${ros_LIBRARIES}
+        mf
+        mfplat
         INTERFACE
         )
 

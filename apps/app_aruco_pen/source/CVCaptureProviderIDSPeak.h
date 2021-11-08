@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      IDSPeakStandardCaptureProvider.h
+//  File:      CVCaptureProviderIDSPeak.h
 //  Date:      October 2021
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Authors:   Marino von Wattenwyl
@@ -7,26 +7,25 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#ifndef SLPROJECT_CVSTANDARDCAPTUREPROVIDER_H
-#define SLPROJECT_CVSTANDARDCAPTUREPROVIDER_H
+#ifndef SLPROJECT_CVCAPTUREPROVIDERIDSPEAK_H
+#define SLPROJECT_CVCAPTUREPROVIDERIDSPEAK_H
 
 #include <CVCaptureProvider.h>
-#include <cv/CVTypedefs.h>
-#include <cv/CVTypes.h>
 
 //-----------------------------------------------------------------------------
-//! The standard implementation of CVCaptureProvider
-/*! CVStandardCaptureProvider is used to access data from OpenCV live captures.
+//! Implementation of CVCaptureProvider for IDS Peak cameras
+/*! This implementation of CVCaptureProvider uses the IDS Peak library
+ * to access camera data.
  */
-class CVStandardCaptureProvider : public CVCaptureProvider
+class CVCaptureProviderIDSPeak : public CVCaptureProvider
 {
 private:
-    SLint          _deviceIndex;   //!< the OpenCV device index
-    CVVideoCapture _captureDevice; //!< the OpenCV video capture instance for accessing camera data
+    SLint  _deviceIndex;      //!< the index of this device in the IDS peak device list
+    SLbool _isOpened = false; //!< tracks whether or not the device is opened
 
 public:
-    explicit CVStandardCaptureProvider(SLint deviceIndex, CVSize captureSize);
-    ~CVStandardCaptureProvider() noexcept override;
+    explicit CVCaptureProviderIDSPeak(SLint deviceIndex, CVSize captureSize);
+    ~CVCaptureProviderIDSPeak() noexcept override;
 
     void   open() override;
     void   grab() override;
@@ -36,4 +35,4 @@ public:
     SLint deviceIndex() const { return _deviceIndex; }
 };
 //-----------------------------------------------------------------------------
-#endif // SLPROJECT_CVSTANDARDCAPTUREPROVIDER_H
+#endif // SLPROJECT_CVCAPTUREPROVIDERIDSPEAK_H

@@ -13,8 +13,6 @@
 #include <cv/CVTrackedAruco.h>
 #include <cv/CVTrackedChessboard.h>
 #include <cv/CVMultiTracker.h>
-#include <cv/CVTrackedFaces.h>
-#include <cv/CVTrackedFeatures.h>
 #include <cv/CVCalibrationEstimator.h>
 
 #include <SLAlgo.h>
@@ -23,19 +21,8 @@
 #include <SLScene.h>
 #include <SLSceneView.h>
 #include <SLBox.h>
-#include <SLCone.h>
 #include <SLCoordAxis.h>
-#include <SLCylinder.h>
-#include <SLDisk.h>
-#include <SLGrid.h>
-#include <SLLens.h>
-#include <SLLightDirect.h>
-#include <SLLightRect.h>
 #include <SLLightSpot.h>
-#include <SLPoints.h>
-#include <SLPolygon.h>
-#include <SLRectangle.h>
-#include <SLSkybox.h>
 #include <SLSphere.h>
 #include <SLText.h>
 #include <SLTexColorLUT.h>
@@ -43,7 +30,6 @@
 #include <SLGLProgramManager.h>
 #include <Instrumentor.h>
 #include <app/AppArucoPenGui.h>
-#include <SLDeviceLocation.h>
 #include <SLNodeLOD.h>
 
 #include <app/AppArucoPen.h>
@@ -268,7 +254,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
             AppArucoPen::instance().trackers().insert({provider, tracker});
         }
 
-        AppArucoPen::instance().trackedNode = cam1;
+        AppArucoPen::instance().trackedNode = penNode;
 
         s->root3D(scene);
         sv->camera(cam1);
@@ -303,7 +289,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         // Create a light source node
         SLLightSpot* light1 = new SLLightSpot(s, s, 0.02f);
-        light1->translation(0.12f, 0.12f, 0.12f);
+        light1->translation(1.2f, 1.2f, 1.2f);
         light1->name("light node");
         light1->setDrawBitsRec(SL_DB_HIDDEN, true);
         scene->addChild(light1);

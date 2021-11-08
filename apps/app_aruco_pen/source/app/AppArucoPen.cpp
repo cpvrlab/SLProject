@@ -16,25 +16,57 @@
 #include <AppDemo.h>
 #include <app/AppArucoPenROSNode.h>
 
+#include <mfapi.h>
+#include <mfidl.h>
+#include <atlstr.h>
+
 extern void trackVideo(CVCaptureProvider* provider);
 
 //-----------------------------------------------------------------------------
 void AppArucoPen::openCaptureProviders()
 {
-    SL_LOG("Loading capture providers...");
+//    SL_LOG("Loading capture providers...");
+//
+//    IMFAttributes* attributes = nullptr;
+//    HRESULT        hr         = MFCreateAttributes(&attributes, 1);
+//    if (FAILED(hr)) SL_LOG("Failed to create MF attributes");
+//
+//    hr = attributes->SetGUID(MF_DEVSOURCE_ATTRIBUTE_SOURCE_TYPE,
+//                             MF_DEVSOURCE_ATTRIBUTE_SOURCE_TYPE_VIDCAP_GUID);
+//    if (FAILED(hr)) SL_LOG("Failed to set source type");
+//
+//    IMFActivate** devices = nullptr;
+//    UINT32        count;
+//    hr = MFEnumDeviceSources(attributes, &devices, &count);
+//    if (FAILED(hr)) SL_LOG("Failed to enumerate devices");
+//
+//    SL_LOG("Device count: %d", count);
+//    for (UINT32 i = 0; i < count; i++) {
+//        IMFActivate* device = devices[i];
+//
+//        WCHAR name[128];
+//        UINT32 len;
+//        device->GetString(MF_DEVSOURCE_ATTRIBUTE_FRIENDLY_NAME,
+//                          name,
+//                          128,
+//                          &len);
+//
+//        std::string cppString = CW2A(name);
+//        SL_LOG("%s", cppString.c_str());
+//    }
 
     // Logitech + IDS Peak
-    // openCaptureProvider(new CVStandardCaptureProvider(0, CVSize(640, 480)));
-    // openCaptureProvider(new IDSPeakCaptureProvider(0, CVSize(1920, 1280)));
+    // openCaptureProvider(new CVCaptureProviderStandard(0, CVSize(640, 480)));
+    // openCaptureProvider(new CVCaptureProviderIDSPeak(0, CVSize(1920, 1280)));
 
     // Logitech
     // 1280x960 actually provides better results than 1920x1080
     // Are you kidding
-    // openCaptureProvider(new CVStandardCaptureProvider(0, CVSize(1280, 960)));
+    // openCaptureProvider(new CVCaptureProviderStandard(0, CVSize(1280, 960)));
 
     // Logitech + Intel
-    openCaptureProvider(new CVStandardCaptureProvider(2, CVSize(1280, 960)));
-    openCaptureProvider(new CVStandardCaptureProvider(1, CVSize(640, 480)));
+    openCaptureProvider(new CVCaptureProviderStandard(2, CVSize(1920, 1080)));
+    openCaptureProvider(new CVCaptureProviderStandard(1, CVSize(1920, 1080)));
 
     _currentCaptureProvider = _captureProviders[0];
 
@@ -97,7 +129,7 @@ void AppArucoPen::grabFrameImagesAndTrack(SLSceneView* sv)
     CVCapture::instance()->camSizes.clear();
 
     // Grab and track all non-displayed capture providers if we are in the ArUco cube scene
-    if (AppDemo::sceneID == SID_VideoTrackArucoCubeMain || AppDemo::sceneID == SID_VirtualArucoPen)
+    if (AppArucoPen::doMultiTracking() && (AppDemo::sceneID == SID_VideoTrackArucoCubeMain || AppDemo::sceneID == SID_VirtualArucoPen))
     {
         for (CVCaptureProvider* provider : _captureProviders)
         {
@@ -139,7 +171,7 @@ void AppArucoPen::grabFrameImageAndTrack(CVCaptureProvider* provider, SLSceneVie
 //-----------------------------------------------------------------------------
 CVTracked* AppArucoPen::currentTracker()
 {
-    if(_trackers.empty())
+    if (_trackers.empty())
     {
         return nullptr;
     }

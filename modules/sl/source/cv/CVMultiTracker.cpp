@@ -48,14 +48,13 @@ void CVMultiTracker::combine()
         return;
     }
 
-    std::vector<CVVec3f>  positions;
-    std::vector<SLQuat4f> rotations;
-    std::vector<float>    weights;
+    if (_worldMatrices.size() == 1)
+    {
+        _averageWorldMatrix = CVMatx44f(_worldMatrices[0]);
+    }
 
     for (CVMatx44f& matrix : _worldMatrices)
     {
-        positions.emplace_back(matrix.val[3], matrix.val[7], matrix.val[11]);
-
         // clang-format off
         SLMat3f rotMat(matrix.val[0], matrix.val[1], matrix.val[2],
                        matrix.val[4], matrix.val[5], matrix.val[6],
@@ -63,13 +62,13 @@ void CVMultiTracker::combine()
         // clang-format on
         SLQuat4f rot;
         rot.fromMat3(rotMat);
-        rotations.push_back(rot);
 
-        weights.push_back(1.0f);
+        _averagePosition.set(CVVec3f(matrix.val[3], matrix.val[7], matrix.val[11]));
+        _averageRotation.set(rot);
     }
 
-    CVVec3f  avgPosition = CVTracked::averageVector(positions, weights);
-    SLQuat4f avgRotation = CVTracked::averageQuaternion(rotations, weights);
+    CVVec3f  avgPosition = _averagePosition.average();
+    SLQuat4f avgRotation = _averageRotation.average();
     SLMat3f  avgRotMat   = avgRotation.toMat3();
 
     // clang-format off
