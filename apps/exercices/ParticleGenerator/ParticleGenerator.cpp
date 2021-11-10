@@ -29,10 +29,20 @@ struct Particle
     SLVec3f v; // particle velocity [x,y,z]
     SLCol4f c; // particle color [r,g,b,a]
     float s; // particle scale 
-    float life;
+    float life; //
 
     Particle()
       : p(0.0f), v(0.0f), c(1.0f),s(1.0f), life(0.0f) {}
+};
+
+struct ParticleNew
+{
+    SLVec3f p;    // particle position [x,y,z]
+    SLVec3f v;    // particle velocity [x,y,z]
+    float   ttl;  // particle time to live
+
+    ParticleNew()
+      : p(0.0f), v(0.0f), ttl(0.0f) {}
 };
 //-----------------------------------------------------------------------------
 // GLobal application variables
@@ -72,25 +82,37 @@ static GLuint _shaderGeomID = 0; //! geometry shader id
 static GLuint _shaderProgID = 0; //! shader program id
 static GLuint _textureID    = 0; //!< texture id
 
+static GLuint _tDshaderVertID = 0; //! transform feedback vertex shader id
+static GLuint _tDshaderFragID   = 0; //! transform feedback fragment shader id
+static GLuint _tDshaderProgID = 0; //! transform feedback shader program id
+
 // Attribute & uniform variable location indexes
 static GLint _pLoc;   //!< attribute location for vertex position
 static GLint _cLoc;   //!< attribute location for vertex color
 static GLint _oLoc;   //!< attribute location for vertex offset
-static GLint _crLoc;   //!< uniform location for camera right
-static GLint _cuLoc;   //!< uniform location for camera up
 static GLint _sLoc;   //!< uniform location for vertex scale
 static GLint _tLoc;   //!< attribute location for vertex texture coord
 static GLint _gLoc;   //!< uniform location for gamma value
 static GLint _mvLoc; //!< uniform location for modelview matrix
 static GLint _pMatLoc; //!< uniform location for projection matrix
 
+// Attribute & uniform variable location indexes
+static GLint _pTdLoc;    //!< attribute location for vertex position
+static GLint _vTdLoc;    //!< attribute location for vertex velocity
+static GLint _stTdLoc;    //!< attribute location for vertex start time
+static GLint _initVTdLoc;    //!< attribute location for vertex initial velocity
+static GLint _tTLLoc;  //!< uniform location for particle life time
+static GLint _timeLoc; //!< uniform location for time 
+static GLint _dTimeLoc; //!< uniform location for delta time
+static GLint _aLoc; //!< uniform location for acceleration
+
 static GLint _texture0Loc; //!< uniform location for texture 0
 
 //-----------------------------------------------------------------------------
-void initParticles()
+void initParticles(float numberPerFrame,float timeToLive)
 {
     float points[] = {
-      0.0f, 0.0f //
+      0.0f, 0.0f, 0.0f //
     };
     glGenBuffers(1, &_vboV);
     glGenVertexArrays(1, &_vao);
@@ -98,7 +120,7 @@ void initParticles()
     glBindBuffer(GL_ARRAY_BUFFER, _vboV);
     glBufferData(GL_ARRAY_BUFFER, sizeof(points), &points, GL_STATIC_DRAW);
     glEnableVertexAttribArray(_pLoc);
-    glVertexAttribPointer(_pLoc, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), nullptr);
+    glVertexAttribPointer(_pLoc, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), nullptr);
     glBindVertexArray(0);
 
     // create this->amount default particle instances
@@ -125,12 +147,29 @@ void onInit()
     // Load textures
     _textureID = glUtils::buildTexture(_projectRoot + "/data/images/textures/circle_01.png");
 
+    // Load, compile & link shaders for transform feedback
+    _tDshaderVertID = glUtils::buildShader(_projectRoot + "/data/shaders/ParticleTD.vert", GL_VERTEX_SHADER);
+    _tDshaderFragID = glUtils::buildShader(_projectRoot + "/data/shaders/ParticleTD.frag", GL_FRAGMENT_SHADER);
+    _tDshaderProgID = glUtils::buildProgramTD(_tDshaderVertID, _tDshaderFragID);
 
     // Load, compile & link shaders
     _shaderVertID = glUtils::buildShader(_projectRoot + "/data/shaders/Particle.vert", GL_VERTEX_SHADER);
     _shaderFragID = glUtils::buildShader(_projectRoot + "/data/shaders/Particle.frag", GL_FRAGMENT_SHADER);
     _shaderGeomID = glUtils::buildShader(_projectRoot + "/data/shaders/Particle.geom", GL_GEOMETRY_SHADER);
     _shaderProgID = glUtils::buildProgram(_shaderVertID,_shaderGeomID, _shaderFragID);
+
+    // Activate the shader program
+    glUseProgram(_tDshaderProgID);
+
+    // Get the variable locations (identifiers) within the program
+    _pTdLoc     = glGetAttribLocation(_tDshaderProgID, "a_position");
+    _vTdLoc     = glGetAttribLocation(_tDshaderProgID, "a_velocity");
+    _stTdLoc     = glGetAttribLocation(_tDshaderProgID, "a_startTime");
+    _initVTdLoc = glGetAttribLocation(_tDshaderProgID, "a_initialVelocity");
+    _tTLLoc   = glGetUniformLocation(_tDshaderProgID, "u_tTL");
+    _timeLoc  = glGetUniformLocation(_tDshaderProgID, "u_time");
+    _dTimeLoc = glGetUniformLocation(_tDshaderProgID, "u_deltaTime");
+    _aLoc     = glGetUniformLocation(_tDshaderProgID, "u_acceleration");
 
     // Activate the shader program
     glUseProgram(_shaderProgID);
@@ -147,7 +186,7 @@ void onInit()
 
     //buildBox();
     //buildSquare();
-    initParticles();
+    initParticles(3.0f,5.0f);
 
     glClearColor(0.0f, 0.0f, 0.0f, 1); // Set the background color
     glEnable(GL_DEPTH_TEST);           // Enables depth test
@@ -238,8 +277,13 @@ void onClose(GLFWwindow* window)
 {
     // Delete shaders & programs on GPU
     glDeleteShader(_shaderVertID);
+    glDeleteShader(_shaderGeomID);
     glDeleteShader(_shaderFragID);
     glDeleteProgram(_shaderProgID);
+
+    glDeleteShader(_tDshaderVertID);
+    glDeleteShader(_tDshaderFragID);
+    glDeleteProgram(_tDshaderProgID);
 
     // Delete arrays & buffers on GPU
     glDeleteVertexArrays(1, &_vao);
