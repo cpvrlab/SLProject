@@ -39,10 +39,11 @@ struct ParticleNew
 {
     SLVec3f p;    // particle position [x,y,z]
     SLVec3f v;    // particle velocity [x,y,z]
-    float   ttl;  // particle time to live
+    float   st;  // particle start time
+    SLVec3f initV;    // particle velocity [x,y,z]
 
     ParticleNew()
-      : p(0.0f), v(0.0f), ttl(0.0f) {}
+      : p(0.0f), v(0.0f), st(0.0f), initV(0.0f) {}
 };
 //-----------------------------------------------------------------------------
 // GLobal application variables
@@ -55,14 +56,16 @@ static SLMat4f _viewMatrix;       //!< 4x4 view matrix
 static SLMat4f _modelMatrix;      //!< 4x4 model matrix
 static SLMat4f _projectionMatrix; //!< 4x4 projection matrix
 
-static GLuint _vao  = 0; //!< ID of the vertex array object
-static GLuint _vboV = 0; //!< ID of the VBO for vertex attributes
+static GLuint _vao[2]; //!< ID of the vertex array object
+static GLuint _tfo[2];    // Transform feedback objects
+static GLuint _vbo[2];    // ID of the vertex buffer object
 
 static GLuint _numV = 0; //!< NO. of vertices
 static GLuint _numI = 0; //!< NO. of vertex indexes for triangles
 
 vector<Particle> particles;  //!< List of particles
 const int AMOUNT = 500; //!< Amount of particles
+static int     _drawBuf = 0; // Boolean to switch buffer
 
 static float  _camZ;                   //!< z-distance of camera
 static float  _rotX, _rotY;            //!< rotation angles around x & y axis
@@ -89,8 +92,11 @@ static GLuint _tDshaderProgID = 0; //! transform feedback shader program id
 // Attribute & uniform variable location indexes
 static GLint _pLoc;   //!< attribute location for vertex position
 static GLint _cLoc;   //!< attribute location for vertex color
-static GLint _oLoc;   //!< attribute location for vertex offset
+static GLint _stLoc; //!< attribute location for vertex start time
+static GLint _oLoc;   //!< uniform location for vertex offset
 static GLint _sLoc;   //!< uniform location for vertex scale
+static GLint _tTLLoc; //!< uniform location for particle life time
+static GLint _timeLoc; //!< uniform location for time
 static GLint _tLoc;   //!< attribute location for vertex texture coord
 static GLint _gLoc;   //!< uniform location for gamma value
 static GLint _mvLoc; //!< uniform location for modelview matrix
@@ -101,33 +107,75 @@ static GLint _pTdLoc;    //!< attribute location for vertex position
 static GLint _vTdLoc;    //!< attribute location for vertex velocity
 static GLint _stTdLoc;    //!< attribute location for vertex start time
 static GLint _initVTdLoc;    //!< attribute location for vertex initial velocity
-static GLint _tTLLoc;  //!< uniform location for particle life time
-static GLint _timeLoc; //!< uniform location for time 
+static GLint _tTLTdLoc;  //!< uniform location for particle life time
+static GLint _timeTdLoc; //!< uniform location for time 
 static GLint _dTimeLoc; //!< uniform location for delta time
 static GLint _aLoc; //!< uniform location for acceleration
+static GLint _oTdLoc;     //!< uniform location for vertex offset
 
 static GLint _texture0Loc; //!< uniform location for texture 0
 
-//-----------------------------------------------------------------------------
-void initParticles(float numberPerFrame,float timeToLive)
-{
-    float points[] = {
-      0.0f, 0.0f, 0.0f //
-    };
-    glGenBuffers(1, &_vboV);
-    glGenVertexArrays(1, &_vao);
-    glBindVertexArray(_vao);
-    glBindBuffer(GL_ARRAY_BUFFER, _vboV);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(points), &points, GL_STATIC_DRAW);
-    glEnableVertexAttribArray(_pLoc);
-    glVertexAttribPointer(_pLoc, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), nullptr);
-    glBindVertexArray(0);
 
-    // create this->amount default particle instances
-    for(unsigned int i = 0; i < AMOUNT; ++i)
+float randomFloat(float a, float b)
+{
+    float random = ((float)rand()) / (float)RAND_MAX;
+    float diff   = b - a;
+    float r      = random * diff;
+    return a + r;
+}
+
+//-----------------------------------------------------------------------------
+void initParticles(float numberPerFrame, float timeToLive, SLVec3f offset)
+{
+    float* data = new GLfloat[AMOUNT * sizeof(ParticleNew)];
+
+    ParticleNew p    = ParticleNew();
+    p.p              = offset;
+    p.v              = SLVec3f(0, 0.2, 0);
+    p.initV          = p.v;
+    for (unsigned int i = 0; i < AMOUNT; ++i)
     {
-        particles.push_back(Particle());
+        p.v.x         = randomFloat(0.2f, -0.2f);
+        p.v.y         = randomFloat(0.4f, 0.6f);
+        p.st          = i * (timeToLive / AMOUNT); // When the first particle dies the last one begin to live
+
+        data[i] = p.p.x;
+        data[i+1] = p.p.y;
+        data[i+2] = p.p.z;
+
+        data[i+3] = p.v.x;
+        data[i+4] = p.v.y;
+        data[i+5] = p.v.z;
+
+        data[i+6] = p.v.z;
+
+        data[i+7] = p.initV.x;
+        data[i+8] = p.initV.y;
+        data[i+9] = p.initV.z;
     }
+    
+    glGenTransformFeedbacks(2, _tfo);
+    glGenVertexArrays(2, _vao);
+    glGenBuffers(2, _vbo);
+
+    for (unsigned int i = 0; i < 2; i++)
+    {
+        glBindVertexArray(_vao[0]);
+        glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, _tfo[i]);
+        glBindBuffer(GL_ARRAY_BUFFER, _vbo[i]);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(data), &data, GL_STATIC_DRAW);
+        glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, _vbo[i]);
+
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(ParticleNew), nullptr);
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(ParticleNew), (void*)(3 * sizeof(float)));
+        glEnableVertexAttribArray(2);
+        glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, sizeof(ParticleNew), (void*)(6 * sizeof(float)));
+        glEnableVertexAttribArray(3);
+        glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(ParticleNew), (void*)(7 * sizeof(float)));
+        glBindVertexArray(0);
+    } 
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -162,31 +210,35 @@ void onInit()
     glUseProgram(_tDshaderProgID);
 
     // Get the variable locations (identifiers) within the program
-    _pTdLoc     = glGetAttribLocation(_tDshaderProgID, "a_position");
+    /* _pTdLoc   = glGetAttribLocation(_tDshaderProgID, "a_position");
     _vTdLoc     = glGetAttribLocation(_tDshaderProgID, "a_velocity");
     _stTdLoc     = glGetAttribLocation(_tDshaderProgID, "a_startTime");
-    _initVTdLoc = glGetAttribLocation(_tDshaderProgID, "a_initialVelocity");
-    _tTLLoc   = glGetUniformLocation(_tDshaderProgID, "u_tTL");
-    _timeLoc  = glGetUniformLocation(_tDshaderProgID, "u_time");
+    _initVTdLoc = glGetAttribLocation(_tDshaderProgID, "a_initialVelocity");*/
+    _tTLTdLoc   = glGetUniformLocation(_tDshaderProgID, "u_tTL");
+    _timeTdLoc  = glGetUniformLocation(_tDshaderProgID, "u_time");
     _dTimeLoc = glGetUniformLocation(_tDshaderProgID, "u_deltaTime");
     _aLoc     = glGetUniformLocation(_tDshaderProgID, "u_acceleration");
+    _oTdLoc        = glGetUniformLocation(_shaderProgID, "u_offset");
 
     // Activate the shader program
     glUseProgram(_shaderProgID);
 
     // Get the variable locations (identifiers) within the program
-    _pLoc   = glGetAttribLocation(_shaderProgID, "a_position");
+    /* _pLoc   = glGetAttribLocation(_shaderProgID, "a_position");
+    _stLoc   = glGetAttribLocation(_shaderProgID, "a_startTime");*/
     _gLoc   = glGetUniformLocation(_shaderProgID, "u_oneOverGamma");
     _mvLoc = glGetUniformLocation(_shaderProgID, "u_mvMatrix");
     _pMatLoc     = glGetUniformLocation(_shaderProgID, "u_pMatrix");
     _cLoc        = glGetUniformLocation(_shaderProgID, "u_color");
     _oLoc        = glGetUniformLocation(_shaderProgID, "u_offset");
     _sLoc        = glGetUniformLocation(_shaderProgID, "u_scale");
+    _tTLLoc      = glGetUniformLocation(_shaderProgID, "u_tTL");
+    _timeLoc     = glGetUniformLocation(_shaderProgID, "u_time");
     _texture0Loc = glGetUniformLocation(_shaderProgID, "u_matTextureDiffuse0");
 
     //buildBox();
     //buildSquare();
-    initParticles(3.0f,5.0f);
+    initParticles(3.0f, 5.0f, SLVec3f(0, -0.5, 0));
 
     glClearColor(0.0f, 0.0f, 0.0f, 1); // Set the background color
     glEnable(GL_DEPTH_TEST);           // Enables depth test
@@ -219,14 +271,6 @@ unsigned int firstUnusedParticle()
     // all particles are taken, override the first one (note that if it repeatedly hits this case, more particles should be reserved)
     lastUsedParticle = 0;
     return 0;
-}
-
-float randomFloat(float a, float b)
-{
-    float random = ((float)rand()) / (float)RAND_MAX;
-    float diff   = b - a;
-    float r      = random * diff;
-    return a + r;
 }
 
 void respawnParticle(Particle& particle, SLVec3f offset)
@@ -286,8 +330,9 @@ void onClose(GLFWwindow* window)
     glDeleteProgram(_tDshaderProgID);
 
     // Delete arrays & buffers on GPU
-    glDeleteVertexArrays(1, &_vao);
-    glDeleteBuffers(1, &_vboV);
+    glDeleteVertexArrays(2, _vao);
+    glDeleteBuffers(2, _vbo);
+    glDeleteTransformFeedbacks(2, _tfo);
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -320,33 +365,55 @@ bool onPaint()
     glUniformMatrix4fv(_pMatLoc, 1, 0, (float*)&_projectionMatrix);
     glUniform1f(_gLoc, 1.0f);
     glUniform1i(_texture0Loc, 0);
-
-    //7a) Activate the vertex array
-    glBindVertexArray(_vao);
+    ... // To change local
 
     // Activate Texture
     glBindTexture(GL_TEXTURE_2D, _textureID);
     
+    /////////// Update part ////////////////
+    // Activate the shader program
+    glUseProgram(_tDshaderProgID);
+    // Set the uniforms: H and Time
+    ... //TODO
+    // Disable rendering
+    glEnable(GL_RASTERIZER_DISCARD);
+    // Bind the feedback object for the buffers to be drawn next
+    glBindTransformFeedback(GL_TRANSFORM_FEEDBACK,_tfo[_drawBuf]);
+    // Draw points from input buffer with transform feedback
+    glBeginTransformFeedback(GL_POINTS);
+
+    glBindVertexArray(_vao[1 - _drawBuf]);
+
+    glDrawArrays(GL_POINTS, 0, AMOUNT);
+
+    glEndTransformFeedback();
+    // Enable rendering
+    glDisable(GL_RASTERIZER_DISCARD);
+    //////////// Render part ///////////////
+    // Activate the shader program
+    glUseProgram(_shaderProgID);
+
+    glClear(GL_COLOR_BUFFER_BIT);
+    // Initialize uniforms for transformation matrices if needed
+    ... //TODO
+     // Un-bind the feedback object.
+     glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, 0);
+    // Draw the sprites from the feedback buffer
+    glBindVertexArray(_vao[_drawBuf]);
+
     glEnable(GL_BLEND); // activate transparency (blending)
-    // use additive blending to give it a 'glow' effect
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-    int count = 0;
-    for (Particle particle : particles)
-    {
-        count++;
-        if (particle.life > 0.0f)
-        {
-            glUniform1f(_sLoc, particle.s);
-            glUniform4f(_cLoc, particle.c.r, particle.c.g, particle.c.b, particle.c.a);
-            glUniform3f(_oLoc, particle.p.x, particle.p.y, particle.p.z);
-            //7c) Draw cube with triangles by indexes
-            glDrawArrays(GL_POINTS, 0, 1);
-            
-        }
-    }
-    // don't forget to reset to default blending mode
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glDisable(GL_BLEND); // disable transparency
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE); // use additive blending to give it a 'glow' effect
+
+    glDrawArrays(GL_POINTS, 0, AMOUNT);
+
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // don't forget to reset to default blending mode
+    glDisable(GL_BLEND);                               // disable transparency
+
+    // Swap buffers
+    _drawBuf = 1 - _drawBuf;
+
+    //////////// End  ///////////////
+
 
     //8) Fast copy the back buffer to the front buffer. This is OS dependent.
     glfwSwapBuffers(window);
@@ -568,7 +635,7 @@ int main(int argc, char* argv[])
     float timingRespawn = 0.0f;
     while (!glfwWindowShouldClose(window))
     {
-        currentFrame = glfwGetTime();
+        /* currentFrame = glfwGetTime();
         deltaTime    = currentFrame - lastFrame;
         lastFrame    = currentFrame;
         timingRespawn += deltaTime;
@@ -576,7 +643,7 @@ int main(int argc, char* argv[])
             spawnParticles(3, SLVec3f(0, -0.5, 0));
             timingRespawn = 0.0f;
         }
-        updateParticles(deltaTime);
+        updateParticles(deltaTime);*/
 
         // if no updated occurred wait for the next event (power saving)
         if (!onPaint())

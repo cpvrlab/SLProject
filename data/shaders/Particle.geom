@@ -15,6 +15,10 @@ layout (points) in;
 layout (triangle_strip) out;
 layout (max_vertices = 4) out;
 
+in vertex {
+    vec3 color;
+} vertex[];
+
 uniform mat4 u_pMatrix;  // projection matrix
 
 uniform vec4 u_color; // Object color
@@ -33,6 +37,7 @@ void main (void)
   gl_Position = u_pMatrix * vec4(va, P.z + u_offset.z, P.w);
   v_texCoord = vec2(0.0, 0.0);
   v_particleColor = u_color;
+  v_particleColor.w = vertex[0];
   EmitVertex();  
   
   //BOTTOM RIGHT
@@ -40,6 +45,7 @@ void main (void)
   gl_Position = u_pMatrix *  vec4(vd, P.z + u_offset.z, P.w);
   v_texCoord = vec2(1.0, 0.0);
   v_particleColor = u_color;
+  v_particleColor.w = vertex[0];
   EmitVertex();  
 
   //TOP LEFT
@@ -47,6 +53,7 @@ void main (void)
   gl_Position = u_pMatrix * vec4(vb, P.z + u_offset.z, P.w);
   v_texCoord = vec2(0.0, 1.0);
   v_particleColor = u_color;
+  v_particleColor.w = vertex[0];
   EmitVertex();  
 
   //TOP RIGHT
@@ -54,6 +61,7 @@ void main (void)
   gl_Position = u_pMatrix *  vec4(vc, P.z + u_offset.z, P.w);
   v_texCoord = vec2(1.0, 1.0);
   v_particleColor = u_color;
+  v_particleColor.w = vertex[0];
   EmitVertex();  
   
   EndPrimitive();  

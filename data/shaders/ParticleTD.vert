@@ -10,14 +10,15 @@
 precision highp float;
 
 //-----------------------------------------------------------------------------
-in vec3 a_position;
-in vec3 a_velocity;
-in float a_startTime;
-in vec3 a_initialVelocity;
+layout (location = 0) in vec3 a_position;
+layout (location = 1) in vec3 a_velocity;
+layout (location = 2) in float a_startTime;
+layout (location = 3) in vec3 a_initialVelocity;
 
 uniform float u_time;  // Simulation time
 uniform float u_deltaTime;     // Elapsed time between frames
 uniform vec3 u_acceleration;  // Particle acceleration
+uniform vec3 u_offset;  // Particle offset
 uniform float u_tTL;  // Particle lifespan
 
 out vec3 td_position;   // To transform feedback
@@ -28,12 +29,26 @@ out  vec4   v_particleColor;
 //-----------------------------------------------------------------------------
 void main()
 {
-    vec4 P = vec4(a_position.x, a_position.y, 0.0, 1.0);
+    vec4 P = vec4(a_position.xyz, 1.0);
     gl_Position = P; 
-    td_position = vec3(0,0,0);
-    td_velocity = vec3(0,0,0);
-    td_startTime = 0.0f;
 
+    td_position = a_position;
+    td_velocity = a_velocity;
+    td_startTime = a_startTime;
+    if( u_time >= a_startTime ) {
+        float age = u_time - a_startTime;
+        if( age > u_tTL ) {
+            // The particle is past its lifetime, recycle.
+            td_position = u_offset;
+            td_velocity = a_initialVelocity;
+            td_startTime = u_time;
+            } else {
+            // The particle is alive, update.
+            td_position += td_velocity * u_deltaTime;
+            td_startTime += u_acceleration * u_deltaTime;
+        }
+
+    }
     v_particleColor = vec4(0,0,0,0);
 }
 //-----------------------------------------------------------------------------
