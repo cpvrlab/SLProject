@@ -45,7 +45,7 @@ void main()
             } else {
             // The particle is alive, update.
             td_position += td_velocity * u_deltaTime;
-            td_startTime += u_acceleration * u_deltaTime;
+            td_velocity += u_deltaTime * u_acceleration;
         }
 
     }

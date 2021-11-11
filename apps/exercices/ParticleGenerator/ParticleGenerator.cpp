@@ -66,6 +66,9 @@ static GLuint _numI = 0; //!< NO. of vertex indexes for triangles
 vector<Particle> particles;  //!< List of particles
 const int AMOUNT = 500; //!< Amount of particles
 static int     _drawBuf = 0; // Boolean to switch buffer
+static float     _ttl = 5.0f; // Boolean to switch buffer
+static float     _currentTime = 0.0f; // Boolean to switch buffer
+static float     _lastTime = 0.0f; // Boolean to switch buffer
 
 static float  _camZ;                   //!< z-distance of camera
 static float  _rotX, _rotY;            //!< rotation angles around x & y axis
@@ -93,7 +96,6 @@ static GLuint _tDshaderProgID = 0; //! transform feedback shader program id
 static GLint _pLoc;   //!< attribute location for vertex position
 static GLint _cLoc;   //!< attribute location for vertex color
 static GLint _stLoc; //!< attribute location for vertex start time
-static GLint _oLoc;   //!< uniform location for vertex offset
 static GLint _sLoc;   //!< uniform location for vertex scale
 static GLint _tTLLoc; //!< uniform location for particle life time
 static GLint _timeLoc; //!< uniform location for time
@@ -127,6 +129,7 @@ float randomFloat(float a, float b)
 //-----------------------------------------------------------------------------
 void initParticles(float numberPerFrame, float timeToLive, SLVec3f offset)
 {
+    _ttl        = timeToLive;
     float* data = new GLfloat[AMOUNT * sizeof(ParticleNew)];
 
     ParticleNew p    = ParticleNew();
@@ -230,7 +233,6 @@ void onInit()
     _mvLoc = glGetUniformLocation(_shaderProgID, "u_mvMatrix");
     _pMatLoc     = glGetUniformLocation(_shaderProgID, "u_pMatrix");
     _cLoc        = glGetUniformLocation(_shaderProgID, "u_color");
-    _oLoc        = glGetUniformLocation(_shaderProgID, "u_offset");
     _sLoc        = glGetUniformLocation(_shaderProgID, "u_scale");
     _tTLLoc      = glGetUniformLocation(_shaderProgID, "u_tTL");
     _timeLoc     = glGetUniformLocation(_shaderProgID, "u_time");
@@ -359,22 +361,19 @@ bool onPaint()
     SLMat4f mv(_viewMatrix);
     mv.multiply(_modelMatrix);
 
-    //6) Activate the shader program and pass the uniform variables to the shader
-    glUseProgram(_shaderProgID);
-    glUniformMatrix4fv(_mvLoc, 1, 0, (float*)&mv);
-    glUniformMatrix4fv(_pMatLoc, 1, 0, (float*)&_projectionMatrix);
-    glUniform1f(_gLoc, 1.0f);
-    glUniform1i(_texture0Loc, 0);
-    ... // To change local
+    _currentTime = glfwGetTime();
+    float delatTime = _currentTime - _lastTime;
 
-    // Activate Texture
-    glBindTexture(GL_TEXTURE_2D, _textureID);
-    
     /////////// Update part ////////////////
     // Activate the shader program
     glUseProgram(_tDshaderProgID);
-    // Set the uniforms: H and Time
-    ... //TODO
+    // Set the uniforms for transform feedback shader
+    glUniform1f(_tTLTdLoc, _ttl);
+    glUniform1f(_timeTdLoc, _currentTime);
+    glUniform3f(_aLoc, 1.0f, 1.0f, 1.0f);
+    glUniform3f(_oTdLoc, 0.0f, -0.5f, 0.0f);
+    glUniform1f(_dTimeLoc, delatTime);
+
     // Disable rendering
     glEnable(GL_RASTERIZER_DISCARD);
     // Bind the feedback object for the buffers to be drawn next
@@ -393,9 +392,20 @@ bool onPaint()
     // Activate the shader program
     glUseProgram(_shaderProgID);
 
+    // Activate Texture
+    glBindTexture(GL_TEXTURE_2D, _textureID);
+
     glClear(GL_COLOR_BUFFER_BIT);
     // Initialize uniforms for transformation matrices if needed
-    ... //TODO
+    glUniformMatrix4fv(_mvLoc, 1, 0, (float*)&mv);
+    glUniformMatrix4fv(_pMatLoc, 1, 0, (float*)&_projectionMatrix);
+    glUniform1f(_gLoc, 1.0f);
+    glUniform1i(_texture0Loc, 0);
+    glUniform1f(_tTLLoc, _ttl); 
+    glUniform1f(_timeLoc, _currentTime);
+    glUniform1f(_sLoc, 1.0f);
+    glUniform4f(_cLoc, 1.0f,1.0f,1.0f,1.0f);
+
      // Un-bind the feedback object.
      glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, 0);
     // Draw the sprites from the feedback buffer
@@ -411,6 +421,7 @@ bool onPaint()
 
     // Swap buffers
     _drawBuf = 1 - _drawBuf;
+    _lastTime = _currentTime;
 
     //////////// End  ///////////////
 

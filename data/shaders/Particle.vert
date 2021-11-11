@@ -18,7 +18,7 @@ uniform float u_tTL;  // time to live
 
 out vertex {
     float transparency;
-} vertex;
+} vert;
 
 uniform mat4 u_mvMatrix;  // modelview matrix
 
@@ -26,10 +26,7 @@ uniform mat4 u_mvMatrix;  // modelview matrix
 void main()
 {
     float age = u_time - a_startTime;
-    vertex.transparency = 1.0 - age / u_tTL;
-
-
-    gl_Position = MVP * vec4(VertexPosition, 1.0);
+    vert.transparency = 1.0 - age / u_tTL;
     vec4 P = vec4(a_position.xyz, 1.0);
     gl_Position = u_mvMatrix * P; 
 }
