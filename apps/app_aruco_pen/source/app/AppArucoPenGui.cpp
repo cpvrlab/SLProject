@@ -1038,7 +1038,7 @@ void AppArucoPenGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
 
             if (ImGui::MenuItem("Start Evaluation"))
             {
-                AppArucoPenEvaluator::instance().start(0.029f);
+                AppArucoPenEvaluator::instance().start(0.06f);
             }
 
             ImGui::EndMenu();

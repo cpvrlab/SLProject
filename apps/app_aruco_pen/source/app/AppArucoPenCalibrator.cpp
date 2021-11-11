@@ -128,9 +128,12 @@ void AppArucoPenCalibrator::calcExtrinsicParams(CVCaptureProvider* provider)
 {
     SL_LOG("Calculating extrinsic parameters...");
 
-    CVSize     boardSize(8, 5);
+    CVSize     boardSize(11, 8);
     CVVPoint2f corners2D;
     int        flags = cv::CALIB_CB_FAST_CHECK + cv::CALIB_CB_ADAPTIVE_THRESH;
+
+//    provider->lastFrameGray().convertTo(provider->lastFrameGray(), -1, 1.5, -350.0);
+//    cv::imwrite("C:/Users/vwm1/Desktop/imgi.png", provider->lastFrameGray());
 
     if (!cv::findChessboardCorners(provider->lastFrameGray(),
                                    boardSize,
@@ -150,7 +153,7 @@ void AppArucoPenCalibrator::calcExtrinsicParams(CVCaptureProvider* provider)
                                       0.0001));
 
     CVVVec3f boardPoints3D;
-    float    squareSize = 0.029f;
+    float    squareSize = 0.06f;
 
     for (int y = boardSize.height - 1; y >= 0; --y)
         for (int x = 0; x < boardSize.width; ++x)

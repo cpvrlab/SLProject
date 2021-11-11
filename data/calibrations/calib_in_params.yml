@@ -1,6 +1,6 @@
 %YAML:1.0
-numInnerCornersWidth: 8
-numInnerCornersHeight: 5
-squareSizeMM: 0.0043
+numInnerCornersWidth: 11
+numInnerCornersHeight: 8
+squareSizeMM: 0.06
 captureDelayMS: 1000
 numOfImgsToCapture: 5

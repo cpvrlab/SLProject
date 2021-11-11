@@ -305,7 +305,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         SLNode* chessboardNode = importer.load(s->animManager(),
                                                s,
-                                               modelPath + "DAE/Chessboard/Chessboard.dae",
+                                               modelPath + "DAE/Chessboard/Chessboard60.dae",
                                                texPath);
         scene->addChild(chessboardNode);
 

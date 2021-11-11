@@ -14,31 +14,33 @@
 #include <peak_ipl/peak_ipl.hpp>
 #include <peak/converters/peak_buffer_converter_ipl.hpp>
 
+#include <IDSPeakDevice.h>
+#include <SL.h>
+
 //-----------------------------------------------------------------------------
 class IDSPeakInterface
 {
-
-private:
-    static std::shared_ptr<peak::core::Device>     device;
-    static std::shared_ptr<peak::core::DataStream> dataStream;
-
-    static std::shared_ptr<peak::core::NodeMap> nodeMapRemoteDevice;
+    friend class IDSPeakDevice;
 
 public:
-    static void init();
-    static void openDevice(int index);
-    static void setDeviceParameters();
-    static void allocateBuffers();
+    static IDSPeakInterface& instance()
+    {
+        static IDSPeakInterface instance;
+        return instance;
+    }
 
-    static void startCapture();
-    static void captureImage(int* width,
-                             int* height,
-                             uint8_t** dataBGR,
-                             uint8_t** dataGray);
-    static void stopCapture();
+private:
+    bool initialized = false;
+    int  numDevices  = 0;
 
-    static void deallocateBuffers();
-    static void uninit();
+public:
+    IDSPeakDevice openDevice(int index);
+    int           numAvailableDevices();
+
+private:
+    void init();
+    void uninit();
+    void deviceClosed();
 };
 //-----------------------------------------------------------------------------
 #endif // SLPROJECT_IDSPEAKINTERFACE_H

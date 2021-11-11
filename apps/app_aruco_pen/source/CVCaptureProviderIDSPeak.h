@@ -11,6 +11,7 @@
 #define SLPROJECT_CVCAPTUREPROVIDERIDSPEAK_H
 
 #include <CVCaptureProvider.h>
+#include <IDSPeakDevice.h>
 
 //-----------------------------------------------------------------------------
 //! Implementation of CVCaptureProvider for IDS Peak cameras
@@ -20,8 +21,9 @@
 class CVCaptureProviderIDSPeak : public CVCaptureProvider
 {
 private:
-    SLint  _deviceIndex;      //!< the index of this device in the IDS peak device list
-    SLbool _isOpened = false; //!< tracks whether or not the device is opened
+    int _deviceIndex;                //!< the index of this device in the IDS peak device list
+    IDSPeakDevice _device;           //!< the device handle for accessing the IDS functions
+    SLbool        _isOpened = false; //!< tracks whether or not the device is opened
 
 public:
     explicit CVCaptureProviderIDSPeak(SLint deviceIndex, CVSize captureSize);

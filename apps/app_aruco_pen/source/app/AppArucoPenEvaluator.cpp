@@ -12,6 +12,7 @@
 #include <app/AppArucoPen.h>
 #include <AppDemo.h>
 #include <SLProjectScene.h>
+#include <Utils.h>
 
 #include <fstream>
 
@@ -70,12 +71,12 @@ void AppArucoPenEvaluator::nextStep()
 
     // Increment the current corner position
     _x += 2;
-    if (_x > 4)
+    if (_x > 7)
     {
         _x = 0;
         _z += 2;
 
-        if (_z > 7)
+        if (_z > 10)
         {
             finish();
             return;
@@ -153,15 +154,15 @@ void AppArucoPenEvaluator::finish()
         csvStream << truth.toString(", ", 1) << ";";
         csvStream << measured.toString(", ", 1) << ";";
         csvStream << offset.toString(", ", 1) << ";";
-        csvStream << std::fixed << std::setprecision(1) << distance << "\n";
+        csvStream << std::fixed << std::setprecision(2) << distance << "\n";
 
         totalDistance += distance;
     }
 
     // Write the average to the CSV file
     float avgDistance = totalDistance / (float)corners.size();
-    csvStream << "Average;;;;" << std::fixed << std::setprecision(1) << avgDistance << "\n";
+    csvStream << "Average;;;;" << std::fixed << std::setprecision(2) << avgDistance << "\n";
 
-    SL_LOG("Saved evaluation to \"%s\"", csvFilename.c_str());
+    SL_LOG("Saved evaluation to \"%s%s\"", Utils::getCurrentWorkingDir().c_str(), csvFilename.c_str());
 }
 //-----------------------------------------------------------------------------

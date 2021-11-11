@@ -6,7 +6,7 @@ adaptiveThreshConstant: 7
 minMarkerPerimeterRate: 0.01
 maxMarkerPerimeterRate: 4.0
 polygonalApproxAccuracyRate: 0.01
-minCornerDistanceRate: 0.05
+minCornerDistanceRate: 0.01
 minDistanceToBorder: 3
 cornerRefinementMethod: 1
 cornerRefinementWinSize: 3                      # The culprit

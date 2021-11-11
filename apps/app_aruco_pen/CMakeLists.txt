@@ -23,6 +23,7 @@ file(GLOB headers
         ${SL_PROJECT_ROOT}/apps/source/SLGLFWInterface.h
 
         ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/IDSPeakInterface.h
+        ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/IDSPeakDevice.h
         ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/CVCaptureProvider.h
         ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/CVCaptureProviderStandard.h
         ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/CVCaptureProviderIDSPeak.h
@@ -46,6 +47,7 @@ file(GLOB sources
         ${SL_PROJECT_ROOT}/apps/source/SLGLFWInterface.cpp
 
         ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/IDSPeakInterface.cpp
+        ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/IDSPeakDevice.cpp
         ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/CVCaptureProvider.cpp
         ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/CVCaptureProviderStandard.cpp
         ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/CVCaptureProviderIDSPeak.cpp

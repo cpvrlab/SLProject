@@ -19,41 +19,44 @@
 #include <mfapi.h>
 #include <mfidl.h>
 #include <atlstr.h>
+#include <IDSPeakInterface.h>
+
+#include <opencv2/aruco.hpp>
 
 extern void trackVideo(CVCaptureProvider* provider);
 
 //-----------------------------------------------------------------------------
 void AppArucoPen::openCaptureProviders()
 {
-//    SL_LOG("Loading capture providers...");
-//
-//    IMFAttributes* attributes = nullptr;
-//    HRESULT        hr         = MFCreateAttributes(&attributes, 1);
-//    if (FAILED(hr)) SL_LOG("Failed to create MF attributes");
-//
-//    hr = attributes->SetGUID(MF_DEVSOURCE_ATTRIBUTE_SOURCE_TYPE,
-//                             MF_DEVSOURCE_ATTRIBUTE_SOURCE_TYPE_VIDCAP_GUID);
-//    if (FAILED(hr)) SL_LOG("Failed to set source type");
-//
-//    IMFActivate** devices = nullptr;
-//    UINT32        count;
-//    hr = MFEnumDeviceSources(attributes, &devices, &count);
-//    if (FAILED(hr)) SL_LOG("Failed to enumerate devices");
-//
-//    SL_LOG("Device count: %d", count);
-//    for (UINT32 i = 0; i < count; i++) {
-//        IMFActivate* device = devices[i];
-//
-//        WCHAR name[128];
-//        UINT32 len;
-//        device->GetString(MF_DEVSOURCE_ATTRIBUTE_FRIENDLY_NAME,
-//                          name,
-//                          128,
-//                          &len);
-//
-//        std::string cppString = CW2A(name);
-//        SL_LOG("%s", cppString.c_str());
-//    }
+    //    SL_LOG("Loading capture providers...");
+    //
+    //    IMFAttributes* attributes = nullptr;
+    //    HRESULT        hr         = MFCreateAttributes(&attributes, 1);
+    //    if (FAILED(hr)) SL_LOG("Failed to create MF attributes");
+    //
+    //    hr = attributes->SetGUID(MF_DEVSOURCE_ATTRIBUTE_SOURCE_TYPE,
+    //                             MF_DEVSOURCE_ATTRIBUTE_SOURCE_TYPE_VIDCAP_GUID);
+    //    if (FAILED(hr)) SL_LOG("Failed to set source type");
+    //
+    //    IMFActivate** devices = nullptr;
+    //    UINT32        count;
+    //    hr = MFEnumDeviceSources(attributes, &devices, &count);
+    //    if (FAILED(hr)) SL_LOG("Failed to enumerate devices");
+    //
+    //    SL_LOG("Device count: %d", count);
+    //    for (UINT32 i = 0; i < count; i++) {
+    //        IMFActivate* device = devices[i];
+    //
+    //        WCHAR name[128];
+    //        UINT32 len;
+    //        device->GetString(MF_DEVSOURCE_ATTRIBUTE_FRIENDLY_NAME,
+    //                          name,
+    //                          128,
+    //                          &len);
+    //
+    //        std::string cppString = CW2A(name);
+    //        SL_LOG("%s", cppString.c_str());
+    //    }
 
     // Logitech + IDS Peak
     // openCaptureProvider(new CVCaptureProviderStandard(0, CVSize(640, 480)));
@@ -65,8 +68,17 @@ void AppArucoPen::openCaptureProviders()
     // openCaptureProvider(new CVCaptureProviderStandard(0, CVSize(1280, 960)));
 
     // Logitech + Intel
-    openCaptureProvider(new CVCaptureProviderStandard(2, CVSize(1920, 1080)));
-    openCaptureProvider(new CVCaptureProviderStandard(1, CVSize(1920, 1080)));
+    //    openCaptureProvider(new CVCaptureProviderStandard(2, CVSize(1280, 960)));
+    //    openCaptureProvider(new CVCaptureProviderStandard(1, CVSize(1280, 960)));
+
+    // Intel + IDS Peak
+    //    openCaptureProvider(new CVCaptureProviderStandard(1, CVSize(1280, 960)));
+
+    // Every single IDS camera that is connected
+    for (int i = 0; i < IDSPeakInterface::instance().numAvailableDevices(); i++)
+    {
+        openCaptureProvider(new CVCaptureProviderIDSPeak(i, CVSize(2768, 1840)));
+    }
 
     _currentCaptureProvider = _captureProviders[0];
 
@@ -163,8 +175,6 @@ void AppArucoPen::grabFrameImageAndTrack(CVCaptureProvider* provider, SLSceneVie
     CVCapture::instance()->lastFrameGray = provider->lastFrameGray();
     CVCapture::instance()->captureSize   = provider->captureSize();
     CVCapture::instance()->format        = PF_bgr;
-
-    //    CVCapture::instance()->adjustForSLGrayAvailable(sv->viewportWdivH());
 
     trackVideo(provider);
 }

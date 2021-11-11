@@ -110,6 +110,8 @@ private:
     Averaged<CVVec3f> _averagePosition;
     AveragedQuat4f    _averageRotation;
 
+public:
+    CVRect _roi = CVRect(0, 0, 0, 0);
 };
 //-----------------------------------------------------------------------------
 

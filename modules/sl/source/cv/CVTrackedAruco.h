@@ -115,14 +115,15 @@ public:
                                 int maxMarkerId,
                                 int markerSizePX = 200);
 
-    static CVArucoParams params; //!< Parameter class instance
+    static CVArucoParams params;       //!< Parameter class instance
+    static bool          paramsLoaded; //!< Flag for loaded parameters
 
 protected:
     bool trackAll(CVMat          imageGray,
                   CVMat          imageRgb,
-                  CVCalibration* calib);
+                  CVCalibration* calib,
+                  CVRect         roi = CVRect(0, 0, 0, 0));
 
-    static bool        paramsLoaded;   //!< Flag for loaded parameters
     static vector<int> arucoIDs;       //!< detected Aruco marker IDs
     static CVVMatx44f  objectViewMats; //!< object view matrices for all found markers
 

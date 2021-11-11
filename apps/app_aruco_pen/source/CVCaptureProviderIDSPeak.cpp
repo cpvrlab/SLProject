@@ -38,12 +38,7 @@ void CVCaptureProviderIDSPeak::open()
     }
 
     _isOpened = true;
-
-    IDSPeakInterface::init();
-    IDSPeakInterface::openDevice(_deviceIndex);
-    IDSPeakInterface::setDeviceParameters();
-    IDSPeakInterface::allocateBuffers();
-    IDSPeakInterface::startCapture();
+    _device = IDSPeakInterface::instance().openDevice(_deviceIndex);
 }
 //-----------------------------------------------------------------------------
 void CVCaptureProviderIDSPeak::grab()
@@ -57,7 +52,7 @@ void CVCaptureProviderIDSPeak::grab()
     int      height;
     uint8_t* dataBGR;
     uint8_t* dataGray;
-    IDSPeakInterface::captureImage(&width, &height, &dataBGR, &dataGray);
+    _device.captureImage(&width, &height, &dataBGR, &dataGray);
 
     // It's much faster if we do this ourselves instead of calling "loadIntoLastFrame"
     // We also halve the size here to save performance during tracking
@@ -78,10 +73,7 @@ void CVCaptureProviderIDSPeak::close()
         return;
     }
 
-    IDSPeakInterface::stopCapture();
-    IDSPeakInterface::deallocateBuffers();
-    IDSPeakInterface::uninit();
-
+    _device.close();
     _isOpened = false;
 }
 //-----------------------------------------------------------------------------

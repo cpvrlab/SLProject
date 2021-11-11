@@ -59,7 +59,8 @@ bool CVTrackedAruco::track(CVMat          imageGray,
 //-----------------------------------------------------------------------------
 bool CVTrackedAruco::trackAll(CVMat          imageGray,
                               CVMat          imageRgb,
-                              CVCalibration* calib)
+                              CVCalibration* calib,
+                              CVRect         roi)
 {
     assert(!imageGray.empty() && "ImageGray is empty");
     assert(!imageRgb.empty() && "ImageRGB is empty");
@@ -88,18 +89,29 @@ bool CVTrackedAruco::trackAll(CVMat          imageGray,
     // Detect //
     ////////////
 
+    CVMat croppedImageGray = roi.empty() ? imageGray : imageGray(roi);
+
     float startMS = _timer.elapsedTimeInMilliSec();
 
     arucoIDs.clear();
     objectViewMats.clear();
     CVVVPoint2f corners, rejected;
 
-    cv::aruco::detectMarkers(imageGray,
+    cv::aruco::detectMarkers(croppedImageGray,
                              params.dictionary,
                              corners,
                              arucoIDs,
                              params.arucoParams,
                              rejected);
+
+    for (int i = 0; i < corners.size(); i++)
+    {
+        for (int j = 0; j < corners[i].size(); j++)
+        {
+            corners[i][j].x += (float)roi.x;
+            corners[i][j].y += (float)roi.y;
+        }
+    }
 
     CVTracked::detectTimesMS.set(_timer.elapsedTimeInMilliSec() - startMS);
 

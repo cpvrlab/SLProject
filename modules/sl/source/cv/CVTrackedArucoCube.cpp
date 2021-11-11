@@ -31,7 +31,7 @@ bool CVTrackedArucoCube::track(CVMat          imageGray,
                                CVMat          imageRgb,
                                CVCalibration* calib)
 {
-    if (!trackAll(imageGray, imageRgb, calib))
+    if (!trackAll(imageGray, imageRgb, calib, _roi))
     {
         return false;
     }
