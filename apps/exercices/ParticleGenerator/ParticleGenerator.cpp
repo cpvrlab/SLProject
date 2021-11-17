@@ -69,6 +69,7 @@ static int     _drawBuf = 0; // Boolean to switch buffer
 static float     _ttl = 5.0f; // Boolean to switch buffer
 static float     _currentTime = 0.0f; // Boolean to switch buffer
 static float     _lastTime = 0.0f; // Boolean to switch buffer
+static bool      _firstTimeRendering = true;
 
 static float  _camZ;                   //!< z-distance of camera
 static float  _rotX, _rotY;            //!< rotation angles around x & y axis
@@ -130,17 +131,19 @@ float randomFloat(float a, float b)
 void initParticles(float numberPerFrame, float timeToLive, SLVec3f offset)
 {
     _ttl        = timeToLive;
-    float* data = new GLfloat[AMOUNT * sizeof(ParticleNew)];
-
+    float* data = new GLfloat[AMOUNT * 10];
+    int _count           = 0;
     ParticleNew p    = ParticleNew();
     p.p              = offset;
     p.v              = SLVec3f(0, 0.2, 0);
     p.initV          = p.v;
-    for (unsigned int i = 0; i < AMOUNT; ++i)
+
+    for (unsigned int i = 0; i < AMOUNT * 10; i += 10)
     {
+        _count++;
         p.v.x         = randomFloat(0.2f, -0.2f);
         p.v.y         = randomFloat(0.4f, 0.6f);
-        p.st          = i * (timeToLive / AMOUNT); // When the first particle dies the last one begin to live
+        p.st          = i * (timeToLive / (AMOUNT * 10)); // When the first particle dies the last one begin to live
 
         data[i] = p.p.x;
         data[i+1] = p.p.y;
@@ -156,7 +159,7 @@ void initParticles(float numberPerFrame, float timeToLive, SLVec3f offset)
         data[i+8] = p.initV.y;
         data[i+9] = p.initV.z;
     }
-    
+    float _showOf = sizeof(data);
     glGenTransformFeedbacks(2, _tfo);
     glGenVertexArrays(2, _vao);
     glGenBuffers(2, _vbo);
@@ -164,11 +167,8 @@ void initParticles(float numberPerFrame, float timeToLive, SLVec3f offset)
     for (unsigned int i = 0; i < 2; i++)
     {
         glBindVertexArray(_vao[0]);
-        glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, _tfo[i]);
         glBindBuffer(GL_ARRAY_BUFFER, _vbo[i]);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(data), &data, GL_STATIC_DRAW);
-        glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, _vbo[i]);
-
+        glBufferData(GL_ARRAY_BUFFER, (AMOUNT * sizeof(ParticleNew)), data, GL_STATIC_DRAW);
         glEnableVertexAttribArray(0);
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(ParticleNew), nullptr);
         glEnableVertexAttribArray(1);
@@ -178,6 +178,9 @@ void initParticles(float numberPerFrame, float timeToLive, SLVec3f offset)
         glEnableVertexAttribArray(3);
         glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(ParticleNew), (void*)(7 * sizeof(float)));
         glBindVertexArray(0);
+
+        glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, _tfo[i]);
+        glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, _vbo[i]);
     } 
 }
 //-----------------------------------------------------------------------------
@@ -248,58 +251,6 @@ void onInit()
     GETGLERROR;
 }
 
-// stores the index of the last particle used (for quick access to next dead particle)
-unsigned int lastUsedParticle = 0;
-unsigned int firstUnusedParticle()
-{
-    // first search from last used particle, this will usually return almost instantly
-    for (unsigned int i = lastUsedParticle; i < AMOUNT; ++i)
-    {
-        if (particles[i].life <= 0.0f)
-        {
-            lastUsedParticle = i;
-            return i;
-        }
-    }
-    // otherwise, do a linear search
-    for (unsigned int i = 0; i < lastUsedParticle; ++i)
-    {
-        if (particles[i].life <= 0.0f)
-        {
-            lastUsedParticle = i;
-            return i;
-        }
-    }
-    // all particles are taken, override the first one (note that if it repeatedly hits this case, more particles should be reserved)
-    lastUsedParticle = 0;
-    return 0;
-}
-
-void respawnParticle(Particle& particle, SLVec3f offset)
-{
-    float random      = (rand() % 100) / 100.0f;
-    float rColor      = 0.5f + ((rand() % 100) / 100.0f);
-    particle.p =  offset;
-    //particle.p.x += random;
-    particle.c    = SLVec4f(rColor, rColor, rColor, 1.0f);
-    particle.life     = 5.0f;
-    particle.s        = randomFloat(0.5f, 1.0f);
-    //particle.s        = 0.5f;
-    particle.v        = SLVec3f(0, 0.2, 0);
-    particle.v.x      = randomFloat(0.2f, -0.2f);
-    particle.v.y      = randomFloat(0.4f, 0.6f);
-    
-}
-void spawnParticles(unsigned int newParticles, SLVec3f offset)
-{
-    // add new particles
-    for (unsigned int i = 0; i < newParticles; ++i)
-    {
-        int unusedParticle = firstUnusedParticle();
-        respawnParticle(particles[unusedParticle], offset);
-    }
-}
-
 void updateParticles(float dt)
 {
     // update all particles
@@ -363,6 +314,7 @@ bool onPaint()
 
     _currentTime = glfwGetTime();
     float delatTime = _currentTime - _lastTime;
+    _lastTime       = _currentTime;
 
     /////////// Update part ////////////////
     // Activate the shader program
@@ -382,7 +334,17 @@ bool onPaint()
     glBeginTransformFeedback(GL_POINTS);
 
     glBindVertexArray(_vao[1 - _drawBuf]);
-
+    /*if (_firstTimeRendering)
+    {
+        glDrawArrays(GL_POINTS, 0, AMOUNT); // Must use glDrawArrays the first time to specify number of points
+        _firstTimeRendering = false;
+    }
+    else
+    {
+        // This uses the size of the Transform Feedback data to specify the number of points .
+        // Apart from that, the next line is equivalent to using glDrawArrays(GL_POINTS, 0, ).
+        glDrawTransformFeedback(GL_POINTS, _tfo[1 - _drawBuf]);
+    }*/
     glDrawArrays(GL_POINTS, 0, AMOUNT);
 
     glEndTransformFeedback();
@@ -391,6 +353,9 @@ bool onPaint()
     //////////// Render part ///////////////
     // Activate the shader program
     glUseProgram(_shaderProgID);
+
+    //glEnable(GL_DEPTH_TEST);           // Enables depth test
+    //glEnable(GL_CULL_FACE);            // Enables the culling of back faces
 
     // Activate Texture
     glBindTexture(GL_TEXTURE_2D, _textureID);
@@ -421,7 +386,6 @@ bool onPaint()
 
     // Swap buffers
     _drawBuf = 1 - _drawBuf;
-    _lastTime = _currentTime;
 
     //////////// End  ///////////////
 
@@ -600,7 +564,7 @@ int main(int argc, char* argv[])
                               "Particle Generator",
                               glfwGetPrimaryMonitor(),
                               nullptr);
-
+    //glfwGetPrimaryMonitor()
     if (!window)
     {
         glfwTerminate();

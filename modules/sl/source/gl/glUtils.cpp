@@ -206,8 +206,8 @@ GLuint glUtils::buildProgramTD(GLuint vertShaderID,
     glAttachShader(programHandle, vertShaderID);
     glAttachShader(programHandle, fragShaderID);
     //Connection beetwen the output variable and the output buffers
-    const char* outputNames[] = {"td_position", "td_velocity", "td_startTime"};
-    glTransformFeedbackVaryings(programHandle, 3, outputNames, GL_INTERLEAVED_ATTRIBS);
+    const char* outputNames[] = {"td_position", "td_velocity", "td_startTime","td_initialVelocity"};
+    glTransformFeedbackVaryings(programHandle, 4, outputNames, GL_INTERLEAVED_ATTRIBS);
     glLinkProgram(programHandle);
 
     // Check linker success

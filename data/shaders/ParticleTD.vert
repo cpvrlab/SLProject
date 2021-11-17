@@ -21,9 +21,11 @@ uniform vec3 u_acceleration;  // Particle acceleration
 uniform vec3 u_offset;  // Particle offset
 uniform float u_tTL;  // Particle lifespan
 
+//Need to be print out in the correct order
 out vec3 td_position;   // To transform feedback
 out vec3 td_velocity;   // To transform feedback
 out float td_startTime; // To transform feedback
+out vec3 td_initialVelocity; // To transform feedback
 
 out  vec4   v_particleColor;
 //-----------------------------------------------------------------------------
@@ -35,6 +37,7 @@ void main()
     td_position = a_position;
     td_velocity = a_velocity;
     td_startTime = a_startTime;
+    td_initialVelocity = a_initialVelocity;
     if( u_time >= a_startTime ) {
         float age = u_time - a_startTime;
         if( age > u_tTL ) {
@@ -45,7 +48,7 @@ void main()
             } else {
             // The particle is alive, update.
             td_position += td_velocity * u_deltaTime;
-            td_velocity += u_deltaTime * u_acceleration;
+            //td_velocity += u_deltaTime * u_acceleration;
         }
 
     }
