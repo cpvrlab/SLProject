@@ -136,14 +136,14 @@ void initParticles(float numberPerFrame, float timeToLive, SLVec3f offset)
     ParticleNew p    = ParticleNew();
     p.p              = offset;
     p.v              = SLVec3f(0, 0.2, 0);
-    p.initV          = p.v;
 
     for (unsigned int i = 0; i < AMOUNT * 10; i += 10)
     {
         _count++;
         p.v.x         = randomFloat(0.2f, -0.2f);
         p.v.y         = randomFloat(0.4f, 0.6f);
-        p.st          = i * (timeToLive / (AMOUNT * 10)); // When the first particle dies the last one begin to live
+        p.initV       = p.v;
+        p.st          = i * (timeToLive / (AMOUNT*10)); // When the first particle dies the last one begin to live
 
         data[i] = p.p.x;
         data[i+1] = p.p.y;
@@ -153,7 +153,7 @@ void initParticles(float numberPerFrame, float timeToLive, SLVec3f offset)
         data[i+4] = p.v.y;
         data[i+5] = p.v.z;
 
-        data[i+6] = p.v.z;
+        data[i + 6] = p.st;
 
         data[i+7] = p.initV.x;
         data[i+8] = p.initV.y;
@@ -166,7 +166,7 @@ void initParticles(float numberPerFrame, float timeToLive, SLVec3f offset)
 
     for (unsigned int i = 0; i < 2; i++)
     {
-        glBindVertexArray(_vao[0]);
+        glBindVertexArray(_vao[i]);
         glBindBuffer(GL_ARRAY_BUFFER, _vbo[i]);
         glBufferData(GL_ARRAY_BUFFER, (AMOUNT * sizeof(ParticleNew)), data, GL_STATIC_DRAW);
         glEnableVertexAttribArray(0);
@@ -224,7 +224,7 @@ void onInit()
     _timeTdLoc  = glGetUniformLocation(_tDshaderProgID, "u_time");
     _dTimeLoc = glGetUniformLocation(_tDshaderProgID, "u_deltaTime");
     _aLoc     = glGetUniformLocation(_tDshaderProgID, "u_acceleration");
-    _oTdLoc        = glGetUniformLocation(_shaderProgID, "u_offset");
+    _oTdLoc     = glGetUniformLocation(_tDshaderProgID, "u_offset");
 
     // Activate the shader program
     glUseProgram(_shaderProgID);
@@ -249,21 +249,6 @@ void onInit()
     glEnable(GL_DEPTH_TEST);           // Enables depth test
     glEnable(GL_CULL_FACE);            // Enables the culling of back faces
     GETGLERROR;
-}
-
-void updateParticles(float dt)
-{
-    // update all particles
-    for (unsigned int i = 0; i < AMOUNT; ++i)
-    {
-        Particle& p = particles[i];
-        p.life-= dt; // reduce life
-        if (p.life > 0.0f)
-        { // particle is alive, thus update
-            p.p += p.v * dt;
-            p.c.a -= dt * 0.25f;
-        }
-    }
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -333,31 +318,14 @@ bool onPaint()
     glBindTransformFeedback(GL_TRANSFORM_FEEDBACK,_tfo[_drawBuf]);
     // Draw points from input buffer with transform feedback
     glBeginTransformFeedback(GL_POINTS);
-
     glBindVertexArray(_vao[1 - _drawBuf]);
-    /*if (_firstTimeRendering)
-    {
-        glDrawArrays(GL_POINTS, 0, AMOUNT); // Must use glDrawArrays the first time to specify number of points
-        _firstTimeRendering = false;
-    }
-    else
-    {
-        // This uses the size of the Transform Feedback data to specify the number of points .
-        // Apart from that, the next line is equivalent to using glDrawArrays(GL_POINTS, 0, ).
-        glDrawTransformFeedback(GL_POINTS, _tfo[1 - _drawBuf]);
-    }*/
     glDrawArrays(GL_POINTS, 0, AMOUNT);
-
     glEndTransformFeedback();
     // Enable rendering
     glDisable(GL_RASTERIZER_DISCARD);
     //////////// Render part ///////////////
     // Activate the shader program
     glUseProgram(_shaderProgID);
-
-    //glEnable(GL_DEPTH_TEST);           // Enables depth test
-    //glEnable(GL_CULL_FACE);            // Enables the culling of back faces
-
     // Activate Texture
     glBindTexture(GL_TEXTURE_2D, _textureID);
 
