@@ -42,7 +42,7 @@ void main()
         float age = u_time - a_startTime;
         if( age > u_tTL ) {
             // The particle is past its lifetime, recycle.
-            td_position = u_offset;
+            td_position = vec3(0.0);
             td_velocity = a_initialVelocity;
             td_startTime = u_time;
             } else {

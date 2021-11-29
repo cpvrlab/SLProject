@@ -141,8 +141,9 @@ void initParticles(float numberPerFrame, float timeToLive, SLVec3f offset)
     {
         _count++;
         p.v.x         = randomFloat(0.2f, -0.2f);
-        p.v.y         = randomFloat(0.4f, 0.6f);
+        p.v.y         = randomFloat(0.4f, 1.0f);
         p.initV       = p.v;
+        //AMOUNT*10 parce que la boucle va jusqu'a AMOUNT * 10
         p.st          = i * (timeToLive / (AMOUNT*10)); // When the first particle dies the last one begin to live
 
         data[i] = p.p.x;
@@ -243,10 +244,10 @@ void onInit()
 
     //buildBox();
     //buildSquare();
-    initParticles(3.0f, 5.0f, SLVec3f(0, -0.5, 0));
+    initParticles(3.0f, 5.0f, SLVec3f(0, 0, 0));
 
     glClearColor(0.0f, 0.0f, 0.0f, 1); // Set the background color
-    glEnable(GL_DEPTH_TEST);           // Enables depth test
+    //glEnable(GL_DEPTH_TEST);           // Enables depth test
     glEnable(GL_CULL_FACE);            // Enables the culling of back faces
     GETGLERROR;
 }
@@ -573,22 +574,8 @@ int main(int argc, char* argv[])
     glfwSetWindowCloseCallback(window, onClose);
 
     // Event loop
-    float lastFrame = glfwGetTime();
-    float currentFrame = 0.0f;
-    float deltaTime = 0.0f;
-    float timingRespawn = 0.0f;
     while (!glfwWindowShouldClose(window))
     {
-        /* currentFrame = glfwGetTime();
-        deltaTime    = currentFrame - lastFrame;
-        lastFrame    = currentFrame;
-        timingRespawn += deltaTime;
-        if (timingRespawn > 0.05f) {
-            spawnParticles(3, SLVec3f(0, -0.5, 0));
-            timingRespawn = 0.0f;
-        }
-        updateParticles(deltaTime);*/
-
         // if no updated occurred wait for the next event (power saving)
         if (!onPaint())
             glfwWaitEvents();

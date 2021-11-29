@@ -17,6 +17,7 @@ layout (max_vertices = 4) out;
 
 in vertex {
     float transparency;
+    vec4 pos;
 } vert[];
 
 uniform mat4 u_pMatrix;  // projection matrix
@@ -29,35 +30,36 @@ out vec2 v_texCoord; //Texture coordinate at vertex
 //-----------------------------------------------------------------------------
 void main (void)
 {
+
   vec4 P = gl_in[0].gl_Position;
 
   //BOTTOM LEFT
-  vec2 va = (P.xy + vec2(-0.5, -0.5)) * u_scale;
-  gl_Position = u_pMatrix * vec4(va, P.zw);
+  vec4 va = vec4((vert[0].pos.xy + vec2(-0.5, -0.5)) ,vert[0].pos.z,0) + P;
+  gl_Position = u_pMatrix * va;
   v_texCoord = vec2(0.0, 0.0);
   v_particleColor = u_color;
   v_particleColor.w = vert[0].transparency;
   EmitVertex();  
   
   //BOTTOM RIGHT
-  vec2 vd = (P.xy + vec2(0.5, -0.5)) * u_scale;
-  gl_Position = u_pMatrix *  vec4(vd, P.zw);
+  vec4 vd = vec4((vert[0].pos.xy + vec2(0.5, -0.5)) * u_scale,vert[0].pos.z,0) + P;
+  gl_Position = u_pMatrix * vd;
   v_texCoord = vec2(1.0, 0.0);
   v_particleColor = u_color;
   v_particleColor.w = vert[0].transparency;
   EmitVertex();  
 
   //TOP LEFT
-  vec2 vb = (P.xy + vec2(-0.5, 0.5)) * u_scale;
-  gl_Position = u_pMatrix * vec4(vb, P.zw);
+  vec4 vb = vec4((vert[0].pos.xy + vec2(-0.5, 0.5)) * u_scale,vert[0].pos.z,0) + P;
+  gl_Position = u_pMatrix * vb;
   v_texCoord = vec2(0.0, 1.0);
   v_particleColor = u_color;
   v_particleColor.w = vert[0].transparency;
   EmitVertex();  
 
   //TOP RIGHT
-  vec2 vc = (P.xy + vec2(0.5, 0.5)) * u_scale;
-  gl_Position = u_pMatrix *  vec4(vc, P.zw);
+  vec4 vc = vec4((vert[0].pos.xy + vec2(0.5, 0.5)) * u_scale,vert[0].pos.z,0) + P;
+  gl_Position = u_pMatrix *  vc;
   v_texCoord = vec2(1.0, 1.0);
   v_particleColor = u_color;
   v_particleColor.w = vert[0].transparency;
