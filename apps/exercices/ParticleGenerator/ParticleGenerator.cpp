@@ -313,6 +313,7 @@ bool onPaint()
     mv.multiply(_modelMatrix);
 
     _currentTime = glfwGetTime();
+    std::cout << _currentTime << std::endl;
     float delatTime = _currentTime - _lastTime;
     _lastTime       = _currentTime;
 
