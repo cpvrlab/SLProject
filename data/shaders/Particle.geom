@@ -24,6 +24,7 @@ uniform mat4 u_pMatrix;  // projection matrix
 
 uniform vec4 u_color; // Object color
 uniform float u_scale; // Object scale
+uniform float u_radius; // Particle radius
 
 out vec4 v_particleColor; // The resulting color per vertex
 out vec2 v_texCoord; //Texture coordinate at vertex
@@ -34,7 +35,7 @@ void main (void)
   vec4 P = gl_in[0].gl_Position;
 
   //BOTTOM LEFT
-  vec4 va = vec4((vert[0].pos.xy + vec2(-0.5, -0.5)) ,vert[0].pos.z,0) + P;
+  vec4 va = vec4((vert[0].pos.xy + vec2(-u_radius, -u_radius)) ,vert[0].pos.z,0) + P;
   gl_Position = u_pMatrix * va;
   v_texCoord = vec2(0.0, 0.0);
   v_particleColor = u_color;
@@ -42,7 +43,7 @@ void main (void)
   EmitVertex();  
   
   //BOTTOM RIGHT
-  vec4 vd = vec4((vert[0].pos.xy + vec2(0.5, -0.5)) * u_scale,vert[0].pos.z,0) + P;
+  vec4 vd = vec4((vert[0].pos.xy + vec2(u_radius, -u_radius)) * u_scale,vert[0].pos.z,0) + P;
   gl_Position = u_pMatrix * vd;
   v_texCoord = vec2(1.0, 0.0);
   v_particleColor = u_color;
@@ -50,7 +51,7 @@ void main (void)
   EmitVertex();  
 
   //TOP LEFT
-  vec4 vb = vec4((vert[0].pos.xy + vec2(-0.5, 0.5)) * u_scale,vert[0].pos.z,0) + P;
+  vec4 vb = vec4((vert[0].pos.xy + vec2(-u_radius,u_radius)) * u_scale,vert[0].pos.z,0) + P;
   gl_Position = u_pMatrix * vb;
   v_texCoord = vec2(0.0, 1.0);
   v_particleColor = u_color;
@@ -58,7 +59,7 @@ void main (void)
   EmitVertex();  
 
   //TOP RIGHT
-  vec4 vc = vec4((vert[0].pos.xy + vec2(0.5, 0.5)) * u_scale,vert[0].pos.z,0) + P;
+  vec4 vc = vec4((vert[0].pos.xy + vec2(u_radius, u_radius)) * u_scale,vert[0].pos.z,0) + P;
   gl_Position = u_pMatrix *  vc;
   v_texCoord = vec2(1.0, 1.0);
   v_particleColor = u_color;

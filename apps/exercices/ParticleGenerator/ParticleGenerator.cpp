@@ -98,6 +98,7 @@ static GLint _pLoc;   //!< attribute location for vertex position
 static GLint _cLoc;   //!< attribute location for vertex color
 static GLint _stLoc; //!< attribute location for vertex start time
 static GLint _sLoc;   //!< uniform location for vertex scale
+static GLint _radiusLoc;   //!< uniform location for particle radius
 static GLint _tTLLoc; //!< uniform location for particle life time
 static GLint _timeLoc; //!< uniform location for time
 static GLint _tLoc;   //!< attribute location for vertex texture coord
@@ -238,6 +239,7 @@ void onInit()
     _pMatLoc     = glGetUniformLocation(_shaderProgID, "u_pMatrix");
     _cLoc        = glGetUniformLocation(_shaderProgID, "u_color");
     _sLoc        = glGetUniformLocation(_shaderProgID, "u_scale");
+    _radiusLoc   = glGetUniformLocation(_shaderProgID, "u_radius");
     _tTLLoc      = glGetUniformLocation(_shaderProgID, "u_tTL");
     _timeLoc     = glGetUniformLocation(_shaderProgID, "u_time");
     _texture0Loc = glGetUniformLocation(_shaderProgID, "u_matTextureDiffuse0");
@@ -339,6 +341,7 @@ bool onPaint()
     glUniform1f(_tTLLoc, _ttl); 
     glUniform1f(_timeLoc, _currentTime);
     glUniform1f(_sLoc, 1.0f);
+    glUniform1f(_radiusLoc, 0.1f);
     glUniform4f(_cLoc, 1.0f,1.0f,1.0f,1.0f);
 
      // Un-bind the feedback object.
