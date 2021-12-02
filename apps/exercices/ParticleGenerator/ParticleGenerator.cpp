@@ -15,32 +15,13 @@
 #include <glUtils.h>    // Basics for OpenGL shaders, buffers & textures
 
 //-----------------------------------------------------------------------------
-//! Struct definition for vertex attributes
-struct VertexPNT
-{
-    SLVec3f p; // vertex position [x,y,z]
-    SLVec3f n; // vertex normal [x,y,z]
-    SLVec2f t; // vertex texture coord. [s,t]
-};
-//! Struct definition for particle attribute position, velocity, color and life
-struct Particle
-{
-    SLVec3f p; // particle position [x,y,z]
-    SLVec3f v; // particle velocity [x,y,z]
-    SLCol4f c; // particle color [r,g,b,a]
-    float s; // particle scale 
-    float life; //
-
-    Particle()
-      : p(0.0f), v(0.0f), c(1.0f),s(1.0f), life(0.0f) {}
-};
-
+//! Struct definition for particle attribute position, velocity, start time and life
 struct ParticleNew
 {
     SLVec3f p;    // particle position [x,y,z]
     SLVec3f v;    // particle velocity [x,y,z]
     float   st;  // particle start time
-    SLVec3f initV;    // particle velocity [x,y,z]
+    SLVec3f initV;    // particle initial velocity [x,y,z]
 
     ParticleNew()
       : p(0.0f), v(0.0f), st(0.0f), initV(0.0f) {}
@@ -63,13 +44,11 @@ static GLuint _vbo[2];    // ID of the vertex buffer object
 static GLuint _numV = 0; //!< NO. of vertices
 static GLuint _numI = 0; //!< NO. of vertex indexes for triangles
 
-vector<Particle> particles;  //!< List of particles
 const int AMOUNT = 500; //!< Amount of particles
 static int     _drawBuf = 0; // Boolean to switch buffer
 static float     _ttl = 5.0f; // Boolean to switch buffer
 static float     _currentTime = 0.0f; // Boolean to switch buffer
 static float     _lastTime = 0.0f; // Boolean to switch buffer
-static bool      _firstTimeRendering = true;
 
 static float  _camZ;                   //!< z-distance of camera
 static float  _rotX, _rotY;            //!< rotation angles around x & y axis
@@ -218,10 +197,6 @@ void onInit()
     glUseProgram(_tDshaderProgID);
 
     // Get the variable locations (identifiers) within the program
-    /* _pTdLoc   = glGetAttribLocation(_tDshaderProgID, "a_position");
-    _vTdLoc     = glGetAttribLocation(_tDshaderProgID, "a_velocity");
-    _stTdLoc     = glGetAttribLocation(_tDshaderProgID, "a_startTime");
-    _initVTdLoc = glGetAttribLocation(_tDshaderProgID, "a_initialVelocity");*/
     _tTLTdLoc   = glGetUniformLocation(_tDshaderProgID, "u_tTL");
     _timeTdLoc  = glGetUniformLocation(_tDshaderProgID, "u_time");
     _dTimeLoc = glGetUniformLocation(_tDshaderProgID, "u_deltaTime");
@@ -232,8 +207,6 @@ void onInit()
     glUseProgram(_shaderProgID);
 
     // Get the variable locations (identifiers) within the program
-    /* _pLoc   = glGetAttribLocation(_shaderProgID, "a_position");
-    _stLoc   = glGetAttribLocation(_shaderProgID, "a_startTime");*/
     _gLoc   = glGetUniformLocation(_shaderProgID, "u_oneOverGamma");
     _mvLoc = glGetUniformLocation(_shaderProgID, "u_mvMatrix");
     _pMatLoc     = glGetUniformLocation(_shaderProgID, "u_pMatrix");
