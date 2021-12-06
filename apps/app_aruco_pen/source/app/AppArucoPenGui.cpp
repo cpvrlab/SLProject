@@ -42,6 +42,7 @@
 
 #include <app/AppArucoPen.h>
 #include <app/AppArucoPenEvaluator.h>
+#include <CVCaptureProviderIDSPeak.h>
 
 #ifdef SL_BUILD_WAI
 #    include <Eigen/Dense>
@@ -916,9 +917,9 @@ void AppArucoPenGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                     ImGui::EndMenu();
                 }
 
-//                if (!AppArucoPen::instance().trackers().empty())
-//                    if (ImGui::MenuItem("Draw Detection", nullptr, AppArucoPen::instance().tracker->drawDetection()))
-//                        AppArucoPen::instance().tracker->drawDetection(!AppArucoPen::instance().tracker->drawDetection());
+                //                if (!AppArucoPen::instance().trackers().empty())
+                //                    if (ImGui::MenuItem("Draw Detection", nullptr, AppArucoPen::instance().tracker->drawDetection()))
+                //                        AppArucoPen::instance().tracker->drawDetection(!AppArucoPen::instance().tracker->drawDetection());
 
                 ImGui::EndMenu();
             }
@@ -1020,10 +1021,35 @@ void AppArucoPenGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                 ImGui::EndMenu();
             }
 
-            if (ImGui::MenuItem("Calculate Extrinsic (Current Camera)"))
+            vector<CVCaptureProviderIDSPeak*> providersIDSPeak;
+            for(CVCaptureProvider* provider : AppArucoPen::instance().captureProviders())
+            {
+                if (typeid(*provider) == typeid(CVCaptureProviderIDSPeak))
+                {
+                    providersIDSPeak.push_back((CVCaptureProviderIDSPeak*)provider);
+                }
+            }
+
+            if (!providersIDSPeak.empty())
+            {
+                auto gain  = (float)providersIDSPeak[0]->gain();
+                auto gamma = (float)providersIDSPeak[0]->gamma();
+
+                if (ImGui::SliderFloat("Gain", &gain, 1.0f, 3.0f, "%.2f"))
+                    for(auto providerIDSPeak : providersIDSPeak)
+                        providerIDSPeak->gain(gain);
+                if (ImGui::SliderFloat("Gamma", &gamma, 0.3f, 3.0f, "%.2f"))
+                    for(auto providerIDSPeak : providersIDSPeak)
+                        providerIDSPeak->gamma(gamma);
+            }
+
+            if (ImGui::MenuItem("Calibrate Intrinsic (Current Camera)"))
+                s->onLoad(s, sv, SID_VideoCalibrateMain);
+
+            if (ImGui::MenuItem("Calibrate Extrinsic (Current Camera)"))
                 AppArucoPenCalibrator::calcExtrinsicParams(AppArucoPen::instance().currentCaptureProvider());
 
-            if (ImGui::MenuItem("Calculate Extrinsic (All Cameras)"))
+            if (ImGui::MenuItem("Calibrate Extrinsic (All Cameras)"))
             {
                 for (CVCaptureProvider* provider : AppArucoPen::instance().captureProviders())
                 {

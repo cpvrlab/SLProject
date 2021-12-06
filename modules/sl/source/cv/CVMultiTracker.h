@@ -18,6 +18,8 @@
 
 #include <SLQuat4.h>
 
+#include <vector>
+
 //-----------------------------------------------------------------------------
 //! CVMultiTracker is used for tracking the same object in multiple frames
 /*! The CVMultiTracker class averages the object view matrices of the same
@@ -32,8 +34,9 @@
 class CVMultiTracker
 {
 private:
-    CVVMatx44f _worldMatrices;
-    CVMatx44f  _averageWorldMatrix;
+    CVVMatx44f         _worldMatrices;
+    std::vector<float> _weights;
+    CVMatx44f          _averageWorldMatrix;
 
     Averaged<CVVec3f> _averagePosition = Averaged<CVVec3f>(6, CVVec3f(0.0f, 0.0f, 0.0f));
     AveragedQuat4f    _averageRotation = AveragedQuat4f(6, SLQuat4f(0.0f, 0.0f, 0.0f, 1.0f));

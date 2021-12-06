@@ -10,6 +10,7 @@
 #include "CVCaptureProviderIDSPeak.h"
 
 #include <IDSPeakInterface.h>
+#include <Instrumentor.h>
 
 #include <utility>
 
@@ -38,11 +39,19 @@ void CVCaptureProviderIDSPeak::open()
     }
 
     _isOpened = true;
-    _device = IDSPeakInterface::instance().openDevice(_deviceIndex);
+
+    IDSPeakDeviceParams params;
+    params.frameRate = 20.0;
+    params.gain      = 1.0;
+    params.gamma     = 1.05;
+    params.binning   = 2;
+    _device          = IDSPeakInterface::instance().openDevice(_deviceIndex, params);
 }
 //-----------------------------------------------------------------------------
 void CVCaptureProviderIDSPeak::grab()
 {
+    PROFILE_FUNCTION();
+
     if (!_isOpened)
     {
         return;
@@ -54,16 +63,16 @@ void CVCaptureProviderIDSPeak::grab()
     uint8_t* dataGray;
     _device.captureImage(&width, &height, &dataBGR, &dataGray);
 
-    // It's much faster if we do this ourselves instead of calling "loadIntoLastFrame"
-    // We also halve the size here to save performance during tracking
-
-    // Store the BGR image
-    _lastFrameBGR = CVMat(height, width, CV_8UC3, dataBGR, 0);
-    cv::resize(_lastFrameBGR, _lastFrameBGR, captureSize());
-
-    // Store the gray image
+    // Store the BGR and the gray image
+    _lastFrameBGR  = CVMat(height, width, CV_8UC3, dataBGR, 0);
     _lastFrameGray = CVMat(height, width, CV_8UC1, dataGray, 0);
-    cv::resize(_lastFrameGray, _lastFrameGray, captureSize());
+
+    // Resize the images if needed
+    if (captureSize().width != width || captureSize().height != height)
+    {
+        cv::resize(_lastFrameBGR, _lastFrameBGR, captureSize());
+        cv::resize(_lastFrameGray, _lastFrameGray, captureSize());
+    }
 }
 //-----------------------------------------------------------------------------
 void CVCaptureProviderIDSPeak::close()

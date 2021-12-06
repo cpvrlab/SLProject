@@ -13,14 +13,14 @@
 #include <GlobalTimer.h>
 #include <CVCapture.h>
 #include <Utils.h>
+#include <Instrumentor.h>
 #include <AppDemo.h>
 #include <app/AppArucoPenROSNode.h>
+#include <IDSPeakInterface.h>
 
 #include <mfapi.h>
 #include <mfidl.h>
 #include <atlstr.h>
-#include <IDSPeakInterface.h>
-
 #include <opencv2/aruco.hpp>
 
 extern void trackVideo(CVCaptureProvider* provider);
@@ -164,6 +164,16 @@ void AppArucoPen::grabFrameImagesAndTrack(SLSceneView* sv)
 //-----------------------------------------------------------------------------
 void AppArucoPen::grabFrameImageAndTrack(CVCaptureProvider* provider, SLSceneView* sv)
 {
+    PROFILE_FUNCTION();
+
+    grabFrameImage(provider, sv);
+    trackVideo(provider);
+}
+//-----------------------------------------------------------------------------
+void AppArucoPen::grabFrameImage(CVCaptureProvider* provider, SLSceneView* sv)
+{
+    PROFILE_FUNCTION();
+
     CVCapture::instance()->startCaptureTimeMS = GlobalTimer::timeMS();
 
     provider->grab();
@@ -175,8 +185,6 @@ void AppArucoPen::grabFrameImageAndTrack(CVCaptureProvider* provider, SLSceneVie
     CVCapture::instance()->lastFrameGray = provider->lastFrameGray();
     CVCapture::instance()->captureSize   = provider->captureSize();
     CVCapture::instance()->format        = PF_bgr;
-
-    trackVideo(provider);
 }
 //-----------------------------------------------------------------------------
 CVTracked* AppArucoPen::currentTracker()

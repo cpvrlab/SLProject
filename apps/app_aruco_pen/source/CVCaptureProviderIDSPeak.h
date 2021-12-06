@@ -21,7 +21,7 @@
 class CVCaptureProviderIDSPeak : public CVCaptureProvider
 {
 private:
-    int _deviceIndex;                //!< the index of this device in the IDS peak device list
+    int           _deviceIndex;      //!< the index of this device in the IDS peak device list
     IDSPeakDevice _device;           //!< the device handle for accessing the IDS functions
     SLbool        _isOpened = false; //!< tracks whether or not the device is opened
 
@@ -34,7 +34,11 @@ public:
     void   close() override;
     SLbool isOpened() override;
 
-    SLint deviceIndex() const { return _deviceIndex; }
+    SLint  deviceIndex() const { return _deviceIndex; }
+    double gain() { return _device.gain(); }
+    double gamma() { return _device.gamma(); }
+    void   gain(double gain) { _device.gain(gain); }
+    void   gamma(double gamma) { _device.gamma(gamma); }
 };
 //-----------------------------------------------------------------------------
 #endif // SLPROJECT_CVCAPTUREPROVIDERIDSPEAK_H

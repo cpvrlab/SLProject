@@ -42,9 +42,12 @@ void AppArucoPenCalibrator::update(CVCamera*    ac,
             init(ac, aapSv);
         }
 
+        CVMat imageCopy = CVCapture::instance()->lastFrameGray.clone();
+        bool success = false;
+
         if (_calibrationEstimator->isStreaming())
         {
-            _calibrationEstimator->updateAndDecorate(CVCapture::instance()->lastFrame, CVCapture::instance()->lastFrameGray, aapSv->grab);
+            success = _calibrationEstimator->updateAndDecorate(CVCapture::instance()->lastFrame, CVCapture::instance()->lastFrameGray, aapSv->grab);
             // reset grabbing switch
             aapSv->grab = false;
 
@@ -74,8 +77,6 @@ void AppArucoPenCalibrator::update(CVCamera*    ac,
                     _processedCalibResult = true;
                     ac->calibration       = _calibrationEstimator->getCalibration();
 
-                    calcExtrinsicParams(AppArucoPen::instance().currentCaptureProvider());
-
                     std::string camUID            = AppArucoPen::instance().currentCaptureProvider()->uid();
                     string      mainCalibFilename = "camCalib_" + camUID + ".xml";
                     std::string errorMsg;
@@ -99,6 +100,15 @@ void AppArucoPenCalibrator::update(CVCamera*    ac,
         {
             s->info(("Capturing done!"));
         }
+
+        if (success)
+        {
+            int         index         = _calibrationEstimator->numCapturedImgs();
+            std::string directory     = "C:/Users/vwm1/Desktop/CalibFrames/";
+            std::string frameFileName = directory + "frame_" + std::to_string(index) + ".jpg";
+            cv::imwrite(frameFileName, imageCopy);
+        }
+
     }
     catch (CVCalibrationEstimatorException& e)
     {
@@ -132,8 +142,8 @@ void AppArucoPenCalibrator::calcExtrinsicParams(CVCaptureProvider* provider)
     CVVPoint2f corners2D;
     int        flags = cv::CALIB_CB_FAST_CHECK + cv::CALIB_CB_ADAPTIVE_THRESH;
 
-//    provider->lastFrameGray().convertTo(provider->lastFrameGray(), -1, 1.5, -350.0);
-//    cv::imwrite("C:/Users/vwm1/Desktop/imgi.png", provider->lastFrameGray());
+    //    provider->lastFrameGray().convertTo(provider->lastFrameGray(), -1, 1.5, -350.0);
+    //    cv::imwrite("C:/Users/vwm1/Desktop/imgi.png", provider->lastFrameGray());
 
     if (!cv::findChessboardCorners(provider->lastFrameGray(),
                                    boardSize,

@@ -23,7 +23,6 @@ void SLGLFWInterface::initialize()
 GLFWwindow* SLGLFWInterface::createWindow(int width,
                          int height,
                          SLstring title,
-                         int swapInterval,
                          int samples)
 {
     // Enable fullscreen anti aliasing with n samples
@@ -45,9 +44,6 @@ GLFWwindow* SLGLFWInterface::createWindow(int width,
         glfwTerminate();
         exit(EXIT_FAILURE);
     }
-
-    // Set number of monitor refreshes between 2 buffer swaps
-    glfwSwapInterval(swapInterval);
 
     glfwSetWindowCloseCallback(window, onCloseInternal);
 

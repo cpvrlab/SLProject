@@ -8,16 +8,19 @@
 //#############################################################################
 
 #include <cv/CVMultiTracker.h>
-#include <utility>
-#include <vector>
+#include <Instrumentor.h>
 
-//-----------------------------------------------------------------------------
 /*! Computes the matrix in world space for the current object view matrix of
  * the tracker and saves it for later averaging
  */
 void CVMultiTracker::recordCurrentPose(CVTracked* tracked, CVCalibration* calib)
 {
+    PROFILE_FUNCTION();
+
     CVMatx44f matrix(tracked->objectViewMat());
+
+    float   weight           = 1.0f;
+    SLVec3f posRelativeToCam = SLVec3f(matrix.val[3], matrix.val[7], matrix.val[11]);
 
     if (!calib->rvec.empty() && !calib->tvec.empty())
     {
@@ -36,6 +39,7 @@ void CVMultiTracker::recordCurrentPose(CVTracked* tracked, CVCalibration* calib)
     }
 
     _worldMatrices.push_back(matrix);
+    _weights.push_back(weight);
 }
 //-----------------------------------------------------------------------------
 /*! Averages the object view matrices computed before using the "track" method
@@ -43,6 +47,8 @@ void CVMultiTracker::recordCurrentPose(CVTracked* tracked, CVCalibration* calib)
  */
 void CVMultiTracker::combine()
 {
+    PROFILE_FUNCTION();
+
     if (_worldMatrices.empty())
     {
         return;

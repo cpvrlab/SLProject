@@ -34,7 +34,8 @@ private:
     int  numDevices  = 0;
 
 public:
-    IDSPeakDevice openDevice(int index);
+    IDSPeakDevice openDevice(int index,
+                             IDSPeakDeviceParams& params);
     int           numAvailableDevices();
 
 private:

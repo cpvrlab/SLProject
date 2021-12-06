@@ -9,6 +9,7 @@
 
 #include <cv/CVTrackedArucoCube.h>
 #include <Utils.h>
+#include <Instrumentor.h>
 
 // TODO: Replace with OpenCV classes, SL not allowed in OpenCV module
 #include <SLMat4.h>
@@ -31,6 +32,8 @@ bool CVTrackedArucoCube::track(CVMat          imageGray,
                                CVMat          imageRgb,
                                CVCalibration* calib)
 {
+    PROFILE_FUNCTION();
+
     if (!trackAll(imageGray, imageRgb, calib, _roi))
     {
         return false;

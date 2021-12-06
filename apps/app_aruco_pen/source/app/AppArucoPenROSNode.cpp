@@ -12,16 +12,18 @@
 #include <std_msgs/String.h>
 
 //-----------------------------------------------------------------------------
-AppArucoPenROSNode::AppArucoPenROSNode() {
-    int argc = 0;
-    char **argv = nullptr;
+AppArucoPenROSNode::AppArucoPenROSNode()
+{
+    int    argc = 0;
+    char** argv = nullptr;
 
     ros::init(argc, argv, "aruco_pen");
     ros::NodeHandle node;
     _publisher = node.advertise<std_msgs::String>("aruco_pen/tip", 1000);
 }
 //-----------------------------------------------------------------------------
-void AppArucoPenROSNode::publish(float x, float y, float z) {
+void AppArucoPenROSNode::publish(float x, float y, float z)
+{
     std::stringstream stream;
     stream << x << ":" << y << ":" << z;
 

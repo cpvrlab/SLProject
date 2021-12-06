@@ -8,6 +8,8 @@
 //#############################################################################
 
 #include <IDSPeakDevice.h>
+#include <IDSPeakInterface.h>
+#include <Instrumentor.h>
 
 IDSPeakDevice::IDSPeakDevice()
 {
@@ -15,33 +17,33 @@ IDSPeakDevice::IDSPeakDevice()
 //-----------------------------------------------------------------------------
 IDSPeakDevice::IDSPeakDevice(std::shared_ptr<peak::core::Device> device,
                              int                                 deviceIndex)
-  : device(device), _deviceIndex(deviceIndex)
+  : _device(device), _deviceIndex(deviceIndex)
 {
 }
 //-----------------------------------------------------------------------------
-void IDSPeakDevice::prepare()
+void IDSPeakDevice::prepare(IDSPeakDeviceParams& params)
 {
-    setParameters();
+    setParameters(params);
     allocateBuffers();
     startCapture();
 }
 //-----------------------------------------------------------------------------
-void IDSPeakDevice::setParameters()
+void IDSPeakDevice::setParameters(IDSPeakDeviceParams& params)
 {
     try
     {
-        nodeMapRemoteDevice = device->RemoteDevice()->NodeMaps().at(0);
+        _nodeMapRemoteDevice = _device->RemoteDevice()->NodeMaps().at(0);
 
         // Set frame rate to maximum
-        auto frameRateNode = nodeMapRemoteDevice->FindNode<peak::core::nodes::FloatNode>("AcquisitionFrameRate");
-//        frameRateNode->SetValue(frameRateNode->Maximum());
+        auto frameRateNode = _nodeMapRemoteDevice->FindNode<peak::core::nodes::FloatNode>("AcquisitionFrameRate");
+        frameRateNode->SetValue(params.frameRate);
         SL_LOG("IDS Peak: Frame rate = %f Hz", frameRateNode->Value());
 
         // Set region of interest
-        auto offsetXNode = nodeMapRemoteDevice->FindNode<peak::core::nodes::IntegerNode>("OffsetX");
-        auto offsetYNode = nodeMapRemoteDevice->FindNode<peak::core::nodes::IntegerNode>("OffsetY");
-        auto widthNode   = nodeMapRemoteDevice->FindNode<peak::core::nodes::IntegerNode>("Width");
-        auto heightNode  = nodeMapRemoteDevice->FindNode<peak::core::nodes::IntegerNode>("Height");
+        auto offsetXNode = _nodeMapRemoteDevice->FindNode<peak::core::nodes::IntegerNode>("OffsetX");
+        auto offsetYNode = _nodeMapRemoteDevice->FindNode<peak::core::nodes::IntegerNode>("OffsetY");
+        auto widthNode   = _nodeMapRemoteDevice->FindNode<peak::core::nodes::IntegerNode>("Width");
+        auto heightNode  = _nodeMapRemoteDevice->FindNode<peak::core::nodes::IntegerNode>("Height");
 
         offsetXNode->SetValue(0);
         offsetYNode->SetValue(0);
@@ -55,18 +57,24 @@ void IDSPeakDevice::setParameters()
                heightNode->Value());
 
         // Set gain
-        auto gainNode = nodeMapRemoteDevice->FindNode<peak::core::nodes::FloatNode>("Gamma");
-        gainNode->SetValue(2.5f);
-        SL_LOG("IDS Peak: Gain = %f", gainNode->Value());
+        _gainNode = _nodeMapRemoteDevice->FindNode<peak::core::nodes::FloatNode>("Gain");
+        _gainNode->SetValue(params.gain);
+        SL_LOG("IDS Peak: Gain = %f", _gainNode->Value());
+
+        // Set gamma
+        _gammaNode = _nodeMapRemoteDevice->FindNode<peak::core::nodes::FloatNode>("Gamma");
+        _gammaNode->SetValue(params.gamma);
+        SL_LOG("IDS Peak: Gamma = %f", _gammaNode->Value());
 
         // Set binning
-        auto binningHNode = nodeMapRemoteDevice->FindNode<peak::core::nodes::IntegerNode>("BinningHorizontal");
-        auto binningVNode = nodeMapRemoteDevice->FindNode<peak::core::nodes::IntegerNode>("BinningVertical");
-        binningHNode->SetValue(2);
-        binningVNode->SetValue(2);
+        auto binningHNode = _nodeMapRemoteDevice->FindNode<peak::core::nodes::IntegerNode>("BinningHorizontal");
+        auto binningVNode = _nodeMapRemoteDevice->FindNode<peak::core::nodes::IntegerNode>("BinningVertical");
+        binningHNode->SetValue(params.binning);
+        binningVNode->SetValue(params.binning);
     }
     catch (const std::exception& e)
     {
+        SL_LOG("Exception in IDSPeakDevice::setParameters");
         SL_EXIT_MSG(e.what());
     }
 }
@@ -75,33 +83,34 @@ void IDSPeakDevice::allocateBuffers()
 {
     try
     {
-        auto dataStreams = device->DataStreams();
+        auto dataStreams = _device->DataStreams();
         if (dataStreams.empty())
         {
             SL_EXIT_MSG("IDS Peak: Device has no data streams");
         }
 
-        dataStream                                             = dataStreams.at(0)->OpenDataStream();
-        std::shared_ptr<peak::core::NodeMap> nodeMapDataStream = dataStream->NodeMaps().at(0);
+        _dataStream                                            = dataStreams.at(0)->OpenDataStream();
+        std::shared_ptr<peak::core::NodeMap> nodeMapDataStream = _dataStream->NodeMaps().at(0);
 
         // Get the payload size
-        int64_t payloadSize = nodeMapRemoteDevice->FindNode<peak::core::nodes::IntegerNode>("PayloadSize")->Value();
+        int64_t payloadSize = _nodeMapRemoteDevice->FindNode<peak::core::nodes::IntegerNode>("PayloadSize")->Value();
         SL_LOG("IDS Peak: Payload size = %d bytes", (int)payloadSize);
 
         // Get the number of required buffers
-        int numBuffers = (int)dataStream->NumBuffersAnnouncedMinRequired();
+        int numBuffers = (int)_dataStream->NumBuffersAnnouncedMinRequired();
 
-        // Allocate the buffers
+        // Allocate and queue the buffers
         for (int i = 0; i < numBuffers; i++)
         {
-            auto buffer = dataStream->AllocAndAnnounceBuffer(static_cast<size_t>(payloadSize), nullptr);
-            dataStream->QueueBuffer(buffer);
+            auto buffer = _dataStream->AllocAndAnnounceBuffer(static_cast<size_t>(payloadSize), nullptr);
+            _dataStream->QueueBuffer(buffer);
         }
 
         SL_LOG("IDS Peak: Buffers allocated");
     }
     catch (const std::exception& e)
     {
+        SL_LOG("Exception in IDSPeakDevice::allocateBuffers");
         SL_EXIT_MSG(e.what());
     }
 }
@@ -110,15 +119,16 @@ void IDSPeakDevice::startCapture()
 {
     try
     {
-        dataStream->StartAcquisition(peak::core::AcquisitionStartMode::Default, PEAK_INFINITE_NUMBER);
+        _dataStream->StartAcquisition(peak::core::AcquisitionStartMode::Default, PEAK_INFINITE_NUMBER);
 
-        nodeMapRemoteDevice->FindNode<peak::core::nodes::IntegerNode>("TLParamsLocked")->SetValue(1);
-        nodeMapRemoteDevice->FindNode<peak::core::nodes::CommandNode>("AcquisitionStart")->Execute();
+        _nodeMapRemoteDevice->FindNode<peak::core::nodes::IntegerNode>("TLParamsLocked")->SetValue(1);
+        _nodeMapRemoteDevice->FindNode<peak::core::nodes::CommandNode>("AcquisitionStart")->Execute();
 
         SL_LOG("IDS Peak: Capture started");
     }
     catch (const std::exception& e)
     {
+        SL_LOG("Exception in IDSPeakDevice::startCapture");
         SL_EXIT_MSG(e.what());
     }
 }
@@ -128,9 +138,11 @@ void IDSPeakDevice::captureImage(int*      width,
                                  uint8_t** dataBGR,
                                  uint8_t** dataGray)
 {
+    PROFILE_FUNCTION();
+
     try
     {
-        const auto buffer    = dataStream->WaitForFinishedBuffer(5000);
+        const auto buffer    = _dataStream->WaitForFinishedBuffer(5000);
         const auto image     = peak::ipl::Image(peak::BufferTo<peak::ipl::Image>(buffer));
         const auto imageBGR  = image.ConvertTo(peak::ipl::PixelFormatName::BGR8,
                                                peak::ipl::ConversionMode::Fast);
@@ -142,12 +154,33 @@ void IDSPeakDevice::captureImage(int*      width,
         *dataBGR  = imageBGR.Data();
         *dataGray = imageGray.Data();
 
-        dataStream->QueueBuffer(buffer);
+        _dataStream->QueueBuffer(buffer);
     }
     catch (std::exception& e)
     {
+        SL_LOG("Exception in IDSPeakDevice::captureImage");
         SL_EXIT_MSG(e.what());
     }
+}
+//-----------------------------------------------------------------------------
+double IDSPeakDevice::gain()
+{
+    return _gainNode->Value();
+}
+//-----------------------------------------------------------------------------
+double IDSPeakDevice::gamma()
+{
+    return _gammaNode->Value();
+}
+//-----------------------------------------------------------------------------
+void IDSPeakDevice::gain(double gain)
+{
+    _gainNode->SetValue(gain);
+}
+//-----------------------------------------------------------------------------
+void IDSPeakDevice::gamma(double gamma)
+{
+    _gammaNode->SetValue(gamma);
 }
 //-----------------------------------------------------------------------------
 void IDSPeakDevice::close()
@@ -161,15 +194,16 @@ void IDSPeakDevice::stopCapture()
 {
     try
     {
-        nodeMapRemoteDevice->FindNode<peak::core::nodes::CommandNode>("AcquisitionStop")->Execute();
-        nodeMapRemoteDevice->FindNode<peak::core::nodes::IntegerNode>("TLParamsLocked")->SetValue(0);
+        _nodeMapRemoteDevice->FindNode<peak::core::nodes::CommandNode>("AcquisitionStop")->Execute();
+        _nodeMapRemoteDevice->FindNode<peak::core::nodes::IntegerNode>("TLParamsLocked")->SetValue(0);
 
-        dataStream->StopAcquisition(peak::core::AcquisitionStopMode::Default);
+        _dataStream->StopAcquisition(peak::core::AcquisitionStopMode::Default);
 
         SL_LOG("IDS Peak: Capture stopped");
     }
     catch (std::exception& e)
     {
+        SL_LOG("Exception in IDSPeakDevice::stopCapture");
         SL_EXIT_MSG(e.what());
     }
 }
@@ -178,15 +212,16 @@ void IDSPeakDevice::deallocateBuffers()
 {
     try
     {
-        dataStream->Flush(peak::core::DataStreamFlushMode::DiscardAll);
+        _dataStream->Flush(peak::core::DataStreamFlushMode::DiscardAll);
 
-        for (const auto& buffer : dataStream->AnnouncedBuffers())
+        for (const auto& buffer : _dataStream->AnnouncedBuffers())
         {
-            dataStream->RevokeBuffer(buffer);
+            _dataStream->RevokeBuffer(buffer);
         }
     }
     catch (std::exception& e)
     {
+        SL_LOG("Exception in IDSPeakDevice::deallocateBuffers");
         SL_EXIT_MSG(e.what());
     }
 }

@@ -191,8 +191,8 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         AppArucoPen::instance().videoTexture = new SLGLTexture(s, texPath + "LiveVideoError.png", GL_LINEAR, GL_LINEAR);
 
         // Material
-        SLMaterial* penTipMaterial = new SLMaterial(s, "Pen Tip Material", SLCol4f(1, 1, 0, 0.5f));
-        SLMaterial* penMaterial    = new SLMaterial(s, "Pen Material", SLCol4f(0.3, 0.1, 1, 0.25f));
+        SLMaterial* penTipMaterial = new SLMaterial(s, "Pen Tip Material", SLCol4f(1.0f, 1.0f, 0.0f, 0.5f));
+        SLMaterial* penMaterial    = new SLMaterial(s, "Pen Material", SLCol4f(0.3f, 0.1f, 1.0f, 0.25f));
 
         // Create a scene group node
         SLNode* scene = new SLNode("scene node");
@@ -268,15 +268,15 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         s->info("Hold the Aruco Cube into the field of view of the main camera. You can find the Aruco markers in the file data/Calibrations. Press F6 to print the ArUco pen position and measure distances");
 
         // Material
-        SLMaterial* penTipMaterial = new SLMaterial(s, "Pen Tip Material", SLCol4f(1, 1, 0, 0.5f));
-        SLMaterial* penMaterial    = new SLMaterial(s, "Pen Material", SLCol4f(0.3, 0.1, 1, 0.25f));
+        SLMaterial* penTipMaterial = new SLMaterial(s, "Pen Tip Material", SLCol4f(1.0f, 1.0f, 0.0f, 0.5f));
+        SLMaterial* penMaterial    = new SLMaterial(s, "Pen Material", SLCol4f(0.3f, 0.1f, 1.0f, 0.25f));
 
         // Create a scene group node
         SLNode* scene = new SLNode("scene node");
 
         // Create a camera node 1
         SLCamera* cam1 = new SLCamera("Camera 1");
-        cam1->translation(0.8, 0.5, 0.8);
+        cam1->translation(0.8f, 0.5f, 0.8f);
         cam1->lookAt(0, 0, 0);
         cam1->fov(36); // FIXME: Hardcoded FOV for Logitech 1080p webcam
         cam1->clipNear(0.001f);
@@ -384,7 +384,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
             total += tipPosition;
         }
 
-        SLVec3f center = total / AppArucoPen::instance().tipPositions.size();
+        SLVec3f center = total / (float) AppArucoPen::instance().tipPositions.size();
 
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->translation(center.x, center.y + 1, center.z + 1);

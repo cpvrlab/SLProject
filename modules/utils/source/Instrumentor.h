@@ -24,7 +24,7 @@
  * Just add PROFILE_FUNCTION(); at the beginning of a function that you want to
  * profile. See the Instrumentor class below on how to display the profiling data.
  */
-#define PROFILING 0
+#define PROFILING 1
 
 //-----------------------------------------------------------------------------
 #if PROFILING

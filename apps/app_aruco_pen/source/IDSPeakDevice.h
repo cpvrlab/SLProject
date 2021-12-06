@@ -14,18 +14,30 @@
 #include <peak_ipl/peak_ipl.hpp>
 #include <peak/converters/peak_buffer_converter_ipl.hpp>
 
-#include <IDSPeakInterface.h>
 #include <SL.h>
 
+//-----------------------------------------------------------------------------
+class IDSPeakDeviceParams
+{
+public:
+    double frameRate = 10.0;
+    double gain      = 1.0;
+    double gamma     = 1.0;
+    int    binning   = 1;
+};
+//-----------------------------------------------------------------------------
 class IDSPeakDevice
 {
     friend class IDSPeakInterface;
 
 private:
-    std::shared_ptr<peak::core::Device>     device              = nullptr;
+    std::shared_ptr<peak::core::Device>     _device              = nullptr;
     int                                     _deviceIndex        = 0;
-    std::shared_ptr<peak::core::DataStream> dataStream          = nullptr;
-    std::shared_ptr<peak::core::NodeMap>    nodeMapRemoteDevice = nullptr;
+    std::shared_ptr<peak::core::DataStream> _dataStream          = nullptr;
+    std::shared_ptr<peak::core::NodeMap>    _nodeMapRemoteDevice = nullptr;
+
+    std::shared_ptr<peak::core::nodes::FloatNode> _gainNode  = nullptr;
+    std::shared_ptr<peak::core::nodes::FloatNode> _gammaNode = nullptr;
 
 public:
     IDSPeakDevice();
@@ -36,17 +48,23 @@ public:
                       int*      height,
                       uint8_t** dataBGR,
                       uint8_t** dataGray);
+
+    double gain();
+    double gamma();
+    void gain(double gain);
+    void gamma(double gamma);
+
     void close();
 
     int deviceIndex() { return _deviceIndex; }
 
 private:
-    void prepare();
-    void setParameters();
+    void prepare(IDSPeakDeviceParams& params);
+    void setParameters(IDSPeakDeviceParams& params);
     void allocateBuffers();
     void deallocateBuffers();
     void startCapture();
     void stopCapture();
 };
-
+//-----------------------------------------------------------------------------
 #endif // SRC_IDSPEAKDEVICE_H

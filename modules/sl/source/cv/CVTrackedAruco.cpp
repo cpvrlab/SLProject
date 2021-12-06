@@ -17,6 +17,7 @@ for a good top down information.
 */
 #include <cv/CVTrackedAruco.h>
 #include <Utils.h>
+#include <Instrumentor.h>
 
 //-----------------------------------------------------------------------------
 // Initialize static variables
@@ -62,6 +63,8 @@ bool CVTrackedAruco::trackAll(CVMat          imageGray,
                               CVCalibration* calib,
                               CVRect         roi)
 {
+    PROFILE_FUNCTION();
+
     assert(!imageGray.empty() && "ImageGray is empty");
     assert(!imageRgb.empty() && "ImageRGB is empty");
     assert(!calib->cameraMat().empty() && "Calibration is empty");

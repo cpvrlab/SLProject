@@ -20,6 +20,7 @@ void IDSPeakInterface::init()
     }
     catch (std::exception& e)
     {
+        SL_LOG("Exception in IDSPeakInterface::init");
         SL_EXIT_MSG(e.what());
     }
 }
@@ -34,11 +35,13 @@ void IDSPeakInterface::uninit()
     }
     catch (std::exception& e)
     {
+        SL_LOG("Exception in IDSPeakInterface::uninit");
         SL_EXIT_MSG(e.what());
     }
 }
 //-----------------------------------------------------------------------------
-IDSPeakDevice IDSPeakInterface::openDevice(int index)
+IDSPeakDevice IDSPeakInterface::openDevice(int index,
+                                           IDSPeakDeviceParams& params)
 {
     if (!initialized)
     {
@@ -66,11 +69,12 @@ IDSPeakDevice IDSPeakInterface::openDevice(int index)
         numDevices++;
 
         IDSPeakDevice result(device, index);
-        result.prepare();
+        result.prepare(params);
         return result;
     }
     catch (const std::exception& e)
     {
+        SL_LOG("Exception in IDSPeakInterface::openDevice");
         SL_EXIT_MSG(e.what());
     }
 
@@ -92,6 +96,7 @@ int IDSPeakInterface::numAvailableDevices()
     }
     catch (const std::exception& e)
     {
+        SL_LOG("Exception in IDSPeakInterface::numAvailableDevices");
         SL_EXIT_MSG(e.what());
     }
 }

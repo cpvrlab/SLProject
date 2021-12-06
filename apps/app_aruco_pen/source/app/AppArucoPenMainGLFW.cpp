@@ -350,7 +350,7 @@ SLSceneView* createAppDemoSceneView(SLProjectScene* scene,
 void initGLFW(int screenWidth, int screenHeight)
 {
     SLGLFWInterface::initialize();
-    window = SLGLFWInterface::createWindow(screenWidth, screenHeight, "My Title", 1, 4);
+    window = SLGLFWInterface::createWindow(screenWidth, screenHeight, "My Title", 4);
 
     // get real window size
     glfwGetWindowSize(window, &scrWidth, &scrHeight);
@@ -404,6 +404,10 @@ void initSL(SLVstring& cmdLineArgs)
     // CVCapture::instance()->loadCalibrations(Utils::ComputerInfos::get(), AppDemo::calibFilePath); // for calibrations made
 
     /////////////////////////////////////////////////////////
+    AppArucoPen::instance().openCaptureProviders();
+    /////////////////////////////////////////////////////////
+
+    /////////////////////////////////////////////////////////
     slCreateAppAndScene(cmdLineArgs,
                         projectRoot + "/data/",
                         projectRoot + "/data/shaders/",
@@ -452,7 +456,6 @@ int main(int argc, char* argv[])
 
         initGLFW(scrWidth, scrHeight);
 
-        AppArucoPen::instance().openCaptureProviders();
         initSL(cmdLineArgs);
 
         // Event loop
@@ -471,7 +474,6 @@ int main(int argc, char* argv[])
         }
 
         AppArucoPen::instance().closeCaptureProviders();
-
         slTerminate();
 
         glfwDestroyWindow(window);
@@ -479,7 +481,7 @@ int main(int argc, char* argv[])
     }
     catch (std::exception& e)
     {
-        SL_LOG("%s", e.what());
+        SL_LOG("Uncaught exception: %s", e.what());
     }
 
     return 0;

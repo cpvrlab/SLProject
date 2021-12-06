@@ -90,6 +90,8 @@ void ensureValidCalibration(CVCamera* ac, SLSceneView* sv)
 //-----------------------------------------------------------------------------
 void trackVideo(CVCaptureProvider* provider)
 {
+    PROFILE_FUNCTION();
+
     SLSceneView* sv = AppDemo::sceneViews[0];
     CVCamera*    ac = &provider->camera();
 
@@ -103,84 +105,84 @@ void trackVideo(CVCaptureProvider* provider)
     CVTracked* tracker = AppArucoPen::instance().trackers().at(provider);
     if (tracker && AppArucoPen::instance().trackedNode)
     {
-//        if (typeid(*tracker) == typeid(CVTrackedArucoCube) && CVTrackedAruco::paramsLoaded)
-//        {
-//
-//            CVTrackedArucoCube* trackedArucoCube = (CVTrackedArucoCube*)tracker;
-//            CVRect              lastRoi          = CVRect(trackedArucoCube->_roi);
-//            trackedArucoCube->_roi               = CVRect(0, 0, 0, 0);
-//
-//            CVMat  imgGray;
-//            CVRect adapterRoi;
-//            if (lastRoi.empty())
-//            {
-//                imgGray    = CVCapture::instance()->lastFrameGray;
-//                adapterRoi = CVRect(0, 0, imgGray.cols, imgGray.rows);
-//            }
-//            else
-//            {
-//                adapterRoi        = CVRect(lastRoi.x - 100, lastRoi.y - 100, lastRoi.width + 200, lastRoi.height + 200);
-//                adapterRoi.x      = max(adapterRoi.x, 0);
-//                adapterRoi.y      = max(adapterRoi.y, 0);
-//                adapterRoi.width  = min(adapterRoi.x + adapterRoi.width, CVCapture::instance()->lastFrameGray.cols) - adapterRoi.x;
-//                adapterRoi.height = min(adapterRoi.y + adapterRoi.height, CVCapture::instance()->lastFrameGray.rows) - adapterRoi.y;
-//
-//                imgGray = CVCapture::instance()->lastFrameGray(adapterRoi);
-//
-//                cv::rectangle(CVCapture::instance()->lastFrame,
-//                              adapterRoi,
-//                              cv::Scalar(0, 255, 0),
-//                              2);
-//            }
-//
-//            CVVVPoint2f      corners, rejected;
-//            std::vector<int> arucoIDs;
-//            cv::aruco::detectMarkers(imgGray,
-//                                     CVTrackedAruco::params.dictionary,
-//                                     corners,
-//                                     arucoIDs,
-//                                     CVTrackedAruco::params.arucoParams,
-//                                     rejected);
-//
-//            if (!corners.empty())
-//            {
-//                float minX = 10000, minY = 10000, maxX = -10000, maxY = -10000;
-//
-//                for (auto& i : corners)
-//                {
-//                    for (const auto& corner : i)
-//                    {
-//                        if (corner.x < minX) minX = corner.x;
-//                        if (corner.x > maxX) maxX = corner.x;
-//
-//                        if (corner.y < minY) minY = corner.y;
-//                        if (corner.y > maxY) maxY = corner.y;
-//                    }
-//                }
-//
-//                minX += adapterRoi.x;
-//                maxX += adapterRoi.x;
-//                minY += adapterRoi.y;
-//                maxY += adapterRoi.y;
-//
-//                int roiX      = (int)minX - 100;
-//                int roiY      = (int)minY - 100;
-//                int roiWidth  = (int)(maxX - minX) + 200;
-//                int roiHeight = (int)(maxY - minY) + 200;
-//
-//                CVRect roi             = CVRect(roiX, roiY, roiWidth, roiHeight);
-//                roi.x                  = max(roi.x, 0);
-//                roi.y                  = max(roi.y, 0);
-//                roi.width              = min(roi.x + roi.width, CVCapture::instance()->lastFrame.cols) - roi.x;
-//                roi.height             = min(roi.y + roi.height, CVCapture::instance()->lastFrame.rows) - roi.y;
-//                trackedArucoCube->_roi = roi;
-//
-//                cv::rectangle(CVCapture::instance()->lastFrame,
-//                              roi,
-//                              cv::Scalar(255, 0, 0),
-//                              2);
-//            }
-//        }
+        if (false && typeid(*tracker) == typeid(CVTrackedArucoCube) && CVTrackedAruco::paramsLoaded)
+        {
+
+            CVTrackedArucoCube* trackedArucoCube = (CVTrackedArucoCube*)tracker;
+            CVRect              lastRoi          = CVRect(trackedArucoCube->_roi);
+            trackedArucoCube->_roi               = CVRect(0, 0, 0, 0);
+
+            CVMat  imgGray;
+            CVRect adapterRoi;
+            if (lastRoi.empty())
+            {
+                imgGray    = CVCapture::instance()->lastFrameGray;
+                adapterRoi = CVRect(0, 0, imgGray.cols, imgGray.rows);
+            }
+            else
+            {
+                adapterRoi        = CVRect(lastRoi.x - 100, lastRoi.y - 100, lastRoi.width + 200, lastRoi.height + 200);
+                adapterRoi.x      = max(adapterRoi.x, 0);
+                adapterRoi.y      = max(adapterRoi.y, 0);
+                adapterRoi.width  = min(adapterRoi.x + adapterRoi.width, CVCapture::instance()->lastFrameGray.cols) - adapterRoi.x;
+                adapterRoi.height = min(adapterRoi.y + adapterRoi.height, CVCapture::instance()->lastFrameGray.rows) - adapterRoi.y;
+
+                imgGray = CVCapture::instance()->lastFrameGray(adapterRoi);
+
+                cv::rectangle(CVCapture::instance()->lastFrame,
+                              adapterRoi,
+                              cv::Scalar(0, 255, 0),
+                              2);
+            }
+
+            CVVVPoint2f      corners, rejected;
+            std::vector<int> arucoIDs;
+            cv::aruco::detectMarkers(imgGray,
+                                     CVTrackedAruco::params.dictionary,
+                                     corners,
+                                     arucoIDs,
+                                     CVTrackedAruco::params.arucoParams,
+                                     rejected);
+
+            if (!corners.empty())
+            {
+                float minX = 10000, minY = 10000, maxX = -10000, maxY = -10000;
+
+                for (auto& i : corners)
+                {
+                    for (const auto& corner : i)
+                    {
+                        if (corner.x < minX) minX = corner.x;
+                        if (corner.x > maxX) maxX = corner.x;
+
+                        if (corner.y < minY) minY = corner.y;
+                        if (corner.y > maxY) maxY = corner.y;
+                    }
+                }
+
+                minX += adapterRoi.x;
+                maxX += adapterRoi.x;
+                minY += adapterRoi.y;
+                maxY += adapterRoi.y;
+
+                int roiX      = (int)minX - 100;
+                int roiY      = (int)minY - 100;
+                int roiWidth  = (int)(maxX - minX) + 200;
+                int roiHeight = (int)(maxY - minY) + 200;
+
+                CVRect roi             = CVRect(roiX, roiY, roiWidth, roiHeight);
+                roi.x                  = max(roi.x, 0);
+                roi.y                  = max(roi.y, 0);
+                roi.width              = min(roi.x + roi.width, CVCapture::instance()->lastFrame.cols) - roi.x;
+                roi.height             = min(roi.y + roi.height, CVCapture::instance()->lastFrame.rows) - roi.y;
+                trackedArucoCube->_roi = roi;
+
+                cv::rectangle(CVCapture::instance()->lastFrame,
+                              roi,
+                              cv::Scalar(255, 0, 0),
+                              2);
+            }
+        }
 
         bool foundPose = tracker->track(CVCapture::instance()->lastFrameGray,
                                         CVCapture::instance()->lastFrame,

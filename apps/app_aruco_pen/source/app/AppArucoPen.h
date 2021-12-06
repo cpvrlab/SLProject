@@ -73,6 +73,7 @@ public:
 private:
     void openCaptureProvider(CVCaptureProvider* captureProvider);
     void grabFrameImageAndTrack(CVCaptureProvider* provider, SLSceneView* sv);
+    void grabFrameImage(CVCaptureProvider* provider, SLSceneView* sv);
 };
 //-----------------------------------------------------------------------------
 #endif // SLPROJECT_APPARUCOPEN_H

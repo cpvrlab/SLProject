@@ -9,6 +9,8 @@
 
 #include "CVCaptureProvider.h"
 
+#include <Instrumentor.h>
+
 #include <utility>
 
 //-----------------------------------------------------------------------------
@@ -24,12 +26,16 @@ CVCaptureProvider::CVCaptureProvider(SLstring uid,
 //-----------------------------------------------------------------------------
 void CVCaptureProvider::cropToAspectRatio(float aspectRatio)
 {
+    PROFILE_FUNCTION();
+
     cropToAspectRatio(_lastFrameBGR, aspectRatio);
     cropToAspectRatio(_lastFrameGray, aspectRatio);
 }
 //-----------------------------------------------------------------------------
 void CVCaptureProvider::cropToAspectRatio(CVMat& image, float aspectRatio)
 {
+    PROFILE_FUNCTION();
+
     float inWdivH = (float)image.cols / (float)image.rows;
     // viewportWdivH is negative the viewport aspect will be the same
     float outWdivH = aspectRatio < 0.0f ? inWdivH : aspectRatio;
@@ -77,7 +83,6 @@ void CVCaptureProvider::cropToAspectRatio(CVMat& image, float aspectRatio)
         }
 
         image(CVRect(cropW, cropH, width, height)).copyTo(image);
-        //imwrite("AfterCropping.bmp", image);
     }
 }
 //-----------------------------------------------------------------------------

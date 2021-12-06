@@ -109,7 +109,6 @@ SLbool AppArucoPenEvaluator::onKeyPress(const SLKey key,
 
     return false;
 }
-
 //-----------------------------------------------------------------------------
 /*! Removes the dot and the key event handler from the scene and writes the
  * results (actual corner position as int and float, measured position, offset,
@@ -138,10 +137,12 @@ void AppArucoPenEvaluator::finish()
         return;
     }
 
-    float totalDistance = 0.0;
+    float totalDistance = 0.0f;
+    std::vector<float> distances;
 
     // Write the corner values to the CSV file
-    csvStream << "Corner;Truth [cm];Measured [cm];Offset [cm];Distance [cm]\n";
+    // (Trust me, it just works)
+    csvStream << "\"Corner\",\"Truth [cm]\",\"Measured [cm]\",\"Offset [cm]\",\"Distance [cm]\"\n";
     for (int i = 0; i < corners.size(); i++)
     {
         SLVec2<int> corner   = intCorners[i];
@@ -150,19 +151,30 @@ void AppArucoPenEvaluator::finish()
         SLVec3f     offset   = measured - truth;
         float       distance = offset.length();
 
-        csvStream << corner.x << ", " << corner.y << ";";
-        csvStream << truth.toString(", ", 1) << ";";
-        csvStream << measured.toString(", ", 1) << ";";
-        csvStream << offset.toString(", ", 1) << ";";
-        csvStream << std::fixed << std::setprecision(2) << distance << "\n";
+        csvStream << "\"" << corner.x << "," << corner.y << "\",";
+        csvStream << "\"" << truth.toString(", ", 1) << "\",";
+        csvStream << "\"" << measured.toString(", ", 1) << "\",";
+        csvStream << "\"" << offset.toString(", ", 1) << "\",";
+        csvStream << "\"" << std::fixed << std::setprecision(2) << distance << "\"\n";
 
         totalDistance += distance;
+        distances.push_back(distance);
     }
 
     // Write the average to the CSV file
     float avgDistance = totalDistance / (float)corners.size();
-    csvStream << "Average;;;;" << std::fixed << std::setprecision(2) << avgDistance << "\n";
+    csvStream << "\"Average\",,,,\"" << std::fixed << std::setprecision(2) << avgDistance << "\"\n";
 
-    SL_LOG("Saved evaluation to \"%s%s\"", Utils::getCurrentWorkingDir().c_str(), csvFilename.c_str());
+    // Calculate the standard deviation and write it to the CSV file
+    float totalDevSqr = 0;
+    for(float distance : distances) {
+        float dev = avgDistance - distance;
+        totalDevSqr += dev * dev;
+    }
+    float variance = totalDevSqr / (float)corners.size();
+    float stdDev = std::sqrt(variance);
+    csvStream << "\"Standard Deviation\",,,,\"" << std::fixed << std::setprecision(2) << stdDev << "\"\n";
+
+    SL_LOG("Saved evaluation to \"%s\\%s\"", Utils::getCurrentWorkingDir().c_str(), csvFilename.c_str());
 }
 //-----------------------------------------------------------------------------

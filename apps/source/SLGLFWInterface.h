@@ -24,7 +24,6 @@ public:
     static GLFWwindow* createWindow(int width,
                              int height,
                              SLstring title,
-                             int swapInterval,
                              int samples);
     static void createGLContext();
 
