@@ -15,17 +15,16 @@ layout (location = 1) in vec3 a_velocity;
 layout (location = 2) in float a_startTime;
 layout (location = 3) in vec3 a_initialVelocity;
 
-uniform float u_time;  // Simulation time
-uniform float u_deltaTime;     // Elapsed time between frames
-uniform vec3 u_acceleration;  // Particle acceleration
-uniform vec3 u_offset;  // Particle offset
-uniform float u_tTL;  // Particle lifespan
+uniform float u_time;           // Simulation time
+uniform float u_deltaTime;      // Elapsed time between frames
+uniform vec3 u_acceleration;    // Particle acceleration
+uniform float u_tTL;            // Particle lifespan
 
 //Need to be print out in the correct order
-out vec3 tf_position;   // To transform feedback
-out vec3 tf_velocity;   // To transform feedback
-out float tf_startTime; // To transform feedback
-out vec3 tf_initialVelocity; // To transform feedback
+out vec3 tf_position;           // To transform feedback
+out vec3 tf_velocity;           // To transform feedback
+out float tf_startTime;         // To transform feedback
+out vec3 tf_initialVelocity;    // To transform feedback
 
 out  vec4   v_particleColor;
 //-----------------------------------------------------------------------------

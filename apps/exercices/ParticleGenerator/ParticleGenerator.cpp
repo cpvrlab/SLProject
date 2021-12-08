@@ -15,7 +15,7 @@
 #include <glUtils.h>    // Basics for OpenGL shaders, buffers & textures
 
 //-----------------------------------------------------------------------------
-//! Struct definition for particle attribute position, velocity, start time and life
+//! Struct definition for particle attribute position, velocity, start time and initial velocity
 struct Particle
 {
     SLVec3f p;    // particle position [x,y,z]
@@ -94,7 +94,6 @@ static GLint _tTLTFLoc;  //!< uniform location for particle life time
 static GLint _timeTFLoc; //!< uniform location for time 
 static GLint _dTimeLoc; //!< uniform location for delta time
 static GLint _aLoc; //!< uniform location for acceleration
-static GLint _oTFLoc;     //!< uniform location for vertex offset
 
 static GLint _texture0Loc; //!< uniform location for texture 0
 
@@ -108,25 +107,22 @@ float randomFloat(float a, float b)
 }
 
 //-----------------------------------------------------------------------------
-void initParticles(float timeToLive, SLVec3f offset)
+void initParticles(float timeToLive, SLVec3f particleGenPos)
 {
-    _ttl        = timeToLive;
-    //float* data = new GLfloat[AMOUNT * 10];
-    Particle*   data  = new Particle[AMOUNT];
-    Particle p    = Particle();
-    p.p              = offset;
-    p.v              = SLVec3f(0, 0.2, 0);
-
+    _ttl            = timeToLive;
+    Particle* data  = new Particle[AMOUNT];
+    Particle p      = Particle();
+    p.p             = particleGenPos;
     for (unsigned int i = 0; i < AMOUNT; i++)
     {
-        p.v.x         = randomFloat(0.2f, -0.2f);
-        p.v.y         = randomFloat(0.4f, 1.0f);
-        p.initV       = p.v;
-        p.st          = i * (timeToLive / AMOUNT); // When the first particle dies the last one begin to live
+        p.v.x         = randomFloat(0.2f, -0.2f);   // Random value for x velocity
+        p.v.y         = randomFloat(0.4f, 1.0f);    // Random value for y velocity
+        p.initV       = p.v;                        // Initial velocity is set after the computation of the velocity
+        p.st          = i * (timeToLive / AMOUNT);  // When the first particle dies the last one begin to live
 
         data[i] = p;
     }
-    float _showOf = sizeof(data);
+
     glGenTransformFeedbacks(2, _tfo);
     glGenVertexArrays(2, _vao);
     glGenBuffers(2, _vbo);
@@ -187,7 +183,6 @@ void onInit()
     _timeTFLoc  = glGetUniformLocation(_tFShaderProgID, "u_time");
     _dTimeLoc = glGetUniformLocation(_tFShaderProgID, "u_deltaTime");
     _aLoc     = glGetUniformLocation(_tFShaderProgID, "u_acceleration");
-    _oTFLoc     = glGetUniformLocation(_tFShaderProgID, "u_offset");
 
     // Activate the shader program
     glUseProgram(_shaderProgID);
@@ -271,7 +266,6 @@ bool onPaint()
     glUniform1f(_tTLTFLoc, _ttl);
     glUniform1f(_timeTFLoc, _currentTime);
     glUniform3f(_aLoc, 1.0f, 1.0f, 1.0f);
-    glUniform3f(_oTFLoc, 0.0f, -0.5f, 0.0f);
     glUniform1f(_dTimeLoc, delatTime);
 
     // Disable rendering
