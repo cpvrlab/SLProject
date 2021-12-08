@@ -68,7 +68,7 @@ public:
                                GLuint fragShaderID);
 
     //! Builds an GLSL-Shader program for transform feedback and returns the program id
-    static GLuint buildProgramTD(GLuint vertShaderID, GLuint fragShaderID);
+    static GLuint buildProgramTF(GLuint vertShaderID, GLuint fragShaderID);
 
     //! Builds an GLSL-Shader program and returns the program id
     static GLuint buildProgram(GLuint vertShaderID,

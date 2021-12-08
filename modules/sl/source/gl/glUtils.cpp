@@ -198,7 +198,7 @@ connection beetwen the output variable and the output buffers, links them and
 returns the OpenGL handle of the program. If the linking fails the linker log
 is sent to the stdout before the app exits with code 1.
 */
-GLuint glUtils::buildProgramTD(GLuint vertShaderID,
+GLuint glUtils::buildProgramTF(GLuint vertShaderID,
                              GLuint fragShaderID)
 {
     // Create program, attach shaders and link them
@@ -206,7 +206,7 @@ GLuint glUtils::buildProgramTD(GLuint vertShaderID,
     glAttachShader(programHandle, vertShaderID);
     glAttachShader(programHandle, fragShaderID);
     //Connection beetwen the output variable and the output buffers
-    const char* outputNames[] = {"td_position", "td_velocity", "td_startTime","td_initialVelocity"};
+    const char* outputNames[] = {"tf_position", "tf_velocity", "tf_startTime","tf_initialVelocity"};
     glTransformFeedbackVaryings(programHandle, 4, outputNames, GL_INTERLEAVED_ATTRIBS);
     glLinkProgram(programHandle);
 

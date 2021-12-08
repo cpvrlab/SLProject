@@ -22,10 +22,10 @@ uniform vec3 u_offset;  // Particle offset
 uniform float u_tTL;  // Particle lifespan
 
 //Need to be print out in the correct order
-out vec3 td_position;   // To transform feedback
-out vec3 td_velocity;   // To transform feedback
-out float td_startTime; // To transform feedback
-out vec3 td_initialVelocity; // To transform feedback
+out vec3 tf_position;   // To transform feedback
+out vec3 tf_velocity;   // To transform feedback
+out float tf_startTime; // To transform feedback
+out vec3 tf_initialVelocity; // To transform feedback
 
 out  vec4   v_particleColor;
 //-----------------------------------------------------------------------------
@@ -34,21 +34,21 @@ void main()
     vec4 P = vec4(a_position.xyz, 1.0);
     gl_Position = P; 
 
-    td_position = a_position;
-    td_velocity = a_velocity;
-    td_startTime = a_startTime;
-    td_initialVelocity = a_initialVelocity;
+    tf_position = a_position;
+    tf_velocity = a_velocity;
+    tf_startTime = a_startTime;
+    tf_initialVelocity = a_initialVelocity;
     if( u_time >= a_startTime ) {
         float age = u_time - a_startTime;
         if( age > u_tTL ) {
             // The particle is past its lifetime, recycle.
-            td_position = vec3(0.0);
-            td_velocity = a_initialVelocity;
-            td_startTime = u_time;
+            tf_position = vec3(0.0);
+            tf_velocity = a_initialVelocity;
+            tf_startTime = u_time;
             } else {
             // The particle is alive, update.
-            td_position += td_velocity * u_deltaTime;
-            //td_velocity += u_deltaTime * u_acceleration;
+            tf_position += tf_velocity * u_deltaTime;
+            //tf_velocity += u_deltaTime * u_acceleration;
         }
 
     }
