@@ -1,14 +1,14 @@
 #
-# CMake project definition for exercise cv04_NutDetection
+# CMake project definition for exercise cv14_NutDetection
 #
 
-set(target cv04_NutDetection)
+set(target cv14_NutDetection)
 
 set(include_path "${CMAKE_CURRENT_SOURCE_DIR}")
 set(source_path "${CMAKE_CURRENT_SOURCE_DIR}")
 
 file(GLOB sources
-        ${CMAKE_CURRENT_SOURCE_DIR}/cv04_NutDetection.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/cv14_NutDetection.cpp
         )
 
 add_executable(${target}
