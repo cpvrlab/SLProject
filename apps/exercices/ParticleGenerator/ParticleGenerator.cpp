@@ -26,6 +26,24 @@ struct Particle
     Particle()
       : p(0.0f), v(0.0f), st(0.0f), initV(0.0f) {}
 };
+//! Struct definition for vertex attribute position and color for Cube
+struct VertexPC
+{
+    SLVec3f p; // vertex position [x,y,z]
+    SLCol3f c; // vertex color [r,g,b]
+
+    // Setter method
+    void set(float posX,
+             float posY,
+             float posZ,
+             float colorR,
+             float colorG,
+             float colorB)
+    {
+        p.set(posX, posY, posZ);
+        c.set(colorR, colorG, colorB);
+    }
+};
 //-----------------------------------------------------------------------------
 // GLobal application variables
 static GLFWwindow* window;       //!< The global GLFW window handle
@@ -40,6 +58,11 @@ static SLMat4f _projectionMatrix; //!< 4x4 projection matrix
 static GLuint _vao[2]; //!< ID of the vertex array object
 static GLuint _tfo[2];    // Transform feedback objects
 static GLuint _vbo[2];    // ID of the vertex buffer object
+
+//For cube rendering
+static GLuint _vaoC  = 0; //!< ID of the vertex array object for the Cube
+static GLuint _vboVC = 0; //!< ID of the VBO for vertex attributes for the Cube
+static GLuint _vboIC = 0; //!< ID of the VBO for vertex index array for the Cube
 
 static GLuint _numV = 0; //!< NO. of vertices
 static GLuint _numI = 0; //!< NO. of vertex indexes for triangles
@@ -67,6 +90,10 @@ static GLuint _shaderFragID = 0; //! fragment shader id
 static GLuint _shaderGeomID = 0; //! geometry shader id
 static GLuint _shaderProgID = 0; //! shader program id
 static GLuint _textureID    = 0; //!< texture id
+
+static GLuint _cShaderVertID = 0; //! vertex cube shader id
+static GLuint _cShaderFragID = 0; //! fragment cube shader id
+static GLuint _cShaderProgID = 0; //! shader cube program id
 
 static GLuint _tFShaderVertID = 0; //! transform feedback vertex shader id
 static GLuint _tFShaderFragID   = 0; //! transform feedback fragment shader id
@@ -97,6 +124,89 @@ static GLint _aLoc; //!< uniform location for acceleration
 
 static GLint _texture0Loc; //!< uniform location for texture 0
 
+// Attribute & uniform variable location indexes
+static GLint _cPLoc;   //!< attribute location for vertex position
+static GLint _cCLoc;   //!< attribute location for vertex color
+static GLint _cGLoc;   //!< uniform location for gamma value
+static GLint _cMvpLoc; //!< uniform location for modelview-projection matrix
+
+
+//-----------------------------------------------------------------------------
+void buildBox()
+{
+    // create C arrays on heap
+    // Define the vertex position and colors as an array of structure
+    // We define the colors with the same components as the cubes corners.
+    _numV              = 8;
+    VertexPC* vertices = new VertexPC[_numV];
+    vertices[0].set(0.05, -0.5, 0.05, 1, 1, 1); //LTN
+    vertices[1].set(0.05, -0.6, 0.05, 1, 0, 1);  //LBN
+    vertices[2].set(0.05, -0.6, -0.05, 1, 0, 0); //LBF
+    vertices[3].set(0.05, -0.5, -0.05, 1, 1, 0); //LTF
+    vertices[4].set(-0.05, -0.6, -0.05, 0, 0, 0); //RBF
+    vertices[5].set(-0.05, -0.6, 0.05, 0, 0, 1); //RBN
+    vertices[6].set(-0.05, -0.5, 0.05, 0, 1, 1); //RTN
+    vertices[7].set(-0.05, -0.5, -0.05, 0, 1, 0); //RTF
+
+    // Define the triangle indexes of the cubes vertices
+    _numI           = 36;
+    GLuint* indices = new GLuint[_numI];
+    int     n       = 0;
+    indices[n++]    = 0;
+    indices[n++]    = 1;
+    indices[n++]    = 2;
+    indices[n++]    = 0;
+    indices[n++]    = 2;
+    indices[n++]    = 3; // Right
+    indices[n++]    = 4;
+    indices[n++]    = 5;
+    indices[n++]    = 6;
+    indices[n++]    = 4;
+    indices[n++]    = 6;
+    indices[n++]    = 7; // Left
+    indices[n++]    = 0;
+    indices[n++]    = 3;
+    indices[n++]    = 7;
+    indices[n++]    = 0;
+    indices[n++]    = 7;
+    indices[n++]    = 6; // Top
+    indices[n++]    = 1;
+    indices[n++]    = 5;
+    indices[n++]    = 2;
+    indices[n++]    = 2;
+    indices[n++]    = 5;
+    indices[n++]    = 4; // Bottom
+    indices[n++]    = 0;
+    indices[n++]    = 5;
+    indices[n++]    = 1;
+    indices[n++]    = 0;
+    indices[n++]    = 6;
+    indices[n++]    = 5; // Near
+    indices[n++]    = 4;
+    indices[n++]    = 7;
+    indices[n++]    = 3;
+    indices[n++]    = 3;
+    indices[n++]    = 2;
+    indices[n++]    = 4; // Far
+
+    // Generate the OpenGL vertex array object
+    glUtils::buildVAO(_vaoC,
+                      _vboVC,
+                      _vboIC,
+                      vertices,
+                      (GLint)_numV,
+                      sizeof(VertexPC),
+                      indices,
+                      (GLint)_numI,
+                      sizeof(GL_UNSIGNED_INT),
+                      (GLint)_shaderProgID,
+                      _cPLoc,
+                      _cCLoc);
+
+    // delete data on heap. The VBOs are now on the GPU
+    delete[] vertices;
+    delete[] indices;
+}
 
 float randomFloat(float a, float b)
 {
@@ -175,6 +285,11 @@ void onInit()
     _shaderGeomID = glUtils::buildShader(_projectRoot + "/data/shaders/Particle.geom", GL_GEOMETRY_SHADER);
     _shaderProgID = glUtils::buildProgram(_shaderVertID,_shaderGeomID, _shaderFragID);
 
+    // Load, compile & link shaders
+    _cShaderVertID = glUtils::buildShader(_projectRoot + "/data/shaders/ColorAttribute.vert", GL_VERTEX_SHADER);
+    _cShaderFragID = glUtils::buildShader(_projectRoot + "/data/shaders/Color.frag", GL_FRAGMENT_SHADER);
+    _cShaderProgID = glUtils::buildProgram(_cShaderVertID, _cShaderFragID);
+
     // Activate the shader program
     glUseProgram(_tFShaderProgID);
 
@@ -183,6 +298,15 @@ void onInit()
     _timeTFLoc  = glGetUniformLocation(_tFShaderProgID, "u_time");
     _dTimeLoc = glGetUniformLocation(_tFShaderProgID, "u_deltaTime");
     _aLoc     = glGetUniformLocation(_tFShaderProgID, "u_acceleration");
+
+    // Activate the shader program
+    glUseProgram(_cShaderProgID);
+
+    // Get the variable locations (identifiers) within the program
+    _cPLoc   = glGetAttribLocation(_cShaderProgID, "a_position");
+    _cCLoc   = glGetAttribLocation(_cShaderProgID, "a_color");
+    _cGLoc   = glGetUniformLocation(_cShaderProgID, "u_oneOverGamma");
+    _cMvpLoc = glGetUniformLocation(_cShaderProgID, "u_mvpMatrix");
 
     // Activate the shader program
     glUseProgram(_shaderProgID);
@@ -198,7 +322,7 @@ void onInit()
     _timeLoc     = glGetUniformLocation(_shaderProgID, "u_time");
     _texture0Loc = glGetUniformLocation(_shaderProgID, "u_matTextureDiffuse0");
 
-    //buildBox();
+    buildBox(); // Init the Cube
     //buildSquare();
     initParticles(5.0f, SLVec3f(0, 0, 0));
 
@@ -220,6 +344,10 @@ void onClose(GLFWwindow* window)
     glDeleteShader(_shaderFragID);
     glDeleteProgram(_shaderProgID);
 
+    glDeleteShader(_cShaderVertID);
+    glDeleteShader(_cShaderFragID);
+    glDeleteProgram(_cShaderProgID);
+
     glDeleteShader(_tFShaderVertID);
     glDeleteShader(_tFShaderFragID);
     glDeleteProgram(_tFShaderProgID);
@@ -228,6 +356,9 @@ void onClose(GLFWwindow* window)
     glDeleteVertexArrays(2, _vao);
     glDeleteBuffers(2, _vbo);
     glDeleteTransformFeedbacks(2, _tfo);
+    glDeleteVertexArrays(1, &_vaoC);
+    glDeleteBuffers(1, &_vboVC);
+    glDeleteBuffers(1, &_vboIC);
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -251,8 +382,10 @@ bool onPaint()
     //_modelMatrix.translate(-0.5f, -0.5f, -0.5f);
 
     //4) Build the combined modelview matrix
+    SLMat4f mvp(_projectionMatrix);
     SLMat4f mv(_viewMatrix);
     mv.multiply(_modelMatrix);
+    mvp.multiply(mv);
 
     _currentTime = glfwGetTime();
     std::cout << _currentTime << std::endl;
@@ -294,7 +427,7 @@ bool onPaint()
     glUniform1f(_tTLLoc, _ttl); 
     glUniform1f(_timeLoc, _currentTime);
     glUniform1f(_sLoc, 1.0f);
-    glUniform1f(_radiusLoc, 0.1f);
+    glUniform1f(_radiusLoc, 0.05f);
     glUniform4f(_cLoc, 1.0f,1.0f,1.0f,1.0f);
 
      // Un-bind the feedback object.
@@ -314,6 +447,19 @@ bool onPaint()
     _drawBuf = 1 - _drawBuf;
 
     //////////// End  ///////////////
+
+    glUseProgram(_cShaderProgID);
+    glUniformMatrix4fv(_cMvpLoc, 1, 0, (float*)&mvp);
+    glUniform1f(_gLoc, 1.0f);
+
+    // Activate the vertex array
+    glBindVertexArray(_vaoC);
+
+    // Activate the index buffer
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _vboIC);
+
+    // Draw cube with triangles by indexes
+    glDrawElements(GL_TRIANGLES, (GLint)_numI, GL_UNSIGNED_INT, nullptr);
 
 
     //8) Fast copy the back buffer to the front buffer. This is OS dependent.

@@ -26,6 +26,8 @@ file(GLOB shaders
 	${SL_PROJECT_ROOT}/data/shaders/Particle.geom
 	${SL_PROJECT_ROOT}/data/shaders/ParticleTF.vert
 	${SL_PROJECT_ROOT}/data/shaders/ParticleTF.frag
+	${SL_PROJECT_ROOT}/data/shaders/ColorAttribute.vert
+        ${SL_PROJECT_ROOT}/data/shaders/Color.frag
         )
 
 add_executable(${target}
