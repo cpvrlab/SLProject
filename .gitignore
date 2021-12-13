@@ -92,6 +92,7 @@ GenerateHTMLDoc.log
 .idea
 .DS_Store
 gitcommit.h
+yolov3.weights
 
 Tester
 /externals/prebuild_scripts/eigen

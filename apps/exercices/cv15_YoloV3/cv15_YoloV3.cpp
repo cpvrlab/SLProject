@@ -5,251 +5,306 @@
 //  Date:      December 2021
 //#############################################################################
 
-#include <opencv2/face.hpp>
-#include <opencv2/opencv.hpp>
+#include <fstream>
+#include <sstream>
+#include <iostream>
 
-using namespace std;
+#include <opencv2/dnn.hpp>
+#include <opencv2/imgproc.hpp>
+#include <opencv2/highgui.hpp>
+
 using namespace cv;
-using namespace cv::face;
+using namespace std;
+
+// Initialize the parameters
+string         projectRoot   = string(SL_PROJECT_ROOT); //!< Directory of executable
+float          confThreshold = 0.5;                     // Confidence threshold
+float          nmsThreshold  = 0.4;                     // Non-maximum suppression threshold
+int            inpWidth      = 416;                     // Width of network's input image
+int            inpHeight     = 416;                     // Height of network's input image
+vector<string> classes;
+const char*    keys =
+  "{help h usage ? | | Usage examples: \n\t\t./object_detection_yolo.out --image=dog.jpg \n\t\t./object_detection_yolo.out --video=run_sm.mp4}"
+  "{image i        |<none>| input image   }"
+  "{video v        |<none>| input video   }"
+  "{device d       |<cpu>| input device   }";
 
 //-----------------------------------------------------------------------------
-static void drawDelaunay(Mat& img, Subdiv2D& subdiv, const Scalar& delaunay_color)
+// Helper function that checks if a file exists
+bool fileExists(const std::string& name)
 {
-    vector<Vec6f> triangleList;
-    subdiv.getTriangleList(triangleList);
-    vector<Point> pt(3);
-    Size          size = img.size();
-    Rect          rect(0, 0, size.width, size.height);
-
-    for (auto t : triangleList)
-    {
-        pt[0] = Point(cvRound(t[0]), cvRound(t[1]));
-        pt[1] = Point(cvRound(t[2]), cvRound(t[3]));
-        pt[2] = Point(cvRound(t[4]), cvRound(t[5]));
-
-        // Draw rectangles completely inside the image.
-        if (rect.contains(pt[0]) && rect.contains(pt[1]) && rect.contains(pt[2]))
-        {
-            line(img, pt[0], pt[1], delaunay_color, 1, LINE_AA, 0);
-            line(img, pt[1], pt[2], delaunay_color, 1, LINE_AA, 0);
-            line(img, pt[2], pt[0], delaunay_color, 1, LINE_AA, 0);
-        }
-    }
+    ifstream f(name.c_str());
+    return f.good();
 }
 //-----------------------------------------------------------------------------
-static void createDelaunay(Mat&                  img,
-                           Subdiv2D&             subdiv,
-                           vector<Point2f>&      points,
-                           bool                  drawAnimated,
-                           vector<vector<uint>>& triangleIndexes)
+// Get the names of the output layers
+vector<String> getOutputsNames(const dnn::Net& net)
 {
-    // Insert points into subdiv
-    for (const Point2f& p : points)
+    static vector<String> names;
+    if (names.empty())
     {
+        // Get the indices of the output layers, i.e. the layers with unconnected outputs
+        vector<int> outLayers = net.getUnconnectedOutLayers();
 
-        Rect rect(0, 0, img.cols, img.rows);
-        if (rect.contains(p))
+        // get the names of all the layers in the network
+        vector<String> layersNames = net.getLayerNames();
+
+        // Get the names of the output layers in names
+        names.resize(outLayers.size());
+        for (size_t i = 0; i < outLayers.size(); ++i)
+            names[i] = layersNames[outLayers[i] - 1];
+    }
+    return names;
+}
+//-----------------------------------------------------------------------------
+// Draw the predicted bounding box
+void drawPred(int   classId,
+              float conf,
+              int   left,
+              int   top,
+              int   right,
+              int   bottom,
+              Mat&  frame)
+{
+    // Draw a rectangle displaying the bounding box
+    rectangle(frame,
+              Point(left, top),
+              Point(right, bottom),
+              Scalar(255, 178, 50),
+              3);
+
+    // Get the label for the class name and its confidence
+    string label = format("%.2f", conf);
+    if (!classes.empty())
+    {
+        CV_Assert(classId < (int)classes.size());
+        label = classes[classId] + ":" + label;
+    }
+
+    // Display the label at the top of the bounding box
+    int  baseLine;
+    Size labelSize = getTextSize(label, FONT_HERSHEY_SIMPLEX, 0.5, 1, &baseLine);
+    top            = max(top, labelSize.height);
+    rectangle(frame,
+              Point(left, top - round(1.5 * labelSize.height)),
+              Point(left + round(1.5 * labelSize.width), top + baseLine),
+              Scalar(255, 255, 255),
+              FILLED);
+    putText(frame,
+            label,
+            Point(left, top),
+            FONT_HERSHEY_SIMPLEX,
+            0.75,
+            Scalar(0, 0, 0),
+            1);
+}
+//-----------------------------------------------------------------------------
+// Remove the bounding boxes with low confidence using non-maxima suppression
+void postprocess(Mat& frame, const vector<Mat>& outs)
+{
+    vector<int>   classIds;
+    vector<float> confidences;
+    vector<Rect>  boxes;
+
+    for (size_t i = 0; i < outs.size(); ++i)
+    {
+        // Scan through all the bounding boxes output from the network and keep only the
+        // ones with high confidence scores. Assign the box's class label as the class
+        // with the highest score for the box.
+        float* data = (float*)outs[i].data;
+        for (int j = 0; j < outs[i].rows; ++j, data += outs[i].cols)
         {
-            subdiv.insert(p);
-
-            if (drawAnimated)
+            Mat    scores = outs[i].row(j).colRange(5, outs[i].cols);
+            Point  classIdPoint;
+            double confidence;
+            // Get the value and location of the maximum score
+            minMaxLoc(scores, 0, &confidence, 0, &classIdPoint);
+            if (confidence > confThreshold)
             {
-                Mat img_copy = img.clone();
-                drawDelaunay(img_copy, subdiv, Scalar(255, 255, 255));
-                imshow("Delaunay Triangulation", img_copy);
-                waitKey(100);
+                int centerX = (int)(data[0] * frame.cols);
+                int centerY = (int)(data[1] * frame.rows);
+                int width   = (int)(data[2] * frame.cols);
+                int height  = (int)(data[3] * frame.rows);
+                int left    = centerX - width / 2;
+                int top     = centerY - height / 2;
+
+                classIds.push_back(classIdPoint.x);
+                confidences.push_back((float)confidence);
+                boxes.push_back(Rect(left, top, width, height));
             }
         }
     }
 
-    // Unfortunately we don't get the triangles by there original point indexes.
-    // We only get them with their vertex coordinates.
-    // So we have to map them again to get the triangles with their point indexes.
-    Size          size = img.size();
-    Rect          rect(0, 0, size.width, size.height);
-    vector<Vec6f> triangleList;
-    subdiv.getTriangleList(triangleList);
-    vector<Point2f> pt(3);
-    vector<uint>    ind(3);
-
-    for (auto t : triangleList)
+    // Perform non maximum suppression to eliminate redundant overlapping boxes with
+    // lower confidences
+    vector<int> indices;
+    dnn::NMSBoxes(boxes, confidences, confThreshold, nmsThreshold, indices);
+    for (size_t i = 0; i < indices.size(); ++i)
     {
-        pt[0] = Point2f(t[0], t[1]);
-        pt[1] = Point2f(t[2], t[3]);
-        pt[2] = Point2f(t[4], t[5]);
+        int  idx = indices[i];
+        Rect box = boxes[idx];
+        drawPred(classIds[idx],
+                 confidences[idx],
+                 box.x,
+                 box.y,
+                 box.x + box.width,
+                 box.y + box.height,
+                 frame);
+    }
+}
+//-----------------------------------------------------------------------------
+int main(int argc, char** argv)
+{
+    CommandLineParser parser(argc, argv, keys);
+    parser.about("Use this script to run object detection using YOLO3 in OpenCV.");
+    if (parser.has("help"))
+    {
+        parser.printMessage();
+        return 0;
+    }
 
-        if (rect.contains(pt[0]) &&
-            rect.contains(pt[1]) &&
-            rect.contains(pt[2]))
+    // Load names of classes
+    string   classesFile = projectRoot + "/data/opencv/yolov3/coco.names";
+    ifstream ifs(classesFile.c_str());
+    string   line;
+    while (getline(ifs, line)) classes.push_back(line);
+
+    string device = "cpu";
+    device        = parser.get<String>("device");
+
+    // Give the configuration and weight files for the model
+    string modelConfiguration = projectRoot + "/data/opencv/yolov3/yolov3.cfg";
+    string modelWeights       = projectRoot + "/data/opencv/yolov3/yolov3.weights";
+    if (!fileExists(modelWeights))
+    {
+        cout << "Please download first the Yolo V3 model weights from" << endl;
+        cout << "https://pjreddie.com/media/files/yolov3.weights" << endl;
+        cout << "into /data/opencv/yolov3/" << endl;
+        exit(1);
+    }
+
+    // Load the network
+    dnn::Net net = dnn::readNetFromDarknet(modelConfiguration, modelWeights);
+
+    if (device == "cpu")
+    {
+        cout << "Using CPU device" << endl;
+        net.setPreferableBackend(dnn::DNN_TARGET_CPU);
+    }
+    else if (device == "gpu")
+    {
+        cout << "Using GPU device" << endl;
+        net.setPreferableBackend(dnn::DNN_BACKEND_CUDA);
+        net.setPreferableTarget(dnn::DNN_TARGET_CUDA);
+    }
+
+    // Open a video file or an image file or a camera stream.
+    string       str, outputFile;
+    VideoCapture cap;
+    VideoWriter  video;
+    Mat          frame, blob;
+
+    try
+    {
+
+        outputFile = "yolo_out_cpp.avi";
+        if (parser.has("image"))
         {
-            // match the 3 points and store the indices
-            for (uint j = 0; j < 3; j++)
-                for (size_t k = 0; k < points.size(); k++)
-                    if (abs(pt[j].x - points[k].x) < 1.0f &&
-                        abs(pt[j].y - points[k].y) < 1.0f)
-                        ind[j] = (uint)k;
-
-            triangleIndexes.push_back(ind);
+            // Open the image file
+            str = parser.get<String>("image");
+            ifstream ifile(str);
+            if (!ifile) throw("error");
+            cap.open(str);
+            str.replace(str.end() - 4, str.end(), "_yolo_out_cpp.jpg");
+            outputFile = str;
         }
-    }
-}
-//-----------------------------------------------------------------------------
-// Warps a triangular regions from img1 to img2
-void warpTriangle(Mat&             img1,
-                  Mat&             img2,
-                  vector<Point2f>& tri1,
-                  vector<Point2f>& tri2)
-{
-    // Find bounding rectangle for each triangle
-    Rect rect1 = boundingRect(tri1);
-    Rect rect2 = boundingRect(tri2);
-
-    // Offset points by left top corner of the respective rectangles
-    vector<Point2f> tri1Cropped, tri2Cropped;
-    vector<Point>   tri2CroppedInt;
-    for (uint i = 0; i < 3; i++)
-    {
-        tri1Cropped.emplace_back(tri1[i].x - rect1.x, tri1[i].y - rect1.y);
-        tri2Cropped.emplace_back(tri2[i].x - rect2.x, tri2[i].y - rect2.y);
-
-        // fillConvexPoly needs a vector of int Point and not Point2f
-        tri2CroppedInt.emplace_back((int)tri2Cropped[i].x, (int)tri2Cropped[i].y);
-    }
-
-    // Apply warpImage to small rectangular patches
-    Mat img1Cropped;
-    img1(rect1).copyTo(img1Cropped);
-
-    // Given a pair of triangles, find the affine transform.
-    Mat warpMat = getAffineTransform(tri1Cropped, tri2Cropped);
-
-    // Apply the Affine Transform just found to the src image
-    Mat img2Cropped = Mat::zeros(rect2.height, rect2.width, img1Cropped.type());
-    warpAffine(img1Cropped,
-               img2Cropped,
-               warpMat,
-               img2Cropped.size(),
-               INTER_LINEAR,
-               BORDER_REFLECT_101);
-
-    // Create white triangle mask
-    Mat mask = Mat::zeros(rect2.height, rect2.width, CV_32FC3);
-    fillConvexPoly(mask, tri2CroppedInt, Scalar(1.0, 1.0, 1.0), LINE_AA, 0);
-
-    // Delete all outside of warped triangle
-    multiply(img2Cropped, mask, img2Cropped);
-
-    // Delete all inside the target triangle
-    multiply(img2(rect2), Scalar(1.0, 1.0, 1.0) - mask, img2(rect2));
-
-    // Add warped triangle to target image
-    img2(rect2) = img2(rect2) + img2Cropped;
-}
-//-----------------------------------------------------------------------------
-static void warpImage(Mat&                  img1,
-                      Mat&                  img2,
-                      vector<Point2f>&      points1,
-                      vector<Point2f>&      points2,
-                      vector<vector<uint>>& triangles)
-{
-    for (auto& triangle : triangles)
-    {
-        vector<Point2f> tri1;
-        tri1.push_back(points1[triangle[0]]);
-        tri1.push_back(points1[triangle[1]]);
-        tri1.push_back(points1[triangle[2]]);
-
-        vector<Point2f> tri2;
-        tri2.push_back(points2[triangle[0]]);
-        tri2.push_back(points2[triangle[1]]);
-        tri2.push_back(points2[triangle[2]]);
-
-        warpTriangle(img1, img2, tri1, tri2);
-    }
-}
-//-----------------------------------------------------------------------------
-int main()
-{
-    std::string projectRoot = std::string(SL_PROJECT_ROOT);
-
-    // Load Face Detector
-    // Note for Visual Studio: You must set the Working Directory to $(TargetDir)
-    // with: Right Click on Project > Properties > Debugging
-    CascadeClassifier faceDetector(projectRoot + "/data/opencv/haarcascades/haarcascade_frontalface_alt2.xml");
-
-    // Create an instance of Facemark
-    Ptr<Facemark> facemark = FacemarkLBF::create();
-
-    // Load landmark detector
-    facemark->loadModel(projectRoot + "/data/calibrations/lbfmodel.yaml");
-
-    // Be aware that on Windows not more than one process can access the camera at the time.
-    // Be aware that on many OS you have to grant access rights to the camera system
-    // Set up webcam for video capture
-    VideoCapture cam(0);
-
-    // Variable to store a video frame and its grayscale
-    Mat frame, gray;
-
-    // Read a frame
-    while (cam.read(frame))
-    {
-        // Convert frame to grayscale because faceDetector requires grayscale image
-        cvtColor(frame, gray, COLOR_BGR2GRAY);
-
-        // Detect faces
-        vector<Rect> faces;
-        int          min = (int)(frame.rows * 0.4f); // the bigger min the faster
-        int          max = (int)(frame.rows * 0.8f); // the smaller max the faster
-        cv::Size     minSize(min, min);
-        cv::Size     maxSize(max, max);
-        faceDetector.detectMultiScale(gray, faces, 1.1, 3, 0, minSize, maxSize);
-
-        // Variable for landmarks.
-        // Landmarks for one face is a vector of points
-        // There can be more than one face in the image. Hence, we
-        // use a vector of vector of points.
-        vector<vector<Point2f>> landmarks;
-
-        // Run landmark detector
-        bool success = facemark->fit(frame, faces, landmarks);
-
-        if (success && !landmarks.empty())
+        else if (parser.has("video"))
         {
-            // Add image border points at the end of the landmarks vector
-            Size size = frame.size();
-            landmarks[0].push_back(Point2d(0, 0));
-            landmarks[0].push_back(Point2d(size.width / 2, 0));
-            landmarks[0].push_back(Point2d(size.width - 1, 0));
-            landmarks[0].push_back(Point2d(size.width - 1, size.height / 2));
-            landmarks[0].push_back(Point2d(size.width - 1, size.height - 1));
-            landmarks[0].push_back(Point2d(size.width / 2, size.height - 1));
-            landmarks[0].push_back(Point2d(0, size.height - 1));
-            landmarks[0].push_back(Point2d(0, size.height / 2));
-
-            // Create an instance of Subdiv2D
-            Rect     rect(0, 0, size.width, size.height);
-            Subdiv2D subdiv(rect);
-
-            // Create and draw the Delaunay triangulation
-            vector<vector<uint>> triIndexes1;
-            createDelaunay(frame, subdiv, landmarks[0], false, triIndexes1);
-            drawDelaunay(frame, subdiv, Scalar(255, 255, 255));
-
-            /////////////////////////////////////////////////////////////
-            // Warp some triangles with some points you want to change //
-            /////////////////////////////////////////////////////////////
-
-            // ???
-
-            // Display results
-            imshow("Snapchat2D", frame);
+            // Open the video file
+            str = parser.get<String>("video");
+            ifstream ifile(str);
+            if (!ifile) throw("error");
+            cap.open(str);
+            str.replace(str.end() - 4, str.end(), "_yolo_out_cpp.avi");
+            outputFile = str;
         }
-
-        // Wait for key to exit loop
-        if (waitKey(10) != -1)
-            return 0;
+        // Open the webcam
+        else
+            cap.open(parser.get<int>("device"));
     }
+    catch (...)
+    {
+        cout << "Could not open the input image/video stream" << endl;
+        return 0;
+    }
+
+    // Get the video writer initialized to save the output video
+    if (!parser.has("image") && parser.has("video"))
+    {
+        video.open(outputFile,
+                   VideoWriter::fourcc('M', 'J', 'P', 'G'),
+                   28,
+                   Size(cap.get(CAP_PROP_FRAME_WIDTH),
+                        cap.get(CAP_PROP_FRAME_HEIGHT)));
+    }
+
+    // Create a window
+    static const string kWinName = "Deep learning object detection in OpenCV";
+    namedWindow(kWinName, WINDOW_NORMAL);
+
+    // Process frames.
+    while (waitKey(1) < 0)
+    {
+        // get frame from the video
+        cap >> frame;
+
+        // Stop the program if reached end of video
+        if (frame.empty())
+        {
+            cout << "Done processing !!!" << endl;
+            cout << "Output file is stored as " << outputFile << endl;
+            waitKey(3000);
+            break;
+        }
+        // Create a 4D blob from a frame.
+        dnn::blobFromImage(frame,
+                           blob,
+                           1 / 255.0,
+                           cv::Size(inpWidth, inpHeight),
+                           Scalar(0, 0, 0),
+                           true,
+                           false);
+
+        // Sets the input to the network
+        net.setInput(blob);
+
+        // Runs the forward pass to get output of the output layers
+        vector<Mat> outs;
+        net.forward(outs, getOutputsNames(net));
+
+        // Remove the bounding boxes with low confidence
+        postprocess(frame, outs);
+
+        // Put efficiency information. The function getPerfProfile returns the overall time for inference(t) and the timings for each of the layers(in layersTimes)
+        vector<double> layersTimes;
+        double         freq  = getTickFrequency() / 1000;
+        double         t     = net.getPerfProfile(layersTimes) / freq;
+        string         label = format("Inference time for a frame : %.2f ms", t);
+        putText(frame, label, Point(0, 15), FONT_HERSHEY_SIMPLEX, 0.5, Scalar(0, 0, 255));
+
+        // Write the frame with the detection boxes
+        Mat detectedFrame;
+        frame.convertTo(detectedFrame, CV_8U);
+        if (parser.has("image"))
+            imwrite(outputFile, detectedFrame);
+        else if (parser.has("video"))
+            video.write(detectedFrame);
+
+        imshow(kWinName, frame);
+    }
+
+    cap.release();
+    if (!parser.has("image")) video.release();
 
     return 0;
 }

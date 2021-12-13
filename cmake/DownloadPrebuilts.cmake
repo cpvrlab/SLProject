@@ -13,6 +13,7 @@ set(OpenCV_INCLUDE_DIR)
 set(OpenCV_LINK_LIBS
         opencv_aruco
         opencv_calib3d
+        opencv_dnn
         opencv_features2d
         opencv_face
         opencv_flann
