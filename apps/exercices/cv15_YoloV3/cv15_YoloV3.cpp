@@ -231,7 +231,11 @@ int main(int argc, char** argv)
         }
         // Open the webcam
         else
-            cap.open(parser.get<int>("device"));
+        {
+            cap.open(0);
+            cap.set(cv::CAP_PROP_FRAME_WIDTH, 1280);
+            cap.set(cv::CAP_PROP_FRAME_HEIGHT, 720);
+        }
     }
     catch (...)
     {
@@ -251,7 +255,8 @@ int main(int argc, char** argv)
 
     // Create a window
     static const string kWinName = "Deep learning object detection in OpenCV";
-    namedWindow(kWinName, WINDOW_NORMAL);
+    cv::namedWindow(kWinName, WINDOW_NORMAL);
+    cv::resizeWindow(kWinName, 1280, 720);
 
     // Process frames.
     while (waitKey(1) < 0)
