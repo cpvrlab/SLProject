@@ -37,7 +37,7 @@ bool fileExists(const std::string& name)
     return f.good();
 }
 //-----------------------------------------------------------------------------
-// Get the names of the output layers
+// Get the names of the output layers of the YOLO V3 network
 vector<String> getOutputsNames(const dnn::Net& net)
 {
     static vector<String> names;
@@ -117,6 +117,7 @@ void postprocess(Mat& frame, const vector<Mat>& outs)
             Mat    scores = outs[i].row(j).colRange(5, outs[i].cols);
             Point  classIdPoint;
             double confidence;
+
             // Get the value and location of the maximum score
             minMaxLoc(scores, 0, &confidence, 0, &classIdPoint);
             if (confidence > confThreshold)
