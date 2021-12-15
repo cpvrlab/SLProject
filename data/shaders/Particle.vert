@@ -18,7 +18,6 @@ uniform float u_tTL;  // time to live
 
 out vertex {
     float transparency;
-    vec4 pos;
 } vert;
 
 uniform mat4 u_mvMatrix;  // modelview matrix
@@ -29,12 +28,9 @@ void main()
     float age = u_time - a_startTime;
     vert.transparency = 1.0 - age / u_tTL;
 
-    vec4 P = vec4(a_position.xyz,1);
-    vert.pos = P;
-
     //need to give origin of particle system 
     //for this example we will give the offset uniform from other shader
-    gl_Position = u_mvMatrix * vec4(0,-0.5,0,1); 
+    gl_Position =  u_mvMatrix * (vec4(a_position.xyz,1) +vec4(0,-0.5,0,0));
 
 }
 //-----------------------------------------------------------------------------

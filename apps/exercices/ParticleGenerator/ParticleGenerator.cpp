@@ -227,6 +227,7 @@ void initParticles(float timeToLive, SLVec3f particleGenPos)
     {
         p.v.x         = randomFloat(0.2f, -0.2f);   // Random value for x velocity
         p.v.y         = randomFloat(0.4f, 1.0f);    // Random value for y velocity
+        p.v.z         = randomFloat(0.2f, -0.2f);   // Random value for z velocity
         p.initV       = p.v;                        // Initial velocity is set after the computation of the velocity
         p.st          = i * (timeToLive / AMOUNT);  // When the first particle dies the last one begin to live
 
@@ -379,7 +380,7 @@ bool onPaint()
 
     //3) Model transform: move the cube so that it rotates around its center
     _modelMatrix.identity();
-    //_modelMatrix.translate(-0.5f, -0.5f, -0.5f);
+    //_modelMatrix.translate(0.0f, 0.5f, 0.0f);
 
     //4) Build the combined modelview matrix
     SLMat4f mvp(_projectionMatrix);
