@@ -55,23 +55,23 @@ static SLMat4f _viewMatrix;       //!< 4x4 view matrix
 static SLMat4f _modelMatrix;      //!< 4x4 model matrix
 static SLMat4f _projectionMatrix; //!< 4x4 projection matrix
 
-static GLuint _vao[2]; //!< ID of the vertex array object
-static GLuint _tfo[2];    // Transform feedback objects
-static GLuint _vbo[2];    // ID of the vertex buffer object
+static GLuint _vao[2];  //!< IDs of the vertex array objects
+static GLuint _tfo[2];  //!< IDs of the transform feedback objects
+static GLuint _vbo[2];  //!< IDs of the vertex buffer objects
 
-//For cube rendering
+// For cube rendering
 static GLuint _vaoC  = 0; //!< ID of the vertex array object for the Cube
 static GLuint _vboVC = 0; //!< ID of the VBO for vertex attributes for the Cube
 static GLuint _vboIC = 0; //!< ID of the VBO for vertex index array for the Cube
-
 static GLuint _numV = 0; //!< NO. of vertices
 static GLuint _numI = 0; //!< NO. of vertex indexes for triangles
 
-const int AMOUNT = 500; //!< Amount of particles
-static int     _drawBuf = 0; // Boolean to switch buffer
-static float     _ttl = 5.0f; // Boolean to switch buffer
-static float     _currentTime = 0.0f; // Boolean to switch buffer
-static float     _lastTime = 0.0f; // Boolean to switch buffer
+// Constant and variables for particles init/update
+const int       AMOUNT          = 500;  //!< Amount of particles
+static int      _drawBuf        = 0;    // Boolean to switch buffer
+static float    _ttl            = 5.0f; // Time to life of a particle
+static float    _currentTime    = 0.0f; // Elapsed time since start of application
+static float    _lastTime       = 0.0f; // Last obtained elapsed time
 
 static float  _camZ;                   //!< z-distance of camera
 static float  _rotX, _rotY;            //!< rotation angles around x & y axis
@@ -95,40 +95,33 @@ static GLuint _cShaderVertID = 0; //! vertex cube shader id
 static GLuint _cShaderFragID = 0; //! fragment cube shader id
 static GLuint _cShaderProgID = 0; //! shader cube program id
 
-static GLuint _tFShaderVertID = 0; //! transform feedback vertex shader id
-static GLuint _tFShaderFragID   = 0; //! transform feedback fragment shader id
-static GLuint _tFShaderProgID = 0; //! transform feedback shader program id
+static GLuint _tFShaderVertID = 0;      //! transform feedback vertex shader id
+static GLuint _tFShaderFragID   = 0;    //! transform feedback fragment shader id
+static GLuint _tFShaderProgID = 0;      //! transform feedback shader program id
+
+// Uniform variable location indexes
+static GLint _cLoc;         //!< uniform location for vertex color
+static GLint _sLoc;         //!< uniform location for vertex scale
+static GLint _radiusLoc;    //!< uniform location for particle radius
+static GLint _tTLLoc;       //!< uniform location for particle life time
+static GLint _timeLoc;      //!< uniform location for time
+static GLint _gLoc;         //!< uniform location for gamma value
+static GLint _pGPLoc;       //!< uniform location for particle generator position
+static GLint _mvLoc;        //!< uniform location for modelview matrix
+static GLint _pMatLoc;      //!< uniform location for projection matrix
+static GLint _texture0Loc;  //!< uniform location for texture 0
+
+// Uniform variable location indexes
+static GLint _tTLTFLoc;     //!< uniform location for particle life time
+static GLint _timeTFLoc;    //!< uniform location for time 
+static GLint _dTimeLoc;     //!< uniform location for delta time
+static GLint _aLoc;         //!< uniform location for acceleration
 
 // Attribute & uniform variable location indexes
-static GLint _pLoc;   //!< attribute location for vertex position
-static GLint _cLoc;   //!< attribute location for vertex color
-static GLint _stLoc; //!< attribute location for vertex start time
-static GLint _sLoc;   //!< uniform location for vertex scale
-static GLint _radiusLoc;   //!< uniform location for particle radius
-static GLint _tTLLoc; //!< uniform location for particle life time
-static GLint _timeLoc; //!< uniform location for time
-static GLint _tLoc;   //!< attribute location for vertex texture coord
-static GLint _gLoc;   //!< uniform location for gamma value
-static GLint _mvLoc; //!< uniform location for modelview matrix
-static GLint _pMatLoc; //!< uniform location for projection matrix
-
-// Attribute & uniform variable location indexes
-static GLint _pTFLoc;    //!< attribute location for vertex position
-static GLint _vTFLoc;    //!< attribute location for vertex velocity
-static GLint _stTFLoc;    //!< attribute location for vertex start time
-static GLint _initVTFLoc;    //!< attribute location for vertex initial velocity
-static GLint _tTLTFLoc;  //!< uniform location for particle life time
-static GLint _timeTFLoc; //!< uniform location for time 
-static GLint _dTimeLoc; //!< uniform location for delta time
-static GLint _aLoc; //!< uniform location for acceleration
-
-static GLint _texture0Loc; //!< uniform location for texture 0
-
-// Attribute & uniform variable location indexes
-static GLint _cPLoc;   //!< attribute location for vertex position
-static GLint _cCLoc;   //!< attribute location for vertex color
-static GLint _cGLoc;   //!< uniform location for gamma value
-static GLint _cMvpLoc; //!< uniform location for modelview-projection matrix
+static GLint _cPLoc;        //!< attribute location for vertex position
+static GLint _cCLoc;        //!< attribute location for vertex color
+static GLint _cGLoc;        //!< uniform location for gamma value
+static GLint _cMvpLoc;      //!< uniform location for modelview-projection matrix
 
 
 //-----------------------------------------------------------------------------
@@ -220,6 +213,7 @@ float randomFloat(float a, float b)
 void initParticles(float timeToLive, SLVec3f particleGenPos)
 {
     _ttl            = timeToLive;
+    // Create array to store each particles and init them with random values
     Particle* data  = new Particle[AMOUNT];
     Particle p      = Particle();
     p.p             = particleGenPos;
@@ -255,7 +249,10 @@ void initParticles(float timeToLive, SLVec3f particleGenPos)
 
         glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, _tfo[i]);
         glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, _vbo[i]);
-    } 
+    }
+
+    // delete data on heap. The VBOs are now on the GPU
+    delete[] data;
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -316,6 +313,7 @@ void onInit()
     _gLoc   = glGetUniformLocation(_shaderProgID, "u_oneOverGamma");
     _mvLoc = glGetUniformLocation(_shaderProgID, "u_mvMatrix");
     _pMatLoc     = glGetUniformLocation(_shaderProgID, "u_pMatrix");
+    _pGPLoc      = glGetUniformLocation(_shaderProgID, "u_pGPosition");
     _cLoc        = glGetUniformLocation(_shaderProgID, "u_color");
     _sLoc        = glGetUniformLocation(_shaderProgID, "u_scale");
     _radiusLoc   = glGetUniformLocation(_shaderProgID, "u_radius");
@@ -430,6 +428,7 @@ bool onPaint()
     glUniform1f(_sLoc, 1.0f);
     glUniform1f(_radiusLoc, 0.05f);
     glUniform4f(_cLoc, 1.0f,1.0f,1.0f,1.0f);
+    glUniform4f(_pGPLoc, 0.0f, -0.5f, 0.0f, 0.0f);
 
      // Un-bind the feedback object.
      glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, 0);

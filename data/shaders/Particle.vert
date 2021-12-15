@@ -1,8 +1,8 @@
 //#############################################################################
-//  File:      ColorAttribute.vert
-//  Purpose:   GLSL vertex program for simple per vertex attribute color
-//  Date:      July 2014
-//  Authors:   Marcus Hudritsch
+//  File:      Particle.vert
+//  Purpose:   GLSL vertex program for particles drawing
+//  Date:      October 2021
+//  Authors:   Affolter Marc
 //  License:   This software is provided under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
@@ -10,27 +10,28 @@
 precision highp float;
 
 //-----------------------------------------------------------------------------
-layout (location = 0) in  vec3  a_position;       // Vertex position attribute
-layout (location = 2) in  float  a_startTime;
+layout (location = 0) in  vec3  a_position;       // Particle position attribute
+layout (location = 2) in  float  a_startTime;     // Particle start time attribute
 
-uniform float u_time;  // simulation time
-uniform float u_tTL;  // time to live
+uniform float u_time;       // Simulation time
+uniform float u_tTL;        // Time to live of a particle
+uniform vec4 u_pGPosition;  // Particle Generator position
 
 out vertex {
-    float transparency;
+    float transparency; // Transparency of a particle
 } vert;
 
-uniform mat4 u_mvMatrix;  // modelview matrix
+uniform mat4 u_mvMatrix;    // Modelview matrix
 
 //-----------------------------------------------------------------------------
 void main()
 {
-    float age = u_time - a_startTime;
-    vert.transparency = 1.0 - age / u_tTL;
+    float age = u_time - a_startTime;   // Get the age of the particle
+    vert.transparency = 1.0 - age / u_tTL;  // Get by the ratio age:lifetime
 
-    //need to give origin of particle system 
-    //for this example we will give the offset uniform from other shader
-    gl_Position =  u_mvMatrix * (vec4(a_position.xyz,1) +vec4(0,-0.5,0,0));
+    // Modelview matrix multiplicate with (particle position + particle generator position)
+    // Calculate position in view space
+    gl_Position =  u_mvMatrix * (vec4(a_position, 1) + u_pGPosition);
 
 }
 //-----------------------------------------------------------------------------

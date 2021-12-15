@@ -11,32 +11,34 @@ precision highp float;
 
 //-----------------------------------------------------------------------------
 
-layout (points) in;
-layout (triangle_strip) out;
-layout (max_vertices = 4) out;
+layout (points) in;             // Primitives that we received from vertex shader
+layout (triangle_strip) out;    // Primitives that we will output
+layout (max_vertices = 4) out;  // Number of vertex that will be output
 
 in vertex {
-    float transparency;
+    float transparency; // Transparency of a particle
 } vert[];
 
-uniform mat4 u_pMatrix;  // projection matrix
+uniform mat4 u_pMatrix; // Projection matrix
 
-uniform vec4 u_color; // Object color
-uniform float u_scale; // Object scale
+uniform vec4 u_color;   // Particle color
+uniform float u_scale;  // Particle scale
 uniform float u_radius; // Particle radius
 
-out vec4 v_particleColor; // The resulting color per vertex
-out vec2 v_texCoord; //Texture coordinate at vertex
+out vec4 v_particleColor;   // The resulting color per vertex
+out vec2 v_texCoord;        // Texture coordinate at vertex
 //-----------------------------------------------------------------------------
 void main (void)
 {
 
-  vec4 P = gl_in[0].gl_Position;
+  vec4 P = gl_in[0].gl_Position;    // Position of the point that we received
+
+  // Create 4 points to create two triangle to draw one particle
 
   //BOTTOM LEFT
   vec4 va = vec4((P.xy + vec2(-u_radius, -u_radius)) * u_scale , P.z * u_scale, 1);
-  gl_Position = u_pMatrix * va;
-  v_texCoord = vec2(0.0, 0.0);
+  gl_Position = u_pMatrix * va; // Calculate position in clip space
+  v_texCoord = vec2(0.0, 0.0);  // Posi
   v_particleColor = u_color;
   v_particleColor.w = vert[0].transparency;
   EmitVertex();  
@@ -65,5 +67,5 @@ void main (void)
   v_particleColor.w = vert[0].transparency;
   EmitVertex();  
   
-  EndPrimitive();  
+  EndPrimitive();  // Send primitives to fragment shader
 }   
