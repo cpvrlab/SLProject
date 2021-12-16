@@ -158,7 +158,10 @@ void AppArucoPen::grabFrameImagesAndTrack(SLSceneView* sv)
     if (AppDemo::sceneID == SID_VideoTrackArucoCubeMain || AppDemo::sceneID == SID_VirtualArucoPen)
     {
         AppArucoPen::instance().arucoPen().multiTracker().combine();
-        AppArucoPen::instance().publishTipPosition();
+        if (AppArucoPen::instance().arucoPen().state() == SLArucoPen::Tracing)
+        {
+            AppArucoPen::instance().publishTipPose();
+        }
     }
 }
 //-----------------------------------------------------------------------------
@@ -198,9 +201,9 @@ CVTracked* AppArucoPen::currentTracker()
     return tracked;
 }
 //-----------------------------------------------------------------------------
-void AppArucoPen::publishTipPosition()
+void AppArucoPen::publishTipPose()
 {
-    SLVec3f p = AppArucoPen::instance().arucoPen().tipPosition();
-    AppArucoPenROSNode::instance().publish(p.x, p.y, p.z);
+    SLArucoPen pen = AppArucoPen::instance().arucoPen();
+    AppArucoPenROSNode::instance().publishPose(pen.rosPosition(), pen.rosOrientation());
 }
 //-----------------------------------------------------------------------------

@@ -17,6 +17,7 @@
 #include <SLSceneView.h>
 #include <SLGLImGui.h>
 #include <Instrumentor.h>
+#include <Profiler.h>
 #include <FtpUtils.h>
 #include <ZipUtils.h>
 
@@ -75,6 +76,10 @@ void slCreateAppAndScene(SLVstring&      cmdLineArgs,
                                          true,
                                          profileFile.c_str());
     }
+#endif
+
+#if PROFILING_NEW
+    Profiler::instance().beginSession("C:/Users/vwm1/Desktop/the_trace.slt");
 #endif
 
     // Default paths for all loaded resources
@@ -250,6 +255,10 @@ void slTerminate()
         SL_LOG("No Profile written: %s", filePathName.c_str());
 #else
     SL_LOG("No Profiling");
+#endif
+
+#if PROFILING_NEW
+    Profiler::instance().endSession();
 #endif
 
     SL_LOG("End of Terminate");

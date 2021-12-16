@@ -20,18 +20,20 @@
 #include <thread>
 #include <mutex>
 
+#include <Profiler.h>
+
 /* Set PROFILING to 1 to enable profiling or to 0 for disabling profiling
  * Just add PROFILE_FUNCTION(); at the beginning of a function that you want to
  * profile. See the Instrumentor class below on how to display the profiling data.
  */
-#define PROFILING 1
+#define PROFILING 0
 
 //-----------------------------------------------------------------------------
 #if PROFILING
 #    define BEGIN_PROFILING_SESSION(name, storeInMemory, outputPath) Instrumentor::get().beginSession(name, storeInMemory, outputPath)
 #    define END_PROFILING_SESSION Instrumentor::get().endSession()
 #    define PROFILE_SCOPE(name) InstrumentationTimer timer##__LINE__(name)
-#    define PROFILE_FUNCTION() PROFILE_SCOPE(__FUNCTION__)
+#    define PROFILE_FUNCTION() PROFILE_SCOPE(__FUNCTION__); NEW_PROFILE_FUNCTION()
 #else
 #    define BEGIN_PROFILING_SESSION(name, storeInMemory, outputPath)
 #    define END_PROFILING_SESSION

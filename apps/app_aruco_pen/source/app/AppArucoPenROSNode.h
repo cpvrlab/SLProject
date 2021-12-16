@@ -10,15 +10,19 @@
 #ifndef SRC_APPARUCOPENROSNODE_H
 #define SRC_APPARUCOPENROSNODE_H
 
-#define BOOST_BIND_GLOBAL_PLACEHOLDERS      // A Boost header which ROS includes is complaining without this
+#define BOOST_BIND_GLOBAL_PLACEHOLDERS // A Boost header which ROS includes is complaining without this
 #include <ros/ros.h>
+
+#include <SLVec3.h>
+#include <SLQuat4.h>
 
 //-----------------------------------------------------------------------------
 //! AppArucoPenROSNode provides methods for publishing data to the ROS network
 /*! Currently the only method is "publish" that publishes the ArUco pen tip
  * position to the "aruco_pen/tip" topic
  */
-class AppArucoPenROSNode {
+class AppArucoPenROSNode
+{
 
 public:
     static AppArucoPenROSNode& instance()
@@ -28,12 +32,14 @@ public:
     }
 
     AppArucoPenROSNode();
-    void publish(float x, float y, float z);
+    void publishPose(const SLVec3f& position,
+                     SLQuat4f       orientation) const;
+    void publishKeyEvent(const SLVec3f& position,
+                         SLQuat4f       orientation) const;
 
-private:
-    ros::Publisher _publisher;
-
+    ros::Publisher _posePublisher;
+    ros::Publisher _keyEventsPublisher;
 };
 //-----------------------------------------------------------------------------
 
-#endif //SRC_APPARUCOPENROSNODE_H
+#endif // SRC_APPARUCOPENROSNODE_H

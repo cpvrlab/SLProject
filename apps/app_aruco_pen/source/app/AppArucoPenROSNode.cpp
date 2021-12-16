@@ -9,7 +9,7 @@
 
 #include <app/AppArucoPenROSNode.h>
 
-#include <std_msgs/String.h>
+#include <geometry_msgs/Pose.h>
 
 //-----------------------------------------------------------------------------
 AppArucoPenROSNode::AppArucoPenROSNode()
@@ -19,16 +19,35 @@ AppArucoPenROSNode::AppArucoPenROSNode()
 
     ros::init(argc, argv, "aruco_pen");
     ros::NodeHandle node;
-    _publisher = node.advertise<std_msgs::String>("aruco_pen/tip", 1000);
+    _posePublisher      = node.advertise<geometry_msgs::Pose>("aruco_pen/pose", 1000);
+    _keyEventsPublisher = node.advertise<geometry_msgs::Pose>("aruco_pen/key_events", 1000);
 }
 //-----------------------------------------------------------------------------
-void AppArucoPenROSNode::publish(float x, float y, float z)
+void AppArucoPenROSNode::publishPose(const SLVec3f& position,
+                                     SLQuat4f       orientation) const
 {
-    std::stringstream stream;
-    stream << x << ":" << y << ":" << z;
-
-    std_msgs::String msg;
-    msg.data = stream.str();
-    _publisher.publish(msg);
+    geometry_msgs::Pose msg;
+    msg.position.x    = (double)position.x;
+    msg.position.y    = (double)position.y;
+    msg.position.z    = (double)position.z;
+    msg.orientation.x = (double)orientation.x();
+    msg.orientation.y = (double)orientation.y();
+    msg.orientation.z = (double)orientation.z();
+    msg.orientation.w = (double)orientation.w();
+    _posePublisher.publish(msg);
+}
+//-----------------------------------------------------------------------------
+void AppArucoPenROSNode::publishKeyEvent(const SLVec3f& position,
+                                         SLQuat4f       orientation) const
+{
+    geometry_msgs::Pose msg;
+    msg.position.x    = (double)position.x;
+    msg.position.y    = (double)position.y;
+    msg.position.z    = (double)position.z;
+    msg.orientation.x = (double)orientation.x();
+    msg.orientation.y = (double)orientation.y();
+    msg.orientation.z = (double)orientation.z();
+    msg.orientation.w = (double)orientation.w();
+    _keyEventsPublisher.publish(msg);
 }
 //-----------------------------------------------------------------------------

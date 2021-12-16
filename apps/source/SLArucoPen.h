@@ -16,22 +16,37 @@
 
 #include <SLEventHandler.h>
 #include <SLVec3.h>
+#include <SLQuat4.h>
 
 class SLArucoPen : public SLEventHandler
 {
 public:
+    enum State
+    {
+        Idle,
+        Tracing
+    };
+
     SLbool onKeyPress(SLKey key,
                       SLKey mod) override;
+    SLbool onKeyRelease(SLKey key,
+                        SLKey mod) override;
 
     SLVec3f tipPosition();
+    SLQuat4f orientation();
+
+    SLVec3f rosPosition();
+    SLQuat4f rosOrientation();
 
     SLfloat liveDistance();
     SLfloat lastDistance() const;
 
     CVMultiTracker& multiTracker() { return _multiTracker; }
+    State           state() { return _state; }
 
 private:
     CVMultiTracker _multiTracker;
+    State          _state = Idle;
 
     SLVec3f _lastPrintedPosition;
     SLbool  _positionPrintedOnce = false;

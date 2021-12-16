@@ -24,8 +24,6 @@
 
 #include <GlobalTimer.h>
 
-#include <thread>
-
 //-----------------------------------------------------------------------------
 //! Forward declaration of the scene definition function from AppArucoPenLoad.cpp
 extern void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID);
@@ -455,7 +453,6 @@ int main(int argc, char* argv[])
         touchDelta.set(-1, -1);
 
         initGLFW(scrWidth, scrHeight);
-
         initSL(cmdLineArgs);
 
         // Event loop

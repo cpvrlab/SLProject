@@ -56,7 +56,7 @@ public:
     void       closeCaptureProviders();
     void       grabFrameImagesAndTrack(SLSceneView* sv);
     CVTracked* currentTracker();
-    void       publishTipPosition();
+    void       publishTipPose();
 
     // Getters
     CVVCaptureProvider&    captureProviders() { return _captureProviders; }

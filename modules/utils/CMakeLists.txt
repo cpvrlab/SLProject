@@ -53,6 +53,7 @@ set(headers
         ${CMAKE_CURRENT_SOURCE_DIR}/source/GlobalTimer.h
 	    ${CMAKE_CURRENT_SOURCE_DIR}/source/CustomLog.h
         ${CMAKE_CURRENT_SOURCE_DIR}/source/Instrumentor.h
+		${CMAKE_CURRENT_SOURCE_DIR}/source/Profiler.h
 		${CMAKE_CURRENT_SOURCE_DIR}/source/ZipUtils.h
 		${CMAKE_CURRENT_SOURCE_DIR}/source/HttpUtils.h
         ${UTILS_ROOT}/externals/ftplibpp/ftplib.h
@@ -64,6 +65,7 @@ set(sources
         ${CMAKE_CURRENT_SOURCE_DIR}/source/FtpUtils.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/Utils.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/GlobalTimer.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/source/Profiler.cpp
 	    ${CMAKE_CURRENT_SOURCE_DIR}/source/ZipUtils.cpp
 	    ${CMAKE_CURRENT_SOURCE_DIR}/source/HttpUtils.cpp
         ${UTILS_ROOT}/externals/ftplibpp/ftplib.cpp
