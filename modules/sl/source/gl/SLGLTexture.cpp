@@ -13,7 +13,7 @@
 #include <SLGLProgramManager.h>
 #include <SLAssetManager.h>
 #include <Utils.h>
-#include <Instrumentor.h>
+#include <Profiler.h>
 
 #ifdef SL_HAS_OPTIX
 #    include <cuda.h>

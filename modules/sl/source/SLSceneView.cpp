@@ -15,7 +15,7 @@
 #include <SLSkybox.h>
 #include <GlobalTimer.h>
 #include <SLInputManager.h>
-#include <Instrumentor.h>
+#include <Profiler.h>
 
 #include <utility>
 

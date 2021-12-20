@@ -15,7 +15,7 @@ using namespace std::placeholders;
 #include <SLSceneView.h>
 #include <SLSkybox.h>
 #include <GlobalTimer.h>
-#include <Instrumentor.h>
+#include <Profiler.h>
 
 //-----------------------------------------------------------------------------
 SLRaytracer::SLRaytracer()

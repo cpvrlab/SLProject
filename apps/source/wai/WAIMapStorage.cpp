@@ -1,5 +1,5 @@
 #include <WAIMapStorage.h>
-#include <Instrumentor.h>
+#include <Profiler.h>
 
 cv::Mat WAIMapStorage::convertToCVMat(const SLMat4f slMat)
 {

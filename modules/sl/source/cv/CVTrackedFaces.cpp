@@ -17,7 +17,7 @@ for a good top down information.
 */
 #include <cv/CVTrackedFaces.h>
 #include <Utils.h>
-#include <Instrumentor.h>
+#include <Profiler.h>
 
 //-----------------------------------------------------------------------------
 //! Constructor for the facial landmark tracker

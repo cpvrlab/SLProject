@@ -32,7 +32,7 @@
 #include <WAIMapPoint.h>
 #include <WAIKeyFrameDB.h>
 #include <orb_slam/Converter.h>
-#include <Instrumentor.h>
+#include <Profiler.h>
 
 long unsigned int WAIKeyFrame::nNextId = 0;
 

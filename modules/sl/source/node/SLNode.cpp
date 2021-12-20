@@ -16,7 +16,7 @@
 #include <SLNode.h>
 #include <SLText.h>
 #include <SLSceneView.h>
-#include <Instrumentor.h>
+#include <Profiler.h>
 
 using std::cout;
 using std::endl;

@@ -11,7 +11,7 @@
 #include <SLNode.h>
 #include <SLRay.h>
 #include <Moeller/TriangleBoxIntersect.h>
-#include <Instrumentor.h>
+#include <Profiler.h>
 
 //-----------------------------------------------------------------------------
 SLCompactGrid::SLCompactGrid(SLMesh* m) : SLAccelStruct(m)

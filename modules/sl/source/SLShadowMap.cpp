@@ -16,7 +16,7 @@
 #include <SLLight.h>
 #include <SLMaterial.h>
 #include <SLShadowMap.h>
-#include <Instrumentor.h>
+#include <Profiler.h>
 #include <SLSceneView.h>
 #include <SLCamera.h>
 #include <SLFrustum.h>

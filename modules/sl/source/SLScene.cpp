@@ -13,7 +13,7 @@
 #include <SLGLProgramManager.h>
 #include <SLSkybox.h>
 #include <GlobalTimer.h>
-#include <Instrumentor.h>
+#include <Profiler.h>
 
 //-----------------------------------------------------------------------------
 SLMaterialDefaultGray*           SLMaterialDefaultGray::_instance           = nullptr;

@@ -40,7 +40,7 @@
 #include <SLTexColorLUT.h>
 #include <SLProjectScene.h>
 #include <SLGLProgramManager.h>
-#include <Instrumentor.h>
+#include <Profiler.h>
 #include <AppDemoGui.h>
 #include <SLDeviceLocation.h>
 #include <SLNodeLOD.h>

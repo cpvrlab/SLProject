@@ -20,7 +20,7 @@
 #    include <SLAnimSkeleton.h>
 #    include <SLAssetManager.h>
 #    include <SLAnimManager.h>
-#    include <Instrumentor.h>
+#    include <Profiler.h>
 #    include <SLAssimpProgressHandler.h>
 
 // assimp is only included in the source file to not expose it to the rest of the framework
@@ -770,9 +770,9 @@ SLMaterial* SLAssimpImporter::loadMaterial(SLAssetManager* am,
                     aiMat->GetTexture(AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_METALLICROUGHNESS_TEXTURE,
                                       &fileMetallicRoughness);
                     SLstring rghMtlTex  = checkFilePath(modelPath,
-                                                        texturePath,
-                                                        fileMetallicRoughness.data,
-                                                        false);
+                                                       texturePath,
+                                                       fileMetallicRoughness.data,
+                                                       false);
                     SLstring unknownTex = checkFilePath(modelPath,
                                                         texturePath,
                                                         aiPath.data,

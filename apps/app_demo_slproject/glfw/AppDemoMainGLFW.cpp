@@ -21,7 +21,7 @@
 #include <AppDemoGui.h>
 #include <AppDemoSceneView.h>
 #include <GLFW/glfw3.h>
-#include <Instrumentor.h>
+#include <Profiler.h>
 
 //-----------------------------------------------------------------------------
 //! Forward declaration of the scene definition function from AppDemoLoad.cpp

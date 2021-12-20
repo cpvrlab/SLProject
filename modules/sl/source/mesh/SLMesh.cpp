@@ -15,7 +15,7 @@
 #include <SLSkybox.h>
 #include <SLMesh.h>
 #include <SLAssetManager.h>
-#include <Instrumentor.h>
+#include <Profiler.h>
 
 using std::set;
 

@@ -25,7 +25,7 @@ for a good top down information.
 #include <Utils.h>
 #include <FtpUtils.h>
 #include <AppDemo.h>
-#include <Instrumentor.h>
+#include <Profiler.h>
 
 //-----------------------------------------------------------------------------
 CVCapture* CVCapture::_instance = nullptr;

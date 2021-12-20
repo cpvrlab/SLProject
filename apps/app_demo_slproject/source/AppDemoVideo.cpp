@@ -19,7 +19,7 @@
 #include <FtpUtils.h>
 #include <GlobalTimer.h>
 #include <SLProjectScene.h>
-#include <Instrumentor.h>
+#include <Profiler.h>
 
 //-----------------------------------------------------------------------------
 /*! Global pointer for the video texture defined in AppDemoLoad for video scenes

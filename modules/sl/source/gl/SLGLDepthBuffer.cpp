@@ -9,7 +9,7 @@
 
 #include <SLGLState.h>
 #include <SLGLDepthBuffer.h>
-#include <Instrumentor.h>
+#include <Profiler.h>
 
 //-----------------------------------------------------------------------------
 /*!
