@@ -137,10 +137,10 @@ SLbool SLRaytracer::renderDistrib(SLSceneView* sv)
     float t1 = GlobalTimer::timeS();
 
     // Bind render functions to be called multi-threaded
-    auto sampleAAPixelsFunction = bind(&SLRaytracer::sampleAAPixels, this, _1);
+    auto sampleAAPixelsFunction = bind(&SLRaytracer::sampleAAPixels, this, _1, _2);
     auto renderSlicesFunction   = _cam->lensSamples()->samples() == 1
-                                    ? bind(&SLRaytracer::renderSlices, this, _1)
-                                    : bind(&SLRaytracer::renderSlicesMS, this, _1);
+                                    ? bind(&SLRaytracer::renderSlices, this, _1, _2)
+                                    : bind(&SLRaytracer::renderSlicesMS, this, _1, _2);
 
     // Do multi-threading only in release config
     // Render image without anti-aliasing
@@ -148,11 +148,11 @@ SLbool SLRaytracer::renderDistrib(SLSceneView* sv)
     _nextLine = 0;           // reset _nextLine=0 be for multithreading starts
 
     // Start additional threads on the renderSlices function
-    for (SLuint t = 0; t < Utils::maxThreads() - 1; t++)
-        threads1.emplace_back(renderSlicesFunction, false);
+    for (SLuint t = 1; t <= Utils::maxThreads() - 1; t++)
+        threads1.emplace_back(renderSlicesFunction, false, t);
 
     // Do the same work in the main thread
-    renderSlicesFunction(true);
+    renderSlicesFunction(true, 0);
 
     // Wait for the other threads to finish
     for (auto& thread : threads1)
@@ -168,11 +168,11 @@ SLbool SLRaytracer::renderDistrib(SLSceneView* sv)
         _nextLine = 0;           // reset _nextLine=0 be for multithreading starts
 
         // Start additional threads on the sampleAAPixelFunction function
-        for (SLuint t = 0; t < Utils::maxThreads() - 1; t++)
-            threads2.emplace_back(sampleAAPixelsFunction, false);
+        for (SLuint t = 1; t <= Utils::maxThreads() - 1; t++)
+            threads2.emplace_back(sampleAAPixelsFunction, false, t);
 
         // Do the same work in the main thread
-        sampleAAPixelsFunction(true);
+        sampleAAPixelsFunction(true, 0);
 
         // Wait for the other threads to finish
         for (auto& thread : threads2)
@@ -201,9 +201,10 @@ locked or an atomic index. I prefer not protecting it because it's faster.
 If the increment is not done properly some pixels may get ray traced twice.
 Only the main thread is allowed to call a repaint of the image.
 */
-void SLRaytracer::renderSlices(const bool isMainThread)
+void SLRaytracer::renderSlices(const bool isMainThread, SLuint threadNum)
 {
     PROFILE_FUNCTION();
+    NAME_PROFILED_THREAD(string("RT-Worker-") + std::to_string(threadNum));
 
     // Time points
     double t1 = 0;
@@ -270,9 +271,10 @@ locked or an atomic index. I prefer not protecting it because it's faster.
 If the increment is not done properly some pixels may get ray traced twice.
 Only the main thread is allowed to call a repaint of the image.
 */
-void SLRaytracer::renderSlicesMS(const bool isMainThread)
+void SLRaytracer::renderSlicesMS(const bool isMainThread, SLuint threadNum)
 {
     PROFILE_FUNCTION();
+    NAME_PROFILED_THREAD(string("RT-Worker-") + std::to_string(threadNum));
 
     // Time points
     double t1 = 0;
@@ -639,9 +641,10 @@ locked or an atomic index. I prefer not protecting it because it's faster.
 If the increment is not done properly some pixels may get ray traced twice.
 Only the main thread is allowed to call a repaint of the image.
 */
-void SLRaytracer::sampleAAPixels(const bool isMainThread)
+void SLRaytracer::sampleAAPixels(const bool isMainThread, SLuint threadNum)
 {
     PROFILE_FUNCTION();
+    NAME_PROFILED_THREAD(string("RT-Worker-") + std::to_string(threadNum));
 
     assert(_aaSamples % 2 == 1 && "subSample: maskSize must be uneven");
     double t1 = 0, t2;

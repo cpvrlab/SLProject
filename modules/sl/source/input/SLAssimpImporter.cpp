@@ -609,8 +609,6 @@ void SLAssimpImporter::findSkeletonRoot()
 //! Loads the skeleton
 void SLAssimpImporter::loadSkeleton(SLAnimManager& animManager, SLJoint* parent, aiNode* node)
 {
-    PROFILE_FUNCTION();
-
     if (!node)
         return;
 

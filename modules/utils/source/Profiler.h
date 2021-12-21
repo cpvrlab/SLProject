@@ -18,6 +18,10 @@
 #include <fstream>
 
 //-----------------------------------------------------------------------------
+/* Set PROFILING to 1 to enable profiling or to 0 for disabling profiling
+ * Just add PROFILE_FUNCTION(); at the beginning of a function that you want to
+ * profile. See the Profiler class below on how to display the profiling data.
+ */
 #define PROFILING 0
 //-----------------------------------------------------------------------------
 #ifdef PROFILING

@@ -61,11 +61,11 @@ public:
     // ray tracer functions
     SLbool  renderClassic(SLSceneView* sv);
     SLbool  renderDistrib(SLSceneView* sv);
-    void    renderSlices(bool isMainThread);
-    void    renderSlicesMS(bool isMainThread);
+    void    renderSlices(bool isMainThread, SLuint threadNum);
+    void    renderSlicesMS(bool isMainThread, SLuint threadNum);
     SLCol4f trace(SLRay* ray);
     SLCol4f shade(SLRay* ray);
-    void    sampleAAPixels(bool isMainThread);
+    void    sampleAAPixels(bool isMainThread, SLuint threadNum);
     void    renderUIBeforeUpdate();
 
     // additional ray tracer functions
