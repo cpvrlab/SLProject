@@ -19,6 +19,7 @@ uniform float u_time;           // Simulation time
 uniform float u_deltaTime;      // Elapsed time between frames
 uniform vec3 u_acceleration;    // Particle acceleration
 uniform float u_tTL;            // Particle lifespan
+uniform vec3 u_pGPosition;  // Particle Generator position
 
 //Need to be print out in the correct order
 out vec3 tf_position;           // To transform feedback
@@ -39,7 +40,7 @@ void main()
         float age = u_time - a_startTime;   // Get the age of the particle
         if( age > u_tTL ) {     // Check if the particle is dead
             // The particle is past its lifetime, recycle.
-            tf_position = vec3(0.0);            // Reset position
+            tf_position = u_pGPosition;         // Reset position
             tf_velocity = a_initialVelocity;    // Reset velocity
             tf_startTime = u_time;              // Reset start time to actual time
             } else {
@@ -47,6 +48,8 @@ void main()
             tf_position += tf_velocity * u_deltaTime;   // Scale the translation by the time
             //tf_velocity += u_deltaTime * u_acceleration;  // Amplify the velocity
         }
+    }else{
+        tf_position = u_pGPosition;         // Set position (for world space)
     }
 }
 //-----------------------------------------------------------------------------

@@ -73,6 +73,8 @@ static float    _ttl            = 5.0f; // Time to life of a particle
 static float    _currentTime    = 0.0f; // Elapsed time since start of application
 static float    _lastTime       = 0.0f; // Last obtained elapsed time
 
+static SLVec3f pGPos; // Position of particle generator
+
 static float  _camZ;                   //!< z-distance of camera
 static float  _rotX, _rotY;            //!< rotation angles around x & y axis
 static int    _deltaX, _deltaY;        //!< delta mouse motion
@@ -116,6 +118,7 @@ static GLint _tTLTFLoc;     //!< uniform location for particle life time
 static GLint _timeTFLoc;    //!< uniform location for time 
 static GLint _dTimeLoc;     //!< uniform location for delta time
 static GLint _aLoc;         //!< uniform location for acceleration
+static GLint _pGPTFLoc;       //!< uniform location for particle generator position
 
 // Attribute & uniform variable location indexes
 static GLint _cPLoc;        //!< attribute location for vertex position
@@ -296,6 +299,7 @@ void onInit()
     _timeTFLoc  = glGetUniformLocation(_tFShaderProgID, "u_time");
     _dTimeLoc = glGetUniformLocation(_tFShaderProgID, "u_deltaTime");
     _aLoc     = glGetUniformLocation(_tFShaderProgID, "u_acceleration");
+    _pGPTFLoc   = glGetUniformLocation(_tFShaderProgID, "u_pGPosition"); // For world space
 
     // Activate the shader program
     glUseProgram(_cShaderProgID);
@@ -324,6 +328,8 @@ void onInit()
     buildBox(); // Init the Cube
     //buildSquare();
     initParticles(5.0f, SLVec3f(0, 0, 0));
+
+    pGPos = SLVec3f(0.0f, -0.5f, 0.0f);
 
     glClearColor(0.0f, 0.0f, 0.0f, 1); // Set the background color
     //glEnable(GL_DEPTH_TEST);           // Enables depth test
@@ -387,7 +393,7 @@ bool onPaint()
     mvp.multiply(mv);
 
     _currentTime = glfwGetTime();
-    std::cout << _currentTime << std::endl;
+    //std::cout << _currentTime << std::endl;
     float delatTime = _currentTime - _lastTime;
     _lastTime       = _currentTime;
 
@@ -399,6 +405,7 @@ bool onPaint()
     glUniform1f(_timeTFLoc, _currentTime);
     glUniform3f(_aLoc, 1.0f, 1.0f, 1.0f);
     glUniform1f(_dTimeLoc, delatTime);
+    glUniform3f(_pGPTFLoc, pGPos.x, pGPos.y, pGPos.z); // For local space (Comment)
 
     // Disable rendering
     glEnable(GL_RASTERIZER_DISCARD);
@@ -428,7 +435,7 @@ bool onPaint()
     glUniform1f(_sLoc, 1.0f);
     glUniform1f(_radiusLoc, 0.05f);
     glUniform4f(_cLoc, 1.0f,1.0f,1.0f,1.0f);
-    glUniform4f(_pGPLoc, 0.0f, -0.5f, 0.0f, 0.0f);
+    //glUniform4f(_pGPLoc, pGPos.x, pGPos.y, pGPos.z, 0.0f); // For local space (Uncomment)
 
      // Un-bind the feedback object.
      glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, 0);
@@ -581,6 +588,14 @@ void onKey(GLFWwindow* window, int GLFWKey, int scancode, int action, int mods)
             case GLFW_KEY_RIGHT_CONTROL: _modifiers = _modifiers ^ CTRL; break;
             case GLFW_KEY_LEFT_ALT: _modifiers = _modifiers ^ ALT; break;
             case GLFW_KEY_RIGHT_ALT: _modifiers = _modifiers ^ ALT; break;
+        }
+    }
+    else if (action == GLFW_REPEAT)
+    {
+        switch (GLFWKey)
+        {
+            case GLFW_KEY_LEFT: pGPos.x -= 0.01f; break;
+            case GLFW_KEY_RIGHT: pGPos.x += 0.01f; break;
         }
     }
 }
