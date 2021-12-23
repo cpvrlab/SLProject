@@ -856,6 +856,8 @@ void SLSceneView::draw3DGLNodes(SLVNode& nodes,
                                 SLbool   alphaBlended,
                                 SLbool   depthSorted)
 {
+    //PROFILE_FUNCTION();
+
     if (nodes.empty()) return;
 
     // For blended nodes we activate OpenGL blending and stop depth buffer updates

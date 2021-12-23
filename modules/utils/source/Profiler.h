@@ -22,7 +22,7 @@
  * Just add PROFILE_FUNCTION(); at the beginning of a function that you want to
  * profile. See the Profiler class below on how to display the profiling data.
  */
-#define PROFILING 1
+#define PROFILING 0
 //-----------------------------------------------------------------------------
 #ifdef PROFILING
 #    define BEGIN_PROFILING_SESSION(filePath) Profiler::instance().beginSession(filePath)
