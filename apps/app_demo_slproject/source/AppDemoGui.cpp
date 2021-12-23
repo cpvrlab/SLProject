@@ -1934,7 +1934,7 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
             if (ImGui::MenuItem("Multi-threaded Jobs"))
             {
                 auto job1 = []() {
-                    NAME_PROFILED_THREAD("Worker Thread 1");
+                    PROFILE_THREAD("Worker Thread 1");
                     PROFILE_SCOPE("Parallel Job 1");
 
                     uint maxIter = 100000;
@@ -1950,7 +1950,7 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                 };
 
                 auto job2 = []() {
-                    NAME_PROFILED_THREAD("Worker Thread 2");
+                    PROFILE_THREAD("Worker Thread 2");
                     PROFILE_SCOPE("Parallel Job 2");
 
                     uint maxIter = 100000;

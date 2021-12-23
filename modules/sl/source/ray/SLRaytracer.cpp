@@ -203,8 +203,12 @@ Only the main thread is allowed to call a repaint of the image.
 */
 void SLRaytracer::renderSlices(const bool isMainThread, SLuint threadNum)
 {
+    if (!isMainThread)
+    {
+        PROFILE_THREAD(string("RT-Worker-") + std::to_string(threadNum));
+    }
+
     PROFILE_FUNCTION();
-    NAME_PROFILED_THREAD(string("RT-Worker-") + std::to_string(threadNum));
 
     // Time points
     double t1 = 0;
@@ -273,8 +277,12 @@ Only the main thread is allowed to call a repaint of the image.
 */
 void SLRaytracer::renderSlicesMS(const bool isMainThread, SLuint threadNum)
 {
+    if (!isMainThread)
+    {
+        PROFILE_THREAD(string("RT-Worker-") + std::to_string(threadNum));
+    }
+
     PROFILE_FUNCTION();
-    NAME_PROFILED_THREAD(string("RT-Worker-") + std::to_string(threadNum));
 
     // Time points
     double t1 = 0;
@@ -643,8 +651,12 @@ Only the main thread is allowed to call a repaint of the image.
 */
 void SLRaytracer::sampleAAPixels(const bool isMainThread, SLuint threadNum)
 {
+    if (!isMainThread)
+    {
+        PROFILE_THREAD(string("RT-Worker-") + std::to_string(threadNum));
+    }
+
     PROFILE_FUNCTION();
-    NAME_PROFILED_THREAD(string("RT-Worker-") + std::to_string(threadNum));
 
     assert(_aaSamples % 2 == 1 && "subSample: maskSize must be uneven");
     double t1 = 0, t2;
@@ -672,7 +684,6 @@ void SLRaytracer::sampleAAPixels(const bool isMainThread, SLuint threadNum)
             SLCol4f color(0, 0, 0);
 
             // Loop regularly over the float pixel
-
 
             for (SLint sy = 0; sy < _aaSamples; ++sy)
             {

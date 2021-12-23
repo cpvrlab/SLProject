@@ -72,7 +72,7 @@ void slCreateAppAndScene(SLVstring&      cmdLineArgs,
         SLstring computerInfo = Utils::ComputerInfos::get();
         SLstring profileFile  = AppDemo::externalPath + "Profile_" + computerInfo + ".slt";
         BEGIN_PROFILING_SESSION(profileFile);
-        NAME_PROFILED_THREAD("Main Thread");
+        PROFILE_THREAD("Main Thread");
     }
 #endif
 

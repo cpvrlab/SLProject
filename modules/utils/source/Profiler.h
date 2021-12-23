@@ -22,20 +22,20 @@
  * Just add PROFILE_FUNCTION(); at the beginning of a function that you want to
  * profile. See the Profiler class below on how to display the profiling data.
  */
-#define PROFILING 0
+#define PROFILING 1
 //-----------------------------------------------------------------------------
 #ifdef PROFILING
 #    define BEGIN_PROFILING_SESSION(filePath) Profiler::instance().beginSession(filePath)
 #    define PROFILE_SCOPE(name) ProfilerTimer profilerTimer##__LINE__(name)
 #    define PROFILE_FUNCTION() PROFILE_SCOPE(__FUNCTION__)
-#    define NAME_PROFILED_THREAD(name) Profiler::instance().nameCurrentThread(name)
+#    define PROFILE_THREAD(name) Profiler::instance().profileThread(name)
 #    define PROFILER_TRACE_FILE_PATH Profiler::instance().filePath()
 #    define END_PROFILING_SESSION() Profiler::instance().endSession()
 #else
 #    define BEGIN_PROFILING_SESSION(filePath)
 #    define PROFILE_SCOPE(name)
 #    define PROFILE_FUNCTION()
-#    define NAME_PROFILED_THREAD(name)
+#    define PROFILE_THREAD(name)
 #    define PROFILER_TRACE_FILE_PATH
 #    define END_PROFILING_SESSION()
 #endif
@@ -51,12 +51,12 @@ struct ProfilingResult
 //-----------------------------------------------------------------------------
 //! Utility class for profiling functions/scopes and writing the results to a file.
 /*!
- * To start the profiling, call Profiler::instance().beginSession(filePath) with the path to the trace file.
+ * To start the profiling, call BEGIN_PROFILING_SESSION(filePath) with the path to the trace file.
  * After that you can place "PROFILE_FUNCTION();" or "PROFILE_SCOPE(name);" at the start of
  * every function or scope you want to measure.
- * The profiler supports multithreading. The current thread can be named with "NAME_PROFILED_THREAD(name);".
- * If no thread name is specified at the end of the session, the name will be "Thread#ID".
- * To end the session and write the result to the trace file, call Profiler::instance().endSession().
+ * The profiler supports multithreading. To add a new thread, call "PROFILE_THREAD(name)" at the start
+ * of the thread. Threads with the same name will appear merged in the trace file.
+ * To end the session and write the result to the trace file, call END_PROFILING_SESSION().
  *
  * The resulting trace file can be opened using the trace viewer located at /externals/trace-viewer/trace-viewer.jar.
  * Note that a Java Runtime Environment is required to launch this JAR archive.
@@ -75,7 +75,7 @@ public:
     void        endSession();
 
     void recordResult(ProfilingResult result);
-    void nameCurrentThread(const std::string& name);
+    void profileThread(const std::string& name);
 
 private:
     static void writeInt32(std::ofstream& stream, uint32_t i);
@@ -84,11 +84,11 @@ private:
     static bool isLittleEndian();
 
 private:
-    std::string                     _filePath;         //!< Future path of the trace file
-    uint64_t                        _sessionStart = 0; //!< Start timestamp of the session in microseconds
-    std::vector<ProfilingResult>    _results;          //!< List of profiling results (of all threads)
-    std::map<uint32_t, std::string> _threadNames;      //!< Map from thread ID hashes to thread names
-    std::mutex                      _mutex;            //!< Mutex for accessing profiling results and thread names
+    std::string                  _filePath;         //!< Future path of the trace file
+    uint64_t                     _sessionStart = 0; //!< Start timestamp of the session in microseconds
+    std::vector<ProfilingResult> _results;          //!< List of profiling results (of all threads)
+    std::vector<std::string>     _threadNames;      //!< Map from thread ID hashes to thread names
+    std::mutex                   _mutex;            //!< Mutex for accessing profiling results and thread names
 };
 //-----------------------------------------------------------------------------
 //! A timer for profiling functions and scopes
@@ -100,12 +100,15 @@ private:
  */
 class ProfilerTimer
 {
+    friend class Profiler;
+
 public:
     explicit ProfilerTimer(const char* name);
     ~ProfilerTimer();
 
 private:
-    thread_local static int threadDepth;
+    thread_local static uint32_t threadId;
+    thread_local static uint32_t threadDepth;
 
     const char*                                                 _name;
     uint32_t                                                    _depth;

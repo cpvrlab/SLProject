@@ -96,11 +96,7 @@ void Profiler::endSession()
     for (uint32_t threadId : threadIds)
     {
         // Write thread name
-        // If there was no thread name specified, generate a name of the form Thread#ID
-        if (_threadNames.find(threadId) != _threadNames.end())
-            writeString(fileStream, _threadNames[threadId].c_str());
-        else
-            writeString(fileStream, ("Thread#" + std::to_string(threadId)).c_str());
+        writeString(fileStream, _threadNames[threadId].c_str());
 
         // Count and write number of scopes in thread
         uint32_t numScopes = 0;
@@ -142,16 +138,28 @@ void Profiler::recordResult(ProfilingResult result)
 //-----------------------------------------------------------------------------
 /*!
  * Associates the thread in which the function was called with the name provided.
- * If this function was never called for a thread at session end, the name is
- * "Thread#ID" (where ID is the signed int32 hash of the thread ID).
- * This function is sensibly also thread-safe.
+ * This function must be called at the start of every profiled thread.
+ * It is sensibly also thread-safe.
  * @param name
  */
-void Profiler::nameCurrentThread(const std::string& name)
+void Profiler::profileThread(const std::string& name)
 {
     _mutex.lock();
-    uint32_t threadId = (uint32_t)std::hash<std::thread::id>{}(std::this_thread::get_id());
-    _threadNames.insert({threadId, name});
+
+    for (uint32_t i = 0; i < _threadNames.size(); i++)
+    {
+        if (_threadNames[i] == name)
+        {
+            ProfilerTimer::threadId = i;
+            _mutex.unlock();
+            return;
+        }
+    }
+
+    uint32_t threadId = _threadNames.size();
+    _threadNames.push_back(name);
+    ProfilerTimer::threadId = threadId;
+
     _mutex.unlock();
 }
 //-----------------------------------------------------------------------------
@@ -212,7 +220,8 @@ bool           Profiler::isLittleEndian()
     return *(uint8_t*)(&ONE) == 1;
 }
 //-----------------------------------------------------------------------------
-thread_local int ProfilerTimer::threadDepth = 0;
+thread_local uint32_t ProfilerTimer::threadId    = 0;
+thread_local uint32_t ProfilerTimer::threadDepth = 0;
 //-----------------------------------------------------------------------------
 /*!
  * Constructor for ProfilerTimer that saves the current time as the start
@@ -245,7 +254,6 @@ ProfilerTimer::~ProfilerTimer()
     auto     endTimePoint = std::chrono::high_resolution_clock::now();
     uint64_t start        = std::chrono::time_point_cast<std::chrono::microseconds>(_startPoint).time_since_epoch().count();
     uint64_t end          = std::chrono::time_point_cast<std::chrono::microseconds>(endTimePoint).time_since_epoch().count();
-    uint32_t threadId     = (uint32_t)std::hash<std::thread::id>{}(std::this_thread::get_id());
 
     ProfilingResult result{_name, _depth, start, end, threadId};
     Profiler::instance().recordResult(result);
