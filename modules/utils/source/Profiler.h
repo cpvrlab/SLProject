@@ -24,7 +24,7 @@
  */
 #define PROFILING 0
 //-----------------------------------------------------------------------------
-#ifdef PROFILING
+#if PROFILING
 #    define BEGIN_PROFILING_SESSION(filePath) Profiler::instance().beginSession(filePath)
 #    define PROFILE_SCOPE(name) ProfilerTimer profilerTimer##__LINE__(name)
 #    define PROFILE_FUNCTION() PROFILE_SCOPE(__FUNCTION__)
@@ -46,7 +46,7 @@ struct ProfilingResult
     uint32_t    depth;    //!< Depth of the scope in it's thread's call stack
     uint64_t    start;    //!< Start time in microseconds relative to the session start
     uint64_t    end;      //!< End time in microseconds relative to the session start
-    uint32_t    threadId; //!< Hash of the thread ID
+    uint32_t    threadId; //!< ID of the thread in which the scope was entered
 };
 //-----------------------------------------------------------------------------
 //! Utility class for profiling functions/scopes and writing the results to a file.
@@ -87,7 +87,7 @@ private:
     std::string                  _filePath;         //!< Future path of the trace file
     uint64_t                     _sessionStart = 0; //!< Start timestamp of the session in microseconds
     std::vector<ProfilingResult> _results;          //!< List of profiling results (of all threads)
-    std::vector<std::string>     _threadNames;      //!< Map from thread ID hashes to thread names
+    std::vector<std::string>     _threadNames;      //!< List of thread names (the thread ID is the index)
     std::mutex                   _mutex;            //!< Mutex for accessing profiling results and thread names
 };
 //-----------------------------------------------------------------------------
@@ -107,8 +107,9 @@ public:
     ~ProfilerTimer();
 
 private:
-    thread_local static uint32_t threadId;
-    thread_local static uint32_t threadDepth;
+    static constexpr uint32_t    INVALID_THREAD_ID = -1;
+    static thread_local uint32_t threadId;
+    static thread_local uint32_t threadDepth;
 
     const char*                                                 _name;
     uint32_t                                                    _depth;

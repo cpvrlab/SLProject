@@ -12,7 +12,7 @@
 #include <algorithm>
 #include <cstdint>
 #include <cstring>
-#include <thread>
+#include <iostream>
 
 //-----------------------------------------------------------------------------
 /*!
@@ -156,7 +156,7 @@ void Profiler::profileThread(const std::string& name)
         }
     }
 
-    uint32_t threadId = _threadNames.size();
+    uint32_t threadId = (uint32_t)_threadNames.size();
     _threadNames.push_back(name);
     ProfilerTimer::threadId = threadId;
 
@@ -220,17 +220,28 @@ bool           Profiler::isLittleEndian()
     return *(uint8_t*)(&ONE) == 1;
 }
 //-----------------------------------------------------------------------------
-thread_local uint32_t ProfilerTimer::threadId    = 0;
+thread_local uint32_t ProfilerTimer::threadId    = INVALID_THREAD_ID;
 thread_local uint32_t ProfilerTimer::threadDepth = 0;
 //-----------------------------------------------------------------------------
 /*!
  * Constructor for ProfilerTimer that saves the current time as the start
  * time, the thread-local depth as the scope depth and increases the
  * thread-local depth since we have just entered a scope.
+ * PROFILE_THREAD must be called in the current thread before this function
+ * or else the current thread can't be identified and the application exits.
  * @param name Name of the scope
  */
 ProfilerTimer::ProfilerTimer(const char* name)
 {
+    // If the thread ID is INVALID_THREAD_ID, PROFILE_THREAD hasn't been called
+    // We don't know the current thread in this case, so we simply skip
+    if (threadId == INVALID_THREAD_ID)
+    {
+        _running = false;
+        std::cout << ("Warning: Attempted to profile scope in non-profiled thread\nScope name: " + std::string(name) + "\n").c_str();
+        return;
+    }
+
     _name       = name;
     _startPoint = std::chrono::high_resolution_clock::now();
     _depth      = threadDepth;
