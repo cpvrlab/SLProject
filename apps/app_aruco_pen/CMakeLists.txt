@@ -164,3 +164,6 @@ file(GLOB
         "${SL_PROJECT_ROOT}/apps/app_aruco_pen/external/peak/api/lib/x86_64/*.dll"
         "${SL_PROJECT_ROOT}/apps/app_aruco_pen/external/peak/ipl/lib/x86_64/*.dll")
 file(COPY ${IDS_PEAK_DLLS} DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+
+file(GLOB DLLS_TO_COPY ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/*.dll)
+file(COPY ${DLLS_TO_COPY} DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
