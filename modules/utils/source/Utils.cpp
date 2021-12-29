@@ -52,6 +52,8 @@ namespace fs = std::experimental::filesystem;
 #    include <sys/stat.h>
 #endif
 
+#define PROCESSOR_ARCHITECTURE_ARM64 12
+
 using asio::ip::tcp;
 using std::fstream;
 

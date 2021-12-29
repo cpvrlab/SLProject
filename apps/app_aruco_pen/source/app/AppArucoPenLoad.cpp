@@ -36,15 +36,6 @@
 #include <SLArucoPen.h>
 
 //-----------------------------------------------------------------------------
-//! appDemoLoadScene builds a scene from source code.
-/*! appDemoLoadScene builds a scene from source code. Such a function must be
- passed as a void*-pointer to slCreateScene. It will be called from within
- slCreateSceneView as soon as the view is initialized. You could separate
- different scene by a different sceneID.<br>
- The purpose is to assemble a scene by creating scenegraph objects with nodes
- (SLNode) and meshes (SLMesh). See the scene with SID_Minimal for a minimal
- example of the different steps.
-*/
 void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 {
     PROFILE_FUNCTION();
@@ -76,9 +67,6 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
     // Initialize all preloaded stuff from SLScene
     s->init();
-
-    // clear gui stuff that depends on scene and sceneview
-    AppArucoPenGui::clear();
 
     // Deactivate in general the device sensors
     AppDemo::devRot.init();
