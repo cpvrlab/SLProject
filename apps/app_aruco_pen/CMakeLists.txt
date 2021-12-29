@@ -24,10 +24,12 @@ file(GLOB headers
 
         ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/IDSPeakInterface.h
         ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/IDSPeakDevice.h
+        ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/SpryTrackInterface.h
+        ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/SpryTrackDevice.h
         ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/CVCaptureProvider.h
         ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/CVCaptureProviderStandard.h
         ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/CVCaptureProviderIDSPeak.h
-        ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/SprytrackInterface.h
+        ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/CVCaptureProviderSpryTrack.h
         )
 
 file(GLOB sources
@@ -49,10 +51,12 @@ file(GLOB sources
 
         ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/IDSPeakInterface.cpp
         ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/IDSPeakDevice.cpp
+        ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/SpryTrackInterface.cpp
+        ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/SpryTrackDevice.cpp
         ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/CVCaptureProvider.cpp
         ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/CVCaptureProviderStandard.cpp
         ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/CVCaptureProviderIDSPeak.cpp
-        ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/SprytrackInterface.cpp
+        ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/CVCaptureProviderSpryTrack.cpp
         )
 
 # Group source files

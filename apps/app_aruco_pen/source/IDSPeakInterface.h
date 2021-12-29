@@ -29,19 +29,12 @@ public:
         return instance;
     }
 
-private:
-    bool initialized = false;
-    int  numDevices  = 0;
-
 public:
-    IDSPeakDevice openDevice(int index,
+    void          init();
+    IDSPeakDevice openDevice(int                  index,
                              IDSPeakDeviceParams& params);
     int           numAvailableDevices();
-
-private:
-    void init();
-    void uninit();
-    void deviceClosed();
+    void          uninit();
 };
 //-----------------------------------------------------------------------------
 #endif // SLPROJECT_IDSPEAKINTERFACE_H

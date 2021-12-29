@@ -133,7 +133,7 @@ void IDSPeakDevice::startCapture()
     }
 }
 //-----------------------------------------------------------------------------
-void IDSPeakDevice::captureImage(int*      width,
+void IDSPeakDevice::acquireImage(int*      width,
                                  int*      height,
                                  uint8_t** dataBGR,
                                  uint8_t** dataGray)
@@ -187,7 +187,6 @@ void IDSPeakDevice::close()
 {
     stopCapture();
     deallocateBuffers();
-    IDSPeakInterface::instance().deviceClosed();
 }
 //-----------------------------------------------------------------------------
 void IDSPeakDevice::stopCapture()

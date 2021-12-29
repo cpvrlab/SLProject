@@ -22,7 +22,8 @@
 
 #include <SLGLFWInterface.h>
 
-#include <SprytrackInterface.h>
+#include <IDSPeakInterface.h>
+#include <SpryTrackInterface.h>
 
 #include <GlobalTimer.h>
 
@@ -455,8 +456,11 @@ int main(int argc, char* argv[])
         touchDelta.set(-1, -1);
 
         initGLFW(scrWidth, scrHeight);
+
+        IDSPeakInterface::instance().init();
+        SpryTrackInterface::instance().init();
+
         initSL(cmdLineArgs);
-        SprytrackInterface::instance().init();
 
         // Event loop
         while (!slShouldClose())
@@ -473,9 +477,11 @@ int main(int argc, char* argv[])
                 glfwPollEvents();
         }
 
-        SprytrackInterface::instance().uninit();
         AppArucoPen::instance().closeCaptureProviders();
         slTerminate();
+
+        SpryTrackInterface::instance().uninit();
+        IDSPeakInterface::instance().uninit();
 
         glfwDestroyWindow(window);
         glfwTerminate();

@@ -15,7 +15,6 @@ void IDSPeakInterface::init()
     try
     {
         peak::Library::Initialize();
-        initialized = true;
         SL_LOG("IDS Peak: Initialized");
     }
     catch (std::exception& e)
@@ -25,29 +24,9 @@ void IDSPeakInterface::init()
     }
 }
 //-----------------------------------------------------------------------------
-void IDSPeakInterface::uninit()
-{
-    try
-    {
-        peak::Library::Close();
-        initialized = false;
-        SL_LOG("IDS Peak: Uninitialized");
-    }
-    catch (std::exception& e)
-    {
-        SL_LOG("Exception in IDSPeakInterface::uninit");
-        SL_EXIT_MSG(e.what());
-    }
-}
-//-----------------------------------------------------------------------------
 IDSPeakDevice IDSPeakInterface::openDevice(int index,
                                            IDSPeakDeviceParams& params)
 {
-    if (!initialized)
-    {
-        init();
-    }
-
     try
     {
         auto& deviceManager = peak::DeviceManager::Instance();
@@ -66,7 +45,6 @@ IDSPeakDevice IDSPeakInterface::openDevice(int index,
         // Open the first available device
         auto device = devices.at(index)->OpenDevice(peak::core::DeviceAccessType::Control);
         SL_LOG("IDS Peak: Device \"%s\" opened", device->DisplayName().c_str());
-        numDevices++;
 
         IDSPeakDevice result(device, index);
         result.prepare(params);
@@ -83,11 +61,6 @@ IDSPeakDevice IDSPeakInterface::openDevice(int index,
 //-----------------------------------------------------------------------------
 int IDSPeakInterface::numAvailableDevices()
 {
-    if (!initialized)
-    {
-        init();
-    }
-
     try
     {
         auto& deviceManager = peak::DeviceManager::Instance();
@@ -101,12 +74,17 @@ int IDSPeakInterface::numAvailableDevices()
     }
 }
 //-----------------------------------------------------------------------------
-void IDSPeakInterface::deviceClosed()
+void IDSPeakInterface::uninit()
 {
-    numDevices--;
-    if (initialized && numDevices == 0)
+    try
     {
-        uninit();
+        peak::Library::Close();
+        SL_LOG("IDS Peak: Uninitialized");
+    }
+    catch (std::exception& e)
+    {
+        SL_LOG("Exception in IDSPeakInterface::uninit");
+        SL_EXIT_MSG(e.what());
     }
 }
 //-----------------------------------------------------------------------------

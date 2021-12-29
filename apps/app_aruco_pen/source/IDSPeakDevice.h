@@ -44,7 +44,7 @@ public:
     IDSPeakDevice(std::shared_ptr<peak::core::Device> device,
                   int                                 deviceIndex);
 
-    void captureImage(int*      width,
+    void acquireImage(int*      width,
                       int*      height,
                       uint8_t** dataBGR,
                       uint8_t** dataGray);

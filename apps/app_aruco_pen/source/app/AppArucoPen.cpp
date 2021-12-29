@@ -17,6 +17,7 @@
 #include <AppDemo.h>
 #include <app/AppArucoPenROSNode.h>
 #include <IDSPeakInterface.h>
+#include <CVCaptureProviderSpryTrack.h>
 
 extern void trackVideo(CVCaptureProvider* provider);
 
@@ -70,10 +71,12 @@ void AppArucoPen::openCaptureProviders()
     //    openCaptureProvider(new CVCaptureProviderStandard(1, CVSize(1280, 960)));
 
     // Every single IDS camera that is connected
-    for (int i = 0; i < IDSPeakInterface::instance().numAvailableDevices(); i++)
-    {
-        openCaptureProvider(new CVCaptureProviderIDSPeak(i, CVSize(2768, 1840)));
-    }
+    // for (int i = 0; i < IDSPeakInterface::instance().numAvailableDevices(); i++)
+    // {
+    //     openCaptureProvider(new CVCaptureProviderIDSPeak(i, CVSize(2768, 1840)));
+    // }
+
+    openCaptureProvider(new CVCaptureProviderSpryTrack(CVSize(1280, 960)));
 
     _currentCaptureProvider = _captureProviders.empty() ? nullptr : _captureProviders[0];
 

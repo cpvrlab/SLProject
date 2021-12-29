@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      SprytrackInterface.h
+//  File:      SpryTrackInterface.h
 //  Date:      December 2021
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Authors:   Marino von Wattenwyl
@@ -12,26 +12,36 @@
 
 #include <ftkInterface.h>
 #include <SL.h>
+#include <SpryTrackDevice.h>
 
-class SprytrackInterface
+//-----------------------------------------------------------------------------
+class SpryTrackInterface
 {
+    friend class SpryTrackDevice;
+
 public:
-    static SprytrackInterface& instance()
+    static SpryTrackInterface& instance()
     {
-        static SprytrackInterface instance;
+        static SpryTrackInterface instance;
         return instance;
     }
 
 private:
-    SprytrackInterface() {}
+    SpryTrackInterface() {}
 
 public:
     void init();
+    bool isDeviceConnected();
+    SpryTrackDevice accessDevice();
     void uninit();
+
+private:
+    bool tryAccessDevice(SpryTrackDevice* outDevice);
 
 private:
     ftkLibrary library = nullptr;
 
 };
+//-----------------------------------------------------------------------------
 
 #endif // SRC_SPRYTRACKINTERFACE_H

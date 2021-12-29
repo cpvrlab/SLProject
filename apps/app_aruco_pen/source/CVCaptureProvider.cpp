@@ -7,8 +7,7 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include "CVCaptureProvider.h"
-
+#include <CVCaptureProvider.h>
 #include <Instrumentor.h>
 
 #include <utility>
