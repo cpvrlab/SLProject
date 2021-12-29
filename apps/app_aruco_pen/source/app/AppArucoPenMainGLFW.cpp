@@ -22,6 +22,8 @@
 
 #include <SLGLFWInterface.h>
 
+#include <SprytrackInterface.h>
+
 #include <GlobalTimer.h>
 
 //-----------------------------------------------------------------------------
@@ -454,6 +456,7 @@ int main(int argc, char* argv[])
 
         initGLFW(scrWidth, scrHeight);
         initSL(cmdLineArgs);
+        SprytrackInterface::instance().init();
 
         // Event loop
         while (!slShouldClose())
@@ -470,6 +473,7 @@ int main(int argc, char* argv[])
                 glfwPollEvents();
         }
 
+        SprytrackInterface::instance().uninit();
         AppArucoPen::instance().closeCaptureProviders();
         slTerminate();
 

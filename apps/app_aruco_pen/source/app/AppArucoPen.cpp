@@ -18,11 +18,6 @@
 #include <app/AppArucoPenROSNode.h>
 #include <IDSPeakInterface.h>
 
-#include <mfapi.h>
-#include <mfidl.h>
-#include <atlstr.h>
-#include <opencv2/aruco.hpp>
-
 extern void trackVideo(CVCaptureProvider* provider);
 
 //-----------------------------------------------------------------------------
@@ -80,7 +75,7 @@ void AppArucoPen::openCaptureProviders()
         openCaptureProvider(new CVCaptureProviderIDSPeak(i, CVSize(2768, 1840)));
     }
 
-    _currentCaptureProvider = _captureProviders[0];
+    _currentCaptureProvider = _captureProviders.empty() ? nullptr : _captureProviders[0];
 
     SL_LOG("Opening done");
 }

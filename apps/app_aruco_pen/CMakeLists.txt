@@ -27,6 +27,7 @@ file(GLOB headers
         ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/CVCaptureProvider.h
         ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/CVCaptureProviderStandard.h
         ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/CVCaptureProviderIDSPeak.h
+        ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/SprytrackInterface.h
         )
 
 file(GLOB sources
@@ -51,6 +52,7 @@ file(GLOB sources
         ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/CVCaptureProvider.cpp
         ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/CVCaptureProviderStandard.cpp
         ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/CVCaptureProviderIDSPeak.cpp
+        ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/SprytrackInterface.cpp
         )
 
 # Group source files
@@ -134,6 +136,7 @@ target_include_directories(${target}
         PRIVATE
         ${SL_PROJECT_ROOT}/apps/app_aruco_pen/external/peak/api/include
         ${SL_PROJECT_ROOT}/apps/app_aruco_pen/external/peak/ipl/include
+        ${SL_PROJECT_ROOT}/apps/app_aruco_pen/external/sprytrack/include
 
         # HACK: catkin includes an older version of imgui
         # To prevent include errors, we need to add the path
@@ -148,7 +151,7 @@ target_link_directories(${target}
         PRIVATE
         ${SL_PROJECT_ROOT}/apps/app_aruco_pen/external/peak/api/lib/x86_64
         ${SL_PROJECT_ROOT}/apps/app_aruco_pen/external/peak/ipl/lib/x86_64
-        ${SL_PROJECT_ROOT}/apps/app_aruco_pen/external/aruco_pen/
+        ${SL_PROJECT_ROOT}/apps/app_aruco_pen/external/sprytrack/lib/
         PUBLIC
         INTERFACE)
 
@@ -156,13 +159,15 @@ target_link_libraries(${target}
         PRIVATE
         ids_peak
         ids_peak_ipl
+        fusionTrack64
         PUBLIC
         INTERFACE)
 
 file(GLOB
         IDS_PEAK_DLLS
         "${SL_PROJECT_ROOT}/apps/app_aruco_pen/external/peak/api/lib/x86_64/*.dll"
-        "${SL_PROJECT_ROOT}/apps/app_aruco_pen/external/peak/ipl/lib/x86_64/*.dll")
+        "${SL_PROJECT_ROOT}/apps/app_aruco_pen/external/peak/ipl/lib/x86_64/*.dll"
+        "${SL_PROJECT_ROOT}/apps/app_aruco_pen/external/sprytrack/bin/*.dll")
 file(COPY ${IDS_PEAK_DLLS} DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 
 file(GLOB DLLS_TO_COPY ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/*.dll)
