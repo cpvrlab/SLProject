@@ -17,19 +17,27 @@
 #include <vector>
 #include <SLGLProgramGeneric.h>
 
+class SLTexFont;
 class SLCamera;
 class SLInputManager;
 
 //-----------------------------------------------------------------------------
 //! Toplevel holder of the assets meshes, materials, textures and shader progs.
-/*! This class is inherited by SLProjectScene that combines it with SLScene.
- All these assets can be shared among instances of SLScene, SLNode and SLMaterial.
+/*! All these assets can be shared among instances of SLScene, SLNode and SLMaterial.
  Shared assets are meshes (SLMesh), materials (SLMaterial), textures (SLGLTexture)
  and shader programs (SLGLProgram).
 */
 class SLAssetManager
 {
 public:
+    SLAssetManager(bool generateStaticFonts = false)
+    {
+        if (generateStaticFonts)
+        {
+            // font and video texture are not added to the _textures vector
+            SLAssetManager::generateFonts(*SLGLProgramManager::get(SP_fontTex));
+        }
+    }
     ~SLAssetManager();
     
     void clear();
@@ -50,6 +58,23 @@ public:
     SLVMaterial&  materials() { return _materials; }
     SLVGLTexture& textures() { return _textures; }
     SLVGLProgram& programs() { return _programs; }
+
+    // Static method & font pointers
+    static void       generateFonts(SLGLProgram& fontTexProgram);
+    static void       deleteFonts();
+    static SLTexFont* getFont(SLfloat heightMM, SLint dpi);
+
+    static SLTexFont* font07; //!< 7 pixel high fixed size font
+    static SLTexFont* font08; //!< 8 pixel high fixed size font
+    static SLTexFont* font09; //!< 9 pixel high fixed size font
+    static SLTexFont* font10; //!< 10 pixel high fixed size font
+    static SLTexFont* font12; //!< 12 pixel high fixed size font
+    static SLTexFont* font14; //!< 14 pixel high fixed size font
+    static SLTexFont* font16; //!< 16 pixel high fixed size font
+    static SLTexFont* font18; //!< 18 pixel high fixed size font
+    static SLTexFont* font20; //!< 20 pixel high fixed size font
+    static SLTexFont* font22; //!< 22 pixel high fixed size font
+    static SLTexFont* font24; //!< 24 pixel high fixed size font
 
 protected:
     SLVMesh      _meshes;    //!< Vector of all meshes

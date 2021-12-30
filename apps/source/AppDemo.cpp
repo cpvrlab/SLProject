@@ -9,8 +9,9 @@
 
 #include <SL.h>
 #include <AppDemo.h>
+#include <SLAssetManager.h>
+#include <SLScene.h>
 #include <SLSceneView.h>
-#include <SLProjectScene.h>
 #include <SLGLImGui.h>
 #include <utility>
 #include <GlobalTimer.h>
@@ -20,7 +21,8 @@
 //-----------------------------------------------------------------------------
 //! Global static objects
 SLInputManager       AppDemo::inputManager;
-SLProjectScene*      AppDemo::scene = nullptr;
+SLAssetManager*      AppDemo::assetManager = nullptr;
+SLScene*             AppDemo::scene = nullptr;
 vector<SLSceneView*> AppDemo::sceneViews;
 SLGLImGui*           AppDemo::gui = nullptr;
 SLDeviceRotation     AppDemo::devRot;
@@ -91,7 +93,8 @@ void AppDemo::createAppAndScene(SLstring appName,
 
     name = std::move(appName);
     SLGLProgramManager::init(dataPath + "shaders/", configPath);
-    scene = new SLProjectScene(name, (cbOnSceneLoad)onSceneLoadCallback);
+    assetManager = new SLAssetManager(true);
+    scene = new SLScene(name, (cbOnSceneLoad)onSceneLoadCallback);
     scene->initOculus(dataPath + "shaders/");
     GlobalTimer::timerStart();
 
@@ -117,6 +120,10 @@ void AppDemo::deleteAppAndScene()
 
     delete scene;
     scene = nullptr;
+
+    delete assetManager;
+    assetManager = nullptr;
+
     if (gui)
     {
         delete gui;

@@ -25,6 +25,7 @@ public:
 
     //! prepare the ui for a new rendering, e.g. update visual ui representation (called by SLSceneView onPaint)
     virtual void onInitNewFrame(SLScene* s, SLSceneView* sv) {}
+
     //! ui render call (called by SLSceneView draw2DGL)
     virtual void onPaint(const SLRecti& viewport) {}
     virtual void renderExtraFrame(SLScene* s, SLSceneView* sv, SLint mouseX, SLint mouseY) {}

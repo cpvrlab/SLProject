@@ -10,7 +10,6 @@
 
 #include <SLInterface.h>
 #include <AppDemo.h>
-#include <SLProjectScene.h>
 #include <SLAssimpImporter.h>
 #include <SLInputManager.h>
 #include <SLScene.h>
@@ -115,7 +114,8 @@ See examples usages in:
   - app-Demo-SLProject/android: AppDemoAndroidJNI.cpp in Java_ch_fhnw_comgr_GLES3Lib_onInit()
   - app_demo_slproject/ios:     ViewController.m      in viewDidLoad()
 */
-SLint slCreateSceneView(SLProjectScene* scene,
+SLint slCreateSceneView(SLAssetManager* am,
+                        SLScene*        scene,
                         int             screenWidth,
                         int             screenHeight,
                         int             dotsPerInch,
@@ -161,9 +161,9 @@ SLint slCreateSceneView(SLProjectScene* scene,
     if (!scene->root3D())
     {
         if (AppDemo::sceneID == SID_Empty)
-            scene->onLoad(AppDemo::scene, sv, initScene);
+            scene->onLoad(am, AppDemo::scene, sv, initScene);
         else
-            scene->onLoad(scene, sv, AppDemo::sceneID);
+            scene->onLoad(am, scene, sv, AppDemo::sceneID);
     }
     else
         sv->onInitialize();

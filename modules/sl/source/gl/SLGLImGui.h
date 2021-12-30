@@ -98,6 +98,7 @@ private:
 
     // gui build function pattern
     cbOnImGuiBuild _build = nullptr;
+
     // save config callback
     cbOnImGuiSaveConfig _saveConfig = nullptr;
 

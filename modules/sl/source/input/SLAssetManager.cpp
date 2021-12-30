@@ -1,6 +1,6 @@
 //#############################################################################
 //  File:      SLAssetManager.cpp
-//  Authors:   Michael Goettlicher
+//  Authors:   Michael Goettlicher, Marcus Hudritsch
 //  Date:      Feb 2020
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Authors:   Marcus Hudritsch
@@ -8,13 +8,29 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
+#include <AppDemo.h>
 #include <SLAssetManager.h>
+#include <SLTexFont.h>
 
+//-----------------------------------------------------------------------------
+// Initialize static font pointers
+SLTexFont* SLAssetManager::font07 = nullptr;
+SLTexFont* SLAssetManager::font08 = nullptr;
+SLTexFont* SLAssetManager::font09 = nullptr;
+SLTexFont* SLAssetManager::font10 = nullptr;
+SLTexFont* SLAssetManager::font12 = nullptr;
+SLTexFont* SLAssetManager::font14 = nullptr;
+SLTexFont* SLAssetManager::font16 = nullptr;
+SLTexFont* SLAssetManager::font18 = nullptr;
+SLTexFont* SLAssetManager::font20 = nullptr;
+SLTexFont* SLAssetManager::font22 = nullptr;
+SLTexFont* SLAssetManager::font24 = nullptr;
+//-----------------------------------------------------------------------------
 SLAssetManager::~SLAssetManager()
 {
     clear();
 }
-
+//-----------------------------------------------------------------------------
 //! for all assets, clear gpu data
 void SLAssetManager::clear()
 {
@@ -38,7 +54,7 @@ void SLAssetManager::clear()
         delete p;
     _programs.clear();
 }
-
+//-----------------------------------------------------------------------------
 //! for all assets, clear gpu data
 void SLAssetManager::deleteDataGpu()
 {
@@ -65,7 +81,7 @@ void SLAssetManager::deleteDataGpu()
     for (auto p : _programs)
         ;//p->deleteDataGpu();
 }
-
+//-----------------------------------------------------------------------------
 //! Removes the specified mesh from the meshes resource vector.
 bool SLAssetManager::removeMesh(SLMesh* mesh)
 {
@@ -80,7 +96,7 @@ bool SLAssetManager::removeMesh(SLMesh* mesh)
     }
     return false;
 }
-
+//-----------------------------------------------------------------------------
 //! Returns the pointer to shader program if found by name
 SLGLProgram* SLAssetManager::getProgramByName(const string& programName)
 {
@@ -89,7 +105,7 @@ SLGLProgram* SLAssetManager::getProgramByName(const string& programName)
             return sp;
     return nullptr;
 }
-
+//-----------------------------------------------------------------------------
 //! merge other asset manager into this
 void SLAssetManager::merge(SLAssetManager& other)
 {
@@ -107,3 +123,77 @@ void SLAssetManager::merge(SLAssetManager& other)
     other.textures().clear();
     other.programs().clear();
 }
+//-----------------------------------------------------------------------------
+//! Generates all static fonts
+void SLAssetManager::generateFonts(SLGLProgram& fontTexProgram)
+{
+    font07 = new SLTexFont(AppDemo::fontPath + "Font07.png", &fontTexProgram);
+    assert(font07);
+    font08 = new SLTexFont(AppDemo::fontPath + "Font08.png", &fontTexProgram);
+    assert(font08);
+    font09 = new SLTexFont(AppDemo::fontPath + "Font09.png", &fontTexProgram);
+    assert(font09);
+    font10 = new SLTexFont(AppDemo::fontPath + "Font10.png", &fontTexProgram);
+    assert(font10);
+    font12 = new SLTexFont(AppDemo::fontPath + "Font12.png", &fontTexProgram);
+    assert(font12);
+    font14 = new SLTexFont(AppDemo::fontPath + "Font14.png", &fontTexProgram);
+    assert(font14);
+    font16 = new SLTexFont(AppDemo::fontPath + "Font16.png", &fontTexProgram);
+    assert(font16);
+    font18 = new SLTexFont(AppDemo::fontPath + "Font18.png", &fontTexProgram);
+    assert(font18);
+    font20 = new SLTexFont(AppDemo::fontPath + "Font20.png", &fontTexProgram);
+    assert(font20);
+    font22 = new SLTexFont(AppDemo::fontPath + "Font22.png", &fontTexProgram);
+    assert(font22);
+    font24 = new SLTexFont(AppDemo::fontPath + "Font24.png", &fontTexProgram);
+    assert(font24);
+}
+//-----------------------------------------------------------------------------
+//! Deletes all static fonts
+void SLAssetManager::deleteFonts()
+{
+    delete font07;
+    font07 = nullptr;
+    delete font08;
+    font08 = nullptr;
+    delete font09;
+    font09 = nullptr;
+    delete font10;
+    font10 = nullptr;
+    delete font12;
+    font12 = nullptr;
+    delete font14;
+    font14 = nullptr;
+    delete font16;
+    font16 = nullptr;
+    delete font18;
+    font18 = nullptr;
+    delete font20;
+    font20 = nullptr;
+    delete font22;
+    font22 = nullptr;
+    delete font24;
+    font24 = nullptr;
+}
+//-----------------------------------------------------------------------------
+//! returns nearest font for a given height in mm
+SLTexFont* SLAssetManager::getFont(SLfloat heightMM, SLint dpi)
+{
+    SLfloat dpmm       = (SLfloat)dpi / 25.4f;
+    SLfloat targetH_PX = dpmm * heightMM;
+
+    if (targetH_PX < 7) return font07;
+    if (targetH_PX < 8) return font08;
+    if (targetH_PX < 9) return font09;
+    if (targetH_PX < 10) return font10;
+    if (targetH_PX < 12) return font12;
+    if (targetH_PX < 14) return font14;
+    if (targetH_PX < 16) return font16;
+    if (targetH_PX < 18) return font18;
+    if (targetH_PX < 20) return font20;
+    if (targetH_PX < 24) return font22;
+    return font24;
+}
+//-----------------------------------------------------------------------------

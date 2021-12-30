@@ -11,6 +11,7 @@
 
 #include <AppDemo.h>
 #include <SLAssimpImporter.h>
+#include <SLAssetManager.h>
 #include <SLBox.h>
 #include <SLGLVertexArrayExt.h>
 #include <SLLightSpot.h>
@@ -99,7 +100,7 @@ void drawXZGrid(const SLMat4f& mat)
  different or additional behaviour for a certain eventhandler you have to sub-
  class SLSceneView and override the eventhandler.
  */
-AppNodeSceneView::AppNodeSceneView(SLProjectScene* s,
+AppNodeSceneView::AppNodeSceneView(SLScene* s,
                                    int             dpi,
                                    SLInputManager& inputManager)
   : SLSceneView(s, dpi, inputManager),
@@ -121,7 +122,9 @@ AppNodeSceneView::~AppNodeSceneView()
 //-----------------------------------------------------------------------------
 void AppNodeSceneView::postSceneLoad()
 {
-    SLAssetManager* am   = dynamic_cast<SLAssetManager*>(_s);
+    assert(_s->assetManager() && "No asset manager assigned to scene");
+
+    SLAssetManager* am   = _s->assetManager();
     SLMaterial*     rMat = new SLMaterial(am, "rMat", SLCol4f(1.0f, 0.7f, 0.7f));
     SLMaterial*     gMat = new SLMaterial(am, "gMat", SLCol4f(0.7f, 1.0f, 0.7f));
 
@@ -466,7 +469,7 @@ void AppNodeSceneView::updateInfoText()
     keyBinds += "\nR: Reset \n";
     sprintf(m + strlen(m), "%s", keyBinds.c_str());
 
-    SLTexFont* f         = SLProjectScene::getFont(1.2f, dpi());
+    SLTexFont* f         = SLAssetManager::getFont(1.2f, dpi());
     AppNodeGui::infoText = m;
 }
 //-----------------------------------------------------------------------------

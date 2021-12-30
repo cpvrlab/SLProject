@@ -29,7 +29,7 @@
 #import <mach-o/arch.h>
 
 // Forward declaration of C functions in other files
-extern void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID);
+extern void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID);
 extern bool onUpdateVideo();
 
 //-----------------------------------------------------------------------------
@@ -56,7 +56,7 @@ SLbool onPaintRTGL()
 
 //-----------------------------------------------------------------------------
 //! Alternative SceneView creation C-function passed by slCreateSceneView
-SLSceneView* createAppDemoSceneView(SLProjectScene* scene,
+SLSceneView* createAppDemoSceneView(SLScene*        scene,
                                     int             dpi,
                                     SLInputManager& inputManager)
 {

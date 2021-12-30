@@ -12,7 +12,6 @@ set(sources
     ${SL_PROJECT_ROOT}/apps/app_demo_slproject/source/AppDemoLoad.cpp
     ${SL_PROJECT_ROOT}/apps/app_demo_slproject/source/AppDemoVideo.cpp
     ${SL_PROJECT_ROOT}/apps/app_demo_slproject/source/AppDemoSceneView.cpp
-    ${SL_PROJECT_ROOT}/apps/source/SLProjectScene.cpp
     ${SL_PROJECT_ROOT}/apps/source/CVCapture.cpp
     ${SL_PROJECT_ROOT}/apps/source/AppDemo.cpp
     ${SL_PROJECT_ROOT}/apps/source/SLInterface.cpp
@@ -21,7 +20,6 @@ set(sources
 set(headers
     ${SL_PROJECT_ROOT}/apps/app_demo_slproject/include/AppDemoGui.h
     ${SL_PROJECT_ROOT}/apps/app_demo_slproject/include/AppDemoSceneView.h
-    ${SL_PROJECT_ROOT}/apps/source/SLProjectScene.h
     ${SL_PROJECT_ROOT}/apps/source/CVCapture.h
     ${SL_PROJECT_ROOT}/apps/source/AppDemo.h
     ${SL_PROJECT_ROOT}/apps/source/SLInterface.h

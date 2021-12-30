@@ -9,10 +9,9 @@
 
 #include <AppDemo.h>
 #include "AppDemoSceneView.h"
-#include <SLProjectScene.h>
 
 //-----------------------------------------------------------------------------
-AppDemoSceneView::AppDemoSceneView(SLProjectScene* s,
+AppDemoSceneView::AppDemoSceneView(SLScene*        s,
                                    int             dpi,
                                    SLInputManager& inputManager)
   : SLSceneView(s, dpi, inputManager)

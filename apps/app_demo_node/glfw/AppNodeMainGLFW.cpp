@@ -8,17 +8,20 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
+#include <AppDemo.h>
+#include "AppNodeGui.h"
+#include "AppNodeSceneView.h"
+#include <SLAssetManager.h>
 #include <SLGLState.h>
 #include <SLEnums.h>
 #include <SLInterface.h>
 #include <SLSceneView.h>
-#include <opencv2/opencv.hpp>
-#include <AppDemo.h>
-#include "AppNodeGui.h"
-#include "AppNodeSceneView.h"
 #include <GLFW/glfw3.h>
 
-extern void appNodeLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sid);
+extern void appNodeLoadScene(SLAssetManager* am,
+                             SLScene*        s,
+                             SLSceneView*    sv,
+                             SLSceneID       sid);
 
 //-----------------------------------------------------------------------------
 // GLobal application variables
@@ -41,7 +44,7 @@ SLbool      fullscreen        = false;  //!< flag if window is in fullscreen mod
 SLint       dpi               = 142;    //!< Dot per inch resolution of screen
 
 //-------------------------------------------------------------------------
-/*! 
+/*!
 onClose event handler for deallocation of the scene & sceneview. onClose is
 called glfwPollEvents, glfwWaitEvents or glfwSwapBuffers.
 */
@@ -52,8 +55,8 @@ void onClose(GLFWwindow* myWindow)
 
 //-----------------------------------------------------------------------------
 /*!
-onPaint: Paint event handler that passes the event to the slPaint function. 
-For accurate frame rate measurement we have to take the time after the OpenGL 
+onPaint: Paint event handler that passes the event to the slPaint function.
+For accurate frame rate measurement we have to take the time after the OpenGL
 frame buffer swapping. The FPS calculation is done in slGetWindowTitle.
 */
 SLbool onPaint()
@@ -387,7 +390,7 @@ void onGLFWError(int error, const char* description)
 }
 //-----------------------------------------------------------------------------
 //! Alternative SceneView creation C-function passed by slCreateSceneView
-SLSceneView* createAppNodeSceneView(SLProjectScene* scene,
+SLSceneView* createAppNodeSceneView(SLScene*        scene,
                                     int             myDPI,
                                     SLInputManager& inputManager)
 {
@@ -409,7 +412,7 @@ void initGLFW(int screenWidth, int screenHeight)
     glfwWindowHint(GLFW_SAMPLES, 4);
 
 #ifdef __APPLE__
-    //You can enable or restrict newer OpenGL context here (read the GLFW documentation)
+    // You can enable or restrict newer OpenGL context here (read the GLFW documentation)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
@@ -419,7 +422,7 @@ void initGLFW(int screenWidth, int screenHeight)
 
     window = glfwCreateWindow(screenWidth, screenHeight, "My Title", nullptr, nullptr);
 
-    //get real window size
+    // get real window size
     glfwGetWindowSize(window, &scrWidth, &scrHeight);
 
     if (!window)
@@ -500,7 +503,8 @@ int main(int argc, char* argv[])
     //////////////////////////////////////////////////////////
 
     //////////////////////////////////////////////////////////
-    svIndex = slCreateSceneView(AppDemo::scene,
+    svIndex = slCreateSceneView(AppDemo::assetManager,
+                                AppDemo::scene,
                                 scrWidth,
                                 scrHeight,
                                 dpi,

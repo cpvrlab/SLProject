@@ -14,8 +14,8 @@
 #include <SLEnums.h>
 #include <SLGLEnums.h>
 
+class SLAssetManager;
 class SLScene;
-class SLProjectScene;
 class SLSceneView;
 class SLInputManager;
 
@@ -45,7 +45,8 @@ void slCreateAppAndScene(SLVstring&      cmdLineArgs,
                          const SLstring& applicationName,
                          void*           onSceneLoadCallback = nullptr);
 
-SLint slCreateSceneView(SLProjectScene* scene,
+SLint slCreateSceneView(SLAssetManager* am,
+                        SLScene*        scene,
                         int             screenWidth,
                         int             screenHeight,
                         int             dotsPerInch,

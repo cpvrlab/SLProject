@@ -21,7 +21,6 @@
 class SLScene;
 class SLSceneView;
 class SLGLImGui;
-class SLProjectScene;
 class CVCalibrationEstimator;
 //-----------------------------------------------------------------------------
 //! Top level class for an SLProject application.
@@ -50,7 +49,8 @@ public:
     static int    jobProgressNum() { return _jobProgressNum; }
     static int    jobProgressMax() { return _jobProgressMax; }
 
-    static SLProjectScene*      scene;        //!< scene pointer
+    static SLAssetManager*      assetManager; //!< asset manager
+    static SLScene*             scene;        //!< scene pointer
     static vector<SLSceneView*> sceneViews;   //!< vector of sceneview pointers
     static SLGLImGui*           gui;          //!< gui pointer
     static SLInputManager       inputManager; //!< Input events manager

@@ -10,7 +10,7 @@
 //#############################################################################
 
 #include <SLSceneView.h>
-#include <SLProjectScene.h>
+#include <SLScene.h>
 
 //-----------------------------------------------------------------------------
 enum TransformMode
@@ -31,7 +31,7 @@ enum TransformMode
 class AppNodeSceneView : public SLSceneView
 {
 public:
-    AppNodeSceneView(SLProjectScene* s, int dpi, SLInputManager& inputManager);
+    AppNodeSceneView(SLScene* s, int dpi, SLInputManager& inputManager);
     ~AppNodeSceneView();
 
     // From SLSceneView overwritten

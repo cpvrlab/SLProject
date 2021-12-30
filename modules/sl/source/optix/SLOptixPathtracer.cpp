@@ -8,7 +8,7 @@
 //#############################################################################
 
 #ifdef SL_HAS_OPTIX
-#    include <SLProjectScene.h>
+#    include <SLScene.h>
 #    include <SLSceneView.h>
 #    include <SLOptix.h>
 #    include <SLOptixRaytracer.h>

@@ -15,7 +15,6 @@
 #include <SLMaterial.h>
 #include <SLSceneView.h>
 #include <SLSkybox.h>
-#include <SLProjectScene.h>
 
 //-----------------------------------------------------------------------------
 //! Cubemap Constructor with cubemap images
@@ -79,7 +78,7 @@ SLSkybox::SLSkybox(SLAssetManager* assetMgr,
 all the textures needed for image based lighting and store them in the textures
 of the material of this sky box.
 */
-SLSkybox::SLSkybox(SLProjectScene* projectScene,
+SLSkybox::SLSkybox(SLAssetManager* am,
                    SLstring        shaderPath,
                    SLstring        hdrImage,
                    SLVec2i         resolution,
@@ -91,12 +90,12 @@ SLSkybox::SLSkybox(SLProjectScene* projectScene,
     _exposure = 1.0f;
 
     // Create shader program for the background
-    SLGLProgram* backgroundShader = new SLGLProgramGeneric(projectScene,
+    SLGLProgram* backgroundShader = new SLGLProgramGeneric(am,
                                                            shaderPath + "PBR_SkyboxHDR.vert",
                                                            shaderPath + "PBR_SkyboxHDR.frag");
 
     // The HDR texture is only used to create the environment, the irradiance and the roughness cubemaps
-    _hdrTexture = new SLGLTexture(projectScene,
+    _hdrTexture = new SLGLTexture(am,
                                   hdrImage,
                                   GL_LINEAR,
                                   GL_LINEAR,
@@ -105,7 +104,7 @@ SLSkybox::SLSkybox(SLProjectScene* projectScene,
                                   GL_CLAMP_TO_EDGE);
 
     // The environment cubemap is used for the rendering of the skybox
-    _environmentCubemap = new SLGLTextureIBL(projectScene,
+    _environmentCubemap = new SLGLTextureIBL(am,
                                              shaderPath,
                                              _hdrTexture,
                                              resolution,
@@ -114,7 +113,7 @@ SLSkybox::SLSkybox(SLProjectScene* projectScene,
                                              GL_LINEAR_MIPMAP_LINEAR);
 
     // The irradiance cubemap is used for the ambient indirect light of PBR materials
-    _irradianceCubemap = new SLGLTextureIBL(projectScene,
+    _irradianceCubemap = new SLGLTextureIBL(am,
                                             shaderPath,
                                             _environmentCubemap,
                                             SLVec2i(32, 32),
@@ -122,7 +121,7 @@ SLSkybox::SLSkybox(SLProjectScene* projectScene,
                                             GL_TEXTURE_CUBE_MAP);
 
     // The roughness cubemap is used for the blurred reflections on PBR materials
-    _roughnessCubemap = new SLGLTextureIBL(projectScene,
+    _roughnessCubemap = new SLGLTextureIBL(am,
                                            shaderPath,
                                            _environmentCubemap,
                                            SLVec2i(128, 128),
@@ -130,7 +129,7 @@ SLSkybox::SLSkybox(SLProjectScene* projectScene,
                                            GL_TEXTURE_CUBE_MAP);
 
     // The BRDF lookup texture is used for the specular gloss reflection calculation
-    _brdfLutTexture = new SLGLTextureIBL(projectScene,
+    _brdfLutTexture = new SLGLTextureIBL(am,
                                          shaderPath,
                                          nullptr,
                                          SLVec2i(512, 512),
@@ -138,13 +137,13 @@ SLSkybox::SLSkybox(SLProjectScene* projectScene,
                                          GL_TEXTURE_2D);
 
     // Create the material of the sky box and store there the other texture to be used for other materials
-    SLMaterial* envMaterial = new SLMaterial(projectScene, "matCubeMap");
+    SLMaterial* envMaterial = new SLMaterial(am, "matCubeMap");
     envMaterial->addTexture(_environmentCubemap);
     envMaterial->program(backgroundShader);
     envMaterial->skybox(this);
 
     // Create the box for the sky box
-    addMesh(new SLBox(projectScene,
+    addMesh(new SLBox(am,
                       10,
                       10,
                       10,

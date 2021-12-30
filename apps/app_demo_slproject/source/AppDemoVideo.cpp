@@ -18,7 +18,6 @@
 #include <AppDemo.h>
 #include <FtpUtils.h>
 #include <GlobalTimer.h>
-#include <SLProjectScene.h>
 #include <Profiler.h>
 
 //-----------------------------------------------------------------------------

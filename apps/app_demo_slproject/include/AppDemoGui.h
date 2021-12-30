@@ -18,7 +18,6 @@ class SLScene;
 class SLSceneView;
 class SLNode;
 class SLGLTexture;
-class SLProjectScene;
 class SLTexColorLUT;
 
 //-----------------------------------------------------------------------------
@@ -34,10 +33,10 @@ class AppDemoGui
 {
 public:
     static void clear();
-    static void build(SLProjectScene* s, SLSceneView* sv);
-    static void buildMenuBar(SLProjectScene* s, SLSceneView* sv);
-    static void buildMenuEdit(SLProjectScene* s, SLSceneView* sv);
-    static void buildMenuContext(SLProjectScene* s, SLSceneView* sv);
+    static void build(SLScene* s, SLSceneView* sv);
+    static void buildMenuBar(SLScene* s, SLSceneView* sv);
+    static void buildMenuEdit(SLScene* s, SLSceneView* sv);
+    static void buildMenuContext(SLScene* s, SLSceneView* sv);
     static void buildSceneGraph(SLScene* s);
     static void addSceneGraphNode(SLScene* s, SLNode* node);
     static void buildProperties(SLScene* s, SLSceneView* sv);
@@ -78,21 +77,21 @@ public:
     static std::time_t adjustedTime;        //!< Adjusted GUI time for sun setting (default 0)
 
 private:
-    static void   setTransformEditMode(SLProjectScene* s,
-                                       SLSceneView*    sv,
-                                       SLNodeEditMode  editMode);
-    static void   removeTransformNode(SLProjectScene* s);
-    static void   showHorizon(SLProjectScene* s,
+    static void   setTransformEditMode(SLScene*       s,
+                                       SLSceneView*   sv,
+                                       SLNodeEditMode editMode);
+    static void   removeTransformNode(SLScene* s);
+    static void   showHorizon(SLScene*        s,
                               SLSceneView*    sv);
-    static void   hideHorizon(SLProjectScene* s);
+    static void   hideHorizon(SLScene* s);
     static SLbool _horizonVisuEnabled;
-    static void   downloadModelAndLoadScene(SLScene*     s,
-                                            SLSceneView* sv,
-                                            string       downloadFilename,
-                                            string       urlFolder,
-                                            string       dstFolder,
-                                            string       filenameToLoad,
-                                            SLSceneID    sceneIDToLoad);
+    static void   downloadModelAndLoadScene(SLScene*        s,
+                                            SLSceneView*    sv,
+                                            string          downloadFilename,
+                                            string          urlFolder,
+                                            string          dstFolder,
+                                            string          filenameToLoad,
+                                            SLSceneID       sceneIDToLoad);
 };
 //-----------------------------------------------------------------------------
 #endif
