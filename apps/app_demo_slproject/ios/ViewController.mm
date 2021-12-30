@@ -19,6 +19,7 @@
 // C++ includes for the SceneLibrary
 #include <Utils.h>
 #include "Utils_iOS.h"
+#include <SLAssetManager.h>
 #include <SLInterface.h>
 #include <CVCapture.h>
 #include <AppDemo.h>
@@ -29,7 +30,10 @@
 #import <mach-o/arch.h>
 
 // Forward declaration of C functions in other files
-extern void appDemoLoadScene(SLScene* s, SLSceneView* sv, SLSceneID sceneID);
+extern void appDemoLoadScene(SLAssetManager* am,
+                             SLScene* s,
+                             SLSceneView* sv,
+                             SLSceneID sceneID);
 extern bool onUpdateVideo();
 
 //-----------------------------------------------------------------------------
@@ -179,7 +183,8 @@ float GetSeconds()
                         (void*)appDemoLoadScene);
 
     ///////////////////////////////////////////////////////////////////////
-    svIndex = slCreateSceneView(AppDemo::scene,
+    svIndex = slCreateSceneView(AppDemo::assetManager,
+                                AppDemo::scene,
                                 self.view.bounds.size.height * screenScale,
                                 self.view.bounds.size.width * screenScale,
                                 dpi,
