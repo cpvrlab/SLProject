@@ -14,11 +14,16 @@
 #include <utility>
 
 //-----------------------------------------------------------------------------
+constexpr int GAP_WIDTH = 10;
+constexpr int BACKGROUND_VALUE = 128;
+//-----------------------------------------------------------------------------
 CVCaptureProviderSpryTrack::CVCaptureProviderSpryTrack(CVSize captureSize)
   : CVCaptureProvider("spry_track",
                       "SpryTrack",
                       std::move(captureSize))
 {
+    _lastFrameBGR  = CVMat(_captureSize.height, _captureSize.width, CV_8UC3);
+    _lastFrameGray = CVMat(_captureSize.height, _captureSize.width, CV_8UC1);
 }
 //-----------------------------------------------------------------------------
 CVCaptureProviderSpryTrack::~CVCaptureProviderSpryTrack() noexcept
@@ -49,21 +54,42 @@ void CVCaptureProviderSpryTrack::grab()
         return;
     }
 
+    // Acquire the images from the spryTrack device
     int      width;
     int      height;
-    uint8_t* dataGray;
-    _device.acquireImage(&width, &height, &dataGray);
+    uint8_t* dataGrayLeft;
+    uint8_t* dataGrayRight;
+    _device.acquireImage(&width, &height, &dataGrayLeft, &dataGrayRight);
 
-    // Store the BGR and the gray image
-    _lastFrameGray = CVMat(height, width, CV_8UC1, dataGray, 0);
+    // Compute the scaled image sizes and their top offset in the frame
+    int   scaledWidth  = _captureSize.width / 2 - GAP_WIDTH / 2;
+    float scale        = (float)scaledWidth / (float)width;
+    int   scaledHeight = (int)((float)height * scale);
+    int   top          = (int)((float)(_captureSize.height - scaledHeight) / 2.0f);
+
+    // Convert the raw data to OpenCV matrices
+    CVMat imageLeft  = CVMat(height, width, CV_8UC1, dataGrayLeft);
+    CVMat imageRight = CVMat(height, width, CV_8UC1, dataGrayRight);
+
+    // Resize images to fit them inside the frame
+    cv::resize(imageLeft, imageLeft, CVSize(scaledWidth, scaledHeight));
+    cv::resize(imageRight, imageRight, CVSize(scaledWidth, scaledHeight));
+
+    // Fill the background with a single color
+    _lastFrameGray.setTo(cv::Scalar(BACKGROUND_VALUE));
+
+    // Copy both images to the frame
+    imageLeft.copyTo(_lastFrameGray(CVRect(0,
+                                           top,
+                                           scaledWidth,
+                                           scaledHeight)));
+    imageRight.copyTo(_lastFrameGray(CVRect(_captureSize.width - scaledWidth,
+                                            top,
+                                            scaledWidth,
+                                            scaledHeight)));
+
+    // Convert the gray image to a BGR image
     cv::cvtColor(_lastFrameGray, _lastFrameBGR, cv::COLOR_GRAY2BGR);
-
-    // Resize the images if needed
-    if (captureSize().width != width || captureSize().height != height)
-    {
-        cv::resize(_lastFrameBGR, _lastFrameBGR, captureSize());
-        cv::resize(_lastFrameGray, _lastFrameGray, captureSize());
-    }
 }
 //-----------------------------------------------------------------------------
 void CVCaptureProviderSpryTrack::close()

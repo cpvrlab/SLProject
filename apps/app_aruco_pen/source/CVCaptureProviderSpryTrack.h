@@ -13,6 +13,7 @@
 #include <CVCaptureProvider.h>
 #include <SpryTrackDevice.h>
 
+//-----------------------------------------------------------------------------
 class CVCaptureProviderSpryTrack : public CVCaptureProvider
 {
 private:
@@ -28,5 +29,5 @@ public:
     void   close() override;
     SLbool isOpened() override;
 };
-
+//-----------------------------------------------------------------------------
 #endif // SRC_CVCAPTUREPROVIDERSPRYTRACK_H

@@ -30,7 +30,8 @@ public:
 
     void acquireImage(int*      width,
                       int*      height,
-                      uint8_t** dataGray);
+                      uint8_t** dataGrayLeft,
+                      uint8_t** dataGrayRight);
     void close();
 
 private:

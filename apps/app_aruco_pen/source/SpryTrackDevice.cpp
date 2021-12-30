@@ -11,6 +11,13 @@
 #include <SpryTrackInterface.h>
 
 //-----------------------------------------------------------------------------
+constexpr int    MAX_FAILED_ACQUISITION_ATTEMPTS = 100;
+constexpr uint32 MAX_FRAME_WAIT_TIMEOUT_MS       = 100;
+constexpr uint32 MAX_EVENTS                      = 10;
+constexpr uint32 MAX_RAW_DATA                    = 128;
+constexpr uint32 MAX_3D_FIDUCIALS                = 100;
+constexpr uint32 MAX_MARKERS                     = 10;
+//-----------------------------------------------------------------------------
 SpryTrackDevice::SpryTrackDevice()
   : _serialNumber(-1),
     _type(SpryTrackDeviceType::DEV_UNKNOWN_DEVICE),
@@ -23,15 +30,16 @@ void SpryTrackDevice::prepare()
     _frame = ftkCreateFrame();
     if (!_frame)
     {
+        ftkDeleteFrame(_frame);
         SL_EXIT_MSG("SpryTrack: Failed to allocate frame memory");
     }
 
     ftkError frameOptionsResult = ftkSetFrameOptions(true,
-                                                     10u,
-                                                     128u,
-                                                     128u,
-                                                     100u,
-                                                     10u,
+                                                     MAX_EVENTS,
+                                                     MAX_RAW_DATA,
+                                                     MAX_RAW_DATA,
+                                                     MAX_3D_FIDUCIALS,
+                                                     MAX_MARKERS,
                                                      _frame);
     if (frameOptionsResult != ftkError::FTK_OK)
     {
@@ -43,31 +51,34 @@ void SpryTrackDevice::prepare()
 //-----------------------------------------------------------------------------
 void SpryTrackDevice::acquireImage(int*      width,
                                    int*      height,
-                                   uint8_t** dataGray)
+                                   uint8_t** dataGrayLeft,
+                                   uint8_t** dataGrayRight)
 {
-    ftkError error = ftkGetLastFrame(SpryTrackInterface::instance().library,
-                                     _serialNumber,
-                                     _frame,
-                                     1000);
-
-    for (int i = 0; i < 100; i++)
+    for (int i = 0; i < MAX_FAILED_ACQUISITION_ATTEMPTS; i++)
     {
-        if (error != ftkError::FTK_OK)
+        ftkError error = ftkGetLastFrame(SpryTrackInterface::instance().library,
+                                         _serialNumber,
+                                         _frame,
+                                         MAX_FRAME_WAIT_TIMEOUT_MS);
+
+        if (error == ftkError::FTK_OK)
         {
-            char message[1024];
-            ftkGetLastErrorString(SpryTrackInterface::instance().library, 1024, message);
-            SL_LOG("SpryTrack: Failed to grab frame\n%s", message);
+            *width         = _frame->imageHeader->width;
+            *height        = _frame->imageHeader->height;
+            *dataGrayLeft  = _frame->imageLeftPixels;
+            *dataGrayRight = _frame->imageRightPixels;
+            return;
         }
         else
         {
-            *width    = _frame->imageHeader->width;
-            *height   = _frame->imageHeader->height;
-            *dataGray = _frame->imageLeftPixels;
-            return;
+            SL_LOG("SpryTrack: Failed to grab frame");
         }
     }
 
-    SL_EXIT_MSG("SpryTrack: Failed to acquire image after 100 attempts");
+    SL_EXIT_MSG(("SpryTrack: Failed to acquire image after " +
+                 std::to_string(MAX_FAILED_ACQUISITION_ATTEMPTS) +
+                 " attempts")
+                  .c_str());
 }
 //-----------------------------------------------------------------------------
 void SpryTrackDevice::close()

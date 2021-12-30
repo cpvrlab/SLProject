@@ -76,9 +76,14 @@ void AppArucoPen::openCaptureProviders()
     //     openCaptureProvider(new CVCaptureProviderIDSPeak(i, CVSize(2768, 1840)));
     // }
 
-    openCaptureProvider(new CVCaptureProviderSpryTrack(CVSize(1280, 960)));
+    openCaptureProvider(new CVCaptureProviderSpryTrack(CVSize(1280, 720)));
 
-    _currentCaptureProvider = _captureProviders.empty() ? nullptr : _captureProviders[0];
+    if (_captureProviders.empty())
+    {
+        SL_EXIT_MSG("No capture provider was opened");
+    }
+
+    _currentCaptureProvider = _captureProviders[0];
 
     SL_LOG("Opening done");
 }
