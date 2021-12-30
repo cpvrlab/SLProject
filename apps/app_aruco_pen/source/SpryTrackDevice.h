@@ -12,6 +12,7 @@
 
 #include <ftkInterface.h>
 #include <SL.h>
+#include <SpryTrackMarker.h>
 #include <cstdint>
 
 //-----------------------------------------------------------------------------
@@ -24,10 +25,14 @@ class SpryTrackDevice
 
 public:
     SpryTrackDevice();
+    ~SpryTrackDevice();
 
     SpryTrackSerialNumber serialNumber() const { return _serialNumber; }
     SpryTrackDeviceType   type() const { return _type; }
+    vector<SpryTrackMarker*> markers() const { return _markers; }
 
+    void registerMarker(SpryTrackMarker* marker);
+    void enableOnboardProcessing();
     void acquireImage(int*      width,
                       int*      height,
                       uint8_t** dataGrayLeft,
@@ -36,11 +41,13 @@ public:
 
 private:
     void prepare();
+    void enumerateOptions();
 
 private:
-    SpryTrackSerialNumber _serialNumber;
-    SpryTrackDeviceType   _type;
-    ftkFrameQuery*        _frame;
+    SpryTrackSerialNumber    _serialNumber;
+    SpryTrackDeviceType      _type;
+    ftkFrameQuery*           _frame;
+    vector<SpryTrackMarker*> _markers;
 };
 //-----------------------------------------------------------------------------
 #endif // SRC_SPRYTRACKDEVICE_H

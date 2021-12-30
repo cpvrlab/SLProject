@@ -25,6 +25,14 @@ SpryTrackDevice::SpryTrackDevice()
 {
 }
 //-----------------------------------------------------------------------------
+SpryTrackDevice::~SpryTrackDevice()
+{
+    for (SpryTrackMarker* marker : _markers)
+    {
+        delete marker;
+    }
+}
+//-----------------------------------------------------------------------------
 void SpryTrackDevice::prepare()
 {
     _frame = ftkCreateFrame();
@@ -46,7 +54,51 @@ void SpryTrackDevice::prepare()
         SL_EXIT_MSG("SpryTrack: Failed to set frame options");
     }
 
-    SL_LOG("SpryTrack: Device ready for acquiring frames");
+    enumerateOptions();
+    SL_LOG("SpryTrack: Device ready for acquiring and processing frames");
+}
+//-----------------------------------------------------------------------------
+void SpryTrackDevice::enumerateOptions()
+{
+    // Who thought it would be a good idea not to have constants for device
+    // options but names that need to be converted to option ids first??
+
+    auto optionsEnumCallback = [](uint64 sn, void* user, ftkOptionsInfo* oi) {
+        SL_LOG("SpryTrack: Found option: %s", oi->name);
+    };
+
+    ftkError error = ftkEnumerateOptions(SpryTrackInterface::instance().library,
+                                         _serialNumber,
+                                         optionsEnumCallback,
+                                         this);
+    if (error != ftkError::FTK_OK)
+    {
+        SL_EXIT_MSG("SpryTrack: Failed to enumerate device options");
+    }
+}
+//-----------------------------------------------------------------------------
+void SpryTrackDevice::registerMarker(SpryTrackMarker* marker)
+{
+    marker->_geometry.geometryId = (uint32)_markers.size();
+    _markers.push_back(marker);
+
+    ftkError error = ftkSetGeometry(SpryTrackInterface::instance().library,
+                                    _serialNumber,
+                                    &marker->_geometry);
+    if (error != ftkError::FTK_OK)
+    {
+        SL_EXIT_MSG("SpryTrack: Failed to register geometry");
+    }
+
+    SL_LOG("SpryTrack: Geometry of marker with ID %d registered", marker->id());
+}
+//-----------------------------------------------------------------------------
+void SpryTrackDevice::enableOnboardProcessing()
+{
+    // Coming soon
+    //    ftkError error = ftkSetInt32(SpryTrackInterface::instance().library,
+    //                                 _serialNumber,
+    //                                 ENABLE_ONBO)
 }
 //-----------------------------------------------------------------------------
 void SpryTrackDevice::acquireImage(int*      width,
@@ -67,6 +119,21 @@ void SpryTrackDevice::acquireImage(int*      width,
             *height        = _frame->imageHeader->height;
             *dataGrayLeft  = _frame->imageLeftPixels;
             *dataGrayRight = _frame->imageRightPixels;
+
+            for(SpryTrackMarker* marker : _markers)
+            {
+                marker->_visible = false;
+            }
+
+            for (uint32 j = 0; j < _frame->markersCount; j++)
+            {
+                ftkMarker marker = _frame->markers[j];
+
+                SpryTrackMarker* registeredMarker = _markers[marker.geometryId];
+                registeredMarker->_visible = true;
+                registeredMarker->update(marker);
+            }
+
             return;
         }
         else

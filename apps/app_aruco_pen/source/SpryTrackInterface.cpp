@@ -48,7 +48,7 @@ SpryTrackDevice SpryTrackInterface::accessDevice()
 //-----------------------------------------------------------------------------
 bool SpryTrackInterface::tryAccessDevice(SpryTrackDevice* outDevice)
 {
-    auto enumCallback = [](uint64 sn, void* user, ftkDeviceType type) {
+    auto deviceEnumCallback = [](uint64 sn, void* user, ftkDeviceType type) {
         auto* result                  = (DeviceEnumResult*)user;
         result->successful            = true;
         result->device->_serialNumber = sn;
@@ -56,7 +56,7 @@ bool SpryTrackInterface::tryAccessDevice(SpryTrackDevice* outDevice)
     };
 
     DeviceEnumResult result{false, outDevice};
-    if (ftkEnumerateDevices(library, enumCallback, &result) != ftkError::FTK_OK)
+    if (ftkEnumerateDevices(library, deviceEnumCallback, &result) != ftkError::FTK_OK)
     {
         SL_EXIT_MSG("SpryTrack: Failed to enumerate devices");
     }

@@ -26,6 +26,7 @@ file(GLOB headers
         ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/IDSPeakDevice.h
         ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/SpryTrackInterface.h
         ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/SpryTrackDevice.h
+        ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/SpryTrackMarker.h
         ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/CVCaptureProvider.h
         ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/CVCaptureProviderStandard.h
         ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/CVCaptureProviderIDSPeak.h
@@ -53,6 +54,7 @@ file(GLOB sources
         ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/IDSPeakDevice.cpp
         ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/SpryTrackInterface.cpp
         ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/SpryTrackDevice.cpp
+        ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/SpryTrackMarker.cpp
         ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/CVCaptureProvider.cpp
         ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/CVCaptureProviderStandard.cpp
         ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/CVCaptureProviderIDSPeak.cpp
