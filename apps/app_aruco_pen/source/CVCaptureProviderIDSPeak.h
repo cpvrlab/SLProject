@@ -35,6 +35,7 @@ public:
     SLbool isOpened() override;
 
     SLint  deviceIndex() const { return _deviceIndex; }
+    const IDSPeakDevice& device() const { return _device; }
     double gain() { return _device.gain(); }
     double gamma() { return _device.gamma(); }
     void   gain(double gain) { _device.gain(gain); }

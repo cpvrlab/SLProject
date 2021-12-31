@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      CVCaptureProviderSpryTrack.h
+//  File:      TrackingSystem.h
 //  Date:      December 2021
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Authors:   Marino von Wattenwyl
@@ -7,29 +7,20 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#ifndef SRC_CVCAPTUREPROVIDERSPRYTRACK_H
-#define SRC_CVCAPTUREPROVIDERSPRYTRACK_H
+#ifndef SRC_TRACKINGSYSTEM_H
+#define SRC_TRACKINGSYSTEM_H
 
+#include <CVTypedefs.h>
 #include <CVCaptureProvider.h>
-#include <SpryTrackDevice.h>
 
 //-----------------------------------------------------------------------------
-class CVCaptureProviderSpryTrack : public CVCaptureProvider
+class TrackingSystem
 {
-private:
-    SpryTrackDevice _device;
-    SLbool          _isOpened = false;
-
 public:
-    explicit CVCaptureProviderSpryTrack(CVSize captureSize);
-    ~CVCaptureProviderSpryTrack() noexcept override;
-
-    const SpryTrackDevice& device() { return _device; }
-
-    void   open() override;
-    void   grab() override;
-    void   close() override;
-    SLbool isOpened() override;
+    virtual ~TrackingSystem()                            = default;
+    virtual bool      track(CVCaptureProvider* provider) = 0;
+    virtual void      finalizeTracking()                 = 0;
+    virtual CVMatx44f worldMatrix()                      = 0;
 };
 //-----------------------------------------------------------------------------
-#endif // SRC_CVCAPTUREPROVIDERSPRYTRACK_H
+#endif // SRC_TRACKINGSYSTEM_H

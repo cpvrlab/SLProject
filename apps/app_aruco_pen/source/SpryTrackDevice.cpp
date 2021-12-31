@@ -101,7 +101,7 @@ void SpryTrackDevice::enableOnboardProcessing()
     //                                 ENABLE_ONBO)
 }
 //-----------------------------------------------------------------------------
-void SpryTrackDevice::acquireImage(int*      width,
+void SpryTrackDevice::acquireFrame(int*      width,
                                    int*      height,
                                    uint8_t** dataGrayLeft,
                                    uint8_t** dataGrayRight)
@@ -113,27 +113,16 @@ void SpryTrackDevice::acquireImage(int*      width,
                                          _frame,
                                          MAX_FRAME_WAIT_TIMEOUT_MS);
 
-        if (error == ftkError::FTK_OK)
+        if (error == ftkError::FTK_OK &&
+            _frame->imageLeftStat == ftkQueryStatus::QS_OK &&
+            _frame->imageRightStat == ftkQueryStatus::QS_OK)
         {
             *width         = _frame->imageHeader->width;
             *height        = _frame->imageHeader->height;
             *dataGrayLeft  = _frame->imageLeftPixels;
             *dataGrayRight = _frame->imageRightPixels;
 
-            for(SpryTrackMarker* marker : _markers)
-            {
-                marker->_visible = false;
-            }
-
-            for (uint32 j = 0; j < _frame->markersCount; j++)
-            {
-                ftkMarker marker = _frame->markers[j];
-
-                SpryTrackMarker* registeredMarker = _markers[marker.geometryId];
-                registeredMarker->_visible = true;
-                registeredMarker->update(marker);
-            }
-
+            processFrame();
             return;
         }
         else
@@ -146,6 +135,23 @@ void SpryTrackDevice::acquireImage(int*      width,
                  std::to_string(MAX_FAILED_ACQUISITION_ATTEMPTS) +
                  " attempts")
                   .c_str());
+}
+//-----------------------------------------------------------------------------
+void SpryTrackDevice::processFrame()
+{
+    for (SpryTrackMarker* marker : _markers)
+    {
+        marker->_visible = false;
+    }
+
+    for (uint32 j = 0; j < _frame->markersCount; j++)
+    {
+        ftkMarker marker = _frame->markers[j];
+
+        SpryTrackMarker* registeredMarker = _markers[marker.geometryId];
+        registeredMarker->_visible        = true;
+        registeredMarker->update(marker);
+    }
 }
 //-----------------------------------------------------------------------------
 void SpryTrackDevice::close()

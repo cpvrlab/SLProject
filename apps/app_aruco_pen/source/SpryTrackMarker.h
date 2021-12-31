@@ -12,7 +12,7 @@
 
 #include <ftkInterface.h>
 #include <SL.h>
-#include <SLMat4.h>
+#include <CVTypedefs.h>
 
 //-----------------------------------------------------------------------------
 typedef uint32 SpryTrackMarkerID;
@@ -23,7 +23,7 @@ class SpryTrackMarker
 
 public:
     SpryTrackMarkerID id() const { return _geometry.geometryId; }
-    SLMat4f           objectViewMat() const { return _objectViewMat; }
+    CVMatx44f         objectViewMat() const { return _objectViewMat; }
     SLbool            visible() const { return _visible; }
 
     void addPoint(float x, float y, float z);
@@ -32,7 +32,7 @@ private:
     void update(ftkMarker& marker);
 
     ftkGeometry _geometry;
-    SLMat4f     _objectViewMat;
+    CVMatx44f     _objectViewMat;
     SLbool      _visible = false;
 };
 //-----------------------------------------------------------------------------

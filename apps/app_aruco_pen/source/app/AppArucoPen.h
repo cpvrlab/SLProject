@@ -15,7 +15,7 @@
 #include <CVCaptureProviderIDSPeak.h>
 
 #include <SLVec3.h>
-#include <SLArucoPen.h>
+#include "ArucoPen.h"
 #include <SLSceneView.h>
 
 #include <app/AppArucoPenCalibrator.h>
@@ -47,7 +47,7 @@ private:
     ArucoPenTrackers   _trackers;
     bool               _doMultiTracking = true;
 
-    SLArucoPen _arucoPen;
+    ArucoPen _arucoPen;
 
     AppArucoPenCalibrator _calibrator;
 
@@ -63,7 +63,7 @@ public:
     CVCaptureProvider*     currentCaptureProvider() const { return _currentCaptureProvider; }
     ArucoPenTrackers&      trackers() { return _trackers; }
     bool                   doMultiTracking() { return _doMultiTracking; }
-    SLArucoPen&            arucoPen() { return _arucoPen; }
+    ArucoPen&              arucoPen() { return _arucoPen; }
     AppArucoPenCalibrator& calibrator() { return _calibrator; }
 
     // Setters

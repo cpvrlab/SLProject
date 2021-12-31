@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      SLArucoPen.cpp
+//  File:      ArucoPen.cpp
 //  Date:      September 2021
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Authors:   Marino von Wattenwyl
@@ -7,12 +7,17 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include "SLArucoPen.h"
-#include <app/AppArucoPen.h>
-#include <app/AppArucoPenROSNode.h>
+#include "ArucoPen.h"
+#include "app/AppArucoPen.h"
+#include "app/AppArucoPenROSNode.h"
 
 //-----------------------------------------------------------------------------
-SLbool SLArucoPen::onKeyPress(const SLKey key,
+ArucoPen::~ArucoPen()
+{
+    delete _trackingSystem;
+}
+//-----------------------------------------------------------------------------
+SLbool ArucoPen::onKeyPress(const SLKey key,
                               const SLKey mod)
 {
     if (key == '1')
@@ -55,7 +60,7 @@ SLbool SLArucoPen::onKeyPress(const SLKey key,
     return false;
 }
 //-----------------------------------------------------------------------------
-SLbool SLArucoPen::onKeyRelease(const SLKey key,
+SLbool ArucoPen::onKeyRelease(const SLKey key,
                                 const SLKey mod)
 {
     if (key == '1')
@@ -67,11 +72,11 @@ SLbool SLArucoPen::onKeyRelease(const SLKey key,
     return false;
 }
 //-----------------------------------------------------------------------------
-SLVec3f SLArucoPen::tipPosition()
+SLVec3f ArucoPen::tipPosition()
 {
     float tipOffset = -(0.147f - 0.025f + 0.002f);
 
-    CVMatx44f worldMatrix = _multiTracker.averageWorldMatrix();
+    CVMatx44f worldMatrix = _trackingSystem->worldMatrix();
 
     float offsetX = worldMatrix.val[1] * tipOffset;
     float offsetY = worldMatrix.val[5] * tipOffset;
@@ -83,9 +88,9 @@ SLVec3f SLArucoPen::tipPosition()
     return position;
 }
 //-----------------------------------------------------------------------------
-SLQuat4f SLArucoPen::orientation()
+SLQuat4f ArucoPen::orientation()
 {
-    CVMatx44f worldMatrix = _multiTracker.averageWorldMatrix();
+    CVMatx44f worldMatrix = _trackingSystem->worldMatrix();
     // clang-format off
     SLMat3f rotMatrix(worldMatrix.val[0], worldMatrix.val[1], worldMatrix.val[2],
                       worldMatrix.val[4], worldMatrix.val[5], worldMatrix.val[6],
@@ -97,7 +102,7 @@ SLQuat4f SLArucoPen::orientation()
     return orientation;
 }
 //-----------------------------------------------------------------------------
-SLVec3f SLArucoPen::rosPosition()
+SLVec3f ArucoPen::rosPosition()
 {
     // ROS coordinate system: (-z, y, -x)
 
@@ -105,7 +110,7 @@ SLVec3f SLArucoPen::rosPosition()
     return {-p.z, p.y, -p.x};
 }
 //-----------------------------------------------------------------------------
-SLQuat4f SLArucoPen::rosOrientation()
+SLQuat4f ArucoPen::rosOrientation()
 {
     // ROS coordinate system: (-z, y, -x)
     // Source: https://stackoverflow.com/questions/18818102/convert-quaternion-representing-rotation-from-one-coordinate-system-to-another
@@ -114,7 +119,7 @@ SLQuat4f SLArucoPen::rosOrientation()
     return {o.z(), -o.y(), o.x(), o.w()};
 }
 //-----------------------------------------------------------------------------
-SLfloat SLArucoPen::liveDistance()
+SLfloat ArucoPen::liveDistance()
 {
     if (!_positionPrintedOnce)
     {
@@ -125,7 +130,7 @@ SLfloat SLArucoPen::liveDistance()
     return position.distance(_lastPrintedPosition);
 }
 //-----------------------------------------------------------------------------
-SLfloat SLArucoPen::lastDistance() const
+SLfloat ArucoPen::lastDistance() const
 {
     return _lastDistance;
 }

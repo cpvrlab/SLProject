@@ -14,9 +14,12 @@ constexpr float MM_TO_M = 1.0f / 1000.0f;
 //-----------------------------------------------------------------------------
 void SpryTrackMarker::addPoint(float x, float y, float z)
 {
-    if (_geometry.pointsCount == 6u)
+    if (_geometry.pointsCount == FTK_MAX_FIDUCIALS)
     {
-        SL_EXIT_MSG("SpryTrack: Cannot add more than 6 points to a single geometry");
+        SL_EXIT_MSG(("SpryTrack: Cannot add more than " +
+                     std::to_string(FTK_MAX_FIDUCIALS) +
+                     " points to a single geometry")
+                      .c_str());
     }
 
     uint32 index                 = _geometry.pointsCount;
@@ -29,26 +32,26 @@ void SpryTrackMarker::addPoint(float x, float y, float z)
 void SpryTrackMarker::update(ftkMarker& marker)
 {
     // Column 1
-    _objectViewMat.m( 0, marker.rotation[0][0]);
-    _objectViewMat.m( 1, marker.rotation[1][0]);
-    _objectViewMat.m( 2, marker.rotation[2][0]);
-    _objectViewMat.m( 3, 0.0);
+    _objectViewMat(0, 0) = marker.rotation[0][0];
+    _objectViewMat(1, 0) = marker.rotation[1][0];
+    _objectViewMat(2, 0) = marker.rotation[2][0];
+    _objectViewMat(3, 0) = 0.0;
 
     // Column 2
-    _objectViewMat.m( 4, marker.rotation[0][1]);
-    _objectViewMat.m( 5, marker.rotation[1][1]);
-    _objectViewMat.m( 6, marker.rotation[2][1]);
-    _objectViewMat.m( 7, 0.0);
+    _objectViewMat(0, 1) = marker.rotation[0][1];
+    _objectViewMat(1, 1) = marker.rotation[1][1];
+    _objectViewMat(2, 1) = marker.rotation[2][1];
+    _objectViewMat(3, 1) = 0.0;
 
     // Column 3
-    _objectViewMat.m( 8, marker.rotation[0][2]);
-    _objectViewMat.m( 9, marker.rotation[1][2]);
-    _objectViewMat.m(10, marker.rotation[2][2]);
-    _objectViewMat.m(11, 0.0);
+    _objectViewMat(0, 2) = marker.rotation[0][2];
+    _objectViewMat(1, 2) = marker.rotation[1][2];
+    _objectViewMat(2, 2) = marker.rotation[2][2];
+    _objectViewMat(3, 2) = 0.0;
 
     // Column 4
-    _objectViewMat.m(12, marker.translationMM[0] * MM_TO_M);
-    _objectViewMat.m(13, marker.translationMM[1] * MM_TO_M);
-    _objectViewMat.m(14, marker.translationMM[2] * MM_TO_M);
-    _objectViewMat.m(15, 1.0);
+    _objectViewMat(0, 3) = marker.translationMM[0] * MM_TO_M;
+    _objectViewMat(1, 3) = marker.translationMM[1] * MM_TO_M;
+    _objectViewMat(2, 3) = marker.translationMM[2] * MM_TO_M;
+    _objectViewMat(3, 3) = 1.0;
 }

@@ -33,7 +33,7 @@
 #include <SLNodeLOD.h>
 
 #include <app/AppArucoPen.h>
-#include <SLArucoPen.h>
+#include "ArucoPen.h"
 
 //-----------------------------------------------------------------------------
 void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)

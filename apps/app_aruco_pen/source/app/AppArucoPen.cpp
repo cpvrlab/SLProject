@@ -7,7 +7,7 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include "AppArucoPen.h"
+#include <app/AppArucoPen.h>
 
 #include <SL.h>
 #include <GlobalTimer.h>
@@ -16,7 +16,6 @@
 #include <Instrumentor.h>
 #include <AppDemo.h>
 #include <app/AppArucoPenROSNode.h>
-#include <IDSPeakInterface.h>
 #include <CVCaptureProviderSpryTrack.h>
 
 extern void trackVideo(CVCaptureProvider* provider);
@@ -160,8 +159,8 @@ void AppArucoPen::grabFrameImagesAndTrack(SLSceneView* sv)
 
     if (AppDemo::sceneID == SID_VideoTrackArucoCubeMain || AppDemo::sceneID == SID_VirtualArucoPen)
     {
-        AppArucoPen::instance().arucoPen().multiTracker().combine();
-        if (AppArucoPen::instance().arucoPen().state() == SLArucoPen::Tracing)
+        AppArucoPen::instance().arucoPen().trackingSystem()->finalizeTracking();
+        if (AppArucoPen::instance().arucoPen().state() == ArucoPen::Tracing)
         {
             AppArucoPen::instance().publishTipPose();
         }
@@ -206,7 +205,7 @@ CVTracked* AppArucoPen::currentTracker()
 //-----------------------------------------------------------------------------
 void AppArucoPen::publishTipPose()
 {
-    SLArucoPen pen = AppArucoPen::instance().arucoPen();
-    AppArucoPenROSNode::instance().publishPose(pen.rosPosition(), pen.rosOrientation());
+    AppArucoPenROSNode::instance().publishPose(_arucoPen.rosPosition(),
+                                               _arucoPen.rosOrientation());
 }
 //-----------------------------------------------------------------------------

@@ -33,7 +33,7 @@ public:
 
     void registerMarker(SpryTrackMarker* marker);
     void enableOnboardProcessing();
-    void acquireImage(int*      width,
+    void acquireFrame(int*      width,
                       int*      height,
                       uint8_t** dataGrayLeft,
                       uint8_t** dataGrayRight);
@@ -42,6 +42,7 @@ public:
 private:
     void prepare();
     void enumerateOptions();
+    void processFrame();
 
 private:
     SpryTrackSerialNumber    _serialNumber;

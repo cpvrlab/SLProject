@@ -20,6 +20,8 @@
 #include <SLProjectScene.h>
 #include <imgui.h>
 #include <CVCaptureProviderIDSPeak.h>
+#include <TrackingSystemArucoCube.h>
+#include <TrackingSystemSpryTrack.h>
 #include <Instrumentor.h>
 
 //-----------------------------------------------------------------------------
@@ -99,7 +101,7 @@ void AppArucoPenGui::build(SLProjectScene* s, SLSceneView* sv)
             SLchar m[1024]; // message character array
             m[0] = 0;       // set zero length
 
-            SLArucoPen& pen    = AppArucoPen::instance().arucoPen();
+            ArucoPen& pen    = AppArucoPen::instance().arucoPen();
             SLVec3f     tipPos = pen.tipPosition();
             sprintf(m + strlen(m), "Tip position             : %s\n", tipPos.toString(", ", 2).c_str());
             sprintf(m + strlen(m), "Measured Distance (Live) : %.2f cm\n", pen.liveDistance() * 100.0f);
@@ -145,10 +147,23 @@ void AppArucoPenGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
 
         if (ImGui::BeginMenu("Pen Tracking"))
         {
+            AppArucoPen& app = AppArucoPen::instance();
+
+            if (ImGui::BeginMenu("Tracking Mode"))
+            {
+                TrackingSystem* ts = app.arucoPen().trackingSystem();
+
+                if (ImGui::MenuItem("ArUco Cube", nullptr, typeid(*ts) == typeid(TrackingSystemArucoCube)))
+                    app.arucoPen().trackingSystem(new TrackingSystemArucoCube());
+
+                if (ImGui::MenuItem("SpryTrack", nullptr, typeid(*ts) == typeid(TrackingSystemSpryTrack)))
+                    app.arucoPen().trackingSystem(new TrackingSystemSpryTrack());
+
+                ImGui::EndMenu();
+            }
+
             if (ImGui::BeginMenu("Capture Provider"))
             {
-                AppArucoPen& app = AppArucoPen::instance();
-
                 for (CVCaptureProvider* provider : app.captureProviders())
                 {
                     if (ImGui::MenuItem(provider->name().c_str(), nullptr, app.currentCaptureProvider() == provider))
@@ -180,23 +195,26 @@ void AppArucoPenGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                         providerIDSPeak->gamma(gamma);
             }
 
-            if (ImGui::MenuItem("Calibrate Intrinsic (Current Camera)"))
-                s->onLoad(s, sv, SID_VideoCalibrateMain);
-
-            if (ImGui::MenuItem("Calibrate Extrinsic (Current Camera)"))
-                AppArucoPenCalibrator::calcExtrinsicParams(AppArucoPen::instance().currentCaptureProvider());
-
-            if (ImGui::MenuItem("Calibrate Extrinsic (All Cameras)"))
+            if (dynamic_cast<TrackingSystemArucoCube*>(app.arucoPen().trackingSystem()))
             {
-                for (CVCaptureProvider* provider : AppArucoPen::instance().captureProviders())
+                if (ImGui::MenuItem("Calibrate Intrinsic (Current Camera)"))
+                    s->onLoad(s, sv, SID_VideoCalibrateMain);
+
+                if (ImGui::MenuItem("Calibrate Extrinsic (Current Camera)"))
+                    AppArucoPenCalibrator::calcExtrinsicParams(AppArucoPen::instance().currentCaptureProvider());
+
+                if (ImGui::MenuItem("Calibrate Extrinsic (All Cameras)"))
                 {
-                    AppArucoPenCalibrator::calcExtrinsicParams(provider);
+                    for (CVCaptureProvider* provider : AppArucoPen::instance().captureProviders())
+                    {
+                        AppArucoPenCalibrator::calcExtrinsicParams(provider);
+                    }
                 }
-            }
 
-            if (ImGui::MenuItem("Multi Tracking", nullptr, AppArucoPen::instance().doMultiTracking()))
-            {
-                AppArucoPen::instance().doMultiTracking(!AppArucoPen::instance().doMultiTracking());
+                if (ImGui::MenuItem("Multi Tracking", nullptr, AppArucoPen::instance().doMultiTracking()))
+                {
+                    AppArucoPen::instance().doMultiTracking(!AppArucoPen::instance().doMultiTracking());
+                }
             }
 
             if (ImGui::MenuItem("Start Evaluation"))

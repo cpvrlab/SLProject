@@ -72,7 +72,7 @@ void CVCaptureProviderSpryTrack::grab()
     int      height;
     uint8_t* dataGrayLeft;
     uint8_t* dataGrayRight;
-    _device.acquireImage(&width, &height, &dataGrayLeft, &dataGrayRight);
+    _device.acquireFrame(&width, &height, &dataGrayLeft, &dataGrayRight);
 
     // Compute the scaled image sizes and their top offset in the frame
     int   scaledWidth  = _captureSize.width / 2 - GAP_WIDTH / 2;

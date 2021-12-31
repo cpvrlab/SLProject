@@ -45,7 +45,7 @@
 #include <SLDeviceLocation.h>
 #include <SLNodeLOD.h>
 
-#include <SLArucoPen.h>
+#include "ArucoPen.h"
 
 #ifdef SL_BUILD_WAI
 #    include <CVTrackedWAI.h>
