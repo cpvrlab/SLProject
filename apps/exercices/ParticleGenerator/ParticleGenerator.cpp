@@ -18,10 +18,11 @@
 //! Struct definition for particle attribute position, velocity, start time and initial velocity
 struct Particle
 {
-    SLVec3f p;    // particle position [x,y,z]
-    SLVec3f v;    // particle velocity [x,y,z]
-    float   st;  // particle start time
-    SLVec3f initV;    // particle initial velocity [x,y,z]
+    SLVec3f p;          // particle position [x,y,z]
+    SLVec3f v;          // particle velocity [x,y,z]
+    float   st;         // particle start time
+    SLVec3f initV;      // particle initial velocity [x,y,z]
+    float   r;          // particle rotation
 
     Particle()
       : p(0.0f), v(0.0f), st(0.0f), initV(0.0f) {}
@@ -67,7 +68,7 @@ static GLuint _numV = 0; //!< NO. of vertices
 static GLuint _numI = 0; //!< NO. of vertex indexes for triangles
 
 // Constant and variables for particles init/update
-const int       AMOUNT          = 500;  //!< Amount of particles
+const int       AMOUNT          = 1000;  //!< Amount of particles
 static int      _drawBuf        = 0;    // Boolean to switch buffer
 static float    _ttl            = 5.0f; // Time to life of a particle
 static float    _currentTime    = 0.0f; // Elapsed time since start of application
@@ -222,11 +223,12 @@ void initParticles(float timeToLive, SLVec3f particleGenPos)
     p.p             = particleGenPos;
     for (unsigned int i = 0; i < AMOUNT; i++)
     {
-        p.v.x         = randomFloat(0.2f, -0.2f);   // Random value for x velocity
-        p.v.y         = randomFloat(0.4f, 1.0f);    // Random value for y velocity
-        p.v.z         = randomFloat(0.2f, -0.2f);   // Random value for z velocity
+        p.v.x         = randomFloat(0.1f, -0.1f);   // Random value for x velocity
+        p.v.y         = randomFloat(0.2f, 0.4f);    // Random value for y velocity
+        p.v.z         = randomFloat(0.1f, -0.1f);   // Random value for z velocity
         p.initV       = p.v;                        // Initial velocity is set after the computation of the velocity
         p.st          = i * (timeToLive / AMOUNT);  // When the first particle dies the last one begin to live
+        p.r           = randomFloat(0.0f, 360.0f);  // Start rotation of the particle
 
         data[i] = p;
     }
@@ -248,6 +250,8 @@ void initParticles(float timeToLive, SLVec3f particleGenPos)
         glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, sizeof(Particle), (void*)(6 * sizeof(float)));
         glEnableVertexAttribArray(3);
         glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Particle), (void*)(7 * sizeof(float)));
+        glEnableVertexAttribArray(4);
+        glVertexAttribPointer(4, 1, GL_FLOAT, GL_FALSE, sizeof(Particle), (void*)(10 * sizeof(float)));
         glBindVertexArray(0);
 
         glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, _tfo[i]);
@@ -273,7 +277,7 @@ void onInit()
     _mouseLeftDown    = false;
 
     // Load textures
-    _textureID = glUtils::buildTexture(_projectRoot + "/data/images/textures/circle_01.png");
+    _textureID = glUtils::buildTexture(_projectRoot + "/data/images/textures/smoke_08.png");
 
     // Load, compile & link shaders for transform feedback
     _tFShaderVertID = glUtils::buildShader(_projectRoot + "/data/shaders/ParticleTF.vert", GL_VERTEX_SHADER);
@@ -433,8 +437,9 @@ bool onPaint()
     glUniform1f(_tTLLoc, _ttl); 
     glUniform1f(_timeLoc, _currentTime);
     glUniform1f(_sLoc, 1.0f);
-    glUniform1f(_radiusLoc, 0.05f);
-    glUniform4f(_cLoc, 1.0f,1.0f,1.0f,1.0f);
+    //glUniform1f(_radiusLoc, 0.05f);
+    glUniform1f(_radiusLoc, 0.1f);
+    glUniform4f(_cLoc, 0.66f,0.66f,0.66f,0.1f);
     //glUniform4f(_pGPLoc, pGPos.x, pGPos.y, pGPos.z, 0.0f); // For local space (Uncomment)
 
      // Un-bind the feedback object.

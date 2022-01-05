@@ -206,8 +206,8 @@ GLuint glUtils::buildProgramTF(GLuint vertShaderID,
     glAttachShader(programHandle, vertShaderID);
     glAttachShader(programHandle, fragShaderID);
     //Connection beetwen the output variable and the output buffers
-    const char* outputNames[] = {"tf_position", "tf_velocity", "tf_startTime","tf_initialVelocity"};
-    glTransformFeedbackVaryings(programHandle, 4, outputNames, GL_INTERLEAVED_ATTRIBS);
+    const char* outputNames[] = {"tf_position", "tf_velocity", "tf_startTime","tf_initialVelocity", "tf_rotation"};
+    glTransformFeedbackVaryings(programHandle, 5, outputNames, GL_INTERLEAVED_ATTRIBS);
     glLinkProgram(programHandle);
 
     // Check linker success

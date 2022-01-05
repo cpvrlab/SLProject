@@ -14,6 +14,7 @@ layout (location = 0) in vec3 a_position;       // Particle position attribute
 layout (location = 1) in vec3 a_velocity;       // Particle velocity attribute
 layout (location = 2) in float a_startTime;     // Particle start time attribute
 layout (location = 3) in vec3 a_initialVelocity;// Particle initial velocity attribute
+layout (location = 4) in float a_rotation;      // Particle rotation
 
 uniform float u_time;           // Simulation time
 uniform float u_deltaTime;      // Elapsed time between frames
@@ -26,6 +27,8 @@ out vec3 tf_position;           // To transform feedback
 out vec3 tf_velocity;           // To transform feedback
 out float tf_startTime;         // To transform feedback
 out vec3 tf_initialVelocity;    // To transform feedback
+out float tf_rotation;          // To transform feedback
+
 //-----------------------------------------------------------------------------
 void main()
 {
@@ -36,6 +39,10 @@ void main()
     tf_velocity = a_velocity;   // Init the output variable
     tf_startTime = a_startTime; // Init the output variable
     tf_initialVelocity = a_initialVelocity; // Init the output variable
+    tf_rotation = a_rotation; // Init the output variable
+    //tf_rotation = mod(tf_rotation+((u_tTL/360.0)* u_deltaTime),360.0);
+    //tf_rotation = mod(tf_rotation+ 0.05, 360.0);
+    tf_rotation = mod(tf_rotation + 0.05, 360.0);
     if( u_time >= a_startTime ) {   // Check if the particle is born
         float age = u_time - a_startTime;   // Get the age of the particle
         if( age > u_tTL ) {     // Check if the particle is dead
