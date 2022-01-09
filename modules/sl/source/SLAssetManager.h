@@ -31,9 +31,9 @@ class SLInputManager;
 class SLAssetManager
 {
 public:
-    SLAssetManager(SLstring fontPath, bool generateStaticFonts = false)
+    SLAssetManager(SLstring fontPath = "", bool generateStaticFonts = false)
     {
-        if (generateStaticFonts)
+        if (!fontPath.empty() && generateStaticFonts)
         {
             // font and video texture are not added to the _textures vector
             SLAssetManager::generateFonts(fontPath,
