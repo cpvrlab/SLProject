@@ -8,7 +8,6 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include <AppDemo.h>
 #include <SLAssetManager.h>
 #include <SLTexFont.h>
 
@@ -125,29 +124,29 @@ void SLAssetManager::merge(SLAssetManager& other)
 }
 //-----------------------------------------------------------------------------
 //! Generates all static fonts
-void SLAssetManager::generateFonts(SLGLProgram& fontTexProgram)
+void SLAssetManager::generateFonts(SLstring fontPath, SLGLProgram& fontTexProgram)
 {
-    font07 = new SLTexFont(AppDemo::fontPath + "Font07.png", &fontTexProgram);
+    font07 = new SLTexFont(fontPath + "Font07.png", &fontTexProgram);
     assert(font07);
-    font08 = new SLTexFont(AppDemo::fontPath + "Font08.png", &fontTexProgram);
+    font08 = new SLTexFont(fontPath + "Font08.png", &fontTexProgram);
     assert(font08);
-    font09 = new SLTexFont(AppDemo::fontPath + "Font09.png", &fontTexProgram);
+    font09 = new SLTexFont(fontPath + "Font09.png", &fontTexProgram);
     assert(font09);
-    font10 = new SLTexFont(AppDemo::fontPath + "Font10.png", &fontTexProgram);
+    font10 = new SLTexFont(fontPath + "Font10.png", &fontTexProgram);
     assert(font10);
-    font12 = new SLTexFont(AppDemo::fontPath + "Font12.png", &fontTexProgram);
+    font12 = new SLTexFont(fontPath + "Font12.png", &fontTexProgram);
     assert(font12);
-    font14 = new SLTexFont(AppDemo::fontPath + "Font14.png", &fontTexProgram);
+    font14 = new SLTexFont(fontPath + "Font14.png", &fontTexProgram);
     assert(font14);
-    font16 = new SLTexFont(AppDemo::fontPath + "Font16.png", &fontTexProgram);
+    font16 = new SLTexFont(fontPath + "Font16.png", &fontTexProgram);
     assert(font16);
-    font18 = new SLTexFont(AppDemo::fontPath + "Font18.png", &fontTexProgram);
+    font18 = new SLTexFont(fontPath + "Font18.png", &fontTexProgram);
     assert(font18);
-    font20 = new SLTexFont(AppDemo::fontPath + "Font20.png", &fontTexProgram);
+    font20 = new SLTexFont(fontPath + "Font20.png", &fontTexProgram);
     assert(font20);
-    font22 = new SLTexFont(AppDemo::fontPath + "Font22.png", &fontTexProgram);
+    font22 = new SLTexFont(fontPath + "Font22.png", &fontTexProgram);
     assert(font22);
-    font24 = new SLTexFont(AppDemo::fontPath + "Font24.png", &fontTexProgram);
+    font24 = new SLTexFont(fontPath + "Font24.png", &fontTexProgram);
     assert(font24);
 }
 //-----------------------------------------------------------------------------

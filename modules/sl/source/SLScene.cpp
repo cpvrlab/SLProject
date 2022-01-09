@@ -41,6 +41,7 @@ SLScene::SLScene(const SLstring& name,
 {
     onLoad = onSceneLoadCallback;
 
+    _assetManager     = nullptr;
     _root3D           = nullptr;
     _root2D           = nullptr;
     _skybox           = nullptr;

@@ -11,10 +11,11 @@
 #ifndef SLASSETMANAGER_H
 #define SLASSETMANAGER_H
 
+#include <vector>
+
 #include <SL.h>
 #include <SLMaterial.h>
 #include <SLMesh.h>
-#include <vector>
 #include <SLGLProgramGeneric.h>
 
 class SLTexFont;
@@ -30,12 +31,13 @@ class SLInputManager;
 class SLAssetManager
 {
 public:
-    SLAssetManager(bool generateStaticFonts = false)
+    SLAssetManager(SLstring fontPath, bool generateStaticFonts = false)
     {
         if (generateStaticFonts)
         {
             // font and video texture are not added to the _textures vector
-            SLAssetManager::generateFonts(*SLGLProgramManager::get(SP_fontTex));
+            SLAssetManager::generateFonts(fontPath,
+                                          *SLGLProgramManager::get(SP_fontTex));
         }
     }
     ~SLAssetManager();
@@ -54,13 +56,14 @@ public:
     //! merge other asset manager into this
     void merge(SLAssetManager& other);
 
+    // Getters
     SLVMesh&      meshes() { return _meshes; }
     SLVMaterial&  materials() { return _materials; }
     SLVGLTexture& textures() { return _textures; }
     SLVGLProgram& programs() { return _programs; }
 
     // Static method & font pointers
-    static void       generateFonts(SLGLProgram& fontTexProgram);
+    static void       generateFonts(SLstring fontPath, SLGLProgram& fontTexProgram);
     static void       deleteFonts();
     static SLTexFont* getFont(SLfloat heightMM, SLint dpi);
 

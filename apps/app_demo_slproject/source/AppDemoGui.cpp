@@ -20,7 +20,6 @@
 #include <SLGLShader.h>
 #include <SLGLTexture.h>
 #include <SLInterface.h>
-#include <SLDeviceLocation.h>
 #include <SLDeviceRotation.h>
 #include <SLLightDirect.h>
 #include <SLLightRect.h>

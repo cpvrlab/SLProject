@@ -16,7 +16,6 @@
 #include <SLSceneView.h>
 #include <SLGLImGui.h>
 #include <Profiler.h>
-#include <FtpUtils.h>
 #include <ZipUtils.h>
 
 //! \file SLInterface.cpp SLProject C-functions interface implementation.

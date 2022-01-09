@@ -93,7 +93,7 @@ void AppDemo::createAppAndScene(SLstring appName,
 
     name = std::move(appName);
     SLGLProgramManager::init(dataPath + "shaders/", configPath);
-    assetManager = new SLAssetManager(true);
+    assetManager = new SLAssetManager(AppDemo::fontPath, true);
     scene = new SLScene(name, (cbOnSceneLoad)onSceneLoadCallback);
     scene->initOculus(dataPath + "shaders/");
     GlobalTimer::timerStart();
