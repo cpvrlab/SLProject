@@ -152,11 +152,12 @@ void SLGLTextureIBL::build(SLint texUnit)
                       _sourceTexture->texID());
         glViewport(0, 0, _width, _height);
         glBindFramebuffer(GL_FRAMEBUFFER, fboID);
-
         glBindRenderbuffer(GL_RENDERBUFFER, rboID);
         glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, _width, _height);
         glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rboID);
 
+        logFramebufferStatus();
+        
         // Set the list of draw buffers.
         GLenum DrawBuffers[1] = {GL_COLOR_ATTACHMENT0};
         glDrawBuffers(1, DrawBuffers); // "1" is the size of DrawBuffers
@@ -242,6 +243,8 @@ void SLGLTextureIBL::build(SLint texUnit)
                                        _texID,
                                        mip);
                 glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+                
+                logFramebufferStatus();
 
                 renderCube();
             }
@@ -281,6 +284,9 @@ void SLGLTextureIBL::build(SLint texUnit)
         if (_sourceTexture != nullptr)
             _sourceTexture->bindActive();
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        
+        logFramebufferStatus();
+        
         renderQuad();
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
@@ -411,7 +417,7 @@ void SLGLTextureIBL::renderQuad()
 //-----------------------------------------------------------------------------
 void SLGLTextureIBL::logFramebufferStatus()
 {
-#ifndef SL_GLES3
+#if defined(DEBUG) || defined(_DEBUG)
     GLenum fbStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
     switch (fbStatus)
     {
@@ -421,9 +427,9 @@ void SLGLTextureIBL::logFramebufferStatus()
         case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT: SL_LOG("GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT"); break;
         case GL_FRAMEBUFFER_UNSUPPORTED: SL_LOG("GL_FRAMEBUFFER_UNSUPPORTED"); break;
         case GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE: SL_LOG("GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE"); break;
-        case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER: SL_LOG("GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER"); break;
-        case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER: SL_LOG("GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER"); break;
-        case GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS: SL_LOG("GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS"); break;
+        //case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER: SL_LOG("GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER"); break;
+        //case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER: SL_LOG("GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER"); break;
+        //case GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS: SL_LOG("GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS"); break;
         default: SL_LOG("Unknown framebuffer status!!!");
     }
 #endif
