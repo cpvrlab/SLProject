@@ -18,7 +18,7 @@ ArucoPen::~ArucoPen()
 }
 //-----------------------------------------------------------------------------
 SLbool ArucoPen::onKeyPress(const SLKey key,
-                              const SLKey mod)
+                            const SLKey mod)
 {
     if (key == '1')
     {
@@ -61,7 +61,7 @@ SLbool ArucoPen::onKeyPress(const SLKey key,
 }
 //-----------------------------------------------------------------------------
 SLbool ArucoPen::onKeyRelease(const SLKey key,
-                                const SLKey mod)
+                              const SLKey mod)
 {
     if (key == '1')
     {
@@ -135,3 +135,24 @@ SLfloat ArucoPen::lastDistance() const
     return _lastDistance;
 }
 //-----------------------------------------------------------------------------
+void ArucoPen::trackingSystem(TrackingSystem* trackingSystem)
+{
+    delete _trackingSystem;
+    _trackingSystem = trackingSystem;
+
+    // Switch to the first accepted provider if the current one isn't accepted by the tracking system
+    CVCaptureProvider* currentProvider = AppArucoPen::instance().currentCaptureProvider();
+    if (!_trackingSystem->isAcceptedProvider(currentProvider))
+    {
+        for (CVCaptureProvider* provider : AppArucoPen::instance().captureProviders())
+        {
+            if(_trackingSystem->isAcceptedProvider(provider))
+            {
+                AppArucoPen::instance().currentCaptureProvider(provider);
+                return;
+            }
+        }
+    }
+
+    SL_EXIT_MSG("No accepted capture provider was found for this system");
+}

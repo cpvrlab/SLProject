@@ -65,6 +65,9 @@ void SpryTrackDevice::enumerateOptions()
 
     auto optionsEnumCallback = [](uint64 sn, void* user, ftkOptionsInfo* oi) {
         SL_LOG("SpryTrack: Found option: %s", oi->name);
+
+        auto* self = (SpryTrackDevice*)user;
+        self->_options.insert({oi->name, oi->id});
     };
 
     ftkError error = ftkEnumerateOptions(SpryTrackInterface::instance().library,
@@ -93,12 +96,23 @@ void SpryTrackDevice::registerMarker(SpryTrackMarker* marker)
     SL_LOG("SpryTrack: Geometry of marker with ID %d registered", marker->id());
 }
 //-----------------------------------------------------------------------------
+void SpryTrackDevice::unregisterMarker(SpryTrackMarker* marker)
+{
+    ftkClearGeometry(SpryTrackInterface::instance().library,
+                     _serialNumber,
+                     marker->_geometry.geometryId);
+}
+//-----------------------------------------------------------------------------
 void SpryTrackDevice::enableOnboardProcessing()
 {
-    // Coming soon
-    //    ftkError error = ftkSetInt32(SpryTrackInterface::instance().library,
-    //                                 _serialNumber,
-    //                                 ENABLE_ONBO)
+    ftkError error = ftkSetInt32(SpryTrackInterface::instance().library,
+                                 _serialNumber,
+                                 _options["Enable embedded processing"],
+                                 1);
+    if (error != ftkError::FTK_OK)
+    {
+        SL_EXIT_MSG("SpryTrack: Failed to enable onboard processing");
+    }
 }
 //-----------------------------------------------------------------------------
 void SpryTrackDevice::acquireFrame(int*      width,
@@ -144,9 +158,9 @@ void SpryTrackDevice::processFrame()
         marker->_visible = false;
     }
 
-    for (uint32 j = 0; j < _frame->markersCount; j++)
+    for (uint32 i = 0; i < _frame->markersCount; i++)
     {
-        ftkMarker marker = _frame->markers[j];
+        ftkMarker marker = _frame->markers[i];
 
         SpryTrackMarker* registeredMarker = _markers[marker.geometryId];
         registeredMarker->_visible        = true;

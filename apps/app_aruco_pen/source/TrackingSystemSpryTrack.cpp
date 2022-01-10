@@ -8,32 +8,55 @@
 //#############################################################################
 
 #include <TrackingSystemSpryTrack.h>
-#include <CVCaptureProviderSpryTrack.h>
+#include <SpryTrackCalibrator.h>
 
 //-----------------------------------------------------------------------------
 bool TrackingSystemSpryTrack::track(CVCaptureProvider* provider)
 {
-    auto* providerSpryTrack = dynamic_cast<CVCaptureProviderSpryTrack*>(provider);
-    if (!providerSpryTrack)
+    SpryTrackDevice& device = getDevice(provider);
+    SpryTrackMarker*       marker = device.markers()[0];
+    if (!marker->visible())
     {
-        SL_LOG("Warning: TrackingSystemSpryTrack requires a CVCaptureProviderSpryTrack");
+        SL_LOG("Marker not detected");
         return false;
     }
 
-    const SpryTrackDevice& device = providerSpryTrack->device();
-    SpryTrackMarker*       marker = device.markers()[0];
-    if (!marker->visible()) return false;
+    SL_LOG("Marker detected");
 
-    _worldMatrix = marker->objectViewMat();
+    _worldMatrix = _extrinsicMat.inv() * marker->objectViewMat();
     return true;
 }
 //-----------------------------------------------------------------------------
 void TrackingSystemSpryTrack::finalizeTracking()
 {
+    // Nothing to do, tracking is finalized in TrackingSystemSpryTrack::track
 }
 //-----------------------------------------------------------------------------
 CVMatx44f TrackingSystemSpryTrack::worldMatrix()
 {
     return _worldMatrix;
+}
+//-----------------------------------------------------------------------------
+void TrackingSystemSpryTrack::calibrate(CVCaptureProvider* provider)
+{
+    SpryTrackCalibrator calibrator(getDevice(provider));
+    calibrator.calibrate();
+    _extrinsicMat = calibrator.extrinsicMat();
+}
+//-----------------------------------------------------------------------------
+bool TrackingSystemSpryTrack::isAcceptedProvider(CVCaptureProvider* provider)
+{
+    return typeid(*provider) == typeid(CVCaptureProviderSpryTrack);
+}
+//-----------------------------------------------------------------------------
+SpryTrackDevice& TrackingSystemSpryTrack::getDevice(CVCaptureProvider* provider)
+{
+    auto* providerSpryTrack = dynamic_cast<CVCaptureProviderSpryTrack*>(provider);
+    if (!providerSpryTrack)
+    {
+        SL_EXIT_MSG("Warning: TrackingSystemSpryTrack requires a CVCaptureProviderSpryTrack");
+    }
+
+    return providerSpryTrack->device();
 }
 //-----------------------------------------------------------------------------

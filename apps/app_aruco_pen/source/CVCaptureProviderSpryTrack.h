@@ -24,7 +24,7 @@ public:
     explicit CVCaptureProviderSpryTrack(CVSize captureSize);
     ~CVCaptureProviderSpryTrack() noexcept override;
 
-    const SpryTrackDevice& device() { return _device; }
+    SpryTrackDevice& device() { return _device; }
 
     void   open() override;
     void   grab() override;

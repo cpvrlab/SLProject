@@ -17,10 +17,12 @@
 class TrackingSystem
 {
 public:
-    virtual ~TrackingSystem()                            = default;
-    virtual bool      track(CVCaptureProvider* provider) = 0;
-    virtual void      finalizeTracking()                 = 0;
-    virtual CVMatx44f worldMatrix()                      = 0;
+    virtual ~TrackingSystem()                                         = default;
+    virtual bool      track(CVCaptureProvider* provider)              = 0;
+    virtual void      finalizeTracking()                              = 0;
+    virtual CVMatx44f worldMatrix()                                   = 0;
+    virtual void      calibrate(CVCaptureProvider* provider)          = 0;
+    virtual bool      isAcceptedProvider(CVCaptureProvider* provider) = 0;
 };
 //-----------------------------------------------------------------------------
 #endif // SRC_TRACKINGSYSTEM_H

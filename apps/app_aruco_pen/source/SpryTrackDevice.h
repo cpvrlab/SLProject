@@ -14,6 +14,7 @@
 #include <SL.h>
 #include <SpryTrackMarker.h>
 #include <cstdint>
+#include <map>
 
 //-----------------------------------------------------------------------------
 typedef ftkDeviceType SpryTrackDeviceType;
@@ -27,11 +28,12 @@ public:
     SpryTrackDevice();
     ~SpryTrackDevice();
 
-    SpryTrackSerialNumber serialNumber() const { return _serialNumber; }
-    SpryTrackDeviceType   type() const { return _type; }
+    SpryTrackSerialNumber    serialNumber() const { return _serialNumber; }
+    SpryTrackDeviceType      type() const { return _type; }
     vector<SpryTrackMarker*> markers() const { return _markers; }
 
     void registerMarker(SpryTrackMarker* marker);
+    void unregisterMarker(SpryTrackMarker* marker);
     void enableOnboardProcessing();
     void acquireFrame(int*      width,
                       int*      height,
@@ -45,10 +47,11 @@ private:
     void processFrame();
 
 private:
-    SpryTrackSerialNumber    _serialNumber;
-    SpryTrackDeviceType      _type;
-    ftkFrameQuery*           _frame;
-    vector<SpryTrackMarker*> _markers;
+    SpryTrackSerialNumber      _serialNumber;
+    SpryTrackDeviceType        _type;
+    ftkFrameQuery*             _frame;
+    vector<SpryTrackMarker*>   _markers;
+    std::map<SLstring, uint32> _options;
 };
 //-----------------------------------------------------------------------------
 #endif // SRC_SPRYTRACKDEVICE_H

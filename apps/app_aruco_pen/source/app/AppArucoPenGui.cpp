@@ -25,9 +25,9 @@
 #include <Instrumentor.h>
 
 //-----------------------------------------------------------------------------
-SLbool   AppArucoPenGui::showDockSpace     = true;
-SLbool   AppArucoPenGui::showInfosTracking = false;
-SLbool   AppArucoPenGui::hideUI            = false;
+SLbool AppArucoPenGui::showDockSpace     = true;
+SLbool AppArucoPenGui::showInfosTracking = false;
+SLbool AppArucoPenGui::hideUI            = false;
 //-----------------------------------------------------------------------------
 void AppArucoPenGui::build(SLProjectScene* s, SLSceneView* sv)
 {
@@ -102,7 +102,7 @@ void AppArucoPenGui::build(SLProjectScene* s, SLSceneView* sv)
             m[0] = 0;       // set zero length
 
             ArucoPen& pen    = AppArucoPen::instance().arucoPen();
-            SLVec3f     tipPos = pen.tipPosition();
+            SLVec3f   tipPos = pen.tipPosition();
             sprintf(m + strlen(m), "Tip position             : %s\n", tipPos.toString(", ", 2).c_str());
             sprintf(m + strlen(m), "Measured Distance (Live) : %.2f cm\n", pen.liveDistance() * 100.0f);
             sprintf(m + strlen(m), "Measured Distance (Last) : %.2f cm\n", pen.lastDistance() * 100.0f);
@@ -121,7 +121,7 @@ void AppArucoPenGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
 {
     PROFILE_FUNCTION();
 
-    SLSceneID    sid           = AppDemo::sceneID;
+    SLSceneID sid = AppDemo::sceneID;
 
     if (ImGui::BeginMainMenuBar())
     {
@@ -166,17 +166,21 @@ void AppArucoPenGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
             {
                 for (CVCaptureProvider* provider : app.captureProviders())
                 {
-                    if (ImGui::MenuItem(provider->name().c_str(), nullptr, app.currentCaptureProvider() == provider))
-                        app.currentCaptureProvider(provider);
+                    if (app.arucoPen().trackingSystem()->isAcceptedProvider(provider))
+                    {
+                        if (ImGui::MenuItem(provider->name().c_str(), nullptr, app.currentCaptureProvider() == provider))
+                            app.currentCaptureProvider(provider);
+                    }
                 }
 
                 ImGui::EndMenu();
             }
 
             vector<CVCaptureProviderIDSPeak*> providersIDSPeak;
-            for(CVCaptureProvider* provider : AppArucoPen::instance().captureProviders())
+            for (CVCaptureProvider* provider : AppArucoPen::instance().captureProviders())
             {
-                if (typeid(*provider) == typeid(CVCaptureProviderIDSPeak))
+                if (app.arucoPen().trackingSystem()->isAcceptedProvider(provider) &&
+                    typeid(*provider) == typeid(CVCaptureProviderIDSPeak))
                 {
                     providersIDSPeak.push_back((CVCaptureProviderIDSPeak*)provider);
                 }
@@ -188,11 +192,20 @@ void AppArucoPenGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                 auto gamma = (float)providersIDSPeak[0]->gamma();
 
                 if (ImGui::SliderFloat("Gain", &gain, 1.0f, 3.0f, "%.2f"))
-                    for(auto providerIDSPeak : providersIDSPeak)
+                    for (auto providerIDSPeak : providersIDSPeak)
                         providerIDSPeak->gain(gain);
                 if (ImGui::SliderFloat("Gamma", &gamma, 0.3f, 3.0f, "%.2f"))
-                    for(auto providerIDSPeak : providersIDSPeak)
+                    for (auto providerIDSPeak : providersIDSPeak)
                         providerIDSPeak->gamma(gamma);
+            }
+
+            if (ImGui::MenuItem("Calibrate Full"))
+            {
+                for (CVCaptureProvider* provider : app.captureProviders())
+                {
+                    if (app.arucoPen().trackingSystem()->isAcceptedProvider(provider))
+                        app.arucoPen().trackingSystem()->calibrate(provider);
+                }
             }
 
             if (dynamic_cast<TrackingSystemArucoCube*>(app.arucoPen().trackingSystem()))
@@ -207,7 +220,10 @@ void AppArucoPenGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                 {
                     for (CVCaptureProvider* provider : AppArucoPen::instance().captureProviders())
                     {
-                        AppArucoPenCalibrator::calcExtrinsicParams(provider);
+                        if (app.arucoPen().trackingSystem()->isAcceptedProvider(provider))
+                        {
+                            AppArucoPenCalibrator::calcExtrinsicParams(provider);
+                        }
                     }
                 }
 
@@ -280,7 +296,7 @@ void AppArucoPenGui::loadConfig(SLint dotsPerInch)
         SLGLImGui::fontFixedDots = std::max(13.0f * dpiScaleFixed, 13.0f);
 
         // Store dialog show states
-        AppArucoPenGui::showDockSpace    = true;
+        AppArucoPenGui::showDockSpace = true;
 
         // Adjust UI padding on DPI
         style.WindowPadding.x = style.FramePadding.x = style.ItemInnerSpacing.x = std::max(8.0f * dpiScaleFixed, 8.0f);

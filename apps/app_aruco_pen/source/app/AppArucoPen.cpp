@@ -75,6 +75,9 @@ void AppArucoPen::openCaptureProviders()
     //     openCaptureProvider(new CVCaptureProviderIDSPeak(i, CVSize(2768, 1840)));
     // }
 
+    // IDS camera + Intel + SpryTrack
+    openCaptureProvider(new CVCaptureProviderIDSPeak(0, CVSize(1280, 720)));
+    openCaptureProvider(new CVCaptureProviderStandard(0, CVSize(1280, 720)));
     openCaptureProvider(new CVCaptureProviderSpryTrack(CVSize(1280, 720)));
 
     if (_captureProviders.empty())
@@ -147,7 +150,7 @@ void AppArucoPen::grabFrameImagesAndTrack(SLSceneView* sv)
     {
         for (CVCaptureProvider* provider : _captureProviders)
         {
-            if (provider != _currentCaptureProvider)
+            if (_arucoPen.trackingSystem()->isAcceptedProvider(provider) && provider != _currentCaptureProvider)
             {
                 grabFrameImageAndTrack(provider, sv);
             }
@@ -155,7 +158,10 @@ void AppArucoPen::grabFrameImagesAndTrack(SLSceneView* sv)
     }
 
     // Grab and track the currently displayed capture provider
-    grabFrameImageAndTrack(_currentCaptureProvider, sv);
+    if (_arucoPen.trackingSystem()->isAcceptedProvider(_currentCaptureProvider))
+    {
+        grabFrameImageAndTrack(_currentCaptureProvider, sv);
+    }
 
     if (AppDemo::sceneID == SID_VideoTrackArucoCubeMain || AppDemo::sceneID == SID_VirtualArucoPen)
     {

@@ -11,6 +11,7 @@
 #define SRC_TRACKINGSYSTEMSPRYTRACK_H
 
 #include <TrackingSystem.h>
+#include <CVCaptureProviderSpryTrack.h>
 
 //-----------------------------------------------------------------------------
 class TrackingSystemSpryTrack : public TrackingSystem
@@ -19,9 +20,15 @@ public:
     bool      track(CVCaptureProvider* provider) override;
     void      finalizeTracking() override;
     CVMatx44f worldMatrix() override;
+    void      calibrate(CVCaptureProvider* provider) override;
+    bool      isAcceptedProvider(CVCaptureProvider* provider) override;
+
+private:
+    static SpryTrackDevice& getDevice(CVCaptureProvider* provider);
 
 private:
     CVMatx44f _worldMatrix;
+    CVMatx44f _extrinsicMat;
 };
 //-----------------------------------------------------------------------------
 #endif // SRC_TRACKINGSYSTEMSPRYTRACK_H

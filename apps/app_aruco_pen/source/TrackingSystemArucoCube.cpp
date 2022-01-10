@@ -45,6 +45,18 @@ CVMatx44f TrackingSystemArucoCube::worldMatrix()
     return _multiTracker.averageWorldMatrix();
 }
 //-----------------------------------------------------------------------------
+void TrackingSystemArucoCube::calibrate(CVCaptureProvider* provider)
+{
+    AppArucoPenCalibrator::calcExtrinsicParams(provider);
+    AppDemo::scene->onLoad(AppDemo::scene, AppDemo::sceneViews[0], SID_VideoCalibrateMain);
+}
+//-----------------------------------------------------------------------------
+bool TrackingSystemArucoCube::isAcceptedProvider(CVCaptureProvider* provider)
+{
+    return typeid(*provider) == typeid(CVCaptureProviderStandard) ||
+           typeid(*provider) == typeid(CVCaptureProviderIDSPeak);
+}
+//-----------------------------------------------------------------------------
 void TrackingSystemArucoCube::optimizeTracking()
 {
     //    CVTrackedArucoCube* trackedArucoCube = (CVTrackedArucoCube*)tracker;

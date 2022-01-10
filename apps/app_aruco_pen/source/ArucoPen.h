@@ -48,11 +48,7 @@ public:
     State state() { return _state; }
 
     TrackingSystem* trackingSystem() { return _trackingSystem; }
-    void            trackingSystem(TrackingSystem* trackingSystem)
-    {
-        delete _trackingSystem;
-        _trackingSystem = trackingSystem;
-    }
+    void            trackingSystem(TrackingSystem* trackingSystem);
 
 private:
     State           _state          = Idle;

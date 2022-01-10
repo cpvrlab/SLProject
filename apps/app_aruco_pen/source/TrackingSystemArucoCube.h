@@ -20,6 +20,8 @@ public:
     bool      track(CVCaptureProvider* provider) override;
     void      finalizeTracking() override;
     CVMatx44f worldMatrix() override;
+    void      calibrate(CVCaptureProvider* provider) override;
+    bool      isAcceptedProvider(CVCaptureProvider* provider) override;
 
     CVMultiTracker& multiTracker() { return _multiTracker; }
 
