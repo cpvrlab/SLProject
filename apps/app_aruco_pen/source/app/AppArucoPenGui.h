@@ -30,8 +30,10 @@ public:
     static void saveConfig();
 
     static SLbool hideUI;
-    static SLbool showDockSpace;
     static SLbool showInfosTracking;
+
+    static SLbool showError;
+    static SLstring errorString;
 };
 //-----------------------------------------------------------------------------
 #endif

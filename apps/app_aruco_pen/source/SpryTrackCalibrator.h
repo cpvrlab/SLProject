@@ -12,13 +12,23 @@
 
 #include <SpryTrackDevice.h>
 #include <CVTypedefs.h>
+#include <stdexcept>
 
+//-----------------------------------------------------------------------------
+class SpryTrackCalibrationException : public std::runtime_error
+{
+public:
+    explicit SpryTrackCalibrationException(const string& message)
+      : std::runtime_error(message)
+    {
+    }
+};
 //-----------------------------------------------------------------------------
 class SpryTrackCalibrator
 {
 public:
-    SpryTrackCalibrator(SpryTrackDevice& device);
-
+    SpryTrackCalibrator(SpryTrackDevice& device,
+                        CVSize2f         planeSize);
     void calibrate();
 
     // Getters
@@ -26,7 +36,9 @@ public:
 
 private:
     SpryTrackDevice& _device;
-    CVMatx44f        _extrinsicMat;
+    CVSize2f         _planeSize;
+
+    CVMatx44f _extrinsicMat;
 };
 //-----------------------------------------------------------------------------
 #endif // SRC_SPRYTRACKCALIBRATOR_H

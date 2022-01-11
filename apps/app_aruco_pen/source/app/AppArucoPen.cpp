@@ -17,6 +17,7 @@
 #include <AppDemo.h>
 #include <app/AppArucoPenROSNode.h>
 #include <CVCaptureProviderSpryTrack.h>
+#include <TrackingSystemSpryTrack.h>
 
 extern void trackVideo(CVCaptureProvider* provider);
 
@@ -76,8 +77,8 @@ void AppArucoPen::openCaptureProviders()
     // }
 
     // IDS camera + Intel + SpryTrack
-    openCaptureProvider(new CVCaptureProviderIDSPeak(0, CVSize(1280, 720)));
-    openCaptureProvider(new CVCaptureProviderStandard(0, CVSize(1280, 720)));
+//    openCaptureProvider(new CVCaptureProviderIDSPeak(0, CVSize(1280, 720)));
+//    openCaptureProvider(new CVCaptureProviderStandard(0, CVSize(1280, 720)));
     openCaptureProvider(new CVCaptureProviderSpryTrack(CVSize(1280, 720)));
 
     if (_captureProviders.empty())

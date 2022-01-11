@@ -25,9 +25,10 @@
 #include <Instrumentor.h>
 
 //-----------------------------------------------------------------------------
-SLbool AppArucoPenGui::showDockSpace     = true;
-SLbool AppArucoPenGui::showInfosTracking = false;
-SLbool AppArucoPenGui::hideUI            = false;
+SLbool   AppArucoPenGui::showInfosTracking = false;
+SLbool   AppArucoPenGui::hideUI            = false;
+SLbool   AppArucoPenGui::showError         = false;
+SLstring AppArucoPenGui::errorString       = "";
 //-----------------------------------------------------------------------------
 void AppArucoPenGui::build(SLProjectScene* s, SLSceneView* sv)
 {
@@ -39,61 +40,7 @@ void AppArucoPenGui::build(SLProjectScene* s, SLSceneView* sv)
     }
     else
     {
-        if (showDockSpace)
-        {
-            static bool               opt_fullscreen_persistant = true;
-            bool                      opt_fullscreen            = opt_fullscreen_persistant;
-            static ImGuiDockNodeFlags dockspace_flags           = ImGuiDockNodeFlags_PassthruCentralNode;
-
-            // We are using the ImGuiWindowFlags_NoDocking flag to make the parent window not dockable into,
-            // because it would be confusing to have two docking targets within each others.
-            ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDocking;
-            if (opt_fullscreen)
-            {
-                ImGuiViewport* viewport = ImGui::GetMainViewport();
-                ImGui::SetNextWindowPos(viewport->WorkPos);
-                ImGui::SetNextWindowSize(viewport->WorkSize);
-                ImGui::SetNextWindowViewport(viewport->ID);
-                ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
-                ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-                window_flags |= ImGuiWindowFlags_NoTitleBar |
-                                ImGuiWindowFlags_NoCollapse |
-                                ImGuiWindowFlags_NoResize |
-                                ImGuiWindowFlags_NoMove |
-                                ImGuiWindowFlags_NoBringToFrontOnFocus |
-                                ImGuiWindowFlags_NoNavFocus;
-            }
-
-            // When using ImGuiDockNodeFlags_PassthruCentralNode, DockSpace() will render our background
-            // and handle the pass-thru hole, so we ask Begin() to not render a background.
-            if (dockspace_flags & ImGuiDockNodeFlags_PassthruCentralNode)
-                window_flags |= ImGuiWindowFlags_NoBackground;
-
-            // Important: note that we proceed even if Begin() returns false (aka window is collapsed).
-            // This is because we want to keep our DockSpace() active. If a DockSpace() is inactive,
-            // all active windows docked into it will lose their parent and become undocked.
-            // We cannot preserve the docking relationship between an active window and an inactive docking, otherwise
-            // any change of dockspace/settings would lead to windows being stuck in limbo and never being visible.
-            ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-            ImGui::Begin("DockSpace Demo", &showDockSpace, window_flags);
-            ImGui::PopStyleVar();
-
-            if (opt_fullscreen)
-                ImGui::PopStyleVar(2);
-
-            // DockSpace
-            ImGuiIO& io = ImGui::GetIO();
-            if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable)
-            {
-                ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
-                ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
-            }
-
-            ImGui::End();
-        }
-
         buildMenuBar(s, sv);
-
         buildMenuContext(s, sv);
 
         if (showInfosTracking)
@@ -114,6 +61,22 @@ void AppArucoPenGui::build(SLProjectScene* s, SLSceneView* sv)
             ImGui::End();
             ImGui::PopFont();
         }
+
+        if(showError)
+        {
+            SLfloat width   = (SLfloat)sv->viewportW() * 0.5f;
+            SLfloat height  = (SLfloat)sv->viewportH() * 0.2f;
+            SLfloat offsetX = ((SLfloat)sv->viewportW() - width) * 0.5f;
+            SLfloat offsetY = ((SLfloat)sv->viewportH() - height) * 0.5f;
+            ImGui::SetNextWindowSize(ImVec2(width, height), ImGuiCond_Always);
+            ImGui::SetNextWindowPos(ImVec2(offsetX, offsetY), ImGuiCond_Always);
+
+            ImGui::Begin("Error", &showError, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove);
+            ImGui::SetCursorPosX(ImGui::GetWindowSize().x / 2 - ImGui::CalcTextSize(errorString.c_str()).x / 2);
+            ImGui::SetCursorPosY(ImGui::GetWindowSize().y / 2 - ImGui::CalcTextSize(errorString.c_str()).y / 2);
+            ImGui::TextUnformatted(errorString.c_str());
+            ImGui::End();
+        }
     }
 }
 //-----------------------------------------------------------------------------
@@ -127,11 +90,11 @@ void AppArucoPenGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
     {
         if (ImGui::BeginMenu("File"))
         {
-            if (ImGui::BeginMenu("Load Scene"))
+            if (ImGui::BeginMenu("View"))
             {
-                if (ImGui::MenuItem("Track Aruco Cube", nullptr, sid == SID_VideoTrackArucoCubeMain))
+                if (ImGui::MenuItem("Live Camera", nullptr, sid == SID_VideoTrackArucoCubeMain))
                     s->onLoad(s, sv, SID_VideoTrackArucoCubeMain);
-                if (ImGui::MenuItem("Track Aruco Cube (Virtual)", nullptr, sid == SID_VirtualArucoPen))
+                if (ImGui::MenuItem("Virtual Render", nullptr, sid == SID_VirtualArucoPen))
                     s->onLoad(s, sv, SID_VirtualArucoPen);
 
                 ImGui::EndMenu();
@@ -204,7 +167,17 @@ void AppArucoPenGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                 for (CVCaptureProvider* provider : app.captureProviders())
                 {
                     if (app.arucoPen().trackingSystem()->isAcceptedProvider(provider))
-                        app.arucoPen().trackingSystem()->calibrate(provider);
+                    {
+                        try
+                        {
+                            app.arucoPen().trackingSystem()->calibrate(provider);
+                        }
+                        catch(std::exception& e)
+                        {
+                            showError = true;
+                            errorString = e.what();
+                        }
+                    }
                 }
             }
 
@@ -295,9 +268,6 @@ void AppArucoPenGui::loadConfig(SLint dotsPerInch)
         SLGLImGui::fontPropDots  = std::max(16.0f * dpiScaleProp, 16.0f);
         SLGLImGui::fontFixedDots = std::max(13.0f * dpiScaleFixed, 13.0f);
 
-        // Store dialog show states
-        AppArucoPenGui::showDockSpace = true;
-
         // Adjust UI padding on DPI
         style.WindowPadding.x = style.FramePadding.x = style.ItemInnerSpacing.x = std::max(8.0f * dpiScaleFixed, 8.0f);
         style.FramePadding.y = style.ItemInnerSpacing.y = std::max(4.0f * dpiScaleFixed, 4.0f);
@@ -337,7 +307,6 @@ void AppArucoPenGui::loadConfig(SLint dotsPerInch)
             fs["ScrollbarRounding"] >> i;   style.ScrollbarRounding = (SLfloat) i;
             fs["sceneID"] >> i;             AppDemo::sceneID = (SLSceneID) i;
             fs["showInfosTracking"] >> b;   AppArucoPenGui::showInfosTracking = b;
-            fs["showDockSpace"] >> b;       AppArucoPenGui::showDockSpace = b;
             // clang-format on
 
             fs.release();
@@ -404,7 +373,6 @@ void AppArucoPenGui::saveConfig()
     fs << "ScrollbarSize" << (SLfloat)style.ScrollbarSize;
     fs << "ScrollbarRounding" << (SLfloat)style.ScrollbarRounding;
     fs << "showInfosTracking" << AppArucoPenGui::showInfosTracking;
-    fs << "showDockSpace" << AppArucoPenGui::showDockSpace;
 
     fs.release();
     SL_LOG("Config. saved   : %s", fullPathAndFilename.c_str());

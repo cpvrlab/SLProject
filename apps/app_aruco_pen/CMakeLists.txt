@@ -6,7 +6,7 @@ set(target app-Aruco-Pen)
 
 set(include_path "${CMAKE_CURRENT_SOURCE_DIR}")
 set(source_path "${CMAKE_CURRENT_SOURCE_DIR}")
-set(compile_definitions SL_STARTSCENE=SID_ShaderIBL)
+set(compile_definitions SL_STARTSCENE=SID_VideoTrackArucoCubeMain)
 
 file(GLOB headers
         ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/app/AppArucoPen.h
@@ -15,6 +15,7 @@ file(GLOB headers
         ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/app/AppArucoPenCalibrator.h
         ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/app/AppArucoPenROSNode.h
         ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/app/AppArucoPenEvaluator.h
+        ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/app/AppArucoPenConst.h
         ${SL_PROJECT_ROOT}/apps/app_aruco_pen/source/ArucoPen.h
         ${SL_PROJECT_ROOT}/apps/source/CVCapture.h
         ${SL_PROJECT_ROOT}/apps/source/AppDemo.h
@@ -107,6 +108,16 @@ target_include_directories(
         INTERFACE
 )
 
+file(GLOB
+        EXTERNAL_DLLS
+        "${SL_PROJECT_ROOT}/apps/app_aruco_pen/externals/peak/api/lib/x86_64/*.dll"
+        "${SL_PROJECT_ROOT}/apps/app_aruco_pen/externals/peak/ipl/lib/x86_64/*.dll"
+        "${SL_PROJECT_ROOT}/apps/app_aruco_pen/externals/sprytrack/bin/*.dll")
+file(COPY ${EXTERNAL_DLLS} DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+
+file(GLOB DLLS_TO_COPY ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/*.dll)
+file(COPY ${DLLS_TO_COPY} DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+
 target_link_libraries(
         ${target}
         PRIVATE
@@ -175,13 +186,3 @@ target_link_libraries(${target}
         fusionTrack64
         PUBLIC
         INTERFACE)
-
-file(GLOB
-        EXTERNAL_DLLS
-        "${SL_PROJECT_ROOT}/apps/app_aruco_pen/externals/peak/api/lib/x86_64/*.dll"
-        "${SL_PROJECT_ROOT}/apps/app_aruco_pen/externals/peak/ipl/lib/x86_64/*.dll"
-        "${SL_PROJECT_ROOT}/apps/app_aruco_pen/externals/sprytrack/bin/*.dll")
-file(COPY ${EXTERNAL_DLLS} DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
-
-file(GLOB DLLS_TO_COPY ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/*.dll)
-file(COPY ${DLLS_TO_COPY} DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})

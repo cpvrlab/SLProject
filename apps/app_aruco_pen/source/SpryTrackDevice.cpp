@@ -63,7 +63,8 @@ void SpryTrackDevice::enumerateOptions()
     // Who thought it would be a good idea not to have constants for device
     // options but names that need to be converted to option ids first??
 
-    auto optionsEnumCallback = [](uint64 sn, void* user, ftkOptionsInfo* oi) {
+    auto optionsEnumCallback = [](uint64 sn, void* user, ftkOptionsInfo* oi)
+    {
         SL_LOG("SpryTrack: Found option: %s", oi->name);
 
         auto* self = (SpryTrackDevice*)user;
@@ -101,6 +102,7 @@ void SpryTrackDevice::unregisterMarker(SpryTrackMarker* marker)
     ftkClearGeometry(SpryTrackInterface::instance().library,
                      _serialNumber,
                      marker->_geometry.geometryId);
+    delete marker;
 }
 //-----------------------------------------------------------------------------
 void SpryTrackDevice::enableOnboardProcessing()
@@ -115,10 +117,7 @@ void SpryTrackDevice::enableOnboardProcessing()
     }
 }
 //-----------------------------------------------------------------------------
-void SpryTrackDevice::acquireFrame(int*      width,
-                                   int*      height,
-                                   uint8_t** dataGrayLeft,
-                                   uint8_t** dataGrayRight)
+SpryTrackFrame SpryTrackDevice::acquireFrame()
 {
     for (int i = 0; i < MAX_FAILED_ACQUISITION_ATTEMPTS; i++)
     {
@@ -131,13 +130,13 @@ void SpryTrackDevice::acquireFrame(int*      width,
             _frame->imageLeftStat == ftkQueryStatus::QS_OK &&
             _frame->imageRightStat == ftkQueryStatus::QS_OK)
         {
-            *width         = _frame->imageHeader->width;
-            *height        = _frame->imageHeader->height;
-            *dataGrayLeft  = _frame->imageLeftPixels;
-            *dataGrayRight = _frame->imageRightPixels;
-
+            SpryTrackFrame frame{};
+            frame.width         = _frame->imageHeader->width;
+            frame.height        = _frame->imageHeader->height;
+            frame.dataGrayLeft  = _frame->imageLeftPixels;
+            frame.dataGrayRight = _frame->imageRightPixels;
             processFrame();
-            return;
+            return frame;
         }
         else
         {

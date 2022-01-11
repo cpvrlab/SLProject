@@ -19,9 +19,6 @@ void CVMultiTracker::recordCurrentPose(CVTracked* tracked, CVCalibration* calib)
 
     CVMatx44f matrix(tracked->objectViewMat());
 
-    float   weight           = 1.0f;
-    SLVec3f posRelativeToCam = SLVec3f(matrix.val[3], matrix.val[7], matrix.val[11]);
-
     if (!calib->rvec.empty() && !calib->tvec.empty())
     {
         CVMatx44f extrinsic = CVTracked::createGLMatrix(calib->tvec, calib->rvec);
@@ -39,7 +36,7 @@ void CVMultiTracker::recordCurrentPose(CVTracked* tracked, CVCalibration* calib)
     }
 
     _worldMatrices.push_back(matrix);
-    _weights.push_back(weight);
+    _weights.push_back(1.0f);
 }
 //-----------------------------------------------------------------------------
 /*! Averages the object view matrices computed before using the "track" method

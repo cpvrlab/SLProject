@@ -9,12 +9,13 @@
 
 #include <TrackingSystemSpryTrack.h>
 #include <SpryTrackCalibrator.h>
+#include <app/AppArucoPenConst.h>
 
 //-----------------------------------------------------------------------------
 bool TrackingSystemSpryTrack::track(CVCaptureProvider* provider)
 {
     SpryTrackDevice& device = getDevice(provider);
-    SpryTrackMarker*       marker = device.markers()[0];
+    SpryTrackMarker* marker = device.markers()[0];
     if (!marker->visible())
     {
         SL_LOG("Marker not detected");
@@ -39,7 +40,10 @@ CVMatx44f TrackingSystemSpryTrack::worldMatrix()
 //-----------------------------------------------------------------------------
 void TrackingSystemSpryTrack::calibrate(CVCaptureProvider* provider)
 {
-    SpryTrackCalibrator calibrator(getDevice(provider));
+    float               squareSize = AppArucoPenConst::CALIB_SQUARE_SIZE;
+    CVSize2f            planeSize((float)AppArucoPenConst::CALIB_CHESSBOARD_WIDTH * squareSize,
+                       (float)AppArucoPenConst::CALIB_CHESSBOARD_HEIGHT * squareSize);
+    SpryTrackCalibrator calibrator(getDevice(provider), planeSize);
     calibrator.calibrate();
     _extrinsicMat = calibrator.extrinsicMat();
 }

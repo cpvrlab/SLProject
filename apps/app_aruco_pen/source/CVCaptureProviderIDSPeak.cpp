@@ -56,18 +56,15 @@ void CVCaptureProviderIDSPeak::grab()
         return;
     }
 
-    int      width;
-    int      height;
-    uint8_t* dataBGR;
-    uint8_t* dataGray;
-    _device.acquireImage(&width, &height, &dataBGR, &dataGray);
+    // Acquire the frame
+    IDSPeakFrame frame = _device.acquireImage();
 
     // Store the BGR and the gray image
-    _lastFrameBGR  = CVMat(height, width, CV_8UC3, dataBGR, 0);
-    _lastFrameGray = CVMat(height, width, CV_8UC1, dataGray, 0);
+    _lastFrameBGR  = CVMat(frame.height, frame.width, CV_8UC3, frame.dataBGR, 0);
+    _lastFrameGray = CVMat(frame.height, frame.width, CV_8UC1, frame.dataGray, 0);
 
     // Resize the images if needed
-    if (captureSize().width != width || captureSize().height != height)
+    if (captureSize().width != frame.width || captureSize().height != frame.height)
     {
         cv::resize(_lastFrameBGR, _lastFrameBGR, captureSize());
         cv::resize(_lastFrameGray, _lastFrameGray, captureSize());

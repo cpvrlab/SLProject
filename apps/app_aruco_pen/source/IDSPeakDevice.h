@@ -17,13 +17,20 @@
 #include <SL.h>
 
 //-----------------------------------------------------------------------------
-class IDSPeakDeviceParams
+struct IDSPeakDeviceParams
 {
-public:
     double frameRate = 10.0;
     double gain      = 1.0;
     double gamma     = 1.0;
     int    binning   = 1;
+};
+//-----------------------------------------------------------------------------
+struct IDSPeakFrame
+{
+    int      width;
+    int      height;
+    uint8_t* dataBGR;
+    uint8_t* dataGray;
 };
 //-----------------------------------------------------------------------------
 class IDSPeakDevice
@@ -32,7 +39,7 @@ class IDSPeakDevice
 
 private:
     std::shared_ptr<peak::core::Device>     _device              = nullptr;
-    int                                     _deviceIndex        = 0;
+    int                                     _deviceIndex         = 0;
     std::shared_ptr<peak::core::DataStream> _dataStream          = nullptr;
     std::shared_ptr<peak::core::NodeMap>    _nodeMapRemoteDevice = nullptr;
 
@@ -44,15 +51,12 @@ public:
     IDSPeakDevice(std::shared_ptr<peak::core::Device> device,
                   int                                 deviceIndex);
 
-    void acquireImage(int*      width,
-                      int*      height,
-                      uint8_t** dataBGR,
-                      uint8_t** dataGray);
+    IDSPeakFrame acquireImage();
 
     double gain();
     double gamma();
-    void gain(double gain);
-    void gamma(double gamma);
+    void   gain(double gain);
+    void   gamma(double gamma);
 
     void close();
 

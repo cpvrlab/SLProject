@@ -13,7 +13,7 @@
 #include <CVTrackedArucoCube.h>
 #include <CVCaptureProvider.h>
 #include <TrackingSystem.h>
-#include <TrackingSystemArucoCube.h>
+#include <TrackingSystemSpryTrack.h>
 
 #include <SLEventHandler.h>
 #include <SLVec3.h>
@@ -52,7 +52,7 @@ public:
 
 private:
     State           _state          = Idle;
-    TrackingSystem* _trackingSystem = new TrackingSystemArucoCube();
+    TrackingSystem* _trackingSystem = new TrackingSystemSpryTrack();
 
     SLVec3f _lastPrintedPosition;
     SLbool  _positionPrintedOnce = false;

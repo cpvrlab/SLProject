@@ -20,6 +20,14 @@
 typedef ftkDeviceType SpryTrackDeviceType;
 typedef uint64        SpryTrackSerialNumber;
 //-----------------------------------------------------------------------------
+struct SpryTrackFrame
+{
+    int      width;
+    int      height;
+    uint8_t* dataGrayLeft;
+    uint8_t* dataGrayRight;
+};
+//-----------------------------------------------------------------------------
 class SpryTrackDevice
 {
     friend class SpryTrackInterface;
@@ -32,14 +40,11 @@ public:
     SpryTrackDeviceType      type() const { return _type; }
     vector<SpryTrackMarker*> markers() const { return _markers; }
 
-    void registerMarker(SpryTrackMarker* marker);
-    void unregisterMarker(SpryTrackMarker* marker);
-    void enableOnboardProcessing();
-    void acquireFrame(int*      width,
-                      int*      height,
-                      uint8_t** dataGrayLeft,
-                      uint8_t** dataGrayRight);
-    void close();
+    void           registerMarker(SpryTrackMarker* marker);
+    void           unregisterMarker(SpryTrackMarker* marker);
+    void           enableOnboardProcessing();
+    SpryTrackFrame acquireFrame();
+    void           close();
 
 private:
     void prepare();

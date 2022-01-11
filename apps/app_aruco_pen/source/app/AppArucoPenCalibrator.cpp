@@ -7,13 +7,12 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include "AppArucoPenCalibrator.h"
+#include <app/AppArucoPenCalibrator.h>
 
 #include <AppDemo.h>
 #include <app/AppArucoPen.h>
-
+#include <app/AppArucoPenConst.h>
 #include <CVCapture.h>
-
 #include <string>
 #include <sstream>
 
@@ -43,7 +42,7 @@ void AppArucoPenCalibrator::update(CVCamera*    ac,
         }
 
         CVMat imageCopy = CVCapture::instance()->lastFrameGray.clone();
-        bool success = false;
+        bool  success   = false;
 
         if (_calibrationEstimator->isStreaming())
         {
@@ -108,7 +107,6 @@ void AppArucoPenCalibrator::update(CVCamera*    ac,
             std::string frameFileName = directory + "frame_" + std::to_string(index) + ".jpg";
             cv::imwrite(frameFileName, imageCopy);
         }
-
     }
     catch (CVCalibrationEstimatorException& e)
     {
@@ -138,7 +136,9 @@ void AppArucoPenCalibrator::calcExtrinsicParams(CVCaptureProvider* provider)
 {
     SL_LOG("Calculating extrinsic parameters...");
 
-    CVSize     boardSize(11, 8);
+    CVSize boardSize(AppArucoPenConst::CALIB_CHESSBOARD_WIDTH, AppArucoPenConst::CALIB_CHESSBOARD_HEIGHT);
+    float  squareSize = AppArucoPenConst::CALIB_SQUARE_SIZE;
+
     CVVPoint2f corners2D;
     int        flags = cv::CALIB_CB_FAST_CHECK + cv::CALIB_CB_ADAPTIVE_THRESH;
 
@@ -163,7 +163,6 @@ void AppArucoPenCalibrator::calcExtrinsicParams(CVCaptureProvider* provider)
                                       0.0001));
 
     CVVVec3f boardPoints3D;
-    float    squareSize = 0.06f;
 
     for (int y = boardSize.height - 1; y >= 0; --y)
         for (int x = 0; x < boardSize.width; ++x)

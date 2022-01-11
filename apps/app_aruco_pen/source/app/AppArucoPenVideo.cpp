@@ -19,6 +19,9 @@
 #include <app/AppArucoPen.h>
 #include <ArucoPen.h>
 
+#include <TrackingSystemSpryTrack.h>
+#include <TrackingSystemArucoCube.h>
+
 //-----------------------------------------------------------------------------
 void updateTrackingSceneCamera(CVCamera* ac)
 {

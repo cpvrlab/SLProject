@@ -43,7 +43,7 @@ void CVCaptureProviderSpryTrack::open()
 
     _isOpened = true;
     _device   = SpryTrackInterface::instance().accessDevice();
-    _device.enableOnboardProcessing();
+//    _device.enableOnboardProcessing();
 
     auto* marker1 = new SpryTrackMarker();
     marker1->addPoint(0.0f, 11.0f, 3.0f);
@@ -62,21 +62,17 @@ void CVCaptureProviderSpryTrack::grab()
     }
 
     // Acquire the images from the spryTrack device
-    int      width;
-    int      height;
-    uint8_t* dataGrayLeft;
-    uint8_t* dataGrayRight;
-    _device.acquireFrame(&width, &height, &dataGrayLeft, &dataGrayRight);
+    SpryTrackFrame frame = _device.acquireFrame();
 
     // Compute the scaled image sizes and their top offset in the frame
     int   scaledWidth  = _captureSize.width / 2 - GAP_WIDTH / 2;
-    float scale        = (float)scaledWidth / (float)width;
-    int   scaledHeight = (int)((float)height * scale);
+    float scale        = (float)scaledWidth / (float)frame.width;
+    int   scaledHeight = (int)((float)frame.height * scale);
     int   top          = (int)((float)(_captureSize.height - scaledHeight) / 2.0f);
 
     // Convert the raw data to OpenCV matrices
-    CVMat imageLeft  = CVMat(height, width, CV_8UC1, dataGrayLeft);
-    CVMat imageRight = CVMat(height, width, CV_8UC1, dataGrayRight);
+    CVMat imageLeft  = CVMat(frame.height, frame.width, CV_8UC1, frame.dataGrayLeft);
+    CVMat imageRight = CVMat(frame.height, frame.width, CV_8UC1, frame.dataGrayRight);
 
     // Resize images to fit them inside the frame
     cv::resize(imageLeft, imageLeft, CVSize(scaledWidth, scaledHeight));

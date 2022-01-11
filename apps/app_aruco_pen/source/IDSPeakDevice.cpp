@@ -133,10 +133,7 @@ void IDSPeakDevice::startCapture()
     }
 }
 //-----------------------------------------------------------------------------
-void IDSPeakDevice::acquireImage(int*      width,
-                                 int*      height,
-                                 uint8_t** dataBGR,
-                                 uint8_t** dataGray)
+IDSPeakFrame IDSPeakDevice::acquireImage()
 {
     PROFILE_FUNCTION();
 
@@ -145,16 +142,19 @@ void IDSPeakDevice::acquireImage(int*      width,
         const auto buffer    = _dataStream->WaitForFinishedBuffer(5000);
         const auto image     = peak::ipl::Image(peak::BufferTo<peak::ipl::Image>(buffer));
         const auto imageBGR  = image.ConvertTo(peak::ipl::PixelFormatName::BGR8,
-                                               peak::ipl::ConversionMode::Fast);
+                                              peak::ipl::ConversionMode::Fast);
         const auto imageGray = image.ConvertTo(peak::ipl::PixelFormatName::Mono8,
                                                peak::ipl::ConversionMode::Fast);
 
-        *width    = (int)image.Width();
-        *height   = (int)image.Height();
-        *dataBGR  = imageBGR.Data();
-        *dataGray = imageGray.Data();
+        IDSPeakFrame frame{};
+        frame.width    = (int)image.Width();
+        frame.height   = (int)image.Height();
+        frame.dataBGR  = imageBGR.Data();
+        frame.dataGray = imageGray.Data();
 
         _dataStream->QueueBuffer(buffer);
+
+        return frame;
     }
     catch (std::exception& e)
     {
