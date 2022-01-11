@@ -42,7 +42,7 @@ void main()
     tf_rotation = a_rotation; // Init the output variable
     //tf_rotation = mod(tf_rotation+((u_tTL/360.0)* u_deltaTime),360.0);
     //tf_rotation = mod(tf_rotation+ 0.05, 360.0);
-    tf_rotation = mod(tf_rotation + 0.05, 360.0);
+    tf_rotation = mod(tf_rotation + 0.01, 360.0);
     if( u_time >= a_startTime ) {   // Check if the particle is born
         float age = u_time - a_startTime;   // Get the age of the particle
         if( age > u_tTL ) {     // Check if the particle is dead

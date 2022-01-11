@@ -68,7 +68,7 @@ static GLuint _numV = 0; //!< NO. of vertices
 static GLuint _numI = 0; //!< NO. of vertex indexes for triangles
 
 // Constant and variables for particles init/update
-const int       AMOUNT          = 1000;  //!< Amount of particles
+const int       AMOUNT          = 50;  //!< Amount of particles
 static int      _drawBuf        = 0;    // Boolean to switch buffer
 static float    _ttl            = 5.0f; // Time to life of a particle
 static float    _currentTime    = 0.0f; // Elapsed time since start of application
@@ -223,8 +223,8 @@ void initParticles(float timeToLive, SLVec3f particleGenPos)
     p.p             = particleGenPos;
     for (unsigned int i = 0; i < AMOUNT; i++)
     {
-        p.v.x         = randomFloat(0.1f, -0.1f);   // Random value for x velocity
-        p.v.y         = randomFloat(0.2f, 0.4f);    // Random value for y velocity
+        p.v.x         = randomFloat(0.04f, -0.11f);   // Random value for x velocity
+        p.v.y         = randomFloat(0.4f, 0.7f);    // Random value for y velocity
         p.v.z         = randomFloat(0.1f, -0.1f);   // Random value for z velocity
         p.initV       = p.v;                        // Initial velocity is set after the computation of the velocity
         p.st          = i * (timeToLive / AMOUNT);  // When the first particle dies the last one begin to live
@@ -331,7 +331,7 @@ void onInit()
 
     buildBox(); // Init the Cube
     //buildSquare();
-    initParticles(5.0f, SLVec3f(0, 0, 0));
+    initParticles(4.0f, SLVec3f(0, 0, 0));
 
     pGPos = SLVec3f(0.0f, -0.5f, 0.0f);
 
@@ -438,8 +438,8 @@ bool onPaint()
     glUniform1f(_timeLoc, _currentTime);
     glUniform1f(_sLoc, 1.0f);
     //glUniform1f(_radiusLoc, 0.05f);
-    glUniform1f(_radiusLoc, 0.1f);
-    glUniform4f(_cLoc, 0.66f,0.66f,0.66f,0.1f);
+    glUniform1f(_radiusLoc, 0.4f);
+    glUniform4f(_cLoc, 0.66f,0.66f,0.66f,0.2f);
     //glUniform4f(_pGPLoc, pGPos.x, pGPos.y, pGPos.z, 0.0f); // For local space (Uncomment)
 
      // Un-bind the feedback object.
