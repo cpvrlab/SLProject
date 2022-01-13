@@ -22,16 +22,14 @@ class SLScene;
 //-----------------------------------------------------------------------------
 //! SLLightSpot class for a spot light source
 /*!
-SLLightSpot is a node and a light that can have a spot mesh for its
-representation.
-If a light node is added to the scene it stays fix in the scene.\n
-If a light node is added to the camera it moves with the camera.\n
-See the scene examples for Per-Vertex-Blinn or Per-Pixel-Blinn lighting where
-all light node types are used. \n
-All light nodes inherited from SLLight work automatically together with the
-following shaders: \n
-  - PerVrt*.vert, PerVrt*.frag \n
-  - PerPix*.vert, PerPix*.frag \n
+ SLLightSpot is a node and a light that can have a spot mesh for its
+ representation.
+ If a light node is added to the scene it stays fix in the scene.\n
+ If a light node is added to the camera it moves with the camera.\n
+ See the scene examples for Per-Vertex-Blinn or Per-Pixel-Blinn lighting where
+ all light node types are used. \n
+ All light nodes inherited from SLLight work automatically together with the
+ automatically generated shader in SLGLProgramGenerated.
 */
 class SLLightSpot : public SLNode
   , public SLLight

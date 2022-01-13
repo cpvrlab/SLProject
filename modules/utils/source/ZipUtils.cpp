@@ -20,9 +20,9 @@ namespace ZipUtils
 //-----------------------------------------------------------------------------
 /*!
  *
- * @param zfile
- * @param dirname
- * @return
+ * @param zfile ???
+ * @param dirname ???
+ * @return ???
  */
 static bool zip_add_dir(zipFile zfile, string dirname)
 {
@@ -68,11 +68,11 @@ static bool zip_add_dir(zipFile zfile, string dirname)
 //-----------------------------------------------------------------------------
 /*!
  *
- * @param zfile
- * @param fs
- * @param filename
- * @param zipPath
- * @return
+ * @param zfile ???
+ * @param fs ???
+ * @param filename ???
+ * @param zipPath ???
+ * @return ???
  */
 static bool zip_add_file(zipFile        zfile,
                          std::ifstream& fs,
@@ -117,10 +117,10 @@ static bool zip_add_file(zipFile        zfile,
 //-----------------------------------------------------------------------------
 /*!
  *
- * @param zfile
- * @param filepath
- * @param zipPath
- * @return
+ * @param zfile ???
+ * @param filepath ???
+ * @param zipPath ???
+ * @return ???
  */
 static bool zip_add_file(zipFile zfile,
                          string  filepath,
@@ -140,11 +140,12 @@ static bool zip_add_file(zipFile zfile,
 //-----------------------------------------------------------------------------
 /*!
  *
- * @param zipfile
- * @param processFile
- * @param writeChunk
- * @param processDir
- * @return
+ @param zipfile ???
+ @param processFile ???
+ @param writeChunk ???
+ @param processDir ???
+ @param progress Progress function to call for progress visualization
+ @return ???
  */
 bool unzip(string                                         zipfile,
            function<bool(string path, string filename)>   processFile,
@@ -247,9 +248,9 @@ bool unzip(string                                         zipfile,
 //-----------------------------------------------------------------------------
 /*!
  *
- * @param path
- * @param zipname
- * @return
+ * @param path ???
+ * @param zipname ???
+ * @return ???
  */
 bool zip(string path, string zipname)
 {
@@ -302,11 +303,12 @@ bool zip(string path, string zipname)
 }
 //-----------------------------------------------------------------------------
 /*!
- *
- * @param path
- * @param dest
- * @param override
- * @return
+ Unzips a zip file
+ @param path ???
+ @param dest ???
+ @param override Overrides existing files on destination
+ @param progress Progress function to call for progress visualization
+ @return Returns true on success
  */
 bool unzip(string path,
            string dest,

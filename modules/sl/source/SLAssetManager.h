@@ -23,10 +23,12 @@ class SLCamera;
 class SLInputManager;
 
 //-----------------------------------------------------------------------------
-//! Toplevel holder of the assets meshes, materials, textures and shader progs.
-/*! All these assets can be shared among instances of SLScene, SLNode and SLMaterial.
- Shared assets are meshes (SLMesh), materials (SLMaterial), textures (SLGLTexture)
- and shader programs (SLGLProgram).
+//! Toplevel holder of the assets meshes, materials, textures and shaders
+/*! All these assets can be shared among instances of SLScene, SLNode and
+ * SLMaterial. Shared assets are meshes (SLMesh), materials (SLMaterial),
+ * textures (SLGLTexture) and shader programs (SLGLProgram).
+ * One instance of SLAssetManager must be owned and destroyed by the app
+ * (see e.g. AppDemo.h).
 */
 class SLAssetManager
 {
@@ -63,13 +65,15 @@ public:
     SLVGLProgram& programs() { return _programs; }
 
     // Static method & font pointers
-    static void       generateFonts(SLstring fontPath, SLGLProgram& fontTexProgram);
+    // These fonts can be used inside a 2D or 3D scene, not within ImGui
+    static void       generateFonts(SLstring fontPath,
+                                    SLGLProgram& fontTexProgram);
     static void       deleteFonts();
     static SLTexFont* getFont(SLfloat heightMM, SLint dpi);
 
-    static SLTexFont* font07; //!< 7 pixel high fixed size font
-    static SLTexFont* font08; //!< 8 pixel high fixed size font
-    static SLTexFont* font09; //!< 9 pixel high fixed size font
+    static SLTexFont* font07; //!<  7 pixel high fixed size font
+    static SLTexFont* font08; //!<  8 pixel high fixed size font
+    static SLTexFont* font09; //!<  9 pixel high fixed size font
     static SLTexFont* font10; //!< 10 pixel high fixed size font
     static SLTexFont* font12; //!< 12 pixel high fixed size font
     static SLTexFont* font14; //!< 14 pixel high fixed size font

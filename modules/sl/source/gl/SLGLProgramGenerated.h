@@ -22,30 +22,25 @@ class SLAssetManager;
 /*! An instance of this class generates the shader code on the fly at
  construction time based on the information of the passed material and lights
  vector. The generated program depends on the following parameters:
- - mat->lightModel (only Blinn-Phong is implemented yet)
- - mat->textures:
-   - Tm = Texture Mapping with diffuse color map
-   - Nm = Normal Mapping with normal map
-   - Ao = Ambient Occlusion Mapping with AO map that uses uv2 in SLMesh
+ - mat->lightModel (Blinn-Phong or Cook-Torrance)
+ - mat->textures
  - light->createsShadows
-   - Sm = Shadow Map (single or cube shadow map)
+ - active camera for the fog and projection parameters
 
  The shader program gets a unique name with the following pattern:
 <pre>
- genPerPixBlinnTmNmAo-DsPSs
-          |    | | |  ||||+ light before w. shadows
-          |    | | |  |||+ Spot light
-          |    | | |  ||+ Point light
-          |    | | |  |+ light before w. shadows
-          |    | | |  + Directional light
-          |    | | + Ambient Occlusion
-          |    | + Normal Mapping
-          |    + Texture Mapping
-          + Blinn lighting model
+ genCook-D00-N00-E00-O01-RM00-Sky-C4s
+    |    |   |   |   |   |    |   |
+    |    |   |   |   |   |    |   + Directional light w. 4 shadow cascades
+    |    |   |   |   |   |    + Ambient light from skybox
+    |    |   |   |   |   + Roughness-metallic map with index 0 and uv 0
+    |    |   |   |   + Ambient Occlusion map with index 0 and uv 1
+    |    |   |   + Emissive Map with index 0 and uv 0
+    |    |   + Normal Map with index 0 and uv 0
+    |    + Diffuse Texture Mapping with index 0 and uv 0
+    + Cook-Torrance or Blinn-Phong lighting model
 </pre>
- The above example is for a material with 3 textures and a scene with 3
- lights where the first directional light and the third spot light generate
- shadows.
+ The above example is for a material with 5 textures and a scene with one light.
  The shader program is constructed when a material is for the first time
  activated (SLMaterial::activate) and it's program pointer is null. The old
  system of custom written GLSL shader program is still valid.

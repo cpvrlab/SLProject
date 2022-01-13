@@ -342,7 +342,10 @@ SLMaterial::~SLMaterial()
  not yet a shader program assigned (SLMaterial::_program) a suitable program
  will be generated with an instance of SLGLProgramGenerated.
  At the end the shader program will begin its usage with SLGLProgram::beginUse.
-*/
+ @param cam Pointer to the active camera
+ @param lights Pointer to the scene vector of lights
+ @param skybox Pointer to the skybox
+ */
 void SLMaterial::activate(SLCamera* cam, SLVLight* lights, SLSkybox* skybox)
 {
     SLGLState* stateGL = SLGLState::instance();

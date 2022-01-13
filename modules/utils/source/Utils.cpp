@@ -32,7 +32,7 @@ namespace fs = std::experimental::filesystem;
 #        include <direct.h> //_getcwd
 #    endif
 #elif defined(__APPLE__)
-#    if TARGET_OS_IOS
+#    if defined(TARGET_OS_IOS) && (TARGET_OS_IOS==1)
 #        include "Utils_iOS.h"
 #    endif
 #    include <dirent.h>
@@ -679,7 +679,7 @@ vector<string> getAllNamesInDir(const string& dirName, bool fullPath)
         }
     }
 #else
-#    if TARGET_OS_IOS
+#    if defined(TARGET_OS_IOS) && (TARGET_OS_IOS==1)
     return Utils_iOS::getAllNamesInDir(dirName, fullPath);
 #    else
     DIR* dir = opendir(dirName.c_str());
@@ -1278,7 +1278,7 @@ std::string ComputerInfos::get()
     os    = "Windows";
 
 #elif defined(__APPLE__)
-#    if TARGET_OS_IOS
+#    if defined(TARGET_OS_IOS) && (TARGET_OS_IOS==1)
     // Model and architecture are retrieved before in iOS under Objective C
     brand              = "Apple";
     os                 = "iOS";
