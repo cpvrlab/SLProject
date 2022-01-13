@@ -71,7 +71,7 @@ int main()
     // Method 3: Using overloaded operators //
     //////////////////////////////////////////
 
-    Mat img3 = contrast * img + brightness;
+    Mat    img3   = contrast * img + brightness;
     string title3 = "img3 = contrast * img + brightness";
     imshow(title3, img3);
     setWindowProperty(title3, WND_PROP_TOPMOST, 1);

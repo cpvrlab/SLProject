@@ -76,4 +76,4 @@ private:
     SLbool  _pointOutput; //!< debug helper
 };
 //-----------------------------------------------------------------------------
-#endif //SLLENS_H
+#endif // SLLENS_H

@@ -60,7 +60,7 @@ void SLGrid::buildMesh(SLMaterial* material)
         I32.resize(P.size());
     }
 
-    //Set one default material index
+    // Set one default material index
     mat(material);
 
     // delta vector

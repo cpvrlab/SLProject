@@ -38,4 +38,4 @@ protected:
     SLfloat _thetaEndDEG;   //!< Polar end angle 1-180deg
 };
 //-----------------------------------------------------------------------------
-#endif //SLSPHERE_H
+#endif // SLSPHERE_H

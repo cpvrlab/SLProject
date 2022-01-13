@@ -130,7 +130,7 @@ public:
     SLbool hasTextureTypeWithUVIndex(SLTextureType tt, SLuint texIndex, SLbyte uvIndex)
     {
         return (_textures[tt].size() > texIndex &&
-                _textures[tt][texIndex]->uvIndex()==uvIndex);
+                _textures[tt][texIndex]->uvIndex() == uvIndex);
     }
 
     void removeTextureType(SLTextureType tt)
@@ -138,7 +138,7 @@ public:
         _numTextures -= _textures[tt].size();
         _textures[tt].clear();
     }
-    void addTexture(SLGLTexture* texture);
+    void     addTexture(SLGLTexture* texture);
     SLstring texturesString();
 
     // Setters

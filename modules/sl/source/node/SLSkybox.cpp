@@ -47,12 +47,12 @@ SLSkybox::SLSkybox(SLAssetManager* assetMgr,
 
     // Create texture, material and program
     _environmentCubemap    = new SLGLTexture(assetMgr,
-                                             cubeMapXPos,
-                                             cubeMapXNeg,
-                                             cubeMapYPos,
-                                             cubeMapYNeg,
-                                             cubeMapZPos,
-                                             cubeMapZNeg);
+                                          cubeMapXPos,
+                                          cubeMapXNeg,
+                                          cubeMapYPos,
+                                          cubeMapYNeg,
+                                          cubeMapZPos,
+                                          cubeMapZNeg);
     SLMaterial* matCubeMap = new SLMaterial(assetMgr, "matCubeMap");
     matCubeMap->addTexture(_environmentCubemap);
     SLGLProgram* sp = new SLGLProgramGeneric(assetMgr,

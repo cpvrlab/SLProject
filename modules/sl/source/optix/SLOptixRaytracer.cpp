@@ -67,7 +67,7 @@ void SLOptixRaytracer::initCompileOptions()
     _module_compile_options.debugLevel       = OPTIX_COMPILE_DEBUG_LEVEL_NONE;
     _pipeline_compile_options.exceptionFlags = OPTIX_EXCEPTION_FLAG_NONE;
 #    else
-    _module_compile_options.optLevel         = OPTIX_COMPILE_OPTIMIZATION_LEVEL_0;
+    _module_compile_options.optLevel = OPTIX_COMPILE_OPTIMIZATION_LEVEL_0;
     //_module_compile_options.debugLevel       = OPTIX_COMPILE_DEBUG_LEVEL_FULL;
     _module_compile_options.debugLevel       = OPTIX_COMPILE_DEBUG_LEVEL_LINEINFO;
     _pipeline_compile_options.exceptionFlags = OPTIX_EXCEPTION_FLAG_DEBUG | OPTIX_EXCEPTION_FLAG_USER;
@@ -247,11 +247,11 @@ OptixShaderBindingTable SLOptixRaytracer::createShaderBindingTable(const SLVMesh
             OptixProgramGroup hitgroup_radicance = _radiance_hit_group;
             OptixProgramGroup hitgroup_occlusion = _occlusion_hit_group;
 
-            //if (mesh->name() == "line")
+            // if (mesh->name() == "line")
             //{
-            //    hitgroup_radicance = _radiance_line_hit_group;
-            //    hitgroup_occlusion = _occlusion_line_hit_group;
-            //}
+            //     hitgroup_radicance = _radiance_line_hit_group;
+            //     hitgroup_occlusion = _occlusion_line_hit_group;
+            // }
 
             HitSbtRecord radiance_hg_sbt;
             OPTIX_CHECK(optixSbtRecordPackHeader(hitgroup_radicance, &radiance_hg_sbt));
@@ -287,8 +287,8 @@ OptixShaderBindingTable SLOptixRaytracer::createShaderBindingTable(const SLVMesh
 //-----------------------------------------------------------------------------
 void SLOptixRaytracer::setupScene(SLSceneView* sv, SLAssetManager* am)
 {
-    SLVMesh         meshes = am->meshes();
-    _sv                    = sv;
+    SLVMesh meshes = am->meshes();
+    _sv            = sv;
 
     _imageBuffer.resize(_sv->scrW() * _sv->scrH() * sizeof(float4));
 

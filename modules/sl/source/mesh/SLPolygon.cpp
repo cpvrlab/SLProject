@@ -83,10 +83,10 @@ void SLPolygon::buildMesh(SLMaterial* material)
     SLVec3f n(v1 ^ v2);
     n.normalize();
 
-    //Set one default material index
+    // Set one default material index
     mat(material);
 
-    //Copy vertices and normals
+    // Copy vertices and normals
     for (SLushort i = 0; i < (SLushort)P.size(); ++i)
     {
         P[i] = _corners[i];

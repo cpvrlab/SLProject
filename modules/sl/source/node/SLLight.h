@@ -201,8 +201,8 @@ public:
     // statics valid for overall lighting
     static SLCol4f globalAmbient; //!< static global ambient light intensity
     static SLfloat oneOverGamma() { return 1.0f / gamma; }
-    static SLfloat gamma; //!< final output gamma value
-    static SLbool doColoredShadows; //!< flag if shadows should be displayed with colors for debugging
+    static SLfloat gamma;            //!< final output gamma value
+    static SLbool  doColoredShadows; //!< flag if shadows should be displayed with colors for debugging
 
 protected:
     SLint        _id;               //!< OpenGL light number (0-7)

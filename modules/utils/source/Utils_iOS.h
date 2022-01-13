@@ -24,7 +24,7 @@ public:
 
     //! Returns the writable configuration directory
     static std::string getAppsWritableDir();
-    
+
     //! Returns the writable documents directory
     static std::string getAppsDocumentsDir();
 

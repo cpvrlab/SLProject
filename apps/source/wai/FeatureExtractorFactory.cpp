@@ -38,14 +38,14 @@ std::unique_ptr<KPextractor> FeatureExtractorFactory::make(ExtractorType id, con
             return briefExtractor(3000, nLevels);
         case ExtractorType_FAST_BRIEF_4000:
             return briefExtractor(4000, nLevels);
-/*
-#ifndef TARGET_OS_IOS
-        case ExtractorType_GLSL_1:
-            return glslExtractor(videoFrameSize, 16, 16, 0.5f, 0.10f, 1.9f, 1.3f);
-        case ExtractorType_GLSL:
-            return glslExtractor(videoFrameSize, 16, 16, 0.5f, 0.10f, 1.9f, 1.4f);
-#endif
-*/
+            /*
+            #ifndef TARGET_OS_IOS
+                    case ExtractorType_GLSL_1:
+                        return glslExtractor(videoFrameSize, 16, 16, 0.5f, 0.10f, 1.9f, 1.3f);
+                    case ExtractorType_GLSL:
+                        return glslExtractor(videoFrameSize, 16, 16, 0.5f, 0.10f, 1.9f, 1.4f);
+            #endif
+            */
         default:
             return orbExtractor(1000, nLevels);
     }
@@ -85,7 +85,7 @@ std::unique_ptr<KPextractor> FeatureExtractorFactory::briefExtractor(int nf, int
 
 #ifndef TARGET_OS_IOS
 std::unique_ptr<KPextractor> FeatureExtractorFactory::glslExtractor(const cv::Size&
-                                                                      videoFrameSize,
+                                                                          videoFrameSize,
                                                                     int   nbKeypointsBigSigma,
                                                                     int   nbKeypointsSmallSigma,
                                                                     float highThrs,

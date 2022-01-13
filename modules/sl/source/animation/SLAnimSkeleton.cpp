@@ -13,17 +13,17 @@
 
 //-----------------------------------------------------------------------------
 /*! Constructor
-*/
+ */
 SLAnimSkeleton::SLAnimSkeleton() : _rootJoint(nullptr),
-                           _minOS(-1, -1, -1),
-                           _maxOS(1, 1, 1),
-                           _minMaxOutOfDate(true)
+                                   _minOS(-1, -1, -1),
+                                   _maxOS(1, 1, 1),
+                                   _minMaxOutOfDate(true)
 {
 }
 
 //-----------------------------------------------------------------------------
 /*! Destructor
-*/
+ */
 SLAnimSkeleton::~SLAnimSkeleton()
 {
     delete _rootJoint;
@@ -32,7 +32,7 @@ SLAnimSkeleton::~SLAnimSkeleton()
 }
 //-----------------------------------------------------------------------------
 /*! Creates a new joint owned by this skeleton with a default name.
-*/
+ */
 SLJoint* SLAnimSkeleton::createJoint(SLuint id)
 {
     std::ostringstream oss;
@@ -41,7 +41,7 @@ SLJoint* SLAnimSkeleton::createJoint(SLuint id)
 }
 //-----------------------------------------------------------------------------
 /*! Creates a new joint owned by this skeleton.
-*/
+ */
 SLJoint* SLAnimSkeleton::createJoint(const SLstring& name, SLuint id)
 {
     SLJoint* result = new SLJoint(name, id, this);
@@ -58,7 +58,7 @@ SLJoint* SLAnimSkeleton::createJoint(const SLstring& name, SLuint id)
 }
 //-----------------------------------------------------------------------------
 /*! Returns an animation state by name.
-*/
+ */
 SLAnimPlayback* SLAnimSkeleton::animPlayback(const SLstring& name)
 {
     if (_animPlaybacks.find(name) != _animPlaybacks.end())
@@ -68,7 +68,7 @@ SLAnimPlayback* SLAnimSkeleton::animPlayback(const SLstring& name)
 }
 //-----------------------------------------------------------------------------
 /*! Returns an SLJoint by it's internal id.
-*/
+ */
 SLJoint* SLAnimSkeleton::getJoint(SLuint id)
 {
     assert(id < _joints.size() && "Index out of bounds");
@@ -76,7 +76,7 @@ SLJoint* SLAnimSkeleton::getJoint(SLuint id)
 }
 //-----------------------------------------------------------------------------
 /*! returns an SLJoint by name.
-*/
+ */
 SLJoint* SLAnimSkeleton::getJoint(const SLstring& name)
 {
     if (!_rootJoint) return nullptr;
@@ -85,7 +85,7 @@ SLJoint* SLAnimSkeleton::getJoint(const SLstring& name)
 }
 //-----------------------------------------------------------------------------
 /*! Fills a SLMat4f array with the final joint matrices for this skeleton.
-*/
+ */
 void SLAnimSkeleton::getJointMatrices(SLVMat4f& jointWM)
 {
     for (SLuint i = 0; i < _joints.size(); i++)
@@ -95,7 +95,7 @@ void SLAnimSkeleton::getJointMatrices(SLVMat4f& jointWM)
 }
 //-----------------------------------------------------------------------------
 /*! Create a nw animation owned by this skeleton.
-*/
+ */
 SLAnimation* SLAnimSkeleton::createAnimation(SLAnimManager& aniMan, const SLstring& name, SLfloat duration)
 {
     assert(_animations.find(name) == _animations.end() &&
@@ -115,7 +115,7 @@ SLAnimation* SLAnimSkeleton::createAnimation(SLAnimManager& aniMan, const SLstri
 }
 //-----------------------------------------------------------------------------
 /*! Resets all joints.
-*/
+ */
 void SLAnimSkeleton::reset()
 {
     // update all joints
@@ -124,7 +124,7 @@ void SLAnimSkeleton::reset()
 }
 //-----------------------------------------------------------------------------
 /*! Updates the skeleton based on its active animation states
-*/
+ */
 SLbool SLAnimSkeleton::updateAnimations(SLfloat elapsedTimeSec)
 {
     SLbool animated = false;
@@ -159,7 +159,7 @@ SLbool SLAnimSkeleton::updateAnimations(SLfloat elapsedTimeSec)
 }
 //-----------------------------------------------------------------------------
 /*! getter for current the current min object space vertex.
-*/
+ */
 const SLVec3f& SLAnimSkeleton::minOS()
 {
     if (_minMaxOutOfDate)
@@ -169,7 +169,7 @@ const SLVec3f& SLAnimSkeleton::minOS()
 }
 //-----------------------------------------------------------------------------
 /*! getter for current the current max object space vertex.
-*/
+ */
 const SLVec3f& SLAnimSkeleton::maxOS()
 {
     if (_minMaxOutOfDate)

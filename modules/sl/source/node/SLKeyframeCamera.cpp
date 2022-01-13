@@ -71,9 +71,9 @@ void SLKeyframeCamera::drawMesh(SLSceneView* sv)
             SLVVec3f P;
             SLfloat  aspect = sv->scrWdivH();
             SLfloat  tanFov = tan(_fovV * Utils::DEG2RAD * 0.5f);
-            SLfloat  tN     = tanFov * _clipNear; //top near
-            SLfloat  rN     = tN * aspect;        //right near
-            SLfloat  lN     = -tN * aspect;       //left near
+            SLfloat  tN     = tanFov * _clipNear; // top near
+            SLfloat  rN     = tN * aspect;        // right near
+            SLfloat  lN     = -tN * aspect;       // left near
 
             // small line in view direction
             P.push_back(SLVec3f(0, 0, 0));

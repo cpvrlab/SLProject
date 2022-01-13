@@ -14,8 +14,8 @@
 
 //-----------------------------------------------------------------------------
 //! SLPolygon creates a convex polyon mesh
-/*! 
-The SLPolygon node draws a convex polygon with. The normale vector is 
+/*!
+The SLPolygon node draws a convex polygon with. The normale vector is
 calculated from the first 3 vertices.
 */
 class SLPolygon : public SLMesh
@@ -23,22 +23,22 @@ class SLPolygon : public SLMesh
 public:
     //! ctor for generic convex polygon
     SLPolygon(SLAssetManager* assetMgr,
-              const SLVVec3f&        corner,
-              const SLstring&        name = "polygon mesh",
+              const SLVVec3f& corner,
+              const SLstring& name = "polygon mesh",
               SLMaterial*     mat  = nullptr);
 
     //! ctor for generic convex polygon with texCoords
     SLPolygon(SLAssetManager* assetMgr,
-              const SLVVec3f&        corners,
-              const SLVVec2f&        texcoords,
-              const SLstring&        name = "polygon mesh",
+              const SLVVec3f& corners,
+              const SLVVec2f& texcoords,
+              const SLstring& name = "polygon mesh",
               SLMaterial*     mat  = nullptr);
 
     //! ctor for centered rectangle in x-y-plane (N=-z)
     SLPolygon(SLAssetManager* assetMgr,
               SLfloat         width,
               SLfloat         height,
-              const SLstring&        name,
+              const SLstring& name,
               SLMaterial*     mat = nullptr);
 
     void buildMesh(SLMaterial* mat);

@@ -34,4 +34,4 @@ protected:
     SLVec2f t[3]; //!< Array of 3 vertex tex. coords. (opt.)
 };
 //-----------------------------------------------------------------------------
-#endif //SLTRIANGLE_H
+#endif // SLTRIANGLE_H

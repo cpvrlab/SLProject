@@ -42,4 +42,4 @@ protected:
     SLfloat _voxelAvgTria;  //!< avg. no. of triangles per voxel
 };
 //-----------------------------------------------------------------------------
-#endif //SLACCELSTRUCT_H
+#endif // SLACCELSTRUCT_H

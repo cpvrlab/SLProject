@@ -22,7 +22,7 @@ class SLSceneView;
 
 //-----------------------------------------------------------------------------
 //! Abstract base class for SLAnimationTracks providing time and keyframe functions
-/*! 
+/*!
 An animation track is a specialized track that affects a single SLNode or an
 SLJoint of an SLAnimSkeleton by interpolating its transform. It holds therefore a
 list of SLKeyframe. For a smooth motion it can interpolate the transform at a
@@ -30,24 +30,24 @@ given time between two neighboring SLKeyframe.
 */
 class SLAnimTrack
 {
-    public:
+public:
     SLAnimTrack(SLAnimation* parent);
     virtual ~SLAnimTrack();
 
-    SLAnimKeyframe*  createKeyframe(SLfloat time); // create and add a new keyframe
-    SLfloat      getKeyframesAtTime(SLfloat      time,
-                                    SLAnimKeyframe** k1,
-                                    SLAnimKeyframe** k2) const;
-    virtual void calcInterpolatedKeyframe(SLfloat     time,
-                                          SLAnimKeyframe* keyframe) const = 0; // we need a way to get an output value for a time we put in
-    virtual void apply(SLfloat time,
-                       SLfloat weight = 1.0f,
-                       SLfloat scale  = 1.0f)                          = 0;
-    virtual void drawVisuals(SLSceneView* sv)                         = 0;
-    SLint        numKeyframes() const { return (SLint)_keyframes.size(); }
-    SLAnimKeyframe*  keyframe(SLint index);
+    SLAnimKeyframe* createKeyframe(SLfloat time); // create and add a new keyframe
+    SLfloat         getKeyframesAtTime(SLfloat          time,
+                                       SLAnimKeyframe** k1,
+                                       SLAnimKeyframe** k2) const;
+    virtual void    calcInterpolatedKeyframe(SLfloat         time,
+                                             SLAnimKeyframe* keyframe) const = 0; // we need a way to get an output value for a time we put in
+    virtual void    apply(SLfloat time,
+                          SLfloat weight = 1.0f,
+                          SLfloat scale  = 1.0f)                              = 0;
+    virtual void    drawVisuals(SLSceneView* sv)                             = 0;
+    SLint           numKeyframes() const { return (SLint)_keyframes.size(); }
+    SLAnimKeyframe* keyframe(SLint index);
 
-    protected:
+protected:
     /// Keyframe creator function for derived implementations
     virtual SLAnimKeyframe* createKeyframeImpl(SLfloat time) = 0;
 
@@ -57,14 +57,14 @@ class SLAnimTrack
 
 //-----------------------------------------------------------------------------
 //! Specialized animation track for node animations
-/*! 
+/*!
     Allows for translation, scale and rotation parameters to be animated.
     Also allows for either linear or Bezier interpolation of the position
     parameter in the track.
 */
 class SLNodeAnimTrack : public SLAnimTrack
 {
-    public:
+public:
     SLNodeAnimTrack(SLAnimation* parent);
     virtual ~SLNodeAnimTrack();
 
@@ -81,8 +81,8 @@ class SLNodeAnimTrack : public SLAnimTrack
     void interpolationCurve(SLCurve* curve);
     void translationInterpolation(SLAnimInterpolation interp) { _translationInterpolation = interp; }
 
-    protected:
-    void                buildInterpolationCurve() const;
+protected:
+    void                    buildInterpolationCurve() const;
     virtual SLAnimKeyframe* createKeyframeImpl(SLfloat time);
 
     SLNode*             _animatedNode;              //!< the target node for this track_nodeID

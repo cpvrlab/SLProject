@@ -6,7 +6,7 @@ set(target ch00_new_cpp_features)
 
 set(DEFAULT_PROJECT_OPTIONS
         ${DEFAULT_PROJECT_OPTIONS}
-        CXX_STANDARD  17)
+        CXX_STANDARD 17)
 
 set(include_path "${CMAKE_CURRENT_SOURCE_DIR}")
 set(source_path "${CMAKE_CURRENT_SOURCE_DIR}")
@@ -40,17 +40,17 @@ target_link_libraries(${target}
         INTERFACE
         )
 
-if("${SYSTEM_NAME_UPPER}" STREQUAL "LINUX")
-        target_link_libraries(${target}
-                PRIVATE
-                tbb
+if ("${SYSTEM_NAME_UPPER}" STREQUAL "LINUX")
+    target_link_libraries(${target}
+            PRIVATE
+            tbb
 
-                PUBLIC
-                ${DEFAULT_LINKER_OPTIONS}
+            PUBLIC
+            ${DEFAULT_LINKER_OPTIONS}
 
-                INTERFACE
-                )
-endif()
+            INTERFACE
+            )
+endif ()
 
 target_compile_definitions(${target}
         PRIVATE

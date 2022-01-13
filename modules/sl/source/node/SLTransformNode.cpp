@@ -164,7 +164,7 @@ SLTransformNode::~SLTransformNode()
 {
     // delete gizmos
     _gizmosNode->deleteChildren();
-    //delete _gizmosNode;
+    // delete _gizmosNode;
     this->deleteChild(_gizmosNode);
     this->deleteChildren();
     // delete all programs, materials and meshes
@@ -210,7 +210,7 @@ void SLTransformNode::editMode(SLNodeEditMode editMode)
 
             SLVec2f p1 = _sv->camera()->projectWorldToNDC(SLVec4f(_gizmosNode->translationWS()));
             SLVec2f p2 = _sv->camera()->projectWorldToNDC(SLVec4f(_gizmosNode->translationWS() +
-                                                                           _sv->camera()->upWS().normalize()));
+                                                                  _sv->camera()->upWS().normalize()));
 
             float actualHeight = (p1 - p2).length();
             float targetHeight = 0.2f; // % of screen that gizmos should occupy
@@ -224,12 +224,14 @@ void SLTransformNode::editMode(SLNodeEditMode editMode)
 
             switch (_editMode)
             {
-                case NodeEditMode_Translate: {
+                case NodeEditMode_Translate:
+                {
                     setDrawBitRecursive(SL_DB_HIDDEN, _transGizmos, false);
                 }
                 break;
 
-                case NodeEditMode_Scale: {
+                case NodeEditMode_Scale:
+                {
                     if (_sv->camera())
                     {
                         // TODO(dgj1): this behaviour is that of a billboard... introduce in SLProject?
@@ -240,13 +242,15 @@ void SLTransformNode::editMode(SLNodeEditMode editMode)
                 }
                 break;
 
-                case NodeEditMode_Rotate: {
+                case NodeEditMode_Rotate:
+                {
                     setDrawBitRecursive(SL_DB_HIDDEN, _rotGizmos, false);
                 }
                 break;
 
                 case NodeEditMode_None:
-                default: {
+                default:
+                {
                 }
                 break;
             }
@@ -314,7 +318,8 @@ SLbool SLTransformNode::onMouseMove(const SLMouseButton button,
         {
             switch (_editMode)
             {
-                case NodeEditMode_Translate: {
+                case NodeEditMode_Translate:
+                {
                     if (_targetNode)
                     {
                         SLRay pickRay(_sv);
@@ -418,7 +423,7 @@ SLbool SLTransformNode::onMouseMove(const SLMouseButton button,
 
                             if (_selectedGizmo)
                             {
-                                //printf("Selected gizmo %s with dist %f\n", _selectedGizmo->name().c_str(), dist);
+                                // printf("Selected gizmo %s with dist %f\n", _selectedGizmo->name().c_str(), dist);
                                 _selectedGizmo->drawBits()->set(SL_DB_HIDDEN, false);
                                 _hitCoordinate = axisPoint;
                             }
@@ -427,7 +432,8 @@ SLbool SLTransformNode::onMouseMove(const SLMouseButton button,
                 }
                 break;
 
-                case NodeEditMode_Scale: {
+                case NodeEditMode_Scale:
+                {
                     // TODO(dgj1): this behaviour is that of a billboard... introduce in SLProject?
                     lookAt(_scaleGizmos, _sv->camera());
 
@@ -487,7 +493,8 @@ SLbool SLTransformNode::onMouseMove(const SLMouseButton button,
                 }
                 break;
 
-                case NodeEditMode_Rotate: {
+                case NodeEditMode_Rotate:
+                {
                     if (_targetNode)
                     {
                         SLRay pickRay(_sv);
@@ -585,7 +592,8 @@ SLbool SLTransformNode::onMouseMove(const SLMouseButton button,
                 break;
 
                 case NodeEditMode_None:
-                default: {
+                default:
+                {
                 }
                 break;
             }
@@ -611,7 +619,7 @@ bool SLTransformNode::getClosestPointsBetweenRays(const SLVec3f& ray1O,
     cross.cross(ray1Dir, ray2Dir);
     float den = cross.lengthSqr();
 
-    //printf("den: %f, sqrt(den): %f\n", den, cross.length());
+    // printf("den: %f, sqrt(den): %f\n", den, cross.length());
 
     if (den > FLT_EPSILON)
     {

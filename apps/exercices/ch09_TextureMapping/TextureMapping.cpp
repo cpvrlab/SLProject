@@ -14,7 +14,7 @@
 #include <GLFW/glfw3.h> // GLFW GUI library
 #include <SLMat4.h>     // 4x4 matrix class
 #include <SLVec3.h>     // 3D vector class
-#include <glUtils.h> // Basics for OpenGL shaders, buffers & textures
+#include <glUtils.h>    // Basics for OpenGL shaders, buffers & textures
 
 //-----------------------------------------------------------------------------
 //! Struct definition for vertex attributes
@@ -324,7 +324,7 @@ void onInit()
     _gLoc              = glGetUniformLocation(_shaderProgID, "u_oneOverGamma");
 
     // Build object
-    //buildSphere(1.0f, 30, 30);
+    // buildSphere(1.0f, 30, 30);
     buildSquare();
 
     // Set some OpenGL states
@@ -632,7 +632,7 @@ int main(int argc, char* argv[])
     // Enable fullscreen anti aliasing with 4 samples
     glfwWindowHint(GLFW_SAMPLES, 4);
 
-    //You can enable or restrict newer OpenGL context here (read the GLFW documentation)
+    // You can enable or restrict newer OpenGL context here (read the GLFW documentation)
 #ifdef __APPLE__
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
@@ -640,10 +640,10 @@ int main(int argc, char* argv[])
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, GL_FALSE);
 #else
-    //glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
-    //glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    //glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    //glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+    // glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
+    // glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    // glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    // glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
 
     _scrWidth  = 640;

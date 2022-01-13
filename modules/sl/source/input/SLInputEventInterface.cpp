@@ -20,7 +20,7 @@ void SLInputEventInterface::resize(int sceneViewIndex, int width, int height)
 }
 //-----------------------------------------------------------------------------
 /*! Global event handler for mouse button down events.
-*/
+ */
 void SLInputEventInterface::mouseDown(int           sceneViewIndex,
                                       SLMouseButton button,
                                       int           xpos,
@@ -37,7 +37,7 @@ void SLInputEventInterface::mouseDown(int           sceneViewIndex,
 }
 //-----------------------------------------------------------------------------
 /*! Global event handler for mouse move events.
-*/
+ */
 void SLInputEventInterface::mouseMove(int sceneViewIndex,
                                       int x,
                                       int y)
@@ -50,7 +50,7 @@ void SLInputEventInterface::mouseMove(int sceneViewIndex,
 }
 //-----------------------------------------------------------------------------
 /*! Global event handler for mouse button up events.
-*/
+ */
 void SLInputEventInterface::mouseUp(int           sceneViewIndex,
                                     SLMouseButton button,
                                     int           xpos,
@@ -67,7 +67,7 @@ void SLInputEventInterface::mouseUp(int           sceneViewIndex,
 }
 //-----------------------------------------------------------------------------
 /*! Global event handler for double click events.
-*/
+ */
 void SLInputEventInterface::doubleClick(int           sceneViewIndex,
                                         SLMouseButton button,
                                         int           xpos,
@@ -103,7 +103,7 @@ void SLInputEventInterface::touch2Down(int sceneViewIndex,
 }
 //-----------------------------------------------------------------------------
 /*! Global event handler for the two finger move events of touchscreen devices.
-*/
+ */
 void SLInputEventInterface::touch2Move(int sceneViewIndex,
                                        int xpos1,
                                        int ypos1,
@@ -138,7 +138,7 @@ void SLInputEventInterface::touch2Up(int sceneViewIndex,
 }
 //-----------------------------------------------------------------------------
 /*! Global event handler for mouse wheel events.
-*/
+ */
 void SLInputEventInterface::mouseWheel(int   sceneViewIndex,
                                        int   pos,
                                        SLKey modifier)
@@ -151,7 +151,7 @@ void SLInputEventInterface::mouseWheel(int   sceneViewIndex,
 }
 //-----------------------------------------------------------------------------
 /*! Global event handler for keyboard key press events.
-*/
+ */
 void SLInputEventInterface::keyPress(int   sceneViewIndex,
                                      SLKey key,
                                      SLKey modifier)
@@ -164,7 +164,7 @@ void SLInputEventInterface::keyPress(int   sceneViewIndex,
 }
 //-----------------------------------------------------------------------------
 /*! Global event handler for keyboard key release events.
-*/
+ */
 void SLInputEventInterface::keyRelease(int   sceneViewIndex,
                                        SLKey key,
                                        SLKey modifier)
@@ -178,7 +178,7 @@ void SLInputEventInterface::keyRelease(int   sceneViewIndex,
 
 //-----------------------------------------------------------------------------
 /*! Global event handler for unicode character input.
-*/
+ */
 void SLInputEventInterface::charInput(int          sceneViewIndex,
                                       unsigned int character)
 {
@@ -189,7 +189,7 @@ void SLInputEventInterface::charInput(int          sceneViewIndex,
 }
 //-----------------------------------------------------------------------------
 /*! Global event handler to trigger a screenshot
-*/
+ */
 void SLInputEventInterface::scrCaptureRequest(int sceneViewIndex, std::string outputPath)
 {
     SLScrCaptureRequestEvent* e = new SLScrCaptureRequestEvent();

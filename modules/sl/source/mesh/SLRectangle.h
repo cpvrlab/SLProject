@@ -14,8 +14,8 @@
 
 //-----------------------------------------------------------------------------
 //! SLRectangle creates a rectangular mesh with a certain resolution
-/*! 
-The SLRectangle node draws a rectangle with a minimal and a maximal corner in 
+/*!
+The SLRectangle node draws a rectangle with a minimal and a maximal corner in
 the x-y-plane. The normal is [0,0,1].
 */
 class SLRectangle : public SLMesh

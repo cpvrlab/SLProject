@@ -100,7 +100,7 @@ void drawXZGrid(const SLMat4f& mat)
  different or additional behaviour for a certain eventhandler you have to sub-
  class SLSceneView and override the eventhandler.
  */
-AppNodeSceneView::AppNodeSceneView(SLScene* s,
+AppNodeSceneView::AppNodeSceneView(SLScene*        s,
                                    int             dpi,
                                    SLInputManager& inputManager)
   : SLSceneView(s, dpi, inputManager),
@@ -334,7 +334,7 @@ SLbool AppNodeSceneView::onKeyPress(const SLKey key, const SLKey mod)
         case K_F1:
             _curObject = (_curObject == _moveBox) ? _moveBoxChild : _moveBox;
             AppDemo::scene->selectNodeMesh(_curObject,
-                                                 _curObject->mesh());
+                                           _curObject->mesh());
             break;
         case K_F2: _continuousInput = !_continuousInput; break;
         case 'R': reset(); break;

@@ -269,7 +269,7 @@ protected:
     SLint             _width;          //!< Texture image width in pixels (images exist either in _images or on the GPU or on both)
     SLint             _height;         //!< Texture image height in pixels (images exist either in _images or on the GPU or on both)
     SLint             _depth;          //!< 3D Texture image depth (images exist either in _images or on the GPU or on both)
-    SLbyte            _uvIndex;            //!< Texture coordinate index in SLMesh (0 = default)
+    SLbyte            _uvIndex;        //!< Texture coordinate index in SLMesh (0 = default)
     SLint             _internalFormat; //!< Internal OpenGL format
     SLint             _bytesPerPixel;  //!< Bytes per texture image pixel (images exist either in _images or on the GPU or on both)
     SLint             _min_filter;     //!< Minification filter

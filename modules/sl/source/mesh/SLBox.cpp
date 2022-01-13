@@ -53,7 +53,7 @@ void SLBox::buildMesh(SLMaterial* material)
     I16.resize(12 * 3); // 6 sides with 2 triangles * 3 indices
     N.resize(P.size());
 
-    //Set one default material index
+    // Set one default material index
     mat(material);
 
     SLuint p = 0, i = 0;

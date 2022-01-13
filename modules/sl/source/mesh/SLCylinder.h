@@ -40,4 +40,4 @@ private:
     SLbool  _hasBottom; //!< Flag if cylinder has a bottom
 };
 //-----------------------------------------------------------------------------
-#endif //SLCYLINDER_H
+#endif // SLCYLINDER_H

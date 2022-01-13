@@ -97,9 +97,9 @@ CVTrackedFeatures::~CVTrackedFeatures()
     Utils::log("Avg more matches with Pose optimization          : %f", sum_poseopt_difference / frames_with_pose);
 
 // Only used for testing with slight movements
-//Utils::log("Avg Rotation error                               : %f deg", rotationError / frames_with_pose);
-//Utils::log("Avg Translation error                            : %f px", translationError / frames_with_pose);
-#endif //DO_FEATURE_BENCHMARKING
+// Utils::log("Avg Rotation error                               : %f deg", rotationError / frames_with_pose);
+// Utils::log("Avg Translation error                            : %f px", translationError / frames_with_pose);
+#endif // DO_FEATURE_BENCHMARKING
 }
 //-----------------------------------------------------------------------------
 //! Loads the marker image form the filesystem
@@ -344,7 +344,7 @@ void CVTrackedFeatures::drawDebugInformation(bool drawDetection)
                    1,
                    FILLED);
 
-            //draw the point index and reprojection error
+            // draw the point index and reprojection error
             putText(imgReprojection,
                     to_string(i),
                     CVPoint2f(projectedModelPoint.x - 2, projectedModelPoint.y - 5),
@@ -610,7 +610,7 @@ bool CVTrackedFeatures::calculatePose()
     // Pose optimization
     if (foundPose)
     {
-        //float matchesBefore = (float)_currentFrame.inlierMatches.size();
+        // float matchesBefore = (float)_currentFrame.inlierMatches.size();
 
         /////////////////////
         // 2. Optimze Matches
@@ -669,14 +669,14 @@ void CVTrackedFeatures::optimizeMatches()
 
     for (size_t i = 0; i < _marker.keypoints3D.size(); i++)
     {
-        //only every reposeFrequency
+        // only every reposeFrequency
         if (i % reposeFrequency)
             continue;
 
         // Check if this point has a match inside matches, continue if so
         int alreadyMatched = 0;
-        //todo: this is bad, because for every marker keypoint we have to iterate all inlierMatches!
-        //better: iterate inlierMatches once at the beginning and mark all marker keypoints as inliers or not!
+        // todo: this is bad, because for every marker keypoint we have to iterate all inlierMatches!
+        // better: iterate inlierMatches once at the beginning and mark all marker keypoints as inliers or not!
         for (size_t j = 0; j < _currentFrame.inlierMatches.size(); j++)
         {
             if (_currentFrame.inlierMatches[(uint)j].trainIdx == (int)i)
@@ -763,7 +763,7 @@ void CVTrackedFeatures::optimizeMatches()
                                          CVMat(keypointForPose));
 
 #if DRAW_PATCHES
-        //draw green rectangle around every map point
+        // draw green rectangle around every map point
         rectangle(_currentFrame.image,
                   Point2f(projectedModelPoint.x - (float)patchSize / 2.0f,
                           projectedModelPoint.y - (float)patchSize / 2.0f),
@@ -771,7 +771,7 @@ void CVTrackedFeatures::optimizeMatches()
                           projectedModelPoint.y + (float)patchSize / 2.0f),
                   CV_RGB(0, 255, 0));
 
-        //draw key points, that lie inside this rectangle
+        // draw key points, that lie inside this rectangle
         for (const auto& kPt : bboxFrameKeypoints)
             circle(_currentFrame.image,
                    kPt.pt,
@@ -847,7 +847,7 @@ bool CVTrackedFeatures::trackWithOptFlow(CVMat rvec, CVMat tvec)
     // Find closest possible feature points based on optical flow
     CVVPoint2f pred2DPoints(_prevFrame.inlierPoints2D.size());
 
-    //todo: do not relate optical flow to previous frame! better to original marker image, otherwise we will drift
+    // todo: do not relate optical flow to previous frame! better to original marker image, otherwise we will drift
     cv::calcOpticalFlowPyrLK(
       _prevFrame.imageGray,      // Previous frame
       _currentFrame.imageGray,   // Current frame
@@ -869,8 +869,8 @@ bool CVTrackedFeatures::trackWithOptFlow(CVMat rvec, CVMat tvec)
         if (status[i])
         {
             frame2DPoints.push_back(pred2DPoints[i]);
-            //Original code from Zingg/Tschanz got zero size vector
-            //model3DPoints.push_back(_currentFrameFrame.inlierPoints3D[i]);
+            // Original code from Zingg/Tschanz got zero size vector
+            // model3DPoints.push_back(_currentFrameFrame.inlierPoints3D[i]);
             model3DPoints.push_back(_prevFrame.inlierPoints3D[i]);
         }
     }

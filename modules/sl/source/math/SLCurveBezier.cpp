@@ -32,7 +32,7 @@ SLCurveBezier::~SLCurveBezier()
     dispose();
 }
 //-------------------------------------------------------------------------------
-/*! 
+/*!
 Init curve with curve points and times. If no control
 points are passed they will be calculated automatically
 @param points Array of points on the Bezier curve (w = time)
@@ -100,8 +100,8 @@ void SLCurveBezier::init(const SLVVec4f& points,
     }
 }
 //-----------------------------------------------------------------------------
-/*! 
-SLCurveBezier::draw does the OpenGL rendering of the Bezier curve in world 
+/*!
+SLCurveBezier::draw does the OpenGL rendering of the Bezier curve in world
 space.
 */
 void SLCurveBezier::draw(const SLMat4f& wm)
@@ -246,9 +246,9 @@ SLVec3f SLCurveBezier::evaluate(const SLfloat t)
 }
 //-------------------------------------------------------------------------------
 /*!
-SLCurveBezier::curveVelocity determines the velocity vector on the curve at 
-point t. The velocity vector direction is the tangent vector at t an is the first 
-derivative at point t. The velocity vector magnitude is the speed at point t. 
+SLCurveBezier::curveVelocity determines the velocity vector on the curve at
+point t. The velocity vector direction is the tangent vector at t an is the first
+derivative at point t. The velocity vector magnitude is the speed at point t.
 */
 SLVec3f SLCurveBezier::velocity(SLfloat t)
 {
@@ -347,7 +347,7 @@ SLfloat SLCurveBezier::findParamByDist(SLfloat t1, SLfloat s)
     return FLT_MAX;
 }
 //-------------------------------------------------------------------------------
-/*! 
+/*!
 Calculate length of curve between parameters t1 and t2
 */
 SLfloat SLCurveBezier::arcLength(SLfloat t1, SLfloat t2)
@@ -390,7 +390,7 @@ SLfloat SLCurveBezier::arcLength(SLfloat t1, SLfloat t2)
 }
 //-------------------------------------------------------------------------------
 /*!
-SLCurveBezier::segmentArcLength calculate length of curve segment between 
+SLCurveBezier::segmentArcLength calculate length of curve segment between
 parameters u1 and u2 by recursively subdividing the segment.
 */
 SLfloat SLCurveBezier::segmentArcLength(SLuint i, SLfloat u1, SLfloat u2)

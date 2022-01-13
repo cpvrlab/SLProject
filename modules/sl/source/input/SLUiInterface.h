@@ -10,7 +10,7 @@ class SLSceneView;
 
 //! Interface for ui integration in SLSceneView
 /*! (all functions are called by SLSceneView so basically it is a SLSceneViewUiInterface)
-*/
+ */
 class SLUiInterface
 {
 public:
@@ -30,19 +30,19 @@ public:
     virtual void onPaint(const SLRecti& viewport) {}
     virtual void renderExtraFrame(SLScene* s, SLSceneView* sv, SLint mouseX, SLint mouseY) {}
 
-    //!forward user input to ui
+    //! forward user input to ui
     virtual void onMouseDown(SLMouseButton button, SLint x, SLint y) {}
-    //!forward user input to ui
+    //! forward user input to ui
     virtual void onMouseUp(SLMouseButton button, SLint x, SLint y) {}
-    //!forward user input to ui
+    //! forward user input to ui
     virtual void onMouseMove(SLint xPos, SLint yPos) {}
-    //!forward user input to ui
+    //! forward user input to ui
     virtual void onMouseWheel(SLfloat yoffset) {}
-    //!forward user input to ui
+    //! forward user input to ui
     virtual void onKeyPress(SLKey key, SLKey mod) {}
-    //!forward user input to ui
+    //! forward user input to ui
     virtual void onKeyRelease(SLKey key, SLKey mod) {}
-    //!forward user input to ui
+    //! forward user input to ui
     virtual void onCharInput(SLuint c) {}
 
     //! inform if user keyboard input was consumed by the ui

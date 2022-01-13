@@ -116,8 +116,8 @@ SL_GUI_JAVA :Java on Android (with the VS-Android project)
 #include <Utils.h>
 
 //-----------------------------------------------------------------------------
-using std::vector;
 using std::string;
+using std::vector;
 
 //-----------------------------------------------------------------------------
 // Determine compiler

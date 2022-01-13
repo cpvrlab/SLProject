@@ -69,12 +69,12 @@ protected:
     SLBox*               _cubeMesh = nullptr;
 
 private:
-    void    voxelize();
-    void    visualizeVoxels();
-    void    renderNode(SLNode* node, SLGLProgram* sp);
-    void    renderSceneGraph(SLGLProgram* sp);
-    void    uploadRenderSettings(SLGLProgram* sp);
-    //void    uploadLights(SLGLProgram* sp);
+    void voxelize();
+    void visualizeVoxels();
+    void renderNode(SLNode* node, SLGLProgram* sp);
+    void renderSceneGraph(SLGLProgram* sp);
+    void uploadRenderSettings(SLGLProgram* sp);
+    // void    uploadLights(SLGLProgram* sp);
     void    calcWS2VoxelSpaceTransform(const SLVec3f& minWs, const SLVec3f& maxWs);
     void    voxelSpaceTransform(SLfloat l,
                                 SLfloat r,
@@ -96,7 +96,7 @@ private:
     SLbool _doSpecularIllum = true;
     SLbool _doShadows       = true;
 
-    //path to shader files
+    // path to shader files
     SLstring _shaderFilePath;
 
     vector<SLGLProgram*> _programs;

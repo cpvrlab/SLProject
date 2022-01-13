@@ -16,7 +16,7 @@
 //-----------------------------------------------------------------------------
 //! SLPoints creates
 /*! The SLPoints mesh object of witch the vertices are drawn as points.
-*/
+ */
 class SLPoints : public SLMesh
 {
 public:

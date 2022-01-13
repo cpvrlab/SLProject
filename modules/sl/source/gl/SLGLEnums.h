@@ -63,16 +63,16 @@ enum SLGLAttributeType
     AT_jointIndex,   //!< Vertex joint id for vertex skinning
     AT_jointWeight,  //!< Vertex joint weight for vertex skinning
 
-    AT_custom0,      //!< Custom vertex attribute 0
-    AT_custom1,      //!< Custom vertex attribute 1
-    AT_custom2,      //!< Custom vertex attribute 2
-    AT_custom3,      //!< Custom vertex attribute 3
-    AT_custom4,      //!< Custom vertex attribute 4
-    AT_custom5,      //!< Custom vertex attribute 5
-    AT_custom6,      //!< Custom vertex attribute 6
-    AT_custom7,      //!< Custom vertex attribute 7
-    AT_custom8,      //!< Custom vertex attribute 8
-    AT_custom9       //!< Custom vertex attribute 9
+    AT_custom0, //!< Custom vertex attribute 0
+    AT_custom1, //!< Custom vertex attribute 1
+    AT_custom2, //!< Custom vertex attribute 2
+    AT_custom3, //!< Custom vertex attribute 3
+    AT_custom4, //!< Custom vertex attribute 4
+    AT_custom5, //!< Custom vertex attribute 5
+    AT_custom6, //!< Custom vertex attribute 6
+    AT_custom7, //!< Custom vertex attribute 7
+    AT_custom8, //!< Custom vertex attribute 8
+    AT_custom9  //!< Custom vertex attribute 9
 };
 //-----------------------------------------------------------------------------
 //! Enumeration for buffer usage types also supported by OpenGL ES

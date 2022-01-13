@@ -411,8 +411,8 @@ CVRaulMurOrb::CVRaulMurOrb(int   _nfeatures,
     const CVPoint* pattern0 = (const CVPoint*)bit_pattern_31_;
     std::copy(pattern0, pattern0 + npoints, std::back_inserter(pattern));
 
-    //This is for orientation
-    // pre-compute the end of a row in a circular patch
+    // This is for orientation
+    //  pre-compute the end of a row in a circular patch
     umax.resize(HALF_PATCH_SIZE + 1);
 
     int          v, v0, vmax = cvFloor(HALF_PATCH_SIZE * sqrt(2.f) / 2 + 1);
@@ -468,13 +468,13 @@ CVVKeyPoint CVRaulMurOrb::DistributeOctTree(const CVVKeyPoint& vToDistributeKeys
     for (int i = 0; i < nIni; i++)
     {
         CVRaulMurExtNode ni;
-        //upperleft
+        // upperleft
         ni.UL = CVPoint2i((int)(hX * (float)(i)), 0);
-        //upperright
+        // upperright
         ni.UR = CVPoint2i((int)(hX * (float)(i + 1)), 0);
-        //bottomleft
+        // bottomleft
         ni.BL = CVPoint2i(ni.UL.x, maxY - minY);
-        //bottomright
+        // bottomright
         ni.BR = CVPoint2i(ni.UR.x, maxY - minY);
         ni.vKeys.reserve(vToDistributeKeys.size());
 
@@ -482,7 +482,7 @@ CVVKeyPoint CVRaulMurOrb::DistributeOctTree(const CVVKeyPoint& vToDistributeKeys
         vpIniNodes[(uint)i] = &lNodes.back();
     }
 
-    //Associate points to childs
+    // Associate points to childs
     for (size_t i = 0; i < vToDistributeKeys.size(); i++)
     {
         const CVKeyPoint& kp = vToDistributeKeys[i];
@@ -698,7 +698,7 @@ void CVRaulMurOrb::ComputeKeyPointsOctTree(CVVVKeyPoint& allKeypoints)
         const float width  = (float)(maxBorderX - minBorderX);
         const float height = (float)(maxBorderY - minBorderY);
 
-        //generate the Cells to look for features in
+        // generate the Cells to look for features in
         const int nCols = (int)(width / W);
         const int nRows = (int)(height / W);
         const int wCell = (int)(ceil(width / nCols));
@@ -830,7 +830,7 @@ void CVRaulMurOrb::detectAndCompute(CVInputArray  _image,
     if (!useProvidedKeypoints)
     {
         ComputeKeyPointsOctTree(allKeypoints);
-        //ComputeKeyPointsOld(allKeypoints);
+        // ComputeKeyPointsOld(allKeypoints);
         for (uint level = 0; level < nlevels; ++level)
             nkeypoints += (int)allKeypoints[level].size();
         _keypoints.clear();
@@ -887,7 +887,7 @@ void CVRaulMurOrb::detectAndCompute(CVInputArray  _image,
         // Scale keypoint coordinates
         if (level != 0)
         {
-            float scale = mvScaleFactor[level]; //getScale(level, firstLevel, scaleFactor);
+            float scale = mvScaleFactor[level]; // getScale(level, firstLevel, scaleFactor);
             for (CVVKeyPoint::iterator keypoint    = keypoints.begin(),
                                        keypointEnd = keypoints.end();
                  keypoint != keypointEnd;
@@ -942,7 +942,7 @@ void CVRaulMurOrb::ComputePyramid(CVMat image)
         }
     }
 
-    //save image pyriamid
+    // save image pyriamid
     /*for (int level = 0; level < nlevels; ++level) {
         string filename = "D:/Development/SLProject/debug_ouput/imagePyriamid" + to_string(level) + ".jpg";
         cv::imwrite(filename, mvImagePyramid[level]);

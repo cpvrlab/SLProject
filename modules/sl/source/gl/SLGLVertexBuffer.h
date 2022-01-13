@@ -34,15 +34,15 @@ typedef vector<SLGLAttribute> SLVVertexAttrib;
 //-----------------------------------------------------------------------------
 //! SLGLVertexBuffer encapsulates an OpenGL buffer for vertex attributes
 /*! SLGLVertexBuffer is only meant to be used within the SLGLVertexArray class.
-Attributes can be either be in sequential order (first all positions, then all 
-normals, etc.) or interleaved (all attributes together for one vertex). See 
+Attributes can be either be in sequential order (first all positions, then all
+normals, etc.) or interleaved (all attributes together for one vertex). See
 SLGLVertexBuffer::generate for more information.\n
 Vertex index buffer are not handled in this class. They are generated in
 SLGLVertexArray.
 */
 class SLGLVertexBuffer
 {
-    public:
+public:
     SLGLVertexBuffer();
     ~SLGLVertexBuffer() { clear(); }
 
@@ -102,7 +102,7 @@ class SLGLVertexBuffer
     //! Returns the size of a buffer data type
     static SLuint sizeOfType(SLGLBufferType type);
 
-    protected:
+protected:
     SLuint          _id;                //! OpenGL id of vertex buffer object
     SLuint          _numVertices;       //! NO. of vertices in array
     SLGLBufferType  _dataType;          //! Data Type (BT_float or BT_half)

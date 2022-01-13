@@ -22,7 +22,7 @@
 //! Global static objects
 SLInputManager       AppDemo::inputManager;
 SLAssetManager*      AppDemo::assetManager = nullptr;
-SLScene*             AppDemo::scene = nullptr;
+SLScene*             AppDemo::scene        = nullptr;
 vector<SLSceneView*> AppDemo::sceneViews;
 SLGLImGui*           AppDemo::gui = nullptr;
 SLDeviceRotation     AppDemo::devRot;
@@ -94,7 +94,7 @@ void AppDemo::createAppAndScene(SLstring appName,
     name = std::move(appName);
     SLGLProgramManager::init(dataPath + "shaders/", configPath);
     assetManager = new SLAssetManager(AppDemo::fontPath, true);
-    scene = new SLScene(name, (cbOnSceneLoad)onSceneLoadCallback);
+    scene        = new SLScene(name, (cbOnSceneLoad)onSceneLoadCallback);
     scene->initOculus(dataPath + "shaders/");
     GlobalTimer::timerStart();
 
@@ -130,7 +130,7 @@ void AppDemo::deleteAppAndScene()
         gui = nullptr;
     }
 
-    //delete default stuff:
+    // delete default stuff:
     SLGLProgramManager::deletePrograms();
     SLMaterialDefaultGray::deleteInstance();
 }

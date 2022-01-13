@@ -12,7 +12,7 @@ file(GLOB headers
         ${SL_PROJECT_ROOT}/apps/source/AppDemo.h
         ${SL_PROJECT_ROOT}/apps/source/SLInterface.h
         ${SL_PROJECT_ROOT}/apps/source/SLScene.h
-    )
+        )
 
 file(GLOB sources
         ${SL_PROJECT_ROOT}/apps/app_demo_node/source/AppNodeGui.cpp
@@ -22,20 +22,20 @@ file(GLOB sources
         ${SL_PROJECT_ROOT}/apps/source/SLInterface.cpp
         ${SL_PROJECT_ROOT}/apps/source/SLScene.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/AppNodeMainGLFW.cpp
-    )
+        )
 
 add_executable(
         ${target}
         ${headers}
         ${sources}
-    )
+)
 
 set_target_properties(
         ${target}
         PROPERTIES
         ${DEFAULT_PROJECT_OPTIONS}
         FOLDER "apps"
-    )
+)
 
 target_include_directories(
         ${target}
@@ -53,7 +53,7 @@ target_include_directories(
         ${glfw_INCLUDE_DIR}
         PUBLIC
         INTERFACE
-    )
+)
 
 target_link_libraries(
         ${target}
@@ -62,7 +62,7 @@ target_link_libraries(
         ${glfw_LIBS}
         PUBLIC
         INTERFACE
-    )
+)
 
 target_compile_definitions(
         ${target}
@@ -71,7 +71,7 @@ target_compile_definitions(
         PUBLIC
         ${DEFAULT_COMPILE_DEFINITIONS}
         INTERFACE
-    )
+)
 
 target_compile_options(
         ${target}
@@ -79,7 +79,7 @@ target_compile_options(
         PUBLIC
         ${DEFAULT_COMPILE_OPTIONS}
         INTERFACE
-    )
+)
 
 target_link_libraries(
         ${target}
@@ -87,5 +87,5 @@ target_link_libraries(
         PUBLIC
         ${DEFAULT_LINKER_OPTIONS}
         INTERFACE
-    )
+)
 

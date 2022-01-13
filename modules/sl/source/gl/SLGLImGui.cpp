@@ -47,16 +47,16 @@ SLGLImGui::SLGLImGui(cbOnImGuiBuild      buildCB,
     _mousePressed[1]   = false;
     _mousePressed[2]   = false;
 
-    //create imgui context
+    // create imgui context
     ImGui::CreateContext();
 
-    //set default style to get a good initial configuration
+    // set default style to get a good initial configuration
     ImGui::StyleColorsDark();
     ImGuiIO& io = ImGui::GetIO();
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable; // Enable Docking
-    //io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable; // Enable Multi-Viewport / Platform Windows
+    // io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable; // Enable Multi-Viewport / Platform Windows
 
-    //load config
+    // load config
     if (loadConfigCB)
         loadConfigCB(dpi);
 
@@ -601,7 +601,7 @@ void SLGLImGui::onMouseDown(SLMouseButton button, SLint x, SLint y)
     if (button == MB_left) io.MouseDown[0] = true;
     if (button == MB_right) io.MouseDown[1] = true;
     if (button == MB_middle) io.MouseDown[2] = true;
-    //SL_LOG("D");
+    // SL_LOG("D");
 }
 //-----------------------------------------------------------------------------
 //! Callback on mouse button up event
@@ -612,14 +612,14 @@ void SLGLImGui::onMouseUp(SLMouseButton button, SLint x, SLint y)
     if (button == MB_left) io.MouseDown[0] = false;
     if (button == MB_right) io.MouseDown[1] = false;
     if (button == MB_middle) io.MouseDown[2] = false;
-    //SL_LOG("U\n");
+    // SL_LOG("U\n");
 }
 //-----------------------------------------------------------------------------
 //! Updates the mouse cursor position
 void SLGLImGui::onMouseMove(SLint xPos, SLint yPos)
 {
     ImGui::GetIO().MousePos = ImVec2((SLfloat)xPos, (SLfloat)yPos);
-    //SL_LOG("M");
+    // SL_LOG("M");
 }
 //-----------------------------------------------------------------------------
 //! Callback for the mouse scroll movement

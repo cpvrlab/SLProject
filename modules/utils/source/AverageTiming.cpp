@@ -30,37 +30,37 @@ AverageTiming::~AverageTiming()
     }
 }
 //-----------------------------------------------------------------------------
-//!start timer for a new or existing block
+//! start timer for a new or existing block
 void AverageTiming::start(const std::string& name)
 {
     AverageTiming::instance().doStart(name);
 }
 //-----------------------------------------------------------------------------
-//!stop timer for a running block with name
+//! stop timer for a running block with name
 void AverageTiming::stop(const std::string& name)
 {
     AverageTiming::instance().doStop(name);
 }
 //-----------------------------------------------------------------------------
-//!get time for block with name
+//! get time for block with name
 float AverageTiming::getTime(const std::string& name)
 {
     return AverageTiming::instance().doGetTime(name);
 }
 //-----------------------------------------------------------------------------
-//!get time for multiple blocks with given names
+//! get time for multiple blocks with given names
 float AverageTiming::getTime(const std::vector<std::string>& names)
 {
     return AverageTiming::instance().doGetTime(names);
 }
 //-----------------------------------------------------------------------------
-//!get timings formatted via string
+//! get timings formatted via string
 void AverageTiming::getTimingMessage(char* m)
 {
     AverageTiming::instance().doGetTimingMessage(m);
 }
 //-----------------------------------------------------------------------------
-//!start timer for a new or existing block
+//! start timer for a new or existing block
 void AverageTiming::doStart(const std::string& name)
 {
     if (find(name) == end())
@@ -70,8 +70,8 @@ void AverageTiming::doStart(const std::string& name)
         (*this)[name] = block;
     }
 
-    //if ((*this)[name]->isStarted)
-    //    SL_LOG("AverageTiming: Block with name %s started twice!", name.c_str());
+    // if ((*this)[name]->isStarted)
+    //     SL_LOG("AverageTiming: Block with name %s started twice!", name.c_str());
 
     (*this)[name]->timer.start();
     (*this)[name]->isStarted = true;
@@ -80,7 +80,7 @@ void AverageTiming::doStart(const std::string& name)
 }
 
 //-----------------------------------------------------------------------------
-//!stop timer for a running block with name
+//! stop timer for a running block with name
 void AverageTiming::doStop(const std::string& name)
 {
     if (find(name) != end())
@@ -98,7 +98,7 @@ void AverageTiming::doStop(const std::string& name)
 }
 
 //-----------------------------------------------------------------------------
-//!get time for block with name
+//! get time for block with name
 float AverageTiming::doGetTime(const std::string& name)
 {
     if (find(name) != end())
@@ -112,7 +112,7 @@ float AverageTiming::doGetTime(const std::string& name)
 }
 
 //-----------------------------------------------------------------------------
-//!get time for multiple blocks with given names
+//! get time for multiple blocks with given names
 float AverageTiming::doGetTime(const std::vector<std::string>& names) const
 {
     AvgFloat val(_averageNumValues, 0.0f);
@@ -124,25 +124,24 @@ float AverageTiming::doGetTime(const std::vector<std::string>& names) const
     return val.average();
 }
 //-----------------------------------------------------------------------------
-//!do get timings formatted via string
+//! do get timings formatted via string
 void AverageTiming::doGetTimingMessage(char* m)
 {
-    //sort vertically
+    // sort vertically
     std::vector<AverageTimingBlock*> blocks;
     for (auto& block : AverageTiming::instance())
     {
         blocks.push_back(block.second);
     }
-    std::sort(blocks.begin(), blocks.end(), [](AverageTimingBlock* lhs, AverageTimingBlock* rhs) -> bool {
-        return lhs->posV < rhs->posV;
-    });
+    std::sort(blocks.begin(), blocks.end(), [](AverageTimingBlock* lhs, AverageTimingBlock* rhs) -> bool
+              { return lhs->posV < rhs->posV; });
 
-    //find reference time
+    // find reference time
     float refTime = 1.0f;
     if (!blocks.empty())
     {
         refTime = (*blocks.begin())->val.average();
-        //insert number of measurement calls
+        // insert number of measurement calls
         sprintf(m + strlen(m), "Num. calls: %i\n", (int)(*blocks.begin())->nCalls);
     }
 
@@ -152,7 +151,7 @@ void AverageTiming::doGetTimingMessage(char* m)
         if (block->name.length() > maxLen)
             maxLen = block->name.length();
 
-    //insert time measurements
+    // insert time measurements
     for (auto* block : blocks)
     {
         float  val   = block->val.average();
@@ -162,8 +161,8 @@ void AverageTiming::doGetTimingMessage(char* m)
         name.append(maxLen - name.length(), ' ');
 
         stringstream ss;
-        //for (int i = 0; i < block->posH; ++i)
-        //    ss << " ";
+        // for (int i = 0; i < block->posH; ++i)
+        //     ss << " ";
         ss << "%s: %4.1f ms (%3d%%)\n";
         sprintf(m + strlen(m), ss.str().c_str(), name.c_str(), val, (int)valPC);
     }

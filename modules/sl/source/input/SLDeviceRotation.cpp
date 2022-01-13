@@ -72,7 +72,7 @@ void SLDeviceRotation::onRotationQUAT(SLfloat quatX,
     / +-----+ /
    /    0    /
   +---------+
-     
+
      iOS sensor coordinate system:
      (https://developer.apple.com/documentation/coremotion/getting_processed_device-motion_data/understanding_reference_frames_and_device_attitude)
      In iOS we configure CMMotionManager with xMagneticNorthZVertical which means its a frame, where x points north, y points west and z points up (NWU).
@@ -90,12 +90,12 @@ void SLDeviceRotation::onRotationQUAT(SLfloat quatX,
      / +-----+ /
     /    0    /
    +---------+
-     
+
      */
 
     if (_zeroYawAtStart && _isFirstSensorValue)
     {
-        //store initial rotation in yaw for referencing of initial alignment
+        // store initial rotation in yaw for referencing of initial alignment
         _startYawRAD        = _yawRAD;
         _isFirstSensorValue = false;
     }

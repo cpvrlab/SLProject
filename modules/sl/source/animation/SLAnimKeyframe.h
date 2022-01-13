@@ -21,9 +21,9 @@ class SLAnimTrack;
 //! Base class for all animation keyframes
 class SLAnimKeyframe
 {
-    public:
+public:
     SLAnimKeyframe(const SLAnimTrack* parent,
-               SLfloat            time);
+                   SLfloat            time);
 
     bool operator<(const SLAnimKeyframe& other) const;
 
@@ -31,7 +31,7 @@ class SLAnimKeyframe
     SLfloat time() const { return _time; }
     SLbool  isValid() const { return _isValid; }
 
-    protected:
+protected:
     const SLAnimTrack* _parentTrack; //!< owning animation track for this keyframe
     SLfloat            _time;        //!< temporal position in local time relative to the keyframes parent clip in seconds
     SLbool             _isValid;     //!< is this keyframe in use inside its parent track
@@ -39,12 +39,12 @@ class SLAnimKeyframe
 
 //-----------------------------------------------------------------------------
 //! SLTransformKeyframe is a specialized SLKeyframe for node transformations
-/*!     
+/*!
 Keeps track of translation, rotation and scale.
 */
 class SLTransformKeyframe : public SLAnimKeyframe
 {
-    public:
+public:
     SLTransformKeyframe(const SLAnimTrack* parent,
                         SLfloat            time);
 
@@ -58,7 +58,7 @@ class SLTransformKeyframe : public SLAnimKeyframe
     const SLQuat4f& rotation() const { return _rotation; }
     const SLVec3f&  scale() const { return _scale; }
 
-    protected:
+protected:
     SLVec3f  _translation;
     SLQuat4f _rotation;
     SLVec3f  _scale;

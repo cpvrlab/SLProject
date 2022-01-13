@@ -10,26 +10,25 @@
 #ifndef GLUTILS_H
 #define GLUTILS_H
 
-
 #include <array>
 #include <string>
 
 using std::string;
 
 #ifdef __APPLE__
-#    if defined(TARGET_OS_IOS) && (TARGET_OS_IOS==1)
+#    if defined(TARGET_OS_IOS) && (TARGET_OS_IOS == 1)
 #        include <OpenGLES/ES3/gl.h>
 #        include <OpenGLES/ES3/glext.h>
 #    else
 #        include <GL/gl3w.h>
 #    endif
 #elif defined(ANDROID) || defined(ANDROID_NDK)
-//https://stackoverflow.com/questions/31003863/gles-3-0-including-gl2ext-h
-#   include <GLES3/gl3.h>
-#   include <GLES2/gl2ext.h>
-#   ifndef GL_CLAMP_TO_BORDER //see #define GL_CLAMP_TO_BORDER_OES 0x812D in gl2ext.h
-#       define GL_CLAMP_TO_BORDER GL_CLAMP_TO_BORDER_OES
-#   endif
+// https://stackoverflow.com/questions/31003863/gles-3-0-including-gl2ext-h
+#    include <GLES3/gl3.h>
+#    include <GLES2/gl2ext.h>
+#    ifndef GL_CLAMP_TO_BORDER // see #define GL_CLAMP_TO_BORDER_OES 0x812D in gl2ext.h
+#        define GL_CLAMP_TO_BORDER GL_CLAMP_TO_BORDER_OES
+#    endif
 //#    include <GLES3/gl31.h>
 //#    include <GLES3/gl3ext.h>
 #elif defined(_WIN32)
@@ -99,15 +98,15 @@ public:
                                GLint  wrapT      = GL_REPEAT);
 
     // ! Builds an OpenGL 3D texture and returns the texture id
-    static GLuint build3DTexture(const vector<string>&    files,
-                                 GLuint&                  x_extend,
-                                 GLuint&                  y_extend,
-                                 GLuint&                  z_extend,
-                                 GLint                    min_filter  = GL_LINEAR,
-                                 GLint                    mag_filter  = GL_LINEAR,
-                                 GLint                    wrapR       = GL_CLAMP_TO_BORDER,
-                                 GLint                    wrapS       = GL_CLAMP_TO_BORDER,
-                                 GLint                    wrapT       = GL_CLAMP_TO_BORDER,
+    static GLuint build3DTexture(const vector<string>&         files,
+                                 GLuint&                       x_extend,
+                                 GLuint&                       y_extend,
+                                 GLuint&                       z_extend,
+                                 GLint                         min_filter  = GL_LINEAR,
+                                 GLint                         mag_filter  = GL_LINEAR,
+                                 GLint                         wrapR       = GL_CLAMP_TO_BORDER,
+                                 GLint                         wrapS       = GL_CLAMP_TO_BORDER,
+                                 GLint                         wrapT       = GL_CLAMP_TO_BORDER,
                                  const std::array<GLfloat, 4>& borderColor = {0.0f, 0.0f, 0.0f, 0.0f});
 
     //! Checks if an OpenGL error occurred

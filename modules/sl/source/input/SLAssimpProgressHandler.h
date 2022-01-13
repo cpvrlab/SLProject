@@ -11,8 +11,8 @@
 #define SLASSIMPPROGRESSHANDLER_H
 
 #ifdef SL_BUILD_WITH_ASSIMP
-#include <assimp/ProgressHandler.hpp>
-#include <AppDemo.h>
+#    include <assimp/ProgressHandler.hpp>
+#    include <AppDemo.h>
 
 //-----------------------------------------------------------------------------
 //!
@@ -23,7 +23,8 @@ public:
 };
 //-----------------------------------------------------------------------------
 //!
-class SLAssimpProgressHandler : SLProgressHandler, Assimp::ProgressHandler
+class SLAssimpProgressHandler : SLProgressHandler
+  , Assimp::ProgressHandler
 {
 public:
     virtual bool Update(float percentage = -1.f)

@@ -16,7 +16,7 @@
 
 //-----------------------------------------------------------------------------
 //! SLPolyline creates a polyline object
-/*! 
+/*!
 The SLPolyline node draws a polyline object
 */
 class SLPolyline : public SLMesh

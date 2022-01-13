@@ -95,7 +95,7 @@ bool CVTrackedAruco::track(CVMat          imageGray,
 
         cout << "Aruco IdS: " << arucoIDs.size() << " : ";
 
-        //find the camera extrinsic parameters (rVec & tVec)
+        // find the camera extrinsic parameters (rVec & tVec)
         CVVPoint3d rVecs, tVecs;
         cv::aruco::estimatePoseSingleMarkers(corners,
                                              params.edgeLength,

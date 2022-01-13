@@ -856,7 +856,7 @@ void SLSceneView::draw3DGLNodes(SLVNode& nodes,
                                 SLbool   alphaBlended,
                                 SLbool   depthSorted)
 {
-    //PROFILE_FUNCTION();
+    // PROFILE_FUNCTION();
 
     if (nodes.empty()) return;
 
@@ -869,11 +869,11 @@ void SLSceneView::draw3DGLNodes(SLVNode& nodes,
     // Depth sort with lambda function by their view distance
     if (depthSorted)
     {
-        std::sort(nodes.begin(), nodes.end(), [](SLNode* a, SLNode* b) {
+        std::sort(nodes.begin(), nodes.end(), [](SLNode* a, SLNode* b)
+                  {
             if (!a) return false;
             if (!b) return true;
-            return a->aabb()->sqrViewDist() > b->aabb()->sqrViewDist();
-        });
+            return a->aabb()->sqrViewDist() > b->aabb()->sqrViewDist(); });
     }
 
     // draw the shapes directly with their wm transform

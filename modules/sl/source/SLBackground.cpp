@@ -28,7 +28,7 @@ SLBackground::SLBackground(SLstring shaderDir)
     _resX         = -1;
     _resY         = -1;
 
-    _textureOnlyProgram    = new SLGLProgramGeneric(nullptr,
+    _textureOnlyProgram = new SLGLProgramGeneric(nullptr,
                                                  shaderDir + "TextureOnly.vert",
                                                  shaderDir + "TextureOnly.frag");
 
@@ -168,34 +168,34 @@ void SLBackground::render(SLint widthPX, SLint heightPX)
     // Create or update buffer for vertex position and indices
     if (!_vao.vaoID() || _resX != widthPX || _resY != heightPX)
     {
-        //texture width and height not yet valid on first call
+        // texture width and height not yet valid on first call
         _resX = widthPX;
         _resY = heightPX;
         _vao.clearAttribs();
 
-        SLfloat left=0, right=_resX, bottom=0, top=_resY;
+        SLfloat left = 0, right = _resX, bottom = 0, top = _resY;
 
-        //the background is centered and stretched to the screen boarders while keeping the textures aspect ratio
+        // the background is centered and stretched to the screen boarders while keeping the textures aspect ratio
         if (_texture && _fixAspectRatio)
         {
             SLfloat backgroundW, backgroundH;
             if ((SLfloat)_resX / (SLfloat)_resY > (SLfloat)_texture->width() / (SLfloat)_texture->height())
             {
-                //screen is wider than texture -> adjust background width
+                // screen is wider than texture -> adjust background width
                 backgroundH = _resY;
                 backgroundW = _resY / (SLfloat)_texture->height() * (SLfloat)_texture->width();
             }
             else
             {
-                //screen is more narrow than texture -> adjust background height
+                // screen is more narrow than texture -> adjust background height
                 backgroundW = _resX;
                 backgroundH = _resX / (SLfloat)_texture->width() * (SLfloat)_texture->height();
             }
 
-            left = (_resX - backgroundW) * 0.5f;
-            right = backgroundW + left;
+            left   = (_resX - backgroundW) * 0.5f;
+            right  = backgroundW + left;
             bottom = (_resY - backgroundH) * 0.5f;
-            top = backgroundH + bottom;
+            top    = backgroundH + bottom;
 
             _rect.set(left, bottom, backgroundW, backgroundH);
             SL_LOG("SLBackground: width:%f height:%f left:%f bottom:%f", rect().width, rect().height, rect().x, rect().x);

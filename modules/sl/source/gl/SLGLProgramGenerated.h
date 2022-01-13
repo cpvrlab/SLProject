@@ -74,12 +74,12 @@ public:
                                  SLVLight*   lights,
                                  string&     programName);
 
-    void        buildProgramCode(SLMaterial* mat,
-                                 SLVLight*   lights);
-    void        beginShader(SLCamera*   cam,
-                            SLMaterial* mat,
-                            SLVLight*   lights) override { beginUse(cam, mat, lights); }
-    void        endShader() override { endUse(); }
+    void buildProgramCode(SLMaterial* mat,
+                          SLVLight*   lights);
+    void beginShader(SLCamera*   cam,
+                     SLMaterial* mat,
+                     SLVLight*   lights) override { beginUse(cam, mat, lights); }
+    void endShader() override { endUse(); }
 
 private:
     void buildPerPixCook(SLMaterial* mat, SLVLight* lights);

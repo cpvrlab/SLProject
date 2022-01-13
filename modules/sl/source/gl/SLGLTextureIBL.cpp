@@ -13,14 +13,14 @@
 
 //-----------------------------------------------------------------------------
 //! ctor for generated textures from hdr textures
-SLGLTextureIBL::SLGLTextureIBL(SLAssetManager*  am,
-                               SLstring         shaderPath,
-                               SLGLTexture*     sourceTexture,
-                               SLVec2i          size,
-                               SLTextureType    texType,
-                               SLenum           target,
-                               SLint            min_filter,
-                               SLint            mag_filter)
+SLGLTextureIBL::SLGLTextureIBL(SLAssetManager* am,
+                               SLstring        shaderPath,
+                               SLGLTexture*    sourceTexture,
+                               SLVec2i         size,
+                               SLTextureType   texType,
+                               SLenum          target,
+                               SLint           min_filter,
+                               SLint           mag_filter)
 {
     if (sourceTexture != nullptr)
     {
@@ -159,7 +159,7 @@ void SLGLTextureIBL::build(SLint texUnit)
         glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rboID);
 
         logFramebufferStatus();
-        
+
         // Set the list of draw buffers.
         GLenum DrawBuffers[1] = {GL_COLOR_ATTACHMENT0};
         glDrawBuffers(1, DrawBuffers); // "1" is the size of DrawBuffers
@@ -245,7 +245,7 @@ void SLGLTextureIBL::build(SLint texUnit)
                                        _texID,
                                        mip);
                 glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-                
+
                 logFramebufferStatus();
 
                 renderCube();
@@ -286,9 +286,9 @@ void SLGLTextureIBL::build(SLint texUnit)
         if (_sourceTexture != nullptr)
             _sourceTexture->bindActive();
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        
+
         logFramebufferStatus();
-        
+
         renderQuad();
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
@@ -429,9 +429,9 @@ void SLGLTextureIBL::logFramebufferStatus()
         case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT: SL_LOG("GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT"); break;
         case GL_FRAMEBUFFER_UNSUPPORTED: SL_LOG("GL_FRAMEBUFFER_UNSUPPORTED"); break;
         case GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE: SL_LOG("GL_FRAMEBUFFER_INCOMPLETE_MULTISAMPLE"); break;
-        //case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER: SL_LOG("GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER"); break;
-        //case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER: SL_LOG("GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER"); break;
-        //case GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS: SL_LOG("GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS"); break;
+        // case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER: SL_LOG("GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER"); break;
+        // case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER: SL_LOG("GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER"); break;
+        // case GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS: SL_LOG("GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS"); break;
         default: SL_LOG("Unknown framebuffer status!!!");
     }
 #endif

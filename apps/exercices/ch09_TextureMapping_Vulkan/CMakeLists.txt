@@ -145,36 +145,36 @@ target_compile_options(${target}
         )
 
 # Generates glsl shader to spirv
-if("${SYSTEM_NAME_UPPER}" STREQUAL "LINUX") #---------------------------------------------------------------------------
-elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #---------------------------------------------------------------------
+if ("${SYSTEM_NAME_UPPER}" STREQUAL "LINUX") #---------------------------------------------------------------------------
+elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #---------------------------------------------------------------------
     set(GLSLC "${SL_PROJECT_ROOT}/externals/prebuilt/win64_vulkan_1.2.162.1/Bin32/glslc.exe")
-elseif("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #----------------------------------------------------------------------
+elseif ("${SYSTEM_NAME_UPPER}" STREQUAL "DARWIN") #----------------------------------------------------------------------
     set(GLSLC "${SL_PROJECT_ROOT}/externals/prebuilt/win64_vulkan_1.2.162.1/macOS/bin/glslc")
-endif()
+endif ()
 
 # To convert all shader in folder, replace filename with *.vert / *.frag
 file(GLOB SHADER_SOURCE_FILES
-    "${SL_PROJECT_ROOT}/data/shaders/vertShader.vert"
-    "${SL_PROJECT_ROOT}/data/shaders/fragShader.frag"
-    "${SL_PROJECT_ROOT}/data/shaders/vertShaderRed.vert"
-    "${SL_PROJECT_ROOT}/data/shaders/fragShaderRed.frag"
-    )
+        "${SL_PROJECT_ROOT}/data/shaders/vertShader.vert"
+        "${SL_PROJECT_ROOT}/data/shaders/fragShader.frag"
+        "${SL_PROJECT_ROOT}/data/shaders/vertShaderRed.vert"
+        "${SL_PROJECT_ROOT}/data/shaders/fragShaderRed.frag"
+        )
 
-foreach(SHADER ${SHADER_SOURCE_FILES})
+foreach (SHADER ${SHADER_SOURCE_FILES})
     get_filename_component(FILE_NAME ${SHADER} NAME)
     set(SPIRV_OUTPUT "${SL_PROJECT_ROOT}/data/shaders/${FILE_NAME}.spv")
 
     add_custom_command(
-        OUTPUT ${SPIRV_OUTPUT}
-        COMMAND ${GLSLC} ${SHADER} -o ${SPIRV_OUTPUT}
-        DEPENDS ${SHADER})
-        
+            OUTPUT ${SPIRV_OUTPUT}
+            COMMAND ${GLSLC} ${SHADER} -o ${SPIRV_OUTPUT}
+            DEPENDS ${SHADER})
+
     message(STATUS "Compiled for Vulkan: " ${SPIRV_OUTPUT})
     list(APPEND SPIRV_BINARY_FILES ${SPIRV_OUTPUT})
-endforeach(SHADER)
+endforeach (SHADER)
 
- add_custom_target(
-     Shaders
-     DEPENDS ${SPIRV_BINARY_FILES})
+add_custom_target(
+        Shaders
+        DEPENDS ${SPIRV_BINARY_FILES})
 
- add_dependencies(${target} Shaders)
+add_dependencies(${target} Shaders)

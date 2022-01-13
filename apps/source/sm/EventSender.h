@@ -6,7 +6,7 @@
 namespace sm
 {
 
-//state is event sender
+// state is event sender
 class EventSender
 {
 public:

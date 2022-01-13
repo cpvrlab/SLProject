@@ -46,4 +46,4 @@ private:
 //-----------------------------------------------------------------------------
 typedef std::vector<SLGLDepthBuffer*> SLGLVDepthBuffer;
 //-----------------------------------------------------------------------------
-#endif //SLGLDEPTHBUFFER_H
+#endif // SLGLDEPTHBUFFER_H

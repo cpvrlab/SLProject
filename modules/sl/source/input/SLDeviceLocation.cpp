@@ -182,7 +182,7 @@ void SLDeviceLocation::originLatLonAlt(SLdouble latDEG,
                      sinPhi);
 
     // ENU frame w.r.t. world frame (scene)
-    SLMat3d wRenu; //same as before
+    SLMat3d wRenu; // same as before
     wRenu.rotation(-90, 1, 0, 0);
 
     // ECEF w.r.t. world frame (scene)
@@ -292,10 +292,10 @@ SLbool SLDeviceLocation::calculateSolarAngles(SLVec3d     locationLatLonAlt,
            lt.tm_sec);
     SL_LOG("Timezone        : %d", lt.tm_hour - ut.tm_hour);
 
-    spa_data spa; //declare the SPA structure
+    spa_data spa; // declare the SPA structure
     SLint    result;
 
-    //enter required input values into SPA structure
+    // enter required input values into SPA structure
     spa.year      = lt.tm_year;
     spa.month     = lt.tm_mon;
     spa.day       = lt.tm_mday;
@@ -320,7 +320,7 @@ SLbool SLDeviceLocation::calculateSolarAngles(SLVec3d     locationLatLonAlt,
     result = spa_calculate(&spa);
     /////////////////////////////
 
-    if (result == 0) //check for SPA errors
+    if (result == 0) // check for SPA errors
     {
         _originSolarZenith  = (SLfloat)spa.zenith;
         _originSolarAzimuth = (SLfloat)spa.azimuth;
@@ -359,14 +359,14 @@ SLVec3d SLDeviceLocation::convertLatLonAlt2ENU(SLVec3d locLatLonAlt) const
 {
     if (geoTiffIsAvailableAndValid() && posIsOnGeoTiff(locLatLonAlt.x, locLatLonAlt.y))
         locLatLonAlt.z = _demGeoTiff.getAltitudeAtLatLon(locLatLonAlt.x, locLatLonAlt.y);
-    
+
     // Convert to cartesian ECEF coordinates
     SLVec3d locECEF;
     locECEF.latlonAlt2ecef(locLatLonAlt);
 
     // Transform to local east-north-up frame
     SLVec3d locENU = _wRecef * locECEF;
-    
+
     return locENU;
 }
 //------------------------------------------------------------------------------

@@ -36,7 +36,7 @@ public:
 protected:
     SLVVec3f* _finalP;
 
-    //VertexArray vao;    //!< OpenGL Vertex Array Object for drawing
+    // VertexArray vao;    //!< OpenGL Vertex Array Object for drawing
 };
 //-----------------------------------------------------------------------------
 typedef vector<Mesh*> VMesh;

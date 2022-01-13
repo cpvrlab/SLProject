@@ -81,10 +81,10 @@ public:
                          SLstring           texturePath,
                          SLSkybox*          skybox                 = nullptr,
                          SLbool             deleteTexImgAfterBuild = false,
-                         SLbool             loadMeshesOnly  = true,
-                         SLMaterial*        overrideMat     = nullptr,
-                         float              ambientFactor   = 0.0f,
-                         SLProgressHandler* progressHandler = nullptr,
+                         SLbool             loadMeshesOnly         = true,
+                         SLMaterial*        overrideMat            = nullptr,
+                         float              ambientFactor          = 0.0f,
+                         SLProgressHandler* progressHandler        = nullptr,
                          SLuint             flags =
                            SLProcess_Triangulate |
                            SLProcess_JoinIdenticalVertices |
@@ -114,10 +114,10 @@ public:
                          //|SLProcess_Dejoint
                          ) = 0;
 
-    SLNode*       rootNode() { return _sceneRoot; }
-    SLVMesh&      meshes() { return _meshes; }
-    SLAnimSkeleton*   skeleton() { return _skeleton; }
-    SLVAnimation& nodeAnimations() { return _nodeAnimations; }
+    SLNode*         rootNode() { return _sceneRoot; }
+    SLVMesh&        meshes() { return _meshes; }
+    SLAnimSkeleton* skeleton() { return _skeleton; }
+    SLVAnimation&   nodeAnimations() { return _nodeAnimations; }
 
 protected:
     std::ofstream  _log;                 //!< log stream
@@ -126,10 +126,10 @@ protected:
     SLLogVerbosity _logFileVerbosity;    //!< verbosity level of log output to the file
 
     // the imported data for easy access after importing it
-    SLNode*      _sceneRoot;      //!< the root node of the scene
-    SLVMesh      _meshes;         //!< all imported meshes
-    SLAnimSkeleton*  _skeleton;       //!< the imported skeleton for this file
-    SLVAnimation _nodeAnimations; //!< all imported node animations
+    SLNode*         _sceneRoot;      //!< the root node of the scene
+    SLVMesh         _meshes;         //!< all imported meshes
+    SLAnimSkeleton* _skeleton;       //!< the imported skeleton for this file
+    SLVAnimation    _nodeAnimations; //!< all imported node animations
 
     // misc helper
     void logMessage(SLLogVerbosity verbosity, const char* msg, ...);

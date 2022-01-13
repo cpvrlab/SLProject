@@ -18,7 +18,7 @@ class SLAnimSkeleton;
 
 //-----------------------------------------------------------------------------
 //! SLAnimation is the base container for all animation data.
-/*! 
+/*!
 SLAnimation is a container for multiple SLAnimTrack that build an animation.
 E.g. a walk animation would consist of all the SLAnimTrack that make a
 SLAnimSkeleton walk. It also knows the length of the animation.
@@ -46,9 +46,9 @@ public:
                         SLfloat weight = 1.0f,
                         SLfloat scale  = 1.0f);
     void    apply(SLAnimSkeleton* skel,
-                  SLfloat     time,
-                  SLfloat     weight = 1.0f,
-                  SLfloat     scale  = 1.0f);
+                  SLfloat         time,
+                  SLfloat         weight = 1.0f,
+                  SLfloat         scale  = 1.0f);
     void    resetNodes();
     void    drawNodeVisuals(SLSceneView* sv);
 

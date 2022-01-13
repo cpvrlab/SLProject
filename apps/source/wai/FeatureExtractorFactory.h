@@ -49,4 +49,4 @@ private:
     std::vector<std::string> _extractorIdToNames;
 };
 
-#endif //FEATURE_EXTRACTOR_FACTORY
+#endif // FEATURE_EXTRACTOR_FACTORY

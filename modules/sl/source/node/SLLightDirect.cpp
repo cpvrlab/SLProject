@@ -207,9 +207,9 @@ void SLLightDirect::createShadowMapAutoSize(SLCamera* camera,
 
     _doCascadedShadows = true;
     _shadowMap         = new SLShadowMap(this,
-                                         camera,
-                                         texSize,
-                                         numCascades);
+                                 camera,
+                                 texSize,
+                                 numCascades);
 }
 //-----------------------------------------------------------------------------
 /*! SLLightDirect::shadowTest returns 0.0 if the hit point is completely shaded

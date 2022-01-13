@@ -29,7 +29,7 @@ class SLGLProgram;
 class SLAssetManager;
 
 //-----------------------------------------------------------------------------
-//!An SLMesh object is a triangulated mesh that is drawn with one draw call.
+//! An SLMesh object is a triangulated mesh that is drawn with one draw call.
 /*!
 The SLMesh class represents a single mesh object. The mesh object is drawn
 with one draw call using the vertex indices in I16 or I32. A mesh can be drawn
@@ -253,4 +253,4 @@ protected:
 //-----------------------------------------------------------------------------
 typedef vector<SLMesh*> SLVMesh;
 //-----------------------------------------------------------------------------
-#endif //SLMESH_H
+#endif // SLMESH_H

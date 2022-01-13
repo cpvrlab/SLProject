@@ -43,16 +43,16 @@ public:
     SLfloat denoiserMS() const { return _denoiserMS; }
 
 protected:
-    SLint                     _samples;
+    SLint                          _samples;
     SLOptixCudaBuffer<curandState> _curandBuffer = SLOptixCudaBuffer<curandState>();
 
 private:
-    OptixDenoiser      _optixDenoiser;
-    OptixDenoiserSizes _denoiserSizes;
+    OptixDenoiser           _optixDenoiser;
+    OptixDenoiserSizes      _denoiserSizes;
     SLOptixCudaBuffer<void> _denoserState;
     SLOptixCudaBuffer<void> _scratch;
 
-    //Settings
+    // Settings
     SLbool  _denoiserEnabled = true;
     SLfloat _denoiserMS; //!< Denoiser time in ms
 };

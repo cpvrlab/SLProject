@@ -31,13 +31,13 @@ AvgFloat CVTracked::poseTimesMS;
 void CVTracked::resetTimes()
 {
     // Reset all timing variables
-    CVTracked::trackingTimesMS.init(60,0.0f);
-    CVTracked::detectTimesMS.init(60,0.0f);
-    CVTracked::detect1TimesMS.init(60,0.0f);
-    CVTracked::detect2TimesMS.init(60,0.0f);
-    CVTracked::matchTimesMS.init(60,0.0f);
-    CVTracked::optFlowTimesMS.init(60,0.0f);
-    CVTracked::poseTimesMS.init(60,0.0f);
+    CVTracked::trackingTimesMS.init(60, 0.0f);
+    CVTracked::detectTimesMS.init(60, 0.0f);
+    CVTracked::detect1TimesMS.init(60, 0.0f);
+    CVTracked::detect2TimesMS.init(60, 0.0f);
+    CVTracked::matchTimesMS.init(60, 0.0f);
+    CVTracked::optFlowTimesMS.init(60, 0.0f);
+    CVTracked::poseTimesMS.init(60, 0.0f);
 }
 //-----------------------------------------------------------------------------
 // clang-format off

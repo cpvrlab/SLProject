@@ -450,14 +450,14 @@ void ImGuiWrapper::init(const std::string& configPath)
 void ImGuiWrapper::onInitNewFrame(SLScene* s, SLSceneView* sv)
 {
     // If no build function is provided there is no ImGui
-    //if (!build) return;
+    // if (!build) return;
 
-    //if ((SLint)ImGuiWrapper::fontPropDots != (SLint)_fontPropDots ||
-    //    (SLint)ImGuiWrapper::fontFixedDots != (SLint)_fontFixedDots)
-    //    loadFonts(ImGuiWrapper::fontPropDots, ImGuiWrapper::fontFixedDots);
+    // if ((SLint)ImGuiWrapper::fontPropDots != (SLint)_fontPropDots ||
+    //     (SLint)ImGuiWrapper::fontFixedDots != (SLint)_fontFixedDots)
+    //     loadFonts(ImGuiWrapper::fontPropDots, ImGuiWrapper::fontFixedDots);
 
-    //if (!_fontTexture)
-    //    createOpenGLObjects();
+    // if (!_fontTexture)
+    //     createOpenGLObjects();
 
     ImGuiIO& io = _context->IO;
 
@@ -484,12 +484,12 @@ void ImGuiWrapper::onInitNewFrame(SLScene* s, SLSceneView* sv)
     // Call the build function to construct the ui
     build(s, sv);
     ImGui::SetCurrentContext(nullptr);
-    //SL_LOG(".");
+    // SL_LOG(".");
 }
 //-----------------------------------------------------------------------------
 //! Callback if window got resized
-void ImGuiWrapper::onResize(SLint   scrW,
-                            SLint   scrH)
+void ImGuiWrapper::onResize(SLint scrW,
+                            SLint scrH)
 {
     ImGuiIO& io                = _context->IO;
     io.DisplaySize             = ImVec2((SLfloat)scrW, (SLfloat)scrH);
@@ -499,7 +499,7 @@ void ImGuiWrapper::onResize(SLint   scrW,
 //! Callback for main rendering for the ImGui GUI system
 void ImGuiWrapper::onPaint(const SLRecti& viewportRect)
 {
-    //do the opengl rendering
+    // do the opengl rendering
     _renderer->render(viewportRect);
 }
 //-----------------------------------------------------------------------------
@@ -516,7 +516,7 @@ void ImGuiWrapper::onMouseDown(SLMouseButton button, SLint x, SLint y)
     }
     if (button == MB_right) io.MouseDown[1] = true;
     if (button == MB_middle) io.MouseDown[2] = true;
-    //SL_LOG("D");
+    // SL_LOG("D");
 }
 //-----------------------------------------------------------------------------
 //! Callback on mouse button up event
@@ -527,7 +527,7 @@ void ImGuiWrapper::onMouseUp(SLMouseButton button, SLint x, SLint y)
     if (button == MB_left) io.MouseDown[0] = false;
     if (button == MB_right) io.MouseDown[1] = false;
     if (button == MB_middle) io.MouseDown[2] = false;
-    //SL_LOG("U");
+    // SL_LOG("U");
 }
 //-----------------------------------------------------------------------------
 //! Updates the mouse cursor position
@@ -537,7 +537,7 @@ void ImGuiWrapper::onMouseMove(SLint xPos, SLint yPos)
     ImGuiIO& io           = _context->IO;
     if (io.MouseDown[0] && _panScroll.enabled())
         _panScroll.moveTo((float)yPos);
-    //SL_LOG("M");
+    // SL_LOG("M");
 }
 //-----------------------------------------------------------------------------
 //! Callback for the mouse scroll movement

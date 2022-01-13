@@ -12,21 +12,21 @@
 
 //-----------------------------------------------------------------------------
 /*! Constructor for default keyframes.
-*/
+ */
 SLAnimKeyframe::SLAnimKeyframe(const SLAnimTrack* parent, SLfloat time)
   : _parentTrack(parent), _time(time)
 {
 }
 //-----------------------------------------------------------------------------
 /*! Comperator operator.
-*/
+ */
 bool SLAnimKeyframe::operator<(const SLAnimKeyframe& other) const
 {
     return _time < other._time;
 }
 //-----------------------------------------------------------------------------
 /*! Constructor for specialized transform keyframes.
-*/
+ */
 SLTransformKeyframe::SLTransformKeyframe(const SLAnimTrack* parent,
                                          SLfloat            time)
   : SLAnimKeyframe(parent, time),

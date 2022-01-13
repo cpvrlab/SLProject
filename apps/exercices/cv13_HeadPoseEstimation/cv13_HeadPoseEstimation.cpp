@@ -28,7 +28,7 @@ int main()
 
     // 2D image points. If you change the image, you need to change vector
     std::vector<Point2d> image_points;
-    image_points.emplace_back(359, 391); // Nose tip
+    image_points.emplace_back(359, 391);          // Nose tip
     image_points.emplace_back(Point2d(399, 561)); // Chin
     image_points.emplace_back(Point2d(337, 297)); // Left eye left corner
     image_points.emplace_back(Point2d(513, 301)); // Right eye right corner
@@ -37,7 +37,7 @@ int main()
 
     // 3D model points with a unknown scale factor in it
     vector<Point3d> model_points;
-    model_points.emplace_back(0.0f, 0.0f, 0.0f);          // Nose tip
+    model_points.emplace_back(0.0f, 0.0f, 0.0f);                   // Nose tip
     model_points.emplace_back(Point3d(0.0f, -330.0f, -65.0f));     // Chin
     model_points.emplace_back(Point3d(-225.0f, 170.0f, -135.0f));  // Left eye left corner
     model_points.emplace_back(Point3d(225.0f, 170.0f, -135.0f));   // Right eye right corner
@@ -84,7 +84,7 @@ int main()
                   nose_end_point2D);
 
     // Draw red dots on all image points
-    for (auto & image_point : image_points)
+    for (auto& image_point : image_points)
         circle(image, image_point, 3, Scalar(0, 0, 255), -1);
 
     // Draw blue nose line
@@ -102,7 +102,7 @@ int main()
 
     // Display image.
     string title1 = "Pose Estimation with solvePnP:";
-    imshow(title1 , image);
+    imshow(title1, image);
     setWindowProperty(title1, WND_PROP_TOPMOST, 1);
 
     // Wait until user presses some key

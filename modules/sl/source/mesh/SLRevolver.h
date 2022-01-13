@@ -18,11 +18,11 @@ class SLAssetManager;
 
 //-----------------------------------------------------------------------------
 //! SLRevolver is an SLMesh object built out of revolving points.
-/*! 
-SLRevolver is an SLMesh object that is built out of points that are revolved 
+/*!
+SLRevolver is an SLMesh object that is built out of points that are revolved
 in slices around and axis. The surface will be outwards if the points in the
 array _revPoints increase towards the axis direction.
-If all points in the array _revPoints are different the normals will be 
+If all points in the array _revPoints are different the normals will be
 smoothed. If two consecutive points are identical the normals will define a
 hard edge. Texture coords. are cylindrically mapped.
 */
@@ -59,4 +59,4 @@ protected:
     SLbool _smoothLast;
 };
 //-----------------------------------------------------------------------------
-#endif //SLREVOLVER_H
+#endif // SLREVOLVER_H

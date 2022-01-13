@@ -32,7 +32,7 @@ namespace fs = std::experimental::filesystem;
 #        include <direct.h> //_getcwd
 #    endif
 #elif defined(__APPLE__)
-#    if defined(TARGET_OS_IOS) && (TARGET_OS_IOS==1)
+#    if defined(TARGET_OS_IOS) && (TARGET_OS_IOS == 1)
 #        include "Utils_iOS.h"
 #    endif
 #    include <dirent.h>
@@ -323,7 +323,7 @@ bool containsString(const string& container, const string& search)
 // Return true if the container string starts with the startStr
 bool startsWithString(const string& container, const string& startStr)
 {
-    return  container.find(startStr) == 0;
+    return container.find(startStr) == 0;
 }
 //-----------------------------------------------------------------------------
 // Return true if the container string ends with the endStr
@@ -679,7 +679,7 @@ vector<string> getAllNamesInDir(const string& dirName, bool fullPath)
         }
     }
 #else
-#    if defined(TARGET_OS_IOS) && (TARGET_OS_IOS==1)
+#    if defined(TARGET_OS_IOS) && (TARGET_OS_IOS == 1)
     return Utils_iOS::getAllNamesInDir(dirName, fullPath);
 #    else
     DIR* dir = opendir(dirName.c_str());
@@ -1023,14 +1023,16 @@ void dumpFileSystemRec(const char* logtag, const string& folderPath)
 
     loopFileSystemRec(
       folderPath,
-      [logtag, tab](string path, string baseName, int depth) -> void {
+      [logtag, tab](string path, string baseName, int depth) -> void
+      {
           string indent;
           for (int d = 0; d < depth; ++d)
               indent += tab;
           string indentFolderName = indent + baseName;
           Utils::log(logtag, "%s", indentFolderName.c_str());
       },
-      [logtag, tab](string path, string baseName, int depth) -> void {
+      [logtag, tab](string path, string baseName, int depth) -> void
+      {
           string indent;
           for (int d = 0; d < depth; ++d)
               indent += tab;
@@ -1278,7 +1280,7 @@ std::string ComputerInfos::get()
     os    = "Windows";
 
 #elif defined(__APPLE__)
-#    if defined(TARGET_OS_IOS) && (TARGET_OS_IOS==1)
+#    if defined(TARGET_OS_IOS) && (TARGET_OS_IOS == 1)
     // Model and architecture are retrieved before in iOS under Objective C
     brand              = "Apple";
     os                 = "iOS";

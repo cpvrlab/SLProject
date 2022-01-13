@@ -14,14 +14,14 @@
 
 //-----------------------------------------------------------------------------
 //! Base class for all other classes
-/*!      
+/*!
 The SLObject class serves as root3D class for other classes and provides for the
-moment only a string with the name. It could be extended for object i/o 
+moment only a string with the name. It could be extended for object i/o
 (serialization) or reference counting.
 */
 class SLObject
 {
-    public:
+public:
     SLObject(const SLstring& Name = "",
              const SLstring& url  = "")
     {
@@ -38,7 +38,7 @@ class SLObject
     const SLstring& name() const { return _name; }
     const SLstring& url() const { return _url; }
 
-    protected:
+protected:
     SLstring _name; //!< name of an object
     SLstring _url;  //!< uniform resource locator
 };

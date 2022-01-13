@@ -33,7 +33,7 @@ public:
                double secondsLon,
                double altitudeM)
     {
-        name = std::move(locName);
+        name             = std::move(locName);
         SLVec3d posWGS84 = SLAlgo::geoDegMinSec2Decimal(degreesLat,
                                                         minutesLat,
                                                         secondsLat,
@@ -96,10 +96,10 @@ public:
 
     SLbool calculateSolarAngles(SLVec3d     locationLatLonAlt,
                                 std::time_t time);
-    
+
     //! Converter method: the transferred wgs84 coordinate is converted to ENU frame and returned (does not change SLDeviceLocation)
     SLVec3d convertLatLonAlt2ENU(SLVec3d locLatLonAlt) const;
-    
+
     // Setters
     void isUsed(SLbool isUsed);
     void useOriginAltitude(SLbool useGLA) { _useOriginAltitude = useGLA; }
@@ -138,7 +138,7 @@ public:
     void activeNamedLocation(SLint locIndex)
     {
         _activeNamedLocation = locIndex;
-        _isUsed = false;
+        _isUsed              = false;
         defaultLatLonAlt(_nameLocations[locIndex].posWGS84LatLonAlt);
     }
 

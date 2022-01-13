@@ -20,7 +20,7 @@ using std::string;
 using std::vector;
 
 //-----------------------------------------------------------------------------
-//!special exception that informs about errors during calibration process
+//! special exception that informs about errors during calibration process
 class CVCalibrationEstimatorException : public std::runtime_error
 {
 public:
@@ -78,7 +78,7 @@ public:
     int numCapturedImgs() { return _numCaptured; }
 
     bool calibrationSuccessful() { return _calibrationSuccessful; }
-    //!Get resulting calibration
+    //! Get resulting calibration
     CVCalibration getCalibration() { return _calibration; }
     bool          isBusyExtracting() { return _state == State::BusyExtracting; }
     bool          isCalculating() { return _state == State::Calculating; }
@@ -132,7 +132,7 @@ private:
     CVSize      _imageSize;                 //!< Input image size in pixels (after cropping)
     float       _reprojectionError = -1.f;  //!< Reprojection error after calibration
 
-    //constructor transfer parameter
+    // constructor transfer parameter
     CVCalibrationEstimatorParams _params;
     int                          _camSizeIndex = -1;
     bool                         _mirroredH    = false;
@@ -145,7 +145,7 @@ private:
     string                       _calibImgOutputDir;
     string                       _exePath;
 
-    //exception handling from async thread
+    // exception handling from async thread
     bool                            _hasAsyncError = false;
     CVCalibrationEstimatorException _exception;
 };

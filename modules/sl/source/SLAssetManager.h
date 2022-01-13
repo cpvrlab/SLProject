@@ -29,7 +29,7 @@ class SLInputManager;
  * textures (SLGLTexture) and shader programs (SLGLProgram).
  * One instance of SLAssetManager must be owned and destroyed by the app
  * (see e.g. AppDemo.h).
-*/
+ */
 class SLAssetManager
 {
 public:
@@ -43,7 +43,7 @@ public:
         }
     }
     ~SLAssetManager();
-    
+
     void clear();
 
     //! for all assets, clear gpu data
@@ -54,7 +54,7 @@ public:
 
     //! Returns the pointer to shader program if found by name
     SLGLProgram* getProgramByName(const string& programName);
-    
+
     //! merge other asset manager into this
     void merge(SLAssetManager& other);
 
@@ -66,7 +66,7 @@ public:
 
     // Static method & font pointers
     // These fonts can be used inside a 2D or 3D scene, not within ImGui
-    static void       generateFonts(SLstring fontPath,
+    static void       generateFonts(SLstring     fontPath,
                                     SLGLProgram& fontTexProgram);
     static void       deleteFonts();
     static SLTexFont* getFont(SLfloat heightMM, SLint dpi);
@@ -90,4 +90,4 @@ protected:
     SLVGLProgram _programs;  //!< Vector of all shader program pointers
 };
 //-----------------------------------------------------------------------------
-#endif //SLASSETMANAGER_H
+#endif // SLASSETMANAGER_H

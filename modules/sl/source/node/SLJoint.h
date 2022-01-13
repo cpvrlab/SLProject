@@ -25,12 +25,12 @@ The ID of the joint must be unique among all joints in the parent skeleton.
 */
 class SLJoint : public SLNode
 {
-    public:
-    SLJoint(SLuint      handle,
-                SLAnimSkeleton* creator);
+public:
+    SLJoint(SLuint          handle,
+            SLAnimSkeleton* creator);
     SLJoint(const SLstring& name,
             SLuint          handle,
-            SLAnimSkeleton*     creator);
+            SLAnimSkeleton* creator);
 
     SLJoint* createChild(SLuint id);
     SLJoint* createChild(const SLstring& name, SLuint id);
@@ -48,11 +48,11 @@ class SLJoint : public SLNode
     const SLMat4f& offsetMat() const { return _offsetMat; }
     SLfloat        radius() const { return _radius; }
 
-    protected:
-    SLuint      _id;        //!< unique id inside its parent skeleton
+protected:
+    SLuint          _id;        //!< unique id inside its parent skeleton
     SLAnimSkeleton* _skeleton;  //!< the skeleton this joint belongs to
-    SLMat4f     _offsetMat; //!< matrix transforming this joint from bind pose to world pose
-    SLfloat     _radius;    //!< info for the mesh this skeleton is bound to (should be moved to a skeleton instance class later, or removed entierely)
+    SLMat4f         _offsetMat; //!< matrix transforming this joint from bind pose to world pose
+    SLfloat         _radius;    //!< info for the mesh this skeleton is bound to (should be moved to a skeleton instance class later, or removed entierely)
 };
 //-----------------------------------------------------------------------------
 typedef vector<SLJoint*> SLVJoint;

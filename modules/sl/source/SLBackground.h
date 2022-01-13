@@ -53,6 +53,7 @@ public:
     SLbool         isUniform() const { return _isUniform; }
     SLGLTexture*   texture() { return _texture; }
     const SLRectf& rect() const { return _rect; }
+
 private:
     SLbool          _isUniform;    //!< Flag if background has uniform color
     SLVCol4f        _colors;       //!< Vector of 4 corner colors {TL,BL,TR,BR}

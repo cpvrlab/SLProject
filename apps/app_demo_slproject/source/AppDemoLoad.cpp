@@ -2451,7 +2451,8 @@ resolution shadows near the camera and lower resolution shadows further away.");
         if (sceneID == SID_SuzannePerPixBlinn ||
             sceneID == SID_SuzannePerPixBlinnSm)
         {
-            auto removeAllTm = [=](SLMaterial* mat) {
+            auto removeAllTm = [=](SLMaterial* mat)
+            {
                 mat->removeTextureType(TT_diffuse);
                 mat->removeTextureType(TT_normal);
                 mat->removeTextureType(TT_occlusion);
@@ -2461,7 +2462,8 @@ resolution shadows near the camera and lower resolution shadows further away.");
         }
         if (sceneID == SID_SuzannePerPixBlinnTm)
         {
-            auto removeNmAo = [=](SLMaterial* mat) {
+            auto removeNmAo = [=](SLMaterial* mat)
+            {
                 mat->removeTextureType(TT_normal);
                 mat->removeTextureType(TT_occlusion);
             };
@@ -2469,7 +2471,8 @@ resolution shadows near the camera and lower resolution shadows further away.");
         }
         if (sceneID == SID_SuzannePerPixBlinnNm)
         {
-            auto removeNmAo = [=](SLMaterial* mat) {
+            auto removeNmAo = [=](SLMaterial* mat)
+            {
                 mat->ambientDiffuse(stoneColor);
                 mat->removeTextureType(TT_diffuse);
                 mat->removeTextureType(TT_occlusion);
@@ -2478,7 +2481,8 @@ resolution shadows near the camera and lower resolution shadows further away.");
         }
         if (sceneID == SID_SuzannePerPixBlinnAo)
         {
-            auto removeNmAo = [=](SLMaterial* mat) {
+            auto removeNmAo = [=](SLMaterial* mat)
+            {
                 mat->ambientDiffuse(stoneColor);
                 mat->removeTextureType(TT_diffuse);
                 mat->removeTextureType(TT_normal);
@@ -2487,7 +2491,8 @@ resolution shadows near the camera and lower resolution shadows further away.");
         }
         if (sceneID == SID_SuzannePerPixBlinnTmSm)
         {
-            auto removeTmNm = [=](SLMaterial* mat) {
+            auto removeTmNm = [=](SLMaterial* mat)
+            {
                 mat->removeTextureType(TT_normal);
                 mat->removeTextureType(TT_occlusion);
             };
@@ -2495,7 +2500,8 @@ resolution shadows near the camera and lower resolution shadows further away.");
         }
         if (sceneID == SID_SuzannePerPixBlinnNmSm)
         {
-            auto removeTmNm = [=](SLMaterial* mat) {
+            auto removeTmNm = [=](SLMaterial* mat)
+            {
                 mat->ambientDiffuse(stoneColor);
                 mat->removeTextureType(TT_diffuse);
                 mat->removeTextureType(TT_occlusion);
@@ -2504,7 +2510,8 @@ resolution shadows near the camera and lower resolution shadows further away.");
         }
         if (sceneID == SID_SuzannePerPixBlinnAoSm)
         {
-            auto removeTmNm = [=](SLMaterial* mat) {
+            auto removeTmNm = [=](SLMaterial* mat)
+            {
                 mat->ambientDiffuse(stoneColor);
                 mat->removeTextureType(TT_diffuse);
                 mat->removeTextureType(TT_normal);
@@ -2513,14 +2520,16 @@ resolution shadows near the camera and lower resolution shadows further away.");
         }
         if (sceneID == SID_SuzannePerPixBlinnTmAo)
         {
-            auto removeNmAo = [=](SLMaterial* mat) {
+            auto removeNmAo = [=](SLMaterial* mat)
+            {
                 mat->removeTextureType(TT_normal);
             };
             suzanneInCube->updateMeshMat(removeNmAo, true);
         }
         if (sceneID == SID_SuzannePerPixBlinnNmAo)
         {
-            auto removeNmAo = [=](SLMaterial* mat) {
+            auto removeNmAo = [=](SLMaterial* mat)
+            {
                 mat->ambientDiffuse(stoneColor);
                 mat->removeTextureType(TT_diffuse);
             };
@@ -2529,7 +2538,8 @@ resolution shadows near the camera and lower resolution shadows further away.");
         if (sceneID == SID_SuzannePerPixBlinnTmNm ||
             sceneID == SID_SuzannePerPixBlinnTmNmSm)
         {
-            auto removeAo = [=](SLMaterial* mat) { mat->removeTextureType(TT_occlusion); };
+            auto removeAo = [=](SLMaterial* mat)
+            { mat->removeTextureType(TT_occlusion); };
             suzanneInCube->updateMeshMat(removeAo, true);
         }
 
@@ -2576,7 +2586,8 @@ resolution shadows near the camera and lower resolution shadows further away.");
                     camClipFar = 100;
                     break;
                 }*/
-                case SID_glTF_DamagedHelmet: {
+                case SID_glTF_DamagedHelmet:
+                {
                     s->name("glTF-Sample-Model: Damaged Helmet");
                     modelFile = damagedHelmet;
                     camPos.set(0, 0, 3);
@@ -2584,7 +2595,8 @@ resolution shadows near the camera and lower resolution shadows further away.");
                     camClipFar = 20;
                     break;
                 }
-                case SID_glTF_FlightHelmet: {
+                case SID_glTF_FlightHelmet:
+                {
                     s->name("glTF-Sample-Model: Flight Helmet");
                     modelFile = flightHelmet;
                     camPos.set(0, 0.33f, 1.1f);
@@ -2592,14 +2604,16 @@ resolution shadows near the camera and lower resolution shadows further away.");
                     camClipFar = 20;
                     break;
                 }
-                case SID_glTF_Sponza: {
+                case SID_glTF_Sponza:
+                {
                     s->name("glTF-Sample-Model: Sponza Palace in Dubrovnic");
                     modelFile = sponzaPalace;
                     camPos.set(-8, 1.6f, 0);
                     lookAt.set(0, camPos.y, 0);
                     break;
                 }
-                case SID_glTF_WaterBottle: {
+                case SID_glTF_WaterBottle:
+                {
                     s->name("glTF-Sample-Model: WaterBottle");
                     modelFile = waterBottle;
                     camPos.set(0, 0, 0.5f);
@@ -2759,7 +2773,8 @@ resolution shadows near the camera and lower resolution shadows further away.");
                                         "mri_head_front_to_back",
                                         true);
 
-            gTexMRI3D->calc3DGradients(1, [](int progress) { AppDemo::jobProgressNum(progress); });
+            gTexMRI3D->calc3DGradients(1, [](int progress)
+                                       { AppDemo::jobProgressNum(progress); });
             // gTexMRI3D->smooth3DGradients(1, [](int progress) {AppDemo::jobProgressNum(progress);});
         }
 
@@ -4049,7 +4064,9 @@ resolution shadows near the camera and lower resolution shadows further away.");
         axis->castsShadows(false);
 
         // Set some ambient light
-        thtAndTmp->updateMeshMat([](SLMaterial* m) { m->ambient(SLCol4f(.25f, .25f, .25f)); }, true);
+        thtAndTmp->updateMeshMat([](SLMaterial* m)
+                                 { m->ambient(SLCol4f(.25f, .25f, .25f)); },
+                                 true);
         SLNode* scene = new SLNode("Scene");
         scene->addChild(sunLight);
         scene->addChild(axis);
@@ -4193,7 +4210,9 @@ resolution shadows near the camera and lower resolution shadows further away.");
         axis->castsShadows(false);
 
         // Set some ambient light
-        thtAndTmp->updateMeshMat([](SLMaterial* m) { m->ambient(SLCol4f(.25f, .25f, .25f)); }, true);
+        thtAndTmp->updateMeshMat([](SLMaterial* m)
+                                 { m->ambient(SLCol4f(.25f, .25f, .25f)); },
+                                 true);
         SLNode* scene = new SLNode("Scene");
         scene->addChild(sunLight);
         scene->addChild(axis);
@@ -4338,7 +4357,9 @@ resolution shadows near the camera and lower resolution shadows further away.");
         axis->castsShadows(false);
 
         // Set some ambient light
-        thtAndTmp->updateMeshMat([](SLMaterial* m) { m->ambient(SLCol4f(.25f, .25f, .25f)); }, true);
+        thtAndTmp->updateMeshMat([](SLMaterial* m)
+                                 { m->ambient(SLCol4f(.25f, .25f, .25f)); },
+                                 true);
         SLNode* scene = new SLNode("Scene");
         scene->addChild(sunLight);
         scene->addChild(axis);
@@ -4374,7 +4395,8 @@ resolution shadows near the camera and lower resolution shadows further away.");
         tmpL2->drawBits()->set(SL_DB_HIDDEN, true);
 
         // Add level of detail switch callback lambda
-        cam1->onCamUpdateCB([=](SLSceneView* sv) {
+        cam1->onCamUpdateCB([=](SLSceneView* sv)
+                            {
             SLVec3f posCam     = sv->camera()->updateAndGetWM().translation();
             SLVec3f posAlt     = tmpAltar->updateAndGetWM().translation();
             SLVec3f distCamAlt = posCam - posAlt;
@@ -4395,8 +4417,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
                 thtL2->drawBits()->set(SL_DB_HIDDEN, true);
                 tmpL1->drawBits()->set(SL_DB_HIDDEN, true);
                 tmpL2->drawBits()->set(SL_DB_HIDDEN, false);
-            }
-        });
+            } });
 
         // This loads the DEM file and overwrites the altitude of originLatLonAlt and defaultLatLonAlt
         SLstring tif = datDir + "DTM-Theater-Tempel-WGS84.tif";

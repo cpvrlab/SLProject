@@ -34,10 +34,10 @@ CVTracked* tracker = nullptr;
 SLNode* trackedNode = nullptr;
 
 //-----------------------------------------------------------------------------
-//always update scene camera fovV from calibration because the calibration may have
-//been adapted in adjustForSL after a change of aspect ratio!
-//Attention: The active scene view camera may be a different one that the tracking camera
-//but we have to update the tracking camera only!
+// always update scene camera fovV from calibration because the calibration may have
+// been adapted in adjustForSL after a change of aspect ratio!
+// Attention: The active scene view camera may be a different one that the tracking camera
+// but we have to update the tracking camera only!
 void updateTrackingSceneCamera(CVCamera* ac)
 {
     PROFILE_FUNCTION();
@@ -49,7 +49,7 @@ void updateTrackingSceneCamera(CVCamera* ac)
     }
 }
 //-----------------------------------------------------------------------------
-//CVCalibrationEstimator* calibrationEstimator = nullptr;
+// CVCalibrationEstimator* calibrationEstimator = nullptr;
 void runCalibrationEstimator(CVCamera* ac, SLScene* s, SLSceneView* sv)
 {
     PROFILE_FUNCTION();
@@ -61,41 +61,48 @@ void runCalibrationEstimator(CVCamera* ac, SLScene* s, SLSceneView* sv)
         if (!AppDemo::calibrationEstimator)
         {
             AppDemo::calibrationEstimator = new CVCalibrationEstimator(AppDemo::calibrationEstimatorParams,
-                                                                             CVCapture::instance()->activeCamSizeIndex,
-                                                                             ac->mirrorH(),
-                                                                             ac->mirrorV(),
-                                                                             ac->type(),
-                                                                             Utils::ComputerInfos::get(),
+                                                                       CVCapture::instance()->activeCamSizeIndex,
+                                                                       ac->mirrorH(),
+                                                                       ac->mirrorV(),
+                                                                       ac->type(),
+                                                                       Utils::ComputerInfos::get(),
                                                                        AppDemo::calibIniPath,
                                                                        AppDemo::externalPath,
                                                                        AppDemo::exePath);
 
-            //clear grab request from sceneview
+            // clear grab request from sceneview
             adSv->grab           = false;
             processedCalibResult = false;
         }
 
         if (AppDemo::calibrationEstimator->isStreaming())
         {
-            AppDemo::calibrationEstimator->updateAndDecorate(CVCapture::instance()->lastFrame, CVCapture::instance()->lastFrameGray, adSv->grab);
-            //reset grabbing switch
+            AppDemo::calibrationEstimator->updateAndDecorate(CVCapture::instance()->lastFrame,
+                                                             CVCapture::instance()->lastFrameGray,
+                                                             adSv->grab);
+            // reset grabbing switch
             adSv->grab = false;
 
             stringstream ss;
             ss << "Click on the screen to create a calibration photo. Created "
-               << AppDemo::calibrationEstimator->numCapturedImgs() << " of " << AppDemo::calibrationEstimator->numImgsToCapture();
+               << AppDemo::calibrationEstimator->numCapturedImgs()
+               << " of " << AppDemo::calibrationEstimator->numImgsToCapture();
             s->info(ss.str());
         }
         else if (AppDemo::calibrationEstimator->isBusyExtracting())
         {
-            //also reset grabbing, user has to click again
+            // also reset grabbing, user has to click again
             adSv->grab = false;
-            AppDemo::calibrationEstimator->updateAndDecorate(CVCapture::instance()->lastFrame, CVCapture::instance()->lastFrameGray, false);
+            AppDemo::calibrationEstimator->updateAndDecorate(CVCapture::instance()->lastFrame,
+                                                             CVCapture::instance()->lastFrameGray,
+                                                             false);
             s->info("Busy extracting corners, please wait with grabbing ...");
         }
         else if (AppDemo::calibrationEstimator->isCalculating())
         {
-            AppDemo::calibrationEstimator->updateAndDecorate(CVCapture::instance()->lastFrame, CVCapture::instance()->lastFrameGray, false);
+            AppDemo::calibrationEstimator->updateAndDecorate(CVCapture::instance()->lastFrame,
+                                                             CVCapture::instance()->lastFrameGray,
+                                                             false);
             s->info("Calculating calibration, please wait ...");
         }
         else if (AppDemo::calibrationEstimator->isDone())
@@ -156,7 +163,7 @@ void ensureValidCalibration(CVCamera* ac, SLSceneView* sv)
 {
     PROFILE_FUNCTION();
 
-    //we have to make sure calibration process is stopped if someone stopps calibrating
+    // we have to make sure calibration process is stopped if someone stops calibrating
     if (AppDemo::calibrationEstimator)
     {
         delete AppDemo::calibrationEstimator;
@@ -188,7 +195,7 @@ void ensureValidCalibration(CVCamera* ac, SLSceneView* sv)
         }
         else
         {
-            //make a guess using frame size and a guessed field of view
+            // make a guess using frame size and a guessed field of view
             ac->calibration = CVCalibration(cv::Size(CVCapture::instance()->lastFrame.cols,
                                                      CVCapture::instance()->lastFrame.rows),
                                             60.0,
@@ -230,10 +237,10 @@ bool onUpdateVideo()
         else
         {
             ensureValidCalibration(ac, sv);
-            //Attention: Always update scene camera fovV from calibration because the calibration may have
-            //been adapted in adjustForSL after a change of aspect ratio!
-            //The active scene view camera may be a different one that the tracking camera
-            //but we have to update the tracking camera only!
+            // Attention: Always update scene camera fovV from calibration because the calibration may have
+            // been adapted in adjustForSL after a change of aspect ratio!
+            // The active scene view camera may be a different one that the tracking camera
+            // but we have to update the tracking camera only!
             updateTrackingSceneCamera(ac);
 
             if (tracker && trackedNode)
@@ -289,7 +296,7 @@ bool onUpdateVideo()
         }
 
         //...................................................................
-        //copy image to video texture
+        // copy image to video texture
         if (videoTexture)
         {
             if (ac->calibration.state() == CS_calibrated && ac->showUndistorted())
@@ -297,7 +304,7 @@ bool onUpdateVideo()
                 CVMat undistorted;
                 ac->calibration.remap(CVCapture::instance()->lastFrame, undistorted);
 
-                //CVCapture::instance()->videoTexture()->copyVideoImage(undistorted.cols,
+                // CVCapture::instance()->videoTexture()->copyVideoImage(undistorted.cols,
                 videoTexture->copyVideoImage(undistorted.cols,
                                              undistorted.rows,
                                              CVCapture::instance()->format,
@@ -307,7 +314,7 @@ bool onUpdateVideo()
             }
             else
             {
-                //CVCapture::instance()->videoTexture()->copyVideoImage(CVCapture::instance()->lastFrame.cols,
+                // CVCapture::instance()->videoTexture()->copyVideoImage(CVCapture::instance()->lastFrame.cols,
                 videoTexture->copyVideoImage(CVCapture::instance()->lastFrame.cols,
                                              CVCapture::instance()->lastFrame.rows,
                                              CVCapture::instance()->format,

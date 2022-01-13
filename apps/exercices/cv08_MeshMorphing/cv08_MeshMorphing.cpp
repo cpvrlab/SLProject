@@ -42,10 +42,10 @@ drawDelaunay(Mat& img, Subdiv2D& subdiv, Scalar delaunay_color)
 //-----------------------------------------------------------------------------
 // Draws the Delaunay triangualtion into an image using the triangle indexes
 static void
-drawDelaunay(Mat&                 img,
-             vector<Point2f>&     points,
+drawDelaunay(Mat&                  img,
+             vector<Point2f>&      points,
              vector<vector<uint>>& triangleIndexes,
-             Scalar               delaunay_color)
+             Scalar                delaunay_color)
 {
     Size size = img.size();
     Rect rect(0, 0, size.width, size.height);
@@ -68,10 +68,10 @@ drawDelaunay(Mat&                 img,
 }
 //-----------------------------------------------------------------------------
 static void
-createDelaunay(Mat&                 img,
-               Subdiv2D&            subdiv,
-               vector<Point2f>&     points,
-               bool                 drawAnimated,
+createDelaunay(Mat&                  img,
+               Subdiv2D&             subdiv,
+               vector<Point2f>&      points,
+               bool                  drawAnimated,
                vector<vector<uint>>& triangleIndexes)
 {
     // Insert points into subdiv
@@ -96,7 +96,7 @@ createDelaunay(Mat&                 img,
     vector<Vec6f> triangleList;
     subdiv.getTriangleList(triangleList);
     vector<Point2f> pt(3);
-    vector<uint>     ind(3);
+    vector<uint>    ind(3);
 
     for (size_t i = 0; i < triangleList.size(); i++)
     {
@@ -195,7 +195,7 @@ int main()
 {
     std::string projectRoot = std::string(SL_PROJECT_ROOT);
 
-    //Read input images
+    // Read input images
     Mat img1 = imread(projectRoot + "/data/images/textures/hillary_clinton.jpg");
     Mat img2 = imread(projectRoot + "/data/images/textures/donald_trump.jpg");
     if (img1.empty() || img2.empty())
@@ -204,7 +204,7 @@ int main()
         return -1;
     }
 
-    //convert Mat to float data type
+    // convert Mat to float data type
     img1.convertTo(img1, CV_32F);
     img2.convertTo(img2, CV_32F);
 
@@ -271,7 +271,7 @@ int main()
         alpha += sign * 0.05f;
         if (alpha >= 1.0f || alpha <= 0.0f) sign *= -1.0f;
 
-        //compute weighted average point coordinates
+        // compute weighted average point coordinates
         vector<Point2f> pointsM;
         for (uint i = 0; i < points1.size(); i++)
         {
@@ -280,7 +280,7 @@ int main()
             pointsM.push_back(Point2f(x, y));
         }
 
-        //empty image for morphed face
+        // empty image for morphed face
         Mat imgM = Mat::zeros(img1.size(), CV_32FC3);
 
         // Loop over all triangles and morph them

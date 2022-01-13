@@ -38,20 +38,20 @@ enum CVPixFormat
     PF_bgr             = 0x80E0, //         GL2 GL3 GL4
     PF_bgra            = 0x80E1, //         GL2 GL3 GL4
     PF_hdr,
-    PF_rg_integer      = 0x8228, //     ES3         GL4
-    PF_red_integer     = 0x8D94, //     ES3         GL4
-    PF_rgb_integer     = 0x8D98, //     ES3         GL4
-    PF_rgba_integer    = 0x8D99, //     ES3         GL4
-    PF_bgr_integer     = 0x8D9A, //                 GL4
-    PF_bgra_integer    = 0x8D9B, //                 GL4
-    PF_r32f            = 0x822E  //     ES3     GL3 GL4
+    PF_rg_integer   = 0x8228, //     ES3         GL4
+    PF_red_integer  = 0x8D94, //     ES3         GL4
+    PF_rgb_integer  = 0x8D98, //     ES3         GL4
+    PF_rgba_integer = 0x8D99, //     ES3         GL4
+    PF_bgr_integer  = 0x8D9A, //                 GL4
+    PF_bgra_integer = 0x8D9B, //                 GL4
+    PF_r32f         = 0x822E  //     ES3     GL3 GL4
 };
 //-----------------------------------------------------------------------------
 //! OpenCV image class with the same interface as the former SLImage class
 /*! The core object is the OpenCV matrix _cvMat. Be aware the OpenCV accesses its
 matrix of type mat often by row and columns. In that order it corresponds to
 the y and x coordinates and not x and y as we are used to!
-See the OpenCV docs for more information: 
+See the OpenCV docs for more information:
 http://docs.opencv.org/2.4.10/modules/core/doc/basic_structures.html#mat
 */
 class CVImage

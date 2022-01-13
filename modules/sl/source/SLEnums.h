@@ -132,7 +132,7 @@ enum SLSceneID
     SID_SuzannePerPixBlinnTmNmSm,
     SID_SuzannePerPixBlinnTmNmAoSm,
 
-    //SID_glTF_ClearCoatTest,
+    // SID_glTF_ClearCoatTest,
     SID_glTF_DamagedHelmet,
     SID_glTF_FlightHelmet,
     SID_glTF_Sponza,
@@ -355,7 +355,7 @@ enum SLViewportAlign
 //-----------------------------------------------------------------------------
 //! Corresponds to the old fog modes in OpenGL 2.1
 /*! See also: https://www.khronos.org/registry/OpenGL-Refpages/gl2.1/xhtml/glFog.xml
-*/
+ */
 enum SLFogMode
 {
     FM_linear = 0,

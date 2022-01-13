@@ -73,7 +73,7 @@ public:
     void onPaint(const SLRecti& viewport) override;
     void onMouseDown(SLMouseButton button, SLint x, SLint y) override;
     void onMouseUp(SLMouseButton button, SLint x, SLint y) override;
-    //returns true if it wants to capture mouse
+    // returns true if it wants to capture mouse
     void onMouseMove(SLint xPos, SLint yPos) override;
     void onMouseWheel(SLfloat yoffset) override;
     void onKeyPress(SLKey key, SLKey mod) override;

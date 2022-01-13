@@ -47,7 +47,7 @@ bool uploadFileLatestVersion(const string& fileDir,
 
     bool   success = true;
     ftplib ftp;
-    //enable active mode
+    // enable active mode
     ftp.SetConnmode(ftplib::connmode::port);
 
     if (ftp.Connect(ftpHost.c_str()))
@@ -128,7 +128,7 @@ bool downloadFileLatestVersion(const string& fileDir,
 {
     bool   success = true;
     ftplib ftp;
-    //enable active mode
+    // enable active mode
     ftp.SetConnmode(ftplib::connmode::port);
 
     if (ftp.Connect(ftpHost.c_str()))
@@ -212,7 +212,7 @@ bool uploadFile(const string& fileDir,
 
     bool   success = true;
     ftplib ftp;
-    //enable active mode
+    // enable active mode
     ftp.SetConnmode(ftplib::connmode::port);
 
     if (ftp.Connect(ftpHost.c_str()))
@@ -274,7 +274,7 @@ bool downloadFile(const string& fileDir,
 {
     bool   success = true;
     ftplib ftp;
-    //enable active mode
+    // enable active mode
     ftp.SetConnmode(ftplib::connmode::port);
 
     if (ftp.Connect(ftpHost.c_str()))
@@ -349,7 +349,7 @@ bool downloadAllFilesFromDir(const string& fileDir,
 {
     bool   success = true;
     ftplib ftp;
-    //enable active mode
+    // enable active mode
     ftp.SetConnmode(ftplib::connmode::port);
 
     if (ftp.Connect(ftpHost.c_str()))
@@ -358,7 +358,7 @@ bool downloadAllFilesFromDir(const string& fileDir,
         {
             if (ftp.Chdir(ftpDir.c_str()))
             {
-                //get all names in directory
+                // get all names in directory
                 vector<string> retrievedFileNames;
                 if ((success = getAllFileNamesWithTag(ftp,
                                                       fileDir,
@@ -432,7 +432,7 @@ bool getAllFileNamesWithTag(ftplib&         ftp,
     // Get result of ftp.Dir into the text file ftpDirResult
     if (ftp.Dir(ftpDirResult.c_str(), searchDirAndFileType.c_str()))
     {
-        //analyse ftpDirResult content
+        // analyse ftpDirResult content
         vector<string> vecFilesInDir;
         vector<string> strippedFiles;
 
@@ -442,7 +442,7 @@ bool getAllFileNamesWithTag(ftplib&         ftp,
             {
                 vector<string> splits;
                 Utils::splitString(fileInfoLine, ' ', splits);
-                //we have to remove the first 8 strings with first 8 "holes" of unknown length from info line
+                // we have to remove the first 8 strings with first 8 "holes" of unknown length from info line
                 int  numOfFoundNonEmpty = 0;
                 bool found              = false;
 
@@ -459,10 +459,10 @@ bool getAllFileNamesWithTag(ftplib&         ftp,
                     }
                     pos++;
                 }
-                //remove next string that we assume to be empty (before interesting part)
+                // remove next string that we assume to be empty (before interesting part)
                 pos++;
 
-                //we need minumum 9 splits (compare content of ftpDirResult.txt). The splits after the 8th we combine to one string again
+                // we need minumum 9 splits (compare content of ftpDirResult.txt). The splits after the 8th we combine to one string again
                 if (found && pos < splits.size())
                 {
                     std::string name;
@@ -479,7 +479,7 @@ bool getAllFileNamesWithTag(ftplib&         ftp,
                 }
                 else
                 {
-                    //if more than two splits double point is not unique and we get an undefined result
+                    // if more than two splits double point is not unique and we get an undefined result
                     errorMsg = "*** ERROR: getAllFileNamesWithTag: Unexpected result: Ftp info line was not formatted as expected. ***\n";
                     success  = false;
                 }
@@ -579,22 +579,22 @@ int getVersionInFilename(const string& filename)
     return versionNO;
 }
 //-----------------------------------------------------------------------------
-//off64_t ftpUploadSizeMax = 0;
+// off64_t ftpUploadSizeMax = 0;
 
 //-----------------------------------------------------------------------------
 //! Calibration Upload callback for progress feedback
-//int ftpCallbackUpload(off64_t xfered, void* arg)
+// int ftpCallbackUpload(off64_t xfered, void* arg)
 //{
-//    if (ftpUploadSizeMax)
-//    {
-//        int xferedPC = (int)((float)xfered / (float)ftpUploadSizeMax * 100.0f);
-//        cout << "Bytes saved: " << xfered << " (" << xferedPC << ")" << endl;
-//        //AppDemo::jobProgressNum(xferedPC);
-//    }
-//    else
-//    {
-//        cout << "Bytes saved: " << xfered << endl;
-//    }
-//    return xfered ? 1 : 0;
-//}
+//     if (ftpUploadSizeMax)
+//     {
+//         int xferedPC = (int)((float)xfered / (float)ftpUploadSizeMax * 100.0f);
+//         cout << "Bytes saved: " << xfered << " (" << xferedPC << ")" << endl;
+//         //AppDemo::jobProgressNum(xferedPC);
+//     }
+//     else
+//     {
+//         cout << "Bytes saved: " << xfered << endl;
+//     }
+//     return xfered ? 1 : 0;
+// }
 };

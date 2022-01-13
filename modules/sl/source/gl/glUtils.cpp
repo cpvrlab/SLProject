@@ -29,12 +29,12 @@ void glUtils::printGLInfo()
     /*
     cout << "OpenGL Extensions:" << endl;
     stringstream ss;
-	int n;
-	glGetIntegerv(GL_NUM_EXTENSIONS, &n);
-	for (int i = 0; i < n; ++i)
-	{
-		ss << glGetStringi(GL_EXTENSIONS, i) << " ";
-	}
+        int n;
+        glGetIntegerv(GL_NUM_EXTENSIONS, &n);
+        for (int i = 0; i < n; ++i)
+        {
+                ss << glGetStringi(GL_EXTENSIONS, i) << " ";
+        }
     cout << ss.str() << endl;
     */
 }
@@ -249,12 +249,12 @@ void glUtils::buildVAO(GLuint& vaoID,
     assert(dataPointerIndices && numIndices);
     assert(attributePositionLoc > -1);
 
-    //1) Generate and bind OpenGL vertex array object
+    // 1) Generate and bind OpenGL vertex array object
     if (vaoID) glDeleteVertexArrays(1, &vaoID);
     glGenVertexArrays(1, &vaoID);
     glBindVertexArray(vaoID);
 
-    //2) Generate array buffer vbo for float vertices
+    // 2) Generate array buffer vbo for float vertices
     buildVBO(vboIDVertices,
              dataPointerVertices,
              numVertices,
@@ -262,7 +262,7 @@ void glUtils::buildVAO(GLuint& vaoID,
              GL_ARRAY_BUFFER,
              GL_STATIC_DRAW);
 
-    //3) Generate element array buffer for indices
+    // 3) Generate element array buffer for indices
     buildVBO(vboIDIndices,
              dataPointerIndices,
              numIndices,
@@ -282,10 +282,10 @@ void glUtils::buildVAO(GLuint& vaoID,
     //           |<-------- offsetT = 24 ----->|
     //           |<offsetN = 12>|
 
-    //4) Activate GLSL shader program
+    // 4) Activate GLSL shader program
     glUseProgram((GLuint)shaderProgramID);
 
-    //5a) We always must have a position attribute
+    // 5a) We always must have a position attribute
     glVertexAttribPointer((GLuint)attributePositionLoc,
                           3,
                           GL_FLOAT,
@@ -295,7 +295,7 @@ void glUtils::buildVAO(GLuint& vaoID,
     glEnableVertexAttribArray((GLuint)attributePositionLoc);
     int offset = 3 * sizeof(float);
 
-    //5b) If we have normals they are the second attribute with 12 bytes offset
+    // 5b) If we have normals they are the second attribute with 12 bytes offset
     if (attributeColorLoc > -1)
     {
         glVertexAttribPointer((GLuint)attributeColorLoc,
@@ -308,7 +308,7 @@ void glUtils::buildVAO(GLuint& vaoID,
         offset += 3 * sizeof(float);
     }
 
-    //5c) If we have normals they are the second attribute with 12 bytes offset
+    // 5c) If we have normals they are the second attribute with 12 bytes offset
     if (attributeNormalLoc > -1)
     {
         glVertexAttribPointer((GLuint)attributeNormalLoc,
@@ -321,7 +321,7 @@ void glUtils::buildVAO(GLuint& vaoID,
         offset += 3 * sizeof(float);
     }
 
-    //5d) If we have texture coords they are the third attribute with 24 bytes offset
+    // 5d) If we have texture coords they are the third attribute with 24 bytes offset
     if (attributeTexCoordLoc > -1)
     {
         glVertexAttribPointer((GLuint)attributeTexCoordLoc,
@@ -409,7 +409,7 @@ GLuint glUtils::build3DTexture(const vector<string>&         files,
     GLint maxSize = 0;
     glGetIntegerv(GL_MAX_3D_TEXTURE_SIZE, &maxSize);
 
-    //The checks takes up valuable runtime; only do it in debug builds
+    // The checks takes up valuable runtime; only do it in debug builds
     assert(!files.empty());
 
     CVImage first(files.front());
@@ -421,7 +421,7 @@ GLuint glUtils::build3DTexture(const vector<string>&         files,
 
     GLuint         imageSize = first.width() * first.height() * first.bytesPerPixel();
     vector<uchar>  buffer(imageSize * files.size());
-    unsigned char* imageData = &buffer[0]; //Concatenate the image data in a new buffer
+    unsigned char* imageData = &buffer[0]; // Concatenate the image data in a new buffer
     for (auto& file : files)
     {
         CVImage image(file);
@@ -456,15 +456,15 @@ GLuint glUtils::build3DTexture(const vector<string>&         files,
 
     buffer.emplace_back(0);
 
-    glTexImage3D(GL_TEXTURE_3D,  //Copy the new buffer to the GPU
-                 0,              //Mipmap level,
-                 first.format(), //Internal format
+    glTexImage3D(GL_TEXTURE_3D,  // Copy the new buffer to the GPU
+                 0,              // Mipmap level,
+                 first.format(), // Internal format
                  (GLsizei)x_extend,
                  (GLsizei)y_extend,
                  (GLsizei)z_extend,
-                 0,                //Border
-                 first.format(),   //Format
-                 GL_UNSIGNED_BYTE, //Data type
+                 0,                // Border
+                 first.format(),   // Format
+                 GL_UNSIGNED_BYTE, // Data type
                  &buffer[0]);
 
     glBindTexture(GL_TEXTURE_3D, 0);

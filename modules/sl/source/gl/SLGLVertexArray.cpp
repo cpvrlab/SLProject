@@ -18,7 +18,7 @@ SLuint SLGLVertexArray::totalDrawCalls          = 0;
 SLuint SLGLVertexArray::totalPrimitivesRendered = 0;
 //-----------------------------------------------------------------------------
 /*! Constructor initializing with default values
-*/
+ */
 SLGLVertexArray::SLGLVertexArray()
 {
     _vaoID = 0;
@@ -53,13 +53,13 @@ void SLGLVertexArray::deleteGL()
     }
 }
 //-----------------------------------------------------------------------------
-/*! Defines a vertex attribute for the later generation. 
-It must be of a specific SLVertexAttribType. Each attribute can appear only 
+/*! Defines a vertex attribute for the later generation.
+It must be of a specific SLVertexAttribType. Each attribute can appear only
 once in an vertex array.
-If all attributes of a vertex array have the same data pointer the data input 
+If all attributes of a vertex array have the same data pointer the data input
 will be interpreted as an interleaved array. See example in SLGLOculus::init.
-Be aware that the VBO for the attribute will not be generated until generate 
-is called. The data pointer must still be valid when SLGLVertexArray::generate 
+Be aware that the VBO for the attribute will not be generated until generate
+is called. The data pointer must still be valid when SLGLVertexArray::generate
 is called.
 */
 void SLGLVertexArray::setAttrib(SLGLAttributeType type,
@@ -87,9 +87,9 @@ void SLGLVertexArray::setAttrib(SLGLAttributeType type,
 }
 //-----------------------------------------------------------------------------
 /*! Defines the vertex indices for the element drawing. Without indices vertex
-array can only be drawn with SLGLVertexArray::drawArrayAs. 
-Be aware that the VBO for the indices will not be generated until generate 
-is called. The data pointer must still be valid when generate is called. 
+array can only be drawn with SLGLVertexArray::drawArrayAs.
+Be aware that the VBO for the indices will not be generated until generate
+is called. The data pointer must still be valid when generate is called.
 */
 void SLGLVertexArray::setIndices(SLuint         numIndicesElements,
                                  SLGLBufferType indexDataType,
@@ -112,7 +112,7 @@ void SLGLVertexArray::setIndices(SLuint         numIndicesElements,
     _indexDataEdges     = indexDataEdges;
 }
 //-----------------------------------------------------------------------------
-/*! Updates the specified vertex attribute. This works only for sequential 
+/*! Updates the specified vertex attribute. This works only for sequential
 attributes and not for interleaved attributes. This is used e.g. for meshes
 with vertex skinning. See SLMesh::draw where we have joint attributes.
 */
@@ -236,7 +236,7 @@ void SLGLVertexArray::generate(SLuint          numVertices,
     GET_GL_ERROR;
 }
 //-----------------------------------------------------------------------------
-/*! Draws the vertex attributes as a specified primitive type by elements with 
+/*! Draws the vertex attributes as a specified primitive type by elements with
 the indices from the index buffer defined in setIndices.
 */
 void SLGLVertexArray::drawElementsAs(SLGLPrimitiveType primitiveType,

@@ -208,7 +208,7 @@ SLGLTexture::SLGLTexture(SLAssetManager* assetMgr,
     else if (_compressedTexture)
     {
 #ifdef SL_BUILD_WITH_KTX
-        //todo ktx: get properties and extract necessary
+        // todo ktx: get properties and extract necessary
         _width       = _ktxTexture->baseWidth;
         _height      = _ktxTexture->baseHeight;
         _depth       = _ktxTexture->numDimensions == 3 ? _ktxTexture->baseDepth : 1;
@@ -448,10 +448,10 @@ SLGLTexture::SLGLTexture(SLAssetManager* assetMgr,
  * manager was passed in the constructor it will do it after scene destruction.
  * The destructor deletes all images in the RAM as well as the texture objects
  * on the GPU.
-*/
+ */
 SLGLTexture::~SLGLTexture()
 {
-    //SL_LOG("~SLGLTexture(%s)", name().c_str());
+    // SL_LOG("~SLGLTexture(%s)", name().c_str());
     deleteData();
 }
 //-----------------------------------------------------------------------------
@@ -738,8 +738,8 @@ void SLGLTexture::build(SLint texUnit)
         SLint texMaxSize = 0;
         glGetIntegerv(GL_MAX_TEXTURE_SIZE, &texMaxSize);
 
-        //todo ktx: compare with image size
-        // check 2D size
+        // todo ktx: compare with image size
+        //  check 2D size
         if (_target == GL_TEXTURE_2D)
         {
             if (_width > (SLuint)texMaxSize)
@@ -748,9 +748,9 @@ void SLGLTexture::build(SLint texUnit)
                 SL_EXIT_MSG("SLGLTexture::build: Texture height is too big.");
         }
 
-        //todo ktx: cubemaps and 3d textures
+        // todo ktx: cubemaps and 3d textures
 
-        //todo: upload in build process
+        // todo: upload in build process
         GLenum glerror = 0;
         glGenTextures(1, &_texID); // Optional. GLUpload can generate a texture.
 
@@ -779,7 +779,7 @@ void SLGLTexture::build(SLint texUnit)
         _bytesOnGPU += _ktxTexture->dataSize;
         totalNumBytesOnGPU += _bytesOnGPU;
 
-        //todo: destroy somewhere else
+        // todo: destroy somewhere else
         if (_deleteImageAfterBuild)
         {
             ktxTexture_Destroy((ktxTexture*)_ktxTexture);
@@ -804,8 +804,8 @@ void SLGLTexture::build(SLint texUnit)
         // apply texture wrapping modes
         glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_WRAP_S, _wrap_s);
         glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_WRAP_T, _wrap_t);
-        //ATTENTION: setting the color to black or white does not give correct results (dont know why)
-        //colors different to black and white seem to work. Default value is {0, 0, 0, 0}.
+        // ATTENTION: setting the color to black or white does not give correct results (dont know why)
+        // colors different to black and white seem to work. Default value is {0, 0, 0, 0}.
         float color[] = {0.00001f, 0.00001f, 0.00001f, 1.0f};
         glTexParameterfv(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_BORDER_COLOR_OES, color);
         GET_GL_ERROR;
@@ -995,14 +995,14 @@ void SLGLTexture::build(SLint texUnit)
 
             /////////////////////////////////////////////////////
             glTexImage3D(GL_TEXTURE_3D,
-                         0,               //Mipmap level,
-                         _internalFormat, //Internal format
+                         0,               // Mipmap level,
+                         _internalFormat, // Internal format
                          (SLsizei)_images[0]->width(),
                          (SLsizei)_images[0]->height(),
                          (SLsizei)_images.size(),
-                         0,                    //Border
-                         _images[0]->format(), //Format
-                         GL_UNSIGNED_BYTE,     //Data type
+                         0,                    // Border
+                         _images[0]->format(), // Format
+                         GL_UNSIGNED_BYTE,     // Data type
                          &buffer[0]);
             /////////////////////////////////////////////////////
 
@@ -1045,9 +1045,9 @@ void SLGLTexture::build(SLint texUnit)
     }
 
     // Check if texture name is valid only for debug purpose
-    //if (glIsTexture(_texName))
+    // if (glIsTexture(_texName))
     //     SL_LOG("SLGLTexture::build: name: %u, unit-id: %u, Filename: %s", _texName, texUnit, _images[0]->name().c_str());
-    //else SL_LOG("SLGLTexture::build: invalid name: %u, unit-id: %u, Filename: %s", _texName, texUnit, _images[0]->name().c_str());
+    // else SL_LOG("SLGLTexture::build: invalid name: %u, unit-id: %u, Filename: %s", _texName, texUnit, _images[0]->name().c_str());
 
     GET_GL_ERROR;
 }
@@ -1109,7 +1109,7 @@ void SLGLTexture::bindActive(SLuint texUnit)
     if (_texID)
     {
         SLGLState* stateGL = SLGLState::instance();
-        //SL_LOG("SLGLTexture::bindActive: activeTexture: %d, bindTexture: %u, name: %s", texUnit, _texID, _name.c_str());
+        // SL_LOG("SLGLTexture::bindActive: activeTexture: %d, bindTexture: %u, name: %s", texUnit, _texID, _name.c_str());
         stateGL->activeTexture(GL_TEXTURE0 + texUnit);
         stateGL->bindTexture(_target, _texID);
 
@@ -1377,8 +1377,8 @@ SLTextureType SLGLTexture::detectType(const SLstring& filename)
         return TT_occlusion;
 
     // if nothing was detected so far we interpret it as a color texture
-    //SLstring msg = Utils::formatString("SLGLTexture::detectType: No type detected in file: %s", filename.c_str());
-    //SL_WARN_MSG(msg.c_str());
+    // SLstring msg = Utils::formatString("SLGLTexture::detectType: No type detected in file: %s", filename.c_str());
+    // SL_WARN_MSG(msg.c_str());
 
     return TT_diffuse;
 }
@@ -1408,16 +1408,16 @@ void SLGLTexture::build2DMipmaps(SLint target, SLuint index)
         img2.resize((SLint)std::max(img2.width() >> 1, (SLuint)1),
                     (SLint)std::max(img2.height() >> 1, (SLuint)1));
 
-        //SLfloat gauss[9] = {1.0f, 2.0f, 1.0f,
-        //                    2.0f, 4.0f, 2.0f,
-        //                    1.0f, 2.0f, 1.0f};
+        // SLfloat gauss[9] = {1.0f, 2.0f, 1.0f,
+        //                     2.0f, 4.0f, 2.0f,
+        //                     1.0f, 2.0f, 1.0f};
 
-        //img2.convolve3x3(gauss);
+        // img2.convolve3x3(gauss);
 
         // Debug output
-        //SLchar filename[255];
-        //sprintf(filename,"%s_L%d_%dx%d.png", _name.c_str(), level, img2.width(), img2.height());
-        //img2.savePNG(filename);
+        // SLchar filename[255];
+        // sprintf(filename,"%s_L%d_%dx%d.png", _name.c_str(), level, img2.width(), img2.height());
+        // img2.savePNG(filename);
 
         glTexImage2D((SLuint)target,
                      level,
@@ -1562,7 +1562,7 @@ void SLGLTexture::calc3DGradients(SLint                      sampleRadius,
     }
 
     // Debug check
-    //for (auto img : _images)
+    // for (auto img : _images)
     //   img->savePNG(img->path() + "Normals_" + img->name());
 }
 //-----------------------------------------------------------------------------
@@ -1859,29 +1859,29 @@ string SLGLTexture::internalFormatStr(int internalFormat)
         case GL_RGBA: return "GL_RGBA";
         case GL_R8: return "GL_R8";
         case GL_R8_SNORM: return "GL_R8_SNORM";
-        //case GL_R16: return "GL_R16"; // Not available on iOS
-        //case GL_R16_SNORM: return "GL_R16_SNORM";
+        // case GL_R16: return "GL_R16"; // Not available on iOS
+        // case GL_R16_SNORM: return "GL_R16_SNORM";
         case GL_RG8: return "GL_RG8";
         case GL_RG8_SNORM: return "GL_RG8_SNORM";
-        //case GL_RG16: return "GL_RG16";
-        //case GL_RG16_SNORM: return "GL_RG16_SNORM";
-        //case GL_R3_G3_B2: return "GL_R3_G3_B2";
-        //case GL_RGB4: return "GL_RGB4";
-        //case GL_RGB5: return "GL_RGB5";
-        //case GL_RGB8: return "GL_RGB8";
+        // case GL_RG16: return "GL_RG16";
+        // case GL_RG16_SNORM: return "GL_RG16_SNORM";
+        // case GL_R3_G3_B2: return "GL_R3_G3_B2";
+        // case GL_RGB4: return "GL_RGB4";
+        // case GL_RGB5: return "GL_RGB5";
+        // case GL_RGB8: return "GL_RGB8";
         case GL_RGB8_SNORM: return "GL_RGB8_SNORM";
-        //case GL_RGB10: return "GL_RGB10";
-        //case GL_RGB12: return "GL_RGB12";
-        //case GL_RGB16_SNORM: return "GL_RGB16_SNORM";
-        //case GL_RGBA2: return "GL_RGBA2";
-        //case GL_RGBA4: return "GL_RGBA4";
-        //case GL_RGB5_A1: return "GL_RGB5_A1";
+        // case GL_RGB10: return "GL_RGB10";
+        // case GL_RGB12: return "GL_RGB12";
+        // case GL_RGB16_SNORM: return "GL_RGB16_SNORM";
+        // case GL_RGBA2: return "GL_RGBA2";
+        // case GL_RGBA4: return "GL_RGBA4";
+        // case GL_RGB5_A1: return "GL_RGB5_A1";
         case GL_RGBA8: return "GL_RGBA8";
         case GL_RGBA8_SNORM: return "GL_RGBA8_SNORM";
         case GL_RGB10_A2: return "GL_RGB10_A2";
         case GL_RGB10_A2UI: return "GL_RGB10_A2UI";
-        //case GL_RGBA12: return "GL_RGBA12";
-        //case GL_RGBA16: return "GL_RGBA16";
+        // case GL_RGBA12: return "GL_RGBA12";
+        // case GL_RGBA16: return "GL_RGBA16";
         case GL_SRGB8: return "GL_SRGB8";
         case GL_SRGB8_ALPHA8: return "GL_SRGB8_ALPHA8";
         case GL_R16F: return "GL_R16F";
@@ -1918,20 +1918,20 @@ string SLGLTexture::internalFormatStr(int internalFormat)
         case GL_RGBA16UI: return "GL_RGBA16UI";
         case GL_RGBA32I: return "GL_RGBA32I";
         case GL_RGBA32UI: return "GL_RGBA32UI";
-        //case GL_COMPRESSED_RED: return "GL_COMPRESSED_RED";
-        //case GL_COMPRESSED_RG: return "GL_COMPRESSED_RG";
-        //case GL_COMPRESSED_RGB: return "GL_COMPRESSED_RGB";
-        //case GL_COMPRESSED_RGBA: return "GL_COMPRESSED_RGBA";
-        //case GL_COMPRESSED_SRGB: return "GL_COMPRESSED_SRGB";
-        //case GL_COMPRESSED_SRGB_ALPHA: return "GL_COMPRESSED_SRGB_ALPHA";
-        //case GL_COMPRESSED_RED_RGTC1: return "GL_COMPRESSED_RED_RGTC1";
-        //case GL_COMPRESSED_SIGNED_RED_RGTC1: return "GL_COMPRESSED_SIGNED_RED_RGTC1";
-        //case GL_COMPRESSED_RG_RGTC2: return "GL_COMPRESSED_RG_RGTC2";
-        //case GL_COMPRESSED_SIGNED_RG_RGTC2: return "GL_COMPRESSED_SIGNED_RG_RGTC2";
-        //case GL_COMPRESSED_RGBA_BPTC_UNORM: return "GL_COMPRESSED_RGBA_BPTC_UNORM";
-        //case GL_COMPRESSED_SRGB_ALPHA_BPTC_UNORM: return "GL_COMPRESSED_SRGB_ALPHA_BPTC_UNORM";
-        //case GL_COMPRESSED_RGB_BPTC_SIGNED_FLOAT: return "GL_COMPRESSED_RGB_BPTC_SIGNED_FLOAT";
-        //case GL_COMPRESSED_RGB_BPTC_UNSIGNED_FLOAT: return "GL_COMPRESSED_RGB_BPTC_UNSIGNED_FLOAT";
+        // case GL_COMPRESSED_RED: return "GL_COMPRESSED_RED";
+        // case GL_COMPRESSED_RG: return "GL_COMPRESSED_RG";
+        // case GL_COMPRESSED_RGB: return "GL_COMPRESSED_RGB";
+        // case GL_COMPRESSED_RGBA: return "GL_COMPRESSED_RGBA";
+        // case GL_COMPRESSED_SRGB: return "GL_COMPRESSED_SRGB";
+        // case GL_COMPRESSED_SRGB_ALPHA: return "GL_COMPRESSED_SRGB_ALPHA";
+        // case GL_COMPRESSED_RED_RGTC1: return "GL_COMPRESSED_RED_RGTC1";
+        // case GL_COMPRESSED_SIGNED_RED_RGTC1: return "GL_COMPRESSED_SIGNED_RED_RGTC1";
+        // case GL_COMPRESSED_RG_RGTC2: return "GL_COMPRESSED_RG_RGTC2";
+        // case GL_COMPRESSED_SIGNED_RG_RGTC2: return "GL_COMPRESSED_SIGNED_RG_RGTC2";
+        // case GL_COMPRESSED_RGBA_BPTC_UNORM: return "GL_COMPRESSED_RGBA_BPTC_UNORM";
+        // case GL_COMPRESSED_SRGB_ALPHA_BPTC_UNORM: return "GL_COMPRESSED_SRGB_ALPHA_BPTC_UNORM";
+        // case GL_COMPRESSED_RGB_BPTC_SIGNED_FLOAT: return "GL_COMPRESSED_RGB_BPTC_SIGNED_FLOAT";
+        // case GL_COMPRESSED_RGB_BPTC_UNSIGNED_FLOAT: return "GL_COMPRESSED_RGB_BPTC_UNSIGNED_FLOAT";
         default: return "Unknown format";
     }
 }

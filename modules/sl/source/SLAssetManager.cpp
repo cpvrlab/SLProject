@@ -78,7 +78,7 @@ void SLAssetManager::deleteDataGpu()
 
     // delete shader programs
     for (auto p : _programs)
-        ;//p->deleteDataGpu();
+        ; // p->deleteDataGpu();
 }
 //-----------------------------------------------------------------------------
 //! Removes the specified mesh from the meshes resource vector.
@@ -108,15 +108,15 @@ SLGLProgram* SLAssetManager::getProgramByName(const string& programName)
 //! merge other asset manager into this
 void SLAssetManager::merge(SLAssetManager& other)
 {
-    //update the assetmanager pointer for automatic program assignment
-    for(SLMaterial* m : other.materials())
+    // update the assetmanager pointer for automatic program assignment
+    for (SLMaterial* m : other.materials())
         m->assetManager(this);
-    //transfer assets from other to this
+    // transfer assets from other to this
     _meshes.insert(_meshes.end(), other.meshes().begin(), other.meshes().end());
     _materials.insert(_materials.end(), other.materials().begin(), other.materials().end());
     _textures.insert(_textures.end(), other.textures().begin(), other.textures().end());
     _programs.insert(_programs.end(), other.programs().begin(), other.programs().end());
-    //clear ownership of other
+    // clear ownership of other
     other.meshes().clear();
     other.materials().clear();
     other.textures().clear();

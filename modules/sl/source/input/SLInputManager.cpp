@@ -12,18 +12,18 @@
 
 //-----------------------------------------------------------------------------
 /*! Sends any queued up system event's to their correct receiver and
-polls all activated SLInputDevices. 
+polls all activated SLInputDevices.
 
-@note   The event queue is similar to how Qt manages it's events. The main 
+@note   The event queue is similar to how Qt manages it's events. The main
         difference is, that we don't use the SLInputEvent class outside of the
-        SLInputManager. The SLInputManager calls the correct SLSceneView input 
-        handler functions directly. Also we don't allow for custom SLInputEvents. 
-        This is the other main difference to the Qt event system. 
+        SLInputManager. The SLInputManager calls the correct SLSceneView input
+        handler functions directly. Also we don't allow for custom SLInputEvents.
+        This is the other main difference to the Qt event system.
         The decision to go this route is simplicity for now.
         It is totally sufficient for our use cases to provide the user with the
-        SLInputDevice interface to realize custom input. 
-        However it has to be considered, that Qt also has many GUI related events 
-        like MouseEnter, MouseLeave, Drag etc. For a sophisticated GUI 
+        SLInputDevice interface to realize custom input.
+        However it has to be considered, that Qt also has many GUI related events
+        like MouseEnter, MouseLeave, Drag etc. For a sophisticated GUI
         implementation the whole input management in SL would have to be reviewed.
 */
 SLbool SLInputManager::pollAndProcessEvents(SLSceneView* sv)
@@ -39,7 +39,7 @@ SLbool SLInputManager::pollAndProcessEvents(SLSceneView* sv)
 }
 //-----------------------------------------------------------------------------
 /*! Add a new SLInputEvent to the event queue. The queue will be emtied when
-a call to SLInputManager::pollEvents is made. The passed in SLInputEvents have 
+a call to SLInputManager::pollEvents is made. The passed in SLInputEvents have
 to be dynamically allocated by the user, the deallocation is handled by the
 SLInputManager */
 void SLInputManager::queueEvent(const SLInputEvent* e)
@@ -68,82 +68,95 @@ SLbool SLInputManager::processQueuedEvents(SLSceneView* sv)
         {
             switch (e->type)
             {
-                case SLInputEvent::MouseMove: {
+                case SLInputEvent::MouseMove:
+                {
                     const SLMouseEvent* me = (const SLMouseEvent*)e;
                     eventConsumed |= sv->onMouseMove(me->x, me->y);
                 }
                 break;
-                case SLInputEvent::MouseDown: {
+                case SLInputEvent::MouseDown:
+                {
                     const SLMouseEvent* me = (const SLMouseEvent*)e;
                     eventConsumed |= sv->onMouseDown(me->button, me->x, me->y, me->modifier);
                 }
                 break;
-                case SLInputEvent::MouseUp: {
+                case SLInputEvent::MouseUp:
+                {
                     const SLMouseEvent* me = (const SLMouseEvent*)e;
                     eventConsumed |= sv->onMouseUp(me->button, me->x, me->y, me->modifier);
                 }
                 break;
-                case SLInputEvent::MouseDoubleClick: {
+                case SLInputEvent::MouseDoubleClick:
+                {
                     const SLMouseEvent* me = (const SLMouseEvent*)e;
                     eventConsumed |= sv->onDoubleClick(me->button, me->x, me->y, me->modifier);
                 }
                 break;
-                case SLInputEvent::MouseWheel: {
+                case SLInputEvent::MouseWheel:
+                {
                     const SLMouseEvent* me = (const SLMouseEvent*)e;
                     eventConsumed |= sv->onMouseWheel(me->y, me->modifier);
                 }
                 break;
 
-                case SLInputEvent::Touch2Move: {
+                case SLInputEvent::Touch2Move:
+                {
                     const SLTouchEvent* te = (const SLTouchEvent*)e;
                     eventConsumed |= sv->onTouch2Move(te->x1, te->y1, te->x2, te->y2);
                 }
                 break;
-                case SLInputEvent::Touch2Down: {
+                case SLInputEvent::Touch2Down:
+                {
                     const SLTouchEvent* te = (const SLTouchEvent*)e;
                     eventConsumed |= sv->onTouch2Down(te->x1, te->y1, te->x2, te->y2);
                 }
                 break;
-                case SLInputEvent::Touch2Up: {
+                case SLInputEvent::Touch2Up:
+                {
                     const SLTouchEvent* te = (const SLTouchEvent*)e;
                     eventConsumed |= sv->onTouch2Up(te->x1, te->y1, te->x2, te->y2);
                 }
                 break;
 
-                case SLInputEvent::KeyDown: {
+                case SLInputEvent::KeyDown:
+                {
                     const SLKeyEvent* ke = (const SLKeyEvent*)e;
                     eventConsumed |= sv->onKeyPress(ke->key, ke->modifier);
                 }
                 break;
-                case SLInputEvent::KeyUp: {
+                case SLInputEvent::KeyUp:
+                {
                     const SLKeyEvent* ke = (const SLKeyEvent*)e;
                     eventConsumed |= sv->onKeyRelease(ke->key, ke->modifier);
                 }
                 break;
-                case SLInputEvent::CharInput: {
+                case SLInputEvent::CharInput:
+                {
                     const SLCharInputEvent* ce = (const SLCharInputEvent*)e;
                     eventConsumed |= sv->onCharInput(ce->character);
                 }
                 break;
 
-                case SLInputEvent::Resize: {
+                case SLInputEvent::Resize:
+                {
                     const SLResizeEvent* re = (const SLResizeEvent*)e;
                     sv->onResize(re->width, re->height);
                 }
                 break;
-                    
-                case SLInputEvent::ScrCapture: {
-                    const SLScrCaptureRequestEvent* re = (const SLScrCaptureRequestEvent*)e;
-                    SLstring path = re->path;
 
-                    if(!Utils::dirExists(path))
+                case SLInputEvent::ScrCapture:
+                {
+                    const SLScrCaptureRequestEvent* re   = (const SLScrCaptureRequestEvent*)e;
+                    SLstring                        path = re->path;
+
+                    if (!Utils::dirExists(path))
                         Utils::makeDirRecurse(path);
                     SLstring filename     = "Screenshot_" + Utils::getDateTime2String() + ".png";
                     SLstring pathFilename = path + filename;
                     sv->saveFrameBufferAsImage(pathFilename, cv::Size(sv->scrW(), sv->scrH()));
                 }
                 break;
-                
+
                 default: break;
             }
         }

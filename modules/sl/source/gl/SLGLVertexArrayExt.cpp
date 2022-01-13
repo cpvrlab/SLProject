@@ -15,8 +15,8 @@
 #include <SLMaterial.h>
 
 //-----------------------------------------------------------------------------
-/*! Helper function that sets the vertex position attribute and generates or 
-updates the vertex buffer from it. It is used together with the 
+/*! Helper function that sets the vertex position attribute and generates or
+updates the vertex buffer from it. It is used together with the
 drawArrayAsColored function.
 */
 void SLGLVertexArrayExt::generateVertexPos(SLuint numVertices,
@@ -45,7 +45,7 @@ void SLGLVertexArrayExt::generateVertexPos(SLuint numVertices,
 }
 //-----------------------------------------------------------------------------
 /*! Draws the vertex positions as array with a specified primitive & color
-*/
+ */
 void SLGLVertexArrayExt::drawArrayAsColored(SLGLPrimitiveType primitiveType,
                                             SLCol4f           color,
                                             SLfloat           pointSize,
@@ -90,7 +90,7 @@ void SLGLVertexArrayExt::drawArrayAsColored(SLGLPrimitiveType primitiveType,
 }
 //-----------------------------------------------------------------------------
 /*! Draws the vertex positions as array with a specified primitive & color
-*/
+ */
 void SLGLVertexArrayExt::drawElementAsColored(SLGLPrimitiveType primitiveType,
                                               SLCol4f           color,
                                               SLfloat           pointSize,

@@ -67,7 +67,7 @@ void SLGLState::initAll()
         if (ext) _glExtensions = SLstring((const char*)ext);
     }
 
-    //initialize states a unset
+    // initialize states a unset
     _blend                     = false;
     _blendFuncSfactor          = GL_SRC_ALPHA;
     _blendFuncDfactor          = GL_ONE_MINUS_SRC_ALPHA;
@@ -271,8 +271,8 @@ void SLGLState::depthMask(SLbool stateNew)
     }
 }
 //-----------------------------------------------------------------------------
-/*! SLGLState::depthFunc specifies the depth comparison function. 
-Symbolic constants GL_NEVER, GL_LESS, GL_EQUAL, GL_LEQUAL, GL_GREATER, 
+/*! SLGLState::depthFunc specifies the depth comparison function.
+Symbolic constants GL_NEVER, GL_LESS, GL_EQUAL, GL_LEQUAL, GL_GREATER,
 GL_NOTEQUAL, GL_GEQUAL, and GL_ALWAYS are accepted. The initial value is GL_LESS.
 */
 void SLGLState::depthFunc(SLenum func)
@@ -502,7 +502,7 @@ void SLGLState::bindTexture(SLenum target, SLuint textureID)
     // glGetIntegeriv(GL_ACTIVE_TEXTURE, active_texture)
     // glGetIntegeriv(GL_TEXTURE_BINDING_2D, textureID)
 
-    //if (target != _textureTarget || textureID != _textureID)
+    // if (target != _textureTarget || textureID != _textureID)
     {
         glBindTexture(target, textureID);
 
@@ -524,7 +524,7 @@ void SLGLState::activeTexture(SLenum textureUnit)
     // glGetIntegeriv(GL_ACTIVE_TEXTURE, active_texture)
     // glGetIntegeriv(GL_TEXTURE_BINDING_2D, textureID)
 
-    //if (textureUnit != _textureUnit)
+    // if (textureUnit != _textureUnit)
     {
         glActiveTexture(textureUnit);
         _textureUnit = textureUnit;
@@ -544,14 +544,14 @@ void SLGLState::unbindAnythingAndFlush()
     // reset the bound texture unit
     // This is needed since leaving one texture unit bound over multiple windows
     // sometimes (most of the time) causes bugs
-    //glBindTexture(GL_TEXTURE_2D, 0);
-    //glBindVertexArray(0);
-    //glBindBuffer(GL_ARRAY_BUFFER, 0);
-    //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    // glBindTexture(GL_TEXTURE_2D, 0);
+    // glBindVertexArray(0);
+    // glBindBuffer(GL_ARRAY_BUFFER, 0);
+    // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
     // The iOS OpenGL ES Analyzer suggests not to use flush or finish
-    //glFlush();
-    //glFinish();
+    // glFlush();
+    // glFinish();
 
     GET_GL_ERROR;
 }

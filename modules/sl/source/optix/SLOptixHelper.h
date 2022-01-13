@@ -11,14 +11,14 @@
 #    ifndef SLOPTIXHELPER_H
 #        define SLOPTIXHELPER_H
 
-#include <iostream>     // std::cout, std::ios
-#include <sstream>      // std::ostringstream
-#include <stdexcept>
-#include <string>
-#include <functional>
-#include <chrono>
-#include <SLVec3.h>
-#include <SLVec4.h>
+#        include <iostream> // std::cout, std::ios
+#        include <sstream>  // std::ostringstream
+#        include <stdexcept>
+#        include <string>
+#        include <functional>
+#        include <chrono>
+#        include <SLVec3.h>
+#        include <SLVec4.h>
 
 using namespace std;
 
@@ -97,7 +97,7 @@ using namespace std::chrono;
 // clang-format on
 class SLOptixException : public std::runtime_error
 {
-    public:
+public:
     SLOptixException(const char* msg)
       : std::runtime_error(msg)
     {
@@ -108,7 +108,7 @@ class SLOptixException : public std::runtime_error
     {
     }
 
-    private:
+private:
     string createMessage(OptixResult res, const char* msg)
     {
         std::ostringstream os;
@@ -119,7 +119,7 @@ class SLOptixException : public std::runtime_error
 //------------------------------------------------------------------------------
 // Get PTX string from File
 string getPtxStringFromFile(
-  string  filename,    // Cuda C input file name
+  string       filename,    // Cuda C input file name
   const char** log = NULL); // (Optional) pointer to compiler log string. If *log == NULL there is no output.
 //------------------------------------------------------------------------------
 float4 make_float4(const SLVec4f& f);

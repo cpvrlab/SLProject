@@ -81,8 +81,8 @@ CVSize2i CVCapture::open(int deviceNum)
         //_captureDevice.set(cv::CAP_PROP_FRAME_HEIGHT, 1080);
         int w = (int)_captureDevice.get(cv::CAP_PROP_FRAME_WIDTH);
         int h = (int)_captureDevice.get(cv::CAP_PROP_FRAME_HEIGHT);
-        //Utils::log("SLProject", "CV_CAP_PROP_FRAME_WIDTH : %d", w);
-        //Utils::log("SLProject", "CV_CAP_PROP_FRAME_HEIGHT: %d", h);
+        // Utils::log("SLProject", "CV_CAP_PROP_FRAME_WIDTH : %d", w);
+        // Utils::log("SLProject", "CV_CAP_PROP_FRAME_HEIGHT: %d", h);
 
         hasSecondaryCamera = false;
         fps                = (float)_captureDevice.get(cv::CAP_PROP_FPS);
@@ -124,12 +124,12 @@ CVSize2i CVCapture::openFile()
             return CVSize2i(0, 0);
         }
 
-        //Utils::log("SLProject", "Capture devices created with video.");
+        // Utils::log("SLProject", "Capture devices created with video.");
 
         int w = (int)_captureDevice.get(cv::CAP_PROP_FRAME_WIDTH);
         int h = (int)_captureDevice.get(cv::CAP_PROP_FRAME_HEIGHT);
-        //Utils::log("SLProject", "CV_CAP_PROP_FRAME_WIDTH : %d", w);
-        //Utils::log("SLProject", "CV_CAP_PROP_FRAME_HEIGHT: %d", h);
+        // Utils::log("SLProject", "CV_CAP_PROP_FRAME_WIDTH : %d", w);
+        // Utils::log("SLProject", "CV_CAP_PROP_FRAME_HEIGHT: %d", h);
 
         hasSecondaryCamera = false;
         fps                = (float)_captureDevice.get(cv::CAP_PROP_FPS);
@@ -272,27 +272,32 @@ void CVCapture::loadIntoLastFrame(const float       viewportWdivH,
 
         switch (newFormat)
         {
-            case PF_luminance: {
+            case PF_luminance:
+            {
                 cvType = CV_8UC1;
                 bpp    = 1;
                 break;
             }
-            case PF_bgr: {
+            case PF_bgr:
+            {
                 cvType = CV_8UC3;
                 bpp    = 3;
                 break;
             }
-            case PF_rgb: {
+            case PF_rgb:
+            {
                 cvType = CV_8UC3;
                 bpp    = 3;
                 break;
             }
-            case PF_bgra: {
+            case PF_bgra:
+            {
                 cvType = CV_8UC4;
                 bpp    = 4;
                 break;
             }
-            case PF_rgba: {
+            case PF_rgba:
+            {
                 cvType = CV_8UC4;
                 bpp    = 4;
                 break;
@@ -421,7 +426,7 @@ void CVCapture::adjustForSL(float viewportWdivH)
         }
 
         lastFrame(CVRect(cropW, cropH, width, height)).copyTo(lastFrame);
-        //imwrite("AfterCropping.bmp", lastFrame);
+        // imwrite("AfterCropping.bmp", lastFrame);
     }
 
     //////////////////
@@ -475,12 +480,12 @@ yuv2rbg(uchar y, uchar u, uchar v, uchar& r, uchar& g, uchar& b)
 {
     // Conversion from:
     // https://de.wikipedia.org/wiki/YUV-Farbmodell
-    //float c = 1.164f*(float)(yVal-16);
-    //float d = (float)(uVal-128);
-    //float e = (float)(vVal-128);
-    //r = clipFToUInt8(c + 1.596f*e);
-    //g = clipFToUInt8(c - 0.391f*d - 0.813f*e);
-    //b = clipFToUInt8(c + 2.018f*d);
+    // float c = 1.164f*(float)(yVal-16);
+    // float d = (float)(uVal-128);
+    // float e = (float)(vVal-128);
+    // r = clipFToUInt8(c + 1.596f*e);
+    // g = clipFToUInt8(c - 0.391f*d - 0.813f*e);
+    // b = clipFToUInt8(c + 2.018f*d);
 
     // Conversion from:
     // http://www.wordsaretoys.com/2013/10/18/making-yuv-conversion-a-little-faster
@@ -749,7 +754,7 @@ void CVCapture::copyYUVPlanes(float  scrWdivH,
     imageInfo.vRowOffest    = vRowOffset;
 
     // Prepare the threads (hyperthreads seam to be unefficient on ARM)
-    const int         threadNum = 4; //std::max(thread::hardware_concurrency(), 1U);
+    const int         threadNum = 4; // std::max(thread::hardware_concurrency(), 1U);
     vector<thread>    threads;
     YUV2RGB_BlockInfo threadInfos[threadNum];
     int               rowsPerThread     = dstH / (threadNum + 1);
@@ -818,7 +823,7 @@ void CVCapture::videoType(CVVideoType vt)
     {
         if (hasSecondaryCamera)
             activeCamera = &scndCam;
-        else //fallback if there is no secondary camera we use main setup
+        else // fallback if there is no secondary camera we use main setup
         {
             _videoType   = VT_MAIN;
             activeCamera = &mainCam;
@@ -866,8 +871,8 @@ void CVCapture::loadCalibrations(const string& computerInfo,
     }
     if (!mainCam.calibration.load(configPath, mainCalibFilename, true))
     {
-        //instantiate a guessed calibration
-        //mainCam.calibration = CVCalibration()
+        // instantiate a guessed calibration
+        // mainCam.calibration = CVCalibration()
     }
     activeCamera       = &mainCam;
     hasSecondaryCamera = false;

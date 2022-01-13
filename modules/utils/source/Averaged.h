@@ -21,7 +21,7 @@ using std::vector;
 namespace Utils
 {
 //-----------------------------------------------------------------------------
-//!Averaged template class provides an average value from a fixed size array.
+//! Averaged template class provides an average value from a fixed size array.
 /*!The Average template class provides a simple moving average value
  continuously averaged from a fixed size vector. The template class can be
  used for any template type T that provides the following operators:

@@ -35,7 +35,7 @@ WAIApp::WAIApp()
 void WAIApp::init(int screenWidth, int screenHeight, int screenDpi, AppDirectories directories)
 {
     WAIAPPSTATE_DEBUG("init");
-    //Utils::initFileLog(directories.logFileDir, true);
+    // Utils::initFileLog(directories.logFileDir, true);
 
     if (!_initSceneGraphDone)
     {
@@ -87,7 +87,7 @@ void WAIApp::initDirectories(AppDirectories directories)
     SLGLTexture::defaultPathFonts = _dirs.slDataRoot + "/images/fonts/";
     CVImage::defaultPath          = _dirs.slDataRoot + "/images/textures/";
     SLAssimpImporter::defaultPath = _dirs.slDataRoot + "/models/";
-    AppDemo::configPath     = _dirs.writableDir;
+    AppDemo::configPath           = _dirs.writableDir;
 }
 
 void WAIApp::initSceneGraph(int scrWidth, int scrHeight, int dpi)
@@ -101,9 +101,9 @@ void WAIApp::initSceneGraph(int scrWidth, int scrHeight, int dpi)
         int screenWidth  = scrWidth;
         int screenHeight = scrHeight;
 
-        //setupGUI(AppDemo::name, AppDemo::configPath, dpi);
-        // Set default font sizes depending on the dpi no matter if ImGui is used
-        //todo: is this still needed?
+        // setupGUI(AppDemo::name, AppDemo::configPath, dpi);
+        //  Set default font sizes depending on the dpi no matter if ImGui is used
+        // todo: is this still needed?
         if (!AppDemo::dpi)
             AppDemo::dpi = dpi;
 
@@ -132,17 +132,17 @@ bool WAIApp::update()
     if (!_initSceneGraphDone)
         return false;
 
-    //WAIAPP_DEBUG("render");
+    // WAIAPP_DEBUG("render");
     if (_initIntroSceneDone)
     {
         if (_camera)
         {
-            //if (_camera->started())
+            // if (_camera->started())
             //{
 
             //}
 
-            //copy video image to background
+            // copy video image to background
             SENSFramePtr frame = _camera->getLatestFrame();
             if (frame)
             {
@@ -150,7 +150,7 @@ bool WAIApp::update()
                 {
                     if (!_sceneCamera)
                     {
-                        //make sure scene camera is initialized
+                        // make sure scene camera is initialized
                         initSceneCamera();
                     }
 
@@ -175,10 +175,10 @@ bool WAIApp::update()
             }
         }
 
-        //update scene
+        // update scene
         AppDemo::scene->onUpdate();
 
-        //update sceneviews
+        // update sceneviews
         bool needUpdate = false;
         for (auto sv : AppDemo::scene->sceneViews())
             if (sv->onPaint() && !needUpdate)
@@ -203,7 +203,7 @@ void WAIApp::close()
 void WAIApp::goBack()
 {
     WAIAPP_DEBUG("goBack");
-    //todo: enqueue event
+    // todo: enqueue event
     _goBackRequested = true;
 }
 
@@ -237,7 +237,7 @@ void WAIApp::initIntroScene()
 {
     WAIAPP_DEBUG("initIntroScene");
     SLScene* s = AppDemo::scene;
-    //clear old scene content
+    // clear old scene content
     s->init();
 
     s->name("Loading scene");

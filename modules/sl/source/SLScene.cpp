@@ -169,11 +169,11 @@ bool SLScene::onUpdate(bool renderTypeIsRT,
     if (_root3D)
     {
         // we use a lambda to inform nodes that share a mesh that the mesh got updated (so we dont have to transfer the root node)
-        sceneHasChanged |= _root3D->updateMeshSkins([&](SLMesh* mesh) {
+        sceneHasChanged |= _root3D->updateMeshSkins([&](SLMesh* mesh)
+                                                    {
             SLVNode nodes = _root3D->findChildren(mesh, true);
             for (auto* node : nodes)
-                node->needAABBUpdate();
-        });
+                node->needAABBUpdate(); });
 
         if (renderTypeIsRT || voxelsAreShown)
             _root3D->updateMeshAccelStructs();
