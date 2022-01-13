@@ -57,7 +57,7 @@ Android applications they are copied to the appropriate file system locations.
 class SLGLProgram : public SLObject
 {
 public:
-    SLGLProgram(SLAssetManager* s,
+    SLGLProgram(SLAssetManager* am,
                 const string&   vertShaderFile,
                 const string&   fragShaderFile,
                 const string&   geomShaderFile = "",

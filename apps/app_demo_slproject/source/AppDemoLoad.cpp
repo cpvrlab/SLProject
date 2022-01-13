@@ -107,6 +107,7 @@ SLNode* SphereGroupRT(SLAssetManager* am,
  * This performance benchmark is expensive in terms of world matrix updates
  * because all sphere groups rotate. Therefore all children need to update
  * their wm every frame.
+ * @param am Pointer to the asset manager
  * @param s Pointer to project scene aka asset manager
  * @param depth Max. allowed recursion depth
  * @param x Position in x direction
@@ -2547,7 +2548,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
       sceneID == SID_glTF_DamagedHelmet ||
       sceneID == SID_glTF_FlightHelmet ||
       sceneID == SID_glTF_Sponza ||
-      sceneID == SID_glTF_WaterBottle) //...................................................
+      sceneID == SID_glTF_WaterBottle) //..........................................................
     {
         SLstring clearCoatTest = configPath + "models/glTF-Sample-Models/2.0/ClearCoatTest/glTF/ClearCoatTest.gltf";
         SLstring damagedHelmet = configPath + "models/glTF-Sample-Models/2.0/DamagedHelmet/glTF/DamagedHelmet.gltf";

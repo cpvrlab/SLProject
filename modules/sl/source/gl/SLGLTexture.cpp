@@ -62,17 +62,18 @@ SLGLTexture::SLGLTexture()
 }
 //-----------------------------------------------------------------------------
 /*!
- * Constructor for empty 2D textures.
- * Textures can be used in multiple materials. Textures can belong therefore
- * to the global assets such as meshes (SLMesh), materials (SLMaterial),
- * textures (SLGLTexture) and shader programs (SLGLProgram).
- * @param assetMgr Pointer to a global asset manager. If passed the asset
- * manager is the owner of the instance and will do the deallocation. If a
- * nullptr is passed the creator is responsible for the deallocation.
- * @param min_filter Minification filter constant from OpenGL
- * @param mag_filter Magnification filter constant from OpenGL
- * @param wrapS Texture wrapping in S direction (OpenGL constant)
- * @param wrapT Texture wrapping in T direction (OpenGL constant)
+ Constructor for empty 2D textures.
+ Textures can be used in multiple materials. Textures can belong therefore
+ to the global assets such as meshes (SLMesh), materials (SLMaterial),
+ textures (SLGLTexture) and shader programs (SLGLProgram).
+ @param assetMgr Pointer to a global asset manager. If passed the asset
+ manager is the owner of the instance and will do the deallocation. If a
+ nullptr is passed the creator is responsible for the deallocation.
+ @param min_filter Minification filter constant from OpenGL
+ @param mag_filter Magnification filter constant from OpenGL
+ @param wrapS Texture wrapping in S direction (OpenGL constant)
+ @param wrapT Texture wrapping in T direction (OpenGL constant)
+ @param target Texture target GL_TEXTURE_1D, 2D, 3D
  */
 SLGLTexture::SLGLTexture(SLAssetManager* assetMgr,
                          SLint           min_filter,

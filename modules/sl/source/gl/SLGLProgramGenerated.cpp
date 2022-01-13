@@ -990,10 +990,25 @@ void main()
 //-----------------------------------------------------------------------------
 //! Builds unique program name that identifies shader program
 /*! See the class information for more insights of the generated name. This
- * function is used in advance of the code generation to check if the program
- * already exists in the asset manager. See SLMaterial::activate.
- * @param mat Parent material pointer
- * @param lights Pointer of vector of lights
+ function is used in advance of the code generation to check if the program
+ already exists in the asset manager. See SLMaterial::activate.
+ @param mat Parent material pointer
+ @param lights Pointer of vector of lights
+ @param programName Reference to program name string that gets built
+
+ The shader program gets a unique name with the following pattern:
+ <pre>
+ genCook-D00-N00-E00-O01-RM00-Sky-C4s
+    |    |   |   |   |   |    |   |
+    |    |   |   |   |   |    |   + Directional light w. 4 shadow cascades
+    |    |   |   |   |   |    + Ambient light from skybox
+    |    |   |   |   |   + Roughness-metallic map with index 0 and uv 0
+    |    |   |   |   + Ambient Occlusion map with index 0 and uv 1
+    |    |   |   + Emissive Map with index 0 and uv 0
+    |    |   + Normal Map with index 0 and uv 0
+    |    + Diffuse Texture Mapping with index 0 and uv 0
+    + Cook-Torrance or Blinn-Phong lighting model
+ </pre>
  */
 void SLGLProgramGenerated::buildProgramName(SLMaterial* mat,
                                             SLVLight*   lights,

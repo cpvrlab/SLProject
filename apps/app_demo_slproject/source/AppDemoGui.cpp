@@ -1453,7 +1453,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
         {
             if (ImGui::BeginMenu("Load Test Scene"))
             {
-                if (ImGui::BeginMenu("General Scenes"))
+                if (ImGui::BeginMenu("General"))
                 {
                     if (ImGui::MenuItem("Minimal Scene", nullptr, sid == SID_Minimal))
                         s->onLoad(am, s, sv, SID_Minimal);
@@ -1682,7 +1682,7 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                     ImGui::EndMenu();
                 }
 
-                if (ImGui::BeginMenu("Using Video"))
+                if (ImGui::BeginMenu("Video"))
                 {
                     if (ImGui::MenuItem("Texture from Video Live", nullptr, sid == SID_VideoTextureLive))
                         s->onLoad(am, s, sv, SID_VideoTextureLive);

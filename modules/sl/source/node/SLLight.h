@@ -26,7 +26,7 @@ class SLNode;
 class SLSceneView;
 
 //-----------------------------------------------------------------------------
-// Struct for uniform buffer with std140 layout
+//! Struct for uniform buffer with std140 layout
 struct lightDataStd140
 {
     SLint   isOn;           //  1
