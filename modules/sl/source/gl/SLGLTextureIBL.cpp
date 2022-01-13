@@ -227,8 +227,8 @@ void SLGLTextureIBL::build(SLint texUnit)
         for (SLuint mip = 0; mip < maxMipLevels; ++mip)
         {
             // resize framebuffer according to mip-level size
-            SLuint mipWidth  = _width * pow(0.5, mip);
-            SLuint mipHeight = _height * pow(0.5, mip);
+            SLuint mipWidth  = (SLuint)(_width * pow(0.5, mip));
+            SLuint mipHeight = (SLuint)(_height * pow(0.5, mip));
             glViewport(0, 0, mipWidth, mipHeight);
 
             glBindFramebuffer(GL_FRAMEBUFFER, fboID);

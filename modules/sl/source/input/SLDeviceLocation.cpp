@@ -87,7 +87,7 @@ void SLDeviceLocation::onLocationLatLonAlt(SLdouble latDEG,
     }
     else
     {
-        altToUse = _useOriginAltitude ? _originLatLonAlt.alt : _altGpsM;
+        altToUse = _useOriginAltitude ? (float)_originLatLonAlt.alt : _altGpsM;
     }
 
     // Init origin if it is not set yet or if the origin should be improved

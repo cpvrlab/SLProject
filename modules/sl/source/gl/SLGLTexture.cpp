@@ -742,9 +742,9 @@ void SLGLTexture::build(SLint texUnit)
         //  check 2D size
         if (_target == GL_TEXTURE_2D)
         {
-            if (_width > (SLuint)texMaxSize)
+            if (_width > texMaxSize)
                 SL_EXIT_MSG("SLGLTexture::build: Texture width is too big.");
-            if (_height > (SLuint)texMaxSize)
+            if (_height > texMaxSize)
                 SL_EXIT_MSG("SLGLTexture::build: Texture height is too big.");
         }
 
@@ -776,7 +776,7 @@ void SLGLTexture::build(SLint texUnit)
 
         _ktxTexture->baseHeight;
 
-        _bytesOnGPU += _ktxTexture->dataSize;
+        _bytesOnGPU += (SLuint)_ktxTexture->dataSize;
         totalNumBytesOnGPU += _bytesOnGPU;
 
         // todo: destroy somewhere else
