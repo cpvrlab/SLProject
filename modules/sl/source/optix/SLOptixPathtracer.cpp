@@ -8,6 +8,7 @@
 //#############################################################################
 
 #ifdef SL_HAS_OPTIX
+#    include <SLAssetManager.h>
 #    include <SLScene.h>
 #    include <SLSceneView.h>
 #    include <SLOptix.h>

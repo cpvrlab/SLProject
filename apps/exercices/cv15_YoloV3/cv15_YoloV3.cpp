@@ -18,8 +18,8 @@ using namespace std;
 
 // Initialize the parameters
 string         projectRoot   = string(SL_PROJECT_ROOT); //!< Directory of executable
-float          confThreshold = 0.5;                     // Confidence threshold
-float          nmsThreshold  = 0.4;                     // Non-maximum suppression threshold
+float          confThreshold = 0.5f;                    // Confidence threshold
+float          nmsThreshold  = 0.4f;                    // Non-maximum suppression threshold
 int            inpWidth      = 416;                     // Width of network's input image
 int            inpHeight     = 416;                     // Height of network's input image
 vector<string> classes;
@@ -86,8 +86,8 @@ void drawPred(int   classId,
     Size labelSize = getTextSize(label, FONT_HERSHEY_SIMPLEX, 0.5, 1, &baseLine);
     top            = max(top, labelSize.height);
     rectangle(frame,
-              Point(left, top - round(1.5 * labelSize.height)),
-              Point(left + round(1.5 * labelSize.width), top + baseLine),
+              Point(left, top - (int)round(1.5 * labelSize.height)),
+              Point(left + (int)round(1.5 * labelSize.width), top + baseLine),
               Scalar(255, 255, 255),
               FILLED);
     putText(frame,

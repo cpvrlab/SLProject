@@ -173,7 +173,7 @@ void SLBackground::render(SLint widthPX, SLint heightPX)
         _resY = heightPX;
         _vao.clearAttribs();
 
-        SLfloat left = 0, right = _resX, bottom = 0, top = _resY;
+        SLfloat left = 0, right = (float)_resX, bottom = 0, top = (float)_resY;
 
         // the background is centered and stretched to the screen boarders while keeping the textures aspect ratio
         if (_texture && _fixAspectRatio)
@@ -182,14 +182,14 @@ void SLBackground::render(SLint widthPX, SLint heightPX)
             if ((SLfloat)_resX / (SLfloat)_resY > (SLfloat)_texture->width() / (SLfloat)_texture->height())
             {
                 // screen is wider than texture -> adjust background width
-                backgroundH = _resY;
-                backgroundW = _resY / (SLfloat)_texture->height() * (SLfloat)_texture->width();
+                backgroundH = (float)_resY;
+                backgroundW = (float)_resY / (SLfloat)_texture->height() * (SLfloat)_texture->width();
             }
             else
             {
                 // screen is more narrow than texture -> adjust background height
-                backgroundW = _resX;
-                backgroundH = _resX / (SLfloat)_texture->width() * (SLfloat)_texture->height();
+                backgroundW = (float)_resX;
+                backgroundH = (float)_resX / (SLfloat)_texture->width() * (SLfloat)_texture->height();
             }
 
             left   = (_resX - backgroundW) * 0.5f;
@@ -201,7 +201,7 @@ void SLBackground::render(SLint widthPX, SLint heightPX)
             SL_LOG("SLBackground: width:%f height:%f left:%f bottom:%f", rect().width, rect().height, rect().x, rect().x);
         }
         else
-            _rect.set(0, 0, widthPX, heightPX);
+            _rect.set(0, 0, (float)widthPX, (float)heightPX);
 
         // Float array with vertex X & Y of corners
         SLVVec2f P = {{left, top},
