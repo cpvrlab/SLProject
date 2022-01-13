@@ -30,6 +30,9 @@ else()
 	set(XCODE_DEVELOPMENTTEAM ${XCODE_DEVELOPMENTTEAM})
 endif()
 
+# set new xcode build system
+set(CMAKE_XCODE_BUILD_SYSTEM "12")
+
 
 #set(DEPLOYMENT_TARGET 12.0)                                  # <== Set your deployment target version of iOS
 set(DEVICE_FAMILY "1,2")                                      # <== Set to "1" to target iPhone, set to "2" to target iPad, set to "1,2" to target both

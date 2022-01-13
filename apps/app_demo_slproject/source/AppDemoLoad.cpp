@@ -2406,7 +2406,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         cam1->translation(0, 0.5f, 2);
         cam1->lookAt(0, 0.5f, 0);
         cam1->setInitialState();
-        cam1->focalDist(3);
+        cam1->focalDist(2);
         scene->addChild(cam1);
 
         // Create directional light for the sunlight
