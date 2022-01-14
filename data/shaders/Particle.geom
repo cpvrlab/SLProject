@@ -37,9 +37,9 @@ void main (void)
   // Create 4 points to create two triangle to draw one particle
 
   //BOTTOM LEFT
-  vec4 va = vec4((P.xy + (rot * vec2(-u_radius, -u_radius))) * u_scale , P.z * u_scale, 1);
+  vec4 va = vec4((P.xy + (rot * vec2(-u_radius, -u_radius))) * u_scale , P.z * u_scale, 1); //Position in view space
   gl_Position = u_pMatrix * va; // Calculate position in clip space
-  v_texCoord = vec2(0.0, 0.0);  // Posi
+  v_texCoord = vec2(0.0, 0.0);  // Texture coordinate
   v_particleColor = u_color;
   v_particleColor.w *= vert[0].transparency;
   EmitVertex();  

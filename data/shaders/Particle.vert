@@ -28,9 +28,9 @@ uniform mat4 u_mvMatrix;    // Modelview matrix
 //-----------------------------------------------------------------------------
 void main()
 {
-    float age = u_time - a_startTime;       // Get the age of the particle
+    float age = u_time - a_startTime;           // Get the age of the particle
     if(age < 0.0){
-        vert.transparency = 0.0;            // To be discard
+        vert.transparency = 0.0;                // To be discard, because the particle is to be born
     }
     else{
         vert.transparency = 1.0 - age / u_tTL;  // Get by the ratio age:lifetime

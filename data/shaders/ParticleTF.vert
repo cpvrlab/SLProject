@@ -45,7 +45,7 @@ void main()
     tf_rotation = mod(tf_rotation + 0.01, 360.0);
     if( u_time >= a_startTime ) {   // Check if the particle is born
         float age = u_time - a_startTime;   // Get the age of the particle
-        if( age > u_tTL ) {     // Check if the particle is dead
+        if( age > u_tTL ) {                 // Check if the particle is dead
             // The particle is past its lifetime, recycle.
             tf_position = u_pGPosition;         // Reset position
             tf_velocity = a_initialVelocity;    // Reset velocity

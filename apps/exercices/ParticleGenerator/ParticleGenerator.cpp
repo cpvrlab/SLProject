@@ -277,6 +277,7 @@ void onInit()
     _mouseLeftDown    = false;
 
     // Load textures
+    //_textureID = glUtils::buildTexture(_projectRoot + "/data/images/textures/circle_01.png");
     _textureID = glUtils::buildTexture(_projectRoot + "/data/images/textures/smoke_08.png");
 
     // Load, compile & link shaders for transform feedback
@@ -331,9 +332,9 @@ void onInit()
 
     buildBox(); // Init the Cube
     //buildSquare();
-    initParticles(4.0f, SLVec3f(0, 0, 0));
-
-    pGPos = SLVec3f(0.0f, -0.5f, 0.0f);
+    pGPos = SLVec3f(0.0f, -0.5f, 0.0f);     // Init the particle emitter position
+    initParticles(4.0f, pGPos);             // World space (comment for local space)
+    //initParticles(4.0f, SLVec3f(0.0f, 0.0f, 0.0f)); // Local space (uncomment for local space)
 
     glClearColor(0.0f, 0.0f, 0.0f, 1); // Set the background color
     //glEnable(GL_DEPTH_TEST);           // Enables depth test
@@ -471,7 +472,7 @@ bool onPaint()
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _vboIC);
 
     // Draw cube with triangles by indexes
-    glDrawElements(GL_TRIANGLES, (GLint)_numI, GL_UNSIGNED_INT, nullptr);
+    //glDrawElements(GL_TRIANGLES, (GLint)_numI, GL_UNSIGNED_INT, nullptr);
 
 
     //8) Fast copy the back buffer to the front buffer. This is OS dependent.
