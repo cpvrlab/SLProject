@@ -5599,18 +5599,31 @@ resolution shadows near the camera and lower resolution shadows further away.");
         sv->camera(cam1);
         s->root3D(scene);
     }
-    else if (sceneID == SID_Benchmark5_LevelOfDetail) //...........................................
+    else if (sceneID == SID_Benchmark5_ColumnsNoLOD ||
+             sceneID == SID_Benchmark6_ColumnsLOD) //..............................................
     {
         SLstring modelFile = configPath + "models/GLTF-CorinthianColumn/Corinthian-Column-Round-LOD.gltf";
         SLstring texCFile  = configPath + "models/GLTF-CorinthianColumn/PavementSlateSquare2_2K_DIF.jpg";
         SLstring texNFile  = configPath + "models/GLTF-CorinthianColumn/PavementSlateSquare2_2K_NRM.jpg";
 
-        if (Utils::fileExists(modelFile) && Utils::fileExists(texCFile) && Utils::fileExists(texNFile))
+        if (Utils::fileExists(modelFile) &&
+            Utils::fileExists(texCFile) && Utils::fileExists(texNFile))
         {
             SLchar name[512];
-            sprintf(name, "Lots of corinthian columns in different levels of detail (LOD) and cascaded shadow mapping. In the Day-Time dialogue you can change the sun angle.");
-            s->name(name);
-            s->info(s->name());
+            SLint  size;
+            if (sceneID == SID_Benchmark5_ColumnsNoLOD)
+            {
+                size = 10;
+                sprintf(name, "%d corinthian columns without LOD", size * size);
+                s->name(name);
+            }
+            else
+            {
+                size = 50;
+                sprintf(name, "%d corinthian columns with LOD", size * size);
+                s->name(name);
+            }
+            s->info(s->name() + " with cascaded shadow mapping. In the Day-Time dialogue you can change the sun angle.");
 
             // Create ground material
             SLGLTexture* texFloorDif = new SLGLTexture(am, texCFile, SL_ANISOTROPY_MAX, GL_LINEAR);
@@ -5622,7 +5635,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
             cam1->translation(0, 1.7f, 20);
             cam1->lookAt(0, 1.7f, 0);
             cam1->focalDist(cam1->translationOS().length());
-            cam1->clipFar(400);
+            cam1->clipFar(600);
             cam1->background().colors(SLCol4f(0.1f, 0.4f, 0.8f));
             cam1->setInitialState();
 
@@ -5684,7 +5697,6 @@ resolution shadows near the camera and lower resolution shadows further away.");
             scene->addChild(cam1);
 
             // create loads of pillars
-            SLint   size       = 50;
             SLint   numColumns = size * size;
             SLfloat offset     = 5.0f;
             SLfloat z          = (float)(size - 1) * offset * 0.5f;
@@ -5697,21 +5709,25 @@ resolution shadows near the camera and lower resolution shadows further away.");
                 {
                     SLint iZX = iZ * size + iX;
 
-                    // With LOD parent node and 3 levels
-                    string     strLOD    = "LOD" + std::to_string(iZX);
-                    SLNodeLOD* lod_group = new SLNodeLOD(strLOD);
-                    lod_group->translate(x, 0, z, TS_object);
-                    lod_group->addChildLOD(new SLNode(columnL1->mesh(), strLOD + "-L0"), 0.1f, 3);
-                    lod_group->addChildLOD(new SLNode(columnL2->mesh(), strLOD + "-L1"), 0.01f, 3);
-                    lod_group->addChildLOD(new SLNode(columnL3->mesh(), strLOD + "-L2"), 0.0001f, 3);
-                    scene->addChild(lod_group);
-
-                    /* Without just the level 1 node
-                    string strNode = "Node" + std::to_string(iZX);
-                    SLNode* column = new SLNode(columnL1->mesh(), strNode + "-L0");
-                    column->translate(x, 0, z, TS_object);
-                    scene->addChild(column);*/
-
+                    if (sceneID == SID_Benchmark5_ColumnsNoLOD)
+                    {
+                        // Without just the level 0 node
+                        string  strNode = "Node" + std::to_string(iZX);
+                        SLNode* column  = new SLNode(columnL1->mesh(), strNode + "-L0");
+                        column->translate(x, 0, z, TS_object);
+                        scene->addChild(column);
+                    }
+                    else
+                    {
+                        // With LOD parent node and 3 levels
+                        string     strLOD    = "LOD" + std::to_string(iZX);
+                        SLNodeLOD* lod_group = new SLNodeLOD(strLOD);
+                        lod_group->translate(x, 0, z, TS_object);
+                        lod_group->addChildLOD(new SLNode(columnL1->mesh(), strLOD + "-L0"), 0.1f, 3);
+                        lod_group->addChildLOD(new SLNode(columnL2->mesh(), strLOD + "-L1"), 0.01f, 3);
+                        lod_group->addChildLOD(new SLNode(columnL3->mesh(), strLOD + "-L2"), 0.0001f, 3);
+                        scene->addChild(lod_group);
+                    }
                     x += offset;
                 }
                 z -= offset;

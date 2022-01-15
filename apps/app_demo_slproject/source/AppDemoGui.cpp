@@ -1523,8 +1523,8 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                         s->onLoad(am, s, sv, SID_RTSoftShadows);
                     if (ImGui::MenuItem("Cascaded Shadows", nullptr, sid == SID_ShadowMappingCascaded))
                         s->onLoad(am, s, sv, SID_ShadowMappingCascaded);
-                    if (ImGui::MenuItem("Cascaded Shadows with LOD", nullptr, sid == SID_Benchmark5_LevelOfDetail))
-                        s->onLoad(am, s, sv, SID_Benchmark5_LevelOfDetail);
+                    if (ImGui::MenuItem("Columns with Cascaded Sh.", nullptr, sid == SID_Benchmark6_ColumnsLOD))
+                        s->onLoad(am, s, sv, SID_Benchmark6_ColumnsLOD);
 
                     ImGui::EndMenu();
                 }
@@ -1844,11 +1844,11 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                         s->onLoad(am, s, sv, SID_Benchmark3_NodeAnimations);
                     if (ImGui::MenuItem("Massive Skinned Animations", nullptr, sid == SID_Benchmark4_SkinnedAnimations))
                         s->onLoad(am, s, sv, SID_Benchmark4_SkinnedAnimations);
-                    if (ImGui::MenuItem("Level of Detail (LOD)", nullptr, sid == SID_Benchmark5_LevelOfDetail))
+                    if (ImGui::MenuItem("Columns without LOD", nullptr, sid == SID_Benchmark5_ColumnsNoLOD))
                     {
                         SLstring largeFile = AppDemo::configPath + "models/GLTF-CorinthianColumn/Corinthian-Column-Round-LOD.gltf";
                         if (Utils::fileExists(largeFile))
-                            s->onLoad(am, s, sv, SID_Benchmark5_LevelOfDetail);
+                            s->onLoad(am, s, sv, SID_Benchmark5_ColumnsNoLOD);
                         else
                         {
                             downloadModelAndLoadScene(s,
@@ -1857,7 +1857,23 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                                                       "https://pallas.ti.bfh.ch/data/SLProject/models/",
                                                       AppDemo::configPath + "models/",
                                                       largeFile,
-                                                      SID_Benchmark5_LevelOfDetail);
+                                                      SID_Benchmark5_ColumnsNoLOD);
+                        }
+                    }
+                    if (ImGui::MenuItem("Columns with LOD", nullptr, sid == SID_Benchmark6_ColumnsLOD))
+                    {
+                        SLstring largeFile = AppDemo::configPath + "models/GLTF-CorinthianColumn/Corinthian-Column-Round-LOD.gltf";
+                        if (Utils::fileExists(largeFile))
+                            s->onLoad(am, s, sv, SID_Benchmark6_ColumnsLOD);
+                        else
+                        {
+                            downloadModelAndLoadScene(s,
+                                                      sv,
+                                                      "GLTF-CorinthianColumn.zip",
+                                                      "https://pallas.ti.bfh.ch/data/SLProject/models/",
+                                                      AppDemo::configPath + "models/",
+                                                      largeFile,
+                                                      SID_Benchmark6_ColumnsLOD);
                         }
                     }
 
