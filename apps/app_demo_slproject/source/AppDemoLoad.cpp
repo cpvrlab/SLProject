@@ -1268,7 +1268,7 @@ void appDemoLoadScene(SLAssetManager* am,
         if (sceneID == SID_ShaderPerVertexBlinn)
         {
             s->name("Blinn-Phong per vertex lighting");
-            s->info("Per-vertex lighting with Blinn-Phong light model. "
+            s->info("Per-vertex lighting with Blinn-Phong reflection model. "
                     "The reflection of 5 light sources is calculated per vertex. "
                     "The green and the white light are attached to the camera, the others are in the scene. "
                     "The light calculation per vertex is the fastest but leads to artefacts with spot lights");
@@ -1285,7 +1285,7 @@ void appDemoLoadScene(SLAssetManager* am,
         else
         {
             s->name("Blinn-Phong per pixel lighting");
-            s->info("Per-pixel lighting with Blinn-Phong light model. "
+            s->info("Per-pixel lighting with Blinn-Phong reflection model. "
                     "The reflection of 5 light sources is calculated per pixel. "
                     "The light calculation is done in the fragment shader.");
             SLGLTexture*   texN   = new SLGLTexture(am, texPath + "earth2048_N.jpg"); // normal map
@@ -1391,10 +1391,10 @@ void appDemoLoadScene(SLAssetManager* am,
     else if (sceneID == SID_ShaderPerPixelCook) //.................................................
     {
         s->name("Cook-Torrance Shading");
-        s->info("Cook-Torrance light model. Left-Right: roughness 0.05-1, Top-Down: metallic: 1-0. "
+        s->info("Cook-Torrance reflection model. Left-Right: roughness 0.05-1, Top-Down: metallic: 1-0. "
                 "The center sphere has roughness and metallic encoded in textures. "
-                "The light model has a more produces a more physically based light reflection "
-                "than the standard Blinn-Phong light model.");
+                "The reflection model produces a more physically based light reflection "
+                "than the standard Blinn-Phong reflection model.");
 
         // Base root group node for the scene
         SLNode* scene = new SLNode;
@@ -1494,7 +1494,7 @@ void appDemoLoadScene(SLAssetManager* am,
         // Set scene name and info string
         s->name("Image Based Lighting");
         s->info("Image-based lighting from skybox using high dynamic range images. "
-                "It uses the Cook-Torrance light model also to calculate the ambient light part from the surrounding HDR skybox.");
+                "It uses the Cook-Torrance reflection model also to calculate the ambient light part from the surrounding HDR skybox.");
 
         // Create HDR CubeMap and get precalculated textures from it
         SLSkybox* skybox = new SLSkybox(am,
@@ -3703,11 +3703,11 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         // Create see through video background material without shadow mapping
         SLMaterial* matVideoBkgd = new SLMaterial(am, "matVideoBkgd", videoTexture);
-        matVideoBkgd->lightModel(LM_Custom);
+        matVideoBkgd->reflectionModel(RM_Custom);
 
         // Create see through video background material with shadow mapping
         SLMaterial* matVideoBkgdSM = new SLMaterial(am, "matVideoBkgdSM", videoTexture);
-        matVideoBkgdSM->lightModel(LM_Custom);
+        matVideoBkgdSM->reflectionModel(RM_Custom);
         matVideoBkgdSM->ambient(SLCol4f(0.6f, 0.6f, 0.6f));
         matVideoBkgdSM->getsShadows(true);
 
@@ -3978,11 +3978,11 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         // Create see through video background material without shadow mapping
         SLMaterial* matVideoBkgd = new SLMaterial(am, "matVideoBkgd", videoTexture);
-        matVideoBkgd->lightModel(LM_Custom);
+        matVideoBkgd->reflectionModel(RM_Custom);
 
         // Create see through video background material with shadow mapping
         SLMaterial* matVideoBkgdSM = new SLMaterial(am, "matVideoBkgdSM", videoTexture);
-        matVideoBkgdSM->lightModel(LM_Custom);
+        matVideoBkgdSM->reflectionModel(RM_Custom);
         matVideoBkgdSM->ambient(SLCol4f(0.6f, 0.6f, 0.6f));
         matVideoBkgdSM->getsShadows(true);
 
@@ -4124,11 +4124,11 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         // Create see through video background material without shadow mapping
         SLMaterial* matVideoBkgd = new SLMaterial(am, "matVideoBkgd", videoTexture);
-        matVideoBkgd->lightModel(LM_Custom);
+        matVideoBkgd->reflectionModel(RM_Custom);
 
         // Create see through video background material with shadow mapping
         SLMaterial* matVideoBkgdSM = new SLMaterial(am, "matVideoBkgdSM", videoTexture);
-        matVideoBkgdSM->lightModel(LM_Custom);
+        matVideoBkgdSM->reflectionModel(RM_Custom);
         matVideoBkgdSM->ambient(SLCol4f(0.6f, 0.6f, 0.6f));
         matVideoBkgdSM->getsShadows(true);
 
@@ -4270,11 +4270,11 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         // Create see through video background material without shadow mapping
         SLMaterial* matVideoBkgd = new SLMaterial(am, "matVideoBkgd", videoTexture);
-        matVideoBkgd->lightModel(LM_Custom);
+        matVideoBkgd->reflectionModel(RM_Custom);
 
         // Create see through video background material with shadow mapping
         SLMaterial* matVideoBkgdSM = new SLMaterial(am, "matVideoBkgdSM", videoTexture);
-        matVideoBkgdSM->lightModel(LM_Custom);
+        matVideoBkgdSM->reflectionModel(RM_Custom);
         matVideoBkgdSM->ambient(SLCol4f(0.6f, 0.6f, 0.6f));
         matVideoBkgdSM->getsShadows(true);
 
@@ -4453,11 +4453,11 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         // Create see through video background material without shadow mapping
         SLMaterial* matVideoBkgd = new SLMaterial(am, "matVideoBkgd", videoTexture);
-        matVideoBkgd->lightModel(LM_Custom);
+        matVideoBkgd->reflectionModel(RM_Custom);
 
         // Create see through video background material with shadow mapping
         SLMaterial* matVideoBkgdSM = new SLMaterial(am, "matVideoBkgdSM", videoTexture);
-        matVideoBkgdSM->lightModel(LM_Custom);
+        matVideoBkgdSM->reflectionModel(RM_Custom);
         matVideoBkgdSM->ambient(SLCol4f(0.6f, 0.6f, 0.6f));
         matVideoBkgdSM->getsShadows(true);
 
@@ -4576,11 +4576,11 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         // Create see through video background material without shadow mapping
         SLMaterial* matVideoBkgd = new SLMaterial(am, "matVideoBkgd", videoTexture);
-        matVideoBkgd->lightModel(LM_Custom);
+        matVideoBkgd->reflectionModel(RM_Custom);
 
         // Create see through video background material with shadow mapping
         SLMaterial* matVideoBkgdSM = new SLMaterial(am, "matVideoBkgdSM", videoTexture);
-        matVideoBkgdSM->lightModel(LM_Custom);
+        matVideoBkgdSM->reflectionModel(RM_Custom);
         matVideoBkgdSM->ambient(SLCol4f(0.6f, 0.6f, 0.6f));
         matVideoBkgdSM->getsShadows(true);
 
@@ -4696,11 +4696,11 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         // Create see through video background material without shadow mapping
         SLMaterial* matVideoBkgd = new SLMaterial(am, "matVideoBkgd", videoTexture);
-        matVideoBkgd->lightModel(LM_Custom);
+        matVideoBkgd->reflectionModel(RM_Custom);
 
         // Create see through video background material with shadow mapping
         SLMaterial* matVideoBkgdSM = new SLMaterial(am, "matVideoBkgdSM", videoTexture);
-        matVideoBkgdSM->lightModel(LM_Custom);
+        matVideoBkgdSM->reflectionModel(RM_Custom);
         matVideoBkgdSM->ambient(SLCol4f(0.6f, 0.6f, 0.6f));
         matVideoBkgdSM->getsShadows(true);
 
@@ -4820,11 +4820,11 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         // Create see through video background material without shadow mapping
         SLMaterial* matVideoBkgd = new SLMaterial(am, "matVideoBkgd", videoTexture);
-        matVideoBkgd->lightModel(LM_Custom);
+        matVideoBkgd->reflectionModel(RM_Custom);
 
         // Create see through video background material with shadow mapping
         SLMaterial* matVideoBkgdSM = new SLMaterial(am, "matVideoBkgdSM", videoTexture);
-        matVideoBkgdSM->lightModel(LM_Custom);
+        matVideoBkgdSM->reflectionModel(RM_Custom);
         matVideoBkgdSM->ambient(SLCol4f(0.6f, 0.6f, 0.6f));
         matVideoBkgdSM->getsShadows(true);
 

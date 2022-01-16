@@ -22,7 +22,7 @@ class SLAssetManager;
 /*! An instance of this class generates the shader code on the fly at
  construction time based on the information of the passed material and lights
  vector. The generated program depends on the following parameters:
- - mat->lightModel (Blinn-Phong or Cook-Torrance)
+ - mat->reflectionModel (Blinn-Phong or Cook-Torrance)
  - mat->textures
  - light->createsShadows
  - active camera for the fog and projection parameters

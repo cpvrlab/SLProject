@@ -46,7 +46,6 @@ The vertex attributes are stored in vectors with equal number of elements:
 \n I16 holds the unsigned short vertex indices.
 \n I32 holds the unsigned int vertex indices.
 \n
-\n
 The normals of a vertex are automatically calculated in the method calcNormals()
 by averaging the face normals of the adjacent triangles. A vertex has always
 only <b>one</b> normal and is used for the lighting calculation in the shader
@@ -110,8 +109,7 @@ are the vertices of the hard edges in the front of the sphere doubled.
 \n
 All vertex attributes are added to the vertex array object _vao (SLVertexArray).<br>
 All arrays remain in the main memory for ray tracing.
-A mesh uses normally only one material referenced by the SLMesh::mat pointer.
-\n
+A mesh uses only one material referenced by the SLMesh::mat pointer.
 \n
 If a mesh is associated with a skeleton all its vertices and normals are
 transformed every frame by the joint weights. Every vertex of a mesh has

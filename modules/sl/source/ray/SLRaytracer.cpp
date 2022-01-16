@@ -476,7 +476,7 @@ void SLRaytracer::setPrimaryRay(SLfloat x, SLfloat y, SLRay* primaryRay)
 //-----------------------------------------------------------------------------
 /*!
 This method calculates the local illumination at the rays intersection point.
-It uses the OpenGL local light model where the color is calculated as
+It uses the Blinn-Phong local reflection model where the color is calculated as
 follows:
 color = material emission +
         global ambient light scaled by the material's ambient color +

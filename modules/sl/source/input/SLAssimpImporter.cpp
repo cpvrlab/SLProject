@@ -860,18 +860,18 @@ SLMaterial* SLAssimpImporter::loadMaterial(SLAssetManager* am,
     slMat->roughness(roughness);
     slMat->metalness(metalness);
 
-    // Switch lighting model to PBR (LM_CookTorrance) only if PBR textures are used.
+    // Switch lighting model to PBR (RM_CookTorrance) only if PBR textures are used.
     // PBR without must be set by additional setter call
     if (slMat->hasTextureType(TT_roughness) ||
         slMat->hasTextureType(TT_metallic) ||
         slMat->hasTextureType(TT_roughMetal) ||
         slMat->hasTextureType(TT_occluRoughMetal))
     {
-        slMat->lightModel(LM_CookTorrance);
+        slMat->reflectionModel(RM_CookTorrance);
         slMat->skybox(skybox);
     }
     else
-        slMat->lightModel(LM_BlinnPhong);
+        slMat->reflectionModel(RM_BlinnPhong);
 
     return slMat;
 }

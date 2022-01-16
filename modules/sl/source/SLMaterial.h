@@ -23,24 +23,31 @@ class SLAssetManager;
 //-----------------------------------------------------------------------------
 //! Defines a standard CG material with textures and a shader program
 /*!
-The SLMaterial class defines a material with properties for ambient, diffuse,
-specular and emissive light RGBA-reflection. For classic Blinn-Phong shading
-the shininess parameter can be used as shininess exponent.
-For Cook-Torrance shading the parameters roughness and metallic are provided.
-In addition it has coefficients for reflectivity (kr), transparency (kt) and
-refraction index (kn) that can be used in special shaders and ray tracing.
-A material can have multiple texture in the vector _textures.
-The shading has to be implemented in the GLSL program (SLGLProgram) with a
-vertex and fragment shader.
-All parameters get synced into their corresponding parameter in SLGLState
-when a the material gets activated by the method activate.
-Light and material parameters get passed to their corresponding shader
-variables in SLGLProgram::beginUse.
+ The SLMaterial class defines a material with either the Blinn-Phong (default)
+ or the Cook-Torrance reflection) model.<br>
+ <br>
+ In the Blinn-Phong reflection model the following parameters get used:<br>
+ The ambient, diffuse, specular and emissive color as well as the shininess
+ parameter as shininess exponent. Instead of the diffuse color a texture of
+ type TT_diffuse can be used.<br>
+ In the Cook-Torrance reflection model only the diffuse color and the
+ roughness and metallic parameter are used. All parameters can be provided
+ also as a texture of the appropriate type. This reflection model
+ corresponds to the Physically Based Rendering (PBR) material model.<br>
+ In addition it has coefficients for reflectivity (kr), transparency (kt) and
+ refraction index (kn) that can be used in special shaders and ray tracing.<br>
+ A material has an array of empty vectors of SLGLTexture pointers. One for
+ each SLTextureType.<br>
+ The shading has to be implemented in the GLSL program (SLGLProgram) with a
+ vertex and fragment shader. If no SLGLProgram is assigned, a pair of
+ shaders (a vertex and fragment shader) gets automatically generated
+ according to the reflection model and the material parameters. See
+ SLGLProgramGenerated for more details.
 */
 class SLMaterial : public SLObject
 {
 public:
-    //! Default ctor for Blinn-Phong light model materials without textures
+    //! Default ctor for Blinn-Phong reflection model materials without textures
     explicit SLMaterial(SLAssetManager* am,
                         const SLchar*   name,
                         const SLCol4f&  amdi      = SLCol4f::WHITE,
@@ -51,7 +58,7 @@ public:
                         SLfloat         kn        = 1.0f,
                         SLGLProgram*    program   = nullptr);
 
-    //! Ctor for textured Blinn-Phong light model materials
+    //! Ctor for textured Blinn-Phong reflection model materials
     SLMaterial(SLAssetManager* am,
                const SLchar*   name,
                SLGLTexture*    texture1,
@@ -142,6 +149,8 @@ public:
     SLstring texturesString();
 
     // Setters
+    void assetManager(SLAssetManager* am) { _assetManager = am; }
+    void reflectionModel(SLReflectionModel rm) { _reflectionModel = rm; }
     void ambient(const SLCol4f& ambi) { _ambient = ambi; }
     void diffuse(const SLCol4f& diff) { _diffuse = diff; }
     void ambientDiffuse(const SLCol4f& am_di) { _ambient = _diffuse = am_di; }
@@ -181,62 +190,57 @@ public:
     void skybox(SLSkybox* sb) { _skybox = sb; }
 
     // Getters
-    SLAssetManager* assetManager() { return _assetManager; }
-    SLLightModel    lightModel() { return _lightModel; }
-    SLCol4f         ambient() { return _ambient; }
-    SLCol4f         diffuse() { return _diffuse; }
-    SLCol4f         specular() { return _specular; }
-    SLCol4f         transmissive() { return _transmissive; }
-    SLCol4f         emissive() { return _emissive; }
-    SLfloat         shininess() const { return _shininess; }
-    SLfloat         roughness() const { return _roughness; }
-    SLfloat         metalness() const { return _metalness; }
-    SLfloat         translucency() const { return _translucency; }
-    SLfloat         kr() const { return _kr; }
-    SLfloat         kt() const { return _kt; }
-    SLfloat         kn() const { return _kn; }
-    SLbool          getsShadows() const { return _getsShadows; }
-    SLuint          numTextures() { return _numTextures; }
-    SLGLProgram*    program() { return _program; }
-    SLSkybox*       skybox() { return _skybox; }
-    SLVNode&        nodesVisible2D() { return _nodesVisible2D; }
-    SLVNode&        nodesVisible3D() { return _nodesVisible3D; }
-
-    SLVGLTexture& textures(SLTextureType type) { return _textures[type]; }
-    SLVGLTexture& textures3d() { return _textures3d; }
-
-    // Setters
-    void assetManager(SLAssetManager* am) { _assetManager = am; }
-    void lightModel(SLLightModel lm) { _lightModel = lm; }
+    SLAssetManager*   assetManager() { return _assetManager; }
+    SLReflectionModel reflectionModel() { return _reflectionModel; }
+    SLCol4f           ambient() { return _ambient; }
+    SLCol4f           diffuse() { return _diffuse; }
+    SLCol4f           specular() { return _specular; }
+    SLCol4f           emissive() { return _emissive; }
+    SLfloat           shininess() const { return _shininess; }
+    SLfloat           roughness() const { return _roughness; }
+    SLfloat           metalness() const { return _metalness; }
+    SLCol4f           transmissive() { return _transmissive; }
+    SLfloat           translucency() const { return _translucency; }
+    SLfloat           kr() const { return _kr; }
+    SLfloat           kt() const { return _kt; }
+    SLfloat           kn() const { return _kn; }
+    SLbool            getsShadows() const { return _getsShadows; }
+    SLuint            numTextures() { return _numTextures; }
+    SLGLProgram*      program() { return _program; }
+    SLSkybox*         skybox() { return _skybox; }
+    SLVNode&          nodesVisible2D() { return _nodesVisible2D; }
+    SLVNode&          nodesVisible3D() { return _nodesVisible3D; }
+    SLVGLTexture&     textures(SLTextureType type) { return _textures[type]; }
+    SLVGLTexture&     textures3d() { return _textures3d; }
 
     // Static variables & functions
     static SLfloat K;       //!< PM: Constant of gloss calibration (slope of point light at dist 1)
     static SLfloat PERFECT; //!< PM: shininess/translucency limit
 
 protected:
-    SLAssetManager* _assetManager; //!< Pointer to the asset manager (the owner) if available
-    SLLightModel    _lightModel;   //!< Enumeration for lighting model (LM_BlinnPhong or LM_CookTorrance)
-    SLCol4f         _ambient;      //!< ambient color (RGB reflection coefficients)
-    SLCol4f         _diffuse;      //!< diffuse color (RGB reflection coefficients)
-    SLCol4f         _specular;     //!< specular color (RGB reflection coefficients)
-    SLCol4f         _transmissive; //!< PM: transmissive color (RGB reflection coefficients)
-    SLCol4f         _emissive;     //!< emissive color coefficients
-    SLfloat         _shininess;    //!< shininess exponent in Blinn-Phong model
-    SLfloat         _roughness;    //!< roughness property (0-1) in Cook-Torrance model
-    SLfloat         _metalness;    //!< metallic property (0-1) in Cook-Torrance model
-    SLfloat         _translucency; //!< PM: translucency exponent for light refraction
-    SLfloat         _kr{};         //!< reflection coefficient 0.0 - 1.0
-    SLfloat         _kt{};         //!< transmission coefficient 0.0 - 1.0
-    SLfloat         _kn{};         //!< refraction index
-    SLbool          _getsShadows;  //!< true if shadows are visible on this material
-    SLGLProgram*    _program{};    //!< pointer to a GLSL shader program
-    SLint           _numTextures;  //!< Number of textures in all _textures vectors array
-    SLSkybox*       _skybox;       //!< Pointer to the skybox
+    SLAssetManager*   _assetManager;    //!< pointer to the asset manager (the owner) if available
+    SLReflectionModel _reflectionModel; //!< reflection model (RM_BlinnPhong or RM_CookTorrance)
+    SLCol4f           _ambient;         //!< ambient color (RGB reflection coefficients)
+    SLCol4f           _diffuse;         //!< diffuse color (RGB reflection coefficients)
+    SLCol4f           _specular;        //!< specular color (RGB reflection coefficients)
+    SLCol4f           _emissive;        //!< emissive color coefficients
+    SLfloat           _shininess;       //!< shininess exponent in Blinn-Phong model
+    SLfloat           _roughness;       //!< roughness property (0-1) in Cook-Torrance model
+    SLfloat           _metalness;       //!< metallic property (0-1) in Cook-Torrance model
+    SLCol4f           _transmissive;    //!< transmissive color (RGB reflection coefficients) for path tracing
+    SLfloat           _translucency;    //!< translucency exponent for light refraction for path tracing
+    SLfloat           _kr{};            //!< reflection coefficient 0.0 - 1.0 used for ray and path tracing
+    SLfloat           _kt{};            //!< transmission coefficient 0.0 - 1.0 used for ray and path tracing
+    SLfloat           _kn{};            //!< refraction index
+    SLbool            _getsShadows;     //!< true if shadows are visible on this material
+    SLGLProgram*      _program{};       //!< pointer to a GLSL shader program
+    SLint             _numTextures;     //!< number of textures in all _textures vectors array
+    SLSkybox*         _skybox;          //!< pointer to the skybox
 
-    SLVGLTexture _textures[TT_numTextureType]; //!< Array of texture vectors one for each type
-    SLVGLTexture _textures3d;                  //!< Texture vector for diffuse 3D textures
-    SLGLTexture* _errorTexture = nullptr;      //!< Pointer to error texture that is shown if another texture fails
-    SLstring     _compileErrorTexFilePath;     //!< Path to the error texture
+    SLVGLTexture _textures[TT_numTextureType]; //!< array of texture vectors one for each type
+    SLVGLTexture _textures3d;                  //!< texture vector for diffuse 3D textures
+    SLGLTexture* _errorTexture = nullptr;      //!< pointer to error texture that is shown if another texture fails
+    SLstring     _compileErrorTexFilePath;     //!< path to the error texture
 
     SLVNode _nodesVisible2D; //!< Vector of all visible 2D nodes of with this material
     SLVNode _nodesVisible3D; //!< Vector of all visible 3D nodes of with this material

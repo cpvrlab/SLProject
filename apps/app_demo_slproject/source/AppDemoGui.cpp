@@ -3662,9 +3662,9 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                     ImGui::Text("# hard edges : %u", e);
                     ImGui::Text("Material Name: %s", m->name().c_str());
 
-                    if (m->lightModel() == LM_BlinnPhong)
+                    if (m->reflectionModel() == RM_BlinnPhong)
                     {
-                        if (ImGui::TreeNode("Light Model: Blinn-Phong"))
+                        if (ImGui::TreeNode("Reflection Model: Blinn-Phong"))
                         {
                             ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.5f);
 
@@ -3709,9 +3709,9 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                             ImGui::TreePop();
                         }
                     }
-                    else if (m->lightModel() == LM_CookTorrance)
+                    else if (m->reflectionModel() == RM_CookTorrance)
                     {
-                        if (ImGui::TreeNode("Light Model: Cook-Torrance"))
+                        if (ImGui::TreeNode("Reflection Model: Cook-Torrance"))
                         {
                             if (m->numTextures())
                             {

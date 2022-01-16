@@ -1007,7 +1007,7 @@ void main()
     |    |   |   + Emissive Map with index 0 and uv 0
     |    |   + Normal Map with index 0 and uv 0
     |    + Diffuse Texture Mapping with index 0 and uv 0
-    + Cook-Torrance or Blinn-Phong lighting model
+    + Cook-Torrance or Blinn-Phong reflection model
  </pre>
  */
 void SLGLProgramGenerated::buildProgramName(SLMaterial* mat,
@@ -1020,9 +1020,9 @@ void SLGLProgramGenerated::buildProgramName(SLMaterial* mat,
 
     if (mat->hasTextureType(TT_videoBkgd))
         programName += "VideoBkgdDm";
-    else if (mat->lightModel() == LM_BlinnPhong)
+    else if (mat->reflectionModel() == RM_BlinnPhong)
         programName += "Blinn";
-    else if (mat->lightModel() == LM_CookTorrance)
+    else if (mat->reflectionModel() == RM_CookTorrance)
         programName += "Cook";
     else
         programName += "Custom";
@@ -1079,20 +1079,20 @@ void SLGLProgramGenerated::buildProgramCode(SLMaterial* mat,
     // Check if any of the scene lights does shadow mapping
     bool Sm = lightsDoShadowMapping(lights);
 
-    if (mat->lightModel() == LM_BlinnPhong)
+    if (mat->reflectionModel() == RM_BlinnPhong)
     {
         buildPerPixBlinn(mat, lights);
     }
-    else if (mat->lightModel() == LM_CookTorrance)
+    else if (mat->reflectionModel() == RM_CookTorrance)
     {
         buildPerPixCook(mat, lights);
     }
-    else if (mat->lightModel() == LM_Custom)
+    else if (mat->reflectionModel() == RM_Custom)
     {
         if (Vm && Sm)
             buildPerPixVideoBkgdSm(lights);
         else
-            SL_EXIT_MSG("SLGLProgramGenerated::buildProgramCode: Unknown program for LM_Custom.");
+            SL_EXIT_MSG("SLGLProgramGenerated::buildProgramCode: Unknown program for RM_Custom.");
     }
     else
         SL_EXIT_MSG("SLGLProgramGenerated::buildProgramCode: Unknown Lighting Model.");

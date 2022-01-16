@@ -364,12 +364,12 @@ enum SLFogMode
     FM_exp2
 };
 //-----------------------------------------------------------------------------
-//! Light Models for shader generation
-enum SLLightModel
+//! Light Reflection Models for shader generation usd in SLMaterial
+enum SLReflectionModel
 {
-    LM_BlinnPhong = 0,
-    LM_CookTorrance,
-    LM_Custom
+    RM_BlinnPhong = 0,
+    RM_CookTorrance,
+    RM_Custom
 };
 //-----------------------------------------------------------------------------
 #endif
