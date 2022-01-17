@@ -142,15 +142,20 @@ void ArucoPen::trackingSystem(TrackingSystem* trackingSystem)
 
     // Switch to the first accepted provider if the current one isn't accepted by the tracking system
     CVCaptureProvider* currentProvider = AppArucoPen::instance().currentCaptureProvider();
-    if (!_trackingSystem->isAcceptedProvider(currentProvider))
+
+    if (_trackingSystem->isAcceptedProvider(currentProvider))
     {
-        for (CVCaptureProvider* provider : AppArucoPen::instance().captureProviders())
+        return;
+    }
+
+    for (CVCaptureProvider* provider : AppArucoPen::instance().captureProviders())
+    {
+        SL_LOG("TESTING");
+        if(_trackingSystem->isAcceptedProvider(provider))
         {
-            if(_trackingSystem->isAcceptedProvider(provider))
-            {
-                AppArucoPen::instance().currentCaptureProvider(provider);
-                return;
-            }
+            SL_LOG("ACCEPTED!");
+            AppArucoPen::instance().currentCaptureProvider(provider);
+            return;
         }
     }
 

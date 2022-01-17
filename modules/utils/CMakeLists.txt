@@ -56,6 +56,7 @@ set(headers
 		${CMAKE_CURRENT_SOURCE_DIR}/source/Profiler.h
 		${CMAKE_CURRENT_SOURCE_DIR}/source/ZipUtils.h
 		${CMAKE_CURRENT_SOURCE_DIR}/source/HttpUtils.h
+		${CMAKE_CURRENT_SOURCE_DIR}/source/CoordSystemConversions.h
         ${UTILS_ROOT}/externals/ftplibpp/ftplib.h
     )
 set(sources
@@ -68,6 +69,7 @@ set(sources
 		${CMAKE_CURRENT_SOURCE_DIR}/source/Profiler.cpp
 	    ${CMAKE_CURRENT_SOURCE_DIR}/source/ZipUtils.cpp
 	    ${CMAKE_CURRENT_SOURCE_DIR}/source/HttpUtils.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/source/CoordSystemConversions.cpp
         ${UTILS_ROOT}/externals/ftplibpp/ftplib.cpp
         ${UTILS_ROOT}/externals/zlib/contrib/minizip/ioapi.c
         ${UTILS_ROOT}/externals/zlib/contrib/minizip/unzip.c

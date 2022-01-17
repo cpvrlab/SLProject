@@ -18,11 +18,8 @@ bool TrackingSystemSpryTrack::track(CVCaptureProvider* provider)
     SpryTrackMarker* marker = device.markers()[0];
     if (!marker->visible())
     {
-        SL_LOG("Marker not detected");
         return false;
     }
-
-    SL_LOG("Marker detected");
 
     _worldMatrix = _extrinsicMat.inv() * marker->objectViewMat();
     return true;

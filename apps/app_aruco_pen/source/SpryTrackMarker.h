@@ -31,8 +31,8 @@ public:
 private:
     void update(ftkMarker& marker);
 
-    ftkGeometry _geometry;
-    CVMatx44f     _objectViewMat;
+    ftkGeometry _geometry{};
+    CVMatx44f   _objectViewMat;
     SLbool      _visible = false;
 };
 //-----------------------------------------------------------------------------

@@ -77,7 +77,7 @@ void AppArucoPen::openCaptureProviders()
     // }
 
     // IDS camera + Intel + SpryTrack
-//    openCaptureProvider(new CVCaptureProviderIDSPeak(0, CVSize(1280, 720)));
+    openCaptureProvider(new CVCaptureProviderIDSPeak(0, CVSize(2768, 1840)));
 //    openCaptureProvider(new CVCaptureProviderStandard(0, CVSize(1280, 720)));
     openCaptureProvider(new CVCaptureProviderSpryTrack(CVSize(1280, 720)));
 
@@ -197,17 +197,6 @@ void AppArucoPen::grabFrameImage(CVCaptureProvider* provider, SLSceneView* sv)
     CVCapture::instance()->lastFrameGray = provider->lastFrameGray();
     CVCapture::instance()->captureSize   = provider->captureSize();
     CVCapture::instance()->format        = PF_bgr;
-}
-//-----------------------------------------------------------------------------
-CVTracked* AppArucoPen::currentTracker()
-{
-    if (_trackers.empty())
-    {
-        return nullptr;
-    }
-
-    CVTracked* tracked = _trackers.at(_currentCaptureProvider);
-    return tracked;
 }
 //-----------------------------------------------------------------------------
 void AppArucoPen::publishTipPose()

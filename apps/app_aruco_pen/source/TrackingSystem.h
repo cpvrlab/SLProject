@@ -17,7 +17,7 @@
 class TrackingSystem
 {
 public:
-    virtual ~TrackingSystem()                                         = default;
+    virtual ~TrackingSystem() = default;
     virtual bool      track(CVCaptureProvider* provider)              = 0;
     virtual void      finalizeTracking()                              = 0;
     virtual CVMatx44f worldMatrix()                                   = 0;

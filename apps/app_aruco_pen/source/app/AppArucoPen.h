@@ -55,14 +55,13 @@ public:
     void       openCaptureProviders();
     void       closeCaptureProviders();
     void       grabFrameImagesAndTrack(SLSceneView* sv);
-    CVTracked* currentTracker();
     void       publishTipPose();
 
     // Getters
     CVVCaptureProvider&    captureProviders() { return _captureProviders; }
     CVCaptureProvider*     currentCaptureProvider() const { return _currentCaptureProvider; }
     ArucoPenTrackers&      trackers() { return _trackers; }
-    bool                   doMultiTracking() { return _doMultiTracking; }
+    bool                   doMultiTracking() const { return _doMultiTracking; }
     ArucoPen&              arucoPen() { return _arucoPen; }
     AppArucoPenCalibrator& calibrator() { return _calibrator; }
 

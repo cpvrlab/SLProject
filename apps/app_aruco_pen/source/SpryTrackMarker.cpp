@@ -8,7 +8,10 @@
 //#############################################################################
 
 #include <SpryTrackMarker.h>
+#include <CoordSystemConversions.h>
 
+//-----------------------------------------------------------------------------
+using namespace CoordSystemConversions;
 //-----------------------------------------------------------------------------
 constexpr float MM_TO_M = 1.0f / 1000.0f;
 //-----------------------------------------------------------------------------
@@ -22,10 +25,13 @@ void SpryTrackMarker::addPoint(float x, float y, float z)
                       .c_str());
     }
 
+    float position[] = {x, y, z};
+    convert3f<POS_X, NEG_Y, NEG_Z>(position, position);
+
     uint32 index                 = _geometry.pointsCount;
-    _geometry.positions[index].x = x;
-    _geometry.positions[index].y = y;
-    _geometry.positions[index].z = z;
+    _geometry.positions[index].x = position[0];
+    _geometry.positions[index].y = position[1];
+    _geometry.positions[index].z = position[2];
     _geometry.pointsCount++;
 }
 //-----------------------------------------------------------------------------
@@ -54,4 +60,9 @@ void SpryTrackMarker::update(ftkMarker& marker)
     _objectViewMat(1, 3) = marker.translationMM[1] * MM_TO_M;
     _objectViewMat(2, 3) = marker.translationMM[2] * MM_TO_M;
     _objectViewMat(3, 3) = 1.0;
+
+    // Convert coordinate system
+    convert4x4f<POS_X, NEG_Y, NEG_Z, false, false>(_objectViewMat.val,
+                                                   _objectViewMat.val);
 }
+//-----------------------------------------------------------------------------

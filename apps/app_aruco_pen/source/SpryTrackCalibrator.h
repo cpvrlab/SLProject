@@ -27,7 +27,7 @@ public:
 class SpryTrackCalibrator
 {
 public:
-    SpryTrackCalibrator(SpryTrackDevice& device,
+    explicit SpryTrackCalibrator(SpryTrackDevice& device,
                         CVSize2f         planeSize);
     void calibrate();
 

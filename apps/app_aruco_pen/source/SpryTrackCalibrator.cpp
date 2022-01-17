@@ -8,7 +8,6 @@
 //#############################################################################
 
 #include <SpryTrackCalibrator.h>
-
 #include <utility>
 
 //-----------------------------------------------------------------------------
@@ -21,24 +20,26 @@ SpryTrackCalibrator::SpryTrackCalibrator(SpryTrackDevice& device,
 void SpryTrackCalibrator::calibrate()
 {
     // Create and register the calibration marker
-    auto* marker = new SpryTrackMarker();
-    marker->addPoint(0.0f, 0.0f, 0.0f);
-    marker->addPoint(_planeSize.width, 0.0f, 0.0f);
-    marker->addPoint(0.0f, 0.0f, _planeSize.height);
-    marker->addPoint(_planeSize.width, 0.0f, _planeSize.height);
-    _device.registerMarker(marker);
+    auto* marker = _device.markers()[0];
+    //    marker->addPoint(0.0f, 11.0f, 3.0f);
+    //    marker->addPoint(-15.0f, -26.0f, 3.0f);
+    //    marker->addPoint(16.59f, -20.95f, 3.0f);
+    //    marker->addPoint(0.0f, 0.0f, 0.0f);
+    //    marker->addPoint(_planeSize.width, 0.0f, 0.0f);
+    //    marker->addPoint(0.0f, 0.0f, _planeSize.height);
+    //    marker->addPoint(_planeSize.width, 0.0f, _planeSize.height);
+    //    _device.registerMarker(marker);
 
     // Acquire and process the next frame
     _device.acquireFrame();
 
     // Unregister the calibration marker
-    _device.unregisterMarker(marker);
+    //    _device.unregisterMarker(marker);
 
     if (marker->visible())
     {
         // Invert the marker object view matrix to get the extrinsic calibration matrix
-        CVMatx44f camToWorldMat = marker->objectViewMat();
-        _extrinsicMat           = camToWorldMat.inv();
+        _extrinsicMat = marker->objectViewMat();
     }
     else
     {

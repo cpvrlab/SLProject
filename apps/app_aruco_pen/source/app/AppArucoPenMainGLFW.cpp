@@ -358,7 +358,7 @@ void initGLFW(int screenWidth, int screenHeight)
 
     SLGLFWInterface::createGLContext();
 
-    glfwSetWindowTitle(window, "SLProject Test Application");
+    glfwSetWindowTitle(window, "Pen Tracker");
     glfwSetWindowPos(window, 50, 100);
 
     // With GLFW ImGui draws the cursor

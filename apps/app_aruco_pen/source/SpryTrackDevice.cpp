@@ -157,6 +157,11 @@ void SpryTrackDevice::processFrame()
         marker->_visible = false;
     }
 
+    if (_frame->markersStat != ftkQueryStatus::QS_OK)
+    {
+        return;
+    }
+
     for (uint32 i = 0; i < _frame->markersCount; i++)
     {
         ftkMarker marker = _frame->markers[i];

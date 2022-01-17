@@ -13,6 +13,7 @@
 #include <CVTrackedArucoCube.h>
 #include <CVCaptureProvider.h>
 #include <TrackingSystem.h>
+#include <TrackingSystemArucoCube.h>
 #include <TrackingSystemSpryTrack.h>
 
 #include <SLEventHandler.h>
