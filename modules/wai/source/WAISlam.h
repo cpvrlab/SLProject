@@ -18,7 +18,8 @@
 #include <WAIKeyFrame.h>
 #include <memory>
 
-/* 
+//-----------------------------------------------------------------------------
+/*
  * This class should not be instanciated. It contains only pure virtual methods
  * and some variables with getter that are useful for slam in a subclass.
  */
@@ -27,30 +28,30 @@ class WAISlam : public WAISlamTools
 public:
     struct Params
     {
-        //ensure all new keyframe have enough in common with loaded map
+        // ensure all new keyframe have enough in common with loaded map
         bool ensureKFIntegration = false;
-        //wait for localmapping
+        // wait for localmapping
         bool serial = false;
-        //retain the images in the keyframes, so we can store them later
+        // retain the images in the keyframes, so we can store them later
         bool retainImg = false;
-        //in onlyTracking mode we do not use local mapping and loop closing
+        // in onlyTracking mode we do not use local mapping and loop closing
         bool onlyTracking = false;
-        //If true, keyframes loaded from a map will not be culled and the pose will not be changed. Local bundle adjustment is applied only on newly added kfs.
-        //Also, the loop closing will be disabled so that there will be no optimization of the essential graph and no global bundle adjustment.
+        // If true, keyframes loaded from a map will not be culled and the pose will not be changed. Local bundle adjustment is applied only on newly added kfs.
+        // Also, the loop closing will be disabled so that there will be no optimization of the essential graph and no global bundle adjustment.
         bool fixOldKfs = false;
-        //use lucas canade optical flow tracking
+        // use lucas canade optical flow tracking
         bool trackOptFlow = false;
 
-        //keyframe culling strategy params:
-        // A keyframe is considered redundant if _cullRedundantPerc of the MapPoints it sees, are seen
-        // in at least other 3 keyframes (in the same or finer scale)
-        float cullRedundantPerc = 0.95f; //originally it was 0.9
+        // keyframe culling strategy params:
+        //  A keyframe is considered redundant if _cullRedundantPerc of the MapPoints it sees, are seen
+        //  in at least other 3 keyframes (in the same or finer scale)
+        float cullRedundantPerc = 0.95f; // originally it was 0.9
 
-        //Min common words as a factor of max common words within candidates
-        // for relocalization and loop closing
+        // Min common words as a factor of max common words within candidates
+        //  for relocalization and loop closing
         float minCommonWordFactor = 0.8f;
 
-        //Min acc score filter in detectRelocalizationCandidates
+        // Min acc score filter in detectRelocalizationCandidates
         bool minAccScoreFilter = false;
     };
 
@@ -84,7 +85,9 @@ public:
     void transformCoords(cv::Mat transform);
 
     std::vector<WAIMapPoint*> getMatchedMapPoints(WAIFrame* frame);
-    int                       getMatchedCorrespondances(WAIFrame* frame, std::pair<std::vector<cv::Point2f>, std::vector<cv::Point3f>>& matching);
+    int                       getMatchedCorrespondances(WAIFrame*                            frame,
+                                                        std::pair<std::vector<cv::Point2f>,
+                                            std::vector<cv::Point3f>>& matching);
 
     virtual bool                      isInitialized() { return _initialized; }
     virtual WAIMap*                   getMap() { return _globalMap.get(); }
@@ -111,39 +114,39 @@ public:
     {
         switch (_state)
         {
-            case WAI::TrackingState_Idle:
+            case WAITrackingState::Idle:
                 return std::string("TrackingState_Idle\n");
                 break;
-            case WAI::TrackingState_Initializing:
-                return std::string("TrackingState_Initializing");
+            case WAITrackingState::Initializing:
+                return std::string("Initializing");
                 break;
-            case WAI::TrackingState_None:
-                return std::string("TrackingState_None");
+            case WAITrackingState::None:
+                return std::string("None");
                 break;
-            case WAI::TrackingState_TrackingLost:
-                return std::string("TrackingState_TrackingLost");
+            case WAITrackingState::TrackingLost:
+                return std::string("TrackingLost");
                 break;
-            case WAI::TrackingState_TrackingOK:
-                return std::string("TrackingState_TrackingOK");
+            case WAITrackingState::TrackingOK:
+                return std::string("TrackingOK");
                 break;
-            case WAI::TrackingState_TrackingStart:
-                return std::string("TrackingState_TrackingStart");
+            case WAITrackingState::TrackingStart:
+                return std::string("TrackingStart");
                 break;
             default:
                 return std::string("");
         }
     }
 
-    virtual int     getKeyPointCount() { return _lastFrame.N; }
-    virtual int     getKeyFrameCount() { return (int)_globalMap->KeyFramesInMap(); }
-    virtual int     getMapPointCount() { return (int)_globalMap->MapPointsInMap(); }
-    //get camera extrinsic
+    virtual int getKeyPointCount() { return _lastFrame.N; }
+    virtual int getKeyFrameCount() { return (int)_globalMap->KeyFramesInMap(); }
+    virtual int getMapPointCount() { return (int)_globalMap->MapPointsInMap(); }
+    // get camera extrinsic
     virtual cv::Mat getPose();
-    //set camera extrinsic guess
-    virtual void    setCamExrinsicGuess(cv::Mat extrinsicGuess);
-    virtual void    setMap(std::unique_ptr<WAIMap> globalMap);
+    // set camera extrinsic guess
+    virtual void setCamExrinsicGuess(cv::Mat extrinsicGuess);
+    virtual void setMap(std::unique_ptr<WAIMap> globalMap);
 
-    virtual WAI::TrackingState getTrackingState() { return _state; }
+    virtual WAITrackingState getTrackingState() { return _state; }
 
     virtual void drawInfo(cv::Mat& imageBGR,
                           float    scale,
@@ -165,7 +168,7 @@ public:
     int getKeyFramesInLoopCloseQueueCount();
 
 protected:
-    void updateState(WAI::TrackingState state);
+    void updateState(WAITrackingState state);
 
     bool        _requestFinish;
     bool        _isFinish;
@@ -179,13 +182,13 @@ protected:
     int         getNextFrame(WAIFrame& frame);
     static void updatePoseThread(WAISlam* ptr);
 
-    WAI::TrackingState   _state = WAI::TrackingState_Idle;
-    std::mutex           _cameraExtrinsicMutex;
-    std::mutex           _cameraExtrinsicGuessMutex;
-    std::mutex           _mutexStates;
-    std::mutex           _lastFrameMutex;
+    WAITrackingState _state = WAITrackingState::Idle;
+    std::mutex       _cameraExtrinsicMutex;
+    std::mutex       _cameraExtrinsicGuessMutex;
+    std::mutex       _mutexStates;
+    std::mutex       _lastFrameMutex;
 
-    WAISlam::Params      _params;
+    WAISlam::Params _params;
 
     unsigned int         _relocFrameCounter   = 0;
     unsigned long        _lastRelocFrameId    = 0;
@@ -198,5 +201,5 @@ protected:
     std::queue<WAIFrame> _framesQueue;
     std::mutex           _frameQueueMutex;
 };
-
+//-----------------------------------------------------------------------------
 #endif

@@ -54,7 +54,7 @@ public:
     {
         assert(_values.size() > 0 && "_value vector not initialized");
 
-        // Short cut for no averaging
+        // Shortcut for no averaging
         if (_values.size() == 1)
             _sum = _average = value;
         else

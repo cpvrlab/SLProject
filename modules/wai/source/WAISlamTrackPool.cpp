@@ -1,5 +1,6 @@
 #include "WAISlamTrackPool.h"
 
+//-----------------------------------------------------------------------------
 WAISlamTrackPool::WAISlamTrackPool(const cv::Mat&           intrinsic,
                                    const cv::Mat&           distortion,
                                    WAIOrbVocabulary*        voc,
@@ -35,7 +36,7 @@ WAISlamTrackPool::WAISlamTrackPool(const cv::Mat&           intrinsic,
     {
         WAIKeyFrameDB* kfDB = new WAIKeyFrameDB(voc);
         _globalMap          = std::make_unique<WAIMap>(kfDB);
-        _state              = WAI::TrackingState_Initializing;
+        _state              = WAITrackingState::Initializing;
 
         WAIKeyFrame::nNextId = 0;
         WAIMapPoint::nNextId = 0;
@@ -43,12 +44,17 @@ WAISlamTrackPool::WAISlamTrackPool(const cv::Mat&           intrinsic,
     else
     {
         _globalMap   = std::move(globalMap);
-        _state       = WAI::TrackingState_TrackingLost;
+        _state       = WAITrackingState::TrackingLost;
         _initialized = true;
     }
 
-    _localMapping = new ORB_SLAM2::LocalMapping(_globalMap.get(), _voc, params.cullRedundantPerc);
-    _loopClosing  = new ORB_SLAM2::LoopClosing(_globalMap.get(), _voc, false, false);
+    _localMapping = new ORB_SLAM2::LocalMapping(_globalMap.get(),
+                                                _voc,
+                                                params.cullRedundantPerc);
+    _loopClosing  = new ORB_SLAM2::LoopClosing(_globalMap.get(),
+                                              _voc,
+                                              false,
+                                              false);
 
     _localMapping->SetLoopCloser(_loopClosing);
     _loopClosing->SetLocalMapper(_localMapping);
@@ -64,7 +70,7 @@ WAISlamTrackPool::WAISlamTrackPool(const cv::Mat&           intrinsic,
 
     _lastFrame = WAIFrame();
 }
-
+//-----------------------------------------------------------------------------
 WAISlamTrackPool::~WAISlamTrackPool()
 {
     if (!_params.serial)
@@ -88,50 +94,72 @@ WAISlamTrackPool::~WAISlamTrackPool()
     delete _localMapping;
     delete _loopClosing;
 }
-
+//-----------------------------------------------------------------------------
 bool WAISlamTrackPool::update(cv::Mat& imageGray)
 {
     WAIFrame frame;
     createFrame(frame, imageGray);
 
-    //if (_params.ensureKFIntegration)
-    //    updatePoseKFIntegration(frame);
-    //else
+    // if (_params.ensureKFIntegration)
+    //     updatePoseKFIntegration(frame);
+    // else
     updatePose(frame);
 
-    return (_state == WAI::TrackingState_TrackingOK);
+    return (_state == WAITrackingState::TrackingOK);
 }
-
+//-----------------------------------------------------------------------------
 void WAISlamTrackPool::createFrame(WAIFrame& frame, cv::Mat& imageGray)
 {
     switch (getTrackingState())
     {
-        case WAI::TrackingState_Initializing:
-            frame = WAIFrame(imageGray, 0.0, _iniExtractor, _cameraIntrinsic, _distortion, _voc, _params.retainImg);
+        case WAITrackingState::Initializing:
+            frame = WAIFrame(imageGray,
+                             0.0,
+                             _iniExtractor,
+                             _cameraIntrinsic,
+                             _distortion,
+                             _voc,
+                             _params.retainImg);
             break;
-        case WAI::TrackingState_TrackingLost:
-        case WAI::TrackingState_TrackingStart:
-            frame = WAIFrame(imageGray, 0.0, _relocExtractor, _cameraIntrinsic, _distortion, _voc, _params.retainImg);
+        case WAITrackingState::TrackingLost:
+        case WAITrackingState::TrackingStart:
+            frame = WAIFrame(imageGray,
+                             0.0,
+                             _relocExtractor,
+                             _cameraIntrinsic,
+                             _distortion,
+                             _voc,
+                             _params.retainImg);
             break;
         default:
-            frame = WAIFrame(imageGray, 0.0, _extractor, _cameraIntrinsic, _distortion, _voc, _params.retainImg);
+            frame = WAIFrame(imageGray,
+                             0.0,
+                             _extractor,
+                             _cameraIntrinsic,
+                             _distortion,
+                             _voc,
+                             _params.retainImg);
     }
 }
-
+//-----------------------------------------------------------------------------
 void WAISlamTrackPool::updatePose(WAIFrame& frame)
 {
     switch (_state)
     {
-        case WAI::TrackingState_Initializing: {
+        case WAITrackingState::Initializing:
+        {
             if (initialize(_iniData, frame, _voc, _localMap))
             {
-                if (genInitialMap(_globalMap.get(), _localMapping, _loopClosing, _localMap))
+                if (genInitialMap(_globalMap.get(),
+                                  _localMapping,
+                                  _loopClosing,
+                                  _localMap))
                 {
                     _localMapping->InsertKeyFrame(_localMap.keyFrames[0]);
                     _localMapping->InsertKeyFrame(_localMap.keyFrames[1]);
                     _lastKeyFrameFrameId = frame.mnId;
                     _lastRelocFrameId    = 0;
-                    _state               = WAI::TrackingState_TrackingOK;
+                    _state               = WAITrackingState::TrackingOK;
                     _initialized         = true;
                     if (_params.serial)
                     {
@@ -143,19 +171,33 @@ void WAISlamTrackPool::updatePose(WAIFrame& frame)
         }
         break;
 
-        case WAI::TrackingState_TrackingStart: {
+        case WAITrackingState::TrackingStart:
+        {
             _relocFrameCounter++;
             if (_relocFrameCounter > 0)
-                _state = WAI::TrackingState_TrackingOK;
+                _state = WAITrackingState::TrackingOK;
         }
-        case WAI::TrackingState_TrackingOK: {
+        case WAITrackingState::TrackingOK:
+        {
             int inliers;
-            if (tracking(_globalMap.get(), _localMap, frame, _lastFrame, (int)_lastRelocFrameId, _velocity, inliers))
+            if (tracking(_globalMap.get(),
+                         _localMap,
+                         frame,
+                         _lastFrame,
+                         (int)_lastRelocFrameId,
+                         _velocity,
+                         inliers))
             {
                 std::unique_lock<std::mutex> lock(_cameraExtrinsicMutex);
                 motionModel(frame, _lastFrame, _velocity, _cameraExtrinsic);
                 lock.unlock();
-                mapping(_globalMap.get(), _localMap, _localMapping, frame, inliers, _lastRelocFrameId, _lastKeyFrameFrameId);
+                mapping(_globalMap.get(),
+                        _localMap,
+                        _localMapping,
+                        frame,
+                        inliers,
+                        _lastRelocFrameId,
+                        _lastKeyFrameFrameId);
                 if (_params.serial)
                 {
                     _localMapping->RunOnce();
@@ -165,18 +207,20 @@ void WAISlamTrackPool::updatePose(WAIFrame& frame)
             }
             else
             {
-                _state = WAI::TrackingState_TrackingLost;
+                _state = WAITrackingState::TrackingLost;
             }
         }
         break;
-        case WAI::TrackingState_TrackingLost: {
+        case WAITrackingState::TrackingLost:
+        {
             int inliers;
-            if (relocalization(frame, _globalMap.get(), _localMap, _params.minCommonWordFactor, inliers, _params.minAccScoreFilter))
+            if (relocalization(frame, _globalMap.get(),
+                               _localMap, _params.minCommonWordFactor, inliers, _params.minAccScoreFilter))
             {
                 _relocFrameCounter = 0;
                 _lastRelocFrameId  = frame.mnId;
                 _velocity          = cv::Mat();
-                _state             = WAI::TrackingState_TrackingStart;
+                _state             = WAITrackingState::TrackingStart;
             }
         }
         break;
@@ -184,44 +228,44 @@ void WAISlamTrackPool::updatePose(WAIFrame& frame)
 
     _lastFrame = WAIFrame(frame);
 }
-
+//-----------------------------------------------------------------------------
 void WAISlamTrackPool::changeIntrinsic(cv::Mat intrinsic, cv::Mat distortion)
 {
     _cameraIntrinsic = intrinsic;
     _distortion      = distortion;
 }
-
+//-----------------------------------------------------------------------------
 cv::Mat WAISlamTrackPool::getPose()
 {
     std::unique_lock<std::mutex> lock(_cameraExtrinsicMutex);
     return _cameraExtrinsic;
 }
-
+//-----------------------------------------------------------------------------
 void WAISlamTrackPool::drawInfo(cv::Mat& imageBGR,
                                 float    scale,
                                 bool     showInitLine,
                                 bool     showKeyPoints,
                                 bool     showKeyPointsMatched)
 {
-    if (_state == WAI::TrackingState_Initializing)
+    if (_state == WAITrackingState::Initializing)
     {
         if (showInitLine)
             drawInitInfo(_iniData, _lastFrame, imageBGR, scale);
     }
-    else if (_state == WAI::TrackingState_TrackingOK)
+    else if (_state == WAITrackingState::TrackingOK)
     {
         if (showKeyPoints)
             drawKeyPointInfo(_lastFrame, imageBGR, scale);
         if (showKeyPointsMatched)
             drawKeyPointMatches(_lastFrame, imageBGR, scale);
     }
-    else if (_state == WAI::TrackingState_TrackingLost)
+    else if (_state == WAITrackingState::TrackingLost)
     {
         if (showKeyPoints)
             drawKeyPointInfo(_lastFrame, imageBGR, scale);
     }
 }
-
+//-----------------------------------------------------------------------------
 std::vector<WAIMapPoint*> WAISlamTrackPool::getMatchedMapPoints()
 {
     std::vector<WAIMapPoint*> result;
@@ -237,3 +281,4 @@ std::vector<WAIMapPoint*> WAISlamTrackPool::getMatchedMapPoints()
 
     return result;
 }
+//-----------------------------------------------------------------------------

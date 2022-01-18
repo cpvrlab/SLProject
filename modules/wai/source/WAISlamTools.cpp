@@ -49,7 +49,7 @@ void WAISlamTools::drawKeyPointMatches(WAIFrame& frame, cv::Mat& image, float sc
     }
 }
 
-void WAISlamTools::drawInitInfo(InitializerData& iniData, WAIFrame& newFrame, cv::Mat& imageBGR, float scale)
+void WAISlamTools::drawInitInfo(WAIInitializerData& iniData, WAIFrame& newFrame, cv::Mat& imageBGR, float scale)
 {
     //half rectangle width and rectangle width (values are estimated on 640x480)
     int rhw = (int)(scale * 3.0f);
@@ -75,7 +75,7 @@ void WAISlamTools::drawInitInfo(InitializerData& iniData, WAIFrame& newFrame, cv
     }
 }
 
-bool WAISlamTools::initialize(InitializerData&  iniData,
+bool WAISlamTools::initialize(WAIInitializerData&  iniData,
                               WAIFrame&         frame,
                               WAIOrbVocabulary* voc,
                               LocalMap&         localMap,
@@ -267,7 +267,7 @@ bool WAISlamTools::genInitialMap(WAIMap*       map,
 }
 
 bool WAISlamTools::oldInitialize(WAIFrame&         frame,
-                                 InitializerData&  iniData,
+                                 WAIInitializerData&  iniData,
                                  WAIMap*           map,
                                  LocalMap&         localMap,
                                  LocalMapping*     localMapper,

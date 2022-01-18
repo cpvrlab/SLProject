@@ -352,7 +352,6 @@ void SLNode::cull3DRec(SLSceneView* sv)
     if (!this->drawBit(SL_DB_HIDDEN))
     {
         // Do frustum culling for all shapes except cameras & lights
-        // Todo (ghm1): why can't SLLight inherit SLNode?
         if (sv->doFrustumCulling() &&
             !dynamic_cast<SLCamera*>(this) && // Ghm1: Checking for typeid fails if someone adds a custom camera that inherits SLCamera
             typeid(*this) != typeid(SLLightRect) &&

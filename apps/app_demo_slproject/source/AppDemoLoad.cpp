@@ -431,8 +431,8 @@ void appDemoLoadScene(SLAssetManager* am,
     {
         s->name("Hierarchical Figure Test");
         s->info("Hierarchical scenegraph with multiple subgroups in the figure. "
-                "The goal is design a figure with hierarchical transforms containing only rotations and translations. \n"
-                "You can see the hierarchy better in the Scenegraph window. In there the nodes are white and the meshes yellow. \n"
+                "The goal is design a figure with hierarchical transforms containing only rotations and translations. "
+                "You can see the hierarchy better in the Scenegraph window. In there the nodes are white and the meshes yellow. "
                 "You can view the axis aligned bounding boxes with key B and the nodes origin and axis with key X.");
 
         // Create textures and materials

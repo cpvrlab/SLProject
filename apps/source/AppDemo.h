@@ -25,9 +25,11 @@ class CVCalibrationEstimator;
 //-----------------------------------------------------------------------------
 //! Top level class for an SLProject application.
 /*!
- The AppDemo holds static instances of top-level items such as the scene
- pointer, the camera calibration objects and the device rotation and location
- information. The static function createAppAndScene is called by the C-interface
+ The AppDemo holds static instances of top-level items such as the asset
+ manager, the scene pointer, the vector of all sceneviews, the gui pointer,
+ the camera calibration objects and the device rotation and location
+ information.<br>
+ The static function createAppAndScene is called by the C-interface
  functions slCreateAppAndScene and the function deleteAppAndScene by slTerminate.
  At the moment only one scene can be open at the time.
  <br>
