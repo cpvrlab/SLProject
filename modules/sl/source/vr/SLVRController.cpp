@@ -55,10 +55,10 @@ SLbool SLVRController::isButtonTouched(const SLVRControllerButton& button) const
     return (_state.ulButtonTouched & getButtonMask(button)) != 0ull;
 }
 //-----------------------------------------------------------------------------
-/*! Returns the value of a trigger (a 1D axis) as a SLfloat
+/*! Returns the value of a trigger (a 1D axis) as an SLfloat
  * The value will be in the range -1.0 to 1.0
  * @param axis The axis whose value will be returned
- * @return The axis value as a SLfloat
+ * @return The axis value as an SLfloat
  */
 SLfloat SLVRController::getTriggerAxis(const SLVRControllerAxis& axis) const
 {
@@ -69,11 +69,11 @@ SLfloat SLVRController::getTriggerAxis(const SLVRControllerAxis& axis) const
 /*! Returns the value of a 2D axis SLVec2f
  * The components are in the range -1.0 to 1.0
  * @param axis The axis whose value will be returned
- * @return The axis value as a SLVec2f
+ * @return The axis value as an SLVec2f
  */
 SLVec2f SLVRController::get2DAxis(const SLVRControllerAxis& axis) const
 {
-    // Return the x and y component of the vector in a SLVec2f
+    // Return the x and y component of the vector in an SLVec2f
     return SLVec2f(_state.rAxis[axis].x, _state.rAxis[axis].y);
 }
 //-----------------------------------------------------------------------------

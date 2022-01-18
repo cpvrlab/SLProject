@@ -17,6 +17,7 @@
 #include <SLVec2.h>
 #include <vr/SLVRTrackedDevice.h>
 
+//-----------------------------------------------------------------------------
 enum SLVRControllerButton
 {
     VRCB_system          = vr::EVRButtonId::k_EButton_System,
@@ -41,7 +42,7 @@ enum SLVRControllerButton
     VRCB_indexControllerB        = vr::EVRButtonId::k_EButton_IndexController_B,
     VRCB_indexControllerJoystick = vr::EVRButtonId::k_EButton_IndexController_JoyStick
 };
-
+//-----------------------------------------------------------------------------
 enum SLVRControllerAxis
 {
     VRCA_axis_0 = 0,
@@ -50,7 +51,7 @@ enum SLVRControllerAxis
     VRCA_axis_3 = 3,
     VRCA_axis_4 = 4
 };
-
+//-----------------------------------------------------------------------------
 //! SLVRController provides access to controller input
 /*! SLVRController is a subclass of SLVRTrackedDevice with functions for interfacing with controllers.
  * The functions return information about the buttons, the triggers and the axes.
@@ -59,13 +60,6 @@ class SLVRController : public SLVRTrackedDevice
 {
     friend class SLVRSystem;
 
-private:
-    vr::VRControllerState_t _state;
-
-protected:
-    SLVRController(SLVRTrackedDeviceIndex index);
-    void updateState();
-
 public:
     SLbool  isButtonPressed(const SLVRControllerButton& button) const;
     SLbool  isButtonTouched(const SLVRControllerButton& button) const;
@@ -73,7 +67,11 @@ public:
     SLVec2f get2DAxis(const SLVRControllerAxis& axis) const;
 
 private:
+    SLVRController(SLVRTrackedDeviceIndex index);
+    void     updateState() override;
     uint64_t getButtonMask(const SLVRControllerButton& button) const;
-};
 
+    vr::VRControllerState_t _state;
+};
+//-----------------------------------------------------------------------------
 #endif // SLPROJECT_SLVRCONTROLLER_H

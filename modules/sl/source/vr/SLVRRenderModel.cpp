@@ -11,15 +11,11 @@
 #include <vr/SLVRRenderModel.h>
 
 //-----------------------------------------------------------------------------
-SLVRRenderModel::SLVRRenderModel()
-{
-}
-//-----------------------------------------------------------------------------
 /*! Loads the render model from disk
  * The method walks through the following steps:
  * 1. Load the geometry
  * 2. Load the texture
- * 3. Combine the geometry and texture into a SLMesh
+ * 3. Combine the geometry and texture into an SLMesh
  * 4. Attach the mesh to a newly created SLNode
  * @param name The OpenVR name of the render model to be loaded
  * @param assetManager The asset manager that will own all the assets (the mesh, the texture, etc.)
@@ -40,11 +36,11 @@ void SLVRRenderModel::load(const SLstring& name, SLAssetManager* assetManager)
     // Load the texture
     SLGLTexture* texture = loadTexture(renderModel->diffuseTextureId, assetManager);
 
-    // Create a SLMesh for the render model
+    // Create an SLMesh for the render model
     SLMesh* mesh = new SLMesh(assetManager, name);
     mesh->primitive(PT_triangles);
     mesh->mat(new SLMaterial(assetManager, (name + " Material").c_str(), texture));
-    copyRenderModelGeometryToMesh(renderModel, mesh);
+    copyGeometryToMesh(renderModel, mesh);
 
     // The render model is no longer used, so we delete it
     vr::VRRenderModels()->FreeRenderModel(renderModel);
@@ -54,10 +50,10 @@ void SLVRRenderModel::load(const SLstring& name, SLAssetManager* assetManager)
 //-----------------------------------------------------------------------------
 /*! Loads the render model texture from disk
  * After loading, the image data gets converted from the RGBA format to the RGB format
- * The image is then converted to a CVImage (RGB format) and attached to a SLGLTexture
+ * The image is then converted to a CVImage (RGB format) and attached to an SLGLTexture
  * @param id The OpenVR ID of the texture to be loaded
  * @param assetManager The asset manager that will own the texture
- * @return The loaded texture as a SLGLTexture
+ * @return The loaded texture as an SLGLTexture
  */
 SLGLTexture* SLVRRenderModel::loadTexture(vr::TextureID_t id, SLAssetManager* assetManager)
 {
@@ -95,7 +91,7 @@ SLGLTexture* SLVRRenderModel::loadTexture(vr::TextureID_t id, SLAssetManager* as
     // Create the texture from the CVImage
     SLGLTexture* texture = new SLGLTexture(assetManager, GL_LINEAR, GL_LINEAR, GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER);
     texture->images().push_back(image);
-    texture->textureSize(image->width(), image->height());
+    texture->textureSize((int)image->width(), (int)image->height());
     texture->texType(TT_diffuse);
 
     // The OpenVR texture map is no longer used, so we delete it
@@ -104,11 +100,11 @@ SLGLTexture* SLVRRenderModel::loadTexture(vr::TextureID_t id, SLAssetManager* as
     return texture;
 }
 //-----------------------------------------------------------------------------
-/*! Copies the OpenVR render model data (vertices, UVs, normals, indices) to a SLMesh
+/*! Copies the OpenVR render model data (vertices, UVs, normals, indices) to an SLMesh
  * @param renderModel The render model that contains the source data
  * @param mesh The mesh that the data will be copied to
  */
-void SLVRRenderModel::copyRenderModelGeometryToMesh(vr::RenderModel_t* renderModel, SLMesh* mesh)
+void SLVRRenderModel::copyGeometryToMesh(vr::RenderModel_t* renderModel, SLMesh* mesh)
 {
     // Copy the vertices and normals
     for (uint32_t i = 0; i < renderModel->unVertexCount; i++)

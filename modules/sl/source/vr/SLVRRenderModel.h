@@ -20,28 +20,27 @@
 
 #include <vr/SLVR.h>
 
+//-----------------------------------------------------------------------------
 //! SLVRRenderModel represents the model of a tracked device that can be rendered in the scene
-/*! The class is instantiated when calling loadRenderModel on a SLVRTrackedDevice.
+/*! The class is instantiated when calling loadRenderModel on an SLVRTrackedDevice.
  * Internally, the method "load" will be called, which loads the geometry and the texture from
- * the OpenVR API and creates a SLNode which can be attached to the scene graph.
+ * the OpenVR API and creates an SLNode which can be attached to the scene graph.
  * The object matrix of the node will be automatically updated when calling SLVRSystem::update.
  */
 class SLVRRenderModel
 {
     friend class SLVRTrackedDevice;
 
-private:
-    SLNode* _node = nullptr;
-
-    SLVRRenderModel();
-
-    void         load(const SLstring& name, SLAssetManager* assetManager);
-    SLGLTexture* loadTexture(vr::TextureID_t id, SLAssetManager* assetManager);
-    void         copyRenderModelGeometryToMesh(vr::RenderModel_t* renderModel, SLMesh* mesh);
-
 public:
     // Getters
     SLNode* node() { return _node; };
-};
 
+private:
+    void                load(const SLstring& name, SLAssetManager* assetManager);
+    static SLGLTexture* loadTexture(vr::TextureID_t id, SLAssetManager* assetManager);
+    static void         copyGeometryToMesh(vr::RenderModel_t* renderModel, SLMesh* mesh);
+
+    SLNode* _node = nullptr;
+};
+//-----------------------------------------------------------------------------
 #endif // SLPROJECT_SLVRRENDERMODEL_H

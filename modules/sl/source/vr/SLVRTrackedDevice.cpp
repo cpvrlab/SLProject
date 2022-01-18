@@ -32,7 +32,7 @@ vr::IVRSystem* SLVRTrackedDevice::system()
 //-----------------------------------------------------------------------------
 /*! Utility function for getting a string property from OpenVR
  * @param property The property whose value will be returned
- * @return The value of the property as a SLstring
+ * @return The value of the property as an SLstring
  */
 SLstring SLVRTrackedDevice::getStringProperty(vr::TrackedDeviceProperty property)
 {
@@ -57,7 +57,7 @@ SLstring SLVRTrackedDevice::getStringProperty(vr::TrackedDeviceProperty property
  */
 SLMat4f SLVRTrackedDevice::pose()
 {
-    return SLVRSystem::instance().globalOffset() * _localPose;
+    return SLVRSystem::instance().globalTransform() * _localPose;
 }
 //-----------------------------------------------------------------------------
 /*! Returns whether or not this device is connected

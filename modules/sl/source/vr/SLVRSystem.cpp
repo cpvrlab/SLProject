@@ -25,9 +25,9 @@ SLVRSystem::~SLVRSystem()
 //-----------------------------------------------------------------------------
 /*! Prepares the system for everything VR
  * The following sequence of events will be triggered:
- * 1. The system checks if the SteamVR runtime is present and if there's a HMD connected
+ * 1. The system checks if the SteamVR runtime is present and if there's an HMD connected
  * 2. The OpenVR API is initialized for scene rendering (this will also launch SteamVR)
- * 3. Tracked devices (such as a HMD or a controller) are detected
+ * 3. Tracked devices (such as an HMD or a controller) are detected
  * 4. The compositor is initialized
  */
 void SLVRSystem::startup()
@@ -43,14 +43,15 @@ void SLVRSystem::startup()
 //-----------------------------------------------------------------------------
 /*! Checks if the conditions for starting OpenVR are met
  * The conditions are that the SteamVR runtime is installed and
- * that the system thinks that a HMD is present
+ * that the system thinks that an HMD is present
  * @return Are the standard conditions met?
  */
 bool SLVRSystem::checkStartupConditions()
 {
     if (!vr::VR_IsRuntimeInstalled())
     {
-        VR_ERROR("The SteamVR runtime is not installed.\nPlease download SteamVR from: https://store.steampowered.com/app/250820/SteamVR/")
+        VR_ERROR("The SteamVR runtime is not installed.\n"
+                 "Please download SteamVR from: https://store.steampowered.com/app/250820/SteamVR/")
         return false;
     }
 
@@ -58,7 +59,7 @@ bool SLVRSystem::checkStartupConditions()
 
     if (!vr::VR_IsHmdPresent())
     {
-        std::cout << "No HMD was detected." << std::endl;
+        VR_WARNING("HMD not detected")
         return false;
     }
 
@@ -92,7 +93,7 @@ bool SLVRSystem::initializeOpenVR()
 /*! Detects all tracked devices, creates objects for interfacing with them
  * and stores the objects in a list of all devices and in instance variables
  * for accessing specific devices
- * @return Was a HMD detected?
+ * @return Was an HMD detected?
  */
 bool SLVRSystem::detectTrackedDevices()
 {
@@ -125,7 +126,7 @@ bool SLVRSystem::detectTrackedDevices()
     return true;
 }
 //-----------------------------------------------------------------------------
-/*! Creates an object for a HMD, adds it to the list of all devices and
+/*! Creates an object for an HMD, adds it to the list of all devices and
  * sets the _hmd instance variable
  * @param index The OpenVR index of the HMD
  */
@@ -171,6 +172,7 @@ void SLVRSystem::update()
     vr::TrackedDevicePose_t poses[vr::k_unMaxTrackedDeviceCount];
     vr::VRCompositor()->WaitGetPoses(poses, vr::k_unMaxTrackedDeviceCount, nullptr, 0);
 
+    // Update device poses
     for (SLVRTrackedDevice* trackedDevice : _trackedDevices)
     {
         // Continue if there's no device at this index
@@ -180,8 +182,8 @@ void SLVRSystem::update()
         vr::TrackedDevicePose_t pose = poses[trackedDevice->index()];
         if (!pose.bPoseIsValid) continue;
 
-        // Convert the OpenVR matrix to a SL matrix and set the pose of the corresponding device
-        SLMat4f matrix = SLVRConvert::openVRMatrixToSLMatrix(pose.mDeviceToAbsoluteTracking);
+        // Convert the OpenVR matrix to an SL matrix and set the pose of the corresponding device
+        SLMat4f matrix = SLVRConvert::vrToSlMatrix(pose.mDeviceToAbsoluteTracking);
         trackedDevice->localPose(matrix);
 
         // Update the render model pose if it's loaded
@@ -189,15 +191,11 @@ void SLVRSystem::update()
             trackedDevice->renderModel()->node()->om(trackedDevice->pose());
     }
 
-    // Update device states
-    if (hmd())
-        hmd()->updateState();
-
-    if (leftController())
-        leftController()->updateState();
-
-    if (rightController())
-        rightController()->updateState();
+    // Update device states (button presses, axes, ...)
+    for (SLVRTrackedDevice* trackedDevice : _trackedDevices)
+    {
+        trackedDevice->updateState();
+    }
 }
 //-----------------------------------------------------------------------------
 /*! Deletes all render models without the nodes
@@ -223,11 +221,11 @@ SLMat4f SLVRSystem::getProjectionMatrix(SLEyeType eye,
                                         float     nearPlane,
                                         float     farPlane)
 {
-    vr::Hmd_Eye       openVREye    = SLVRConvert::SLEyeTypeToOpenVREye(eye);
+    vr::Hmd_Eye       openVREye    = SLVRConvert::slToVrEye(eye);
     vr::HmdMatrix44_t openVRMatrix = _system->GetProjectionMatrix(openVREye,
                                                                   nearPlane,
                                                                   farPlane);
-    return SLVRConvert::openVRMatrixToSLMatrix(openVRMatrix);
+    return SLVRConvert::vrToSlMatrix(openVRMatrix);
 }
 //-----------------------------------------------------------------------------
 /*! Gets the per-eye offset of the camera relative to the HMD
@@ -236,12 +234,12 @@ SLMat4f SLVRSystem::getProjectionMatrix(SLEyeType eye,
  */
 SLMat4f SLVRSystem::getEyeMatrix(SLEyeType eye)
 {
-    vr::Hmd_Eye       openVREye    = SLVRConvert::SLEyeTypeToOpenVREye(eye);
+    vr::Hmd_Eye       openVREye    = SLVRConvert::slToVrEye(eye);
     vr::HmdMatrix34_t openVRMatrix = _system->GetEyeToHeadTransform(openVREye);
 
     // The matrix is inverted at the end to convert from
     // the eye to head to the head to eye matrix
-    return SLVRConvert::openVRMatrixToSLMatrix(openVRMatrix).inverted();
+    return SLVRConvert::vrToSlMatrix(openVRMatrix).inverted();
 }
 //-----------------------------------------------------------------------------
 /*! Shuts down the OpenVR API and frees all resources

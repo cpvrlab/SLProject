@@ -12,11 +12,11 @@
 #include <vr/SLVR.h>
 
 //-----------------------------------------------------------------------------
-/*! Converts an OpenVR 3x4 matrix to a SLProject matrix
+/*! Converts an OpenVR 3x4 matrix to an SLProject matrix
  * @param matrix The OpenVR matrix
  * @return The converted SLProject matrix
  */
-SLMat4f SLVRConvert::openVRMatrixToSLMatrix(vr::HmdMatrix34_t matrix)
+SLMat4f SLVRConvert::vrToSlMatrix(vr::HmdMatrix34_t matrix)
 {
     SLMat4f result;
 
@@ -47,11 +47,11 @@ SLMat4f SLVRConvert::openVRMatrixToSLMatrix(vr::HmdMatrix34_t matrix)
     return result;
 }
 //-----------------------------------------------------------------------------
-/*! Converts an OpenVR 4x4 matrix to a SLProject matrix
+/*! Converts an OpenVR 4x4 matrix to an SLProject matrix
  * @param matrix The OpenVR matrix
  * @return The converted SLProject matrix
  */
-SLMat4f SLVRConvert::openVRMatrixToSLMatrix(vr::HmdMatrix44_t matrix)
+SLMat4f SLVRConvert::vrToSlMatrix(vr::HmdMatrix44_t matrix)
 {
     SLMat4f result;
 
@@ -82,11 +82,11 @@ SLMat4f SLVRConvert::openVRMatrixToSLMatrix(vr::HmdMatrix44_t matrix)
     return result;
 }
 //-----------------------------------------------------------------------------
-/*! Converts a SLEyeType value to a OpenVR eye value
+/*! Converts an SLEyeType value to a OpenVR eye value
  * @param type The SLEyeType value
  * @return The converted OpenVR eye value
  */
-vr::Hmd_Eye SLVRConvert::SLEyeTypeToOpenVREye(SLEyeType type)
+vr::Hmd_Eye SLVRConvert::slToVrEye(SLEyeType type)
 {
     if (type == ET_left)
         return vr::Hmd_Eye::Eye_Left;
@@ -94,7 +94,7 @@ vr::Hmd_Eye SLVRConvert::SLEyeTypeToOpenVREye(SLEyeType type)
         return vr::Hmd_Eye::Eye_Right;
     else
     {
-        VR_WARNING("Invalid eye type specified")
+        assert(false && "Invalid eye type");
         return vr::Hmd_Eye::Eye_Left;
     }
 }

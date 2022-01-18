@@ -24,8 +24,9 @@
 
 #include <vector>
 
+//-----------------------------------------------------------------------------
 typedef std::vector<SLVRTrackedDevice*> SLVVRTrackedDevices;
-
+//-----------------------------------------------------------------------------
 //! The SLVRSystem class is the main interface to the OpenVR API
 /*! This class is responsible for initializing and shutting down the OpenVR API, for
  * creating framebuffer objects for both eyes, for submitting frames to the device
@@ -35,27 +36,12 @@ class SLVRSystem
 {
     friend class SLVRTrackedDevice;
 
-private:
-    vr::IVRSystem* _system = nullptr;
-
-    SLVVRTrackedDevices _trackedDevices;
-    SLVRHmd*            _hmd             = nullptr;
-    SLVRController*     _leftController  = nullptr;
-    SLVRController*     _rightController = nullptr;
-
-    SLVRCompositor* _compositor = nullptr;
-
-    SLMat4f _globalOffset;
-
 public:
     static SLVRSystem& instance()
     {
         static SLVRSystem instance;
         return instance;
     }
-
-    SLVRSystem();
-    ~SLVRSystem();
 
     void startup();
     void update();
@@ -71,10 +57,10 @@ public:
     SLVRController*     leftController() { return _leftController; };
     SLVRController*     rightController() { return _rightController; };
 
-    SLMat4f& globalOffset() { return _globalOffset; }
+    SLMat4f& globalTransform() { return _globalTransform; }
 
     // Setters
-    void globalOffset(const SLMat4f& globalOffset) { _globalOffset = globalOffset; }
+    void globalTransform(const SLMat4f& globalTransform) { _globalTransform = globalTransform; }
 
     SLVRCompositor* compositor() { return _compositor; }
 
@@ -84,11 +70,22 @@ public:
     SLMat4f getEyeMatrix(SLEyeType eye);
 
 private:
-    bool checkStartupConditions();
+    SLVRSystem();
+    ~SLVRSystem();
+
+    static bool checkStartupConditions();
     bool initializeOpenVR();
     bool detectTrackedDevices();
     void registerHmd(vr::TrackedDeviceIndex_t index);
     void registerController(vr::TrackedDeviceIndex_t index);
-};
 
+    vr::IVRSystem*      _system = nullptr;
+    SLVVRTrackedDevices _trackedDevices;
+    SLVRHmd*            _hmd             = nullptr;
+    SLVRController*     _leftController  = nullptr;
+    SLVRController*     _rightController = nullptr;
+    SLVRCompositor*     _compositor      = nullptr;
+    SLMat4f             _globalTransform;
+};
+//-----------------------------------------------------------------------------
 #endif // SLPROJECT_SLVRSYSTEM_H

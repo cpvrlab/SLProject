@@ -17,6 +17,7 @@
 #include <SLVec2.h>
 #include <vr/SLVRTrackedDevice.h>
 
+//-----------------------------------------------------------------------------
 //! SLVRHmd provides access to HMD input
 /*! SLVRHmd is a subclass of SLVRTrackedDevice with functions for interfacing with HMDs.
  * The (currently) only function returns whether the proximity sensor is activated.
@@ -25,17 +26,15 @@ class SLVRHmd : public SLVRTrackedDevice
 {
     friend class SLVRSystem;
 
-private:
-    vr::VRControllerState_t _state;
-
-    SLfloat _lastMovementTime;
-
-protected:
-    SLVRHmd(SLVRTrackedDeviceIndex index);
-    void updateState();
-
 public:
     SLbool isProximitySensorActivated();
-};
 
+private:
+    SLVRHmd(SLVRTrackedDeviceIndex index);
+    void updateState() override;
+
+    vr::VRControllerState_t _state;
+    SLfloat                 _lastMovementTime;
+};
+//-----------------------------------------------------------------------------
 #endif // SLPROJECT_SLVRHMD_H

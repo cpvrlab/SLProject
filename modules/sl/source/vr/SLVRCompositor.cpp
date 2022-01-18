@@ -53,7 +53,7 @@ void SLVRCompositor::startup()
 //-----------------------------------------------------------------------------
 void SLVRCompositor::initFBO(unsigned int* fbo,
                              unsigned int* texture,
-                             unsigned int* depthRenderBuffer) const
+                             unsigned int* depthRenderBuffer)
 {
     glGenTextures(1, texture);
     glBindTexture(GL_TEXTURE_2D, *texture);
@@ -97,7 +97,7 @@ void SLVRCompositor::initFBO(unsigned int* fbo,
 /*! Binds the framebuffer for the left eye
  * This method must be called before rendering the left eye image
  */
-void SLVRCompositor::prepareLeftEye() const
+void SLVRCompositor::prepareLeftEye()
 {
     glBindFramebuffer(GL_FRAMEBUFFER, _leftFBO);
 }
@@ -105,7 +105,7 @@ void SLVRCompositor::prepareLeftEye() const
 /*! Binds the framebuffer for the right eye
  * This method must be called before rendering the right eye image
  */
-void SLVRCompositor::prepareRightEye() const
+void SLVRCompositor::prepareRightEye()
 {
     glBindFramebuffer(GL_FRAMEBUFFER, _rightFBO);
 }
@@ -122,7 +122,7 @@ void SLVRCompositor::finishEye()
 /*! Submits both framebuffer textures to the OpenVR compositor
  * OpenVR then applies the distortion to the textures and presents them in the HMD
  */
-void SLVRCompositor::submit() const
+void SLVRCompositor::submit()
 {
     vr::Texture_t leftVRTexture = {(void*)(uintptr_t)_leftTexture,
                                    vr::ETextureType::TextureType_OpenGL,

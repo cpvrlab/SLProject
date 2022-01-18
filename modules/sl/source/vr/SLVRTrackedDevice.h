@@ -20,8 +20,9 @@
 
 #include <vr/SLVRRenderModel.h>
 
+//-----------------------------------------------------------------------------
 typedef vr::TrackedDeviceIndex_t SLVRTrackedDeviceIndex;
-
+//-----------------------------------------------------------------------------
 //! The main class for interfacing with devices
 /*! SLVRTrackedDevice provides access to the properties that all tracked VR devices have in common,
  * such as the index, the pose, whether or not this device is connected, etc.
@@ -30,26 +31,7 @@ class SLVRTrackedDevice
 {
     friend class SLVRSystem;
 
-protected:
-    SLVRTrackedDeviceIndex _index;
-    SLMat4f                _localPose;
-    SLVRRenderModel*       _renderModel = nullptr;
-
-    explicit SLVRTrackedDevice(SLVRTrackedDeviceIndex index);
-    ~SLVRTrackedDevice();
-
-    vr::IVRSystem* system();
-    SLstring       getStringProperty(vr::TrackedDeviceProperty property);
-
 public:
-    // Setters
-    void localPose(const SLMat4f& localPose) { _localPose = localPose; };
-
-    // Getters
-    SLVRTrackedDeviceIndex index() const { return _index; };
-    SLMat4f                localPose() { return _localPose; }
-    SLVRRenderModel*       renderModel() { return _renderModel; }
-
     SLMat4f pose();
 
     SLbool   isConnected();
@@ -57,7 +39,27 @@ public:
     SLstring getManufacturer();
 
     SLVRRenderModel* loadRenderModel(SLAssetManager* assetManager);
-    void deleteRenderModelWithoutNode();
-};
+    void             deleteRenderModelWithoutNode();
 
+    // Getters
+    SLVRTrackedDeviceIndex index() const { return _index; };
+    SLMat4f                localPose() { return _localPose; }
+    SLVRRenderModel*       renderModel() { return _renderModel; }
+
+    // Setters
+    void localPose(const SLMat4f& localPose) { _localPose = localPose; }
+
+protected:
+    explicit SLVRTrackedDevice(SLVRTrackedDeviceIndex index);
+    ~SLVRTrackedDevice();
+
+    vr::IVRSystem* system();
+    SLstring       getStringProperty(vr::TrackedDeviceProperty property);
+    virtual void   updateState() {}
+
+    SLVRTrackedDeviceIndex _index;
+    SLMat4f                _localPose;
+    SLVRRenderModel*       _renderModel = nullptr;
+};
+//-----------------------------------------------------------------------------
 #endif // SLPROJECT_SLVRTRACKEDDEVICE_H

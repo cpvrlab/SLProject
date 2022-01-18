@@ -15,6 +15,7 @@
 #include <SLMat4.h>
 #include <SLEnums.h>
 
+//-----------------------------------------------------------------------------
 //! SLVRConvert provides methods for converting between SL and OpenVR types
 /*! The class has methods for converting OpenVR matrices to SL matrices and for
  * converting SL eyes to OpenVR eyes
@@ -22,10 +23,10 @@
 class SLVRConvert
 {
 public:
-    static SLMat4f openVRMatrixToSLMatrix(vr::HmdMatrix34_t matrix);
-    static SLMat4f openVRMatrixToSLMatrix(vr::HmdMatrix44_t matrix);
+    static SLMat4f vrToSlMatrix(vr::HmdMatrix34_t matrix);
+    static SLMat4f vrToSlMatrix(vr::HmdMatrix44_t matrix);
 
-    static vr::Hmd_Eye SLEyeTypeToOpenVREye(SLEyeType type);
+    static vr::Hmd_Eye slToVrEye(SLEyeType type);
 };
-
+//-----------------------------------------------------------------------------
 #endif // SLPROJECT_SLVRCONVERT_H

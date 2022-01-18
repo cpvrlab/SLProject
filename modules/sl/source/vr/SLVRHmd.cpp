@@ -47,7 +47,7 @@ void SLVRHmd::updateState()
 
         SLVec3f movement = (axisLeft.y * forward2D + axisLeft.x * right2D);
         movement.y       = axisRight.y;
-        SLVRSystem::instance().globalOffset().translate(movement);
+        SLVRSystem::instance().globalTransform().translate(movement);
     }
 }
 //-----------------------------------------------------------------------------
