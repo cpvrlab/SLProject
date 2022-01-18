@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      AppArucoPenROSNode.h
+//  File:      AppPenTrackingROSNode.h
 //  Date:      October 2021
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Authors:   Marino von Wattenwyl
@@ -7,8 +7,8 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#ifndef SRC_APPARUCOPENROSNODE_H
-#define SRC_APPARUCOPENROSNODE_H
+#ifndef SRC_APPPENTRACKINGROSNODE_H
+#define SRC_APPPENTRACKINGROSNODE_H
 
 #define BOOST_BIND_GLOBAL_PLACEHOLDERS // A Boost header which ROS includes is complaining without this
 #include <ros/ros.h>
@@ -17,21 +17,21 @@
 #include <SLQuat4.h>
 
 //-----------------------------------------------------------------------------
-//! AppArucoPenROSNode provides methods for publishing data to the ROS network
+//! AppPenTrackingROSNode provides methods for publishing data to the ROS network
 /*! Currently the only method is "publish" that publishes the ArUco pen tip
  * position to the "aruco_pen/tip" topic
  */
-class AppArucoPenROSNode
+class AppPenTrackingROSNode
 {
 
 public:
-    static AppArucoPenROSNode& instance()
+    static AppPenTrackingROSNode& instance()
     {
-        static AppArucoPenROSNode instance;
+        static AppPenTrackingROSNode instance;
         return instance;
     }
 
-    AppArucoPenROSNode();
+    AppPenTrackingROSNode();
     void publishPose(const SLVec3f& position,
                      SLQuat4f       orientation) const;
     void publishKeyEvent(const SLVec3f& position,
@@ -42,4 +42,4 @@ public:
 };
 //-----------------------------------------------------------------------------
 
-#endif // SRC_APPARUCOPENROSNODE_H
+#endif // SRC_APPPENTRACKINGROSNODE_H

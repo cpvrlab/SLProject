@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      AppArucoPenCalibrator.h
+//  File:      AppPenTrackingCalibrator.h
 //  Date:      October 2021
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Authors:   Marcus Hudritsch, Marino von Wattenwyl
@@ -7,18 +7,18 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#ifndef SLPROJECT_APPARUCOPENCALIBRATOR_H
-#define SLPROJECT_APPARUCOPENCALIBRATOR_H
+#ifndef SLPROJECT_APPPENTRACKINGCALIBRATOR_H
+#define SLPROJECT_APPPENTRACKINGCALIBRATOR_H
 
 #include <cv/CVCamera.h>
 #include <cv/CVCalibrationEstimator.h>
 #include <SLScene.h>
 #include <SLSceneView.h>
-#include <app/AppArucoPenSceneView.h>
+#include <app/AppPenTrackingSceneView.h>
 #include <CVCaptureProvider.h>
 
 //-----------------------------------------------------------------------------
-class AppArucoPenCalibrator
+class AppPenTrackingCalibrator
 {
 private:
     CVCalibrationEstimator* _calibrationEstimator = nullptr;
@@ -27,16 +27,16 @@ private:
 public:
     bool grab = false;
 
-    ~AppArucoPenCalibrator();
+    ~AppPenTrackingCalibrator();
 
     void reset();
     void update(CVCamera*    ac,
                 SLScene*     s,
                 SLSceneView* sv);
     void init(CVCamera*             ac,
-              AppArucoPenSceneView* aapSv);
+              AppPenTrackingSceneView* aapSv);
 
     static void calcExtrinsicParams(CVCaptureProvider* provider);
 };
 //-----------------------------------------------------------------------------
-#endif // SLPROJECT_APPARUCOPENCALIBRATOR_H
+#endif // SLPROJECT_APPPENTRACKINGCALIBRATOR_H

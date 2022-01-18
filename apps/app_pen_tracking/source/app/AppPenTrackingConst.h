@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      AppArucoPenConst.cpp
+//  File:      AppPenTrackingConst.cpp
 //  Date:      January 2021
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Authors:   Marino von Wattenwyl
@@ -7,13 +7,16 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
+#ifndef SLPROJECT_APPPENTRACKINGCONST_H
+#define SLPROJECT_APPPENTRACKINGCONST_H
 //-----------------------------------------------------------------------------
-namespace AppArucoPenConst
+namespace AppPenTrackingConst
 {
 
-constexpr int CALIB_CHESSBOARD_WIDTH = 11;
-constexpr int CALIB_CHESSBOARD_HEIGHT = 8;
-constexpr float CALIB_SQUARE_SIZE = 0.06f;
+constexpr int   CALIB_CHESSBOARD_WIDTH  = 11;
+constexpr int   CALIB_CHESSBOARD_HEIGHT = 8;
+constexpr float CALIB_SQUARE_SIZE       = 0.06f;
 
-} // namespace AppArucoPenConst
+} // namespace AppPenTrackingConst
 //-----------------------------------------------------------------------------
+#endif // SLPROJECT_APPPENTRACKINGCONST_H

@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      AppArucoPenCalibrator.cpp
+//  File:      AppPenTrackingCalibrator.cpp
 //  Date:      October 2021
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Authors:   Marcus Hudritsch, Marino von Wattenwyl
@@ -7,32 +7,32 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include <app/AppArucoPenCalibrator.h>
+#include <app/AppPenTrackingCalibrator.h>
 
 #include <AppDemo.h>
-#include <app/AppArucoPen.h>
-#include <app/AppArucoPenConst.h>
+#include <app/AppPenTracking.h>
+#include <app/AppPenTrackingConst.h>
 #include <CVCapture.h>
 #include <string>
 #include <sstream>
 
 //-----------------------------------------------------------------------------
-AppArucoPenCalibrator::~AppArucoPenCalibrator()
+AppPenTrackingCalibrator::~AppPenTrackingCalibrator()
 {
     delete _calibrationEstimator;
 }
 //-----------------------------------------------------------------------------
-void AppArucoPenCalibrator::reset()
+void AppPenTrackingCalibrator::reset()
 {
     delete _calibrationEstimator;
     _calibrationEstimator = nullptr;
 }
 //-----------------------------------------------------------------------------
-void AppArucoPenCalibrator::update(CVCamera*    ac,
+void AppPenTrackingCalibrator::update(CVCamera*    ac,
                                    SLScene*     s,
                                    SLSceneView* sv)
 {
-    auto* aapSv = dynamic_cast<AppArucoPenSceneView*>(sv);
+    auto* aapSv = dynamic_cast<AppPenTrackingSceneView*>(sv);
 
     try
     {
@@ -76,7 +76,7 @@ void AppArucoPenCalibrator::update(CVCamera*    ac,
                     _processedCalibResult = true;
                     ac->calibration       = _calibrationEstimator->getCalibration();
 
-                    std::string camUID            = AppArucoPen::instance().currentCaptureProvider()->uid();
+                    std::string camUID            = AppPenTracking::instance().currentCaptureProvider()->uid();
                     string      mainCalibFilename = "camCalib_" + camUID + ".xml";
                     std::string errorMsg;
 
@@ -115,8 +115,8 @@ void AppArucoPenCalibrator::update(CVCamera*    ac,
     }
 }
 //-----------------------------------------------------------------------------
-void AppArucoPenCalibrator::init(CVCamera*             ac,
-                                 AppArucoPenSceneView* aapSv)
+void AppPenTrackingCalibrator::init(CVCamera*             ac,
+                                 AppPenTrackingSceneView* aapSv)
 {
     _calibrationEstimator = new CVCalibrationEstimator(AppDemo::calibrationEstimatorParams,
                                                        CVCapture::instance()->activeCamSizeIndex,
@@ -132,12 +132,12 @@ void AppArucoPenCalibrator::init(CVCamera*             ac,
     _processedCalibResult = false;
 }
 //-----------------------------------------------------------------------------
-void AppArucoPenCalibrator::calcExtrinsicParams(CVCaptureProvider* provider)
+void AppPenTrackingCalibrator::calcExtrinsicParams(CVCaptureProvider* provider)
 {
     SL_LOG("Calculating extrinsic parameters...");
 
-    CVSize boardSize(AppArucoPenConst::CALIB_CHESSBOARD_WIDTH, AppArucoPenConst::CALIB_CHESSBOARD_HEIGHT);
-    float  squareSize = AppArucoPenConst::CALIB_SQUARE_SIZE;
+    CVSize boardSize(AppPenTrackingConst::CALIB_CHESSBOARD_WIDTH, AppPenTrackingConst::CALIB_CHESSBOARD_HEIGHT);
+    float  squareSize = AppPenTrackingConst::CALIB_SQUARE_SIZE;
 
     CVVPoint2f corners2D;
     int        flags = cv::CALIB_CB_FAST_CHECK + cv::CALIB_CB_ADAPTIVE_THRESH;

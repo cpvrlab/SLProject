@@ -9,7 +9,7 @@
 #        add_subdirectory(app_demo_imgui)
 #        add_subdirectory(app_demo_node)
 #        add_subdirectory(app_demo_slproject)
-#        add_subdirectory(app_aruco_pen)
+#        add_subdirectory(app_pen_tracking)
 #endif()
 
-add_subdirectory(app_aruco_pen)
+add_subdirectory(app_pen_tracking)

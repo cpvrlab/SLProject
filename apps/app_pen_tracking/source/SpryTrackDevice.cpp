@@ -113,7 +113,7 @@ void SpryTrackDevice::enableOnboardProcessing()
                                  1);
     if (error != ftkError::FTK_OK)
     {
-        SL_EXIT_MSG("SpryTrack: Failed to enable onboard processing");
+        SL_WARN_MSG("SpryTrack: Failed to enable onboard processing");
     }
 }
 //-----------------------------------------------------------------------------

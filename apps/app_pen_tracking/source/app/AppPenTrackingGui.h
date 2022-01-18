@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      AppArucoPenGui.h
+//  File:      AppPenTrackingGui.h
 //  Date:      October 2021
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Authors:   Marcus Hudritsch, Marino von Wattenwyl
@@ -11,6 +11,7 @@
 #define SLGUIDEMO_H
 
 #include <SL.h>
+#include <functional>
 
 class SLScene;
 class SLSceneView;
@@ -20,7 +21,7 @@ class SLProjectScene;
 class SLTexColorLUT;
 
 //-----------------------------------------------------------------------------
-class AppArucoPenGui
+class AppPenTrackingGui
 {
 public:
     static void build(SLProjectScene* s, SLSceneView* sv);
@@ -34,6 +35,9 @@ public:
 
     static SLbool showError;
     static SLstring errorString;
+
+private:
+    static void runOrReportError(const std::function<void()>& func);
 };
 //-----------------------------------------------------------------------------
 #endif

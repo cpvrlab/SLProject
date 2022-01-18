@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      AppArucoPenVideo.cpp
+//  File:      AppPenTrackingVideo.cpp
 //  Date:      October 2021
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Authors:   Marcus Hudritsch, Marino von Wattenwyl
@@ -16,8 +16,8 @@
 #include <GlobalTimer.h>
 #include <Instrumentor.h>
 
-#include <app/AppArucoPen.h>
-#include <ArucoPen.h>
+#include <app/AppPenTracking.h>
+#include <TrackedPen.h>
 
 #include <TrackingSystemSpryTrack.h>
 #include <TrackingSystemArucoCube.h>
@@ -27,7 +27,7 @@ void updateTrackingSceneCamera(CVCamera* ac)
 {
     PROFILE_FUNCTION();
 
-    SLNode* trackedNode = AppArucoPen::instance().trackedNode;
+    SLNode* trackedNode = AppPenTracking::instance().trackedNode;
     if (trackedNode && typeid(*trackedNode) == typeid(SLCamera))
     {
         auto* trackingCam = dynamic_cast<SLCamera*>(trackedNode);
@@ -93,35 +93,35 @@ void trackVideo(CVCaptureProvider* provider)
     ensureValidCalibration(ac, sv);
     updateTrackingSceneCamera(ac);
 
-    bool trackingResult = AppArucoPen::instance().arucoPen().trackingSystem()->track(provider);
+    bool trackingResult = AppPenTracking::instance().arucoPen().trackingSystem()->track(provider);
     if (!trackingResult)
     {
-        AppArucoPen::instance().trackedNode->setDrawBitsRec(SL_DB_HIDDEN, false);
+        AppPenTracking::instance().trackedNode->setDrawBitsRec(SL_DB_HIDDEN, false);
         return;
     }
 
-    if (AppDemo::sceneID == SID_VirtualArucoPen)
+    if (AppDemo::sceneID == SID_VirtualTrackedPen)
     {
         // clang-format off
-        CVMatx44f cvWM = AppArucoPen::instance().arucoPen().trackingSystem()->worldMatrix();
+        CVMatx44f cvWM = AppPenTracking::instance().arucoPen().trackingSystem()->worldMatrix();
         SLMat4f glWM(cvWM.val[0], cvWM.val[1], cvWM.val[2], cvWM.val[3],
                      cvWM.val[4], cvWM.val[5], cvWM.val[6], cvWM.val[7],
                      cvWM.val[8], cvWM.val[9], cvWM.val[10],cvWM.val[11],
                      cvWM.val[12],cvWM.val[13],cvWM.val[14],cvWM.val[15]);
         // clang-format on
 
-        SLNode* trackedNode = AppArucoPen::instance().trackedNode;
+        SLNode* trackedNode = AppPenTracking::instance().trackedNode;
         trackedNode->om(glWM);
         trackedNode->setDrawBitsRec(SL_DB_HIDDEN, false);
     }
     else
     {
-        TrackingSystem* trackingSystem = AppArucoPen::instance().arucoPen().trackingSystem();
+        TrackingSystem* trackingSystem = AppPenTracking::instance().arucoPen().trackingSystem();
         if (typeid(*trackingSystem) != typeid(TrackingSystemArucoCube)) return;
 
         // clang-format off
         // convert matrix type CVMatx44f to SLMat4f
-        CVTracked* tracker = AppArucoPen::instance().trackers().at(provider);
+        CVTracked* tracker = AppPenTracking::instance().trackers().at(provider);
         CVMatx44f cvOVM = tracker->objectViewMat();
         SLMat4f glOVM(cvOVM.val[0], cvOVM.val[1], cvOVM.val[2], cvOVM.val[3],
                       cvOVM.val[4], cvOVM.val[5], cvOVM.val[6], cvOVM.val[7],
@@ -129,7 +129,7 @@ void trackVideo(CVCaptureProvider* provider)
                       cvOVM.val[12],cvOVM.val[13],cvOVM.val[14],cvOVM.val[15]);
         // clang-format on
 
-        SLNode* trackedNode = AppArucoPen::instance().trackedNode;
+        SLNode* trackedNode = AppPenTracking::instance().trackedNode;
 
         if (typeid(*trackedNode) == typeid(SLCamera))
         {
@@ -177,11 +177,11 @@ bool onUpdateVideo()
     {
         SLfloat trackingTimeStartMS = GlobalTimer::timeMS();
 
-        CVCamera* ac = &AppArucoPen::instance().currentCaptureProvider()->camera();
+        CVCamera* ac = &AppPenTracking::instance().currentCaptureProvider()->camera();
 
         if (AppDemo::sceneID == SID_VideoCalibrateMain)
         {
-            AppArucoPen::instance().calibrator().update(ac, s, sv);
+            AppPenTracking::instance().calibrator().update(ac, s, sv);
         }
         else
         {
@@ -203,9 +203,9 @@ bool onUpdateVideo()
 
         //...................................................................
         // copy image to video texture
-        if (AppDemo::sceneID != SID_VirtualArucoPen)
+        if (AppDemo::sceneID != SID_VirtualTrackedPen)
         {
-            if (AppArucoPen::instance().videoTexture)
+            if (AppPenTracking::instance().videoTexture)
             {
                 if (ac->calibration.state() == CS_calibrated && ac->showUndistorted())
                 {
@@ -213,7 +213,7 @@ bool onUpdateVideo()
                     ac->calibration.remap(CVCapture::instance()->lastFrame, undistorted);
 
                     // CVCapture::instance()->videoTexture()->copyVideoImage(undistorted.cols,
-                    AppArucoPen::instance().videoTexture->copyVideoImage(undistorted.cols,
+                    AppPenTracking::instance().videoTexture->copyVideoImage(undistorted.cols,
                                                                          undistorted.rows,
                                                                          CVCapture::instance()->format,
                                                                          undistorted.data,
@@ -222,7 +222,7 @@ bool onUpdateVideo()
                 }
                 else
                 {
-                    AppArucoPen::instance().videoTexture->copyVideoImage(CVCapture::instance()->lastFrame.cols,
+                    AppPenTracking::instance().videoTexture->copyVideoImage(CVCapture::instance()->lastFrame.cols,
                                                                          CVCapture::instance()->lastFrame.rows,
                                                                          CVCapture::instance()->format,
                                                                          CVCapture::instance()->lastFrame.data,

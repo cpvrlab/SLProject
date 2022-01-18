@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      AppArucoPen.cpp
+//  File:      AppPenTracking.cpp
 //  Date:      October 2021
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Authors:   Marino von Wattenwyl
@@ -7,7 +7,7 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include <app/AppArucoPen.h>
+#include <app/AppPenTracking.h>
 
 #include <SL.h>
 #include <GlobalTimer.h>
@@ -15,14 +15,14 @@
 #include <Utils.h>
 #include <Instrumentor.h>
 #include <AppDemo.h>
-#include <app/AppArucoPenROSNode.h>
+#include <app/AppPenTrackingROSNode.h>
 #include <CVCaptureProviderSpryTrack.h>
 #include <TrackingSystemSpryTrack.h>
 
 extern void trackVideo(CVCaptureProvider* provider);
 
 //-----------------------------------------------------------------------------
-void AppArucoPen::openCaptureProviders()
+void AppPenTracking::openCaptureProviders()
 {
     //    SL_LOG("Loading capture providers...");
     //
@@ -77,7 +77,7 @@ void AppArucoPen::openCaptureProviders()
     // }
 
     // IDS camera + Intel + SpryTrack
-    openCaptureProvider(new CVCaptureProviderIDSPeak(0, CVSize(2768, 1840)));
+//    openCaptureProvider(new CVCaptureProviderIDSPeak(0, CVSize(2768, 1840)));
 //    openCaptureProvider(new CVCaptureProviderStandard(0, CVSize(1280, 720)));
     openCaptureProvider(new CVCaptureProviderSpryTrack(CVSize(1280, 720)));
 
@@ -91,7 +91,7 @@ void AppArucoPen::openCaptureProviders()
     SL_LOG("Opening done");
 }
 //-----------------------------------------------------------------------------
-void AppArucoPen::openCaptureProvider(CVCaptureProvider* captureProvider)
+void AppPenTracking::openCaptureProvider(CVCaptureProvider* captureProvider)
 {
     float before = GlobalTimer::timeS();
     captureProvider->open();
@@ -129,7 +129,7 @@ void AppArucoPen::openCaptureProvider(CVCaptureProvider* captureProvider)
     }
 }
 //-----------------------------------------------------------------------------
-void AppArucoPen::closeCaptureProviders()
+void AppPenTracking::closeCaptureProviders()
 {
     SL_LOG("Closing capture providers...");
 
@@ -142,12 +142,12 @@ void AppArucoPen::closeCaptureProviders()
     SL_LOG("All capture providers closed");
 }
 //-----------------------------------------------------------------------------
-void AppArucoPen::grabFrameImagesAndTrack(SLSceneView* sv)
+void AppPenTracking::grabFrameImagesAndTrack(SLSceneView* sv)
 {
     CVCapture::instance()->camSizes.clear();
 
     // Grab and track all non-displayed capture providers if we are in the ArUco cube scene
-    if (AppArucoPen::doMultiTracking() && (AppDemo::sceneID == SID_VideoTrackArucoCubeMain || AppDemo::sceneID == SID_VirtualArucoPen))
+    if (AppPenTracking::doMultiTracking() && (AppDemo::sceneID == SID_VideoTrackArucoCubeMain || AppDemo::sceneID == SID_VirtualTrackedPen))
     {
         for (CVCaptureProvider* provider : _captureProviders)
         {
@@ -164,17 +164,17 @@ void AppArucoPen::grabFrameImagesAndTrack(SLSceneView* sv)
         grabFrameImageAndTrack(_currentCaptureProvider, sv);
     }
 
-    if (AppDemo::sceneID == SID_VideoTrackArucoCubeMain || AppDemo::sceneID == SID_VirtualArucoPen)
+    if (AppDemo::sceneID == SID_VideoTrackArucoCubeMain || AppDemo::sceneID == SID_VirtualTrackedPen)
     {
-        AppArucoPen::instance().arucoPen().trackingSystem()->finalizeTracking();
-        if (AppArucoPen::instance().arucoPen().state() == ArucoPen::Tracing)
+        AppPenTracking::instance().arucoPen().trackingSystem()->finalizeTracking();
+        if (AppPenTracking::instance().arucoPen().state() == TrackedPen::Tracing)
         {
-            AppArucoPen::instance().publishTipPose();
+            AppPenTracking::instance().publishTipPose();
         }
     }
 }
 //-----------------------------------------------------------------------------
-void AppArucoPen::grabFrameImageAndTrack(CVCaptureProvider* provider, SLSceneView* sv)
+void AppPenTracking::grabFrameImageAndTrack(CVCaptureProvider* provider, SLSceneView* sv)
 {
     PROFILE_FUNCTION();
 
@@ -182,7 +182,7 @@ void AppArucoPen::grabFrameImageAndTrack(CVCaptureProvider* provider, SLSceneVie
     trackVideo(provider);
 }
 //-----------------------------------------------------------------------------
-void AppArucoPen::grabFrameImage(CVCaptureProvider* provider, SLSceneView* sv)
+void AppPenTracking::grabFrameImage(CVCaptureProvider* provider, SLSceneView* sv)
 {
     PROFILE_FUNCTION();
 
@@ -199,9 +199,9 @@ void AppArucoPen::grabFrameImage(CVCaptureProvider* provider, SLSceneView* sv)
     CVCapture::instance()->format        = PF_bgr;
 }
 //-----------------------------------------------------------------------------
-void AppArucoPen::publishTipPose()
+void AppPenTracking::publishTipPose()
 {
-    AppArucoPenROSNode::instance().publishPose(_arucoPen.rosPosition(),
+    AppPenTrackingROSNode::instance().publishPose(_arucoPen.rosPosition(),
                                                _arucoPen.rosOrientation());
 }
 //-----------------------------------------------------------------------------

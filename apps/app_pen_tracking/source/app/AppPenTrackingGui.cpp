@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      AppArucoPenGui.cpp
+//  File:      AppPenTrackingGui.cpp
 //  Date:      October 2021
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Authors:   Marcus Hudritsch, Marino von Wattenwyl
@@ -7,9 +7,9 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include <app/AppArucoPenGui.h>
-#include <app/AppArucoPen.h>
-#include <app/AppArucoPenEvaluator.h>
+#include <app/AppPenTrackingGui.h>
+#include <app/AppPenTracking.h>
+#include <app/AppPenTrackingEvaluator.h>
 #include <AppDemo.h>
 #include <cv/CVImage.h>
 #include <SLGLProgramManager.h>
@@ -25,16 +25,16 @@
 #include <Instrumentor.h>
 
 //-----------------------------------------------------------------------------
-SLbool   AppArucoPenGui::showInfosTracking = false;
-SLbool   AppArucoPenGui::hideUI            = false;
-SLbool   AppArucoPenGui::showError         = false;
-SLstring AppArucoPenGui::errorString       = "";
+SLbool   AppPenTrackingGui::showInfosTracking = false;
+SLbool   AppPenTrackingGui::hideUI            = false;
+SLbool   AppPenTrackingGui::showError         = false;
+SLstring AppPenTrackingGui::errorString       = "";
 //-----------------------------------------------------------------------------
-void AppArucoPenGui::build(SLProjectScene* s, SLSceneView* sv)
+void AppPenTrackingGui::build(SLProjectScene* s, SLSceneView* sv)
 {
     PROFILE_FUNCTION();
 
-    if (AppArucoPenGui::hideUI)
+    if (AppPenTrackingGui::hideUI)
     {
         buildMenuContext(s, sv);
     }
@@ -48,8 +48,8 @@ void AppArucoPenGui::build(SLProjectScene* s, SLSceneView* sv)
             SLchar m[1024]; // message character array
             m[0] = 0;       // set zero length
 
-            ArucoPen& pen    = AppArucoPen::instance().arucoPen();
-            SLVec3f   tipPos = pen.tipPosition();
+            TrackedPen& pen    = AppPenTracking::instance().arucoPen();
+            SLVec3f     tipPos = pen.tipPosition();
             sprintf(m + strlen(m), "Tip position             : %s\n", tipPos.toString(", ", 2).c_str());
             sprintf(m + strlen(m), "Measured Distance (Live) : %.2f cm\n", pen.liveDistance() * 100.0f);
             sprintf(m + strlen(m), "Measured Distance (Last) : %.2f cm\n", pen.lastDistance() * 100.0f);
@@ -62,7 +62,7 @@ void AppArucoPenGui::build(SLProjectScene* s, SLSceneView* sv)
             ImGui::PopFont();
         }
 
-        if(showError)
+        if (showError)
         {
             SLfloat width   = (SLfloat)sv->viewportW() * 0.5f;
             SLfloat height  = (SLfloat)sv->viewportH() * 0.2f;
@@ -80,7 +80,7 @@ void AppArucoPenGui::build(SLProjectScene* s, SLSceneView* sv)
     }
 }
 //-----------------------------------------------------------------------------
-void AppArucoPenGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
+void AppPenTrackingGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
 {
     PROFILE_FUNCTION();
 
@@ -94,8 +94,8 @@ void AppArucoPenGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
             {
                 if (ImGui::MenuItem("Live Camera", nullptr, sid == SID_VideoTrackArucoCubeMain))
                     s->onLoad(s, sv, SID_VideoTrackArucoCubeMain);
-                if (ImGui::MenuItem("Virtual Render", nullptr, sid == SID_VirtualArucoPen))
-                    s->onLoad(s, sv, SID_VirtualArucoPen);
+                if (ImGui::MenuItem("Virtual Render", nullptr, sid == SID_VirtualTrackedPen))
+                    s->onLoad(s, sv, SID_VirtualTrackedPen);
 
                 ImGui::EndMenu();
             }
@@ -110,17 +110,19 @@ void AppArucoPenGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
 
         if (ImGui::BeginMenu("Pen Tracking"))
         {
-            AppArucoPen& app = AppArucoPen::instance();
+            AppPenTracking& app = AppPenTracking::instance();
 
             if (ImGui::BeginMenu("Tracking Mode"))
             {
                 TrackingSystem* ts = app.arucoPen().trackingSystem();
 
                 if (ImGui::MenuItem("ArUco Cube", nullptr, typeid(*ts) == typeid(TrackingSystemArucoCube)))
-                    app.arucoPen().trackingSystem(new TrackingSystemArucoCube());
+                    runOrReportError([]
+                                     { AppPenTracking::instance().arucoPen().trackingSystem(new TrackingSystemArucoCube()); });
 
                 if (ImGui::MenuItem("SpryTrack", nullptr, typeid(*ts) == typeid(TrackingSystemSpryTrack)))
-                    app.arucoPen().trackingSystem(new TrackingSystemSpryTrack());
+                    runOrReportError([]
+                                     { AppPenTracking::instance().arucoPen().trackingSystem(new TrackingSystemSpryTrack()); });
 
                 ImGui::EndMenu();
             }
@@ -140,7 +142,7 @@ void AppArucoPenGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
             }
 
             vector<CVCaptureProviderIDSPeak*> providersIDSPeak;
-            for (CVCaptureProvider* provider : AppArucoPen::instance().captureProviders())
+            for (CVCaptureProvider* provider : AppPenTracking::instance().captureProviders())
             {
                 if (app.arucoPen().trackingSystem()->isAcceptedProvider(provider) &&
                     typeid(*provider) == typeid(CVCaptureProviderIDSPeak))
@@ -168,15 +170,8 @@ void AppArucoPenGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                 {
                     if (app.arucoPen().trackingSystem()->isAcceptedProvider(provider))
                     {
-                        try
-                        {
-                            app.arucoPen().trackingSystem()->calibrate(provider);
-                        }
-                        catch(std::exception& e)
-                        {
-                            showError = true;
-                            errorString = e.what();
-                        }
+                        runOrReportError([provider]
+                                         { AppPenTracking::instance().arucoPen().trackingSystem()->calibrate(provider); });
                     }
                 }
             }
@@ -187,28 +182,28 @@ void AppArucoPenGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                     s->onLoad(s, sv, SID_VideoCalibrateMain);
 
                 if (ImGui::MenuItem("Calibrate Extrinsic (Current Camera)"))
-                    AppArucoPenCalibrator::calcExtrinsicParams(AppArucoPen::instance().currentCaptureProvider());
+                    AppPenTrackingCalibrator::calcExtrinsicParams(AppPenTracking::instance().currentCaptureProvider());
 
                 if (ImGui::MenuItem("Calibrate Extrinsic (All Cameras)"))
                 {
-                    for (CVCaptureProvider* provider : AppArucoPen::instance().captureProviders())
+                    for (CVCaptureProvider* provider : AppPenTracking::instance().captureProviders())
                     {
                         if (app.arucoPen().trackingSystem()->isAcceptedProvider(provider))
                         {
-                            AppArucoPenCalibrator::calcExtrinsicParams(provider);
+                            AppPenTrackingCalibrator::calcExtrinsicParams(provider);
                         }
                     }
                 }
 
-                if (ImGui::MenuItem("Multi Tracking", nullptr, AppArucoPen::instance().doMultiTracking()))
+                if (ImGui::MenuItem("Multi Tracking", nullptr, AppPenTracking::instance().doMultiTracking()))
                 {
-                    AppArucoPen::instance().doMultiTracking(!AppArucoPen::instance().doMultiTracking());
+                    AppPenTracking::instance().doMultiTracking(!AppPenTracking::instance().doMultiTracking());
                 }
             }
 
             if (ImGui::MenuItem("Start Evaluation"))
             {
-                AppArucoPenEvaluator::instance().start(0.06f);
+                AppPenTrackingEvaluator::instance().start(0.06f);
             }
 
             ImGui::MenuItem("Infos on Tracking", nullptr, &showInfosTracking);
@@ -220,7 +215,7 @@ void AppArucoPenGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
     }
 }
 //-----------------------------------------------------------------------------
-void AppArucoPenGui::buildMenuContext(SLProjectScene* s, SLSceneView* sv)
+void AppPenTrackingGui::buildMenuContext(SLProjectScene* s, SLSceneView* sv)
 {
     if (!ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow) &&
         ImGui::IsMouseReleased(1))
@@ -238,19 +233,19 @@ void AppArucoPenGui::buildMenuContext(SLProjectScene* s, SLSceneView* sv)
             }
         }
 
-        if (AppArucoPenGui::hideUI)
+        if (AppPenTrackingGui::hideUI)
             if (ImGui::MenuItem("Show user interface"))
-                AppArucoPenGui::hideUI = false;
+                AppPenTrackingGui::hideUI = false;
 
-        if (!AppArucoPenGui::hideUI)
+        if (!AppPenTrackingGui::hideUI)
             if (ImGui::MenuItem("Hide user interface"))
-                AppArucoPenGui::hideUI = true;
+                AppPenTrackingGui::hideUI = true;
 
         ImGui::EndPopup();
     }
 }
 //-----------------------------------------------------------------------------
-void AppArucoPenGui::loadConfig(SLint dotsPerInch)
+void AppPenTrackingGui::loadConfig(SLint dotsPerInch)
 {
     ImGuiStyle& style               = ImGui::GetStyle();
     SLstring    fullPathAndFilename = AppDemo::configPath +
@@ -306,7 +301,7 @@ void AppArucoPenGui::loadConfig(SLint dotsPerInch)
 
             fs["ScrollbarRounding"] >> i;   style.ScrollbarRounding = (SLfloat) i;
             fs["sceneID"] >> i;             AppDemo::sceneID = (SLSceneID) i;
-            fs["showInfosTracking"] >> b;   AppArucoPenGui::showInfosTracking = b;
+            fs["showInfosTracking"] >> b;   AppPenTrackingGui::showInfosTracking = b;
             // clang-format on
 
             fs.release();
@@ -341,7 +336,7 @@ void AppArucoPenGui::loadConfig(SLint dotsPerInch)
     }
 }
 //-----------------------------------------------------------------------------
-void AppArucoPenGui::saveConfig()
+void AppPenTrackingGui::saveConfig()
 {
     ImGuiStyle& style               = ImGui::GetStyle();
     SLstring    fullPathAndFilename = AppDemo::configPath +
@@ -357,7 +352,7 @@ void AppArucoPenGui::saveConfig()
     {
         SL_LOG("Failed to open file for writing: %s",
                fullPathAndFilename.c_str());
-        SL_EXIT_MSG("Exit in AppArucoPenGui::saveConfig");
+        SL_EXIT_MSG("Exit in AppPenTrackingGui::saveConfig");
     }
 
     fs << "configTime" << Utils::getLocalTimeString();
@@ -372,9 +367,21 @@ void AppArucoPenGui::saveConfig()
     fs << "ItemSpacingY" << (SLint)style.ItemSpacing.y;
     fs << "ScrollbarSize" << (SLfloat)style.ScrollbarSize;
     fs << "ScrollbarRounding" << (SLfloat)style.ScrollbarRounding;
-    fs << "showInfosTracking" << AppArucoPenGui::showInfosTracking;
+    fs << "showInfosTracking" << AppPenTrackingGui::showInfosTracking;
 
     fs.release();
     SL_LOG("Config. saved   : %s", fullPathAndFilename.c_str());
 }
 //-----------------------------------------------------------------------------
+void AppPenTrackingGui::runOrReportError(const std::function<void()>& func)
+{
+    try
+    {
+        func();
+    }
+    catch (std::exception& e)
+    {
+        showError   = true;
+        errorString = e.what();
+    }
+}

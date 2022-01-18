@@ -9,6 +9,7 @@
 
 #include <SpryTrackCalibrator.h>
 #include <utility>
+#include <stdexcept>
 
 //-----------------------------------------------------------------------------
 SpryTrackCalibrator::SpryTrackCalibrator(SpryTrackDevice& device,
@@ -43,7 +44,7 @@ void SpryTrackCalibrator::calibrate()
     }
     else
     {
-        throw SpryTrackCalibrationException("SpryTrack: Calibration error (marker was not detected)");
+        throw std::runtime_error("Calibration error (marker was not detected)");
     }
 }
 //-----------------------------------------------------------------------------

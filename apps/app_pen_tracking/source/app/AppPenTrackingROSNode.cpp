@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      AppArucoPenROSNode.cpp
+//  File:      AppPenTrackingROSNode.cpp
 //  Date:      October 2021
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Authors:   Marino von Wattenwyl
@@ -7,12 +7,12 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include <app/AppArucoPenROSNode.h>
+#include <app/AppPenTrackingROSNode.h>
 
 #include <geometry_msgs/Pose.h>
 
 //-----------------------------------------------------------------------------
-AppArucoPenROSNode::AppArucoPenROSNode()
+AppPenTrackingROSNode::AppPenTrackingROSNode()
 {
     int    argc = 0;
     char** argv = nullptr;
@@ -23,7 +23,7 @@ AppArucoPenROSNode::AppArucoPenROSNode()
     _keyEventsPublisher = node.advertise<geometry_msgs::Pose>("aruco_pen/key_events", 1000);
 }
 //-----------------------------------------------------------------------------
-void AppArucoPenROSNode::publishPose(const SLVec3f& position,
+void AppPenTrackingROSNode::publishPose(const SLVec3f& position,
                                      SLQuat4f       orientation) const
 {
     geometry_msgs::Pose msg;
@@ -37,7 +37,7 @@ void AppArucoPenROSNode::publishPose(const SLVec3f& position,
     _posePublisher.publish(msg);
 }
 //-----------------------------------------------------------------------------
-void AppArucoPenROSNode::publishKeyEvent(const SLVec3f& position,
+void AppPenTrackingROSNode::publishKeyEvent(const SLVec3f& position,
                                          SLQuat4f       orientation) const
 {
     geometry_msgs::Pose msg;

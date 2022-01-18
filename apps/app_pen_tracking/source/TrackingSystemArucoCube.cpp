@@ -9,14 +9,14 @@
 
 #include <TrackingSystemArucoCube.h>
 
-#include <app/AppArucoPen.h>
+#include <app/AppPenTracking.h>
 #include <AppDemo.h>
 
 //-----------------------------------------------------------------------------
 bool TrackingSystemArucoCube::track(CVCaptureProvider* provider)
 {
-    CVTracked* tracker = AppArucoPen::instance().trackers().at(provider);
-    if (!tracker || !AppArucoPen::instance().trackedNode) return false;
+    CVTracked* tracker = AppPenTracking::instance().trackers().at(provider);
+    if (!tracker || !AppPenTracking::instance().trackedNode) return false;
 
     /*
     if (typeid(*tracker) == typeid(CVTrackedArucoCube) && CVTrackedAruco::paramsLoaded)
@@ -47,7 +47,7 @@ CVMatx44f TrackingSystemArucoCube::worldMatrix()
 //-----------------------------------------------------------------------------
 void TrackingSystemArucoCube::calibrate(CVCaptureProvider* provider)
 {
-    AppArucoPenCalibrator::calcExtrinsicParams(provider);
+    AppPenTrackingCalibrator::calcExtrinsicParams(provider);
     AppDemo::scene->onLoad(AppDemo::scene, AppDemo::sceneViews[0], SID_VideoCalibrateMain);
 }
 //-----------------------------------------------------------------------------

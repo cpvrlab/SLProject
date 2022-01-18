@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      AppArucoPen.h
+//  File:      AppPenTracking.h
 //  Date:      October 2021
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Authors:   Marino von Wattenwyl
@@ -7,18 +7,18 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#ifndef SLPROJECT_APPARUCOPEN_H
-#define SLPROJECT_APPARUCOPEN_H
+#ifndef SLPROJECT_APPPENTRACKING_H
+#define SLPROJECT_APPPENTRACKING_H
 
 #include <CVCaptureProvider.h>
 #include <CVCaptureProviderStandard.h>
 #include <CVCaptureProviderIDSPeak.h>
 
 #include <SLVec3.h>
-#include "ArucoPen.h"
+#include <TrackedPen.h>
 #include <SLSceneView.h>
 
-#include <app/AppArucoPenCalibrator.h>
+#include <app/AppPenTrackingCalibrator.h>
 
 #include <vector>
 #include <map>
@@ -27,12 +27,12 @@
 typedef std::vector<CVCaptureProvider*>          CVVCaptureProvider;
 typedef std::map<CVCaptureProvider*, CVTracked*> ArucoPenTrackers;
 //-----------------------------------------------------------------------------
-class AppArucoPen
+class AppPenTracking
 {
 public:
-    static AppArucoPen& instance()
+    static AppPenTracking& instance()
     {
-        static AppArucoPen instance;
+        static AppPenTracking instance;
         return instance;
     }
 
@@ -41,29 +41,19 @@ public:
     SLGLTexture* videoTexture = nullptr;
     SLNode*      trackedNode  = nullptr;
 
-private:
-    CVVCaptureProvider _captureProviders;
-    CVCaptureProvider* _currentCaptureProvider = nullptr;
-    ArucoPenTrackers   _trackers;
-    bool               _doMultiTracking = true;
-
-    ArucoPen _arucoPen;
-
-    AppArucoPenCalibrator _calibrator;
-
 public:
-    void       openCaptureProviders();
-    void       closeCaptureProviders();
-    void       grabFrameImagesAndTrack(SLSceneView* sv);
-    void       publishTipPose();
+    void openCaptureProviders();
+    void closeCaptureProviders();
+    void grabFrameImagesAndTrack(SLSceneView* sv);
+    void publishTipPose();
 
     // Getters
-    CVVCaptureProvider&    captureProviders() { return _captureProviders; }
-    CVCaptureProvider*     currentCaptureProvider() const { return _currentCaptureProvider; }
-    ArucoPenTrackers&      trackers() { return _trackers; }
-    bool                   doMultiTracking() const { return _doMultiTracking; }
-    ArucoPen&              arucoPen() { return _arucoPen; }
-    AppArucoPenCalibrator& calibrator() { return _calibrator; }
+    CVVCaptureProvider&       captureProviders() { return _captureProviders; }
+    CVCaptureProvider*        currentCaptureProvider() const { return _currentCaptureProvider; }
+    ArucoPenTrackers&         trackers() { return _trackers; }
+    bool                      doMultiTracking() const { return _doMultiTracking; }
+    TrackedPen&               arucoPen() { return _arucoPen; }
+    AppPenTrackingCalibrator& calibrator() { return _calibrator; }
 
     // Setters
     void currentCaptureProvider(CVCaptureProvider* captureProvider) { _currentCaptureProvider = captureProvider; }
@@ -73,6 +63,15 @@ private:
     void openCaptureProvider(CVCaptureProvider* captureProvider);
     void grabFrameImageAndTrack(CVCaptureProvider* provider, SLSceneView* sv);
     void grabFrameImage(CVCaptureProvider* provider, SLSceneView* sv);
+
+    CVVCaptureProvider _captureProviders;
+    CVCaptureProvider* _currentCaptureProvider = nullptr;
+    ArucoPenTrackers   _trackers;
+    bool               _doMultiTracking = true;
+
+    TrackedPen _arucoPen = TrackedPen(0.147f - 0.025f + 0.002f);
+
+    AppPenTrackingCalibrator _calibrator;
 };
 //-----------------------------------------------------------------------------
-#endif // SLPROJECT_APPARUCOPEN_H
+#endif // SLPROJECT_APPPENTRACKING_H

@@ -26,7 +26,7 @@ void SpryTrackMarker::addPoint(float x, float y, float z)
     }
 
     float position[] = {x, y, z};
-    convert3f<POS_X, NEG_Y, NEG_Z>(position, position);
+    convert3<POS_X, NEG_Y, NEG_Z>(position, position);
 
     uint32 index                 = _geometry.pointsCount;
     _geometry.positions[index].x = position[0];
@@ -62,7 +62,7 @@ void SpryTrackMarker::update(ftkMarker& marker)
     _objectViewMat(3, 3) = 1.0;
 
     // Convert coordinate system
-    convert4x4f<POS_X, NEG_Y, NEG_Z, false, false>(_objectViewMat.val,
-                                                   _objectViewMat.val);
+    convert4x4<POS_X, NEG_Y, NEG_Z, false, false>(_objectViewMat.val,
+                                                  _objectViewMat.val);
 }
 //-----------------------------------------------------------------------------

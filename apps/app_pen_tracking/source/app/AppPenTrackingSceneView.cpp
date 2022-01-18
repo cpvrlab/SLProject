@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      AppArucoPenSceneView.cpp
+//  File:      AppPenTrackingSceneView.cpp
 //  Date:      October 2021
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Authors:   Marcus Hudritsch, Marino von Wattenwyl
@@ -8,11 +8,11 @@
 //#############################################################################
 
 #include <AppDemo.h>
-#include "AppArucoPenSceneView.h"
+#include "AppPenTrackingSceneView.h"
 #include <SLProjectScene.h>
 
 //-----------------------------------------------------------------------------
-AppArucoPenSceneView::AppArucoPenSceneView(SLProjectScene* s,
+AppPenTrackingSceneView::AppPenTrackingSceneView(SLProjectScene* s,
                                            int             dpi,
                                            SLInputManager& inputManager)
   : SLSceneView(s, dpi, inputManager)
@@ -28,7 +28,7 @@ AppArucoPenSceneView::AppArucoPenSceneView(SLProjectScene* s,
  of the core SLProject we need to add an additional handling for mouse down
  withing the calibration routine.
  */
-SLbool AppArucoPenSceneView::onMouseDown(SLMouseButton button,
+SLbool AppPenTrackingSceneView::onMouseDown(SLMouseButton button,
                                          SLint         x,
                                          SLint         y,
                                          SLKey         mod)

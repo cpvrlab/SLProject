@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      AppArucoPenEvaluator.h
+//  File:      AppPenTrackingEvaluator.h
 //  Date:      November 2021
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Authors:   Marino von Wattenwyl
@@ -7,8 +7,8 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#ifndef SRC_APPARUCOPENEVALUATOR_H
-#define SRC_APPARUCOPENEVALUATOR_H
+#ifndef SRC_APPPENTRACKINGEVALUATOR_H
+#define SRC_APPPENTRACKINGEVALUATOR_H
 
 #include <SLVec3.h>
 #include <SLVec2.h>
@@ -26,12 +26,12 @@
  * gets repeated. After a certain number of measurements, the results are
  * written to a CSV file in the current working directory.
  */
-class AppArucoPenEvaluator : public SLEventHandler
+class AppPenTrackingEvaluator : public SLEventHandler
 {
 public:
-    static AppArucoPenEvaluator& instance()
+    static AppPenTrackingEvaluator& instance()
     {
-        static AppArucoPenEvaluator instance;
+        static AppPenTrackingEvaluator instance;
         return instance;
     }
 
@@ -59,4 +59,4 @@ private:
                       SLKey mod) override;
 };
 //-----------------------------------------------------------------------------
-#endif // SRC_APPARUCOPENEVALUATOR_H
+#endif // SRC_APPPENTRACKINGEVALUATOR_H

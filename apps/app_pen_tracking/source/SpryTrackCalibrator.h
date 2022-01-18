@@ -12,17 +12,7 @@
 
 #include <SpryTrackDevice.h>
 #include <CVTypedefs.h>
-#include <stdexcept>
 
-//-----------------------------------------------------------------------------
-class SpryTrackCalibrationException : public std::runtime_error
-{
-public:
-    explicit SpryTrackCalibrationException(const string& message)
-      : std::runtime_error(message)
-    {
-    }
-};
 //-----------------------------------------------------------------------------
 class SpryTrackCalibrator
 {

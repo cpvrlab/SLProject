@@ -1,5 +1,5 @@
 //#############################################################################
-//  File:      AppArucoPenEvaluator.cpp
+//  File:      AppPenTrackingEvaluator.cpp
 //  Date:      November 2021
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Authors:   Marino von Wattenwyl
@@ -7,9 +7,9 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include <app/AppArucoPenEvaluator.h>
+#include <app/AppPenTrackingEvaluator.h>
 
-#include <app/AppArucoPen.h>
+#include <app/AppPenTracking.h>
 #include <AppDemo.h>
 #include <SLProjectScene.h>
 #include <Utils.h>
@@ -21,7 +21,7 @@
  * the red dot and the key event handler to the scene.
  * @param chessboardCornerSize
  */
-void AppArucoPenEvaluator::start(float chessboardCornerSize)
+void AppPenTrackingEvaluator::start(float chessboardCornerSize)
 {
     // Reset members
     _isRunning            = true;
@@ -49,11 +49,11 @@ void AppArucoPenEvaluator::start(float chessboardCornerSize)
  * and prints them out. Afterwards, the dot is moved to the next position. If there
  * are enough measurements, "finish" is called.
  */
-void AppArucoPenEvaluator::nextStep()
+void AppPenTrackingEvaluator::nextStep()
 {
     // Calculate values
     SLVec3f corner      = currentCorner();
-    SLVec3f tip         = AppArucoPen::instance().arucoPen().tipPosition();
+    SLVec3f tip         = AppPenTracking::instance().arucoPen().tipPosition();
     SLVec3f cornerToTip = tip - corner;
     float   distance    = cornerToTip.length();
 
@@ -91,14 +91,14 @@ void AppArucoPenEvaluator::nextStep()
  * coordinates by the chessboard corner size
  * @return The current corner position in 3D space
  */
-SLVec3f AppArucoPenEvaluator::currentCorner()
+SLVec3f AppPenTrackingEvaluator::currentCorner()
 {
     return SLVec3f((float)_x, 0.0f, (float)_z) * _chessboardCornerSize;
 }
 //-----------------------------------------------------------------------------
 /*! The key event handler that calls "nextStep" if F7 is pressed
  */
-SLbool AppArucoPenEvaluator::onKeyPress(const SLKey key,
+SLbool AppPenTrackingEvaluator::onKeyPress(const SLKey key,
                                         const SLKey mod)
 {
     if (key == K_F7)
@@ -114,7 +114,7 @@ SLbool AppArucoPenEvaluator::onKeyPress(const SLKey key,
  * results (actual corner position as int and float, measured position, offset,
  * distance and average distance) to a CSV file.
  */
-void AppArucoPenEvaluator::finish()
+void AppPenTrackingEvaluator::finish()
 {
     // Remove the red marker sphere from the scene
     AppDemo::scene->root3D()->removeChild(_node);

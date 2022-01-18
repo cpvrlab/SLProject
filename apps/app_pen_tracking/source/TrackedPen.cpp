@@ -7,18 +7,24 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include "ArucoPen.h"
-#include "app/AppArucoPen.h"
-#include "app/AppArucoPenROSNode.h"
+#include <TrackedPen.h>
+#include <app/AppPenTracking.h>
+#include <app/AppPenTrackingROSNode.h>
+#include <stdexcept>
 
 //-----------------------------------------------------------------------------
-ArucoPen::~ArucoPen()
+TrackedPen::TrackedPen(float length)
+  : _length(length)
+{
+}
+//-----------------------------------------------------------------------------
+TrackedPen::~TrackedPen()
 {
     delete _trackingSystem;
 }
 //-----------------------------------------------------------------------------
-SLbool ArucoPen::onKeyPress(const SLKey key,
-                            const SLKey mod)
+SLbool TrackedPen::onKeyPress(const SLKey key,
+                              const SLKey mod)
 {
     if (key == '1')
     {
@@ -28,8 +34,8 @@ SLbool ArucoPen::onKeyPress(const SLKey key,
 
     if (key == '2')
     {
-        AppArucoPenROSNode::instance().publishKeyEvent(rosPosition(),
-                                                       rosOrientation());
+        AppPenTrackingROSNode::instance().publishKeyEvent(rosPosition(),
+                                                          rosOrientation());
         return true;
     }
 
@@ -60,8 +66,8 @@ SLbool ArucoPen::onKeyPress(const SLKey key,
     return false;
 }
 //-----------------------------------------------------------------------------
-SLbool ArucoPen::onKeyRelease(const SLKey key,
-                              const SLKey mod)
+SLbool TrackedPen::onKeyRelease(const SLKey key,
+                                const SLKey mod)
 {
     if (key == '1')
     {
@@ -72,12 +78,11 @@ SLbool ArucoPen::onKeyRelease(const SLKey key,
     return false;
 }
 //-----------------------------------------------------------------------------
-SLVec3f ArucoPen::tipPosition()
+SLVec3f TrackedPen::tipPosition()
 {
-    float tipOffset = -(0.147f - 0.025f + 0.002f);
-
     CVMatx44f worldMatrix = _trackingSystem->worldMatrix();
 
+    float tipOffset = -_length;
     float offsetX = worldMatrix.val[1] * tipOffset;
     float offsetY = worldMatrix.val[5] * tipOffset;
     float offsetZ = worldMatrix.val[9] * tipOffset;
@@ -88,7 +93,7 @@ SLVec3f ArucoPen::tipPosition()
     return position;
 }
 //-----------------------------------------------------------------------------
-SLQuat4f ArucoPen::orientation()
+SLQuat4f TrackedPen::orientation()
 {
     CVMatx44f worldMatrix = _trackingSystem->worldMatrix();
     // clang-format off
@@ -102,7 +107,7 @@ SLQuat4f ArucoPen::orientation()
     return orientation;
 }
 //-----------------------------------------------------------------------------
-SLVec3f ArucoPen::rosPosition()
+SLVec3f TrackedPen::rosPosition()
 {
     // ROS coordinate system: (-z, y, -x)
 
@@ -110,7 +115,7 @@ SLVec3f ArucoPen::rosPosition()
     return {-p.z, p.y, -p.x};
 }
 //-----------------------------------------------------------------------------
-SLQuat4f ArucoPen::rosOrientation()
+SLQuat4f TrackedPen::rosOrientation()
 {
     // ROS coordinate system: (-z, y, -x)
     // Source: https://stackoverflow.com/questions/18818102/convert-quaternion-representing-rotation-from-one-coordinate-system-to-another
@@ -119,7 +124,7 @@ SLQuat4f ArucoPen::rosOrientation()
     return {o.z(), -o.y(), o.x(), o.w()};
 }
 //-----------------------------------------------------------------------------
-SLfloat ArucoPen::liveDistance()
+SLfloat TrackedPen::liveDistance()
 {
     if (!_positionPrintedOnce)
     {
@@ -130,34 +135,33 @@ SLfloat ArucoPen::liveDistance()
     return position.distance(_lastPrintedPosition);
 }
 //-----------------------------------------------------------------------------
-SLfloat ArucoPen::lastDistance() const
+SLfloat TrackedPen::lastDistance() const
 {
     return _lastDistance;
 }
 //-----------------------------------------------------------------------------
-void ArucoPen::trackingSystem(TrackingSystem* trackingSystem)
+void TrackedPen::trackingSystem(TrackingSystem* trackingSystem)
 {
-    delete _trackingSystem;
-    _trackingSystem = trackingSystem;
-
     // Switch to the first accepted provider if the current one isn't accepted by the tracking system
-    CVCaptureProvider* currentProvider = AppArucoPen::instance().currentCaptureProvider();
+    CVCaptureProvider* currentProvider = AppPenTracking::instance().currentCaptureProvider();
 
-    if (_trackingSystem->isAcceptedProvider(currentProvider))
+    if (trackingSystem->isAcceptedProvider(currentProvider))
     {
+        delete _trackingSystem;
+        _trackingSystem = trackingSystem;
         return;
     }
 
-    for (CVCaptureProvider* provider : AppArucoPen::instance().captureProviders())
+    for (CVCaptureProvider* provider : AppPenTracking::instance().captureProviders())
     {
-        SL_LOG("TESTING");
-        if(_trackingSystem->isAcceptedProvider(provider))
+        if (trackingSystem->isAcceptedProvider(provider))
         {
-            SL_LOG("ACCEPTED!");
-            AppArucoPen::instance().currentCaptureProvider(provider);
+            delete _trackingSystem;
+            _trackingSystem = trackingSystem;
+            AppPenTracking::instance().currentCaptureProvider(provider);
             return;
         }
     }
 
-    SL_EXIT_MSG("No accepted capture provider was found for this system");
+    throw std::runtime_error("No capture provider accepted by this tracking system was found!");
 }

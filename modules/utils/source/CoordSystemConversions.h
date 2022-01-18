@@ -12,6 +12,7 @@
 
 #include <cstring>
 
+//-----------------------------------------------------------------------------
 namespace CoordSystemConversions
 {
 
@@ -24,12 +25,13 @@ enum Axis
     NEG_Y,
     NEG_Z
 };
-
-template<Axis T>
-float getComponentFromAxis(float sx, float sy, float sz)
+//-----------------------------------------------------------------------------
+template<Axis Axis,
+         typename T>
+float getComponentFromAxis(T sx, T sy, T sz)
 {
     // clang-format off
-    switch (T)
+    switch (Axis)
     {
         case POS_X: return  sx;
         case POS_Y: return  sy;
@@ -41,20 +43,30 @@ float getComponentFromAxis(float sx, float sy, float sz)
     }
     // clang-format on
 }
-
-template<Axis DestXInSrc, Axis DestYInSrc, Axis DestZInSrc>
-void swapAxes(float sx, float sy, float sz, float* dx, float* dy, float* dz)
+//-----------------------------------------------------------------------------
+template<Axis DestXInSrc,
+         Axis DestYInSrc,
+         Axis DestZInSrc,
+         typename TSrc,
+         typename TDest>
+void swapAxes(TSrc sx, TSrc sy, TSrc sz, TDest* dx, TDest* dy, TDest* dz)
 {
-    *dx = getComponentFromAxis<DestXInSrc>(sx, sy, sz);
-    *dy = getComponentFromAxis<DestYInSrc>(sx, sy, sz);
-    *dz = getComponentFromAxis<DestZInSrc>(sx, sy, sz);
+    *dx = (TDest)getComponentFromAxis<DestXInSrc>(sx, sy, sz);
+    *dy = (TDest)getComponentFromAxis<DestYInSrc>(sx, sy, sz);
+    *dz = (TDest)getComponentFromAxis<DestZInSrc>(sx, sy, sz);
 }
-
-template<Axis DestXInSrc, Axis DestYInSrc, Axis DestZInSrc, bool IsOldColumnMajor, bool IsNewColumnMajor>
-void convert4x4f(const float* src, float* dest)
+//-----------------------------------------------------------------------------
+template<Axis DestXInSrc,
+         Axis DestYInSrc,
+         Axis DestZInSrc,
+         bool IsOldColumnMajor,
+         bool IsNewColumnMajor,
+         typename TSrc,
+         typename TDest>
+void convert4x4(const TSrc* src, TDest* dest)
 {
     // The source data in column-major order
-    float temp[16];
+    TSrc temp[16];
 
     // Copy all data from src to temp and transpose if it is not column-major
     if (!IsOldColumnMajor)
@@ -68,7 +80,7 @@ void convert4x4f(const float* src, float* dest)
     }
     else
     {
-        std::memcpy(temp, src, 16 * 4);
+        std::memcpy(temp, src, 16 * sizeof(TSrc));
     }
 
     // Copy all data from temp to src and modify axes
@@ -95,15 +107,20 @@ void convert4x4f(const float* src, float* dest)
         // clang-format on
     }
 }
-
-template<Axis DestXInSrc, Axis DestYInSrc, Axis DestZInSrc>
-void convert3f(const float* src, float* dest)
+//-----------------------------------------------------------------------------
+template<Axis DestXInSrc,
+         Axis DestYInSrc,
+         Axis DestZInSrc,
+         typename TSrc,
+         typename TDest>
+void convert3(const TSrc* src, TDest* dest)
 {
     swapAxes<DestXInSrc, DestYInSrc, DestZInSrc>(src[0], src[1], src[2], dest + 0, dest + 1, dest + 2);
 }
-
+//-----------------------------------------------------------------------------
 void cv2gl4x4f(float* src, float* dest);
+//-----------------------------------------------------------------------------
 
 } // namespace CoordSystemConversions
-
+//-----------------------------------------------------------------------------
 #endif // SRC_COORDSYSTEMCONVERSIONS_H

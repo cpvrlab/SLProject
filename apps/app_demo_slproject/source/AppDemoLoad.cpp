@@ -41,11 +41,11 @@
 #include <SLProjectScene.h>
 #include <SLGLProgramManager.h>
 #include <Instrumentor.h>
-#include <AppArucoPenGui.h>
+#include <AppPenTrackingGui.h>
 #include <SLDeviceLocation.h>
 #include <SLNodeLOD.h>
 
-#include "ArucoPen.h"
+#include "TrackedPen.h"
 
 #ifdef SL_BUILD_WAI
 #    include <CVTrackedWAI.h>

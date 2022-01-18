@@ -21,7 +21,7 @@
 #include <SLQuat4.h>
 
 //-----------------------------------------------------------------------------
-class ArucoPen : public SLEventHandler
+class TrackedPen : public SLEventHandler
 {
 public:
     enum State
@@ -30,7 +30,8 @@ public:
         Tracing
     };
 
-    ~ArucoPen();
+    TrackedPen(float length);
+    ~TrackedPen();
 
     SLbool onKeyPress(SLKey key,
                       SLKey mod) override;
@@ -46,18 +47,22 @@ public:
     SLfloat liveDistance();
     SLfloat lastDistance() const;
 
-    State state() { return _state; }
-
+    // Getters
+    float           length() { return _length; }
+    State           state() { return _state; }
     TrackingSystem* trackingSystem() { return _trackingSystem; }
-    void            trackingSystem(TrackingSystem* trackingSystem);
+
+    // Setters
+    void trackingSystem(TrackingSystem* trackingSystem);
 
 private:
+    float           _length;
     State           _state          = Idle;
     TrackingSystem* _trackingSystem = new TrackingSystemSpryTrack();
 
     SLVec3f _lastPrintedPosition;
     SLbool  _positionPrintedOnce = false;
-    SLfloat _lastDistance;
+    SLfloat _lastDistance = 0.0f;
 };
 //-----------------------------------------------------------------------------
 #endif // SLPROJECT_SLARUCOPEN_H
