@@ -48,6 +48,8 @@ void ensureValidCalibration(CVCamera* ac, SLSceneView* sv)
 
     if (ac->calibration.state() == CS_uncalibrated)
     {
+        CVCaptureProvider* provider = AppPenTracking::instance().currentCaptureProvider();
+
         // Try to read device lens and sensor information
         string strF = AppDemo::deviceParameter["DeviceLensFocalLength"];
         string strW = AppDemo::deviceParameter["DeviceSensorPhysicalSizeW"];
@@ -62,8 +64,8 @@ void ensureValidCalibration(CVCamera* ac, SLSceneView* sv)
             ac->calibration = CVCalibration(devW,
                                             devH,
                                             devF,
-                                            cv::Size(CVCapture::instance()->lastFrame.cols,
-                                                     CVCapture::instance()->lastFrame.rows),
+                                            cv::Size(provider->lastFrameBGR().cols,
+                                                     provider->lastFrameBGR().rows),
                                             ac->mirrorH(),
                                             ac->mirrorV(),
                                             ac->type(),
@@ -72,8 +74,8 @@ void ensureValidCalibration(CVCamera* ac, SLSceneView* sv)
         else
         {
             // make a guess using frame size and a guessed field of view
-            ac->calibration = CVCalibration(cv::Size(CVCapture::instance()->lastFrame.cols,
-                                                     CVCapture::instance()->lastFrame.rows),
+            ac->calibration = CVCalibration(cv::Size(provider->lastFrameBGR().cols,
+                                                     provider->lastFrameBGR().rows),
                                             60.0,
                                             ac->mirrorH(),
                                             ac->mirrorV(),
@@ -169,15 +171,15 @@ bool onUpdateVideo()
     if (AppDemo::sceneViews.empty())
         return false;
 
-    SLScene*     s  = AppDemo::scene;
-    SLSceneView* sv = AppDemo::sceneViews[0];
+    SLScene*           s        = AppDemo::scene;
+    SLSceneView*       sv       = AppDemo::sceneViews[0];
+    CVCaptureProvider* provider = AppPenTracking::instance().currentCaptureProvider();
 
-    if (CVCapture::instance()->videoType() != VT_NONE &&
-        !CVCapture::instance()->lastFrame.empty())
+    if (provider && !provider->lastFrameBGR().empty())
     {
         SLfloat trackingTimeStartMS = GlobalTimer::timeMS();
 
-        CVCamera* ac = &AppPenTracking::instance().currentCaptureProvider()->camera();
+        CVCamera* ac = &provider->camera();
 
         if (AppDemo::sceneID == SID_VideoCalibrateMain)
         {
@@ -210,24 +212,23 @@ bool onUpdateVideo()
                 if (ac->calibration.state() == CS_calibrated && ac->showUndistorted())
                 {
                     CVMat undistorted;
-                    ac->calibration.remap(CVCapture::instance()->lastFrame, undistorted);
+                    ac->calibration.remap(provider->lastFrameBGR(), undistorted);
 
-                    // CVCapture::instance()->videoTexture()->copyVideoImage(undistorted.cols,
                     AppPenTracking::instance().videoTexture->copyVideoImage(undistorted.cols,
-                                                                         undistorted.rows,
-                                                                         CVCapture::instance()->format,
-                                                                         undistorted.data,
-                                                                         undistorted.isContinuous(),
-                                                                         true);
+                                                                            undistorted.rows,
+                                                                            PF_bgr,
+                                                                            undistorted.data,
+                                                                            undistorted.isContinuous(),
+                                                                            true);
                 }
                 else
                 {
-                    AppPenTracking::instance().videoTexture->copyVideoImage(CVCapture::instance()->lastFrame.cols,
-                                                                         CVCapture::instance()->lastFrame.rows,
-                                                                         CVCapture::instance()->format,
-                                                                         CVCapture::instance()->lastFrame.data,
-                                                                         CVCapture::instance()->lastFrame.isContinuous(),
-                                                                         true);
+                    AppPenTracking::instance().videoTexture->copyVideoImage(provider->lastFrameBGR().cols,
+                                                                            provider->lastFrameBGR().rows,
+                                                                            PF_bgr,
+                                                                            provider->lastFrameBGR().data,
+                                                                            provider->lastFrameBGR().isContinuous(),
+                                                                            true);
                 }
             }
             else

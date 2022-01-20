@@ -26,7 +26,7 @@ void SpryTrackMarker::addPoint(float x, float y, float z)
     }
 
     float position[] = {x, y, z};
-    convert3<POS_X, NEG_Y, NEG_Z>(position, position);
+    convert3<POS_X, POS_Y, NEG_Z>(position, position);
 
     uint32 index                 = _geometry.pointsCount;
     _geometry.positions[index].x = position[0];

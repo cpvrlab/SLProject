@@ -168,6 +168,7 @@ void SpryTrackDevice::processFrame()
 
         SpryTrackMarker* registeredMarker = _markers[marker.geometryId];
         registeredMarker->_visible        = true;
+        registeredMarker->_errorMM        = marker.registrationErrorMM;
         registeredMarker->update(marker);
     }
 }

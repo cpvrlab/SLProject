@@ -25,6 +25,7 @@ public:
     SpryTrackMarkerID id() const { return _geometry.geometryId; }
     CVMatx44f         objectViewMat() const { return _objectViewMat; }
     SLbool            visible() const { return _visible; }
+    SLfloat           errorMM() { return _errorMM; }
 
     void addPoint(float x, float y, float z);
 
@@ -34,6 +35,7 @@ private:
     ftkGeometry _geometry{};
     CVMatx44f   _objectViewMat;
     SLbool      _visible = false;
+    SLfloat     _errorMM = 0.0f;
 };
 //-----------------------------------------------------------------------------
 

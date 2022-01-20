@@ -305,7 +305,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
 
         SLMesh* tipMesh = new SLBox(s, -tiphe, -tiphe - tipOffset, -tiphe, tiphe, tiphe - tipOffset, tiphe, "Pen Tip", penTipMaterial);
         SLNode* tipNode = new SLNode(tipMesh, "Pen Tip Node");
-        penNode->addChild(tipNode);
+//        penNode->addChild(tipNode);
 
         SLNode* axisNode = new SLNode(new SLCoordAxis(s), "Axis Node");
         axisNode->setDrawBitsRec(SL_DB_MESHWIRED, false);

@@ -45,7 +45,7 @@ void AppPenTrackingGui::build(SLProjectScene* s, SLSceneView* sv)
 
         if (showInfosTracking)
         {
-            SLchar m[1024]; // message character array
+            SLchar m[2048]; // message character array
             m[0] = 0;       // set zero length
 
             TrackedPen& pen    = AppPenTracking::instance().arucoPen();
@@ -53,6 +53,20 @@ void AppPenTrackingGui::build(SLProjectScene* s, SLSceneView* sv)
             sprintf(m + strlen(m), "Tip position             : %s\n", tipPos.toString(", ", 2).c_str());
             sprintf(m + strlen(m), "Measured Distance (Live) : %.2f cm\n", pen.liveDistance() * 100.0f);
             sprintf(m + strlen(m), "Measured Distance (Last) : %.2f cm\n", pen.lastDistance() * 100.0f);
+
+            auto* trackingSystem = pen.trackingSystem();
+            if (typeid(*trackingSystem) == typeid(TrackingSystemSpryTrack))
+            {
+                auto* providerSpryTrack = dynamic_cast<CVCaptureProviderSpryTrack*>(AppPenTracking::instance().currentCaptureProvider());
+                if (providerSpryTrack)
+                {
+                    auto& device = providerSpryTrack->device();
+                    for (SpryTrackMarker* marker : device.markers())
+                    {
+                        sprintf(m + strlen(m), "Marker %d Error           : %.3f mm\n", marker->id(), marker->errorMM());
+                    }
+                }
+            }
 
             // Switch to fixed font
             ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
