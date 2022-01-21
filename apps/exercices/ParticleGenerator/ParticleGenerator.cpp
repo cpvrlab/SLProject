@@ -1,6 +1,6 @@
 //#############################################################################
 //  File:      ParticleGenerator.cpp
-//  Purpose:   Core profile OpenGL application with a colored cube with
+//  Purpose:   Core profile OpenGL application of particle system
 //             GLFW as the OS GUI interface (http://www.glfw.org/).
 //  Date:      October 2021
 //  Authors:   Affolter Marc
@@ -15,7 +15,7 @@
 #include <glUtils.h>    // Basics for OpenGL shaders, buffers & textures
 
 //-----------------------------------------------------------------------------
-//! Struct definition for particle attribute position, velocity, start time and initial velocity
+//! Struct definition for particle attribute position, velocity, start time, initial velocity and rotation
 struct Particle
 {
     SLVec3f p;          // particle position [x,y,z]
@@ -25,7 +25,7 @@ struct Particle
     float   r;          // particle rotation
 
     Particle()
-      : p(0.0f), v(0.0f), st(0.0f), initV(0.0f) {}
+      : p(0.0f), v(0.0f), st(0.0f), initV(0.0f), r(0.0f){}
 };
 //! Struct definition for vertex attribute position and color for Cube
 struct VertexPC
@@ -68,7 +68,7 @@ static GLuint _numV = 0; //!< NO. of vertices
 static GLuint _numI = 0; //!< NO. of vertex indexes for triangles
 
 // Constant and variables for particles init/update
-const int       AMOUNT          = 50;  //!< Amount of particles
+static int      _amount          = 50;   //!< Amount of particles
 static int      _drawBuf        = 0;    // Boolean to switch buffer
 static float    _ttl            = 5.0f; // Time to life of a particle
 static float    _currentTime    = 0.0f; // Elapsed time since start of application
@@ -214,20 +214,23 @@ float randomFloat(float a, float b)
 }
 
 //-----------------------------------------------------------------------------
-void initParticles(float timeToLive, SLVec3f particleGenPos)
+/*!
+* initParticles create the particle and put them on the buffers, it creates and configures the VBO VAO and TFO
+*/
+void initParticles(float timeToLive, SLVec3f particleGenPos, SLVec3f velocityRandomStart, SLVec3f velocityRandomEnd)
 {
     _ttl            = timeToLive;
     // Create array to store each particles and init them with random values
-    Particle* data  = new Particle[AMOUNT];
+    Particle* data  = new Particle[_amount];
     Particle p      = Particle();
     p.p             = particleGenPos;
-    for (unsigned int i = 0; i < AMOUNT; i++)
+    for (unsigned int i = 0; i < _amount; i++)
     {
-        p.v.x         = randomFloat(0.04f, -0.11f);   // Random value for x velocity
-        p.v.y         = randomFloat(0.4f, 0.7f);    // Random value for y velocity
-        p.v.z         = randomFloat(0.1f, -0.1f);   // Random value for z velocity
+        p.v.x         = randomFloat(velocityRandomStart.x, velocityRandomEnd.x); // Random value for x velocity
+        p.v.y         = randomFloat(velocityRandomStart.y, velocityRandomEnd.y);   // Random value for y velocity
+        p.v.z         = randomFloat(velocityRandomStart.z, velocityRandomEnd.z);   // Random value for z velocity
         p.initV       = p.v;                        // Initial velocity is set after the computation of the velocity
-        p.st          = i * (timeToLive / AMOUNT);  // When the first particle dies the last one begin to live
+        p.st          = i * (timeToLive / _amount);                                // When the first particle dies the last one begin to live
         p.r           = randomFloat(0.0f, 360.0f);  // Start rotation of the particle
 
         data[i] = p;
@@ -241,21 +244,21 @@ void initParticles(float timeToLive, SLVec3f particleGenPos)
     {
         glBindVertexArray(_vao[i]);
         glBindBuffer(GL_ARRAY_BUFFER, _vbo[i]);
-        glBufferData(GL_ARRAY_BUFFER, (AMOUNT * sizeof(Particle)), data, GL_STATIC_DRAW);
-        glEnableVertexAttribArray(0);
+        glBufferData(GL_ARRAY_BUFFER, (_amount * sizeof(Particle)), data, GL_STATIC_DRAW);
+        glEnableVertexAttribArray(0);   // Position 3 float
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Particle), nullptr);
-        glEnableVertexAttribArray(1);
+        glEnableVertexAttribArray(1);   // Velocity 3 float
         glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Particle), (void*)(3 * sizeof(float)));
-        glEnableVertexAttribArray(2);
+        glEnableVertexAttribArray(2);   // Start time 1 float
         glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, sizeof(Particle), (void*)(6 * sizeof(float)));
-        glEnableVertexAttribArray(3);
+        glEnableVertexAttribArray(3);   // Initial velocity 3 float
         glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Particle), (void*)(7 * sizeof(float)));
-        glEnableVertexAttribArray(4);
+        glEnableVertexAttribArray(4);   // Rotation 3 float
         glVertexAttribPointer(4, 1, GL_FLOAT, GL_FALSE, sizeof(Particle), (void*)(10 * sizeof(float)));
         glBindVertexArray(0);
 
-        glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, _tfo[i]);
-        glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, _vbo[i]);
+        glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, _tfo[i]);    // Bind a transform feedback object
+        glBindBufferBase(GL_TRANSFORM_FEEDBACK_BUFFER, 0, _vbo[i]); // Bind a vbo  to the transform feedback object
     }
 
     // delete data on heap. The VBOs are now on the GPU
@@ -331,13 +334,21 @@ void onInit()
     _texture0Loc = glGetUniformLocation(_shaderProgID, "u_matTextureDiffuse0");
 
     buildBox(); // Init the Cube
-    //buildSquare();
-    pGPos = SLVec3f(0.0f, -0.5f, 0.0f);     // Init the particle emitter position
-    initParticles(4.0f, pGPos);             // World space (comment for local space)
-    //initParticles(4.0f, SLVec3f(0.0f, 0.0f, 0.0f)); // Local space (uncomment for local space)
+
+    _amount = 50;                         // Set the number of particles (must set before initParticles(...))
+    pGPos = SLVec3f(0.0f, -0.5f, 0.0f);     // Init the particle emitter position  World space (comment for local space)
+    //pGPos = SLVec3f(0.0f, 0.0f, 0.0f);     // Init the particle emitter position Local space (uncomment for local space)
+
+    /*
+    * First parametter is for the life of the particles, second is the for the initial position 
+    * and two last for the random velocity, the velocity goes from start to end value vector.
+    * example the x velocity will be random value generated between 0.04 to -0.11.
+    * 
+    */
+    initParticles(4.0f, pGPos, SLVec3f(0.04f, 0.4f, 0.1f), 
+                               SLVec3f(-0.11f, 0.7f, -0.1f)); // World space (comment for local space)
 
     glClearColor(0.0f, 0.0f, 0.0f, 1); // Set the background color
-    //glEnable(GL_DEPTH_TEST);           // Enables depth test
     glEnable(GL_CULL_FACE);            // Enables the culling of back faces
     GETGLERROR;
 }
@@ -376,29 +387,28 @@ onPaint does all the rendering for one frame from scratch with OpenGL.
 */
 bool onPaint()
 {
-    //1) Clear the color & depth buffer
+    // Clear the color & depth buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    //2a) View transform: move the coordinate system away from the camera
+    // View transform: move the coordinate system away from the camera
     _viewMatrix.identity();
     _viewMatrix.translate(0, 0, _camZ);
 
-    //2b) Model transform: rotate the coordinate system increasingly
+    // Model transform: rotate the coordinate system increasingly
     _viewMatrix.rotate(_rotX + _deltaX, 1, 0, 0);
     _viewMatrix.rotate(_rotY + _deltaY, 0, 1, 0);
 
-    //3) Model transform: move the cube so that it rotates around its center
+    // Model transform: move the cube so that it rotates around its center
     _modelMatrix.identity();
     //_modelMatrix.translate(0.0f, 0.5f, 0.0f);
 
-    //4) Build the combined modelview matrix
+    // Build the combined modelview matrix
     SLMat4f mvp(_projectionMatrix);
     SLMat4f mv(_viewMatrix);
     mv.multiply(_modelMatrix);
     mvp.multiply(mv);
 
     _currentTime = glfwGetTime();
-    //std::cout << _currentTime << std::endl;
     float delatTime = _currentTime - _lastTime;
     _lastTime       = _currentTime;
 
@@ -419,16 +429,18 @@ bool onPaint()
     // Draw points from input buffer with transform feedback
     glBeginTransformFeedback(GL_POINTS);
     glBindVertexArray(_vao[1 - _drawBuf]);
-    glDrawArrays(GL_POINTS, 0, AMOUNT);
+    glDrawArrays(GL_POINTS, 0, _amount); // Update data
     glEndTransformFeedback();
     // Enable rendering
     glDisable(GL_RASTERIZER_DISCARD);
-    //////////// Render pass ///////////////
+    // Un-bind the feedback object.
+    glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, 0);
+
+    //////////// Draw pass ///////////////
     // Activate the shader program
     glUseProgram(_shaderProgID);
     // Activate Texture
     glBindTexture(GL_TEXTURE_2D, _textureID);
-
     glClear(GL_COLOR_BUFFER_BIT);
     // Initialize uniforms for transformation matrices if needed
     glUniformMatrix4fv(_mvLoc, 1, 0, (float*)&mv);
@@ -438,20 +450,17 @@ bool onPaint()
     glUniform1f(_tTLLoc, _ttl); 
     glUniform1f(_timeLoc, _currentTime);
     glUniform1f(_sLoc, 1.0f);
-    //glUniform1f(_radiusLoc, 0.05f);
     glUniform1f(_radiusLoc, 0.4f);
     glUniform4f(_cLoc, 0.66f,0.66f,0.66f,0.2f);
+    //pGPos = SLVec3f(0.0f, -0.5f, 0.0f);                    // For local space (Uncomment)
     //glUniform4f(_pGPLoc, pGPos.x, pGPos.y, pGPos.z, 0.0f); // For local space (Uncomment)
-
-     // Un-bind the feedback object.
-     glBindTransformFeedback(GL_TRANSFORM_FEEDBACK, 0);
     
     glEnable(GL_BLEND); // Activate transparency (blending)
     glBlendFunc(GL_SRC_ALPHA, GL_ONE); // use additive blending to give it a 'glow' effect
 
     // Draw the particles from the feedback buffer
     glBindVertexArray(_vao[_drawBuf]);
-    glDrawArrays(GL_POINTS, 0, AMOUNT);
+    glDrawArrays(GL_POINTS, 0, _amount);
 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // don't forget to reset to default blending mode
     glDisable(GL_BLEND);                               // Disable transparency
@@ -475,7 +484,7 @@ bool onPaint()
     //glDrawElements(GL_TRIANGLES, (GLint)_numI, GL_UNSIGNED_INT, nullptr);
 
 
-    //8) Fast copy the back buffer to the front buffer. This is OS dependent.
+    // Fast copy the back buffer to the front buffer. This is OS dependent.
     glfwSwapBuffers(window);
     GETGLERROR;
 
@@ -655,7 +664,7 @@ int main(int argc, char* argv[])
     window = glfwCreateWindow(_scrWidth,
                               _scrHeight,
                               "Particle Generator",
-                              glfwGetPrimaryMonitor(),
+                              glfwGetPrimaryMonitor(), // For fullscreen, "nullptr" otherwise
                               nullptr);
     //glfwGetPrimaryMonitor()
     if (!window)
