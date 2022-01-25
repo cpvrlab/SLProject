@@ -10,6 +10,7 @@
 #include <app/AppPenTrackingEvaluator.h>
 
 #include <app/AppPenTracking.h>
+#include <app/AppPenTrackingConst.h>
 #include <AppDemo.h>
 #include <SLProjectScene.h>
 #include <Utils.h>
@@ -17,17 +18,18 @@
 #include <fstream>
 
 //-----------------------------------------------------------------------------
+constexpr int   INCREMENT = 2;
+constexpr float M_TO_CM   = 100.0;
+//-----------------------------------------------------------------------------
 /*! Starts the evaluation by resetting the state of the evaluator and adding
- * the red dot and the key event handler to the scene.
- * @param chessboardCornerSize
+ * the red sphere and the key event handler to the scene.
  */
-void AppPenTrackingEvaluator::start(float chessboardCornerSize)
+void AppPenTrackingEvaluator::start()
 {
     // Reset members
-    _isRunning            = true;
-    _x                    = 0;
-    _z                    = 0;
-    _chessboardCornerSize = chessboardCornerSize;
+    _isRunning = true;
+    _x         = 0;
+    _z         = 0;
     corners.clear();
     intCorners.clear();
     measurements.clear();
@@ -37,8 +39,8 @@ void AppPenTrackingEvaluator::start(float chessboardCornerSize)
 
     // Create red marker sphere
     SLAssetManager* am       = AppDemo::scene->assetManager();
-    SLMaterial*     material = new SLMaterial(am, "Eval Sphere Material", SLCol4f::RED, SLCol4f::BLACK, 0.0f);
-    SLSphere*       mesh     = new SLSphere(am, 0.0025f, 8, 8, "Eval Sphere Mesh", material);
+    auto*           material = new SLMaterial(am, "Eval Sphere Material", SLCol4f::RED, SLCol4f::BLACK, 0.0f);
+    auto*           mesh     = new SLSphere(am, 0.0025f, 8, 8, "Eval Sphere Mesh", material);
     _node                    = new SLNode(mesh, "Eval Sphere");
     AppDemo::scene->root3D()->addChild(_node);
 
@@ -46,7 +48,7 @@ void AppPenTrackingEvaluator::start(float chessboardCornerSize)
 }
 //-----------------------------------------------------------------------------
 /*! Gets the real and the measured tip position, saves them in a vector
- * and prints them out. Afterwards, the dot is moved to the next position. If there
+ * and prints them out. Afterwards, the sphere is moved to the next position. If there
  * are enough measurements, "finish" is called.
  */
 void AppPenTrackingEvaluator::nextStep()
@@ -59,24 +61,33 @@ void AppPenTrackingEvaluator::nextStep()
 
     // Print values to the standard output
     SL_LOG("Offset: [%.2f, %.2f, %.2f]cm, distance: %.2fcm",
-           cornerToTip.x * 100.0,
-           cornerToTip.y * 100.0,
-           cornerToTip.z * 100.0,
-           distance * 100.0);
+           cornerToTip.x * M_TO_CM,
+           cornerToTip.y * M_TO_CM,
+           cornerToTip.z * M_TO_CM,
+           distance * M_TO_CM);
 
     // Save corners and measurement for later writing to a CSV file
     corners.push_back(corner);
     intCorners.emplace_back(_x, _z);
     measurements.push_back(tip);
 
+    incCornerPosition();
+}
+//-----------------------------------------------------------------------------
+/*! Increments the corner position and wraps at the edges.
+ * If the position reaches the end of the board, "finish" is called.
+ * The red sphere is repositioned accordingly.
+ */
+void AppPenTrackingEvaluator::incCornerPosition()
+{
     // Increment the current corner position
-    _x += 2;
-    if (_x > 7)
+    _x += INCREMENT;
+    if (_x >= AppPenTrackingConst::CHESSBOARD_HEIGHT)
     {
         _x = 0;
-        _z += 2;
+        _z += INCREMENT;
 
-        if (_z > 10)
+        if (_z >= AppPenTrackingConst::CHESSBOARD_WIDTH)
         {
             finish();
             return;
@@ -91,15 +102,15 @@ void AppPenTrackingEvaluator::nextStep()
  * coordinates by the chessboard corner size
  * @return The current corner position in 3D space
  */
-SLVec3f AppPenTrackingEvaluator::currentCorner()
+SLVec3f AppPenTrackingEvaluator::currentCorner() const
 {
-    return SLVec3f((float)_x, 0.0f, (float)_z) * _chessboardCornerSize;
+    return SLVec3f((float)_x, 0.0f, (float)_z) * AppPenTrackingConst::SQUARE_SIZE;
 }
 //-----------------------------------------------------------------------------
 /*! The key event handler that calls "nextStep" if F7 is pressed
  */
 SLbool AppPenTrackingEvaluator::onKeyPress(const SLKey key,
-                                        const SLKey mod)
+                                           const SLKey mod)
 {
     if (key == K_F7)
     {
@@ -110,7 +121,7 @@ SLbool AppPenTrackingEvaluator::onKeyPress(const SLKey key,
     return false;
 }
 //-----------------------------------------------------------------------------
-/*! Removes the dot and the key event handler from the scene and writes the
+/*! Removes the sphere and the key event handler from the scene and writes the
  * results (actual corner position as int and float, measured position, offset,
  * distance and average distance) to a CSV file.
  */
@@ -137,7 +148,7 @@ void AppPenTrackingEvaluator::finish()
         return;
     }
 
-    float totalDistance = 0.0f;
+    float              totalDistance = 0.0f;
     std::vector<float> distances;
 
     // Write the corner values to the CSV file
@@ -146,8 +157,8 @@ void AppPenTrackingEvaluator::finish()
     for (int i = 0; i < corners.size(); i++)
     {
         SLVec2<int> corner   = intCorners[i];
-        SLVec3f     truth    = corners[i] * 100.0;
-        SLVec3f     measured = measurements[i] * 100.0;
+        SLVec3f     truth    = corners[i] * M_TO_CM;
+        SLVec3f     measured = measurements[i] * M_TO_CM;
         SLVec3f     offset   = measured - truth;
         float       distance = offset.length();
 
@@ -163,17 +174,18 @@ void AppPenTrackingEvaluator::finish()
 
     // Write the average to the CSV file
     float avgDistance = totalDistance / (float)corners.size();
-    csvStream << "\"Average\",,,,\"" << std::fixed << std::setprecision(2) << avgDistance << "\"\n";
+    csvStream << R"("Average",,,,")" << std::fixed << std::setprecision(2) << avgDistance << "\"\n";
 
     // Calculate the standard deviation and write it to the CSV file
     float totalDevSqr = 0;
-    for(float distance : distances) {
+    for (float distance : distances)
+    {
         float dev = avgDistance - distance;
         totalDevSqr += dev * dev;
     }
     float variance = totalDevSqr / (float)corners.size();
-    float stdDev = std::sqrt(variance);
-    csvStream << "\"Standard Deviation\",,,,\"" << std::fixed << std::setprecision(2) << stdDev << "\"\n";
+    float stdDev   = std::sqrt(variance);
+    csvStream << R"("Standard Deviation",,,,")" << std::fixed << std::setprecision(2) << stdDev << "\"\n";
 
     SL_LOG("Saved evaluation to \"%s\\%s\"", Utils::getCurrentWorkingDir().c_str(), csvFilename.c_str());
 }

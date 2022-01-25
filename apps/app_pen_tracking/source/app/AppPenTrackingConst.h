@@ -13,9 +13,9 @@
 namespace AppPenTrackingConst
 {
 
-constexpr int   CALIB_CHESSBOARD_WIDTH  = 11;
-constexpr int   CALIB_CHESSBOARD_HEIGHT = 8;
-constexpr float CALIB_SQUARE_SIZE       = 0.06f;
+constexpr int   CHESSBOARD_WIDTH  = 11;
+constexpr int   CHESSBOARD_HEIGHT = 8;
+constexpr float SQUARE_SIZE       = 0.06f;
 
 } // namespace AppPenTrackingConst
 //-----------------------------------------------------------------------------

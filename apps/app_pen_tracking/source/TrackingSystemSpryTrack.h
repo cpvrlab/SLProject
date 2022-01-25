@@ -23,6 +23,8 @@ public:
     void      calibrate(CVCaptureProvider* provider) override;
     bool      isAcceptedProvider(CVCaptureProvider* provider) override;
 
+    CVMatx44f extrinsicMat() { return _extrinsicMat; }
+
 private:
     static SpryTrackDevice& getDevice(CVCaptureProvider* provider);
 

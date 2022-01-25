@@ -19,7 +19,7 @@
 
 //-----------------------------------------------------------------------------
 //! Evaluates the accuracy of the ArUco pen
-/*! When "start" is called, the evaluator places a red dot on the virtual
+/*! When "start" is called, the evaluator places a red sphere on the virtual
  * chessboard that the user has to move the ArUco pen to. When the user presses
  * F7, the offset between the real tip position and the measured tip position
  * is calculated. The dot is then moved to a different location and the process
@@ -36,23 +36,23 @@ public:
     }
 
 private:
-    bool    _isRunning            = false;
-    int     _x                    = 0;
-    int     _z                    = 0;
-    SLNode* _node                 = nullptr;
-    float   _chessboardCornerSize = 0.0f;
+    bool    _isRunning = false;
+    int     _x         = 0;
+    int     _z         = 0;
+    SLNode* _node      = nullptr;
 
-    SLVVec3f corners;
+    SLVVec3f                 corners;
     std::vector<SLVec2<int>> intCorners;
-    SLVVec3f measurements;
+    SLVVec3f                 measurements;
 
 public:
-    void start(float chessboardCornerSize);
+    void start();
     bool isRunning() { return _isRunning; }
 
 private:
     void    nextStep();
-    SLVec3f currentCorner();
+    void    incCornerPosition();
+    SLVec3f currentCorner() const;
     void    finish();
 
     SLbool onKeyPress(SLKey key,

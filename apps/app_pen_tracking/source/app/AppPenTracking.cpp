@@ -24,35 +24,7 @@ extern void trackVideo(CVCaptureProvider* provider);
 //-----------------------------------------------------------------------------
 void AppPenTracking::openCaptureProviders()
 {
-    //    SL_LOG("Loading capture providers...");
-    //
-    //    IMFAttributes* attributes = nullptr;
-    //    HRESULT        hr         = MFCreateAttributes(&attributes, 1);
-    //    if (FAILED(hr)) SL_LOG("Failed to create MF attributes");
-    //
-    //    hr = attributes->SetGUID(MF_DEVSOURCE_ATTRIBUTE_SOURCE_TYPE,
-    //                             MF_DEVSOURCE_ATTRIBUTE_SOURCE_TYPE_VIDCAP_GUID);
-    //    if (FAILED(hr)) SL_LOG("Failed to set source type");
-    //
-    //    IMFActivate** devices = nullptr;
-    //    UINT32        count;
-    //    hr = MFEnumDeviceSources(attributes, &devices, &count);
-    //    if (FAILED(hr)) SL_LOG("Failed to enumerate devices");
-    //
-    //    SL_LOG("Device count: %d", count);
-    //    for (UINT32 i = 0; i < count; i++) {
-    //        IMFActivate* device = devices[i];
-    //
-    //        WCHAR name[128];
-    //        UINT32 len;
-    //        device->GetString(MF_DEVSOURCE_ATTRIBUTE_FRIENDLY_NAME,
-    //                          name,
-    //                          128,
-    //                          &len);
-    //
-    //        std::string cppString = CW2A(name);
-    //        SL_LOG("%s", cppString.c_str());
-    //    }
+    SL_LOG("Loading capture providers...");
 
     // Logitech + IDS Peak
     // openCaptureProvider(new CVCaptureProviderStandard(0, CVSize(640, 480)));

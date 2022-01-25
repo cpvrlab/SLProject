@@ -136,8 +136,8 @@ void AppPenTrackingCalibrator::calcExtrinsicParams(CVCaptureProvider* provider)
 {
     SL_LOG("Calculating extrinsic parameters...");
 
-    CVSize boardSize(AppPenTrackingConst::CALIB_CHESSBOARD_WIDTH, AppPenTrackingConst::CALIB_CHESSBOARD_HEIGHT);
-    float  squareSize = AppPenTrackingConst::CALIB_SQUARE_SIZE;
+    CVSize boardSize(AppPenTrackingConst::CHESSBOARD_WIDTH, AppPenTrackingConst::CHESSBOARD_HEIGHT);
+    float  squareSize = AppPenTrackingConst::SQUARE_SIZE;
 
     CVVPoint2f corners2D;
     int        flags = cv::CALIB_CB_FAST_CHECK + cv::CALIB_CB_ADAPTIVE_THRESH;

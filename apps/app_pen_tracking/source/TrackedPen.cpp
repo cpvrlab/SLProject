@@ -10,6 +10,7 @@
 #include <TrackedPen.h>
 #include <app/AppPenTracking.h>
 #include <app/AppPenTrackingROSNode.h>
+#include <CoordSystemConversions.h>
 #include <stdexcept>
 
 //-----------------------------------------------------------------------------
@@ -78,14 +79,25 @@ SLbool TrackedPen::onKeyRelease(const SLKey key,
     return false;
 }
 //-----------------------------------------------------------------------------
+SLMat4f TrackedPen::headTransform()
+{
+    CVMatx44f m = _trackingSystem->worldMatrix();
+    // clang-format off
+    return {m.val[ 0], m.val[ 1], m.val[ 2], m.val[ 3],
+            m.val[ 4], m.val[ 5], m.val[ 6], m.val[ 7],
+            m.val[ 8], m.val[ 9], m.val[10], m.val[11],
+            m.val[12], m.val[13], m.val[14], m.val[15]};
+    // clang-format on
+}
+//-----------------------------------------------------------------------------
 SLVec3f TrackedPen::tipPosition()
 {
     CVMatx44f worldMatrix = _trackingSystem->worldMatrix();
 
     float tipOffset = -_length;
-    float offsetX = worldMatrix.val[1] * tipOffset;
-    float offsetY = worldMatrix.val[5] * tipOffset;
-    float offsetZ = worldMatrix.val[9] * tipOffset;
+    float offsetX   = worldMatrix.val[1] * tipOffset;
+    float offsetY   = worldMatrix.val[5] * tipOffset;
+    float offsetZ   = worldMatrix.val[9] * tipOffset;
 
     SLVec3f position(worldMatrix.val[3] + offsetX,
                      worldMatrix.val[7] + offsetY,

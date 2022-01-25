@@ -45,14 +45,15 @@ void AppPenTrackingGui::build(SLProjectScene* s, SLSceneView* sv)
 
         if (showInfosTracking)
         {
-            SLchar m[2048]; // message character array
-            m[0] = 0;       // set zero length
-
-            TrackedPen& pen    = AppPenTracking::instance().arucoPen();
-            SLVec3f     tipPos = pen.tipPosition();
-            sprintf(m + strlen(m), "Tip position             : %s\n", tipPos.toString(", ", 2).c_str());
-            sprintf(m + strlen(m), "Measured Distance (Live) : %.2f cm\n", pen.liveDistance() * 100.0f);
-            sprintf(m + strlen(m), "Measured Distance (Last) : %.2f cm\n", pen.lastDistance() * 100.0f);
+            std::stringstream ss;
+            TrackedPen& pen         = AppPenTracking::instance().arucoPen();
+            ss << "Tip position             : " << pen.tipPosition().toString(", ", 2) << "\n";
+            ss << "Head position            : " << pen.headTransform().translation().toString(", ", 2) << "\n";
+            ss << "X Axis                   : " << pen.headTransform().axisX().toString(", ", 2) << "\n";
+            ss << "Y Axis                   : " << pen.headTransform().axisY().toString(", ", 2) << "\n";
+            ss << "Z Axis                   : " << pen.headTransform().axisZ().toString(", ", 2) << "\n";
+            ss << "Measured Distance (Live) : " << Utils::toString(pen.liveDistance() * 100.0f, 2) << "cm\n";
+            ss << "Measured Distance (Last) : " << Utils::toString(pen.lastDistance() * 100.0f, 2) << "cm\n";
 
             auto* trackingSystem = pen.trackingSystem();
             if (typeid(*trackingSystem) == typeid(TrackingSystemSpryTrack))
@@ -63,7 +64,20 @@ void AppPenTrackingGui::build(SLProjectScene* s, SLSceneView* sv)
                     auto& device = providerSpryTrack->device();
                     for (SpryTrackMarker* marker : device.markers())
                     {
-                        sprintf(m + strlen(m), "Marker %d Error           : %.3f mm\n", marker->id(), marker->errorMM());
+                        CVMatx44f objectViewMat = marker->objectViewMat();
+                        CVMatx44f worldMat = ((TrackingSystemSpryTrack*) trackingSystem)->extrinsicMat().inv() * objectViewMat;
+                        SLVec3f position(worldMat.val[3], worldMat.val[7], worldMat.val[11]);
+                        SLVec3f xAxis(worldMat.val[0], worldMat.val[4], worldMat.val[8]);
+                        SLVec3f yAxis(worldMat.val[1], worldMat.val[5], worldMat.val[9]);
+                        SLVec3f zAxis(worldMat.val[2], worldMat.val[6], worldMat.val[10]);
+
+                        ss << "Marker " << marker->id() << "\n";
+                        ss << "    Visible  : " << (marker->visible() ? "yes" : "no") << "\n";
+                        ss << "    Position : " << position.toString(", ", 2) << "\n";
+                        ss << "    X Axis   : " << xAxis.toString(", ", 2) << "\n";
+                        ss << "    Y Axis   : " << yAxis.toString(", ", 2) << "\n";
+                        ss << "    Z Axis   : " << zAxis.toString(", ", 2) << "\n";
+                        ss << "    Error    : " << Utils::toString(marker->errorMM(), 3) << "\n";
                     }
                 }
             }
@@ -71,7 +85,7 @@ void AppPenTrackingGui::build(SLProjectScene* s, SLSceneView* sv)
             // Switch to fixed font
             ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
             ImGui::Begin("Tracking Information", &showInfosTracking, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize);
-            ImGui::TextUnformatted(m);
+            ImGui::TextUnformatted(ss.str().c_str());
             ImGui::End();
             ImGui::PopFont();
         }
@@ -217,7 +231,7 @@ void AppPenTrackingGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
 
             if (ImGui::MenuItem("Start Evaluation"))
             {
-                AppPenTrackingEvaluator::instance().start(0.06f);
+                AppPenTrackingEvaluator::instance().start();
             }
 
             ImGui::MenuItem("Infos on Tracking", nullptr, &showInfosTracking);

@@ -17,6 +17,7 @@
 #include <TrackingSystemSpryTrack.h>
 
 #include <SLEventHandler.h>
+#include <SLMat4.h>
 #include <SLVec3.h>
 #include <SLQuat4.h>
 
@@ -38,6 +39,7 @@ public:
     SLbool onKeyRelease(SLKey key,
                         SLKey mod) override;
 
+    SLMat4f  headTransform();
     SLVec3f  tipPosition();
     SLQuat4f orientation();
 
@@ -48,9 +50,9 @@ public:
     SLfloat lastDistance() const;
 
     // Getters
-    float           length() { return _length; }
-    State           state() { return _state; }
-    TrackingSystem* trackingSystem() { return _trackingSystem; }
+    float           length() const { return _length; }
+    State           state() const { return _state; }
+    TrackingSystem* trackingSystem() const { return _trackingSystem; }
 
     // Setters
     void trackingSystem(TrackingSystem* trackingSystem);
@@ -62,7 +64,7 @@ private:
 
     SLVec3f _lastPrintedPosition;
     SLbool  _positionPrintedOnce = false;
-    SLfloat _lastDistance = 0.0f;
+    SLfloat _lastDistance        = 0.0f;
 };
 //-----------------------------------------------------------------------------
 #endif // SLPROJECT_SLARUCOPEN_H

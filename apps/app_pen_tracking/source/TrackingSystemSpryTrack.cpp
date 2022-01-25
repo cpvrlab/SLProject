@@ -17,10 +17,10 @@ constexpr float MAX_MARKER_ERROR_MM = 0.4f;
 bool TrackingSystemSpryTrack::track(CVCaptureProvider* provider)
 {
     // clang-format off
-//    _extrinsicMat = CVMatx44f(0.99671555, 0.0017340181, -0.080963552, -0.03965205,
-//                              0.0040809154, 0.99742502, 0.071600921, -0.18748917,
-//                              0.080879226, -0.071696162, 0.99414194, -0.4222953,
-//                              0, 0, 0, 1);
+    _extrinsicMat = CVMatx44f(1, 0, 0, 0,
+                              0, 1, 0, 0,
+                              0, 0, 1, 0,
+                              0, 0, 0, 1);
     // clang-format on
 
     SpryTrackMarker* marker = getDevice(provider).markers()[0];
@@ -30,13 +30,6 @@ bool TrackingSystemSpryTrack::track(CVCaptureProvider* provider)
     }
 
     _worldMatrix = _extrinsicMat.inv() * marker->objectViewMat();
-
-    CVMatx44f translation(1.0f, 0.0f, 0.0f, 0.0f,
-                          0.0f, 1.0f, 0.0f, 0.0f,
-                          0.0f, 0.0f, 1.0f, -0.032f,
-                          0.0f, 0.0f, 0.0f, 1.0f);
-    _worldMatrix = translation * _worldMatrix;
-
     return true;
 }
 //-----------------------------------------------------------------------------
@@ -52,9 +45,9 @@ CVMatx44f TrackingSystemSpryTrack::worldMatrix()
 //-----------------------------------------------------------------------------
 void TrackingSystemSpryTrack::calibrate(CVCaptureProvider* provider)
 {
-    float               squareSize = AppPenTrackingConst::CALIB_SQUARE_SIZE;
-    CVSize2f            planeSize((float)AppPenTrackingConst::CALIB_CHESSBOARD_WIDTH * squareSize,
-                       (float)AppPenTrackingConst::CALIB_CHESSBOARD_HEIGHT * squareSize);
+    float               squareSize = AppPenTrackingConst::SQUARE_SIZE;
+    CVSize2f            planeSize((float)AppPenTrackingConst::CHESSBOARD_WIDTH * squareSize,
+                       (float)AppPenTrackingConst::CHESSBOARD_HEIGHT * squareSize);
     SpryTrackCalibrator calibrator(getDevice(provider), planeSize);
     calibrator.calibrate();
     _extrinsicMat = calibrator.extrinsicMat();
