@@ -13,6 +13,7 @@
 #include <cstdint>
 #include <cstring>
 #include <iostream>
+#include <ByteOrder.h>
 
 //-----------------------------------------------------------------------------
 /*!
@@ -77,13 +78,14 @@ void Profiler::endSession()
     // Write scope section
     // ----------------------
 
-    // Write the number of scopes
-    writeInt32(fileStream, (uint32_t)scopeNames.size());
+    // Write the number of scope names
+    auto numScopeNames = (uint32_t)scopeNames.size();
+    ByteOrder::writeBigEndian32(numScopeNames, fileStream);
 
     // Write each scope name
     for (const char* scopeName : scopeNames)
     {
-        writeString(fileStream, scopeName);
+        writeString(scopeName, fileStream);
     }
 
     // -------------------
@@ -91,12 +93,13 @@ void Profiler::endSession()
     // -------------------
 
     // Write number of threads
-    writeInt32(fileStream, (uint32_t)threadIds.size());
+    auto numThreads = (uint32_t)threadIds.size();
+    ByteOrder::writeBigEndian32(numThreads, fileStream);
 
     for (uint32_t threadId : threadIds)
     {
         // Write thread name
-        writeString(fileStream, _threadNames[threadId].c_str());
+        writeString(_threadNames[threadId].c_str(), fileStream);
 
         // Count and write number of scopes in thread
         uint32_t numScopes = 0;
@@ -104,22 +107,22 @@ void Profiler::endSession()
         {
             if (result.threadId == threadId) numScopes++;
         }
-        writeInt32(fileStream, numScopes);
+        ByteOrder::writeBigEndian32(numScopes, fileStream);
 
         // Write results of thread
         for (ProfilingResult& result : _results)
         {
             if (result.threadId != threadId) continue;
 
-            auto nameIndex = std::find(scopeNames.begin(), scopeNames.end(), result.name) - scopeNames.begin();
+            auto nameIndex = (uint32_t) (std::find(scopeNames.begin(), scopeNames.end(), result.name) - scopeNames.begin());
             auto depth     = result.depth;
             auto start     = result.start - _sessionStart;
             auto end       = result.end - _sessionStart;
 
-            writeInt32(fileStream, (uint32_t)nameIndex);
-            writeInt32(fileStream, depth);
-            writeInt64(fileStream, start);
-            writeInt64(fileStream, end);
+            ByteOrder::writeBigEndian32(nameIndex, fileStream);
+            ByteOrder::writeBigEndian32(depth, fileStream);
+            ByteOrder::writeBigEndian64(start, fileStream);
+            ByteOrder::writeBigEndian64(end, fileStream);
         }
     }
 }
@@ -163,61 +166,11 @@ void Profiler::profileThread(const std::string& name)
     _mutex.unlock();
 }
 //-----------------------------------------------------------------------------
-//! Converts a 32-bit integer to big-endian and writes it to the file stream
-void Profiler::writeInt32(std::ofstream& stream, uint32_t i)
-{
-    uint32_t bigEndian;
-    if (isLittleEndian())
-        bigEndian = ((i & 0x000000FF) << 24) |
-                    ((i & 0x0000FF00) << 8) |
-                    ((i & 0x00FF0000) >> 8) |
-                    ((i & 0xFF000000) >> 24);
-    else
-        bigEndian = i;
-
-    stream.write((char*)&bigEndian, 4);
-}
-//-----------------------------------------------------------------------------
-//! Converts a 64-bit integer to big-endian and writes it to the file stream
-void Profiler::writeInt64(std::ofstream& stream, uint64_t i)
-{
-    uint64_t bigEndian;
-    if (isLittleEndian())
-        bigEndian = ((i & 0x00000000000000FF) << 56) |
-                    ((i & 0x000000000000FF00) << 40) |
-                    ((i & 0x0000000000FF0000) << 24) |
-                    ((i & 0x00000000FF000000) << 8) |
-                    ((i & 0x000000FF00000000) >> 8) |
-                    ((i & 0x0000FF0000000000) >> 24) |
-                    ((i & 0x00FF000000000000) >> 40) |
-                    ((i & 0xFF00000000000000) >> 56);
-    else
-        bigEndian = i;
-
-    stream.write((char*)&bigEndian, 8);
-}
-//-----------------------------------------------------------------------------
 //! Writes the length (32-bit) and the string (non-null-terminated) itself to the file stream
-void Profiler::writeString(std::ofstream& stream, const char* s)
+void Profiler::writeString(const char* s, std::ofstream& stream)
 {
-    writeInt32(stream, (uint32_t)std::strlen(s));
+    ByteOrder::writeBigEndian32((uint32_t)std::strlen(s), stream);
     stream << s;
-}
-//-----------------------------------------------------------------------------
-/*!
- * Determines whether this machine uses the little-endian format.
- * The algorithm exploits the difference between the storage layout of the
- * 32-bit integer 1 in big-endian and little-endian.
- * Big-endian: 0x00 0x00 0x00 0x01
- * Little-endian: 0x01 0x00 0x00 0x00
- * The address of the first block is taken, converted to a uint8_t pointer and
- * dereferenced. On a little-endian machine this yields 1, on a big-endian machine 0.
- * Source: https://stackoverflow.com/questions/1001307/detecting-endianness-programmatically-in-a-c-program
- */
-const uint32_t ONE = 1;
-bool           Profiler::isLittleEndian()
-{
-    return *(uint8_t*)(&ONE) == 1;
 }
 //-----------------------------------------------------------------------------
 thread_local uint32_t ProfilerTimer::threadId    = INVALID_THREAD_ID;

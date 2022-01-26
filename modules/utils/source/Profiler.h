@@ -78,10 +78,7 @@ public:
     void profileThread(const std::string& name);
 
 private:
-    static void writeInt32(std::ofstream& stream, uint32_t i);
-    static void writeInt64(std::ofstream& stream, uint64_t i);
-    static void writeString(std::ofstream& stream, const char* s);
-    static bool isLittleEndian();
+    static void writeString(const char* s, std::ofstream& stream);
 
 private:
     std::string                  _filePath;         //!< Future path of the trace file
