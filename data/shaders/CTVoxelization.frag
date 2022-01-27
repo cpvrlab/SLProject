@@ -18,24 +18,24 @@ uniform vec3 u_EyePos;              // camera settings:
 uniform int    u_numLightsUsed;     // NO. of lights used light arrays
 uniform bool   u_lightIsOn[8];      // flag if light is on
 uniform vec4   u_lightPosWS[8];     // position of light in world space
-uniform vec4   u_lightAmbi[8];   // ambient light intensity (Ia)
-uniform vec4   u_lightDiff[8];   // diffuse light intensity (Id)
-uniform vec4   u_lightSpec[8];  // specular light intensity (Is)
+uniform vec4   u_lightAmbi[8];      // ambient light intensity (Ia)
+uniform vec4   u_lightDiff[8];      // diffuse light intensity (Id)
+uniform vec4   u_lightSpec[8];      // specular light intensity (Is)
 uniform vec3   u_lightSpotDirWS[8]; // spot direction in view space
-uniform float  u_lightSpotDeg[8];// spot cutoff angle 1-180 degrees
-uniform float  u_lightSpotCos[8];// cosine of spot cutoff angle
+uniform float  u_lightSpotDeg[8];   // spot cutoff angle 1-180 degrees
+uniform float  u_lightSpotCos[8];   // cosine of spot cutoff angle
 uniform float  u_lightSpotExp[8];   // spot exponente
 uniform vec3   u_lightAtt[8];       // attenuation (const,linear,quadr.)
 uniform bool   u_lightDoAtt[8];     // flag if att. must be calc.
-uniform vec4   u_globalAmbi;     // Global ambient scene color
+uniform vec4   u_globalAmbi;        // Global ambient scene color
 
-uniform vec4   u_matAmbi;        // ambient color reflection coefficient (ka)
-uniform vec4   u_matDiff;        // diffuse color reflection coefficient (kd)
-uniform vec4   u_matSpec;       // specular color reflection coefficient (ks)
-uniform vec4   u_matEmis;       // emissive color for self-shining materials
-uniform float  u_matShin;      // shininess exponent
+uniform vec4   u_matAmbi;           // ambient color reflection coefficient (ka)
+uniform vec4   u_matDiff;           // diffuse color reflection coefficient (kd)
+uniform vec4   u_matSpec;           // specular color reflection coefficient (ks)
+uniform vec4   u_matEmis;           // emissive color for self-shining materials
+uniform float  u_matShin;           // shininess exponent
 
-layout(RGBA8) uniform image3D texture3D;
+layout(rgba8) uniform image3D texture3D;
 //-----------------------------------------------------------------------------
 void DirectLight(in    int  i,   // Light number
                  in    vec3 N,   // Normalized normal 
