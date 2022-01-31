@@ -17,19 +17,19 @@ constexpr float MAX_MARKER_ERROR_MM = 0.4f;
 bool TrackingSystemSpryTrack::track(CVCaptureProvider* provider)
 {
     // clang-format off
-    _extrinsicMat = CVMatx44f(1, 0, 0, 0,
-                              0, 1, 0, 0,
-                              0, 0, 1, 0,
-                              0, 0, 0, 1);
+//    _extrinsicMat = CVMatx44f(1, 0, 0, 0,
+//                              0, 1, 0, 0,
+//                              0, 0, 1, 0,
+//                              0, 0, 0, 1);
     // clang-format on
 
-    SpryTrackMarker* marker = getDevice(provider).markers()[0];
+    SpryTrackMarker* marker = getDevice(provider).findMarker(0);
     if (!marker->visible() || marker->errorMM() > MAX_MARKER_ERROR_MM)
     {
         return false;
     }
 
-    _worldMatrix = _extrinsicMat.inv() * marker->objectViewMat();
+    _worldMatrix = _extrinsicMat.inv() * marker->objectViewMat() * _markerMat;
     return true;
 }
 //-----------------------------------------------------------------------------
@@ -51,6 +51,12 @@ void TrackingSystemSpryTrack::calibrate(CVCaptureProvider* provider)
     SpryTrackCalibrator calibrator(getDevice(provider), planeSize);
     calibrator.calibrate();
     _extrinsicMat = calibrator.extrinsicMat();
+
+    SpryTrackMarker* marker = getDevice(provider).findMarker(0);
+    CVMatx44f markerMat = _extrinsicMat.inv() * marker->objectViewMat();
+    _markerMat = markerMat.inv();
+    _markerMat.val[3] -= 0.029f;
+    _markerMat.val[11] += 0.031f;
 
     std::cout << _extrinsicMat << std::endl;
 }

@@ -296,15 +296,16 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         chessboardNode->drawBits()->on(SL_DB_CULLOFF);
         scene->addChild(chessboardNode);
 
-        SLNode* penNode = importer.load(s->animManager(),
-                                        s,
-                                        modelPath + "DAE/ArucoPen/ArucoPen.dae",
-                                        texPath);
-
+//        SLNode* penNode = importer.load(s->animManager(),
+//                                        s,
+//                                        modelPath + "DAE/ArucoPen/ArucoPen.dae",
+//                                        texPath);
+        SLBox* box = new SLBox(s, -0.03f, 0.0f, -0.03f, 0.03f, 0.003f, 0.03f, "Pen Box", penTipMaterial);
+        SLNode* penNode = new SLNode(box, "Pen Node");
         scene->addChild(penNode);
 
-        SLMesh* tipMesh = new SLBox(s, -tiphe, -tiphe - tipOffset, -tiphe, tiphe, tiphe - tipOffset, tiphe, "Pen Tip", penTipMaterial);
-        SLNode* tipNode = new SLNode(tipMesh, "Pen Tip Node");
+//        SLMesh* tipMesh = new SLBox(s, -tiphe, -tiphe - tipOffset, -tiphe, tiphe, tiphe - tipOffset, tiphe, "Pen Tip", penTipMaterial);
+//        SLNode* tipNode = new SLNode(tipMesh, "Pen Tip Node");
 //        penNode->addChild(tipNode);
 
         SLNode* axisNode = new SLNode(new SLCoordAxis(s), "Axis Node");

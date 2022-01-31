@@ -12,6 +12,8 @@
 #include <stdexcept>
 
 //-----------------------------------------------------------------------------
+constexpr int MAX_FAILED_ACQUISITION_ATTEMPTS = 100;
+//-----------------------------------------------------------------------------
 SpryTrackCalibrator::SpryTrackCalibrator(SpryTrackDevice& device,
                                          CVSize2f         planeSize)
   : _device(device), _planeSize(std::move(planeSize))
@@ -21,29 +23,30 @@ SpryTrackCalibrator::SpryTrackCalibrator(SpryTrackDevice& device,
 void SpryTrackCalibrator::calibrate()
 {
     // Create and register the calibration marker
-    auto* marker = _device.markers()[0];
-    //    marker->addPoint(0.0f, 11.0f, 3.0f);
-    //    marker->addPoint(-15.0f, -26.0f, 3.0f);
-    //    marker->addPoint(16.59f, -20.95f, 3.0f);
-    //    marker->addPoint(0.0f, 0.0f, 0.0f);
-    //    marker->addPoint(_planeSize.width, 0.0f, 0.0f);
-    //    marker->addPoint(0.0f, 0.0f, _planeSize.height);
-    //    marker->addPoint(_planeSize.width, 0.0f, _planeSize.height);
-    //    _device.registerMarker(marker);
+    float squareSize = 60.0f;
 
-    // Acquire and process the next frame
-    _device.acquireFrame();
+    auto* marker = new SpryTrackMarker();
+    marker->addPoint(3 * squareSize, 0.0f, 4 * squareSize);
+    marker->addPoint(3 * squareSize, 0.0f, 5 * squareSize);
+    marker->addPoint(4 * squareSize, 0.0f, 5 * squareSize);
+    marker->addPoint(5 * squareSize, 0.0f, 4 * squareSize);
+    _device.registerMarker(marker);
 
-    // Unregister the calibration marker
-    //    _device.unregisterMarker(marker);
+    for (int i = 0; i < MAX_FAILED_ACQUISITION_ATTEMPTS && !marker->visible(); i++)
+    {
+        // Acquire and process the next frame
+        _device.acquireFrame();
+    }
 
     if (marker->visible())
     {
         // Invert the marker object view matrix to get the extrinsic calibration matrix
         _extrinsicMat = marker->objectViewMat();
+        _device.unregisterMarker(marker);
     }
     else
     {
+        _device.unregisterMarker(marker);
         throw std::runtime_error("Calibration error (marker was not detected)");
     }
 }

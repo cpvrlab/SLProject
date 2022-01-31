@@ -40,11 +40,12 @@ public:
     SpryTrackDeviceType      type() const { return _type; }
     vector<SpryTrackMarker*> markers() const { return _markers; }
 
-    void           registerMarker(SpryTrackMarker* marker);
-    void           unregisterMarker(SpryTrackMarker* marker);
-    void           enableOnboardProcessing();
-    SpryTrackFrame acquireFrame();
-    void           close();
+    SpryTrackMarker* findMarker(SpryTrackMarkerID id) const;
+    void             registerMarker(SpryTrackMarker* marker);
+    void             unregisterMarker(SpryTrackMarker* marker);
+    void             enableOnboardProcessing();
+    SpryTrackFrame   acquireFrame();
+    void             close();
 
 private:
     void prepare();

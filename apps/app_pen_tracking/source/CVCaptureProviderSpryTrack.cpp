@@ -46,12 +46,12 @@ void CVCaptureProviderSpryTrack::open()
     _device.enableOnboardProcessing();
 
     auto* marker = new SpryTrackMarker();
-    marker->addPoint(-14.915, 9.125f, 0.0f);
-    marker->addPoint(17.149f, 9.154f, 0.0f);
-    marker->addPoint(6.182f, 43.108f, 0.0f);
-//    marker->addPoint(0.0f, -11.0f, 0.0f);
-//    marker->addPoint(-15.0f, 26.0f, 0.0f);
-//    marker->addPoint(16.59f, 20.95f, 0.0f);
+//    marker->addPoint(-14.915, 9.125f, 0.0f);
+//    marker->addPoint(17.149f, 9.154f, 0.0f);
+//    marker->addPoint(6.182f, 43.108f, 0.0f);
+    marker->addPoint(0.0f, 0.0f, -11.0f);
+    marker->addPoint(-15.0f, 0.0f, 26.0f);
+    marker->addPoint(16.59f, 0.0f, 20.95f);
     _device.registerMarker(marker);
 }
 //-----------------------------------------------------------------------------

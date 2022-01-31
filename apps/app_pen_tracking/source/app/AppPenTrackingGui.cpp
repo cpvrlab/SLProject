@@ -46,7 +46,7 @@ void AppPenTrackingGui::build(SLProjectScene* s, SLSceneView* sv)
         if (showInfosTracking)
         {
             std::stringstream ss;
-            TrackedPen& pen         = AppPenTracking::instance().arucoPen();
+            TrackedPen&       pen = AppPenTracking::instance().arucoPen();
             ss << "Tip position             : " << pen.tipPosition().toString(", ", 2) << "\n";
             ss << "Head position            : " << pen.headTransform().translation().toString(", ", 2) << "\n";
             ss << "X Axis                   : " << pen.headTransform().axisX().toString(", ", 2) << "\n";
@@ -61,22 +61,24 @@ void AppPenTrackingGui::build(SLProjectScene* s, SLSceneView* sv)
                 auto* providerSpryTrack = dynamic_cast<CVCaptureProviderSpryTrack*>(AppPenTracking::instance().currentCaptureProvider());
                 if (providerSpryTrack)
                 {
+                    auto* trackingSystemSpryTrack = (TrackingSystemSpryTrack*)trackingSystem;
+
                     auto& device = providerSpryTrack->device();
                     for (SpryTrackMarker* marker : device.markers())
                     {
                         CVMatx44f objectViewMat = marker->objectViewMat();
-                        CVMatx44f worldMat = ((TrackingSystemSpryTrack*) trackingSystem)->extrinsicMat().inv() * objectViewMat;
-                        SLVec3f position(worldMat.val[3], worldMat.val[7], worldMat.val[11]);
-                        SLVec3f xAxis(worldMat.val[0], worldMat.val[4], worldMat.val[8]);
-                        SLVec3f yAxis(worldMat.val[1], worldMat.val[5], worldMat.val[9]);
-                        SLVec3f zAxis(worldMat.val[2], worldMat.val[6], worldMat.val[10]);
+                        CVMatx44f worldMat      = trackingSystemSpryTrack->extrinsicMat().inv() * objectViewMat * trackingSystemSpryTrack->markerMat();
+                        SLVec3f   position(worldMat.val[3], worldMat.val[7], worldMat.val[11]);
+                        SLVec3f   xAxis(worldMat.val[0], worldMat.val[4], worldMat.val[8]);
+                        SLVec3f   yAxis(worldMat.val[1], worldMat.val[5], worldMat.val[9]);
+                        SLVec3f   zAxis(worldMat.val[2], worldMat.val[6], worldMat.val[10]);
 
                         ss << "Marker " << marker->id() << "\n";
                         ss << "    Visible  : " << (marker->visible() ? "yes" : "no") << "\n";
-                        ss << "    Position : " << position.toString(", ", 2) << "\n";
-                        ss << "    X Axis   : " << xAxis.toString(", ", 2) << "\n";
-                        ss << "    Y Axis   : " << yAxis.toString(", ", 2) << "\n";
-                        ss << "    Z Axis   : " << zAxis.toString(", ", 2) << "\n";
+                        ss << "    Position : " << position.toString(", ", 3) << "\n";
+                        ss << "    X Axis   : " << xAxis.toString(", ", 3) << "\n";
+                        ss << "    Y Axis   : " << yAxis.toString(", ", 3) << "\n";
+                        ss << "    Z Axis   : " << zAxis.toString(", ", 3) << "\n";
                         ss << "    Error    : " << Utils::toString(marker->errorMM(), 3) << "\n";
                     }
                 }

@@ -81,9 +81,19 @@ void SpryTrackDevice::enumerateOptions()
     }
 }
 //-----------------------------------------------------------------------------
+SpryTrackMarker* SpryTrackDevice::findMarker(SpryTrackMarkerID id) const
+{
+    auto condition = [id](SpryTrackMarker* marker)
+    {
+        return marker->id() == id;
+    };
+    auto it = std::find_if(_markers.begin(), _markers.end(), condition);
+    return it == _markers.end() ? nullptr : *it;
+}
+//-----------------------------------------------------------------------------
 void SpryTrackDevice::registerMarker(SpryTrackMarker* marker)
 {
-    marker->_geometry.geometryId = (uint32)_markers.size();
+    marker->_geometry.geometryId = (SpryTrackMarkerID)_markers.size();
     _markers.push_back(marker);
 
     ftkError error = ftkSetGeometry(SpryTrackInterface::instance().library,
@@ -102,6 +112,7 @@ void SpryTrackDevice::unregisterMarker(SpryTrackMarker* marker)
     ftkClearGeometry(SpryTrackInterface::instance().library,
                      _serialNumber,
                      marker->_geometry.geometryId);
+    _markers.erase(std::remove(_markers.begin(), _markers.end(), marker), _markers.end());
     delete marker;
 }
 //-----------------------------------------------------------------------------
@@ -109,12 +120,45 @@ void SpryTrackDevice::enableOnboardProcessing()
 {
     ftkError error = ftkSetInt32(SpryTrackInterface::instance().library,
                                  _serialNumber,
-                                 _options["Enable embedded processing"],
+                                 _options["New marker reco algorithm"],
                                  1);
     if (error != ftkError::FTK_OK)
     {
-        SL_WARN_MSG("SpryTrack: Failed to enable onboard processing");
+        SL_WARN_MSG("SpryTrack: Failed to set recognition algorithm");
+        return;
     }
+
+    error = ftkSetInt32(SpryTrackInterface::instance().library,
+                        _serialNumber,
+                        _options["Enable embedded processing"],
+                        1);
+    if (error != ftkError::FTK_OK)
+    {
+        SL_WARN_MSG("SpryTrack: Failed to enable onboard processing");
+        return;
+    }
+
+    error = ftkSetFloat32(SpryTrackInterface::instance().library,
+                          _serialNumber,
+                          _options["Matching Tolerance"],
+                          3.0f);
+    if (error != ftkError::FTK_OK)
+    {
+        SL_WARN_MSG("SpryTrack: Failed to set matching tolerance");
+        return;
+    }
+
+    error = ftkSetFloat32(SpryTrackInterface::instance().library,
+                          _serialNumber,
+                          _options["Distance matching tolerance"],
+                          3.0f);
+    if (error != ftkError::FTK_OK)
+    {
+        SL_WARN_MSG("SpryTrack: Failed to set distance matching tolerance");
+        return;
+    }
+
+    SL_LOG("SpryTrack: Onboard processing enabled");
 }
 //-----------------------------------------------------------------------------
 SpryTrackFrame SpryTrackDevice::acquireFrame()
@@ -166,11 +210,24 @@ void SpryTrackDevice::processFrame()
     {
         ftkMarker marker = _frame->markers[i];
 
-        SpryTrackMarker* registeredMarker = _markers[marker.geometryId];
+        SpryTrackMarker* registeredMarker = findMarker(marker.geometryId);
         registeredMarker->_visible        = true;
         registeredMarker->_errorMM        = marker.registrationErrorMM;
         registeredMarker->update(marker);
     }
+
+//    SL_LOG("%d %d", _frame->threeDFiducialsCount, _frame->markersCount);
+
+    //    for (int i = 0; i < _frame->threeDFiducialsCount; i++) {
+    //        for (int j = 0; j < _frame->threeDFiducialsCount; j++) {
+    //            if(i == j) continue;
+    //            SLVec3f a(_frame->threeDFiducials[i].positionMM.x, _frame->threeDFiducials[i].positionMM.y, _frame->threeDFiducials[i].positionMM.z);
+    //            SLVec3f b(_frame->threeDFiducials[j].positionMM.x, _frame->threeDFiducials[j].positionMM.y, _frame->threeDFiducials[j].positionMM.z);
+    //            std::cout << a.distance(b) << " ";
+    //        }
+    //        std::cout << ";    ";
+    //    }
+    //    std::cout << "\n";
 }
 //-----------------------------------------------------------------------------
 void SpryTrackDevice::close()

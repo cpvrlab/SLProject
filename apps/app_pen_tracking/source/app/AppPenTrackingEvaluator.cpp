@@ -42,6 +42,7 @@ void AppPenTrackingEvaluator::start()
     auto*           material = new SLMaterial(am, "Eval Sphere Material", SLCol4f::RED, SLCol4f::BLACK, 0.0f);
     auto*           mesh     = new SLSphere(am, 0.0025f, 8, 8, "Eval Sphere Mesh", material);
     _node                    = new SLNode(mesh, "Eval Sphere");
+    _node->translation(currentCorner());
     AppDemo::scene->root3D()->addChild(_node);
 
     SL_LOG("Evaluation started");
@@ -54,8 +55,10 @@ void AppPenTrackingEvaluator::start()
 void AppPenTrackingEvaluator::nextStep()
 {
     // Calculate values
-    SLVec3f corner      = currentCorner();
-    SLVec3f tip         = AppPenTracking::instance().arucoPen().tipPosition();
+    SLVec3f corner = currentCorner();
+    // SLVec3f tip         = AppPenTracking::instance().arucoPen().tipPosition();
+    // TODO: REMOVE AFTER SPRYTRACK EVALUATION
+    SLVec3f tip         = AppPenTracking::instance().arucoPen().headTransform().translation();
     SLVec3f cornerToTip = tip - corner;
     float   distance    = cornerToTip.length();
 
@@ -87,6 +90,12 @@ void AppPenTrackingEvaluator::incCornerPosition()
         _x = 0;
         _z += INCREMENT;
 
+        // TODO: REMOVE AFTER SPRYTRACK EVALUATION
+        if (_z == 4)
+        {
+            _z += INCREMENT;
+        }
+
         if (_z >= AppPenTrackingConst::CHESSBOARD_WIDTH)
         {
             finish();
@@ -104,7 +113,8 @@ void AppPenTrackingEvaluator::incCornerPosition()
  */
 SLVec3f AppPenTrackingEvaluator::currentCorner() const
 {
-    return SLVec3f((float)_x, 0.0f, (float)_z) * AppPenTrackingConst::SQUARE_SIZE;
+    // TODO: REMOVE AFTER SPRYTRACK EVALUATION
+    return SLVec3f((float)_x + 0.5f, 0.0f, (float)_z + 0.5f) * AppPenTrackingConst::SQUARE_SIZE;
 }
 //-----------------------------------------------------------------------------
 /*! The key event handler that calls "nextStep" if F7 is pressed

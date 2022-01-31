@@ -24,6 +24,7 @@ public:
     bool      isAcceptedProvider(CVCaptureProvider* provider) override;
 
     CVMatx44f extrinsicMat() { return _extrinsicMat; }
+    CVMatx44f markerMat() { return _markerMat; }
 
 private:
     static SpryTrackDevice& getDevice(CVCaptureProvider* provider);
@@ -31,6 +32,7 @@ private:
 private:
     CVMatx44f _worldMatrix;
     CVMatx44f _extrinsicMat;
+    CVMatx44f _markerMat;
 };
 //-----------------------------------------------------------------------------
 #endif // SRC_TRACKINGSYSTEMSPRYTRACK_H
