@@ -1260,7 +1260,7 @@ std::string ComputerInfos::get()
     {
         case PROCESSOR_ARCHITECTURE_AMD64: arch = "x64"; break;
         case PROCESSOR_ARCHITECTURE_ARM: arch = "ARM"; break;
-        case PROCESSOR_ARCHITECTURE_ARM64: arch = "ARM64"; break;
+        case 12: arch = "ARM64"; break;                             // PROCESSOR_ARCHITECTURE_ARM64
         case PROCESSOR_ARCHITECTURE_IA64: arch = "IA64"; break;
         case PROCESSOR_ARCHITECTURE_INTEL: arch = "x86"; break;
         default: arch = "???";

@@ -57,6 +57,7 @@ set(headers
 		${CMAKE_CURRENT_SOURCE_DIR}/source/ZipUtils.h
 		${CMAKE_CURRENT_SOURCE_DIR}/source/HttpUtils.h
 		${CMAKE_CURRENT_SOURCE_DIR}/source/Utils.h
+#		${CMAKE_CURRENT_SOURCE_DIR}/source/CoordSystemConversions.h
 		${UTILS_ROOT}/externals/ftplibpp/ftplib.h
     )
 set(sources

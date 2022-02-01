@@ -97,7 +97,7 @@ public:
 
     bool track(CVMat          imageGray,
                CVMat          imageRgb,
-               CVCalibration* calib) final;
+               CVCalibration* calib);
 
     //! Helper function to draw and save an aruco marker board image
     static void drawArucoMarkerBoard(int           dictionaryId,
@@ -117,10 +117,17 @@ public:
 
     static CVArucoParams params; //!< Parameter class instance
 
+protected:
+    bool trackAll(CVMat          imageGray,
+                  CVMat          imageRgb,
+                  CVCalibration* calib,
+                  CVRect         roi = CVRect(0, 0, 0, 0));
+
+    vector<int> arucoIDs;       //!< detected Aruco marker IDs
+    CVVMatx44f  objectViewMats; //!< object view matrices for all found markers
+
 private:
-    static bool        paramsLoaded;   //!< Flag for loaded parameters
-    static vector<int> arucoIDs;       //!< detected Aruco marker IDs
-    static CVVMatx44f  objectViewMats; //!< object view matrices for all found markers
+    static bool paramsLoaded; //!< Flag for loaded parameters
 
     int    _arucoID; //!< Aruco Marker ID for this node
     string _calibIniPath;

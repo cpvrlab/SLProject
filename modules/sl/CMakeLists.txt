@@ -102,6 +102,8 @@ file(GLOB sources
         source/cv/CVTracked.h
         source/cv/CVTrackedAruco.cpp
         source/cv/CVTrackedAruco.h
+        source/cv/CVTrackedArucoCube.h
+        source/cv/CVTrackedArucoCube.cpp
         source/cv/CVTrackedChessboard.cpp
         source/cv/CVTrackedChessboard.h
         source/cv/CVTrackedFaces.cpp

@@ -58,9 +58,9 @@ void Profiler::endSession()
 {
     std::ofstream fileStream(_filePath, std::ios::binary);
 
-    // -------------------------------------
-    // Collect scope names and thread IDs
-    // -------------------------------------
+    ////////////////////////////////////////
+    // Collect scope names and thread IDs //
+    ////////////////////////////////////////
 
     std::vector<const char*> scopeNames;
     std::vector<uint32_t>    threadIds;
@@ -74,9 +74,9 @@ void Profiler::endSession()
             threadIds.push_back(result.threadId);
     }
 
-    // ----------------------
-    // Write scope section
-    // ----------------------
+    /////////////////////////
+    // Write scope section //
+    /////////////////////////
 
     // Write the number of scope names
     auto numScopeNames = (uint32_t)scopeNames.size();
@@ -88,9 +88,9 @@ void Profiler::endSession()
         writeString(scopeName, fileStream);
     }
 
-    // -------------------
-    // Write trace section
-    // -------------------
+    /////////////////////////
+    // Write trace section //
+    /////////////////////////
 
     // Write number of threads
     auto numThreads = (uint32_t)threadIds.size();
