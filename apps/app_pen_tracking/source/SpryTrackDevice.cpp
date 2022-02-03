@@ -93,7 +93,6 @@ SpryTrackMarker* SpryTrackDevice::findMarker(SpryTrackMarkerID id) const
 //-----------------------------------------------------------------------------
 void SpryTrackDevice::registerMarker(SpryTrackMarker* marker)
 {
-    marker->_geometry.geometryId = (SpryTrackMarkerID)_markers.size();
     _markers.push_back(marker);
 
     ftkError error = ftkSetGeometry(SpryTrackInterface::instance().library,
@@ -111,7 +110,7 @@ void SpryTrackDevice::unregisterMarker(SpryTrackMarker* marker)
 {
     ftkClearGeometry(SpryTrackInterface::instance().library,
                      _serialNumber,
-                     marker->_geometry.geometryId);
+                     marker->id());
     _markers.erase(std::remove(_markers.begin(), _markers.end(), marker), _markers.end());
     delete marker;
 }
@@ -140,21 +139,21 @@ void SpryTrackDevice::enableOnboardProcessing()
 
     error = ftkSetFloat32(SpryTrackInterface::instance().library,
                           _serialNumber,
-                          _options["Matching Tolerance"],
-                          3.0f);
-    if (error != ftkError::FTK_OK)
-    {
-        SL_WARN_MSG("SpryTrack: Failed to set matching tolerance");
-        return;
-    }
-
-    error = ftkSetFloat32(SpryTrackInterface::instance().library,
-                          _serialNumber,
                           _options["Distance matching tolerance"],
-                          3.0f);
+                          10.0f);
     if (error != ftkError::FTK_OK)
     {
         SL_WARN_MSG("SpryTrack: Failed to set distance matching tolerance");
+        return;
+    }
+
+    error = ftkSetInt32(SpryTrackInterface::instance().library,
+                        _serialNumber,
+                        _options["Embedded Matching Maximum Missing Points"],
+                        2);
+    if (error != ftkError::FTK_OK)
+    {
+        SL_WARN_MSG("SpryTrack: Failed to set maximum missing points");
         return;
     }
 
@@ -216,7 +215,7 @@ void SpryTrackDevice::processFrame()
         registeredMarker->update(marker);
     }
 
-//    SL_LOG("%d %d", _frame->threeDFiducialsCount, _frame->markersCount);
+    //    SL_LOG("%d %d", _frame->threeDFiducialsCount, _frame->markersCount);
 
     //    for (int i = 0; i < _frame->threeDFiducialsCount; i++) {
     //        for (int j = 0; j < _frame->threeDFiducialsCount; j++) {

@@ -24,6 +24,7 @@
 
 #include <IDSPeakInterface.h>
 #include <SpryTrackInterface.h>
+#include <app/AppPenTrackingROSNode.h>
 
 #include <GlobalTimer.h>
 
@@ -444,8 +445,8 @@ The C main procedure running the GLFW GUI application.
 */
 int main(int argc, char* argv[])
 {
-    try
-    {
+//    try
+//    {
         // set command line arguments
         SLVstring cmdLineArgs;
         for (int i = 0; i < argc; i++)
@@ -462,6 +463,7 @@ int main(int argc, char* argv[])
 
         IDSPeakInterface::instance().init();
         SpryTrackInterface::instance().init();
+        AppPenTrackingROSNode::instance().init(argc, argv);
 
         initSL(cmdLineArgs);
 
@@ -488,11 +490,11 @@ int main(int argc, char* argv[])
 
         glfwDestroyWindow(window);
         glfwTerminate();
-    }
-    catch (std::exception& e)
-    {
-        SL_LOG("Uncaught exception: %s", e.what());
-    }
+//    }
+//    catch (std::exception& e)
+//    {
+//        SL_LOG("Uncaught exception: %s", e.what());
+//    }
 
     return 0;
 }

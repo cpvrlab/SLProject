@@ -12,11 +12,8 @@
 #include <geometry_msgs/Pose.h>
 
 //-----------------------------------------------------------------------------
-AppPenTrackingROSNode::AppPenTrackingROSNode()
+void AppPenTrackingROSNode::init(int argc, char** argv)
 {
-    int    argc = 0;
-    char** argv = nullptr;
-
     ros::init(argc, argv, "aruco_pen");
     ros::NodeHandle node;
     _posePublisher      = node.advertise<geometry_msgs::Pose>("aruco_pen/pose", 1000);
@@ -24,7 +21,7 @@ AppPenTrackingROSNode::AppPenTrackingROSNode()
 }
 //-----------------------------------------------------------------------------
 void AppPenTrackingROSNode::publishPose(const SLVec3f& position,
-                                     SLQuat4f       orientation) const
+                                        SLQuat4f       orientation) const
 {
     geometry_msgs::Pose msg;
     msg.position.x    = (double)position.x;
@@ -38,7 +35,7 @@ void AppPenTrackingROSNode::publishPose(const SLVec3f& position,
 }
 //-----------------------------------------------------------------------------
 void AppPenTrackingROSNode::publishKeyEvent(const SLVec3f& position,
-                                         SLQuat4f       orientation) const
+                                            SLQuat4f       orientation) const
 {
     geometry_msgs::Pose msg;
     msg.position.x    = (double)position.x;

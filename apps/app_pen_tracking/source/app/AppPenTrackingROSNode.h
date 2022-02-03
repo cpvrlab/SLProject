@@ -31,7 +31,7 @@ public:
         return instance;
     }
 
-    AppPenTrackingROSNode();
+    void init(int argc, char** argv);
     void publishPose(const SLVec3f& position,
                      SLQuat4f       orientation) const;
     void publishKeyEvent(const SLVec3f& position,

@@ -15,6 +15,11 @@ using namespace CoordSystemConversions;
 //-----------------------------------------------------------------------------
 constexpr float MM_TO_M = 1.0f / 1000.0f;
 //-----------------------------------------------------------------------------
+SpryTrackMarker::SpryTrackMarker(SpryTrackMarkerID id)
+{
+    _geometry.geometryId = id;
+}
+//-----------------------------------------------------------------------------
 void SpryTrackMarker::addPoint(float x, float y, float z)
 {
     if (_geometry.pointsCount == FTK_MAX_FIDUCIALS)
@@ -26,7 +31,7 @@ void SpryTrackMarker::addPoint(float x, float y, float z)
     }
 
     float position[] = {x, y, z};
-    convert3<POS_X, POS_Y, POS_Z>(position, position);
+//    convert3<POS_X, POS_Y, POS_Z>(position, position);
 
     uint32 index                 = _geometry.pointsCount;
     _geometry.positions[index].x = position[0];

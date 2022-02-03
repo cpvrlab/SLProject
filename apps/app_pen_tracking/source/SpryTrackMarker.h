@@ -22,6 +22,8 @@ class SpryTrackMarker
     friend class SpryTrackDevice;
 
 public:
+    SpryTrackMarker(SpryTrackMarkerID id);
+
     SpryTrackMarkerID id() const { return _geometry.geometryId; }
     CVMatx44f         objectViewMat() const { return _objectViewMat; }
     SLbool            visible() const { return _visible; }
