@@ -375,7 +375,7 @@ void SLMaterial::activate(SLCamera* cam, SLVLight* lights, SLSkybox* skybox)
             _program = new SLGLProgramGenerated(_assetManager, programName, this, lights);
     }
 
-    // Check if shader had compile error and the error texture should be shown
+    // Check if shader had a compile error and the error texture should be shown
     if (_program && _program->name().find("ErrorTex") != string::npos)
     {
         for (int i = 0; i < TT_numTextureType; i++)

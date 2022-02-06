@@ -4143,7 +4143,9 @@ void AppDemoGui::setTransformEditMode(SLScene*       s,
 
     if (!tN)
     {
-        tN = new SLTransformNode(sv, s->singleNodeSelected(), AppDemo::shaderPath);
+        tN = new SLTransformNode(sv,
+                                 s->singleNodeSelected(),
+                                 AppDemo::shaderPath);
         s->root3D()->addChild(tN);
     }
 
@@ -4157,11 +4159,16 @@ void AppDemoGui::removeTransformNode(SLScene* s)
     SLTransformNode* tN = s->root3D()->findChild<SLTransformNode>("Edit Gizmos");
     if (tN)
     {
-        auto it = find(s->eventHandlers().begin(), s->eventHandlers().end(), tN);
+        auto it = find(s->eventHandlers().begin(),
+                       s->eventHandlers().end(),
+                       tN);
         if (it != s->eventHandlers().end())
             s->eventHandlers().erase(it);
 
         s->root3D()->deleteChild(tN);
+
+        // Reset currentMaterial pointer that have pointed to temp. materials of transform nodes
+        SLGLState::instance()->currentMaterial(nullptr);
     }
     transformNode = nullptr;
 }
