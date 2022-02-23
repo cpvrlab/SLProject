@@ -15,15 +15,15 @@
 #include <SLMat4.h>
 
 //-----------------------------------------------------------------------------
-//!The SLCurveBezier class implements a Bezier curve interpolation
+//! The SLCurveBezier class implements a Bezier curve interpolation
 /*!The SLCurveBezier class implements a Bezier curve interpolation. The math
 is originally based on the implementation from the book:
-"Essential Mathematics for Games and Interactive Applications" from 
+"Essential Mathematics for Games and Interactive Applications" from
 James M. Van Verth and Lars M. Bishop.
 */
 class SLCurveBezier : public SLCurve
 {
-    public:
+public:
     SLCurveBezier(const SLVVec4f& points);
     SLCurveBezier(const SLVVec4f& points,
                   const SLVVec3f& controlPoints);
@@ -55,7 +55,7 @@ class SLCurveBezier : public SLCurve
     SLint     numControlPoints() { return 2 * ((SLint)_points.size() - 1); }
     SLVVec3f& controls() { return _controls; }
 
-    protected:
+protected:
     SLVVec3f           _controls; //!< Control points of Bezier curve
     SLGLVertexArrayExt _vao;      //!< Vertex array object for rendering
 };

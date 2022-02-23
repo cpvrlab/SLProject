@@ -21,7 +21,9 @@ public:
 
     // classic ray tracer functions
     SLbool  render(SLSceneView* sv);
-    void    renderSlices(bool isMainThread, SLint currentSample);
+    void    renderSlices(bool   isMainThread,
+                         SLint  currentSample,
+                         SLuint threadNum);
     SLCol4f trace(SLRay* ray, SLbool em);
     SLCol4f shade(SLRay* ray, SLCol4f* mat);
     void    saveImage();

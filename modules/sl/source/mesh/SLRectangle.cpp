@@ -99,7 +99,7 @@ void SLRectangle::buildMesh(SLMaterial* material)
     SLVec3f curN(e1 ^ e2);
     curN.normalize();
 
-    //Set one default material index
+    // Set one default material index
     mat(material);
 
     // define delta vectors dX & dY and deltas for tex. coord. dU,dV
@@ -119,9 +119,9 @@ void SLRectangle::buildMesh(SLMaterial* material)
 
         for (SLuint x = 0; x <= _resX; ++x, ++i)
         {
-            P[i]   = curV;
+            P[i]     = curV;
             UV[0][i] = curT;
-            N[i]   = curN;
+            N[i]     = curN;
             curV += dX;
             curT.x += dU;
         }
@@ -130,7 +130,7 @@ void SLRectangle::buildMesh(SLMaterial* material)
     // Build face vertex indices
     if (!I16.empty())
     {
-        SLushort v = 0, i = 0; //index for vertices and indices
+        SLushort v = 0, i = 0; // index for vertices and indices
         for (SLuint y = 0; y < _resY; ++y)
         {
             for (SLuint x = 0; x < _resX; ++x, ++v)
@@ -149,7 +149,7 @@ void SLRectangle::buildMesh(SLMaterial* material)
     }
     else
     {
-        SLuint v = 0, i = 0; //index for vertices and indices
+        SLuint v = 0, i = 0; // index for vertices and indices
         for (SLuint y = 0; y < _resY; ++y)
         {
             for (SLuint x = 0; x < _resX; ++x, ++v)

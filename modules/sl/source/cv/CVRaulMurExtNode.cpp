@@ -25,7 +25,7 @@ void CVRaulMurExtNode::DivideNode(CVRaulMurExtNode& n1,
     const int halfX = (int)(ceil(static_cast<float>(UR.x - UL.x) / 2));
     const int halfY = (int)(ceil(static_cast<float>(BR.y - UL.y) / 2));
 
-    //Define boundaries of childs
+    // Define boundaries of childs
     n1.UL = UL;
     n1.UR = CVPoint2i(UL.x + halfX, UL.y);
     n1.BL = CVPoint2i(UL.x, UL.y + halfY);
@@ -50,7 +50,7 @@ void CVRaulMurExtNode::DivideNode(CVRaulMurExtNode& n1,
     n4.BR = BR;
     n4.vKeys.reserve(vKeys.size());
 
-    //Associate points to childs
+    // Associate points to childs
     for (size_t i = 0; i < vKeys.size(); i++)
     {
         const CVKeyPoint& kp = vKeys[i];

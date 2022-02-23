@@ -22,17 +22,17 @@ class SLSceneView;
 //-----------------------------------------------------------------------------
 //! SLLightDirect class for a directional light source
 /*!
-SLLightDirect is a node and a light that can have a sphere mesh with a line for
-its direction representation.
-For directional lights the position vector is in infinite distance
-We use its homogeneous component w as zero as the directional light flag.
-The spot direction is used in the shaders for the light direction.
-If a light node is added to the scene it stays fix in the scene.\n
-If a light node is added to the camera it moves with the camera.\n
-See the scene examples for Per-Vertex-Blinn or Per-Pixel-Blinn lighting where
-all light node types are used. \n
-All light nodes inherited from SLLight work automatically together with the
-automatically generated shader in SLGLProgramGenerated.
+ SLLightDirect is a node and a light that can have a sphere mesh with a line for
+ its direction representation. For directional lights the position vector is in
+ infinite distance. We use its homogeneous component w as zero as the
+ directional light flag. The spot direction is used in the shaders for the
+ light direction.\n
+ If a light node is added to the scene it stays fix in the scene.\n
+ If a light node is added to the camera it moves with the camera.\n
+ See the scene examples for Per-Vertex-Blinn or Per-Pixel-Blinn lighting where
+ all light node types are used. \n
+ All light nodes inherited from SLLight work automatically together with the
+ automatically generated shader in SLGLProgramGenerated.
 */
 class SLLightDirect
   : public SLNode

@@ -15,9 +15,9 @@
 
 //-----------------------------------------------------------------------------
 //! Axis aligned coordinate axis mesh
-/*!      
+/*!
 The SLAxis mesh draws axis aligned arrows to indicate the coordinate system.
-All arrows have unit lenght. The arrow along x,y & z axis have the colors 
+All arrows have unit lenght. The arrow along x,y & z axis have the colors
 red, green & blue.
 */
 class SLCoordAxis : public SLMesh

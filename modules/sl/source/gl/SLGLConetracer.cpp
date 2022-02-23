@@ -17,12 +17,12 @@
 SLGLConetracer::SLGLConetracer(SLstring shaderFilePath)
   : _shaderFilePath(shaderFilePath)
 {
-    //SL_LOG("Constructor     : SLGLConetracer");
+    // SL_LOG("Constructor     : SLGLConetracer");
 }
 //-----------------------------------------------------------------------------
 SLGLConetracer::~SLGLConetracer()
 {
-    //SL_LOG("Destructor      : ~SLGLConetracer");
+    // SL_LOG("Destructor      : ~SLGLConetracer");
     delete _voxelizeMat;
     delete _worldMat;
     delete _visualizeMat;
@@ -95,7 +95,7 @@ void SLGLConetracer::init(SLint          scrW,
     _visualizeBackfaceFBO  = new SLGLFbo(scrW, scrH);
     _visualizeFrontfaceFBO = new SLGLFbo(scrW, scrH);
 
-    //SLGLConetracer manages the livetime of the following meshes
+    // SLGLConetracer manages the livetime of the following meshes
     _quadMesh = new SLRectangle(nullptr, SLVec2f(-1, -1), SLVec2f(1, 1), 1, 1);
     _cubeMesh = new SLBox(nullptr, -1, -1, -1);
 
@@ -277,13 +277,13 @@ void SLGLConetracer::renderSceneGraph(SLGLProgram* program)
 {
     glViewport(0, 0, _sv->viewportW(), _sv->viewportH());
 
-	SLuint progID = program->progID();
-    GLint loc = glGetUniformLocation(progID, "u_wsToVs");
+    SLuint progID = program->progID();
+    GLint  loc    = glGetUniformLocation(progID, "u_wsToVs");
     glUniformMatrix4fv(loc, 1, GL_FALSE, (SLfloat*)_wsToVoxelSpace->m());
 
     uploadRenderSettings(program);
 
-    //uploadLights(program);
+    // uploadLights(program);
     program->passLightsToUniforms(&_sv->s()->lights(), 0);
 
     // upload camera position:
@@ -301,7 +301,7 @@ void SLGLConetracer::renderNode(SLNode* node, SLGLProgram* program)
     assert(node);
 
     SLGLState* stateGL = SLGLState::instance();
-    GLint progID = program->progID();
+    GLint      progID  = program->progID();
 
     // set view transform:
     stateGL->modelViewMatrix.setMatrix(stateGL->viewMatrix);
@@ -309,19 +309,19 @@ void SLGLConetracer::renderNode(SLNode* node, SLGLProgram* program)
     // add updated model transform:
     stateGL->modelViewMatrix.multiply(node->updateAndGetWM().m());
 
-	// pass the modelview projection matrix to the shader
+    // pass the modelview projection matrix to the shader
     GLint loc = glGetUniformLocation(progID, "u_mvpMatrix");
     glUniformMatrix4fv(loc, 1, GL_FALSE, (SLfloat*)stateGL->mvpMatrix());
-	
-	// pass the model matrix:
+
+    // pass the model matrix:
     GLint locm = glGetUniformLocation(program->progID(), "u_mMatrix");
     glUniformMatrix4fv(locm, 1, GL_FALSE, (SLfloat*)&node->updateAndGetWM());
 
     // draw meshes of the node
     if (node->mesh())
     {
-        SLMesh* mesh = node->mesh();
-        SLMaterial* mat = mesh->mat();
+        SLMesh*     mesh = node->mesh();
+        SLMaterial* mat  = mesh->mat();
         mat->passToUniforms(program, 0);
 
         // generate a VAO if it does not exist yet
@@ -336,7 +336,7 @@ void SLGLConetracer::renderNode(SLNode* node, SLGLProgram* program)
                        GL_UNSIGNED_SHORT,
                        nullptr);
     }
-	// recursively draw the child nodes
+    // recursively draw the child nodes
     for (auto* child : node->children())
         renderNode(child, program);
 
@@ -374,7 +374,7 @@ void SLGLConetracer::voxelize()
                        GL_WRITE_ONLY,
                        GL_RGBA8);
 #endif
-	
+
     _sv->camera()->setProjection(_sv, ET_center);
     _sv->camera()->setView(_sv, ET_center);
 

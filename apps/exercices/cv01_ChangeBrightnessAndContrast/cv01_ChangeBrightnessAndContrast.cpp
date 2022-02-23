@@ -28,6 +28,11 @@ int main()
         exit(1);
     }
 
+    // Show original image
+    string title = "Original image";
+    imshow(title, img);
+    setWindowProperty(title, WND_PROP_TOPMOST, 1);
+
     double contrast   = 2.0;
     int    brightness = 50;
 
@@ -48,6 +53,9 @@ int main()
             }
         }
     }
+    string title1 = "img1.at<Vec3b>(y,x)[c] = contrast*(img.at<Vec3b>(y,x)[c]) + brightness";
+    imshow(title1, img1);
+    setWindowProperty(title1, WND_PROP_TOPMOST, 1);
 
     ////////////////////////////////////
     // Method 2: Do it with convertTo //
@@ -55,18 +63,18 @@ int main()
 
     Mat img2 = Mat::zeros(img.size(), img.type());
     img.convertTo(img2, -1, contrast, brightness);
+    string title2 = "img.convertTo(img2, -1, contrast, brightness);";
+    imshow(title2, img2);
+    setWindowProperty(title2, WND_PROP_TOPMOST, 1);
 
     //////////////////////////////////////////
     // Method 3: Using overloaded operators //
     //////////////////////////////////////////
 
-    Mat img3 = contrast * img + brightness;
-
-    // Show images
-    imshow("Original image", img);
-    imshow("img1.at<Vec3b>(y,x)[c] = contrast*(img.at<Vec3b>(y,x)[c]) + brightness", img1);
-    imshow("img.convertTo(img2, -1, contrast, brightness);", img2);
-    imshow("img3 = contrast * img + brightness", img3);
+    Mat    img3   = contrast * img + brightness;
+    string title3 = "img3 = contrast * img + brightness";
+    imshow(title3, img3);
+    setWindowProperty(title3, WND_PROP_TOPMOST, 1);
 
     // Wait until user presses some key
     waitKey(0);

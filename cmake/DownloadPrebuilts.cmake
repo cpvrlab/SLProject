@@ -13,6 +13,7 @@ set(OpenCV_INCLUDE_DIR)
 set(OpenCV_LINK_LIBS
         opencv_aruco
         opencv_calib3d
+        opencv_dnn
         opencv_features2d
         opencv_face
         opencv_flann
@@ -185,8 +186,8 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #-----------------------------
     ######################
     # OpenCV for Windows #
     #######################
-	#version 4 slows down video capture. There are others with the same problem: http://www.emgu.com/forum/viewtopic.php?f=7&t=21526
-    set(OpenCV_VERSION "4.1.2")  #live video info retrieval does not work on windows. Video file loading works. (the only one that is usable)
+	set(OpenCV_VERSION "4.5.4")  #live video info retrieval does not work on windows. Video file loading works. (the only one that is usable)
+    #set(OpenCV_VERSION "4.1.2")  #live video info retrieval does not work on windows. Video file loading works. (the only one that is usable)
     #set(OpenCV_VERSION "4.3.0") #live video info retrieval does not work on windows. Video file loading does not work.
     #set(OpenCV_VERSION "3.4.1") #live video info retrieval works on windows. Video file loading does not work.
     set(OpenCV_PREBUILT_DIR "win64_opencv_${OpenCV_VERSION}")
@@ -196,6 +197,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #-----------------------------
     set(OpenCV_PREBUILT_ZIP "${OpenCV_PREBUILT_DIR}.zip")
 
     if (NOT EXISTS "${OpenCV_DIR}")
+        message(STATUS "Download opencv prebuilts: ${OpenCV_PREBUILT_ZIP}")
         file(DOWNLOAD "${PREBUILT_URL}/${OpenCV_PREBUILT_ZIP}" "${PREBUILT_PATH}/${OpenCV_PREBUILT_ZIP}")
         execute_process(COMMAND ${CMAKE_COMMAND} -E tar xzf
             "${PREBUILT_PATH}/${OpenCV_PREBUILT_ZIP}"
@@ -216,11 +218,11 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #-----------------------------
                 debug ${lib}${OpenCV_LIBS_POSTFIX}d)
         file(GLOB OpenCV_LIBS_to_copy_debug
                 ${OpenCV_LIBS_to_copy_debug}
-                ${OpenCV_DIR}/lib/${lib}*d.dll
+                ${OpenCV_LINK_DIR}/${lib}*d.dll
                 )
         file(GLOB OpenCV_LIBS_to_copy_release
                 ${OpenCV_LIBS_to_copy_release}
-                ${OpenCV_DIR}/lib/${lib}*.dll
+                ${OpenCV_LINK_DIR}/${lib}*.dll
                 )
     endforeach(lib)
 
@@ -228,9 +230,11 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #-----------------------------
     set(DEFAULT_PROJECT_OPTIONS ${DEFAULT_PROJECT_OPTIONS}
             VS_DEBUGGER_WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 
-    # For MSVS copy them to working dir
-    if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "MSVC")
+    # For MSVC copy them to working dir
+    if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "MSVC" OR "${CMAKE_CXX_SIMULATE_ID}" MATCHES "MSVC")
+        #message(STATUS "Copy opencv debug DLLs: ${OpenCV_LIBS_to_copy_debug}")
         file(COPY ${OpenCV_LIBS_to_copy_debug} DESTINATION ${CMAKE_BINARY_DIR}/Debug)
+        #message(STATUS "Copy opencv release DLLs: ${OpenCV_LIBS_to_copy_release}")
         file(COPY ${OpenCV_LIBS_to_copy_release} DESTINATION ${CMAKE_BINARY_DIR}/Release)
 		file(COPY ${OpenCV_LIBS_to_copy_release} DESTINATION ${CMAKE_BINARY_DIR}/RelWithDebInfo)
     endif()
@@ -269,8 +273,8 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #-----------------------------
         file(REMOVE "${PREBUILT_PATH}/${g2o_PREBUILT_ZIP}")
     endif()
 
-    # For MSVS copy g2o dlls to working dir
-    if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "MSVC")
+    # For MSVC copy g2o dlls to working dir
+    if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "MSVC" OR "${CMAKE_CXX_SIMULATE_ID}" MATCHES "MSVC")
 		foreach(lib ${g2o_LINK_LIBS})
 			file(GLOB g2o_dll_to_copy_debug
 				${g2o_dll_to_copy_debug}
@@ -331,8 +335,8 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #-----------------------------
     set(DEFAULT_PROJECT_OPTIONS ${DEFAULT_PROJECT_OPTIONS}
             VS_DEBUGGER_WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 
-    # For MSVS copy them to working dir
-    if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "MSVC")
+    # For MSVC copy them to working dir
+    if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "MSVC" OR "${CMAKE_CXX_SIMULATE_ID}" MATCHES "MSVC")
         file(COPY ${assimp_LIBS_to_copy_debug} DESTINATION ${CMAKE_BINARY_DIR}/Debug)
         file(COPY ${assimp_LIBS_to_copy_release} DESTINATION ${CMAKE_BINARY_DIR}/Release)
         file(COPY ${assimp_LIBS_to_copy_release} DESTINATION ${CMAKE_BINARY_DIR}/RelWithDebInfo)
@@ -434,8 +438,8 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #-----------------------------
     set(DEFAULT_PROJECT_OPTIONS ${DEFAULT_PROJECT_OPTIONS}
             VS_DEBUGGER_WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 
-    # For MSVS copy them to working dir
-    if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "MSVC")
+    # For MSVC copy them to working dir
+    if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "MSVC" OR "${CMAKE_CXX_SIMULATE_ID}" MATCHES "MSVC")
         file(COPY ${glfw_LINK_DIR}/glfw3.dll DESTINATION ${CMAKE_BINARY_DIR}/Debug)
         file(COPY ${glfw_LINK_DIR}/glfw3.dll DESTINATION ${CMAKE_BINARY_DIR}/Release)
         file(COPY ${glfw_LINK_DIR}/glfw3.dll DESTINATION ${CMAKE_BINARY_DIR}/RelWithDebInfo)
@@ -469,7 +473,7 @@ elseif("${SYSTEM_NAME_UPPER}" STREQUAL "WINDOWS") #-----------------------------
 
     set(ktx_LIBS KTX::ktx)
 	
-    if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "MSVC")
+    if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "MSVC" OR "${CMAKE_CXX_SIMULATE_ID}" MATCHES "MSVC")
         file(COPY ${ktx_DIR}/release/ktx.dll DESTINATION ${CMAKE_BINARY_DIR}/Debug)
         file(COPY ${ktx_DIR}/release/ktx.dll DESTINATION ${CMAKE_BINARY_DIR}/Release)
         file(COPY ${ktx_DIR}/release/ktx.dll DESTINATION ${CMAKE_BINARY_DIR}/RelWithDebInfo)

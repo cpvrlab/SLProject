@@ -15,7 +15,7 @@
 
 //-----------------------------------------------------------------------------
 /*! Constructor initializing with default values
-*/
+ */
 SLGLOculusFB::SLGLOculusFB()
   : _width(0),
     _height(0),
@@ -28,14 +28,14 @@ SLGLOculusFB::SLGLOculusFB()
 }
 //-----------------------------------------------------------------------------
 /*! Destructor calling dispose
-*/
+ */
 SLGLOculusFB::~SLGLOculusFB()
 {
     dispose();
 }
 //-----------------------------------------------------------------------------
 /*! Deletes the buffer object
-*/
+ */
 void SLGLOculusFB::dispose()
 {
     if (_fbID) glDeleteFramebuffers(1, &_fbID);
@@ -121,10 +121,10 @@ void SLGLOculusFB::generateFBO()
     GET_GL_ERROR;
 }
 //-----------------------------------------------------------------------------
-/*! Updates everything when the screen gets resized: 
+/*! Updates everything when the screen gets resized:
 - Recalculates the stereo parameters
 - Creates or updates the FBO
-- Updates the shader uniforms 
+- Updates the shader uniforms
 */
 void SLGLOculusFB::updateSize(SLint scrWidth,
                               SLint scrHeight)
@@ -168,7 +168,7 @@ void SLGLOculusFB::drawFramebuffer(SLGLProgram* stereoOculusProgram)
     glClear(GL_COLOR_BUFFER_BIT);
     glDisable(GL_DEPTH_TEST);
 
-    //bind the rift shader
+    // bind the rift shader
     SLGLProgram* sp = stereoOculusProgram;
     sp->useProgram();
     SLint location = AT_position;

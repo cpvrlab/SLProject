@@ -37,4 +37,4 @@ protected:
     SLbool  _hasBottom; //!< Flag if cone has a bottom
 };
 //-----------------------------------------------------------------------------
-#endif //SLCONE_H
+#endif // SLCONE_H

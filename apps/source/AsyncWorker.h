@@ -16,7 +16,7 @@ public:
 
 protected:
     bool stopRequested();
-    //call set ready when custom run finished
+    // call set ready when custom run finished
     void setReady();
 
     virtual void run();

@@ -29,7 +29,7 @@ footprint to 20% of a regular uniform grid implemented in SLUniformGrid.
 */
 class SLCompactGrid : public SLAccelStruct
 {
-    public:
+public:
     using Triangle = std::array<SLVec3f, 3>;
 
     SLCompactGrid(SLMesh* m);
@@ -58,7 +58,7 @@ class SLCompactGrid : public SLAccelStruct
                            SLVec3i&        maxCell);
     void    ifTriangleInVoxelDo(triVoxCallback cb);
 
-    private:
+private:
     SLVec3ui           _size;              //!< num. of voxel in grid dir.
     SLuint             _numTriangles;      //!< NO. of triangles in the mesh
     SLVec3f            _voxelSize;         //!< size of a voxel
@@ -69,4 +69,4 @@ class SLCompactGrid : public SLAccelStruct
     SLGLVertexArrayExt _vao;               //!< Vertex array object for rendering
 };
 //-----------------------------------------------------------------------------
-#endif //SL_COMPACTGRID
+#endif // SL_COMPACTGRID

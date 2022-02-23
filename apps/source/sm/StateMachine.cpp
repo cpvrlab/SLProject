@@ -25,7 +25,7 @@ bool StateMachine::update()
     sm::EventData* data            = nullptr;
     bool           stateEntry      = false;
     bool           stateWasUpdated = false;
-    //invoke state action for every valid event, but at least once
+    // invoke state action for every valid event, but at least once
     while (!_events.empty())
     {
         Event* e = _events.front();
@@ -43,7 +43,7 @@ bool StateMachine::update()
                 stateEntry = true;
                 LOG_STATEMACHINE_DEBUG("State change: %s -> %s", getPrintableState(_currentStateId).c_str(), getPrintableState(newState).c_str());
 
-                //inform old state that we will leave it soon
+                // inform old state that we will leave it soon
                 auto itStateAction = _stateActions.find(_currentStateId);
                 if (itStateAction != _stateActions.end())
                 {
@@ -56,7 +56,7 @@ bool StateMachine::update()
                     Utils::exitMsg("StateMachine", ss.str().c_str(), __LINE__, __FILE__);
                 }
 
-                //update state
+                // update state
                 _currentStateId = newState;
             }
             auto itStateAction = _stateActions.find(_currentStateId);
@@ -83,7 +83,7 @@ bool StateMachine::update()
     if (!stateWasUpdated)
         _stateActions[_currentStateId]->invokeStateAction(this, data, stateEntry, false);
 
-    //ATTENTION: data ownership is not transferred to state
+    // ATTENTION: data ownership is not transferred to state
     delete data;
 
     return true;

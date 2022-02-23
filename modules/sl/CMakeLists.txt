@@ -43,6 +43,8 @@ file(GLOB sources
         cuda/SLOptixHelper.h
         cuda/SLOptixVectorMath.h
         source/SL.h
+        source/SLAssetManager.cpp
+        source/SLAssetManager.h
         source/SLBackground.cpp
         source/SLBackground.h
         source/SLDrawBits.h
@@ -100,6 +102,8 @@ file(GLOB sources
         source/cv/CVTracked.h
         source/cv/CVTrackedAruco.cpp
         source/cv/CVTrackedAruco.h
+        source/cv/CVTrackedArucoCube.h
+        source/cv/CVTrackedArucoCube.cpp
         source/cv/CVTrackedChessboard.cpp
         source/cv/CVTrackedChessboard.h
         source/cv/CVTrackedFaces.cpp
@@ -148,8 +152,6 @@ file(GLOB sources
         source/gl/SLGLVertexArrayExt.h
         source/gl/SLGLVertexBuffer.cpp
         source/gl/SLGLVertexBuffer.h
-        source/input/SLAssetManager.cpp
-        source/input/SLAssetManager.h
         source/input/SLAssimpImporter.cpp
         source/input/SLAssimpImporter.h
         source/input/SLDeviceLocation.cpp

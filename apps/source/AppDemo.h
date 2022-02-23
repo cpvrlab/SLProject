@@ -14,21 +14,22 @@
 #include <SLDeviceLocation.h>
 #include <SLDeviceRotation.h>
 #include <SLInputManager.h>
+#include <SLSceneView.h>
 #include <atomic>
 #include <mutex>
 #include <map>
 
 class SLScene;
-class SLSceneView;
 class SLGLImGui;
-class SLProjectScene;
 class CVCalibrationEstimator;
 //-----------------------------------------------------------------------------
 //! Top level class for an SLProject application.
 /*!
- The AppDemo holds static instances of top-level items such as the scene
- pointer, the camera calibration objects and the device rotation and location
- information. The static function createAppAndScene is called by the C-interface
+ The AppDemo holds static instances of top-level items such as the asset
+ manager, the scene pointer, the vector of all sceneviews, the gui pointer,
+ the camera calibration objects and the device rotation and location
+ information.<br>
+ The static function createAppAndScene is called by the C-interface
  functions slCreateAppAndScene and the function deleteAppAndScene by slTerminate.
  At the moment only one scene can be open at the time.
  <br>
@@ -39,23 +40,18 @@ class CVCalibrationEstimator;
 class AppDemo
 {
 public:
-    static void   createAppAndScene(SLstring appName,
-                                    void*    onSceneLoadCallback);
-    static void   deleteAppAndScene();
-    static void   handleParallelJob();
-    static void   jobProgressMsg(string msg);
-    static void   jobProgressNum(int num) { _jobProgressNum = num; }
-    static void   jobProgressMax(int max) { _jobProgressMax = max; }
-    static string jobProgressMsg();
-    static int    jobProgressNum() { return _jobProgressNum; }
-    static int    jobProgressMax() { return _jobProgressMax; }
+    // Major owned instances of the app
+    static SLInputManager   inputManager; //!< Input events manager
+    static SLAssetManager*  assetManager; //!< asset manager
+    static SLScene*         scene;        //!< scene pointer
+    static SLVSceneView     sceneViews;   //!< vector of sceneview pointers
+    static SLGLImGui*       gui;          //!< gui pointer
+    static SLDeviceRotation devRot;       //!< Mobile device rotation from IMU
+    static SLDeviceLocation devLoc;       //!< Mobile device location from GPS
 
-    static SLProjectScene*      scene;        //!< scene pointer
-    static vector<SLSceneView*> sceneViews;   //!< vector of sceneview pointers
-    static SLGLImGui*           gui;          //!< gui pointer
-    static SLInputManager       inputManager; //!< Input events manager
-    static SLDeviceRotation     devRot;       //!< Mobile device rotation from IMU
-    static SLDeviceLocation     devLoc;       //!< Mobile device location from GPS
+    static void createAppAndScene(SLstring appName,
+                                  void*    onSceneLoadCallback);
+    static void deleteAppAndScene();
 
     static SLstring name;          //!< Application name
     static SLstring appTag;        //!< Tag string used in logging
@@ -73,6 +69,15 @@ public:
     static SLstring texturePath;   //!< Path to texture images
     static SLstring fontPath;      //!< Path to font images
     static SLstring videoPath;     //!< Path to video files
+
+    // static methods for parallel job processing
+    static void   handleParallelJob();
+    static void   jobProgressMsg(string msg);
+    static void   jobProgressNum(int num) { _jobProgressNum = num; }
+    static void   jobProgressMax(int max) { _jobProgressMax = max; }
+    static string jobProgressMsg();
+    static int    jobProgressNum() { return _jobProgressNum; }
+    static int    jobProgressMax() { return _jobProgressMax; }
 
     static SLSceneID sceneID; //!< ID of last loaded scene
 

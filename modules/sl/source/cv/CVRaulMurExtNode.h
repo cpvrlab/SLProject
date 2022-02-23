@@ -18,7 +18,7 @@
 using std::list;
 
 //-----------------------------------------------------------------------------
-//!Data structure used to subdivide the Image with key points into segments.
+//! Data structure used to subdivide the Image with key points into segments.
 class CVRaulMurExtNode
 {
 public:

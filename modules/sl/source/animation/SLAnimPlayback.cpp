@@ -12,7 +12,7 @@
 
 //-----------------------------------------------------------------------------
 /*! Constructor
-*/
+ */
 SLAnimPlayback::SLAnimPlayback(SLAnimation* parent, SLfloat weight)
   : _animation(parent),
     _localTime(0.0f),
@@ -27,7 +27,7 @@ SLAnimPlayback::SLAnimPlayback(SLAnimation* parent, SLfloat weight)
 }
 //-----------------------------------------------------------------------------
 /*! Advances the time of the playbackplay based on its different easing parameters.
-*/
+ */
 void SLAnimPlayback::advanceTime(SLfloat delta)
 {
     if (!_enabled)
@@ -97,7 +97,7 @@ void SLAnimPlayback::advanceTime(SLfloat delta)
 }
 //-----------------------------------------------------------------------------
 /*! Set this playback to be playing forward.
-*/
+ */
 void SLAnimPlayback::playForward()
 {
     _enabled     = true;
@@ -105,7 +105,7 @@ void SLAnimPlayback::playForward()
 }
 //-----------------------------------------------------------------------------
 /*! Set this playback to be playing backward.
-*/
+ */
 void SLAnimPlayback::playBackward()
 {
     _enabled     = true;
@@ -113,7 +113,7 @@ void SLAnimPlayback::playBackward()
 }
 //-----------------------------------------------------------------------------
 /*! Set this playback to be paused.
-*/
+ */
 void SLAnimPlayback::pause()
 {
     // a paused anmation is an enabled animation that has a 0 direction multiplier
@@ -122,7 +122,7 @@ void SLAnimPlayback::pause()
 }
 //-----------------------------------------------------------------------------
 /*! Set the local time of this playback to be on the time of the next keyframe.
-*/
+ */
 void SLAnimPlayback::skipToNextKeyframe()
 {
     SLfloat time = _animation->nextKeyframeTime(_localTime);
@@ -130,7 +130,7 @@ void SLAnimPlayback::skipToNextKeyframe()
 }
 //-----------------------------------------------------------------------------
 /*! Set the local time of this playback to be on the time of the previous keyframe.
-*/
+ */
 void SLAnimPlayback::skipToPrevKeyframe()
 {
     SLfloat time = _animation->prevKeyframeTime(_localTime);
@@ -138,14 +138,14 @@ void SLAnimPlayback::skipToPrevKeyframe()
 }
 //-----------------------------------------------------------------------------
 /*! Set the local time of this playback to the starting time.
-*/
+ */
 void SLAnimPlayback::skipToStart()
 {
     localTime(0.0f);
 }
 //-----------------------------------------------------------------------------
 /*! Set the local time of this animation to the end time.
-*/
+ */
 void SLAnimPlayback::skipToEnd()
 {
     localTime(_animation->lengthSec());
@@ -168,7 +168,7 @@ void SLAnimPlayback::localTime(SLfloat time)
 //-----------------------------------------------------------------------------
 //! Applies the easing time curve to the input time.
 /*! See also the declaration of the SLEasingCurve enumeration for the different
-easing curve type that are taken from Qt QAnimation and QEasingCurve class. 
+easing curve type that are taken from Qt QAnimation and QEasingCurve class.
 See http://qt-project.org/doc/qt-4.8/qeasingcurve.html#Type-enum
 */
 SLfloat SLAnimPlayback::calcEasingTime(SLfloat time) const
@@ -210,7 +210,7 @@ SLfloat SLAnimPlayback::calcEasingTime(SLfloat time) const
 }
 //-----------------------------------------------------------------------------
 /*! Inverse functions for the above easing curve functions.
-*/
+ */
 SLfloat SLAnimPlayback::calcEasingTimeInv(SLfloat time) const
 {
     SLfloat x = time / _animation->lengthSec();

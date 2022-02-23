@@ -22,7 +22,7 @@ SLInputDevice::SLInputDevice(SLInputManager& inputManager)
 }
 //-----------------------------------------------------------------------------
 /*! The destructor removes the device from SLInputManager again if necessary.
-*/
+ */
 SLInputDevice::~SLInputDevice()
 {
     disable();

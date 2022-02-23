@@ -20,7 +20,7 @@ Create the lens with the eye prescription card.
 @image html EyePrescriptionCard.png
 The first values in the prescription card is called Sphere. It is also the
 diopter of the front side of the lens. <br>
-The second value from the prescription card is called Cylinder. The sum from 
+The second value from the prescription card is called Cylinder. The sum from
 the spere and the cylinder is the diopter of the back side of the lens. <br>
 The diopter is the inverse of the focal distance (f) of the lens. <br>
 To correct myopic, negative diopters are used. <br>
@@ -102,7 +102,7 @@ SLLens::SLLens(SLAssetManager* assetMgr,
     initLens(diopterBot, diopterTop, diameter, thickness, stacks, slices, mat);
 }
 //-----------------------------------------------------------------------------
-/*! 
+/*!
 @brief Initialize the lens
 @param diopterBot SLfloat The diopter of the bot (front) part of the lens
 @param diopterTop SLfloat The diopter of the top (back) part of the lens
@@ -147,7 +147,7 @@ void SLLens::initLens(SLfloat     diopterBot,
     generateLens(_radiusBot, _radiusTop, mat);
 }
 //-----------------------------------------------------------------------------
-/*! 
+/*!
 @brief Generate the lens with given front and back radius
 @param radiusBot radius of the lens front side
 @param radiusTop radius of the lens back side
@@ -173,7 +173,7 @@ void SLLens::generateLens(SLfloat     radiusBot,
         cout << "invalid lens diameter: " << _diameter << endl;
 }
 //-----------------------------------------------------------------------------
-/*! 
+/*!
 @brief Generate the bottom (front) part of the lens
 @param radius of the lens
 @return x the x coordinate of the last point of the bulge
@@ -265,7 +265,7 @@ SLfloat SLLens::generateLensBot(SLfloat radius)
     return x;
 }
 //-----------------------------------------------------------------------------
-/*! 
+/*!
 @brief Generate the top (back) part of the lens
 @param radius of the lens
 @return x the x coordinate of the last point of the bulge
@@ -364,7 +364,7 @@ SLfloat SLLens::generateLensTop(SLfloat radius)
     return x;
 }
 //-----------------------------------------------------------------------------
-/*! 
+/*!
  @brief Calculate the sagitta (s) for a given radius (r) and diameter (l+l)
  where l is half of the lens diameter
  See also: http://en.wikipedia.org/wiki/Sagitta_%28geometry%29

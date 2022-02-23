@@ -35,14 +35,14 @@ public:
     SLGLTextureIBL() : SLGLTexture() { ; }
 
     //! ctor for generated textures
-    SLGLTextureIBL(SLAssetManager*  assetMgr,
-                   SLstring         shaderPath,
-                   SLGLTexture*     sourceTexture,
-                   SLVec2i          size,
-                   SLTextureType    texType,
-                   SLenum           target,
-                   SLint            min_filter = GL_LINEAR,
-                   SLint            mag_filter = GL_LINEAR);
+    SLGLTextureIBL(SLAssetManager* assetMgr,
+                   SLstring        shaderPath,
+                   SLGLTexture*    sourceTexture,
+                   SLVec2i         size,
+                   SLTextureType   texType,
+                   SLenum          target,
+                   SLint           min_filter = GL_LINEAR,
+                   SLint           mag_filter = GL_LINEAR);
 
     virtual ~SLGLTextureIBL();
 
@@ -59,10 +59,10 @@ protected:
     SLuint _quadVAO = 0;
     SLuint _quadVBO = 0;
 
-    SLGLTexture*     _sourceTexture;     //!< 2D Texture from the HDR Image
-    SLGLProgram*     _shaderProgram;     //!< shader program to render the texture
-    SLMat4f          _captureProjection; //!< Projection matrix for capturing the textures
-    SLVMat4f         _captureViews;      //!< all 6 positions of the views that represent the 6 sides of the cube map
+    SLGLTexture* _sourceTexture;     //!< 2D Texture from the HDR Image
+    SLGLProgram* _shaderProgram;     //!< shader program to render the texture
+    SLMat4f      _captureProjection; //!< Projection matrix for capturing the textures
+    SLVMat4f     _captureViews;      //!< all 6 positions of the views that represent the 6 sides of the cube map
 };
 //-----------------------------------------------------------------------------
 #endif

@@ -149,7 +149,7 @@ float EvalCatmullRom10Spline(float const* K, float scaledVal)
     int const NumSegments = NumCoefficients;
 
 #if TPH_SPLINE_STATISTICS
-    //Value should be in range of 0 to (NumSegments-1) (typically 10) if spline is valid. Right?
+    // Value should be in range of 0 to (NumSegments-1) (typically 10) if spline is valid. Right?
     if (scaledVal > (NumSegments - 1))
     {
         num_out_of_range++;
@@ -229,7 +229,8 @@ struct LensConfig
             case Distortion_RecipPoly4:
                 scale = 1.0f / (K[0] + rsq * (K[1] + rsq * (K[2] + rsq * K[3])));
                 break;
-            case Distortion_CatmullRom10: {
+            case Distortion_CatmullRom10:
+            {
                 // A Catmull-Rom spline through the values 1.0, K[1], K[2] ... K[10]
                 // evenly spaced in R^2 from 0.0 to MaxR^2
                 // K[0] controls the slope at radius=0.0, rather than the actual value.
@@ -317,7 +318,8 @@ struct LensConfig
             case Distortion_RecipPoly4:
                 scale = 1.0f / (InvK[0] + rsq * (InvK[1] + rsq * (InvK[2] + rsq * InvK[3])));
                 break;
-            case Distortion_CatmullRom10: {
+            case Distortion_CatmullRom10:
+            {
                 // A Catmull-Rom spline through the values 1.0, K[1], K[2] ... K[9]
                 // evenly spaced in R^2 from 0.0 to MaxR^2
                 // K[0] controls the slope at radius=0.0, rather than the actual value.
@@ -344,7 +346,8 @@ struct LensConfig
                 // Deprecated
                 assert(false);
                 break;
-            case Distortion_RecipPoly4: {
+            case Distortion_RecipPoly4:
+            {
 
                 float sampleR[4];
                 float sampleRSq[4];
@@ -384,7 +387,8 @@ struct LensConfig
 #endif
             }
             break;
-            case Distortion_CatmullRom10: {
+            case Distortion_CatmullRom10:
+            {
 
                 const int NumSegments = NumCoefficients;
                 assert(NumSegments <= NumCoefficients);
@@ -580,10 +584,10 @@ ovrMatrix4f_OrthoSubProjection(SLMat4f projection, SLVec2f orthoScale, float ort
     // mA: Undo effect of sign
     orthoData[2] = 0.0f;
     orthoData[1] = 0.0f;
-    //orthoData[2][2] = projection.m[2][2] * projection.m[3][2] * -1.0f; // reverse right-handedness
+    // orthoData[2][2] = projection.m[2][2] * projection.m[3][2] * -1.0f; // reverse right-handedness
     orthoData[10] = 0.0f;
     orthoData[14] = 0.0f;
-    //projection.m[2][3];
+    // projection.m[2][3];
 
     // No perspective correction for ortho.
     orthoData[3]  = 0.0f;

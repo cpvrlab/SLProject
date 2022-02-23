@@ -11,7 +11,7 @@
 #include <SLNode.h>
 #include <SLRay.h>
 #include <Moeller/TriangleBoxIntersect.h>
-#include <Instrumentor.h>
+#include <Profiler.h>
 
 //-----------------------------------------------------------------------------
 SLCompactGrid::SLCompactGrid(SLMesh* m) : SLAccelStruct(m)
@@ -78,16 +78,17 @@ void SLCompactGrid::deleteAll()
     disposeBuffers();
 }
 //-----------------------------------------------------------------------------
-//!Loops over triangles gets their voxels and calls the callback function
+//! Loops over triangles gets their voxels and calls the callback function
 void SLCompactGrid::ifTriangleInVoxelDo(triVoxCallback callback)
 {
     assert(callback && "No callback function passed");
 
     for (SLuint i = 0; i < _numTriangles; ++i)
     {
-        auto     index    = [&](SLuint j) { return _m->I16.size()
-                                                     ? _m->I16[i * 3 + j]
-                                                     : _m->I32[i * 3 + j]; };
+        auto index = [&](SLuint j)
+        { return _m->I16.size()
+                   ? _m->I16[i * 3 + j]
+                   : _m->I32[i * 3 + j]; };
         Triangle triangle = {_m->finalP(index(0)),
                              _m->finalP(index(1)),
                              _m->finalP(index(2))};
@@ -151,11 +152,10 @@ void SLCompactGrid::build(SLVec3f minV, SLVec3f maxV)
     _voxelCnt      = _size.x * _size.y * _size.z;
     _voxelOffsets.assign(_voxelCnt + 1, 0);
 
-    ifTriangleInVoxelDo([&](const SLuint& i, const SLuint& voxIndex) {
-        ++_voxelOffsets[voxIndex];
-    });
+    ifTriangleInVoxelDo([&](const SLuint& i, const SLuint& voxIndex)
+                        { ++_voxelOffsets[voxIndex]; });
 
-    //The last counter doesn't count and is always empty.
+    // The last counter doesn't count and is always empty.
     _voxelMaxTria  = _voxelOffsets[0];
     _voxelCntEmpty = (_voxelOffsets[0] == 0) - 1;
     for (SLuint i = 1; i < _voxelOffsets.size(); ++i)
@@ -168,19 +168,19 @@ void SLCompactGrid::build(SLVec3f minV, SLVec3f maxV)
     if (_m->I16.size())
     {
         _triangleIndexes16.resize(_voxelOffsets.back());
-        ifTriangleInVoxelDo([&](const SLushort& i, const SLuint& voxIndex) {
+        ifTriangleInVoxelDo([&](const SLushort& i, const SLuint& voxIndex)
+                            {
             SLuint location              = --_voxelOffsets[voxIndex];
-            _triangleIndexes16[location] = i;
-        });
+            _triangleIndexes16[location] = i; });
         _triangleIndexes16.shrink_to_fit();
     }
     else
     {
         _triangleIndexes32.resize(_voxelOffsets.back());
-        ifTriangleInVoxelDo([&](const SLuint& i, const SLuint& voxIndex) {
+        ifTriangleInVoxelDo([&](const SLuint& i, const SLuint& voxIndex)
+                            {
             SLuint location              = --_voxelOffsets[voxIndex];
-            _triangleIndexes32[location] = i;
-        });
+            _triangleIndexes32[location] = i; });
         _triangleIndexes32.shrink_to_fit();
     }
 
@@ -280,7 +280,7 @@ SLbool SLCompactGrid::intersect(SLRay* ray, SLNode* node)
         SLbool wasHit = false;
 
         if (_voxelCnt > 0)
-        { //Calculate the intersection point with the AABB
+        { // Calculate the intersection point with the AABB
             SLVec3f O          = ray->originOS;
             SLVec3f D          = ray->dirOS;
             SLVec3f invD       = ray->invDirOS;
@@ -354,7 +354,7 @@ SLbool SLCompactGrid::intersect(SLRay* ray, SLNode* node)
                     }
                 }
 
-                //step Voxel
+                // step Voxel
                 if (tMaxX < tMaxY)
                 {
                     if (tMaxX < tMaxZ)

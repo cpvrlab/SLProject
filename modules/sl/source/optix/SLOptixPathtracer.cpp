@@ -8,7 +8,8 @@
 //#############################################################################
 
 #ifdef SL_HAS_OPTIX
-#    include <SLProjectScene.h>
+#    include <SLAssetManager.h>
+#    include <SLScene.h>
 #    include <SLSceneView.h>
 #    include <SLOptix.h>
 #    include <SLOptixRaytracer.h>
@@ -102,8 +103,8 @@ void SLOptixPathtracer::setupOptix()
 //-----------------------------------------------------------------------------
 void SLOptixPathtracer::setupScene(SLSceneView* sv, SLAssetManager* am)
 {
-    SLVMesh         meshes = am->meshes();
-    _sv                    = sv;
+    SLVMesh meshes = am->meshes();
+    _sv            = sv;
 
     _imageBuffer.resize(_sv->scrW() * _sv->scrH() * sizeof(float4));
     _curandBuffer.resize(_sv->scrW() * _sv->scrH() * sizeof(curandState));

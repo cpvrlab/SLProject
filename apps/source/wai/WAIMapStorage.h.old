@@ -24,14 +24,14 @@ can write WAIMaps into this storage. You have to call init()
 */
 class WAI_API WAIMapStorage
 {
-    public:
+public:
     WAIMapStorage();
 
-    //check if directory for map storage exists and read existing map names
+    // check if directory for map storage exists and read existing map names
     static void init(std::string externalDir);
     static void saveMap(int id, WAI::ModeOrbSlam2* orbSlamMode, bool saveImgs, cv::Mat nodeOm, std::string externalDir);
     static bool loadMap(const std::string& name, WAI::ModeOrbSlam2* orbSlamMode, ORBVocabulary* orbVoc, bool loadKfImgs, cv::Mat& nodeOm);
-    //increase current id and maximum id in MapStorage
+    // increase current id and maximum id in MapStorage
     static void newMap();
 
     static unsigned int getCurrentId() { return _currentId; }
@@ -39,15 +39,15 @@ class WAI_API WAIMapStorage
 
     static string externalDir() { return _externalDir; }
 
-    //values used by imgui:
-    //!currently existing names in storage
+    // values used by imgui:
+    //! currently existing names in storage
     static std::vector<std::string> existingMapNames;
-    //!currently selected combobox item
+    //! currently selected combobox item
     static const char* currItem;
-    //!currently selected combobox index
+    //! currently selected combobox index
     static int currN;
 
-    private:
+private:
     static unsigned int _nextId;
     static unsigned int _currentId;
     static std::string  _mapPrefix;
@@ -58,4 +58,4 @@ class WAI_API WAIMapStorage
 };
 //-----------------------------------------------------------------------------
 
-#endif //WAI_MAPSTORAGE
+#endif // WAI_MAPSTORAGE

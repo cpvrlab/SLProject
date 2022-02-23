@@ -196,7 +196,8 @@ void SLTexColorLUT::generateTexture()
     {
         sort(_alphas.begin(),
              _alphas.end(),
-             [](SLAlphaLUTPoint a, SLAlphaLUTPoint b) { return a.pos < b.pos; });
+             [](SLAlphaLUTPoint a, SLAlphaLUTPoint b)
+             { return a.pos < b.pos; });
 
         // Check out of bounds position (0-1)
         if (_alphas.front().pos < 0.0f)
@@ -230,7 +231,8 @@ void SLTexColorLUT::generateTexture()
     // Check and sort color values
     sort(_colors.begin(),
          _colors.end(),
-         [](SLColorLUTPoint a, SLColorLUTPoint b) { return a.pos < b.pos; });
+         [](SLColorLUTPoint a, SLColorLUTPoint b)
+         { return a.pos < b.pos; });
 
     // Check that the delta between positions is larger than delta
     for (SLuint c = 0; c < _colors.size() - 1; ++c)

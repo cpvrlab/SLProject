@@ -12,30 +12,30 @@
 
 #ifdef SL_BUILD_WITH_OPENSSL
 
-#ifdef _WINDOWS
-#    include <winsock2.h>
-#    include <ws2tcpip.h>
-#else
-#    include <sys/socket.h>
-#    include <netinet/in.h>
-#    include <arpa/inet.h>
-#endif
+#    ifdef _WINDOWS
+#        include <winsock2.h>
+#        include <ws2tcpip.h>
+#    else
+#        include <sys/socket.h>
+#        include <netinet/in.h>
+#        include <arpa/inet.h>
+#    endif
 
-#include <vector>
-#include <string>
-#include <openssl/ssl.h>
-#include <openssl/err.h>
-#include <functional>
-#include <atomic>
+#    include <vector>
+#    include <string>
+#    include <openssl/ssl.h>
+#    include <openssl/err.h>
+#    include <functional>
+#    include <atomic>
 
 using std::function;
 using std::string;
 using std::vector;
 
-#define SERVER_NOT_REACHABLE 1
-#define CANT_CREATE_DIR      2
-#define CANT_CREATE_FILE     3
-#define CONNECTION_CLOSED    4
+#    define SERVER_NOT_REACHABLE 1
+#    define CANT_CREATE_DIR 2
+#    define CANT_CREATE_FILE 3
+#    define CONNECTION_CLOSED 4
 
 //------------------------------------------------------------------------------
 //! Multiplatform socket helper
@@ -49,19 +49,19 @@ public:
         struct sockaddr_in6 sa6;
     };
 
-    socklen_t           addrlen;
-    bool                inUse;
-    int                 ipv;
-#ifdef _WINDOWS
+    socklen_t addrlen;
+    bool      inUse;
+    int       ipv;
+#    ifdef _WINDOWS
     static WSADATA wsadata;
     static bool    initialized;
-#endif
+#    endif
 
     static bool SocketEnable()
     {
         int ret;
 
-#ifdef _WINDOWS
+#    ifdef _WINDOWS
         if (!initialized)
         {
             ret = WSAStartup(MAKEWORD(2, 2), &wsadata);
@@ -70,19 +70,19 @@ public:
             else
                 return false;
         }
-#endif
+#    endif
         return true;
     }
 
     static void SocketDisable()
     {
-#ifdef _WINDOWS
+#    ifdef _WINDOWS
         if (initialized)
         {
             initialized = false;
             WSACleanup();
         }
-#endif
+#    endif
     }
 
     Socket() { reset(); }
@@ -175,15 +175,15 @@ public:
 // Download a file chunk by chunk of 1kB.
 // download is interrupt if any of the callback return non zero value.
 /*!
-* @param url            url to the file / listing to download
-* @param processFile    A callback which is called when a new file will be downloaded.
-* @param writeChunk     A callback which is called for every new chunk of the current 
-*                       file being downloaded.
-* @param processDir     A callback which is called when a new directory is being downloaded.
-* @param user           Username (optional) when site require http auth.
-* @param pwd            Password (optional) when site require http auth.
-* @param base           Path where the files should be saved.
-*/
+ * @param url            url to the file / listing to download
+ * @param processFile    A callback which is called when a new file will be downloaded.
+ * @param writeChunk     A callback which is called for every new chunk of the current
+ *                       file being downloaded.
+ * @param processDir     A callback which is called when a new directory is being downloaded.
+ * @param user           Username (optional) when site require http auth.
+ * @param pwd            Password (optional) when site require http auth.
+ * @param base           Path where the files should be saved.
+ */
 int download(string                                               url,
              function<int(string path, string file, size_t size)> processFile,
              function<int(char* data, int size)>                  writeChunk,
@@ -195,13 +195,13 @@ int download(string                                               url,
 //! HTTP download function with login credentials
 // download is interrupt if progress callback return non zero value.
 /*!
-* @param url            url to the file / listing to download
-* @param dst            Path where the files should be saved.
-* @param user           Username (optional) when site require http auth.
-* @param pwd            Password (optional) when site require http auth.
-* @param progress       A callback which is called each 1kB downloaded for the current file.
-*                       The download stop if the returned value is not zero.
-*/
+ * @param url            url to the file / listing to download
+ * @param dst            Path where the files should be saved.
+ * @param user           Username (optional) when site require http auth.
+ * @param pwd            Password (optional) when site require http auth.
+ * @param progress       A callback which is called each 1kB downloaded for the current file.
+ *                       The download stop if the returned value is not zero.
+ */
 int download(string                                      url,
              string                                      dst,
              string                                      user,
@@ -216,8 +216,8 @@ int download(string                                      url,
 //-- return content Length of the HttpGet request
 int length(string url, string user = "", string pwd = "");
 
-}; //namespace HttpUtils
+}; // namespace HttpUtils
 //------------------------------------------------------------------------------
 
-#endif //SL_BUILD_WITH_OPENSSL
-#endif //HTTP_UTILS_H
+#endif // SL_BUILD_WITH_OPENSSL
+#endif // HTTP_UTILS_H

@@ -220,7 +220,7 @@ public:
 #endif
 
 protected:
-    SLScene*       _s;               //!< Pointer scene observed by this scene view
+    SLScene*       _s;               //!< Pointer to the scene observed by this scene view
     SLCamera*      _camera;          //!< Pointer to the _active camera
     SLCamera       _sceneViewCamera; //!< Default camera for this SceneView (default cam not in scenegraph)
     SLUiInterface* _gui = nullptr;   //!< ImGui instance
@@ -296,5 +296,7 @@ protected:
     AvgFloat _draw3DTimesMS;    //!< Averaged time for 3D drawing in ms
     AvgFloat _draw2DTimesMS;    //!< Averaged time for 2D drawing in ms
 };
+//-----------------------------------------------------------------------------
+typedef vector<SLSceneView*> SLVSceneView;
 //-----------------------------------------------------------------------------
 #endif

@@ -16,7 +16,7 @@ std::string  WAIMapStorage::_mapPrefix   = "slam-map-";
 std::string  WAIMapStorage::_mapsDirName = "slam-maps";
 std::string  WAIMapStorage::_mapsDir     = "";
 std::string  WAIMapStorage::_externalDir = "";
-//values used by imgui
+// values used by imgui
 std::vector<std::string> WAIMapStorage::existingMapNames;
 const char*              WAIMapStorage::currItem       = nullptr;
 int                      WAIMapStorage::currN          = -1;
@@ -32,12 +32,12 @@ void WAIMapStorage::init(std::string externalDir)
     existingMapNames.clear();
     vector<pair<int, string>> existingMapNamesSorted;
 
-    //setup file system and check for existing files
+    // setup file system and check for existing files
     if (Utils::dirExists(_externalDir))
     {
         _mapsDir = Utils::unifySlashes(externalDir + _mapsDirName);
 
-        //check if visual odometry maps directory exists
+        // check if visual odometry maps directory exists
         if (!Utils::dirExists(_mapsDir))
         {
             WAI_LOG("Making dir: %s\n", _mapsDir.c_str());
@@ -45,16 +45,16 @@ void WAIMapStorage::init(std::string externalDir)
         }
         else
         {
-            //parse content: we search for directories in mapsDir
+            // parse content: we search for directories in mapsDir
             std::vector<std::string> content = Utils::getFileNamesInDir(_mapsDir);
             for (auto path : content)
             {
                 std::string name = Utils::getFileName(path);
-                //find json files that contain mapPrefix and estimate highest used id
+                // find json files that contain mapPrefix and estimate highest used id
                 if (Utils::containsString(name, _mapPrefix))
                 {
                     WAI_LOG("VO-Map found: %s\n", name.c_str());
-                    //estimate highest used id
+                    // estimate highest used id
                     std::vector<std::string> splitted;
                     Utils::splitString(name, '-', splitted);
                     if (splitted.size())
@@ -70,12 +70,13 @@ void WAIMapStorage::init(std::string externalDir)
                 }
             }
         }
-        //sort existingMapNames
-        std::sort(existingMapNamesSorted.begin(), existingMapNamesSorted.end(), [](const pair<int, string>& left, const pair<int, string>& right) { return left.first < right.first; });
+        // sort existingMapNames
+        std::sort(existingMapNamesSorted.begin(), existingMapNamesSorted.end(), [](const pair<int, string>& left, const pair<int, string>& right)
+                  { return left.first < right.first; });
         for (auto it = existingMapNamesSorted.begin(); it != existingMapNamesSorted.end(); ++it)
             existingMapNames.push_back(it->second);
 
-        //mark storage as initialized
+        // mark storage as initialized
         _isInitialized = true;
     }
     else
@@ -101,7 +102,7 @@ void WAIMapStorage::saveMap(int id, WAI::ModeOrbSlam2* orbSlamMode, bool saveImg
     }
 
     bool errorOccured = false;
-    //check if map exists
+    // check if map exists
     string mapName  = _mapPrefix + to_string(id);
     string path     = Utils::unifySlashes(_mapsDir + mapName);
     string pathImgs = path + "imgs/";
@@ -109,14 +110,14 @@ void WAIMapStorage::saveMap(int id, WAI::ModeOrbSlam2* orbSlamMode, bool saveImg
 
     try
     {
-        //if path exists, delete content
+        // if path exists, delete content
         if (Utils::fileExists(path))
         {
-            //remove json file
+            // remove json file
             if (Utils::fileExists(filename))
             {
                 Utils::deleteFile(filename);
-                //check if imgs dir exists and delete all containing files
+                // check if imgs dir exists and delete all containing files
                 if (Utils::fileExists(pathImgs))
                 {
                     std::vector<std::string> content = Utils::getFileNamesInDir(pathImgs);
@@ -129,7 +130,7 @@ void WAIMapStorage::saveMap(int id, WAI::ModeOrbSlam2* orbSlamMode, bool saveImg
         }
         else
         {
-            //create map directory and imgs directory
+            // create map directory and imgs directory
             Utils::makeDir(path);
         }
 
@@ -138,7 +139,7 @@ void WAIMapStorage::saveMap(int id, WAI::ModeOrbSlam2* orbSlamMode, bool saveImg
             Utils::makeDir(pathImgs);
         }
 
-        //switch to idle, so that map does not change, while we are accessing keyframes
+        // switch to idle, so that map does not change, while we are accessing keyframes
         orbSlamMode->pause();
 #if 0
         mapTracking->sm.requestStateIdle();
@@ -148,12 +149,12 @@ void WAIMapStorage::saveMap(int id, WAI::ModeOrbSlam2* orbSlamMode, bool saveImg
         }
 #endif
 
-        //save the map
+        // save the map
         WAIMapIO::save(filename, *orbSlamMode->getMap(), saveImgs, pathImgs, nodeOm);
 
-        //update list of existing maps
+        // update list of existing maps
         WAIMapStorage::init(externalDir);
-        //update current combobox item
+        // update current combobox item
         auto it = std::find(existingMapNames.begin(), existingMapNames.end(), mapName);
         if (it != existingMapNames.end())
         {
@@ -175,16 +176,16 @@ void WAIMapStorage::saveMap(int id, WAI::ModeOrbSlam2* orbSlamMode, bool saveImg
         errorOccured = true;
     }
 
-    //if an error occured, we delete the whole directory
+    // if an error occured, we delete the whole directory
     if (errorOccured)
     {
-        //if path exists, delete content
+        // if path exists, delete content
         if (Utils::fileExists(path))
         {
-            //remove json file
+            // remove json file
             if (Utils::fileExists(filename))
                 Utils::deleteFile(filename);
-            //check if imgs dir exists and delete all containing files
+            // check if imgs dir exists and delete all containing files
             if (Utils::fileExists(pathImgs))
             {
                 std::vector<std::string> content = Utils::getFileNamesInDir(pathImgs);
@@ -198,7 +199,7 @@ void WAIMapStorage::saveMap(int id, WAI::ModeOrbSlam2* orbSlamMode, bool saveImg
         }
     }
 
-    //switch back to initialized state and resume tracking
+    // switch back to initialized state and resume tracking
     orbSlamMode->resume();
 }
 //-----------------------------------------------------------------------------
@@ -216,7 +217,7 @@ bool WAIMapStorage::loadMap(const string& path, WAI::ModeOrbSlam2* orbSlamMode, 
         return loadingSuccessful;
     }
 
-    //reset tracking (and all dependent threads/objects like Map, KeyFrameDatabase, LocalMapping, loopClosing)
+    // reset tracking (and all dependent threads/objects like Map, KeyFrameDatabase, LocalMapping, loopClosing)
     orbSlamMode->requestStateIdle();
     while (!orbSlamMode->hasStateIdle())
     {
@@ -224,11 +225,11 @@ bool WAIMapStorage::loadMap(const string& path, WAI::ModeOrbSlam2* orbSlamMode, 
     }
     orbSlamMode->reset();
 
-    //clear map and keyframe database
+    // clear map and keyframe database
     WAIMap*        map  = orbSlamMode->getMap();
     WAIKeyFrameDB* kfDB = orbSlamMode->getKfDB();
 
-    //extract id from map name
+    // extract id from map name
     size_t prefixIndex = path.find(_mapPrefix);
     if (prefixIndex != string::npos)
     {
@@ -242,13 +243,13 @@ bool WAIMapStorage::loadMap(const string& path, WAI::ModeOrbSlam2* orbSlamMode, 
         return loadingSuccessful;
     }
 
-    //check if map exists
+    // check if map exists
     string mapName      = _mapPrefix + to_string(_currentId);
     string mapPath      = Utils::unifySlashes(_mapsDir + mapName);
     string currPathImgs = mapPath + "imgs/";
     string filename     = mapPath + mapName + ".json";
 
-    //check if dir and file exist
+    // check if dir and file exist
     if (!Utils::dirExists(mapPath))
     {
         string msg = "Failed to load map. Path does not exist: " + mapPath + "\n";
@@ -267,7 +268,7 @@ bool WAIMapStorage::loadMap(const string& path, WAI::ModeOrbSlam2* orbSlamMode, 
         WAIMapIO mapIO(filename, orbVoc, loadKfImgs, currPathImgs);
         mapIO.load(nodeOm, *map, *kfDB);
 
-        //if map loading was successful, switch to initialized
+        // if map loading was successful, switch to initialized
         orbSlamMode->setInitialized(true);
         loadingSuccessful = true;
     }
@@ -295,7 +296,7 @@ void WAIMapStorage::newMap()
         return;
     }
 
-    //assign next id to current id. The nextId will be increased after file save.
+    // assign next id to current id. The nextId will be increased after file save.
     _currentId = _nextId;
 }
 //-----------------------------------------------------------------------------

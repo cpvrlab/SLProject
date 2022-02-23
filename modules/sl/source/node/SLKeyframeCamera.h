@@ -22,7 +22,7 @@ class SLKeyframeCamera : public SLCamera
 public:
     explicit SLKeyframeCamera(SLstring name = "Camera");
     virtual void drawMesh(SLSceneView* sv);
-    void setDrawColor(SLCol4f color = SLCol4f::WHITE * 0.7f);
+    void         setDrawColor(SLCol4f color = SLCol4f::WHITE * 0.7f);
 
     // Getters
     bool renderBackground() { return _renderBackground; }
@@ -33,7 +33,6 @@ private:
     bool _renderBackground = false;
 
     SLCol4f _color;
-
 };
 //-----------------------------------------------------------------------------
-#endif //SLKEYFRAMECAMERA_H
+#endif // SLKEYFRAMECAMERA_H

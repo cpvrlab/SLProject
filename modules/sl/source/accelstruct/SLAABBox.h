@@ -19,7 +19,7 @@ class SLRay;
 //-----------------------------------------------------------------------------
 //! Defines an axis aligned bounding box
 /*!
-The SLAABBox class defines an axis aligned bounding box with a minimal and 
+The SLAABBox class defines an axis aligned bounding box with a minimal and
 maximal point. Each node (SLNode) will have an AABB the will be calculated
 in buildAABB. A mesh (SLMesh) will implement buildAABB and calculate the
 minimal and maximal coordinates in object space (stored in _minOS and _maxOS).

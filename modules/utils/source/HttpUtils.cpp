@@ -8,20 +8,20 @@
 //#############################################################################
 
 #ifdef SL_BUILD_WITH_OPENSSL
-#include <HttpUtils.h>
-#include <iostream>
-#include <cstring>
-#include <Utils.h>
-#ifdef _WINDOWS
-#else
-#    include <netdb.h>
-#    include <unistd.h>
-#    include <errno.h>
-#endif
+#    include <HttpUtils.h>
+#    include <iostream>
+#    include <cstring>
+#    include <Utils.h>
+#    ifdef _WINDOWS
+#    else
+#        include <netdb.h>
+#        include <unistd.h>
+#        include <errno.h>
+#    endif
 
 //-----------------------------------------------------------------------------
 /*!
- * 
+ *
  */
 void Socket::reset()
 {
@@ -39,9 +39,10 @@ void Socket::reset()
 int Socket::connectTo(string ip,
                       int    port)
 {
-    struct addrinfo *res = NULL;
-    int ret = getaddrinfo(ip.c_str(), NULL, NULL, &res);
-    if (ret) {
+    struct addrinfo* res = NULL;
+    int              ret = getaddrinfo(ip.c_str(), NULL, NULL, &res);
+    if (ret)
+    {
         Utils::log("Socket  ", "invalid address");
         return -1;
     }
@@ -51,7 +52,7 @@ int Socket::connectTo(string ip,
         ipv = 4;
         memset(&sa, 0, sizeof(sa));
         sa.sin_family = AF_INET;
-        sa.sin_addr   = (((struct sockaddr_in *)res->ai_addr))->sin_addr;
+        sa.sin_addr   = (((struct sockaddr_in*)res->ai_addr))->sin_addr;
         sa.sin_port   = htons(port);
         addrlen       = sizeof(sa);
     }
@@ -79,13 +80,13 @@ int Socket::connectTo(string ip,
 
     freeaddrinfo(res);
 
-    //Set timeout value to 10s
-#ifndef WINDOWS
+    // Set timeout value to 10s
+#    ifndef WINDOWS
     struct timeval tv;
-    tv.tv_sec = 15;
+    tv.tv_sec  = 15;
     tv.tv_usec = 0;
     setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv, sizeof tv);
-#endif
+#    endif
 
     if (connect(fd, (struct sockaddr*)&sa, addrlen))
     {
@@ -121,17 +122,17 @@ int Socket::sendData(const char* data,
 void Socket::disconnect()
 {
 
-#ifdef _WINDOWS
+#    ifdef _WINDOWS
     closesocket(fd);
-#else
+#    else
     close(fd);
-#endif
+#    endif
 }
 //-----------------------------------------------------------------------------
 /*!
- * 
+ *
  */
-#define BUFFER_SIZE 500
+#    define BUFFER_SIZE 500
 int Socket::receive(function<int(char* data, int size)> dataCB, int max)
 {
     int  n = 0;
@@ -144,12 +145,12 @@ int Socket::receive(function<int(char* data, int size)> dataCB, int max)
             len = (int)recv(fd, buf, max - n, 0);
             if (len == -1)
             {
-#ifndef _WINDOWS
+#    ifndef _WINDOWS
                 if (errno != ECONNRESET)
                     len = (int)recv(fd, buf, max - n, 0);
-#else
+#    else
                 len = (int)recv(fd, buf, max - n, 0);
-#endif
+#    endif
 
                 if (len == -1)
                     return -1;
@@ -164,12 +165,12 @@ int Socket::receive(function<int(char* data, int size)> dataCB, int max)
 
             if (len == -1)
             {
-#ifndef _WINDOWS
+#    ifndef _WINDOWS
                 if (errno != ECONNRESET)
                     len = (int)recv(fd, buf, BUFFER_SIZE, 0);
-#else
+#    else
                 len = (int)recv(fd, buf, BUFFER_SIZE, 0);
-#endif
+#    endif
                 return -1;
             }
 
@@ -184,10 +185,10 @@ int Socket::receive(function<int(char* data, int size)> dataCB, int max)
 }
 //-----------------------------------------------------------------------------
 /*!
- * 
- * @param ip 
- * @param port 
- * @return 
+ *
+ * @param ip
+ * @param port
+ * @return
  */
 int SecureSocket::connectTo(string ip, int port)
 {
@@ -295,7 +296,7 @@ int SecureSocket::receive(function<int(char* data, int size)> dataCB,
 }
 //-----------------------------------------------------------------------------
 /*!
- * 
+ *
  * @param dataCB
  * @param max
  */
@@ -307,13 +308,13 @@ void SecureSocket::disconnect()
 }
 //-----------------------------------------------------------------------------
 /*!
- * 
+ *
  * @param host
  */
 DNSRequest::DNSRequest(string host)
 {
-    char s[250];
-    int  maxlen = 249;
+    char             s[250];
+    int              maxlen = 249;
     struct hostent*  h;
     struct addrinfo* res = NULL;
     int              ret = getaddrinfo(host.c_str(), NULL, NULL, &res);
@@ -322,7 +323,7 @@ DNSRequest::DNSRequest(string host)
     {
         Utils::log("Socket  ", "invalid address");
         hostname = "";
-        addr = "";
+        addr     = "";
         return;
     }
 
@@ -334,11 +335,11 @@ DNSRequest::DNSRequest(string host)
         sa.sin_addr   = (((struct sockaddr_in*)res->ai_addr))->sin_addr;
         inet_ntop(AF_INET, &(((struct sockaddr_in*)res->ai_addr))->sin_addr, s, maxlen);
 
-#ifdef _WINDOWS
+#    ifdef _WINDOWS
         h = gethostbyaddr((const char*)&sa.sin_addr, sizeof(sa.sin_addr), sa.sin_family);
-#else
+#    else
         h = gethostbyaddr(&sa.sin_addr, sizeof(sa.sin_addr), sa.sin_family);
-#endif
+#    endif
     }
     else if (res->ai_family == AF_INET6)
     {
@@ -347,11 +348,11 @@ DNSRequest::DNSRequest(string host)
         sa.sin6_family = AF_INET6;
         sa.sin6_addr   = (((struct sockaddr_in6*)res->ai_addr))->sin6_addr;
         inet_ntop(AF_INET6, &(((struct sockaddr_in6*)res->ai_addr))->sin6_addr, s, maxlen);
-#ifdef _WINDOWS
+#    ifdef _WINDOWS
         h = gethostbyaddr((const char*)&sa.sin6_addr, sizeof(sa.sin6_addr), sa.sin6_family);
-#else
+#    else
         h = gethostbyaddr(&sa.sin6_addr, sizeof(sa.sin6_addr), sa.sin6_family);
-#endif
+#    endif
     }
 
     if (h != nullptr && h->h_length > 0)
@@ -363,8 +364,8 @@ DNSRequest::DNSRequest(string host)
 }
 //-----------------------------------------------------------------------------
 /*!
- * 
- * @return 
+ *
+ * @return
  */
 string DNSRequest::getAddr()
 {
@@ -372,8 +373,8 @@ string DNSRequest::getAddr()
 }
 //-----------------------------------------------------------------------------
 /*!
- * 
- * @return 
+ *
+ * @return
  */
 string DNSRequest::getHostname()
 {
@@ -381,7 +382,7 @@ string DNSRequest::getHostname()
 }
 //-----------------------------------------------------------------------------
 /*!
- * 
+ *
  * @param data
  * @return
  */
@@ -569,7 +570,7 @@ HttpUtils::GetRequest::GetRequest(string url,
 }
 //-----------------------------------------------------------------------------
 /*!
- * 
+ *
  * @param data
  * @return
  */
@@ -644,11 +645,11 @@ int HttpUtils::GetRequest::send()
 
     std::vector<char>* v = &firstBytes;
     int                ret;
-    ret = s->receive([v](char* buf, int size) -> int {
+    ret = s->receive([v](char* buf, int size) -> int
+                     {
         v->reserve(v->size() + size);
         copy(&buf[0], &buf[size], back_inserter(*v));
-        return 0;
-    },
+        return 0; },
                      1000);
 
     contentOffset = processHttpHeaders(firstBytes);
@@ -673,11 +674,11 @@ int HttpUtils::GetRequest::getContent(function<int(char* buf, int size)> content
     s->sendData(request.c_str(), request.length() + 1);
     std::vector<char>* v = &firstBytes;
 
-    s->receive([v](char* buf, int size) -> int {
+    s->receive([v](char* buf, int size) -> int
+               {
         v->reserve(v->size() + size);
         copy(&buf[0], &buf[size], back_inserter(*v));
-        return 0;
-    },
+        return 0; },
                contentOffset);
 
     int ret = s->receive(contentCB, 0);
@@ -692,11 +693,11 @@ int HttpUtils::GetRequest::getContent(function<int(char* buf, int size)> content
 std::vector<string> HttpUtils::GetRequest::getListing()
 {
     std::vector<char> content;
-    getContent([&content](char* buf, int size) -> int {
+    getContent([&content](char* buf, int size) -> int
+               {
         content.reserve(content.size() + size);
         copy(&buf[0], &buf[size], back_inserter(content));
-        return 0;
-    });
+        return 0; });
 
     string              c = string(content.data());
     std::vector<string> listing;
@@ -833,7 +834,8 @@ int HttpUtils::download(string                                      url,
       url,
       [&fs, &totalBytes, &dst, &dstIsDir](string path,
                                           string file,
-                                          size_t size) -> int {
+                                          size_t size) -> int
+      {
           try
           {
               if (dstIsDir)
@@ -849,7 +851,8 @@ int HttpUtils::download(string                                      url,
           totalBytes = size;
           return 0;
       },
-      [&fs, progress, &writtenByte, &totalBytes](char* data, int size) -> int {
+      [&fs, progress, &writtenByte, &totalBytes](char* data, int size) -> int
+      {
           if (size > 0)
           {
               try
@@ -876,7 +879,8 @@ int HttpUtils::download(string                                      url,
               return 0;
           }
       },
-      [&dstIsDir](string dir) -> int {
+      [&dstIsDir](string dir) -> int
+      {
           if (!dstIsDir)
               return 1;
           return Utils::makeDir(dir) == 0;
@@ -912,4 +916,3 @@ int HttpUtils::length(string url, string user, string pwd)
 //-----------------------------------------------------------------------------
 
 #endif // SL_BUILD_WITH_OPENSSL
-

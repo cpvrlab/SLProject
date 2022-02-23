@@ -16,8 +16,8 @@
 //-----------------------------------------------------------------------------
 //! Template for a single GLSL uniform variable.
 /*! Class for GLSL uniform variables that change per frame. An SLGLProgram
-holds a list of this type of uniform variables that are applied within the 
-beginUse method. 
+holds a list of this type of uniform variables that are applied within the
+beginUse method.
 */
 template<class T>
 class SLGLUniform : public SLEventHandler
@@ -43,7 +43,7 @@ public:
     SLGLUniform(const SLchar*     name,
                 function<T(void)> getFunc)
     {
-        _name   = name;
+        _name    = name;
         _type    = UT_lambda;
         getValue = getFunc;
     }
@@ -111,13 +111,13 @@ public:
                     if (_value < _max)
                     {
                         _value += _inc;
-                        //std::cout << "Uniform: " << _name.c_str() << " = " << _value << std::endl;
+                        // std::cout << "Uniform: " << _name.c_str() << " = " << _value << std::endl;
                         return true;
                     }
                     else if (_inc == _max) // Toggle between min & max
                     {
                         _value = _min;
-                        //std::cout << "Uniform: " << _name.c_str() << " = " << _value << std::endl;
+                        // std::cout << "Uniform: " << _name.c_str() << " = " << _value << std::endl;
                         return true;
                     }
                 }
@@ -126,7 +126,7 @@ public:
                     if (_value > _min)
                     {
                         _value -= _inc;
-                        //std::cout << "Uniform: " << _name.c_str() << " = " << _value << std::endl;
+                        // std::cout << "Uniform: " << _name.c_str() << " = " << _value << std::endl;
                         return true;
                     }
                 }

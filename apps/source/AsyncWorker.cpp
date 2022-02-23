@@ -32,7 +32,7 @@ bool AsyncWorker::stopRequested()
     return _stop;
 }
 
-//call set ready when custom run finished
+// call set ready when custom run finished
 void AsyncWorker::setReady()
 {
     _ready = true;
@@ -42,7 +42,7 @@ void AsyncWorker::run()
 {
     int n = 120;
     int i = 0;
-    //do task
+    // do task
     while (true)
     {
         using namespace std::chrono_literals;
@@ -59,7 +59,7 @@ void AsyncWorker::run()
         i++;
     }
 
-    //task is ready
+    // task is ready
     Utils::log("AsyncWorker", "run ready");
     setReady();
 }

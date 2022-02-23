@@ -18,7 +18,7 @@ struct AppDirectories
     std::string logFileDir;
 };
 
-//implements app functionality (e.g. scene description, which camera, how to start and use WAISlam)
+// implements app functionality (e.g. scene description, which camera, how to start and use WAISlam)
 class WAIApp : public SLInputEventInterface
 {
 public:
@@ -33,14 +33,14 @@ public:
     bool update();
     void close();
 
-    //back button pressed
+    // back button pressed
     void goBack();
 
 private:
     void initSceneCamera();
     void initDirectories(AppDirectories directories);
 
-    //initialize SLScene, SLSceneView and UI
+    // initialize SLScene, SLSceneView and UI
     void initSceneGraph(int scrWidth, int scrHeight, int dpi);
     void initIntroScene();
     void deleteSceneGraph();
@@ -53,7 +53,7 @@ private:
 
     AppDirectories _dirs;
 
-    //implanted callback from WaiApp to system to
+    // implanted callback from WaiApp to system to
     CloseAppCallback _closeAppCallback;
 
     bool _goBackRequested    = false;
@@ -61,4 +61,4 @@ private:
     bool _initIntroSceneDone = false;
 };
 
-#endif //WAI_APP_TEST_H
+#endif // WAI_APP_TEST_H

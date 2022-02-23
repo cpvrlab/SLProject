@@ -70,11 +70,11 @@ selfie camera (our secondary) and the back camera is the our main camera.
 class CVCalibration
 {
 public:
-    //default constructor with uncalibrated state (this is not good because
-    //it is not a valid state so everybody who uses it has to check the calibration state first)
+    // default constructor with uncalibrated state (this is not good because
+    // it is not a valid state so everybody who uses it has to check the calibration state first)
     CVCalibration(CVCameraType camType, string computerInfos);
 
-    //creates a fully defined calibration
+    // creates a fully defined calibration
     CVCalibration(const cv::Mat& cameraMat,
                   const cv::Mat& distortion,
                   cv::Size       imageSize,
@@ -91,7 +91,7 @@ public:
                   int            calibFlags,
                   bool           calcUndistortionMaps);
 
-    //creates a guessed calibration using image size and fovV angle
+    // creates a guessed calibration using image size and fovV angle
     CVCalibration(const cv::Size& imageSize,
                   float           fovH,
                   bool            mirroredH,
@@ -99,7 +99,7 @@ public:
                   CVCameraType    camType,
                   string          computerInfos);
 
-    //create a guessed calibration using sensor size, camera focal length and captured image size
+    // create a guessed calibration using sensor size, camera focal length and captured image size
     CVCalibration(float           sensorWMM,
                   float           sensorHMM,
                   float           focalLengthMM,
@@ -126,7 +126,7 @@ public:
     CVSize imageSize() const { return _imageSize; }
     CVSize imageSizeOriginal() const { return _imageSizeOrig; }
 
-    //int    camSizeIndex() { return _camSizeIndex;}
+    // int    camSizeIndex() { return _camSizeIndex;}
     float        imageAspectRatio() const { return (float)_imageSize.width / (float)_imageSize.height; }
     const CVMat& cameraMat() const { return _cameraMat; }
     const CVMat& cameraMatUndistorted() const { return _cameraMatUndistorted; }
@@ -194,7 +194,7 @@ private:
     CVMat _distortion; //!< 4x1 Matrix for intrinsic distortion
     ///////////////////////////////////////////////////////////////////////////////////
 
-    //original data used for adaption:
+    // original data used for adaption:
     CVMat  _cameraMatOrig; //!< 3x3 Matrix for intrinsic camera matrix (original from loading or calibration estimation)
     CVSize _imageSizeOrig; //!< original image size (original from loading or calibration estimation)
 

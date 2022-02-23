@@ -52,10 +52,13 @@ set(headers
         ${CMAKE_CURRENT_SOURCE_DIR}/source/Utils.h
         ${CMAKE_CURRENT_SOURCE_DIR}/source/GlobalTimer.h
 	    ${CMAKE_CURRENT_SOURCE_DIR}/source/CustomLog.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/source/Instrumentor.h
+#		${CMAKE_CURRENT_SOURCE_DIR}/source/Instrumentor.h
+		${CMAKE_CURRENT_SOURCE_DIR}/source/Profiler.h
 		${CMAKE_CURRENT_SOURCE_DIR}/source/ZipUtils.h
 		${CMAKE_CURRENT_SOURCE_DIR}/source/HttpUtils.h
-        ${UTILS_ROOT}/externals/ftplibpp/ftplib.h
+		${CMAKE_CURRENT_SOURCE_DIR}/source/Utils.h
+#		${CMAKE_CURRENT_SOURCE_DIR}/source/CoordSystemConversions.h
+		${UTILS_ROOT}/externals/ftplibpp/ftplib.h
     )
 set(sources
         ${sources}
@@ -64,9 +67,11 @@ set(sources
         ${CMAKE_CURRENT_SOURCE_DIR}/source/FtpUtils.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/Utils.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/source/GlobalTimer.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/source/Profiler.cpp
 	    ${CMAKE_CURRENT_SOURCE_DIR}/source/ZipUtils.cpp
 	    ${CMAKE_CURRENT_SOURCE_DIR}/source/HttpUtils.cpp
-        ${UTILS_ROOT}/externals/ftplibpp/ftplib.cpp
+		${CMAKE_CURRENT_SOURCE_DIR}/source/ByteOrder.cpp
+		${UTILS_ROOT}/externals/ftplibpp/ftplib.cpp
         ${UTILS_ROOT}/externals/zlib/contrib/minizip/ioapi.c
         ${UTILS_ROOT}/externals/zlib/contrib/minizip/unzip.c
         ${UTILS_ROOT}/externals/zlib/contrib/minizip/zip.c

@@ -77,7 +77,7 @@ void SLRevolver::buildMesh(SLMaterial* material)
         segment /= totalLenght;
 
     // Texture coordinate
-    SLVec2f uv1(0, 0);          // y is increased by segment[r]
+    SLVec2f uv1(0, 0);               // y is increased by segment[r]
     SLfloat deltaS = 1.0f / _slices; // increase value for s-tecCoord
 
     // define matrix & angles for rotation
@@ -172,7 +172,7 @@ void SLRevolver::buildMesh(SLMaterial* material)
         }
     }
 
-    //Set one default material index
+    // Set one default material index
     mat(material);
 
     /////////////////

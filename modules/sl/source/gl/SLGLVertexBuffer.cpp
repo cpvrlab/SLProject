@@ -54,7 +54,7 @@ SLint SLGLVertexBuffer::attribIndex(SLGLAttributeType type)
     return -1;
 }
 //-----------------------------------------------------------------------------
-/*! Updates the specified vertex attribute. This works only for sequential 
+/*! Updates the specified vertex attribute. This works only for sequential
 attributes and not for interleaved attributes. This is used e.g. for meshes
 with vertex skinning. See SLMesh::draw where we have joint attributes.
 */
@@ -92,31 +92,31 @@ void SLGLVertexBuffer::updateAttrib(SLGLAttributeType type,
     GET_GL_ERROR;
 }
 //-----------------------------------------------------------------------------
-/*! Generates the OpenGL VBO for one or more vertex attributes. 
-If the input data is an interleaved array (all attribute data pointer where 
-identical) also the output buffer will be generated as an interleaved array. 
-Vertex arrays with attributes that are updated can not be interleaved. 
-Vertex attributes with separate arrays can generate an interleaved or a 
+/*! Generates the OpenGL VBO for one or more vertex attributes.
+If the input data is an interleaved array (all attribute data pointer where
+identical) also the output buffer will be generated as an interleaved array.
+Vertex arrays with attributes that are updated can not be interleaved.
+Vertex attributes with separate arrays can generate an interleaved or a
 sequential vertex buffer.\n\n
 <PRE>
-\n Sequential attribute layout:                                                          
-\n           |          Positions          |           Normals           |     TexCoords     |   
-\n Attribs:  |   Position0  |   Position1  |    Normal0   |    Normal1   |TexCoord0|TexCoord1|   
-\n Elements: | PX | PY | PZ | PX | PY | PZ | NX | NY | NZ | NX | NY | NZ | TX | TY | TX | TY |   
-\n Bytes:    |#### #### ####|#### #### ####|#### #### ####|#### #### ####|#### ####|#### ####|  
+\n Sequential attribute layout:
+\n           |          Positions          |           Normals           |     TexCoords     |
+\n Attribs:  |   Position0  |   Position1  |    Normal0   |    Normal1   |TexCoord0|TexCoord1|
+\n Elements: | PX | PY | PZ | PX | PY | PZ | NX | NY | NZ | NX | NY | NZ | TX | TY | TX | TY |
+\n Bytes:    |#### #### ####|#### #### ####|#### #### ####|#### #### ####|#### ####|#### ####|
 \n           |                             |                             |
 \n           |<------ offset Normals ----->|                             |
 \n           |<-------------------- offset TexCoords ------------------->|
-\n                                                                                               
-\n Interleaved attribute layout:                                                                
-\n           |               Vertex 0                |               Vertex 1                |   
-\n Attribs:  |   Position0  |    Normal0   |TexCoord0|   Position1  |    Normal1   |TexCoord1|   
-\n Elements: | PX | PY | PZ | NX | NY | NZ | TX | TY | PX | PY | PZ | NX | NY | NZ | TX | TY |   
-\n Bytes:    |#### #### ####|#### #### ####|#### ####|#### #### ####|#### #### ####|#### ####|    
+\n
+\n Interleaved attribute layout:
+\n           |               Vertex 0                |               Vertex 1                |
+\n Attribs:  |   Position0  |    Normal0   |TexCoord0|   Position1  |    Normal1   |TexCoord1|
+\n Elements: | PX | PY | PZ | NX | NY | NZ | TX | TY | PX | PY | PZ | NX | NY | NZ | TX | TY |
+\n Bytes:    |#### #### ####|#### #### ####|#### ####|#### #### ####|#### #### ####|#### ####|
 \n           |              |              |         |
 \n           |<-offsetN=32->|              |         |
 \n           |<------- offsetTC=32 ------->|         |
-\n           |                                       |                                            
+\n           |                                       |
 \n           |<---------- strideBytes=32 ----------->|
 </PRE>
 */
@@ -287,7 +287,7 @@ void SLGLVertexBuffer::generate(SLuint          numVertices,
 }
 //-----------------------------------------------------------------------------
 /*! This method is only used by SLGLVertexArray drawing methods for OpenGL
-contexts prior to 3.0 where vertex array objects did not exist. This is the 
+contexts prior to 3.0 where vertex array objects did not exist. This is the
 additional overhead that had to be done per draw call.
 */
 void SLGLVertexBuffer::bindAndEnableAttrib()
@@ -316,7 +316,7 @@ void SLGLVertexBuffer::bindAndEnableAttrib()
 }
 //-----------------------------------------------------------------------------
 /*! This method is only used by SLGLVertexArray drawing methods for OpenGL
-contexts prior to 3.0 where vertex array objects did not exist. This is the 
+contexts prior to 3.0 where vertex array objects did not exist. This is the
 additional overhead that had to be done per draw call.
 */
 void SLGLVertexBuffer::disableAttrib()

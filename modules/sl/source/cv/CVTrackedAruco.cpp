@@ -2,7 +2,7 @@
 //  File:      CVTrackedAruco.cpp
 //  Date:      Winter 2016
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
-//  Authors:   Marcus Hudritsch, Michael Goettlicher
+//  Authors:   Marcus Hudritsch, Michael Goettlicher, Marino von Wattenwyl
 //  License:   This software is provided under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
@@ -17,18 +17,17 @@ for a good top down information.
 */
 #include <cv/CVTrackedAruco.h>
 #include <Utils.h>
+#include <Profiler.h>
 
 //-----------------------------------------------------------------------------
 // Initialize static variables
 bool          CVTrackedAruco::paramsLoaded = false;
-vector<int>   CVTrackedAruco::arucoIDs;
-CVVMatx44f    CVTrackedAruco::objectViewMats;
 CVArucoParams CVTrackedAruco::params;
 //-----------------------------------------------------------------------------
 CVTrackedAruco::CVTrackedAruco(int arucoID, string calibIniPath)
-  : _calibIniPath(calibIniPath)
+  : _calibIniPath(calibIniPath),
+    _arucoID(arucoID)
 {
-    _arucoID = arucoID;
 }
 //-----------------------------------------------------------------------------
 //! Tracks the all Aruco markers in the given image for the first sceneview
@@ -36,6 +35,33 @@ bool CVTrackedAruco::track(CVMat          imageGray,
                            CVMat          imageRgb,
                            CVCalibration* calib)
 {
+    if (!trackAll(imageGray, imageRgb, calib))
+    {
+        return false;
+    }
+
+    if (!arucoIDs.empty())
+    {
+        // Find the marker with the matching id
+        for (size_t i = 0; i < arucoIDs.size(); ++i)
+        {
+            if (arucoIDs[i] == _arucoID)
+            {
+                _objectViewMat = objectViewMats[i];
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+//-----------------------------------------------------------------------------
+bool CVTrackedAruco::trackAll(CVMat          imageGray,
+                              CVMat          imageRgb,
+                              CVCalibration* calib,
+                              CVRect         roi)
+{
+    PROFILE_FUNCTION();
 
     assert(!imageGray.empty() && "ImageGray is empty");
     assert(!imageRgb.empty() && "ImageRGB is empty");
@@ -64,18 +90,29 @@ bool CVTrackedAruco::track(CVMat          imageGray,
     // Detect //
     ////////////
 
+    CVMat croppedImageGray = roi.empty() ? imageGray : imageGray(roi);
+
     float startMS = _timer.elapsedTimeInMilliSec();
 
     arucoIDs.clear();
     objectViewMats.clear();
     CVVVPoint2f corners, rejected;
 
-    cv::aruco::detectMarkers(imageGray,
+    cv::aruco::detectMarkers(croppedImageGray,
                              params.dictionary,
                              corners,
                              arucoIDs,
                              params.arucoParams,
                              rejected);
+
+    for (auto& corner : corners)
+    {
+        for (auto& j : corner)
+        {
+            j.x += (float)roi.x;
+            j.y += (float)roi.y;
+        }
+    }
 
     CVTracked::detectTimesMS.set(_timer.elapsedTimeInMilliSec() - startMS);
 
@@ -93,9 +130,7 @@ bool CVTrackedAruco::track(CVMat          imageGray,
 
         startMS = _timer.elapsedTimeInMilliSec();
 
-        cout << "Aruco IdS: " << arucoIDs.size() << " : ";
-
-        //find the camera extrinsic parameters (rVec & tVec)
+        // find the camera extrinsic parameters (rVec & tVec)
         CVVPoint3d rVecs, tVecs;
         cv::aruco::estimatePoseSingleMarkers(corners,
                                              params.edgeLength,
@@ -109,27 +144,22 @@ bool CVTrackedAruco::track(CVMat          imageGray,
         // Get the object view matrix for all aruco markers
         for (size_t i = 0; i < arucoIDs.size(); ++i)
         {
-            cout << arucoIDs[i] << ",";
             CVMatx44f ovm = createGLMatrix(cv::Mat(tVecs[i]), cv::Mat(rVecs[i]));
             objectViewMats.push_back(ovm);
-        }
-        cout << endl;
-    }
 
-    if (!arucoIDs.empty())
-    {
-        // Find the marker with the matching id
-        for (size_t i = 0; i < arucoIDs.size(); ++i)
-        {
-            if (arucoIDs[i] == _arucoID)
+            if (_drawDetection)
             {
-                _objectViewMat = objectViewMats[i];
-                return true;
+                cv::aruco::drawAxis(imageRgb,
+                                    calib->cameraMat(),
+                                    calib->distortion(),
+                                    cv::Mat(rVecs[i]),
+                                    cv::Mat(tVecs[i]),
+                                    0.01f);
             }
         }
     }
 
-    return false;
+    return true;
 }
 //-----------------------------------------------------------------------------
 /*! CVTrackedAruco::drawArucoMarkerBoard draws and saves an aruco board

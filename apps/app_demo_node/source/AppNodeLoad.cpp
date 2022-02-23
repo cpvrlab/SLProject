@@ -7,11 +7,11 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
+#include <SLAssetManager.h>
 #include <SLScene.h>
 #include <SLSceneView.h>
 #include <SLCamera.h>
 #include <SLLightSpot.h>
-#include <SLProjectScene.h>
 
 //-----------------------------------------------------------------------------
 //! appNodeLoadScene builds a scene from source code.
@@ -23,9 +23,9 @@
  (SLNode) and meshes (SLMesh). See the scene with SID_Minimal for a minimal
  example of the different steps.
  */
-void appNodeLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sid)
+void appNodeLoadScene(SLAssetManager* am, SLScene* s, SLSceneView* sv, SLSceneID sid)
 {
-    s->init();
+    s->init(am);
 
     SLCamera* cam1 = new SLCamera;
     cam1->translation(2, 3, 5);
@@ -33,7 +33,7 @@ void appNodeLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sid)
     cam1->focalDist(6);
     cam1->background().colors(SLCol4f(0.8f, 0.8f, 0.8f));
 
-    SLLightSpot* light1 = new SLLightSpot(s, s, 0.3f);
+    SLLightSpot* light1 = new SLLightSpot(am, s, 0.3f);
     light1->translation(10, 10, 10);
 
     SLNode* scene = new SLNode;

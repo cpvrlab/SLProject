@@ -16,7 +16,7 @@
 #include <SLLight.h>
 #include <SLMaterial.h>
 #include <SLShadowMap.h>
-#include <Instrumentor.h>
+#include <Profiler.h>
 #include <SLSceneView.h>
 #include <SLCamera.h>
 #include <SLFrustum.h>
@@ -626,8 +626,8 @@ void SLShadowMap::renderDirectionalLightCascaded(SLSceneView* sv,
     for (int i = 0; i < cascades.size(); i++)
     {
         // The cascades near and far distance on the view direction in WS
-        float cn   = cascades[i].x;
-        float cf   = cascades[i].y;
+        float cn = cascades[i].x;
+        float cf = cascades[i].y;
 
         // The cascades middle point on the view direction in WS
         SLVec3f cm = camWM.translation() - camWM.axisZ().normalized() * (cn + cf) * 0.5f;
@@ -662,8 +662,8 @@ void SLShadowMap::renderDirectionalLightCascaded(SLSceneView* sv,
         float   sy = 2.f / (maxy - miny);
         float   sz = -2.f / (maxz - minz);
         SLVec3f t  = SLVec3f(-0.5f * (maxx + minx),
-                             -0.5f * (maxy + miny),
-                             -0.5f * (maxz + minz));
+                            -0.5f * (maxy + miny),
+                            -0.5f * (maxz + minz));
 
         // Build orthographic light projection matrix
         SLMat4f lightProjMat;

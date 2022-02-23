@@ -45,22 +45,22 @@ CVCalibration::CVCalibration(CVCameraType type, string computerInfos)
 {
 }
 //-----------------------------------------------------------------------------
-//creates a fully defined calibration
-CVCalibration::CVCalibration(const cv::Mat&     cameraMat,
-                             const cv::Mat&     distortion,
-                             cv::Size           imageSize,
-                             cv::Size           boardSize,
-                             float              boardSquareMM,
-                             float              reprojectionError,
-                             int                numCaptured,
-                             const string& calibrationTime,
-                             int                camSizeIndex,
-                             bool               mirroredH,
-                             bool               mirroredV,
-                             CVCameraType       camType,
-                             string        computerInfos,
-                             int                calibFlags,
-                             bool               calcUndistortionMaps)
+// creates a fully defined calibration
+CVCalibration::CVCalibration(const cv::Mat& cameraMat,
+                             const cv::Mat& distortion,
+                             cv::Size       imageSize,
+                             cv::Size       boardSize,
+                             float          boardSquareMM,
+                             float          reprojectionError,
+                             int            numCaptured,
+                             const string&  calibrationTime,
+                             int            camSizeIndex,
+                             bool           mirroredH,
+                             bool           mirroredV,
+                             CVCameraType   camType,
+                             string         computerInfos,
+                             int            calibFlags,
+                             bool           calcUndistortionMaps)
   : _cameraMat(cameraMat.clone()),
     _distortion(distortion.clone()),
     _imageSize(std::move(imageSize)),
@@ -85,7 +85,7 @@ CVCalibration::CVCalibration(const cv::Mat&     cameraMat,
     _state = CS_calibrated;
 }
 //-----------------------------------------------------------------------------
-//create a guessed calibration using image size and horizontal fovV angle
+// create a guessed calibration using image size and horizontal fovV angle
 CVCalibration::CVCalibration(const cv::Size& imageSize,
                              float           fovH,
                              bool            mirroredH,
@@ -102,7 +102,7 @@ CVCalibration::CVCalibration(const cv::Size& imageSize,
     _imageSizeOrig = _imageSize;
 }
 //-----------------------------------------------------------------------------
-//create a guessed calibration using sensor size, camera focal length and captured image size
+// create a guessed calibration using sensor size, camera focal length and captured image size
 CVCalibration::CVCalibration(float           sensorWMM,
                              float           sensorHMM,
                              float           focalLengthMM,
@@ -124,7 +124,7 @@ CVCalibration::CVCalibration(float           sensorWMM,
     }
     else
     {
-        //if not between
+        // if not between
         createFromGuessedFOV(imageSize.width, imageSize.height, 65.0);
     }
     _cameraMatOrig = _cameraMat.clone();
@@ -139,7 +139,7 @@ bool CVCalibration::load(const string& calibDir,
                          const string& calibFileName,
                          bool          calcUndistortionMaps)
 {
-    //load camera parameter
+    // load camera parameter
     string fullPathAndFilename = Utils::unifySlashes(calibDir) + calibFileName;
 
     // try to open the local calibration file
@@ -187,7 +187,7 @@ bool CVCalibration::load(const string& calibDir,
         _state = _numCaptured ? CS_calibrated : CS_uncalibrated;
     }
 
-    //estimate computer infos
+    // estimate computer infos
     if (!fs["computerInfos"].empty())
         fs["computerInfos"] >> _computerInfos;
     else
@@ -201,10 +201,10 @@ bool CVCalibration::load(const string& calibDir,
     // close the input file
     fs.release();
 
-    //calculate FOV and undistortion maps
+    // calculate FOV and undistortion maps
     if (_state == CS_calibrated)
     {
-        //calcCameraFov();
+        // calcCameraFov();
         calculateUndistortedCameraMat();
         calcCameraFovFromUndistortedCameraMat();
         if (calcUndistortionMaps)
@@ -276,7 +276,7 @@ bool CVCalibration::save(const string& calibDir,
     fs.release();
     Utils::log("SLProject", "Calib. saved    : %s", fullPathAndFilename.c_str());
     return true;
-    //uploadCalibration(fullPathAndFilename);
+    // uploadCalibration(fullPathAndFilename);
 }
 //-----------------------------------------------------------------------------
 //! get inscribed and circumscribed rectangle
@@ -352,7 +352,7 @@ void CVCalibration::buildUndistortionMaps()
                                 cv::Mat(), // Identity matrix R
                                 _cameraMatUndistorted,
                                 _imageSize,
-                                CV_16SC2, //before we had CV_32FC1 but in all tutorials they use CV_16SC2.. is there a reason?
+                                CV_16SC2, // before we had CV_32FC1 but in all tutorials they use CV_16SC2.. is there a reason?
                                 _undistortMapX,
                                 _undistortMapY);
     Utils::log("CVCalibration", "initUndistortRectifyMap: %fms", t.elapsedTimeInMilliSec());
@@ -395,7 +395,7 @@ void CVCalibration::createFromGuessedFOV(int   imageWidthPX,
                                          int   imageHeightPX,
                                          float fovH)
 {
-    //if (fx == fy) and (cx == imgwidth * 0.5f) and (cy == imgheight  * 0.5f)
+    // if (fx == fy) and (cx == imgwidth * 0.5f) and (cy == imgheight  * 0.5f)
     float f    = (0.5f * imageWidthPX) / tanf(fovH * 0.5f * Utils::DEG2RAD);
     float fovV = 2.0f * (float)atan2(0.5f * imageHeightPX, f) * Utils::RAD2DEG;
 
@@ -462,16 +462,16 @@ void CVCalibration::adaptForNewResolution(const CVSize& newSize, bool calcUndist
         cy = cyOrig * scaleFactor;
     }
 
-    //std::cout << "adaptForNewResolution: _cameraMat before: " << _cameraMat << std::endl;
+    // std::cout << "adaptForNewResolution: _cameraMat before: " << _cameraMat << std::endl;
     _cameraMat = (cv::Mat_<double>(3, 3) << fx, 0, cx, 0, fy, cy, 0, 0, 1);
-    //std::cout << "adaptForNewResolution: _cameraMat after: " << _cameraMat << std::endl;
+    // std::cout << "adaptForNewResolution: _cameraMat after: " << _cameraMat << std::endl;
     //_distortion remains unchanged
     _calibrationTime = Utils::getDateTime2String();
 
-    //std::cout << "adaptForNewResolution: _imageSize before: " << _imageSize << std::endl;
+    // std::cout << "adaptForNewResolution: _imageSize before: " << _imageSize << std::endl;
     _imageSize.width  = newSize.width;
     _imageSize.height = newSize.height;
-    //std::cout << "adaptForNewResolution: _imageSize after: " << _imageSize << std::endl;
+    // std::cout << "adaptForNewResolution: _imageSize after: " << _imageSize << std::endl;
 
     calculateUndistortedCameraMat();
     calcCameraFovFromUndistortedCameraMat();
@@ -493,7 +493,7 @@ void CVCalibration::calculateUndistortedCameraMat()
     bool centerPrinciplePoint = true;
     if (centerPrinciplePoint)
     {
-        //Attention: the principle point has to be centered because for the projection matrix we assume that image plane is "symmetrically arranged wrt the focal plane"
+        // Attention: the principle point has to be centered because for the projection matrix we assume that image plane is "symmetrically arranged wrt the focal plane"
         //(see http://kgeorge.github.io/2014/03/08/calculating-opengl-perspective-matrix-from-opencv-intrinsic-matrix)
         //_cameraMatUndistorted     = cv::getOptimalNewCameraMatrix(_cameraMat, _distortion, _imageSize, alpha, _imageSize, nullptr, centerPrinciplePoint);
         //! (The following is the algorithm from cv::getOptimalNewCameraMatrix and the code is here for understanding (it does the same))
@@ -541,8 +541,8 @@ void CVCalibration::calculateUndistortedCameraMat()
                                                               centerPrinciplePoint);
     }
 
-    //std::cout << "_cameraMatUndistorted: " << _cameraMatUndistorted << std::endl;
-    //std::cout << "_cameraMat: " << _cameraMat << std::endl;
+    // std::cout << "_cameraMatUndistorted: " << _cameraMatUndistorted << std::endl;
+    // std::cout << "_cameraMat: " << _cameraMat << std::endl;
 }
 //-----------------------------------------------------------------------------
 //! Calculates the vertical field of view angle in degrees
@@ -551,7 +551,7 @@ void CVCalibration::calcCameraFovFromUndistortedCameraMat()
     if (_cameraMatUndistorted.rows != 3 || _cameraMatUndistorted.cols != 3)
         Utils::exitMsg("SLProject", "CVCalibration::calcCameraFovFromSceneCameraMat: No _cameraMatUndistorted available", __LINE__, __FILE__);
 
-    //calculate vertical field of view
+    // calculate vertical field of view
     float fx       = (float)_cameraMatUndistorted.at<double>(0, 0);
     float fy       = (float)_cameraMatUndistorted.at<double>(1, 1);
     float cx       = (float)_cameraMatUndistorted.at<double>(0, 2);

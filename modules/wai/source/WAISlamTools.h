@@ -13,59 +13,63 @@
 #include <LocalMap.h>
 #include <opencv2/core.hpp>
 
-struct InitializerData
+//-----------------------------------------------------------------------------
+struct WAIInitializerData
 {
     Initializer*             initializer;
     WAIFrame                 initialFrame;
-    std::vector<cv::Point2f> prevMatched; //all keypoints in initialFrame
+    std::vector<cv::Point2f> prevMatched; // all keypoints in initialFrame
     std::vector<cv::Point3f> iniPoint3D;
-    std::vector<int>         iniMatches; //has length of keypoints of initial frame and contains matched keypoint index in current frame
+    std::vector<int>         iniMatches; // has length of keypoints of initial frame and contains matched keypoint index in current frame
 };
-
-namespace WAI
+//-----------------------------------------------------------------------------
+enum WAITrackingState
 {
-enum TrackingState
-{
-    TrackingState_None,
-    TrackingState_Idle,
-    TrackingState_Initializing,
-    TrackingState_TrackingOK,
-    TrackingState_TrackingLost,
-    TrackingState_TrackingStart
+    None,
+    Idle,
+    Initializing,
+    TrackingOK,
+    TrackingLost,
+    TrackingStart
 };
-}
-
-/* 
- * This class should not be instanciated. It contains only pure virtual methods
+//-----------------------------------------------------------------------------
+/*!
+ * This class should not be instanced. It contains only pure virtual methods
  * and some variables with getter that are useful for slam in a subclass.
  */
-
 class WAISlamTools
 {
 public:
-    static void drawKeyPointInfo(WAIFrame& frame, cv::Mat& image, float scale);
-    static void drawKeyPointMatches(WAIFrame& frame, cv::Mat& image, float scale);
-    static void drawInitInfo(InitializerData& iniData, WAIFrame& frame, cv::Mat& imageBGR, float scale);
+    static void drawKeyPointInfo(WAIFrame& frame,
+                                 cv::Mat&  image,
+                                 float     scale);
+    static void drawKeyPointMatches(WAIFrame& frame,
+                                    cv::Mat&  image,
+                                    float     scale);
+    static void drawInitInfo(WAIInitializerData& iniData,
+                             WAIFrame&           frame,
+                             cv::Mat&            imageBGR,
+                             float               scale);
 
-    static bool initialize(InitializerData&  iniData,
-                           WAIFrame&         frame,
-                           WAIOrbVocabulary* voc,
-                           LocalMap&         localMap,
-                           int               mapPointsNeeded = 100);
+    static bool initialize(WAIInitializerData& iniData,
+                           WAIFrame&           frame,
+                           WAIOrbVocabulary*   voc,
+                           LocalMap&           localMap,
+                           int                 mapPointsNeeded = 100);
 
     static bool genInitialMap(WAIMap*       globalMap,
                               LocalMapping* localMapper,
                               LoopClosing*  loopCloser,
                               LocalMap&     localMap);
 
-    static bool oldInitialize(WAIFrame&         frame,
-                              InitializerData&  iniData,
-                              WAIMap*           map,
-                              LocalMap&         localMap,
-                              LocalMapping*     localMapper,
-                              LoopClosing*      loopCloser,
-                              WAIOrbVocabulary* voc,
-                              int               mapPointsNeeded = 100);
+    static bool oldInitialize(WAIFrame&           frame,
+                              WAIInitializerData& iniData,
+                              WAIMap*             map,
+                              LocalMap&           localMap,
+                              LocalMapping*       localMapper,
+                              LoopClosing*        loopCloser,
+                              WAIOrbVocabulary*   voc,
+                              int                 mapPointsNeeded = 100);
 
     static int findFrameFixedMapMatches(WAIFrame&                 frame,
                                         WAIMap*                   waiMap,
@@ -179,25 +183,27 @@ public:
                                          const cv::Mat&    markerCameraIntrinsic,
                                          WAIOrbVocabulary* voc);
 
-    static bool detectCycle(WAIKeyFrame * kf, std::set<WAIKeyFrame*> &visitedNode);
+    static bool detectCycle(WAIKeyFrame* kf, std::set<WAIKeyFrame*>& visitedNode);
 
-    static bool checkKFConnectionsTree(WAIMap * map);
-
+    static bool checkKFConnectionsTree(WAIMap* map);
 
 protected:
-    //virtal destructor is mandatory
+    // virtual destructor is mandatory
     virtual ~WAISlamTools() {}
     WAISlamTools(){};
 
-    static void countReprojectionOutliers(WAIFrame& frame, unsigned int& m, unsigned int& n, unsigned int& outliers);
+    static void countReprojectionOutliers(WAIFrame&     frame,
+                                          unsigned int& m,
+                                          unsigned int& n,
+                                          unsigned int& outliers);
 
-    cv::Mat         _distortion;
-    cv::Mat         _cameraIntrinsic;
-    cv::Mat         _cameraExtrinsic;
-    //extrinsic guess (e.g. estimated using gps and device orientation)
-    cv::Mat         _cameraExtrinsicGuess;
-    InitializerData _iniData;
-    WAIFrame        _lastFrame;
+    cv::Mat _distortion;
+    cv::Mat _cameraIntrinsic;
+    cv::Mat _cameraExtrinsic;
+    // extrinsic guess (e.g. estimated using gps and device orientation)
+    cv::Mat            _cameraExtrinsicGuess;
+    WAIInitializerData _iniData;
+    WAIFrame           _lastFrame;
 
     std::unique_ptr<WAIMap> _globalMap;
     LocalMap                _localMap;
@@ -211,5 +217,5 @@ protected:
     std::vector<std::thread*> _mappingThreads;
     std::thread*              _loopClosingThread = nullptr;
 };
-
+//-----------------------------------------------------------------------------
 #endif

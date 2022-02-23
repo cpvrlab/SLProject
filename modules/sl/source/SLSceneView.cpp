@@ -15,7 +15,7 @@
 #include <SLSkybox.h>
 #include <GlobalTimer.h>
 #include <SLInputManager.h>
-#include <Instrumentor.h>
+#include <Profiler.h>
 
 #include <utility>
 
@@ -509,7 +509,7 @@ SLbool SLSceneView::onPaint()
     // this function is called for multiple SceneViews. In this way we only
     // update the geometric representations if all SceneViews got painted once.
     // (can only happen during raytracing)
-    if (_gotPainted)
+    if (_gotPainted && _s)
     {
         _gotPainted = false;
 
@@ -517,11 +517,8 @@ SLbool SLSceneView::onPaint()
         viewConsumedEvents = _inputManager.pollAndProcessEvents(this);
 
         // update current scene
-        if (_s)
-        {
-            sceneHasChanged = _s->onUpdate((_renderType == RT_rt),
-                                           drawBit(SL_DB_VOXELS));
-        }
+        sceneHasChanged = _s->onUpdate((_renderType == RT_rt),
+                                       drawBit(SL_DB_VOXELS));
     }
 
     SLbool camUpdated = false;
@@ -856,6 +853,8 @@ void SLSceneView::draw3DGLNodes(SLVNode& nodes,
                                 SLbool   alphaBlended,
                                 SLbool   depthSorted)
 {
+    // PROFILE_FUNCTION();
+
     if (nodes.empty()) return;
 
     // For blended nodes we activate OpenGL blending and stop depth buffer updates
@@ -867,11 +866,11 @@ void SLSceneView::draw3DGLNodes(SLVNode& nodes,
     // Depth sort with lambda function by their view distance
     if (depthSorted)
     {
-        std::sort(nodes.begin(), nodes.end(), [](SLNode* a, SLNode* b) {
+        std::sort(nodes.begin(), nodes.end(), [](SLNode* a, SLNode* b)
+                  {
             if (!a) return false;
             if (!b) return true;
-            return a->aabb()->sqrViewDist() > b->aabb()->sqrViewDist();
-        });
+            return a->aabb()->sqrViewDist() > b->aabb()->sqrViewDist(); });
     }
 
     // draw the shapes directly with their wm transform

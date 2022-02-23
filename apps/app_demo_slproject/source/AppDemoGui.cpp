@@ -9,17 +9,17 @@
 //#############################################################################
 
 #include <AppDemoGui.h>
-#include <SLAnimPlayback.h>
 #include <AppDemo.h>
 #include <CVCapture.h>
 #include <cv/CVImage.h>
 #include <cv/CVTrackedFeatures.h>
+#include <SLAssetManager.h>
+#include <SLAnimPlayback.h>
 #include <SLGLDepthBuffer.h>
 #include <SLGLProgramManager.h>
 #include <SLGLShader.h>
 #include <SLGLTexture.h>
 #include <SLInterface.h>
-#include <SLDeviceLocation.h>
 #include <SLDeviceRotation.h>
 #include <SLLightDirect.h>
 #include <SLLightRect.h>
@@ -33,14 +33,13 @@
 #include <SLSkybox.h>
 #include <SLTexColorLUT.h>
 #include <SLGLImGui.h>
-#include <SLProjectScene.h>
 #include <SLHorizonNode.h>
 #include <AverageTiming.h>
 #include <imgui.h>
 #include <ftplib.h>
 #include <HttpUtils.h>
 #include <ZipUtils.h>
-#include <Instrumentor.h>
+#include <Profiler.h>
 
 #ifdef SL_BUILD_WAI
 #    include <Eigen/Dense>
@@ -56,7 +55,8 @@ extern SLNode*      gDragonModel; // Global pointer declared in AppDemoLoad
 
 //-----------------------------------------------------------------------------
 //! Vector getter callback for combo and listbox with std::vector<std::string>
-static auto vectorGetter = [](void* vec, int idx, const char** out_text) {
+static auto vectorGetter = [](void* vec, int idx, const char** out_text)
+{
     auto& vector = *(SLVstring*)vec;
     if (idx < 0 || idx >= (int)vector.size())
         return false;
@@ -137,7 +137,7 @@ For more information please visit: https://github.com/cpvrlab/SLProject
 
 SLstring AppDemoGui::infoCredits = R"(
 Contributors since 2005 in alphabetic order:
-Martin Christen, Jan Dellsperger, Manuel Frischknecht, Luc Girod, Michael Goettlicher, Michael Schertenleib, Thomas Schneiter, Stefan Thoeni, Timo Tschanz, Marc Wacker, Pascal Zingg
+Martin Christen, Jan Dellsperger, Manuel Frischknecht, Luc Girod, Michael Goettlicher, Michael Schertenleib, Thomas Schneiter, Stefan Thoeni, Timo Tschanz, Marino von Wattenwyl, Marc Wacker, Pascal Zingg
 
 Credits for external libraries:
 - assimp: assimp.sourceforge.net
@@ -208,9 +208,12 @@ void AppDemoGui::clear()
  SLSceneView::onPaint in SLSceneView::draw2DGL by calling ImGui::Render.\n
  See also the comments on SLGLImGui.
  */
-void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
+void AppDemoGui::build(SLScene* s, SLSceneView* sv)
 {
     PROFILE_FUNCTION();
+
+    assert(s->assetManager() && "No asset manager assigned to scene!");
+    SLAssetManager* am = s->assetManager();
 
     if (AppDemoGui::hideUI ||
         (sv->camera() && sv->camera()->projection() == P_stereoSideBySideD))
@@ -444,13 +447,13 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
                     sprintf(m + strlen(m), "AA Pixels  :%d (%d%%)\n", SLRay::subsampledPixels, (int)((float)SLRay::subsampledPixels / (float)rayPrimaries * 100.0f));
                     sprintf(m + strlen(m), "Threads    :%d\n", rt->numThreads());
                     sprintf(m + strlen(m), "---------------------------\n");
-                    sprintf(m + strlen(m), "Total rays :%8d (%3d%%)\n", rayTotal, 100);
-                    sprintf(m + strlen(m), "  Primary  :%8d (%3d%%)\n", rayPrimaries, (int)((float)rayPrimaries / (float)rayTotal * 100.0f));
-                    sprintf(m + strlen(m), "  Reflected:%8d (%3d%%)\n", SLRay::reflectedRays, (int)((float)SLRay::reflectedRays / (float)rayTotal * 100.0f));
-                    sprintf(m + strlen(m), "  Refracted:%8d (%3d%%)\n", SLRay::refractedRays, (int)((float)SLRay::refractedRays / (float)rayTotal * 100.0f));
-                    sprintf(m + strlen(m), "  TIR      :%8d\n", SLRay::tirRays);
-                    sprintf(m + strlen(m), "  Shadow   :%8d (%3d%%)\n", SLRay::shadowRays, (int)((float)SLRay::shadowRays / (float)rayTotal * 100.0f));
-                    sprintf(m + strlen(m), "  AA       :%8d (%3d%%)\n", SLRay::subsampledRays, (int)((float)SLRay::subsampledRays / (float)rayTotal * 100.0f));
+                    sprintf(m + strlen(m), "Total rays :%9d (%3d%%)\n", rayTotal, 100);
+                    sprintf(m + strlen(m), "  Primary  :%9d (%3d%%)\n", rayPrimaries, (int)((float)rayPrimaries / (float)rayTotal * 100.0f));
+                    sprintf(m + strlen(m), "  Reflected:%9d (%3d%%)\n", SLRay::reflectedRays, (int)((float)SLRay::reflectedRays / (float)rayTotal * 100.0f));
+                    sprintf(m + strlen(m), "  Refracted:%9d (%3d%%)\n", SLRay::refractedRays, (int)((float)SLRay::refractedRays / (float)rayTotal * 100.0f));
+                    sprintf(m + strlen(m), "  TIR      :%9d (%3d%%)\n", SLRay::tirRays, (int)((float)SLRay::tirRays / (float)rayTotal * 100.0f));
+                    sprintf(m + strlen(m), "  Shadow   :%9d (%3d%%)\n", SLRay::shadowRays, (int)((float)SLRay::shadowRays / (float)rayTotal * 100.0f));
+                    sprintf(m + strlen(m), "  AA       :%9d (%3d%%)\n", SLRay::subsampledRays, (int)((float)SLRay::subsampledRays / (float)rayTotal * 100.0f));
                     sprintf(m + strlen(m), "---------------------------\n");
                     sprintf(m + strlen(m), "Max. depth :%u\n", SLRay::maxDepthReached);
                     sprintf(m + strlen(m), "Avg. depth :%0.3f\n", SLRay::avgDepth / rayPrimaries);
@@ -561,7 +564,7 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
 
                 // Calculate total size of texture bytes on CPU
                 SLfloat cpuMBTexture = 0;
-                for (auto* t : s->textures())
+                for (auto* t : am->textures())
                     for (auto* i : t->images())
                         cpuMBTexture += i->bytesPerImage();
                 cpuMBTexture = cpuMBTexture / 1E6f;
@@ -611,13 +614,13 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
 
                 ImGui::Text("Global Resources:");
 
-                if (s->meshes().size() && ImGui::TreeNode("Meshes"))
+                if (am->meshes().size() && ImGui::TreeNode("Meshes"))
                 {
-                    for (SLuint i = 0; i < s->meshes().size(); ++i)
+                    for (SLuint i = 0; i < am->meshes().size(); ++i)
                         ImGui::Text("[%d] %s (%u v.)",
                                     i,
-                                    s->meshes()[i]->name().c_str(),
-                                    (SLuint)s->meshes()[i]->P.size());
+                                    am->meshes()[i]->name().c_str(),
+                                    (SLuint)am->meshes()[i]->P.size());
 
                     ImGui::TreePop();
                 }
@@ -660,24 +663,24 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
                     ImGui::TreePop();
                 }
 
-                if (s->textures().size() && ImGui::TreeNode("Textures"))
+                if (am->textures().size() && ImGui::TreeNode("Textures"))
                 {
-                    for (SLuint i = 0; i < s->textures().size(); ++i)
+                    for (SLuint i = 0; i < am->textures().size(); ++i)
                     {
-                        if (s->textures()[i]->images().empty())
-                            ImGui::Text("[%u] %s on GPU (%s)", i, s->textures()[i]->name().c_str(), s->textures()[i]->isTexture() ? "ok" : "not ok");
+                        if (am->textures()[i]->images().empty())
+                            ImGui::Text("[%u] %s on GPU (%s)", i, am->textures()[i]->name().c_str(), am->textures()[i]->isTexture() ? "ok" : "not ok");
                         else
-                            ImGui::Text("[%u] %s (%s)", i, s->textures()[i]->name().c_str(), s->textures()[i]->isTexture() ? "ok" : "not ok");
+                            ImGui::Text("[%u] %s (%s)", i, am->textures()[i]->name().c_str(), am->textures()[i]->isTexture() ? "ok" : "not ok");
                     }
 
                     ImGui::TreePop();
                 }
 
-                if (s->programs().size() && ImGui::TreeNode("Programs (asset manager)"))
+                if (am->programs().size() && ImGui::TreeNode("Programs (asset manager)"))
                 {
-                    for (SLuint i = 0; i < s->programs().size(); ++i)
+                    for (SLuint i = 0; i < am->programs().size(); ++i)
                     {
-                        SLGLProgram* p = s->programs()[i];
+                        SLGLProgram* p = am->programs()[i];
                         ImGui::Text("[%u] %s", i, p->name().c_str());
                     }
                     ImGui::TreePop();
@@ -804,9 +807,9 @@ void AppDemoGui::build(SLProjectScene* s, SLSceneView* sv)
                 window_flags |= ImGuiWindowFlags_NoScrollbar;
                 SLfloat  w    = (SLfloat)sv->viewportW();
                 ImVec2   size = ImGui::CalcTextSize(s->info().c_str(),
-                                                    nullptr,
-                                                    true,
-                                                    w);
+                                                  nullptr,
+                                                  true,
+                                                  w);
                 SLfloat  h    = size.y + SLGLImGui::fontPropDots * 2.0f;
                 SLstring info = "Scene Info: " + s->info();
 
@@ -1426,9 +1429,12 @@ CVCalibration guessCalibration(bool         mirroredH,
 
 //-----------------------------------------------------------------------------
 //! Builds the entire menu bar once per frame
-void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
+void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
 {
     PROFILE_FUNCTION();
+
+    assert(s->assetManager() && "No asset manager assigned to scene!");
+    SLAssetManager* am = s->assetManager();
 
     SLSceneID    sid           = AppDemo::sceneID;
     SLGLState*   stateGL       = SLGLState::instance();
@@ -1448,30 +1454,30 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
         {
             if (ImGui::BeginMenu("Load Test Scene"))
             {
-                if (ImGui::BeginMenu("General Scenes"))
+                if (ImGui::BeginMenu("General"))
                 {
                     if (ImGui::MenuItem("Minimal Scene", nullptr, sid == SID_Minimal))
-                        s->onLoad(s, sv, SID_Minimal);
+                        s->onLoad(am, s, sv, SID_Minimal);
                     if (ImGui::MenuItem("Figure Scene", nullptr, sid == SID_Figure))
-                        s->onLoad(s, sv, SID_Figure);
+                        s->onLoad(am, s, sv, SID_Figure);
                     if (ImGui::MenuItem("Mesh Loader", nullptr, sid == SID_MeshLoad))
-                        s->onLoad(s, sv, SID_MeshLoad);
+                        s->onLoad(am, s, sv, SID_MeshLoad);
                     if (ImGui::MenuItem("Revolver Meshes", nullptr, sid == SID_Revolver))
-                        s->onLoad(s, sv, SID_Revolver);
+                        s->onLoad(am, s, sv, SID_Revolver);
                     if (ImGui::MenuItem("Texture Blending", nullptr, sid == SID_TextureBlend))
-                        s->onLoad(s, sv, SID_TextureBlend);
+                        s->onLoad(am, s, sv, SID_TextureBlend);
                     if (ImGui::MenuItem("Texture Filters", nullptr, sid == SID_TextureFilter))
-                        s->onLoad(s, sv, SID_TextureFilter);
+                        s->onLoad(am, s, sv, SID_TextureFilter);
 #ifdef SL_BUILD_WITH_KTX
                     if (ImGui::MenuItem("Texture Compression", nullptr, sid == SID_TextureCompression))
-                        s->onLoad(s, sv, SID_TextureCompression);
+                        s->onLoad(am, s, sv, SID_TextureCompression);
 #endif
                     if (ImGui::MenuItem("Frustum Culling", nullptr, sid == SID_FrustumCull))
-                        s->onLoad(s, sv, SID_FrustumCull);
+                        s->onLoad(am, s, sv, SID_FrustumCull);
                     if (ImGui::MenuItem("2D and 3D Text", nullptr, sid == SID_2Dand3DText))
-                        s->onLoad(s, sv, SID_2Dand3DText);
+                        s->onLoad(am, s, sv, SID_2Dand3DText);
                     if (ImGui::MenuItem("Point Clouds", nullptr, sid == SID_PointClouds))
-                        s->onLoad(s, sv, SID_PointClouds);
+                        s->onLoad(am, s, sv, SID_PointClouds);
 
                     ImGui::EndMenu();
                 }
@@ -1479,26 +1485,26 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                 if (ImGui::BeginMenu("Shader"))
                 {
                     if (ImGui::MenuItem("Per Vertex Blinn-Phong", nullptr, sid == SID_ShaderPerVertexBlinn))
-                        s->onLoad(s, sv, SID_ShaderPerVertexBlinn);
+                        s->onLoad(am, s, sv, SID_ShaderPerVertexBlinn);
                     if (ImGui::MenuItem("Per Pixel Blinn-Phong", nullptr, sid == SID_ShaderPerPixelBlinn))
-                        s->onLoad(s, sv, SID_ShaderPerPixelBlinn);
+                        s->onLoad(am, s, sv, SID_ShaderPerPixelBlinn);
                     if (ImGui::MenuItem("Per Pixel Cook-Torrance", nullptr, sid == SID_ShaderPerPixelCook))
-                        s->onLoad(s, sv, SID_ShaderPerPixelCook);
+                        s->onLoad(am, s, sv, SID_ShaderPerPixelCook);
                     if (ImGui::MenuItem("Image Based Lighting", nullptr, sid == SID_ShaderIBL))
-                        s->onLoad(s, sv, SID_ShaderIBL);
+                        s->onLoad(am, s, sv, SID_ShaderIBL);
                     if (ImGui::MenuItem("Per Vertex Wave", nullptr, sid == SID_ShaderPerVertexWave))
-                        s->onLoad(s, sv, SID_ShaderPerVertexWave);
+                        s->onLoad(am, s, sv, SID_ShaderPerVertexWave);
                     if (ImGui::MenuItem("Bump Mapping", nullptr, sid == SID_ShaderBumpNormal))
-                        s->onLoad(s, sv, SID_ShaderBumpNormal);
+                        s->onLoad(am, s, sv, SID_ShaderBumpNormal);
                     if (ImGui::MenuItem("Parallax Mapping", nullptr, sid == SID_ShaderBumpParallax))
-                        s->onLoad(s, sv, SID_ShaderBumpParallax);
+                        s->onLoad(am, s, sv, SID_ShaderBumpParallax);
                     if (ImGui::MenuItem("Skybox Shader", nullptr, sid == SID_ShaderSkyBox))
-                        s->onLoad(s, sv, SID_ShaderSkyBox);
+                        s->onLoad(am, s, sv, SID_ShaderSkyBox);
                     if (ImGui::MenuItem("Earth Shader", nullptr, sid == SID_ShaderEarth))
-                        s->onLoad(s, sv, SID_ShaderEarth);
+                        s->onLoad(am, s, sv, SID_ShaderEarth);
 #if defined(GL_VERSION_4_4)
                     if (ImGui::MenuItem("Voxel Cone Tracing", nullptr, sid == SID_ShaderVoxelConeDemo))
-                        s->onLoad(s, sv, SID_ShaderVoxelConeDemo);
+                        s->onLoad(am, s, sv, SID_ShaderVoxelConeDemo);
 #endif
                     ImGui::EndMenu();
                 }
@@ -1506,19 +1512,19 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                 if (ImGui::BeginMenu("Shadow Mapping"))
                 {
                     if (ImGui::MenuItem("Basic Scene", nullptr, sid == SID_ShadowMappingBasicScene))
-                        s->onLoad(s, sv, SID_ShadowMappingBasicScene);
+                        s->onLoad(am, s, sv, SID_ShadowMappingBasicScene);
                     if (ImGui::MenuItem("Light Types", nullptr, sid == SID_ShadowMappingLightTypes))
-                        s->onLoad(s, sv, SID_ShadowMappingLightTypes);
+                        s->onLoad(am, s, sv, SID_ShadowMappingLightTypes);
                     if (ImGui::MenuItem("8 Spot Lights", nullptr, sid == SID_ShadowMappingSpotLights))
-                        s->onLoad(s, sv, SID_ShadowMappingSpotLights);
+                        s->onLoad(am, s, sv, SID_ShadowMappingSpotLights);
                     if (ImGui::MenuItem("3 Point Lights", nullptr, sid == SID_ShadowMappingPointLights))
-                        s->onLoad(s, sv, SID_ShadowMappingPointLights);
+                        s->onLoad(am, s, sv, SID_ShadowMappingPointLights);
                     if (ImGui::MenuItem("RT Soft Shadows", nullptr, sid == SID_RTSoftShadows))
-                        s->onLoad(s, sv, SID_RTSoftShadows);
+                        s->onLoad(am, s, sv, SID_RTSoftShadows);
                     if (ImGui::MenuItem("Cascaded Shadows", nullptr, sid == SID_ShadowMappingCascaded))
-                        s->onLoad(s, sv, SID_ShadowMappingCascaded);
-                    if (ImGui::MenuItem("Cascaded Shadows with LOD", nullptr, sid == SID_Benchmark5_LevelOfDetail))
-                        s->onLoad(s, sv, SID_Benchmark5_LevelOfDetail);
+                        s->onLoad(am, s, sv, SID_ShadowMappingCascaded);
+                    if (ImGui::MenuItem("Columns with Cascaded Sh.", nullptr, sid == SID_Benchmark6_ColumnsLOD))
+                        s->onLoad(am, s, sv, SID_Benchmark6_ColumnsLOD);
 
                     ImGui::EndMenu();
                 }
@@ -1526,33 +1532,33 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                 if (ImGui::BeginMenu("Suzanne Lighting"))
                 {
                     if (ImGui::MenuItem("w. per Pixel Lighting (PL)", nullptr, sid == SID_SuzannePerPixBlinn))
-                        s->onLoad(s, sv, SID_SuzannePerPixBlinn);
+                        s->onLoad(am, s, sv, SID_SuzannePerPixBlinn);
                     if (ImGui::MenuItem("w. PL and Texture Mapping (TM)", nullptr, sid == SID_SuzannePerPixBlinnTm))
-                        s->onLoad(s, sv, SID_SuzannePerPixBlinnTm);
+                        s->onLoad(am, s, sv, SID_SuzannePerPixBlinnTm);
                     if (ImGui::MenuItem("w. PL and Normal Mapping (NM)", nullptr, sid == SID_SuzannePerPixBlinnNm))
-                        s->onLoad(s, sv, SID_SuzannePerPixBlinnNm);
+                        s->onLoad(am, s, sv, SID_SuzannePerPixBlinnNm);
                     if (ImGui::MenuItem("w. PL and Ambient Occlusion (AO)", nullptr, sid == SID_SuzannePerPixBlinnAo))
-                        s->onLoad(s, sv, SID_SuzannePerPixBlinnAo);
+                        s->onLoad(am, s, sv, SID_SuzannePerPixBlinnAo);
                     if (ImGui::MenuItem("w. PL and Shadow Mapping (SM)", nullptr, sid == SID_SuzannePerPixBlinnSm))
-                        s->onLoad(s, sv, SID_SuzannePerPixBlinnSm);
+                        s->onLoad(am, s, sv, SID_SuzannePerPixBlinnSm);
                     if (ImGui::MenuItem("w. PL, TM, NM", nullptr, sid == SID_SuzannePerPixBlinnTmNm))
-                        s->onLoad(s, sv, SID_SuzannePerPixBlinnTmNm);
+                        s->onLoad(am, s, sv, SID_SuzannePerPixBlinnTmNm);
                     if (ImGui::MenuItem("w. PL, TM, AO", nullptr, sid == SID_SuzannePerPixBlinnTmAo))
-                        s->onLoad(s, sv, SID_SuzannePerPixBlinnTmAo);
+                        s->onLoad(am, s, sv, SID_SuzannePerPixBlinnTmAo);
                     if (ImGui::MenuItem("w. PL, NM, AO", nullptr, sid == SID_SuzannePerPixBlinnNmAo))
-                        s->onLoad(s, sv, SID_SuzannePerPixBlinnNmAo);
+                        s->onLoad(am, s, sv, SID_SuzannePerPixBlinnNmAo);
                     if (ImGui::MenuItem("w. PL, NM, SM", nullptr, sid == SID_SuzannePerPixBlinnNmSm))
-                        s->onLoad(s, sv, SID_SuzannePerPixBlinnNmSm);
+                        s->onLoad(am, s, sv, SID_SuzannePerPixBlinnNmSm);
                     if (ImGui::MenuItem("w. PL, TM, SM", nullptr, sid == SID_SuzannePerPixBlinnTmSm))
-                        s->onLoad(s, sv, SID_SuzannePerPixBlinnTmSm);
+                        s->onLoad(am, s, sv, SID_SuzannePerPixBlinnTmSm);
                     if (ImGui::MenuItem("w. PL, AO, SM", nullptr, sid == SID_SuzannePerPixBlinnAoSm))
-                        s->onLoad(s, sv, SID_SuzannePerPixBlinnAoSm);
+                        s->onLoad(am, s, sv, SID_SuzannePerPixBlinnAoSm);
                     if (ImGui::MenuItem("w. PL, TM, NM, AO", nullptr, sid == SID_SuzannePerPixBlinnTmNmAo))
-                        s->onLoad(s, sv, SID_SuzannePerPixBlinnTmNmAo);
+                        s->onLoad(am, s, sv, SID_SuzannePerPixBlinnTmNmAo);
                     if (ImGui::MenuItem("w. PL, TM, NM, SM", nullptr, sid == SID_SuzannePerPixBlinnTmNmSm))
-                        s->onLoad(s, sv, SID_SuzannePerPixBlinnTmNmSm);
+                        s->onLoad(am, s, sv, SID_SuzannePerPixBlinnTmNmSm);
                     if (ImGui::MenuItem("w. PL, TM, NM, AO, SM", nullptr, sid == SID_SuzannePerPixBlinnTmNmAoSm))
-                        s->onLoad(s, sv, SID_SuzannePerPixBlinnTmNmAoSm);
+                        s->onLoad(am, s, sv, SID_SuzannePerPixBlinnTmNmAoSm);
                     ImGui::EndMenu();
                 }
 
@@ -1566,7 +1572,7 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                     {
                         SLstring fileToLoad = AppDemo::configPath + "models/glTF-Sample-Models/2.0/ClearCoatTest/glTF/ClearCoatTest.gltf";
                         if (Utils::fileExists(fileToLoad))
-                            s->onLoad(s, sv, SID_glTF_ClearCoatTest);
+                            s->onLoad(am, s, sv, SID_glTF_ClearCoatTest);
                         else
                             downloadModelAndLoadScene(s, sv, zip, pathSrc, pathDst, fileToLoad, SID_glTF_ClearCoatTest);
                     }*/
@@ -1574,7 +1580,7 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                     {
                         SLstring fileToLoad = AppDemo::configPath + "models/glTF-Sample-Models/2.0/DamagedHelmet/glTF/DamagedHelmet.gltf";
                         if (Utils::fileExists(fileToLoad))
-                            s->onLoad(s, sv, SID_glTF_DamagedHelmet);
+                            s->onLoad(am, s, sv, SID_glTF_DamagedHelmet);
                         else
                             downloadModelAndLoadScene(s, sv, zip, pathSrc, pathDst, fileToLoad, SID_glTF_DamagedHelmet);
                     }
@@ -1582,7 +1588,7 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                     {
                         SLstring fileToLoad = AppDemo::configPath + "models/glTF-Sample-Models/2.0/FlightHelmet/glTF/FlightHelmet.gltf";
                         if (Utils::fileExists(fileToLoad))
-                            s->onLoad(s, sv, SID_glTF_FlightHelmet);
+                            s->onLoad(am, s, sv, SID_glTF_FlightHelmet);
                         else
                             downloadModelAndLoadScene(s, sv, zip, pathSrc, pathDst, fileToLoad, SID_glTF_FlightHelmet);
                     }
@@ -1590,7 +1596,7 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                     {
                         SLstring fileToLoad = AppDemo::configPath + "models/glTF-Sample-Models/2.0/Sponza/glTF/Sponza.gltf";
                         if (Utils::fileExists(fileToLoad))
-                            s->onLoad(s, sv, SID_glTF_Sponza);
+                            s->onLoad(am, s, sv, SID_glTF_Sponza);
                         else
                             downloadModelAndLoadScene(s, sv, zip, pathSrc, pathDst, fileToLoad, SID_glTF_Sponza);
                     }
@@ -1598,7 +1604,7 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                     {
                         SLstring fileToLoad = AppDemo::configPath + "models/glTF-Sample-Models/2.0/DamagedHelmet/glTF/DamagedHelmet.gltf";
                         if (Utils::fileExists(fileToLoad))
-                            s->onLoad(s, sv, SID_glTF_WaterBottle);
+                            s->onLoad(am, s, sv, SID_glTF_WaterBottle);
                         else
                             downloadModelAndLoadScene(s, sv, zip, pathSrc, pathDst, fileToLoad, SID_glTF_WaterBottle);
                     }
@@ -1609,11 +1615,12 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                 if (ImGui::BeginMenu("Volume Rendering"))
                 {
                     if (ImGui::MenuItem("Head MRI Ray Cast", nullptr, sid == SID_VolumeRayCast))
-                        s->onLoad(s, sv, SID_VolumeRayCast);
+                        s->onLoad(am, s, sv, SID_VolumeRayCast);
 
                     if (ImGui::MenuItem("Head MRI Ray Cast Lighted", nullptr, sid == SID_VolumeRayCastLighted))
                     {
-                        auto loadMRIImages = []() {
+                        auto loadMRIImages = []()
+                        {
                             AppDemo::jobProgressMsg("Load MRI Images");
                             AppDemo::jobProgressMax(100);
 
@@ -1623,36 +1630,41 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                                 mriImages.push_back(AppDemo::texturePath + Utils::formatString("i%04u_0000b.png", i));
 
                             gTexMRI3D             = new SLGLTexture(nullptr,
-                                                                    mriImages,
-                                                                    GL_LINEAR,
-                                                                    GL_LINEAR,
-                                                                    0x812D, // GL_CLAMP_TO_BORDER (GLSL 320)
-                                                                    0x812D, // GL_CLAMP_TO_BORDER (GLSL 320)
-                                                                    "mri_head_front_to_back",
-                                                                    true);
+                                                        mriImages,
+                                                        GL_LINEAR,
+                                                        GL_LINEAR,
+                                                        0x812D, // GL_CLAMP_TO_BORDER (GLSL 320)
+                                                        0x812D, // GL_CLAMP_TO_BORDER (GLSL 320)
+                                                        "mri_head_front_to_back",
+                                                        true);
                             AppDemo::jobIsRunning = false;
                         };
 
-                        auto calculateGradients = []() {
+                        auto calculateGradients = []()
+                        {
                             AppDemo::jobProgressMsg("Calculate MRI Volume Gradients");
                             AppDemo::jobProgressMax(100);
                             gTexMRI3D->calc3DGradients(1,
-                                                       [](int progress) { AppDemo::jobProgressNum(progress); });
+                                                       [](int progress)
+                                                       { AppDemo::jobProgressNum(progress); });
                             AppDemo::jobIsRunning = false;
                         };
 
-                        auto smoothGradients = []() {
+                        auto smoothGradients = []()
+                        {
                             AppDemo::jobProgressMsg("Smooth MRI Volume Gradients");
                             AppDemo::jobProgressMax(100);
                             gTexMRI3D->smooth3DGradients(1,
-                                                         [](int progress) { AppDemo::jobProgressNum(progress); });
+                                                         [](int progress)
+                                                         { AppDemo::jobProgressNum(progress); });
                             AppDemo::jobIsRunning = false;
                         };
 
-                        auto followUpJob1 = [](SLScene* s, SLSceneView* sv) {
-                            s->onLoad(s, sv, SID_VolumeRayCastLighted);
+                        auto followUpJob1 = [](SLAssetManager* am, SLScene* s, SLSceneView* sv)
+                        {
+                            s->onLoad(am, s, sv, SID_VolumeRayCastLighted);
                         };
-                        function<void(void)> onLoadScene = bind(followUpJob1, s, sv);
+                        function<void(void)> onLoadScene = bind(followUpJob1, am, s, sv);
 
                         AppDemo::jobsToBeThreaded.emplace_back(loadMRIImages);
                         AppDemo::jobsToBeThreaded.emplace_back(calculateGradients);
@@ -1666,42 +1678,42 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                 if (ImGui::BeginMenu("Animation"))
                 {
                     if (ImGui::MenuItem("Node Animation", nullptr, sid == SID_AnimationNode))
-                        s->onLoad(s, sv, SID_AnimationNode);
+                        s->onLoad(am, s, sv, SID_AnimationNode);
                     if (ImGui::MenuItem("Mass Animation", nullptr, sid == SID_AnimationMass))
-                        s->onLoad(s, sv, SID_AnimationMass);
+                        s->onLoad(am, s, sv, SID_AnimationMass);
                     if (ImGui::MenuItem("Skeletal Animation", nullptr, sid == SID_AnimationSkeletal))
-                        s->onLoad(s, sv, SID_AnimationSkeletal);
+                        s->onLoad(am, s, sv, SID_AnimationSkeletal);
                     if (ImGui::MenuItem("AstroBoy Army", nullptr, sid == SID_AnimationAstroboyArmy))
-                        s->onLoad(s, sv, SID_AnimationAstroboyArmy);
+                        s->onLoad(am, s, sv, SID_AnimationAstroboyArmy);
 
                     ImGui::EndMenu();
                 }
 
-                if (ImGui::BeginMenu("Using Video"))
+                if (ImGui::BeginMenu("Video"))
                 {
                     if (ImGui::MenuItem("Texture from Video Live", nullptr, sid == SID_VideoTextureLive))
-                        s->onLoad(s, sv, SID_VideoTextureLive);
+                        s->onLoad(am, s, sv, SID_VideoTextureLive);
                     if (ImGui::MenuItem("Texture from Video File", nullptr, sid == SID_VideoTextureFile))
-                        s->onLoad(s, sv, SID_VideoTextureFile);
+                        s->onLoad(am, s, sv, SID_VideoTextureFile);
                     if (ImGui::MenuItem("Track ArUco Marker (Main)", nullptr, sid == SID_VideoTrackArucoMain))
-                        s->onLoad(s, sv, SID_VideoTrackArucoMain);
+                        s->onLoad(am, s, sv, SID_VideoTrackArucoMain);
                     if (ImGui::MenuItem("Track ArUco Marker (Scnd)", nullptr, sid == SID_VideoTrackArucoScnd, capture->hasSecondaryCamera))
-                        s->onLoad(s, sv, SID_VideoTrackArucoScnd);
+                        s->onLoad(am, s, sv, SID_VideoTrackArucoScnd);
                     if (ImGui::MenuItem("Track Chessboard (Main)", nullptr, sid == SID_VideoTrackChessMain))
-                        s->onLoad(s, sv, SID_VideoTrackChessMain);
+                        s->onLoad(am, s, sv, SID_VideoTrackChessMain);
                     if (ImGui::MenuItem("Track Chessboard (Scnd)", nullptr, sid == SID_VideoTrackChessScnd, capture->hasSecondaryCamera))
-                        s->onLoad(s, sv, SID_VideoTrackChessScnd);
+                        s->onLoad(am, s, sv, SID_VideoTrackChessScnd);
                     if (ImGui::MenuItem("Track Features (Main)", nullptr, sid == SID_VideoTrackFeature2DMain))
-                        s->onLoad(s, sv, SID_VideoTrackFeature2DMain);
+                        s->onLoad(am, s, sv, SID_VideoTrackFeature2DMain);
                     if (ImGui::MenuItem("Track Face (Main)", nullptr, sid == SID_VideoTrackFaceMain))
-                        s->onLoad(s, sv, SID_VideoTrackFaceMain);
+                        s->onLoad(am, s, sv, SID_VideoTrackFaceMain);
                     if (ImGui::MenuItem("Track Face (Scnd)", nullptr, sid == SID_VideoTrackFaceScnd, capture->hasSecondaryCamera))
-                        s->onLoad(s, sv, SID_VideoTrackFaceScnd);
+                        s->onLoad(am, s, sv, SID_VideoTrackFaceScnd);
                     if (ImGui::MenuItem("Sensor AR (Main)", nullptr, sid == SID_VideoSensorAR))
-                        s->onLoad(s, sv, SID_VideoSensorAR);
+                        s->onLoad(am, s, sv, SID_VideoSensorAR);
 #ifdef SL_BUILD_WAI
                     if (ImGui::MenuItem("Track WAI (Main)", nullptr, sid == SID_VideoTrackWAI))
-                        s->onLoad(s, sv, SID_VideoTrackWAI);
+                        s->onLoad(am, s, sv, SID_VideoTrackWAI);
 #endif
                     ImGui::EndMenu();
                 }
@@ -1709,17 +1721,17 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                 if (ImGui::BeginMenu("Ray tracing"))
                 {
                     if (ImGui::MenuItem("Spheres", nullptr, sid == SID_RTSpheres))
-                        s->onLoad(s, sv, SID_RTSpheres);
+                        s->onLoad(am, s, sv, SID_RTSpheres);
                     if (ImGui::MenuItem("Muttenzer Box", nullptr, sid == SID_RTMuttenzerBox))
-                        s->onLoad(s, sv, SID_RTMuttenzerBox);
+                        s->onLoad(am, s, sv, SID_RTMuttenzerBox);
                     if (ImGui::MenuItem("Soft Shadows", nullptr, sid == SID_RTSoftShadows))
-                        s->onLoad(s, sv, SID_RTSoftShadows);
+                        s->onLoad(am, s, sv, SID_RTSoftShadows);
                     if (ImGui::MenuItem("Depth of Field", nullptr, sid == SID_RTDoF))
-                        s->onLoad(s, sv, SID_RTDoF);
+                        s->onLoad(am, s, sv, SID_RTDoF);
                     if (ImGui::MenuItem("Lens Test", nullptr, sid == SID_RTLens))
-                        s->onLoad(s, sv, SID_RTLens);
+                        s->onLoad(am, s, sv, SID_RTLens);
                     if (ImGui::MenuItem("RT Test", nullptr, sid == SID_RTTest))
-                        s->onLoad(s, sv, SID_RTTest);
+                        s->onLoad(am, s, sv, SID_RTTest);
 
                     ImGui::EndMenu();
                 }
@@ -1727,7 +1739,7 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                 if (ImGui::BeginMenu("Path tracing"))
                 {
                     if (ImGui::MenuItem("Muttenzer Box", nullptr, sid == SID_RTMuttenzerBox))
-                        s->onLoad(s, sv, SID_RTMuttenzerBox);
+                        s->onLoad(am, s, sv, SID_RTMuttenzerBox);
 
                     ImGui::EndMenu();
                 }
@@ -1738,10 +1750,11 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                     {
                         SLstring largeFile = AppDemo::configPath + "models/xyzrgb_dragon/xyzrgb_dragon.ply";
                         if (Utils::fileExists(largeFile))
-                            s->onLoad(s, sv, SID_Benchmark1_LargeModel);
+                            s->onLoad(am, s, sv, SID_Benchmark1_LargeModel);
                         else
                         {
-                            auto downloadJobFTP = []() {
+                            auto downloadJobFTP = []()
+                            {
                                 AppDemo::jobProgressMsg("Downloading large dragon file via FTP:");
                                 AppDemo::jobProgressMax(100);
                                 ftplib ftp;
@@ -1785,7 +1798,8 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                                 AppDemo::jobIsRunning = false;
                             };
 
-                            auto unzipJob = [largeFile]() {
+                            auto unzipJob = [largeFile]()
+                            {
                                 AppDemo::jobProgressMsg("Decompress dragon file:");
                                 AppDemo::jobProgressMax(-1);
                                 string zipFile = AppDemo::configPath + "models/xyzrgb_dragon.zip";
@@ -1797,9 +1811,10 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                                 AppDemo::jobIsRunning = false;
                             };
 
-                            auto followUpJob1 = [s, sv, largeFile]() {
+                            auto followUpJob1 = [am, s, sv, largeFile]()
+                            {
                                 if (Utils::fileExists(largeFile))
-                                    s->onLoad(s, sv, SID_Benchmark1_LargeModel);
+                                    s->onLoad(am, s, sv, SID_Benchmark1_LargeModel);
                             };
 
                             AppDemo::jobsToBeThreaded.emplace_back(downloadJobFTP);
@@ -1811,7 +1826,7 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                     {
                         SLstring largeFile = AppDemo::configPath + "models/xyzrgb_dragon/xyzrgb_dragon.ply";
                         if (Utils::fileExists(largeFile))
-                            s->onLoad(s, sv, SID_Benchmark1_LargeModel);
+                            s->onLoad(am, s, sv, SID_Benchmark1_LargeModel);
                         else
                         {
                             downloadModelAndLoadScene(s,
@@ -1824,16 +1839,16 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                         }
                     }
                     if (ImGui::MenuItem("Massive Nodes", nullptr, sid == SID_Benchmark2_MassiveNodes))
-                        s->onLoad(s, sv, SID_Benchmark2_MassiveNodes);
+                        s->onLoad(am, s, sv, SID_Benchmark2_MassiveNodes);
                     if (ImGui::MenuItem("Massive Node Animations", nullptr, sid == SID_Benchmark3_NodeAnimations))
-                        s->onLoad(s, sv, SID_Benchmark3_NodeAnimations);
+                        s->onLoad(am, s, sv, SID_Benchmark3_NodeAnimations);
                     if (ImGui::MenuItem("Massive Skinned Animations", nullptr, sid == SID_Benchmark4_SkinnedAnimations))
-                        s->onLoad(s, sv, SID_Benchmark4_SkinnedAnimations);
-                    if (ImGui::MenuItem("Level of Detail (LOD)", nullptr, sid == SID_Benchmark5_LevelOfDetail))
+                        s->onLoad(am, s, sv, SID_Benchmark4_SkinnedAnimations);
+                    if (ImGui::MenuItem("Columns without LOD", nullptr, sid == SID_Benchmark5_ColumnsNoLOD))
                     {
                         SLstring largeFile = AppDemo::configPath + "models/GLTF-CorinthianColumn/Corinthian-Column-Round-LOD.gltf";
                         if (Utils::fileExists(largeFile))
-                            s->onLoad(s, sv, SID_Benchmark5_LevelOfDetail);
+                            s->onLoad(am, s, sv, SID_Benchmark5_ColumnsNoLOD);
                         else
                         {
                             downloadModelAndLoadScene(s,
@@ -1842,7 +1857,23 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                                                       "https://pallas.ti.bfh.ch/data/SLProject/models/",
                                                       AppDemo::configPath + "models/",
                                                       largeFile,
-                                                      SID_Benchmark5_LevelOfDetail);
+                                                      SID_Benchmark5_ColumnsNoLOD);
+                        }
+                    }
+                    if (ImGui::MenuItem("Columns with LOD", nullptr, sid == SID_Benchmark6_ColumnsLOD))
+                    {
+                        SLstring largeFile = AppDemo::configPath + "models/GLTF-CorinthianColumn/Corinthian-Column-Round-LOD.gltf";
+                        if (Utils::fileExists(largeFile))
+                            s->onLoad(am, s, sv, SID_Benchmark6_ColumnsLOD);
+                        else
+                        {
+                            downloadModelAndLoadScene(s,
+                                                      sv,
+                                                      "GLTF-CorinthianColumn.zip",
+                                                      "https://pallas.ti.bfh.ch/data/SLProject/models/",
+                                                      AppDemo::configPath + "models/",
+                                                      largeFile,
+                                                      SID_Benchmark6_ColumnsLOD);
                         }
                     }
 
@@ -1873,39 +1904,39 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                     {
                         if (Utils::fileExists(modelBR2))
                             if (ImGui::MenuItem("Bern: Christoffel Tower", nullptr, sid == SID_ErlebARBernChristoffel))
-                                s->onLoad(s, sv, SID_ErlebARBernChristoffel);
+                                s->onLoad(am, s, sv, SID_ErlebARBernChristoffel);
 
                         if (Utils::fileExists(modelBFH))
                             if (ImGui::MenuItem("Biel: BFH", nullptr, sid == SID_ErlebARBielBFH))
-                                s->onLoad(s, sv, SID_ErlebARBielBFH);
+                                s->onLoad(am, s, sv, SID_ErlebARBielBFH);
 
                         if (Utils::fileExists(modelAR1))
                             if (ImGui::MenuItem("Augusta Raurica Temple", nullptr, sid == SID_ErlebARAugustaRauricaTmp))
-                                s->onLoad(s, sv, SID_ErlebARAugustaRauricaTmp);
+                                s->onLoad(am, s, sv, SID_ErlebARAugustaRauricaTmp);
 
                         if (Utils::fileExists(modelAR2))
                             if (ImGui::MenuItem("Augusta Raurica Theater", nullptr, sid == SID_ErlebARAugustaRauricaTht))
-                                s->onLoad(s, sv, SID_ErlebARAugustaRauricaTht);
+                                s->onLoad(am, s, sv, SID_ErlebARAugustaRauricaTht);
 
                         if (Utils::fileExists(modelAR3))
                             if (ImGui::MenuItem("Augusta Raurica Temple & Theater", nullptr, sid == SID_ErlebARAugustaRauricaTmpTht))
-                                s->onLoad(s, sv, SID_ErlebARAugustaRauricaTmpTht);
+                                s->onLoad(am, s, sv, SID_ErlebARAugustaRauricaTmpTht);
 
                         if (Utils::fileExists(modelAV1_AO))
                             if (ImGui::MenuItem("Aventicum: Amphitheatre", nullptr, sid == SID_ErlebARAventicumAmphiteatre))
-                                s->onLoad(s, sv, SID_ErlebARAventicumAmphiteatre);
+                                s->onLoad(am, s, sv, SID_ErlebARAventicumAmphiteatre);
 
                         if (Utils::fileExists(modelAV2_AO))
                             if (ImGui::MenuItem("Aventicum: Cigognier", nullptr, sid == SID_ErlebARAventicumCigognier))
-                                s->onLoad(s, sv, SID_ErlebARAventicumCigognier);
+                                s->onLoad(am, s, sv, SID_ErlebARAventicumCigognier);
 
                         if (Utils::fileExists(modelAV3))
                             if (ImGui::MenuItem("Aventicum: Theatre", nullptr, sid == SID_ErlebARAventicumTheatre))
-                                s->onLoad(s, sv, SID_ErlebARAventicumTheatre);
+                                s->onLoad(am, s, sv, SID_ErlebARAventicumTheatre);
 
                         if (Utils::fileExists(modelSU1))
                             if (ImGui::MenuItem("Sutz: Kirchrain 18", nullptr, sid == SID_ErlebARSutzKirchrain18))
-                                s->onLoad(s, sv, SID_ErlebARSutzKirchrain18);
+                                s->onLoad(am, s, sv, SID_ErlebARSutzKirchrain18);
 
                         ImGui::EndMenu();
                     }
@@ -1915,25 +1946,29 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
             }
 
             if (ImGui::MenuItem("Empty Scene", "Shift-Alt-0", sid == SID_Empty))
-                s->onLoad(s, sv, SID_Empty);
+                s->onLoad(am, s, sv, SID_Empty);
 
             if (ImGui::MenuItem("Next Scene",
                                 "Shift-Alt-Right",
                                 nullptr,
                                 AppDemo::sceneID < SID_Maximal - 1))
-                s->onLoad(s, sv, AppDemo::sceneID + 1);
+                s->onLoad(am, s, sv, AppDemo::sceneID + 1);
 
             if (ImGui::MenuItem("Previous Scene",
                                 "Shift-Alt-Left",
                                 nullptr,
                                 AppDemo::sceneID > SID_Empty))
-                s->onLoad(s, sv, AppDemo::sceneID - 1);
+                s->onLoad(am, s, sv, AppDemo::sceneID - 1);
 
             ImGui::Separator();
 
             if (ImGui::MenuItem("Multi-threaded Jobs"))
             {
-                auto job1 = []() {
+                auto job1 = []()
+                {
+                    PROFILE_THREAD("Worker Thread 1");
+                    PROFILE_SCOPE("Parallel Job 1");
+
                     uint maxIter = 100000;
                     AppDemo::jobProgressMsg("Super long job 1");
                     AppDemo::jobProgressMax(100);
@@ -1946,7 +1981,11 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                     AppDemo::jobIsRunning = false;
                 };
 
-                auto job2 = []() {
+                auto job2 = []()
+                {
+                    PROFILE_THREAD("Worker Thread 2");
+                    PROFILE_SCOPE("Parallel Job 2");
+
                     uint maxIter = 100000;
                     AppDemo::jobProgressMsg("Super long job 2");
                     AppDemo::jobProgressMax(100);
@@ -1959,8 +1998,10 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                     AppDemo::jobIsRunning = false;
                 };
 
-                auto followUpJob1 = []() { SL_LOG("followUpJob1"); };
-                auto jobToFollow2 = []() { SL_LOG("JobToFollow2"); };
+                auto followUpJob1 = []()
+                { SL_LOG("followUpJob1"); };
+                auto jobToFollow2 = []()
+                { SL_LOG("JobToFollow2"); };
 
                 AppDemo::jobsToBeThreaded.emplace_back(job1);
                 AppDemo::jobsToBeThreaded.emplace_back(job2);
@@ -2160,14 +2201,14 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                 {
                     if (ImGui::MenuItem("Start Calibration (Main Camera)"))
                     {
-                        s->onLoad(s, sv, SID_VideoCalibrateMain);
+                        s->onLoad(am, s, sv, SID_VideoCalibrateMain);
                         showHelpCalibration = false;
                         showInfosScene      = true;
                     }
 
                     if (ImGui::MenuItem("Start Calibration (Scnd. Camera)", nullptr, false, capture->hasSecondaryCamera))
                     {
-                        s->onLoad(s, sv, SID_VideoCalibrateScnd);
+                        s->onLoad(am, s, sv, SID_VideoCalibrateScnd);
                         showHelpCalibration = false;
                         showInfosScene      = true;
                     }
@@ -2937,7 +2978,7 @@ void AppDemoGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
 }
 //-----------------------------------------------------------------------------
 //! Builds the edit menu that can be in the menu bar and the context menu
-void AppDemoGui::buildMenuEdit(SLProjectScene* s, SLSceneView* sv)
+void AppDemoGui::buildMenuEdit(SLScene* s, SLSceneView* sv)
 {
     if (ImGui::MenuItem("Deselect Node", "ESC"))
         s->deselectAllNodesAndMeshes();
@@ -3010,8 +3051,11 @@ void AppDemoGui::buildMenuEdit(SLProjectScene* s, SLSceneView* sv)
 }
 //-----------------------------------------------------------------------------
 //! Builds context menu if right mouse click is over non-imgui area
-void AppDemoGui::buildMenuContext(SLProjectScene* s, SLSceneView* sv)
+void AppDemoGui::buildMenuContext(SLScene* s, SLSceneView* sv)
 {
+    assert(s->assetManager() && "No asset manager assigned to scene!");
+    SLAssetManager* am = s->assetManager();
+
     if (!ImGui::IsWindowHovered(ImGuiHoveredFlags_AnyWindow) &&
         ImGui::IsMouseReleased(1))
     {
@@ -3061,6 +3105,9 @@ void AppDemoGui::buildSceneGraph(SLScene* s)
 {
     PROFILE_FUNCTION();
 
+    assert(s->assetManager() && "No asset manager assigned to scene!");
+    SLAssetManager* am = s->assetManager();
+
     ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
     ImGui::Begin("Scenegraph", &showSceneGraph);
 
@@ -3078,6 +3125,9 @@ void AppDemoGui::buildSceneGraph(SLScene* s)
 void AppDemoGui::addSceneGraphNode(SLScene* s, SLNode* node)
 {
     PROFILE_FUNCTION();
+
+    assert(s->assetManager() && "No asset manager assigned to scene!");
+    SLAssetManager* am = s->assetManager();
 
     SLbool isSelectedNode = s->singleNodeSelected() == node;
     SLbool isLeafNode     = node->children().empty() && !node->mesh();
@@ -3146,6 +3196,9 @@ void AppDemoGui::addSceneGraphNode(SLScene* s, SLNode* node)
 void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
 {
     PROFILE_FUNCTION();
+
+    assert(s->assetManager() && "No asset manager assigned to scene!");
+    SLAssetManager* am = s->assetManager();
 
     SLNode* singleNode       = s->singleNodeSelected();
     SLMesh* singleFullMesh   = s->singleMeshFullSelected();
@@ -3609,9 +3662,9 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                     ImGui::Text("# hard edges : %u", e);
                     ImGui::Text("Material Name: %s", m->name().c_str());
 
-                    if (m->lightModel() == LM_BlinnPhong)
+                    if (m->reflectionModel() == RM_BlinnPhong)
                     {
-                        if (ImGui::TreeNode("Light Model: Blinn-Phong"))
+                        if (ImGui::TreeNode("Reflection Model: Blinn-Phong"))
                         {
                             ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.5f);
 
@@ -3656,9 +3709,9 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                             ImGui::TreePop();
                         }
                     }
-                    else if (m->lightModel() == LM_CookTorrance)
+                    else if (m->reflectionModel() == RM_CookTorrance)
                     {
-                        if (ImGui::TreeNode("Light Model: Cook-Torrance"))
+                        if (ImGui::TreeNode("Reflection Model: Cook-Torrance"))
                         {
                             if (m->numTextures())
                             {
@@ -4082,15 +4135,17 @@ void AppDemoGui::saveConfig()
 }
 //-----------------------------------------------------------------------------
 //! Adds a transform node for the selected node and toggles the edit mode
-void AppDemoGui::setTransformEditMode(SLProjectScene* s,
-                                      SLSceneView*    sv,
-                                      SLNodeEditMode  editMode)
+void AppDemoGui::setTransformEditMode(SLScene*       s,
+                                      SLSceneView*   sv,
+                                      SLNodeEditMode editMode)
 {
     SLTransformNode* tN = s->root3D()->findChild<SLTransformNode>("Edit Gizmos");
 
     if (!tN)
     {
-        tN = new SLTransformNode(sv, s->singleNodeSelected(), AppDemo::shaderPath);
+        tN = new SLTransformNode(sv,
+                                 s->singleNodeSelected(),
+                                 AppDemo::shaderPath);
         s->root3D()->addChild(tN);
     }
 
@@ -4099,23 +4154,31 @@ void AppDemoGui::setTransformEditMode(SLProjectScene* s,
 }
 //-----------------------------------------------------------------------------
 //! Searches and removes the transform node
-void AppDemoGui::removeTransformNode(SLProjectScene* s)
+void AppDemoGui::removeTransformNode(SLScene* s)
 {
     SLTransformNode* tN = s->root3D()->findChild<SLTransformNode>("Edit Gizmos");
     if (tN)
     {
-        auto it = find(s->eventHandlers().begin(), s->eventHandlers().end(), tN);
+        auto it = find(s->eventHandlers().begin(),
+                       s->eventHandlers().end(),
+                       tN);
         if (it != s->eventHandlers().end())
             s->eventHandlers().erase(it);
 
         s->root3D()->deleteChild(tN);
+
+        // Reset currentMaterial pointer that have pointed to temp. materials of transform nodes
+        SLGLState::instance()->currentMaterial(nullptr);
     }
     transformNode = nullptr;
 }
 //-----------------------------------------------------------------------------
 //! Enables calculation and visualization of horizon line (using rotation sensors)
-void AppDemoGui::showHorizon(SLProjectScene* s, SLSceneView* sv)
+void AppDemoGui::showHorizon(SLScene* s, SLSceneView* sv)
 {
+    assert(s->assetManager() && "No asset manager assigned to scene!");
+    SLAssetManager* am = s->assetManager();
+
     // todo: why is root2D not always valid?
     if (!s->root2D())
     {
@@ -4130,7 +4193,7 @@ void AppDemoGui::showHorizon(SLProjectScene* s, SLSceneView* sv)
     {
         horizonNode = new SLHorizonNode(horizonName,
                                         &AppDemo::devRot,
-                                        s->font16,
+                                        am->font16,
                                         AppDemo::shaderPath,
                                         sv->scrW(),
                                         sv->scrH());
@@ -4140,7 +4203,7 @@ void AppDemoGui::showHorizon(SLProjectScene* s, SLSceneView* sv)
 }
 //-----------------------------------------------------------------------------
 //! Disables calculation and visualization of horizon line
-void AppDemoGui::hideHorizon(SLProjectScene* s)
+void AppDemoGui::hideHorizon(SLScene* s)
 {
     if (s->root2D())
     {
@@ -4197,7 +4260,11 @@ void AppDemoGui::downloadModelAndLoadScene(SLScene*     s,
                                            string       pathAndFileToLoad,
                                            SLSceneID    sceneIDToLoad)
 {
-    auto progressCallback = [](size_t curr, size_t filesize) {
+    assert(s->assetManager() && "No asset manager assigned to scene!");
+    SLAssetManager* am = s->assetManager();
+
+    auto progressCallback = [](size_t curr, size_t filesize)
+    {
         if (filesize > 0)
         {
             int transferredPC = (int)((float)curr / (float)filesize * 100.0f);
@@ -4209,7 +4276,8 @@ void AppDemoGui::downloadModelAndLoadScene(SLScene*     s,
         return 0; // Return Non-Zero to cancel
     };
 
-    auto downloadJobHTTP = [=]() {
+    auto downloadJobHTTP = [=]()
+    {
         PROFILE_FUNCTION();
         string jobMsg = "Downloading file via HTTPS: " + downloadFilename;
         AppDemo::jobProgressMsg(jobMsg);
@@ -4220,7 +4288,8 @@ void AppDemoGui::downloadModelAndLoadScene(SLScene*     s,
         AppDemo::jobIsRunning = false;
     };
 
-    auto unzipJob = [=]() {
+    auto unzipJob = [=]()
+    {
         string jobMsg = "Decompressing file: " + downloadFilename;
         AppDemo::jobProgressMsg(jobMsg);
         AppDemo::jobProgressMax(-1);
@@ -4240,9 +4309,10 @@ void AppDemoGui::downloadModelAndLoadScene(SLScene*     s,
         AppDemo::jobIsRunning = false;
     };
 
-    auto followUpJob1 = [=]() {
+    auto followUpJob1 = [=]()
+    {
         if (Utils::fileExists(pathAndFileToLoad))
-            s->onLoad(s, sv, sceneIDToLoad);
+            s->onLoad(am, s, sv, sceneIDToLoad);
         else
             SL_LOG("*** File do load doesn't exist: %s ***",
                    pathAndFileToLoad.c_str());

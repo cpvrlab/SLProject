@@ -16,7 +16,7 @@
 #include <SLNode.h>
 #include <SLText.h>
 #include <SLSceneView.h>
-#include <Instrumentor.h>
+#include <Profiler.h>
 
 using std::cout;
 using std::endl;
@@ -110,7 +110,7 @@ Nodes that are not in the scenegraph will not be deleted at scene destruction.
 */
 SLNode::~SLNode()
 {
-    //SL_LOG("~SLNode: %s", name().c_str());
+    // SL_LOG("~SLNode: %s", name().c_str());
 
     for (auto* child : _children)
         delete child;
@@ -352,12 +352,11 @@ void SLNode::cull3DRec(SLSceneView* sv)
     if (!this->drawBit(SL_DB_HIDDEN))
     {
         // Do frustum culling for all shapes except cameras & lights
-        // Todo (ghm1): why can't SLLight inherit SLNode?
         if (sv->doFrustumCulling() &&
-        !dynamic_cast<SLCamera*>(this) && // Ghm1: Checking for typeid fails if someone adds a custom camera that inherits SLCamera
-        typeid(*this) != typeid(SLLightRect) &&
-        typeid(*this) != typeid(SLLightSpot) &&
-        typeid(*this) != typeid(SLLightDirect))
+            !dynamic_cast<SLCamera*>(this) && // Ghm1: Checking for typeid fails if someone adds a custom camera that inherits SLCamera
+            typeid(*this) != typeid(SLLightRect) &&
+            typeid(*this) != typeid(SLLightSpot) &&
+            typeid(*this) != typeid(SLLightDirect))
         {
             sv->camera()->isInFrustum(&_aabb);
         }
@@ -383,7 +382,7 @@ void SLNode::cull3DRec(SLSceneView* sv)
                 }
                 // Todo (hsm4): Only a view nodes without meshes get rendered (they need to be redesigned):
                 // Ghm1: Checking for typeid fails if someone adds a custom camera that inherits SLCamera
-                //else if (typeid(*this) == typeid(SLCamera) ||
+                // else if (typeid(*this) == typeid(SLCamera) ||
                 //         typeid(*this) == typeid(SLKeyframeCamera))
                 else if (dynamic_cast<SLCamera*>(this))
                     sv->nodesOpaque3D().push_back(this);
@@ -402,7 +401,7 @@ See also SLSceneView::draw3DGLAll for more details.
 */
 void SLNode::cull2DRec(SLSceneView* sv)
 {
-    //PROFILE_FUNCTION();
+    // PROFILE_FUNCTION();
 
     _aabb.isVisible(true);
 
@@ -432,7 +431,7 @@ The drawRec method is <b>still used</b> for the rendering of the 2D menu!
 */
 void SLNode::drawRec(SLSceneView* sv)
 {
-    //PROFILE_FUNCTION();
+    // PROFILE_FUNCTION();
 
     // Do frustum culling for all shapes except cameras & lights
     if (sv->doFrustumCulling() && !_aabb.isVisible()) return;
@@ -487,7 +486,7 @@ and calls recursively the same method for all children.
 */
 void SLNode::statsRec(SLNodeStats& stats)
 {
-    //PROFILE_FUNCTION();
+    // PROFILE_FUNCTION();
 
     stats.numBytes += sizeof(SLNode);
     stats.numNodes++;
@@ -524,7 +523,7 @@ bool SLNode::hitRec(SLRay* ray)
 
     // Do not test origin node for shadow rays
     // This restriction is not valid for objects that can shadow itself
-    //if (this == ray->srcNode && ray->type == SHADOW)
+    // if (this == ray->srcNode && ray->type == SHADOW)
     //    return false;
 
     // Check first AABB for intersection
@@ -623,7 +622,7 @@ the next time it is requested by updateAndGetWM().
 */
 void SLNode::needUpdate()
 {
-    //PROFILE_FUNCTION();
+    // PROFILE_FUNCTION();
 
     // stop if we reach a node that is already flagged.
     if (!_isWMUpToDate)
@@ -1129,7 +1128,7 @@ SLNode::skeleton()
 //-----------------------------------------------------------------------------
 void SLNode::updateRec()
 {
-    //PROFILE_FUNCTION();
+    // PROFILE_FUNCTION();
 
     doUpdate();
     for (auto* child : _children)

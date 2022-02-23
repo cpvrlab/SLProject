@@ -17,10 +17,10 @@ CVCalibrationEstimator::CVCalibrationEstimator(CVCalibrationEstimatorParams para
                                                bool                         mirroredH,
                                                bool                         mirroredV,
                                                CVCameraType                 camType,
-                                               string                  computerInfos,
-                                               string                  calibDataPath,
-                                               string                  imageOutputPath,
-                                               string                  exePath)
+                                               string                       computerInfos,
+                                               string                       calibDataPath,
+                                               string                       imageOutputPath,
+                                               string                       exePath)
   : _params(params),
     _camSizeIndex(camSizeIndex),
     _mirroredH(mirroredH),
@@ -52,7 +52,7 @@ CVCalibrationEstimator::CVCalibrationEstimator(CVCalibrationEstimatorParams para
         }
         else
         {
-            //make subdirectory where images are stored to
+            // make subdirectory where images are stored to
             _calibImgOutputDir = Utils::unifySlashes(imageOutputPath) + "calibimages/";
             Utils::makeDir(_calibImgOutputDir);
             if (!Utils::dirExists(_calibImgOutputDir))
@@ -69,7 +69,7 @@ CVCalibrationEstimator::CVCalibrationEstimator(CVCalibrationEstimatorParams para
 //-----------------------------------------------------------------------------
 CVCalibrationEstimator::~CVCalibrationEstimator()
 {
-    //wait for the async task to finish
+    // wait for the async task to finish
     if (_calibrationTask.valid())
         _calibrationTask.wait();
 }
@@ -129,10 +129,10 @@ bool CVCalibrationEstimator::extractAsync()
                              CVSize(11, 11),
                              CVSize(-1, -1),
                              cv::TermCriteria(cv::TermCriteria::EPS + cv::TermCriteria::COUNT,
-                                          30,
-                                          0.0001));
+                                              30,
+                                              0.0001));
 
-            //add detected points
+            // add detected points
             _imagePoints.push_back(preciseCorners2D);
             _numCaptured++;
         }
@@ -176,7 +176,7 @@ bool CVCalibrationEstimator::calibrateAsync()
                              _boardSquareMM,
                              _params.calibrationFlags(),
                              _params.useReleaseObjectMethod);
-        //correct number of caputured, extraction may have failed
+        // correct number of caputured, extraction may have failed
         if (!rvecs.empty() || !reprojErrs.empty())
             _numCaptured = (int)std::max(rvecs.size(), reprojErrs.size());
         else
@@ -184,7 +184,7 @@ bool CVCalibrationEstimator::calibrateAsync()
 
         if (ok)
         {
-            //instantiate calibration
+            // instantiate calibration
             _calibration = CVCalibration(cameraMat,
                                          distortion,
                                          _imageSize,
@@ -251,7 +251,7 @@ bool CVCalibrationEstimator::calcCalibration(CVSize&            imageSize,
     objectPoints.resize(imagePoints.size(), objectPoints[0]);
 
     ////////////////////////////////////////////////
-    //Find intrinsic and extrinsic camera parameters
+    // Find intrinsic and extrinsic camera parameters
     int iFixedPoint = -1;
     if (useReleaseObjectMethod)
         iFixedPoint = boardSize.width - 1;
@@ -270,12 +270,12 @@ bool CVCalibrationEstimator::calcCalibration(CVSize&            imageSize,
     double rms = cv::calibrateCamera(objectPoints,
                                      imagePoints,
                                      imageSize,
-                                     //iFixedPoint,
+                                     // iFixedPoint,
                                      cameraMatrix,
                                      distCoeffs,
                                      rvecs,
                                      tvecs,
-                                     //cv::noArray(),
+                                     // cv::noArray(),
                                      flag);
 #endif
     ////////////////////////////////////////////////
@@ -332,8 +332,8 @@ double CVCalibrationEstimator::calcReprojectionErrors(const CVVVPoint3f& objectP
 bool CVCalibrationEstimator::loadCalibParams()
 {
     cv::FileStorage fs;
-    string      fullCalibIniFile = Utils::findFile(_calibParamsFileName,
-                                                   {_calibDataPath, _exePath});
+    string          fullCalibIniFile = Utils::findFile(_calibParamsFileName,
+                                              {_calibDataPath, _exePath});
     fs.open(fullCalibIniFile, cv::FileStorage::READ);
     if (!fs.isOpened())
     {
@@ -341,7 +341,7 @@ bool CVCalibrationEstimator::loadCalibParams()
         return false;
     }
 
-    //assign paramters
+    // assign paramters
     fs["numInnerCornersWidth"] >> _boardSize.width;
     fs["numInnerCornersHeight"] >> _boardSize.height;
     fs["squareSizeMM"] >> _boardSquareMM;
@@ -361,11 +361,12 @@ void CVCalibrationEstimator::updateExtractAndCalc(bool found, bool grabFrame, cv
 {
     switch (_state)
     {
-        case State::Streaming: {
+        case State::Streaming:
+        {
             if (grabFrame && found)
             {
                 _currentImgToExtract = imageGray.clone();
-                //start async extraction
+                // start async extraction
                 if (!_calibrationTask.valid())
                 {
                     _calibrationTask = std::async(std::launch::async, &CVCalibrationEstimator::extractAsync, this);
@@ -375,8 +376,9 @@ void CVCalibrationEstimator::updateExtractAndCalc(bool found, bool grabFrame, cv
             }
             break;
         }
-        case State::BusyExtracting: {
-            //check if async task is ready
+        case State::BusyExtracting:
+        {
+            // check if async task is ready
             if (_calibrationTask.wait_for(std::chrono::milliseconds(1)) == std::future_status::ready)
             {
                 bool extractionSuccessful = _calibrationTask.get();
@@ -388,7 +390,7 @@ void CVCalibrationEstimator::updateExtractAndCalc(bool found, bool grabFrame, cv
                 }
                 else if (_numCaptured >= _numOfImgsToCapture)
                 {
-                    //if ready and number of capturings exceed number of required start calculation
+                    // if ready and number of capturings exceed number of required start calculation
                     _calibrationTask = std::async(std::launch::async, &CVCalibrationEstimator::calibrateAsync, this);
                     _state           = State::Calculating;
                 }
@@ -399,7 +401,8 @@ void CVCalibrationEstimator::updateExtractAndCalc(bool found, bool grabFrame, cv
             }
             break;
         }
-        case State::Calculating: {
+        case State::Calculating:
+        {
             if (_calibrationTask.wait_for(std::chrono::milliseconds(1)) == std::future_status::ready)
             {
                 _calibrationSuccessful = _calibrationTask.get();
@@ -432,7 +435,8 @@ void CVCalibrationEstimator::updateOnlyCapture(bool found, bool grabFrame, cv::M
 {
     switch (_state)
     {
-        case State::Streaming: {
+        case State::Streaming:
+        {
             if (grabFrame && found)
             {
                 saveImage(imageGray);
@@ -466,7 +470,7 @@ bool CVCalibrationEstimator::updateAndDecorate(CVMat        imageColor,
     cv::Size imageSize = imageColor.size();
 
     cv::Mat imageGrayExtract = imageGray;
-    //resize image so that we get fluent caputure workflow for high resolutions
+    // resize image so that we get fluent caputure workflow for high resolutions
     double scale              = 1.0;
     bool   doScale            = false;
     int    targetExtractWidth = 640;
@@ -487,7 +491,7 @@ bool CVCalibrationEstimator::updateAndDecorate(CVMat        imageColor,
     {
         if (grabFrame && _state == State::Streaming)
         {
-            //simulate a snapshot
+            // simulate a snapshot
             cv::bitwise_not(imageColor, imageColor);
         }
 
@@ -495,7 +499,7 @@ bool CVCalibrationEstimator::updateAndDecorate(CVMat        imageColor,
         {
             if (doScale)
             {
-                //scale corners into original image size
+                // scale corners into original image size
                 for (cv::Point2f& pt : corners2D)
                 {
                     pt *= scale;
@@ -511,7 +515,7 @@ bool CVCalibrationEstimator::updateAndDecorate(CVMat        imageColor,
 
     if (_params.mode == CVCalibrationEstimatorParams::EstimatorMode::ExtractAndCalculate)
     {
-        //update state machine for extraction and calculation
+        // update state machine for extraction and calculation
         updateExtractAndCalc(found, grabFrame, imageGray);
     }
     else // CVCalibrationEstimatorParams::EstimatorMode::OnlyCaptureAndSave

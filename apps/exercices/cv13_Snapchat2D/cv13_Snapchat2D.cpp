@@ -82,10 +82,11 @@ static void createDelaunay(Mat&                  img,
             rect.contains(pt[1]) &&
             rect.contains(pt[2]))
         {
+            // match the 3 points and store the indices
             for (uint j = 0; j < 3; j++)
                 for (size_t k = 0; k < points.size(); k++)
-                    if (abs(pt[j].x - points[k].x) < 1.0 &&
-                        abs(pt[j].y - points[k].y) < 1)
+                    if (abs(pt[j].x - points[k].x) < 1.0f &&
+                        abs(pt[j].y - points[k].y) < 1.0f)
                         ind[j] = (uint)k;
 
             triangleIndexes.push_back(ind);

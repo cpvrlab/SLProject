@@ -31,13 +31,13 @@ AvgFloat CVTracked::poseTimesMS;
 void CVTracked::resetTimes()
 {
     // Reset all timing variables
-    CVTracked::trackingTimesMS.init(60,0.0f);
-    CVTracked::detectTimesMS.init(60,0.0f);
-    CVTracked::detect1TimesMS.init(60,0.0f);
-    CVTracked::detect2TimesMS.init(60,0.0f);
-    CVTracked::matchTimesMS.init(60,0.0f);
-    CVTracked::optFlowTimesMS.init(60,0.0f);
-    CVTracked::poseTimesMS.init(60,0.0f);
+    CVTracked::trackingTimesMS.init(60, 0.0f);
+    CVTracked::detectTimesMS.init(60, 0.0f);
+    CVTracked::detect1TimesMS.init(60, 0.0f);
+    CVTracked::detect2TimesMS.init(60, 0.0f);
+    CVTracked::matchTimesMS.init(60, 0.0f);
+    CVTracked::optFlowTimesMS.init(60, 0.0f);
+    CVTracked::poseTimesMS.init(60, 0.0f);
 }
 //-----------------------------------------------------------------------------
 // clang-format off
@@ -97,35 +97,30 @@ void CVTracked::createRvecTvec(const CVMatx44f& glMat, CVMat& tVec, CVMat& rVec)
 }
 //-----------------------------------------------------------------------------
 /*! Calculates the object matrix from the cameraObject and the object view matrix.
-
+<br>
 Nomenclature:
-T = homogenious transformation matrix
-
-a
- T = homogenious transformation matrix with subscript b and superscript a
-  b
-
-Subscrips and superscripts:  w = world  o = object  c = camera
-
-c
- T  = Transformation of object with respect to camera coordinate system.
-  o   It discribes the position of an object in the camera coordinate system.
-We get this Transformation from openCVs solvePNP function.
-
-w       c    -1
- T  = ( T )    = Transformation of camera with respect to world coord.-system.
-  c       w      Inversion exchanges sub- and superscript.
-
+T = homogenous transformation matrix
+<br>
+<sup>a</sup>T<sub>b</sub> = homogenous transformation matrix with subscript b and superscript a
+<br>
+Subscrips and superscripts: w = world; o = object; c = camera
+<br>
+<sup>c</sup>T<sub>o</sub>  = Transformation of object with respect to camera coordinate system.
+It describes the position of an object in the camera coordinate system.
+We get this transformation from OpenCVs solvePNP function.
+<br>
+<sup>w</sup>T<sub>c</sub>  = (<sup>c</sup>T<sub>w</sub>)<sup>-1</sup> = Transformation of camera with respect to world coord.-system.
+Inversion exchanges sub- and superscript.
+<br>
 The inverse of the camera to world matrix is the view matrix or camera matrix.
-
-We can combine two or more homogenious transformations to a new one if the
+<br>
+We can combine two or more homogenous transformations to a new one if the
 inner sub- and superscript fit together. The resulting transformation
-inherits the superscrip from the left and the subscript from the right
-transformation. The following tranformation is what we want to do:
-
-w    w     c
- T  = T  *  T   = Transformation of object with respect to world
-  o    c     o    coordinate system (object matrix)
+inherits the superscript from the left and the subscript from the right
+transformation. The following transformation is what we want to do:
+<br>
+<sup>w</sup>T<sub>o</sub> = <sup>w</sup>T<sub>c</sub> * <sup>c</sup>T<sub>o</sub> =
+Transformation of object with respect to world coordinate system (object matrix)
 */
 CVMatx44f CVTracked::calcObjectMatrix(const CVMatx44f& cameraObjectMat,
                                       const CVMatx44f& objectViewMat)
@@ -134,5 +129,52 @@ CVMatx44f CVTracked::calcObjectMatrix(const CVMatx44f& cameraObjectMat,
     return cameraObjectMat * objectViewMat;
 }
 //-----------------------------------------------------------------------------
+// clang-format on
+//-----------------------------------------------------------------------------
+CVVec3f CVTracked::averageVector(vector<CVVec3f> vectors,
+                                 vector<float>   weights)
+{
+    if (vectors.size() == 1)
+        return vectors[0];
 
+    CVVec3f total;
+    float   totalWeights = 0.0f;
+
+    for (int i = 0; i < vectors.size(); i++)
+    {
+        float weight = weights[i];
+        total += vectors[i] * weight;
+        totalWeights += weight;
+    }
+
+    return total / totalWeights;
+}
+//-----------------------------------------------------------------------------
+SLQuat4f CVTracked::averageQuaternion(vector<SLQuat4f> quaternions,
+                                      vector<float>    weights)
+{
+    // Based on: https://math.stackexchange.com/questions/61146/averaging-quaternions
+
+    if (quaternions.size() == 1)
+        return quaternions[0];
+
+    SLQuat4f total(0.0f, 0.0f, 0.0f, 0.0f);
+
+    for (int i = 0; i < quaternions.size(); i++)
+    {
+        SLQuat4f quaternion = quaternions[i];
+        float    weight     = weights[i];
+
+        if (i > 0 && quaternion.dot(quaternions[0]) < 0.0)
+            weight = -weight;
+
+        total.set(total.x() + weight * quaternion.x(),
+                  total.y() + weight * quaternion.y(),
+                  total.z() + weight * quaternion.z(),
+                  total.w() + weight * quaternion.w());
+    }
+
+    return total.normalized();
+}
+//-----------------------------------------------------------------------------
 

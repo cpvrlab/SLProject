@@ -14,8 +14,15 @@
 
 //-----------------------------------------------------------------------------
 //! Level of detail (LOD) group node based on screen space coverage
-/*!
- * See the method addChildLOD for more information
+/*! An LOD group node can be used to improve the rendering performance for a
+ mesh is very detailed and has thousands for vertices and triangles. Such a
+ details mesh doesn't need to be detailed in full resolution if the mesh is
+ displayed far away from the camera because you can see all triangles anyway.
+ We therefore need to create multiple levels of details with lower no. of
+ triangles and vertices. You have to create these lower resolution version of
+ an original mesh in an external program such as Blender that has multiple
+ decimation algorithms for this purpose.\n
+ See the method addChildLOD for more information how to add the levels.
  */
 class SLNodeLOD : public SLNode
 {

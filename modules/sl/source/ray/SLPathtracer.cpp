@@ -14,6 +14,7 @@
 #include <SLPathtracer.h>
 #include <SLSceneView.h>
 #include <GlobalTimer.h>
+#include <Profiler.h>
 
 extern SLfloat rnd01();
 
@@ -56,7 +57,8 @@ SLbool SLPathtracer::render(SLSceneView* sv)
     auto renderSlicesFunction = bind(&SLPathtracer::renderSlices,
                                      this,
                                      std::placeholders::_1,
-                                     std::placeholders::_2);
+                                     std::placeholders::_2,
+                                     std::placeholders::_3);
 
     // Do multi-threading only in release config
     SL_LOG("\n\nRendering with %d samples", _aaSamples);
@@ -68,10 +70,10 @@ SLbool SLPathtracer::render(SLSceneView* sv)
 
         // Start additional threads on the renderSlices function
         for (SLuint t = 0; t < Utils::maxThreads() - 1; t++)
-            threads.emplace_back(renderSlicesFunction, false, currentSample);
+            threads.emplace_back(renderSlicesFunction, false, currentSample, t);
 
         // Do the same work in the main thread
-        renderSlicesFunction(true, currentSample);
+        renderSlicesFunction(true, currentSample, 0);
 
         for (auto& thread : threads)
             thread.join();
@@ -92,8 +94,17 @@ SLbool SLPathtracer::render(SLSceneView* sv)
 /*!
 Renders a slice of 4px width.
 */
-void SLPathtracer::renderSlices(const bool isMainThread, SLint currentSample)
+void SLPathtracer::renderSlices(const bool isMainThread,
+                                SLint      currentSample,
+                                SLuint     threadNum)
 {
+    if (!isMainThread)
+    {
+        PROFILE_THREAD(string("PT-Worker-") + std::to_string(threadNum));
+    }
+
+    PROFILE_FUNCTION();
+
     // Time points
     double t1 = 0;
 
@@ -246,14 +257,14 @@ SLCol4f SLPathtracer::trace(SLRay* ray, SLbool em)
     }
     else if (ray->hitMatIsReflective())
     {
-        //scatter toward perfect specular direction
+        // scatter toward perfect specular direction
         SLRay reflected;
         ray->reflect(&reflected);
 
-        //scatter around perfect reflected direction only if material not perfect
+        // scatter around perfect reflected direction only if material not perfect
         if (mat->shininess() < SLMaterial::PERFECT)
         {
-            //rotation matrix for glossy
+            // rotation matrix for glossy
             SLMat3f rotMat;
             SLVec3f rotAxis((SLVec3f(0.0f, 0.0f, 1.0f) ^ reflected.dir).normalize());
             SLfloat rotAngle = acos(reflected.dir.z);
@@ -268,7 +279,7 @@ SLCol4f SLPathtracer::trace(SLRay* ray, SLbool em)
     }
     else if (ray->hitMatIsTransparent())
     {
-        //scatter toward perfect transmissive direction
+        // scatter toward perfect transmissive direction
         SLRay refracted;
         ray->refract(&refracted);
 
@@ -307,10 +318,10 @@ SLCol4f SLPathtracer::trace(SLRay* ray, SLbool em)
         SLfloat reflectionProbability = schlick / P;
         SLfloat refractionProbability = (1.0f - schlick) / (1.0f - P);
 
-        //scatter around perfect transmissive direction only if material not perfect
+        // scatter around perfect transmissive direction only if material not perfect
         if (mat->translucency() < SLMaterial::PERFECT)
         {
-            //rotation matrix for translucency
+            // rotation matrix for translucency
             SLMat3f rotMat;
             SLVec3f rotAxis((SLVec3f(0.0f, 0.0f, 1.0f) ^ refracted.dir).normalize());
             SLfloat rotAngle = acos(refracted.dir.z);
@@ -328,7 +339,7 @@ SLCol4f SLPathtracer::trace(SLRay* ray, SLbool em)
                           scaleBy;
         else
         {
-            //scatter toward perfect specular direction
+            // scatter toward perfect specular direction
             SLRay scattered;
             ray->reflect(&scattered);
 

@@ -58,4 +58,4 @@ private:
     SLfloat _headWidth;  //!< width of arrow head
 };
 //-----------------------------------------------------------------------------
-#endif //SLCYLINDER_H
+#endif // SLCYLINDER_H

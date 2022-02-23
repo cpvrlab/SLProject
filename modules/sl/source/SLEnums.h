@@ -132,7 +132,7 @@ enum SLSceneID
     SID_SuzannePerPixBlinnTmNmSm,
     SID_SuzannePerPixBlinnTmNmAoSm,
 
-    //SID_glTF_ClearCoatTest,
+    // SID_glTF_ClearCoatTest,
     SID_glTF_DamagedHelmet,
     SID_glTF_FlightHelmet,
     SID_glTF_Sponza,
@@ -184,7 +184,8 @@ enum SLSceneID
     SID_Benchmark2_MassiveNodes,
     SID_Benchmark3_NodeAnimations,
     SID_Benchmark4_SkinnedAnimations,
-    SID_Benchmark5_LevelOfDetail,
+    SID_Benchmark5_ColumnsNoLOD,
+    SID_Benchmark6_ColumnsLOD,
 
     SID_Maximal
 };
@@ -355,7 +356,7 @@ enum SLViewportAlign
 //-----------------------------------------------------------------------------
 //! Corresponds to the old fog modes in OpenGL 2.1
 /*! See also: https://www.khronos.org/registry/OpenGL-Refpages/gl2.1/xhtml/glFog.xml
-*/
+ */
 enum SLFogMode
 {
     FM_linear = 0,
@@ -363,12 +364,12 @@ enum SLFogMode
     FM_exp2
 };
 //-----------------------------------------------------------------------------
-//! Light Models for shader generation
-enum SLLightModel
+//! Light Reflection Models for shader generation usd in SLMaterial
+enum SLReflectionModel
 {
-    LM_BlinnPhong = 0,
-    LM_CookTorrance,
-    LM_Custom
+    RM_BlinnPhong = 0,
+    RM_CookTorrance,
+    RM_Custom
 };
 //-----------------------------------------------------------------------------
 #endif

@@ -13,7 +13,7 @@
 
 //-----------------------------------------------------------------------------
 /*! Default constructor, doesn't log anything
-*/
+ */
 SLImporter::SLImporter()
   : _logConsoleVerbosity(LV_quiet),
     _logFileVerbosity(LV_quiet),
@@ -23,7 +23,7 @@ SLImporter::SLImporter()
 }
 //-----------------------------------------------------------------------------
 /*! Constructor that only outputs console logs
-*/
+ */
 SLImporter::SLImporter(SLLogVerbosity consoleVerb)
   : _logConsoleVerbosity(consoleVerb),
     _logFileVerbosity(LV_quiet),
@@ -33,7 +33,7 @@ SLImporter::SLImporter(SLLogVerbosity consoleVerb)
 }
 //-----------------------------------------------------------------------------
 /*! Constructor that allows logging to a file with different verbosity
-*/
+ */
 SLImporter::SLImporter(const SLstring& logFile,
                        SLLogVerbosity  logConsoleVerb,
                        SLLogVerbosity  logFileVerb)
@@ -47,7 +47,7 @@ SLImporter::SLImporter(const SLstring& logFile,
 }
 //-----------------------------------------------------------------------------
 /*! Destructor, closes the file stream if it was used
-*/
+ */
 SLImporter::~SLImporter()
 {
     if (_log.is_open())

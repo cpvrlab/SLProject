@@ -19,11 +19,11 @@
 /*! SLProject has it's own internal event queue to guarantee the same input
 handling accross multiple platforms. Some system's might send system events
 asynchronously. This is why we provide the SLInputEvent class for all
-system relevant input events. 
+system relevant input events.
 */
 class SLInputEvent
 {
-    public:
+public:
     enum Type
     {
         MouseMove,
@@ -52,7 +52,7 @@ class SLInputEvent
 //! Specialized SLInput class for all mouse related input events.
 class SLMouseEvent : public SLInputEvent
 {
-    public:
+public:
     SLint         x;
     SLint         y;
     SLMouseButton button;
@@ -65,7 +65,7 @@ class SLMouseEvent : public SLInputEvent
 //! Specialized SLInput class for all keypress related input events.
 class SLKeyEvent : public SLInputEvent
 {
-    public:
+public:
     SLKey key;
     SLKey modifier;
 
@@ -76,7 +76,7 @@ class SLKeyEvent : public SLInputEvent
 //! Specialized SLInput class for touch related input events.
 class SLTouchEvent : public SLInputEvent
 {
-    public:
+public:
     SLint x1;
     SLint y1;
     SLint x2;
@@ -89,7 +89,7 @@ class SLTouchEvent : public SLInputEvent
 //! Specialized SLInput class for all device rotation related input events.
 class SLRotationEvent : public SLInputEvent
 {
-    public:
+public:
     float x, y, z, w;
 
     SLRotationEvent(Type t) : SLInputEvent(t) {}
@@ -99,7 +99,7 @@ class SLRotationEvent : public SLInputEvent
 //! Specialized SLInput class for window resize events.
 class SLResizeEvent : public SLInputEvent
 {
-    public:
+public:
     int width;
     int height;
 
@@ -109,12 +109,12 @@ class SLResizeEvent : public SLInputEvent
 //-----------------------------------------------------------------------------
 //! Specialized SLInput class for unicode character input.
 /*! Character input differs from simple key input that it can be generated from
-a combination of different key presses. Some key's might not fire a character 
+a combination of different key presses. Some key's might not fire a character
 event, others might fire multiple at once.
 */
 class SLCharInputEvent : public SLInputEvent
 {
-    public:
+public:
     SLuint character;
 
     SLCharInputEvent() : SLInputEvent(CharInput) {}
@@ -124,7 +124,7 @@ class SLCharInputEvent : public SLInputEvent
 //! Specialized SLInput class to trigger a screen capture
 class SLScrCaptureRequestEvent : public SLInputEvent
 {
-    public:
+public:
     SLstring path;
 
     SLScrCaptureRequestEvent() : SLInputEvent(ScrCapture) {}

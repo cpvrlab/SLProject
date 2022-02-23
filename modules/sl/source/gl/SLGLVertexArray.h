@@ -16,7 +16,7 @@
 
 //-----------------------------------------------------------------------------
 //! SLGLVertexArray encapsulates the core OpenGL drawing
-/*! An SLGLVertexArray instance handles all OpenGL drawing with an OpenGL 
+/*! An SLGLVertexArray instance handles all OpenGL drawing with an OpenGL
  Vertex Array Object (VAO), a vertex buffer objects (VBO) for the attributes
  and an index buffer for element drawing. Attributes can be stored in a float
  VBO of type SLGLVertexBuffer.\n

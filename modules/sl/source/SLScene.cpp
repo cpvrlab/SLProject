@@ -13,7 +13,7 @@
 #include <SLGLProgramManager.h>
 #include <SLSkybox.h>
 #include <GlobalTimer.h>
-#include <Instrumentor.h>
+#include <Profiler.h>
 
 //-----------------------------------------------------------------------------
 SLMaterialDefaultGray*           SLMaterialDefaultGray::_instance           = nullptr;
@@ -33,7 +33,7 @@ As examples you can see it in:
 SLScene::SLScene(const SLstring& name,
                  cbOnSceneLoad   onSceneLoadCallback)
   : SLObject(name),
-    _loadTimeMS(0),
+    _loadTimeMS(0.0f),
     _frameTimesMS(60, 0.0f),
     _updateTimesMS(60, 0.0f),
     _updateAABBTimesMS(60, 0.0f),
@@ -41,9 +41,10 @@ SLScene::SLScene(const SLstring& name,
 {
     onLoad = onSceneLoadCallback;
 
+    _assetManager     = nullptr;
     _root3D           = nullptr;
     _root2D           = nullptr;
-    _skybox     = nullptr;
+    _skybox           = nullptr;
     _info             = "";
     _stopAnimations   = false;
     _fps              = 0;
@@ -67,9 +68,13 @@ SLScene::~SLScene()
 //-----------------------------------------------------------------------------
 /*! The scene init is called before a new scene is assembled.
  */
-void SLScene::init()
+void SLScene::init(SLAssetManager* am)
 {
+    assert(am && "No asset manager passed to scene");
+
     unInit();
+
+    _assetManager = am;
 
     // reset all states
     SLGLState::instance()->initAll();
@@ -164,11 +169,11 @@ bool SLScene::onUpdate(bool renderTypeIsRT,
     if (_root3D)
     {
         // we use a lambda to inform nodes that share a mesh that the mesh got updated (so we dont have to transfer the root node)
-        sceneHasChanged |= _root3D->updateMeshSkins([&](SLMesh* mesh) {
+        sceneHasChanged |= _root3D->updateMeshSkins([&](SLMesh* mesh)
+                                                    {
             SLVNode nodes = _root3D->findChildren(mesh, true);
             for (auto* node : nodes)
-                node->needAABBUpdate();
-        });
+                node->needAABBUpdate(); });
 
         if (renderTypeIsRT || voxelsAreShown)
             _root3D->updateMeshAccelStructs();

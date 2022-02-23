@@ -29,7 +29,7 @@ class SLEventHandler
 public:
     SLEventHandler()
     {
-        //todo anim
+        // todo anim
         _mouseRotationFactor = 0.1f;
         _keyboardDeltaPos    = 0.1f;
         //_dRot      = 15.0f;

@@ -990,10 +990,25 @@ void main()
 //-----------------------------------------------------------------------------
 //! Builds unique program name that identifies shader program
 /*! See the class information for more insights of the generated name. This
- * function is used in advance of the code generation to check if the program
- * already exists in the asset manager. See SLMaterial::activate.
- * @param mat Parent material pointer
- * @param lights Pointer of vector of lights
+ function is used in advance of the code generation to check if the program
+ already exists in the asset manager. See SLMaterial::activate.
+ @param mat Parent material pointer
+ @param lights Pointer of vector of lights
+ @param programName Reference to program name string that gets built
+
+ The shader program gets a unique name with the following pattern:
+ <pre>
+ genCook-D00-N00-E00-O01-RM00-Sky-C4s
+    |    |   |   |   |   |    |   |
+    |    |   |   |   |   |    |   + Directional light w. 4 shadow cascades
+    |    |   |   |   |   |    + Ambient light from skybox
+    |    |   |   |   |   + Roughness-metallic map with index 0 and uv 0
+    |    |   |   |   + Ambient Occlusion map with index 0 and uv 1
+    |    |   |   + Emissive Map with index 0 and uv 0
+    |    |   + Normal Map with index 0 and uv 0
+    |    + Diffuse Texture Mapping with index 0 and uv 0
+    + Cook-Torrance or Blinn-Phong reflection model
+ </pre>
  */
 void SLGLProgramGenerated::buildProgramName(SLMaterial* mat,
                                             SLVLight*   lights,
@@ -1005,9 +1020,9 @@ void SLGLProgramGenerated::buildProgramName(SLMaterial* mat,
 
     if (mat->hasTextureType(TT_videoBkgd))
         programName += "VideoBkgdDm";
-    else if (mat->lightModel() == LM_BlinnPhong)
+    else if (mat->reflectionModel() == RM_BlinnPhong)
         programName += "Blinn";
-    else if (mat->lightModel() == LM_CookTorrance)
+    else if (mat->reflectionModel() == RM_CookTorrance)
         programName += "Cook";
     else
         programName += "Custom";
@@ -1064,20 +1079,20 @@ void SLGLProgramGenerated::buildProgramCode(SLMaterial* mat,
     // Check if any of the scene lights does shadow mapping
     bool Sm = lightsDoShadowMapping(lights);
 
-    if (mat->lightModel() == LM_BlinnPhong)
+    if (mat->reflectionModel() == RM_BlinnPhong)
     {
         buildPerPixBlinn(mat, lights);
     }
-    else if (mat->lightModel() == LM_CookTorrance)
+    else if (mat->reflectionModel() == RM_CookTorrance)
     {
         buildPerPixCook(mat, lights);
     }
-    else if (mat->lightModel() == LM_Custom)
+    else if (mat->reflectionModel() == RM_Custom)
     {
         if (Vm && Sm)
             buildPerPixVideoBkgdSm(lights);
         else
-            SL_EXIT_MSG("SLGLProgramGenerated::buildProgramCode: Unknown program for LM_Custom.");
+            SL_EXIT_MSG("SLGLProgramGenerated::buildProgramCode: Unknown program for RM_Custom.");
     }
     else
         SL_EXIT_MSG("SLGLProgramGenerated::buildProgramCode: Unknown Lighting Model.");

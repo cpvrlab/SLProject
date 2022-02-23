@@ -88,7 +88,7 @@ CVImage::CVImage(const CVVVec4f& colors)
 //-----------------------------------------------------------------------------
 CVImage::~CVImage()
 {
-    //Utils::log("CVImages)", name().c_str());
+    // Utils::log("CVImages)", name().c_str());
     clearData();
 }
 //-----------------------------------------------------------------------------
@@ -129,32 +129,38 @@ bool CVImage::allocate(int         width,
     uint bpp    = 0;
     switch (pixelFormatGL)
     {
-        case PF_luminance: {
+        case PF_luminance:
+        {
             cvType = CV_8UC1;
             bpp    = 1;
             break;
         }
-        case PF_red: {
+        case PF_red:
+        {
             cvType = CV_8UC1;
             bpp    = 1;
             break;
         }
-        case PF_bgr: {
+        case PF_bgr:
+        {
             cvType = CV_8UC3;
             bpp    = 3;
             break;
         }
-        case PF_rgb: {
+        case PF_rgb:
+        {
             cvType = CV_8UC3;
             bpp    = 3;
             break;
         }
-        case PF_bgra: {
+        case PF_bgra:
+        {
             cvType = CV_8UC4;
             bpp    = 4;
             break;
         }
-        case PF_rgba: {
+        case PF_rgba:
+        {
             cvType = CV_8UC4;
             bpp    = 4;
             break;
@@ -457,9 +463,9 @@ void CVImage::load(const string& filename,
         _format = PF_rgba;
 
         // for debug check
-        //string pathfilename = _path + name();
-        //string filename = Utils::getFileNameWOExt(pathfilename);
-        //savePNG(_path + filename + "_InAlpha.png");
+        // string pathfilename = _path + name();
+        // string filename = Utils::getFileNameWOExt(pathfilename);
+        // savePNG(_path + filename + "_InAlpha.png");
     }
 
     _bytesPerLine  = bytesPerLine((uint)_cvMat.cols, _format, _cvMat.isContinuous());
@@ -618,7 +624,8 @@ CVVec4f CVImage::getPixeli(int x, int y)
 
     switch (_format)
     {
-        case PF_rgb: {
+        case PF_rgb:
+        {
             CVVec3b c = _cvMat.at<CVVec3b>(y, x);
             color[0]  = c[0];
             color[1]  = c[1];
@@ -626,11 +633,13 @@ CVVec4f CVImage::getPixeli(int x, int y)
             color[3]  = 255.0f;
             break;
         }
-        case PF_rgba: {
+        case PF_rgba:
+        {
             color = _cvMat.at<CVVec4b>(y, x);
             break;
         }
-        case PF_bgra: {
+        case PF_bgra:
+        {
             CVVec4b c = _cvMat.at<CVVec4b>(y, x);
             color[0]  = c[2];
             color[1]  = c[1];
@@ -696,16 +705,16 @@ CVVec4f CVImage::getPixelf(float x, float y)
     float LR = fracX * fracY;
 
     // get the color of the four neighbouring texels
-    //int xm, xp, ym, yp;
-    //Fast2Int(&xm, xf-1.0f);
-    //Fast2Int(&ym, yf-1.0f);
-    //Fast2Int(&xp, xf);
-    //Fast2Int(&yp, yf);
+    // int xm, xp, ym, yp;
+    // Fast2Int(&xm, xf-1.0f);
+    // Fast2Int(&ym, yf-1.0f);
+    // Fast2Int(&xp, xf);
+    // Fast2Int(&yp, yf);
     //
-    //SLCol4f cUL = getPixeli(xm,ym);
-    //SLCol4f cUR = getPixeli(xp,ym);
-    //SLCol4f cLL = getPixeli(xm,yp);
-    //SLCol4f cLR = getPixeli(xp,yp);
+    // SLCol4f cUL = getPixeli(xm,ym);
+    // SLCol4f cUR = getPixeli(xp,ym);
+    // SLCol4f cLL = getPixeli(xm,yp);
+    // SLCol4f cLR = getPixeli(xp,yp);
 
     CVVec4f cUL = getPixeli((int)(xf - 0.5f), (int)(yf - 0.5f));
     CVVec4f cUR = getPixeli((int)(xf + 0.5f), (int)(yf - 0.5f));
@@ -939,7 +948,7 @@ void CVImage::crop(float targetWdivH, int& cropW, int& cropH)
         }
 
         _cvMat(cv::Rect(cropW, cropH, width, height)).copyTo(_cvMat);
-        //imwrite("AfterCropping.bmp", lastFrame);
+        // imwrite("AfterCropping.bmp", lastFrame);
     }
 }
 //-----------------------------------------------------------------------------

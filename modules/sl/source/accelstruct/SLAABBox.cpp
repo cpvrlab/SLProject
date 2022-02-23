@@ -442,7 +442,10 @@ void SLAABBox::calculateRectSS()
         maxSS.y = std::max(maxSS.y, corners[i].y);
     }
 
-    _rectSS.set(minSS.x, minSS.y, maxSS.x - minSS.x, maxSS.y - minSS.y);
+    _rectSS.set(minSS.x,
+                minSS.y,
+                maxSS.x - minSS.x,
+                maxSS.y - minSS.y);
     //_rectSS.print("_rectSS: ");
 }
 //-----------------------------------------------------------------------------

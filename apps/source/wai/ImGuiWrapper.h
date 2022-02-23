@@ -43,9 +43,9 @@ protected:
     ImGuiContext* _context;
 };
 
-//Wraps opengl code for drawing imgui with opengl. We use the same
-//Fonts have to be defined first, because they are needed to generate the font
-//texture in the correct size.
+// Wraps opengl code for drawing imgui with opengl. We use the same
+// Fonts have to be defined first, because they are needed to generate the font
+// texture in the correct size.
 //
 class ImGuiRendererOpenGL : public ImGuiRenderer
 {
@@ -53,7 +53,7 @@ public:
     ImGuiRendererOpenGL(ImGuiContext* context)
       : ImGuiRenderer(context)
     {
-        //Attention: define your fonts before calling this function!
+        // Attention: define your fonts before calling this function!
         createOpenGLObjects();
     }
 
@@ -88,7 +88,7 @@ private:
 - Destroy ImGuiContext
 - Init general imgui stuff (e.g. define where to store ini file)
 - Load fonts (these are shared over the all ImGuiWrappers)
-- Instantiate renderer 
+- Instantiate renderer
 */
 class ImGuiEngine
 {
@@ -98,7 +98,7 @@ public:
         _context = ImGui::CreateContext(fontAtlas);
         init(configDir);
 
-        //make sure fonts are loaded before texture for fonts is generated
+        // make sure fonts are loaded before texture for fonts is generated
         //(here fonts are transferred with font atlas)
         _renderer = new ImGuiRendererOpenGL(_context);
         assert(_renderer);
@@ -123,9 +123,9 @@ private:
     std::string    _iniFilename;
 };
 
-//e.g. scrolling of child window by touch down and move.
-//We need the possibility to turn it off because it conflicts with drag and drop of windows
-//if a window is not fixed.
+// e.g. scrolling of child window by touch down and move.
+// We need the possibility to turn it off because it conflicts with drag and drop of windows
+// if a window is not fixed.
 class PanScrolling
 {
 public:
@@ -143,14 +143,14 @@ public:
         _enabled = false;
     }
 
-    //call on mouse move
+    // call on mouse move
     void moveTo(const float yPos)
     {
         _diff -= (_lastPosY - yPos);
         _lastPosY = yPos;
     }
 
-    //call on mouse down
+    // call on mouse down
     void start(const float yPos)
     {
         _lastPosY = yPos;
@@ -159,9 +159,9 @@ public:
         _tOld     = 0.f;
     }
 
-    //call to updateRec mouse wheel in render function
-    //As we are using the io.mouseWheel from imgui to set the window position,
-    //we have to convert to mouseWheel coordinates.
+    // call to updateRec mouse wheel in render function
+    // As we are using the io.mouseWheel from imgui to set the window position,
+    // we have to convert to mouseWheel coordinates.
     float getScrollInMouseWheelCoords(const bool mouseDown, const float fontSize, const float t)
     {
         float dt = t - _tOld;
@@ -169,15 +169,15 @@ public:
 
         if (mouseDown)
         {
-            //Convertion to mouse wheel coords: One mouse wheel unit scrolls about 5 lines of text
+            // Convertion to mouse wheel coords: One mouse wheel unit scrolls about 5 lines of text
             //(see io.MouseWheel comment)
             float diffMW = _diff / (fontSize * 5.f);
-            _diff        = 0; //diff consumed, reset it
+            _diff        = 0; // diff consumed, reset it
 
-            //calculate v (of mouse wheel), we need it when left mouse button goes up
+            // calculate v (of mouse wheel), we need it when left mouse button goes up
             if (dt > 0.000001f)
             {
-                //v = s / t
+                // v = s / t
                 _vMW = diffMW / dt;
             }
 
@@ -185,8 +185,8 @@ public:
         }
         else if (std::abs(_vMW) > 0.000001f)
         {
-            //velocity damping
-            //v = v - a * t
+            // velocity damping
+            // v = v - a * t
             if (_vMW > 0)
             {
                 _vMW = _vMW - _aMW * dt;
@@ -200,7 +200,7 @@ public:
                     _vMW = 0.f;
             }
 
-            //s = v * t
+            // s = v * t
             return _vMW * dt;
         }
         else
@@ -246,7 +246,7 @@ The full call stack for rendering one frame is:\n
 
 //! ImGuiWrapper implements SLUiInterface for ImGui.
 /*! The interface function are called by a SLSceneView instance
-*/
+ */
 class ImGuiWrapper : public SLUiInterface
 {
 public:
@@ -259,7 +259,7 @@ public:
     void onPaint(const SLRecti& viewport) override;
     void onMouseDown(SLMouseButton button, SLint x, SLint y) override;
     void onMouseUp(SLMouseButton button, SLint x, SLint y) override;
-    //returns true if it wants to capture mouse
+    // returns true if it wants to capture mouse
     void onMouseMove(SLint xPos, SLint yPos) override;
     void onMouseWheel(SLfloat yoffset) override;
     void onKeyPress(SLKey key, SLKey mod) override;

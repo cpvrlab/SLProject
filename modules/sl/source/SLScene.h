@@ -25,7 +25,10 @@ class SLSkybox;
 
 //-----------------------------------------------------------------------------
 //! C-Callback function typedef for scene load function
-typedef void(SL_STDCALL* cbOnSceneLoad)(SLScene* s, SLSceneView* sv, SLint sceneID);
+typedef void(SL_STDCALL* cbOnSceneLoad)(SLAssetManager* am,
+                                        SLScene*        s,
+                                        SLSceneView*    sv,
+                                        SLint           sceneID);
 //-----------------------------------------------------------------------------
 //! The SLScene class represents the top level instance holding the scene structure
 /*!
@@ -59,7 +62,6 @@ public:
     void stopAnimations(SLbool stop) { _stopAnimations = stop; }
     void info(SLstring i) { _info = std::move(i); }
     void loadTimeMS(SLfloat loadTimeMS) { _loadTimeMS = loadTimeMS; }
-    void assetManager(SLAssetManager* am) { _assetManager = am; }
 
     // Getters
     SLAnimManager&   animManager() { return _animManager; }
@@ -100,7 +102,7 @@ public:
     // Misc.
     bool         onUpdate(bool renderTypeIsRT,
                           bool voxelsAreShown);
-    void         init();
+    void         init(SLAssetManager* am);
     virtual void unInit();
     void         selectNodeMesh(SLNode* nodeToSelect, SLMesh* meshToSelect);
     void         deselectAllNodesAndMeshes();

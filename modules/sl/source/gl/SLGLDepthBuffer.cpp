@@ -9,7 +9,7 @@
 
 #include <SLGLState.h>
 #include <SLGLDepthBuffer.h>
-#include <Instrumentor.h>
+#include <Profiler.h>
 
 //-----------------------------------------------------------------------------
 /*!
@@ -143,7 +143,7 @@ SLGLDepthBuffer::~SLGLDepthBuffer()
 void SLGLDepthBuffer::bindActive(SLuint texUnit) const
 {
     SLGLState* stateGL = SLGLState::instance();
-    //SL_LOG("SLGLDepthBf::bindActive: activeTexture: %d, bindTexture: %u, name: %s", texUnit, _texID, _name.c_str());
+    // SL_LOG("SLGLDepthBf::bindActive: activeTexture: %d, bindTexture: %u, name: %s", texUnit, _texID, _name.c_str());
     stateGL->activeTexture(GL_TEXTURE0 + texUnit);
     stateGL->bindTexture(_target, _texID);
 }

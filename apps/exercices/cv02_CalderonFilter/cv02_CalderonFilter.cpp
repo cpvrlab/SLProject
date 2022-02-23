@@ -41,7 +41,7 @@ void interpolation(uchar* lut,
 //----------------------------------------------------------------------------
 Mat clarendon(Mat original)
 {
-    //Enhance the channel for any image BGR or HSV etc
+    // Enhance the channel for any image BGR or HSV etc
     Mat   img      = original.clone();
     float origin[] = {0, 28, 56, 85, 113, 141, 170, 198, 227, 255};
     float rCurve[] = {0, 16, 35, 64, 117, 163, 200, 222, 237, 249};
@@ -97,8 +97,14 @@ int main()
     Mat output = clarendon(image);
     //////////////////////////////
 
-    imshow("Original Image", image);
-    imshow("Calderon Image", output);
+    string title1 = "Original Image";
+    imshow(title1, image);
+    setWindowProperty(title1, WND_PROP_TOPMOST, 1);
+
+    string title2 = "Calderon Image";
+    imshow(title2, output);
+    setWindowProperty(title2, WND_PROP_TOPMOST, 1);
+
     waitKey(0);
     destroyAllWindows();
 

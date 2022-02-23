@@ -10,7 +10,7 @@
 
 #include <jni.h>
 #include <SLInterface.h>
-#include <SLProjectScene.h>
+#include <SLScene.h>
 #include <AppDemo.h>
 #include <CVCapture.h>
 #include <AppDemoGui.h>
@@ -58,7 +58,7 @@ JNIEXPORT void JNICALL Java_ch_bfh_cpvrlab_GLES3Lib_setDeviceParameter(JNIEnv* e
 
 //-----------------------------------------------------------------------------
 // external functions application code not in SLProject
-extern void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID);
+extern void appDemoLoadScene(SLAssetManager* am, SLScene* s, SLSceneView* sv, SLSceneID sceneID);
 extern bool onUpdateVideo();
 //-----------------------------------------------------------------------------
 //! Native ray tracing callback function that calls the Java class method GLES3Lib.RaytracingCallback
@@ -87,7 +87,7 @@ std::string jstring2stdstring(JNIEnv* env, jstring jStr)
 }
 //-----------------------------------------------------------------------------
 //! Alternative SceneView creation C-function passed by slCreateSceneView
-SLSceneView* createAppDemoSceneView(SLProjectScene* scene, int dpi, SLInputManager& inputManger)
+SLSceneView* createAppDemoSceneView(SLScene* scene, int dpi, SLInputManager& inputManger)
 {
     return new AppDemoSceneView(scene, dpi, inputManger);
 }
@@ -125,7 +125,8 @@ extern "C" JNIEXPORT void JNICALL Java_ch_bfh_cpvrlab_GLES3Lib_onInit(JNIEnv* en
                         (void*)appDemoLoadScene);
 
     ////////////////////////////////////////////////////////////////////
-    svIndex = slCreateSceneView(AppDemo::scene,
+    svIndex = slCreateSceneView(AppDemo::assetManager,
+                                AppDemo::scene,
                                 (int)width,
                                 (int)height,
                                 (int)dpi,

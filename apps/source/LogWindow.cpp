@@ -41,7 +41,7 @@ void LogWindow::draw(const char* title, bool* p_open)
         ImGui::PopFont();
         return;
     }
-    //pop heading font
+    // pop heading font
     ImGui::PopFont();
     ImGui::PushFont(_fontText);
 

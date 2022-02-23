@@ -12,14 +12,14 @@
 
 //-----------------------------------------------------------------------------
 /*! Constructor
-*/
+ */
 SLAnimation::SLAnimation(const SLstring& name, SLfloat duration)
   : _name(name), _lengthSec(duration)
 {
 }
 //-----------------------------------------------------------------------------
 /*! Destructor
-*/
+ */
 SLAnimation::~SLAnimation()
 {
     for (auto it : _nodeAnimTracks)
@@ -27,14 +27,14 @@ SLAnimation::~SLAnimation()
 }
 //-----------------------------------------------------------------------------
 /*! Setter for the animation length
-*/
+ */
 void SLAnimation::lengthSec(SLfloat lengthSec)
 {
     _lengthSec = lengthSec;
 }
 //-----------------------------------------------------------------------------
 /*! Returns the timestamp for the next keyframe in all of the tracks.
-*/
+ */
 SLfloat SLAnimation::nextKeyframeTime(SLfloat time)
 {
     // find the closest keyframe time to the right
@@ -53,7 +53,7 @@ SLfloat SLAnimation::nextKeyframeTime(SLfloat time)
 }
 //-----------------------------------------------------------------------------
 /*! Returns the timestamp for the previous keyframe in all of the tracks.
-*/
+ */
 SLfloat SLAnimation::prevKeyframeTime(SLfloat time)
 {
     // find the closest keyframe time to the right
@@ -90,7 +90,7 @@ SLbool SLAnimation::affectsNode(SLNode* node)
 }
 //-----------------------------------------------------------------------------
 /*! Creates a new SLNodeAnimationTrack with the next free handle.
-*/
+ */
 SLNodeAnimTrack* SLAnimation::createNodeAnimTrack()
 {
     SLuint freeIndex = 0;
@@ -104,7 +104,7 @@ SLNodeAnimTrack* SLAnimation::createNodeAnimTrack()
 }
 //-----------------------------------------------------------------------------
 /*! Creates a new SLNodeAnimationTrack with the passed in track id.
-*/
+ */
 SLNodeAnimTrack* SLAnimation::createNodeAnimTrack(SLuint trackID)
 {
     // track with same handle already exists
@@ -117,7 +117,7 @@ SLNodeAnimTrack* SLAnimation::createNodeAnimTrack(SLuint trackID)
 }
 //-----------------------------------------------------------------------------
 /*! Applies all animation tracks for the passed in timestamp, weight and scale.
-*/
+ */
 void SLAnimation::apply(SLfloat time, SLfloat weight, SLfloat scale)
 {
     for (auto it : _nodeAnimTracks)
@@ -125,7 +125,7 @@ void SLAnimation::apply(SLfloat time, SLfloat weight, SLfloat scale)
 }
 //-----------------------------------------------------------------------------
 /*! Applies all node tracks of this animation on a single node
-*/
+ */
 void SLAnimation::applyToNode(SLNode* node,
                               SLfloat time,
                               SLfloat weight,
@@ -136,11 +136,11 @@ void SLAnimation::applyToNode(SLNode* node,
 }
 //-----------------------------------------------------------------------------
 /*! Applies all the tracks to their respective joints in the passed in skeleton.
-*/
+ */
 void SLAnimation::apply(SLAnimSkeleton* skel,
-                        SLfloat     time,
-                        SLfloat     weight,
-                        SLfloat     scale)
+                        SLfloat         time,
+                        SLfloat         weight,
+                        SLfloat         scale)
 {
     for (auto it : _nodeAnimTracks)
     {
@@ -150,7 +150,7 @@ void SLAnimation::apply(SLAnimSkeleton* skel,
 }
 //-----------------------------------------------------------------------------
 /*! Draws the visualizations of all node tracks
-*/
+ */
 void SLAnimation::drawNodeVisuals(SLSceneView* sv)
 {
     for (auto it : _nodeAnimTracks)
@@ -158,7 +158,7 @@ void SLAnimation::drawNodeVisuals(SLSceneView* sv)
 }
 //-----------------------------------------------------------------------------
 /*! Resets all default animation targets to their initial state.
-*/
+ */
 void SLAnimation::resetNodes()
 {
     for (auto it : _nodeAnimTracks)
@@ -166,9 +166,9 @@ void SLAnimation::resetNodes()
 }
 //-----------------------------------------------------------------------------
 /*! Specialized SLNodeAnimationTrack creator for a two keyframe translation animation
-*/
+ */
 SLNodeAnimTrack* SLAnimation::createNodeAnimTrackForTranslation(SLNode*        target,
-                                                               const SLVec3f& endPos)
+                                                                const SLVec3f& endPos)
 {
     SLNodeAnimTrack* track = createNodeAnimTrack();
     target->setInitialState();
@@ -179,10 +179,10 @@ SLNodeAnimTrack* SLAnimation::createNodeAnimTrackForTranslation(SLNode*        t
 }
 //-----------------------------------------------------------------------------
 /*! Specialized SLNodeAnimationTrack creator for a two keyframe rotation animation
-*/
+ */
 SLNodeAnimTrack* SLAnimation::createNodeAnimTrackForRotation(SLNode*        target,
-                                                            SLfloat        angleDeg,
-                                                            const SLVec3f& axis)
+                                                             SLfloat        angleDeg,
+                                                             const SLVec3f& axis)
 {
     SLNodeAnimTrack* track = createNodeAnimTrack();
     target->setInitialState();
@@ -193,14 +193,13 @@ SLNodeAnimTrack* SLAnimation::createNodeAnimTrackForRotation(SLNode*        targ
 }
 //-----------------------------------------------------------------------------
 /*! Specialized SLNodeAnimationTrack creator for a 360 deg. node rotation track
-*/
+ */
 SLNodeAnimTrack* SLAnimation::createNodeAnimTrackForRotation360(SLNode*        target,
-                                                               const SLVec3f& axis)
+                                                                const SLVec3f& axis)
 {
     SLNodeAnimTrack* track = createNodeAnimTrack();
     target->setInitialState();
     track->animatedNode(target);
-
 
     SLTransformKeyframe* frame0 = track->createNodeKeyframe(0.0f);
     frame0->rotation(SLQuat4f(0.0f, axis));
@@ -215,9 +214,9 @@ SLNodeAnimTrack* SLAnimation::createNodeAnimTrackForRotation360(SLNode*        t
 }
 //-----------------------------------------------------------------------------
 /*! Specialized SLNodeAnimationTrack creator for a two keyframe scaling animation
-*/
+ */
 SLNodeAnimTrack* SLAnimation::createNodeAnimTrackForScaling(SLNode*        target,
-                                                           const SLVec3f& endScale)
+                                                            const SLVec3f& endScale)
 {
     SLNodeAnimTrack* track = createNodeAnimTrack();
     target->setInitialState();
@@ -229,12 +228,12 @@ SLNodeAnimTrack* SLAnimation::createNodeAnimTrackForScaling(SLNode*        targe
 
 //-----------------------------------------------------------------------------
 /*! Specialized SLNodeAnimationTrack creator for an elliptic node animation
-*/
+ */
 SLNodeAnimTrack* SLAnimation::createNodeAnimTrackForEllipse(SLNode* target,
-                                                      SLfloat radiusA,
-                                                      SLAxis  axisA,
-                                                      SLfloat radiusB,
-                                                      SLAxis  axisB)
+                                                            SLfloat radiusA,
+                                                            SLAxis  axisA,
+                                                            SLfloat radiusB,
+                                                            SLAxis  axisB)
 {
     assert(axisA != axisB && radiusA > 0 && radiusB > 0);
     SLNodeAnimTrack* track = createNodeAnimTrack();

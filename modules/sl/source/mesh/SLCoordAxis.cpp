@@ -34,8 +34,8 @@ void SLCoordAxis::buildMesh()
     I16.clear();
     I32.clear();
 
-    //Set one default material index
-    //In SLMesh::init this will be set automatically to SLMaterial::diffuseAttrib
+    // Set one default material index
+    // In SLMesh::init this will be set automatically to SLMaterial::diffuseAttrib
     mat(nullptr);
 
     SLushort i = 0, v1 = 0, v2 = 0, v3 = 0, v4 = 0;

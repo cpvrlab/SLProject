@@ -173,8 +173,8 @@ void SLLightDirect::drawMesh(SLSceneView* sv)
 }
 //-----------------------------------------------------------------------------
 /*! Creates an fixed sized standard shadow map for a directional light.
- * @param lightClipNear The light frustums near clipping distance
- * @param lightClipFar The light frustums near clipping distance
+ * @param clipNear The light frustums near clipping distance
+ * @param clipFar The light frustums near clipping distance
  * @param size Width and height of the orthographic light frustum
  * @param texSize Shadow texture map size
  */
@@ -207,9 +207,9 @@ void SLLightDirect::createShadowMapAutoSize(SLCamera* camera,
 
     _doCascadedShadows = true;
     _shadowMap         = new SLShadowMap(this,
-                                         camera,
-                                         texSize,
-                                         numCascades);
+                                 camera,
+                                 texSize,
+                                 numCascades);
 }
 //-----------------------------------------------------------------------------
 /*! SLLightDirect::shadowTest returns 0.0 if the hit point is completely shaded

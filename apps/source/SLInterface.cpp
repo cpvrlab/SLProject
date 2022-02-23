@@ -10,14 +10,12 @@
 
 #include <SLInterface.h>
 #include <AppDemo.h>
-#include <SLProjectScene.h>
 #include <SLAssimpImporter.h>
 #include <SLInputManager.h>
 #include <SLScene.h>
 #include <SLSceneView.h>
 #include <SLGLImGui.h>
-#include <Instrumentor.h>
-#include <FtpUtils.h>
+#include <Profiler.h>
 #include <ZipUtils.h>
 
 //! \file SLInterface.cpp SLProject C-functions interface implementation.
@@ -65,15 +63,14 @@ void slCreateAppAndScene(SLVstring&      cmdLineArgs,
 {
     assert(AppDemo::scene == nullptr && "SLScene is already created!");
 
-    // For more info on PROFILING read Utils/lib-utils/source/Instrumentor.h
+    // For more info on PROFILING read Utils/lib-utils/source/Profiler.h
 #if PROFILING
     if (Utils::dirExists(AppDemo::externalPath))
     {
         SLstring computerInfo = Utils::ComputerInfos::get();
-        SLstring profileFile  = AppDemo::externalPath + "Profile_" + computerInfo + ".json";
-        Instrumentor::get().beginSession("Profile_" + computerInfo,
-                                         true,
-                                         profileFile.c_str());
+        SLstring profileFile  = AppDemo::externalPath + "Profile_" + computerInfo + ".slt";
+        BEGIN_PROFILING_SESSION(profileFile);
+        PROFILE_THREAD("Main Thread");
     }
 #endif
 
@@ -116,7 +113,8 @@ See examples usages in:
   - app-Demo-SLProject/android: AppDemoAndroidJNI.cpp in Java_ch_fhnw_comgr_GLES3Lib_onInit()
   - app_demo_slproject/ios:     ViewController.m      in viewDidLoad()
 */
-SLint slCreateSceneView(SLProjectScene* scene,
+SLint slCreateSceneView(SLAssetManager* am,
+                        SLScene*        scene,
                         int             screenWidth,
                         int             screenHeight,
                         int             dotsPerInch,
@@ -141,7 +139,7 @@ SLint slCreateSceneView(SLProjectScene* scene,
     SLSceneView* sv = newSVCallback(scene, dotsPerInch, AppDemo::inputManager);
     sv->initConeTracer(AppDemo::shaderPath);
 
-    //maintain multiple scene views in AppDemo
+    // maintain multiple scene views in AppDemo
     AppDemo::sceneViews.push_back(sv);
 
     AppDemo::gui = new SLGLImGui((cbOnImGuiBuild)onImGuiBuild,
@@ -162,9 +160,9 @@ SLint slCreateSceneView(SLProjectScene* scene,
     if (!scene->root3D())
     {
         if (AppDemo::sceneID == SID_Empty)
-            scene->onLoad(AppDemo::scene, sv, initScene);
+            scene->onLoad(am, AppDemo::scene, sv, initScene);
         else
-            scene->onLoad(scene, sv, AppDemo::sceneID);
+            scene->onLoad(am, scene, sv, AppDemo::sceneID);
     }
     else
         sv->onInitialize();
@@ -213,13 +211,15 @@ void slTerminate()
     // Deletes all remaining sceneviews the current scene instance
     AppDemo::deleteAppAndScene();
 
-    // For more info on PROFILING read Utils/lib-utils/source/Instrumentor.h
+    // For more info on PROFILING read Utils/lib-utils/source/Profilerrumentor.h
 #if PROFILING
-    SLstring filePathName = Instrumentor::get().filePath();
+    SLstring filePathName = PROFILER_TRACE_FILE_PATH;
 
-    SL_LOG("Before Instrumentor::get().endSession()");
-    Instrumentor::get().endSession();
-    SL_LOG("After Instrumentor::get().endSession()");
+    SL_LOG("Before END_PROFILING_SESSION");
+    END_PROFILING_SESSION();
+    SL_LOG("After END_PROFILING_SESSION");
+
+    Profiler::instance().endSession();
 
     if (Utils::fileExists(filePathName))
     {
@@ -306,7 +306,7 @@ void slResize(int sceneViewIndex, int width, int height)
 }
 //-----------------------------------------------------------------------------
 /*! Global event handler for mouse button down events.
-*/
+ */
 void slMouseDown(int           sceneViewIndex,
                  SLMouseButton button,
                  int           xpos,
@@ -323,7 +323,7 @@ void slMouseDown(int           sceneViewIndex,
 }
 //-----------------------------------------------------------------------------
 /*! Global event handler for mouse move events.
-*/
+ */
 void slMouseMove(int sceneViewIndex,
                  int x,
                  int y)
@@ -336,7 +336,7 @@ void slMouseMove(int sceneViewIndex,
 }
 //-----------------------------------------------------------------------------
 /*! Global event handler for mouse button up events.
-*/
+ */
 void slMouseUp(int           sceneViewIndex,
                SLMouseButton button,
                int           xpos,
@@ -353,7 +353,7 @@ void slMouseUp(int           sceneViewIndex,
 }
 //-----------------------------------------------------------------------------
 /*! Global event handler for double click events.
-*/
+ */
 void slDoubleClick(int           sceneViewIndex,
                    SLMouseButton button,
                    int           xpos,
@@ -389,7 +389,7 @@ void slTouch2Down(int sceneViewIndex,
 }
 //-----------------------------------------------------------------------------
 /*! Global event handler for the two finger move events of touchscreen devices.
-*/
+ */
 void slTouch2Move(int sceneViewIndex,
                   int xpos1,
                   int ypos1,
@@ -424,7 +424,7 @@ void slTouch2Up(int sceneViewIndex,
 }
 //-----------------------------------------------------------------------------
 /*! Global event handler for mouse wheel events.
-*/
+ */
 void slMouseWheel(int   sceneViewIndex,
                   int   pos,
                   SLKey modifier)
@@ -437,7 +437,7 @@ void slMouseWheel(int   sceneViewIndex,
 }
 //-----------------------------------------------------------------------------
 /*! Global event handler for keyboard key press events.
-*/
+ */
 void slKeyPress(int   sceneViewIndex,
                 SLKey key,
                 SLKey modifier)
@@ -450,7 +450,7 @@ void slKeyPress(int   sceneViewIndex,
 }
 //-----------------------------------------------------------------------------
 /*! Global event handler for keyboard key release events.
-*/
+ */
 void slKeyRelease(int   sceneViewIndex,
                   SLKey key,
                   SLKey modifier)
@@ -464,7 +464,7 @@ void slKeyRelease(int   sceneViewIndex,
 
 //-----------------------------------------------------------------------------
 /*! Global event handler for unicode character input.
-*/
+ */
 void slCharInput(int          sceneViewIndex,
                  unsigned int character)
 {
@@ -482,7 +482,7 @@ bool slUsesRotation()
 }
 //-----------------------------------------------------------------------------
 /*! Global event handler for device rotation change with angle & and axis.
-*/
+ */
 void slRotationQUAT(float quatX,
                     float quatY,
                     float quatZ,

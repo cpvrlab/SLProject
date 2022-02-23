@@ -38,4 +38,4 @@ private:
     SLint _depth;
 };
 //-----------------------------------------------------------------------------
-#endif //SLGLTEXTURE3D_H
+#endif // SLGLTEXTURE3D_H

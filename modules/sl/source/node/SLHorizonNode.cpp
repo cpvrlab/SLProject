@@ -24,14 +24,14 @@ SLHorizonNode::SLHorizonNode(SLstring          name,
     _font(font),
     _shaderDir(shaderDir)
 {
-    //make sure device rotation is enabled
+    // make sure device rotation is enabled
     if (!_devRot->isUsed())
         _devRot->isUsed(true);
 
-    //rotation of camera w.r.t sensor
+    // rotation of camera w.r.t sensor
     _sRc.rotation(-90, 0, 0, 1);
 
-    //init visualization node and meshes
+    // init visualization node and meshes
     //(this node is owner of instantiated programs, meshes and materials)
     _prog = new SLGLProgramGeneric(nullptr,
                                    shaderDir + "ColorUniformPoint.vert",
@@ -40,7 +40,7 @@ SLHorizonNode::SLHorizonNode(SLstring          name,
                                           "u_pointSize",
                                           1.0f));
     _mat = new SLMaterial(nullptr, _prog, SLCol4f::WHITE, "White");
-    //define mesh points
+    // define mesh points
     int     refLen = std::min(scrW, scrH);
     SLfloat cs; // center size
     if (_font)
@@ -82,24 +82,24 @@ SLHorizonNode::~SLHorizonNode()
 //-----------------------------------------------------------------------------
 void SLHorizonNode::doUpdate()
 {
-    //get latest orientation and update horizon
+    // get latest orientation and update horizon
     SLVec3f horizon;
     SLAlgo::estimateHorizon(_devRot->rotationAveraged(), _sRc, horizon);
 
-    //rotate node to align it to horizon
+    // rotate node to align it to horizon
     float horizonAngle = std::atan2(horizon.y, horizon.x) * RAD2DEG;
     _horizonNode->rotation(horizonAngle,
                            SLVec3f(0, 0, 1),
                            SLTransformSpace::TS_object);
 
-    //update text
+    // update text
     if (_font)
     {
         if (_textNode)
             this->deleteChild(_textNode);
 
         stringstream ss;
-        //we invert the sign to express the rotation of the device w.r.t the horizon
+        // we invert the sign to express the rotation of the device w.r.t the horizon
         ss << std::fixed << std::setprecision(1) << -horizonAngle;
         SLstring txt = ss.str();
 

@@ -24,4 +24,4 @@ private:
     static HighResTimer _timer;
 };
 
-#endif //GLOBAL_TIMER_H
+#endif // GLOBAL_TIMER_H

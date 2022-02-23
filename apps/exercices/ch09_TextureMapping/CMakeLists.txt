@@ -11,19 +11,19 @@ file(GLOB headers
         ${SL_PROJECT_ROOT}/modules/sl/source/gl/glUtils.h
         ${SL_PROJECT_ROOT}/modules/sl/source/cv/CVTypedefs.h
         ${SL_PROJECT_ROOT}/modules/sl/source/cv/CVImage.h
-    )
+        )
 
 file(GLOB sources
         ${SL_PROJECT_ROOT}/modules/sl/source/gl/glUtils.cpp
         ${SL_PROJECT_ROOT}/modules/sl/source/sl/SL.cpp
         ${SL_PROJECT_ROOT}/modules/sl/source/cv/CVImage.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/TextureMapping.cpp
-    )
+        )
 
 file(GLOB shaders
         ${SL_PROJECT_ROOT}/data/shaders/ADSTex.frag
         ${SL_PROJECT_ROOT}/data/shaders/ADSTex.vert
-    )
+        )
 
 add_executable(${target}
         ${headers}

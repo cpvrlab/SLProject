@@ -20,7 +20,7 @@
 #    include <SLAnimSkeleton.h>
 #    include <SLAssetManager.h>
 #    include <SLAnimManager.h>
-#    include <Instrumentor.h>
+#    include <Profiler.h>
 #    include <SLAssimpProgressHandler.h>
 
 // assimp is only included in the source file to not expose it to the rest of the framework
@@ -609,8 +609,6 @@ void SLAssimpImporter::findSkeletonRoot()
 //! Loads the skeleton
 void SLAssimpImporter::loadSkeleton(SLAnimManager& animManager, SLJoint* parent, aiNode* node)
 {
-    PROFILE_FUNCTION();
-
     if (!node)
         return;
 
@@ -719,7 +717,8 @@ SLMaterial* SLAssimpImporter::loadMaterial(SLAssetManager* am,
                 case aiTextureType_HEIGHT: slTexType = TT_height; break;
                 case aiTextureType_OPACITY: slTexType = TT_diffuse; break;
                 case aiTextureType_EMISSIVE: slTexType = TT_emissive; break;
-                case aiTextureType_LIGHTMAP: {
+                case aiTextureType_LIGHTMAP:
+                {
                     // Check if the glTF occlusion texture is within a occlusionRoughnessMetallic texture
                     aiString fileRoughnessMetallic;
                     aiMat->GetTexture(AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_METALLICROUGHNESS_TEXTURE,
@@ -745,7 +744,8 @@ SLMaterial* SLAssimpImporter::loadMaterial(SLAssetManager* am,
 
                     break; // glTF stores AO maps as light maps
                 }
-                case aiTextureType_AMBIENT_OCCLUSION: {
+                case aiTextureType_AMBIENT_OCCLUSION:
+                {
                     // Check if the glTF occlusion texture is within a occlusionRoughnessMetallic texture
                     aiString fileRoughnessMetallic;
                     aiMat->GetTexture(AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_METALLICROUGHNESS_TEXTURE,
@@ -764,15 +764,16 @@ SLMaterial* SLAssimpImporter::loadMaterial(SLAssetManager* am,
                         slTexType = TT_occlusion;
                     break; // glTF stores AO maps as light maps
                 }
-                case aiTextureType_UNKNOWN: {
+                case aiTextureType_UNKNOWN:
+                {
                     // Check if the unknown texture is a roughnessMetallic texture
                     aiString fileMetallicRoughness;
                     aiMat->GetTexture(AI_MATKEY_GLTF_PBRMETALLICROUGHNESS_METALLICROUGHNESS_TEXTURE,
                                       &fileMetallicRoughness);
                     SLstring rghMtlTex  = checkFilePath(modelPath,
-                                                        texturePath,
-                                                        fileMetallicRoughness.data,
-                                                        false);
+                                                       texturePath,
+                                                       fileMetallicRoughness.data,
+                                                       false);
                     SLstring unknownTex = checkFilePath(modelPath,
                                                         texturePath,
                                                         aiPath.data,
@@ -859,18 +860,18 @@ SLMaterial* SLAssimpImporter::loadMaterial(SLAssetManager* am,
     slMat->roughness(roughness);
     slMat->metalness(metalness);
 
-    // Switch lighting model to PBR (LM_CookTorrance) only if PBR textures are used.
+    // Switch lighting model to PBR (RM_CookTorrance) only if PBR textures are used.
     // PBR without must be set by additional setter call
     if (slMat->hasTextureType(TT_roughness) ||
         slMat->hasTextureType(TT_metallic) ||
         slMat->hasTextureType(TT_roughMetal) ||
         slMat->hasTextureType(TT_occluRoughMetal))
     {
-        slMat->lightModel(LM_CookTorrance);
+        slMat->reflectionModel(RM_CookTorrance);
         slMat->skybox(skybox);
     }
     else
-        slMat->lightModel(LM_BlinnPhong);
+        slMat->reflectionModel(RM_BlinnPhong);
 
     return slMat;
 }

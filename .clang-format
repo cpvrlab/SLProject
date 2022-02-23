@@ -48,7 +48,9 @@ BraceWrapping:
   AfterUnion: true
   BeforeCatch: true
   BeforeElse: true
-  IndentBraces: false 
+  IndentBraces: false
+  BeforeLambdaBody: true
+  AfterCaseLabel: true
 
 ColumnLimit: 0
 ConstructorInitializerAllOnOneLineOrOnePerLine: true

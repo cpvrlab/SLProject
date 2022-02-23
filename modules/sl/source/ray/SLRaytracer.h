@@ -45,11 +45,11 @@ struct SLRTAAPixel
 typedef vector<SLRTAAPixel> SLVPixel;
 //-----------------------------------------------------------------------------
 //! SLRaytracer hold all the methods for Whitted style Ray Tracing.
-/*!      
+/*!
 SLRaytracer implements the methods render, eyeToPixel, trace and shade for
 classic Whitted style Ray Tracing. This class is a friend class of SLScene and
 can access via the pointer _s all members of SLScene. The scene traversal for
-the ray intersection tests is done within the intersection method of all nodes. 
+the ray intersection tests is done within the intersection method of all nodes.
 */
 class SLRaytracer : public SLGLTexture
   , public SLEventHandler
@@ -61,11 +61,11 @@ public:
     // ray tracer functions
     SLbool  renderClassic(SLSceneView* sv);
     SLbool  renderDistrib(SLSceneView* sv);
-    void    renderSlices(bool isMainThread);
-    void    renderSlicesMS(bool isMainThread);
+    void    renderSlices(bool isMainThread, SLuint threadNum);
+    void    renderSlicesMS(bool isMainThread, SLuint threadNum);
     SLCol4f trace(SLRay* ray);
     SLCol4f shade(SLRay* ray);
-    void    sampleAAPixels(bool isMainThread);
+    void    sampleAAPixels(bool isMainThread, SLuint threadNum);
     void    renderUIBeforeUpdate();
 
     // additional ray tracer functions

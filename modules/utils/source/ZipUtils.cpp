@@ -20,9 +20,9 @@ namespace ZipUtils
 //-----------------------------------------------------------------------------
 /*!
  *
- * @param zfile
- * @param dirname
- * @return
+ * @param zfile ???
+ * @param dirname ???
+ * @return ???
  */
 static bool zip_add_dir(zipFile zfile, string dirname)
 {
@@ -68,11 +68,11 @@ static bool zip_add_dir(zipFile zfile, string dirname)
 //-----------------------------------------------------------------------------
 /*!
  *
- * @param zfile
- * @param fs
- * @param filename
- * @param zipPath
- * @return
+ * @param zfile ???
+ * @param fs ???
+ * @param filename ???
+ * @param zipPath ???
+ * @return ???
  */
 static bool zip_add_file(zipFile        zfile,
                          std::ifstream& fs,
@@ -117,10 +117,10 @@ static bool zip_add_file(zipFile        zfile,
 //-----------------------------------------------------------------------------
 /*!
  *
- * @param zfile
- * @param filepath
- * @param zipPath
- * @return
+ * @param zfile ???
+ * @param filepath ???
+ * @param zipPath ???
+ * @return ???
  */
 static bool zip_add_file(zipFile zfile,
                          string  filepath,
@@ -140,11 +140,12 @@ static bool zip_add_file(zipFile zfile,
 //-----------------------------------------------------------------------------
 /*!
  *
- * @param zipfile
- * @param processFile
- * @param writeChunk
- * @param processDir
- * @return
+ @param zipfile ???
+ @param processFile ???
+ @param writeChunk ???
+ @param processDir ???
+ @param progress Progress function to call for progress visualization
+ @return ???
  */
 bool unzip(string                                         zipfile,
            function<bool(string path, string filename)>   processFile,
@@ -247,9 +248,9 @@ bool unzip(string                                         zipfile,
 //-----------------------------------------------------------------------------
 /*!
  *
- * @param path
- * @param zipname
- * @return
+ * @param path ???
+ * @param zipname ???
+ * @return ???
  */
 bool zip(string path, string zipname)
 {
@@ -275,16 +276,17 @@ bool zip(string path, string zipname)
        &ret,
        zipRootPath](string path,
                     string baseName,
-                    int    depth) -> void {
+                    int    depth) -> void
+      {
           ret = ret && zip_add_file(zfile,
                                     path + baseName,
                                     path.erase(0,
                                                zipRootPath.size()));
-
       },
       [zfile, &ret, zipRootPath](string path,
                                  string baseName,
-                                 int    depth) -> void {
+                                 int    depth) -> void
+      {
           ret = ret && zip_add_dir(zfile,
                                    path.erase(0, zipRootPath.size()) + baseName);
       },
@@ -302,15 +304,16 @@ bool zip(string path, string zipname)
 }
 //-----------------------------------------------------------------------------
 /*!
- *
- * @param path
- * @param dest
- * @param override
- * @return
+ Unzips a zip file
+ @param path ???
+ @param dest ???
+ @param override Overrides existing files on destination
+ @param progress Progress function to call for progress visualization
+ @return Returns true on success
  */
-bool unzip(string path,
-           string dest,
-           bool override,
+bool unzip(string                                         path,
+           string                                         dest,
+           bool                                           override,
            function<int(int currentFile, int totalFiles)> progress)
 {
     std::ofstream fs;
@@ -318,7 +321,8 @@ bool unzip(string path,
     dest = Utils::unifySlashes(dest);
     unzip(
       path,
-      [&fs, &override, dest](string path, string filename) -> bool {
+      [&fs, &override, dest](string path, string filename) -> bool
+      {
           if (override || !Utils::fileExists(dest + path + filename))
           {
               fs.open(dest + path + filename, std::ios::binary);
@@ -326,7 +330,8 @@ bool unzip(string path,
           }
           return false;
       },
-      [&fs](const char* data, size_t len) -> bool {
+      [&fs](const char* data, size_t len) -> bool
+      {
           if (data != nullptr)
           {
               try
@@ -343,7 +348,8 @@ bool unzip(string path,
               fs.close();
           return true;
       },
-      [dest](string path) -> bool {
+      [dest](string path) -> bool
+      {
           if (!Utils::dirExists(dest + path))
               return Utils::makeDir(dest + path);
           return true;

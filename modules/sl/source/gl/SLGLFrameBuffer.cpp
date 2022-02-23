@@ -96,7 +96,6 @@ void SLGLFrameBuffer::unbind()
     // iOS does not allow binding to 0. That's why we keep the previous FB ID
     glBindFramebuffer(GL_FRAMEBUFFER, _prevFboId);
 
-
     glBindRenderbuffer(GL_RENDERBUFFER, 0);
 }
 //-----------------------------------------------------------------------------

@@ -29,7 +29,7 @@ SLfloat SLRay::avgDepth         = 0;
 
 //-----------------------------------------------------------------------------
 /*! Global uniform random number generator for numbers between 0 and 1 that are
-used in SLRay, SLLightRect and SLPathtracer. So far they work perfectly with 
+used in SLRay, SLLightRect and SLPathtracer. So far they work perfectly with
 CPP11 multithreading.
 */
 auto random01 = bind(std::uniform_real_distribution<SLfloat>(0.0, 1.0),
@@ -37,7 +37,7 @@ auto random01 = bind(std::uniform_real_distribution<SLfloat>(0.0, 1.0),
 
 SLfloat rnd01() { return random01(); }
 //-----------------------------------------------------------------------------
-/*! 
+/*!
 SLRay::SLRay default constructor
 */
 SLRay::SLRay(SLSceneView* sceneView)
@@ -65,7 +65,7 @@ SLRay::SLRay(SLSceneView* sceneView)
     sv             = sceneView;
 }
 //-----------------------------------------------------------------------------
-/*! 
+/*!
 SLRay::SLRay constructor for primary rays
 */
 SLRay::SLRay(const SLVec3f& Origin,
@@ -99,7 +99,7 @@ SLRay::SLRay(const SLVec3f& Origin,
     sv              = sceneView;
 }
 //-----------------------------------------------------------------------------
-/*! 
+/*!
 SLRay::SLRay constructor for shadow rays
 */
 SLRay::SLRay(SLfloat        distToLight,
@@ -132,8 +132,8 @@ SLRay::SLRay(SLfloat        distToLight,
 }
 //-----------------------------------------------------------------------------
 /*!
-SLRay::prints prints the rays origin (O), direction (D) and the length to the 
-intersection (L) 
+SLRay::prints prints the rays origin (O), direction (D) and the length to the
+intersection (L)
 */
 void SLRay::print() const
 {
@@ -148,7 +148,7 @@ void SLRay::print() const
 }
 //-----------------------------------------------------------------------------
 /*!
-SLRay::reflect calculates a secondary ray reflected at the normal, starting at 
+SLRay::reflect calculates a secondary ray reflected at the normal, starting at
 the intersection point. All vectors must be normalized vectors.
 R = 2(-I*N) N + I
 */
@@ -185,9 +185,9 @@ void SLRay::reflect(SLRay* reflected) const
 }
 //-----------------------------------------------------------------------------
 /*!
-SLRay::refract calculates a secondary refracted ray, starting at the 
-intersection point. All vectors must be normalized vectors, so the refracted 
-vector T will be a unit vector too. If total internal refraction occurs a 
+SLRay::refract calculates a secondary refracted ray, starting at the
+intersection point. All vectors must be normalized vectors, so the refracted
+vector T will be a unit vector too. If total internal refraction occurs a
 reflected ray is calculated instead.
 Index of refraction eta = Kn_Source/Kn_Destination (Kn_Air = 1.0)
 We are using a formula by Xavier Bec that is a little faster:
@@ -320,12 +320,12 @@ void SLRay::refract(SLRay* refracted)
 }
 //-----------------------------------------------------------------------------
 /*!
-SLRay::reflectMC scatters a ray around perfect specular direction according to 
-shininess (for higher shininess the ray is less scattered). This is used for 
-path tracing and distributed ray tracing as well as for photon scattering. 
-The direction is calculated according to MCCABE. The created direction is 
-along z-axis and then transformed to lie along specular direction with 
-rotationMatrix rotMat. The rotation matrix must be precalculated (stays the 
+SLRay::reflectMC scatters a ray around perfect specular direction according to
+shininess (for higher shininess the ray is less scattered). This is used for
+path tracing and distributed ray tracing as well as for photon scattering.
+The direction is calculated according to MCCABE. The created direction is
+along z-axis and then transformed to lie along specular direction with
+rotationMatrix rotMat. The rotation matrix must be precalculated (stays the
 same for each ray sample, needs to be be calculated only once)
 */
 bool SLRay::reflectMC(SLRay* reflected, const SLMat3f& rotMat) const
@@ -334,17 +334,17 @@ bool SLRay::reflectMC(SLRay* reflected, const SLMat3f& rotMat) const
     SLVec3f randVec;
     SLfloat shininess = hitMesh->mat()->shininess();
 
-    //scatter within specular lobe
+    // scatter within specular lobe
     eta1       = rnd01();
     eta2       = Utils::TWOPI * rnd01();
     SLfloat f1 = sqrt(1.0f - pow(eta1, 2.0f / (shininess + 1.0f)));
 
-    //tranform to cartesian
+    // tranform to cartesian
     randVec.set(f1 * cos(eta2),
                 f1 * sin(eta2),
                 pow(eta1, 1.0f / (shininess + 1.0f)));
 
-    //ray needs to be reset if already hit a scene node
+    // ray needs to be reset if already hit a scene node
     if (reflected->hitNode)
     {
         reflected->length    = FLT_MAX;
@@ -354,7 +354,7 @@ bool SLRay::reflectMC(SLRay* reflected, const SLMat3f& rotMat) const
         reflected->hitNormal = SLVec3f::ZERO;
     }
 
-    //apply rotation
+    // apply rotation
     reflected->setDir(rotMat * randVec);
 
     // Set pixel and background
@@ -366,18 +366,18 @@ bool SLRay::reflectMC(SLRay* reflected, const SLMat3f& rotMat) const
     else
         reflected->backgroundColor = backgroundColor;
 
-    //true if in direction of normal
+    // true if in direction of normal
     return (hitNormal * reflected->dir >= 0.0f);
 }
 //-----------------------------------------------------------------------------
 /*!
-SLRay::refractMC scatters a ray around perfect transmissive direction according 
+SLRay::refractMC scatters a ray around perfect transmissive direction according
 to translucency (for higher translucency the ray is less scattered).
-This is used for path tracing and distributed ray tracing as well as for photon 
+This is used for path tracing and distributed ray tracing as well as for photon
 scattering. The direction is calculated the same as with specular scattering
-(see reflectMC). The created direction is along z-axis and then transformed to 
-lie along transmissive direction with rotationMatrix rotMat. The rotation 
-matrix must be precalculated (stays the same for each ray sample, needs to be 
+(see reflectMC). The created direction is along z-axis and then transformed to
+lie along transmissive direction with rotationMatrix rotMat. The rotation
+matrix must be precalculated (stays the same for each ray sample, needs to be
 be calculated only once)
 */
 void SLRay::refractMC(SLRay* refracted, const SLMat3f& rotMat) const
@@ -386,17 +386,17 @@ void SLRay::refractMC(SLRay* refracted, const SLMat3f& rotMat) const
     SLVec3f randVec;
     SLfloat translucency = hitMesh->mat()->translucency();
 
-    //scatter within transmissive lobe
+    // scatter within transmissive lobe
     eta1       = rnd01();
     eta2       = Utils::TWOPI * rnd01();
     SLfloat f1 = sqrt(1.0f - pow(eta1, 2.0f / (translucency + 1.0f)));
 
-    //transform to cartesian
+    // transform to cartesian
     randVec.set(f1 * cos(eta2),
                 f1 * sin(eta2),
                 pow(eta1, 1.0f / (translucency + 1.0f)));
 
-    //ray needs to be reset if already hit a scene node
+    // ray needs to be reset if already hit a scene node
     if (refracted->hitNode)
     {
         refracted->length    = FLT_MAX;
@@ -422,7 +422,7 @@ void SLRay::refractMC(SLRay* refracted, const SLMat3f& rotMat) const
 /*!
 SLRay::diffuseMC scatters a ray around hit normal (cosine distribution).
 This is only used for photonmapping(russian roulette).
-The random direction lies around z-Axis and is then transformed by a rotation 
+The random direction lies around z-Axis and is then transformed by a rotation
 matrix to lie along the normal. The direction is calculated according to MCCABE
 */
 void SLRay::diffuseMC(SLRay* scattered) const
@@ -440,18 +440,18 @@ void SLRay::diffuseMC(SLRay* scattered) const
     scattered->srcMesh = hitMesh;
     scattered->type    = REFLECTED;
 
-    //calculate rotation matrix
+    // calculate rotation matrix
     SLMat3f rotMat;
     SLVec3f rotAxis((SLVec3f(0.0, 0.0, 1.0) ^ scattered->dir).normalize());
-    SLfloat rotAngle = acos(scattered->dir.z); //z*scattered.dir()
+    SLfloat rotAngle = acos(scattered->dir.z); // z*scattered.dir()
     rotMat.rotation(rotAngle * 180.0f * Utils::ONEOVERPI, rotAxis);
 
-    //cosine distribution
+    // cosine distribution
     eta1     = rnd01();
     eta2     = Utils::TWOPI * rnd01();
     eta1sqrt = sqrt(1 - eta1);
 
-    //transform to cartesian
+    // transform to cartesian
     randVec.set(eta1sqrt * cos(eta2),
                 eta1sqrt * sin(eta2),
                 sqrt(eta1));

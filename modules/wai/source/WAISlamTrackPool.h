@@ -8,30 +8,30 @@ class WAISlamTrackPool : public WAISlamTools
 public:
     struct Params
     {
-        //ensure all new keyframe have enough in common with loaded map
+        // ensure all new keyframe have enough in common with loaded map
         bool ensureKFIntegration = false;
-        //wait for localmapping
+        // wait for localmapping
         bool serial = false;
-        //retain the images in the keyframes, so we can store them later
+        // retain the images in the keyframes, so we can store them later
         bool retainImg = false;
-        //in onlyTracking mode we do not use local mapping and loop closing
+        // in onlyTracking mode we do not use local mapping and loop closing
         bool onlyTracking = false;
-        //If true, keyframes loaded from a map will not be culled and the pose will not be changed. Local bundle adjustment is applied only on newly added kfs.
-        //Also, the loop closing will be disabled so that there will be no optimization of the essential graph and no global bundle adjustment.
+        // If true, keyframes loaded from a map will not be culled and the pose will not be changed. Local bundle adjustment is applied only on newly added kfs.
+        // Also, the loop closing will be disabled so that there will be no optimization of the essential graph and no global bundle adjustment.
         bool fixOldKfs = false;
-        //use lucas canade optical flow tracking
+        // use lucas canade optical flow tracking
         bool trackOptFlow = false;
 
-        //keyframe culling strategy params:
-        // A keyframe is considered redundant if _cullRedundantPerc of the MapPoints it sees, are seen
-        // in at least other 3 keyframes (in the same or finer scale)
-        float cullRedundantPerc = 0.95f; //originally it was 0.9
+        // keyframe culling strategy params:
+        //  A keyframe is considered redundant if _cullRedundantPerc of the MapPoints it sees, are seen
+        //  in at least other 3 keyframes (in the same or finer scale)
+        float cullRedundantPerc = 0.95f; // originally it was 0.9
 
-        //Min common words as a factor of max common words within candidates
-        // for relocalization and loop closing
+        // Min common words as a factor of max common words within candidates
+        //  for relocalization and loop closing
         float minCommonWordFactor = 0.8f;
 
-        //Min acc score filter in detectRelocalizationCandidates
+        // Min acc score filter in detectRelocalizationCandidates
         bool minAccScoreFilter = false;
     };
 
@@ -48,9 +48,9 @@ public:
 
     bool update(cv::Mat& imageGray);
 
-    virtual WAI::TrackingState getTrackingState() { return _state; }
-    void                       changeIntrinsic(cv::Mat intrinsic, cv::Mat distortion);
-    cv::Mat                    getPose();
+    virtual WAITrackingState getTrackingState() { return _state; }
+    void                     changeIntrinsic(cv::Mat intrinsic, cv::Mat distortion);
+    cv::Mat                  getPose();
 
     void drawInfo(cv::Mat& imageBGR,
                   float    scale,
@@ -80,9 +80,9 @@ private:
     KPextractor*  _iniExtractor        = nullptr;
     int           _infoMatchedInliners = 0;
 
-    WAI::TrackingState _state;
+    WAITrackingState _state;
 
     std::mutex _cameraExtrinsicMutex;
 };
-
+//-----------------------------------------------------------------------------
 #endif

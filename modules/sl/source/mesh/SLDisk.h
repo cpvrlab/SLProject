@@ -33,4 +33,4 @@ protected:
     SLbool  _doubleSided; //!< flag if disk has two sides
 };
 //-----------------------------------------------------------------------------
-#endif //SLDISK_h
+#endif // SLDISK_h

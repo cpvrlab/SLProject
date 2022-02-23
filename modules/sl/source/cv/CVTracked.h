@@ -2,7 +2,7 @@
 //  File:      CVTracked.h
 //  Date:      Winter 2016
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
-//  Authors:   Marcus Hudritsch, Michael Goettlicher
+//  Authors:   Marcus Hudritsch, Michael Goettlicher, Marino von Wattenwyl
 //  License:   This software is provided under the GNU General Public License
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
@@ -25,6 +25,8 @@ for a good top down information.
 #include <cv/CVCalibration.h>
 #include <opencv2/aruco.hpp>
 #include <opencv2/xfeatures2d.hpp>
+
+#include <SLQuat4.h>
 
 using Utils::AvgFloat;
 
@@ -51,14 +53,6 @@ public:
                        CVMat          imageRgb,
                        CVCalibration* calib) = 0;
 
-    cv::Matx44f createGLMatrix(const CVMat& tVec,
-                               const CVMat& rVec);
-    void        createRvecTvec(const CVMatx44f& glMat,
-                               CVMat&           tVec,
-                               CVMat&           rVec);
-    CVMatx44f   calcObjectMatrix(const CVMatx44f& cameraObjectMat,
-                                 const CVMatx44f& objectViewMat);
-
     // Setters
     void drawDetection(bool draw) { _drawDetection = draw; }
 
@@ -66,6 +60,19 @@ public:
     bool      isVisible() { return _isVisible; }
     bool      drawDetection() { return _drawDetection; }
     CVMatx44f objectViewMat() { return _objectViewMat; }
+
+    // Static functions for commonly performed operations
+    static cv::Matx44f createGLMatrix(const CVMat& tVec,
+                                      const CVMat& rVec);
+    static void        createRvecTvec(const CVMatx44f& glMat,
+                                      CVMat&           tVec,
+                                      CVMat&           rVec);
+    static CVMatx44f   calcObjectMatrix(const CVMatx44f& cameraObjectMat,
+                                        const CVMatx44f& objectViewMat);
+    static CVVec3f     averageVector(vector<CVVec3f> vectors,
+                                     vector<float>   weights);
+    static SLQuat4f    averageQuaternion(vector<SLQuat4f> quaternions,
+                                         vector<float>    weights);
 
     // Statics: These statics are used directly in application code (e.g. in )
     static void     resetTimes();    //!< Resets all static variables

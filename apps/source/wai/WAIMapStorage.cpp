@@ -1,5 +1,5 @@
 #include <WAIMapStorage.h>
-#include <Instrumentor.h>
+#include <Profiler.h>
 
 cv::Mat WAIMapStorage::convertToCVMat(const SLMat4f slMat)
 {
@@ -59,8 +59,8 @@ void buildMatching(std::vector<WAIKeyFrame*>&                        kfs,
         WAIKeyFrame* kf = kfs[i];
         if (kf->isBad())
             continue;
-        //if (kf->mBowVec.data.empty())
-        //    continue;
+        // if (kf->mBowVec.data.empty())
+        //     continue;
 
         std::vector<WAIMapPoint*> mps = kf->GetMapPointMatches();
         std::map<size_t, size_t>  matching;
@@ -84,7 +84,7 @@ void saveKeyFrames(std::vector<WAIKeyFrame*>&                        kfs,
                    std::string                                       imgDir,
                    bool                                              saveBOW)
 {
-    //start sequence keyframes
+    // start sequence keyframes
     fs << "KeyFrames"
        << "[";
     for (int i = 0; i < kfs.size(); ++i)
@@ -95,15 +95,15 @@ void saveKeyFrames(std::vector<WAIKeyFrame*>&                        kfs,
         if (kf->mBowVec.data.empty())
             continue;
 
-        fs << "{"; //new map keyFrame
-                   //add id
+        fs << "{"; // new map keyFrame
+                   // add id
         fs << "id" << (int)kf->mnId;
-        if (kf->mnId != 0) //kf with id 0 has no parent
+        if (kf->mnId != 0) // kf with id 0 has no parent
             fs << "parentId" << (int)kf->GetParent()->mnId;
         else
             fs << "parentId" << -1;
 
-        //loop edges: we store the id of the connected kf
+        // loop edges: we store the id of the connected kf
         auto loopEdges = kf->GetLoopEdges();
         if (loopEdges.size())
         {
@@ -157,9 +157,9 @@ void saveKeyFrames(std::vector<WAIKeyFrame*>&                        kfs,
             fs << "TfIdf" << tfIdf;
         }
 
-        //scale factor
+        // scale factor
         fs << "scaleFactor" << kf->mfScaleFactor;
-        //number of pyriamid scale levels
+        // number of pyriamid scale levels
         fs << "nScaleLevels" << kf->mnScaleLevels;
         fs << "K" << kf->mK;
 
@@ -188,9 +188,9 @@ void saveKeyFrames(std::vector<WAIKeyFrame*>&                        kfs,
         fs << "bestCovisibleWeights" << bestCovisibleWeights;
 #endif
 
-        fs << "}"; //close map
+        fs << "}"; // close map
 
-        //save the original frame image for this keyframe
+        // save the original frame image for this keyframe
         if (imgDir != "")
         {
             cv::Mat imgColor;
@@ -202,37 +202,37 @@ void saveKeyFrames(std::vector<WAIKeyFrame*>&                        kfs,
                 cv::cvtColor(kf->imgGray, imgColor, cv::COLOR_GRAY2BGR);
                 cv::imwrite(ss.str(), imgColor);
 
-                //if this kf was never loaded, we still have to set the texture path
+                // if this kf was never loaded, we still have to set the texture path
                 kf->setTexturePath(ss.str());
             }
         }
     }
-    fs << "]"; //close sequence keyframes
+    fs << "]"; // close sequence keyframes
 }
 
 void saveMapPoints(std::vector<WAIMapPoint*>                         mpts,
                    std::map<WAIKeyFrame*, std::map<size_t, size_t>>& KFmatching,
                    cv::FileStorage&                                  fs)
 {
-    //start map points sequence
+    // start map points sequence
     fs << "MapPoints"
        << "[";
     for (int i = 0; i < mpts.size(); ++i)
     {
         WAIMapPoint* mpt = mpts[i];
-        //TODO: ghm1: check if it is necessary to removed points that have no reference keyframe OR can we somehow update the reference keyframe in the SLAM
+        // TODO: ghm1: check if it is necessary to removed points that have no reference keyframe OR can we somehow update the reference keyframe in the SLAM
         if (mpt->isBad() || mpt->refKf()->isBad())
             continue;
 
-        fs << "{"; //new map for MapPoint
-                   //add id
+        fs << "{"; // new map for MapPoint
+                   // add id
         fs << "id" << (int)mpt->mnId;
-        //add position
+        // add position
         fs << "mWorldPos" << mpt->GetWorldPos();
-        //save keyframe observations
+        // save keyframe observations
         auto        observations = mpt->GetObservations();
         vector<int> observingKfIds;
-        vector<int> corrKpIndices; //corresponding keypoint indices in observing keyframe
+        vector<int> corrKpIndices; // corresponding keypoint indices in observing keyframe
 
         if (!KFmatching.empty())
         {
@@ -279,7 +279,7 @@ void saveMapPoints(std::vector<WAIMapPoint*>                         mpts,
         fs << "mDescriptor" << mpt->GetDescriptor();
 
         fs << "refKfId" << (int)mpt->refKf()->mnId;
-        fs << "}"; //close map
+        fs << "}"; // close map
     }
     fs << "]";
 }
@@ -299,7 +299,7 @@ bool WAIMapStorage::saveMap(WAIMap*     waiMap,
 
     buildMatching(kfs, KFmatching);
 
-    //save keyframes (without graph/neigbourhood information)
+    // save keyframes (without graph/neigbourhood information)
     cv::FileStorage fs(filename, cv::FileStorage::WRITE);
 
     if (!fs.isOpened())
@@ -336,9 +336,9 @@ bool WAIMapStorage::saveMapRaw(WAIMap*     waiMap,
     if (kfs.size() == 0)
         return false;
 
-    //in this case we dont build a keyframe matching..
+    // in this case we dont build a keyframe matching..
 
-    //save keyframes (without graph/neigbourhood information)
+    // save keyframes (without graph/neigbourhood information)
     cv::FileStorage fs(filename, cv::FileStorage::WRITE);
 
     if (!fs.isOpened())
@@ -427,7 +427,7 @@ bool WAIMapStorage::saveMapBinary(WAIMap*     waiMap,
     for (int i = 0; i < mpts.size(); ++i)
     {
         WAIMapPoint* mpt = mpts[i];
-        //TODO: ghm1: check if it is necessary to removed points that have no reference keyframe OR can we somehow update the reference keyframe in the SLAM
+        // TODO: ghm1: check if it is necessary to removed points that have no reference keyframe OR can we somehow update the reference keyframe in the SLAM
         if (mpt->isBad() || mpt->refKf()->isBad())
             continue;
 
@@ -450,7 +450,7 @@ bool WAIMapStorage::saveMapBinary(WAIMap*     waiMap,
         writeCVMatToBinaryFile(f, cvOm);
     }
 
-    //start keyframes sequence
+    // start keyframes sequence
     for (int i = 0; i < kfs.size(); ++i)
     {
         WAIKeyFrame* kf = kfs[i];
@@ -463,9 +463,9 @@ bool WAIMapStorage::saveMapBinary(WAIMap*     waiMap,
 
         kfInfo.id = (int32_t)kf->mnId;
 
-        //scale factor
+        // scale factor
         kfInfo.scaleFactor = kf->mfScaleFactor;
-        //number of pyramid scale levels
+        // number of pyramid scale levels
         kfInfo.scaleLevels = kf->mnScaleLevels;
 
         kfInfo.minX = kf->mnMinX;
@@ -498,12 +498,12 @@ bool WAIMapStorage::saveMapBinary(WAIMap*     waiMap,
 
         kfInfo.kpCount = keyPoints.size();
 
-        if (kf->mnId != 0) //kf with id 0 has no parent
+        if (kf->mnId != 0) // kf with id 0 has no parent
             kfInfo.parentId = (int32_t)kf->GetParent()->mnId;
         else
             kfInfo.parentId = -1;
 
-        //loop edges: we store the id of the connected kf
+        // loop edges: we store the id of the connected kf
         std::set<WAIKeyFrame*> loopEdges = kf->GetLoopEdges();
         std::vector<int32_t>   loopEdgeIds;
         if (loopEdges.size())
@@ -564,7 +564,7 @@ bool WAIMapStorage::saveMapBinary(WAIMap*     waiMap,
         writeVectorToBinaryFile(f, bestCovisibleKeyFrameIds);
         writeVectorToBinaryFile(f, bestCovisibleWeights);
 
-        //save the original frame image for this keyframe
+        // save the original frame image for this keyframe
         if (imgDir != "")
         {
             cv::Mat imgColor;
@@ -576,17 +576,17 @@ bool WAIMapStorage::saveMapBinary(WAIMap*     waiMap,
                 cv::cvtColor(kf->imgGray, imgColor, cv::COLOR_GRAY2BGR);
                 cv::imwrite(ss.str(), imgColor);
 
-                //if this kf was never loaded, we still have to set the texture path
+                // if this kf was never loaded, we still have to set the texture path
                 kf->setTexturePath(ss.str());
             }
         }
     }
 
-    //start map points sequence
+    // start map points sequence
     for (int i = 0; i < mpts.size(); ++i)
     {
         WAIMapPoint* mpt = mpts[i];
-        //TODO: ghm1: check if it is necessary to removed points that have no reference keyframe OR can we somehow update the reference keyframe in the SLAM
+        // TODO: ghm1: check if it is necessary to removed points that have no reference keyframe OR can we somehow update the reference keyframe in the SLAM
         if (mpt->isBad() || mpt->refKf()->isBad())
             continue;
 
@@ -594,10 +594,10 @@ bool WAIMapStorage::saveMapBinary(WAIMap*     waiMap,
         mpInfo.id           = (int32_t)mpt->mnId;
         mpInfo.refKfId      = (int32_t)mpt->refKf()->mnId;
 
-        //save keyframe observations
+        // save keyframe observations
         std::map<WAIKeyFrame*, size_t> observations = mpt->GetObservations();
         vector<int32_t>                observingKfIds;
-        vector<int32_t>                corrKpIndices; //corresponding keypoint indices in observing keyframe
+        vector<int32_t>                corrKpIndices; // corresponding keypoint indices in observing keyframe
         if (!KFmatching.empty())
         {
             for (std::pair<WAIKeyFrame* const, size_t> it : observations)
@@ -759,7 +759,7 @@ bool WAIMapStorage::loadMapBinary(WAIMap*           waiMap,
         float scaleFactor  = kfInfo->scaleFactor;
         int   nScaleLevels = kfInfo->scaleLevels;
 
-        //vectors for precalculation of scalefactors
+        // vectors for precalculation of scalefactors
         std::vector<float> vScaleFactor;
         std::vector<float> vInvScaleFactor;
         std::vector<float> vLevelSigma2;
@@ -768,7 +768,7 @@ bool WAIMapStorage::loadMapBinary(WAIMap*           waiMap,
         vLevelSigma2.clear();
         vScaleFactor.resize(nScaleLevels);
         vLevelSigma2.resize(nScaleLevels);
-        //todo:  crashes when vScaleFactor is empty
+        // todo:  crashes when vScaleFactor is empty
         vScaleFactor[0] = 1.0f;
         vLevelSigma2[0] = 1.0f;
         for (int j = 1; j < nScaleLevels; j++)
@@ -791,7 +791,7 @@ bool WAIMapStorage::loadMapBinary(WAIMap*           waiMap,
         cx = K.at<float>(0, 2);
         cy = K.at<float>(1, 2);
 
-        //image bounds
+        // image bounds
         float nMinX = kfInfo->minX;
         float nMinY = kfInfo->minY;
         float nMaxX = kfInfo->maxX;
@@ -832,7 +832,7 @@ bool WAIMapStorage::loadMapBinary(WAIMap*           waiMap,
         {
             stringstream ss;
             ss << imgDir << "kf" << id << ".jpg";
-            //newKf->imgGray = kfImg;
+            // newKf->imgGray = kfImg;
             if (Utils::fileExists(ss.str()))
             {
                 newKf->setTexturePath(ss.str());
@@ -851,7 +851,7 @@ bool WAIMapStorage::loadMapBinary(WAIMap*           waiMap,
         bestCovisibleWeightsMap[newKf->mnId]     = bestCovisibleWeights;
     }
 
-    //set parent keyframe pointers into keyframes
+    // set parent keyframe pointers into keyframes
     for (WAIKeyFrame* kf : keyFrames)
     {
         if (kf->mnId != 0)
@@ -872,7 +872,7 @@ bool WAIMapStorage::loadMapBinary(WAIMap*           waiMap,
     }
 
     int numberOfLoopClosings = 0;
-    //set loop edge pointer into keyframes
+    // set loop edge pointer into keyframes
     for (WAIKeyFrame* kf : keyFrames)
     {
         auto it = loopEdgesMap.find(kf->mnId);
@@ -916,7 +916,7 @@ bool WAIMapStorage::loadMapBinary(WAIMap*           waiMap,
         newPt->SetNormal(normal);
         newPt->SetDescriptor(descriptor);
 
-        //get reference keyframe id
+        // get reference keyframe id
         int  refKfId    = (int)mpInfo->refKfId;
         bool refKFFound = false;
 
@@ -930,7 +930,7 @@ bool WAIMapStorage::loadMapBinary(WAIMap*           waiMap,
             cout << "no reference keyframe found!" << endl;
             if (observingKfIds.size())
             {
-                //we use the first of the observing keyframes
+                // we use the first of the observing keyframes
                 int kfId = observingKfIds[0];
                 if (kfsMap.find(kfId) != kfsMap.end())
                 {
@@ -942,7 +942,7 @@ bool WAIMapStorage::loadMapBinary(WAIMap*           waiMap,
 
         if (refKFFound)
         {
-            //find and add pointers of observing keyframes to map point
+            // find and add pointers of observing keyframes to map point
             for (int j = 0; j < observingKfIds.size(); j++)
             {
                 const int kfId = observingKfIds[j];
@@ -961,7 +961,7 @@ bool WAIMapStorage::loadMapBinary(WAIMap*           waiMap,
         }
     }
 
-    //update the covisibility graph, when all keyframes and mappoints are loaded
+    // update the covisibility graph, when all keyframes and mappoints are loaded
     WAIKeyFrame* firstKF           = nullptr;
     bool         buildSpanningTree = false;
     for (WAIKeyFrame* kf : keyFrames)
@@ -1000,23 +1000,25 @@ bool WAIMapStorage::loadMapBinary(WAIMap*           waiMap,
     {
         PROFILE_SCOPE("WAI::WAIMapStorage::loadMapBinary::buildSpanningTree");
 
-        //QueueElem: <unconnected_kf, graph_kf, weight>
-        using QueueElem                 = std::tuple<WAIKeyFrame*, WAIKeyFrame*, int>;
-        auto                   cmpQueue = [](const QueueElem& left, const QueueElem& right) { return (std::get<2>(left) < std::get<2>(right)); };
-        auto                   cmpMap   = [](const pair<WAIKeyFrame*, int>& left, const pair<WAIKeyFrame*, int>& right) { return left.second < right.second; };
+        // QueueElem: <unconnected_kf, graph_kf, weight>
+        using QueueElem = std::tuple<WAIKeyFrame*, WAIKeyFrame*, int>;
+        auto cmpQueue   = [](const QueueElem& left, const QueueElem& right)
+        { return (std::get<2>(left) < std::get<2>(right)); };
+        auto cmpMap = [](const pair<WAIKeyFrame*, int>& left, const pair<WAIKeyFrame*, int>& right)
+        { return left.second < right.second; };
         std::set<WAIKeyFrame*> graph;
         std::set<WAIKeyFrame*> unconKfs;
         for (auto& kf : keyFrames)
             unconKfs.insert(kf);
 
-        //pick first kf
+        // pick first kf
         graph.insert(firstKF);
         unconKfs.erase(firstKF);
 
         while (unconKfs.size())
         {
             std::priority_queue<QueueElem, std::vector<QueueElem>, decltype(cmpQueue)> q(cmpQueue);
-            //update queue with keyframes with neighbous in the graph
+            // update queue with keyframes with neighbous in the graph
             for (auto& unconKf : unconKfs)
             {
                 const std::map<WAIKeyFrame*, int>& weights = unconKf->GetConnectedKfWeights();
@@ -1033,20 +1035,20 @@ bool WAIMapStorage::loadMapBinary(WAIMap*           waiMap,
 
             if (q.size() == 0)
             {
-                //no connection: the remaining keyframes are unconnected
+                // no connection: the remaining keyframes are unconnected
                 Utils::log("WAIMapStorage", "Error in building spanning tree: There are %i unconnected keyframes!", unconKfs.size());
                 break;
             }
             else
             {
-                //extract keyframe with shortest connection
+                // extract keyframe with shortest connection
                 QueueElem topElem = q.top();
-                //remove it from unconKfs and add it to graph
+                // remove it from unconKfs and add it to graph
                 WAIKeyFrame* newGraphKf = std::get<0>(topElem);
                 unconKfs.erase(newGraphKf);
                 newGraphKf->ChangeParent(std::get<1>(topElem));
-                //std::cout << "Added kf " << newGraphKf->mnId << " with parent " << std::get<1>(topElem)->mnId << std::endl;
-                //update parent
+                // std::cout << "Added kf " << newGraphKf->mnId << " with parent " << std::get<1>(topElem)->mnId << std::endl;
+                // update parent
                 graph.insert(newGraphKf);
             }
         }
@@ -1064,7 +1066,7 @@ bool WAIMapStorage::loadMapBinary(WAIMap*           waiMap,
         waiMap->AddKeyFrame(kf);
         waiMap->GetKeyFrameDB()->add(kf);
 
-        //Add keyframe with id 0 to this vector. Otherwise RunGlobalBundleAdjustment in LoopClosing after loop was detected crashes.
+        // Add keyframe with id 0 to this vector. Otherwise RunGlobalBundleAdjustment in LoopClosing after loop was detected crashes.
         if (kf->mnId == 0)
         {
             waiMap->mvpKeyFrameOrigins.push_back(kf);
@@ -1144,10 +1146,10 @@ bool WAIMapStorage::loadMap(WAIMap*           waiMap,
             }
             loopEdgesMap[id] = loopEdges;
         }
-        cv::Mat Tcw; //has to be here!
+        cv::Mat Tcw; // has to be here!
         (*it)["Tcw"] >> Tcw;
 
-        cv::Mat featureDescriptors; //has to be here!
+        cv::Mat featureDescriptors; // has to be here!
         (*it)["featureDescriptors"] >> featureDescriptors;
         std::vector<cv::KeyPoint> keyPtsUndist;
         (*it)["keyPtsUndist"] >> keyPtsUndist;
@@ -1164,7 +1166,7 @@ bool WAIMapStorage::loadMap(WAIMap*           waiMap,
         int nScaleLevels = -1;
         (*it)["nScaleLevels"] >> nScaleLevels;
 
-        //vectors for precalculation of scalefactors
+        // vectors for precalculation of scalefactors
         std::vector<float> vScaleFactor;
         std::vector<float> vInvScaleFactor;
         std::vector<float> vLevelSigma2;
@@ -1197,7 +1199,7 @@ bool WAIMapStorage::loadMap(WAIMap*           waiMap,
         cx = K.at<float>(0, 2);
         cy = K.at<float>(1, 2);
 
-        //image bounds
+        // image bounds
         float nMinX, nMinY, nMaxX, nMaxY;
         (*it)["nMinX"] >> nMinX;
         (*it)["nMinY"] >> nMinY;
@@ -1236,7 +1238,7 @@ bool WAIMapStorage::loadMap(WAIMap*           waiMap,
         {
             stringstream ss;
             ss << imgDir << "kf" << id << ".jpg";
-            //newKf->imgGray = kfImg;
+            // newKf->imgGray = kfImg;
             if (Utils::fileExists(ss.str()))
             {
                 newKf->setTexturePath(ss.str());
@@ -1264,7 +1266,7 @@ bool WAIMapStorage::loadMap(WAIMap*           waiMap,
         }
     }
 
-    //set parent keyframe pointers into keyframes
+    // set parent keyframe pointers into keyframes
     for (WAIKeyFrame* kf : keyFrames)
     {
         if (kf->mnId != 0)
@@ -1285,7 +1287,7 @@ bool WAIMapStorage::loadMap(WAIMap*           waiMap,
     }
 
     int numberOfLoopClosings = 0;
-    //set loop edge pointer into keyframes
+    // set loop edge pointer into keyframes
     for (WAIKeyFrame* kf : keyFrames)
     {
         auto it = loopEdgesMap.find(kf->mnId);
@@ -1316,10 +1318,10 @@ bool WAIMapStorage::loadMap(WAIMap*           waiMap,
     bool needMapPointUpdate = false;
     for (auto it = n.begin(); it != n.end(); ++it)
     {
-        //newPt->id( (int)(*it)["id"]);
+        // newPt->id( (int)(*it)["id"]);
         int id = (int)(*it)["id"];
 
-        cv::Mat mWorldPos; //has to be here!
+        cv::Mat mWorldPos; // has to be here!
         (*it)["mWorldPos"] >> mWorldPos;
 
         WAIMapPoint* newPt = new WAIMapPoint(id, mWorldPos, fixKfsAndMPts);
@@ -1328,7 +1330,7 @@ bool WAIMapStorage::loadMap(WAIMap*           waiMap,
         vector<int> corrKpIndices;
         (*it)["corrKpIndices"] >> corrKpIndices;
 
-        //get reference keyframe id
+        // get reference keyframe id
         int  refKfId    = (int)(*it)["refKfId"];
         bool refKFFound = false;
 
@@ -1342,7 +1344,7 @@ bool WAIMapStorage::loadMap(WAIMap*           waiMap,
             cout << "no reference keyframe found!" << endl;
             if (observingKfIds.size())
             {
-                //we use the first of the observing keyframes
+                // we use the first of the observing keyframes
                 int kfId = observingKfIds[0];
                 if (kfsMap.find(kfId) != kfsMap.end())
                 {
@@ -1372,7 +1374,7 @@ bool WAIMapStorage::loadMap(WAIMap*           waiMap,
 
         if (refKFFound)
         {
-            //find and add pointers of observing keyframes to map point
+            // find and add pointers of observing keyframes to map point
             for (int i = 0; i < observingKfIds.size(); ++i)
             {
                 const int kfId = observingKfIds[i];
@@ -1392,7 +1394,7 @@ bool WAIMapStorage::loadMap(WAIMap*           waiMap,
     }
 
     std::cout << "update the covisibility graph, when all keyframes and mappoints are loaded" << std::endl;
-    //update the covisibility graph, when all keyframes and mappoints are loaded
+    // update the covisibility graph, when all keyframes and mappoints are loaded
     WAIKeyFrame* firstKF           = nullptr;
     bool         buildSpanningTree = false;
     for (WAIKeyFrame* kf : keyFrames)
@@ -1434,23 +1436,25 @@ bool WAIMapStorage::loadMap(WAIMap*           waiMap,
     // Build spanning tree if keyframes have no parents (legacy support)
     if (buildSpanningTree)
     {
-        //QueueElem: <unconnected_kf, graph_kf, weight>
-        using QueueElem                 = std::tuple<WAIKeyFrame*, WAIKeyFrame*, int>;
-        auto                   cmpQueue = [](const QueueElem& left, const QueueElem& right) { return (std::get<2>(left) < std::get<2>(right)); };
-        auto                   cmpMap   = [](const pair<WAIKeyFrame*, int>& left, const pair<WAIKeyFrame*, int>& right) { return left.second < right.second; };
+        // QueueElem: <unconnected_kf, graph_kf, weight>
+        using QueueElem = std::tuple<WAIKeyFrame*, WAIKeyFrame*, int>;
+        auto cmpQueue   = [](const QueueElem& left, const QueueElem& right)
+        { return (std::get<2>(left) < std::get<2>(right)); };
+        auto cmpMap = [](const pair<WAIKeyFrame*, int>& left, const pair<WAIKeyFrame*, int>& right)
+        { return left.second < right.second; };
         std::set<WAIKeyFrame*> graph;
         std::set<WAIKeyFrame*> unconKfs;
         for (auto& kf : keyFrames)
             unconKfs.insert(kf);
 
-        //pick first kf
+        // pick first kf
         graph.insert(firstKF);
         unconKfs.erase(firstKF);
 
         while (unconKfs.size())
         {
             std::priority_queue<QueueElem, std::vector<QueueElem>, decltype(cmpQueue)> q(cmpQueue);
-            //update queue with keyframes with neighbous in the graph
+            // update queue with keyframes with neighbous in the graph
             for (auto& unconKf : unconKfs)
             {
                 const std::map<WAIKeyFrame*, int>& weights = unconKf->GetConnectedKfWeights();
@@ -1467,20 +1471,20 @@ bool WAIMapStorage::loadMap(WAIMap*           waiMap,
 
             if (q.size() == 0)
             {
-                //no connection: the remaining keyframes are unconnected
+                // no connection: the remaining keyframes are unconnected
                 Utils::log("WAIMapStorage", "Error in building spanning tree: There are %i unconnected keyframes!");
                 break;
             }
             else
             {
-                //extract keyframe with shortest connection
+                // extract keyframe with shortest connection
                 QueueElem topElem = q.top();
-                //remove it from unconKfs and add it to graph
+                // remove it from unconKfs and add it to graph
                 WAIKeyFrame* newGraphKf = std::get<0>(topElem);
                 unconKfs.erase(newGraphKf);
                 newGraphKf->ChangeParent(std::get<1>(topElem));
-                //std::cout << "Added kf " << newGraphKf->mnId << " with parent " << std::get<1>(topElem)->mnId << std::endl;
-                //update parent
+                // std::cout << "Added kf " << newGraphKf->mnId << " with parent " << std::get<1>(topElem)->mnId << std::endl;
+                // update parent
                 graph.insert(newGraphKf);
             }
         }
@@ -1490,10 +1494,10 @@ bool WAIMapStorage::loadMap(WAIMap*           waiMap,
     {
         PROFILE_SCOPE("Updating MapPoints");
 
-        //compute resulting values for map points
+        // compute resulting values for map points
         for (WAIMapPoint*& mp : mapPoints)
         {
-            //mean viewing direction and depth
+            // mean viewing direction and depth
             mp->UpdateNormalAndDepth();
             mp->ComputeDistinctiveDescriptors();
         }
@@ -1509,7 +1513,7 @@ bool WAIMapStorage::loadMap(WAIMap*           waiMap,
         waiMap->AddKeyFrame(kf);
         waiMap->GetKeyFrameDB()->add(kf);
 
-        //Add keyframe with id 0 to this vector. Otherwise RunGlobalBundleAdjustment in LoopClosing after loop was detected crashes.
+        // Add keyframe with id 0 to this vector. Otherwise RunGlobalBundleAdjustment in LoopClosing after loop was detected crashes.
         if (kf->mnId == 0)
         {
             waiMap->mvpKeyFrameOrigins.push_back(kf);

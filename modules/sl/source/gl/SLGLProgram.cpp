@@ -23,21 +23,22 @@ extern char* aGLSLErrorString[];
 //-----------------------------------------------------------------------------
 //! Ctor with a vertex and a fragment shader filename.
 /*!
- * Constructor for shader programs. Shader programs can be used in multiple
- * materials and can belong therefore to the global assets such as meshes
- * (SLMesh), materials (SLMaterial), textures (SLGLTexture) and shader programs
- * (SLGLProgram).
- * @param s Pointer to a global asset manager. If passed the asset manager is
- * the owner of the instance and will do the deallocation. If a nullptr is passed
- * the creator is responsible for the deallocation.
- * @param vertShaderFile Name of the vertex shader file. If only a filename is
- * passed it will be search on the SLGLProgram::defaultPath.
- * @param fragShaderFile Name of the fragment shader file. If only a filename is
- * passed it will be search on the SLGLProgram::defaultPath.
- * @param geomShaderFile Name of the geometry shader file. If only a filename is
- * passed it will be search on the SLGLProgram::defaultPath.
+ Constructor for shader programs. Shader programs can be used in multiple
+ materials and can belong therefore to the global assets such as meshes
+ (SLMesh), materials (SLMaterial), textures (SLGLTexture) and shader programs
+ (SLGLProgram).
+ @param am Pointer to a global asset manager. If passed the asset manager is
+ the owner of the instance and will do the deallocation. If a nullptr is passed
+ the creator is responsible for the deallocation.
+ @param vertShaderFile Name of the vertex shader file. If only a filename is
+ passed it will be search on the SLGLProgram::defaultPath.
+ @param fragShaderFile Name of the fragment shader file. If only a filename is
+ passed it will be search on the SLGLProgram::defaultPath.
+ @param geomShaderFile Name of the geometry shader file. If only a filename is
+ passed it will be search on the SLGLProgram::defaultPath.
+ @param programName existing program name to use
  */
-SLGLProgram::SLGLProgram(SLAssetManager* s,
+SLGLProgram::SLGLProgram(SLAssetManager* am,
                          const string&   vertShaderFile,
                          const string&   fragShaderFile,
                          const string&   geomShaderFile,
@@ -54,8 +55,8 @@ SLGLProgram::SLGLProgram(SLAssetManager* s,
         addShader(new SLGLShader(geomShaderFile, ST_geometry));
 
     // Add pointer to the global resource vectors for deallocation
-    if (s)
-        s->programs().push_back(this);
+    if (am)
+        am->programs().push_back(this);
 }
 //-----------------------------------------------------------------------------
 /*!

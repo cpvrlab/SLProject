@@ -107,15 +107,6 @@ public:
         _camAnim         = ca;
         currentAnimation = ca;
     }
-    /*
-    void intrinsics(const SLfloat fx, const SLfloat fy, const SLfloat cx, const SLfloat cy)
-    {
-        _fx = fx;
-        _fy = fy;
-        _cx = cx;
-        _cy = cy;
-    }
-     */
     void clipNear(const SLfloat cNear) { _clipNear = cNear; }
     void clipFar(const SLfloat cFar) { _clipFar = cFar; }
     void lookFrom(const SLVec3f& fromDir,
@@ -255,8 +246,6 @@ protected:
     SLint   _xOffsetPix = 0;
     SLint   _yOffsetPix = 0;
     SLMat3f _enucorrRenu;
-    // float   _distanceToObjectM = 1.0f; //!< distance to object in meter that should be shifted relative to camera
-    // float   _enucorrTRenu      = 0.f;  //!< manual camera shift in y direction
 
     function<void(SLSceneView* sv)> _onCamUpdateCB;
 };

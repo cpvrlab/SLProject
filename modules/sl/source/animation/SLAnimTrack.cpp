@@ -14,7 +14,7 @@
 
 //-----------------------------------------------------------------------------
 /*! Constructor
-*/
+ */
 SLAnimTrack::SLAnimTrack(SLAnimation* animation)
   : _animation(animation)
 {
@@ -22,7 +22,7 @@ SLAnimTrack::SLAnimTrack(SLAnimation* animation)
 
 //-----------------------------------------------------------------------------
 /*! Destructor
-*/
+ */
 SLAnimTrack::~SLAnimTrack()
 {
     for (auto kf : _keyframes)
@@ -44,7 +44,7 @@ SLAnimKeyframe* SLAnimTrack::createKeyframe(SLfloat time)
 
 //-----------------------------------------------------------------------------
 /*! Getter for keyframes by index.
-*/
+ */
 SLAnimKeyframe* SLAnimTrack::keyframe(SLint index)
 {
     if (index < 0 || index >= numKeyframes())
@@ -59,7 +59,7 @@ SLAnimKeyframe* SLAnimTrack::keyframe(SLint index)
     then the k2 result will be the first keyframe in the list.
     If only one keyframe exists the two values will be equivalent.
 */
-SLfloat SLAnimTrack::getKeyframesAtTime(SLfloat      time,
+SLfloat SLAnimTrack::getKeyframesAtTime(SLfloat          time,
                                         SLAnimKeyframe** k1,
                                         SLAnimKeyframe** k2) const
 {
@@ -165,7 +165,7 @@ SLfloat SLAnimTrack::getKeyframesAtTime(SLfloat      time,
 
 //-----------------------------------------------------------------------------
 /*! Constructor for specialized NodeAnimationTrack
-*/
+ */
 SLNodeAnimTrack::SLNodeAnimTrack(SLAnimation* animation)
   : SLAnimTrack(animation),
     _animatedNode(nullptr),
@@ -177,7 +177,7 @@ SLNodeAnimTrack::SLNodeAnimTrack(SLAnimation* animation)
 
 //-----------------------------------------------------------------------------
 /*! Destructor
-*/
+ */
 SLNodeAnimTrack::~SLNodeAnimTrack()
 {
     if (_interpolationCurve)
@@ -186,7 +186,7 @@ SLNodeAnimTrack::~SLNodeAnimTrack()
 
 //-----------------------------------------------------------------------------
 /*! Creates a new SLTransformKeyframe at 'time'.
-*/
+ */
 SLTransformKeyframe* SLNodeAnimTrack::createNodeKeyframe(SLfloat time)
 {
     return static_cast<SLTransformKeyframe*>(createKeyframe(time));
@@ -194,8 +194,8 @@ SLTransformKeyframe* SLNodeAnimTrack::createNodeKeyframe(SLfloat time)
 
 //-----------------------------------------------------------------------------
 /*! Calculates a new keyframe based on the input time and interpolation functions.
-*/
-void SLNodeAnimTrack::calcInterpolatedKeyframe(SLfloat     time,
+ */
+void SLNodeAnimTrack::calcInterpolatedKeyframe(SLfloat         time,
                                                SLAnimKeyframe* keyframe) const
 {
     SLAnimKeyframe* k1;
@@ -235,7 +235,7 @@ void SLNodeAnimTrack::calcInterpolatedKeyframe(SLfloat     time,
 
 //-----------------------------------------------------------------------------
 /*! Applies the animation with the input timestamp to the set animation target if it exists.
-*/
+ */
 void SLNodeAnimTrack::apply(SLfloat time, SLfloat weight, SLfloat scale)
 {
     if (_animatedNode)
@@ -244,7 +244,7 @@ void SLNodeAnimTrack::apply(SLfloat time, SLfloat weight, SLfloat scale)
 
 //-----------------------------------------------------------------------------
 /*! Applies the animation to the input node with the input timestamp and weight.
-*/
+ */
 void SLNodeAnimTrack::applyToNode(SLNode* node,
                                   SLfloat time,
                                   SLfloat weight,
@@ -285,7 +285,7 @@ void SLNodeAnimTrack::drawVisuals(SLSceneView* sv)
 }
 //-----------------------------------------------------------------------------
 /*! Rebuilds the translation interpolation Bezier curve.
-*/
+ */
 void SLNodeAnimTrack::buildInterpolationCurve() const
 {
     if (numKeyframes() > 1)
@@ -295,7 +295,7 @@ void SLNodeAnimTrack::buildInterpolationCurve() const
         // Build curve data w. cumulated times
         SLVVec4f points;
         points.resize((SLuint)numKeyframes());
-        //SLfloat  curTime = 0;
+        // SLfloat  curTime = 0;
         for (SLuint i = 0; i < (SLuint)numKeyframes(); ++i)
         {
             SLVec3f t = ((SLTransformKeyframe*)_keyframes[i])->translation();
@@ -309,7 +309,7 @@ void SLNodeAnimTrack::buildInterpolationCurve() const
 
 //-----------------------------------------------------------------------------
 /*! Implementation for the keyframe creation function.
-*/
+ */
 SLAnimKeyframe* SLNodeAnimTrack::createKeyframeImpl(SLfloat time)
 {
     return new SLTransformKeyframe(this, time);
@@ -317,7 +317,7 @@ SLAnimKeyframe* SLNodeAnimTrack::createKeyframeImpl(SLfloat time)
 
 //-----------------------------------------------------------------------------
 /*! setter for the interpolation curve
-*/
+ */
 void SLNodeAnimTrack::interpolationCurve(SLCurve* curve)
 {
     if (_interpolationCurve)

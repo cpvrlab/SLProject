@@ -59,14 +59,10 @@ void SLNodeLOD::cullChildren3D(SLSceneView* sv)
             bool isVisible;
 
             if (i == 0)
-            {
                 isVisible = rectCoverage >= _children[i]->minLodCoverage();
-            }
             else
-            {
                 isVisible = rectCoverage < _children[i - 1]->minLodCoverage() &&
                             rectCoverage >= _children[i]->minLodCoverage();
-            }
 
             _children[i]->drawBits()->set(SL_DB_HIDDEN, !isVisible);
             _aabb.isVisible(isVisible);

@@ -51,10 +51,10 @@ SLGLConetracerTex3D::SLGLConetracerTex3D(const SLVfloat& textureBuffer,
                    _height,
                    _depth);
     GET_GL_ERROR;
-    //std::cout << "width: " << _width << std::endl;
-    //std::cout << "height: " << _height << std::endl;
-    //std::cout << "depth: " << _depth << std::endl;
-    //std::cout << "size: " << textureBuffer.size() << std::endl;
+    // std::cout << "width: " << _width << std::endl;
+    // std::cout << "height: " << _height << std::endl;
+    // std::cout << "depth: " << _depth << std::endl;
+    // std::cout << "size: " << textureBuffer.size() << std::endl;
 
     glTexSubImage3D(GL_TEXTURE_3D,
                     0,

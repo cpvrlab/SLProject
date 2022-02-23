@@ -17,7 +17,7 @@ for a good top down information.
 */
 #include <cv/CVTrackedFaces.h>
 #include <Utils.h>
-#include <Instrumentor.h>
+#include <Profiler.h>
 
 //-----------------------------------------------------------------------------
 //! Constructor for the facial landmark tracker
@@ -88,7 +88,7 @@ the OpenCV face module using the facemarkLBF detector. More information about
 OpenCV facial landmark detection can be found on:
 https://www.learnopencv.com/facemark-facial-landmark-detection-using-opencv
 \n
-The pose estimation is done using cv::solvePnP with 9 facial landmarks in 3D 
+The pose estimation is done using cv::solvePnP with 9 facial landmarks in 3D
 and their corresponding 2D points detected by the cv::facemark detector. For
 smoothing out the jittering we average the last few detections.
 @param imageGray Image for processing
@@ -157,7 +157,7 @@ bool CVTrackedFaces::track(CVMat          imageGray,
             for (unsigned long p = 0; p < _avgPosePoints2D.size(); p++)
                 _cvPosePoints2D[p] = CVPoint2f(_avgPosePoints2D[p].average()[0], _avgPosePoints2D[p].average()[1]);
 
-            //delaunayTriangulate(imageRgb, landmarks[i], drawDetection);
+            // delaunayTriangulate(imageRgb, landmarks[i], drawDetection);
 
             ///////////////////
             // Visualization //
@@ -186,7 +186,7 @@ bool CVTrackedFaces::track(CVMat          imageGray,
 
                 startMS = _timer.elapsedTimeInMilliSec();
 
-                //find the camera extrinsic parameters (rVec & tVec)
+                // find the camera extrinsic parameters (rVec & tVec)
                 CVMat rVec; // rotation angle vector as axis (length as angle)
                 CVMat tVec; // translation vector
                 bool  solved = solvePnP(CVMat(_cvPosePoints3D),

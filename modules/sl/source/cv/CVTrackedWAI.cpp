@@ -9,7 +9,7 @@
 
 #include <cv/CVTrackedWAI.h>
 #include <SL.h>
-#include <Instrumentor.h>
+#include <Profiler.h>
 
 //-----------------------------------------------------------------------------
 CVTrackedWAI::CVTrackedWAI(const string& vocabularyFile)

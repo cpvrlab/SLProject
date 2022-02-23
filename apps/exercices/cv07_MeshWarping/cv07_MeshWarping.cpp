@@ -38,10 +38,10 @@ static void drawDelaunay(Mat& img, Subdiv2D& subdiv, Scalar delaunay_color)
     }
 }
 //-----------------------------------------------------------------------------
-static void createDelaunay(Mat&                 img,
-                           Subdiv2D&            subdiv,
-                           vector<Point2f>&     points,
-                           bool                 drawAnimated,
+static void createDelaunay(Mat&                  img,
+                           Subdiv2D&             subdiv,
+                           vector<Point2f>&      points,
+                           bool                  drawAnimated,
                            vector<vector<uint>>& triangleIndexes)
 {
     // Insert points into subdiv
@@ -66,7 +66,7 @@ static void createDelaunay(Mat&                 img,
     vector<Vec6f> triangleList;
     subdiv.getTriangleList(triangleList);
     vector<Point2f> pt(3);
-    vector<uint>     ind(3);
+    vector<uint>    ind(3);
 
     for (size_t i = 0; i < triangleList.size(); i++)
     {
@@ -170,10 +170,10 @@ void warpTriangle(Mat&             img1,
     img2(rect2) = img2(rect2) + img2Cropped;
 }
 //-----------------------------------------------------------------------------
-static void warpImage(Mat&                 img1,
-                      Mat&                 img2,
-                      vector<Point2f>&     points1,
-                      vector<Point2f>&     points2,
+static void warpImage(Mat&                  img1,
+                      Mat&                  img2,
+                      vector<Point2f>&      points1,
+                      vector<Point2f>&      points2,
                       vector<vector<uint>>& triangles)
 {
     for (uint i = 0; i < triangles.size(); i++)
@@ -249,7 +249,7 @@ int main()
     // Create and draw the Delaunay triangulation
     vector<vector<uint>> triIndexes1;
     createDelaunay(img1, subdiv, points, true, triIndexes1);
-    //drawDelaunay(img1, subdiv, Scalar(255, 255, 255));
+    // drawDelaunay(img1, subdiv, Scalar(255, 255, 255));
 
     // Draw all points red
     for (Point2f p : points)

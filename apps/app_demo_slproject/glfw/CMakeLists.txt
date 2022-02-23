@@ -14,7 +14,7 @@ file(GLOB headers
 		${SL_PROJECT_ROOT}/apps/source/CVCapture.h
 		${SL_PROJECT_ROOT}/apps/source/AppDemo.h
 		${SL_PROJECT_ROOT}/apps/source/SLInterface.h
-        ${SL_PROJECT_ROOT}/apps/source/SLProjectScene.h
+        ${SL_PROJECT_ROOT}/apps/source/Scene.h
     )
 
 file(GLOB sources

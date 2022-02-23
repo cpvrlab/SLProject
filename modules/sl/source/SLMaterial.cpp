@@ -17,7 +17,7 @@
 SLfloat SLMaterial::PERFECT = 1000.0f;
 //-----------------------------------------------------------------------------
 /*!
- Default constructor for Blinn-Phong light model materials without textures.
+ Default constructor for Blinn-Phong reflection model materials without textures.
  Materials can be used by multiple meshes (SLMesh). Materials can belong
  therefore to the global assets such as meshes, materials, textures and
  shader programs.
@@ -44,8 +44,8 @@ SLMaterial::SLMaterial(SLAssetManager* am,
                        SLfloat         kn,
                        SLGLProgram*    program) : SLObject(name)
 {
-    _assetManager = am;
-    _lightModel   = LM_BlinnPhong;
+    _assetManager    = am;
+    _reflectionModel = RM_BlinnPhong;
     _ambient = _diffuse = amdi;
     _specular           = spec;
     _emissive.set(0, 0, 0, 0);
@@ -71,7 +71,7 @@ SLMaterial::SLMaterial(SLAssetManager* am,
         am->materials().push_back(this);
 }
 //-----------------------------------------------------------------------------
-/*! Constructor for textured Blinn-Phong light model materials.
+/*! Constructor for textured Blinn-Phong reflection model materials.
  Materials can be used by multiple meshes (SLMesh). Materials can belong
  therefore to the global assets such as meshes, materials, textures and
  shader programs.
@@ -94,8 +94,8 @@ SLMaterial::SLMaterial(SLAssetManager* am,
                        SLGLTexture*    texture4,
                        SLGLProgram*    program) : SLObject(name)
 {
-    _assetManager = am;
-    _lightModel   = LM_BlinnPhong;
+    _assetManager    = am;
+    _reflectionModel = RM_BlinnPhong;
     _ambient.set(1, 1, 1);
     _diffuse.set(1, 1, 1);
     _specular.set(1, 1, 1);
@@ -119,7 +119,7 @@ SLMaterial::SLMaterial(SLAssetManager* am,
     addTexture(texture4);
 
     if (_textures[TT_roughness].size() > 0 || _textures[TT_metallic].size() > 0)
-        _lightModel = LM_CookTorrance;
+        _reflectionModel = RM_CookTorrance;
 
     // Add pointer to the global resource vectors for deallocation
     if (am)
@@ -152,16 +152,16 @@ SLMaterial::SLMaterial(SLAssetManager* am,
     _assetManager = am;
     _ambient.set(0, 0, 0); // not used in Cook-Torrance
     _diffuse = diffuse;
-    _specular.set(1, 1, 1);                     // not used in Cook-Torrance
-    _emissive.set(0, 0, 0, 0);                  // not used in Cook-Torrance
-    _shininess   = (1.0f - roughness) * 500.0f; // not used in Cook-Torrance
-    _roughness   = roughness;
-    _metalness   = metalness;
-    _numTextures = 0;
-    _getsShadows = true;
-    _lightModel  = LM_CookTorrance;
-    _skybox      = skybox;
-    _program     = program;
+    _specular.set(1, 1, 1);                         // not used in Cook-Torrance
+    _emissive.set(0, 0, 0, 0);                      // not used in Cook-Torrance
+    _shininess       = (1.0f - roughness) * 500.0f; // not used in Cook-Torrance
+    _roughness       = roughness;
+    _metalness       = metalness;
+    _numTextures     = 0;
+    _getsShadows     = true;
+    _reflectionModel = RM_CookTorrance;
+    _skybox          = skybox;
+    _program         = program;
 
     _kr = 0.0f;
     _kt = 0.0f;
@@ -207,14 +207,14 @@ SLMaterial::SLMaterial(SLAssetManager* am,
     _diffuse.set(1, 1, 1);
     _specular.set(1, 1, 1);
     _emissive.set(0, 0, 0, 0);
-    _shininess   = 125;
-    _roughness   = 0.5f;
-    _metalness   = 0.0f;
-    _numTextures = 0;
-    _lightModel  = LM_CookTorrance;
-    _getsShadows = true;
-    _skybox      = skybox;
-    _program     = program;
+    _shininess       = 125;
+    _roughness       = 0.5f;
+    _metalness       = 0.0f;
+    _numTextures     = 0;
+    _reflectionModel = RM_CookTorrance;
+    _getsShadows     = true;
+    _skybox          = skybox;
+    _program         = program;
 
     addTexture(texture1);
     addTexture(texture2);
@@ -247,10 +247,10 @@ SLMaterial::SLMaterial(SLAssetManager* am,
                        const SLchar*   name,
                        SLGLProgram*    shaderProg) : SLObject(name)
 {
-    _assetManager = am;
-    _program      = shaderProg;
-    _skybox       = nullptr;
-    _lightModel   = LM_BlinnPhong;
+    _assetManager    = am;
+    _program         = shaderProg;
+    _skybox          = nullptr;
+    _reflectionModel = RM_BlinnPhong;
     _ambient.set(1, 1, 1);
     _diffuse.set(1, 1, 1);
     _specular.set(1, 1, 1);
@@ -284,8 +284,8 @@ SLMaterial::SLMaterial(SLAssetManager* am,
                        const SLCol4f&  uniformColor,
                        const SLchar*   name) : SLObject(name)
 {
-    _assetManager = am;
-    _lightModel   = LM_Custom;
+    _assetManager    = am;
+    _reflectionModel = RM_Custom;
     _ambient.set(0, 0, 0);
     _diffuse = uniformColor;
     _specular.set(0, 0, 0);
@@ -342,7 +342,10 @@ SLMaterial::~SLMaterial()
  not yet a shader program assigned (SLMaterial::_program) a suitable program
  will be generated with an instance of SLGLProgramGenerated.
  At the end the shader program will begin its usage with SLGLProgram::beginUse.
-*/
+ @param cam Pointer to the active camera
+ @param lights Pointer to the scene vector of lights
+ @param skybox Pointer to the skybox
+ */
 void SLMaterial::activate(SLCamera* cam, SLVLight* lights, SLSkybox* skybox)
 {
     SLGLState* stateGL = SLGLState::instance();
@@ -372,7 +375,7 @@ void SLMaterial::activate(SLCamera* cam, SLVLight* lights, SLSkybox* skybox)
             _program = new SLGLProgramGenerated(_assetManager, programName, this, lights);
     }
 
-    // Check if shader had compile error and the error texture should be shown
+    // Check if shader had a compile error and the error texture should be shown
     if (_program && _program->name().find("ErrorTex") != string::npos)
     {
         for (int i = 0; i < TT_numTextureType; i++)
@@ -414,55 +417,68 @@ SLint SLMaterial::passToUniforms(SLGLProgram* program, SLint nextTexUnit)
             texture->bindActive(nextTexUnit);
             switch (i)
             {
-                case TT_diffuse: {
+                case TT_diffuse:
+                {
                     sprintf(name, "u_matTextureDiffuse%d", texNb);
                     break;
                 }
-                case TT_specular: {
+                case TT_specular:
+                {
                     sprintf(name, "u_matTextureSpecular%d", texNb);
                     break;
                 }
-                case TT_normal: {
+                case TT_normal:
+                {
                     sprintf(name, "u_matTextureNormal%d", texNb);
                     break;
                 }
-                case TT_height: {
+                case TT_height:
+                {
                     sprintf(name, "u_matTextureHeight%d", texNb);
                     break;
                 }
-                case TT_occlusion: {
+                case TT_occlusion:
+                {
                     sprintf(name, "u_matTextureOcclusion%d", texNb);
                     break;
                 }
-                case TT_roughness: {
+                case TT_roughness:
+                {
                     sprintf(name, "u_matTextureRoughness%d", texNb);
                     break;
                 }
-                case TT_metallic: {
+                case TT_metallic:
+                {
                     sprintf(name, "u_matTextureMetallic%d", texNb);
                     break;
                 }
-                case TT_roughMetal: {
+                case TT_roughMetal:
+                {
                     sprintf(name, "u_matTextureRoughMetal%d", texNb);
                     break;
                 }
-                case TT_occluRoughMetal: {
+                case TT_occluRoughMetal:
+                {
                     sprintf(name, "u_matTextureOccluRoughMetal%d", texNb);
                     break;
                 }
-                case TT_emissive: {
+                case TT_emissive:
+                {
                     sprintf(name, "u_matTextureEmissive%d", texNb);
                     break;
                 }
-                case TT_environmentCubemap: {
+                case TT_environmentCubemap:
+                {
                     sprintf(name, "u_matTextureEnvCubemap%d", texNb);
                     break;
                 }
-                case TT_font: {
+                case TT_font:
+                {
                     sprintf(name, "u_matTextureFont%d", texNb);
                     break;
                 }
-                default: {
+                default:
+                {
                     sprintf(name, "u_matTextureDiffuse%d", texNb);
                     break;
                 }
@@ -505,7 +521,7 @@ SLstring SLMaterial::texturesString()
     {
         for (SLuint iT = 0; iT < _textures[iTT].size(); ++iT)
         {
-            texStr += "-"+
+            texStr += "-" +
                       _textures[iTT][iT]->typeShortName() +
                       std::to_string(iT) +
                       std::to_string(_textures[iTT][iT]->uvIndex());

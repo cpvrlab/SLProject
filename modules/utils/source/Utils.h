@@ -25,7 +25,7 @@ using std::stringstream;
 using std::to_string;
 using std::vector;
 
-//class FileLog;
+// class FileLog;
 //-----------------------------------------------------------------------------
 //! Utils provides utilities for string & file handling, logging and math functions
 /*!
@@ -177,10 +177,10 @@ string getCurrentWorkingDir();
 bool deleteFile(string& pathfilename);
 
 //! process all files and folders recursively naturally sorted
-void loopFileSystemRec(const string& path,
+void loopFileSystemRec(const string&                                           path,
                        function<void(string path, string baseName, int depth)> processFile,
                        function<void(string path, string baseName, int depth)> processDir,
-                       const int depth = 0);
+                       const int                                               depth = 0);
 
 //! Dumps all folders and files recursovely
 void dumpFileSystemRec(const char*   logtag,

@@ -31,8 +31,8 @@ enum SLRayType
 //! Ray class with ray and intersection properties
 /*!
 Ray class for Ray Tracing. It not only holds informations about the ray itself
-but also about the node hit by the ray. With that information the method 
-reflect calculates a reflected ray and the method transmit calculates a 
+but also about the node hit by the ray. With that information the method
+reflect calculates a reflected ray and the method transmit calculates a
 REFRACTED ray.
 */
 class SLRay
@@ -82,8 +82,9 @@ public:
     //! Total NO. of rays shot during RT
     static SLuint totalNumRays() { return SLRay::primaryRays +
                                           SLRay::reflectedRays +
-                                          SLRay::subsampledRays +
                                           SLRay::refractedRays +
+                                          SLRay::tirRays +
+                                          SLRay::subsampledRays +
                                           SLRay::shadowRays; }
 
     // Additional info for intersection
@@ -105,10 +106,10 @@ public:
     SLint   hitTriangle; //!< Points to the intersected triangle
 
     // Members set before shading
-    SLVec3f hitPoint;   //!< Point of intersection
-    SLVec3f hitNormal;  //!< Surface normal at intersection point
-    SLCol4f hitTexColor;//!< Color at intersection for texture or color attributes
-    SLfloat hitAO;      //!< Ambient occlusion factor at intersection point
+    SLVec3f hitPoint;    //!< Point of intersection
+    SLVec3f hitNormal;   //!< Surface normal at intersection point
+    SLCol4f hitTexColor; //!< Color at intersection for texture or color attributes
+    SLfloat hitAO;       //!< Ambient occlusion factor at intersection point
 
     // Helpers for fast AABB intersection
     SLVec3f invDir;    //!< Inverse ray dir for fast AABB hit in WS

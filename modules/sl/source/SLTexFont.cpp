@@ -171,7 +171,7 @@ void SLTexFont::create(SLstring fontFilename)
     SLuint texWidth  = Utils::nextPowerOf2((SLuint)lmax);
     SLuint texHeight = Utils::nextPowerOf2(14 * (SLuint)(h + MARGIN_Y));
 
-    //Fill up with 0
+    // Fill up with 0
     SLuchar* bits = new SLuchar[texWidth * texHeight];
     memset(bits, 0, texWidth * texHeight);
 
@@ -189,7 +189,7 @@ void SLTexFont::create(SLstring fontFilename)
                     for (x = x0[ch]; x <= x1[ch]; ++x)
                     {
                         SLfloat alpha = ((SLfloat)(bmp[x + (y0[ch] + y) * bmpW])) / 256.0f;
-                        //alpha = alpha*sqrtf(alpha); // powf(alpha, 1.5f);   // some gamma correction
+                        // alpha = alpha*sqrtf(alpha); // powf(alpha, 1.5f);   // some gamma correction
                         bits[(SLuint)(xx + x - x0[ch]) +
                              (SLuint)(r * (h + MARGIN_Y) + y) * texWidth] = (SLuchar)(alpha * 256.0f);
                     }
@@ -205,7 +205,7 @@ void SLTexFont::create(SLstring fontFilename)
         }
     }
 
-    //Allocate memory for image pixels using only the alpha channel
+    // Allocate memory for image pixels using only the alpha channel
     _images.clear();
     SLGLState*  stateGL = SLGLState::instance();
     CVPixFormat format  = stateGL->pixelFormatIsSupported(PF_luminance) ? PF_luminance : PF_red;
@@ -221,9 +221,9 @@ void SLTexFont::create(SLstring fontFilename)
                      true,
                      false);
     delete[] bits;
-    _width = _images[0]->width();
+    _width  = _images[0]->width();
     _height = _images[0]->height();
-    _depth = (SLint)_images.size();
+    _depth  = (SLint)_images.size();
 
     // Set characters below 32 to default
     const SLuchar Undef = 127; // default character used as for undifined ones (having ascii codes from 0 to 31)
@@ -271,9 +271,9 @@ SLVec2f SLTexFont::calcTextSize(const SLstring& text,
     return size;
 }
 //-----------------------------------------------------------------------------
-/*! 
+/*!
 Returns a vector of strings of the text to be wrapped to a max. with of maxW.
-The sum of all characters in lines must be equal to the length of the input text 
+The sum of all characters in lines must be equal to the length of the input text
 */
 SLVstring SLTexFont::wrapTextToLines(SLstring text, // text to wrap
                                      SLfloat  maxW)  // max. width in pixels
@@ -339,16 +339,16 @@ SLVstring SLTexFont::wrapTextToLines(SLstring text, // text to wrap
     return lines;
 }
 //-----------------------------------------------------------------------------
-/*! 
+/*!
 Builds the vertex array object with 2 texture mapped triangles per
-character. The text width < maxWidth the text will be on one line. If it is 
-wider it will be split into multiple lines with a 
+character. The text width < maxWidth the text will be on one line. If it is
+wider it will be split into multiple lines with a
 height = font height * lineHeight.
 */
-void SLTexFont::buildTextBuffers(SLGLVertexArray& vao,         //!< external vertex array object
-                                 const SLstring&  text,        //!< text to render
-                                 SLfloat          maxWidth,    //!<  max. width for multi-line text
-                                 SLfloat          lineHeight)  //!< line height factor
+void SLTexFont::buildTextBuffers(SLGLVertexArray& vao,      //!< external vertex array object
+                                 const SLstring&  text,     //!< text to render
+                                 SLfloat          maxWidth, //!<  max. width for multi-line text
+                                 SLfloat          lineHeight)        //!< line height factor
 {
     SLVstring lines;    // Vector of text lines
     SLVVec2f  sizes;    // Sizes of text lines

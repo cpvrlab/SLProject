@@ -17,7 +17,7 @@
 
 //-----------------------------------------------------------------------------
 //! SLAnimManager is the central class for all animation handling.
-/*!   
+/*!
 A single instance of this class is hold by the SLScene instance and is
 responsible for updating the enabled animations and to manage their life time.
 If keeps a list of all skeletons and node animations and also holds a list of
@@ -39,7 +39,7 @@ public:
 
     SLAnimation* createNodeAnimation(SLfloat duration);
     SLAnimation* createNodeAnimation(const SLstring& name,
-                                     SLfloat duration);
+                                     SLfloat         duration);
     SLAnimation* createNodeAnimation(const SLstring& name,
                                      SLfloat         duration,
                                      SLbool          enabled,

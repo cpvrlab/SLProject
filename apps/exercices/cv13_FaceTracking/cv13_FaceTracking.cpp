@@ -78,7 +78,7 @@ int main()
     VideoCapture capture;
     Mat          frame;
 
-    //1. Load the cascades
+    // 1. Load the cascades
     if (!face_cascade.load(face_cascade_name))
     {
         printf("Error loading face cascade\n");
@@ -90,7 +90,7 @@ int main()
         return -1;
     };
 
-    //2. Read the video stream
+    // 2. Read the video stream
     capture.open(0);
     if (!capture.isOpened())
     {

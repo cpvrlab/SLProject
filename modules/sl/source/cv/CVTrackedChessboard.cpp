@@ -41,7 +41,7 @@ CVTrackedChessboard::CVTrackedChessboard(string calibIniPath)
 bool CVTrackedChessboard::loadCalibParams()
 {
     cv::FileStorage fs;
-    string      fullCalibIniFile = _calibIniPath + _calibParamsFileName;
+    string          fullCalibIniFile = _calibIniPath + _calibParamsFileName;
 
     fs.open(fullCalibIniFile, cv::FileStorage::READ);
     if (!fs.isOpened())
@@ -50,12 +50,12 @@ bool CVTrackedChessboard::loadCalibParams()
         return false;
     }
 
-    //assign paramters
+    // assign paramters
     fs["numInnerCornersWidth"] >> _boardSize.width;
     fs["numInnerCornersHeight"] >> _boardSize.height;
-    //load edge length in MM
+    // load edge length in MM
     fs["squareSizeMM"] >> _edgeLengthM;
-    //convert to M
+    // convert to M
     _edgeLengthM *= 0.001f;
 
     return true;
@@ -91,7 +91,7 @@ bool CVTrackedChessboard::track(CVMat          imageGray,
 
     float startMS = _timer.elapsedTimeInMilliSec();
 
-    //detect chessboard corners
+    // detect chessboard corners
     int flags = cv::CALIB_CB_FAST_CHECK;
 
     CVVPoint2f corners2D;
@@ -117,7 +117,7 @@ bool CVTrackedChessboard::track(CVMat          imageGray,
 
         startMS = _timer.elapsedTimeInMilliSec();
 
-        //find the camera extrinsic parameters (rVec & tVec)
+        // find the camera extrinsic parameters (rVec & tVec)
         _solved = solvePnP(CVMat(_boardPoints3D),
                            CVMat(corners2D),
                            calib->cameraMat(),

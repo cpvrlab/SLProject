@@ -22,7 +22,7 @@
 template<typename T>
 class SLOptixCudaBuffer
 {
-    public:
+public:
     SLOptixCudaBuffer();
     ~SLOptixCudaBuffer();
 
@@ -48,7 +48,7 @@ class SLOptixCudaBuffer
     CUdeviceptr* devicePointerPointer() { return &_devicePointer; }
     size_t       size() { return _size; }
 
-    private:
+private:
     CUdeviceptr _devicePointer;
     size_t      _size;
 };

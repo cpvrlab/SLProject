@@ -19,7 +19,7 @@ class SLGLProgram;
 /*!
 This texture font class was originally inspired by the the font class of the
 AntTweakBar library (http://www.antisphere.com/Wiki/tools:anttweakbar)
-The source bitmap includes 224 characters starting from ascii char 32 (space) to 
+The source bitmap includes 224 characters starting from ascii char 32 (space) to
 ascii char 255:
 <PRE>
  !"#$%&'()*+,-./0123456789:;<=>?
@@ -29,11 +29,11 @@ ascii char 255:
 ��������������������������������
 ��������������������������������
 </PRE>
-First column of a source bitmap is a delimiter with color=zero at the end of 
-each line of characters. Last row of a line of characters is a delimiter with 
+First column of a source bitmap is a delimiter with color=zero at the end of
+each line of characters. Last row of a line of characters is a delimiter with
 color=zero at the last pixel of each character.
 The source bitmaps for the fonts are in the folder _data/fonts. The where used
-for design only. Their data is directly included a binary array in the source 
+for design only. Their data is directly included a binary array in the source
 file SLTexFont.cpp.
 */
 class SLTexFont : public SLGLTexture
@@ -43,16 +43,16 @@ public:
     SLTexFont(SLstring fontFilename, SLstring shaderDir);
     ~SLTexFont();
 
-    void      create(SLstring fontFilename);
-    SLVec2f   calcTextSize(const SLstring& text,
-                           SLfloat         maxWidth         = 0.0f,
-                           SLfloat         lineHeightFactor = 1.5f);
-    SLVstring wrapTextToLines(SLstring text,
-                              SLfloat  maxW);
-    void      buildTextBuffers(SLGLVertexArray& vao,
-                               const SLstring&  text,
-                               SLfloat          maxWidth   = 0.0f,
-                               SLfloat          lineHeight = 1.5f);
+    void         create(SLstring fontFilename);
+    SLVec2f      calcTextSize(const SLstring& text,
+                              SLfloat         maxWidth         = 0.0f,
+                              SLfloat         lineHeightFactor = 1.5f);
+    SLVstring    wrapTextToLines(SLstring text,
+                                 SLfloat  maxW);
+    void         buildTextBuffers(SLGLVertexArray& vao,
+                                  const SLstring&  text,
+                                  SLfloat          maxWidth   = 0.0f,
+                                  SLfloat          lineHeight = 1.5f);
     SLGLProgram* fontTexProgram() { return _fontTexProgram; }
 
     //! Single Character info struct w. min. and max. texcoords.

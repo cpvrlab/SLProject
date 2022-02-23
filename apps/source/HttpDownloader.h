@@ -1,11 +1,11 @@
 #ifndef HTTPDOWNLOADER
 #define HTTPDOWNLOADER
 #include <string>
-class HttpDownloader 
+class HttpDownloader
 {
-public: 
-    HttpDownloader() {};
-    virtual void download(std::string url, std::string dst) { };
+public:
+    HttpDownloader(){};
+    virtual void download(std::string url, std::string dst){};
 };
 
 #endif

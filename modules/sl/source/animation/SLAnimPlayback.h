@@ -20,7 +20,7 @@ class SLAnimation;
 
 //-----------------------------------------------------------------------------
 //! Manages the playback of an SLAnimation
-/*! 
+/*!
 This class manages the playback state and the local time of an SLAnimation.
 It manages the way the time advances and how the animation loops. It has all
 functionality to play, pause, stop, enable, speedup and slowdown a playback.
@@ -36,7 +36,7 @@ states and the actual SLAnimation has to only exist once in memory.
 */
 class SLAnimPlayback
 {
-    public:
+public:
     SLAnimPlayback(SLAnimation* parent,
                    SLfloat      weight = 1.0f);
 
@@ -77,7 +77,7 @@ class SLAnimPlayback
     SLfloat calcEasingTime(SLfloat time) const;
     SLfloat calcEasingTimeInv(SLfloat time) const;
 
-    protected:
+protected:
     SLAnimation*  _animation;        //!< the animation this plays is referencing
     SLfloat       _localTime;        //!< the current local timestamp (eased time)
     SLfloat       _weight;           //!< the current weight
@@ -90,7 +90,7 @@ class SLAnimPlayback
     SLbool        _gotChanged;       //!< Did this playback change in the last frame
 };
 //-----------------------------------------------------------------------------
-typedef vector<SLAnimPlayback*>        SLVAnimPlayback;
+typedef vector<SLAnimPlayback*>             SLVAnimPlayback;
 typedef std::map<SLstring, SLAnimPlayback*> SLMAnimPlayback;
 //-----------------------------------------------------------------------------
 #endif

@@ -26,7 +26,7 @@ integrated in the SLProject.
 */
 class AppNodeGui
 {
-    public:
+public:
     static void     build(SLScene* s, SLSceneView* sv);
     static SLstring infoText;
 };

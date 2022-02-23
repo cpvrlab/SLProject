@@ -13,7 +13,6 @@
 
 #include <SLEnums.h>
 #include <SLNode.h>
-#include <SLProjectScene.h>
 
 class SLSceneView;
 class SLAssetManager;
@@ -39,7 +38,7 @@ public:
              SLstring        cubeMapZNeg,
              SLstring        name = "Default Skybox");
 
-    SLSkybox(SLProjectScene* projectScene,
+    SLSkybox(SLAssetManager* am,
              SLstring        shaderPath,
              SLstring        hdrImage,
              SLVec2i         resolution,

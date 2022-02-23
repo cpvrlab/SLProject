@@ -12,7 +12,7 @@
 #include <GLFW/glfw3.h> // GLFW GUI library
 #include <SLMat4.h>     // 4x4 matrix class
 #include <SLVec3.h>     // 3D vector class
-#include <glUtils.h> // Basics for OpenGL shaders, buffers & textures
+#include <glUtils.h>    // Basics for OpenGL shaders, buffers & textures
 
 //-----------------------------------------------------------------------------
 //! Struct definition for vertex attribute position and normal
@@ -227,31 +227,31 @@ onPaint does all the rendering for one frame from scratch with OpenGL.
 */
 bool onPaint()
 {
-    //1) Clear the color & depth buffer
+    // 1) Clear the color & depth buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    //2a) View transform: move the coordinate system away from the camera
+    // 2a) View transform: move the coordinate system away from the camera
     _viewMatrix.identity();
     _viewMatrix.translate(0, 0, _camZ);
 
-    //2b) Model transform: rotate the coordinate system increasingly
+    // 2b) Model transform: rotate the coordinate system increasingly
     _viewMatrix.rotate(_rotX + _deltaX, 1, 0, 0);
     _viewMatrix.rotate(_rotY + _deltaY, 0, 1, 0);
 
-    //3) Model transform: move the cube so that it rotates around its center
+    // 3) Model transform: move the cube so that it rotates around its center
     _modelMatrix.identity();
     _modelMatrix.translate(-0.5f, -0.5f, -0.5f);
 
-    //4) Build the combined modelview-projection matrix
+    // 4) Build the combined modelview-projection matrix
     SLMat4f mvp(_projectionMatrix);
     SLMat4f mv(_viewMatrix);
     mv.multiply(_modelMatrix);
     mvp.multiply(mv);
 
-    //5) Build normal matrix
+    // 5) Build normal matrix
     SLMat3f nm(mv.inverseTransposed());
 
-    //6) Activate the shader program and pass the uniform variables to the shader
+    // 6) Activate the shader program and pass the uniform variables to the shader
     glUseProgram(_shaderProgID);
     glUniformMatrix4fv(_mvpLoc, 1, 0, (float*)&mvp);
     glUniformMatrix3fv(_nmLoc, 1, 0, (float*)&nm);
@@ -260,16 +260,16 @@ bool onPaint()
     glUniform4f(_matDiffuseLoc, 1.0f, 0.0f, 0.0f, 1.0f);   // diffuse material reflection
     glUniform1f(_gLoc, 1.0f);                              // gamma value
 
-    //7a) Activate the vertex array
+    // 7a) Activate the vertex array
     glBindVertexArray(_vao);
 
-    //7b) Activate the index buffer
+    // 7b) Activate the index buffer
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _vboI);
 
-    //7c) Draw cube with triangles by indexes
+    // 7c) Draw cube with triangles by indexes
     glDrawElements(GL_TRIANGLES, (GLsizei)_numI, GL_UNSIGNED_INT, nullptr);
 
-    //8) Fast copy the back buffer to the front buffer. This is OS dependent.
+    // 8) Fast copy the back buffer to the front buffer. This is OS dependent.
     glfwSwapBuffers(window);
     GETGLERROR;
 
@@ -420,7 +420,7 @@ int main(int argc, char* argv[])
     // Enable fullscreen anti aliasing with 4 samples
     glfwWindowHint(GLFW_SAMPLES, 4);
 
-    //You can enable or restrict newer OpenGL context here (read the GLFW documentation)
+    // You can enable or restrict newer OpenGL context here (read the GLFW documentation)
 #ifdef __APPLE__
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
@@ -428,10 +428,10 @@ int main(int argc, char* argv[])
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_COCOA_RETINA_FRAMEBUFFER, GL_FALSE);
 #else
-    //glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
-    //glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    //glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    //glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+    // glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
+    // glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    // glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    // glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
 
     _scrWidth  = 640;

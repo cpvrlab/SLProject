@@ -15,7 +15,7 @@
 #include <SLSkybox.h>
 #include <SLMesh.h>
 #include <SLAssetManager.h>
-#include <Instrumentor.h>
+#include <Profiler.h>
 
 using std::set;
 
@@ -1579,15 +1579,6 @@ void SLMesh::transformSkin(const std::function<void(SLMesh*)>& cbInformNodes)
     }
 }
 //-----------------------------------------------------------------------------
-/*
-void SLMesh::notifyParentNodesAABBUpdate() const
-{
-    SLVNode nodes = AppDemo::scene->root3D()->findChildren(this);
-    for (auto node : nodes)
-        node->needAABBUpdate();
-}
-*/
-//-----------------------------------------------------------------------------
 #ifdef SL_HAS_OPTIX
 unsigned int SLMesh::meshIndex = 0;
 //-----------------------------------------------------------------------------
@@ -1597,11 +1588,11 @@ void SLMesh::allocAndUploadData()
 
     _normalBuffer.alloc_and_upload(N);
 
-    if (UV1.data())
-        _textureBuffer.alloc_and_upload(UV1);
+    if (!UV[0].empty())
+        _textureBuffer.alloc_and_upload(UV[0]);
 
-    if (UV2.data())
-        _textureBuffer.alloc_and_upload(UV2);
+    if (!UV[1].empty())
+        _textureBuffer.alloc_and_upload(UV[1]);
 
     if (!I16.empty())
         _indexShortBuffer.alloc_and_upload(I16);
@@ -1674,9 +1665,9 @@ ortHitData SLMesh::createHitData()
     hitData.normals  = reinterpret_cast<float3*>(_normalBuffer.devicePointer());
     hitData.indices  = reinterpret_cast<short3*>(_indexShortBuffer.devicePointer());
     hitData.texCords = reinterpret_cast<float2*>(_textureBuffer.devicePointer());
-    if (!mat()->textures().empty())
+    if (mat()->numTextures())
     {
-        hitData.textureObject = mat()->textures()[0]->getCudaTextureObject();
+        hitData.textureObject = mat()->textures(TT_diffuse)[0]->getCudaTextureObject();
     }
     hitData.material.kn                = mat()->kn();
     hitData.material.kt                = mat()->kt();

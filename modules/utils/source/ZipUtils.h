@@ -24,9 +24,9 @@ bool unzip(string                                         zipfile,
            function<bool(string path)>                    processDir,
            function<int(int currentFile, int totalFiles)> progress = nullptr);
 
-bool unzip(string path,
-           string dest = "",
-           bool override = true,
+bool unzip(string                                         path,
+           string                                         dest     = "",
+           bool                                           override = true,
            function<int(int currentFile, int totalFiles)> progress = nullptr);
 }
 #endif

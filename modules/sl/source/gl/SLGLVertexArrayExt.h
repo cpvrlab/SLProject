@@ -15,13 +15,13 @@
 
 //-----------------------------------------------------------------------------
 //! SLGLVertexArray adds Helper Functions for quick Line & Point Drawing
-/*! These functions where separated from SLGLVertexAttribute because they use 
-the predefined shader ColorUniform and have there for references to the classes 
+/*! These functions where separated from SLGLVertexAttribute because they use
+the predefined shader ColorUniform and have there for references to the classes
 SLScene and SLGLProgram.
 */
 class SLGLVertexArrayExt : public SLGLVertexArray
 {
-    public:
+public:
     SLGLVertexArrayExt() { ; }
     virtual ~SLGLVertexArrayExt() { ; }
 
@@ -48,7 +48,7 @@ class SLGLVertexArrayExt : public SLGLVertexArray
                               SLuint            indexFirstVertex = 0,
                               SLuint            countVertices    = 0);
 
-    private:
+private:
     //! Adds or updates & generates a position vertex attribute for colored line or point drawing
     void generateVertexPos(SLuint numVertices,
                            SLint  elementSize,

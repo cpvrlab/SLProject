@@ -143,6 +143,7 @@ if ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU" OR "${CMAKE_CXX_COMPILER_ID}" MATCH
             -Wno-char-subscripts
             -Wno-injected-class-name
             -Wno-format-security
+			-Wno-invalid-noreturn
 
             $<$<CXX_COMPILER_ID:GNU>:
                 -Wmaybe-uninitialized
