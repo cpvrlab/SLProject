@@ -187,6 +187,8 @@ enum SLSceneID
     SID_Benchmark5_ColumnsNoLOD,
     SID_Benchmark6_ColumnsLOD,
 
+    SID_ParticleSystem_First,
+
     SID_Maximal
 };
 //-----------------------------------------------------------------------------

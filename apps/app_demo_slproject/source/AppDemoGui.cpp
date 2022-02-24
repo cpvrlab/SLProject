@@ -1941,7 +1941,13 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                         ImGui::EndMenu();
                     }
                 }
+                if (ImGui::BeginMenu("Particle System"))
+                {
+                    if (ImGui::MenuItem("First Particle System", nullptr, sid == SID_ParticleSystem_First))
+                        s->onLoad(am, s, sv, SID_ParticleSystem_First);
 
+                    ImGui::EndMenu();
+                }
                 ImGui::EndMenu();
             }
 

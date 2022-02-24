@@ -69,6 +69,7 @@ public:
     void addShader(SLGLShader* shader);
     void init(SLVLight* lights);
     void initRaw();
+    void initRawTF(char* writeBackAttrib[], int size);
 
     virtual void beginShader(SLCamera*   cam,
                              SLMaterial* mat,

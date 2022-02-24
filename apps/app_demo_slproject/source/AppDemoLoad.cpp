@@ -5740,6 +5740,41 @@ resolution shadows near the camera and lower resolution shadows further away.");
         }
     }
 
+    else if (sceneID == SID_ParticleSystem_First) //............................................................
+    {
+        // Set scene name and info string
+        s->name("First particle system");
+        s->info("Test");
+
+        // Create a scene group node
+        SLNode* scene = new SLNode("scene node");
+
+        // Create textures and materials
+        SLGLTexture* texC = new SLGLTexture(am, texPath + "smoke_08");
+        SLMaterial*  m1   = new SLMaterial(am, "m1", texC);
+
+        // Create a light source node
+        SLLightSpot* light1 = new SLLightSpot(am, s, 0.3f);
+        light1->translation(0, 0, 5);
+        light1->name("light node");
+        scene->addChild(light1);
+
+        // Create meshes and nodes
+        SLMesh* rectMesh = new SLRectangle(am, SLVec2f(-5, -5), SLVec2f(5, 5), 25, 25, "rectangle mesh", m1);
+        SLNode* rectNode = new SLNode(rectMesh, "rectangle node");
+        scene->addChild(rectNode);
+
+        // Set background color and the root scene node
+        sv->sceneViewCamera()->background().colors(SLCol4f(0.7f, 0.7f, 0.7f),
+                                                   SLCol4f(0.2f, 0.2f, 0.2f));
+
+        // pass the scene group as root node
+        s->root3D(scene);
+
+        // Save energy
+        sv->doWaitOnIdle(true);
+    }
+
     ////////////////////////////////////////////////////////////////////////////
     // call onInitialize on all scene views to init the scenegraph and stats
     for (auto* sceneView : AppDemo::sceneViews)
