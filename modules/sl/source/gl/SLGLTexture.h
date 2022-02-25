@@ -155,6 +155,7 @@ public:
     void     deleteImages();
     void     bindActive(SLuint texUnit = 0);
     void     fullUpdate();
+    void     getTexImageFromGpu();
     void     drawSprite(SLbool doUpdate, SLfloat x, SLfloat y, SLfloat w, SLfloat h);
     void     cubeUV2XYZ(SLint index, SLfloat u, SLfloat v, SLfloat& x, SLfloat& y, SLfloat& z);
     void     cubeXYZ2UV(SLfloat x, SLfloat y, SLfloat z, SLint& index, SLfloat& u, SLfloat& v);
@@ -263,7 +264,7 @@ protected:
               SLbool          loadGrayscaleIntoAlpha = false);
     void load(const SLVCol4f& colors);
 
-    CVVImage          _images;         //!< vector of CVImage pointers
+    CVVImage          _images;         //!< Vector of CVImage pointers
     SLuint            _texID;          //!< OpenGL texture ID
     SLTextureType     _texType;        //!< See SLTextureType
     SLint             _width;          //!< Texture image width in pixels (images exist either in _images or on the GPU or on both)
@@ -289,6 +290,7 @@ protected:
 
     SLbool _deleteImageAfterBuild;     //!< Flag if images should be deleted after build on GPU
     SLbool _compressedTexture = false; //!< True for compressed texture format on GPU
+
 #ifdef SL_BUILD_WITH_KTX
     ktxTexture2*        _ktxTexture        = nullptr;             //!< Pointer to the KTX texture after loading
     ktx_transcode_fmt_e _compressionFormat = KTX_TTF_NOSELECTION; //!< compression format on GPU

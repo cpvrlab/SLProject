@@ -1171,6 +1171,11 @@ void SLGLTexture::fullUpdate()
     GET_GL_ERROR;
 }
 //-----------------------------------------------------------------------------
+void SLGLTexture::getTexImageFromGpu()
+{
+   //https://cpp.hotexamples.com/examples/-/-/glGetTexImage/cpp-glgetteximage-function-examples.html
+}
+//-----------------------------------------------------------------------------
 //! Draws the texture as 2D sprite with OpenGL buffers
 /*! Draws the texture as a flat 2D sprite with a height and a width on two
 triangles with zero in the bottom left corner: <br>
