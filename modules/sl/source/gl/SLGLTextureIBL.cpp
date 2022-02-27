@@ -121,13 +121,14 @@ void SLGLTextureIBL::build(SLint texUnit)
         _texType == TT_irradianceCubemap)
     {
         _bytesPerPixel = 3 * 2; // GL_RGB16F
+        _internalFormat = GL_RGB16F;
 
         // Build the textures for the 6 faces of a cubemap with no data
         for (SLuint i = 0; i < 6; i++)
         {
             glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
                          0,
-                         GL_RGB16F,
+                         _internalFormat,
                          _width,
                          _height,
                          0,
@@ -194,12 +195,13 @@ void SLGLTextureIBL::build(SLint texUnit)
                "the source texture is not an environment map");
 
         _bytesPerPixel = 3 * 2; // GL_RGB16F
+        _internalFormat = GL_RGB16F;
 
         for (unsigned int i = 0; i < 6; ++i)
         {
             glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
                          0,
-                         GL_RGB16F,
+                         _internalFormat,
                          _width,
                          _height,
                          0,
@@ -257,10 +259,11 @@ void SLGLTextureIBL::build(SLint texUnit)
     else if (_texType == TT_brdfLUT)
     {
         _bytesPerPixel = 2 * 2; // GL_RG16F
+        _internalFormat = GL_RG16F;
 
         glTexImage2D(_target,
                      0,
-                     GL_RG16F,
+                     _internalFormat,
                      _width,
                      _height,
                      0,

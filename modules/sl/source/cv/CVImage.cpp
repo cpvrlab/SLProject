@@ -25,12 +25,12 @@ CVImage::CVImage()
 };
 //------------------------------------------------------------------------------
 //! Constructor for empty image of a certain format and size
-CVImage::CVImage(int         width,
-                 int         height,
-                 CVPixFormat format,
-                 string      name) : _name(std::move(name))
+CVImage::CVImage(int             width,
+                 int             height,
+                 CVPixelFormatGL pixelFormatGL,
+                 string          name) : _name(std::move(name))
 {
-    allocate(width, height, format);
+    allocate(width, height, pixelFormatGL);
 }
 //-----------------------------------------------------------------------------
 //! Constructor for image from file
@@ -110,10 +110,10 @@ void CVImage::clearData()
 /param pixelFormatGL OpenGL pixel format enum
 /param isContinuous True if the memory is continuous and has no stride bytes at the end of the line
 */
-bool CVImage::allocate(int         width,
-                       int         height,
-                       CVPixFormat pixelFormatGL,
-                       bool        isContinuous)
+bool CVImage::allocate(int             width,
+                       int             height,
+                       CVPixelFormatGL pixelFormatGL,
+                       bool            isContinuous)
 {
     assert(width > 0 && height > 0);
 
@@ -125,65 +125,28 @@ bool CVImage::allocate(int         width,
         return false;
 
     // Set the according OpenCV format
-    int  cvType = 0;
-    uint bpp    = 0;
-    switch (pixelFormatGL)
-    {
-        case PF_luminance:
-        {
-            cvType = CV_8UC1;
-            bpp    = 1;
-            break;
-        }
-        case PF_red:
-        {
-            cvType = CV_8UC1;
-            bpp    = 1;
-            break;
-        }
-        case PF_bgr:
-        {
-            cvType = CV_8UC3;
-            bpp    = 3;
-            break;
-        }
-        case PF_rgb:
-        {
-            cvType = CV_8UC3;
-            bpp    = 3;
-            break;
-        }
-        case PF_bgra:
-        {
-            cvType = CV_8UC4;
-            bpp    = 4;
-            break;
-        }
-        case PF_rgba:
-        {
-            cvType = CV_8UC4;
-            bpp    = 4;
-            break;
-        }
-        default: Utils::exitMsg("SLProject", "Pixel format not supported", __LINE__, __FILE__);
-    }
-
+    int cvType = glPixelFormat2cvType(pixelFormatGL);
     _cvMat.create(height, width, cvType);
 
     _format        = pixelFormatGL;
-    _bytesPerPixel = bpp;
-    _bytesPerLine  = bytesPerLine((uint)width, pixelFormatGL, isContinuous);
+    _bytesPerPixel = bytesPerPixel(pixelFormatGL);
+    _bytesPerLine  = bytesPerLine((uint)width,
+                                 pixelFormatGL,
+                                 isContinuous);
     _bytesPerImage = _bytesPerLine * (uint)height;
 
     if (!_cvMat.data)
-        Utils::exitMsg("SLProject", "CVImage::Allocate: Allocation failed", __LINE__, __FILE__);
+        Utils::exitMsg("SLProject",
+                       "CVImage::Allocate: Allocation failed",
+                       __LINE__,
+                       __FILE__);
     return true;
 }
 //-----------------------------------------------------------------------------
 //! Returns the NO. of bytes per pixel for the passed pixel format
-uint CVImage::bytesPerPixel(CVPixFormat format)
+uint CVImage::bytesPerPixel(CVPixelFormatGL pixFormatGL)
 {
-    switch (format)
+    switch (pixFormatGL)
     {
         case PF_red:
         case PF_red_integer:
@@ -203,7 +166,14 @@ uint CVImage::bytesPerPixel(CVPixFormat format)
         case PF_bgra:
         case PF_rgba_integer:
         case PF_bgra_integer: return 4;
-        case PF_hdr: return 12;
+        case PF_r16f: return 2;
+        case PF_rg16f: return 4;
+        case PF_rgb16f: return 6;
+        case PF_rgba16f: return 8;
+        case PF_r32f: return 4;
+        case PF_rg32f: return 8;
+        case PF_rgb32f: return 12;
+        case PF_rgba32f: return 16;
         default:
             Utils::exitMsg("SLProject", "CVImage::bytesPerPixel: unknown pixel format", __LINE__, __FILE__);
     }
@@ -216,9 +186,9 @@ uint CVImage::bytesPerPixel(CVPixFormat format)
 /param pixelFormatGL OpenGL pixel format enum
 /param isContinuous True if the memory is continuous and has no stride bytes at the end of the line
 */
-uint CVImage::bytesPerLine(uint        width,
-                           CVPixFormat format,
-                           bool        isContinuous)
+uint CVImage::bytesPerLine(uint            width,
+                           CVPixelFormatGL format,
+                           bool            isContinuous)
 {
     uint bpp          = bytesPerPixel(format);
     uint bitsPerPixel = bpp * 8;
@@ -239,13 +209,13 @@ done.
 /param isContinuous True if the memory is continuous and has no stride bytes at the end of the line
 /param isTopLeft True if image data starts at top left of image (else bottom left)
 */
-bool CVImage::load(int         width,
-                   int         height,
-                   CVPixFormat srcPixelFormatGL,
-                   CVPixFormat dstPixelFormatGL,
-                   uchar*      data,
-                   bool        isContinuous,
-                   bool        isTopLeft)
+bool CVImage::load(int             width,
+                   int             height,
+                   CVPixelFormatGL srcPixelFormatGL,
+                   CVPixelFormatGL dstPixelFormatGL,
+                   uchar*          data,
+                   bool            isContinuous,
+                   bool            isTopLeft)
 {
 
     bool needsTextureRebuild = allocate(width,
@@ -422,11 +392,11 @@ void CVImage::load(const string& filename,
     if (_cvMat.depth() > CV_8U && ext != "hdr")
         _cvMat.convertTo(_cvMat, CV_8U, 1.0 / 256.0);
 
-    _format        = cv2glPixelFormat(_cvMat.type());
+    _format        = cvType2glPixelFormat(_cvMat.type());
     _bytesPerPixel = bytesPerPixel(_format);
 
     // OpenCV always loads with BGR(A) but some OpenGL prefer RGB(A)
-    if (_format == PF_bgr || _format == PF_hdr)
+    if (_format == PF_bgr || _format == PF_rgb32f)
     {
         string typeStr1 = typeString(_cvMat.type());
         cv::cvtColor(_cvMat, _cvMat, cv::COLOR_BGR2RGB);
@@ -477,7 +447,7 @@ void CVImage::load(const string& filename,
 }
 //-----------------------------------------------------------------------------
 //! Converts OpenCV mat type to OpenGL pixel format
-CVPixFormat CVImage::cv2glPixelFormat(int cvType)
+CVPixelFormatGL CVImage::cvType2glPixelFormat(int cvType)
 {
     switch (cvType)
     {
@@ -485,6 +455,14 @@ CVPixFormat CVImage::cv2glPixelFormat(int cvType)
         case CV_8UC2: return PF_rg;
         case CV_8UC3: return PF_bgr;
         case CV_8UC4: return PF_bgra;
+        case CV_16FC1: return PF_r16f;
+        case CV_16FC2: return PF_rg16f;
+        case CV_16FC3: return PF_rgb16f;
+        case CV_16FC4: return PF_rgba16f;
+        case CV_32FC1: return PF_r32f;
+        case CV_32FC2: return PF_rg32f;
+        case CV_32FC3: return PF_rgb32f;
+        case CV_32FC4: return PF_rgba32f;
         case CV_8SC1: Utils::exitMsg("SLProject", "OpenCV image format CV_8SC1 not supported", __LINE__, __FILE__); break;
         case CV_8SC2: Utils::exitMsg("SLProject", "OpenCV image format CV_8SC2 not supported", __LINE__, __FILE__); break;
         case CV_8SC3: Utils::exitMsg("SLProject", "OpenCV image format CV_8SC3 not supported", __LINE__, __FILE__); break;
@@ -501,19 +479,45 @@ CVPixFormat CVImage::cv2glPixelFormat(int cvType)
         case CV_32SC2: Utils::exitMsg("SLProject", "OpenCV image format CV_32SC2 not supported", __LINE__, __FILE__); break;
         case CV_32SC3: Utils::exitMsg("SLProject", "OpenCV image format CV_32SC3 not supported", __LINE__, __FILE__); break;
         case CV_32SC4: Utils::exitMsg("SLProject", "OpenCV image format CV_32SC4 not supported", __LINE__, __FILE__); break;
-        case CV_32FC1: return PF_r32f;
-        case CV_32FC2: Utils::exitMsg("SLProject", "OpenCV image format CV_32FC2 not supported", __LINE__, __FILE__); break;
-        case CV_32FC3: return PF_hdr;
-        case CV_32FC4: Utils::exitMsg("SLProject", "OpenCV image format CV_32FC4 not supported", __LINE__, __FILE__); break;
-        default: Utils::exitMsg("SLProject", "OpenCV image format not supported", __LINE__, __FILE__);
+        default: Utils::exitMsg("SLProject",
+                                "glPixelFormat2cvType: OpenCV image format not supported",
+                                __LINE__,
+                                __FILE__);
     }
     return PF_unknown;
 }
 //-----------------------------------------------------------------------------
-//! Returns the pixel format as string
-string CVImage::formatString(CVPixFormat format)
+//! Converts OpenGL pixel format to OpenCV mat type
+int CVImage::glPixelFormat2cvType(CVPixelFormatGL pixelFormatGL)
 {
-    switch (format)
+    switch (pixelFormatGL)
+    {
+        case PF_red: return CV_8UC1;
+        case PF_rg: return CV_8UC2;
+        case PF_rgb: return CV_8UC3;
+        case PF_rgba: return CV_8UC4;
+        case PF_bgr: return CV_8UC3;
+        case PF_bgra: return CV_8UC4;
+        case PF_r16f: return CV_16FC1;
+        case PF_rg16f: return CV_16FC2;
+        case PF_rgb16f: return CV_16FC3;
+        case PF_rgba16f: return CV_16FC4;
+        case PF_r32f: return CV_32FC1;
+        case PF_rg32f: return CV_32FC2;
+        case PF_rgb32f: return CV_32FC3;
+        case PF_rgba32f: return CV_32FC4;
+        default: Utils::exitMsg("SLProject",
+                                "glPixelFormat2cvType: OpenGL pixel format not supported",
+                                __LINE__,
+                                __FILE__);
+    }
+    return -1;
+}
+//-----------------------------------------------------------------------------
+//! Returns the pixel format as string
+string CVImage::formatString(CVPixelFormatGL pixelFormatGL)
+{
+    switch (pixelFormatGL)
     {
         case PF_rgb: return string("RGB");
         case PF_rgba: return string("RGBA");
@@ -533,8 +537,15 @@ string CVImage::formatString(CVPixFormat format)
         case PF_bgr_integer: return string("BGR_INTEGER");
         case PF_rgba_integer: return string("RGBA_INTEGER");
         case PF_bgra_integer: return string("BGRA_INTEGER");
-        case PF_hdr: return string("SL_HDR");
-        default: return string("Unknow pixel format");
+        case PF_r16f: return string("R16F");
+        case PF_rg16f: return string("RG16F");
+        case PF_rgb16f: return string("RGB16F");
+        case PF_rgba16f: return string("RGBA16F");
+        case PF_r32f: return string("R32F");
+        case PF_rg32f: return string("RG32F");
+        case PF_rgb32f: return string("RGB32F");
+        case PF_rgba32f: return string("RGBA32F");
+        default: return string("Unknown pixel format");
     }
 }
 //-----------------------------------------------------------------------------
@@ -548,7 +559,7 @@ string CVImage::formatString(CVPixFormat format)
 void CVImage::savePNG(const string& filename,
                       const int     compressionLevel,
                       const bool    flipY,
-                      const bool    convertBGR2RGB)
+                      const bool    convertToRGB)
 {
     vector<int> compression_params;
     compression_params.push_back(cv::IMWRITE_PNG_COMPRESSION);
@@ -560,8 +571,10 @@ void CVImage::savePNG(const string& filename,
 
         if (flipY)
             cv::flip(outImg, outImg, 0);
-        if (convertBGR2RGB)
+        if (convertToRGB)
+        {
             cv::cvtColor(outImg, outImg, cv::COLOR_BGR2RGB);
+        }
 
         imwrite(filename, outImg, compression_params);
     }
@@ -609,7 +622,6 @@ void CVImage::saveJPG(const string& filename,
         Utils::exitMsg("SLProject", msg.c_str(), __LINE__, __FILE__);
     }
 }
-
 //-----------------------------------------------------------------------------
 //! getPixeli returns the pixel color at the integer pixel coordinate x, y
 /*! Returns the pixel color at the integer pixel coordinate x, y. The color
@@ -636,6 +648,15 @@ CVVec4f CVImage::getPixeli(int x, int y)
         case PF_rgba:
         {
             color = _cvMat.at<CVVec4b>(y, x);
+            break;
+        }
+        case PF_bgr:
+        {
+            CVVec3b c = _cvMat.at<CVVec3b>(y, x);
+            color[0]  = c[2];
+            color[1]  = c[1];
+            color[2]  = c[0];
+            color[3]  = 255.0f;
             break;
         }
         case PF_bgra:
@@ -844,6 +865,18 @@ void CVImage::resize(int width, int height)
     cv::resize(_cvMat, dst, dst.size(), 0, 0, cv::INTER_LINEAR);
 
     _cvMat = dst;
+}
+//-----------------------------------------------------------------------------
+//! Converts the data type of the cvMat
+void CVImage::convertTo(int cvDataType)
+{
+    _cvMat.convertTo(_cvMat, cvDataType);
+    _format        = cvType2glPixelFormat(cvDataType);
+    _bytesPerPixel = bytesPerPixel(_format);
+    _bytesPerLine  = bytesPerLine((uint)_cvMat.cols,
+                                 _format,
+                                 _cvMat.isContinuous());
+    _bytesPerImage = _bytesPerLine * (uint)_cvMat.rows;
 }
 //-----------------------------------------------------------------------------
 //! Flip X coordinates used to make JPEGs from top-left to bottom-left images.

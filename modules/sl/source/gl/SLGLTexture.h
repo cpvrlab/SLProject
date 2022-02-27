@@ -234,15 +234,15 @@ public:
     void   build2DMipmaps(SLint target, SLuint index);
     SLbool copyVideoImage(SLint       camWidth,
                           SLint       camHeight,
-                          CVPixFormat glFormat,
+                          CVPixelFormatGL glFormat,
                           SLuchar*    data,
                           SLbool      isContinuous,
                           SLbool      isTopLeft);
 
     SLbool copyVideoImage(SLint       camWidth,
                           SLint       camHeight,
-                          CVPixFormat srcFormat,
-                          CVPixFormat dstFormat,
+                          CVPixelFormatGL srcFormat,
+                          CVPixelFormatGL dstFormat,
                           SLuchar*    data,
                           SLbool      isContinuous,
                           SLbool      isTopLeft);

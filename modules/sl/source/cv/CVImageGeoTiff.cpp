@@ -103,7 +103,7 @@ void CVImageGeoTiff::loadGeoTiff(const string& geoTiffFile)
     }
 
     _cvMat  = imgGeoTiff.clone();
-    _format = cv2glPixelFormat(imgGeoTiff.type());
+    _format = cvType2glPixelFormat(imgGeoTiff.type());
 
     _upperleftLatLonAlt[0]  = upperLeft[1];           // We store first latitude in degrees! (N)
     _upperleftLatLonAlt[1]  = upperLeft[0];           // and then longitude in degrees (W)
