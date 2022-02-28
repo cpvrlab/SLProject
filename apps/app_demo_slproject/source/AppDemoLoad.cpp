@@ -2554,7 +2554,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         sv->doWaitOnIdle(true);
     }
 
-    else if ( // sceneID == SID_glTF_ClearCoatTest ||
+    else if (
       sceneID == SID_glTF_DamagedHelmet ||
       sceneID == SID_glTF_FlightHelmet ||
       sceneID == SID_glTF_Sponza ||
@@ -2578,14 +2578,6 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
             switch (sceneID)
             {
-                /*case SID_glTF_ClearCoatTest: {
-                    s->name("glTF-Sample-Model: Clear Coat Test");
-                    modelFile = clearCoatTest;
-                    camPos.set(0, 0, 18);
-                    lookAt.set(0, camPos.y, 0);
-                    camClipFar = 100;
-                    break;
-                }*/
                 case SID_glTF_DamagedHelmet:
                 {
                     s->name("glTF-Sample-Model: Damaged Helmet");
@@ -2631,7 +2623,6 @@ resolution shadows near the camera and lower resolution shadows further away.");
                                             configPath + "models/glTF-Sample-Models/hdris/envmap_malibu.hdr",
                                             SLVec2i(256, 256),
                                             "HDR Skybox");
-
             // Create a scene group node
             SLNode* scene = new SLNode("scene node");
 
@@ -2640,7 +2631,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
             cam1->translation(camPos);
             cam1->lookAt(lookAt);
             cam1->background().colors(SLCol4f(0.2f, 0.2f, 0.2f));
-            cam1->focalDist(camPos.z);
+            cam1->focalDist(camPos.length());
             cam1->clipFar(camClipFar);
             cam1->setInitialState();
             scene->addChild(cam1);

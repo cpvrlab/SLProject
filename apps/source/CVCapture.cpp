@@ -245,7 +245,7 @@ app_demo_slproject/android projects for the usage.
 void CVCapture::loadIntoLastFrame(const float       viewportWdivH,
                                   const int         width,
                                   const int         height,
-                                  const CVPixFormat newFormat,
+                                  const CVPixelFormatGL newFormat,
                                   const uchar*      data,
                                   const bool        isContinuous)
 {
@@ -342,7 +342,7 @@ void CVCapture::adjustForSL(float viewportWdivH)
 {
     PROFILE_FUNCTION();
 
-    format = CVImage::cv2glPixelFormat(lastFrame.type());
+    format = CVImage::cvType2glPixelFormat(lastFrame.type());
 
     //////////////////////////////////////
     // 1) Check if capture size changed //
@@ -694,7 +694,7 @@ void CVCapture::copyYUVPlanes(float  scrWdivH,
     // Create output color (BGR) and grayscale images
     lastFrame     = CVMat(dstH, dstW, CV_8UC(3));
     lastFrameGray = CVMat(dstH, dstW, CV_8UC(1));
-    format        = CVImage::cv2glPixelFormat(lastFrame.type());
+    format        = CVImage::cvType2glPixelFormat(lastFrame.type());
 
     // Bugfix on some devices with wrong pixel offsets
     if (yRowOffset == uRowOffset && uColOffset == 1)
