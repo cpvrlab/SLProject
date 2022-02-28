@@ -442,12 +442,15 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
     SLGLProgram* sp = _mat->program();
     sp->uniformMatrix4fv("u_mMatrix", 1, (SLfloat*)&node->updateAndGetWM());
     sp->uniformMatrix4fv("u_mvMatrix", 1, (SLfloat*)&stateGL->modelViewMatrix);
+    
     sp->uniformMatrix4fv("u_mvpMatrix", 1, (const SLfloat*)stateGL->mvpMatrix());
 
     // 3.c) Build & pass inverse, normal & texture matrix only if needed
     SLint locIM = sp->getUniformLocation("u_invMvMatrix");
     SLint locNM = sp->getUniformLocation("u_nMatrix");
     SLint locTM = sp->getUniformLocation("u_tMatrix");
+    SLint locP = sp->getUniformLocation("u_pMatrix"); // For particle system
+
 
     if (locIM >= 0 && locNM >= 0)
     {
@@ -464,6 +467,10 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
     {
         stateGL->buildNormalMatrix();
         sp->uniformMatrix3fv(locNM, 1, (const SLfloat*)stateGL->normalMatrix());
+    }
+    else if (locP >= 0) // For particle system
+    {
+        sp->uniformMatrix4fv("u_pMatrix", 1, (SLfloat*)&stateGL->projectionMatrix); // For particle system
     }
     if (locTM >= 0)
     {

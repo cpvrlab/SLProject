@@ -32,6 +32,7 @@
 #include <SLLightDirect.h>
 #include <SLLightRect.h>
 #include <SLLightSpot.h>
+#include <SLParticleSystem.h>
 #include <SLPoints.h>
 #include <SLPolygon.h>
 #include <SLRectangle.h>
@@ -5749,9 +5750,26 @@ resolution shadows near the camera and lower resolution shadows further away.");
         // Create a scene group node
         SLNode* scene = new SLNode("scene node");
 
+        // Initialize transform feedback update:
+        SLGLProgram* updateProg = new SLGLProgramGeneric(nullptr,
+                                                           shaderPath + "ParticleTF.vert",
+                                                           shaderPath + "ParticleTF.frag");
+        char* outputNames[] = {"tf_position", "tf_velocity", "tf_startTime", "tf_initialVelocity", "tf_rotation"};
+        updateProg->initRawTF(outputNames,5);
+        // Create materials
+        SLMaterial* mUpdate = new SLMaterial(nullptr, "Update-Material", updateProg);
+
+        // Initialize the drawing:
+        SLGLProgram* drawingProg = new SLGLProgramGeneric(nullptr,
+                                                             shaderPath + "Particle.vert",
+                                                             shaderPath + "Particle.frag",
+                                                             shaderPath + "Particle.geom");
+        drawingProg->initRaw();
+        GET_GL_ERROR;
+        
         // Create textures and materials
-        SLGLTexture* texC = new SLGLTexture(am, texPath + "smoke_08");
-        SLMaterial*  m1   = new SLMaterial(am, "m1", texC);
+        SLGLTexture* texC = new SLGLTexture(am, texPath + "smoke_08.png");
+        SLMaterial*  mDraw = new SLMaterial(am, "Drawing-Material", texC, nullptr, nullptr, nullptr, drawingProg);
 
         // Create a light source node
         SLLightSpot* light1 = new SLLightSpot(am, s, 0.3f);
@@ -5760,9 +5778,9 @@ resolution shadows near the camera and lower resolution shadows further away.");
         scene->addChild(light1);
 
         // Create meshes and nodes
-        SLMesh* rectMesh = new SLRectangle(am, SLVec2f(-5, -5), SLVec2f(5, 5), 25, 25, "rectangle mesh", m1);
-        SLNode* rectNode = new SLNode(rectMesh, "rectangle node");
-        scene->addChild(rectNode);
+        //SLMesh* pSMesh = new SLParticleSystem(am, 500, SLVec3f(0, 0, 0), SLVec3f(0.04f, 0.4f, 0.1f), SLVec3f(-0.11f, 0.7f, -0.1f), 4.0f, "Particle System", mUpdate, mDraw);
+        //SLNode* pSNode = new SLNode(pSMesh, "Particle system node");
+        //scene->addChild(pSNode);
 
         // Set background color and the root scene node
         sv->sceneViewCamera()->background().colors(SLCol4f(0.7f, 0.7f, 0.7f),

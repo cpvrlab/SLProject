@@ -325,6 +325,8 @@ typedef SLVec3<double>   SLVec3d;
 typedef vector<SLVec3f>  SLVVec3f;
 typedef vector<SLCol3f>  SLVCol3f;
 typedef vector<SLVec3d>  SLVVec3d;
+
+typedef vector<SLfloat>  SLVfloat;
 //-----------------------------------------------------------------------------
 #endif
 

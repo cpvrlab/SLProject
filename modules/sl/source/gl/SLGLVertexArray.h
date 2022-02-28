@@ -55,6 +55,9 @@ public:
     //! Returns either the VAO id or the VBO id
     SLint vaoID() const { return _vaoID; }
 
+    //! Returns the TFO id
+    SLint tfoID() const { return _tfoID; }
+
     //! Adds a vertex attribute with data pointer and an element size
     void setAttrib(SLGLAttributeType type,
                    SLint             elementSize,
@@ -147,6 +150,17 @@ public:
                   SLGLBufferUsage usage             = BU_static,
                   SLbool          outputInterleaved = true);
 
+    //! Generates the VA & VB & TF objects
+    void generateTF(SLuint          numVertices,
+                  SLGLBufferUsage usage             = BU_static,
+                  SLbool          outputInterleaved = true);
+
+    //! Begin transform feedback
+    void beginTF(SLuint tfoID);
+
+    //! End transform feedback
+    void endTF();
+
     //! Draws the VAO by element indices with a primitive type
     void drawElementsAs(SLGLPrimitiveType primitiveType,
                         SLuint            numIndexes       = 0,
@@ -171,6 +185,7 @@ public:
 
 protected:
     SLuint           _vaoID;              //! OpenGL id of vertex array object
+    SLuint           _tfoID;              //! OpenGL id of transform feedback object
     SLuint           _numVertices;        //! NO. of vertices in array
     SLGLVertexBuffer _VBOf;               //! Vertex buffer object for float attributes
     SLuint           _idVBOIndices;       //! OpenGL id of index vbo

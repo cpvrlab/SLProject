@@ -97,6 +97,16 @@ SLbool SLGLShader::createAndCompileSimple()
         }
     }
 
+    // Build version string as the first statement
+    SLGLState* state      = SLGLState::instance();
+    SLstring   verGLSL    = state->glSLVersionNO();
+    SLstring   srcVersion = "#version " + verGLSL;
+    if (state->glIsES3()) srcVersion += " es";
+    srcVersion += "\n";
+
+    // Concatenate final code string
+    _code = srcVersion + _code;
+
     const char* src = _code.c_str();
     glShaderSource(_shaderID, 1, &src, nullptr);
     glCompileShader(_shaderID);
