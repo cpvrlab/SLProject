@@ -143,7 +143,7 @@ float CVImageGeoTiff::getAltitudeAtLatLon(double latDEG,
     }
 
     // get subpixel accurate interpolated height value
-    cv::Point2f pt(pixPosLon, pixPosLat);
+    cv::Point2f pt((float)pixPosLon, (float)pixPosLat);
     cv::Mat     patch;
     cv::getRectSubPix(_cvMat, cv::Size(1, 1), pt, patch);
 
