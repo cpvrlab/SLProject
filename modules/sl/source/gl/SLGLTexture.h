@@ -155,7 +155,6 @@ public:
     void     deleteImages();
     void     bindActive(SLuint texUnit = 0);
     void     fullUpdate();
-    void     getTexImageFromGpu();
     void     drawSprite(SLbool doUpdate, SLfloat x, SLfloat y, SLfloat w, SLfloat h);
     void     cubeUV2XYZ(SLint index, SLfloat u, SLfloat v, SLfloat& x, SLfloat& y, SLfloat& z);
     void     cubeXYZ2UV(SLfloat x, SLfloat y, SLfloat z, SLint& index, SLfloat& u, SLfloat& v);

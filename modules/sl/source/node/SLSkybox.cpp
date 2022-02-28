@@ -228,21 +228,6 @@ SLCol4f SLSkybox::colorAtDir(const SLVec3f& dir)
                 SLGLTexture* tex = mat->textures(TT_environmentCubemap)[0];
                 return tex->getTexelf(dir);
             }
-            else
-            {
-                SLGLTexture* tex = mat->textures(TT_environmentCubemap)[0];
-
-                // The texture seems to on the GPU but no image data is on CPU
-                if (tex->texID())
-                {
-                    tex->getTexImageFromGpu();
-
-                    if (tex->images().size() == 6)
-                        return tex->getTexelf(dir);
-                    else
-                        SL_WARN_MSG("SLSkybox::colorAtDir: Texture read back failed!");
-                }
-            }
         }
     }
 

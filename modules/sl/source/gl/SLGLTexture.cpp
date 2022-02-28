@@ -1171,67 +1171,6 @@ void SLGLTexture::fullUpdate()
     GET_GL_ERROR;
 }
 //-----------------------------------------------------------------------------
-//! Reads back the texture image data into the opencv images
-void SLGLTexture::getTexImageFromGpu()
-{
-    if (!_texID)
-        SL_EXIT_MSG("SLGLTexture::getTexImageFromGpu: No texture on GPU to read back");
-
-    deleteImages();
-
-    if (_target == GL_TEXTURE_2D)
-    {
-    }
-    else if (_target == GL_TEXTURE_CUBE_MAP && _texType == TT_environmentCubemap)
-    {
-        //glEnable(GL_TEXTURE_CUBE_MAP);
-        glBindTexture(GL_TEXTURE_CUBE_MAP, _texID);
-
-        for (SLuint i = 0; i < 6; i++)
-        {
-            int    widthPX, heightPX;
-            GLenum internalFormat;
-            glGetTexLevelParameteriv(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
-                                     0,
-                                     GL_TEXTURE_WIDTH,
-                                     &widthPX);
-            glGetTexLevelParameteriv(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
-                                     0,
-                                     GL_TEXTURE_HEIGHT,
-                                     &heightPX);
-            glGetTexLevelParameteriv(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
-                                     0,
-                                     GL_TEXTURE_INTERNAL_FORMAT,
-                                     (GLint*)&internalFormat);
-
-            if (widthPX != _width || heightPX != _height)
-                SL_EXIT_MSG("SLGLTexture::getTexImageFromGpu: Size differ between GPU and CPU!");
-            if (internalFormat != _internalFormat)
-                SL_EXIT_MSG("SLGLTexture::getTexImageFromGpu: Internal format differ between GPU and CPU");
-
-            string   imageName = string("GENERATED_CUBE_MAP_SIDE_") + std::to_string(i);
-            CVImage* image     = new CVImage(_width,
-                                         _height,
-                                         (CVPixelFormatGL)_internalFormat,
-                                         imageName);
-
-            glGetTexImage(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
-                          0,
-                          _internalFormat,
-                          GL_FLOAT,
-                          image->data());
-
-            GET_GL_ERROR;
-
-            image->convertTo(CV_8UC3);
-            // image->savePNG(imageName);
-            _images.push_back(image);
-        }
-
-        glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
-    }
-}
-//-----------------------------------------------------------------------------
 //! Draws the texture as 2D sprite with OpenGL buffers
 /*! Draws the texture as a flat 2D sprite with a height and a width on two
 triangles with zero in the bottom left corner: <br>

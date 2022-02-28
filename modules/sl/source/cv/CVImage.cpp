@@ -572,9 +572,7 @@ void CVImage::savePNG(const string& filename,
         if (flipY)
             cv::flip(outImg, outImg, 0);
         if (convertToRGB)
-        {
             cv::cvtColor(outImg, outImg, cv::COLOR_BGR2RGB);
-        }
 
         imwrite(filename, outImg, compression_params);
     }
