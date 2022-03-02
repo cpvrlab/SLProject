@@ -5764,33 +5764,39 @@ resolution shadows near the camera and lower resolution shadows further away.");
                                                              shaderPath + "Particle.vert",
                                                              shaderPath + "Particle.frag",
                                                              shaderPath + "Particle.geom");
+        /* SLGLProgram* drawingProg = new SLGLProgramGeneric(nullptr,
+                                                          shaderPath + "Geom.vert",
+                                                          shaderPath + "Geom.geom",
+                                                          shaderPath + "Geom.frag");*/
+        //pcMat1->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 4.0f));
         drawingProg->initRaw();
         GET_GL_ERROR;
         
         // Create textures and materials
         SLGLTexture* texC = new SLGLTexture(am, texPath + "smoke_08.png");
+        //SLGLTexture* texC = new SLGLTexture(am, texPath + "earth2048_C.png");
         SLMaterial*  mDraw = new SLMaterial(am, "Drawing-Material", texC, nullptr, nullptr, nullptr, drawingProg);
 
         // Create a light source node
         SLLightSpot* light1 = new SLLightSpot(am, s, 0.3f);
-        light1->translation(0, 0, 5);
+        light1->translation(0, -1, 2);
         light1->name("light node");
         scene->addChild(light1);
 
         // Create meshes and nodes
-        //SLMesh* pSMesh = new SLParticleSystem(am, 500, SLVec3f(0, 0, 0), SLVec3f(0.04f, 0.4f, 0.1f), SLVec3f(-0.11f, 0.7f, -0.1f), 4.0f, "Particle System", mUpdate, mDraw);
-        //SLNode* pSNode = new SLNode(pSMesh, "Particle system node");
-        //scene->addChild(pSNode);
+        SLMesh* pSMesh = new SLParticleSystem(am, 55, SLVec3f(0, 0.5, 0), SLVec3f(0.04f, 0.4f, 0.1f), SLVec3f(-0.11f, 0.7f, -0.1f), 4.0f, "Particle System", mUpdate, mDraw);
+        SLNode* pSNode = new SLNode(pSMesh, "Particle system node");
+        scene->addChild(pSNode);
 
         // Set background color and the root scene node
-        sv->sceneViewCamera()->background().colors(SLCol4f(0.7f, 0.7f, 0.7f),
+        sv->sceneViewCamera()->background().colors(SLCol4f(0.8f, 0.8f, 0.8f),
                                                    SLCol4f(0.2f, 0.2f, 0.2f));
 
         // pass the scene group as root node
         s->root3D(scene);
 
         // Save energy
-        sv->doWaitOnIdle(true);
+        sv->doWaitOnIdle(false);
     }
 
     ////////////////////////////////////////////////////////////////////////////

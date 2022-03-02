@@ -143,6 +143,16 @@ void SLGLProgram::initRaw()
     GLint success = 0;
     glGetProgramiv(_progID, GL_LINK_STATUS, &success);
 
+    if (success)
+    {
+        _isLinked = true;
+
+        // if name is empty concatenate shader names
+        if (_name.empty())
+            for (auto* shader : _shaders)
+                _name += shader->name() + ", ";
+    }
+
     if (!success)
     {
         GLchar log[1024];
@@ -181,6 +191,16 @@ void SLGLProgram::initRawTF(char* writeBackAttrib[], int size)
 
     GLint success = 0;
     glGetProgramiv(_progID, GL_LINK_STATUS, &success);
+
+    if (success)
+    {
+        _isLinked = true;
+
+        // if name is empty concatenate shader names
+        if (_name.empty())
+            for (auto* shader : _shaders)
+                _name += shader->name() + ", ";
+    }
 
     if (!success)
     {

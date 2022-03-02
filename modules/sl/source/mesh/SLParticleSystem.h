@@ -22,7 +22,7 @@ class SLParticleSystem : public SLMesh
 public:
     //! Ctor for a given vector of points
     SLParticleSystem(SLAssetManager* assetMgr,
-                     const SLfloat&  amount,
+                     const int  amount,
                      const SLVec3f&  particleEmiPos,
                      const SLVec3f&  velocityRandomStart,
                      const SLVec3f&  velocityRandomEnd,
@@ -48,6 +48,7 @@ public:
 protected:
     SLMaterial* _matUpdate;     //!< Pointer to the updating material
     SLMaterial* _matDraw;       //!< Pointer to the drawing material
+    
     SLfloat     _ttl;           //!< Time to live of a particle
     SLVec3f     _pEPos;         //!< Position of the particle emitter
     SLGLVertexArray _vao1;      //!< First OpenGL Vertex Array Object for swapping between updating/drawing
@@ -62,6 +63,7 @@ private:
     SLVfloat R;     //!< Pointer to rotation vector
 
     int _drawBuf = 0;   //!< Boolean to switch buffer
+    int _amount;        //!< Amount of a particle
 
 };
 //-----------------------------------------------------------------------------

@@ -11,8 +11,7 @@ precision highp float;
 //-----------------------------------------------------------------------------
 
 layout (points) in;             // Primitives that we received from vertex shader
-layout (triangle_strip) out;    // Primitives that we will output
-layout (max_vertices = 4) out;  // Number of vertex that will be output
+layout (triangle_strip, max_vertices = 4) out;    // Primitives that we will output and number of vertex that will be output
 
 in vertex {
     float transparency; // Transparency of a particle

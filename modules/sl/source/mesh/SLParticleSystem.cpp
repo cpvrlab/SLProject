@@ -39,7 +39,7 @@ float SLParticleSystem::randomFloat(float a, float b)
 //-----------------------------------------------------------------------------
 //! SLParticleSystem ctor with a given vector of points
 SLParticleSystem::SLParticleSystem(SLAssetManager* assetMgr,
-                   const SLfloat& amount,
+                   const int amount,
                    const SLVec3f& particleEmiPos,
                    const SLVec3f& velocityRandomStart,
                    const SLVec3f& velocityRandomEnd,
@@ -56,6 +56,7 @@ SLParticleSystem::SLParticleSystem(SLAssetManager* assetMgr,
         SL_EXIT_MSG("SLParticleSystem supports max. 2^32 vertices.");
 
     _ttl = timeToLive;
+    _amount = amount;
 
     P.resize(amount);
     V.resize(amount);
@@ -69,7 +70,7 @@ SLParticleSystem::SLParticleSystem(SLAssetManager* assetMgr,
         V[i].x = randomFloat(velocityRandomStart.x, velocityRandomEnd.x); // Random value for x velocity
         V[i].y = randomFloat(velocityRandomStart.y, velocityRandomEnd.y); // Random value for y velocity
         V[i].z = randomFloat(velocityRandomStart.z, velocityRandomEnd.z); // Random value for z velocity
-        ST[i]  = GlobalTimer::timeMS() + (i * (timeToLive / amount));     // When the first particle dies the last one begin to live
+        ST[i]  = GlobalTimer::timeS() + (i * (timeToLive / amount));     // When the first particle dies the last one begin to live
         InitV[i] = V[i];
         R[i]     = randomFloat(0.0f, 360.0f); // Start rotation of the particle
     }
@@ -100,7 +101,7 @@ void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
 {
     //Do updating
     if (!_vao1.vaoID())
-        generateVAO(_vao);
+        generateVAO(_vao1);
     if (!_vao2.vaoID())
         generateVAO(_vao2);
 
@@ -108,12 +109,16 @@ void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
     SLGLProgram* sp    = _matUpdate->program();
     sp->useProgram();
 
+    sp->uniform1f("u_time", GlobalTimer::timeS());
+    sp->uniform1f("u_deltaTime", sv->s()->elapsedTimeSec());
+    sp->uniform3f("u_acceleration",1.0f, 1.0f,1.0f);
     sp->uniform1f("u_tTL", _ttl);
     sp->uniform3f("u_pGPosition", _pEPos.x, _pEPos.y, _pEPos.z);
-    sp->uniform1f("u_deltaTime", sv->s()->elapsedTimeMS());
-    sp->uniform1f("u_time", GlobalTimer::timeMS());
+    
+    
 
-    if (_drawBuf == 0) {
+    if (_drawBuf == 0)
+    {
         _vao1.beginTF(_vao2.tfoID());
         _vao1.drawArrayAs(PT_points);
         _vao1.endTF();
@@ -124,23 +129,23 @@ void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
         _vao2.beginTF(_vao1.tfoID());
         _vao2.drawArrayAs(PT_points);
         _vao2.endTF();
-        _vao = _vao2;
+        _vao = _vao1;
     }
-    
 
     //Give uniform for drawing and find for linking vao vbo
     SLGLProgram* spD = _mat->program();
     spD->useProgram();
     
-    sp->uniform1f("u_time", GlobalTimer::timeMS());
-    sp->uniform1f("u_tTL", _ttl);
-    sp->uniform3f("u_pGPosition", _pEPos.x, _pEPos.y, _pEPos.z);
+    spD->uniform1f("u_time", GlobalTimer::timeS());
+    spD->uniform1f("u_tTL", _ttl);
+    spD->uniform3f("u_pGPosition", 0.0, 0.0, 0.0);
+    //spD->uniform3f("u_pGPosition", _pEPos.x, _pEPos.y, _pEPos.z);
+   
+    spD->uniform4f("u_color", 0.66f, 0.66f, 0.66f, 0.2f);
+    spD->uniform1f("u_scale", 10.0f);
+    spD->uniform1f("u_radius", 0.4f);
 
-    sp->uniform4f("u_color", 0.66f, 0.66f, 0.66f, 0.2f);
-    sp->uniform1f("u_scale", 1.0f);
-    sp->uniform1f("u_radius", 0.4f);
-
-    sp->uniform1f("u_oneOverGamma", 1.0f);
+    spD->uniform1f("u_oneOverGamma", 1.0f);
 
     SLMesh::draw(sv, node);
 
