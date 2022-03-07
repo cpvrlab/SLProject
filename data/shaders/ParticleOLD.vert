@@ -20,7 +20,6 @@ uniform vec4 u_pGPosition;  // Particle Generator position
 out vertex {
     float transparency; // Transparency of a particle
     float rotation;     // Rotation of a particle
-    float size;
 } vert;
 
 uniform mat4 u_vMatrix;    // Modelview matrix
@@ -36,8 +35,7 @@ void main()
         vert.transparency = 1.0 - age / u_tTL;  // Get by the ratio age:lifetime
     }
     
-    vert.rotation = a_rotation;     
-    vert.size = age / u_tTL;
+    vert.rotation = a_rotation;         
 
     // Modelview matrix multiplicate with (particle position + particle generator position)
     // Calculate position in view space

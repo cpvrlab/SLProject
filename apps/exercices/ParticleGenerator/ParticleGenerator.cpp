@@ -110,7 +110,7 @@ static GLint _tTLLoc;      //!< uniform location for particle life time
 static GLint _timeLoc;     //!< uniform location for time
 static GLint _gLoc;        //!< uniform location for gamma value
 static GLint _pGPLoc;      //!< uniform location for particle generator position
-static GLint _mvLoc;       //!< uniform location for modelview matrix
+static GLint _vMatLoc;       //!< uniform location for modelview matrix
 static GLint _pMatLoc;     //!< uniform location for projection matrix
 static GLint _texture0Loc; //!< uniform location for texture 0
 
@@ -284,17 +284,17 @@ void onInit()
 
     // Load textures
     //_textureID = glUtils::buildTexture(_projectRoot + "/data/images/textures/circle_01.png");
-    _textureID = glUtils::buildTexture(_projectRoot + "/data/images/textures/smoke_08.png");
+    _textureID = glUtils::buildTexture(_projectRoot + "/data/images/textures/smoke_08_C.png");
 
     // Load, compile & link shaders for transform feedback
-    _tFShaderVertID = glUtils::buildShader(_projectRoot + "/data/shaders/ParticleTF.vert", GL_VERTEX_SHADER);
-    _tFShaderFragID = glUtils::buildShader(_projectRoot + "/data/shaders/ParticleTF.frag", GL_FRAGMENT_SHADER);
+    _tFShaderVertID = glUtils::buildShader(_projectRoot + "/data/shaders/ParticleTFOLD.vert", GL_VERTEX_SHADER);
+    _tFShaderFragID = glUtils::buildShader(_projectRoot + "/data/shaders/ParticleTFOLD.frag", GL_FRAGMENT_SHADER);
     _tFShaderProgID = glUtils::buildProgramTF(_tFShaderVertID, _tFShaderFragID);
 
     // Load, compile & link shaders
-    _shaderVertID = glUtils::buildShader(_projectRoot + "/data/shaders/Particle.vert", GL_VERTEX_SHADER);
-    _shaderFragID = glUtils::buildShader(_projectRoot + "/data/shaders/Particle.frag", GL_FRAGMENT_SHADER);
-    _shaderGeomID = glUtils::buildShader(_projectRoot + "/data/shaders/Particle.geom", GL_GEOMETRY_SHADER);
+    _shaderVertID = glUtils::buildShader(_projectRoot + "/data/shaders/ParticleOLD.vert", GL_VERTEX_SHADER);
+    _shaderFragID = glUtils::buildShader(_projectRoot + "/data/shaders/ParticleOLD.frag", GL_FRAGMENT_SHADER);
+    _shaderGeomID = glUtils::buildShader(_projectRoot + "/data/shaders/ParticleOLD.geom", GL_GEOMETRY_SHADER);
     _shaderProgID = glUtils::buildProgram(_shaderVertID, _shaderGeomID, _shaderFragID);
 
     // Load, compile & link shaders
@@ -326,7 +326,7 @@ void onInit()
 
     // Get the variable locations (identifiers) within the program
     _gLoc        = glGetUniformLocation(_shaderProgID, "u_oneOverGamma");
-    _mvLoc       = glGetUniformLocation(_shaderProgID, "u_mvMatrix");
+    _vMatLoc     = glGetUniformLocation(_shaderProgID, "u_vMatrix");
     _pMatLoc     = glGetUniformLocation(_shaderProgID, "u_pMatrix");
     _pGPLoc      = glGetUniformLocation(_shaderProgID, "u_pGPosition");
     _cLoc        = glGetUniformLocation(_shaderProgID, "u_color");
@@ -452,7 +452,7 @@ bool onPaint()
     glClear(GL_COLOR_BUFFER_BIT);
 
     // Initialize uniforms for transformation matrices if needed
-    glUniformMatrix4fv(_mvLoc, 1, 0, (float*)&mv);
+    glUniformMatrix4fv(_vMatLoc, 1, 0, (float*)&_viewMatrix);
     glUniformMatrix4fv(_pMatLoc, 1, 0, (float*)&_projectionMatrix);
     glUniform1f(_gLoc, 1.0f);
     glUniform1i(_texture0Loc, 0);

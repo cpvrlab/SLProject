@@ -87,6 +87,13 @@ public:
                SLGLTexture*    texture5 = nullptr,
                SLGLProgram*    program  = nullptr);
 
+    //! Ctor for Particle System material with one texture
+    SLMaterial(SLAssetManager* am,
+               const SLchar*   name,
+               SLGLTexture*    texture,
+               bool            flipbook,
+               SLGLProgram*    program  = nullptr);
+
     //! Ctor for uniform color material without lighting
     explicit SLMaterial(SLAssetManager* am,
                         SLGLProgram*    colorUniformProgram,

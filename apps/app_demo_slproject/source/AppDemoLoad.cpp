@@ -5773,9 +5773,9 @@ resolution shadows near the camera and lower resolution shadows further away.");
         GET_GL_ERROR;
         
         // Create textures and materials
-        SLGLTexture* texC = new SLGLTexture(am, texPath + "smoke_08.png");
+        SLGLTexture* texC = new SLGLTexture(am, texPath + "smoke_08_C.png");
         //SLGLTexture* texC = new SLGLTexture(am, texPath + "earth2048_C.png");
-        SLMaterial*  mDraw = new SLMaterial(am, "Drawing-Material", texC, nullptr, nullptr, nullptr, drawingProg);
+        SLMaterial*  mDraw = new SLMaterial(am, "Drawing-Material", texC, false, drawingProg);
 
         // Create a light source node
         SLLightSpot* light1 = new SLLightSpot(am, s, 0.3f);

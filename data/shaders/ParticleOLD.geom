@@ -16,7 +16,6 @@ layout (triangle_strip, max_vertices = 4) out;    // Primitives that we will out
 in vertex {
     float transparency; // Transparency of a particle
     float rotation;     // Rotation of a particle
-    float size;
 } vert[];
 
 uniform mat4 u_pMatrix; // Projection matrix
@@ -27,18 +26,10 @@ uniform float u_radius; // Particle radius
 
 out vec4 v_particleColor;   // The resulting color per vertex
 out vec2 v_texCoord;        // Texture coordinate at vertex
-
-// Plot a line on Y using a value between 0.0-1.0
-float plot(float age, float ttl) {    
-    return smoothstep(0.0, 1.0, age/ttl);
-}
-
 //-----------------------------------------------------------------------------
 void main (void)
 {
-  //float scale = u_scale;
-  float scale = u_scale * vert[0].size;
-  float radius = u_radius * scale;
+  float radius = u_radius * u_scale;
 
   vec4 P = gl_in[0].gl_Position;    // Position of the point that we received
   mat2 rot = mat2(cos(vert[0].rotation),-sin(vert[0].rotation),sin(vert[0].rotation),cos(vert[0].rotation)); // Matrix of rotation

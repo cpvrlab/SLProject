@@ -113,9 +113,16 @@ void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
     sp->uniform1f("u_deltaTime", sv->s()->elapsedTimeSec());
     sp->uniform3f("u_acceleration",1.0f, 1.0f,1.0f);
     sp->uniform1f("u_tTL", _ttl);
-    sp->uniform3f("u_pGPosition", _pEPos.x, _pEPos.y, _pEPos.z);
-    
-    
+
+    pEPos(node->translationWS());
+
+    if (_worldSpace) {
+        sp->uniform3f("u_pGPosition", _pEPos.x, _pEPos.y, _pEPos.z);
+    }
+    else{
+        sp->uniform3f("u_pGPosition", 0.0, 0.0, 0.0);
+    }
+
 
     if (_drawBuf == 0)
     {
@@ -135,14 +142,22 @@ void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
     //Give uniform for drawing and find for linking vao vbo
     SLGLProgram* spD = _mat->program();
     spD->useProgram();
+    SLGLState* stateGL = SLGLState::instance();
+
+    if (_worldSpace){
+        spD->uniformMatrix4fv("u_vMatrix", 1, (SLfloat*)&stateGL->viewMatrix);
+    }
+    else{
+        spD->uniformMatrix4fv("u_vMatrix", 1, (SLfloat*)&stateGL->modelViewMatrix);
+    }
     
     spD->uniform1f("u_time", GlobalTimer::timeS());
     spD->uniform1f("u_tTL", _ttl);
     spD->uniform3f("u_pGPosition", 0.0, 0.0, 0.0);
     //spD->uniform3f("u_pGPosition", _pEPos.x, _pEPos.y, _pEPos.z);
    
-    spD->uniform4f("u_color", 0.66f, 0.66f, 0.66f, 0.2f);
-    spD->uniform1f("u_scale", 10.0f);
+    spD->uniform4f("u_color", 0.66f, 0.0f, 0.66f, 0.2f);
+    spD->uniform1f("u_scale", 1.0f);
     spD->uniform1f("u_radius", 0.4f);
 
     spD->uniform1f("u_oneOverGamma", 1.0f);

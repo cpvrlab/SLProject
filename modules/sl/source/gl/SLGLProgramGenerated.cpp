@@ -1049,6 +1049,42 @@ void SLGLProgramGenerated::buildProgramName(SLMaterial* mat,
     }
 }
 //-----------------------------------------------------------------------------
+/*! See the class information for more insights of the generated name. This
+ function is used in advance of the code generation to check if the program
+ already exists in the asset manager. See SLMaterial::activate.
+ @param mat Parent material pointer
+ @param programName Reference to program name string that gets built
+
+ The shader program gets a unique name with the following pattern:
+ <pre>
+ genCook-D00-N00-E00-O01-RM00-Sky-C4s
+    |    |   |   |   |   |    |   |
+    |    |   |   |   |   |    |   + Directional light w. 4 shadow cascades
+    |    |   |   |   |   |    + Ambient light from skybox
+    |    |   |   |   |   + Roughness-metallic map with index 0 and uv 0
+    |    |   |   |   + Ambient Occlusion map with index 0 and uv 1
+    |    |   |   + Emissive Map with index 0 and uv 0
+    |    |   + Normal Map with index 0 and uv 0
+    |    + Diffuse Texture Mapping with index 0 and uv 0
+    + Cook-Torrance or Blinn-Phong reflection model
+ </pre>
+ */
+void SLGLProgramGenerated::buildProgramNamePS(SLMaterial* mat,
+                                            string&     programName)
+{
+    assert(mat && "No material pointer passed!");
+    programName = "gen";
+
+    if (mat->reflectionModel() == RM_Particle)
+        programName += "Particle";
+    else
+        programName += "Custom";
+
+    programName += mat->texturesString();
+    programName += "-";
+
+}
+//-----------------------------------------------------------------------------
 /*! Builds the GLSL program code for the vertex and fragment shaders. The code
  * is only assembled but not compiled and linked. This happens within the
  * before the first draw call from within SLMesh::draw.
@@ -1096,6 +1132,39 @@ void SLGLProgramGenerated::buildProgramCode(SLMaterial* mat,
     }
     else
         SL_EXIT_MSG("SLGLProgramGenerated::buildProgramCode: Unknown Lighting Model.");
+}
+//-----------------------------------------------------------------------------
+/*! Builds the GLSL program code for the vertex, geometry and fragment shaders 
+ * (for particle system). The code is only assembled but not compiled and linked. 
+ * This happens within the before the first draw call from within SLMesh::draw.
+ * @param mat Parent material pointer
+ */
+void SLGLProgramGenerated::buildProgramCodePS(SLMaterial* mat)
+{
+    if (mat->name() == "IBLMat")
+    {
+        std::cout << "build program code for IBLMat" << std::endl;
+    }
+    assert(mat && "No material pointer passed!");
+    assert(_shaders.size() > 2 &&
+           _shaders[0]->type() == ST_vertex &&
+           _shaders[1]->type() == ST_geometry &&
+           _shaders[2]->type() == ST_fragment);
+
+    // Check what textures the material has
+    bool Dm  = mat->hasTextureType(TT_diffuse);   // Texture Mapping
+    bool Nm  = mat->hasTextureType(TT_normal);    // Normal Mapping
+    bool Hm  = mat->hasTextureType(TT_height);    // Height Mapping
+    bool Om  = mat->hasTextureType(TT_occlusion); // Ambient Occlusion Mapping
+    bool Vm  = mat->hasTextureType(TT_videoBkgd); // Video Background Mapping
+    bool env = mat->skybox() != nullptr;          // Environment Mapping from skybox
+
+    if (mat->reflectionModel() == RM_Particle)
+    {
+        buildPerPixParticle(mat);
+    }
+    else
+        SL_EXIT_MSG("SLGLProgramGenerated::buildProgramCode: Unknown Particle Lighting Model.");
 }
 //-----------------------------------------------------------------------------
 
@@ -1320,6 +1389,89 @@ void SLGLProgramGenerated::buildPerPixBlinn(SLMaterial* mat, SLVLight* lights)
     fragCode += fragMain_5_FogGammaStereo;
 
     addCodeToShader(_shaders[1], fragCode, _name + ".frag");
+}
+//-----------------------------------------------------------------------------
+//NOT DONE
+void SLGLProgramGenerated::buildPerPixParticle(SLMaterial* mat)
+{
+    assert(_shaders.size() > 2 &&
+           _shaders[0]->type() == ST_vertex &&
+           _shaders[1]->type() == ST_geometry &&
+           _shaders[2]->type() == ST_fragment);
+
+    // Check what textures the material has
+    bool Dm  = mat->hasTextureType(TT_diffuse);
+
+    // Assemble vertex shader code
+    string vertCode;
+    vertCode += shaderHeader();
+
+    // Vertex shader inputs
+    vertCode += vertInput_a_pn;
+    vertCode += vertInput_u_matrices_all;
+
+    // Vertex shader outputs
+    vertCode += vertOutput_v_P_VS;
+    vertCode += vertOutput_v_N_VS;
+
+    // Vertex shader main loop
+    vertCode += vertMain_Begin;
+    vertCode += vertMain_v_P_VS;
+    vertCode += vertMain_v_N_VS;
+    vertCode += vertMain_EndAll;
+
+    addCodeToShader(_shaders[0], vertCode, _name + ".vert");
+
+    // Assemble vertex shader code
+    string geomCode;
+    geomCode += shaderHeader();
+
+    // Vertex shader inputs
+    geomCode += vertInput_a_pn;
+    geomCode += vertInput_u_matrices_all;
+
+    // Vertex shader outputs
+    geomCode += vertOutput_v_P_VS;
+    geomCode += vertOutput_v_N_VS;
+
+    // Vertex shader main loop
+    geomCode += vertMain_Begin;
+    geomCode += vertMain_v_P_VS;
+    geomCode += vertMain_v_N_VS;
+    geomCode += vertMain_EndAll;
+
+    addCodeToShader(_shaders[1], geomCode, _name + ".geom");
+
+    // Assemble fragment shader code
+    string fragCode;
+    fragCode += shaderHeader();
+
+    // Fragment shader inputs
+    fragCode += fragInput_v_P_VS;
+    fragCode += fragInput_v_N_VS;
+
+    // Fragment shader uniforms
+    fragCode += fragInput_u_lightAll;
+    fragCode += fragInput_u_matBlinnAll;
+    if (Dm) fragCode += fragInput_u_matTexDm;
+    fragCode += fragInput_u_cam;
+
+    // Fragment shader outputs
+    fragCode += fragOutputs_o_fragColor;
+
+    // Fragment shader functions
+    fragCode += fragFunctionsLightingBlinnPhong;
+    fragCode += fragFunctionFogBlend;
+    fragCode += fragFunctionDoStereoSeparation;
+
+    // Fragment shader main loop
+    fragCode += fragMain_Begin;
+    fragCode += fragMain_0_Intensities;
+    
+    fragCode += Dm ? fragMainBlinn_3_FragColorDm : fragMainBlinn_3_FragColor;
+    fragCode += fragMain_5_FogGammaStereo;
+
+    addCodeToShader(_shaders[2], fragCode, _name + ".frag");
 }
 //-----------------------------------------------------------------------------
 
@@ -1739,6 +1891,15 @@ string SLGLProgramGenerated::shaderHeader(int numLights)
 {
     string header = "\nprecision highp float;\n";
     header += "\n#define NUM_LIGHTS " + to_string(numLights) + "\n";
+    return header;
+}
+
+//-----------------------------------------------------------------------------
+//! Adds shader header code
+string SLGLProgramGenerated::shaderHeader()
+
+{
+    string header = "\nprecision highp float;\n";
     return header;
 }
 //-----------------------------------------------------------------------------

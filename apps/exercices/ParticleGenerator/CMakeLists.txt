@@ -21,11 +21,11 @@ file(GLOB sources
         )
 
 file(GLOB shaders
-        ${SL_PROJECT_ROOT}/data/shaders/Particle.vert
-        ${SL_PROJECT_ROOT}/data/shaders/Particle.frag
-	${SL_PROJECT_ROOT}/data/shaders/Particle.geom
-	${SL_PROJECT_ROOT}/data/shaders/ParticleTF.vert
-	${SL_PROJECT_ROOT}/data/shaders/ParticleTF.frag
+        ${SL_PROJECT_ROOT}/data/shaders/ParticleOLD.vert
+        ${SL_PROJECT_ROOT}/data/shaders/ParticleOLD.frag
+	${SL_PROJECT_ROOT}/data/shaders/ParticleOLD.geom
+	${SL_PROJECT_ROOT}/data/shaders/ParticleTFOLD.vert
+	${SL_PROJECT_ROOT}/data/shaders/ParticleTFOLD.frag
 	${SL_PROJECT_ROOT}/data/shaders/ColorAttribute.vert
         ${SL_PROJECT_ROOT}/data/shaders/Color.frag
         )

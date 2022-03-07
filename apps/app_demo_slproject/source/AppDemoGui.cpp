@@ -27,6 +27,7 @@
 #include <SLShadowMap.h>
 #include <SLMaterial.h>
 #include <SLMesh.h>
+#include <SLParticleSystem.h>
 #include <SLNode.h>
 #include <SLScene.h>
 #include <SLSceneView.h>
@@ -3742,6 +3743,30 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
 
                                 ImGui::PopItemWidth();
                             }
+                            ImGui::TreePop();
+                        }
+                    }
+                    else if (m->reflectionModel() == RM_Particle)
+                    {
+                        if (ImGui::TreeNode("Reflection Model: Particle"))
+                        {
+                            SLParticleSystem* ps = dynamic_cast<SLParticleSystem*>(singleFullMesh); // Need to check if good practice
+                            ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.5f);
+                            
+                            SLbool worldSpace = ps->worldSpace();
+                            if (ImGui::Checkbox("World space", &worldSpace))
+                                ps->worldSpace(worldSpace);
+
+                            static bool closable_group = false;
+                            ImGui::Checkbox("Size over lifetime", &closable_group);
+                            if (ImGui::CollapsingHeader("Size over lifetime", &closable_group))
+                            {
+                                ImGui::Text("IsItemHovered: %d", ImGui::IsItemHovered());
+                                for (int i = 0; i < 5; i++)
+                                    ImGui::Text("More content %d", i);
+                            }
+
+                            ImGui::PopItemWidth();
                             ImGui::TreePop();
                         }
                     }

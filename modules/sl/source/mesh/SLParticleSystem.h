@@ -38,11 +38,13 @@ public:
     SLMaterial* matUpdate() const { return _matUpdate; }
     SLMaterial* matDraw() const { return _matDraw; }
     SLVec3f    pEPos() const { return _pEPos; }
+    SLbool      worldSpace() { return _worldSpace; }
 
     //Setters
     void matUpdate(SLMaterial* m) { _matUpdate = m; }
     void matDraw(SLMaterial* m) { _matDraw = m; }
     void pEPos(SLVec3f p) { _pEPos = p; }
+    void worldSpace(SLbool b) { _worldSpace = b; }
 
 
 protected:
@@ -64,6 +66,8 @@ private:
 
     int _drawBuf = 0;   //!< Boolean to switch buffer
     int _amount;        //!< Amount of a particle
+
+    SLbool _worldSpace = false; //!< Boolean for world space position
 
 };
 //-----------------------------------------------------------------------------

@@ -233,6 +233,38 @@ SLMaterial::SLMaterial(SLAssetManager* am,
         am->materials().push_back(this);
 }
 //-----------------------------------------------------------------------------
+/*! Constructor for textured particle system materials.
+ Materials can be used by multiple meshes (SLMesh). Materials can belong
+ therefore to the global assets such as meshes, materials, textures and
+ shader programs.
+ @param am Pointer to a global asset manager. If passed the asset
+ manager is the owner of the instance and will do the deallocation. If a
+ nullptr is passed the creator is responsible for the deallocation.
+ @param name Name of the material
+ @param texture Pointer to an SLGLTexture of a specific SLTextureType
+ @param program Pointer to the shader program for the material.
+ If none is passed a program will be generated from the passed parameters.
+ */
+SLMaterial::SLMaterial(SLAssetManager* am,
+                       const SLchar*   name,
+                       SLGLTexture*    texture,
+                       bool            flipbook,
+                       SLGLProgram*    program) : SLObject(name)
+{
+    _assetManager    = am;
+    _reflectionModel = RM_Particle;
+    _getsShadows  = true; // Later for Particle System maybe
+    _skybox       = nullptr;
+    _program      = program;
+
+    _numTextures = 0;
+    addTexture(texture);
+
+    // Add pointer to the global resource vectors for deallocation
+    if (am)
+        am->materials().push_back(this);
+}
+//-----------------------------------------------------------------------------
 /*! Constructor for materials used within the cone tracer (SLGLConetracer).
  Materials can be used by multiple meshes (SLMesh). Materials can belong
  therefore to the global assets such as meshes, materials, textures and

@@ -371,7 +371,8 @@ enum SLReflectionModel
 {
     RM_BlinnPhong = 0,
     RM_CookTorrance,
-    RM_Custom
+    RM_Custom,
+    RM_Particle
 };
 //-----------------------------------------------------------------------------
 #endif
