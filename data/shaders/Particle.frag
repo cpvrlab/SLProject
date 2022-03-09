@@ -9,7 +9,7 @@
 precision highp float;
 
 //-----------------------------------------------------------------------------
-in       vec4      v_particleColor;     // interpolated color from the vertex shader
+in       vec4      v_particleColor;     // interpolated color from the geometry shader
 in       vec2      v_texCoord;          // interpolated texture coordinate
 
 uniform sampler2D  u_matTextureDiffuse0;  // texture map

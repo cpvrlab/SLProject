@@ -28,6 +28,12 @@ string SLGLProgramGenerated::generatedShaderPath;
 const string vertInput_a_pn      = R"(
 layout (location = 0) in vec4  a_position;  // Vertex position attribute
 layout (location = 1) in vec3  a_normal;    // Vertex normal attribute)";
+const string vertInput_PS_a_p      = R"(
+layout (location = 0) in vec3  a_position;  // Particle position attribute)";
+const string vertInput_PS_a_st      = R"(
+layout (location = 2) in float a_startTime; // Particle start time attribute)";
+const string vertInput_PS_a_r      = R"(
+layout (location = 4) in  float a_rotation; // Particle rotation attribute)";
 const string vertInput_a_uv0     = R"(
 layout (location = 2) in vec2  a_uv0;       // Vertex tex.coord. 1 for diffuse color)";
 const string vertInput_a_uv1     = R"(
@@ -43,12 +49,19 @@ uniform mat4  u_mvMatrix;   // modelview matrix
 uniform mat4  u_mvpMatrix;  // = projection * modelView)";
 const string vertInput_u_matrix_invMv = R"(
 uniform mat4  u_invMvMatrix;// inverse modelview matrix)";
+const string vertInput_u_matrix_v = R"(
+uniform mat4 u_vMatrix;    // Modelview matrix)";
 //-----------------------------------------------------------------------------
 const string vertInput_u_lightNm = R"(
 
 uniform vec4  u_lightPosVS[NUM_LIGHTS];     // position of light in view space
 uniform vec3  u_lightSpotDir[NUM_LIGHTS];   // spot direction in view space
 uniform float u_lightSpotDeg[NUM_LIGHTS];   // spot cutoff angle 1-180 degrees)";
+//-----------------------------------------------------------------------------
+const string vertInput_PS_u_time = R"(
+
+uniform float u_time;       // Simulation time
+uniform float u_tTL;        // Time to live of a particle)";
 //-----------------------------------------------------------------------------
 const string vertOutput_v_P_VS       = R"(
 
@@ -67,6 +80,17 @@ const string vertOutput_v_lightVecTS = R"(
 out     vec3  v_eyeDirTS;               // Vector to the eye in tangent space
 out     vec3  v_lightDirTS[NUM_LIGHTS]; // Vector to the light 0 in tangent space
 out     vec3  v_spotDirTS[NUM_LIGHTS];  // Spot direction in tangent space)";
+//-----------------------------------------------------------------------------
+const string vertOutput_PS_struct_Begin       = R"(
+out vertex { )";
+const string vertOutput_PS_struct_t       = R"(
+    float transparency; // Transparency of a particle)";
+const string vertOutput_PS_struct_r       = R"(
+    float rotation;     // Rotation of a particle)";
+const string vertOutput_PS_struct_s       = R"(
+    float size; // Size of a particle )";
+const string vertOutput_PS_struct_End       = R"(
+} vert; )";
 //-----------------------------------------------------------------------------
 const string vertMain_Begin     = R"(
 
@@ -111,12 +135,117 @@ const string vertMain_TBN_Nm    = R"(
         v_lightDirTS[i] *= TBN;
     }
 )";
+const string vertMain_PS_v_a    = R"(
+    float age = u_time - a_startTime;   // Get the age of the particle)";
+const string vertMain_PS_v_t    = R"(
+    if(age < 0.0){
+        vert.transparency = 0.0;                // To be discard, because the particle is to be born
+    }
+    else{
+        vert.transparency = 1.0 - age / u_tTL;  // Get by the ratio age:lifetime
+    })";
+const string vertMain_PS_v_r    = R"(
+    vert.rotation = a_rotation;)";
+const string vertMain_PS_v_s    = R"(
+    vert.size = age / u_tTL;)";
+const string vertMain_PS_EndAll    = R"(
+
+    // Modelview matrix multiplicate with (particle position + particle generator position)
+    // Calculate position in view space
+    gl_Position =  u_vMatrix * vec4(a_position, 1);
+}
+)";
+ 
 const string vertMain_EndAll    = R"(
 
     // pass the vertex w. the fix-function transform
     gl_Position = u_mvpMatrix * a_position;
 }
 )";
+//-----------------------------------------------------------------------------
+const string geomConfig_PS       = R"(
+layout (points) in;             // Primitives that we received from vertex shader
+layout (triangle_strip, max_vertices = 4) out;    // Primitives that we will output and number of vertex that will be output)";
+
+const string geomInput_PS_struct_Begin       = R"(
+int vertex { )";
+const string geomInput_PS_struct_t       = R"(
+    float transparency; // Transparency of a particle)";
+const string geomInput_PS_struct_r       = R"(
+    float rotation;     // Rotation of a particle)";
+const string geomInput_PS_struct_s       = R"(
+    float size; // Size of a particle )";
+const string geomInput_PS_struct_End       = R"(
+} vert[]; )";
+//-----------------------------------------------------------------------------
+const string geomInput_u_matrix_p = R"(
+uniform mat4 u_pMatrix; // Projection matrix)";
+const string geomInput_PS_u_ScaRa = R"(
+
+uniform float u_scale;  // Particle scale
+uniform float u_radius; // Particle radius)";
+const string geomInput_PS_u_c = R"(
+uniform vec4 u_color;   // Particle color)";
+//-----------------------------------------------------------------------------
+const string geomOutput_PS_v_pC       = R"(
+
+out vec4 v_particleColor;   // The resulting color per vertex)";
+const string geomOutput_PS_v_tC       = R"(
+out vec2 v_texCoord;        // Texture coordinate at vertex)";
+
+//-----------------------------------------------------------------------------
+const string geomMain_PS_Begin     = R"(
+
+void main()
+{)";
+
+const string geomMain_PS_v_s    = R"(
+    float scale = u_scale;)";
+const string geomMain_PS_v_sS   = R"(
+    scale *= vert[0].size;)";
+const string geomMain_PS_v_rad    = R"(
+    float radius = u_radius * scale;)";
+const string geomMain_PS_v_p    = R"(
+    vec4 P = gl_in[0].gl_Position;    // Position of the point that we received)";
+const string geomMain_PS_v_rot    = R"(
+    mat2 rot = mat2(cos(vert[0].rotation),-sin(vert[0].rotation),sin(vert[0].rotation),cos(vert[0].rotation)); // Matrix of rotation)";
+const string geomMain_PS_v_c    = R"(
+    vec4 color = u_color;   // Particle color)";
+const string geomMain_PS_v_cT   = R"(
+    color.w *= vert[0].transparency;   // Apply transparency)";
+
+const string geomMain_PS_fourCorners = R"(//BOTTOM LEFT
+  vec4 va = vec4(P.xy + (rot * vec2(-radius, -radius)), P.z, 1); //Position in view space
+  gl_Position = u_pMatrix * va; // Calculate position in clip space
+  v_texCoord = vec2(0.0, 0.0);  // Texture coordinate
+  v_particleColor = color;
+  EmitVertex();  
+  
+  //BOTTOM RIGHT
+  vec4 vd = vec4(P.xy + (rot * vec2(radius, -radius)), P.z,1);
+  gl_Position = u_pMatrix * vd;
+  v_texCoord = vec2(1.0, 0.0);
+  v_particleColor = color;
+  EmitVertex();  
+
+  //TOP LEFT
+  vec4 vb = vec4(P.xy + (rot * vec2(-radius,radius)) , P.z,1);
+  gl_Position = u_pMatrix * vb;
+  v_texCoord = vec2(0.0, 1.0);
+  v_particleColor = color;
+  EmitVertex();  
+
+  //TOP RIGHT
+  vec4 vc = vec4(P.xy + (rot *vec2(radius, radius)), P.z,1);
+  gl_Position = u_pMatrix *  vc;
+  v_texCoord = vec2(1.0, 1.0);
+  v_particleColor = color;
+  EmitVertex();  )";
+
+const string geomMain_PS_EndAll     = R"(
+
+EndPrimitive();  // Send primitives to fragment shader
+}   )";
 //-----------------------------------------------------------------------------
 const string fragInput_v_P_VS       = R"(
 in      vec3        v_P_VS;     // Interpol. point of illumination in view space (VS))";
@@ -134,6 +263,31 @@ const string fragInput_v_lightVecTS = R"(
 in      vec3        v_eyeDirTS;                 // Vector to the eye in tangent space
 in      vec3        v_lightDirTS[NUM_LIGHTS];   // Vector to light 0 in tangent space
 in      vec3        v_spotDirTS[NUM_LIGHTS];    // Spot direction in tangent space)";
+//-----------------------------------------------------------------------------
+const string fragInput_PS_v_pC       = R"(
+in       vec4      v_particleColor;     // interpolated color from the geometry shader)";
+const string fragInput_PS_v_tC       = R"(
+in       vec2      v_texCoord;          // interpolated texture coordinate)";
+
+//-----------------------------------------------------------------------------
+const string fragInput_PS_u_overG    = R"(
+uniform float u_oneOverGamma; // 1.0f / Gamma correction value)";
+
+const string fragMain_PS    = R"(
+void main()
+{     
+    // Just set the interpolated color from the vertex shader
+   o_fragColor = v_particleColor;
+
+   // componentwise multiply w. texture color
+   o_fragColor *= texture(u_matTextureDiffuse0, v_texCoord);
+
+   if(o_fragColor.a < 0.001)
+        discard;
+
+   o_fragColor.rgb = pow(o_fragColor.rgb, vec3(u_oneOverGamma));
+})";
+
 //-----------------------------------------------------------------------------
 const string fragInput_u_lightAll    = R"(
 
@@ -1135,7 +1289,7 @@ void SLGLProgramGenerated::buildProgramCode(SLMaterial* mat,
 }
 //-----------------------------------------------------------------------------
 /*! Builds the GLSL program code for the vertex, geometry and fragment shaders 
- * (for particle system). The code is only assembled but not compiled and linked. 
+ * (for particle system drawing). The code is only assembled but not compiled and linked. 
  * This happens within the before the first draw call from within SLMesh::draw.
  * @param mat Parent material pointer
  */
@@ -1401,44 +1555,73 @@ void SLGLProgramGenerated::buildPerPixParticle(SLMaterial* mat)
 
     // Check what textures the material has
     bool Dm  = mat->hasTextureType(TT_diffuse);
+    bool AlOvLi  = true; // Alpha over life
+    bool SiOvLi  = true; // Size over life
 
     // Assemble vertex shader code
     string vertCode;
     vertCode += shaderHeader();
 
     // Vertex shader inputs
-    vertCode += vertInput_a_pn;
-    vertCode += vertInput_u_matrices_all;
+    vertCode += vertInput_PS_a_p;
+    vertCode += vertInput_PS_a_st;
+    vertCode += vertInput_PS_a_r;
+    
 
     // Vertex shader outputs
-    vertCode += vertOutput_v_P_VS;
-    vertCode += vertOutput_v_N_VS;
+    vertCode += vertOutput_PS_struct_Begin;
+    if (AlOvLi)vertCode += vertOutput_PS_struct_t;
+    vertCode += vertOutput_PS_struct_r;
+    if (SiOvLi)vertCode += vertOutput_PS_struct_s;
+    vertCode += vertOutput_PS_struct_End;
+
+    // Vertex shader uniforms
+    vertCode += vertInput_PS_u_time;
+    vertCode += vertInput_u_matrix_v;
 
     // Vertex shader main loop
     vertCode += vertMain_Begin;
-    vertCode += vertMain_v_P_VS;
-    vertCode += vertMain_v_N_VS;
-    vertCode += vertMain_EndAll;
+    vertCode += vertMain_PS_v_a;
+    if (AlOvLi)vertCode += vertMain_PS_v_t;
+    vertCode += vertMain_PS_v_r;
+    if (SiOvLi)vertCode += vertMain_PS_v_s;
+    vertCode += vertMain_PS_EndAll;
 
     addCodeToShader(_shaders[0], vertCode, _name + ".vert");
 
-    // Assemble vertex shader code
+    // Assemble geometry shader code
     string geomCode;
     geomCode += shaderHeader();
 
     // Vertex shader inputs
-    geomCode += vertInput_a_pn;
-    geomCode += vertInput_u_matrices_all;
+    geomCode += geomConfig_PS;
+
+    geomCode += geomInput_PS_struct_Begin;
+    if (AlOvLi)geomCode += geomInput_PS_struct_t;
+    geomCode += geomInput_PS_struct_r;
+    if (SiOvLi)geomCode += geomInput_PS_struct_s;
+    geomCode += geomInput_PS_struct_End;
+
+    // Vertex shader uniforms
+    geomCode += geomInput_PS_u_ScaRa;
+    geomCode += geomInput_PS_u_c;
+    geomCode += geomInput_u_matrix_p;
 
     // Vertex shader outputs
-    geomCode += vertOutput_v_P_VS;
-    geomCode += vertOutput_v_N_VS;
+    geomCode += geomOutput_PS_v_pC;
+    geomCode += geomOutput_PS_v_tC;
 
     // Vertex shader main loop
-    geomCode += vertMain_Begin;
-    geomCode += vertMain_v_P_VS;
-    geomCode += vertMain_v_N_VS;
-    geomCode += vertMain_EndAll;
+    geomCode += geomMain_PS_Begin;
+    geomCode += geomMain_PS_v_s;
+    if (SiOvLi)geomCode += geomMain_PS_v_sS;
+    geomCode += geomMain_PS_v_rad;
+    geomCode += geomMain_PS_v_p;
+    geomCode += geomMain_PS_v_rot;
+    geomCode += geomMain_PS_v_c;
+    geomCode += geomMain_PS_v_cT;
+    geomCode += geomMain_PS_fourCorners;
+    geomCode += geomMain_PS_EndAll;
 
     addCodeToShader(_shaders[1], geomCode, _name + ".geom");
 
@@ -1447,29 +1630,18 @@ void SLGLProgramGenerated::buildPerPixParticle(SLMaterial* mat)
     fragCode += shaderHeader();
 
     // Fragment shader inputs
-    fragCode += fragInput_v_P_VS;
-    fragCode += fragInput_v_N_VS;
+    fragCode += fragInput_PS_v_pC;
+    fragCode += fragInput_PS_v_tC;
 
     // Fragment shader uniforms
-    fragCode += fragInput_u_lightAll;
-    fragCode += fragInput_u_matBlinnAll;
     if (Dm) fragCode += fragInput_u_matTexDm;
-    fragCode += fragInput_u_cam;
+    fragCode += fragInput_PS_u_overG;
 
     // Fragment shader outputs
     fragCode += fragOutputs_o_fragColor;
 
-    // Fragment shader functions
-    fragCode += fragFunctionsLightingBlinnPhong;
-    fragCode += fragFunctionFogBlend;
-    fragCode += fragFunctionDoStereoSeparation;
-
     // Fragment shader main loop
-    fragCode += fragMain_Begin;
-    fragCode += fragMain_0_Intensities;
-    
-    fragCode += Dm ? fragMainBlinn_3_FragColorDm : fragMainBlinn_3_FragColor;
-    fragCode += fragMain_5_FogGammaStereo;
+    fragCode += fragMain_PS;
 
     addCodeToShader(_shaders[2], fragCode, _name + ".frag");
 }

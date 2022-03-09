@@ -15,7 +15,6 @@ layout (location = 4) in  float a_rotation;       // Particle rotation attribute
 
 uniform float u_time;       // Simulation time
 uniform float u_tTL;        // Time to live of a particle
-uniform vec4 u_pGPosition;  // Particle Generator position
 
 out vertex {
     float transparency; // Transparency of a particle
@@ -41,7 +40,7 @@ void main()
 
     // Modelview matrix multiplicate with (particle position + particle generator position)
     // Calculate position in view space
-    gl_Position =  u_vMatrix * (vec4(a_position, 1) + u_pGPosition);
+    gl_Position =  u_vMatrix * vec4(a_position, 1);
 
 }
 //-----------------------------------------------------------------------------
