@@ -52,7 +52,11 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
     for (const auto& tracker : AppPenTracking::instance().trackers()) delete tracker.second;
     AppPenTracking::instance().trackers().clear();
     AppPenTracking::instance().videoTexture = nullptr; // The video texture will be deleted by scene uninit
-    AppPenTracking::instance().trackedNode  = nullptr; // The tracked node will be deleted by scene uninit
+
+    if (AppPenTracking::instance().trackedPen().trackingSystem())
+    {
+        s->root3D()->removeChild(AppPenTracking::instance().penNode());
+    }
 
     AppDemo::sceneID = sceneID;
 
@@ -72,7 +76,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
     AppDemo::devRot.init();
     AppDemo::devLoc.init();
 
-    s->eventHandlers().push_back(&AppPenTracking::instance().arucoPen());
+    s->eventHandlers().push_back(&AppPenTracking::instance().trackedPen());
     CVCapture::instance()->activeCamera = &AppPenTracking::instance().currentCaptureProvider()->camera();
 
     if (sceneID == SID_VideoTrackChessMain ||
@@ -152,7 +156,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         CVTrackedChessboard* tracker = new CVTrackedChessboard(AppDemo::calibIniPath);
         tracker->drawDetection(true);
         AppPenTracking::instance().trackers().insert({AppPenTracking::instance().currentCaptureProvider(), tracker});
-        AppPenTracking::instance().trackedNode = cam1;
+//        AppPenTracking::instance().penNode = cam1;
 
         // pass the scene group as root node
         s->root3D(scene);
@@ -222,7 +226,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
                                         true,
                                         penMaterial);
 
-        scene->addChild(penNode);
+//        scene->addChild(penNode);
 
         SLMesh* tipMesh = new SLBox(s, -tiphe, -tiphe - tipOffset, -tiphe, tiphe, tiphe - tipOffset, tiphe, "Pen Tip", penTipMaterial);
         SLNode* tipNode = new SLNode(tipMesh, "Pen Tip Node");
@@ -242,7 +246,7 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
             AppPenTracking::instance().trackers().insert({provider, tracker});
         }
 
-        AppPenTracking::instance().trackedNode = penNode;
+//        AppPenTracking::instance().penNode = penNode;
 
         s->root3D(scene);
         sv->camera(cam1);
@@ -254,10 +258,6 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         CVCapture::instance()->videoType(VT_MAIN);
         s->name("Track Aruco Cube (Virtual)");
         s->info("Hold the Aruco Cube into the field of view of the main camera. You can find the Aruco markers in the file data/Calibrations. Press F6 to print the ArUco pen position and measure distances");
-
-        // Material
-        SLMaterial* penTipMaterial = new SLMaterial(s, "Pen Tip Material", SLCol4f(1.0f, 1.0f, 0.0f, 0.5f));
-        SLMaterial* penMaterial    = new SLMaterial(s, "Pen Material", SLCol4f(0.3f, 0.1f, 1.0f, 0.25f));
 
         // Create a scene group node
         SLNode* scene = new SLNode("scene node");
@@ -282,11 +282,6 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         light1->setDrawBitsRec(SL_DB_HIDDEN, true);
         scene->addChild(light1);
 
-        // Get the half edge length of the aruco marker
-        SLfloat edgeLen   = CVTrackedAruco::params.edgeLength;
-        float   tipOffset = AppPenTracking::instance().arucoPen().length();
-        float   tiphe     = 0.002f;
-
         SLAssimpImporter importer;
 
         SLNode* chessboardNode = importer.load(s->animManager(),
@@ -296,21 +291,9 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
         chessboardNode->drawBits()->on(SL_DB_CULLOFF);
         scene->addChild(chessboardNode);
 
-        SLNode* penNode = importer.load(s->animManager(),
-                                        s,
-                                        modelPath + "DAE/SpryTrackPen/SpryTrackPen.dae",
-                                        texPath);
-//        SLBox* box = new SLBox(s, -0.03f, 0.0f, -0.03f, 0.03f, 0.003f, 0.03f, "Pen Box", penTipMaterial);
-//        SLNode* penNode = new SLNode(box, "Pen Node");
-        scene->addChild(penNode);
-
-        SLMesh* tipMesh = new SLBox(s, -tiphe, -tiphe - tipOffset, -tiphe, tiphe, tiphe - tipOffset, tiphe, "Pen Tip", penTipMaterial);
-        SLNode* tipNode = new SLNode(tipMesh, "Pen Tip Node");
-        penNode->addChild(tipNode);
-
         SLNode* axisNode = new SLNode(new SLCoordAxis(s), "Axis Node");
         axisNode->setDrawBitsRec(SL_DB_MESHWIRED, false);
-        axisNode->scale(edgeLen);
+        axisNode->scale(CVTrackedAruco::params.edgeLength);
         // scene->addChild(axisNode);
 
         CVTrackedAruco::params.filename = "aruco_cube_detector_params.yml";
@@ -322,12 +305,16 @@ void appDemoLoadScene(SLProjectScene* s, SLSceneView* sv, SLSceneID sceneID)
             AppPenTracking::instance().trackers().insert({provider, tracker});
         }
 
-        AppPenTracking::instance().trackedNode = penNode;
-
         s->root3D(scene);
         sv->camera(cam1);
         sv->doWaitOnIdle(false);
         sv->doFrustumCulling(false);
+    }
+
+    if(AppPenTracking::instance().trackedPen().trackingSystem())
+    {
+        AppPenTracking::instance().trackedPen().trackingSystem()->createPenNode();
+        s->root3D()->addChild(AppPenTracking::instance().penNode());
     }
 
     ////////////////////////////////////////////////////////////////////////////

@@ -10,6 +10,12 @@
 #include <TrackingSystemSpryTrack.h>
 #include <SpryTrackCalibrator.h>
 #include <app/AppPenTrackingConst.h>
+#include <AppDemo.h>
+#include <SLAssimpImporter.h>
+#include <SLAssetManager.h>
+#include <SLProjectScene.h>
+#include <SLBox.h>
+#include <SLMaterial.h>
 
 //-----------------------------------------------------------------------------
 constexpr float MAX_MARKER_ERROR_MM = 1.5f;
@@ -46,15 +52,12 @@ void TrackingSystemSpryTrack::calibrate(CVCaptureProvider* provider)
     calibrator.calibrate();
     _extrinsicMat = calibrator.extrinsicMat();
 
-    SpryTrackMarker* marker = getDevice(provider).findMarker(2);
-//    CVMatx44f markerMat = _extrinsicMat.inv() * marker->objectViewMat();
-//    _markerMat = markerMat.inv();
-//    _markerMat.val[3] -= 0.03f;
-//    _markerMat.val[11] += 0.03f;
-    _markerMat = CVMatx44f(1.0f, 0.0f, 0.0f, 0.0f,
-                           0.0f, 1.0f, 0.0f, 0.01f,
-                           0.0f, 0.0f, 1.0f, 0.01f + 0.01f,
-                           0.0f, 0.0f, 0.0f, 1.0f);
+    SpryTrackMarker* marker    = getDevice(provider).findMarker(2);
+    CVMatx44f        markerMat = _extrinsicMat.inv() * marker->objectViewMat();
+    _markerMat                 = markerMat.inv();
+    //    _markerMat.val[3] -= 0.03f;
+    //    _markerMat.val[11] += 0.03f;
+    _markerMat = CVMatx44f(1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.003f, 0.0f, 0.0f, 1.0f, 0.024f, 0.0f, 0.0f, 0.0f, 1.0f);
 
     std::cout << _extrinsicMat << std::endl;
 }
@@ -73,5 +76,24 @@ SpryTrackDevice& TrackingSystemSpryTrack::getDevice(CVCaptureProvider* provider)
     }
 
     return providerSpryTrack->device();
+}
+//-----------------------------------------------------------------------------
+void TrackingSystemSpryTrack::createPenNode()
+{
+    SLScene*        scene = AppDemo::scene;
+    SLAssetManager* s     = scene->assetManager();
+
+    SLAssimpImporter importer;
+    _penNode = importer.load(scene->animManager(),
+                             s,
+                             AppDemo::modelPath + "DAE/SpryTrackPen/SpryTrackPen.dae",
+                             AppDemo::texturePath);
+
+    float tipOffset      = PEN_LENGTH;
+    float tipExtend      = 0.002f;
+    auto* penTipMaterial = new SLMaterial(s, "Pen Tip Material", SLCol4f(1.0f, 1.0f, 0.0f, 0.5f));
+    auto* tipMesh        = new SLBox(s, -tipExtend, -tipExtend - tipOffset, -tipExtend, tipExtend, tipExtend - tipOffset, tipExtend, "Pen Tip", penTipMaterial);
+    auto* tipNode        = new SLNode(tipMesh, "Pen Tip Node");
+    _penNode->addChild(tipNode);
 }
 //-----------------------------------------------------------------------------

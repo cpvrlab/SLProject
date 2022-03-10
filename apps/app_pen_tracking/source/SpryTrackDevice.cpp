@@ -137,15 +137,15 @@ void SpryTrackDevice::enableOnboardProcessing()
         return;
     }
 
-    error = ftkSetFloat32(SpryTrackInterface::instance().library,
-                          _serialNumber,
-                          _options["Distance matching tolerance"],
-                          10.0f);
-    if (error != ftkError::FTK_OK)
-    {
-        SL_WARN_MSG("SpryTrack: Failed to set distance matching tolerance");
-        return;
-    }
+//    error = ftkSetFloat32(SpryTrackInterface::instance().library,
+//                          _serialNumber,
+//                          _options["Distance matching tolerance"],
+//                          4.0f);
+//    if (error != ftkError::FTK_OK)
+//    {
+//        SL_WARN_MSG("SpryTrack: Failed to set distance matching tolerance");
+//        return;
+//    }
 
     error = ftkSetInt32(SpryTrackInterface::instance().library,
                         _serialNumber,

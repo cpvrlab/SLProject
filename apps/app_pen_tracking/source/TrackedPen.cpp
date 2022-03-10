@@ -11,13 +11,10 @@
 #include <app/AppPenTracking.h>
 #include <app/AppPenTrackingROSNode.h>
 #include <CoordSystemConversions.h>
+#include <AppDemo.h>
+#include <SLProjectScene.h>
 #include <stdexcept>
 
-//-----------------------------------------------------------------------------
-TrackedPen::TrackedPen(float length)
-  : _length(length)
-{
-}
 //-----------------------------------------------------------------------------
 TrackedPen::~TrackedPen()
 {
@@ -94,7 +91,7 @@ SLVec3f TrackedPen::tipPosition()
 {
     CVMatx44f worldMatrix = _trackingSystem->worldMatrix();
 
-    float tipOffset = -_length;
+    float tipOffset = -length();
     float offsetX   = worldMatrix.val[1] * tipOffset;
     float offsetY   = worldMatrix.val[5] * tipOffset;
     float offsetZ   = worldMatrix.val[9] * tipOffset;
@@ -159,8 +156,7 @@ void TrackedPen::trackingSystem(TrackingSystem* trackingSystem)
 
     if (trackingSystem->isAcceptedProvider(currentProvider))
     {
-        delete _trackingSystem;
-        _trackingSystem = trackingSystem;
+        updateTrackingSystem(trackingSystem);
         return;
     }
 
@@ -168,8 +164,7 @@ void TrackedPen::trackingSystem(TrackingSystem* trackingSystem)
     {
         if (trackingSystem->isAcceptedProvider(provider))
         {
-            delete _trackingSystem;
-            _trackingSystem = trackingSystem;
+            updateTrackingSystem(trackingSystem);
             AppPenTracking::instance().currentCaptureProvider(provider);
             return;
         }
@@ -177,3 +172,18 @@ void TrackedPen::trackingSystem(TrackingSystem* trackingSystem)
 
     throw std::runtime_error("No capture provider accepted by this tracking system was found!");
 }
+//-----------------------------------------------------------------------------
+void TrackedPen::updateTrackingSystem(TrackingSystem* trackingSystem)
+{
+    if(_trackingSystem)
+    {
+        AppDemo::scene->root3D()->removeChild(_trackingSystem->penNode());
+        delete _trackingSystem;
+    }
+
+    _trackingSystem = trackingSystem;
+
+    trackingSystem->createPenNode();
+    AppDemo::scene->root3D()->addChild(trackingSystem->penNode());
+}
+//-----------------------------------------------------------------------------

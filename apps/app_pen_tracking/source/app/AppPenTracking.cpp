@@ -17,7 +17,9 @@
 #include <AppDemo.h>
 #include <app/AppPenTrackingROSNode.h>
 #include <CVCaptureProviderSpryTrack.h>
+#include <TrackingSystemArucoCube.h>
 #include <TrackingSystemSpryTrack.h>
+#include <IDSPeakInterface.h>
 
 extern void trackVideo(CVCaptureProvider* provider);
 
@@ -32,8 +34,7 @@ void AppPenTracking::openCaptureProviders()
 
     // Logitech
     // 1280x960 actually provides better results than 1920x1080
-    // Are you kidding
-    // openCaptureProvider(new CVCaptureProviderStandard(0, CVSize(1280, 960)));
+//     openCaptureProvider(new CVCaptureProviderStandard(0, CVSize(1280, 960)));
 
     // Logitech + Intel
     //    openCaptureProvider(new CVCaptureProviderStandard(2, CVSize(1280, 960)));
@@ -43,14 +44,14 @@ void AppPenTracking::openCaptureProviders()
     //    openCaptureProvider(new CVCaptureProviderStandard(1, CVSize(1280, 960)));
 
     // Every single IDS camera that is connected
-    // for (int i = 0; i < IDSPeakInterface::instance().numAvailableDevices(); i++)
-    // {
-    //     openCaptureProvider(new CVCaptureProviderIDSPeak(i, CVSize(2768, 1840)));
-    // }
+//     for (int i = 0; i < IDSPeakInterface::instance().numAvailableDevices(); i++)
+//     {
+//         openCaptureProvider(new CVCaptureProviderIDSPeak(i, CVSize(2768, 1840)));
+//     }
 
     // IDS camera + Intel + SpryTrack
-//    openCaptureProvider(new CVCaptureProviderIDSPeak(0, CVSize(2768, 1840)));
-//    openCaptureProvider(new CVCaptureProviderStandard(0, CVSize(1280, 720)));
+    //    openCaptureProvider(new CVCaptureProviderIDSPeak(0, CVSize(2768, 1840)));
+    //    openCaptureProvider(new CVCaptureProviderStandard(0, CVSize(1280, 720)));
     openCaptureProvider(new CVCaptureProviderSpryTrack(CVSize(1280, 720)));
 
     if (_captureProviders.empty())
@@ -59,7 +60,6 @@ void AppPenTracking::openCaptureProviders()
     }
 
     _currentCaptureProvider = _captureProviders[0];
-
     SL_LOG("Opening done");
 }
 //-----------------------------------------------------------------------------
@@ -101,6 +101,12 @@ void AppPenTracking::openCaptureProvider(CVCaptureProvider* captureProvider)
     }
 }
 //-----------------------------------------------------------------------------
+void AppPenTracking::initTrackingSystem()
+{
+    _trackedPen.trackingSystem(new TrackingSystemSpryTrack());
+    SL_LOG("Tracking system initialized");
+}
+//-----------------------------------------------------------------------------
 void AppPenTracking::closeCaptureProviders()
 {
     SL_LOG("Closing capture providers...");
@@ -123,7 +129,7 @@ void AppPenTracking::grabFrameImagesAndTrack(SLSceneView* sv)
     {
         for (CVCaptureProvider* provider : _captureProviders)
         {
-            if (_arucoPen.trackingSystem()->isAcceptedProvider(provider) && provider != _currentCaptureProvider)
+            if (_trackedPen.trackingSystem()->isAcceptedProvider(provider) && provider != _currentCaptureProvider)
             {
                 grabFrameImageAndTrack(provider, sv);
             }
@@ -131,15 +137,15 @@ void AppPenTracking::grabFrameImagesAndTrack(SLSceneView* sv)
     }
 
     // Grab and track the currently displayed capture provider
-    if (_arucoPen.trackingSystem()->isAcceptedProvider(_currentCaptureProvider))
+    if (_trackedPen.trackingSystem()->isAcceptedProvider(_currentCaptureProvider))
     {
         grabFrameImageAndTrack(_currentCaptureProvider, sv);
     }
 
     if (AppDemo::sceneID == SID_VideoTrackArucoCubeMain || AppDemo::sceneID == SID_VirtualTrackedPen)
     {
-        AppPenTracking::instance().arucoPen().trackingSystem()->finalizeTracking();
-        if (AppPenTracking::instance().arucoPen().state() == TrackedPen::Tracing)
+        AppPenTracking::instance().trackedPen().trackingSystem()->finalizeTracking();
+        if (AppPenTracking::instance().trackedPen().state() == TrackedPen::Tracing)
         {
             AppPenTracking::instance().publishTipPose();
         }
@@ -173,7 +179,7 @@ void AppPenTracking::grabFrameImage(CVCaptureProvider* provider, SLSceneView* sv
 //-----------------------------------------------------------------------------
 void AppPenTracking::publishTipPose()
 {
-    AppPenTrackingROSNode::instance().publishPose(_arucoPen.rosPosition(),
-                                               _arucoPen.rosOrientation());
+    AppPenTrackingROSNode::instance().publishPose(_trackedPen.rosPosition(),
+                                                  _trackedPen.rosOrientation());
 }
 //-----------------------------------------------------------------------------

@@ -36,13 +36,9 @@ public:
         return instance;
     }
 
-    SLVVec3f tipPositions;
-
-    SLGLTexture* videoTexture = nullptr;
-    SLNode*      trackedNode  = nullptr;
-
 public:
     void openCaptureProviders();
+    void initTrackingSystem();
     void closeCaptureProviders();
     void grabFrameImagesAndTrack(SLSceneView* sv);
     void publishTipPose();
@@ -52,12 +48,16 @@ public:
     CVCaptureProvider*        currentCaptureProvider() const { return _currentCaptureProvider; }
     ArucoPenTrackers&         trackers() { return _trackers; }
     bool                      doMultiTracking() const { return _doMultiTracking; }
-    TrackedPen&               arucoPen() { return _arucoPen; }
+    TrackedPen&               trackedPen() { return _trackedPen; }
+    SLNode*                   penNode() { return _trackedPen.trackingSystem() ? _trackedPen.trackingSystem()->penNode() : nullptr; }
     AppPenTrackingCalibrator& calibrator() { return _calibrator; }
 
     // Setters
     void currentCaptureProvider(CVCaptureProvider* captureProvider) { _currentCaptureProvider = captureProvider; }
     void doMultiTracking(bool doMultiTracking) { _doMultiTracking = doMultiTracking; }
+
+    SLVVec3f     tipPositions;
+    SLGLTexture* videoTexture = nullptr;
 
 private:
     void openCaptureProvider(CVCaptureProvider* captureProvider);
@@ -69,7 +69,7 @@ private:
     ArucoPenTrackers   _trackers;
     bool               _doMultiTracking = true;
 
-    TrackedPen _arucoPen = TrackedPen(0.147f - 0.025f + 0.002f);
+    TrackedPen _trackedPen;
 
     AppPenTrackingCalibrator _calibrator;
 };

@@ -46,12 +46,35 @@ void AppPenTrackingGui::build(SLProjectScene* s, SLSceneView* sv)
         if (showInfosTracking)
         {
             std::stringstream ss;
-            TrackedPen&       pen = AppPenTracking::instance().arucoPen();
-            ss << "Tip position             : " << pen.tipPosition().toString(", ", 2) << "\n";
-            ss << "Head position            : " << pen.headTransform().translation().toString(", ", 2) << "\n";
-            ss << "X Axis                   : " << pen.headTransform().axisX().toString(", ", 2) << "\n";
-            ss << "Y Axis                   : " << pen.headTransform().axisY().toString(", ", 2) << "\n";
-            ss << "Z Axis                   : " << pen.headTransform().axisZ().toString(", ", 2) << "\n";
+            TrackedPen&       pen = AppPenTracking::instance().trackedPen();
+            SLVec3f tipPos = pen.tipPosition() * 100;
+            SLVec3f headPos = pen.headTransform().translation() * 100;
+
+            std::string xs = Utils::toString(std::abs(tipPos.x), 2);
+            std::string ys = Utils::toString(std::abs(tipPos.y), 2);
+            std::string zs = Utils::toString(std::abs(tipPos.z), 2);
+
+            if(xs.size() < 5) xs = ' ' + xs;
+            if(ys.size() < 5) ys = ' ' + ys;
+            if(zs.size() < 5) zs = ' ' + zs;
+
+            xs = (tipPos.x < 0.0 ? '-' : '+') + (' ' + xs);
+            ys = (tipPos.y < 0.0 ? '-' : '+') + (' ' + ys);
+            zs = (tipPos.z < 0.0 ? '-' : '+') + (' ' + zs);
+
+            ss << "Tip position                \n";
+            ss << xs << " cm\n";
+            ss << ys << " cm\n";
+            ss << zs << " cm\n";
+            /*
+            ss << "Head position (cm) : ";
+            ss << std::setw(5) << std::fixed << std::setprecision(1) << headPos.x << ", ";
+            ss << std::setw(5) << std::fixed << std::setprecision(1) << headPos.y << ", ";
+            ss << std::setw(5) << std::fixed << std::setprecision(1) << headPos.z << "\n";
+            ss << "X Axis             : " << pen.headTransform().axisX().toString("  , ", 2) << "\n";
+            ss << "Y Axis             : " << pen.headTransform().axisY().toString("  , ", 2) << "\n";
+            ss << "Z Axis             : " << pen.headTransform().axisZ().toString("  , ", 2) << "\n";
+
             ss << "Measured Distance (Live) : " << Utils::toString(pen.liveDistance() * 100.0f, 2) << "cm\n";
             ss << "Measured Distance (Last) : " << Utils::toString(pen.lastDistance() * 100.0f, 2) << "cm\n";
 
@@ -83,6 +106,7 @@ void AppPenTrackingGui::build(SLProjectScene* s, SLSceneView* sv)
                     }
                 }
             }
+            */
 
             // Switch to fixed font
             ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
@@ -144,15 +168,13 @@ void AppPenTrackingGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
 
             if (ImGui::BeginMenu("Tracking Mode"))
             {
-                TrackingSystem* ts = app.arucoPen().trackingSystem();
-
-                if (ImGui::MenuItem("ArUco Cube", nullptr, typeid(*ts) == typeid(TrackingSystemArucoCube)))
+                if (ImGui::MenuItem("ArUco Cube", nullptr, typeid(*app.trackedPen().trackingSystem()) == typeid(TrackingSystemArucoCube)))
                     runOrReportError([]
-                                     { AppPenTracking::instance().arucoPen().trackingSystem(new TrackingSystemArucoCube()); });
+                                     { AppPenTracking::instance().trackedPen().trackingSystem(new TrackingSystemArucoCube()); });
 
-                if (ImGui::MenuItem("SpryTrack", nullptr, typeid(*ts) == typeid(TrackingSystemSpryTrack)))
+                if (ImGui::MenuItem("SpryTrack", nullptr, typeid(*app.trackedPen().trackingSystem()) == typeid(TrackingSystemSpryTrack)))
                     runOrReportError([]
-                                     { AppPenTracking::instance().arucoPen().trackingSystem(new TrackingSystemSpryTrack()); });
+                                     { AppPenTracking::instance().trackedPen().trackingSystem(new TrackingSystemSpryTrack()); });
 
                 ImGui::EndMenu();
             }
@@ -161,7 +183,7 @@ void AppPenTrackingGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
             {
                 for (CVCaptureProvider* provider : app.captureProviders())
                 {
-                    if (app.arucoPen().trackingSystem()->isAcceptedProvider(provider))
+                    if (app.trackedPen().trackingSystem()->isAcceptedProvider(provider))
                     {
                         if (ImGui::MenuItem(provider->name().c_str(), nullptr, app.currentCaptureProvider() == provider))
                             app.currentCaptureProvider(provider);
@@ -174,7 +196,7 @@ void AppPenTrackingGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
             vector<CVCaptureProviderIDSPeak*> providersIDSPeak;
             for (CVCaptureProvider* provider : AppPenTracking::instance().captureProviders())
             {
-                if (app.arucoPen().trackingSystem()->isAcceptedProvider(provider) &&
+                if (app.trackedPen().trackingSystem()->isAcceptedProvider(provider) &&
                     typeid(*provider) == typeid(CVCaptureProviderIDSPeak))
                 {
                     providersIDSPeak.push_back((CVCaptureProviderIDSPeak*)provider);
@@ -194,19 +216,19 @@ void AppPenTrackingGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                         providerIDSPeak->gamma(gamma);
             }
 
-            if (ImGui::MenuItem("Calibrate Full"))
+            if (ImGui::MenuItem("Calibrate"))
             {
                 for (CVCaptureProvider* provider : app.captureProviders())
                 {
-                    if (app.arucoPen().trackingSystem()->isAcceptedProvider(provider))
+                    if (app.trackedPen().trackingSystem()->isAcceptedProvider(provider))
                     {
                         runOrReportError([provider]
-                                         { AppPenTracking::instance().arucoPen().trackingSystem()->calibrate(provider); });
+                                         { AppPenTracking::instance().trackedPen().trackingSystem()->calibrate(provider); });
                     }
                 }
             }
 
-            if (dynamic_cast<TrackingSystemArucoCube*>(app.arucoPen().trackingSystem()))
+            if (dynamic_cast<TrackingSystemArucoCube*>(app.trackedPen().trackingSystem()))
             {
                 if (ImGui::MenuItem("Calibrate Intrinsic (Current Camera)"))
                     s->onLoad(s, sv, SID_VideoCalibrateMain);
@@ -218,7 +240,7 @@ void AppPenTrackingGui::buildMenuBar(SLProjectScene* s, SLSceneView* sv)
                 {
                     for (CVCaptureProvider* provider : AppPenTracking::instance().captureProviders())
                     {
-                        if (app.arucoPen().trackingSystem()->isAcceptedProvider(provider))
+                        if (app.trackedPen().trackingSystem()->isAcceptedProvider(provider))
                         {
                             AppPenTrackingCalibrator::calcExtrinsicParams(provider);
                         }
@@ -291,7 +313,7 @@ void AppPenTrackingGui::loadConfig(SLint dotsPerInch)
 
         // Default settings for the first time
         SLGLImGui::fontPropDots  = std::max(16.0f * dpiScaleProp, 16.0f);
-        SLGLImGui::fontFixedDots = std::max(13.0f * dpiScaleFixed, 13.0f);
+        SLGLImGui::fontFixedDots = std::max(13.0f * dpiScaleFixed, 13.0f) * 1.5f;
 
         // Adjust UI padding on DPI
         style.WindowPadding.x = style.FramePadding.x = style.ItemInnerSpacing.x = std::max(8.0f * dpiScaleFixed, 8.0f);

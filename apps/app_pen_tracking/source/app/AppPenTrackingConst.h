@@ -12,11 +12,11 @@
 //-----------------------------------------------------------------------------
 namespace AppPenTrackingConst
 {
-
+//-----------------------------------------------------------------------------
 constexpr int   CHESSBOARD_WIDTH  = 11;
 constexpr int   CHESSBOARD_HEIGHT = 8;
 constexpr float SQUARE_SIZE       = 0.06f;
-
+//-----------------------------------------------------------------------------
 } // namespace AppPenTrackingConst
 //-----------------------------------------------------------------------------
 #endif // SLPROJECT_APPPENTRACKINGCONST_H

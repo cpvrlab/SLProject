@@ -40,7 +40,7 @@ void AppPenTrackingEvaluator::start()
     // Create red marker sphere
     SLAssetManager* am       = AppDemo::scene->assetManager();
     auto*           material = new SLMaterial(am, "Eval Sphere Material", SLCol4f::RED, SLCol4f::BLACK, 0.0f);
-    auto*           mesh     = new SLSphere(am, 0.0025f, 8, 8, "Eval Sphere Mesh", material);
+    auto*           mesh     = new SLSphere(am, 0.01f, 8, 8, "Eval Sphere Mesh", material);
     _node                    = new SLNode(mesh, "Eval Sphere");
     _node->translation(currentCorner());
     AppDemo::scene->root3D()->addChild(_node);
@@ -56,9 +56,7 @@ void AppPenTrackingEvaluator::nextStep()
 {
     // Calculate values
     SLVec3f corner = currentCorner();
-    // SLVec3f tip         = AppPenTracking::instance().arucoPen().tipPosition();
-    // TODO: REMOVE AFTER SPRYTRACK EVALUATION
-    SLVec3f tip         = AppPenTracking::instance().arucoPen().headTransform().translation();
+    SLVec3f tip         = AppPenTracking::instance().trackedPen().tipPosition();
     SLVec3f cornerToTip = tip - corner;
     float   distance    = cornerToTip.length();
 
@@ -90,17 +88,21 @@ void AppPenTrackingEvaluator::incCornerPosition()
         _x = 0;
         _z += INCREMENT;
 
-        // TODO: REMOVE AFTER SPRYTRACK EVALUATION
-        if (_z == 4)
-        {
-            _z += INCREMENT;
-        }
-
         if (_z >= AppPenTrackingConst::CHESSBOARD_WIDTH)
         {
             finish();
             return;
         }
+    }
+
+    if(_x == 2 && _z == 4 ||
+        _x == 4 && _z == 6 ||
+        _x == 6 && _z == 7 ||
+        _x == 5 && _z == 2 ||
+        _x == 1 && _z == 8)
+    {
+        incCornerPosition();
+        return;
     }
 
     // Update the marker position
@@ -113,8 +115,7 @@ void AppPenTrackingEvaluator::incCornerPosition()
  */
 SLVec3f AppPenTrackingEvaluator::currentCorner() const
 {
-    // TODO: REMOVE AFTER SPRYTRACK EVALUATION
-    return SLVec3f((float)_x + 0.5f, 0.0f, (float)_z + 0.5f) * AppPenTrackingConst::SQUARE_SIZE;
+    return SLVec3f((float)_x, 0.0f, (float)_z) * AppPenTrackingConst::SQUARE_SIZE;
 }
 //-----------------------------------------------------------------------------
 /*! The key event handler that calls "nextStep" if F7 is pressed
@@ -176,15 +177,15 @@ void AppPenTrackingEvaluator::finish()
         csvStream << "\"" << truth.toString(", ", 1) << "\",";
         csvStream << "\"" << measured.toString(", ", 1) << "\",";
         csvStream << "\"" << offset.toString(", ", 1) << "\",";
-        csvStream << "\"" << std::fixed << std::setprecision(2) << distance << "\"\n";
+        csvStream << "\"" << std::fixed << std::setprecision(3) << distance << "\"\n";
 
         totalDistance += distance;
         distances.push_back(distance);
     }
 
-    // Write the average to the CSV file
+    // Calculate the average and write it to the CSV file
     float avgDistance = totalDistance / (float)corners.size();
-    csvStream << R"("Average",,,,")" << std::fixed << std::setprecision(2) << avgDistance << "\"\n";
+    csvStream << R"("Average",,,,")" << std::fixed << std::setprecision(3) << avgDistance << "\"\n";
 
     // Calculate the standard deviation and write it to the CSV file
     float totalDevSqr = 0;
@@ -195,7 +196,7 @@ void AppPenTrackingEvaluator::finish()
     }
     float variance = totalDevSqr / (float)corners.size();
     float stdDev   = std::sqrt(variance);
-    csvStream << R"("Standard Deviation",,,,")" << std::fixed << std::setprecision(2) << stdDev << "\"\n";
+    csvStream << R"("Standard Deviation",,,,")" << std::fixed << std::setprecision(3) << stdDev << "\"\n";
 
     SL_LOG("Saved evaluation to \"%s\\%s\"", Utils::getCurrentWorkingDir().c_str(), csvFilename.c_str());
 }

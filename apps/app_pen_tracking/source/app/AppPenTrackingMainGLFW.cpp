@@ -438,6 +438,10 @@ void initSL(SLVstring& cmdLineArgs)
                                 (void*)AppPenTrackingGui::loadConfig,
                                 (void*)AppPenTrackingGui::saveConfig);
     /////////////////////////////////////////////////////////
+
+    /////////////////////////////////////////////////////////
+    AppPenTracking::instance().initTrackingSystem();
+    /////////////////////////////////////////////////////////
 }
 //-----------------------------------------------------------------------------
 /*!

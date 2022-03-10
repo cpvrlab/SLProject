@@ -27,7 +27,7 @@ void updateTrackingSceneCamera(CVCamera* ac)
 {
     PROFILE_FUNCTION();
 
-    SLNode* trackedNode = AppPenTracking::instance().trackedNode;
+    SLNode* trackedNode = AppPenTracking::instance().penNode();
     if (trackedNode && typeid(*trackedNode) == typeid(SLCamera))
     {
         auto* trackingCam = dynamic_cast<SLCamera*>(trackedNode);
@@ -95,30 +95,36 @@ void trackVideo(CVCaptureProvider* provider)
     ensureValidCalibration(ac, sv);
     updateTrackingSceneCamera(ac);
 
-    bool trackingResult = AppPenTracking::instance().arucoPen().trackingSystem()->track(provider);
-    if (!trackingResult)
-    {
-        AppPenTracking::instance().trackedNode->setDrawBitsRec(SL_DB_HIDDEN, false);
-        return;
-    }
+    AppPenTracking::instance().penNode()->setDrawBitsRec(SL_DB_HIDDEN, true);
+
+    AppPenTracking::instance().trackedPen().trackingSystem()->track(provider);
+
+//    if (!trackingResult)
+//    {
+//        if (AppPenTracking::instance().penNode())
+//        {
+//            AppPenTracking::instance().penNode()->setDrawBitsRec(SL_DB_HIDDEN, true);
+//        }
+//        return;
+//    }
 
     if (AppDemo::sceneID == SID_VirtualTrackedPen)
     {
         // clang-format off
-        CVMatx44f cvWM = AppPenTracking::instance().arucoPen().trackingSystem()->worldMatrix();
+        CVMatx44f cvWM = AppPenTracking::instance().trackedPen().trackingSystem()->worldMatrix();
         SLMat4f glWM(cvWM.val[0], cvWM.val[1], cvWM.val[2], cvWM.val[3],
                      cvWM.val[4], cvWM.val[5], cvWM.val[6], cvWM.val[7],
                      cvWM.val[8], cvWM.val[9], cvWM.val[10],cvWM.val[11],
                      cvWM.val[12],cvWM.val[13],cvWM.val[14],cvWM.val[15]);
         // clang-format on
 
-        SLNode* trackedNode = AppPenTracking::instance().trackedNode;
+        SLNode* trackedNode = AppPenTracking::instance().penNode();
         trackedNode->om(glWM);
         trackedNode->setDrawBitsRec(SL_DB_HIDDEN, false);
     }
     else
     {
-        TrackingSystem* trackingSystem = AppPenTracking::instance().arucoPen().trackingSystem();
+        TrackingSystem* trackingSystem = AppPenTracking::instance().trackedPen().trackingSystem();
         if (typeid(*trackingSystem) != typeid(TrackingSystemArucoCube)) return;
 
         // clang-format off
@@ -131,7 +137,7 @@ void trackVideo(CVCaptureProvider* provider)
                       cvOVM.val[12],cvOVM.val[13],cvOVM.val[14],cvOVM.val[15]);
         // clang-format on
 
-        SLNode* trackedNode = AppPenTracking::instance().trackedNode;
+        SLNode* trackedNode = AppPenTracking::instance().penNode();
 
         if (typeid(*trackedNode) == typeid(SLCamera))
         {

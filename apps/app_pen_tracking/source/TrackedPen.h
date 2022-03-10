@@ -31,7 +31,6 @@ public:
         Tracing
     };
 
-    TrackedPen(float length);
     ~TrackedPen();
 
     SLbool onKeyPress(SLKey key,
@@ -50,7 +49,7 @@ public:
     SLfloat lastDistance() const;
 
     // Getters
-    float           length() const { return _length; }
+    float           length() const { return _trackingSystem->penLength(); }
     State           state() const { return _state; }
     TrackingSystem* trackingSystem() const { return _trackingSystem; }
 
@@ -58,9 +57,10 @@ public:
     void trackingSystem(TrackingSystem* trackingSystem);
 
 private:
-    float           _length;
+    void updateTrackingSystem(TrackingSystem* trackingSystem);
+
     State           _state          = Idle;
-    TrackingSystem* _trackingSystem = new TrackingSystemSpryTrack();
+    TrackingSystem* _trackingSystem = nullptr;
 
     SLVec3f _lastPrintedPosition;
     SLbool  _positionPrintedOnce = false;

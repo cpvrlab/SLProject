@@ -28,6 +28,7 @@ void CVMultiTracker::recordCurrentPose(CVTracked* tracked, CVCalibration* calib)
                               extrinsic.val[ 9], extrinsic.val[10], extrinsic.val[ 8], extrinsic.val[11],
                               0.0f,              0.0f,             0.0f,               1.0f);
         // clang-format on
+        extrinsic.val[7] += 0.005f;
         matrix = extrinsic.inv() * matrix;
     }
     else

@@ -12,17 +12,21 @@
 
 #include <CVTypedefs.h>
 #include <CVCaptureProvider.h>
+#include <SLNode.h>
 
 //-----------------------------------------------------------------------------
 class TrackingSystem
 {
 public:
-    virtual ~TrackingSystem() = default;
+    virtual ~TrackingSystem()                                         = default;
     virtual bool      track(CVCaptureProvider* provider)              = 0;
     virtual void      finalizeTracking()                              = 0;
     virtual CVMatx44f worldMatrix()                                   = 0;
     virtual void      calibrate(CVCaptureProvider* provider)          = 0;
     virtual bool      isAcceptedProvider(CVCaptureProvider* provider) = 0;
+    virtual void      createPenNode()                                 = 0;
+    virtual SLNode*   penNode()                                       = 0;
+    virtual float     penLength()                                     = 0;
 };
 //-----------------------------------------------------------------------------
 #endif // SRC_TRACKINGSYSTEM_H

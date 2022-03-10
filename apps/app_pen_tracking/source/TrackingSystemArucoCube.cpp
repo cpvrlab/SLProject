@@ -11,12 +11,17 @@
 
 #include <app/AppPenTracking.h>
 #include <AppDemo.h>
+#include <SLAssimpImporter.h>
+#include <SLAssetManager.h>
+#include <SLProjectScene.h>
+#include <SLBox.h>
+#include <SLMaterial.h>
 
 //-----------------------------------------------------------------------------
 bool TrackingSystemArucoCube::track(CVCaptureProvider* provider)
 {
     CVTracked* tracker = AppPenTracking::instance().trackers().at(provider);
-    if (!tracker || !AppPenTracking::instance().trackedNode) return false;
+    if (!tracker || !AppPenTracking::instance().penNode()) return false;
 
     /*
     if (typeid(*tracker) == typeid(CVTrackedArucoCube) && CVTrackedAruco::paramsLoaded)
@@ -55,6 +60,25 @@ bool TrackingSystemArucoCube::isAcceptedProvider(CVCaptureProvider* provider)
 {
     return typeid(*provider) == typeid(CVCaptureProviderStandard) ||
            typeid(*provider) == typeid(CVCaptureProviderIDSPeak);
+}
+//-----------------------------------------------------------------------------
+void TrackingSystemArucoCube::createPenNode()
+{
+    SLScene*        scene = AppDemo::scene;
+    SLAssetManager* s     = scene->assetManager();
+
+    SLAssimpImporter importer;
+    _penNode = importer.load(scene->animManager(),
+                             s,
+                             AppDemo::modelPath + "DAE/ArucoPen/ArucoPen.dae",
+                             AppDemo::texturePath);
+
+    float tipOffset      = PEN_LENGTH;
+    float tipExtend      = 0.002f;
+    auto* penTipMaterial = new SLMaterial(s, "Pen Tip Material", SLCol4f(1.0f, 1.0f, 0.0f, 0.5f));
+    auto* tipMesh        = new SLBox(s, -tipExtend, -tipExtend - tipOffset, -tipExtend, tipExtend, tipExtend - tipOffset, tipExtend, "Pen Tip", penTipMaterial);
+    auto* tipNode        = new SLNode(tipMesh, "Pen Tip Node");
+    _penNode->addChild(tipNode);
 }
 //-----------------------------------------------------------------------------
 void TrackingSystemArucoCube::optimizeTracking()
