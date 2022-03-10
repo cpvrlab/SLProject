@@ -168,7 +168,7 @@ layout (points) in;             // Primitives that we received from vertex shade
 layout (triangle_strip, max_vertices = 4) out;    // Primitives that we will output and number of vertex that will be output)";
 
 const string geomInput_PS_struct_Begin       = R"(
-int vertex { )";
+in vertex { )";
 const string geomInput_PS_struct_t       = R"(
     float transparency; // Transparency of a particle)";
 const string geomInput_PS_struct_r       = R"(
@@ -1229,13 +1229,25 @@ void SLGLProgramGenerated::buildProgramNamePS(SLMaterial* mat,
     assert(mat && "No material pointer passed!");
     programName = "gen";
 
+    
     if (mat->reflectionModel() == RM_Particle)
         programName += "Particle";
     else
         programName += "Custom";
 
+
     programName += mat->texturesString();
-    programName += "-";
+    //programName += "-";
+
+    // Check what textures the material has
+    bool AlOvLi = mat->ps()->alphaOverLF();  // Alpha over life
+    bool SiOvLi = mat->ps()->sizeOverLF(); // Size over life
+    bool SiRandom     = mat->ps()->sizeRandom();  // Size random
+    bool WS     = mat->ps()->worldSpace();  // World space or local space
+    if (AlOvLi) programName += "-AL";
+    if (SiOvLi) programName += "-SL";
+    if (SiRandom) programName += "-SR";
+    if (WS) programName += "-WS";
 
 }
 //-----------------------------------------------------------------------------
@@ -1302,8 +1314,9 @@ void SLGLProgramGenerated::buildProgramCodePS(SLMaterial* mat)
     assert(mat && "No material pointer passed!");
     assert(_shaders.size() > 2 &&
            _shaders[0]->type() == ST_vertex &&
-           _shaders[1]->type() == ST_geometry &&
-           _shaders[2]->type() == ST_fragment);
+           _shaders[1]->type() == ST_fragment &&
+           _shaders[2]->type() == ST_geometry);
+        
 
     // Check what textures the material has
     bool Dm  = mat->hasTextureType(TT_diffuse);   // Texture Mapping
@@ -1550,13 +1563,15 @@ void SLGLProgramGenerated::buildPerPixParticle(SLMaterial* mat)
 {
     assert(_shaders.size() > 2 &&
            _shaders[0]->type() == ST_vertex &&
-           _shaders[1]->type() == ST_geometry &&
-           _shaders[2]->type() == ST_fragment);
+           _shaders[1]->type() == ST_fragment &&
+           _shaders[2]->type() == ST_geometry);
 
     // Check what textures the material has
     bool Dm  = mat->hasTextureType(TT_diffuse);
-    bool AlOvLi  = true; // Alpha over life
-    bool SiOvLi  = true; // Size over life
+    bool AlOvLi   = mat->ps()->alphaOverLF(); // Alpha over life
+    bool SiOvLi   = mat->ps()->sizeOverLF();  // Size over life
+    bool SiRandom = mat->ps()->sizeRandom();  // Size random
+    //bool WS       = mat->ps()->worldSpace();  // World space or local space
 
     // Assemble vertex shader code
     string vertCode;
@@ -1623,7 +1638,7 @@ void SLGLProgramGenerated::buildPerPixParticle(SLMaterial* mat)
     geomCode += geomMain_PS_fourCorners;
     geomCode += geomMain_PS_EndAll;
 
-    addCodeToShader(_shaders[1], geomCode, _name + ".geom");
+    addCodeToShader(_shaders[2], geomCode, _name + ".geom");
 
     // Assemble fragment shader code
     string fragCode;
@@ -1643,7 +1658,7 @@ void SLGLProgramGenerated::buildPerPixParticle(SLMaterial* mat)
     // Fragment shader main loop
     fragCode += fragMain_PS;
 
-    addCodeToShader(_shaders[2], fragCode, _name + ".frag");
+    addCodeToShader(_shaders[1], fragCode, _name + ".frag");
 }
 //-----------------------------------------------------------------------------
 

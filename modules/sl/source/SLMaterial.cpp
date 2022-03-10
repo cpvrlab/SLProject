@@ -248,13 +248,14 @@ SLMaterial::SLMaterial(SLAssetManager* am,
 SLMaterial::SLMaterial(SLAssetManager* am,
                        const SLchar*   name,
                        SLGLTexture*    texture,
-                       bool            flipbook,
+                       SLParticleSystem* ps,
                        SLGLProgram*    program) : SLObject(name)
 {
     _assetManager    = am;
     _reflectionModel = RM_Particle;
     _getsShadows  = true; // Later for Particle System maybe
     _skybox       = nullptr;
+    _ps              = ps;
     _program      = program;
 
     _numTextures = 0;
@@ -365,6 +366,39 @@ SLMaterial::~SLMaterial()
     {
         delete _errorTexture;
         _errorTexture = nullptr;
+    }
+}
+//-----------------------------------------------------------------------------
+/*!
+ If this material has not yet a shader program assigned (SLMaterial::_program) 
+ a suitable program will be generated with an instance of SLGLProgramGenerated.
+ At the end the shader program will begin its usage with SLGLProgram::beginUse.
+
+ */
+void SLMaterial::generateProgramPS()
+{
+    // If no shader program is attached add a generated shader program
+    // A 3D object can be stored without material or shader program information.
+    if (!_program)
+    {
+        // Check first the asset manager if the requested program type already exists
+        string programName;
+        SLGLProgramGenerated::buildProgramNamePS(this, programName);
+        _program = _assetManager->getProgramByName(programName);
+
+        // If the program was not found by name generate a new one
+        if (!_program)
+            _program = new SLGLProgramGenerated(_assetManager, programName, this);
+    }
+
+    // Check if shader had a compile error and the error texture should be shown
+    if (_program && _program->name().find("ErrorTex") != string::npos)
+    {
+        for (int i = 0; i < TT_numTextureType; i++)
+            _textures[i].clear();
+        if (!_errorTexture && !_compileErrorTexFilePath.empty())
+            _errorTexture = new SLGLTexture(nullptr, _compileErrorTexFilePath);
+        _textures[TT_diffuse].push_back(_errorTexture);
     }
 }
 //-----------------------------------------------------------------------------

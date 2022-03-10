@@ -3663,6 +3663,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                     SLuint      t = (SLuint)(!singleFullMesh->I16.empty() ? singleFullMesh->I16.size() / 3 : singleFullMesh->I32.size() / 3);
                     SLuint      e = (SLuint)(!singleFullMesh->IE16.empty() ? singleFullMesh->IE16.size() / 2 : singleFullMesh->IE32.size() / 2);
                     SLMaterial* m = singleFullMesh->mat();
+                    SLMaterial* mOut = singleFullMesh->matOut();
                     ImGui::Text("Mesh name    : %s", singleFullMesh->name().c_str());
                     ImGui::Text("# vertices   : %u", v);
                     ImGui::Text("# triangles  : %u", t);
@@ -3750,6 +3751,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                     {
                         if (ImGui::TreeNode("Reflection Model: Particle"))
                         {
+                            //mOut //for updating
                             SLParticleSystem* ps = dynamic_cast<SLParticleSystem*>(singleFullMesh); // Need to check if good practice
                             ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.5f);
                             
@@ -3757,9 +3759,28 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                             if (ImGui::Checkbox("World space", &worldSpace))
                                 ps->worldSpace(worldSpace);
 
-                            static bool closable_group = false;
-                            ImGui::Checkbox("Size over lifetime", &closable_group);
-                            if (ImGui::CollapsingHeader("Size over lifetime", &closable_group))
+                            static bool alphaOverLF_group = ps->alphaOverLF();
+                            if (ImGui::Checkbox("Alpha over lifetime", &alphaOverLF_group))
+                                ps->alphaOverLF(alphaOverLF_group);
+                            if (ImGui::CollapsingHeader("Alpha over lifetime", &alphaOverLF_group))
+                            {
+                                ImGui::Text("IsItemHovered: %d", ImGui::IsItemHovered());
+                                for (int i = 0; i < 5; i++)
+                                    ImGui::Text("More content %d", i);
+                            }
+                            static bool sizeOverLF_group = ps->sizeOverLF();
+                            if (ImGui::Checkbox("Size over lifetime", &sizeOverLF_group))
+                                ps->sizeOverLF(sizeOverLF_group);
+                            if (ImGui::CollapsingHeader("Size over lifetime", &sizeOverLF_group))
+                            {
+                                ImGui::Text("IsItemHovered: %d", ImGui::IsItemHovered());
+                                for (int i = 0; i < 5; i++)
+                                    ImGui::Text("More content %d", i);
+                            }
+                            static bool sizeRandom_group = ps->sizeRandom();
+                            if (ImGui::Checkbox("Size random", &sizeRandom_group))
+                                ps->sizeRandom(sizeRandom_group);
+                            if (ImGui::CollapsingHeader("Size random", &sizeRandom_group))
                             {
                                 ImGui::Text("IsItemHovered: %d", ImGui::IsItemHovered());
                                 for (int i = 0; i < 5; i++)

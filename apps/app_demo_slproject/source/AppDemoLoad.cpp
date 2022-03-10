@@ -5750,32 +5750,10 @@ resolution shadows near the camera and lower resolution shadows further away.");
         // Create a scene group node
         SLNode* scene = new SLNode("scene node");
 
-        // Initialize transform feedback update:
-        SLGLProgram* updateProg = new SLGLProgramGeneric(nullptr,
-                                                           shaderPath + "ParticleTF.vert",
-                                                           shaderPath + "ParticleTF.frag");
-        char* outputNames[] = {"tf_position", "tf_velocity", "tf_startTime", "tf_initialVelocity", "tf_rotation"};
-        updateProg->initRawTF(outputNames,5);
-        // Create materials
-        SLMaterial* mUpdate = new SLMaterial(nullptr, "Update-Material", updateProg);
-
-        // Initialize the drawing:
-        SLGLProgram* drawingProg = new SLGLProgramGeneric(nullptr,
-                                                             shaderPath + "Particle.vert",
-                                                             shaderPath + "Particle.frag",
-                                                             shaderPath + "Particle.geom");
-        /* SLGLProgram* drawingProg = new SLGLProgramGeneric(nullptr,
-                                                          shaderPath + "Geom.vert",
-                                                          shaderPath + "Geom.geom",
-                                                          shaderPath + "Geom.frag");*/
-        //pcMat1->program()->addUniform1f(new SLGLUniform1f(UT_const, "u_pointSize", 4.0f));
-        drawingProg->initRaw();
-        GET_GL_ERROR;
-        
         // Create textures and materials
         SLGLTexture* texC = new SLGLTexture(am, texPath + "smoke_08_C.png");
         //SLGLTexture* texC = new SLGLTexture(am, texPath + "earth2048_C.png");
-        SLMaterial*  mDraw = new SLMaterial(am, "Drawing-Material", texC, false, drawingProg);
+        
 
         // Create a light source node
         SLLightSpot* light1 = new SLLightSpot(am, s, 0.3f);
@@ -5784,7 +5762,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         scene->addChild(light1);
 
         // Create meshes and nodes
-        SLMesh* pSMesh = new SLParticleSystem(am, 55, SLVec3f(0, 0.5, 0), SLVec3f(0.04f, 0.4f, 0.1f), SLVec3f(-0.11f, 0.7f, -0.1f), 4.0f, "Particle System", mUpdate, mDraw);
+        SLMesh* pSMesh = new SLParticleSystem(am, 55, SLVec3f(0, 0.5, 0), SLVec3f(0.04f, 0.4f, 0.1f), SLVec3f(-0.11f, 0.7f, -0.1f), 4.0f, shaderPath, texC, "Particle System");
         SLNode* pSNode = new SLNode(pSMesh, "Particle system node");
         scene->addChild(pSNode);
 

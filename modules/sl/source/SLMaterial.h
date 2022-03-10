@@ -15,6 +15,7 @@
 #include <SLGLProgram.h>
 #include <SLGLTexture.h>
 #include <SLNode.h>
+#include <SLParticleSystem.h>
 
 class SLSkybox;
 class SLSceneView;
@@ -91,7 +92,7 @@ public:
     SLMaterial(SLAssetManager* am,
                const SLchar*   name,
                SLGLTexture*    texture,
-               bool            flipbook,
+               SLParticleSystem*    ps,
                SLGLProgram*    program  = nullptr);
 
     //! Ctor for uniform color material without lighting
@@ -106,7 +107,7 @@ public:
                SLGLProgram*    program);
 
     ~SLMaterial() override;
-
+    void  generateProgramPS();
     void  activate(SLCamera* cam,
                    SLVLight* lights,
                    SLSkybox* skybox = nullptr);
@@ -195,6 +196,7 @@ public:
     void getsShadows(SLbool receivesShadows) { _getsShadows = receivesShadows; }
     void program(SLGLProgram* sp) { _program = sp; }
     void skybox(SLSkybox* sb) { _skybox = sb; }
+    void ps(SLParticleSystem* ps) { _ps = ps; }
 
     // Getters
     SLAssetManager*   assetManager() { return _assetManager; }
@@ -215,6 +217,7 @@ public:
     SLuint            numTextures() { return _numTextures; }
     SLGLProgram*      program() { return _program; }
     SLSkybox*         skybox() { return _skybox; }
+    SLParticleSystem*         ps() { return _ps; }
     SLVNode&          nodesVisible2D() { return _nodesVisible2D; }
     SLVNode&          nodesVisible3D() { return _nodesVisible3D; }
     SLVGLTexture&     textures(SLTextureType type) { return _textures[type]; }
@@ -243,6 +246,9 @@ protected:
     SLGLProgram*      _program{};       //!< pointer to a GLSL shader program
     SLint             _numTextures;     //!< number of textures in all _textures vectors array
     SLSkybox*         _skybox;          //!< pointer to the skybox
+
+    //For particle system
+    SLParticleSystem* _ps; //!< pointer to a particule system
 
     SLVGLTexture _textures[TT_numTextureType]; //!< array of texture vectors one for each type
     SLVGLTexture _textures3d;                  //!< texture vector for diffuse 3D textures

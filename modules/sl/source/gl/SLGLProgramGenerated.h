@@ -69,6 +69,19 @@ public:
         buildProgramCode(mat, lights);
     }
 
+    //! ctor for generated shader program PS
+    SLGLProgramGenerated(SLAssetManager* am,
+                         const string&   programName,
+                         SLMaterial*     mat)
+      : SLGLProgram(am,
+                    "",
+                    "",
+                    "temp",
+                    programName)
+    {
+        buildProgramCodePS(mat);
+    }
+
     static bool lightsDoShadowMapping(SLVLight* lights);
     static void buildProgramName(SLMaterial* mat,
                                  SLVLight*   lights,

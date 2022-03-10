@@ -11,22 +11,30 @@
 #include <SLParticleSystem.h>
 #include <SLMaterial.h>
 #include <SLGLProgram.h>
+#include <SLGLTexture.h>
 #include <SLSceneView.h>
 #include <GlobalTimer.h>
 
 //-----------------------------------------------------------------------------
-//! Struct definition for particle attribute position, velocity, start time, initial velocity and rotation
-struct Particle
+void SLParticleSystem::initMat(SLAssetManager* am, SLGLTexture* texC, const SLstring& shaderPath)
 {
-    SLVec3f p;     // particle position [x,y,z]
-    SLVec3f v;     // particle velocity [x,y,z]
-    float   st;    // particle start time
-    SLVec3f initV; // particle initial velocity [x,y,z]
-    float   r;     // particle rotation
+    //Later generate the shaders
 
-    Particle()
-      : p(0.0f), v(0.0f), st(0.0f), initV(0.0f), r(0.0f) {}
-};
+    // Initialize transform feedback update:
+    SLGLProgram* updateProg    = new SLGLProgramGeneric(nullptr,
+                                                     shaderPath + "ParticleTF.vert",
+                                                     shaderPath + "ParticleTF.frag");
+    char*        outputNames[] = {"tf_position", "tf_velocity", "tf_startTime", "tf_initialVelocity", "tf_rotation"};
+    updateProg->initRawTF(outputNames, 5);
+    // Create materials
+    SLMaterial* mUpdate = new SLMaterial(nullptr, "Update-Material", updateProg);
+
+    // Initialize the drawing:
+    SLMaterial* mDraw = new SLMaterial(am, "Drawing-Material", texC, this);
+    
+    mat(mDraw);
+    matOut(mUpdate);
+}
 //-----------------------------------------------------------------------------
 float SLParticleSystem::randomFloat(float a, float b)
 {
@@ -44,9 +52,9 @@ SLParticleSystem::SLParticleSystem(SLAssetManager* assetMgr,
                    const SLVec3f& velocityRandomStart,
                    const SLVec3f& velocityRandomEnd,
                    const SLfloat& timeToLive,
-                   const SLstring& name,
-                   SLMaterial*     materialUpdate,
-                   SLMaterial*     materialDraw) : SLMesh(assetMgr, name)
+                   const SLstring& shaderPath,
+                   SLGLTexture* texC,
+                   const SLstring& name) : SLMesh(assetMgr, name)
 {
     assert(!name.empty());
 
@@ -77,8 +85,8 @@ SLParticleSystem::SLParticleSystem(SLAssetManager* assetMgr,
     pEPos(particleEmiPos);
     //Need to add the rest
 
-    mat(materialDraw);
-    matUpdate(materialUpdate);
+    initMat(assetMgr, texC, shaderPath);
+
 }
 
 //TODO Delete VAO2 with function DeleteData of Mesh.h
@@ -97,18 +105,31 @@ void SLParticleSystem::generateVAO(SLGLVertexArray& vao)
     vao.generateTF((SLuint)P.size());
 }
 
+
+
 void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
 {
+    /////////////////////////////
+    // Init VAO
+    /////////////////////////////
+
     //Do updating
     if (!_vao1.vaoID())
         generateVAO(_vao1);
     if (!_vao2.vaoID())
         generateVAO(_vao2);
 
+    /////////////////////////////
+    // UPDATING
+    /////////////////////////////
+
     // Now use the updating material
-    SLGLProgram* sp    = _matUpdate->program();
+    SLGLProgram* sp = _matOut->program();
     sp->useProgram();
 
+    /////////////////////////////
+    // Apply Uniform Variables
+    /////////////////////////////
     sp->uniform1f("u_time", GlobalTimer::timeS());
     sp->uniform1f("u_deltaTime", sv->s()->elapsedTimeSec());
     sp->uniform3f("u_acceleration",1.0f, 1.0f,1.0f);
@@ -123,6 +144,9 @@ void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
         sp->uniform3f("u_pGPosition", 0.0, 0.0, 0.0);
     }
 
+    /////////////////////////////
+    // Draw call to update
+    /////////////////////////////
 
     if (_drawBuf == 0)
     {
@@ -139,6 +163,13 @@ void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
         _vao = _vao1;
     }
 
+    /////////////////////////////
+    // DRAWING
+    /////////////////////////////
+
+    //Generate a program to draw if no one is bound
+    _mat->generateProgramPS();
+
     //Give uniform for drawing and find for linking vao vbo
     SLGLProgram* spD = _mat->program();
     spD->useProgram();
@@ -148,13 +179,11 @@ void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
         spD->uniformMatrix4fv("u_vMatrix", 1, (SLfloat*)&stateGL->viewMatrix);
     }
     else{
-        spD->uniformMatrix4fv("u_vMatrix", 1, (SLfloat*)&stateGL->modelViewMatrix);
+        spD->uniformMatrix4fv("u_vMatrix", 1, (SLfloat*)&stateGL->modelViewMatrix); // TO change for custom shader ganeration
     }
     
     spD->uniform1f("u_time", GlobalTimer::timeS());
     spD->uniform1f("u_tTL", _ttl);
-    spD->uniform3f("u_pGPosition", 0.0, 0.0, 0.0);
-    //spD->uniform3f("u_pGPosition", _pEPos.x, _pEPos.y, _pEPos.z);
    
     spD->uniform4f("u_color", 0.66f, 0.0f, 0.66f, 0.2f);
     spD->uniform1f("u_scale", 1.0f);
