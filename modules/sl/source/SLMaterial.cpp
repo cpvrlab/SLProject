@@ -233,7 +233,7 @@ SLMaterial::SLMaterial(SLAssetManager* am,
         am->materials().push_back(this);
 }
 //-----------------------------------------------------------------------------
-/*! Constructor for textured particle system materials.
+/*! Constructor for particle system materials (Update).
  Materials can be used by multiple meshes (SLMesh). Materials can belong
  therefore to the global assets such as meshes, materials, textures and
  shader programs.
@@ -242,6 +242,40 @@ SLMaterial::SLMaterial(SLAssetManager* am,
  nullptr is passed the creator is responsible for the deallocation.
  @param name Name of the material
  @param texture Pointer to an SLGLTexture of a specific SLTextureType
+ @param ps Pointer to the particle system for the material.
+ @param program Pointer to the shader program for the material.
+ If none is passed a program will be generated from the passed parameters.
+ */
+SLMaterial::SLMaterial(SLAssetManager*   am,
+                       const SLchar*     name,
+                       SLParticleSystem* ps,
+                       SLGLProgram*      program) : SLObject(name)
+{
+    _assetManager    = am;
+    _reflectionModel = RM_Particle;
+    _psType          = RM_PS_Update;
+    _getsShadows     = true; // Later for Particle System maybe
+    _skybox          = nullptr;
+    _ps              = ps;
+    _program         = program;
+
+    _numTextures = 0;
+
+    // Add pointer to the global resource vectors for deallocation
+    if (am)
+        am->materials().push_back(this);
+}
+//-----------------------------------------------------------------------------
+/*! Constructor for textured particle system materials (Draw=.
+ Materials can be used by multiple meshes (SLMesh). Materials can belong
+ therefore to the global assets such as meshes, materials, textures and
+ shader programs.
+ @param am Pointer to a global asset manager. If passed the asset
+ manager is the owner of the instance and will do the deallocation. If a
+ nullptr is passed the creator is responsible for the deallocation.
+ @param name Name of the material
+ @param texture Pointer to an SLGLTexture of a specific SLTextureType
+ @param ps Pointer to the particle system for the material.
  @param program Pointer to the shader program for the material.
  If none is passed a program will be generated from the passed parameters.
  */
@@ -253,6 +287,7 @@ SLMaterial::SLMaterial(SLAssetManager* am,
 {
     _assetManager    = am;
     _reflectionModel = RM_Particle;
+    _psType          = RM_PS_Draw;
     _getsShadows  = true; // Later for Particle System maybe
     _skybox       = nullptr;
     _ps              = ps;
@@ -372,6 +407,7 @@ SLMaterial::~SLMaterial()
 /*!
  If this material has not yet a shader program assigned (SLMaterial::_program) 
  a suitable program will be generated with an instance of SLGLProgramGenerated.
+ If no agrument is given, no geometry shader will be generate
  At the end the shader program will begin its usage with SLGLProgram::beginUse.
 
  */
@@ -388,7 +424,13 @@ void SLMaterial::generateProgramPS()
 
         // If the program was not found by name generate a new one
         if (!_program)
-            _program = new SLGLProgramGenerated(_assetManager, programName, this);
+            if (psType() == RM_PS_Update) {
+                _program = new SLGLProgramGenerated(_assetManager, programName, this);
+                char* outputNames[] = {"tf_position", "tf_velocity", "tf_startTime", "tf_initialVelocity", "tf_rotation"};
+                _program->initTF(outputNames, 5);
+            }
+            else if (psType() == RM_PS_Draw)
+                _program = new SLGLProgramGenerated(_assetManager, programName, this, "Geom");
     }
 
     // Check if shader had a compile error and the error texture should be shown

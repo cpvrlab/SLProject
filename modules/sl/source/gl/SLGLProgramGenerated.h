@@ -72,11 +72,12 @@ public:
     //! ctor for generated shader program PS
     SLGLProgramGenerated(SLAssetManager* am,
                          const string&   programName,
-                         SLMaterial*     mat)
+                         SLMaterial*     mat,
+                         SLstring        geomShader = "")
       : SLGLProgram(am,
                     "",
                     "",
-                    "temp",
+                    geomShader,
                     programName)
     {
         buildProgramCodePS(mat);
@@ -101,6 +102,7 @@ private:
     void buildPerPixCook(SLMaterial* mat, SLVLight* lights);
     void buildPerPixBlinn(SLMaterial* mat, SLVLight* lights);
     void buildPerPixParticle(SLMaterial* mat);
+    void buildPerPixParticleUpdate(SLMaterial* mat);
 
     // Video background shader builder functions
     void buildPerPixVideoBkgdSm(SLVLight* lights);

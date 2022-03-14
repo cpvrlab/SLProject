@@ -30,8 +30,12 @@ layout (location = 0) in vec4  a_position;  // Vertex position attribute
 layout (location = 1) in vec3  a_normal;    // Vertex normal attribute)";
 const string vertInput_PS_a_p      = R"(
 layout (location = 0) in vec3  a_position;  // Particle position attribute)";
+const string vertInput_PS_a_v      = R"(
+layout (location = 1) in vec3 a_velocity;       // Particle velocity attribute)";
 const string vertInput_PS_a_st      = R"(
 layout (location = 2) in float a_startTime; // Particle start time attribute)";
+const string vertInput_PS_a_initV      = R"(
+layout (location = 3) in vec3 a_initialVelocity;// Particle initial velocity attribute)";
 const string vertInput_PS_a_r      = R"(
 layout (location = 4) in  float a_rotation; // Particle rotation attribute)";
 const string vertInput_a_uv0     = R"(
@@ -49,8 +53,8 @@ uniform mat4  u_mvMatrix;   // modelview matrix
 uniform mat4  u_mvpMatrix;  // = projection * modelView)";
 const string vertInput_u_matrix_invMv = R"(
 uniform mat4  u_invMvMatrix;// inverse modelview matrix)";
-const string vertInput_u_matrix_v = R"(
-uniform mat4 u_vMatrix;    // Modelview matrix)";
+const string vertInput_u_matrix_vOmv = R"(
+uniform mat4 u_vOmvMatrix;    // View or Modelview matrix)";
 //-----------------------------------------------------------------------------
 const string vertInput_u_lightNm = R"(
 
@@ -62,6 +66,12 @@ const string vertInput_PS_u_time = R"(
 
 uniform float u_time;       // Simulation time
 uniform float u_tTL;        // Time to live of a particle)";
+const string vertInput_PS_u_deltaTime = R"(
+uniform float u_deltaTime;      // Elapsed time between frames)";
+const string vertInput_PS_u_pgPos = R"(
+uniform vec3 u_pGPosition;  // Particle Generator position)";
+const string vertInput_PS_u_a     = R"(
+uniform vec3 u_acceleration;    // Particle acceleration)";
 //-----------------------------------------------------------------------------
 const string vertOutput_v_P_VS       = R"(
 
@@ -91,6 +101,17 @@ const string vertOutput_PS_struct_s       = R"(
     float size; // Size of a particle )";
 const string vertOutput_PS_struct_End       = R"(
 } vert; )";
+//-----------------------------------------------------------------------------
+const string vertOutput_PS_tf_p          = R"(
+    out vec3 tf_position;           // To transform feedback)";
+const string vertOutput_PS_tf_v = R"(
+    out vec3 tf_velocity;           // To transform feedback)";
+const string vertOutput_PS_tf_st          = R"(
+    out float tf_startTime;         // To transform feedback)";
+const string vertOutput_PS_tf_initV          = R"(
+    out vec3 tf_initialVelocity;    // To transform feedback)";
+const string vertOutput_PS_tf_r          = R"(
+    out float tf_rotation;          // To transform feedback)";
 //-----------------------------------------------------------------------------
 const string vertMain_Begin     = R"(
 
@@ -152,7 +173,7 @@ const string vertMain_PS_EndAll    = R"(
 
     // Modelview matrix multiplicate with (particle position + particle generator position)
     // Calculate position in view space
-    gl_Position =  u_vMatrix * vec4(a_position, 1);
+    gl_Position =  u_vOmvMatrix * vec4(a_position, 1);
 }
 )";
  
@@ -162,6 +183,48 @@ const string vertMain_EndAll    = R"(
     gl_Position = u_mvpMatrix * a_position;
 }
 )";
+//-----------------------------------------------------------------------------
+const string vertMain_PS_U_Begin = R"(
+
+    void main()
+{
+    vec4 P = vec4(a_position.xyz, 1.0); // Need to be here for the compilation
+    gl_Position = P;                    // Need to be here for the compilation)";
+const string vertMain_PS_U_v_init_p = R"(
+        tf_position = a_position;   // Init the output variable)";
+const string vertMain_PS_U_v_init_v = R"(
+        tf_velocity = a_velocity;   // Init the output variable)";
+const string vertMain_PS_U_v_init_st = R"(
+        tf_startTime = a_startTime; // Init the output variable)";
+const string vertMain_PS_U_v_init_initV = R"(
+        tf_initialVelocity = a_initialVelocity; // Init the output variable)";
+const string vertMain_PS_U_v_init_r     = R"(
+        tf_rotation = a_rotation; // Init the output variable)";
+const string vertMain_PS_U_v_r     = R"(
+        tf_rotation = mod(tf_rotation + (0.5*u_deltaTime), 360.0);)";
+const string vertMain_PS_U_bornDead          = R"(
+        if( u_time >= a_startTime ) {   // Check if the particle is born
+            float age = u_time - a_startTime;   // Get the age of the particle
+                if( age > u_tTL ) {   )";
+const string vertMain_PS_U_reset_p    = R"(
+                    // The particle is past its lifetime, recycle.
+                    tf_position = u_pGPosition;         // Reset position)";
+const string vertMain_PS_U_reset_v            = R"(
+                    tf_velocity = a_initialVelocity;    // Reset velocity)";
+const string vertMain_PS_U_reset_st            = R"(
+                    tf_startTime = u_time;              // Reset start time to actual time)";
+const string vertMain_PS_U_alive_p           = R"(
+                } else {
+                    // The particle is alive, update.
+                    tf_position += tf_velocity * u_deltaTime;   // Scale the translation by the deltatime)";
+const string vertMain_PS_U_alive_a             = R"(
+                    tf_velocity += u_deltaTime * u_acceleration;  // Amplify the velocity)";
+const string vertMain_PS_U_EndAll = R"(
+        }
+    }else{
+        tf_position = u_pGPosition;         // Set position (for world space)
+    }
+})";
 //-----------------------------------------------------------------------------
 const string geomConfig_PS       = R"(
 layout (points) in;             // Primitives that we received from vertex shader
@@ -268,11 +331,20 @@ const string fragInput_PS_v_pC       = R"(
 in       vec4      v_particleColor;     // interpolated color from the geometry shader)";
 const string fragInput_PS_v_tC       = R"(
 in       vec2      v_texCoord;          // interpolated texture coordinate)";
-
 //-----------------------------------------------------------------------------
 const string fragInput_PS_u_overG    = R"(
 uniform float u_oneOverGamma; // 1.0f / Gamma correction value)";
-
+//-----------------------------------------------------------------------------
+const string fragMain_PS_TF       = R"(
+//-----------------------------------------------------------------------------
+out     vec4     o_fragColor;       // output fragment color
+//-----------------------------------------------------------------------------
+void main()
+{     
+   o_fragColor = vec4(0,0,0,0); // Need to be here for the compilation
+}
+//-----------------------------------------------------------------------------)";
+//-----------------------------------------------------------------------------
 const string fragMain_PS    = R"(
 void main()
 {     
@@ -1236,18 +1308,34 @@ void SLGLProgramGenerated::buildProgramNamePS(SLMaterial* mat,
         programName += "Custom";
 
 
-    programName += mat->texturesString();
+    
     //programName += "-";
-
+    if (mat->psType() == RM_PS_Draw)
+    {
+        programName += "-Draw";
+        programName += mat->texturesString();
+        bool AlOvLi   = mat->ps()->alphaOverLF(); // Alpha over life
+        bool SiOvLi   = mat->ps()->sizeOverLF();  // Size over life
+        bool SiRandom = mat->ps()->sizeRandom();  // Size random
+        bool WS       = mat->ps()->worldSpace();  // World space or local space
+        if (AlOvLi) programName += "-AL";
+        if (SiOvLi) programName += "-SL";
+        if (SiRandom) programName += "-SR";
+        if (WS) programName += "-WS";
+    }
+    else if (mat->psType() == RM_PS_Update)
+    {
+        //bool acc = mat->ps()->alphaOverLF(); // Acceleration
+        bool acc = false; // Acceleration
+        programName += "-Update";
+        if (acc) programName += "-AC";
+    }
+    else
+    {
+        programName += "-Custom";
+    }
     // Check what textures the material has
-    bool AlOvLi = mat->ps()->alphaOverLF();  // Alpha over life
-    bool SiOvLi = mat->ps()->sizeOverLF(); // Size over life
-    bool SiRandom     = mat->ps()->sizeRandom();  // Size random
-    bool WS     = mat->ps()->worldSpace();  // World space or local space
-    if (AlOvLi) programName += "-AL";
-    if (SiOvLi) programName += "-SL";
-    if (SiRandom) programName += "-SR";
-    if (WS) programName += "-WS";
+    
 
 }
 //-----------------------------------------------------------------------------
@@ -1312,10 +1400,9 @@ void SLGLProgramGenerated::buildProgramCodePS(SLMaterial* mat)
         std::cout << "build program code for IBLMat" << std::endl;
     }
     assert(mat && "No material pointer passed!");
-    assert(_shaders.size() > 2 &&
+    assert(_shaders.size() > 1 &&
            _shaders[0]->type() == ST_vertex &&
-           _shaders[1]->type() == ST_fragment &&
-           _shaders[2]->type() == ST_geometry);
+           _shaders[1]->type() == ST_fragment);
         
 
     // Check what textures the material has
@@ -1326,9 +1413,13 @@ void SLGLProgramGenerated::buildProgramCodePS(SLMaterial* mat)
     bool Vm  = mat->hasTextureType(TT_videoBkgd); // Video Background Mapping
     bool env = mat->skybox() != nullptr;          // Environment Mapping from skybox
 
-    if (mat->reflectionModel() == RM_Particle)
+    if (mat->psType() == RM_PS_Draw)
     {
         buildPerPixParticle(mat);
+    }
+    else if (mat->psType() == RM_PS_Update)
+    {
+        buildPerPixParticleUpdate(mat);
     }
     else
         SL_EXIT_MSG("SLGLProgramGenerated::buildProgramCode: Unknown Particle Lighting Model.");
@@ -1558,7 +1649,7 @@ void SLGLProgramGenerated::buildPerPixBlinn(SLMaterial* mat, SLVLight* lights)
     addCodeToShader(_shaders[1], fragCode, _name + ".frag");
 }
 //-----------------------------------------------------------------------------
-//NOT DONE
+//NOT Finished
 void SLGLProgramGenerated::buildPerPixParticle(SLMaterial* mat)
 {
     assert(_shaders.size() > 2 &&
@@ -1592,7 +1683,7 @@ void SLGLProgramGenerated::buildPerPixParticle(SLMaterial* mat)
 
     // Vertex shader uniforms
     vertCode += vertInput_PS_u_time;
-    vertCode += vertInput_u_matrix_v;
+    vertCode += vertInput_u_matrix_vOmv;
 
     // Vertex shader main loop
     vertCode += vertMain_Begin;
@@ -1661,8 +1752,67 @@ void SLGLProgramGenerated::buildPerPixParticle(SLMaterial* mat)
     addCodeToShader(_shaders[1], fragCode, _name + ".frag");
 }
 //-----------------------------------------------------------------------------
+void SLGLProgramGenerated::buildPerPixParticleUpdate(SLMaterial* mat) 
+{
+    assert(_shaders.size() > 1 &&
+           _shaders[0]->type() == ST_vertex &&
+           _shaders[1]->type() == ST_fragment);
 
-//-----------------------------------------------------------------------------
+    //bool acc = mat->ps()->alphaOverLF(); // Acceleration
+    bool acc = false; // Acceleration
+
+    string vertCode;
+    vertCode += shaderHeader();
+
+    // Vertex shader inputs
+    vertCode += vertInput_PS_a_p;
+    vertCode += vertInput_PS_a_v;
+    vertCode += vertInput_PS_a_st;
+    vertCode += vertInput_PS_a_initV;
+    vertCode += vertInput_PS_a_r;
+
+    
+    // Vertex shader uniforms
+    vertCode += vertInput_PS_u_time;
+    vertCode += vertInput_PS_u_deltaTime;
+    vertCode += vertInput_PS_u_pgPos;
+    if (acc)vertCode += vertInput_PS_u_a;
+
+    // Vertex shader outputs
+    vertCode += vertOutput_PS_tf_p;
+    vertCode += vertOutput_PS_tf_v;
+    vertCode += vertOutput_PS_tf_st;
+    vertCode += vertOutput_PS_tf_initV;
+    vertCode += vertOutput_PS_tf_r;
+
+    // Vertex shader main loop
+    vertCode += vertMain_PS_U_Begin;
+    vertCode += vertMain_PS_U_v_init_p;
+    vertCode += vertMain_PS_U_v_init_v;
+    vertCode += vertMain_PS_U_v_init_st;
+    vertCode += vertMain_PS_U_v_init_initV;
+    vertCode += vertMain_PS_U_v_init_r;
+    vertCode += vertMain_PS_U_v_r;
+    vertCode += vertMain_PS_U_bornDead;
+    vertCode += vertMain_PS_U_reset_p;
+    vertCode += vertMain_PS_U_reset_v;
+    vertCode += vertMain_PS_U_reset_st;
+    vertCode += vertMain_PS_U_alive_p;
+    if (acc)vertCode += vertMain_PS_U_alive_a;
+    vertCode += vertMain_PS_U_EndAll;
+
+    addCodeToShader(_shaders[0], vertCode, _name + ".vert");
+
+    // Assemble fragment shader code
+    string fragCode;
+    fragCode += shaderHeader();
+
+    // Fragment shader inputs
+    fragCode += fragMain_PS_TF;
+
+    addCodeToShader(_shaders[1], fragCode, _name + ".frag");
+}
+    //-----------------------------------------------------------------------------
 void SLGLProgramGenerated::buildPerPixVideoBkgdSm(SLVLight* lights)
 {
     assert(_shaders.size() > 1 &&

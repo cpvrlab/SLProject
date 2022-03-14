@@ -3758,7 +3758,14 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                             SLbool worldSpace = ps->worldSpace();
                             if (ImGui::Checkbox("World space", &worldSpace))
                                 ps->worldSpace(worldSpace);
-
+                            static bool acc_group = ps->acc();
+                            if (ImGui::Checkbox("Acceleration", &acc_group))
+                                ps->acc(acc_group);
+                            if (ImGui::CollapsingHeader("Acceleration", &acc_group))
+                            {
+                                float vec3fAcc[3] = {1.0f, 1.0f, 1.0f};
+                                ImGui::InputFloat3("input float3", vec3fAcc);
+                            }
                             static bool alphaOverLF_group = ps->alphaOverLF();
                             if (ImGui::Checkbox("Alpha over lifetime", &alphaOverLF_group))
                                 ps->alphaOverLF(alphaOverLF_group);

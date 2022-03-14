@@ -16,21 +16,14 @@
 #include <GlobalTimer.h>
 
 //-----------------------------------------------------------------------------
-void SLParticleSystem::initMat(SLAssetManager* am, SLGLTexture* texC, const SLstring& shaderPath)
+void SLParticleSystem::initMat(SLAssetManager* am, SLGLTexture* texC)
 {
-    //Later generate the shaders
-
-    // Initialize transform feedback update:
-    SLGLProgram* updateProg    = new SLGLProgramGeneric(nullptr,
-                                                     shaderPath + "ParticleTF.vert",
-                                                     shaderPath + "ParticleTF.frag");
-    char*        outputNames[] = {"tf_position", "tf_velocity", "tf_startTime", "tf_initialVelocity", "tf_rotation"};
-    updateProg->initRawTF(outputNames, 5);
-    // Create materials
-    SLMaterial* mUpdate = new SLMaterial(nullptr, "Update-Material", updateProg);
+    // Initialize the updating:
+    SLMaterial* mUpdate = new SLMaterial(am, "Update-Material", this);
 
     // Initialize the drawing:
     SLMaterial* mDraw = new SLMaterial(am, "Drawing-Material", texC, this);
+    
     
     mat(mDraw);
     matOut(mUpdate);
@@ -52,7 +45,6 @@ SLParticleSystem::SLParticleSystem(SLAssetManager* assetMgr,
                    const SLVec3f& velocityRandomStart,
                    const SLVec3f& velocityRandomEnd,
                    const SLfloat& timeToLive,
-                   const SLstring& shaderPath,
                    SLGLTexture* texC,
                    const SLstring& name) : SLMesh(assetMgr, name)
 {
@@ -85,7 +77,7 @@ SLParticleSystem::SLParticleSystem(SLAssetManager* assetMgr,
     pEPos(particleEmiPos);
     //Need to add the rest
 
-    initMat(assetMgr, texC, shaderPath);
+    initMat(assetMgr, texC);
 
 }
 
@@ -124,6 +116,7 @@ void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
     /////////////////////////////
 
     // Now use the updating material
+    _matOut->generateProgramPS();
     SLGLProgram* sp = _matOut->program();
     sp->useProgram();
 
@@ -176,10 +169,10 @@ void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
     SLGLState* stateGL = SLGLState::instance();
 
     if (_worldSpace){
-        spD->uniformMatrix4fv("u_vMatrix", 1, (SLfloat*)&stateGL->viewMatrix);
+        spD->uniformMatrix4fv("u_vOmvMatrix", 1, (SLfloat*)&stateGL->viewMatrix);
     }
     else{
-        spD->uniformMatrix4fv("u_vMatrix", 1, (SLfloat*)&stateGL->modelViewMatrix); // TO change for custom shader ganeration
+        spD->uniformMatrix4fv("u_vOmvMatrix", 1, (SLfloat*)&stateGL->modelViewMatrix); // TO change for custom shader ganeration
     }
     
     spD->uniform1f("u_time", GlobalTimer::timeS());

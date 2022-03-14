@@ -88,7 +88,13 @@ public:
                SLGLTexture*    texture5 = nullptr,
                SLGLProgram*    program  = nullptr);
 
-    //! Ctor for Particle System material with one texture
+    //! Ctor for Particle System material (Update)
+    SLMaterial(SLAssetManager*   am,
+               const SLchar*     name,
+               SLParticleSystem* ps,
+               SLGLProgram*      program = nullptr);
+
+    //! Ctor for Particle System material with one texture (Draw)
     SLMaterial(SLAssetManager* am,
                const SLchar*   name,
                SLGLTexture*    texture,
@@ -159,6 +165,7 @@ public:
     // Setters
     void assetManager(SLAssetManager* am) { _assetManager = am; }
     void reflectionModel(SLReflectionModel rm) { _reflectionModel = rm; }
+    void psType(SLParticleSystemType psT) { _psType = psT; }
     void ambient(const SLCol4f& ambi) { _ambient = ambi; }
     void diffuse(const SLCol4f& diff) { _diffuse = diff; }
     void ambientDiffuse(const SLCol4f& am_di) { _ambient = _diffuse = am_di; }
@@ -201,6 +208,7 @@ public:
     // Getters
     SLAssetManager*   assetManager() { return _assetManager; }
     SLReflectionModel reflectionModel() { return _reflectionModel; }
+    SLParticleSystemType      psType() { return _psType; }
     SLCol4f           ambient() { return _ambient; }
     SLCol4f           diffuse() { return _diffuse; }
     SLCol4f           specular() { return _specular; }
@@ -230,6 +238,7 @@ public:
 protected:
     SLAssetManager*   _assetManager;    //!< pointer to the asset manager (the owner) if available
     SLReflectionModel _reflectionModel; //!< reflection model (RM_BlinnPhong or RM_CookTorrance)
+    SLParticleSystemType _psType;       //!< ps type (RM_PS_Update or RM_PS_Draw)
     SLCol4f           _ambient;         //!< ambient color (RGB reflection coefficients)
     SLCol4f           _diffuse;         //!< diffuse color (RGB reflection coefficients)
     SLCol4f           _specular;        //!< specular color (RGB reflection coefficients)

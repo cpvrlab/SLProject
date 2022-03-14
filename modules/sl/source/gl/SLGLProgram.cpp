@@ -171,28 +171,76 @@ void SLGLProgram::initRaw()
 /*! SLGLProgram::initRawTF() does not replace any code from the shader and
 assumes valid syntax for the shader used. Used in ... (PatricleSystem)
 */
-void SLGLProgram::initRawTF(char* writeBackAttrib[], int size)
+void SLGLProgram::initTF(char* writeBackAttrib[], int size)
 {
     // create program object if it doesn't exist
     if (!_progID)
         _progID = glCreateProgram();
 
-    for (auto* shader : _shaders)
-        shader->createAndCompileSimple();
+    // if already linked, detach, recreate and compile shaders
+    if (_isLinked)
+    {
+        for (auto* shader : _shaders)
+        {
+            if (_isLinked)
+            {
+                glDetachShader(_progID, shader->_shaderID);
+                GET_GL_ERROR;
+            }
+        }
+        _isLinked = false;
+    }
 
+    // compile all shader objects
+    SLbool allSuccuessfullyCompiled = true;
     for (auto* shader : _shaders)
-        glAttachShader(_progID, shader->_shaderID);
+    {
+        if (!shader->createAndCompile(nullptr))
+        {
+            allSuccuessfullyCompiled = false;
+            break;
+        }
+        GET_GL_ERROR;
+    }
 
+    // try to compile alternative per vertex lighting shaders
+    if (!allSuccuessfullyCompiled)
+    {
+        // delete all shaders and uniforms that where attached
+        for (auto* sh : _shaders)
+            delete sh;
+        for (auto* uf : _uniforms1f)
+            delete uf;
+        for (auto* ui : _uniforms1i)
+            delete ui;
+
+        _shaders.clear();
+        _uniforms1f.clear();
+        _uniforms1i.clear();
+    }
+
+    // attach all shader objects
+    if (allSuccuessfullyCompiled)
+    {
+        for (auto* shader : _shaders)
+        {
+            glAttachShader(_progID, shader->_shaderID);
+            GET_GL_ERROR;
+        }
+    }
+    else
+    {
+        SL_EXIT_MSG("No successfully compiled shaders attached!");
+    }
+
+    int linked = 0;
+    glTransformFeedbackVaryings(_progID, size, writeBackAttrib, GL_INTERLEAVED_ATTRIBS);
+    glLinkProgram(_progID);
+    GET_GL_ERROR;
+    glGetProgramiv(_progID, GL_LINK_STATUS, &linked);
     GET_GL_ERROR;
 
-    glTransformFeedbackVaryings(_progID, size, writeBackAttrib, GL_INTERLEAVED_ATTRIBS);
-
-    glLinkProgram(_progID);
-
-    GLint success = 0;
-    glGetProgramiv(_progID, GL_LINK_STATUS, &success);
-
-    if (success)
+    if (linked)
     {
         _isLinked = true;
 
@@ -201,20 +249,16 @@ void SLGLProgram::initRawTF(char* writeBackAttrib[], int size)
             for (auto* shader : _shaders)
                 _name += shader->name() + ", ";
     }
-
-    if (!success)
+    else
     {
-        GLchar log[1024];
-        glGetProgramInfoLog(_progID, 1024, nullptr, log);
-        std::cerr << "- Failed to link program (" << _progID << ")." << std::endl;
-        std::cerr << "LOG: " << std::endl
-                  << log << std::endl;
-    }
-
-    for (auto* shader : _shaders)
-    {
-        glDeleteShader(shader->_shaderID);
-        GET_GL_ERROR;
+        SLchar log[256];
+        glGetProgramInfoLog(_progID, sizeof(log), nullptr, &log[0]);
+        SL_LOG("*** LINKER ERROR ***");
+        SL_LOG("Source files: ");
+        for (auto* shader : _shaders)
+            SL_LOG("%s", shader->name().c_str());
+        SL_LOG("ProgramInfoLog: %s", log);
+        SL_EXIT_MSG("GLSL linker error");
     }
 }
 //-----------------------------------------------------------------------------

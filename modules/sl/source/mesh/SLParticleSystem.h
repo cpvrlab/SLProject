@@ -28,7 +28,6 @@ public:
                      const SLVec3f&  velocityRandomStart,
                      const SLVec3f&  velocityRandomEnd,
                      const SLfloat&  timeToLive,
-                     const SLstring& shaderPath,
                      SLGLTexture* texC,
                      const SLstring& name  = "Particle system");
     
@@ -37,6 +36,7 @@ public:
 
     // Getters
     SLVec3f    pEPos() const { return _pEPos; }
+    SLbool      acc() { return _acc; }
     SLbool      worldSpace() { return _worldSpace; }
     SLbool      alphaOverLF() { return _alphaOverLF; }
     SLbool      sizeOverLF() { return _sizeOverLF; }
@@ -44,6 +44,7 @@ public:
 
     //Setters
     void pEPos(SLVec3f p) { _pEPos = p; }
+    void acc(SLbool b) { _acc = b; }
     void worldSpace(SLbool b) { _worldSpace = b; }
     void alphaOverLF(SLbool b) { _alphaOverLF = b; }
     void sizeOverLF(SLbool b) { _sizeOverLF = b; }
@@ -58,7 +59,7 @@ protected:
 
 private:
 
-    void  initMat(SLAssetManager* am, SLGLTexture* texC, const SLstring& shaderPath);
+    void  initMat(SLAssetManager* am, SLGLTexture* texC);
     float randomFloat(float a, float b);
 
 
@@ -70,10 +71,12 @@ private:
     int _drawBuf = 0;   //!< Boolean to switch buffer
     int _amount;        //!< Amount of a particle
 
+    SLbool _acc  = false;       //!< Boolean for acceleration
     SLbool _worldSpace = false; //!< Boolean for world space position
     SLbool _alphaOverLF = true; //!< Boolean for alpha over life time
     SLbool _sizeOverLF = true; //!< Boolean for size over life time
     SLbool _sizeRandom = false; //!< Boolean for size over life time
+
 
 };
 //-----------------------------------------------------------------------------
