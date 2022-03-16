@@ -40,7 +40,7 @@ float SLParticleSystem::randomFloat(float a, float b)
 //-----------------------------------------------------------------------------
 //! SLParticleSystem ctor with a given vector of points
 SLParticleSystem::SLParticleSystem(SLAssetManager* assetMgr,
-                   const int amount,
+                   const SLint     amount,
                    const SLVec3f& particleEmiPos,
                    const SLVec3f& velocityRandomStart,
                    const SLVec3f& velocityRandomEnd,
@@ -57,6 +57,9 @@ SLParticleSystem::SLParticleSystem(SLAssetManager* assetMgr,
 
     _ttl = timeToLive;
     _amount = amount;
+
+    _vRandS = velocityRandomStart;
+    _vRandE = velocityRandomEnd;
 
     P.resize(amount);
     V.resize(amount);
@@ -97,6 +100,31 @@ void SLParticleSystem::generateVAO(SLGLVertexArray& vao)
     vao.generateTF((SLuint)P.size());
 }
 
+void SLParticleSystem::regenerate()
+{
+    P.resize(_amount);
+    V.resize(_amount);
+    ST.resize(_amount);
+    InitV.resize(_amount);
+    R.resize(_amount);
+
+    for (unsigned int i = 0; i < _amount; i++)
+    {
+        P[i]     = _pEPos;
+        V[i].x   = randomFloat(_vRandS.x, _vRandE.x);                       // Random value for x velocity
+        V[i].y   = randomFloat(_vRandS.y, _vRandE.y);                       // Random value for y velocity
+        V[i].z   = randomFloat(_vRandS.z, _vRandE.z);                       // Random value for z velocity
+        ST[i]    = GlobalTimer::timeS() + (i * (_ttl / _amount));           // When the first particle dies the last one begin to live
+        InitV[i] = V[i];
+        R[i]     = randomFloat(0.0f, 360.0f); // Start rotation of the particle
+    }
+
+    _vao1.deleteGL();
+    _vao2.deleteGL();
+
+}
+
+
 
 
 void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
@@ -125,7 +153,10 @@ void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
     /////////////////////////////
     sp->uniform1f("u_time", GlobalTimer::timeS());
     sp->uniform1f("u_deltaTime", sv->s()->elapsedTimeSec());
-    sp->uniform3f("u_acceleration",1.0f, 1.0f,1.0f);
+    if (_acc) {
+        sp->uniform3f("u_acceleration", _accV.x, _accV.y, _accV.z);
+    }
+    
     sp->uniform1f("u_tTL", _ttl);
 
     pEPos(node->translationWS());

@@ -1748,7 +1748,7 @@ SLbool SLSceneView::onKeyRelease(SLKey key, SLKey mod)
     {
         if (_gui->doNotDispatchKeyboard())
         {
-            _gui->onKeyPress(key, mod);
+            _gui->onKeyRelease(key, mod);
             return true;
         }
     }

@@ -114,6 +114,7 @@ public:
 
     ~SLMaterial() override;
     void  generateProgramPS();
+    void  updateProgramPS();
     void  activate(SLCamera* cam,
                    SLVLight* lights,
                    SLSkybox* skybox = nullptr);

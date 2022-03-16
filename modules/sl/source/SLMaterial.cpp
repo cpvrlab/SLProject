@@ -407,9 +407,6 @@ SLMaterial::~SLMaterial()
 /*!
  If this material has not yet a shader program assigned (SLMaterial::_program) 
  a suitable program will be generated with an instance of SLGLProgramGenerated.
- If no agrument is given, no geometry shader will be generate
- At the end the shader program will begin its usage with SLGLProgram::beginUse.
-
  */
 void SLMaterial::generateProgramPS()
 {
@@ -441,6 +438,42 @@ void SLMaterial::generateProgramPS()
         if (!_errorTexture && !_compileErrorTexFilePath.empty())
             _errorTexture = new SLGLTexture(nullptr, _compileErrorTexFilePath);
         _textures[TT_diffuse].push_back(_errorTexture);
+    }
+}
+//-----------------------------------------------------------------------------
+/*!
+ Generate new program for this material if change has been made in the particle system
+ */
+void SLMaterial::updateProgramPS()
+{
+    // Test if a shader is already attached
+    if (_program)
+    {
+        // Check first the asset manager if the requested program type already exists
+        string programName;
+        SLGLProgramGenerated::buildProgramNamePS(this, programName);
+        if (programName != _program->name()) {
+            _program = _assetManager->getProgramByName(programName);
+            // If the program was not found by name generate a new one
+            if (!_program)
+                if (psType() == RM_PS_Update)
+                {
+                    _program            = new SLGLProgramGenerated(_assetManager, programName, this);
+                    char* outputNames[] = {"tf_position", "tf_velocity", "tf_startTime", "tf_initialVelocity", "tf_rotation"};
+                    _program->initTF(outputNames, 5);
+                }
+                else if (psType() == RM_PS_Draw)
+                    _program = new SLGLProgramGenerated(_assetManager, programName, this, "Geom");
+        }
+        // Check if shader had a compile error and the error texture should be shown
+        if (_program && _program->name().find("ErrorTex") != string::npos)
+        {
+            for (int i = 0; i < TT_numTextureType; i++)
+                _textures[i].clear();
+            if (!_errorTexture && !_compileErrorTexFilePath.empty())
+                _errorTexture = new SLGLTexture(nullptr, _compileErrorTexFilePath);
+            _textures[TT_diffuse].push_back(_errorTexture);
+        }
     }
 }
 //-----------------------------------------------------------------------------

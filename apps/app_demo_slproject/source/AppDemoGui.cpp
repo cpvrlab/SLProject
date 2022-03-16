@@ -3751,40 +3751,74 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                     {
                         if (ImGui::TreeNode("Reflection Model: Particle"))
                         {
-                            //mOut //for updating
                             SLParticleSystem* ps = dynamic_cast<SLParticleSystem*>(singleFullMesh); // Need to check if good practice
                             ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.5f);
-                            
+                            // Amount
+                            int am = ps->amount();
+                            if(ImGui::InputInt("Amount of particles", &am))
+                            {
+                                ps->amount(am);
+                                ps->regenerate();
+                            }
+                            // World space
                             SLbool worldSpace = ps->worldSpace();
                             if (ImGui::Checkbox("World space", &worldSpace))
                                 ps->worldSpace(worldSpace);
-                            static bool acc_group = ps->acc();
-                            if (ImGui::Checkbox("Acceleration", &acc_group))
+                            // Velocity
+                            if (ImGui::CollapsingHeader("Random velocity"))
+                            {
+                                float vec3fVstart[3] = {ps->vRandS().x, ps->vRandS().y, ps->vRandS().z};
+                                if (ImGui::InputFloat3("Start range XYZ", vec3fVstart)) 
+                                {
+                                    ps->vRandS(vec3fVstart[0], vec3fVstart[1], vec3fVstart[2]);
+                                    ps->regenerate();
+                                    
+                                }
+                                float vec3fVend[3] = {ps->vRandE().x, ps->vRandE().y, ps->vRandE().z};
+                                if (ImGui::InputFloat3("End range XYZ", vec3fVend)) 
+                                {
+                                    ps->vRandE(vec3fVend[0], vec3fVend[1], vec3fVend[2]);
+                                    ps->regenerate();
+                                }
+                            }
+                            // Acceleration
+                            SLbool acc_group = ps->acc();
+                            if (ImGui::Checkbox("Acceleration", &acc_group)) {
                                 ps->acc(acc_group);
+                                mOut->updateProgramPS(); // Change or generate new program
+                            }
                             if (ImGui::CollapsingHeader("Acceleration", &acc_group))
                             {
-                                float vec3fAcc[3] = {1.0f, 1.0f, 1.0f};
+                                float vec3fAcc[3] = {ps->accV().x, ps->accV().y, ps->accV().z};
                                 ImGui::InputFloat3("input float3", vec3fAcc);
+                                ps->accV(vec3fAcc[0], vec3fAcc[1], vec3fAcc[2]);
                             }
-                            static bool alphaOverLF_group = ps->alphaOverLF();
-                            if (ImGui::Checkbox("Alpha over lifetime", &alphaOverLF_group))
+                            // Alpha over lifetime
+                            SLbool alphaOverLF_group = ps->alphaOverLF();
+                            if (ImGui::Checkbox("Alpha over lifetime", &alphaOverLF_group)) {
                                 ps->alphaOverLF(alphaOverLF_group);
+                                m->updateProgramPS(); // Change or generate new program
+                            }
                             if (ImGui::CollapsingHeader("Alpha over lifetime", &alphaOverLF_group))
                             {
                                 ImGui::Text("IsItemHovered: %d", ImGui::IsItemHovered());
                                 for (int i = 0; i < 5; i++)
                                     ImGui::Text("More content %d", i);
                             }
-                            static bool sizeOverLF_group = ps->sizeOverLF();
-                            if (ImGui::Checkbox("Size over lifetime", &sizeOverLF_group))
+                            // Size over lifetime
+                            SLbool sizeOverLF_group = ps->sizeOverLF();
+                            if (ImGui::Checkbox("Size over lifetime", &sizeOverLF_group)) {
                                 ps->sizeOverLF(sizeOverLF_group);
+                                m->updateProgramPS(); // Change or generate new program
+                            }
                             if (ImGui::CollapsingHeader("Size over lifetime", &sizeOverLF_group))
                             {
                                 ImGui::Text("IsItemHovered: %d", ImGui::IsItemHovered());
                                 for (int i = 0; i < 5; i++)
                                     ImGui::Text("More content %d", i);
                             }
-                            static bool sizeRandom_group = ps->sizeRandom();
+                            // Size random // no done yet
+                            SLbool sizeRandom_group = ps->sizeRandom();
                             if (ImGui::Checkbox("Size random", &sizeRandom_group))
                                 ps->sizeRandom(sizeRandom_group);
                             if (ImGui::CollapsingHeader("Size random", &sizeRandom_group))
@@ -3826,6 +3860,26 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                                       ImVec2(-1.0f, -1.0f));
                             ImGui::TreePop();
                             delete[] text;
+                        }
+                    }
+
+                    // For second material shaders (PS)
+                    if (mOut != NULL) {
+                        for (auto* shd : mOut->program()->shaders())
+                        {
+                            SLfloat lineH = ImGui::GetTextLineHeight();
+
+                            if (ImGui::TreeNode(shd->name().c_str()))
+                            {
+                                SLchar* text = new char[shd->code().length() + 1];
+                                strcpy(text, shd->code().c_str());
+                                ImGui::InputTextMultiline(shd->name().c_str(),
+                                                          text,
+                                                          shd->code().length() + 1,
+                                                          ImVec2(-1.0f, -1.0f));
+                                ImGui::TreePop();
+                                delete[] text;
+                            }
                         }
                     }
 

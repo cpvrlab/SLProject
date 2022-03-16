@@ -1325,8 +1325,7 @@ void SLGLProgramGenerated::buildProgramNamePS(SLMaterial* mat,
     }
     else if (mat->psType() == RM_PS_Update)
     {
-        //bool acc = mat->ps()->alphaOverLF(); // Acceleration
-        bool acc = false; // Acceleration
+        bool acc = mat->ps()->acc(); // Acceleration
         programName += "-Update";
         if (acc) programName += "-AC";
     }
@@ -1703,7 +1702,7 @@ void SLGLProgramGenerated::buildPerPixParticle(SLMaterial* mat)
     geomCode += geomConfig_PS;
 
     geomCode += geomInput_PS_struct_Begin;
-    if (AlOvLi)geomCode += geomInput_PS_struct_t;
+    if (AlOvLi) geomCode += geomInput_PS_struct_t;
     geomCode += geomInput_PS_struct_r;
     if (SiOvLi)geomCode += geomInput_PS_struct_s;
     geomCode += geomInput_PS_struct_End;
@@ -1725,7 +1724,7 @@ void SLGLProgramGenerated::buildPerPixParticle(SLMaterial* mat)
     geomCode += geomMain_PS_v_p;
     geomCode += geomMain_PS_v_rot;
     geomCode += geomMain_PS_v_c;
-    geomCode += geomMain_PS_v_cT;
+    if (AlOvLi) geomCode += geomMain_PS_v_cT;
     geomCode += geomMain_PS_fourCorners;
     geomCode += geomMain_PS_EndAll;
 
@@ -1758,8 +1757,7 @@ void SLGLProgramGenerated::buildPerPixParticleUpdate(SLMaterial* mat)
            _shaders[0]->type() == ST_vertex &&
            _shaders[1]->type() == ST_fragment);
 
-    //bool acc = mat->ps()->alphaOverLF(); // Acceleration
-    bool acc = false; // Acceleration
+    bool acc = mat->ps()->acc(); // Acceleration
 
     string vertCode;
     vertCode += shaderHeader();
