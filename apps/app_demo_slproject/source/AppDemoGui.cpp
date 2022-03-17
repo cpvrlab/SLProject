@@ -3781,6 +3781,31 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                     ps->regenerate();
                                 }
                             }
+                            // Color
+                            ImGuiColorEditFlags cef = ImGuiColorEditFlags_NoInputs;
+                            SLCol4f             c  = ps->col();
+                            if (ImGui::ColorEdit4("Particle color", (float*)&c, cef))
+                                ps->col(c);
+                            // Tree (Fractal)
+                            SLbool tree_group = ps->tree();
+                            if (ImGui::Checkbox("Tree (Fractal)", &tree_group))
+                            {
+                                ps->tree(tree_group);
+                                mOut->updateProgramPS(); // Change or generate new program
+                            }
+                            if (ImGui::CollapsingHeader("Tree param", &tree_group))
+                            {
+                                float angle = ps->angle();
+                                if (ImGui::InputFloat("Angle of branches", &angle))
+                                {
+                                    ps->angle(angle);
+                                }
+                                int numBranch = ps->numBranch();
+                                if (ImGui::InputInt("Number of branches", &numBranch))
+                                {
+                                    ps->numBranch(angle);
+                                }
+                            }
                             // Acceleration
                             SLbool acc_group = ps->acc();
                             if (ImGui::Checkbox("Acceleration", &acc_group)) {

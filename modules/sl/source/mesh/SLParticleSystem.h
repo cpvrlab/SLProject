@@ -41,6 +41,10 @@ public:
     SLVec3f     accV() { return _accV; }
     SLVec3f     vRandS() { return _vRandS; }
     SLVec3f     vRandE() { return _vRandE; }
+    SLCol4f     col() { return _col; }
+    SLbool      tree() { return _tree; }
+    SLfloat       angle() { return _angle; }
+    SLint       numBranch() { return _numBranch; }
     SLbool      worldSpace() { return _worldSpace; }
     SLbool      alphaOverLF() { return _alphaOverLF; }
     SLbool      sizeOverLF() { return _sizeOverLF; }
@@ -71,6 +75,10 @@ public:
         _vRandE.y = vY;
         _vRandE.z = vZ;
     }
+    void col(SLCol4f c) { _col = c; }
+    void tree(SLbool b) { _tree = b; }
+    void angle(SLfloat f) { _angle = f; }
+    void numBranch(SLint i) { _numBranch = i; }
     void worldSpace(SLbool b) { _worldSpace = b; }
     void alphaOverLF(SLbool b) { _alphaOverLF = b; }
     void sizeOverLF(SLbool b) { _sizeOverLF = b; }
@@ -79,11 +87,14 @@ public:
 
 
 protected:
-    SLfloat     _ttl;           //!< Time to live of a particle
+    SLfloat     _ttl;           //!< Time to live of a particle 
     SLVec3f     _pEPos;         //!< Position of the particle emitter
     SLVec3f         _accV = SLVec3f(1.0f, 1.0f, 1.0f);      //!< Vector for acceleration
     SLVec3f         _vRandS = SLVec3f(0.0f, 0.0f, 0.0f);      //!< Vector for acceleration
     SLVec3f         _vRandE = SLVec3f(1.0f, 1.0f, 1.0f);      //!< Vector for acceleration
+    SLCol4f         _col    = SLCol4f(0.66f, 0.0f, 0.66f, 0.2f); //!< Color for particle
+    SLfloat         _angle = 30.0f;     //!< Angle of branches (for tree fractal)
+    SLint           _numBranch = 4;     //!< Number of branches (for tree fractal)
     SLGLVertexArray _vao1;      //!< First OpenGL Vertex Array Object for swapping between updating/drawing
     SLGLVertexArray _vao2;      //!< Second OpenGL Vertex Array Object for swapping between updating/drawing
 
@@ -101,6 +112,7 @@ private:
     int _drawBuf = 0;   //!< Boolean to switch buffer
     SLint _amount;      //!< Amount of a particle
 
+    SLbool _tree  = false;       //!< Boolean for tree fractal
     SLbool _acc  = false;       //!< Boolean for acceleration
     SLbool _worldSpace = false; //!< Boolean for world space position
     SLbool _alphaOverLF = true; //!< Boolean for alpha over life time

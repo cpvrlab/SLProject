@@ -209,7 +209,7 @@ void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
     spD->uniform1f("u_time", GlobalTimer::timeS());
     spD->uniform1f("u_tTL", _ttl);
    
-    spD->uniform4f("u_color", 0.66f, 0.0f, 0.66f, 0.2f);
+    spD->uniform4f("u_color", _col.x, _col.y, _col.z, _col.w);
     spD->uniform1f("u_scale", 1.0f);
     spD->uniform1f("u_radius", 0.4f);
 
