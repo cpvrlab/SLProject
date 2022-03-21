@@ -14,6 +14,7 @@ set(headers
         ${include_path}/imgui/imconfig.h
         ${include_path}/imgui/imgui_internal.h
         ${include_path}/imgui/imgui.h
+	${include_path}/imgui/curve-editor-lumix.hpp
         ${include_path}/imgui/imstb_rectpack.h
         ${include_path}/imgui/imstb_textedit.h
         ${include_path}/imgui/imstb_truetype.h

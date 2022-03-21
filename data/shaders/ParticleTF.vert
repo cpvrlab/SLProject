@@ -50,11 +50,13 @@ void main()
             tf_position = u_pGPosition;         // Reset position
             tf_velocity = a_initialVelocity;    // Reset velocity
             tf_startTime = u_time;              // Reset start time to actual time
-            } else {
+         } 
+         else 
+         {
             // The particle is alive, update.
             tf_position += tf_velocity * u_deltaTime;   // Scale the translation by the time
             //tf_velocity += u_deltaTime * u_acceleration;  // Amplify the velocity
-        }
+         }
     }else{
         tf_position = u_pGPosition;         // Set position (for world space)
     }

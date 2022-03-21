@@ -37,6 +37,7 @@
 #include <SLHorizonNode.h>
 #include <AverageTiming.h>
 #include <imgui.h>
+#include <curve-editor-lumix.hpp>
 #include <ftplib.h>
 #include <HttpUtils.h>
 #include <ZipUtils.h>
@@ -3826,6 +3827,9 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                             }
                             if (ImGui::CollapsingHeader("Alpha over lifetime", &alphaOverLF_group))
                             {
+                                static int   count        = 3;
+                                static float vec3fTest[3] = {0.0f,0.5f,0.5f};
+                                ImGui::CurveEditor("Test", vec3fTest, 3, ImVec2(100, 100), 1, &count);
                                 ImGui::Text("IsItemHovered: %d", ImGui::IsItemHovered());
                                 for (int i = 0; i < 5; i++)
                                     ImGui::Text("More content %d", i);
