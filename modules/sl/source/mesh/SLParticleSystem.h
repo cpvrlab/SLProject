@@ -34,6 +34,7 @@ public:
     void draw(SLSceneView* sv, SLNode* node);
     void generateVAO(SLGLVertexArray& vao);
     void regenerate();
+    void generateBernsteinP(float ContP[4], float StaEnd[4]);
 
     // Getters
     SLVec3f    pEPos() const { return _pEPos; }
@@ -47,6 +48,7 @@ public:
     SLint       numBranch() { return _numBranch; }
     SLbool      worldSpace() { return _worldSpace; }
     SLbool      alphaOverLF() { return _alphaOverLF; }
+    SLbool      alphaOverLFCurve() { return _alphaOverLFCurve; }
     SLbool      sizeOverLF() { return _sizeOverLF; }
     SLbool      sizeRandom() { return _sizeRandom; }
     SLint      amount() { return _amount; }
@@ -81,6 +83,7 @@ public:
     void numBranch(SLint i) { _numBranch = i; }
     void worldSpace(SLbool b) { _worldSpace = b; }
     void alphaOverLF(SLbool b) { _alphaOverLF = b; }
+    void alphaOverLFCurve(SLbool b) { _alphaOverLFCurve = b; }
     void sizeOverLF(SLbool b) { _sizeOverLF = b; }
     void sizeRandom(SLbool b) { _sizeRandom = b; }
     void amount(SLint i) { _amount = i; }
@@ -89,6 +92,7 @@ public:
 protected:
     SLfloat     _ttl;           //!< Time to live of a particle 
     SLVec3f     _pEPos;         //!< Position of the particle emitter
+    SLVec4f         _bernsteinPY = SLVec4f(2.0f, -3.0f, 0.0f, 1.0f);      //!< Vector for bezier curve (default linear function)
     SLVec3f         _accV = SLVec3f(1.0f, 1.0f, 1.0f);      //!< Vector for acceleration
     SLVec3f         _vRandS = SLVec3f(0.0f, 0.0f, 0.0f);      //!< Vector for acceleration
     SLVec3f         _vRandE = SLVec3f(1.0f, 1.0f, 1.0f);      //!< Vector for acceleration
@@ -116,6 +120,7 @@ private:
     SLbool _acc  = false;       //!< Boolean for acceleration
     SLbool _worldSpace = false; //!< Boolean for world space position
     SLbool _alphaOverLF = true; //!< Boolean for alpha over life time
+    SLbool _alphaOverLFCurve = false; //!< Boolean for alpha over life time curve
     SLbool _sizeOverLF = true; //!< Boolean for size over life time
     SLbool _sizeRandom = false; //!< Boolean for size over life time
 

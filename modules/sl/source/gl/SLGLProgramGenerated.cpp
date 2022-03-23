@@ -66,6 +66,8 @@ const string vertInput_PS_u_time = R"(
 
 uniform float u_time;       // Simulation time
 uniform float u_tTL;        // Time to live of a particle)";
+const string vertInput_PS_u_al_bernstein      = R"(
+uniform vec4 u_al_bernstein;       // Bernstein polynome for alpha over time)";
 const string vertInput_PS_u_deltaTime = R"(
 uniform float u_deltaTime;      // Elapsed time between frames)";
 const string vertInput_PS_u_pgPos = R"(
@@ -158,12 +160,17 @@ const string vertMain_TBN_Nm    = R"(
 )";
 const string vertMain_PS_v_a    = R"(
     float age = u_time - a_startTime;   // Get the age of the particle)";
-const string vertMain_PS_v_t    = R"(
+const string vertMain_PS_v_t_begin    = R"(
     if(age < 0.0){
         vert.transparency = 0.0;                // To be discard, because the particle is to be born
     }
     else{
-        vert.transparency = 1.0 - age / u_tTL;  // Get by the ratio age:lifetime
+        vert.transparency = age / u_tTL;  // Get by the ratio age:lifetime)";
+const string vertMain_PS_v_t_linear = R"(
+        vert.transparency = 1.0 - vert.transparency;  // Linear)";
+const string vertMain_PS_v_t_curve = R"(
+        vert.transparency = pow(vert.transparency,3)*u_al_bernstein.x + pow(vert.transparency,2)*u_al_bernstein.y + vert.transparency*u_al_bernstein.z + u_al_bernstein.w;  // Get transparency by bezier curve)";
+const string vertMain_PS_v_t_end = R"(
     })";
 const string vertMain_PS_v_r    = R"(
     vert.rotation = a_rotation;)";
@@ -1315,10 +1322,12 @@ void SLGLProgramGenerated::buildProgramNamePS(SLMaterial* mat,
         programName += "-Draw";
         programName += mat->texturesString();
         bool AlOvLi   = mat->ps()->alphaOverLF(); // Alpha over life
+        bool AlOvLiCu = mat->ps()->alphaOverLFCurve(); // Alpha over life curve
         bool SiOvLi   = mat->ps()->sizeOverLF();  // Size over life
         bool SiRandom = mat->ps()->sizeRandom();  // Size random
         bool WS       = mat->ps()->worldSpace();  // World space or local space
         if (AlOvLi) programName += "-AL";
+        if (AlOvLiCu) programName += "cu";
         if (SiOvLi) programName += "-SL";
         if (SiRandom) programName += "-SR";
         if (WS) programName += "-WS";
@@ -1659,6 +1668,7 @@ void SLGLProgramGenerated::buildPerPixParticle(SLMaterial* mat)
     // Check what textures the material has
     bool Dm  = mat->hasTextureType(TT_diffuse);
     bool AlOvLi   = mat->ps()->alphaOverLF(); // Alpha over life
+    bool AlOvLiCu   = mat->ps()->alphaOverLFCurve(); // Alpha over life curve
     bool SiOvLi   = mat->ps()->sizeOverLF();  // Size over life
     bool SiRandom = mat->ps()->sizeRandom();  // Size random
     //bool WS       = mat->ps()->worldSpace();  // World space or local space
@@ -1683,11 +1693,15 @@ void SLGLProgramGenerated::buildPerPixParticle(SLMaterial* mat)
     // Vertex shader uniforms
     vertCode += vertInput_PS_u_time;
     vertCode += vertInput_u_matrix_vOmv;
+    if (AlOvLiCu) vertCode += vertInput_PS_u_al_bernstein;
 
     // Vertex shader main loop
     vertCode += vertMain_Begin;
     vertCode += vertMain_PS_v_a;
-    if (AlOvLi)vertCode += vertMain_PS_v_t;
+    if (AlOvLi)vertCode += vertMain_PS_v_t_begin;
+    if (AlOvLi && AlOvLiCu) vertCode += vertMain_PS_v_t_curve;
+    if (AlOvLi && !AlOvLiCu) vertCode += vertMain_PS_v_t_linear;
+    if (AlOvLi) vertCode += vertMain_PS_v_t_end;
     vertCode += vertMain_PS_v_r;
     if (SiOvLi)vertCode += vertMain_PS_v_s;
     vertCode += vertMain_PS_EndAll;
@@ -1698,7 +1712,7 @@ void SLGLProgramGenerated::buildPerPixParticle(SLMaterial* mat)
     string geomCode;
     geomCode += shaderHeader();
 
-    // Vertex shader inputs
+    // geometry shader inputs
     geomCode += geomConfig_PS;
 
     geomCode += geomInput_PS_struct_Begin;
@@ -1707,16 +1721,16 @@ void SLGLProgramGenerated::buildPerPixParticle(SLMaterial* mat)
     if (SiOvLi)geomCode += geomInput_PS_struct_s;
     geomCode += geomInput_PS_struct_End;
 
-    // Vertex shader uniforms
+    // geometry shader uniforms
     geomCode += geomInput_PS_u_ScaRa;
     geomCode += geomInput_PS_u_c;
     geomCode += geomInput_u_matrix_p;
 
-    // Vertex shader outputs
+    // geometry shader outputs
     geomCode += geomOutput_PS_v_pC;
     geomCode += geomOutput_PS_v_tC;
 
-    // Vertex shader main loop
+    // geometry shader main loop
     geomCode += geomMain_PS_Begin;
     geomCode += geomMain_PS_v_s;
     if (SiOvLi)geomCode += geomMain_PS_v_sS;

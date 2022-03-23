@@ -123,6 +123,23 @@ void SLParticleSystem::regenerate()
     _vao2.deleteGL();
 
 }
+/*!
+Generate Bernstein Polynome with 4 controls points.
+ContP contains 2 and 3 controls points
+StatEnd contains 1 and 4 controls points
+*/
+void SLParticleSystem::generateBernsteinP(float ContP[4], float StaEnd[4])
+{
+    //For Y bezier curve
+    //T^3
+    _bernsteinPY.x = -StaEnd[1] + ContP[1] * 3 - ContP[3] * 3 + StaEnd[3];
+    //T^2
+    _bernsteinPY.y = StaEnd[1] * 3 - ContP[1] * 6 + ContP[3] * 3;
+    //T
+    _bernsteinPY.z = -StaEnd[1] * 3 + ContP[1] * 3;
+    //1
+    _bernsteinPY.w = StaEnd[1];
+}
 
 
 
@@ -199,11 +216,16 @@ void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
     spD->useProgram();
     SLGLState* stateGL = SLGLState::instance();
 
+    //World space
     if (_worldSpace){
         spD->uniformMatrix4fv("u_vOmvMatrix", 1, (SLfloat*)&stateGL->viewMatrix);
     }
     else{
         spD->uniformMatrix4fv("u_vOmvMatrix", 1, (SLfloat*)&stateGL->modelViewMatrix); // TO change for custom shader ganeration
+    }
+    //Alpha over life bezier curve
+    if (_alphaOverLFCurve) {
+        spD->uniform4f("u_al_bernstein", _bernsteinPY.x, _bernsteinPY.y, _bernsteinPY.z, _bernsteinPY.w);
     }
     
     spD->uniform1f("u_time", GlobalTimer::timeS());
