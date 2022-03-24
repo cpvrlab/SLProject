@@ -48,6 +48,7 @@ public:
     SLint       numBranch() { return _numBranch; }
     SLbool      worldSpace() { return _worldSpace; }
     SLbool      alphaOverLF() { return _alphaOverLF; }
+    SLbool      colorOverLF() { return _colorOverLF; }
     SLbool      alphaOverLFCurve() { return _alphaOverLFCurve; }
     SLbool      sizeOverLF() { return _sizeOverLF; }
     SLbool      sizeRandom() { return _sizeRandom; }
@@ -83,10 +84,12 @@ public:
     void numBranch(SLint i) { _numBranch = i; }
     void worldSpace(SLbool b) { _worldSpace = b; }
     void alphaOverLF(SLbool b) { _alphaOverLF = b; }
+    void colorOverLF(SLbool b) { _colorOverLF = b; }
     void alphaOverLFCurve(SLbool b) { _alphaOverLFCurve = b; }
     void sizeOverLF(SLbool b) { _sizeOverLF = b; }
     void sizeRandom(SLbool b) { _sizeRandom = b; }
     void amount(SLint i) { _amount = i; }
+    void colorArr(SLfloat* arr) { std::copy(arr, arr + 256 * 3, _colorArr); }
 
 
 protected:
@@ -115,11 +118,13 @@ private:
 
     int _drawBuf = 0;   //!< Boolean to switch buffer
     SLint _amount;      //!< Amount of a particle
+    SLfloat _colorArr[256 * 3];
 
     SLbool _tree  = false;       //!< Boolean for tree fractal
     SLbool _acc  = false;       //!< Boolean for acceleration
     SLbool _worldSpace = false; //!< Boolean for world space position
     SLbool _alphaOverLF = true; //!< Boolean for alpha over life time
+    SLbool _colorOverLF = false; //!< Boolean for color over life time
     SLbool _alphaOverLFCurve = false; //!< Boolean for alpha over life time curve
     SLbool _sizeOverLF = true; //!< Boolean for size over life time
     SLbool _sizeRandom = false; //!< Boolean for size over life time

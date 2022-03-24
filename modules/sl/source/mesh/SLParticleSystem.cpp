@@ -227,11 +227,18 @@ void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
     if (_alphaOverLFCurve) {
         spD->uniform4f("u_al_bernstein", _bernsteinPY.x, _bernsteinPY.y, _bernsteinPY.z, _bernsteinPY.w);
     }
+    //Color over life by gradient color editor
+    if (_colorOverLF) {
+        spD->uniform1fv("u_colorArr", 256 * 3, _colorArr);
+    }
+    else{
+        spD->uniform4f("u_color", _col.x, _col.y, _col.z, _col.w);
+    }
     
     spD->uniform1f("u_time", GlobalTimer::timeS());
     spD->uniform1f("u_tTL", _ttl);
    
-    spD->uniform4f("u_color", _col.x, _col.y, _col.z, _col.w);
+    
     spD->uniform1f("u_scale", 1.0f);
     spD->uniform1f("u_radius", 0.4f);
 

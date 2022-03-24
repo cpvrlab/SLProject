@@ -37,8 +37,8 @@
 #include <SLHorizonNode.h>
 #include <AverageTiming.h>
 #include <imgui.h>
-#include <curve-editor-lumix.hpp>
 #include <bezier.hpp>
+#include <imgui_color_gradient.h>
 #include <ftplib.h>
 #include <HttpUtils.h>
 #include <ZipUtils.h>
@@ -3854,6 +3854,35 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                 for (int i = 0; i < 5; i++)
                                     ImGui::Text("More content %d", i);
                             }
+                            // Color over life
+                            SLbool colorOverLF_group = ps->colorOverLF();
+
+                            static ImGradient      gradient;
+                            static ImGradientMark* draggingMark = nullptr;
+                            static ImGradientMark* selectedMark = nullptr;
+
+                            static bool once = []()
+                            {
+                                gradient.getMarks().clear();
+                                gradient.addMark(0.0f, ImColor(255, 0, 0));
+                                gradient.addMark(0.37f, ImColor(255, 193, 3));
+                                gradient.addMark(1.0f, ImColor(255, 255, 255));
+                                return true;
+                            }();
+
+                            if (ImGui::Checkbox("Color over lifetime", &colorOverLF_group))
+                            {
+                                ps->colorOverLF(colorOverLF_group);
+                                ps->colorArr(gradient.cachedValues());
+                                m->updateProgramPS(); // Change or generate new program
+                            }
+                            if (ImGui::CollapsingHeader("Color over lifetime", &colorOverLF_group))
+                            {
+                                if(ImGui::GradientEditor(&gradient, draggingMark, selectedMark)) {
+                                    ps->colorArr(gradient.cachedValues());
+                                }
+                            }
+
                             // Size random // no done yet
                             SLbool sizeRandom_group = ps->sizeRandom();
                             if (ImGui::Checkbox("Size random", &sizeRandom_group))
