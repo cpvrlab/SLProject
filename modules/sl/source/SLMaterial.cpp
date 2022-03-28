@@ -423,8 +423,15 @@ void SLMaterial::generateProgramPS()
         if (!_program)
             if (psType() == RM_PS_Update) {
                 _program = new SLGLProgramGenerated(_assetManager, programName, this);
-                char* outputNames[] = {"tf_position", "tf_velocity", "tf_startTime", "tf_initialVelocity", "tf_rotation"};
-                _program->initTF(outputNames, 5);
+                if (_ps->flipBookTexture()) {
+                    char* outputNames[] = {"tf_position", "tf_velocity", "tf_startTime", "tf_initialVelocity", "tf_rotation", "tf_texNum"};
+                    _program->initTF(outputNames, 6);
+                }
+                else
+                {
+                    char* outputNames[] = {"tf_position", "tf_velocity", "tf_startTime", "tf_initialVelocity", "tf_rotation"};
+                    _program->initTF(outputNames, 5);
+                }
             }
             else if (psType() == RM_PS_Draw)
                 _program = new SLGLProgramGenerated(_assetManager, programName, this, "Geom");
@@ -459,8 +466,16 @@ void SLMaterial::updateProgramPS()
                 if (psType() == RM_PS_Update)
                 {
                     _program            = new SLGLProgramGenerated(_assetManager, programName, this);
-                    char* outputNames[] = {"tf_position", "tf_velocity", "tf_startTime", "tf_initialVelocity", "tf_rotation"};
-                    _program->initTF(outputNames, 5);
+                    if (_ps->flipBookTexture())
+                    {
+                        char* outputNames[] = {"tf_position", "tf_velocity", "tf_startTime", "tf_initialVelocity", "tf_rotation", "tf_texNum"};
+                        _program->initTF(outputNames, 6);
+                    }
+                    else
+                    {
+                        char* outputNames[] = {"tf_position", "tf_velocity", "tf_startTime", "tf_initialVelocity", "tf_rotation"};
+                        _program->initTF(outputNames, 5);
+                    }
                 }
                 else if (psType() == RM_PS_Draw)
                     _program = new SLGLProgramGenerated(_assetManager, programName, this, "Geom");

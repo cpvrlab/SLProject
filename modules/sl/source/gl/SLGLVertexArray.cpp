@@ -22,7 +22,6 @@ SLuint SLGLVertexArray::totalPrimitivesRendered = 0;
 SLGLVertexArray::SLGLVertexArray()
 {
     _vaoID = 0;
-    _VBOf.dataType(BT_float);
     _VBOf.clear();
     _idVBOIndices       = 0;
     _numIndicesElements = 0;
@@ -65,7 +64,8 @@ is called.
 void SLGLVertexArray::setAttrib(SLGLAttributeType type,
                                 SLint             elementSize,
                                 SLint             location,
-                                void*             dataPointer)
+                                void*             dataPointer,
+                                SLGLBufferType    dataType)
 {
     assert(dataPointer);
     assert(elementSize);
@@ -79,6 +79,7 @@ void SLGLVertexArray::setAttrib(SLGLAttributeType type,
     SLGLAttribute va;
     va.type            = type;
     va.elementSize     = elementSize;
+    va.dataType        = dataType;
     va.dataPointer     = dataPointer;
     va.location        = location;
     va.bufferSizeBytes = 0;

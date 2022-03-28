@@ -3785,9 +3785,9 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                             }
                             // Color
                             ImGuiColorEditFlags cef = ImGuiColorEditFlags_NoInputs;
-                            SLCol4f             c  = ps->col();
+                            SLCol4f             c  = ps->color();
                             if (ImGui::ColorEdit4("Particle color", (float*)&c, cef))
-                                ps->col(c);
+                                ps->color(c);
                             // Tree (Fractal)
                             SLbool tree_group = ps->tree();
                             if (ImGui::Checkbox("Tree (Fractal)", &tree_group))
@@ -3883,9 +3883,25 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                 }
                             }
 
+                            // Flipbook texture
+                            SLbool flipbookTex_group = ps->flipBookTexture();
+                            if (ImGui::Checkbox("Flipbook texture (ONGOING)", &flipbookTex_group))
+                            {
+                                ps->flipBookTexture(flipbookTex_group);
+                                //m->updateProgramPS();    // Change or generate new program
+                                mOut->updateProgramPS(); // Change or generate new program
+                                ps->regenerate();
+                            }
+                            if (ImGui::CollapsingHeader("Flipbook texture", &flipbookTex_group))
+                            {
+                                ImGui::Text("IsItemHovered: %d", ImGui::IsItemHovered());
+                                for (int i = 0; i < 5; i++)
+                                    ImGui::Text("More content %d", i);
+                            }
+
                             // Size random // no done yet
                             SLbool sizeRandom_group = ps->sizeRandom();
-                            if (ImGui::Checkbox("Size random", &sizeRandom_group))
+                            if (ImGui::Checkbox("Size random (NOT DONE)", &sizeRandom_group))
                                 ps->sizeRandom(sizeRandom_group);
                             if (ImGui::CollapsingHeader("Size random", &sizeRandom_group))
                             {

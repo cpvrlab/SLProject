@@ -62,7 +62,13 @@ public:
     void setAttrib(SLGLAttributeType type,
                    SLint             elementSize,
                    SLint             location,
-                   void*             dataPointer);
+                   void*             dataPointer,
+                   SLGLBufferType    dataType = BT_float);
+
+    //! Adds a vertex attribute with vector of SLuint
+    void setAttrib(SLGLAttributeType type,
+                   SLint             location,
+                   SLVuint*         data) { setAttrib(type, 1, location, &data->operator[](0), BT_uint);}
 
     //! Adds a vertex attribute with vector of SLfloat
     void setAttrib(SLGLAttributeType type,
@@ -128,6 +134,10 @@ public:
     void updateAttrib(SLGLAttributeType type,
                       SLint             elementSize,
                       void*             dataPointer);
+
+    //! Updates a specific vertex attribute in the VBO
+    void updateAttrib(SLGLAttributeType type,
+                      SLVuint*         data) { updateAttrib(type, 1, (void*)&data->operator[](0));}
 
     //! Updates a specific vertex attribute in the VBO
     void updateAttrib(SLGLAttributeType type,

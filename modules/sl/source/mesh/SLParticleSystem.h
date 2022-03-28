@@ -42,7 +42,7 @@ public:
     SLVec3f     accV() { return _accV; }
     SLVec3f     vRandS() { return _vRandS; }
     SLVec3f     vRandE() { return _vRandE; }
-    SLCol4f     col() { return _col; }
+    SLCol4f     color() { return _color; }
     SLbool      tree() { return _tree; }
     SLfloat       angle() { return _angle; }
     SLint       numBranch() { return _numBranch; }
@@ -50,6 +50,7 @@ public:
     SLbool      alphaOverLF() { return _alphaOverLF; }
     SLbool      colorOverLF() { return _colorOverLF; }
     SLbool      alphaOverLFCurve() { return _alphaOverLFCurve; }
+    SLbool        flipBookTexture() { return _flipBookTexture; }
     SLbool      sizeOverLF() { return _sizeOverLF; }
     SLbool      sizeRandom() { return _sizeRandom; }
     SLint      amount() { return _amount; }
@@ -78,7 +79,7 @@ public:
         _vRandE.y = vY;
         _vRandE.z = vZ;
     }
-    void col(SLCol4f c) { _col = c; }
+    void color(SLCol4f c) { _color = c; }
     void tree(SLbool b) { _tree = b; }
     void angle(SLfloat f) { _angle = f; }
     void numBranch(SLint i) { _numBranch = i; }
@@ -86,6 +87,7 @@ public:
     void alphaOverLF(SLbool b) { _alphaOverLF = b; }
     void colorOverLF(SLbool b) { _colorOverLF = b; }
     void alphaOverLFCurve(SLbool b) { _alphaOverLFCurve = b; }
+    void flipBookTexture(SLbool b) { _flipBookTexture = b; }
     void sizeOverLF(SLbool b) { _sizeOverLF = b; }
     void sizeRandom(SLbool b) { _sizeRandom = b; }
     void amount(SLint i) { _amount = i; }
@@ -99,7 +101,7 @@ protected:
     SLVec3f         _accV = SLVec3f(1.0f, 1.0f, 1.0f);      //!< Vector for acceleration
     SLVec3f         _vRandS = SLVec3f(0.0f, 0.0f, 0.0f);      //!< Vector for acceleration
     SLVec3f         _vRandE = SLVec3f(1.0f, 1.0f, 1.0f);      //!< Vector for acceleration
-    SLCol4f         _col    = SLCol4f(0.66f, 0.0f, 0.66f, 0.2f); //!< Color for particle
+    SLCol4f         _color    = SLCol4f(0.66f, 0.0f, 0.66f, 0.2f); //!< Color for particle
     SLfloat         _angle = 30.0f;     //!< Angle of branches (for tree fractal)
     SLint           _numBranch = 4;     //!< Number of branches (for tree fractal)
     SLGLVertexArray _vao1;      //!< First OpenGL Vertex Array Object for swapping between updating/drawing
@@ -109,16 +111,20 @@ private:
 
     void  initMat(SLAssetManager* am, SLGLTexture* texC);
     float randomFloat(float a, float b);
+    int randomInt(int min, int max);
 
 
     SLVVec3f V;     //!< Pointer to vertex velocity vector
     SLVfloat ST;    //!< Pointer to start time vector
     SLVVec3f InitV; //!< Pointer to vertex velocity vector
     SLVfloat R;     //!< Pointer to rotation vector
+    SLVuint  TexNum; //!< Pointer to texture number vector
 
     int _drawBuf = 0;   //!< Boolean to switch buffer
+    SLint _col     = 8;       //!< Number of texture by column
+    SLint _row     = 8;       //!< Number of texture by row
     SLint _amount;      //!< Amount of a particle
-    SLfloat _colorArr[256 * 3];
+    SLfloat _colorArr[256 * 3]; //!< Color values of color gradient widget
 
     SLbool _tree  = false;       //!< Boolean for tree fractal
     SLbool _acc  = false;       //!< Boolean for acceleration
@@ -127,6 +133,7 @@ private:
     SLbool _colorOverLF = false; //!< Boolean for color over life time
     SLbool _alphaOverLFCurve = false; //!< Boolean for alpha over life time curve
     SLbool _sizeOverLF = true; //!< Boolean for size over life time
+    SLbool _flipBookTexture = false; //!< Boolean for flipbook texture
     SLbool _sizeRandom = false; //!< Boolean for size over life time
 
 

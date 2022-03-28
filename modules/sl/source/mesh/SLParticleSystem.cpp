@@ -37,6 +37,17 @@ float SLParticleSystem::randomFloat(float a, float b)
     return a + r;
 }
 
+int SLParticleSystem::randomInt(int min, int max)
+{
+    int n         = max - min + 1;
+    int remainder = RAND_MAX % n;
+    int x;
+    do {
+        x = rand();
+    } while (x >= RAND_MAX - remainder);
+    return min + x % n;
+}
+
 //-----------------------------------------------------------------------------
 //! SLParticleSystem ctor with a given vector of points
 SLParticleSystem::SLParticleSystem(SLAssetManager* assetMgr,
@@ -66,6 +77,7 @@ SLParticleSystem::SLParticleSystem(SLAssetManager* assetMgr,
     ST.resize(amount);
     InitV.resize(amount);
     R.resize(amount);
+    TexNum.resize(amount);
 
     for (unsigned int i = 0; i < amount; i++)
     {
@@ -76,6 +88,7 @@ SLParticleSystem::SLParticleSystem(SLAssetManager* assetMgr,
         ST[i]  = GlobalTimer::timeS() + (i * (timeToLive / amount));     // When the first particle dies the last one begin to live
         InitV[i] = V[i];
         R[i]     = randomFloat(0.0f, 360.0f); // Start rotation of the particle
+        TexNum[i] = randomInt(0, _row * _col - 1);
     }
     pEPos(particleEmiPos);
     //Need to add the rest
@@ -94,9 +107,10 @@ void SLParticleSystem::generateVAO(SLGLVertexArray& vao)
     vao.setAttrib(AT_startTime, AT_startTime, &ST);
     vao.setAttrib(AT_initialVelocity, AT_initialVelocity, &InitV);
     vao.setAttrib(AT_rotation, AT_rotation, &R);
+    if (_flipBookTexture)
+        vao.setAttrib(AT_texNum, AT_texNum, &TexNum);
 
     //Need to have two VAo for transform feedback swapping
-
     vao.generateTF((SLuint)P.size());
 }
 
@@ -107,6 +121,7 @@ void SLParticleSystem::regenerate()
     ST.resize(_amount);
     InitV.resize(_amount);
     R.resize(_amount);
+    TexNum.resize(_amount);
 
     for (unsigned int i = 0; i < _amount; i++)
     {
@@ -117,6 +132,7 @@ void SLParticleSystem::regenerate()
         ST[i]    = GlobalTimer::timeS() + (i * (_ttl / _amount));           // When the first particle dies the last one begin to live
         InitV[i] = V[i];
         R[i]     = randomFloat(0.0f, 360.0f); // Start rotation of the particle
+        TexNum[i] = randomInt(0, _row * _col - 1);
     }
 
     _vao1.deleteGL();
@@ -178,11 +194,17 @@ void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
 
     pEPos(node->translationWS());
 
+    // Worldspace
     if (_worldSpace) {
         sp->uniform3f("u_pGPosition", _pEPos.x, _pEPos.y, _pEPos.z);
     }
     else{
         sp->uniform3f("u_pGPosition", 0.0, 0.0, 0.0);
+    }
+    // Flipbook
+    if (_flipBookTexture){
+        sp->uniform1i("u_col", 8);
+        sp->uniform1i("u_row", 8);
     }
 
     /////////////////////////////
@@ -232,7 +254,13 @@ void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
         spD->uniform1fv("u_colorArr", 256 * 3, _colorArr);
     }
     else{
-        spD->uniform4f("u_color", _col.x, _col.y, _col.z, _col.w);
+        spD->uniform4f("u_color", _color.x, _color.y, _color.z, _color.w);
+    }
+    // Flipbook
+    if (_flipBookTexture)
+    {
+        sp->uniform1i("u_col", 8);
+        sp->uniform1i("u_row", 8);
     }
     
     spD->uniform1f("u_time", GlobalTimer::timeS());
