@@ -57,6 +57,7 @@ SLParticleSystem::SLParticleSystem(SLAssetManager* assetMgr,
                    const SLVec3f& velocityRandomEnd,
                    const SLfloat& timeToLive,
                    SLGLTexture* texC,
+                   SLGLTexture* texFlipbook,
                    const SLstring& name) : SLMesh(assetMgr, name)
 {
     assert(!name.empty());
@@ -92,7 +93,8 @@ SLParticleSystem::SLParticleSystem(SLAssetManager* assetMgr,
     }
     pEPos(particleEmiPos);
     //Need to add the rest
-
+    _textureFirst = texC;
+    _textureFlipbook = texFlipbook;
     initMat(assetMgr, texC);
 
 }
@@ -106,7 +108,8 @@ void SLParticleSystem::generateVAO(SLGLVertexArray& vao)
     vao.setAttrib(AT_velocity, AT_velocity, &V);
     vao.setAttrib(AT_startTime, AT_startTime, &ST);
     vao.setAttrib(AT_initialVelocity, AT_initialVelocity, &InitV);
-    vao.setAttrib(AT_rotation, AT_rotation, &R);
+    if (_rot)
+        vao.setAttrib(AT_rotation, AT_rotation, &R);
     if (_flipBookTexture)
         vao.setAttrib(AT_texNum, AT_texNum, &TexNum);
 
@@ -157,6 +160,19 @@ void SLParticleSystem::generateBernsteinP(float ContP[4], float StaEnd[4])
     _bernsteinPY.w = StaEnd[1];
 }
 
+void SLParticleSystem::changeTexture()
+{
+    if (_flipBookTexture) {
+        mat()->removeTextureType(TT_diffuse);
+        mat()->addTexture(_textureFlipbook);
+    }
+    else
+    {
+        mat()->removeTextureType(TT_diffuse);
+        mat()->addTexture(_textureFirst);
+    }
+}
+
 
 
 
@@ -203,8 +219,8 @@ void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
     }
     // Flipbook
     if (_flipBookTexture){
-        sp->uniform1i("u_col", 8);
-        sp->uniform1i("u_row", 8);
+        sp->uniform1i("u_col", _col);
+        sp->uniform1i("u_row", _row);
     }
 
     /////////////////////////////
@@ -259,8 +275,8 @@ void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
     // Flipbook
     if (_flipBookTexture)
     {
-        sp->uniform1i("u_col", 8);
-        sp->uniform1i("u_row", 8);
+        spD->uniform1i("u_col", _col);
+        spD->uniform1i("u_row", _row);
     }
     
     spD->uniform1f("u_time", GlobalTimer::timeS());

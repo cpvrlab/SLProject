@@ -80,9 +80,9 @@ uniform vec3 u_pGPosition;  // Particle Generator position)";
 const string vertInput_PS_u_a     = R"(
 uniform vec3 u_acceleration;    // Particle acceleration)";
 const string vertInput_PS_u_col         = R"(
-uniform uint u_col;   // Number of column of flipbook texture)";
+uniform int u_col;   // Number of column of flipbook texture)";
 const string vertInput_PS_u_row       = R"(
-uniform uint u_row;   // Number of row of flipbook texture)";
+uniform int u_row;   // Number of row of flipbook texture)";
 //-----------------------------------------------------------------------------
 const string vertOutput_v_P_VS       = R"(
 
@@ -257,9 +257,9 @@ const string vertMain_PS_U_alive_p           = R"(
                     tf_position += tf_velocity * u_deltaTime;   // Scale the translation by the deltatime)";
 const string vertMain_PS_U_alive_a             = R"(
                     tf_velocity += u_deltaTime * u_acceleration;  // Amplify the velocity)";
-const string vertMain_PS_U_alive_texNum             = R"(
+const string vertMain_PS_U_alive_texNum                  = R"(
                     tf_texNum++;  // Increment to draw next texture (flipbook)
-                    tf_texNum = uint(mod(tf_texNum, u_col*u_row));  // Modulo to not exceed the max and reset)";
+                    tf_texNum = uint(tf_texNum % (u_col*u_row));  // Modulo to not exceed the max and reset)";
 const string vertMain_PS_U_EndAll = R"(
         }
     }else{
@@ -295,9 +295,9 @@ uniform float u_radius; // Particle radius)";
 const string geomInput_PS_u_c = R"(
 uniform vec4 u_color;   // Particle color)";
 const string geomInput_PS_u_col     = R"(
-uniform uint u_col;   // Number of column of flipbook texture)";
+uniform int u_col;   // Number of column of flipbook texture)";
 const string geomInput_PS_u_row   = R"(
-uniform uint u_row;   // Number of row of flipbook texture)";
+uniform int u_row;   // Number of row of flipbook texture)";
 //-----------------------------------------------------------------------------
 const string geomOutput_PS_v_pC       = R"(
 
@@ -321,6 +321,8 @@ const string geomMain_PS_v_p    = R"(
     vec4 P = gl_in[0].gl_Position;    // Position of the point that we received)";
 const string geomMain_PS_v_rot    = R"(
     mat2 rot = mat2(cos(vert[0].rotation),-sin(vert[0].rotation),sin(vert[0].rotation),cos(vert[0].rotation)); // Matrix of rotation)";
+const string geomMain_PS_v_rotIden              = R"(
+    mat2 rot = mat2(1.0, 0.0, 0.0, 1.0); // Matrix of rotation)";
 const string geomMain_PS_v_c    = R"(
     vec4 color = u_color;   // Particle color)";
 const string geomMain_PS_v_colorOverLF      = R"(
@@ -357,34 +359,36 @@ const string geomMain_PS_fourCorners = R"(//BOTTOM LEFT
   EmitVertex();  )";
 
 const string geomMain_PS_Flipbook_fourCorners = R"(
-  uint actC = uint(mod(vert[0].texNum, u_col));
-  uint actR = (vert[0].texNum - actC) / u_row;
+  uint actCI = uint(vert[0].texNum % u_col);
+  uint actRI = (vert[0].texNum - actCI) / u_row;
+  float actC = float(actCI);
+  float actR = float(actRI);
 
   //BOTTOM LEFT
   vec4 va = vec4(P.xy + (rot * vec2(-radius, -radius)), P.z, 1); //Position in view space
   gl_Position = u_pMatrix * va; // Calculate position in clip space
-  v_texCoord = vec2(float(actC/u_col), 1.0-float(actR/u_row));  // Texture coordinate
+  v_texCoord = vec2(actC/u_col, 1.0-((actR+1.0)/u_row));  // Texture coordinate
   v_particleColor = color;
   EmitVertex();  
   
   //BOTTOM RIGHT
   vec4 vd = vec4(P.xy + (rot * vec2(radius, -radius)), P.z,1);
   gl_Position = u_pMatrix * vd;
-  v_texCoord = vec2(float((actC+1)/u_col), 1.0-(float(actR/u_row))); // Texture coordinate
+  v_texCoord = vec2((actC+1.0)/u_col, 1.0-((actR+1.0)/u_row)); // Texture coordinate
   v_particleColor = color;
   EmitVertex();  
 
   //TOP LEFT
   vec4 vb = vec4(P.xy + (rot * vec2(-radius,radius)) , P.z,1);
   gl_Position = u_pMatrix * vb;
-  v_texCoord = vec2(float(actC/u_col), 1.0-float((actR+1)/u_row)); // Texture coordinate
+  v_texCoord = vec2(actC/u_col, 1.0-(actR/u_row)); // Texture coordinate
   v_particleColor = color;
   EmitVertex();  
 
   //TOP RIGHT
   vec4 vc = vec4(P.xy + (rot *vec2(radius, radius)), P.z,1);
   gl_Position = u_pMatrix *  vc;
-  v_texCoord = vec2(float((actC+1)/u_col), 1.0-float(((actR+1)/u_row))); // Texture coordinate
+  v_texCoord = vec2((actC+1.0)/u_col, 1.0-(actR/u_row)); // Texture coordinate
   v_particleColor = color;
   EmitVertex();  )";
 
@@ -1404,6 +1408,8 @@ void SLGLProgramGenerated::buildProgramNamePS(SLMaterial* mat,
         bool SiRandom = mat->ps()->sizeRandom();  // Size random
         bool FlBoTex  = mat->ps()->flipBookTexture();  // Flipbook texture
         bool WS       = mat->ps()->worldSpace();  // World space or local space
+        bool rot      = mat->ps()->rot();              // Rotation
+        if (rot) programName += "-RT";
         if (AlOvLi) programName += "-AL";
         if (AlOvLiCu) programName += "cu";
         if (SiOvLi) programName += "-SL";
@@ -1416,7 +1422,9 @@ void SLGLProgramGenerated::buildProgramNamePS(SLMaterial* mat,
     {
         bool acc = mat->ps()->acc(); // Acceleration
         bool FlBoTex = mat->ps()->flipBookTexture(); // Flipbook texture
+        bool rot = mat->ps()->rot(); // Rotation
         programName += "-Update";
+        if (rot) programName += "-RT";
         if (acc) programName += "-AC";
         if (FlBoTex) programName += "-FB";
     }
@@ -1749,6 +1757,7 @@ void SLGLProgramGenerated::buildPerPixParticle(SLMaterial* mat)
 
     // Check what textures the material has
     bool Dm  = mat->hasTextureType(TT_diffuse);
+    bool rot        = mat->ps()->rot();         // Rotation
     bool AlOvLi   = mat->ps()->alphaOverLF(); // Alpha over life
     bool CoOvLi   = mat->ps()->colorOverLF(); // Color over life
     bool AlOvLiCu   = mat->ps()->alphaOverLFCurve(); // Alpha over life curve
@@ -1764,14 +1773,14 @@ void SLGLProgramGenerated::buildPerPixParticle(SLMaterial* mat)
     // Vertex shader inputs
     vertCode += vertInput_PS_a_p;
     vertCode += vertInput_PS_a_st;
-    vertCode += vertInput_PS_a_r;
+    if (rot) vertCode += vertInput_PS_a_r;
     if (FlBoTex) vertCode += vertInput_PS_a_texNum;
     
 
     // Vertex shader outputs
     vertCode += vertOutput_PS_struct_Begin;
     if (AlOvLi)vertCode += vertOutput_PS_struct_t;
-    vertCode += vertOutput_PS_struct_r;
+    if (rot) vertCode += vertOutput_PS_struct_r;
     if (SiOvLi)vertCode += vertOutput_PS_struct_s;
     if (CoOvLi) vertCode += vertOutput_PS_struct_c;
     if (FlBoTex) vertCode += vertOutput_PS_struct_texNum;
@@ -1793,7 +1802,7 @@ void SLGLProgramGenerated::buildPerPixParticle(SLMaterial* mat)
     if (AlOvLi && AlOvLiCu) vertCode += vertMain_PS_v_t_curve;
     if (AlOvLi && !AlOvLiCu) vertCode += vertMain_PS_v_t_linear;
     if (AlOvLi) vertCode += vertMain_PS_v_t_end;
-    vertCode += vertMain_PS_v_r;
+    if (rot) vertCode += vertMain_PS_v_r;
     if (SiOvLi)vertCode += vertMain_PS_v_s;
     if (CoOvLi) vertCode += vertMain_PS_v_colorOverLF;
     if (FlBoTex) vertCode += vertMain_PS_v_texNum;
@@ -1810,7 +1819,7 @@ void SLGLProgramGenerated::buildPerPixParticle(SLMaterial* mat)
 
     geomCode += geomInput_PS_struct_Begin;
     if (AlOvLi) geomCode += geomInput_PS_struct_t;
-    geomCode += geomInput_PS_struct_r;
+    if (rot) geomCode += geomInput_PS_struct_r;
     if (SiOvLi) geomCode += geomInput_PS_struct_s;
     if (CoOvLi) geomCode += geomInput_PS_struct_c;
     if (FlBoTex) geomCode += geomInput_PS_struct_texNum;
@@ -1833,7 +1842,7 @@ void SLGLProgramGenerated::buildPerPixParticle(SLMaterial* mat)
     if (SiOvLi)geomCode += geomMain_PS_v_sS;
     geomCode += geomMain_PS_v_rad;
     geomCode += geomMain_PS_v_p;
-    geomCode += geomMain_PS_v_rot;
+    geomCode += rot ? geomMain_PS_v_rot : geomMain_PS_v_rotIden;
     geomCode += CoOvLi ? geomMain_PS_v_colorOverLF : geomMain_PS_v_c;
     if (AlOvLi) geomCode += geomMain_PS_v_cT;
     geomCode += FlBoTex ? geomMain_PS_Flipbook_fourCorners : geomMain_PS_fourCorners;
@@ -1870,6 +1879,7 @@ void SLGLProgramGenerated::buildPerPixParticleUpdate(SLMaterial* mat)
 
     bool acc = mat->ps()->acc(); // Acceleration
     bool FlBoTex = mat->ps()->flipBookTexture(); // Flipbook texture
+    bool rot     = mat->ps()->rot();             // Rotation
 
     string vertCode;
     vertCode += shaderHeader();
@@ -1879,7 +1889,7 @@ void SLGLProgramGenerated::buildPerPixParticleUpdate(SLMaterial* mat)
     vertCode += vertInput_PS_a_v;
     vertCode += vertInput_PS_a_st;
     vertCode += vertInput_PS_a_initV;
-    vertCode += vertInput_PS_a_r;
+    if (rot) vertCode += vertInput_PS_a_r;
     if (FlBoTex) vertCode += vertInput_PS_a_texNum;
 
     
@@ -1896,7 +1906,7 @@ void SLGLProgramGenerated::buildPerPixParticleUpdate(SLMaterial* mat)
     vertCode += vertOutput_PS_tf_v;
     vertCode += vertOutput_PS_tf_st;
     vertCode += vertOutput_PS_tf_initV;
-    vertCode += vertOutput_PS_tf_r;
+    if (rot) vertCode += vertOutput_PS_tf_r;
     if (FlBoTex) vertCode += vertOutput_PS_tf_texNum;
 
     // Vertex shader main loop
@@ -1905,9 +1915,9 @@ void SLGLProgramGenerated::buildPerPixParticleUpdate(SLMaterial* mat)
     vertCode += vertMain_PS_U_v_init_v;
     vertCode += vertMain_PS_U_v_init_st;
     vertCode += vertMain_PS_U_v_init_initV;
-    vertCode += vertMain_PS_U_v_init_r;
+    if (rot) vertCode += vertMain_PS_U_v_init_r;
     if (FlBoTex) vertCode += vertMain_PS_U_v_init_texNum;
-    vertCode += vertMain_PS_U_v_r;
+    if (rot) vertCode += vertMain_PS_U_v_r;
     vertCode += vertMain_PS_U_bornDead;
     vertCode += vertMain_PS_U_reset_p;
     vertCode += vertMain_PS_U_reset_v;

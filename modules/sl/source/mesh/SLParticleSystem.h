@@ -29,16 +29,19 @@ public:
                      const SLVec3f&  velocityRandomEnd,
                      const SLfloat&  timeToLive,
                      SLGLTexture* texC,
+                     SLGLTexture* texFlipbook,
                      const SLstring& name  = "Particle system");
     
     void draw(SLSceneView* sv, SLNode* node);
     void generateVAO(SLGLVertexArray& vao);
     void regenerate();
     void generateBernsteinP(float ContP[4], float StaEnd[4]);
+    void changeTexture();
 
     // Getters
     SLVec3f    pEPos() const { return _pEPos; }
     SLbool      acc() { return _acc; }
+    SLbool      rot() { return _rot; }
     SLVec3f     accV() { return _accV; }
     SLVec3f     vRandS() { return _vRandS; }
     SLVec3f     vRandE() { return _vRandE; }
@@ -54,10 +57,13 @@ public:
     SLbool      sizeOverLF() { return _sizeOverLF; }
     SLbool      sizeRandom() { return _sizeRandom; }
     SLint      amount() { return _amount; }
+    SLGLTexture* textureFirst() { return _textureFirst; }
+    SLGLTexture* textureFlipbook() { return _textureFlipbook; }
 
     //Setters
     void pEPos(SLVec3f p) { _pEPos = p; }
     void acc(SLbool b) { _acc = b; }
+    void rot(SLbool b) { _rot = b; }
     void accV(SLVec3f v) { _accV = v; }
     void accV(SLfloat vX, SLfloat vY, SLfloat vZ)
     {
@@ -92,6 +98,9 @@ public:
     void sizeRandom(SLbool b) { _sizeRandom = b; }
     void amount(SLint i) { _amount = i; }
     void colorArr(SLfloat* arr) { std::copy(arr, arr + 256 * 3, _colorArr); }
+    void textureFirst(SLGLTexture* t) { _textureFirst = t; }
+    void textureFlipbook(SLGLTexture* t) { _textureFlipbook = t; }
+    
 
 
 protected:
@@ -125,9 +134,12 @@ private:
     SLint _row     = 8;       //!< Number of texture by row
     SLint _amount;      //!< Amount of a particle
     SLfloat _colorArr[256 * 3]; //!< Color values of color gradient widget
+    SLGLTexture* _textureFirst;
+    SLGLTexture* _textureFlipbook;
 
     SLbool _tree  = false;       //!< Boolean for tree fractal
     SLbool _acc  = false;       //!< Boolean for acceleration
+    SLbool _rot  = true;       //!< Boolean for rotation
     SLbool _worldSpace = false; //!< Boolean for world space position
     SLbool _alphaOverLF = true; //!< Boolean for alpha over life time
     SLbool _colorOverLF = false; //!< Boolean for color over life time

@@ -423,14 +423,25 @@ void SLMaterial::generateProgramPS()
         if (!_program)
             if (psType() == RM_PS_Update) {
                 _program = new SLGLProgramGenerated(_assetManager, programName, this);
-                if (_ps->flipBookTexture()) {
+                if (_ps->flipBookTexture() && _ps->rot())
+                {
                     char* outputNames[] = {"tf_position", "tf_velocity", "tf_startTime", "tf_initialVelocity", "tf_rotation", "tf_texNum"};
                     _program->initTF(outputNames, 6);
                 }
-                else
+                else if (_ps->flipBookTexture() && !_ps->rot())
+                {
+                    char* outputNames[] = {"tf_position", "tf_velocity", "tf_startTime", "tf_initialVelocity", "tf_texNum"};
+                    _program->initTF(outputNames, 5);
+                }
+                else if (!_ps->flipBookTexture() && _ps->rot())
                 {
                     char* outputNames[] = {"tf_position", "tf_velocity", "tf_startTime", "tf_initialVelocity", "tf_rotation"};
                     _program->initTF(outputNames, 5);
+                }
+                else
+                {
+                    char* outputNames[] = {"tf_position", "tf_velocity", "tf_startTime", "tf_initialVelocity"};
+                    _program->initTF(outputNames, 4);
                 }
             }
             else if (psType() == RM_PS_Draw)
@@ -466,15 +477,25 @@ void SLMaterial::updateProgramPS()
                 if (psType() == RM_PS_Update)
                 {
                     _program            = new SLGLProgramGenerated(_assetManager, programName, this);
-                    if (_ps->flipBookTexture())
+                    if (_ps->flipBookTexture() && _ps->rot())
                     {
                         char* outputNames[] = {"tf_position", "tf_velocity", "tf_startTime", "tf_initialVelocity", "tf_rotation", "tf_texNum"};
                         _program->initTF(outputNames, 6);
                     }
-                    else
+                    else if (_ps->flipBookTexture() && !_ps->rot())
+                    {
+                        char* outputNames[] = {"tf_position", "tf_velocity", "tf_startTime", "tf_initialVelocity", "tf_texNum"};
+                        _program->initTF(outputNames, 5);
+                    }
+                    else if (!_ps->flipBookTexture() && _ps->rot())
                     {
                         char* outputNames[] = {"tf_position", "tf_velocity", "tf_startTime", "tf_initialVelocity", "tf_rotation"};
                         _program->initTF(outputNames, 5);
+                    }
+                    else
+                    {
+                        char* outputNames[] = {"tf_position", "tf_velocity", "tf_startTime", "tf_initialVelocity"};
+                        _program->initTF(outputNames, 4);
                     }
                 }
                 else if (psType() == RM_PS_Draw)

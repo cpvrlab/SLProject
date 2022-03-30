@@ -3809,6 +3809,15 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                 }
                             }
                             // Acceleration
+                            SLbool rot_group = ps->rot();
+                            if (ImGui::Checkbox("Rotation", &rot_group))
+                            {
+                                ps->rot(rot_group);
+                                mOut->updateProgramPS(); // Change or generate new program
+                                m->updateProgramPS();    // Change or generate new program
+                                ps->regenerate();
+                            }
+                            // Acceleration
                             SLbool acc_group = ps->acc();
                             if (ImGui::Checkbox("Acceleration", &acc_group)) {
                                 ps->acc(acc_group);
@@ -3888,8 +3897,9 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                             if (ImGui::Checkbox("Flipbook texture (ONGOING)", &flipbookTex_group))
                             {
                                 ps->flipBookTexture(flipbookTex_group);
-                                //m->updateProgramPS();    // Change or generate new program
+                                m->updateProgramPS();    // Change or generate new program
                                 mOut->updateProgramPS(); // Change or generate new program
+                                ps->changeTexture();     // Switch texture
                                 ps->regenerate();
                             }
                             if (ImGui::CollapsingHeader("Flipbook texture", &flipbookTex_group))
