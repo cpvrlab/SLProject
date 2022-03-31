@@ -123,11 +123,11 @@ private:
     int randomInt(int min, int max);
 
 
-    SLVVec3f V;     //!< Pointer to vertex velocity vector
-    SLVfloat ST;    //!< Pointer to start time vector
-    SLVVec3f InitV; //!< Pointer to vertex velocity vector
-    SLVfloat R;     //!< Pointer to rotation vector
-    SLVuint  TexNum; //!< Pointer to texture number vector
+    SLVVec3f V;         //!< Vector for particle velocity
+    SLVfloat ST;        //!< Vector for particle start time 
+    SLVVec3f InitV;     //!< Vector for particle inital velocity
+    SLVfloat R;         //!< Vector for particle rotation
+    SLVuint  TexNum;    //!< Vector for particle texture number
 
     int _drawBuf = 0;   //!< Boolean to switch buffer
     SLint _col     = 8;       //!< Number of texture by column
