@@ -1764,6 +1764,7 @@ void SLGLProgramGenerated::buildPerPixParticle(SLMaterial* mat)
     bool SiOvLi   = mat->ps()->sizeOverLF();  // Size over life
     bool FlBoTex   = mat->ps()->flipBookTexture();  // Flipbook texture
     bool SiRandom = mat->ps()->sizeRandom();  // Size random
+    int  sumCond    = AlOvLi + rot + SiOvLi + CoOvLi + FlBoTex; //Sum of cond for struct
     //bool WS       = mat->ps()->worldSpace();  // World space or local space
 
     // Assemble vertex shader code
@@ -1778,13 +1779,13 @@ void SLGLProgramGenerated::buildPerPixParticle(SLMaterial* mat)
     
 
     // Vertex shader outputs
-    vertCode += vertOutput_PS_struct_Begin;
+    if (sumCond >= 1) vertCode += vertOutput_PS_struct_Begin;
     if (AlOvLi)vertCode += vertOutput_PS_struct_t;
     if (rot) vertCode += vertOutput_PS_struct_r;
     if (SiOvLi)vertCode += vertOutput_PS_struct_s;
     if (CoOvLi) vertCode += vertOutput_PS_struct_c;
     if (FlBoTex) vertCode += vertOutput_PS_struct_texNum;
-    vertCode += vertOutput_PS_struct_End;
+    if (sumCond >= 1) vertCode += vertOutput_PS_struct_End;
 
     // Vertex shader uniforms
     vertCode += vertInput_PS_u_time;
@@ -1817,13 +1818,13 @@ void SLGLProgramGenerated::buildPerPixParticle(SLMaterial* mat)
     // geometry shader inputs
     geomCode += geomConfig_PS;
 
-    geomCode += geomInput_PS_struct_Begin;
+     if (sumCond >= 1) geomCode += geomInput_PS_struct_Begin;
     if (AlOvLi) geomCode += geomInput_PS_struct_t;
     if (rot) geomCode += geomInput_PS_struct_r;
     if (SiOvLi) geomCode += geomInput_PS_struct_s;
     if (CoOvLi) geomCode += geomInput_PS_struct_c;
     if (FlBoTex) geomCode += geomInput_PS_struct_texNum;
-    geomCode += geomInput_PS_struct_End;
+    if (sumCond >= 1) geomCode += geomInput_PS_struct_End;
 
     // geometry shader uniforms
     geomCode += geomInput_PS_u_ScaRa;

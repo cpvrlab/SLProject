@@ -3762,6 +3762,14 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                 ps->amount(am);
                                 ps->regenerate();
                             }
+                            // TTL (Time to live)
+                            float ttl = ps->ttl();
+                            if (ImGui::InputFloat("Time to live", &ttl))
+                            {
+                                ps->ttl(ttl);
+                                ps->regenerate();
+                                singleNode->needAABBUpdate();
+                            }
                             // World space
                             SLbool worldSpace = ps->worldSpace();
                             if (ImGui::Checkbox("World space", &worldSpace))
@@ -3774,6 +3782,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                 {
                                     ps->vRandS(vec3fVstart[0], vec3fVstart[1], vec3fVstart[2]);
                                     ps->regenerate();
+                                    singleNode->needAABBUpdate();
                                     
                                 }
                                 float vec3fVend[3] = {ps->vRandE().x, ps->vRandE().y, ps->vRandE().z};
@@ -3781,6 +3790,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                 {
                                     ps->vRandE(vec3fVend[0], vec3fVend[1], vec3fVend[2]);
                                     ps->regenerate();
+                                    singleNode->needAABBUpdate();
                                 }
                             }
                             // Color
@@ -3790,7 +3800,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                 ps->color(c);
                             // Tree (Fractal)
                             SLbool tree_group = ps->tree();
-                            if (ImGui::Checkbox("Tree (Fractal)", &tree_group))
+                            if (ImGui::Checkbox("Tree (Fractal) NOT DONE", &tree_group))
                             {
                                 ps->tree(tree_group);
                                 mOut->updateProgramPS(); // Change or generate new program
@@ -3808,7 +3818,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                     ps->numBranch(angle);
                                 }
                             }
-                            // Acceleration
+                            // Rotation
                             SLbool rot_group = ps->rot();
                             if (ImGui::Checkbox("Rotation", &rot_group))
                             {
@@ -3822,12 +3832,14 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                             if (ImGui::Checkbox("Acceleration", &acc_group)) {
                                 ps->acc(acc_group);
                                 mOut->updateProgramPS(); // Change or generate new program
+                                singleNode->needAABBUpdate();
                             }
                             if (ImGui::CollapsingHeader("Acceleration", &acc_group))
                             {
                                 float vec3fAcc[3] = {ps->accV().x, ps->accV().y, ps->accV().z};
                                 ImGui::InputFloat3("input float3", vec3fAcc);
                                 ps->accV(vec3fAcc[0], vec3fAcc[1], vec3fAcc[2]);
+                                singleNode->needAABBUpdate();
                             }
                             // Alpha over lifetime
                             SLbool alphaOverLF_group = ps->alphaOverLF();
@@ -3856,6 +3868,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                             if (ImGui::Checkbox("Size over lifetime", &sizeOverLF_group)) {
                                 ps->sizeOverLF(sizeOverLF_group);
                                 m->updateProgramPS(); // Change or generate new program
+                                singleNode->needAABBUpdate();
                             }
                             if (ImGui::CollapsingHeader("Size over lifetime", &sizeOverLF_group))
                             {

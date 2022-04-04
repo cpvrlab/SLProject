@@ -33,6 +33,7 @@ public:
                      const SLstring& name  = "Particle system");
     
     void draw(SLSceneView* sv, SLNode* node);
+    void buildAABB(SLAABBox& aabb, const SLMat4f& wmNode);
     void generateVAO(SLGLVertexArray& vao);
     void regenerate();
     void generateBernsteinP(float ContP[4], float StaEnd[4]);
@@ -57,6 +58,9 @@ public:
     SLbool      sizeOverLF() { return _sizeOverLF; }
     SLbool      sizeRandom() { return _sizeRandom; }
     SLint      amount() { return _amount; }
+    SLfloat       ttl() { return _ttl; }
+    SLfloat       radius() { return _radius; }
+    SLfloat       scale() { return _scale; }
     SLGLTexture* textureFirst() { return _textureFirst; }
     SLGLTexture* textureFlipbook() { return _textureFlipbook; }
 
@@ -97,6 +101,9 @@ public:
     void sizeOverLF(SLbool b) { _sizeOverLF = b; }
     void sizeRandom(SLbool b) { _sizeRandom = b; }
     void amount(SLint i) { _amount = i; }
+    void ttl(SLfloat f) { _ttl = f; }
+    void radius(SLfloat f) { _radius = f; }
+    void scale(SLfloat f) { _scale = f; }
     void colorArr(SLfloat* arr) { std::copy(arr, arr + 256 * 3, _colorArr); }
     void textureFirst(SLGLTexture* t) { _textureFirst = t; }
     void textureFlipbook(SLGLTexture* t) { _textureFlipbook = t; }
@@ -105,14 +112,18 @@ public:
 
 protected:
     SLfloat     _ttl;           //!< Time to live of a particle 
+    SLfloat     _radius = 0.4f;           //!< Radius of a particle 
+    SLfloat     _scale = 1.0f;           //!< Scale of a particle (Scale the radius)
     SLVec3f     _pEPos;         //!< Position of the particle emitter
     SLVec4f         _bernsteinPY = SLVec4f(2.0f, -3.0f, 0.0f, 1.0f);      //!< Vector for bezier curve (default linear function)
     SLVec3f         _accV = SLVec3f(1.0f, 1.0f, 1.0f);      //!< Vector for acceleration
     SLVec3f         _vRandS = SLVec3f(0.0f, 0.0f, 0.0f);      //!< Vector for acceleration
     SLVec3f         _vRandE = SLVec3f(1.0f, 1.0f, 1.0f);      //!< Vector for acceleration
     SLCol4f         _color    = SLCol4f(0.66f, 0.0f, 0.66f, 0.2f); //!< Color for particle
+
     SLfloat         _angle = 30.0f;     //!< Angle of branches (for tree fractal)
     SLint           _numBranch = 4;     //!< Number of branches (for tree fractal)
+
     SLGLVertexArray _vao1;      //!< First OpenGL Vertex Array Object for swapping between updating/drawing
     SLGLVertexArray _vao2;      //!< Second OpenGL Vertex Array Object for swapping between updating/drawing
 
