@@ -224,6 +224,14 @@ void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
     if (_flipBookTexture){
         sp->uniform1i("u_col", _col);
         sp->uniform1i("u_row", _row);
+        _lastUpdateFB += sv->s()->elapsedTimeSec();
+        if (_lastUpdateFB > (1.0f / _frameRateFB)) { // Last time FB was updated is bigger than the time needed for each update 
+            sp->uniform1i("u_condFB", 1);
+            _lastUpdateFB = 0.0f;
+        }else
+        {
+            sp->uniform1i("u_condFB", 0);
+        }
     }
 
     /////////////////////////////

@@ -61,6 +61,7 @@ public:
     SLfloat       ttl() { return _ttl; }
     SLfloat       radius() { return _radius; }
     SLfloat       scale() { return _scale; }
+    int       frameRateFB() { return _frameRateFB; }
     SLGLTexture* textureFirst() { return _textureFirst; }
     SLGLTexture* textureFlipbook() { return _textureFlipbook; }
 
@@ -104,6 +105,7 @@ public:
     void ttl(SLfloat f) { _ttl = f; }
     void radius(SLfloat f) { _radius = f; }
     void scale(SLfloat f) { _scale = f; }
+    void frameRateFB(int i) { _frameRateFB = i; }
     void colorArr(SLfloat* arr) { std::copy(arr, arr + 256 * 3, _colorArr); }
     void textureFirst(SLGLTexture* t) { _textureFirst = t; }
     void textureFlipbook(SLGLTexture* t) { _textureFlipbook = t; }
@@ -141,6 +143,8 @@ private:
     SLVuint  TexNum;    //!< Vector for particle texture number
 
     int _drawBuf = 0;   //!< Boolean to switch buffer
+    int _frameRateFB = 16;       //!< Number of update of flipbook by second
+    float _lastUpdateFB = 0.0f;    //!< Last time flipbook was updated
     SLint _col     = 8;       //!< Number of texture by column
     SLint _row     = 8;       //!< Number of texture by row
     SLint _amount;      //!< Amount of a particle

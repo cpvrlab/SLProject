@@ -83,6 +83,8 @@ const string vertInput_PS_u_col         = R"(
 uniform int u_col;   // Number of column of flipbook texture)";
 const string vertInput_PS_u_row       = R"(
 uniform int u_row;   // Number of row of flipbook texture)";
+const string vertInput_PS_u_condFB         = R"(
+uniform int u_condFB;   // Condition to update texNum)";
 //-----------------------------------------------------------------------------
 const string vertOutput_v_P_VS       = R"(
 
@@ -258,8 +260,10 @@ const string vertMain_PS_U_alive_p           = R"(
 const string vertMain_PS_U_alive_a             = R"(
                     tf_velocity += u_deltaTime * u_acceleration;  // Amplify the velocity)";
 const string vertMain_PS_U_alive_texNum                  = R"(
-                    tf_texNum++;  // Increment to draw next texture (flipbook)
-                    tf_texNum = uint(tf_texNum % (u_col*u_row));  // Modulo to not exceed the max and reset)";
+                    if(u_condFB == 1){
+                        tf_texNum++;  // Increment to draw next texture (flipbook)
+                        tf_texNum = uint(tf_texNum % (u_col*u_row));  // Modulo to not exceed the max and reset
+                    })";
 const string vertMain_PS_U_EndAll = R"(
         }
     }else{
@@ -1901,6 +1905,7 @@ void SLGLProgramGenerated::buildPerPixParticleUpdate(SLMaterial* mat)
     if (acc)vertCode += vertInput_PS_u_a;
     if (FlBoTex) vertCode += vertInput_PS_u_col;
     if (FlBoTex) vertCode += vertInput_PS_u_row;
+    if (FlBoTex) vertCode += vertInput_PS_u_condFB;
 
     // Vertex shader outputs
     vertCode += vertOutput_PS_tf_p;

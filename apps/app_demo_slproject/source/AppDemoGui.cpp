@@ -3764,7 +3764,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                             }
                             // TTL (Time to live)
                             float ttl = ps->ttl();
-                            if (ImGui::InputFloat("Time to live", &ttl))
+                            if (ImGui::InputFloat("Time to live (s)", &ttl))
                             {
                                 ps->ttl(ttl);
                                 ps->regenerate();
@@ -3793,11 +3793,44 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                     singleNode->needAABBUpdate();
                                 }
                             }
+                            if (ps->colorOverLF())
+                                ImGui::BeginDisabled();
                             // Color
                             ImGuiColorEditFlags cef = ImGuiColorEditFlags_NoInputs;
                             SLCol4f             c  = ps->color();
                             if (ImGui::ColorEdit4("Particle color", (float*)&c, cef))
                                 ps->color(c);
+                            if (ps->colorOverLF())
+                                ImGui::EndDisabled();
+                            // Color over life
+                            SLbool colorOverLF_group = ps->colorOverLF();
+
+                            static ImGradient      gradient;
+                            static ImGradientMark* draggingMark = nullptr;
+                            static ImGradientMark* selectedMark = nullptr;
+
+                            static bool once = []()
+                            {
+                                gradient.getMarks().clear();
+                                gradient.addMark(0.0f, ImColor(255, 0, 0));
+                                gradient.addMark(0.37f, ImColor(255, 193, 3));
+                                gradient.addMark(1.0f, ImColor(255, 255, 255));
+                                return true;
+                            }();
+
+                            if (ImGui::Checkbox("Color over lifetime", &colorOverLF_group))
+                            {
+                                ps->colorOverLF(colorOverLF_group);
+                                ps->colorArr(gradient.cachedValues());
+                                m->updateProgramPS(); // Change or generate new program
+                            }
+                            if (ImGui::CollapsingHeader("Color over lifetime", &colorOverLF_group))
+                            {
+                                if (ImGui::GradientEditor(&gradient, draggingMark, selectedMark))
+                                {
+                                    ps->colorArr(gradient.cachedValues());
+                                }
+                            }
                             // Tree (Fractal)
                             SLbool tree_group = ps->tree();
                             if (ImGui::Checkbox("Tree (Fractal) NOT DONE", &tree_group))
@@ -3876,35 +3909,6 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                 for (int i = 0; i < 5; i++)
                                     ImGui::Text("More content %d", i);
                             }
-                            // Color over life
-                            SLbool colorOverLF_group = ps->colorOverLF();
-
-                            static ImGradient      gradient;
-                            static ImGradientMark* draggingMark = nullptr;
-                            static ImGradientMark* selectedMark = nullptr;
-
-                            static bool once = []()
-                            {
-                                gradient.getMarks().clear();
-                                gradient.addMark(0.0f, ImColor(255, 0, 0));
-                                gradient.addMark(0.37f, ImColor(255, 193, 3));
-                                gradient.addMark(1.0f, ImColor(255, 255, 255));
-                                return true;
-                            }();
-
-                            if (ImGui::Checkbox("Color over lifetime", &colorOverLF_group))
-                            {
-                                ps->colorOverLF(colorOverLF_group);
-                                ps->colorArr(gradient.cachedValues());
-                                m->updateProgramPS(); // Change or generate new program
-                            }
-                            if (ImGui::CollapsingHeader("Color over lifetime", &colorOverLF_group))
-                            {
-                                if(ImGui::GradientEditor(&gradient, draggingMark, selectedMark)) {
-                                    ps->colorArr(gradient.cachedValues());
-                                }
-                            }
-
                             // Flipbook texture
                             SLbool flipbookTex_group = ps->flipBookTexture();
                             if (ImGui::Checkbox("Flipbook texture (ONGOING)", &flipbookTex_group))
@@ -3917,9 +3921,13 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                             }
                             if (ImGui::CollapsingHeader("Flipbook texture", &flipbookTex_group))
                             {
-                                ImGui::Text("IsItemHovered: %d", ImGui::IsItemHovered());
-                                for (int i = 0; i < 5; i++)
-                                    ImGui::Text("More content %d", i);
+                                 
+                                int fR = ps->frameRateFB();
+                                if (ImGui::InputInt("Frame rate (num update by s)", &fR))
+                                {
+                                    ps->frameRateFB(fR);
+                                }
+                                
                             }
 
                             // Size random // no done yet

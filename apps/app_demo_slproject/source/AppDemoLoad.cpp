@@ -5752,7 +5752,9 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         // Create textures and materials
         SLGLTexture* texC = new SLGLTexture(am, texPath + "smoke_08_C.png");
-        SLGLTexture* texFlipbook = new SLGLTexture(am, texPath + "FireBall01_8x8_C.png");
+        SLGLTexture* texFlipbook = new SLGLTexture(am, texPath + "WispySmoke03_8x8_C.png");
+        //SLGLTexture* texFlipbook = new SLGLTexture(am, texPath + "WispySmoke03b_8x8_C.png");
+        //SLGLTexture* texFlipbook = new SLGLTexture(am, texPath + "FireBall01_8x8_C.png");
         
 
         // Create a light source node
