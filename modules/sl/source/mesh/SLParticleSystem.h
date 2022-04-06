@@ -12,6 +12,7 @@
 
 #include <SLMesh.h>
 #include <SLGLTexture.h>
+#include <Averaged.h>
 #include <SLRnd3f.h>
 
 //-----------------------------------------------------------------------------
@@ -61,6 +62,7 @@ public:
     SLfloat       ttl() { return _ttl; }
     SLfloat       radius() { return _radius; }
     SLfloat       scale() { return _scale; }
+    AvgFloat&     updateTime() { return _updateTime; }
     int       frameRateFB() { return _frameRateFB; }
     SLGLTexture* textureFirst() { return _textureFirst; }
     SLGLTexture* textureFlipbook() { return _textureFlipbook; }
@@ -145,6 +147,7 @@ private:
     int _drawBuf = 0;   //!< Boolean to switch buffer
     int _frameRateFB = 16;       //!< Number of update of flipbook by second
     float _lastUpdateFB = 0.0f;    //!< Last time flipbook was updated
+    AvgFloat    _updateTime;     //!< Averaged time for updating in MS
     SLint _col     = 8;       //!< Number of texture by column
     SLint _row     = 8;       //!< Number of texture by row
     SLint _amount;      //!< Amount of a particle

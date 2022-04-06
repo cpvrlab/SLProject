@@ -98,7 +98,7 @@ SLParticleSystem::SLParticleSystem(SLAssetManager* assetMgr,
     _textureFlipbook = texFlipbook;
     initMat(assetMgr, texC);
 
-    
+    _updateTime.init(60, 0.0f);
 
 }
 
@@ -237,6 +237,7 @@ void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
     /////////////////////////////
     // Draw call to update
     /////////////////////////////
+    SLfloat startUpdateTimeMS = GlobalTimer::timeMS();
 
     if (_drawBuf == 0)
     {
@@ -252,7 +253,7 @@ void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
         _vao2.endTF();
         _vao = _vao1;
     }
-
+    _updateTime.set(GlobalTimer::timeMS() - startUpdateTimeMS);
     /////////////////////////////
     // DRAWING
     /////////////////////////////
@@ -294,7 +295,7 @@ void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
     spD->uniform1f("u_tTL", _ttl);
    
     
-    spD->uniform1f("u_scale", 1.0f);
+    spD->uniform1f("u_scale", _scale);
     spD->uniform1f("u_radius", _radius);
 
     spD->uniform1f("u_oneOverGamma", 1.0f);
@@ -369,13 +370,13 @@ void SLParticleSystem::buildAABB(SLAABBox& aabb, const SLMat4f& wmNode)
     }
 
     //Add size particle
-    minP.x += minP.x < maxP.x ? -_radius : _radius;                   // Add size of particle
-    if (!_sizeOverLF) minP.y += minP.y < maxP.y ? -_radius : _radius; // Add size of particle if we don't have size over life
-    minP.z += minP.z < maxP.z ? -_radius : _radius;                   // Add size of particle
+    minP.x += minP.x < maxP.x ? -r : r;                              // Add size of particle
+    if (!_sizeOverLF) minP.y += minP.y < maxP.y ? -r : r; // Add size of particle if we don't have size over life
+    minP.z += minP.z < maxP.z ? -r : r;                              // Add size of particle
     
-    maxP.x += maxP.x > minP.x ? _radius : -_radius; // Add size of particle
-    maxP.y += maxP.y > minP.y ? _radius : -_radius; // Add size of particle
-    maxP.z += maxP.z > minP.z ? _radius : -_radius; // Add size of particle
+    maxP.x += maxP.x > minP.x ? r : -r;            // Add size of particle
+    maxP.y += maxP.y > minP.y ? r : -r;      // Add size of particle
+    maxP.z += maxP.z > minP.z ? r : -r;            // Add size of particle
     
     // Apply world matrix
     aabb.fromOStoWS(minP, maxP, wmNode);

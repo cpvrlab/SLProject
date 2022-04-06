@@ -426,6 +426,10 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                     sprintf(m + strlen(m), "   Match   : %5.1f ms (%3d%%)\n", matchTime, (SLint)matchTimePC);
                     sprintf(m + strlen(m), "   OptFlow : %5.1f ms (%3d%%)\n", optFlowTime, (SLint)optFlowTimePC);
                     sprintf(m + strlen(m), "   Pose    : %5.1f ms (%3d%%)\n", poseTime, (SLint)poseTimePC);
+                    if (s->singleMeshFullSelected() != nullptr) {
+                        SLParticleSystem *ps = s->singleMeshFullSelected()->mat()->ps();
+                        if (s->singleMeshFullSelected()->mat()->reflectionModel() == RM_Particle) sprintf(m + strlen(m), "   PS      : %5.5f ms\n", ps->updateTime().average());
+                    }
                     sprintf(m + strlen(m), " Shadows   : %5.1f ms (%3d%%)\n", shadowMapTime, (SLint)shadowMapTimePC);
                     sprintf(m + strlen(m), " Culling   : %5.1f ms (%3d%%)\n", cullTime, (SLint)cullTimePC);
                     sprintf(m + strlen(m), " Drawing 3D: %5.1f ms (%3d%%)\n", draw3DTime, (SLint)draw3DTimePC);
@@ -3770,6 +3774,20 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                 ps->regenerate();
                                 singleNode->needAABBUpdate();
                             }
+                            // Radius
+                            float radius = ps->radius();
+                            if (ImGui::InputFloat("Radius", &radius))
+                            {
+                                ps->radius(radius);
+                                singleNode->needAABBUpdate();
+                            }
+                            // Scale
+                            float scale = ps->scale();
+                            if (ImGui::InputFloat("Scale", &scale))
+                            {
+                                ps->scale(scale);
+                                singleNode->needAABBUpdate();
+                            }
                             // World space
                             SLbool worldSpace = ps->worldSpace();
                             if (ImGui::Checkbox("World space", &worldSpace))
@@ -3911,7 +3929,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                             }
                             // Flipbook texture
                             SLbool flipbookTex_group = ps->flipBookTexture();
-                            if (ImGui::Checkbox("Flipbook texture (ONGOING)", &flipbookTex_group))
+                            if (ImGui::Checkbox("Flipbook texture", &flipbookTex_group))
                             {
                                 ps->flipBookTexture(flipbookTex_group);
                                 m->updateProgramPS();    // Change or generate new program
