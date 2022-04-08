@@ -446,7 +446,7 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                     sprintf(m + strlen(m), "Rays per ms:%0.0f\n", rt->raysPerMS());
                     sprintf(m + strlen(m), "AA Pixels  :%d (%d%%)\n", SLRay::subsampledPixels, (int)((float)SLRay::subsampledPixels / (float)rayPrimaries * 100.0f));
                     sprintf(m + strlen(m), "Threads    :%d\n", rt->numThreads());
-                    sprintf(m + strlen(m), "---------------------------\n");
+                    sprintf(m + strlen(m), "----------------------------\n");
                     sprintf(m + strlen(m), "Total rays :%9d (%3d%%)\n", rayTotal, 100);
                     sprintf(m + strlen(m), "  Primary  :%9d (%3d%%)\n", rayPrimaries, (int)((float)rayPrimaries / (float)rayTotal * 100.0f));
                     sprintf(m + strlen(m), "  Reflected:%9d (%3d%%)\n", SLRay::reflectedRays, (int)((float)SLRay::reflectedRays / (float)rayTotal * 100.0f));
@@ -454,7 +454,7 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                     sprintf(m + strlen(m), "  TIR      :%9d (%3d%%)\n", SLRay::tirRays, (int)((float)SLRay::tirRays / (float)rayTotal * 100.0f));
                     sprintf(m + strlen(m), "  Shadow   :%9d (%3d%%)\n", SLRay::shadowRays, (int)((float)SLRay::shadowRays / (float)rayTotal * 100.0f));
                     sprintf(m + strlen(m), "  AA       :%9d (%3d%%)\n", SLRay::subsampledRays, (int)((float)SLRay::subsampledRays / (float)rayTotal * 100.0f));
-                    sprintf(m + strlen(m), "---------------------------\n");
+                    sprintf(m + strlen(m), "----------------------------\n");
                     sprintf(m + strlen(m), "Max. depth :%u\n", SLRay::maxDepthReached);
                     sprintf(m + strlen(m), "Avg. depth :%0.3f\n", SLRay::avgDepth / rayPrimaries);
                 }
