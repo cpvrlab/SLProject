@@ -37,8 +37,10 @@ public:
     void buildAABB(SLAABBox& aabb, const SLMat4f& wmNode);
     void generateVAO(SLGLVertexArray& vao);
     void regenerate();
-    void generateBernsteinP(float ContP[4], float StaEnd[4]);
+    void generateBernsteinPAlpha(float ContP[4], float StaEnd[4]);
+    void generateBernsteinPSize(float ContP[4], float StaEnd[4]);
     void changeTexture();
+    void notVisibleFrustrumCulling();
 
     // Getters
     SLVec3f    pEPos() const { return _pEPos; }
@@ -57,6 +59,7 @@ public:
     SLbool      alphaOverLFCurve() { return _alphaOverLFCurve; }
     SLbool        flipBookTexture() { return _flipBookTexture; }
     SLbool      sizeOverLF() { return _sizeOverLF; }
+    SLbool        sizeOverLFCurve() { return _sizeOverLFCurve; }
     SLbool      sizeRandom() { return _sizeRandom; }
     SLint      amount() { return _amount; }
     SLfloat       ttl() { return _ttl; }
@@ -102,6 +105,7 @@ public:
     void alphaOverLFCurve(SLbool b) { _alphaOverLFCurve = b; }
     void flipBookTexture(SLbool b) { _flipBookTexture = b; }
     void sizeOverLF(SLbool b) { _sizeOverLF = b; }
+    void sizeOverLFCurve(SLbool b) { _sizeOverLFCurve = b; }
     void sizeRandom(SLbool b) { _sizeRandom = b; }
     void amount(SLint i) { _amount = i; }
     void ttl(SLfloat f) { _ttl = f; }
@@ -119,7 +123,8 @@ protected:
     SLfloat     _radius = 0.4f;           //!< Radius of a particle 
     SLfloat     _scale = 1.0f;           //!< Scale of a particle (Scale the radius)
     SLVec3f     _pEPos;         //!< Position of the particle emitter
-    SLVec4f         _bernsteinPY = SLVec4f(2.0f, -3.0f, 0.0f, 1.0f);      //!< Vector for bezier curve (default linear function)
+    SLVec4f         _bernsteinPYAlpha = SLVec4f(2.0f, -3.0f, 0.0f, 1.0f); //!< Vector for bezier curve (default linear function)
+    SLVec4f         _bernsteinPYSize = SLVec4f(-1.4f, 1.8f, 0.6f, 0.0f);      //!< Vector for bezier curve (default linear function)
     SLVec3f         _accV = SLVec3f(1.0f, 1.0f, 1.0f);      //!< Vector for acceleration
     SLVec3f         _vRandS = SLVec3f(0.0f, 0.0f, 0.0f);      //!< Vector for acceleration
     SLVec3f         _vRandE = SLVec3f(1.0f, 1.0f, 1.0f);      //!< Vector for acceleration
@@ -152,8 +157,14 @@ private:
     SLint _row     = 8;       //!< Number of texture by row
     SLint _amount;      //!< Amount of a particle
     SLfloat _colorArr[256 * 3]; //!< Color values of color gradient widget
+    SLfloat      _startUpdateTimeMS = 0.0f; //!< Time since start for updating in MS
+    SLfloat      _startUpdateTimeS = 0.0f; //!< Time since start for updating in S
+    SLfloat      _deltaTimeUpdateS   = 0.0f; //!< Time since start for updating in S
+    SLfloat      _notVisibleTimeS   = 0.0f; //!< Time since start when node not visible in S
     SLGLTexture* _textureFirst;
     SLGLTexture* _textureFlipbook;
+
+    SLbool _isViFrustrumCulling = true; //!< Boolean to set time since node, not visible
 
     SLbool _tree  = false;       //!< Boolean for tree fractal
     SLbool _acc  = false;       //!< Boolean for acceleration
@@ -163,6 +174,7 @@ private:
     SLbool _colorOverLF = false; //!< Boolean for color over life time
     SLbool _alphaOverLFCurve = false; //!< Boolean for alpha over life time curve
     SLbool _sizeOverLF = true; //!< Boolean for size over life time
+    SLbool _sizeOverLFCurve = false; //!< Boolean for size over life time curve
     SLbool _flipBookTexture = false; //!< Boolean for flipbook texture
     SLbool _sizeRandom = false; //!< Boolean for size over life time
 

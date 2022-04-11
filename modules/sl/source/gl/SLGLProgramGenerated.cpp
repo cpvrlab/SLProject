@@ -67,9 +67,12 @@ uniform float u_lightSpotDeg[NUM_LIGHTS];   // spot cutoff angle 1-180 degrees)"
 const string vertInput_PS_u_time = R"(
 
 uniform float u_time;       // Simulation time
+uniform float u_difTime;    // Simulation delta time after frustrum culling
 uniform float u_tTL;        // Time to live of a particle)";
-const string vertInput_PS_u_al_bernstein      = R"(
+const string vertInput_PS_u_al_bernstein_alpha      = R"(
 uniform vec4 u_al_bernstein;       // Bernstein polynome for alpha over time)";
+const string vertInput_PS_u_al_bernstein_size = R"(
+uniform vec4 u_si_bernstein;       // Bernstein polynome for alpha over time)";
 const string  vertInput_PS_u_colorOvLF = R"(
 uniform float u_colorArr[256 * 3];       // Array of color value (for color over life))";
 
@@ -203,6 +206,8 @@ const string vertMain_PS_v_r    = R"(
     vert.rotation = a_rotation;)";
 const string vertMain_PS_v_s    = R"(
     vert.size = age / u_tTL;)";
+const string vertMain_PS_v_s_curve     = R"(
+    vert.size = pow(vert.size,3)*u_si_bernstein.x + pow(vert.size,2)*u_si_bernstein.y + vert.size*u_si_bernstein.z + u_si_bernstein.w;  // Get transparency by bezier curve)";
 const string vertMain_PS_v_colorOverLF          = R"(
     vert.color = colorByAge(age/u_tTL);)";
 const string vertMain_PS_v_texNum = R"(
@@ -243,8 +248,9 @@ const string vertMain_PS_U_v_init_texNum                 = R"(
 const string vertMain_PS_U_v_r     = R"(
         tf_rotation = mod(tf_rotation + (0.5*u_deltaTime), 360.0);)";
 const string vertMain_PS_U_bornDead          = R"(
-        if( u_time >= a_startTime ) {   // Check if the particle is born
-            float age = u_time - a_startTime;   // Get the age of the particle
+        tf_startTime += u_difTime;       // Add time to resume after frustrum culling
+        if( u_time >= tf_startTime ) {   // Check if the particle is born
+            float age = u_time - tf_startTime;   // Get the age of the particle
                 if( age > u_tTL ) {   )";
 const string vertMain_PS_U_reset_p    = R"(
                     // The particle is past its lifetime, recycle.
@@ -1408,6 +1414,7 @@ void SLGLProgramGenerated::buildProgramNamePS(SLMaterial* mat,
         bool AlOvLi   = mat->ps()->alphaOverLF(); // Alpha over life
         bool AlOvLiCu = mat->ps()->alphaOverLFCurve(); // Alpha over life curve
         bool SiOvLi   = mat->ps()->sizeOverLF();  // Size over life
+        bool SiOvLiCu = mat->ps()->sizeOverLFCurve(); // Size over life curve
         bool CoOvLi   = mat->ps()->colorOverLF();      // Color over life
         bool SiRandom = mat->ps()->sizeRandom();  // Size random
         bool FlBoTex  = mat->ps()->flipBookTexture();  // Flipbook texture
@@ -1417,6 +1424,7 @@ void SLGLProgramGenerated::buildProgramNamePS(SLMaterial* mat,
         if (AlOvLi) programName += "-AL";
         if (AlOvLiCu) programName += "cu";
         if (SiOvLi) programName += "-SL";
+        if (SiOvLiCu) programName += "cu";
         if (CoOvLi) programName += "-CL";
         if (SiRandom) programName += "-SR";
         if (FlBoTex) programName += "-FB";
@@ -1751,7 +1759,6 @@ void SLGLProgramGenerated::buildPerPixBlinn(SLMaterial* mat, SLVLight* lights)
     addCodeToShader(_shaders[1], fragCode, _name + ".frag");
 }
 //-----------------------------------------------------------------------------
-//NOT Finished
 void SLGLProgramGenerated::buildPerPixParticle(SLMaterial* mat)
 {
     assert(_shaders.size() > 2 &&
@@ -1766,6 +1773,7 @@ void SLGLProgramGenerated::buildPerPixParticle(SLMaterial* mat)
     bool CoOvLi   = mat->ps()->colorOverLF(); // Color over life
     bool AlOvLiCu   = mat->ps()->alphaOverLFCurve(); // Alpha over life curve
     bool SiOvLi   = mat->ps()->sizeOverLF();  // Size over life
+    bool SiOvLiCu   = mat->ps()->sizeOverLFCurve();  // Size over life curve
     bool FlBoTex   = mat->ps()->flipBookTexture();  // Flipbook texture
     bool SiRandom = mat->ps()->sizeRandom();  // Size random
     int  sumCond    = AlOvLi + rot + SiOvLi + CoOvLi + FlBoTex; //Sum of cond for struct
@@ -1794,7 +1802,8 @@ void SLGLProgramGenerated::buildPerPixParticle(SLMaterial* mat)
     // Vertex shader uniforms
     vertCode += vertInput_PS_u_time;
     vertCode += vertInput_u_matrix_vOmv;
-    if (AlOvLiCu) vertCode += vertInput_PS_u_al_bernstein;
+    if (AlOvLiCu) vertCode += vertInput_PS_u_al_bernstein_alpha;
+    if (SiOvLiCu) vertCode += vertInput_PS_u_al_bernstein_size;
     if (CoOvLi) vertCode += vertInput_PS_u_colorOvLF;
 
     // Vertex shader functions
@@ -1809,6 +1818,7 @@ void SLGLProgramGenerated::buildPerPixParticle(SLMaterial* mat)
     if (AlOvLi) vertCode += vertMain_PS_v_t_end;
     if (rot) vertCode += vertMain_PS_v_r;
     if (SiOvLi)vertCode += vertMain_PS_v_s;
+    if (SiOvLi && SiOvLiCu) vertCode += vertMain_PS_v_s_curve;
     if (CoOvLi) vertCode += vertMain_PS_v_colorOverLF;
     if (FlBoTex) vertCode += vertMain_PS_v_texNum;
     vertCode += vertMain_PS_EndAll;
@@ -1893,7 +1903,7 @@ void SLGLProgramGenerated::buildPerPixParticleUpdate(SLMaterial* mat)
     vertCode += vertInput_PS_a_p;
     vertCode += vertInput_PS_a_v;
     vertCode += vertInput_PS_a_st;
-    vertCode += vertInput_PS_a_initV;
+    if (acc) vertCode += vertInput_PS_a_initV;
     if (rot) vertCode += vertInput_PS_a_r;
     if (FlBoTex) vertCode += vertInput_PS_a_texNum;
 
@@ -1911,7 +1921,7 @@ void SLGLProgramGenerated::buildPerPixParticleUpdate(SLMaterial* mat)
     vertCode += vertOutput_PS_tf_p;
     vertCode += vertOutput_PS_tf_v;
     vertCode += vertOutput_PS_tf_st;
-    vertCode += vertOutput_PS_tf_initV;
+    if (acc) vertCode += vertOutput_PS_tf_initV;
     if (rot) vertCode += vertOutput_PS_tf_r;
     if (FlBoTex) vertCode += vertOutput_PS_tf_texNum;
 
@@ -1920,13 +1930,13 @@ void SLGLProgramGenerated::buildPerPixParticleUpdate(SLMaterial* mat)
     vertCode += vertMain_PS_U_v_init_p;
     vertCode += vertMain_PS_U_v_init_v;
     vertCode += vertMain_PS_U_v_init_st;
-    vertCode += vertMain_PS_U_v_init_initV;
+    if (acc) vertCode += vertMain_PS_U_v_init_initV;
     if (rot) vertCode += vertMain_PS_U_v_init_r;
     if (FlBoTex) vertCode += vertMain_PS_U_v_init_texNum;
     if (rot) vertCode += vertMain_PS_U_v_r;
     vertCode += vertMain_PS_U_bornDead;
     vertCode += vertMain_PS_U_reset_p;
-    vertCode += vertMain_PS_U_reset_v;
+    if (acc) vertCode += vertMain_PS_U_reset_v;
     vertCode += vertMain_PS_U_reset_st;
     vertCode += vertMain_PS_U_alive_p;
     if (FlBoTex) vertCode += vertMain_PS_U_alive_texNum;

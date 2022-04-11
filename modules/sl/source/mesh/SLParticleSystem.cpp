@@ -110,7 +110,8 @@ void SLParticleSystem::generateVAO(SLGLVertexArray& vao)
     vao.setAttrib(AT_position, AT_position, &P);
     vao.setAttrib(AT_velocity, AT_velocity, &V);
     vao.setAttrib(AT_startTime, AT_startTime, &ST);
-    vao.setAttrib(AT_initialVelocity, AT_initialVelocity, &InitV);
+    if (_acc)
+        vao.setAttrib(AT_initialVelocity, AT_initialVelocity, &InitV);
     if (_rot)
         vao.setAttrib(AT_rotation, AT_rotation, &R);
     if (_flipBookTexture)
@@ -150,18 +151,37 @@ Generate Bernstein Polynome with 4 controls points.
 ContP contains 2 and 3 controls points
 StatEnd contains 1 and 4 controls points
 */
-void SLParticleSystem::generateBernsteinP(float ContP[4], float StaEnd[4])
+void SLParticleSystem::generateBernsteinPAlpha(float ContP[4], float StaEnd[4])
 {
     //For Y bezier curve
     //T^3
-    _bernsteinPY.x = -StaEnd[1] + ContP[1] * 3 - ContP[3] * 3 + StaEnd[3];
+    _bernsteinPYAlpha.x = -StaEnd[1] + ContP[1] * 3 - ContP[3] * 3 + StaEnd[3];
     //T^2
-    _bernsteinPY.y = StaEnd[1] * 3 - ContP[1] * 6 + ContP[3] * 3;
+    _bernsteinPYAlpha.y = StaEnd[1] * 3 - ContP[1] * 6 + ContP[3] * 3;
     //T
-    _bernsteinPY.z = -StaEnd[1] * 3 + ContP[1] * 3;
+    _bernsteinPYAlpha.z = -StaEnd[1] * 3 + ContP[1] * 3;
     //1
-    _bernsteinPY.w = StaEnd[1];
+    _bernsteinPYAlpha.w = StaEnd[1];
 }
+
+/*!
+Generate Bernstein Polynome with 4 controls points.
+ContP contains 2 and 3 controls points
+StatEnd contains 1 and 4 controls points
+*/
+void SLParticleSystem::generateBernsteinPSize(float ContP[4], float StaEnd[4])
+{
+    //For Y bezier curve
+    //T^3
+    _bernsteinPYSize.x = -StaEnd[1] + ContP[1] * 3 - ContP[3] * 3 + StaEnd[3];
+    //T^2
+    _bernsteinPYSize.y = StaEnd[1] * 3 - ContP[1] * 6 + ContP[3] * 3;
+    //T
+    _bernsteinPYSize.z = -StaEnd[1] * 3 + ContP[1] * 3;
+    //1
+    _bernsteinPYSize.w = StaEnd[1];
+}
+
 
 void SLParticleSystem::changeTexture()
 {
@@ -173,6 +193,14 @@ void SLParticleSystem::changeTexture()
     {
         mat()->removeTextureType(TT_diffuse);
         mat()->addTexture(_textureFirst);
+    }
+}
+
+void SLParticleSystem::notVisibleFrustrumCulling()
+{
+    if (_isViFrustrumCulling) {
+        _isViFrustrumCulling = false;
+        _notVisibleTimeS     = GlobalTimer::timeS();
     }
 }
 
@@ -203,8 +231,27 @@ void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
     /////////////////////////////
     // Apply Uniform Variables
     /////////////////////////////
-    sp->uniform1f("u_time", GlobalTimer::timeS());
-    sp->uniform1f("u_deltaTime", sv->s()->elapsedTimeSec());
+    _startUpdateTimeMS = GlobalTimer::timeMS();
+
+    if (!_isViFrustrumCulling) {
+        _isViFrustrumCulling = true;
+        sp->uniform1f("u_difTime", GlobalTimer::timeS() - _notVisibleTimeS);
+        sp->uniform1f("u_deltaTime", _deltaTimeUpdateS); // Last delta time, maybe add later average deltatime (because maybe bug when fast not visible long time, visible, not visible, visisble
+    }
+    else
+    {
+        sp->uniform1f("u_difTime", 0.0f);
+        sp->uniform1f("u_deltaTime", GlobalTimer::timeS() - _startUpdateTimeS);
+    }
+
+
+    // Calculate the elapsed time for the updating
+    _deltaTimeUpdateS  = GlobalTimer::timeS() - _startUpdateTimeS;
+    _startUpdateTimeS = GlobalTimer::timeS();
+
+    sp->uniform1f("u_time", _startUpdateTimeS);
+
+    
     if (_acc) {
         sp->uniform3f("u_acceleration", _accV.x, _accV.y, _accV.z);
     }
@@ -237,7 +284,7 @@ void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
     /////////////////////////////
     // Draw call to update
     /////////////////////////////
-    SLfloat startUpdateTimeMS = GlobalTimer::timeMS();
+    
 
     if (_drawBuf == 0)
     {
@@ -253,7 +300,7 @@ void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
         _vao2.endTF();
         _vao = _vao1;
     }
-    _updateTime.set(GlobalTimer::timeMS() - startUpdateTimeMS);
+    _updateTime.set(GlobalTimer::timeMS() - _startUpdateTimeMS);
     /////////////////////////////
     // DRAWING
     /////////////////////////////
@@ -275,7 +322,12 @@ void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
     }
     //Alpha over life bezier curve
     if (_alphaOverLFCurve) {
-        spD->uniform4f("u_al_bernstein", _bernsteinPY.x, _bernsteinPY.y, _bernsteinPY.z, _bernsteinPY.w);
+        spD->uniform4f("u_al_bernstein", _bernsteinPYAlpha.x, _bernsteinPYAlpha.y, _bernsteinPYAlpha.z, _bernsteinPYAlpha.w);
+    }
+    //Size over life bezier curve
+    if (_sizeOverLFCurve)
+    {
+        spD->uniform4f("u_si_bernstein", _bernsteinPYSize.x, _bernsteinPYSize.y, _bernsteinPYSize.z, _bernsteinPYSize.w);
     }
     //Color over life by gradient color editor
     if (_colorOverLF) {

@@ -3884,6 +3884,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                 ps->acc(acc_group);
                                 mOut->updateProgramPS(); // Change or generate new program
                                 singleNode->needAABBUpdate();
+                                ps->regenerate();
                             }
                             if (ImGui::CollapsingHeader("Acceleration", &acc_group))
                             {
@@ -3908,10 +3909,10 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                 }
                                 if (ImGui::CollapsingHeader("Bezier curve", &alphaOverLFCurve_group))
                                 {
-                                    static float v[4]      = {0.0f, 1.0f, 1.0f, 0.0f};
-                                    static float staEnd[4] = {0.0f, 1.0f, 1.0f, 0.0f};
-                                    ImGui::Bezier("easeInExpo", v, staEnd);
-                                    ps->generateBernsteinP(v, staEnd);
+                                    static float vAlpha[4]      = {0.0f, 1.0f, 1.0f, 0.0f};
+                                    static float staEndAlpha[4] = {0.0f, 1.0f, 1.0f, 0.0f};
+                                    ImGui::Bezier("easeInExpo", vAlpha, staEndAlpha);
+                                    ps->generateBernsteinPAlpha(vAlpha, staEndAlpha);
                                 }
                             }
                             // Size over lifetime
@@ -3923,9 +3924,19 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                             }
                             if (ImGui::CollapsingHeader("Size over lifetime", &sizeOverLF_group))
                             {
-                                ImGui::Text("IsItemHovered: %d", ImGui::IsItemHovered());
-                                for (int i = 0; i < 5; i++)
-                                    ImGui::Text("More content %d", i);
+                                SLbool sizeOverLFCurve_group = ps->sizeOverLFCurve();
+                                if (ImGui::Checkbox("Custom curve (Unchecked --> Linear function)", &sizeOverLFCurve_group))
+                                {
+                                    ps->sizeOverLFCurve(sizeOverLFCurve_group);
+                                    m->updateProgramPS(); // Change or generate new program
+                                }
+                                if (ImGui::CollapsingHeader("Bezier curve", &sizeOverLFCurve_group))
+                                {
+                                    static float vSize[4]      = {0.0f, 0.2f, 1.0f, 1.0f};
+                                    static float staEndSize[4] = {0.0f, 0.0f, 1.0f, 1.0f};
+                                    ImGui::Bezier("easeInExpo", vSize, staEndSize);
+                                    ps->generateBernsteinPSize(vSize, staEndSize);
+                                }
                             }
                             // Flipbook texture
                             SLbool flipbookTex_group = ps->flipBookTexture();
