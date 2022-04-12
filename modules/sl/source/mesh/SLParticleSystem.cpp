@@ -140,6 +140,7 @@ void SLParticleSystem::regenerate()
         InitV[i] = V[i];
         R[i]     = randomFloat(0.0f, 360.0f); // Start rotation of the particle
         TexNum[i] = randomInt(0, _row * _col - 1);
+        //TexNum[i] = 0;
     }
 
     _vao1.deleteGL();
@@ -253,7 +254,10 @@ void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
 
     
     if (_acc) {
-        sp->uniform3f("u_acceleration", _accV.x, _accV.y, _accV.z);
+        if (_accDiffDir)
+            sp->uniform3f("u_acceleration", _accV.x, _accV.y, _accV.z);
+        else
+            sp->uniform1f("u_accConst", _accConst);
     }
     
     sp->uniform1f("u_tTL", _ttl);
@@ -271,7 +275,7 @@ void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
     if (_flipBookTexture){
         sp->uniform1i("u_col", _col);
         sp->uniform1i("u_row", _row);
-        _lastUpdateFB += sv->s()->elapsedTimeSec();
+        _lastUpdateFB += _deltaTimeUpdateS;
         if (_lastUpdateFB > (1.0f / _frameRateFB)) { // Last time FB was updated is bigger than the time needed for each update 
             sp->uniform1i("u_condFB", 1);
             _lastUpdateFB = 0.0f;
@@ -334,7 +338,7 @@ void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
         spD->uniform1fv("u_colorArr", 256 * 3, _colorArr);
     }
     else{
-        spD->uniform4f("u_color", _color.x, _color.y, _color.z, _color.w);
+        spD->uniform4f("u_color", _colorV.x, _colorV.y, _colorV.z, _colorV.w);
     }
     // Flipbook
     if (_flipBookTexture)
@@ -348,7 +352,8 @@ void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
    
     
     spD->uniform1f("u_scale", _scale);
-    spD->uniform1f("u_radius", _radius);
+    spD->uniform1f("u_radiusW", _radiusW);
+    spD->uniform1f("u_radiusH", _radiusH);
 
     spD->uniform1f("u_oneOverGamma", 1.0f);
 
@@ -359,61 +364,77 @@ void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
 void SLParticleSystem::buildAABB(SLAABBox& aabb, const SLMat4f& wmNode)
 {
     //Radius of particle
-    float r = _radius * _scale;
+    float rW = _radiusW * _scale;
+    float rH = _radiusH * _scale;
 
     //Here calculate minP maxP
-    if (_acc) { 
-        minP = SLVec3f();
-        maxP = SLVec3f();
-        // Decide which one is the minP and maxP
-        if (_vRandS.x < _vRandE.x) {
-            maxP.x = _vRandE.x;
-            minP.x = _vRandS.x;
-        }else{
-           maxP.x = _vRandS.x;
-           minP.x = _vRandE.x;
-        }
-        if (_vRandS.y < _vRandE.y)
-        {
-            maxP.y = _vRandE.y;
-            minP.y = 0;
-        }else{
-            maxP.y = _vRandS.y;
-            minP.y = 0;
-        }
-        if (_vRandS.z < _vRandE.z)
-        {
-            maxP.z = _vRandE.z;
-            minP.z = _vRandS.z;
-        }else{
-            maxP.z = _vRandS.z;
-            minP.z = _vRandE.z;
-        }
+    if (_acc)
+    {
+            minP = SLVec3f();
+            maxP = SLVec3f();
+            // Decide which one is the minP and maxP
+            if (_vRandS.x < _vRandE.x)
+            {
+                maxP.x = _vRandE.x;
+                minP.x = _vRandS.x;
+            }
+            else
+            {
+                maxP.x = _vRandS.x;
+                minP.x = _vRandE.x;
+            }
+            if (_vRandS.y < _vRandE.y)
+            {
+                maxP.y = _vRandE.y;
+                minP.y = 0;
+            }
+            else
+            {
+                maxP.y = _vRandS.y;
+                minP.y = 0;
+            }
+            if (_vRandS.z < _vRandE.z)
+            {
+                maxP.z = _vRandE.z;
+                minP.z = _vRandS.z;
+            }
+            else
+            {
+                maxP.z = _vRandS.z;
+                minP.z = _vRandE.z;
+            }
 
-        // Inverse if acceleration is negative
-        if (_accV.x < 0.0)
-        {
-            float temp = minP.x;
-            minP.x     = maxP.x;
-            maxP.x     = temp;
-        }
-        if (_accV.y < 0.0)
-        {
-            float temp = minP.y;
-            minP.y     = maxP.y;
-            maxP.y     = temp;
-        }
-        if (_accV.z < 0.0)
-        {
-            float temp = minP.z;
-            minP.z     = maxP.z;
-            maxP.z     = temp;
-        }
+            // Inverse if acceleration is negative
+            if (_accV.x < 0.0)
+            {
+                float temp = minP.x;
+                minP.x     = maxP.x;
+                maxP.x     = temp;
+            }
+            if (_accV.y < 0.0)
+            {
+                float temp = minP.y;
+                minP.y     = maxP.y;
+                maxP.y     = temp;
+            }
+            if (_accV.z < 0.0)
+            {
+                float temp = minP.z;
+                minP.z     = maxP.z;
+                maxP.z     = temp;
+            }
 
-        minP = minP * _ttl;
-
-        maxP = maxP * _ttl;                     //Apply velocity distance after time
-        maxP += 0.5f * _accV * (_ttl * _ttl);   //Apply acceleration after time
+            minP = minP * _ttl;
+            maxP = maxP * _ttl;                   //Apply velocity distance after time
+            if (_accDiffDir)
+            {
+                maxP += 0.5f * _accV * (_ttl * _ttl); //Apply acceleration after time
+            }
+            else
+            {
+                minP += 0.5f * minP * _accConst * _ttl; //Apply constant acceleration
+                maxP += 0.5f * maxP * _accConst * _ttl; //Apply constant acceleration
+            }
     }
     else
     {
@@ -421,14 +442,15 @@ void SLParticleSystem::buildAABB(SLAABBox& aabb, const SLMat4f& wmNode)
         maxP = _vRandE * _ttl;                          //Apply velocity distance after time
     }
 
+
     //Add size particle
-    minP.x += minP.x < maxP.x ? -r : r;                              // Add size of particle
-    if (!_sizeOverLF) minP.y += minP.y < maxP.y ? -r : r; // Add size of particle if we don't have size over life
-    minP.z += minP.z < maxP.z ? -r : r;                              // Add size of particle
+    minP.x += minP.x < maxP.x ? -rW : rW;                              // Add size of particle
+    if (!_sizeOverLF) minP.y += minP.y < maxP.y ? -rH : rH; // Add size of particle if we don't have size over life
+    minP.z += minP.z < maxP.z ? -rW : rW;                              // Add size of particle
     
-    maxP.x += maxP.x > minP.x ? r : -r;            // Add size of particle
-    maxP.y += maxP.y > minP.y ? r : -r;      // Add size of particle
-    maxP.z += maxP.z > minP.z ? r : -r;            // Add size of particle
+    maxP.x += maxP.x > minP.x ? rW : -rW;            // Add size of particle
+    maxP.y += maxP.y > minP.y ? rH : -rH;      // Add size of particle
+    maxP.z += maxP.z > minP.z ? rW : -rW;            // Add size of particle
     
     // Apply world matrix
     aabb.fromOStoWS(minP, maxP, wmNode);

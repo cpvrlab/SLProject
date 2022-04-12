@@ -45,13 +45,15 @@ public:
     // Getters
     SLVec3f    pEPos() const { return _pEPos; }
     SLbool      acc() { return _acc; }
+    SLbool        accDiffDir() { return _accDiffDir; }
     SLbool      rot() { return _rot; }
     SLVec3f     accV() { return _accV; }
     SLVec3f     vRandS() { return _vRandS; }
     SLVec3f     vRandE() { return _vRandE; }
-    SLCol4f     color() { return _color; }
+    SLCol4f     colorV() { return _colorV; }
     SLbool      tree() { return _tree; }
     SLfloat       angle() { return _angle; }
+    SLfloat       accConst() { return _accConst; }
     SLint       numBranch() { return _numBranch; }
     SLbool      worldSpace() { return _worldSpace; }
     SLbool      alphaOverLF() { return _alphaOverLF; }
@@ -61,9 +63,13 @@ public:
     SLbool      sizeOverLF() { return _sizeOverLF; }
     SLbool        sizeOverLFCurve() { return _sizeOverLFCurve; }
     SLbool      sizeRandom() { return _sizeRandom; }
+    SLbool        color() { return _color; }
     SLint      amount() { return _amount; }
+    SLint      col() { return _col; }
+    SLint      row() { return _row; }
     SLfloat       ttl() { return _ttl; }
-    SLfloat       radius() { return _radius; }
+    SLfloat       radiusW() { return _radiusW; }
+    SLfloat       radiusH() { return _radiusH; }
     SLfloat       scale() { return _scale; }
     AvgFloat&     updateTime() { return _updateTime; }
     int       frameRateFB() { return _frameRateFB; }
@@ -73,6 +79,7 @@ public:
     //Setters
     void pEPos(SLVec3f p) { _pEPos = p; }
     void acc(SLbool b) { _acc = b; }
+    void accDiffDir(SLbool b) { _accDiffDir = b; }
     void rot(SLbool b) { _rot = b; }
     void accV(SLVec3f v) { _accV = v; }
     void accV(SLfloat vX, SLfloat vY, SLfloat vZ)
@@ -95,9 +102,10 @@ public:
         _vRandE.y = vY;
         _vRandE.z = vZ;
     }
-    void color(SLCol4f c) { _color = c; }
+    void colorV(SLCol4f c) { _colorV = c; }
     void tree(SLbool b) { _tree = b; }
     void angle(SLfloat f) { _angle = f; }
+    void accConst(SLfloat f) { _accConst = f; }
     void numBranch(SLint i) { _numBranch = i; }
     void worldSpace(SLbool b) { _worldSpace = b; }
     void alphaOverLF(SLbool b) { _alphaOverLF = b; }
@@ -107,9 +115,13 @@ public:
     void sizeOverLF(SLbool b) { _sizeOverLF = b; }
     void sizeOverLFCurve(SLbool b) { _sizeOverLFCurve = b; }
     void sizeRandom(SLbool b) { _sizeRandom = b; }
+    void color(SLbool b) { _color = b; }
     void amount(SLint i) { _amount = i; }
+    void col(SLint i) { _col = i; }
+    void row(SLint i) { _row = i; }
     void ttl(SLfloat f) { _ttl = f; }
-    void radius(SLfloat f) { _radius = f; }
+    void radiusW(SLfloat f) { _radiusW = f; }
+    void radiusH(SLfloat f) { _radiusH = f; }
     void scale(SLfloat f) { _scale = f; }
     void frameRateFB(int i) { _frameRateFB = i; }
     void colorArr(SLfloat* arr) { std::copy(arr, arr + 256 * 3, _colorArr); }
@@ -120,15 +132,17 @@ public:
 
 protected:
     SLfloat     _ttl;           //!< Time to live of a particle 
-    SLfloat     _radius = 0.4f;           //!< Radius of a particle 
+    SLfloat     _radiusW = 0.4f;           //!< width radius of a particle 
+    SLfloat     _radiusH = 0.4f;           //!< height radius of a particle 
     SLfloat     _scale = 1.0f;           //!< Scale of a particle (Scale the radius)
     SLVec3f     _pEPos;         //!< Position of the particle emitter
     SLVec4f         _bernsteinPYAlpha = SLVec4f(2.0f, -3.0f, 0.0f, 1.0f); //!< Vector for bezier curve (default linear function)
     SLVec4f         _bernsteinPYSize = SLVec4f(-1.4f, 1.8f, 0.6f, 0.0f);      //!< Vector for bezier curve (default linear function)
-    SLVec3f         _accV = SLVec3f(1.0f, 1.0f, 1.0f);      //!< Vector for acceleration
-    SLVec3f         _vRandS = SLVec3f(0.0f, 0.0f, 0.0f);      //!< Vector for acceleration
-    SLVec3f         _vRandE = SLVec3f(1.0f, 1.0f, 1.0f);      //!< Vector for acceleration
-    SLCol4f         _color    = SLCol4f(0.66f, 0.0f, 0.66f, 0.2f); //!< Color for particle
+    SLVec3f         _accV = SLVec3f(1.0f, 1.0f, 1.0f);      //!< vec for acceleration (different direction as the velocity)
+    SLfloat         _accConst = 0.0f;           //!< Acceleration constant (same direction as the velocity)
+    SLVec3f         _vRandS = SLVec3f(0.0f, 0.0f, 0.0f);      //!< vec start for random velocity
+    SLVec3f         _vRandE = SLVec3f(1.0f, 1.0f, 1.0f);      //!< vec end for random velocity
+    SLCol4f         _colorV    = SLCol4f(0.66f, 0.0f, 0.66f, 0.2f); //!< Color for particle
 
     SLfloat         _angle = 30.0f;     //!< Angle of branches (for tree fractal)
     SLint           _numBranch = 4;     //!< Number of branches (for tree fractal)
@@ -168,7 +182,9 @@ private:
 
     SLbool _tree  = false;       //!< Boolean for tree fractal
     SLbool _acc  = false;       //!< Boolean for acceleration
+    SLbool _accDiffDir = false;       //!< Boolean for acceleration (different direction)
     SLbool _rot  = true;       //!< Boolean for rotation
+    SLbool _color  = true;       //!< Boolean for color
     SLbool _worldSpace = false; //!< Boolean for world space position
     SLbool _alphaOverLF = true; //!< Boolean for alpha over life time
     SLbool _colorOverLF = false; //!< Boolean for color over life time

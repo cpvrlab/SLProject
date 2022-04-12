@@ -188,6 +188,7 @@ enum SLSceneID
     SID_Benchmark6_ColumnsLOD,
 
     SID_ParticleSystem_First,
+    SID_ParticleSystem_FireEffects,
 
     SID_Maximal
 };

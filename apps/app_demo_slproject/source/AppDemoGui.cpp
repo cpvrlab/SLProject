@@ -1952,6 +1952,8 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                 {
                     if (ImGui::MenuItem("First Particle System", nullptr, sid == SID_ParticleSystem_First))
                         s->onLoad(am, s, sv, SID_ParticleSystem_First);
+                    if (ImGui::MenuItem("Fire effects particle system", nullptr, sid == SID_ParticleSystem_FireEffects))
+                        s->onLoad(am, s, sv, SID_ParticleSystem_FireEffects);
 
                     ImGui::EndMenu();
                 }
@@ -3775,10 +3777,16 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                 singleNode->needAABBUpdate();
                             }
                             // Radius
-                            float radius = ps->radius();
-                            if (ImGui::InputFloat("Radius", &radius))
+                            float radiusW = ps->radiusW();
+                            if (ImGui::InputFloat("Radius width", &radiusW))
                             {
-                                ps->radius(radius);
+                                ps->radiusW(radiusW);
+                                singleNode->needAABBUpdate();
+                            }
+                            float radiusH = ps->radiusH();
+                            if (ImGui::InputFloat("Radius height", &radiusH))
+                            {
+                                ps->radiusH(radiusH);
                                 singleNode->needAABBUpdate();
                             }
                             // Scale
@@ -3811,42 +3819,52 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                     singleNode->needAABBUpdate();
                                 }
                             }
-                            if (ps->colorOverLF())
-                                ImGui::BeginDisabled();
-                            // Color
-                            ImGuiColorEditFlags cef = ImGuiColorEditFlags_NoInputs;
-                            SLCol4f             c  = ps->color();
-                            if (ImGui::ColorEdit4("Particle color", (float*)&c, cef))
-                                ps->color(c);
-                            if (ps->colorOverLF())
-                                ImGui::EndDisabled();
-                            // Color over life
-                            SLbool colorOverLF_group = ps->colorOverLF();
-
-                            static ImGradient      gradient;
-                            static ImGradientMark* draggingMark = nullptr;
-                            static ImGradientMark* selectedMark = nullptr;
-
-                            static bool once = []()
+                            //Color checkbox
+                            SLbool color_group = ps->color();
+                            if (ImGui::Checkbox("Color", &color_group))
                             {
-                                gradient.getMarks().clear();
-                                gradient.addMark(0.0f, ImColor(255, 0, 0));
-                                gradient.addMark(0.37f, ImColor(255, 193, 3));
-                                gradient.addMark(1.0f, ImColor(255, 255, 255));
-                                return true;
-                            }();
-
-                            if (ImGui::Checkbox("Color over lifetime", &colorOverLF_group))
-                            {
-                                ps->colorOverLF(colorOverLF_group);
-                                ps->colorArr(gradient.cachedValues());
+                                ps->color(color_group);
                                 m->updateProgramPS(); // Change or generate new program
                             }
-                            if (ImGui::CollapsingHeader("Color over lifetime", &colorOverLF_group))
+                            if (ImGui::CollapsingHeader("Color", &color_group))
                             {
-                                if (ImGui::GradientEditor(&gradient, draggingMark, selectedMark))
+                                // Color
+                                if (ps->colorOverLF())
+                                    ImGui::BeginDisabled();
+                                ImGuiColorEditFlags cef = ImGuiColorEditFlags_NoInputs;
+                                SLCol4f             c   = ps->colorV();
+                                if (ImGui::ColorEdit4("Particle color", (float*)&c, cef))
+                                    ps->colorV(c);
+                                if (ps->colorOverLF())
+                                    ImGui::EndDisabled();
+                                // Color over life
+                                SLbool colorOverLF_group = ps->colorOverLF();
+
+                                static ImGradient      gradient;
+                                static ImGradientMark* draggingMark = nullptr;
+                                static ImGradientMark* selectedMark = nullptr;
+
+                                static bool once = []()
                                 {
+                                    gradient.getMarks().clear();
+                                    gradient.addMark(0.0f, ImColor(255, 0, 0));
+                                    gradient.addMark(0.37f, ImColor(255, 193, 3));
+                                    gradient.addMark(1.0f, ImColor(255, 255, 255));
+                                    return true;
+                                }();
+
+                                if (ImGui::Checkbox("Color over lifetime", &colorOverLF_group))
+                                {
+                                    ps->colorOverLF(colorOverLF_group);
                                     ps->colorArr(gradient.cachedValues());
+                                    m->updateProgramPS(); // Change or generate new program
+                                }
+                                if (ImGui::CollapsingHeader("Color over lifetime", &colorOverLF_group))
+                                {
+                                    if (ImGui::GradientEditor(&gradient, draggingMark, selectedMark))
+                                    {
+                                        ps->colorArr(gradient.cachedValues());
+                                    }
                                 }
                             }
                             // Tree (Fractal)
@@ -3888,10 +3906,31 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                             }
                             if (ImGui::CollapsingHeader("Acceleration", &acc_group))
                             {
-                                float vec3fAcc[3] = {ps->accV().x, ps->accV().y, ps->accV().z};
-                                ImGui::InputFloat3("input float3", vec3fAcc);
-                                ps->accV(vec3fAcc[0], vec3fAcc[1], vec3fAcc[2]);
-                                singleNode->needAABBUpdate();
+                                if (ps->accDiffDir())
+                                    ImGui::BeginDisabled();
+                                float accConst = ps->accConst();
+                                if (ImGui::InputFloat("Accelaration constant", &accConst))
+                                {
+                                    ps->accConst(accConst);
+                                    singleNode->needAABBUpdate();
+                                }
+                                if (ps->accDiffDir())
+                                    ImGui::EndDisabled();
+                                SLbool accDiffDirection_group = ps->accDiffDir();
+                                if (ImGui::Checkbox("Direction vector", &accDiffDirection_group))
+                                {
+                                    ps->accDiffDir(accDiffDirection_group);
+                                    mOut->updateProgramPS(); // Change or generate new program
+                                    singleNode->needAABBUpdate();
+                                    
+                                }
+                                if (ImGui::CollapsingHeader("Direction vector", &accDiffDirection_group))
+                                {
+                                    float vec3fAcc[3] = {ps->accV().x, ps->accV().y, ps->accV().z};
+                                    ImGui::InputFloat3("input float3", vec3fAcc);
+                                    ps->accV(vec3fAcc[0], vec3fAcc[1], vec3fAcc[2]);
+                                    singleNode->needAABBUpdate();
+                                }
                             }
                             // Alpha over lifetime
                             SLbool alphaOverLF_group = ps->alphaOverLF();
@@ -3925,7 +3964,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                             if (ImGui::CollapsingHeader("Size over lifetime", &sizeOverLF_group))
                             {
                                 SLbool sizeOverLFCurve_group = ps->sizeOverLFCurve();
-                                if (ImGui::Checkbox("Custom curve (Unchecked --> Linear function)", &sizeOverLFCurve_group))
+                                if (ImGui::Checkbox("Custom curve (Unchecked --> Linear function)2", &sizeOverLFCurve_group))
                                 {
                                     ps->sizeOverLFCurve(sizeOverLFCurve_group);
                                     m->updateProgramPS(); // Change or generate new program

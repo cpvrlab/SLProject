@@ -5745,7 +5745,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
     {
         // Set scene name and info string
         s->name("First particle system");
-        s->info("Test");
+        s->info("First scene with a particle system");
 
         // Create a scene group node
         SLNode* scene = new SLNode("scene node");
@@ -5764,8 +5764,55 @@ resolution shadows near the camera and lower resolution shadows further away.");
         scene->addChild(light1);
 
         // Create meshes and nodes
-        SLMesh* pSMesh = new SLParticleSystem(am, 500, SLVec3f(0, 0.5, 0), SLVec3f(0.04f, 0.4f, 0.1f), SLVec3f(-0.11f, 0.7f, -0.1f), 4.0f, texC, texFlipbook, "Particle System");
+        SLParticleSystem* ps = new SLParticleSystem(am, 500, SLVec3f(0, 0.5, 0), SLVec3f(0.04f, 0.4f, 0.1f), SLVec3f(-0.11f, 0.7f, -0.1f), 4.0f, texC, texFlipbook, "Particle System");
+        SLMesh*           pSMesh = ps;
         SLNode* pSNode = new SLNode(pSMesh, "Particle system node");
+        scene->addChild(pSNode);
+
+        // Set background color and the root scene node
+        sv->sceneViewCamera()->background().colors(SLCol4f(0.8f, 0.8f, 0.8f),
+                                                   SLCol4f(0.2f, 0.2f, 0.2f));
+
+        // pass the scene group as root node
+        s->root3D(scene);
+
+        // Save energy
+        sv->doWaitOnIdle(false);
+    }
+    else if (sceneID == SID_ParticleSystem_FireEffects) //............................................................
+    {
+        // Set scene name and info string
+        s->name("Fire effects particle system");
+        s->info("Create fires visual effects");
+
+        // Create a scene group node
+        SLNode* scene = new SLNode("scene node");
+
+        // Create textures and materials
+        SLGLTexture* texC        = new SLGLTexture(am, texPath + "smoke_08_C.png");
+        //SLGLTexture* texFlipbook = new SLGLTexture(am, texPath + "Flame02-temperature_16x4_C.png");
+        //SLGLTexture* texFlipbook = new SLGLTexture(am, texPath + "Flame02-temperature_16x4_Other_C.png");
+        //SLGLTexture* texFlipbook = new SLGLTexture(am, texPath + "Flame03-hollow-temperature_16x4_C.png");
+        SLGLTexture* texFlipbook = new SLGLTexture(am, texPath + "Flame03_16x4_C_Other.png");
+        //SLGLTexture* texFlipbook = new SLGLTexture(am, texPath + "WispySmoke03b_8x8_C.png");
+        //SLGLTexture* texFlipbook = new SLGLTexture(am, texPath + "FireBall01_8x8_C.png");
+
+        // Create meshes and nodes
+        SLParticleSystem* ps = new SLParticleSystem(am, 1, SLVec3f(0.0f, 0.0f, -4.0f), SLVec3f(0.0f, 0.0f, 0.0f), SLVec3f(0.0f, 0.0f, 0.0f), 4.0f, texC, texFlipbook, "Particle System Fire1");
+        ps->col(16); 
+        ps->row(4);
+        ps->flipBookTexture(true);
+        ps->changeTexture(); // Switch texture, need to be done, to have flipbook texture as active
+        ps->alphaOverLF(false);
+        ps->sizeOverLF(false);
+        ps->rot(false);
+        ps->color(false);
+        ps->frameRateFB(64);
+        ps->radiusW(0.4f);
+        ps->radiusH(1.0f);
+        
+        SLMesh*           pSMesh = ps;
+        SLNode* pSNode = new SLNode(pSMesh, "Particle system node fire1");
         scene->addChild(pSNode);
 
         // Set background color and the root scene node
