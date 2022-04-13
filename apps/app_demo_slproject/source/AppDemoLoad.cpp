@@ -5794,11 +5794,12 @@ resolution shadows near the camera and lower resolution shadows further away.");
         //SLGLTexture* texFlipbook = new SLGLTexture(am, texPath + "Flame02-temperature_16x4_Other_C.png");
         //SLGLTexture* texFlipbook = new SLGLTexture(am, texPath + "Flame03-hollow-temperature_16x4_C.png");
         SLGLTexture* texFlipbook = new SLGLTexture(am, texPath + "Flame03_16x4_C_Other.png");
-        //SLGLTexture* texFlipbook = new SLGLTexture(am, texPath + "WispySmoke03b_8x8_C.png");
+        SLGLTexture* texFlipbookSmoke = new SLGLTexture(am, texPath + "WispySmoke03b_8x8_C.png");
         //SLGLTexture* texFlipbook = new SLGLTexture(am, texPath + "FireBall01_8x8_C.png");
 
         // Create meshes and nodes
-        SLParticleSystem* ps = new SLParticleSystem(am, 1, SLVec3f(0.0f, 0.0f, -4.0f), SLVec3f(0.0f, 0.0f, 0.0f), SLVec3f(0.0f, 0.0f, 0.0f), 4.0f, texC, texFlipbook, "Particle System Fire1");
+        // Flame particle system
+        SLParticleSystem* ps = new SLParticleSystem(am, 1, SLVec3f(0.0f, 0.0f, 0.0f), SLVec3f(0.0f, 0.0f, 0.0f), SLVec3f(0.0f, 0.0f, 0.0f), 4.0f, texC, texFlipbook, "Particle System Fire1");
         ps->col(16); 
         ps->row(4);
         ps->flipBookTexture(true);
@@ -5813,7 +5814,30 @@ resolution shadows near the camera and lower resolution shadows further away.");
         
         SLMesh*           pSMesh = ps;
         SLNode* pSNode = new SLNode(pSMesh, "Particle system node fire1");
+        
         scene->addChild(pSNode);
+
+        // Smoke particle system
+        SLParticleSystem* ps2 = new SLParticleSystem(am, 20, SLVec3f(0.0f, 0.0f, 0.0f), SLVec3f(-0.05f, 0.6f, -0.05f), SLVec3f(0.05f, 0.8f, 0.05f), 3.0f, texC, texFlipbook, "Particle System Smoke1");
+        ps2->colorV(SLCol4f(0.258f, 0.258f, 0.258f, 0.117f));
+        ps2->sizeOverLF(false);
+
+        SLMesh* pSMesh2 = ps2;
+        SLNode* pSNode2 = new SLNode(pSMesh2, "Particle system node smoke1");
+        pSNode2->translate(0.0f, -0.5f, 0.0f, TS_object);
+
+        scene->addChild(pSNode2);
+
+        // Fire 2 (with lot of particles
+        SLParticleSystem* ps3 = new SLParticleSystem(am, 128, SLVec3f(0.0f, 0.0f, 0.0f), SLVec3f(-0.1f, 0.4f, -0.1f), SLVec3f(0.1f, 1.0f, 0.1f), 1.5f, texC, texFlipbookSmoke, "Particle System fire2");
+        ps3->colorV(SLCol4f(0.746f, 0.085f, 0.0f, 0.2f));
+        ps3->frameRateFB(16);
+
+        SLMesh* pSMesh3 = ps3;
+        SLNode* pSNode3 = new SLNode(pSMesh3, "Particle system node fire2");
+        pSNode3->translate(3.0f, -0.5f, 0.0f, TS_object);
+
+        scene->addChild(pSNode3);
 
         // Set background color and the root scene node
         sv->sceneViewCamera()->background().colors(SLCol4f(0.8f, 0.8f, 0.8f),

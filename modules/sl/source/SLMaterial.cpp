@@ -445,27 +445,6 @@ void SLMaterial::generateProgramPS()
                     countString++;
                 }
                 _program->initTF(&outputNames[0], countString);
-
-                /*if (_ps->flipBookTexture() && _ps->rot())
-                {
-                    char* outputNames[] = {"tf_position", "tf_velocity", "tf_startTime", "tf_initialVelocity", "tf_rotation", "tf_texNum"};
-                    _program->initTF(outputNames, 6);
-                }
-                else if (_ps->flipBookTexture() && !_ps->rot())
-                {
-                    char* outputNames[] = {"tf_position", "tf_velocity", "tf_startTime", "tf_initialVelocity", "tf_texNum"};
-                    _program->initTF(outputNames, 5);
-                }
-                else if (!_ps->flipBookTexture() && _ps->rot())
-                {
-                    char* outputNames[] = {"tf_position", "tf_velocity", "tf_startTime", "tf_initialVelocity", "tf_rotation"};
-                    _program->initTF(outputNames, 5);
-                }
-                else
-                {
-                    char* outputNames[] = {"tf_position", "tf_velocity", "tf_startTime", "tf_initialVelocity"};
-                    _program->initTF(outputNames, 4);
-                }*/
             }
             else if (psType() == RM_PS_Draw)
                 _program = new SLGLProgramGenerated(_assetManager, programName, this, "Geom");
@@ -521,27 +500,6 @@ void SLMaterial::updateProgramPS()
                         countString++;
                     }
                     _program->initTF(&outputNames[0], countString);
-
-                    //if (_ps->flipBookTexture() && _ps->rot())
-                    //{
-                    //    char* outputNames[] = {"tf_position", "tf_velocity", "tf_startTime", "tf_initialVelocity", "tf_rotation", "tf_texNum"};
-                    //    _program->initTF(outputNames, 6);
-                    //}
-                    //else if (_ps->flipBookTexture() && !_ps->rot())
-                    //{
-                    //    char* outputNames[] = {"tf_position", "tf_velocity", "tf_startTime", "tf_initialVelocity", "tf_texNum"};
-                    //    _program->initTF(outputNames, 5);
-                    //}
-                    //else if (!_ps->flipBookTexture() && _ps->rot())
-                    //{
-                    //    char* outputNames[] = {"tf_position", "tf_velocity", "tf_startTime", "tf_initialVelocity", "tf_rotation"};
-                    //    _program->initTF(outputNames, 5);
-                    //}
-                    //else
-                    //{
-                    //    char* outputNames[] = {"tf_position", "tf_velocity", "tf_startTime", "tf_initialVelocity"};
-                    //    _program->initTF(outputNames, 4);
-                    //}
                 }
                 else if (psType() == RM_PS_Draw)
                     _program = new SLGLProgramGenerated(_assetManager, programName, this, "Geom");

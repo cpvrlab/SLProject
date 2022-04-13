@@ -74,24 +74,8 @@ SLParticleSystem::SLParticleSystem(SLAssetManager* assetMgr,
     _vRandS = velocityRandomStart;
     _vRandE = velocityRandomEnd;
 
-    P.resize(amount);
-    V.resize(amount);
-    ST.resize(amount);
-    InitV.resize(amount);
-    R.resize(amount);
-    TexNum.resize(amount);
-
-    for (unsigned int i = 0; i < amount; i++)
-    {
-        P[i] = particleEmiPos;
-        V[i].x = randomFloat(velocityRandomStart.x, velocityRandomEnd.x); // Random value for x velocity
-        V[i].y = randomFloat(velocityRandomStart.y, velocityRandomEnd.y); // Random value for y velocity
-        V[i].z = randomFloat(velocityRandomStart.z, velocityRandomEnd.z); // Random value for z velocity
-        ST[i]  = GlobalTimer::timeS() + (i * (timeToLive / amount));     // When the first particle dies the last one begin to live
-        InitV[i] = V[i];
-        R[i]     = randomFloat(0.0f, 360.0f); // Start rotation of the particle
-        TexNum[i] = randomInt(0, _row * _col - 1);
-    }
+    regenerate();
+ 
     pEPos(particleEmiPos);
 
     _textureFirst = texC;
@@ -140,7 +124,6 @@ void SLParticleSystem::regenerate()
         InitV[i] = V[i];
         R[i]     = randomFloat(0.0f, 360.0f); // Start rotation of the particle
         TexNum[i] = randomInt(0, _row * _col - 1);
-        //TexNum[i] = 0;
     }
 
     _vao1.deleteGL();
