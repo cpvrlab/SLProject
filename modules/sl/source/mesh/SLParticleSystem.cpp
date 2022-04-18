@@ -418,8 +418,8 @@ void SLParticleSystem::buildAABB(SLAABBox& aabb, const SLMat4f& wmNode)
             }
             else
             {
-                minP += 0.5f * minP * _accConst * _ttl; //Apply constant acceleration
-                maxP += 0.5f * maxP * _accConst * _ttl; //Apply constant acceleration
+                //minP += 0.5f * _accConst * (_ttl * _ttl); //Apply constant acceleration
+                maxP += 0.5f * _accConst * (_ttl * _ttl); //Apply constant acceleration
             }
     }
     else

@@ -266,7 +266,7 @@ const string vertMain_PS_U_alive_p           = R"(
                     // The particle is alive, update.
                     tf_position += tf_velocity * u_deltaTime;   // Scale the translation by the deltatime)";
 const string vertMain_PS_U_alive_a_const             = R"(
-                    tf_velocity += tf_initialVelocity * u_deltaTime * u_accConst;  // Amplify the velocity)";              
+                    tf_velocity += tf_velocity * u_deltaTime * u_accConst;  // Amplify the velocity)";              
 const string vertMain_PS_U_alive_a_diffDir                       = R"(
                     tf_velocity += u_deltaTime * u_acceleration;  // Amplify the velocity)";
 const string vertMain_PS_U_alive_texNum                  = R"(
