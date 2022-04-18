@@ -340,8 +340,11 @@ void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
 
     spD->uniform1f("u_oneOverGamma", 1.0f);
 
+    if (_color && _blendingBrigh)
+        stateGL->blendFunc(GL_SRC_ALPHA, GL_ONE);
     SLMesh::draw(sv, node);
-
+    if (_color && _blendingBrigh)
+        stateGL->blendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     _drawBuf = 1 - _drawBuf;
 }
 void SLParticleSystem::buildAABB(SLAABBox& aabb, const SLMat4f& wmNode)

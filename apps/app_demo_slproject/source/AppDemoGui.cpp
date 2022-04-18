@@ -3800,6 +3800,9 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                             SLbool worldSpace = ps->worldSpace();
                             if (ImGui::Checkbox("World space", &worldSpace))
                                 ps->worldSpace(worldSpace);
+                            // Billboard
+                            static int item_current = 0;
+                            ImGui::Combo("Billboard type", &item_current, "Billboard\0Vertical billboard\0");
                             // Velocity
                             if (ImGui::CollapsingHeader("Random velocity"))
                             {
@@ -3828,6 +3831,12 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                             }
                             if (ImGui::CollapsingHeader("Color", &color_group))
                             {
+                                //Color blending brightness/glow
+                                SLbool color_bright = ps->blendingBrigh();
+                                if (ImGui::Checkbox("Glow/Bright (blending effect)", &color_bright))
+                                {
+                                    ps->blendingBrigh(color_bright);
+                                }
                                 // Color
                                 if (ps->colorOverLF())
                                     ImGui::BeginDisabled();

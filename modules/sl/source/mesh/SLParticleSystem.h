@@ -52,6 +52,7 @@ public:
     SLVec3f     vRandE() { return _vRandE; }
     SLCol4f     colorV() { return _colorV; }
     SLbool      tree() { return _tree; }
+    SLbool        blendingBrigh() { return _blendingBrigh; }
     SLfloat       angle() { return _angle; }
     SLfloat       accConst() { return _accConst; }
     SLint       numBranch() { return _numBranch; }
@@ -65,6 +66,7 @@ public:
     SLbool      sizeRandom() { return _sizeRandom; }
     SLbool        color() { return _color; }
     SLint      amount() { return _amount; }
+    SLint         billoardType() { return _billoardType; }
     SLint      col() { return _col; }
     SLint      row() { return _row; }
     SLfloat       ttl() { return _ttl; }
@@ -104,6 +106,7 @@ public:
     }
     void colorV(SLCol4f c) { _colorV = c; }
     void tree(SLbool b) { _tree = b; }
+    void blendingBrigh(SLbool b) { _blendingBrigh = b; }
     void angle(SLfloat f) { _angle = f; }
     void accConst(SLfloat f) { _accConst = f; }
     void numBranch(SLint i) { _numBranch = i; }
@@ -117,6 +120,7 @@ public:
     void sizeRandom(SLbool b) { _sizeRandom = b; }
     void color(SLbool b) { _color = b; }
     void amount(SLint i) { _amount = i; }
+    void billoardType(SLint i) { _billoardType = i; }
     void col(SLint i) { _col = i; }
     void row(SLint i) { _row = i; }
     void ttl(SLfloat f) { _ttl = f; }
@@ -180,6 +184,8 @@ private:
 
     SLbool _isViFrustrumCulling = true; //!< Boolean to set time since node, not visible
 
+    SLint  _billoardType = 0;                   //!< Billboard type
+    SLbool _blendingBrigh  = false;       //!< Blending for glow/brightness on pixel with many particle
     SLbool _tree  = false;       //!< Boolean for tree fractal
     SLbool _acc  = false;       //!< Boolean for acceleration
     SLbool _accDiffDir = false;       //!< Boolean for acceleration (different direction)

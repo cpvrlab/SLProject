@@ -5794,7 +5794,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         //SLGLTexture* texFlipbook = new SLGLTexture(am, texPath + "Flame02-temperature_16x4_Other_C.png");
         //SLGLTexture* texFlipbook = new SLGLTexture(am, texPath + "Flame03-hollow-temperature_16x4_C.png");
         SLGLTexture* texFlipbook = new SLGLTexture(am, texPath + "Flame03_16x4_C_Other.png");
-        SLGLTexture* texFlipbookSmoke = new SLGLTexture(am, texPath + "WispySmoke03b_8x8_C.png");
+        SLGLTexture* texFlipbookSmoke = new SLGLTexture(am, texPath + "WispySmoke03_8x8_C.png");
         //SLGLTexture* texFlipbook = new SLGLTexture(am, texPath + "FireBall01_8x8_C.png");
 
         // Create meshes and nodes
@@ -5819,7 +5819,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         // Smoke particle system
         SLParticleSystem* ps2 = new SLParticleSystem(am, 20, SLVec3f(0.0f, 0.0f, 0.0f), SLVec3f(-0.05f, 0.6f, -0.05f), SLVec3f(0.05f, 0.8f, 0.05f), 3.0f, texC, texFlipbook, "Particle System Smoke1");
-        ps2->colorV(SLCol4f(0.258f, 0.258f, 0.258f, 0.117f));
+        ps2->colorV(SLCol4f(0.42f, 0.42f, 0.42f, 0.117f));
         ps2->sizeOverLF(false);
 
         SLMesh* pSMesh2 = ps2;
@@ -5830,18 +5830,19 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         // Fire 2 (with lot of particles
         SLParticleSystem* ps3 = new SLParticleSystem(am, 128, SLVec3f(0.0f, 0.0f, 0.0f), SLVec3f(-0.1f, 0.4f, -0.1f), SLVec3f(0.1f, 1.0f, 0.1f), 1.5f, texC, texFlipbookSmoke, "Particle System fire2");
-        ps3->colorV(SLCol4f(0.746f, 0.085f, 0.0f, 0.2f));
+        ps3->colorV(SLCol4f(0.91f, 0.2f, 0.04f, 0.63f));
+        ps3->blendingBrigh(true);
         ps3->frameRateFB(16);
 
         SLMesh* pSMesh3 = ps3;
         SLNode* pSNode3 = new SLNode(pSMesh3, "Particle system node fire2");
-        pSNode3->translate(3.0f, -0.5f, 0.0f, TS_object);
+        pSNode3->translate(3.0f, -0.8f, 0.0f, TS_object);
 
         scene->addChild(pSNode3);
 
         // Set background color and the root scene node
-        sv->sceneViewCamera()->background().colors(SLCol4f(0.8f, 0.8f, 0.8f),
-                                                   SLCol4f(0.2f, 0.2f, 0.2f));
+        sv->sceneViewCamera()->background().colors(SLCol4f(0.3f, 0.3f, 0.3f),
+                                                   SLCol4f(0.1f, 0.1f, 0.1f));
 
         // pass the scene group as root node
         s->root3D(scene);

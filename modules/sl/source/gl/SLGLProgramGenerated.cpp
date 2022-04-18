@@ -260,7 +260,7 @@ const string vertMain_PS_U_reset_p    = R"(
 const string vertMain_PS_U_reset_v            = R"(
                     tf_velocity = a_initialVelocity;    // Reset velocity)";
 const string vertMain_PS_U_reset_st            = R"(
-                    tf_startTime = u_time;              // Reset start time to actual time)";
+                    tf_startTime = u_time + (age - u_tTL);              // Reset start time to actual time)";
 const string vertMain_PS_U_alive_p           = R"(
                 } else {
                     // The particle is alive, update.
@@ -1432,6 +1432,7 @@ void SLGLProgramGenerated::buildProgramNamePS(SLMaterial* mat,
     {
         programName += "-Draw";
         programName += mat->texturesString();
+        GLint billoardType = mat->ps()->billoardType();     // Billboard type (0 -> default; 1 -> vertical billboard)
         bool AlOvLi   = mat->ps()->alphaOverLF(); // Alpha over life
         bool AlOvLiCu = mat->ps()->alphaOverLFCurve(); // Alpha over life curve
         bool SiOvLi   = mat->ps()->sizeOverLF();  // Size over life
@@ -1442,6 +1443,7 @@ void SLGLProgramGenerated::buildProgramNamePS(SLMaterial* mat,
         bool FlBoTex  = mat->ps()->flipBookTexture();  // Flipbook texture
         bool WS       = mat->ps()->worldSpace();  // World space or local space
         bool rot      = mat->ps()->rot();              // Rotation
+        programName += "-B" + billoardType;
         if (rot) programName += "-RT";
         if (AlOvLi) programName += "-AL";
         if (AlOvLiCu) programName += "cu";
@@ -1796,6 +1798,7 @@ void SLGLProgramGenerated::buildPerPixParticle(SLMaterial* mat)
 
     // Check what textures the material has
     bool Dm  = mat->hasTextureType(TT_diffuse);
+    GLint billoardType = mat->ps()->billoardType(); // Billboard type (0 -> default; 1 -> vertical billboard)
     bool rot        = mat->ps()->rot();         // Rotation
     bool AlOvLi   = mat->ps()->alphaOverLF(); // Alpha over life
     bool Co         = mat->ps()->color();       // Color over life
