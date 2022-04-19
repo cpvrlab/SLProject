@@ -74,7 +74,7 @@ SLParticleSystem::SLParticleSystem(SLAssetManager* assetMgr,
     _vRandS = velocityRandomStart;
     _vRandE = velocityRandomEnd;
 
-    regenerate();
+    P.resize(_amount);
  
     pEPos(particleEmiPos);
 
@@ -193,6 +193,14 @@ void SLParticleSystem::notVisibleFrustrumCulling()
 
 void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
 {
+    /////////////////////////////
+    // Init particles vector
+    /////////////////////////////
+
+    if (ST.size()==0) {
+        regenerate();
+    }
+
     /////////////////////////////
     // Init VAO
     /////////////////////////////
