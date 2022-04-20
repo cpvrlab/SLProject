@@ -450,6 +450,7 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
     SLint locNM = sp->getUniformLocation("u_nMatrix");
     SLint locTM = sp->getUniformLocation("u_tMatrix");
     SLint locP = sp->getUniformLocation("u_pMatrix"); // For particle system
+    SLint locVP = sp->getUniformLocation("u_vpMatrix"); // For particle system
 
 
     if (locIM >= 0 && locNM >= 0)
@@ -471,6 +472,10 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
     else if (locP >= 0) // For particle system
     {
         sp->uniformMatrix4fv("u_pMatrix", 1, (SLfloat*)&stateGL->projectionMatrix); // For particle system
+    }
+    else if (locVP >= 0) // For particle system
+    {
+        sp->uniformMatrix4fv("u_vpMatrix", 1, (SLfloat*)&stateGL->projectionMatrix); // For particle system
     }
     if (locTM >= 0)
     {

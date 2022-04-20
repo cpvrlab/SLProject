@@ -1954,6 +1954,8 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                         s->onLoad(am, s, sv, SID_ParticleSystem_First);
                     if (ImGui::MenuItem("Fire effects particle system", nullptr, sid == SID_ParticleSystem_FireEffects))
                         s->onLoad(am, s, sv, SID_ParticleSystem_FireEffects);
+                    if (ImGui::MenuItem("Scene demo for particle system", nullptr, sid == SID_ParticleSystem_Demo))
+                        s->onLoad(am, s, sv, SID_ParticleSystem_Demo);
 
                     ImGui::EndMenu();
                 }
@@ -3801,11 +3803,15 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                             if (ImGui::Checkbox("World space", &worldSpace))
                                 ps->worldSpace(worldSpace);
                             // Billboard
-                            static int item_current = 0;
-                            ImGui::Combo("Billboard type", &item_current, "Billboard\0Vertical billboard\0");
+                            int item_current = ps->billoardType();
+                            if (ImGui::Combo("Billboard type", &item_current, "Billboard\0Vertical billboard\0")) {
+                                ps->billoardType(item_current);
+                                m->updateProgramPS(); // Change or generate new program
+                            }
                             // Velocity
                             if (ImGui::CollapsingHeader("Random velocity"))
                             {
+                                ImGui::Indent();
                                 float vec3fVstart[3] = {ps->vRandS().x, ps->vRandS().y, ps->vRandS().z};
                                 if (ImGui::InputFloat3("Start range XYZ", vec3fVstart)) 
                                 {
@@ -3821,6 +3827,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                     ps->regenerate();
                                     singleNode->needAABBUpdate();
                                 }
+                                ImGui::Unindent();
                             }
                             //Color checkbox
                             SLbool color_group = ps->color();
@@ -3831,6 +3838,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                             }
                             if (ImGui::CollapsingHeader("Color", &color_group))
                             {
+                                ImGui::Indent();
                                 //Color blending brightness/glow
                                 SLbool color_bright = ps->blendingBrigh();
                                 if (ImGui::Checkbox("Glow/Bright (blending effect)", &color_bright))
@@ -3875,6 +3883,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                         ps->colorArr(gradient.cachedValues());
                                     }
                                 }
+                                ImGui::Unindent();
                             }
                             // Tree (Fractal)
                             SLbool tree_group = ps->tree();
@@ -3905,6 +3914,15 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                 m->updateProgramPS();    // Change or generate new program
                                 ps->regenerate();
                             }
+                            // Shape
+                            SLbool shape_group = false;
+                            if (ImGui::Checkbox("Shape", &shape_group))
+                            {
+                                //ps->shape(shape_group);
+                                //mOut->updateProgramPS(); // Change or generate new program
+                                //singleNode->needAABBUpdate();
+                                //ps->regenerate();
+                            }
                             // Acceleration
                             SLbool acc_group = ps->acc();
                             if (ImGui::Checkbox("Acceleration", &acc_group)) {
@@ -3915,6 +3933,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                             }
                             if (ImGui::CollapsingHeader("Acceleration", &acc_group))
                             {
+                                ImGui::Indent();
                                 if (ps->accDiffDir())
                                     ImGui::BeginDisabled();
                                 float accConst = ps->accConst();
@@ -3940,6 +3959,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                     ps->accV(vec3fAcc[0], vec3fAcc[1], vec3fAcc[2]);
                                     singleNode->needAABBUpdate();
                                 }
+                                ImGui::Unindent();
                             }
                             // Alpha over lifetime
                             SLbool alphaOverLF_group = ps->alphaOverLF();
@@ -3949,6 +3969,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                             }
                             if (ImGui::CollapsingHeader("Alpha over lifetime", &alphaOverLF_group))
                             {
+                                ImGui::Indent();
                                 SLbool       alphaOverLFCurve_group = ps->alphaOverLFCurve();
                                 if (ImGui::Checkbox("Custom curve (Unchecked --> Linear function)", &alphaOverLFCurve_group))
                                 {
@@ -3957,11 +3978,14 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                 }
                                 if (ImGui::CollapsingHeader("Bezier curve", &alphaOverLFCurve_group))
                                 {
+                                    ImGui::Indent();
                                     static float vAlpha[4]      = {0.0f, 1.0f, 1.0f, 0.0f};
                                     static float staEndAlpha[4] = {0.0f, 1.0f, 1.0f, 0.0f};
                                     ImGui::Bezier("easeInExpo", vAlpha, staEndAlpha);
                                     ps->generateBernsteinPAlpha(vAlpha, staEndAlpha);
+                                    ImGui::Unindent();
                                 }
+                                ImGui::Unindent();
                             }
                             // Size over lifetime
                             SLbool sizeOverLF_group = ps->sizeOverLF();
@@ -3972,6 +3996,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                             }
                             if (ImGui::CollapsingHeader("Size over lifetime", &sizeOverLF_group))
                             {
+                                ImGui::Indent();
                                 SLbool sizeOverLFCurve_group = ps->sizeOverLFCurve();
                                 if (ImGui::Checkbox("Custom curve (Unchecked --> Linear function)2", &sizeOverLFCurve_group))
                                 {
@@ -3980,11 +4005,14 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                 }
                                 if (ImGui::CollapsingHeader("Bezier curve", &sizeOverLFCurve_group))
                                 {
+                                    ImGui::Indent();
                                     static float vSize[4]      = {0.0f, 0.2f, 1.0f, 1.0f};
                                     static float staEndSize[4] = {0.0f, 0.0f, 1.0f, 1.0f};
                                     ImGui::Bezier("easeInExpo", vSize, staEndSize);
                                     ps->generateBernsteinPSize(vSize, staEndSize);
+                                    ImGui::Unindent();
                                 }
+                                ImGui::Unindent();
                             }
                             // Flipbook texture
                             SLbool flipbookTex_group = ps->flipBookTexture();
@@ -3998,13 +4026,13 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                             }
                             if (ImGui::CollapsingHeader("Flipbook texture", &flipbookTex_group))
                             {
-                                 
+                                ImGui::Indent();
                                 int fR = ps->frameRateFB();
                                 if (ImGui::InputInt("Frame rate (num update by s)", &fR))
                                 {
                                     ps->frameRateFB(fR);
                                 }
-                                
+                                ImGui::Unindent();
                             }
 
                             // Size random // no done yet

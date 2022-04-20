@@ -186,6 +186,15 @@ const SLMat4f* SLGLState::mvpMatrix()
     return &_mvpMatrix;
 }
 //-----------------------------------------------------------------------------
+/*! Returns the combined view projection matrix
+ */
+const SLMat4f* SLGLState::vpMatrix()
+{
+    _vpMatrix.setMatrix(projectionMatrix);
+    _vpMatrix.multiply(viewMatrix);
+    return &_vpMatrix;
+}
+//-----------------------------------------------------------------------------
 /*! Transforms the light position into the view space
  */
 /*

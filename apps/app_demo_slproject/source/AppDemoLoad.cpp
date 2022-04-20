@@ -5765,6 +5765,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         // Create meshes and nodes
         SLParticleSystem* ps = new SLParticleSystem(am, 500, SLVec3f(0, 0.5, 0), SLVec3f(0.04f, 0.4f, 0.1f), SLVec3f(-0.11f, 0.7f, -0.1f), 4.0f, texC, texFlipbook, "Particle System");
+        ps->billoardType(1);
         SLMesh*           pSMesh = ps;
         SLNode* pSNode = new SLNode(pSMesh, "Particle system node");
         scene->addChild(pSNode);
@@ -5826,7 +5827,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         SLNode* pSNode2 = new SLNode(pSMesh2, "Particle system node smoke1");
         pSNode2->translate(0.0f, -0.5f, 0.0f, TS_object);
 
-        scene->addChild(pSNode2);
+        pSNode->addChild(pSNode2);
 
         // Fire 2 (with lot of particles
         SLParticleSystem* ps3 = new SLParticleSystem(am, 128, SLVec3f(0.0f, 0.0f, 0.0f), SLVec3f(-0.1f, 0.4f, -0.1f), SLVec3f(0.1f, 1.0f, 0.1f), 1.5f, texC, texFlipbookSmoke, "Particle System fire2");
@@ -5843,6 +5844,39 @@ resolution shadows near the camera and lower resolution shadows further away.");
         // Set background color and the root scene node
         sv->sceneViewCamera()->background().colors(SLCol4f(0.3f, 0.3f, 0.3f),
                                                    SLCol4f(0.1f, 0.1f, 0.1f));
+
+        // pass the scene group as root node
+        s->root3D(scene);
+
+        // Save energy
+        sv->doWaitOnIdle(false);
+    }
+    else if (sceneID == SID_ParticleSystem_Demo) //............................................................
+    {
+        // Set scene name and info string
+        s->name("Demo particle system");
+        s->info("Scene for of particle system");
+
+        // Create a scene group node
+        SLNode* scene = new SLNode("scene node");
+
+        // Create textures and materials
+        SLGLTexture* texC        = new SLGLTexture(am, texPath + "smoke_08_C.png");
+        SLGLTexture* texFlipbook = new SLGLTexture(am, texPath + "WispySmoke03_8x8_C.png");
+
+        // Create meshes and nodes
+        SLParticleSystem* ps     = new SLParticleSystem(am, 1, SLVec3f(0, 0.5, 0), SLVec3f(0.04f, 0.4f, 0.1f), SLVec3f(-0.11f, 0.7f, -0.1f), 4.0f, texC, texFlipbook, "Particle System");
+        ps->alphaOverLF(false);
+        ps->sizeOverLF(false);
+        ps->rot(false);
+        ps->color(false);
+        SLMesh*           pSMesh = ps;
+        SLNode*           pSNode = new SLNode(pSMesh, "Particle system node");
+        scene->addChild(pSNode);
+
+        // Set background color and the root scene node
+        sv->sceneViewCamera()->background().colors(SLCol4f(0.8f, 0.8f, 0.8f),
+                                                   SLCol4f(0.2f, 0.2f, 0.2f));
 
         // pass the scene group as root node
         s->root3D(scene);

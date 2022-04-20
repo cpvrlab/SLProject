@@ -308,12 +308,51 @@ void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
     spD->useProgram();
     SLGLState* stateGL = SLGLState::instance();
 
+    //Billboard type 
     //World space
     if (_worldSpace){
         spD->uniformMatrix4fv("u_vOmvMatrix", 1, (SLfloat*)&stateGL->viewMatrix);
     }
-    else{
-        spD->uniformMatrix4fv("u_vOmvMatrix", 1, (SLfloat*)&stateGL->modelViewMatrix); // TO change for custom shader ganeration
+    else
+    {
+        if (_billoardType == 1) {
+            SLVec4f temp = stateGL->projectionMatrix.multVec(SLVec4f(0.0f, 0.0f, 0.0f, 1.0f));
+            SLVec3f forward = (SLVec3f(1.0f, 1.0f, 1.0f) - SLVec3f(temp.x, temp.y, temp.z)).normalize();
+            SLVec3f right;
+            right.cross(forward, SLVec3f(0.0f, 1.0f, 0.0f));
+            /*SLVec3f right = SLVec3f(stateGL->modelViewMatrix.m(0), stateGL->modelViewMatrix.m(1), stateGL->modelViewMatrix.m(2));
+            SLVec3f up    = SLVec3f(stateGL->modelViewMatrix.m(4), stateGL->modelViewMatrix.m(5), stateGL->modelViewMatrix.m(6));*/
+            //float   cameraYaw = atan2(right.x, up.x) - PI / 2;
+            float   cameraYaw = atan2(right.x, forward.x) - PI / 2;
+            float   s         = sin(cameraYaw);
+            float   c         = cos(cameraYaw);
+            SLMat4f mvMat = stateGL->modelViewMatrix;
+            mvMat.m(0, c);
+            mvMat.m(1, 0);
+            mvMat.m(2, -s);
+
+            mvMat.m(4, 0);
+            mvMat.m(5, 1);
+            mvMat.m(6, 0);
+
+            mvMat.m(8, s);
+            mvMat.m(9, 0);
+            mvMat.m(10, c);
+
+            SLMat4f mvpMat;
+            mvpMat.setMatrix(stateGL->projectionMatrix);
+            mvpMat.multiply(mvMat);
+            
+
+            spD->uniformMatrix4fv("u_vYawPMatrix", 1, (SLfloat*)&mvMat); // TO change for custom shader ganeration
+            spD->uniformMatrix4fv("u_vpMatrix", 1, (const SLfloat*)stateGL->vpMatrix()); // TO change for custom shader ganeration
+            spD->uniformMatrix4fv("u_vpMatrix", 1, (SLfloat*)&stateGL->projectionMatrix); // TO change for custom shader ganeration
+            spD->uniformMatrix4fv("u_vOmvMatrix", 1, (SLfloat*)&node->updateAndGetWM()); // TO change for custom shader ganeration
+        }
+        else
+        {
+            spD->uniformMatrix4fv("u_vOmvMatrix", 1, (SLfloat*)&stateGL->modelViewMatrix); // TO change for custom shader ganeration
+        }
     }
     //Alpha over life bezier curve
     if (_alphaOverLFCurve) {

@@ -96,6 +96,7 @@ public:
     inline const SLMat4f* invModelViewMatrix() { return &_invModelViewMatrix; }
     inline const SLMat3f* normalMatrix() { return &_normalMatrix; }
     const SLMat4f*        mvpMatrix(); //!< builds and returns proj.mat. x mv mat.
+    const SLMat4f*        vpMatrix(); //!< builds and returns proj.mat. x v mat.
     inline bool           hasMultiSampling() const { return _multiSampleSamples > 0; }
 
     // misc.
@@ -177,6 +178,7 @@ private:
     SLMat4f  _invModelViewMatrix;   //!< inverse modelview transform
     SLMat3f  _normalMatrix;         //!< matrix for the normal transform
     SLMat4f  _mvpMatrix;            //!< combined modelview-projection transform
+    SLMat4f  _vpMatrix;            //!< combined modelview-projection transform
     SLSMat4f _modelViewMatrixStack; //!< stack for modelview matrices
 
     SLstring _glVersion;     //!< OpenGL Version string
