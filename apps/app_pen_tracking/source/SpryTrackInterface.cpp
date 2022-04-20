@@ -56,10 +56,13 @@ bool SpryTrackInterface::tryAccessDevice(SpryTrackDevice* outDevice)
     };
 
     DeviceEnumResult result{false, outDevice};
-    if (ftkEnumerateDevices(library, deviceEnumCallback, &result) != ftkError::FTK_OK)
+    ftkError error = ftkEnumerateDevices(library, deviceEnumCallback, &result);
+    if (error != ftkError::FTK_OK)
     {
         SL_EXIT_MSG("SpryTrack: Failed to enumerate devices");
     }
+
+    //std::this_thread::sleep_for(std::chrono::milliseconds(5000));
 
     return result.successful;
 }

@@ -26,11 +26,17 @@ void SpryTrackCalibrator::calibrate()
     float squareSize = 60.0f;
 
     auto* marker = new SpryTrackMarker(200);
-    marker->addPoint(2 * squareSize, 0.0f, 4 * squareSize);
+    /*marker->addPoint(2 * squareSize, 0.0f, 4 * squareSize);
     marker->addPoint(4 * squareSize, 0.0f, 6 * squareSize);
     marker->addPoint(6 * squareSize, 0.0f, 7 * squareSize);
     marker->addPoint(5 * squareSize, 0.0f, 2 * squareSize);
-    marker->addPoint(1 * squareSize, 0.0f, 8 * squareSize);
+    marker->addPoint(1 * squareSize, 0.0f, 8 * squareSize);*/
+
+    marker->addPoint(0 * squareSize, 0.0f, 1 * squareSize);
+    marker->addPoint(1 * squareSize, 0.0f, 3 * squareSize);
+    marker->addPoint(2 * squareSize, 0.0f, 2 * squareSize);
+    marker->addPoint(3 * squareSize, 0.0f, 0 * squareSize);
+    marker->addPoint(4 * squareSize, 0.0f, 4 * squareSize);
     _device.registerMarker(marker);
 
     for (int i = 0; i < MAX_FAILED_ACQUISITION_ATTEMPTS && !marker->visible(); i++)

@@ -33,7 +33,13 @@ SLbool TrackedPen::onKeyPress(const SLKey key,
     if (key == '2')
     {
         AppPenTrackingROSNode::instance().publishKeyEvent(rosPosition(),
-                                                          rosOrientation());
+                                                         rosOrientation());
+        return true;
+    }
+
+    if (key == '3')
+    {
+        AppPenTrackingROSNode::instance().publishSelection(rosPosition());
         return true;
     }
 
@@ -121,7 +127,7 @@ SLVec3f TrackedPen::rosPosition()
     // ROS coordinate system: (-z, y, -x)
 
     SLVec3f p = tipPosition();
-    return {-p.z, p.y, -p.x};
+    return {p.z, p.y, p.x};
 }
 //-----------------------------------------------------------------------------
 SLQuat4f TrackedPen::rosOrientation()
@@ -130,7 +136,7 @@ SLQuat4f TrackedPen::rosOrientation()
     // Source: https://stackoverflow.com/questions/18818102/convert-quaternion-representing-rotation-from-one-coordinate-system-to-another
 
     SLQuat4f o = orientation();
-    return {o.z(), -o.y(), o.x(), o.w()};
+    return {o.z(), o.y(), o.x(), -o.w()};
 }
 //-----------------------------------------------------------------------------
 SLfloat TrackedPen::liveDistance()

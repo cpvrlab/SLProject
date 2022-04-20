@@ -7,9 +7,12 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
+
+
 #include <app/AppPenTrackingROSNode.h>
 
 #include <geometry_msgs/Pose.h>
+#include <geometry_msgs/Point.h>
 
 //-----------------------------------------------------------------------------
 void AppPenTrackingROSNode::init(int argc, char** argv)
@@ -18,6 +21,7 @@ void AppPenTrackingROSNode::init(int argc, char** argv)
     ros::NodeHandle node;
     _posePublisher      = node.advertise<geometry_msgs::Pose>("aruco_pen/pose", 1000);
     _keyEventsPublisher = node.advertise<geometry_msgs::Pose>("aruco_pen/key_events", 1000);
+    _selectionPublisher = node.advertise<geometry_msgs::Point>("aruco_pen/selection", 1000);
 }
 //-----------------------------------------------------------------------------
 void AppPenTrackingROSNode::publishPose(const SLVec3f& position,
@@ -46,5 +50,14 @@ void AppPenTrackingROSNode::publishKeyEvent(const SLVec3f& position,
     msg.orientation.z = (double)orientation.z();
     msg.orientation.w = (double)orientation.w();
     _keyEventsPublisher.publish(msg);
+}
+//-----------------------------------------------------------------------------
+void AppPenTrackingROSNode::publishSelection(const SLVec3f& position) const
+{
+    geometry_msgs::Point msg;
+    msg.x    = (double)position.x;
+    msg.y    = (double)position.y;
+    msg.z    = (double)position.z;
+    _selectionPublisher.publish(msg);
 }
 //-----------------------------------------------------------------------------

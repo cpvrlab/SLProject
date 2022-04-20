@@ -7,6 +7,8 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
+
+
 #ifndef SRC_APPPENTRACKINGROSNODE_H
 #define SRC_APPPENTRACKINGROSNODE_H
 
@@ -37,9 +39,13 @@ public:
     void publishKeyEvent(const SLVec3f& position,
                          SLQuat4f       orientation) const;
 
+    void publishSelection(const SLVec3f& position) const;
+
     ros::Publisher _posePublisher;
     ros::Publisher _keyEventsPublisher;
+    ros::Publisher _selectionPublisher;
 };
 //-----------------------------------------------------------------------------
 
 #endif // SRC_APPPENTRACKINGROSNODE_H
+
