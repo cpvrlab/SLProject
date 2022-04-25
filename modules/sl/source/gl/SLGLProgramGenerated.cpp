@@ -192,6 +192,12 @@ const string vertMain_TBN_Nm    = R"(
 )";
 const string vertMain_PS_v_a    = R"(
     float age = u_time - a_startTime;   // Get the age of the particle)";
+const string vertMain_PS_v_t_default    = R"(
+    if(age < 0.0){
+        vert.transparency = 0.0;                // To be discard, because the particle is to be born
+    } else{
+        vert.transparency = 1.0;
+    })";
 const string vertMain_PS_v_t_begin    = R"(
     if(age < 0.0){
         vert.transparency = 0.0;                // To be discard, because the particle is to be born
@@ -1879,7 +1885,6 @@ void SLGLProgramGenerated::buildPerPixParticle(SLMaterial* mat)
     bool SiOvLiCu   = mat->ps()->sizeOverLFCurve();  // Size over life curve
     bool FlBoTex   = mat->ps()->flipBookTexture();  // Flipbook texture
     bool SiRandom = mat->ps()->sizeRandom();  // Size random
-    int  sumCond    = AlOvLi + rot + SiOvLi + CoOvLi + FlBoTex; //Sum of cond for struct
     //bool WS       = mat->ps()->worldSpace();  // World space or local space
 
     // Assemble vertex shader code
@@ -1894,13 +1899,13 @@ void SLGLProgramGenerated::buildPerPixParticle(SLMaterial* mat)
     
 
     // Vertex shader outputs
-    if (sumCond >= 1) vertCode += vertOutput_PS_struct_Begin;
-    if (AlOvLi)vertCode += vertOutput_PS_struct_t;
+    vertCode += vertOutput_PS_struct_Begin;
+    vertCode += vertOutput_PS_struct_t;
     if (rot) vertCode += vertOutput_PS_struct_r;
     if (SiOvLi)vertCode += vertOutput_PS_struct_s;
     if (Co && CoOvLi) vertCode += vertOutput_PS_struct_c;
     if (FlBoTex) vertCode += vertOutput_PS_struct_texNum;
-    if (sumCond >= 1) vertCode += vertOutput_PS_struct_End;
+    vertCode += vertOutput_PS_struct_End;
 
     // Vertex shader uniforms
     vertCode += vertInput_PS_u_time;
@@ -1916,6 +1921,7 @@ void SLGLProgramGenerated::buildPerPixParticle(SLMaterial* mat)
     vertCode += vertMain_Begin;
     vertCode += vertMain_PS_v_a;
     if (AlOvLi)vertCode += vertMain_PS_v_t_begin;
+    else vertCode += vertMain_PS_v_t_default;
     if (AlOvLi && AlOvLiCu) vertCode += vertMain_PS_v_t_curve;
     if (AlOvLi && !AlOvLiCu) vertCode += vertMain_PS_v_t_linear;
     if (AlOvLi) vertCode += vertMain_PS_v_t_end;
@@ -1938,13 +1944,13 @@ void SLGLProgramGenerated::buildPerPixParticle(SLMaterial* mat)
     // geometry shader inputs
     geomCode += geomConfig_PS;
 
-     if (sumCond >= 1) geomCode += geomInput_PS_struct_Begin;
-    if (AlOvLi) geomCode += geomInput_PS_struct_t;
+    geomCode += geomInput_PS_struct_Begin;
+    geomCode += geomInput_PS_struct_t;
     if (rot) geomCode += geomInput_PS_struct_r;
     if (SiOvLi) geomCode += geomInput_PS_struct_s;
     if (CoOvLi) geomCode += geomInput_PS_struct_c;
     if (FlBoTex) geomCode += geomInput_PS_struct_texNum;
-    if (sumCond >= 1) geomCode += geomInput_PS_struct_End;
+    geomCode += geomInput_PS_struct_End;
 
     // geometry shader uniforms
     geomCode += geomInput_PS_u_ScaRa;
@@ -1968,7 +1974,7 @@ void SLGLProgramGenerated::buildPerPixParticle(SLMaterial* mat)
     geomCode += geomMain_PS_v_p;
     geomCode += rot ? geomMain_PS_v_rot : geomMain_PS_v_rotIden;
     geomCode += CoOvLi ? geomMain_PS_v_colorOverLF : Co ? geomMain_PS_v_c: geomMain_PS_v_withoutColor;
-    if (AlOvLi) geomCode += geomMain_PS_v_cT;
+    geomCode += geomMain_PS_v_cT;
     if (billoardType == 1)
         geomCode += FlBoTex ? geomMain_PS_Flipbook_fourCorners_vertBillboard : geomMain_PS_fourCorners_vertBillboard;
     else
