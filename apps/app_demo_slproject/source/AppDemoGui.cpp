@@ -3915,13 +3915,35 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                 ps->regenerate();
                             }
                             // Shape
-                            SLbool shape_group = false;
+                            SLbool shape_group = ps->shape();
                             if (ImGui::Checkbox("Shape", &shape_group))
                             {
-                                //ps->shape(shape_group);
+                                ps->shape(shape_group);
+                                mOut->updateProgramPS(); // Change or generate new program
+                                ps->regenerate();
                                 //mOut->updateProgramPS(); // Change or generate new program
                                 //singleNode->needAABBUpdate();
                                 //ps->regenerate();
+                            }
+                            if (ImGui::CollapsingHeader("Shape", &shape_group))
+                            {
+                                int item_current = ps->shapeType();
+                                if (ImGui::Combo("Shape type", &item_current, "Sphere\0Box\0"))
+                                {
+                                    ps->shapeType(item_current);
+                                    mOut->updateProgramPS(); // Change or generate new program
+                                    ps->regenerate();
+                                    //m->updateProgramPS(); // Change or generate new program
+                                }
+                                if (item_current == 0)
+                                {
+                                    float radiusSphere = ps->radiusSphere();
+                                    if (ImGui::InputFloat("Radius of the sphere", &radiusSphere))
+                                    {
+                                        ps->radiusSphere(radiusSphere);
+                                        ps->regenerate();
+                                    }
+                                }
                             }
                             // Acceleration
                             SLbool acc_group = ps->acc();

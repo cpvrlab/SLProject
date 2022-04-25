@@ -78,7 +78,8 @@ enum SLGLAttributeType
     AT_startTime = 2,       //!< Vertex start time float
     AT_initialVelocity = 3, //!< Vertex initial velocity 3 component vectors
     AT_rotation = 4,       //!< Vertex rotation float
-    AT_texNum = 5         //!< Vertex texture number int
+    AT_texNum = 5,         //!< Vertex texture number int
+    AT_initialPosition = 6  //!< Vertex initial position 3 component vectors
 };
 //-----------------------------------------------------------------------------
 //! Enumeration for buffer usage types also supported by OpenGL ES

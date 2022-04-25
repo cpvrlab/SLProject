@@ -444,6 +444,11 @@ void SLMaterial::generateProgramPS()
                     outputNames.push_back("tf_texNum");
                     countString++;
                 }
+                if (_ps->shape())
+                {
+                    outputNames.push_back("tf_initialPosition");
+                    countString++;
+                }
                 _program->initTF(&outputNames[0], countString);
             }
             else if (psType() == RM_PS_Draw)
@@ -497,6 +502,11 @@ void SLMaterial::updateProgramPS()
                     if (_ps->flipBookTexture())
                     {
                         outputNames.push_back("tf_texNum");
+                        countString++;
+                    }
+                    if (_ps->shape())
+                    {
+                        outputNames.push_back("tf_initialPosition");
                         countString++;
                     }
                     _program->initTF(&outputNames[0], countString);

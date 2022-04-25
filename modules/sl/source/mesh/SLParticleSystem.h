@@ -66,14 +66,17 @@ public:
     SLbool        sizeOverLFCurve() { return _sizeOverLFCurve; }
     SLbool      sizeRandom() { return _sizeRandom; }
     SLbool        color() { return _color; }
+    SLbool        shape() { return _shape; }
     SLint      amount() { return _amount; }
     SLint         billoardType() { return _billoardType; }
+    SLint         shapeType() { return _shapeType; }
     SLint      col() { return _col; }
     SLint      row() { return _row; }
     SLfloat       ttl() { return _ttl; }
     SLfloat       radiusW() { return _radiusW; }
     SLfloat       radiusH() { return _radiusH; }
     SLfloat       scale() { return _scale; }
+    SLfloat       radiusSphere() { return _radiusSphere; }
     AvgFloat&     updateTime() { return _updateTime; }
     int       frameRateFB() { return _frameRateFB; }
     SLGLTexture* textureFirst() { return _textureFirst; }
@@ -120,7 +123,9 @@ public:
     void sizeOverLFCurve(SLbool b) { _sizeOverLFCurve = b; }
     void sizeRandom(SLbool b) { _sizeRandom = b; }
     void color(SLbool b) { _color = b; }
+    void shape(SLbool b) { _shape = b; }
     void amount(SLint i) { _amount = i; }
+    void shapeType(SLint i) { _shapeType = i; }
     void billoardType(SLint i) { _billoardType = i; }
     void col(SLint i) { _col = i; }
     void row(SLint i) { _row = i; }
@@ -128,6 +133,7 @@ public:
     void radiusW(SLfloat f) { _radiusW = f; }
     void radiusH(SLfloat f) { _radiusH = f; }
     void scale(SLfloat f) { _scale = f; }
+    void radiusSphere(SLfloat f) { _radiusSphere = f; }
     void frameRateFB(int i) { _frameRateFB = i; }
     void colorArr(SLfloat* arr) { std::copy(arr, arr + 256 * 3, _colorArr); }
     void textureFirst(SLGLTexture* t) { _textureFirst = t; }
@@ -160,6 +166,7 @@ private:
     void  initMat(SLAssetManager* am, SLGLTexture* texC);
     float randomFloat(float a, float b);
     int randomInt(int min, int max);
+    SLVec3f getPointSphere(float radius);
 
 
     SLVVec3f V;         //!< Vector for particle velocity
@@ -167,6 +174,7 @@ private:
     SLVVec3f InitV;     //!< Vector for particle inital velocity
     SLVfloat R;         //!< Vector for particle rotation
     SLVuint  TexNum;    //!< Vector for particle texture number
+    SLVVec3f InitP;     //!< Vector for particle inital position
 
     int _drawBuf = 0;   //!< Boolean to switch buffer
     int _frameRateFB = 16;       //!< Number of update of flipbook by second
@@ -180,18 +188,23 @@ private:
     SLfloat      _startUpdateTimeS = 0.0f; //!< Time since start for updating in S
     SLfloat      _deltaTimeUpdateS   = 0.0f; //!< Time since start for updating in S
     SLfloat      _notVisibleTimeS   = 0.0f; //!< Time since start when node not visible in S
+
+    SLfloat      _radiusSphere   = 1.0f; //!< Radius of sphere "Shape -> sphere"
+
     SLGLTexture* _textureFirst;
     SLGLTexture* _textureFlipbook;
 
     SLbool _isViFrustrumCulling = true; //!< Boolean to set time since node, not visible
 
     SLint  _billoardType = 0;                   //!< Billboard type
+    SLint  _shapeType = 0;                   //!< Shape type
     SLbool _blendingBrigh  = false;       //!< Blending for glow/brightness on pixel with many particle
     SLbool _tree  = false;       //!< Boolean for tree fractal
     SLbool _acc  = false;       //!< Boolean for acceleration
     SLbool _accDiffDir = false;       //!< Boolean for acceleration (different direction)
     SLbool _rot  = true;       //!< Boolean for rotation
     SLbool _color  = true;       //!< Boolean for color
+    SLbool _shape  = false;       //!< Boolean for shape feature
     SLbool _worldSpace = false; //!< Boolean for world space position
     SLbool _alphaOverLF = true; //!< Boolean for alpha over life time
     SLbool _colorOverLF = false; //!< Boolean for color over life time

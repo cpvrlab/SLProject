@@ -48,6 +48,33 @@ int SLParticleSystem::randomInt(int min, int max)
     return min + x % n;
 }
 
+SLVec3f SLParticleSystem::getPointSphere(float radius)
+{
+    unsigned                    seed = chrono::system_clock::now().time_since_epoch().count();
+    default_random_engine       generator(seed);
+    normal_distribution<float> distribution(0.0f, 1.0f);
+
+    //cout << distribution(generator);
+    //cout << distribution(generator);
+    //cout << distribution(generator);
+
+    float u  = randomFloat(0.0f, radius);
+    float x1 = distribution(generator);
+    float x2 = distribution(generator);
+    float x3 = distribution(generator);
+
+    float mag = sqrt(x1 * x1 + x2 * x2 + x3 * x3);
+    x1 /= mag;
+    x2 /= mag;
+    x3 /= mag;
+
+    // Math.cbrt is cube root
+    float c = cbrt(u);
+
+    return SLVec3f(x1 * c, x2 * c, x3 * c);
+}
+
+
 //-----------------------------------------------------------------------------
 //! SLParticleSystem ctor with a given vector of points
 SLParticleSystem::SLParticleSystem(SLAssetManager* assetMgr,
@@ -101,6 +128,8 @@ void SLParticleSystem::generateVAO(SLGLVertexArray& vao)
         vao.setAttrib(AT_rotation, AT_rotation, &R);
     if (_flipBookTexture)
         vao.setAttrib(AT_texNum, AT_texNum, &TexNum);
+    if (_shape)
+        vao.setAttrib(AT_initialPosition, AT_initialPosition, &InitP);
 
     //Need to have two VAo for transform feedback swapping
     vao.generateTF((SLuint)P.size());
@@ -114,10 +143,15 @@ void SLParticleSystem::regenerate()
     InitV.resize(_amount);
     R.resize(_amount);
     TexNum.resize(_amount);
+    if (_shape)
+        InitP.resize(_amount);
 
     for (unsigned int i = 0; i < _amount; i++)
     {
-        P[i]     = _pEPos;
+        if (_shape && _shapeType == 0)
+            P[i] = getPointSphere(_radiusSphere);
+        else
+            P[i]     = _pEPos;
         V[i].x   = randomFloat(_vRandS.x, _vRandE.x);                       // Random value for x velocity
         V[i].y   = randomFloat(_vRandS.y, _vRandE.y);                       // Random value for y velocity
         V[i].z   = randomFloat(_vRandS.z, _vRandE.z);                       // Random value for z velocity
@@ -125,6 +159,8 @@ void SLParticleSystem::regenerate()
         InitV[i] = V[i];
         R[i]     = randomFloat(0.0f, 360.0f); // Start rotation of the particle
         TexNum[i] = randomInt(0, _row * _col - 1);
+        if (_shape)
+            InitP[i] = P[i];
     }
 
     _vao1.deleteGL();

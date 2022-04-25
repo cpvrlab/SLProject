@@ -5865,7 +5865,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         SLGLTexture* texFlipbook = new SLGLTexture(am, texPath + "WispySmoke03_8x8_C.png");
 
         // Create meshes and nodes
-        SLParticleSystem* ps = new SLParticleSystem(am, 1, SLVec3f(0, 0.5, 0), SLVec3f(0.04f, 0.4f, 0.1f), SLVec3f(-0.11f, 0.7f, -0.1f), 4.0f, texC, "Particle System", texFlipbook);
+        SLParticleSystem* ps = new SLParticleSystem(am, 10, SLVec3f(0, 0.5, 0), SLVec3f(0.04f, 0.4f, 0.1f), SLVec3f(-0.11f, 0.7f, -0.1f), 4.0f, texC, "Particle System", texFlipbook);
         ps->alphaOverLF(false);
         ps->sizeOverLF(false);
         ps->rot(false);

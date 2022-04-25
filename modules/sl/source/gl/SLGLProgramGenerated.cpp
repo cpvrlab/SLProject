@@ -40,6 +40,8 @@ const string vertInput_PS_a_r      = R"(
 layout (location = 4) in  float a_rotation; // Particle rotation attribute)";
 const string vertInput_PS_a_texNum          = R"(
 layout (location = 5) in  uint a_texNum; // Particle rotation attribute)";
+const string vertInput_PS_a_initP      = R"(
+layout (location = 6) in vec3 a_initialPosition; // Particle initial position attribute)";
 const string vertInput_a_uv0     = R"(
 layout (location = 2) in vec2  a_uv0;       // Vertex tex.coord. 1 for diffuse color)";
 const string vertInput_a_uv1     = R"(
@@ -146,7 +148,12 @@ const string vertOutput_PS_tf_r          = R"(
     out float tf_rotation;          // To transform feedback)";
 const string vertOutput_PS_tf_texNum              = R"(
     out uint tf_texNum;              // To transform feedback)";
-//-----------------------------------------------------------------------------
+const string vertOutput_PS_tf_initP          = R"(
+    out vec3 tf_initialPosition;      // To transform feedback)";
+
+
+
+  //-----------------------------------------------------------------------------
 const string vertMain_Begin     = R"(
 
 void main()
@@ -258,6 +265,8 @@ const string vertMain_PS_U_v_init_r     = R"(
         tf_rotation = a_rotation; // Init the output variable)";
 const string vertMain_PS_U_v_init_texNum                 = R"(
         tf_texNum = a_texNum; // Init the output variable)";
+const string vertMain_PS_U_v_init_initP                               = R"(
+        tf_initialPosition = a_initialPosition; // Init the output variable)";
 const string vertMain_PS_U_v_r     = R"(
         tf_rotation = mod(tf_rotation + (0.5*u_deltaTime), 360.0);)";
 const string vertMain_PS_U_bornDead          = R"(
@@ -268,6 +277,9 @@ const string vertMain_PS_U_bornDead          = R"(
 const string vertMain_PS_U_reset_p    = R"(
                     // The particle is past its lifetime, recycle.
                     tf_position = u_pGPosition;         // Reset position)";
+const string vertMain_PS_U_reset_shape_p                               = R"(
+                    // The particle is past its lifetime, recycle.
+                    tf_position = a_initialPosition + u_pGPosition;         // Reset position)";
 const string vertMain_PS_U_reset_v            = R"(
                     tf_velocity = a_initialVelocity;    // Reset velocity)";
 const string vertMain_PS_U_reset_st            = R"(
@@ -287,10 +299,15 @@ const string vertMain_PS_U_alive_texNum                  = R"(
                     })";
 const string vertMain_PS_U_EndAll = R"(
         }
-    }else{
-        tf_position = u_pGPosition;         // Set position (for world space)
     }
 })";
+
+//const string vertMain_PS_U_EndAll = R"(
+//        }
+//    }else{
+//        tf_position = u_pGPosition;         // Set position (for world space)
+//    }
+//})";
 //-----------------------------------------------------------------------------
 const string geomConfig_PS       = R"(
 layout (points) in;             // Primitives that we received from vertex shader
@@ -1536,6 +1553,7 @@ void SLGLProgramGenerated::buildProgramNamePS(SLMaterial* mat,
         bool accDiffDir = mat->ps()->accDiffDir();      // Acceleration different direction
         bool FlBoTex = mat->ps()->flipBookTexture(); // Flipbook texture
         bool rot = mat->ps()->rot(); // Rotation
+        bool shape      = mat->ps()->shape();           // Shape
         programName += "-Update";
         if (rot) programName += "-RT";
         if (acc)
@@ -1544,6 +1562,7 @@ void SLGLProgramGenerated::buildProgramNamePS(SLMaterial* mat,
             programName += accDiffDir ? "di" : "co";
         }
         if (FlBoTex) programName += "-FB";
+        if (shape) programName += "-SH";
     }
     else
     {
@@ -2011,6 +2030,7 @@ void SLGLProgramGenerated::buildPerPixParticleUpdate(SLMaterial* mat)
     bool accDiffDir = mat->ps()->accDiffDir();      // Acceleration different direction
     bool FlBoTex = mat->ps()->flipBookTexture(); // Flipbook texture
     bool rot     = mat->ps()->rot();             // Rotation
+    bool shape     = mat->ps()->shape();             // Shape
 
     string vertCode;
     vertCode += shaderHeader();
@@ -2022,6 +2042,7 @@ void SLGLProgramGenerated::buildPerPixParticleUpdate(SLMaterial* mat)
     if (acc) vertCode += vertInput_PS_a_initV;
     if (rot) vertCode += vertInput_PS_a_r;
     if (FlBoTex) vertCode += vertInput_PS_a_texNum;
+    if (shape) vertCode += vertInput_PS_a_initP;
 
     
     // Vertex shader uniforms
@@ -2032,6 +2053,7 @@ void SLGLProgramGenerated::buildPerPixParticleUpdate(SLMaterial* mat)
     if (FlBoTex) vertCode += vertInput_PS_u_col;
     if (FlBoTex) vertCode += vertInput_PS_u_row;
     if (FlBoTex) vertCode += vertInput_PS_u_condFB;
+    
 
     // Vertex shader outputs
     vertCode += vertOutput_PS_tf_p;
@@ -2040,6 +2062,7 @@ void SLGLProgramGenerated::buildPerPixParticleUpdate(SLMaterial* mat)
     if (acc) vertCode += vertOutput_PS_tf_initV;
     if (rot) vertCode += vertOutput_PS_tf_r;
     if (FlBoTex) vertCode += vertOutput_PS_tf_texNum;
+    if (shape) vertCode += vertOutput_PS_tf_initP;
 
     // Vertex shader main loop
     vertCode += vertMain_PS_U_Begin;
@@ -2049,9 +2072,10 @@ void SLGLProgramGenerated::buildPerPixParticleUpdate(SLMaterial* mat)
     if (acc) vertCode += vertMain_PS_U_v_init_initV;
     if (rot) vertCode += vertMain_PS_U_v_init_r;
     if (FlBoTex) vertCode += vertMain_PS_U_v_init_texNum;
+    if (shape) vertCode += vertMain_PS_U_v_init_initP;
     if (rot) vertCode += vertMain_PS_U_v_r;
     vertCode += vertMain_PS_U_bornDead;
-    vertCode += vertMain_PS_U_reset_p;
+    vertCode += shape ? vertMain_PS_U_reset_shape_p : vertMain_PS_U_reset_p;
     if (acc) vertCode += vertMain_PS_U_reset_v;
     vertCode += vertMain_PS_U_reset_st;
     vertCode += vertMain_PS_U_alive_p;
