@@ -5764,8 +5764,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         scene->addChild(light1);
 
         // Create meshes and nodes
-        SLParticleSystem* ps = new SLParticleSystem(am, 500, SLVec3f(0, 0.5, 0), SLVec3f(0.04f, 0.4f, 0.1f), SLVec3f(-0.11f, 0.7f, -0.1f), 4.0f, texC, texFlipbook, "Particle System");
-        ps->billoardType(1);
+        SLParticleSystem* ps     = new SLParticleSystem(am, 500, SLVec3f(0, 0.5, 0), SLVec3f(0.04f, 0.4f, 0.1f), SLVec3f(-0.11f, 0.7f, -0.1f), 4.0f, texC, "Particle System", texFlipbook);
         SLMesh*           pSMesh = ps;
         SLNode* pSNode = new SLNode(pSMesh, "Particle system node");
         scene->addChild(pSNode);
@@ -5800,7 +5799,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         // Create meshes and nodes
         // Flame particle system
-        SLParticleSystem* ps = new SLParticleSystem(am, 1, SLVec3f(0.0f, 0.0f, 0.0f), SLVec3f(0.0f, 0.0f, 0.0f), SLVec3f(0.0f, 0.0f, 0.0f), 4.0f, texC, texFlipbook, "Particle System Fire1");
+        SLParticleSystem* ps = new SLParticleSystem(am, 1, SLVec3f(0.0f, 0.0f, 0.0f), SLVec3f(0.0f, 0.0f, 0.0f), SLVec3f(0.0f, 0.0f, 0.0f), 4.0f, texC, "Particle System Fire1", texFlipbook);
         ps->col(16); 
         ps->row(4);
         ps->flipBookTexture(true);
@@ -5812,6 +5811,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         ps->frameRateFB(64);
         ps->radiusW(0.4f);
         ps->radiusH(1.0f);
+        ps->billoardType(1);
         
         SLMesh*           pSMesh = ps;
         SLNode* pSNode = new SLNode(pSMesh, "Particle system node fire1");
@@ -5819,7 +5819,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         scene->addChild(pSNode);
 
         // Smoke particle system
-        SLParticleSystem* ps2 = new SLParticleSystem(am, 20, SLVec3f(0.0f, 0.0f, 0.0f), SLVec3f(-0.05f, 0.6f, -0.05f), SLVec3f(0.05f, 0.8f, 0.05f), 3.0f, texC, texFlipbook, "Particle System Smoke1");
+        SLParticleSystem* ps2 = new SLParticleSystem(am, 20, SLVec3f(0.0f, 0.0f, 0.0f), SLVec3f(-0.05f, 0.6f, -0.05f), SLVec3f(0.05f, 0.8f, 0.05f), 3.0f, texC, "Particle System Smoke1", texFlipbook);
         ps2->colorV(SLCol4f(0.42f, 0.42f, 0.42f, 0.117f));
         ps2->sizeOverLF(false);
 
@@ -5830,7 +5830,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         pSNode->addChild(pSNode2);
 
         // Fire 2 (with lot of particles
-        SLParticleSystem* ps3 = new SLParticleSystem(am, 128, SLVec3f(0.0f, 0.0f, 0.0f), SLVec3f(-0.1f, 0.4f, -0.1f), SLVec3f(0.1f, 1.0f, 0.1f), 1.5f, texC, texFlipbookSmoke, "Particle System fire2");
+        SLParticleSystem* ps3 = new SLParticleSystem(am, 128, SLVec3f(0.0f, 0.0f, 0.0f), SLVec3f(-0.1f, 0.4f, -0.1f), SLVec3f(0.1f, 1.0f, 0.1f), 1.5f, texC, "Particle System fire2", texFlipbookSmoke);
         ps3->colorV(SLCol4f(0.91f, 0.2f, 0.04f, 0.63f));
         ps3->blendingBrigh(true);
         ps3->frameRateFB(16);
@@ -5865,7 +5865,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         SLGLTexture* texFlipbook = new SLGLTexture(am, texPath + "WispySmoke03_8x8_C.png");
 
         // Create meshes and nodes
-        SLParticleSystem* ps     = new SLParticleSystem(am, 1, SLVec3f(0, 0.5, 0), SLVec3f(0.04f, 0.4f, 0.1f), SLVec3f(-0.11f, 0.7f, -0.1f), 4.0f, texC, texFlipbook, "Particle System");
+        SLParticleSystem* ps = new SLParticleSystem(am, 1, SLVec3f(0, 0.5, 0), SLVec3f(0.04f, 0.4f, 0.1f), SLVec3f(-0.11f, 0.7f, -0.1f), 4.0f, texC, "Particle System", texFlipbook);
         ps->alphaOverLF(false);
         ps->sizeOverLF(false);
         ps->rot(false);

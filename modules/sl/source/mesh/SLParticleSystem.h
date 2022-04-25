@@ -30,8 +30,9 @@ public:
                      const SLVec3f&  velocityRandomEnd,
                      const SLfloat&  timeToLive,
                      SLGLTexture* texC,
-                     SLGLTexture* texFlipbook,
-                     const SLstring& name  = "Particle system");
+                     const SLstring& name  = "Particle system",
+                     SLGLTexture* texFlipbook = nullptr
+                     );
     
     void draw(SLSceneView* sv, SLNode* node);
     void buildAABB(SLAABBox& aabb, const SLMat4f& wmNode);

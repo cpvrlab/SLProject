@@ -178,7 +178,6 @@ private:
     SLMat4f  _invModelViewMatrix;   //!< inverse modelview transform
     SLMat3f  _normalMatrix;         //!< matrix for the normal transform
     SLMat4f  _mvpMatrix;            //!< combined modelview-projection transform
-    SLMat4f  _vpMatrix;            //!< combined modelview-projection transform
     SLSMat4f _modelViewMatrixStack; //!< stack for modelview matrices
 
     SLstring _glVersion;     //!< OpenGL Version string

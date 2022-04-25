@@ -307,10 +307,8 @@ const string geomInput_PS_struct_End       = R"(
 //-----------------------------------------------------------------------------
 const string geomInput_u_matrix_p = R"(
 uniform mat4 u_pMatrix; // Projection matrix)";
- 
 const string geomInput_u_matrix_vertBillboard = R"(
-uniform mat4 u_vYawPMatrix; // Projection matrix
-uniform mat4 u_vpMatrix; // Projection matrix)";
+uniform mat4 u_vYawPMatrix; // Projection matrix)";
 const string geomInput_PS_u_ScaRa = R"(
 
 uniform float u_scale;  // Particle scale
@@ -387,28 +385,28 @@ const string geomMain_PS_fourCorners = R"(//BOTTOM LEFT
 
 const string geomMain_PS_fourCorners_vertBillboard = R"(//BOTTOM LEFT
   vec4 va = vec4(P.xy + (rot * vec2(-radiusW, -radiusH)), P.z, 1); //Position in view space
-  gl_Position = u_vpMatrix * (u_vYawPMatrix * va); // Calculate position in clip space
+  gl_Position = u_pMatrix * (u_vYawPMatrix * va); // Calculate position in clip space
   v_texCoord = vec2(0.0, 0.0);  // Texture coordinate
   v_particleColor = color;
   EmitVertex();  
   
   //BOTTOM RIGHT
   vec4 vd = vec4(P.xy + (rot * vec2(radiusW, -radiusH)), P.z,1);
-  gl_Position = u_vpMatrix * (u_vYawPMatrix  *vd);
+  gl_Position = u_pMatrix * (u_vYawPMatrix  *vd);
   v_texCoord = vec2(1.0, 0.0);
   v_particleColor = color;
   EmitVertex();  
 
   //TOP LEFT
   vec4 vb = vec4(P.xy + (rot * vec2(-radiusW,radiusH)) , P.z,1);
-  gl_Position = u_vpMatrix * (u_vYawPMatrix * vb);
+  gl_Position = u_pMatrix * (u_vYawPMatrix * vb);
   v_texCoord = vec2(0.0, 1.0);
   v_particleColor = color;
   EmitVertex();  
 
   //TOP RIGHT
   vec4 vc = vec4(P.xy + (rot *vec2(radiusW, radiusH)), P.z,1);
-  gl_Position = u_vpMatrix *  (u_vYawPMatrix * vc);
+  gl_Position = u_pMatrix *  (u_vYawPMatrix * vc);
   v_texCoord = vec2(1.0, 1.0);
   v_particleColor = color;
   EmitVertex();  )";
@@ -455,28 +453,28 @@ const string geomMain_PS_Flipbook_fourCorners_vertBillboard = R"(
 
   //BOTTOM LEFT
   vec4 va = vec4(P.xy + (rot * vec2(-radiusW, -radiusH)), P.z, 1); //Position in view space
-  gl_Position = u_vpMatrix * (u_vYawPMatrix * va); // Calculate position in clip space
+  gl_Position = u_pMatrix * (u_vYawPMatrix * va); // Calculate position in clip space
   v_texCoord = vec2(actC/u_col, 1.0-((actR+1.0)/u_row));  // Texture coordinate
   v_particleColor = color;
   EmitVertex();  
   
   //BOTTOM RIGHT
   vec4 vd = vec4(P.xy + (rot * vec2(radiusW, -radiusH)), P.z,1);
-  gl_Position = u_vpMatrix * (u_vYawPMatrix * vd);
+  gl_Position = u_pMatrix * (u_vYawPMatrix * vd);
   v_texCoord = vec2((actC+1.0)/u_col, 1.0-((actR+1.0)/u_row)); // Texture coordinate
   v_particleColor = color;
   EmitVertex();  
 
   //TOP LEFT
   vec4 vb = vec4(P.xy + (rot * vec2(-radiusW,radiusH)) , P.z,1);
-  gl_Position = u_vpMatrix * (u_vYawPMatrix * vb);
+  gl_Position = u_pMatrix * (u_vYawPMatrix * vb);
   v_texCoord = vec2(actC/u_col, 1.0-(actR/u_row)); // Texture coordinate
   v_particleColor = color;
   EmitVertex();  
 
   //TOP RIGHT
   vec4 vc = vec4(P.xy + (rot *vec2(radiusW, radiusH)), P.z,1);
-  gl_Position =u_vpMatrix * (u_vYawPMatrix * vc);
+  gl_Position =u_pMatrix * (u_vYawPMatrix * vc);
   v_texCoord = vec2((actC+1.0)/u_col, 1.0-(actR/u_row)); // Texture coordinate
   v_particleColor = color;
   EmitVertex();  )";
@@ -1951,10 +1949,9 @@ void SLGLProgramGenerated::buildPerPixParticle(SLMaterial* mat)
     if (!CoOvLi) geomCode += geomInput_PS_u_c;
     if (FlBoTex) geomCode += geomInput_PS_u_col;
     if (FlBoTex) geomCode += geomInput_PS_u_row;
+    geomCode += geomInput_u_matrix_p;
     if (billoardType == 1)
         geomCode += geomInput_u_matrix_vertBillboard;
-    else
-        geomCode += geomInput_u_matrix_p;
 
     // geometry shader outputs
     geomCode += geomOutput_PS_v_pC;

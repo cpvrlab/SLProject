@@ -4015,6 +4015,8 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                 ImGui::Unindent();
                             }
                             // Flipbook texture
+                            if (ps->textureFlipbook() == nullptr)
+                                ImGui::BeginDisabled();
                             SLbool flipbookTex_group = ps->flipBookTexture();
                             if (ImGui::Checkbox("Flipbook texture", &flipbookTex_group))
                             {
@@ -4034,7 +4036,8 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                 }
                                 ImGui::Unindent();
                             }
-
+                            if (ps->textureFlipbook() == nullptr)
+                                ImGui::EndDisabled();
                             // Size random // no done yet
                             SLbool sizeRandom_group = ps->sizeRandom();
                             if (ImGui::Checkbox("Size random (NOT DONE)", &sizeRandom_group))
