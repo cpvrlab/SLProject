@@ -95,11 +95,11 @@ public:
                SLGLProgram*      program = nullptr);
 
     //! Ctor for Particle System material with one texture (Draw)
-    SLMaterial(SLAssetManager* am,
-               const SLchar*   name,
-               SLGLTexture*    texture,
-               SLParticleSystem*    ps,
-               SLGLProgram*    program  = nullptr);
+    SLMaterial(SLAssetManager*   am,
+               const SLchar*     name,
+               SLGLTexture*      texture,
+               SLParticleSystem* ps,
+               SLGLProgram*      program = nullptr);
 
     //! Ctor for uniform color material without lighting
     explicit SLMaterial(SLAssetManager* am,
@@ -207,58 +207,59 @@ public:
     void ps(SLParticleSystem* ps) { _ps = ps; }
 
     // Getters
-    SLAssetManager*   assetManager() { return _assetManager; }
-    SLReflectionModel reflectionModel() { return _reflectionModel; }
-    SLParticleSystemType      psType() { return _psType; }
-    SLCol4f           ambient() { return _ambient; }
-    SLCol4f           diffuse() { return _diffuse; }
-    SLCol4f           specular() { return _specular; }
-    SLCol4f           emissive() { return _emissive; }
-    SLfloat           shininess() const { return _shininess; }
-    SLfloat           roughness() const { return _roughness; }
-    SLfloat           metalness() const { return _metalness; }
-    SLCol4f           transmissive() { return _transmissive; }
-    SLfloat           translucency() const { return _translucency; }
-    SLfloat           kr() const { return _kr; }
-    SLfloat           kt() const { return _kt; }
-    SLfloat           kn() const { return _kn; }
-    SLbool            getsShadows() const { return _getsShadows; }
-    SLuint            numTextures() { return _numTextures; }
-    SLGLProgram*      program() { return _program; }
-    SLSkybox*         skybox() { return _skybox; }
-    SLParticleSystem*         ps() { return _ps; }
-    SLVNode&          nodesVisible2D() { return _nodesVisible2D; }
-    SLVNode&          nodesVisible3D() { return _nodesVisible3D; }
-    SLVGLTexture&     textures(SLTextureType type) { return _textures[type]; }
-    SLVGLTexture&     textures3d() { return _textures3d; }
+    SLAssetManager*      assetManager() { return _assetManager; }
+    SLReflectionModel    reflectionModel() { return _reflectionModel; }
+    SLParticleSystemType psType() { return _psType; }
+    SLCol4f              ambient() { return _ambient; }
+    SLCol4f              diffuse() { return _diffuse; }
+    SLCol4f              specular() { return _specular; }
+    SLCol4f              emissive() { return _emissive; }
+    SLfloat              shininess() const { return _shininess; }
+    SLfloat              roughness() const { return _roughness; }
+    SLfloat              metalness() const { return _metalness; }
+    SLCol4f              transmissive() { return _transmissive; }
+    SLfloat              translucency() const { return _translucency; }
+    SLfloat              kr() const { return _kr; }
+    SLfloat              kt() const { return _kt; }
+    SLfloat              kn() const { return _kn; }
+    SLbool               getsShadows() const { return _getsShadows; }
+    SLuint               numTextures() { return _numTextures; }
+    SLGLProgram*         program() { return _program; }
+    SLSkybox*            skybox() { return _skybox; }
+    SLParticleSystem*    ps() { return _ps; }
+    SLVNode&             nodesVisible2D() { return _nodesVisible2D; }
+    SLVNode&             nodesVisible3D() { return _nodesVisible3D; }
+    SLVGLTexture&        textures(SLTextureType type) { return _textures[type]; }
+    SLVGLTexture&        textures3d() { return _textures3d; }
 
     // Static variables & functions
     static SLfloat K;       //!< PM: Constant of gloss calibration (slope of point light at dist 1)
     static SLfloat PERFECT; //!< PM: shininess/translucency limit
 
 protected:
-    SLAssetManager*   _assetManager;    //!< pointer to the asset manager (the owner) if available
-    SLReflectionModel _reflectionModel; //!< reflection model (RM_BlinnPhong or RM_CookTorrance)
-    SLParticleSystemType _psType;       //!< ps type (RM_PS_Update or RM_PS_Draw)
-    SLCol4f           _ambient;         //!< ambient color (RGB reflection coefficients)
-    SLCol4f           _diffuse;         //!< diffuse color (RGB reflection coefficients)
-    SLCol4f           _specular;        //!< specular color (RGB reflection coefficients)
-    SLCol4f           _emissive;        //!< emissive color coefficients
-    SLfloat           _shininess;       //!< shininess exponent in Blinn-Phong model
-    SLfloat           _roughness;       //!< roughness property (0-1) in Cook-Torrance model
-    SLfloat           _metalness;       //!< metallic property (0-1) in Cook-Torrance model
-    SLCol4f           _transmissive;    //!< transmissive color (RGB reflection coefficients) for path tracing
-    SLfloat           _translucency;    //!< translucency exponent for light refraction for path tracing
-    SLfloat           _kr{};            //!< reflection coefficient 0.0 - 1.0 used for ray and path tracing
-    SLfloat           _kt{};            //!< transmission coefficient 0.0 - 1.0 used for ray and path tracing
-    SLfloat           _kn{};            //!< refraction index
-    SLbool            _getsShadows;     //!< true if shadows are visible on this material
-    SLGLProgram*      _program{};       //!< pointer to a GLSL shader program
-    SLint             _numTextures;     //!< number of textures in all _textures vectors array
-    SLSkybox*         _skybox;          //!< pointer to the skybox
+    SLAssetManager*      _assetManager;    //!< pointer to the asset manager (the owner) if available
+    SLReflectionModel    _reflectionModel; //!< reflection model (RM_BlinnPhong or RM_CookTorrance)
+    // ??? Why do we store the particle system type in the material? Why not in _ps?
+    SLParticleSystemType _psType;          //!< ps type (PS_Update or PS_Draw)
+    SLCol4f              _ambient;         //!< ambient color (RGB reflection coefficients)
+    SLCol4f              _diffuse;         //!< diffuse color (RGB reflection coefficients)
+    SLCol4f              _specular;        //!< specular color (RGB reflection coefficients)
+    SLCol4f              _emissive;        //!< emissive color coefficients
+    SLfloat              _shininess;       //!< shininess exponent in Blinn-Phong model
+    SLfloat              _roughness;       //!< roughness property (0-1) in Cook-Torrance model
+    SLfloat              _metalness;       //!< metallic property (0-1) in Cook-Torrance model
+    SLCol4f              _transmissive;    //!< transmissive color (RGB reflection coefficients) for path tracing
+    SLfloat              _translucency;    //!< translucency exponent for light refraction for path tracing
+    SLfloat              _kr{};            //!< reflection coefficient 0.0 - 1.0 used for ray and path tracing
+    SLfloat              _kt{};            //!< transmission coefficient 0.0 - 1.0 used for ray and path tracing
+    SLfloat              _kn{};            //!< refraction index
+    SLbool               _getsShadows;     //!< true if shadows are visible on this material
+    SLGLProgram*         _program{};       //!< pointer to a GLSL shader program
+    SLint                _numTextures;     //!< number of textures in all _textures vectors array
+    SLSkybox*            _skybox;          //!< pointer to the skybox
 
-    //For particle system
-    SLParticleSystem* _ps; //!< pointer to a particule system
+    // For particle system
+    SLParticleSystem* _ps; //!< pointer to a particle system
 
     SLVGLTexture _textures[TT_numTextureType]; //!< array of texture vectors one for each type
     SLVGLTexture _textures3d;                  //!< texture vector for diffuse 3D textures

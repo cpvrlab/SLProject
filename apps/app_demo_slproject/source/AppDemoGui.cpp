@@ -3805,7 +3805,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                             // Billboard
                             int item_current = ps->billoardType();
                             if (ImGui::Combo("Billboard type", &item_current, "Billboard\0Vertical billboard\0")) {
-                                ps->billoardType(item_current);
+                                ps->billboardType(item_current);
                                 m->updateProgramPS(); // Change or generate new program
                             }
                             // Velocity

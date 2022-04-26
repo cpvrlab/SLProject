@@ -253,7 +253,7 @@ SLMaterial::SLMaterial(SLAssetManager*   am,
 {
     _assetManager    = am;
     _reflectionModel = RM_Particle;
-    _psType          = RM_PS_Update;
+    _psType          = PS_Update;
     _getsShadows     = true; // Later for Particle System maybe
     _skybox          = nullptr;
     _ps              = ps;
@@ -287,7 +287,7 @@ SLMaterial::SLMaterial(SLAssetManager*   am,
 {
     _assetManager    = am;
     _reflectionModel = RM_Particle;
-    _psType          = RM_PS_Draw;
+    _psType          = PS_Draw;
     _getsShadows     = true; // Later for Particle System maybe
     _skybox          = nullptr;
     _ps              = ps;
@@ -422,7 +422,7 @@ void SLMaterial::generateProgramPS()
         // If the program was not found by name generate a new one
         if (!_program)
         {
-            if (psType() == RM_PS_Update)
+            if (psType() == PS_Update)
             {
                 _program = new SLGLProgramGenerated(_assetManager,
                                                     programName,
@@ -455,7 +455,7 @@ void SLMaterial::generateProgramPS()
                 }
                 _program->initTF(&outputNames[0], countString);
             }
-            else if (psType() == RM_PS_Draw)
+            else if (psType() == PS_Draw)
                 _program = new SLGLProgramGenerated(_assetManager,
                                                     programName,
                                                     this,
@@ -477,6 +477,7 @@ void SLMaterial::generateProgramPS()
 /*!
  Generate new program for this material if change has been made in the particle system
  */
+ // ??? Is updateProgramPS not almost the same code than generateProgramPS?
 void SLMaterial::updateProgramPS()
 {
     // Test if a shader is already attached
@@ -492,7 +493,7 @@ void SLMaterial::updateProgramPS()
             // If the program was not found by name generate a new one
             if (!_program)
             {
-                if (psType() == RM_PS_Update)
+                if (psType() == PS_Update)
                 {
                     _program = new SLGLProgramGenerated(_assetManager,
                                                         programName,
@@ -525,7 +526,7 @@ void SLMaterial::updateProgramPS()
                     }
                     _program->initTF(&outputNames[0], countString);
                 }
-                else if (psType() == RM_PS_Draw)
+                else if (psType() == PS_Draw)
                     _program = new SLGLProgramGenerated(_assetManager,
                                                         programName,
                                                         this,

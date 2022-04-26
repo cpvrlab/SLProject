@@ -67,7 +67,7 @@ public:
     SLbool       color() { return _color; }
     SLbool       shape() { return _shape; }
     SLint        amount() { return _amount; }
-    SLint        billoardType() { return _billoardType; }
+    SLint        billoardType() { return _billboardType; }
     SLint        shapeType() { return _shapeType; }
     SLint        col() { return _col; }
     SLint        row() { return _row; }
@@ -125,7 +125,7 @@ public:
     void shape(SLbool b) { _shape = b; }
     void amount(SLint i) { _amount = i; }
     void shapeType(SLint i) { _shapeType = i; }
-    void billoardType(SLint i) { _billoardType = i; }
+    void billboardType(SLint i) { _billboardType = i; }
     void col(SLint i) { _col = i; }
     void row(SLint i) { _row = i; }
     void ttl(SLfloat f) { _ttl = f; }
@@ -151,9 +151,8 @@ protected:
     SLVec3f _vRandS           = SLVec3f(0.0f, 0.0f, 0.0f);         //!< vec start for random velocity
     SLVec3f _vRandE           = SLVec3f(1.0f, 1.0f, 1.0f);         //!< vec end for random velocity
     SLCol4f _colorV           = SLCol4f(0.66f, 0.0f, 0.66f, 0.2f); //!< Color for particle
-
-    SLfloat _angle     = 30.0f; //!< Angle of branches (for tree fractal)
-    SLint   _numBranch = 4;     //!< Number of branches (for tree fractal)
+    SLfloat _angle            = 30.0f;                             //!< Angle of branches (for tree fractal)
+    SLint   _numBranch        = 4;                                 //!< Number of branches (for tree fractal)
 
     SLGLVertexArray _vao1; //!< First OpenGL Vertex Array Object for swapping between updating/drawing
     SLGLVertexArray _vao2; //!< Second OpenGL Vertex Array Object for swapping between updating/drawing
@@ -164,6 +163,7 @@ private:
     int     randomInt(int min, int max);
     SLVec3f getPointSphere(float radius);
 
+    // ??? Private variables normally have an underscore. Are these variables somehow special?
     SLVVec3f V;      //!< Vector for particle velocity
     SLVfloat ST;     //!< Vector for particle start time
     SLVVec3f InitV;  //!< Vector for particle initial velocity
@@ -187,24 +187,26 @@ private:
     SLGLTexture* _textureFirst;
     SLGLTexture* _textureFlipbook;
 
-    SLbool _isViFrustrumCulling = true;  //!< Boolean to set time since node, not visible
-    SLint  _billoardType        = 0;     //!< Billboard type
-    SLint  _shapeType           = 0;     //!< Shape type
-    SLbool _blendingBrigh       = false; //!< Blending for glow/brightness on pixel with many particle
-    SLbool _tree                = false; //!< Boolean for tree fractal
-    SLbool _acc                 = false; //!< Boolean for acceleration
-    SLbool _accDiffDir          = false; //!< Boolean for acceleration (different direction)
-    SLbool _rot                 = true;  //!< Boolean for rotation
-    SLbool _color               = true;  //!< Boolean for color
-    SLbool _shape               = false; //!< Boolean for shape feature
-    SLbool _worldSpace          = false; //!< Boolean for world space position
-    SLbool _alphaOverLF         = true;  //!< Boolean for alpha over life time
-    SLbool _colorOverLF         = false; //!< Boolean for color over life time
-    SLbool _alphaOverLFCurve    = false; //!< Boolean for alpha over life time curve
-    SLbool _sizeOverLF          = true;  //!< Boolean for size over life time
-    SLbool _sizeOverLFCurve     = false; //!< Boolean for size over life time curve
-    SLbool _flipBookTexture     = false; //!< Boolean for flipbook texture
-    SLbool _sizeRandom          = false; //!< Boolean for size over life time
+    SLbool _isViFrustrumCulling = true; //!< Boolean to set time since node, not visible
+    SLint  _billboardType       = 0;    //!< Billboard type
+    SLint  _shapeType           = 0;    //!< Shape type
+
+    // ??? Boolean variables are more understandable if they begin with _is*, _has*, _do* etc.
+    SLbool _blendingBrigh    = false; //!< Blending for glow/brightness on pixel with many particle
+    SLbool _tree             = false; //!< Boolean for tree fractal
+    SLbool _acc              = false; //!< Boolean for acceleration
+    SLbool _accDiffDir       = false; //!< Boolean for acceleration (different direction)
+    SLbool _rot              = true;  //!< Boolean for rotation
+    SLbool _color            = true;  //!< Boolean for color
+    SLbool _shape            = false; //!< Boolean for shape feature
+    SLbool _worldSpace       = false; //!< Boolean for world space position
+    SLbool _alphaOverLF      = true;  //!< Boolean for alpha over life time
+    SLbool _colorOverLF      = false; //!< Boolean for color over life time
+    SLbool _alphaOverLFCurve = false; //!< Boolean for alpha over life time curve
+    SLbool _sizeOverLF       = true;  //!< Boolean for size over life time
+    SLbool _sizeOverLFCurve  = false; //!< Boolean for size over life time curve
+    SLbool _flipBookTexture  = false; //!< Boolean for flipbook texture
+    SLbool _sizeRandom       = false; //!< Boolean for size over life time
 };
 //-----------------------------------------------------------------------------
 #endif

@@ -16,6 +16,40 @@
 #include <GlobalTimer.h>
 
 //-----------------------------------------------------------------------------
+//! SLParticleSystem ctor with a given vector of points
+SLParticleSystem::SLParticleSystem(SLAssetManager* assetMgr,
+                                   const SLint     amount,
+                                   const SLVec3f&  particleEmiPos,
+                                   const SLVec3f&  velocityRandomStart,
+                                   const SLVec3f&  velocityRandomEnd,
+                                   const SLfloat&  timeToLive,
+                                   SLGLTexture*    texC,
+                                   const SLstring& name,
+                                   SLGLTexture*    texFlipbook) : SLMesh(assetMgr, name)
+{
+    assert(!name.empty());
+
+    _primitive = PT_points;
+
+    if (amount > UINT_MAX) // Need to change for number of floats
+        SL_EXIT_MSG("SLParticleSystem supports max. 2^32 vertices.");
+
+    _ttl    = timeToLive;
+    _amount = amount;
+    _vRandS = velocityRandomStart;
+    _vRandE = velocityRandomEnd;
+
+    P.resize(_amount);
+
+    pEPos(particleEmiPos);
+
+    _textureFirst    = texC;
+    _textureFlipbook = texFlipbook;
+    initMat(assetMgr, texC);
+
+    _updateTime.init(60, 0.0f);
+}
+//-----------------------------------------------------------------------------
 void SLParticleSystem::initMat(SLAssetManager* am, SLGLTexture* texC)
 {
     // Initialize the updating:
@@ -71,41 +105,6 @@ SLVec3f SLParticleSystem::getPointSphere(float radius)
     float c = cbrt(u);
 
     return SLVec3f(x1 * c, x2 * c, x3 * c);
-}
-//-----------------------------------------------------------------------------
-//! SLParticleSystem ctor with a given vector of points
-SLParticleSystem::SLParticleSystem(SLAssetManager* assetMgr,
-                                   const SLint     amount,
-                                   const SLVec3f&  particleEmiPos,
-                                   const SLVec3f&  velocityRandomStart,
-                                   const SLVec3f&  velocityRandomEnd,
-                                   const SLfloat&  timeToLive,
-                                   SLGLTexture*    texC,
-                                   const SLstring& name,
-                                   SLGLTexture*    texFlipbook) : SLMesh(assetMgr, name)
-{
-    assert(!name.empty());
-
-    _primitive = PT_points;
-
-    if (amount > UINT_MAX) // Need to change for number of floats
-        SL_EXIT_MSG("SLParticleSystem supports max. 2^32 vertices.");
-
-    _ttl    = timeToLive;
-    _amount = amount;
-
-    _vRandS = velocityRandomStart;
-    _vRandE = velocityRandomEnd;
-
-    P.resize(_amount);
-
-    pEPos(particleEmiPos);
-
-    _textureFirst    = texC;
-    _textureFlipbook = texFlipbook;
-    initMat(assetMgr, texC);
-
-    _updateTime.init(60, 0.0f);
 }
 //-----------------------------------------------------------------------------
 // TODO Delete VAO2 with function DeleteData of Mesh.h
@@ -351,7 +350,7 @@ void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
     }
     else
     {
-        if (_billoardType == 1)
+        if (_billboardType == 1)
         {
             SLMat4f mvMat = stateGL->modelViewMatrix;
 

@@ -1520,7 +1520,7 @@ void SLGLProgramGenerated::buildProgramNamePS(SLMaterial* mat,
 
     
     //programName += "-";
-    if (mat->psType() == RM_PS_Draw)
+    if (mat->psType() == PS_Draw)
     {
         programName += "-Draw";
         programName += mat->texturesString();
@@ -1547,7 +1547,7 @@ void SLGLProgramGenerated::buildProgramNamePS(SLMaterial* mat,
         if (FlBoTex) programName += "-FB";
         if (WS) programName += "-WS";
     }
-    else if (mat->psType() == RM_PS_Update)
+    else if (mat->psType() == PS_Update)
     {
         bool acc = mat->ps()->acc(); // Acceleration
         bool accDiffDir = mat->ps()->accDiffDir();      // Acceleration different direction
@@ -1647,11 +1647,11 @@ void SLGLProgramGenerated::buildProgramCodePS(SLMaterial* mat)
     bool Vm  = mat->hasTextureType(TT_videoBkgd); // Video Background Mapping
     bool env = mat->skybox() != nullptr;          // Environment Mapping from skybox
 
-    if (mat->psType() == RM_PS_Draw)
+    if (mat->psType() == PS_Draw)
     {
         buildPerPixParticle(mat);
     }
-    else if (mat->psType() == RM_PS_Update)
+    else if (mat->psType() == PS_Update)
     {
         buildPerPixParticleUpdate(mat);
     }

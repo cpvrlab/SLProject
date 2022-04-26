@@ -373,15 +373,15 @@ enum SLReflectionModel
 {
     RM_BlinnPhong = 0,
     RM_CookTorrance,
-    RM_Custom,
-    RM_Particle
+    RM_Particle,
+    RM_Custom
 };
 //! Particle System shader type for shader generation usd in SLMaterial
 enum SLParticleSystemType
 {
-    RM_PS_Update = 0,
-    RM_PS_Draw,
-    RM_PS_Custom,
+    PS_Update = 0,
+    PS_Draw,
+    PS_Custom
 };
 //-----------------------------------------------------------------------------
 #endif

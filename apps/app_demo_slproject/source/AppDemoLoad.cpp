@@ -5826,7 +5826,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         ps->frameRateFB(64);
         ps->radiusW(0.4f);
         ps->radiusH(1.0f);
-        ps->billoardType(1);
+        ps->billboardType(1);
 
         SLMesh* pSMesh = ps;
         SLNode* pSNode = new SLNode(pSMesh, "Particle system node fire1");
