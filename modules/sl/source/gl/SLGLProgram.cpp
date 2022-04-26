@@ -168,10 +168,12 @@ void SLGLProgram::initRaw()
         GET_GL_ERROR;
     }
 }
-/*! SLGLProgram::initRawTF() does not replace any code from the shader and
-assumes valid syntax for the shader used. Used in ... (PatricleSystem)
-*/
-void SLGLProgram::initTF(char* writeBackAttrib[], int size)
+//-----------------------------------------------------------------------------
+/*! SLGLProgram::initTF() initializes shader for transform feedback.
+ * Does not replace any code from the shader and assumes valid syntax for the
+ * shader used. Used for particle systems
+ */
+void SLGLProgram::initTF(const char* writeBackAttrib[], int size)
 {
     // create program object if it doesn't exist
     if (!_progID)
@@ -234,7 +236,10 @@ void SLGLProgram::initTF(char* writeBackAttrib[], int size)
     }
 
     int linked = 0;
-    glTransformFeedbackVaryings(_progID, size, writeBackAttrib, GL_INTERLEAVED_ATTRIBS);
+    glTransformFeedbackVaryings(_progID,
+                                size,
+                                writeBackAttrib,
+                                GL_INTERLEAVED_ATTRIBS);
     glLinkProgram(_progID);
     GET_GL_ERROR;
     glGetProgramiv(_progID, GL_LINK_STATUS, &linked);

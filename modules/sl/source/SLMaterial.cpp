@@ -279,19 +279,19 @@ SLMaterial::SLMaterial(SLAssetManager*   am,
  @param program Pointer to the shader program for the material.
  If none is passed a program will be generated from the passed parameters.
  */
-SLMaterial::SLMaterial(SLAssetManager* am,
-                       const SLchar*   name,
-                       SLGLTexture*    texture,
+SLMaterial::SLMaterial(SLAssetManager*   am,
+                       const SLchar*     name,
+                       SLGLTexture*      texture,
                        SLParticleSystem* ps,
-                       SLGLProgram*    program) : SLObject(name)
+                       SLGLProgram*      program) : SLObject(name)
 {
     _assetManager    = am;
     _reflectionModel = RM_Particle;
     _psType          = RM_PS_Draw;
-    _getsShadows  = true; // Later for Particle System maybe
-    _skybox       = nullptr;
+    _getsShadows     = true; // Later for Particle System maybe
+    _skybox          = nullptr;
     _ps              = ps;
-    _program      = program;
+    _program         = program;
 
     _numTextures = 0;
     addTexture(texture);
@@ -405,7 +405,7 @@ SLMaterial::~SLMaterial()
 }
 //-----------------------------------------------------------------------------
 /*!
- If this material has not yet a shader program assigned (SLMaterial::_program) 
+ If this material has not yet a shader program assigned (SLMaterial::_program)
  a suitable program will be generated with an instance of SLGLProgramGenerated.
  */
 void SLMaterial::generateProgramPS()
@@ -421,11 +421,15 @@ void SLMaterial::generateProgramPS()
 
         // If the program was not found by name generate a new one
         if (!_program)
-            if (psType() == RM_PS_Update) {
-                _program = new SLGLProgramGenerated(_assetManager, programName, this);
+        {
+            if (psType() == RM_PS_Update)
+            {
+                _program = new SLGLProgramGenerated(_assetManager,
+                                                    programName,
+                                                    this);
 
-                int           countString = 3;
-                vector<char*> outputNames;
+                int                 countString = 3;
+                vector<const char*> outputNames;
                 outputNames.push_back("tf_position");
                 outputNames.push_back("tf_velocity");
                 outputNames.push_back("tf_startTime");
@@ -452,7 +456,11 @@ void SLMaterial::generateProgramPS()
                 _program->initTF(&outputNames[0], countString);
             }
             else if (psType() == RM_PS_Draw)
-                _program = new SLGLProgramGenerated(_assetManager, programName, this, "Geom");
+                _program = new SLGLProgramGenerated(_assetManager,
+                                                    programName,
+                                                    this,
+                                                    "Geom");
+        }
     }
 
     // Check if shader had a compile error and the error texture should be shown
@@ -477,15 +485,21 @@ void SLMaterial::updateProgramPS()
         // Check first the asset manager if the requested program type already exists
         string programName;
         SLGLProgramGenerated::buildProgramNamePS(this, programName);
-        if (programName != _program->name()) {
+        if (programName != _program->name())
+        {
             _program = _assetManager->getProgramByName(programName);
+
             // If the program was not found by name generate a new one
             if (!_program)
+            {
                 if (psType() == RM_PS_Update)
                 {
-                    _program            = new SLGLProgramGenerated(_assetManager, programName, this);
-                    int           countString = 3;
-                    vector<char*> outputNames;
+                    _program = new SLGLProgramGenerated(_assetManager,
+                                                        programName,
+                                                        this);
+
+                    int                 countString = 3;
+                    vector<const char*> outputNames;
                     outputNames.push_back("tf_position");
                     outputNames.push_back("tf_velocity");
                     outputNames.push_back("tf_startTime");
@@ -512,7 +526,11 @@ void SLMaterial::updateProgramPS()
                     _program->initTF(&outputNames[0], countString);
                 }
                 else if (psType() == RM_PS_Draw)
-                    _program = new SLGLProgramGenerated(_assetManager, programName, this, "Geom");
+                    _program = new SLGLProgramGenerated(_assetManager,
+                                                        programName,
+                                                        this,
+                                                        "Geom");
+            }
         }
         // Check if shader had a compile error and the error texture should be shown
         if (_program && _program->name().find("ErrorTex") != string::npos)
