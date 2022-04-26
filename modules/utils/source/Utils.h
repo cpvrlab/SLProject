@@ -264,10 +264,9 @@ inline float random(float min, float max)
 }
 //-----------------------------------------------------------------------------
 //! Returns a uniform distributed random int number between min and max
-inline float random(int min, int max)
+inline int random(int min, int max)
 {
-    int range = max - min;
-    return (float)(min + rand() % range);
+    return min + (rand() % (int)(max - min + 1));
 }
 //-----------------------------------------------------------------------------
 //! Greatest common divisor of two integer numbers (ggT = grösster gemeinsame Teiler)

@@ -139,17 +139,21 @@ public:
     void textureFlipbook(SLGLTexture* t) { _textureFlipbook = t; }
 
 protected:
+    // ??? I would use such a short variable name only when its used a thousand times otherwise _timeToLive is just more understandable
     SLfloat _ttl;                                                  //!< Time to live of a particle
     SLfloat _radiusW = 0.4f;                                       //!< width radius of a particle
     SLfloat _radiusH = 0.4f;                                       //!< height radius of a particle
     SLfloat _scale   = 1.0f;                                       //!< Scale of a particle (Scale the radius)
+    // ??? _emitterPos is more readable
     SLVec3f _pEPos;                                                //!< Position of the particle emitter
     SLVec4f _bernsteinPYAlpha = SLVec4f(2.0f, -3.0f, 0.0f, 1.0f);  //!< Vector for bezier curve (default linear function)
     SLVec4f _bernsteinPYSize  = SLVec4f(-1.4f, 1.8f, 0.6f, 0.0f);  //!< Vector for bezier curve (default linear function)
+    // ??? I wouldn't add a V at the for a vector. The acceleration just can be a vector. You then would have to rename _acc to _hasAcc
     SLVec3f _accV             = SLVec3f(1.0f, 1.0f, 1.0f);         //!< vec for acceleration (different direction as the velocity)
     SLfloat _accConst         = 0.0f;                              //!< Acceleration constant (same direction as the velocity)
     SLVec3f _vRandS           = SLVec3f(0.0f, 0.0f, 0.0f);         //!< vec start for random velocity
     SLVec3f _vRandE           = SLVec3f(1.0f, 1.0f, 1.0f);         //!< vec end for random velocity
+    // ??? Why not just _color? Is this color not allready in the material?
     SLCol4f _colorV           = SLCol4f(0.66f, 0.0f, 0.66f, 0.2f); //!< Color for particle
     SLfloat _angle            = 30.0f;                             //!< Angle of branches (for tree fractal)
     SLint   _numBranch        = 4;                                 //!< Number of branches (for tree fractal)

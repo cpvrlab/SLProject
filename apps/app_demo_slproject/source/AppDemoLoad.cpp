@@ -135,7 +135,7 @@ SLNode* RotatingSphereGroup(SLAssetManager* am,
     assert(resolution > 0 && resolution < 64);
 
     // Choose the material index randomly
-    SLint iMat = (SLint)Utils::random(0, (int)mat.size() - 1);
+    SLint iMat = Utils::random(0, (int)mat.size() - 1);
 
     // Generate unique names for meshes, nodes and animations
     static int sphereNum = 0;

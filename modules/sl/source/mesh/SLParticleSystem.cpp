@@ -62,6 +62,7 @@ void SLParticleSystem::initMat(SLAssetManager* am, SLGLTexture* texC)
     matOut(mUpdate);
 }
 //-----------------------------------------------------------------------------
+// ??? In my opinion this can be replaced by Utils::random
 float SLParticleSystem::randomFloat(float a, float b)
 {
     float random = ((float)rand()) / (float)RAND_MAX;
@@ -70,6 +71,7 @@ float SLParticleSystem::randomFloat(float a, float b)
     return a + r;
 }
 //-----------------------------------------------------------------------------
+// ??? In my opinion this can be replaced by Utils::random
 int SLParticleSystem::randomInt(int min, int max)
 {
     int n         = max - min + 1;
@@ -81,8 +83,11 @@ int SLParticleSystem::randomInt(int min, int max)
     return min + x % n;
 }
 //-----------------------------------------------------------------------------
+// ??? If I understand this correctly this function should be called getPointInSphere
 SLVec3f SLParticleSystem::getPointSphere(float radius)
 {
+    // ??? In my opinion this creates every time a new random generator.
+    // ??? and I think you want a uniform distribution not a normal distribution
     unsigned                   seed = chrono::system_clock::now().time_since_epoch().count();
     default_random_engine      generator(seed);
     normal_distribution<float> distribution(0.0f, 1.0f);
