@@ -14,6 +14,7 @@
 #include <SLGLTexture.h>
 #include <SLSceneView.h>
 #include <GlobalTimer.h>
+#include <Utils.h>
 
 //-----------------------------------------------------------------------------
 //! SLParticleSystem ctor with a given vector of points
@@ -34,14 +35,14 @@ SLParticleSystem::SLParticleSystem(SLAssetManager* assetMgr,
     if (amount > UINT_MAX) // Need to change for number of floats
         SL_EXIT_MSG("SLParticleSystem supports max. 2^32 vertices.");
 
-    _ttl    = timeToLive;
+    _timeToLive    = timeToLive;
     _amount = amount;
     _vRandS = velocityRandomStart;
     _vRandE = velocityRandomEnd;
 
     P.resize(_amount);
 
-    pEPos(particleEmiPos);
+    emitterPos(particleEmiPos);
 
     _textureFirst    = texC;
     _textureFlipbook = texFlipbook;
@@ -52,54 +53,18 @@ SLParticleSystem::SLParticleSystem(SLAssetManager* assetMgr,
 //-----------------------------------------------------------------------------
 void SLParticleSystem::initMat(SLAssetManager* am, SLGLTexture* texC)
 {
-    // Initialize the updating:
-    SLMaterial* mUpdate = new SLMaterial(am, "Update-Material", this);
-
     // Initialize the drawing:
-    SLMaterial* mDraw = new SLMaterial(am, "Drawing-Material", texC, this);
+    SLMaterial* mDraw = new SLMaterial(am, "Drawing-Material", this, texC);
 
     mat(mDraw);
-    matOut(mUpdate);
 }
 //-----------------------------------------------------------------------------
-// ??? In my opinion this can be replaced by Utils::random
-float SLParticleSystem::randomFloat(float a, float b)
+SLVec3f SLParticleSystem::getPointInSphere(float radius, SLVec3f randomXs)
 {
-    float random = ((float)rand()) / (float)RAND_MAX;
-    float diff   = b - a;
-    float r      = random * diff;
-    return a + r;
-}
-//-----------------------------------------------------------------------------
-// ??? In my opinion this can be replaced by Utils::random
-int SLParticleSystem::randomInt(int min, int max)
-{
-    int n         = max - min + 1;
-    int remainder = RAND_MAX % n;
-    int x;
-    do {
-        x = rand();
-    } while (x >= RAND_MAX - remainder);
-    return min + x % n;
-}
-//-----------------------------------------------------------------------------
-// ??? If I understand this correctly this function should be called getPointInSphere // Yes
-SLVec3f SLParticleSystem::getPointSphere(float radius)
-{
-    // ??? In my opinion this creates every time a new random generator. // Yes, need to generate a new but for each generation 
-    // ??? and I think you want a uniform distribution not a normal distribution // Not sure about this one, i am following this article https://karthikkaranth.me/blog/generating-random-points-in-a-sphere/ 
-    unsigned                   seed = chrono::system_clock::now().time_since_epoch().count();
-    default_random_engine      generator(seed);
-    normal_distribution<float> distribution(0.0f, 1.0f);
-
-    // cout << distribution(generator);
-    // cout << distribution(generator);
-    // cout << distribution(generator);
-
-    float u  = randomFloat(0.0f, radius);
-    float x1 = distribution(generator);
-    float x2 = distribution(generator);
-    float x3 = distribution(generator);
+    float u  = random(0.0f, radius);
+    float x1 = randomXs.x;
+    float x2 = randomXs.y;
+    float x3 = randomXs.z;
 
     float mag = sqrt(x1 * x1 + x2 * x2 + x3 * x3);
     x1 /= mag;
@@ -112,55 +77,95 @@ SLVec3f SLParticleSystem::getPointSphere(float radius)
     return SLVec3f(x1 * c, x2 * c, x3 * c);
 }
 //-----------------------------------------------------------------------------
-// TODO Delete VAO2 with function DeleteData of Mesh.h
-void SLParticleSystem::generateVAO(SLGLVertexArray& vao)
+SLVec3f SLParticleSystem::getPointInBox(SLVec3f boxScale)
 {
-    vao.setAttrib(AT_position, AT_position, &P);
-    vao.setAttrib(AT_velocity, AT_velocity, &V);
-    vao.setAttrib(AT_startTime, AT_startTime, &ST);
-    if (_acc)
-        vao.setAttrib(AT_initialVelocity, AT_initialVelocity, &InitV);
-    if (_rot)
-        vao.setAttrib(AT_rotation, AT_rotation, &R);
-    if (_flipBookTexture)
-        vao.setAttrib(AT_texNum, AT_texNum, &TexNum);
-    if (_shape)
-        vao.setAttrib(AT_initialPosition, AT_initialPosition, &InitP);
+    float x = random(-boxScale.x, boxScale.x);
+    float y = random(-boxScale.y, boxScale.y);
+    float z = random(-boxScale.z, boxScale.z);
 
-    // Need to have two VAo for transform feedback swapping
-    vao.generateTF((SLuint)P.size());
+    return SLVec3f(x, y, z);
 }
 //-----------------------------------------------------------------------------
-void SLParticleSystem::regenerate()
+void SLParticleSystem::generate()
 {
-    P.resize(_amount);
-    V.resize(_amount);
-    ST.resize(_amount);
-    InitV.resize(_amount);
-    R.resize(_amount);
-    TexNum.resize(_amount);
-    if (_shape)
-        InitP.resize(_amount);
+    unsigned                   seed = chrono::system_clock::now().time_since_epoch().count();
+    default_random_engine      generator(seed);
+    normal_distribution<float> distribution(0.0f, 1.0f);
 
+    SLVVec3f tempP;
+    SLVVec3f tempV;
+    SLVfloat tempST;
+    SLVVec3f tempInitV;
+    SLVfloat tempR;
+    SLVuint  tempTexNum;
+    SLVVec3f tempInitP;
+
+    tempP.resize(_amount);
+    tempV.resize(_amount);
+    tempST.resize(_amount);
+    if (_doAcc)
+        tempInitV.resize(_amount);
+    if (_doRot)
+        tempR.resize(_amount);
+    if (_doFlipBookTexture)
+        tempTexNum.resize(_amount);
+    if (_doShape)
+        tempInitP.resize(_amount);
+
+
+    //Normal generation
     for (unsigned int i = 0; i < _amount; i++)
     {
-        if (_shape && _shapeType == 0)
-            P[i] = getPointSphere(_radiusSphere);
+        if (_doShape && _shapeType == 0)
+            tempP[i] = getPointInSphere(_radiusSphere, SLVec3f(distribution(generator), distribution(generator), distribution(generator)));
+        else if (_doShape && _shapeType == 1)
+            tempP[i] = getPointInBox(_scaleBox);
         else
-            P[i] = _pEPos;
-        V[i].x    = randomFloat(_vRandS.x, _vRandE.x);             // Random value for x velocity
-        V[i].y    = randomFloat(_vRandS.y, _vRandE.y);             // Random value for y velocity
-        V[i].z    = randomFloat(_vRandS.z, _vRandE.z);             // Random value for z velocity
-        ST[i]     = GlobalTimer::timeS() + (i * (_ttl / _amount)); // When the first particle dies the last one begin to live
-        InitV[i]  = V[i];
-        R[i]      = randomFloat(0.0f, 360.0f); // Start rotation of the particle
-        TexNum[i] = randomInt(0, _row * _col - 1);
-        if (_shape)
-            InitP[i] = P[i];
+            tempP[i] = _emitterPos;
+        tempV[i].x = random(_vRandS.x, _vRandE.x);                  // Random value for x velocity
+        tempV[i].y = random(_vRandS.y, _vRandE.y);                         // Random value for y velocity
+        tempV[i].z = random(_vRandS.z, _vRandE.z);                  // Random value for z velocity
+        tempST[i]  = GlobalTimer::timeS() + (i * (_timeToLive / _amount)); // When the first particle dies the last one begin to live
+        if (_doAcc)
+            tempInitV[i] = tempV[i];
+        if (_doRot)
+            tempR[i] = random(0.0f, 360.0f); // Start rotation of the particle
+        if (_doFlipBookTexture)
+            tempTexNum[i] = random(0, _row * _col - 1);
+        if (_doShape)
+            tempInitP[i] = tempP[i];
     }
 
+    // Need to have two VAo for transform feedback swapping
     _vao1.deleteGL();
     _vao2.deleteGL();
+
+    _vao1.setAttrib(AT_position, AT_position, &tempP);
+    _vao1.setAttrib(AT_velocity, AT_velocity, &tempV);
+    _vao1.setAttrib(AT_startTime, AT_startTime, &tempST);
+    if (_doAcc)
+        _vao1.setAttrib(AT_initialVelocity, AT_initialVelocity, &tempInitV);
+    if (_doRot)
+        _vao1.setAttrib(AT_rotation, AT_rotation, &tempR);
+    if (_doFlipBookTexture)
+        _vao1.setAttrib(AT_texNum, AT_texNum, &tempTexNum);
+    if (_doShape)
+        _vao1.setAttrib(AT_initialPosition, AT_initialPosition, &tempInitP);
+    _vao1.generateTF((SLuint)tempP.size());
+
+    _vao2.setAttrib(AT_position, AT_position, &tempP);
+    _vao2.setAttrib(AT_velocity, AT_velocity, &tempV);
+    _vao2.setAttrib(AT_startTime, AT_startTime, &tempST);
+    if (_doAcc)
+        _vao2.setAttrib(AT_initialVelocity, AT_initialVelocity, &tempInitV);
+    if (_doRot)
+        _vao2.setAttrib(AT_rotation, AT_rotation, &tempR);
+    if (_doFlipBookTexture)
+        _vao2.setAttrib(AT_texNum, AT_texNum, &tempTexNum);
+    if (_doShape)
+        _vao2.setAttrib(AT_initialPosition, AT_initialPosition, &tempInitP);
+    _vao2.generateTF((SLuint)tempP.size());
+
 }
 //-----------------------------------------------------------------------------
 /*!
@@ -201,7 +206,7 @@ void SLParticleSystem::generateBernsteinPSize(float ContP[4], float StaEnd[4])
 //-----------------------------------------------------------------------------
 void SLParticleSystem::changeTexture()
 {
-    if (_flipBookTexture)
+    if (_doFlipBookTexture)
     {
         mat()->removeTextureType(TT_diffuse);
         mat()->addTexture(_textureFlipbook);
@@ -225,31 +230,27 @@ void SLParticleSystem::notVisibleFrustrumCulling()
 void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
 {
     /////////////////////////////
-    // Init particles vector
+    // Init particles vector and init VAO
     /////////////////////////////
-
-    if (ST.size() == 0)
-    {
-        regenerate();
+    if (!_isGenerated) {
+        emitterPos(node->translationWS()); //To init first position
+        generate();
+        _isGenerated = true;
     }
+    
 
     /////////////////////////////
-    // Init VAO
+    // Generate programs
     /////////////////////////////
 
-    // Do updating
-    if (!_vao1.vaoID())
-        generateVAO(_vao1);
-    if (!_vao2.vaoID())
-        generateVAO(_vao2);
+    _mat->generateProgramPS();
 
     /////////////////////////////
     // UPDATING
     /////////////////////////////
 
-    // Now use the updating material
-    _matOut->generateProgramPS();
-    SLGLProgram* sp = _matOut->program();
+    // Now use the updating program
+    SLGLProgram* sp = _mat->programTF();
     sp->useProgram();
 
     /////////////////////////////
@@ -276,22 +277,22 @@ void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
 
     sp->uniform1f("u_time", _startUpdateTimeS);
 
-    if (_acc)
+    if (_doAcc)
     {
-        if (_accDiffDir)
-            sp->uniform3f("u_acceleration", _accV.x, _accV.y, _accV.z);
+        if (_doAccDiffDir)
+            sp->uniform3f("u_acceleration", _acc.x, _acc.y, _acc.z);
         else
             sp->uniform1f("u_accConst", _accConst);
     }
 
-    sp->uniform1f("u_tTL", _ttl);
+    sp->uniform1f("u_tTL", _timeToLive);
 
-    pEPos(node->translationWS());
+    emitterPos(node->translationWS());
 
     // Worldspace
-    if (_worldSpace)
+    if (_doWorldSpace)
     {
-        sp->uniform3f("u_pGPosition", _pEPos.x, _pEPos.y, _pEPos.z);
+        sp->uniform3f("u_pGPosition", _emitterPos.x, _emitterPos.y, _emitterPos.z);
     }
     else
     {
@@ -299,7 +300,7 @@ void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
     }
 
     // Flipbook
-    if (_flipBookTexture)
+    if (_doFlipBookTexture)
     {
         sp->uniform1i("u_col", _col);
         sp->uniform1i("u_row", _row);
@@ -339,9 +340,6 @@ void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
     // DRAWING
     /////////////////////////////
 
-    // Generate a program to draw if no one is bound
-    _mat->generateProgramPS();
-
     // Give uniform for drawing and find for linking vao vbo
     SLGLProgram* spD = _mat->program();
     spD->useProgram();
@@ -349,7 +347,7 @@ void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
 
     // Billboard type
     // World space
-    if (_worldSpace)
+    if (_doWorldSpace)
     {
         spD->uniformMatrix4fv("u_vOmvMatrix", 1, (SLfloat*)&stateGL->viewMatrix);
     }
@@ -379,7 +377,7 @@ void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
         }
     }
     // Alpha over life bezier curve
-    if (_alphaOverLFCurve)
+    if (_doAlphaOverLCurve)
     {
         spD->uniform4f("u_al_bernstein",
                        _bernsteinPYAlpha.x,
@@ -388,7 +386,7 @@ void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
                        _bernsteinPYAlpha.w);
     }
     // Size over life bezier curve
-    if (_sizeOverLFCurve)
+    if (_doSizeOverLFCurve)
     {
         spD->uniform4f("u_si_bernstein",
                        _bernsteinPYSize.x,
@@ -397,7 +395,7 @@ void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
                        _bernsteinPYSize.w);
     }
     // Color over life by gradient color editor
-    if (_colorOverLF)
+    if (_doColorOverLF)
     {
         spD->uniform1fv("u_colorArr",
                         256 * 3,
@@ -406,20 +404,20 @@ void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
     else
     {
         spD->uniform4f("u_color",
-                       _colorV.x,
-                       _colorV.y,
-                       _colorV.z,
-                       _colorV.w);
+                       _color.x,
+                       _color.y,
+                       _color.z,
+                       _color.w);
     }
     // Flipbook
-    if (_flipBookTexture)
+    if (_doFlipBookTexture)
     {
         spD->uniform1i("u_col", _col);
         spD->uniform1i("u_row", _row);
     }
 
     spD->uniform1f("u_time", GlobalTimer::timeS());
-    spD->uniform1f("u_tTL", _ttl);
+    spD->uniform1f("u_tTL", _timeToLive);
 
     spD->uniform1f("u_scale", _scale);
     spD->uniform1f("u_radiusW", _radiusW);
@@ -427,10 +425,10 @@ void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
 
     spD->uniform1f("u_oneOverGamma", 1.0f);
 
-    if (_color && _blendingBrigh)
+    if (_doColor && _doBlendingBrigh)
         stateGL->blendFunc(GL_SRC_ALPHA, GL_ONE);
     SLMesh::draw(sv, node);
-    if (_color && _blendingBrigh)
+    if (_doColor && _doBlendingBrigh)
         stateGL->blendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     _drawBuf = 1 - _drawBuf;
 }
@@ -442,7 +440,7 @@ void SLParticleSystem::buildAABB(SLAABBox& aabb, const SLMat4f& wmNode)
     float rH = _radiusH * _scale;
 
     // Here calculate minP maxP
-    if (_acc)
+    if (_doAcc)
     {
         minP = SLVec3f();
         maxP = SLVec3f();
@@ -479,46 +477,46 @@ void SLParticleSystem::buildAABB(SLAABBox& aabb, const SLMat4f& wmNode)
         }
 
         // Inverse if acceleration is negative
-        if (_accV.x < 0.0)
+        if (_acc.x < 0.0)
         {
             float temp = minP.x;
             minP.x     = maxP.x;
             maxP.x     = temp;
         }
-        if (_accV.y < 0.0)
+        if (_acc.y < 0.0)
         {
             float temp = minP.y;
             minP.y     = maxP.y;
             maxP.y     = temp;
         }
-        if (_accV.z < 0.0)
+        if (_acc.z < 0.0)
         {
             float temp = minP.z;
             minP.z     = maxP.z;
             maxP.z     = temp;
         }
 
-        minP = minP * _ttl;
-        maxP = maxP * _ttl; // Apply velocity distance after time
-        if (_accDiffDir)
+        minP = minP * _timeToLive;
+        maxP = maxP * _timeToLive; // Apply velocity distance after time
+        if (_doAccDiffDir)
         {
-            maxP += 0.5f * _accV * (_ttl * _ttl); // Apply acceleration after time
+            maxP += 0.5f * _acc * (_timeToLive * _timeToLive); // Apply acceleration after time
         }
         else
         {
-            // minP += 0.5f * _accConst * (_ttl * _ttl); //Apply constant acceleration
-            maxP += 0.5f * _accConst * (_ttl * _ttl); // Apply constant acceleration
+            // minP += 0.5f * _accConst * (_timeToLive * _timeToLive); //Apply constant acceleration
+            maxP += 0.5f * _accConst * (_timeToLive * _timeToLive); // Apply constant acceleration
         }
     }
     else
     {
-        minP = SLVec3f(_vRandS.x, 0.0, _vRandS.z) * _ttl; // Apply velocity distance after time
-        maxP = _vRandE * _ttl;                            // Apply velocity distance after time
+        minP = SLVec3f(_vRandS.x, 0.0, _vRandS.z) * _timeToLive; // Apply velocity distance after time
+        maxP = _vRandE * _timeToLive;                            // Apply velocity distance after time
     }
 
     // Add size particle
     minP.x += minP.x < maxP.x ? -rW : rW;                   // Add size of particle
-    if (!_sizeOverLF) minP.y += minP.y < maxP.y ? -rH : rH; // Add size of particle if we don't have size over life
+    if (!_doSizeOverLF) minP.y += minP.y < maxP.y ? -rH : rH; // Add size of particle if we don't have size over life
     minP.z += minP.z < maxP.z ? -rW : rW;                   // Add size of particle
 
     maxP.x += maxP.x > minP.x ? rW : -rW; // Add size of particle

@@ -35,43 +35,44 @@ public:
 
     void draw(SLSceneView* sv, SLNode* node);
     void buildAABB(SLAABBox& aabb, const SLMat4f& wmNode);
-    void generateVAO(SLGLVertexArray& vao);
-    void regenerate();
+    void generate();
     void generateBernsteinPAlpha(float ContP[4], float StaEnd[4]);
     void generateBernsteinPSize(float ContP[4], float StaEnd[4]);
     void changeTexture();
     void notVisibleFrustrumCulling();
 
     // Getters
-    SLVec3f      pEPos() const { return _pEPos; }
-    SLbool       acc() { return _acc; }
-    SLbool       accDiffDir() { return _accDiffDir; }
-    SLbool       rot() { return _rot; }
-    SLVec3f      accV() { return _accV; }
+    SLVec3f      emitterPos() const { return _emitterPos; }
+    SLbool       doAcc() { return _doAcc; }
+    SLbool       doAccDiffDir() { return _doAccDiffDir; }
+    SLbool       doRot() { return _doRot; }
+    SLVec3f      acc() { return _acc; }
     SLVec3f      vRandS() { return _vRandS; }
     SLVec3f      vRandE() { return _vRandE; }
-    SLCol4f      colorV() { return _colorV; }
-    SLbool       tree() { return _tree; }
-    SLbool       blendingBrigh() { return _blendingBrigh; }
+    SLVec3f      scaleBox() { return _scaleBox; }
+    SLCol4f      color() { return _color; }
+    SLbool       doTree() { return _doTree; }
+    SLbool       isGenerated() { return _isGenerated; }
+    SLbool       doBlendingBrigh() { return _doBlendingBrigh; }
     SLfloat      angle() { return _angle; }
     SLfloat      accConst() { return _accConst; }
     SLint        numBranch() { return _numBranch; }
-    SLbool       worldSpace() { return _worldSpace; }
-    SLbool       alphaOverLF() { return _alphaOverLF; }
-    SLbool       colorOverLF() { return _colorOverLF; }
-    SLbool       alphaOverLFCurve() { return _alphaOverLFCurve; }
-    SLbool       flipBookTexture() { return _flipBookTexture; }
-    SLbool       sizeOverLF() { return _sizeOverLF; }
-    SLbool       sizeOverLFCurve() { return _sizeOverLFCurve; }
-    SLbool       sizeRandom() { return _sizeRandom; }
-    SLbool       color() { return _color; }
-    SLbool       shape() { return _shape; }
+    SLbool       doWorldSpace() { return _doWorldSpace; }
+    SLbool       doAlphaOverL() { return _doAlphaOverL; }
+    SLbool       doColorOverLF() { return _doColorOverLF; }
+    SLbool       doAlphaOverLCurve() { return _doAlphaOverLCurve; }
+    SLbool       doFlipBookTexture() { return _doFlipBookTexture; }
+    SLbool       doSizeOverLF() { return _doSizeOverLF; }
+    SLbool       doSizeOverLFCurve() { return _doSizeOverLFCurve; }
+    SLbool       doSizeRandom() { return _doSizeRandom; }
+    SLbool       doColor() { return _doColor; }
+    SLbool       doShape() { return _doShape; }
     SLint        amount() { return _amount; }
     SLint        billoardType() { return _billboardType; }
     SLint        shapeType() { return _shapeType; }
     SLint        col() { return _col; }
     SLint        row() { return _row; }
-    SLfloat      ttl() { return _ttl; }
+    SLfloat      timeToLive() { return _timeToLive; }
     SLfloat      radiusW() { return _radiusW; }
     SLfloat      radiusH() { return _radiusH; }
     SLfloat      scale() { return _scale; }
@@ -82,16 +83,16 @@ public:
     SLGLTexture* textureFlipbook() { return _textureFlipbook; }
 
     // Setters
-    void pEPos(SLVec3f p) { _pEPos = p; }
-    void acc(SLbool b) { _acc = b; }
-    void accDiffDir(SLbool b) { _accDiffDir = b; }
-    void rot(SLbool b) { _rot = b; }
-    void accV(SLVec3f v) { _accV = v; }
+    void emitterPos(SLVec3f p) { _emitterPos = p; }
+    void doAcc(SLbool b) { _doAcc = b; }
+    void doAccDiffDir(SLbool b) { _doAccDiffDir = b; }
+    void doRot(SLbool b) { _doRot = b; }
+    void acc(SLVec3f v) { _acc = v; }
     void accV(SLfloat vX, SLfloat vY, SLfloat vZ)
     {
-        _accV.x = vX;
-        _accV.y = vY;
-        _accV.z = vZ;
+        _acc.x = vX;
+        _acc.y = vY;
+        _acc.z = vZ;
     }
     void vRandS(SLVec3f v) { _vRandS = v; }
     void vRandS(SLfloat vX, SLfloat vY, SLfloat vZ)
@@ -107,28 +108,36 @@ public:
         _vRandE.y = vY;
         _vRandE.z = vZ;
     }
-    void colorV(SLCol4f c) { _colorV = c; }
-    void tree(SLbool b) { _tree = b; }
-    void blendingBrigh(SLbool b) { _blendingBrigh = b; }
+    void scaleBox(SLVec3f v) { _scaleBox = v; }
+    void scaleBox(SLfloat vX, SLfloat vY, SLfloat vZ)
+    {
+        _scaleBox.x = vX;
+        _scaleBox.y = vY;
+        _scaleBox.z = vZ;
+    }
+    void color(SLCol4f c) { _color = c; }
+    void doTree(SLbool b) { _doTree = b; }
+    void isGenerated(SLbool b) { _isGenerated = b; }
+    void doBlendingBrigh(SLbool b) { _doBlendingBrigh = b; }
     void angle(SLfloat f) { _angle = f; }
     void accConst(SLfloat f) { _accConst = f; }
     void numBranch(SLint i) { _numBranch = i; }
-    void worldSpace(SLbool b) { _worldSpace = b; }
-    void alphaOverLF(SLbool b) { _alphaOverLF = b; }
-    void colorOverLF(SLbool b) { _colorOverLF = b; }
-    void alphaOverLFCurve(SLbool b) { _alphaOverLFCurve = b; }
-    void flipBookTexture(SLbool b) { _flipBookTexture = b; }
-    void sizeOverLF(SLbool b) { _sizeOverLF = b; }
-    void sizeOverLFCurve(SLbool b) { _sizeOverLFCurve = b; }
-    void sizeRandom(SLbool b) { _sizeRandom = b; }
-    void color(SLbool b) { _color = b; }
-    void shape(SLbool b) { _shape = b; }
+    void doWorldSpace(SLbool b) { _doWorldSpace = b; }
+    void doAlphaOverL(SLbool b) { _doAlphaOverL = b; }
+    void doColorOverLF(SLbool b) { _doColorOverLF = b; }
+    void doAlphaOverLCurve(SLbool b) { _doAlphaOverLCurve = b; }
+    void doFlipBookTexture(SLbool b) { _doFlipBookTexture = b; }
+    void doSizeOverLF(SLbool b) { _doSizeOverLF = b; }
+    void doSizeOverLFCurve(SLbool b) { _doSizeOverLFCurve = b; }
+    void doSizeRandom(SLbool b) { _doSizeRandom = b; }
+    void doColor(SLbool b) { _doColor = b; }
+    void doShape(SLbool b) { _doShape = b; }
     void amount(SLint i) { _amount = i; }
     void shapeType(SLint i) { _shapeType = i; }
     void billboardType(SLint i) { _billboardType = i; }
     void col(SLint i) { _col = i; }
     void row(SLint i) { _row = i; }
-    void ttl(SLfloat f) { _ttl = f; }
+    void timeToLive(SLfloat f) { _timeToLive = f; }
     void radiusW(SLfloat f) { _radiusW = f; }
     void radiusH(SLfloat f) { _radiusH = f; }
     void scale(SLfloat f) { _scale = f; }
@@ -139,41 +148,28 @@ public:
     void textureFlipbook(SLGLTexture* t) { _textureFlipbook = t; }
 
 protected:
-    // ??? I would use such a short variable name only when its used a thousand times otherwise _timeToLive is just more understandable // You are right
-    SLfloat _ttl;                                                  //!< Time to live of a particle
+    SLfloat _timeToLive;                                                  //!< Time to live of a particle
     SLfloat _radiusW = 0.4f;                                       //!< width radius of a particle
     SLfloat _radiusH = 0.4f;                                       //!< height radius of a particle
     SLfloat _scale   = 1.0f;                                       //!< Scale of a particle (Scale the radius)
-    // ??? _emitterPos is more readable // Right again
-    SLVec3f _pEPos;                                                //!< Position of the particle emitter
+    SLVec3f _emitterPos;                                                //!< Position of the particle emitter
     SLVec4f _bernsteinPYAlpha = SLVec4f(2.0f, -3.0f, 0.0f, 1.0f);  //!< Vector for bezier curve (default linear function)
     SLVec4f _bernsteinPYSize  = SLVec4f(-1.4f, 1.8f, 0.6f, 0.0f);  //!< Vector for bezier curve (default linear function)
-    // ??? I wouldn't add a V at the for a vector. The acceleration just can be a vector. You then would have to rename _acc to _hasAcc // Right
-    SLVec3f _accV             = SLVec3f(1.0f, 1.0f, 1.0f);         //!< vec for acceleration (different direction as the velocity)
+    SLVec3f _acc             = SLVec3f(1.0f, 1.0f, 1.0f);         //!< vec for acceleration (different direction as the velocity)
     SLfloat _accConst         = 0.0f;                              //!< Acceleration constant (same direction as the velocity)
     SLVec3f _vRandS           = SLVec3f(0.0f, 0.0f, 0.0f);         //!< vec start for random velocity
     SLVec3f _vRandE           = SLVec3f(1.0f, 1.0f, 1.0f);         //!< vec end for random velocity
-    // ??? Why not just _color? Is this color not allready in the material? // Because we have boolean call _color, but I will like for the acceleration change _color to _hasColor
-    SLCol4f _colorV           = SLCol4f(0.66f, 0.0f, 0.66f, 0.2f); //!< Color for particle
-    SLfloat _angle            = 30.0f;                             //!< Angle of branches (for tree fractal)
-    SLint   _numBranch        = 4;                                 //!< Number of branches (for tree fractal)
+    SLCol4f _color           = SLCol4f(0.66f, 0.0f, 0.66f, 0.2f); //!< Color for particle
+    SLfloat _angle            = 30.0f;                             //!< Angle of branches (for doTree fractal)
+    SLint   _numBranch        = 4;                                 //!< Number of branches (for doTree fractal)
 
     SLGLVertexArray _vao1; //!< First OpenGL Vertex Array Object for swapping between updating/drawing
     SLGLVertexArray _vao2; //!< Second OpenGL Vertex Array Object for swapping between updating/drawing
 
 private:
     void    initMat(SLAssetManager* am, SLGLTexture* texC);
-    float   randomFloat(float a, float b);
-    int     randomInt(int min, int max);
-    SLVec3f getPointSphere(float radius);
-
-    // ??? Private variables normally have an underscore. Are these variables somehow special? // Yes this are the variable to populate the VAO, I did the same that SLMesh
-    SLVVec3f V;      //!< Vector for particle velocity
-    SLVfloat ST;     //!< Vector for particle start time
-    SLVVec3f InitV;  //!< Vector for particle initial velocity
-    SLVfloat R;      //!< Vector for particle rotation
-    SLVuint  TexNum; //!< Vector for particle texture number
-    SLVVec3f InitP;  //!< Vector for particle initial position
+    SLVec3f getPointInSphere(float radius, SLVec3f randomX);
+    SLVec3f getPointInBox(SLVec3f boxScale);
 
     int          _drawBuf      = 0;         //!< Boolean to switch buffer
     int          _frameRateFB  = 16;        //!< Number of update of flipbook by second
@@ -188,29 +184,30 @@ private:
     SLfloat      _deltaTimeUpdateS  = 0.0f; //!< Time since start for updating in S
     SLfloat      _notVisibleTimeS   = 0.0f; //!< Time since start when node not visible in S
     SLfloat      _radiusSphere      = 1.0f; //!< Radius of sphere "Shape -> sphere"
+    SLVec3f      _scaleBox = SLVec3f(1.0f); //!< Scale of box edges "Shape -> box"
     SLGLTexture* _textureFirst;
     SLGLTexture* _textureFlipbook;
 
     SLbool _isViFrustrumCulling = true; //!< Boolean to set time since node, not visible
+    SLbool _isGenerated          = false;//!< Boolean to generate particle system and load it on the GPU
     SLint  _billboardType       = 0;    //!< Billboard type
     SLint  _shapeType           = 0;    //!< Shape type
 
-    // ??? Boolean variables are more understandable if they begin with _is*, _has*, _do* etc. // Yes you are right
-    SLbool _blendingBrigh    = false; //!< Blending for glow/brightness on pixel with many particle
-    SLbool _tree             = false; //!< Boolean for tree fractal
-    SLbool _acc              = false; //!< Boolean for acceleration
-    SLbool _accDiffDir       = false; //!< Boolean for acceleration (different direction)
-    SLbool _rot              = true;  //!< Boolean for rotation
-    SLbool _color            = true;  //!< Boolean for color
-    SLbool _shape            = false; //!< Boolean for shape feature
-    SLbool _worldSpace       = false; //!< Boolean for world space position
-    SLbool _alphaOverLF      = true;  //!< Boolean for alpha over life time
-    SLbool _colorOverLF      = false; //!< Boolean for color over life time
-    SLbool _alphaOverLFCurve = false; //!< Boolean for alpha over life time curve
-    SLbool _sizeOverLF       = true;  //!< Boolean for size over life time
-    SLbool _sizeOverLFCurve  = false; //!< Boolean for size over life time curve
-    SLbool _flipBookTexture  = false; //!< Boolean for flipbook texture
-    SLbool _sizeRandom       = false; //!< Boolean for size over life time
+    SLbool _doBlendingBrigh    = false; //!< Blending for glow/brightness on pixel with many particle
+    SLbool _doTree             = false; //!< Boolean for doTree fractal
+    SLbool _doAcc              = false; //!< Boolean for acceleration
+    SLbool _doAccDiffDir       = false; //!< Boolean for acceleration (different direction)
+    SLbool _doRot              = true;  //!< Boolean for rotation
+    SLbool _doColor            = true;  //!< Boolean for color
+    SLbool _doShape            = false; //!< Boolean for shape feature
+    SLbool _doWorldSpace       = false; //!< Boolean for world space position
+    SLbool _doAlphaOverL      = true;  //!< Boolean for alpha over life time
+    SLbool _doColorOverLF      = false; //!< Boolean for color over life time
+    SLbool _doAlphaOverLCurve = false; //!< Boolean for alpha over life time curve
+    SLbool _doSizeOverLF       = true;  //!< Boolean for size over life time
+    SLbool _doSizeOverLFCurve  = false; //!< Boolean for size over life time curve
+    SLbool _doFlipBookTexture  = false; //!< Boolean for flipbook texture
+    SLbool _doSizeRandom       = false; //!< Boolean for size over life time
 };
 //-----------------------------------------------------------------------------
 #endif

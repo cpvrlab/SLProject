@@ -223,7 +223,7 @@ const string vertMain_PS_v_s    = R"(
     vert.size = age / u_tTL;)";
 const string vertMain_PS_v_s_curve     = R"(
     vert.size = pow(vert.size,3)*u_si_bernstein.x + pow(vert.size,2)*u_si_bernstein.y + vert.size*u_si_bernstein.z + u_si_bernstein.w;  // Get transparency by bezier curve)";
-const string vertMain_PS_v_colorOverLF          = R"(
+const string vertMain_PS_v_doColorOverLF          = R"(
     vert.color = colorByAge(age/u_tTL);)";
 const string vertMain_PS_v_texNum = R"(
     vert.texNum = a_texNum;)";
@@ -371,7 +371,7 @@ const string geomMain_PS_v_rotIden              = R"(
     mat2 rot = mat2(1.0, 0.0, 0.0, 1.0); // Matrix of rotation)";
 const string geomMain_PS_v_c    = R"(
     vec4 color = u_color;   // Particle color)";
-const string geomMain_PS_v_colorOverLF      = R"(
+const string geomMain_PS_v_doColorOverLF      = R"(
     vec4 color = vec4(vert[0].color, 1.0);   // Particle color)";
 const string geomMain_PS_v_withoutColor          = R"(
     vec4 color = vec4( 0.0, 0.0, 0.0, 1.0);   // Particle color)";
@@ -1506,7 +1506,8 @@ void SLGLProgramGenerated::buildProgramName(SLMaterial* mat,
  </pre>
  */
 void SLGLProgramGenerated::buildProgramNamePS(SLMaterial* mat,
-                                            string&     programName)
+                                              string&     programName, 
+                                              bool isDrawProg)
 {
     assert(mat && "No material pointer passed!");
     programName = "gen";
@@ -1520,21 +1521,21 @@ void SLGLProgramGenerated::buildProgramNamePS(SLMaterial* mat,
 
     
     //programName += "-";
-    if (mat->psType() == PS_Draw)
+    if (isDrawProg) // Drawing program
     {
         programName += "-Draw";
         programName += mat->texturesString();
         GLint billoardType = mat->ps()->billoardType();     // Billboard type (0 -> default; 1 -> vertical billboard)
-        bool AlOvLi   = mat->ps()->alphaOverLF(); // Alpha over life
-        bool AlOvLiCu = mat->ps()->alphaOverLFCurve(); // Alpha over life curve
-        bool SiOvLi   = mat->ps()->sizeOverLF();  // Size over life
-        bool SiOvLiCu = mat->ps()->sizeOverLFCurve(); // Size over life curve
-        bool Co       = mat->ps()->color();           // Color over life
-        bool CoOvLi   = mat->ps()->colorOverLF();      // Color over life
-        bool SiRandom = mat->ps()->sizeRandom();  // Size random
-        bool FlBoTex  = mat->ps()->flipBookTexture();  // Flipbook texture
-        bool WS       = mat->ps()->worldSpace();  // World space or local space
-        bool rot      = mat->ps()->rot();              // Rotation
+        bool AlOvLi   = mat->ps()->doAlphaOverL(); // Alpha over life
+        bool AlOvLiCu = mat->ps()->doAlphaOverLCurve(); // Alpha over life curve
+        bool SiOvLi   = mat->ps()->doSizeOverLF();  // Size over life
+        bool SiOvLiCu = mat->ps()->doSizeOverLFCurve(); // Size over life curve
+        bool Co       = mat->ps()->doColor();           // Color over life
+        bool CoOvLi   = mat->ps()->doColorOverLF();      // Color over life
+        bool SiRandom = mat->ps()->doSizeRandom();  // Size random
+        bool FlBoTex  = mat->ps()->doFlipBookTexture();  // Flipbook texture
+        bool WS       = mat->ps()->doWorldSpace();  // World space or local space
+        bool rot      = mat->ps()->doRot();              // Rotation
         programName += "-B" + std::to_string(billoardType);
         if (rot) programName += "-RT";
         if (AlOvLi) programName += "-AL";
@@ -1547,13 +1548,13 @@ void SLGLProgramGenerated::buildProgramNamePS(SLMaterial* mat,
         if (FlBoTex) programName += "-FB";
         if (WS) programName += "-WS";
     }
-    else if (mat->psType() == PS_Update)
+    else // Updating program
     {
-        bool acc = mat->ps()->acc(); // Acceleration
-        bool accDiffDir = mat->ps()->accDiffDir();      // Acceleration different direction
-        bool FlBoTex = mat->ps()->flipBookTexture(); // Flipbook texture
-        bool rot = mat->ps()->rot(); // Rotation
-        bool shape      = mat->ps()->shape();           // Shape
+        bool acc = mat->ps()->doAcc(); // Acceleration
+        bool accDiffDir = mat->ps()->doAccDiffDir();      // Acceleration different direction
+        bool FlBoTex = mat->ps()->doFlipBookTexture(); // Flipbook texture
+        bool rot = mat->ps()->doRot(); // Rotation
+        bool shape      = mat->ps()->doShape();           // Shape
         programName += "-Update";
         if (rot) programName += "-RT";
         if (acc)
@@ -1564,13 +1565,6 @@ void SLGLProgramGenerated::buildProgramNamePS(SLMaterial* mat,
         if (FlBoTex) programName += "-FB";
         if (shape) programName += "-SH";
     }
-    else
-    {
-        programName += "-Custom";
-    }
-    // Check what textures the material has
-    
-
 }
 //-----------------------------------------------------------------------------
 /*! Builds the GLSL program code for the vertex and fragment shaders. The code
@@ -1627,7 +1621,7 @@ void SLGLProgramGenerated::buildProgramCode(SLMaterial* mat,
  * This happens within the before the first draw call from within SLMesh::draw.
  * @param mat Parent material pointer
  */
-void SLGLProgramGenerated::buildProgramCodePS(SLMaterial* mat)
+void SLGLProgramGenerated::buildProgramCodePS(SLMaterial* mat, bool isDrawProg)
 {
     if (mat->name() == "IBLMat")
     {
@@ -1639,24 +1633,14 @@ void SLGLProgramGenerated::buildProgramCodePS(SLMaterial* mat)
            _shaders[1]->type() == ST_fragment);
         
 
-    // Check what textures the material has
-    bool Dm  = mat->hasTextureType(TT_diffuse);   // Texture Mapping
-    bool Nm  = mat->hasTextureType(TT_normal);    // Normal Mapping
-    bool Hm  = mat->hasTextureType(TT_height);    // Height Mapping
-    bool Om  = mat->hasTextureType(TT_occlusion); // Ambient Occlusion Mapping
-    bool Vm  = mat->hasTextureType(TT_videoBkgd); // Video Background Mapping
-    bool env = mat->skybox() != nullptr;          // Environment Mapping from skybox
-
-    if (mat->psType() == PS_Draw)
+    if (isDrawProg)
     {
         buildPerPixParticle(mat);
     }
-    else if (mat->psType() == PS_Update)
+    else
     {
         buildPerPixParticleUpdate(mat);
     }
-    else
-        SL_EXIT_MSG("SLGLProgramGenerated::buildProgramCode: Unknown Particle Lighting Model.");
 }
 //-----------------------------------------------------------------------------
 
@@ -1893,16 +1877,16 @@ void SLGLProgramGenerated::buildPerPixParticle(SLMaterial* mat)
     // Check what textures the material has
     bool Dm  = mat->hasTextureType(TT_diffuse);
     GLint billoardType = mat->ps()->billoardType(); // Billboard type (0 -> default; 1 -> vertical billboard)
-    bool rot        = mat->ps()->rot();         // Rotation
-    bool AlOvLi   = mat->ps()->alphaOverLF(); // Alpha over life
-    bool Co         = mat->ps()->color();       // Color over life
-    bool CoOvLi   = mat->ps()->colorOverLF(); // Color over life
-    bool AlOvLiCu   = mat->ps()->alphaOverLFCurve(); // Alpha over life curve
-    bool SiOvLi   = mat->ps()->sizeOverLF();  // Size over life
-    bool SiOvLiCu   = mat->ps()->sizeOverLFCurve();  // Size over life curve
-    bool FlBoTex   = mat->ps()->flipBookTexture();  // Flipbook texture
-    bool SiRandom = mat->ps()->sizeRandom();  // Size random
-    //bool WS       = mat->ps()->worldSpace();  // World space or local space
+    bool rot        = mat->ps()->doRot();         // Rotation
+    bool AlOvLi   = mat->ps()->doAlphaOverL(); // Alpha over life
+    bool Co         = mat->ps()->doColor();       // Color over life
+    bool CoOvLi   = mat->ps()->doColorOverLF(); // Color over life
+    bool AlOvLiCu   = mat->ps()->doAlphaOverLCurve(); // Alpha over life curve
+    bool SiOvLi   = mat->ps()->doSizeOverLF();  // Size over life
+    bool SiOvLiCu   = mat->ps()->doSizeOverLFCurve();  // Size over life curve
+    bool FlBoTex   = mat->ps()->doFlipBookTexture();  // Flipbook texture
+    bool SiRandom = mat->ps()->doSizeRandom();  // Size random
+    //bool WS       = mat->ps()->doWorldSpace();  // World space or local space
 
     // Assemble vertex shader code
     string vertCode;
@@ -1945,7 +1929,7 @@ void SLGLProgramGenerated::buildPerPixParticle(SLMaterial* mat)
     if (rot) vertCode += vertMain_PS_v_r;
     if (SiOvLi)vertCode += vertMain_PS_v_s;
     if (SiOvLi && SiOvLiCu) vertCode += vertMain_PS_v_s_curve;
-    if (Co && CoOvLi) vertCode += vertMain_PS_v_colorOverLF;
+    if (Co && CoOvLi) vertCode += vertMain_PS_v_doColorOverLF;
     if (FlBoTex) vertCode += vertMain_PS_v_texNum;
     if (billoardType == 1)
         vertCode += vertMain_PS_EndAll_VertBillboard;
@@ -1989,7 +1973,7 @@ void SLGLProgramGenerated::buildPerPixParticle(SLMaterial* mat)
     geomCode += geomMain_PS_v_rad;
     geomCode += geomMain_PS_v_p;
     geomCode += rot ? geomMain_PS_v_rot : geomMain_PS_v_rotIden;
-    geomCode += CoOvLi ? geomMain_PS_v_colorOverLF : Co ? geomMain_PS_v_c: geomMain_PS_v_withoutColor;
+    geomCode += CoOvLi ? geomMain_PS_v_doColorOverLF : Co ? geomMain_PS_v_c: geomMain_PS_v_withoutColor;
     geomCode += geomMain_PS_v_cT;
     if (billoardType == 1)
         geomCode += FlBoTex ? geomMain_PS_Flipbook_fourCorners_vertBillboard : geomMain_PS_fourCorners_vertBillboard;
@@ -2026,11 +2010,11 @@ void SLGLProgramGenerated::buildPerPixParticleUpdate(SLMaterial* mat)
            _shaders[0]->type() == ST_vertex &&
            _shaders[1]->type() == ST_fragment);
 
-    bool acc = mat->ps()->acc(); // Acceleration
-    bool accDiffDir = mat->ps()->accDiffDir();      // Acceleration different direction
-    bool FlBoTex = mat->ps()->flipBookTexture(); // Flipbook texture
-    bool rot     = mat->ps()->rot();             // Rotation
-    bool shape     = mat->ps()->shape();             // Shape
+    bool acc = mat->ps()->doAcc(); // Acceleration
+    bool accDiffDir = mat->ps()->doAccDiffDir();      // Acceleration different direction
+    bool FlBoTex = mat->ps()->doFlipBookTexture(); // Flipbook texture
+    bool rot     = mat->ps()->doRot();             // Rotation
+    bool shape     = mat->ps()->doShape();             // Shape
 
     string vertCode;
     vertCode += shaderHeader();

@@ -88,18 +88,13 @@ public:
                SLGLTexture*    texture5 = nullptr,
                SLGLProgram*    program  = nullptr);
 
-    //! Ctor for Particle System material (Update)
+    //! Ctor for Particle System material with one texture (Draw and update)
     SLMaterial(SLAssetManager*   am,
                const SLchar*     name,
                SLParticleSystem* ps,
-               SLGLProgram*      program = nullptr);
-
-    //! Ctor for Particle System material with one texture (Draw)
-    SLMaterial(SLAssetManager*   am,
-               const SLchar*     name,
                SLGLTexture*      texture,
-               SLParticleSystem* ps,
-               SLGLProgram*      program = nullptr);
+               SLGLProgram*      program = nullptr,
+               SLGLProgram*      programTF = nullptr);
 
     //! Ctor for uniform color material without lighting
     explicit SLMaterial(SLAssetManager* am,
@@ -114,7 +109,6 @@ public:
 
     ~SLMaterial() override;
     void  generateProgramPS();
-    void  updateProgramPS();
     void  activate(SLCamera* cam,
                    SLVLight* lights,
                    SLSkybox* skybox = nullptr);
@@ -166,7 +160,6 @@ public:
     // Setters
     void assetManager(SLAssetManager* am) { _assetManager = am; }
     void reflectionModel(SLReflectionModel rm) { _reflectionModel = rm; }
-    void psType(SLParticleSystemType psT) { _psType = psT; }
     void ambient(const SLCol4f& ambi) { _ambient = ambi; }
     void diffuse(const SLCol4f& diff) { _diffuse = diff; }
     void ambientDiffuse(const SLCol4f& am_di) { _ambient = _diffuse = am_di; }
@@ -203,13 +196,13 @@ public:
     }
     void getsShadows(SLbool receivesShadows) { _getsShadows = receivesShadows; }
     void program(SLGLProgram* sp) { _program = sp; }
+    void programTF(SLGLProgram* sp) { _programTF = sp; }
     void skybox(SLSkybox* sb) { _skybox = sb; }
     void ps(SLParticleSystem* ps) { _ps = ps; }
 
     // Getters
     SLAssetManager*      assetManager() { return _assetManager; }
     SLReflectionModel    reflectionModel() { return _reflectionModel; }
-    SLParticleSystemType psType() { return _psType; }
     SLCol4f              ambient() { return _ambient; }
     SLCol4f              diffuse() { return _diffuse; }
     SLCol4f              specular() { return _specular; }
@@ -225,6 +218,7 @@ public:
     SLbool               getsShadows() const { return _getsShadows; }
     SLuint               numTextures() { return _numTextures; }
     SLGLProgram*         program() { return _program; }
+    SLGLProgram*         programTF() { return _programTF; }
     SLSkybox*            skybox() { return _skybox; }
     SLParticleSystem*    ps() { return _ps; }
     SLVNode&             nodesVisible2D() { return _nodesVisible2D; }
@@ -239,8 +233,6 @@ public:
 protected:
     SLAssetManager*      _assetManager;    //!< pointer to the asset manager (the owner) if available
     SLReflectionModel    _reflectionModel; //!< reflection model (RM_BlinnPhong or RM_CookTorrance)
-    // ??? Why do we store the particle system type in the material? Why not in _ps? // Because we have two different materials, one to generate the update shaders and the other for drawing shader, maybe the name of the variable is not correct
-    SLParticleSystemType _psType;          //!< ps type (PS_Update or PS_Draw)
     SLCol4f              _ambient;         //!< ambient color (RGB reflection coefficients)
     SLCol4f              _diffuse;         //!< diffuse color (RGB reflection coefficients)
     SLCol4f              _specular;        //!< specular color (RGB reflection coefficients)
@@ -255,6 +247,7 @@ protected:
     SLfloat              _kn{};            //!< refraction index
     SLbool               _getsShadows;     //!< true if shadows are visible on this material
     SLGLProgram*         _program{};       //!< pointer to a GLSL shader program
+    SLGLProgram*         _programTF{};       //!< pointer to a GLSL shader program for transformFeedback
     SLint                _numTextures;     //!< number of textures in all _textures vectors array
     SLSkybox*            _skybox;          //!< pointer to the skybox
 

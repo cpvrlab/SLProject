@@ -73,6 +73,7 @@ public:
     SLGLProgramGenerated(SLAssetManager* am,
                          const string&   programName,
                          SLMaterial*     mat,
+                         bool isDrawProg,
                          SLstring        geomShader = "")
       : SLGLProgram(am,
                     "",
@@ -80,7 +81,7 @@ public:
                     geomShader,
                     programName)
     {
-        buildProgramCodePS(mat);
+        buildProgramCodePS(mat, isDrawProg);
     }
 
     static bool lightsDoShadowMapping(SLVLight* lights);
@@ -88,9 +89,10 @@ public:
                                  SLVLight*   lights,
                                  string&     programName);
     static void buildProgramNamePS(SLMaterial* mat,
-                                 string&     programName);
+                                   string&     programName,
+                                   bool        isDrawProg);
 
-    void buildProgramCodePS(SLMaterial* mat);
+    void buildProgramCodePS(SLMaterial* mat, bool isDrawProg);
     void buildProgramCode(SLMaterial* mat,
                           SLVLight*   lights);
     void beginShader(SLCamera*   cam,

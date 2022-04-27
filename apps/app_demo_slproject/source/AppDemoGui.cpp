@@ -173,7 +173,7 @@ Help for mouse or finger control:
 
 SLstring AppDemoGui::infoCalibrate = R"(
 The calibration process requires a chessboard image to be printed and glued on a flat board. You can find the PDF with the chessboard image on:
-https://github.com/cpvrlab/SLProject/tree/master/data/calibrations/
+https://github.com/cpvrlab/SLProject/doTree/master/data/calibrations/
 For a calibration you have to take 20 images with detected inner chessboard corners. To take an image you have to click with the mouse
 or tap with finger into the screen. View the chessboard from the side so that the inner corners cover the full image. Hold the camera or board really still
 before taking the picture.
@@ -3673,7 +3673,6 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                     SLuint      t = (SLuint)(!singleFullMesh->I16.empty() ? singleFullMesh->I16.size() / 3 : singleFullMesh->I32.size() / 3);
                     SLuint      e = (SLuint)(!singleFullMesh->IE16.empty() ? singleFullMesh->IE16.size() / 2 : singleFullMesh->IE32.size() / 2);
                     SLMaterial* m = singleFullMesh->mat();
-                    SLMaterial* mOut = singleFullMesh->matOut();
                     ImGui::Text("Mesh name    : %s", singleFullMesh->name().c_str());
                     ImGui::Text("# vertices   : %u", v);
                     ImGui::Text("# triangles  : %u", t);
@@ -3768,14 +3767,14 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                             if(ImGui::InputInt("Amount of particles", &am))
                             {
                                 ps->amount(am);
-                                ps->regenerate();
+                                ps->isGenerated(false);
                             }
                             // TTL (Time to live)
-                            float ttl = ps->ttl();
-                            if (ImGui::InputFloat("Time to live (s)", &ttl))
+                            float timeToLive = ps->timeToLive();
+                            if (ImGui::InputFloat("Time to live (s)", &timeToLive))
                             {
-                                ps->ttl(ttl);
-                                ps->regenerate();
+                                ps->timeToLive(timeToLive);
+                                ps->isGenerated(false);
                                 singleNode->needAABBUpdate();
                             }
                             // Radius
@@ -3799,14 +3798,14 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                 singleNode->needAABBUpdate();
                             }
                             // World space
-                            SLbool worldSpace = ps->worldSpace();
-                            if (ImGui::Checkbox("World space", &worldSpace))
-                                ps->worldSpace(worldSpace);
+                            SLbool doWorldSpace = ps->doWorldSpace();
+                            if (ImGui::Checkbox("World space", &doWorldSpace))
+                                ps->doWorldSpace(doWorldSpace);
                             // Billboard
                             int item_current = ps->billoardType();
                             if (ImGui::Combo("Billboard type", &item_current, "Billboard\0Vertical billboard\0")) {
                                 ps->billboardType(item_current);
-                                m->updateProgramPS(); // Change or generate new program
+                                m->program(nullptr);
                             }
                             // Velocity
                             if (ImGui::CollapsingHeader("Random velocity"))
@@ -3816,7 +3815,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                 if (ImGui::InputFloat3("Start range XYZ", vec3fVstart)) 
                                 {
                                     ps->vRandS(vec3fVstart[0], vec3fVstart[1], vec3fVstart[2]);
-                                    ps->regenerate();
+                                    ps->isGenerated(false);
                                     singleNode->needAABBUpdate();
                                     
                                 }
@@ -3824,38 +3823,38 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                 if (ImGui::InputFloat3("End range XYZ", vec3fVend)) 
                                 {
                                     ps->vRandE(vec3fVend[0], vec3fVend[1], vec3fVend[2]);
-                                    ps->regenerate();
+                                    ps->isGenerated(false);
                                     singleNode->needAABBUpdate();
                                 }
                                 ImGui::Unindent();
                             }
                             //Color checkbox
-                            SLbool color_group = ps->color();
+                            SLbool color_group = ps->doColor();
                             if (ImGui::Checkbox("Color", &color_group))
                             {
-                                ps->color(color_group);
-                                m->updateProgramPS(); // Change or generate new program
+                                ps->doColor(color_group);
+                                m->program(nullptr);
                             }
                             if (ImGui::CollapsingHeader("Color", &color_group))
                             {
                                 ImGui::Indent();
                                 //Color blending brightness/glow
-                                SLbool color_bright = ps->blendingBrigh();
+                                SLbool color_bright = ps->doBlendingBrigh();
                                 if (ImGui::Checkbox("Glow/Bright (blending effect)", &color_bright))
                                 {
-                                    ps->blendingBrigh(color_bright);
+                                    ps->doBlendingBrigh(color_bright);
                                 }
                                 // Color
-                                if (ps->colorOverLF())
+                                if (ps->doColorOverLF())
                                     ImGui::BeginDisabled();
                                 ImGuiColorEditFlags cef = ImGuiColorEditFlags_NoInputs;
-                                SLCol4f             c   = ps->colorV();
+                                SLCol4f             c   = ps->color();
                                 if (ImGui::ColorEdit4("Particle color", (float*)&c, cef))
-                                    ps->colorV(c);
-                                if (ps->colorOverLF())
+                                    ps->color(c);
+                                if (ps->doColorOverLF())
                                     ImGui::EndDisabled();
                                 // Color over life
-                                SLbool colorOverLF_group = ps->colorOverLF();
+                                SLbool doColorOverLF_group = ps->doColorOverLF();
 
                                 static ImGradient      gradient;
                                 static ImGradientMark* draggingMark = nullptr;
@@ -3870,13 +3869,13 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                     return true;
                                 }();
 
-                                if (ImGui::Checkbox("Color over lifetime", &colorOverLF_group))
+                                if (ImGui::Checkbox("Color over lifetime", &doColorOverLF_group))
                                 {
-                                    ps->colorOverLF(colorOverLF_group);
+                                    ps->doColorOverLF(doColorOverLF_group);
                                     ps->colorArr(gradient.cachedValues());
-                                    m->updateProgramPS(); // Change or generate new program
+                                    m->program(nullptr);
                                 }
-                                if (ImGui::CollapsingHeader("Color over lifetime", &colorOverLF_group))
+                                if (ImGui::CollapsingHeader("Color over lifetime", &doColorOverLF_group))
                                 {
                                     if (ImGui::GradientEditor(&gradient, draggingMark, selectedMark))
                                     {
@@ -3886,13 +3885,13 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                 ImGui::Unindent();
                             }
                             // Tree (Fractal)
-                            SLbool tree_group = ps->tree();
-                            if (ImGui::Checkbox("Tree (Fractal) NOT DONE", &tree_group))
+                            SLbool doTree_group = ps->doTree();
+                            if (ImGui::Checkbox("Tree (Fractal) NOT DONE", &doTree_group))
                             {
-                                ps->tree(tree_group);
-                                mOut->updateProgramPS(); // Change or generate new program
+                                ps->doTree(doTree_group);
+                                m->programTF(nullptr);
                             }
-                            if (ImGui::CollapsingHeader("Tree param", &tree_group))
+                            if (ImGui::CollapsingHeader("Tree param", &doTree_group))
                             {
                                 float angle = ps->angle();
                                 if (ImGui::InputFloat("Angle of branches", &angle))
@@ -3906,21 +3905,21 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                 }
                             }
                             // Rotation
-                            SLbool rot_group = ps->rot();
+                            SLbool rot_group = ps->doRot();
                             if (ImGui::Checkbox("Rotation", &rot_group))
                             {
-                                ps->rot(rot_group);
-                                mOut->updateProgramPS(); // Change or generate new program
-                                m->updateProgramPS();    // Change or generate new program
-                                ps->regenerate();
+                                ps->doRot(rot_group);
+                                m->program(nullptr);
+                                m->programTF(nullptr); // Change or generate new program
+                                ps->isGenerated(false);
                             }
                             // Shape
-                            SLbool shape_group = ps->shape();
+                            SLbool shape_group = ps->doShape();
                             if (ImGui::Checkbox("Shape", &shape_group))
                             {
-                                ps->shape(shape_group);
-                                mOut->updateProgramPS(); // Change or generate new program
-                                ps->regenerate();
+                                ps->doShape(shape_group);
+                                m->programTF(nullptr);
+                                ps->isGenerated(false);
                                 //mOut->updateProgramPS(); // Change or generate new program
                                 //singleNode->needAABBUpdate();
                                 //ps->regenerate();
@@ -3931,8 +3930,8 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                 if (ImGui::Combo("Shape type", &item_current, "Sphere\0Box\0"))
                                 {
                                     ps->shapeType(item_current);
-                                    mOut->updateProgramPS(); // Change or generate new program
-                                    ps->regenerate();
+                                    m->programTF(nullptr);
+                                    ps->isGenerated(false);
                                     //m->updateProgramPS(); // Change or generate new program
                                 }
                                 if (item_current == 0)
@@ -3941,22 +3940,31 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                     if (ImGui::InputFloat("Radius of the sphere", &radiusSphere))
                                     {
                                         ps->radiusSphere(radiusSphere);
-                                        ps->regenerate();
+                                        ps->isGenerated(false);
+                                    }
+                                }
+                                if (item_current == 1)
+                                {
+                                    float vec3fScaleBox[3] = {ps->scaleBox().x, ps->scaleBox().y, ps->scaleBox().z};
+                                    if (ImGui::InputFloat3("Scale box XYZ", vec3fScaleBox))
+                                    {
+                                        ps->scaleBox(vec3fScaleBox[0], vec3fScaleBox[1], vec3fScaleBox[2]);
+                                        ps->isGenerated(false);
                                     }
                                 }
                             }
                             // Acceleration
-                            SLbool acc_group = ps->acc();
+                            SLbool acc_group = ps->doAcc();
                             if (ImGui::Checkbox("Acceleration", &acc_group)) {
-                                ps->acc(acc_group);
-                                mOut->updateProgramPS(); // Change or generate new program
+                                ps->doAcc(acc_group);
+                                m->programTF(nullptr);
                                 singleNode->needAABBUpdate();
-                                ps->regenerate();
+                                ps->isGenerated(false);
                             }
                             if (ImGui::CollapsingHeader("Acceleration", &acc_group))
                             {
                                 ImGui::Indent();
-                                if (ps->accDiffDir())
+                                if (ps->doAccDiffDir())
                                     ImGui::BeginDisabled();
                                 float accConst = ps->accConst();
                                 if (ImGui::InputFloat("Accelaration constant", &accConst))
@@ -3964,19 +3972,19 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                     ps->accConst(accConst);
                                     singleNode->needAABBUpdate();
                                 }
-                                if (ps->accDiffDir())
+                                if (ps->doAccDiffDir())
                                     ImGui::EndDisabled();
-                                SLbool accDiffDirection_group = ps->accDiffDir();
+                                SLbool accDiffDirection_group = ps->doAccDiffDir();
                                 if (ImGui::Checkbox("Direction vector", &accDiffDirection_group))
                                 {
-                                    ps->accDiffDir(accDiffDirection_group);
-                                    mOut->updateProgramPS(); // Change or generate new program
+                                    ps->doAccDiffDir(accDiffDirection_group);
+                                    m->programTF(nullptr);
                                     singleNode->needAABBUpdate();
                                     
                                 }
                                 if (ImGui::CollapsingHeader("Direction vector", &accDiffDirection_group))
                                 {
-                                    float vec3fAcc[3] = {ps->accV().x, ps->accV().y, ps->accV().z};
+                                    float vec3fAcc[3] = {ps->acc().x, ps->acc().y, ps->acc().z};
                                     ImGui::InputFloat3("input float3", vec3fAcc);
                                     ps->accV(vec3fAcc[0], vec3fAcc[1], vec3fAcc[2]);
                                     singleNode->needAABBUpdate();
@@ -3984,21 +3992,21 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                 ImGui::Unindent();
                             }
                             // Alpha over lifetime
-                            SLbool alphaOverLF_group = ps->alphaOverLF();
-                            if (ImGui::Checkbox("Alpha over lifetime", &alphaOverLF_group)) {
-                                ps->alphaOverLF(alphaOverLF_group);
-                                m->updateProgramPS(); // Change or generate new program
+                            SLbool doAlphaOverL_group = ps->doAlphaOverL();
+                            if (ImGui::Checkbox("Alpha over lifetime", &doAlphaOverL_group)) {
+                                ps->doAlphaOverL(doAlphaOverL_group);
+                                m->program(nullptr);
                             }
-                            if (ImGui::CollapsingHeader("Alpha over lifetime", &alphaOverLF_group))
+                            if (ImGui::CollapsingHeader("Alpha over lifetime", &doAlphaOverL_group))
                             {
                                 ImGui::Indent();
-                                SLbool       alphaOverLFCurve_group = ps->alphaOverLFCurve();
-                                if (ImGui::Checkbox("Custom curve (Unchecked --> Linear function)", &alphaOverLFCurve_group))
+                                SLbool       doAlphaOverLCurve_group = ps->doAlphaOverLCurve();
+                                if (ImGui::Checkbox("Custom curve (Unchecked --> Linear function)", &doAlphaOverLCurve_group))
                                 {
-                                    ps->alphaOverLFCurve(alphaOverLFCurve_group);
-                                    m->updateProgramPS(); // Change or generate new program
+                                    ps->doAlphaOverLCurve(doAlphaOverLCurve_group);
+                                    m->program(nullptr);
                                 }
-                                if (ImGui::CollapsingHeader("Bezier curve", &alphaOverLFCurve_group))
+                                if (ImGui::CollapsingHeader("Bezier curve", &doAlphaOverLCurve_group))
                                 {
                                     ImGui::Indent();
                                     static float vAlpha[4]      = {0.0f, 1.0f, 1.0f, 0.0f};
@@ -4010,22 +4018,22 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                 ImGui::Unindent();
                             }
                             // Size over lifetime
-                            SLbool sizeOverLF_group = ps->sizeOverLF();
-                            if (ImGui::Checkbox("Size over lifetime", &sizeOverLF_group)) {
-                                ps->sizeOverLF(sizeOverLF_group);
-                                m->updateProgramPS(); // Change or generate new program
+                            SLbool doSizeOverLF_group = ps->doSizeOverLF();
+                            if (ImGui::Checkbox("Size over lifetime", &doSizeOverLF_group)) {
+                                ps->doSizeOverLF(doSizeOverLF_group);
+                                m->program(nullptr);
                                 singleNode->needAABBUpdate();
                             }
-                            if (ImGui::CollapsingHeader("Size over lifetime", &sizeOverLF_group))
+                            if (ImGui::CollapsingHeader("Size over lifetime", &doSizeOverLF_group))
                             {
                                 ImGui::Indent();
-                                SLbool sizeOverLFCurve_group = ps->sizeOverLFCurve();
-                                if (ImGui::Checkbox("Custom curve (Unchecked --> Linear function)2", &sizeOverLFCurve_group))
+                                SLbool doSizeOverLFCurve_group = ps->doSizeOverLFCurve();
+                                if (ImGui::Checkbox("Custom curve (Unchecked --> Linear function)2", &doSizeOverLFCurve_group))
                                 {
-                                    ps->sizeOverLFCurve(sizeOverLFCurve_group);
-                                    m->updateProgramPS(); // Change or generate new program
+                                    ps->doSizeOverLFCurve(doSizeOverLFCurve_group);
+                                    m->program(nullptr);
                                 }
-                                if (ImGui::CollapsingHeader("Bezier curve", &sizeOverLFCurve_group))
+                                if (ImGui::CollapsingHeader("Bezier curve", &doSizeOverLFCurve_group))
                                 {
                                     ImGui::Indent();
                                     static float vSize[4]      = {0.0f, 0.2f, 1.0f, 1.0f};
@@ -4039,14 +4047,14 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                             // Flipbook texture
                             if (ps->textureFlipbook() == nullptr)
                                 ImGui::BeginDisabled();
-                            SLbool flipbookTex_group = ps->flipBookTexture();
+                            SLbool flipbookTex_group = ps->doFlipBookTexture();
                             if (ImGui::Checkbox("Flipbook texture", &flipbookTex_group))
                             {
-                                ps->flipBookTexture(flipbookTex_group);
-                                m->updateProgramPS();    // Change or generate new program
-                                mOut->updateProgramPS(); // Change or generate new program
+                                ps->doFlipBookTexture(flipbookTex_group);
+                                m->program(nullptr);
+                                m->programTF(nullptr);
                                 ps->changeTexture();     // Switch texture
-                                ps->regenerate();
+                                ps->isGenerated(false);
                             }
                             if (ImGui::CollapsingHeader("Flipbook texture", &flipbookTex_group))
                             {
@@ -4061,10 +4069,10 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                             if (ps->textureFlipbook() == nullptr)
                                 ImGui::EndDisabled();
                             // Size random // no done yet
-                            SLbool sizeRandom_group = ps->sizeRandom();
-                            if (ImGui::Checkbox("Size random (NOT DONE)", &sizeRandom_group))
-                                ps->sizeRandom(sizeRandom_group);
-                            if (ImGui::CollapsingHeader("Size random", &sizeRandom_group))
+                            SLbool doSizeRandom_group = ps->doSizeRandom();
+                            if (ImGui::Checkbox("Size random (NOT DONE)", &doSizeRandom_group))
+                                ps->doSizeRandom(doSizeRandom_group);
+                            if (ImGui::CollapsingHeader("Size random", &doSizeRandom_group))
                             {
                                 ImGui::Text("IsItemHovered: %d", ImGui::IsItemHovered());
                                 for (int i = 0; i < 5; i++)
@@ -4088,27 +4096,9 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
 
                         ImGui::TreePop();
                     }
-
-                    for (auto* shd : m->program()->shaders())
+                    if (m->program() != nullptr)
                     {
-                        SLfloat lineH = ImGui::GetTextLineHeight();
-
-                        if (ImGui::TreeNode(shd->name().c_str()))
-                        {
-                            SLchar* text = new char[shd->code().length() + 1];
-                            strcpy(text, shd->code().c_str());
-                            ImGui::InputTextMultiline(shd->name().c_str(),
-                                                      text,
-                                                      shd->code().length() + 1,
-                                                      ImVec2(-1.0f, -1.0f));
-                            ImGui::TreePop();
-                            delete[] text;
-                        }
-                    }
-
-                    // For second material shaders (PS)
-                    if (mOut != NULL) {
-                        for (auto* shd : mOut->program()->shaders())
+                        for (auto* shd : m->program()->shaders())
                         {
                             SLfloat lineH = ImGui::GetTextLineHeight();
 
@@ -4125,7 +4115,25 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                             }
                         }
                     }
+                    if (m->programTF() != nullptr)
+                    {
+                        for (auto* shd : m->programTF()->shaders())
+                        {
+                            SLfloat lineH = ImGui::GetTextLineHeight();
 
+                            if (ImGui::TreeNode(shd->name().c_str()))
+                            {
+                                SLchar* text = new char[shd->code().length() + 1];
+                                strcpy(text, shd->code().c_str());
+                                ImGui::InputTextMultiline(shd->name().c_str(),
+                                                          text,
+                                                          shd->code().length() + 1,
+                                                          ImVec2(-1.0f, -1.0f));
+                                ImGui::TreePop();
+                                delete[] text;
+                            }
+                        }
+                    }
                     ImGui::TreePop();
                 }
             }

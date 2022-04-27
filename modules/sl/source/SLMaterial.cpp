@@ -233,39 +233,6 @@ SLMaterial::SLMaterial(SLAssetManager* am,
         am->materials().push_back(this);
 }
 //-----------------------------------------------------------------------------
-/*! Constructor for particle system materials (Update).
- Materials can be used by multiple meshes (SLMesh). Materials can belong
- therefore to the global assets such as meshes, materials, textures and
- shader programs.
- @param am Pointer to a global asset manager. If passed the asset
- manager is the owner of the instance and will do the deallocation. If a
- nullptr is passed the creator is responsible for the deallocation.
- @param name Name of the material
- @param texture Pointer to an SLGLTexture of a specific SLTextureType
- @param ps Pointer to the particle system for the material.
- @param program Pointer to the shader program for the material.
- If none is passed a program will be generated from the passed parameters.
- */
-SLMaterial::SLMaterial(SLAssetManager*   am,
-                       const SLchar*     name,
-                       SLParticleSystem* ps,
-                       SLGLProgram*      program) : SLObject(name)
-{
-    _assetManager    = am;
-    _reflectionModel = RM_Particle;
-    _psType          = PS_Update;
-    _getsShadows     = true; // Later for Particle System maybe
-    _skybox          = nullptr;
-    _ps              = ps;
-    _program         = program;
-
-    _numTextures = 0;
-
-    // Add pointer to the global resource vectors for deallocation
-    if (am)
-        am->materials().push_back(this);
-}
-//-----------------------------------------------------------------------------
 /*! Constructor for textured particle system materials (Draw=.
  Materials can be used by multiple meshes (SLMesh). Materials can belong
  therefore to the global assets such as meshes, materials, textures and
@@ -281,17 +248,18 @@ SLMaterial::SLMaterial(SLAssetManager*   am,
  */
 SLMaterial::SLMaterial(SLAssetManager*   am,
                        const SLchar*     name,
-                       SLGLTexture*      texture,
                        SLParticleSystem* ps,
-                       SLGLProgram*      program) : SLObject(name)
+                       SLGLTexture*      texture,
+                       SLGLProgram*      program,
+                       SLGLProgram*      programTF) : SLObject(name)
 {
     _assetManager    = am;
     _reflectionModel = RM_Particle;
-    _psType          = PS_Draw;
     _getsShadows     = true; // Later for Particle System maybe
     _skybox          = nullptr;
     _ps              = ps;
     _program         = program;
+    _programTF       = programTF;
 
     _numTextures = 0;
     addTexture(texture);
@@ -414,52 +382,68 @@ void SLMaterial::generateProgramPS()
     // A 3D object can be stored without material or shader program information.
     if (!_program)
     {
+        /////////////////////////////
+        // Draw program
+        /////////////////////////////
+        //
         // Check first the asset manager if the requested program type already exists
-        string programName;
-        SLGLProgramGenerated::buildProgramNamePS(this, programName);
-        _program = _assetManager->getProgramByName(programName);
+        string programNameDraw;
+        SLGLProgramGenerated::buildProgramNamePS(this, programNameDraw, true);
+        _program = _assetManager->getProgramByName(programNameDraw);
 
         // If the program was not found by name generate a new one
         if (!_program)
         {
-            if (psType() == PS_Update)
-            {
-                _program = new SLGLProgramGenerated(_assetManager,
-                                                    programName,
-                                                    this);
+            _program = new SLGLProgramGenerated(_assetManager,
+                                                programNameDraw,
+                                                this,
+                                                true,
+                                                "Geom");
+        }
+    }
+    if (!_programTF)
+    {
+        /////////////////////////////
+        // Update program
+        /////////////////////////////
+        //
+        // Check first the asset manager if the requested programTF type already exists
+        string programNameUpdate;
+        SLGLProgramGenerated::buildProgramNamePS(this, programNameUpdate, false);
+        _programTF = _assetManager->getProgramByName(programNameUpdate);
+        if (!_programTF)
+        {
+            _programTF = new SLGLProgramGenerated(_assetManager,
+                                                programNameUpdate,
+                                                this,
+                                                false);
 
-                int                 countString = 3;
-                vector<const char*> outputNames;
-                outputNames.push_back("tf_position");
-                outputNames.push_back("tf_velocity");
-                outputNames.push_back("tf_startTime");
-                if (_ps->acc())
-                {
-                    outputNames.push_back("tf_initialVelocity");
-                    countString++;
-                }
-                if (_ps->rot())
-                {
-                    outputNames.push_back("tf_rotation");
-                    countString++;
-                }
-                if (_ps->flipBookTexture())
-                {
-                    outputNames.push_back("tf_texNum");
-                    countString++;
-                }
-                if (_ps->shape())
-                {
-                    outputNames.push_back("tf_initialPosition");
-                    countString++;
-                }
-                _program->initTF(&outputNames[0], countString);
+            int                 countString = 3;
+            vector<const char*> outputNames;
+            outputNames.push_back("tf_position");
+            outputNames.push_back("tf_velocity");
+            outputNames.push_back("tf_startTime");
+            if (_ps->doAcc())
+            {
+                outputNames.push_back("tf_initialVelocity");
+                countString++;
             }
-            else if (psType() == PS_Draw)
-                _program = new SLGLProgramGenerated(_assetManager,
-                                                    programName,
-                                                    this,
-                                                    "Geom");
+            if (_ps->doRot())
+            {
+                outputNames.push_back("tf_rotation");
+                countString++;
+            }
+            if (_ps->doFlipBookTexture())
+            {
+                outputNames.push_back("tf_texNum");
+                countString++;
+            }
+            if (_ps->doShape())
+            {
+                outputNames.push_back("tf_initialPosition");
+                countString++;
+            }
+            _programTF->initTF(&outputNames[0], countString);
         }
     }
 
@@ -472,76 +456,14 @@ void SLMaterial::generateProgramPS()
             _errorTexture = new SLGLTexture(nullptr, _compileErrorTexFilePath);
         _textures[TT_diffuse].push_back(_errorTexture);
     }
-}
-//-----------------------------------------------------------------------------
-/*!
- Generate new program for this material if change has been made in the particle system
- */
- // ??? Is updateProgramPS not almost the same code than generateProgramPS? // Yes thar right, but generateProgramPs is used one time at the start of the drawing and update is used in the UI when the user activate one feature
-void SLMaterial::updateProgramPS()
-{
-    // Test if a shader is already attached
-    if (_program)
+
+    if (_programTF && _programTF->name().find("ErrorTex") != string::npos)
     {
-        // Check first the asset manager if the requested program type already exists
-        string programName;
-        SLGLProgramGenerated::buildProgramNamePS(this, programName);
-        if (programName != _program->name())
-        {
-            _program = _assetManager->getProgramByName(programName);
-
-            // If the program was not found by name generate a new one
-            if (!_program)
-            {
-                if (psType() == PS_Update)
-                {
-                    _program = new SLGLProgramGenerated(_assetManager,
-                                                        programName,
-                                                        this);
-
-                    int                 countString = 3;
-                    vector<const char*> outputNames;
-                    outputNames.push_back("tf_position");
-                    outputNames.push_back("tf_velocity");
-                    outputNames.push_back("tf_startTime");
-                    if (_ps->acc())
-                    {
-                        outputNames.push_back("tf_initialVelocity");
-                        countString++;
-                    }
-                    if (_ps->rot())
-                    {
-                        outputNames.push_back("tf_rotation");
-                        countString++;
-                    }
-                    if (_ps->flipBookTexture())
-                    {
-                        outputNames.push_back("tf_texNum");
-                        countString++;
-                    }
-                    if (_ps->shape())
-                    {
-                        outputNames.push_back("tf_initialPosition");
-                        countString++;
-                    }
-                    _program->initTF(&outputNames[0], countString);
-                }
-                else if (psType() == PS_Draw)
-                    _program = new SLGLProgramGenerated(_assetManager,
-                                                        programName,
-                                                        this,
-                                                        "Geom");
-            }
-        }
-        // Check if shader had a compile error and the error texture should be shown
-        if (_program && _program->name().find("ErrorTex") != string::npos)
-        {
-            for (int i = 0; i < TT_numTextureType; i++)
-                _textures[i].clear();
-            if (!_errorTexture && !_compileErrorTexFilePath.empty())
-                _errorTexture = new SLGLTexture(nullptr, _compileErrorTexFilePath);
-            _textures[TT_diffuse].push_back(_errorTexture);
-        }
+        for (int i = 0; i < TT_numTextureType; i++)
+            _textures[i].clear();
+        if (!_errorTexture && !_compileErrorTexFilePath.empty())
+            _errorTexture = new SLGLTexture(nullptr, _compileErrorTexFilePath);
+        _textures[TT_diffuse].push_back(_errorTexture);
     }
 }
 //-----------------------------------------------------------------------------

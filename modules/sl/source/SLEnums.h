@@ -376,12 +376,5 @@ enum SLReflectionModel
     RM_Particle,
     RM_Custom
 };
-//! Particle System shader type for shader generation usd in SLMaterial
-enum SLParticleSystemType
-{
-    PS_Update = 0,
-    PS_Draw,
-    PS_Custom
-};
 //-----------------------------------------------------------------------------
 #endif
