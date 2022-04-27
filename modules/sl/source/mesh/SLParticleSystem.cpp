@@ -83,11 +83,11 @@ int SLParticleSystem::randomInt(int min, int max)
     return min + x % n;
 }
 //-----------------------------------------------------------------------------
-// ??? If I understand this correctly this function should be called getPointInSphere
+// ??? If I understand this correctly this function should be called getPointInSphere // Yes
 SLVec3f SLParticleSystem::getPointSphere(float radius)
 {
-    // ??? In my opinion this creates every time a new random generator.
-    // ??? and I think you want a uniform distribution not a normal distribution
+    // ??? In my opinion this creates every time a new random generator. // Yes, need to generate a new but for each generation 
+    // ??? and I think you want a uniform distribution not a normal distribution // Not sure about this one, i am following this article https://karthikkaranth.me/blog/generating-random-points-in-a-sphere/ 
     unsigned                   seed = chrono::system_clock::now().time_since_epoch().count();
     default_random_engine      generator(seed);
     normal_distribution<float> distribution(0.0f, 1.0f);

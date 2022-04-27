@@ -477,7 +477,7 @@ void SLMaterial::generateProgramPS()
 /*!
  Generate new program for this material if change has been made in the particle system
  */
- // ??? Is updateProgramPS not almost the same code than generateProgramPS?
+ // ??? Is updateProgramPS not almost the same code than generateProgramPS? // Yes thar right, but generateProgramPs is used one time at the start of the drawing and update is used in the UI when the user activate one feature
 void SLMaterial::updateProgramPS()
 {
     // Test if a shader is already attached

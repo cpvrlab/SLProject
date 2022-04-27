@@ -239,7 +239,7 @@ public:
 protected:
     SLAssetManager*      _assetManager;    //!< pointer to the asset manager (the owner) if available
     SLReflectionModel    _reflectionModel; //!< reflection model (RM_BlinnPhong or RM_CookTorrance)
-    // ??? Why do we store the particle system type in the material? Why not in _ps?
+    // ??? Why do we store the particle system type in the material? Why not in _ps? // Because we have two different materials, one to generate the update shaders and the other for drawing shader, maybe the name of the variable is not correct
     SLParticleSystemType _psType;          //!< ps type (PS_Update or PS_Draw)
     SLCol4f              _ambient;         //!< ambient color (RGB reflection coefficients)
     SLCol4f              _diffuse;         //!< diffuse color (RGB reflection coefficients)

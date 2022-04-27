@@ -139,21 +139,21 @@ public:
     void textureFlipbook(SLGLTexture* t) { _textureFlipbook = t; }
 
 protected:
-    // ??? I would use such a short variable name only when its used a thousand times otherwise _timeToLive is just more understandable
+    // ??? I would use such a short variable name only when its used a thousand times otherwise _timeToLive is just more understandable // You are right
     SLfloat _ttl;                                                  //!< Time to live of a particle
     SLfloat _radiusW = 0.4f;                                       //!< width radius of a particle
     SLfloat _radiusH = 0.4f;                                       //!< height radius of a particle
     SLfloat _scale   = 1.0f;                                       //!< Scale of a particle (Scale the radius)
-    // ??? _emitterPos is more readable
+    // ??? _emitterPos is more readable // Right again
     SLVec3f _pEPos;                                                //!< Position of the particle emitter
     SLVec4f _bernsteinPYAlpha = SLVec4f(2.0f, -3.0f, 0.0f, 1.0f);  //!< Vector for bezier curve (default linear function)
     SLVec4f _bernsteinPYSize  = SLVec4f(-1.4f, 1.8f, 0.6f, 0.0f);  //!< Vector for bezier curve (default linear function)
-    // ??? I wouldn't add a V at the for a vector. The acceleration just can be a vector. You then would have to rename _acc to _hasAcc
+    // ??? I wouldn't add a V at the for a vector. The acceleration just can be a vector. You then would have to rename _acc to _hasAcc // Right
     SLVec3f _accV             = SLVec3f(1.0f, 1.0f, 1.0f);         //!< vec for acceleration (different direction as the velocity)
     SLfloat _accConst         = 0.0f;                              //!< Acceleration constant (same direction as the velocity)
     SLVec3f _vRandS           = SLVec3f(0.0f, 0.0f, 0.0f);         //!< vec start for random velocity
     SLVec3f _vRandE           = SLVec3f(1.0f, 1.0f, 1.0f);         //!< vec end for random velocity
-    // ??? Why not just _color? Is this color not allready in the material?
+    // ??? Why not just _color? Is this color not allready in the material? // Because we have boolean call _color, but I will like for the acceleration change _color to _hasColor
     SLCol4f _colorV           = SLCol4f(0.66f, 0.0f, 0.66f, 0.2f); //!< Color for particle
     SLfloat _angle            = 30.0f;                             //!< Angle of branches (for tree fractal)
     SLint   _numBranch        = 4;                                 //!< Number of branches (for tree fractal)
@@ -167,7 +167,7 @@ private:
     int     randomInt(int min, int max);
     SLVec3f getPointSphere(float radius);
 
-    // ??? Private variables normally have an underscore. Are these variables somehow special?
+    // ??? Private variables normally have an underscore. Are these variables somehow special? // Yes this are the variable to populate the VAO, I did the same that SLMesh
     SLVVec3f V;      //!< Vector for particle velocity
     SLVfloat ST;     //!< Vector for particle start time
     SLVVec3f InitV;  //!< Vector for particle initial velocity
@@ -195,7 +195,7 @@ private:
     SLint  _billboardType       = 0;    //!< Billboard type
     SLint  _shapeType           = 0;    //!< Shape type
 
-    // ??? Boolean variables are more understandable if they begin with _is*, _has*, _do* etc.
+    // ??? Boolean variables are more understandable if they begin with _is*, _has*, _do* etc. // Yes you are right
     SLbool _blendingBrigh    = false; //!< Blending for glow/brightness on pixel with many particle
     SLbool _tree             = false; //!< Boolean for tree fractal
     SLbool _acc              = false; //!< Boolean for acceleration
