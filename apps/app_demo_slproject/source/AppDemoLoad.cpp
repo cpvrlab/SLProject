@@ -5923,6 +5923,62 @@ resolution shadows near the camera and lower resolution shadows further away.");
         // Save energy
         sv->doWaitOnIdle(false);
     }
+    else if (sceneID == SID_ParticleSystem_DustStorm) //.........................................
+    {
+        // Set scene name and info string
+        s->name("Dust storm particle system");
+        s->info("Create dust storm visual effects");
+
+        // Create a scene group node
+        SLNode* scene = new SLNode("scene node");
+
+        // Create textures and materials
+        SLGLTexture* texC = new SLGLTexture(am, texPath + "smoke_08_C.png");
+        SLGLTexture* texFlipbookSmoke = new SLGLTexture(am, texPath + "WispySmoke03_8x8_C.png");
+
+        // Create meshes and nodes
+        // Dust storm
+        SLParticleSystem* ps = new SLParticleSystem(am,
+                                                     500,
+                                                     SLVec3f(0.0f, 0.0f, 0.0f),
+                                                     SLVec3f(-0.1f, -0.5f, -5.0f),
+                                                     SLVec3f(0.1f, 0.5f, -2.5f),
+                                                     3.5f,
+                                                     texC,
+                                                     "Particle System fire2",
+                                                     texFlipbookSmoke);
+        ps->doShape(true);
+        ps->shapeType(1);
+        ps->scaleBox(50.0f, 1.0f, 50.0f);
+        ps->scale(15.0f);
+        ps->doSizeOverLF(false);
+        ps->doAlphaOverL(true);
+        ps->doAlphaOverLCurve(true);
+        ps->bezierStartEndPointAlpha()[1] = 0.0f;
+        ps->bezierControlPointAlpha()[1] = 0.5f;
+        ps->bezierControlPointAlpha()[2] = 0.5f;
+        ps->generateBernsteinPAlpha();
+        ps->doRotRange(true);
+        ps->color(SLCol4f(1.0f, 1.0f, 1.0f, 1.0f));
+        ps->doBlendingBrigh(false);
+        ps->frameRateFB(16);
+
+        SLMesh* pSMesh = ps;
+        SLNode* pSNode = new SLNode(pSMesh, "Particle system node fire2");
+        pSNode->translate(3.0f, -0.8f, 0.0f, TS_object);
+
+        scene->addChild(pSNode);
+
+        // Set background color and the root scene node
+        sv->sceneViewCamera()->background().colors(SLCol4f(0.8f, 0.8f, 0.8f),
+                                                   SLCol4f(0.2f, 0.2f, 0.2f));
+
+        // pass the scene group as root node
+        s->root3D(scene);
+
+        // Save energy
+        sv->doWaitOnIdle(false);
+    }
 
     ////////////////////////////////////////////////////////////////////////////
     // call onInitialize on all scene views to init the scenegraph and stats

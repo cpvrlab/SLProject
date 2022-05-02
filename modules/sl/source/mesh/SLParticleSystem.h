@@ -36,8 +36,8 @@ public:
     void draw(SLSceneView* sv, SLNode* node);
     void buildAABB(SLAABBox& aabb, const SLMat4f& wmNode);
     void generate();
-    void generateBernsteinPAlpha(float ContP[4], float StaEnd[4]);
-    void generateBernsteinPSize(float ContP[4], float StaEnd[4]);
+    void generateBernsteinPAlpha();
+    void generateBernsteinPSize();
     void changeTexture();
     void notVisibleFrustrumCulling();
 
@@ -46,10 +46,15 @@ public:
     SLbool       doAcc() { return _doAcc; }
     SLbool       doAccDiffDir() { return _doAccDiffDir; }
     SLbool       doRot() { return _doRot; }
+    SLbool       doRotRange() { return _doRotRange; }
     SLVec3f      acc() { return _acc; }
     SLVec3f      vRandS() { return _vRandS; }
     SLVec3f      vRandE() { return _vRandE; }
     SLVec3f      scaleBox() { return _scaleBox; }
+    float*       bezierControlPointAlpha() { return _bezierControlPointAlpha; }
+    float*       bezierStartEndPointAlpha() { return _bezierStartEndPointAlpha; }
+    float*       bezierControlPointSize() { return _bezierControlPointSize; }
+    float*       bezierStartEndPointSize() { return _bezierStartEndPointSize; }
     SLCol4f      color() { return _color; }
     SLbool       doTree() { return _doTree; }
     SLbool       isGenerated() { return _isGenerated; }
@@ -76,6 +81,8 @@ public:
     SLfloat      radiusW() { return _radiusW; }
     SLfloat      radiusH() { return _radiusH; }
     SLfloat      scale() { return _scale; }
+    SLfloat      angularVelocityConst() { return _angularVelocityConst; }
+    SLVec2f      angularVelocityRange() { return _angularVelocityRange; }
     SLfloat      radiusSphere() { return _radiusSphere; }
     AvgFloat&    updateTime() { return _updateTime; }
     int          frameRateFB() { return _frameRateFB; }
@@ -87,8 +94,9 @@ public:
     void doAcc(SLbool b) { _doAcc = b; }
     void doAccDiffDir(SLbool b) { _doAccDiffDir = b; }
     void doRot(SLbool b) { _doRot = b; }
+    void doRotRange(SLbool b) { _doRotRange = b; }
     void acc(SLVec3f v) { _acc = v; }
-    void accV(SLfloat vX, SLfloat vY, SLfloat vZ)
+    void acc(SLfloat vX, SLfloat vY, SLfloat vZ)
     {
         _acc.x = vX;
         _acc.y = vY;
@@ -114,6 +122,34 @@ public:
         _scaleBox.x = vX;
         _scaleBox.y = vY;
         _scaleBox.z = vZ;
+    }
+    void bezierControlPointAlpha(float arrayPoint[4])
+    {
+        _bezierControlPointAlpha[0]   = arrayPoint[0];
+        _bezierControlPointAlpha[1]   = arrayPoint[1];
+        _bezierControlPointAlpha[2]   = arrayPoint[2];
+        _bezierControlPointAlpha[3]   = arrayPoint[3];
+    }
+    void bezierStartEndPointAlpha(float arrayPoint[4])
+    {
+        _bezierStartEndPointAlpha[0] = arrayPoint[0];
+        _bezierStartEndPointAlpha[1] = arrayPoint[1];
+        _bezierStartEndPointAlpha[2] = arrayPoint[2];
+        _bezierStartEndPointAlpha[3] = arrayPoint[3];
+    }
+    void bezierControlPointSize(float arrayPoint[4])
+    {
+        _bezierControlPointSize[0]  = arrayPoint[0];
+        _bezierControlPointSize[1]  = arrayPoint[1];
+        _bezierControlPointSize[2]  = arrayPoint[2];
+        _bezierControlPointSize[3]  = arrayPoint[3];
+    }
+    void bezierStartEndPointSize(float arrayPoint[4])
+    {
+        _bezierStartEndPointSize[0]  = arrayPoint[0];
+        _bezierStartEndPointSize[1]  = arrayPoint[1];
+        _bezierStartEndPointSize[2]  = arrayPoint[2];
+        _bezierStartEndPointSize[3]  = arrayPoint[3];
     }
     void color(SLCol4f c) { _color = c; }
     void doTree(SLbool b) { _doTree = b; }
@@ -141,6 +177,12 @@ public:
     void radiusW(SLfloat f) { _radiusW = f; }
     void radiusH(SLfloat f) { _radiusH = f; }
     void scale(SLfloat f) { _scale = f; }
+    void    angularVelocityConst(SLfloat f) { _angularVelocityConst = f; }
+    void    angularVelocityRange(SLVec2f v) { _angularVelocityRange = v; }
+    void    angularVelocityRange(SLfloat vX, SLfloat vY) { 
+        _angularVelocityRange.x = vX; 
+        _angularVelocityRange.y = vY; 
+    }
     void radiusSphere(SLfloat f) { _radiusSphere = f; }
     void frameRateFB(int i) { _frameRateFB = i; }
     void colorArr(SLfloat* arr) { std::copy(arr, arr + 256 * 3, _colorArr); }
@@ -152,9 +194,15 @@ protected:
     SLfloat _radiusW = 0.4f;                                       //!< width radius of a particle
     SLfloat _radiusH = 0.4f;                                       //!< height radius of a particle
     SLfloat _scale   = 1.0f;                                       //!< Scale of a particle (Scale the radius)
+    SLfloat _angularVelocityConst = 30.0f;                          //!< Rotation rate const (change in angular rotation divide by change in time)
+    SLVec2f _angularVelocityRange = SLVec2f(-30.0f,30.0f);         //!< Rotation rate range (change in angular rotation divide by change in time)
     SLVec3f _emitterPos;                                                //!< Position of the particle emitter
     SLVec4f _bernsteinPYAlpha = SLVec4f(2.0f, -3.0f, 0.0f, 1.0f);  //!< Vector for bezier curve (default linear function)
+    float   _bezierControlPointAlpha[4] = {0.0f, 1.0f, 1.0f, 0.0f};          //!< Floats for bezier curve control points (P1: 01 ; P2: 23)   
+    float   _bezierStartEndPointAlpha[4] = {0.0f, 1.0f, 1.0f, 0.0f};         //!< Floats for bezier curve end start points (Start: 01 ; End: 23)
     SLVec4f _bernsteinPYSize  = SLVec4f(-1.4f, 1.8f, 0.6f, 0.0f);  //!< Vector for bezier curve (default linear function)
+    float   _bezierControlPointSize[4]  = {0.0f, 0.0f, 1.0f, 1.0f};         //!< Floats for bezier curve control points (P1: 01 ; P2: 23)
+    float   _bezierStartEndPointSize[4] = {0.0f, 0.0f, 1.0f, 1.0f};         //!< Floats for bezier curve end start points (Start: 01 ; End: 23)
     SLVec3f _acc             = SLVec3f(1.0f, 1.0f, 1.0f);         //!< vec for acceleration (different direction as the velocity)
     SLfloat _accConst         = 0.0f;                              //!< Acceleration constant (same direction as the velocity)
     SLVec3f _vRandS           = SLVec3f(0.0f, 0.0f, 0.0f);         //!< vec start for random velocity
@@ -198,6 +246,7 @@ private:
     SLbool _doAcc              = false; //!< Boolean for acceleration
     SLbool _doAccDiffDir       = false; //!< Boolean for acceleration (different direction)
     SLbool _doRot              = true;  //!< Boolean for rotation
+    SLbool _doRotRange         = false;  //!< Boolean for rotation range (random value between range)
     SLbool _doColor            = true;  //!< Boolean for color
     SLbool _doShape            = false; //!< Boolean for shape feature
     SLbool _doWorldSpace       = false; //!< Boolean for world space position

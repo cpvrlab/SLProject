@@ -1956,7 +1956,8 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                         s->onLoad(am, s, sv, SID_ParticleSystem_FireEffects);
                     if (ImGui::MenuItem("Scene demo for particle system", nullptr, sid == SID_ParticleSystem_Demo))
                         s->onLoad(am, s, sv, SID_ParticleSystem_Demo);
-
+                    if (ImGui::MenuItem("Dust storm effect for particle system", nullptr, sid == SID_ParticleSystem_DustStorm))
+                        s->onLoad(am, s, sv, SID_ParticleSystem_DustStorm);
                     ImGui::EndMenu();
                 }
                 ImGui::EndMenu();
@@ -3910,8 +3911,42 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                             {
                                 ps->doRot(rot_group);
                                 m->program(nullptr);
-                                m->programTF(nullptr); // Change or generate new program
+                                m->programTF(nullptr);
                                 ps->isGenerated(false);
+                            }
+                            
+                            if (ImGui::CollapsingHeader("Rotation", &rot_group))
+                            {
+                                ImGui::Indent();
+                                int item_current = ps->doRotRange() ? 1 : 0;
+                                if (ImGui::Combo("Angular velocity value", &item_current, "Constant\0Random between two constants\0"))
+                                {
+                                    if (item_current==1)
+                                        ps->doRotRange(true);
+                                    else
+                                        ps->doRotRange(false);
+                                    
+                                    m->programTF(nullptr);
+                                    ps->isGenerated(false);
+                                }
+                                if (!ps->doRotRange())
+                                {
+                                    float angularVelocityConst = ps->angularVelocityConst();
+                                    if (ImGui::InputFloat("Constant", &angularVelocityConst))
+                                    {
+                                        ps->angularVelocityConst(angularVelocityConst);
+                                    }
+                                }
+                                else
+                                {
+                                    float vec2fRange[2] = {ps->angularVelocityRange().x, ps->angularVelocityRange().y};
+                                    if (ImGui::InputFloat2("Random range", vec2fRange))
+                                    {
+                                        ps->angularVelocityRange(vec2fRange[0], vec2fRange[1]);
+                                        ps->isGenerated(false);
+                                    }
+                                }
+                                ImGui::Unindent();
                             }
                             // Shape
                             SLbool shape_group = ps->doShape();
@@ -3932,7 +3967,6 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                     ps->shapeType(item_current);
                                     m->programTF(nullptr);
                                     ps->isGenerated(false);
-                                    //m->updateProgramPS(); // Change or generate new program
                                 }
                                 if (item_current == 0)
                                 {
@@ -3986,7 +4020,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                 {
                                     float vec3fAcc[3] = {ps->acc().x, ps->acc().y, ps->acc().z};
                                     ImGui::InputFloat3("input float3", vec3fAcc);
-                                    ps->accV(vec3fAcc[0], vec3fAcc[1], vec3fAcc[2]);
+                                    ps->acc(vec3fAcc[0], vec3fAcc[1], vec3fAcc[2]);
                                     singleNode->needAABBUpdate();
                                 }
                                 ImGui::Unindent();
@@ -4009,10 +4043,10 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                 if (ImGui::CollapsingHeader("Bezier curve", &doAlphaOverLCurve_group))
                                 {
                                     ImGui::Indent();
-                                    static float vAlpha[4]      = {0.0f, 1.0f, 1.0f, 0.0f};
-                                    static float staEndAlpha[4] = {0.0f, 1.0f, 1.0f, 0.0f};
+                                    float *vAlpha = ps->bezierControlPointAlpha();
+                                    float *staEndAlpha = ps->bezierStartEndPointAlpha();
                                     ImGui::Bezier("easeInExpo", vAlpha, staEndAlpha);
-                                    ps->generateBernsteinPAlpha(vAlpha, staEndAlpha);
+                                    ps->generateBernsteinPAlpha();
                                     ImGui::Unindent();
                                 }
                                 ImGui::Unindent();
@@ -4036,10 +4070,10 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                 if (ImGui::CollapsingHeader("Bezier curve", &doSizeOverLFCurve_group))
                                 {
                                     ImGui::Indent();
-                                    static float vSize[4]      = {0.0f, 0.2f, 1.0f, 1.0f};
-                                    static float staEndSize[4] = {0.0f, 0.0f, 1.0f, 1.0f};
+                                    float *vSize = ps->bezierControlPointSize();
+                                    float* staEndSize = ps->bezierStartEndPointSize();
                                     ImGui::Bezier("easeInExpo", vSize, staEndSize);
-                                    ps->generateBernsteinPSize(vSize, staEndSize);
+                                    ps->generateBernsteinPSize();
                                     ImGui::Unindent();
                                 }
                                 ImGui::Unindent();

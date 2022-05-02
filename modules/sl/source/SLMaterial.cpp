@@ -433,6 +433,11 @@ void SLMaterial::generateProgramPS()
                 outputNames.push_back("tf_rotation");
                 countString++;
             }
+            if (_ps->doRot() && _ps->doRotRange())
+            {
+                outputNames.push_back("tf_angularVelo");
+                countString++;
+            }
             if (_ps->doFlipBookTexture())
             {
                 outputNames.push_back("tf_texNum");

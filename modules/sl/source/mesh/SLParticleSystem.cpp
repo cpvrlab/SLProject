@@ -97,6 +97,7 @@ void SLParticleSystem::generate()
     SLVfloat tempST;
     SLVVec3f tempInitV;
     SLVfloat tempR;
+    SLVfloat tempAngulareVelo;
     SLVuint  tempTexNum;
     SLVVec3f tempInitP;
 
@@ -107,6 +108,8 @@ void SLParticleSystem::generate()
         tempInitV.resize(_amount);
     if (_doRot)
         tempR.resize(_amount);
+    if (_doRot && _doRotRange)
+        tempAngulareVelo.resize(_amount);
     if (_doFlipBookTexture)
         tempTexNum.resize(_amount);
     if (_doShape)
@@ -129,7 +132,9 @@ void SLParticleSystem::generate()
         if (_doAcc)
             tempInitV[i] = tempV[i];
         if (_doRot)
-            tempR[i] = random(0.0f, 360.0f); // Start rotation of the particle
+            tempR[i] = random(0.0f * DEG2RAD, 360.0f * DEG2RAD); // Start rotation of the particle
+        if (_doRot && _doRotRange)
+            tempAngulareVelo[i] = random(_angularVelocityRange.x * DEG2RAD, _angularVelocityRange.y * DEG2RAD); // Start rotation of the particle
         if (_doFlipBookTexture)
             tempTexNum[i] = random(0, _row * _col - 1);
         if (_doShape)
@@ -147,6 +152,8 @@ void SLParticleSystem::generate()
         _vao1.setAttrib(AT_initialVelocity, AT_initialVelocity, &tempInitV);
     if (_doRot)
         _vao1.setAttrib(AT_rotation, AT_rotation, &tempR);
+    if (_doRot && _doRotRange)
+        _vao1.setAttrib(AT_angularVelo, AT_angularVelo, &tempAngulareVelo);
     if (_doFlipBookTexture)
         _vao1.setAttrib(AT_texNum, AT_texNum, &tempTexNum);
     if (_doShape)
@@ -160,6 +167,8 @@ void SLParticleSystem::generate()
         _vao2.setAttrib(AT_initialVelocity, AT_initialVelocity, &tempInitV);
     if (_doRot)
         _vao2.setAttrib(AT_rotation, AT_rotation, &tempR);
+    if (_doRot && _doRotRange)
+        _vao2.setAttrib(AT_angularVelo, AT_angularVelo, &tempAngulareVelo);
     if (_doFlipBookTexture)
         _vao2.setAttrib(AT_texNum, AT_texNum, &tempTexNum);
     if (_doShape)
@@ -173,10 +182,12 @@ Generate Bernstein Polynomial with 4 controls points.
 ContP contains 2 and 3 controls points
 StatEnd contains 1 and 4 controls points
 */
-void SLParticleSystem::generateBernsteinPAlpha(float ContP[4], float StaEnd[4])
+void SLParticleSystem::generateBernsteinPAlpha()
 {
     // For Y bezier curve
     // T^3
+    float *ContP         = _bezierControlPointAlpha;
+    float* StaEnd       = _bezierStartEndPointAlpha;
     _bernsteinPYAlpha.x = -StaEnd[1] + ContP[1] * 3 - ContP[3] * 3 + StaEnd[3];
     // T^2
     _bernsteinPYAlpha.y = StaEnd[1] * 3 - ContP[1] * 6 + ContP[3] * 3;
@@ -191,10 +202,12 @@ Generate Bernstein Polynomial with 4 controls points.
 ContP contains 2 and 3 controls points
 StatEnd contains 1 and 4 controls points
 */
-void SLParticleSystem::generateBernsteinPSize(float ContP[4], float StaEnd[4])
+void SLParticleSystem::generateBernsteinPSize()
 {
     // For Y bezier curve
     // T^3
+    float* ContP       = _bezierControlPointSize;
+    float* StaEnd      = _bezierStartEndPointSize;
     _bernsteinPYSize.x = -StaEnd[1] + ContP[1] * 3 - ContP[3] * 3 + StaEnd[3];
     // T^2
     _bernsteinPYSize.y = StaEnd[1] * 3 - ContP[1] * 6 + ContP[3] * 3;
@@ -315,6 +328,10 @@ void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
             sp->uniform1i("u_condFB", 0);
         }
     }
+
+    //Rotation
+    if (_doRot && !_doRotRange)
+        sp->uniform1f("u_angularVelo", _angularVelocityConst * DEG2RAD);
 
     /////////////////////////////
     // Draw call to update

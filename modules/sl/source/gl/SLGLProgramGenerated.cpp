@@ -38,10 +38,12 @@ const string vertInput_PS_a_initV      = R"(
 layout (location = 3) in vec3 a_initialVelocity;// Particle initial velocity attribute)";
 const string vertInput_PS_a_r      = R"(
 layout (location = 4) in  float a_rotation; // Particle rotation attribute)";
+const string vertInput_PS_a_r_angularVelo          = R"(
+layout (location = 5) in  float a_angularVelo; // Particle rotation rate attribute)";
 const string vertInput_PS_a_texNum          = R"(
-layout (location = 5) in  uint a_texNum; // Particle rotation attribute)";
+layout (location = 6) in  uint a_texNum; // Particle rotation attribute)";
 const string vertInput_PS_a_initP      = R"(
-layout (location = 6) in vec3 a_initialPosition; // Particle initial position attribute)";
+layout (location = 7) in vec3 a_initialPosition; // Particle initial position attribute)";
 const string vertInput_a_uv0     = R"(
 layout (location = 2) in vec2  a_uv0;       // Vertex tex.coord. 1 for diffuse color)";
 const string vertInput_a_uv1     = R"(
@@ -66,6 +68,10 @@ uniform vec4  u_lightPosVS[NUM_LIGHTS];     // position of light in view space
 uniform vec3  u_lightSpotDir[NUM_LIGHTS];   // spot direction in view space
 uniform float u_lightSpotDeg[NUM_LIGHTS];   // spot cutoff angle 1-180 degrees)";
 //-----------------------------------------------------------------------------
+const string vertConstant_PS_pi  = R"(
+
+#define PI 3.1415926538)";
+//-----------------------------------------------------------------------------
 const string vertInput_PS_u_time = R"(
 
 uniform float u_time;       // Simulation time
@@ -86,12 +92,15 @@ const string vertInput_PS_u_a_const     = R"(
 uniform float u_accConst;    // Particle acceleration constant)";
 const string vertInput_PS_u_a_diffDir              = R"(
 uniform vec3 u_acceleration;    // Particle acceleration)";
+const string vertInput_PS_u_angularVelo = R"(
+uniform float u_angularVelo;    // Particle angular velocity)";
 const string vertInput_PS_u_col         = R"(
 uniform int u_col;   // Number of column of flipbook texture)";
 const string vertInput_PS_u_row       = R"(
 uniform int u_row;   // Number of row of flipbook texture)";
 const string vertInput_PS_u_condFB         = R"(
 uniform int u_condFB;   // Condition to update texNum)";
+
 //-----------------------------------------------------------------------------
 const string vertOutput_v_P_VS       = R"(
 
@@ -146,6 +155,8 @@ const string vertOutput_PS_tf_initV          = R"(
     out vec3 tf_initialVelocity;    // To transform feedback)";
 const string vertOutput_PS_tf_r          = R"(
     out float tf_rotation;          // To transform feedback)";
+const string vertOutput_PS_tf_r_angularVelo       = R"(
+    out float tf_angularVelo;          // To transform feedback)";
 const string vertOutput_PS_tf_texNum              = R"(
     out uint tf_texNum;              // To transform feedback)";
 const string vertOutput_PS_tf_initP          = R"(
@@ -263,12 +274,16 @@ const string vertMain_PS_U_v_init_initV = R"(
         tf_initialVelocity = a_initialVelocity; // Init the output variable)";
 const string vertMain_PS_U_v_init_r     = R"(
         tf_rotation = a_rotation; // Init the output variable)";
+const string vertMain_PS_U_v_init_r_angularVelo = R"(
+        tf_angularVelo = a_angularVelo; // Init the output variable)";
 const string vertMain_PS_U_v_init_texNum                 = R"(
         tf_texNum = a_texNum; // Init the output variable)";
 const string vertMain_PS_U_v_init_initP                               = R"(
         tf_initialPosition = a_initialPosition; // Init the output variable)";
-const string vertMain_PS_U_v_r     = R"(
-        tf_rotation = mod(tf_rotation + (0.5*u_deltaTime), 360.0);)";
+const string vertMain_PS_U_v_rConst     = R"(
+        tf_rotation = mod(tf_rotation + (u_angularVelo*u_deltaTime), 2 * PI);)";
+const string vertMain_PS_U_v_rRange     = R"(
+        tf_rotation = mod(tf_rotation + (tf_angularVelo*u_deltaTime), 2 * PI);)";
 const string vertMain_PS_U_bornDead          = R"(
         tf_startTime += u_difTime;       // Add time to resume after frustrum culling
         if( u_time >= tf_startTime ) {   // Check if the particle is born
@@ -1538,6 +1553,7 @@ void SLGLProgramGenerated::buildProgramNamePS(SLMaterial* mat,
         bool rot      = mat->ps()->doRot();              // Rotation
         programName += "-B" + std::to_string(billoardType);
         if (rot) programName += "-RT";
+        
         if (AlOvLi) programName += "-AL";
         if (AlOvLiCu) programName += "cu";
         if (SiOvLi) programName += "-SL";
@@ -1554,9 +1570,11 @@ void SLGLProgramGenerated::buildProgramNamePS(SLMaterial* mat,
         bool accDiffDir = mat->ps()->doAccDiffDir();      // Acceleration different direction
         bool FlBoTex = mat->ps()->doFlipBookTexture(); // Flipbook texture
         bool rot = mat->ps()->doRot(); // Rotation
+        bool rotRange   = mat->ps()->doRotRange();        // Rotation range
         bool shape      = mat->ps()->doShape();           // Shape
         programName += "-Update";
         if (rot) programName += "-RT";
+        if (rot) programName += rotRange ? "ra" : "co";
         if (acc)
         {
             programName += "-AC";
@@ -2012,9 +2030,10 @@ void SLGLProgramGenerated::buildPerPixParticleUpdate(SLMaterial* mat)
 
     bool acc = mat->ps()->doAcc(); // Acceleration
     bool accDiffDir = mat->ps()->doAccDiffDir();      // Acceleration different direction
-    bool FlBoTex = mat->ps()->doFlipBookTexture(); // Flipbook texture
-    bool rot     = mat->ps()->doRot();             // Rotation
-    bool shape     = mat->ps()->doShape();             // Shape
+    bool FlBoTex = mat->ps()->doFlipBookTexture();    // Flipbook texture
+    bool rot     = mat->ps()->doRot();                // Rotation
+    bool rotRange   = mat->ps()->doRotRange();        // Rotation range
+    bool shape     = mat->ps()->doShape();            // Shape
 
     string vertCode;
     vertCode += shaderHeader();
@@ -2025,6 +2044,7 @@ void SLGLProgramGenerated::buildPerPixParticleUpdate(SLMaterial* mat)
     vertCode += vertInput_PS_a_st;
     if (acc) vertCode += vertInput_PS_a_initV;
     if (rot) vertCode += vertInput_PS_a_r;
+    if (rot && rotRange) vertCode += vertInput_PS_a_r_angularVelo;
     if (FlBoTex) vertCode += vertInput_PS_a_texNum;
     if (shape) vertCode += vertInput_PS_a_initP;
 
@@ -2033,6 +2053,7 @@ void SLGLProgramGenerated::buildPerPixParticleUpdate(SLMaterial* mat)
     vertCode += vertInput_PS_u_time;
     vertCode += vertInput_PS_u_deltaTime;
     vertCode += vertInput_PS_u_pgPos;
+    if (rot && !rotRange) vertCode += vertInput_PS_u_angularVelo;
     if (acc) vertCode += accDiffDir ? vertInput_PS_u_a_diffDir : vertInput_PS_u_a_const;
     if (FlBoTex) vertCode += vertInput_PS_u_col;
     if (FlBoTex) vertCode += vertInput_PS_u_row;
@@ -2045,8 +2066,11 @@ void SLGLProgramGenerated::buildPerPixParticleUpdate(SLMaterial* mat)
     vertCode += vertOutput_PS_tf_st;
     if (acc) vertCode += vertOutput_PS_tf_initV;
     if (rot) vertCode += vertOutput_PS_tf_r;
+    if (rot && rotRange) vertCode += vertOutput_PS_tf_r_angularVelo;
     if (FlBoTex) vertCode += vertOutput_PS_tf_texNum;
     if (shape) vertCode += vertOutput_PS_tf_initP;
+
+    if (rot) vertCode += vertConstant_PS_pi; //Add constant PI
 
     // Vertex shader main loop
     vertCode += vertMain_PS_U_Begin;
@@ -2055,9 +2079,10 @@ void SLGLProgramGenerated::buildPerPixParticleUpdate(SLMaterial* mat)
     vertCode += vertMain_PS_U_v_init_st;
     if (acc) vertCode += vertMain_PS_U_v_init_initV;
     if (rot) vertCode += vertMain_PS_U_v_init_r;
+    if (rot && rotRange) vertCode += vertMain_PS_U_v_init_r_angularVelo;
     if (FlBoTex) vertCode += vertMain_PS_U_v_init_texNum;
     if (shape) vertCode += vertMain_PS_U_v_init_initP;
-    if (rot) vertCode += vertMain_PS_U_v_r;
+    if (rot) vertCode += rotRange ? vertMain_PS_U_v_rRange : vertMain_PS_U_v_rConst;
     vertCode += vertMain_PS_U_bornDead;
     vertCode += shape ? vertMain_PS_U_reset_shape_p : vertMain_PS_U_reset_p;
     if (acc) vertCode += vertMain_PS_U_reset_v;
