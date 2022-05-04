@@ -423,7 +423,7 @@ void SLMaterial::generateProgramPS()
             outputNames.push_back("tf_position");
             outputNames.push_back("tf_velocity");
             outputNames.push_back("tf_startTime");
-            if (_ps->doAcc())
+            if (_ps->doAcc() || _ps->doGravity())
             {
                 outputNames.push_back("tf_initialVelocity");
                 countString++;

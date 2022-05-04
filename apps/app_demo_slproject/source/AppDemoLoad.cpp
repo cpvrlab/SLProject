@@ -5945,7 +5945,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
                                                      SLVec3f(0.1f, 0.5f, -2.5f),
                                                      3.5f,
                                                      texC,
-                                                     "Particle System fire2",
+                                                     "DustStorm",
                                                      texFlipbookSmoke);
         ps->doShape(true);
         ps->shapeType(1);
@@ -5967,6 +5967,54 @@ resolution shadows near the camera and lower resolution shadows further away.");
         SLNode* pSNode = new SLNode(pSMesh, "Particle system node fire2");
         pSNode->translate(3.0f, -0.8f, 0.0f, TS_object);
 
+        scene->addChild(pSNode);
+
+        // Set background color and the root scene node
+        sv->sceneViewCamera()->background().colors(SLCol4f(0.8f, 0.8f, 0.8f),
+                                                   SLCol4f(0.2f, 0.2f, 0.2f));
+
+        // pass the scene group as root node
+        s->root3D(scene);
+
+        // Save energy
+        sv->doWaitOnIdle(false);
+    }
+    else if (sceneID == SID_ParticleSystem_Fountain) //...............................................
+    {
+        // Set scene name and info string
+        s->name("Fountain particle system");
+        s->info("Create fountain effect in scene with a particle system");
+
+        // Create a scene group node
+        SLNode* scene = new SLNode("scene node");
+
+        // Create textures and materials
+        SLGLTexture* texC        = new SLGLTexture(am, texPath + "circle_05.png");
+        SLGLTexture* texFlipbook = new SLGLTexture(am, texPath + "WispySmoke03_8x8_C.png");
+        // SLGLTexture* texFlipbook = new SLGLTexture(am, texPath + "WispySmoke03b_8x8_C.png");
+        // SLGLTexture* texFlipbook = new SLGLTexture(am, texPath + "FireBall01_8x8_C.png");
+
+        // Create a light source node
+        SLLightSpot* light1 = new SLLightSpot(am, s, 0.3f);
+        light1->translation(0, -1, 2);
+        light1->name("light node");
+        scene->addChild(light1);
+
+        // Create meshes and nodes
+        SLParticleSystem* ps     = new SLParticleSystem(am,
+                                                    5000,
+                                                    SLVec3f(0, 0.5, 0),
+                                                    SLVec3f(5.0f, 15.0f, 5.0f),
+                                                    SLVec3f(-5.0f, 17.0f, -5.0f),
+                                                    5.0f,
+                                                    texC,
+                                                    "Fountain",
+                                                    texFlipbook);
+        SLMesh*           pSMesh = ps;
+        ps->doGravity(true);
+        ps->color(SLCol4f(0.0039f, 0.14f, 0.86f, 0.33f));
+        ps->doSizeOverLF(false);
+        SLNode*           pSNode = new SLNode(pSMesh, "Particle system node");
         scene->addChild(pSNode);
 
         // Set background color and the root scene node

@@ -48,8 +48,11 @@ public:
     SLbool       doRot() { return _doRot; }
     SLbool       doRotRange() { return _doRotRange; }
     SLVec3f      acc() { return _acc; }
+    SLVec3f      gravity() { return _gravity; }
     SLVec3f      vRandS() { return _vRandS; }
     SLVec3f      vRandE() { return _vRandE; }
+    SLVec3f      direction() { return _direction; }
+    SLVec3f      velocityConst() { return _velocityConst; }
     SLVec3f      scaleBox() { return _scaleBox; }
     float*       bezierControlPointAlpha() { return _bezierControlPointAlpha; }
     float*       bezierStartEndPointAlpha() { return _bezierStartEndPointAlpha; }
@@ -61,8 +64,10 @@ public:
     SLbool       doBlendingBrigh() { return _doBlendingBrigh; }
     SLfloat      angle() { return _angle; }
     SLfloat      accConst() { return _accConst; }
+    
     SLint        numBranch() { return _numBranch; }
     SLbool       doWorldSpace() { return _doWorldSpace; }
+    SLbool       doGravity() { return _doGravity; }
     SLbool       doAlphaOverL() { return _doAlphaOverL; }
     SLbool       doColorOverLF() { return _doColorOverLF; }
     SLbool       doAlphaOverLCurve() { return _doAlphaOverLCurve; }
@@ -75,12 +80,19 @@ public:
     SLint        amount() { return _amount; }
     SLint        billoardType() { return _billboardType; }
     SLint        shapeType() { return _shapeType; }
+    SLint        velocityType() { return _velocityType; }
     SLint        col() { return _col; }
     SLint        row() { return _row; }
     SLfloat      timeToLive() { return _timeToLive; }
     SLfloat      radiusW() { return _radiusW; }
     SLfloat      radiusH() { return _radiusH; }
     SLfloat      scale() { return _scale; }
+    SLfloat      radiusCone() { return _radiusCone; }
+    SLfloat      angleCone() { return _angleCone; }
+    SLfloat      heightCone() { return _heightCone; }
+    SLfloat      halfSidePyramid() { return _halfSidePyramid; }
+    SLfloat      anglePyramid() { return _anglePyramid; }
+    SLfloat      heightPyramid() { return _heightPyramid; }
     SLfloat      angularVelocityConst() { return _angularVelocityConst; }
     SLVec2f      angularVelocityRange() { return _angularVelocityRange; }
     SLfloat      radiusSphere() { return _radiusSphere; }
@@ -102,6 +114,13 @@ public:
         _acc.y = vY;
         _acc.z = vZ;
     }
+    void gravity(SLVec3f v) { _gravity = v; }
+    void gravity(SLfloat vX, SLfloat vY, SLfloat vZ)
+    {
+        _gravity.x = vX;
+        _gravity.y = vY;
+        _gravity.z = vZ;
+    }
     void vRandS(SLVec3f v) { _vRandS = v; }
     void vRandS(SLfloat vX, SLfloat vY, SLfloat vZ)
     {
@@ -115,6 +134,13 @@ public:
         _vRandE.x = vX;
         _vRandE.y = vY;
         _vRandE.z = vZ;
+    }
+    void direction(SLVec3f v) { _direction = v; }
+    void direction(SLfloat vX, SLfloat vY, SLfloat vZ)
+    {
+        _direction.x = vX;
+        _direction.y = vY;
+        _direction.z = vZ;
     }
     void scaleBox(SLVec3f v) { _scaleBox = v; }
     void scaleBox(SLfloat vX, SLfloat vY, SLfloat vZ)
@@ -157,8 +183,16 @@ public:
     void doBlendingBrigh(SLbool b) { _doBlendingBrigh = b; }
     void angle(SLfloat f) { _angle = f; }
     void accConst(SLfloat f) { _accConst = f; }
+    void velocityConst(SLVec3f v) { _velocityConst = v; }
+    void velocityConst(SLfloat vX, SLfloat vY, SLfloat vZ)
+    {
+        _velocityConst.x = vX;
+        _velocityConst.y = vY;
+        _velocityConst.z = vZ;
+    }
     void numBranch(SLint i) { _numBranch = i; }
     void doWorldSpace(SLbool b) { _doWorldSpace = b; }
+    void doGravity(SLbool b) { _doGravity = b; }
     void doAlphaOverL(SLbool b) { _doAlphaOverL = b; }
     void doColorOverLF(SLbool b) { _doColorOverLF = b; }
     void doAlphaOverLCurve(SLbool b) { _doAlphaOverLCurve = b; }
@@ -171,12 +205,19 @@ public:
     void amount(SLint i) { _amount = i; }
     void shapeType(SLint i) { _shapeType = i; }
     void billboardType(SLint i) { _billboardType = i; }
+    void velocityType(SLint i) { _velocityType = i; }
     void col(SLint i) { _col = i; }
     void row(SLint i) { _row = i; }
     void timeToLive(SLfloat f) { _timeToLive = f; }
     void radiusW(SLfloat f) { _radiusW = f; }
     void radiusH(SLfloat f) { _radiusH = f; }
     void scale(SLfloat f) { _scale = f; }
+    void radiusCone(SLfloat f) { _radiusCone = f; }
+    void angleCone(SLfloat f) { _angleCone = f; }
+    void heightCone(SLfloat f) { _heightCone = f; }
+    void    halfSidePyramid(SLfloat f) { _halfSidePyramid = f; }
+    void    anglePyramid(SLfloat f) { _anglePyramid = f; }
+    void    heightPyramid(SLfloat f) { _heightPyramid = f; }
     void    angularVelocityConst(SLfloat f) { _angularVelocityConst = f; }
     void    angularVelocityRange(SLVec2f v) { _angularVelocityRange = v; }
     void    angularVelocityRange(SLfloat vX, SLfloat vY) { 
@@ -189,58 +230,108 @@ public:
     void textureFirst(SLGLTexture* t) { _textureFirst = t; }
     void textureFlipbook(SLGLTexture* t) { _textureFlipbook = t; }
 
-protected:
-    SLfloat _timeToLive;                                                  //!< Time to live of a particle
-    SLfloat _radiusW = 0.4f;                                       //!< width radius of a particle
-    SLfloat _radiusH = 0.4f;                                       //!< height radius of a particle
-    SLfloat _scale   = 1.0f;                                       //!< Scale of a particle (Scale the radius)
-    SLfloat _angularVelocityConst = 30.0f;                          //!< Rotation rate const (change in angular rotation divide by change in time)
-    SLVec2f _angularVelocityRange = SLVec2f(-30.0f,30.0f);         //!< Rotation rate range (change in angular rotation divide by change in time)
-    SLVec3f _emitterPos;                                                //!< Position of the particle emitter
-    SLVec4f _bernsteinPYAlpha = SLVec4f(2.0f, -3.0f, 0.0f, 1.0f);  //!< Vector for bezier curve (default linear function)
-    float   _bezierControlPointAlpha[4] = {0.0f, 1.0f, 1.0f, 0.0f};          //!< Floats for bezier curve control points (P1: 01 ; P2: 23)   
-    float   _bezierStartEndPointAlpha[4] = {0.0f, 1.0f, 1.0f, 0.0f};         //!< Floats for bezier curve end start points (Start: 01 ; End: 23)
-    SLVec4f _bernsteinPYSize  = SLVec4f(-1.4f, 1.8f, 0.6f, 0.0f);  //!< Vector for bezier curve (default linear function)
-    float   _bezierControlPointSize[4]  = {0.0f, 0.0f, 1.0f, 1.0f};         //!< Floats for bezier curve control points (P1: 01 ; P2: 23)
-    float   _bezierStartEndPointSize[4] = {0.0f, 0.0f, 1.0f, 1.0f};         //!< Floats for bezier curve end start points (Start: 01 ; End: 23)
-    SLVec3f _acc             = SLVec3f(1.0f, 1.0f, 1.0f);         //!< vec for acceleration (different direction as the velocity)
-    SLfloat _accConst         = 0.0f;                              //!< Acceleration constant (same direction as the velocity)
-    SLVec3f _vRandS           = SLVec3f(0.0f, 0.0f, 0.0f);         //!< vec start for random velocity
-    SLVec3f _vRandE           = SLVec3f(1.0f, 1.0f, 1.0f);         //!< vec end for random velocity
-    SLCol4f _color           = SLCol4f(0.66f, 0.0f, 0.66f, 0.2f); //!< Color for particle
-    SLfloat _angle            = 30.0f;                             //!< Angle of branches (for doTree fractal)
-    SLint   _numBranch        = 4;                                 //!< Number of branches (for doTree fractal)
-
-    SLGLVertexArray _vao1; //!< First OpenGL Vertex Array Object for swapping between updating/drawing
-    SLGLVertexArray _vao2; //!< Second OpenGL Vertex Array Object for swapping between updating/drawing
-
 private:
+    //Function
     void    initMat(SLAssetManager* am, SLGLTexture* texC);
     SLVec3f getPointInSphere(float radius, SLVec3f randomX);
     SLVec3f getPointInBox(SLVec3f boxScale);
+    SLVec3f getPointInCone();
+    SLVec3f getPointInPyramid();
 
+    //Core value
+    SLVec3f _emitterPos;                                    //!< Position of the particle emitter
+    SLfloat _timeToLive;                                    //!< Time to live of a particle
+    SLfloat _radiusW              = 0.4f;                   //!< width radius of a particle
+    SLfloat _radiusH              = 0.4f;                   //!< height radius of a particle
+    SLfloat _scale                = 1.0f;                   //!< Scale of a particle (Scale the radius)
+    SLint   _amount;                                        //!< Amount of a particle
+
+
+    //Bezier
+    SLVec4f _bernsteinPYAlpha            = SLVec4f(2.0f, -3.0f, 0.0f, 1.0f); //!< Vector for bezier curve (default linear function)
+    float   _bezierControlPointAlpha[4]  = {0.0f, 1.0f, 1.0f, 0.0f};         //!< Floats for bezier curve control points (P1: 01 ; P2: 23)
+    float   _bezierStartEndPointAlpha[4] = {0.0f, 1.0f, 1.0f, 0.0f};         //!< Floats for bezier curve end start points (Start: 01 ; End: 23)
+    SLVec4f _bernsteinPYSize             = SLVec4f(-1.4f, 1.8f, 0.6f, 0.0f); //!< Vector for bezier curve (default linear function)
+    float   _bezierControlPointSize[4]   = {0.0f, 0.0f, 1.0f, 1.0f};         //!< Floats for bezier curve control points (P1: 01 ; P2: 23)
+    float   _bezierStartEndPointSize[4]  = {0.0f, 0.0f, 1.0f, 1.0f};         //!< Floats for bezier curve end start points (Start: 01 ; End: 23)
+
+    //Acceleration
+    SLVec3f _acc      = SLVec3f(1.0f, 1.0f, 1.0f);   //!< vec for acceleration (different direction as the velocity)
+    SLfloat _accConst = 0.0f;                        //!< Acceleration constant (same direction as the velocity)
+    SLVec3f _gravity  = SLVec3f(0.0f, -9.81f, 0.0f); //!< vec for gravity
+
+    //Velocity
+    SLVec3f _velocityConst = SLVec3f(0.0f, 1.0f, 0.0f); //!< Velocity constant (go in xyz direction)
+    SLVec3f _vRandS        = SLVec3f(0.0f, 0.0f, 0.0f); //!< vec start for random velocity
+    SLVec3f _vRandE        = SLVec3f(1.0f, 1.0f, 1.0f); //!< vec end for random velocity
+
+    //Direction (for shape)
+    SLVec3f _direction  = SLVec3f(0.0f, 1.0f, 0.0f); //!< Direction of particle
+    SLfloat _speed      = 1.0f;                      //!< Speed of particle
+    SLVec2f _speedRange = SLVec2f(0.0f, 1.0f);       //!< Speed random betwen two value
+
+    //Color
+    SLCol4f _color = SLCol4f(0.66f, 0.0f, 0.66f, 0.2f); //!< Color for particle
+    SLfloat _colorArr[256 * 3];                         //!< Color values of color gradient widget
+
+    //Tree
+    SLfloat _angle     = 30.0f; //!< Angle of branches (for doTree fractal)
+    SLint   _numBranch = 4;     //!< Number of branches (for doTree fractal)
+
+    //Int (but boolean) to switch buffer
     int          _drawBuf      = 0;         //!< Boolean to switch buffer
+
+    //Flipbook
     int          _frameRateFB  = 16;        //!< Number of update of flipbook by second
     float        _lastUpdateFB = 0.0f;      //!< Last time flipbook was updated
+    SLint        _col          = 8;         //!< Number of texture by column
+    SLint        _row          = 8;         //!< Number of texture by row
+
+    //Statistics
     AvgFloat     _updateTime;               //!< Averaged time for updating in MS
-    SLint        _col = 8;                  //!< Number of texture by column
-    SLint        _row = 8;                  //!< Number of texture by row
-    SLint        _amount;                   //!< Amount of a particle
-    SLfloat      _colorArr[256 * 3];        //!< Color values of color gradient widget
     SLfloat      _startUpdateTimeMS = 0.0f; //!< Time since start for updating in MS
     SLfloat      _startUpdateTimeS  = 0.0f; //!< Time since start for updating in S
     SLfloat      _deltaTimeUpdateS  = 0.0f; //!< Time since start for updating in S
+
+    //For resume after frstrumCulling
     SLfloat      _notVisibleTimeS   = 0.0f; //!< Time since start when node not visible in S
-    SLfloat      _radiusSphere      = 1.0f; //!< Radius of sphere "Shape -> sphere"
-    SLVec3f      _scaleBox = SLVec3f(1.0f); //!< Scale of box edges "Shape -> box"
+
+    //Shape
+        //Sphere
+        SLfloat      _radiusSphere      = 1.0f; //!< Radius of sphere "Shape -> sphere"
+        //Box
+        SLVec3f      _scaleBox = SLVec3f(1.0f); //!< Scale of box edges "Shape -> box"
+        //Cone       
+        SLfloat             _radiusCone = 2.0f; //!< Radius of base cone "Shape -> cone"
+        SLfloat             _heightCone = 3.0f; //!< Height of cone "Shape -> cone"
+        SLfloat             _angleCone = 10.0f; //!< Angle of cone "Shape -> cone"
+        //Pyramid
+        SLfloat             _halfSidePyramid = 2.0f; //!< Width of pyramid "Shape -> pyramid"
+        SLfloat             _heightPyramid = 3.0f; //!< Height of pyramid "Shape -> pyramid"
+        SLfloat             _anglePyramid = 10.0f; //!< Angle of pyramid "Shape -> pyramid"
+
+    //Rotation
+    SLfloat _angularVelocityConst = 30.0f;                  //!< Rotation rate const (change in angular rotation divide by change in time)
+    SLVec2f _angularVelocityRange = SLVec2f(-30.0f, 30.0f); //!< Rotation rate range (change in angular rotation divide by change in time)
+    
+    //Type of selected feature
+    SLint  _billboardType       = 0;    //!< Billboard type
+    SLint  _shapeType           = 0;    //!< Shape type
+    SLint  _velocityType        = 0;    //!< Velocity type
+
+    //Textures
     SLGLTexture* _textureFirst;
     SLGLTexture* _textureFlipbook;
 
-    SLbool _isViFrustrumCulling = true; //!< Boolean to set time since node, not visible
-    SLbool _isGenerated          = false;//!< Boolean to generate particle system and load it on the GPU
-    SLint  _billboardType       = 0;    //!< Billboard type
-    SLint  _shapeType           = 0;    //!< Shape type
+    //VAOs
+    SLGLVertexArray _vao1; //!< First OpenGL Vertex Array Object for swapping between updating/drawing
+    SLGLVertexArray _vao2; //!< Second OpenGL Vertex Array Object for swapping between updating/drawing
 
+    //Boolean for generation/resume
+    SLbool _isViFrustrumCulling = true;  //!< Boolean to set time since node, not visible
+    SLbool _isGenerated         = false; //!< Boolean to generate particle system and load it on the GPU
+
+    //Boolean for features
     SLbool _doBlendingBrigh    = false; //!< Blending for glow/brightness on pixel with many particle
     SLbool _doTree             = false; //!< Boolean for doTree fractal
     SLbool _doAcc              = false; //!< Boolean for acceleration
@@ -250,6 +341,7 @@ private:
     SLbool _doColor            = true;  //!< Boolean for color
     SLbool _doShape            = false; //!< Boolean for shape feature
     SLbool _doWorldSpace       = false; //!< Boolean for world space position
+    SLbool _doGravity          = false; //!< Boolean for gravity
     SLbool _doAlphaOverL      = true;  //!< Boolean for alpha over life time
     SLbool _doColorOverLF      = false; //!< Boolean for color over life time
     SLbool _doAlphaOverLCurve = false; //!< Boolean for alpha over life time curve

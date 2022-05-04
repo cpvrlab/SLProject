@@ -191,6 +191,7 @@ enum SLSceneID
     SID_ParticleSystem_FireEffects,
     SID_ParticleSystem_Demo,
     SID_ParticleSystem_DustStorm,
+    SID_ParticleSystem_Fountain,
 
     SID_Maximal
 };

@@ -1958,6 +1958,8 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                         s->onLoad(am, s, sv, SID_ParticleSystem_Demo);
                     if (ImGui::MenuItem("Dust storm effect for particle system", nullptr, sid == SID_ParticleSystem_DustStorm))
                         s->onLoad(am, s, sv, SID_ParticleSystem_DustStorm);
+                    if (ImGui::MenuItem("Fountain effect for particle system", nullptr, sid == SID_ParticleSystem_Fountain))
+                        s->onLoad(am, s, sv, SID_ParticleSystem_Fountain);
                     ImGui::EndMenu();
                 }
                 ImGui::EndMenu();
@@ -3802,6 +3804,26 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                             SLbool doWorldSpace = ps->doWorldSpace();
                             if (ImGui::Checkbox("World space", &doWorldSpace))
                                 ps->doWorldSpace(doWorldSpace);
+                            // Gravity
+                            SLbool doGravity = ps->doGravity();
+                            if (ImGui::Checkbox("Gravity", &doGravity)) {
+                                ps->doGravity(doGravity);
+                                m->programTF(nullptr);
+                                ps->isGenerated(false);
+                                singleNode->needAABBUpdate();
+                            }
+                            if (ImGui::CollapsingHeader("Gravity", &doGravity))
+                            {
+                                ImGui::Indent();
+                                float vec3Gravity[3] = {ps->gravity().x, ps->gravity().y, ps->gravity().z};
+                                if (ImGui::InputFloat3("Gravity XYZ", vec3Gravity))
+                                {
+                                    ps->gravity(vec3Gravity[0], vec3Gravity[1], vec3Gravity[2]);
+                                    singleNode->needAABBUpdate();
+                                }
+                                ImGui::Unindent();
+                            }
+                                
                             // Billboard
                             int item_current = ps->billoardType();
                             if (ImGui::Combo("Billboard type", &item_current, "Billboard\0Vertical billboard\0")) {
@@ -3809,23 +3831,42 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                 m->program(nullptr);
                             }
                             // Velocity
-                            if (ImGui::CollapsingHeader("Random velocity"))
+                            if (ImGui::CollapsingHeader("Velocity"))
                             {
                                 ImGui::Indent();
-                                float vec3fVstart[3] = {ps->vRandS().x, ps->vRandS().y, ps->vRandS().z};
-                                if (ImGui::InputFloat3("Start range XYZ", vec3fVstart)) 
+                                int item_current = ps->velocityType();
+                                if (ImGui::Combo("Velocity type", &item_current, "Random axes\0Constant axes\0"))
                                 {
-                                    ps->vRandS(vec3fVstart[0], vec3fVstart[1], vec3fVstart[2]);
+                                    ps->velocityType(item_current);
                                     ps->isGenerated(false);
                                     singleNode->needAABBUpdate();
-                                    
                                 }
-                                float vec3fVend[3] = {ps->vRandE().x, ps->vRandE().y, ps->vRandE().z};
-                                if (ImGui::InputFloat3("End range XYZ", vec3fVend)) 
+                                if (item_current == 0)
                                 {
-                                    ps->vRandE(vec3fVend[0], vec3fVend[1], vec3fVend[2]);
-                                    ps->isGenerated(false);
-                                    singleNode->needAABBUpdate();
+                                    float vec3fVstart[3] = {ps->vRandS().x, ps->vRandS().y, ps->vRandS().z};
+                                    if (ImGui::InputFloat3("Start range XYZ", vec3fVstart))
+                                    {
+                                        ps->vRandS(vec3fVstart[0], vec3fVstart[1], vec3fVstart[2]);
+                                        ps->isGenerated(false);
+                                        singleNode->needAABBUpdate();
+                                    }
+                                    float vec3fVend[3] = {ps->vRandE().x, ps->vRandE().y, ps->vRandE().z};
+                                    if (ImGui::InputFloat3("End range XYZ", vec3fVend))
+                                    {
+                                        ps->vRandE(vec3fVend[0], vec3fVend[1], vec3fVend[2]);
+                                        ps->isGenerated(false);
+                                        singleNode->needAABBUpdate();
+                                    }
+                                }
+                                else if (item_current == 1)
+                                {
+                                    float vec3fVelocity[3] = {ps->velocityConst().x, ps->velocityConst().y, ps->velocityConst().z};
+                                    if (ImGui::InputFloat3("Constant XYZ", vec3fVelocity))
+                                    {
+                                        ps->velocityConst(vec3fVelocity[0], vec3fVelocity[1], vec3fVelocity[2]);
+                                        ps->isGenerated(false);
+                                        singleNode->needAABBUpdate();
+                                    }
                                 }
                                 ImGui::Unindent();
                             }
@@ -3962,7 +4003,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                             if (ImGui::CollapsingHeader("Shape", &shape_group))
                             {
                                 int item_current = ps->shapeType();
-                                if (ImGui::Combo("Shape type", &item_current, "Sphere\0Box\0"))
+                                if (ImGui::Combo("Shape type", &item_current, "Sphere\0Box\0Cone\0Pyramid\0"))
                                 {
                                     ps->shapeType(item_current);
                                     m->programTF(nullptr);
@@ -3983,6 +4024,48 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                     if (ImGui::InputFloat3("Scale box XYZ", vec3fScaleBox))
                                     {
                                         ps->scaleBox(vec3fScaleBox[0], vec3fScaleBox[1], vec3fScaleBox[2]);
+                                        ps->isGenerated(false);
+                                    }
+                                }
+                                if (item_current == 2)
+                                {
+                                    float radius = ps->radiusCone();
+                                    if (ImGui::InputFloat("Radius", &radius))
+                                    {
+                                        ps->radiusCone(radius);
+                                        ps->isGenerated(false);
+                                    }
+                                    float angle = ps->angleCone();
+                                    if (ImGui::InputFloat("Angle", &angle))
+                                    {
+                                        ps->angle(angle);
+                                        ps->isGenerated(false);
+                                    }
+                                    float height = ps->heightCone();
+                                    if (ImGui::InputFloat("Height", &height))
+                                    {
+                                        ps->heightCone(height);
+                                        ps->isGenerated(false);
+                                    }
+                                }
+                                if (item_current == 3)
+                                {
+                                    float halfSide = ps->halfSidePyramid();
+                                    if (ImGui::InputFloat("Half side", &halfSide))
+                                    {
+                                        ps->halfSidePyramid(halfSide);
+                                        ps->isGenerated(false);
+                                    }
+                                    float angle = ps->anglePyramid();
+                                    if (ImGui::InputFloat("Angle", &angle))
+                                    {
+                                        ps->anglePyramid(angle);
+                                        ps->isGenerated(false);
+                                    }
+                                    float height = ps->heightPyramid();
+                                    if (ImGui::InputFloat("Height", &height))
+                                    {
+                                        ps->heightPyramid(height);
                                         ps->isGenerated(false);
                                     }
                                 }

@@ -92,6 +92,8 @@ const string vertInput_PS_u_a_const     = R"(
 uniform float u_accConst;    // Particle acceleration constant)";
 const string vertInput_PS_u_a_diffDir              = R"(
 uniform vec3 u_acceleration;    // Particle acceleration)";
+const string vertInput_PS_u_g      = R"(
+uniform vec3 u_gravity;    // Particle gravity)";
 const string vertInput_PS_u_angularVelo = R"(
 uniform float u_angularVelo;    // Particle angular velocity)";
 const string vertInput_PS_u_col         = R"(
@@ -307,6 +309,9 @@ const string vertMain_PS_U_alive_a_const             = R"(
                     tf_velocity += tf_velocity * u_deltaTime * u_accConst;  // Amplify the velocity)";              
 const string vertMain_PS_U_alive_a_diffDir                       = R"(
                     tf_velocity += u_deltaTime * u_acceleration;  // Amplify the velocity)";
+const string vertMain_PS_U_alive_g                             = R"(
+                    tf_velocity += u_deltaTime * u_gravity;  // Apply gravity)";
+
 const string vertMain_PS_U_alive_texNum                  = R"(
                     if(u_condFB == 1){
                         tf_texNum++;  // Increment to draw next texture (flipbook)
@@ -1568,6 +1573,7 @@ void SLGLProgramGenerated::buildProgramNamePS(SLMaterial* mat,
     {
         bool acc = mat->ps()->doAcc(); // Acceleration
         bool accDiffDir = mat->ps()->doAccDiffDir();      // Acceleration different direction
+        bool gravity        = mat->ps()->doGravity();     // Gravity
         bool FlBoTex = mat->ps()->doFlipBookTexture(); // Flipbook texture
         bool rot = mat->ps()->doRot(); // Rotation
         bool rotRange   = mat->ps()->doRotRange();        // Rotation range
@@ -1580,6 +1586,7 @@ void SLGLProgramGenerated::buildProgramNamePS(SLMaterial* mat,
             programName += "-AC";
             programName += accDiffDir ? "di" : "co";
         }
+        if (gravity) programName += "-GR";
         if (FlBoTex) programName += "-FB";
         if (shape) programName += "-SH";
     }
@@ -2030,6 +2037,7 @@ void SLGLProgramGenerated::buildPerPixParticleUpdate(SLMaterial* mat)
 
     bool acc = mat->ps()->doAcc(); // Acceleration
     bool accDiffDir = mat->ps()->doAccDiffDir();      // Acceleration different direction
+    bool gravity    = mat->ps()->doGravity();         // Gravity
     bool FlBoTex = mat->ps()->doFlipBookTexture();    // Flipbook texture
     bool rot     = mat->ps()->doRot();                // Rotation
     bool rotRange   = mat->ps()->doRotRange();        // Rotation range
@@ -2042,7 +2050,7 @@ void SLGLProgramGenerated::buildPerPixParticleUpdate(SLMaterial* mat)
     vertCode += vertInput_PS_a_p;
     vertCode += vertInput_PS_a_v;
     vertCode += vertInput_PS_a_st;
-    if (acc) vertCode += vertInput_PS_a_initV;
+    if (acc || gravity) vertCode += vertInput_PS_a_initV;
     if (rot) vertCode += vertInput_PS_a_r;
     if (rot && rotRange) vertCode += vertInput_PS_a_r_angularVelo;
     if (FlBoTex) vertCode += vertInput_PS_a_texNum;
@@ -2055,6 +2063,7 @@ void SLGLProgramGenerated::buildPerPixParticleUpdate(SLMaterial* mat)
     vertCode += vertInput_PS_u_pgPos;
     if (rot && !rotRange) vertCode += vertInput_PS_u_angularVelo;
     if (acc) vertCode += accDiffDir ? vertInput_PS_u_a_diffDir : vertInput_PS_u_a_const;
+    if (gravity) vertCode += vertInput_PS_u_g;
     if (FlBoTex) vertCode += vertInput_PS_u_col;
     if (FlBoTex) vertCode += vertInput_PS_u_row;
     if (FlBoTex) vertCode += vertInput_PS_u_condFB;
@@ -2064,7 +2073,7 @@ void SLGLProgramGenerated::buildPerPixParticleUpdate(SLMaterial* mat)
     vertCode += vertOutput_PS_tf_p;
     vertCode += vertOutput_PS_tf_v;
     vertCode += vertOutput_PS_tf_st;
-    if (acc) vertCode += vertOutput_PS_tf_initV;
+    if (acc || gravity) vertCode += vertOutput_PS_tf_initV;
     if (rot) vertCode += vertOutput_PS_tf_r;
     if (rot && rotRange) vertCode += vertOutput_PS_tf_r_angularVelo;
     if (FlBoTex) vertCode += vertOutput_PS_tf_texNum;
@@ -2077,7 +2086,7 @@ void SLGLProgramGenerated::buildPerPixParticleUpdate(SLMaterial* mat)
     vertCode += vertMain_PS_U_v_init_p;
     vertCode += vertMain_PS_U_v_init_v;
     vertCode += vertMain_PS_U_v_init_st;
-    if (acc) vertCode += vertMain_PS_U_v_init_initV;
+    if (acc || gravity) vertCode += vertMain_PS_U_v_init_initV;
     if (rot) vertCode += vertMain_PS_U_v_init_r;
     if (rot && rotRange) vertCode += vertMain_PS_U_v_init_r_angularVelo;
     if (FlBoTex) vertCode += vertMain_PS_U_v_init_texNum;
@@ -2085,11 +2094,12 @@ void SLGLProgramGenerated::buildPerPixParticleUpdate(SLMaterial* mat)
     if (rot) vertCode += rotRange ? vertMain_PS_U_v_rRange : vertMain_PS_U_v_rConst;
     vertCode += vertMain_PS_U_bornDead;
     vertCode += shape ? vertMain_PS_U_reset_shape_p : vertMain_PS_U_reset_p;
-    if (acc) vertCode += vertMain_PS_U_reset_v;
+    if (acc || gravity) vertCode += vertMain_PS_U_reset_v;
     vertCode += vertMain_PS_U_reset_st;
     vertCode += vertMain_PS_U_alive_p;
     if (FlBoTex) vertCode += vertMain_PS_U_alive_texNum;
     if (acc) vertCode += accDiffDir ? vertMain_PS_U_alive_a_diffDir : vertMain_PS_U_alive_a_const;
+    if (gravity) vertCode += vertMain_PS_U_alive_g;
     vertCode += vertMain_PS_U_EndAll;
 
     addCodeToShader(_shaders[0], vertCode, _name + ".vert");

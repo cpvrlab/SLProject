@@ -86,6 +86,28 @@ SLVec3f SLParticleSystem::getPointInBox(SLVec3f boxScale)
     return SLVec3f(x, y, z);
 }
 //-----------------------------------------------------------------------------
+SLVec3f SLParticleSystem::getPointInCone()
+{
+    float y = random(0.0f, _heightCone); //NEED TO HAVE MORE value near 1 when we have smaller base that top
+    float radius = _radiusCone + tan(_angleCone) * y;
+    float r      = radius * sqrt(random(0.0f, 1.0f));
+    float theta        = random(0.0f, 1.0f) * 2 * PI;
+    float x            = r * cos(theta);
+    float z            = r * sin(theta);
+
+    return SLVec3f(x, y, z);
+}
+//-----------------------------------------------------------------------------
+SLVec3f SLParticleSystem::getPointInPyramid()
+{
+    float y      = random(0.0f, _heightPyramid);
+    float radius = _halfSidePyramid + tan(_anglePyramid) * y;
+    float x      = random(-radius, radius);
+    float z      = random(-radius, radius);
+
+    return SLVec3f(x, y, z);
+}
+//-----------------------------------------------------------------------------
 void SLParticleSystem::generate()
 {
     unsigned                   seed = chrono::system_clock::now().time_since_epoch().count();
@@ -104,7 +126,7 @@ void SLParticleSystem::generate()
     tempP.resize(_amount);
     tempV.resize(_amount);
     tempST.resize(_amount);
-    if (_doAcc)
+    if (_doAcc || _doGravity)
         tempInitV.resize(_amount);
     if (_doRot)
         tempR.resize(_amount);
@@ -123,13 +145,28 @@ void SLParticleSystem::generate()
             tempP[i] = getPointInSphere(_radiusSphere, SLVec3f(distribution(generator), distribution(generator), distribution(generator)));
         else if (_doShape && _shapeType == 1)
             tempP[i] = getPointInBox(_scaleBox);
+        else if (_doShape && _shapeType == 2)
+            tempP[i] = getPointInCone();
+        else if (_doShape && _shapeType == 3)
+            tempP[i] = getPointInPyramid();
         else
             tempP[i] = _emitterPos;
-        tempV[i].x = random(_vRandS.x, _vRandE.x);                  // Random value for x velocity
-        tempV[i].y = random(_vRandS.y, _vRandE.y);                         // Random value for y velocity
-        tempV[i].z = random(_vRandS.z, _vRandE.z);                  // Random value for z velocity
+        if (_velocityType == 0)
+        {
+            tempV[i].x = random(_vRandS.x, _vRandE.x); // Random value for x velocity
+            tempV[i].y = random(_vRandS.y, _vRandE.y); // Random value for y velocity
+            tempV[i].z = random(_vRandS.z, _vRandE.z); // Random value for z velocity
+        }
+        else if (_velocityType == 1)
+        {
+            tempV[i].x = _velocityConst.x;             // Constant value for x velocity
+            tempV[i].y = _velocityConst.y;               // Constant value for y velocity
+            tempV[i].z = _velocityConst.z;               // Constant value for z velocity
+        }
+
+
         tempST[i]  = GlobalTimer::timeS() + (i * (_timeToLive / _amount)); // When the first particle dies the last one begin to live
-        if (_doAcc)
+        if (_doAcc || _doGravity)
             tempInitV[i] = tempV[i];
         if (_doRot)
             tempR[i] = random(0.0f * DEG2RAD, 360.0f * DEG2RAD); // Start rotation of the particle
@@ -148,7 +185,7 @@ void SLParticleSystem::generate()
     _vao1.setAttrib(AT_position, AT_position, &tempP);
     _vao1.setAttrib(AT_velocity, AT_velocity, &tempV);
     _vao1.setAttrib(AT_startTime, AT_startTime, &tempST);
-    if (_doAcc)
+    if (_doAcc || _doGravity)
         _vao1.setAttrib(AT_initialVelocity, AT_initialVelocity, &tempInitV);
     if (_doRot)
         _vao1.setAttrib(AT_rotation, AT_rotation, &tempR);
@@ -163,7 +200,7 @@ void SLParticleSystem::generate()
     _vao2.setAttrib(AT_position, AT_position, &tempP);
     _vao2.setAttrib(AT_velocity, AT_velocity, &tempV);
     _vao2.setAttrib(AT_startTime, AT_startTime, &tempST);
-    if (_doAcc)
+    if (_doAcc || _doGravity)
         _vao2.setAttrib(AT_initialVelocity, AT_initialVelocity, &tempInitV);
     if (_doRot)
         _vao2.setAttrib(AT_rotation, AT_rotation, &tempR);
@@ -277,12 +314,14 @@ void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
         _isViFrustrumCulling = true;
         sp->uniform1f("u_difTime", GlobalTimer::timeS() - _notVisibleTimeS);
         sp->uniform1f("u_deltaTime", _deltaTimeUpdateS); // Last delta time, maybe add later average deltatime (because maybe bug when fast not visible long time, visible, not visible, visisble
+        _notVisibleTimeS = 0.0f;
     }
     else
     {
         sp->uniform1f("u_difTime", 0.0f);
         sp->uniform1f("u_deltaTime", GlobalTimer::timeS() - _startUpdateTimeS);
     }
+    //sp->uniform1f("u_deltaTime", GlobalTimer::timeS() - _startUpdateTimeS);
 
     // Calculate the elapsed time for the updating
     _deltaTimeUpdateS = GlobalTimer::timeS() - _startUpdateTimeS;
@@ -297,6 +336,8 @@ void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
         else
             sp->uniform1f("u_accConst", _accConst);
     }
+    if (_doGravity)
+        sp->uniform3f("u_gravity", _gravity.x, _gravity.y, _gravity.z);
 
     sp->uniform1f("u_tTL", _timeToLive);
 
@@ -456,65 +497,97 @@ void SLParticleSystem::buildAABB(SLAABBox& aabb, const SLMat4f& wmNode)
     float rW = _radiusW * _scale;
     float rH = _radiusH * _scale;
 
+    minP = SLVec3f();
+    maxP = SLVec3f();
+
+    SLVec3f minV = SLVec3f();
+    SLVec3f maxV = SLVec3f();
+
     // Here calculate minP maxP
-    if (_doAcc)
+    if (_doAcc || _doGravity)
     {
-        minP = SLVec3f();
-        maxP = SLVec3f();
-        // Decide which one is the minP and maxP
-        if (_vRandS.x < _vRandE.x)
-        {
-            maxP.x = _vRandE.x;
-            minP.x = _vRandS.x;
-        }
-        else
-        {
-            maxP.x = _vRandS.x;
-            minP.x = _vRandE.x;
-        }
-        if (_vRandS.y < _vRandE.y)
-        {
-            maxP.y = _vRandE.y;
-            minP.y = 0;
-        }
-        else
-        {
-            maxP.y = _vRandS.y;
-            minP.y = 0;
-        }
-        if (_vRandS.z < _vRandE.z)
-        {
-            maxP.z = _vRandE.z;
-            minP.z = _vRandS.z;
-        }
-        else
-        {
-            maxP.z = _vRandS.z;
-            minP.z = _vRandE.z;
-        }
 
-        // Inverse if acceleration is negative
-        if (_acc.x < 0.0)
+        // Decide which one is the minV and maxV
+        if (_velocityType == 0)
         {
-            float temp = minP.x;
-            minP.x     = maxP.x;
-            maxP.x     = temp;
-        }
-        if (_acc.y < 0.0)
-        {
-            float temp = minP.y;
-            minP.y     = maxP.y;
-            maxP.y     = temp;
-        }
-        if (_acc.z < 0.0)
-        {
-            float temp = minP.z;
-            minP.z     = maxP.z;
-            maxP.z     = temp;
-        }
+            if (_vRandS.x < _vRandE.x)
+            {
+                maxV.x = _vRandE.x;
+                minV.x = _vRandS.x;
+            }
+            else
+            {
+                maxV.x = _vRandS.x;
+                minV.x = _vRandE.x;
+            }
+            if (_vRandS.y < _vRandE.y)
+            {
+                maxV.y = _vRandE.y;
+                minV.y = 0;
+            }
+            else
+            {
+                maxV.y = _vRandS.y;
+                minV.y = 0;
+            }
+            if (_vRandS.z < _vRandE.z)
+            {
+                maxV.z = _vRandE.z;
+                minV.z = _vRandS.z;
+            }
+            else
+            {
+                maxV.z = _vRandS.z;
+                minV.z = _vRandE.z;
+            }
 
-        minP = minP * _timeToLive;
-        maxP = maxP * _timeToLive; // Apply velocity distance after time
+            // Inverse if acceleration is negative
+            if (_acc.x < 0.0)
+            {
+                float temp = minV.x;
+                minV.x     = maxV.x;
+                maxV.x     = temp;
+            }
+            if (_acc.y < 0.0)
+            {
+                float temp = minV.y;
+                minV.y     = maxV.y;
+                maxV.y     = temp;
+            }
+            if (_acc.z < 0.0)
+            {
+                float temp = minV.z;
+                minV.z     = maxV.z;
+                maxV.z     = temp;
+            }
+        }
+        else
+        {
+            minV = SLVec3f(_velocityConst.x, 0.0, _velocityConst.z);
+            maxV = SLVec3f(0.0, _velocityConst.y, 0.0);
+        }
+        //??? Time to have a velocity of 0
+        float timeForXGrav = maxV.x / _gravity.x;
+        float timeForYGrav = maxV.y / _gravity.y;
+        float timeForZGrav = maxV.z / _gravity.z;
+        if (_doGravity)
+        {
+            minP.x += maxV.x * timeForXGrav;
+            minP.y += maxV.y * timeForYGrav;
+            minP.z += maxV.z * timeForZGrav;
+            float xTimeRemaining = _timeToLive - timeForXGrav;
+            float yTimeRemaining = _timeToLive - timeForYGrav;
+            float zTimeRemaining = _timeToLive - timeForZGrav;
+            maxP.x += 0.5f * _gravity.x * (xTimeRemaining * xTimeRemaining);
+            maxP.y += 0.5f * _gravity.y * (yTimeRemaining * yTimeRemaining);
+            maxP.z += 0.5f * _gravity.z * (zTimeRemaining * zTimeRemaining);
+
+            //maxP += 0.5f * _gravity * (_timeToLive * _timeToLive); // Apply acceleration after time
+        }
+        //maxP == 0
+
+        minP += minV * _timeToLive;
+        maxP += maxV * _timeToLive; // Apply velocity distance after time
         if (_doAccDiffDir)
         {
             maxP += 0.5f * _acc * (_timeToLive * _timeToLive); // Apply acceleration after time
@@ -524,11 +597,20 @@ void SLParticleSystem::buildAABB(SLAABBox& aabb, const SLMat4f& wmNode)
             // minP += 0.5f * _accConst * (_timeToLive * _timeToLive); //Apply constant acceleration
             maxP += 0.5f * _accConst * (_timeToLive * _timeToLive); // Apply constant acceleration
         }
+        
     }
     else
     {
-        minP = SLVec3f(_vRandS.x, 0.0, _vRandS.z) * _timeToLive; // Apply velocity distance after time
-        maxP = _vRandE * _timeToLive;                            // Apply velocity distance after time
+        if (_velocityType == 0)
+        {
+            minP = SLVec3f(_vRandS.x, 0.0, _vRandS.z) * _timeToLive; // Apply velocity distance after time
+            maxP = _vRandE * _timeToLive;                            // Apply velocity distance after time
+        }
+        else
+        {
+            minP = SLVec3f(_velocityConst.x, 0.0, _velocityConst.z) * _timeToLive; // Apply velocity distance after time
+            maxP = SLVec3f(0.0, _velocityConst.y, 0.0) * _timeToLive;              // Apply velocity distance after time
+        }
     }
 
     // Add size particle
