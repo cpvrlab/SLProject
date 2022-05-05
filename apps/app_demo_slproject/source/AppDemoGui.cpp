@@ -1956,10 +1956,12 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                         s->onLoad(am, s, sv, SID_ParticleSystem_FireEffects);
                     if (ImGui::MenuItem("Scene demo for particle system", nullptr, sid == SID_ParticleSystem_Demo))
                         s->onLoad(am, s, sv, SID_ParticleSystem_Demo);
-                    if (ImGui::MenuItem("Dust storm effect for particle system", nullptr, sid == SID_ParticleSystem_DustStorm))
+                    if (ImGui::MenuItem("Dust storm effect particle system", nullptr, sid == SID_ParticleSystem_DustStorm))
                         s->onLoad(am, s, sv, SID_ParticleSystem_DustStorm);
-                    if (ImGui::MenuItem("Fountain effect for particle system", nullptr, sid == SID_ParticleSystem_Fountain))
+                    if (ImGui::MenuItem("Fountain effect particle system", nullptr, sid == SID_ParticleSystem_Fountain))
                         s->onLoad(am, s, sv, SID_ParticleSystem_Fountain);
+                    if (ImGui::MenuItem("Sun effect particle system", nullptr, sid == SID_ParticleSystem_Sun))
+                        s->onLoad(am, s, sv, SID_ParticleSystem_Sun);
                     ImGui::EndMenu();
                 }
                 ImGui::EndMenu();
@@ -3996,6 +3998,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                 ps->doShape(shape_group);
                                 m->programTF(nullptr);
                                 ps->isGenerated(false);
+                                singleNode->needAABBUpdate();
                                 //mOut->updateProgramPS(); // Change or generate new program
                                 //singleNode->needAABBUpdate();
                                 //ps->regenerate();
@@ -4008,6 +4011,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                     ps->shapeType(item_current);
                                     m->programTF(nullptr);
                                     ps->isGenerated(false);
+                                    singleNode->needAABBUpdate();
                                 }
                                 if (item_current == 0)
                                 {
@@ -4016,6 +4020,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                     {
                                         ps->radiusSphere(radiusSphere);
                                         ps->isGenerated(false);
+                                        singleNode->needAABBUpdate();
                                     }
                                 }
                                 if (item_current == 1)
@@ -4025,6 +4030,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                     {
                                         ps->scaleBox(vec3fScaleBox[0], vec3fScaleBox[1], vec3fScaleBox[2]);
                                         ps->isGenerated(false);
+                                        singleNode->needAABBUpdate();
                                     }
                                 }
                                 if (item_current == 2)
@@ -4034,18 +4040,21 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                     {
                                         ps->radiusCone(radius);
                                         ps->isGenerated(false);
+                                        singleNode->needAABBUpdate();
                                     }
                                     float angle = ps->angleCone();
                                     if (ImGui::InputFloat("Angle", &angle))
                                     {
                                         ps->angle(angle);
                                         ps->isGenerated(false);
+                                        singleNode->needAABBUpdate();
                                     }
                                     float height = ps->heightCone();
                                     if (ImGui::InputFloat("Height", &height))
                                     {
                                         ps->heightCone(height);
                                         ps->isGenerated(false);
+                                        singleNode->needAABBUpdate();
                                     }
                                 }
                                 if (item_current == 3)
@@ -4055,18 +4064,21 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                     {
                                         ps->halfSidePyramid(halfSide);
                                         ps->isGenerated(false);
+                                        singleNode->needAABBUpdate();
                                     }
                                     float angle = ps->anglePyramid();
                                     if (ImGui::InputFloat("Angle", &angle))
                                     {
                                         ps->anglePyramid(angle);
                                         ps->isGenerated(false);
+                                        singleNode->needAABBUpdate();
                                     }
                                     float height = ps->heightPyramid();
                                     if (ImGui::InputFloat("Height", &height))
                                     {
                                         ps->heightPyramid(height);
                                         ps->isGenerated(false);
+                                        singleNode->needAABBUpdate();
                                     }
                                 }
                             }

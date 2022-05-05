@@ -40,23 +40,23 @@ SLParticleSystem::SLParticleSystem(SLAssetManager* assetMgr,
     _vRandS = velocityRandomStart;
     _vRandE = velocityRandomEnd;
 
-    P.resize(_amount);
+    P.resize(1); // To trick parent class
 
     emitterPos(particleEmiPos);
 
     _textureFirst    = texC;
     _textureFlipbook = texFlipbook;
-    initMat(assetMgr, texC);
+
+    // Initialize the drawing:
+    SLMaterial* mDraw = new SLMaterial(assetMgr, "Drawing-Material", this, texC);
+    mat(mDraw);
 
     _updateTime.init(60, 0.0f);
 }
 //-----------------------------------------------------------------------------
 void SLParticleSystem::initMat(SLAssetManager* am, SLGLTexture* texC)
 {
-    // Initialize the drawing:
-    SLMaterial* mDraw = new SLMaterial(am, "Drawing-Material", this, texC);
-
-    mat(mDraw);
+    
 }
 //-----------------------------------------------------------------------------
 SLVec3f SLParticleSystem::getPointInSphere(float radius, SLVec3f randomXs)
@@ -71,7 +71,7 @@ SLVec3f SLParticleSystem::getPointInSphere(float radius, SLVec3f randomXs)
     x2 /= mag;
     x3 /= mag;
 
-    // Math.cbrt is cube root
+    // Math.cbrt is cube root // Without only surface
     float c = cbrt(u);
 
     return SLVec3f(x1 * c, x2 * c, x3 * c);
@@ -491,6 +491,7 @@ void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
     _drawBuf = 1 - _drawBuf;
 }
 //-----------------------------------------------------------------------------
+//NEEEEED TO BE ENHANCE AND CLEAN
 void SLParticleSystem::buildAABB(SLAABBox& aabb, const SLMat4f& wmNode)
 {
     // Radius of particle
@@ -502,6 +503,33 @@ void SLParticleSystem::buildAABB(SLAABBox& aabb, const SLMat4f& wmNode)
 
     SLVec3f minV = SLVec3f();
     SLVec3f maxV = SLVec3f();
+
+    //Shape
+    if (_doShape) {
+        if (_shapeType == 0) {
+            float radius = cbrt(_radiusSphere);
+            minP         = SLVec3f(-radius, -radius, -radius);
+            maxP         = SLVec3f(radius, radius, radius);
+        }
+        if (_shapeType == 1)
+        {
+            minP = SLVec3f(-_scaleBox.x, -_scaleBox.y, -_scaleBox.z);
+            maxP = _scaleBox;
+        }
+        if (_shapeType == 2)
+        {
+            float radius = _radiusCone + tan(_angleCone) * _heightCone;
+            minP         = SLVec3f(-radius, -0.0, -radius);
+            maxP         = SLVec3f(radius, _heightCone, radius);
+        }
+        if (_shapeType == 3)
+        {
+           
+            float radius = _halfSidePyramid + tan(_anglePyramid) * _heightPyramid;
+            minP  = SLVec3f(-radius, -0.0, -radius);
+            maxP  = SLVec3f(radius, _heightPyramid, radius);
+        }
+    }
 
     // Here calculate minP maxP
     if (_doAcc || _doGravity)
@@ -566,28 +594,44 @@ void SLParticleSystem::buildAABB(SLAABBox& aabb, const SLMat4f& wmNode)
             minV = SLVec3f(_velocityConst.x, 0.0, _velocityConst.z);
             maxV = SLVec3f(0.0, _velocityConst.y, 0.0);
         }
-        //??? Time to have a velocity of 0
-        float timeForXGrav = maxV.x / _gravity.x;
-        float timeForYGrav = maxV.y / _gravity.y;
-        float timeForZGrav = maxV.z / _gravity.z;
+        //Apply velocity
+        minP += minV * _timeToLive;
+        maxP += maxV * _timeToLive;
+
+        //Time to have a velocity of 0
+        float timeForXGrav = 0.0f;
+        float timeForYGrav = 0.0f;
+        float timeForZGrav = 0.0f;
+        if (_gravity.x != 0.0f) timeForXGrav = maxV.x / _gravity.x;
+        if (_gravity.y != 0.0f) timeForYGrav = maxV.y / _gravity.y;
+        if (_gravity.z != 0.0f) timeForZGrav = maxV.z / _gravity.z;
         if (_doGravity)
         {
-            minP.x += maxV.x * timeForXGrav;
-            minP.y += maxV.y * timeForYGrav;
-            minP.z += maxV.z * timeForZGrav;
-            float xTimeRemaining = _timeToLive - timeForXGrav;
-            float yTimeRemaining = _timeToLive - timeForYGrav;
-            float zTimeRemaining = _timeToLive - timeForZGrav;
-            maxP.x += 0.5f * _gravity.x * (xTimeRemaining * xTimeRemaining);
-            maxP.y += 0.5f * _gravity.y * (yTimeRemaining * yTimeRemaining);
-            maxP.z += 0.5f * _gravity.z * (zTimeRemaining * zTimeRemaining);
+            if (timeForXGrav < 0.0f)
+                maxP.x -= maxV.x * (_timeToLive + timeForXGrav);
+            else if (timeForXGrav > 0.0f)
+                maxP.x += 0.5f * _gravity.x * (_timeToLive * _timeToLive);
+            if (timeForYGrav < 0.0f)
+                maxP.y -= maxV.y * (_timeToLive + timeForYGrav);
+            else if (timeForYGrav > 0.0f)
+                maxP.y += 0.5f * _gravity.y * (_timeToLive * _timeToLive);
+            if (timeForZGrav < 0.0f)
+                maxP.z -= maxV.z * (_timeToLive + timeForZGrav);
+            else if (timeForZGrav > 0.0f)
+                maxP.z += 0.5f * _gravity.z * (_timeToLive * _timeToLive);
+            float xTimeRemaining = _timeToLive - abs(timeForXGrav);
+            float yTimeRemaining = _timeToLive - abs(timeForYGrav);
+            float zTimeRemaining = _timeToLive - abs(timeForZGrav);
 
-            //maxP += 0.5f * _gravity * (_timeToLive * _timeToLive); // Apply acceleration after time
+            if (timeForXGrav < 0.0f)
+                minP.x += 0.5f * _gravity.x * (xTimeRemaining * xTimeRemaining);
+            if (timeForYGrav < 0.0f)
+                minP.y += 0.5f * _gravity.y * (yTimeRemaining * yTimeRemaining);
+            if (timeForZGrav < 0.0f)
+                minP.z += 0.5f * _gravity.z * (zTimeRemaining * zTimeRemaining);
         }
-        //maxP == 0
 
-        minP += minV * _timeToLive;
-        maxP += maxV * _timeToLive; // Apply velocity distance after time
+        
         if (_doAccDiffDir)
         {
             maxP += 0.5f * _acc * (_timeToLive * _timeToLive); // Apply acceleration after time
@@ -603,13 +647,13 @@ void SLParticleSystem::buildAABB(SLAABBox& aabb, const SLMat4f& wmNode)
     {
         if (_velocityType == 0)
         {
-            minP = SLVec3f(_vRandS.x, 0.0, _vRandS.z) * _timeToLive; // Apply velocity distance after time
-            maxP = _vRandE * _timeToLive;                            // Apply velocity distance after time
+            minP += SLVec3f(_vRandS.x, 0.0, _vRandS.z) * _timeToLive; // Apply velocity distance after time
+            maxP += _vRandE * _timeToLive;                            // Apply velocity distance after time
         }
         else
         {
-            minP = SLVec3f(_velocityConst.x, 0.0, _velocityConst.z) * _timeToLive; // Apply velocity distance after time
-            maxP = SLVec3f(0.0, _velocityConst.y, 0.0) * _timeToLive;              // Apply velocity distance after time
+            minP += SLVec3f(_velocityConst.x, 0.0, _velocityConst.z) * _timeToLive; // Apply velocity distance after time
+            maxP += SLVec3f(0.0, _velocityConst.y, 0.0) * _timeToLive;              // Apply velocity distance after time
         }
     }
 

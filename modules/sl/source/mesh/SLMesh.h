@@ -140,8 +140,8 @@ public:
     SLbool       hit(SLRay* ray, SLNode* node);
     virtual void preShade(SLRay* ray);
 
-    void         deleteData();
-    void         deleteDataGpu();
+    virtual void deleteData();
+    virtual void deleteDataGpu();
     void         deleteSelected(SLNode* node);
     void         deleteUnused();
     static void  calcTex3DMatrix(SLNode* node);

@@ -6014,6 +6014,53 @@ resolution shadows near the camera and lower resolution shadows further away.");
         ps->doGravity(true);
         ps->color(SLCol4f(0.0039f, 0.14f, 0.86f, 0.33f));
         ps->doSizeOverLF(false);
+        ps->doAlphaOverL(false);
+        SLNode*           pSNode = new SLNode(pSMesh, "Particle system node");
+        scene->addChild(pSNode);
+
+        // Set background color and the root scene node
+        sv->sceneViewCamera()->background().colors(SLCol4f(0.8f, 0.8f, 0.8f),
+                                                   SLCol4f(0.2f, 0.2f, 0.2f));
+
+        // pass the scene group as root node
+        s->root3D(scene);
+
+        // Save energy
+        sv->doWaitOnIdle(false);
+    }
+    else if (sceneID == SID_ParticleSystem_Sun) //...............................................
+    {
+        // Set scene name and info string
+        s->name("Sun particle system");
+        s->info("Create sun effects particle system");
+
+        // Create a scene group node
+        SLNode* scene = new SLNode("scene node");
+
+        // Create textures and materials
+        SLGLTexture* texC        = new SLGLTexture(am, texPath + "smoke_08_C.png");
+        SLGLTexture* texFlipbook = new SLGLTexture(am, texPath + "WispySmoke03_8x8_C.png");
+        // SLGLTexture* texFlipbook = new SLGLTexture(am, texPath + "WispySmoke03b_8x8_C.png");
+        // SLGLTexture* texFlipbook = new SLGLTexture(am, texPath + "FireBall01_8x8_C.png");
+
+        // Create meshes and nodes
+        SLParticleSystem* ps     = new SLParticleSystem(am,
+                                                    10000,
+                                                    SLVec3f(0, 0.5, 0),
+                                                    SLVec3f(0.0f, 0.0f, 0.0f),
+                                                    SLVec3f(0.0f, 0.0f, 0.0f),
+                                                    4.0f,
+                                                    texC,
+                                                    "Sun Particle System",
+                                                    texFlipbook);
+        SLMesh*           pSMesh = ps;
+        ps->doShape(true);
+        ps->shapeType(0);
+        ps->radiusSphere(3.0f);
+        ps->doBlendingBrigh(true);
+        ps->color(SLCol4f(0.925f, 0.238f, 0.097f, 0.199f));
+
+
         SLNode*           pSNode = new SLNode(pSMesh, "Particle system node");
         scene->addChild(pSNode);
 
