@@ -52,6 +52,8 @@ public:
     SLVec3f      vRandS() { return _vRandS; }
     SLVec3f      vRandE() { return _vRandE; }
     SLVec3f      direction() { return _direction; }
+    SLfloat      speed() { return _speed; }
+    SLVec2f      speedRange() { return _speedRange; }
     SLVec3f      velocityConst() { return _velocityConst; }
     SLVec3f      scaleBox() { return _scaleBox; }
     float*       bezierControlPointAlpha() { return _bezierControlPointAlpha; }
@@ -60,9 +62,12 @@ public:
     float*       bezierStartEndPointSize() { return _bezierStartEndPointSize; }
     SLCol4f      color() { return _color; }
     SLbool       doTree() { return _doTree; }
+    SLbool       doDirectionSpeed() { return _doDirectionSpeed; }
+    SLbool       doSpeedRange() { return _doSpeedRange; }
     SLbool       isGenerated() { return _isGenerated; }
     SLbool       doBlendingBrigh() { return _doBlendingBrigh; }
     SLfloat      angle() { return _angle; }
+    
     SLfloat      accConst() { return _accConst; }
     
     SLint        numBranch() { return _numBranch; }
@@ -77,6 +82,8 @@ public:
     SLbool       doSizeRandom() { return _doSizeRandom; }
     SLbool       doColor() { return _doColor; }
     SLbool       doShape() { return _doShape; }
+    SLbool       doShapeSurface() { return _doShapeSurface; }
+    SLbool       doShapeOverride() { return _doShapeOverride; }
     SLint        amount() { return _amount; }
     SLint        billoardType() { return _billboardType; }
     SLint        shapeType() { return _shapeType; }
@@ -142,6 +149,13 @@ public:
         _direction.y = vY;
         _direction.z = vZ;
     }
+    void speed(SLfloat f) { _speed = f; }
+    void speedRange(SLVec2f v) { _speedRange = v; }
+    void speedRange(SLfloat vX, SLfloat vY)
+    {
+        _speedRange.x = vX;
+        _speedRange.y = vY;
+    }
     void scaleBox(SLVec3f v) { _scaleBox = v; }
     void scaleBox(SLfloat vX, SLfloat vY, SLfloat vZ)
     {
@@ -178,7 +192,6 @@ public:
         _bezierStartEndPointSize[3]  = arrayPoint[3];
     }
     void color(SLCol4f c) { _color = c; }
-    void doTree(SLbool b) { _doTree = b; }
     void isGenerated(SLbool b) { _isGenerated = b; }
     void doBlendingBrigh(SLbool b) { _doBlendingBrigh = b; }
     void angle(SLfloat f) { _angle = f; }
@@ -191,6 +204,9 @@ public:
         _velocityConst.z = vZ;
     }
     void numBranch(SLint i) { _numBranch = i; }
+    void    doTree(SLbool b) { _doTree = b; }
+    void    doDirectionSpeed(SLbool b) { _doDirectionSpeed = b; }
+    void    doSpeedRange(SLbool b) { _doSpeedRange = b; }
     void doWorldSpace(SLbool b) { _doWorldSpace = b; }
     void doGravity(SLbool b) { _doGravity = b; }
     void doAlphaOverL(SLbool b) { _doAlphaOverL = b; }
@@ -202,6 +218,8 @@ public:
     void doSizeRandom(SLbool b) { _doSizeRandom = b; }
     void doColor(SLbool b) { _doColor = b; }
     void doShape(SLbool b) { _doShape = b; }
+    void doShapeSurface(SLbool b) { _doShapeSurface = b; }
+    void doShapeOverride(SLbool b) { _doShapeOverride = b; }
     void amount(SLint i) { _amount = i; }
     void shapeType(SLint i) { _shapeType = i; }
     void billboardType(SLint i) { _billboardType = i; }
@@ -234,9 +252,18 @@ private:
     //Function
     void    initMat(SLAssetManager* am, SLGLTexture* texC);
     SLVec3f getPointInSphere(float radius, SLVec3f randomX);
+    SLVec3f getPointOnSphere(float radius, SLVec3f randomX);
+    SLVec3f getDirectionSphere(float radius, SLVec3f position);
     SLVec3f getPointInBox(SLVec3f boxScale);
+    SLVec3f getPointOnBox(SLVec3f boxScale);
+    SLVec3f getDirectionBox(SLVec3f boxScale, SLVec3f position);
     SLVec3f getPointInCone();
+    SLVec3f getPointOnCone();
+    SLVec3f getDirectionCone(SLVec3f position);
     SLVec3f getPointInPyramid();
+    SLVec3f getPointOnPyramid();
+    SLVec3f getDirectionPyramid(SLVec3f position);
+    
 
     //Core value
     SLVec3f _emitterPos;                                    //!< Position of the particle emitter
@@ -265,10 +292,10 @@ private:
     SLVec3f _vRandS        = SLVec3f(0.0f, 0.0f, 0.0f); //!< vec start for random velocity
     SLVec3f _vRandE        = SLVec3f(1.0f, 1.0f, 1.0f); //!< vec end for random velocity
 
-    //Direction (for shape)
+    //Direction speed
     SLVec3f _direction  = SLVec3f(0.0f, 1.0f, 0.0f); //!< Direction of particle
     SLfloat _speed      = 1.0f;                      //!< Speed of particle
-    SLVec2f _speedRange = SLVec2f(0.0f, 1.0f);       //!< Speed random betwen two value
+    SLVec2f _speedRange = SLVec2f(1.0f, 2.0f);       //!< Speed random betwen two value
 
     //Color
     SLCol4f _color = SLCol4f(0.66f, 0.0f, 0.66f, 0.2f); //!< Color for particle
@@ -334,12 +361,16 @@ private:
     //Boolean for features
     SLbool _doBlendingBrigh    = false; //!< Blending for glow/brightness on pixel with many particle
     SLbool _doTree             = false; //!< Boolean for doTree fractal
+    SLbool _doDirectionSpeed     = false; //!< Boolean for direction and speed (overrride velocity)
+    SLbool _doSpeedRange         = false; //!< Boolean for speed range
     SLbool _doAcc              = false; //!< Boolean for acceleration
     SLbool _doAccDiffDir       = false; //!< Boolean for acceleration (different direction)
     SLbool _doRot              = true;  //!< Boolean for rotation
     SLbool _doRotRange         = false;  //!< Boolean for rotation range (random value between range)
     SLbool _doColor            = true;  //!< Boolean for color
     SLbool _doShape            = false; //!< Boolean for shape feature
+    SLbool _doShapeSurface      = false; //!< Boolean for shape surface (particle will be spawned on surface)
+    SLbool _doShapeOverride      = false; //!< Boolean for override direction for shape direction
     SLbool _doWorldSpace       = false; //!< Boolean for world space position
     SLbool _doGravity          = false; //!< Boolean for gravity
     SLbool _doAlphaOverL      = true;  //!< Boolean for alpha over life time

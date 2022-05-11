@@ -77,6 +77,28 @@ SLVec3f SLParticleSystem::getPointInSphere(float radius, SLVec3f randomXs)
     return SLVec3f(x1 * c, x2 * c, x3 * c);
 }
 //-----------------------------------------------------------------------------
+SLVec3f SLParticleSystem::getPointOnSphere(float radius, SLVec3f randomXs)
+{
+    float x1 = randomXs.x;
+    float x2 = randomXs.y;
+    float x3 = randomXs.z;
+
+    float mag = sqrt(x1 * x1 + x2 * x2 + x3 * x3);
+    x1 /= mag;
+    x2 /= mag;
+    x3 /= mag;
+
+    float c = cbrt(radius);
+
+    return SLVec3f(x1 * c, x2 * c, x3 * c);
+}
+//-----------------------------------------------------------------------------
+SLVec3f SLParticleSystem::getDirectionSphere(float radius, SLVec3f position)
+{
+    SLVec3f directionUnit = (position - SLVec3f(0.0f, 0.0f, 0.0f)).normalized(); //Get unit vector center to position
+    return directionUnit * radius; //Multiply by radius to have all direction vector as same scale
+}
+  //-----------------------------------------------------------------------------
 SLVec3f SLParticleSystem::getPointInBox(SLVec3f boxScale)
 {
     float x = random(-boxScale.x, boxScale.x);
@@ -86,10 +108,61 @@ SLVec3f SLParticleSystem::getPointInBox(SLVec3f boxScale)
     return SLVec3f(x, y, z);
 }
 //-----------------------------------------------------------------------------
+SLVec3f SLParticleSystem::getPointOnBox(SLVec3f boxScale)
+{
+    int temp    = random(0,5);
+    float x    = 0.0f;
+    float y       = 0.0f;
+    float z       = 0.0f;
+    if (temp == 0) { // LEFT side
+        x = -boxScale.x;
+        y = random(-boxScale.y, boxScale.y);
+        z = random(-boxScale.z, boxScale.z);
+    }
+    else if (temp == 1) // RIGHT side
+    {
+        x = boxScale.x;
+        y = random(-boxScale.y, boxScale.y);
+        z = random(-boxScale.z, boxScale.z);
+    }
+    else if (temp == 2) // FRONT side
+    {
+        x = random(-boxScale.x, boxScale.x);
+        y = random(-boxScale.y, boxScale.y);
+        z = boxScale.z;
+    }
+    else if (temp == 3) // BACK side
+    {
+        x = random(-boxScale.x, boxScale.x);
+        y = random(-boxScale.y, boxScale.y);
+        z = -boxScale.z;
+    }
+    else if (temp == 4) // TOP side
+    {
+        x = random(-boxScale.x, boxScale.x);
+        y = boxScale.y;
+        z = random(-boxScale.z, boxScale.z);
+    }
+    else if (temp == 5) // BOTTOM side
+    {
+        x = random(-boxScale.x, boxScale.x);
+        y = -boxScale.y;
+        z = random(-boxScale.z, boxScale.z);
+    }
+
+    return SLVec3f(x, y, z);
+}
+//-----------------------------------------------------------------------------
+SLVec3f SLParticleSystem::getDirectionBox(SLVec3f boxScale, SLVec3f position)
+{
+    SLVec3f directionUnit = (position - SLVec3f(0.0f, 0.0f, 0.0f)).normalized(); //Get unit vector center to position
+    return SLVec3f(directionUnit.x * boxScale.x, directionUnit.y * boxScale.y, directionUnit.z * boxScale.z); //Multiply by box scale to have all direction vector as same scale
+}
+//-----------------------------------------------------------------------------
 SLVec3f SLParticleSystem::getPointInCone()
 {
     float y = random(0.0f, _heightCone); //NEED TO HAVE MORE value near 1 when we have smaller base that top
-    float radius = _radiusCone + tan(_angleCone) * y;
+    float radius       = _radiusCone + tan(_angleCone * DEG2RAD) * y;
     float r      = radius * sqrt(random(0.0f, 1.0f));
     float theta        = random(0.0f, 1.0f) * 2 * PI;
     float x            = r * cos(theta);
@@ -98,14 +171,91 @@ SLVec3f SLParticleSystem::getPointInCone()
     return SLVec3f(x, y, z);
 }
 //-----------------------------------------------------------------------------
+SLVec3f SLParticleSystem::getPointOnCone()
+{
+    float y      = random(0.0f, _heightCone); //NEED TO HAVE MORE value near 1 when we have smaller base that top
+    float radius = _radiusCone + tan(_angleCone * DEG2RAD) * y;
+    float r      = radius;
+    float theta  = random(0.0f, 1.0f) * 2 * PI;
+    float x      = r * cos(theta);
+    float z      = r * sin(theta);
+
+    return SLVec3f(x, y, z);
+}
+//-----------------------------------------------------------------------------
+SLVec3f SLParticleSystem::getDirectionCone(SLVec3f position)
+{
+    float maxRadius     = _radiusCone + tan(_angleCone * DEG2RAD) * _heightCone; // Calculate max radius
+    float   percentX         = position.x / maxRadius; // Calculate at which pourcent our x is to know how much we need to adapt our angle
+    float   percentZ         = position.z / maxRadius; // Calculate at which pourcent our z is to know how much we need to adapt our angle
+    float   newX             = position.x + tan(_angleCone * percentX * DEG2RAD) * _heightCone;
+    float   newZ             = position.z + tan(_angleCone * percentZ * DEG2RAD) * _heightCone;
+    return SLVec3f(newX, _heightCone, newZ);
+}
+//-----------------------------------------------------------------------------
 SLVec3f SLParticleSystem::getPointInPyramid()
 {
     float y      = random(0.0f, _heightPyramid);
-    float radius = _halfSidePyramid + tan(_anglePyramid) * y;
+    float radius = _halfSidePyramid + tan(_anglePyramid * DEG2RAD) * y;
     float x      = random(-radius, radius);
     float z      = random(-radius, radius);
 
     return SLVec3f(x, y, z);
+}
+//-----------------------------------------------------------------------------
+SLVec3f SLParticleSystem::getPointOnPyramid()
+{
+    float y      = random(0.0f, _heightPyramid);
+    float radius    = _halfSidePyramid + tan(_anglePyramid * DEG2RAD) * y;
+    int   temp      = random(0, 5);
+    float x         = 0.0f;
+    float z         = 0.0f;
+    if (temp == 0) { //LEFT
+        x = -radius;
+        z = random(-radius, radius);
+    }
+    else if (temp == 1) // RIGHT
+    {
+        x = radius;
+        z = random(-radius, radius);
+    }
+    else if (temp == 2) //FRONT
+    { 
+        x = random(-radius, radius);
+        z = radius;
+    }
+    else if (temp == 3) // BACK
+    {
+        x = random(-radius, radius);
+        z = -radius;
+    }
+    else if (temp == 4) //TOP
+    {
+        y = _heightPyramid;
+        radius = _halfSidePyramid + tan(_anglePyramid * DEG2RAD) * y;
+
+        x = random(-radius, radius);
+        z = random(-radius, radius);
+    }
+    else if (temp == 5) // BOTTOM
+    {
+        y      = 0.0f;
+        radius = _halfSidePyramid;
+        x = random(-radius, radius);
+        z = random(-radius, radius);
+    }
+
+    return SLVec3f(x, y, z);
+}
+// -----------------------------------------------------------------------------
+SLVec3f SLParticleSystem::getDirectionPyramid(SLVec3f position)
+{
+    float maxRadius = _halfSidePyramid + tan(_anglePyramid * DEG2RAD) * _heightPyramid; // Calculate max radius
+    float percentX  = position.x / maxRadius;                                // Calculate at which pourcent our x is to know how much we need to adapt our angle
+    float percentZ  = position.z / maxRadius;                                // Calculate at which pourcent our z is to know how much we need to adapt our angle
+    float newX      = position.x + tan(_anglePyramid * percentX * DEG2RAD) * _heightPyramid;
+    float newZ      = position.z + tan(_anglePyramid * percentZ * DEG2RAD) * _heightPyramid;
+    return SLVec3f(newX, _heightPyramid, newZ);
 }
 //-----------------------------------------------------------------------------
 void SLParticleSystem::generate()
@@ -142,26 +292,65 @@ void SLParticleSystem::generate()
     for (unsigned int i = 0; i < _amount; i++)
     {
         if (_doShape && _shapeType == 0)
-            tempP[i] = getPointInSphere(_radiusSphere, SLVec3f(distribution(generator), distribution(generator), distribution(generator)));
+            if (!_doShapeSurface) // In volume
+                tempP[i] = getPointInSphere(_radiusSphere, SLVec3f(distribution(generator), distribution(generator), distribution(generator)));
+            else // On surface
+                tempP[i] = getPointOnSphere(_radiusSphere, SLVec3f(distribution(generator), distribution(generator), distribution(generator)));
         else if (_doShape && _shapeType == 1)
-            tempP[i] = getPointInBox(_scaleBox);
+            if (!_doShapeSurface)
+                tempP[i] = getPointInBox(_scaleBox);
+            else
+                tempP[i] = getPointOnBox(_scaleBox);
         else if (_doShape && _shapeType == 2)
-            tempP[i] = getPointInCone();
+            if (!_doShapeSurface)
+                tempP[i] = getPointInCone();
+            else
+                tempP[i] = getPointOnCone();
         else if (_doShape && _shapeType == 3)
-            tempP[i] = getPointInPyramid();
+            if (!_doShapeSurface)
+                tempP[i] = getPointInPyramid();
+            else
+                tempP[i] = getPointOnPyramid();
+
         else
             tempP[i] = _emitterPos;
-        if (_velocityType == 0)
+
+        if (!_doDirectionSpeed)
         {
-            tempV[i].x = random(_vRandS.x, _vRandE.x); // Random value for x velocity
-            tempV[i].y = random(_vRandS.y, _vRandE.y); // Random value for y velocity
-            tempV[i].z = random(_vRandS.z, _vRandE.z); // Random value for z velocity
+            if (_velocityType == 0)
+            {
+                tempV[i].x = random(_vRandS.x, _vRandE.x); // Random value for x velocity
+                tempV[i].y = random(_vRandS.y, _vRandE.y); // Random value for y velocity
+                tempV[i].z = random(_vRandS.z, _vRandE.z); // Random value for z velocity
+            }
+            else if (_velocityType == 1)
+            {
+                tempV[i].x = _velocityConst.x; // Constant value for x velocity
+                tempV[i].y = _velocityConst.y; // Constant value for y velocity
+                tempV[i].z = _velocityConst.z; // Constant value for z velocity
+            }
         }
-        else if (_velocityType == 1)
+        else // DO direction and speed
         {
-            tempV[i].x = _velocityConst.x;             // Constant value for x velocity
-            tempV[i].y = _velocityConst.y;               // Constant value for y velocity
-            tempV[i].z = _velocityConst.z;               // Constant value for z velocity
+            SLVec3f tempDirection;
+            if (_doShapeOverride)
+            {
+                if (_doShape && _shapeType == 0)
+                    tempDirection = getDirectionSphere(_radiusSphere, tempP[i]);
+                else if (_doShape && _shapeType == 1)
+                    tempDirection = getDirectionBox(_scaleBox, tempP[i]);
+                else if (_doShape && _shapeType == 2)
+                    tempDirection = getDirectionCone(tempP[i]);
+                else if (_doShape && _shapeType == 3)
+                    tempDirection = getDirectionPyramid(tempP[i]);
+            }
+            else
+                tempDirection = _direction;
+                
+            if (_doSpeedRange)
+                tempV[i] = tempDirection * random(_speedRange.x, _speedRange.y);
+            else
+                tempV[i] = tempDirection * _speed;
         }
 
 
@@ -518,14 +707,14 @@ void SLParticleSystem::buildAABB(SLAABBox& aabb, const SLMat4f& wmNode)
         }
         if (_shapeType == 2)
         {
-            float radius = _radiusCone + tan(_angleCone) * _heightCone;
+            float radius = _radiusCone + tan(_angleCone * DEG2RAD) * _heightCone;
             minP         = SLVec3f(-radius, -0.0, -radius);
             maxP         = SLVec3f(radius, _heightCone, radius);
         }
         if (_shapeType == 3)
         {
            
-            float radius = _halfSidePyramid + tan(_anglePyramid) * _heightPyramid;
+            float radius = _halfSidePyramid + tan(_anglePyramid * DEG2RAD) * _heightPyramid;
             minP  = SLVec3f(-radius, -0.0, -radius);
             maxP  = SLVec3f(radius, _heightPyramid, radius);
         }
@@ -534,65 +723,78 @@ void SLParticleSystem::buildAABB(SLAABBox& aabb, const SLMat4f& wmNode)
     // Here calculate minP maxP
     if (_doAcc || _doGravity)
     {
-
-        // Decide which one is the minV and maxV
-        if (_velocityType == 0)
+        if (!_doDirectionSpeed)
         {
-            if (_vRandS.x < _vRandE.x)
+            // Decide which one is the minV and maxV
+            if (_velocityType == 0)
             {
-                maxV.x = _vRandE.x;
-                minV.x = _vRandS.x;
-            }
-            else
-            {
-                maxV.x = _vRandS.x;
-                minV.x = _vRandE.x;
-            }
-            if (_vRandS.y < _vRandE.y)
-            {
-                maxV.y = _vRandE.y;
-                minV.y = 0;
-            }
-            else
-            {
-                maxV.y = _vRandS.y;
-                minV.y = 0;
-            }
-            if (_vRandS.z < _vRandE.z)
-            {
-                maxV.z = _vRandE.z;
-                minV.z = _vRandS.z;
-            }
-            else
-            {
-                maxV.z = _vRandS.z;
-                minV.z = _vRandE.z;
-            }
+                if (_vRandS.x < _vRandE.x)
+                {
+                    maxV.x = _vRandE.x;
+                    minV.x = _vRandS.x;
+                }
+                else
+                {
+                    maxV.x = _vRandS.x;
+                    minV.x = _vRandE.x;
+                }
+                if (_vRandS.y < _vRandE.y)
+                {
+                    maxV.y = _vRandE.y;
+                    minV.y = 0;
+                }
+                else
+                {
+                    maxV.y = _vRandS.y;
+                    minV.y = 0;
+                }
+                if (_vRandS.z < _vRandE.z)
+                {
+                    maxV.z = _vRandE.z;
+                    minV.z = _vRandS.z;
+                }
+                else
+                {
+                    maxV.z = _vRandS.z;
+                    minV.z = _vRandE.z;
+                }
 
-            // Inverse if acceleration is negative
-            if (_acc.x < 0.0)
-            {
-                float temp = minV.x;
-                minV.x     = maxV.x;
-                maxV.x     = temp;
+                // Inverse if acceleration is negative
+                if (_acc.x < 0.0)
+                {
+                    float temp = minV.x;
+                    minV.x     = maxV.x;
+                    maxV.x     = temp;
+                }
+                if (_acc.y < 0.0)
+                {
+                    float temp = minV.y;
+                    minV.y     = maxV.y;
+                    maxV.y     = temp;
+                }
+                if (_acc.z < 0.0)
+                {
+                    float temp = minV.z;
+                    minV.z     = maxV.z;
+                    maxV.z     = temp;
+                }
             }
-            if (_acc.y < 0.0)
+            else
             {
-                float temp = minV.y;
-                minV.y     = maxV.y;
-                maxV.y     = temp;
-            }
-            if (_acc.z < 0.0)
-            {
-                float temp = minV.z;
-                minV.z     = maxV.z;
-                maxV.z     = temp;
+                minV = SLVec3f(_velocityConst.x, 0.0, 0.0);
+                maxV = SLVec3f(0.0, _velocityConst.y, _velocityConst.z);
             }
         }
         else
         {
-            minV = SLVec3f(_velocityConst.x, 0.0, _velocityConst.z);
-            maxV = SLVec3f(0.0, _velocityConst.y, 0.0);
+            float tempSpeed = 0.0f;
+            if (_doSpeedRange)
+                tempSpeed = random(_speedRange.x, _speedRange.y);
+            else
+                tempSpeed = _speed;
+
+            minV = SLVec3f(_direction.x, 0.0, 0.0) * tempSpeed;
+            maxV = SLVec3f(0.0, _direction.y, _direction.z) * tempSpeed;
         }
         //Apply velocity
         minP += minV * _timeToLive;
@@ -645,15 +847,30 @@ void SLParticleSystem::buildAABB(SLAABBox& aabb, const SLMat4f& wmNode)
     }
     else
     {
-        if (_velocityType == 0)
+
+        if (!_doDirectionSpeed)
         {
-            minP += SLVec3f(_vRandS.x, 0.0, _vRandS.z) * _timeToLive; // Apply velocity distance after time
-            maxP += _vRandE * _timeToLive;                            // Apply velocity distance after time
+            if (_velocityType == 0)
+            {
+                minP += SLVec3f(_vRandS.x, 0.0, _vRandS.z) * _timeToLive; // Apply velocity distance after time
+                maxP += _vRandE * _timeToLive;                            // Apply velocity distance after time
+            }
+            else
+            {
+                minP += SLVec3f(_velocityConst.x, 0.0, _velocityConst.z) * _timeToLive; // Apply velocity distance after time
+                maxP += SLVec3f(0.0, _velocityConst.y, 0.0) * _timeToLive;              // Apply velocity distance after time
+            }
         }
         else
         {
-            minP += SLVec3f(_velocityConst.x, 0.0, _velocityConst.z) * _timeToLive; // Apply velocity distance after time
-            maxP += SLVec3f(0.0, _velocityConst.y, 0.0) * _timeToLive;              // Apply velocity distance after time
+            float tempSpeed = 0.0f;
+            if (_doSpeedRange)
+                tempSpeed = random(_speedRange.x, _speedRange.y);
+            else
+                tempSpeed = _speed;
+
+            minP += SLVec3f(_direction.x, 0.0, 0.0) * tempSpeed * _timeToLive;
+            maxP += SLVec3f(0.0, _direction.y, _direction.z) * tempSpeed * _timeToLive;
         }
     }
 

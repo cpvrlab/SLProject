@@ -3833,6 +3833,8 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                 m->program(nullptr);
                             }
                             // Velocity
+                            if (ps->doDirectionSpeed())
+                                ImGui::BeginDisabled();
                             if (ImGui::CollapsingHeader("Velocity"))
                             {
                                 ImGui::Indent();
@@ -3872,6 +3874,60 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                 }
                                 ImGui::Unindent();
                             }
+                            if (ps->doDirectionSpeed())
+                                ImGui::EndDisabled();
+                            // Direction and speed
+                            // Add maybe later mix with velocity
+                            SLbool directionSpeed_group = ps->doDirectionSpeed();
+                            if (ImGui::Checkbox("Direction and Speed", &directionSpeed_group))
+                            {
+                                ps->doDirectionSpeed(directionSpeed_group);
+                                ps->isGenerated(false);
+                                singleNode->needAABBUpdate();
+                            }
+                            if (ImGui::CollapsingHeader("Direction and Speed", &directionSpeed_group))
+                            {
+                                ImGui::Indent();
+                                float vec3fDirection[3] = {ps->direction().x, ps->direction().y, ps->direction().z}; // Direction
+                                if (ImGui::InputFloat3("Constant XYZ", vec3fDirection))
+                                {
+                                    ps->direction(vec3fDirection[0], vec3fDirection[1], vec3fDirection[2]);
+                                    ps->isGenerated(false);
+                                    singleNode->needAABBUpdate();
+                                }
+                                // Speed
+                                int item_current = ps->doSpeedRange() ? 1 : 0;
+                                if (ImGui::Combo("Speed value", &item_current, "Constant\0Random between two constants\0"))
+                                {
+                                    if (item_current == 1)
+                                        ps->doSpeedRange(true);
+                                    else
+                                        ps->doSpeedRange(false);
+
+                                    ps->isGenerated(false);
+                                    singleNode->needAABBUpdate();
+                                }
+                                if (!ps->doSpeedRange())
+                                {
+                                    float speed = ps->speed();
+                                    if (ImGui::InputFloat("Constant", &speed))
+                                    {
+                                        ps->speed(speed);
+                                        ps->isGenerated(false);
+                                    }
+                                }
+                                else
+                                {
+                                    float vec2fRange[2] = {ps->speedRange().x, ps->speedRange().y};
+                                    if (ImGui::InputFloat2("Random range", vec2fRange))
+                                    {
+                                        ps->speedRange(vec2fRange[0], vec2fRange[1]);
+                                        ps->isGenerated(false);
+                                    }
+                                }
+                                ImGui::Unindent();
+                            }
+                            
                             //Color checkbox
                             SLbool color_group = ps->doColor();
                             if (ImGui::Checkbox("Color", &color_group))
@@ -4005,6 +4061,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                             }
                             if (ImGui::CollapsingHeader("Shape", &shape_group))
                             {
+                                ImGui::Indent();
                                 int item_current = ps->shapeType();
                                 if (ImGui::Combo("Shape type", &item_current, "Sphere\0Box\0Cone\0Pyramid\0"))
                                 {
@@ -4045,7 +4102,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                     float angle = ps->angleCone();
                                     if (ImGui::InputFloat("Angle", &angle))
                                     {
-                                        ps->angle(angle);
+                                        ps->angleCone(angle);
                                         ps->isGenerated(false);
                                         singleNode->needAABBUpdate();
                                     }
@@ -4081,6 +4138,40 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                         singleNode->needAABBUpdate();
                                     }
                                 }
+                                //Add surface spawning check box
+                                SLbool shapeSurf = ps->doShapeSurface();
+                                if (ImGui::Checkbox("Spawn surface", &shapeSurf))
+                                {
+                                    ps->doShapeSurface(shapeSurf);
+                                    ps->isGenerated(false);
+                                }
+                                if (!ps->doDirectionSpeed())
+                                    ImGui::BeginDisabled();
+
+                                ImGui::LabelText("labelConditionOverride", "Need to have direction and speed enabled");
+                                if (item_current == 2 || item_current == 3)
+                                {
+                                    SLbool shapeOverride = ps->doShapeOverride();
+                                    if (ImGui::Checkbox("Follow shape direction (Override direction)", &shapeOverride))
+                                    {
+                                        ps->doShapeOverride(shapeOverride);
+                                        ps->isGenerated(false);
+                                    }
+                                }
+                                else if (item_current == 0 || item_current == 1) {
+                                    SLbool shapeOverride = ps->doShapeOverride();
+                                    if (ImGui::Checkbox("Inverse center direction (Override direction)", &shapeOverride))
+                                    {
+                                        ps->doShapeOverride(shapeOverride);
+                                        ps->isGenerated(false);
+                                    }
+                                }
+                                
+                                
+
+                                if (!ps->doDirectionSpeed())
+                                    ImGui::EndDisabled();
+                                ImGui::Unindent();
                             }
                             // Acceleration
                             SLbool acc_group = ps->doAcc();
