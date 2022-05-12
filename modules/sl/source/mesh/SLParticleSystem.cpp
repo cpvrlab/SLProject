@@ -680,6 +680,26 @@ void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
     _drawBuf = 1 - _drawBuf;
 }
 //-----------------------------------------------------------------------------
+//! deleteData deletes all mesh data and vbo's
+void SLParticleSystem::deleteData()
+{
+    //Delete texture
+    //delete _textureFirst;
+    //delete _textureFlipbook;
+
+    _vao1.deleteGL();
+    _vao2.deleteGL();
+    SLMesh::deleteData();
+}
+//-----------------------------------------------------------------------------
+//! deleteData deletes all mesh data and vbo's
+void SLParticleSystem::deleteDataGpu()
+{
+    _vao1.deleteGL();
+    _vao2.deleteGL();
+    SLMesh::deleteDataGpu();
+}
+//-----------------------------------------------------------------------------
 //NEEEEED TO BE ENHANCE AND CLEAN
 void SLParticleSystem::buildAABB(SLAABBox& aabb, const SLMat4f& wmNode)
 {
@@ -687,9 +707,18 @@ void SLParticleSystem::buildAABB(SLAABBox& aabb, const SLMat4f& wmNode)
     float rW = _radiusW * _scale;
     float rH = _radiusH * _scale;
 
+    //Speed for direction if used
+    float tempSpeed = 0.0f;
+    if (_doSpeedRange)
+        tempSpeed = max(_speedRange.x, _speedRange.y);
+    else
+        tempSpeed = _speed;
+
+    //Empty point
     minP = SLVec3f();
     maxP = SLVec3f();
 
+    //Empty velocity
     SLVec3f minV = SLVec3f();
     SLVec3f maxV = SLVec3f();
 
@@ -699,17 +728,32 @@ void SLParticleSystem::buildAABB(SLAABBox& aabb, const SLMat4f& wmNode)
             float radius = cbrt(_radiusSphere);
             minP         = SLVec3f(-radius, -radius, -radius);
             maxP         = SLVec3f(radius, radius, radius);
+            // Override direction
+            if (_doDirectionSpeed && _doShapeOverride) {
+                minV += SLVec3f(-radius, -radius, -radius) * tempSpeed;
+                maxV += SLVec3f(radius, radius, radius) * tempSpeed;
+            }
         }
         if (_shapeType == 1)
         {
             minP = SLVec3f(-_scaleBox.x, -_scaleBox.y, -_scaleBox.z);
             maxP = _scaleBox;
+            if (_doDirectionSpeed && _doShapeOverride)
+            {
+                minV += SLVec3f(-_scaleBox.x, -_scaleBox.y, -_scaleBox.z) *tempSpeed;
+                maxV += _scaleBox * tempSpeed;
+            }
         }
         if (_shapeType == 2)
         {
             float radius = _radiusCone + tan(_angleCone * DEG2RAD) * _heightCone;
             minP         = SLVec3f(-radius, -0.0, -radius);
             maxP         = SLVec3f(radius, _heightCone, radius);
+            if (_doDirectionSpeed && _doShapeOverride)
+            {
+                minV += SLVec3f(-radius, -0.0, -radius) * tempSpeed;
+                maxV += SLVec3f(radius, _heightCone, radius) * tempSpeed;
+            }
         }
         if (_shapeType == 3)
         {
@@ -717,13 +761,17 @@ void SLParticleSystem::buildAABB(SLAABBox& aabb, const SLMat4f& wmNode)
             float radius = _halfSidePyramid + tan(_anglePyramid * DEG2RAD) * _heightPyramid;
             minP  = SLVec3f(-radius, -0.0, -radius);
             maxP  = SLVec3f(radius, _heightPyramid, radius);
+            if (_doDirectionSpeed && _doShapeOverride)
+            {
+                minV += SLVec3f(-radius, -0.0, -radius) * tempSpeed;
+                maxV += SLVec3f(radius, _heightPyramid, radius) * tempSpeed;
+            }
         }
     }
 
-    // Here calculate minP maxP
-    if (_doAcc || _doGravity)
+    if (_doAcc || _doGravity) // If acceleration or gravity is enable
     {
-        if (!_doDirectionSpeed)
+        if (!_doDirectionSpeed) // If direction is not enable
         {
             // Decide which one is the minV and maxV
             if (_velocityType == 0)
@@ -779,89 +827,92 @@ void SLParticleSystem::buildAABB(SLAABBox& aabb, const SLMat4f& wmNode)
                     maxV.z     = temp;
                 }
             }
-            else
+            else // Constant acceleration
             {
                 minV = SLVec3f(_velocityConst.x, 0.0, 0.0);
                 maxV = SLVec3f(0.0, _velocityConst.y, _velocityConst.z);
             }
         }
-        else
+        else if (_doDirectionSpeed && !_doShapeOverride) // Direction and speed, but no shape override, because we want a constant direction in one way we don't want the direction to be overrided
         {
             float tempSpeed = 0.0f;
-            if (_doSpeedRange)
-                tempSpeed = random(_speedRange.x, _speedRange.y);
-            else
-                tempSpeed = _speed;
+            if (_doSpeedRange)tempSpeed = max(_speedRange.x, _speedRange.y);
+            else tempSpeed = _speed;
 
             minV = SLVec3f(_direction.x, 0.0, 0.0) * tempSpeed;
             maxV = SLVec3f(0.0, _direction.y, _direction.z) * tempSpeed;
         }
-        //Apply velocity
+        //Apply time to velocity
         minP += minV * _timeToLive;
         maxP += maxV * _timeToLive;
 
-        //Time to have a velocity of 0
-        float timeForXGrav = 0.0f;
-        float timeForYGrav = 0.0f;
-        float timeForZGrav = 0.0f;
-        if (_gravity.x != 0.0f) timeForXGrav = maxV.x / _gravity.x;
-        if (_gravity.y != 0.0f) timeForYGrav = maxV.y / _gravity.y;
-        if (_gravity.z != 0.0f) timeForZGrav = maxV.z / _gravity.z;
+
+        //GRAVITY
         if (_doGravity)
         {
-            if (timeForXGrav < 0.0f)
-                maxP.x -= maxV.x * (_timeToLive + timeForXGrav);
-            else if (timeForXGrav > 0.0f)
+            float timeForXGrav = 0.0f;
+            float timeForYGrav = 0.0f;
+            float timeForZGrav = 0.0f;
+            //Time to have a velocity of 0
+            if (_gravity.x != 0.0f) timeForXGrav = maxV.x / _gravity.x;
+            if (_gravity.y != 0.0f) timeForYGrav = maxV.y / _gravity.y;
+            if (_gravity.z != 0.0f) timeForZGrav = maxV.z / _gravity.z;
+
+            if (timeForXGrav < 0.0f) // If the gravity go against the velocity
+                maxP.x -= maxV.x * (_timeToLive + timeForXGrav); // We remove the position the velocity that we will not make because we go against it (becareful! here timeForXGrav is negative)
+            else if (timeForXGrav > 0.0f) // If the gravity go with the velocity
                 maxP.x += 0.5f * _gravity.x * (_timeToLive * _timeToLive);
-            if (timeForYGrav < 0.0f)
+            if (timeForYGrav < 0.0f) // If the gravity go against the velocity
                 maxP.y -= maxV.y * (_timeToLive + timeForYGrav);
-            else if (timeForYGrav > 0.0f)
+            else if (timeForYGrav > 0.0f) // If the gravity go with the velocity
                 maxP.y += 0.5f * _gravity.y * (_timeToLive * _timeToLive);
-            if (timeForZGrav < 0.0f)
+            if (timeForZGrav < 0.0f) // If the gravity go against the velocity
                 maxP.z -= maxV.z * (_timeToLive + timeForZGrav);
-            else if (timeForZGrav > 0.0f)
+            else if (timeForZGrav > 0.0f) // If the gravity go with the velocity
                 maxP.z += 0.5f * _gravity.z * (_timeToLive * _timeToLive);
+
+            //Time remaining after the gravity has nullified the velocity for the particle to die (for each axes)
             float xTimeRemaining = _timeToLive - abs(timeForXGrav);
             float yTimeRemaining = _timeToLive - abs(timeForYGrav);
             float zTimeRemaining = _timeToLive - abs(timeForZGrav);
 
-            if (timeForXGrav < 0.0f)
-                minP.x += 0.5f * _gravity.x * (xTimeRemaining * xTimeRemaining);
+            if (timeForXGrav < 0.0f) // If the gravity go against the velocity
+                minP.x += 0.5f * _gravity.x * (xTimeRemaining * xTimeRemaining); // We move down pour min point (becareful! here gravity is negative)
             if (timeForYGrav < 0.0f)
                 minP.y += 0.5f * _gravity.y * (yTimeRemaining * yTimeRemaining);
             if (timeForZGrav < 0.0f)
                 minP.z += 0.5f * _gravity.z * (zTimeRemaining * zTimeRemaining);
         }
 
-        
+        //ACCELERATION
         if (_doAccDiffDir)
         {
             maxP += 0.5f * _acc * (_timeToLive * _timeToLive); // Apply acceleration after time
         }
-        else
+        else // Need to be rework
         {
             // minP += 0.5f * _accConst * (_timeToLive * _timeToLive); //Apply constant acceleration
-            maxP += 0.5f * _accConst * (_timeToLive * _timeToLive); // Apply constant acceleration
+            maxP += 0.5f * _accConst * (_timeToLive * _timeToLive); // Apply constant acceleration //Not good
         }
         
     }
-    else
+    else // If acceleration and gravity is not enable
     {
 
         if (!_doDirectionSpeed)
         {
             if (_velocityType == 0)
             {
-                minP += SLVec3f(_vRandS.x, 0.0, _vRandS.z) * _timeToLive; // Apply velocity distance after time
-                maxP += _vRandE * _timeToLive;                            // Apply velocity distance after time
+                minV += SLVec3f(_vRandS.x, 0.0, _vRandS.z); // Apply velocity distance after time
+                maxV += _vRandE;                            // Apply velocity distance after time
             }
             else
             {
-                minP += SLVec3f(_velocityConst.x, 0.0, _velocityConst.z) * _timeToLive; // Apply velocity distance after time
-                maxP += SLVec3f(0.0, _velocityConst.y, 0.0) * _timeToLive;              // Apply velocity distance after time
+                minV += SLVec3f(_velocityConst.x, 0.0, _velocityConst.z); // Apply velocity distance after time
+                maxV += SLVec3f(0.0, _velocityConst.y, 0.0);              // Apply velocity distance after time
             }
         }
-        else
+        else if (_doDirectionSpeed && !_doShapeOverride)
         {
             float tempSpeed = 0.0f;
             if (_doSpeedRange)
@@ -869,9 +920,12 @@ void SLParticleSystem::buildAABB(SLAABBox& aabb, const SLMat4f& wmNode)
             else
                 tempSpeed = _speed;
 
-            minP += SLVec3f(_direction.x, 0.0, 0.0) * tempSpeed * _timeToLive;
-            maxP += SLVec3f(0.0, _direction.y, _direction.z) * tempSpeed * _timeToLive;
+            minV += SLVec3f(_direction.x, 0.0, 0.0) * tempSpeed;
+            maxV += SLVec3f(0.0, _direction.y, _direction.z) * tempSpeed;
         }
+        //Apply time to velocity
+        minP += minV * _timeToLive;
+        maxP += maxV * _timeToLive;
     }
 
     // Add size particle

@@ -6053,15 +6053,15 @@ resolution shadows near the camera and lower resolution shadows further away.");
                                                     texC,
                                                     "Sun Particle System",
                                                     texFlipbook);
-        SLMesh*           pSMesh = ps;
+        
         ps->doShape(true);
         ps->shapeType(0);
         ps->radiusSphere(3.0f);
         ps->doBlendingBrigh(true);
         ps->color(SLCol4f(0.925f, 0.238f, 0.097f, 0.199f));
 
-
-        SLNode*           pSNode = new SLNode(pSMesh, "Particle system node");
+        SLMesh* pSMesh = ps;
+        SLNode*           pSNode = new SLNode(pSMesh, "Particle Sun node");
         scene->addChild(pSNode);
 
         // Set background color and the root scene node

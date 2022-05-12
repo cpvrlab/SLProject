@@ -34,6 +34,8 @@ public:
                      SLGLTexture*    texFlipbook = nullptr);
 
     void draw(SLSceneView* sv, SLNode* node);
+    void deleteData();
+    void deleteDataGpu();
     void buildAABB(SLAABBox& aabb, const SLMat4f& wmNode);
     void generate();
     void generateBernsteinPAlpha();

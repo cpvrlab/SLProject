@@ -3914,15 +3914,17 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                     {
                                         ps->speed(speed);
                                         ps->isGenerated(false);
+                                        singleNode->needAABBUpdate();
                                     }
                                 }
                                 else
                                 {
                                     float vec2fRange[2] = {ps->speedRange().x, ps->speedRange().y};
-                                    if (ImGui::InputFloat2("Random range", vec2fRange))
+                                    if (ImGui::InputFloat2("Random range Speed", vec2fRange))
                                     {
                                         ps->speedRange(vec2fRange[0], vec2fRange[1]);
                                         ps->isGenerated(false);
+                                        singleNode->needAABBUpdate();
                                     }
                                 }
                                 ImGui::Unindent();
@@ -4039,7 +4041,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                 else
                                 {
                                     float vec2fRange[2] = {ps->angularVelocityRange().x, ps->angularVelocityRange().y};
-                                    if (ImGui::InputFloat2("Random range", vec2fRange))
+                                    if (ImGui::InputFloat2("Random range A.V", vec2fRange))
                                     {
                                         ps->angularVelocityRange(vec2fRange[0], vec2fRange[1]);
                                         ps->isGenerated(false);
@@ -4055,9 +4057,6 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                 m->programTF(nullptr);
                                 ps->isGenerated(false);
                                 singleNode->needAABBUpdate();
-                                //mOut->updateProgramPS(); // Change or generate new program
-                                //singleNode->needAABBUpdate();
-                                //ps->regenerate();
                             }
                             if (ImGui::CollapsingHeader("Shape", &shape_group))
                             {
@@ -4156,6 +4155,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                     {
                                         ps->doShapeOverride(shapeOverride);
                                         ps->isGenerated(false);
+                                        singleNode->needAABBUpdate();
                                     }
                                 }
                                 else if (item_current == 0 || item_current == 1) {
@@ -4164,10 +4164,9 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                     {
                                         ps->doShapeOverride(shapeOverride);
                                         ps->isGenerated(false);
+                                        singleNode->needAABBUpdate();
                                     }
                                 }
-                                
-                                
 
                                 if (!ps->doDirectionSpeed())
                                     ImGui::EndDisabled();
