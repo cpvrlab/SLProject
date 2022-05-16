@@ -86,6 +86,7 @@ public:
     SLbool       doShape() { return _doShape; }
     SLbool       doShapeSurface() { return _doShapeSurface; }
     SLbool       doShapeOverride() { return _doShapeOverride; }
+    SLbool       doShapeSpawnBase() { return _doShapeSpawnBase; }
     SLint        amount() { return _amount; }
     SLint        billoardType() { return _billboardType; }
     SLint        shapeType() { return _shapeType; }
@@ -222,6 +223,7 @@ public:
     void doShape(SLbool b) { _doShape = b; }
     void doShapeSurface(SLbool b) { _doShapeSurface = b; }
     void doShapeOverride(SLbool b) { _doShapeOverride = b; }
+    void doShapeSpawnBase(SLbool b) { _doShapeSpawnBase = b; }
     void amount(SLint i) { _amount = i; }
     void shapeType(SLint i) { _shapeType = i; }
     void billboardType(SLint i) { _billboardType = i; }
@@ -252,7 +254,6 @@ public:
 
 private:
     //Function
-    void    initMat(SLAssetManager* am, SLGLTexture* texC);
     SLVec3f getPointInSphere(float radius, SLVec3f randomX);
     SLVec3f getPointOnSphere(float radius, SLVec3f randomX);
     SLVec3f getDirectionSphere(float radius, SLVec3f position);
@@ -373,6 +374,7 @@ private:
     SLbool _doShape            = false; //!< Boolean for shape feature
     SLbool _doShapeSurface      = false; //!< Boolean for shape surface (particle will be spawned on surface)
     SLbool _doShapeOverride      = false; //!< Boolean for override direction for shape direction
+    SLbool _doShapeSpawnBase     = false; //!< Boolean for spawn at base of shape (for cone and pyramid)
     SLbool _doWorldSpace       = false; //!< Boolean for world space position
     SLbool _doGravity          = false; //!< Boolean for gravity
     SLbool _doAlphaOverL      = true;  //!< Boolean for alpha over life time

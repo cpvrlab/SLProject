@@ -54,11 +54,6 @@ SLParticleSystem::SLParticleSystem(SLAssetManager* assetMgr,
     _updateTime.init(60, 0.0f);
 }
 //-----------------------------------------------------------------------------
-void SLParticleSystem::initMat(SLAssetManager* am, SLGLTexture* texC)
-{
-    
-}
-//-----------------------------------------------------------------------------
 SLVec3f SLParticleSystem::getPointInSphere(float radius, SLVec3f randomXs)
 {
     float u  = random(0.0f, radius);
@@ -161,8 +156,13 @@ SLVec3f SLParticleSystem::getDirectionBox(SLVec3f boxScale, SLVec3f position)
 //-----------------------------------------------------------------------------
 SLVec3f SLParticleSystem::getPointInCone()
 {
-    float y = random(0.0f, _heightCone); //NEED TO HAVE MORE value near 1 when we have smaller base that top
-    float radius       = _radiusCone + tan(_angleCone * DEG2RAD) * y;
+    float y = 0.0f;
+    float radius = _radiusCone;
+    if (!_doShapeSpawnBase) // Spawn inside volume
+    {
+        y = random(0.0f, _heightCone); //NEED TO HAVE MORE value near 1 when we have smaller base that top
+        radius = _radiusCone + tan(_angleCone * DEG2RAD) * y;
+    }
     float r      = radius * sqrt(random(0.0f, 1.0f));
     float theta        = random(0.0f, 1.0f) * 2 * PI;
     float x            = r * cos(theta);
@@ -173,8 +173,13 @@ SLVec3f SLParticleSystem::getPointInCone()
 //-----------------------------------------------------------------------------
 SLVec3f SLParticleSystem::getPointOnCone()
 {
-    float y      = random(0.0f, _heightCone); //NEED TO HAVE MORE value near 1 when we have smaller base that top
-    float radius = _radiusCone + tan(_angleCone * DEG2RAD) * y;
+    float y      = 0.0f;
+    float radius = _radiusCone;
+    if (!_doShapeSpawnBase) // Spawn inside volume
+    {
+        y      = random(0.0f, _heightCone); //NEED TO HAVE MORE value near 1 when we have smaller base that top
+        radius = _radiusCone + tan(_angleCone * DEG2RAD) * y;
+    }
     float r      = radius;
     float theta  = random(0.0f, 1.0f) * 2 * PI;
     float x      = r * cos(theta);
@@ -186,8 +191,8 @@ SLVec3f SLParticleSystem::getPointOnCone()
 SLVec3f SLParticleSystem::getDirectionCone(SLVec3f position)
 {
     float maxRadius     = _radiusCone + tan(_angleCone * DEG2RAD) * _heightCone; // Calculate max radius
-    float   percentX         = position.x / maxRadius; // Calculate at which pourcent our x is to know how much we need to adapt our angle
-    float   percentZ         = position.z / maxRadius; // Calculate at which pourcent our z is to know how much we need to adapt our angle
+    float   percentX         = position.x / maxRadius; // Calculate at which pourcent our x is, to know how much we need to adapt our angle
+    float   percentZ         = position.z / maxRadius; // Calculate at which pourcent our z is, to know how much we need to adapt our angle
     float   newX             = position.x + tan(_angleCone * percentX * DEG2RAD) * _heightCone;
     float   newZ             = position.z + tan(_angleCone * percentZ * DEG2RAD) * _heightCone;
     return SLVec3f(newX, _heightCone, newZ);
@@ -195,8 +200,13 @@ SLVec3f SLParticleSystem::getDirectionCone(SLVec3f position)
 //-----------------------------------------------------------------------------
 SLVec3f SLParticleSystem::getPointInPyramid()
 {
-    float y      = random(0.0f, _heightPyramid);
-    float radius = _halfSidePyramid + tan(_anglePyramid * DEG2RAD) * y;
+    float y      = 0.0f;
+    float radius = _halfSidePyramid;
+    if (!_doShapeSpawnBase) // Spawn inside volume
+    {
+        y      = random(0.0f, _heightPyramid);
+        radius = _halfSidePyramid + tan(_anglePyramid * DEG2RAD) * y;
+    }
     float x      = random(-radius, radius);
     float z      = random(-radius, radius);
 
@@ -205,9 +215,16 @@ SLVec3f SLParticleSystem::getPointInPyramid()
 //-----------------------------------------------------------------------------
 SLVec3f SLParticleSystem::getPointOnPyramid()
 {
-    float y      = random(0.0f, _heightPyramid);
-    float radius    = _halfSidePyramid + tan(_anglePyramid * DEG2RAD) * y;
-    int   temp      = random(0, 5);
+    float y      = 0.0f;
+    float radius = _halfSidePyramid;
+    if (!_doShapeSpawnBase) // Spawn inside volume
+    {
+        float y      = random(0.0f, _heightPyramid);
+        float radius = _halfSidePyramid + tan(_anglePyramid * DEG2RAD) * y;
+    }
+    
+    //int   temp      = random(0, 5);
+    int   temp      = random(0, 3);
     float x         = 0.0f;
     float z         = 0.0f;
     if (temp == 0) { //LEFT
@@ -229,7 +246,8 @@ SLVec3f SLParticleSystem::getPointOnPyramid()
         x = random(-radius, radius);
         z = -radius;
     }
-    else if (temp == 4) //TOP
+    //Comments to have top and bottom not filled
+    /* else if (temp == 4) //TOP
     {
         y = _heightPyramid;
         radius = _halfSidePyramid + tan(_anglePyramid * DEG2RAD) * y;
@@ -243,7 +261,7 @@ SLVec3f SLParticleSystem::getPointOnPyramid()
         radius = _halfSidePyramid;
         x = random(-radius, radius);
         z = random(-radius, radius);
-    }
+    }*/
 
     return SLVec3f(x, y, z);
 }
@@ -748,7 +766,10 @@ void SLParticleSystem::buildAABB(SLAABBox& aabb, const SLMat4f& wmNode)
         {
             float radius = _radiusCone + tan(_angleCone * DEG2RAD) * _heightCone;
             minP         = SLVec3f(-radius, -0.0, -radius);
-            maxP         = SLVec3f(radius, _heightCone, radius);
+            if (!_doShapeSpawnBase) // Spawn inside volume
+               maxP         = SLVec3f(radius, _heightCone, radius);
+            else // Spawn base volume
+                maxP = SLVec3f(radius, 0.0f, radius);
             if (_doDirectionSpeed && _doShapeOverride)
             {
                 minV += SLVec3f(-radius, -0.0, -radius) * tempSpeed;
@@ -760,7 +781,10 @@ void SLParticleSystem::buildAABB(SLAABBox& aabb, const SLMat4f& wmNode)
            
             float radius = _halfSidePyramid + tan(_anglePyramid * DEG2RAD) * _heightPyramid;
             minP  = SLVec3f(-radius, -0.0, -radius);
-            maxP  = SLVec3f(radius, _heightPyramid, radius);
+            if (!_doShapeSpawnBase) // Spawn inside volume
+                maxP = SLVec3f(radius, _heightPyramid, radius);
+            else // Spawn base volume
+                maxP = SLVec3f(radius, 0.0f, radius);
             if (_doDirectionSpeed && _doShapeOverride)
             {
                 minV += SLVec3f(-radius, -0.0, -radius) * tempSpeed;
@@ -930,7 +954,8 @@ void SLParticleSystem::buildAABB(SLAABBox& aabb, const SLMat4f& wmNode)
 
     // Add size particle
     minP.x += minP.x < maxP.x ? -rW : rW;                   // Add size of particle
-    if (!_doSizeOverLF) minP.y += minP.y < maxP.y ? -rH : rH; // Add size of particle if we don't have size over life
+    //if (!_doSizeOverLF) minP.y += minP.y < maxP.y ? -rH : rH; // Add size of particle if we don't have size over life
+    minP.y += minP.y < maxP.y ? -rH : rH; // Add size of particle if we don't have size over life
     minP.z += minP.z < maxP.z ? -rW : rW;                   // Add size of particle
 
     maxP.x += maxP.x > minP.x ? rW : -rW; // Add size of particle

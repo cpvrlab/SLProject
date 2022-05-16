@@ -454,6 +454,40 @@ const string geomMain_PS_fourCorners_vertBillboard = R"(//BOTTOM LEFT
   v_particleColor = color;
   EmitVertex();  )";
 
+const string geomMain_PS_fourCorners_horizBillboard = R"(
+  //FRONT LEFT
+  vec4 va = vec4(P.xyz, 1); //Position in view space
+  va.xz = va.xz + (rot * vec2(-radiusW, -radiusH));
+  gl_Position = u_pMatrix * u_vOmvMatrix * va; // Calculate position in clip space
+  v_texCoord = vec2(0.0, 0.0);  // Texture coordinate
+  v_particleColor = color;
+  EmitVertex();  
+  
+  //FRONT RIGHT
+  vec4 vd = vec4(P.xyz,1);
+  vd.xz += (rot * vec2(radiusW, -radiusH));
+  gl_Position = u_pMatrix * u_vOmvMatrix * vd;
+  v_texCoord = vec2(1.0, 0.0);
+  v_particleColor = color;
+  EmitVertex();  
+
+  //BACK LEFT
+  vec4 vb = vec4(P.xyz,1);
+  vb.xz += (rot * vec2(-radiusW,radiusH));
+  gl_Position = u_pMatrix * u_vOmvMatrix * vb;
+  v_texCoord = vec2(0.0, 1.0);
+  v_particleColor = color;
+  EmitVertex();  
+
+  //BACK RIGHT
+  vec4 vc = vec4(P.xyz,1);
+  vc.xz += (rot * vec2(radiusW, radiusH));
+  gl_Position = u_pMatrix * u_vOmvMatrix * vc;
+  v_texCoord = vec2(1.0, 1.0);
+  v_particleColor = color;
+  EmitVertex();  )";
+
+
 const string geomMain_PS_Flipbook_fourCorners = R"(
   uint actCI = uint(vert[0].texNum % u_col);
   uint actRI = (vert[0].texNum - actCI) / u_col;
@@ -484,6 +518,44 @@ const string geomMain_PS_Flipbook_fourCorners = R"(
   //TOP RIGHT
   vec4 vc = vec4(P.xy + (rot *vec2(radiusW, radiusH)), P.z,1);
   gl_Position = u_pMatrix *  vc;
+  v_texCoord = vec2((actC+1.0)/u_col, 1.0-(actR/u_row)); // Texture coordinate
+  v_particleColor = color;
+  EmitVertex();  )";
+
+const string geomMain_PS_Flipbook_fourCorners_horizBillboard = R"(
+  uint actCI = uint(vert[0].texNum % u_col);
+  uint actRI = (vert[0].texNum - actCI) / u_col;
+  float actC = float(actCI);
+  float actR = float(actRI);
+
+  //FRONT LEFT
+  vec4 va = vec4(P.xyz, 1); //Position in view space
+  va.xz = va.xz + (rot * vec2(-radiusW, -radiusH));
+  gl_Position =  u_pMatrix * u_vOmvMatrix * va; // Calculate position in clip space
+  v_texCoord = vec2(actC/u_col, 1.0-((actR+1.0)/u_row));  // Texture coordinate
+  v_particleColor = color;
+  EmitVertex();  
+  
+  //FRONT RIGHT
+  vec4 vd = vec4(P.xyz,1);
+  vd.xz += (rot * vec2(radiusW, -radiusH));
+  gl_Position =  u_pMatrix * u_vOmvMatrix * vd;
+  v_texCoord = vec2((actC+1.0)/u_col, 1.0-((actR+1.0)/u_row)); // Texture coordinate
+  v_particleColor = color;
+  EmitVertex();  
+
+  //BACK LEFT
+  vec4 vb = vec4(P.xyz,1);
+  vb.xz += (rot * vec2(-radiusW,radiusH));
+  gl_Position =  u_pMatrix * u_vOmvMatrix * vb;
+  v_texCoord = vec2(actC/u_col, 1.0-(actR/u_row)); // Texture coordinate
+  v_particleColor = color;
+  EmitVertex();  
+
+  //BACK RIGHT
+  vec4 vc = vec4(P.xyz,1);
+  vc.xz += (rot * vec2(radiusW, radiusH));
+  gl_Position = u_pMatrix * u_vOmvMatrix * vc;
   v_texCoord = vec2((actC+1.0)/u_col, 1.0-(actR/u_row)); // Texture coordinate
   v_particleColor = color;
   EmitVertex();  )";
@@ -1545,7 +1617,7 @@ void SLGLProgramGenerated::buildProgramNamePS(SLMaterial* mat,
     {
         programName += "-Draw";
         programName += mat->texturesString();
-        GLint billoardType = mat->ps()->billoardType();     // Billboard type (0 -> default; 1 -> vertical billboard)
+        GLint billoardType = mat->ps()->billoardType();     // Billboard type (0 -> default; 1 -> vertical billboard, 2 -> horizontal billboard)
         bool AlOvLi   = mat->ps()->doAlphaOverL(); // Alpha over life
         bool AlOvLiCu = mat->ps()->doAlphaOverLCurve(); // Alpha over life curve
         bool SiOvLi   = mat->ps()->doSizeOverLF();  // Size over life
@@ -1901,7 +1973,7 @@ void SLGLProgramGenerated::buildPerPixParticle(SLMaterial* mat)
 
     // Check what textures the material has
     bool Dm  = mat->hasTextureType(TT_diffuse);
-    GLint billoardType = mat->ps()->billoardType(); // Billboard type (0 -> default; 1 -> vertical billboard)
+    GLint billoardType = mat->ps()->billoardType(); // Billboard type (0 -> default; 1 -> vertical billboard, 2 -> horizontal billboard)
     bool rot        = mat->ps()->doRot();         // Rotation
     bool AlOvLi   = mat->ps()->doAlphaOverL(); // Alpha over life
     bool Co         = mat->ps()->doColor();       // Color over life
@@ -1956,7 +2028,7 @@ void SLGLProgramGenerated::buildPerPixParticle(SLMaterial* mat)
     if (SiOvLi && SiOvLiCu) vertCode += vertMain_PS_v_s_curve;
     if (Co && CoOvLi) vertCode += vertMain_PS_v_doColorOverLF;
     if (FlBoTex) vertCode += vertMain_PS_v_texNum;
-    if (billoardType == 1)
+    if (billoardType == 1 || billoardType == 2)
         vertCode += vertMain_PS_EndAll_VertBillboard;
     else
         vertCode += vertMain_PS_EndAll;
@@ -1986,6 +2058,8 @@ void SLGLProgramGenerated::buildPerPixParticle(SLMaterial* mat)
     geomCode += geomInput_u_matrix_p;
     if (billoardType == 1)
         geomCode += geomInput_u_matrix_vertBillboard;
+    else if (billoardType == 2)
+        geomCode += vertInput_u_matrix_vOmv;
 
     // geometry shader outputs
     geomCode += geomOutput_PS_v_pC;
@@ -2002,6 +2076,8 @@ void SLGLProgramGenerated::buildPerPixParticle(SLMaterial* mat)
     geomCode += geomMain_PS_v_cT;
     if (billoardType == 1)
         geomCode += FlBoTex ? geomMain_PS_Flipbook_fourCorners_vertBillboard : geomMain_PS_fourCorners_vertBillboard;
+    else if (billoardType == 2)
+        geomCode += FlBoTex ? geomMain_PS_Flipbook_fourCorners_horizBillboard : geomMain_PS_fourCorners_horizBillboard;
     else
         geomCode += FlBoTex ? geomMain_PS_Flipbook_fourCorners : geomMain_PS_fourCorners;
     geomCode += geomMain_PS_EndAll;

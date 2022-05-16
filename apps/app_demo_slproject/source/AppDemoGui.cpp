@@ -3828,9 +3828,15 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                 
                             // Billboard
                             int item_current = ps->billoardType();
-                            if (ImGui::Combo("Billboard type", &item_current, "Billboard\0Vertical billboard\0")) {
+                            if (ImGui::Combo("Billboard type", &item_current, "Billboard\0Vertical billboard\0Horizontal billboard\0")) {
                                 ps->billboardType(item_current);
                                 m->program(nullptr);
+                                if (item_current == 2)
+                                    if (!sv->drawBits()->get(SL_DB_CULLOFF))
+                                        sv->drawBits()->toggle(SL_DB_CULLOFF);
+                                else
+                                    if (sv->drawBits()->get(SL_DB_CULLOFF))
+                                        sv->drawBits()->toggle(SL_DB_CULLOFF);
                             }
                             // Velocity
                             if (ps->doDirectionSpeed())
@@ -4144,10 +4150,20 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                     ps->doShapeSurface(shapeSurf);
                                     ps->isGenerated(false);
                                 }
+                                if (item_current == 2 || item_current == 3)
+                                {
+                                    SLbool shapeSpawnBase = ps->doShapeSpawnBase();
+                                    if (ImGui::Checkbox("Spawn base volume", &shapeSpawnBase))
+                                    {
+                                        ps->doShapeSpawnBase(shapeSpawnBase);
+                                        ps->isGenerated(false);
+                                        singleNode->needAABBUpdate();
+                                    }
+                                }
+
                                 if (!ps->doDirectionSpeed())
                                     ImGui::BeginDisabled();
-
-                                ImGui::LabelText("labelConditionOverride", "Need to have direction and speed enabled");
+                                ImGui::LabelText("Condition", "Need to have direction and speed enabled");
                                 if (item_current == 2 || item_current == 3)
                                 {
                                     SLbool shapeOverride = ps->doShapeOverride();
@@ -4157,6 +4173,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                         ps->isGenerated(false);
                                         singleNode->needAABBUpdate();
                                     }
+                                    
                                 }
                                 else if (item_current == 0 || item_current == 1) {
                                     SLbool shapeOverride = ps->doShapeOverride();
