@@ -326,6 +326,23 @@ SLNode* BuildFigureGroup(SLAssetManager* am,
     return figure;
 }
 //-----------------------------------------------------------------------------
+//! Adds another level to Jan's Universe scene
+void addUniverseLevel()
+{
+
+}
+//-----------------------------------------------------------------------------
+//! Generates the Jan's Universe scene
+void generateUniverse(SLNode*     parent,
+                      SLuint      currentLevel,
+                      SLuint      levels,
+                      SLMaterial* currentMaterial,
+                      SLuint      maxMaterialCount)
+{
+
+}
+
+//-----------------------------------------------------------------------------
 //! appDemoLoadScene builds a scene from source code.
 /*! appDemoLoadScene builds a scene from source code. Such a function must be
  passed as a void*-pointer to slCreateScene. It will be called from within
@@ -5729,6 +5746,59 @@ resolution shadows near the camera and lower resolution shadows further away.");
             sv->doWaitOnIdle(false);
             s->root3D(scene);
         }
+    }
+    else if (sceneID == SID_Benchmark7_JansUniverse) //................................................
+    {
+        s->name("Jan's Universe Test Scene");
+        s->info(s->name());
+
+        SLCamera* cam1 = new SLCamera("Camera 1");
+        cam1->clipNear(0.1f);
+        cam1->clipFar(100);
+        cam1->translation(0, 2.5f, 20);
+        cam1->focalDist(20);
+        cam1->lookAt(0, 2.5f, 0);
+        cam1->background().colors(SLCol4f(0.1f, 0.1f, 0.1f));
+        cam1->setInitialState();
+
+        SLLightSpot* light1 = new SLLightSpot(am, s, 15, 15, 15, 0.3f);
+        light1->powers(0.2f, 0.8f, 1.0f);
+        light1->attenuation(1, 0, 0);
+
+        SLNode* scene = new SLNode;
+        scene->addChild(cam1);
+        scene->addChild(light1);
+
+        // Generate NUM_MAT materials
+        const int   NUM_MAT = 20;
+        SLVMaterial mat;
+        for (int i = 0; i < NUM_MAT; ++i)
+        {
+            SLGLTexture* texC    = new SLGLTexture(am, texPath + "earth2048_C_Q95.jpg"); // color map
+            SLstring     matName = "mat-" + std::to_string(i);
+            mat.push_back(new SLMaterial(am, matName.c_str(), texC));
+            SLCol4f color;
+            color.hsva2rgba(SLVec4f(Utils::TWOPI * (float)i / (float)NUM_MAT, 1.0f, 1.0f));
+            mat[i]->diffuse(color);
+        }
+
+        // create rotating sphere group
+        SLint maxDepth = 5;
+
+        SLint resolution = 18;
+        scene->addChild(RotatingSphereGroup(am,
+                                            s,
+                                            maxDepth,
+                                            0,
+                                            0,
+                                            0,
+                                            1,
+                                            resolution,
+                                            mat));
+
+        sv->camera(cam1);
+        sv->doWaitOnIdle(false);
+        s->root3D(scene);
     }
 
     ////////////////////////////////////////////////////////////////////////////
