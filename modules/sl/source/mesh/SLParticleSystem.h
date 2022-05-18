@@ -42,6 +42,7 @@ public:
     void generateBernsteinPSize();
     void changeTexture();
     void notVisibleFrustrumCulling();
+    void pauseOrResume();
 
     // Getters
     SLVec3f      emitterPos() const { return _emitterPos; }
@@ -67,6 +68,7 @@ public:
     SLbool       doDirectionSpeed() { return _doDirectionSpeed; }
     SLbool       doSpeedRange() { return _doSpeedRange; }
     SLbool       isGenerated() { return _isGenerated; }
+    SLbool       isPaused() { return _isPaused; }
     SLbool       doBlendingBrigh() { return _doBlendingBrigh; }
     SLfloat      angle() { return _angle; }
     
@@ -75,6 +77,7 @@ public:
     SLint        numBranch() { return _numBranch; }
     SLbool       doWorldSpace() { return _doWorldSpace; }
     SLbool       doGravity() { return _doGravity; }
+    SLbool       doCounterGap() { return _doCounterGap; }
     SLbool       doAlphaOverL() { return _doAlphaOverL; }
     SLbool       doColorOverLF() { return _doColorOverLF; }
     SLbool       doAlphaOverLCurve() { return _doAlphaOverLCurve; }
@@ -212,6 +215,7 @@ public:
     void    doSpeedRange(SLbool b) { _doSpeedRange = b; }
     void doWorldSpace(SLbool b) { _doWorldSpace = b; }
     void doGravity(SLbool b) { _doGravity = b; }
+    void doCounterGap(SLbool b) { _doCounterGap = b; }
     void doAlphaOverL(SLbool b) { _doAlphaOverL = b; }
     void doColorOverLF(SLbool b) { _doColorOverLF = b; }
     void doAlphaOverLCurve(SLbool b) { _doAlphaOverLCurve = b; }
@@ -326,6 +330,9 @@ private:
     //For resume after frstrumCulling
     SLfloat      _notVisibleTimeS   = 0.0f; //!< Time since start when node not visible in S
 
+    //For drawing while pause
+    SLfloat _lastTimeBeforePauseS = 0.0f; //!< Time since the particle system is paused
+
     //Shape
         //Sphere
         SLfloat      _radiusSphere      = 1.0f; //!< Radius of sphere "Shape -> sphere"
@@ -358,7 +365,8 @@ private:
     SLGLVertexArray _vao2; //!< Second OpenGL Vertex Array Object for swapping between updating/drawing
 
     //Boolean for generation/resume
-    SLbool _isViFrustrumCulling = true;  //!< Boolean to set time since node, not visible
+    SLbool _isViFrustrumCulling = true;  //!< Boolean to set time since node not visible
+    SLbool _isPaused = false;            //!< Boolean to stop updating
     SLbool _isGenerated         = false; //!< Boolean to generate particle system and load it on the GPU
 
     //Boolean for features
@@ -366,6 +374,7 @@ private:
     SLbool _doTree             = false; //!< Boolean for doTree fractal
     SLbool _doDirectionSpeed     = false; //!< Boolean for direction and speed (overrride velocity)
     SLbool _doSpeedRange         = false; //!< Boolean for speed range
+    SLbool _doCounterGap         = true; //!< Boolean for counter lag/gap, can create flickering with few particle (explained in documentation) when enable
     SLbool _doAcc              = false; //!< Boolean for acceleration
     SLbool _doAccDiffDir       = false; //!< Boolean for acceleration (different direction)
     SLbool _doRot              = true;  //!< Boolean for rotation

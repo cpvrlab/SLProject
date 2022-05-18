@@ -282,10 +282,7 @@ const string vertMain_PS_U_v_init_texNum                 = R"(
         tf_texNum = a_texNum; // Init the output variable)";
 const string vertMain_PS_U_v_init_initP                               = R"(
         tf_initialPosition = a_initialPosition; // Init the output variable)";
-const string vertMain_PS_U_v_rConst     = R"(
-        tf_rotation = mod(tf_rotation + (u_angularVelo*u_deltaTime), 2 * PI);)";
-const string vertMain_PS_U_v_rRange     = R"(
-        tf_rotation = mod(tf_rotation + (tf_angularVelo*u_deltaTime), 2 * PI);)";
+
 const string vertMain_PS_U_bornDead          = R"(
         tf_startTime += u_difTime;       // Add time to resume after frustrum culling
         if( u_time >= tf_startTime ) {   // Check if the particle is born
@@ -299,12 +296,18 @@ const string vertMain_PS_U_reset_shape_p                               = R"(
                     tf_position = a_initialPosition + u_pGPosition;         // Reset position)";
 const string vertMain_PS_U_reset_v            = R"(
                     tf_velocity = a_initialVelocity;    // Reset velocity)";
-const string vertMain_PS_U_reset_st            = R"(
-                    tf_startTime = u_time + (age - u_tTL);              // Reset start time to actual time)";
+const string vertMain_PS_U_reset_st_counterGap            = R"(
+                    tf_startTime = u_time + (age - u_tTL);              // Reset start time to actual time with counter gap)";
+const string vertMain_PS_U_reset_st                                    = R"(
+                    tf_startTime = u_time;              // Reset start time to actual time)";
 const string vertMain_PS_U_alive_p           = R"(
                 } else {
                     // The particle is alive, update.
                     tf_position += tf_velocity * u_deltaTime;   // Scale the translation by the deltatime)";
+const string vertMain_PS_U_v_rConst                                    = R"(
+                    tf_rotation = mod(tf_rotation + (u_angularVelo*u_deltaTime), 2 * PI);)";
+const string vertMain_PS_U_v_rRange                                    = R"(
+                    tf_rotation = mod(tf_rotation + (tf_angularVelo*u_deltaTime), 2 * PI);)";
 const string vertMain_PS_U_alive_a_const             = R"(
                     tf_velocity += tf_velocity * u_deltaTime * u_accConst;  // Amplify the velocity)";              
 const string vertMain_PS_U_alive_a_diffDir                       = R"(
@@ -1643,6 +1646,7 @@ void SLGLProgramGenerated::buildProgramNamePS(SLMaterial* mat,
     }
     else // Updating program
     {
+        bool counterGap = mat->ps()->doCounterGap(); // Counter gap/lag
         bool acc = mat->ps()->doAcc(); // Acceleration
         bool accDiffDir = mat->ps()->doAccDiffDir();      // Acceleration different direction
         bool gravity        = mat->ps()->doGravity();     // Gravity
@@ -1651,6 +1655,7 @@ void SLGLProgramGenerated::buildProgramNamePS(SLMaterial* mat,
         bool rotRange   = mat->ps()->doRotRange();        // Rotation range
         bool shape      = mat->ps()->doShape();           // Shape
         programName += "-Update";
+        if (counterGap) programName += "-CG";
         if (rot) programName += "-RT";
         if (rot) programName += rotRange ? "ra" : "co";
         if (acc)
@@ -2111,6 +2116,7 @@ void SLGLProgramGenerated::buildPerPixParticleUpdate(SLMaterial* mat)
            _shaders[0]->type() == ST_vertex &&
            _shaders[1]->type() == ST_fragment);
 
+    bool counterGap = mat->ps()->doCounterGap();      // Counter gap/lag
     bool acc = mat->ps()->doAcc(); // Acceleration
     bool accDiffDir = mat->ps()->doAccDiffDir();      // Acceleration different direction
     bool gravity    = mat->ps()->doGravity();         // Gravity
@@ -2167,12 +2173,12 @@ void SLGLProgramGenerated::buildPerPixParticleUpdate(SLMaterial* mat)
     if (rot && rotRange) vertCode += vertMain_PS_U_v_init_r_angularVelo;
     if (FlBoTex) vertCode += vertMain_PS_U_v_init_texNum;
     if (shape) vertCode += vertMain_PS_U_v_init_initP;
-    if (rot) vertCode += rotRange ? vertMain_PS_U_v_rRange : vertMain_PS_U_v_rConst;
     vertCode += vertMain_PS_U_bornDead;
     vertCode += shape ? vertMain_PS_U_reset_shape_p : vertMain_PS_U_reset_p;
     if (acc || gravity) vertCode += vertMain_PS_U_reset_v;
-    vertCode += vertMain_PS_U_reset_st;
+    vertCode += counterGap ? vertMain_PS_U_reset_st_counterGap : vertMain_PS_U_reset_st;
     vertCode += vertMain_PS_U_alive_p;
+    if (rot) vertCode += rotRange ? vertMain_PS_U_v_rRange : vertMain_PS_U_v_rConst;
     if (FlBoTex) vertCode += vertMain_PS_U_alive_texNum;
     if (acc) vertCode += accDiffDir ? vertMain_PS_U_alive_a_diffDir : vertMain_PS_U_alive_a_const;
     if (gravity) vertCode += vertMain_PS_U_alive_g;

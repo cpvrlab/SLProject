@@ -1962,6 +1962,12 @@ void AppDemoGui::buildMenuBar(SLScene* s, SLSceneView* sv)
                         s->onLoad(am, s, sv, SID_ParticleSystem_Fountain);
                     if (ImGui::MenuItem("Sun effect particle system", nullptr, sid == SID_ParticleSystem_Sun))
                         s->onLoad(am, s, sv, SID_ParticleSystem_Sun);
+                    if (ImGui::MenuItem("FireComplex effect particle system", nullptr, sid == SID_ParticleSystem_FireComplex))
+                        s->onLoad(am, s, sv, SID_ParticleSystem_FireComplex);
+                    if (ImGui::MenuItem("Ring of fire effect particle system", nullptr, sid == SID_ParticleSystem_RingOfFire))
+                        s->onLoad(am, s, sv, SID_ParticleSystem_RingOfFire);
+                    
+                    
                     ImGui::EndMenu();
                 }
                 ImGui::EndMenu();
@@ -3767,6 +3773,21 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                         {
                             SLParticleSystem* ps = dynamic_cast<SLParticleSystem*>(singleFullMesh); // Need to check if good practice
                             ImGui::PushItemWidth(ImGui::GetWindowWidth() * 0.5f);
+                            // Pause/Resume
+                            bool isPaused = ps->isPaused();
+                            if (isPaused)
+                            {
+                                if (ImGui::Button("Resume"))
+                                    ps->pauseOrResume();
+                            }
+                            else
+                            {
+                                if (ImGui::Button("Pause"))
+                                    ps->pauseOrResume();
+                            }
+                            ImGui::SameLine();
+                            if (ImGui::Button("Reset"))
+                                ps->isGenerated(false);
                             // Amount
                             int am = ps->amount();
                             if(ImGui::InputInt("Amount of particles", &am))
@@ -3775,12 +3796,26 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                 ps->isGenerated(false);
                             }
                             // TTL (Time to live)
-                            float timeToLive = ps->timeToLive();
-                            if (ImGui::InputFloat("Time to live (s)", &timeToLive))
+                            if (ImGui::CollapsingHeader("Time to live"))
                             {
-                                ps->timeToLive(timeToLive);
-                                ps->isGenerated(false);
-                                singleNode->needAABBUpdate();
+                                ImGui::Indent();
+                                float timeToLive = ps->timeToLive();
+                                if (ImGui::InputFloat("Time to live (s)", &timeToLive))
+                                {
+                                    ps->timeToLive(timeToLive);
+                                    ps->isGenerated(false);
+                                    singleNode->needAABBUpdate();
+                                }
+                                // Counter bug lag/gap
+                                bool doCounterGap = ps->doCounterGap();
+                                if (ImGui::Checkbox("Counter lag/gap", &doCounterGap))
+                                {
+                                    ps->doCounterGap(doCounterGap);
+                                    m->programTF(nullptr);
+                                    ps->isGenerated(false);
+                                }
+                                ImGui::TextWrapped("Need to be enable by default but can create flickering with few particles, recommend to disable if few particles with no velocity ");
+                                ImGui::Unindent();
                             }
                             // Radius
                             float radiusW = ps->radiusW();

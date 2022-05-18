@@ -484,6 +484,17 @@ void SLParticleSystem::notVisibleFrustrumCulling()
     }
 }
 //-----------------------------------------------------------------------------
+void SLParticleSystem::pauseOrResume()
+{
+    if (!_isPaused)
+    {
+        _isPaused            = true;
+        _lastTimeBeforePauseS = GlobalTimer::timeS();
+    }
+    else
+        _isPaused = false;
+}
+//-----------------------------------------------------------------------------
 void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
 {
     /////////////////////////////
@@ -510,96 +521,122 @@ void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
     SLGLProgram* sp = _mat->programTF();
     sp->useProgram();
 
+    
     /////////////////////////////
-    // Apply Uniform Variables
+    // UPDATING -> Calculate time
     /////////////////////////////
-
-    _startUpdateTimeMS = GlobalTimer::timeMS();
-
-    if (!_isViFrustrumCulling)
+    float difTime = 0.0f;
+    float deltaTime = GlobalTimer::timeS() - _startUpdateTimeS; // Actual deltatime
+    // Calculate time difference for frustrum culling and paused
+    if (!_isViFrustrumCulling && !_isPaused && _lastTimeBeforePauseS != 0.0f) // If particle system was not visible, and was resumed when it was not visible
     {
         _isViFrustrumCulling = true;
-        sp->uniform1f("u_difTime", GlobalTimer::timeS() - _notVisibleTimeS);
-        sp->uniform1f("u_deltaTime", _deltaTimeUpdateS); // Last delta time, maybe add later average deltatime (because maybe bug when fast not visible long time, visible, not visible, visisble
-        _notVisibleTimeS = 0.0f;
+        difTime = GlobalTimer::timeS() - min(_lastTimeBeforePauseS,_notVisibleTimeS); // Paused was set before not visible (will take _lastTimeBeforePauseS), if set after (will take _notVisibleTimeS)
+        //maybe add later average deltatime (because maybe bug when fast not visible long time, visible, not visible, visisble
+        deltaTime = _deltaTimeUpdateS; // Last delta time, because when culled draw is not called therefore the actual delta time will be to big
+        _notVisibleTimeS = 0.0f; // No more culling, the diffrence time has been applied, no further need
+        _lastTimeBeforePauseS = 0.0f; // No more paused, the diffrence time has been applied, no further need
     }
-    else
+    else if (!_isViFrustrumCulling) // If particle system was not visible, this one is called just once when the particle is draw again (Do nothing if paused, because update call is not done)
     {
-        sp->uniform1f("u_difTime", 0.0f);
-        sp->uniform1f("u_deltaTime", GlobalTimer::timeS() - _startUpdateTimeS);
+        _isViFrustrumCulling = true;
+        difTime = GlobalTimer::timeS() - _notVisibleTimeS; //Use time since the particle system was not visible
+        //maybe add later average deltatime (because maybe bug when fast not visible long time, visible, not visible, visisble
+        deltaTime = _deltaTimeUpdateS; // Last delta time, because when culled draw is not called therefore the actual delta time will be to big
+        if (_lastTimeBeforePauseS > _notVisibleTimeS) // If was paused when not visible. Need to take _notVisibleTimeS because it's since this value that the particle system is not drew.
+            _lastTimeBeforePauseS =  _notVisibleTimeS; // Get the value of since the particle system is not drew
+        _notVisibleTimeS = 0.0f; // No more culling, the diffrence time has been applied, no further need
     }
-    //sp->uniform1f("u_deltaTime", GlobalTimer::timeS() - _startUpdateTimeS);
+    else if (!_isPaused && _lastTimeBeforePauseS != 0.0f) // If particle system was resumed
+    {
+        difTime = GlobalTimer::timeS() - _lastTimeBeforePauseS; //Use time since the particle system was paused
+        _lastTimeBeforePauseS = 0.0f; // No more paused, the diffrence time has been applied, no further need
+
+        //Take default delta time, because when just paused no need to take last delta time, the draw call continue to be called
+    }
 
     // Calculate the elapsed time for the updating
+    _startUpdateTimeMS = GlobalTimer::timeMS();
+    // MS above, S below
     _deltaTimeUpdateS = GlobalTimer::timeS() - _startUpdateTimeS;
     _startUpdateTimeS = GlobalTimer::timeS();
 
-    sp->uniform1f("u_time", _startUpdateTimeS);
-
-    if (_doAcc)
+    /////////////////////////////
+    // Apply Uniform Variables
+    /////////////////////////////
+    if (!_isPaused) // The updating is paused, thefore no need to send uniforms
     {
-        if (_doAccDiffDir)
-            sp->uniform3f("u_acceleration", _acc.x, _acc.y, _acc.z);
-        else
-            sp->uniform1f("u_accConst", _accConst);
-    }
-    if (_doGravity)
-        sp->uniform3f("u_gravity", _gravity.x, _gravity.y, _gravity.z);
 
-    sp->uniform1f("u_tTL", _timeToLive);
+        sp->uniform1f("u_difTime", difTime);     // Time difference, between when the particle system was culled or paused or both
+        sp->uniform1f("u_deltaTime", deltaTime); // Time between each draw call, take delta time from last draw called after frstrum culling
 
-    emitterPos(node->translationWS());
+        sp->uniform1f("u_time", _startUpdateTimeS);
 
-    // Worldspace
-    if (_doWorldSpace)
-    {
-        sp->uniform3f("u_pGPosition", _emitterPos.x, _emitterPos.y, _emitterPos.z);
-    }
-    else
-    {
-        sp->uniform3f("u_pGPosition", 0.0, 0.0, 0.0);
-    }
+        if (_doAcc)
+        {
+            if (_doAccDiffDir)
+                sp->uniform3f("u_acceleration", _acc.x, _acc.y, _acc.z);
+            else
+                sp->uniform1f("u_accConst", _accConst);
+        }
+        if (_doGravity)
+            sp->uniform3f("u_gravity", _gravity.x, _gravity.y, _gravity.z);
 
-    // Flipbook
-    if (_doFlipBookTexture)
-    {
-        sp->uniform1i("u_col", _col);
-        sp->uniform1i("u_row", _row);
-        _lastUpdateFB += _deltaTimeUpdateS;
-        if (_lastUpdateFB > (1.0f / _frameRateFB))
-        { // Last time FB was updated is bigger than the time needed for each update
-            sp->uniform1i("u_condFB", 1);
-            _lastUpdateFB = 0.0f;
+        sp->uniform1f("u_tTL", _timeToLive);
+
+        emitterPos(node->translationWS());
+
+        // Worldspace
+        if (_doWorldSpace)
+        {
+            sp->uniform3f("u_pGPosition", _emitterPos.x, _emitterPos.y, _emitterPos.z);
         }
         else
         {
-            sp->uniform1i("u_condFB", 0);
+            sp->uniform3f("u_pGPosition", 0.0, 0.0, 0.0);
         }
-    }
 
-    //Rotation
-    if (_doRot && !_doRotRange)
-        sp->uniform1f("u_angularVelo", _angularVelocityConst * DEG2RAD);
+        // Flipbook
+        if (_doFlipBookTexture)
+        {
+            sp->uniform1i("u_col", _col);
+            sp->uniform1i("u_row", _row);
+            _lastUpdateFB += _deltaTimeUpdateS;
+            if (_lastUpdateFB > (1.0f / _frameRateFB))
+            { // Last time FB was updated is bigger than the time needed for each update
+                sp->uniform1i("u_condFB", 1);
+                _lastUpdateFB = 0.0f;
+            }
+            else
+            {
+                sp->uniform1i("u_condFB", 0);
+            }
+        }
 
-    /////////////////////////////
-    // Draw call to update
-    /////////////////////////////
+        //Rotation
+        if (_doRot && !_doRotRange)
+            sp->uniform1f("u_angularVelo", _angularVelocityConst * DEG2RAD);
 
-    if (_drawBuf == 0)
-    {
-        _vao1.beginTF(_vao2.tfoID());
-        _vao1.drawArrayAs(PT_points);
-        _vao1.endTF();
-        _vao = _vao2;
+        /////////////////////////////
+        // Draw call to update
+        /////////////////////////////
+
+        if (_drawBuf == 0)
+        {
+            _vao1.beginTF(_vao2.tfoID());
+            _vao1.drawArrayAs(PT_points);
+            _vao1.endTF();
+            _vao = _vao2;
+        }
+        else
+        {
+            _vao2.beginTF(_vao1.tfoID());
+            _vao2.drawArrayAs(PT_points);
+            _vao2.endTF();
+            _vao = _vao1;
+        }
+        _updateTime.set(GlobalTimer::timeMS() - _startUpdateTimeMS);
     }
-    else
-    {
-        _vao2.beginTF(_vao1.tfoID());
-        _vao2.drawArrayAs(PT_points);
-        _vao2.endTF();
-        _vao = _vao1;
-    }
-    _updateTime.set(GlobalTimer::timeMS() - _startUpdateTimeMS);
 
     /////////////////////////////
     // DRAWING
@@ -680,8 +717,10 @@ void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
         spD->uniform1i("u_col", _col);
         spD->uniform1i("u_row", _row);
     }
-
-    spD->uniform1f("u_time", GlobalTimer::timeS());
+    if (_isPaused) // Take time when pause was enable
+        spD->uniform1f("u_time", _lastTimeBeforePauseS);
+    else
+        spD->uniform1f("u_time", GlobalTimer::timeS());
     spD->uniform1f("u_tTL", _timeToLive);
 
     spD->uniform1f("u_scale", _scale);

@@ -193,6 +193,8 @@ enum SLSceneID
     SID_ParticleSystem_DustStorm,
     SID_ParticleSystem_Fountain,
     SID_ParticleSystem_Sun,
+    SID_ParticleSystem_FireComplex,
+    SID_ParticleSystem_RingOfFire,
 
     SID_Maximal
 };

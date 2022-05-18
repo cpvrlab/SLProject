@@ -5818,6 +5818,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         ps->col(16);
         ps->row(4);
         ps->doFlipBookTexture(true);
+        ps->doCounterGap(false); //We don't want to have flickering
         ps->changeTexture(); // Switch texture, need to be done, to have flipbook texture as active
         ps->doAlphaOverL(false);
         ps->doSizeOverLF(false);
@@ -6062,6 +6063,100 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         SLMesh* pSMesh = ps;
         SLNode*           pSNode = new SLNode(pSMesh, "Particle Sun node");
+        scene->addChild(pSNode);
+
+        // Set background color and the root scene node
+        sv->sceneViewCamera()->background().colors(SLCol4f(0.8f, 0.8f, 0.8f),
+                                                   SLCol4f(0.2f, 0.2f, 0.2f));
+
+        // pass the scene group as root node
+        s->root3D(scene);
+
+        // Save energy
+        sv->doWaitOnIdle(false);
+    }
+    else if (sceneID == SID_ParticleSystem_FireComplex) //...............................................
+    {
+        // Set scene name and info string
+        s->name("Fire Complex particle system");
+        s->info("Create fire complex effects particle system");
+
+        // Create a scene group node
+        SLNode* scene = new SLNode("scene node");
+
+        // Create textures and materials
+        SLGLTexture* texC        = new SLGLTexture(am, texPath + "smoke_08_C.png");
+        SLGLTexture* texFlipbook = new SLGLTexture(am, texPath + "WispySmoke03_8x8_C.png");
+        // SLGLTexture* texFlipbook = new SLGLTexture(am, texPath + "WispySmoke03b_8x8_C.png");
+        // SLGLTexture* texFlipbook = new SLGLTexture(am, texPath + "FireBall01_8x8_C.png");
+
+
+
+        // Create meshes and nodes
+        SLParticleSystem* ps = new SLParticleSystem(am,
+                                                    10000,
+                                                    SLVec3f(0, 0.5, 0),
+                                                    SLVec3f(0.0f, 0.0f, 0.0f),
+                                                    SLVec3f(0.0f, 0.0f, 0.0f),
+                                                    4.0f,
+                                                    texC,
+                                                    "FireComplex Particle System",
+                                                    texFlipbook);
+
+        ps->doShape(true);
+        ps->shapeType(0);
+        ps->radiusSphere(3.0f);
+        ps->doBlendingBrigh(true);
+        ps->color(SLCol4f(0.925f, 0.238f, 0.097f, 0.199f));
+
+        SLMesh* pSMesh = ps;
+        SLNode* pSNode = new SLNode(pSMesh, "Particle Fire node");
+        scene->addChild(pSNode);
+
+        // Set background color and the root scene node
+        sv->sceneViewCamera()->background().colors(SLCol4f(0.8f, 0.8f, 0.8f),
+                                                   SLCol4f(0.2f, 0.2f, 0.2f));
+
+        // pass the scene group as root node
+        s->root3D(scene);
+
+        // Save energy
+        sv->doWaitOnIdle(false);
+    }
+    else if (sceneID == SID_ParticleSystem_RingOfFire) //...............................................
+    {
+        // Set scene name and info string
+        s->name("Ring of fire particle system");
+        s->info("Create ring of fire effect particle system");
+
+        // Create a scene group node
+        SLNode* scene = new SLNode("scene node");
+
+        // Create textures and materials
+        SLGLTexture* texC        = new SLGLTexture(am, texPath + "smoke_08_C.png");
+        SLGLTexture* texFlipbook = new SLGLTexture(am, texPath + "WispySmoke03_8x8_C.png");
+        // SLGLTexture* texFlipbook = new SLGLTexture(am, texPath + "WispySmoke03b_8x8_C.png");
+        // SLGLTexture* texFlipbook = new SLGLTexture(am, texPath + "FireBall01_8x8_C.png");
+
+        // Create meshes and nodes
+        SLParticleSystem* ps = new SLParticleSystem(am,
+                                                    10000,
+                                                    SLVec3f(0, 0.5, 0),
+                                                    SLVec3f(0.0f, 0.0f, 0.0f),
+                                                    SLVec3f(0.0f, 0.0f, 0.0f),
+                                                    4.0f,
+                                                    texC,
+                                                    "Ring of fire Particle System",
+                                                    texFlipbook);
+
+        ps->doShape(true);
+        ps->shapeType(0);
+        ps->radiusSphere(3.0f);
+        ps->doBlendingBrigh(true);
+        ps->color(SLCol4f(0.925f, 0.238f, 0.097f, 0.199f));
+
+        SLMesh* pSMesh = ps;
+        SLNode* pSNode = new SLNode(pSMesh, "Particle Ring Fire node");
         scene->addChild(pSNode);
 
         // Set background color and the root scene node
