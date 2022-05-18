@@ -139,8 +139,8 @@ SLNode* RotatingSphereGroup(SLAssetManager* am,
     // Generate unique names for meshes, nodes and animations
     static int sphereNum = 0;
     string     meshName  = "Mesh" + std::to_string(sphereNum);
-    string     nodeName  = "Node" + std::to_string(sphereNum);
     string     animName  = "Anim" + std::to_string(sphereNum);
+    string     nodeName  = "Node" + std::to_string(sphereNum);
     sphereNum++;
 
     SLAnimation* nodeAnim = s->animManager().createNodeAnimation(animName,
@@ -327,19 +327,106 @@ SLNode* BuildFigureGroup(SLAssetManager* am,
 }
 //-----------------------------------------------------------------------------
 //! Adds another level to Jan's Universe scene
-void addUniverseLevel()
+void addUniverseLevel(SLAssetManager* am,
+                      SLScene*        s,
+                      SLNode*         parent,
+                      SLuint          currentLevel,
+                      SLuint          levels,
+                      SLuint          childCount,
+                      SLVMaterial&    materials,
+                      SLVMesh&        meshes,
+                      SLuint          numNodes)
 {
+    if (currentLevel >= levels) return;
 
+    float  degPerChild = 360.0f / childCount;
+    SLuint mod         = currentLevel % 3;
+
+    SLMat4f rot;
+    SLVec3f trans;
+    if (mod == 0)
+    {
+        rot.rotation(degPerChild, 0, 1, 0);
+        trans.set(1.0f, 0.0f, 0.0f);
+    }
+    else if (mod == 1)
+    {
+        rot.rotation(degPerChild, 1, 0, 0);
+        trans.set(0.0f, 1.0f, 0.0f);
+    }
+    else if (mod == 2)
+    {
+        rot.rotation(degPerChild, 0, 0, 1);
+        trans.set(0.0f, 0.0f, 1.0f); // ???
+    }
+
+    float scaleFactor = 0.25f;
+
+    for (SLuint i = 0; i < childCount; i++)
+    {
+        string  childName = "Node" + std::to_string(numNodes);
+        SLNode* child     = new SLNode(meshes[i % meshes.size()], childName);
+
+        child->translate(trans * 2.0f);
+        child->scale(scaleFactor);
+
+        // Node animation on light node
+        string       animName  = "Anim" + std::to_string(numNodes);
+        SLAnimation* childAnim = s->animManager().createNodeAnimation(animName.c_str(),
+                                                                      60,
+                                                                      true,
+                                                                      EC_linear,
+                                                                      AL_loop);
+        childAnim->createNodeAnimTrackForRotation360(child, trans);
+
+        parent->addChild(child);
+        numNodes++;
+
+        addUniverseLevel(am,
+                         s,
+                         child,
+                         currentLevel + 1,
+                         levels,
+                         childCount,
+                         materials,
+                         meshes,
+                         numNodes);
+    }
 }
 //-----------------------------------------------------------------------------
 //! Generates the Jan's Universe scene
-void generateUniverse(SLNode*     parent,
-                      SLuint      currentLevel,
-                      SLuint      levels,
-                      SLMaterial* currentMaterial,
-                      SLuint      maxMaterialCount)
+void generateUniverse(SLAssetManager* am,
+                      SLScene*        s,
+                      SLNode*         parent,
+                      SLuint          levels,
+                      SLuint          childCount,
+                      SLVMaterial&    materials,
+                      SLVMesh&        meshes)
 {
+    // Point light without mesh
+    SLLightSpot* light = new SLLightSpot(am, s, 0, 0, 0, 10.0f, 180, 0, 1000, 1000, true);
+    light->attenuation(0, 0, 1);
 
+    // Node animation on light node
+    SLAnimation* lightAnim = s->animManager().createNodeAnimation("anim0",
+                                                                  60,
+                                                                  true,
+                                                                  EC_linear,
+                                                                  AL_loop);
+    lightAnim->createNodeAnimTrackForRotation360(light, SLVec3f(0, 1, 0));
+    parent->addChild(light);
+
+    SLuint numNodes = 1;
+
+    addUniverseLevel(am,
+                     s,
+                     parent,
+                     1,
+                     levels,
+                     childCount,
+                     materials,
+                     meshes,
+                     numNodes);
 }
 
 //-----------------------------------------------------------------------------
@@ -5747,58 +5834,64 @@ resolution shadows near the camera and lower resolution shadows further away.");
             s->root3D(scene);
         }
     }
-    else if (sceneID == SID_Benchmark7_JansUniverse) //................................................
+    else if (sceneID == SID_Benchmark7_JansUniverse) //............................................
     {
         s->name("Jan's Universe Test Scene");
         s->info(s->name());
 
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->clipNear(0.1f);
-        cam1->clipFar(100);
-        cam1->translation(0, 2.5f, 20);
+        cam1->clipFar(1000);
+        cam1->translation(0, 0, 50);
         cam1->focalDist(20);
-        cam1->lookAt(0, 2.5f, 0);
+        cam1->lookAt(0, 0, 0);
         cam1->background().colors(SLCol4f(0.1f, 0.1f, 0.1f));
         cam1->setInitialState();
 
-        SLLightSpot* light1 = new SLLightSpot(am, s, 15, 15, 15, 0.3f);
-        light1->powers(0.2f, 0.8f, 1.0f);
-        light1->attenuation(1, 0, 0);
+        // Root scene node
+        SLNode* root = new SLNode;
+        root->addChild(cam1);
 
-        SLNode* scene = new SLNode;
-        scene->addChild(cam1);
-        scene->addChild(light1);
-
-        // Generate NUM_MAT materials
-        const int   NUM_MAT = 20;
-        SLVMaterial mat;
+        // Generate NUM_MAT cook-torrance materials
+        const int   NUM_MAT = 5;
+        SLVMaterial materials(NUM_MAT);
         for (int i = 0; i < NUM_MAT; ++i)
         {
-            SLGLTexture* texC    = new SLGLTexture(am, texPath + "earth2048_C_Q95.jpg"); // color map
+            SLGLProgram* spTex   = new SLGLProgramGeneric(am,
+                                                        shaderPath + "PerPixCookTm.vert",
+                                                        shaderPath + "PerPixCookTm.frag");
             SLstring     matName = "mat-" + std::to_string(i);
-            mat.push_back(new SLMaterial(am, matName.c_str(), texC));
+            materials[i]         = new SLMaterial(am,
+                                          matName.c_str(),
+                                          nullptr,
+                                          new SLGLTexture(am, texPath + "rusty-metal_2048_C.jpg"),
+                                          new SLGLTexture(am, texPath + "rusty-metal_2048_N.jpg"),
+                                          new SLGLTexture(am, texPath + "rusty-metal_2048_M.jpg"),
+                                          new SLGLTexture(am, texPath + "rusty-metal_2048_R.jpg"),
+                                          nullptr,
+                                          spTex);
             SLCol4f color;
             color.hsva2rgba(SLVec4f(Utils::TWOPI * (float)i / (float)NUM_MAT, 1.0f, 1.0f));
-            mat[i]->diffuse(color);
+            materials[i]->diffuse(color);
         }
 
-        // create rotating sphere group
-        SLint maxDepth = 5;
+        // Generate NUM_MESH sphere meshes
+        const int NUM_MESH = 10;
+        SLVMesh   meshes(NUM_MESH);
+        for (int i = 0; i < NUM_MESH; ++i)
+        {
+            SLstring meshName = "mesh-" + std::to_string(i);
+            meshes[i]         = new SLSphere(am, 1.0f, 32, 32, meshName.c_str(), materials[i % NUM_MAT]);
+        }
 
-        SLint resolution = 18;
-        scene->addChild(RotatingSphereGroup(am,
-                                            s,
-                                            maxDepth,
-                                            0,
-                                            0,
-                                            0,
-                                            1,
-                                            resolution,
-                                            mat));
+        // Create universe
+        SLuint const levels     = 2;
+        SLuint const childCount = 8;
+        generateUniverse(am, s, root, levels, childCount, materials, meshes);
 
         sv->camera(cam1);
         sv->doWaitOnIdle(false);
-        s->root3D(scene);
+        s->root3D(root);
     }
 
     ////////////////////////////////////////////////////////////////////////////
