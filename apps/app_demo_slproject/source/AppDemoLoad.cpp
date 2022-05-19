@@ -370,6 +370,24 @@ void addUniverseLevel(SLAssetManager* am,
         child->translate(trans * 2.0f);
         child->scale(scaleFactor);
 
+
+        SLVec3f eulerAngles;
+         if (mod == 0)
+        {
+             eulerAngles.set(0.0f, SL_DEG2RAD * i * degPerChild, 0.0f);
+        }
+        else if (mod == 1)
+        {
+            rot.rotation(degPerChild, 1, 0, 0);
+            trans.set(0.0f, 1.0f, 0.0f);
+        }
+        else if (mod == 2)
+        {
+            rot.rotation(degPerChild, 0, 0, 1);
+            trans.set(0.0f, 0.0f, 1.0f); // ???
+        }
+
+
         // Node animation on light node
         string       animName  = "Anim" + std::to_string(numNodes);
         SLAnimation* childAnim = s->animManager().createNodeAnimation(animName.c_str(),
@@ -404,8 +422,9 @@ void generateUniverse(SLAssetManager* am,
                       SLVMesh&        meshes)
 {
     // Point light without mesh
-    SLLightSpot* light = new SLLightSpot(am, s, 0, 0, 0, 10.0f, 180, 0, 1000, 1000, true);
+    SLLightSpot* light = new SLLightSpot(am, s, 0, 0, 0, 1.0f, 180, 0, 1000, 1000, true);
     light->attenuation(0, 0, 1);
+    light->scale(10, 10, 10);
 
     // Node animation on light node
     SLAnimation* lightAnim = s->animManager().createNodeAnimation("anim0",
