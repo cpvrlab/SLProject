@@ -413,8 +413,8 @@ void generateUniverse(SLAssetManager* am,
                       SLVMesh&        meshes)
 {
     // Point light without mesh
-    SLLightSpot* light = new SLLightSpot(am, s, 0, 0, 0, 1.0f, 180, 0, 1000, 1000, true);
-    light->attenuation(0, 0, 1);
+    SLLightSpot* light = new SLLightSpot(am, s, 0, 0, 0, 1.0f, 180, 0, 1, 1, true);
+    light->attenuation(1, 0, 0);
     light->scale(10, 10, 10);
 
     // Node animation on light node
@@ -5852,10 +5852,10 @@ resolution shadows near the camera and lower resolution shadows further away.");
         SLCamera* cam1 = new SLCamera("Camera 1");
         cam1->clipNear(0.1f);
         cam1->clipFar(1000);
-        cam1->translation(0, 0, 50);
+        cam1->translation(0, 0, 100);
         cam1->focalDist(50);
         cam1->lookAt(0, 0, 0);
-        cam1->background().colors(SLCol4f(0.1f, 0.1f, 0.1f));
+        cam1->background().colors(SLCol4f(0.3f, 0.3f, 0.3f));
         cam1->setInitialState();
 
         // Root scene node
@@ -5895,7 +5895,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         }
 
         // Create universe
-        SLuint const levels     = 2;
+        SLuint const levels     = 6;
         SLuint const childCount = 8;
         generateUniverse(am, s, root, levels, childCount, materials, meshes);
 
