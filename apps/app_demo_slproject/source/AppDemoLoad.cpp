@@ -335,61 +335,57 @@ void addUniverseLevel(SLAssetManager* am,
                       SLuint          childCount,
                       SLVMaterial&    materials,
                       SLVMesh&        meshes,
-                      SLuint          numNodes)
+                      SLuint&         numNodes)
 {
     if (currentLevel >= levels) return;
 
-    float  degPerChild = 360.0f / childCount;
-    SLuint mod         = currentLevel % 3;
+    const float degPerChild = 360.0f / childCount;
+    SLuint      mod         = currentLevel % 3;
 
-    SLMat4f rot;
+    /*
     SLVec3f trans;
     if (mod == 0)
-    {
-        rot.rotation(degPerChild, 0, 1, 0);
         trans.set(1.0f, 0.0f, 0.0f);
-    }
     else if (mod == 1)
-    {
-        rot.rotation(degPerChild, 1, 0, 0);
         trans.set(0.0f, 1.0f, 0.0f);
-    }
     else if (mod == 2)
-    {
-        rot.rotation(degPerChild, 0, 0, 1);
-        trans.set(0.0f, 0.0f, 1.0f); // ???
-    }
-
+        trans.set(0.0f, 0.0f, 1.0f);
+    */
     float scaleFactor = 0.25f;
 
     for (SLuint i = 0; i < childCount; i++)
     {
-        string  childName = "Node" + std::to_string(numNodes);
-        SLNode* child     = new SLNode(meshes[i % meshes.size()], childName);
+        numNodes++;
+        string childName = "Node" + std::to_string(numNodes) +
+                           "-L" + std::to_string(currentLevel) +
+                           "-C" + std::to_string(i);
+        SLNode* child = new SLNode(meshes[numNodes % meshes.size()], childName);
 
+        /*
         SLQuat4f quat;
+        float    angleRAD = Utils::DEG2RAD * i * degPerChild;
         if (mod == 0)
-            quat.fromEulerAngles(0.0f, Utils::DEG2RAD * i * degPerChild, 0.0f);
+            quat.fromEulerAngles(0.0f, angleRAD, 0.0f);
         else if (mod == 1)
-            quat.fromEulerAngles(Utils::DEG2RAD * i * degPerChild, 0.0f, 0.0f);
+            quat.fromEulerAngles(angleRAD, 0.0f, 0.0f);
         else if (mod == 2)
-            quat.fromEulerAngles(0.0f, 0.0f, Utils::DEG2RAD * i * degPerChild);
+            quat.fromEulerAngles(0.0f, 0.0f, angleRAD);
+        */
 
-        child->rotate(quat);
-        child->translate(trans * 2.0f);
+        child->rotate(i * degPerChild, 0, 0, 1);
+        child->translate(2, 0, 0);
         child->scale(scaleFactor);
 
-        // Node animation on light node
+        // Node animation on child node
         string       animName  = "Anim" + std::to_string(numNodes);
         SLAnimation* childAnim = s->animManager().createNodeAnimation(animName.c_str(),
                                                                       60,
                                                                       true,
                                                                       EC_linear,
                                                                       AL_loop);
-        childAnim->createNodeAnimTrackForRotation360(child, trans);
+        childAnim->createNodeAnimTrackForRotation360(child, {0, 0, 1});
 
         parent->addChild(child);
-        numNodes++;
 
         addUniverseLevel(am,
                          s,
@@ -413,9 +409,10 @@ void generateUniverse(SLAssetManager* am,
                       SLVMesh&        meshes)
 {
     // Point light without mesh
-    SLLightSpot* light = new SLLightSpot(am, s, 0, 0, 0, 1.0f, 180, 0, 1, 1, true);
+    SLLightSpot* light = new SLLightSpot(am, s, 0, 0, 0, 1.0f, 180, 0, 1000, 1000, true);
     light->attenuation(1, 0, 0);
     light->scale(10, 10, 10);
+    light->diffuseColor({1.0f, 1.0f, 0.5f});
 
     // Node animation on light node
     SLAnimation* lightAnim = s->animManager().createNodeAnimation("anim0",
@@ -5853,7 +5850,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         cam1->clipNear(0.1f);
         cam1->clipFar(1000);
         cam1->translation(0, 0, 100);
-        cam1->focalDist(50);
+        cam1->focalDist(100);
         cam1->lookAt(0, 0, 0);
         cam1->background().colors(SLCol4f(0.3f, 0.3f, 0.3f));
         cam1->setInitialState();
@@ -5863,7 +5860,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         root->addChild(cam1);
 
         // Generate NUM_MAT cook-torrance materials
-        const int   NUM_MAT = 5;
+        const int   NUM_MAT = 100;
         SLVMaterial materials(NUM_MAT);
         for (int i = 0; i < NUM_MAT; ++i)
         {
@@ -5886,7 +5883,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         }
 
         // Generate NUM_MESH sphere meshes
-        const int NUM_MESH = 10;
+        const int NUM_MESH = 100;
         SLVMesh   meshes(NUM_MESH);
         for (int i = 0; i < NUM_MESH; ++i)
         {

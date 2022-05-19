@@ -88,15 +88,15 @@ SLLightSpot::SLLightSpot(SLAssetManager* assetMgr,
                                   radius,
                                   0.0f,
                                   spotAngleDEG,
-                                  16,
-                                  16,
+                                  32,
+                                  32,
                                   "LightSpot Mesh",
                                   mat));
         else
             addMesh(new SLSphere(assetMgr,
                                  radius,
-                                 16,
-                                 16,
+                                 32,
+                                 32,
                                  "LightSpot Mesh",
                                  mat));
     }
