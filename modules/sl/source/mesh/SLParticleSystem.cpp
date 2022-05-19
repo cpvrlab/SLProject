@@ -659,6 +659,10 @@ void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
         {
             SLMat4f mvMat = stateGL->modelViewMatrix;
 
+             
+
+            //mvMat.multiply(node->om()); // Local transform of the node
+
             mvMat.m(0, 1.0f);
             mvMat.m(1, 0.0f);
             mvMat.m(2, 0.0f);

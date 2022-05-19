@@ -1635,11 +1635,11 @@ void SLGLProgramGenerated::buildProgramNamePS(SLMaterial* mat,
         if (rot) programName += "-RT";
         
         if (AlOvLi) programName += "-AL";
-        if (AlOvLiCu) programName += "cu";
+        if (AlOvLi&& AlOvLiCu) programName += "cu";
         if (SiOvLi) programName += "-SL";
-        if (SiOvLiCu) programName += "cu";
+        if (SiOvLi && SiOvLiCu) programName += "cu";
         if (Co) programName += "-CO";
-        if (CoOvLi) programName += "cl";
+        if (Co && CoOvLi) programName += "cl";
         if (SiRandom) programName += "-SR";
         if (FlBoTex) programName += "-FB";
         if (WS) programName += "-WS";
@@ -2013,8 +2013,8 @@ void SLGLProgramGenerated::buildPerPixParticle(SLMaterial* mat)
     // Vertex shader uniforms
     vertCode += vertInput_PS_u_time;
     vertCode += vertInput_u_matrix_vOmv;
-    if (AlOvLiCu) vertCode += vertInput_PS_u_al_bernstein_alpha;
-    if (SiOvLiCu) vertCode += vertInput_PS_u_al_bernstein_size;
+    if (AlOvLi && AlOvLiCu) vertCode += vertInput_PS_u_al_bernstein_alpha;
+    if (SiOvLi && SiOvLiCu) vertCode += vertInput_PS_u_al_bernstein_size;
     if (Co && CoOvLi) vertCode += vertInput_PS_u_colorOvLF;
 
     // Vertex shader functions
@@ -2025,8 +2025,7 @@ void SLGLProgramGenerated::buildPerPixParticle(SLMaterial* mat)
     vertCode += vertMain_PS_v_a;
     if (AlOvLi)vertCode += vertMain_PS_v_t_begin;
     else vertCode += vertMain_PS_v_t_default;
-    if (AlOvLi && AlOvLiCu) vertCode += vertMain_PS_v_t_curve;
-    if (AlOvLi && !AlOvLiCu) vertCode += vertMain_PS_v_t_linear;
+    if (AlOvLi) vertCode += AlOvLiCu ? vertMain_PS_v_t_curve : vertMain_PS_v_t_linear;
     if (AlOvLi) vertCode += vertMain_PS_v_t_end;
     if (rot) vertCode += vertMain_PS_v_r;
     if (SiOvLi)vertCode += vertMain_PS_v_s;
@@ -2051,13 +2050,13 @@ void SLGLProgramGenerated::buildPerPixParticle(SLMaterial* mat)
     geomCode += geomInput_PS_struct_t;
     if (rot) geomCode += geomInput_PS_struct_r;
     if (SiOvLi) geomCode += geomInput_PS_struct_s;
-    if (CoOvLi) geomCode += geomInput_PS_struct_c;
+    if (Co && CoOvLi) geomCode += geomInput_PS_struct_c;
     if (FlBoTex) geomCode += geomInput_PS_struct_texNum;
     geomCode += geomInput_PS_struct_End;
 
     // geometry shader uniforms
     geomCode += geomInput_PS_u_ScaRa;
-    if (!CoOvLi) geomCode += geomInput_PS_u_c;
+    if (Co && !CoOvLi) geomCode += geomInput_PS_u_c;
     if (FlBoTex) geomCode += geomInput_PS_u_col;
     if (FlBoTex) geomCode += geomInput_PS_u_row;
     geomCode += geomInput_u_matrix_p;
@@ -2077,7 +2076,7 @@ void SLGLProgramGenerated::buildPerPixParticle(SLMaterial* mat)
     geomCode += geomMain_PS_v_rad;
     geomCode += geomMain_PS_v_p;
     geomCode += rot ? geomMain_PS_v_rot : geomMain_PS_v_rotIden;
-    geomCode += CoOvLi ? geomMain_PS_v_doColorOverLF : Co ? geomMain_PS_v_c: geomMain_PS_v_withoutColor;
+    geomCode += Co && CoOvLi ? geomMain_PS_v_doColorOverLF : Co ? geomMain_PS_v_c : geomMain_PS_v_withoutColor;
     geomCode += geomMain_PS_v_cT;
     if (billoardType == 1)
         geomCode += FlBoTex ? geomMain_PS_Flipbook_fourCorners_vertBillboard : geomMain_PS_fourCorners_vertBillboard;

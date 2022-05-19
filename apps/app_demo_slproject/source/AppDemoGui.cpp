@@ -3867,11 +3867,15 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                 ps->billboardType(item_current);
                                 m->program(nullptr);
                                 if (item_current == 2)
+                                {
                                     if (!sv->drawBits()->get(SL_DB_CULLOFF))
                                         sv->drawBits()->toggle(SL_DB_CULLOFF);
+                                }
                                 else
+                                {
                                     if (sv->drawBits()->get(SL_DB_CULLOFF))
                                         sv->drawBits()->toggle(SL_DB_CULLOFF);
+                                }
                             }
                             // Velocity
                             if (ps->doDirectionSpeed())
@@ -4277,7 +4281,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                     ps->doAlphaOverLCurve(doAlphaOverLCurve_group);
                                     m->program(nullptr);
                                 }
-                                if (ImGui::CollapsingHeader("Bezier curve", &doAlphaOverLCurve_group))
+                                if (ImGui::CollapsingHeader("Bezier curve alpha", &doAlphaOverLCurve_group))
                                 {
                                     ImGui::Indent();
                                     float *vAlpha = ps->bezierControlPointAlpha();
@@ -4304,7 +4308,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                     ps->doSizeOverLFCurve(doSizeOverLFCurve_group);
                                     m->program(nullptr);
                                 }
-                                if (ImGui::CollapsingHeader("Bezier curve", &doSizeOverLFCurve_group))
+                                if (ImGui::CollapsingHeader("Bezier curve size", &doSizeOverLFCurve_group))
                                 {
                                     ImGui::Indent();
                                     float *vSize = ps->bezierControlPointSize();
