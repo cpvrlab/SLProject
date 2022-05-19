@@ -6113,9 +6113,14 @@ resolution shadows near the camera and lower resolution shadows further away.");
                                                     texFlipbook);
 
         
-        fire->doRotRange(true);
+        
         fire->timeToLive(2.0f);
         fire->billboardType(1);
+
+        //Rotation
+        fire->doRot(true);
+        fire->doRotRange(true);
+
         //Size
         fire->doSizeOverLFCurve(true);
         float sizeCPArray[4] = {0.0f, 1.25f, 1.0f, 1.25f};
@@ -6247,8 +6252,6 @@ resolution shadows near the camera and lower resolution shadows further away.");
 
         smokeB->doColor(false);
         //smokeB->color(SLCol4f(1.0f, 1.0f, 1.0f, 0.195f));
-        
-        
 
         //Size
         smokeB->doSizeOverLF(true);
