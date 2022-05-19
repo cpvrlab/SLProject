@@ -42,7 +42,7 @@ SLParticleSystem::SLParticleSystem(SLAssetManager* assetMgr,
 
     P.resize(1); // To trick parent class
 
-    emitterPos(particleEmiPos);
+    //emitterPos(particleEmiPos);
 
     _textureFirst    = texC;
     _textureFlipbook = texFlipbook;
@@ -331,7 +331,7 @@ void SLParticleSystem::generate()
                 tempP[i] = getPointOnPyramid();
 
         else
-            tempP[i] = _emitterPos;
+            tempP[i] = SLVec3f(0,0,0);
 
         if (!_doDirectionSpeed)
         {
@@ -501,7 +501,7 @@ void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
     // Init particles vector and init VAO
     /////////////////////////////
     if (!_isGenerated) {
-        emitterPos(node->translationWS()); //To init first position
+        //emitterPos(node->translationWS()); //To init first position
         generate();
         _isGenerated = true;
     }
