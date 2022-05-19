@@ -614,7 +614,8 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
 
                 ImGui::Text("Global Resources:");
 
-                if (am->meshes().size() && ImGui::TreeNode("Meshes"))
+                string label = "Meshes (" + std::to_string(am->meshes().size()) + ")";
+                if (am->meshes().size() && ImGui::TreeNode(label.c_str()))
                 {
                     for (SLuint i = 0; i < am->meshes().size(); ++i)
                         ImGui::Text("[%d] %s (%u v.)",
@@ -625,7 +626,8 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                     ImGui::TreePop();
                 }
 
-                if (s->lights().size() && ImGui::TreeNode("Lights"))
+                label = "Lights (" + std::to_string(s->lights().size()) + ")";
+                if (s->lights().size() && ImGui::TreeNode(label.c_str()))
                 {
                     for (SLuint i = 0; i < s->lights().size(); ++i)
                     {
@@ -636,7 +638,8 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                     ImGui::TreePop();
                 }
 
-                if (sv->visibleMaterials3D().size() && ImGui::TreeNode("Materials"))
+                label = "Materials (" + std::to_string(sv->visibleMaterials3D().size()) + ")";
+                if (sv->visibleMaterials3D().size() && ImGui::TreeNode(label.c_str()))
                 {
                     for (auto* mat : sv->visibleMaterials3D())
                     {
@@ -663,7 +666,8 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                     ImGui::TreePop();
                 }
 
-                if (am->textures().size() && ImGui::TreeNode("Textures"))
+                label = "Meshes (" + std::to_string(am->textures().size()) + ")";
+                if (am->textures().size() && ImGui::TreeNode(label.c_str()))
                 {
                     for (SLuint i = 0; i < am->textures().size(); ++i)
                     {
@@ -676,7 +680,8 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                     ImGui::TreePop();
                 }
 
-                if (am->programs().size() && ImGui::TreeNode("Programs (asset manager)"))
+                label = "Programs in AM(" + std::to_string(am->programs().size()) + ")";
+                if (am->programs().size() && ImGui::TreeNode(label.c_str()))
                 {
                     for (SLuint i = 0; i < am->programs().size(); ++i)
                     {
@@ -686,7 +691,8 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                     ImGui::TreePop();
                 }
 
-                if (ImGui::TreeNode("Programs (application)"))
+                label = "Programs in app (" + std::to_string(SLGLProgramManager::size()) + ")";
+                if (ImGui::TreeNode(label.c_str()))
                 {
                     for (SLuint i = 0; i < SLGLProgramManager::size(); ++i)
                         ImGui::Text("[%u] %s", i, SLGLProgramManager::get((SLStdShaderProg)i)->name().c_str());
