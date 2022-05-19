@@ -367,26 +367,17 @@ void addUniverseLevel(SLAssetManager* am,
         string  childName = "Node" + std::to_string(numNodes);
         SLNode* child     = new SLNode(meshes[i % meshes.size()], childName);
 
+        SLQuat4f quat;
+        if (mod == 0)
+            quat.fromEulerAngles(0.0f, Utils::DEG2RAD * i * degPerChild, 0.0f);
+        else if (mod == 1)
+            quat.fromEulerAngles(Utils::DEG2RAD * i * degPerChild, 0.0f, 0.0f);
+        else if (mod == 2)
+            quat.fromEulerAngles(0.0f, 0.0f, Utils::DEG2RAD * i * degPerChild);
+
+        child->rotate(quat);
         child->translate(trans * 2.0f);
         child->scale(scaleFactor);
-
-
-        SLVec3f eulerAngles;
-         if (mod == 0)
-        {
-             eulerAngles.set(0.0f, SL_DEG2RAD * i * degPerChild, 0.0f);
-        }
-        else if (mod == 1)
-        {
-            rot.rotation(degPerChild, 1, 0, 0);
-            trans.set(0.0f, 1.0f, 0.0f);
-        }
-        else if (mod == 2)
-        {
-            rot.rotation(degPerChild, 0, 0, 1);
-            trans.set(0.0f, 0.0f, 1.0f); // ???
-        }
-
 
         // Node animation on light node
         string       animName  = "Anim" + std::to_string(numNodes);
@@ -439,7 +430,7 @@ void generateUniverse(SLAssetManager* am,
 
     addUniverseLevel(am,
                      s,
-                     parent,
+                     light,
                      1,
                      levels,
                      childCount,
@@ -5862,7 +5853,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         cam1->clipNear(0.1f);
         cam1->clipFar(1000);
         cam1->translation(0, 0, 50);
-        cam1->focalDist(20);
+        cam1->focalDist(50);
         cam1->lookAt(0, 0, 0);
         cam1->background().colors(SLCol4f(0.1f, 0.1f, 0.1f));
         cam1->setInitialState();
