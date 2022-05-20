@@ -1,12 +1,12 @@
-//#############################################################################
-//  File:      AppDemoGui.cpp
-//  Purpose:   UI with the ImGUI framework fully rendered in OpenGL 3+
-//  Date:      Summer 2017
-//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
-//  Authors:   Marcus Hudritsch
-//  License:   This software is provided under the GNU General Public License
-//             Please visit: http://opensource.org/licenses/GPL-3.0
-//#############################################################################
+// #############################################################################
+//   File:      AppDemoGui.cpp
+//   Purpose:   UI with the ImGUI framework fully rendered in OpenGL 3+
+//   Date:      Summer 2017
+//   Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
+//   Authors:   Marcus Hudritsch
+//   License:   This software is provided under the GNU General Public License
+//              Please visit: http://opensource.org/licenses/GPL-3.0
+// #############################################################################
 
 #include <AppDemoGui.h>
 #include <AppDemo.h>
@@ -51,7 +51,7 @@ extern SLNode*      trackedNode;  // Global pointer declared in AppDemoTracking
 extern SLGLTexture* gTexMRI3D;    // Global pointer declared in AppDemoLoad
 extern SLNode*      gDragonModel; // Global pointer declared in AppDemoLoad
 
-//#define IM_ARRAYSIZE(_ARR) ((int)(sizeof(_ARR) / sizeof(*_ARR)))
+// #define IM_ARRAYSIZE(_ARR) ((int)(sizeof(_ARR) / sizeof(*_ARR)))
 
 //-----------------------------------------------------------------------------
 //! Vector getter callback for combo and listbox with std::vector<std::string>
@@ -366,6 +366,7 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
             {
                 SLRenderType rType = sv->renderType();
                 SLfloat      ft    = s->frameTimesMS().average();
+                CVVideoType  vt    = CVCapture::instance()->videoType();
                 SLchar       m[2550]; // message character array
                 m[0] = 0;             // set zero length
 
@@ -382,7 +383,7 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                     SLfloat optFlowTime    = CVTracked::optFlowTimesMS.average();
                     SLfloat poseTime       = CVTracked::poseTimesMS.average();
                     SLfloat updateAnimTime = s->updateAnimTimesMS().average();
-                    SLfloat updateAABBTime = s->updateAnimTimesMS().average();
+                    SLfloat updateAABBTime = s->updateAABBTimesMS().average();
                     SLfloat shadowMapTime  = sv->shadowMapTimeMS().average();
                     SLfloat cullTime       = sv->cullTimesMS().average();
                     SLfloat draw3DTime     = sv->draw3DTimesMS().average();
@@ -414,15 +415,21 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                     sprintf(m + strlen(m), "Frame time : %5.1f ms (100%%)\n", ft);
                     sprintf(m + strlen(m), " Capture   : %5.1f ms (%3d%%)\n", captureTime, (SLint)captureTimePC);
                     sprintf(m + strlen(m), " Update    : %5.1f ms (%3d%%)\n", updateTime, (SLint)updateTimePC);
-                    sprintf(m + strlen(m), "  Anim.    : %5.1f ms (%3d%%)\n", updateAnimTime, (SLint)updateAnimTimePC);
-                    sprintf(m + strlen(m), "  AABB     : %5.1f ms (%3d%%)\n", updateAABBTime, (SLint)updateAABBTimePC);
-                    sprintf(m + strlen(m), "  Tracking : %5.1f ms (%3d%%)\n", trackingTime, (SLint)trackingTimePC);
-                    sprintf(m + strlen(m), "   Detect  : %5.1f ms (%3d%%)\n", detectTime, (SLint)detectTimePC);
-                    sprintf(m + strlen(m), "    Det1   : %5.1f ms\n", detect1Time);
-                    sprintf(m + strlen(m), "    Det2   : %5.1f ms\n", detect2Time);
-                    sprintf(m + strlen(m), "   Match   : %5.1f ms (%3d%%)\n", matchTime, (SLint)matchTimePC);
-                    sprintf(m + strlen(m), "   OptFlow : %5.1f ms (%3d%%)\n", optFlowTime, (SLint)optFlowTimePC);
-                    sprintf(m + strlen(m), "   Pose    : %5.1f ms (%3d%%)\n", poseTime, (SLint)poseTimePC);
+                    if (!s->animManager().allAnimNames().empty())
+                    {
+                        sprintf(m + strlen(m), "  Anim.    : %5.1f ms (%3d%%)\n", updateAnimTime, (SLint)updateAnimTimePC);
+                        sprintf(m + strlen(m), "  AABB     : %5.1f ms (%3d%%)\n", updateAABBTime, (SLint)updateAABBTimePC);
+                    }
+                    if (vt != VT_NONE && tracker != nullptr && trackedNode != nullptr)
+                    {
+                        sprintf(m + strlen(m), "  Tracking : %5.1f ms (%3d%%)\n", trackingTime, (SLint)trackingTimePC);
+                        sprintf(m + strlen(m), "   Detect  : %5.1f ms (%3d%%)\n", detectTime, (SLint)detectTimePC);
+                        sprintf(m + strlen(m), "    Det1   : %5.1f ms\n", detect1Time);
+                        sprintf(m + strlen(m), "    Det2   : %5.1f ms\n", detect2Time);
+                        sprintf(m + strlen(m), "   Match   : %5.1f ms (%3d%%)\n", matchTime, (SLint)matchTimePC);
+                        sprintf(m + strlen(m), "   OptFlow : %5.1f ms (%3d%%)\n", optFlowTime, (SLint)optFlowTimePC);
+                        sprintf(m + strlen(m), "   Pose    : %5.1f ms (%3d%%)\n", poseTime, (SLint)poseTimePC);
+                    }
                     sprintf(m + strlen(m), " Shadows   : %5.1f ms (%3d%%)\n", shadowMapTime, (SLint)shadowMapTimePC);
                     sprintf(m + strlen(m), " Culling   : %5.1f ms (%3d%%)\n", cullTime, (SLint)cullTimePC);
                     sprintf(m + strlen(m), " Drawing 3D: %5.1f ms (%3d%%)\n", draw3DTime, (SLint)draw3DTimePC);

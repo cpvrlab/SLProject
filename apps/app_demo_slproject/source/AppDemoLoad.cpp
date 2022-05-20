@@ -479,6 +479,9 @@ void appDemoLoadScene(SLAssetManager* am,
     for (auto* sceneview : AppDemo::sceneViews)
         sceneview->unInit();
 
+    // Clear all data in the asset manager
+    am->clear();
+
     // Initialize all preloaded stuff from SLScene
     s->init(am);
 
