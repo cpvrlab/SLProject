@@ -49,16 +49,19 @@ struct ProfilingResult
     uint32_t    threadId; //!< ID of the thread in which the scope was entered
 };
 //-----------------------------------------------------------------------------
-//! Utility class for profiling functions/scopes and writing the results to a file.
+//! Utility for profiling functions/scopes and writing the results to a file.
 /*!
- * To start the profiling, call BEGIN_PROFILING_SESSION(filePath) with the path to the trace file.
- * After that you can place "PROFILE_FUNCTION();" or "PROFILE_SCOPE(name);" at the start of
- * every function or scope you want to measure.
- * The profiler supports multithreading. To add a new thread, call "PROFILE_THREAD(name)" at the start
- * of the thread. Threads with the same name will appear merged in the trace file.
- * To end the session and write the result to the trace file, call END_PROFILING_SESSION().
+ * To start the profiling, call BEGIN_PROFILING_SESSION(filePath) with the path
+ * to the trace file. After that you can place "PROFILE_FUNCTION();" or
+ * "PROFILE_SCOPE(name);" at the start of every function or scope you want to
+ * measure.
+ * The profiler supports multithreading. To add a new thread, call
+ * "PROFILE_THREAD(name)" at the start of the thread. Threads with the same
+ * name will appear merged in the trace file. To end the session and write
+ * the result to the trace file, call END_PROFILING_SESSION().
  *
- * The resulting trace file can be opened using the trace viewer located at /externals/trace-viewer/trace-viewer.jar.
+ * The resulting trace gets written into the data folder of SLProject and can
+ * be opened using the trace viewer located at /externals/trace-viewer/trace-viewer.jar.
  * Note that a Java Runtime Environment is required to launch this JAR archive.
  */
 class Profiler
