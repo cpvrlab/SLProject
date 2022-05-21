@@ -686,7 +686,7 @@ class it is ok.
 */
 void SLNode::updateWM() const
 {
-    PROFILE_FUNCTION();
+    //PROFILE_FUNCTION();
 
     if (_parent)
         _wm.setMatrix(_parent->updateAndGetWM() * _om);
@@ -1128,7 +1128,7 @@ SLNode::skeleton()
 //-----------------------------------------------------------------------------
 void SLNode::updateRec()
 {
-    PROFILE_FUNCTION();
+    //if (_parent == nullptr) PROFILE_FUNCTION();
 
     doUpdate();
     for (auto* child : _children)
