@@ -622,8 +622,6 @@ the next time it is requested by updateAndGetWM().
 */
 void SLNode::needUpdate()
 {
-    // PROFILE_FUNCTION();
-
     // stop if we reach a node that is already flagged.
     if (!_isWMUpToDate)
         return;
@@ -688,6 +686,8 @@ class it is ok.
 */
 void SLNode::updateWM() const
 {
+    PROFILE_FUNCTION();
+
     if (_parent)
         _wm.setMatrix(_parent->updateAndGetWM() * _om);
     else
@@ -1128,7 +1128,7 @@ SLNode::skeleton()
 //-----------------------------------------------------------------------------
 void SLNode::updateRec()
 {
-    // PROFILE_FUNCTION();
+    PROFILE_FUNCTION();
 
     doUpdate();
     for (auto* child : _children)

@@ -957,7 +957,6 @@ void SLSceneView::draw3DGLLinesOverlay(SLVNode& nodes)
                 node->isSelected())
             {
                 // Set the view transform
-                SLGLState* stateGL = SLGLState::instance();
                 stateGL->modelViewMatrix.setMatrix(stateGL->viewMatrix);
                 stateGL->blend(false);     // Turn off blending for overlay
                 stateGL->depthMask(true);  // Freeze depth buffer for blending
@@ -1031,7 +1030,6 @@ void SLSceneView::draw3DGLLinesOverlay(SLVNode& nodes)
                     bool    hasAlpha = mesh->mat()->hasAlpha();
 
                     // For blended nodes we activate OpenGL blending and stop depth buffer updates
-                    SLGLState* stateGL = SLGLState::instance();
                     stateGL->blend(hasAlpha);
                     stateGL->depthMask(!hasAlpha);
                     stateGL->depthTest(false); // Turn of depth test for overlay
@@ -1042,7 +1040,7 @@ void SLSceneView::draw3DGLLinesOverlay(SLVNode& nodes)
                     // Apply world transform
                     stateGL->modelViewMatrix.multiply(node->updateAndGetWM().m());
 
-                    // Finally draw the nodes mesh
+                    // Finally, draw the nodes mesh
                     node->drawMesh(this);
                     GET_GL_ERROR; // Check if any OGL errors occurred
                 }
