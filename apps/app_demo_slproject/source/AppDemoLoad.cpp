@@ -5867,19 +5867,20 @@ resolution shadows near the camera and lower resolution shadows further away.");
         SLVMaterial materials(NUM_MAT);
         for (int i = 0; i < NUM_MAT; ++i)
         {
+            /*
             SLGLProgram* spTex   = new SLGLProgramGeneric(am,
                                                         shaderPath + "PerPixCookTm.vert",
-                                                        shaderPath + "PerPixCookTm.frag");
+                                                        shaderPath + "PerPixCookTm.frag");*/
             SLstring     matName = "mat-" + std::to_string(i);
             materials[i]         = new SLMaterial(am,
                                           matName.c_str(),
                                           nullptr,
                                           new SLGLTexture(am, texPath + "rusty-metal_2048_C.jpg"),
-                                          new SLGLTexture(am, texPath + "rusty-metal_2048_N.jpg"),
+                                          nullptr, //new SLGLTexture(am, texPath + "rusty-metal_2048_N.jpg"),
                                           new SLGLTexture(am, texPath + "rusty-metal_2048_M.jpg"),
                                           new SLGLTexture(am, texPath + "rusty-metal_2048_R.jpg"),
                                           nullptr,
-                                          spTex);
+                                          nullptr);
             SLCol4f color;
             color.hsva2rgba(SLVec4f(Utils::TWOPI * (float)i / (float)NUM_MAT, 1.0f, 1.0f));
             materials[i]->diffuse(color);

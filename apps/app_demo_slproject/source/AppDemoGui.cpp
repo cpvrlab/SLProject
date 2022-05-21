@@ -687,7 +687,7 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                     ImGui::TreePop();
                 }
 
-                label = "Programs in AM(" + std::to_string(am->programs().size()) + ")";
+                label = "Programs in AM (" + std::to_string(am->programs().size()) + ")";
                 if (am->programs().size() && ImGui::TreeNode(label.c_str()))
                 {
                     for (SLuint i = 0; i < am->programs().size(); ++i)

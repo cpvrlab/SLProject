@@ -524,11 +524,8 @@ SLbool SLSceneView::onPaint()
     SLbool camUpdated = false;
 
     // Init and build GUI for all projections except distorted stereo
-    if (_camera && _camera->projection() != P_stereoSideBySideD)
-    {
-        if (_gui)
-            _gui->onInitNewFrame(_s, this);
-    }
+    if (_gui && _camera && _camera->projection() != P_stereoSideBySideD)
+        _gui->onInitNewFrame(_s, this);
 
     // Clear NO. of draw calls after UI creation
     SLGLVertexArray::totalDrawCalls          = 0;
@@ -712,8 +709,6 @@ SLbool SLSceneView::draw3DGL(SLfloat elapsedTimeMS)
     else
     {
         _camera->setProjection(this, ET_center);
-        // todo: ghm1: set view is only called on the active camera. Then the camera animation is not updated
-        // of a camera the is not the current camera!
         _camera->setView(this, ET_center);
     }
 

@@ -168,7 +168,7 @@ bool SLScene::onUpdate(bool renderTypeIsRT,
     // Do software skinning on all changed skeletons. Update any out of date acceleration structure for RT or if they're being rendered.
     if (_root3D)
     {
-        // we use a lambda to inform nodes that share a mesh that the mesh got updated (so we dont have to transfer the root node)
+        // we use a lambda to inform nodes that share a mesh that the mesh got updated (so we don't have to transfer the root node)
         sceneHasChanged |= _root3D->updateMeshSkins([&](SLMesh* mesh)
                                                     {
             SLVNode nodes = _root3D->findChildren(mesh, true);

@@ -1055,7 +1055,7 @@ void SLMesh::buildAABB(SLAABBox& aabb, const SLMat4f& wmNode)
     }
     else
     {
-        // for now we just update the acceleration struct for non skinned meshes
+        // for now, we just update the acceleration struct for non skinned meshes
         // Building the entire voxelization of a mesh every frame is not feasible
         updateAccelStruct();
     }

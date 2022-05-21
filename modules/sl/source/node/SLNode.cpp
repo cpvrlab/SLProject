@@ -686,7 +686,7 @@ class it is ok.
 */
 void SLNode::updateWM() const
 {
-    //PROFILE_FUNCTION();
+    // PROFILE_FUNCTION();
 
     if (_parent)
         _wm.setMatrix(_parent->updateAndGetWM() * _om);
@@ -769,23 +769,14 @@ SLNode::updateAABBRec()
         _aabb.mergeWS(aabbMesh);
     }
 
-    // Merge children in WS except for cameras except if cameras have children
+    // Merge children in WS
     for (auto* child : _children)
-    { /*
-        bool childIsCamera = typeid(*child)==typeid(SLCamera);
-        bool cameraHasChildren = false;
-        if (childIsCamera)
-            cameraHasChildren = !child->children().empty();
-
-        if (!childIsCamera || cameraHasChildren)
-        */
         _aabb.mergeWS(child->updateAABBRec());
-    }
 
     // We need min & max also in OS for the uniform grid intersection in OS
     _aabb.fromWStoOS(_aabb.minWS(), _aabb.maxWS(), updateAndGetWMI());
 
-    // For visualizing the nodes orientation we finally updateRec the axis in WS
+    // For visualizing the nodes' orientation we finally updateRec the axis in WS
     _aabb.updateAxisWS(updateAndGetWM());
 
     _isAABBUpToDate = true;
@@ -1128,7 +1119,7 @@ SLNode::skeleton()
 //-----------------------------------------------------------------------------
 void SLNode::updateRec()
 {
-    //if (_parent == nullptr) PROFILE_FUNCTION();
+    // if (_parent == nullptr) PROFILE_FUNCTION();
 
     doUpdate();
     for (auto* child : _children)
@@ -1207,17 +1198,17 @@ void SLNode::createInstanceAccelerationStructureTree()
 
             const SLMat4f mat4x4        = om();
             float         transform[12] = {mat4x4.m(0),
-                                   mat4x4.m(4),
-                                   mat4x4.m(8),
-                                   mat4x4.m(12),
-                                   mat4x4.m(1),
-                                   mat4x4.m(5),
-                                   mat4x4.m(9),
-                                   mat4x4.m(13),
-                                   mat4x4.m(2),
-                                   mat4x4.m(6),
-                                   mat4x4.m(10),
-                                   mat4x4.m(14)};
+                                           mat4x4.m(4),
+                                           mat4x4.m(8),
+                                           mat4x4.m(12),
+                                           mat4x4.m(1),
+                                           mat4x4.m(5),
+                                           mat4x4.m(9),
+                                           mat4x4.m(13),
+                                           mat4x4.m(2),
+                                           mat4x4.m(6),
+                                           mat4x4.m(10),
+                                           mat4x4.m(14)};
             memcpy(instance.transform, transform, sizeof(float) * 12);
 
             instance.instanceId        = instanceIndex++;
@@ -1237,17 +1228,17 @@ void SLNode::createInstanceAccelerationStructureTree()
 
         const SLMat4f& mat4x4        = om();
         float          transform[12] = {mat4x4.m(0),
-                               mat4x4.m(4),
-                               mat4x4.m(8),
-                               mat4x4.m(12),
-                               mat4x4.m(1),
-                               mat4x4.m(5),
-                               mat4x4.m(9),
-                               mat4x4.m(13),
-                               mat4x4.m(2),
-                               mat4x4.m(6),
-                               mat4x4.m(10),
-                               mat4x4.m(14)};
+                                        mat4x4.m(4),
+                                        mat4x4.m(8),
+                                        mat4x4.m(12),
+                                        mat4x4.m(1),
+                                        mat4x4.m(5),
+                                        mat4x4.m(9),
+                                        mat4x4.m(13),
+                                        mat4x4.m(2),
+                                        mat4x4.m(6),
+                                        mat4x4.m(10),
+                                        mat4x4.m(14)};
 
         memcpy(instance.transform, transform, sizeof(float) * 12);
 
@@ -1317,17 +1308,17 @@ void SLNode::createOptixInstances(vector<OptixInstance>& instances)
 
         const SLMat4f& mat4x4        = updateAndGetWM();
         float          transform[12] = {mat4x4.m(0),
-                               mat4x4.m(4),
-                               mat4x4.m(8),
-                               mat4x4.m(12),
-                               mat4x4.m(1),
-                               mat4x4.m(5),
-                               mat4x4.m(9),
-                               mat4x4.m(13),
-                               mat4x4.m(2),
-                               mat4x4.m(6),
-                               mat4x4.m(10),
-                               mat4x4.m(14)};
+                                        mat4x4.m(4),
+                                        mat4x4.m(8),
+                                        mat4x4.m(12),
+                                        mat4x4.m(1),
+                                        mat4x4.m(5),
+                                        mat4x4.m(9),
+                                        mat4x4.m(13),
+                                        mat4x4.m(2),
+                                        mat4x4.m(6),
+                                        mat4x4.m(10),
+                                        mat4x4.m(14)};
         memcpy(instance.transform, transform, sizeof(float) * 12);
 
         instance.instanceId = instanceIndex++;
