@@ -701,12 +701,10 @@ void SLNode::updateWM() const
     numWMUpdates++;
 }
 //-----------------------------------------------------------------------------
-/*!
-Will retrieve the current world matrix for this node.
-If the world matrix is out of date it will updateRec it and return a current result.
-*/
-const SLMat4f&
-SLNode::updateAndGetWM() const
+/*! Returns the current world matrix for this node. If the world matrix is out
+ * of date it will updateRec it and return a current result.
+ */
+const SLMat4f& SLNode::updateAndGetWM() const
 {
     if (!_isWMUpToDate)
         updateWM();
@@ -714,12 +712,10 @@ SLNode::updateAndGetWM() const
     return _wm;
 }
 //-----------------------------------------------------------------------------
-/*!
-Will retrieve the current world inverse matrix for this node.
-If the world matrix is out of date it will updateRec it and return a current result.
-*/
-const SLMat4f&
-SLNode::updateAndGetWMI() const
+/*! Returns the current world inverse matrix for this node. If the world matrix
+ * is out of date it will updateRec it and return a current result.
+ */
+const SLMat4f& SLNode::updateAndGetWMI() const
 {
     if (!_isWMUpToDate)
         updateWM();
@@ -727,12 +723,10 @@ SLNode::updateAndGetWMI() const
     return _wmI;
 }
 //-----------------------------------------------------------------------------
-/*!
-Will retrieve the current world normal matrix for this node.
-If the world matrix is out of date it will updateRec it and return a current result.
-*/
-const SLMat3f&
-SLNode::updateAndGetWMN() const
+/*! Returns the current world normal matrix for this node. If the world matrix
+ * is out of date it will updateRec it and return a current result.
+ */
+const SLMat3f& SLNode::updateAndGetWMN() const
 {
     if (!_isWMUpToDate)
         updateWM();
@@ -740,11 +734,9 @@ SLNode::updateAndGetWMN() const
     return _wmN;
 }
 //-----------------------------------------------------------------------------
-/*!
-Updates the axis aligned bounding box in world space.
-*/
-SLAABBox&
-SLNode::updateAABBRec()
+/*! Updates the axis aligned bounding box in world space recursively.
+ */
+SLAABBox& SLNode::updateAABBRec()
 {
     if (_isAABBUpToDate)
         return _aabb;
@@ -783,8 +775,7 @@ SLNode::updateAABBRec()
     return _aabb;
 }
 //-----------------------------------------------------------------------------
-/*!
-prints the node name with the names of the meshes recursively
+/*! Prints the node name with the names of the meshes recursively
 */
 void SLNode::dumpRec()
 {
@@ -807,8 +798,7 @@ void SLNode::dumpRec()
         child->dumpRec();
 }
 //-----------------------------------------------------------------------------
-/*!
-Recursively sets the specified drawbit on or off. See also SLDrawBits.
+/*! Recursively sets the specified drawbit on or off. See also SLDrawBits.
 */
 void SLNode::setDrawBitsRec(SLuint bit, SLbool state)
 {
@@ -817,8 +807,7 @@ void SLNode::setDrawBitsRec(SLuint bit, SLbool state)
         child->setDrawBitsRec(bit, state);
 }
 //-----------------------------------------------------------------------------
-/*!
-Recursively sets the specified OpenGL primitive type.
+/*! Recursively sets the specified OpenGL primitive type.
 */
 void SLNode::setPrimitiveTypeRec(SLGLPrimitiveType primitiveType)
 {

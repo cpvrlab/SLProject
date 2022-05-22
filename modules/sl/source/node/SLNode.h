@@ -334,7 +334,7 @@ protected:
     SLMat4f         _initialOM;      //!< the initial om state
     mutable SLMat4f _wm;             //!< world matrix for world transform
     mutable SLMat4f _wmI;            //!< inverse world matrix
-    mutable SLMat3f _wmN;            //!< normal world matrix
+    mutable SLMat3f _wmN;            //!< normal world matrix (Rotational only used for RT)
     mutable SLbool  _isWMUpToDate;   //!< is the WM of this node still valid
     mutable SLbool  _isAABBUpToDate; //!< is the saved aabb still valid
     bool            _castsShadows;   //!< flag if meshes of node should cast shadows

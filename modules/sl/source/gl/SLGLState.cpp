@@ -167,7 +167,7 @@ void SLGLState::buildNormalMatrix()
 //-----------------------------------------------------------------------------
 /*! Builds the 4x4 inverse matrix and the 3x3 normal matrix from the modelview
  matrix. If only the normal matrix is needed use the method buildNormalMatrix
- because inverses only the 3x3 submatrix of the modelview matrix.
+ because inverses only the 3x3 sub-matrix of the modelview matrix.
  */
 void SLGLState::buildInverseAndNormalMatrix()
 {
@@ -185,47 +185,6 @@ const SLMat4f* SLGLState::mvpMatrix()
     _mvpMatrix.multiply(modelViewMatrix);
     return &_mvpMatrix;
 }
-//-----------------------------------------------------------------------------
-/*! Transforms the light position into the view space
- */
-/*
-void SLGLState::calcLightPosVS(SLint nLights)
-{
-    assert(nLights >= 0 && nLights <= SL_MAX_LIGHTS);
-    for (SLint i = 0; i < nLights; ++i)
-        lightPosVS[i].set(viewMatrix * lightPosWS[i]);
-}
-  */
-//-----------------------------------------------------------------------------
-/*! Transforms the lights spot direction into the view space
- */
-/*
-void SLGLState::calcLightDirVS(SLint nLights)
-{
-    assert(nLights >= 0 && nLights <= SL_MAX_LIGHTS);
-    SLMat4f vRot(viewMatrix);
-    vRot.translation(0, 0, 0); // delete translation part, only rotation needed
-
-    for (SLint i = 0; i < nLights; ++i)
-        lightSpotDirVS[i].set(vRot.multVec(lightSpotDirWS[i]));
-}
-  */
-//-----------------------------------------------------------------------------
-/*! Returns the global ambient color as the component wise product of the global
- ambient light intensity and the materials ambient reflection. This is used to
- give the scene a minimal ambient lighting.
- */
-/*
-const SLCol4f* SLGLState::globalAmbient()
-{
-    if (_currentMaterial)
-        _globalAmbient.set(globalAmbientLight & _currentMaterial->ambient());
-    else
-        _globalAmbient.set(globalAmbientLight);
-
-    return &_globalAmbient;
-}
-  */
 //-----------------------------------------------------------------------------
 void SLGLState::clearColor(const SLCol4f& newColor)
 {

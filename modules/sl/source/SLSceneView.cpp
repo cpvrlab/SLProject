@@ -877,7 +877,7 @@ void SLSceneView::draw3DGLNodes(SLVNode& nodes,
         // Apply world transform
         stateGL->modelViewMatrix.multiply(node->updateAndGetWM().m());
 
-        // Finally draw the nodes mesh
+        // Finally, draw the nodes mesh
         node->drawMesh(this);
     }
 
