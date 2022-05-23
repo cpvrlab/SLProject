@@ -326,8 +326,10 @@ void SLMesh::drawIntoDepthBuffer(SLSceneView* sv,
     SLstring msg;
     if (P.empty())
         msg = "No vertex positions (P)\n";
+
     if (_primitive == PT_points && I16.empty() && I32.empty())
         msg += "No vertex indices (I16 or I32)\n";
+
     if (msg.length() > 0)
     {
         SL_WARN_MSG((msg + "in SLMesh::draw: " + _name).c_str());
@@ -346,8 +348,8 @@ void SLMesh::drawIntoDepthBuffer(SLSceneView* sv,
     SLGLProgram* sp    = depthMat->program();
     SLGLState*   state = SLGLState::instance();
     sp->useProgram();
-    sp->uniformMatrix4fv("u_mMatrix", 1, (SLfloat*)&node->updateAndGetWM());
-    sp->uniformMatrix4fv("u_vMatrix", 1, (SLfloat*)&stateGL->modelViewMatrix);
+    sp->uniformMatrix4fv("u_mMatrix", 1, (SLfloat*)&stateGL->modelMatrix);
+    sp->uniformMatrix4fv("u_vMatrix", 1, (SLfloat*)&stateGL->viewMatrix);
     sp->uniformMatrix4fv("u_pMatrix", 1, (SLfloat*)&stateGL->projectionMatrix);
 
     _vao.drawElementsAs(PT_triangles);

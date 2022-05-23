@@ -871,12 +871,6 @@ void SLSceneView::draw3DGLNodes(SLVNode& nodes,
     // draw the shapes directly with their wm transform
     for (auto* node : nodes)
     {
-        // Set the view transform
-        stateGL->modelViewMatrix.setMatrix(stateGL->viewMatrix);
-
-        // Apply world transform
-        stateGL->modelViewMatrix.multiply(node->updateAndGetWM().m());
-
         // Set model matrix as the nodes model to world matrix
         stateGL->modelMatrix = node->updateAndGetWM();
 
