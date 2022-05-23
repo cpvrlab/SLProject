@@ -901,7 +901,8 @@ void SLSceneView::draw3DGLLines(SLVNode& nodes)
     stateGL->depthMask(true);
 
     // Set the view transform for drawing in world space
-    stateGL->modelViewMatrix.setMatrix(stateGL->viewMatrix);
+    //stateGL->modelViewMatrix.setMatrix(stateGL->viewMatrix);
+    stateGL->modelMatrix.identity();
 
     // draw the opaque shapes directly w. their wm transform
     for (auto* node : nodes)
@@ -931,7 +932,7 @@ void SLSceneView::draw3DGLLines(SLVNode& nodes)
 //-----------------------------------------------------------------------------
 /*!
 SLSceneView::draw3DGLLinesOverlay draws the nodes axis and skeleton joints
-as overlayed
+as overlay
 */
 void SLSceneView::draw3DGLLinesOverlay(SLVNode& nodes)
 {
@@ -1082,29 +1083,39 @@ void SLSceneView::draw2DGL()
         // Draw selection rectangle. See also SLMesh::handleRectangleSelection
         if (!_camera->selectRect().isEmpty())
         {
-            stateGL->pushModelViewMatrix();
-            stateGL->modelViewMatrix.identity();
-            stateGL->modelViewMatrix.translate(-w2, h2, 1.0f);
+            //stateGL->pushModelViewMatrix();
+            //stateGL->modelViewMatrix.identity();
+            //stateGL->modelViewMatrix.translate(-w2, h2, 1.0f);
+            SLMat4f prevViewMat = stateGL->viewMatrix;
+            stateGL->viewMatrix.identity();
+            stateGL->modelMatrix.identity();
+            stateGL->modelMatrix.translate(-w2, h2, 1.0f);
             stateGL->depthMask(false); // Freeze depth buffer for blending
             stateGL->depthTest(false); // Disable depth testing
             _camera->selectRect().drawGL(SLCol4f::WHITE);
             stateGL->depthMask(true); // enable depth buffer writing
             stateGL->depthTest(true); // enable depth testing
-            stateGL->popModelViewMatrix();
+            stateGL->viewMatrix = prevViewMat;
+            //stateGL->popModelViewMatrix();
         }
 
         // Draw deselection rectangle. See also SLMesh::handleRectangleSelection
         if (!_camera->deselectRect().isEmpty())
         {
-            stateGL->pushModelViewMatrix();
-            stateGL->modelViewMatrix.identity();
-            stateGL->modelViewMatrix.translate(-w2, h2, 1.0f);
+            //stateGL->pushModelViewMatrix();
+            //stateGL->modelViewMatrix.identity();
+            //stateGL->modelViewMatrix.translate(-w2, h2, 1.0f);
+            SLMat4f prevViewMat = stateGL->viewMatrix;
+            stateGL->viewMatrix.identity();
+            stateGL->modelMatrix.identity();
+            stateGL->modelMatrix.translate(-w2, h2, 1.0f);
             stateGL->depthMask(false); // Freeze depth buffer for blending
             stateGL->depthTest(false); // Disable depth testing
             _camera->deselectRect().drawGL(SLCol4f::MAGENTA);
             stateGL->depthMask(true); // enable depth buffer writing
             stateGL->depthTest(true); // enable depth testing
-            stateGL->popModelViewMatrix();
+            stateGL->viewMatrix = prevViewMat;
+            //stateGL->popModelViewMatrix();
         }
     }
 

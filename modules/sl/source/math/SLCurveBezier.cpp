@@ -101,8 +101,7 @@ void SLCurveBezier::init(const SLVVec4f& points,
 }
 //-----------------------------------------------------------------------------
 /*!
-SLCurveBezier::draw does the OpenGL rendering of the Bezier curve in world
-space.
+SLCurveBezier::draw does the rendering of the Bezier curve in world space.
 */
 void SLCurveBezier::draw(const SLMat4f& wm)
 {
@@ -151,7 +150,8 @@ void SLCurveBezier::draw(const SLMat4f& wm)
 
     // Set the view transform
     SLGLState* stateGL = SLGLState::instance();
-    stateGL->modelViewMatrix.setMatrix(stateGL->viewMatrix);
+    //stateGL->modelViewMatrix.setMatrix(stateGL->viewMatrix);
+    stateGL->modelMatrix.identity();
 
     SLint numTangentPoints = numControlPoints * 2;
     SLint numCurvePoints   = (SLint)_vao.numVertices() -

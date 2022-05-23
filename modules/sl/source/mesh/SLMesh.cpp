@@ -617,7 +617,8 @@ void SLMesh::handleRectangleSelection(SLSceneView* sv,
     else // rect selection or deselection is going on
     {
         // Build full viewport-modelview-projection transform matrix
-        SLMat4f mvp = *stateGL->mvpMatrix();
+        //SLMat4f mvp = *stateGL->mvpMatrix();
+        SLMat4f mvp(stateGL->projectionMatrix * stateGL->viewMatrix * node->updateAndGetWM());
         SLMat4f v;
         SLRecti vp = sv->viewportRect();
         v.viewport((SLfloat)vp.x,

@@ -192,12 +192,9 @@ void SLShadowMap::drawRays()
 #ifndef SL_GLES // Reading the depth-buffer with GLES is non-trivial
 
     if (_useCubemap) return; // Not implemented for cubemaps
-
     SLint w = _rayCount.x;
     SLint h = _rayCount.y;
-
-    if (w == 0 || h == 0)
-        return;
+    if (w == 0 || h == 0)  return;
 
     SLGLState* stateGL = SLGLState::instance();
     SLVVec3f   P;
