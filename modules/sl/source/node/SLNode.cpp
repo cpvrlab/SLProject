@@ -37,7 +37,6 @@ SLNode::SLNode(const SLstring& name) : SLObject(name)
     _om.identity();
     _wm.identity();
     _wmI.identity();
-    _wmN.identity();
     _drawBits.allOff();
     _animation      = nullptr;
     _castsShadows   = true;
@@ -61,7 +60,6 @@ SLNode::SLNode(SLMesh* mesh, const SLstring& name) : SLObject(name)
     _om.identity();
     _wm.identity();
     _wmI.identity();
-    _wmN.identity();
     _drawBits.allOff();
     _animation      = nullptr;
     _castsShadows   = true;
@@ -89,7 +87,6 @@ SLNode::SLNode(SLMesh*         mesh,
     _om.translate(translation);
     _wm.identity();
     _wmI.identity();
-    _wmN.identity();
     _drawBits.allOff();
     _animation      = nullptr;
     _castsShadows   = true;
@@ -632,10 +629,6 @@ void SLNode::updateWM() const
     else
         _wm.setMatrix(_om);
 
-    _wmI.setMatrix(_wm);
-    _wmI.invert();
-    _wmN.setMatrix(_wm.mat3());
-
     _isWMUpToDate = true;
     numWMUpdates++;
 }
@@ -659,18 +652,10 @@ const SLMat4f& SLNode::updateAndGetWMI() const
     if (!_isWMUpToDate)
         updateWM();
 
-    return _wmI;
-}
-//-----------------------------------------------------------------------------
-/*! Returns the current world normal matrix for this node. If the world matrix
- * is out of date it will updateRec it and return a current result.
- */
-const SLMat3f& SLNode::updateAndGetWMN() const
-{
-    if (!_isWMUpToDate)
-        updateWM();
+    _wmI.setMatrix(_wm);
+    _wmI.invert();
 
-    return _wmN;
+    return _wmI;
 }
 //-----------------------------------------------------------------------------
 /*! Updates the axis aligned bounding box in world space recursively.

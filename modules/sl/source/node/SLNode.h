@@ -279,7 +279,6 @@ public:
     const SLMat4f&        initialOM() { return _initialOM; }
     const SLMat4f&        updateAndGetWM() const;
     const SLMat4f&        updateAndGetWMI() const;
-    const SLMat3f&        updateAndGetWMN() const;
     SLDrawBits*           drawBits() { return &_drawBits; }
     SLbool                drawBit(SLuint bit) { return _drawBits.get(bit); }
     SLAABBox*             aabb() { return &_aabb; }
@@ -333,7 +332,6 @@ protected:
     SLMat4f         _initialOM;      //!< the initial om state
     mutable SLMat4f _wm;             //!< world matrix for world transform
     mutable SLMat4f _wmI;            //!< inverse world matrix
-    mutable SLMat3f _wmN;            //!< normal world matrix (Rotational only used for RT)
     mutable SLbool  _isWMUpToDate;   //!< is the WM of this node still valid
     mutable SLbool  _isAABBUpToDate; //!< is the saved aabb still valid
     bool            _castsShadows;   //!< flag if meshes of node should cast shadows
