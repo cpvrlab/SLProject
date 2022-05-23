@@ -1,6 +1,6 @@
 //#############################################################################
 //  File:      AppDemoSceneLoad.cpp
-//  Date:      Februar 2018
+//  Date:      February 2018
 //  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
 //  Authors:   Marcus Hudritsch
 //  License:   This software is provided under the GNU General Public License

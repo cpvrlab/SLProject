@@ -16,9 +16,9 @@ precision highp float;
 layout (location = 0) in vec4  a_position;     // Vertex position attribute
 layout (location = 1) in vec3  a_normal;       // Vertex normal attribute
 
-uniform mat4  u_mMatrix;    // Model matrix
-uniform mat4  u_vMatrix;    // View matrix
-uniform mat4  u_pMatrix;    // Projection matrix
+uniform mat4  u_mMatrix;    // Model matrix (object to world transform)
+uniform mat4  u_vMatrix;    // View matrix (world to camera transform)
+uniform mat4  u_pMatrix;    // Projection matrix (camera to normalize device coords.)
 
 uniform vec4   u_lightPosVS[NUM_LIGHTS];    // position of light in view space
 uniform vec4   u_lightSpec[NUM_LIGHTS];     // specular light intensity (Is)

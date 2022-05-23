@@ -18,7 +18,7 @@ layout(location = 1) in vec3  a_normal;      // Vertex normal attribute
 layout(location = 2) in vec2  a_texCoord;    // Vertex texture coordinate attribute
 
 uniform mat4  u_mvpMatrix;   // = projection * modelView
-uniform mat4  u_mMatrix;     // model matrix
+uniform mat4  u_mMatrix;     // Model matrix (object to world transform)
 uniform mat4  u_wsToVs;      // convert from ws to voxel space
 
 out		vec3  o_N_WS;        // Normal at P_VS in world space

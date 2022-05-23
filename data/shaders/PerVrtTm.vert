@@ -13,9 +13,9 @@ precision highp float;
 layout (location = 0) in vec4  a_position;  // Vertex position attribute
 layout (location = 2) in vec2  a_uv0;       // Vertex texture attribute
 
-uniform mat4  u_mMatrix;    // Model matrix
-uniform mat4  u_vMatrix;    // View matrix
-uniform mat4  u_pMatrix;    // Projection matrix
+uniform mat4  u_mMatrix;    // Model matrix (object to world transform)
+uniform mat4  u_vMatrix;    // View matrix (world to camera transform)
+uniform mat4  u_pMatrix;    // Projection matrix (camera to normalize device coords.)
 
 out     vec3    v_P_VS;         // Point of illumination in view space (VS)
 out     vec2    v_uv0;          // texture coordinate at vertex

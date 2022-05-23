@@ -439,7 +439,7 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
 
     // 3.b) Pass the matrices to the shader program
     SLGLProgram* sp = _mat->program();
-    sp->uniformMatrix4fv("u_mMatrix", 1, (SLfloat*)&node->updateAndGetWM());
+    sp->uniformMatrix4fv("u_mMatrix", 1, (SLfloat*)&stateGL->modelMatrix);
     sp->uniformMatrix4fv("u_vMatrix", 1, (SLfloat*)&stateGL->viewMatrix);
     sp->uniformMatrix4fv("u_pMatrix", 1, (SLfloat*)&stateGL->projectionMatrix);
     /*
@@ -540,9 +540,14 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
             _vaoT.generateVertexPos(&V2);
         }
 
+        // Draw normals
         _vaoN.drawArrayAsColored(PT_lines, SLCol4f::BLUE);
-        if (!T.empty()) _vaoT.drawArrayAsColored(PT_lines, SLCol4f::RED);
-        if (blended) stateGL->blend(false);
+
+        // Draw tangents if available
+        if (!T.empty())
+            _vaoT.drawArrayAsColored(PT_lines, SLCol4f::RED);
+        if (blended)
+            stateGL->blend(false);
     }
     else
     { // release buffer objects for normal & tangent rendering

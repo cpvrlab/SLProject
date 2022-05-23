@@ -20,9 +20,9 @@ layout (location = 2) in vec2  a_uv0;           // Vertex texture attribute
 layout (location = 6) in vec4  a_jointIds;      // Vertex joint indices attributes
 layout (location = 7) in vec4  a_jointWeights;  // Vertex joint weights attributes
 
-uniform mat4  u_mMatrix;    // Model matrix
-uniform mat4  u_vMatrix;    // View matrix
-uniform mat4  u_pMatrix;    // Projection matrix
+uniform mat4  u_mMatrix;    // Model matrix (object to world transform)
+uniform mat4  u_vMatrix;    // View matrix (world to camera transform)
+uniform mat4  u_pMatrix;    // Projection matrix (camera to normalize device coords.)
 
 uniform bool   u_lightIsOn[NUM_LIGHTS];     // flag if light is on
 uniform vec4   u_lightPosVS[NUM_LIGHTS];    // position of light in view space

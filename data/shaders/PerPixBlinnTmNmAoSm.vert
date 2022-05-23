@@ -19,9 +19,9 @@ layout (location = 2) in vec2  a_uv0;       // Vertex tex.coord. 1 for diffuse c
 layout (location = 3) in vec2  a_uv1;       // Vertex tex.coord. 2 for AO
 layout (location = 5) in vec4  a_tangent;   // Vertex tangent attribute
 
-uniform mat4  u_mMatrix;    // Model matrix
-uniform mat4  u_vMatrix;    // View matrix
-uniform mat4  u_pMatrix;    // Projection matrix
+uniform mat4  u_mMatrix;    // Model matrix (object to world transform)
+uniform mat4  u_vMatrix;    // View matrix (world to camera transform)
+uniform mat4  u_pMatrix;    // Projection matrix (camera to normalize device coords.)
 
 uniform vec4  u_lightPosVS[NUM_LIGHTS];     // position of light in view space
 uniform vec3  u_lightSpotDir[NUM_LIGHTS];   // spot direction in view space

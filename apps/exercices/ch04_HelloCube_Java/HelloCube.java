@@ -22,9 +22,9 @@ public class HelloCube extends JPanel implements ComponentListener,
 									             MouseWheelListener
 {
 	// Private members
-	private SLMat4f   m_viewMatrix;   	    // view matrix
-	private SLMat4f   m_modelMatrix;   		// model matrix
-	private SLMat4f   m_projectionMatrix;  	// projection matrix
+	private SLMat4f   m_viewMatrix;   	    // View matrix (world to camera transform)
+	private SLMat4f   m_modelMatrix;   		// Model matrix (object to world transform)
+	private SLMat4f   m_projectionMatrix;  	// Projection matrix (camera to normalize device coords.)
 	private SLMat4f   m_viewportMatrix;    	// viewport matrix
 	private SLVec3f[] m_v;                 	// array for vertices for the cube
 	private float     m_camZ;              	// z-distance of camera

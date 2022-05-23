@@ -56,11 +56,13 @@ void SLGLVertexArrayExt::drawArrayAsColored(SLGLPrimitiveType primitiveType,
 
     // Prepare shader
     SLGLProgram* sp    = SLGLProgramManager::get(SP_colorUniform);
-    SLGLState*   state = SLGLState::instance();
+    SLGLState*   stateGL = SLGLState::instance();
     sp->useProgram();
-    sp->uniformMatrix4fv("u_mvpMatrix", 1, (const SLfloat*)state->mvpMatrix());
+    sp->uniformMatrix4fv("u_mMatrix", 1, (SLfloat*)&stateGL->modelMatrix);
+    sp->uniformMatrix4fv("u_vMatrix", 1, (SLfloat*)&stateGL->viewMatrix);
+    sp->uniformMatrix4fv("u_pMatrix", 1, (SLfloat*)&stateGL->projectionMatrix);
     sp->uniform1f("u_oneOverGamma", 1.0f);
-    state->currentMaterial(nullptr);
+    stateGL->currentMaterial(nullptr);
 
     // Set uniform color
     glUniform4fv(sp->getUniformLocation("u_matDiff"), 1, (SLfloat*)&color);
@@ -101,11 +103,13 @@ void SLGLVertexArrayExt::drawElementAsColored(SLGLPrimitiveType primitiveType,
 
     // Prepare shader
     SLGLProgram* sp    = SLGLProgramManager::get(SP_colorUniform);
-    SLGLState*   state = SLGLState::instance();
+    SLGLState*   stateGL = SLGLState::instance();
     sp->useProgram();
-    sp->uniformMatrix4fv("u_mvpMatrix", 1, (const SLfloat*)state->mvpMatrix());
+    sp->uniformMatrix4fv("u_mMatrix", 1, (SLfloat*)&stateGL->modelMatrix);
+    sp->uniformMatrix4fv("u_vMatrix", 1, (SLfloat*)&stateGL->viewMatrix);
+    sp->uniformMatrix4fv("u_pMatrix", 1, (SLfloat*)&stateGL->projectionMatrix);
     sp->uniform1f("u_oneOverGamma", 1.0f);
-    state->currentMaterial(nullptr);
+    stateGL->currentMaterial(nullptr);
 
     // Set uniform color
     glUniform4fv(sp->getUniformLocation("u_matDiff"), 1, (SLfloat*)&color);

@@ -15,9 +15,9 @@ layout (location = 0) in vec4  a_position;  // Vertex position attribute
 layout (location = 1) in vec3  a_normal;    // Vertex normal attribute
 layout (location = 3) in vec2  a_uv1;       // Vertex tex.coord. 2 for AO
 
-uniform mat4  u_mMatrix;    // Model matrix
-uniform mat4  u_vMatrix;    // View matrix
-uniform mat4  u_pMatrix;    // Projection matrix
+uniform mat4  u_mMatrix;    // Model matrix (object to world transform)
+uniform mat4  u_vMatrix;    // View matrix (world to camera transform)
+uniform mat4  u_pMatrix;    // Projection matrix (camera to normalize device coords.)
 
 out     vec3  v_P_VS;       // Point of illumination in view space (VS)
 out     vec3  v_P_WS;       // Point of illumination in world space (WS)

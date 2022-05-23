@@ -16,8 +16,8 @@ precision highp sampler3D;
 //-----------------------------------------------------------------------------
 in      vec3       v_raySource;     // The source coordinate of the view ray (model coordinat
 
-uniform mat4       u_mMatrix;             // Model matrix
-uniform mat4       u_vMatrix;             // View matrix
+uniform mat4       u_mMatrix;             // Model matrix (object to world transform)
+uniform mat4       u_vMatrix;             // View matrix (world to camera transform)
 uniform float      u_volumeX;            // 3D texture width
 uniform float      u_volumeY;            // 3D texture height
 uniform float      u_volumeZ;            // 3D texture de

@@ -877,6 +877,9 @@ void SLSceneView::draw3DGLNodes(SLVNode& nodes,
         // Apply world transform
         stateGL->modelViewMatrix.multiply(node->updateAndGetWM().m());
 
+        // Set model matrix as the nodes model to world matrix
+        stateGL->modelMatrix = node->updateAndGetWM();
+
         // Finally, draw the nodes mesh
         node->drawMesh(this);
     }
@@ -952,7 +955,7 @@ void SLSceneView::draw3DGLLinesOverlay(SLVNode& nodes)
                 node->isSelected())
             {
                 // Set the view transform
-                stateGL->modelViewMatrix.setMatrix(stateGL->viewMatrix);
+                stateGL->modelMatrix.identity();
                 stateGL->blend(false);     // Turn off blending for overlay
                 stateGL->depthMask(true);  // Freeze depth buffer for blending
                 stateGL->depthTest(false); // Turn of depth test for overlay
@@ -1000,13 +1003,15 @@ void SLSceneView::draw3DGLLinesOverlay(SLVNode& nodes)
                 node->aabb()->calculateRectSS();
 
                 SLMat4f prevProjMat = stateGL->projectionMatrix;
+                SLMat4f prevViewMat = stateGL->viewMatrix;
                 stateGL->pushModelViewMatrix();
                 SLfloat w2 = (SLfloat)_scrWdiv2;
                 SLfloat h2 = (SLfloat)_scrHdiv2;
                 stateGL->projectionMatrix.ortho(-w2, w2, -h2, h2, 1.0f, -1.0f);
                 stateGL->viewport(0, 0, _scrW, _scrH);
-                stateGL->modelViewMatrix.identity();
-                stateGL->modelViewMatrix.translate(-w2, h2, 1.0f);
+                stateGL->viewMatrix.identity();
+                stateGL->modelMatrix.identity();
+                stateGL->modelMatrix.translate(-w2, h2, 1.0f);
                 stateGL->depthMask(false); // Freeze depth buffer for blending
                 stateGL->depthTest(false); // Disable depth testing
 
@@ -1016,6 +1021,7 @@ void SLSceneView::draw3DGLLinesOverlay(SLVNode& nodes)
                 stateGL->depthTest(true); // Disable depth testing
                 stateGL->popModelViewMatrix();
                 stateGL->projectionMatrix = prevProjMat;
+                stateGL->viewMatrix       = prevViewMat;
             }
             else if (node->drawBit(SL_DB_OVERDRAW))
             {
@@ -1029,11 +1035,9 @@ void SLSceneView::draw3DGLLinesOverlay(SLVNode& nodes)
                     stateGL->depthMask(!hasAlpha);
                     stateGL->depthTest(false); // Turn of depth test for overlay
 
-                    // Set the view transform
-                    stateGL->modelViewMatrix.setMatrix(stateGL->viewMatrix);
-
-                    // Apply world transform
-                    stateGL->modelViewMatrix.multiply(node->updateAndGetWM().m());
+                    // Set model & view transform
+                    stateGL->viewMatrix  = stateGL->viewMatrix;
+                    stateGL->modelMatrix = node->updateAndGetWM();
 
                     // Finally, draw the nodes mesh
                     node->drawMesh(this);

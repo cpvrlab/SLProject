@@ -37,14 +37,14 @@ layout (location = 5) in vec4  a_tangent;   // Vertex tangent attribute)";
 //-----------------------------------------------------------------------------
 const string vertInput_u_matrices_all = R"(
 
-uniform mat4  u_mMatrix;    // model matrix
-uniform mat4  u_vMatrix;    // view matrix
-uniform mat4  u_pMatrix;    // projection matrix)";
+uniform mat4  u_mMatrix;    // Model matrix (object to world transform)
+uniform mat4  u_vMatrix;    // View matrix (world to camera transform)
+uniform mat4  u_pMatrix;    // Projection matrix (camera to normalize device coords.))";
 /*
 const string vertInput_u_matrices_all = R"(
 
 uniform mat3  u_nMatrix;    // normal matrix=transpose(inverse(mv))
-uniform mat4  u_mMatrix;    // model matrix
+uniform mat4  u_mMatrix;    // Model matrix (object to world transform)
 uniform mat4  u_mvMatrix;   // modelview matrix
 uniform mat4  u_mvpMatrix;  // = projection * modelView)";
 const string vertInput_u_matrix_invMv = R"(

@@ -17,9 +17,9 @@ layout (location = 0) in vec4  a_position;  // Vertex position attribute
 layout (location = 1) in vec3  a_normal;    // Vertex normal attribute
 layout (location = 2) in vec2  a_uv0;       // Vertex texture attribute
 
-uniform mat4  u_mMatrix;    // Model matrix
-uniform mat4  u_vMatrix;    // View matrix
-uniform mat4  u_pMatrix;    // Projection matrix
+uniform mat4  u_mMatrix;    // Model matrix (object to world transform)
+uniform mat4  u_vMatrix;    // View matrix (world to camera transform)
+uniform mat4  u_pMatrix;    // Projection matrix (camera to normalize device coords.)
 
 uniform bool   u_lightIsOn[NUM_LIGHTS];     // flag if light is on
 uniform vec4   u_lightPosVS[NUM_LIGHTS];    // position of light in view space

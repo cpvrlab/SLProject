@@ -16,7 +16,7 @@ precision highp float;
 layout(location = 0) in vec4 a_position;
 
 uniform     mat4  u_mvpMatrix;   // = projection * modelView
-uniform     mat4  u_mMatrix;     // model matrix
+uniform     mat4  u_mMatrix;     // Model matrix (object to world transform)
 
 out vec3 a_P_WS;
 //-----------------------------------------------------------------------------
