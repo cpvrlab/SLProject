@@ -188,7 +188,6 @@ bool SLScene::onUpdate(bool renderTypeIsRT,
     // The updateAABBRec call won't generate any overhead if nothing changed
     SLfloat startAAABBUpdateMS = GlobalTimer::timeMS();
     SLNode::numWMUpdates       = 0;
-    SLGLState::instance()->modelViewMatrix.identity();
     if (_root3D)
         _root3D->updateAABBRec();
     if (_root2D)

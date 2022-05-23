@@ -179,14 +179,11 @@ void SLSkybox::drawAroundCamera(SLSceneView* sv)
     if (_isHDR && !_isBuilt)
         build();
 
-    // Set the view transform
-    stateGL->modelViewMatrix.setMatrix(stateGL->viewMatrix);
-
     // Put skybox at the cameras position
     translation(sv->camera()->translationWS());
 
     // Apply world transform
-    stateGL->modelViewMatrix.multiply(updateAndGetWM().m());
+    stateGL->modelMatrix = updateAndGetWM();
 
     // Freeze depth buffer
     stateGL->depthMask(false);

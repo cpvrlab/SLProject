@@ -879,9 +879,6 @@ void SLCamera::setView(SLSceneView* sv, const SLEyeType eye)
     // The view matrix is the camera nodes inverse world matrix
     SLMat4f vm = updateAndGetWMI();
 
-    // Initialize the modelview to identity
-    stateGL->modelViewMatrix.identity();
-
     // Single eye projection
     if (eye == ET_center)
     {
