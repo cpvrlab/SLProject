@@ -546,8 +546,10 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
     }
     else
     { // release buffer objects for normal & tangent rendering
-        if (_vaoN.vaoID()) _vaoN.deleteGL();
-        if (_vaoT.vaoID()) _vaoT.deleteGL();
+        if (_vaoN.vaoID())
+            _vaoN.deleteGL();
+        if (_vaoT.vaoID())
+            _vaoT.deleteGL();
     }
 
     //////////////////////////////////////////

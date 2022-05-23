@@ -31,9 +31,6 @@ void SLGLVertexArrayExt::generateVertexPos(SLuint numVertices,
     sp->useProgram();
     SLint location = AT_position;
 
-    if (location == -1)
-        SL_EXIT_MSG("The position attribute has no variable location.");
-
     // Add attribute if it doesn't exist
     if (_VBOf.attribIndex(AT_position) == -1)
     {

@@ -1,11 +1,11 @@
-//#############################################################################
-//  File:      SLBackground.h
-//  Date:      August 2015
-//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
-//  Authors:   Marcus Hudritsch
-//  License:   This software is provided under the GNU General Public License
-//             Please visit: http://opensource.org/licenses/GPL-3.0
-//#############################################################################
+// #############################################################################
+//   File:      SLBackground.h
+//   Date:      August 2015
+//   Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
+//   Authors:   Marcus Hudritsch
+//   License:   This software is provided under the GNU General Public License
+//              Please visit: http://opensource.org/licenses/GPL-3.0
+// #############################################################################
 
 #ifndef SLBACKGROUND_H
 #define SLBACKGROUND_H
@@ -33,7 +33,11 @@ public:
     ~SLBackground();
 
     void    render(SLint widthPX, SLint heightPX);
-    void    renderInScene(const SLVec3f& LT, const SLVec3f& LB, const SLVec3f& RT, const SLVec3f& RB);
+    void    renderInScene(const SLMat4f& wm,
+                          const SLVec3f& LT,
+                          const SLVec3f& LB,
+                          const SLVec3f& RT,
+                          const SLVec3f& RB);
     SLCol4f colorAtPos(SLfloat x, SLfloat y, SLfloat width, SLfloat height);
     void    rebuild() { _vao.clearAttribs(); }
 

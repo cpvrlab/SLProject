@@ -314,7 +314,7 @@ void SLCamera::drawMesh(SLSceneView* sv)
         _vao.drawArrayAsColored(PT_lines, color);
 
         if (!sv->s()->skybox())
-            _background.renderInScene(farLT, farLB, farRT, farRB);
+            _background.renderInScene(updateAndGetWM(), farLT, farLB, farRT, farRB);
     }
 }
 //-----------------------------------------------------------------------------
@@ -327,7 +327,7 @@ void SLCamera::statsRec(SLNodeStats& stats)
 }
 //-----------------------------------------------------------------------------
 /*!
-SLCamera::calcMinMax calculates the axis alligned minimum and maximum point of
+SLCamera::calcMinMax calculates the axis aligned minimum and maximum point of
 the camera position and the 4 near clipping plane points in object space (OS).
 */
 void SLCamera::calcMinMax(SLVec3f& minV, SLVec3f& maxV) const
@@ -365,7 +365,7 @@ void SLCamera::calcMinMax(SLVec3f& minV, SLVec3f& maxV) const
 /*!
  SLCamera::buildAABB builds the passed axis-aligned bounding box in OS and
  updates the min & max points in WS with the passed WM of the node. The camera
- node has no mesh accociated, so we have to calculate the min and max point
+ node has no mesh associated, so we have to calculate the min and max point
  from the camera frustum.
  */
 void SLCamera::buildAABB(SLAABBox& aabb, const SLMat4f& wmNode)
