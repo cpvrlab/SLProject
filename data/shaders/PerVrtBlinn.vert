@@ -16,9 +16,9 @@ precision highp float;
 layout (location = 0) in vec4 a_position; // Vertex position attribute
 layout (location = 1) in vec3 a_normal;   // Vertex normal attribute
 
-uniform mat4   u_mvMatrix;          // modelview matrix 
-uniform mat3   u_nMatrix;           // normal matrix=transpose(inverse(mv))
-uniform mat4   u_mvpMatrix;         // = projection * modelView
+uniform mat4  u_mMatrix;    // Model matrix
+uniform mat4  u_vMatrix;    // View matrix
+uniform mat4  u_pMatrix;    // Projection matrix
 
 uniform bool   u_lightIsOn[NUM_LIGHTS];     // flag if light is on
 uniform vec4   u_lightPosVS[NUM_LIGHTS];    // position of light in view space
@@ -52,8 +52,13 @@ void main()
     vec4 Id = vec4(0.0); // Accumulated diffuse light intensity at v_P_VS
     vec4 Is = vec4(0.0); // Accumulated specular light intensity at v_P_VS
 
-    v_P_VS = vec3(u_mvMatrix * a_position);
-    vec3 N = normalize(u_nMatrix * a_normal);
+    mat4 mvMatrix = u_vMatrix * u_mMatrix;
+    v_P_VS = vec3(mvMatrix * a_position);
+
+    mat3 invMvMatrix = mat3(inverse(mvMatrix));
+    mat3 nMatrix = transpose(invMvMatrix);
+    vec3 N = vec3(nMatrix * a_normal);
+
     vec3 E = normalize(-v_P_VS);
 
     for (int i = 0; i < NUM_LIGHTS; ++i)
@@ -88,7 +93,7 @@ void main()
     // Apply gamma correction
     v_color.rgb = pow(v_color.rgb, vec3(u_oneOverGamma));
 
-    // Set the transformes vertex position           
-    gl_Position = u_mvpMatrix * a_position;
+    // Set the transformes vertex position
+    gl_Position = u_pMatrix * mvMatrix * a_position;
 }
 //-----------------------------------------------------------------------------

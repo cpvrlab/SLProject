@@ -19,9 +19,9 @@ layout (location = 1) in vec3  a_normal;       // Vertex normal attribute
 layout (location = 6) in vec4  a_jointIds;     // Vertex joint indices attributes
 layout (location = 7) in vec4  a_jointWeights; // Vertex joint weights attributes
 
-uniform mat4   u_mvMatrix;                  // modelview matrix
-uniform mat3   u_nMatrix;                   // normal matrix=transpose(inverse(mv))
-uniform mat4   u_mvpMatrix;                 // = projection * modelView
+uniform mat4   u_mMatrix;    // Model matrix
+uniform mat4   u_vMatrix;    // View matrix
+uniform mat4   u_pMatrix;    // Projection matrix
 uniform mat4   u_jointMatrices[100];        // joint matrices for vertex skinning
 
 uniform bool   u_lightIsOn[NUM_LIGHTS];     // flag if light is on
@@ -74,8 +74,11 @@ void main()
     jnm[0][1] = jm[0][1]; jnm[1][1] = jm[1][1]; jnm[2][1] = jm[2][1];
     jnm[0][2] = jm[0][2]; jnm[1][2] = jm[1][2]; jnm[2][2] = jm[2][2];
 
-    v_P_VS = vec3(u_mvMatrix * jm * a_position);
-    vec3 N = normalize(vec3(u_nMatrix * jnm * a_normal));
+    mat4 mvMatrix = u_vMatrix * u_mMatrix;
+    v_P_VS = vec3(mvMatrix * jm * a_position);
+    mat3 invMvMatrix = mat3(inverse(mvMatrix));
+    mat3 nMatrix = transpose(invMvMatrix);
+    vec3 N = normalize(vec3(nMatrix * jnm * a_normal));
     vec3 E = normalize(-v_P_VS);
 
     for (int i = 0; i < NUM_LIGHTS; ++i)
@@ -111,7 +114,7 @@ void main()
     v_color.rgb = pow(v_color.rgb, vec3(u_oneOverGamma));
     
     // Transform the vertex with the modelview and joint matrix
-    gl_Position = u_mvpMatrix * jm * a_position;
+    gl_Position = u_pMatrix * mvMatrix * jm * a_position;
 }
 
 //-----------------------------------------------------------------------------

@@ -14,9 +14,10 @@ precision highp float;
 layout (location = 0) in vec4  a_position;     // Vertex position attribute
 layout (location = 1) in vec3  a_normal;       // Vertex normal attribute
 
-uniform mat4  u_mvMatrix;    // modelview matrix
-uniform mat3  u_nMatrix;     // normal matrix=transpose(inverse(mv))
-uniform mat4  u_mvpMatrix;   // = projection * modelView
+uniform mat4  u_mMatrix;    // Model matrix
+uniform mat4  u_vMatrix;    // View matrix
+uniform mat4  u_pMatrix;    // Projection matrix
+
 uniform float u_t;           // time
 uniform float u_h;           // height of the wave in y direction
 uniform float u_a;           // frequency in x direction
@@ -31,15 +32,20 @@ void main(void)
    
     // Calculate z with sine waves shifted by t
     p.z = u_h * sin(u_t + u_a*p.x) * sin(u_t + u_b*p.y);
-    v_P_VS = vec3(u_mvMatrix * p);
+
+    mat4 mvMatrix = u_vMatrix * u_mMatrix;
+    v_P_VS = vec3(mvMatrix * p);
    
     // Calculate wave normal in view coords 
     float ax = u_a*p.x;
     float by = u_b*p.y;
     float ha = u_h*u_a;
     v_N_VS = vec3(-ha*sin(u_t+by)*cos(u_t+ax), -ha*sin(u_t+ax)*cos(u_t+by), 1.0);
-    v_N_VS = vec3(u_nMatrix * v_N_VS);
+
+    mat3 invMvMatrix = mat3(inverse(mvMatrix));
+    mat3 nMatrix = transpose(invMvMatrix);
+    v_N_VS = vec3(nMatrix * v_N_VS);
    
-    gl_Position = u_mvpMatrix * p;
+    gl_Position = u_pMatrix * mvMatrix * p;
 }
 //-----------------------------------------------------------------------------
