@@ -420,67 +420,6 @@ void SLNode::cull2DRec(SLSceneView* sv)
 }
 //-----------------------------------------------------------------------------
 /*!
-Draws the the nodes meshes with SLNode::drawMeshes and calls
-recursively the drawRec method of the nodes children.
-The nodes object matrix (SLNode::_om) is multiplied before the meshes are drawn.
-This recursive drawing is more expensive than the flat drawing with the
-opaqueNodes vector because of the additional matrix multiplications.
-The order of drawing doesn't matter in flat drawing because the world
-matrix (SLNode::_wm) is used for transform. See also SLNode::drawMeshes.
-The drawRec method is <b>still used</b> for the rendering of the 2D menu!
-*/
-void SLNode::drawRec(SLSceneView* sv)
-{
-    // PROFILE_FUNCTION();
-
-    // Do frustum culling for all shapes except cameras & lights
-    if (sv->doFrustumCulling() && !_aabb.isVisible()) return;
-
-    SLGLState* stateGL = SLGLState::instance();
-    stateGL->pushModelViewMatrix();
-    stateGL->modelViewMatrix.multiply(_om.m());
-    stateGL->buildInverseAndNormalMatrix();
-
-    /////////////
-    drawMesh(sv);
-    /////////////
-
-    for (auto* child : _children)
-        child->drawRec(sv);
-
-    stateGL->popModelViewMatrix();
-
-    // Draw axis aligned bounding box
-    bool showBBOX   = sv->drawBit(SL_DB_BBOX) || drawBit(SL_DB_BBOX);
-    bool showAXIS   = sv->drawBit(SL_DB_AXIS) || drawBit(SL_DB_AXIS);
-    bool showSELECT = _isSelected;
-
-    if (showBBOX || showAXIS || showSELECT)
-    {
-        stateGL->pushModelViewMatrix();
-        stateGL->modelViewMatrix.setMatrix(sv->camera()->updateAndGetVM().m());
-
-        // Draw AABB of all other shapes only
-        if (showBBOX && !showSELECT)
-        {
-            if (_mesh)
-                _aabb.drawWS(SLCol4f::RED);
-            else
-                _aabb.drawWS(SLCol4f::CYAN);
-        }
-
-        if (showAXIS)
-            _aabb.drawAxisWS();
-
-        // Draw AABB if shapes is selected
-        if (showSELECT)
-            _aabb.drawWS(SLCol4f::YELLOW);
-
-        stateGL->popModelViewMatrix();
-    }
-}
-//-----------------------------------------------------------------------------
-/*!
 Updates the statistic numbers of the passed SLNodeStats struct
 and calls recursively the same method for all children.
 */

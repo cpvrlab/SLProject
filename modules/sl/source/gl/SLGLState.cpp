@@ -145,30 +145,28 @@ void SLGLState::onInitialize(const SLCol4f& clearColor)
     GET_GL_ERROR;
 }
 //-----------------------------------------------------------------------------
+
 /*! Builds the 4x4 inverse matrix from the modelview matrix.
- */
 void SLGLState::buildInverseMatrix()
 {
     _invModelViewMatrix.setMatrix(modelViewMatrix);
     _invModelViewMatrix.invert();
-}
+}*/
 //-----------------------------------------------------------------------------
 /*! Builds the normal matrix by the inverse transposed modelview matrix. Only
  the linear 3x3 sub-matrix of the modelview matrix with the rotation is inversed.
  The inverse transposed could be ignored as long as we would only have rotation
  and uniform scaling in the 3x3 sub-matrix.
- */
 void SLGLState::buildNormalMatrix()
 {
     _normalMatrix.setMatrix(modelViewMatrix.mat3());
     _normalMatrix.invert();
     _normalMatrix.transpose();
-}
+}*/
 //-----------------------------------------------------------------------------
 /*! Builds the 4x4 inverse matrix and the 3x3 normal matrix from the modelview
  matrix. If only the normal matrix is needed use the method buildNormalMatrix
  because inverses only the 3x3 sub-matrix of the modelview matrix.
- */
 void SLGLState::buildInverseAndNormalMatrix()
 {
     _invModelViewMatrix.setMatrix(modelViewMatrix);
@@ -176,9 +174,11 @@ void SLGLState::buildInverseAndNormalMatrix()
     _normalMatrix.setMatrix(_invModelViewMatrix.mat3());
     _normalMatrix.transpose();
 }
+*/
 //-----------------------------------------------------------------------------
 /*! Returns the combined modelview projection matrix
- */
+*/
+
 const SLMat4f* SLGLState::mvpMatrix()
 {
     _mvpMatrix.setMatrix(projectionMatrix);

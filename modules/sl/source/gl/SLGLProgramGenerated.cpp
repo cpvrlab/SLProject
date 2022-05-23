@@ -37,12 +37,19 @@ layout (location = 5) in vec4  a_tangent;   // Vertex tangent attribute)";
 //-----------------------------------------------------------------------------
 const string vertInput_u_matrices_all = R"(
 
+uniform mat4  u_mMatrix;    // model matrix
+uniform mat4  u_vMatrix;    // view matrix
+uniform mat4  u_pMatrix;    // projection matrix)";
+/*
+const string vertInput_u_matrices_all = R"(
+
 uniform mat3  u_nMatrix;    // normal matrix=transpose(inverse(mv))
 uniform mat4  u_mMatrix;    // model matrix
 uniform mat4  u_mvMatrix;   // modelview matrix
 uniform mat4  u_mvpMatrix;  // = projection * modelView)";
 const string vertInput_u_matrix_invMv = R"(
 uniform mat4  u_invMvMatrix;// inverse modelview matrix)";
+*/
 //-----------------------------------------------------------------------------
 const string vertInput_u_lightNm = R"(
 
@@ -73,15 +80,18 @@ const string vertMain_Begin     = R"(
 void main()
 {)";
 const string vertMain_v_P_VS    = R"(
-    v_P_VS = vec3(u_mvMatrix *  a_position); // vertex position in view space)";
+    mat4 mvMatrix = u_vMatrix * u_mMatrix;
+    v_P_VS = vec3(mvMatrix *  a_position);   // vertex position in view space)";
 const string vertMain_v_P_WS_Sm = R"(
     v_P_WS = vec3(u_mMatrix * a_position);   // vertex position in world space)";
 const string vertMain_v_N_VS    = R"(
-    v_N_VS = vec3(u_nMatrix * a_normal);     // vertex normal in view space)";
+    mat3 invMvMatrix = mat3(inverse(mvMatrix));
+    mat3 nMatrix = transpose(invMvMatrix);
+    v_N_VS = vec3(nMatrix * a_normal);       // vertex normal in view space)";
 const string vertMain_v_R_OS    = R"(
     vec3 I = normalize(v_P_VS);
     vec3 N = normalize(v_N_VS);
-    v_R_OS =  mat3(u_invMvMatrix) * reflect(I, N); // R = I-2.0*dot(N,I)*N;)";
+    v_R_OS = invMvMatrix * reflect(I, N); // R = I-2.0*dot(N,I)*N;)";
 const string vertMain_v_uv0     = R"(
     v_uv0 = a_uv0;  // pass diffuse color tex.coord. 1 for interpolation)";
 const string vertMain_v_uv1     = R"(
@@ -90,8 +100,8 @@ const string vertMain_TBN_Nm    = R"(
 
     // Building the matrix Eye Space -> Tangent Space
     // See the math behind at: http://www.terathon.com/code/tangent.html
-    vec3 n = normalize(u_nMatrix * a_normal);
-    vec3 t = normalize(u_nMatrix * a_tangent.xyz);
+    vec3 n = normalize(nMatrix * a_normal);
+    vec3 t = normalize(nMatrix * a_tangent.xyz);
     vec3 b = cross(n, t) * a_tangent.w; // bitangent w. corrected handedness
     mat3 TBN = mat3(t,b,n);
 
@@ -114,7 +124,7 @@ const string vertMain_TBN_Nm    = R"(
 const string vertMain_EndAll    = R"(
 
     // pass the vertex w. the fix-function transform
-    gl_Position = u_mvpMatrix * a_position;
+    gl_Position = u_pMatrix * mvMatrix * a_position;
 }
 )";
 //-----------------------------------------------------------------------------
@@ -1132,7 +1142,7 @@ void SLGLProgramGenerated::buildPerPixCook(SLMaterial* mat, SLVLight* lights)
     if (uv0) vertCode += vertInput_a_uv0;
     if (Nm) vertCode += vertInput_a_tangent;
     vertCode += vertInput_u_matrices_all;
-    if (sky) vertCode += vertInput_u_matrix_invMv;
+    //if (sky) vertCode += vertInput_u_matrix_invMv;
     if (Nm) vertCode += vertInput_u_lightNm;
 
     // Vertex shader outputs

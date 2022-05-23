@@ -149,7 +149,6 @@ public:
     virtual void      cull3DRec(SLSceneView* sv);
     virtual void      cullChildren3D(SLSceneView* sv);
     virtual void      cull2DRec(SLSceneView* sv);
-    virtual void      drawRec(SLSceneView* sv);
     virtual bool      hitRec(SLRay* ray);
     virtual void      statsRec(SLNodeStats& stats);
     virtual SLNode*   copyRec();

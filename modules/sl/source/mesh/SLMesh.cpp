@@ -336,8 +336,7 @@ void SLMesh::drawIntoDepthBuffer(SLSceneView* sv,
 
     // Return if hidden
     if (node->levelForSM() == 0 &&
-        (node->drawBit(SL_DB_HIDDEN) ||
-         _primitive == PT_points))
+        (node->drawBit(SL_DB_HIDDEN) || _primitive == PT_points))
         return;
 
     if (!_vao.vaoID())
@@ -347,9 +346,9 @@ void SLMesh::drawIntoDepthBuffer(SLSceneView* sv,
     SLGLProgram* sp    = depthMat->program();
     SLGLState*   state = SLGLState::instance();
     sp->useProgram();
-    sp->uniformMatrix4fv("u_mvpMatrix",
-                         1,
-                         (const SLfloat*)state->mvpMatrix());
+    sp->uniformMatrix4fv("u_mMatrix", 1, (SLfloat*)&node->updateAndGetWM());
+    sp->uniformMatrix4fv("u_vMatrix", 1, (SLfloat*)&stateGL->modelViewMatrix);
+    sp->uniformMatrix4fv("u_pMatrix", 1, (SLfloat*)&stateGL->projectionMatrix);
 
     _vao.drawElementsAs(PT_triangles);
 }
@@ -441,14 +440,18 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
     // 3.b) Pass the matrices to the shader program
     SLGLProgram* sp = _mat->program();
     sp->uniformMatrix4fv("u_mMatrix", 1, (SLfloat*)&node->updateAndGetWM());
+    sp->uniformMatrix4fv("u_vMatrix", 1, (SLfloat*)&stateGL->viewMatrix);
+    sp->uniformMatrix4fv("u_pMatrix", 1, (SLfloat*)&stateGL->projectionMatrix);
+    /*
     sp->uniformMatrix4fv("u_mvMatrix", 1, (SLfloat*)&stateGL->modelViewMatrix);
     sp->uniformMatrix4fv("u_mvpMatrix", 1, (const SLfloat*)stateGL->mvpMatrix());
 
     // 3.c) Build & pass inverse, normal & texture matrix only if needed
     SLint locIM = sp->getUniformLocation("u_invMvMatrix");
     SLint locNM = sp->getUniformLocation("u_nMatrix");
+     */
     SLint locTM = sp->getUniformLocation("u_tMatrix");
-
+    /*
     if (locIM >= 0 && locNM >= 0)
     {
         stateGL->buildInverseAndNormalMatrix();
@@ -465,6 +468,7 @@ void SLMesh::draw(SLSceneView* sv, SLNode* node)
         stateGL->buildNormalMatrix();
         sp->uniformMatrix3fv(locNM, 1, (const SLfloat*)stateGL->normalMatrix());
     }
+    */
     if (locTM >= 0)
     {
         if (_mat->has3DTexture() && _mat->textures3d()[0]->autoCalcTM3D())
