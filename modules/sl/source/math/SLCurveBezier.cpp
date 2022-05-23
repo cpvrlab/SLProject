@@ -150,7 +150,6 @@ void SLCurveBezier::draw(const SLMat4f& wm)
 
     // Set the view transform
     SLGLState* stateGL = SLGLState::instance();
-    //stateGL->modelViewMatrix.setMatrix(stateGL->viewMatrix);
     stateGL->modelMatrix.identity();
 
     SLint numTangentPoints = numControlPoints * 2;

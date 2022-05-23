@@ -24,7 +24,7 @@
 //-----------------------------------------------------------------------------
 void drawXZGrid(const SLMat4f& mat)
 {
-    // for now we don't want to updateRec the mesh implementation
+    // for now, we don't want to updateRec the mesh implementation
     // or the buffer implementation, so we don't have vertex color support
 
     static SLGLVertexArrayExt grid;

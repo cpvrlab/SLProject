@@ -159,7 +159,6 @@ void SLShadowMap::drawFrustum()
             s.scale(1.0f / _lightProj[i].m(0), 1.0f / _lightProj[i].m(5), 1.0f / _lightProj[i].m(10));
             t.translate((-_lightProj[i].m(12)), (-_lightProj[i].m(13)), (-_lightProj[i].m(14)));
 
-            // stateGL->modelViewMatrix = stateGL->viewMatrix * _lightView[i].inverted() * s * t;
             stateGL->modelMatrix = _lightView[i].inverted() * s * t;
             _frustumVAO->drawArrayAsColored(PT_lines,
                                             SLCol4f::GREEN,
@@ -172,7 +171,6 @@ void SLShadowMap::drawFrustum()
     {
         for (SLint i = 0; i < (_useCubemap ? 6 : 1); ++i)
         {
-            // stateGL->modelViewMatrix = stateGL->viewMatrix * _lightSpace[i].inverted();
             stateGL->modelMatrix = _lightSpace[i].inverted();
             _frustumVAO->drawArrayAsColored(PT_lines,
                                             SLCol4f::GREEN,
@@ -228,7 +226,6 @@ void SLShadowMap::drawRays()
     SLGLVertexArrayExt vao;
     vao.generateVertexPos(&P);
 
-    // stateGL->modelViewMatrix = stateGL->viewMatrix * _lightSpace[0].inverted();
     stateGL->modelMatrix = _lightSpace[0].inverted();
     vao.drawArrayAsColored(PT_lines,
                            SLCol4f::YELLOW,
@@ -409,7 +406,6 @@ void SLShadowMap::drawNodesDirectionalCulling(SLVNode      visibleNodes,
             node->mesh() &&
             node->mesh()->primitive() >= GL_TRIANGLES)
         {
-            // stateGL->modelViewMatrix = lightView * node->updateAndGetWM();
             stateGL->viewMatrix  = lightView;
             stateGL->modelMatrix = node->updateAndGetWM();
             node->mesh()->drawIntoDepthBuffer(sv, node, _material);
@@ -432,7 +428,6 @@ void SLShadowMap::drawNodesIntoDepthBufferRec(SLNode*      node,
     if (node->drawBit(SL_DB_HIDDEN))
         return;
     SLGLState* stateGL = SLGLState::instance();
-    // stateGL->modelViewMatrix = lightView * node->updateAndGetWM();
     stateGL->viewMatrix  = lightView;
     stateGL->modelMatrix = node->updateAndGetWM();
 
