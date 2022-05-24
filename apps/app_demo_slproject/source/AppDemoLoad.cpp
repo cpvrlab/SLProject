@@ -1,11 +1,11 @@
-//#############################################################################
-//  File:      AppDemoSceneLoad.cpp
-//  Date:      February 2018
-//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
-//  Authors:   Marcus Hudritsch
-//  License:   This software is provided under the GNU General Public License
-//             Please visit: http://opensource.org/licenses/GPL-3.0
-//#############################################################################
+// #############################################################################
+//   File:      AppDemoSceneLoad.cpp
+//   Date:      February 2018
+//   Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
+//   Authors:   Marcus Hudritsch
+//   License:   This software is provided under the GNU General Public License
+//              Please visit: http://opensource.org/licenses/GPL-3.0
+// #############################################################################
 
 #include <GlobalTimer.h>
 
@@ -5267,7 +5267,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
 #ifndef SL_GLES
         SLuint numSamples = 10;
 #else
-        SLuint numSamples = 4;
+        SLuint    numSamples = 4;
 #endif
 
         stringstream ss;
@@ -5358,7 +5358,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
 #ifndef APP_USES_GLES
         SLuint numSamples = 10;
 #else
-        SLuint numSamples = 6;
+        SLuint    numSamples = 6;
 #endif
 
         // Scene
@@ -5863,7 +5863,13 @@ resolution shadows near the camera and lower resolution shadows further away.");
         root->addChild(cam1);
 
         // Generate NUM_MAT cook-torrance materials
-        const int   NUM_MAT = 100;
+#ifndef SL_GLES
+        const int NUM_MAT  = 100;
+        const int NUM_MESH = 100;
+#else
+        const int NUM_MAT    = 20;
+        const int NUM_MESH   = 20;
+#endif
         SLVMaterial materials(NUM_MAT);
         for (int i = 0; i < NUM_MAT; ++i)
         {
@@ -5871,12 +5877,12 @@ resolution shadows near the camera and lower resolution shadows further away.");
             SLGLProgram* spTex   = new SLGLProgramGeneric(am,
                                                         shaderPath + "PerPixCookTm.vert",
                                                         shaderPath + "PerPixCookTm.frag");*/
-            SLstring     matName = "mat-" + std::to_string(i);
-            materials[i]         = new SLMaterial(am,
+            SLstring matName = "mat-" + std::to_string(i);
+            materials[i]     = new SLMaterial(am,
                                           matName.c_str(),
                                           nullptr,
                                           new SLGLTexture(am, texPath + "rusty-metal_2048_C.jpg"),
-                                          nullptr, //new SLGLTexture(am, texPath + "rusty-metal_2048_N.jpg"),
+                                          nullptr, // new SLGLTexture(am, texPath + "rusty-metal_2048_N.jpg"),
                                           new SLGLTexture(am, texPath + "rusty-metal_2048_M.jpg"),
                                           new SLGLTexture(am, texPath + "rusty-metal_2048_R.jpg"),
                                           nullptr,
@@ -5887,8 +5893,7 @@ resolution shadows near the camera and lower resolution shadows further away.");
         }
 
         // Generate NUM_MESH sphere meshes
-        const int NUM_MESH = 100;
-        SLVMesh   meshes(NUM_MESH);
+        SLVMesh meshes(NUM_MESH);
         for (int i = 0; i < NUM_MESH; ++i)
         {
             SLstring meshName = "mesh-" + std::to_string(i);

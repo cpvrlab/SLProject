@@ -1,11 +1,11 @@
-//#############################################################################
-//  File:      cv/CVImage.cpp
-//  Date:      Spring 2017
-//  Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
-//  Authors:   Marcus Hudritsch
-//  License:   This software is provided under the GNU General Public License
-//             Please visit: http://opensource.org/licenses/GPL-3.0
-//#############################################################################
+// #############################################################################
+//   File:      cv/CVImage.cpp
+//   Date:      Spring 2017
+//   Codestyle: https://github.com/cpvrlab/SLProject/wiki/SLProject-Coding-Style
+//   Authors:   Marcus Hudritsch
+//   License:   This software is provided under the GNU General Public License
+//              Please visit: http://opensource.org/licenses/GPL-3.0
+// #############################################################################
 
 #include <cv/CVImage.h>
 #include <Utils.h>
@@ -493,6 +493,8 @@ int CVImage::glPixelFormat2cvType(CVPixelFormatGL pixelFormatGL)
     switch (pixelFormatGL)
     {
         case PF_red: return CV_8UC1;
+        case PF_luminance: return CV_8UC1;
+        case PF_luminance_alpha: return CV_8UC2;
         case PF_rg: return CV_8UC2;
         case PF_rgb: return CV_8UC3;
         case PF_rgba: return CV_8UC4;
@@ -506,10 +508,12 @@ int CVImage::glPixelFormat2cvType(CVPixelFormatGL pixelFormatGL)
         case PF_rg32f: return CV_32FC2;
         case PF_rgb32f: return CV_32FC3;
         case PF_rgba32f: return CV_32FC4;
-        default: Utils::exitMsg("SLProject",
-                                "glPixelFormat2cvType: OpenGL pixel format not supported",
-                                __LINE__,
-                                __FILE__);
+        default:
+        {
+            string msg = "glPixelFormat2cvType: OpenGL pixel format not supported: ";
+            msg += formatString(pixelFormatGL);
+            Utils::exitMsg("SLProject", msg.c_str(), __LINE__, __FILE__);
+        }
     }
     return -1;
 }
@@ -519,32 +523,34 @@ string CVImage::formatString(CVPixelFormatGL pixelFormatGL)
 {
     switch (pixelFormatGL)
     {
-        case PF_rgb: return string("RGB");
-        case PF_rgba: return string("RGBA");
-        case PF_bgra: return string("BGRA");
-        case PF_red: return string("RED");
-        case PF_red_integer: return string("RED_INTEGER");
-        case PF_green: return string("GREEN");
-        case PF_alpha: return string("BLUE");
-        case PF_blue: return string("BLUE");
-        case PF_luminance: return string("LUMINANCE");
-        case PF_intensity: return string("INTENSITY");
-        case PF_rg: return string("RG");
-        case PF_rg_integer: return string("RG_INTEGER");
-        case PF_luminance_alpha: return string("LUMINANCE_ALPHA");
-        case PF_bgr: return string("BGR");
-        case PF_rgb_integer: return string("RGB_INTEGER");
-        case PF_bgr_integer: return string("BGR_INTEGER");
-        case PF_rgba_integer: return string("RGBA_INTEGER");
-        case PF_bgra_integer: return string("BGRA_INTEGER");
-        case PF_r16f: return string("R16F");
-        case PF_rg16f: return string("RG16F");
-        case PF_rgb16f: return string("RGB16F");
-        case PF_rgba16f: return string("RGBA16F");
-        case PF_r32f: return string("R32F");
-        case PF_rg32f: return string("RG32F");
-        case PF_rgb32f: return string("RGB32F");
-        case PF_rgba32f: return string("RGBA32F");
+        case PF_unknown: return "PF_unknown";
+        case PF_yuv_420_888: return "PF_yuv_420_888";
+        case PF_alpha: return "PF_alpha";
+        case PF_luminance: return "PF_luminance";
+        case PF_luminance_alpha: return "PF_luminance_alpha";
+        case PF_intensity: return "PF_intensity";
+        case PF_green: return "PF_green";
+        case PF_blue: return "PF_blue";
+        case PF_depth_component: return "PF_depth_component";
+        case PF_red: return "PF_red";
+        case PF_rg: return "PF_rg";
+        case PF_rgb: return "PF_rgb";
+        case PF_rgba: return "PF_rgba";
+        case PF_bgr: return "PF_bgr";
+        case PF_bgra: return "PF_bgra";
+        case PF_rg_integer: return "PF_rg_integer";
+        case PF_red_integer: return "PF_red_integer";
+        case PF_rgb_integer: return "PF_rgb_integer";
+        case PF_rgba_integer: return "PF_rgba_integer";
+        case PF_bgr_integer: return "PF_bgr_integer";
+        case PF_bgra_integer: return "PF_bgra_integer";
+        case PF_r16f: return "PF_r16f";
+        case PF_r32f: return "PF_r32f";
+        case PF_rg16f: return "PF_rg16f";
+        case PF_rg32f: return "PF_rg32f";
+        case PF_rgba32f: return "PF_rgba32f";
+        case PF_rgba16f: return "PF_rgba16f";
+        case PF_rgb16f: return "PF_rgb16f";
         default: return string("Unknown pixel format");
     }
 }

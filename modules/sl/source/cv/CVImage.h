@@ -115,6 +115,7 @@ public:
     void                   crop(float targetWdivH, int& cropW, int& cropH);
     static CVPixelFormatGL cvType2glPixelFormat(int cvType);
     static int             glPixelFormat2cvType(CVPixelFormatGL pixelFormatGL);
+    static string          formatString(CVPixelFormatGL pixelFormatGL);
 
     // Getters
     string          name() { return _name; }
@@ -128,7 +129,6 @@ public:
     uint            bytesPerImage() { return _bytesPerImage; }
     uint            bytesInFile() { return _bytesInFile; }
     CVPixelFormatGL format() { return _format; }
-    string          formatString(CVPixelFormatGL pixelFormatGL);
     string          formatString() { return formatString(_format); }
     string          path() { return _path; }
     static string   typeString(int cvMatTypeInt);
