@@ -4299,7 +4299,10 @@ void AppDemoGui::downloadModelAndLoadScene(SLScene*     s,
         AppDemo::jobProgressMax(100);
         string fileToDownload = urlFolder + downloadFilename;
         if (HttpUtils::download(fileToDownload, dstFolder, progressCallback) != 0)
+        {
             SL_LOG("*** Nothing downloaded from: %s ***", fileToDownload.c_str());
+            SL_LOG("*** PLEASE RETRY DOWNLOAD ***", fileToDownload.c_str());
+        }
         AppDemo::jobIsRunning = false;
     };
 
