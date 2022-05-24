@@ -27,7 +27,7 @@ void main()
     float R = texture(u_texture, v_texCoordR).r;
     float G = texture(u_texture, v_texCoordG).g;
     float B = texture(u_texture, v_texCoordB).b;
-    o_fragColor = (v_vignette*vec4(R,G,B,1));
+    o_fragColor = (v_vignette * vec4(R,G,B,1));
 }
 //-----------------------------------------------------------------------------
 /* original hlsl shader below

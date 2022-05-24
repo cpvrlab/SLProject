@@ -15,33 +15,38 @@ in      vec4     a_position;        // Vertex position attribute
 in      vec3     a_normal;          // Vertex normal attribute
 in      vec2     a_texCoord;        // Vertex texture coord. attribute
 
-uniform mat4     u_mvMatrix;        // modelView matrix
-uniform mat4     u_mvpMatrix;       // = projection * modelView
-uniform mat3     u_nMatrix;         // normal matrix=transpose(inverse(mv))
+uniform mat4     u_mMatrix;         // Model matrix (object to world transform)
+uniform mat4     u_vMatrix;         // View matrix (world to camera transform)
+uniform mat4     u_pMatrix;         // Projection matrix (camera to normalize device coords.)
 uniform mat4     u_tMatrix;         // texture transform matrix
 
 uniform vec4     u_globalAmbi;      // global ambient intensity (Iaglobal)
 uniform vec3     u_lightPosVS;      // light position in view space
-uniform vec3     u_lightSpotDir;  // light direction in view space
-uniform vec4     u_lightAmbi;    // light ambient light intensity (Ia)
-uniform vec4     u_lightDiff;    // light diffuse light intensity (Id)
-uniform vec4     u_lightSpec;   // light specular light intensity (Is)
-uniform vec4     u_matAmbi;      // material ambient reflection (ka)
-uniform vec4     u_matDiff;      // material diffuse reflection (kd)
-uniform vec4     u_matSpec;     // material specular reflection (ks)
-uniform vec4     u_matEmis;     // material emissiveness (ke)
-uniform float    u_matShin;    // material shininess exponent
+uniform vec3     u_lightSpotDir;    // light direction in view space
+uniform vec4     u_lightAmbi;       // light ambient light intensity (Ia)
+uniform vec4     u_lightDiff;       // light diffuse light intensity (Id)
+uniform vec4     u_lightSpec;       // light specular light intensity (Is)
+uniform vec4     u_matAmbi;         // material ambient reflection (ka)
+uniform vec4     u_matDiff;         // material diffuse reflection (kd)
+uniform vec4     u_matSpec;         // material specular reflection (ks)
+uniform vec4     u_matEmis;         // material emissiveness (ke)
+uniform float    u_matShin;         // material shininess exponent
 
 out     vec4     v_color;           // The resulting color per vertex
 out     vec4     v_texCoord3D;      // texture coordinate at vertex
 //-----------------------------------------------------------------------------
 void main()
-{     
+{
+    // Calculate modeview and normal matrix. Do this on GPU and not on CPU
+    mat4 mvMatrix = u_vMatrix * u_mMatrix;
+    mat3 invMvMatrix = mat3(inverse(mvMatrix));
+    mat3 nMatrix = transpose(invMvMatrix);
+
     // transform vertex pos into view space
-    vec3 P_VS = vec3(u_mvMatrix * a_position);
+    vec3 P_VS = vec3(mvMatrix * a_position);
 
     // transform normal into view space
-    vec3 N = normalize(u_nMatrix * a_normal);
+    vec3 N = normalize(nMatrix * a_normal);
 
     // eye position is the inverse of the vertex pos. in VS
     vec3 E = normalize(-P_VS);
@@ -70,6 +75,6 @@ void main()
     v_texCoord3D = u_tMatrix * a_position;
 
     // Set the transformes vertex position           
-    gl_Position = u_mvpMatrix * a_position;
+    gl_Position = u_pMatrix * mvMatrix * a_position;
 }
 //-----------------------------------------------------------------------------

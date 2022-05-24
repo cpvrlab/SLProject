@@ -27,9 +27,11 @@ void main(void)
 {
     mat4 mvMatrix = u_vMatrix * u_mMatrix;
     v_P_VS = vec3(mvMatrix * a_position);
+
     mat3 invMvMatrix = mat3(inverse(mvMatrix));
     mat3 nMatrix = transpose(invMvMatrix);
     v_N_VS = vec3(nMatrix * a_normal);
+
     gl_Position = u_pMatrix * mvMatrix * a_position;
 }
 //-----------------------------------------------------------------------------

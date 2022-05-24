@@ -48,10 +48,9 @@
         var gl = null;              // Hold a reference to the WebGLContext
         var canvas = null;          // Hold a reference to the canvas DOM object
 
-        var modelviewMatrix = mat4.create();    // matrix for model and view transform
-        var normalMatrix = mat3.create();       // matrix for normal transform
+        var modelMatrix = mat4.create();        // matrix for model and view transform
+        var viewMatrix = mat3.create();         // matrix for normal transform
         var projectionMatrix = mat4.create();   // matrix for projection transform
-        var mvpMatrix = mat4.create();          // matrix for model, view and projection transform
 
         var numI;                   // Total NO. of indexes to draw
         var vboV;                   // ID of the VBO for interleaved vertex attribute array
@@ -87,9 +86,9 @@
         var pLoc;
         var tLoc;
         var nLoc;
-        var mvMatrixLoc;
-        var nMatrixLoc;
-        var mvpMatrixLoc;
+        var mMatrixLoc;
+        var vMatrixLoc;
+        var pMatrixLoc;
         var globalAmbiLoc;
         var lightPosVSLoc;
         var lightDirVSLoc;
@@ -202,9 +201,9 @@
             pLoc = gl.getAttribLocation(shaderProgID, "a_position");
             nLoc = gl.getAttribLocation(shaderProgID, "a_normal");
             tLoc = gl.getAttribLocation(shaderProgID, "a_texCoord");
-            mvMatrixLoc = gl.getUniformLocation(shaderProgID, "u_mvMatrix");
-            nMatrixLoc = gl.getUniformLocation(shaderProgID, "u_nMatrix");
-            mvpMatrixLoc = gl.getUniformLocation(shaderProgID, "u_mvpMatrix");
+            mMatrixLoc = gl.getUniformLocation(shaderProgID, "u_mMatrix");
+            vMatrixLoc = gl.getUniformLocation(shaderProgID, "u_vMatrix");
+            pMatrixLoc = gl.getUniformLocation(shaderProgID, "u_pMatrix");
             globalAmbiLoc = gl.getUniformLocation(shaderProgID, "u_globalAmbi");
             lightPosVSLoc = gl.getUniformLocation(shaderProgID, "u_lightPosVS");
             lightDirVSLoc = gl.getUniformLocation(shaderProgID, "u_lightDirVS");
@@ -256,41 +255,34 @@
             gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
             // Start with identity every frame
-            mat4.identity(modelviewMatrix);
+            mat4.identity(viewMatrix);
 
             // View transform: move the coordinate system away from the camera
-            mat4.translate(modelviewMatrix, [0, 0, camZ]);
+            mat4.translate(viewMatrix, [0, 0, camZ]);
 
             // View transform: rotate the coordinate system increasingly
-            mat4.rotateX(modelviewMatrix, (Math.PI / 180) * (rotX + deltaX));
-            mat4.rotateY(modelviewMatrix, (Math.PI / 180) * (rotY + deltaY));
+            mat4.rotateX(viewMatrix, (Math.PI / 180) * (rotX + deltaX));
+            mat4.rotateY(viewMatrix, (Math.PI / 180) * (rotY + deltaY));
 
             // Transform light position & direction into view space
             var lightPosVS = [0, 0, 0];
-            mat4.multiplyVec3(modelviewMatrix, lightPos, lightPosVS);
+            mat4.multiplyVec3(viewMatrix, lightPos, lightPosVS);
 
             // The light dir is not a position. We only take the rotation of the mv matrix.
             var viewRot3 = mat3.create();
             var viewRot4 = mat4.create();
-            mat4.toMat3(modelviewMatrix, viewRot3);
+            mat4.toMat3(viewMatrix, viewRot3);
             mat3.toMat4(viewRot3, viewRot4);
             var lightDirVS = [0, 0, 0];
             mat4.multiplyVec3(viewRot4, lightDir, lightDirVS);
 
             // Rotate the model so that we see it
-            mat4.rotateX(modelviewMatrix, (Math.PI / 180) * -90);
-
-            // Build the combined modelview-projection matrix
-            mat4.multiply(projectionMatrix, modelviewMatrix, mvpMatrix);
-
-            // Construct the normal matrix from the modelview matrix
-            mat4.toInverseMat3(modelviewMatrix, normalMatrix);
-            mat3.transpose(normalMatrix);
+            mat4.rotateX(modelMatrix, (Math.PI / 180) * -90);
 
             // Pass the matrix uniform variables
-            gl.uniformMatrix4fv(mvMatrixLoc, false, modelviewMatrix);
-            gl.uniformMatrix3fv(nMatrixLoc, false, normalMatrix);
-            gl.uniformMatrix4fv(mvpMatrixLoc, false, mvpMatrix);
+            gl.uniformMatrix4fv(mMatrixLoc, false, modelMatrix);
+            gl.uniformMatrix3fv(vMatrixLoc, false, viewMatrix);
+            gl.uniformMatrix4fv(pMatrixLoc, false, projectionMatrix);
 
             // Pass lighting uniforms variables
             gl.uniform4fv(globalAmbiLoc, globalAmbi);
