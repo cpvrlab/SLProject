@@ -428,7 +428,12 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                     sprintf(m + strlen(m), "   Pose    : %5.1f ms (%3d%%)\n", poseTime, (SLint)poseTimePC);
                     if (s->singleMeshFullSelected() != nullptr) {
                         SLParticleSystem *ps = s->singleMeshFullSelected()->mat()->ps();
-                        if (s->singleMeshFullSelected()->mat()->reflectionModel() == RM_Particle) sprintf(m + strlen(m), "   PS      : %5.5f ms\n", ps->updateTime().average());
+                        if (s->singleMeshFullSelected()->mat()->reflectionModel() == RM_Particle)
+                        {
+                            sprintf(m + strlen(m), "   PS upda     : %5.5f ms\n", ps->updateTime().average());
+                            sprintf(m + strlen(m), "   PS draw     : %5.5f ms\n", ps->drawTime().average());
+
+                        }
                     }
                     sprintf(m + strlen(m), " Shadows   : %5.1f ms (%3d%%)\n", shadowMapTime, (SLint)shadowMapTimePC);
                     sprintf(m + strlen(m), " Culling   : %5.1f ms (%3d%%)\n", cullTime, (SLint)cullTimePC);

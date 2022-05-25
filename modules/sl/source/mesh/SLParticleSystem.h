@@ -110,6 +110,7 @@ public:
     SLVec2f      angularVelocityRange() { return _angularVelocityRange; }
     SLfloat      radiusSphere() { return _radiusSphere; }
     AvgFloat&    updateTime() { return _updateTime; }
+    AvgFloat&    drawTime() { return _drawTime; }
     int          frameRateFB() { return _frameRateFB; }
     SLGLTexture* textureFirst() { return _textureFirst; }
     SLGLTexture* textureFlipbook() { return _textureFlipbook; }
@@ -323,9 +324,11 @@ private:
 
     //Statistics
     AvgFloat     _updateTime;               //!< Averaged time for updating in MS
+    AvgFloat     _drawTime;                 //!< Averaged time for drawing in MS
+    SLfloat      _startDrawTimeMS = 0.0f; //!< Time since start of draw in MS
     SLfloat      _startUpdateTimeMS = 0.0f; //!< Time since start for updating in MS
     SLfloat      _startUpdateTimeS  = 0.0f; //!< Time since start for updating in S
-    SLfloat      _deltaTimeUpdateS  = 0.0f; //!< Time since start for updating in S
+    SLfloat      _deltaTimeUpdateS  = 0.0f; //!< Delta time in between two frames S
 
     //For resume after frstrumCulling
     SLfloat      _notVisibleTimeS   = 0.0f; //!< Time since start when node not visible in S

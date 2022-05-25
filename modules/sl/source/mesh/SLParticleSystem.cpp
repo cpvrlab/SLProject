@@ -52,6 +52,7 @@ SLParticleSystem::SLParticleSystem(SLAssetManager* assetMgr,
     mat(mDraw);
 
     _updateTime.init(60, 0.0f);
+    _drawTime.init(60, 0.0f);
 }
 //-----------------------------------------------------------------------------
 SLVec3f SLParticleSystem::getPointInSphere(float radius, SLVec3f randomXs)
@@ -647,6 +648,9 @@ void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
     spD->useProgram();
     SLGLState* stateGL = SLGLState::instance();
 
+    // Start calculation of the elapsed time for the drawing
+    _startDrawTimeMS = GlobalTimer::timeMS();
+
     // Billboard type
     // World space
     if (_doWorldSpace)
@@ -738,6 +742,11 @@ void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
     SLMesh::draw(sv, node);
     if (_doColor && _doBlendingBrigh)
         stateGL->blendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    // End calculation of the elapsed time for the drawing
+    _drawTime.set(GlobalTimer::timeMS() - _startDrawTimeMS);
+
+    //Swap buffer
     _drawBuf = 1 - _drawBuf;
 }
 //-----------------------------------------------------------------------------
