@@ -7,7 +7,6 @@
 //             Please visit: http://opensource.org/licenses/GPL-3.0
 //#############################################################################
 
-#include <stdio.h>
 #include <SLAnimation.h>
 #include <SLKeyframeCamera.h>
 #include <SLLightDirect.h>
@@ -41,6 +40,7 @@ SLNode::SLNode(const SLstring& name) : SLObject(name)
     _animation      = nullptr;
     _castsShadows   = true;
     _isWMUpToDate   = false;
+    _isWMIUpToDate  = false;
     _isAABBUpToDate = false;
     _isSelected     = false;
     _mesh           = nullptr;
@@ -64,10 +64,12 @@ SLNode::SLNode(SLMesh* mesh, const SLstring& name) : SLObject(name)
     _animation      = nullptr;
     _castsShadows   = true;
     _isWMUpToDate   = false;
+    _isWMIUpToDate  = false;
     _isAABBUpToDate = false;
     _isSelected     = false;
     _minLodCoverage = 0.0f;
     _levelForSM     = 0;
+    _mesh           = nullptr;
 
     addMesh(mesh);
 }
@@ -76,7 +78,7 @@ SLNode::SLNode(SLMesh* mesh, const SLstring& name) : SLObject(name)
 Constructor with a mesh pointer, translation vector and name.
 */
 SLNode::SLNode(SLMesh*         mesh,
-               SLVec3f         translation,
+               const SLVec3f&  translation,
                const SLstring& name) : SLObject(name)
 {
     assert(mesh && "No mesh passed");
@@ -91,10 +93,12 @@ SLNode::SLNode(SLMesh*         mesh,
     _animation      = nullptr;
     _castsShadows   = true;
     _isWMUpToDate   = false;
+    _isWMIUpToDate  = false;
     _isAABBUpToDate = false;
     _isSelected     = false;
     _minLodCoverage = 0.0f;
     _levelForSM     = 0;
+    _mesh           = nullptr;
 
     addMesh(mesh);
 }
@@ -562,7 +566,8 @@ void SLNode::needUpdate()
     if (!_isWMUpToDate)
         return;
 
-    _isWMUpToDate = false;
+    _isWMUpToDate  = false;
+    _isWMIUpToDate = false;
 
     // mark the WM of the children dirty since their parent just changed
     for (auto* child : _children)
@@ -585,7 +590,8 @@ void SLNode::needWMUpdate()
     if (!_isWMUpToDate)
         return;
 
-    _isWMUpToDate = false;
+    _isWMUpToDate  = false;
+    _isWMIUpToDate = false;
 
     // mark the WM of the children dirty since their parent just changed
     for (auto* child : _children)
@@ -652,8 +658,12 @@ const SLMat4f& SLNode::updateAndGetWMI() const
     if (!_isWMUpToDate)
         updateWM();
 
-    _wmI.setMatrix(_wm);
-    _wmI.invert();
+    if (!_isWMIUpToDate)
+    {
+        _wmI.setMatrix(_wm);
+        _wmI.invert();
+        _isWMIUpToDate = true;
+    }
 
     return _wmI;
 }
@@ -700,7 +710,7 @@ SLAABBox& SLNode::updateAABBRec()
 }
 //-----------------------------------------------------------------------------
 /*! Prints the node name with the names of the meshes recursively
-*/
+ */
 void SLNode::dumpRec()
 {
     // dump node
@@ -723,7 +733,7 @@ void SLNode::dumpRec()
 }
 //-----------------------------------------------------------------------------
 /*! Recursively sets the specified drawbit on or off. See also SLDrawBits.
-*/
+ */
 void SLNode::setDrawBitsRec(SLuint bit, SLbool state)
 {
     _drawBits.set(bit, state);
@@ -732,7 +742,7 @@ void SLNode::setDrawBitsRec(SLuint bit, SLbool state)
 }
 //-----------------------------------------------------------------------------
 /*! Recursively sets the specified OpenGL primitive type.
-*/
+ */
 void SLNode::setPrimitiveTypeRec(SLGLPrimitiveType primitiveType)
 {
     for (auto* child : _children)

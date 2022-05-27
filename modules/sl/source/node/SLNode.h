@@ -142,7 +142,7 @@ class SLNode
 public:
     explicit SLNode(const SLstring& name = "Node");
     explicit SLNode(SLMesh* mesh, const SLstring& name = "Node");
-    explicit SLNode(SLMesh* mesh, SLVec3f translation, const SLstring& name);
+    explicit SLNode(SLMesh* mesh, const SLVec3f& translation, const SLstring& name);
     ~SLNode() override;
 
     // Recursive scene traversal methods (see impl. for details)
@@ -333,6 +333,7 @@ protected:
     mutable SLMat4f _wm;             //!< world matrix for world transform
     mutable SLMat4f _wmI;            //!< inverse world matrix
     mutable SLbool  _isWMUpToDate;   //!< is the WM of this node still valid
+    mutable SLbool  _isWMIUpToDate;  //!< is the inverse WM of this node still valid
     mutable SLbool  _isAABBUpToDate; //!< is the saved aabb still valid
     bool            _castsShadows;   //!< flag if meshes of node should cast shadows
     bool            _isSelected;     //!< flag if node and one or more of its meshes are selected
