@@ -247,7 +247,7 @@ protected:
     SLfloat              _kn{};            //!< refraction index
     SLbool               _getsShadows;     //!< true if shadows are visible on this material
     SLGLProgram*         _program{};       //!< pointer to a GLSL shader program
-    SLGLProgram*         _programTF{};       //!< pointer to a GLSL shader program for transformFeedback
+    SLGLProgram*         _programTF{};     //!< pointer to a GLSL shader program for transformFeedback
     SLint                _numTextures;     //!< number of textures in all _textures vectors array
     SLSkybox*            _skybox;          //!< pointer to the skybox
 

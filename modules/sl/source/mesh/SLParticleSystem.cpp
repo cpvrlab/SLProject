@@ -498,21 +498,22 @@ void SLParticleSystem::pauseOrResume()
 //-----------------------------------------------------------------------------
 void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
 {
-    /////////////////////////////
+    /////////////////////////////////////
     // Init particles vector and init VAO
-    /////////////////////////////
+    /////////////////////////////////////
+
     if (!_isGenerated) {
         //emitterPos(node->translationWS()); //To init first position
         generate();
         _isGenerated = true;
     }
-    
 
     /////////////////////////////
     // Generate programs
     /////////////////////////////
 
-    _mat->generateProgramPS();
+    if (!_mat->program() || !_mat->programTF())
+        _mat->generateProgramPS();
 
     /////////////////////////////
     // UPDATING
@@ -526,38 +527,41 @@ void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
     /////////////////////////////
     // UPDATING -> Calculate time
     /////////////////////////////
+
     float difTime = 0.0f;
-    float deltaTime = GlobalTimer::timeS() - _startUpdateTimeS; // Actual deltatime
-    // Calculate time difference for frustrum culling and paused
+    float deltaTime = GlobalTimer::timeS() - _startUpdateTimeS; // Actual delta time
+
+    // Calculate time difference for frustum culling and paused
     if (!_isViFrustrumCulling && !_isPaused && _lastTimeBeforePauseS != 0.0f) // If particle system was not visible, and was resumed when it was not visible
     {
         _isViFrustrumCulling = true;
         difTime = GlobalTimer::timeS() - min(_lastTimeBeforePauseS,_notVisibleTimeS); // Paused was set before not visible (will take _lastTimeBeforePauseS), if set after (will take _notVisibleTimeS)
-        //maybe add later average deltatime (because maybe bug when fast not visible long time, visible, not visible, visisble
-        deltaTime = _deltaTimeUpdateS; // Last delta time, because when culled draw is not called therefore the actual delta time will be to big
-        _notVisibleTimeS = 0.0f; // No more culling, the diffrence time has been applied, no further need
-        _lastTimeBeforePauseS = 0.0f; // No more paused, the diffrence time has been applied, no further need
+        //maybe add later average delta time (because maybe bug when fast not visible long time, visible, not visible, visible
+        deltaTime = _deltaTimeUpdateS; // Last delta time, because when culled draw is not called therefore the actual delta time will be too big
+        _notVisibleTimeS = 0.0f; // No more culling, the difference time has been applied, no further need
+        _lastTimeBeforePauseS = 0.0f; // No more paused, the difference time has been applied, no further need
     }
     else if (!_isViFrustrumCulling) // If particle system was not visible, this one is called just once when the particle is draw again (Do nothing if paused, because update call is not done)
     {
         _isViFrustrumCulling = true;
         difTime = GlobalTimer::timeS() - _notVisibleTimeS; //Use time since the particle system was not visible
-        //maybe add later average deltatime (because maybe bug when fast not visible long time, visible, not visible, visisble
-        deltaTime = _deltaTimeUpdateS; // Last delta time, because when culled draw is not called therefore the actual delta time will be to big
+        //maybe add later average delta time (because maybe bug when fast not visible long time, visible, not visible, visible
+        deltaTime = _deltaTimeUpdateS; // Last delta time, because when culled draw is not called therefore the actual delta time will be too big
         if (_lastTimeBeforePauseS > _notVisibleTimeS) // If was paused when not visible. Need to take _notVisibleTimeS because it's since this value that the particle system is not drew.
             _lastTimeBeforePauseS =  _notVisibleTimeS; // Get the value of since the particle system is not drew
-        _notVisibleTimeS = 0.0f; // No more culling, the diffrence time has been applied, no further need
+        _notVisibleTimeS = 0.0f; // No more culling, the difference time has been applied, no further need
     }
     else if (!_isPaused && _lastTimeBeforePauseS != 0.0f) // If particle system was resumed
     {
         difTime = GlobalTimer::timeS() - _lastTimeBeforePauseS; //Use time since the particle system was paused
-        _lastTimeBeforePauseS = 0.0f; // No more paused, the diffrence time has been applied, no further need
+        _lastTimeBeforePauseS = 0.0f; // No more paused, the difference time has been applied, no further need
 
         //Take default delta time, because when just paused no need to take last delta time, the draw call continue to be called
     }
 
     // Calculate the elapsed time for the updating
     _startUpdateTimeMS = GlobalTimer::timeMS();
+
     // MS above, S below
     _deltaTimeUpdateS = GlobalTimer::timeS() - _startUpdateTimeS;
     _startUpdateTimeS = GlobalTimer::timeS();
@@ -565,9 +569,9 @@ void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
     /////////////////////////////
     // Apply Uniform Variables
     /////////////////////////////
-    if (!_isPaused) // The updating is paused, thefore no need to send uniforms
-    {
 
+    if (!_isPaused) // The updating is paused, therefore no need to send uniforms
+    {
         sp->uniform1f("u_difTime", difTime);     // Time difference, between when the particle system was culled or paused or both
         sp->uniform1f("u_deltaTime", deltaTime); // Time between each draw call, take delta time from last draw called after frstrum culling
 
@@ -580,6 +584,7 @@ void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
             else
                 sp->uniform1f("u_accConst", _accConst);
         }
+
         if (_doGravity)
             sp->uniform3f("u_gravity", _gravity.x, _gravity.y, _gravity.z);
 
@@ -589,13 +594,9 @@ void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
 
         // Worldspace
         if (_doWorldSpace)
-        {
             sp->uniform3f("u_pGPosition", _emitterPos.x, _emitterPos.y, _emitterPos.z);
-        }
         else
-        {
             sp->uniform3f("u_pGPosition", 0.0, 0.0, 0.0);
-        }
 
         // Flipbook
         if (_doFlipBookTexture)
@@ -603,18 +604,18 @@ void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
             sp->uniform1i("u_col", _col);
             sp->uniform1i("u_row", _row);
             _lastUpdateFB += _deltaTimeUpdateS;
-            if (_lastUpdateFB > (1.0f / _frameRateFB))
-            { // Last time FB was updated is bigger than the time needed for each update
+
+            if (_lastUpdateFB > (1.0f / (float)_frameRateFB))
+            {
+                // Last time FB was updated is bigger than the time needed for each update
                 sp->uniform1i("u_condFB", 1);
                 _lastUpdateFB = 0.0f;
             }
             else
-            {
                 sp->uniform1i("u_condFB", 0);
-            }
         }
 
-        //Rotation
+        // Rotation
         if (_doRot && !_doRotRange)
             sp->uniform1f("u_angularVelo", _angularVelocityConst * DEG2RAD);
 
@@ -654,18 +655,12 @@ void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
     // Billboard type
     // World space
     if (_doWorldSpace)
-    {
         spD->uniformMatrix4fv("u_vOmvMatrix", 1, (SLfloat*)&stateGL->viewMatrix);
-    }
     else
     {
         if (_billboardType == 1)
         {
             SLMat4f mvMat = stateGL->modelViewMatrix;
-
-             
-
-            //mvMat.multiply(node->om()); // Local transform of the node
 
             mvMat.m(0, 1.0f);
             mvMat.m(1, 0.0f);
@@ -677,16 +672,16 @@ void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
 
             spD->uniformMatrix4fv("u_vYawPMatrix",
                                   1,
-                                  (SLfloat*)&mvMat); // TO change for custom shader ganeration
+                                  (SLfloat*)&mvMat); // TO change for custom shader generation
         }
         else
         {
             spD->uniformMatrix4fv("u_vOmvMatrix",
                                   1,
-                                  (SLfloat*)&stateGL->modelViewMatrix); // TO change for custom shader ganeration
+                                  (SLfloat*)&stateGL->modelViewMatrix); // TO change for custom shader generation
         }
     }
-    // Alpha over life bezier curve
+    // Alpha over life Bézier curve
     if (_doAlphaOverLCurve)
     {
         spD->uniform4f("u_al_bernstein",
@@ -695,7 +690,8 @@ void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
                        _bernsteinPYAlpha.z,
                        _bernsteinPYAlpha.w);
     }
-    // Size over life bezier curve
+
+    // Size over life Bézier curve
     if (_doSizeOverLFCurve)
     {
         spD->uniform4f("u_si_bernstein",
@@ -704,6 +700,7 @@ void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
                        _bernsteinPYSize.z,
                        _bernsteinPYSize.w);
     }
+
     // Color over life by gradient color editor
     if (_doColorOverLF)
     {
@@ -719,18 +716,20 @@ void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
                        _color.z,
                        _color.w);
     }
+
     // Flipbook
     if (_doFlipBookTexture)
     {
         spD->uniform1i("u_col", _col);
         spD->uniform1i("u_row", _row);
     }
+
     if (_isPaused) // Take time when pause was enable
         spD->uniform1f("u_time", _lastTimeBeforePauseS);
     else
         spD->uniform1f("u_time", GlobalTimer::timeS());
-    spD->uniform1f("u_tTL", _timeToLive);
 
+    spD->uniform1f("u_tTL", _timeToLive);
     spD->uniform1f("u_scale", _scale);
     spD->uniform1f("u_radiusW", _radiusW);
     spD->uniform1f("u_radiusH", _radiusH);
@@ -739,7 +738,11 @@ void SLParticleSystem::draw(SLSceneView* sv, SLNode* node)
 
     if (_doColor && _doBlendingBrigh)
         stateGL->blendFunc(GL_SRC_ALPHA, GL_ONE);
+
+    ///////////////////////
     SLMesh::draw(sv, node);
+    ///////////////////////
+
     if (_doColor && _doBlendingBrigh)
         stateGL->blendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 

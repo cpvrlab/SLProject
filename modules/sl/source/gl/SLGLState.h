@@ -96,7 +96,6 @@ public:
     inline const SLMat4f* invModelViewMatrix() { return &_invModelViewMatrix; }
     inline const SLMat3f* normalMatrix() { return &_normalMatrix; }
     const SLMat4f*        mvpMatrix(); //!< builds and returns proj.mat. x mv mat.
-    const SLMat4f*        vpMatrix(); //!< builds and returns proj.mat. x v mat.
     inline bool           hasMultiSampling() const { return _multiSampleSamples > 0; }
 
     // misc.

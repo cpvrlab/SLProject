@@ -406,7 +406,7 @@ void SLMaterial::generateProgramPS()
         /////////////////////////////
         // Update program
         /////////////////////////////
-        //
+
         // Check first the asset manager if the requested programTF type already exists
         string programNameUpdate;
         SLGLProgramGenerated::buildProgramNamePS(this, programNameUpdate, false);

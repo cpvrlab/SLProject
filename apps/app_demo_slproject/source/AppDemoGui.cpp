@@ -430,8 +430,8 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                         SLParticleSystem *ps = s->singleMeshFullSelected()->mat()->ps();
                         if (s->singleMeshFullSelected()->mat()->reflectionModel() == RM_Particle)
                         {
-                            sprintf(m + strlen(m), "   PS upda     : %5.5f ms\n", ps->updateTime().average());
-                            sprintf(m + strlen(m), "   PS draw     : %5.5f ms\n", ps->drawTime().average());
+                            sprintf(m + strlen(m), "   PS upd. : %5.1f ms\n", ps->updateTime().average());
+                            sprintf(m + strlen(m), "   PS draw : %5.1f ms\n", ps->drawTime().average());
 
                         }
                     }
@@ -443,8 +443,8 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                 else if (rType == RT_rt)
                 {
                     SLRaytracer* rt           = sv->raytracer();
-                    SLint        rtWidth      = (SLint)(sv->viewportW() * rt->resolutionFactor());
-                    SLint        rtHeight     = (SLint)(sv->viewportH() * rt->resolutionFactor());
+                    SLint        rtWidth      = (SLint)((float)sv->viewportW() * rt->resolutionFactor());
+                    SLint        rtHeight     = (SLint)((float)sv->viewportH() * rt->resolutionFactor());
                     SLuint       rayPrimaries = (SLuint)(rtWidth * rtHeight);
                     SLuint       rayTotal     = SLRay::totalNumRays();
                     SLfloat      renderSec    = rt->renderSec();
@@ -468,7 +468,7 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                     sprintf(m + strlen(m), "  AA       :%9d (%3d%%)\n", SLRay::subsampledRays, (int)((float)SLRay::subsampledRays / (float)rayTotal * 100.0f));
                     sprintf(m + strlen(m), "---------------------------\n");
                     sprintf(m + strlen(m), "Max. depth :%u\n", SLRay::maxDepthReached);
-                    sprintf(m + strlen(m), "Avg. depth :%0.3f\n", SLRay::avgDepth / rayPrimaries);
+                    sprintf(m + strlen(m), "Avg. depth :%0.3f\n", SLRay::avgDepth / (float)rayPrimaries);
                 }
 #if defined(SL_BUILD_WITH_OPTIX) && defined(SL_HAS_OPTIX)
                 else if (rType == RT_optix_rt)
@@ -491,8 +491,8 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                 else if (rType == RT_pt)
                 {
                     SLPathtracer* pt           = sv->pathtracer();
-                    SLint         ptWidth      = (SLint)(sv->viewportW() * pt->resolutionFactor());
-                    SLint         ptHeight     = (SLint)(sv->viewportH() * pt->resolutionFactor());
+                    SLint         ptWidth      = (SLint)((float)sv->viewportW() * pt->resolutionFactor());
+                    SLint         ptHeight     = (SLint)((float)sv->viewportH() * pt->resolutionFactor());
                     SLuint        rayPrimaries = (SLuint)(ptWidth * ptHeight);
                     SLuint        rayTotal     = SLRay::totalNumRays();
 
@@ -565,7 +565,7 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                 SLfloat      numRTTria         = (SLfloat)stats3D.numTriangles;
                 SLfloat      avgTriPerVox      = vox > 0.0f ? numRTTria / (vox - voxEmpty) : 0.0f;
                 SLint        numOverdrawnNodes = (int)sv->nodesOverdrawn().size();
-                SLint        numVisibleNodes   = stats3D.numNodesOpaque + stats3D.numNodesBlended + numOverdrawnNodes;
+                SLint        numVisibleNodes   = (int)(stats3D.numNodesOpaque + stats3D.numNodesBlended + numOverdrawnNodes);
                 SLint        numGroupPC        = (SLint)((SLfloat)stats3D.numNodesGroup / (SLfloat)stats3D.numNodes * 100.0f);
                 SLint        numLeafPC         = (SLint)((SLfloat)stats3D.numNodesLeaf / (SLfloat)stats3D.numNodes * 100.0f);
                 SLint        numLightsPC       = (SLint)((SLfloat)stats3D.numLights / (SLfloat)stats3D.numNodes * 100.0f);
@@ -578,7 +578,7 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                 SLfloat cpuMBTexture = 0;
                 for (auto* t : am->textures())
                     for (auto* i : t->images())
-                        cpuMBTexture += i->bytesPerImage();
+                        cpuMBTexture += (float)i->bytesPerImage();
                 cpuMBTexture = cpuMBTexture / 1E6f;
 
                 SLfloat cpuMBMeshes    = (SLfloat)stats3D.numBytes / 1E6f;
@@ -825,7 +825,7 @@ void AppDemoGui::build(SLScene* s, SLSceneView* sv)
                 SLfloat  h    = size.y + SLGLImGui::fontPropDots * 2.0f;
                 SLstring info = "Scene Info: " + s->info();
 
-                ImGui::SetNextWindowPos(ImVec2(0, sv->scrH() - h));
+                ImGui::SetNextWindowPos(ImVec2(0, (float)sv->scrH() - h));
                 ImGui::SetNextWindowSize(ImVec2(w, h));
                 ImGui::Begin("Scene Information", &showInfosScene, window_flags);
                 ImGui::SetCursorPosX((w - size.x) * 0.5f);
@@ -3793,11 +3793,12 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                             ImGui::SameLine();
                             if (ImGui::Button("Reset"))
                                 ps->isGenerated(false);
+
                             // Amount
-                            int am = ps->amount();
-                            if(ImGui::InputInt("Amount of particles", &am))
+                            int amount = ps->amount();
+                            if(ImGui::InputInt("Amount of particles", &amount))
                             {
-                                ps->amount(am);
+                                ps->amount(amount);
                                 ps->isGenerated(false);
                             }
                             // TTL (Time to live)
@@ -3867,7 +3868,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                             }
                                 
                             // Billboard
-                            int item_current = ps->billoardType();
+                            int item_current = ps->billboardType();
                             if (ImGui::Combo("Billboard type", &item_current, "Billboard\0Vertical billboard\0Horizontal billboard\0")) {
                                 ps->billboardType(item_current);
                                 m->program(nullptr);
@@ -3888,7 +3889,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                             if (ImGui::CollapsingHeader("Velocity"))
                             {
                                 ImGui::Indent();
-                                int item_current = ps->velocityType();
+                                item_current = ps->velocityType();
                                 if (ImGui::Combo("Velocity type", &item_current, "Random axes\0Constant axes\0"))
                                 {
                                     ps->velocityType(item_current);
@@ -3926,8 +3927,8 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                             }
                             if (ps->doDirectionSpeed())
                                 ImGui::EndDisabled();
-                            // Direction and speed
-                            // Add maybe later mix with velocity
+
+                            // Direction and speed: Add maybe later mix with velocity
                             SLbool directionSpeed_group = ps->doDirectionSpeed();
                             if (ImGui::Checkbox("Direction and Speed", &directionSpeed_group))
                             {
@@ -3946,7 +3947,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                     singleNode->needAABBUpdate();
                                 }
                                 // Speed
-                                int item_current = ps->doSpeedRange() ? 1 : 0;
+                                item_current = ps->doSpeedRange() ? 1 : 0;
                                 if (ImGui::Combo("Speed value", &item_current, "Constant\0Random between two constants\0"))
                                 {
                                     if (item_current == 1)
@@ -3980,7 +3981,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                 ImGui::Unindent();
                             }
                             
-                            //Color checkbox
+                            // Color checkbox
                             SLbool color_group = ps->doColor();
                             if (ImGui::Checkbox("Color", &color_group))
                             {
@@ -4036,6 +4037,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                 }
                                 ImGui::Unindent();
                             }
+
                             // Tree (Fractal)
                             SLbool doTree_group = ps->doTree();
                             if (ImGui::Checkbox("Tree (Fractal) NOT DONE", &doTree_group))
@@ -4053,9 +4055,10 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                 int numBranch = ps->numBranch();
                                 if (ImGui::InputInt("Number of branches", &numBranch))
                                 {
-                                    ps->numBranch(angle);
+                                    ps->numBranch((int)angle);
                                 }
                             }
+
                             // Rotation
                             SLbool rot_group = ps->doRot();
                             if (ImGui::Checkbox("Rotation", &rot_group))
@@ -4065,11 +4068,10 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                 m->programTF(nullptr);
                                 ps->isGenerated(false);
                             }
-                            
                             if (ImGui::CollapsingHeader("Rotation", &rot_group))
                             {
                                 ImGui::Indent();
-                                int item_current = ps->doRotRange() ? 1 : 0;
+                                item_current = ps->doRotRange() ? 1 : 0;
                                 if (ImGui::Combo("Angular velocity value", &item_current, "Constant\0Random between two constants\0"))
                                 {
                                     if (item_current==1)
@@ -4099,6 +4101,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                 }
                                 ImGui::Unindent();
                             }
+
                             // Shape
                             SLbool shape_group = ps->doShape();
                             if (ImGui::Checkbox("Shape", &shape_group))
@@ -4111,7 +4114,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                             if (ImGui::CollapsingHeader("Shape", &shape_group))
                             {
                                 ImGui::Indent();
-                                int item_current = ps->shapeType();
+                                item_current = ps->shapeType();
                                 if (ImGui::Combo("Shape type", &item_current, "Sphere\0Box\0Cone\0Pyramid\0"))
                                 {
                                     ps->shapeType(item_current);
@@ -4233,6 +4236,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                     ImGui::EndDisabled();
                                 ImGui::Unindent();
                             }
+
                             // Acceleration
                             SLbool acc_group = ps->doAcc();
                             if (ImGui::Checkbox("Acceleration", &acc_group)) {
@@ -4271,6 +4275,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                 }
                                 ImGui::Unindent();
                             }
+
                             // Alpha over lifetime
                             SLbool doAlphaOverL_group = ps->doAlphaOverL();
                             if (ImGui::Checkbox("Alpha over lifetime", &doAlphaOverL_group)) {
@@ -4297,6 +4302,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                 }
                                 ImGui::Unindent();
                             }
+
                             // Size over lifetime
                             SLbool doSizeOverLF_group = ps->doSizeOverLF();
                             if (ImGui::Checkbox("Size over lifetime", &doSizeOverLF_group)) {
@@ -4324,6 +4330,7 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                                 }
                                 ImGui::Unindent();
                             }
+
                             // Flipbook texture
                             if (ps->textureFlipbook() == nullptr)
                                 ImGui::BeginDisabled();
@@ -4348,7 +4355,8 @@ void AppDemoGui::buildProperties(SLScene* s, SLSceneView* sv)
                             }
                             if (ps->textureFlipbook() == nullptr)
                                 ImGui::EndDisabled();
-                            // Size random // no done yet
+
+                            // Size random (not done yet)
                             SLbool doSizeRandom_group = ps->doSizeRandom();
                             if (ImGui::Checkbox("Size random (NOT DONE)", &doSizeRandom_group))
                                 ps->doSizeRandom(doSizeRandom_group);
@@ -4619,8 +4627,8 @@ void AppDemoGui::loadConfig(SLint dotsPerInch)
         SL_LOG("No config file %s: ", fullPathAndFilename.c_str());
 
         // Scale for proportional and fixed size fonts
-        SLfloat dpiScaleProp  = dotsPerInch / 120.0f;
-        SLfloat dpiScaleFixed = dotsPerInch / 142.0f;
+        SLfloat dpiScaleProp  = (float)dotsPerInch / 120.0f;
+        SLfloat dpiScaleFixed = (float)dotsPerInch / 142.0f;
 
         // Default settings for the first time
         SLGLImGui::fontPropDots  = std::max(16.0f * dpiScaleProp, 16.0f);
@@ -4717,8 +4725,8 @@ void AppDemoGui::loadConfig(SLint dotsPerInch)
             SLGLImGui::fontFixedDots < 13.1)
         {
             // Scale for proportional and fixed size fonts
-            SLfloat dpiScaleProp  = dotsPerInch / 120.0f;
-            SLfloat dpiScaleFixed = dotsPerInch / 142.0f;
+            SLfloat dpiScaleProp  = (float)dotsPerInch / 120.0f;
+            SLfloat dpiScaleFixed = (float)dotsPerInch / 142.0f;
 
             // Default settings for the first time
             SLGLImGui::fontPropDots  = std::max(16.0f * dpiScaleProp, 16.0f);
